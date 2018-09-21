@@ -1418,15 +1418,15 @@ static void highbd_filter_selectively_horiz(
         HbdLpfFunc highbd_lpf_horizontal =
             plane ? aom_highbd_lpf_horizontal_6 : aom_highbd_lpf_horizontal_14;
 
-        if ((mask_16x16 & two_block_mask) == two_block_mask) {
+        if ((mask_16x16 & two_block_mask) == two_block_mask && 0) {
           if (plane) {
-            aom_highbd_lpf_horizontal_6_dual_c(s, pitch, lfi->mblim, lfi->lim,
-                                               lfi->hev_thr, lfin->mblim,
-                                               lfin->lim, lfin->hev_thr, bd);
+            aom_highbd_lpf_horizontal_6_dual(s, pitch, lfi->mblim, lfi->lim,
+                                             lfi->hev_thr, lfin->mblim,
+                                             lfin->lim, lfin->hev_thr, bd);
           } else {
-            aom_highbd_lpf_horizontal_14_dual_c(s, pitch, lfi->mblim, lfi->lim,
-                                                lfi->hev_thr, lfin->mblim,
-                                                lfin->lim, lfin->hev_thr, bd);
+            aom_highbd_lpf_horizontal_14_dual(s, pitch, lfi->mblim, lfi->lim,
+                                              lfi->hev_thr, lfin->mblim,
+                                              lfin->lim, lfin->hev_thr, bd);
           }
           count = 2;
         } else {
@@ -1437,15 +1437,15 @@ static void highbd_filter_selectively_horiz(
         HbdLpfFunc highbd_lpf_horizontal =
             plane ? aom_highbd_lpf_horizontal_6 : aom_highbd_lpf_horizontal_8;
 
-        if ((mask_8x8 & two_block_mask) == two_block_mask) {
+        if ((mask_8x8 & two_block_mask) == two_block_mask && 0) {
           if (plane) {
-            aom_highbd_lpf_horizontal_6_dual_c(s, pitch, lfi->mblim, lfi->lim,
-                                               lfi->hev_thr, lfin->mblim,
-                                               lfin->lim, lfin->hev_thr, bd);
+            aom_highbd_lpf_horizontal_6_dual(s, pitch, lfi->mblim, lfi->lim,
+                                             lfi->hev_thr, lfin->mblim,
+                                             lfin->lim, lfin->hev_thr, bd);
           } else {
-            aom_highbd_lpf_horizontal_8_dual_c(s, pitch, lfi->mblim, lfi->lim,
-                                               lfi->hev_thr, lfin->mblim,
-                                               lfin->lim, lfin->hev_thr, bd);
+            aom_highbd_lpf_horizontal_8_dual(s, pitch, lfi->mblim, lfi->lim,
+                                             lfi->hev_thr, lfin->mblim,
+                                             lfin->lim, lfin->hev_thr, bd);
           }
           count = 2;
         } else {
@@ -1453,10 +1453,10 @@ static void highbd_filter_selectively_horiz(
                                 bd);
         }
       } else if (mask_4x4 & 1) {
-        if ((mask_4x4 & two_block_mask) == two_block_mask) {
-          aom_highbd_lpf_horizontal_4_dual_c(s, pitch, lfi->mblim, lfi->lim,
-                                             lfi->hev_thr, lfin->mblim,
-                                             lfin->lim, lfin->hev_thr, bd);
+        if ((mask_4x4 & two_block_mask) == two_block_mask && 0) {
+          aom_highbd_lpf_horizontal_4_dual(s, pitch, lfi->mblim, lfi->lim,
+                                           lfi->hev_thr, lfin->mblim, lfin->lim,
+                                           lfin->hev_thr, bd);
           count = 2;
         } else {
           aom_highbd_lpf_horizontal_4(s, pitch, lfi->mblim, lfi->lim,
