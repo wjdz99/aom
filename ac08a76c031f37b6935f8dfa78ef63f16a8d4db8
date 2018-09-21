@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "17dbd977_39d7bf02",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3382,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-21T19:11:39Z",
+      "side": 1,
+      "message": "Here, we set *end_of_frame to 1 if:\n* frame_row_mt_info-\u003emi_rows_decode_started \u003d\u003d frame_row_mt_info-\u003emi_rows_to_decode, or\n* frame_row_mt_info-\u003erow_mt_exit \u003d\u003d 1.\n\nWhenever we change the state variables so that *end_of_frame will become 1, we need\nto call pthread_cond_broadcast(pbi-\u003erow_mt_cond_) to wake up all the waiting threads,\nso that they will call get_next_job_info() again and see *end_of_frame has become 1.\n\nThis is why we call pthread_cond_broadcast(pbi-\u003erow_mt_cond_) when we set\nframe_row_mt_info-\u003erow_mt_exit to 1 (after an error occurred).\n\nSimilarly, after we increment frame_row_mt_info-\u003emi_rows_decode_started,\nif frame_row_mt_info-\u003emi_rows_decode_started becomes equal to\nframe_row_mt_info-\u003emi_rows_to_decode, we also need to call\npthread_cond_broadcast(pbi-\u003erow_mt_cond_), at line 3447 below.",
+      "range": {
+        "startLine": 3380,
+        "startChar": 0,
+        "endLine": 3382,
+        "endChar": 56
+      },
+      "revId": "ac08a76c031f37b6935f8dfa78ef63f16a8d4db8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "56152c24_6d8ffb79",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 3
@@ -48,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "d92858a9_2f8bd9b5",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3450,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-21T19:11:39Z",
+      "side": 1,
+      "message": "Please see my annotation at line 3380 above.",
+      "parentUuid": "269904be_006f1fab",
+      "range": {
+        "startLine": 3447,
+        "startChar": 0,
+        "endLine": 3450,
+        "endChar": 3
+      },
+      "revId": "ac08a76c031f37b6935f8dfa78ef63f16a8d4db8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7beb41f6_f96609eb",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 3
@@ -68,6 +115,30 @@
       "revId": "ac08a76c031f37b6935f8dfa78ef63f16a8d4db8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da259360_92f03e94",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3472,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-21T19:11:39Z",
+      "side": 1,
+      "message": "Although there can be \u003e1 threads waiting, each time we call signal_parse_sb_row_done(), only one chunk of new decode work is added, therefore we only need to wake up one thread.",
+      "parentUuid": "7beb41f6_f96609eb",
+      "range": {
+        "startLine": 3472,
+        "startChar": 2,
+        "endLine": 3472,
+        "endChar": 21
+      },
+      "revId": "ac08a76c031f37b6935f8dfa78ef63f16a8d4db8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
