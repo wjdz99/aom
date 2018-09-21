@@ -204,8 +204,13 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->intra_tx_size_search_init_depth_sqr = 1;
     sf->tx_size_search_lgr_block = 1;
     if (speed >= CONFIG_2PASS_PARTITION_SEARCH_LVL) {
+#if CONFIG_ONE_PASS_SVM
+      sf->two_pass_partition_search = 0;
+      sf->mode_pruning_based_on_two_pass_partition_search = 0;
+#else
       sf->two_pass_partition_search = 1;
       sf->mode_pruning_based_on_two_pass_partition_search = 1;
+#endif
     }
     sf->prune_ext_partition_types_search_level = 2;
     sf->use_fast_interpolation_filter_search = 1;

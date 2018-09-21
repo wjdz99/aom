@@ -60,6 +60,10 @@
 #include "av1/encoder/segmentation.h"
 #include "av1/encoder/tokenize.h"
 
+#if CONFIG_TRAIN_SVM
+#include <unistd.h>
+#endif
+
 static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                               ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
                               int mi_row, int mi_col, BLOCK_SIZE bsize,
@@ -627,6 +631,21 @@ static void rd_pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
                                 bsize, ctx, best_rd);
     }
   }
+#if CONFIG_ONE_PASS_SVM
+  if (bsize >= BLOCK_8X8 && ctx->partition == PARTITION_NONE){
+    ctx->y_eob = rd_cost->eob;
+    ctx->y_eob_0 = rd_cost->eob_0;
+    ctx->y_eob_1 = rd_cost->eob_1;
+    ctx->y_eob_2 = rd_cost->eob_2;
+    ctx->y_eob_3 = rd_cost->eob_3;
+
+    ctx->y_rd = rd_cost->rd;
+    ctx->y_rd_0 = rd_cost->rd_0;
+    ctx->y_rd_1 = rd_cost->rd_1;
+    ctx->y_rd_2 = rd_cost->rd_2;
+    ctx->y_rd_3 = rd_cost->rd_3;
+  }
+#endif
 
   // Examine the resulting rate and for AQ mode 2 make a segment choice.
   if ((rd_cost->rate != INT_MAX) && (aq_mode == COMPLEXITY_AQ) &&
@@ -3457,6 +3476,11 @@ BEGIN_PARTITION_SEARCH:
 #endif
 
   // PARTITION_NONE
+#if CONFIG_TRAIN_SVM
+  if (has_rows && has_cols){
+    partition_none_allowed = 1;
+  }
+#endif
   if (partition_none_allowed) {
     int pt_cost = 0;
     if (bsize_at_least_8x8) {
@@ -3468,8 +3492,13 @@ BEGIN_PARTITION_SEARCH:
     int64_t best_remain_rdcost = (best_rdc.rdcost == INT64_MAX)
                                      ? INT64_MAX
                                      : (best_rdc.rdcost - partition_rd_cost);
+#if CONFIG_TRAIN_SVM
+    rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc,
+                     PARTITION_NONE, bsize, ctx_none, INT64_MAX);
+#else
     rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc,
                      PARTITION_NONE, bsize, ctx_none, best_remain_rdcost);
+#endif
     pb_source_variance = x->source_variance;
     if (none_rd) *none_rd = this_rdc.rdcost;
     cur_none_rd = this_rdc.rdcost;
@@ -3483,6 +3512,52 @@ BEGIN_PARTITION_SEARCH:
       if (bsize_at_least_8x8) {
         this_rdc.rate += pt_cost;
         this_rdc.rdcost = RDCOST(x->rdmult, this_rdc.rate, this_rdc.dist);
+
+#if CONFIG_TRAIN_SVM
+        // Get none stats
+        pc_tree->none_rate = this_rdc.rate;
+        pc_tree->none_dist = this_rdc.dist;
+        pc_tree->none_rd = this_rdc.rdcost;
+
+        // Get size of surrounding blocks
+        ctx_none->above_size = 18;
+        ctx_none->left_size = 18;
+        ctx_none->last_size = 18;
+        int block_offset = mi_row * cm->mi_stride + mi_col;
+        const MB_MODE_INFO *above_block = xd->above_mbmi;
+        const MB_MODE_INFO *left_block = xd->left_mbmi;
+        const MB_MODE_INFO *prev_block = cm->prev_mi_grid_visible[block_offset];
+
+        if (above_block) {
+          ctx_none->above_size = above_block->sb_type;
+        }
+        if (left_block) {
+          ctx_none->left_size = left_block->sb_type;
+        }
+        if (prev_block) {
+          ctx_none->last_size = prev_block->sb_type;
+        }
+
+        // Get variance
+        const int bw = block_size_wide[bsize];
+        const int bh = block_size_high[bsize];
+        const BLOCK_SIZE split_size = get_partition_subsize(bsize, PARTITION_SPLIT);
+        struct buf_2d buf;
+        buf.stride = x->plane[0].src.stride;
+        for (int i = 0; i < 4; ++i) {
+          const int x_idx = (i & 1) * bw / 2;
+          const int y_idx = (i >> 1) * bh / 2;
+          buf.buf = x->plane[0].src.buf + x_idx + y_idx * buf.stride;
+          if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+            ctx_none->var_reg[i] =
+                av1_high_get_sby_perpixel_variance(cpi, &buf, split_size, xd->bd);
+          } else {
+            ctx_none->var_reg[i] =
+              av1_get_sby_perpixel_variance(cpi, &buf, split_size);
+          }
+        }
+        ctx_none->var = pb_source_variance;
+#endif
       }
 
       if (this_rdc.rdcost < best_rdc.rdcost) {
@@ -4208,6 +4283,92 @@ BEGIN_PARTITION_SEARCH:
                 pc_tree, NULL);
     }
   }
+
+#if CONFIG_TRAIN_SVM
+  // Make sure that we actually set best_rate and best_dist
+  int set_best = (best_rdc.rate != INT_MAX) && (best_rdc.dist != INT64_MAX) &&
+                 (best_rdc.rdcost != INT64_MAX) && pc_tree->none_rate >= 0 &&
+                 pc_tree->none_rate < INT_MAX && partition_none_allowed;
+  // If we reach here, we should have found the optimal partition.
+  if (set_best && cm->show_frame && mi_row + mi_step < cm->mi_rows &&
+      mi_col + mi_step < cm->mi_cols && bsize >= BLOCK_8X8 &&
+      !frame_is_intra_only(cm)) {
+    // Quick sane check
+    if (best_rdc.rdcost > pc_tree->none_rd) {
+      printf("%ld, %ld\n", best_rdc.rdcost, ctx_none->rdcost);
+      printf("Unexpected rd loss!\n");
+      assert(0);
+    }
+
+    // Print out the features
+    char file_name[128] = "data.csv";
+    FILE *f;
+
+    // If the file does not exist, write a header
+    if (access(file_name, F_OK) != 0) {
+      if ((f = fopen(file_name, "a"))) {
+        fprintf(
+            f,
+            "frame_num,intra_only,block_size,"
+            "best_partition,best_rate,best_dist,best_rd,"
+            "none_rate,none_dist,none_rd,none_skip,"
+            "y_eob,y_eob_0,y_eob_1,y_eob_2,y_eob_3,"
+            "y_rd,y_rd_0,y_rd_1,y_rd_2,y_rd_3,"
+            "var,var_reg_0,var_reg_1,var_reg_2,var_reg_3,"
+            "q_index,above_size,left_size,last_size,"
+            "\n");
+      } else {
+        printf("Cannot open file %s to write.\n", file_name);
+        exit(1);
+      }
+    } else {
+      if ((f = fopen(file_name, "a"))) {
+        fprintf(f, "%d,%d,%d,",
+                cm->current_video_frame,
+                frame_is_intra_only(cm),
+                mi_size_wide[bsize] * MI_SIZE);
+        fprintf(f, "%d,%d,%ld,%ld,",
+                pc_tree->partitioning,
+                best_rdc.rate,
+                best_rdc.dist,
+                best_rdc.rdcost);
+        fprintf(f, "%d,%ld,%ld,%d,",
+                pc_tree->none_rate,
+                pc_tree->none_dist,
+                pc_tree->none_rd,
+                ctx_none->skip);
+        fprintf(f, "%d,%d,%d,%d,%d,",
+               ctx_none->y_eob,
+               ctx_none->y_eob_0,
+               ctx_none->y_eob_1,
+               ctx_none->y_eob_2,
+               ctx_none->y_eob_3);
+        fprintf(f, "%ld,%ld,%ld,%ld,%ld,",
+               ctx_none->y_rd,
+               ctx_none->y_rd_0,
+               ctx_none->y_rd_1,
+               ctx_none->y_rd_2,
+               ctx_none->y_rd_3);
+        fprintf(f, "%d,%d,%d,%d,%d,",
+               ctx_none->var,
+               ctx_none->var_reg[0],
+               ctx_none->var_reg[1],
+               ctx_none->var_reg[2],
+               ctx_none->var_reg[3]);
+        fprintf(f, "%d,%d,%d,%d,",
+                x->plane[0].dequant_QTX[0],
+                ctx_none->left_size,
+                ctx_none->above_size,
+                ctx_none->last_size);
+        fprintf(f, "\n");
+      } else {
+        printf("Cannot open file %s to append.\n", file_name);
+        exit(1);
+      }
+    }
+    fclose(f);
+  }
+#endif
 
   if (bsize == cm->seq_params.sb_size) {
     assert(best_rdc.rate < INT_MAX);
