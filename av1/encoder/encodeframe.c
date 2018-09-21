@@ -12,6 +12,7 @@
 #include <limits.h>
 #include <math.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "config/aom_config.h"
 #include "config/aom_dsp_rtcd.h"
@@ -628,11 +629,32 @@ static void rd_pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
     if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
       av1_rd_pick_inter_mode_sb_seg_skip(cpi, tile_data, x, mi_row, mi_col,
                                          rd_cost, bsize, ctx, best_rd);
+#if CONFIG_ONE_PASS_SVM
+      ctx->seg_feat = 1;
+#endif
     } else {
       av1_rd_pick_inter_mode_sb(cpi, tile_data, x, mi_row, mi_col, rd_cost,
                                 bsize, ctx, best_rd);
+#if CONFIG_ONE_PASS_SVM
+      ctx->seg_feat = 0;
+#endif
     }
   }
+#if CONFIG_ONE_PASS_SVM
+  if (bsize >= BLOCK_8X8 && ctx->partition == PARTITION_NONE) {
+    ctx->y_eob = rd_cost->eob;
+    ctx->y_eob_0 = rd_cost->eob_0;
+    ctx->y_eob_1 = rd_cost->eob_1;
+    ctx->y_eob_2 = rd_cost->eob_2;
+    ctx->y_eob_3 = rd_cost->eob_3;
+
+    ctx->y_rd = rd_cost->rd;
+    ctx->y_rd_0 = rd_cost->rd_0;
+    ctx->y_rd_1 = rd_cost->rd_1;
+    ctx->y_rd_2 = rd_cost->rd_2;
+    ctx->y_rd_3 = rd_cost->rd_3;
+  }
+#endif
 
   // Examine the resulting rate and for AQ mode 2 make a segment choice.
   if ((rd_cost->rate != INT_MAX) && (aq_mode == COMPLEXITY_AQ) &&
@@ -3535,6 +3557,148 @@ BEGIN_PARTITION_SEARCH:
 
         best_rdc = this_rdc;
         if (bsize_at_least_8x8) pc_tree->partitioning = PARTITION_NONE;
+
+#if CONFIG_ONE_PASS_SVM
+        // Use ML if the block size if square and >= 8X8
+        if (bsize >= BLOCK_16X16 && !frame_is_intra_only(cm) &&
+            this_rdc.rate < INT_MAX && this_rdc.rate >= 0 && !ctx_none->seg_feat){
+
+          const float *ml_weights = NULL, *ml_mean = NULL, *ml_std = NULL;
+          if (bsize == BLOCK_128X128){
+            ml_weights = av1_op_svm_early_term_weights_128;
+            ml_mean = av1_op_svm_early_term_mean_128;
+            ml_std = av1_op_svm_early_term_std_128;
+          }
+          else if (bsize == BLOCK_64X64){
+            ml_weights = av1_op_svm_early_term_weights_64;
+            ml_mean = av1_op_svm_early_term_mean_64;
+            ml_std = av1_op_svm_early_term_std_64;
+          }
+          else if (bsize == BLOCK_32X32){
+            ml_weights = av1_op_svm_early_term_weights_32;
+            ml_mean = av1_op_svm_early_term_mean_32;
+            ml_std = av1_op_svm_early_term_std_32;
+          }
+          else if (bsize == BLOCK_16X16){
+            ml_weights = av1_op_svm_early_term_weights_16;
+            ml_mean = av1_op_svm_early_term_mean_16;
+            ml_std = av1_op_svm_early_term_std_16;
+          }
+          if (ml_weights != NULL){
+            // Compute some features
+            // Get none stats
+            pc_tree->none_rate = this_rdc.rate;
+            pc_tree->none_dist = this_rdc.dist;
+            pc_tree->none_rd = this_rdc.rdcost;
+
+            // Get size of surrounding blocks
+            ctx_none->above_size = 18;
+            ctx_none->left_size = 18;
+            ctx_none->last_size = 18;
+            int block_offset = mi_row * cm->mi_stride + mi_col;
+            const MB_MODE_INFO *above_block = xd->above_mbmi;
+            const MB_MODE_INFO *left_block = xd->left_mbmi;
+            const MB_MODE_INFO *prev_block = cm->prev_mi_grid_visible[block_offset];
+
+            if (above_block) {
+              ctx_none->above_size = above_block->sb_type;
+            }
+            if (left_block) {
+              ctx_none->left_size = left_block->sb_type;
+            }
+            if (prev_block) {
+              ctx_none->last_size = prev_block->sb_type;
+            }
+
+            // Get variance
+            const int bw = block_size_wide[bsize];
+            const int bh = block_size_high[bsize];
+            const BLOCK_SIZE split_size =
+                get_partition_subsize(bsize, PARTITION_SPLIT);
+            struct buf_2d buf;
+            buf.stride = x->plane[0].src.stride;
+            for (int i = 0; i < 4; ++i) {
+              const int x_idx = (i & 1) * bw / 2;
+              const int y_idx = (i >> 1) * bh / 2;
+              buf.buf = x->plane[0].src.buf + x_idx + y_idx * buf.stride;
+              if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+                ctx_none->var_reg[i] = av1_high_get_sby_perpixel_variance(
+                    cpi, &buf, split_size, xd->bd);
+              } else {
+                ctx_none->var_reg[i] =
+                    av1_get_sby_perpixel_variance(cpi, &buf, split_size);
+              }
+            }
+            ctx_none->var = pb_source_variance;
+
+            // TODO(chiyotsai@google.com): Get features from pc_tree->pc_tree_stats
+            float features[NUM_EARLY_TERM_FEATURES] = {0};
+            int f_idx = 0;
+            int r_idx = 0;
+
+            // None features
+            features[f_idx++] = pc_tree->none_rate;
+            features[f_idx++] = pc_tree->none_dist;
+            features[f_idx++] = pc_tree->none_rd;
+            features[f_idx++] = ctx_none->skip;
+
+            // EOBS
+            features[f_idx++] = ctx_none->y_eob;
+            int scaled_eob = ctx_none->y_eob * 32 * 32;
+            features[f_idx++] = (1.0f + ctx_none->y_eob_0) / (4.0f + scaled_eob);
+            features[f_idx++] = (1.0f + ctx_none->y_eob_1) / (4.0f + scaled_eob);
+            features[f_idx++] = (1.0f + ctx_none->y_eob_2) / (4.0f + scaled_eob);
+            features[f_idx++] = (1.0f + ctx_none->y_eob_3) / (4.0f + scaled_eob);
+
+            // Y_RD
+            features[f_idx++] = ctx_none->y_rd;
+            int64_t scaled_rd = ctx_none->y_rd * 32 * 32;
+            features[f_idx++] = (1.0f + ctx_none->y_rd_0) / (4.0f + scaled_rd);
+            features[f_idx++] = (1.0f + ctx_none->y_rd_1) / (4.0f + scaled_rd);
+            features[f_idx++] = (1.0f + ctx_none->y_rd_2) / (4.0f + scaled_rd);
+            features[f_idx++] = (1.0f + ctx_none->y_rd_3) / (4.0f + scaled_rd);
+
+            // Q_SQUARED
+            features[f_idx++] = (x->plane[0].dequant_QTX[0]) * (x->plane[0].dequant_QTX[0]);
+
+            // SIZE
+            features[f_idx++] = ctx_none->left_size;
+            features[f_idx++] = ctx_none->left_size != 18;
+
+            features[f_idx++] = ctx_none->above_size;
+            features[f_idx++] = ctx_none->above_size != 18;
+
+            // Variance
+            features[f_idx++] = ctx_none->var;
+            for (r_idx = 0; r_idx < 4; r_idx++){
+              features[f_idx] = (ctx_none->var_reg[r_idx] + 1.0f) / (ctx_none->var + 4.0f);
+              f_idx++;
+            }
+
+            assert(f_idx == NUM_EARLY_TERM_FEATURES);
+            if (f_idx != NUM_EARLY_TERM_FEATURES){
+              printf("Wrong number of features");
+              exit(1);
+            }
+
+            // Calculate the score
+            float score = 0;
+            for (f_idx = 0; f_idx < NUM_EARLY_TERM_FEATURES; f_idx++){
+              score += ml_weights[f_idx] * (features[f_idx] - ml_mean[f_idx])/ml_std[f_idx];
+            }
+            // Dont forget the bias
+            score += ml_weights[NUM_EARLY_TERM_FEATURES];
+
+            // Decide if we want to terminate early
+            if (score >= 0){
+              do_square_split = 0;
+              do_rectangular_split = 0;
+              partition_horz_allowed = 0;
+              partition_vert_allowed = 0;
+            }
+          }
+        }
+#endif
 
         if ((do_square_split || do_rectangular_split) &&
             !x->e_mbd.lossless[xd->mi[0]->segment_id] && ctx_none->skippable) {
