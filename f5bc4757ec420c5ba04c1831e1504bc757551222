@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6af4dda4_b8a0bea4",
+        "filename": "av1/encoder/x86/av1_fwd_txfm1d_sse4.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-09-21T17:25:49Z",
+      "side": 1,
+      "message": "Maybe use addition/subtraction here instead of using multiplication? For example, a \u003d 31*stride, then, 30*stride \u003d a - stride.",
+      "range": {
+        "startLine": 21,
+        "startChar": 51,
+        "endLine": 21,
+        "endChar": 62
+      },
+      "revId": "f5bc4757ec420c5ba04c1831e1504bc757551222",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "216c641b_4147ba89",
+        "filename": "av1/encoder/x86/av1_fwd_txfm1d_sse4.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-09-21T17:25:49Z",
+      "side": 1,
+      "message": "same as above.",
+      "range": {
+        "startLine": 300,
+        "startChar": 0,
+        "endLine": 331,
+        "endChar": 33
+      },
+      "revId": "f5bc4757ec420c5ba04c1831e1504bc757551222",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
