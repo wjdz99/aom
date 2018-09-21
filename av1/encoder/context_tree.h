@@ -67,6 +67,17 @@ typedef struct {
   int rd_mode_is_ready;  // Flag to indicate whether rd pick mode decision has
                          // been made.
 
+#if CONFIG_ONE_PASS_SVM
+  // Features for one pass svm for early term
+  int left_size, above_size, last_size;
+
+  int var;
+  int var_reg[4];
+
+  int y_eob, y_eob_0, y_eob_1, y_eob_2, y_eob_3;
+  int64_t y_rd, y_rd_0, y_rd_1, y_rd_2, y_rd_3;
+#endif
+
   // motion vector cache for adaptive motion search control in partition
   // search loop
   MV pred_mv[REF_FRAMES];
@@ -100,6 +111,11 @@ typedef struct PC_TREE {
   CB_TREE_SEARCH cb_search_range;
   struct PC_TREE *split[4];
   PC_TREE_STATS pc_tree_stats;
+
+#if CONFIG_ONE_PASS_SVM
+  int none_rate;
+  int64_t none_dist, none_rd;
+#endif
 } PC_TREE;
 
 void av1_setup_pc_tree(struct AV1Common *cm, struct ThreadData *td);
