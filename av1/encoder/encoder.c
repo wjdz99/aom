@@ -5271,6 +5271,9 @@ static int Pass0Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
       AOM_CODEC_OK) {
     return AOM_CODEC_ERROR;
   }
+  *frame_flags |= (frame_is_intra_only(cpi->common) ? FRAMEFLAGS_INTRAONLY : 0);
+  *frame_flags |= (frame_is_sframe(cpi->common) ? FRAMEFLAGS_S : 0);
+
   update_rc_counts(cpi);
   check_show_existing_frame(cpi);
   return AOM_CODEC_OK;
@@ -5291,6 +5294,8 @@ static int Pass2Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
       AOM_CODEC_OK) {
     return AOM_CODEC_ERROR;
   }
+  *frame_flags |= (frame_is_intra_only(cpi->common) ? FRAMEFLAGS_INTRAONLY : 0);
+  *frame_flags |= (frame_is_sframe(cpi->common) ? FRAMEFLAGS_S : 0);
 
 #if TXCOEFF_COST_TIMER
   cm->cum_txcoeff_cost_timer += cm->txcoeff_cost_timer;

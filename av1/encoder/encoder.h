@@ -94,6 +94,8 @@ typedef enum {
   FRAMEFLAGS_BWDREF = 1 << 2,
   // TODO(zoeliu): To determine whether a frame flag is needed for ALTREF2_FRAME
   FRAMEFLAGS_ALTREF = 1 << 3,
+  FRAMEFLAGS_INTRAONLY = 1 << 4,
+  FRAMEFLAGS_S = 1 << 5,
 } FRAMETYPE_FLAGS;
 
 typedef enum {

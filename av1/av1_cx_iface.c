@@ -1214,7 +1214,8 @@ static aom_codec_frame_flags_t get_frame_pkt_flags(const AV1_COMP *cpi,
   aom_codec_frame_flags_t flags = lib_flags << 16;
 
   if (lib_flags & FRAMEFLAGS_KEY) flags |= AOM_FRAME_IS_KEY;
-
+  if (lib_flags & FRAMEFLAGS_INTRAONLY) flags |= AOM_FRAME_IS_INTRAONLY;
+  if (lib_flags & FRAMEFLAGS_S) flags |= AOM_FRAME_IS_S;
   if (cpi->droppable) flags |= AOM_FRAME_IS_DROPPABLE;
 
   return flags;
