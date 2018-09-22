@@ -40,11 +40,19 @@ static void execute(AVxWorker *const worker);  // Forward declaration.
 
 static THREADFN thread_loop(void *ptr) {
   AVxWorker *const worker = (AVxWorker *)ptr;
-#if defined(__GLIBC__) || defined(__BIONIC__)
+#ifdef __APPLE__
   if (worker->thread_name != NULL) {
-    // Android and recent versions of glibc on Linux have a form of
-    // pthread_setname_np().
-    // Linux requires names (with nul) fit in 16 chars, otherwise
+    // Apple's version of pthread_setname_np takes one argument and operates on
+    // the current thread only. The maximum size of the thread_name buffer was
+    // noted in the Chromium source code and was confirmed by experiments.
+    char thread_name[64];
+    strncpy(thread_name, worker->thread_name, sizeof(thread_name));
+    thread_name[sizeof(thread_name) - 1] = '\0';
+    pthread_setname_np(thread_name);
+  }
+#elif defined(__GLIBC__) || defined(__BIONIC__)
+  if (worker->thread_name != NULL) {
+    // Linux and Android require names (with nul) fit in 16 chars, otherwise
     // pthread_setname_np() fails with ERANGE (34).
     char thread_name[16];
     strncpy(thread_name, worker->thread_name, sizeof(thread_name));
