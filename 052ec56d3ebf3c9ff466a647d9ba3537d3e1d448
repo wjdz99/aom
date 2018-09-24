@@ -87,6 +87,30 @@
       "revId": "052ec56d3ebf3c9ff466a647d9ba3537d3e1d448",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "839febc3_ce766131",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-09-24T19:10:18Z",
+      "side": 1,
+      "message": "\u003e I see, yes, that\u0027s what I was concerned about as well.\n\u003e Pls ignore the comment in that case.\n\nIt\u0027s something that could be done (similar to the control related enum + defines), but these would need to retain their current name. I think that\u0027s probably outside the scope of this change.",
+      "parentUuid": "b15eb150_c67a42cc",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 109,
+        "endChar": 41
+      },
+      "revId": "052ec56d3ebf3c9ff466a647d9ba3537d3e1d448",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
