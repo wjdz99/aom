@@ -251,13 +251,11 @@ foreach(aom_lib ${AOM_LIB_TARGETS})
   endif()
 endforeach()
 
-# Generate C/C++ stub files containing the function usage_exit(). Users of the
+# Generate stub file containing the function usage_exit(). Users of the
 # aom_common_app_util library must define this function. This is a convenience
 # to allow omission of the function from applications that might want to use
 # other pieces of the util support without defining usage_exit().
 file(WRITE "${AOM_GEN_SRC_DIR}/usage_exit.c" "void usage_exit(void) {}")
-file(WRITE "${AOM_GEN_SRC_DIR}/usage_exit.cc"
-           "extern \"C\" void usage_exit(void) {}")
 
 #
 # Application and application support targets.
@@ -403,7 +401,7 @@ endif()
 if(ENABLE_TOOLS)
   if(CONFIG_AV1_DECODER)
     require_cxx_flag_nomsvc("-std=c++11" NO)
-    add_executable(dump_obu "${AOM_GEN_SRC_DIR}/usage_exit.cc"
+    add_executable(dump_obu "${AOM_GEN_SRC_DIR}/usage_exit.c"
                    "${AOM_ROOT}/tools/dump_obu.cc"
                    "${AOM_ROOT}/tools/obu_parser.cc"
                    "${AOM_ROOT}/tools/obu_parser.h"
