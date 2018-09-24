@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04fbb808_5141b745",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2133,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-24T19:07:19Z",
+      "side": 1,
+      "message": "Can be removed, now that it\u0027s re-enabled",
+      "range": {
+        "startLine": 2131,
+        "startChar": 0,
+        "endLine": 2133,
+        "endChar": 46
+      },
+      "revId": "51dd9bb86aa6b68a17f2f2339cf80a3f48c80d07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbc1a9be_ccf29477",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2152,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-24T19:07:19Z",
+      "side": 1,
+      "message": "Can be removed.",
+      "range": {
+        "startLine": 2143,
+        "startChar": 1,
+        "endLine": 2152,
+        "endChar": 2
+      },
+      "revId": "51dd9bb86aa6b68a17f2f2339cf80a3f48c80d07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
