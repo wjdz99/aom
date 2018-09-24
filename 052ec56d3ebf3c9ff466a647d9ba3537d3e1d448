@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "d2861c7a_60bec7c3",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-09-24T20:51:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "335d38a0_08832a60",
+      "revId": "052ec56d3ebf3c9ff466a647d9ba3537d3e1d448",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2643e96e_b9d9fcca",
         "filename": "aom/aom_encoder.h",
         "patchSetId": 4
@@ -151,6 +169,30 @@
       "revId": "052ec56d3ebf3c9ff466a647d9ba3537d3e1d448",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4904d2af_017b6246",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5265,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-09-24T20:51:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10640b4b_d3892162",
+      "range": {
+        "startLine": 5265,
+        "startChar": 2,
+        "endLine": 5265,
+        "endChar": 42
+      },
+      "revId": "052ec56d3ebf3c9ff466a647d9ba3537d3e1d448",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
