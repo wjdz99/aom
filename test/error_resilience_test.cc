@@ -68,6 +68,9 @@ class ErrorResilienceTestLarge
     decoded_nframes_ = 0;
     mismatch_psnr_ = 0.0;
     mismatch_nframes_ = 0;
+    current_frame_error_resilient_ = 0;
+    current_frame_switch_ = 0;
+    current_frame_droppable_ = 0;
   }
 
   virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
@@ -82,6 +85,7 @@ class ErrorResilienceTestLarge
         ~(AOM_EFLAG_NO_UPD_LAST | AOM_EFLAG_NO_UPD_GF | AOM_EFLAG_NO_UPD_ARF |
           AOM_EFLAG_NO_REF_FRAME_MVS | AOM_EFLAG_ERROR_RESILIENT |
           AOM_EFLAG_SET_S_FRAME | AOM_EFLAG_SET_PRIMARY_REF_NONE);
+    current_frame_droppable_ = 0;
     if (droppable_nframes_ > 0 &&
         (cfg_.g_pass == AOM_RC_LAST_PASS || cfg_.g_pass == AOM_RC_ONE_PASS)) {
       for (unsigned int i = 0; i < droppable_nframes_; ++i) {
@@ -90,11 +94,13 @@ class ErrorResilienceTestLarge
                     << droppable_frames_[i] << "\n";
           frame_flags_ |= (AOM_EFLAG_NO_UPD_LAST | AOM_EFLAG_NO_UPD_GF |
                            AOM_EFLAG_NO_UPD_ARF);
+          current_frame_droppable_ = 1;
           break;
         }
       }
     }
 
+    current_frame_error_resilient_ = 0;
     if (error_resilient_nframes_ > 0 &&
         (cfg_.g_pass == AOM_RC_LAST_PASS || cfg_.g_pass == AOM_RC_ONE_PASS)) {
       for (unsigned int i = 0; i < error_resilient_nframes_; ++i) {
@@ -102,6 +108,7 @@ class ErrorResilienceTestLarge
           std::cout << "             Encoding error_resilient frame: "
                     << error_resilient_frames_[i] << "\n";
           frame_flags_ |= AOM_EFLAG_ERROR_RESILIENT;
+          current_frame_error_resilient_ = 1;
           break;
         }
       }
@@ -131,6 +138,7 @@ class ErrorResilienceTestLarge
       }
     }
 
+    current_frame_switch_ = 0;
     encoder->Control(AV1E_SET_S_FRAME_MODE, 0);
     if (s_nframes_ > 0 &&
         (cfg_.g_pass == AOM_RC_LAST_PASS || cfg_.g_pass == AOM_RC_ONE_PASS)) {
@@ -139,10 +147,22 @@ class ErrorResilienceTestLarge
           std::cout << "             Encoding S frame: " << s_frames_[i]
                     << "\n";
           frame_flags_ |= AOM_EFLAG_SET_S_FRAME;
+          current_frame_switch_ = 1;
           break;
         }
       }
     }
+  }
+
+  virtual void FramePktHook(const aom_codec_cx_pkt_t *pkt) {
+    // Test frame flag for different frame types
+    // TODO(debargha): Fix the droppable test here
+    // if (current_frame_droppable_)
+    //   ASSERT_TRUE(!!(pkt->data.frame.flags & AOM_FRAME_IS_DROPPABLE));
+    if (current_frame_error_resilient_)
+      ASSERT_TRUE(!!(pkt->data.frame.flags & AOM_FRAME_IS_ERROR_RESILIENT));
+    if (current_frame_switch_)
+      ASSERT_TRUE(!!(pkt->data.frame.flags & AOM_FRAME_IS_SWITCH));
   }
 
   double GetAveragePsnr() const {
@@ -299,6 +319,10 @@ class ErrorResilienceTestLarge
   unsigned int s_frames_[kMaxSFrames];
   libaom_test::TestMode encoding_mode_;
   int allow_mismatch_;
+
+  int current_frame_droppable_;
+  int current_frame_error_resilient_;
+  int current_frame_switch_;
 };
 
 TEST_P(ErrorResilienceTestLarge, OnVersusOff) {
