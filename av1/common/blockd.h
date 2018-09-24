@@ -553,6 +553,7 @@ typedef struct macroblockd {
   uint8_t neighbors_ref_counts[REF_FRAMES];
 
   FRAME_CONTEXT *tile_ctx;
+  FRAME_CONTEXT *backup_tile_ctx;
   /* Bit depth: 8, 10, 12 */
   int bd;
 
