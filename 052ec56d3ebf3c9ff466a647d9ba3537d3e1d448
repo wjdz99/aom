@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "456f7063_8cbc7de1",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-24T18:48:38Z",
+      "side": 1,
+      "message": "These would be easier to read in the form:\n\"1 \u003c\u003c 0\" , \"1 \u003c\u003c 1\" etc\n(similar to FRAMETYPE_FLAGS enum)",
+      "revId": "052ec56d3ebf3c9ff466a647d9ba3537d3e1d448",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2643e96e_b9d9fcca",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-24T18:48:38Z",
+      "side": 1,
+      "message": "This should be an enum now\n(unless there are ABI backward incompatibility issues)",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 109,
+        "endChar": 41
+      },
+      "revId": "052ec56d3ebf3c9ff466a647d9ba3537d3e1d448",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
