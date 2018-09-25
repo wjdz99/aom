@@ -4831,7 +4831,17 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
 }
 #endif  // DUMP_RECON_FRAMES
 
-static INLINE int is_frame_droppable(AV1_COMP *cpi) {
+static int frame_is_reference(const AV1_COMP *cpi) {
+  const AV1_COMMON *cm = &cpi->common;
+
+  return cm->frame_type == KEY_FRAME || cpi->refresh_last_frame ||
+         cpi->refresh_golden_frame || cpi->refresh_bwd_ref_frame ||
+         cpi->refresh_alt2_ref_frame || cpi->refresh_alt_ref_frame ||
+         !cm->error_resilient_mode || cm->lf.mode_ref_delta_update ||
+         cm->seg.update_map || cm->seg.update_data;
+}
+
+static INLINE int is_frame_refreshable(AV1_COMP *cpi) {
   return !(cpi->refresh_alt_ref_frame || cpi->refresh_alt2_ref_frame ||
            cpi->refresh_bwd_ref_frame || cpi->refresh_golden_frame ||
            cpi->refresh_last_frame);
@@ -5232,11 +5242,11 @@ static INLINE void update_keyframe_counters(AV1_COMP *cpi) {
 }
 
 static INLINE void update_frames_till_gf_update(AV1_COMP *cpi) {
-  // TODO(weitinglin): Updating this counter for is_frame_droppable
+  // TODO(weitinglin): Updating this counter for is_frame_refreshable
   // is a work-around to handle the condition when a frame is drop.
   // We should fix the cpi->common.show_frame flag
   // instead of checking the other condition to update the counter properly.
-  if (cpi->common.show_frame || is_frame_droppable(cpi)) {
+  if (cpi->common.show_frame || is_frame_refreshable(cpi)) {
     // Decrement count down till next gf
     if (cpi->rc.frames_till_gf_update_due > 0)
       cpi->rc.frames_till_gf_update_due--;
@@ -5400,16 +5410,6 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
   }
 
   return res;
-}
-
-static int frame_is_reference(const AV1_COMP *cpi) {
-  const AV1_COMMON *cm = &cpi->common;
-
-  return cm->frame_type == KEY_FRAME || cpi->refresh_last_frame ||
-         cpi->refresh_golden_frame || cpi->refresh_bwd_ref_frame ||
-         cpi->refresh_alt2_ref_frame || cpi->refresh_alt_ref_frame ||
-         !cm->error_resilient_mode || cm->lf.mode_ref_delta_update ||
-         cm->seg.update_map || cm->seg.update_data;
 }
 
 static void adjust_frame_rate(AV1_COMP *cpi,
