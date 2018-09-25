@@ -108,6 +108,10 @@ TEST(EC_TEST, random_ec_test) {
           sym = od_ec_decode_cdf_q15(&dec, cdf, 2);
           break;
         }
+        default:
+          assert(0);
+          sym = 0;
+          break;
       }
 
       EXPECT_EQ(sym, data[j])
