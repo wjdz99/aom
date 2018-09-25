@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "333ecc83_3835d2f5",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1158,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-09-25T18:50:07Z",
+      "side": 1,
+      "message": "Maybe:\nconst int min_dim \u003d AOMMIN(16, *dim);\nand remove the line calculating min_dim below?",
+      "revId": "07c776ec693daa20b9092a81742a583104657f22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
