@@ -3512,6 +3512,7 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
   allow_update_cdf = allow_update_cdf && !cm->disable_cdf_update;
 
   assert(cm->tile_cols > 0);
+  // parse_loop
   while (1) {
     TileJobsDec *cur_job_info = get_dec_job_info(&pbi->tile_mt_info);
 
@@ -3544,6 +3545,11 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
           // Bit-stream parsing of the superblock
           decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
                            cm->seq_params.sb_size, 0x1);
+
+          if (aom_reader_has_overflowed(td->bit_reader)) {
+            aom_merge_corrupted_flag(&td->xd.corrupted, 1);
+            goto end_parse_loop;
+          }
         }
         signal_parse_sb_row_done(pbi, tile_data, sb_mi_size);
       }
@@ -3555,6 +3561,7 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
       break;
     }
   }
+end_parse_loop:
 
   if (td->xd.corrupted) {
     thread_data->error_info.setjmp = 0;
