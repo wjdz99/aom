@@ -16,6 +16,24 @@
       "revId": "49880c64cea0b5a9a85bca41ca429b3c3d554bb6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c58fa39_d2333be0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-09-25T17:56:54Z",
+      "side": 1,
+      "message": "Test has been updated. Please review the latest patch.",
+      "parentUuid": "83f59b4e_cb9bcc6d",
+      "revId": "49880c64cea0b5a9a85bca41ca429b3c3d554bb6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
