@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a67883a1_72bd6883",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-09-25T21:20:47Z",
+      "side": 1,
+      "message": "Yay comment indentation consistency!",
+      "range": {
+        "startLine": 259,
+        "startChar": 0,
+        "endLine": 259,
+        "endChar": 4
+      },
+      "revId": "738db0bd8efe18376c74b8bb7cf22e450f748226",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}

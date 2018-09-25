@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d58d8fab_4eaf2438",
+        "filename": "aom_dsp/intrapred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-09-25T21:20:47Z",
+      "side": 0,
+      "message": "Oh this is actually a fixed thing!",
+      "range": {
+        "startLine": 242,
+        "startChar": 0,
+        "endLine": 242,
+        "endChar": 2
+      },
+      "revId": "e5250a95159d39ed37c8d17e5a260e921516b7fd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3fd8a2d8_5b8158eb",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-09-25T21:20:47Z",
+      "side": 0,
+      "message": "urgh so close",
+      "range": {
+        "startLine": 474,
+        "startChar": 0,
+        "endLine": 474,
+        "endChar": 4
+      },
+      "revId": "e5250a95159d39ed37c8d17e5a260e921516b7fd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
