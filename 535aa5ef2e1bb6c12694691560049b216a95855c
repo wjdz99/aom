@@ -87,6 +87,24 @@
       "revId": "535aa5ef2e1bb6c12694691560049b216a95855c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62e1ad2d_7bc53a89",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-25T20:32:57Z",
+      "side": 1,
+      "message": "Yes, this assertion needs to be before line 550, because line 550 already uses \u0027plane\u0027.\n\nBut I think it is better to assertions at the beginning of this function to\ncheck plane_start and plane_end:\n\n  assert(plane_start \u003e\u003d 0);\n  assert(plane_end \u003c\u003d MAX_MB_PLANE);\n\nThen we can get rid of this assertion.",
+      "parentUuid": "2a4592ad_929bb34f",
+      "revId": "535aa5ef2e1bb6c12694691560049b216a95855c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
