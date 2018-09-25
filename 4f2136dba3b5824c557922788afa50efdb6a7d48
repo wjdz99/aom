@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "a9b75ba9_36010349",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3105,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-25T17:24:32Z",
+      "side": 1,
+      "message": "This CL imitates my earlier change to this block of code in decode_tile().\n\nThe check_trailing_bits_after_symbol_coder() call at line 3104 is the only call to that\nfunction in the current code. Note the nested for loops at lines 3084-3101 are very similar\nto the code this CL modified. Therefore I added a check for aom_reader_has_overflowed() at\nthe corresponding location in row_mt_worker_hook().",
+      "range": {
+        "startLine": 3084,
+        "startChar": 0,
+        "endLine": 3105,
+        "endChar": 57
+      },
+      "revId": "4f2136dba3b5824c557922788afa50efdb6a7d48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "11183a72_e3a4e9ee",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 1
