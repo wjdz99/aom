@@ -22,6 +22,47 @@
       "revId": "535aa5ef2e1bb6c12694691560049b216a95855c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f04745d_de23d9de",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-09-25T19:11:17Z",
+      "side": 1,
+      "message": "ehrm that might be the intention of MAX_MB_PLANE but ...\nAOM_PLANE_V is defined in aom/aom_image.h and MAX_MB_PLANE is defined in av1/common/blockd.h with no referenc whatsoever to AOM_PLANE:\n#define MAX_MB_PLANE 3",
+      "parentUuid": "8197d722_3415eae5",
+      "range": {
+        "startLine": 538,
+        "startChar": 22,
+        "endLine": 538,
+        "endChar": 33
+      },
+      "revId": "535aa5ef2e1bb6c12694691560049b216a95855c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a4592ad_929bb34f",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-09-25T19:11:17Z",
+      "side": 1,
+      "message": "That\u0027s a weird place for that. plane_start and plane_end could be asserted instead. The current static analysis is complaning about filt_lvl, directly above this assert:\nhttps://build.aomedia.org/jenkins/job/libaom__static_analysis/20518/mode\u003dshallow/HTML_20Report/",
+      "revId": "535aa5ef2e1bb6c12694691560049b216a95855c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
