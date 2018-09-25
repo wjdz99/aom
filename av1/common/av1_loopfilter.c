@@ -535,6 +535,8 @@ void av1_loop_filter_frame_init(AV1_COMMON *cm, int plane_start,
   filt_lvl_r[1] = cm->lf.filter_level_u;
   filt_lvl_r[2] = cm->lf.filter_level_v;
 
+  assert(plane_end <= AOM_PLANE_V);
+
   for (plane = plane_start; plane < plane_end; plane++) {
     if (plane == 0 && !filt_lvl[0] && !filt_lvl_r[0])
       break;
