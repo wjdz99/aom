@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40c8e942_9236b1b7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-09-25T03:08:56Z",
+      "side": 1,
+      "message": "Enhance",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 7
+      },
+      "revId": "fa5a9e9d887ffafdd70177535bb554e3ca688aae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a4f8f7d_6aaa31f5",
+        "filename": "test/error_resilience_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-09-25T03:08:56Z",
+      "side": 1,
+      "message": "use {}s here:\n\ntest/error_resilience_test.cc:162:8: warning: suggest explicit braces to avoid ambiguous ‘else’ [-Wdangling-else]",
+      "revId": "fa5a9e9d887ffafdd70177535bb554e3ca688aae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04822513_835e6431",
+        "filename": "test/error_resilience_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-09-25T03:08:56Z",
+      "side": 1,
+      "message": "this fails locally for me; I was wondering if this setup would work for lagged encoding.",
+      "revId": "fa5a9e9d887ffafdd70177535bb554e3ca688aae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c740d65e_e51dcdb2",
+        "filename": "test/error_resilience_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-09-25T03:08:56Z",
+      "side": 1,
+      "message": "these could be bool\u0027s",
+      "revId": "fa5a9e9d887ffafdd70177535bb554e3ca688aae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
