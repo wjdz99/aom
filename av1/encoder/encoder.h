@@ -453,7 +453,6 @@ typedef struct TileDataEnc {
   uint8_t allow_update_cdf;
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
   InterModeRdModel inter_mode_rd_models[BLOCK_SIZES_ALL];
-  InterModesInfo inter_modes_info;
 #endif
 } TileDataEnc;
 
@@ -477,6 +476,7 @@ typedef struct ThreadData {
   FRAME_COUNTS *counts;
   PC_TREE *pc_tree;
   PC_TREE *pc_root[MAX_MIB_SIZE_LOG2 - MIN_MIB_SIZE_LOG2 + 1];
+  InterModesInfo *inter_modes_info;
   uint32_t *hash_value_buffer[2][2];
   int32_t *wsrc_buf;
   int32_t *mask_buf;

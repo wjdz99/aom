@@ -501,6 +501,9 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
   aom_free(cpi->td.mb.wsrc_buf);
   cpi->td.mb.wsrc_buf = NULL;
 
+  aom_free(cpi->td.mb.inter_modes_info);
+  cpi->td.mb.inter_modes_info = NULL;
+
   for (int i = 0; i < 2; i++)
     for (int j = 0; j < 2; j++) {
       aom_free(cpi->td.mb.hash_value_buffer[i][j]);
@@ -2644,6 +2647,10 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
                   (int32_t *)aom_memalign(
                       16, MAX_SB_SQUARE * sizeof(*cpi->td.mb.wsrc_buf)));
 
+  CHECK_MEM_ERROR(
+      cm, cpi->td.mb.inter_modes_info,
+      (InterModesInfo *)aom_malloc(sizeof(*cpi->td.mb.inter_modes_info)));
+
   for (int x = 0; x < 2; x++)
     for (int y = 0; y < 2; y++)
       CHECK_MEM_ERROR(
@@ -2985,6 +2992,7 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       aom_free(thread_data->td->above_pred_buf);
       aom_free(thread_data->td->left_pred_buf);
       aom_free(thread_data->td->wsrc_buf);
+      aom_free(thread_data->td->inter_modes_info);
       for (int x = 0; x < 2; x++) {
         for (int y = 0; y < 2; y++) {
           aom_free(thread_data->td->hash_value_buffer[x][y]);

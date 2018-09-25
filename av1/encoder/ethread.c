@@ -42,6 +42,7 @@ static int enc_worker_hook(void *arg1, void *unused) {
     int tile_row = t / tile_cols;
     int tile_col = t % tile_cols;
 
+    thread_data->td->mb.inter_modes_info = thread_data->td->inter_modes_info;
     av1_encode_tile(cpi, thread_data->td, tile_row, tile_col);
   }
 
@@ -92,6 +93,10 @@ static void create_enc_workers(AV1_COMP *cpi, int num_workers) {
           (int32_t *)aom_memalign(
               16, MAX_SB_SQUARE * sizeof(*thread_data->td->wsrc_buf)));
 
+      CHECK_MEM_ERROR(cm, thread_data->td->inter_modes_info,
+                      (InterModesInfo *)aom_malloc(
+                          sizeof(*thread_data->td->inter_modes_info)));
+
       for (int x = 0; x < 2; x++)
         for (int y = 0; y < 2; y++)
           CHECK_MEM_ERROR(
@@ -131,6 +136,7 @@ static void create_enc_workers(AV1_COMP *cpi, int num_workers) {
     } else {
       // Main thread acts as a worker and uses the thread data in cpi.
       thread_data->td = &cpi->td;
+      thread_data->td->inter_modes_info = cpi->td.mb.inter_modes_info;
     }
     winterface->sync(worker);
   }
@@ -194,6 +200,7 @@ static void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
       thread_data->td->mb.above_pred_buf = thread_data->td->above_pred_buf;
       thread_data->td->mb.left_pred_buf = thread_data->td->left_pred_buf;
       thread_data->td->mb.wsrc_buf = thread_data->td->wsrc_buf;
+
       for (int x = 0; x < 2; x++) {
         for (int y = 0; y < 2; y++) {
           memcpy(thread_data->td->hash_value_buffer[x][y],

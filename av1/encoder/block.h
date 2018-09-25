@@ -187,6 +187,7 @@ typedef struct {
   COMPOUND_TYPE comp_type;
 } INTERPOLATION_FILTER_STATS;
 
+struct inter_modes_info;
 typedef struct macroblock MACROBLOCK;
 struct macroblock {
   struct macroblock_plane plane[MAX_MB_PLANE];
@@ -274,7 +275,7 @@ struct macroblock {
 
   CONV_BUF_TYPE *tmp_conv_dst;
   uint8_t *tmp_obmc_bufs[2];
-
+  struct inter_modes_info *inter_modes_info;
   // buffer for hash value calculation of a block
   // used only in av1_get_block_hash_value()
   // [first hash/second hash]
