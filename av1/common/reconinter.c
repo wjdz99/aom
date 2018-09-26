@@ -707,23 +707,19 @@ void av1_setup_pre_planes(MACROBLOCKD *xd, int idx,
 }
 
 // obmc_mask_N[overlap_position]
-static const uint8_t obmc_mask_1[1] = { 64 };
-
-static const uint8_t obmc_mask_2[2] = { 45, 64 };
-
-static const uint8_t obmc_mask_4[4] = { 39, 50, 59, 64 };
-
-static const uint8_t obmc_mask_8[8] = { 36, 42, 48, 53, 57, 61, 64, 64 };
-
-static const uint8_t obmc_mask_16[16] = { 34, 37, 40, 43, 46, 49, 52, 54,
-                                          56, 58, 60, 61, 64, 64, 64, 64 };
-
-static const uint8_t obmc_mask_32[32] = { 33, 35, 36, 38, 40, 41, 43, 44,
-                                          45, 47, 48, 50, 51, 52, 53, 55,
-                                          56, 57, 58, 59, 60, 60, 61, 62,
-                                          64, 64, 64, 64, 64, 64, 64, 64 };
-
-static const uint8_t obmc_mask_64[64] = {
+DECLARE_ALIGNED(32, static const uint8_t, obmc_mask_1[1]) = { 64 };
+DECLARE_ALIGNED(32, static const uint8_t, obmc_mask_2[2]) = { 45, 64 };
+DECLARE_ALIGNED(32, static const uint8_t, obmc_mask_4[4]) = { 39, 50, 59, 64 };
+DECLARE_ALIGNED(32, static const uint8_t, obmc_mask_8[8]) = { 36, 42, 48, 53,
+                                                              57, 61, 64, 64 };
+DECLARE_ALIGNED(32, static const uint8_t, obmc_mask_16[16]) = {
+  34, 37, 40, 43, 46, 49, 52, 54, 56, 58, 60, 61, 64, 64, 64, 64
+};
+DECLARE_ALIGNED(32, static const uint8_t, obmc_mask_32[32]) = {
+  33, 35, 36, 38, 40, 41, 43, 44, 45, 47, 48, 50, 51, 52, 53, 55,
+  56, 57, 58, 59, 60, 60, 61, 62, 64, 64, 64, 64, 64, 64, 64, 64
+};
+DECLARE_ALIGNED(32, static const uint8_t, obmc_mask_64[64]) = {
   33, 34, 35, 35, 36, 37, 38, 39, 40, 40, 41, 42, 43, 44, 44, 44,
   45, 46, 47, 47, 48, 49, 50, 51, 51, 51, 52, 52, 53, 54, 55, 56,
   56, 56, 57, 57, 58, 58, 59, 60, 60, 60, 60, 60, 61, 62, 62, 62,
