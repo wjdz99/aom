@@ -631,6 +631,21 @@ static void rd_pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
                                 bsize, ctx, best_rd);
     }
   }
+#if CONFIG_ONE_PASS_SVM
+  if (bsize >= BLOCK_8X8 && ctx->partition == PARTITION_NONE){
+    ctx->y_eob = rd_cost->eob;
+    ctx->y_eob_0 = rd_cost->eob_0;
+    ctx->y_eob_1 = rd_cost->eob_1;
+    ctx->y_eob_2 = rd_cost->eob_2;
+    ctx->y_eob_3 = rd_cost->eob_3;
+
+    ctx->y_rd = rd_cost->rd;
+    ctx->y_rd_0 = rd_cost->rd_0;
+    ctx->y_rd_1 = rd_cost->rd_1;
+    ctx->y_rd_2 = rd_cost->rd_2;
+    ctx->y_rd_3 = rd_cost->rd_3;
+  }
+#endif
 
   // Examine the resulting rate and for AQ mode 2 make a segment choice.
   if ((rd_cost->rate != INT_MAX) && (aq_mode == COMPLEXITY_AQ) &&
@@ -4277,6 +4292,8 @@ BEGIN_PARTITION_SEARCH:
             "intra_only,block_size,source_var,"
             "best_partition,best_rate,best_dist,best_rd,"
             "none_rate,none_dist,none_rd,none_skip,"
+            "y_eob,y_eob_0,y_eob_1,y_eob_2,y_eob_3,"
+            "y_rd,y_rd_0,y_rd_1,y_rd_2,y_rd_3,"
             "q_index,above_size,left_size,last_size"
             "\n");
       } else {
@@ -4299,8 +4316,20 @@ BEGIN_PARTITION_SEARCH:
                 pc_tree->none_dist,
                 pc_tree->none_rd,
                 ctx_none->skip);
+        fprintf(f, "%d,%d,%d,%d,%d,",
+               ctx_none->y_eob,
+               ctx_none->y_eob_0,
+               ctx_none->y_eob_1,
+               ctx_none->y_eob_2,
+               ctx_none->y_eob_3);
+        fprintf(f, "%ld,%ld,%ld,%ld,%ld,",
+               ctx_none->y_rd,
+               ctx_none->y_rd_0,
+               ctx_none->y_rd_1,
+               ctx_none->y_rd_2,
+               ctx_none->y_rd_3);
         fprintf(f, "%d,%d,%d,%d,",
-                cm->base_qindex,
+                x->plane[0].dequant_QTX[0],
                 left_size,
                 above_size,
                 last_size);

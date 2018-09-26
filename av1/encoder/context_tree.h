@@ -71,6 +71,9 @@ typedef struct {
   // Features for one pass svm for early term
   unsigned int source_var;
   int left_size, above_size, last_size;
+
+  int y_eob, y_eob_0, y_eob_1, y_eob_2, y_eob_3;
+  int64_t y_rd, y_rd_0, y_rd_1, y_rd_2, y_rd_3;
 #endif
 
   // motion vector cache for adaptive motion search control in partition
