@@ -34,6 +34,29 @@
       "revId": "2e7dcd459605c19c97f5f57be2e02aa3bc84afa9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91c15eb9_2f1c2ab7",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-26T23:41:40Z",
+      "side": 1,
+      "message": "This check seems to be here, but not in generate_next_ref_frame_map(). Is that relevant?",
+      "range": {
+        "startLine": 482,
+        "startChar": 16,
+        "endLine": 482,
+        "endChar": 44
+      },
+      "revId": "2e7dcd459605c19c97f5f57be2e02aa3bc84afa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
