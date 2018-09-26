@@ -16,6 +16,24 @@
       "revId": "d93fb94d0e0011df6e53e7fa7f4eacf9a09be1c4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d370d39_7791e94a",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1386,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-26T19:42:39Z",
+      "side": 1,
+      "message": "Mainly because in other places where we use a buffer index from the cm-\u003eref_frame_map array, we don\u0027t assert.",
+      "parentUuid": "f8b351b2_d9bdec66",
+      "revId": "d93fb94d0e0011df6e53e7fa7f4eacf9a09be1c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
