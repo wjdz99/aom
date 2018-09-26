@@ -5666,13 +5666,20 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
   // If we predict that skip is the optimal RD decision - set the respective
   // context and terminate early.
-  int64_t dist;
+  int64_t dist, dist1;
   if (is_inter && cpi->sf.tx_type_search.use_skip_flag_prediction &&
       predict_skip_flag(x, bsize, &dist, cm->reduced_tx_set_used)) {
-    set_skip_flag(x, rd_stats, bsize, dist);
-    // Save the RD search results into tx_rd_record.
-    if (within_border) save_tx_rd_info(n4, hash, x, rd_stats, mb_rd_record);
-    return;
+    dist1 = dist;
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
+      dist1 = ROUND_POWER_OF_TWO(dist1, (xd->bd - 8) * 2);
+    const int skip_ctx = av1_get_skip_context(xd);
+    rd = RDCOST(x->rdmult, x->skip_cost[skip_ctx][1], (dist1 << 4));
+    if (rd < ref_best_rd) {
+      set_skip_flag(x, rd_stats, bsize, dist);
+      // Save the RD search results into tx_rd_record.
+      if (within_border) save_tx_rd_info(n4, hash, x, rd_stats, mb_rd_record);
+      return;
+    }
   }
 
   // Precompute residual hashes and find existing or add new RD records to
