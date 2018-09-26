@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0de739e7_4b90acc5",
+        "filename": "examples/lightfield_bitstream_parsing.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-09-26T17:31:31Z",
+      "side": 0,
+      "message": "need to free this buffer?",
+      "range": {
+        "startLine": 216,
+        "startChar": 4,
+        "endLine": 216,
+        "endChar": 23
+      },
+      "revId": "5737825b176f33fe2564fa011f74399c25e8c648",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
