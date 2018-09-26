@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb91f7bc_a02fa0d5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-26T16:06:14Z",
+      "side": 1,
+      "message": "Note that this shows you intended 4-byte alignment, which also matches my analysis of the aom_blend_a64_hmask_neon code.",
+      "range": {
+        "startLine": 9,
+        "startChar": 58,
+        "endLine": 9,
+        "endChar": 73
+      },
+      "revId": "d5de68b9087af540534ac46a64f6280460634852",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e5943b1_9d189f40",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 710,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-26T16:06:14Z",
+      "side": 1,
+      "message": "DECLARE_ALIGNED(32, ...) specifies 32-byte alignment, not the 32-bit (4-byte) alignment that you intended.\n\nAlso, it seems that obmc_mask_1 does not need to be aligned, because it is only one-byte long. Similarly, if obmc_mask_2 needs to be aligned, it only needs to be aligned on two-byte boundary because it is only two bytes long.",
+      "range": {
+        "startLine": 710,
+        "startChar": 0,
+        "endLine": 710,
+        "endChar": 18
+      },
+      "revId": "d5de68b9087af540534ac46a64f6280460634852",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
