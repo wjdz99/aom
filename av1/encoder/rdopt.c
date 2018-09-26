@@ -8237,6 +8237,9 @@ static int64_t interpolation_filter_search(
       }
     }
   }
+  if ((*rd < INT64_MAX) && ((*rd / 2) > ref_best_rd)) {
+    return INT64_MAX;
+  }
 
   x->recalc_luma_mc_data = 0;
   // skip_flag=xx (in binary form)
