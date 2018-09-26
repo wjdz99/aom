@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed7c65b0_759193ae",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-26T23:13:20Z",
+      "side": 1,
+      "message": "The corresponding code in generate_next_ref_frame_map() is the following for loop:\n\n  int ref_index \u003d 0;\n  for (int mask \u003d pbi-\u003erefresh_frame_flags; mask; mask \u003e\u003e\u003d 1) {\n    if (mask \u0026 1) {\n      cm-\u003enext_ref_frame_map[ref_index] \u003d cm-\u003enew_fb_idx;\n      ++frame_bufs[cm-\u003enew_fb_idx].ref_count;\n    } else {\n      cm-\u003enext_ref_frame_map[ref_index] \u003d cm-\u003eref_frame_map[ref_index];\n    }\n    // Current thread holds the reference frame.\n    if (cm-\u003eref_frame_map[ref_index] \u003e\u003d 0)\n      ++frame_bufs[cm-\u003eref_frame_map[ref_index]].ref_count;\n    ++ref_index;\n  }\n\nNote that it always increments the ref_count of frame_bufs[cm-\u003eref_frame_map[ref_index]]. This corresponds to the decrease_ref_count(old_idx, frame_bufs, pool) call at line 470.\n\nThen, in the \"if (mask \u0026 1)\" case, it increments the ref_count of frame_bufs[cm-\u003enew_fb_idx]. Since cm-\u003enew_fb_idx is also stored in cm-\u003enext_ref_frame_map[ref_index], this corresponds to the new code at lines 475-476.",
+      "revId": "2e7dcd459605c19c97f5f57be2e02aa3bc84afa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
