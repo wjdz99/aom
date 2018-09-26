@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4be59f9a_ef5e9980",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-26T19:00:39Z",
+      "side": 1,
+      "message": "This is the only caller of aom_decode_frame_from_obus(). With the change I made to aom_decode_frame_from_obus(), we can check for frame_decode \u003c 0 to detect failure. The reason this is useful is annotated a few lines below.",
+      "range": {
+        "startLine": 500,
+        "startChar": 6,
+        "endLine": 500,
+        "endChar": 32
+      },
+      "revId": "ddf3e4e9a3b3767520b833c327038f2138744ae8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2209e74e_5e0ab0ed",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-26T19:00:39Z",
+      "side": 1,
+      "message": "This is the only caller of swap_frame_buffers(). With the change at line 502 above, swap_frame_buffers() can assume frame_decoded is a boolean (0 or 1) and cannot be -1.",
+      "range": {
+        "startLine": 522,
+        "startChar": 2,
+        "endLine": 522,
+        "endChar": 41
+      },
+      "revId": "ddf3e4e9a3b3767520b833c327038f2138744ae8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8275bfba_cc7e9192",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-26T19:00:39Z",
+      "side": 1,
+      "message": "I inspected the aom_decode_frame_from_obus() function and verified that whenever we return -1, we also set cm-\u003eerror.error_code to a non-OK value.",
+      "range": {
+        "startLine": 640,
+        "startChar": 30,
+        "endLine": 641,
+        "endChar": 14
+      },
+      "revId": "ddf3e4e9a3b3767520b833c327038f2138744ae8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2333f723_cae7fcea",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-26T19:00:39Z",
+      "side": 1,
+      "message": "1. This change is optional. The AOM_CODEC_OK enum has the value 0, so this just makes the check more readable.\n\n2. Note that this while loop may exit for two reasons:\n* frame_decoding_finished is true, or\n* cm-\u003eerror.error_code !\u003d AOM_CODEC_OK.\n\nThis fact will be used below.",
+      "range": {
+        "startLine": 662,
+        "startChar": 37,
+        "endLine": 662,
+        "endChar": 73
+      },
+      "revId": "ddf3e4e9a3b3767520b833c327038f2138744ae8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b4244d4d_4abac428",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-26T19:00:39Z",
+      "side": 1,
+      "message": "This break statement is the third way we can exit the while loop. This is why the function may return 0.",
+      "range": {
+        "startLine": 673,
+        "startChar": 6,
+        "endLine": 673,
+        "endChar": 12
+      },
+      "revId": "ddf3e4e9a3b3767520b833c327038f2138744ae8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2dd6cd0_d2e33ff9",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 839,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-26T19:00:39Z",
+      "side": 1,
+      "message": "As I noted above, we may have exited the while loop because cm-\u003eerror.error_code !\u003d AOM_CODEC_OK. We should return -1 in this case to indicate a failure.\n\nThis change is intended to eliminate the confusing scenario that this function returns a boolean (0 or 1) and a non-OK cm-\u003eerror.error_code. The only caller of this function currently treats that as a failure, so this change will not change the behavior of libaom.",
+      "range": {
+        "startLine": 839,
+        "startChar": 2,
+        "endLine": 839,
+        "endChar": 54
+      },
+      "revId": "ddf3e4e9a3b3767520b833c327038f2138744ae8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
