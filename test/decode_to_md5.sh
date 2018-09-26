@@ -21,6 +21,10 @@ decode_to_md5_verify_environment() {
   if [ "$(av1_encode_available)" != "yes" ] && [ ! -e "${AV1_IVF_FILE}" ]; then
     return 1
   fi
+  if [ -z "$(aom_tool_path decode_to_md5)" ]; then
+    elog "decode_to_md5 not found by aom_tool_path()."
+    return 1
+  fi
 }
 
 # Runs decode_to_md5 on $1 and captures the md5 sum for the final frame. $2 is

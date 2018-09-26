@@ -27,7 +27,7 @@ aomdec_verify_environment() {
     fi
   fi
   if [ -z "$(aom_tool_path aomdec)" ]; then
-    elog "aomdec not found. It must exist in LIBAOM_BIN_PATH or its parent."
+    elog "aomdec not found by aom_tool_path()."
     return 1
   fi
 }

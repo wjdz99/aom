@@ -29,7 +29,7 @@ aomenc_verify_environment() {
     fi
   fi
   if [ -z "$(aom_tool_path aomenc)" ]; then
-    elog "aomenc not found. It must exist in LIBAOM_BIN_PATH or its parent."
+    elog "aomenc not found by aom_tool_path()."
     return 1
   fi
 }

@@ -20,6 +20,10 @@ simple_decoder_verify_environment() {
   if [ ! "$(av1_encode_available)" = "yes" ] && [ ! -e "${AV1_IVF_FILE}" ]; then
     return 1
   fi
+  if [ -z "$(aom_tool_path simple_decoder)" ]; then
+    elog "simple_decoder not found by aom_tool_path()."
+    return 1
+  fi
 }
 
 # Runs simple_decoder using $1 as input file. $2 is the codec name, and is used
