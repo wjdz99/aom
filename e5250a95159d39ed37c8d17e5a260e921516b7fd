@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2567ea08_d2b43022",
+        "filename": "aom_dsp/intrapred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-09-26T15:45:16Z",
+      "side": 0,
+      "message": "nice. weird that it was confused here in previous versions.",
+      "parentUuid": "d58d8fab_4eaf2438",
+      "range": {
+        "startLine": 242,
+        "startChar": 0,
+        "endLine": 242,
+        "endChar": 2
+      },
+      "revId": "e5250a95159d39ed37c8d17e5a260e921516b7fd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3fd8a2d8_5b8158eb",
         "filename": "test/simd_cmp_impl.h",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-09-25T21:20:47Z",
       "side": 0,
       "message": "urgh so close",
+      "range": {
+        "startLine": 474,
+        "startChar": 0,
+        "endLine": 474,
+        "endChar": 4
+      },
+      "revId": "e5250a95159d39ed37c8d17e5a260e921516b7fd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b65730e_7a81b99c",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-09-26T15:45:16Z",
+      "side": 0,
+      "message": "might be able to get clang-format to cooperate if you bring this line up with the opening brace. doesn\u0027t much matter, though.",
+      "parentUuid": "3fd8a2d8_5b8158eb",
       "range": {
         "startLine": 474,
         "startChar": 0,
