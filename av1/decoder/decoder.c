@@ -471,7 +471,10 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
 
         // Release the reference frame holding in the reference map for the
         // decoding of the next frame.
-        if (mask & 1) decrease_ref_count(old_idx, frame_bufs, pool);
+        if (mask & 1) {
+          const int new_idx = cm->next_ref_frame_map[ref_index];
+          decrease_ref_count(new_idx, frame_bufs, pool);
+        }
         ++ref_index;
       }
 
