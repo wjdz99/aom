@@ -72,6 +72,10 @@ typedef struct {
   MV pred_mv[REF_FRAMES];
   InterpFilter pred_interp_filter;
   PARTITION_TYPE partition;
+
+  // Reference and prediction mode cashe for ref/mode speedup
+  MV_REFERENCE_FRAME ref_selected[2];
+  int mode_selected;
 } PICK_MODE_CONTEXT;
 
 typedef struct {
