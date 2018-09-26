@@ -191,7 +191,7 @@ static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
                             RD_STATS *rd_stats, BLOCK_SIZE bsize,
                             int64_t non_skip_ref_best_rd,
                             int64_t skip_ref_best_rd,
-                            FAST_TX_SEARCH_MODE ftxs_mode);
+                            FAST_TX_SEARCH_MODE ftxs_mode, int is_luma_skip);
 
 struct rdcost_block_args {
   const AV1_COMP *cpi;
@@ -5586,6 +5586,57 @@ static int predict_skip_flag(MACROBLOCK *x, BLOCK_SIZE bsize, int64_t *dist,
   return 1;
 }
 
+static int predict_skip_flag_uv(MACROBLOCK *x, BLOCK_SIZE bsize, int64_t *dist,
+                                int reduced_tx_set, int plane) {
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+  const MACROBLOCKD *xd = &x->e_mbd;
+  const int16_t dc_q = av1_dc_quant_QTX(x->qindex, 0, xd->bd);
+
+  *dist = pixel_diff_dist(x, plane, 0, 0, bsize, bsize);
+  const int64_t mse = *dist / bw / bh;
+  // Normalized quantizer takes the transform upscaling factor (8 for tx size
+  // smaller than 32) into account.
+  const int16_t normalized_dc_q = dc_q >> 3;
+  const int64_t mse_thresh = (int64_t)normalized_dc_q * normalized_dc_q / 8;
+  // Predict not to skip when mse is larger than threshold.
+  if (mse > mse_thresh) return 0;
+
+  const int max_tx_size = max_predict_sf_tx_size[bsize];
+  const int tx_h = tx_size_high[max_tx_size];
+  const int tx_w = tx_size_wide[max_tx_size];
+  DECLARE_ALIGNED(32, tran_low_t, coefs[32 * 32]);
+  TxfmParam param;
+  param.tx_type = DCT_DCT;
+  param.tx_size = max_tx_size;
+  param.bd = xd->bd;
+  param.is_hbd = get_bitdepth_data_path_index(xd);
+  param.lossless = 0;
+  param.tx_set_type = av1_get_ext_tx_set_type(
+      param.tx_size, is_inter_block(xd->mi[0]), reduced_tx_set);
+  const int bd_idx = (xd->bd == 8) ? 0 : ((xd->bd == 10) ? 1 : 2);
+  const uint32_t max_qcoef_thresh = skip_pred_threshold[bd_idx][bsize];
+  const int16_t *src_diff = x->plane[plane].src_diff;
+  const int n_coeff = tx_w * tx_h;
+  const int16_t ac_q = av1_ac_quant_QTX(x->qindex, 0, xd->bd);
+  const uint32_t dc_thresh = max_qcoef_thresh * dc_q;
+  const uint32_t ac_thresh = max_qcoef_thresh * ac_q;
+  for (int row = 0; row < bh; row += tx_h) {
+    for (int col = 0; col < bw; col += tx_w) {
+      av1_fwd_txfm(src_diff + col, coefs, bw, &param);
+      // Operating on TX domain, not pixels; we want the QTX quantizers
+      const uint32_t dc_coef = (((uint32_t)abs(coefs[0])) << 7);
+      if (dc_coef >= dc_thresh) return 0;
+      for (int i = 1; i < n_coeff; ++i) {
+        const uint32_t ac_coef = (((uint32_t)abs(coefs[i])) << 7);
+        if (ac_coef >= ac_thresh) return 0;
+      }
+    }
+    src_diff += tx_h * bw;
+  }
+  return 1;
+}
+
 // Used to set proper context for early termination with skip = 1.
 static void set_skip_flag(MACROBLOCK *x, RD_STATS *rd_stats, int bsize,
                           int64_t dist) {
@@ -5597,6 +5648,23 @@ static void set_skip_flag(MACROBLOCK *x, RD_STATS *rd_stats, int bsize,
   memset(mbmi->inter_tx_size, tx_size, sizeof(mbmi->inter_tx_size));
   mbmi->tx_size = tx_size;
   for (int i = 0; i < n4; ++i) set_blk_skip(x, 0, i, 1);
+  rd_stats->skip = 1;
+  rd_stats->rate = 0;
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
+    dist = ROUND_POWER_OF_TWO(dist, (xd->bd - 8) * 2);
+  rd_stats->dist = rd_stats->sse = (dist << 4);
+}
+
+static void set_skip_flag_uv(MACROBLOCK *x, RD_STATS *rd_stats, int bsize,
+                             int64_t dist, int plane) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  // MB_MODE_INFO *const mbmi = xd->mi[0];
+  const int n4 = bsize_to_num_blk(bsize);
+  // const TX_SIZE tx_size = max_txsize_rect_lookup[bsize];
+  // memset(mbmi->txk_type, DCT_DCT, sizeof(mbmi->txk_type[0]) *
+  // TXK_TYPE_BUF_LEN);  memset(mbmi->inter_tx_size, tx_size,
+  // sizeof(mbmi->inter_tx_size));  mbmi->tx_size = tx_size;
+  for (int i = 0; i < n4; ++i) set_blk_skip(x, plane, i, 0);
   rd_stats->skip = 1;
   rd_stats->rate = 0;
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
@@ -5666,13 +5734,20 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
   // If we predict that skip is the optimal RD decision - set the respective
   // context and terminate early.
-  int64_t dist;
+  int64_t dist, dist1;
   if (is_inter && cpi->sf.tx_type_search.use_skip_flag_prediction &&
       predict_skip_flag(x, bsize, &dist, cm->reduced_tx_set_used)) {
-    set_skip_flag(x, rd_stats, bsize, dist);
-    // Save the RD search results into tx_rd_record.
-    if (within_border) save_tx_rd_info(n4, hash, x, rd_stats, mb_rd_record);
-    return;
+    dist1 = dist;
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
+      dist1 = ROUND_POWER_OF_TWO(dist1, (xd->bd - 8) * 2);
+    const int skip_ctx = av1_get_skip_context(xd);
+    rd = RDCOST(x->rdmult, x->skip_cost[skip_ctx][1], (dist1 << 4));
+    if (rd < ref_best_rd) {
+      set_skip_flag(x, rd_stats, bsize, dist);
+      // Save the RD search results into tx_rd_record.
+      if (within_border) save_tx_rd_info(n4, hash, x, rd_stats, mb_rd_record);
+      return;
+    }
   }
 
   // Precompute residual hashes and find existing or add new RD records to
@@ -5771,7 +5846,7 @@ static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
                             RD_STATS *rd_stats, BLOCK_SIZE bsize,
                             int64_t non_skip_ref_best_rd,
                             int64_t skip_ref_best_rd,
-                            FAST_TX_SEARCH_MODE ftxs_mode) {
+                            FAST_TX_SEARCH_MODE ftxs_mode, int is_luma_skip) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   int plane;
@@ -5797,7 +5872,43 @@ static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
       av1_subtract_plane(x, bsizec, plane);
   }
 
+  const int is_inter = is_inter_block(mbmi);
+
   if (is_cost_valid) {
+    // If we predict that skip is the optimal RD decision - set the respective
+    // context and terminate early.
+    int64_t dist[MAX_MB_PLANE];
+    int skip = 0;
+    const AV1_COMMON *cm = &cpi->common;
+    if (is_inter && cpi->sf.tx_type_search.use_skip_flag_prediction &&
+        is_luma_skip) {
+      for (plane = 1; plane < MAX_MB_PLANE; ++plane) {
+        const struct macroblockd_plane *const pd = &xd->plane[plane];
+        const BLOCK_SIZE plane_bsize =
+            get_plane_block_size(bsizec, pd->subsampling_x, pd->subsampling_y);
+        if (predict_skip_flag_uv(x, plane_bsize, &dist[plane],
+                                 cm->reduced_tx_set_used, plane)) {
+          skip = 1;
+        } else {
+          skip = 0;
+          break;
+        }
+      }
+      if (skip) {
+        RD_STATS pn_rd_stats;
+        av1_init_rd_stats(&pn_rd_stats);
+        for (plane = 1; plane < MAX_MB_PLANE; ++plane) {
+          set_skip_flag_uv(x, &pn_rd_stats, bsize, dist[plane], plane);
+          av1_merge_rd_stats(rd_stats, &pn_rd_stats);
+        }
+        skip_rd = RDCOST(x->rdmult, 0, rd_stats->sse);
+        if (skip_rd < skip_ref_best_rd) {
+          return is_cost_valid;
+        }
+      }
+      av1_init_rd_stats(rd_stats);
+    }
+
     for (plane = 1; plane < MAX_MB_PLANE; ++plane) {
       const struct macroblockd_plane *const pd = &xd->plane[plane];
       const BLOCK_SIZE plane_bsize =
@@ -8449,7 +8560,8 @@ static int txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
       is_cost_valid_uv =
           inter_block_uvrd(cpi, x, rd_stats_uv, bsize,
                            ref_best_rd - non_skip_rdcosty,
-                           ref_best_rd - skip_rdcosty, FTXS_NONE);
+                           ref_best_rd - skip_rdcosty, FTXS_NONE,
+                           rd_stats->skip);
       if (!is_cost_valid_uv) {
         mbmi->ref_frame[1] = ref_frame_1;
         return 0;
@@ -10253,7 +10365,7 @@ static void sf_refine_fast_tx_type_search(
       }
       if (num_planes > 1) {
         inter_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX, INT64_MAX,
-                         FTXS_NONE);
+                         FTXS_NONE, 0);
       } else {
         av1_init_rd_stats(&rd_stats_uv);
       }
