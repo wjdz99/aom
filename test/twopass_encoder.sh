@@ -21,6 +21,9 @@ twopass_encoder_verify_environment() {
     echo "Libaom test data must exist in LIBAOM_TEST_DATA_PATH."
     return 1
   fi
+  if [ -z "$(aom_tool_path twopass_encoder)" ]; then
+    elog "twopass_encoder not found by aom_tool_path()."
+  fi
 }
 
 # Runs twopass_encoder using the codec specified by $1 with a frame limit of
@@ -44,9 +47,8 @@ twopass_encoder() {
 }
 
 twopass_encoder_av1() {
-  if [ "$(av1_encode_available)" = "yes" ]; then
-    twopass_encoder av1 || return 1
-  fi
+  [ -n "$(aom_tool_path twopass_encoder)" ] || return 0
+  twopass_encoder av1
 }
 
 twopass_encoder_tests="twopass_encoder_av1"

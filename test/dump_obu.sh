@@ -22,45 +22,32 @@ dump_obu_verify_environment() {
     elog "The file ${YUV_RAW_INPUT##*/} must exist in LIBAOM_TEST_DATA_PATH."
     return 1
   fi
-  if [ "$(dump_obu_available)" = "yes" ]; then
-    if [ -z "$(aom_tool_path dump_obu)" ]; then
-      elog "dump_obu not found in LIBAOM_BIN_PATH, its parent, or child tools/."
-    fi
-  fi
-}
-
-dump_obu_available() {
-  if [ "$(av1_decode_available)" = "yes" ] && \
-     [ "$(av1_encode_available)" = "yes" ]; then
-    echo yes
-  fi
-}
-
-aomenc_available() {
-  if [ -x "$(aom_tool_path aomenc)" ]; then
-    echo yes
+  if [ -z "$(aom_tool_path aomenc)" ]; then
+    elog "aomenc not found by aom_tool_path()."
+  elif [ -z "$(aom_tool_path dump_obu)" ]; then
+    elog "dump_obu not found by aom_tool_path()."
+    return 1
   fi
 }
 
 encode_test_file() {
-  if [ "$(aomenc_available)" = "yes" ]; then
-    local encoder="$(aom_tool_path aomenc)"
+  local encoder="$(aom_tool_path aomenc)"
 
-    eval "${encoder}" \
-      $(aomenc_encode_test_fast_params) \
-      $(yuv_raw_input) \
-      --ivf \
-      --output=${dump_obu_test_file} \
-      ${devnull}
+  eval "${encoder}" \
+    $(aomenc_encode_test_fast_params) \
+    $(yuv_raw_input) \
+    --ivf \
+    --output=${dump_obu_test_file} \
+    ${devnull}
 
-    if [ ! -e "${dump_obu_test_file}" ]; then
-      elog "dump_obu test input encode failed."
-      return 1
-    fi
+  if [ ! -e "${dump_obu_test_file}" ]; then
+    elog "dump_obu test input encode failed."
+    return 1
   fi
 }
 
 dump_obu() {
+  [ -n "$(aom_tool_path aomenc)" ] || return 0
   encode_test_file
   eval $(aom_tool_path dump_obu) "${dump_obu_test_file}" ${devnull}
 }

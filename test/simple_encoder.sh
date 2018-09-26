@@ -21,11 +21,14 @@ simple_encoder_verify_environment() {
     echo "Libaom test data must exist in LIBAOM_TEST_DATA_PATH."
     return 1
   fi
+  if [ -z "$(aom_tool_path simple_encoder)" ]; then
+    elog "simple_encoder not found by aom_tool_path()."
+  fi
 }
 
 # Runs simple_encoder using the codec specified by $1 with a frame limit of 100.
 simple_encoder() {
-  local encoder="${LIBAOM_BIN_PATH}/simple_encoder${AOM_TEST_EXE_SUFFIX}"
+  local encoder="$(aom_tool_path simple_encoder)"
   local codec="$1"
   local output_file="${AOM_TEST_OUTPUT_DIR}/simple_encoder_${codec}.ivf"
 
@@ -43,9 +46,8 @@ simple_encoder() {
 
 
 simple_encoder_av1() {
-  if [ "$(av1_encode_available)" = "yes" ]; then
-    simple_encoder av1 || return 1
-  fi
+  [ -n "$(aom_tool_path simple_encoder)" ] || return 0
+  simple_encoder av1
 }
 
 simple_encoder_tests="simple_encoder_av1"

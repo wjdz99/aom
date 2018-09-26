@@ -23,7 +23,7 @@ set_maps_verify_environment() {
     return 1
   fi
   if [ -z "$(aom_tool_path set_maps)" ]; then
-    elog "set_maps not found. It must exist in LIBAOM_BIN_PATH or its parent."
+    elog "set_maps not found by aom_tool_path()."
     return 1
   fi
 }

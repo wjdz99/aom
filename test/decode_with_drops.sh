@@ -21,6 +21,10 @@ decode_with_drops_verify_environment() {
   if [ "$(av1_encode_available)" != "yes" ] && [ ! -e "${AV1_IVF_FILE}" ]; then
     return 1
   fi
+  if [ -z "$(aom_tool_path decode_with_drops)" ]; then
+    elog "decode_with_drops not found by aom_tool_path()."
+    return 1
+  fi
 }
 
 # Runs decode_with_drops on $1, $2 is interpreted as codec name and used solely
