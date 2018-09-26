@@ -16,6 +16,24 @@
       "revId": "2e7dcd459605c19c97f5f57be2e02aa3bc84afa9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b2ef8ce3_8920be25",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-26T23:31:27Z",
+      "side": 1,
+      "message": "Don\u0027t we already decrease ref count of \u0027cm-\u003enew_fb_idx\u0027 at 492?",
+      "parentUuid": "ed7c65b0_759193ae",
+      "revId": "2e7dcd459605c19c97f5f57be2e02aa3bc84afa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
