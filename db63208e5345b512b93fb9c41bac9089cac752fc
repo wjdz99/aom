@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "205117a9_b175b113",
+        "filename": "test/dump_obu.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-09-26T22:32:58Z",
+      "side": 1,
+      "message": "If we want it to die when aomenc is not available, this seems like a better place. I just don\u0027t see a way to die hard / skip the test entirely from the verify step.",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 47
+      },
+      "revId": "db63208e5345b512b93fb9c41bac9089cac752fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "15ddaeaf_bad08d4d",
         "filename": "test/dump_obu.sh",
         "patchSetId": 2
@@ -19,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "c2336c02_1f27a777",
+        "filename": "test/dump_obu.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-09-26T22:32:58Z",
+      "side": 1,
+      "message": "Right, I was trying to say \"If you don\u0027t have aomenc, then succeed\"\n\nI guess $(av1_encode_available) is probably better. It just doesn\u0027t die the way I want it to when the tool is just missing.",
+      "parentUuid": "15ddaeaf_bad08d4d",
+      "revId": "db63208e5345b512b93fb9c41bac9089cac752fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "edc15493_b6eb6de0",
         "filename": "test/simple_encoder.sh",
         "patchSetId": 2
@@ -30,6 +71,30 @@
       "writtenOn": "2018-09-26T22:25:26Z",
       "side": 1,
       "message": "You don\u0027t need this check with the check in simple_encoder_verify_environment().",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 54
+      },
+      "revId": "db63208e5345b512b93fb9c41bac9089cac752fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23479d40_9960bd45",
+        "filename": "test/simple_encoder.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-09-26T22:32:58Z",
+      "side": 1,
+      "message": "But the check in verify_environment doesn\u0027t kill the test.\n\nConsider a build with --disable-encoder - simple_encoder will not be found, but the test will still be run, so we need a way to skip here (or return hard from verify_environment)",
+      "parentUuid": "edc15493_b6eb6de0",
       "range": {
         "startLine": 49,
         "startChar": 0,
