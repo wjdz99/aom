@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0d220666_cefbd980",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-09-27T13:25:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb91f7bc_a02fa0d5",
+      "range": {
+        "startLine": 9,
+        "startChar": 58,
+        "endLine": 9,
+        "endChar": 73
+      },
+      "revId": "d5de68b9087af540534ac46a64f6280460634852",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1e5943b1_9d189f40",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "d5de68b9087af540534ac46a64f6280460634852",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bda28c7f_551144df",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 710,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-09-27T13:25:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e5943b1_9d189f40",
+      "range": {
+        "startLine": 710,
+        "startChar": 0,
+        "endLine": 710,
+        "endChar": 18
+      },
+      "revId": "d5de68b9087af540534ac46a64f6280460634852",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
