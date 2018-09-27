@@ -30,6 +30,7 @@
 #include "av1/common/idct.h"
 #include "av1/common/mvref_common.h"
 #include "av1/common/obmc.h"
+#include "av1/common/onyxc_int.h"
 #include "av1/common/pred_common.h"
 #include "av1/common/quant_common.h"
 #include "av1/common/reconinter.h"
@@ -12323,4 +12324,72 @@ static void calc_target_weighted_pred(const AV1_COMMON *cm, const MACROBLOCK *x,
       src += x->plane[0].src.stride;
     }
   }
+}
+
+static uint8_t get_pix(const uint8_t *src, int stride, int i, int j) {
+  return src[i + stride * j];
+}
+
+// 8-tap Gaussian convolution filter with sigma = 1.3, sums to 128.
+static const int16_t gauss_filter[] = { 3, 12, 29, 40, 29, 12, 3, 0 };
+
+void gaussian_blur(const uint8_t *src, int src_stride, int w, int h,
+                   uint8_t *dst) {
+  ConvolveParams conv_params = get_conv_params(0, 0, 0);
+  InterpFilterParams filter = { .filter_ptr = gauss_filter,
+                                .taps = 8,
+                                .subpel_shifts = 0,
+                                .interp_filter = EIGHTTAP_REGULAR };
+  av1_convolve_2d_sr(src, src_stride, dst, w, w, h, &filter, &filter, 0, 0,
+                     &conv_params);
+}
+
+/* Use standard 3x3 Soebel matrix. */
+uint16_t soebel(const uint8_t *input, int stride, int i, int j) {
+  int s_x = get_pix(input, stride, i - 1, j - 1) -
+            get_pix(input, stride, i + 1, j - 1) +
+            2 * get_pix(input, stride, i - 1, j) -
+            2 * get_pix(input, stride, i + 1, j) +
+            get_pix(input, stride, i - 1, j + 1) -
+            get_pix(input, stride, i + 1, j + 1);
+  int s_y = get_pix(input, stride, i - 1, j - 1) +
+            2 * get_pix(input, stride, i, j - 1) +
+            get_pix(input, stride, i + 1, j - 1) -
+            get_pix(input, stride, i - 1, j + 1) -
+            2 * get_pix(input, stride, i, j + 1) -
+            get_pix(input, stride, i + 1, j + 1);
+  return (uint16_t)sqrt(s_x * s_x + s_y * s_y);
+}
+
+static uint16_t edge_probability(const uint8_t *input, int w, int h) {
+  // The probability of an edge in the whole image is the same as the highest
+  // probability of an edge for any individual pixel. Use Soebel as the metric
+  // for finding an edge.
+  uint16_t highest = 0;
+  // Ignore the 1 pixel border around the image for the computation.
+  for (int i = 1; i < w - 1; ++i) {
+    for (int j = 1; j < h - 1; ++j) {
+      highest = AOMMAX(highest, soebel(input, w, i, j));
+    }
+  }
+  return highest;
+}
+
+/* Uses most of the Canny edge detection algorithm to find if there are any
+ * edges in the image.
+ */
+uint16_t av1_edge_exists(const uint8_t *src, int src_stride, int w, int h) {
+  if (w < 3 || h < 3) {
+    return 0;
+  }
+  uint8_t *blurred = NULL;
+  blurred = (uint8_t *)aom_malloc(sizeof(*blurred) * w * h);
+  gaussian_blur(src, src_stride, w, h, blurred);
+  // Skip the non-maximum suppression step in Canny edge detection. We just
+  // want a probability of an edge existing in the buffer, which is determined
+  // by the strongest edge in it -- we don't need to eliminate the weaker
+  // edges. Use Soebel for the edge detection.
+  uint16_t prob = edge_probability(blurred, w, h);
+  aom_free(blurred);
+  return prob;
 }
