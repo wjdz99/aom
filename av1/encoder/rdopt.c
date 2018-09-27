@@ -30,6 +30,7 @@
 #include "av1/common/idct.h"
 #include "av1/common/mvref_common.h"
 #include "av1/common/obmc.h"
+#include "av1/common/onyxc_int.h"
 #include "av1/common/pred_common.h"
 #include "av1/common/quant_common.h"
 #include "av1/common/reconinter.h"
@@ -12314,4 +12315,103 @@ static void calc_target_weighted_pred(const AV1_COMMON *cm, const MACROBLOCK *x,
       src += x->plane[0].src.stride;
     }
   }
+}
+
+/** Set the (x, y) pixel value in the array, assuming rows are concatenated.
+ */
+#define SET_XY(input, width, i, j, v) input[(i) + (j) * (width)] = (v)
+/** Get the (x, y) pixel value from the array, assuming rows are concatenated.
+ * If the value is outside the array, it returns the value of the nearest
+ * pixel.
+ */
+#define GET_XY(input, height, width, i, j)  \
+  input[AOMMAX(AOMMIN((i), (width)-1), 0) + \
+        (width)*AOMMAX(AOMMIN((j), (height)-1), 0)]
+
+// 5x5 Gaussian convolution filter with sigma = 1.5
+static const int gauss_norm_constant = 133;
+static const int8_t gauss_filter[] = { 2, 4, 5, 4, 2, 4, 7, 9, 7, 2, 5, 9, 11,
+                                       9, 5, 4, 7, 9, 7, 4, 2, 4, 5, 4, 2 };
+
+static int convolve(const uint8_t *input, int height, int width,
+                    const int8_t *filter, int filter_height, int filter_width,
+                    int x, int y) {
+  assert(filter_height % 2 == 1);
+  assert(filter_width % 2 == 1);
+  int total = 0;
+  for (int x_offset = 0; x_offset < filter_width; ++x_offset) {
+    for (int y_offset = 0; y_offset < filter_height; ++y_offset) {
+      int val = GET_XY(input, height, width, x + x_offset - filter_width / 2,
+                       y + y_offset - filter_height / 2);
+      int c = GET_XY(filter, filter_height, filter_width, x_offset, y_offset);
+      total += c * val;
+    }
+  }
+  return total;
+}
+
+void gaussian_blur(const uint8_t *input, int height, int width,
+                   uint8_t *output) {
+  for (int i = 0; i < width; ++i) {
+    for (int j = 0; j < height; ++j) {
+      int val = convolve(input, height, width, gauss_filter, 5, 5, i, j);
+      SET_XY(output, width, i, j, val / gauss_norm_constant);
+    }
+  }
+}
+
+// Standard Soebel filter.
+static const int8_t soebel_x[] = { 1, 0, -1, 2, 0, -2, 1, 0, -1 };
+static const int8_t soebel_y[] = { 1, 2, 1, 0, 0, 0, -1, -2, -1 };
+
+void soebel(const uint8_t *input, int height, int width, int *output) {
+  for (int i = 0; i < width; ++i) {
+    for (int j = 0; j < height; ++j) {
+      int s_x = convolve(input, height, width, soebel_x, 3, 3, i, j);
+      int s_y = convolve(input, height, width, soebel_y, 3, 3, i, j);
+      SET_XY(output, width, i, j, (int)sqrt(s_x * s_x + s_y * s_y));
+    }
+  }
+}
+
+static float edge_probability(const int *input, int height, int width) {
+  // The probability of an edge in the whole image is the same as the highest
+  // probability of an edge for any individual pixel.
+  int highest = 0;
+  for (int i = 0; i < width; ++i) {
+    for (int j = 0; j < height; ++j) {
+      highest = AOMMAX(highest, GET_XY(input, height, width, i, j));
+    }
+  }
+  // The Soebel magnitude of an black/white edge (after Gaussian blur) is 296.
+  // In general, if the value is above 255, say it is an edge; otherwise,
+  // assign a probability linearly between 0 and 255.
+  if (highest > 255) {
+    return 1.0f;
+  }
+  return highest / 255.0f;
+}
+
+/** Uses most of the Canny edge detection algorithm to find if there are any
+ * edges in the image. Buffer is in row-order.
+ */
+float av1_edge_exists(const uint8_t *luma, int height, int width) {
+  if (height < 1 || width < 1) {
+    return 0;
+  }
+  uint8_t *buffer1 = NULL;
+  buffer1 = (uint8_t *)aom_malloc(sizeof(*buffer1) * height * width);
+  int *buffer2 = NULL;
+  buffer2 = (int *)aom_malloc(sizeof(*buffer2) * height * width);
+
+  gaussian_blur(luma, height, width, buffer1);
+  soebel(buffer1, height, width, buffer2);
+  // Skip the non-maximum suppression step in Canny edge detection. We just
+  // want a probability of an edge existing in the buffer, which is determined
+  // by the strongest edge in it -- we don't need to eliminate the weaker
+  // edges.
+  float prob = edge_probability(buffer2, height, width);
+  aom_free(buffer1);
+  aom_free(buffer2);
+  return prob;
 }
