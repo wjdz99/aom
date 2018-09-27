@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "2e61c96f_f1bb79e6",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-27T21:51:03Z",
+      "side": 1,
+      "message": "We acquire a reference for the frame buffer at index cm-\u003enew_fb_idx. This reference is released at line 492 if aom_internal_error() is called.",
+      "revId": "2e7dcd459605c19c97f5f57be2e02aa3bc84afa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ed7c65b0_759193ae",
         "filename": "av1/decoder/decoder.c",
         "patchSetId": 1
@@ -37,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "85ed8784_3f0da20b",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-27T21:51:03Z",
+      "side": 1,
+      "message": "The decrease_ref_count(cm-\u003enew_fb_idx, frame_bufs, pool) call at line 492 is intended to release the reference acquired and stored in cm-\u003enew_fb_idx at line 434.\n\nIf generate_next_ref_frame_map() stores the same index in the cm-\u003enext_ref_frame_map array and acquires another reference, we need to release that reference here.",
+      "parentUuid": "b2ef8ce3_8920be25",
+      "revId": "2e7dcd459605c19c97f5f57be2e02aa3bc84afa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "91c15eb9_2f1c2ab7",
         "filename": "av1/decoder/decoder.c",
         "patchSetId": 1
@@ -57,6 +92,30 @@
       "revId": "2e7dcd459605c19c97f5f57be2e02aa3bc84afa9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7742636f_8dd7bc5e",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-27T21:51:03Z",
+      "side": 1,
+      "message": "I was wondering about this, too. I ignored this issue because the reference leak that caused the OOM error in bug oss-fuzz:10389 is in the for loop above.\n\nOn your question, I decided to analyze the code. I concluded that check_on_show_existing_frame must be true here, so I have replaced this check with an assertion.\n\nHere is my proof that check_on_show_existing_frame is true here.\n\n1. We know pbi-\u003ehold_ref_buf is 1 here (ensured by line 465).\n2. pbi-\u003ehold_ref_buf is set to 1 only in generate_next_ref_frame_map(). That function has only two callers.\n3. The first caller, show_existing_frame_reset(), is only called when both cm-\u003eshow_existing_frame and cm-\u003ereset_decoder_state are true.\n4. The second caller is read_uncompressed_header(). read_uncompressed_header() calls generate_next_ref_frame_map() only when cm-\u003eshow_existing_frame is false. (This is because read_uncompressed_header() returns early if cm-\u003eshow_existing_frame is true and therefore won\u0027t reach the place where it calls generate_next_ref_frame_map().)\n5. Therefore, !cm-\u003eshow_existing_frame || cm-\u003ereset_decoder_state must be true here.\n\nNote: If check_on_show_existing_frame is false here, we will skip the second for loop and leak frame buffer references.",
+      "parentUuid": "91c15eb9_2f1c2ab7",
+      "range": {
+        "startLine": 482,
+        "startChar": 16,
+        "endLine": 482,
+        "endChar": 44
+      },
+      "revId": "2e7dcd459605c19c97f5f57be2e02aa3bc84afa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
