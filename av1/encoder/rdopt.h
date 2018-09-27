@@ -126,6 +126,24 @@ void av1_rd_pick_inter_mode_sb_seg_skip(
     struct macroblock *x, int mi_row, int mi_col, struct RD_STATS *rd_cost,
     BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx, int64_t best_rd_so_far);
 
+/** Returns the strength of the edge found in the image. 0 means no edge
+ * found, 1 means a definite edge, any number inbetween represents a
+ * probability. Note that when operating on the border, the nearest pixel
+ * will be replicated (for convolution operations).
+ */
+float av1_edge_exists(const uint8_t *luma, int height, int width);
+
+/** Applies a 5x5 Gaussian blur with sigma = 1.5. Used by av1_edge_exists and
+ * tests.
+ */
+void gaussian_blur(const uint8_t *input, int height, int width,
+                   uint8_t *output);
+
+/** Writes out the magnitude after applying the Soebel filter. Used by
+ * av1_edge_exists and tests.
+ */
+void soebel(const uint8_t *input, int height, int width, int *output);
+
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
 void av1_inter_mode_data_init(struct TileDataEnc *tile_data);
 void av1_inter_mode_data_fit(TileDataEnc *tile_data, int rdmult);
