@@ -24,6 +24,10 @@
 #define OBU_HEADER_SIZE 1
 #define OBU_EXTENSION_SIZE 1
 #define OBU_MAX_LENGTH_FIELD_SIZE 8
+
+#define OBU_MAX_HEADER_SIZE \
+  (OBU_HEADER_SIZE + OBU_EXTENSION_SIZE + OBU_MAX_LENGTH_FIELD_SIZE)
+
 #define OBU_DETECTION_SIZE \
   (OBU_HEADER_SIZE + OBU_EXTENSION_SIZE + 3 * OBU_MAX_LENGTH_FIELD_SIZE)
 
@@ -117,8 +121,7 @@ static int obudec_read_obu_header_and_size(FILE *f, size_t buffer_capacity,
                                            size_t *bytes_read,
                                            size_t *payload_length,
                                            ObuHeader *obu_header) {
-  const size_t kMinimumBufferSize =
-      (OBU_HEADER_SIZE + OBU_EXTENSION_SIZE + OBU_MAX_LENGTH_FIELD_SIZE);
+  const size_t kMinimumBufferSize = OBU_MAX_HEADER_SIZE;
   if (!f || !buffer || !bytes_read || !payload_length || !obu_header ||
       buffer_capacity < kMinimumBufferSize) {
     return -1;
@@ -175,6 +178,38 @@ static int obudec_read_obu_header_and_size(FILE *f, size_t buffer_capacity,
   return 0;
 }
 
+static int obudec_grow_buffer(size_t growth_amount, uint8_t **obu_buffer,
+                              size_t *obu_buffer_capacity) {
+  if (!*obu_buffer || !obu_buffer_capacity || growth_amount == 0) {
+    return -1;
+  }
+
+  const size_t capacity = *obu_buffer_capacity;
+  if (SIZE_MAX - growth_amount < capacity) {
+    fprintf(stderr, "obudec: cannot grow buffer, capacity will roll over.\n");
+    return -1;
+  }
+
+  const size_t new_capacity = capacity + growth_amount;
+
+#if defined AOM_MAX_ALLOCABLE_MEMORY
+  if (new_capacity > AOM_MAX_ALLOCABLE_MEMORY) {
+    fprintf(stderr, "obudec: OBU size exceeds max alloc size.\n");
+    return -1;
+  }
+#endif
+
+  uint8_t *new_buffer = (uint8_t *)realloc(*obu_buffer, new_capacity);
+  if (new_buffer) {
+    *obu_buffer = new_buffer;
+    *obu_buffer_capacity = new_capacity;
+  } else {
+    fprintf(stderr, "obudec: Failed to allocate compressed data buffer.\n");
+    return -1;
+  }
+  return 0;
+}
+
 static int obudec_read_one_obu(FILE *f, uint8_t **obu_buffer,
                                size_t obu_bytes_buffered,
                                size_t *obu_buffer_capacity, size_t *obu_length,
@@ -185,6 +220,14 @@ static int obudec_read_one_obu(FILE *f, uint8_t **obu_buffer,
 
   size_t bytes_read = 0;
   size_t obu_payload_length = 0;
+
+  if (available_buffer_capacity < OBU_MAX_HEADER_SIZE &&
+      obudec_grow_buffer(OBU_MAX_HEADER_SIZE, obu_buffer,
+                         obu_buffer_capacity) != 0) {
+    return -1;
+  }
+  available_buffer_capacity += OBU_MAX_HEADER_SIZE;
+
   const int status = obudec_read_obu_header_and_size(
       f, available_buffer_capacity, is_annexb, *obu_buffer + obu_bytes_buffered,
       &bytes_read, &obu_payload_length, obu_header);
@@ -199,30 +242,13 @@ static int obudec_read_one_obu(FILE *f, uint8_t **obu_buffer,
     return -1;
   }
 
-  if (bytes_read + obu_payload_length > available_buffer_capacity) {
-    if (*obu_buffer_capacity >= (SIZE_MAX >> 1)) {
-      fprintf(stderr, "obudec: cannot realloc buffer; capacity rolled over.\n");
-      return -1;
-    }
-    const size_t new_capacity = 2 * *obu_buffer_capacity;
-
-#if defined AOM_MAX_ALLOCABLE_MEMORY
-    if (new_capacity > AOM_MAX_ALLOCABLE_MEMORY) {
-      fprintf(stderr, "obudec: OBU size exceeds max alloc size.\n");
-      return -1;
-    }
-#endif
-
-    uint8_t *new_buffer = (uint8_t *)realloc(*obu_buffer, new_capacity);
-
-    if (new_buffer) {
-      *obu_buffer = new_buffer;
-      *obu_buffer_capacity = new_capacity;
-    } else {
-      fprintf(stderr, "obudec: Failed to allocate compressed data buffer\n");
-      *obu_length = bytes_read + obu_payload_length;
-      return -1;
-    }
+  if (bytes_read + obu_payload_length > available_buffer_capacity &&
+      obudec_grow_buffer(*obu_buffer_capacity > obu_payload_length
+                             ? *obu_buffer_capacity
+                             : obu_payload_length,
+                         obu_buffer, obu_buffer_capacity) != 0) {
+    *obu_length = bytes_read + obu_payload_length;
+    return -1;
   }
 
   if (obu_payload_length > 0 &&
