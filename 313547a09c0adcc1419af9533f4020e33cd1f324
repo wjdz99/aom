@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9bc5ac25_43aec441",
+        "filename": "common/obudec.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-27T02:02:31Z",
+      "side": 1,
+      "message": "Tom: It seems that this CL does not fix the second problem that Jack reported:\n\n\"A similar problem would occur with payloads which exactly fill the remaining space in the buffer - in this case, no enlargement of the buffer would be triggered, and the decoder would error out on the next time round the loop as before.\"\n\nThe fundamental problem is that we do not enlarge *obu_buffer before this obudec_read_obu_header_and_size() call to make sure available_buffer_capacity \u003e\u003d 10 bytes, the kMinimumBufferSize required by obudec_read_obu_header_and_size().\n\nWe should be able to add a buffer size check and the buffer enlargement code before the obudec_read_obu_header_and_size() call. The buffer enlargement code can be refactored into a new function to be shared.",
+      "revId": "313547a09c0adcc1419af9533f4020e33cd1f324",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
