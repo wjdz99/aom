@@ -3151,10 +3151,11 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
         rate_cost = av1_cost_coeffs(cm, x, plane, block, tx_size, tx_type,
                                     txb_ctx, use_fast_coef_costing);
+        int zero_blk_rate = av1_cost_skip_txb(x, txb_ctx, plane, tx_size);
         const int64_t rd_estimate =
             AOMMIN(RDCOST(x->rdmult, rate_cost, this_rd_stats.dist),
-                   RDCOST(x->rdmult, 0, this_rd_stats.sse));
-        if (rd_estimate - (rd_estimate >> 3) > best_rd_) continue;
+                   RDCOST(x->rdmult, zero_blk_rate, this_rd_stats.sse));
+        if (rd_estimate - ((rd_estimate * 5) >> 5) > best_rd_) continue;
       }
       av1_optimize_b(cpi, x, plane, block, tx_size, tx_type, txb_ctx, 1,
                      &rate_cost);
