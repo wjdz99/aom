@@ -126,6 +126,19 @@ void av1_rd_pick_inter_mode_sb_seg_skip(
     struct macroblock *x, int mi_row, int mi_col, struct RD_STATS *rd_cost,
     BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx, int64_t best_rd_so_far);
 
+/** Returns an integer indicating the strength of the edge.
+ * 0 means no edge found, 548 is the strength of a solid black/white edge,
+ * and the number may range higher if the signal is even stronger (e.g., on a
+ * corner).
+ */
+uint16_t av1_edge_exists(const uint8_t *src, int src_stride, int w, int h);
+
+/** Applies a Gaussian blur with sigma = 1.3. Used by av1_edge_exists and
+ * tests.
+ */
+void gaussian_blur(const uint8_t *src, int src_stride, int w, int h,
+                   uint8_t *dst);
+
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
 void av1_inter_mode_data_init(struct TileDataEnc *tile_data);
 void av1_inter_mode_data_fit(TileDataEnc *tile_data, int rdmult);
