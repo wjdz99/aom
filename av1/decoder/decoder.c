@@ -71,11 +71,10 @@ static void dec_free_mi(AV1_COMMON *cm) {
 
 AV1Decoder *av1_decoder_create(BufferPool *const pool) {
   AV1Decoder *volatile const pbi = aom_memalign(32, sizeof(*pbi));
-  AV1_COMMON *volatile const cm = pbi ? &pbi->common : NULL;
-
-  if (!cm) return NULL;
-
+  if (!pbi) return NULL;
   av1_zero(*pbi);
+
+  AV1_COMMON *volatile const cm = &pbi->common;
 
   // The jmp_buf is valid only for the duration of the function that calls
   // setjmp(). Therefore, this function must reset the 'setjmp' field to 0
@@ -472,15 +471,17 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
 
         // Release the reference frame holding in the reference map for the
         // decoding of the next frame.
-        if (mask & 1) decrease_ref_count(old_idx, frame_bufs, pool);
+        if (mask & 1) {
+          const int new_idx = cm->next_ref_frame_map[ref_index];
+          decrease_ref_count(new_idx, frame_bufs, pool);
+        }
         ++ref_index;
       }
 
       // Current thread releases the holding of reference frame.
-      const int check_on_show_existing_frame =
-          !cm->show_existing_frame || cm->reset_decoder_state;
-      for (; ref_index < REF_FRAMES && check_on_show_existing_frame;
-           ++ref_index) {
+      // TODO(wtc): Remove this assertion after 2018-10-31.
+      assert(!cm->show_existing_frame || cm->reset_decoder_state);
+      for (; ref_index < REF_FRAMES; ++ref_index) {
         const int old_idx = cm->ref_frame_map[ref_index];
         decrease_ref_count(old_idx, frame_bufs, pool);
       }
@@ -499,7 +500,8 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
   int frame_decoded =
       aom_decode_frame_from_obus(pbi, source, source + size, psource);
 
-  if (cm->error.error_code != AOM_CODEC_OK) {
+  if (frame_decoded < 0) {
+    assert(cm->error.error_code != AOM_CODEC_OK);
     lock_buffer_pool(pool);
     decrease_ref_count(cm->new_fb_idx, frame_bufs, pool);
     unlock_buffer_pool(pool);

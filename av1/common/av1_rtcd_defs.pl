@@ -212,7 +212,9 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/av1_lowbd_fwd_txfm sse2 sse4_1 avx2/;
 
   add_proto qw/void av1_fwd_txfm2d_4x8/, "const int16_t *input, int32_t *output, int stride, TX_TYPE tx_type, int bd";
+  specialize qw/av1_fwd_txfm2d_4x8 sse4_1/;
   add_proto qw/void av1_fwd_txfm2d_8x4/, "const int16_t *input, int32_t *output, int stride, TX_TYPE tx_type, int bd";
+  specialize qw/av1_fwd_txfm2d_8x4 sse4_1/;
   add_proto qw/void av1_fwd_txfm2d_8x16/, "const int16_t *input, int32_t *output, int stride, TX_TYPE tx_type, int bd";
   specialize qw/av1_fwd_txfm2d_8x16 sse4_1/;
   add_proto qw/void av1_fwd_txfm2d_16x8/, "const int16_t *input, int32_t *output, int stride, TX_TYPE tx_type, int bd";
@@ -222,7 +224,9 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   add_proto qw/void av1_fwd_txfm2d_32x16/, "const int16_t *input, int32_t *output, int stride, TX_TYPE tx_type, int bd";
   specialize qw/av1_fwd_txfm2d_32x16 sse4_1/;
   add_proto qw/void av1_fwd_txfm2d_4x16/, "const int16_t *input, int32_t *output, int stride, TX_TYPE tx_type, int bd";
+  specialize qw/av1_fwd_txfm2d_4x16 sse4_1/;
   add_proto qw/void av1_fwd_txfm2d_16x4/, "const int16_t *input, int32_t *output, int stride, TX_TYPE tx_type, int bd";
+  specialize qw/av1_fwd_txfm2d_16x4 sse4_1/;
   add_proto qw/void av1_fwd_txfm2d_8x32/, "const int16_t *input, int32_t *output, int stride, TX_TYPE tx_type, int bd";
   specialize qw/av1_fwd_txfm2d_8x32 sse4_1/;
   add_proto qw/void av1_fwd_txfm2d_32x8/, "const int16_t *input, int32_t *output, int stride, TX_TYPE tx_type, int bd";
@@ -286,7 +290,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   add_proto qw/uint32_t av1_get_crc32c_value/, "void *crc_calculator, uint8_t *p, int length";
   specialize qw/av1_get_crc32c_value sse4_2/;
 
-  add_proto qw/void av1_compute_stats/,  "int wiener_win, const uint8_t *dgd8, const uint8_t *src8, int h_start, int h_end, int v_start, int v_end, int dgd_stride, int src_stride,  double *M, double *H";
+  add_proto qw/void av1_compute_stats/,  "int wiener_win, const uint8_t *dgd8, const uint8_t *src8, int h_start, int h_end, int v_start, int v_end, int dgd_stride, int src_stride, int64_t *M, int64_t *H";
   specialize qw/av1_compute_stats sse4_1 avx2/;
 
   add_proto qw/int64_t av1_lowbd_pixel_proj_error/, " const uint8_t *src8, int width, int height, int src_stride, const uint8_t *dat8, int dat_stride, int32_t *flt0, int flt0_stride, int32_t *flt1, int flt1_stride, int xq[2], const sgr_params_type *params";
