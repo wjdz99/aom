@@ -309,6 +309,30 @@
     },
     {
       "key": {
+        "uuid": "67cfa0b7_d2431a71",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-09-28T18:08:05Z",
+      "side": 1,
+      "message": "Np! I should have read the code more closely before deleting it. I\u0027ve restored the check. \n\nI think it\u0027s better to keep it here since this was originally added to deal with a fuzzed file containing an impossibly large OBU payload.",
+      "parentUuid": "9d8923bf_d8ca587f",
+      "range": {
+        "startLine": 238,
+        "startChar": 0,
+        "endLine": 243,
+        "endChar": 3
+      },
+      "revId": "d650eb0c00906a0d54c6996ad8fe8a087cbcb36a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c801cce4_6e812edc",
         "filename": "common/obudec.c",
         "patchSetId": 1

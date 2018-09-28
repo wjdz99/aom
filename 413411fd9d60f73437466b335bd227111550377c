@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "1586050e_53f1e055",
+        "filename": "common/obudec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-09-28T18:08:05Z",
+      "side": 1,
+      "message": "Moved null pointer check up above this, and added checks of other pointers. Unlikely to be an issue since this function is private at present, but I can foresee someone changing that to allow for a caller to read a single OBU directly at some point in the future.",
+      "range": {
+        "startLine": 218,
+        "startChar": 0,
+        "endLine": 220,
+        "endChar": 32
+      },
+      "revId": "413411fd9d60f73437466b335bd227111550377c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "558a09d3_d398b9b9",
         "filename": "common/obudec.c",
         "patchSetId": 2
@@ -22,6 +45,30 @@
       "revId": "413411fd9d60f73437466b335bd227111550377c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85a07989_9a9b49a7",
+        "filename": "common/obudec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-09-28T18:08:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "558a09d3_d398b9b9",
+      "range": {
+        "startLine": 226,
+        "startChar": 25,
+        "endLine": 226,
+        "endChar": 45
+      },
+      "revId": "413411fd9d60f73437466b335bd227111550377c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
