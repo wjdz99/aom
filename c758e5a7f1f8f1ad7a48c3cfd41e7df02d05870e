@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62a714e7_bfe9c00b",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-28T23:20:52Z",
+      "side": 1,
+      "message": "This is the first error path. Note that it still does more error recovery than the second error path below.",
+      "revId": "c758e5a7f1f8f1ad7a48c3cfd41e7df02d05870e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "06d89445_dec53492",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-28T23:20:52Z",
+      "side": 1,
+      "message": "This is the second error path.",
+      "revId": "c758e5a7f1f8f1ad7a48c3cfd41e7df02d05870e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
