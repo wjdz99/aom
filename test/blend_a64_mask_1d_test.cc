@@ -104,6 +104,7 @@ class BlendA64Mask1DTest : public FunctionEquivalenceTest<F> {
   uint32_t src1_stride_;
   uint32_t src1_offset_;
 
+  uint8_t dummy_;  // Make mask_ not 2-byte or 4-byte aligned.
   uint8_t mask_[kMaxMaskSize];
 
   int w_;
