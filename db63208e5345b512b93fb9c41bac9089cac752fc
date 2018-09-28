@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "a9c7f00e_c447fb03",
+        "filename": "test/dump_obu.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-09-28T18:07:06Z",
+      "side": 1,
+      "message": "This comment can be ignored-- I forgot that we want to silently do nothing when the encoder is not present to produce a test file.",
+      "parentUuid": "e0102480_2c6d1496",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 47
+      },
+      "revId": "db63208e5345b512b93fb9c41bac9089cac752fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "15ddaeaf_bad08d4d",
         "filename": "test/dump_obu.sh",
         "patchSetId": 2
@@ -102,6 +126,24 @@
     },
     {
       "key": {
+        "uuid": "8bbc07ce_017fa4f1",
+        "filename": "test/dump_obu.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-09-28T18:07:06Z",
+      "side": 1,
+      "message": "Ditto my last comment.",
+      "parentUuid": "593a476a_031b2dca",
+      "revId": "db63208e5345b512b93fb9c41bac9089cac752fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "edc15493_b6eb6de0",
         "filename": "test/simple_encoder.sh",
         "patchSetId": 2
@@ -149,6 +191,30 @@
     },
     {
       "key": {
+        "uuid": "d80ace65_6a2a2d3d",
+        "filename": "test/simple_encoder.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-09-28T18:07:06Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "23479d40_9960bd45",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 54
+      },
+      "revId": "db63208e5345b512b93fb9c41bac9089cac752fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9e2ce29f_5408f892",
         "filename": "test/twopass_encoder.sh",
         "patchSetId": 2
@@ -169,6 +235,30 @@
       "revId": "db63208e5345b512b93fb9c41bac9089cac752fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbaed45d_6db83b0c",
+        "filename": "test/twopass_encoder.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-09-28T18:07:06Z",
+      "side": 1,
+      "message": "Ditto previous comments.",
+      "parentUuid": "9e2ce29f_5408f892",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 55
+      },
+      "revId": "db63208e5345b512b93fb9c41bac9089cac752fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
