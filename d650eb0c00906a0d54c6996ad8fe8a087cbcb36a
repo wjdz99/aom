@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "325c0851_8562fd0e",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-09-28T17:28:46Z",
+      "side": 1,
+      "message": "I prefer the constant here because its name makes the intent of the check below more clear.",
+      "parentUuid": "82bea1ab_54713ecb",
+      "range": {
+        "startLine": 124,
+        "startChar": 15,
+        "endLine": 124,
+        "endChar": 33
+      },
+      "revId": "d650eb0c00906a0d54c6996ad8fe8a087cbcb36a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "89b227a2_7744fa28",
         "filename": "common/obudec.c",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "d650eb0c00906a0d54c6996ad8fe8a087cbcb36a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb6ae7ba_ea0bf608",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-09-28T17:28:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89b227a2_7744fa28",
+      "range": {
+        "startLine": 203,
+        "startChar": 0,
+        "endLine": 210,
+        "endChar": 11
+      },
+      "revId": "d650eb0c00906a0d54c6996ad8fe8a087cbcb36a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "a0491fbe_9249c98b",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-09-28T17:28:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd40bf38_82a076fa",
+      "range": {
+        "startLine": 225,
+        "startChar": 25,
+        "endLine": 225,
+        "endChar": 44
+      },
+      "revId": "d650eb0c00906a0d54c6996ad8fe8a087cbcb36a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7b585751_ba896ebf",
         "filename": "common/obudec.c",
         "patchSetId": 1
@@ -82,6 +154,30 @@
       "writtenOn": "2018-09-28T16:59:06Z",
       "side": 1,
       "message": "Should we set *obu_length to some value, as we do at line 241 and line 250?",
+      "range": {
+        "startLine": 227,
+        "startChar": 4,
+        "endLine": 227,
+        "endChar": 14
+      },
+      "revId": "d650eb0c00906a0d54c6996ad8fe8a087cbcb36a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2f743f6_4effe2d4",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-09-28T17:28:46Z",
+      "side": 1,
+      "message": "I assigned bytes_read, which is still 0 at this point-- it lets the caller know where in the obu reading process the read failed, which is all the intent was in the first place for the assignments below.",
+      "parentUuid": "7b585751_ba896ebf",
       "range": {
         "startLine": 227,
         "startChar": 4,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "4eca6366_8201eca3",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-09-28T17:28:46Z",
+      "side": 1,
+      "message": "I removed this check-- after thinking about it a little I don\u0027t think we want to restrict the OBU payload to such a small size. I believe 4K and 8K lossless streams would almost certainly contain OBU_FRAME OBUs with payloads that large.",
+      "parentUuid": "d32116fa_64a86ecc",
+      "range": {
+        "startLine": 238,
+        "startChar": 0,
+        "endLine": 243,
+        "endChar": 3
+      },
+      "revId": "d650eb0c00906a0d54c6996ad8fe8a087cbcb36a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c801cce4_6e812edc",
         "filename": "common/obudec.c",
         "patchSetId": 1
@@ -137,6 +257,30 @@
       "revId": "d650eb0c00906a0d54c6996ad8fe8a087cbcb36a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "531a76fc_eb1ef6f7",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-09-28T17:28:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c801cce4_6e812edc",
+      "range": {
+        "startLine": 246,
+        "startChar": 25,
+        "endLine": 248,
+        "endChar": 49
+      },
+      "revId": "d650eb0c00906a0d54c6996ad8fe8a087cbcb36a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
