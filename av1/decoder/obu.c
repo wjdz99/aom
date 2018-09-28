@@ -292,6 +292,7 @@ static uint32_t read_frame_header_obu(AV1Decoder *pbi,
                                             trailing_bits_present);
 }
 
+// On failure, calls aom_internal_error() and returns -1.
 static int32_t read_tile_group_header(AV1Decoder *pbi,
                                       struct aom_read_bit_buffer *rb,
                                       int *start_tile, int *end_tile,
@@ -323,6 +324,7 @@ static int32_t read_tile_group_header(AV1Decoder *pbi,
   return ((rb->bit_offset - saved_bit_offset + 7) >> 3);
 }
 
+// On failure, sets pbi->common.error.error_code and returns 0.
 static uint32_t read_one_tile_group_obu(
     AV1Decoder *pbi, struct aom_read_bit_buffer *rb, int is_first_tg,
     const uint8_t *data, const uint8_t *data_end, const uint8_t **p_data_end,
@@ -337,7 +339,10 @@ static uint32_t read_one_tile_group_obu(
   header_size = read_tile_group_header(pbi, rb, &start_tile, &end_tile,
                                        tile_start_implicit);
   if (header_size == -1 || byte_alignment(cm, rb)) return 0;
-  if (start_tile > end_tile) return header_size;
+  if (start_tile > end_tile) {
+    cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+    return 0;
+  }
   data += header_size;
   av1_decode_tg_tiles_and_wrapup(pbi, data, data_end, p_data_end, start_tile,
                                  end_tile, is_first_tg);
@@ -431,6 +436,7 @@ static void copy_decoded_tile_to_tile_list_buffer(AV1Decoder *pbi,
 }
 
 // Only called while large_scale_tile = 1.
+// On failure, sets pbi->common.error.error_code and returns 0.
 static uint32_t read_and_decode_one_tile_list(AV1Decoder *pbi,
                                               struct aom_read_bit_buffer *rb,
                                               const uint8_t *data,
@@ -613,6 +619,7 @@ static void read_metadata_timecode(const uint8_t *data, size_t sz) {
   }
 }
 
+// Not fully implemented. Always succeeds and returns sz.
 static size_t read_metadata(const uint8_t *data, size_t sz) {
   size_t type_length;
   uint64_t type_value;
@@ -785,6 +792,7 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
             pbi, &rb, is_first_tg_obu_received, data + obu_payload_offset,
             data + payload_size, p_data_end, &frame_decoding_finished,
             obu_header.type == OBU_FRAME);
+        if (cm->error.error_code != AOM_CODEC_OK) return -1;
         is_first_tg_obu_received = 0;
         if (frame_decoding_finished) pbi->seen_frame_header = 0;
         break;
