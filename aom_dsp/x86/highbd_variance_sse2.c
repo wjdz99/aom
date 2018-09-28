@@ -678,7 +678,7 @@ void aom_highbd_upsampled_pred_sse2(MACROBLOCKD *xd,
   }
 
   const InterpFilterParams *filter = av1_get_filter(subpel_search);
-
+  int filter_taps = SUBPEL_TAPS;
   if (!subpel_x_q3 && !subpel_y_q3) {
     uint16_t *ref = CONVERT_TO_SHORTPTR(ref8);
     uint16_t *comp_pred = CONVERT_TO_SHORTPTR(comp_pred8);
@@ -726,17 +726,18 @@ void aom_highbd_upsampled_pred_sse2(MACROBLOCKD *xd,
         av1_get_interp_filter_subpel_kernel(filter, subpel_x_q3 << 1);
     const int16_t *const kernel_y =
         av1_get_interp_filter_subpel_kernel(filter, subpel_y_q3 << 1);
+    const uint8_t *ref_start = ref8 - ref_stride * ((filter_taps >> 1) - 1);
+    uint16_t *temp_start_horiz = temp;
+    uint16_t *temp_start_vert = temp + MAX_SB_SIZE * ((filter->taps >> 1) - 1);
     const int intermediate_height =
-        (((height - 1) * 8 + subpel_y_q3) >> 3) + filter->taps;
+        (((height - 1) * 8 + subpel_y_q3) >> 3) + filter_taps;
     assert(intermediate_height <= (MAX_SB_SIZE * 2 + 16) + 16);
-    aom_highbd_convolve8_horiz(ref8 - ref_stride * ((filter->taps >> 1) - 1),
-                               ref_stride, CONVERT_TO_BYTEPTR(temp),
-                               MAX_SB_SIZE, kernel_x, 16, NULL, -1, width,
-                               intermediate_height, bd);
-    aom_highbd_convolve8_vert(
-        CONVERT_TO_BYTEPTR(temp + MAX_SB_SIZE * ((filter->taps >> 1) - 1)),
-        MAX_SB_SIZE, comp_pred8, width, NULL, -1, kernel_y, 16, width, height,
-        bd);
+    aom_highbd_convolve8_horiz(
+        ref_start, ref_stride, CONVERT_TO_BYTEPTR(temp_start_horiz),
+        MAX_SB_SIZE, kernel_x, 16, NULL, -1, width, intermediate_height, bd);
+    aom_highbd_convolve8_vert(CONVERT_TO_BYTEPTR(temp_start_vert), MAX_SB_SIZE,
+                              comp_pred8, width, NULL, -1, kernel_y, 16, width,
+                              height, bd);
   }
 }
 
@@ -760,6 +761,19 @@ void aom_highbd_comp_avg_upsampled_pred_sse2(
     comp_pred16 += 8;
     pred += 8;
   }
+}
+
+void aom_highbd_comp_mask_upsampled_pred_sse2(
+    MACROBLOCKD *xd, const struct AV1Common *const cm, int mi_row, int mi_col,
+    const MV *const mv, uint8_t *comp_pred8, const uint8_t *pred8, int width,
+    int height, int subpel_x_q3, int subpel_y_q3, const uint8_t *ref8,
+    int ref_stride, const uint8_t *mask, int mask_stride, int invert_mask,
+    int bd, int subpel_search) {
+  aom_highbd_upsampled_pred(xd, cm, mi_row, mi_col, mv, comp_pred8, width,
+                            height, subpel_x_q3, subpel_y_q3, ref8, ref_stride,
+                            bd, subpel_search);
+  aom_highbd_comp_mask_pred(comp_pred8, pred8, width, height, comp_pred8, width,
+                            mask, mask_stride, invert_mask);
 }
 
 static INLINE void highbd_compute_jnt_comp_avg(__m128i *p0, __m128i *p1,
