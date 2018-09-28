@@ -1315,13 +1315,11 @@ static void validate_stream_config(const struct stream_state *stream,
         " and --height (-h)",
         stream->index);
 
-  // Check that the codec bit depth is greater than the input bit depth.
-  if (stream->config.cfg.g_input_bit_depth >
-      (unsigned int)stream->config.cfg.g_bit_depth) {
-    fatal("Stream %d: codec bit depth (%d) less than input bit depth (%d)",
-          stream->index, (int)stream->config.cfg.g_bit_depth,
-          stream->config.cfg.g_input_bit_depth);
-  }
+  /* Even if bit depth is set on the command line flag to be lower,
+   * it is upgraded to at least match the input bit depth.
+   */
+  assert(stream->config.cfg.g_input_bit_depth <=
+         (unsigned int)stream->config.cfg.g_bit_depth);
 
   for (streami = stream; streami; streami = streami->next) {
     /* All streams require output files */
@@ -1709,9 +1707,7 @@ static void get_cx_data(struct stream_state *stream,
 
     switch (pkt->kind) {
       case AOM_CODEC_CX_FRAME_PKT:
-        if (!(pkt->data.frame.flags & AOM_FRAME_IS_FRAGMENT)) {
-          stream->frames_out++;
-        }
+        ++stream->frames_out;
         if (!global->quiet)
           fprintf(stderr, " %6luF", (unsigned long)pkt->data.frame.sz);
 
@@ -1731,12 +1727,10 @@ static void get_cx_data(struct stream_state *stream,
             } else {
               fsize += pkt->data.frame.sz;
 
-              if (!(pkt->data.frame.flags & AOM_FRAME_IS_FRAGMENT)) {
-                const FileOffset currpos = ftello(stream->file);
-                fseeko(stream->file, ivf_header_pos, SEEK_SET);
-                ivf_write_frame_size(stream->file, fsize);
-                fseeko(stream->file, currpos, SEEK_SET);
-              }
+              const FileOffset currpos = ftello(stream->file);
+              fseeko(stream->file, ivf_header_pos, SEEK_SET);
+              ivf_write_frame_size(stream->file, fsize);
+              fseeko(stream->file, currpos, SEEK_SET);
             }
           }
 
@@ -2077,6 +2071,18 @@ int main(int argc, const char **argv_) {
             }
             break;
           default: break;
+        }
+      }
+      /* Automatically set the codec bit depth to match the input bit depth.
+       * Upgrade the profile if required. */
+      if (stream->config.cfg.g_input_bit_depth >
+          (unsigned int)stream->config.cfg.g_bit_depth) {
+        stream->config.cfg.g_bit_depth = stream->config.cfg.g_input_bit_depth;
+        if (!global.quiet) {
+          fprintf(stderr,
+                  "Warning: automatically updating bit depth to %d to "
+                  "match input format.\n",
+                  stream->config.cfg.g_input_bit_depth);
         }
       }
       if (stream->config.cfg.g_bit_depth > 10) {

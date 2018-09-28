@@ -1721,7 +1721,7 @@ static PARTITION_TYPE read_partition(MACROBLOCKD *xd, int mi_row, int mi_col,
 
 // TODO(slavarnway): eliminate bsize and subsize in future commits
 static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
-                             int mi_row, int mi_col, aom_reader *r,
+                             int mi_row, int mi_col, aom_reader *reader,
                              BLOCK_SIZE bsize, int parse_decode_flag) {
   AV1_COMMON *const cm = &pbi->common;
   MACROBLOCKD *const xd = &td->xd;
@@ -1754,14 +1754,14 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
         for (int rrow = rrow0; rrow < rrow1; ++rrow) {
           for (int rcol = rcol0; rcol < rcol1; ++rcol) {
             const int runit_idx = rcol + rrow * rstride;
-            loop_restoration_read_sb_coeffs(cm, xd, r, plane, runit_idx);
+            loop_restoration_read_sb_coeffs(cm, xd, reader, plane, runit_idx);
           }
         }
       }
     }
 
     partition = (bsize < BLOCK_8X8) ? PARTITION_NONE
-                                    : read_partition(xd, mi_row, mi_col, r,
+                                    : read_partition(xd, mi_row, mi_col, reader,
                                                      has_rows, has_cols, bsize);
   } else {
     partition = get_partition(cm, mi_row, mi_col, bsize);
@@ -1780,12 +1780,12 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
 
 #define DEC_BLOCK_STX_ARG
 #define DEC_BLOCK_EPT_ARG partition,
-#define DEC_BLOCK(db_r, db_c, db_subsize)                                     \
-  block_visit[parse_decode_flag](pbi, td, DEC_BLOCK_STX_ARG(db_r), (db_c), r, \
-                                 DEC_BLOCK_EPT_ARG(db_subsize))
-#define DEC_PARTITION(db_r, db_c, db_subsize)                                 \
-  decode_partition(pbi, td, DEC_BLOCK_STX_ARG(db_r), (db_c), r, (db_subsize), \
-                   parse_decode_flag)
+#define DEC_BLOCK(db_r, db_c, db_subsize)                                  \
+  block_visit[parse_decode_flag](pbi, td, DEC_BLOCK_STX_ARG(db_r), (db_c), \
+                                 reader, DEC_BLOCK_EPT_ARG(db_subsize))
+#define DEC_PARTITION(db_r, db_c, db_subsize)                        \
+  decode_partition(pbi, td, DEC_BLOCK_STX_ARG(db_r), (db_c), reader, \
+                   (db_subsize), parse_decode_flag)
 
   switch (partition) {
     case PARTITION_NONE: DEC_BLOCK(mi_row, mi_col, subsize); break;
@@ -3479,13 +3479,53 @@ static INLINE void signal_parse_sb_row_done(AV1Decoder *const pbi,
 #endif
 }
 
+// This function is very similar to decode_tile(). It would be good to figure
+// out how to share code.
+static void parse_tile_row_mt(AV1Decoder *pbi, ThreadData *const td,
+                              TileDataDec *const tile_data) {
+  AV1_COMMON *const cm = &pbi->common;
+  const int sb_mi_size = mi_size_wide[cm->seq_params.sb_size];
+  const int num_planes = av1_num_planes(cm);
+  TileInfo tile_info = tile_data->tile_info;
+  int tile_row = tile_info.tile_row;
+
+  av1_zero_above_context(cm, &td->xd, tile_info.mi_col_start,
+                         tile_info.mi_col_end, tile_row);
+  av1_reset_loop_filter_delta(&td->xd, num_planes);
+  av1_reset_loop_restoration(&td->xd, num_planes);
+
+  for (int mi_row = tile_info.mi_row_start; mi_row < tile_info.mi_row_end;
+       mi_row += cm->seq_params.mib_size) {
+    av1_zero_left_context(&td->xd);
+
+    for (int mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
+         mi_col += cm->seq_params.mib_size) {
+      set_cb_buffer(pbi, &td->xd, pbi->cb_buffer_base, num_planes, mi_row,
+                    mi_col);
+
+      // Bit-stream parsing of the superblock
+      decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
+                       cm->seq_params.sb_size, 0x1);
+
+      if (aom_reader_has_overflowed(td->bit_reader)) {
+        aom_merge_corrupted_flag(&td->xd.corrupted, 1);
+        return;
+      }
+    }
+    signal_parse_sb_row_done(pbi, tile_data, sb_mi_size);
+  }
+
+  int corrupted =
+      (check_trailing_bits_after_symbol_coder(td->bit_reader)) ? 1 : 0;
+  aom_merge_corrupted_flag(&td->xd.corrupted, corrupted);
+}
+
 static int row_mt_worker_hook(void *arg1, void *arg2) {
   DecWorkerData *const thread_data = (DecWorkerData *)arg1;
   AV1Decoder *const pbi = (AV1Decoder *)arg2;
   AV1_COMMON *cm = &pbi->common;
   ThreadData *const td = thread_data->td;
   uint8_t allow_update_cdf;
-  const int sb_mi_size = mi_size_wide[cm->seq_params.sb_size];
   AV1DecRowMTInfo *frame_row_mt_info = &pbi->frame_row_mt_info;
   td->xd.corrupted = 0;
 
@@ -3507,9 +3547,10 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
   }
   thread_data->error_info.setjmp = 1;
 
-  const int num_planes = av1_num_planes(cm);
   allow_update_cdf = cm->large_scale_tile ? 0 : 1;
   allow_update_cdf = allow_update_cdf && !cm->disable_cdf_update;
+
+  set_decode_func_pointers(td, 0x1);
 
   assert(cm->tile_cols > 0);
   while (1) {
@@ -3521,36 +3562,8 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
       tile_worker_hook_init(pbi, thread_data, tile_buffer, tile_data,
                             allow_update_cdf);
 
-      set_decode_func_pointers(td, 0x1);
-
       // decode tile
-      TileInfo tile_info = tile_data->tile_info;
-      int tile_row = tile_info.tile_row;
-
-      av1_zero_above_context(cm, &td->xd, tile_info.mi_col_start,
-                             tile_info.mi_col_end, tile_row);
-      av1_reset_loop_filter_delta(&td->xd, num_planes);
-      av1_reset_loop_restoration(&td->xd, num_planes);
-
-      for (int mi_row = tile_info.mi_row_start; mi_row < tile_info.mi_row_end;
-           mi_row += cm->seq_params.mib_size) {
-        av1_zero_left_context(&td->xd);
-
-        for (int mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
-             mi_col += cm->seq_params.mib_size) {
-          set_cb_buffer(pbi, &td->xd, pbi->cb_buffer_base, num_planes, mi_row,
-                        mi_col);
-
-          // Bit-stream parsing of the superblock
-          decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
-                           cm->seq_params.sb_size, 0x1);
-        }
-        signal_parse_sb_row_done(pbi, tile_data, sb_mi_size);
-      }
-
-      int corrupted =
-          (check_trailing_bits_after_symbol_coder(td->bit_reader)) ? 1 : 0;
-      aom_merge_corrupted_flag(&td->xd.corrupted, corrupted);
+      parse_tile_row_mt(pbi, td, tile_data);
     } else {
       break;
     }
@@ -4644,49 +4657,24 @@ static void read_global_motion(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
          REF_FRAMES * sizeof(WarpedMotionParams));
 }
 
-static void show_existing_frame_reset(AV1Decoder *const pbi,
-                                      int existing_frame_idx) {
+// Release the references to the frame buffers in cm->ref_frame_map and reset
+// all elements of cm->ref_frame_map to -1.
+static void reset_ref_frame_map(AV1_COMMON *const cm) {
+  BufferPool *const pool = cm->buffer_pool;
+  RefCntBuffer *const frame_bufs = pool->frame_bufs;
+
+  for (int i = 0; i < REF_FRAMES; i++) {
+    decrease_ref_count(cm->ref_frame_map[i], frame_bufs, pool);
+  }
+  memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
+}
+
+// Generate next_ref_frame_map.
+static void generate_next_ref_frame_map(AV1Decoder *const pbi) {
   AV1_COMMON *const cm = &pbi->common;
   BufferPool *const pool = cm->buffer_pool;
   RefCntBuffer *const frame_bufs = pool->frame_bufs;
 
-  assert(cm->show_existing_frame);
-
-  cm->frame_type = KEY_FRAME;
-
-  pbi->refresh_frame_flags = (1 << REF_FRAMES) - 1;
-
-  for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
-    cm->frame_refs[i].idx = INVALID_IDX;
-    cm->frame_refs[i].buf = NULL;
-  }
-
-  if (pbi->need_resync) {
-    memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
-    pbi->need_resync = 0;
-  }
-
-  cm->cur_frame->intra_only = 1;
-
-  if (cm->seq_params.frame_id_numbers_present_flag) {
-    /* If bitmask is set, update reference frame id values and
-       mark frames as valid for reference.
-       Note that the displayed frame be valid for referencing
-       in order to have been selected.
-    */
-    int refresh_frame_flags = pbi->refresh_frame_flags;
-    int display_frame_id = cm->ref_frame_id[existing_frame_idx];
-    for (int i = 0; i < REF_FRAMES; i++) {
-      if ((refresh_frame_flags >> i) & 1) {
-        cm->ref_frame_id[i] = display_frame_id;
-        cm->valid_for_referencing[i] = 1;
-      }
-    }
-  }
-
-  cm->refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
-
-  // Generate next_ref_frame_map.
   lock_buffer_pool(pool);
   int ref_index = 0;
   for (int mask = pbi->refresh_frame_flags; mask; mask >>= 1) {
@@ -4711,6 +4699,49 @@ static void show_existing_frame_reset(AV1Decoder *const pbi,
   }
   unlock_buffer_pool(pool);
   pbi->hold_ref_buf = 1;
+}
+
+static void show_existing_frame_reset(AV1Decoder *const pbi,
+                                      int existing_frame_idx) {
+  AV1_COMMON *const cm = &pbi->common;
+
+  assert(cm->show_existing_frame);
+
+  cm->frame_type = KEY_FRAME;
+
+  pbi->refresh_frame_flags = (1 << REF_FRAMES) - 1;
+
+  for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
+    cm->frame_refs[i].idx = INVALID_IDX;
+    cm->frame_refs[i].buf = NULL;
+  }
+
+  if (pbi->need_resync) {
+    reset_ref_frame_map(cm);
+    pbi->need_resync = 0;
+  }
+
+  cm->cur_frame->intra_only = 1;
+
+  if (cm->seq_params.frame_id_numbers_present_flag) {
+    /* If bitmask is set, update reference frame id values and
+       mark frames as valid for reference.
+       Note that the displayed frame be valid for referencing
+       in order to have been selected.
+    */
+    int refresh_frame_flags = pbi->refresh_frame_flags;
+    int display_frame_id = cm->ref_frame_id[existing_frame_idx];
+    for (int i = 0; i < REF_FRAMES; i++) {
+      if ((refresh_frame_flags >> i) & 1) {
+        cm->ref_frame_id[i] = display_frame_id;
+        cm->valid_for_referencing[i] = 1;
+      }
+    }
+  }
+
+  cm->refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
+
+  generate_next_ref_frame_map(pbi);
 
   // Reload the adapted CDFs from when we originally coded this keyframe
   *cm->fc = cm->frame_contexts[existing_frame_idx];
@@ -4973,7 +5004,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       cm->frame_refs[i].buf = NULL;
     }
     if (pbi->need_resync) {
-      memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
+      reset_ref_frame_map(cm);
       pbi->need_resync = 0;
     }
   } else {
@@ -4984,7 +5015,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
                            "Intra only frames cannot have refresh flags 0xFF");
       }
       if (pbi->need_resync) {
-        memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
+        reset_ref_frame_map(cm);
         pbi->need_resync = 0;
       }
     } else if (pbi->need_resync != 1) { /* Skip if need resync */
@@ -5224,31 +5255,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
                        " state");
   }
 
-  // Generate next_ref_frame_map.
-  lock_buffer_pool(pool);
-  int ref_index = 0;
-  for (int mask = pbi->refresh_frame_flags; mask; mask >>= 1) {
-    if (mask & 1) {
-      cm->next_ref_frame_map[ref_index] = cm->new_fb_idx;
-      ++frame_bufs[cm->new_fb_idx].ref_count;
-    } else {
-      cm->next_ref_frame_map[ref_index] = cm->ref_frame_map[ref_index];
-    }
-    // Current thread holds the reference frame.
-    if (cm->ref_frame_map[ref_index] >= 0)
-      ++frame_bufs[cm->ref_frame_map[ref_index]].ref_count;
-    ++ref_index;
-  }
-
-  for (; ref_index < REF_FRAMES; ++ref_index) {
-    cm->next_ref_frame_map[ref_index] = cm->ref_frame_map[ref_index];
-
-    // Current thread holds the reference frame.
-    if (cm->ref_frame_map[ref_index] >= 0)
-      ++frame_bufs[cm->ref_frame_map[ref_index]].ref_count;
-  }
-  unlock_buffer_pool(pool);
-  pbi->hold_ref_buf = 1;
+  generate_next_ref_frame_map(pbi);
 
   if (cm->allow_intrabc) {
     // Set parameters corresponding to no filtering.
@@ -5536,9 +5543,12 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
   if (!cm->allow_intrabc && !cm->single_tile_decoding) {
     if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
       if (pbi->num_workers > 1) {
-        av1_loop_filter_frame_mt(get_frame_new_buffer(cm), cm, &pbi->mb, 0,
-                                 num_planes, 0, pbi->tile_workers,
-                                 pbi->num_workers, &pbi->lf_row_sync);
+        av1_loop_filter_frame_mt(
+            get_frame_new_buffer(cm), cm, &pbi->mb, 0, num_planes, 0,
+#if LOOP_FILTER_BITMASK
+            1,
+#endif
+            pbi->tile_workers, pbi->num_workers, &pbi->lf_row_sync);
       } else {
         av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
 #if LOOP_FILTER_BITMASK

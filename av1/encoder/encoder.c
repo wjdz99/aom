@@ -501,6 +501,11 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
   aom_free(cpi->td.mb.wsrc_buf);
   cpi->td.mb.wsrc_buf = NULL;
 
+#if CONFIG_COLLECT_INTER_MODE_RD_STATS
+  aom_free(cpi->td.mb.inter_modes_info);
+  cpi->td.mb.inter_modes_info = NULL;
+#endif
+
   for (int i = 0; i < 2; i++)
     for (int j = 0; j < 2; j++) {
       aom_free(cpi->td.mb.hash_value_buffer[i][j]);
@@ -2644,6 +2649,12 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
                   (int32_t *)aom_memalign(
                       16, MAX_SB_SQUARE * sizeof(*cpi->td.mb.wsrc_buf)));
 
+#if CONFIG_COLLECT_INTER_MODE_RD_STATS
+  CHECK_MEM_ERROR(
+      cm, cpi->td.mb.inter_modes_info,
+      (InterModesInfo *)aom_malloc(sizeof(*cpi->td.mb.inter_modes_info)));
+#endif
+
   for (int x = 0; x < 2; x++)
     for (int y = 0; y < 2; y++)
       CHECK_MEM_ERROR(
@@ -2985,6 +2996,9 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       aom_free(thread_data->td->above_pred_buf);
       aom_free(thread_data->td->left_pred_buf);
       aom_free(thread_data->td->wsrc_buf);
+#if CONFIG_COLLECT_INTER_MODE_RD_STATS
+      aom_free(thread_data->td->inter_modes_info);
+#endif
       for (int x = 0; x < 2; x++) {
         for (int y = 0; y < 2; y++) {
           aom_free(thread_data->td->hash_value_buffer[x][y]);
@@ -4229,6 +4243,9 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   if (lf->filter_level[0] || lf->filter_level[1]) {
     if (cpi->num_workers > 1)
       av1_loop_filter_frame_mt(cm->frame_to_show, cm, xd, 0, num_planes, 0,
+#if LOOP_FILTER_BITMASK
+                               0,
+#endif
                                cpi->workers, cpi->num_workers,
                                &cpi->lf_row_sync);
     else
@@ -5402,16 +5419,6 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
   return res;
 }
 
-static int frame_is_reference(const AV1_COMP *cpi) {
-  const AV1_COMMON *cm = &cpi->common;
-
-  return cm->frame_type == KEY_FRAME || cpi->refresh_last_frame ||
-         cpi->refresh_golden_frame || cpi->refresh_bwd_ref_frame ||
-         cpi->refresh_alt2_ref_frame || cpi->refresh_alt_ref_frame ||
-         !cm->error_resilient_mode || cm->lf.mode_ref_delta_update ||
-         cm->seg.update_map || cm->seg.update_data;
-}
-
 static void adjust_frame_rate(AV1_COMP *cpi,
                               const struct lookahead_entry *source) {
   int64_t this_duration;
@@ -6177,7 +6184,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   }
 
   if (*size > 0) {
-    cpi->droppable = !frame_is_reference(cpi);
+    cpi->droppable = is_frame_droppable(cpi);
   }
 
   aom_usec_timer_mark(&cmptimer);
