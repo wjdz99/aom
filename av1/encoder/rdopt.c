@@ -8743,7 +8743,7 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
         }
         continue;
       }
-      simple_states->early_skipped = 0;
+      if (simple_states) simple_states->early_skipped = 0;
     } else if (mbmi->motion_mode == OBMC_CAUSAL) {
       uint32_t cur_mv = mbmi->mv[0].as_int;
       assert(!is_comp_pred);
@@ -8915,7 +8915,7 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       if (!txfm_search(cpi, x, bsize, mi_row, mi_col, rd_stats, rd_stats_y,
                        rd_stats_uv, rd_stats->rate, ref_best_rd)) {
         if (rd_stats_y->rate == INT_MAX && mode_index == 0) {
-          simple_states->early_skipped = 1;
+          if (simple_states) simple_states->early_skipped = 1;
           return INT64_MAX;
         }
         continue;
@@ -11597,6 +11597,27 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         ref_frame_skip_mask, &search_state);
     if (ret == 1) continue;
     args.skip_motion_mode = (ret == 2);
+
+    // If the underlying square block(s) in one level lower of the current
+    // block all choose the same reference frame(s) and choose mode of global
+    // motion, the current block will only consider the same reference(s) as
+    // well as the global motion mode.
+    if (ctx->ref_selected[0] > INTRA_FRAME &&
+        ctx->ref_selected[1] <= INTRA_FRAME && ctx->mode_selected == GLOBALMV) {
+      if (mbmi->ref_frame[0] != ctx->ref_selected[0] ||
+          mbmi->ref_frame[1] > INTRA_FRAME || mbmi->mode != GLOBALMV) {
+        continue;
+      }
+    }
+    if (ctx->ref_selected[0] > INTRA_FRAME &&
+        ctx->ref_selected[1] > INTRA_FRAME &&
+        ctx->mode_selected == GLOBAL_GLOBALMV) {
+      if (mbmi->ref_frame[0] != ctx->ref_selected[0] ||
+          mbmi->ref_frame[1] != ctx->ref_selected[1] ||
+          mbmi->mode != GLOBAL_GLOBALMV) {
+        continue;
+      }
+    }
 
     if (sf->drop_ref && comp_pred) {
       if (sf_check_is_drop_ref(mode_order, &search_state)) {
