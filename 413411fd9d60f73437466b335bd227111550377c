@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "558a09d3_d398b9b9",
+        "filename": "common/obudec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-28T17:40:56Z",
+      "side": 1,
+      "message": "Nit: Let\u0027s use AOMMAX(*obu_buffer_capacity, OBU_MAX_HEADER_SIZE).",
+      "range": {
+        "startLine": 226,
+        "startChar": 25,
+        "endLine": 226,
+        "endChar": 45
+      },
+      "revId": "413411fd9d60f73437466b335bd227111550377c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
