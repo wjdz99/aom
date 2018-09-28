@@ -3708,7 +3708,20 @@ BEGIN_PARTITION_SEARCH:
 #endif  // 0
           }
         } else {
-          // TODO(zoeliu@gmail.com): To handle comp ref
+          // Comp ref
+          if (split_mbmi[idx]->ref_frame[0] ==
+                  split_mbmi[idx + 1]->ref_frame[0] &&
+              split_mbmi[idx]->ref_frame[1] ==
+                  split_mbmi[idx + 1]->ref_frame[1]) {
+            const int ref_type = av1_ref_frame_type(split_mbmi[idx]->ref_frame);
+            // Overwrite skip_ref_frame_mask for the current block
+            const int used_frames = (1 << ref_type);
+            pc_tree->horizontal[horz_idx].skip_ref_frame_mask = ~used_frames;
+            pc_tree->horizontal[horz_idx].ref_selected[0] =
+                split_mbmi[idx]->ref_frame[0];
+            pc_tree->horizontal[horz_idx].ref_selected[1] =
+                split_mbmi[idx]->ref_frame[1];
+          }
         }
       }
     }
@@ -3739,7 +3752,20 @@ BEGIN_PARTITION_SEARCH:
 #endif  // 0
           }
         } else {
-          // TODO(zoeliu@gmail.com): To handle comp ref
+          // Comp ref
+          if (split_mbmi[idx]->ref_frame[0] ==
+                  split_mbmi[idx + 2]->ref_frame[0] &&
+              split_mbmi[idx]->ref_frame[1] ==
+                  split_mbmi[idx + 2]->ref_frame[1]) {
+            const int ref_type = av1_ref_frame_type(split_mbmi[idx]->ref_frame);
+            // Overwrite skip_ref_frame_mask for the current block
+            const int used_frames = (1 << ref_type);
+            pc_tree->vertical[vert_idx].skip_ref_frame_mask = ~used_frames;
+            pc_tree->vertical[vert_idx].ref_selected[0] =
+                split_mbmi[idx]->ref_frame[0];
+            pc_tree->vertical[vert_idx].ref_selected[1] =
+                split_mbmi[idx]->ref_frame[1];
+          }
         }
       }
     }
