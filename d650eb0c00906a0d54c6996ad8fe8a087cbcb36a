@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "82bea1ab_54713ecb",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-28T16:59:06Z",
+      "side": 1,
+      "message": "Nit: We can delete the kMinimumBufferSize constant and use the new OBU_MAX_HEADER_SIZE macro directly.",
+      "range": {
+        "startLine": 124,
+        "startChar": 15,
+        "endLine": 124,
+        "endChar": 33
+      },
+      "revId": "d650eb0c00906a0d54c6996ad8fe8a087cbcb36a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89b227a2_7744fa28",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-28T16:59:06Z",
+      "side": 1,
+      "message": "Optional: I suggest reformatting this block to return early on error:\n\n  if (!new_buffer) {\t\n    fprintf(stderr, \"obudec: Failed to allocate compressed data buffer.\\n\");\n    return -1;\n  }\n  *obu_buffer \u003d new_buffer;\n  *obu_buffer_capacity \u003d new_capacity;\n  return 0;",
+      "range": {
+        "startLine": 203,
+        "startChar": 0,
+        "endLine": 210,
+        "endChar": 11
+      },
+      "revId": "d650eb0c00906a0d54c6996ad8fe8a087cbcb36a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd40bf38_82a076fa",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-28T16:59:06Z",
+      "side": 1,
+      "message": "Optional: We should grow more here, otherwise we will almost certainly need to grow again when we read the OBU payload.\n\nI think growing by the current capacity should be reasonable here.",
+      "range": {
+        "startLine": 225,
+        "startChar": 25,
+        "endLine": 225,
+        "endChar": 44
+      },
+      "revId": "d650eb0c00906a0d54c6996ad8fe8a087cbcb36a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b585751_ba896ebf",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-28T16:59:06Z",
+      "side": 1,
+      "message": "Should we set *obu_length to some value, as we do at line 241 and line 250?",
+      "range": {
+        "startLine": 227,
+        "startChar": 4,
+        "endLine": 227,
+        "endChar": 14
+      },
+      "revId": "d650eb0c00906a0d54c6996ad8fe8a087cbcb36a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d32116fa_64a86ecc",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-28T16:59:06Z",
+      "side": 1,
+      "message": "Should this check be moved into the obudec_grow_buffer() function? It seems that this check is intended to keep *obu_buffer_capacity \u003c\u003d 25 MB.",
+      "range": {
+        "startLine": 238,
+        "startChar": 0,
+        "endLine": 243,
+        "endChar": 3
+      },
+      "revId": "d650eb0c00906a0d54c6996ad8fe8a087cbcb36a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c801cce4_6e812edc",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-28T16:59:06Z",
+      "side": 1,
+      "message": "Nit: Use the AOMMAX macro?  AOMMAX(*obu_buffer_capacity, obu_payload_length)",
+      "range": {
+        "startLine": 246,
+        "startChar": 25,
+        "endLine": 248,
+        "endChar": 49
+      },
+      "revId": "d650eb0c00906a0d54c6996ad8fe8a087cbcb36a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
