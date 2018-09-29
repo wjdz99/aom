@@ -9262,14 +9262,36 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
 }
 
 static INLINE int is_single_newmv_valid(HandleInterModeArgs *args,
-                                        MB_MODE_INFO *mbmi,
-                                        PREDICTION_MODE this_mode) {
+                                        MACROBLOCK *x,
+                                        PREDICTION_MODE this_mode,
+                                        PICK_MODE_CONTEXT *ctx) {
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = xd->mi[0];
   for (int ref_idx = 0; ref_idx < 2; ++ref_idx) {
     const PREDICTION_MODE single_mode = get_single_mode(this_mode, ref_idx, 1);
     const MV_REFERENCE_FRAME ref = mbmi->ref_frame[ref_idx];
-    if (single_mode == NEWMV &&
-        args->single_newmv_valid[mbmi->ref_mv_idx][ref] == 0) {
-      return 0;
+
+    if (single_mode == NEWMV) {
+      if (mbmi->partition != PARTITION_NONE &&
+          mbmi->partition != PARTITION_SPLIT) {
+        const int skip_ref_single = ctx->skip_ref_frame_mask & (1 << ref);
+        // If the corresponding single ref has been skipped, the value for
+        // "single_newmv" for the compound mv research is set to the value of
+        // NEARESTMV.
+        if (skip_ref_single) {
+          int_mv nearest_mv;
+          get_this_mv(&nearest_mv, NEARESTMV, ref_idx, mbmi->ref_mv_idx,
+                      mbmi->ref_frame, x->mbmi_ext);
+          args->single_newmv[mbmi->ref_mv_idx][ref] = nearest_mv;
+          args->single_newmv_rate[mbmi->ref_mv_idx][ref] = 0;
+          // TODO(zoeliu): To identify whether following is needed
+          // args->single_newmv_valid[mbmi->ref_mv_idx][ref] = 1;
+          return 1;
+        }
+      }
+      if (args->single_newmv_valid[mbmi->ref_mv_idx][ref] == 0) {
+        return 0;
+      }
     }
   }
   return 1;
@@ -9304,14 +9326,13 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                  int *disable_skip, int mi_row, int mi_col,
                                  HandleInterModeArgs *args, int64_t ref_best_rd,
                                  uint8_t *const tmp_buf,
-                                 CompoundTypeRdBuffers *rd_buffers
+                                 CompoundTypeRdBuffers *rd_buffers,
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
-                                 ,
                                  TileDataEnc *tile_data, int64_t *best_est_rd,
                                  const int do_tx_search,
-                                 InterModesInfo *inter_modes_info
+                                 InterModesInfo *inter_modes_info,
 #endif
-) {
+                                 PICK_MODE_CONTEXT *ctx) {
   const AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &x->e_mbd;
@@ -9400,7 +9421,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     mbmi->motion_mode = SIMPLE_TRANSLATION;
     mbmi->ref_mv_idx = ref_mv_idx;
 
-    if (is_comp_pred && (!is_single_newmv_valid(args, mbmi, this_mode))) {
+    if (is_comp_pred && (!is_single_newmv_valid(args, x, this_mode, ctx))) {
       continue;
     }
 
@@ -10723,19 +10744,24 @@ static int inter_mode_search_order_independent_skip(
   if (mbmi->partition != PARTITION_NONE && mbmi->partition != PARTITION_SPLIT) {
     const int ref_type = av1_ref_frame_type(ref_frame);
     int skip_ref = ctx->skip_ref_frame_mask & (1 << ref_type);
-    if (ref_type <= ALTREF_FRAME && skip_ref) {
-      // Since the compound ref modes depends on the motion estimation result of
-      // two single ref modes( best mv of single ref modes as the start point )
-      // If current single ref mode is marked skip, we need to check if it will
-      // be used in compound ref modes.
+    if (ref_type <= ALTREF_FRAME && skip_ref && mbmi->mode == NEARESTMV) {
+      // (1) The compound ref modes depend on the motion estimation results of
+      //     the corresponding two single ref modes (best mv of single ref modes
+      //     as the start points).
+      // (2) If current single ref mode is marked skip, we need to check if it
+      //     will be used in the corresponding compound ref modes that contain
+      //     this single ref.
+      // (3) Further speedup is achieved that for those single refs that are
+      //     skipped but will be used as one of the later comp ref pair, only
+      //     the nearestmv is evaluated.
       for (int r = ALTREF_FRAME + 1; r < MODE_CTX_REF_FRAMES; ++r) {
         if (!(ctx->skip_ref_frame_mask & (1 << r))) {
           const MV_REFERENCE_FRAME *rf = ref_frame_map[r - REF_FRAMES];
           if (rf[0] == ref_type || rf[1] == ref_type) {
             // Found a not skipped compound ref mode which contains current
-            // single ref. So this single ref can't be skipped completly
-            // Just skip it's motion mode search, still try it's simple
-            // transition mode.
+            // single ref. So this single ref can't be skipped completely
+            // Just skip its motion mode search, but still try its simple
+            // translation mode.
             skip_motion_mode = 1;
             skip_ref = 0;
             break;
@@ -11685,11 +11711,11 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         this_rd = handle_inter_mode(
             cpi, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv, &disable_skip,
             mi_row, mi_col, &args, ref_best_rd, tmp_buf, &rd_buffers, tile_data,
-            &best_est_rd, do_tx_search, inter_modes_info);
+            &best_est_rd, do_tx_search, inter_modes_info, ctx);
 #else
-        this_rd = handle_inter_mode(cpi, x, bsize, &rd_stats, &rd_stats_y,
-                                    &rd_stats_uv, &disable_skip, mi_row, mi_col,
-                                    &args, ref_best_rd, tmp_buf, &rd_buffers);
+        this_rd = handle_inter_mode(
+            cpi, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv, &disable_skip,
+            mi_row, mi_col, &args, ref_best_rd, tmp_buf, &rd_buffers, ctx);
 #endif
         rate2 = rd_stats.rate;
         skippable = rd_stats.skip;
