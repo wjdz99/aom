@@ -10724,18 +10724,20 @@ static int inter_mode_search_order_independent_skip(
     const int ref_type = av1_ref_frame_type(ref_frame);
     int skip_ref = ctx->skip_ref_frame_mask & (1 << ref_type);
     if (ref_type <= ALTREF_FRAME && skip_ref) {
-      // Since the compound ref modes depends on the motion estimation result of
-      // two single ref modes( best mv of single ref modes as the start point )
+      // The compound ref modes depend on the motion estimation results of the
+      // corresponding two single ref modes (best mv of single ref modes as the
+      // start points).
       // If current single ref mode is marked skip, we need to check if it will
-      // be used in compound ref modes.
+      // be used in the corresponding compound ref modes that contain this
+      // single ref.
       for (int r = ALTREF_FRAME + 1; r < MODE_CTX_REF_FRAMES; ++r) {
         if (!(ctx->skip_ref_frame_mask & (1 << r))) {
           const MV_REFERENCE_FRAME *rf = ref_frame_map[r - REF_FRAMES];
           if (rf[0] == ref_type || rf[1] == ref_type) {
             // Found a not skipped compound ref mode which contains current
-            // single ref. So this single ref can't be skipped completly
-            // Just skip it's motion mode search, still try it's simple
-            // transition mode.
+            // single ref. So this single ref can't be skipped completely
+            // Just skip its motion mode search, but still try its simple
+            // translation mode.
             skip_motion_mode = 1;
             skip_ref = 0;
             break;
@@ -11599,6 +11601,17 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         ref_frame_skip_mask, &search_state);
     if (ret == 1) continue;
     args.skip_motion_mode = (ret == 2);
+
+    // If current ref frame to evaluate is single, and decided as not to skip
+    // because and only because a compound ref pair not to skip contains this
+    // single ref, then only the mode of NEARESTMV is evaluated, just to obtain
+    // the starting mv for this single ref belonging to that compound ref pair.
+    if (!has_second_ref(mbmi)) {  // single ref
+      const int skip_ref = ctx->skip_ref_frame_mask & (1 << mbmi->ref_frame[0]);
+      if (skip_ref && args.skip_motion_mode) {
+        if (mbmi->mode != NEARESTMV) continue;
+      }
+    }
 
     if (sf->drop_ref && comp_pred) {
       if (sf_check_is_drop_ref(mode_order, &search_state)) {
