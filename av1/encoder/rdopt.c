@@ -9349,14 +9349,13 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                  int *disable_skip, int mi_row, int mi_col,
                                  HandleInterModeArgs *args, int64_t ref_best_rd,
                                  uint8_t *const tmp_buf,
-                                 CompoundTypeRdBuffers *rd_buffers
+                                 CompoundTypeRdBuffers *rd_buffers,
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
-                                 ,
                                  TileDataEnc *tile_data, int64_t *best_est_rd,
                                  const int do_tx_search,
-                                 InterModesInfo *inter_modes_info
+                                 InterModesInfo *inter_modes_info,
 #endif
-) {
+                                 PICK_MODE_CONTEXT *ctx) {
   const AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &x->e_mbd;
@@ -9755,7 +9754,28 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
 
-  if (best_rd == INT64_MAX) return INT64_MAX;
+  if (best_rd == INT64_MAX) {
+    return INT64_MAX;
+  } else if (!is_comp_pred && this_mode == NEARESTMV &&
+             mbmi->mv[0].as_int != INVALID_MV &&
+             mbmi->partition != PARTITION_NONE &&
+             mbmi->partition != PARTITION_SPLIT &&
+             ctx->skip_ref_frame_mask & (1 << refs[0])) {
+    // For the mode of single ref NEARESTMV, if this single ref is skipped
+    // but will serve as one of the ref pair for next comp ref mode, it is
+    // needed to have single_newmv set up.
+    av1_set_mvcost(x, 0, 0);
+    const int_mv ref_mv = av1_get_ref_mv(x, 0);
+    const int this_rate_mv =
+        av1_mv_bit_cost(&mbmi->mv[0].as_mv, &ref_mv.as_mv, x->nmvjointcost,
+                        x->mvcost, MV_COST_WEIGHT);
+    const int ref_set_newmv = get_drl_refmv_count(x, mbmi->ref_frame, NEWMV);
+    for (int ref_mv_idx = 0; ref_mv_idx < ref_set_newmv; ++ref_mv_idx) {
+      args->single_newmv[ref_mv_idx][refs[0]] = mbmi->mv[0];
+      args->single_newmv_rate[ref_mv_idx][refs[0]] = this_rate_mv;
+      args->single_newmv_valid[ref_mv_idx][refs[0]] = 1;
+    }
+  }
 
   // re-instate status of the best choice
   *rd_stats = best_rd_stats;
@@ -10770,19 +10790,24 @@ static int inter_mode_search_order_independent_skip(
   if (mbmi->partition != PARTITION_NONE && mbmi->partition != PARTITION_SPLIT) {
     const int ref_type = av1_ref_frame_type(ref_frame);
     int skip_ref = ctx->skip_ref_frame_mask & (1 << ref_type);
-    if (ref_type <= ALTREF_FRAME && skip_ref) {
-      // Since the compound ref modes depends on the motion estimation result of
-      // two single ref modes( best mv of single ref modes as the start point )
-      // If current single ref mode is marked skip, we need to check if it will
-      // be used in compound ref modes.
+    if (ref_type <= ALTREF_FRAME && skip_ref && mbmi->mode == NEARESTMV) {
+      // (1) The compound ref modes depend on the motion estimation results of
+      //     the corresponding two single ref modes (best mv of single ref modes
+      //     as the start points).
+      // (2) If current single ref mode is marked skip, we need to check if it
+      //     will be used in the corresponding compound ref modes that contain
+      //     this single ref.
+      // (3) Further speedup is achieved that for those single refs that are
+      //     skipped but will be used as one of the later comp ref pair, only
+      //     the nearestmv is evaluated.
       for (int r = ALTREF_FRAME + 1; r < MODE_CTX_REF_FRAMES; ++r) {
         if (!(ctx->skip_ref_frame_mask & (1 << r))) {
           const MV_REFERENCE_FRAME *rf = ref_frame_map[r - REF_FRAMES];
           if (rf[0] == ref_type || rf[1] == ref_type) {
             // Found a not skipped compound ref mode which contains current
-            // single ref. So this single ref can't be skipped completly
-            // Just skip it's motion mode search, still try it's simple
-            // transition mode.
+            // single ref. So this single ref can't be skipped completely
+            // Just skip its motion mode search, but still try its simple
+            // translation mode.
             skip_motion_mode = 1;
             skip_ref = 0;
             break;
@@ -11734,11 +11759,11 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         this_rd = handle_inter_mode(
             cpi, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv, &disable_skip,
             mi_row, mi_col, &args, ref_best_rd, tmp_buf, &rd_buffers, tile_data,
-            &best_est_rd, do_tx_search, inter_modes_info);
+            &best_est_rd, do_tx_search, inter_modes_info, ctx);
 #else
-        this_rd = handle_inter_mode(cpi, x, bsize, &rd_stats, &rd_stats_y,
-                                    &rd_stats_uv, &disable_skip, mi_row, mi_col,
-                                    &args, ref_best_rd, tmp_buf, &rd_buffers);
+        this_rd = handle_inter_mode(
+            cpi, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv, &disable_skip,
+            mi_row, mi_col, &args, ref_best_rd, tmp_buf, &rd_buffers, ctx);
 #endif
         rate2 = rd_stats.rate;
         skippable = rd_stats.skip;
