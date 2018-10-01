@@ -9457,7 +9457,8 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
           newmv_ret_val = args->single_newmv_valid[ref_mv_idx][ref0] ? 0 : 1;
           cur_mv[0] = args->single_newmv[ref_mv_idx][ref0];
           rate_mv = args->single_newmv_rate[ref_mv_idx][ref0];
-        } else if (!(search_jnt_comp && cpi->sf.jnt_comp_skip_mv_search &&
+        } else if (!(search_jnt_comp &&
+                     (cpi->sf.use_jnt_comp_flag == JNT_COMP_SKIP_MV_SEARCH) &&
                      comp_idx == 0)) {
           newmv_ret_val = handle_newmv(cpi, x, bsize, cur_mv, mi_row, mi_col,
                                        &rate_mv, args);

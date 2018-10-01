@@ -652,8 +652,14 @@ static aom_codec_err_t set_encoder_config(
   oxcf->full_still_picture_hdr = cfg->full_still_picture_hdr;
   oxcf->enable_dual_filter = extra_cfg->use_dual_filter;
   oxcf->enable_order_hint = extra_cfg->enable_order_hint;
-  oxcf->enable_jnt_comp =
-      extra_cfg->enable_jnt_comp & extra_cfg->enable_order_hint;
+
+  // Note: Set a sequence header parameter based on a speed feature. We need to
+  // also modify it here, since the sequence header is written out to webm file
+  // header ahead of any frame encoding.
+  oxcf->enable_jnt_comp = extra_cfg->enable_jnt_comp &
+                          extra_cfg->enable_order_hint &
+                          (extra_cfg->cpu_used < 1);
+
   oxcf->enable_ref_frame_mvs =
       extra_cfg->enable_ref_frame_mvs & extra_cfg->enable_order_hint;
 
