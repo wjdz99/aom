@@ -826,6 +826,11 @@ static INLINE int frame_is_kf_gf_arf(const AV1_COMP *cpi) {
          (cpi->refresh_golden_frame && !cpi->rc.is_src_frame_alt_ref);
 }
 
+static INLINE int frame_is_gf_arf(const AV1_COMP *cpi) {
+  return cpi->refresh_alt_ref_frame || cpi->refresh_alt2_ref_frame ||
+         (cpi->refresh_golden_frame && !cpi->rc.is_src_frame_alt_ref);
+}
+
 static INLINE int get_ref_frame_map_idx(const AV1_COMP *cpi,
                                         MV_REFERENCE_FRAME ref_frame) {
   return (ref_frame >= 1) ? cpi->ref_fb_idx[ref_frame - 1] : INVALID_IDX;
