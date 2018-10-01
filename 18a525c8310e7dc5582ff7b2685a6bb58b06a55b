@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e01732c4_ae329f22",
+        "filename": "av1/encoder/context_tree.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 9978
+      },
+      "writtenOn": "2018-10-01T18:32:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e5dc0fe_1866e828",
+      "range": {
+        "startLine": 76,
+        "startChar": 35,
+        "endLine": 76,
+        "endChar": 40
+      },
+      "revId": "18a525c8310e7dc5582ff7b2685a6bb58b06a55b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26edf77e_3da76c95",
         "filename": "av1/encoder/context_tree.h",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2018-10-01T17:23:45Z",
       "side": 1,
       "message": "It seems that they are set but never used in this patch.",
+      "range": {
+        "startLine": 77,
+        "startChar": 2,
+        "endLine": 78,
+        "endChar": 20
+      },
+      "revId": "18a525c8310e7dc5582ff7b2685a6bb58b06a55b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17814811_c1aa4631",
+        "filename": "av1/encoder/context_tree.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 9978
+      },
+      "writtenOn": "2018-10-01T18:32:37Z",
+      "side": 1,
+      "message": "A TODO is added in the following patch, as these parameters will be used in the following CLs for further encoder speedup.",
+      "parentUuid": "26edf77e_3da76c95",
       "range": {
         "startLine": 77,
         "startChar": 2,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "d944e06e_b0fc799d",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3441,
+      "author": {
+        "id": 9978
+      },
+      "writtenOn": "2018-10-01T18:32:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "74f18521_afd2903f",
+      "range": {
+        "startLine": 3440,
+        "startChar": 2,
+        "endLine": 3441,
+        "endChar": 59
+      },
+      "revId": "18a525c8310e7dc5582ff7b2685a6bb58b06a55b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2482230f_04991e7e",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 7
@@ -82,6 +154,30 @@
       "writtenOn": "2018-10-01T17:23:45Z",
       "side": 1,
       "message": "The two if () can be combined to reduce nesting.",
+      "range": {
+        "startLine": 3687,
+        "startChar": 6,
+        "endLine": 3689,
+        "endChar": 47
+      },
+      "revId": "18a525c8310e7dc5582ff7b2685a6bb58b06a55b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ab57b0f_b28a626d",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3689,
+      "author": {
+        "id": 9978
+      },
+      "writtenOn": "2018-10-01T18:32:37Z",
+      "side": 1,
+      "message": "The separation of the two if()\u0027s is to leave the future work on the compound ref scenario, as shown in the following else(){} branch noted with TODO.",
+      "parentUuid": "2482230f_04991e7e",
       "range": {
         "startLine": 3687,
         "startChar": 6,
