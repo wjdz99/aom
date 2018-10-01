@@ -45,6 +45,7 @@ typedef struct Accounting Accounting;
 /** Callback that inspects decoder frame data.
  */
 typedef void (*aom_inspect_cb)(void *decoder, void *ctx);
+
 #endif
 
 /*!\brief Structure to hold inspection callback and context.
@@ -59,6 +60,17 @@ typedef struct aom_inspect_init {
   /*! Inspection context. */
   void *inspect_ctx;
 } aom_inspect_init;
+
+/*!\brief Structure to collect a buffer index when inspecting.
+ *
+ * Defines a structure to hold the buffer and return an index
+ * when calling decode from inspect. This enables us to decode
+ * non showable sub frames.
+ */
+typedef struct {
+  const unsigned char *buf;
+  int idx;
+} Av1DecodeReturn;
 
 /*!\brief Structure to hold a tile's start address and size in the bitstream.
  *
