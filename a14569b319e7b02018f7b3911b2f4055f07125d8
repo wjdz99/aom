@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e49faf1d_7c616892",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 12338,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2018-10-01T05:15:49Z",
+      "side": 1,
+      "message": "I looked around and found functions in convolve.h and filter.h but I wasn\u0027t sure if these were the ones you were referring to. Can you provide a pointer?",
+      "parentUuid": "fb6e05e3_6733a73f",
+      "revId": "a14569b319e7b02018f7b3911b2f4055f07125d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ee2d9d87_c72d46cf",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2018-09-28T21:45:51Z",
       "side": 1,
       "message": "Can we return an int? maybe the highest directly, or AOMMIN(highest, 255), assuming that that integer/255 is the probability?",
+      "revId": "a14569b319e7b02018f7b3911b2f4055f07125d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4eabaf2f_a01c4ec9",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 12393,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2018-10-01T05:15:49Z",
+      "side": 1,
+      "message": "Yes, I will make this change shortly.",
+      "parentUuid": "ee2d9d87_c72d46cf",
       "revId": "a14569b319e7b02018f7b3911b2f4055f07125d8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
