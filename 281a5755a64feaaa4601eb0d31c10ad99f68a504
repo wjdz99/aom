@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a61b220_f757cacf",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-01T23:11:23Z",
+      "side": 1,
+      "message": "While writing a test that is expected to fail with this error before the bug fix, I got the expected error code 2 (AOM_CODEC_MEM_ERROR) but was confused by the error message \"Truncated packet\":\n\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n[ RUN      ] AV1/InvalidFileTest.ReturnCode/7\n/usr/local/google/home/wtc/tmp/oss-fuzz-10389/aom/test/invalid_file_test.cc:73: Failure\n      Expected: expected_res_dec\n      Which is: 7\nTo be equal to: res_dec\n      Which is: 2\nResults don\u0027t match: frame number \u003d 22. (Truncated packet)\n[  FAILED  ] AV1/InvalidFileTest.ReturnCode/7, where GetParam() \u003d (0x5582a8ac34e8, threads: 1 file: invalid-oss-fuzz-10389.ivf) (707 ms)\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n\nI found that it\u0027s because we eventually call update_error_state():\n\nstatic aom_codec_err_t update_error_state(\n    aom_codec_alg_priv_t *ctx, const struct aom_internal_error_info *error) {\n  if (error-\u003eerror_code)\n    set_error_detail(ctx, error-\u003ehas_detail ? error-\u003edetail : NULL);\n\n  return error-\u003eerror_code;\n}\n\nand both error-\u003ehas_detail is 1, a stale value from a previous failure.\n\nWe probably should set cm-\u003eerror.has_detail to 0 whenever we set cm-\u003eerror.error_code to an error code, but there would be too many places to fix. I think we should at least reset cm-\u003eerror.has_detail to 0 on entry to av1_receive_compressed_data(). This allows me to see the expected error message:\n\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n[ RUN      ] AV1/InvalidFileTest.ReturnCode/7\n/usr/local/google/home/wtc/tmp/oss-fuzz-10389/aom/test/invalid_file_test.cc:73: Failure\n      Expected: expected_res_dec\n      Which is: 7\nTo be equal to: res_dec\n      Which is: 2\nResults don\u0027t match: frame number \u003d 22. (Memory allocation error)\n[  FAILED  ] AV1/InvalidFileTest.ReturnCode/7, where GetParam() \u003d (0x559437fed8f8, threads: 1 file: invalid-oss-fuzz-10389.ivf) (707 ms)\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d",
+      "revId": "281a5755a64feaaa4601eb0d31c10ad99f68a504",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
