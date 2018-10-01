@@ -953,7 +953,13 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
     // Handle the special case for key frames forced when we have reached
     // the maximum key frame interval. Here force the Q to a range
     // based on the ambient Q to reduce the risk of popping.
-    if (rc->this_key_frame_forced) {
+    if (rc->frames_to_key == 1 && oxcf->rc_mode == AOM_Q) {
+      // If the next frame is also a key frame or the current frame is the
+      // only frame in the sequence, in AOM_Q mode,  just use the cq_level
+      // as the q.
+      active_best_quality = cq_level;
+      active_worst_quality = cq_level;
+    } else if (rc->this_key_frame_forced) {
       double last_boosted_q;
       int delta_qindex;
       int qindex;
