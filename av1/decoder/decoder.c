@@ -325,7 +325,7 @@ static void release_frame_buffers(AV1Decoder *pbi) {
 
   lock_buffer_pool(pool);
   // Release all the reference buffers if worker thread is holding them.
-  if (pbi->hold_ref_buf == 1) {
+  if (pbi->hold_ref_buf) {
     int ref_index = 0, mask;
     for (mask = pbi->refresh_frame_flags; mask; mask >>= 1) {
       const int old_idx = cm->ref_frame_map[ref_index];
@@ -355,9 +355,11 @@ static void release_frame_buffers(AV1Decoder *pbi) {
   unlock_buffer_pool(pool);
 }
 
-/* If any buffer updating is signaled it should be done here.
-   Consumes a reference to cm->new_fb_idx.
-*/
+// If any buffer updating is signaled it should be done here.
+// Consumes a reference to cm->new_fb_idx.
+//
+// This functions returns void. It reports failure by setting
+// cm->error.error_code.
 static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
   int ref_index = 0, mask;
   AV1_COMMON *const cm = &pbi->common;
@@ -370,6 +372,13 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
     // In ext-tile decoding, the camera frame header is only decoded once. So,
     // we don't release the references here.
     if (!pbi->camera_frame_header_ready) {
+      // If we are not holding reference buffers in cm->next_ref_frame_map,
+      // assert that the following two for loops are no-ops.
+      if (!pbi->hold_ref_buf) {
+        assert(pbi->refresh_frame_flags == 0);
+        assert(cm->show_existing_frame && !cm->reset_decoder_state);
+      }
+
       for (mask = pbi->refresh_frame_flags; mask; mask >>= 1) {
         const int old_idx = cm->ref_frame_map[ref_index];
         // Current thread releases the holding of reference frame.
@@ -393,9 +402,8 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
       }
     }
 
-    YV12_BUFFER_CONFIG *cur_frame = get_frame_new_buffer(cm);
-
     if (cm->show_existing_frame || cm->show_frame) {
+      YV12_BUFFER_CONFIG *cur_frame = get_frame_new_buffer(cm);
       if (pbi->output_all_layers) {
         // Append this frame to the output queue
         if (pbi->num_output_frames >= MAX_NUM_SPATIAL_LAYERS) {
@@ -424,6 +432,12 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
 
     unlock_buffer_pool(pool);
   } else {
+    // The code here assumes we are not holding reference buffers in
+    // cm->next_ref_frame_map. If this assertion fails, we are leaking the
+    // frame buffer references in cm->next_ref_frame_map.
+    if (!pbi->camera_frame_header_ready) {
+      assert(!pbi->hold_ref_buf);
+    }
     // Nothing was decoded, so just drop this frame buffer
     lock_buffer_pool(pool);
     decrease_ref_count(cm->new_fb_idx, frame_bufs, pool);
