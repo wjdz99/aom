@@ -355,9 +355,11 @@ static void release_frame_buffers(AV1Decoder *pbi) {
   unlock_buffer_pool(pool);
 }
 
-/* If any buffer updating is signaled it should be done here.
-   Consumes a reference to cm->new_fb_idx.
-*/
+// If any buffer updating is signaled it should be done here.
+// Consumes a reference to cm->new_fb_idx.
+//
+// This functions returns void. It reports failure by setting
+// cm->error.error_code.
 static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
   int ref_index = 0, mask;
   AV1_COMMON *const cm = &pbi->common;
@@ -365,6 +367,10 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
   RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
 
   if (frame_decoded) {
+    // The code here assumes we are holding reference buffers in
+    // cm->next_ref_frame_map and they need to be moved to cm->ref_frame_map,
+    // unless pbi->camera_frame_header_ready is true.
+    assert(pbi->hold_ref_buf == 1);
     lock_buffer_pool(pool);
 
     // In ext-tile decoding, the camera frame header is only decoded once. So,
@@ -424,6 +430,10 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
 
     unlock_buffer_pool(pool);
   } else {
+    // The code here assumes we are not holding reference buffers in
+    // cm->next_ref_frame_map. If this assertion fails, we are leaking the
+    // frame buffer references in cm->next_ref_frame_map.
+    assert(pbi->hold_ref_buf == 0);
     // Nothing was decoded, so just drop this frame buffer
     lock_buffer_pool(pool);
     decrease_ref_count(cm->new_fb_idx, frame_bufs, pool);
