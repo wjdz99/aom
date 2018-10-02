@@ -16,6 +16,24 @@
       "revId": "281a5755a64feaaa4601eb0d31c10ad99f68a504",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "060607f9_3b9a9d92",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-10-02T00:37:32Z",
+      "side": 1,
+      "message": "\u003e We probably should set cm-\u003eerror.has_detail to 0 whenever we set cm-\u003eerror.error_code to an error code, but there would be too many places to fix.\n\nThere are 29 direct assignments to error_code without a has_detail assignment within 3 lines according to some abuse of git grep. I agree that it\u0027s too many to deal with here, but maybe we should file a bug to follow up.",
+      "parentUuid": "9a61b220_f757cacf",
+      "revId": "281a5755a64feaaa4601eb0d31c10ad99f68a504",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
