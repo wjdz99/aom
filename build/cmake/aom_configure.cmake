@@ -89,6 +89,21 @@ set(AOM_CMAKE_CONFIG "cmake ${source_path} ${AOM_CMAKE_CONFIG}")
 string(STRIP "${AOM_CMAKE_CONFIG}" AOM_CMAKE_CONFIG)
 
 message("--- aom_configure: Detected CPU: ${AOM_TARGET_CPU}")
+
+if("${AOM_TARGET_CPU}" MATCHES "^x86")
+  if(NOT ENABLE_NASM)
+
+    # CMake prefers nasm when both nasm and yasm are present on a system, find
+    # yasm and set $CMAKE_ASM_NASM_COMPILER directly when nasm has not been
+    # requested.
+    find_program(CMAKE_ASM_NASM_COMPILER NAMES yasm PATHS ENV YASM_PATH)
+  endif()
+  enable_language(ASM_NASM)
+  if(ENABLE_NASM AND "${CMAKE_ASM_NASM_COMPILER}" MATCHES "nasm")
+    test_nasm()
+  endif()
+endif()
+
 set(AOM_TARGET_SYSTEM ${CMAKE_SYSTEM_NAME})
 
 if("${CMAKE_BUILD_TYPE}" MATCHES "Deb")
@@ -121,46 +136,6 @@ if(NOT "${AOM_SUPPORTED_CPU_TARGETS}" MATCHES "${AOM_TARGET_CPU}")
             "No RTCD support for ${AOM_TARGET_CPU}. Create it, or "
             "add -DAOM_TARGET_CPU=generic to your cmake command line for a "
             "generic build of libaom and tools.")
-endif()
-
-if("${AOM_TARGET_CPU}" STREQUAL "x86" OR "${AOM_TARGET_CPU}" STREQUAL "x86_64")
-  find_program(AS_EXECUTABLE yasm $ENV{YASM_PATH})
-  if(NOT AS_EXECUTABLE OR ENABLE_NASM)
-    unset(AS_EXECUTABLE CACHE)
-    find_program(AS_EXECUTABLE nasm $ENV{NASM_PATH})
-    if(AS_EXECUTABLE)
-      test_nasm()
-    endif()
-  endif()
-
-  if(NOT AS_EXECUTABLE)
-    message(FATAL_ERROR
-              "Unable to find assembler. Install 'yasm' or 'nasm.' "
-              "To build without optimizations, add -DAOM_TARGET_CPU=generic to "
-              "your cmake command line.")
-  endif()
-  get_asm_obj_format("objformat")
-  set(AOM_AS_FLAGS -f ${objformat} ${AOM_AS_FLAGS})
-  string(STRIP "${AOM_AS_FLAGS}" AOM_AS_FLAGS)
-elseif("${AOM_TARGET_CPU}" MATCHES "arm")
-  if("${AOM_TARGET_SYSTEM}" STREQUAL "Darwin")
-    set(AS_EXECUTABLE as)
-    set(AOM_AS_FLAGS -arch ${AOM_TARGET_CPU} -isysroot ${CMAKE_OSX_SYSROOT})
-  elseif("${AOM_TARGET_SYSTEM}" STREQUAL "Linux")
-    if(NOT AS_EXECUTABLE)
-      set(AS_EXECUTABLE as)
-    endif()
-  elseif("${AOM_TARGET_SYSTEM}" STREQUAL "Windows")
-    if(NOT AS_EXECUTABLE)
-      set(AS_EXECUTABLE ${CMAKE_C_COMPILER} -c -mimplicit-it=always)
-    endif()
-  endif()
-  if(NOT AS_EXECUTABLE)
-    message(FATAL_ERROR
-              "Unknown assembler for: ${AOM_TARGET_CPU}-${AOM_TARGET_SYSTEM}")
-  endif()
-
-  string(STRIP "${AOM_AS_FLAGS}" AOM_AS_FLAGS)
 endif()
 
 if(CONFIG_ANALYZER)
