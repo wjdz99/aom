@@ -49,7 +49,7 @@ list(APPEND AOM_PORTS_SOURCES_PPC "${AOM_ROOT}/aom_ports/ppc.h"
 # * The libaom target must exist before this function is called.
 function(setup_aom_ports_targets)
   if("${AOM_TARGET_CPU}" MATCHES "^x86")
-    add_asm_library("aom_ports" "AOM_PORTS_ASM_X86" "aom")
+    add_asm_object_library("aom_ports" "aom" "AOM_PORTS_ASM_X86")
     set(aom_ports_has_symbols 1)
   elseif("${AOM_TARGET_CPU}" MATCHES "arm")
     add_library(aom_ports OBJECT ${AOM_PORTS_SOURCES_ARM})
@@ -64,18 +64,12 @@ function(setup_aom_ports_targets)
   if(aom_ports_has_symbols)
     target_sources(aom_ports PRIVATE ${AOM_PORTS_INCLUDES})
 
-    if("${AOM_TARGET_CPU}" STREQUAL "x86" OR "${AOM_TARGET_CPU}" STREQUAL
-       "x86_64")
+    if("${AOM_TARGET_CPU}" MATCHES "^x86")
       target_sources(aom_ports PRIVATE ${AOM_PORTS_INCLUDES_X86})
     endif()
 
     set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} PARENT_SCOPE)
   else()
     target_sources(aom PRIVATE ${AOM_PORTS_INCLUDES})
-
-    if("${AOM_TARGET_CPU}" STREQUAL "x86" OR "${AOM_TARGET_CPU}" STREQUAL
-       "x86_64")
-      target_sources(aom PRIVATE ${AOM_PORTS_INCLUDES_X86})
-    endif()
   endif()
 endfunction()
