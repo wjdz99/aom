@@ -89,6 +89,14 @@ set(AOM_CMAKE_CONFIG "cmake ${source_path} ${AOM_CMAKE_CONFIG}")
 string(STRIP "${AOM_CMAKE_CONFIG}" AOM_CMAKE_CONFIG)
 
 message("--- aom_configure: Detected CPU: ${AOM_TARGET_CPU}")
+
+if("${AOM_TARGET_CPU}" MATCHES "^x86")
+  if(NOT ENABLE_NASM)
+    set(CMAKE_ASM_NASM_COMPILER_INIT yasm)
+  endif()
+  enable_language(ASM_NASM)
+endif()
+
 set(AOM_TARGET_SYSTEM ${CMAKE_SYSTEM_NAME})
 
 if("${CMAKE_BUILD_TYPE}" MATCHES "Deb")
