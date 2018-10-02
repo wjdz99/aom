@@ -363,7 +363,8 @@ function(setup_av1_targets)
                                   "AOM_AV1_COMMON_INTRIN_SSE2" "aom")
     if(CONFIG_AV1_DECODER)
       if(AOM_AV1_DECODER_ASM_SSE2)
-        add_asm_library("aom_av1_decoder_sse2" "AOM_AV1_DECODER_ASM_SSE2" "aom")
+        add_asm_object_library("aom_av1_decoder_asm_sse2" "aom"
+                               "AOM_AV1_DECODER_ASM_SSE2")
       endif()
 
       if(AOM_AV1_DECODER_INTRIN_SSE2)
@@ -373,7 +374,8 @@ function(setup_av1_targets)
     endif()
 
     if(CONFIG_AV1_ENCODER)
-      add_asm_library("aom_av1_encoder_sse2" "AOM_AV1_ENCODER_ASM_SSE2" "aom")
+      add_asm_object_library("aom_av1_encoder_asm_sse2" "aom"
+                             "AOM_AV1_ENCODER_ASM_SSE2")
       add_intrinsics_object_library("-msse2" "sse2" "aom_av1_encoder"
                                     "AOM_AV1_ENCODER_INTRIN_SSE2" "aom")
     endif()
@@ -399,8 +401,8 @@ function(setup_av1_targets)
 
     if(CONFIG_AV1_ENCODER)
       if("${AOM_TARGET_CPU}" STREQUAL "x86_64")
-        add_asm_library("aom_av1_encoder_ssse3"
-                        "AOM_AV1_ENCODER_ASM_SSSE3_X86_64" "aom")
+        add_asm_object_library("aom_av1_encoder_asm_ssse3_x86_64" "aom"
+                               "AOM_AV1_ENCODER_ASM_SSSE3_X86_64")
       endif()
 
       if(AOM_AV1_ENCODER_INTRIN_SSE4_1)
