@@ -274,19 +274,19 @@ function(setup_aom_dsp_targets)
   endif()
 
   if(HAVE_SSE2)
-    add_asm_library("aom_dsp_common_sse2" "AOM_DSP_COMMON_ASM_SSE2" "aom")
+    target_sources(aom PRIVATE ${AOM_DSP_COMMON_ASM_SSE2})
     add_intrinsics_object_library("-msse2" "sse2" "aom_dsp_common"
                                   "AOM_DSP_COMMON_INTRIN_SSE2" "aom")
 
     if(CONFIG_AV1_ENCODER)
-      add_asm_library("aom_dsp_encoder_sse2" "AOM_DSP_ENCODER_ASM_SSE2" "aom")
+      target_sources(aom PRIVATE ${AOM_DSP_ENCODER_ASM_SSE2})
       add_intrinsics_object_library("-msse2" "sse2" "aom_dsp_encoder"
                                     "AOM_DSP_ENCODER_INTRIN_SSE2" "aom")
     endif()
   endif()
 
   if(HAVE_SSSE3)
-    add_asm_library("aom_dsp_common_ssse3" "AOM_DSP_COMMON_ASM_SSSE3" "aom")
+    target_sources(aom PRIVATE ${AOM_DSP_COMMON_ASM_SSSE3})
     add_intrinsics_object_library("-mssse3" "ssse3" "aom_dsp_common"
                                   "AOM_DSP_COMMON_INTRIN_SSSE3" "aom")
 
@@ -295,7 +295,8 @@ function(setup_aom_dsp_targets)
         list(APPEND AOM_DSP_ENCODER_ASM_SSSE3
                     ${AOM_DSP_ENCODER_ASM_SSSE3_X86_64})
       endif()
-      add_asm_library("aom_dsp_encoder_ssse3" "AOM_DSP_ENCODER_ASM_SSSE3" "aom")
+
+      target_sources(aom PRIVATE ${AOM_DSP_ENCODER_ASM_SSSE3})
       add_intrinsics_object_library("-mssse3" "ssse3" "aom_dsp_encoder"
                                     "AOM_DSP_ENCODER_INTRIN_SSSE3" "aom")
     endif()
@@ -312,8 +313,7 @@ function(setup_aom_dsp_targets)
 
   if(HAVE_AVX AND "${AOM_TARGET_CPU}" STREQUAL "x86_64")
     if(CONFIG_AV1_ENCODER)
-      add_asm_library("aom_dsp_encoder_avx" "AOM_DSP_ENCODER_AVX_ASM_X86_64"
-                      "aom")
+      target_sources(aom PRIVATE ${AOM_DSP_ENCODER_AVX_ASM_X86_64})
     endif()
   endif()
 
