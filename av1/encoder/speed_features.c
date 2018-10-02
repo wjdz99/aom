@@ -227,6 +227,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->prune_comp_search_by_single_result = 1;
     sf->skip_repeated_newmv = 1;
     sf->obmc_full_pixel_search_level = 1;
+    sf->use_fast_interpolation_filter_search = 2;
     // TODO(anyone): Following speed feature will be further explored to
     // identify the appropriate tradeoff between encoder performance and its
     // speed.

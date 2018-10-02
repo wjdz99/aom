@@ -491,8 +491,10 @@ typedef struct SPEED_FEATURES {
   // whether to disable the global motion recode loop
   int gm_disable_recode;
 
-  // Do limited interpolation filter search for dual filters, since best choice
-  // usually includes EIGHTTAP_REGULAR.
+  // Do limited interpolation filter search for dual filters.
+  // 0: Do not limit search
+  // 1: Search 5 filters instead of the entire set of 9
+  // 2: Search only 3 filters where the hor and ver filters are the same.
   int use_fast_interpolation_filter_search;
 
   // Save results of interpolation_filter_search for a block

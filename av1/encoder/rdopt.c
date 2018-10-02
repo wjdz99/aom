@@ -8295,7 +8295,7 @@ static int64_t interpolation_filter_search(
   const int filter_set_size = DUAL_FILTER_SET_SIZE;
   restore_dst_buf(xd, *tmp_dst, num_planes);
   const BUFFER_SET *dst_bufs[2] = { tmp_dst, orig_dst };
-  if (cpi->sf.use_fast_interpolation_filter_search &&
+  if (cpi->sf.use_fast_interpolation_filter_search == 1 &&
       cm->seq_params.enable_dual_filter) {
     // default to (R,R): EIGHTTAP_REGULARxEIGHTTAP_REGULAR
     int best_dual_mode = 0;
@@ -8314,7 +8314,8 @@ static int64_t interpolation_filter_search(
   } else {
     // EIGHTTAP_REGULAR mode is calculated beforehand
     for (i = 1; i < filter_set_size; ++i) {
-      if (cm->seq_params.enable_dual_filter == 0) {
+      if (cm->seq_params.enable_dual_filter == 0 ||
+          cpi->sf.use_fast_interpolation_filter_search == 2) {
         const int16_t filter_y = filter_sets[i] & 0xffff;
         const int16_t filter_x = filter_sets[i] >> 16;
         if (filter_x != filter_y) continue;
