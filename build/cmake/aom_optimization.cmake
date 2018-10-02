@@ -29,6 +29,31 @@ function(get_msvc_intrinsic_flag flag translated_flag)
   endif()
 endfunction()
 
+macro(add_asm_object_library target dependent_target sources)
+  if("${${sources}}" STREQUAL "")
+    message(FATAL_ERROR "--- add_asm_object_library: empty source list.")
+  endif()
+
+  add_library(${target} OBJECT ${${sources}})
+  target_sources(${dependent_target} PRIVATE $<TARGET_OBJECTS:${target}>)
+
+  if("${CMAKE_ASM_NASM_COMPILER}" MATCHES "nasm")
+
+    # Include path handling in nasm is broken. If the trailing slash is omitted
+    # nasm cannot find includes. Explicitly add the necessary include paths with
+    # trailing slashes.
+    target_compile_options(${target} PRIVATE "-I${AOM_ROOT}/"
+                           "-I${AOM_CONFIG_DIR}/")
+  endif()
+
+  if(XCODE)
+    set_source_files_properties(${${sources}} PROPERTIES
+                                XCODE_EXPLICIT_FILE_TYPE "sourcecode.nasm")
+  endif()
+
+  list(APPEND AOM_LIB_TARGETS ${target})
+endmacro()
+
 # Adds an object library target. Terminates generation if $flag is not supported
 # by the current compiler. $flag is the intrinsics flag required by the current
 # compiler, and is added to the compile flags for all sources in $sources.
@@ -76,89 +101,12 @@ function(add_intrinsics_source_to_target flag target sources)
   endif()
 endfunction()
 
-# Writes object format for the current target to the var named by $out_format,
-# or terminates the build when the object format for the current target is
-# unknown.
-function(get_asm_obj_format out_format)
-  if("${AOM_TARGET_CPU}" STREQUAL "x86_64")
-    if("${AOM_TARGET_SYSTEM}" STREQUAL "Darwin")
-      set(objformat "macho64")
-    elseif("${AOM_TARGET_SYSTEM}" STREQUAL "Linux")
-      set(objformat "elf64")
-    elseif("${AOM_TARGET_SYSTEM}" STREQUAL "MSYS" OR "${AOM_TARGET_SYSTEM}"
-           STREQUAL "Windows")
-      set(objformat "win64")
-    else()
-      message(FATAL_ERROR "Unknown obj format: ${AOM_TARGET_SYSTEM}")
-    endif()
-  elseif("${AOM_TARGET_CPU}" STREQUAL "x86")
-    if("${AOM_TARGET_SYSTEM}" STREQUAL "Darwin")
-      set(objformat "macho32")
-    elseif("${AOM_TARGET_SYSTEM}" STREQUAL "Linux")
-      set(objformat "elf32")
-    elseif("${AOM_TARGET_SYSTEM}" STREQUAL "MSYS" OR "${AOM_TARGET_SYSTEM}"
-           STREQUAL "Windows")
-      set(objformat "win32")
-    else()
-      message(FATAL_ERROR "Unknown obj format: ${AOM_TARGET_SYSTEM}")
-    endif()
-  else()
-    message(FATAL_ERROR
-              "Unknown obj format: ${AOM_TARGET_CPU}-${AOM_TARGET_SYSTEM}")
-  endif()
-
-  set(${out_format} ${objformat} PARENT_SCOPE)
-endfunction()
-
-# Adds library target named $lib_name for ASM files in variable named by
-# $asm_sources. Builds an output directory path from $lib_name. Links $lib_name
-# into $dependent_target. Generates a dummy C file with a dummy function to
-# ensure that all cmake generators can determine the linker language, and that
-# build tools don't complain that an object exposes no symbols.
-function(add_asm_library lib_name asm_sources dependent_target)
-  if("${${asm_sources}}" STREQUAL "")
-    return()
-  endif()
-  set(asm_lib_obj_dir "${AOM_CONFIG_DIR}/asm_objects/${lib_name}")
-  if(NOT EXISTS "${asm_lib_obj_dir}")
-    file(MAKE_DIRECTORY "${asm_lib_obj_dir}")
-  endif()
-
-  # TODO(tomfinegan): If cmake ever allows addition of .o files to OBJECT lib
-  # targets, make this OBJECT instead of STATIC to hide the target from
-  # consumers of the AOM cmake build.
-  add_library(${lib_name} STATIC ${${asm_sources}})
-
-  foreach(asm_source ${${asm_sources}})
-    get_filename_component(asm_source_name "${asm_source}" NAME)
-    set(asm_object "${asm_lib_obj_dir}/${asm_source_name}.o")
-    add_custom_command(OUTPUT "${asm_object}"
-                       COMMAND ${AS_EXECUTABLE} ARGS ${AOM_AS_FLAGS}
-                               -I${AOM_ROOT}/ -I${AOM_CONFIG_DIR}/ -o
-                               "${asm_object}" "${asm_source}"
-                       DEPENDS "${asm_source}"
-                       COMMENT "Building ASM object ${asm_object}"
-                       WORKING_DIRECTORY "${AOM_CONFIG_DIR}" VERBATIM)
-    target_sources(aom PRIVATE "${asm_object}")
-  endforeach()
-
-  # The above created a target containing only ASM sources. Cmake needs help
-  # here to determine the linker language. Add a dummy C file to force the
-  # linker language to C. We don't bother with setting the LINKER_LANGUAGE
-  # property on the library target because not all generators obey it (looking
-  # at you, xcode generator).
-  add_dummy_source_file_to_target("${lib_name}" "c")
-
-  # Add the new lib target to the global list of aom library targets.
-  list(APPEND AOM_LIB_TARGETS ${lib_name})
-  set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} PARENT_SCOPE)
-endfunction()
-
 # Terminates generation if nasm found in PATH does not meet requirements.
 # Currently checks only for presence of required object formats and support for
 # the -Ox argument (multipass optimization).
 function(test_nasm)
-  execute_process(COMMAND ${AS_EXECUTABLE} -hf OUTPUT_VARIABLE nasm_helptext)
+  execute_process(COMMAND ${CMAKE_ASM_NASM_COMPILER} -hf
+                  OUTPUT_VARIABLE nasm_helptext)
 
   if(NOT "${nasm_helptext}" MATCHES "-Ox")
     message(FATAL_ERROR
