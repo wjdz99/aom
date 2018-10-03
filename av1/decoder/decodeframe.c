@@ -4747,26 +4747,27 @@ static void show_existing_frame_reset(AV1Decoder *const pbi,
 }
 
 static INLINE void reset_frame_buffers(AV1_COMMON *cm) {
-  RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
+  BufferPool *const pool = cm->buffer_pool;
+  RefCntBuffer *const frame_bufs = pool->frame_bufs;
   int i;
 
-  memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
   memset(&cm->next_ref_frame_map, -1, sizeof(cm->next_ref_frame_map));
 
-  lock_buffer_pool(cm->buffer_pool);
+  lock_buffer_pool(pool);
+  for (i = 0; i < REF_FRAMES; ++i) {
+    decrease_ref_count(cm->ref_frame_map[i], frame_bufs, pool);
+  }
+  memset(&cm->ref_frame_map, -1, sizeof(cm->next_ref_frame_map));
+  assert(frame_bufs[cm->new_fb_idx].ref_count == 1);
   for (i = 0; i < FRAME_BUFFERS; ++i) {
-    if (i != cm->new_fb_idx) {
-      frame_bufs[i].ref_count = 0;
-      cm->buffer_pool->release_fb_cb(cm->buffer_pool->cb_priv,
-                                     &frame_bufs[i].raw_frame_buffer);
-    } else {
-      assert(frame_bufs[i].ref_count == 1);
+    if (frame_bufs[i].ref_count > 0 && i != cm->new_fb_idx) {
+      continue;
     }
     frame_bufs[i].cur_frame_offset = 0;
     av1_zero(frame_bufs[i].ref_frame_offset);
   }
-  av1_zero_unused_internal_frame_buffers(&cm->buffer_pool->int_frame_buffers);
-  unlock_buffer_pool(cm->buffer_pool);
+  av1_zero_unused_internal_frame_buffers(&pool->int_frame_buffers);
+  unlock_buffer_pool(pool);
 }
 
 // On success, returns 0. On failure, calls aom_internal_error and does not
