@@ -3432,7 +3432,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   struct rdcost_block_args *args = arg;
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
-  const MB_MODE_INFO *const mbmi = xd->mi[0];
+  MB_MODE_INFO *const mbmi = xd->mi[0];
   const AV1_COMP *cpi = args->cpi;
   ENTROPY_CONTEXT *a = args->t_above + blk_col;
   ENTROPY_CONTEXT *l = args->t_left + blk_row;
@@ -3472,10 +3472,15 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
       blk_row * (block_size_wide[plane_bsize] >> tx_size_wide_log2[0]) +
       blk_col;
 
-  if (plane == 0)
+  if (plane == 0) {
+    if (x->plane[plane].eobs[block] == 0) {
+      update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
+                       DCT_DCT);
+    }
     set_blk_skip(x, plane, blk_idx, x->plane[plane].eobs[block] == 0);
-  else
+  } else {
     set_blk_skip(x, plane, blk_idx, 0);
+  }
 
   rd1 = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
   rd2 = RDCOST(x->rdmult, 0, this_rd_stats.sse);
