@@ -219,7 +219,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     // on speed 1
     sf->inter_mode_rd_model_estimation = 0;
     sf->adaptive_txb_search_level = 2;
-    sf->use_intra_txb_hash = 1;
+    sf->use_intra_txb_hash = 0;
     sf->optimize_b_precheck = 1;
     sf->dual_sgr_penalty_level = 1;
     sf->use_accurate_subpel_search = USE_4_TAPS;
