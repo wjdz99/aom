@@ -3321,8 +3321,10 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   else
     set_blk_skip(x, plane, blk_idx, 0);
 
+  const int zero_blk_rate = av1_cost_skip_txb(x, &txb_ctx, plane, tx_size);
+
   rd1 = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
-  rd2 = RDCOST(x->rdmult, 0, this_rd_stats.sse);
+  rd2 = RDCOST(x->rdmult, zero_blk_rate, this_rd_stats.sse);
 
   // TODO(jingning): temporarily enabled only for luma component
   rd = AOMMIN(rd1, rd2);
