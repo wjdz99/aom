@@ -1,0 +1,141 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c861ea1d_a6b9e4ae",
+        "filename": "av1/common/obu_util.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-03T21:50:37Z",
+      "side": 1,
+      "message": "Optional: It would be useful to add an assertion here:\n\n    assert(is_annexb);\n\nI forgot that Section 5.2 of the spec says \"When using [the low overhead bitstream format], obu_has_size_field must be equal to 1.\" The assertion would remind people of that. Or we can add a comment to that effect.",
+      "revId": "c3cdd4f3d67f52e1809360dab325204f808cf226",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac1b2e69_a8fa614d",
+        "filename": "av1/common/obu_util.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-03T21:50:37Z",
+      "side": 1,
+      "message": "Nit: I suggest listing these two sizes in the order they appear in the bitstream:\n\n        data + length_field_size_obu + obu_header-\u003esize,\t\n        bytes_available - length_field_size_obu - obu_header-\u003esize,",
+      "revId": "c3cdd4f3d67f52e1809360dab325204f808cf226",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1841083b_46db94d4",
+        "filename": "av1/common/obu_util.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-03T21:50:37Z",
+      "side": 1,
+      "message": "Nit: I suggest listing the summands in the order they appear in the bitstream:\n\n       length_field_size_obu + obu_header-\u003esize + length_field_size_payload;",
+      "range": {
+        "startLine": 149,
+        "startChar": 6,
+        "endLine": 149,
+        "endChar": 74
+      },
+      "revId": "c3cdd4f3d67f52e1809360dab325204f808cf226",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0c0b6d8_3215d3d4",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-03T21:50:37Z",
+      "side": 1,
+      "message": "I wonder if we should make the minimum buffer size a variable that depends on is_annexb, something like:\n\n  const size_t minimum_buffer_size \u003d\n      is_annexb ? (OBU_MAX_LENGTH_FIELD_SIZE + OBU_MAX_HEADER_SIZE) : OBU_MAX_HEADER_SIZE;\n\nThis requires using the original definition of OBU_MAX_HEADER_SIZE.\n\nPerhaps we should not worry about requiring an extra 8 bytes in the non-Annex B case.",
+      "revId": "c3cdd4f3d67f52e1809360dab325204f808cf226",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fee12733_9aceb287",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-03T21:50:37Z",
+      "side": 1,
+      "message": "Optional: It might be helpful to add an assertion here\n\n    assert(is_annexb);",
+      "revId": "c3cdd4f3d67f52e1809360dab325204f808cf226",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04a72b5b_63a8187c",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-03T21:50:37Z",
+      "side": 1,
+      "message": "Nit: I suggest listing these two sizes in the order they appear in the bitstream:\n\n    if (obudec_read_leb128(f, \u0026buffer[leb128_length_obu + header_size],",
+      "range": {
+        "startLine": 166,
+        "startChar": 38,
+        "endLine": 166,
+        "endChar": 69
+      },
+      "revId": "c3cdd4f3d67f52e1809360dab325204f808cf226",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "445edd7c_9a823502",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-03T21:50:37Z",
+      "side": 1,
+      "message": "Nit: I suggest listing the summands in the order they appear in the bitstream:\n\n *bytes_read \u003d leb128_length_obu + header_size + leb128_length_payload;",
+      "range": {
+        "startLine": 179,
+        "startChar": 16,
+        "endLine": 179,
+        "endChar": 71
+      },
+      "revId": "c3cdd4f3d67f52e1809360dab325204f808cf226",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
