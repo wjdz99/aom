@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "8a411949_864a0c1d",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 926,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-10-03T16:05:31Z",
+      "side": 1,
+      "message": "In aom_dsp_rtcd_defs.pl, we have\nspecialize qw/aom_highbd_upsampled_pred sse2/;\nThat means there are c and sse2 versions of aom_highbd_upsampled_pred. Run-time detection decides which version to use.\nYou see \"#define aom_highbd_upsampled_pred aom_highbd_upsampled_pred_sse2\", which means your allow to use sse2 optimization. If you config to use c only, you should see it uses c version.\nThus, there should be no issue for aom_highbd_comp_mask_upsampled_pred.",
+      "parentUuid": "ca328cd6_e3072156",
+      "range": {
+        "startLine": 919,
+        "startChar": 1,
+        "endLine": 926,
+        "endChar": 0
+      },
+      "revId": "033f62749b98008848ffacadc8532d3be9a2c297",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ba9dd4f6_0c096130",
         "filename": "test/comp_avg_pred_test.h",
         "patchSetId": 1
