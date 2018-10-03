@@ -3432,7 +3432,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   struct rdcost_block_args *args = arg;
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
-  const MB_MODE_INFO *const mbmi = xd->mi[0];
+  MB_MODE_INFO *const mbmi = xd->mi[0];
   const AV1_COMP *cpi = args->cpi;
   ENTROPY_CONTEXT *a = args->t_above + blk_col;
   ENTROPY_CONTEXT *l = args->t_left + blk_row;
@@ -3472,9 +3472,13 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
       blk_row * (block_size_wide[plane_bsize] >> tx_size_wide_log2[0]) +
       blk_col;
 
-  if (plane == 0)
+  if (plane == 0) {
+    if (x->plane[plane].eobs[block] == 0) {
+      update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
+                       DCT_DCT);
+    }
     set_blk_skip(x, plane, blk_idx, x->plane[plane].eobs[block] == 0);
-  else
+  } else
     set_blk_skip(x, plane, blk_idx, 0);
 
   rd1 = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
@@ -4903,8 +4907,8 @@ static void try_tx_block_no_split(
     rd_stats->skip = 1;
     set_blk_skip(x, 0, blk_row * bw + blk_col, 1);
     p->eobs[block] = 0;
-    update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
-                     DCT_DCT);
+    /*update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
+                     DCT_DCT);*/
   } else {
     set_blk_skip(x, 0, blk_row * bw + blk_col, 0);
     rd_stats->skip = 0;
@@ -5272,8 +5276,8 @@ static void tx_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
       set_blk_skip(x, 0, blk_row * mi_width + blk_col, 1);
       x->plane[0].eobs[block] = 0;
       x->plane[0].txb_entropy_ctx[block] = 0;
-      update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
-                       DCT_DCT);
+      /*update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
+                       DCT_DCT);*/
 #if CONFIG_ONE_PASS_SVM
       av1_add_reg_stat(rd_stats, 0, RDCOST(x->rdmult, 0, rd_stats->sse),
                        rd_stats->sse, blk_row, blk_col, plane_bsize,
