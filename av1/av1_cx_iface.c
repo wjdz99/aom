@@ -164,7 +164,7 @@ static struct av1_extracfg default_extra_cfg = {
   0,                            // motion_vector_unit_test
   1,                            // CDF update mode
   1,                            // frame order hint
-  1,                            // jnt_comp
+  0,                            // jnt_comp
   1,                            // enable_ref_frame_mvs sequence level
   1,                            // allow ref_frame_mvs frame level
   1,                            // enable_warped_motion at sequence level
