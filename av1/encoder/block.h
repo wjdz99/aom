@@ -125,6 +125,7 @@ typedef struct {
   uint8_t txb_entropy_ctx;
   uint8_t valid;
   uint8_t fast;  // This is not being used now.
+  int64_t ref_best_rd;
 } TXB_RD_INFO;
 
 #define TX_SIZE_RD_RECORD_BUFFER_LEN 256

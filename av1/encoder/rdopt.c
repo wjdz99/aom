@@ -3019,7 +3019,8 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
     cur_joint_ctx = (txb_ctx->dc_sign_ctx << 8) + txb_ctx->txb_skip_ctx;
     if (intra_txb_rd_info->entropy_context == cur_joint_ctx &&
-        x->txb_rd_record_intra.tx_rd_info[intra_hash_idx].valid) {
+        x->txb_rd_record_intra.tx_rd_info[intra_hash_idx].valid &&
+        intra_txb_rd_info->ref_best_rd > ref_best_rd) {
       mbmi->txk_type[txk_type_idx] = intra_txb_rd_info->tx_type;
       const TX_TYPE ref_tx_type =
           av1_get_tx_type(get_plane_type(plane), &x->e_mbd, blk_row, blk_col,
@@ -3226,6 +3227,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     intra_txb_rd_info->rate = best_rd_stats->rate;
     intra_txb_rd_info->dist = best_rd_stats->dist;
     intra_txb_rd_info->sse = best_rd_stats->sse;
+    intra_txb_rd_info->ref_best_rd = ref_best_rd;
     intra_txb_rd_info->eob = best_eob;
     intra_txb_rd_info->txb_entropy_ctx = best_txb_ctx;
     if (plane == 0) intra_txb_rd_info->tx_type = best_tx_type;
