@@ -4757,14 +4757,17 @@ static INLINE void reset_frame_buffers(AV1_COMMON *cm) {
   for (i = 0; i < FRAME_BUFFERS; ++i) {
     if (i != cm->new_fb_idx) {
       frame_bufs[i].ref_count = 0;
-      cm->buffer_pool->release_fb_cb(cm->buffer_pool->cb_priv,
-                                     &frame_bufs[i].raw_frame_buffer);
+      if (frame_bufs[i].raw_frame_buffer.data) {
+        cm->buffer_pool->release_fb_cb(cm->buffer_pool->cb_priv,
+                                       &frame_bufs[i].raw_frame_buffer);
+      }
     } else {
       assert(frame_bufs[i].ref_count == 1);
     }
     frame_bufs[i].cur_frame_offset = 0;
     av1_zero(frame_bufs[i].ref_frame_offset);
   }
+  // TODO(wtc): This should be a fb_cb (frame buffer callback).
   av1_zero_unused_internal_frame_buffers(&cm->buffer_pool->int_frame_buffers);
   unlock_buffer_pool(cm->buffer_pool);
 }
@@ -4814,6 +4817,11 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       // Show an existing frame directly.
       const int existing_frame_idx = aom_rb_read_literal(rb, 3);
       const int frame_to_show = cm->ref_frame_map[existing_frame_idx];
+      if (frame_to_show < 0) {
+        aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+                           "Buffer %d does not contain a decoded frame",
+                           frame_to_show);
+      }
       if (seq_params->decoder_model_info_present_flag &&
           cm->timing_info.equal_picture_interval == 0) {
         av1_read_temporal_point_info(cm, rb);
@@ -4829,12 +4837,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
                              "Reference buffer frame ID mismatch");
       }
       lock_buffer_pool(pool);
-      if (frame_to_show < 0 || frame_bufs[frame_to_show].ref_count < 1) {
-        unlock_buffer_pool(pool);
-        aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-                           "Buffer %d does not contain a decoded frame",
-                           frame_to_show);
-      }
+      assert(frame_bufs[frame_to_show].ref_count > 0);
       ref_cnt_fb(frame_bufs, &cm->new_fb_idx, frame_to_show);
       cm->reset_decoder_state =
           frame_bufs[frame_to_show].frame_type == KEY_FRAME;

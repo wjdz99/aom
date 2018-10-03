@@ -2929,11 +2929,12 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
       const int frame_to_show = cm->ref_frame_map[cpi->existing_fb_idx_to_show];
 
-      if (frame_to_show < 0 || frame_bufs[frame_to_show].ref_count < 1) {
+      if (frame_to_show < 0) {
         aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                            "Buffer %d does not contain a reconstructed frame",
                            frame_to_show);
       }
+      assert(frame_bufs[frame_to_show].ref_count > 0);
       ref_cnt_fb(frame_bufs, &cm->new_fb_idx, frame_to_show);
 
       aom_wb_write_bit(wb, 1);  // show_existing_frame
