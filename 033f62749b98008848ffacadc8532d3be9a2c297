@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "7e966e2f_3b1bcc5d",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 926,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-10-03T17:11:22Z",
+      "side": 1,
+      "message": "We agree that adding \u0027aom_highbd_comp_mask_upsampled_pred\u0027 here is unnecessary when running the encoder. However, in the unit tests, C vs SIMD comparison happens in the function AV1HighbdCompMaskUpVarianceTest::RunCheckOutput. Because aom_highbd_upsampled_pred is defined as aom_highbd_upsampled_pred_sse2, the RunCheckOutput actually compares SSE2 implementation with SSE2 implementation (instead of C implementation) which is incorrrect. Thus, we feel the above change is required.",
+      "parentUuid": "8a411949_864a0c1d",
+      "range": {
+        "startLine": 919,
+        "startChar": 1,
+        "endLine": 926,
+        "endChar": 0
+      },
+      "revId": "033f62749b98008848ffacadc8532d3be9a2c297",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ba9dd4f6_0c096130",
         "filename": "test/comp_avg_pred_test.h",
         "patchSetId": 1
