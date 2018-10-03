@@ -18,6 +18,14 @@
 
 #include "aom/aom_integer.h"
 
+// Add NO_SANITIZE_ALIGNMENT to functions with intentional unaligned access,
+// which is allowed by x86 processors.
+#if defined(__clang__)
+#define NO_SANITIZE_ALIGNMENT __attribute__((no_sanitize("alignment")))
+#else
+#define NO_SANITIZE_ALIGNMENT
+#endif
+
 /**
  * Various reusable shorthands for x86 SIMD intrinsics.
  *
@@ -27,7 +35,7 @@
 
 // Loads and stores to do away with the tedium of casting the address
 // to the right type.
-static INLINE __m128i xx_loadl_32(const void *a) {
+static INLINE __m128i xx_loadl_32(const void *a) NO_SANITIZE_ALIGNMENT {
   return _mm_cvtsi32_si128(*(const uint32_t *)a);
 }
 
@@ -43,7 +51,8 @@ static INLINE __m128i xx_loadu_128(const void *a) {
   return _mm_loadu_si128((const __m128i *)a);
 }
 
-static INLINE void xx_storel_32(void *const a, const __m128i v) {
+static INLINE void xx_storel_32(void *const a,
+                                const __m128i v) NO_SANITIZE_ALIGNMENT {
   *(uint32_t *)a = _mm_cvtsi128_si32(v);
 }
 
