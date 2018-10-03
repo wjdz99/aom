@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e1236a7_c20fc2fb",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4753,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-03T17:37:38Z",
+      "side": 1,
+      "message": "At this point, we have not stored any references to frame buffers in cm-\u003enext_ref_frame_map, so we can directly reset it to all -1. (We don\u0027t really need to clear cm-\u003enext_ref_frame_map, but it is good to avoid \"dangling indexes\".)",
+      "range": {
+        "startLine": 4753,
+        "startChar": 2,
+        "endLine": 4753,
+        "endChar": 70
+      },
+      "revId": "34ae342debd6405b8c9de1bf9270667ba77f5fe8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab6cc6ed_9ef75010",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4756,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-03T17:37:38Z",
+      "side": 1,
+      "message": "This replaces the original memset(\u0026cm-\u003eref_frame_map, ...) call and blindly resetting ref_count to 0 in the for loop below.",
+      "range": {
+        "startLine": 4756,
+        "startChar": 2,
+        "endLine": 4756,
+        "endChar": 26
+      },
+      "revId": "34ae342debd6405b8c9de1bf9270667ba77f5fe8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a67bdb08_50d24c1d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4757,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-03T17:37:38Z",
+      "side": 1,
+      "message": "This assertion was inside the for loop before.",
+      "range": {
+        "startLine": 4757,
+        "startChar": 2,
+        "endLine": 4757,
+        "endChar": 52
+      },
+      "revId": "34ae342debd6405b8c9de1bf9270667ba77f5fe8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd7096f1_e4ead9d6",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4760,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-03T17:37:38Z",
+      "side": 1,
+      "message": "This means we should not mess with a frame buffer that is still referenced, except for cm-\u003enew_fb_idx. We are the sole owner of cm-\u003enew_fb_idx.",
+      "revId": "34ae342debd6405b8c9de1bf9270667ba77f5fe8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
