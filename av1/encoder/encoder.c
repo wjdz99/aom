@@ -3746,6 +3746,7 @@ static void scale_references(AV1_COMP *cpi) {
           new_fb = get_free_fb(cm);
           force_scaling = 1;
         }
+        // TODO(wtc): Is it OK to ignore this get_free_fb() failure?
         if (new_fb == INVALID_IDX) return;
         new_fb_ptr = &pool->frame_bufs[new_fb];
         if (force_scaling || new_fb_ptr->buf.y_crop_width != cm->width ||

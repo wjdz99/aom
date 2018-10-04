@@ -592,6 +592,9 @@ typedef struct AV1_COMP {
   int cur_poc;  // DebugInfo
 
   unsigned int row_mt;
+  // The elements at indexes 0, ..., REF_FRAMES - 2 are used for
+  // LAST_FRAME, ..., ALTREF_FRAME. Note that the array index is the ref_frame
+  // number minus 1. The last element (at index REF_FRAMES - 1) is not used.
   int scaled_ref_idx[REF_FRAMES];
   int ref_fb_idx[REF_FRAMES];
   int refresh_fb_idx;  // ref frame buffer index to refresh
