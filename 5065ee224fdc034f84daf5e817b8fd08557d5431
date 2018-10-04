@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0e8291a_25550003",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-04T03:18:43Z",
+      "side": 1,
+      "message": "This for loop is skipped if pbi-\u003erefresh_frame_flags is 0.",
+      "revId": "5065ee224fdc034f84daf5e817b8fd08557d5431",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a9a8beb5_83727674",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-04T03:18:43Z",
+      "side": 1,
+      "message": "This for loop is skipped if check_on_show_existing_frame is false.",
+      "revId": "5065ee224fdc034f84daf5e817b8fd08557d5431",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
