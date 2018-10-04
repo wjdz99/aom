@@ -145,6 +145,30 @@
     },
     {
       "key": {
+        "uuid": "25a063be_d02bb1b7",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 926,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-10-04T16:11:18Z",
+      "side": 1,
+      "message": "Another approach would be to call \u0027aom_highbd_comp_mask_upsampled_pred\u0027 in the unit tests instead of two functions (\u0027aom_highbd_upsampled_pred\u0027 followed by \u0027aom_highbd_comp_mask_pred\u0027 as done in currently in \u0027Patchset 2,3\u0027), with the function pointers \u0027aom_highbd_convolve8_horiz\u0027 and \u0027aom_highbd_convolve8_vert\u0027 set appropriately (C version or SIMD version). This would result in C vs SIMD comparison everywhere except for the case of subpel_x_q3\u003d0 and subpel_y_q3\u003d0 (as the SIMD code is inlined in the function \u0027aom_highbd_comp_mask_upsampled_pred_sse2\u0027 for the case of subpel_x_q3\u003d0 and subpel_y_q3\u003d0). \n\nHowever, for the case of subpel_x_q3\u003d0 and subpel_y_q3\u003d0 we can do the following : \n- Abstract the inlined SIMD code into a function named \u0027aom_highbd_convolve8_copy_sse2\u0027.\n- Abstract the corresponding C function as \u0027aom_highbd_convolve8_copy_c\u0027 and call it in \u0027aom_highbd_upsampled_pred_c\u0027.\n- Have a function pointer named \u0027aom_highbd_convolve8_copy\u0027 which would be set to C or SIMD implementation in aom_dsp_rtcd.h.\n- Write a AVX2 variant of \u0027aom_highbd_convolve8_copy\u0027. This is to ensure that aom_dsp_rtcd.h would have a function pointer and not a #define allowing us to set the function pointer \u0027aom_highbd_convolve8_copy\u0027 appropriately (C or SIMD) in the unit tests.",
+      "parentUuid": "f722e178_6251de7f",
+      "range": {
+        "startLine": 919,
+        "startChar": 1,
+        "endLine": 926,
+        "endChar": 0
+      },
+      "revId": "033f62749b98008848ffacadc8532d3be9a2c297",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ba9dd4f6_0c096130",
         "filename": "test/comp_avg_pred_test.h",
         "patchSetId": 1
