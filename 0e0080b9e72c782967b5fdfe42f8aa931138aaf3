@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7ba6311d_ace6c2c4",
+        "filename": "aom_dsp/x86/synonyms.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-04T03:05:28Z",
+      "side": 1,
+      "message": "Ack. I switched to memcpy().",
+      "parentUuid": "9d1d686e_59b230a6",
+      "revId": "0e0080b9e72c782967b5fdfe42f8aa931138aaf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "141c9566_9bcd8c6b",
         "filename": "aom_dsp/x86/synonyms.h",
         "patchSetId": 1
@@ -48,6 +66,24 @@
       "side": 1,
       "message": "\u003e This solution is suggested at\n\u003e \n\u003e http://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html#disabling-instrumentation-with-attribute-no-sanitize-undefined\n\nthis is fine, another harmless change would be to memcpy to a temp variable:\nhttps://chromium.googlesource.com/webm/libwebp/+/master/src/utils/utils.h#66\n\nthe same code will be emitted in an optimized build.\n\nThis was recently done in libvpx too:\nhttps://chromium-review.googlesource.com/c/webm/libvpx/+/1236297",
       "parentUuid": "141c9566_9bcd8c6b",
+      "revId": "0e0080b9e72c782967b5fdfe42f8aa931138aaf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "beb977d5_a2160a1f",
+        "filename": "aom_dsp/x86/synonyms.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-04T03:05:28Z",
+      "side": 1,
+      "message": "Done. Thanks for the suggestion!",
+      "parentUuid": "5841246b_374de8ba",
       "revId": "0e0080b9e72c782967b5fdfe42f8aa931138aaf3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
