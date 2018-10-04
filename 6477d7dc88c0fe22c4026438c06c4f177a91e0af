@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1448387f_2a0d8144",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-04T17:13:49Z",
+      "side": 1,
+      "message": "Should we remove this TODO comment? I don\u0027t understand what it means.",
+      "revId": "6477d7dc88c0fe22c4026438c06c4f177a91e0af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc57f47e_f0cd81e8",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-04T17:13:49Z",
+      "side": 1,
+      "message": "The encoder may store references to frame buffers in the following variables:\n\n1. The cm-\u003eref_frame_map array: This array has REF_FRAMES elements.\n\n2. cm-\u003enew_fb_idx: This has 1 reference.\n\n3. The cpi-\u003escaled_ref_idx array: This array has REF_FRAMES (8) elements, but the\nlast element is unused, so it can hold at most 7 references.",
+      "revId": "6477d7dc88c0fe22c4026438c06c4f177a91e0af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
