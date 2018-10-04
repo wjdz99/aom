@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "9d1d686e_59b230a6",
+        "filename": "aom_dsp/x86/synonyms.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-10-04T01:10:47Z",
+      "side": 1,
+      "message": "this should be #undef\u0027d at the end of the header",
+      "revId": "0e0080b9e72c782967b5fdfe42f8aa931138aaf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "141c9566_9bcd8c6b",
         "filename": "aom_dsp/x86/synonyms.h",
         "patchSetId": 1
@@ -13,6 +30,24 @@
       "writtenOn": "2018-10-03T23:30:47Z",
       "side": 1,
       "message": "This solution is suggested at\n\nhttp://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html#disabling-instrumentation-with-attribute-no-sanitize-undefined",
+      "revId": "0e0080b9e72c782967b5fdfe42f8aa931138aaf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5841246b_374de8ba",
+        "filename": "aom_dsp/x86/synonyms.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-10-04T01:10:47Z",
+      "side": 1,
+      "message": "\u003e This solution is suggested at\n\u003e \n\u003e http://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html#disabling-instrumentation-with-attribute-no-sanitize-undefined\n\nthis is fine, another harmless change would be to memcpy to a temp variable:\nhttps://chromium.googlesource.com/webm/libwebp/+/master/src/utils/utils.h#66\n\nthe same code will be emitted in an optimized build.\n\nThis was recently done in libvpx too:\nhttps://chromium-review.googlesource.com/c/webm/libvpx/+/1236297",
+      "parentUuid": "141c9566_9bcd8c6b",
       "revId": "0e0080b9e72c782967b5fdfe42f8aa931138aaf3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
