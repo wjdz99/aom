@@ -234,6 +234,10 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     // identify the appropriate tradeoff between encoder performance and its
     // speed.
     sf->prune_single_motion_modes_by_simple_trans = 1;
+
+#if CONFIG_LOWBITDEPTH
+    sf->full_pixel_motion_search_based_split = 1;
+#endif
   }
 
   if (speed >= 2) {
@@ -480,6 +484,9 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->fast_cdef_search = 0;
   for (i = 0; i < PARTITION_BLOCK_SIZES; ++i)
     sf->ml_partition_search_breakout_thresh[i] = -1;  // -1 means not enabled.
+#if CONFIG_LOWBITDEPTH
+  sf->full_pixel_motion_search_based_split = 0;
+#endif
 
   // Set this at the appropriate speed levels
   sf->use_transform_domain_distortion = 0;
