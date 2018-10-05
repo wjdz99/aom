@@ -1,0 +1,21 @@
+static float high_128 = 3.0f;
+static float high_64 = 0.0f;
+static float high_32 = 0.0f;
+static float high_16 = 0.0f;
+static float high_8 = 0.0f;
+static float low_128 = 0.0f;
+static float low_64 = 0.0f;
+static float low_32 = 0.0f;
+static float low_16 = 0.0f;
+static float low_8 = 0.0f;
+
+static int use_high_128 = 1;
+static int use_high_64 = 0;
+static int use_high_32 = 0;
+static int use_high_16 = 0;
+static int use_high_8 = 0;
+static int use_low_128 = 0;
+static int use_low_64 = 0;
+static int use_low_32 = 0;
+static int use_low_16 = 0;
+static int use_low_8 = 0;

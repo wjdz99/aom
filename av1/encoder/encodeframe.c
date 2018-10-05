@@ -60,6 +60,11 @@
 #include "av1/encoder/segmentation.h"
 #include "av1/encoder/tokenize.h"
 
+#if CONFIG_VAR_NN
+#include "av1/encoder/ml_weights.h"
+#include "av1/encoder/ml_thresholds.h"
+#endif
+
 static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                               ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
                               int mi_row, int mi_col, BLOCK_SIZE bsize,
@@ -3212,6 +3217,106 @@ static int ml_predict_breakout(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
 }
 #undef FEATURES
 
+#if CONFIG_VAR_NN
+static void get_res_var_features(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
+                                 int mi_col, BLOCK_SIZE bsize,
+                                 float *features) {
+  assert(mi_size_wide[bsize] == mi_size_high[bsize]);
+
+  AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  const int NUM_FEATURES = 6;
+
+  mbmi->ref_frame[1] = NONE_FRAME;
+  mbmi->sb_type = bsize;
+
+  int pred_stride = 128;
+  DECLARE_ALIGNED(16, uint8_t, pred_buf[128 * 128]);
+
+  // Perform a single motion search in Y_PLANE to make a prediction
+  const MV_REFERENCE_FRAME ref =
+      cpi->rc.is_src_frame_alt_ref ? ALTREF_FRAME : LAST_FRAME;
+  YV12_BUFFER_CONFIG *yv12 = get_ref_frame_buffer(cpi, ref);
+  // ref_mv is in units of 1/8-pel whereas ref_mv_full is in units of pel
+  MV ref_mv = { 0, 0 };
+  MV ref_mv_full = { 0, 0 };
+  const int step_param = 1;
+  const MvLimits tmp_mv_limits = x->mv_limits;
+  const SEARCH_METHODS search_methods = NSTEP;
+  const int do_mesh_search = 0;
+  const int sadpb = x->sadperbit16;
+  int cost_list[5];
+  int num_planes = 1;
+
+  assert(yv12 != NULL);
+
+  av1_setup_pre_planes(xd, 0, yv12, mi_row, mi_col,
+                       &cm->frame_refs[ref - LAST_FRAME].sf, num_planes);
+  mbmi->ref_frame[0] = ref;
+  av1_set_mv_search_range(&x->mv_limits, &ref_mv);
+  av1_full_pixel_search(cpi, x, bsize, &ref_mv_full, step_param, search_methods,
+                        do_mesh_search, sadpb, cond_cost_list(cpi, cost_list),
+                        &ref_mv, INT_MAX, 1, mi_col * MI_SIZE, mi_row * MI_SIZE,
+                        0);
+  // Restore
+  x->mv_limits = tmp_mv_limits;
+
+  // Convert from units of pixel to 1/8-pixels
+  x->best_mv.as_mv.row *= 8;
+  x->best_mv.as_mv.col *= 8;
+  mbmi->mv[0].as_mv = x->best_mv.as_mv;
+
+  // Get a copy of the prediction output
+  set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+  xd->plane[0].dst.buf = pred_buf;
+  xd->plane[0].dst.stride = pred_stride;
+  av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, NULL, bsize);
+
+  aom_clear_system_state();
+
+  // Now that we have the frame, we can print features out
+  int f_idx = 0;
+
+  // Q_INDEX
+  const int dc_q = av1_dc_quant_QTX(x->qindex, 0, xd->bd);
+  features[f_idx++] = logf(1.0f + (float)(dc_q * dc_q) / 256.0f);
+
+  // VARIANCE
+  av1_setup_src_planes(x, cpi->source, mi_row, mi_col, num_planes);
+  const uint8_t *src = x->plane[0].src.buf;
+  const int src_stride = x->plane[0].src.stride;
+  unsigned int sse = 0;
+
+  // Whole block
+  const unsigned int var =
+      cpi->fn_ptr[bsize].vf(src, src_stride, pred_buf, pred_stride, &sse);
+  features[f_idx++] = logf(1.0f + (float)var);
+
+  // Regional
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+  const BLOCK_SIZE subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
+  int r_idx = 0;
+  for (r_idx = 0; r_idx < 4; r_idx++) {
+    const int x_idx = (r_idx & 1) * bw / 2;
+    const int y_idx = (r_idx >> 1) * bh / 2;
+    const int src_offset = y_idx * src_stride + x_idx;
+    const int pred_offset = y_idx * pred_stride + x_idx;
+    const unsigned int sub_var =
+        cpi->fn_ptr[subsize].vf(src + src_offset, src_stride,
+                                pred_buf + pred_offset, pred_stride, &sse);
+    const float var_ratio = (1.0f + (float)sub_var) / (4.0f + (float)var);
+    features[f_idx++] = var_ratio;
+  }
+
+  assert(f_idx == NUM_FEATURES);
+  if (f_idx != NUM_FEATURES) {
+    exit(1);
+  }
+}
+#endif
+
 // TODO(jingning,jimbankoski,rbultje): properly skip partition types that are
 // unlikely to be selected depending on previous rate-distortion optimization
 // results, for encoding speed-up.
@@ -3491,6 +3596,63 @@ BEGIN_PARTITION_SEARCH:
     if (block_size_wide[bsize] <= 8) partition_vert_allowed = 0;
     if (block_size_high[bsize] <= 8 || block_size_wide[bsize] <= 8)
       do_square_split = 0;
+  }
+#endif
+
+#if CONFIG_VAR_NN
+  if (bsize >= BLOCK_8X8 && partition_none_allowed && do_square_split &&
+      mi_row + mi_size_high[bsize] <= cm->mi_rows &&
+      mi_col + mi_size_wide[bsize] <= cm->mi_cols && !frame_is_intra_only(cm)) {
+    const NN_CONFIG *nn_config = NULL;
+    int use_high = 0, use_low = 0;
+    float thresh_high = 0.0f, thresh_low = 0.0f;
+    if (bsize == BLOCK_128X128) {
+      nn_config = &vp_nn_config_128;
+      thresh_high = high_128;
+      thresh_low = low_128;
+      use_high = use_high_128;
+      use_low = use_low_128;
+    } else if (bsize == BLOCK_64X64) {
+      nn_config = &vp_nn_config_64;
+      thresh_high = high_64;
+      thresh_low = low_64;
+      use_high = use_high_64;
+      use_low = use_low_64;
+    } else if (bsize == BLOCK_32X32) {
+      nn_config = &vp_nn_config_32;
+      thresh_high = high_32;
+      thresh_low = low_32;
+      use_high = use_high_32;
+      use_low = use_low_32;
+    } else if (bsize == BLOCK_16X16) {
+      nn_config = &vp_nn_config_16;
+      thresh_high = high_16;
+      thresh_low = low_16;
+      use_high = use_high_16;
+      use_low = use_low_16;
+    } else if (bsize == BLOCK_8X8) {
+      nn_config = &vp_nn_config_8;
+      thresh_high = high_8;
+      thresh_low = low_8;
+      use_high = use_high_8;
+      use_low = use_low_8;
+    } else {
+      printf("Unexpected block size in var_pruner!\n");
+      exit(1);
+    }
+    if (use_high || use_low) {
+      float features[6] = { 0 };
+      float score = 0;
+      get_res_var_features(cpi, x, mi_row, mi_col, bsize, features);
+      av1_nn_predict(features, nn_config, &score);
+
+      if (use_high && score > thresh_high) {
+        partition_none_allowed = 0;
+      }
+      if (use_low && score < thresh_low) {
+        do_square_split = 0;
+      }
+    }
   }
 #endif
 
