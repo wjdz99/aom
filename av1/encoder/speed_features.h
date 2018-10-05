@@ -366,6 +366,10 @@ typedef struct SPEED_FEATURES {
   // candidates, e.g. ref frames.
   int mode_pruning_based_on_two_pass_partition_search;
 
+  // Performs full pixel motion search before none_partition to decide if we
+  // want to split directly without trying other partition types.
+  int full_pixel_motion_search_based_split;
+
   // Skip rectangular partition test when partition type none gives better
   // rd than partition type split. Can take values 0 - 2, 0 referring to no
   // skipping, and 1 - 2 increasing aggressiveness of skipping in order.
