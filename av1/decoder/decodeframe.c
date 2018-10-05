@@ -1919,13 +1919,15 @@ static void setup_segmentation(AV1_COMMON *const cm,
           av1_enable_segfeature(seg, i, j);
 
           const int data_max = av1_seg_feature_data_max(j);
-          const int data_min = -data_max;
+          int data_min;
           const int ubits = get_unsigned_bits(data_max);
 
           if (av1_is_segfeature_signed(j)) {
             data = aom_rb_read_inv_signed_literal(rb, ubits);
+            data_min = -data_max;
           } else {
             data = aom_rb_read_literal(rb, ubits);
+            data_min = 0;
           }
 
           data = clamp(data, data_min, data_max);
