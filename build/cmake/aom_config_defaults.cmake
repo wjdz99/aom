@@ -138,6 +138,8 @@ set_aom_config_var(CONFIG_2PASS_PARTITION_SEARCH_LVL 1 NUMBER
 set_aom_config_var(CONFIG_SHARP_SETTINGS 0 NUMBER
                    "Use sharper encoding settings")
 set_aom_config_var(CONFIG_INTEGERIZE_SGR 1 NUMBER "AV1 experiment flag.")
+set_aom_config_var(CONFIG_VAR_NN 1 NUMBER
+                   "Use variance data to prune none and split partition")
 
 #
 # Variables in this section control optional features of the build system.
