@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "8087bd47_7d7d24ae",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3750,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-05T00:10:12Z",
+      "side": 1,
+      "message": "I moved this comment to another CL (https://aomedia-review.googlesource.com/c/aom/+/72361)",
+      "parentUuid": "c257733c_c243987c",
+      "revId": "de2465c3f1bd1180e608874fb44643d77b8c6b95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "25f32cce_447c3819",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 1
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "My suggestion would be:\n- Just document current behavior for now, until all oss-fuzz issues related to the buffer pool get settled.\n- Later, you can go for either #1 or #2. #1 reduces array size (but it\u0027s only an int), while #2 may make the mapping easier to follow.",
       "parentUuid": "25f32cce_447c3819",
+      "revId": "de2465c3f1bd1180e608874fb44643d77b8c6b95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c8edf02f_5d82d4cf",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-05T00:10:12Z",
+      "side": 1,
+      "message": "I prefer #2. But I found that the AV1 spec uses #1 for the ref_frame_idx array. So perhaps we should use #1 for the scaled_ref_idx array.",
+      "parentUuid": "b5621093_92412c9d",
       "revId": "de2465c3f1bd1180e608874fb44643d77b8c6b95",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
