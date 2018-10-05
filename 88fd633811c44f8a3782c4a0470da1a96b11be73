@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "564a404a_f9a019c7",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3749,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-05T16:49:39Z",
+      "side": 1,
+      "message": "Besides the revert, this is the only new change in the CL.",
+      "revId": "88fd633811c44f8a3782c4a0470da1a96b11be73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
