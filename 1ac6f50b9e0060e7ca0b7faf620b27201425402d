@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6cd3dbe_20e69817",
+        "filename": "aom_dsp/x86/loopfilter_sse2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-09T21:33:33Z",
+      "side": 1,
+      "message": "We should not need to include this header. This file doesn\u0027t call any of the three functions declared in this header.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 33
+      },
+      "revId": "1ac6f50b9e0060e7ca0b7faf620b27201425402d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
