@@ -3045,6 +3045,7 @@ void av1_remove_compressor(AV1_COMP *cpi) {
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
       aom_free(thread_data->td->inter_modes_info);
 #endif
+      if (cpi->row_mt == 1) aom_free(thread_data->td->tctx);
       for (int x = 0; x < 2; x++) {
         for (int y = 0; y < 2; y++) {
           aom_free(thread_data->td->hash_value_buffer[x][y]);
