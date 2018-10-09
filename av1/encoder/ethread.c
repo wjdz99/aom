@@ -181,7 +181,23 @@ static int enc_row_mt_worker_hook(void *arg1, void *unused) {
     td->mb.e_mbd.tile_ctx = td->tctx;
     td->mb.backup_tile_ctx = &this_tile->backup_tctx;
     memcpy(td->mb.e_mbd.tile_ctx, &this_tile->tctx, sizeof(FRAME_CONTEXT));
-    av1_encode_tile(cpi, td, tile_row, tile_col);
+
+    av1_init_above_context(cm, &td->mb.e_mbd, tile_row);
+
+    // Disable exhaustive search speed features for row based multi-threading of
+    // encoder.
+    td->mb.m_search_count_ptr = NULL;
+    td->mb.ex_search_count_ptr = NULL;
+
+    cfl_init(&td->mb.e_mbd.cfl, &cm->seq_params);
+    av1_crc32c_calculator_init(&td->mb.mb_rd_record.crc_calculator);
+    td->intrabc_used_this_tile = 0;
+
+    for (int mi_row = this_tile->tile_info.mi_row_start;
+         mi_row < this_tile->tile_info.mi_row_end;
+         mi_row += cm->seq_params.mib_size) {
+      av1_encode_sb_row(cpi, td, tile_row, tile_col, mi_row);
+    }
   }
 
   return 1;
@@ -476,6 +492,14 @@ void av1_encode_tiles_row_mt(AV1_COMP *cpi) {
       // Initialize cur_col to -1 for all rows.
       memset(this_tile->row_mt_sync.cur_col, -1,
              sizeof(*this_tile->row_mt_sync.cur_col) * max_sb_rows);
+#if CONFIG_COLLECT_INTER_MODE_RD_STATS
+      av1_inter_mode_data_init(this_tile);
+#endif
+      av1_zero_above_context(cm, &cpi->td.mb.e_mbd,
+                             this_tile->tile_info.mi_col_start,
+                             this_tile->tile_info.mi_col_end, tile_row);
+      this_tile->m_search_count = 0;   // Count of motion search hits.
+      this_tile->ex_search_count = 0;  // Exhaustive mesh search hits.
     }
   }
 
