@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b084cb5_cd9b99d4",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-09T22:56:41Z",
+      "side": 1,
+      "message": "I understand this difference now. If abs is 0, then the original code will also set reduced_delta_qindex to 0. So the original code is correct, in spite of this apparent difference.",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 5
+      },
+      "revId": "707d6cd958ead63fa391ee71606d61d9b7cb7e43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
