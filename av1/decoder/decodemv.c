@@ -70,15 +70,17 @@ static int read_delta_qindex(AV1_COMMON *cm, const MACROBLOCKD *xd,
   BLOCK_SIZE bsize = mbmi->sb_type;
   const int b_col = mi_col & (cm->seq_params.mib_size - 1);
   const int b_row = mi_row & (cm->seq_params.mib_size - 1);
+  // TODO(wtc): Where is this specified in the spec? Section 5.11.2 merely
+  // says: ReadDeltas = delta_q_present.
   const int read_delta_q_flag = (b_col == 0 && b_row == 0);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 
   if ((bsize != cm->seq_params.sb_size || mbmi->skip == 0) &&
       read_delta_q_flag) {
     abs = aom_read_symbol(r, ec_ctx->delta_q_cdf, DELTA_Q_PROBS + 1, ACCT_STR);
-    const int smallval = (abs < DELTA_Q_SMALL);
-
-    if (!smallval) {
+    // TODO(wtc): The spec says
+    //   if ( delta_q_abs == DELTA_Q_SMALL ) {
+    if (abs >= DELTA_Q_SMALL) {
       const int rem_bits = aom_read_literal(r, 3, ACCT_STR) + 1;
       const int thr = (1 << rem_bits) + 1;
       abs = aom_read_literal(r, rem_bits, ACCT_STR) + thr;
@@ -86,14 +88,12 @@ static int read_delta_qindex(AV1_COMMON *cm, const MACROBLOCKD *xd,
 
     if (abs) {
       sign = aom_read_bit(r, ACCT_STR);
-    } else {
-      sign = 1;
+      reduced_delta_qindex = sign ? -abs : abs;
     }
-
-    reduced_delta_qindex = sign ? -abs : abs;
   }
   return reduced_delta_qindex;
 }
+
 static int read_delta_lflevel(const AV1_COMMON *const cm, aom_reader *r,
                               aom_cdf_prob *const cdf,
                               const MB_MODE_INFO *const mbmi, int mi_col,
@@ -107,14 +107,15 @@ static int read_delta_lflevel(const AV1_COMMON *const cm, aom_reader *r,
   if ((bsize != cm->seq_params.sb_size || mbmi->skip == 0) &&
       read_delta_lf_flag) {
     int abs = aom_read_symbol(r, cdf, DELTA_LF_PROBS + 1, ACCT_STR);
-    const int smallval = (abs < DELTA_LF_SMALL);
-    if (!smallval) {
+    if (abs >= DELTA_LF_SMALL) {
       const int rem_bits = aom_read_literal(r, 3, ACCT_STR) + 1;
       const int thr = (1 << rem_bits) + 1;
       abs = aom_read_literal(r, rem_bits, ACCT_STR) + thr;
     }
-    const int sign = abs ? aom_read_bit(r, ACCT_STR) : 1;
-    reduced_delta_lflevel = sign ? -abs : abs;
+    if (abs) {
+      const int sign = aom_read_bit(r, ACCT_STR);
+      reduced_delta_lflevel = sign ? -abs : abs;
+    }
   }
   return reduced_delta_lflevel;
 }
