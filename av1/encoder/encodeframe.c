@@ -525,6 +525,8 @@ static void rd_pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   int i, orig_rdmult;
 
   if (best_rd < 0) {
+    ctx->rate = INT_MAX;
+    ctx->dist = INT64_MAX;
     ctx->rdcost = INT64_MAX;
     ctx->skip = 0;
     av1_invalid_rd_stats(rd_cost);
@@ -538,12 +540,13 @@ static void rd_pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   mbmi = xd->mi[0];
 
   if (ctx->rd_mode_is_ready) {
-    assert(ctx_mbmi->sb_type == bsize);
-    assert(ctx_mbmi->partition == partition);
-    *mbmi = *ctx_mbmi;
     rd_cost->rate = ctx->rate;
     rd_cost->dist = ctx->dist;
     rd_cost->rdcost = ctx->rdcost;
+    if (rd_cost->rate == INT_MAX) return;
+    assert(ctx_mbmi->sb_type == bsize);
+    assert(ctx_mbmi->partition == partition);
+    *mbmi = *ctx_mbmi;
   } else {
     mbmi->sb_type = bsize;
     mbmi->partition = partition;
@@ -3641,13 +3644,17 @@ BEGIN_PARTITION_SEARCH:
             split_mbmi[idx] = &pc_tree->split[idx]->none.mic;
           }
         }
-        if (idx <= 1 && (bsize <= BLOCK_8X8 ||
-                         pc_tree->split[idx]->partitioning == PARTITION_NONE)) {
+        if (idx <= 1) {
           const MB_MODE_INFO *const mbmi = &pc_tree->split[idx]->none.mic;
           const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
           // Neither palette mode nor cfl predicted
           if (pmi->palette_size[0] == 0 && pmi->palette_size[1] == 0) {
-            if (mbmi->uv_mode != UV_CFL_PRED) split_ctx_is_ready[idx] = 1;
+            if (mbmi->uv_mode != UV_CFL_PRED) {
+              if (idx == 1 && pc_tree->split[0]->partitioning != PARTITION_NONE)
+                split_ctx_is_ready[idx] = 0;
+              else
+                split_ctx_is_ready[idx] = 1;
+            }
           }
         }
       }
@@ -3799,14 +3806,17 @@ BEGIN_PARTITION_SEARCH:
     }
     horz_rd[0] = this_rdc.rdcost;
 
-    if (sum_rdc.rdcost < best_rdc.rdcost && has_rows) {
-      const PICK_MODE_CONTEXT *const ctx_h = &pc_tree->horizontal[0];
+    if (has_rows) {
       const MB_MODE_INFO *const mbmi = &pc_tree->horizontal[0].mic;
       const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
       // Neither palette mode nor cfl predicted
       if (pmi->palette_size[0] == 0 && pmi->palette_size[1] == 0) {
         if (mbmi->uv_mode != UV_CFL_PRED) horz_ctx_is_ready = 1;
       }
+    }
+
+    if (sum_rdc.rdcost < best_rdc.rdcost && has_rows) {
+      const PICK_MODE_CONTEXT *const ctx_h = &pc_tree->horizontal[0];
       update_state(cpi, tile_data, td, ctx_h, mi_row, mi_col, subsize, 1);
       encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, mi_row, mi_col,
                         subsize, NULL);
@@ -3874,13 +3884,17 @@ BEGIN_PARTITION_SEARCH:
     }
     vert_rd[0] = this_rdc.rdcost;
     const int64_t vert_max_rdcost = best_rdc.rdcost;
-    if (sum_rdc.rdcost < vert_max_rdcost && has_cols) {
+
+    if (has_cols) {
       const MB_MODE_INFO *const mbmi = &pc_tree->vertical[0].mic;
       const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
       // Neither palette mode nor cfl predicted
       if (pmi->palette_size[0] == 0 && pmi->palette_size[1] == 0) {
         if (mbmi->uv_mode != UV_CFL_PRED) vert_ctx_is_ready = 1;
       }
+    }
+
+    if (sum_rdc.rdcost < vert_max_rdcost && has_cols) {
       update_state(cpi, tile_data, td, &pc_tree->vertical[0], mi_row, mi_col,
                    subsize, 1);
       encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, mi_row, mi_col,
