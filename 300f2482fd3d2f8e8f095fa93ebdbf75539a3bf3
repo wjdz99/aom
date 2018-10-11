@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83a70baf_e8200f0c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2449,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-10-11T22:19:10Z",
+      "side": 1,
+      "message": "See this example on how to print \"rd\".",
+      "range": {
+        "startLine": 2449,
+        "startChar": 0,
+        "endLine": 2449,
+        "endChar": 47
+      },
+      "revId": "300f2482fd3d2f8e8f095fa93ebdbf75539a3bf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fb125643_32315352",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3233,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-10-11T22:19:10Z",
+      "side": 1,
+      "message": "For printing rd (uint64_t value), use \"%\" PRId64.\nSee example at line#2449",
+      "range": {
+        "startLine": 3233,
+        "startChar": 28,
+        "endLine": 3233,
+        "endChar": 31
+      },
+      "revId": "300f2482fd3d2f8e8f095fa93ebdbf75539a3bf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45fa37d9_94653362",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3236,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-10-11T22:19:10Z",
+      "side": 1,
+      "message": "Comment on \"#endif\" should be same as \"#if\" macro. So, remove the \" \u003d\u003d 1\" part.",
+      "revId": "300f2482fd3d2f8e8f095fa93ebdbf75539a3bf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0de4b580_8f08905a",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4928,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-10-11T22:19:10Z",
+      "side": 1,
+      "message": "Looks like extra \"\\n\"",
+      "revId": "300f2482fd3d2f8e8f095fa93ebdbf75539a3bf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
