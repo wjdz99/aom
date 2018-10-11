@@ -3212,7 +3212,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       fp = fopen(av1_tx_size_data_output_file, "a");
     }
 
-    if (fp){
+    if (fp) {
       // Split decision, RD cost, block type(inter/intra), q-index, rdmult,
       // and block size.
       const int txb_w = tx_size_wide[tx_size];
@@ -3221,20 +3221,20 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       // Residue signal.
       const int diff_stride = block_size_wide[plane_bsize];
       struct macroblock_plane *const p = &x->plane[plane];
-      const int16_t *src_diff = &p->src_diff[(blk_row * diff_stride + blk_col) * 4];
+      const int16_t *src_diff =
+                            &p->src_diff[(blk_row * diff_stride + blk_col) * 4];
 
       for (int r = 0; r < txb_h; ++r) {
         for (int c = 0; c < txb_w; ++c) {
           fprintf(fp, "%d,", src_diff[c]);
         }
-        
         src_diff += diff_stride;
       }
 
       fprintf(fp, "\n");
       fclose(fp);
     }
-#endif
+#endif // COLLECT_TX_SIZE_DATA == 1
 
     if (cpi->sf.adaptive_txb_search_level) {
       if ((best_rd - (best_rd >> cpi->sf.adaptive_txb_search_level)) >
