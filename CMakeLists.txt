@@ -22,10 +22,32 @@ project(AOM C CXX)
 
 set(AOM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
 set(AOM_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-set(INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/include"
-    CACHE PATH "Installation path of includes")
-set(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib"
-    CACHE PATH "Installation path of libraries")
+if(NOT DEFINED CMAKE_INSTALL_INCLUDEDIR)
+  set(
+    CMAKE_INSTALL_INCLUDEDIR "include"
+    CACHE
+      STRING
+      "The subdirectory relative to the install prefix where
+        includes will be installed"
+    )
+endif()
+if(NOT DEFINED INCLUDE_INSTALL_DIR)
+  set(INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}"
+      CACHE PATH "Installation path of includes")
+endif()
+if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
+  set(
+    CMAKE_INSTALL_LIBDIR "lib${LIB_SUFFIX}"
+    CACHE
+      STRING
+      "The subdirectory relative to the install prefix where
+        libraries will be installed"
+    )
+endif()
+if(NOT DEFINED LIB_INSTALL_DIR)
+  set(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}"
+      CACHE PATH "Installation path of libraries")
+endif()
 
 if("${AOM_ROOT}" STREQUAL "${AOM_CONFIG_DIR}")
   message(FATAL_ERROR
@@ -200,6 +222,8 @@ if(NOT MSVC)
                              -DAOM_CONFIG_DIR=${AOM_CONFIG_DIR}
                              -DAOM_ROOT=${AOM_ROOT}
                              -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+                             -DCMAKE_INSTALL_INCLUDEDIR=${CMAKE_INSTALL_INCLUDEDIR}
+                             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
                              -DCMAKE_PROJECT_NAME=${CMAKE_PROJECT_NAME}
                              -DCONFIG_MULTITHREAD=${CONFIG_MULTITHREAD}
                              -DHAVE_PTHREAD_H=${HAVE_PTHREAD_H} -P
