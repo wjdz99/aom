@@ -31,6 +31,7 @@ typedef enum ATTRIBUTE_PACKED {
   EIGHTTAP_SMOOTH,
   MULTITAP_SHARP,
   BILINEAR,
+  FOURTAP_ME, /* Encoder only */
   INTERP_FILTERS_ALL,
   SWITCHABLE_FILTERS = BILINEAR,
   SWITCHABLE = SWITCHABLE_FILTERS + 1, /* the last switchable one */
@@ -180,8 +181,21 @@ DECLARE_ALIGNED(256, static const InterpKernel,
   { 0, 0, 4, 36, 62, 26, 0, 0 },  { 0, 0, 2, 34, 62, 30, 0, 0 }
 };
 
+// This is used in sub-pel motion search.
+DECLARE_ALIGNED(256, static const InterpKernel,
+                av1_sub_pel_filters_4_me[SUBPEL_SHIFTS]) = {
+  { 0, 0, 0, 128, 0, 0, 0, 0 },     { 0, 0, -4, 126, 8, -2, 0, 0 },
+  { 0, 0, -6, 120, 18, -4, 0, 0 },  { 0, 0, -8, 114, 28, -6, 0, 0 },
+  { 0, 0, -10, 108, 36, -6, 0, 0 }, { 0, 0, -12, 102, 46, -8, 0, 0 },
+  { 0, 0, -12, 94, 56, -10, 0, 0 }, { 0, 0, -12, 84, 66, -10, 0, 0 },
+  { 0, 0, -12, 76, 76, -12, 0, 0 }, { 0, 0, -10, 66, 84, -12, 0, 0 },
+  { 0, 0, -10, 56, 94, -12, 0, 0 }, { 0, 0, -8, 46, 102, -12, 0, 0 },
+  { 0, 0, -6, 36, 108, -10, 0, 0 }, { 0, 0, -6, 28, 114, -8, 0, 0 },
+  { 0, 0, -4, 18, 120, -6, 0, 0 },  { 0, 0, -2, 8, 126, -4, 0, 0 }
+};
+
 // For w<=4, MULTITAP_SHARP is the same as EIGHTTAP_REGULAR
-static const InterpFilterParams av1_interp_4tap[SWITCHABLE_FILTERS + 1] = {
+static const InterpFilterParams av1_interp_4tap[SWITCHABLE_FILTERS + 2] = {
   { (const int16_t *)av1_sub_pel_filters_4, SUBPEL_TAPS, SUBPEL_SHIFTS,
     EIGHTTAP_REGULAR },
   { (const int16_t *)av1_sub_pel_filters_4smooth, SUBPEL_TAPS, SUBPEL_SHIFTS,
@@ -190,6 +204,8 @@ static const InterpFilterParams av1_interp_4tap[SWITCHABLE_FILTERS + 1] = {
     EIGHTTAP_REGULAR },
   { (const int16_t *)av1_bilinear_filters, SUBPEL_TAPS, SUBPEL_SHIFTS,
     BILINEAR },
+  { (const int16_t *)av1_sub_pel_filters_4_me, SUBPEL_TAPS, SUBPEL_SHIFTS,
+    FOURTAP_ME },
 };
 
 static INLINE const InterpFilterParams *
@@ -197,21 +213,6 @@ av1_get_interp_filter_params_with_block_size(const InterpFilter interp_filter,
                                              const int w) {
   if (w <= 4) return &av1_interp_4tap[interp_filter];
   return &av1_interp_filter_params_list[interp_filter];
-}
-
-static INLINE const InterpFilterParams *get_4tap_interp_filter_params(
-    const InterpFilter interp_filter) {
-  return &av1_interp_4tap[interp_filter];
-}
-
-static INLINE const int16_t *av1_get_interp_filter_kernel(
-    const InterpFilter interp_filter, int subpel_search) {
-  assert(subpel_search >= USE_2_TAPS);
-  return (subpel_search == USE_2_TAPS)
-             ? av1_interp_4tap[BILINEAR].filter_ptr
-             : ((subpel_search == USE_4_TAPS)
-                    ? av1_interp_4tap[interp_filter].filter_ptr
-                    : av1_interp_filter_params_list[interp_filter].filter_ptr);
 }
 
 static INLINE const int16_t *av1_get_interp_filter_subpel_kernel(
@@ -222,11 +223,21 @@ static INLINE const int16_t *av1_get_interp_filter_subpel_kernel(
 static INLINE const InterpFilterParams *av1_get_filter(int subpel_search) {
   assert(subpel_search >= USE_2_TAPS);
   return (subpel_search == USE_2_TAPS)
-             ? get_4tap_interp_filter_params(BILINEAR)
+             ? &av1_interp_4tap[BILINEAR]
              : ((subpel_search == USE_4_TAPS)
-                    ? get_4tap_interp_filter_params(EIGHTTAP_REGULAR)
-                    : av1_get_interp_filter_params_with_block_size(
-                          EIGHTTAP_REGULAR, 8));
+                    ? &av1_interp_4tap[FOURTAP_ME]
+                    : &av1_interp_filter_params_list[EIGHTTAP_REGULAR]);
+}
+
+// This is only used in unit tests.
+static INLINE const int16_t *av1_get_interp_filter_kernel(
+    const InterpFilter interp_filter, int subpel_search) {
+  assert(subpel_search >= USE_2_TAPS);
+  return (subpel_search == USE_2_TAPS)
+             ? av1_interp_4tap[BILINEAR].filter_ptr
+             : ((subpel_search == USE_4_TAPS)
+                    ? av1_interp_4tap[interp_filter].filter_ptr
+                    : av1_interp_filter_params_list[interp_filter].filter_ptr);
 }
 
 #ifdef __cplusplus
