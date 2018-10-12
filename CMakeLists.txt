@@ -222,6 +222,8 @@ if(NOT MSVC)
                              -DAOM_CONFIG_DIR=${AOM_CONFIG_DIR}
                              -DAOM_ROOT=${AOM_ROOT}
                              -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+                             -DINCLUDE_INSTALL_DIR=${INCLUDE_INSTALL_DIR}
+                             -DLIB_INSTALL_DIR=${LIB_INSTALL_DIR}
                              -DCMAKE_PROJECT_NAME=${CMAKE_PROJECT_NAME}
                              -DCONFIG_MULTITHREAD=${CONFIG_MULTITHREAD}
                              -DHAVE_PTHREAD_H=${HAVE_PTHREAD_H} -P
