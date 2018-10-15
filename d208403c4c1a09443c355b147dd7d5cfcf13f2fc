@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "14f2da34_54f540da",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-10-15T20:54:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "20cc373f_c7bd31d0",
+      "range": {
+        "startLine": 505,
+        "startChar": 29,
+        "endLine": 505,
+        "endChar": 36
+      },
+      "revId": "d208403c4c1a09443c355b147dd7d5cfcf13f2fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a92d8e2c_70c4d746",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-10-15T19:45:09Z",
       "side": 1,
       "message": "Pls use local vars for these, like \"top_left\", \"top_right\" etc",
+      "range": {
+        "startLine": 514,
+        "startChar": 11,
+        "endLine": 514,
+        "endChar": 40
+      },
+      "revId": "d208403c4c1a09443c355b147dd7d5cfcf13f2fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17832cf1_e898e498",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-10-15T20:54:47Z",
+      "side": 1,
+      "message": "I precomputed k \u003d i * stride + j to make this more readable, but top_left, top_right etc. may be an overkill.",
+      "parentUuid": "a92d8e2c_70c4d746",
       "range": {
         "startLine": 514,
         "startChar": 11,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "a952b8b4_eadf851e",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-10-15T20:54:47Z",
+      "side": 1,
+      "message": "yes - comment added",
+      "parentUuid": "f09fb75c_469957e8",
+      "revId": "d208403c4c1a09443c355b147dd7d5cfcf13f2fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4785cabc_54a50734",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 2
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "19d4f3bd_b22c9a22",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-10-15T20:54:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4785cabc_54a50734",
+      "range": {
+        "startLine": 541,
+        "startChar": 36,
+        "endLine": 541,
+        "endChar": 43
+      },
+      "revId": "d208403c4c1a09443c355b147dd7d5cfcf13f2fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9e4f3f34_94f79511",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 2
@@ -105,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "fd14bdba_2bfb5437",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-10-15T20:54:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e4f3f34_94f79511",
+      "revId": "d208403c4c1a09443c355b147dd7d5cfcf13f2fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8e06232d_9cff9a52",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 2
@@ -119,6 +227,24 @@
       "revId": "d208403c4c1a09443c355b147dd7d5cfcf13f2fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90a9fec4_25814e96",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-10-15T20:54:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e06232d_9cff9a52",
+      "revId": "d208403c4c1a09443c355b147dd7d5cfcf13f2fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
