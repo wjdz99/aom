@@ -34,6 +34,29 @@
       "revId": "cd7ba7237c261c7c2f863568f86e425927834dc2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69e542e6_6e4e6317",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-10-15T23:12:38Z",
+      "side": 1,
+      "message": "Do you think it would be easier to read if this function is either moved above decode_one() or below decoder_decode()? \n\nAt lease we then need only one set of: \n\n#if CONFIG_INSPECTION\n#else  \n#endif  // CONFIG_INSPECTION",
+      "range": {
+        "startLine": 507,
+        "startChar": 0,
+        "endLine": 531,
+        "endChar": 1
+      },
+      "revId": "cd7ba7237c261c7c2f863568f86e425927834dc2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
