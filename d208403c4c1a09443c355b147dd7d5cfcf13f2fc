@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20cc373f_c7bd31d0",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-10-15T19:45:09Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 505,
+        "startChar": 29,
+        "endLine": 505,
+        "endChar": 36
+      },
+      "revId": "d208403c4c1a09443c355b147dd7d5cfcf13f2fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a92d8e2c_70c4d746",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-10-15T19:45:09Z",
+      "side": 1,
+      "message": "Pls use local vars for these, like \"top_left\", \"top_right\" etc",
+      "range": {
+        "startLine": 514,
+        "startChar": 11,
+        "endLine": 514,
+        "endChar": 40
+      },
+      "revId": "d208403c4c1a09443c355b147dd7d5cfcf13f2fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f09fb75c_469957e8",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-10-15T19:45:09Z",
+      "side": 1,
+      "message": "So, this means we found \u003c 16 smooth areas in the frame?",
+      "revId": "d208403c4c1a09443c355b147dd7d5cfcf13f2fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4785cabc_54a50734",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-10-15T19:45:09Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 541,
+        "startChar": 36,
+        "endLine": 541,
+        "endChar": 43
+      },
+      "revId": "d208403c4c1a09443c355b147dd7d5cfcf13f2fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e4f3f34_94f79511",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-10-15T19:45:09Z",
+      "side": 1,
+      "message": "suggest using a #define as the const is same for lbd/hbd",
+      "revId": "d208403c4c1a09443c355b147dd7d5cfcf13f2fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e06232d_9cff9a52",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-10-15T19:45:09Z",
+      "side": 1,
+      "message": "Remove / comment out the debug printf",
+      "revId": "d208403c4c1a09443c355b147dd7d5cfcf13f2fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
