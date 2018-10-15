@@ -540,6 +540,7 @@ typedef struct ThreadData {
   int32_t *mask_buf;
   uint8_t *above_pred_buf;
   uint8_t *left_pred_buf;
+  uint8_t *tmp_buf_orig;
   PALETTE_BUFFER *palette_buffer;
   CONV_BUF_TYPE *tmp_conv_dst;
   uint8_t *tmp_obmc_bufs[2];

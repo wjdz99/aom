@@ -278,6 +278,7 @@ struct macroblock {
 
   CONV_BUF_TYPE *tmp_conv_dst;
   uint8_t *tmp_obmc_bufs[2];
+  uint8_t *tmp_buf_orig;
 
   FRAME_CONTEXT *backup_tile_ctx;
 

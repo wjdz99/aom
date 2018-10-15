@@ -382,6 +382,10 @@ static void create_enc_workers(AV1_COMP *cpi, int num_workers) {
           (int32_t *)aom_memalign(
               16, MAX_SB_SQUARE * sizeof(*thread_data->td->wsrc_buf)));
 
+      CHECK_MEM_ERROR(
+          cm, thread_data->td->tmp_buf_orig,
+          (uint8_t *)aom_memalign(32, 2 * MAX_MB_PLANE * MAX_SB_SQUARE));
+
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
       CHECK_MEM_ERROR(cm, thread_data->td->inter_modes_info,
                       (InterModesInfo *)aom_malloc(
@@ -494,6 +498,8 @@ static void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
       thread_data->td->mb.above_pred_buf = thread_data->td->above_pred_buf;
       thread_data->td->mb.left_pred_buf = thread_data->td->left_pred_buf;
       thread_data->td->mb.wsrc_buf = thread_data->td->wsrc_buf;
+      thread_data->td->mb.tmp_buf_orig = thread_data->td->tmp_buf_orig;
+
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
       thread_data->td->mb.inter_modes_info = thread_data->td->inter_modes_info;
 #endif
