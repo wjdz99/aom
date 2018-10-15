@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40473c2a_bc740d36",
+        "filename": "common/obudec.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-15T19:48:05Z",
+      "side": 1,
+      "message": "Nit/optional: Please list the C system header files in alphabetical order. So \u003cassert.h\u003e should go first.\n\nHere is the Style Guide\u0027s recommendation:\n\nhttps://google.github.io/styleguide/cppguide.html#Names_and_Order_of_Includes\n\n\"Within each section the includes should be ordered alphabetically. Note that older code might not conform to this rule and should be fixed when convenient.\"\n\nIt seems that this recommendation is not enforced by a presubmit check in libaom, for example, it is violated in aom/common/args.c and aom/common/video_reader.c. So I\u0027ll make this optional.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 19
+      },
+      "revId": "c697d60bebb7770ad9f89c463d275c808e6ca95f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
