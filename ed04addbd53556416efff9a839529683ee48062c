@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f30aa5ec_b4dc750a",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-10-16T06:06:27Z",
+      "side": 1,
+      "message": "there\u0027s no newline at the end of the file",
+      "revId": "ed04addbd53556416efff9a839529683ee48062c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59800162_7d31e7f4",
+        "filename": "build/cmake/aom_install.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-10-16T06:06:27Z",
+      "side": 1,
+      "message": "this file is missing a newline too",
+      "revId": "ed04addbd53556416efff9a839529683ee48062c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "894c2a48_8728d36c",
+        "filename": "build/cmake/aom_install.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-10-16T06:06:27Z",
+      "side": 1,
+      "message": "html",
+      "range": {
+        "startLine": 28,
+        "startChar": 60,
+        "endLine": 28,
+        "endChar": 63
+      },
+      "revId": "ed04addbd53556416efff9a839529683ee48062c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "317a079c_5270129f",
+        "filename": "build/cmake/pkg_config.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-10-16T06:06:27Z",
+      "side": 1,
+      "message": "canonically this is defined as $prefix and then used to build libdir:\n\nhttps://people.freedesktop.org/~dbn/pkg-config-guide.html",
+      "range": {
+        "startLine": 45,
+        "startChar": 33,
+        "endLine": 45,
+        "endChar": 65
+      },
+      "revId": "ed04addbd53556416efff9a839529683ee48062c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
