@@ -976,7 +976,7 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
         qindex = rc->last_boosted_qindex;
         last_boosted_q = av1_convert_qindex_to_q(qindex, bit_depth);
         delta_qindex = av1_compute_qdelta(rc, last_boosted_q,
-                                          last_boosted_q * 0.5, bit_depth);
+                                          last_boosted_q * 0.75, bit_depth);
         active_best_quality = AOMMAX(qindex + delta_qindex, rc->best_quality);
       }
     } else {
