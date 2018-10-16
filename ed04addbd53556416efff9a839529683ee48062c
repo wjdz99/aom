@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2071f807_b7931f61",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-10-16T17:06:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f30aa5ec_b4dc750a",
+      "revId": "ed04addbd53556416efff9a839529683ee48062c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "59800162_7d31e7f4",
         "filename": "build/cmake/aom_install.cmake",
         "patchSetId": 4
@@ -33,6 +51,24 @@
       "revId": "ed04addbd53556416efff9a839529683ee48062c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65e6e2cb_25261335",
+        "filename": "build/cmake/aom_install.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-10-16T17:06:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59800162_7d31e7f4",
+      "revId": "ed04addbd53556416efff9a839529683ee48062c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "66d9910a_030a66e6",
+        "filename": "build/cmake/aom_install.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-10-16T17:06:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "894c2a48_8728d36c",
+      "range": {
+        "startLine": 28,
+        "startChar": 60,
+        "endLine": 28,
+        "endChar": 63
+      },
+      "revId": "ed04addbd53556416efff9a839529683ee48062c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "317a079c_5270129f",
         "filename": "build/cmake/pkg_config.cmake",
         "patchSetId": 4
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "763451c4_79b34abf",
+        "filename": "build/cmake/pkg_config.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-10-16T17:06:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "317a079c_5270129f",
+      "range": {
+        "startLine": 45,
+        "startChar": 33,
+        "endLine": 45,
+        "endChar": 65
+      },
+      "revId": "ed04addbd53556416efff9a839529683ee48062c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "177afd80_813644fe",
         "filename": "build/cmake/pkg_config.cmake",
         "patchSetId": 4
@@ -102,6 +186,30 @@
       "revId": "ed04addbd53556416efff9a839529683ee48062c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cada7e0d_46fecfc2",
+        "filename": "build/cmake/pkg_config.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-10-16T17:06:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "177afd80_813644fe",
+      "range": {
+        "startLine": 56,
+        "startChar": 48,
+        "endLine": 56,
+        "endChar": 61
+      },
+      "revId": "ed04addbd53556416efff9a839529683ee48062c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
