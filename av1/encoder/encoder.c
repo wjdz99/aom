@@ -571,6 +571,9 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
     aom_free(cpi->td.mb.tmp_obmc_bufs[j]);
   }
 
+  aom_free(cpi->td.mb.tmp_buf_orig);
+  cpi->td.mb.tmp_buf_orig = NULL;
+
 #if CONFIG_DENOISE
   if (cpi->denoise_and_model) {
     aom_denoise_and_model_free(cpi->denoise_and_model);
@@ -2681,6 +2684,10 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
       (InterModesInfo *)aom_malloc(sizeof(*cpi->td.mb.inter_modes_info)));
 #endif
 
+  CHECK_MEM_ERROR(
+      cm, cpi->td.mb.tmp_buf_orig,
+      (uint8_t *)aom_memalign(32, 2 * MAX_MB_PLANE * MAX_SB_SQUARE));
+
   for (int x = 0; x < 2; x++)
     for (int y = 0; y < 2; y++)
       CHECK_MEM_ERROR(
@@ -3043,6 +3050,9 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       aom_free(thread_data->td->above_pred_buf);
       aom_free(thread_data->td->left_pred_buf);
       aom_free(thread_data->td->wsrc_buf);
+      aom_free(thread_data->td->tmp_buf_orig);
+      thread_data->td->tmp_buf_orig = NULL;
+
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
       aom_free(thread_data->td->inter_modes_info);
 #endif
