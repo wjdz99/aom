@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cffc00b0_a18fbc4d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2018-10-18T21:22:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "af49d1be_7ab07482",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 1
+      },
+      "revId": "ce1a59374a60a7e2f2491d3b96c9868cffdd85e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a8b5ca5_bb1dcbc7",
         "filename": "/COMMIT_MSG",
         "patchSetId": 4
@@ -71,6 +95,54 @@
     },
     {
       "key": {
+        "uuid": "9e4b98af_fa7443e7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2018-10-18T21:22:32Z",
+      "side": 1,
+      "message": "I added the bug.",
+      "parentUuid": "0f83a7cc_5abd7ef8",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 44
+      },
+      "revId": "ce1a59374a60a7e2f2491d3b96c9868cffdd85e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "026bd90a_b30cb44d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2018-10-18T21:22:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a8b5ca5_bb1dcbc7",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 1
+      },
+      "revId": "ce1a59374a60a7e2f2491d3b96c9868cffdd85e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4003f8de_23ab94c1",
         "filename": "aom/aomcx.h",
         "patchSetId": 4
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "16875af6_67d6fd18",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1083,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2018-10-18T21:22:32Z",
+      "side": 1,
+      "message": "Ideally, the code would be:\n\nAOM_CTRL_USE_TYPE(AV1E_SET_TIMING_INFO_TYPE, aom_timing_info_type_t)\n\nBut that generates a warning by the automated code checker -- enums are implicitly converted to int type when used as varargs (which is what the macro expands to).\n\nTo work around this, I explicitly set the type to int (so there\u0027s no implicit conversion) but commented on what the type is supposed to be. This is similar to the AOME_SET_TUNING example above. Please let me know if this is acceptable.",
+      "parentUuid": "4003f8de_23ab94c1",
+      "range": {
+        "startLine": 1083,
+        "startChar": 50,
+        "endLine": 1083,
+        "endChar": 78
+      },
+      "revId": "ce1a59374a60a7e2f2491d3b96c9868cffdd85e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3fb01fd5_003bf3d7",
         "filename": "test/edge_detect_test.cc",
         "patchSetId": 4
@@ -114,6 +210,30 @@
       "revId": "ce1a59374a60a7e2f2491d3b96c9868cffdd85e1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7de73f9c_3237523c",
+        "filename": "test/edge_detect_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2018-10-18T21:22:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3fb01fd5_003bf3d7",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 50
+      },
+      "revId": "ce1a59374a60a7e2f2491d3b96c9868cffdd85e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
