@@ -22,6 +22,53 @@
       "revId": "f16177aedfc7e8c96e49c14d53bee8c6ff9ad45f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1f9d247_49ab9889",
+        "filename": "build/cmake/util.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-10-18T18:31:36Z",
+      "side": 1,
+      "message": "It\u0027s a hint that out_file_list_var is the name of a variable and not the actual variable. I\u0027ve added some more informative text to the comment that hopefully makes this clearer.",
+      "parentUuid": "b4a25bb4_c69e1daa",
+      "range": {
+        "startLine": 22,
+        "startChar": 63,
+        "endLine": 22,
+        "endChar": 67
+      },
+      "revId": "f16177aedfc7e8c96e49c14d53bee8c6ff9ad45f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32bf3d30_3fc4f740",
+        "filename": "build/cmake/util.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-10-18T18:31:36Z",
+      "side": 1,
+      "message": "Normally in a list(APPEND) call you\u0027d would use the variable name directly, but because this operates on a named variable defined elsewhere and referred to by the macro argument it must be expanded.",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 60
+      },
+      "revId": "f16177aedfc7e8c96e49c14d53bee8c6ff9ad45f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
