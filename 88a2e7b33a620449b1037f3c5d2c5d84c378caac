@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4fc588c2_7935783b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2018-10-18T22:30:44Z",
+      "side": 1,
+      "message": "The format for adding a bug is: \n\nBUG\u003daomedia:2200",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 107
+      },
+      "revId": "88a2e7b33a620449b1037f3c5d2c5d84c378caac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "584929f9_061021ef",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 12394,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2018-10-18T22:30:44Z",
+      "side": 1,
+      "message": "Can be marked const",
+      "range": {
+        "startLine": 12394,
+        "startChar": 2,
+        "endLine": 12394,
+        "endChar": 10
+      },
+      "revId": "88a2e7b33a620449b1037f3c5d2c5d84c378caac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e95e39d_018963dc",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 12400,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2018-10-18T22:30:44Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 12400,
+        "startChar": 2,
+        "endLine": 12400,
+        "endChar": 9
+      },
+      "revId": "88a2e7b33a620449b1037f3c5d2c5d84c378caac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e7917a8_41b5beeb",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 12417,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2018-10-18T22:30:44Z",
+      "side": 1,
+      "message": "It is preferable to have height in the outer loop because it accesses memory in the order it is stored in the buffer.",
+      "range": {
+        "startLine": 12416,
+        "startChar": 0,
+        "endLine": 12417,
+        "endChar": 37
+      },
+      "revId": "88a2e7b33a620449b1037f3c5d2c5d84c378caac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f890552_b6751bb0",
+        "filename": "test/edge_detect_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2018-10-18T22:30:44Z",
+      "side": 1,
+      "message": "Do height in the outer loop, see similar comment in rdopt.c and correct other similar cases within this file.",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 37
+      },
+      "revId": "88a2e7b33a620449b1037f3c5d2c5d84c378caac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "684c64ff_fb9c76a7",
+        "filename": "test/edge_detect_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2018-10-18T22:30:44Z",
+      "side": 1,
+      "message": "Is there a reason you kept this loop? I think you should be able to do something like: \n\nINSTANTIATE_TEST_CASE_P(GaussianImageTests, GaussianBlurTest,\n                        ::testing::Combine(::testing::ValuesIn(image_params),\n                                           ::testing::range(0, 255)));",
+      "range": {
+        "startLine": 123,
+        "startChar": 2,
+        "endLine": 123,
+        "endChar": 60
+      },
+      "revId": "88a2e7b33a620449b1037f3c5d2c5d84c378caac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
