@@ -12,6 +12,7 @@
 #ifndef AOM_AV1_ENCODER_RDOPT_H_
 #define AOM_AV1_ENCODER_RDOPT_H_
 
+#include "av1/common/onyxc_int.h"
 #include "av1/common/blockd.h"
 #include "av1/common/txb_common.h"
 
