@@ -191,6 +191,8 @@ void av1_filter_block_plane_bitmask_horz(
     struct AV1Common *const cm, struct macroblockd_plane *const plane_ptr,
     int pl, int mi_row, int mi_col);
 
+#endif  // LOOP_FILTER_BITMASK
+
 extern const int mask_id_table_tx_4x4[BLOCK_SIZES_ALL];
 
 extern const int mask_id_table_tx_8x8[BLOCK_SIZES_ALL];
@@ -206,8 +208,6 @@ extern const int mask_id_table_vert_border[BLOCK_SIZES_ALL];
 extern const FilterMask left_mask_univariant_reordered[67];
 
 extern const FilterMask above_mask_univariant_reordered[67];
-
-#endif
 
 #ifdef __cplusplus
 }  // extern "C"
