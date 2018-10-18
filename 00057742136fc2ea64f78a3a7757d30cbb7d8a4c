@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41e2ab8c_3025631f",
+        "filename": "build/cmake/util.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-18T18:45:06Z",
+      "side": 1,
+      "message": "Thank you for the explanation!",
+      "revId": "00057742136fc2ea64f78a3a7757d30cbb7d8a4c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
