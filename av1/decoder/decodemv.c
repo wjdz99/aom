@@ -612,8 +612,7 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd, int blk_row,
     return;
 
   // No need to read transform type for lossless mode(qindex==0).
-  const int qindex =
-      cm->seg.enabled ? xd->qindex[mbmi->segment_id] : cm->base_qindex;
+  const int qindex = xd->qindex[mbmi->segment_id];
   if (qindex <= 0) return;
 
   const int inter_block = is_inter_block(mbmi);
