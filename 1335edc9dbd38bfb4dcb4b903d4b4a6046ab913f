@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b24aa996_fef8ba0a",
+        "filename": "av1/common/av1_loopfilter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-10-18T22:52:29Z",
+      "side": 1,
+      "message": "These are needed outside the LOOP_FILTER_BITMASK experiment now?",
+      "range": {
+        "startLine": 196,
+        "startChar": 0,
+        "endLine": 210,
+        "endChar": 60
+      },
+      "revId": "1335edc9dbd38bfb4dcb4b903d4b4a6046ab913f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
