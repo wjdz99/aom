@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32215871_44191b5f",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-19T19:55:20Z",
+      "side": 1,
+      "message": "The corresponding decoder code is in av1/decoder/decodeframe.c:\n\nstatic void sync_dec_workers(AV1Decoder *pbi, int num_workers) {\n  const AVxWorkerInterface *const winterface \u003d aom_get_worker_interface();\n  int corrupted \u003d 0;\n\n  for (int worker_idx \u003d num_workers; worker_idx \u003e 0; --worker_idx) {\n    AVxWorker *const worker \u003d \u0026pbi-\u003etile_workers[worker_idx - 1];\n    aom_merge_corrupted_flag(\u0026corrupted, !winterface-\u003esync(worker));\n  }\n\n  pbi-\u003emb.corrupted \u003d corrupted;\n}\n\nI use a different variable name \"had_error\" because \"corrupted\" doesn\u0027t seem to make sense for the encoder.\n\nAlso, in the decoder code it is the callers of sync_dec_workers() that check pbi-\u003emb.corrupted and call aom_internal_error(). Here in the encoder code, it is more convenient to just have sync_enc_workers() check had_error and call aom_internal_error(). I can switch to how the decoder does it if you prefer.",
+      "revId": "9d5ad97554ee43a7ca751ba3bcc0c9658f07d2fd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
