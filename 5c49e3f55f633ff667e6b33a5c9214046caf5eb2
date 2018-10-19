@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f36784c_b3c81552",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-10-19T18:58:01Z",
+      "side": 1,
+      "message": "Require?",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 7
+      },
+      "revId": "5c49e3f55f633ff667e6b33a5c9214046caf5eb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "570acca5_79c3c6d5",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-10-19T18:58:01Z",
+      "side": 1,
+      "message": "There are some C++11 flag tweaks in CMakeLists.txt for dump_obu and libwebm that can likely be removed as part of this patchset.",
+      "revId": "5c49e3f55f633ff667e6b33a5c9214046caf5eb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
