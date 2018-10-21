@@ -16,6 +16,24 @@
       "revId": "9be592283088e0ee93ee37a90375018c625ed1f3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a61bc5c2_e6cc6300",
+        "filename": "test/edge_detect_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2018-10-21T22:17:34Z",
+      "side": 1,
+      "message": "Thanks for the information. I didn\u0027t notice it, but will use it next time.",
+      "parentUuid": "a925991c_264a2239",
+      "revId": "9be592283088e0ee93ee37a90375018c625ed1f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
