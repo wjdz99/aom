@@ -576,6 +576,11 @@ typedef struct SPEED_FEATURES {
 
   // Prune intra mode candidates based on source block gradient stats.
   int intra_angle_estimation;
+
+  // Skip obmc or warped motion mode when neighborhood motion field is
+  // identical
+  int skip_obmc_in_uniform_mv_field;
+  int skip_wm_in_uniform_mv_field;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
