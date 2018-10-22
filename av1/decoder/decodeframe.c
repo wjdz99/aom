@@ -1072,6 +1072,7 @@ static void predict_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
   dec_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
   if (mbmi->motion_mode == OBMC_CAUSAL) {
+      // && av1_check_identical_obmc_mv_field(cm, xd, mi_row, mi_col) == 0) {
     dec_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
   }
 #if CONFIG_MISMATCH_DEBUG

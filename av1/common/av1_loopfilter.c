@@ -2475,9 +2475,9 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   }
   end_mi_row = start_mi_row + mi_rows_to_filter;
   av1_loop_filter_frame_init(cm, plane_start, plane_end);
-  loop_filter_rows(frame, cm, xd, start_mi_row, end_mi_row,
+/*  loop_filter_rows(frame, cm, xd, start_mi_row, end_mi_row,
 #if LOOP_FILTER_BITMASK
                    is_decoding,
 #endif
-                   plane_start, plane_end);
+                   plane_start, plane_end);*/
 }
