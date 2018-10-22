@@ -17,6 +17,7 @@
 
 #include "av1/encoder/global_motion.h"
 
+#include "av1/common/convolve.h"
 #include "av1/common/resize.h"
 #include "av1/common/warped_motion.h"
 
@@ -49,6 +50,8 @@ typedef struct {
   int strides[N_LEVELS];
   int level_loc[N_LEVELS];
   unsigned char *level_image_buffer;
+  unsigned char *level_dx_buffer;
+  unsigned char *level_dy_buffer;
 } ImagePyramid;
 
 static const double erroradv_tr[] = { 0.65, 0.60, 0.55 };
@@ -316,6 +319,36 @@ int compute_global_motion_feature_based(TransformationType type,
   return 0;
 }
 
+DECLARE_ALIGNED(16, static const int16_t, sobel_a[4]) = { -1, 0, 1, 0 };
+DECLARE_ALIGNED(16, static const int16_t, sobel_b[4]) = { 1, 2, 1, 0 };
+
+// Compute an image gradient using a sobel filter.
+// If dir == 1, compute the x gradient. If dir == 0, compute y. This function
+// assumes the images have been padded so that they can be processed in units
+// of 8.
+static void sobel_xy_image_gradient(const uint8_t *src, int src_stride,
+                                    uint8_t *dst, int dst_stride, int height,
+                                    int width, int dir) {
+  ConvolveParams conv_params = get_conv_params(0, 0, 8);
+  InterpFilterParams filter_x = { .filter_ptr = dir ? sobel_b : sobel_a,
+                                  .taps = 4,
+                                  .subpel_shifts = 0,
+                                  .interp_filter = BILINEAR };
+  InterpFilterParams filter_y = { .filter_ptr = dir ? sobel_a : sobel_b,
+                                  .taps = 4,
+                                  .subpel_shifts = 0,
+                                  .interp_filter = BILINEAR };
+
+  // Filter in 8x8 blocks to make use of optimized convolve function
+  for (int i = 0; i < height; i += 8) {
+    for (int j = 0; j < width; j += 8) {
+      av1_convolve_2d_sr(src + i * src_stride + j, src_stride,
+                         dst + i * dst_stride + j, dst_stride, 8, 8, &filter_x,
+                         &filter_y, 0, 0, &conv_params);
+    }
+  }
+}
+
 static ImagePyramid *alloc_pyramid(int width, int height, int pad_size) {
   ImagePyramid *pyr = aom_malloc(sizeof(*pyr));
   // 2 * width * height is the upper bound for a buffer that fits
@@ -325,11 +358,18 @@ static ImagePyramid *alloc_pyramid(int width, int height, int pad_size) {
       (width + 2 * pad_size) * 2 * pad_size * N_LEVELS;
   pyr->level_image_buffer = aom_malloc(buffer_size);
   memset(pyr->level_image_buffer, 0, buffer_size);
+  pyr->level_dx_buffer = aom_malloc(buffer_size);
+  pyr->level_dy_buffer = aom_malloc(buffer_size);
+  memset(pyr->level_image_buffer, 0, buffer_size);
+  memset(pyr->level_dx_buffer, 0, buffer_size);
+  memset(pyr->level_dy_buffer, 0, buffer_size);
   return pyr;
 }
 
 static void free_pyramid(ImagePyramid *pyr) {
   aom_free(pyr->level_image_buffer);
+  aom_free(pyr->level_dx_buffer);
+  aom_free(pyr->level_dy_buffer);
   aom_free(pyr);
 }
 
@@ -385,7 +425,15 @@ static void compute_flow_pyramids(unsigned char *frm, const int frm_width,
         frm_pyr->strides[level - 1], frm_pyr->level_image_buffer + cur_loc,
         cur_height, cur_width, cur_stride);
 
-    // TODO(sarahparker) Add computation of gradient pyramids here
+    // Computation x gradient
+    sobel_xy_image_gradient(frm_pyr->level_image_buffer + cur_loc, cur_stride,
+                            frm_pyr->level_dx_buffer + cur_loc, cur_stride,
+                            cur_height, cur_width, 1);
+
+    // Computation y gradient
+    sobel_xy_image_gradient(frm_pyr->level_image_buffer + cur_loc, cur_stride,
+                            frm_pyr->level_dy_buffer + cur_loc, cur_stride,
+                            cur_height, cur_width, 0);
   }
 }
 
