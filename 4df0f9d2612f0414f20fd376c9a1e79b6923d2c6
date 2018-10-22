@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ccd5ad3b_e1cbcef0",
+        "filename": "av1/encoder/partition_model_weights.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 2443,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-10-22T21:10:38Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "be25b825_52b4d285",
+      "revId": "4df0f9d2612f0414f20fd376c9a1e79b6923d2c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "faf50d4f_577f3072",
         "filename": "av1/encoder/rd.h",
         "patchSetId": 12
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "4f5fcd8b_00bc9cb3",
+        "filename": "av1/encoder/rd.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-10-22T21:10:38Z",
+      "side": 1,
+      "message": "This will be a pretty big change since I know there are a couple code paths where they set the rate and dist directly without calling av1_init_rd_stats. I will add this to a TODO list and fix it at a later patch.",
+      "parentUuid": "faf50d4f_577f3072",
+      "revId": "4df0f9d2612f0414f20fd376c9a1e79b6923d2c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ea1d82ec_6f3477ab",
         "filename": "av1/encoder/rd.h",
         "patchSetId": 12
@@ -47,6 +83,30 @@
       "writtenOn": "2018-10-22T19:44:46Z",
       "side": 1,
       "message": "The algorithm here is general. Since the types of tx_size are defined, we can make it simple here to avoid the multiplications.",
+      "range": {
+        "startLine": 442,
+        "startChar": 0,
+        "endLine": 444,
+        "endChar": 78
+      },
+      "revId": "4df0f9d2612f0414f20fd376c9a1e79b6923d2c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "405f1761_80df0e1c",
+        "filename": "av1/encoder/rd.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-10-22T21:10:38Z",
+      "side": 1,
+      "message": "I\u0027m not sure how to avoid the multiplications. Could you give me an example?",
+      "parentUuid": "ea1d82ec_6f3477ab",
       "range": {
         "startLine": 442,
         "startChar": 0,
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "b10ecd62_d4fb6d4c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 3480,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-10-22T21:10:38Z",
+      "side": 1,
+      "message": "I think you are right that this one might not be needed. I\u0027ll run a test just to be sure.",
+      "parentUuid": "1a42bbe6_a7a8660e",
+      "range": {
+        "startLine": 3473,
+        "startChar": 0,
+        "endLine": 3480,
+        "endChar": 6
+      },
+      "revId": "4df0f9d2612f0414f20fd376c9a1e79b6923d2c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c1b20ba6_6e36fa57",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 12
@@ -93,6 +177,30 @@
       "writtenOn": "2018-10-22T19:44:46Z",
       "side": 1,
       "message": "Is this necessary?",
+      "range": {
+        "startLine": 5094,
+        "startChar": 0,
+        "endLine": 5096,
+        "endChar": 6
+      },
+      "revId": "4df0f9d2612f0414f20fd376c9a1e79b6923d2c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "556c01f7_da091f86",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 5096,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-10-22T21:10:38Z",
+      "side": 1,
+      "message": "av1_ret_stat_skipmode_update recalculates regional_rds using regional sses. If we don\u0027t call this function, the regional_rds in rd_stats would be calculated using non-zero rates.",
+      "parentUuid": "c1b20ba6_6e36fa57",
       "range": {
         "startLine": 5094,
         "startChar": 0,
@@ -128,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "bfda8811_2ffd64c1",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 5279,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-10-22T21:10:38Z",
+      "side": 1,
+      "message": "av1_ret_stat_skipmode_update recalculates regional_rds using regional sses. If we don\u0027t call this function, the regional_rds in rd_stats would be calculated using non-zero rates.",
+      "parentUuid": "a7c3c2e3_65b6fc6d",
+      "range": {
+        "startLine": 5278,
+        "startChar": 1,
+        "endLine": 5279,
+        "endChar": 6
+      },
+      "revId": "4df0f9d2612f0414f20fd376c9a1e79b6923d2c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c5a93f69_5569be9a",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 12
@@ -139,6 +271,30 @@
       "writtenOn": "2018-10-22T19:44:46Z",
       "side": 1,
       "message": "This code doesn\u0027t belong to this function?",
+      "range": {
+        "startLine": 5631,
+        "startChar": 1,
+        "endLine": 5646,
+        "endChar": 3
+      },
+      "revId": "4df0f9d2612f0414f20fd376c9a1e79b6923d2c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbe9a0ff_f0dc30ba",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 5646,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-10-22T21:10:38Z",
+      "side": 1,
+      "message": "I put this code in predict_skip_flag to avoid having to calculate the total distortion twice. \nIt seems to me that it is more efficient to calculate the regional distortion and then sum them up to get the total distortion instead of having to calculate them separately.",
+      "parentUuid": "c5a93f69_5569be9a",
       "range": {
         "startLine": 5631,
         "startChar": 1,
@@ -174,6 +330,53 @@
     },
     {
       "key": {
+        "uuid": "c73f660c_98aa1915",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 5717,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-10-22T21:10:38Z",
+      "side": 1,
+      "message": "av1_rd_add_reg_stat scales the regional features by MAX_MIB_SIZE * MAX_MIB_SIZE before dividing by the area so we don\u0027t get rounded down. \nSo we need to scale the regional features here by MAX_MIB_SIZE * MAX_MIB_SIZE too to e consistently. \nI will replace the hardcoded number here with MAX_MIB_SIZE * MAX_MIB_SIZE in the next patch.",
+      "parentUuid": "3595d61e_89d61ab1",
+      "range": {
+        "startLine": 5717,
+        "startChar": 34,
+        "endLine": 5717,
+        "endChar": 44
+      },
+      "revId": "4df0f9d2612f0414f20fd376c9a1e79b6923d2c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6079f3b0_1170aaae",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 9184,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-10-22T21:10:38Z",
+      "side": 1,
+      "message": "Replace with MAX_MIB_SIZE * MAX_MIB_SIZE.",
+      "range": {
+        "startLine": 9181,
+        "startChar": 6,
+        "endLine": 9184,
+        "endChar": 50
+      },
+      "revId": "4df0f9d2612f0414f20fd376c9a1e79b6923d2c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7012d077_783892ca",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 12
@@ -185,6 +388,30 @@
       "writtenOn": "2018-10-22T19:44:46Z",
       "side": 1,
       "message": "Seems only called if it is intra mode. Do you also consider intra mode?",
+      "range": {
+        "startLine": 10700,
+        "startChar": 12,
+        "endLine": 10700,
+        "endChar": 31
+      },
+      "revId": "4df0f9d2612f0414f20fd376c9a1e79b6923d2c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4f6f04d_b9aa8e0b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 10700,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-10-22T21:10:38Z",
+      "side": 1,
+      "message": "We apply our algorithm when frame_is_intra_only(cm) is false. So we need to collect statistics as long as inter_mode is allowed for the currently frame.\npalette_mode is permitted even when the frame is not intra only as long as the current best mode is intra_mode.",
+      "parentUuid": "7012d077_783892ca",
       "range": {
         "startLine": 10700,
         "startChar": 12,
@@ -220,6 +447,30 @@
     },
     {
       "key": {
+        "uuid": "a50f1e02_851564e7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 11948,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-10-22T21:10:38Z",
+      "side": 1,
+      "message": "These two sets are mutually exclusive. \nThe first is called when CONFIG_COLLECT_INTER_MODE_RD_STATS is true, and the second when it is false.",
+      "parentUuid": "6ab11dea_2d480f3e",
+      "range": {
+        "startLine": 11944,
+        "startChar": 1,
+        "endLine": 11948,
+        "endChar": 6
+      },
+      "revId": "4df0f9d2612f0414f20fd376c9a1e79b6923d2c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2cd8ac1a_7fbb358a",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 12
@@ -231,6 +482,30 @@
       "writtenOn": "2018-10-22T19:44:46Z",
       "side": 1,
       "message": "intra?",
+      "range": {
+        "startLine": 12110,
+        "startChar": 6,
+        "endLine": 12110,
+        "endChar": 52
+      },
+      "revId": "4df0f9d2612f0414f20fd376c9a1e79b6923d2c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff39d969_6e0a578d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 12110,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-10-22T21:10:38Z",
+      "side": 1,
+      "message": "Yes, we do apply the algorithm even if the current block uses intra mode.",
+      "parentUuid": "2cd8ac1a_7fbb358a",
       "range": {
         "startLine": 12110,
         "startChar": 6,
