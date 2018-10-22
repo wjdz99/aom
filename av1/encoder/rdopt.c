@@ -9028,9 +9028,12 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       if (mbmi->mv[0].as_int != cur_mv) {
         av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
       }
-      av1_build_obmc_inter_prediction(
-          cm, xd, mi_row, mi_col, args->above_pred_buf, args->above_pred_stride,
-          args->left_pred_buf, args->left_pred_stride);
+      if (av1_check_identical_obmc_mv_field(cm, xd, mi_row, mi_col) == 0) {
+        av1_build_obmc_inter_prediction(
+            cm, xd, mi_row, mi_col, args->above_pred_buf,
+            args->above_pred_stride, args->left_pred_buf,
+            args->left_pred_stride);
+      }
     } else if (mbmi->motion_mode == WARPED_CAUSAL) {
       int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
       mbmi->motion_mode = WARPED_CAUSAL;
@@ -10535,7 +10538,8 @@ static void sf_refine_fast_tx_type_search(
 
     if (is_inter_mode(mbmi->mode)) {
       av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
-      if (mbmi->motion_mode == OBMC_CAUSAL)
+      if (mbmi->motion_mode == OBMC_CAUSAL &&
+          av1_check_identical_obmc_mv_field(cm, xd, mi_row, mi_col) == 0)
         av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
 
       av1_subtract_plane(x, bsize, 0);
@@ -12148,7 +12152,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       RD_STATS rd_stats_uv;
 
       av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
-      if (mbmi->motion_mode == OBMC_CAUSAL)
+      if (mbmi->motion_mode == OBMC_CAUSAL &&
+          av1_check_identical_obmc_mv_field(cm, xd, mi_row, mi_col) == 0)
         av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
 
       if (!txfm_search(cpi, x, bsize, mi_row, mi_col, &rd_stats, &rd_stats_y,
