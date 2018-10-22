@@ -7071,6 +7071,8 @@ int64_t ticks_to_timebase_units(const aom_rational_t *timebase, int64_t n) {
 aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi) {
   if (!cpi) return NULL;
 
+  av1_set_speed_features_framesize_independent(cpi);
+
   uint8_t header_buf[512] = { 0 };
   const uint32_t sequence_header_size =
       write_sequence_header_obu(cpi, &header_buf[0]);
