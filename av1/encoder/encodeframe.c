@@ -5950,7 +5950,8 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     }
 
     av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
-    if (mbmi->motion_mode == OBMC_CAUSAL)
+    if (mbmi->motion_mode == OBMC_CAUSAL &&
+        av1_check_identical_obmc_mv_field(cm, xd, mi_row, mi_col) == 0)
       av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
 
 #if CONFIG_MISMATCH_DEBUG
