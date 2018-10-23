@@ -791,10 +791,8 @@ void aom_lpf_vertical_4_neon(uint8_t *src, int stride, const uint8_t *blimit,
   // row1: p1 p0 | q0 q1
   // row2: p1 p0 | q0 q1
   // row3: p1 p0 | q0 q1
-  load_u8_4x1(src - 2, &p1p0, 0);
-  load_u8_4x1((src - 2) + 1 * stride, &p1p0, 1);
-  load_u8_4x1((src - 2) + 2 * stride, &q0q1, 0);
-  load_u8_4x1((src - 2) + 3 * stride, &q0q1, 1);
+  load_unaligned_u8_4x2(src - 2, stride, (uint32x2_t *)&p1p0);
+  load_unaligned_u8_4x2((src - 2) + 2 * stride, stride, (uint32x2_t *)&q0q1);
 
   transpose_u8_4x4(&p1p0, &q0q1);
 
@@ -815,10 +813,10 @@ void aom_lpf_vertical_4_neon(uint8_t *src, int stride, const uint8_t *blimit,
 
   transpose_u8_4x4(&p1p0, &q0q1);
 
-  store_u8_4x1(src - 2, p1p0, 0);
-  store_u8_4x1((src - 2) + 1 * stride, q0q1, 0);
-  store_u8_4x1((src - 2) + 2 * stride, p1p0, 1);
-  store_u8_4x1((src - 2) + 3 * stride, q0q1, 1);
+  store_unaligned_u32_lane0(src - 2, p1p0);
+  store_unaligned_u32_lane0((src - 2) + 1 * stride, q0q1);
+  store_unaligned_u32_lane1((src - 2) + 2 * stride, p1p0);
+  store_unaligned_u32_lane1((src - 2) + 3 * stride, q0q1);
 }
 
 void aom_lpf_horizontal_14_neon(uint8_t *src, int stride, const uint8_t *blimit,
