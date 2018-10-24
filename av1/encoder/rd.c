@@ -353,7 +353,7 @@ static const int rd_frame_type_factor[FRAME_UPDATE_TYPES] = {
   128   // INTNL_ARF_UPDATE
 };
 
-int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {
+int64_t av1_compute_rd_mult_based_on_qindex(const AV1_COMP *cpi, int qindex) {
   const int64_t q =
       av1_dc_quant_Q3(qindex, 0, cpi->common.seq_params.bit_depth);
   int64_t rdmult = 0;
@@ -365,6 +365,11 @@ int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {
       assert(0 && "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
       return -1;
   }
+  return rdmult;
+}
+
+int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {
+  int64_t rdmult = av1_compute_rd_mult_based_on_qindex(cpi, qindex);
   if (cpi->oxcf.pass == 2 && (cpi->common.frame_type != KEY_FRAME)) {
     const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
     const FRAME_UPDATE_TYPE frame_type = gf_group->update_type[gf_group->index];
