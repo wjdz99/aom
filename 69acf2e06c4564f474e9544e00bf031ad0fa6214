@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3a8c6cbc_ff07c8c8",
+        "filename": "av1/encoder/rd.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-10-24T20:21:56Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "af80ed5d_8f46b0de",
+      "range": {
+        "startLine": 475,
+        "startChar": 14,
+        "endLine": 475,
+        "endChar": 73
+      },
+      "revId": "69acf2e06c4564f474e9544e00bf031ad0fa6214",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "01e3e8ae_6b6898d1",
         "filename": "av1/encoder/rd.h",
         "patchSetId": 17
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "ba06d3e1_3c4c6aed",
+        "filename": "av1/encoder/rd.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-10-24T20:21:56Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "01e3e8ae_6b6898d1",
+      "range": {
+        "startLine": 497,
+        "startChar": 14,
+        "endLine": 497,
+        "endChar": 77
+      },
+      "revId": "69acf2e06c4564f474e9544e00bf031ad0fa6214",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cf416bd7_85d5432a",
         "filename": "av1/encoder/rd.h",
         "patchSetId": 17
@@ -68,6 +116,30 @@
       "revId": "69acf2e06c4564f474e9544e00bf031ad0fa6214",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f508adfb_d50ea432",
+        "filename": "av1/encoder/rd.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-10-24T20:21:56Z",
+      "side": 1,
+      "message": "I think the current code doesn\u0027t handle 1:4 and 4:1 transform ratio correctly. I\u0027ll make a patch for that.",
+      "parentUuid": "cf416bd7_85d5432a",
+      "range": {
+        "startLine": 501,
+        "startChar": 5,
+        "endLine": 507,
+        "endChar": 30
+      },
+      "revId": "69acf2e06c4564f474e9544e00bf031ad0fa6214",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
