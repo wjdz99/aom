@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c7de376c_a3a4d0df",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-10-24T09:32:03Z",
+      "side": 1,
+      "message": "Compiler warnings are seen without UNINITIALIZED_IS_SAFE. So I am still keeping it.",
+      "parentUuid": "b510a4f9_aba53886",
+      "range": {
+        "startLine": 788,
+        "startChar": 12,
+        "endLine": 788,
+        "endChar": 33
+      },
+      "revId": "dac7578e9f6187c5bd970d1ca92b4752fa9de10c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a30ac31_2ac89f76",
         "filename": "aom_dsp/arm/loopfilter_neon.c",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "dac7578e9f6187c5bd970d1ca92b4752fa9de10c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b843515a_af46a39c",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 795,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-10-24T09:32:03Z",
+      "side": 1,
+      "message": "Suggestion considered.",
+      "parentUuid": "1a30ac31_2ac89f76",
+      "range": {
+        "startLine": 795,
+        "startChar": 2,
+        "endLine": 795,
+        "endChar": 23
+      },
+      "revId": "dac7578e9f6187c5bd970d1ca92b4752fa9de10c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "720bc032_48f74218",
+        "filename": "av1/common/arm/mem_neon.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-10-24T09:32:03Z",
+      "side": 1,
+      "message": "Suggestion considered. Changing the function similar to load_u8_4x1.",
+      "parentUuid": "52db33d0_7b712b01",
+      "range": {
+        "startLine": 27,
+        "startChar": 8,
+        "endLine": 27,
+        "endChar": 19
+      },
+      "revId": "dac7578e9f6187c5bd970d1ca92b4752fa9de10c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "50685d34_4aeaaee4",
         "filename": "av1/common/arm/mem_neon.h",
         "patchSetId": 2
@@ -91,6 +163,30 @@
       "revId": "dac7578e9f6187c5bd970d1ca92b4752fa9de10c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b25a090d_1f6b7f2c",
+        "filename": "av1/common/arm/mem_neon.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-10-24T09:32:03Z",
+      "side": 1,
+      "message": "Renamed and changed the function similar to load_u8_4x1.",
+      "parentUuid": "50685d34_4aeaaee4",
+      "range": {
+        "startLine": 386,
+        "startChar": 19,
+        "endLine": 386,
+        "endChar": 44
+      },
+      "revId": "dac7578e9f6187c5bd970d1ca92b4752fa9de10c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
