@@ -27,8 +27,8 @@ void ivf_write_file_header(FILE *outfile, const struct aom_codec_enc_cfg *cfg,
   mem_put_le32(header + 8, fourcc);                // fourcc
   mem_put_le16(header + 12, cfg->g_w);             // width
   mem_put_le16(header + 14, cfg->g_h);             // height
-  mem_put_le32(header + 16, cfg->g_timebase.den);  // rate
-  mem_put_le32(header + 20, cfg->g_timebase.num);  // scale
+  mem_put_le32(header + 16, cfg->g_timebase.num);  // rate
+  mem_put_le32(header + 20, cfg->g_timebase.den);  // scale
   mem_put_le32(header + 24, frame_cnt);            // length
   mem_put_le32(header + 28, 0);                    // unused
 
