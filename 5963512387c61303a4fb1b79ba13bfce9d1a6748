@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ce56a15_305539fd",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-10-25T18:11:18Z",
+      "side": 1,
+      "message": "This is the only place where wt_matrix_ref and iwt_matrix_ref are used. Because of the q \u003d\u003d NUM_QM_LEVELS - 1 check at line 262, we know q \u003c NUM_QM_LEVELS - 1 here.",
+      "range": {
+        "startLine": 270,
+        "startChar": 0,
+        "endLine": 271,
+        "endChar": 71
+      },
+      "revId": "5963512387c61303a4fb1b79ba13bfce9d1a6748",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
