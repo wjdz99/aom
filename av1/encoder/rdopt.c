@@ -3836,7 +3836,7 @@ static int intra_mode_info_cost_y(const AV1_COMP *cpi, const MACROBLOCK *x,
       total_rate += palette_mode_cost;
     }
   }
-  if (av1_filter_intra_allowed(&cpi->common, mbmi)) {
+  if (av1_filter_intra_allowed(&cpi->common.seq_params, mbmi)) {
     total_rate += x->filter_intra_cost[mbmi->sb_type][use_filter_intra];
     if (use_filter_intra) {
       total_rate += x->filter_intra_mode_cost[mbmi->filter_intra_mode_info
@@ -3948,7 +3948,7 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
                            [MAX_ANGLE_DELTA + mbmi->angle_delta[PLANE_TYPE_Y]];
   }
   if (mbmi->mode == DC_PRED &&
-      av1_filter_intra_allowed_bsize(cm, mbmi->sb_type)) {
+      av1_filter_intra_allowed_bsize(&cm->seq_params, mbmi->sb_type)) {
     if (mbmi->filter_intra_mode_info.use_filter_intra) {
       const int mode = mbmi->filter_intra_mode_info.filter_intra_mode;
       mode_cost += x->filter_intra_cost[mbmi->sb_type][1] +
@@ -4629,7 +4629,8 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         distortion, skippable, ctx, ctx->blk_skip);
   }
 
-  if (beat_best_rd && av1_filter_intra_allowed_bsize(&cpi->common, bsize)) {
+  if (beat_best_rd &&
+      av1_filter_intra_allowed_bsize(&cpi->common.seq_params, bsize)) {
     if (rd_pick_filter_intra_sby(
             cpi, x, mi_row, mi_col, rate, rate_tokenonly, distortion, skippable,
             bsize, bmode_costs[DC_PRED], &best_rd, &best_model_rd, ctx)) {
@@ -9655,7 +9656,8 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   inter_mode_info mode_info[MAX_REF_MV_SERCH];
 
   int comp_idx;
-  const int search_jnt_comp = is_comp_pred & cm->seq_params.enable_jnt_comp &
+  const int search_jnt_comp = is_comp_pred &
+                              cm->seq_params.order_hint.enable_jnt_comp &
                               (mbmi->mode != GLOBAL_GLOBALMV) &
                               (cpi->sf.use_jnt_comp_flag != JNT_COMP_DISABLED);
 
@@ -11118,23 +11120,27 @@ static int inter_mode_search_order_independent_skip(
     if (sf->selective_ref_frame >= 2 || x->cb_partition_scan) {
       if (ref_frame[0] == ALTREF2_FRAME || ref_frame[1] == ALTREF2_FRAME)
         if (get_relative_dist(
-                cm, cm->cur_frame->ref_frame_offset[ALTREF2_FRAME - LAST_FRAME],
+                &cm->seq_params.order_hint,
+                cm->cur_frame->ref_frame_offset[ALTREF2_FRAME - LAST_FRAME],
                 cm->frame_offset) < 0)
           return 1;
       if (ref_frame[0] == BWDREF_FRAME || ref_frame[1] == BWDREF_FRAME)
         if (get_relative_dist(
-                cm, cm->cur_frame->ref_frame_offset[BWDREF_FRAME - LAST_FRAME],
+                &cm->seq_params.order_hint,
+                cm->cur_frame->ref_frame_offset[BWDREF_FRAME - LAST_FRAME],
                 cm->frame_offset) < 0)
           return 1;
     }
     if (ref_frame[0] == LAST3_FRAME || ref_frame[1] == LAST3_FRAME)
       if (get_relative_dist(
-              cm, cm->cur_frame->ref_frame_offset[LAST3_FRAME - LAST_FRAME],
+              &cm->seq_params.order_hint,
+              cm->cur_frame->ref_frame_offset[LAST3_FRAME - LAST_FRAME],
               cm->cur_frame->ref_frame_offset[GOLDEN_FRAME - LAST_FRAME]) <= 0)
         return 1;
     if (ref_frame[0] == LAST2_FRAME || ref_frame[1] == LAST2_FRAME)
       if (get_relative_dist(
-              cm, cm->cur_frame->ref_frame_offset[LAST2_FRAME - LAST_FRAME],
+              &cm->seq_params.order_hint,
+              cm->cur_frame->ref_frame_offset[LAST2_FRAME - LAST_FRAME],
               cm->cur_frame->ref_frame_offset[GOLDEN_FRAME - LAST_FRAME]) <= 0)
         return 1;
   }
@@ -11147,10 +11153,14 @@ static int inter_mode_search_order_independent_skip(
       assert(buf_idx >= 0);
       ref_offsets[i] = cm->buffer_pool->frame_bufs[buf_idx].cur_frame_offset;
     }
-    if ((get_relative_dist(cm, ref_offsets[0], cm->frame_offset) <= 0 &&
-         get_relative_dist(cm, ref_offsets[1], cm->frame_offset) <= 0) ||
-        (get_relative_dist(cm, ref_offsets[0], cm->frame_offset) > 0 &&
-         get_relative_dist(cm, ref_offsets[1], cm->frame_offset) > 0))
+    if ((get_relative_dist(&cm->seq_params.order_hint, ref_offsets[0],
+                           cm->frame_offset) <= 0 &&
+         get_relative_dist(&cm->seq_params.order_hint, ref_offsets[1],
+                           cm->frame_offset) <= 0) ||
+        (get_relative_dist(&cm->seq_params.order_hint, ref_offsets[0],
+                           cm->frame_offset) > 0 &&
+         get_relative_dist(&cm->seq_params.order_hint, ref_offsets[1],
+                           cm->frame_offset) > 0))
       return 1;
   }
 
@@ -11253,7 +11263,8 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
          sizeof(best_blk_skip[0]) * ctx->num_4x4_blk);
   int try_filter_intra = 0;
   int64_t best_rd_tmp = INT64_MAX;
-  if (mbmi->mode == DC_PRED && av1_filter_intra_allowed_bsize(cm, bsize)) {
+  if (mbmi->mode == DC_PRED &&
+      av1_filter_intra_allowed_bsize(&cm->seq_params, bsize)) {
     if (rd_stats_y->rate != INT_MAX) {
       const int tmp_rate = rd_stats_y->rate + x->filter_intra_cost[bsize][0] +
                            intra_mode_cost[mbmi->mode];

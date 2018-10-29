@@ -60,18 +60,18 @@ static INLINE int av1_allow_intrabc(const AV1_COMMON *const cm) {
          cm->allow_intrabc;
 }
 
-static INLINE int av1_filter_intra_allowed_bsize(const AV1_COMMON *const cm,
-                                                 BLOCK_SIZE bs) {
-  if (!cm->seq_params.enable_filter_intra || bs == BLOCK_INVALID) return 0;
+static INLINE int av1_filter_intra_allowed_bsize(
+    const SequenceHeader *const seq_params, BLOCK_SIZE bs) {
+  if (!seq_params->enable_filter_intra || bs == BLOCK_INVALID) return 0;
 
   return block_size_wide[bs] <= 32 && block_size_high[bs] <= 32;
 }
 
-static INLINE int av1_filter_intra_allowed(const AV1_COMMON *const cm,
-                                           const MB_MODE_INFO *mbmi) {
+static INLINE int av1_filter_intra_allowed(
+    const SequenceHeader *const seq_params, const MB_MODE_INFO *mbmi) {
   return mbmi->mode == DC_PRED &&
          mbmi->palette_mode_info.palette_size[0] == 0 &&
-         av1_filter_intra_allowed_bsize(cm, mbmi->sb_type);
+         av1_filter_intra_allowed_bsize(seq_params, mbmi->sb_type);
 }
 
 extern const int8_t av1_filter_intra_taps[FILTER_INTRA_MODES][8][8];

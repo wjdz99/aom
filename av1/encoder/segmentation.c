@@ -67,7 +67,8 @@ static void count_segs(const AV1_COMMON *cm, MACROBLOCKD *xd,
     // Test to see if the segment id matches the predicted value.
     const int pred_segment_id =
         cm->last_frame_seg_map
-            ? get_segment_id(cm, cm->last_frame_seg_map, bsize, mi_row, mi_col)
+            ? get_segment_id(cm->mi_rows, cm->mi_cols, cm->last_frame_seg_map,
+                             bsize, mi_row, mi_col)
             : 0;
     const int pred_flag = pred_segment_id == segment_id;
     const int pred_context = av1_get_pred_context_seg_id(xd);
