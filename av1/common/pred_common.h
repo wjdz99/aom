@@ -21,26 +21,26 @@
 extern "C" {
 #endif
 
-static INLINE int get_segment_id(const AV1_COMMON *const cm,
+static INLINE int get_segment_id(const int mi_rows, const int mi_cols,
                                  const uint8_t *segment_ids, BLOCK_SIZE bsize,
                                  int mi_row, int mi_col) {
-  const int mi_offset = mi_row * cm->mi_cols + mi_col;
+  const int mi_offset = mi_row * mi_cols + mi_col;
   const int bw = mi_size_wide[bsize];
   const int bh = mi_size_high[bsize];
-  const int xmis = AOMMIN(cm->mi_cols - mi_col, bw);
-  const int ymis = AOMMIN(cm->mi_rows - mi_row, bh);
+  const int xmis = AOMMIN(mi_cols - mi_col, bw);
+  const int ymis = AOMMIN(mi_rows - mi_row, bh);
   int x, y, segment_id = MAX_SEGMENTS;
 
   for (y = 0; y < ymis; ++y)
     for (x = 0; x < xmis; ++x)
-      segment_id =
-          AOMMIN(segment_id, segment_ids[mi_offset + y * cm->mi_cols + x]);
+      segment_id = AOMMIN(segment_id, segment_ids[mi_offset + y * mi_cols + x]);
 
   assert(segment_id >= 0 && segment_id < MAX_SEGMENTS);
   return segment_id;
 }
 
-static INLINE int av1_get_spatial_seg_pred(const AV1_COMMON *const cm,
+static INLINE int av1_get_spatial_seg_pred(const int mi_rows, const int mi_cols,
+                                           uint8_t *current_frame_seg_map,
                                            const MACROBLOCKD *const xd,
                                            int mi_row, int mi_col,
                                            int *cdf_index) {
@@ -48,15 +48,15 @@ static INLINE int av1_get_spatial_seg_pred(const AV1_COMMON *const cm,
   int prev_l = -1;   // left segment_id
   int prev_u = -1;   // top segment_id
   if ((xd->up_available) && (xd->left_available)) {
-    prev_ul = get_segment_id(cm, cm->current_frame_seg_map, BLOCK_4X4,
+    prev_ul = get_segment_id(mi_rows, mi_cols, current_frame_seg_map, BLOCK_4X4,
                              mi_row - 1, mi_col - 1);
   }
   if (xd->up_available) {
-    prev_u = get_segment_id(cm, cm->current_frame_seg_map, BLOCK_4X4,
+    prev_u = get_segment_id(mi_rows, mi_cols, current_frame_seg_map, BLOCK_4X4,
                             mi_row - 1, mi_col - 0);
   }
   if (xd->left_available) {
-    prev_l = get_segment_id(cm, cm->current_frame_seg_map, BLOCK_4X4,
+    prev_l = get_segment_id(mi_rows, mi_cols, current_frame_seg_map, BLOCK_4X4,
                             mi_row - 0, mi_col - 1);
   }
 
@@ -100,8 +100,10 @@ static INLINE int get_comp_index_context(const AV1_COMMON *cm,
 
   if (fwd_idx >= 0)
     fwd_frame_index = cm->buffer_pool->frame_bufs[fwd_idx].cur_frame_offset;
-  int fwd = abs(get_relative_dist(cm, fwd_frame_index, cur_frame_index));
-  int bck = abs(get_relative_dist(cm, cur_frame_index, bck_frame_index));
+  int fwd = abs(get_relative_dist(&cm->seq_params.order_hint, fwd_frame_index,
+                                  cur_frame_index));
+  int bck = abs(get_relative_dist(&cm->seq_params.order_hint, cur_frame_index,
+                                  bck_frame_index));
 
   const MB_MODE_INFO *const above_mi = xd->above_mbmi;
   const MB_MODE_INFO *const left_mi = xd->left_mbmi;

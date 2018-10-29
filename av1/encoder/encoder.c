@@ -1031,22 +1031,23 @@ static void init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   seq->reduced_still_picture_hdr &= !oxcf->full_still_picture_hdr;
   seq->force_screen_content_tools = 2;
   seq->force_integer_mv = 2;
-  seq->enable_order_hint = oxcf->enable_order_hint;
+  seq->order_hint.enable_order_hint = oxcf->enable_order_hint;
   seq->frame_id_numbers_present_flag = oxcf->large_scale_tile;
   if (seq->still_picture && seq->reduced_still_picture_hdr) {
-    seq->enable_order_hint = 0;
+    seq->order_hint.enable_order_hint = 0;
     seq->frame_id_numbers_present_flag = 0;
     seq->force_screen_content_tools = 2;
     seq->force_integer_mv = 2;
   }
-  seq->order_hint_bits_minus_1 =
-      seq->enable_order_hint ? DEFAULT_EXPLICIT_ORDER_HINT_BITS - 1 : -1;
+  seq->order_hint.order_hint_bits_minus_1 =
+      seq->order_hint.enable_order_hint ? DEFAULT_EXPLICIT_ORDER_HINT_BITS - 1
+                                        : -1;
 
   seq->enable_dual_filter = oxcf->enable_dual_filter;
-  seq->enable_jnt_comp = oxcf->enable_jnt_comp;
-  seq->enable_jnt_comp &= seq->enable_order_hint;
-  seq->enable_ref_frame_mvs = oxcf->enable_ref_frame_mvs;
-  seq->enable_ref_frame_mvs &= seq->enable_order_hint;
+  seq->order_hint.enable_jnt_comp = oxcf->enable_jnt_comp;
+  seq->order_hint.enable_jnt_comp &= seq->order_hint.enable_order_hint;
+  seq->order_hint.enable_ref_frame_mvs = oxcf->enable_ref_frame_mvs;
+  seq->order_hint.enable_ref_frame_mvs &= seq->order_hint.enable_order_hint;
   seq->enable_superres = oxcf->enable_superres;
   seq->enable_cdef = oxcf->enable_cdef;
   seq->enable_restoration = oxcf->enable_restoration;
@@ -4296,7 +4297,7 @@ static void superres_post_encode(AV1_COMP *cpi) {
   }
 }
 
-static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
+static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm, EncodedFrame *ef) {
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
 
@@ -4347,10 +4348,10 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     av1_loop_restoration_save_boundary_lines(cm->frame_to_show, cm, 0);
 
   if (no_cdef) {
-    cm->cdef_bits = 0;
-    cm->cdef_strengths[0] = 0;
-    cm->nb_cdef_strengths = 1;
-    cm->cdef_uv_strengths[0] = 0;
+    cm->cdef_info.cdef_bits = 0;
+    cm->cdef_info.cdef_strengths[0] = 0;
+    cm->cdef_info.nb_cdef_strengths = 1;
+    cm->cdef_info.cdef_uv_strengths[0] = 0;
   } else {
     // Find CDEF parameters
     av1_cdef_search(cm->frame_to_show, cpi->source, cm, xd,
@@ -4383,7 +4384,8 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   }
 }
 
-static int encode_without_recode_loop(AV1_COMP *cpi) {
+static int encode_without_recode_loop(AV1_COMP *cpi, EncodeInputFrame *eif,
+                                      EncodedFrame *ef) {
   AV1_COMMON *const cm = &cpi->common;
   int q = 0, bottom_index = 0, top_index = 0;  // Dummy variables.
 
@@ -4434,7 +4436,7 @@ static int encode_without_recode_loop(AV1_COMP *cpi) {
   segfeatures_copy(&cm->cur_frame->seg, &cm->seg);
 
   // transform / motion compensation build reconstruction frame
-  av1_encode_frame(cpi);
+  av1_encode_frame(cpi, eif, ef);
 
   // Update some stats from cyclic refresh, and check if we should not update
   // golden reference, for 1 pass CBR.
@@ -4449,7 +4451,9 @@ static int encode_without_recode_loop(AV1_COMP *cpi) {
   return AOM_CODEC_OK;
 }
 
-static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
+static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest,
+                                   EncodeInputFrame *eif, EncodedFrame *ef,
+                                   PackedFrame *pf) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
   int bottom_index, top_index;
@@ -4545,7 +4549,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 
     // transform / motion compensation build reconstruction frame
     save_coding_context(cpi);
-    av1_encode_frame(cpi);
+    av1_encode_frame(cpi, eif, ef);
 
     // Update the skip mb flag probabilities based on the distribution
     // seen in the last encoder iteration.
@@ -4559,7 +4563,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     if (cpi->sf.recode_loop >= ALLOW_RECODE_KFARFGF) {
       restore_coding_context(cpi);
 
-      if (av1_pack_bitstream(cpi, dest, size) != AOM_CODEC_OK)
+      if (av1_pack_bitstream(cpi, dest, size, ef, pf) != AOM_CODEC_OK)
         return AOM_CODEC_ERROR;
 
       rc->projected_frame_size = (int)(*size) << 3;
@@ -4949,6 +4953,10 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   SequenceHeader *const seq_params = &cm->seq_params;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   struct segmentation *const seg = &cm->seg;
+  EncodeInputFrame *eif = create_EncodeInputFrame();
+  EncodedFrame *ef = create_EncodedFrame();
+  PackedFrame *pf = create_PackedFrame();
+  PackedFrame_allocate_pack_buffer(pf, ENCODE_PACK_SIZE);
 
   set_ext_overrides(cpi);
   aom_clear_system_state();
@@ -5000,8 +5008,12 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     restore_coding_context(cpi);
 
     // Build the bitstream
-    if (av1_pack_bitstream(cpi, dest, size) != AOM_CODEC_OK)
+    if (av1_pack_bitstream(cpi, dest, size, ef, pf) != AOM_CODEC_OK) {
+      free_EncodeInputFrame(eif);
+      free_EncodedFrame(ef);
+      free_PackedFrame(pf);
       return AOM_CODEC_ERROR;
+    }
 
     cpi->seq_params_locked = 1;
 
@@ -5050,6 +5062,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
     ++cm->current_video_frame;
 
+    free_EncodeInputFrame(eif);
+    free_EncodedFrame(ef);
+    free_PackedFrame(pf);
     return AOM_CODEC_OK;
   }
 
@@ -5084,6 +5099,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
       cm->frame_type != KEY_FRAME) {
     if (av1_rc_drop_frame(cpi)) {
       av1_rc_postencode_update_drop_frame(cpi);
+      free_EncodeInputFrame(eif);
+      free_EncodedFrame(ef);
+      free_PackedFrame(pf);
       return AOM_CODEC_OK;
     }
   }
@@ -5143,11 +5161,22 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   }
   cm->timing_info_present &= !seq_params->reduced_still_picture_hdr;
 
+  av1_comp_to_EncodeInputFrame(cpi, eif);
+
   if (cpi->sf.recode_loop == DISALLOW_RECODE) {
-    if (encode_without_recode_loop(cpi) != AOM_CODEC_OK) return AOM_CODEC_ERROR;
-  } else {
-    if (encode_with_recode_loop(cpi, size, dest) != AOM_CODEC_OK)
+    if (encode_without_recode_loop(cpi, eif, ef) != AOM_CODEC_OK) {
+      free_EncodeInputFrame(eif);
+      free_EncodedFrame(ef);
+      free_PackedFrame(pf);
       return AOM_CODEC_ERROR;
+    }
+  } else {
+    if (encode_with_recode_loop(cpi, size, dest, eif, ef, pf) != AOM_CODEC_OK) {
+      free_EncodeInputFrame(eif);
+      free_EncodedFrame(ef);
+      free_PackedFrame(pf);
+      return AOM_CODEC_ERROR;
+    }
   }
 
   cm->last_tile_cols = cm->tile_cols;
@@ -5193,14 +5222,14 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
   // Pick the loop filter level for the frame.
   if (!cm->allow_intrabc) {
-    loopfilter_frame(cpi, cm);
+    loopfilter_frame(cpi, cm, ef);
   } else {
     cm->lf.filter_level[0] = 0;
     cm->lf.filter_level[1] = 0;
-    cm->cdef_bits = 0;
-    cm->cdef_strengths[0] = 0;
-    cm->nb_cdef_strengths = 1;
-    cm->cdef_uv_strengths[0] = 0;
+    cm->cdef_info.cdef_bits = 0;
+    cm->cdef_info.cdef_strengths[0] = 0;
+    cm->cdef_info.nb_cdef_strengths = 1;
+    cm->cdef_info.cdef_uv_strengths[0] = 0;
     cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
@@ -5215,12 +5244,21 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 #endif
 
   // Build the bitstream
-  if (av1_pack_bitstream(cpi, dest, size) != AOM_CODEC_OK)
+  if (av1_pack_bitstream(cpi, dest, size, eif, pf) != AOM_CODEC_OK) {
+    free_EncodeInputFrame(eif);
+    free_EncodedFrame(ef);
+    free_PackedFrame(pf);
     return AOM_CODEC_ERROR;
+  }
 
   cpi->seq_params_locked = 1;
 
-  if (skip_adapt) return AOM_CODEC_OK;
+  if (skip_adapt) {
+    free_EncodeInputFrame(eif);
+    free_EncodedFrame(ef);
+    free_PackedFrame(pf);
+    return AOM_CODEC_OK;
+  }
 
   if (seq_params->frame_id_numbers_present_flag) {
     int i;
@@ -5318,6 +5356,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     cm->last_show_frame = cm->show_frame;
   }
 
+  free_EncodeInputFrame(eif);
+  free_EncodedFrame(ef);
+  free_PackedFrame(pf);
   return AOM_CODEC_OK;
 }
 
