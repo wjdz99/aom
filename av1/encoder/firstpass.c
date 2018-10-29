@@ -450,11 +450,11 @@ static int find_fp_qindex(aom_bit_depth_t bit_depth) {
 
 static void set_first_pass_params(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
-  if (!cpi->refresh_alt_ref_frame &&
-      (cm->current_video_frame == 0 || (cpi->frame_flags & FRAMEFLAGS_KEY))) {
-    cm->frame_type = KEY_FRAME;
+  if (!cpi->refresh_alt_ref_frame && (cm->current_frame.frame_number == 0 ||
+                                      (cpi->frame_flags & FRAMEFLAGS_KEY))) {
+    cm->current_frame.frame_type = KEY_FRAME;
   } else {
-    cm->frame_type = INTER_FRAME;
+    cm->current_frame.frame_type = INTER_FRAME;
   }
   // Do not use periodic key frames.
   cpi->rc.frames_to_key = INT_MAX;
@@ -771,7 +771,7 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
           }
 
           // Search in an older reference frame.
-          if ((cm->current_video_frame > 1) && gld_yv12 != NULL) {
+          if ((cm->current_frame.frame_number > 1) && gld_yv12 != NULL) {
             // Assume 0,0 motion with no mv overhead.
             int gf_motion_error;
 
@@ -996,7 +996,7 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
     brightness_factor = brightness_factor / (double)num_mbs;
     fps.weight = intra_factor * brightness_factor;
 
-    fps.frame = cm->current_video_frame;
+    fps.frame = cm->current_frame.frame_number;
     fps.coded_error = (double)(coded_error >> 8) + min_err;
     fps.sr_coded_error = (double)(sr_coded_error >> 8) + min_err;
     fps.intra_error = (double)(intra_error >> 8) + min_err;
@@ -1055,7 +1055,7 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
   // Copy the previous Last Frame back into gf and and arf buffers if
   // the prediction is good enough... but also don't allow it to lag too far.
   if ((twopass->sr_update_lag > 3) ||
-      ((cm->current_video_frame > 0) &&
+      ((cm->current_frame.frame_number > 0) &&
        (twopass->this_frame_stats.pcnt_inter > 0.20) &&
        ((twopass->this_frame_stats.intra_error /
          DOUBLE_DIVIDE_CHECK(twopass->this_frame_stats.coded_error)) > 2.0))) {
@@ -1078,7 +1078,7 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
 
   // Special case for the first frame. Copy into the GF buffer as a second
   // reference.
-  if (cm->current_video_frame == 0 &&
+  if (cm->current_frame.frame_number == 0 &&
       cpi->ref_fb_idx[GOLDEN_FRAME - 1] != INVALID_IDX) {
     ref_cnt_fb(pool->frame_bufs,
                &cm->ref_frame_map[cpi->ref_fb_idx[GOLDEN_FRAME - 1]],
@@ -1090,9 +1090,9 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
     char filename[512];
     FILE *recon_file;
     snprintf(filename, sizeof(filename), "enc%04d.yuv",
-             (int)cm->current_video_frame);
+             (int)cm->current_frame.frame_number);
 
-    if (cm->current_video_frame == 0)
+    if (cm->current_frame.frame_number == 0)
       recon_file = fopen(filename, "wb");
     else
       recon_file = fopen(filename, "ab");
@@ -1101,7 +1101,7 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
     fclose(recon_file);
   }
 
-  ++cm->current_video_frame;
+  ++cm->current_frame.frame_number;
 }
 
 static double calc_correction_factor(double err_per_mb, double err_divisor,
@@ -1694,7 +1694,7 @@ static void define_customized_gf_group_structure(AV1_COMP *cpi) {
   RATE_CONTROL *const rc = &cpi->rc;
   TWO_PASS *const twopass = &cpi->twopass;
   GF_GROUP *const gf_group = &twopass->gf_group;
-  const int key_frame = cpi->common.frame_type == KEY_FRAME;
+  const int key_frame = cpi->common.current_frame.frame_type == KEY_FRAME;
 
   assert(rc->baseline_gf_interval >= 4 &&
          rc->baseline_gf_interval <= MAX_PYRAMID_SIZE);
@@ -1815,7 +1815,7 @@ static int define_gf_group_structure_4(AV1_COMP *cpi) {
   RATE_CONTROL *const rc = &cpi->rc;
   TWO_PASS *const twopass = &cpi->twopass;
   GF_GROUP *const gf_group = &twopass->gf_group;
-  const int key_frame = cpi->common.frame_type == KEY_FRAME;
+  const int key_frame = cpi->common.current_frame.frame_type == KEY_FRAME;
 
   assert(rc->baseline_gf_interval == GF_INTERVAL_4);
 
@@ -1920,7 +1920,7 @@ static void define_gf_group_structure(AV1_COMP *cpi) {
   GF_GROUP *const gf_group = &twopass->gf_group;
   int i;
   int frame_index = 0;
-  const int key_frame = cpi->common.frame_type == KEY_FRAME;
+  const int key_frame = cpi->common.current_frame.frame_type == KEY_FRAME;
 
   // The use of bi-predictive frames are only enabled when following 3
   // conditions are met:
@@ -2155,7 +2155,7 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
 
   av1_zero_array(ext_arf_boost, MAX_EXT_ARFS);
 
-  key_frame = cpi->common.frame_type == KEY_FRAME;
+  key_frame = cpi->common.current_frame.frame_type == KEY_FRAME;
 
   // For key frames the frame target rate is already set and it
   // is also the golden frame.
@@ -2740,7 +2740,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   reset_fpf_position(twopass, start_pos);
 
   // Calculate a section intra ratio used in setting max loop filter.
-  if (cpi->common.frame_type != KEY_FRAME) {
+  if (cpi->common.current_frame.frame_type != KEY_FRAME) {
     twopass->section_intra_rating = calculate_section_intra_ratio(
         start_pos, twopass->stats_in_end, rc->baseline_gf_interval);
   }
@@ -2879,7 +2879,7 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   av1_zero(next_frame);
 
-  cpi->common.frame_type = KEY_FRAME;
+  cpi->common.current_frame.frame_type = KEY_FRAME;
 
   // Reset the GF group data structures.
   av1_zero(*gf_group);
@@ -3168,7 +3168,8 @@ void av1_rc_get_second_pass_params(AV1_COMP *cpi) {
 
   int target_rate;
 
-  frames_left = (int)(twopass->total_stats.count - cm->current_video_frame);
+  frames_left =
+      (int)(twopass->total_stats.count - cm->current_frame.frame_number);
 
   if (!twopass->stats_in) return;
 
@@ -3183,9 +3184,9 @@ void av1_rc_get_second_pass_params(AV1_COMP *cpi) {
 
     if (cpi->no_show_kf) {
       assert(gf_group->update_type[gf_group->index] == ARF_UPDATE);
-      cm->frame_type = KEY_FRAME;
+      cm->current_frame.frame_type = KEY_FRAME;
     } else {
-      cm->frame_type = INTER_FRAME;
+      cm->current_frame.frame_type = INTER_FRAME;
     }
 
     // Do the firstpass stats indicate that this frame is skippable for the
@@ -3201,7 +3202,7 @@ void av1_rc_get_second_pass_params(AV1_COMP *cpi) {
 
   if (cpi->oxcf.rc_mode == AOM_Q) {
     twopass->active_worst_quality = cpi->oxcf.cq_level;
-  } else if (cm->current_video_frame == 0) {
+  } else if (cm->current_frame.frame_number == 0) {
     // Special case code for first frame.
     const int section_target_bandwidth =
         (int)(twopass->bits_left / frames_left);
@@ -3244,7 +3245,7 @@ void av1_rc_get_second_pass_params(AV1_COMP *cpi) {
     find_next_key_frame(cpi, &this_frame);
     this_frame = this_frame_copy;
   } else {
-    cm->frame_type = INTER_FRAME;
+    cm->current_frame.frame_type = INTER_FRAME;
   }
 
   // Define a new GF/ARF group. (Should always enter here for key frames).
@@ -3258,9 +3259,9 @@ void av1_rc_get_second_pass_params(AV1_COMP *cpi) {
       FILE *fpfile;
       fpfile = fopen("arf.stt", "a");
       ++arf_count;
-      fprintf(fpfile, "%10d %10d %10d %10d %10d\n", cm->current_video_frame,
-              rc->frames_till_gf_update_due, rc->kf_boost, arf_count,
-              rc->gfu_boost);
+      fprintf(fpfile, "%10d %10d %10d %10d %10d\n",
+              cm->current_frame.frame_number, rc->frames_till_gf_update_due,
+              rc->kf_boost, arf_count, rc->gfu_boost);
 
       fclose(fpfile);
     }
@@ -3277,7 +3278,7 @@ void av1_rc_get_second_pass_params(AV1_COMP *cpi) {
 
   target_rate = gf_group->bit_allocation[gf_group->index];
 
-  if (cpi->common.frame_type == KEY_FRAME)
+  if (cpi->common.current_frame.frame_type == KEY_FRAME)
     target_rate = av1_rc_clamp_iframe_target_size(cpi, target_rate);
   else
     target_rate = av1_rc_clamp_pframe_target_size(cpi, target_rate);
@@ -3324,7 +3325,7 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
     rc->rate_error_estimate = 0;
   }
 
-  if (cpi->common.frame_type != KEY_FRAME) {
+  if (cpi->common.current_frame.frame_type != KEY_FRAME) {
     twopass->kf_group_bits -= bits_used;
     twopass->last_kfgroup_zeromotion_pct = twopass->kf_zeromotion_pct;
   }
