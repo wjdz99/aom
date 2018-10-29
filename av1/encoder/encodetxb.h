@@ -52,10 +52,13 @@ void av1_free_txb_buf(AV1_COMP *cpi);
 int av1_cost_coeffs_txb(const AV1_COMMON *const cm, const MACROBLOCK *x,
                         const int plane, const int block, const TX_SIZE tx_size,
                         const TX_TYPE tx_type, const TXB_CTX *const txb_ctx);
-void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
-                          aom_writer *w, int blk_row, int blk_col, int plane,
-                          TX_SIZE tx_size, const tran_low_t *tcoeff,
-                          uint16_t eob, TXB_CTX *txb_ctx);
+void av1_write_coeffs_txb(const int reduced_tx_set_used,
+                          const struct segmentation *const seg,
+                          const MACROBLOCKD *const xd, aom_writer *w,
+                          const int base_qindex, const int blk_row,
+                          const int blk_col, const int plane,
+                          const TX_SIZE tx_size, const tran_low_t *const tcoeff,
+                          const uint16_t eob, const TXB_CTX *const txb_ctx);
 void av1_write_coeffs_mb(const AV1_COMMON *const cm, MACROBLOCK *x, int mi_row,
                          int mi_col, aom_writer *w, BLOCK_SIZE bsize);
 int av1_get_txb_entropy_context(const tran_low_t *qcoeff,
