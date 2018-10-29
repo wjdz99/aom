@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e791a9e_d9a86f6c",
+        "filename": "examples/inspect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-10-29T14:40:53Z",
+      "side": 1,
+      "message": "explain why 5 is the right thing to do?",
+      "range": {
+        "startLine": 661,
+        "startChar": 13,
+        "endLine": 661,
+        "endChar": 23
+      },
+      "revId": "d040b29dc2ec104e04b43e35781730966f4a7a03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a974d293_ef4c1c88",
+        "filename": "examples/inspect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-10-29T14:40:53Z",
+      "side": 1,
+      "message": "comment on this.",
+      "range": {
+        "startLine": 679,
+        "startChar": 13,
+        "endLine": 679,
+        "endChar": 14
+      },
+      "revId": "d040b29dc2ec104e04b43e35781730966f4a7a03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
