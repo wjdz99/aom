@@ -492,10 +492,13 @@ void av1_get_nz_map_contexts_c(const uint8_t *const levels,
   }
 }
 
-void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
-                          aom_writer *w, int blk_row, int blk_col, int plane,
-                          TX_SIZE tx_size, const tran_low_t *tcoeff,
-                          uint16_t eob, TXB_CTX *txb_ctx) {
+void av1_write_coeffs_txb(const int reduced_tx_set_used,
+                          const struct segmentation *const seg,
+                          const MACROBLOCKD *const xd, aom_writer *w,
+                          const int base_qindex, const int blk_row,
+                          const int blk_col, const int plane,
+                          const TX_SIZE tx_size, const tran_low_t *const tcoeff,
+                          const uint16_t eob, const TXB_CTX *const txb_ctx) {
   const TX_SIZE txs_ctx = get_txsize_entropy_ctx(tx_size);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   aom_write_symbol(w, eob == 0,
@@ -503,7 +506,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   if (eob == 0) return;
   const PLANE_TYPE plane_type = get_plane_type(plane);
   const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col,
-                                          tx_size, cm->reduced_tx_set_used);
+                                          tx_size, reduced_tx_set_used);
   const TX_CLASS tx_class = tx_type_to_class[tx_type];
   const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
   const int16_t *const scan = scan_order->scan;
@@ -517,7 +520,8 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   DECLARE_ALIGNED(16, int8_t, coeff_contexts[MAX_TX_SQUARE]);
   av1_txb_init_levels(tcoeff, width, height, levels);
 
-  av1_write_tx_type(cm, xd, blk_row, blk_col, plane, tx_size, w);
+  av1_write_tx_type(seg, xd, reduced_tx_set_used, base_qindex, blk_row, blk_col,
+                    plane, tx_size, w);
 
   int eob_extra;
   const int eob_pt = get_eob_pos_token(eob, &eob_extra);
@@ -632,8 +636,9 @@ static void write_coeffs_txb_wrap(const AV1_COMMON *cm, MACROBLOCK *x,
   uint16_t eob = x->mbmi_ext->eobs[plane][block];
   TXB_CTX txb_ctx = { x->mbmi_ext->txb_skip_ctx[plane][block],
                       x->mbmi_ext->dc_sign_ctx[plane][block] };
-  av1_write_coeffs_txb(cm, xd, w, blk_row, blk_col, plane, tx_size, tcoeff, eob,
-                       &txb_ctx);
+  av1_write_coeffs_txb(cm->reduced_tx_set_used, &cm->seg, xd, w,
+                       cm->base_qindex, blk_row, blk_col, plane, tx_size,
+                       tcoeff, eob, &txb_ctx);
 }
 
 void av1_write_coeffs_mb(const AV1_COMMON *const cm, MACROBLOCK *x, int mi_row,

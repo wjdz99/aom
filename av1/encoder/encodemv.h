@@ -18,8 +18,10 @@
 extern "C" {
 #endif
 
-void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
-                   nmv_context *mvctx, int usehp);
+void av1_encode_mv(const SPEED_FEATURES *const sf,
+                   const int cur_frame_force_integer_mv,
+                   unsigned int max_mv_magnitude, aom_writer *w, const MV *mv,
+                   const MV *ref, nmv_context *mvctx, int usehp);
 
 void av1_build_nmv_cost_table(int *mvjoint, int *mvcost[2],
                               const nmv_context *mvctx,
