@@ -511,6 +511,96 @@ static int set_deltaq_rdmult(const AV1_COMP *const cpi, MACROBLOCKD *const xd) {
       cpi, cm->base_qindex + xd->delta_qindex + cm->y_dc_delta_q);
 }
 
+static uint16_t edge_strength(const struct buf_2d *ref,
+                              const BLOCK_SIZE bsize) {
+  int width, height;
+  switch (bsize) {
+    case BLOCK_8X4:
+      width = 8;
+      height = 4;
+      break;
+    case BLOCK_8X8:
+      width = 8;
+      height = 8;
+      break;
+    case BLOCK_8X16:
+      width = 8;
+      height = 16;
+      break;
+    case BLOCK_16X8:
+      width = 16;
+      height = 8;
+      break;
+    case BLOCK_16X16:
+      width = 16;
+      height = 16;
+      break;
+    case BLOCK_16X32:
+      width = 16;
+      height = 32;
+      break;
+    case BLOCK_32X16:
+      width = 32;
+      height = 16;
+      break;
+    case BLOCK_32X32:
+      width = 32;
+      height = 32;
+      break;
+    case BLOCK_32X64:
+      width = 32;
+      height = 64;
+      break;
+    case BLOCK_64X32:
+      width = 64;
+      height = 32;
+      break;
+    case BLOCK_64X64:
+      width = 64;
+      height = 64;
+      break;
+    case BLOCK_64X128:
+      width = 64;
+      height = 128;
+      break;
+    case BLOCK_128X64:
+      width = 128;
+      height = 64;
+      break;
+    case BLOCK_128X128:
+      width = 128;
+      height = 128;
+      break;
+    case BLOCK_16X4:
+      width = 16;
+      height = 4;
+      break;
+    case BLOCK_8X32:
+      width = 8;
+      height = 32;
+      break;
+    case BLOCK_32X8:
+      width = 32;
+      height = 8;
+      break;
+    case BLOCK_16X64:
+      width = 16;
+      height = 64;
+      break;
+    case BLOCK_64X16:
+      width = 64;
+      height = 16;
+      break;
+
+    // Implementation requires width to be a multiple of 8.
+    case BLOCK_4X4:
+    case BLOCK_4X8:
+    case BLOCK_4X16:
+    default: return 0;
+  }
+  return av1_edge_exists(ref->buf, ref->stride, width, height);
+}
+
 static void rd_pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
                              MACROBLOCK *const x, int mi_row, int mi_col,
                              RD_STATS *rd_cost, PARTITION_TYPE partition,
@@ -595,6 +685,7 @@ static void rd_pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
     x->source_variance =
         av1_get_sby_perpixel_variance(cpi, &x->plane[0].src, bsize);
   }
+  x->edge_strength = edge_strength(&x->plane[0].src, bsize);
 
   // Save rdmult before it might be changed, so it can be restored later.
   orig_rdmult = x->rdmult;
