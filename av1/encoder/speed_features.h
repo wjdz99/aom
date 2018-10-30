@@ -540,6 +540,9 @@ typedef struct SPEED_FEATURES {
   // Decide when and how to use joint_comp.
   JNT_COMP_FLAG use_jnt_comp_flag;
 
+  // Enable loop restoration at frame level.
+  int use_restoration;
+
   // Decoder side speed feature to add penalty for use of dual-sgr filters.
   // Takes values 0 - 10, 0 indicating no penalty and each additional level
   // adding a penalty of 1%
