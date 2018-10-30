@@ -224,6 +224,10 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->adaptive_txb_search_level = 2;
     sf->use_intra_txb_hash = 1;
     sf->optimize_b_precheck = 1;
+
+//    cpi->twopass.fr_content_type == FC_GRAPHICS_ANIMATION
+//    if (cpi->oxcf.content == AOM_CONTENT_SCREEN) sf->use_restoration = 0;
+    if (!boosted) sf->use_restoration = 0;
     sf->dual_sgr_penalty_level = 1;
     sf->use_accurate_subpel_search = USE_4_TAPS;
     sf->reuse_inter_intra_mode = 1;
@@ -494,6 +498,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->prune_single_motion_modes_by_simple_trans = 0;
 
   // Set decoder side speed feature to use less dual sgr modes
+  sf->use_restoration = 1;
   sf->dual_sgr_penalty_level = 0;
 
   sf->inter_mode_rd_model_estimation = 0;
