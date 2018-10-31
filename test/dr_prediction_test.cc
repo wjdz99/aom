@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2018, Alliance for Open Media. All rights reserved
  *
  * This source code is subject to the terms of the BSD 2 Clause License and
@@ -25,9 +25,9 @@
 
 namespace {
 
-const int kZ1Start = 0;
-const int kZ2Start = 90;
-const int kZ3Start = 180;
+int kZangle = 0;
+const int kZ2angle = 90;
+const int kZ3angle = 180;
 
 const TX_SIZE kTxSize[] = { TX_4X4,   TX_8X8,   TX_16X16, TX_32X32, TX_64X64,
                             TX_4X8,   TX_8X4,   TX_8X16,  TX_16X8,  TX_16X32,
@@ -92,7 +92,9 @@ void z1_wrapper_hbd(uint16_t *dst, ptrdiff_t stride, int bw, int bh,
                     const uint16_t *above, const uint16_t *left,
                     int upsample_above, int /*upsample_left*/, int dx, int dy,
                     int bd) {
-  fn(dst, stride, bw, bh, above, left, upsample_above, dx, dy, bd);
+  if ((kZangle > 0) && (kZangle < 90)) {
+    fn(dst, stride, bw, bh, above, left, upsample_above, dx, dy, bd);
+  }
 }
 
 typedef void (*Z2_Hbd)(uint16_t *dst, ptrdiff_t stride, int bw, int bh,
@@ -104,8 +106,10 @@ void z2_wrapper_hbd(uint16_t *dst, ptrdiff_t stride, int bw, int bh,
                     const uint16_t *above, const uint16_t *left,
                     int upsample_above, int upsample_left, int dx, int dy,
                     int bd) {
-  fn(dst, stride, bw, bh, above, left, upsample_above, upsample_left, dx, dy,
-     bd);
+  if ((kZangle > 90) && (kZangle < 180)) {
+    fn(dst, stride, bw, bh, above, left, upsample_above, upsample_left, dx, dy,
+       bd);
+  }
 }
 
 typedef void (*Z3_Hbd)(uint16_t *dst, ptrdiff_t stride, int bw, int bh,
@@ -116,7 +120,9 @@ void z3_wrapper_hbd(uint16_t *dst, ptrdiff_t stride, int bw, int bh,
                     const uint16_t *above, const uint16_t *left,
                     int /*upsample_above*/, int upsample_left, int dx, int dy,
                     int bd) {
-  fn(dst, stride, bw, bh, above, left, upsample_left, dx, dy, bd);
+  if ((kZangle > 180) && (kZangle < 270)) {
+    fn(dst, stride, bw, bh, above, left, upsample_left, dx, dy, bd);
+  }
 }
 
 template <typename FuncType>
@@ -162,6 +168,7 @@ class DrPredTest : public ::testing::TestWithParam<DrPredFunc<FuncType> > {
 
     for (int i = 0; i < kDstSize; ++i) {
       dst_ref_[i] = 0;
+      dst_tst_[i] = 0;
     }
   }
 
@@ -193,18 +200,21 @@ class DrPredTest : public ::testing::TestWithParam<DrPredFunc<FuncType> > {
     OutputTimes(kNumTests, ref_time, tst_time, tx);
   }
 
-  void RunTest(bool speedtest, int p_angle) {
-    for (int i = 0; i < kBufSize; ++i) {
-      above_data_[i] = left_data_[i] = (1 << bd_) - 1;
+  void RunTest(bool speedtest, bool needsaturation, int p_angle) {
+    if (needsaturation) {
+      for (int i = 0; i < kBufSize; ++i) {
+        above_data_[i] = left_data_[i] = (1 << bd_) - 1;
+      }
     }
-
     for (int tx = 0; tx < TX_SIZES_ALL; ++tx) {
       if (params_.tst_fn == NULL) {
         for (int i = 0; i < kDstSize; ++i) {
           dst_tst_[i] = (1 << bd_) - 1;
+          dst_ref_[i] = (1 << bd_) - 1;
         }
       } else {
         for (int i = 0; i < kDstSize; ++i) {
+          dst_ref_[i] = 0;
           dst_tst_[i] = 0;
         }
       }
@@ -287,7 +297,7 @@ TEST_P(LowbdDrPredTest, SaturatedValues) {
     for (int angle = start_angle_; angle < stop_angle_; ++angle) {
       dx_ = av1_get_dx(angle);
       dy_ = av1_get_dy(angle);
-      if (dx_ && dy_) RunTest(false, angle);
+      if (dx_ && dy_) RunTest(false, true, angle);
     }
   }
 }
@@ -296,12 +306,12 @@ TEST_P(LowbdDrPredTest, DISABLED_Speed) {
   const int angles[] = { 3, 45, 87 };
   for (enable_upsample_ = 0; enable_upsample_ < 2; ++enable_upsample_) {
     for (int i = 0; i < 3; ++i) {
-      const int angle = angles[i] + start_angle_;
-      dx_ = av1_get_dx(angle);
-      dy_ = av1_get_dy(angle);
+      kZangle = angles[i] + start_angle_;
+      dx_ = av1_get_dx(kZangle);
+      dy_ = av1_get_dy(kZangle);
       printf("enable_upsample: %d angle: %d ~~~~~~~~~~~~~~~\n",
-             enable_upsample_, angle);
-      if (dx_ && dy_) RunTest(true, angle);
+             enable_upsample_, kZangle);
+      if (dx_ && dy_) RunTest(true, false, kZangle);
     }
   }
 }
@@ -311,11 +321,11 @@ using ::testing::make_tuple;
 INSTANTIATE_TEST_CASE_P(
     C, LowbdDrPredTest,
     ::testing::Values(DrPredFunc<DrPred>(&z1_wrapper<av1_dr_prediction_z1_c>,
-                                         NULL, AOM_BITS_8, kZ1Start),
+                                         NULL, AOM_BITS_8, kZangle),
                       DrPredFunc<DrPred>(&z2_wrapper<av1_dr_prediction_z2_c>,
-                                         NULL, AOM_BITS_8, kZ2Start),
+                                         NULL, AOM_BITS_8, kZ2angle),
                       DrPredFunc<DrPred>(&z3_wrapper<av1_dr_prediction_z3_c>,
-                                         NULL, AOM_BITS_8, kZ3Start)));
+                                         NULL, AOM_BITS_8, kZ3angle)));
 
 class HighbdDrPredTest : public DrPredTest<uint16_t, DrPred_Hbd> {};
 
@@ -323,23 +333,10 @@ TEST_P(HighbdDrPredTest, SaturatedValues) {
   for (int iter = 0; iter < kIterations && !HasFatalFailure(); ++iter) {
     enable_upsample_ = iter & 1;
     for (int angle = start_angle_; angle < stop_angle_; ++angle) {
+      kZangle = angle;
       dx_ = av1_get_dx(angle);
       dy_ = av1_get_dy(angle);
-      if (dx_ && dy_) RunTest(false, angle);
-    }
-  }
-}
-
-TEST_P(HighbdDrPredTest, DISABLED_Speed) {
-  const int angles[] = { 3, 45, 87 };
-  for (enable_upsample_ = 0; enable_upsample_ < 2; ++enable_upsample_) {
-    for (int i = 0; i < 3; ++i) {
-      const int angle = angles[i] + start_angle_;
-      dx_ = av1_get_dx(angle);
-      dy_ = av1_get_dy(angle);
-      printf("enable_upsample: %d angle: %d ~~~~~~~~~~~~~~~\n",
-             enable_upsample_, angle);
-      if (dx_ && dy_) RunTest(true, angle);
+      if (dx_ && dy_) RunTest(false, true, angle);
     }
   }
 }
@@ -348,22 +345,77 @@ INSTANTIATE_TEST_CASE_P(
     C, HighbdDrPredTest,
     ::testing::Values(
         DrPredFunc<DrPred_Hbd>(&z1_wrapper_hbd<av1_highbd_dr_prediction_z1_c>,
-                               NULL, AOM_BITS_8, kZ1Start),
+                               NULL, AOM_BITS_8, kZangle),
         DrPredFunc<DrPred_Hbd>(&z1_wrapper_hbd<av1_highbd_dr_prediction_z1_c>,
-                               NULL, AOM_BITS_10, kZ1Start),
+                               NULL, AOM_BITS_10, kZangle),
         DrPredFunc<DrPred_Hbd>(&z1_wrapper_hbd<av1_highbd_dr_prediction_z1_c>,
-                               NULL, AOM_BITS_12, kZ1Start),
+                               NULL, AOM_BITS_12, kZangle),
         DrPredFunc<DrPred_Hbd>(&z2_wrapper_hbd<av1_highbd_dr_prediction_z2_c>,
-                               NULL, AOM_BITS_8, kZ2Start),
+                               NULL, AOM_BITS_8, kZ2angle),
         DrPredFunc<DrPred_Hbd>(&z2_wrapper_hbd<av1_highbd_dr_prediction_z2_c>,
-                               NULL, AOM_BITS_10, kZ2Start),
+                               NULL, AOM_BITS_10, kZ2angle),
         DrPredFunc<DrPred_Hbd>(&z2_wrapper_hbd<av1_highbd_dr_prediction_z2_c>,
-                               NULL, AOM_BITS_12, kZ2Start),
+                               NULL, AOM_BITS_12, kZ2angle),
         DrPredFunc<DrPred_Hbd>(&z3_wrapper_hbd<av1_highbd_dr_prediction_z3_c>,
-                               NULL, AOM_BITS_8, kZ3Start),
+                               NULL, AOM_BITS_8, kZ3angle),
         DrPredFunc<DrPred_Hbd>(&z3_wrapper_hbd<av1_highbd_dr_prediction_z3_c>,
-                               NULL, AOM_BITS_10, kZ3Start),
+                               NULL, AOM_BITS_10, kZ3angle),
         DrPredFunc<DrPred_Hbd>(&z3_wrapper_hbd<av1_highbd_dr_prediction_z3_c>,
-                               NULL, AOM_BITS_12, kZ3Start)));
+                               NULL, AOM_BITS_12, kZ3angle)));
+
+#if HAVE_AVX2
+INSTANTIATE_TEST_CASE_P(
+    AVX2, HighbdDrPredTest,
+    ::testing::Values(
+        DrPredFunc<DrPred_Hbd>(&z1_wrapper_hbd<av1_highbd_dr_prediction_z1_c>,
+                               z1_wrapper_hbd<av1_highbd_dr_prediction_z1_avx2>,
+                               AOM_BITS_8, kZangle),
+        DrPredFunc<DrPred_Hbd>(&z1_wrapper_hbd<av1_highbd_dr_prediction_z1_c>,
+                               z1_wrapper_hbd<av1_highbd_dr_prediction_z1_avx2>,
+                               AOM_BITS_10, kZangle),
+        DrPredFunc<DrPred_Hbd>(&z1_wrapper_hbd<av1_highbd_dr_prediction_z1_c>,
+                               z1_wrapper_hbd<av1_highbd_dr_prediction_z1_avx2>,
+                               AOM_BITS_12, kZangle),
+        DrPredFunc<DrPred_Hbd>(
+            &z3_wrapper_hbd<av1_highbd_dr_prediction_z3_c>,
+            &z3_wrapper_hbd<av1_highbd_dr_prediction_z3_avx2>, AOM_BITS_8,
+            kZangle),
+        DrPredFunc<DrPred_Hbd>(
+            &z3_wrapper_hbd<av1_highbd_dr_prediction_z3_c>,
+            &z3_wrapper_hbd<av1_highbd_dr_prediction_z3_avx2>, AOM_BITS_10,
+            kZangle),
+        DrPredFunc<DrPred_Hbd>(
+            &z3_wrapper_hbd<av1_highbd_dr_prediction_z3_c>,
+            &z3_wrapper_hbd<av1_highbd_dr_prediction_z3_avx2>, AOM_BITS_12,
+            kZangle)));
+
+TEST_P(HighbdDrPredTest, DISABLED_Speed) {
+  const int angles[] = { 3, 45, 87 };
+  for (enable_upsample_ = 0; enable_upsample_ < 2; ++enable_upsample_) {
+    for (int i = 0; i < 3; ++i) {
+      kZangle = angles[i] + start_angle_;
+      dx_ = av1_get_dx(kZangle);
+      dy_ = av1_get_dy(kZangle);
+      printf("enable_upsample: %d angle: %d ~~~~~~~~~~~~~~~\n",
+             enable_upsample_, kZangle);
+      if (dx_ && dy_) RunTest(true, false, kZangle);
+    }
+  }
+}
+
+TEST_P(HighbdDrPredTest, OperationCheck) {
+  //if (params_.tst_fn == NULL) return;
+  const int angles[] = { 3, 45, 81, 87, 93, 100, 145, 187, 199, 260 };
+  for (enable_upsample_ = 0; enable_upsample_ < 2; ++enable_upsample_) {
+    for (unsigned int i = 0; i < sizeof(angles) / sizeof(i); ++i) {
+      kZangle = angles[i] + start_angle_;
+      dx_ = av1_get_dx(kZangle);
+      dy_ = av1_get_dy(kZangle);
+      if (dx_ && dy_) RunTest(false, false, kZangle);
+    }
+  }
+}
+
+#endif  // HAVE_AVX2
 
 }  // namespace
