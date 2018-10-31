@@ -348,7 +348,7 @@ static void setup_frame(AV1_COMP *cpi) {
     }
   }
 
-  if (cm->frame_type == KEY_FRAME && cm->show_frame) {
+  if (cm->current_frame.frame_type == KEY_FRAME && cm->show_frame) {
     cpi->refresh_golden_frame = 1;
     cpi->refresh_alt_ref_frame = 1;
     av1_zero(cpi->interp_filter_selected);
@@ -478,7 +478,7 @@ static void update_film_grain_parameters(struct AV1_COMP *cpi,
 
   if (oxcf->film_grain_test_vector) {
     cm->seq_params.film_grain_params_present = 1;
-    if (cm->frame_type == KEY_FRAME) {
+    if (cm->current_frame.frame_type == KEY_FRAME) {
       memcpy(&cm->film_grain_params,
              film_grain_test_vectors + oxcf->film_grain_test_vector - 1,
              sizeof(cm->film_grain_params));
@@ -620,7 +620,7 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
   int qi_delta;
 
   // Disable and clear down for KF
-  if (cm->frame_type == KEY_FRAME) {
+  if (cm->current_frame.frame_type == KEY_FRAME) {
     // Clear down the global segmentation map
     memset(cpi->segmentation_map, 0, cm->mi_rows * cm->mi_cols);
     seg->update_map = 0;
@@ -1031,22 +1031,26 @@ static void init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   seq->reduced_still_picture_hdr &= !oxcf->full_still_picture_hdr;
   seq->force_screen_content_tools = 2;
   seq->force_integer_mv = 2;
-  seq->enable_order_hint = oxcf->enable_order_hint;
+  seq->order_hint_info.enable_order_hint = oxcf->enable_order_hint;
   seq->frame_id_numbers_present_flag = oxcf->large_scale_tile;
   if (seq->still_picture && seq->reduced_still_picture_hdr) {
-    seq->enable_order_hint = 0;
+    seq->order_hint_info.enable_order_hint = 0;
     seq->frame_id_numbers_present_flag = 0;
     seq->force_screen_content_tools = 2;
     seq->force_integer_mv = 2;
   }
-  seq->order_hint_bits_minus_1 =
-      seq->enable_order_hint ? DEFAULT_EXPLICIT_ORDER_HINT_BITS - 1 : -1;
+  seq->order_hint_info.order_hint_bits_minus_1 =
+      seq->order_hint_info.enable_order_hint
+          ? DEFAULT_EXPLICIT_ORDER_HINT_BITS - 1
+          : -1;
 
   seq->enable_dual_filter = oxcf->enable_dual_filter;
-  seq->enable_jnt_comp = oxcf->enable_jnt_comp;
-  seq->enable_jnt_comp &= seq->enable_order_hint;
-  seq->enable_ref_frame_mvs = oxcf->enable_ref_frame_mvs;
-  seq->enable_ref_frame_mvs &= seq->enable_order_hint;
+  seq->order_hint_info.enable_jnt_comp = oxcf->enable_jnt_comp;
+  seq->order_hint_info.enable_jnt_comp &=
+      seq->order_hint_info.enable_order_hint;
+  seq->order_hint_info.enable_ref_frame_mvs = oxcf->enable_ref_frame_mvs;
+  seq->order_hint_info.enable_ref_frame_mvs &=
+      seq->order_hint_info.enable_order_hint;
   seq->enable_superres = oxcf->enable_superres;
   seq->enable_cdef = oxcf->enable_cdef;
   seq->enable_restoration = oxcf->enable_restoration;
@@ -2553,7 +2557,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   init_config(cpi, oxcf);
   av1_rc_init(&cpi->oxcf, oxcf->pass, &cpi->rc);
 
-  cm->current_video_frame = 0;
+  cm->current_frame.frame_number = 0;
   cpi->seq_params_locked = 0;
   cpi->partition_search_skippable_frame = 0;
   cpi->tile_data = NULL;
@@ -2944,7 +2948,7 @@ void av1_remove_compressor(AV1_COMP *cpi) {
   cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
 
-  if (cm->current_video_frame > 0) {
+  if (cm->current_frame.frame_number > 0) {
 #if CONFIG_ENTROPY_STATS
     if (cpi->oxcf.pass != 1) {
       fprintf(stderr, "Writing counts.stt\n");
@@ -3413,7 +3417,7 @@ static void dump_ref_frame_images(AV1_COMP *cpi) {
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     char file_name[256] = "";
     snprintf(file_name, sizeof(file_name), "/tmp/enc_F%d_ref_%d.yuv",
-             cm->current_video_frame, ref_frame);
+             cm->current_frame.frame_number, ref_frame);
     dump_one_image(cm, get_ref_frame_buffer(cpi, ref_frame), file_name);
   }
 }
@@ -3515,7 +3519,8 @@ static void update_reference_frames(AV1_COMP *cpi) {
 
   // Only update all of the reference buffers if a KEY_FRAME is also a
   // show_frame. This ensures a fwd keyframe does not update all of the buffers
-  if ((cm->frame_type == KEY_FRAME && cm->show_frame) || frame_is_sframe(cm)) {
+  if ((cm->current_frame.frame_type == KEY_FRAME && cm->show_frame) ||
+      frame_is_sframe(cm)) {
     for (int ref_frame = 0; ref_frame < REF_FRAMES; ++ref_frame) {
       ref_cnt_fb(pool->frame_bufs,
                  &cm->ref_frame_map[cpi->ref_fb_idx[ref_frame]],
@@ -4078,7 +4083,7 @@ static uint8_t calculate_next_resize_scale(const AV1_COMP *cpi) {
   switch (oxcf->resize_mode) {
     case RESIZE_NONE: new_denom = SCALE_NUMERATOR; break;
     case RESIZE_FIXED:
-      if (cpi->common.frame_type == KEY_FRAME)
+      if (cpi->common.current_frame.frame_type == KEY_FRAME)
         new_denom = oxcf->resize_kf_scale_denominator;
       else
         new_denom = oxcf->resize_scale_denominator;
@@ -4106,7 +4111,7 @@ static uint8_t calculate_next_superres_scale(AV1_COMP *cpi) {
   switch (oxcf->superres_mode) {
     case SUPERRES_NONE: new_denom = SCALE_NUMERATOR; break;
     case SUPERRES_FIXED:
-      if (cpi->common.frame_type == KEY_FRAME)
+      if (cpi->common.current_frame.frame_type == KEY_FRAME)
         new_denom = oxcf->superres_kf_scale_denominator;
       else
         new_denom = oxcf->superres_scale_denominator;
@@ -4296,7 +4301,8 @@ static void superres_post_encode(AV1_COMP *cpi) {
   }
 }
 
-static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
+static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm, EncodedFrame *ef) {
+  (void)ef;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
 
@@ -4347,10 +4353,10 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     av1_loop_restoration_save_boundary_lines(cm->frame_to_show, cm, 0);
 
   if (no_cdef) {
-    cm->cdef_bits = 0;
-    cm->cdef_strengths[0] = 0;
-    cm->nb_cdef_strengths = 1;
-    cm->cdef_uv_strengths[0] = 0;
+    cm->cdef_info.cdef_bits = 0;
+    cm->cdef_info.cdef_strengths[0] = 0;
+    cm->cdef_info.nb_cdef_strengths = 1;
+    cm->cdef_info.cdef_uv_strengths[0] = 0;
   } else {
     // Find CDEF parameters
     av1_cdef_search(cm->frame_to_show, cpi->source, cm, xd,
@@ -4383,7 +4389,28 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   }
 }
 
-static int encode_without_recode_loop(AV1_COMP *cpi) {
+static void setup_frame_offset(AV1_COMP *cpi, EncodeInputFrame *eif) {
+  // TODO(jsh): remove references to as many AV1_COMP members as possible once
+  // done
+  AV1_COMMON *cm = &cpi->common;
+  if (eif->show_frame == 0) {
+    int arf_offset = AOMMIN(
+        (MAX_GF_INTERVAL - 1),
+        cpi->twopass.gf_group.arf_src_offset[cpi->twopass.gf_group.index]);
+    int brf_offset =
+        cpi->twopass.gf_group.brf_src_offset[cpi->twopass.gf_group.index];
+    arf_offset = AOMMIN((MAX_GF_INTERVAL - 1), arf_offset + brf_offset);
+    eif->order_hint = cm->current_frame.order_hint =
+        eif->frame_number + arf_offset;
+  } else {
+    eif->order_hint = cm->current_frame.order_hint = eif->frame_number;
+  }
+  eif->order_hint = cm->current_frame.order_hint %=
+      (1 << (cm->seq_params.order_hint_info.order_hint_bits_minus_1 + 1));
+}
+
+static int encode_without_recode_loop(AV1_COMP *cpi, EncodeInputFrame *eif,
+                                      EncodedFrame *ef) {
   AV1_COMMON *const cm = &cpi->common;
   int q = 0, bottom_index = 0, top_index = 0;  // Dummy variables.
 
@@ -4433,12 +4460,15 @@ static int encode_without_recode_loop(AV1_COMP *cpi) {
   }
   segfeatures_copy(&cm->cur_frame->seg, &cm->seg);
 
+  setup_frame_offset(cpi, eif);
+
   // transform / motion compensation build reconstruction frame
-  av1_encode_frame(cpi);
+  av1_encode_frame(cpi, eif, ef);
 
   // Update some stats from cyclic refresh, and check if we should not update
   // golden reference, for 1 pass CBR.
-  if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && cm->frame_type != KEY_FRAME &&
+  if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ &&
+      cm->current_frame.frame_type != KEY_FRAME &&
       (cpi->oxcf.pass == 0 && cpi->oxcf.rc_mode == AOM_CBR))
     av1_cyclic_refresh_check_golden_update(cpi);
 
@@ -4449,7 +4479,9 @@ static int encode_without_recode_loop(AV1_COMP *cpi) {
   return AOM_CODEC_OK;
 }
 
-static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
+static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest,
+                                   EncodeInputFrame *eif, EncodedFrame *ef,
+                                   PackedFrame *pf) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
   int bottom_index, top_index;
@@ -4512,8 +4544,9 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       scale_references(cpi);
     }
     av1_set_quantizer(cm, q);
-    // printf("Frame %d/%d: q = %d, frame_type = %d\n", cm->current_video_frame,
-    //        cm->show_frame, q, cm->frame_type);
+    // printf("Frame %d/%d: q = %d, frame_type = %d\n",
+    // cm->current_frame.frame_number,
+    //        cm->show_frame, q, cm->current_frame.frame_type);
 
     if (loop_count == 0) setup_frame(cpi);
 
@@ -4545,7 +4578,10 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 
     // transform / motion compensation build reconstruction frame
     save_coding_context(cpi);
-    av1_encode_frame(cpi);
+
+    setup_frame_offset(cpi, eif);
+
+    av1_encode_frame(cpi, eif, ef);
 
     // Update the skip mb flag probabilities based on the distribution
     // seen in the last encoder iteration.
@@ -4559,7 +4595,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     if (cpi->sf.recode_loop >= ALLOW_RECODE_KFARFGF) {
       restore_coding_context(cpi);
 
-      if (av1_pack_bitstream(cpi, dest, size) != AOM_CODEC_OK)
+      if (av1_pack_bitstream(cpi, dest, size, ef, pf) != AOM_CODEC_OK)
         return AOM_CODEC_ERROR;
 
       rc->projected_frame_size = (int)(*size) << 3;
@@ -4571,7 +4607,8 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     if (cpi->oxcf.rc_mode == AOM_Q) {
       loop = 0;
     } else {
-      if ((cm->frame_type == KEY_FRAME) && rc->this_key_frame_forced &&
+      if ((cm->current_frame.frame_type == KEY_FRAME) &&
+          rc->this_key_frame_forced &&
           (rc->projected_frame_size < rc->max_frame_bandwidth)) {
         int last_q = q;
         int64_t kf_err;
@@ -4806,7 +4843,7 @@ static void set_ext_overrides(AV1_COMP *cpi) {
   // av1_update_reference() and av1_update_entropy() calls
   // Note: The overrides are valid only for the next frame passed
   // to encode_frame_to_data_rate() function
-  if (cpi->ext_use_s_frame) cpi->common.frame_type = S_FRAME;
+  if (cpi->ext_use_s_frame) cpi->common.current_frame.frame_type = S_FRAME;
   cpi->common.force_primary_ref_none = cpi->ext_use_primary_ref_none;
 
   if (cpi->ext_refresh_frame_context_pending) {
@@ -4826,7 +4863,8 @@ static void set_ext_overrides(AV1_COMP *cpi) {
   // error_resilient_mode interferes with the use of show_existing_frame
   // when forward reference keyframes are enabled.
   cpi->common.error_resilient_mode =
-      cpi->ext_use_error_resilient && cpi->common.frame_type != KEY_FRAME;
+      cpi->ext_use_error_resilient &&
+      cpi->common.current_frame.frame_type != KEY_FRAME;
 }
 
 #define DUMP_RECON_FRAMES 0
@@ -4838,7 +4876,7 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
   const YV12_BUFFER_CONFIG *recon_buf = cm->frame_to_show;
 
   if (recon_buf == NULL) {
-    printf("Frame %d is not ready.\n", cm->current_video_frame);
+    printf("Frame %d is not ready.\n", cm->current_frame.frame_number);
     return;
   }
 
@@ -4854,8 +4892,8 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
       "\n***Frame=%d (frame_offset=%d, show_frame=%d, "
       "show_existing_frame=%d) "
       "[LAST LAST2 LAST3 GOLDEN BWD ALT2 ALT]=[",
-      cm->current_video_frame, cm->frame_offset, cm->show_frame,
-      cm->show_existing_frame);
+      cm->current_frame.frame_number, cm->current_frame.order_hint,
+      cm->show_frame, cm->show_existing_frame);
   for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     const int buf_idx = cm->frame_refs[ref_frame - LAST_FRAME].idx;
     const int ref_offset =
@@ -4872,7 +4910,7 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
 
   if (!cm->show_frame) {
     printf("Frame %d is a no show frame, so no image dump.\n",
-           cm->current_video_frame);
+           cm->current_frame.frame_number);
     return;
   }
 
@@ -4880,7 +4918,7 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
   char file_name[256] = "/tmp/enc_filtered_recon.yuv";
   FILE *f_recon = NULL;
 
-  if (cm->current_video_frame == 0) {
+  if (cm->current_frame.frame_number == 0) {
     if ((f_recon = fopen(file_name, "wb")) == NULL) {
       printf("Unable to open file %s to write.\n", file_name);
       return;
@@ -4896,9 +4934,9 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
       "show_frame=%d, show_existing_frame=%d, source_alt_ref_active=%d, "
       "refresh_alt_ref_frame=%d, rf_level=%d, "
       "y_stride=%4d, uv_stride=%4d, cm->width=%4d, cm->height=%4d\n\n",
-      cm->current_video_frame, cpi->twopass.gf_group.index,
+      cm->current_frame.frame_number, cpi->twopass.gf_group.index,
       cpi->twopass.gf_group.update_type[cpi->twopass.gf_group.index],
-      cm->frame_offset, cm->show_frame, cm->show_existing_frame,
+      cm->current_frame.order_hint, cm->show_frame, cm->show_existing_frame,
       cpi->rc.source_alt_ref_active, cpi->refresh_alt_ref_frame,
       cpi->twopass.gf_group.rf_level[cpi->twopass.gf_group.index],
       recon_buf->y_stride, recon_buf->uv_stride, cm->width, cm->height);
@@ -4949,13 +4987,17 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   SequenceHeader *const seq_params = &cm->seq_params;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   struct segmentation *const seg = &cm->seg;
+  EncodeInputFrame *eif = create_EncodeInputFrame();
+  EncodedFrame *ef = create_EncodedFrame();
+  PackedFrame *pf = create_PackedFrame();
+  PackedFrame_allocate_pack_buffer(pf, ENCODE_PACK_SIZE);
 
   set_ext_overrides(cpi);
   aom_clear_system_state();
 
   // frame type has been decided outside of this function call
   cm->cur_frame->intra_only = frame_is_intra_only(cm);
-  cm->cur_frame->frame_type = cm->frame_type;
+  cm->cur_frame->frame_type = cm->current_frame.frame_type;
 
   // S_FRAMEs are always error resilient
   cm->error_resilient_mode |= frame_is_sframe(cm);
@@ -4974,8 +5016,8 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
       cpi->oxcf.allow_warped_motion && frame_might_allow_warped_motion(cm);
 
   // Reset the frame packet stamp index.
-  if (cm->frame_type == KEY_FRAME && cm->show_frame)
-    cm->current_video_frame = 0;
+  if (cm->current_frame.frame_type == KEY_FRAME && cm->show_frame)
+    cm->current_frame.frame_number = 0;
 
   // NOTE:
   // (1) Move the setup of the ref_frame_flags upfront as it would be
@@ -4983,16 +5025,16 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   // (2) The setup of the ref_frame_flags applies to both
   // show_existing_frame's
   //     and the other cases.
-  if (cm->current_video_frame > 0)
+  if (cm->current_frame.frame_number > 0)
     cpi->ref_frame_flags = get_ref_frame_flags(cpi);
 
   if (encode_show_existing_frame(cm)) {
     // NOTE(zoeliu): In BIDIR_PRED, the existing frame to show is the current
     //               BWDREF_FRAME in the reference frame buffer.
-    if (cm->frame_type == KEY_FRAME) {
+    if (cm->current_frame.frame_type == KEY_FRAME) {
       cm->reset_decoder_state = 1;
     } else {
-      cm->frame_type = INTER_FRAME;
+      cm->current_frame.frame_type = INTER_FRAME;
     }
     cm->show_frame = 1;
     cpi->frame_flags = *frame_flags;
@@ -5000,8 +5042,12 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     restore_coding_context(cpi);
 
     // Build the bitstream
-    if (av1_pack_bitstream(cpi, dest, size) != AOM_CODEC_OK)
+    if (av1_pack_bitstream(cpi, dest, size, ef, pf) != AOM_CODEC_OK) {
+      free_EncodeInputFrame(eif);
+      free_EncodedFrame(ef);
+      free_PackedFrame(pf);
       return AOM_CODEC_ERROR;
+    }
 
     cpi->seq_params_locked = 1;
 
@@ -5009,7 +5055,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     cm->frame_to_show = get_frame_new_buffer(cm);
 
     // Update current frame offset.
-    cm->frame_offset =
+    cm->current_frame.order_hint =
         cm->buffer_pool->frame_bufs[cm->new_fb_idx].cur_frame_offset;
 
 #if DUMP_RECON_FRAMES == 1
@@ -5039,7 +5085,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     *frame_flags = cpi->frame_flags & ~FRAMEFLAGS_KEY;
 
     // Update the frame type
-    cm->last_frame_type = cm->frame_type;
+    cm->last_frame_type = cm->current_frame.frame_type;
 
     // Since we allocate a spot for the OVERLAY frame in the gf group, we need
     // to do post-encoding update accordingly.
@@ -5048,8 +5094,11 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
       av1_rc_postencode_update(cpi, *size);
     }
 
-    ++cm->current_video_frame;
+    ++cm->current_frame.frame_number;
 
+    free_EncodeInputFrame(eif);
+    free_EncodedFrame(ef);
+    free_PackedFrame(pf);
     return AOM_CODEC_OK;
   }
 
@@ -5081,9 +5130,12 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   // For 1 pass CBR, check if we are dropping this frame.
   // Never drop on key frame.
   if (oxcf->pass == 0 && oxcf->rc_mode == AOM_CBR &&
-      cm->frame_type != KEY_FRAME) {
+      cm->current_frame.frame_type != KEY_FRAME) {
     if (av1_rc_drop_frame(cpi)) {
       av1_rc_postencode_update_drop_frame(cpi);
+      free_EncodeInputFrame(eif);
+      free_EncodedFrame(ef);
+      free_PackedFrame(pf);
       return AOM_CODEC_OK;
     }
   }
@@ -5143,18 +5195,29 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   }
   cm->timing_info_present &= !seq_params->reduced_still_picture_hdr;
 
+  av1_comp_to_EncodeInputFrame(cpi, eif);
+
   if (cpi->sf.recode_loop == DISALLOW_RECODE) {
-    if (encode_without_recode_loop(cpi) != AOM_CODEC_OK) return AOM_CODEC_ERROR;
-  } else {
-    if (encode_with_recode_loop(cpi, size, dest) != AOM_CODEC_OK)
+    if (encode_without_recode_loop(cpi, eif, ef) != AOM_CODEC_OK) {
+      free_EncodeInputFrame(eif);
+      free_EncodedFrame(ef);
+      free_PackedFrame(pf);
       return AOM_CODEC_ERROR;
+    }
+  } else {
+    if (encode_with_recode_loop(cpi, size, dest, eif, ef, pf) != AOM_CODEC_OK) {
+      free_EncodeInputFrame(eif);
+      free_EncodedFrame(ef);
+      free_PackedFrame(pf);
+      return AOM_CODEC_ERROR;
+    }
   }
 
   cm->last_tile_cols = cm->tile_cols;
   cm->last_tile_rows = cm->tile_rows;
 
 #ifdef OUTPUT_YUV_SKINMAP
-  if (cpi->common.current_video_frame > 1) {
+  if (cpi->common.current_frame.frame_number > 1) {
     av1_compute_skin_map(cpi, yuv_skinmap_file);
   }
 #endif  // OUTPUT_YUV_SKINMAP
@@ -5172,7 +5235,8 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   }
 
   // If the encoder forced a KEY_FRAME decision or if frame is an S_FRAME
-  if ((cm->frame_type == KEY_FRAME && cm->show_frame) || frame_is_sframe(cm)) {
+  if ((cm->current_frame.frame_type == KEY_FRAME && cm->show_frame) ||
+      frame_is_sframe(cm)) {
     cpi->refresh_last_frame = 1;
   }
 
@@ -5193,14 +5257,14 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
   // Pick the loop filter level for the frame.
   if (!cm->allow_intrabc) {
-    loopfilter_frame(cpi, cm);
+    loopfilter_frame(cpi, cm, ef);
   } else {
     cm->lf.filter_level[0] = 0;
     cm->lf.filter_level[1] = 0;
-    cm->cdef_bits = 0;
-    cm->cdef_strengths[0] = 0;
-    cm->nb_cdef_strengths = 1;
-    cm->cdef_uv_strengths[0] = 0;
+    cm->cdef_info.cdef_bits = 0;
+    cm->cdef_info.cdef_strengths[0] = 0;
+    cm->cdef_info.nb_cdef_strengths = 1;
+    cm->cdef_info.cdef_uv_strengths[0] = 0;
     cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
@@ -5215,12 +5279,21 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 #endif
 
   // Build the bitstream
-  if (av1_pack_bitstream(cpi, dest, size) != AOM_CODEC_OK)
+  if (av1_pack_bitstream(cpi, dest, size, ef, pf) != AOM_CODEC_OK) {
+    free_EncodeInputFrame(eif);
+    free_EncodedFrame(ef);
+    free_PackedFrame(pf);
     return AOM_CODEC_ERROR;
+  }
 
   cpi->seq_params_locked = 1;
 
-  if (skip_adapt) return AOM_CODEC_OK;
+  if (skip_adapt) {
+    free_EncodeInputFrame(eif);
+    free_EncodedFrame(ef);
+    free_PackedFrame(pf);
+    return AOM_CODEC_OK;
+  }
 
   if (seq_params->frame_id_numbers_present_flag) {
     int i;
@@ -5276,11 +5349,11 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   else
     cpi->frame_flags &= ~FRAMEFLAGS_BWDREF;
 
-  cm->last_frame_type = cm->frame_type;
+  cm->last_frame_type = cm->current_frame.frame_type;
 
   av1_rc_postencode_update(cpi, *size);
 
-  if (cm->frame_type == KEY_FRAME) {
+  if (cm->current_frame.frame_type == KEY_FRAME) {
     // Tell the caller that the frame was coded as a key frame
     *frame_flags = cpi->frame_flags | FRAMEFLAGS_KEY;
   } else {
@@ -5305,7 +5378,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     // Don't increment frame counters if this was an altref buffer
     // update not a real frame
 
-    ++cm->current_video_frame;
+    ++cm->current_frame.frame_number;
   }
 
   // NOTE: Shall not refer to any frame not used as reference.
@@ -5318,6 +5391,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     cm->last_show_frame = cm->show_frame;
   }
 
+  free_EncodeInputFrame(eif);
+  free_EncodedFrame(ef);
+  free_PackedFrame(pf);
   return AOM_CODEC_OK;
 }
 
@@ -5326,7 +5402,7 @@ static INLINE void update_keyframe_counters(AV1_COMP *cpi) {
   //               differently here for rc->avg_frame_bandwidth.
   if (cpi->common.show_frame || cpi->rc.is_bwd_ref_frame) {
     if (!cpi->common.show_existing_frame || cpi->rc.is_src_frame_alt_ref ||
-        cpi->common.frame_type == KEY_FRAME) {
+        cpi->common.current_frame.frame_type == KEY_FRAME) {
       // If this is a show_existing_frame with a source other than altref,
       // or if it is not a displayed forward keyframe, the keyframe update
       // counters were incremented when it was originally encoded.
@@ -5354,7 +5430,7 @@ static INLINE void update_twopass_gf_group_index(AV1_COMP *cpi) {
   // a displayed forward keyframe, the index was incremented when it was
   // originally encoded.
   if (!cpi->common.show_existing_frame || cpi->rc.is_src_frame_alt_ref ||
-      cpi->common.frame_type == KEY_FRAME) {
+      cpi->common.current_frame.frame_type == KEY_FRAME) {
     ++cpi->twopass.gf_group.index;
   }
 }
@@ -5655,7 +5731,7 @@ static void compute_internal_stats(AV1_COMP *cpi, int frame_bytes) {
   uint32_t bit_depth = 8;
 
 #if CONFIG_INTER_STATS_ONLY
-  if (cm->frame_type == KEY_FRAME) return;  // skip key frame
+  if (cm->current_frame.frame_type == KEY_FRAME) return;  // skip key frame
 #endif
   cpi->bytes += frame_bytes;
 
@@ -5700,7 +5776,7 @@ static void compute_internal_stats(AV1_COMP *cpi, int frame_bytes) {
         double v2 = psnr.psnr[3];
         double frame_psnr2 = psnr.psnr[0];
         fprintf(f, "%5d : Y%f7.3:U%f7.3:V%f7.3:F%f7.3:S%7.3f\n",
-                cm->current_video_frame, y2, u2, v2,
+                cm->current_frame.frame_number, y2, u2, v2,
                 frame_psnr2, frame_ssim2);
         fclose(f);
       }
@@ -6464,7 +6540,8 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   assert(cpi->oxcf.max_threads == 0 &&
          "bitstream debug tool does not support multithreading");
   bitstream_queue_record_write();
-  bitstream_queue_set_frame_write(cm->current_video_frame * 2 + cm->show_frame);
+  bitstream_queue_set_frame_write(cm->current_frame.frame_number * 2 +
+                                  cm->show_frame);
 #endif
 
   cm->showable_frame = 0;
@@ -6491,7 +6568,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   // does not depend on any previous frames. We must make this exception here
   // because of the use of show_existing_frame with forward coded keyframes.
   struct lookahead_entry *lookahead_src = NULL;
-  if (cm->current_video_frame > 0)
+  if (cm->current_frame.frame_number > 0)
     lookahead_src = av1_lookahead_peek(cpi->lookahead, 0);
 
   int use_show_existing = 1;
@@ -6595,7 +6672,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
         }
       }
       cm->show_frame = 0;
-      cm->intra_only = 0;
+      cm->current_frame.intra_only = 0;
 
       if (oxcf->pass < 2) {
         // In second pass, the buffer updates configure will be set
@@ -6637,7 +6714,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       }
 
       cm->show_frame = 0;
-      cm->intra_only = 0;
+      cm->current_frame.intra_only = 0;
 
       if (oxcf->pass < 2) {
         // In second pass, the buffer updates configure will be set
@@ -6655,7 +6732,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     if ((source = av1_lookahead_peek(cpi->lookahead, brf_src_index)) != NULL) {
       cm->showable_frame = 1;
       cm->show_frame = 0;
-      cm->intra_only = 0;
+      cm->current_frame.intra_only = 0;
 
       if (oxcf->pass < 2) {
         // In second pass, the buffer updates configure will be set
@@ -6667,17 +6744,17 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
   if (!source) {
     // Get last frame source.
-    if (cm->current_video_frame > 0) {
+    if (cm->current_frame.frame_number > 0) {
       if ((last_source = av1_lookahead_peek(cpi->lookahead, -1)) == NULL)
         return -1;
     }
-    if (cm->current_video_frame > 0) assert(last_source != NULL);
+    if (cm->current_frame.frame_number > 0) assert(last_source != NULL);
     // Read in the source frame.
     source = av1_lookahead_pop(cpi->lookahead, flush);
 
     if (source != NULL) {
       cm->show_frame = 1;
-      cm->intra_only = 0;
+      cm->current_frame.intra_only = 0;
 
       // Check to see if the frame should be encoded as an arf overlay.
       check_src_altref(cpi, source);
@@ -6829,9 +6906,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 #if EXT_TILE_DEBUG
   if (cm->large_scale_tile && oxcf->pass == 2) {
     char fn[20] = "./fc";
-    fn[4] = cm->current_video_frame / 100 + '0';
-    fn[5] = (cm->current_video_frame % 100) / 10 + '0';
-    fn[6] = (cm->current_video_frame % 10) + '0';
+    fn[4] = cm->current_frame.frame_number / 100 + '0';
+    fn[5] = (cm->current_frame.frame_number % 100) / 10 + '0';
+    fn[6] = (cm->current_frame.frame_number % 10) + '0';
     fn[7] = '\0';
     av1_print_frame_contexts(cm->fc, fn);
   }
