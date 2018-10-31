@@ -319,6 +319,22 @@ static int compute_global_motion_feature_based(
   return 0;
 }
 #else
+// Solves a general Mx = b where M is a 2x2 matrix and b is a 2x1 matrix
+static INLINE void solve_2x2_system(const double *M, const double *b,
+                                    double *output_vec) {
+  double det = (M[0] * M[3]) - (M[1] * M[2]);
+  if (det < 1e-5) {
+    // Handle singular matrix
+    // TODO(sarahparker) compare results using pseudo inverse instead
+    det = ((M[0] + 1e-10) * (M[3] + 1e-10)) - (M[1] * M[2]);
+  }
+  const double det_inv = 1 / det;
+  const double mult_b0 = det_inv * b[0];
+  const double mult_b1 = det_inv * b[1];
+  output_vec[0] = M[3] * mult_b0 - M[1] * mult_b1;
+  output_vec[1] = -M[2] * mult_b0 + M[0] * mult_b1;
+}
+
 // Compute an image gradient using a sobel filter.
 // If dir == 1, compute the x gradient. If dir == 0, compute y. This function
 // assumes the images have been padded so that they can be processed in units
