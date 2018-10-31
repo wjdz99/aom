@@ -9657,6 +9657,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   int comp_idx;
   const int search_jnt_comp = is_comp_pred & cm->seq_params.enable_jnt_comp &
                               (mbmi->mode != GLOBAL_GLOBALMV) &
+                              (x->source_variance > 512) &
                               (cpi->sf.use_jnt_comp_flag != JNT_COMP_DISABLED);
 
   // TODO(jingning): This should be deprecated shortly.
