@@ -12657,8 +12657,42 @@ static void calc_target_weighted_pred(const AV1_COMMON *cm, const MACROBLOCK *x,
   }
 }
 
-static INLINE uint8_t get_pix(const uint8_t *src, int stride, int i, int j) {
-  return src[i + stride * j];
+// Macro so it can be used for either high or low bit-depth arrays.
+#define GET_PIX(src, stride, i, j) src[i + stride * j]
+
+/* Use standard 3x3 Sobel matrix. */
+sobel_xy sobel(const uint8_t *input, int stride, int i, int j) {
+  const int16_t s_x = GET_PIX(input, stride, i - 1, j - 1) -
+                      GET_PIX(input, stride, i + 1, j - 1) +
+                      2 * GET_PIX(input, stride, i - 1, j) -
+                      2 * GET_PIX(input, stride, i + 1, j) +
+                      GET_PIX(input, stride, i - 1, j + 1) -
+                      GET_PIX(input, stride, i + 1, j + 1);
+  const int16_t s_y = GET_PIX(input, stride, i - 1, j - 1) +
+                      2 * GET_PIX(input, stride, i, j - 1) +
+                      GET_PIX(input, stride, i + 1, j - 1) -
+                      GET_PIX(input, stride, i - 1, j + 1) -
+                      2 * GET_PIX(input, stride, i, j + 1) -
+                      GET_PIX(input, stride, i + 1, j + 1);
+  sobel_xy r = { .x = s_x, .y = s_y };
+  return r;
+}
+
+sobel_xy sobel_highbd(const uint16_t *input, int stride, int i, int j) {
+  const int16_t s_x = GET_PIX(input, stride, i - 1, j - 1) -
+                      GET_PIX(input, stride, i + 1, j - 1) +
+                      2 * GET_PIX(input, stride, i - 1, j) -
+                      2 * GET_PIX(input, stride, i + 1, j) +
+                      GET_PIX(input, stride, i - 1, j + 1) -
+                      GET_PIX(input, stride, i + 1, j + 1);
+  const int16_t s_y = GET_PIX(input, stride, i - 1, j - 1) +
+                      2 * GET_PIX(input, stride, i, j - 1) +
+                      GET_PIX(input, stride, i + 1, j - 1) -
+                      GET_PIX(input, stride, i - 1, j + 1) -
+                      2 * GET_PIX(input, stride, i, j + 1) -
+                      GET_PIX(input, stride, i + 1, j + 1);
+  sobel_xy r = { .x = s_x, .y = s_y };
+  return r;
 }
 
 // 8-tap Gaussian convolution filter with sigma = 1.3, sums to 128,
@@ -12682,22 +12716,20 @@ void gaussian_blur(const uint8_t *src, int src_stride, int w, int h,
                      &conv_params);
 }
 
-/* Use standard 3x3 Sobel matrix. */
-sobel_xy sobel(const uint8_t *input, int stride, int i, int j) {
-  const int16_t s_x = get_pix(input, stride, i - 1, j - 1) -
-                      get_pix(input, stride, i + 1, j - 1) +
-                      2 * get_pix(input, stride, i - 1, j) -
-                      2 * get_pix(input, stride, i + 1, j) +
-                      get_pix(input, stride, i - 1, j + 1) -
-                      get_pix(input, stride, i + 1, j + 1);
-  const int16_t s_y = get_pix(input, stride, i - 1, j - 1) +
-                      2 * get_pix(input, stride, i, j - 1) +
-                      get_pix(input, stride, i + 1, j - 1) -
-                      get_pix(input, stride, i - 1, j + 1) -
-                      2 * get_pix(input, stride, i, j + 1) -
-                      get_pix(input, stride, i + 1, j + 1);
-  sobel_xy r = { .x = s_x, .y = s_y };
-  return r;
+void gaussian_blur_highbd(const uint16_t *src, int src_stride, int w, int h,
+                          uint16_t *dst) {
+  ConvolveParams conv_params = get_conv_params(0, 0, 0);
+  InterpFilterParams filter = { .filter_ptr = gauss_filter,
+                                .taps = 8,
+                                .subpel_shifts = 0,
+                                .interp_filter = EIGHTTAP_REGULAR };
+  // Requirements from the vector-optimized implementations.
+  assert(h % 4 == 0);
+  assert(w % 8 == 0);
+  // Because we use an eight tap filter, the stride should be at least 7 + w.
+  assert(src_stride >= w + 7);
+  av1_highbd_convolve_2d_sr(src, src_stride, dst, w, w, h, &filter, &filter, 0,
+                            0, &conv_params);
 }
 
 static uint16_t edge_probability(const uint8_t *input, int w, int h) {
@@ -12716,13 +12748,47 @@ static uint16_t edge_probability(const uint8_t *input, int w, int h) {
   return highest;
 }
 
+static uint16_t edge_probability_highbd(const uint16_t *input, int w, int h,
+                                        int bd) {
+  uint16_t highest = 0;
+  for (int j = 1; j < h - 1; ++j) {
+    for (int i = 1; i < w - 1; ++i) {
+      sobel_xy g = sobel(input, w, i, j);
+      // Scale down to 8-bit to get same output as the low bitdepth code.
+      // The higher bit depth is used in the blurring and Sobel stages.
+      int16_t g_x = g.x >> (bd - 8);
+      int16_t g_y = g.y >> (bd - 8);
+      uint16_t magnitude = (uint16_t)sqrt(g_x * g_x + g_y * g_y);
+      highest = AOMMAX(highest, magnitude);
+    }
+  }
+  return highest;
+}
+
+uint16_t av1_highbd_edge_exists(const uint16_t *src, int src_stride, int w,
+                                int h, int bd) {
+  uint16_t *blurred = NULL;
+  blurred = (uint16_t *)aom_memalign(32, sizeof(*blurred) * w * h);
+  gaussian_blur_highbd(src, src_stride, w, h, blurred);
+  uint16_t prob = edge_probability_highbd(blurred, w, h, bd);
+  aom_free(blurred);
+  return prob;
+}
+
 /* Uses most of the Canny edge detection algorithm to find if there are any
  * edges in the image.
  */
-uint16_t av1_edge_exists(const uint8_t *src, int src_stride, int w, int h) {
+uint16_t av1_edge_exists(const uint8_t *src, int src_stride, int w, int h,
+                         int bd) {
   if (w < 3 || h < 3) {
     return 0;
   }
+  if (bd > 8) {
+    return av1_highbd_edge_exists(CONVERT_TO_SHORTPTR(src), src_stride, w, h,
+                                  bd);
+  }
+  assert(bd == 8);
+  // Otherwise, do the regular, 8-bit depth edge detection.
   uint8_t *blurred = NULL;
   blurred = (uint8_t *)aom_memalign(32, sizeof(*blurred) * w * h);
   gaussian_blur(src, src_stride, w, h, blurred);
