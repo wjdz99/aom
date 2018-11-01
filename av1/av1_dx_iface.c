@@ -529,6 +529,7 @@ static aom_codec_err_t decoder_inspect(aom_codec_alg_priv_t *ctx,
   for (int i = 0; i < REF_FRAMES; ++i)
     if (cm->ref_frame_map[i] == cm->new_fb_idx) data2->idx = i;
   data2->buf = data;
+  data2->show_existing = cm->show_existing_frame;
   return res;
 }
 #endif
