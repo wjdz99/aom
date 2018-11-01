@@ -15,6 +15,7 @@
 #include "aom/aom_integer.h"
 #include "av1/common/blockd.h"
 #include "av1/common/enums.h"
+#include "av1/encoder/new_encode_structures.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +32,8 @@ void av1_setup_src_planes(struct macroblock *x,
                           const struct yv12_buffer_config *src, int mi_row,
                           int mi_col, const int num_planes, BLOCK_SIZE bsize);
 
-void av1_encode_frame(struct AV1_COMP *cpi);
+void av1_encode_frame(struct AV1_COMP *cpi, EncodeInputFrame *eif,
+                      EncodedFrame *ef);
 
 void av1_alloc_tile_data(struct AV1_COMP *cpi);
 void av1_init_tile_data(struct AV1_COMP *cpi);
