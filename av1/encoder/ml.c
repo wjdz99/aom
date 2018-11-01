@@ -15,6 +15,9 @@
 #include "aom_dsp/aom_dsp_common.h"
 #include "av1/encoder/ml.h"
 
+#define DIVIDE_POWER_OF_TWO(num, bits) \
+  (num) >= 0 ? (num) >> (bits) : -(-(num) >> (bits))
+
 void av1_nn_predict(const float *features, const NN_CONFIG *nn_config,
                     float *output) {
   int num_input_nodes = nn_config->num_inputs;
@@ -53,6 +56,50 @@ void av1_nn_predict(const float *features, const NN_CONFIG *nn_config,
     float val = 0.0f;
     for (int i = 0; i < num_input_nodes; ++i)
       val += weights[i] * input_nodes[i];
+    output[node] = val + bias[node];
+    weights += num_input_nodes;
+  }
+}
+
+void av1_nn_predict_int(const int64_t *features, const NN_CONFIG_INT *nn_config,
+                        int64_t *output) {
+  int num_input_nodes = nn_config->num_inputs;
+  int buf_index = 0;
+  int64_t buf[2][NN_MAX_NODES_PER_LAYER];
+  const int64_t *input_nodes = features;
+  const int precision = nn_config->precision;
+
+  // Propagate hidden layers.
+  const int num_layers = nn_config->num_hidden_layers;
+  assert(num_layers <= NN_MAX_HIDDEN_LAYERS);
+  for (int layer = 0; layer < num_layers; ++layer) {
+    const int64_t *weights = nn_config->weights[layer];
+    const int64_t *bias = nn_config->bias[layer];
+    int64_t *output_nodes = buf[buf_index];
+    const int num_output_nodes = nn_config->num_hidden_nodes[layer];
+    assert(num_output_nodes < NN_MAX_NODES_PER_LAYER);
+    for (int node = 0; node < num_output_nodes; ++node) {
+      int64_t val = 0;
+      for (int i = 0; i < num_input_nodes; ++i)
+        val += DIVIDE_POWER_OF_TWO(weights[i] * input_nodes[i], precision);
+      val += bias[node];
+      // ReLU as activation function.
+      val = AOMMAX(val, 0);
+      output_nodes[node] = val;
+      weights += num_input_nodes;
+    }
+    num_input_nodes = num_output_nodes;
+    input_nodes = output_nodes;
+    buf_index = 1 - buf_index;
+  }
+
+  // Final output layer.
+  const int64_t *weights = nn_config->weights[num_layers];
+  for (int node = 0; node < nn_config->num_outputs; ++node) {
+    const int64_t *bias = nn_config->bias[num_layers];
+    int64_t val = 0;
+    for (int i = 0; i < num_input_nodes; ++i)
+      val += DIVIDE_POWER_OF_TWO(weights[i] * input_nodes[i], precision);
     output[node] = val + bias[node];
     weights += num_input_nodes;
   }
