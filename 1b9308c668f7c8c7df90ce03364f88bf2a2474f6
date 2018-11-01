@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f5d7df5_b40878c4",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-01T23:36:32Z",
+      "side": 1,
+      "message": "We only need the second set_flip_cfg() call here.",
+      "revId": "1b9308c668f7c8c7df90ce03364f88bf2a2474f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
