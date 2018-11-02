@@ -33,7 +33,7 @@ typedef unsigned int (*MaskedSADFunc)(const uint8_t *src, int src_stride,
                                       const uint8_t *second_pred,
                                       const uint8_t *msk, int msk_stride,
                                       int invert_mask);
-typedef ::testing::tuple<MaskedSADFunc, MaskedSADFunc> MaskedSADParam;
+typedef std::tuple<MaskedSADFunc, MaskedSADFunc> MaskedSADParam;
 
 class MaskedSADTest : public ::testing::TestWithParam<MaskedSADParam> {
  public:
@@ -120,7 +120,7 @@ typedef unsigned int (*HighbdMaskedSADFunc)(const uint8_t *src, int src_stride,
                                             const uint8_t *second_pred,
                                             const uint8_t *msk, int msk_stride,
                                             int invert_mask);
-typedef ::testing::tuple<HighbdMaskedSADFunc, HighbdMaskedSADFunc>
+typedef std::tuple<HighbdMaskedSADFunc, HighbdMaskedSADFunc>
     HighbdMaskedSADParam;
 
 class HighbdMaskedSADTest

@@ -16,11 +16,10 @@
 namespace {
 
 using ::testing::get;
-using ::testing::tuple;
 
 class EdgeDetectBrightnessTest :
     // Parameters are (brightness, width, height).
-    public ::testing::TestWithParam<tuple<int, int, int> > {};
+    public ::testing::TestWithParam<std::tuple<int, int, int> > {};
 
 /** Get the (x, y) value from the input; if i or j is outside of the width
  * or height, the nearest pixel value is returned.
@@ -106,7 +105,7 @@ INSTANTIATE_TEST_CASE_P(ImageBrightnessTests, EdgeDetectBrightnessTest,
 
 class EdgeDetectImageTest :
     // Parameters are (width, height).
-    public ::testing::TestWithParam<tuple<int, int> > {};
+    public ::testing::TestWithParam<std::tuple<int, int> > {};
 
 // Generate images with black on one side and white on the other.
 TEST_P(EdgeDetectImageTest, BlackWhite) {

@@ -24,7 +24,6 @@
 namespace {
 
 using ::testing::make_tuple;
-using ::testing::tuple;
 
 /* TESTING PARAMETERS */
 
@@ -56,7 +55,7 @@ const SUPERRES_MODE kSuperresModesNotQThresh[] = { SUPERRES_FIXED,
                                                    SUPERRES_RANDOM };
 
 // Superres denominators and superres kf denominators to be tested
-typedef tuple<int, int> SuperresDenominatorPair;
+typedef std::tuple<int, int> SuperresDenominatorPair;
 const SuperresDenominatorPair kSuperresDenominators[] = {
   make_tuple(16, 9),  make_tuple(13, 11), make_tuple(9, 9),
   make_tuple(13, 13), make_tuple(11, 16), make_tuple(8, 16),
@@ -64,7 +63,7 @@ const SuperresDenominatorPair kSuperresDenominators[] = {
 };
 
 // Superres q thresholds and superres kf q thresholds to be tested
-typedef tuple<int, int> SuperresQThresholdPair;
+typedef std::tuple<int, int> SuperresQThresholdPair;
 const SuperresQThresholdPair kSuperresQThresholds[] = {
   make_tuple(63, 63), make_tuple(63, 41), make_tuple(17, 63),
   make_tuple(41, 11), make_tuple(1, 37),  make_tuple(11, 11),
@@ -75,9 +74,9 @@ const SuperresQThresholdPair kSuperresQThresholds[] = {
 
 // Test parameter list:
 //  <[needed for EncoderTest], test_video_idx_, superres_mode_,
-//  tuple(superres_denom_, superres_kf_denom_)>
-typedef tuple<const libaom_test::CodecFactory *, int, SUPERRES_MODE,
-              SuperresDenominatorPair>
+//  std::tuple(superres_denom_, superres_kf_denom_)>
+typedef std::tuple<const libaom_test::CodecFactory *, int, SUPERRES_MODE,
+                   SuperresDenominatorPair>
     HorzSuperresTestParam;
 
 class HorzSuperresEndToEndTest
@@ -191,10 +190,10 @@ AV1_INSTANTIATE_TEST_CASE(HorzSuperresEndToEndTest,
                           ::testing::ValuesIn(kSuperresDenominators));
 
 // Test parameter list:
-//  <[needed for EncoderTest], test_video_idx_, tuple(superres_denom_,
-//  superres_kf_denom_), tuple(superres_qthresh_,superres_kf_qthresh_)>
-typedef tuple<const libaom_test::CodecFactory *, int, SuperresDenominatorPair,
-              SuperresQThresholdPair>
+//  <[needed for EncoderTest], test_video_idx_, std::tuple(superres_denom_,
+//  superres_kf_denom_), std::tuple(superres_qthresh_,superres_kf_qthresh_)>
+typedef std::tuple<const libaom_test::CodecFactory *, int,
+                   SuperresDenominatorPair, SuperresQThresholdPair>
     HorzSuperresQThreshTestParam;
 
 class HorzSuperresQThreshEndToEndTest

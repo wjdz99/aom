@@ -31,7 +31,7 @@ typedef void (*horver_Func)(const int16_t *diff, int stride, int w, int h,
 
 typedef libaom_test::FuncParam<horver_Func> TestFuncs;
 
-typedef ::testing::tuple<const horver_Func> HorverTestParam;
+typedef std::tuple<const horver_Func> HorverTestParam;
 
 class HorverTest : public ::testing::TestWithParam<HorverTestParam> {
  public:

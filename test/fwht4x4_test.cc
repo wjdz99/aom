@@ -35,7 +35,7 @@ typedef void (*IdctFunc)(const tran_low_t *in, uint8_t *out, int stride);
 
 using libaom_test::FhtFunc;
 
-typedef ::testing::tuple<FdctFunc, IdctFunc, TX_TYPE, aom_bit_depth_t, int>
+typedef std::tuple<FdctFunc, IdctFunc, TX_TYPE, aom_bit_depth_t, int>
     Dct4x4Param;
 
 void fwht4x4_ref(const int16_t *in, tran_low_t *out, int stride,

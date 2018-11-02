@@ -41,8 +41,8 @@ typedef void (*warp_affine_func)(const int32_t *mat, const uint8_t *ref,
                                  ConvolveParams *conv_params, int16_t alpha,
                                  int16_t beta, int16_t gamma, int16_t delta);
 
-typedef ::testing::tuple<int, int, int, warp_affine_func> WarpTestParam;
-typedef ::testing::tuple<WarpTestParam, int, int, int, int> WarpTestParams;
+typedef std::tuple<int, int, int, warp_affine_func> WarpTestParam;
+typedef std::tuple<WarpTestParam, int, int, int, int> WarpTestParams;
 
 ::testing::internal::ParamGenerator<WarpTestParams> BuildParams(
     warp_affine_func filter);
@@ -73,9 +73,9 @@ typedef void (*highbd_warp_affine_func)(const int32_t *mat, const uint16_t *ref,
                                         int16_t alpha, int16_t beta,
                                         int16_t gamma, int16_t delta);
 
-typedef ::testing::tuple<int, int, int, int, highbd_warp_affine_func>
+typedef std::tuple<int, int, int, int, highbd_warp_affine_func>
     HighbdWarpTestParam;
-typedef ::testing::tuple<HighbdWarpTestParam, int, int, int, int>
+typedef std::tuple<HighbdWarpTestParam, int, int, int, int>
     HighbdWarpTestParams;
 
 ::testing::internal::ParamGenerator<HighbdWarpTestParams> BuildParams(

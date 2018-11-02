@@ -36,8 +36,8 @@ class TestIntrinsic : public ::testing::TestWithParam<param_signature> {
 };
 
 // Create one typedef for each function signature
-#define TYPEDEF_SIMD(name)                                                    \
-  typedef TestIntrinsic< ::testing::tuple<uint32_t, uint32_t, const char *> > \
+#define TYPEDEF_SIMD(name)                                             \
+  typedef TestIntrinsic<std::tuple<uint32_t, uint32_t, const char *> > \
       ARCH_POSTFIX(name)
 
 TYPEDEF_SIMD(V64_U8);

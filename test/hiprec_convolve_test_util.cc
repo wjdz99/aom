@@ -14,7 +14,6 @@
 #include "av1/common/restoration.h"
 
 using ::testing::make_tuple;
-using ::testing::tuple;
 
 namespace libaom_test {
 

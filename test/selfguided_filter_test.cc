@@ -26,9 +26,8 @@
 
 namespace {
 
-using libaom_test::ACMRandom;
 using ::testing::make_tuple;
-using ::testing::tuple;
+using libaom_test::ACMRandom;
 
 typedef void (*SgrFunc)(const uint8_t *dat8, int width, int height, int stride,
                         int eps, const int *xqd, uint8_t *dst8, int dst_stride,
@@ -36,7 +35,7 @@ typedef void (*SgrFunc)(const uint8_t *dat8, int width, int height, int stride,
 
 // Test parameter list:
 //  <tst_fun_>
-typedef tuple<SgrFunc> FilterTestParam;
+typedef std::tuple<SgrFunc> FilterTestParam;
 
 class AV1SelfguidedFilterTest
     : public ::testing::TestWithParam<FilterTestParam> {
@@ -215,7 +214,7 @@ INSTANTIATE_TEST_CASE_P(NEON, AV1SelfguidedFilterTest,
 
 // Test parameter list:
 //  <tst_fun_, bit_depth>
-typedef tuple<SgrFunc, int> HighbdFilterTestParam;
+typedef std::tuple<SgrFunc, int> HighbdFilterTestParam;
 
 class AV1HighbdSelfguidedFilterTest
     : public ::testing::TestWithParam<HighbdFilterTestParam> {

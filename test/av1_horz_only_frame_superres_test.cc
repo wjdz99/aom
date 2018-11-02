@@ -30,9 +30,8 @@ const int kPerfIters = 1000;
 const int kVPad = 32;
 const int kHPad = 32;
 
-using libaom_test::ACMRandom;
 using ::testing::make_tuple;
-using ::testing::tuple;
+using libaom_test::ACMRandom;
 
 template <typename Pixel>
 class TestImage {
@@ -253,7 +252,7 @@ typedef void (*LowBDConvolveHorizRsFunc)(const uint8_t *src, int src_stride,
 
 // Test parameter list:
 //  <tst_fun_>
-typedef tuple<LowBDConvolveHorizRsFunc> LowBDParams;
+typedef std::tuple<LowBDConvolveHorizRsFunc> LowBDParams;
 
 class LowBDConvolveHorizRSTest
     : public ConvolveHorizRSTestBase<uint8_t>,
@@ -308,7 +307,7 @@ typedef void (*HighBDConvolveHorizRsFunc)(const uint16_t *src, int src_stride,
 
 // Test parameter list:
 //  <tst_fun_, bd_>
-typedef tuple<HighBDConvolveHorizRsFunc, int> HighBDParams;
+typedef std::tuple<HighBDConvolveHorizRsFunc, int> HighBDParams;
 
 class HighBDConvolveHorizRSTest
     : public ConvolveHorizRSTestBase<uint16_t>,
