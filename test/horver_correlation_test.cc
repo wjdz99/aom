@@ -9,8 +9,6 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include <vector>
-
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
 #include "test/function_equivalence_test.h"
@@ -21,7 +19,6 @@
 #include "config/av1_rtcd.h"
 
 #include "aom/aom_integer.h"
-#include "av1/encoder/rdopt.h"
 
 using libaom_test::FunctionEquivalenceTest;
 
