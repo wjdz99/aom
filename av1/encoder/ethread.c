@@ -275,6 +275,7 @@ static int enc_row_mt_worker_hook(void *arg1, void *unused) {
     ThreadData *td = thread_data->td;
 
     td->mb.e_mbd.tile_ctx = td->tctx;
+    td->mb.e_mbd.tile_pb_ctx = &this_tile->tctx;
     td->mb.backup_tile_ctx = &this_tile->backup_tctx;
     memcpy(td->mb.e_mbd.tile_ctx, &this_tile->tctx, sizeof(FRAME_CONTEXT));
     av1_init_above_context(cm, &td->mb.e_mbd, tile_row);
@@ -320,6 +321,7 @@ static int enc_worker_hook(void *arg1, void *unused) {
         &cpi->tile_data[tile_row * cm->tile_cols + tile_col];
     thread_data->td->tctx = &this_tile->tctx;
     thread_data->td->mb.e_mbd.tile_ctx = thread_data->td->tctx;
+    thread_data->td->mb.e_mbd.tile_pb_ctx = &this_tile->tctx;
     thread_data->td->mb.backup_tile_ctx = &this_tile->backup_tctx;
     av1_encode_tile(cpi, thread_data->td, tile_row, tile_col);
   }

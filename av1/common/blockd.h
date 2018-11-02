@@ -558,6 +558,9 @@ typedef struct macroblockd {
   uint8_t neighbors_ref_counts[REF_FRAMES];
 
   FRAME_CONTEXT *tile_ctx;
+  // This context will be used to update color_map_cdf pointer which would be
+  // used during pack bitstream
+  FRAME_CONTEXT *tile_pb_ctx;
   /* Bit depth: 8, 10, 12 */
   int bd;
 
@@ -1140,6 +1143,7 @@ typedef struct {
   int plane_height;
   uint8_t *color_map;
   MapCdf map_cdf;
+  MapCdf map_pb_cdf;
   ColorCost color_cost;
 } Av1ColorMapParam;
 
