@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79186a9b_14da62f2",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-11-02T22:06:10Z",
+      "side": 1,
+      "message": "Could you add more details in the comments? Looks like tile_pb_ctx points to backup frame contexts, and is used during \"dry run\" only. This is only needed in row-mt encoder case.",
+      "range": {
+        "startLine": 561,
+        "startChar": 2,
+        "endLine": 562,
+        "endChar": 31
+      },
+      "revId": "2c903bb778d891b086b610e522a8cf1b88243f46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0797447_b50f7456",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-11-02T22:06:10Z",
+      "side": 1,
+      "message": "Can this be moved to macroblock instead?",
+      "range": {
+        "startLine": 563,
+        "startChar": 17,
+        "endLine": 563,
+        "endChar": 28
+      },
+      "revId": "2c903bb778d891b086b610e522a8cf1b88243f46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6037c69_af39b544",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-11-02T22:06:10Z",
+      "side": 1,
+      "message": "Better to change to thread_data-\u003etd-\u003etctx, which makes it easy for readers to understand that the above 2 lines point to the same thing.",
+      "range": {
+        "startLine": 324,
+        "startChar": 43,
+        "endLine": 324,
+        "endChar": 60
+      },
+      "revId": "2c903bb778d891b086b610e522a8cf1b88243f46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
