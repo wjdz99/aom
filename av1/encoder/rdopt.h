@@ -138,9 +138,7 @@ uint16_t av1_edge_exists(const uint8_t *src, int src_stride, int w, int h,
  * tests.
  */
 void gaussian_blur(const uint8_t *src, int src_stride, int w, int h,
-                   uint8_t *dst);
-void gaussian_blur_highbd(const uint16_t *src, int src_stride, int w, int h,
-                          uint16_t *dst);
+                   uint8_t *dst, int bd);
 
 /* Applies standard 3x3 Sobel matrix. */
 typedef struct {
@@ -148,8 +146,7 @@ typedef struct {
   int16_t y;
 } sobel_xy;
 
-sobel_xy sobel(const uint8_t *input, int stride, int i, int j);
-sobel_xy sobel_highbd(const uint16_t *input, int stride, int i, int j);
+sobel_xy sobel(const uint8_t *input, int stride, int i, int j, int bd);
 
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
 void av1_inter_mode_data_init(struct TileDataEnc *tile_data);
