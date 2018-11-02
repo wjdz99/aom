@@ -22,7 +22,7 @@
 namespace {
 
 using ::testing::make_tuple;
-using ::testing::tuple;
+using std::tuple;
 
 /* TESTING PARAMETERS */
 

@@ -52,7 +52,7 @@ void highbd_convolve_rounding_12(CONVOLVE_ROUNDING_PARAM) {
 
 typedef enum { LOWBITDEPTH_TEST, HIGHBITDEPTH_TEST } DataPathType;
 
-using ::testing::tuple;
+using std::tuple;
 
 typedef tuple<ConvolveRoundFunc, ConvolveRoundFunc, DataPathType>
     ConvolveRoundParam;

@@ -32,7 +32,7 @@ const int kThreads = 0;
 const int kFileName = 1;
 const int kRowMT = 2;
 
-typedef ::testing::tuple<int, const char *, int> DecodeParam;
+typedef std::tuple<int, const char *, int> DecodeParam;
 
 class TestVectorTest : public ::libaom_test::DecoderTest,
                        public ::libaom_test::CodecTestWithParam<DecodeParam> {

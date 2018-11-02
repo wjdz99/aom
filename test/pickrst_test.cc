@@ -37,8 +37,7 @@ typedef libaom_test::FuncParam<lowbd_pixel_proj_error_func> TestFuncs;
 // 8 bit
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef ::testing::tuple<const lowbd_pixel_proj_error_func>
-    PixelProjErrorTestParam;
+typedef std::tuple<const lowbd_pixel_proj_error_func> PixelProjErrorTestParam;
 
 class PixelProjErrorTest
     : public ::testing::TestWithParam<PixelProjErrorTestParam> {
@@ -200,8 +199,7 @@ typedef libaom_test::FuncParam<highbd_pixel_proj_error_func> TestFuncs;
 // High bit-depth
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef ::testing::tuple<const highbd_pixel_proj_error_func>
-    PixelProjErrorTestParam;
+typedef std::tuple<const highbd_pixel_proj_error_func> PixelProjErrorTestParam;
 
 class PixelProjHighbdErrorTest
     : public ::testing::TestWithParam<PixelProjErrorTestParam> {

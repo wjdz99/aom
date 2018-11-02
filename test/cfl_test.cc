@@ -159,7 +159,7 @@ class CFLTestWithAlignedData : public CFLTest {
 };
 
 typedef cfl_subtract_average_fn (*sub_avg_fn)(TX_SIZE tx_size);
-typedef ::testing::tuple<TX_SIZE, sub_avg_fn> sub_avg_param;
+typedef std::tuple<TX_SIZE, sub_avg_fn> sub_avg_param;
 class CFLSubAvgTest : public ::testing::TestWithParam<sub_avg_param>,
                       public CFLTestWithData<int16_t> {
  public:
@@ -262,8 +262,8 @@ class CFLSubsampleTest : public ::testing::TestWithParam<S>,
 };
 
 typedef cfl_subsample_lbd_fn (*get_subsample_lbd_fn)(TX_SIZE tx_size);
-typedef ::testing::tuple<TX_SIZE, get_subsample_lbd_fn, get_subsample_lbd_fn,
-                         get_subsample_lbd_fn>
+typedef std::tuple<TX_SIZE, get_subsample_lbd_fn, get_subsample_lbd_fn,
+                   get_subsample_lbd_fn>
     subsample_lbd_param;
 class CFLSubsampleLBDTest
     : public CFLSubsampleTest<subsample_lbd_param, cfl_subsample_lbd_fn,
@@ -304,8 +304,8 @@ TEST_P(CFLSubsampleLBDTest, DISABLED_SubsampleLBD444SpeedTest) {
 }
 
 typedef cfl_subsample_hbd_fn (*get_subsample_hbd_fn)(TX_SIZE tx_size);
-typedef ::testing::tuple<TX_SIZE, get_subsample_hbd_fn, get_subsample_hbd_fn,
-                         get_subsample_hbd_fn>
+typedef std::tuple<TX_SIZE, get_subsample_hbd_fn, get_subsample_hbd_fn,
+                   get_subsample_hbd_fn>
     subsample_hbd_param;
 class CFLSubsampleHBDTest
     : public CFLSubsampleTest<subsample_hbd_param, cfl_subsample_hbd_fn,
@@ -346,7 +346,7 @@ TEST_P(CFLSubsampleHBDTest, DISABLED_SubsampleHBD444SpeedTest) {
 }
 
 typedef cfl_predict_lbd_fn (*get_predict_fn)(TX_SIZE tx_size);
-typedef ::testing::tuple<TX_SIZE, get_predict_fn> predict_param;
+typedef std::tuple<TX_SIZE, get_predict_fn> predict_param;
 class CFLPredictTest : public ::testing::TestWithParam<predict_param>,
                        public CFLTestWithAlignedData<uint8_t> {
  public:
@@ -392,7 +392,7 @@ TEST_P(CFLPredictTest, DISABLED_PredictSpeedTest) {
 }
 
 typedef cfl_predict_hbd_fn (*get_predict_fn_hbd)(TX_SIZE tx_size);
-typedef ::testing::tuple<TX_SIZE, get_predict_fn_hbd> predict_param_hbd;
+typedef std::tuple<TX_SIZE, get_predict_fn_hbd> predict_param_hbd;
 class CFLPredictHBDTest : public ::testing::TestWithParam<predict_param_hbd>,
                           public CFLTestWithAlignedData<uint16_t> {
  public:
