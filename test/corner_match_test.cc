@@ -25,7 +25,7 @@ namespace AV1CornerMatch {
 using libaom_test::ACMRandom;
 
 using ::testing::make_tuple;
-using ::testing::tuple;
+using std::tuple;
 typedef tuple<int> CornerMatchParam;
 
 class AV1CornerMatchTest : public ::testing::TestWithParam<CornerMatchParam> {

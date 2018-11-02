@@ -45,15 +45,14 @@ typedef void (*highbdjntcompavgupsampled_func)(
     int ref_stride, int bd, const JNT_COMP_PARAMS *jcp_param,
     int subpel_search);
 
-typedef ::testing::tuple<jntcompavg_func, BLOCK_SIZE> JNTCOMPAVGParam;
+typedef std::tuple<jntcompavg_func, BLOCK_SIZE> JNTCOMPAVGParam;
 
-typedef ::testing::tuple<jntcompavgupsampled_func, BLOCK_SIZE>
+typedef std::tuple<jntcompavgupsampled_func, BLOCK_SIZE>
     JNTCOMPAVGUPSAMPLEDParam;
 
-typedef ::testing::tuple<int, jntcompavg_func, BLOCK_SIZE>
-    HighbdJNTCOMPAVGParam;
+typedef std::tuple<int, jntcompavg_func, BLOCK_SIZE> HighbdJNTCOMPAVGParam;
 
-typedef ::testing::tuple<int, highbdjntcompavgupsampled_func, BLOCK_SIZE>
+typedef std::tuple<int, highbdjntcompavgupsampled_func, BLOCK_SIZE>
     HighbdJNTCOMPAVGUPSAMPLEDParam;
 
 ::testing::internal::ParamGenerator<JNTCOMPAVGParam> BuildParams(

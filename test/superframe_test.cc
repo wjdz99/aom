@@ -23,7 +23,7 @@ const int kTestMode = 0;
 const int kTileCols = 1;
 const int kTileRows = 2;
 
-typedef ::testing::tuple<libaom_test::TestMode, int, int> SuperframeTestParam;
+typedef std::tuple<libaom_test::TestMode, int, int> SuperframeTestParam;
 
 class SuperframeTest
     : public ::libaom_test::CodecTestWithParam<SuperframeTestParam>,

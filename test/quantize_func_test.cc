@@ -65,7 +65,7 @@ void highbd_quan64x64_wrapper(QUAN_PARAM_LIST) {
 
 typedef enum { TYPE_B, TYPE_DC, TYPE_FP } QuantType;
 
-using ::testing::tuple;
+using std::tuple;
 typedef tuple<QuantizeFunc, QuantizeFunc, TX_SIZE, QuantType, aom_bit_depth_t>
     QuantizeParam;
 
