@@ -18,7 +18,7 @@ using libaom_test::AV1Convolve2D::AV1JntConvolve2DTest;
 using libaom_test::AV1HighbdConvolve2D::AV1HighbdConvolve2DSrTest;
 using libaom_test::AV1HighbdConvolve2D::AV1HighbdJntConvolve2DTest;
 using ::testing::make_tuple;
-using ::testing::tuple;
+using std::tuple;
 namespace {
 
 TEST_P(AV1Convolve2DSrTest, DISABLED_Speed) { RunSpeedTest(GET_PARAM(0)); }

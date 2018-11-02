@@ -14,7 +14,7 @@ using libaom_test::ACMRandom;
 using libaom_test::AV1HighbdWarpFilter::AV1HighbdWarpFilterTest;
 using libaom_test::AV1WarpFilter::AV1WarpFilterTest;
 using ::testing::make_tuple;
-using ::testing::tuple;
+using std::tuple;
 
 namespace {
 

@@ -16,7 +16,7 @@ using libaom_test::ACMRandom;
 using libaom_test::AV1HighbdHiprecConvolve::AV1HighbdHiprecConvolveTest;
 using libaom_test::AV1HiprecConvolve::AV1HiprecConvolveTest;
 using ::testing::make_tuple;
-using ::testing::tuple;
+using std::tuple;
 
 namespace {
 

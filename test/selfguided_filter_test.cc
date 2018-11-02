@@ -28,7 +28,7 @@ namespace {
 
 using libaom_test::ACMRandom;
 using ::testing::make_tuple;
-using ::testing::tuple;
+using std::tuple;
 
 typedef void (*SgrFunc)(const uint8_t *dat8, int width, int height, int stride,
                         int eps, const int *xqd, uint8_t *dst8, int dst_stride,

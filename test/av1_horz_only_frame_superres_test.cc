@@ -32,7 +32,7 @@ const int kHPad = 32;
 
 using libaom_test::ACMRandom;
 using ::testing::make_tuple;
-using ::testing::tuple;
+using std::tuple;
 
 template <typename Pixel>
 class TestImage {

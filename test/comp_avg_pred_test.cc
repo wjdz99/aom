@@ -17,7 +17,7 @@ using libaom_test::AV1JNTCOMPAVG::AV1HighBDJNTCOMPAVGUPSAMPLEDTest;
 using libaom_test::AV1JNTCOMPAVG::AV1JNTCOMPAVGTest;
 using libaom_test::AV1JNTCOMPAVG::AV1JNTCOMPAVGUPSAMPLEDTest;
 using ::testing::make_tuple;
-using ::testing::tuple;
+using std::tuple;
 
 namespace {
 

@@ -234,7 +234,7 @@ typedef int64_t (*sse_func)(const uint8_t *a, int a_stride, const uint8_t *b,
                             int b_stride, int width, int height);
 typedef libaom_test::FuncParam<sse_func> TestSSEFuncs;
 
-typedef ::testing::tuple<TestSSEFuncs, int> SSETestParam;
+typedef std::tuple<TestSSEFuncs, int> SSETestParam;
 
 class SSETest : public ::testing::TestWithParam<SSETestParam> {
  public:

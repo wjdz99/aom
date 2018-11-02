@@ -34,7 +34,7 @@ const int kYStepQn = 20;
 
 using libaom_test::ACMRandom;
 using ::testing::make_tuple;
-using ::testing::tuple;
+using std::tuple;
 
 enum NTaps { EIGHT_TAP, TEN_TAP, TWELVE_TAP };
 int NTapsToInt(NTaps ntaps) { return 8 + static_cast<int>(ntaps) * 2; }
