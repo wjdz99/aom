@@ -12,7 +12,6 @@
 #include "test/warp_filter_test_util.h"
 
 using ::testing::make_tuple;
-using ::testing::tuple;
 
 namespace libaom_test {
 

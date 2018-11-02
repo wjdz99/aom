@@ -26,7 +26,7 @@
 namespace {
 
 using libaom_test::ACMRandom;
-using ::testing::tuple;
+using std::tuple;
 
 typedef void (*HbdHtFunc)(const int16_t *input, int32_t *output, int stride,
                           TX_TYPE tx_type, int bd);
@@ -174,7 +174,7 @@ INSTANTIATE_TEST_CASE_P(SSE4_1, AV1HighbdInvHTNxN,
 typedef void (*HighbdInvTxfm2dFunc)(const int32_t *input, uint8_t *output,
                                     int stride, const TxfmParam *txfm_param);
 
-typedef ::testing::tuple<const HighbdInvTxfm2dFunc> AV1HighbdInvTxfm2dParam;
+typedef std::tuple<const HighbdInvTxfm2dFunc> AV1HighbdInvTxfm2dParam;
 class AV1HighbdInvTxfm2d
     : public ::testing::TestWithParam<AV1HighbdInvTxfm2dParam> {
  public:

@@ -37,7 +37,7 @@ typedef unsigned int (*MaskedSubPixelVarianceFunc)(
     const uint8_t *ref, int ref_stride, const uint8_t *second_pred,
     const uint8_t *msk, int msk_stride, int invert_mask, unsigned int *sse);
 
-typedef ::testing::tuple<MaskedSubPixelVarianceFunc, MaskedSubPixelVarianceFunc>
+typedef std::tuple<MaskedSubPixelVarianceFunc, MaskedSubPixelVarianceFunc>
     MaskedSubPixelVarianceParam;
 
 class MaskedSubPixelVarianceTest
@@ -170,8 +170,8 @@ TEST_P(MaskedSubPixelVarianceTest, ExtremeValues) {
                           << " y_offset = " << first_failure_y;
 }
 
-typedef ::testing::tuple<MaskedSubPixelVarianceFunc, MaskedSubPixelVarianceFunc,
-                         aom_bit_depth_t>
+typedef std::tuple<MaskedSubPixelVarianceFunc, MaskedSubPixelVarianceFunc,
+                   aom_bit_depth_t>
     HighbdMaskedSubPixelVarianceParam;
 
 class HighbdMaskedSubPixelVarianceTest

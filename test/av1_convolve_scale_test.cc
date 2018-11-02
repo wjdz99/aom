@@ -32,9 +32,8 @@ const int kHPad = 32;
 const int kXStepQn = 16;
 const int kYStepQn = 20;
 
-using libaom_test::ACMRandom;
 using ::testing::make_tuple;
-using ::testing::tuple;
+using libaom_test::ACMRandom;
 
 enum NTaps { EIGHT_TAP, TEN_TAP, TWELVE_TAP };
 int NTapsToInt(NTaps ntaps) { return 8 + static_cast<int>(ntaps) * 2; }
@@ -242,7 +241,7 @@ void TestImage<SrcPixel>::Check() const {
   }
 }
 
-typedef tuple<int, int> BlockDimension;
+typedef std::tuple<int, int> BlockDimension;
 
 struct BaseParams {
   BaseParams(BlockDimension dims, NTaps ntaps_x, NTaps ntaps_y, bool avg)
@@ -386,7 +385,7 @@ class ConvolveScaleTestBase : public ::testing::Test {
   ConvolveParams convolve_params_;
 };
 
-typedef tuple<int, int> BlockDimension;
+typedef std::tuple<int, int> BlockDimension;
 
 typedef void (*LowbdConvolveFunc)(const uint8_t *src, int src_stride,
                                   uint8_t *dst, int dst_stride, int w, int h,
@@ -398,7 +397,7 @@ typedef void (*LowbdConvolveFunc)(const uint8_t *src, int src_stride,
 
 // Test parameter list:
 //  <tst_fun, dims, ntaps_x, ntaps_y, avg>
-typedef tuple<LowbdConvolveFunc, BlockDimension, NTaps, NTaps, bool>
+typedef std::tuple<LowbdConvolveFunc, BlockDimension, NTaps, NTaps, bool>
     LowBDParams;
 
 class LowBDConvolveScaleTest
@@ -471,7 +470,7 @@ typedef void (*HighbdConvolveFunc)(const uint16_t *src, int src_stride,
 
 // Test parameter list:
 //  <tst_fun, dims, ntaps_x, ntaps_y, avg, bd>
-typedef tuple<HighbdConvolveFunc, BlockDimension, NTaps, NTaps, bool, int>
+typedef std::tuple<HighbdConvolveFunc, BlockDimension, NTaps, NTaps, bool, int>
     HighBDParams;
 
 class HighBDConvolveScaleTest

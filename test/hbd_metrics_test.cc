@@ -173,7 +173,7 @@ class HBDMetricsTestBase {
   HBDMetricFunc hbd_metric_;
 };
 
-typedef ::testing::tuple<LBDMetricFunc, HBDMetricFunc, int, int, double>
+typedef std::tuple<LBDMetricFunc, HBDMetricFunc, int, int, double>
     MetricTestTParam;
 class HBDMetricsTest : public HBDMetricsTestBase,
                        public ::testing::TestWithParam<MetricTestTParam> {

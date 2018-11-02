@@ -111,10 +111,9 @@ typedef void (*HBDSubtractFunc)(int rows, int cols, int16_t *diff_ptr,
 
 using ::testing::get;
 using ::testing::make_tuple;
-using ::testing::tuple;
 
 // <width, height, bit_dpeth, subtract>
-typedef tuple<int, int, int, HBDSubtractFunc> Params;
+typedef std::tuple<int, int, int, HBDSubtractFunc> Params;
 
 class AV1HBDSubtractBlockTest : public ::testing::TestWithParam<Params> {
  public:
