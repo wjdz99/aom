@@ -37,7 +37,7 @@ const char kNewEncodeOutputFile[] = "new_encode.ivf";
 /*
  DecodePerfTest takes a tuple of filename + number of threads to decode with
  */
-typedef ::testing::tuple<const char *, unsigned> DecodePerfParam;
+typedef std::tuple<const char *, unsigned> DecodePerfParam;
 
 // TODO(jimbankoski): Add actual test vectors here when available.
 // const DecodePerfParam kAV1DecodePerfVectors[] = {};

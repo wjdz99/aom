@@ -16,7 +16,7 @@
 namespace {
 
 using ::testing::get;
-using ::testing::tuple;
+using std::tuple;
 
 class EdgeDetectBrightnessTest :
     // Parameters are (brightness, width, height).

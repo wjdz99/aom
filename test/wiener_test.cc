@@ -116,7 +116,7 @@ typedef libaom_test::FuncParam<compute_stats_Func> TestFuncs;
 // 8 bit
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef ::testing::tuple<const compute_stats_Func> WienerTestParam;
+typedef std::tuple<const compute_stats_Func> WienerTestParam;
 
 class WienerTest : public ::testing::TestWithParam<WienerTestParam> {
  public:
@@ -394,7 +394,7 @@ typedef void (*compute_stats_Func)(int wiener_win, const uint8_t *dgd,
 
 typedef libaom_test::FuncParam<compute_stats_Func> TestFuncs;
 
-typedef ::testing::tuple<const compute_stats_Func> WienerTestParam;
+typedef std::tuple<const compute_stats_Func> WienerTestParam;
 
 class WienerTestHighbd : public ::testing::TestWithParam<WienerTestParam> {
  public:

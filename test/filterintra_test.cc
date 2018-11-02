@@ -22,7 +22,7 @@
 namespace {
 
 using libaom_test::ACMRandom;
-using ::testing::tuple;
+using std::tuple;
 
 typedef void (*Predictor)(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
                           const uint8_t *above, const uint8_t *left, int mode);
