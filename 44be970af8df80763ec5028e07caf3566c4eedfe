@@ -22,6 +22,30 @@
       "revId": "44be970af8df80763ec5028e07caf3566c4eedfe",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a73f9516_086d7df8",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1143,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-11-05T18:54:09Z",
+      "side": 1,
+      "message": "I think excluding map_pb_cdf from Av1ColorMapParam is better. This can be done later. Thanks.",
+      "parentUuid": "b925ed9a_64037824",
+      "range": {
+        "startLine": 1143,
+        "startChar": 9,
+        "endLine": 1143,
+        "endChar": 19
+      },
+      "revId": "44be970af8df80763ec5028e07caf3566c4eedfe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
