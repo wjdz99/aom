@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b925ed9a_64037824",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1143,
+      "author": {
+        "id": 9096
+      },
+      "writtenOn": "2018-11-05T08:58:47Z",
+      "side": 1,
+      "message": "In the current patch, we have added an element - map_pb_cdf to Av1ColorMapParam structure. Av1ColorMapParam is a common structure to both encoder and decoder, but map_pb_cdf will be used only in encoder. If required, we can exclude map_pb_cdf from Av1ColorMapParam and pass as a parameter in the respective encoder functions. Please let us know your views on this.",
+      "range": {
+        "startLine": 1143,
+        "startChar": 9,
+        "endLine": 1143,
+        "endChar": 19
+      },
+      "revId": "44be970af8df80763ec5028e07caf3566c4eedfe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
