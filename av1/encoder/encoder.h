@@ -619,8 +619,14 @@ typedef struct AV1_COMP {
 
   unsigned int row_mt;
   int scaled_ref_idx[INTER_REFS_PER_FRAME];
-  int ref_fb_idx[REF_FRAMES];
-  int refresh_fb_idx;  // ref frame buffer index to refresh
+
+  // For encoder, we have a two-level mapping from reference frame type to the
+  // corresponding buffer in the buffer pool:
+  // * 'remapped_reference_idx[i]' maps reference type ‘i’ (range: 0 ...
+  // REF_FRAMES - 1) to a remapped index ‘j’ (in range: 0 ... REF_FRAMES - 1)
+  // * Later, 'cm->ref_frame_map[j]' maps the remapped index ‘j’ to actual index
+  //   of the buffer in the buffer pool ‘cm->buffer_pool.frame_bufs’.
+  int remapped_reference_idx[REF_FRAMES];
 
   int last_show_frame_buf_idx;  // last show frame buffer index
 
@@ -889,7 +895,8 @@ static INLINE int frame_is_kf_gf_arf(const AV1_COMP *cpi) {
 
 static INLINE int get_ref_frame_map_idx(const AV1_COMP *cpi,
                                         MV_REFERENCE_FRAME ref_frame) {
-  return (ref_frame >= 1) ? cpi->ref_fb_idx[ref_frame - 1] : INVALID_IDX;
+  return (ref_frame >= 1) ? cpi->remapped_reference_idx[ref_frame - 1]
+                          : INVALID_IDX;
 }
 
 static INLINE int get_ref_frame_buf_idx(const AV1_COMP *cpi,
