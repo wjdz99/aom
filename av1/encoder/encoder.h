@@ -685,7 +685,6 @@ typedef struct AV1_COMP {
   int static_mb_pct;     // % forced skip mbs by segmentation
   int ref_frame_flags;
   int ext_ref_frame_flags;
-  RATE_FACTOR_LEVEL frame_rf_level[FRAME_BUFFERS];
 
   SPEED_FEATURES sf;
 
@@ -991,9 +990,9 @@ static INLINE void set_ref_ptrs(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                 MV_REFERENCE_FRAME ref0,
                                 MV_REFERENCE_FRAME ref1) {
   xd->block_refs[0] =
-      &cm->frame_refs[ref0 >= LAST_FRAME ? ref0 - LAST_FRAME : 0];
+      &cm->current_frame.frame_refs[ref0 >= LAST_FRAME ? ref0 - LAST_FRAME : 0];
   xd->block_refs[1] =
-      &cm->frame_refs[ref1 >= LAST_FRAME ? ref1 - LAST_FRAME : 0];
+      &cm->current_frame.frame_refs[ref1 >= LAST_FRAME ? ref1 - LAST_FRAME : 0];
 }
 
 static INLINE int get_chessboard_index(int frame_index) {
@@ -1034,8 +1033,8 @@ static INLINE int av1_frame_scaled(const AV1_COMMON *cm) {
 // frame. An exception can be made for a forward keyframe since it has no
 // previous dependencies.
 static INLINE int encode_show_existing_frame(const AV1_COMMON *cm) {
-  return cm->show_existing_frame &&
-         (!cm->error_resilient_mode || cm->frame_type == KEY_FRAME);
+  return cm->show_existing_frame && (!cm->error_resilient_mode ||
+                                     cm->current_frame.frame_type == KEY_FRAME);
 }
 
 // Returns a Sequence Header OBU stored in an aom_fixed_buf_t, or NULL upon

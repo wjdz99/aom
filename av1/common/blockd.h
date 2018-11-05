@@ -433,10 +433,11 @@ typedef struct macroblockd_plane {
 #define BLOCK_OFFSET(x, i) \
   ((x) + (i) * (1 << (tx_size_wide_log2[0] + tx_size_high_log2[0])))
 
+struct RefCntBuffer;
+
 typedef struct RefBuffer {
-  int idx;      // frame buf idx
   int map_idx;  // frame map idx
-  YV12_BUFFER_CONFIG *buf;
+  struct RefCntBuffer *buf;
   struct scale_factors sf;
 } RefBuffer;
 

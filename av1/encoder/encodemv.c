@@ -137,11 +137,13 @@ static void build_nmv_component_cost_table(int *mvcost,
   }
 }
 
-void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
-                   nmv_context *mvctx, int usehp) {
+void av1_encode_mv(const SPEED_FEATURES *const sf,
+                   const int cur_frame_force_integer_mv,
+                   unsigned int *const max_mv_magnitude, aom_writer *w,
+                   const MV *mv, const MV *ref, nmv_context *mvctx, int usehp) {
   const MV diff = { mv->row - ref->row, mv->col - ref->col };
   const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
-  if (cpi->common.cur_frame_force_integer_mv) {
+  if (cur_frame_force_integer_mv) {
     usehp = MV_SUBPEL_NONE;
   }
   aom_write_symbol(w, j, mvctx->joints_cdf, MV_JOINTS);
@@ -153,9 +155,9 @@ void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
 
   // If auto_mv_step_size is enabled then keep track of the largest
   // motion vector component used.
-  if (cpi->sf.mv.auto_mv_step_size) {
+  if (sf->mv.auto_mv_step_size) {
     unsigned int maxv = AOMMAX(abs(mv->row), abs(mv->col)) >> 3;
-    cpi->max_mv_magnitude = AOMMAX(maxv, cpi->max_mv_magnitude);
+    *max_mv_magnitude = AOMMAX(maxv, *max_mv_magnitude);
   }
 }
 
