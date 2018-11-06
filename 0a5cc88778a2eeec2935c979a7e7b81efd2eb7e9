@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "388b7578_f297fb8e",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2018-11-06T00:50:25Z",
+      "side": 1,
+      "message": "Can you also update this one?",
+      "range": {
+        "startLine": 431,
+        "startChar": 19,
+        "endLine": 431,
+        "endChar": 32
+      },
+      "revId": "0a5cc88778a2eeec2935c979a7e7b81efd2eb7e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95b8900b_ea45c976",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2018-11-06T00:50:25Z",
+      "side": 1,
+      "message": "This is a great description. I also find the comment in update_reference_frames to be very helpful, maybe it would be useful to paste some of it here to demonstrate the encoder mapping: \n\n    // NOTE(zoeliu): We have two layers of mapping (1) from the per-frame\n    // reference to the reference frame buffer virtual index; and then (2) from\n    // the virtual index to the reference frame buffer physical index:\n    //\n    // LAST_FRAME,      ..., LAST3_FRAME,     ..., ALTREF_FRAME\n    //      |                     |                     |\n    //      v                     v                     v\n    // ref_fb_idx[0],   ..., ref_fb_idx[2],   ..., ref_fb_idx[ALTREF_FRAME-1]\n    //      |                     |                     |\n    //      v                     v                     v\n    // ref_frame_map[], ..., ref_frame_map[], ..., ref_frame_map[]\n    //",
+      "range": {
+        "startLine": 282,
+        "startChar": 0,
+        "endLine": 286,
+        "endChar": 80
+      },
+      "revId": "0a5cc88778a2eeec2935c979a7e7b81efd2eb7e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9072d6f7_1ff172e8",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2561,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2018-11-06T00:50:25Z",
+      "side": 1,
+      "message": "Is there a reason you changed the spacing here?",
+      "range": {
+        "startLine": 2560,
+        "startChar": 0,
+        "endLine": 2561,
+        "endChar": 45
+      },
+      "revId": "0a5cc88778a2eeec2935c979a7e7b81efd2eb7e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b148a9af_48fd1e35",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2018-11-06T00:50:25Z",
+      "side": 1,
+      "message": "Maybe my comment in av1/common/onyxc_int.h applies better here, your call.",
+      "range": {
+        "startLine": 623,
+        "startChar": 0,
+        "endLine": 628,
+        "endChar": 69
+      },
+      "revId": "0a5cc88778a2eeec2935c979a7e7b81efd2eb7e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
