@@ -62,7 +62,7 @@ static INLINE void calc_subpel_params(
     subpel_params->xs = sf->x_step_q4;
     subpel_params->ys = sf->y_step_q4;
   } else {
-    const MV mv_q4 = clamp_mv_to_umv_border_sb(
+    const MV32 mv_q4 = clamp_mv_to_umv_border_sb(
         xd, &mv, bw, bh, pd->subsampling_x, pd->subsampling_y);
     subpel_params->xs = subpel_params->ys = SCALE_SUBPEL_SHIFTS;
     subpel_params->subpel_x = (mv_q4.col & SUBPEL_MASK) << SCALE_EXTRA_BITS;
