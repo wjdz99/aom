@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4deb27df_7ac099d3",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-06T19:40:33Z",
+      "side": 1,
+      "message": "Nit: remove the second \"then\"? (There is already a \"then\" at the end of the previous line.)",
+      "range": {
+        "startLine": 645,
+        "startChar": 41,
+        "endLine": 645,
+        "endChar": 45
+      },
+      "revId": "36eab2358ee9e1ab9618a71291360dc8ee9d2f4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
