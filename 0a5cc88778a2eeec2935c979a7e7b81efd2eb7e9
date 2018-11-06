@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "117e4a0a_41217f6c",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-06T01:29:34Z",
+      "side": 1,
+      "message": "Not clear about this myself. If you have clarity on this, pls let me know.",
+      "parentUuid": "388b7578_f297fb8e",
+      "range": {
+        "startLine": 431,
+        "startChar": 19,
+        "endLine": 431,
+        "endChar": 32
+      },
+      "revId": "0a5cc88778a2eeec2935c979a7e7b81efd2eb7e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95b8900b_ea45c976",
         "filename": "av1/common/onyxc_int.h",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "0a5cc88778a2eeec2935c979a7e7b81efd2eb7e9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14bfeaab_36a03d08",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-06T01:29:34Z",
+      "side": 1,
+      "message": "Pasted this in encoder.h instead.\nNote: I have still kept Zoe\u0027s original comment in update_reference_frames(). I can remove it to dedup, if that\u0027s ok.",
+      "parentUuid": "95b8900b_ea45c976",
+      "range": {
+        "startLine": 282,
+        "startChar": 0,
+        "endLine": 286,
+        "endChar": 80
+      },
+      "revId": "0a5cc88778a2eeec2935c979a7e7b81efd2eb7e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fb99631b_d136f14e",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2561,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-06T01:29:34Z",
+      "side": 1,
+      "message": "Accidental change indeed. Reverted, thanks.",
+      "parentUuid": "9072d6f7_1ff172e8",
+      "range": {
+        "startLine": 2560,
+        "startChar": 0,
+        "endLine": 2561,
+        "endChar": 45
+      },
+      "revId": "0a5cc88778a2eeec2935c979a7e7b81efd2eb7e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b148a9af_48fd1e35",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 1
@@ -91,6 +163,30 @@
       "revId": "0a5cc88778a2eeec2935c979a7e7b81efd2eb7e9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b576c0d_1426b931",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-06T01:29:34Z",
+      "side": 1,
+      "message": "Done, also:\n- made the comment a bit more precise in terms of indexing, and\n- shortened the var name below a bit.",
+      "parentUuid": "b148a9af_48fd1e35",
+      "range": {
+        "startLine": 623,
+        "startChar": 0,
+        "endLine": 628,
+        "endChar": 69
+      },
+      "revId": "0a5cc88778a2eeec2935c979a7e7b81efd2eb7e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
