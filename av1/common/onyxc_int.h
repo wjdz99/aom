@@ -110,6 +110,18 @@ typedef struct {
 } MV_REF;
 
 typedef struct {
+  // For a RefCntBuffer, the following are reference-holding variables:
+  // - cm->ref_frame_map[]
+  // - cm->new_fb_idx
+  // - cm->scaled_ref_idx[] (encoder only)
+  // - cm->next_ref_frame_map[] (decoder only)
+  // With that definition, 'ref_count' is the number of reference-holding
+  // variables that are currently 'pointing' to this buffer.
+  // For example:
+  // - suppose this buffer is at index 'k' in the buffer pool, and
+  // - Total 'n' of the variables / array indices above have value 'k' (that is,
+  // they are pointing to buffer at index 'k').
+  // Then, pool->frame_bufs[k].ref_count = n
   int ref_count;
 
   unsigned int cur_frame_offset;
@@ -613,15 +625,17 @@ static INLINE int get_free_fb(AV1_COMMON *cm) {
   return i;
 }
 
-static INLINE void ref_cnt_fb(RefCntBuffer *bufs, int *idx, int new_idx) {
-  const int ref_index = *idx;
+// Modify 'ptr' to point to the buffer at 'new_idx', and update the ref counts.
+static INLINE void assign_buffer(RefCntBuffer *bufs, int *ptr, int new_idx) {
+  const int old_idx = *ptr;
+  if (old_idx >= 0 && bufs[old_idx].ref_count > 0) {
+    // One less pointer to buffer at 'old_idx', so reduce ref count.
+    --bufs[old_idx].ref_count;
+  }
 
-  if (ref_index >= 0 && bufs[ref_index].ref_count > 0)
-    bufs[ref_index].ref_count--;
-
-  *idx = new_idx;
-
-  bufs[new_idx].ref_count++;
+  *ptr = new_idx;
+  // One more pointer to buffer at 'new_idx', so increase ref count.
+  ++bufs[new_idx].ref_count;
 }
 
 static INLINE int frame_is_intra_only(const AV1_COMMON *const cm) {
