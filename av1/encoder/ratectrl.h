@@ -24,6 +24,11 @@ extern "C" {
 // Bits Per MB at different Q (Multiplied by 512)
 #define BPER_MB_NORMBITS 9
 
+// Threshold used to define if a KF group as static (e.g. a slide show).
+// Essentially this means that no frame in the group has more than 1% of MBs
+// that are not marked as coded with 0,0 motion in the first pass.
+#define STATIC_KF_GROUP_THRESH 99
+
 #define CUSTOMIZED_GF 1
 
 #if CONFIG_FIX_GF_LENGTH

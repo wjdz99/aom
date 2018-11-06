@@ -991,6 +991,15 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
       active_best_quality =
           get_kf_active_quality(rc, active_worst_quality, bit_depth);
 
+      if (cpi->twopass.kf_zeromotion_pct >= STATIC_KF_GROUP_THRESH) {
+        active_best_quality /= 4;
+      }
+
+      // Dont allow the active min to be lossless (q0) unlesss the max q
+      // already indicates lossless.
+      active_best_quality =
+          AOMMIN(active_worst_quality, AOMMAX(1, active_best_quality));
+
       // Allow somewhat lower kf minq with small image formats.
       if ((width * height) <= (352 * 288)) {
         q_adj_factor -= 0.25;
