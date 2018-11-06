@@ -318,6 +318,7 @@ static void init_buffer_callbacks(aom_codec_alg_priv_t *ctx) {
     BufferPool *const pool = cm->buffer_pool;
 
     cm->new_fb_idx = INVALID_IDX;
+    cm->cur_frame = NULL;
     cm->byte_alignment = ctx->byte_alignment;
     cm->skip_loop_filter = ctx->skip_loop_filter;
     cm->skip_film_grain = ctx->skip_film_grain;
@@ -356,7 +357,7 @@ static int frame_worker_hook(void *arg1, void *arg2) {
 
   if (result != 0) {
     // Check decode result in serial decode.
-    frame_worker_data->pbi->cur_buf->buf.corrupted = 1;
+    frame_worker_data->pbi->common.cur_frame->buf.corrupted = 1;
     frame_worker_data->pbi->need_resync = 1;
   }
   return !result;
@@ -448,7 +449,8 @@ static INLINE void check_resync(aom_codec_alg_priv_t *const ctx,
                                 const AV1Decoder *const pbi) {
   // Clear resync flag if worker got a key frame or intra only frame.
   if (ctx->need_resync == 1 && pbi->need_resync == 0 &&
-      (pbi->common.intra_only || pbi->common.frame_type == KEY_FRAME))
+      (pbi->common.current_frame.intra_only ||
+       pbi->common.current_frame.frame_type == KEY_FRAME))
     ctx->need_resync = 0;
 }
 
@@ -706,7 +708,6 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
                               &grain_params) == 0) {
           AV1Decoder *const pbi = frame_worker_data->pbi;
           AV1_COMMON *const cm = &pbi->common;
-          RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
           ctx->last_show_frame = cm->new_fb_idx;
           if (ctx->need_resync) return NULL;
           yuvconfig2image(&ctx->img, sd, frame_worker_data->user_priv);
@@ -756,7 +757,7 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
                 AOMMIN(cm->tile_width, cm->mi_cols - mi_col) * MI_SIZE;
           }
 
-          ctx->img.fb_priv = frame_bufs[cm->new_fb_idx].raw_frame_buffer.priv;
+          ctx->img.fb_priv = cm->cur_frame->raw_frame_buffer.priv;
           img = &ctx->img;
           img->temporal_id = cm->temporal_layer_id;
           img->spatial_id = cm->spatial_layer_id;

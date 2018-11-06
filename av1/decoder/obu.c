@@ -398,7 +398,7 @@ static void copy_decoded_tile_to_tile_list_buffer(AV1Decoder *pbi,
   const int num_planes = av1_num_planes(cm);
 
   // Copy decoded tile to the tile list output buffer.
-  YV12_BUFFER_CONFIG *cur_frame = get_frame_new_buffer(cm);
+  YV12_BUFFER_CONFIG *cur_frame = &cm->cur_frame->buf;
   const int mi_row = pbi->dec_tile_row * cm->tile_height;
   const int mi_col = pbi->dec_tile_col * cm->tile_width;
   const int is_hbd = (cur_frame->flags & YV12_FLAG_HIGHBITDEPTH) ? 1 : 0;

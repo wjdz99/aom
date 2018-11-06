@@ -90,11 +90,11 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
 
   CHECK_MEM_ERROR(cm, cm->fc,
                   (FRAME_CONTEXT *)aom_memalign(32, sizeof(*cm->fc)));
-  CHECK_MEM_ERROR(cm, cm->frame_contexts,
-                  (FRAME_CONTEXT *)aom_memalign(
-                      32, FRAME_CONTEXTS * sizeof(*cm->frame_contexts)));
+  CHECK_MEM_ERROR(
+      cm, cm->default_frame_context,
+      (FRAME_CONTEXT *)aom_memalign(32, sizeof(*cm->default_frame_context)));
   memset(cm->fc, 0, sizeof(*cm->fc));
-  memset(cm->frame_contexts, 0, FRAME_CONTEXTS * sizeof(*cm->frame_contexts));
+  memset(cm->default_frame_context, 0, sizeof(*cm->default_frame_context));
 
   pbi->need_resync = 1;
   aom_once(initialize_dec);
@@ -103,7 +103,7 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
   memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
   memset(&cm->next_ref_frame_map, -1, sizeof(cm->next_ref_frame_map));
 
-  cm->current_video_frame = 0;
+  cm->current_frame.frame_number = 0;
   pbi->decoding_first_frame = 1;
   pbi->common.buffer_pool = pool;
 
@@ -401,7 +401,7 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
     }
 
     if (cm->show_existing_frame || cm->show_frame) {
-      YV12_BUFFER_CONFIG *cur_frame = get_frame_new_buffer(cm);
+      YV12_BUFFER_CONFIG *cur_frame = &cm->cur_frame->buf;
       if (pbi->output_all_layers) {
         // Append this frame to the output queue
         if (pbi->num_output_frames >= MAX_NUM_SPATIAL_LAYERS) {
@@ -445,8 +445,7 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
 
     // Invalidate these references until the next frame starts.
     for (ref_index = 0; ref_index < INTER_REFS_PER_FRAME; ref_index++) {
-      cm->frame_refs[ref_index].idx = INVALID_IDX;
-      cm->frame_refs[ref_index].buf = NULL;
+      cm->current_frame.frame_refs[ref_index].buf = NULL;
     }
   }
 }
@@ -455,7 +454,6 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
                                 const uint8_t **psource) {
   AV1_COMMON *volatile const cm = &pbi->common;
   BufferPool *volatile const pool = cm->buffer_pool;
-  RefCntBuffer *volatile const frame_bufs = cm->buffer_pool->frame_bufs;
   const uint8_t *source = *psource;
   cm->error.error_code = AOM_CODEC_OK;
   cm->error.has_detail = 0;
@@ -469,9 +467,8 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
     // TODO(jkoleszar): Error concealment is undefined and non-normative
     // at this point, but if it becomes so, [0] may not always be the correct
     // thing to do here.
-    if (cm->frame_refs[0].idx > 0) {
-      assert(cm->frame_refs[0].buf != NULL);
-      cm->frame_refs[0].buf->corrupted = 1;
+    if (cm->current_frame.frame_refs[0].buf) {
+      cm->current_frame.frame_refs[0].buf->buf.corrupted = 1;
     }
   }
 
@@ -489,8 +486,6 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
   cm->cur_frame = &pool->frame_bufs[cm->new_fb_idx];
 
   if (!pbi->camera_frame_header_ready) pbi->hold_ref_buf = 0;
-
-  pbi->cur_buf = &frame_bufs[cm->new_fb_idx];
 
   // The jmp_buf is valid only for the duration of the function that calls
   // setjmp(). Therefore, this function must reset the 'setjmp' field to 0
@@ -550,8 +545,6 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
   aom_clear_system_state();
 
   if (!cm->show_existing_frame) {
-    cm->last_show_frame = cm->show_frame;
-
     if (cm->seg.enabled) {
       if (cm->prev_frame && (cm->mi_rows == cm->prev_frame->mi_rows) &&
           (cm->mi_cols == cm->prev_frame->mi_cols)) {

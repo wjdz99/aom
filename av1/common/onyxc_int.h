@@ -109,11 +109,24 @@ typedef struct {
   MV_REFERENCE_FRAME ref_frame;
 } MV_REF;
 
-typedef struct {
+// FIXME(jsh): This enum was originally in encoder/ratectrl.h, and is encoder
+// specific. When we move to C++, this should go back there and BufferPool
+// should be templatized.
+typedef enum {
+  INTER_NORMAL = 0,
+  INTER_LOW = 1,
+  INTER_HIGH = 2,
+  GF_ARF_LOW = 3,
+  GF_ARF_STD = 4,
+  KF_STD = 5,
+  RATE_FACTOR_LEVELS = 6
+} RATE_FACTOR_LEVEL;
+
+typedef struct RefCntBuffer {
   int ref_count;
 
-  unsigned int cur_frame_offset;
-  unsigned int ref_frame_offset[INTER_REFS_PER_FRAME];
+  unsigned int order_hint;
+  unsigned int ref_order_hints[INTER_REFS_PER_FRAME];
 
   MV_REF *mvs;
   uint8_t *seg_map;
@@ -139,6 +152,9 @@ typedef struct {
 
   // 0 = ZERO_MV, MV
   int8_t mode_deltas[MAX_MODE_LF_DELTAS];
+
+  FRAME_CONTEXT frame_context;
+  RATE_FACTOR_LEVEL frame_rf_level;
 } RefCntBuffer;
 
 typedef struct BufferPool {
@@ -175,6 +191,41 @@ typedef struct BitstreamLevel {
   uint8_t minor;
 } BitstreamLevel;
 
+// TODO(david.turner@argondesign.com) Move this to cdef.h
+typedef struct {
+  int cdef_pri_damping;
+  int cdef_sec_damping;
+  int nb_cdef_strengths;
+  int cdef_strengths[CDEF_MAX_STRENGTHS];
+  int cdef_uv_strengths[CDEF_MAX_STRENGTHS];
+  int cdef_bits;
+} CdefInfo;
+
+typedef struct {
+  int delta_q_present_flag;
+  // Resolution of delta quant
+  int delta_q_res;
+  int delta_lf_present_flag;
+  // Resolution of delta lf level
+  int delta_lf_res;
+  // This is a flag for number of deltas of loop filter level
+  // 0: use 1 delta, for y_vertical, y_horizontal, u, and v
+  // 1: use separate deltas for each filter level
+  int delta_lf_multi;
+} DeltaQInfo;
+
+typedef struct {
+  int enable_order_hint;           // 0 - disable order hint, and related tools
+  int order_hint_bits_minus_1;
+                                   // jnt_comp, ref_frame_mvs, frame_sign_bias
+                                   // if 0, enable_jnt_comp and
+                                   // enable_ref_frame_mvs must be set zs 0.
+  int enable_jnt_comp;             // 0 - disable joint compound modes
+                                   // 1 - enable it
+  int enable_ref_frame_mvs;        // 0 - disable ref frame mvs
+                                   // 1 - enable it
+} OrderHintInfo;
+
 // Sequence header structure.
 // Note: All syntax elements of sequence_header_obu that need to be
 // bit-identical across multiple sequence headers must be part of this struct,
@@ -190,7 +241,9 @@ typedef struct SequenceHeader {
   BLOCK_SIZE sb_size;  // Size of the superblock used for this frame
   int mib_size;        // Size of the superblock in units of MI blocks
   int mib_size_log2;   // Log 2 of above.
-  int order_hint_bits_minus_1;
+
+  OrderHintInfo order_hint_info;
+
   int force_screen_content_tools;  // 0 - force off
                                    // 1 - force on
                                    // 2 - adaptive
@@ -205,14 +258,6 @@ typedef struct SequenceHeader {
   int enable_masked_compound;      // enables/disables masked compound
   int enable_dual_filter;          // 0 - disable dual interpolation filter
                                    // 1 - enable vert/horiz filter selection
-  int enable_order_hint;           // 0 - disable order hint, and related tools
-                                   // jnt_comp, ref_frame_mvs, frame_sign_bias
-                                   // if 0, enable_jnt_comp and
-                                   // enable_ref_frame_mvs must be set zs 0.
-  int enable_jnt_comp;             // 0 - disable joint compound modes
-                                   // 1 - enable it
-  int enable_ref_frame_mvs;        // 0 - disable ref frame mvs
-                                   // 1 - enable it
   int enable_warped_motion;        // 0 - disable warped motion for sequence
                                    // 1 - enable it for the sequence
   int enable_superres;     // 0 - Disable superres for the sequence, and disable
@@ -250,7 +295,28 @@ typedef struct SequenceHeader {
   int film_grain_params_present;
 } SequenceHeader;
 
+typedef struct {
+    int skip_mode_allowed;
+    int skip_mode_flag;
+    int ref_frame_idx_0;
+    int ref_frame_idx_1;
+} SkipModeInfo;
+
+typedef struct {
+  FRAME_TYPE frame_type;
+  // Flag signaling that the frame is encoded using only INTRA modes.
+  uint8_t intra_only;
+  REFERENCE_MODE reference_mode;
+
+  unsigned int order_hint;
+  unsigned int frame_number;
+  SkipModeInfo skip_mode_info;
+  // Each Inter frame can reference INTER_REFS_PER_FRAME buffers
+  RefBuffer frame_refs[INTER_REFS_PER_FRAME];
+} CurrentFrame;
+
 typedef struct AV1Common {
+  CurrentFrame current_frame;
   struct aom_internal_error_info error;
   int width;
   int height;
@@ -288,28 +354,17 @@ typedef struct AV1Common {
   // TODO(jkoleszar): could expand active_ref_idx to 4, with 0 as intra, and
   // roll new_fb_idx into it.
 
-  // Each Inter frame can reference INTER_REFS_PER_FRAME buffers
-  RefBuffer frame_refs[INTER_REFS_PER_FRAME];
-  int is_skip_mode_allowed;
-  int skip_mode_flag;
-  int ref_frame_idx_0;
-  int ref_frame_idx_1;
-
   int new_fb_idx;
 
   FRAME_TYPE last_frame_type; /* last frame's frame type for motion search.*/
-  FRAME_TYPE frame_type;
 
   int show_frame;
   int showable_frame;  // frame can be used as show existing frame in future
-  int last_show_frame;
   int show_existing_frame;
   // Flag for a frame used as a reference - not written to the bitstream
   int is_reference_frame;
   int reset_decoder_state;
 
-  // Flag signaling that the frame is encoded using only INTRA modes.
-  uint8_t intra_only;
   uint8_t last_intra_only;
   uint8_t disable_cdf_update;
   int allow_high_precision_mv;
@@ -428,17 +483,13 @@ typedef struct AV1Common {
   // Context probabilities for reference frame prediction
   MV_REFERENCE_FRAME comp_fwd_ref[FWD_REFS];
   MV_REFERENCE_FRAME comp_bwd_ref[BWD_REFS];
-  REFERENCE_MODE reference_mode;
+
 
   FRAME_CONTEXT *fc;              /* this frame entropy */
-  FRAME_CONTEXT *frame_contexts;  // FRAME_CONTEXTS
+  FRAME_CONTEXT *default_frame_context;
   unsigned int frame_context_idx; /* Context to use/update */
   int fb_of_context_type[REF_FRAMES];
   int primary_ref_frame;
-
-  unsigned int frame_offset;
-
-  unsigned int current_video_frame;
 
   aom_bit_depth_t dequant_bit_depth;  // bit_depth of current dequantizer
 
@@ -478,23 +529,9 @@ typedef struct AV1Common {
   WarpedMotionParams global_motion[REF_FRAMES];
   aom_film_grain_t film_grain_params;
 
-  int cdef_pri_damping;
-  int cdef_sec_damping;
-  int nb_cdef_strengths;
-  int cdef_strengths[CDEF_MAX_STRENGTHS];
-  int cdef_uv_strengths[CDEF_MAX_STRENGTHS];
-  int cdef_bits;
+  CdefInfo cdef_info;
+  DeltaQInfo delta_q_info;  // Delta Q and Delta LF parameters
 
-  int delta_q_present_flag;
-  // Resolution of delta quant
-  int delta_q_res;
-  int delta_lf_present_flag;
-  // Resolution of delta lf level
-  int delta_lf_res;
-  // This is a flag for number of deltas of loop filter level
-  // 0: use 1 delta, for y_vertical, y_horizontal, u, and v
-  // 1: use separate deltas for each filter level
-  int delta_lf_multi;
   int num_tg;
   SequenceHeader seq_params;
   int current_frame_id;
@@ -558,11 +595,6 @@ static INLINE YV12_BUFFER_CONFIG *get_ref_frame(AV1_COMMON *cm, int index) {
   return &cm->buffer_pool->frame_bufs[cm->ref_frame_map[index]].buf;
 }
 
-static INLINE YV12_BUFFER_CONFIG *get_frame_new_buffer(
-    const AV1_COMMON *const cm) {
-  return &cm->buffer_pool->frame_bufs[cm->new_fb_idx].buf;
-}
-
 static INLINE int get_free_fb(AV1_COMMON *cm) {
   RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
   int i;
@@ -610,27 +642,29 @@ static INLINE void ref_cnt_fb(RefCntBuffer *bufs, int *idx, int new_idx) {
 }
 
 static INLINE int frame_is_intra_only(const AV1_COMMON *const cm) {
-  return cm->frame_type == KEY_FRAME || cm->intra_only;
+  return cm->current_frame.frame_type == KEY_FRAME ||
+    cm->current_frame.intra_only;
 }
 
 static INLINE int frame_is_sframe(const AV1_COMMON *cm) {
-  return cm->frame_type == S_FRAME;
+  return cm->current_frame.frame_type == S_FRAME;
 }
 
 static INLINE RefCntBuffer *get_prev_frame(const AV1_COMMON *const cm) {
   if (cm->primary_ref_frame == PRIMARY_REF_NONE ||
-      cm->frame_refs[cm->primary_ref_frame].idx == INVALID_IDX) {
+      !cm->current_frame.frame_refs[cm->primary_ref_frame].buf) {
     return NULL;
   } else {
-    return &cm->buffer_pool
-                ->frame_bufs[cm->frame_refs[cm->primary_ref_frame].idx];
+    return cm->current_frame.frame_refs[cm->primary_ref_frame].buf;
   }
 }
 
 // Returns 1 if this frame might allow mvs from some reference frame.
 static INLINE int frame_might_allow_ref_frame_mvs(const AV1_COMMON *cm) {
-  return !cm->error_resilient_mode && cm->seq_params.enable_ref_frame_mvs &&
-         cm->seq_params.enable_order_hint && !frame_is_intra_only(cm);
+  return !cm->error_resilient_mode &&
+    cm->seq_params.order_hint_info.enable_ref_frame_mvs &&
+    cm->seq_params.order_hint_info.enable_order_hint &&
+    !frame_is_intra_only(cm);
 }
 
 // Returns 1 if this frame might use warped_motion
@@ -674,6 +708,12 @@ void cfl_init(CFL_CTX *cfl, const SequenceHeader *seq_params);
 
 static INLINE int av1_num_planes(const AV1_COMMON *cm) {
   return cm->seq_params.monochrome ? 1 : MAX_MB_PLANE;
+}
+// TODO(david.turner@argondesign.com): Replace all instances of av1_num_planes()
+// with av1_num_planes_from_seq() to reduce dependency on AV1_COMMON
+static INLINE int av1_num_planes_from_seq(
+    const SequenceHeader *const seq_params) {
+  return seq_params->monochrome ? 1 : MAX_MB_PLANE;
 }
 
 static INLINE void av1_init_above_context(AV1_COMMON *cm, MACROBLOCKD *xd,
