@@ -39,57 +39,29 @@
  */
 
 #if CONFIG_MULTITHREAD && defined(_WIN32)
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
+#endif
 #include <windows.h>
 #include <stdlib.h>
 /* Declare a per-compilation-unit state variable to track the progress
  * of calling func() only once. This must be at global scope because
  * local initializers are not thread-safe in MSVC prior to Visual
  * Studio 2015.
- *
- * As a static, aom_once_state will be zero-initialized as program start.
  */
-static LONG aom_once_state;
+static INIT_ONCE aom_init_once = INIT_ONCE_STATIC_INIT;
+
+static BOOL CALLBACK aom_once_callback(PINIT_ONCE init_once, PVOID parameter,
+                                       PVOID *context) {
+  void (*func)(void) = (void (*)(void))parameter;
+  (void)init_once;
+  (void)context;
+  func();
+  return TRUE;
+}
+
 static void aom_once(void (*func)(void)) {
-  /* Try to advance aom_once_state from its initial value of 0 to 1.
-   * Only one thread can succeed in doing so.
-   */
-  if (InterlockedCompareExchange(&aom_once_state, 1, 0) == 0) {
-    /* We're the winning thread, having set aom_once_state to 1.
-     * Call our function. */
-    func();
-    /* Now advance aom_once_state to 2, unblocking any other threads. */
-    InterlockedIncrement(&aom_once_state);
-    return;
-  }
-
-  /* We weren't the winning thread, but we want to block on
-   * the state variable so we don't return before func()
-   * has finished executing elsewhere.
-   *
-   * Try to advance aom_once_state from 2 to 2, which is only possible
-   * after the winning thead advances it from 1 to 2.
-   */
-  while (InterlockedCompareExchange(&aom_once_state, 2, 2) != 2) {
-    /* State isn't yet 2. Try again.
-     *
-     * We are used for singleton initialization functions,
-     * which should complete quickly. Contention will likewise
-     * be rare, so it's worthwhile to use a simple but cpu-
-     * intensive busy-wait instead of successive backoff,
-     * waiting on a kernel object, or another heavier-weight scheme.
-     *
-     * We can at least yield our timeslice.
-     */
-    Sleep(0);
-  }
-
-  /* We've seen aom_once_state advance to 2, so we know func()
-   * has been called. And we've left aom_once_state as we found it,
-   * so other threads will have the same experience.
-   *
-   * It's safe to return now.
-   */
-  return;
+  InitOnceExecuteOnce(&aom_init_once, aom_once_callback, func, NULL);
 }
 
 #elif CONFIG_MULTITHREAD && defined(__OS2__)
