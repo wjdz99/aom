@@ -8,6 +8,14 @@
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
+#ifdef _WIN32
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
+#else
+#error _WIN32_WINNT is defined.
+#endif
+#endif
+
 #include "config/aom_config.h"
 
 #define RTCD_C
