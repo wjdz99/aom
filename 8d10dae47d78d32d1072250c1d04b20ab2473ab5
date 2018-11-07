@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d76a71d6_c0bb1132",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-07T02:05:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "57f9bd00_477803c3",
+      "range": {
+        "startLine": 302,
+        "startChar": 62,
+        "endLine": 302,
+        "endChar": 69
+      },
+      "revId": "8d10dae47d78d32d1072250c1d04b20ab2473ab5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "94a75a2c_b6d4c87f",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "8d10dae47d78d32d1072250c1d04b20ab2473ab5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59084a9c_90a0b704",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-07T02:05:25Z",
+      "side": 1,
+      "message": "Done (here and in encoder.c)",
+      "parentUuid": "94a75a2c_b6d4c87f",
+      "range": {
+        "startLine": 633,
+        "startChar": 50,
+        "endLine": 633,
+        "endChar": 62
+      },
+      "revId": "8d10dae47d78d32d1072250c1d04b20ab2473ab5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
