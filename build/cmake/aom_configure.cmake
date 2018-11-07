@@ -188,6 +188,12 @@ if("${AOM_TARGET_SYSTEM}" MATCHES "Darwin\|Linux\|Windows")
   set(CONFIG_OS_SUPPORT 1)
 endif()
 
+if("${AOM_TARGET_SYSTEM}" STREQUAL "Windows")
+  # The default _WIN32_WINNT value in MinGW is 0x0502 (Windows XP with SP2).
+  # Set it to 0x0601 (Windows 7).
+  add_compiler_flag_if_supported("-D_WIN32_WINNT=0x0601")
+endif()
+
 #
 # Fix CONFIG_* dependencies. This must be done before including cpu.cmake to
 # ensure RTCD_CONFIG_* are properly set.
