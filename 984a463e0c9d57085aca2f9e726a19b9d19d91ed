@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a3ebf589_b0bec467",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-07T18:03:06Z",
+      "side": 1,
+      "message": "Nit: Let\u0027s name this function (uref_cnt_fb).",
+      "range": {
+        "startLine": 15,
+        "startChar": 16,
+        "endLine": 15,
+        "endChar": 34
+      },
+      "revId": "984a463e0c9d57085aca2f9e726a19b9d19d91ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d90f166c_b1ca4407",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-07T18:03:06Z",
+      "side": 1,
+      "message": "Please add:\n\n  // - pbi-\u003eoutput_frame_index[] (decoder only)",
+      "revId": "984a463e0c9d57085aca2f9e726a19b9d19d91ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05112d2e_3d7c921b",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-07T18:03:06Z",
+      "side": 1,
+      "message": "Nit/optional: I think it is better to describe this as \"referencing\" rather than \"pointing to\". I have several comments on the same issue below.",
+      "range": {
+        "startLine": 119,
+        "startChar": 34,
+        "endLine": 119,
+        "endChar": 47
+      },
+      "revId": "984a463e0c9d57085aca2f9e726a19b9d19d91ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80aa7e58_0c261d17",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-07T18:03:06Z",
+      "side": 1,
+      "message": "array indices \u003d\u003e array elements",
+      "range": {
+        "startLine": 122,
+        "startChar": 36,
+        "endLine": 122,
+        "endChar": 49
+      },
+      "revId": "984a463e0c9d57085aca2f9e726a19b9d19d91ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6645f227_798098ef",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-07T18:03:06Z",
+      "side": 1,
+      "message": "Nit/optional: It may be better to describe this as \"reference\" rather than \"point to\".",
+      "range": {
+        "startLine": 617,
+        "startChar": 19,
+        "endLine": 617,
+        "endChar": 27
+      },
+      "revId": "984a463e0c9d57085aca2f9e726a19b9d19d91ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd09f2c6_5e901f1b",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-07T18:03:06Z",
+      "side": 1,
+      "message": "1. It is challenging to pick a new name for this function. I think the name needs to mention \"frame\", because \"buffer\" is very generic. I would suggest the following names:\n\n    assign_frame_buffer\n    assign_frame_buffer_index\n    assign_fb_idx  (matching the naming convention of \"get_free_fb\" and \"new_fb_idx\")\n\n2. The parameter name \"ptr\" is quite generic. If you find the original name \"idx\" confusing, I suggest we name this parameter \"idx_ptr\".",
+      "revId": "984a463e0c9d57085aca2f9e726a19b9d19d91ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bca3c55f_6064e4f2",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-07T18:03:06Z",
+      "side": 1,
+      "message": "Nit: I think it is better to describe this as a \"reference\" rather than a \"pointer\". Also in line 627.",
+      "range": {
+        "startLine": 622,
+        "startChar": 16,
+        "endLine": 622,
+        "endChar": 23
+      },
+      "revId": "984a463e0c9d57085aca2f9e726a19b9d19d91ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
