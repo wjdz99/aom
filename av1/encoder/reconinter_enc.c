@@ -144,17 +144,18 @@ static INLINE void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
 
         ref = 0;
         const RefBuffer *ref_buf =
-            &cm->frame_refs[this_mbmi->ref_frame[ref] - LAST_FRAME];
+            &cm->current_frame
+                 .frame_refs[this_mbmi->ref_frame[ref] - LAST_FRAME];
 
-        pd->pre[ref].buf0 =
-            (plane == 1) ? ref_buf->buf->u_buffer : ref_buf->buf->v_buffer;
+        pd->pre[ref].buf0 = (plane == 1) ? ref_buf->buf->buf.u_buffer
+                                         : ref_buf->buf->buf.v_buffer;
         pd->pre[ref].buf =
-            pd->pre[ref].buf0 + scaled_buffer_offset(pre_x, pre_y,
-                                                     ref_buf->buf->uv_stride,
-                                                     &ref_buf->sf);
-        pd->pre[ref].width = ref_buf->buf->uv_crop_width;
-        pd->pre[ref].height = ref_buf->buf->uv_crop_height;
-        pd->pre[ref].stride = ref_buf->buf->uv_stride;
+            pd->pre[ref].buf0 +
+            scaled_buffer_offset(pre_x, pre_y, ref_buf->buf->buf.uv_stride,
+                                 &ref_buf->sf);
+        pd->pre[ref].width = ref_buf->buf->buf.uv_crop_width;
+        pd->pre[ref].height = ref_buf->buf->buf.uv_crop_height;
+        pd->pre[ref].stride = ref_buf->buf->buf.uv_stride;
 
         const struct scale_factors *const sf =
             is_intrabc ? &cm->sf_identity : &ref_buf->sf;
@@ -475,7 +476,7 @@ void av1_build_obmc_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                       dst_width1, dst_height1, dst_stride1);
   av1_build_prediction_by_left_preds(cm, xd, mi_row, mi_col, dst_buf2,
                                      dst_width2, dst_height2, dst_stride2);
-  av1_setup_dst_planes(xd->plane, xd->mi[0]->sb_type, get_frame_new_buffer(cm),
+  av1_setup_dst_planes(xd->plane, xd->mi[0]->sb_type, &cm->cur_frame->buf,
                        mi_row, mi_col, 0, num_planes);
   av1_build_obmc_inter_prediction(cm, xd, mi_row, mi_col, dst_buf1, dst_stride1,
                                   dst_buf2, dst_stride2);
