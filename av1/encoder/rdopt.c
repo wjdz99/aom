@@ -5100,21 +5100,32 @@ static void select_inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     const int s0 = x->skip_cost[skip_ctx][0];
     const int s1 = x->skip_cost[skip_ctx][1];
 
-    skip_rd = RDCOST(x->rdmult, s1, 0);
+    int64_t block_sse = pixel_diff_dist(x, 0, 0, 0, plane_bsize, plane_bsize);
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
+      block_sse = ROUND_POWER_OF_TWO(block_sse, (xd->bd - 8) * 2);
+    block_sse *= 16;
+    skip_rd = RDCOST(x->rdmult, s1, block_sse);
     this_rd = RDCOST(x->rdmult, s0, 0);
     for (idy = 0; idy < mi_height; idy += bh) {
       for (idx = 0; idx < mi_width; idx += bw) {
-        int64_t best_rd_sofar = (ref_best_rd - (AOMMIN(skip_rd, this_rd)));
+        int64_t best_rd_sofar = (ref_best_rd - this_rd);
         select_tx_block(cpi, x, idy, idx, block, max_tx_size, init_depth,
                         plane_bsize, ctxa, ctxl, tx_above, tx_left,
                         &pn_rd_stats, best_rd_sofar, &is_cost_valid, ftxs_mode,
                         rd_info_tree);
         if (!is_cost_valid || pn_rd_stats.rate == INT_MAX) {
-          av1_invalid_rd_stats(rd_stats);
-          return;
+          if (skip_rd > ref_best_rd) {
+            av1_invalid_rd_stats(rd_stats);
+            return;
+          } else {
+            rd_stats->sse = block_sse;
+            rd_stats->zero_rate = 0;
+            this_rd = INT64_MAX;
+            is_cost_valid = 1;
+            break;
+          }
         }
         av1_merge_rd_stats(rd_stats, &pn_rd_stats);
-        skip_rd = RDCOST(x->rdmult, s1, rd_stats->sse);
         this_rd = RDCOST(x->rdmult, rd_stats->rate + s0, rd_stats->dist);
         block += step;
         if (rd_info_tree != NULL) rd_info_tree += 1;
