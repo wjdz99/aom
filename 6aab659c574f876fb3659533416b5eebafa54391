@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "26c641fe_42dd8516",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 28
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2018-11-08T13:28:35Z",
+      "side": 1,
+      "message": "no z2 implementation in this version yet :) it is coming",
+      "parentUuid": "bc29eb3e_a039a89a",
+      "revId": "6aab659c574f876fb3659533416b5eebafa54391",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "47a03053_2d229aea",
         "filename": "test/dr_prediction_test.cc",
         "patchSetId": 28
@@ -30,6 +48,24 @@
       "writtenOn": "2018-11-08T13:21:48Z",
       "side": 1,
       "message": "kZ3angle",
+      "revId": "6aab659c574f876fb3659533416b5eebafa54391",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2d9b2f3_89fd9dc3",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 28
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2018-11-08T13:28:35Z",
+      "side": 1,
+      "message": "No. My new AVX tests implementation unlike C version uses the  same kZangle from 0 to 270 and then choses the right zx fn",
+      "parentUuid": "47a03053_2d229aea",
       "revId": "6aab659c574f876fb3659533416b5eebafa54391",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
