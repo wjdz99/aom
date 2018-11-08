@@ -927,7 +927,8 @@ static INLINE int frame_is_kf_gf_arf(const AV1_COMP *cpi) {
 
 static INLINE int get_ref_frame_map_idx(const AV1_COMP *cpi,
                                         MV_REFERENCE_FRAME ref_frame) {
-  return (ref_frame >= 1) ? cpi->remapped_ref_idx[ref_frame - 1] : INVALID_IDX;
+  assert(ref_frame >= LAST_FRAME && ref_frame <= EXTREF_FRAME);
+  return cpi->remapped_ref_idx[ref_frame - LAST_FRAME];
 }
 
 static INLINE int get_ref_frame_buf_idx(const AV1_COMP *cpi,
