@@ -5100,7 +5100,11 @@ static void select_inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     const int s0 = x->skip_cost[skip_ctx][0];
     const int s1 = x->skip_cost[skip_ctx][1];
 
-    skip_rd = RDCOST(x->rdmult, s1, 0);
+    int64_t block_sse = pixel_diff_dist(x, 0, 0, 0, plane_bsize, plane_bsize);
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
+      block_sse = ROUND_POWER_OF_TWO(block_sse, (xd->bd - 8) * 2);
+    block_sse *= 16;
+    skip_rd = RDCOST(x->rdmult, s1, block_sse);
     this_rd = RDCOST(x->rdmult, s0, 0);
     for (idy = 0; idy < mi_height; idy += bh) {
       for (idx = 0; idx < mi_width; idx += bw) {
@@ -5114,7 +5118,6 @@ static void select_inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
           return;
         }
         av1_merge_rd_stats(rd_stats, &pn_rd_stats);
-        skip_rd = RDCOST(x->rdmult, s1, rd_stats->sse);
         this_rd = RDCOST(x->rdmult, rd_stats->rate + s0, rd_stats->dist);
         block += step;
         if (rd_info_tree != NULL) rd_info_tree += 1;
