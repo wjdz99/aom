@@ -567,7 +567,7 @@ static INLINE void dec_calc_subpel_params(
     block->y1 =
         ((pos_y + (bh - 1) * subpel_params->ys) >> SCALE_SUBPEL_BITS) + 1;
 
-    MV temp_mv;
+    MV32 temp_mv;
     temp_mv = clamp_mv_to_umv_border_sb(xd, &mv, bw, bh, pd->subsampling_x,
                                         pd->subsampling_y);
     *scaled_mv = av1_scale_mv(&temp_mv, (mi_x + x), (mi_y + y), sf);
@@ -581,7 +581,7 @@ static INLINE void dec_calc_subpel_params(
     int pos_x = (pre_x + x) << SUBPEL_BITS;
     int pos_y = (pre_y + y) << SUBPEL_BITS;
 
-    const MV mv_q4 = clamp_mv_to_umv_border_sb(
+    const MV32 mv_q4 = clamp_mv_to_umv_border_sb(
         xd, &mv, bw, bh, pd->subsampling_x, pd->subsampling_y);
     subpel_params->xs = subpel_params->ys = SCALE_SUBPEL_SHIFTS;
     subpel_params->subpel_x = (mv_q4.col & SUBPEL_MASK) << SCALE_EXTRA_BITS;
@@ -2967,7 +2967,7 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
     }
   }
 
-    // get tile size in tile group
+  // get tile size in tile group
 #if EXT_TILE_DEBUG
   if (cm->large_scale_tile)
     raw_data_end = get_ls_tile_buffers(pbi, data, data_end, tile_buffers);
