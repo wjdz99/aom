@@ -5775,7 +5775,6 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     cm->last_frame_seg_map = cm->prev_frame->seg_map;
   else
     cm->last_frame_seg_map = NULL;
-  cm->current_frame_seg_map = cm->cur_frame->seg_map;
   if (cm->allow_intrabc || cm->coded_lossless) {
     av1_set_default_ref_deltas(cm->lf.ref_deltas);
     av1_set_default_mode_deltas(cm->lf.mode_deltas);
@@ -5936,9 +5935,6 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       check_skip_mode_enabled(cpi);
 
   {
-    struct aom_usec_timer emr_timer;
-    aom_usec_timer_start(&emr_timer);
-
 #if CONFIG_FP_MB_STATS
     if (cpi->use_fp_mb_stats) {
       input_fpmb_stats(&cpi->twopass.firstpass_mb_stats, cm,
@@ -5960,9 +5956,6 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       else
         encode_tiles(cpi);
     }
-
-    aom_usec_timer_mark(&emr_timer);
-    cpi->time_encode_sb_row += aom_usec_timer_elapsed(&emr_timer);
   }
 
   // If intrabc is allowed but never selected, reset the allow_intrabc flag.
@@ -6016,8 +6009,6 @@ void av1_encode_frame(AV1_COMP *cpi) {
   (void)num_planes;
 #endif
 
-  cpi->allow_comp_inter_inter = !frame_is_intra_only(cm);
-
   if (cpi->sf.frame_parameter_update) {
     int i;
     RD_OPT *const rd_opt = &cpi->rd;
@@ -6039,7 +6030,7 @@ void av1_encode_frame(AV1_COMP *cpi) {
 
     /* prediction (compound, single or hybrid) mode selection */
     // NOTE: "is_alt_ref" is true only for OVERLAY/INTNL_OVERLAY frames
-    if (is_alt_ref || !cpi->allow_comp_inter_inter)
+    if (is_alt_ref || frame_is_intra_only(cm))
       current_frame->reference_mode = SINGLE_REFERENCE;
     else
       current_frame->reference_mode = REFERENCE_MODE_SELECT;
