@@ -21,6 +21,7 @@ extern "C" {
 #endif
 
 #define INVALID_MV 0x80008000
+#define INVALID_MV_1D 0x8000
 
 typedef struct mv {
   int16_t row;

@@ -465,6 +465,23 @@ static void alloc_context_buffers_ext(AV1_COMP *cpi) {
                   aom_calloc(mi_size, sizeof(*cpi->mbmi_ext_base)));
 }
 
+static void dealloc_mb_mv_buffers(AV1_COMP *cpi) {
+  if (cpi->mb_mv_fp) {
+    aom_free(cpi->mb_mv_fp);
+    cpi->mb_mv_fp = NULL;
+  }
+}
+
+static void alloc_mb_mv_buffers(AV1_COMP *cpi, int width, int height) {
+  AV1_COMMON *cm = &cpi->common;
+
+  dealloc_mb_mv_buffers(cpi);
+  av1_set_mb_mi(cm, width, height);
+  CHECK_MEM_ERROR(
+      cm, cpi->mb_mv_fp,
+      aom_calloc(cm->mb_rows * cm->mb_cols, sizeof(*cpi->mb_mv_fp)));
+}
+
 static void update_film_grain_parameters(struct AV1_COMP *cpi,
                                          const AV1EncoderConfig *oxcf) {
   AV1_COMMON *const cm = &cpi->common;
@@ -505,6 +522,7 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
   const int num_planes = av1_num_planes(cm);
 
   dealloc_context_buffers_ext(cpi);
+  dealloc_mb_mv_buffers(cpi);
 
   aom_free(cpi->tile_data);
   cpi->tile_data = NULL;
@@ -832,6 +850,7 @@ static void alloc_compressor_data(AV1_COMP *cpi) {
   av1_alloc_txb_buf(cpi);
 
   alloc_context_buffers_ext(cpi);
+  alloc_mb_mv_buffers(cpi, cm->width, cm->height);
 
   aom_free(cpi->tile_tok[0][0]);
 

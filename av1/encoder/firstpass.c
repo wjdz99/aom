@@ -722,11 +722,16 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
       x->mv_limits.col_max =
           ((cm->mb_cols - 1 - mb_col) * 16) + BORDER_MV_PIXELS_B16;
 
+      MV_STAT *mv_stat = &cpi->mb_mv_fp[mb_col + mb_row * cm->mb_rows];
+      mv_stat->mv.row = INVALID_MV_1D;
+      mv_stat->mv.col = INVALID_MV_1D;
+      mv_stat->pred_error = INT_MAX;
       if (!frame_is_intra_only(cm)) {  // Do a motion search
         int tmp_err, motion_error, raw_motion_error;
         // Assume 0,0 motion with no mv overhead.
         MV mv = kZeroMv, tmp_mv = kZeroMv;
         struct buf_2d unscaled_last_source_buf_2d;
+        mv_stat->mv = kZeroMv;
 
         xd->plane[0].pre[0].buf = first_ref_buf->y_buffer + recon_yoffset;
         if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
@@ -751,6 +756,7 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
           raw_motion_error = get_prediction_error(bsize, &x->plane[0].src,
                                                   &unscaled_last_source_buf_2d);
         }
+        mv_stat->pred_error = raw_motion_error;
 
         // TODO(pengchong): Replace the hard-coded threshold
         if (raw_motion_error > 25) {
@@ -767,6 +773,8 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
             if (tmp_err < motion_error) {
               motion_error = tmp_err;
               mv = tmp_mv;
+              mv_stat->mv = tmp_mv;
+              mv_stat->pred_error = tmp_err;
             }
           }
 

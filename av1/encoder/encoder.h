@@ -584,11 +584,17 @@ typedef struct TileBufferEnc {
   size_t size;
 } TileBufferEnc;
 
+typedef struct {
+  MV mv;
+  int pred_error;
+} MV_STAT;
+
 typedef struct AV1_COMP {
   QUANTS quants;
   ThreadData td;
   FRAME_COUNTS counts;
   MB_MODE_INFO_EXT *mbmi_ext_base;
+  MV_STAT *mb_mv_fp;
   CB_COEFF_BUFFER *coeff_buffer_base;
   Dequants dequants;
   AV1_COMMON common;
