@@ -3272,7 +3272,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 
   write_tx_mode(cm, &cm->tx_mode, wb);
 
-  if (cpi->allow_comp_inter_inter) {
+  if (!frame_is_intra_only(cm)) {
     const int use_hybrid_pred =
         current_frame->reference_mode == REFERENCE_MODE_SELECT;
 
