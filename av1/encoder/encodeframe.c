@@ -4812,7 +4812,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
        mi_col < tile_info->mi_col_end; mi_col += mib_size, sb_col_in_tile++) {
     (*(cpi->row_mt_sync_read_ptr))(&tile_data->row_mt_sync, sb_row,
                                    sb_col_in_tile);
-    if ((cpi->row_mt == 1) && (tile_info->mi_col_start == mi_col) &&
+    if ((tile_info->mi_col_start == mi_col) &&
         (tile_info->mi_row_start != mi_row)) {
       // restore frame context of 1st column sb
       memcpy(xd->tile_ctx, x->backup_tile_ctx, sizeof(*xd->tile_ctx));
@@ -4924,7 +4924,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     // 2. If mib_size_log2==4, context of next superblock to top-right
     // superblock is used. Using context of top-right superblock in this case
     // gives high BD Rate drop for smaller resolutions.
-    if (cpi->row_mt == 1) {
+    if (1) {
       int update_context = 0;
       if (mib_size_log2 == 5) {
         update_context = sb_cols_in_tile == 1 || sb_col_in_tile == 1;
@@ -5740,7 +5740,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read_dummy;
     cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write_dummy;
     cpi->row_mt = 0;
-    if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads > 1)) {
+    if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads >= 1)) {
       cpi->row_mt = 1;
       cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read;
       cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write;
