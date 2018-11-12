@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2fc0e6e_bc96371d",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3253,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-12T19:17:33Z",
+      "side": 1,
+      "message": "The index validation done inside get_ref_frame_map_idx() is useful when the index is a variable (such as bwdref_to_show). But when the index is a constant such as ALTREF_FRAME that is clearly valid, it seems fine to just use cpi-\u003eremapped_ref_idx[ALTREF_FRAME - LAST_FRAME].",
+      "revId": "395858288bfa4280de5101e066847f8bf5c37852",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7b7abab7_01f653be",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3551,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-12T19:17:33Z",
+      "side": 1,
+      "message": "1. The - 1 here (two occurrences) should also be changed to - LAST_FRAME.\n\n2. [Just a comment; no change requested.] The new code is a little harder to understand because it is less clear that we are accessing the same cpi-\u003eremapped_ref_idx[] array on both sides of the assignment operator:\n\n    cpi-\u003eremapped_ref_idx[ALTREF_FRAME - 1] \u003d\n        get_ref_frame_map_idx(cpi, GOLDEN_FRAME);",
+      "revId": "395858288bfa4280de5101e066847f8bf5c37852",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ca2622e_4c75bc09",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 4733,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-12T19:17:33Z",
+      "side": 1,
+      "message": "I wonder if we should change 0 to LAST_FRAME - LAST_FRAME, or perhaps change cpi-\u003eremapped_ref_idx[0] to get_ref_frame_map_idx(cpi, LAST_FRAME) (we can save the return value in a local variable).\n\nSimilarly for cpi-\u003eremapped_ref_idx[1] and cpi-\u003eremapped_ref_idx[2].",
+      "range": {
+        "startLine": 4733,
+        "startChar": 43,
+        "endLine": 4733,
+        "endChar": 67
+      },
+      "revId": "395858288bfa4280de5101e066847f8bf5c37852",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
