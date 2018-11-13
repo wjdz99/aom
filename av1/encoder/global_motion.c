@@ -39,8 +39,14 @@
 #define N_LEVELS 5
 // Size of square patches in the disflow dense grid
 #define PATCH_SIZE 5
+// Step size between patches, lower value means greater patch overlap
+#define PATCH_STEP 2
 // Minimum size of border padding for disflow
 #define MIN_PAD 7
+// Warp error convergence threshold for disflow
+#define DISFLOW_ERROR_TR 0.01
+// Max number of iterations if warp convergence is not found
+#define DISFLOW_MAX_ITR 4
 
 // Struct for an image pyramid
 typedef struct {
@@ -53,6 +59,8 @@ typedef struct {
   unsigned char *level_buffer;
   double *level_dx_buffer;
   double *level_dy_buffer;
+  double *level_dt_buffer;
+  // TODO(sarahparker) add flow field buffere here
 } ImagePyramid;
 
 static const double erroradv_tr[] = { 0.65, 0.60, 0.55 };
@@ -519,9 +527,11 @@ static ImagePyramid *alloc_pyramid(int width, int height, int pad_size) {
   pyr->level_buffer = aom_malloc(buffer_size);
   pyr->level_dx_buffer = aom_malloc(gradient_size);
   pyr->level_dy_buffer = aom_malloc(gradient_size);
+  pyr->level_dt_buffer = aom_malloc(gradient_size);
   memset(pyr->level_buffer, 0, buffer_size);
   memset(pyr->level_dx_buffer, 0, gradient_size);
   memset(pyr->level_dy_buffer, 0, gradient_size);
+  memset(pyr->level_dt_buffer, 0, gradient_size);
   return pyr;
 }
 
@@ -544,12 +554,34 @@ static INLINE void update_level_dims(ImagePyramid *frm_pyr, int level) {
           (2 * frm_pyr->pad_size + frm_pyr->heights[level - 1]);
 }
 
+// TODO(sarahparker) make sure all these buffers can use the same stride
+static INLINE void compute_flow_at_point(unsigned char *frm,
+                                         unsigned char *ref,
+                                         double *dx, double *dy, double *dt,
+                                         int width, int height, int stride,
+                                         double *output_vec) {
+  double M[4] = { 0 };
+  double b[2] = { 0 };
+  double tmp_output_vec[2] = { 0 };
+  double error = 0;
+
+  for (int itr; itr < DISFLOW_MAX_ITR; itr++) {
+    compute_flow_system(dx, dy, dt, stride, M, b);
+    solve_2x2_system(M, b, tmp_output_vec);
+    output_vec[0] += tmp_output_vec[0];
+    output_vec[1] += tmp_output_vec[1];
+    error = compute_warp_and_error(ref, frm, width, height, stride,
+                                   output_vec[0], output_vec[1]);
+    if (error <= DISFLOW_ERROR_TR) return;
+  }
+}
+
 // Compute coarse to fine pyramids for a frame
 static void compute_flow_pyramids(unsigned char *frm, const int frm_width,
                                   const int frm_height, const int frm_stride,
                                   int n_levels, int pad_size,
                                   ImagePyramid *frm_pyr) {
-  int cur_width, cur_height, cur_stride, cur_loc;
+  int cur_width, cur_height, cur_stride, cur_loc, patch_loc;
   assert((frm_width >> n_levels) > 0);
   assert((frm_height >> n_levels) > 0);
 
@@ -593,6 +625,23 @@ static void compute_flow_pyramids(unsigned char *frm, const int frm_width,
     sobel_xy_image_gradient(frm_pyr->level_buffer + cur_loc, cur_stride,
                             frm_pyr->level_dy_buffer + cur_loc, cur_stride,
                             cur_height, cur_width, 0);
+    // TODO(sarahparker) compute image difference
+
+    for (int i = PATCH_SIZE; i < cur_height - PATCH_SIZE; i+= PATCH_STEP) {
+      for (int j = PATCH_SIZE; j < cur_width - PATCH_SIZE; j+= PATCH_STEP) {
+        patch_loc = cur_loc + i * cur_stride + j;
+/*
+        compute_flow_at_point(frm_pyr->level_buffer + patch_loc,
+                              ref_pyr->level_buffer + patch_loc,
+                              frm_pry->level_dx_buffer + patch_loc,
+                              frm_pry->level_dy_buffer + patch_loc,
+                              frm_pry->level_dt_buffer + patch_loc,
+                              cur_width, cur_height, cur_stride,
+                              double *output_vec);
+
+*/
+      }
+    }
   }
 }
 
