@@ -70,6 +70,24 @@
       "revId": "2b848e99d16c62da9c8b9dd9cd8d24933ec5f288",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "220d6db4_ffe52c6a",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 888,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-13T22:19:05Z",
+      "side": 1,
+      "message": "Zhejie: I can prove that after this if statement is executed, output_bit_depth has the same value in the original code and in the new code. Please check my proof. Is there a logical flaw in the proof?\n\nProof:\n\nRight before we execute the if statement at line 883, fixed_output_bit_depth in the new code has the same value as output_bit_depth in the original code.\n\nThe if statement in the original code is:\n\n        if (!output_bit_depth \u0026\u0026 single_file \u0026\u0026 !do_md5) {\n          output_bit_depth \u003d img-\u003ebit_depth;\n        }\n\nIt is equivalent to the following if statement, which a dummy else branch added:\n\n        if (!output_bit_depth \u0026\u0026 single_file \u0026\u0026 !do_md5) {\n          output_bit_depth \u003d img-\u003ebit_depth;\n        } else {\n          output_bit_depth \u003d output_bit_depth;\n        }\n\nNow, if we replace output_bit_depth with fixed_output_bit_depth in the conditional expression and on the right hand side of the second assignment, we end up with the if statement in the new code:\n\n        if (!fixed_output_bit_depth \u0026\u0026 single_file \u0026\u0026 !do_md5) {\n          output_bit_depth \u003d img-\u003ebit_depth;\n        } else {\n          output_bit_depth \u003d fixed_output_bit_depth;\n        }\n\nTherefore, the original code and the new code set output_bit_depth to the same value after the their respective if statement is executed.",
+      "parentUuid": "6488da2d_88b7f1ea",
+      "revId": "2b848e99d16c62da9c8b9dd9cd8d24933ec5f288",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
