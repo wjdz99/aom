@@ -106,6 +106,24 @@
       "revId": "2b848e99d16c62da9c8b9dd9cd8d24933ec5f288",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f037e12_5a0caa4d",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 888,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-13T22:40:16Z",
+      "side": 1,
+      "message": "Zhejie: I see that now. This if statement is inside a loop, so it is executed multiple times. I missed that in my proof. Thanks!\n\nGiven this, I think it is clearer to take advantage of C99\u0027s ability to declare variables in the middle of a block and declare output_bit_depth right before this if statement. Specifically, delete line 471, and add the following before line 884:\n\n        // Default to codec bit depth if output bit depth not set\n+       unsigned int output_bit_depth;\n        if (!fixed_output_bit_depth \u0026\u0026 single_file \u0026\u0026 !do_md5) {",
+      "parentUuid": "aad8166a_8f0743d9",
+      "revId": "2b848e99d16c62da9c8b9dd9cd8d24933ec5f288",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
