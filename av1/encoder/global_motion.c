@@ -321,11 +321,13 @@ static int compute_global_motion_feature_based(
   return 0;
 }
 #else
-double getCubicValue(double p[4], double x) {
-  return p[1] + 0.5 * x *
-                    (p[2] - p[0] +
-                     x * (2.0 * p[0] - 5.0 * p[1] + 4.0 * p[2] - p[3] +
-                          x * (3.0 * (p[1] - p[2]) + p[3] - p[0])));
+int getCubicValue(double p[4], double x) {
+  return (int)(p[1] +
+               0.5 * x *
+                   (p[2] - p[0] +
+                    x * (2.0 * p[0] - 5.0 * p[1] + 4.0 * p[2] - p[3] +
+                         x * (3.0 * (p[1] - p[2]) + p[3] - p[0]))) +
+               0.5);
 }
 
 void get_subcolumn(unsigned char *ref, double col[4], int stride, int x,
@@ -336,7 +338,7 @@ void get_subcolumn(unsigned char *ref, double col[4], int stride, int x,
   }
 }
 
-double bicubic(unsigned char *ref, double x, double y, int stride) {
+int bicubic(unsigned char *ref, double x, double y, int stride) {
   double arr[4];
   int k;
   int i = (int)x;
@@ -424,14 +426,14 @@ unsigned char interpolate(unsigned char *ref, double x, double y, int width,
 // Warps a block using flow vector [u, v] and computes the mse
 double compute_warp_and_error(unsigned char *ref, unsigned char *frm, int width,
                               int height, int stride, double u, double v) {
-  int i, j, x, y;
-  double warped;
+  int i, j;
+  double warped, x, y;
   double mse = 0;
   double err = 0;
   for (i = 0; i < height; ++i)
     for (j = 0; j < width; ++j) {
-      x = j - u;
-      y = i - v;
+      x = (double)j - u;
+      y = (double)i - v;
       warped = interpolate(ref, x, y, width, height, stride);
       err = warped - frm[j + i * stride];
       mse += err * err;
