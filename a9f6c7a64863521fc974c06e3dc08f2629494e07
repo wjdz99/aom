@@ -22,6 +22,30 @@
       "revId": "a9f6c7a64863521fc974c06e3dc08f2629494e07",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e021e66_7bf68d33",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 994,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-13T21:49:38Z",
+      "side": 1,
+      "message": "Hi Sam, as mentioned in the description: \n\"Exactly neutral on regular videos like lowres and midres sets.\"\n\nI specifically spend some time tuning the patch to make sure.",
+      "parentUuid": "7274df26_da78cd80",
+      "range": {
+        "startLine": 994,
+        "startChar": 6,
+        "endLine": 994,
+        "endChar": 69
+      },
+      "revId": "a9f6c7a64863521fc974c06e3dc08f2629494e07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
