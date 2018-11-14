@@ -3377,6 +3377,7 @@ static void get_res_var_features(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
+  mbmi->motion_mode = SIMPLE_TRANSLATION;
 
   mbmi->ref_frame[1] = NONE_FRAME;
   mbmi->sb_type = bsize;
