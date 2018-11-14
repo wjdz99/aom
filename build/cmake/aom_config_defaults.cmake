@@ -139,6 +139,18 @@ set_aom_config_var(CONFIG_SHARP_SETTINGS 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_ONE_PASS_SVM 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_DISABLE_FULL_PIXEL_SPLIT_8X8 1 NUMBER
                    "Disable full_pixel_motion_search_based_split on BLOCK_8X8")
+set_aom_config_var(CONFIG_VAR_WEDGE_DISABLE_SPEED0 0 NUMBER
+                   "Variance threshold for cpu-used=0 disabling wedge search")
+set_aom_config_var(CONFIG_VAR_WEDGE_DISABLE_SPEED1 0 NUMBER
+                   "Variance threshold for cpu-used=1 disabling wedge search")
+set_aom_config_var(CONFIG_VAR_WEDGE_DISABLE_SPEED2 0 NUMBER
+                   "Variance threshold for cpu-used=2 disabling wedge search")
+set_aom_config_var(CONFIG_EDGE_WEDGE_DISABLE_SPEED0 0 NUMBER
+                   "Edge threshold for cpu-used=0 disabling wedge search")
+set_aom_config_var(CONFIG_EDGE_WEDGE_DISABLE_SPEED1 0 NUMBER
+                   "Edge threshold for cpu-used=1 disabling wedge search")
+set_aom_config_var(CONFIG_EDGE_WEDGE_DISABLE_SPEED2 0 NUMBER
+                   "Edge threshold for cpu-used=2 disabling wedge search")
 
 #
 # Variables in this section control optional features of the build system.
