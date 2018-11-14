@@ -32,17 +32,25 @@
 #define MIN_INLIER_PROB 0.1
 
 #define MIN_TRANS_THRESH (1 * GM_TRANS_DECODE_FACTOR)
-#define USE_GM_FEATURE_BASED 1
+#define USE_GM_FEATURE_BASED 0
 
 // Border over which to compute the global motion
 #define ERRORADV_BORDER 0
 
 // Number of pyramid levels in disflow computation
-#define N_LEVELS 5
+#define N_LEVELS 1
 // Size of square patches in the disflow dense grid
 #define PATCH_SIZE 5
+// Center point of square patch
+#define PATCH_CENTER ((PATCH_SIZE + 1) >> 1)
+// Step size between patches, lower value means greater patch overlap
+#define PATCH_STEP 1
 // Minimum size of border padding for disflow
 #define MIN_PAD 7
+// Warp error convergence threshold for disflow
+#define DISFLOW_ERROR_TR 0.01
+// Max number of iterations if warp convergence is not found
+#define DISFLOW_MAX_ITR 4
 
 // Struct for an image pyramid
 typedef struct {
@@ -456,7 +464,7 @@ double compute_warp_and_error(unsigned char *ref, unsigned char *frm, int width,
 //           |sum(dy * dt)|
 // Where the sums are computed over a square window of PATCH_SIZE.
 static INLINE void compute_flow_system(const double *dx, const double *dy,
-                                       const double *dt, int stride, double *M,
+                                       const int16_t *dt, int stride, double *M,
                                        double *b) {
   for (int i = 0; i < PATCH_SIZE; i++) {
     for (int j = 0; j < PATCH_SIZE; j++) {
@@ -626,6 +634,73 @@ static void compute_flow_pyramids(unsigned char *frm, const int frm_width,
   }
 }
 
+// TODO(sarahparker) make sure all these buffers can use the same stride
+static INLINE void compute_flow_at_point(unsigned char *frm, unsigned char *ref,
+                                         double *dx, double *dy, int16_t *dt,
+                                         int width, int height, int stride,
+                                         double *u, double *v) {
+  double M[4] = { 0 };
+  double b[2] = { 0 };
+  double tmp_output_vec[2] = { 0 };
+  double error = 0;
+
+  for (int itr = 0; itr < DISFLOW_MAX_ITR; itr++) {
+    compute_flow_system(dx, dy, dt, stride, M, b);
+    solve_2x2_system(M, b, tmp_output_vec);
+    *u += tmp_output_vec[0];
+    *v += tmp_output_vec[1];
+    error = compute_warp_and_error(ref, frm, width, height, stride, *u, *v);
+    if (error <= DISFLOW_ERROR_TR) return;
+  }
+}
+
+// make sure flow_u and flow_v start at 0
+static void compute_flow_field(ImagePyramid *frm_pyr, ImagePyramid *ref_pyr,
+                               double *flow_u, double *flow_v) {
+  int cur_width, cur_height, cur_stride, cur_loc, patch_loc, patch_center;
+  // Allocate difference buffer that is the same size as the largest level of
+  // the image pyramids
+  int16_t *frm_diff =
+      aom_malloc(frm_pyr->strides[0] * frm_pyr->heights[0] * sizeof(*frm_diff));
+  assert(frm_pyr->n_levels == ref_pyr->n_levels);
+
+  // Compute flow field from coarsest to finest level of the pyramid
+  for (int level = frm_pyr->n_levels - 1; level >= frm_pyr->n_levels - 2; --level) {
+    cur_width = frm_pyr->widths[level];
+    cur_height = frm_pyr->heights[level];
+    cur_stride = frm_pyr->strides[level];
+    cur_loc = frm_pyr->level_loc[level];
+
+    // make sure difference goes in the right direction
+    image_difference(frm_pyr->level_buffer + cur_loc, cur_stride,
+                     ref_pyr->level_buffer + cur_loc, cur_stride, frm_diff,
+                     cur_stride, cur_height, cur_width);
+
+    for (int i = PATCH_SIZE; i < cur_height - PATCH_SIZE; i += PATCH_STEP) {
+      for (int j = PATCH_SIZE; j < cur_width - PATCH_SIZE; j += PATCH_STEP) {
+        patch_loc = cur_loc + i * cur_stride + j;
+        patch_center = PATCH_CENTER * cur_stride + PATCH_CENTER;
+        compute_flow_at_point(frm_pyr->level_buffer + patch_loc,
+                              ref_pyr->level_buffer + patch_loc,
+                              frm_pyr->level_dx_buffer + patch_loc,
+                              frm_pyr->level_dy_buffer + patch_loc, frm_diff,
+                              cur_width, cur_height, cur_stride,
+                              // TODO(sarahparker) check loc for u,v
+                              flow_u + patch_center, flow_v + patch_center);
+      }
+    }
+    // Upscale the flow field if we are not at the top level
+//  if (level) {
+//    av1_upscale_plane_double_prec(tmp,
+//                     cur_height, cur_width, cur_stride,
+//                     tmp2, cur_height * 2, cur_width * 2,
+//                     cur_stride * 2);
+//  }
+  }
+
+  aom_free(frm_diff);
+}
+
 static int compute_global_motion_disflow_based(
     TransformationType type, YV12_BUFFER_CONFIG *frm, YV12_BUFFER_CONFIG *ref,
     int bit_depth, int *num_inliers_by_motion, double *params_by_motion,
@@ -673,12 +748,21 @@ static int compute_global_motion_disflow_based(
   compute_flow_pyramids(ref_buffer, ref_width, ref_height, ref->y_stride,
                         n_levels, pad_size, compute_gradient, ref_pyr);
 
+  double *flow_u =
+      aom_malloc(frm_pyr->strides[0] * frm_pyr->heights[0] * sizeof(*flow_u));
+  double *flow_v =
+      aom_malloc(frm_pyr->strides[0] * frm_pyr->heights[0] * sizeof(*flow_v));
+
+  compute_flow_field(frm_pyr, ref_pyr, flow_u, flow_v);
+
   // TODO(sarahparker) Implement the rest of DISFlow, currently only the image
   // pyramid is implemented.
   (void)num_inliers_by_motion;
   (void)params_by_motion;
   (void)num_motions;
   (void)type;
+  aom_free(flow_u);
+  aom_free(flow_v);
   free_pyramid(frm_pyr);
   free_pyramid(ref_pyr);
   return 0;
@@ -689,11 +773,13 @@ int av1_compute_global_motion(TransformationType type, YV12_BUFFER_CONFIG *frm,
                               YV12_BUFFER_CONFIG *ref, int bit_depth,
                               int *num_inliers_by_motion,
                               double *params_by_motion, int num_motions) {
+  printf("here2\n");
 #if USE_GM_FEATURE_BASED
   return compute_global_motion_feature_based(type, frm, ref, bit_depth,
                                              num_inliers_by_motion,
                                              params_by_motion, num_motions);
 #else
+  printf("here2\n");
   return compute_global_motion_disflow_based(type, frm, ref, bit_depth,
                                              num_inliers_by_motion,
                                              params_by_motion, num_motions);
