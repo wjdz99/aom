@@ -5095,8 +5095,8 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
   // Set up pointers to per thread motion search counters.
   this_tile->m_search_count = 0;   // Count of motion search hits.
   this_tile->ex_search_count = 0;  // Exhaustive mesh search hits.
-  td->mb.m_search_count_ptr = &this_tile->m_search_count;
-  td->mb.ex_search_count_ptr = &this_tile->ex_search_count;
+  td->mb.m_search_count_ptr = NULL;
+  td->mb.ex_search_count_ptr = NULL;
 
   cfl_init(&td->mb.e_mbd.cfl, &cm->seq_params);
 
