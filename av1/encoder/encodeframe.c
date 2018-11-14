@@ -609,9 +609,9 @@ static void rd_pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
     x->source_variance =
         av1_get_sby_perpixel_variance(cpi, &x->plane[0].src, bsize);
   }
-  x->edge_strength =
-      edge_strength(&x->plane[0].src, bsize,
-                    xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd);
+  x->edge_strength = 500;
+  /// edge_strength(&x->plane[0].src, bsize,
+  //               xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd);
 
   // Save rdmult before it might be changed, so it can be restored later.
   orig_rdmult = x->rdmult;
