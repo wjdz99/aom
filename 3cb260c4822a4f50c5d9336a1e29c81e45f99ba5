@@ -1,0 +1,250 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a801893f_8d0e93aa",
+        "filename": "av1/common/cdef.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-14T22:43:31Z",
+      "side": 1,
+      "message": "cm-\u003ecdef_info is used 6 times in this function, so suggest adding a local variable for the same.",
+      "range": {
+        "startLine": 235,
+        "startChar": 14,
+        "endLine": 235,
+        "endChar": 23
+      },
+      "revId": "3cb260c4822a4f50c5d9336a1e29c81e45f99ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24072cc5_7f2c09fe",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1012,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-14T22:43:31Z",
+      "side": 1,
+      "message": "Local var for \u0026cm-\u003eseq_params.order_hint_info, as it\u0027s used often.",
+      "range": {
+        "startLine": 1012,
+        "startChar": 7,
+        "endLine": 1012,
+        "endChar": 37
+      },
+      "revId": "3cb260c4822a4f50c5d9336a1e29c81e45f99ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4987d8f2_41d8a404",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1280,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-14T22:43:31Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 1280,
+        "startChar": 0,
+        "endLine": 1280,
+        "endChar": 58
+      },
+      "revId": "3cb260c4822a4f50c5d9336a1e29c81e45f99ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8dd5316_4f82fda6",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2198,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-14T22:43:31Z",
+      "side": 1,
+      "message": "Local var for cm-\u003ecdef_info",
+      "range": {
+        "startLine": 2198,
+        "startChar": 2,
+        "endLine": 2198,
+        "endChar": 15
+      },
+      "revId": "3cb260c4822a4f50c5d9336a1e29c81e45f99ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bc16ced_29302cef",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2573,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-14T22:43:31Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "3cb260c4822a4f50c5d9336a1e29c81e45f99ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37ecf754_50546d5f",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-14T22:43:31Z",
+      "side": 1,
+      "message": "Local var for cm-\u003edelta_q_info",
+      "range": {
+        "startLine": 713,
+        "startChar": 6,
+        "endLine": 713,
+        "endChar": 22
+      },
+      "revId": "3cb260c4822a4f50c5d9336a1e29c81e45f99ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7888045e_ce33bd7e",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 941,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-14T22:43:31Z",
+      "side": 1,
+      "message": "Local var for cm-\u003edelta_q_info",
+      "revId": "3cb260c4822a4f50c5d9336a1e29c81e45f99ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b56cb6bb_416fd457",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3234,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-14T22:43:31Z",
+      "side": 1,
+      "message": "Local var for cm-\u003edelta_q_info",
+      "revId": "3cb260c4822a4f50c5d9336a1e29c81e45f99ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59ea6a2b_2a76dc09",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 928,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-14T22:43:31Z",
+      "side": 1,
+      "message": "Local var for cm-\u003edelta_q_info",
+      "revId": "3cb260c4822a4f50c5d9336a1e29c81e45f99ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86770742_65a95d13",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4856,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-14T22:43:31Z",
+      "side": 1,
+      "message": "Local var for cm-\u003edelta_q_info",
+      "revId": "3cb260c4822a4f50c5d9336a1e29c81e45f99ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bf9f337_1d2370a3",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-14T22:43:31Z",
+      "side": 1,
+      "message": "Local var for cm-\u003ecdef_info",
+      "range": {
+        "startLine": 478,
+        "startChar": 8,
+        "endLine": 478,
+        "endChar": 21
+      },
+      "revId": "3cb260c4822a4f50c5d9336a1e29c81e45f99ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3f57e81_d4e58044",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 11058,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-11-14T22:43:31Z",
+      "side": 1,
+      "message": "Local var for \u0026cm-\u003eseq_params.order_hint_info",
+      "range": {
+        "startLine": 11058,
+        "startChar": 16,
+        "endLine": 11058,
+        "endChar": 47
+      },
+      "revId": "3cb260c4822a4f50c5d9336a1e29c81e45f99ba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
