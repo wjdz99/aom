@@ -9605,7 +9605,8 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   inter_mode_info mode_info[MAX_REF_MV_SERCH];
 
   int comp_idx;
-  const int search_jnt_comp = is_comp_pred & cm->seq_params.enable_jnt_comp &
+  const int search_jnt_comp = is_comp_pred &
+                              cm->seq_params.order_hint_info.enable_jnt_comp &
                               (mbmi->mode != GLOBAL_GLOBALMV) &
                               (cpi->sf.use_jnt_comp_flag != JNT_COMP_DISABLED);
 
@@ -11054,12 +11055,14 @@ static int inter_mode_search_order_independent_skip(
     if (sf->selective_ref_frame >= 3 || x->cb_partition_scan) {
       if (ref_frame[0] == ALTREF2_FRAME || ref_frame[1] == ALTREF2_FRAME)
         if (get_relative_dist(
-                cm, cm->cur_frame->ref_frame_offset[ALTREF2_FRAME - LAST_FRAME],
+                &cm->seq_params.order_hint_info,
+                cm->cur_frame->ref_frame_offset[ALTREF2_FRAME - LAST_FRAME],
                 cm->frame_offset) < 0)
           return 1;
       if (ref_frame[0] == BWDREF_FRAME || ref_frame[1] == BWDREF_FRAME)
         if (get_relative_dist(
-                cm, cm->cur_frame->ref_frame_offset[BWDREF_FRAME - LAST_FRAME],
+                &cm->seq_params.order_hint_info,
+                cm->cur_frame->ref_frame_offset[BWDREF_FRAME - LAST_FRAME],
                 cm->frame_offset) < 0)
           return 1;
     }
@@ -11068,13 +11071,15 @@ static int inter_mode_search_order_independent_skip(
         (sf->selective_ref_frame == 1 && comp_pred)) {
       if (ref_frame[0] == LAST3_FRAME || ref_frame[1] == LAST3_FRAME)
         if (get_relative_dist(
-                cm, cm->cur_frame->ref_frame_offset[LAST3_FRAME - LAST_FRAME],
+                &cm->seq_params.order_hint_info,
+                cm->cur_frame->ref_frame_offset[LAST3_FRAME - LAST_FRAME],
                 cm->cur_frame->ref_frame_offset[GOLDEN_FRAME - LAST_FRAME]) <=
             0)
           return 1;
       if (ref_frame[0] == LAST2_FRAME || ref_frame[1] == LAST2_FRAME)
         if (get_relative_dist(
-                cm, cm->cur_frame->ref_frame_offset[LAST2_FRAME - LAST_FRAME],
+                &cm->seq_params.order_hint_info,
+                cm->cur_frame->ref_frame_offset[LAST2_FRAME - LAST_FRAME],
                 cm->cur_frame->ref_frame_offset[GOLDEN_FRAME - LAST_FRAME]) <=
             0)
           return 1;
@@ -11089,10 +11094,14 @@ static int inter_mode_search_order_independent_skip(
       assert(buf_idx >= 0);
       ref_offsets[i] = cm->buffer_pool->frame_bufs[buf_idx].cur_frame_offset;
     }
-    if ((get_relative_dist(cm, ref_offsets[0], cm->frame_offset) <= 0 &&
-         get_relative_dist(cm, ref_offsets[1], cm->frame_offset) <= 0) ||
-        (get_relative_dist(cm, ref_offsets[0], cm->frame_offset) > 0 &&
-         get_relative_dist(cm, ref_offsets[1], cm->frame_offset) > 0))
+    if ((get_relative_dist(&cm->seq_params.order_hint_info, ref_offsets[0],
+                           cm->frame_offset) <= 0 &&
+         get_relative_dist(&cm->seq_params.order_hint_info, ref_offsets[1],
+                           cm->frame_offset) <= 0) ||
+        (get_relative_dist(&cm->seq_params.order_hint_info, ref_offsets[0],
+                           cm->frame_offset) > 0 &&
+         get_relative_dist(&cm->seq_params.order_hint_info, ref_offsets[1],
+                           cm->frame_offset) > 0))
       return 1;
   }
 
