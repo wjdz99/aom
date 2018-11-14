@@ -440,6 +440,10 @@ typedef struct SPEED_FEATURES {
   // Choose a very large value (UINT_MAX) to use 8-tap always
   unsigned int disable_filter_search_var_thresh;
 
+  // A threshold which disables wedge search is if the edge strength is less
+  // than or equal to it. If set to 0, this threshold should be ignored.
+  unsigned int disable_wedge_search_edge_thresh;
+
   // A source variance threshold below which wedge search is disabled
   unsigned int disable_wedge_search_var_thresh;
 

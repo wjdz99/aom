@@ -447,6 +447,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->disable_filter_search_var_thresh = 0;
   sf->allow_partition_search_skip = 0;
   sf->use_accurate_subpel_search = USE_8_TAPS;
+  sf->disable_wedge_search_edge_thresh = 0;
   sf->disable_wedge_search_var_thresh = 0;
   sf->fast_wedge_sign_estimate = 0;
   sf->prune_wedge_pred_diff_based = 0;
