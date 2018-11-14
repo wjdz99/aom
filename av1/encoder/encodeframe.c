@@ -5960,6 +5960,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
         }
         aom_clear_system_state();
       }
+      if (cm->global_motion[frame].wmtype != IDENTITY) printf("GLOBAL\n");
       if (cm->global_motion[frame].wmtype != IDENTITY) num_refs_using_gm++;
       cpi->gmparams_cost[frame] =
           gm_get_params_cost(&cm->global_motion[frame], ref_params,
