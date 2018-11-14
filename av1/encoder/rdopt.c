@@ -8883,8 +8883,10 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
     int64_t best_interintra_rd_nowedge = rd;
     int64_t best_interintra_rd_wedge = INT64_MAX;
     int_mv tmp_mv;
-    // Disable wedge search if source variance is small
-    if (x->source_variance > cpi->sf.disable_wedge_search_var_thresh) {
+    // Enable wedge search if source variance and edge strength are above
+    // the thresholds.
+    if (x->source_variance > cpi->sf.disable_wedge_search_var_thresh &&
+        x->edge_strength > cpi->sf.disable_wedge_search_edge_thresh) {
       mbmi->use_wedge_interintra = 1;
 
       rwedge = av1_cost_literal(get_interintra_wedge_bits(bsize)) +
@@ -9561,6 +9563,7 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       masked_type_cost += x->compound_type_cost[bsize][cur_type - 1];
       rs2 = masked_type_cost;
       if (x->source_variance > cpi->sf.disable_wedge_search_var_thresh &&
+          x->edge_strength > cpi->sf.disable_wedge_search_edge_thresh &&
           *rd / 3 < ref_best_rd) {
         best_rd_cur = build_and_cost_compound_type(
             cpi, x, cur_mv, bsize, this_mode, &rs2, *rate_mv, orig_dst,
