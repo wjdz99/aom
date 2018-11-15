@@ -7,11 +7,9 @@
 # at www.aomedia.org/license/software. If the Alliance for Open Media Patent
 # License 1.0 was not distributed with this source code in the PATENTS file, you
 # can obtain it at www.aomedia.org/license/patent.
-
 include("${AOM_ROOT}/build/cmake/util.cmake")
 
-# This file sets default values for libaom configuration variables. All libaom
-# config variables are added to the CMake variable cache via the macros provided
+# This file sets default values for libaom configuration variables. All libaom # config variables are added to the CMake variable cache via the macros provided
 # in util.cmake.
 
 #
@@ -139,6 +137,8 @@ set_aom_config_var(CONFIG_SHARP_SETTINGS 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_ONE_PASS_SVM 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_DISABLE_FULL_PIXEL_SPLIT_8X8 1 NUMBER
                    "Disable full_pixel_motion_search_based_split on BLOCK_8X8")
+set_aom_config_var(CONFIG_DISABLE_PARTITION_PRUNING 1 NUMBER
+                   "Disable partition pruning for data collection")
 
 #
 # Variables in this section control optional features of the build system.
