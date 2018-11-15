@@ -3529,6 +3529,57 @@ static void get_res_var_features(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
   }
 }
 
+static void get_max_min_partition_features(AV1_COMP *const cpi, MACROBLOCK *x,
+                                           int mi_row, int mi_col,
+                                           float *features) {
+  AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCKD *xd = &x->e_mbd;
+  BLOCK_SIZE mb_size = BLOCK_16X16;
+  BLOCK_SIZE sb_size = cm->seq_params.sb_size;
+  int f_idx = 0;
+
+  const int dc_q = av1_dc_quant_QTX(x->qindex, 0, xd->bd) >> (xd->bd - 8);
+  aom_clear_system_state();
+  features[f_idx++] = logf(1.0f + (float)(dc_q * dc_q) / 256.0f);
+
+  // Perform full-pixel single motion search in Y plane of 16x16 mbs in the sb
+  const MV_REFERENCE_FRAME ref =
+      cpi->rc.is_src_frame_alt_ref ? ALTREF_FRAME : LAST_FRAME;
+
+  int mb_rows = block_size_high[sb_size] / block_size_high[mb_size];
+  int mb_cols = block_size_wide[sb_size] / block_size_wide[mb_size];
+  for (int mb_row = 0; mb_row < mb_rows; mb_row++)
+    for (int mb_col = 0; mb_col < mb_cols; mb_col++) {
+      int this_mi_row = mi_row + (mb_row << mi_size_high_log2[mb_size]);
+      int this_mi_col = mi_col + (mb_col << mi_size_wide_log2[mb_size]);
+
+      if (this_mi_row >= cm->mi_rows || this_mi_col >= cm->mi_cols) {
+        aom_clear_system_state();
+        features[f_idx++] = 0;
+        features[f_idx++] = 0;
+        features[f_idx++] = 0;
+        continue;
+      }
+
+      simple_motion_search(cpi, x, this_mi_row, this_mi_col, mb_size, ref, 1,
+                           0);
+
+      aom_clear_system_state();
+      features[f_idx++] = (float)(x->best_mv.as_mv.row / 8);
+      features[f_idx++] = (float)(x->best_mv.as_mv.col / 8);
+
+      const uint8_t *src = x->plane[0].src.buf;
+      const int src_stride = x->plane[0].src.stride;
+      const uint8_t *dst = xd->plane[0].dst.buf;
+      const int dst_stride = xd->plane[0].dst.stride;
+      unsigned int sse = 0;
+      const unsigned int var =
+          cpi->fn_ptr[mb_size].vf(src, src_stride, dst, dst_stride, &sse);
+      aom_clear_system_state();
+      features[f_idx++] = logf(1.0f + (float)var);
+    }
+}
+
 // TODO(jingning,jimbankoski,rbultje): properly skip partition types that are
 // unlikely to be selected depending on previous rate-distortion optimization
 // results, for encoding speed-up.
@@ -5157,6 +5208,11 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
         first_partition_search_pass(cpi, td, tile_data, mi_row, mi_col, tp);
       }
 
+      if (!frame_is_intra_only(cm)) {
+        float features[193] = { 0 };
+
+        get_max_min_partition_features(cpi, x, mi_row, mi_col, features);
+      }
       rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                         sb_size, BLOCK_4X4, &dummy_rdc, INT64_MAX, pc_root,
                         NULL);
