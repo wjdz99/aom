@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "d1ee3f06_56389343",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-11-15T06:02:24Z",
+      "side": 1,
+      "message": "Will fix subsequently.",
+      "parentUuid": "544c80ae_11de4015",
+      "range": {
+        "startLine": 269,
+        "startChar": 6,
+        "endLine": 269,
+        "endChar": 18
+      },
+      "revId": "cae1161ed6a0f7d7a624998e29c3aae30c24601e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbf69cd6_9366cfea",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-11-15T06:02:24Z",
+      "side": 1,
+      "message": "Since we are only interested in horizontal 16-pt DCT coeff energy, 16x4 H-DCT serves the purpose. Any blocksize that has width or height \u003e\u003d 32 does not include H-DCT.",
+      "parentUuid": "103c3165_d5b4335c",
+      "range": {
+        "startLine": 269,
+        "startChar": 23,
+        "endLine": 269,
+        "endChar": 27
+      },
+      "revId": "cae1161ed6a0f7d7a624998e29c3aae30c24601e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3b20d4c6_f7835ccd",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2018-11-13T23:04:41Z",
       "side": 1,
       "message": "\"energy\"  / \"this_energy\"?",
+      "range": {
+        "startLine": 286,
+        "startChar": 24,
+        "endLine": 286,
+        "endChar": 26
+      },
+      "revId": "cae1161ed6a0f7d7a624998e29c3aae30c24601e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49a39f3c_75546b76",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-11-15T06:02:24Z",
+      "side": 1,
+      "message": "Ditto",
+      "parentUuid": "3b20d4c6_f7835ccd",
       "range": {
         "startLine": 286,
         "startChar": 24,
