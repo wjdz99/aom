@@ -8362,6 +8362,14 @@ static INLINE void find_best_non_dual_interp_filter(
                               switchable_rate, skip_txfm_sb, skip_sse_sb,
                               dst_bufs, i, switchable_ctx,
                               (skip_hor & skip_ver), rate, dist);
+      // In first iteration, smooth filter is evaluated. If regular filter
+      // is not the winner, sharp filter evaluation is skipped
+      if (cpi->sf.skip_sharp_interp_filter_eval) {
+        MACROBLOCKD *const xd = &x->e_mbd;
+        MB_MODE_INFO *const mbmi = xd->mi[0];
+        if (mbmi->interp_filters == filter_sets[(SWITCHABLE_FILTERS + 1)])
+          break;
+      }
     }
   }
 }
