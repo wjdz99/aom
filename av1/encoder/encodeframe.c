@@ -139,6 +139,18 @@ static const uint16_t AV1_HIGH_VAR_OFFS_12[MAX_SB_SIZE] = {
   128 * 16, 128 * 16
 };
 
+// This is used to find the reference frames that are valid in
+// cpi->ref_frame_flags.
+static const uint8_t ref_frame_flag_list[REF_FRAMES] = { 0,
+                                                         AOM_LAST_FLAG,
+                                                         AOM_LAST2_FLAG,
+                                                         AOM_LAST3_FLAG,
+                                                         AOM_GOLD_FLAG,
+                                                         AOM_BWD_FLAG,
+                                                         AOM_ALT2_FLAG,
+                                                         AOM_ALT_FLAG };
+
+
 #if CONFIG_FP_MB_STATS
 static const uint8_t num_16x16_blocks_wide_lookup[BLOCK_SIZES_ALL] = {
   1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 4, 4, 4, 8, 8, 1, 1, 1, 2, 2, 4
@@ -3380,6 +3392,7 @@ static void get_res_var_features(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
 
   mbmi->ref_frame[1] = NONE_FRAME;
   mbmi->sb_type = bsize;
+  mbmi->motion_mode = SIMPLE_TRANSLATION;
 
   int pred_stride = 128;
   DECLARE_ALIGNED(16, uint16_t, pred_buffer[MAX_SB_SQUARE]);
@@ -3485,7 +3498,8 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
                               TileDataEnc *tile_data, TOKENEXTRA **tp,
                               int mi_row, int mi_col, BLOCK_SIZE bsize,
                               RD_STATS *rd_cost, int64_t best_rd,
-                              PC_TREE *pc_tree, int64_t *none_rd) {
+                              PC_TREE *pc_tree, int64_t *none_rd,
+                              int *partition_type, int block_id) {
   const AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   TileInfo *const tile_info = &tile_data->tile_info;
@@ -3972,7 +3986,7 @@ BEGIN_PARTITION_SEARCH:
         pc_tree->split[idx]->none.rate = INT_MAX;
       rd_pick_partition(cpi, td, tile_data, tp, mi_row + y_idx, mi_col + x_idx,
                         subsize, &this_rdc, best_remain_rdcost,
-                        pc_tree->split[idx], p_split_rd);
+                        pc_tree->split[idx], p_split_rd, partition_type, 4*block_id + idx+1);
 
       if (this_rdc.rate == INT_MAX) {
         sum_rdc.rdcost = INT64_MAX;
@@ -4758,6 +4772,9 @@ BEGIN_PARTITION_SEARCH:
                 pc_tree, NULL);
     }
   }
+  if (bsize >= BLOCK_8X8) {
+    partition_type[block_id] = pc_tree->partitioning;
+  }
 
   if (bsize == cm->seq_params.sb_size) {
     assert(best_rdc.rate < INT_MAX);
@@ -4959,6 +4976,186 @@ static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
   }
 }
 
+// Performs a full pixel motion search in SIMPLE_TRANSLATION mode using
+// reference frame ref. Returns the sse of the result;
+static unsigned int simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x,
+                                         int mi_row, int mi_col,
+                                         BLOCK_SIZE bsize, int ref) {
+  AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = xd->mi[0];
+
+  mbmi->ref_frame[0] = ref;
+  mbmi->ref_frame[1] = NONE_FRAME;
+  mbmi->sb_type = bsize;
+  mbmi->motion_mode = SIMPLE_TRANSLATION;
+
+  YV12_BUFFER_CONFIG *yv12 = get_ref_frame_buffer(cpi, ref);
+  const YV12_BUFFER_CONFIG *scaled_ref_frame = av1_get_scaled_ref_frame(cpi, ref);
+  struct buf_2d backup_yv12;
+  // ref_mv is in units of 1/8-pel whereas ref_mv_full is in units of pel
+  MV ref_mv = { 0, 0 };
+  MV ref_mv_full = { 0, 0 };
+  const int step_param = 1;
+  const MvLimits tmp_mv_limits = x->mv_limits;
+  const SEARCH_METHODS search_methods = NSTEP;
+  const int do_mesh_search = 0;
+  const int sadpb = x->sadperbit16;
+  int cost_list[5];
+  int num_planes = 1;
+  const int ref_idx = 0;
+  unsigned int sad = UINT_MAX;
+
+  if (scaled_ref_frame) {
+    backup_yv12 = xd->plane[AOM_PLANE_Y].pre[ref_idx];
+    av1_setup_pre_planes(xd, ref_idx, scaled_ref_frame, mi_row, mi_col, NULL,
+                         num_planes);
+  } else {
+    av1_setup_pre_planes(xd, ref_idx, yv12, mi_row, mi_col,
+                         &cm->frame_refs[ref - LAST_FRAME].sf, num_planes);
+  }
+
+  av1_set_mv_search_range(&x->mv_limits, &ref_mv);
+  av1_full_pixel_search(cpi, x, bsize, &ref_mv_full, step_param, search_methods,
+                        do_mesh_search, sadpb, cond_cost_list(cpi, cost_list),
+                        &ref_mv, INT_MAX, 1, mi_col * MI_SIZE, mi_row * MI_SIZE,
+                        0);
+  // Restore
+  x->mv_limits = tmp_mv_limits;
+
+  // Convert from units of pixel to 1/8-pixels
+  x->best_mv.as_mv.row *= 8;
+  x->best_mv.as_mv.col *= 8;
+  mbmi->mv[0].as_mv = x->best_mv.as_mv;
+
+  // Get a copy of the prediction output
+  set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+  av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, NULL, bsize);
+
+  sad = cpi->fn_ptr[bsize].sdf(x->plane[AOM_PLANE_Y].src.buf,
+                               x->plane[AOM_PLANE_Y].src.stride,
+                               xd->plane[AOM_PLANE_Y].dst.buf,
+                               xd->plane[AOM_PLANE_Y].dst.stride);
+  aom_clear_system_state();
+
+  if (scaled_ref_frame) {
+    xd->plane[AOM_PLANE_Y].pre[ref_idx] = backup_yv12;
+  }
+
+  return sad;
+}
+
+// Performs a none_pass and extracts the residue on the whole superblock. The
+// residue can then be fed to a CNN to prune partition types. Returns 1 if the
+// extraction suceeds, 0 otherwise.
+static void partition_none_pass(AV1_COMP *cpi, ThreadData *td,
+                                TileDataEnc *tile_data, int mi_row,
+                                int mi_col, int16_t *residue, int *is_inter) {
+  MACROBLOCK *const x = &td->mb;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  TileInfo *const tile_info = &tile_data->tile_info;
+  AV1_COMMON *const cm = &cpi->common;
+
+  const BLOCK_SIZE bsize = BLOCK_128X128;
+  const unsigned int INTRA_MODE_PENALTY = 1024;
+
+  int pred_stride = 128;
+  DECLARE_ALIGNED(16, uint16_t, pred_buff_0_[MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint16_t, pred_buff_1_[MAX_SB_SQUARE]);
+  uint8_t *pred_buff_0 = (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
+                                ? CONVERT_TO_BYTEPTR(pred_buff_0_)
+                                : (uint8_t *)pred_buff_0_;
+  uint8_t *pred_buff_1 = (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
+                                ? CONVERT_TO_BYTEPTR(pred_buff_1_)
+                                : (uint8_t *)pred_buff_1_;
+  uint8_t **best_pred = &pred_buff_0;
+  uint8_t **curr_pred = &pred_buff_1;
+  unsigned int current_sad = UINT_MAX, best_sad = UINT_MAX;
+
+  assert(bsize == cm->seq_params.sb_size && "Invalid SB size in partition_none_pass");
+  assert((mi_row + mi_size_high[bsize] / 2 < cm->mi_rows) &&
+         (mi_col + mi_size_wide[bsize] / 2 < cm->mi_cols) &&
+         "SB is outside of frame in partition_none_pass.");
+
+  *is_inter = 0;
+
+  set_offsets(cpi, tile_info, x, mi_row, mi_col, bsize);
+  xd->mi[0]->sb_type = BLOCK_128X128;
+
+  // Try intra prediction
+  xd->plane[0].dst.buf = *curr_pred;
+  xd->plane[0].dst.stride = pred_stride;
+
+  const TX_SIZE tx_size = TX_16X16;
+  const int max_blk_width = max_block_wide(xd, bsize, AOM_PLANE_Y);
+  const int max_blk_height = max_block_high(xd, bsize, AOM_PLANE_Y);
+  const int step_row = tx_size_high_unit[tx_size];
+  const int step_col = tx_size_wide_unit[tx_size];
+  xd->lossless[xd->mi[0]->segment_id] = (cm->base_qindex == 0);
+  xd->mi[0]->mode = DC_PRED;
+  xd->mi[0]->tx_size = tx_size;
+  for (int blk_row = 0; blk_row < max_blk_height; blk_row += step_row) {
+    for (int blk_col = 0; blk_col < max_blk_width; blk_col += step_col) {
+      av1_predict_intra_block_facade(cm, xd, AOM_PLANE_Y, blk_row, blk_col, tx_size);
+    }
+  }
+  current_sad = cpi->fn_ptr[bsize].sdf(x->plane[AOM_PLANE_Y].src.buf,
+                                       x->plane[AOM_PLANE_Y].src.stride,
+                                       xd->plane[AOM_PLANE_Y].dst.buf,
+                                       xd->plane[AOM_PLANE_Y].dst.stride);
+  current_sad += INTRA_MODE_PENALTY;
+
+  if (current_sad < best_sad) {
+    uint8_t *const tmp_ptr = *best_pred;
+    *best_pred = *curr_pred;
+    *curr_pred = tmp_ptr;
+    best_sad = current_sad;
+    *is_inter = 0;
+  }
+
+  // Try inter prediction
+  // if the frame is not intra only, try both LAST and ALTREF if they are
+  // available. cpi->ref_frame_flags tells us which reference frames are
+  // available.
+  if (!frame_is_intra_only(cm) &&
+      cpi->ref_frame_flags & ref_frame_flag_list[LAST_FRAME]) {
+    xd->plane[0].dst.buf = *curr_pred;
+    xd->plane[0].dst.stride = pred_stride;
+
+    current_sad = simple_motion_search(cpi, x, mi_row, mi_col,
+                                       BLOCK_128X128, LAST_FRAME);
+
+    if (current_sad < best_sad) {
+      uint8_t *const tmp_ptr = *best_pred;
+      *best_pred = *curr_pred;
+      *curr_pred = tmp_ptr;
+      best_sad = current_sad;
+      *is_inter = 1;
+    }
+  }
+  if (!frame_is_intra_only(cm) &&
+      cpi->ref_frame_flags & ref_frame_flag_list[ALTREF_FRAME]) {
+    xd->plane[0].dst.buf = *curr_pred;
+    xd->plane[0].dst.stride = pred_stride;
+
+    current_sad = simple_motion_search(cpi, x, mi_row, mi_col,
+                                       BLOCK_128X128, ALTREF_FRAME);
+
+    if (current_sad < best_sad) {
+      uint8_t *const tmp_ptr = *best_pred;
+      *best_pred = *curr_pred;
+      *curr_pred = tmp_ptr;
+      best_sad = current_sad;
+      *is_inter = 1;
+    }
+  }
+
+  aom_subtract_block(block_size_wide[bsize], block_size_high[bsize],
+                     residue, pred_stride,
+                     x->plane[AOM_PLANE_Y].src.buf, x->plane[AOM_PLANE_Y].src.stride,
+                     *best_pred, pred_stride);
+}
+
 static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
                              TileDataEnc *tile_data, int mi_row,
                              TOKENEXTRA **tp) {
@@ -5085,8 +5282,41 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
         first_partition_search_pass(cpi, td, tile_data, mi_row, mi_col, tp);
       }
 
+      DECLARE_ALIGNED(32, int16_t, residue[MAX_SB_SQUARE]);
+      int is_inter = 0;
+
+      partition_none_pass(cpi, td, tile_data, mi_row, mi_col, residue, &is_inter);
+
+      // Get the type of partition. A -1 means that the block is never visited.
+#define NUM_BLOCKS (1 + 4 + 4*4 + 4*4*4 + 4*4*4*4)
+      int partition_type[NUM_BLOCKS];
+      set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
       rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
-                        &dummy_rdc, INT64_MAX, pc_root, NULL);
+                        &dummy_rdc, INT64_MAX, pc_root, NULL, partition_type, 0);
+      // Set all the invalid entries to -1
+      for (int idx = 0; idx < NUM_BLOCKS; idx++) {
+        if (idx == 0) {
+          continue;
+        }
+        if (partition_type[(idx-1)/4] != PARTITION_SPLIT){
+          partition_type[idx] = -1;
+        }
+      }
+
+      // Print out frame number, frame_is_intra_only, base_q, delta_q, prediction_mode,
+      // residue and prediction_type
+      FILE *f = fopen("data.csv", "a");
+      fprintf(f, "%d,%d,%d,%d,%d,", cm->current_video_frame, frame_is_intra_only(cm),
+              cm->base_qindex, xd->delta_qindex, is_inter);
+      for (int idx = 0; idx < MAX_SB_SQUARE; idx++){
+        fprintf(f, "%d,", (int)(residue[idx]));
+      }
+      for (int idx = 0; idx < NUM_BLOCKS; idx++){
+        fprintf(f, "%d,", partition_type[idx]);
+      }
+      fprintf(f, "\n");
+      fclose(f);
+#undef NUM_BLOCKS
     }
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
     // TODO(angiebird): Let inter_mode_rd_model_estimation support multi-tile.
@@ -5389,15 +5619,6 @@ static int do_gm_search_logic(SPEED_FEATURES *const sf, int num_refs_using_gm,
   }
   return 1;
 }
-
-static const uint8_t ref_frame_flag_list[REF_FRAMES] = { 0,
-                                                         AOM_LAST_FLAG,
-                                                         AOM_LAST2_FLAG,
-                                                         AOM_LAST3_FLAG,
-                                                         AOM_GOLD_FLAG,
-                                                         AOM_BWD_FLAG,
-                                                         AOM_ALT2_FLAG,
-                                                         AOM_ALT_FLAG };
 
 // Enforce the number of references for each arbitrary frame limited to
 // (INTER_REFS_PER_FRAME - 1)
