@@ -34,7 +34,7 @@ static MESH_PATTERN
       { { 64, 16 }, { 24, 8 }, { 12, 4 }, { 7, 1 } },
     };
 static unsigned char good_quality_max_mesh_pct[MAX_MESH_SPEED + 1] = {
-  50, 50, 25, 15, 5, 1
+  50, 50, 25, 15, 5,  1
 };
 
 // TODO(huisu@google.com): These settings are pretty relaxed, tune them for
@@ -181,9 +181,15 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   // Speed 0 for all speed features that give neutral coding performance change.
   sf->reduce_inter_modes = 1;
   sf->prune_ext_partition_types_search_level = 1;
+#if CONFIG_DISABLE_PARTITION_PRUNING
+  sf->ml_prune_rect_partition = 0;
+  sf->ml_prune_ab_partition = 0;
+  sf->ml_prune_4_partition = 0;
+#else
   sf->ml_prune_rect_partition = 1;
   sf->ml_prune_ab_partition = 1;
   sf->ml_prune_4_partition = 1;
+#endif
   sf->adaptive_txb_search_level = 1;
   sf->use_jnt_comp_flag = JNT_COMP_SKIP_MV_SEARCH;
   sf->model_based_prune_tx_search_level = 1;
@@ -209,11 +215,19 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->inter_tx_size_search_init_depth_sqr = 1;
     sf->intra_tx_size_search_init_depth_rect = 1;
     sf->tx_size_search_lgr_block = 1;
+#if CONFIG_DISABLE_PARTITION_PRUNING
+    if (speed >= CONFIG_2PASS_PARTITION_SEARCH_LVL) {
+      sf->two_pass_partition_search = 0;
+      sf->mode_pruning_based_on_two_pass_partition_search = 0;
+    }
+    sf->prune_ext_partition_types_search_level = 0;
+#else
     if (speed >= CONFIG_2PASS_PARTITION_SEARCH_LVL) {
       sf->two_pass_partition_search = 1;
       sf->mode_pruning_based_on_two_pass_partition_search = 1;
     }
     sf->prune_ext_partition_types_search_level = 2;
+#endif
     sf->skip_repeat_interpolation_filter_search = 1;
     sf->tx_type_search.skip_tx_search = 1;
     sf->tx_type_search.ml_tx_split_thresh = 40;
@@ -236,7 +250,11 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     // speed.
     sf->prune_single_motion_modes_by_simple_trans = 1;
 
+#if CONFIG_DISABLE_PARTITION_PRUNING
+    sf->full_pixel_motion_search_based_split = 0;
+#else
     sf->full_pixel_motion_search_based_split = 1;
+#endif
   }
 
   if (speed >= 2) {
