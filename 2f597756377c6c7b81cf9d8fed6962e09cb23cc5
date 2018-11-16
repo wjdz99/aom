@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7fc618de_1d1291c8",
+        "filename": "test/acm_random.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-16T19:17:22Z",
+      "side": 1,
+      "message": "The relevant info is in third_party/googletest/src/googletest/include/gtest/internal/gtest-internal.h:\n\nclass GTEST_API_ Random {\n public:\n  static const UInt32 kMaxRange \u003d 1u \u003c\u003c 31;\n\n  explicit Random(UInt32 seed) : state_(seed) {}\n\n  void Reseed(UInt32 seed) { state_ \u003d seed; }\n\n  // Generates a random number from [0, range).  Crashes if \u0027range\u0027 is\n  // 0 or greater than kMaxRange.\n  UInt32 Generate(UInt32 range);\n\n private:\n  UInt32 state_;\n  GTEST_DISALLOW_COPY_AND_ASSIGN_(Random);\n};",
+      "revId": "2f597756377c6c7b81cf9d8fed6962e09cb23cc5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
