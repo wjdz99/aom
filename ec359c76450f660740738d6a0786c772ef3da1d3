@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4ae3814_5a01a862",
+        "filename": "test/av1_nn_predict_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-16T19:10:53Z",
+      "side": 1,
+      "message": "IMPORTANT: Since 1 is a signed integer literal, (1 \u003c\u003c 31) shifts the 1 into the sign bit, so the result is INT_MIN (the most negative int value). This may not be what you intended. We may need to use (1u \u003c\u003c 31) instead.\n\nHere is an experiment:\n\n$ cat foo.cc \n#include \u003cstdio.h\u003e\n\nint main() {\n  float f \u003d (1 \u003c\u003c 31);\n  float g \u003d (1u \u003c\u003c 31);\n  printf(\"%f\\n\", f);\n  printf(\"%f\\n\", g);\n  return 0;\n}\n$ g++ -std\u003dc++11 -Wall -Wextra foo.cc \n$ ./a.out\n-2147483648.000000\n2147483648.000000",
+      "range": {
+        "startLine": 105,
+        "startChar": 58,
+        "endLine": 105,
+        "endChar": 67
+      },
+      "revId": "ec359c76450f660740738d6a0786c772ef3da1d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}

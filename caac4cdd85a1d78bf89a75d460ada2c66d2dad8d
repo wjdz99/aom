@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5250ea3_764ff0e2",
+        "filename": "test/av1_nn_predict_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-16T19:10:53Z",
+      "side": 0,
+      "message": "This is a C99 feature, called designated initializers. I checked the C++ Programming Language, 4th Edition. It says this feature was deliberately not adopted in C++ (Section 44.3.3.2, page 1277).",
+      "revId": "caac4cdd85a1d78bf89a75d460ada2c66d2dad8d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
