@@ -165,10 +165,6 @@ typedef struct AV1Decoder {
 
   int refresh_frame_flags;
 
-  // TODO(hkuang): Combine this with cur_buf in macroblockd as they are
-  // the same.
-  RefCntBuffer *cur_buf;  //  Current decoding frame buffer.
-
   AVxWorker lf_worker;
   AV1LfSync lf_row_sync;
   AV1LrSync lr_row_sync;
@@ -194,8 +190,7 @@ typedef struct AV1Decoder {
   // Note: The saved buffers are released at the start of the next time the
   // application calls aom_codec_decode().
   int output_all_layers;
-  YV12_BUFFER_CONFIG *output_frames[MAX_NUM_SPATIAL_LAYERS];
-  size_t output_frame_index[MAX_NUM_SPATIAL_LAYERS];  // Buffer pool indices
+  RefCntBuffer *output_frames[MAX_NUM_SPATIAL_LAYERS];
   size_t num_output_frames;  // How many frames are queued up so far?
 
   // In order to properly support random-access decoding, we need
@@ -287,23 +282,22 @@ void av1_dec_row_mt_dealloc(AV1DecRowMTSync *dec_row_mt_sync);
 
 void av1_dec_free_cb_buf(AV1Decoder *pbi);
 
-static INLINE void decrease_ref_count(int idx, RefCntBuffer *const frame_bufs,
+static INLINE void decrease_ref_count(RefCntBuffer *const buf,
                                       BufferPool *const pool) {
-  if (idx >= 0) {
-    --frame_bufs[idx].ref_count;
+  if (buf) {
+    --buf->ref_count;
     // Reference counts should never become negative. If this assertion fails,
     // there is a bug in our reference count management.
-    assert(frame_bufs[idx].ref_count >= 0);
+    assert(buf->ref_count >= 0);
     // A worker may only get a free framebuffer index when calling get_free_fb.
     // But the raw frame buffer is not set up until we finish decoding header.
     // So if any error happens during decoding header, frame_bufs[idx] will not
     // have a valid raw frame buffer.
-    if (frame_bufs[idx].ref_count == 0 &&
-        frame_bufs[idx].raw_frame_buffer.data) {
-      pool->release_fb_cb(pool->cb_priv, &frame_bufs[idx].raw_frame_buffer);
-      frame_bufs[idx].raw_frame_buffer.data = NULL;
-      frame_bufs[idx].raw_frame_buffer.size = 0;
-      frame_bufs[idx].raw_frame_buffer.priv = NULL;
+    if (buf->ref_count == 0 && buf->raw_frame_buffer.data) {
+      pool->release_fb_cb(pool->cb_priv, &buf->raw_frame_buffer);
+      buf->raw_frame_buffer.data = NULL;
+      buf->raw_frame_buffer.size = 0;
+      buf->raw_frame_buffer.priv = NULL;
     }
   }
 }

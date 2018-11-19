@@ -368,8 +368,8 @@ static void set_offsets(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   // as they are always compared to values that are in 1/8th pel units
   set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, cm->mi_rows, cm->mi_cols);
 
-  av1_setup_dst_planes(xd->plane, bsize, get_frame_new_buffer(cm), mi_row,
-                       mi_col, 0, num_planes);
+  av1_setup_dst_planes(xd->plane, bsize, &cm->cur_frame->buf, mi_row, mi_col, 0,
+                       num_planes);
 }
 
 static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
@@ -701,21 +701,23 @@ static INLINE void dec_build_inter_predictors(const AV1_COMMON *cm,
         uint8_t *dst = dst_buf->buf + dst_buf->stride * y + x;
 
         ref = 0;
-        const RefBuffer *ref_buf =
-            &cm->frame_refs[this_mbmi->ref_frame[ref] - LAST_FRAME];
+        const RefCntBuffer *ref_buf =
+            get_ref_frame_buf_const(cm, this_mbmi->ref_frame[ref]);
+        const struct scale_factors *ref_scale_factors =
+            get_ref_scale_factors_const(cm, this_mbmi->ref_frame[ref]);
 
         pd->pre[ref].buf0 =
-            (plane == 1) ? ref_buf->buf->u_buffer : ref_buf->buf->v_buffer;
+            (plane == 1) ? ref_buf->buf.u_buffer : ref_buf->buf.v_buffer;
         pd->pre[ref].buf =
             pd->pre[ref].buf0 + scaled_buffer_offset(pre_x, pre_y,
-                                                     ref_buf->buf->uv_stride,
-                                                     &ref_buf->sf);
-        pd->pre[ref].width = ref_buf->buf->uv_crop_width;
-        pd->pre[ref].height = ref_buf->buf->uv_crop_height;
-        pd->pre[ref].stride = ref_buf->buf->uv_stride;
+                                                     ref_buf->buf.uv_stride,
+                                                     ref_scale_factors);
+        pd->pre[ref].width = ref_buf->buf.uv_crop_width;
+        pd->pre[ref].height = ref_buf->buf.uv_crop_height;
+        pd->pre[ref].stride = ref_buf->buf.uv_stride;
 
         const struct scale_factors *const sf =
-            is_intrabc ? &cm->sf_identity : &ref_buf->sf;
+            is_intrabc ? &cm->sf_identity : ref_scale_factors;
         struct buf_2d *const pre_buf = is_intrabc ? dst_buf : &pd->pre[ref];
 
         const MV mv = this_mbmi->mv[ref].as_mv;
@@ -768,7 +770,7 @@ static INLINE void dec_build_inter_predictors(const AV1_COMMON *cm,
     int src_stride[2];
     for (ref = 0; ref < 1 + is_compound; ++ref) {
       const struct scale_factors *const sf =
-          is_intrabc ? &cm->sf_identity : &xd->block_refs[ref]->sf;
+          is_intrabc ? &cm->sf_identity : xd->block_ref_scale_factors[ref];
       struct buf_2d *const pre_buf = is_intrabc ? dst_buf : &pd->pre[ref];
       const MV mv = mi->mv[ref].as_mv;
       PadBlock block;
@@ -805,7 +807,7 @@ static INLINE void dec_build_inter_predictors(const AV1_COMMON *cm,
 
     for (ref = 0; ref < 1 + is_compound; ++ref) {
       const struct scale_factors *const sf =
-          is_intrabc ? &cm->sf_identity : &xd->block_refs[ref]->sf;
+          is_intrabc ? &cm->sf_identity : xd->block_ref_scale_factors[ref];
       WarpTypesAllowed warp_types;
       warp_types.global_warp_allowed = is_global[ref];
       warp_types.local_warp_allowed = mi->motion_mode == WARPED_CAUSAL;
@@ -1038,7 +1040,7 @@ static void dec_build_obmc_inter_predictors_sb(const AV1_COMMON *cm,
                                       dst_width1, dst_height1, dst_stride1);
   dec_build_prediction_by_left_preds(cm, xd, mi_row, mi_col, dst_buf2,
                                      dst_width2, dst_height2, dst_stride2);
-  av1_setup_dst_planes(xd->plane, xd->mi[0]->sb_type, get_frame_new_buffer(cm),
+  av1_setup_dst_planes(xd->plane, xd->mi[0]->sb_type, &cm->cur_frame->buf,
                        mi_row, mi_col, 0, num_planes);
   av1_build_obmc_inter_prediction(cm, xd, mi_row, mi_col, dst_buf1, dst_stride1,
                                   dst_buf2, dst_stride2);
@@ -1062,11 +1064,13 @@ static void predict_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
       assert(frame == INTRA_FRAME);
       assert(ref == 0);
     } else {
-      RefBuffer *ref_buf = &cm->frame_refs[frame - LAST_FRAME];
+      const RefCntBuffer *ref_buf = get_ref_frame_buf_const(cm, frame);
+      const struct scale_factors *ref_scale_factors =
+          get_ref_scale_factors_const(cm, frame);
 
-      xd->block_refs[ref] = ref_buf;
-      av1_setup_pre_planes(xd, ref, ref_buf->buf, mi_row, mi_col, &ref_buf->sf,
-                           num_planes);
+      xd->block_ref_scale_factors[ref] = ref_scale_factors;
+      av1_setup_pre_planes(xd, ref, &ref_buf->buf, mi_row, mi_col,
+                           ref_scale_factors, num_planes);
     }
   }
 
@@ -1685,8 +1689,8 @@ static void set_offsets_for_pred_and_recon(AV1Decoder *const pbi,
   // as they are always compared to values that are in 1/8th pel units
   set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, cm->mi_rows, cm->mi_cols);
 
-  av1_setup_dst_planes(xd->plane, bsize, get_frame_new_buffer(cm), mi_row,
-                       mi_col, 0, num_planes);
+  av1_setup_dst_planes(xd->plane, bsize, &cm->cur_frame->buf, mi_row, mi_col, 0,
+                       num_planes);
 }
 
 static void decode_block(AV1Decoder *const pbi, ThreadData *const td,
@@ -1771,7 +1775,8 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
                                     : read_partition(xd, mi_row, mi_col, reader,
                                                      has_rows, has_cols, bsize);
   } else {
-    partition = get_partition(cm, mi_row, mi_col, bsize);
+    partition = get_partition(mi_row, mi_col, cm->mi_rows, cm->mi_cols,
+                              cm->mi_stride, cm->mi_grid_visible, bsize);
   }
   subsize = get_partition_subsize(bsize, partition);
 
@@ -2237,7 +2242,6 @@ static void setup_quantization(AV1_COMMON *const cm,
     cm->v_dc_delta_q = 0;
     cm->v_ac_delta_q = 0;
   }
-  cm->dequant_bit_depth = seq_params->bit_depth;
   cm->using_qmatrix = aom_rb_read_bit(rb);
   if (cm->using_qmatrix) {
     cm->qm_y = aom_rb_read_literal(rb, QM_LEVEL_BITS);
@@ -2371,32 +2375,27 @@ static void setup_buffer_pool(AV1_COMMON *cm) {
 
   lock_buffer_pool(pool);
   if (aom_realloc_frame_buffer(
-          get_frame_new_buffer(cm), cm->width, cm->height,
-          seq_params->subsampling_x, seq_params->subsampling_y,
-          seq_params->use_highbitdepth, AOM_BORDER_IN_PIXELS,
-          cm->byte_alignment,
-          &pool->frame_bufs[cm->new_fb_idx].raw_frame_buffer, pool->get_fb_cb,
-          pool->cb_priv)) {
+          &cm->cur_frame->buf, cm->width, cm->height, seq_params->subsampling_x,
+          seq_params->subsampling_y, seq_params->use_highbitdepth,
+          AOM_BORDER_IN_PIXELS, cm->byte_alignment,
+          &cm->cur_frame->raw_frame_buffer, pool->get_fb_cb, pool->cb_priv)) {
     unlock_buffer_pool(pool);
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate frame buffer");
   }
   unlock_buffer_pool(pool);
 
-  pool->frame_bufs[cm->new_fb_idx].buf.bit_depth =
-      (unsigned int)seq_params->bit_depth;
-  pool->frame_bufs[cm->new_fb_idx].buf.color_primaries =
-      seq_params->color_primaries;
-  pool->frame_bufs[cm->new_fb_idx].buf.transfer_characteristics =
+  cm->cur_frame->buf.bit_depth = (unsigned int)seq_params->bit_depth;
+  cm->cur_frame->buf.color_primaries = seq_params->color_primaries;
+  cm->cur_frame->buf.transfer_characteristics =
       seq_params->transfer_characteristics;
-  pool->frame_bufs[cm->new_fb_idx].buf.matrix_coefficients =
-      seq_params->matrix_coefficients;
-  pool->frame_bufs[cm->new_fb_idx].buf.monochrome = seq_params->monochrome;
-  pool->frame_bufs[cm->new_fb_idx].buf.chroma_sample_position =
+  cm->cur_frame->buf.matrix_coefficients = seq_params->matrix_coefficients;
+  cm->cur_frame->buf.monochrome = seq_params->monochrome;
+  cm->cur_frame->buf.chroma_sample_position =
       seq_params->chroma_sample_position;
-  pool->frame_bufs[cm->new_fb_idx].buf.color_range = seq_params->color_range;
-  pool->frame_bufs[cm->new_fb_idx].buf.render_width = cm->render_width;
-  pool->frame_bufs[cm->new_fb_idx].buf.render_height = cm->render_height;
+  cm->cur_frame->buf.color_range = seq_params->color_range;
+  cm->cur_frame->buf.render_width = cm->render_width;
+  cm->cur_frame->buf.render_height = cm->render_height;
 }
 
 static void setup_frame_size(AV1_COMMON *cm, int frame_size_override_flag,
@@ -2444,7 +2443,8 @@ static void setup_frame_size_with_refs(AV1_COMMON *cm,
   int has_valid_ref_frame = 0;
   for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
     if (aom_rb_read_bit(rb)) {
-      YV12_BUFFER_CONFIG *const buf = cm->frame_refs[i].buf;
+      const YV12_BUFFER_CONFIG *const buf =
+          &get_ref_frame_buf_const(cm, i + 1)->buf;
       width = buf->y_crop_width;
       height = buf->y_crop_height;
       cm->render_width = buf->render_width;
@@ -2474,19 +2474,19 @@ static void setup_frame_size_with_refs(AV1_COMMON *cm,
   // Check to make sure at least one of frames that this frame references
   // has valid dimensions.
   for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
-    RefBuffer *const ref_frame = &cm->frame_refs[i];
+    const RefCntBuffer *const ref_frame = get_ref_frame_buf_const(cm, i + 1);
     has_valid_ref_frame |=
-        valid_ref_frame_size(ref_frame->buf->y_crop_width,
-                             ref_frame->buf->y_crop_height, width, height);
+        valid_ref_frame_size(ref_frame->buf.y_crop_width,
+                             ref_frame->buf.y_crop_height, width, height);
   }
   if (!has_valid_ref_frame)
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                        "Referenced frame has invalid size");
   for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
-    RefBuffer *const ref_frame = &cm->frame_refs[i];
+    const RefCntBuffer *const ref_frame = get_ref_frame_buf_const(cm, i + 1);
     if (!valid_ref_frame_img_fmt(
-            ref_frame->buf->bit_depth, ref_frame->buf->subsampling_x,
-            ref_frame->buf->subsampling_y, seq_params->bit_depth,
+            ref_frame->buf.bit_depth, ref_frame->buf.subsampling_x,
+            ref_frame->buf.subsampling_y, seq_params->bit_depth,
             seq_params->subsampling_x, seq_params->subsampling_y))
       aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                          "Referenced frame has incompatible color format");
@@ -4194,20 +4194,19 @@ void av1_read_film_grain_params(AV1_COMMON *cm,
 
   if (!pars->update_parameters) {
     // inherit parameters from a previous reference frame
-    RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
     int film_grain_params_ref_idx = aom_rb_read_literal(rb, 3);
-    int buf_idx = cm->ref_frame_map[film_grain_params_ref_idx];
-    if (buf_idx == INVALID_IDX) {
+    RefCntBuffer *const buf = cm->ref_frame_map[film_grain_params_ref_idx];
+    if (!buf) {
       aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                          "Invalid Film grain reference idx");
     }
-    if (!frame_bufs[buf_idx].film_grain_params_present) {
+    if (!buf->film_grain_params_present) {
       aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                          "Film grain reference parameters not available");
     }
     uint16_t random_seed = pars->random_seed;
-    *pars = frame_bufs[buf_idx].film_grain_params;  // inherit paramaters
-    pars->random_seed = random_seed;                // with new random seed
+    *pars = buf->film_grain_params;   // inherit paramaters
+    pars->random_seed = random_seed;  // with new random seed
     return;
   }
 
@@ -4667,35 +4666,32 @@ static void read_global_motion(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 }
 
 // Release the references to the frame buffers in cm->ref_frame_map and reset
-// all elements of cm->ref_frame_map to -1.
+// all elements of cm->ref_frame_map to NULL.
 static void reset_ref_frame_map(AV1_COMMON *const cm) {
   BufferPool *const pool = cm->buffer_pool;
-  RefCntBuffer *const frame_bufs = pool->frame_bufs;
 
   for (int i = 0; i < REF_FRAMES; i++) {
-    decrease_ref_count(cm->ref_frame_map[i], frame_bufs, pool);
+    decrease_ref_count(cm->ref_frame_map[i], pool);
   }
-  memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
+  memset(&cm->ref_frame_map, 0, sizeof(cm->ref_frame_map));
 }
 
 // Generate next_ref_frame_map.
 static void generate_next_ref_frame_map(AV1Decoder *const pbi) {
   AV1_COMMON *const cm = &pbi->common;
   BufferPool *const pool = cm->buffer_pool;
-  RefCntBuffer *const frame_bufs = pool->frame_bufs;
 
   lock_buffer_pool(pool);
   int ref_index = 0;
   for (int mask = pbi->refresh_frame_flags; mask; mask >>= 1) {
     if (mask & 1) {
-      cm->next_ref_frame_map[ref_index] = cm->new_fb_idx;
-      ++frame_bufs[cm->new_fb_idx].ref_count;
+      cm->next_ref_frame_map[ref_index] = cm->cur_frame;
+      ++cm->cur_frame->ref_count;
     } else {
       cm->next_ref_frame_map[ref_index] = cm->ref_frame_map[ref_index];
     }
     // Current thread holds the reference frame.
-    if (cm->ref_frame_map[ref_index] >= 0)
-      ++frame_bufs[cm->ref_frame_map[ref_index]].ref_count;
+    if (cm->ref_frame_map[ref_index]) ++cm->ref_frame_map[ref_index]->ref_count;
     ++ref_index;
   }
 
@@ -4703,8 +4699,7 @@ static void generate_next_ref_frame_map(AV1Decoder *const pbi) {
     cm->next_ref_frame_map[ref_index] = cm->ref_frame_map[ref_index];
 
     // Current thread holds the reference frame.
-    if (cm->ref_frame_map[ref_index] >= 0)
-      ++frame_bufs[cm->ref_frame_map[ref_index]].ref_count;
+    if (cm->ref_frame_map[ref_index]) ++cm->ref_frame_map[ref_index]->ref_count;
   }
   unlock_buffer_pool(pool);
   pbi->hold_ref_buf = 1;
@@ -4721,8 +4716,7 @@ static void show_existing_frame_reset(AV1Decoder *const pbi,
   pbi->refresh_frame_flags = (1 << REF_FRAMES) - 1;
 
   for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
-    cm->frame_refs[i].idx = INVALID_IDX;
-    cm->frame_refs[i].buf = NULL;
+    cm->remapped_ref_idx[i] = INVALID_IDX;
   }
 
   if (pbi->need_resync) {
@@ -4753,7 +4747,7 @@ static void show_existing_frame_reset(AV1Decoder *const pbi,
   generate_next_ref_frame_map(pbi);
 
   // Reload the adapted CDFs from when we originally coded this keyframe
-  *cm->fc = cm->frame_contexts[existing_frame_idx];
+  *cm->fc = get_ref_frame_buf_const(cm, existing_frame_idx + 1)->frame_context;
 }
 
 static INLINE void reset_frame_buffers(AV1_COMMON *cm) {
@@ -4766,15 +4760,15 @@ static INLINE void reset_frame_buffers(AV1_COMMON *cm) {
 
   lock_buffer_pool(cm->buffer_pool);
   reset_ref_frame_map(cm);
-  assert(frame_bufs[cm->new_fb_idx].ref_count == 1);
+  assert(cm->cur_frame->ref_count == 1);
   for (i = 0; i < FRAME_BUFFERS; ++i) {
-    // Reset all unreferenced frame buffers. We can also reset cm->new_fb_idx
-    // because we are the sole owner of cm->new_fb_idx.
-    if (frame_bufs[i].ref_count > 0 && i != cm->new_fb_idx) {
+    // Reset all unreferenced frame buffers. We can also reset cm->cur_frame
+    // because we are the sole owner of cm->cur_frame.
+    if (frame_bufs[i].ref_count > 0 && &frame_bufs[i] != cm->cur_frame) {
       continue;
     }
-    frame_bufs[i].cur_frame_offset = 0;
-    av1_zero(frame_bufs[i].ref_frame_offset);
+    frame_bufs[i].order_hint = 0;
+    av1_zero(frame_bufs[i].ref_order_hints);
   }
   av1_zero_unused_internal_frame_buffers(&cm->buffer_pool->int_frame_buffers);
   unlock_buffer_pool(cm->buffer_pool);
@@ -4795,12 +4789,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                        "No sequence header");
   }
-
-  cm->last_frame_type = current_frame->frame_type;
-  cm->last_intra_only = current_frame->intra_only;
-
-  // NOTE: By default all coded frames to be used as a reference
-  cm->is_reference_frame = 1;
 
   if (seq_params->reduced_still_picture_hdr) {
     cm->show_existing_frame = 0;
@@ -4825,7 +4813,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       }
       // Show an existing frame directly.
       const int existing_frame_idx = aom_rb_read_literal(rb, 3);
-      const int frame_to_show = cm->ref_frame_map[existing_frame_idx];
+      RefCntBuffer *frame_to_show = cm->ref_frame_map[existing_frame_idx];
       if (seq_params->decoder_model_info_present_flag &&
           cm->timing_info.equal_picture_interval == 0) {
         av1_read_temporal_point_info(cm, rb);
@@ -4841,35 +4829,34 @@ static int read_uncompressed_header(AV1Decoder *pbi,
                              "Reference buffer frame ID mismatch");
       }
       lock_buffer_pool(pool);
-      if (frame_to_show < 0 || frame_bufs[frame_to_show].ref_count < 1) {
+      if (!frame_to_show || frame_to_show->ref_count < 1) {
         unlock_buffer_pool(pool);
         aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-                           "Buffer %d does not contain a decoded frame",
-                           frame_to_show);
+                           "Buffer does not contain a decoded frame");
       }
-      // cm->new_fb_idx should be the return value of the get_free_fb() call
-      // in av1_receive_compressed_data(), and generate_next_ref_frame_map()
-      // has not been called, so ref_count should still be 1.
-      assert(frame_bufs[cm->new_fb_idx].ref_count == 1);
+      // cm->cur_frame should be the buffer referenced by the return value
+      // of the get_free_fb() call in av1_receive_compressed_data(), and
+      // generate_next_ref_frame_map() has not been called, so ref_count
+      // should still be 1.
+      assert(cm->cur_frame->ref_count == 1);
       // ref_cnt_fb() decrements ref_count directly rather than call
-      // decrease_ref_count(). If frame_bufs[cm->new_fb_idx].raw_frame_buffer
+      // decrease_ref_count(). If cm->cur_frame->raw_frame_buffer
       // has already been allocated, it will not be released by ref_cnt_fb()!
-      assert(!frame_bufs[cm->new_fb_idx].raw_frame_buffer.data);
-      assign_frame_buffer(frame_bufs, &cm->new_fb_idx, frame_to_show);
-      cm->reset_decoder_state =
-          frame_bufs[frame_to_show].frame_type == KEY_FRAME;
+      assert(!cm->cur_frame->raw_frame_buffer.data);
+      assign_frame_buffer_p(&cm->cur_frame, frame_to_show);
+      cm->reset_decoder_state = frame_to_show->frame_type == KEY_FRAME;
       unlock_buffer_pool(pool);
 
       cm->lf.filter_level[0] = 0;
       cm->lf.filter_level[1] = 0;
       cm->show_frame = 1;
 
-      if (!frame_bufs[frame_to_show].showable_frame) {
+      if (!frame_to_show->showable_frame) {
         aom_merge_corrupted_flag(&xd->corrupted, 1);
       }
-      if (cm->reset_decoder_state) frame_bufs[frame_to_show].showable_frame = 0;
+      if (cm->reset_decoder_state) frame_to_show->showable_frame = 0;
 
-      cm->film_grain_params = frame_bufs[frame_to_show].film_grain_params;
+      cm->film_grain_params = frame_to_show->film_grain_params;
 
       if (cm->reset_decoder_state) {
         show_existing_frame_reset(pbi, existing_frame_idx);
@@ -4934,7 +4921,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     cm->cur_frame_force_integer_mv = 0;
   }
 
-  cm->frame_refs_short_signaling = 0;
   int frame_size_override_flag = 0;
   cm->allow_intrabc = 0;
   cm->primary_ref_frame = PRIMARY_REF_NONE;
@@ -5027,8 +5013,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       pbi->refresh_frame_flags = (1 << REF_FRAMES) - 1;
 
     for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
-      cm->frame_refs[i].idx = INVALID_IDX;
-      cm->frame_refs[i].buf = NULL;
+      cm->remapped_ref_idx[i] = INVALID_IDX;
     }
     if (pbi->need_resync) {
       reset_ref_frame_map(cm);
@@ -5048,11 +5033,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     } else if (pbi->need_resync != 1) { /* Skip if need resync */
       pbi->refresh_frame_flags =
           frame_is_sframe(cm) ? 0xFF : aom_rb_read_literal(rb, REF_FRAMES);
-      if (!pbi->refresh_frame_flags) {
-        // NOTE: "pbi->refresh_frame_flags == 0" indicates that the coded frame
-        //       will not be used as a reference
-        cm->is_reference_frame = 0;
-      }
     }
   }
 
@@ -5062,43 +5042,41 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         seq_params->order_hint_info.enable_order_hint) {
       for (int ref_idx = 0; ref_idx < REF_FRAMES; ref_idx++) {
         // Read order hint from bit stream
-        unsigned int frame_offset = aom_rb_read_literal(
+        unsigned int order_hint = aom_rb_read_literal(
             rb, seq_params->order_hint_info.order_hint_bits_minus_1 + 1);
         // Get buffer index
-        int buf_idx = cm->ref_frame_map[ref_idx];
-        assert(buf_idx < FRAME_BUFFERS);
-        if (buf_idx == -1 ||
-            frame_offset != frame_bufs[buf_idx].cur_frame_offset) {
-          if (buf_idx >= 0) {
+        RefCntBuffer *buf = cm->ref_frame_map[ref_idx];
+        if (!buf || order_hint != buf->order_hint) {
+          if (buf) {
             lock_buffer_pool(pool);
-            decrease_ref_count(buf_idx, frame_bufs, pool);
+            decrease_ref_count(buf, pool);
             unlock_buffer_pool(pool);
           }
           // If no corresponding buffer exists, allocate a new buffer with all
           // pixels set to neutral grey.
-          buf_idx = get_free_fb(cm);
+          int buf_idx = get_free_fb(cm);
           if (buf_idx == INVALID_IDX) {
             aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                                "Unable to find free frame buffer");
           }
+          buf = &frame_bufs[buf_idx];
           lock_buffer_pool(pool);
           if (aom_realloc_frame_buffer(
-                  &frame_bufs[buf_idx].buf, seq_params->max_frame_width,
+                  &buf->buf, seq_params->max_frame_width,
                   seq_params->max_frame_height, seq_params->subsampling_x,
                   seq_params->subsampling_y, seq_params->use_highbitdepth,
                   AOM_BORDER_IN_PIXELS, cm->byte_alignment,
-                  &pool->frame_bufs[buf_idx].raw_frame_buffer, pool->get_fb_cb,
-                  pool->cb_priv)) {
-            decrease_ref_count(buf_idx, frame_bufs, pool);
+                  &buf->raw_frame_buffer, pool->get_fb_cb, pool->cb_priv)) {
+            decrease_ref_count(buf, pool);
             unlock_buffer_pool(pool);
             aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                                "Failed to allocate frame buffer");
           }
           unlock_buffer_pool(pool);
-          set_planes_to_neutral_grey(seq_params, &frame_bufs[buf_idx].buf, 0);
+          set_planes_to_neutral_grey(seq_params, &buf->buf, 0);
 
-          cm->ref_frame_map[ref_idx] = buf_idx;
-          frame_bufs[buf_idx].cur_frame_offset = frame_offset;
+          cm->ref_frame_map[ref_idx] = buf;
+          buf->order_hint = order_hint;
         }
       }
     }
@@ -5122,30 +5100,30 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         cm->allow_intrabc = aom_rb_read_bit(rb);
 
     } else if (pbi->need_resync != 1) { /* Skip if need resync */
-
+      int frame_refs_short_signaling = 0;
       // Frame refs short signaling is off when error resilient mode is on.
       if (seq_params->order_hint_info.enable_order_hint)
-        cm->frame_refs_short_signaling = aom_rb_read_bit(rb);
+        frame_refs_short_signaling = aom_rb_read_bit(rb);
 
-      if (cm->frame_refs_short_signaling) {
+      if (frame_refs_short_signaling) {
         // == LAST_FRAME ==
         const int lst_ref = aom_rb_read_literal(rb, REF_FRAMES_LOG2);
-        const int lst_idx = cm->ref_frame_map[lst_ref];
+        const RefCntBuffer *lst_buf = cm->ref_frame_map[lst_ref];
 
         // == GOLDEN_FRAME ==
         const int gld_ref = aom_rb_read_literal(rb, REF_FRAMES_LOG2);
-        const int gld_idx = cm->ref_frame_map[gld_ref];
+        const RefCntBuffer *gld_buf = cm->ref_frame_map[gld_ref];
 
         // Most of the time, streams start with a keyframe. In that case,
         // ref_frame_map will have been filled in at that point and will not
-        // contain any -1's. However, streams are explicitly allowed to start
+        // contain any NULLs. However, streams are explicitly allowed to start
         // with an intra-only frame, so long as they don't then signal a
         // reference to a slot that hasn't been set yet. That's what we are
         // checking here.
-        if (lst_idx == -1)
+        if (!lst_buf)
           aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                              "Inter frame requests nonexistent reference");
-        if (gld_idx == -1)
+        if (!gld_buf)
           aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                              "Inter frame requests nonexistent reference");
 
@@ -5154,9 +5132,8 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 
       for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
         int ref = 0;
-        if (!cm->frame_refs_short_signaling) {
+        if (!frame_refs_short_signaling) {
           ref = aom_rb_read_literal(rb, REF_FRAMES_LOG2);
-          const int idx = cm->ref_frame_map[ref];
 
           // Most of the time, streams start with a keyframe. In that case,
           // ref_frame_map will have been filled in at that point and will not
@@ -5164,16 +5141,12 @@ static int read_uncompressed_header(AV1Decoder *pbi,
           // with an intra-only frame, so long as they don't then signal a
           // reference to a slot that hasn't been set yet. That's what we are
           // checking here.
-          if (idx == -1)
+          if (!cm->ref_frame_map[ref])
             aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                                "Inter frame requests nonexistent reference");
-
-          RefBuffer *const ref_frame = &cm->frame_refs[i];
-          ref_frame->idx = idx;
-          ref_frame->buf = &frame_bufs[idx].buf;
-          ref_frame->map_idx = ref;
+          cm->remapped_ref_idx[i] = ref;
         } else {
-          ref = cm->frame_refs[i].map_idx;
+          ref = cm->remapped_ref_idx[i];
         }
 
         cm->ref_frame_sign_bias[LAST_FRAME + i] = 0;
@@ -5210,9 +5183,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       cm->switchable_motion_mode = aom_rb_read_bit(rb);
     }
 
-    cm->prev_frame = get_prev_frame(cm);
+    cm->prev_frame = get_primary_ref_frame_buf(cm);
     if (cm->primary_ref_frame != PRIMARY_REF_NONE &&
-        cm->frame_refs[cm->primary_ref_frame].idx < 0) {
+        !get_primary_ref_frame_buf(cm)) {
       aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                          "Reference frame containing this frame's initial "
                          "frame context is unavailable.");
@@ -5225,11 +5198,13 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         cm->allow_ref_frame_mvs = 0;
 
       for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
-        RefBuffer *const ref_buf = &cm->frame_refs[i];
+        const RefCntBuffer *const ref_buf = get_ref_frame_buf_const(cm, i + 1);
+        struct scale_factors *const ref_scale_factors =
+            get_ref_scale_factors(cm, i + 1);
         av1_setup_scale_factors_for_frame(
-            &ref_buf->sf, ref_buf->buf->y_crop_width,
-            ref_buf->buf->y_crop_height, cm->width, cm->height);
-        if ((!av1_is_valid_scale(&ref_buf->sf)))
+            ref_scale_factors, ref_buf->buf.y_crop_width,
+            ref_buf->buf.y_crop_height, cm->width, cm->height);
+        if ((!av1_is_valid_scale(ref_scale_factors)))
           aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                              "Reference frame has invalid dimensions");
       }
@@ -5266,18 +5241,17 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     cm->refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
   }
 
-  get_frame_new_buffer(cm)->bit_depth = seq_params->bit_depth;
-  get_frame_new_buffer(cm)->color_primaries = seq_params->color_primaries;
-  get_frame_new_buffer(cm)->transfer_characteristics =
+  cm->cur_frame->buf.bit_depth = seq_params->bit_depth;
+  cm->cur_frame->buf.color_primaries = seq_params->color_primaries;
+  cm->cur_frame->buf.transfer_characteristics =
       seq_params->transfer_characteristics;
-  get_frame_new_buffer(cm)->matrix_coefficients =
-      seq_params->matrix_coefficients;
-  get_frame_new_buffer(cm)->monochrome = seq_params->monochrome;
-  get_frame_new_buffer(cm)->chroma_sample_position =
+  cm->cur_frame->buf.matrix_coefficients = seq_params->matrix_coefficients;
+  cm->cur_frame->buf.monochrome = seq_params->monochrome;
+  cm->cur_frame->buf.chroma_sample_position =
       seq_params->chroma_sample_position;
-  get_frame_new_buffer(cm)->color_range = seq_params->color_range;
-  get_frame_new_buffer(cm)->render_width = cm->render_width;
-  get_frame_new_buffer(cm)->render_height = cm->render_height;
+  cm->cur_frame->buf.color_range = seq_params->color_range;
+  cm->cur_frame->buf.render_width = cm->render_width;
+  cm->cur_frame->buf.render_height = cm->render_height;
 
   if (pbi->need_resync) {
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
@@ -5480,9 +5454,11 @@ uint32_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
 
   const uint32_t uncomp_hdr_size =
       (uint32_t)aom_rb_bytes_read(rb);  // Size of the uncompressed header
-  YV12_BUFFER_CONFIG *new_fb = get_frame_new_buffer(cm);
+  YV12_BUFFER_CONFIG *new_fb = &cm->cur_frame->buf;
   xd->cur_buf = new_fb;
-  if (av1_allow_intrabc(cm)) {
+  if (av1_allow_intrabc(cm->current_frame.intra_only,
+                        cm->current_frame.frame_type,
+                        cm->allow_screen_content_tools, cm->allow_intrabc)) {
     av1_setup_scale_factors_for_frame(
         &cm->sf_identity, xd->cur_buf->y_crop_width, xd->cur_buf->y_crop_height,
         xd->cur_buf->y_crop_width, xd->cur_buf->y_crop_height);
@@ -5493,7 +5469,7 @@ uint32_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
     *p_data_end = data + uncomp_hdr_size;
     if (cm->reset_decoder_state) {
       // Use the default frame context values.
-      *cm->fc = cm->frame_contexts[FRAME_CONTEXT_DEFAULTS];
+      *cm->fc = *cm->default_frame_context;
       if (!cm->fc->initialized)
         aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                            "Uninitialized entropy context.");
@@ -5503,17 +5479,15 @@ uint32_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
 
   cm->setup_mi(cm);
 
-  cm->current_frame_seg_map = cm->cur_frame->seg_map;
-
   av1_setup_motion_field(cm);
 
   av1_setup_block_planes(xd, cm->seq_params.subsampling_x,
                          cm->seq_params.subsampling_y, num_planes);
   if (cm->primary_ref_frame == PRIMARY_REF_NONE) {
     // use the default frame context values
-    *cm->fc = cm->frame_contexts[FRAME_CONTEXT_DEFAULTS];
+    *cm->fc = *cm->default_frame_context;
   } else {
-    *cm->fc = cm->frame_contexts[cm->frame_refs[cm->primary_ref_frame].idx];
+    *cm->fc = get_primary_ref_frame_buf(cm)->frame_context;
   }
   if (!cm->fc->initialized)
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
@@ -5577,13 +5551,13 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
     if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
       if (pbi->num_workers > 1) {
         av1_loop_filter_frame_mt(
-            get_frame_new_buffer(cm), cm, &pbi->mb, 0, num_planes, 0,
+            &cm->cur_frame->buf, cm, &pbi->mb, 0, num_planes, 0,
 #if LOOP_FILTER_BITMASK
             1,
 #endif
             pbi->tile_workers, pbi->num_workers, &pbi->lf_row_sync);
       } else {
-        av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
+        av1_loop_filter_frame(&cm->cur_frame->buf, cm, &pbi->mb,
 #if LOOP_FILTER_BITMASK
                               1,
 #endif
@@ -5604,14 +5578,16 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 
     if (!optimized_loop_restoration) {
       if (do_loop_restoration)
-        av1_loop_restoration_save_boundary_lines(&pbi->cur_buf->buf, cm, 0);
+        av1_loop_restoration_save_boundary_lines(&pbi->common.cur_frame->buf,
+                                                 cm, 0);
 
-      if (do_cdef) av1_cdef_frame(&pbi->cur_buf->buf, cm, &pbi->mb);
+      if (do_cdef) av1_cdef_frame(&pbi->common.cur_frame->buf, cm, &pbi->mb);
 
       superres_post_decode(pbi);
 
       if (do_loop_restoration) {
-        av1_loop_restoration_save_boundary_lines(&pbi->cur_buf->buf, cm, 1);
+        av1_loop_restoration_save_boundary_lines(&pbi->common.cur_frame->buf,
+                                                 cm, 1);
         if (pbi->num_workers > 1) {
           av1_loop_restoration_filter_frame_mt(
               (YV12_BUFFER_CONFIG *)xd->cur_buf, cm, optimized_loop_restoration,
@@ -5663,6 +5639,6 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 
   // Non frame parallel update frame context here.
   if (!cm->large_scale_tile) {
-    cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
+    cm->cur_frame->frame_context = *cm->fc;
   }
 }

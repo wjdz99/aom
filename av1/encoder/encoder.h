@@ -288,7 +288,6 @@ typedef struct AV1EncoderConfig {
   int max_threads;
 
   aom_fixed_buf_t two_pass_stats_in;
-  struct aom_codec_pkt_list *output_pkt_list;
 
 #if CONFIG_FP_MB_STATS
   aom_fixed_buf_t firstpass_mb_stats_in;
@@ -304,15 +303,12 @@ typedef struct AV1EncoderConfig {
   int color_range;
   int render_width;
   int render_height;
-  aom_timing_info_type_t timing_info_type;
   int timing_info_present;
   aom_timing_info_t timing_info;
   int decoder_model_info_present_flag;
   int display_model_info_present_flag;
   int buffer_removal_time_present;
   aom_dec_model_info_t buffer_model;
-  aom_dec_model_op_parameters_t op_params[MAX_NUM_OPERATING_POINTS + 1];
-  aom_op_timing_info_t op_frame_timing[MAX_NUM_OPERATING_POINTS + 1];
   int film_grain_test_vector;
   const char *film_grain_table_filename;
 
@@ -618,31 +614,11 @@ typedef struct AV1_COMP {
   int rate_index;
   hash_table *previous_hash_table;
   int previous_index;
-  int cur_poc;  // DebugInfo
 
   unsigned int row_mt;
-  int scaled_ref_idx[INTER_REFS_PER_FRAME];
+  RefCntBuffer *scaled_ref_buf[INTER_REFS_PER_FRAME];
 
-  // For encoder, we have a two-level mapping from reference frame type to the
-  // corresponding buffer in the buffer pool:
-  // * 'remapped_ref_idx[i - 1]' maps reference type ‘i’ (range: LAST_FRAME ...
-  // EXTREF_FRAME) to a remapped index ‘j’ (in range: 0 ... REF_FRAMES - 1)
-  // * Later, 'cm->ref_frame_map[j]' maps the remapped index ‘j’ to actual index
-  //   of the buffer in the buffer pool ‘cm->buffer_pool.frame_bufs’.
-  //
-  // LAST_FRAME,                        ...,      EXTREF_FRAME
-  //      |                                           |
-  //      v                                           v
-  // remapped_ref_idx[LAST_FRAME - 1],  ...,  remapped_ref_idx[EXTREF_FRAME - 1]
-  //      |                                           |
-  //      v                                           v
-  // ref_frame_map[],                   ...,     ref_frame_map[]
-  //
-  // Note: INTRA_FRAME always refers to the current frame, so there's no need to
-  // have a remapped index for the same.
-  int remapped_ref_idx[REF_FRAMES];
-
-  int last_show_frame_buf_idx;  // last show frame buffer index
+  RefCntBuffer *last_show_frame_buf;  // last show frame buffer
 
   // refresh_*_frame are boolean flags. If 'refresh_xyz_frame' is true, then
   // after the current frame is encoded, the XYZ reference frame gets refreshed
@@ -720,14 +696,12 @@ typedef struct AV1_COMP {
   int static_mb_pct;     // % forced skip mbs by segmentation
   int ref_frame_flags;
   int ext_ref_frame_flags;
-  RATE_FACTOR_LEVEL frame_rf_level[FRAME_BUFFERS];
 
   SPEED_FEATURES sf;
 
   unsigned int max_mv_magnitude;
   int mv_step_param;
 
-  int allow_comp_inter_inter;
   int all_one_sided_refs;
 
   uint8_t *segmentation_map;
@@ -741,7 +715,6 @@ typedef struct AV1_COMP {
   uint64_t time_receive_data;
   uint64_t time_compress_data;
   uint64_t time_pick_lpf;
-  uint64_t time_encode_sb_row;
 
 #if CONFIG_FP_MB_STATS
   int use_fp_mb_stats;
@@ -805,7 +778,6 @@ typedef struct AV1_COMP {
   int allocated_tiles;  // Keep track of memory allocated for tiles.
 
   TOKENEXTRA *tile_tok[MAX_TILE_ROWS][MAX_TILE_COLS];
-  unsigned int tok_count[MAX_TILE_ROWS][MAX_TILE_COLS];
   TOKENLIST *tplist[MAX_TILE_ROWS][MAX_TILE_COLS];
 
   TileBufferEnc tile_buffers[MAX_TILE_ROWS][MAX_TILE_COLS];
@@ -813,7 +785,6 @@ typedef struct AV1_COMP {
   int resize_state;
   int resize_avg_qp;
   int resize_buffer_underflow;
-  int resize_count;
 
   // Sequence parameters have been transmitted already and locked
   // or not. Once locked av1_change_config cannot change the seq
@@ -834,7 +805,6 @@ typedef struct AV1_COMP {
   int arf_pos_in_gf[MAX_EXT_ARFS + 1];
   int arf_pos_for_ovrly[MAX_EXT_ARFS + 1];
   int global_motion_search_done;
-  tran_low_t *tcoeff_buf[MAX_MB_PLANE];
   int extra_arf_allowed;
   // A flag to indicate if intrabc is ever used in current frame.
   int intrabc_used;
@@ -842,11 +812,6 @@ typedef struct AV1_COMP {
   // TODO(huisu@google.com): we can update dv_joint_cost per SB.
   int dv_joint_cost[MV_JOINTS];
   int has_lossless_segment;
-
-  // For frame refs short signaling:
-  //   A mapping of each reference frame from its encoder side value to the
-  //   decoder side value obtained following the short signaling procedure.
-  int ref_conv[REF_FRAMES];
 
   AV1LfSync lf_row_sync;
   AV1LrSync lr_row_sync;
@@ -925,49 +890,32 @@ static INLINE int frame_is_kf_gf_arf(const AV1_COMP *cpi) {
          (cpi->refresh_golden_frame && !cpi->rc.is_src_frame_alt_ref);
 }
 
-static INLINE int get_ref_frame_map_idx(const AV1_COMP *cpi,
-                                        MV_REFERENCE_FRAME ref_frame) {
-  return (ref_frame >= LAST_FRAME)
-             ? cpi->remapped_ref_idx[ref_frame - LAST_FRAME]
-             : INVALID_IDX;
-}
-
-static INLINE int get_ref_frame_buf_idx(const AV1_COMP *cpi,
-                                        MV_REFERENCE_FRAME ref_frame) {
-  const AV1_COMMON *const cm = &cpi->common;
-  const int map_idx = get_ref_frame_map_idx(cpi, ref_frame);
-  return (map_idx != INVALID_IDX) ? cm->ref_frame_map[map_idx] : INVALID_IDX;
-}
-
 // TODO(huisu@google.com, youzhou@microsoft.com): enable hash-me for HBD.
 static INLINE int av1_use_hash_me(const AV1_COMMON *const cm) {
   return cm->allow_screen_content_tools;
 }
 
 static INLINE hash_table *av1_get_ref_frame_hash_map(
-    const AV1_COMP *cpi, MV_REFERENCE_FRAME ref_frame) {
-  const AV1_COMMON *const cm = &cpi->common;
-  const int buf_idx = get_ref_frame_buf_idx(cpi, ref_frame);
-  return buf_idx != INVALID_IDX
-             ? &cm->buffer_pool->frame_bufs[buf_idx].hash_table
-             : NULL;
+    const AV1_COMMON *cm, MV_REFERENCE_FRAME ref_frame) {
+  const int map_idx = get_ref_frame_map_idx(cm, ref_frame);
+  RefCntBuffer *buf =
+      (map_idx != INVALID_IDX) ? cm->ref_frame_map[map_idx] : NULL;
+  return buf ? &buf->hash_table : NULL;
 }
 
-static INLINE YV12_BUFFER_CONFIG *get_ref_frame_buffer(
-    const AV1_COMP *cpi, MV_REFERENCE_FRAME ref_frame) {
-  const AV1_COMMON *const cm = &cpi->common;
-  const int buf_idx = get_ref_frame_buf_idx(cpi, ref_frame);
-  return buf_idx != INVALID_IDX ? &cm->buffer_pool->frame_bufs[buf_idx].buf
-                                : NULL;
+static INLINE const YV12_BUFFER_CONFIG *get_ref_frame_buffer(
+    const AV1_COMMON *cm, MV_REFERENCE_FRAME ref_frame) {
+  const RefCntBuffer *buf = get_ref_frame_buf_const(cm, ref_frame);
+  return buf ? &buf->buf : NULL;
 }
 
-static INLINE int enc_is_ref_frame_buf(AV1_COMP *cpi, RefCntBuffer *frame_buf) {
-  AV1_COMMON *const cm = &cpi->common;
+static INLINE int enc_is_ref_frame_buf(const AV1_COMMON *cm,
+                                       RefCntBuffer *frame_buf) {
   MV_REFERENCE_FRAME ref_frame;
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
-    const int buf_idx = get_ref_frame_buf_idx(cpi, ref_frame);
-    if (buf_idx == INVALID_IDX) continue;
-    if (frame_buf == &cm->buffer_pool->frame_bufs[buf_idx]) break;
+    const RefCntBuffer *buf = get_ref_frame_buf_const(cm, ref_frame);
+    if (!buf) continue;
+    if (frame_buf == buf) break;
   }
   return (ref_frame <= ALTREF_FRAME);
 }
@@ -1027,10 +975,10 @@ static INLINE int is_altref_enabled(const AV1_COMP *const cpi) {
 static INLINE void set_ref_ptrs(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                 MV_REFERENCE_FRAME ref0,
                                 MV_REFERENCE_FRAME ref1) {
-  xd->block_refs[0] =
-      &cm->frame_refs[ref0 >= LAST_FRAME ? ref0 - LAST_FRAME : 0];
-  xd->block_refs[1] =
-      &cm->frame_refs[ref1 >= LAST_FRAME ? ref1 - LAST_FRAME : 0];
+  xd->block_ref_scale_factors[0] =
+      get_ref_scale_factors_const(cm, ref0 >= LAST_FRAME ? ref0 : 1);
+  xd->block_ref_scale_factors[1] =
+      get_ref_scale_factors_const(cm, ref1 >= LAST_FRAME ? ref1 : 1);
 }
 
 static INLINE int get_chessboard_index(int frame_index) {
