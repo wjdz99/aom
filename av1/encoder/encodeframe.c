@@ -4926,13 +4926,13 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     // gives high BD Rate drop for smaller resolutions.
     if (cpi->row_mt == 1) {
       int update_context = 0;
-      if (mib_size_log2 == 5) {
-        update_context = sb_cols_in_tile == 1 || sb_col_in_tile == 1;
-      } else if (mib_size_log2 == 4) {
-        update_context = sb_cols_in_tile == 1 ||
-                         (sb_cols_in_tile == 2 && sb_col_in_tile == 1) ||
-                         sb_col_in_tile == 2;
-      }
+      // if (mib_size_log2 == 5) {
+      //  update_context = sb_cols_in_tile == 1 || sb_col_in_tile == 1;
+      //} else if (mib_size_log2 == 4) {
+      update_context = sb_cols_in_tile == 1 ||
+                       (sb_cols_in_tile == 2 && sb_col_in_tile == 1) ||
+                       sb_col_in_tile == 2;
+      //}
       if (update_context)
         memcpy(x->backup_tile_ctx, xd->tile_ctx, sizeof(*xd->tile_ctx));
     }
@@ -5740,7 +5740,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read_dummy;
     cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write_dummy;
     cpi->row_mt = 0;
-    if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads > 1)) {
+    if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads >= 1)) {
       cpi->row_mt = 1;
       cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read;
       cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write;
