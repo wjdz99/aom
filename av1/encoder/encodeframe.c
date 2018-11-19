@@ -54,6 +54,7 @@
 #include "av1/encoder/ethread.h"
 #include "av1/encoder/extend.h"
 #include "av1/encoder/ml.h"
+#include "av1/encoder/new_encode_structures.h"
 #include "av1/encoder/partition_model_weights.h"
 #include "av1/encoder/rd.h"
 #include "av1/encoder/rdopt.h"
@@ -188,7 +189,8 @@ static unsigned int get_sby_perpixel_diff_variance(const AV1_COMP *const cpi,
                                                    BLOCK_SIZE bs) {
   unsigned int sse, var;
   uint8_t *last_y;
-  const YV12_BUFFER_CONFIG *last = get_ref_frame_buffer(cpi, LAST_FRAME);
+  const YV12_BUFFER_CONFIG *last =
+      get_ref_frame_buffer(&cpi->common, LAST_FRAME);
 
   assert(last != NULL);
   last_y =
@@ -241,8 +243,8 @@ static void set_offsets_without_segment_id(const AV1_COMP *const cpi,
       xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
 
   // Set up destination pointers.
-  av1_setup_dst_planes(xd->plane, bsize, get_frame_new_buffer(cm), mi_row,
-                       mi_col, 0, num_planes);
+  av1_setup_dst_planes(xd->plane, bsize, &cm->cur_frame->buf, mi_row, mi_col, 0,
+                       num_planes);
 
   // Set up limit values for MV components.
   // Mv beyond the range do not produce new/different prediction block.
@@ -290,8 +292,9 @@ static void set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
     if (seg->enabled && !cpi->vaq_refresh) {
       const uint8_t *const map =
           seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
-      mbmi->segment_id =
-          map ? get_segment_id(cm, map, bsize, mi_row, mi_col) : 0;
+      mbmi->segment_id = map ? get_segment_id(cm->mi_rows, cm->mi_cols, map,
+                                              bsize, mi_row, mi_col)
+                             : 0;
     }
     av1_init_plane_quantizers(cpi, x, mbmi->segment_id);
   }
@@ -392,8 +395,9 @@ static void update_state(const AV1_COMP *const cpi,
     if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
       const uint8_t *const map =
           seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
-      mi_addr->segment_id =
-          map ? get_segment_id(cm, map, bsize, mi_row, mi_col) : 0;
+      mi_addr->segment_id = map ? get_segment_id(cm->mi_rows, cm->mi_cols, map,
+                                                 bsize, mi_row, mi_col)
+                                : 0;
       reset_tx_size(x, mi_addr, cm->tx_mode);
     }
     // Else for cyclic refresh mode update the segment map, set the segment id
@@ -799,7 +803,7 @@ static void sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
       update_cdf(fc->y_mode_cdf[size_group_lookup[bsize]], y_mode, INTRA_MODES);
   }
 
-  if (av1_filter_intra_allowed(cm, mbmi)) {
+  if (av1_filter_intra_allowed(&cm->seq_params, mbmi)) {
     const int use_filter_intra_mode =
         mbmi->filter_intra_mode_info.use_filter_intra;
 #if CONFIG_ENTROPY_STATS
@@ -981,7 +985,9 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
                     tile_data->allow_update_cdf);
   }
 
-  if (av1_allow_intrabc(cm)) {
+  if (av1_allow_intrabc(cm->current_frame.intra_only,
+                        cm->current_frame.frame_type,
+                        cm->allow_screen_content_tools, cm->allow_intrabc)) {
     if (allow_update_cdf)
       update_cdf(fc->intrabc_cdf, is_intrabc_block(mbmi), 2);
 #if CONFIG_ENTROPY_STATS
@@ -1270,7 +1276,8 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
           }
 
           if (mbmi->comp_group_idx == 0) {
-            const int comp_index_ctx = get_comp_index_context(cm, xd);
+            const int comp_index_ctx =
+                get_comp_index_context(cm, cm->cur_frame, &cm->seq_params, xd);
 #if CONFIG_ENTROPY_STATS
             ++counts->compound_index[comp_index_ctx][mbmi->compound_idx];
 #endif
@@ -1709,8 +1716,10 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
                      ? partition_plane_context(xd, mi_row, mi_col, bsize)
                      : 0;
   const PARTITION_TYPE partition =
-      (bsize >= BLOCK_8X8) ? get_partition(cm, mi_row, mi_col, bsize)
-                           : PARTITION_NONE;
+      (bsize >= BLOCK_8X8)
+          ? get_partition(mi_row, mi_col, cm->mi_rows, cm->mi_cols,
+                          cm->mi_stride, cm->mi_grid_visible, bsize)
+          : PARTITION_NONE;
   const BLOCK_SIZE subsize = get_partition_subsize(bsize, partition);
   RD_SEARCH_MACROBLOCK_CONTEXT x_ctx;
   RD_STATS last_part_rdc, none_rdc, chosen_rdc;
@@ -3398,7 +3407,7 @@ static void get_res_var_features(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
   // Perform a single motion search in Y_PLANE to make a prediction
   const MV_REFERENCE_FRAME ref =
       cpi->rc.is_src_frame_alt_ref ? ALTREF_FRAME : LAST_FRAME;
-  YV12_BUFFER_CONFIG *yv12 = get_ref_frame_buffer(cpi, ref);
+  const YV12_BUFFER_CONFIG *yv12 = get_ref_frame_buffer(cm, ref);
   const YV12_BUFFER_CONFIG *scaled_ref_frame =
       av1_get_scaled_ref_frame(cpi, ref);
   struct buf_2d backup_yv12;
@@ -3420,7 +3429,7 @@ static void get_res_var_features(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
                          num_planes);
   } else {
     av1_setup_pre_planes(xd, ref_idx, yv12, mi_row, mi_col,
-                         &cm->frame_refs[ref - LAST_FRAME].sf, num_planes);
+                         get_ref_scale_factors(cm, ref), num_planes);
   }
 
   mbmi->ref_frame[0] = ref;
@@ -5037,8 +5046,9 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     if (seg->enabled) {
       const uint8_t *const map =
           seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
-      const int segment_id =
-          map ? get_segment_id(cm, map, sb_size, mi_row, mi_col) : 0;
+      const int segment_id = map ? get_segment_id(cm->mi_rows, cm->mi_cols, map,
+                                                  sb_size, mi_row, mi_col)
+                                 : 0;
       seg_skip = segfeature_active(seg, segment_id, SEG_LVL_SKIP);
     }
     xd->cur_frame_force_integer_mv = cm->cur_frame_force_integer_mv;
@@ -5431,41 +5441,41 @@ static void enforce_max_ref_frames(AV1_COMP *cpi) {
   //     the same quality level, remove the earliest reference frame.
 
   if (total_valid_refs == INTER_REFS_PER_FRAME) {
-    unsigned int min_ref_offset = UINT_MAX;
-    unsigned int second_min_ref_offset = UINT_MAX;
+    unsigned int min_ref_order_hint = UINT_MAX;
+    unsigned int second_min_ref_order_hint = UINT_MAX;
     MV_REFERENCE_FRAME earliest_ref_frames[2] = { LAST3_FRAME, LAST2_FRAME };
-    int earliest_buf_idxes[2] = { 0 };
+    const RefCntBuffer *earliest_bufs[2] = { NULL };
 
     // Locate the earliest two reference frames except GOLDEN/ALTREF.
     for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
       // Retain GOLDEN/ALTERF
       if (ref_frame == GOLDEN_FRAME || ref_frame == ALTREF_FRAME) continue;
 
-      const int buf_idx = cm->frame_refs[ref_frame - LAST_FRAME].idx;
-      if (buf_idx >= 0) {
-        const unsigned int ref_offset =
-            cm->buffer_pool->frame_bufs[buf_idx].cur_frame_offset;
+      const RefCntBuffer *buf = get_ref_frame_buf_const(cm, ref_frame);
+      if (buf) {
+        const unsigned int ref_order_hint = buf->order_hint;
 
-        if (min_ref_offset == UINT_MAX) {
-          min_ref_offset = ref_offset;
+        if (min_ref_order_hint == UINT_MAX) {
+          min_ref_order_hint = ref_order_hint;
           earliest_ref_frames[0] = ref_frame;
-          earliest_buf_idxes[0] = buf_idx;
+          earliest_bufs[0] = buf;
         } else {
-          if (get_relative_dist(&cm->seq_params.order_hint_info, ref_offset,
-                                min_ref_offset) < 0) {
-            second_min_ref_offset = min_ref_offset;
+          if (get_relative_dist(&cm->seq_params.order_hint_info, ref_order_hint,
+                                min_ref_order_hint) < 0) {
+            second_min_ref_order_hint = min_ref_order_hint;
             earliest_ref_frames[1] = earliest_ref_frames[0];
-            earliest_buf_idxes[1] = earliest_buf_idxes[0];
+            earliest_bufs[1] = earliest_bufs[0];
 
-            min_ref_offset = ref_offset;
+            min_ref_order_hint = ref_order_hint;
             earliest_ref_frames[0] = ref_frame;
-            earliest_buf_idxes[0] = buf_idx;
-          } else if (second_min_ref_offset == UINT_MAX ||
+            earliest_bufs[0] = buf;
+          } else if (second_min_ref_order_hint == UINT_MAX ||
                      get_relative_dist(&cm->seq_params.order_hint_info,
-                                       ref_offset, second_min_ref_offset) < 0) {
-            second_min_ref_offset = ref_offset;
+                                       ref_order_hint,
+                                       second_min_ref_order_hint) < 0) {
+            second_min_ref_order_hint = ref_order_hint;
             earliest_ref_frames[1] = ref_frame;
-            earliest_buf_idxes[1] = buf_idx;
+            earliest_bufs[1] = buf;
           }
         }
       }
@@ -5474,7 +5484,7 @@ static void enforce_max_ref_frames(AV1_COMP *cpi) {
     RATE_FACTOR_LEVEL ref_rf_level[2];
     double ref_rf_deltas[2];
     for (int i = 0; i < 2; ++i) {
-      ref_rf_level[i] = cpi->frame_rf_level[earliest_buf_idxes[i]];
+      ref_rf_level[i] = earliest_bufs[i]->frame_rf_level;
       ref_rf_deltas[i] = rate_factor_deltas[ref_rf_level[i]];
     }
     (void)ref_rf_level;
@@ -5510,12 +5520,11 @@ static INLINE int av1_refs_are_one_sided(const AV1_COMMON *cm) {
 
   int one_sided_refs = 1;
   for (int ref = 0; ref < INTER_REFS_PER_FRAME; ++ref) {
-    const int buf_idx = cm->frame_refs[ref].idx;
-    if (buf_idx == INVALID_IDX) continue;
+    const RefCntBuffer *buf = get_ref_frame_buf_const(cm, ref + 1);
+    if (!buf) continue;
 
-    const int ref_offset =
-        cm->buffer_pool->frame_bufs[buf_idx].cur_frame_offset;
-    if (get_relative_dist(&cm->seq_params.order_hint_info, ref_offset,
+    const int ref_order_hint = buf->order_hint;
+    if (get_relative_dist(&cm->seq_params.order_hint_info, ref_order_hint,
                           (int)cm->current_frame.order_hint) > 0) {
       one_sided_refs = 0;  // bwd reference
       break;
@@ -5525,17 +5534,19 @@ static INLINE int av1_refs_are_one_sided(const AV1_COMMON *cm) {
 }
 
 static INLINE void get_skip_mode_ref_offsets(const AV1_COMMON *cm,
-                                             int ref_offset[2]) {
+                                             int ref_order_hint[2]) {
   const SkipModeInfo *const skip_mode_info = &cm->current_frame.skip_mode_info;
-  ref_offset[0] = ref_offset[1] = 0;
+  ref_order_hint[0] = ref_order_hint[1] = 0;
   if (!skip_mode_info->skip_mode_allowed) return;
 
-  const int buf_idx_0 = cm->frame_refs[skip_mode_info->ref_frame_idx_0].idx;
-  const int buf_idx_1 = cm->frame_refs[skip_mode_info->ref_frame_idx_1].idx;
-  assert(buf_idx_0 != INVALID_IDX && buf_idx_1 != INVALID_IDX);
+  const RefCntBuffer *buf_0 =
+      get_ref_frame_buf_const(cm, skip_mode_info->ref_frame_idx_0 + 1);
+  const RefCntBuffer *buf_1 =
+      get_ref_frame_buf_const(cm, skip_mode_info->ref_frame_idx_1 + 1);
+  assert(buf_0 && buf_1);
 
-  ref_offset[0] = cm->buffer_pool->frame_bufs[buf_idx_0].cur_frame_offset;
-  ref_offset[1] = cm->buffer_pool->frame_bufs[buf_idx_1].cur_frame_offset;
+  ref_order_hint[0] = buf_0->order_hint;
+  ref_order_hint[1] = buf_1->order_hint;
 }
 
 static int check_skip_mode_enabled(AV1_COMP *const cpi) {
@@ -5584,8 +5595,8 @@ static INLINE int skip_gm_frame(AV1_COMMON *const cm, int ref_frame) {
       cm->global_motion[GOLDEN_FRAME].wmtype != IDENTITY) {
     return get_relative_dist(
                &cm->seq_params.order_hint_info,
-               cm->cur_frame->ref_frame_offset[ref_frame - LAST_FRAME],
-               cm->cur_frame->ref_frame_offset[GOLDEN_FRAME - LAST_FRAME]) <= 0;
+               cm->cur_frame->ref_order_hints[ref_frame - LAST_FRAME],
+               cm->cur_frame->ref_order_hints[GOLDEN_FRAME - LAST_FRAME]) <= 0;
   }
   return 0;
 }
@@ -5767,7 +5778,6 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     cm->last_frame_seg_map = cm->prev_frame->seg_map;
   else
     cm->last_frame_seg_map = NULL;
-  cm->current_frame_seg_map = cm->cur_frame->seg_map;
   if (cm->allow_intrabc || cm->coded_lossless) {
     av1_set_default_ref_deltas(cm->lf.ref_deltas);
     av1_set_default_mode_deltas(cm->lf.mode_deltas);
@@ -5805,7 +5815,9 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     int num_refs_using_gm = 0;
 
     for (frame = ALTREF_FRAME; frame >= LAST_FRAME; --frame) {
-      ref_buf[frame] = get_ref_frame_buffer(cpi, frame);
+      ref_buf[frame] = NULL;
+      RefCntBuffer *buf = get_ref_frame_buf(cm, frame);
+      if (buf) ref_buf[frame] = &buf->buf;
       int pframe;
       cm->global_motion[frame] = default_warp_params;
       const WarpedMotionParams *ref_params =
@@ -5928,9 +5940,6 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       check_skip_mode_enabled(cpi);
 
   {
-    struct aom_usec_timer emr_timer;
-    aom_usec_timer_start(&emr_timer);
-
 #if CONFIG_FP_MB_STATS
     if (cpi->use_fp_mb_stats) {
       input_fpmb_stats(&cpi->twopass.firstpass_mb_stats, cm,
@@ -5952,9 +5961,6 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       else
         encode_tiles(cpi);
     }
-
-    aom_usec_timer_mark(&emr_timer);
-    cpi->time_encode_sb_row += aom_usec_timer_elapsed(&emr_timer);
   }
 
   // If intrabc is allowed but never selected, reset the allow_intrabc flag.
@@ -5962,27 +5968,15 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   if (cm->allow_intrabc) cm->delta_q_info.delta_lf_present_flag = 0;
 }
 
-void av1_encode_frame(AV1_COMP *cpi) {
+void av1_encode_frame(AV1_COMP *cpi, EncodeInputFrame *eif, EncodedFrame *ef) {
+  (void)ef;
   AV1_COMMON *const cm = &cpi->common;
   CurrentFrame *const current_frame = &cm->current_frame;
-  const int num_planes = av1_num_planes(cm);
+  const int num_planes = EncodeInputFrame_get_num_planes(eif);
   // Indicates whether or not to use a default reduced set for ext-tx
   // rather than the potential full set of 16 transforms
+  // TODO(jsh): remove this once we're done
   cm->reduced_tx_set_used = 0;
-
-  if (cm->show_frame == 0) {
-    int arf_offset = AOMMIN(
-        (MAX_GF_INTERVAL - 1),
-        cpi->twopass.gf_group.arf_src_offset[cpi->twopass.gf_group.index]);
-    int brf_offset =
-        cpi->twopass.gf_group.brf_src_offset[cpi->twopass.gf_group.index];
-    arf_offset = AOMMIN((MAX_GF_INTERVAL - 1), arf_offset + brf_offset);
-    current_frame->order_hint = current_frame->frame_number + arf_offset;
-  } else {
-    current_frame->order_hint = current_frame->frame_number;
-  }
-  current_frame->order_hint %=
-      (1 << (cm->seq_params.order_hint_info.order_hint_bits_minus_1 + 1));
 
   // Make sure segment_id is no larger than last_active_segid.
   if (cm->seg.enabled && cm->seg.update_map) {
@@ -6008,8 +6002,6 @@ void av1_encode_frame(AV1_COMP *cpi) {
   (void)num_planes;
 #endif
 
-  cpi->allow_comp_inter_inter = !frame_is_intra_only(cm);
-
   if (cpi->sf.frame_parameter_update) {
     int i;
     RD_OPT *const rd_opt = &cpi->rd;
@@ -6031,7 +6023,7 @@ void av1_encode_frame(AV1_COMP *cpi) {
 
     /* prediction (compound, single or hybrid) mode selection */
     // NOTE: "is_alt_ref" is true only for OVERLAY/INTNL_OVERLAY frames
-    if (is_alt_ref || !cpi->allow_comp_inter_inter)
+    if (is_alt_ref || frame_is_intra_only(cm))
       current_frame->reference_mode = SINGLE_REFERENCE;
     else
       current_frame->reference_mode = REFERENCE_MODE_SELECT;
@@ -6303,10 +6295,11 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 
     set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
     for (ref = 0; ref < 1 + is_compound; ++ref) {
-      YV12_BUFFER_CONFIG *cfg = get_ref_frame_buffer(cpi, mbmi->ref_frame[ref]);
+      const YV12_BUFFER_CONFIG *cfg =
+          get_ref_frame_buffer(cm, mbmi->ref_frame[ref]);
       assert(IMPLIES(!is_intrabc_block(mbmi), cfg));
       av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
-                           &xd->block_refs[ref]->sf, num_planes);
+                           xd->block_ref_scale_factors[ref], num_planes);
     }
 
     av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
@@ -6339,7 +6332,11 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   }
 
   if (!dry_run) {
-    if (av1_allow_intrabc(cm) && is_intrabc_block(mbmi)) td->intrabc_used = 1;
+    if (av1_allow_intrabc(cm->current_frame.intra_only,
+                          cm->current_frame.frame_type,
+                          cm->allow_screen_content_tools, cm->allow_intrabc) &&
+        is_intrabc_block(mbmi))
+      td->intrabc_used = 1;
     if (cm->tx_mode == TX_MODE_SELECT && !xd->lossless[mbmi->segment_id] &&
         mbmi->sb_type > BLOCK_4X4 && !(is_inter && (mbmi->skip || seg_skip))) {
       if (is_inter) {
