@@ -206,6 +206,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->prune_wedge_pred_diff_based = 1;
   sf->disable_wedge_search_var_thresh = 0;
   sf->disable_wedge_search_edge_thresh = 0;
+  sf->prune_motion_mode_level = 1;
 
   if (speed >= 1) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;
@@ -246,6 +247,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_wedge_search_var_thresh = 0;
     sf->disable_wedge_search_edge_thresh = 0;
     sf->prune_comp_type_by_comp_avg = 1;
+    sf->prune_motion_mode_level = 2;
   }
 
   if (speed >= 2) {
@@ -271,6 +273,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_dual_filter = 1;
     sf->use_jnt_comp_flag = JNT_COMP_DISABLED;
     sf->prune_comp_type_by_comp_avg = 2;
+    sf->prune_motion_mode_level = boosted ? 2 : 3;
   }
 
   if (speed >= 3) {
@@ -524,6 +527,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->obmc_full_pixel_search_level = 0;
   sf->skip_sharp_interp_filter_search = 0;
   sf->prune_comp_type_by_comp_avg = 0;
+  sf->prune_motion_mode_level = 0;
 
   if (oxcf->mode == GOOD)
     set_good_speed_features_framesize_independent(cpi, sf, oxcf->speed);
