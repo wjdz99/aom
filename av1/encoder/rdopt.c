@@ -3762,6 +3762,7 @@ static void super_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
 static int intra_mode_info_cost_y(const AV1_COMP *cpi, const MACROBLOCK *x,
                                   const MB_MODE_INFO *mbmi, BLOCK_SIZE bsize,
                                   int mode_cost) {
+  const AV1_COMMON *const cm = &cpi->common;
   int total_rate = mode_cost;
   const int use_palette = mbmi->palette_mode_info.palette_size[0] > 0;
   const int use_filter_intra = mbmi->filter_intra_mode_info.use_filter_intra;
@@ -3770,7 +3771,7 @@ static int intra_mode_info_cost_y(const AV1_COMP *cpi, const MACROBLOCK *x,
   assert(((mbmi->mode != DC_PRED) + use_palette + use_intrabc +
           use_filter_intra) <= 1);
   const int try_palette =
-      av1_allow_palette(cpi->common.allow_screen_content_tools, mbmi->sb_type);
+      av1_allow_palette(cm->allow_screen_content_tools, mbmi->sb_type);
   if (try_palette && mbmi->mode == DC_PRED) {
     const MACROBLOCKD *xd = &x->e_mbd;
     const int bsize_ctx = av1_get_palette_bsize_ctx(bsize);
@@ -3789,13 +3790,13 @@ static int intra_mode_info_cost_y(const AV1_COMP *cpi, const MACROBLOCK *x,
       const int n_cache = av1_get_palette_cache(xd, 0, color_cache);
       palette_mode_cost +=
           av1_palette_color_cost_y(&mbmi->palette_mode_info, color_cache,
-                                   n_cache, cpi->common.seq_params.bit_depth);
+                                   n_cache, cm->seq_params.bit_depth);
       palette_mode_cost +=
           av1_cost_color_map(x, 0, bsize, mbmi->tx_size, PALETTE_MAP);
       total_rate += palette_mode_cost;
     }
   }
-  if (av1_filter_intra_allowed(&cpi->common, mbmi)) {
+  if (av1_filter_intra_allowed(&cm->seq_params, mbmi)) {
     total_rate += x->filter_intra_cost[mbmi->sb_type][use_filter_intra];
     if (use_filter_intra) {
       total_rate += x->filter_intra_mode_cost[mbmi->filter_intra_mode_info
@@ -3809,7 +3810,9 @@ static int intra_mode_info_cost_y(const AV1_COMP *cpi, const MACROBLOCK *x,
                                         mbmi->angle_delta[PLANE_TYPE_Y]];
     }
   }
-  if (av1_allow_intrabc(&cpi->common))
+  if (av1_allow_intrabc(cm->current_frame.intra_only,
+                        cm->current_frame.frame_type,
+                        cm->allow_screen_content_tools, cm->allow_intrabc))
     total_rate += x->intrabc_cost[use_intrabc];
   return total_rate;
 }
@@ -3907,7 +3910,7 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
                            [MAX_ANGLE_DELTA + mbmi->angle_delta[PLANE_TYPE_Y]];
   }
   if (mbmi->mode == DC_PRED &&
-      av1_filter_intra_allowed_bsize(cm, mbmi->sb_type)) {
+      av1_filter_intra_allowed_bsize(&cm->seq_params, mbmi->sb_type)) {
     if (mbmi->filter_intra_mode_info.use_filter_intra) {
       const int mode = mbmi->filter_intra_mode_info.filter_intra_mode;
       mode_cost += x->filter_intra_cost[mbmi->sb_type][1] +
@@ -4588,7 +4591,8 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         distortion, skippable, ctx, ctx->blk_skip);
   }
 
-  if (beat_best_rd && av1_filter_intra_allowed_bsize(&cpi->common, bsize)) {
+  if (beat_best_rd &&
+      av1_filter_intra_allowed_bsize(&cpi->common.seq_params, bsize)) {
     if (rd_pick_filter_intra_sby(
             cpi, x, mi_row, mi_col, rate, rate_tokenonly, distortion, skippable,
             bsize, bmode_costs[DC_PRED], &best_rd, &best_model_rd, ctx)) {
@@ -7010,7 +7014,8 @@ static void setup_buffer_ref_mvs_inter(
   const YV12_BUFFER_CONFIG *yv12 = get_ref_frame_buffer(cpi, ref_frame);
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
-  const struct scale_factors *const sf = &cm->frame_refs[ref_frame - 1].sf;
+  const struct scale_factors *const sf =
+      &cm->current_frame.frame_refs[ref_frame - 1].sf;
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
 
   assert(yv12 != NULL);
@@ -8468,7 +8473,8 @@ static int64_t interpolation_filter_search(
   const int is_compound = has_second_ref(mbmi);
   assert(is_intrabc_block(mbmi) == 0);
   for (int j = 0; j < 1 + is_compound; ++j) {
-    const RefBuffer *ref_buf = &cm->frame_refs[mbmi->ref_frame[j] - LAST_FRAME];
+    const RefBuffer *ref_buf =
+        &cm->current_frame.frame_refs[mbmi->ref_frame[j] - LAST_FRAME];
     const struct scale_factors *const sf = &ref_buf->sf;
     // TODO(any): Refine skip flag calculation considering scaling
     if (av1_is_scaled(sf)) {
@@ -9454,7 +9460,8 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
     int masked_type_cost = 0;
 
     const int comp_group_idx_ctx = get_comp_group_idx_context(xd);
-    const int comp_index_ctx = get_comp_index_context(cm, xd);
+    const int comp_index_ctx = get_comp_index_context(
+        cm->current_frame.frame_refs, cm->cur_frame, &cm->seq_params, xd);
     mbmi->compound_idx = 1;
     if (cur_type == COMPOUND_AVERAGE) {
       mbmi->comp_group_idx = 0;
@@ -9697,7 +9704,8 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         mbmi->motion_mode = SIMPLE_TRANSLATION;
         mbmi->comp_group_idx = 0;
 
-        const int comp_index_ctx = get_comp_index_context(cm, xd);
+        const int comp_index_ctx = get_comp_index_context(
+            cm->current_frame.frame_refs, cm->cur_frame, &cm->seq_params, xd);
         compmode_interinter_cost += x->comp_idx_cost[comp_index_ctx][0];
       }
 
@@ -9978,7 +9986,10 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
                                        RD_STATS *rd_cost, BLOCK_SIZE bsize,
                                        int64_t best_rd) {
   const AV1_COMMON *const cm = &cpi->common;
-  if (!av1_allow_intrabc(cm)) return INT64_MAX;
+  if (!av1_allow_intrabc(cm->current_frame.intra_only,
+                         cm->current_frame.frame_type,
+                         cm->allow_screen_content_tools, cm->allow_intrabc))
+    return INT64_MAX;
   const int num_planes = av1_num_planes(cm);
 
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -10667,8 +10678,8 @@ static void set_params_rd_pick_inter_mode(
     av1_build_prediction_by_left_preds(cm, xd, mi_row, mi_col,
                                        args->left_pred_buf, dst_width2,
                                        dst_height2, args->left_pred_stride);
-    av1_setup_dst_planes(xd->plane, bsize, get_frame_new_buffer(cm), mi_row,
-                         mi_col, 0, num_planes);
+    av1_setup_dst_planes(xd->plane, bsize, &cm->cur_frame->buf, mi_row, mi_col,
+                         0, num_planes);
     calc_target_weighted_pred(
         cm, x, xd, mi_row, mi_col, args->above_pred_buf[0],
         args->above_pred_stride[0], args->left_pred_buf[0],
@@ -11069,7 +11080,7 @@ static int inter_mode_search_order_independent_skip(
 
   const int comp_pred = ref_frame[1] > INTRA_FRAME;
   if (comp_pred) {
-    if (!cpi->allow_comp_inter_inter) return 1;
+    if (frame_is_intra_only(cm)) return 1;
 
     if (current_frame->reference_mode == SINGLE_REFERENCE) return 1;
 
@@ -11086,13 +11097,13 @@ static int inter_mode_search_order_independent_skip(
       if (ref_frame[0] == ALTREF2_FRAME || ref_frame[1] == ALTREF2_FRAME)
         if (get_relative_dist(
                 order_hint_info,
-                cm->cur_frame->ref_frame_offset[ALTREF2_FRAME - LAST_FRAME],
+                cm->cur_frame->ref_order_hints[ALTREF2_FRAME - LAST_FRAME],
                 current_frame->order_hint) < 0)
           return 1;
       if (ref_frame[0] == BWDREF_FRAME || ref_frame[1] == BWDREF_FRAME)
         if (get_relative_dist(
                 order_hint_info,
-                cm->cur_frame->ref_frame_offset[BWDREF_FRAME - LAST_FRAME],
+                cm->cur_frame->ref_order_hints[BWDREF_FRAME - LAST_FRAME],
                 current_frame->order_hint) < 0)
           return 1;
     }
@@ -11102,16 +11113,14 @@ static int inter_mode_search_order_independent_skip(
       if (ref_frame[0] == LAST3_FRAME || ref_frame[1] == LAST3_FRAME)
         if (get_relative_dist(
                 order_hint_info,
-                cm->cur_frame->ref_frame_offset[LAST3_FRAME - LAST_FRAME],
-                cm->cur_frame->ref_frame_offset[GOLDEN_FRAME - LAST_FRAME]) <=
-            0)
+                cm->cur_frame->ref_order_hints[LAST3_FRAME - LAST_FRAME],
+                cm->cur_frame->ref_order_hints[GOLDEN_FRAME - LAST_FRAME]) <= 0)
           return 1;
       if (ref_frame[0] == LAST2_FRAME || ref_frame[1] == LAST2_FRAME)
         if (get_relative_dist(
                 order_hint_info,
-                cm->cur_frame->ref_frame_offset[LAST2_FRAME - LAST_FRAME],
-                cm->cur_frame->ref_frame_offset[GOLDEN_FRAME - LAST_FRAME]) <=
-            0)
+                cm->cur_frame->ref_order_hints[LAST2_FRAME - LAST_FRAME],
+                cm->cur_frame->ref_order_hints[GOLDEN_FRAME - LAST_FRAME]) <= 0)
           return 1;
     }
   }
@@ -11120,9 +11129,10 @@ static int inter_mode_search_order_independent_skip(
   if ((sf->selective_ref_frame >= 2) && comp_pred && !cpi->all_one_sided_refs) {
     unsigned int ref_offsets[2];
     for (int i = 0; i < 2; ++i) {
-      const int buf_idx = cm->frame_refs[ref_frame[i] - LAST_FRAME].idx;
-      assert(buf_idx >= 0);
-      ref_offsets[i] = cm->buffer_pool->frame_bufs[buf_idx].cur_frame_offset;
+      RefCntBuffer *buf =
+          cm->current_frame.frame_refs[ref_frame[i] - LAST_FRAME].buf;
+      assert(buf);
+      ref_offsets[i] = buf->order_hint;
     }
     if ((get_relative_dist(order_hint_info, ref_offsets[0],
                            current_frame->order_hint) <= 0 &&
@@ -11234,7 +11244,8 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
          sizeof(best_blk_skip[0]) * ctx->num_4x4_blk);
   int try_filter_intra = 0;
   int64_t best_rd_tmp = INT64_MAX;
-  if (mbmi->mode == DC_PRED && av1_filter_intra_allowed_bsize(cm, bsize)) {
+  if (mbmi->mode == DC_PRED &&
+      av1_filter_intra_allowed_bsize(&cm->seq_params, bsize)) {
     if (rd_stats_y->rate != INT_MAX) {
       const int tmp_rate = rd_stats_y->rate + x->filter_intra_cost[bsize][0] +
                            intra_mode_cost[mbmi->mode];

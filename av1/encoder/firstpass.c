@@ -525,11 +525,10 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
 
   YV12_BUFFER_CONFIG *const lst_yv12 = get_ref_frame_buffer(cpi, LAST_FRAME);
   YV12_BUFFER_CONFIG *gld_yv12 = get_ref_frame_buffer(cpi, GOLDEN_FRAME);
-  YV12_BUFFER_CONFIG *const new_yv12 = get_frame_new_buffer(cm);
+  YV12_BUFFER_CONFIG *const new_yv12 = &cm->cur_frame->buf;
   const YV12_BUFFER_CONFIG *first_ref_buf = lst_yv12;
   double intra_factor;
   double brightness_factor;
-  BufferPool *const pool = cm->buffer_pool;
   const int qindex = find_fp_qindex(seq_params->bit_depth);
   const int mb_scale = mi_size_wide[BLOCK_16X16];
 
@@ -589,7 +588,6 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
   }
 
   av1_init_mv_probs(cm);
-  av1_init_lv_map(cm);
   av1_initialize_rd_consts(cpi);
 
   // Tiling is ignored in the first pass.
@@ -1062,8 +1060,7 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
        ((twopass->this_frame_stats.intra_error /
          DOUBLE_DIVIDE_CHECK(twopass->this_frame_stats.coded_error)) > 2.0))) {
     if (gld_yv12 != NULL) {
-      assign_frame_buffer(
-          pool->frame_bufs,
+      assign_frame_buffer_p(
           &cm->ref_frame_map[get_ref_frame_map_idx(cpi, GOLDEN_FRAME)],
           cm->ref_frame_map[get_ref_frame_map_idx(cpi, LAST_FRAME)]);
     }
@@ -1075,17 +1072,15 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
   aom_extend_frame_borders(new_yv12, num_planes);
 
   // The frame we just compressed now becomes the last frame.
-  assign_frame_buffer(
-      pool->frame_bufs,
+  assign_frame_buffer_p(
       &cm->ref_frame_map[get_ref_frame_map_idx(cpi, LAST_FRAME)],
-      cm->new_fb_idx);
+      cm->cur_frame);
 
   // Special case for the first frame. Copy into the GF buffer as a second
   // reference.
   if (current_frame->frame_number == 0 &&
       get_ref_frame_map_idx(cpi, GOLDEN_FRAME) != INVALID_IDX) {
-    assign_frame_buffer(
-        pool->frame_bufs,
+    assign_frame_buffer_p(
         &cm->ref_frame_map[get_ref_frame_map_idx(cpi, GOLDEN_FRAME)],
         cm->ref_frame_map[get_ref_frame_map_idx(cpi, LAST_FRAME)]);
   }

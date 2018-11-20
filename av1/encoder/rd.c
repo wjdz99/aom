@@ -116,7 +116,7 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
   av1_cost_tokens_from_cdf(x->filter_intra_mode_cost, fc->filter_intra_mode_cdf,
                            NULL);
   for (i = 0; i < BLOCK_SIZES_ALL; ++i) {
-    if (av1_filter_intra_allowed_bsize(cm, i))
+    if (av1_filter_intra_allowed_bsize(&cm->seq_params, i))
       av1_cost_tokens_from_cdf(x->filter_intra_cost[i],
                                fc->filter_intra_cdfs[i], NULL);
   }
@@ -1257,13 +1257,10 @@ int16_t *av1_raster_block_offset_int16(BLOCK_SIZE plane_bsize, int raster_block,
 
 YV12_BUFFER_CONFIG *av1_get_scaled_ref_frame(const AV1_COMP *cpi,
                                              int ref_frame) {
-  const AV1_COMMON *const cm = &cpi->common;
   assert(ref_frame >= LAST_FRAME && ref_frame <= ALTREF_FRAME);
-  const int scaled_idx = cpi->scaled_ref_idx[ref_frame - 1];
-  const int ref_idx = get_ref_frame_buf_idx(cpi, ref_frame);
-  return (scaled_idx != ref_idx && scaled_idx != INVALID_IDX)
-             ? &cm->buffer_pool->frame_bufs[scaled_idx].buf
-             : NULL;
+  RefCntBuffer *scaled_buf = cpi->scaled_ref_buf[ref_frame - 1];
+  RefCntBuffer *ref_buf = get_ref_frame_buf(cpi, ref_frame);
+  return (scaled_buf != ref_buf && scaled_buf) ? &scaled_buf->buf : NULL;
 }
 
 int av1_get_switchable_rate(const AV1_COMMON *const cm, MACROBLOCK *x,
