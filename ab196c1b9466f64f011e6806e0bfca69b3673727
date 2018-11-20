@@ -22,6 +22,30 @@
       "revId": "ab196c1b9466f64f011e6806e0bfca69b3673727",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04195640_ee9c8429",
+        "filename": "common/tools_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-11-20T04:58:07Z",
+      "side": 1,
+      "message": "NV12 is supported as an output option(not the default format), and here I was trying to make the code simple. We could improve it while needed.",
+      "parentUuid": "ac434a6e_20cd28b7",
+      "range": {
+        "startLine": 493,
+        "startChar": 0,
+        "endLine": 501,
+        "endChar": 1
+      },
+      "revId": "ab196c1b9466f64f011e6806e0bfca69b3673727",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
