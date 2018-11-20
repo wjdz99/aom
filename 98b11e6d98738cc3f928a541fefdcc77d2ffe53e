@@ -22,6 +22,30 @@
       "revId": "98b11e6d98738cc3f928a541fefdcc77d2ffe53e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a75bf0e4_f927aee0",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3589,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-11-20T05:50:23Z",
+      "side": 1,
+      "message": "In case of intra we need to signal tx_size for skip_case also, because prediction data will depend on tx_size.\nEg: For 16x16 pred block, if 16x16 transform is chosen, then intra prediction will happen at 16x16 level. If 8x8 transform is chosen, then intra prediction and transform happen at 8x8 granularity.",
+      "parentUuid": "ad935976_3adb9b1f",
+      "range": {
+        "startLine": 3589,
+        "startChar": 34,
+        "endLine": 3589,
+        "endChar": 58
+      },
+      "revId": "98b11e6d98738cc3f928a541fefdcc77d2ffe53e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
