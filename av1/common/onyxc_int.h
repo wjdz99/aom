@@ -109,11 +109,24 @@ typedef struct {
   MV_REFERENCE_FRAME ref_frame;
 } MV_REF;
 
-typedef struct {
+// FIXME(jack.haughton@argondesign.com): This enum was originally in
+// encoder/ratectrl.h, and is encoder specific. When we move to C++, this
+// should go back there and BufferPool should be templatized.
+typedef enum {
+  INTER_NORMAL = 0,
+  INTER_LOW = 1,
+  INTER_HIGH = 2,
+  GF_ARF_LOW = 3,
+  GF_ARF_STD = 4,
+  KF_STD = 5,
+  RATE_FACTOR_LEVELS = 6
+} RATE_FACTOR_LEVEL;
+
+typedef struct RefCntBuffer {
   // For a RefCntBuffer, the following are reference-holding variables:
   // - cm->ref_frame_map[]
-  // - cm->new_fb_idx
-  // - cm->scaled_ref_idx[] (encoder only)
+  // - cm->cur_frame
+  // - cm->scaled_ref_buf[] (encoder only)
   // - cm->next_ref_frame_map[] (decoder only)
   // - pbi->output_frame_index[] (decoder only)
   // With that definition, 'ref_count' is the number of reference-holding
@@ -123,10 +136,12 @@ typedef struct {
   // - Total 'n' of the variables / array elements above have value 'k' (that
   // is, they are pointing to buffer at index 'k').
   // Then, pool->frame_bufs[k].ref_count = n.
+  // TODO(david.turner@argondesign.com) Check whether this helpful comment is
+  // still correct after we finish restructuring
   int ref_count;
 
-  unsigned int cur_frame_offset;
-  unsigned int ref_frame_offset[INTER_REFS_PER_FRAME];
+  unsigned int order_hint;
+  unsigned int ref_order_hints[INTER_REFS_PER_FRAME];
 
   MV_REF *mvs;
   uint8_t *seg_map;
@@ -144,7 +159,6 @@ typedef struct {
   aom_codec_frame_buffer_t raw_frame_buffer;
   YV12_BUFFER_CONFIG buf;
   hash_table hash_table;
-  uint8_t intra_only;
   FRAME_TYPE frame_type;
 
   // Inter frame reference frame delta for loop filter
@@ -152,6 +166,9 @@ typedef struct {
 
   // 0 = ZERO_MV, MV
   int8_t mode_deltas[MAX_MODE_LF_DELTAS];
+
+  FRAME_CONTEXT frame_context;
+  RATE_FACTOR_LEVEL frame_rf_level;
 } RefCntBuffer;
 
 typedef struct BufferPool {
@@ -175,13 +192,6 @@ typedef struct BufferPool {
   // Frame buffers allocated internally by the codec.
   InternalFrameBufferList int_frame_buffers;
 } BufferPool;
-
-typedef struct {
-  int base_ctx_table[2 /*row*/][2 /*col*/][3 /*sig_map*/]
-                    [BASE_CONTEXT_POSITION_NUM + 1];
-} LV_MAP_CTX_TABLE;
-typedef int BASE_CTX_TABLE[2 /*col*/][3 /*sig_map*/]
-                          [BASE_CONTEXT_POSITION_NUM + 1];
 
 typedef struct BitstreamLevel {
   uint8_t major;
@@ -300,8 +310,6 @@ typedef struct {
 
 typedef struct {
   FRAME_TYPE frame_type;
-  // Flag signaling that the frame is encoded using only INTRA modes.
-  uint8_t intra_only;
   REFERENCE_MODE reference_mode;
 
   unsigned int order_hint;
@@ -316,8 +324,6 @@ typedef struct AV1Common {
   int height;
   int render_width;
   int render_height;
-  int last_width;
-  int last_height;
   int timing_info_present;
   aom_timing_info_t timing_info;
   int buffer_removal_time_present;
@@ -327,48 +333,54 @@ typedef struct AV1Common {
   uint32_t frame_presentation_time;
 
   int largest_tile_id;
-  size_t largest_tile_size;
   int context_update_tile_id;
 
   // Scale of the current frame with respect to itself.
   struct scale_factors sf_identity;
 
-  YV12_BUFFER_CONFIG *frame_to_show;
   RefCntBuffer *prev_frame;
 
   // TODO(hkuang): Combine this with cur_buf in macroblockd.
   RefCntBuffer *cur_frame;
 
-  // For decoder, ref_frame_map[i] maps reference type 'i' to actual index of
+  // For encoder, we have a two-level mapping from reference frame type to the
+  // corresponding buffer in the buffer pool:
+  // * 'remapped_ref_idx[i - 1]' maps reference type ‘i’ (range: LAST_FRAME ...
+  // EXTREF_FRAME) to a remapped index ‘j’ (in range: 0 ... REF_FRAMES - 1)
+  // * Later, 'cm->ref_frame_map[j]' maps the remapped index ‘j’ to a pointer to
+  // the reference counted buffer structure RefCntBuffer, taken from the buffer
+  // pool cm->buffer_pool->frame_bufs.
+  //
+  // LAST_FRAME,                        ...,      EXTREF_FRAME
+  //      |                                           |
+  //      v                                           v
+  // remapped_ref_idx[LAST_FRAME - 1],  ...,  remapped_ref_idx[EXTREF_FRAME - 1]
+  //      |                                           |
+  //      v                                           v
+  // ref_frame_map[],                   ...,     ref_frame_map[]
+  //
+  // Note: INTRA_FRAME always refers to the current frame, so there's no need to
+  // have a remapped index for the same.
+  int remapped_ref_idx[REF_FRAMES];
+
+  struct scale_factors ref_scale_factors[REF_FRAMES];
+
+  // For decoder, ref_frame_map[i] maps reference type 'i' to a pointer to
   // the buffer in the buffer pool ‘cm->buffer_pool.frame_bufs’.
   // For encoder, ref_frame_map[j] (where j = remapped_ref_idx[i]) maps
   // remapped reference index 'j' (that is, original reference type 'i') to
-  // actual index of the buffer in the buffer pool ‘cm->buffer_pool.frame_bufs’.
-  int ref_frame_map[REF_FRAMES];
+  // a pointer to the buffer in the buffer pool ‘cm->buffer_pool.frame_bufs’.
+  RefCntBuffer *ref_frame_map[REF_FRAMES];
 
   // Prepare ref_frame_map for the next frame.
   // Only used in frame parallel decode.
-  int next_ref_frame_map[REF_FRAMES];
-
-  // Each Inter frame can reference INTER_REFS_PER_FRAME buffers. This maps each
-  // (inter) reference frame type to the corresponding reference buffer.
-  RefBuffer frame_refs[INTER_REFS_PER_FRAME];
-
-  // Index to the 'new' frame (i.e. the frame currently being encoded or
-  // decoded) in the buffer pool 'cm->buffer_pool'.
-  int new_fb_idx;
-
-  FRAME_TYPE last_frame_type; /* last frame's frame type for motion search.*/
+  RefCntBuffer *next_ref_frame_map[REF_FRAMES];
 
   int show_frame;
   int showable_frame;  // frame can be used as show existing frame in future
-  int last_show_frame;
   int show_existing_frame;
-  // Flag for a frame used as a reference - not written to the bitstream
-  int is_reference_frame;
   int reset_decoder_state;
 
-  uint8_t last_intra_only;
   uint8_t disable_cdf_update;
   int allow_high_precision_mv;
   int cur_frame_force_integer_mv;  // 0 the default in AOM, 1 only integer
@@ -450,7 +462,6 @@ typedef struct AV1Common {
 
   uint8_t *last_frame_seg_map;
   uint8_t *current_frame_seg_map;
-  int seg_map_alloc_size;
 
   InterpFilter interp_filter;
 
@@ -488,18 +499,15 @@ typedef struct AV1Common {
   MV_REFERENCE_FRAME comp_bwd_ref[BWD_REFS];
 
   FRAME_CONTEXT *fc;              /* this frame entropy */
-  FRAME_CONTEXT *frame_contexts;  // FRAME_CONTEXTS
+  FRAME_CONTEXT *default_frame_context;
   unsigned int frame_context_idx; /* Context to use/update */
   int fb_of_context_type[REF_FRAMES];
   int primary_ref_frame;
-
-  aom_bit_depth_t dequant_bit_depth;  // bit_depth of current dequantizer
 
   int error_resilient_mode;
   int force_primary_ref_none;
 
   int tile_cols, tile_rows;
-  int last_tile_cols, last_tile_rows;
 
   int max_tile_width_sb;
   int min_log2_tile_cols;
@@ -539,8 +547,6 @@ typedef struct AV1Common {
   int current_frame_id;
   int ref_frame_id[REF_FRAMES];
   int valid_for_referencing[REF_FRAMES];
-  int invalid_delta_frame_id_minus_1;
-  LV_MAP_CTX_TABLE coeff_ctx_table;
   TPL_MV_REF *tpl_mvs;
   int tpl_mvs_mem_size;
   // TODO(jingning): This can be combined with sign_bias later.
@@ -548,7 +554,6 @@ typedef struct AV1Common {
 
   int is_annexb;
 
-  int frame_refs_short_signaling;
   int temporal_layer_id;
   int spatial_layer_id;
   unsigned int number_temporal_layers;
@@ -592,14 +597,8 @@ static void unlock_buffer_pool(BufferPool *const pool) {
 
 static INLINE YV12_BUFFER_CONFIG *get_ref_frame(AV1_COMMON *cm, int index) {
   if (index < 0 || index >= REF_FRAMES) return NULL;
-  if (cm->ref_frame_map[index] < 0) return NULL;
-  assert(cm->ref_frame_map[index] < FRAME_BUFFERS);
-  return &cm->buffer_pool->frame_bufs[cm->ref_frame_map[index]].buf;
-}
-
-static INLINE YV12_BUFFER_CONFIG *get_frame_new_buffer(
-    const AV1_COMMON *const cm) {
-  return &cm->buffer_pool->frame_bufs[cm->new_fb_idx].buf;
+  if (!cm->ref_frame_map[index]) return NULL;
+  return &cm->ref_frame_map[index]->buf;
 }
 
 static INLINE int get_free_fb(AV1_COMMON *cm) {
@@ -635,39 +634,66 @@ static INLINE int get_free_fb(AV1_COMMON *cm) {
   return i;
 }
 
-// Modify 'idx_ptr' to reference the buffer at 'new_idx', and update the ref
+// Modify 'lhs_ptr' to reference the buffer at 'rhs_ptr', and update the ref
 // counts accordingly.
-static INLINE void assign_frame_buffer(RefCntBuffer *bufs, int *idx_ptr,
-                                       int new_idx) {
-  const int old_idx = *idx_ptr;
-  if (old_idx >= 0) {
-    assert(bufs[old_idx].ref_count > 0);
-    // One less reference to the buffer at 'old_idx', so decrease ref count.
-    --bufs[old_idx].ref_count;
+static INLINE void assign_frame_buffer_p(RefCntBuffer **lhs_ptr,
+                                       RefCntBuffer *rhs_ptr) {
+  RefCntBuffer *old_ptr = *lhs_ptr;
+  if (old_ptr) {
+    assert(old_ptr->ref_count > 0);
+    // One less reference to the buffer at 'old_ptr', so decrease ref count.
+    --old_ptr->ref_count;
   }
 
-  *idx_ptr = new_idx;
-  // One more reference to the buffer at 'new_idx', so increase ref count.
-  ++bufs[new_idx].ref_count;
+  *lhs_ptr = rhs_ptr;
+  // One more reference to the buffer at 'rhs_ptr', so increase ref count.
+  ++rhs_ptr->ref_count;
 }
 
 static INLINE int frame_is_intra_only(const AV1_COMMON *const cm) {
   return cm->current_frame.frame_type == KEY_FRAME ||
-      cm->current_frame.intra_only;
+      cm->current_frame.frame_type == INTRA_ONLY_FRAME;
 }
 
 static INLINE int frame_is_sframe(const AV1_COMMON *cm) {
   return cm->current_frame.frame_type == S_FRAME;
 }
 
-static INLINE RefCntBuffer *get_prev_frame(const AV1_COMMON *const cm) {
-  if (cm->primary_ref_frame == PRIMARY_REF_NONE ||
-      cm->frame_refs[cm->primary_ref_frame].idx == INVALID_IDX) {
-    return NULL;
-  } else {
-    return &cm->buffer_pool
-                ->frame_bufs[cm->frame_refs[cm->primary_ref_frame].idx];
-  }
+static INLINE int get_ref_frame_map_idx(const AV1_COMMON *cm,
+                                        MV_REFERENCE_FRAME ref_frame) {
+  return (ref_frame >= LAST_FRAME)
+             ? cm->remapped_ref_idx[ref_frame - LAST_FRAME]
+             : INVALID_IDX;
+}
+
+static INLINE const RefCntBuffer *get_ref_frame_buf_const(const AV1_COMMON *cm,
+                                        MV_REFERENCE_FRAME ref_frame) {
+  const int map_idx = get_ref_frame_map_idx(cm, ref_frame);
+  return (map_idx != INVALID_IDX) ? cm->ref_frame_map[map_idx] : NULL;
+}
+
+static INLINE RefCntBuffer *get_ref_frame_buf(AV1_COMMON *cm,
+                                        MV_REFERENCE_FRAME ref_frame) {
+  const int map_idx = get_ref_frame_map_idx(cm, ref_frame);
+  return (map_idx != INVALID_IDX) ? cm->ref_frame_map[map_idx] : NULL;
+}
+
+static INLINE const struct scale_factors *get_ref_scale_factors_const(
+    const AV1_COMMON *cm, MV_REFERENCE_FRAME ref_frame) {
+  const int map_idx = get_ref_frame_map_idx(cm, ref_frame);
+  return (map_idx != INVALID_IDX) ? &cm->ref_scale_factors[map_idx] : NULL;
+}
+
+static INLINE struct scale_factors *get_ref_scale_factors(AV1_COMMON *cm,
+                                        MV_REFERENCE_FRAME ref_frame) {
+  const int map_idx = get_ref_frame_map_idx(cm, ref_frame);
+  return (map_idx != INVALID_IDX) ? &cm->ref_scale_factors[map_idx] : NULL;
+}
+
+static INLINE RefCntBuffer *get_primary_ref_frame_buf(AV1_COMMON *cm) {
+  if (cm->primary_ref_frame == PRIMARY_REF_NONE) return NULL;
+  const int map_idx = get_ref_frame_map_idx(cm, cm->primary_ref_frame + 1);
+  return (map_idx != INVALID_IDX) ? cm->ref_frame_map[map_idx] : NULL;
 }
 
 // Returns 1 if this frame might allow mvs from some reference frame.
@@ -717,8 +743,15 @@ static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
 
 void cfl_init(CFL_CTX *cfl, const SequenceHeader *seq_params);
 
+// TODO(david.turner@argondesign.com): Replace all instances of av1_num_planes()
+// with av1_num_planes_from_seq() to reduce dependency on AV1_COMMON
+static INLINE int av1_num_planes_from_seq(
+    const SequenceHeader *const seq_params) {
+  return seq_params->monochrome ? 1 : MAX_MB_PLANE;
+}
+
 static INLINE int av1_num_planes(const AV1_COMMON *cm) {
-  return cm->seq_params.monochrome ? 1 : MAX_MB_PLANE;
+  return av1_num_planes_from_seq(&cm->seq_params);
 }
 
 static INLINE void av1_init_above_context(AV1_COMMON *cm, MACROBLOCKD *xd,
@@ -1249,13 +1282,15 @@ static INLINE int txfm_partition_context(TXFM_CONTEXT *above_ctx,
 
 // Compute the next partition in the direction of the sb_type stored in the mi
 // array, starting with bsize.
-static INLINE PARTITION_TYPE get_partition(const AV1_COMMON *const cm,
-                                           int mi_row, int mi_col,
+static INLINE PARTITION_TYPE get_partition(const int mi_row, const int mi_col,
+                                           const int mi_rows, const int mi_cols,
+                                           const int mi_stride,
+                                           MB_MODE_INFO **mi_grid_visible,
                                            BLOCK_SIZE bsize) {
-  if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return PARTITION_INVALID;
+  if (mi_row >= mi_rows || mi_col >= mi_cols) return PARTITION_INVALID;
 
-  const int offset = mi_row * cm->mi_stride + mi_col;
-  MB_MODE_INFO **mi = cm->mi_grid_visible + offset;
+  const int offset = mi_row * mi_stride + mi_col;
+  MB_MODE_INFO **mi = mi_grid_visible + offset;
   const BLOCK_SIZE subsize = mi[0]->sb_type;
 
   if (subsize == bsize) return PARTITION_NONE;
@@ -1265,12 +1300,12 @@ static INLINE PARTITION_TYPE get_partition(const AV1_COMMON *const cm,
   const int sshigh = mi_size_high[subsize];
   const int sswide = mi_size_wide[subsize];
 
-  if (bsize > BLOCK_8X8 && mi_row + bwide / 2 < cm->mi_rows &&
-      mi_col + bhigh / 2 < cm->mi_cols) {
+  if (bsize > BLOCK_8X8 && mi_row + bwide / 2 < mi_rows &&
+      mi_col + bhigh / 2 < mi_cols) {
     // In this case, the block might be using an extended partition
     // type.
     const MB_MODE_INFO *const mbmi_right = mi[bwide / 2];
-    const MB_MODE_INFO *const mbmi_below = mi[bhigh / 2 * cm->mi_stride];
+    const MB_MODE_INFO *const mbmi_below = mi[bhigh / 2 * mi_stride];
 
     if (sswide == bwide) {
       // Smaller height but same width. Is PARTITION_HORZ_4, PARTITION_HORZ or

@@ -16,6 +16,7 @@
 #include "aom/aom_integer.h"
 
 #include "av1/common/blockd.h"
+#include "av1/common/onyxc_int.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,16 +67,6 @@ extern "C" {
 #define MAX_GF_INTERVAL 16
 #define FIXED_GF_INTERVAL 8  // Used in some testing modes only
 
-typedef enum {
-  INTER_NORMAL = 0,
-  INTER_LOW = 1,
-  INTER_HIGH = 2,
-  GF_ARF_LOW = 3,
-  GF_ARF_STD = 4,
-  KF_STD = 5,
-  RATE_FACTOR_LEVELS = 6
-} RATE_FACTOR_LEVEL;
-
 static const double rate_factor_deltas[RATE_FACTOR_LEVELS] = {
   1.00,  // INTER_NORMAL
   0.80,  // INTER_LOW
@@ -103,7 +94,6 @@ typedef struct {
   int last_kf_qindex;       // Q index of the last key frame coded.
 
   int gfu_boost;
-  int last_boost;
   int kf_boost;
 
   double rate_correction_factors[RATE_FACTOR_LEVELS];

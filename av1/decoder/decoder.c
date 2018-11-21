@@ -90,17 +90,17 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
 
   CHECK_MEM_ERROR(cm, cm->fc,
                   (FRAME_CONTEXT *)aom_memalign(32, sizeof(*cm->fc)));
-  CHECK_MEM_ERROR(cm, cm->frame_contexts,
-                  (FRAME_CONTEXT *)aom_memalign(
-                      32, FRAME_CONTEXTS * sizeof(*cm->frame_contexts)));
+  CHECK_MEM_ERROR(
+      cm, cm->default_frame_context,
+      (FRAME_CONTEXT *)aom_memalign(32, sizeof(*cm->default_frame_context)));
   memset(cm->fc, 0, sizeof(*cm->fc));
-  memset(cm->frame_contexts, 0, FRAME_CONTEXTS * sizeof(*cm->frame_contexts));
+  memset(cm->default_frame_context, 0, sizeof(*cm->default_frame_context));
 
   pbi->need_resync = 1;
   aom_once(initialize_dec);
 
   // Initialize the references to not point to any frame buffers.
-  memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
+  memset(&cm->ref_frame_map, 0, sizeof(cm->ref_frame_map));
   memset(&cm->next_ref_frame_map, -1, sizeof(cm->next_ref_frame_map));
 
   cm->current_frame.frame_number = 0;
@@ -108,7 +108,6 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
   pbi->common.buffer_pool = pool;
 
   cm->seq_params.bit_depth = AOM_BITS_8;
-  cm->dequant_bit_depth = AOM_BITS_8;
 
   cm->alloc_mi = av1_dec_alloc_mi;
   cm->free_mi = dec_free_mi;
@@ -321,40 +320,39 @@ aom_codec_err_t av1_copy_new_frame_dec(AV1_COMMON *cm,
 static void release_frame_buffers(AV1Decoder *pbi) {
   AV1_COMMON *const cm = &pbi->common;
   BufferPool *const pool = cm->buffer_pool;
-  RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
 
   lock_buffer_pool(pool);
   // Release all the reference buffers if worker thread is holding them.
   if (pbi->hold_ref_buf) {
     int ref_index = 0, mask;
     for (mask = pbi->refresh_frame_flags; mask; mask >>= 1) {
-      const int old_idx = cm->ref_frame_map[ref_index];
+      RefCntBuffer *old_buf = cm->ref_frame_map[ref_index];
       // Current thread releases the holding of reference frame.
-      decrease_ref_count(old_idx, frame_bufs, pool);
+      decrease_ref_count(old_buf, pool);
 
       // Release the reference frame holding in the reference map for the
       // decoding of the next frame.
       if (mask & 1) {
-        const int new_idx = cm->next_ref_frame_map[ref_index];
-        decrease_ref_count(new_idx, frame_bufs, pool);
+        RefCntBuffer *new_buf = cm->next_ref_frame_map[ref_index];
+        decrease_ref_count(new_buf, pool);
       }
       ++ref_index;
     }
 
     // Current thread releases the holding of reference frame.
     for (; ref_index < REF_FRAMES; ++ref_index) {
-      const int old_idx = cm->ref_frame_map[ref_index];
-      decrease_ref_count(old_idx, frame_bufs, pool);
+      RefCntBuffer *old_buf = cm->ref_frame_map[ref_index];
+      decrease_ref_count(old_buf, pool);
     }
     pbi->hold_ref_buf = 0;
   }
   // Release current frame.
-  decrease_ref_count(cm->new_fb_idx, frame_bufs, pool);
+  decrease_ref_count(cm->cur_frame, pool);
   unlock_buffer_pool(pool);
 }
 
 // If any buffer updating is signaled it should be done here.
-// Consumes a reference to cm->new_fb_idx.
+// Consumes a reference to cm->cur_frame.
 //
 // This functions returns void. It reports failure by setting
 // cm->error.error_code.
@@ -362,7 +360,6 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
   int ref_index = 0, mask;
   AV1_COMMON *const cm = &pbi->common;
   BufferPool *const pool = cm->buffer_pool;
-  RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
 
   if (frame_decoded) {
     lock_buffer_pool(pool);
@@ -377,13 +374,13 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
                      cm->show_existing_frame && !cm->reset_decoder_state));
 
       for (mask = pbi->refresh_frame_flags; mask; mask >>= 1) {
-        const int old_idx = cm->ref_frame_map[ref_index];
+        RefCntBuffer *old_buf = cm->ref_frame_map[ref_index];
         // Current thread releases the holding of reference frame.
-        decrease_ref_count(old_idx, frame_bufs, pool);
+        decrease_ref_count(old_buf, pool);
 
         // Release the reference frame holding in the reference map for the
         // decoding of the next frame.
-        if (mask & 1) decrease_ref_count(old_idx, frame_bufs, pool);
+        if (mask & 1) decrease_ref_count(old_buf, pool);
         cm->ref_frame_map[ref_index] = cm->next_ref_frame_map[ref_index];
         ++ref_index;
       }
@@ -393,38 +390,37 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
           !cm->show_existing_frame || cm->reset_decoder_state;
       for (; ref_index < REF_FRAMES && check_on_show_existing_frame;
            ++ref_index) {
-        const int old_idx = cm->ref_frame_map[ref_index];
-        decrease_ref_count(old_idx, frame_bufs, pool);
+        RefCntBuffer *old_buf = cm->ref_frame_map[ref_index];
+        decrease_ref_count(old_buf, pool);
         cm->ref_frame_map[ref_index] = cm->next_ref_frame_map[ref_index];
       }
     }
 
     if (cm->show_existing_frame || cm->show_frame) {
-      YV12_BUFFER_CONFIG *cur_frame = get_frame_new_buffer(cm);
       if (pbi->output_all_layers) {
         // Append this frame to the output queue
         if (pbi->num_output_frames >= MAX_NUM_SPATIAL_LAYERS) {
           // We can't store the new frame anywhere, so drop it and return an
           // error
-          decrease_ref_count(cm->new_fb_idx, frame_bufs, pool);
+          decrease_ref_count(cm->cur_frame, pool);
+          cm->cur_frame = NULL;
           cm->error.error_code = AOM_CODEC_UNSUP_BITSTREAM;
         } else {
-          pbi->output_frames[pbi->num_output_frames] = cur_frame;
-          pbi->output_frame_index[pbi->num_output_frames] = cm->new_fb_idx;
+          pbi->output_frames[pbi->num_output_frames] = cm->cur_frame;
           pbi->num_output_frames++;
         }
       } else {
         // Replace any existing output frame
         assert(pbi->num_output_frames == 0 || pbi->num_output_frames == 1);
         if (pbi->num_output_frames > 0) {
-          decrease_ref_count((int)pbi->output_frame_index[0], frame_bufs, pool);
+          decrease_ref_count(pbi->output_frames[0], pool);
         }
-        pbi->output_frames[0] = cur_frame;
-        pbi->output_frame_index[0] = cm->new_fb_idx;
+        pbi->output_frames[0] = cm->cur_frame;
         pbi->num_output_frames = 1;
       }
     } else {
-      decrease_ref_count(cm->new_fb_idx, frame_bufs, pool);
+      decrease_ref_count(cm->cur_frame, pool);
+      cm->cur_frame = NULL;
     }
 
     unlock_buffer_pool(pool);
@@ -435,7 +431,8 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
     assert(IMPLIES(!pbi->camera_frame_header_ready, !pbi->hold_ref_buf));
     // Nothing was decoded, so just drop this frame buffer
     lock_buffer_pool(pool);
-    decrease_ref_count(cm->new_fb_idx, frame_bufs, pool);
+    decrease_ref_count(cm->cur_frame, pool);
+    cm->cur_frame = NULL;
     unlock_buffer_pool(pool);
   }
 
@@ -444,8 +441,7 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
 
     // Invalidate these references until the next frame starts.
     for (ref_index = 0; ref_index < INTER_REFS_PER_FRAME; ref_index++) {
-      cm->frame_refs[ref_index].idx = INVALID_IDX;
-      cm->frame_refs[ref_index].buf = NULL;
+      cm->remapped_ref_idx[ref_index] = INVALID_IDX;
     }
   }
 }
@@ -454,7 +450,6 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
                                 const uint8_t **psource) {
   AV1_COMMON *volatile const cm = &pbi->common;
   BufferPool *volatile const pool = cm->buffer_pool;
-  RefCntBuffer *volatile const frame_bufs = cm->buffer_pool->frame_bufs;
   const uint8_t *source = *psource;
   cm->error.error_code = AOM_CODEC_OK;
   cm->error.has_detail = 0;
@@ -468,28 +463,24 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
     // TODO(jkoleszar): Error concealment is undefined and non-normative
     // at this point, but if it becomes so, [0] may not always be the correct
     // thing to do here.
-    if (cm->frame_refs[0].idx > 0) {
-      assert(cm->frame_refs[0].buf != NULL);
-      cm->frame_refs[0].buf->corrupted = 1;
-    }
+    RefCntBuffer *ref_buf = get_ref_frame_buf(cm, LAST_FRAME);
+    if (ref_buf != NULL) ref_buf->buf.corrupted = 1;
   }
 
   // Find a free buffer for the new frame, releasing the reference previously
   // held.
 
   // Find a free frame buffer. Return error if can not find any.
-  cm->new_fb_idx = get_free_fb(cm);
-  if (cm->new_fb_idx == INVALID_IDX) {
+  int new_fb_idx = get_free_fb(cm);
+  if (new_fb_idx == INVALID_IDX) {
     cm->error.error_code = AOM_CODEC_MEM_ERROR;
     return 1;
   }
 
   // Assign a MV array to the frame buffer.
-  cm->cur_frame = &pool->frame_bufs[cm->new_fb_idx];
+  cm->cur_frame = &pool->frame_bufs[new_fb_idx];
 
   if (!pbi->camera_frame_header_ready) pbi->hold_ref_buf = 0;
-
-  pbi->cur_buf = &frame_bufs[cm->new_fb_idx];
 
   // The jmp_buf is valid only for the duration of the function that calls
   // setjmp(). Therefore, this function must reset the 'setjmp' field to 0
@@ -533,7 +524,7 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
   cm->txb_count = 0;
 #endif
 
-  // Note: At this point, this function holds a reference to cm->new_fb_idx
+  // Note: At this point, this function holds a reference to cm->cur_frame
   // in the buffer pool. This reference is consumed by swap_frame_buffers().
   swap_frame_buffers(pbi, frame_decoded);
 
@@ -549,8 +540,6 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
   aom_clear_system_state();
 
   if (!cm->show_existing_frame) {
-    cm->last_show_frame = cm->show_frame;
-
     if (cm->seg.enabled) {
       if (cm->prev_frame && (cm->mi_rows == cm->prev_frame->mi_rows) &&
           (cm->mi_cols == cm->prev_frame->mi_cols)) {
@@ -562,10 +551,6 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
   }
 
   // Update progress in frame parallel decode.
-  cm->last_width = cm->width;
-  cm->last_height = cm->height;
-  cm->last_tile_cols = cm->tile_cols;
-  cm->last_tile_rows = cm->tile_rows;
   cm->error.setjmp = 0;
 
   return 0;
@@ -574,11 +559,9 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
 // Get the frame at a particular index in the output queue
 int av1_get_raw_frame(AV1Decoder *pbi, size_t index, YV12_BUFFER_CONFIG **sd,
                       aom_film_grain_t **grain_params) {
-  RefCntBuffer *const frame_bufs = pbi->common.buffer_pool->frame_bufs;
-
   if (index >= pbi->num_output_frames) return -1;
-  *sd = pbi->output_frames[index];
-  *grain_params = &frame_bufs[pbi->output_frame_index[index]].film_grain_params;
+  *sd = &pbi->output_frames[index]->buf;
+  *grain_params = &pbi->output_frames[index]->film_grain_params;
   aom_clear_system_state();
   return 0;
 }
@@ -588,6 +571,6 @@ int av1_get_raw_frame(AV1Decoder *pbi, size_t index, YV12_BUFFER_CONFIG **sd,
 int av1_get_frame_to_show(AV1Decoder *pbi, YV12_BUFFER_CONFIG *frame) {
   if (pbi->num_output_frames == 0) return -1;
 
-  *frame = *pbi->output_frames[pbi->num_output_frames - 1];
+  *frame = pbi->output_frames[pbi->num_output_frames - 1]->buf;
   return 0;
 }

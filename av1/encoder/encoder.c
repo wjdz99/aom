@@ -371,8 +371,8 @@ static void setup_frame(AV1_COMP *cpi) {
       cm->fb_of_context_type[i] = -1;
     }
     cm->fb_of_context_type[REGULAR_FRAME] =
-        cm->show_frame ? get_ref_frame_map_idx(cpi, GOLDEN_FRAME)
-                       : get_ref_frame_map_idx(cpi, ALTREF_FRAME);
+        cm->show_frame ? get_ref_frame_map_idx(cm, GOLDEN_FRAME)
+                       : get_ref_frame_map_idx(cm, ALTREF_FRAME);
     cm->frame_context_idx = REGULAR_FRAME;
   } else {
     const GF_GROUP *gf_group = &cpi->twopass.gf_group;
@@ -390,7 +390,7 @@ static void setup_frame(AV1_COMP *cpi) {
       cm->frame_context_idx = REGULAR_FRAME;
     int wanted_fb = cm->fb_of_context_type[cm->frame_context_idx];
     for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ref_frame++) {
-      int fb = get_ref_frame_map_idx(cpi, ref_frame);
+      int fb = get_ref_frame_map_idx(cm, ref_frame);
       if (fb == wanted_fb) {
         cm->primary_ref_frame = ref_frame - LAST_FRAME;
       }
@@ -409,18 +409,18 @@ static void setup_frame(AV1_COMP *cpi) {
     av1_zero(cpi->interp_filter_selected);
     set_sb_size(&cm->seq_params, select_sb_size(cpi));
   } else {
-    if (cm->primary_ref_frame == PRIMARY_REF_NONE ||
-        cm->frame_refs[cm->primary_ref_frame].idx < 0) {
+    const RefCntBuffer *const primary_ref_buf = get_primary_ref_frame_buf(cm);
+    if (primary_ref_buf == NULL) {
       av1_setup_past_independence(cm);
       cm->seg.update_map = 1;
       cm->seg.update_data = 1;
     } else {
-      *cm->fc = cm->frame_contexts[cm->frame_refs[cm->primary_ref_frame].idx];
+      *cm->fc = primary_ref_buf->frame_context;
     }
     av1_zero(cpi->interp_filter_selected[0]);
   }
 
-  cm->prev_frame = get_prev_frame(cm);
+  cm->prev_frame = get_primary_ref_frame_buf(cm);
   cpi->vaq_refresh = 0;
 }
 
@@ -797,7 +797,7 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
 static void update_reference_segmentation_map(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   MB_MODE_INFO **mi_4x4_ptr = cm->mi_grid_visible;
-  uint8_t *cache_ptr = cm->current_frame_seg_map;
+  uint8_t *cache_ptr = cm->cur_frame->seg_map;
   int row, col;
 
   for (row = 0; row < cm->mi_rows; row++) {
@@ -966,10 +966,9 @@ static void update_frame_size(AV1_COMP *cpi) {
 static void init_buffer_indices(AV1_COMP *cpi) {
   int fb_idx;
   for (fb_idx = 0; fb_idx < REF_FRAMES; ++fb_idx)
-    cpi->remapped_ref_idx[fb_idx] = fb_idx;
+    cpi->common.remapped_ref_idx[fb_idx] = fb_idx;
   cpi->rate_index = 0;
   cpi->rate_size = 0;
-  cpi->cur_poc = -1;
 }
 
 static INLINE int does_level_match(int width, int height, double fps,
@@ -2561,6 +2560,15 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   if (!cpi->seq_params_locked) {
     seq_params->operating_points_cnt_minus_1 =
         cm->number_spatial_layers > 1 ? cm->number_spatial_layers - 1 : 0;
+
+    if (seq_params->operating_points_cnt_minus_1 + 1 >
+        MAX_NUM_OPERATING_POINTS) {
+      aom_internal_error(
+          &cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+          "Encoder does not support %d decoder model operating points",
+          seq_params->operating_points_cnt_minus_1 + 1);
+    }
+
     init_seq_coding_tools(&cm->seq_params, cm, oxcf);
   }
 }
@@ -2591,11 +2599,11 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
   CHECK_MEM_ERROR(cm, cm->fc,
                   (FRAME_CONTEXT *)aom_memalign(32, sizeof(*cm->fc)));
-  CHECK_MEM_ERROR(cm, cm->frame_contexts,
-                  (FRAME_CONTEXT *)aom_memalign(
-                      32, FRAME_CONTEXTS * sizeof(*cm->frame_contexts)));
+  CHECK_MEM_ERROR(
+      cm, cm->default_frame_context,
+      (FRAME_CONTEXT *)aom_memalign(32, sizeof(*cm->default_frame_context)));
   memset(cm->fc, 0, sizeof(*cm->fc));
-  memset(cm->frame_contexts, 0, FRAME_CONTEXTS * sizeof(*cm->frame_contexts));
+  memset(cm->default_frame_context, 0, sizeof(*cm->default_frame_context));
 
   cpi->resize_state = 0;
   cpi->resize_avg_qp = 0;
@@ -2610,7 +2618,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   cpi->seq_params_locked = 0;
   cpi->partition_search_skippable_frame = 0;
   cpi->tile_data = NULL;
-  cpi->last_show_frame_buf_idx = INVALID_IDX;
+  cpi->last_show_frame_buf = NULL;
   realloc_segmentation_maps(cpi);
 
   memset(cpi->nmv_costs, 0, sizeof(cpi->nmv_costs));
@@ -3166,7 +3174,7 @@ static void generate_psnr_packet(AV1_COMP *cpi) {
   struct aom_codec_cx_pkt pkt;
   int i;
   PSNR_STATS psnr;
-  aom_calc_highbd_psnr(cpi->source, cpi->common.frame_to_show, &psnr,
+  aom_calc_highbd_psnr(cpi->source, &cpi->common.cur_frame->buf, &psnr,
                        cpi->td.mb.e_mbd.bd, cpi->oxcf.input_bit_depth);
 
   for (i = 0; i < 4; ++i) {
@@ -3283,7 +3291,7 @@ static void check_show_existing_frame(AV1_COMP *cpi) {
       //       the last_fb_idxes[0] after reference frame buffer update
       cpi->rc.is_last_bipred_frame = 0;
       cm->show_existing_frame = 1;
-      cpi->existing_fb_idx_to_show = cpi->remapped_ref_idx[0];
+      cpi->existing_fb_idx_to_show = cm->remapped_ref_idx[0];
 #if USE_SYMM_MULTI_LAYER
     }
 #endif
@@ -3302,8 +3310,8 @@ static void check_show_existing_frame(AV1_COMP *cpi) {
     cpi->rc.is_src_frame_alt_ref = 1;
     cpi->existing_fb_idx_to_show =
         (next_frame_update_type == OVERLAY_UPDATE)
-            ? get_ref_frame_map_idx(cpi, ALTREF_FRAME)
-            : get_ref_frame_map_idx(cpi, bwdref_to_show);
+            ? get_ref_frame_map_idx(cm, ALTREF_FRAME)
+            : get_ref_frame_map_idx(cm, bwdref_to_show);
 #if USE_SYMM_MULTI_LAYER
     if (cpi->new_bwdref_update_rule == 0)
 #endif
@@ -3480,7 +3488,8 @@ static INLINE void shift_last_ref_frames(AV1_COMP *cpi) {
   // TODO(isbs): shift the scaled indices as well
   for (int ref_frame = LAST3_FRAME; ref_frame > LAST_FRAME; --ref_frame) {
     const int ref_idx = ref_frame - LAST_FRAME;
-    cpi->remapped_ref_idx[ref_idx] = cpi->remapped_ref_idx[ref_idx - 1];
+    cpi->common.remapped_ref_idx[ref_idx] =
+        cpi->common.remapped_ref_idx[ref_idx - 1];
 
     if (!cpi->rc.is_src_frame_alt_ref) {
       memcpy(cpi->interp_filter_selected[ref_frame],
@@ -3506,8 +3515,8 @@ static INLINE void rshift_bwd_ref_frames(AV1_COMP *cpi) {
            cpi->interp_filter_selected[ordered_bwd[i - 1]],
            sizeof(cpi->interp_filter_selected[ordered_bwd[i - 1]]));
 
-    cpi->remapped_ref_idx[ordered_bwd[i] - LAST_FRAME] =
-        cpi->remapped_ref_idx[ordered_bwd[i - 1] - LAST_FRAME];
+    cpi->common.remapped_ref_idx[ordered_bwd[i] - LAST_FRAME] =
+        cpi->common.remapped_ref_idx[ordered_bwd[i - 1] - LAST_FRAME];
   }
 }
 
@@ -3526,8 +3535,8 @@ static INLINE void lshift_bwd_ref_frames(AV1_COMP *cpi) {
            cpi->interp_filter_selected[ordered_bwd[i + 1]],
            sizeof(cpi->interp_filter_selected[ordered_bwd[i + 1]]));
 
-    cpi->remapped_ref_idx[ordered_bwd[i] - LAST_FRAME] =
-        cpi->remapped_ref_idx[ordered_bwd[i + 1] - LAST_FRAME];
+    cpi->common.remapped_ref_idx[ordered_bwd[i] - LAST_FRAME] =
+        cpi->common.remapped_ref_idx[ordered_bwd[i + 1] - LAST_FRAME];
   }
 }
 #endif  // USE_SYMM_MULTI_LAYER
@@ -3537,7 +3546,7 @@ static void update_reference_frames(AV1_COMP *cpi) {
 
   // NOTE: Save the new show frame buffer index for --test-code=warn, i.e.,
   //       for the purpose to verify no mismatch between encoder and decoder.
-  if (cm->show_frame) cpi->last_show_frame_buf_idx = cm->new_fb_idx;
+  if (cm->show_frame) cpi->last_show_frame_buf = cm->cur_frame;
 
   // In the case of show_existing frame, we will not send fresh flag
   // to decoder. Any change in the reference frame buffer can be done by
@@ -3559,8 +3568,6 @@ static void update_reference_frames(AV1_COMP *cpi) {
     cpi->rc.is_bipred_frame = 0;
   }
 
-  BufferPool *const pool = cm->buffer_pool;
-
   // At this point the new frame has been encoded.
   // If any buffer copy / swapping is signaled it should be done here.
 
@@ -3569,9 +3576,8 @@ static void update_reference_frames(AV1_COMP *cpi) {
   if ((cm->current_frame.frame_type == KEY_FRAME && cm->show_frame) ||
       frame_is_sframe(cm)) {
     for (int ref_frame = 0; ref_frame < REF_FRAMES; ++ref_frame) {
-      assign_frame_buffer(pool->frame_bufs,
-                          &cm->ref_frame_map[cpi->remapped_ref_idx[ref_frame]],
-                          cm->new_fb_idx);
+      assign_frame_buffer_p(&cm->ref_frame_map[cm->remapped_ref_idx[ref_frame]],
+                            cm->cur_frame);
     }
     return;
   }
@@ -3591,16 +3597,15 @@ static void update_reference_frames(AV1_COMP *cpi) {
     // reference instead of replacing it with overlay.
 
     if (!cpi->preserve_arf_as_gld) {
-      assign_frame_buffer(
-          pool->frame_bufs,
-          &cm->ref_frame_map[get_ref_frame_map_idx(cpi, ALTREF_FRAME)],
-          cm->new_fb_idx);
+      assign_frame_buffer_p(
+          &cm->ref_frame_map[get_ref_frame_map_idx(cm, ALTREF_FRAME)],
+          cm->cur_frame);
     }
 
-    tmp = get_ref_frame_map_idx(cpi, ALTREF_FRAME);
-    cpi->remapped_ref_idx[ALTREF_FRAME - 1] =
-        get_ref_frame_map_idx(cpi, GOLDEN_FRAME);
-    cpi->remapped_ref_idx[GOLDEN_FRAME - 1] = tmp;
+    tmp = get_ref_frame_map_idx(cm, ALTREF_FRAME);
+    cm->remapped_ref_idx[ALTREF_FRAME - 1] =
+        get_ref_frame_map_idx(cm, GOLDEN_FRAME);
+    cm->remapped_ref_idx[GOLDEN_FRAME - 1] = tmp;
 
     // TODO(zoeliu): Do we need to copy cpi->interp_filter_selected[0] over to
     // cpi->interp_filter_selected[GOLDEN_FRAME]?
@@ -3618,11 +3623,11 @@ static void update_reference_frames(AV1_COMP *cpi) {
     // Deal with the special case for showing existing internal ALTREF_FRAME
     // Refresh the LAST_FRAME with the ALTREF_FRAME and retire the LAST3_FRAME
     // by updating the virtual indices.
-    const int last3_remapped_idx = get_ref_frame_map_idx(cpi, LAST3_FRAME);
+    const int last3_remapped_idx = get_ref_frame_map_idx(cm, LAST3_FRAME);
     shift_last_ref_frames(cpi);
 
-    cpi->remapped_ref_idx[LAST_FRAME - 1] =
-        get_ref_frame_map_idx(cpi, bwdref_to_show);
+    cm->remapped_ref_idx[LAST_FRAME - 1] =
+        get_ref_frame_map_idx(cm, bwdref_to_show);
 
     memcpy(cpi->interp_filter_selected[LAST_FRAME],
            cpi->interp_filter_selected[bwdref_to_show],
@@ -3632,19 +3637,18 @@ static void update_reference_frames(AV1_COMP *cpi) {
       lshift_bwd_ref_frames(cpi);
       // pass outdated forward reference frame (previous LAST3) to the
       // spared space
-      cpi->remapped_ref_idx[EXTREF_FRAME - 1] = last3_remapped_idx;
+      cm->remapped_ref_idx[EXTREF_FRAME - 1] = last3_remapped_idx;
     } else {
 #endif
-      cpi->remapped_ref_idx[bwdref_to_show - 1] = last3_remapped_idx;
+      cm->remapped_ref_idx[bwdref_to_show - 1] = last3_remapped_idx;
 #if USE_SYMM_MULTI_LAYER
     }
 #endif
   } else { /* For non key/golden frames */
     // === ALTREF_FRAME ===
     if (cpi->refresh_alt_ref_frame) {
-      int arf_idx = get_ref_frame_map_idx(cpi, ALTREF_FRAME);
-      assign_frame_buffer(pool->frame_bufs, &cm->ref_frame_map[arf_idx],
-                          cm->new_fb_idx);
+      int arf_idx = get_ref_frame_map_idx(cm, ALTREF_FRAME);
+      assign_frame_buffer_p(&cm->ref_frame_map[arf_idx], cm->cur_frame);
 
       memcpy(cpi->interp_filter_selected[ALTREF_FRAME],
              cpi->interp_filter_selected[0],
@@ -3653,10 +3657,9 @@ static void update_reference_frames(AV1_COMP *cpi) {
 
     // === GOLDEN_FRAME ===
     if (cpi->refresh_golden_frame) {
-      assign_frame_buffer(
-          pool->frame_bufs,
-          &cm->ref_frame_map[get_ref_frame_map_idx(cpi, GOLDEN_FRAME)],
-          cm->new_fb_idx);
+      assign_frame_buffer_p(
+          &cm->ref_frame_map[get_ref_frame_map_idx(cm, GOLDEN_FRAME)],
+          cm->cur_frame);
 
       memcpy(cpi->interp_filter_selected[GOLDEN_FRAME],
              cpi->interp_filter_selected[0],
@@ -3671,18 +3674,16 @@ static void update_reference_frames(AV1_COMP *cpi) {
         // BWDREF -> ALTREF2 -> EXTREF
         // and assign the newly coded frame to BWDREF so that it always
         // keeps the nearest future frame
-        int tmp = get_ref_frame_map_idx(cpi, EXTREF_FRAME);
-        assign_frame_buffer(pool->frame_bufs, &cm->ref_frame_map[tmp],
-                            cm->new_fb_idx);
+        int tmp = get_ref_frame_map_idx(cm, EXTREF_FRAME);
+        assign_frame_buffer_p(&cm->ref_frame_map[tmp], cm->cur_frame);
 
         rshift_bwd_ref_frames(cpi);
-        cpi->remapped_ref_idx[BWDREF_FRAME - 1] = tmp;
+        cm->remapped_ref_idx[BWDREF_FRAME - 1] = tmp;
       } else {
 #endif  // USE_SYMM_MULTI_LAYER
-        assign_frame_buffer(
-            pool->frame_bufs,
-            &cm->ref_frame_map[get_ref_frame_map_idx(cpi, BWDREF_FRAME)],
-            cm->new_fb_idx);
+        assign_frame_buffer_p(
+            &cm->ref_frame_map[get_ref_frame_map_idx(cm, BWDREF_FRAME)],
+            cm->cur_frame);
 #if USE_SYMM_MULTI_LAYER
       }
 #endif
@@ -3693,10 +3694,9 @@ static void update_reference_frames(AV1_COMP *cpi) {
 
     // === ALTREF2_FRAME ===
     if (cpi->refresh_alt2_ref_frame) {
-      assign_frame_buffer(
-          pool->frame_bufs,
-          &cm->ref_frame_map[get_ref_frame_map_idx(cpi, ALTREF2_FRAME)],
-          cm->new_fb_idx);
+      assign_frame_buffer_p(
+          &cm->ref_frame_map[get_ref_frame_map_idx(cm, ALTREF2_FRAME)],
+          cm->cur_frame);
 
       memcpy(cpi->interp_filter_selected[ALTREF2_FRAME],
              cpi->interp_filter_selected[0],
@@ -3707,7 +3707,7 @@ static void update_reference_frames(AV1_COMP *cpi) {
   if (cpi->refresh_last_frame) {
     // NOTE(zoeliu): We have two layers of mapping (1) from the per-frame
     // reference to the reference frame buffer virtual index; and then (2) from
-    // the virtual index to the reference frame buffer physical index:
+    // the virtual index to the reference frame buffer (RefCntBuffer):
     //
     // LAST_FRAME,                       ...,     EXTREF_FRAME
     //      |                                           |
@@ -3726,7 +3726,7 @@ static void update_reference_frames(AV1_COMP *cpi) {
     //
     // (a) To change ref_frame_map[] and have the virtual index of LAST3_FRAME
     //     to point to the newly coded frame, i.e.
-    //     ref_frame_map[lst_fb_idexes[2]] => new_fb_idx;
+    //     ref_frame_map[lst_fb_idexes[2]] => cur_frame;
     //
     // (b) To change the 1st layer mapping to have LAST_FRAME mapped to the
     //     original virtual index of LAST3_FRAME and have the other mappings
@@ -3735,15 +3735,14 @@ static void update_reference_frames(AV1_COMP *cpi) {
     //      |                      |                        |
     //      v                      v                        v
     // remapped_ref_idx[2],   remapped_ref_idx[0],     remapped_ref_idx[1]
-    assign_frame_buffer(
-        pool->frame_bufs,
-        &cm->ref_frame_map[get_ref_frame_map_idx(cpi, LAST3_FRAME)],
-        cm->new_fb_idx);
+    assign_frame_buffer_p(
+        &cm->ref_frame_map[get_ref_frame_map_idx(cm, LAST3_FRAME)],
+        cm->cur_frame);
 
-    int last3_remapped_idx = get_ref_frame_map_idx(cpi, LAST3_FRAME);
+    int last3_remapped_idx = get_ref_frame_map_idx(cm, LAST3_FRAME);
 
     shift_last_ref_frames(cpi);
-    cpi->remapped_ref_idx[LAST_FRAME - 1] = last3_remapped_idx;
+    cm->remapped_ref_idx[LAST_FRAME - 1] = last3_remapped_idx;
 
     assert(!encode_show_existing_frame(cm));
     memcpy(cpi->interp_filter_selected[LAST_FRAME],
@@ -3766,12 +3765,12 @@ static void update_reference_frames(AV1_COMP *cpi) {
       //       virtual index reshuffling for BWDREF, the encoder always
       //       specifies a LAST_BIPRED right before BWDREF and completes the
       //       reshuffling job accordingly.
-      last3_remapped_idx = get_ref_frame_map_idx(cpi, LAST3_FRAME);
+      last3_remapped_idx = get_ref_frame_map_idx(cm, LAST3_FRAME);
 
       shift_last_ref_frames(cpi);
-      cpi->remapped_ref_idx[LAST_FRAME - 1] =
-          get_ref_frame_map_idx(cpi, BWDREF_FRAME);
-      cpi->remapped_ref_idx[BWDREF_FRAME - 1] = last3_remapped_idx;
+      cm->remapped_ref_idx[LAST_FRAME - 1] =
+          get_ref_frame_map_idx(cm, BWDREF_FRAME);
+      cm->remapped_ref_idx[BWDREF_FRAME - 1] = last3_remapped_idx;
 
       memcpy(cpi->interp_filter_selected[LAST_FRAME],
              cpi->interp_filter_selected[BWDREF_FRAME],
@@ -3785,12 +3784,11 @@ static void update_reference_frames(AV1_COMP *cpi) {
 #endif  // DUMP_REF_FRAME_IMAGES
 }
 
-static INLINE void alloc_frame_mvs(AV1_COMMON *const cm, int buffer_idx) {
-  assert(buffer_idx != INVALID_IDX);
-  RefCntBuffer *const new_fb_ptr = &cm->buffer_pool->frame_bufs[buffer_idx];
-  ensure_mv_buffer(new_fb_ptr, cm);
-  new_fb_ptr->width = cm->width;
-  new_fb_ptr->height = cm->height;
+static INLINE void alloc_frame_mvs(AV1_COMMON *const cm, RefCntBuffer *buf) {
+  assert(buf);
+  ensure_mv_buffer(buf, cm);
+  buf->width = cm->width;
+  buf->height = cm->height;
 }
 
 static void scale_references(AV1_COMP *cpi) {
@@ -3806,69 +3804,65 @@ static void scale_references(AV1_COMP *cpi) {
     // Need to convert from AOM_REFFRAME to index into ref_mask (subtract 1).
     if (cpi->ref_frame_flags & ref_mask[ref_frame - 1]) {
       BufferPool *const pool = cm->buffer_pool;
-      const YV12_BUFFER_CONFIG *const ref =
-          get_ref_frame_buffer(cpi, ref_frame);
+      const YV12_BUFFER_CONFIG *const ref = get_ref_frame_buffer(cm, ref_frame);
 
       if (ref == NULL) {
-        cpi->scaled_ref_idx[ref_frame - 1] = INVALID_IDX;
+        cpi->scaled_ref_buf[ref_frame - 1] = NULL;
         continue;
       }
 
       if (ref->y_crop_width != cm->width || ref->y_crop_height != cm->height) {
-        RefCntBuffer *new_fb_ptr = NULL;
         int force_scaling = 0;
-        int new_fb = cpi->scaled_ref_idx[ref_frame - 1];
-        if (new_fb == INVALID_IDX) {
-          new_fb = get_free_fb(cm);
-          if (new_fb == INVALID_IDX)
+        RefCntBuffer *new_fb = cpi->scaled_ref_buf[ref_frame - 1];
+        if (!new_fb) {
+          int new_fb_idx = get_free_fb(cm);
+          if (new_fb_idx == INVALID_IDX)
             aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                                "Unable to find free frame buffer");
           force_scaling = 1;
+          new_fb = &pool->frame_bufs[new_fb_idx];
         }
-        new_fb_ptr = &pool->frame_bufs[new_fb];
-        if (force_scaling || new_fb_ptr->buf.y_crop_width != cm->width ||
-            new_fb_ptr->buf.y_crop_height != cm->height) {
+
+        if (force_scaling || new_fb->buf.y_crop_width != cm->width ||
+            new_fb->buf.y_crop_height != cm->height) {
           if (aom_realloc_frame_buffer(
-                  &new_fb_ptr->buf, cm->width, cm->height,
+                  &new_fb->buf, cm->width, cm->height,
                   cm->seq_params.subsampling_x, cm->seq_params.subsampling_y,
                   cm->seq_params.use_highbitdepth, AOM_BORDER_IN_PIXELS,
                   cm->byte_alignment, NULL, NULL, NULL)) {
             if (force_scaling) {
               // Release the reference acquired in the get_free_fb() call above.
-              --new_fb_ptr->ref_count;
+              --new_fb->ref_count;
             }
             aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                                "Failed to allocate frame buffer");
           }
           av1_resize_and_extend_frame(
-              ref, &new_fb_ptr->buf, (int)cm->seq_params.bit_depth, num_planes);
-          cpi->scaled_ref_idx[ref_frame - 1] = new_fb;
+              ref, &new_fb->buf, (int)cm->seq_params.bit_depth, num_planes);
+          cpi->scaled_ref_buf[ref_frame - 1] = new_fb;
           alloc_frame_mvs(cm, new_fb);
         }
       } else {
-        const int buf_idx = get_ref_frame_buf_idx(cpi, ref_frame);
-        RefCntBuffer *const buf = &pool->frame_bufs[buf_idx];
+        RefCntBuffer *buf = get_ref_frame_buf(cm, ref_frame);
         buf->buf.y_crop_width = ref->y_crop_width;
         buf->buf.y_crop_height = ref->y_crop_height;
-        cpi->scaled_ref_idx[ref_frame - 1] = buf_idx;
+        cpi->scaled_ref_buf[ref_frame - 1] = buf;
         ++buf->ref_count;
       }
     } else {
-      if (cpi->oxcf.pass != 0) cpi->scaled_ref_idx[ref_frame - 1] = INVALID_IDX;
+      if (cpi->oxcf.pass != 0) cpi->scaled_ref_buf[ref_frame - 1] = NULL;
     }
   }
 }
 
 static void release_scaled_references(AV1_COMP *cpi) {
-  AV1_COMMON *cm = &cpi->common;
   int i;
   // TODO(isbs): only refresh the necessary frames, rather than all of them
   for (i = 0; i < INTER_REFS_PER_FRAME; ++i) {
-    const int idx = cpi->scaled_ref_idx[i];
-    if (idx != INVALID_IDX) {
-      RefCntBuffer *const buf = &cm->buffer_pool->frame_bufs[idx];
+    RefCntBuffer *const buf = cpi->scaled_ref_buf[i];
+    if (buf) {
       --buf->ref_count;
-      cpi->scaled_ref_idx[i] = INVALID_IDX;
+      cpi->scaled_ref_buf[i] = NULL;
     }
   }
 }
@@ -3986,9 +3980,9 @@ static void init_ref_frame_bufs(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   int i;
   BufferPool *const pool = cm->buffer_pool;
-  cm->new_fb_idx = INVALID_IDX;
+  cm->cur_frame = NULL;
   for (i = 0; i < REF_FRAMES; ++i) {
-    cm->ref_frame_map[i] = INVALID_IDX;
+    cm->ref_frame_map[i] = NULL;
   }
   for (i = 0; i < FRAME_BUFFERS; ++i) {
     pool->frame_bufs[i].ref_count = 0;
@@ -4069,7 +4063,7 @@ static void set_frame_size(AV1_COMP *cpi, int width, int height) {
     av1_set_target_rate(cpi, cm->width, cm->height);
   }
 
-  alloc_frame_mvs(cm, cm->new_fb_idx);
+  alloc_frame_mvs(cm, cm->cur_frame);
 
   // Allocate above context buffers
   if (cm->num_allocated_above_context_planes < av1_num_planes(cm) ||
@@ -4083,10 +4077,9 @@ static void set_frame_size(AV1_COMP *cpi, int width, int height) {
 
   // Reset the frame pointers to the current frame size.
   if (aom_realloc_frame_buffer(
-          get_frame_new_buffer(cm), cm->width, cm->height,
-          seq_params->subsampling_x, seq_params->subsampling_y,
-          seq_params->use_highbitdepth, AOM_BORDER_IN_PIXELS,
-          cm->byte_alignment, NULL, NULL, NULL))
+          &cm->cur_frame->buf, cm->width, cm->height, seq_params->subsampling_x,
+          seq_params->subsampling_y, seq_params->use_highbitdepth,
+          AOM_BORDER_IN_PIXELS, cm->byte_alignment, NULL, NULL, NULL))
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate frame buffer");
 
@@ -4103,21 +4096,13 @@ static void set_frame_size(AV1_COMP *cpi, int width, int height) {
   init_motion_estimation(cpi);
 
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
-    RefBuffer *const ref_buf = &cm->frame_refs[ref_frame - LAST_FRAME];
-    const int buf_idx = get_ref_frame_buf_idx(cpi, ref_frame);
-
-    ref_buf->idx = buf_idx;
-
-    if (buf_idx != INVALID_IDX) {
-      YV12_BUFFER_CONFIG *const buf = &cm->buffer_pool->frame_bufs[buf_idx].buf;
-      ref_buf->buf = buf;
-      av1_setup_scale_factors_for_frame(&ref_buf->sf, buf->y_crop_width,
-                                        buf->y_crop_height, cm->width,
+    RefCntBuffer *buf = get_ref_frame_buf(cm, ref_frame);
+    if (buf) {
+      struct scale_factors *sf = get_ref_scale_factors(cm, ref_frame);
+      av1_setup_scale_factors_for_frame(sf, buf->buf.y_crop_width,
+                                        buf->buf.y_crop_height, cm->width,
                                         cm->height);
-      if (av1_is_scaled(&ref_buf->sf))
-        aom_extend_frame_borders(buf, num_planes);
-    } else {
-      ref_buf->buf = NULL;
+      if (av1_is_scaled(sf)) aom_extend_frame_borders(&buf->buf, num_planes);
     }
   }
 
@@ -4357,7 +4342,8 @@ static void superres_post_encode(AV1_COMP *cpi) {
   }
 }
 
-static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
+static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm, EncodedFrame *ef) {
+  (void)ef;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
 
@@ -4390,14 +4376,14 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 
   if (lf->filter_level[0] || lf->filter_level[1]) {
     if (cpi->num_workers > 1)
-      av1_loop_filter_frame_mt(cm->frame_to_show, cm, xd, 0, num_planes, 0,
+      av1_loop_filter_frame_mt(&cm->cur_frame->buf, cm, xd, 0, num_planes, 0,
 #if LOOP_FILTER_BITMASK
                                0,
 #endif
                                cpi->workers, cpi->num_workers,
                                &cpi->lf_row_sync);
     else
-      av1_loop_filter_frame(cm->frame_to_show, cm, xd,
+      av1_loop_filter_frame(&cm->cur_frame->buf, cm, xd,
 #if LOOP_FILTER_BITMASK
                             0,
 #endif
@@ -4405,7 +4391,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   }
 
   if (!no_restoration)
-    av1_loop_restoration_save_boundary_lines(cm->frame_to_show, cm, 0);
+    av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 0);
 
   if (no_cdef) {
     cm->cdef_info.cdef_bits = 0;
@@ -4414,11 +4400,11 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     cm->cdef_info.cdef_uv_strengths[0] = 0;
   } else {
     // Find CDEF parameters
-    av1_cdef_search(cm->frame_to_show, cpi->source, cm, xd,
+    av1_cdef_search(&cm->cur_frame->buf, cpi->source, cm, xd,
                     cpi->sf.fast_cdef_search);
 
     // Apply the filter
-    av1_cdef_frame(cm->frame_to_show, cm, xd);
+    av1_cdef_frame(&cm->cur_frame->buf, cm, xd);
   }
 
   superres_post_encode(cpi);
@@ -4428,23 +4414,44 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
   } else {
-    av1_loop_restoration_save_boundary_lines(cm->frame_to_show, cm, 1);
+    av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 1);
     av1_pick_filter_restoration(cpi->source, cpi);
     if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
         cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
         cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
       if (cpi->num_workers > 1)
-        av1_loop_restoration_filter_frame_mt(cm->frame_to_show, cm, 0,
+        av1_loop_restoration_filter_frame_mt(&cm->cur_frame->buf, cm, 0,
                                              cpi->workers, cpi->num_workers,
                                              &cpi->lr_row_sync, &cpi->lr_ctxt);
       else
-        av1_loop_restoration_filter_frame(cm->frame_to_show, cm, 0,
+        av1_loop_restoration_filter_frame(&cm->cur_frame->buf, cm, 0,
                                           &cpi->lr_ctxt);
     }
   }
 }
 
-static int encode_without_recode_loop(AV1_COMP *cpi) {
+static void setup_frame_offset(AV1_COMP *cpi, EncodeInputFrame *eif) {
+  // TODO(jsh): remove references to as many AV1_COMP members as possible once
+  // done
+  AV1_COMMON *cm = &cpi->common;
+  if (eif->show_frame == 0) {
+    int arf_offset = AOMMIN(
+        (MAX_GF_INTERVAL - 1),
+        cpi->twopass.gf_group.arf_src_offset[cpi->twopass.gf_group.index]);
+    int brf_offset =
+        cpi->twopass.gf_group.brf_src_offset[cpi->twopass.gf_group.index];
+    arf_offset = AOMMIN((MAX_GF_INTERVAL - 1), arf_offset + brf_offset);
+    eif->order_hint = cm->current_frame.order_hint =
+        eif->frame_number + arf_offset;
+  } else {
+    eif->order_hint = cm->current_frame.order_hint = eif->frame_number;
+  }
+  eif->order_hint = cm->current_frame.order_hint %=
+      (1 << (cm->seq_params.order_hint_info.order_hint_bits_minus_1 + 1));
+}
+
+static int encode_without_recode_loop(AV1_COMP *cpi, EncodeInputFrame *eif,
+                                      EncodedFrame *ef) {
   AV1_COMMON *const cm = &cpi->common;
   int q = 0, bottom_index = 0, top_index = 0;  // Dummy variables.
 
@@ -4494,8 +4501,10 @@ static int encode_without_recode_loop(AV1_COMP *cpi) {
   }
   segfeatures_copy(&cm->cur_frame->seg, &cm->seg);
 
+  setup_frame_offset(cpi, eif);
+
   // transform / motion compensation build reconstruction frame
-  av1_encode_frame(cpi);
+  av1_encode_frame(cpi, eif, ef);
 
   // Update some stats from cyclic refresh, and check if we should not update
   // golden reference, for 1 pass CBR.
@@ -4511,7 +4520,9 @@ static int encode_without_recode_loop(AV1_COMP *cpi) {
   return AOM_CODEC_OK;
 }
 
-static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
+static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest,
+                                   EncodeInputFrame *eif, EncodedFrame *ef,
+                                   PackedFrame *pf) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
   int bottom_index, top_index;
@@ -4582,8 +4593,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 
     // Base q-index may have changed, so we need to assign proper default coef
     // probs before every iteration.
-    if (cm->primary_ref_frame == PRIMARY_REF_NONE ||
-        cm->frame_refs[cm->primary_ref_frame].idx < 0) {
+    if (get_primary_ref_frame_buf(cm) == NULL) {
       av1_default_coef_probs(cm);
       av1_setup_frame_contexts(cm);
     }
@@ -4608,7 +4618,10 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 
     // transform / motion compensation build reconstruction frame
     save_coding_context(cpi);
-    av1_encode_frame(cpi);
+
+    setup_frame_offset(cpi, eif);
+
+    av1_encode_frame(cpi, eif, ef);
 
     // Update the skip mb flag probabilities based on the distribution
     // seen in the last encoder iteration.
@@ -4622,7 +4635,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     if (cpi->sf.recode_loop >= ALLOW_RECODE_KFARFGF) {
       restore_coding_context(cpi);
 
-      if (av1_pack_bitstream(cpi, dest, size) != AOM_CODEC_OK)
+      if (av1_pack_bitstream(cpi, dest, size, ef, pf) != AOM_CODEC_OK)
         return AOM_CODEC_ERROR;
 
       rc->projected_frame_size = (int)(*size) << 3;
@@ -4644,9 +4657,9 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
         int64_t low_err_target = cpi->ambient_err >> 1;
 
         if (cm->seq_params.use_highbitdepth) {
-          kf_err = aom_highbd_get_y_sse(cpi->source, get_frame_new_buffer(cm));
+          kf_err = aom_highbd_get_y_sse(cpi->source, &cm->cur_frame->buf);
         } else {
-          kf_err = aom_get_y_sse(cpi->source, get_frame_new_buffer(cm));
+          kf_err = aom_get_y_sse(cpi->source, &cm->cur_frame->buf);
         }
         // Prevent possible divide by zero error below for perfect KF
         kf_err += !kf_err;
@@ -4782,61 +4795,54 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 }
 
 static int get_ref_frame_flags(const AV1_COMP *cpi) {
-  const int *const map = cpi->common.ref_frame_map;
+  const RefCntBuffer *last_buf =
+      get_ref_frame_buf_const(&cpi->common, LAST_FRAME);
+  const RefCntBuffer *last2_buf =
+      get_ref_frame_buf_const(&cpi->common, LAST2_FRAME);
+  const RefCntBuffer *last3_buf =
+      get_ref_frame_buf_const(&cpi->common, LAST3_FRAME);
+  const RefCntBuffer *golden_buf =
+      get_ref_frame_buf_const(&cpi->common, GOLDEN_FRAME);
+  const RefCntBuffer *bwd_buf =
+      get_ref_frame_buf_const(&cpi->common, BWDREF_FRAME);
+  const RefCntBuffer *alt2_buf =
+      get_ref_frame_buf_const(&cpi->common, ALTREF2_FRAME);
+  const RefCntBuffer *alt_buf =
+      get_ref_frame_buf_const(&cpi->common, ALTREF_FRAME);
 
   // No.1 Priority: LAST_FRAME
-  const int last2_is_last =
-      map[cpi->remapped_ref_idx[1]] == map[cpi->remapped_ref_idx[0]];
-  const int last3_is_last =
-      map[cpi->remapped_ref_idx[2]] == map[cpi->remapped_ref_idx[0]];
-  const int gld_is_last = map[get_ref_frame_map_idx(cpi, GOLDEN_FRAME)] ==
-                          map[cpi->remapped_ref_idx[0]];
-  const int bwd_is_last = map[get_ref_frame_map_idx(cpi, BWDREF_FRAME)] ==
-                          map[cpi->remapped_ref_idx[0]];
-  const int alt2_is_last = map[get_ref_frame_map_idx(cpi, ALTREF2_FRAME)] ==
-                           map[cpi->remapped_ref_idx[0]];
-  const int alt_is_last = map[get_ref_frame_map_idx(cpi, ALTREF_FRAME)] ==
-                          map[cpi->remapped_ref_idx[0]];
 
+  const int last2_is_last = (last2_buf == last_buf);
+  const int last3_is_last = (last3_buf == last_buf);
+  const int gld_is_last = (golden_buf == last_buf);
+  const int bwd_is_last = (bwd_buf == last_buf);
+  const int alt2_is_last = (alt2_buf == last_buf);
+  const int alt_is_last = (alt_buf == last_buf);
   // No.2 Priority: ALTREF_FRAME
-  const int last2_is_alt = map[cpi->remapped_ref_idx[1]] ==
-                           map[get_ref_frame_map_idx(cpi, ALTREF_FRAME)];
-  const int last3_is_alt = map[cpi->remapped_ref_idx[2]] ==
-                           map[get_ref_frame_map_idx(cpi, ALTREF_FRAME)];
-  const int gld_is_alt = map[get_ref_frame_map_idx(cpi, GOLDEN_FRAME)] ==
-                         map[get_ref_frame_map_idx(cpi, ALTREF_FRAME)];
-  const int bwd_is_alt = map[get_ref_frame_map_idx(cpi, BWDREF_FRAME)] ==
-                         map[get_ref_frame_map_idx(cpi, ALTREF_FRAME)];
-  const int alt2_is_alt = map[get_ref_frame_map_idx(cpi, ALTREF2_FRAME)] ==
-                          map[get_ref_frame_map_idx(cpi, ALTREF_FRAME)];
+
+  const int last2_is_alt = (last2_buf == alt_buf);
+  const int last3_is_alt = (last3_buf == alt_buf);
+  const int gld_is_alt = (golden_buf == alt_buf);
+  const int bwd_is_alt = (bwd_buf == alt_buf);
+  const int alt2_is_alt = (alt2_buf == alt_buf);
 
   // No.3 Priority: LAST2_FRAME
-  const int last3_is_last2 =
-      map[cpi->remapped_ref_idx[2]] == map[cpi->remapped_ref_idx[1]];
-  const int gld_is_last2 = map[get_ref_frame_map_idx(cpi, GOLDEN_FRAME)] ==
-                           map[cpi->remapped_ref_idx[1]];
-  const int bwd_is_last2 = map[get_ref_frame_map_idx(cpi, BWDREF_FRAME)] ==
-                           map[cpi->remapped_ref_idx[1]];
-  const int alt2_is_last2 = map[get_ref_frame_map_idx(cpi, ALTREF2_FRAME)] ==
-                            map[cpi->remapped_ref_idx[1]];
+  const int last3_is_last2 = (last3_buf == last2_buf);
+  const int gld_is_last2 = (golden_buf == last2_buf);
+  const int bwd_is_last2 = (bwd_buf == last2_buf);
+  const int alt2_is_last2 = (alt2_buf == last2_buf);
 
   // No.4 Priority: LAST3_FRAME
-  const int gld_is_last3 = map[get_ref_frame_map_idx(cpi, GOLDEN_FRAME)] ==
-                           map[cpi->remapped_ref_idx[2]];
-  const int bwd_is_last3 = map[get_ref_frame_map_idx(cpi, BWDREF_FRAME)] ==
-                           map[cpi->remapped_ref_idx[2]];
-  const int alt2_is_last3 = map[get_ref_frame_map_idx(cpi, ALTREF2_FRAME)] ==
-                            map[cpi->remapped_ref_idx[2]];
+  const int gld_is_last3 = (golden_buf == last3_buf);
+  const int bwd_is_last3 = (bwd_buf == last3_buf);
+  const int alt2_is_last3 = (alt2_buf == last3_buf);
 
   // No.5 Priority: GOLDEN_FRAME
-  const int bwd_is_gld = map[get_ref_frame_map_idx(cpi, BWDREF_FRAME)] ==
-                         map[get_ref_frame_map_idx(cpi, GOLDEN_FRAME)];
-  const int alt2_is_gld = map[get_ref_frame_map_idx(cpi, ALTREF2_FRAME)] ==
-                          map[get_ref_frame_map_idx(cpi, GOLDEN_FRAME)];
+  const int bwd_is_gld = (bwd_buf == golden_buf);
+  const int alt2_is_gld = (alt2_buf == golden_buf);
 
   // No.6 Priority: BWDREF_FRAME
-  const int alt2_is_bwd = map[get_ref_frame_map_idx(cpi, ALTREF2_FRAME)] ==
-                          map[get_ref_frame_map_idx(cpi, BWDREF_FRAME)];
+  const int alt2_is_bwd = (alt2_buf == bwd_buf);
 
   // No.7 Priority: ALTREF2_FRAME
 
@@ -4904,7 +4910,7 @@ static void set_ext_overrides(AV1_COMP *cpi) {
 static void dump_filtered_recon_frames(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const CurrentFrame *const current_frame = &cm->current_frame;
-  const YV12_BUFFER_CONFIG *recon_buf = cm->frame_to_show;
+  const YV12_BUFFER_CONFIG *recon_buf = &cm->cur_frame->buf;
 
   if (recon_buf == NULL) {
     printf("Frame %d is not ready.\n", current_frame->frame_number);
@@ -4926,16 +4932,12 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
       current_frame->frame_number, current_frame->order_hint, cm->show_frame,
       cm->show_existing_frame);
   for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
-    const int buf_idx = cm->frame_refs[ref_frame - LAST_FRAME].idx;
-    const int ref_offset =
-        (buf_idx >= 0)
-            ? (int)cm->buffer_pool->frame_bufs[buf_idx].cur_frame_offset
-            : -1;
-    printf(
-        " %d(%c-%d-%4.2f)", ref_offset,
-        (cpi->ref_frame_flags & flag_list[ref_frame]) ? 'Y' : 'N',
-        (buf_idx >= 0) ? (int)cpi->frame_rf_level[buf_idx] : -1,
-        (buf_idx >= 0) ? rate_factor_deltas[cpi->frame_rf_level[buf_idx]] : -1);
+    const RefCntBuffer *const buf = get_ref_frame_buf_const(cm, ref_frame);
+    const int ref_offset = buf != NULL ? (int)buf->order_hint : -1;
+    printf(" %d(%c-%d-%4.2f)", ref_offset,
+           (cpi->ref_frame_flags & flag_list[ref_frame]) ? 'Y' : 'N',
+           buf ? (int)buf->frame_rf_level : -1,
+           buf ? rate_factor_deltas[buf->frame_rf_level] : -1);
   }
   printf(" ]\n");
 
@@ -4975,13 +4977,7 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
   int ref_frame;
   printf("get_ref_frame_map_idx: [");
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame)
-    printf(" %d", get_ref_frame_map_idx(cpi, ref_frame));
-  printf(" ]\n");
-  printf("cm->new_fb_idx = %d\n", cm->new_fb_idx);
-  printf("cm->ref_frame_map = [");
-  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
-    printf(" %d", cm->ref_frame_map[ref_frame - LAST_FRAME]);
-  }
+    printf(" %d", get_ref_frame_map_idx(cm, ref_frame));
   printf(" ]\n");
 #endif  // 0
 
@@ -5019,12 +5015,15 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   CurrentFrame *const current_frame = &cm->current_frame;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   struct segmentation *const seg = &cm->seg;
+  EncodeInputFrame *eif = create_EncodeInputFrame();
+  EncodedFrame *ef = create_EncodedFrame();
+  PackedFrame *pf = create_PackedFrame();
+  PackedFrame_allocate_pack_buffer(pf, ENCODE_PACK_SIZE);
 
   set_ext_overrides(cpi);
   aom_clear_system_state();
 
   // frame type has been decided outside of this function call
-  cm->cur_frame->intra_only = frame_is_intra_only(cm);
   cm->cur_frame->frame_type = current_frame->frame_type;
 
   // S_FRAMEs are always error resilient
@@ -5070,17 +5069,19 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     restore_coding_context(cpi);
 
     // Build the bitstream
-    if (av1_pack_bitstream(cpi, dest, size) != AOM_CODEC_OK)
+    if (av1_pack_bitstream(cpi, dest, size, ef, pf) != AOM_CODEC_OK) {
+      free_EncodeInputFrame(eif);
+      free_EncodedFrame(ef);
+      free_PackedFrame(pf);
       return AOM_CODEC_ERROR;
+    }
 
     cpi->seq_params_locked = 1;
 
     // Set up frame to show to get ready for stats collection.
-    cm->frame_to_show = get_frame_new_buffer(cm);
 
     // Update current frame offset.
-    current_frame->order_hint =
-        cm->buffer_pool->frame_bufs[cm->new_fb_idx].cur_frame_offset;
+    current_frame->order_hint = cm->cur_frame->order_hint;
 
 #if DUMP_RECON_FRAMES == 1
     // NOTE(zoeliu): For debug - Output the filtered reconstructed video.
@@ -5108,9 +5109,6 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
     *frame_flags = cpi->frame_flags & ~FRAMEFLAGS_KEY;
 
-    // Update the frame type
-    cm->last_frame_type = current_frame->frame_type;
-
     // Since we allocate a spot for the OVERLAY frame in the gf group, we need
     // to do post-encoding update accordingly.
     if (cpi->rc.is_src_frame_alt_ref) {
@@ -5120,6 +5118,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
     ++current_frame->frame_number;
 
+    free_EncodeInputFrame(eif);
+    free_EncodedFrame(ef);
+    free_PackedFrame(pf);
     return AOM_CODEC_OK;
   }
 
@@ -5154,6 +5155,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
       current_frame->frame_type != KEY_FRAME) {
     if (av1_rc_drop_frame(cpi)) {
       av1_rc_postencode_update_drop_frame(cpi);
+      free_EncodeInputFrame(eif);
+      free_EncodedFrame(ef);
+      free_PackedFrame(pf);
       return AOM_CODEC_OK;
     }
   }
@@ -5213,15 +5217,23 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   }
   cm->timing_info_present &= !seq_params->reduced_still_picture_hdr;
 
-  if (cpi->sf.recode_loop == DISALLOW_RECODE) {
-    if (encode_without_recode_loop(cpi) != AOM_CODEC_OK) return AOM_CODEC_ERROR;
-  } else {
-    if (encode_with_recode_loop(cpi, size, dest) != AOM_CODEC_OK)
-      return AOM_CODEC_ERROR;
-  }
+  av1_comp_to_EncodeInputFrame(cpi, eif);
 
-  cm->last_tile_cols = cm->tile_cols;
-  cm->last_tile_rows = cm->tile_rows;
+  if (cpi->sf.recode_loop == DISALLOW_RECODE) {
+    if (encode_without_recode_loop(cpi, eif, ef) != AOM_CODEC_OK) {
+      free_EncodeInputFrame(eif);
+      free_EncodedFrame(ef);
+      free_PackedFrame(pf);
+      return AOM_CODEC_ERROR;
+    }
+  } else {
+    if (encode_with_recode_loop(cpi, size, dest, eif, ef, pf) != AOM_CODEC_OK) {
+      free_EncodeInputFrame(eif);
+      free_EncodedFrame(ef);
+      free_PackedFrame(pf);
+      return AOM_CODEC_ERROR;
+    }
+  }
 
 #ifdef OUTPUT_YUV_SKINMAP
   if (cpi->common.current_frame.frame_number > 1) {
@@ -5234,10 +5246,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   // the force key frame
   if (cpi->rc.next_key_frame_forced && cpi->rc.frames_to_key == 1) {
     if (seq_params->use_highbitdepth) {
-      cpi->ambient_err =
-          aom_highbd_get_y_sse(cpi->source, get_frame_new_buffer(cm));
+      cpi->ambient_err = aom_highbd_get_y_sse(cpi->source, &cm->cur_frame->buf);
     } else {
-      cpi->ambient_err = aom_get_y_sse(cpi->source, get_frame_new_buffer(cm));
+      cpi->ambient_err = aom_get_y_sse(cpi->source, &cm->cur_frame->buf);
     }
   }
 
@@ -5247,24 +5258,23 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     cpi->refresh_last_frame = 1;
   }
 
-  cm->frame_to_show = get_frame_new_buffer(cm);
-  cm->frame_to_show->color_primaries = seq_params->color_primaries;
-  cm->frame_to_show->transfer_characteristics =
+  cm->cur_frame->buf.color_primaries = seq_params->color_primaries;
+  cm->cur_frame->buf.transfer_characteristics =
       seq_params->transfer_characteristics;
-  cm->frame_to_show->matrix_coefficients = seq_params->matrix_coefficients;
-  cm->frame_to_show->monochrome = seq_params->monochrome;
-  cm->frame_to_show->chroma_sample_position =
+  cm->cur_frame->buf.matrix_coefficients = seq_params->matrix_coefficients;
+  cm->cur_frame->buf.monochrome = seq_params->monochrome;
+  cm->cur_frame->buf.chroma_sample_position =
       seq_params->chroma_sample_position;
-  cm->frame_to_show->color_range = seq_params->color_range;
-  cm->frame_to_show->render_width = cm->render_width;
-  cm->frame_to_show->render_height = cm->render_height;
+  cm->cur_frame->buf.color_range = seq_params->color_range;
+  cm->cur_frame->buf.render_width = cm->render_width;
+  cm->cur_frame->buf.render_height = cm->render_height;
 
   // TODO(zoeliu): For non-ref frames, loop filtering may need to be turned
   // off.
 
   // Pick the loop filter level for the frame.
   if (!cm->allow_intrabc) {
-    loopfilter_frame(cpi, cm);
+    loopfilter_frame(cpi, cm, ef);
   } else {
     cm->lf.filter_level[0] = 0;
     cm->lf.filter_level[1] = 0;
@@ -5278,20 +5288,29 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   }
 
   // TODO(debargha): Fix mv search range on encoder side
-  // aom_extend_frame_inner_borders(cm->frame_to_show, av1_num_planes(cm));
-  aom_extend_frame_borders(cm->frame_to_show, av1_num_planes(cm));
+  // aom_extend_frame_inner_borders(&cm->cur_frame->buf, av1_num_planes(cm));
+  aom_extend_frame_borders(&cm->cur_frame->buf, av1_num_planes(cm));
 
 #ifdef OUTPUT_YUV_REC
-  aom_write_one_yuv_frame(cm, cm->frame_to_show);
+  aom_write_one_yuv_frame(cm, &cm->cur_frame->buf);
 #endif
 
   // Build the bitstream
-  if (av1_pack_bitstream(cpi, dest, size) != AOM_CODEC_OK)
+  if (av1_pack_bitstream(cpi, dest, size, ef, pf) != AOM_CODEC_OK) {
+    free_EncodeInputFrame(eif);
+    free_EncodedFrame(ef);
+    free_PackedFrame(pf);
     return AOM_CODEC_ERROR;
+  }
 
   cpi->seq_params_locked = 1;
 
-  if (skip_adapt) return AOM_CODEC_OK;
+  if (skip_adapt) {
+    free_EncodeInputFrame(eif);
+    free_EncodedFrame(ef);
+    free_PackedFrame(pf);
+    return AOM_CODEC_OK;
+  }
 
   if (seq_params->frame_id_numbers_present_flag) {
     int i;
@@ -5312,7 +5331,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     if (cm->seg.update_map) {
       update_reference_segmentation_map(cpi);
     } else if (cm->last_frame_seg_map) {
-      memcpy(cm->current_frame_seg_map, cm->last_frame_seg_map,
+      memcpy(cm->cur_frame->seg_map, cm->last_frame_seg_map,
              cm->mi_cols * cm->mi_rows * sizeof(uint8_t));
     }
   }
@@ -5347,8 +5366,6 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   else
     cpi->frame_flags &= ~FRAMEFLAGS_BWDREF;
 
-  cm->last_frame_type = current_frame->frame_type;
-
   av1_rc_postencode_update(cpi, *size);
 
   if (current_frame->frame_type == KEY_FRAME) {
@@ -5379,16 +5396,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     ++current_frame->frame_number;
   }
 
-  // NOTE: Shall not refer to any frame not used as reference.
-  if (cm->is_reference_frame) {
-    // keep track of the last coded dimensions
-    cm->last_width = cm->width;
-    cm->last_height = cm->height;
-
-    // reset to normal state now that we are done.
-    cm->last_show_frame = cm->show_frame;
-  }
-
+  free_EncodeInputFrame(eif);
+  free_EncodedFrame(ef);
+  free_PackedFrame(pf);
   return AOM_CODEC_OK;
 }
 
@@ -5736,7 +5746,7 @@ static void compute_internal_stats(AV1_COMP *cpi, int frame_bytes) {
   }
   if (cm->show_frame) {
     const YV12_BUFFER_CONFIG *orig = cpi->source;
-    const YV12_BUFFER_CONFIG *recon = cpi->common.frame_to_show;
+    const YV12_BUFFER_CONFIG *recon = &cpi->common.cur_frame->buf;
     double y, u, v, frame_all;
 
     cpi->count++;
@@ -5972,7 +5982,7 @@ static void init_gop_frames(AV1_COMP *cpi, GF_PICTURE *gf_picture,
 
   for (i = 0; i < FRAME_BUFFERS && frame_idx < INTER_REFS_PER_FRAME + 1; ++i) {
     if (frame_bufs[i].ref_count == 0) {
-      alloc_frame_mvs(cm, i);
+      alloc_frame_mvs(cm, &frame_bufs[i]);
       if (aom_realloc_frame_buffer(
               &frame_bufs[i].buf, cm->width, cm->height,
               seq_params->subsampling_x, seq_params->subsampling_y,
@@ -5994,7 +6004,9 @@ static void init_gop_frames(AV1_COMP *cpi, GF_PICTURE *gf_picture,
   *tpl_group_frames = 0;
 
   // Initialize Golden reference frame.
-  gf_picture[0].frame = get_ref_frame_buffer(cpi, GOLDEN_FRAME);
+  gf_picture[0].frame = NULL;
+  RefCntBuffer *ref_buf = get_ref_frame_buf(cm, GOLDEN_FRAME);
+  if (ref_buf) gf_picture[0].frame = &ref_buf->buf;
   for (i = 0; i < 7; ++i) gf_picture[0].ref_frame[i] = -1;
   gld_index = 0;
   ++*tpl_group_frames;
@@ -6598,12 +6610,15 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
     // Find a free buffer for the new frame, releasing the reference
     // previously held.
-    if (cm->new_fb_idx != INVALID_IDX) {
-      --pool->frame_bufs[cm->new_fb_idx].ref_count;
+    if (cm->cur_frame) {
+      --cm->cur_frame->ref_count;
     }
-    cm->new_fb_idx = get_free_fb(cm);
 
-    if (cm->new_fb_idx == INVALID_IDX) return -1;
+    cm->cur_frame = NULL;
+    int new_fb_idx = get_free_fb(cm);
+
+    if (new_fb_idx == INVALID_IDX) return -1;
+    cm->cur_frame = &pool->frame_bufs[new_fb_idx];
 
     // Clear down mmx registers
     aom_clear_system_state();
@@ -6668,7 +6683,6 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
         }
       }
       cm->show_frame = 0;
-      current_frame->intra_only = 0;
 
       if (oxcf->pass < 2) {
         // In second pass, the buffer updates configure will be set
@@ -6710,7 +6724,6 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       }
 
       cm->show_frame = 0;
-      current_frame->intra_only = 0;
 
       if (oxcf->pass < 2) {
         // In second pass, the buffer updates configure will be set
@@ -6728,7 +6741,6 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     if ((source = av1_lookahead_peek(cpi->lookahead, brf_src_index)) != NULL) {
       cm->showable_frame = 1;
       cm->show_frame = 0;
-      current_frame->intra_only = 0;
 
       if (oxcf->pass < 2) {
         // In second pass, the buffer updates configure will be set
@@ -6750,7 +6762,6 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
     if (source != NULL) {
       cm->show_frame = 1;
-      current_frame->intra_only = 0;
 
       // Check to see if the frame should be encoded as an arf overlay.
       check_src_altref(cpi, source);
@@ -6788,18 +6799,16 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
   // Find a free buffer for the new frame, releasing the reference previously
   // held.
-  if (cm->new_fb_idx != INVALID_IDX) {
-    --pool->frame_bufs[cm->new_fb_idx].ref_count;
-  }
-  cm->new_fb_idx = get_free_fb(cm);
+  if (cm->cur_frame) --cm->cur_frame->ref_count;
+  int new_fb_idx = get_free_fb(cm);
 
-  if (cm->new_fb_idx == INVALID_IDX) return -1;
+  if (new_fb_idx == INVALID_IDX) return -1;
 
+  cm->cur_frame = &pool->frame_bufs[new_fb_idx];
   // Retain the RF_LEVEL for the current newly coded frame.
-  cpi->frame_rf_level[cm->new_fb_idx] =
+  cm->cur_frame->frame_rf_level =
       cpi->twopass.gf_group.rf_level[cpi->twopass.gf_group.index];
 
-  cm->cur_frame = &pool->frame_bufs[cm->new_fb_idx];
   cm->cur_frame->buf.buf_8bit_valid = 0;
 
   if (cpi->film_grain_table) {
@@ -6827,8 +6836,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   }
 
   if (cpi->oxcf.pass != 0 || frame_is_intra_only(cm) == 1) {
-    for (i = 0; i < INTER_REFS_PER_FRAME; ++i)
-      cpi->scaled_ref_idx[i] = INVALID_IDX;
+    for (i = 0; i < INTER_REFS_PER_FRAME; ++i) cpi->scaled_ref_buf[i] = NULL;
   }
 
   cm->using_qmatrix = cpi->oxcf.using_qm;
@@ -6841,7 +6849,6 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     }
   }
 
-  cpi->cur_poc++;
   if (oxcf->pass != 1 && cpi->common.allow_screen_content_tools &&
       !frame_is_intra_only(cm)) {
     if (cpi->common.seq_params.force_integer_mv == 2) {
@@ -6895,7 +6902,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   }
 
   if (!cm->large_scale_tile) {
-    cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
+    cm->cur_frame->frame_context = *cm->fc;
   }
 
 #define EXT_TILE_DEBUG 0
@@ -6945,8 +6952,8 @@ int av1_get_preview_raw_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *dest) {
     return -1;
   } else {
     int ret;
-    if (cm->frame_to_show) {
-      *dest = *cm->frame_to_show;
+    if (cm->cur_frame) {
+      *dest = cm->cur_frame->buf;
       dest->y_width = cm->width;
       dest->y_height = cm->height;
       dest->uv_width = cm->width >> cm->seq_params.subsampling_x;
@@ -6961,10 +6968,9 @@ int av1_get_preview_raw_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *dest) {
 }
 
 int av1_get_last_show_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *frame) {
-  if (cpi->last_show_frame_buf_idx == INVALID_IDX) return -1;
+  if (!cpi->last_show_frame_buf) return -1;
 
-  *frame =
-      cpi->common.buffer_pool->frame_bufs[cpi->last_show_frame_buf_idx].buf;
+  *frame = cpi->last_show_frame_buf->buf;
   return 0;
 }
 
