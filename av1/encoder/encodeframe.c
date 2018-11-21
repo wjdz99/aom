@@ -5740,7 +5740,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read_dummy;
     cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write_dummy;
     cpi->row_mt = 0;
-    if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads > 1)) {
+    const int frame_is_kfgfarf = frame_is_kf_gf_arf(cpi);
+    if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads >= 1) && !frame_is_kfgfarf) {
       cpi->row_mt = 1;
       cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read;
       cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write;
