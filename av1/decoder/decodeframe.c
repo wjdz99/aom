@@ -4689,13 +4689,12 @@ static void generate_next_ref_frame_map(AV1Decoder *const pbi) {
   for (int mask = pbi->refresh_frame_flags; mask; mask >>= 1) {
     if (mask & 1) {
       cm->next_ref_frame_map[ref_index] = cm->new_fb_idx;
-      ++frame_bufs[cm->new_fb_idx].ref_count;
     } else {
       cm->next_ref_frame_map[ref_index] = cm->ref_frame_map[ref_index];
     }
     // Current thread holds the reference frame.
-    if (cm->ref_frame_map[ref_index] >= 0)
-      ++frame_bufs[cm->ref_frame_map[ref_index]].ref_count;
+    if (cm->next_ref_frame_map[ref_index] >= 0)
+      ++frame_bufs[cm->next_ref_frame_map[ref_index]].ref_count;
     ++ref_index;
   }
 
@@ -4703,8 +4702,8 @@ static void generate_next_ref_frame_map(AV1Decoder *const pbi) {
     cm->next_ref_frame_map[ref_index] = cm->ref_frame_map[ref_index];
 
     // Current thread holds the reference frame.
-    if (cm->ref_frame_map[ref_index] >= 0)
-      ++frame_bufs[cm->ref_frame_map[ref_index]].ref_count;
+    if (cm->next_ref_frame_map[ref_index] >= 0)
+      ++frame_bufs[cm->next_ref_frame_map[ref_index]].ref_count;
   }
   unlock_buffer_pool(pool);
   pbi->hold_ref_buf = 1;
