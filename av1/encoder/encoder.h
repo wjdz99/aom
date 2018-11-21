@@ -621,6 +621,7 @@ typedef struct AV1_COMP {
   int cur_poc;  // DebugInfo
 
   unsigned int row_mt;
+  unsigned int is_row_mt_enabled;
   int scaled_ref_idx[INTER_REFS_PER_FRAME];
 
   // For encoder, we have a two-level mapping from reference frame type to the
@@ -923,6 +924,10 @@ int64_t ticks_to_timebase_units(const aom_rational_t *timebase, int64_t n);
 static INLINE int frame_is_kf_gf_arf(const AV1_COMP *cpi) {
   return frame_is_intra_only(&cpi->common) || cpi->refresh_alt_ref_frame ||
          (cpi->refresh_golden_frame && !cpi->rc.is_src_frame_alt_ref);
+}
+
+static INLINE int frame_is_row_mt(const AV1_COMP *cpi) {
+  return cpi->is_row_mt_enabled && !frame_is_kf_gf_arf(cpi);
 }
 
 static INLINE int get_ref_frame_map_idx(const AV1_COMP *cpi,

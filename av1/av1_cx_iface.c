@@ -1271,6 +1271,9 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     av1_change_config(ctx->cpi, &ctx->oxcf);
   }
 
+  if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads > 1))
+    cpi->is_row_mt_enabled = 1;
+
   aom_codec_pkt_list_init(&ctx->pkt_list);
 
   volatile aom_enc_frame_flags_t flags = enc_flags;
