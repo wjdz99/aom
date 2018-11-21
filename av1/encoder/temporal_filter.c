@@ -76,6 +76,160 @@ static void temporal_filter_predictors_mb_c(
   }
 }
 
+static INLINE int mod_index(int sum_dist, int index, int rounding, int strength,
+                            int filter_weight) {
+  int mod = (sum_dist * 3) / index;
+  mod += rounding;
+  mod >>= strength;
+
+  mod = AOMMIN(16, mod);
+
+  mod = 16 - mod;
+  mod *= filter_weight;
+
+  return mod;
+}
+
+static void apply_temporal_filter(
+    const uint8_t *y_frame1, int y_stride, const uint8_t *y_pred,
+    int y_buf_stride, const uint8_t *u_frame1, const uint8_t *v_frame1,
+    int uv_stride, const uint8_t *u_pred, const uint8_t *v_pred,
+    int uv_buf_stride, unsigned int block_width, unsigned int block_height,
+    int ss_x, int ss_y, int strength, int filter_weight,
+    uint32_t *y_accumulator, uint16_t *y_count, uint32_t *u_accumulator,
+    uint16_t *u_count, uint32_t *v_accumulator, uint16_t *v_count) {
+  unsigned int i, j, k, m;
+  int modifier;
+  const int rounding = (1 << strength) >> 1;
+  const unsigned int uv_block_width = block_width >> ss_x;
+  const unsigned int uv_block_height = block_height >> ss_y;
+  DECLARE_ALIGNED(16, uint16_t, y_diff_sse[256]);
+  DECLARE_ALIGNED(16, uint16_t, u_diff_sse[256]);
+  DECLARE_ALIGNED(16, uint16_t, v_diff_sse[256]);
+
+  int idx = 0, idy;
+
+  assert(filter_weight >= 0);
+  assert(filter_weight <= 2);
+
+  memset(y_diff_sse, 0, 256 * sizeof(uint16_t));
+  memset(u_diff_sse, 0, 256 * sizeof(uint16_t));
+  memset(v_diff_sse, 0, 256 * sizeof(uint16_t));
+
+  // Calculate diff^2 for each pixel of the 16x16 block.
+  // TODO(yunqing): the following code needs to be optimized.
+  for (i = 0; i < block_height; i++) {
+    for (j = 0; j < block_width; j++) {
+      const int16_t diff =
+          y_frame1[i * (int)y_stride + j] - y_pred[i * (int)block_width + j];
+      y_diff_sse[idx++] = diff * diff;
+    }
+  }
+  idx = 0;
+  for (i = 0; i < uv_block_height; i++) {
+    for (j = 0; j < uv_block_width; j++) {
+      const int16_t diffu =
+          u_frame1[i * uv_stride + j] - u_pred[i * uv_buf_stride + j];
+      const int16_t diffv =
+          v_frame1[i * uv_stride + j] - v_pred[i * uv_buf_stride + j];
+      u_diff_sse[idx] = diffu * diffu;
+      v_diff_sse[idx] = diffv * diffv;
+      idx++;
+    }
+  }
+
+  for (i = 0, k = 0, m = 0; i < block_height; i++) {
+    for (j = 0; j < block_width; j++) {
+      const int pixel_value = y_pred[i * y_buf_stride + j];
+
+      // non-local mean approach
+      int y_index = 0;
+
+      const int uv_r = i >> ss_y;
+      const int uv_c = j >> ss_x;
+      modifier = 0;
+
+      for (idy = -1; idy <= 1; ++idy) {
+        for (idx = -1; idx <= 1; ++idx) {
+          const int row = (int)i + idy;
+          const int col = (int)j + idx;
+
+          if (row >= 0 && row < (int)block_height && col >= 0 &&
+              col < (int)block_width) {
+            modifier += y_diff_sse[row * (int)block_width + col];
+            ++y_index;
+          }
+        }
+      }
+
+      assert(y_index > 0);
+
+      modifier += u_diff_sse[uv_r * uv_block_width + uv_c];
+      modifier += v_diff_sse[uv_r * uv_block_width + uv_c];
+
+      y_index += 2;
+
+      modifier =
+          mod_index(modifier, y_index, rounding, strength, filter_weight);
+
+      y_count[k] += modifier;
+      y_accumulator[k] += modifier * pixel_value;
+
+      ++k;
+
+      // Process chroma component
+      if (!(i & ss_y) && !(j & ss_x)) {
+        const int u_pixel_value = u_pred[uv_r * uv_buf_stride + uv_c];
+        const int v_pixel_value = v_pred[uv_r * uv_buf_stride + uv_c];
+
+        // non-local mean approach
+        int cr_index = 0;
+        int u_mod = 0, v_mod = 0;
+        int y_diff = 0;
+
+        for (idy = -1; idy <= 1; ++idy) {
+          for (idx = -1; idx <= 1; ++idx) {
+            const int row = uv_r + idy;
+            const int col = uv_c + idx;
+
+            if (row >= 0 && row < (int)uv_block_height && col >= 0 &&
+                col < (int)uv_block_width) {
+              u_mod += u_diff_sse[row * uv_block_width + col];
+              v_mod += v_diff_sse[row * uv_block_width + col];
+              ++cr_index;
+            }
+          }
+        }
+
+        assert(cr_index > 0);
+
+        for (idy = 0; idy < 1 + ss_y; ++idy) {
+          for (idx = 0; idx < 1 + ss_x; ++idx) {
+            const int row = (uv_r << ss_y) + idy;
+            const int col = (uv_c << ss_x) + idx;
+            y_diff += y_diff_sse[row * (int)block_width + col];
+            ++cr_index;
+          }
+        }
+
+        u_mod += y_diff;
+        v_mod += y_diff;
+
+        u_mod = mod_index(u_mod, cr_index, rounding, strength, filter_weight);
+        v_mod = mod_index(v_mod, cr_index, rounding, strength, filter_weight);
+
+        u_count[m] += u_mod;
+        u_accumulator[m] += u_mod * u_pixel_value;
+        v_count[m] += v_mod;
+        v_accumulator[m] += v_mod * v_pixel_value;
+
+        ++m;
+      }  // Complete YUV pixel
+    }
+  }
+}
+
+// Only used in single plane case
 void av1_temporal_filter_apply_c(uint8_t *frame1, unsigned int stride,
                                  uint8_t *frame2, unsigned int block_width,
                                  unsigned int block_height, int strength,
@@ -392,17 +546,20 @@ static void temporal_filter_iterate_c(AV1_COMP *cpi,
                   accumulator + 512, count + 512);
             }
           } else {
-            av1_temporal_filter_apply_c(f->y_buffer + mb_y_offset, f->y_stride,
-                                        predictor, 16, 16, strength,
-                                        filter_weight, accumulator, count);
-            if (num_planes > 1) {
+            if (num_planes <= 1) {
+              // Single plane case
               av1_temporal_filter_apply_c(
-                  f->u_buffer + mb_uv_offset, f->uv_stride, predictor + 256,
-                  mb_uv_width, mb_uv_height, strength, filter_weight,
-                  accumulator + 256, count + 256);
-              av1_temporal_filter_apply_c(
-                  f->v_buffer + mb_uv_offset, f->uv_stride, predictor + 512,
-                  mb_uv_width, mb_uv_height, strength, filter_weight,
+                  f->y_buffer + mb_y_offset, f->y_stride, predictor, 16, 16,
+                  strength, filter_weight, accumulator, count);
+            } else {
+              // Process 3 planes together.
+              apply_temporal_filter(
+                  f->y_buffer + mb_y_offset, f->y_stride, predictor, 16,
+                  f->u_buffer + mb_uv_offset, f->v_buffer + mb_uv_offset,
+                  f->uv_stride, predictor + 256, predictor + 512, mb_uv_width,
+                  16, 16, mbd->plane[1].subsampling_x,
+                  mbd->plane[1].subsampling_y, strength, filter_weight,
+                  accumulator, count, accumulator + 256, count + 256,
                   accumulator + 512, count + 512);
             }
           }
