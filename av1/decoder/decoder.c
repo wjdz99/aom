@@ -346,10 +346,12 @@ static void release_frame_buffers(AV1Decoder *pbi) {
       const int old_idx = cm->ref_frame_map[ref_index];
       decrease_ref_count(old_idx, frame_bufs, pool);
     }
+    memset(&cm->next_ref_frame_map, -1, sizeof(cm->next_ref_frame_map));
     pbi->hold_ref_buf = 0;
   }
   // Release current frame.
   decrease_ref_count(cm->new_fb_idx, frame_bufs, pool);
+  cm->new_fb_idx = INVALID_IDX;
   unlock_buffer_pool(pool);
 }
 
@@ -385,6 +387,7 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
         // decoding of the next frame.
         if (mask & 1) decrease_ref_count(old_idx, frame_bufs, pool);
         cm->ref_frame_map[ref_index] = cm->next_ref_frame_map[ref_index];
+        cm->next_ref_frame_map[ref_index] = INVALID_IDX;
         ++ref_index;
       }
 
@@ -396,6 +399,7 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
         const int old_idx = cm->ref_frame_map[ref_index];
         decrease_ref_count(old_idx, frame_bufs, pool);
         cm->ref_frame_map[ref_index] = cm->next_ref_frame_map[ref_index];
+        cm->next_ref_frame_map[ref_index] = INVALID_IDX;
       }
     }
 
@@ -438,6 +442,7 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
     decrease_ref_count(cm->new_fb_idx, frame_bufs, pool);
     unlock_buffer_pool(pool);
   }
+  cm->new_fb_idx = INVALID_IDX;
 
   if (!pbi->camera_frame_header_ready) {
     pbi->hold_ref_buf = 0;
