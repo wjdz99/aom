@@ -5397,6 +5397,20 @@ static void set_default_interp_skip_flags(AV1_COMP *cpi) {
                                        : DEFAULT_INTERP_SKIP_FLAG;
 }
 
+static int two_pass_first_group_inter(AV1_COMP *cpi) {
+  if (cpi->oxcf.pass == 2) {
+    TWO_PASS *const twopass = &cpi->twopass;
+    GF_GROUP *const gf_group = &twopass->gf_group;
+    const int gfg_index = gf_group->index;
+
+    if (gfg_index == 0) return gf_group->update_type[gfg_index] == LF_UPDATE;
+    return gf_group->update_type[gfg_index - 1] != LF_UPDATE &&
+           gf_group->update_type[gfg_index] == LF_UPDATE;
+  } else {
+    return 0;
+  }
+}
+
 static void encode_frame_internal(AV1_COMP *cpi) {
   ThreadData *const td = &cpi->td;
   MACROBLOCK *const x = &td->mb;
@@ -5740,7 +5754,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read_dummy;
     cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write_dummy;
     cpi->row_mt = 0;
-    if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads > 1)) {
+    const int frame_is_kfgfarf = frame_is_kf_gf_arf(cpi);
+    if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads >= 1) && !frame_is_kfgfarf) {
       cpi->row_mt = 1;
       cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read;
       cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write;
