@@ -43,8 +43,11 @@
 
 static const char *exec_name;
 
-#define I420 0
-#define NV12 1
+typedef enum OUTPUT_FORMAT {
+  YUV1D,  // 1D tile output for conformance test.
+  YUV,
+  NV12,
+} OUTPUT_FORMAT;
 
 void usage_exit(void) {
   fprintf(stderr,
@@ -56,10 +59,51 @@ void usage_exit(void) {
 
 static void img_write_to_file(const aom_image_t *img, FILE *file,
                               int output_format) {
-  if (output_format == I420)
+  if (output_format == YUV)
     aom_img_write(img, file);
-  else  // NV12
+  else if (output_format == NV12)
     aom_img_write_nv12(img, file);
+  else
+    die("Invalid output format");
+}
+
+static void tile_write(const aom_image_t *img, FILE *file,
+                       int output_frame_width_in_tiles, int tile_count,
+                       int tile_width, int tile_height) {
+  int tile_idx;
+
+  for (tile_idx = 0; tile_idx < tile_count; ++tile_idx) {
+    const int row_offset =
+        (tile_idx / output_frame_width_in_tiles) * tile_height;
+    const int col_offset =
+        (tile_idx % output_frame_width_in_tiles) * tile_width;
+
+    const int shift = (img->fmt & AOM_IMG_FMT_HIGHBITDEPTH) ? 1 : 0;
+    int plane;
+
+    for (plane = 0; plane < 3; ++plane) {
+      const unsigned char *buf = img->planes[plane];
+      const int stride = img->stride[plane];
+      const int roffset =
+          (plane > 0) ? row_offset >> img->y_chroma_shift : row_offset;
+      const int coffset =
+          (plane > 0) ? col_offset >> img->x_chroma_shift : col_offset;
+
+      // col offset needs to be adjusted for HBD.
+      buf += roffset * stride + (coffset << shift);
+
+      const int w = (plane > 0) ? ((tile_width >> img->x_chroma_shift) << shift)
+                                : (tile_width << shift);
+      const int h =
+          (plane > 0) ? (tile_height >> img->y_chroma_shift) : tile_height;
+      int y;
+
+      for (y = 0; y < h; ++y) {
+        fwrite(buf, 1, w, file);
+        buf += stride;
+      }
+    }
+  }
 }
 
 int main(int argc, char **argv) {
@@ -73,7 +117,7 @@ int main(int argc, char **argv) {
   aom_image_t reference_images[MAX_EXTERNAL_REFERENCES];
   size_t frame_size = 0;
   const unsigned char *frame = NULL;
-  int output_format = I420;
+  int output_format = YUV1D;
   int i, j, n;
 
   exec_name = argv[0];
@@ -90,6 +134,8 @@ int main(int argc, char **argv) {
   num_tile_lists = (int)strtol(argv[4], NULL, 0);
 
   if (argc > 5) output_format = (int)strtol(argv[5], NULL, 0);
+  if (output_format < YUV1D || output_format > NV12)
+    die("Output format out of range [0, 2]");
 
   info = aom_video_reader_get_info(reader);
 
@@ -169,7 +215,27 @@ int main(int argc, char **argv) {
       die_codec(&codec, "Failed to decode the tile list.");
     aom_codec_iter_t iter = NULL;
     aom_image_t *img = aom_codec_get_frame(&codec, &iter);
-    img_write_to_file(img, outfile, output_format);
+    if (!img) die_codec(&codec, "Failed to get frame.");
+
+    if (output_format == YUV1D) {
+      // read out the tile size.
+      unsigned int tile_size = 0;
+      if (aom_codec_control(&codec, AV1D_GET_TILE_SIZE, &tile_size))
+        die_codec(&codec, "Failed to get the tile size");
+      const unsigned int tile_width = tile_size >> 16;
+      const unsigned int tile_height = tile_size & 65535;
+      const uint8_t output_frame_width_in_tiles = img->d_w / tile_width;
+
+      unsigned int tile_count = 0;
+      if (aom_codec_control(&codec, AV1D_GET_TILE_COUNT, &tile_count))
+        die_codec(&codec, "Failed to get the tile size");
+
+      // Copy the tile to the output file.
+      tile_write(img, outfile, output_frame_width_in_tiles, tile_count,
+                 tile_width, tile_height);
+    } else {
+      img_write_to_file(img, outfile, output_format);
+    }
   }
 
   for (i = 0; i < num_references; i++) aom_img_free(&reference_images[i]);
@@ -179,5 +245,3 @@ int main(int argc, char **argv) {
 
   return EXIT_SUCCESS;
 }
-#undef I420
-#undef NV12
