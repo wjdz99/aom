@@ -356,9 +356,8 @@ static int enc_worker_hook(void *arg1, void *unused) {
 
     TileDataEnc *const this_tile =
         &cpi->tile_data[tile_row * cm->tile_cols + tile_col];
-    thread_data->td->tctx = &this_tile->tctx;
-    thread_data->td->mb.e_mbd.tile_ctx = thread_data->td->tctx;
-    thread_data->td->mb.tile_pb_ctx = thread_data->td->tctx;
+    thread_data->td->mb.e_mbd.tile_ctx = &this_tile->tctx;
+    thread_data->td->mb.tile_pb_ctx = &this_tile->tctx;
     thread_data->td->mb.backup_tile_ctx = &this_tile->backup_tctx;
     av1_encode_tile(cpi, thread_data->td, tile_row, tile_col);
   }
@@ -377,7 +376,7 @@ static void create_enc_workers(AV1_COMP *cpi, int num_workers) {
                   aom_calloc(num_workers, sizeof(*cpi->tile_thr_data)));
 
 #if CONFIG_MULTITHREAD
-  if (cpi->row_mt == 1) {
+  if (cpi->is_row_mt_enabled == 1) {
     if (cpi->row_mt_mutex_ == NULL) {
       CHECK_MEM_ERROR(cm, cpi->row_mt_mutex_,
                       aom_malloc(sizeof(*(cpi->row_mt_mutex_))));
@@ -386,7 +385,7 @@ static void create_enc_workers(AV1_COMP *cpi, int num_workers) {
   }
 #endif
 
-  for (int i = 0; i < num_workers; i++) {
+  for (int i = num_workers - 1; i >= 0; i--) {
     AVxWorker *const worker = &cpi->workers[i];
     EncWorkerData *const thread_data = &cpi->tile_thr_data[i];
 
@@ -397,7 +396,7 @@ static void create_enc_workers(AV1_COMP *cpi, int num_workers) {
     thread_data->cpi = cpi;
     thread_data->thread_id = i;
 
-    if (i < num_workers - 1) {
+    if (i > 0) {
       // Allocate thread data.
       CHECK_MEM_ERROR(cm, thread_data->td,
                       aom_memalign(32, sizeof(*thread_data->td)));
@@ -467,7 +466,7 @@ static void create_enc_workers(AV1_COMP *cpi, int num_workers) {
       // Main thread acts as a worker and uses the thread data in cpi.
       thread_data->td = &cpi->td;
     }
-    if (cpi->row_mt == 1)
+    if (cpi->is_row_mt_enabled == 1)
       CHECK_MEM_ERROR(
           cm, thread_data->td->tctx,
           (FRAME_CONTEXT *)aom_memalign(16, sizeof(*thread_data->td->tctx)));
@@ -478,14 +477,14 @@ static void create_enc_workers(AV1_COMP *cpi, int num_workers) {
 static void launch_enc_workers(AV1_COMP *cpi, int num_workers) {
   const AVxWorkerInterface *const winterface = aom_get_worker_interface();
   // Encode a frame
-  for (int i = 0; i < num_workers; i++) {
+  for (int i = num_workers - 1; i >= 0; i--) {
     AVxWorker *const worker = &cpi->workers[i];
     EncWorkerData *const thread_data = (EncWorkerData *)worker->data1;
 
     // Set the starting tile for each thread.
     thread_data->start = i;
 
-    if (i == cpi->num_workers - 1)
+    if (i == 0)
       winterface->execute(worker);
     else
       winterface->launch(worker);
@@ -497,7 +496,7 @@ static void sync_enc_workers(AV1_COMP *cpi, int num_workers) {
   int had_error = 0;
 
   // Encoding ends.
-  for (int i = 0; i < num_workers; i++) {
+  for (int i = num_workers - 1; i >= 0; i--) {
     AVxWorker *const worker = &cpi->workers[i];
     had_error |= !winterface->sync(worker);
   }
@@ -508,12 +507,12 @@ static void sync_enc_workers(AV1_COMP *cpi, int num_workers) {
 }
 
 static void accumulate_counters_enc_workers(AV1_COMP *cpi, int num_workers) {
-  for (int i = 0; i < num_workers; i++) {
+  for (int i = num_workers - 1; i >= 0; i--) {
     AVxWorker *const worker = &cpi->workers[i];
     EncWorkerData *const thread_data = (EncWorkerData *)worker->data1;
     cpi->intrabc_used |= thread_data->td->intrabc_used;
     // Accumulate counters.
-    if (i < cpi->num_workers - 1) {
+    if (i > 0) {
       av1_accumulate_frame_counts(&cpi->counts, thread_data->td->counts);
       accumulate_rd_opt(&cpi->td, thread_data->td);
       cpi->td.mb.txb_split_count += thread_data->td->mb.txb_split_count;
@@ -523,7 +522,7 @@ static void accumulate_counters_enc_workers(AV1_COMP *cpi, int num_workers) {
 
 static void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
                                 int num_workers) {
-  for (int i = 0; i < num_workers; i++) {
+  for (int i = num_workers - 1; i >= 0; i--) {
     AVxWorker *const worker = &cpi->workers[i];
     EncWorkerData *const thread_data = &cpi->tile_thr_data[i];
 
@@ -560,7 +559,7 @@ static void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
       memcpy(thread_data->td->counts, &cpi->counts, sizeof(cpi->counts));
     }
 
-    if (i < num_workers - 1) {
+    if (i > 0) {
       thread_data->td->mb.palette_buffer = thread_data->td->palette_buffer;
       thread_data->td->mb.tmp_conv_dst = thread_data->td->tmp_conv_dst;
       for (int j = 0; j < 2; ++j) {
@@ -577,6 +576,23 @@ static void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
   }
 }
 
+static void compute_num_workers_row_mt(AV1_COMP *cpi, int *num_workers) {
+  AV1_COMMON *const cm = &cpi->common;
+  const int tile_cols = cm->tile_cols;
+  const int tile_rows = cm->tile_rows;
+  int total_num_sb_rows = 0;
+
+  for (int row = 0; row < tile_rows; row++) {
+    for (int col = 0; col < tile_cols; col++) {
+      TileDataEnc *tile_data = &cpi->tile_data[row * cm->tile_cols + col];
+      int num_sb_rows_in_tile =
+          av1_get_sb_rows_in_tile(cm, tile_data->tile_info);
+      total_num_sb_rows += num_sb_rows_in_tile;
+    }
+  }
+  *num_workers = AOMMIN(cpi->oxcf.max_threads, total_num_sb_rows);
+}
+
 void av1_encode_tiles_mt(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const int tile_cols = cm->tile_cols;
@@ -587,6 +603,9 @@ void av1_encode_tiles_mt(AV1_COMP *cpi) {
     av1_alloc_tile_data(cpi);
 
   av1_init_tile_data(cpi);
+
+  if (cpi->is_row_mt_enabled) compute_num_workers_row_mt(cpi, &num_workers);
+
   // Only run once to create threads and allocate thread data.
   if (cpi->num_workers == 0) {
     create_enc_workers(cpi, num_workers);
@@ -617,7 +636,6 @@ void av1_encode_tiles_row_mt(AV1_COMP *cpi) {
   const int tile_rows = cm->tile_rows;
   MultiThreadHandle *multi_thread_ctxt = &cpi->multi_thread_ctxt;
   int num_workers = 0;
-  int total_num_sb_rows = 0;
   int max_sb_rows = 0;
 
   if (cpi->tile_data == NULL || cpi->allocated_tiles < tile_cols * tile_rows) {
@@ -627,16 +645,16 @@ void av1_encode_tiles_row_mt(AV1_COMP *cpi) {
 
   av1_init_tile_data(cpi);
 
+  compute_num_workers_row_mt(cpi, &num_workers);
+
   for (int row = 0; row < tile_rows; row++) {
     for (int col = 0; col < tile_cols; col++) {
       TileDataEnc *tile_data = &cpi->tile_data[row * cm->tile_cols + col];
       int num_sb_rows_in_tile =
           av1_get_sb_rows_in_tile(cm, tile_data->tile_info);
-      total_num_sb_rows += num_sb_rows_in_tile;
       max_sb_rows = AOMMAX(max_sb_rows, num_sb_rows_in_tile);
     }
   }
-  num_workers = AOMMIN(cpi->oxcf.max_threads, total_num_sb_rows);
 
   if (multi_thread_ctxt->allocated_tile_cols != tile_cols ||
       multi_thread_ctxt->allocated_tile_rows != tile_rows ||

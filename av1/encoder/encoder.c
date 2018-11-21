@@ -1220,7 +1220,6 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
 
   // change includes all joint functionality
   av1_change_config(cpi, oxcf);
-
   cpi->static_mb_pct = 0;
   cpi->ref_frame_flags = 0;
 
@@ -3089,7 +3088,7 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     cpi->tpl_stats[frame].is_valid = 0;
   }
 
-  for (t = 0; t < cpi->num_workers; ++t) {
+  for (t = cpi->num_workers - 1; t >= 0; --t) {
     AVxWorker *const worker = &cpi->workers[t];
     EncWorkerData *const thread_data = &cpi->tile_thr_data[t];
 
@@ -3097,8 +3096,8 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     aom_get_worker_interface()->end(worker);
 
     // Deallocate allocated thread data.
-    if (cpi->row_mt == 1) aom_free(thread_data->td->tctx);
-    if (t < cpi->num_workers - 1) {
+    if (cpi->is_row_mt_enabled == 1) aom_free(thread_data->td->tctx);
+    if (t > 0) {
       aom_free(thread_data->td->palette_buffer);
       aom_free(thread_data->td->tmp_conv_dst);
       for (int j = 0; j < 2; ++j) {
@@ -3124,7 +3123,7 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     }
   }
 #if CONFIG_MULTITHREAD
-  if (cpi->row_mt == 1) {
+  if (cpi->is_row_mt_enabled == 1) {
     if (cpi->row_mt_mutex_ != NULL) {
       pthread_mutex_destroy(cpi->row_mt_mutex_);
       aom_free(cpi->row_mt_mutex_);
