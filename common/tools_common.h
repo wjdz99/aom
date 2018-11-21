@@ -77,6 +77,13 @@ enum VideoFileType {
   FILE_TYPE_WEBM
 };
 
+// Used in lightfield example.
+typedef enum OUTPUT_FORMAT {
+  YUV1D,  // 1D tile output for conformance test.
+  YUV,
+  NV12,
+} OUTPUT_FORMAT;
+
 struct FileTypeDetectionBuffer {
   char buf[4];
   size_t buf_read;
