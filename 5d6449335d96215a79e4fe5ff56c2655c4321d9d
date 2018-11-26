@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "56cd0952_268c5a2b",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1138,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-11-26T17:16:13Z",
+      "side": 1,
+      "message": "This can go inside if (tile_count) {\n}",
+      "range": {
+        "startLine": 1138,
+        "startChar": 2,
+        "endLine": 1138,
+        "endChar": 76
+      },
+      "revId": "5d6449335d96215a79e4fe5ff56c2655c4321d9d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae0e2eeb_120fe80e",
+        "filename": "common/tools_common.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-11-26T17:16:13Z",
+      "side": 1,
+      "message": "It would be nice to have comment for all three entries, easier for other to read and understand how they are different.",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 85,
+        "endChar": 16
+      },
+      "revId": "5d6449335d96215a79e4fe5ff56c2655c4321d9d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50b20988_1650b94c",
+        "filename": "examples/lightfield_tile_list_decoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-11-26T17:16:13Z",
+      "side": 1,
+      "message": "Would it better to refactor this section into a separate function aom_img_write_xyz()?",
+      "range": {
+        "startLine": 199,
+        "startChar": 0,
+        "endLine": 213,
+        "endChar": 48
+      },
+      "revId": "5d6449335d96215a79e4fe5ff56c2655c4321d9d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
