@@ -8764,6 +8764,11 @@ static int txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   return 1;
 }
 
+static INLINE int is_warp_affine(WarpedMotionParams *wm_params) {
+  return ((wm_params->alpha != 0) || (wm_params->beta != 0) ||
+          (wm_params->gamma != 0) || (wm_params->delta != 0));
+}
+
 static int handle_inter_intra_mode(const AV1_COMP *const cpi,
                                    MACROBLOCK *const x, BLOCK_SIZE bsize,
                                    int mi_row, int mi_col, MB_MODE_INFO *mbmi,
@@ -9066,6 +9071,7 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
           // Refine MV in a small range.
           av1_refine_warped_mv(cpi, x, bsize, mi_row, mi_col, pts0, pts_inref0,
                                total_samples);
+          if (mbmi->num_proj_ref == 1) continue;
 
           // Keep the refined MV and WM parameters.
           if (mv0.as_int != mbmi->mv[0].as_int) {
@@ -9091,6 +9097,8 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
             mbmi->num_proj_ref = num_proj_ref0;
           }
         }
+        // if (!is_warp_affine(&mbmi->wm_params)) continue;
+        if (mbmi->num_proj_ref == 1) continue;
 
         av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
       } else {

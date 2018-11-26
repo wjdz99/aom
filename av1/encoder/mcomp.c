@@ -923,7 +923,7 @@ unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
   int16_t *tc = &mbmi->mv[0].as_mv.col;
   WarpedMotionParams best_wm_params = mbmi->wm_params;
   int best_num_proj_ref = mbmi->num_proj_ref;
-  unsigned int bestmse;
+  unsigned int bestmse = INT_MAX;
   int minc, maxc, minr, maxr;
   const int start = cm->allow_high_precision_mv ? 0 : 4;
   int ite;
@@ -933,8 +933,9 @@ unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
 
   // Calculate the center position's error
   assert(bc >= minc && bc <= maxc && br >= minr && br <= maxr);
-  bestmse = av1_compute_motion_cost(cpi, x, bsize, mi_row, mi_col,
-                                    &mbmi->mv[0].as_mv);
+  if (mbmi->num_proj_ref > 1)
+    bestmse = av1_compute_motion_cost(cpi, x, bsize, mi_row, mi_col,
+                                      &mbmi->mv[0].as_mv);
 
   // MV search
   for (ite = 0; ite < 2; ++ite) {
@@ -956,7 +957,7 @@ unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
         if (total_samples > 1)
           mbmi->num_proj_ref =
               selectSamples(&this_mv, pts, pts_inref, total_samples, bsize);
-
+        if (mbmi->num_proj_ref == 1) continue;
         if (!find_projection(mbmi->num_proj_ref, pts, pts_inref, bsize, *tr,
                              *tc, &mbmi->wm_params, mi_row, mi_col)) {
           thismse =
