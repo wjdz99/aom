@@ -282,6 +282,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
     sf->gm_search_type = GM_DISABLE_SEARCH;
     sf->prune_comp_search_by_single_result = 2;
+    sf->prune_comp_type_by_comp_avg = 1;
   }
 
   if (speed >= 4) {
@@ -517,6 +518,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->inter_mode_rd_model_estimation = 0;
   sf->obmc_full_pixel_search_level = 0;
   sf->skip_sharp_interp_filter_search = 0;
+  sf->prune_comp_type_by_comp_avg = 0;
 
   if (oxcf->mode == GOOD)
     set_good_speed_features_framesize_independent(cpi, sf, oxcf->speed);
