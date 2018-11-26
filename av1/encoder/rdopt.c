@@ -9517,7 +9517,7 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       masked_type_cost += x->compound_type_cost[bsize][cur_type - 1];
       rs2 = masked_type_cost;
       if (x->source_variance > cpi->sf.disable_wedge_search_var_thresh &&
-          *rd / 3 < ref_best_rd) {
+          (*rd >> COMP_RD_BEST_SHIFT) * (COMP_RD_BEST_MUL - 1) < ref_best_rd) {
         best_rd_cur = build_and_cost_compound_type(
             cpi, x, cur_mv, bsize, this_mode, &rs2, *rate_mv, orig_dst,
             &tmp_rate_mv, preds0, preds1, buffers->residual1, buffers->diff10,
@@ -9882,7 +9882,8 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
             &orig_dst, &tmp_dst, rd_buffers, &rate_mv, &best_rd_compound,
             rd_stats, ref_best_rd);
         if (ref_best_rd < INT64_MAX &&
-            (best_rd_compound >> 3) * 6 > ref_best_rd) {
+            (best_rd_compound >> COMP_RD_BEST_SHIFT) * COMP_RD_BEST_MUL >
+                ref_best_rd) {
           restore_dst_buf(xd, orig_dst, num_planes);
           continue;
         }

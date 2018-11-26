@@ -31,6 +31,9 @@ extern "C" {
 #define DEFAULT_CHROMA_INTERP_SKIP_FLAG 2
 #define DEFAULT_INTERP_SKIP_FLAG \
   (DEFAULT_LUMA_INTERP_SKIP_FLAG | DEFAULT_CHROMA_INTERP_SKIP_FLAG)
+// For early exit after compound mode selection through approximate rd
+#define COMP_RD_BEST_MUL 12
+#define COMP_RD_BEST_SHIFT 4
 
 struct TileInfo;
 struct macroblock;
