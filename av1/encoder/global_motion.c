@@ -32,7 +32,7 @@
 #define MIN_INLIER_PROB 0.1
 
 #define MIN_TRANS_THRESH (1 * GM_TRANS_DECODE_FACTOR)
-#define USE_GM_FEATURE_BASED 1
+#define USE_GM_FEATURE_BASED 0
 
 // Border over which to compute the global motion
 #define ERRORADV_BORDER 0
