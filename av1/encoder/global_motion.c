@@ -250,6 +250,16 @@ static INLINE RansacFunc get_ransac_type(TransformationType type) {
   }
 }
 
+static INLINE RansacFuncDouble
+get_ransac_double_prec_type(TransformationType type) {
+  switch (type) {
+    case AFFINE: return ransac_affine_double_prec;
+    case ROTZOOM: return ransac_rotzoom_double_prec;
+    case TRANSLATION: return ransac_translation_double_prec;
+    default: assert(0); return NULL;
+  }
+}
+
 static unsigned char *downconvert_frame(YV12_BUFFER_CONFIG *frm,
                                         int bit_depth) {
   int i, j;
