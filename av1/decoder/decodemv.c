@@ -1188,7 +1188,9 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
               .as_int;
       break;
     }
-    default: { return 0; }
+    default: {
+      return 0;
+    }
   }
 
   int ret = is_mv_valid(&mv[0].as_mv);
@@ -1354,12 +1356,10 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
   if (mbmi->skip_mode) assert(mbmi->mode == NEAREST_NEARESTMV);
 
-  {
-    int mv_corrupted_flag =
-        !assign_mv(cm, xd, mbmi->mode, mbmi->ref_frame, mbmi->mv, ref_mv,
-                   nearestmv, nearmv, mi_row, mi_col, is_compound, allow_hp, r);
-    aom_merge_corrupted_flag(&xd->corrupted, mv_corrupted_flag);
-  }
+  int mv_corrupted_flag =
+      !assign_mv(cm, xd, mbmi->mode, mbmi->ref_frame, mbmi->mv, ref_mv,
+                 nearestmv, nearmv, mi_row, mi_col, is_compound, allow_hp, r);
+  aom_merge_corrupted_flag(&xd->corrupted, mv_corrupted_flag);
 
   mbmi->use_wedge_interintra = 0;
   if (cm->seq_params.enable_interintra_compound && !mbmi->skip_mode &&
