@@ -637,6 +637,11 @@ static int compute_global_motion_disflow_based(
   const int ref_width = ref->y_width;
   const int ref_height = ref->y_height;
   const int pad_size = AOMMAX(PATCH_SIZE, MIN_PAD);
+  int num_frm_corners, num_ref_corners;
+  int num_correspondences;
+  double *correspondences;
+  int frm_corners[2 * MAX_CORNERS], ref_corners[2 * MAX_CORNERS];
+  RansacFunc ransac = get_ransac_type(type);
   assert(frm_width == ref_width);
   assert(frm_height == ref_height);
 
@@ -675,12 +680,26 @@ static int compute_global_motion_disflow_based(
 
   // TODO(sarahparker) Implement the rest of DISFlow, currently only the image
   // pyramid is implemented.
-  (void)num_inliers_by_motion;
-  (void)params_by_motion;
-  (void)num_motions;
-  (void)type;
+
+  // compute interest points in images using FAST features
+  num_frm_corners = fast_corner_detect(frm_buffer, frm->y_width, frm->y_height,
+                                       frm->y_stride, frm_corners, MAX_CORNERS);
+  // find correspondences between the two images
+  correspondences =
+      aom_malloc(num_frm_corners * 4 * sizeof(*correspondences));
+  // TODO(sarahparker) implement
+  num_correspondences = determine_correspondence(
+      frm_corners, num_frm_corners,
+      // flow u, flow v,
+      frm->y_width, frm->y_height,
+      frm->y_stride, ref->y_stride, correspondences);
+
+  ransac(correspondences, num_correspondences, num_inliers_by_motion,
+         params_by_motion, num_motions);
+
   free_pyramid(frm_pyr);
   free_pyramid(ref_pyr);
+  free(correspondences);
   return 0;
 }
 #endif
