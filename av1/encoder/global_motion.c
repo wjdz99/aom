@@ -32,7 +32,7 @@
 #define MIN_INLIER_PROB 0.1
 
 #define MIN_TRANS_THRESH (1 * GM_TRANS_DECODE_FACTOR)
-#define USE_GM_FEATURE_BASED 1
+#define USE_GM_FEATURE_BASED 0
 
 // Border over which to compute the global motion
 #define ERRORADV_BORDER 0
@@ -246,6 +246,16 @@ static INLINE RansacFunc get_ransac_type(TransformationType type) {
     case AFFINE: return ransac_affine;
     case ROTZOOM: return ransac_rotzoom;
     case TRANSLATION: return ransac_translation;
+    default: assert(0); return NULL;
+  }
+}
+
+static INLINE RansacFuncDouble
+get_ransac_double_prec_type(TransformationType type) {
+  switch (type) {
+    case AFFINE: return ransac_affine_double_prec;
+    case ROTZOOM: return ransac_rotzoom_double_prec;
+    case TRANSLATION: return ransac_translation_double_prec;
     default: assert(0); return NULL;
   }
 }
