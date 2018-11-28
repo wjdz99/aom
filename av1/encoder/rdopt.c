@@ -3744,7 +3744,8 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
 #endif
     RD_STATS this_rd_stats;
     if (mbmi->ref_mv_idx > 0) x->rd_model = LOW_TXFM_RD;
-    rd = txfm_yrd(cpi, x, &this_rd_stats, ref_best_rd, bs, n, FTXS_NONE);
+    rd = txfm_yrd(cpi, x, &this_rd_stats, AOMMIN(ref_best_rd, best_rd), bs, n,
+                  FTXS_NONE);
     x->rd_model = FULL_TXFM_RD;
 
     if (rd < best_rd) {
@@ -3774,6 +3775,12 @@ static void super_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
                             RD_STATS *rd_stats, BLOCK_SIZE bs,
                             int64_t ref_best_rd) {
   MACROBLOCKD *xd = &x->e_mbd;
+
+  if (ref_best_rd < 0) {
+    av1_invalid_rd_stats(rd_stats);
+    return;
+  }
+
   av1_init_rd_stats(rd_stats);
 
   assert(bs == xd->mi[0]->sb_type);
@@ -4263,6 +4270,16 @@ static int64_t calc_rd_given_intra_angle(
   MB_MODE_INFO *mbmi = x->e_mbd.mi[0];
   const int n4 = bsize_to_num_blk(bsize);
   assert(!is_inter_block(mbmi));
+
+  // Early exit based on comparison of angle rd cost with ref_best_rd
+  int intra_angle_cost =
+      x->angle_delta_cost[mbmi->mode - V_PRED][max_angle_delta + angle_delta];
+  int64_t intra_angle_rd = RDCOST(x->rdmult, intra_angle_cost, 0);
+  if (intra_angle_rd > *best_rd) {
+    av1_invalid_rd_stats(rd_stats);
+    return INT64_MAX;
+  }
+
   mbmi->angle_delta[PLANE_TYPE_Y] = angle_delta;
   this_model_rd = intra_model_yrd(cpi, x, bsize, mode_cost, mi_row, mi_col);
   if (*best_model_rd != INT64_MAX &&
@@ -4272,9 +4289,7 @@ static int64_t calc_rd_given_intra_angle(
   super_block_yrd(cpi, x, &tokenonly_rd_stats, bsize, best_rd_in);
   if (tokenonly_rd_stats.rate == INT_MAX) return INT64_MAX;
 
-  int this_rate =
-      mode_cost + tokenonly_rd_stats.rate +
-      x->angle_delta_cost[mbmi->mode - V_PRED][max_angle_delta + angle_delta];
+  int this_rate = tokenonly_rd_stats.rate + intra_angle_cost;
   this_rd = RDCOST(x->rdmult, this_rate, tokenonly_rd_stats.dist);
 
   if (this_rd < *best_rd) {
@@ -4301,6 +4316,10 @@ static int64_t rd_pick_intra_angle_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
                                        int64_t *best_model_rd) {
   MB_MODE_INFO *mbmi = x->e_mbd.mi[0];
   assert(!is_inter_block(mbmi));
+  if (best_rd < 0) {
+    av1_invalid_rd_stats(rd_stats);
+    return 0;
+  }
 
   int best_angle_delta = 0;
   int64_t rd_cost[2 * (MAX_ANGLE_DELTA + 2)];
@@ -4571,12 +4590,23 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     is_directional_mode = av1_is_directional_mode(mbmi->mode);
     if (is_directional_mode && directional_mode_skip_mask[mbmi->mode]) continue;
     if (is_directional_mode && av1_use_angle_delta(bsize)) {
+      int intra_mode_cost = bmode_costs[mbmi->mode];
       this_rd_stats.rate = INT_MAX;
+      int64_t rd_thresh =
+          (best_rd == INT64_MAX)
+              ? INT64_MAX
+              : (best_rd - RDCOST(x->rdmult, intra_mode_cost, 0));
       rd_pick_intra_angle_sby(cpi, x, mi_row, mi_col, &this_rate,
                               &this_rd_stats, bsize, bmode_costs[mbmi->mode],
-                              best_rd, &best_model_rd);
+                              rd_thresh, &best_model_rd);
     } else {
-      super_block_yrd(cpi, x, &this_rd_stats, bsize, best_rd);
+      int intra_mode_info_cost =
+          intra_mode_info_cost_y(cpi, x, mbmi, bsize, bmode_costs[mbmi->mode]);
+      int64_t rd_thresh =
+          (best_rd == INT64_MAX)
+              ? INT64_MAX
+              : (best_rd - RDCOST(x->rdmult, intra_mode_info_cost, 0));
+      super_block_yrd(cpi, x, &this_rd_stats, bsize, rd_thresh);
     }
     this_rate_tokenonly = this_rd_stats.rate;
     this_distortion = this_rd_stats.dist;
@@ -10163,6 +10193,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
       select_tx_type_yrd(cpi, x, &rd_stats, bsize, mi_row, mi_col, INT64_MAX);
     } else {
       super_block_yrd(cpi, x, &rd_stats, bsize, INT64_MAX);
+      assert(rd_stats.rate != INT_MAX);
       memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
       for (int i = 0; i < xd->n4_h * xd->n4_w; ++i)
         set_blk_skip(x, 0, i, rd_stats.skip);
@@ -10550,6 +10581,7 @@ static void sf_refine_fast_tx_type_search(
         assert(rd_stats_y.rate != INT_MAX);
       } else {
         super_block_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
+        assert(rd_stats_y.rate != INT_MAX);
         memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
         for (int i = 0; i < xd->n4_h * xd->n4_w; ++i)
           set_blk_skip(x, 0, i, rd_stats_y.skip);
@@ -10562,6 +10594,7 @@ static void sf_refine_fast_tx_type_search(
       }
     } else {
       super_block_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
+      assert(rd_stats_y.rate != INT_MAX);
       if (num_planes > 1) {
         super_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX);
       } else {
@@ -11266,9 +11299,14 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
     if (search_state->directional_mode_skip_mask[mbmi->mode]) return INT64_MAX;
     av1_init_rd_stats(rd_stats_y);
     rd_stats_y->rate = INT_MAX;
+    int64_t rd_thresh =
+        search_state->best_rd == INT64_MAX
+            ? INT64_MAX
+            : (search_state->best_rd -
+               RDCOST(x->rdmult, intra_mode_cost[mbmi->mode], 0));
     rd_pick_intra_angle_sby(cpi, x, mi_row, mi_col, &rate_dummy, rd_stats_y,
-                            bsize, intra_mode_cost[mbmi->mode],
-                            search_state->best_rd, &model_rd);
+                            bsize, intra_mode_cost[mbmi->mode], rd_thresh,
+                            &model_rd);
   } else {
     av1_init_rd_stats(rd_stats_y);
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
