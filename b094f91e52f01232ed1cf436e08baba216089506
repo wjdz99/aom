@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73ada3c4_3e9c530d",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1520,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-28T21:28:28Z",
+      "side": 1,
+      "message": "Step 3: The argument to _mm_load_si128() must be 16-byte aligned:\n\nhttps://software.intel.com/en-us/node/524242\n\nIf src is 16-byte aligned and pitchSrc is either 64 or 32, then src + k * pitchSrc is 16-byte aligned.",
+      "revId": "b094f91e52f01232ed1cf436e08baba216089506",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc7c6ae7_29cc1759",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1588,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-28T21:28:28Z",
+      "side": 1,
+      "message": "Step 2: transpose() passes src + i * pitchSrc + j as the first argument to transpose_TX_8X8().\n\nsrc is the dstT local variable in the caller.\n\npitchSrc is either 64 or 32.\n\nj is a multiple of 8. Since src is a uint16_t* pointer, if src is 16-byte aligned, then src + i * pitchSrc + j is also 16-byte aligned.",
+      "revId": "b094f91e52f01232ed1cf436e08baba216089506",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec57c3e4_2234d1d9",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1826,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-28T21:28:28Z",
+      "side": 1,
+      "message": "Step 1: dstT is passed as the first argument to transpose(). The second argument is either 64 or 32 (in highbd_dr_prediction_z3_64x32_avx2).",
+      "revId": "b094f91e52f01232ed1cf436e08baba216089506",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
