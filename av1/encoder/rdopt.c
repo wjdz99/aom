@@ -3681,8 +3681,8 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     if (!cpi->oxcf.enable_tx64 && txsize_sqr_up_map[n] == TX_64X64) continue;
 
     RD_STATS this_rd_stats;
-    const int64_t rd =
-        txfm_yrd(cpi, x, &this_rd_stats, ref_best_rd, bs, n, FTXS_NONE);
+    const int64_t rd = txfm_yrd(cpi, x, &this_rd_stats,
+                                AOMMIN(ref_best_rd, best_rd), bs, n, FTXS_NONE);
 
     if (rd < best_rd) {
       memcpy(best_txk_type, mbmi->txk_type,
@@ -3711,6 +3711,12 @@ static void super_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
                             RD_STATS *rd_stats, BLOCK_SIZE bs,
                             int64_t ref_best_rd) {
   MACROBLOCKD *xd = &x->e_mbd;
+
+  if (ref_best_rd < 0) {
+    av1_invalid_rd_stats(rd_stats);
+    return;
+  }
+
   av1_init_rd_stats(rd_stats);
 
   assert(bs == xd->mi[0]->sb_type);
@@ -4152,11 +4158,15 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
         this_model_rd > *best_model_rd + (*best_model_rd >> 1))
       continue;
     if (this_model_rd < *best_model_rd) *best_model_rd = this_model_rd;
-    super_block_yrd(cpi, x, &tokenonly_rd_stats, bsize, *best_rd);
-    if (tokenonly_rd_stats.rate == INT_MAX) continue;
-    const int this_rate =
-        tokenonly_rd_stats.rate +
+    int intra_mode_cost =
         intra_mode_info_cost_y(cpi, x, mbmi, bsize, mode_cost);
+    int64_t rd_thresh =
+        (*best_rd == INT64_MAX)
+            ? INT64_MAX
+            : (*best_rd - RDCOST(x->rdmult, intra_mode_cost, 0));
+    super_block_yrd(cpi, x, &tokenonly_rd_stats, bsize, rd_thresh);
+    if (tokenonly_rd_stats.rate == INT_MAX) continue;
+    const int this_rate = tokenonly_rd_stats.rate + intra_mode_cost;
     this_rd = RDCOST(x->rdmult, this_rate, tokenonly_rd_stats.dist);
 
     if (this_rd < *best_rd) {
@@ -4238,6 +4248,10 @@ static int64_t rd_pick_intra_angle_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
                                        int64_t *best_model_rd) {
   MB_MODE_INFO *mbmi = x->e_mbd.mi[0];
   assert(!is_inter_block(mbmi));
+  if (best_rd < 0) {
+    av1_invalid_rd_stats(rd_stats);
+    return 0;
+  }
 
   int best_angle_delta = 0;
   int64_t rd_cost[2 * (MAX_ANGLE_DELTA + 2)];
@@ -4513,6 +4527,8 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (this_model_rd < best_model_rd) best_model_rd = this_model_rd;
     is_directional_mode = av1_is_directional_mode(mbmi->mode);
     if (is_directional_mode && directional_mode_skip_mask[mbmi->mode]) continue;
+    int intra_mode_info_cost =
+        intra_mode_info_cost_y(cpi, x, mbmi, bsize, bmode_costs[mbmi->mode]);
     if (is_directional_mode && av1_use_angle_delta(bsize) &&
         cpi->oxcf.enable_angle_delta) {
       this_rd_stats.rate = INT_MAX;
@@ -4520,7 +4536,11 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                               &this_rd_stats, bsize, bmode_costs[mbmi->mode],
                               best_rd, &best_model_rd);
     } else {
-      super_block_yrd(cpi, x, &this_rd_stats, bsize, best_rd);
+      int64_t rd_thresh =
+          (best_rd == INT64_MAX)
+              ? INT64_MAX
+              : (best_rd - RDCOST(x->rdmult, intra_mode_info_cost, 0));
+      super_block_yrd(cpi, x, &this_rd_stats, bsize, rd_thresh);
     }
     this_rate_tokenonly = this_rd_stats.rate;
     this_distortion = this_rd_stats.dist;
@@ -4537,9 +4557,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       this_rate_tokenonly -=
           tx_size_cost(&cpi->common, x, bsize, mbmi->tx_size);
     }
-    this_rate =
-        this_rd_stats.rate +
-        intra_mode_info_cost_y(cpi, x, mbmi, bsize, bmode_costs[mbmi->mode]);
+    this_rate = this_rd_stats.rate + intra_mode_info_cost;
     this_rd = RDCOST(x->rdmult, this_rate, this_distortion);
     if (this_rd < best_rd) {
       best_mbmi = *mbmi;
@@ -10656,12 +10674,14 @@ static void sf_refine_fast_tx_type_search(
         assert(rd_stats_y.rate != INT_MAX);
       } else {
         super_block_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
+        assert(rd_stats_y.rate != INT_MAX);
         memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
         for (int i = 0; i < xd->n4_h * xd->n4_w; ++i)
           set_blk_skip(x, 0, i, rd_stats_y.skip);
       }
     } else {
       super_block_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
+      assert(rd_stats_y.rate != INT_MAX);
     }
 
     if (num_planes > 1) {
@@ -11354,8 +11374,7 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
   const int try_palette =
       av1_allow_palette(cm->allow_screen_content_tools, mbmi->sb_type);
   const int *const intra_mode_cost = x->mbmode_cost[size_group_lookup[bsize]];
-  const int intra_cost_penalty = av1_get_intra_cost_penalty(
-      cm->base_qindex, cm->y_dc_delta_q, cm->seq_params.bit_depth);
+  int intra_cost_penalty = 0;
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
   const int num_planes = av1_num_planes(cm);
@@ -11364,7 +11383,9 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
   int known_rate = intra_mode_cost[mbmi->mode];
   known_rate += ref_frame_cost;
   if (mbmi->mode != DC_PRED && mbmi->mode != PAETH_PRED)
-    known_rate += intra_cost_penalty;
+    intra_cost_penalty = av1_get_intra_cost_penalty(
+        cm->base_qindex, cm->y_dc_delta_q, cm->seq_params.bit_depth);
+  known_rate += intra_cost_penalty;
   known_rate += AOMMIN(x->skip_cost[skip_ctx][0], x->skip_cost[skip_ctx][1]);
   const int64_t known_rd = RDCOST(x->rdmult, known_rate, 0);
   if (known_rd > search_state->best_rd) {
@@ -11389,13 +11410,25 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
     if (search_state->directional_mode_skip_mask[mbmi->mode]) return INT64_MAX;
     av1_init_rd_stats(rd_stats_y);
     rd_stats_y->rate = INT_MAX;
+    int intra_known_header_cost =
+        intra_mode_cost[mbmi->mode] + intra_cost_penalty + ref_frame_cost;
     rd_pick_intra_angle_sby(cpi, x, mi_row, mi_col, &rate_dummy, rd_stats_y,
-                            bsize, intra_mode_cost[mbmi->mode],
+                            bsize, intra_known_header_cost,
                             search_state->best_rd, &model_rd);
   } else {
     av1_init_rd_stats(rd_stats_y);
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
-    super_block_yrd(cpi, x, rd_stats_y, bsize, search_state->best_rd);
+    int intra_mode_info_cost = intra_mode_info_cost_y(
+        cpi, x, mbmi, bsize, intra_mode_cost[mbmi->mode]);
+    int intra_known_header_cost =
+        intra_mode_info_cost + intra_cost_penalty + ref_frame_cost;
+
+    int64_t rd_thresh = search_state->best_rd == INT64_MAX
+                            ? INT64_MAX
+                            : (search_state->best_rd -
+                               RDCOST(x->rdmult, intra_known_header_cost, 0));
+
+    super_block_yrd(cpi, x, rd_stats_y, bsize, rd_thresh);
   }
   uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
   memcpy(best_blk_skip, x->blk_skip,
@@ -11426,14 +11459,20 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
          fi_mode < FILTER_INTRA_MODES; ++fi_mode) {
       int64_t this_rd_tmp;
       mbmi->filter_intra_mode_info.filter_intra_mode = fi_mode;
-      super_block_yrd(cpi, x, &rd_stats_y_fi, bsize, search_state->best_rd);
+      int intra_mode_info_cost = intra_mode_info_cost_y(
+          cpi, x, mbmi, bsize, intra_mode_cost[mbmi->mode]);
+      int64_t rd_thresh = AOMMIN(search_state->best_rd, best_rd_tmp);
+      int intra_known_header_cost =
+          intra_mode_info_cost + intra_cost_penalty + ref_frame_cost;
+      rd_thresh =
+          (rd_thresh == INT64_MAX)
+              ? INT64_MAX
+              : (rd_thresh - RDCOST(x->rdmult, intra_known_header_cost, 0));
+      super_block_yrd(cpi, x, &rd_stats_y_fi, bsize, rd_thresh);
       if (rd_stats_y_fi.rate == INT_MAX) {
         continue;
       }
-      const int this_rate_tmp =
-          rd_stats_y_fi.rate +
-          intra_mode_info_cost_y(cpi, x, mbmi, bsize,
-                                 intra_mode_cost[mbmi->mode]);
+      const int this_rate_tmp = rd_stats_y_fi.rate + intra_mode_info_cost;
       this_rd_tmp = RDCOST(x->rdmult, this_rate_tmp, rd_stats_y_fi.dist);
 
       if (this_rd_tmp != INT64_MAX && this_rd_tmp / 2 > search_state->best_rd) {
@@ -11527,8 +11566,7 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
         rd_stats_uv->rate +
         intra_mode_info_cost_uv(cpi, x, mbmi, bsize, uv_mode_cost);
   }
-  if (mbmi->mode != DC_PRED && mbmi->mode != PAETH_PRED)
-    rd_stats->rate += intra_cost_penalty;
+  rd_stats->rate += intra_cost_penalty;
   rd_stats->dist = rd_stats_y->dist + rd_stats_uv->dist;
 
   // Estimate the reference frame signaling cost and add it
