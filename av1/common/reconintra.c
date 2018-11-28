@@ -1273,13 +1273,13 @@ static void build_intra_predictors_high(
         if (need_above && n_top_px > 0) {
           const int strength =
               intra_edge_filter_strength(txwpx, txhpx, p_angle - 90, filt_type);
-          const int n_px = n_top_px + ab_le + (need_right ? txhpx : 0);
+          const int n_px = txwpx + ab_le + (need_right ? txhpx : 0);
           av1_filter_intra_edge_high(above_row - ab_le, n_px, strength);
         }
         if (need_left && n_left_px > 0) {
           const int strength = intra_edge_filter_strength(
               txhpx, txwpx, p_angle - 180, filt_type);
-          const int n_px = n_left_px + ab_le + (need_bottom ? txwpx : 0);
+          const int n_px = txhpx + ab_le + (need_bottom ? txwpx : 0);
           av1_filter_intra_edge_high(left_col - ab_le, n_px, strength);
         }
       }
@@ -1456,13 +1456,13 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
         if (need_above && n_top_px > 0) {
           const int strength =
               intra_edge_filter_strength(txwpx, txhpx, p_angle - 90, filt_type);
-          const int n_px = n_top_px + ab_le + (need_right ? txhpx : 0);
+          const int n_px = txwpx + ab_le + (need_right ? txhpx : 0);
           av1_filter_intra_edge(above_row - ab_le, n_px, strength);
         }
         if (need_left && n_left_px > 0) {
           const int strength = intra_edge_filter_strength(
               txhpx, txwpx, p_angle - 180, filt_type);
-          const int n_px = n_left_px + ab_le + (need_bottom ? txwpx : 0);
+          const int n_px = txhpx + ab_le + (need_bottom ? txwpx : 0);
           av1_filter_intra_edge(left_col - ab_le, n_px, strength);
         }
       }
