@@ -865,6 +865,8 @@ typedef struct AV1_COMP {
 #if CONFIG_MULTITHREAD
   pthread_mutex_t *row_mt_mutex_;
 #endif
+  // Set to 1 if screen coding tools are enabled
+  int is_screen_content_coding;
 } AV1_COMP;
 
 // Must not be called more than once.
