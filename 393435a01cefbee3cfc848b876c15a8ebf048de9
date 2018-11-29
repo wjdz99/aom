@@ -46,6 +46,30 @@
       "revId": "393435a01cefbee3cfc848b876c15a8ebf048de9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "74d25954_36acb8ed",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-11-29T01:35:39Z",
+      "side": 1,
+      "message": "because src is supposed to be 16 bit.",
+      "parentUuid": "2f9d7d65_5dd423dd",
+      "range": {
+        "startLine": 302,
+        "startChar": 48,
+        "endLine": 307,
+        "endChar": 57
+      },
+      "revId": "393435a01cefbee3cfc848b876c15a8ebf048de9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
