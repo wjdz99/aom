@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "660de41f_41babc32",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2101,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-11-29T00:26:57Z",
+      "side": 1,
+      "message": "better to specify full-pixel as well.",
+      "range": {
+        "startLine": 2101,
+        "startChar": 13,
+        "endLine": 2101,
+        "endChar": 14
+      },
+      "revId": "1404409303662f64a4a41680351f3291ffe9d686",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94fb72f0_21130cb0",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3501,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-11-29T00:26:57Z",
+      "side": 1,
+      "message": "What about moving Line 3512-3513 into this function to make this function more self-contained. Although we don\u0027t need it for the current feature because it has been done at the beginning of rd_pick_partition.",
+      "range": {
+        "startLine": 3501,
+        "startChar": 2,
+        "endLine": 3501,
+        "endChar": 22
+      },
+      "revId": "1404409303662f64a4a41680351f3291ffe9d686",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
