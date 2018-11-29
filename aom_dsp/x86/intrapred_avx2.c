@@ -1818,7 +1818,7 @@ static void highbd_dr_prediction_z3_32x32_avx2(uint16_t *dst, ptrdiff_t stride,
 static void highbd_dr_prediction_z3_64x64_avx2(uint16_t *dst, ptrdiff_t stride,
                                                const uint16_t *left,
                                                int upsample_left, int dy) {
-  uint16_t dstT[64 * 64];
+  __attribute__((aligned(64))) uint16_t dstT[64 * 64];
   highbd_dr_prediction_z1_64xN_avx2(64, dstT, 64, left, upsample_left, dy);
   transpose(dstT, 64, dst, stride, 64, 64);
 }
@@ -1870,7 +1870,7 @@ static void highbd_dr_prediction_z3_32x16_avx2(uint16_t *dst, ptrdiff_t stride,
 static void highbd_dr_prediction_z3_32x64_avx2(uint16_t *dst, ptrdiff_t stride,
                                                const uint16_t *left,
                                                int upsample_left, int dy) {
-  uint16_t dstT[64 * 32];
+  __attribute__((aligned(64))) uint16_t dstT[64 * 32];
   highbd_dr_prediction_z1_64xN_avx2(32, dstT, 64, left, upsample_left, dy);
   transpose(dstT, 64, dst, stride, 32, 64);
 }
@@ -1878,7 +1878,7 @@ static void highbd_dr_prediction_z3_32x64_avx2(uint16_t *dst, ptrdiff_t stride,
 static void highbd_dr_prediction_z3_64x32_avx2(uint16_t *dst, ptrdiff_t stride,
                                                const uint16_t *left,
                                                int upsample_left, int dy) {
-  uint16_t dstT[32 * 64];
+  __attribute__((aligned(64))) uint16_t dstT[32 * 64];
   highbd_dr_prediction_z1_32xN_avx2(64, dstT, 32, left, upsample_left, dy);
   transpose(dstT, 32, dst, stride, 64, 32);
   return;
@@ -1887,7 +1887,7 @@ static void highbd_dr_prediction_z3_64x32_avx2(uint16_t *dst, ptrdiff_t stride,
 static void highbd_dr_prediction_z3_16x64_avx2(uint16_t *dst, ptrdiff_t stride,
                                                const uint16_t *left,
                                                int upsample_left, int dy) {
-  uint16_t dstT[64 * 16];
+  __attribute__((aligned(64))) uint16_t dstT[64 * 16];
   highbd_dr_prediction_z1_64xN_avx2(16, dstT, 64, left, upsample_left, dy);
   transpose(dstT, 64, dst, stride, 16, 64);
 }
