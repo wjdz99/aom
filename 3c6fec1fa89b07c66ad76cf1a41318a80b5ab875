@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "f6a6bf20_7405b128",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-29T16:32:42Z",
+      "side": 1,
+      "message": "Please add a BUG\u003d line in the commit message to refer to the bug you are fixing. It should look like this:\n\nBUG\u003daomedia:2263",
+      "revId": "3c6fec1fa89b07c66ad76cf1a41318a80b5ab875",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c0742065_0c829e68",
         "filename": "aom_dsp/x86/intrapred_avx2.c",
         "patchSetId": 1
@@ -34,6 +51,29 @@
       "revId": "3c6fec1fa89b07c66ad76cf1a41318a80b5ab875",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1474f3cc_6d09255a",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1586,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-29T16:32:42Z",
+      "side": 1,
+      "message": "Another factor relevant to the alignment is the \"+ j\" here. Since j is a multiple of 8 and it is added to a uint16_t* pointer, the resulting pointer is still 16-byte aligned if src is 16-byte aligned.",
+      "range": {
+        "startLine": 1586,
+        "startChar": 41,
+        "endLine": 1586,
+        "endChar": 45
+      },
+      "revId": "3c6fec1fa89b07c66ad76cf1a41318a80b5ab875",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
