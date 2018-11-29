@@ -188,6 +188,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->ml_prune_rect_partition = 1;
   sf->ml_prune_ab_partition = 1;
   sf->ml_prune_4_partition = 1;
+  sf->simple_motion_search_prune_rect = 0;
   sf->adaptive_txb_search_level = 1;
   sf->use_jnt_comp_flag = JNT_COMP_SKIP_MV_SEARCH;
   sf->model_based_prune_tx_search_level = 1;
@@ -243,6 +244,9 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->prune_single_motion_modes_by_simple_trans = 1;
 
     sf->full_pixel_motion_search_based_split = 1;
+    sf->simple_motion_search_prune_rect = 1;
+    sf->ml_prune_rect_partition = 0;
+
     sf->disable_wedge_search_var_thresh = 0;
     sf->disable_wedge_search_edge_thresh = 0;
     sf->prune_comp_type_by_comp_avg = 1;
@@ -507,6 +511,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
     sf->ml_partition_search_breakout_thresh[i] = -1;  // -1 means not enabled.
   }
   sf->full_pixel_motion_search_based_split = 0;
+  sf->simple_motion_search_prune_rect = 0;
 
   // Set this at the appropriate speed levels
   sf->use_transform_domain_distortion = 0;
