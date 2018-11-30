@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ac2ff60_4efbcc7a",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1557,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-11-30T01:04:33Z",
+      "side": 1,
+      "message": "Victoria: Can we call the aligned _mm_store_si128() function instead in transpose_TX_8X8()?\n\nThat requires pitchDst (which is the \u0027stride\u0027 argument to highbd_dr_prediction_z3_64x64_avx2, etc.) be a multiple of 8. But I don\u0027t know whether this is guaranteed.",
+      "range": {
+        "startLine": 1554,
+        "startChar": 0,
+        "endLine": 1557,
+        "endChar": 59
+      },
+      "revId": "ed1caf2295efd2920144835ccbd2e7f56dc5a177",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
