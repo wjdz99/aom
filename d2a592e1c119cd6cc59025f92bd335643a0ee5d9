@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "946735b5_069517f6",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 9974
+      },
+      "writtenOn": "2018-12-03T11:22:32Z",
+      "side": 1,
+      "message": "Yes, I believe that removing cm-\u003ecurrent_frame.frame_type and replacing all references with cm-\u003ecur_frame-\u003eframe_type would be a sensible de-duplication.  The same may also apply to order_hint in both structs.",
+      "parentUuid": "850fb661_5ef7cd91",
+      "range": {
+        "startLine": 302,
+        "startChar": 2,
+        "endLine": 302,
+        "endChar": 24
+      },
+      "revId": "d2a592e1c119cd6cc59025f92bd335643a0ee5d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1c4217b1_3201fedf",
         "filename": "av1/common/onyxc_int.h",
         "patchSetId": 3
@@ -36,6 +60,24 @@
       "writtenOn": "2018-11-30T18:26:18Z",
       "side": 1,
       "message": "Hi David and Jack: I just noticed that we now have cm-\u003ecurrent_frame and cm-\u003ecur_frame, two fields with essentially the same name (ignoring abbreviation).\n\nWe can resolve this by moving cm-\u003ecur_frame and perhaps cm-\u003enew_fb_idx into the CurrentFrame struct. Are you planning to do something along those lines?",
+      "revId": "d2a592e1c119cd6cc59025f92bd335643a0ee5d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a4b7edf_3502f056",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 9974
+      },
+      "writtenOn": "2018-12-03T11:22:32Z",
+      "side": 1,
+      "message": "Thanks for pointing this out: I agree that the similarity between these names is confusing and that moving cm-\u003ecur_frame to cm-\u003ecurrent_frame.buf would be clearer.  We didn\u0027t have immediate plans to do this but I could add it to my TODO list.  We remove cm-\u003enew_fb_idx in a patch I will submit imminently.",
+      "parentUuid": "1c4217b1_3201fedf",
       "revId": "d2a592e1c119cd6cc59025f92bd335643a0ee5d9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
