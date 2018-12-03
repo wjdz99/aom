@@ -794,8 +794,8 @@ static void selfguided_restoration_fast_internal(
                            B[k + 1 - buf_stride] + B[k + 1 + buf_stride]) *
                               5;
         const int32_t v = a * dgd[l] + b;
-        dst[m] =
-            ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
+        dst[m] = ROUND_POWER_OF_TWO(
+            v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS(bit_depth));
       }
     } else {  // odd row
       for (j = 0; j < width; ++j) {
@@ -806,8 +806,8 @@ static void selfguided_restoration_fast_internal(
         const int32_t a = A[k] * 6 + (A[k - 1] + A[k + 1]) * 5;
         const int32_t b = B[k] * 6 + (B[k - 1] + B[k + 1]) * 5;
         const int32_t v = a * dgd[l] + b;
-        dst[m] =
-            ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
+        dst[m] = ROUND_POWER_OF_TWO(
+            v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS(bit_depth));
       }
     }
   }
@@ -854,7 +854,8 @@ static void selfguided_restoration_internal(int32_t *dgd, int width, int height,
            B[k + 1 - buf_stride] + B[k + 1 + buf_stride]) *
               3;
       const int32_t v = a * dgd[l] + b;
-      dst[m] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
+      dst[m] = ROUND_POWER_OF_TWO(
+          v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS(bit_depth));
     }
   }
 }
@@ -922,14 +923,14 @@ void apply_selfguided_restoration_c(const uint8_t *dat8, int width, int height,
       const uint8_t *dat8ij = dat8 + i * stride + j;
 
       const uint16_t pre_u = highbd ? *CONVERT_TO_SHORTPTR(dat8ij) : *dat8ij;
-      const int32_t u = (int32_t)pre_u << SGRPROJ_RST_BITS;
+      const int32_t u = (int32_t)pre_u << SGRPROJ_RST_BITS(bit_depth);
       int32_t v = u << SGRPROJ_PRJ_BITS;
       // If params->r == 0 then we skipped the filtering in
       // av1_selfguided_restoration_c, i.e. flt[k] == u
       if (params->r[0] > 0) v += xq[0] * (flt0[k] - u);
       if (params->r[1] > 0) v += xq[1] * (flt1[k] - u);
-      const int16_t w =
-          (int16_t)ROUND_POWER_OF_TWO(v, SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS);
+      const int16_t w = (int16_t)ROUND_POWER_OF_TWO(
+          v, SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS(bit_depth));
 
       const uint16_t out = clip_pixel_highbd(w, bit_depth);
       if (highbd)

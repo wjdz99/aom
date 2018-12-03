@@ -1011,7 +1011,7 @@ static void final_filter_fast_internal(uint16_t *A, int32_t *B,
                                        const int buf_stride, int16_t *src,
                                        const int src_stride, int32_t *dst,
                                        const int dst_stride, const int width,
-                                       const int height) {
+                                       const int height, int bd) {
   int16x8_t s0;
   int32_t *B_tmp, *dst_ptr;
   uint16_t *A_tmp;
@@ -1019,81 +1019,146 @@ static void final_filter_fast_internal(uint16_t *A, int32_t *B,
   int32x4_t a_res0, a_res1, b_res0, b_res1;
   int w, h, count = 0;
   assert(SGRPROJ_SGR_BITS == 8);
-  assert(SGRPROJ_RST_BITS == 4);
+  assert(SGRPROJ_RST_BITS(bd) <= 4);
 
   A_tmp = A;
   B_tmp = B;
   src_ptr = src;
   dst_ptr = dst;
   h = height;
-  do {
-    A_tmp = (A + count * buf_stride);
-    B_tmp = (B + count * buf_stride);
-    src_ptr = (src + count * src_stride);
-    dst_ptr = (dst + count * dst_stride);
-    w = width;
-    if (!(count & 1)) {
-      do {
-        s0 = vld1q_s16(src_ptr);
-        cross_sum_fast_even_row_inp16(A_tmp, buf_stride, &a_res0, &a_res1);
-        a_res0 = vmulq_s32(vmovl_s16(vget_low_s16(s0)), a_res0);
-        a_res1 = vmulq_s32(vmovl_s16(vget_high_s16(s0)), a_res1);
+  if (bd == 12) {
+    do {
+      A_tmp = (A + count * buf_stride);
+      B_tmp = (B + count * buf_stride);
+      src_ptr = (src + count * src_stride);
+      dst_ptr = (dst + count * dst_stride);
+      w = width;
+      if (!(count & 1)) {
+        do {
+          s0 = vld1q_s16(src_ptr);
+          cross_sum_fast_even_row_inp16(A_tmp, buf_stride, &a_res0, &a_res1);
+          a_res0 = vmulq_s32(vmovl_s16(vget_low_s16(s0)), a_res0);
+          a_res1 = vmulq_s32(vmovl_s16(vget_high_s16(s0)), a_res1);
 
-        b_res0 = cross_sum_fast_even_row(B_tmp, buf_stride);
-        b_res1 = cross_sum_fast_even_row(B_tmp + 4, buf_stride);
-        a_res0 = vaddq_s32(a_res0, b_res0);
-        a_res1 = vaddq_s32(a_res1, b_res1);
+          b_res0 = cross_sum_fast_even_row(B_tmp, buf_stride);
+          b_res1 = cross_sum_fast_even_row(B_tmp + 4, buf_stride);
+          a_res0 = vaddq_s32(a_res0, b_res0);
+          a_res1 = vaddq_s32(a_res1, b_res1);
 
-        a_res0 =
-            vrshrq_n_s32(a_res0, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS);
-        a_res1 =
-            vrshrq_n_s32(a_res1, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS);
+          a_res0 = vrshrq_n_s32(
+              a_res0, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS_12);
+          a_res1 = vrshrq_n_s32(
+              a_res1, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS_12);
 
-        vst1q_s32(dst_ptr, a_res0);
-        vst1q_s32(dst_ptr + 4, a_res1);
+          vst1q_s32(dst_ptr, a_res0);
+          vst1q_s32(dst_ptr + 4, a_res1);
 
-        A_tmp += 8;
-        B_tmp += 8;
-        src_ptr += 8;
-        dst_ptr += 8;
-        w -= 8;
-      } while (w > 0);
-    } else {
-      do {
-        s0 = vld1q_s16(src_ptr);
-        cross_sum_fast_odd_row_inp16(A_tmp, &a_res0, &a_res1);
-        a_res0 = vmulq_s32(vmovl_s16(vget_low_s16(s0)), a_res0);
-        a_res1 = vmulq_s32(vmovl_s16(vget_high_s16(s0)), a_res1);
+          A_tmp += 8;
+          B_tmp += 8;
+          src_ptr += 8;
+          dst_ptr += 8;
+          w -= 8;
+        } while (w > 0);
+      } else {
+        do {
+          s0 = vld1q_s16(src_ptr);
+          cross_sum_fast_odd_row_inp16(A_tmp, &a_res0, &a_res1);
+          a_res0 = vmulq_s32(vmovl_s16(vget_low_s16(s0)), a_res0);
+          a_res1 = vmulq_s32(vmovl_s16(vget_high_s16(s0)), a_res1);
 
-        b_res0 = cross_sum_fast_odd_row(B_tmp);
-        b_res1 = cross_sum_fast_odd_row(B_tmp + 4);
-        a_res0 = vaddq_s32(a_res0, b_res0);
-        a_res1 = vaddq_s32(a_res1, b_res1);
+          b_res0 = cross_sum_fast_odd_row(B_tmp);
+          b_res1 = cross_sum_fast_odd_row(B_tmp + 4);
+          a_res0 = vaddq_s32(a_res0, b_res0);
+          a_res1 = vaddq_s32(a_res1, b_res1);
 
-        a_res0 =
-            vrshrq_n_s32(a_res0, SGRPROJ_SGR_BITS + NB_ODD - SGRPROJ_RST_BITS);
-        a_res1 =
-            vrshrq_n_s32(a_res1, SGRPROJ_SGR_BITS + NB_ODD - SGRPROJ_RST_BITS);
+          a_res0 = vrshrq_n_s32(
+              a_res0, SGRPROJ_SGR_BITS + NB_ODD - SGRPROJ_RST_BITS_12);
+          a_res1 = vrshrq_n_s32(
+              a_res1, SGRPROJ_SGR_BITS + NB_ODD - SGRPROJ_RST_BITS_12);
 
-        vst1q_s32(dst_ptr, a_res0);
-        vst1q_s32(dst_ptr + 4, a_res1);
+          vst1q_s32(dst_ptr, a_res0);
+          vst1q_s32(dst_ptr + 4, a_res1);
 
-        A_tmp += 8;
-        B_tmp += 8;
-        src_ptr += 8;
-        dst_ptr += 8;
-        w -= 8;
-      } while (w > 0);
-    }
-    count++;
-    h -= 1;
-  } while (h > 0);
+          A_tmp += 8;
+          B_tmp += 8;
+          src_ptr += 8;
+          dst_ptr += 8;
+          w -= 8;
+        } while (w > 0);
+      }
+      count++;
+      h -= 1;
+    } while (h > 0);
+  } else {
+    do {
+      A_tmp = (A + count * buf_stride);
+      B_tmp = (B + count * buf_stride);
+      src_ptr = (src + count * src_stride);
+      dst_ptr = (dst + count * dst_stride);
+      w = width;
+      if (!(count & 1)) {
+        do {
+          s0 = vld1q_s16(src_ptr);
+          cross_sum_fast_even_row_inp16(A_tmp, buf_stride, &a_res0, &a_res1);
+          a_res0 = vmulq_s32(vmovl_s16(vget_low_s16(s0)), a_res0);
+          a_res1 = vmulq_s32(vmovl_s16(vget_high_s16(s0)), a_res1);
+
+          b_res0 = cross_sum_fast_even_row(B_tmp, buf_stride);
+          b_res1 = cross_sum_fast_even_row(B_tmp + 4, buf_stride);
+          a_res0 = vaddq_s32(a_res0, b_res0);
+          a_res1 = vaddq_s32(a_res1, b_res1);
+
+          a_res0 = vrshrq_n_s32(
+              a_res0, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS_8_10);
+          a_res1 = vrshrq_n_s32(
+              a_res1, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS_8_10);
+
+          vst1q_s32(dst_ptr, a_res0);
+          vst1q_s32(dst_ptr + 4, a_res1);
+
+          A_tmp += 8;
+          B_tmp += 8;
+          src_ptr += 8;
+          dst_ptr += 8;
+          w -= 8;
+        } while (w > 0);
+      } else {
+        do {
+          s0 = vld1q_s16(src_ptr);
+          cross_sum_fast_odd_row_inp16(A_tmp, &a_res0, &a_res1);
+          a_res0 = vmulq_s32(vmovl_s16(vget_low_s16(s0)), a_res0);
+          a_res1 = vmulq_s32(vmovl_s16(vget_high_s16(s0)), a_res1);
+
+          b_res0 = cross_sum_fast_odd_row(B_tmp);
+          b_res1 = cross_sum_fast_odd_row(B_tmp + 4);
+          a_res0 = vaddq_s32(a_res0, b_res0);
+          a_res1 = vaddq_s32(a_res1, b_res1);
+
+          a_res0 = vrshrq_n_s32(
+              a_res0, SGRPROJ_SGR_BITS + NB_ODD - SGRPROJ_RST_BITS_8_10);
+          a_res1 = vrshrq_n_s32(
+              a_res1, SGRPROJ_SGR_BITS + NB_ODD - SGRPROJ_RST_BITS_8_10);
+
+          vst1q_s32(dst_ptr, a_res0);
+          vst1q_s32(dst_ptr + 4, a_res1);
+
+          A_tmp += 8;
+          B_tmp += 8;
+          src_ptr += 8;
+          dst_ptr += 8;
+          w -= 8;
+        } while (w > 0);
+      }
+      count++;
+      h -= 1;
+    } while (h > 0);
+  }
 }
 
 void final_filter_internal(uint16_t *A, int32_t *B, const int buf_stride,
                            int16_t *src, const int src_stride, int32_t *dst,
                            const int dst_stride, const int width,
-                           const int height) {
+                           const int height, int bd) {
   int16x8_t s0;
   int32_t *B_tmp, *dst_ptr;
   uint16_t *A_tmp;
@@ -1102,42 +1167,78 @@ void final_filter_internal(uint16_t *A, int32_t *B, const int buf_stride,
   int w, h, count = 0;
 
   assert(SGRPROJ_SGR_BITS == 8);
-  assert(SGRPROJ_RST_BITS == 4);
+  assert(SGRPROJ_RST_BITS(bd) <= 4);
   h = height;
 
-  do {
-    A_tmp = (A + count * buf_stride);
-    B_tmp = (B + count * buf_stride);
-    src_ptr = (src + count * src_stride);
-    dst_ptr = (dst + count * dst_stride);
-    w = width;
+  if (bd == 12) {
     do {
-      s0 = vld1q_s16(src_ptr);
-      cross_sum_inp_u16(A_tmp, buf_stride, &a_res0, &a_res1);
-      a_res0 = vmulq_s32(vmovl_s16(vget_low_s16(s0)), a_res0);
-      a_res1 = vmulq_s32(vmovl_s16(vget_high_s16(s0)), a_res1);
+      A_tmp = (A + count * buf_stride);
+      B_tmp = (B + count * buf_stride);
+      src_ptr = (src + count * src_stride);
+      dst_ptr = (dst + count * dst_stride);
+      w = width;
+      do {
+        s0 = vld1q_s16(src_ptr);
+        cross_sum_inp_u16(A_tmp, buf_stride, &a_res0, &a_res1);
+        a_res0 = vmulq_s32(vmovl_s16(vget_low_s16(s0)), a_res0);
+        a_res1 = vmulq_s32(vmovl_s16(vget_high_s16(s0)), a_res1);
 
-      b_res0 = cross_sum_inp_s32(B_tmp, buf_stride);
-      b_res1 = cross_sum_inp_s32(B_tmp + 4, buf_stride);
-      a_res0 = vaddq_s32(a_res0, b_res0);
-      a_res1 = vaddq_s32(a_res1, b_res1);
+        b_res0 = cross_sum_inp_s32(B_tmp, buf_stride);
+        b_res1 = cross_sum_inp_s32(B_tmp + 4, buf_stride);
+        a_res0 = vaddq_s32(a_res0, b_res0);
+        a_res1 = vaddq_s32(a_res1, b_res1);
 
-      a_res0 =
-          vrshrq_n_s32(a_res0, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS);
-      a_res1 =
-          vrshrq_n_s32(a_res1, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS);
-      vst1q_s32(dst_ptr, a_res0);
-      vst1q_s32(dst_ptr + 4, a_res1);
+        a_res0 = vrshrq_n_s32(a_res0,
+                              SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS_12);
+        a_res1 = vrshrq_n_s32(a_res1,
+                              SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS_12);
+        vst1q_s32(dst_ptr, a_res0);
+        vst1q_s32(dst_ptr + 4, a_res1);
 
-      A_tmp += 8;
-      B_tmp += 8;
-      src_ptr += 8;
-      dst_ptr += 8;
-      w -= 8;
-    } while (w > 0);
-    count++;
-    h -= 1;
-  } while (h > 0);
+        A_tmp += 8;
+        B_tmp += 8;
+        src_ptr += 8;
+        dst_ptr += 8;
+        w -= 8;
+      } while (w > 0);
+      count++;
+      h -= 1;
+    } while (h > 0);
+  } else {
+    do {
+      A_tmp = (A + count * buf_stride);
+      B_tmp = (B + count * buf_stride);
+      src_ptr = (src + count * src_stride);
+      dst_ptr = (dst + count * dst_stride);
+      w = width;
+      do {
+        s0 = vld1q_s16(src_ptr);
+        cross_sum_inp_u16(A_tmp, buf_stride, &a_res0, &a_res1);
+        a_res0 = vmulq_s32(vmovl_s16(vget_low_s16(s0)), a_res0);
+        a_res1 = vmulq_s32(vmovl_s16(vget_high_s16(s0)), a_res1);
+
+        b_res0 = cross_sum_inp_s32(B_tmp, buf_stride);
+        b_res1 = cross_sum_inp_s32(B_tmp + 4, buf_stride);
+        a_res0 = vaddq_s32(a_res0, b_res0);
+        a_res1 = vaddq_s32(a_res1, b_res1);
+
+        a_res0 = vrshrq_n_s32(
+            a_res0, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS_8_10);
+        a_res1 = vrshrq_n_s32(
+            a_res1, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS_8_10);
+        vst1q_s32(dst_ptr, a_res0);
+        vst1q_s32(dst_ptr + 4, a_res1);
+
+        A_tmp += 8;
+        B_tmp += 8;
+        src_ptr += 8;
+        dst_ptr += 8;
+        w -= 8;
+      } while (w > 0);
+      count++;
+      h -= 1;
+    } while (h > 0);
+  }
 }
 
 static INLINE void restoration_fast_internal(uint16_t *dgd16, int width,
@@ -1193,7 +1294,8 @@ static INLINE void restoration_fast_internal(uint16_t *dgd16, int width,
         bit_depth, r, params->s[radius_idx], 2);
   }
   final_filter_fast_internal(tmp16_buf, sum_buf, buf_stride, (int16_t *)dgd16,
-                             dgd_stride, dst, dst_stride, width, height);
+                             dgd_stride, dst, dst_stride, width, height,
+                             bit_depth);
 }
 
 static INLINE void restoration_internal(uint16_t *dgd16, int width, int height,
@@ -1249,7 +1351,7 @@ static INLINE void restoration_internal(uint16_t *dgd16, int width, int height,
                          height + 2, bit_depth, r, params->s[radius_idx], 1);
   }
   final_filter_internal(A16, B, buf_stride, (int16_t *)dgd16, dgd_stride, dst,
-                        dst_stride, width, height);
+                        dst_stride, width, height, bit_depth);
 }
 
 static INLINE void src_convert_u8_to_u16(const uint8_t *src,
@@ -1442,67 +1544,133 @@ void apply_selfguided_restoration_neon(const uint8_t *dat8, int width,
     uint16_t *dst16 = CONVERT_TO_SHORTPTR(dst8);
     dst_ptr = dst8;
     src_ptr = (int16_t *)dgd16;
-    do {
-      w = width;
-      count = 0;
-      dst_ptr = dst8 + rc * dst_stride;
-      dst16_ptr = dst16 + rc * dst_stride;
+
+    if (bit_depth == 12) {
       do {
-        s0 = vld1q_s16(src_ptr + count);
+        w = width;
+        count = 0;
+        dst_ptr = dst8 + rc * dst_stride;
+        dst16_ptr = dst16 + rc * dst_stride;
+        do {
+          s0 = vld1q_s16(src_ptr + count);
 
-        u0 = vshll_n_s16(vget_low_s16(s0), SGRPROJ_RST_BITS);
-        u4 = vshll_n_s16(vget_high_s16(s0), SGRPROJ_RST_BITS);
+          u0 = vshll_n_s16(vget_low_s16(s0), SGRPROJ_RST_BITS_12);
+          u4 = vshll_n_s16(vget_high_s16(s0), SGRPROJ_RST_BITS_12);
 
-        v0 = vshlq_n_s32(u0, SGRPROJ_PRJ_BITS);
-        v4 = vshlq_n_s32(u4, SGRPROJ_PRJ_BITS);
+          v0 = vshlq_n_s32(u0, SGRPROJ_PRJ_BITS);
+          v4 = vshlq_n_s32(u4, SGRPROJ_PRJ_BITS);
 
-        if (params->r[0] > 0) {
-          f00 = vld1q_s32(flt0 + count);
-          f10 = vld1q_s32(flt0 + count + 4);
+          if (params->r[0] > 0) {
+            f00 = vld1q_s32(flt0 + count);
+            f10 = vld1q_s32(flt0 + count + 4);
 
-          f00 = vsubq_s32(f00, u0);
-          f10 = vsubq_s32(f10, u4);
+            f00 = vsubq_s32(f00, u0);
+            f10 = vsubq_s32(f10, u4);
 
-          v0 = vmlaq_s32(v0, xq0_vec, f00);
-          v4 = vmlaq_s32(v4, xq0_vec, f10);
-        }
+            v0 = vmlaq_s32(v0, xq0_vec, f00);
+            v4 = vmlaq_s32(v4, xq0_vec, f10);
+          }
 
-        if (params->r[1] > 0) {
-          f00 = vld1q_s32(flt1 + count);
-          f10 = vld1q_s32(flt1 + count + 4);
+          if (params->r[1] > 0) {
+            f00 = vld1q_s32(flt1 + count);
+            f10 = vld1q_s32(flt1 + count + 4);
 
-          f00 = vsubq_s32(f00, u0);
-          f10 = vsubq_s32(f10, u4);
+            f00 = vsubq_s32(f00, u0);
+            f10 = vsubq_s32(f10, u4);
 
-          v0 = vmlaq_s32(v0, xq1_vec, f00);
-          v4 = vmlaq_s32(v4, xq1_vec, f10);
-        }
+            v0 = vmlaq_s32(v0, xq1_vec, f00);
+            v4 = vmlaq_s32(v4, xq1_vec, f10);
+          }
 
-        d0 = vqrshrn_n_s32(v0, SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS);
-        d4 = vqrshrn_n_s32(v4, SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS);
+          d0 = vqrshrn_n_s32(v0, SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS_12);
+          d4 = vqrshrn_n_s32(v4, SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS_12);
 
-        r0 = vcombine_s16(d0, d4);
+          r0 = vcombine_s16(d0, d4);
 
-        r4 = vreinterpretq_u16_s16(vmaxq_s16(r0, zero));
+          r4 = vreinterpretq_u16_s16(vmaxq_s16(r0, zero));
 
-        if (highbd) {
-          r4 = vminq_u16(r4, max);
-          vst1q_u16(dst16_ptr, r4);
-        } else {
-          t0 = vqmovn_u16(r4);
-          vst1_u8(dst_ptr, t0);
-        }
-        w -= 8;
-        count += 8;
-        dst_ptr += 8;
-        dst16_ptr += 8;
-      } while (w > 0);
+          if (highbd) {
+            r4 = vminq_u16(r4, max);
+            vst1q_u16(dst16_ptr, r4);
+          } else {
+            t0 = vqmovn_u16(r4);
+            vst1_u8(dst_ptr, t0);
+          }
+          w -= 8;
+          count += 8;
+          dst_ptr += 8;
+          dst16_ptr += 8;
+        } while (w > 0);
 
-      src_ptr += dgd16_stride;
-      flt1 += width;
-      flt0 += width;
-      rc++;
-      h--;
-    } while (h > 0);
+        src_ptr += dgd16_stride;
+        flt1 += width;
+        flt0 += width;
+        rc++;
+        h--;
+      } while (h > 0);
+    } else {
+      do {
+        w = width;
+        count = 0;
+        dst_ptr = dst8 + rc * dst_stride;
+        dst16_ptr = dst16 + rc * dst_stride;
+        do {
+          s0 = vld1q_s16(src_ptr + count);
+
+          u0 = vshll_n_s16(vget_low_s16(s0), SGRPROJ_RST_BITS_8_10);
+          u4 = vshll_n_s16(vget_high_s16(s0), SGRPROJ_RST_BITS_8_10);
+
+          v0 = vshlq_n_s32(u0, SGRPROJ_PRJ_BITS);
+          v4 = vshlq_n_s32(u4, SGRPROJ_PRJ_BITS);
+
+          if (params->r[0] > 0) {
+            f00 = vld1q_s32(flt0 + count);
+            f10 = vld1q_s32(flt0 + count + 4);
+
+            f00 = vsubq_s32(f00, u0);
+            f10 = vsubq_s32(f10, u4);
+
+            v0 = vmlaq_s32(v0, xq0_vec, f00);
+            v4 = vmlaq_s32(v4, xq0_vec, f10);
+          }
+
+          if (params->r[1] > 0) {
+            f00 = vld1q_s32(flt1 + count);
+            f10 = vld1q_s32(flt1 + count + 4);
+
+            f00 = vsubq_s32(f00, u0);
+            f10 = vsubq_s32(f10, u4);
+
+            v0 = vmlaq_s32(v0, xq1_vec, f00);
+            v4 = vmlaq_s32(v4, xq1_vec, f10);
+          }
+
+          d0 = vqrshrn_n_s32(v0, SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS_8_10);
+          d4 = vqrshrn_n_s32(v4, SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS_8_10);
+
+          r0 = vcombine_s16(d0, d4);
+
+          r4 = vreinterpretq_u16_s16(vmaxq_s16(r0, zero));
+
+          if (highbd) {
+            r4 = vminq_u16(r4, max);
+            vst1q_u16(dst16_ptr, r4);
+          } else {
+            t0 = vqmovn_u16(r4);
+            vst1_u8(dst_ptr, t0);
+          }
+          w -= 8;
+          count += 8;
+          dst_ptr += 8;
+          dst16_ptr += 8;
+        } while (w > 0);
+
+        src_ptr += dgd16_stride;
+        flt1 += width;
+        flt0 += width;
+        rc++;
+        h--;
+      } while (h > 0);
+    }
   }
 }

@@ -92,7 +92,10 @@ extern "C" {
 // Precision bits for projection
 #define SGRPROJ_PRJ_BITS 7
 // Restoration precision bits generated higher than source before projection
-#define SGRPROJ_RST_BITS 4
+#define SGRPROJ_RST_BITS_8_10 4
+#define SGRPROJ_RST_BITS_12 3
+#define SGRPROJ_RST_BITS(bd) \
+  ((bd) == 12 ? SGRPROJ_RST_BITS_12 : SGRPROJ_RST_BITS_8_10)
 // Internal precision bits for core selfguided_restoration
 #define SGRPROJ_SGR_BITS 8
 #define SGRPROJ_SGR (1 << SGRPROJ_SGR_BITS)
