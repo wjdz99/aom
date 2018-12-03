@@ -611,9 +611,8 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd, int blk_row,
   if (mbmi->skip || segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP))
     return;
 
-  // No need to read transform type for lossless mode(qindex==0).
-  const int qindex = xd->qindex[mbmi->segment_id];
-  if (qindex == 0) return;
+  // No need to read transform type for lossless mode
+  if (xd->lossless[xd->mi[0]->segment_id]) return;
 
   const int inter_block = is_inter_block(mbmi);
   if (get_ext_tx_types(tx_size, inter_block, cm->reduced_tx_set_used) > 1) {
