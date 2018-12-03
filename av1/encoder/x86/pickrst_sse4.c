@@ -504,7 +504,7 @@ int64_t av1_lowbd_pixel_proj_error_sse4_1(
     const uint8_t *dat8, int dat_stride, int32_t *flt0, int flt0_stride,
     int32_t *flt1, int flt1_stride, int xq[2], const sgr_params_type *params) {
   int i, j, k;
-  const int32_t shift = SGRPROJ_RST_BITS + SGRPROJ_PRJ_BITS;
+  const int32_t shift = SGRPROJ_RST_BITS_8_10 + SGRPROJ_PRJ_BITS;
   const __m128i rounding = _mm_set1_epi32(1 << (shift - 1));
   __m128i sum64 = _mm_setzero_si128();
   const uint8_t *src = src8;
@@ -521,7 +521,7 @@ int64_t av1_lowbd_pixel_proj_error_sse4_1(
             _mm_packs_epi32(xx_loadu_128(flt0 + j), xx_loadu_128(flt0 + j + 4));
         const __m128i flt1_16b =
             _mm_packs_epi32(xx_loadu_128(flt1 + j), xx_loadu_128(flt1 + j + 4));
-        const __m128i u0 = _mm_slli_epi16(d0, SGRPROJ_RST_BITS);
+        const __m128i u0 = _mm_slli_epi16(d0, SGRPROJ_RST_BITS_8_10);
         const __m128i flt0_0_sub_u = _mm_sub_epi16(flt0_16b, u0);
         const __m128i flt1_0_sub_u = _mm_sub_epi16(flt1_16b, u0);
         const __m128i v0 = _mm_madd_epi16(
@@ -536,7 +536,7 @@ int64_t av1_lowbd_pixel_proj_error_sse4_1(
         sum32 = _mm_add_epi32(sum32, err0);
       }
       for (k = j; k < width; ++k) {
-        const int32_t u = (int32_t)(dat[k] << SGRPROJ_RST_BITS);
+        const int32_t u = (int32_t)(dat[k] << SGRPROJ_RST_BITS_8_10);
         int32_t v = xq[0] * (flt0[k] - u) + xq[1] * (flt1[k] - u);
         const int32_t e = ROUND_POWER_OF_TWO(v, shift) + dat[k] - src[k];
         err += e * e;
@@ -553,7 +553,7 @@ int64_t av1_lowbd_pixel_proj_error_sse4_1(
   } else if (params->r[0] > 0 || params->r[1] > 0) {
     const int xq_active = (params->r[0] > 0) ? xq[0] : xq[1];
     const __m128i xq_coeff =
-        pair_set_epi16(xq_active, -(xq_active << SGRPROJ_RST_BITS));
+        pair_set_epi16(xq_active, -(xq_active << SGRPROJ_RST_BITS_8_10));
     const int32_t *flt = (params->r[0] > 0) ? flt0 : flt1;
     const int flt_stride = (params->r[0] > 0) ? flt0_stride : flt1_stride;
     for (i = 0; i < height; ++i) {
@@ -575,7 +575,7 @@ int64_t av1_lowbd_pixel_proj_error_sse4_1(
         sum32 = _mm_add_epi32(sum32, err0);
       }
       for (k = j; k < width; ++k) {
-        const int32_t u = (int32_t)(dat[k] << SGRPROJ_RST_BITS);
+        const int32_t u = (int32_t)(dat[k] << SGRPROJ_RST_BITS_8_10);
         int32_t v = xq_active * (flt[k] - u);
         const int32_t e = ROUND_POWER_OF_TWO(v, shift) + dat[k] - src[k];
         err += e * e;
@@ -624,10 +624,10 @@ int64_t av1_lowbd_pixel_proj_error_sse4_1(
 
 int64_t av1_highbd_pixel_proj_error_sse4_1(
     const uint8_t *src8, int width, int height, int src_stride,
-    const uint8_t *dat8, int dat_stride, int32_t *flt0, int flt0_stride,
+    const uint8_t *dat8, int dat_stride, int bd, int32_t *flt0, int flt0_stride,
     int32_t *flt1, int flt1_stride, int xq[2], const sgr_params_type *params) {
   int i, j, k;
-  const int32_t shift = SGRPROJ_RST_BITS + SGRPROJ_PRJ_BITS;
+  const int32_t shift = SGRPROJ_RST_BITS(bd) + SGRPROJ_PRJ_BITS;
   const __m128i rounding = _mm_set1_epi32(1 << (shift - 1));
   __m128i sum64 = _mm_setzero_si128();
   const uint16_t *src = CONVERT_TO_SHORTPTR(src8);
@@ -649,7 +649,7 @@ int64_t av1_highbd_pixel_proj_error_sse4_1(
         // d0 = [7 6 5 4 3 2 1 0] as i16 (indices of dat[])
 
         // Shift each pixel value up by SGRPROJ_RST_BITS
-        const __m128i u0 = _mm_slli_epi16(d0, SGRPROJ_RST_BITS);
+        const __m128i u0 = _mm_slli_epi16(d0, SGRPROJ_RST_BITS(bd));
 
         // Split u0 into two halves and pad each from u16 to i32
         const __m128i u0l = _mm_cvtepu16_epi32(u0);
@@ -706,7 +706,7 @@ int64_t av1_highbd_pixel_proj_error_sse4_1(
 
       // Process remaining pixels in this row (modulo 8)
       for (k = j; k < width; ++k) {
-        const int32_t u = (int32_t)(dat[k] << SGRPROJ_RST_BITS);
+        const int32_t u = (int32_t)(dat[k] << SGRPROJ_RST_BITS(bd));
         int32_t v = xq[0] * (flt0[k] - u) + xq[1] * (flt1[k] - u);
         const int32_t e = ROUND_POWER_OF_TWO(v, shift) + dat[k] - src[k];
         err += e * e;
@@ -720,7 +720,7 @@ int64_t av1_highbd_pixel_proj_error_sse4_1(
     const int32_t xq_on = (params->r[0] > 0) ? xq[0] : xq[1];
     const __m128i xq_active = _mm_set1_epi32(xq_on);
     const __m128i xq_inactive =
-        _mm_set1_epi32(-xq_on * (1 << SGRPROJ_RST_BITS));
+        _mm_set1_epi32(-xq_on * (1 << SGRPROJ_RST_BITS(bd)));
     const int32_t *flt = (params->r[0] > 0) ? flt0 : flt1;
     const int flt_stride = (params->r[0] > 0) ? flt0_stride : flt1_stride;
     for (i = 0; i < height; ++i) {
@@ -774,7 +774,7 @@ int64_t av1_highbd_pixel_proj_error_sse4_1(
 
       // Process remaining pixels in this row (modulo 8)
       for (k = j; k < width; ++k) {
-        const int32_t u = (int32_t)(dat[k] << SGRPROJ_RST_BITS);
+        const int32_t u = (int32_t)(dat[k] << SGRPROJ_RST_BITS(bd));
         int32_t v = xq_on * (flt[k] - u);
         const int32_t e = ROUND_POWER_OF_TWO(v, shift) + dat[k] - src[k];
         err += e * e;

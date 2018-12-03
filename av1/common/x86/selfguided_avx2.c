@@ -323,10 +323,11 @@ static INLINE __m256i cross_sum(const int32_t *buf, int stride) {
 // across A, B with "cross sums" (see cross_sum implementation above).
 static void final_filter(int32_t *dst, int dst_stride, const int32_t *A,
                          const int32_t *B, int buf_stride, const void *dgd8,
-                         int dgd_stride, int width, int height, int highbd) {
+                         int dgd_stride, int width, int height, int highbd,
+                         int bd) {
   const int nb = 5;
   const __m256i rounding =
-      round_for_shift(SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
+      round_for_shift(SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS(bd));
   const uint8_t *dgd_real =
       highbd ? (const uint8_t *)CONVERT_TO_SHORTPTR(dgd8) : dgd8;
 
@@ -341,8 +342,9 @@ static void final_filter(int32_t *dst, int dst_stride, const int32_t *A,
           highbd ? _mm256_cvtepu16_epi32(raw) : _mm256_cvtepu8_epi32(raw);
 
       __m256i v = _mm256_add_epi32(_mm256_madd_epi16(a, src), b);
-      __m256i w = _mm256_srai_epi32(_mm256_add_epi32(v, rounding),
-                                    SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
+      __m256i w =
+          _mm256_srai_epi32(_mm256_add_epi32(v, rounding),
+                            SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS(bd));
 
       yy_storeu_256(dst + i * dst_stride + j, w);
     }
@@ -493,14 +495,14 @@ static INLINE __m256i cross_sum_fast_odd_row(const int32_t *buf) {
 static void final_filter_fast(int32_t *dst, int dst_stride, const int32_t *A,
                               const int32_t *B, int buf_stride,
                               const void *dgd8, int dgd_stride, int width,
-                              int height, int highbd) {
+                              int height, int highbd, int bd) {
   const int nb0 = 5;
   const int nb1 = 4;
 
   const __m256i rounding0 =
-      round_for_shift(SGRPROJ_SGR_BITS + nb0 - SGRPROJ_RST_BITS);
+      round_for_shift(SGRPROJ_SGR_BITS + nb0 - SGRPROJ_RST_BITS(bd));
   const __m256i rounding1 =
-      round_for_shift(SGRPROJ_SGR_BITS + nb1 - SGRPROJ_RST_BITS);
+      round_for_shift(SGRPROJ_SGR_BITS + nb1 - SGRPROJ_RST_BITS(bd));
 
   const uint8_t *dgd_real =
       highbd ? (const uint8_t *)CONVERT_TO_SHORTPTR(dgd8) : dgd8;
@@ -521,7 +523,7 @@ static void final_filter_fast(int32_t *dst, int dst_stride, const int32_t *A,
         __m256i v = _mm256_add_epi32(_mm256_madd_epi16(a, src), b);
         __m256i w =
             _mm256_srai_epi32(_mm256_add_epi32(v, rounding0),
-                              SGRPROJ_SGR_BITS + nb0 - SGRPROJ_RST_BITS);
+                              SGRPROJ_SGR_BITS + nb0 - SGRPROJ_RST_BITS(bd));
 
         yy_storeu_256(dst + i * dst_stride + j, w);
       }
@@ -538,7 +540,7 @@ static void final_filter_fast(int32_t *dst, int dst_stride, const int32_t *A,
         __m256i v = _mm256_add_epi32(_mm256_madd_epi16(a, src), b);
         __m256i w =
             _mm256_srai_epi32(_mm256_add_epi32(v, rounding1),
-                              SGRPROJ_SGR_BITS + nb1 - SGRPROJ_RST_BITS);
+                              SGRPROJ_SGR_BITS + nb1 - SGRPROJ_RST_BITS(bd));
 
         yy_storeu_256(dst + i * dst_stride + j, w);
       }
@@ -617,14 +619,14 @@ int av1_selfguided_restoration_avx2(const uint8_t *dgd8, int width, int height,
     calc_ab_fast(A, B, C, D, width, height, buf_stride, bit_depth,
                  sgr_params_idx, 0);
     final_filter_fast(flt0, flt_stride, A, B, buf_stride, dgd8, dgd_stride,
-                      width, height, highbd);
+                      width, height, highbd, bit_depth);
   }
 
   if (params->r[1] > 0) {
     calc_ab(A, B, C, D, width, height, buf_stride, bit_depth, sgr_params_idx,
             1);
     final_filter(flt1, flt_stride, A, B, buf_stride, dgd8, dgd_stride, width,
-                 height, highbd);
+                 height, highbd, bit_depth);
   }
   aom_free(buf);
   return 0;
@@ -669,8 +671,8 @@ void apply_selfguided_restoration_avx2(const uint8_t *dat8, int width,
         ep_1 = _mm256_cvtepu8_epi32(_mm_srli_si128(src_0, 8));
       }
 
-      const __m256i u_0 = _mm256_slli_epi32(ep_0, SGRPROJ_RST_BITS);
-      const __m256i u_1 = _mm256_slli_epi32(ep_1, SGRPROJ_RST_BITS);
+      const __m256i u_0 = _mm256_slli_epi32(ep_0, SGRPROJ_RST_BITS(bit_depth));
+      const __m256i u_1 = _mm256_slli_epi32(ep_1, SGRPROJ_RST_BITS(bit_depth));
 
       __m256i v_0 = _mm256_slli_epi32(u_0, SGRPROJ_PRJ_BITS);
       __m256i v_1 = _mm256_slli_epi32(u_1, SGRPROJ_PRJ_BITS);
@@ -692,11 +694,13 @@ void apply_selfguided_restoration_avx2(const uint8_t *dat8, int width,
       }
 
       const __m256i rounding =
-          round_for_shift(SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS);
-      const __m256i w_0 = _mm256_srai_epi32(
-          _mm256_add_epi32(v_0, rounding), SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS);
-      const __m256i w_1 = _mm256_srai_epi32(
-          _mm256_add_epi32(v_1, rounding), SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS);
+          round_for_shift(SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS(bit_depth));
+      const __m256i w_0 =
+          _mm256_srai_epi32(_mm256_add_epi32(v_0, rounding),
+                            SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS(bit_depth));
+      const __m256i w_1 =
+          _mm256_srai_epi32(_mm256_add_epi32(v_1, rounding),
+                            SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS(bit_depth));
 
       if (highbd) {
         // Pack into 16 bits and clamp to [0, 2^bit_depth)
