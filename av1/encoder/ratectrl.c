@@ -756,10 +756,28 @@ static int rc_pick_q_and_bounds_one_pass_cbr(const AV1_COMP *cpi, int width,
   return q;
 }
 
+static int gf_group_pyramid_level(const AV1_COMP *cpi) {
+  const GF_GROUP *gf_group = &cpi->twopass.gf_group;
+  int this_height = gf_group->pyramid_level[gf_group->index];
+  return this_height;
+}
+
 static int get_active_cq_level(const RATE_CONTROL *rc,
-                               const AV1EncoderConfig *const oxcf) {
+                               const AV1EncoderConfig *const oxcf,
+                               int intra_only, int superres_denom) {
   static const double cq_adjust_threshold = 0.1;
   int active_cq_level = oxcf->cq_level;
+  (void)intra_only;
+  if (oxcf->rc_mode == AOM_CQ || oxcf->rc_mode == AOM_Q) {
+    // printf("Superres %d %d %d = %d\n", superres_denom, intra_only,
+    //        rc->frames_to_key, !(intra_only && rc->frames_to_key <= 1));
+    if (oxcf->superres_mode == SUPERRES_QTHRESH &&
+        superres_denom != SCALE_NUMERATOR &&
+        !(intra_only && rc->frames_to_key <= 1)) {
+      active_cq_level =
+          AOMMAX(active_cq_level - ((superres_denom - SCALE_NUMERATOR) * 4), 0);
+    }
+  }
   if (oxcf->rc_mode == AOM_CQ && rc->total_target_bits > 0) {
     const double x = (double)rc->total_actual_bits / rc->total_target_bits;
     if (x < cq_adjust_threshold) {
@@ -776,7 +794,8 @@ static int rc_pick_q_and_bounds_one_pass_vbr(const AV1_COMP *cpi, int width,
   const RATE_CONTROL *const rc = &cpi->rc;
   const CurrentFrame *const current_frame = &cm->current_frame;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
-  const int cq_level = get_active_cq_level(rc, oxcf);
+  const int cq_level = get_active_cq_level(rc, oxcf, frame_is_intra_only(cm),
+                                           cm->superres_scale_denominator);
   int active_best_quality;
   int active_worst_quality = calc_active_worst_quality_one_pass_vbr(cpi);
   int q;
@@ -937,7 +956,8 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
   const RATE_CONTROL *const rc = &cpi->rc;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   const GF_GROUP *gf_group = &cpi->twopass.gf_group;
-  const int cq_level = get_active_cq_level(rc, oxcf);
+  const int cq_level = get_active_cq_level(rc, oxcf, frame_is_intra_only(cm),
+                                           cm->superres_scale_denominator);
   int active_best_quality;
   int active_worst_quality = cpi->twopass.active_worst_quality;
   int q;
