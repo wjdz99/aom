@@ -16,7 +16,7 @@
 #include "config/aom_dsp_rtcd.h"
 
 #include "aom/aom_integer.h"
-#include "aom_dsp/x86/quantize_x86.h"
+#include "aom_dsp/x86/quantize_sse2.h"
 
 static INLINE __m128i load_coefficients(const tran_low_t *coeff_ptr) {
   assert(sizeof(tran_low_t) == 4);
@@ -95,15 +95,12 @@ void aom_quantize_b_sse2(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
   store_coefficients(qcoeff0, qcoeff_ptr);
   store_coefficients(qcoeff1, qcoeff_ptr + 8);
 
-  coeff0 = calculate_dqcoeff(qcoeff0, dequant);
+  calculate_dqcoeff_and_store(qcoeff0, dequant, dqcoeff_ptr);
   dequant = _mm_unpackhi_epi64(dequant, dequant);
-  coeff1 = calculate_dqcoeff(qcoeff1, dequant);
+  calculate_dqcoeff_and_store(qcoeff1, dequant, dqcoeff_ptr + 8);
 
-  store_coefficients(coeff0, dqcoeff_ptr);
-  store_coefficients(coeff1, dqcoeff_ptr + 8);
-
-  eob =
-      scan_for_eob(&coeff0, &coeff1, cmp_mask0, cmp_mask1, iscan_ptr, 0, zero);
+  eob = scan_for_eob(&qcoeff0, &qcoeff1, cmp_mask0, cmp_mask1, iscan_ptr, 0,
+                     zero);
 
   // AC only loop.
   while (index < n_coeffs) {
@@ -130,13 +127,10 @@ void aom_quantize_b_sse2(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
     store_coefficients(qcoeff0, qcoeff_ptr + index);
     store_coefficients(qcoeff1, qcoeff_ptr + index + 8);
 
-    coeff0 = calculate_dqcoeff(qcoeff0, dequant);
-    coeff1 = calculate_dqcoeff(qcoeff1, dequant);
+    calculate_dqcoeff_and_store(qcoeff0, dequant, dqcoeff_ptr + index);
+    calculate_dqcoeff_and_store(qcoeff1, dequant, dqcoeff_ptr + index + 8);
 
-    store_coefficients(coeff0, dqcoeff_ptr + index);
-    store_coefficients(coeff1, dqcoeff_ptr + index + 8);
-
-    eob0 = scan_for_eob(&coeff0, &coeff1, cmp_mask0, cmp_mask1, iscan_ptr,
+    eob0 = scan_for_eob(&qcoeff0, &qcoeff1, cmp_mask0, cmp_mask1, iscan_ptr,
                         index, zero);
     eob = _mm_max_epi16(eob, eob0);
 

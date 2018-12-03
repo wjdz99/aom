@@ -9,9 +9,13 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#ifndef AOM_AOM_DSP_X86_QUANTIZE_SSE2_H_
+#define AOM_AOM_DSP_X86_QUANTIZE_SSE2_H_
+
 #include <emmintrin.h>
 
 #include "aom/aom_integer.h"
+#include "config/aom_config.h"
 
 static INLINE void load_b_values(const int16_t *zbin_ptr, __m128i *zbin,
                                  const int16_t *round_ptr, __m128i *round,
@@ -41,8 +45,16 @@ static INLINE void calculate_qcoeff(__m128i *coeff, const __m128i round,
   *coeff = _mm_mulhi_epi16(qcoeff, shift);
 }
 
-static INLINE __m128i calculate_dqcoeff(__m128i qcoeff, __m128i dequant) {
-  return _mm_mullo_epi16(qcoeff, dequant);
+static INLINE void calculate_dqcoeff_and_store(__m128i qcoeff, __m128i dequant,
+                                               tran_low_t *dqcoeff) {
+  const __m128i low = _mm_mullo_epi16(qcoeff, dequant);
+  const __m128i high = _mm_mulhi_epi16(qcoeff, dequant);
+
+  const __m128i dqcoeff32_0 = _mm_unpacklo_epi16(low, high);
+  const __m128i dqcoeff32_1 = _mm_unpackhi_epi16(low, high);
+
+  _mm_store_si128((__m128i *)(dqcoeff), dqcoeff32_0);
+  _mm_store_si128((__m128i *)(dqcoeff + 4), dqcoeff32_1);
 }
 
 // Scan 16 values for eob reference in scan_ptr. Use masks (-1) from comparing
@@ -75,3 +87,5 @@ static INLINE int16_t accumulate_eob(__m128i eob) {
   eob = _mm_max_epi16(eob, eob_shuffled);
   return _mm_extract_epi16(eob, 1);
 }
+
+#endif  // AOM_AOM_DSP_X86_QUANTIZE_SSE2_H_
