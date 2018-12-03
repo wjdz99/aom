@@ -194,7 +194,7 @@ static const int kIterations = 100;
 
 typedef int64_t (*highbd_pixel_proj_error_func)(
     const uint8_t *src8, int width, int height, int src_stride,
-    const uint8_t *dat8, int dat_stride, int32_t *flt0, int flt0_stride,
+    const uint8_t *dat8, int dat_stride, int bd, int32_t *flt0, int flt0_stride,
     int32_t *flt1, int flt1_stride, int xq[2], const sgr_params_type *params);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -271,16 +271,16 @@ void PixelProjHighbdErrorTest::RunPixelProjErrorTest(int32_t run_times) {
     aom_usec_timer_start(&timer);
     for (int i = 0; i < run_times; ++i) {
       err_ref = av1_highbd_pixel_proj_error_c(
-          src8, h_end, v_end, src_stride, dgd8, dgd_stride, flt0_, flt0_stride,
-          flt1_, flt1_stride, xq, &params);
+          src8, h_end, v_end, src_stride, dgd8, dgd_stride, 12, flt0_,
+          flt0_stride, flt1_, flt1_stride, xq, &params);
     }
     aom_usec_timer_mark(&timer);
     const double time1 = static_cast<double>(aom_usec_timer_elapsed(&timer));
     aom_usec_timer_start(&timer);
     for (int i = 0; i < run_times; ++i) {
       err_test =
-          target_func_(src8, h_end, v_end, src_stride, dgd8, dgd_stride, flt0_,
-                       flt0_stride, flt1_, flt1_stride, xq, &params);
+          target_func_(src8, h_end, v_end, src_stride, dgd8, dgd_stride, 12,
+                       flt0_, flt0_stride, flt1_, flt1_stride, xq, &params);
     }
     aom_usec_timer_mark(&timer);
     const double time2 = static_cast<double>(aom_usec_timer_elapsed(&timer));
@@ -323,10 +323,10 @@ void PixelProjHighbdErrorTest::RunPixelProjErrorTest_ExtremeValues() {
 
     err_ref = av1_highbd_pixel_proj_error_c(
         src8, h_end - h_start, v_end - v_start, src_stride, dgd8, dgd_stride,
-        flt0_, flt0_stride, flt1_, flt1_stride, xq, &params);
+        12, flt0_, flt0_stride, flt1_, flt1_stride, xq, &params);
 
     err_test = target_func_(src8, h_end - h_start, v_end - v_start, src_stride,
-                            dgd8, dgd_stride, flt0_, flt0_stride, flt1_,
+                            dgd8, dgd_stride, 12, flt0_, flt0_stride, flt1_,
                             flt1_stride, xq, &params);
 
     ASSERT_EQ(err_ref, err_test);

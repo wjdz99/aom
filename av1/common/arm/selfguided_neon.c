@@ -1011,7 +1011,7 @@ static void final_filter_fast_internal(uint16_t *A, int32_t *B,
                                        const int buf_stride, int16_t *src,
                                        const int src_stride, int32_t *dst,
                                        const int dst_stride, const int width,
-                                       const int height) {
+                                       const int height, int bd) {
   int16x8_t s0;
   int32_t *B_tmp, *dst_ptr;
   uint16_t *A_tmp;
@@ -1019,7 +1019,7 @@ static void final_filter_fast_internal(uint16_t *A, int32_t *B,
   int32x4_t a_res0, a_res1, b_res0, b_res1;
   int w, h, count = 0;
   assert(SGRPROJ_SGR_BITS == 8);
-  assert(SGRPROJ_RST_BITS == 4);
+  assert(SGRPROJ_RST_BITS(bd) <= 4);
 
   A_tmp = A;
   B_tmp = B;
@@ -1044,10 +1044,17 @@ static void final_filter_fast_internal(uint16_t *A, int32_t *B,
         a_res0 = vaddq_s32(a_res0, b_res0);
         a_res1 = vaddq_s32(a_res1, b_res1);
 
-        a_res0 =
-            vrshrq_n_s32(a_res0, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS);
-        a_res1 =
-            vrshrq_n_s32(a_res1, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS);
+        if (bd == 12) {
+          a_res0 = vrshrq_n_s32(
+              a_res0, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS_12);
+          a_res1 = vrshrq_n_s32(
+              a_res1, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS_12);
+        } else {
+          a_res0 = vrshrq_n_s32(
+              a_res0, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS_8_10);
+          a_res1 = vrshrq_n_s32(
+              a_res1, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS_8_10);
+        }
 
         vst1q_s32(dst_ptr, a_res0);
         vst1q_s32(dst_ptr + 4, a_res1);
@@ -1070,10 +1077,17 @@ static void final_filter_fast_internal(uint16_t *A, int32_t *B,
         a_res0 = vaddq_s32(a_res0, b_res0);
         a_res1 = vaddq_s32(a_res1, b_res1);
 
-        a_res0 =
-            vrshrq_n_s32(a_res0, SGRPROJ_SGR_BITS + NB_ODD - SGRPROJ_RST_BITS);
-        a_res1 =
-            vrshrq_n_s32(a_res1, SGRPROJ_SGR_BITS + NB_ODD - SGRPROJ_RST_BITS);
+        if (bd == 12) {
+          a_res0 = vrshrq_n_s32(
+              a_res0, SGRPROJ_SGR_BITS + NB_ODD - SGRPROJ_RST_BITS_12);
+          a_res1 = vrshrq_n_s32(
+              a_res1, SGRPROJ_SGR_BITS + NB_ODD - SGRPROJ_RST_BITS_12);
+        } else {
+          a_res0 = vrshrq_n_s32(
+              a_res0, SGRPROJ_SGR_BITS + NB_ODD - SGRPROJ_RST_BITS_8_10);
+          a_res1 = vrshrq_n_s32(
+              a_res1, SGRPROJ_SGR_BITS + NB_ODD - SGRPROJ_RST_BITS_8_10);
+        }
 
         vst1q_s32(dst_ptr, a_res0);
         vst1q_s32(dst_ptr + 4, a_res1);
@@ -1093,7 +1107,7 @@ static void final_filter_fast_internal(uint16_t *A, int32_t *B,
 void final_filter_internal(uint16_t *A, int32_t *B, const int buf_stride,
                            int16_t *src, const int src_stride, int32_t *dst,
                            const int dst_stride, const int width,
-                           const int height) {
+                           const int height, int bd) {
   int16x8_t s0;
   int32_t *B_tmp, *dst_ptr;
   uint16_t *A_tmp;
@@ -1102,7 +1116,7 @@ void final_filter_internal(uint16_t *A, int32_t *B, const int buf_stride,
   int w, h, count = 0;
 
   assert(SGRPROJ_SGR_BITS == 8);
-  assert(SGRPROJ_RST_BITS == 4);
+  assert(SGRPROJ_RST_BITS(bd) <= 4);
   h = height;
 
   do {
@@ -1122,10 +1136,17 @@ void final_filter_internal(uint16_t *A, int32_t *B, const int buf_stride,
       a_res0 = vaddq_s32(a_res0, b_res0);
       a_res1 = vaddq_s32(a_res1, b_res1);
 
-      a_res0 =
-          vrshrq_n_s32(a_res0, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS);
-      a_res1 =
-          vrshrq_n_s32(a_res1, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS);
+      if (bd == 12) {
+        a_res0 = vrshrq_n_s32(a_res0,
+                              SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS_12);
+        a_res1 = vrshrq_n_s32(a_res1,
+                              SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS_12);
+      } else {
+        a_res0 = vrshrq_n_s32(
+            a_res0, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS_8_10);
+        a_res1 = vrshrq_n_s32(
+            a_res1, SGRPROJ_SGR_BITS + NB_EVEN - SGRPROJ_RST_BITS_8_10);
+      }
       vst1q_s32(dst_ptr, a_res0);
       vst1q_s32(dst_ptr + 4, a_res1);
 
@@ -1193,7 +1214,8 @@ static INLINE void restoration_fast_internal(uint16_t *dgd16, int width,
         bit_depth, r, params->s[radius_idx], 2);
   }
   final_filter_fast_internal(tmp16_buf, sum_buf, buf_stride, (int16_t *)dgd16,
-                             dgd_stride, dst, dst_stride, width, height);
+                             dgd_stride, dst, dst_stride, width, height,
+                             bit_depth);
 }
 
 static INLINE void restoration_internal(uint16_t *dgd16, int width, int height,
@@ -1249,7 +1271,7 @@ static INLINE void restoration_internal(uint16_t *dgd16, int width, int height,
                          height + 2, bit_depth, r, params->s[radius_idx], 1);
   }
   final_filter_internal(A16, B, buf_stride, (int16_t *)dgd16, dgd_stride, dst,
-                        dst_stride, width, height);
+                        dst_stride, width, height, bit_depth);
 }
 
 static INLINE void src_convert_u8_to_u16(const uint8_t *src,
@@ -1450,8 +1472,8 @@ void apply_selfguided_restoration_neon(const uint8_t *dat8, int width,
       do {
         s0 = vld1q_s16(src_ptr + count);
 
-        u0 = vshll_n_s16(vget_low_s16(s0), SGRPROJ_RST_BITS);
-        u4 = vshll_n_s16(vget_high_s16(s0), SGRPROJ_RST_BITS);
+        u0 = vshll_n_s16(vget_low_s16(s0), SGRPROJ_RST_BITS(bit_depth));
+        u4 = vshll_n_s16(vget_high_s16(s0), SGRPROJ_RST_BITS(bit_depth));
 
         v0 = vshlq_n_s32(u0, SGRPROJ_PRJ_BITS);
         v4 = vshlq_n_s32(u4, SGRPROJ_PRJ_BITS);
@@ -1478,8 +1500,8 @@ void apply_selfguided_restoration_neon(const uint8_t *dat8, int width,
           v4 = vmlaq_s32(v4, xq1_vec, f10);
         }
 
-        d0 = vqrshrn_n_s32(v0, SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS);
-        d4 = vqrshrn_n_s32(v4, SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS);
+        d0 = vqrshrn_n_s32(v0, SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS(bit_depth));
+        d4 = vqrshrn_n_s32(v4, SGRPROJ_PRJ_BITS + SGRPROJ_RST_BITS(bit_depth));
 
         r0 = vcombine_s16(d0, d4);
 
