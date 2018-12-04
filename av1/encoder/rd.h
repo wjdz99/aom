@@ -40,7 +40,7 @@ extern "C" {
 #define MV_COST_WEIGHT 108
 #define MV_COST_WEIGHT_SUB 120
 
-#define RD_THRESH_MAX_FACT 64
+#define RD_THRESH_MAX_FACT 32
 #define RD_THRESH_INC 1
 
 // Factor to weigh the rate for switchable interp filters.
