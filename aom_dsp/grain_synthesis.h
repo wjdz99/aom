@@ -28,6 +28,9 @@ extern "C" {
  * This structure contains input parameters for film grain synthesis
  */
 typedef struct {
+  // This structure is compared element-by-element in the function
+  // av1_check_grain_params_equiv: this function must be updated if any changes
+  // are made to this structure.
   int apply_grain;
 
   int update_parameters;
@@ -79,7 +82,21 @@ typedef struct {
   int grain_scale_shift;
 
   uint16_t random_seed;
+  // This structure is compared element-by-element in the function
+  // av1_check_grain_params_equiv: this function must be updated if any changes
+  // are made to this structure.
 } aom_film_grain_t;
+
+/*!\brief Check if two film grain parameters structs are equivalent
+ *
+ * Check if two film grain parameters are equal, except for the
+ * update_parameters and random_seed elements which are ignored.
+ *
+ * \param[in]    pa               The first set of parameters to compare
+ * \param[in]    pb               The second set of parameters to compare
+ * \return       Returns 1 if the params are equivalent, 0 otherwise
+ */
+int av1_check_grain_params_equiv(aom_film_grain_t *pa, aom_film_grain_t *pb);
 
 /*!\brief Add film grain
  *

@@ -1407,3 +1407,55 @@ int av1_add_film_grain_run(const aom_film_grain_t *params, uint8_t *luma,
                  &cr_line_buf, &y_col_buf, &cb_col_buf, &cr_col_buf);
   return 0;
 }
+
+int av1_check_grain_params_equiv(aom_film_grain_t *pa, aom_film_grain_t *pb) {
+  if (pa->apply_grain != pb->apply_grain) return 0;
+  // Don't compare update_parameters
+
+  if (pa->num_y_points != pb->num_y_points) return 0;
+  if (memcmp(pa->scaling_points_y, pb->scaling_points_y,
+             pa->num_y_points * 2 * sizeof(*pa->scaling_points_y)) != 0)
+    return 0;
+
+  if (pa->num_cb_points != pb->num_cb_points) return 0;
+  if (memcmp(pa->scaling_points_cb, pb->scaling_points_cb,
+             pa->num_cb_points * 2 * sizeof(*pa->scaling_points_cb)) != 0)
+    return 0;
+
+  if (pa->num_cr_points != pb->num_cr_points) return 0;
+  if (memcmp(pa->scaling_points_cr, pb->scaling_points_cr,
+             pa->num_cr_points * 2 * sizeof(*pa->scaling_points_cr)) != 0)
+    return 0;
+
+  if (pa->scaling_shift != pb->scaling_shift) return 0;
+  if (pa->ar_coeff_lag != pb->ar_coeff_lag) return 0;
+
+  const int num_pos = 2 * pa->ar_coeff_lag * (pa->ar_coeff_lag + 1);
+  if (memcmp(pa->ar_coeffs_y, pb->ar_coeffs_y,
+             num_pos * sizeof(*pa->ar_coeffs_y)) != 0)
+    return 0;
+  if (memcmp(pa->ar_coeffs_cb, pb->ar_coeffs_cb,
+             num_pos * sizeof(*pa->ar_coeffs_cb)) != 0)
+    return 0;
+  if (memcmp(pa->ar_coeffs_cr, pb->ar_coeffs_cr,
+             num_pos * sizeof(*pa->ar_coeffs_cr)) != 0)
+    return 0;
+
+  if (pa->ar_coeff_shift != pb->ar_coeff_shift) return 0;
+
+  if (pa->cb_mult != pb->cb_mult) return 0;
+  if (pa->cb_luma_mult != pb->cb_luma_mult) return 0;
+  if (pa->cb_offset != pb->cb_offset) return 0;
+
+  if (pa->cr_mult != pb->cr_mult) return 0;
+  if (pa->cr_luma_mult != pb->cr_luma_mult) return 0;
+  if (pa->cr_offset != pb->cr_offset) return 0;
+
+  if (pa->overlap_flag != pb->overlap_flag) return 0;
+  if (pa->clip_to_restricted_range != pb->clip_to_restricted_range) return 0;
+  if (pa->bit_depth != pb->bit_depth) return 0;
+  if (pa->chroma_scaling_from_luma != pb->chroma_scaling_from_luma) return 0;
+  if (pa->grain_scale_shift != pb->grain_scale_shift) return 0;
+
+  return 1;
+}
