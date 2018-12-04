@@ -246,6 +246,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_wedge_search_var_thresh = 0;
     sf->disable_wedge_search_edge_thresh = 0;
     sf->prune_comp_type_by_comp_avg = 1;
+    sf->adaptive_rd_thresh = 1;
   }
 
   if (speed >= 2) {
@@ -254,7 +255,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->selective_ref_frame = 3;
     sf->fast_cdef_search = 1;
 
-    sf->adaptive_rd_thresh = 1;
+    sf->adaptive_rd_thresh = 2;
     sf->mv.auto_mv_step_size = 1;
     sf->mv.subpel_iters_per_step = 1;
     sf->disable_filter_search_var_thresh = 100;
@@ -284,7 +285,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->recode_loop = ALLOW_RECODE_KFARFGF;
     sf->use_transform_domain_distortion = 1;
     sf->use_accurate_subpel_search = USE_2_TAPS;
-    sf->adaptive_rd_thresh = 2;
+    sf->adaptive_rd_thresh = 3;
     sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
     sf->gm_search_type = GM_DISABLE_SEARCH;
     sf->prune_comp_search_by_single_result = 2;
@@ -306,6 +307,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->cb_partition_search = !boosted;
     sf->alt_ref_search_fp = 1;
     sf->skip_sharp_interp_filter_search = 1;
+    sf->adaptive_rd_thresh = 4;
   }
 
   if (speed >= 5) {
@@ -320,7 +322,6 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->tx_size_search_method = USE_LARGESTALL;
     sf->mv.search_method = BIGDIA;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
-    sf->adaptive_rd_thresh = 4;
     sf->mode_search_skip_flags =
         (cm->current_frame.frame_type == KEY_FRAME)
             ? 0
