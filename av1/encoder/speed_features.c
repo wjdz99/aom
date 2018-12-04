@@ -306,6 +306,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->cb_partition_search = !boosted;
     sf->alt_ref_search_fp = 1;
     sf->skip_sharp_interp_filter_search = 1;
+    sf->adaptive_rd_thresh = 3;
   }
 
   if (speed >= 5) {
