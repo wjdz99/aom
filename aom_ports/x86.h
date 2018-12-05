@@ -223,6 +223,9 @@ static INLINE int x86_simd_caps(void) {
 }
 
 // Note:
+//  If the measurement interval is less than ~200 cycles, use x86_tsc_start and
+//  x86_tsc_end instead.
+//
 //  32-bit CPU cycle counter is light-weighted for most function performance
 //  measurement. For large function (CPU time > a couple of seconds), 64-bit
 //  counter should be used.
@@ -261,6 +264,50 @@ static INLINE uint64_t x86_readtsc64(void) {
   __asm rdtsc;
 #endif
 #endif
+}
+
+// 64-bit CPU cycle counter with a partial fence against out-of-order execution.
+static INLINE uint64_t x86_readtscp64(void) {
+#if defined(__GNUC__) && __GNUC__
+  uint32_t hi, lo;
+  __asm__ __volatile__("rdtscp" : "=a"(lo), "=d"(hi));
+  return ((uint64_t)hi << 32) | lo;
+#elif defined(__SUNPRO_C) || defined(__SUNPRO_CC)
+  uint_t hi, lo;
+  asm volatile("rdtscp\n\t" : "=a"(lo), "=d"(hi));
+  return ((uint64_t)hi << 32) | lo;
+#else
+#if ARCH_X86_64
+  return (uint64_t)__rdtscp();
+#else
+  __asm rdtsc;
+#endif
+#endif
+}
+
+// Reads the timestamp counter from the x86 processor. Usage:
+//
+// uint64_t start = x86_tsc_start();
+// code_to_time();
+// uint64_t end = x86_tsc_end();
+// uint64_t cycles = end - start;
+//
+// Note that this function introduces more overhead than x86_readtsc, but is
+// more accurate; it prevents the CPU's out-of-order execution from affecting
+// the measurement. See the white paper, "How to Benchmark Code Execution Times
+// on Intel® IA-32 and IA-64 Instruction Set Architectures" by Gabriele Paoloni
+// for more information.
+static INLINE uint64_t x86_tsc_start(void) {
+  unsigned int ax, bx, cx, dx;
+  cpuid(0, 0, ax, bx, cx, dx);
+  return x86_readtsc64();
+}
+
+static INLINE uint64_t x86_tsc_end(void) {
+  uint64_t v = x86_readtscp64();
+  unsigned int ax, bx, cx, dx;
+  cpuid(0, 0, ax, bx, cx, dx);
+  return v;
 }
 
 #if defined(__GNUC__) && __GNUC__
