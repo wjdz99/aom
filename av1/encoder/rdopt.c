@@ -197,6 +197,7 @@ struct rdcost_block_args {
   ENTROPY_CONTEXT t_left[MAX_MIB_SIZE];
   RD_STATS rd_stats;
   int64_t this_rd;
+  int64_t skip_rd;
   int64_t best_rd;
   int exit_early;
   int incomplete_exit;
@@ -3350,7 +3351,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   ENTROPY_CONTEXT *a = args->t_above + blk_col;
   ENTROPY_CONTEXT *l = args->t_left + blk_row;
   const AV1_COMMON *cm = &cpi->common;
-  int64_t rd1, rd2, rd;
+  int64_t rd1, rd2;
   RD_STATS this_rd_stats;
 
   av1_init_rd_stats(&this_rd_stats);
@@ -3393,24 +3394,28 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   rd1 = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
   rd2 = RDCOST(x->rdmult, 0, this_rd_stats.sse);
 
-  // TODO(jingning): temporarily enabled only for luma component
-  rd = AOMMIN(rd1, rd2);
-
   this_rd_stats.skip &= !x->plane[plane].eobs[block];
 
 #if CONFIG_ONE_PASS_SVM
   if (plane == AOM_PLANE_Y && plane_bsize >= BLOCK_8X8) {
     int eob = x->plane[plane].eobs[block];
-    av1_add_reg_stat(&this_rd_stats, eob, rd, this_rd_stats.sse, blk_row,
-                     blk_col, plane_bsize, txsize_to_bsize[tx_size]);
+    av1_add_reg_stat(&this_rd_stats, eob, AOMMIN(rd1, rd2), this_rd_stats.sse,
+                     blk_row, blk_col, plane_bsize, txsize_to_bsize[tx_size]);
   }
 #endif
 
   av1_merge_rd_stats(&args->rd_stats, &this_rd_stats);
 
-  args->this_rd += rd;
+  if (is_inter_block(mbmi)) {
+    assert(args->skip_rd != INT64_MAX);
+    args->this_rd += rd1;
+    args->skip_rd += rd2;
+  } else {
+    assert(args->skip_rd == INT64_MAX);
+    args->this_rd += rd1;
+  }
 
-  if (args->this_rd > args->best_rd) {
+  if (AOMMIN(args->this_rd, args->skip_rd) > args->best_rd) {
     args->exit_early = 1;
     return;
   }
@@ -3418,8 +3423,9 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
 
 static void txfm_rd_in_plane(MACROBLOCK *x, const AV1_COMP *cpi,
                              RD_STATS *rd_stats, int64_t ref_best_rd,
-                             int64_t this_rd, int plane, BLOCK_SIZE bsize,
-                             TX_SIZE tx_size, int use_fast_coef_casting,
+                             int64_t this_rd, int64_t skip_rd, int plane,
+                             BLOCK_SIZE bsize, TX_SIZE tx_size,
+                             int use_fast_coef_casting,
                              FAST_TX_SEARCH_MODE ftxs_mode) {
   MACROBLOCKD *const xd = &x->e_mbd;
   const struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -3431,6 +3437,7 @@ static void txfm_rd_in_plane(MACROBLOCK *x, const AV1_COMP *cpi,
   args.use_fast_coef_costing = use_fast_coef_casting;
   args.ftxs_mode = ftxs_mode;
   args.this_rd = this_rd;
+  args.skip_rd = skip_rd;
   av1_init_rd_stats(&args.rd_stats);
 
   if (!cpi->oxcf.enable_tx64 && txsize_sqr_up_map[tx_size] == TX_64X64) {
@@ -3442,7 +3449,7 @@ static void txfm_rd_in_plane(MACROBLOCK *x, const AV1_COMP *cpi,
 
   av1_get_entropy_contexts(bsize, pd, args.t_above, args.t_left);
 
-  if (args.this_rd > args.best_rd) {
+  if (AOMMIN(args.this_rd, args.skip_rd) > args.best_rd) {
     args.exit_early = 1;
   }
 
@@ -3505,14 +3512,13 @@ static int64_t txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
     skip_rd = RDCOST(x->rdmult, s1, 0);
     this_rd = RDCOST(x->rdmult, s0 + r_tx_size * tx_select, 0);
   } else {
-    skip_rd = RDCOST(x->rdmult, s1 + r_tx_size * tx_select, 0);
     this_rd = RDCOST(x->rdmult, s0 + r_tx_size * tx_select, 0);
+    skip_rd = INT64_MAX;
   }
 
   mbmi->tx_size = tx_size;
-  txfm_rd_in_plane(x, cpi, rd_stats, ref_best_rd, AOMMIN(this_rd, skip_rd),
-                   AOM_PLANE_Y, bs, tx_size, cpi->sf.use_fast_coef_costing,
-                   ftxs_mode);
+  txfm_rd_in_plane(x, cpi, rd_stats, ref_best_rd, this_rd, skip_rd, AOM_PLANE_Y,
+                   bs, tx_size, cpi->sf.use_fast_coef_costing, ftxs_mode);
   if (rd_stats->rate == INT_MAX) return INT64_MAX;
 
   if (rd_stats->skip) {
@@ -3575,12 +3581,19 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
   s0 = x->skip_cost[skip_ctx][0];
   s1 = x->skip_cost[skip_ctx][1];
 
-  int64_t skip_rd = RDCOST(x->rdmult, s1, 0);
-  int64_t this_rd = RDCOST(x->rdmult, s0, 0);
+  int64_t skip_rd;
+  int64_t this_rd;
 
-  txfm_rd_in_plane(x, cpi, rd_stats, ref_best_rd, AOMMIN(this_rd, skip_rd),
-                   AOM_PLANE_Y, bs, mbmi->tx_size,
-                   cpi->sf.use_fast_coef_costing, FTXS_NONE);
+  if (is_inter) {
+    skip_rd = RDCOST(x->rdmult, s1, 0);
+    this_rd = RDCOST(x->rdmult, s0, 0);
+  } else {
+    skip_rd = INT64_MAX;
+    this_rd = RDCOST(x->rdmult, s0, 0);
+  }
+
+  txfm_rd_in_plane(x, cpi, rd_stats, ref_best_rd, this_rd, skip_rd, AOM_PLANE_Y,
+                   bs, mbmi->tx_size, cpi->sf.use_fast_coef_costing, FTXS_NONE);
   // Reset the pruning flags.
   av1_zero(x->tx_search_prune);
   x->tx_split_prune_flag = 0;
@@ -3594,8 +3607,9 @@ static void choose_smallest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
 
   mbmi->tx_size = TX_4X4;
   // TODO(any) : Pass this_rd based on skip/non-skip cost
-  txfm_rd_in_plane(x, cpi, rd_stats, ref_best_rd, 0, 0, bs, mbmi->tx_size,
-                   cpi->sf.use_fast_coef_costing, FTXS_NONE);
+  txfm_rd_in_plane(x, cpi, rd_stats, ref_best_rd, 0,
+                   (is_inter_block(mbmi) ? 0 : (INT64_MAX)), 0, bs,
+                   mbmi->tx_size, cpi->sf.use_fast_coef_costing, FTXS_NONE);
 }
 
 static INLINE int bsize_to_num_blk(BLOCK_SIZE bsize) {
@@ -4591,17 +4605,22 @@ static int super_block_uvrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   if (is_cost_valid) {
     for (plane = 1; plane < MAX_MB_PLANE; ++plane) {
       RD_STATS pn_rd_stats;
-      txfm_rd_in_plane(x, cpi, &pn_rd_stats, ref_best_rd, 0, plane, bsize,
+      txfm_rd_in_plane(x, cpi, &pn_rd_stats, ref_best_rd, 0,
+                       (is_inter_block(mbmi) ? 0 : (INT64_MAX)), plane, bsize,
                        uv_tx_size, cpi->sf.use_fast_coef_costing, FTXS_NONE);
       if (pn_rd_stats.rate == INT_MAX) {
         is_cost_valid = 0;
         break;
       }
       av1_merge_rd_stats(rd_stats, &pn_rd_stats);
-      if (RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) > ref_best_rd &&
-          RDCOST(x->rdmult, 0, rd_stats->sse) > ref_best_rd) {
-        is_cost_valid = 0;
-        break;
+
+      if (RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) > ref_best_rd) {
+        if ((is_inter_block(mbmi) &&
+             RDCOST(x->rdmult, 0, rd_stats->sse) > ref_best_rd) ||
+            (!is_inter_block(mbmi))) {
+          is_cost_valid = 0;
+          break;
+        }
       }
     }
   }
@@ -6211,8 +6230,10 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
       if (i == CFL_SIGN_NEG) {
         mbmi->cfl_alpha_idx = 0;
         mbmi->cfl_alpha_signs = joint_sign;
-        txfm_rd_in_plane(x, cpi, &rd_stats, best_rd, 0, plane + 1, bsize,
-                         tx_size, cpi->sf.use_fast_coef_costing, FTXS_NONE);
+        txfm_rd_in_plane(x, cpi, &rd_stats, best_rd, 0,
+                         (is_inter_block(mbmi) ? 0 : (INT64_MAX)), plane + 1,
+                         bsize, tx_size, cpi->sf.use_fast_coef_costing,
+                         FTXS_NONE);
         if (rd_stats.rate == INT_MAX) break;
       }
       const int alpha_rate = x->cfl_cost[joint_sign][plane][0];
@@ -6239,8 +6260,10 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
           if (i == 0) {
             mbmi->cfl_alpha_idx = (c << CFL_ALPHABET_SIZE_LOG2) + c;
             mbmi->cfl_alpha_signs = joint_sign;
-            txfm_rd_in_plane(x, cpi, &rd_stats, best_rd, 0, plane + 1, bsize,
-                             tx_size, cpi->sf.use_fast_coef_costing, FTXS_NONE);
+            txfm_rd_in_plane(x, cpi, &rd_stats, best_rd, 0,
+                             (is_inter_block(mbmi) ? 0 : (INT64_MAX)),
+                             plane + 1, bsize, tx_size,
+                             cpi->sf.use_fast_coef_costing, FTXS_NONE);
             if (rd_stats.rate == INT_MAX) break;
           }
           const int alpha_rate = x->cfl_cost[joint_sign][plane][c];
@@ -8531,8 +8554,13 @@ static int txfm_search(const AV1_COMP *cpi, const TileDataEnc *tile_data,
   av1_init_rd_stats(rd_stats_uv);
   const int num_planes = av1_num_planes(cm);
   if (num_planes > 1) {
+    // Calculate best rd cost possible for chroma
+    int64_t ref_best_chroma_rd =
+        (ref_best_rd == INT64_MAX)
+            ? INT64_MAX
+            : (ref_best_rd - AOMMIN(non_skip_rdcosty, skip_rdcosty));
     const int is_cost_valid_uv =
-        super_block_uvrd(cpi, x, rd_stats_uv, bsize, ref_best_rd);
+        super_block_uvrd(cpi, x, rd_stats_uv, bsize, ref_best_chroma_rd);
     if (!is_cost_valid_uv) {
       mbmi->ref_frame[1] = ref_frame_1;
       return 0;
