@@ -3432,11 +3432,13 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   struct rdcost_block_args *args = arg;
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
-  const MB_MODE_INFO *const mbmi = xd->mi[0];
+  MB_MODE_INFO *const mbmi = xd->mi[0];
   const AV1_COMP *cpi = args->cpi;
   ENTROPY_CONTEXT *a = args->t_above + blk_col;
   ENTROPY_CONTEXT *l = args->t_left + blk_row;
   const AV1_COMMON *cm = &cpi->common;
+  struct macroblock_plane *const p = &x->plane[0];
+  const int bw = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
   int64_t rd1, rd2, rd;
   RD_STATS this_rd_stats;
 
@@ -3468,9 +3470,25 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
 #endif  // CONFIG_RD_DEBUG
   av1_set_txb_context(x, plane, block, tx_size, a, l);
 
-  const int blk_idx =
-      blk_row * (block_size_wide[plane_bsize] >> tx_size_wide_log2[0]) +
-      blk_col;
+  const int blk_idx = blk_row * bw + blk_col;
+
+  if ((mbmi->ref_frame[0] > INTRA_FRAME) && plane == 0) {
+    const int zero_blk_rate = av1_cost_skip_txb(x, &txb_ctx, plane, tx_size);
+    if ((RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist) >=
+         RDCOST(x->rdmult, zero_blk_rate, this_rd_stats.sse)) &&
+        !xd->lossless[mbmi->segment_id]) {
+#if CONFIG_RD_DEBUG
+      av1_update_txb_coeff_cost(rd_stats, plane, tx_size, blk_row, blk_col,
+                                zero_blk_rate - rd_stats->rate);
+#endif  // CONFIG_RD_DEBUG
+      this_rd_stats.rate = zero_blk_rate;
+      this_rd_stats.dist = this_rd_stats.sse;
+      this_rd_stats.skip = 1;
+      p->eobs[block] = 0;
+      /*update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
+                       DCT_DCT);*/
+    }
+  }
 
   if (plane == 0)
     set_blk_skip(x, plane, blk_idx, x->plane[plane].eobs[block] == 0);
