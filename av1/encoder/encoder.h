@@ -616,6 +616,7 @@ typedef struct AV1_COMP {
   int previous_index;
 
   unsigned int row_mt;
+  unsigned int enable_row_mt;
   RefCntBuffer *scaled_ref_buf[INTER_REFS_PER_FRAME];
 
   RefCntBuffer *last_show_frame_buf;  // last show frame buffer
@@ -893,6 +894,10 @@ int64_t ticks_to_timebase_units(const aom_rational_t *timebase, int64_t n);
 static INLINE int frame_is_kf_gf_arf(const AV1_COMP *cpi) {
   return frame_is_intra_only(&cpi->common) || cpi->refresh_alt_ref_frame ||
          (cpi->refresh_golden_frame && !cpi->rc.is_src_frame_alt_ref);
+}
+
+static INLINE int enable_frame_row_mt(const AV1_COMP *cpi) {
+  return cpi->row_mt && !frame_is_kf_gf_arf(cpi);
 }
 
 // TODO(huisu@google.com, youzhou@microsoft.com): enable hash-me for HBD.

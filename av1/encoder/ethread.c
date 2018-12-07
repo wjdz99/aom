@@ -576,6 +576,23 @@ static void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
   }
 }
 
+static void compute_num_workers_row_mt(AV1_COMP *cpi, int *num_workers) {
+  AV1_COMMON *const cm = &cpi->common;
+  const int tile_cols = cm->tile_cols;
+  const int tile_rows = cm->tile_rows;
+  int total_num_sb_rows = 0;
+
+  for (int row = 0; row < tile_rows; row++) {
+    for (int col = 0; col < tile_cols; col++) {
+      TileDataEnc *tile_data = &cpi->tile_data[row * cm->tile_cols + col];
+      int num_sb_rows_in_tile =
+          av1_get_sb_rows_in_tile(cm, tile_data->tile_info);
+      total_num_sb_rows += num_sb_rows_in_tile;
+    }
+  }
+  *num_workers = AOMMIN(cpi->oxcf.max_threads, total_num_sb_rows);
+}
+
 void av1_encode_tiles_mt(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const int tile_cols = cm->tile_cols;
@@ -586,6 +603,7 @@ void av1_encode_tiles_mt(AV1_COMP *cpi) {
     av1_alloc_tile_data(cpi);
 
   av1_init_tile_data(cpi);
+  if (cpi->row_mt) compute_num_workers_row_mt(cpi, &num_workers);
   // Only run once to create threads and allocate thread data.
   if (cpi->num_workers == 0) {
     create_enc_workers(cpi, num_workers);
@@ -616,7 +634,6 @@ void av1_encode_tiles_row_mt(AV1_COMP *cpi) {
   const int tile_rows = cm->tile_rows;
   MultiThreadHandle *multi_thread_ctxt = &cpi->multi_thread_ctxt;
   int num_workers = 0;
-  int total_num_sb_rows = 0;
   int max_sb_rows = 0;
 
   if (cpi->tile_data == NULL || cpi->allocated_tiles < tile_cols * tile_rows) {
@@ -626,16 +643,16 @@ void av1_encode_tiles_row_mt(AV1_COMP *cpi) {
 
   av1_init_tile_data(cpi);
 
+  compute_num_workers_row_mt(cpi, &num_workers);
+
   for (int row = 0; row < tile_rows; row++) {
     for (int col = 0; col < tile_cols; col++) {
       TileDataEnc *tile_data = &cpi->tile_data[row * cm->tile_cols + col];
       int num_sb_rows_in_tile =
           av1_get_sb_rows_in_tile(cm, tile_data->tile_info);
-      total_num_sb_rows += num_sb_rows_in_tile;
       max_sb_rows = AOMMAX(max_sb_rows, num_sb_rows_in_tile);
     }
   }
-  num_workers = AOMMIN(cpi->oxcf.max_threads, total_num_sb_rows);
 
   if (multi_thread_ctxt->allocated_tile_cols != tile_cols ||
       multi_thread_ctxt->allocated_tile_rows != tile_rows ||
