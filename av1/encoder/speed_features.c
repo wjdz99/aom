@@ -273,6 +273,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_dual_filter = 1;
     sf->use_jnt_comp_flag = JNT_COMP_DISABLED;
     sf->prune_comp_type_by_comp_avg = 2;
+    sf->adaptive_txb_search_level = 3;
   }
 
   if (speed >= 3) {
