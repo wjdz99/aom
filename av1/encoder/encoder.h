@@ -580,6 +580,19 @@ typedef struct TileBufferEnc {
   size_t size;
 } TileBufferEnc;
 
+typedef enum {
+  // No row_mt
+  ROW_MT_DISABLED = 0,
+  // Allow row-mt for KF/ARF_GF
+  ROW_MT_KF_ARF_GF = 1,
+  // Allow row-mt for KF/ARF
+  ROW_MT_KF_ARF = 2,
+  // Allow row-mt for KF
+  ROW_MT_KF = 3,
+  // Allow row-mt for all frames
+  ROW_MT_ALL_FRAMES = 4,
+} ROW_MT_TYPE;
+
 typedef struct AV1_COMP {
   QUANTS quants;
   ThreadData td;
@@ -615,7 +628,7 @@ typedef struct AV1_COMP {
   hash_table *previous_hash_table;
   int previous_index;
 
-  unsigned int row_mt;
+  ROW_MT_TYPE row_mt;
   unsigned int enable_row_mt;
   RefCntBuffer *scaled_ref_buf[INTER_REFS_PER_FRAME];
 
@@ -897,7 +910,24 @@ static INLINE int frame_is_kf_gf_arf(const AV1_COMP *cpi) {
 }
 
 static INLINE int enable_frame_row_mt(const AV1_COMP *cpi) {
-  return cpi->row_mt && !frame_is_kf_gf_arf(cpi);
+  int is_row_mt_enabled = 0;
+  switch (cpi->row_mt) {
+    case ROW_MT_DISABLED: is_row_mt_enabled = 0; break;
+    case ROW_MT_KF_ARF_GF:
+      is_row_mt_enabled =
+          !(frame_is_intra_only(&cpi->common) || cpi->refresh_alt_ref_frame ||
+            cpi->refresh_golden_frame);
+      break;
+    case ROW_MT_KF_ARF:
+      is_row_mt_enabled =
+          !(frame_is_intra_only(&cpi->common) || cpi->refresh_alt_ref_frame);
+      break;
+    case ROW_MT_KF:
+      is_row_mt_enabled = !frame_is_intra_only(&cpi->common);
+      break;
+    case ROW_MT_ALL_FRAMES: is_row_mt_enabled = 1; break;
+  }
+  return is_row_mt_enabled;
 }
 
 // TODO(huisu@google.com, youzhou@microsoft.com): enable hash-me for HBD.

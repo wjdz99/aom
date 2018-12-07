@@ -376,7 +376,7 @@ static void create_enc_workers(AV1_COMP *cpi, int num_workers) {
                   aom_calloc(num_workers, sizeof(*cpi->tile_thr_data)));
 
 #if CONFIG_MULTITHREAD
-  if (cpi->row_mt == 1) {
+  if (cpi->row_mt != ROW_MT_DISABLED) {
     if (cpi->row_mt_mutex_ == NULL) {
       CHECK_MEM_ERROR(cm, cpi->row_mt_mutex_,
                       aom_malloc(sizeof(*(cpi->row_mt_mutex_))));
@@ -466,7 +466,7 @@ static void create_enc_workers(AV1_COMP *cpi, int num_workers) {
       // Main thread acts as a worker and uses the thread data in cpi.
       thread_data->td = &cpi->td;
     }
-    if (cpi->row_mt == 1)
+    if (cpi->row_mt != ROW_MT_DISABLED)
       CHECK_MEM_ERROR(
           cm, thread_data->td->tctx,
           (FRAME_CONTEXT *)aom_memalign(16, sizeof(*thread_data->td->tctx)));
@@ -603,7 +603,8 @@ void av1_encode_tiles_mt(AV1_COMP *cpi) {
     av1_alloc_tile_data(cpi);
 
   av1_init_tile_data(cpi);
-  if (cpi->row_mt) compute_num_workers_row_mt(cpi, &num_workers);
+  if (cpi->row_mt != ROW_MT_DISABLED)
+    compute_num_workers_row_mt(cpi, &num_workers);
   // Only run once to create threads and allocate thread data.
   if (cpi->num_workers == 0) {
     create_enc_workers(cpi, num_workers);

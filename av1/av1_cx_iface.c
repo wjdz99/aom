@@ -299,7 +299,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK_HI(cfg, large_scale_tile, 1);
   RANGE_CHECK_HI(extra_cfg, single_tile_decoding, 1);
 
-  RANGE_CHECK_HI(extra_cfg, row_mt, 1);
+  RANGE_CHECK_HI(extra_cfg, row_mt, 4);
 
   RANGE_CHECK_HI(extra_cfg, tile_columns, 6);
   RANGE_CHECK_HI(extra_cfg, tile_rows, 6);
@@ -1275,8 +1275,8 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     av1_change_config(ctx->cpi, &ctx->oxcf);
   }
 
-  cpi->row_mt = 0;
-  if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads > 1))
+  cpi->row_mt = ROW_MT_DISABLED;
+  if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads >= 1))
     cpi->row_mt = cpi->oxcf.row_mt;
 
   aom_codec_pkt_list_init(&ctx->pkt_list);
