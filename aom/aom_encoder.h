@@ -602,7 +602,6 @@ typedef struct aom_codec_enc_cfg {
    *
    */
   int fwd_kf_enabled;
-
   /*!\brief Keyframe placement mode
    *
    * This value indicates whether the encoder should place keyframes at a
