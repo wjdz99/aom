@@ -7907,7 +7907,8 @@ static int64_t build_and_cost_compound_type(
     int rate_mv, BUFFER_SET *ctx, int *out_rate_mv, uint8_t **preds0,
     uint8_t **preds1, int16_t *residual1, int16_t *diff10, int *strides,
     int mi_row, int mi_col, int mode_rate, int64_t ref_best_rd,
-    int *calc_pred_masked_compound) {
+    int *calc_pred_masked_compound, int64_t *best_comp_type_model_rd,
+    int64_t *cur_comp_type_model_rd) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
@@ -7957,6 +7958,11 @@ static int64_t build_and_cost_compound_type(
         cpi, bsize, x, xd, 0, 0, mi_row, mi_col, &rate_sum, &dist_sum,
         &tmp_skip_txfm_sb, &tmp_skip_sse_sb, NULL, NULL, NULL);
     rd = RDCOST(x->rdmult, *rs2 + *out_rate_mv + rate_sum, dist_sum);
+    *cur_comp_type_model_rd = AOMMIN(rd, best_rd_cur);
+    if (*cur_comp_type_model_rd > *best_comp_type_model_rd) {
+      return INT64_MAX;
+    }
+
     if (rd >= best_rd_cur) {
       mbmi->mv[0].as_int = cur_mv[0].as_int;
       mbmi->mv[1].as_int = cur_mv[1].as_int;
@@ -7964,9 +7970,16 @@ static int64_t build_and_cost_compound_type(
       av1_build_wedge_inter_predictor_from_buf(xd, bsize, 0, 0, preds0, strides,
                                                preds1, strides);
     }
-
   } else {
     *out_rate_mv = rate_mv;
+    model_rd_sb_fn[MODELRD_TYPE_MASKED_COMPOUND](
+        cpi, bsize, x, xd, 0, 0, mi_row, mi_col, &rate_sum, &dist_sum,
+        &tmp_skip_txfm_sb, &tmp_skip_sse_sb, NULL, NULL, NULL);
+    rd = RDCOST(x->rdmult, *rs2 + *out_rate_mv + rate_sum, dist_sum);
+    *cur_comp_type_model_rd = rd;
+    if (*cur_comp_type_model_rd > *best_comp_type_model_rd) {
+      return INT64_MAX;
+    }
     av1_build_wedge_inter_predictor_from_buf(xd, bsize, 0, 0, preds0, strides,
                                              preds1, strides);
   }
@@ -9489,9 +9502,13 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
   best_mv[0].as_int = cur_mv[0].as_int;
   best_mv[1].as_int = cur_mv[1].as_int;
   *rd = INT64_MAX;
+  int64_t best_comp_type_model_rd = INT64_MAX;
+  int64_t cur_comp_type_model_rd;
+
   for (cur_type = COMPOUND_AVERAGE; cur_type < COMPOUND_TYPES; cur_type++) {
     if (cur_type != COMPOUND_AVERAGE && !masked_compound_used) break;
     if (!is_interinter_compound_used(cur_type, bsize)) continue;
+    cur_comp_type_model_rd = INT64_MAX;
     tmp_rate_mv = *rate_mv;
     int64_t best_rd_cur = INT64_MAX;
     mbmi->interinter_comp.type = cur_type;
@@ -9510,6 +9527,13 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       const int64_t mode_rd = RDCOST(x->rdmult, rs2 + rd_stats->rate, 0);
       if (mode_rd < ref_best_rd) {
         av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, orig_dst, bsize);
+
+        model_rd_sb_fn[MODELRD_TYPE_MASKED_COMPOUND](
+            cpi, bsize, x, xd, 0, 0, mi_row, mi_col, &rate_sum, &dist_sum,
+            &tmp_skip_txfm_sb, &tmp_skip_sse_sb, NULL, NULL, NULL);
+        cur_comp_type_model_rd =
+            RDCOST(x->rdmult, rs2 + *rate_mv + rate_sum, dist_sum);
+
         int64_t est_rd =
             estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
                                 &tmp_skip_txfm_sb, &tmp_skip_sse_sb, INT64_MAX);
@@ -9531,11 +9555,13 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
             cpi, x, cur_mv, bsize, this_mode, &rs2, *rate_mv, orig_dst,
             &tmp_rate_mv, preds0, preds1, buffers->residual1, buffers->diff10,
             strides, mi_row, mi_col, rd_stats->rate, ref_best_rd,
-            &calc_pred_masked_compound);
+            &calc_pred_masked_compound, &best_comp_type_model_rd,
+            &cur_comp_type_model_rd);
       }
     }
     if (best_rd_cur < *rd) {
       *rd = best_rd_cur;
+      best_comp_type_model_rd = cur_comp_type_model_rd;
       best_compound_data = mbmi->interinter_comp;
       if (masked_compound_used && cur_type != COMPOUND_TYPES - 1) {
         memcpy(buffers->tmp_best_mask_buf, xd->seg_mask, mask_len);
