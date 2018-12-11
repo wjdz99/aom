@@ -41,8 +41,7 @@ static void temporal_filter_predictors_mb_c(
     MACROBLOCKD *xd, uint8_t *y_mb_ptr, uint8_t *u_mb_ptr, uint8_t *v_mb_ptr,
     int stride, int uv_block_width, int uv_block_height, int mv_row, int mv_col,
     uint8_t *pred, struct scale_factors *scale, int x, int y,
-    int can_use_previous, int num_planes) {
-  const MV mv = { mv_row, mv_col };
+    int can_use_previous, int num_planes, MV *blk_mvs, int use_32x32) {
   enum mv_precision mv_precision_uv;
   int uv_stride;
   // TODO(angiebird): change plane setting accordingly
@@ -52,27 +51,79 @@ static void temporal_filter_predictors_mb_c(
   WarpTypesAllowed warp_types;
   memset(&warp_types, 0, sizeof(WarpTypesAllowed));
 
-  if (uv_block_width == (BW >> 1)) {
+  const int ssx = (uv_block_width == (BW >> 1)) ? 1 : 0;
+  if (ssx) {
     uv_stride = (stride + 1) >> 1;
     mv_precision_uv = MV_PRECISION_Q4;
   } else {
     uv_stride = stride;
     mv_precision_uv = MV_PRECISION_Q3;
   }
-  av1_build_inter_predictor(y_mb_ptr, stride, &pred[0], BW, &mv, scale, BW, BH,
-                            &conv_params, interp_filters, &warp_types, x, y, 0,
-                            0, MV_PRECISION_Q3, x, y, xd, can_use_previous);
 
+  if (use_32x32) {
+    const MV mv = { mv_row, mv_col };
+
+    av1_build_inter_predictor(y_mb_ptr, stride, &pred[0], BW, &mv, scale, BW,
+                              BH, &conv_params, interp_filters, &warp_types, x,
+                              y, 0, 0, MV_PRECISION_Q3, x, y, xd,
+                              can_use_previous);
+    if (num_planes > 1) {
+      av1_build_inter_predictor(
+          u_mb_ptr, uv_stride, &pred[BLK_PELS], uv_block_width, &mv, scale,
+          uv_block_width, uv_block_height, &conv_params, interp_filters,
+          &warp_types, x, y, 1, 0, mv_precision_uv, x, y, xd, can_use_previous);
+      av1_build_inter_predictor(
+          v_mb_ptr, uv_stride, &pred[(BLK_PELS << 1)], uv_block_width, &mv,
+          scale, uv_block_width, uv_block_height, &conv_params, interp_filters,
+          &warp_types, x, y, 2, 0, mv_precision_uv, x, y, xd, can_use_previous);
+    }
+
+    return;
+  }
+
+  // While use_32x32 = 0, construct the 32x32 predictor using 4 16x16
+  // predictors.
+  int i, j, k = 0, ys = (BH >> 1), xs = (BW >> 1);
+  // Y predictor
+  for (i = 0; i < BH; i += ys) {
+    for (j = 0; j < BW; j += xs) {
+      const MV mv = blk_mvs[k];
+      const int y_offset = i * stride + j;
+      const int p_offset = i * BW + j;
+
+      av1_build_inter_predictor(y_mb_ptr + y_offset, stride, &pred[p_offset],
+                                BW, &mv, scale, xs, ys, &conv_params,
+                                interp_filters, &warp_types, x, y, 0, 0,
+                                MV_PRECISION_Q3, x, y, xd, can_use_previous);
+      k++;
+    }
+  }
+
+  // U and V predictors
   if (num_planes > 1) {
-    av1_build_inter_predictor(
-        u_mb_ptr, uv_stride, &pred[BLK_PELS], uv_block_width, &mv, scale,
-        uv_block_width, uv_block_height, &conv_params, interp_filters,
-        &warp_types, x, y, 1, 0, mv_precision_uv, x, y, xd, can_use_previous);
+    ys = (uv_block_height >> 1);
+    xs = (uv_block_width >> 1);
+    k = 0;
 
-    av1_build_inter_predictor(
-        v_mb_ptr, uv_stride, &pred[(BLK_PELS << 1)], uv_block_width, &mv, scale,
-        uv_block_width, uv_block_height, &conv_params, interp_filters,
-        &warp_types, x, y, 2, 0, mv_precision_uv, x, y, xd, can_use_previous);
+    for (i = 0; i < uv_block_height; i += ys) {
+      for (j = 0; j < uv_block_width; j += xs) {
+        const MV mv = blk_mvs[k];
+        const int uv_offset = i * uv_stride + j;
+        const int p_offset = i * uv_block_width + j;
+
+        av1_build_inter_predictor(u_mb_ptr + uv_offset, uv_stride,
+                                  &pred[BLK_PELS + p_offset], uv_block_width,
+                                  &mv, scale, xs, ys, &conv_params,
+                                  interp_filters, &warp_types, x, y, 1, 0,
+                                  mv_precision_uv, x, y, xd, can_use_previous);
+        av1_build_inter_predictor(
+            v_mb_ptr + uv_offset, uv_stride, &pred[(BLK_PELS << 1) + p_offset],
+            uv_block_width, &mv, scale, xs, ys, &conv_params, interp_filters,
+            &warp_types, x, y, 2, 0, mv_precision_uv, x, y, xd,
+            can_use_previous);
+        k++;
+      }
+    }
   }
 }
 
@@ -144,9 +195,9 @@ static void apply_temporal_filter(
     int y_buf_stride, const uint8_t *u_frame1, const uint8_t *v_frame1,
     int uv_stride, const uint8_t *u_pred, const uint8_t *v_pred,
     int uv_buf_stride, unsigned int block_width, unsigned int block_height,
-    int ss_x, int ss_y, int strength, int filter_weight,
-    uint32_t *y_accumulator, uint16_t *y_count, uint32_t *u_accumulator,
-    uint16_t *u_count, uint32_t *v_accumulator, uint16_t *v_count) {
+    int ss_x, int ss_y, int strength, int *fw, uint32_t *y_accumulator,
+    uint16_t *y_count, uint32_t *u_accumulator, uint16_t *u_count,
+    uint32_t *v_accumulator, uint16_t *v_count) {
   unsigned int i, j, k, m;
   int modifier;
   const int rounding = (1 << strength) >> 1;
@@ -158,8 +209,8 @@ static void apply_temporal_filter(
 
   int idx = 0, idy;
 
-  assert(filter_weight >= 0);
-  assert(filter_weight <= 2);
+  //  assert(filter_weight >= 0);
+  //  assert(filter_weight <= 2);
 
   memset(y_diff_sse, 0, BLK_PELS * sizeof(uint16_t));
   memset(u_diff_sse, 0, BLK_PELS * sizeof(uint16_t));
@@ -177,6 +228,19 @@ static void apply_temporal_filter(
   for (i = 0, k = 0, m = 0; i < block_height; i++) {
     for (j = 0; j < block_width; j++) {
       const int pixel_value = y_pred[i * y_buf_stride + j];
+
+      int filter_weight = 0;
+      if (i < block_height / 2) {
+        if (j < block_width / 2)
+          filter_weight = fw[0];
+        else
+          filter_weight = fw[1];
+      } else {
+        if (j < block_width / 2)
+          filter_weight = fw[2];
+        else
+          filter_weight = fw[3];
+      }
 
       // non-local mean approach
       int y_index = 0;
@@ -544,8 +608,8 @@ void av1_highbd_temporal_filter_apply_c(
 static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
                                               uint8_t *arf_frame_buf,
                                               uint8_t *frame_ptr_buf,
-                                              int stride, int x_pos,
-                                              int y_pos) {
+                                              int stride, int x_pos, int y_pos,
+                                              MV *blk_mvs, int *blk_bestsme) {
   MACROBLOCK *const x = &cpi->td.mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   const MV_SPEED_FEATURES *const mv_sf = &cpi->sf.mv;
@@ -578,6 +642,9 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
 
   av1_set_mv_search_range(&x->mv_limits, &best_ref_mv1);
 
+  // av1_full_pixel_search() parameters: best_ref_mv1_full is the start mv, and
+  // best_ref_mv1 is for mv rate calculation. The search result is stored in
+  // x->best_mv.
   av1_full_pixel_search(cpi, x, TF_BLOCK, &best_ref_mv1_full, step_param, NSTEP,
                         1, sadpb, cond_cost_list(cpi, cost_list), &best_ref_mv1,
                         0, 0, x_pos, y_pos, 0);
@@ -596,16 +663,62 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
 
     bestsme = cpi->fn_ptr[TF_BLOCK].vf(y + offset, y_stride, src_address,
                                        src_stride, &sse);
-  } else {
-    bestsme = cpi->find_fractional_mv_step(
-        x, &cpi->common, 0, 0, &best_ref_mv1,
-        cpi->common.allow_high_precision_mv, x->errorperbit,
-        &cpi->fn_ptr[TF_BLOCK], 0, mv_sf->subpel_iters_per_step,
-        cond_cost_list(cpi, cost_list), NULL, NULL, &distortion, &sse, NULL,
-        NULL, 0, 0, 16, 16, USE_8_TAPS, 1);
+
+    x->e_mbd.mi[0]->mv[0] = x->best_mv;
+
+    // Restore input state
+    x->plane[0].src = src;
+    xd->plane[0].pre[0] = pre;
+
+    return bestsme;
   }
 
+  // find_fractional_mv_step parameters: best_ref_mv1 is for mv rate cost
+  // calculation. The start full mv and the search result are stored in
+  // x->best_mv. mi_row and mi_col are only needed for "av1_is_scaled(sf)=1"
+  // case.
+  bestsme = cpi->find_fractional_mv_step(
+      x, &cpi->common, 0, 0, &best_ref_mv1, cpi->common.allow_high_precision_mv,
+      x->errorperbit, &cpi->fn_ptr[TF_BLOCK], 0, mv_sf->subpel_iters_per_step,
+      cond_cost_list(cpi, cost_list), NULL, NULL, &distortion, &sse, NULL, NULL,
+      0, 0, BW, BH, USE_8_TAPS, 1);
+
   x->e_mbd.mi[0]->mv[0] = x->best_mv;
+
+  // DO motion search on 4 16x16 sub_blocks.
+  int i, j, k = 0;
+  best_ref_mv1.row = x->e_mbd.mi[0]->mv[0].as_mv.row;
+  best_ref_mv1.col = x->e_mbd.mi[0]->mv[0].as_mv.col;
+  best_ref_mv1_full.col = best_ref_mv1.col >> 3;
+  best_ref_mv1_full.row = best_ref_mv1.row >> 3;
+
+  for (i = 0; i < BH; i += SUB_BH) {
+    for (j = 0; j < BW; j += SUB_BW) {
+      // Setup frame pointers
+      x->plane[0].src.buf = arf_frame_buf + i * stride + j;
+      x->plane[0].src.stride = stride;
+      xd->plane[0].pre[0].buf = frame_ptr_buf + i * stride + j;
+      xd->plane[0].pre[0].stride = stride;
+
+      av1_set_mv_search_range(&x->mv_limits, &best_ref_mv1);
+      av1_full_pixel_search(
+          cpi, x, TF_SUB_BLOCK, &best_ref_mv1_full, step_param, NSTEP, 1, sadpb,
+          cond_cost_list(cpi, cost_list), &best_ref_mv1, 0, 0, x_pos, y_pos, 0);
+      x->mv_limits = tmp_mv_limits;
+
+      blk_bestsme[k] = cpi->find_fractional_mv_step(
+          x, &cpi->common, 0, 0, &best_ref_mv1,
+          cpi->common.allow_high_precision_mv, x->errorperbit,
+          &cpi->fn_ptr[TF_SUB_BLOCK], 0, mv_sf->subpel_iters_per_step,
+          cond_cost_list(cpi, cost_list), NULL, NULL, &distortion, &sse, NULL,
+          NULL, 0, 0, SUB_BW, SUB_BH, USE_8_TAPS, 1);
+
+      blk_mvs[k].row = x->best_mv.as_mv.row;
+      blk_mvs[k].col = x->best_mv.as_mv.col;
+      //  blk_mvs[k] = x->best_mv.as_mv;
+      k++;
+    }
+  }
 
   // Restore input state
   x->plane[0].src = src;
@@ -624,7 +737,7 @@ static void temporal_filter_iterate_c(AV1_COMP *cpi,
   int byte;
   int frame;
   int mb_col, mb_row;
-  unsigned int filter_weight;
+  //  unsigned int filter_weight = 0;
   int mb_cols = (frames[alt_ref_index]->y_crop_width + BW - 1) >> BW_LOG2;
   int mb_rows = (frames[alt_ref_index]->y_crop_height + BH - 1) >> BH_LOG2;
   int mb_y_offset = 0;
@@ -674,6 +787,7 @@ static void temporal_filter_iterate_c(AV1_COMP *cpi,
     for (mb_col = 0; mb_col < mb_cols; mb_col++) {
       int j, k;
       int stride;
+      MV blk_mvs[4];
 
       memset(accumulator, 0, BLK_PELS * 3 * sizeof(accumulator[0]));
       memset(count, 0, BLK_PELS * 3 * sizeof(count[0]));
@@ -684,32 +798,68 @@ static void temporal_filter_iterate_c(AV1_COMP *cpi,
           ((mb_cols - 1 - mb_col) * BW) + (17 - 2 * AOM_INTERP_EXTEND);
 
       for (frame = 0; frame < frame_count; frame++) {
-        // These thresholds need to be modified based on block size.
-        int thresh_low = 10000 << THR_SHIFT;
-        int thresh_high = 20000 << THR_SHIFT;
+        int fw[4] = { 0, 0, 0, 0 };
+        int use_32x32 = 0;
 
         if (frames[frame] == NULL) continue;
 
         mbd->mi[0]->mv[0].as_mv.row = 0;
         mbd->mi[0]->mv[0].as_mv.col = 0;
         mbd->mi[0]->motion_mode = SIMPLE_TRANSLATION;
+        blk_mvs[0] = kZeroMv;
+        blk_mvs[1] = kZeroMv;
+        blk_mvs[2] = kZeroMv;
+        blk_mvs[3] = kZeroMv;
 
         if (frame == alt_ref_index) {
-          filter_weight = 2;
+          //          filter_weight = 2;
+          fw[0] = fw[1] = fw[2] = fw[3] = 2;
         } else {
+          // These thresholds need to be modified based on block size.
+          //          int thresh_low = 10000 << THR_SHIFT;
+          //          int thresh_high = 20000 << THR_SHIFT;
+          int thresh_low = 10000;
+          int thresh_high = 20000;
+          int blk_bestsme[4] = { INT_MAX, INT_MAX, INT_MAX, INT_MAX };
+
           // Find best match in this frame by MC
           int err = temporal_filter_find_matching_mb_c(
               cpi, frames[alt_ref_index]->y_buffer + mb_y_offset,
               frames[frame]->y_buffer + mb_y_offset, frames[frame]->y_stride,
-              mb_col * BW, mb_row * BH);
+              mb_col * BW, mb_row * BH, blk_mvs, blk_bestsme);
+
+          int err16 =
+              blk_bestsme[0] + blk_bestsme[1] + blk_bestsme[2] + blk_bestsme[3];
+          //          assert(err >= err16); // not alway right. err can be a
+          //          little less than err16.
 
           // Assign higher weight to matching MB if it's error
           // score is lower. If not applying MC default behavior
           // is to weight all MBs equal.
-          filter_weight = err < thresh_low ? 2 : err < thresh_high ? 1 : 0;
+          for (k = 0; k < 4; k++)
+            fw[k] = blk_bestsme[k] < thresh_low
+                        ? 2
+                        : blk_bestsme[k] < thresh_high ? 1 : 0;
+
+          //                    printf("\n (%d; %d;)%d ---   %d: ratio: %d;  ",
+          //                           mbd->mi[0]->mv[0].as_mv.row,
+          //                           mbd->mi[0]->mv[0].as_mv.col, err, err16,
+          //                           (int)(((float)err/(float)err16 - 1.0)*
+          //                           100.0));
+          //                    for (k = 0; k < 4; k++) printf(" (%d; %d;)%d;
+          //                    ", blk_mvs[k].row, blk_mvs[k].col,
+          //                    blk_bestsme[k]);
+          //          printf("  fw(%d; %d; %d; %d;)  ", fw[0], fw[1], fw[2],
+          //          fw[3]);
+
+          if ((err * 100 < err16 * 115) && fw[0] == fw[1] && fw[0] == fw[2] &&
+              fw[0] == fw[3])
+            use_32x32 = 1;
+          else
+            use_32x32 = 0;
         }
 
-        if (filter_weight != 0) {
+        if (/*filter_weight != 0 ||*/ fw[0] || fw[1] || fw[2] || fw[3]) {
           // Construct the predictors
           temporal_filter_predictors_mb_c(
               mbd, frames[frame]->y_buffer + mb_y_offset,
@@ -717,7 +867,8 @@ static void temporal_filter_iterate_c(AV1_COMP *cpi,
               frames[frame]->v_buffer + mb_uv_offset, frames[frame]->y_stride,
               mb_uv_width, mb_uv_height, mbd->mi[0]->mv[0].as_mv.row,
               mbd->mi[0]->mv[0].as_mv.col, predictor, ref_scale_factors,
-              mb_col * BW, mb_row * BH, cm->allow_warped_motion, num_planes);
+              mb_col * BW, mb_row * BH, cm->allow_warped_motion, num_planes,
+              blk_mvs, use_32x32);
 
           // Apply the filter (YUV)
           if (frame == alt_ref_index) {
@@ -726,6 +877,7 @@ static void temporal_filter_iterate_c(AV1_COMP *cpi,
             uint16_t *cnt = count;
             int plane;
 
+            // fw 0 to 4 all equals 2.
             for (plane = 0; plane < num_planes; ++plane) {
               const int pred_stride = plane ? mb_uv_width : BW;
               const unsigned int w = plane ? mb_uv_width : BW;
@@ -733,16 +885,18 @@ static void temporal_filter_iterate_c(AV1_COMP *cpi,
 
               if (mbd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
                 highbd_apply_temporal_filter_self(pred, pred_stride, w, h,
-                                                  filter_weight, accum, cnt);
+                                                  fw[0], accum, cnt);
               else
-                apply_temporal_filter_self(pred, pred_stride, w, h,
-                                           filter_weight, accum, cnt);
+                apply_temporal_filter_self(pred, pred_stride, w, h, fw[0],
+                                           accum, cnt);
 
               pred += BLK_PELS;
               accum += BLK_PELS;
               cnt += BLK_PELS;
             }
           } else {
+            unsigned int filter_weight = 0;  // all cases need to be resolved.
+
             if (mbd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
               int adj_strength = strength + 2 * (mbd->bd - 8);
 
@@ -777,9 +931,9 @@ static void temporal_filter_iterate_c(AV1_COMP *cpi,
                     f->uv_stride, predictor + BLK_PELS,
                     predictor + (BLK_PELS << 1), mb_uv_width, BW, BH,
                     mbd->plane[1].subsampling_x, mbd->plane[1].subsampling_y,
-                    strength, filter_weight, accumulator, count,
-                    accumulator + BLK_PELS, count + BLK_PELS,
-                    accumulator + (BLK_PELS << 1), count + (BLK_PELS << 1));
+                    strength, fw, accumulator, count, accumulator + BLK_PELS,
+                    count + BLK_PELS, accumulator + (BLK_PELS << 1),
+                    count + (BLK_PELS << 1));
               }
             }
           }
