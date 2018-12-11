@@ -473,7 +473,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->two_pass_partition_search = 0;
   sf->mode_pruning_based_on_two_pass_partition_search = 0;
   sf->use_intra_txb_hash = 0;
-  sf->use_inter_txb_hash = 1;
+  sf->use_inter_txb_hash = 0;
   sf->use_mb_rd_hash = 1;
   sf->optimize_b_precheck = 0;
   sf->jnt_comp_fast_tx_search = 0;
