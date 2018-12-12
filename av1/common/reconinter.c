@@ -626,9 +626,10 @@ void av1_make_masked_inter_predictor(
                                  mi->sb_type, h, w, conv_params, xd);
 }
 
-void av1_jnt_comp_weight_assign(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
-                                int order_idx, int *fwd_offset, int *bck_offset,
-                                int *use_jnt_comp_avg, int is_compound) {
+void av1_dist_wtd_comp_weight_assign(const AV1_COMMON *cm,
+                                     const MB_MODE_INFO *mbmi, int order_idx,
+                                     int *fwd_offset, int *bck_offset,
+                                     int *use_jnt_comp_avg, int is_compound) {
   assert(fwd_offset != NULL && bck_offset != NULL);
   if (!is_compound || mbmi->compound_idx) {
     *use_jnt_comp_avg = 0;

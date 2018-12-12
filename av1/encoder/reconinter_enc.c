@@ -196,9 +196,9 @@ static INLINE void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
   {
     ConvolveParams conv_params = get_conv_params_no_round(
         0, plane, xd->tmp_conv_dst, MAX_SB_SIZE, is_compound, xd->bd);
-    av1_jnt_comp_weight_assign(cm, mi, 0, &conv_params.fwd_offset,
-                               &conv_params.bck_offset,
-                               &conv_params.use_jnt_comp_avg, is_compound);
+    av1_dist_wtd_comp_weight_assign(cm, mi, 0, &conv_params.fwd_offset,
+                                    &conv_params.bck_offset,
+                                    &conv_params.use_jnt_comp_avg, is_compound);
 
     struct buf_2d *const dst_buf = &pd->dst;
     uint8_t *const dst = dst_buf->buf;
