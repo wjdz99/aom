@@ -311,6 +311,7 @@ static int enc_row_mt_worker_hook(void *arg1, void *unused) {
 
     ThreadData *td = thread_data->td;
 
+    td->mb.row_ctx = this_tile->row_ctx;
     td->mb.e_mbd.tile_ctx = td->tctx;
     td->mb.tile_pb_ctx = &this_tile->tctx;
     td->mb.backup_tile_ctx = &this_tile->backup_tctx;
