@@ -202,7 +202,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->use_fast_interpolation_filter_search = 1;
   sf->intra_tx_size_search_init_depth_sqr = 1;
   sf->intra_angle_estimation = 1;
-  sf->selective_ref_frame = 1;
+  sf->selective_ref_frame = 2;
   sf->prune_wedge_pred_diff_based = 1;
   sf->disable_wedge_search_var_thresh = 0;
   sf->disable_wedge_search_edge_thresh = 0;
