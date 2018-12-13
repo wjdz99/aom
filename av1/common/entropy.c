@@ -50,6 +50,179 @@ void av1_default_coef_probs(AV1_COMMON *cm) {
   av1_copy(cm->fc->eob_flag_cdf1024, av1_default_eob_multi1024_cdfs[index]);
 }
 
+static void avg_cdf_symbol_counter(aom_cdf_prob *cdf_ptr_curr,
+                                   aom_cdf_prob *cdf_ptr_tr, int num_cdfs,
+                                   int cdf_stride, int nsymbs) {
+  for (int i = 0; i < num_cdfs; i++) {
+    for (int j = 0; j <= nsymbs; j++) {
+      cdf_ptr_curr[i * cdf_stride + j] =
+        (aom_cdf_prob)(((int)cdf_ptr_curr[i * cdf_stride + j] * 3 +
+        (int)cdf_ptr_tr[i * cdf_stride + j] + 1) >>
+          2);
+    }
+  }
+}
+
+#define AVG_CDF_COUNTER(cname_curr, cname_tr, nsymbs) \
+  AVG_CDF_COUNTER_STRIDE(cname_curr, cname_tr, nsymbs, CDF_SIZE(nsymbs))
+
+#define AVG_CDF_COUNTER_STRIDE(cname_curr, cname_tr, nsymbs, cdf_stride)   \
+  do {                                                                     \
+    aom_cdf_prob *cdf_ptr_curr = (aom_cdf_prob *)cname_curr;               \
+    aom_cdf_prob *cdf_ptr_tr = (aom_cdf_prob *)cname_tr;                   \
+    int array_size = (int)sizeof(cname_curr) / sizeof(aom_cdf_prob);       \
+    int num_cdfs = array_size / cdf_stride;                                \
+    avg_cdf_symbol_counter(cdf_ptr_curr, cdf_ptr_tr, num_cdfs, cdf_stride, \
+                           nsymbs);                                        \
+  } while (0)
+
+static void avg_nmv_counter(nmv_context *nmv_curr, nmv_context *nmv_tr) {
+  AVG_CDF_COUNTER(nmv_curr->joints_cdf, nmv_tr->joints_cdf, 4);
+  for (int i = 0; i < 2; i++) {
+    AVG_CDF_COUNTER(nmv_curr->comps[i].classes_cdf,
+                    nmv_tr->comps[i].classes_cdf, MV_CLASSES);
+    AVG_CDF_COUNTER(nmv_curr->comps[i].class0_fp_cdf,
+                    nmv_tr->comps[i].class0_fp_cdf, MV_FP_SIZE);
+    AVG_CDF_COUNTER(nmv_curr->comps[i].fp_cdf, nmv_tr->comps[i].fp_cdf,
+                    MV_FP_SIZE);
+    AVG_CDF_COUNTER(nmv_curr->comps[i].sign_cdf, nmv_tr->comps[i].sign_cdf, 2);
+    AVG_CDF_COUNTER(nmv_curr->comps[i].class0_hp_cdf,
+                    nmv_tr->comps[i].class0_hp_cdf, 2);
+    AVG_CDF_COUNTER(nmv_curr->comps[i].hp_cdf, nmv_tr->comps[i].hp_cdf, 2);
+    AVG_CDF_COUNTER(nmv_curr->comps[i].class0_cdf, nmv_tr->comps[i].class0_cdf,
+                    CLASS0_SIZE);
+    AVG_CDF_COUNTER(nmv_curr->comps[i].bits_cdf, nmv_tr->comps[i].bits_cdf, 2);
+  }
+}
+
+void av1_avg_cdf_symbol_counters(FRAME_CONTEXT *ctx_curr,
+                                 FRAME_CONTEXT *ctx_tr) {
+  AVG_CDF_COUNTER(ctx_curr->txb_skip_cdf, ctx_tr->txb_skip_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->eob_extra_cdf, ctx_tr->eob_extra_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->dc_sign_cdf, ctx_tr->dc_sign_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->eob_flag_cdf16, ctx_tr->eob_flag_cdf16, 5);
+  AVG_CDF_COUNTER(ctx_curr->eob_flag_cdf32, ctx_tr->eob_flag_cdf32, 6);
+  AVG_CDF_COUNTER(ctx_curr->eob_flag_cdf64, ctx_tr->eob_flag_cdf64, 7);
+  AVG_CDF_COUNTER(ctx_curr->eob_flag_cdf128, ctx_tr->eob_flag_cdf128, 8);
+  AVG_CDF_COUNTER(ctx_curr->eob_flag_cdf256, ctx_tr->eob_flag_cdf256, 9);
+  AVG_CDF_COUNTER(ctx_curr->eob_flag_cdf512, ctx_tr->eob_flag_cdf512, 10);
+  AVG_CDF_COUNTER(ctx_curr->eob_flag_cdf1024, ctx_tr->eob_flag_cdf1024, 11);
+  AVG_CDF_COUNTER(ctx_curr->coeff_base_eob_cdf, ctx_tr->coeff_base_eob_cdf, 3);
+  AVG_CDF_COUNTER(ctx_curr->coeff_base_cdf, ctx_tr->coeff_base_cdf, 4);
+  AVG_CDF_COUNTER(ctx_curr->coeff_br_cdf, ctx_tr->coeff_br_cdf, BR_CDF_SIZE);
+  AVG_CDF_COUNTER(ctx_curr->newmv_cdf, ctx_tr->newmv_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->zeromv_cdf, ctx_tr->zeromv_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->refmv_cdf, ctx_tr->refmv_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->drl_cdf, ctx_tr->drl_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->inter_compound_mode_cdf,
+                  ctx_tr->inter_compound_mode_cdf, INTER_COMPOUND_MODES);
+  AVG_CDF_COUNTER(ctx_curr->compound_type_cdf, ctx_tr->compound_type_cdf,
+                  COMPOUND_TYPES - 1);
+  AVG_CDF_COUNTER(ctx_curr->wedge_idx_cdf, ctx_tr->wedge_idx_cdf, 16);
+  AVG_CDF_COUNTER(ctx_curr->interintra_cdf, ctx_tr->interintra_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->wedge_interintra_cdf, ctx_tr->wedge_interintra_cdf,
+                  2);
+  AVG_CDF_COUNTER(ctx_curr->interintra_mode_cdf, ctx_tr->interintra_mode_cdf,
+                  INTERINTRA_MODES);
+  AVG_CDF_COUNTER(ctx_curr->motion_mode_cdf, ctx_tr->motion_mode_cdf,
+                  MOTION_MODES);
+  AVG_CDF_COUNTER(ctx_curr->obmc_cdf, ctx_tr->obmc_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->palette_y_size_cdf, ctx_tr->palette_y_size_cdf,
+                  PALETTE_SIZES);
+  AVG_CDF_COUNTER(ctx_curr->palette_uv_size_cdf, ctx_tr->palette_uv_size_cdf,
+                  PALETTE_SIZES);
+  for (int j = 0; j < PALETTE_SIZES; j++) {
+    int nsymbs = j + PALETTE_MIN_SIZE;
+    AVG_CDF_COUNTER_STRIDE(ctx_curr->palette_y_color_index_cdf[j],
+                           ctx_tr->palette_y_color_index_cdf[j], nsymbs,
+                           CDF_SIZE(PALETTE_COLORS));
+    AVG_CDF_COUNTER_STRIDE(ctx_curr->palette_uv_color_index_cdf[j],
+                           ctx_tr->palette_uv_color_index_cdf[j], nsymbs,
+                           CDF_SIZE(PALETTE_COLORS));
+  }
+  AVG_CDF_COUNTER(ctx_curr->palette_y_mode_cdf, ctx_tr->palette_y_mode_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->palette_uv_mode_cdf, ctx_tr->palette_uv_mode_cdf,
+                  2);
+  AVG_CDF_COUNTER(ctx_curr->comp_inter_cdf, ctx_tr->comp_inter_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->single_ref_cdf, ctx_tr->single_ref_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->comp_ref_type_cdf, ctx_tr->comp_ref_type_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->uni_comp_ref_cdf, ctx_tr->uni_comp_ref_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->comp_ref_cdf, ctx_tr->comp_ref_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->comp_bwdref_cdf, ctx_tr->comp_bwdref_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->txfm_partition_cdf, ctx_tr->txfm_partition_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->compound_index_cdf, ctx_tr->compound_index_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->comp_group_idx_cdf, ctx_tr->comp_group_idx_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->skip_mode_cdfs, ctx_tr->skip_mode_cdfs, 2);
+  AVG_CDF_COUNTER(ctx_curr->skip_cdfs, ctx_tr->skip_cdfs, 2);
+  AVG_CDF_COUNTER(ctx_curr->intra_inter_cdf, ctx_tr->intra_inter_cdf, 2);
+  avg_nmv_counter(&ctx_curr->nmvc, &ctx_tr->nmvc);
+  avg_nmv_counter(&ctx_curr->ndvc, &ctx_tr->ndvc);
+  AVG_CDF_COUNTER(ctx_curr->intrabc_cdf, ctx_tr->intrabc_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->seg.tree_cdf, ctx_tr->seg.tree_cdf, MAX_SEGMENTS);
+  AVG_CDF_COUNTER(ctx_curr->seg.pred_cdf, ctx_tr->seg.pred_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->seg.spatial_pred_seg_cdf,
+                  ctx_tr->seg.spatial_pred_seg_cdf, MAX_SEGMENTS);
+  AVG_CDF_COUNTER(ctx_curr->filter_intra_cdfs, ctx_tr->filter_intra_cdfs, 2);
+  AVG_CDF_COUNTER(ctx_curr->filter_intra_mode_cdf,
+                  ctx_tr->filter_intra_mode_cdf, FILTER_INTRA_MODES);
+  AVG_CDF_COUNTER(ctx_curr->switchable_restore_cdf,
+                  ctx_tr->switchable_restore_cdf, RESTORE_SWITCHABLE_TYPES);
+  AVG_CDF_COUNTER(ctx_curr->wiener_restore_cdf, ctx_tr->wiener_restore_cdf, 2);
+  AVG_CDF_COUNTER(ctx_curr->sgrproj_restore_cdf, ctx_tr->sgrproj_restore_cdf,
+                  2);
+  AVG_CDF_COUNTER(ctx_curr->y_mode_cdf, ctx_tr->y_mode_cdf, INTRA_MODES);
+  AVG_CDF_COUNTER_STRIDE(ctx_curr->uv_mode_cdf[0], ctx_tr->uv_mode_cdf[0],
+                         UV_INTRA_MODES - 1, CDF_SIZE(UV_INTRA_MODES));
+  AVG_CDF_COUNTER(ctx_curr->uv_mode_cdf[1], ctx_tr->uv_mode_cdf[1],
+                  UV_INTRA_MODES);
+  for (int i = 0; i < PARTITION_CONTEXTS; i++) {
+    if (i < 4) {
+      AVG_CDF_COUNTER_STRIDE(ctx_curr->partition_cdf[i],
+                             ctx_tr->partition_cdf[i], 4, CDF_SIZE(10));
+    } else if (i < 16) {
+      AVG_CDF_COUNTER(ctx_curr->partition_cdf[i], ctx_tr->partition_cdf[i], 10);
+    } else {
+      AVG_CDF_COUNTER_STRIDE(ctx_curr->partition_cdf[i],
+                             ctx_tr->partition_cdf[i], 8, CDF_SIZE(10));
+    }
+  }
+  AVG_CDF_COUNTER(ctx_curr->switchable_interp_cdf,
+                  ctx_tr->switchable_interp_cdf, SWITCHABLE_FILTERS);
+  AVG_CDF_COUNTER(ctx_curr->kf_y_cdf, ctx_tr->kf_y_cdf, INTRA_MODES);
+  AVG_CDF_COUNTER(ctx_curr->angle_delta_cdf, ctx_tr->angle_delta_cdf,
+                  2 * MAX_ANGLE_DELTA + 1);
+  AVG_CDF_COUNTER_STRIDE(ctx_curr->tx_size_cdf[0], ctx_tr->tx_size_cdf[0],
+                         MAX_TX_DEPTH, CDF_SIZE(MAX_TX_DEPTH + 1));
+  AVG_CDF_COUNTER(ctx_curr->tx_size_cdf[1], ctx_tr->tx_size_cdf[1],
+                  MAX_TX_DEPTH + 1);
+  AVG_CDF_COUNTER(ctx_curr->tx_size_cdf[2], ctx_tr->tx_size_cdf[2],
+                  MAX_TX_DEPTH + 1);
+  AVG_CDF_COUNTER(ctx_curr->tx_size_cdf[3], ctx_tr->tx_size_cdf[3],
+                  MAX_TX_DEPTH + 1);
+  AVG_CDF_COUNTER(ctx_curr->delta_q_cdf, ctx_tr->delta_q_cdf,
+                  DELTA_Q_PROBS + 1);
+  AVG_CDF_COUNTER(ctx_curr->delta_lf_cdf, ctx_tr->delta_lf_cdf,
+                  DELTA_LF_PROBS + 1);
+  for (int i = 0; i < FRAME_LF_COUNT; i++) {
+    AVG_CDF_COUNTER(ctx_curr->delta_lf_multi_cdf[i],
+                    ctx_tr->delta_lf_multi_cdf[i], DELTA_LF_PROBS + 1);
+  }
+  AVG_CDF_COUNTER_STRIDE(ctx_curr->intra_ext_tx_cdf[1],
+                         ctx_tr->intra_ext_tx_cdf[1], 7, CDF_SIZE(TX_TYPES));
+  AVG_CDF_COUNTER_STRIDE(ctx_curr->intra_ext_tx_cdf[2],
+                         ctx_tr->intra_ext_tx_cdf[2], 5, CDF_SIZE(TX_TYPES));
+  AVG_CDF_COUNTER_STRIDE(ctx_curr->inter_ext_tx_cdf[1],
+                         ctx_tr->inter_ext_tx_cdf[1], 16, CDF_SIZE(TX_TYPES));
+  AVG_CDF_COUNTER_STRIDE(ctx_curr->inter_ext_tx_cdf[2],
+                         ctx_tr->inter_ext_tx_cdf[2], 12, CDF_SIZE(TX_TYPES));
+  AVG_CDF_COUNTER_STRIDE(ctx_curr->inter_ext_tx_cdf[3],
+                         ctx_tr->inter_ext_tx_cdf[3], 2, CDF_SIZE(TX_TYPES));
+  AVG_CDF_COUNTER(ctx_curr->cfl_sign_cdf, ctx_tr->cfl_sign_cdf,
+                  CFL_JOINT_SIGNS);
+  AVG_CDF_COUNTER(ctx_curr->cfl_alpha_cdf, ctx_tr->cfl_alpha_cdf,
+                  CFL_ALPHABET_SIZE);
+}
+
 static void reset_cdf_symbol_counter(aom_cdf_prob *cdf_ptr, int num_cdfs,
                                      int cdf_stride, int nsymbs) {
   for (int i = 0; i < num_cdfs; i++) {
