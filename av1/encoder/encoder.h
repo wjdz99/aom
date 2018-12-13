@@ -507,6 +507,7 @@ typedef struct TileDataEnc {
 #endif
   AV1RowMTSync row_mt_sync;
   AV1RowMTInfo row_mt_info;
+  FRAME_CONTEXT *row_ctx;
 } TileDataEnc;
 
 typedef struct {
