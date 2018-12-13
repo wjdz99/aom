@@ -5030,6 +5030,8 @@ static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
   }
 }
 
+#define NUM_COLS_FOR_WEIGHTED_AVD_CDF 8
+
 static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
                              TileDataEnc *tile_data, int mi_row,
                              TOKENEXTRA **tp) {
@@ -5067,6 +5069,21 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
         (tile_info->mi_row_start != mi_row)) {
       // restore frame context of 1st column sb
       memcpy(xd->tile_ctx, x->backup_tile_ctx, sizeof(*xd->tile_ctx));
+    }
+    if ((cpi->row_mt == 1) && (tile_info->mi_row_start != mi_row) &&
+        (tile_info->mi_col_start != mi_col)) {
+      int wt_left = NUM_COLS_FOR_WEIGHTED_AVD_CDF;
+      int wt_tr = 0;
+      if (sb_col_in_tile < NUM_COLS_FOR_WEIGHTED_AVD_CDF) {
+        wt_left = sb_col_in_tile;
+        wt_tr = NUM_COLS_FOR_WEIGHTED_AVD_CDF - sb_col_in_tile;
+      }
+      if (tile_info->mi_col_end != (mi_col + mib_size))
+        av1_avg_cdf_symbols(xd->tile_ctx, x->row_ctx + sb_col_in_tile + 1,
+                            wt_left, wt_tr);
+      else
+        av1_avg_cdf_symbols(xd->tile_ctx, x->row_ctx + sb_col_in_tile, wt_left,
+                            wt_tr);
     }
     av1_fill_coeff_costs(&td->mb, xd->tile_ctx, num_planes);
     av1_fill_mode_rates(cm, x, xd->tile_ctx);
@@ -5187,6 +5204,9 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
       }
       if (update_context)
         memcpy(x->backup_tile_ctx, xd->tile_ctx, sizeof(*xd->tile_ctx));
+      if ((mi_row + mib_size) != tile_info->mi_row_end)
+        memcpy(x->row_ctx + sb_col_in_tile, xd->tile_ctx,
+               sizeof(*xd->tile_ctx));
     }
     (*(cpi->row_mt_sync_write_ptr))(&tile_data->row_mt_sync, sb_row,
                                     sb_col_in_tile, sb_cols_in_tile);
@@ -5998,7 +6018,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read_dummy;
     cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write_dummy;
     cpi->row_mt = 0;
-    if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads > 1)) {
+    if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads >= 1)) {
       cpi->row_mt = 1;
       cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read;
       cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write;
