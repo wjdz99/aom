@@ -534,6 +534,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
 
   if (!cpi->seq_params_locked) {
     cpi->common.seq_params.enable_dual_filter &= !sf->disable_dual_filter;
+    cpi->common.seq_params.enable_masked_compound = 0;
   }
 
   // sf->partition_search_breakout_dist_thr is set assuming max 64x64
