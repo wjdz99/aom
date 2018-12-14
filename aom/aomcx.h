@@ -913,6 +913,9 @@ enum aome_enc_control_id {
 
   /*!\brief Control to use a reduced tx type set */
   AV1E_SET_REDUCED_TX_TYPE_SET,
+
+  /*!\brief Codec control function to turn on/off palette mode */
+  AV1E_SET_ENABLE_PALETTE,
 };
 
 /*!\brief aom 1-D scaling mode
@@ -1259,6 +1262,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_CHROMA_SUBSAMPLING_Y, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_REDUCED_TX_TYPE_SET, unsigned int)
 #define AOM_CTRL_AV1E_SET_REDUCED_TX_TYPE_SET
+
+AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_PALETTE, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENABLE_PALETTE
 
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */
