@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42180bd4_0efb2f39",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4931,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-12-14T17:55:07Z",
+      "side": 1,
+      "message": "Would this do the same?\nconst int nblks \u003d max_blocks_high * max_blocks_wide / bsh / bsw;",
+      "range": {
+        "startLine": 4927,
+        "startChar": 2,
+        "endLine": 4931,
+        "endChar": 3
+      },
+      "revId": "9f289647102ba6d90de11ee172158a8b82f3740c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef56f400_24fdd131",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4932,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-12-14T17:55:07Z",
+      "side": 1,
+      "message": "Should always be larger than 0?",
+      "range": {
+        "startLine": 4932,
+        "startChar": 6,
+        "endLine": 4932,
+        "endChar": 11
+      },
+      "revId": "9f289647102ba6d90de11ee172158a8b82f3740c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df5ee579_c0870314",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4935,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-12-14T17:55:07Z",
+      "side": 1,
+      "message": "Should be OK to just return. The LOOP_EXIT label can be removed. We only goto it when this_cost_valid is false, and then do thing afterwards.",
+      "range": {
+        "startLine": 4934,
+        "startChar": 6,
+        "endLine": 4935,
+        "endChar": 21
+      },
+      "revId": "9f289647102ba6d90de11ee172158a8b82f3740c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
