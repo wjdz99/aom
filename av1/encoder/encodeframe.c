@@ -5912,7 +5912,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
             params_this_motion = params_by_motion + (MAX_PARAMDIM - 1) * i;
             av1_convert_model_to_params(params_this_motion, &tmp_wm_params);
 
-            if (tmp_wm_params.wmtype != IDENTITY) {
+            if (tmp_wm_params.wmtype > TRANSLATION) {  //!= IDENTITY) {
               const int64_t warp_error = av1_refine_integerized_param(
                   &tmp_wm_params, tmp_wm_params.wmtype,
                   xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
