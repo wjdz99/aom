@@ -9093,7 +9093,7 @@ static int64_t motion_mode_rd(
           // Refine MV in a small range.
           av1_refine_warped_mv(cpi, x, bsize, mi_row, mi_col, pts0, pts_inref0,
                                total_samples);
-
+          if (mbmi->num_proj_ref == 1) continue;  // issue3 improved
           // Keep the refined MV and WM parameters.
           if (mv0.as_int != mbmi->mv[0].as_int) {
             const int ref = refs[0];
@@ -9117,7 +9117,10 @@ static int64_t motion_mode_rd(
             mbmi->wm_params = wm_params0;
             mbmi->num_proj_ref = num_proj_ref0;
           }
+        } else {
+          if (mbmi->num_proj_ref == 1) continue;  // issue1
         }
+        if (mbmi->wm_params.wmtype <= TRANSLATION) continue;
 
         av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
       } else {
