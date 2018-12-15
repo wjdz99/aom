@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5cd6a72e_d0b61a8b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3709,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-12-15T02:29:02Z",
+      "side": 0,
+      "message": "This function is for intra block only, so mbmi-\u003eref_mv_idx should never be none-zero.",
+      "range": {
+        "startLine": 3709,
+        "startChar": 4,
+        "endLine": 3709,
+        "endChar": 56
+      },
+      "revId": "f6a47431c14f8d13b7fd8d0659965c3992ade60b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
