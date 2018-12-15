@@ -22,6 +22,30 @@
       "revId": "d4a3ac7f8617ec0497b2536d1222afea12ee9688",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37cf7f1e_dae65f4e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 4925,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-12-15T00:15:49Z",
+      "side": 1,
+      "message": "Done.\nGiven that tx_size_high_unit[tx_size] is a power of 2, it really does not matter. But from the loop index it should be ceiling of  tx_size_high_unit[tx_size] / bsh.",
+      "parentUuid": "3dfc2f08_54c972c2",
+      "range": {
+        "startLine": 4925,
+        "startChar": 7,
+        "endLine": 4925,
+        "endChar": 74
+      },
+      "revId": "d4a3ac7f8617ec0497b2536d1222afea12ee9688",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
