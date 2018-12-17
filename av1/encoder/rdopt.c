@@ -4820,6 +4820,7 @@ static void try_tx_block_no_split(
     p->eobs[block] = 0;
     update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
                      DCT_DCT);
+    p->txb_entropy_ctx[block] = 0;
   } else {
     set_blk_skip(x, 0, blk_row * bw + blk_col, 0);
     rd_stats->skip = 0;
@@ -8646,8 +8647,8 @@ static int txfm_search(const AV1_COMP *cpi, const TileDataEnc *tile_data,
   } else {
     super_block_yrd(cpi, x, rd_stats_y, bsize, rd_thresh);
     memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
-    for (int i = 0; i < xd->n4_h * xd->n4_w; ++i)
-      set_blk_skip(x, 0, i, rd_stats_y->skip);
+    /*for (int i = 0; i < xd->n4_h * xd->n4_w; ++i)
+      set_blk_skip(x, 0, i, rd_stats_y->skip);*/
   }
 
   if (rd_stats_y->rate == INT_MAX) {
@@ -10180,8 +10181,8 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     } else {
       super_block_yrd(cpi, x, &rd_stats, bsize, INT64_MAX);
       memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
-      for (int i = 0; i < xd->n4_h * xd->n4_w; ++i)
-        set_blk_skip(x, 0, i, rd_stats.skip);
+      /*for (int i = 0; i < xd->n4_h * xd->n4_w; ++i)
+        set_blk_skip(x, 0, i, rd_stats.skip);*/
     }
     if (num_planes > 1) {
       super_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX);
@@ -10567,8 +10568,8 @@ static void sf_refine_fast_tx_type_search(
       } else {
         super_block_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
         memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
-        for (int i = 0; i < xd->n4_h * xd->n4_w; ++i)
-          set_blk_skip(x, 0, i, rd_stats_y.skip);
+        /*for (int i = 0; i < xd->n4_h * xd->n4_w; ++i)
+          set_blk_skip(x, 0, i, rd_stats_y.skip);*/
       }
       if (num_planes > 1) {
         inter_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX, INT64_MAX,
