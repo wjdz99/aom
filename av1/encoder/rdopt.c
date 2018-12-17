@@ -9117,6 +9117,15 @@ static int64_t motion_mode_rd(
             mbmi->wm_params = wm_params0;
             mbmi->num_proj_ref = num_proj_ref0;
           }
+        } else {
+          if (cpi->sf.prune_wrap_using_wmtype) {
+            TransformationType wmtype = get_wmtype(&mbmi->wm_params);
+            if (mbmi->num_proj_ref == 1) {
+              if (wmtype != ROTZOOM) continue;
+            } else {
+              if (wmtype < ROTZOOM) continue;
+            }
+          }
         }
 
         av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
