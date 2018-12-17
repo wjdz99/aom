@@ -605,6 +605,10 @@ typedef struct SPEED_FEATURES {
   // Values are 0 (not used) , 1 - 3 with progressively increasing
   // aggressiveness
   int prune_motion_mode_level;
+
+  // Gate wrap function evaluation for motions of type IDENTITY,
+  // TRANSLATION using gmtype
+  int prune_wrap_using_gmtype;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
