@@ -247,6 +247,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_wedge_search_edge_thresh = 0;
     sf->prune_comp_type_by_comp_avg = 1;
     sf->prune_motion_mode_level = 2;
+    sf->mv.subpel_iters_per_step = boosted ? 2 : 1;
   }
 
   if (speed >= 2) {
