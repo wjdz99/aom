@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ff2efe6_c6148a36",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3666,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-12-17T22:00:09Z",
+      "side": 1,
+      "message": "Not necessary because txfm_yrd(which calls txfm_rd_in_plane) would return INT64_MAX.",
+      "range": {
+        "startLine": 3666,
+        "startChar": 4,
+        "endLine": 3666,
+        "endChar": 77
+      },
+      "revId": "8c917b0f4f30b8a6b05ec4fb94e602a9759d2f44",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
