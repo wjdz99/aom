@@ -190,7 +190,7 @@ typedef enum {
   FTXS_USE_TRANSFORM_DOMAIN = 1 << 2
 } FAST_TX_SEARCH_MODE;
 
-static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
+static int super_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
                             RD_STATS *rd_stats, BLOCK_SIZE bsize,
                             int64_t non_skip_ref_best_rd,
                             int64_t skip_ref_best_rd,
@@ -4562,56 +4562,6 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   return best_rd;
 }
 
-// Return value 0: early termination triggered, no valid rd cost available;
-//              1: rd cost values are valid.
-static int super_block_uvrd(const AV1_COMP *const cpi, MACROBLOCK *x,
-                            RD_STATS *rd_stats, BLOCK_SIZE bsize,
-                            int64_t ref_best_rd) {
-  MACROBLOCKD *const xd = &x->e_mbd;
-  MB_MODE_INFO *const mbmi = xd->mi[0];
-  struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_U];
-  const TX_SIZE uv_tx_size = av1_get_tx_size(AOM_PLANE_U, xd);
-  int plane;
-  int is_cost_valid = 1;
-  av1_init_rd_stats(rd_stats);
-
-  if (ref_best_rd < 0) is_cost_valid = 0;
-
-  if (x->skip_chroma_rd) return is_cost_valid;
-
-  bsize = scale_chroma_bsize(bsize, pd->subsampling_x, pd->subsampling_y);
-
-  if (is_inter_block(mbmi) && is_cost_valid) {
-    for (plane = 1; plane < MAX_MB_PLANE; ++plane)
-      av1_subtract_plane(x, bsize, plane);
-  }
-
-  if (is_cost_valid) {
-    for (plane = 1; plane < MAX_MB_PLANE; ++plane) {
-      RD_STATS pn_rd_stats;
-      txfm_rd_in_plane(x, cpi, &pn_rd_stats, ref_best_rd, 0, plane, bsize,
-                       uv_tx_size, cpi->sf.use_fast_coef_costing, FTXS_NONE);
-      if (pn_rd_stats.rate == INT_MAX) {
-        is_cost_valid = 0;
-        break;
-      }
-      av1_merge_rd_stats(rd_stats, &pn_rd_stats);
-      if (RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) > ref_best_rd &&
-          RDCOST(x->rdmult, 0, rd_stats->sse) > ref_best_rd) {
-        is_cost_valid = 0;
-        break;
-      }
-    }
-  }
-
-  if (!is_cost_valid) {
-    // reset cost value
-    av1_invalid_rd_stats(rd_stats);
-  }
-
-  return is_cost_valid;
-}
-
 static void tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
                           int blk_row, int blk_col, int plane, int block,
                           int plane_bsize, TXB_CTX *txb_ctx, RD_STATS *rd_stats,
@@ -6012,7 +5962,7 @@ static void tx_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
 // Return value 0: early termination triggered, no valid rd cost available;
 //              1: rd cost values are valid.
-static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
+static int super_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
                             RD_STATS *rd_stats, BLOCK_SIZE bsize,
                             int64_t non_skip_ref_best_rd,
                             int64_t skip_ref_best_rd,
@@ -6064,6 +6014,14 @@ static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
         for (idx = 0; idx < mi_width; idx += bw) {
           RD_STATS pn_rd_stats;
           av1_init_rd_stats(&pn_rd_stats);
+
+          if (!is_inter_block(mbmi)) {
+            av1_predict_intra_block_facade(&cpi->common, xd, plane,
+                                           idx, idy, max_tx_size);
+            av1_subtract_txb(x, plane, plane_bsize, idx, idy,
+                             max_tx_size);
+          }
+
           tx_block_uvrd(cpi, x, idy, idx, plane, block, max_tx_size,
                         plane_bsize, ta, tl, &pn_rd_stats, ftxs_mode);
           if (pn_rd_stats.rate == INT_MAX) {
@@ -6215,9 +6173,9 @@ static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
                 clip_pixel((int)centroids[j * 2 + i - 1]);
         }
       }
-
-      super_block_uvrd(cpi, x, &tokenonly_rd_stats, bsize, *best_rd);
-      if (tokenonly_rd_stats.rate == INT_MAX) continue;
+      if (!super_block_uvrd(cpi, x, &tokenonly_rd_stats, bsize,
+                            *best_rd, *best_rd, FTXS_NONE))
+        continue;
       this_rate = tokenonly_rd_stats.rate +
                   intra_mode_info_cost_uv(cpi, x, mbmi, bsize, dc_mode_cost);
       this_rd = RDCOST(x->rdmult, this_rate, tokenonly_rd_stats.dist);
@@ -6253,8 +6211,10 @@ static int64_t pick_intra_angle_routine_sbuv(
   int64_t this_rd;
   RD_STATS tokenonly_rd_stats;
 
-  if (!super_block_uvrd(cpi, x, &tokenonly_rd_stats, bsize, best_rd_in))
+  if (!super_block_uvrd(cpi, x, &tokenonly_rd_stats, bsize,
+                        best_rd_in, best_rd_in, FTXS_NONE))
     return INT64_MAX;
+
   this_rate = tokenonly_rd_stats.rate +
               intra_mode_info_cost_uv(cpi, x, mbmi, bsize, rate_overhead);
   this_rd = RDCOST(x->rdmult, this_rate, tokenonly_rd_stats.dist);
@@ -6491,9 +6451,9 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                     &this_rate, &tokenonly_rd_stats))
         continue;
     } else {
-      if (!super_block_uvrd(cpi, x, &tokenonly_rd_stats, bsize, best_rd)) {
+      if (!super_block_uvrd(cpi, x, &tokenonly_rd_stats, bsize,
+                            best_rd, best_rd, FTXS_NONE))
         continue;
-      }
     }
     const int mode_cost =
         x->intra_uv_mode_cost[is_cfl_allowed(xd)][mbmi->mode][mode] +
@@ -8690,7 +8650,7 @@ static int txfm_search(const AV1_COMP *cpi, const TileDataEnc *tile_data,
   av1_init_rd_stats(rd_stats_uv);
   const int num_planes = av1_num_planes(cm);
   if (num_planes > 1) {
-    const int is_cost_valid_uv = inter_block_uvrd(
+    const int is_cost_valid_uv = super_block_uvrd(
         cpi, x, rd_stats_uv, bsize, ref_best_rd - non_skip_rdcosty,
         ref_best_rd - skip_rdcosty, FTXS_NONE);
     if (!is_cost_valid_uv) {
@@ -10199,7 +10159,9 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
         set_blk_skip(x, 0, i, rd_stats.skip);
     }
     if (num_planes > 1) {
-      super_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX);
+      if (!super_block_uvrd(cpi, x, &rd_stats_uv, bsize,
+                            INT64_MAX, INT64_MAX, FTXS_NONE))
+        continue;
       av1_merge_rd_stats(&rd_stats, &rd_stats_uv);
     }
 #if CONFIG_RD_DEBUG
@@ -10586,7 +10548,7 @@ static void sf_refine_fast_tx_type_search(
           set_blk_skip(x, 0, i, rd_stats_y.skip);
       }
       if (num_planes > 1) {
-        inter_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX, INT64_MAX,
+        super_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX, INT64_MAX,
                          FTXS_NONE);
       } else {
         av1_init_rd_stats(&rd_stats_uv);
@@ -10594,7 +10556,8 @@ static void sf_refine_fast_tx_type_search(
     } else {
       super_block_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
       if (num_planes > 1) {
-        super_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX);
+        super_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX, INT64_MAX,
+                         FTXS_NONE);
       } else {
         av1_init_rd_stats(&rd_stats_uv);
       }
