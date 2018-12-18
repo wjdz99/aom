@@ -4485,6 +4485,11 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     int this_rate, this_rate_tokenonly, s;
     int64_t this_distortion, this_rd, this_model_rd;
     mbmi->mode = intra_rd_search_mode_order[mode_idx];
+    if (!cpi->oxcf.enable_smooth_intra &&
+        (mbmi->mode == SMOOTH_PRED || mbmi->mode == SMOOTH_H_PRED ||
+         mbmi->mode == SMOOTH_V_PRED))
+      continue;
+    if (!cpi->oxcf.enable_paeth_intra && mbmi->mode == PAETH_PRED) continue;
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
     this_model_rd =
         intra_model_yrd(cpi, x, bsize, bmode_costs[mbmi->mode], mi_row, mi_col);
@@ -8800,6 +8805,9 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
         best_interintra_mode == INTERINTRA_MODES) {
       for (j = 0; j < INTERINTRA_MODES; ++j) {
         mbmi->interintra_mode = (INTERINTRA_MODE)j;
+        if (!cpi->oxcf.enable_smooth_intra &&
+            mbmi->interintra_mode == II_SMOOTH_PRED)
+          continue;
         rmode = interintra_mode_cost[mbmi->interintra_mode];
         av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
                                                   intrapred, bw);
@@ -11997,6 +12005,11 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     }
 
     if (ref_frame == INTRA_FRAME) {
+      if (!cpi->oxcf.enable_smooth_intra &&
+          (mbmi->mode == SMOOTH_PRED || mbmi->mode == SMOOTH_H_PRED ||
+           mbmi->mode == SMOOTH_V_PRED))
+        continue;
+      if (!cpi->oxcf.enable_paeth_intra && mbmi->mode == PAETH_PRED) continue;
       if (sf->adaptive_mode_search)
         if ((x->source_variance << num_pels_log2_lookup[bsize]) >
             search_state.best_pred_sse)
