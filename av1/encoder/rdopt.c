@@ -8933,7 +8933,9 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
     } else {
       mbmi->use_wedge_interintra = 0;
     }
-  }  // if (is_interintra_wedge_used(bsize))
+    if (!cpi->oxcf.enable_smooth_interintra && mbmi->use_wedge_interintra == 0)
+      return -1;
+  }  // if (is_wedge_used)
   if (num_planes > 1) {
     av1_build_inter_predictors_sbuv(cm, xd, mi_row, mi_col, orig_dst, bsize);
   }
