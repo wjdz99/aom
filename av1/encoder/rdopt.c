@@ -5091,6 +5091,7 @@ static void select_inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
         if (rd_info_tree != NULL) rd_info_tree += 1;
       }
     }
+
     if (skip_rd <= this_rd) {
       rd_stats->rate = 0;
       rd_stats->dist = rd_stats->sse;
@@ -9115,6 +9116,20 @@ static int64_t motion_mode_rd(
           const WarpedMotionParams wm_params0 = mbmi->wm_params;
           int num_proj_ref0 = mbmi->num_proj_ref;
 
+          if (cpi->sf.prune_warp_using_wmtype) {
+            TransformationType wmtype = get_wmtype(&mbmi->wm_params);
+            // If number of valid neighbours are 2,
+            // 1) ROTZOOM parameters can be obtained reliably
+            // 2) For IDENTITY/TRANSLATION cases, warp can perform better due to
+            // a different interpolation filter being used. However the quality
+            // gains (due to the same) may not be much
+            // For above 2 cases warp evaluation is skipped
+            if (mbmi->num_proj_ref == 1) {
+              if (wmtype != ROTZOOM) continue;
+            } else {
+              if (wmtype < ROTZOOM) continue;
+            }
+          }
           // Refine MV in a small range.
           av1_refine_warped_mv(cpi, x, bsize, mi_row, mi_col, pts0, pts_inref0,
                                total_samples);
