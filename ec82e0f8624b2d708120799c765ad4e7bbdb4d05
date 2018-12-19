@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2467798e_01265cbd",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 3502,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-12-19T20:09:42Z",
+      "side": 1,
+      "message": "can be const.",
+      "range": {
+        "startLine": 3502,
+        "startChar": 2,
+        "endLine": 3502,
+        "endChar": 4
+      },
+      "revId": "ec82e0f8624b2d708120799c765ad4e7bbdb4d05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1fcdb6e_19252f72",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 3556,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-12-19T20:09:42Z",
+      "side": 1,
+      "message": "can be const.",
+      "range": {
+        "startLine": 3556,
+        "startChar": 2,
+        "endLine": 3556,
+        "endChar": 12
+      },
+      "revId": "ec82e0f8624b2d708120799c765ad4e7bbdb4d05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b8b0c8c_cf2ece8c",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 3563,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-12-19T20:09:42Z",
+      "side": 1,
+      "message": "You can get rid of the large else branch by\n\nif (mi_col \u003e\u003d cm-\u003emi_cols || mi_row \u003e\u003d cm-\u003emi_rows) {\n    // If the whole block is outside of the image, set the var and sse to 0.\n    *best_var \u003d 0;\n    *best_sse \u003d 0;\n    return best_ref;\n}\n\n.....",
+      "range": {
+        "startLine": 3559,
+        "startChar": 2,
+        "endLine": 3563,
+        "endChar": 3
+      },
+      "revId": "ec82e0f8624b2d708120799c765ad4e7bbdb4d05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1f6b183_52ef2d09",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 3566,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-12-19T20:09:42Z",
+      "side": 1,
+      "message": "can be const.",
+      "range": {
+        "startLine": 3566,
+        "startChar": 4,
+        "endLine": 3566,
+        "endChar": 15
+      },
+      "revId": "ec82e0f8624b2d708120799c765ad4e7bbdb4d05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f34cc8bd_edd2be82",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 3571,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-12-19T20:09:42Z",
+      "side": 1,
+      "message": "can be localized to line 3580.",
+      "range": {
+        "startLine": 3571,
+        "startChar": 4,
+        "endLine": 3571,
+        "endChar": 44
+      },
+      "revId": "ec82e0f8624b2d708120799c765ad4e7bbdb4d05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d464c1cc_07ad3039",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 3624,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-12-19T20:09:42Z",
+      "side": 1,
+      "message": "can be const.",
+      "range": {
+        "startLine": 3624,
+        "startChar": 2,
+        "endLine": 3624,
+        "endChar": 12
+      },
+      "revId": "ec82e0f8624b2d708120799c765ad4e7bbdb4d05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1cc6593_cf410b69",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 3625,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-12-19T20:09:42Z",
+      "side": 1,
+      "message": "can be const and moved to line 3694.",
+      "range": {
+        "startLine": 3625,
+        "startChar": 2,
+        "endLine": 3625,
+        "endChar": 30
+      },
+      "revId": "ec82e0f8624b2d708120799c765ad4e7bbdb4d05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6cdfbc1_fee1a637",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-12-19T20:09:42Z",
+      "side": 1,
+      "message": "Not necessary; already reset in av1_set_speed_features_framesize_independent().",
+      "range": {
+        "startLine": 191,
+        "startChar": 2,
+        "endLine": 191,
+        "endChar": 42
+      },
+      "revId": "ec82e0f8624b2d708120799c765ad4e7bbdb4d05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64aa323c_6fcd2357",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-12-19T20:09:42Z",
+      "side": 1,
+      "message": "Maybe add a TODO for harmonizing or combining the two models?",
+      "range": {
+        "startLine": 247,
+        "startChar": 4,
+        "endLine": 248,
+        "endChar": 36
+      },
+      "revId": "ec82e0f8624b2d708120799c765ad4e7bbdb4d05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
