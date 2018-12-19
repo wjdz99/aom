@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c317ebb6_f77f7863",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-12-19T18:27:57Z",
+      "side": 1,
+      "message": "Awk",
+      "parentUuid": "4febf06f_51b169aa",
+      "range": {
+        "startLine": 10,
+        "startChar": 15,
+        "endLine": 10,
+        "endChar": 25
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a6188fda_3e1b3f0d",
         "filename": "/COMMIT_MSG",
         "patchSetId": 10
@@ -36,6 +60,30 @@
       "writtenOn": "2018-12-19T04:04:53Z",
       "side": 1,
       "message": "It can be a disadvantage as well. We are throwing away information that can potentially be useful.",
+      "range": {
+        "startLine": 17,
+        "startChar": 49,
+        "endLine": 18,
+        "endChar": 47
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c29b42f_75476bf8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-12-19T18:27:57Z",
+      "side": 1,
+      "message": "Yeah, I agree. \nMy main concern with the current approach is that as we make more changes to the codec, it\u0027s going to skew the input to the ML model and leading to a worse pruning result.",
+      "parentUuid": "a6188fda_3e1b3f0d",
       "range": {
         "startLine": 17,
         "startChar": 49,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "34c2672f_0f5fb064",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3560,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-12-19T18:27:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7b770de6_7ecdb18e",
+      "range": {
+        "startLine": 3554,
+        "startChar": 2,
+        "endLine": 3560,
+        "endChar": 42
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae8abf04_ae75eb8c",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 10
@@ -91,6 +163,30 @@
       "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e668d6c_6cc43e5f",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3604,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-12-19T18:27:57Z",
+      "side": 1,
+      "message": "They are only used for BLOCK_128X128 and BLOCK_64X64. Since I got the training from midres, for all bsize \u003c BLOCK_64X64, the blocks lie completely within the frame. I will be more specific with the comment.",
+      "parentUuid": "ae8abf04_ae75eb8c",
+      "range": {
+        "startLine": 3604,
+        "startChar": 44,
+        "endLine": 3604,
+        "endChar": 78
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "91e62b0f_b13bbbf4",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3607,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-12-19T18:27:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "36da33d4_cbfe7b20",
+      "range": {
+        "startLine": 3607,
+        "startChar": 14,
+        "endLine": 3607,
+        "endChar": 16
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dae32600_23b3b0c8",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 10
@@ -137,6 +257,30 @@
       "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d6c70df_5d6732bc",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3634,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-12-19T18:27:57Z",
+      "side": 1,
+      "message": "I\u0027ve added features from split subblocks because I\u0027m also working on combining this with the model that goes straight to splitting.",
+      "parentUuid": "dae32600_23b3b0c8",
+      "range": {
+        "startLine": 3634,
+        "startChar": 0,
+        "endLine": 3634,
+        "endChar": 20
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "83d16226_d55d2af8",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3653,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-12-19T18:27:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b05f626c_1dc85a07",
+      "range": {
+        "startLine": 3653,
+        "startChar": 36,
+        "endLine": 3653,
+        "endChar": 48
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d6db31ce_20cf0f6d",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 10
@@ -183,6 +351,30 @@
       "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d4db09b_2e02438e",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3666,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-12-19T18:27:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d6db31ce_20cf0f6d",
+      "range": {
+        "startLine": 3666,
+        "startChar": 36,
+        "endLine": 3666,
+        "endChar": 47
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "11313a9f_c90315d5",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3677,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-12-19T18:27:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d7d818cd_21b855a7",
+      "range": {
+        "startLine": 3677,
+        "startChar": 5,
+        "endLine": 3677,
+        "endChar": 16
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ed1fbd3_97e4c65c",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 10
@@ -229,6 +445,30 @@
       "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc9a04ed_959888ec",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3680,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-12-19T18:27:57Z",
+      "side": 1,
+      "message": "\u003e Is this info already available while evaluating the larger partition size? If so, some optimization can be done later.\n\nYes it is. It is actually in the TODO on line 3615. :)",
+      "parentUuid": "5ed1fbd3_97e4c65c",
+      "range": {
+        "startLine": 3677,
+        "startChar": 2,
+        "endLine": 3680,
+        "endChar": 58
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "668dbbca_8b82b459",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3742,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-12-19T18:27:57Z",
+      "side": 1,
+      "message": "\u003e Out of curiosity, given that the features are in log scale already, how important is feature normalization here? I didn\u0027t do normalization in models that I worked on. Just wondering if I should have done it.\n\nThat\u0027s a good question. Normalization is something I always do as it\u0027s already part of my data pipeline. If you are interested I can fire some borg jobs and see how the performance differ..",
+      "parentUuid": "84add447_677a8449",
+      "range": {
+        "startLine": 3742,
+        "startChar": 10,
+        "endLine": 3742,
+        "endChar": 72
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cf095b54_0a5dfdcd",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 10
@@ -266,6 +530,30 @@
       "writtenOn": "2018-12-19T04:04:53Z",
       "side": 1,
       "message": "I think it doesn\u0027t matter if you don\u0027t reset them. The corresponding weights are probably 0 anyways.",
+      "range": {
+        "startLine": 3745,
+        "startChar": 4,
+        "endLine": 3755,
+        "endChar": 0
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24cc90e2_844be2aa",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3755,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-12-19T18:27:57Z",
+      "side": 1,
+      "message": "I actually checked the weights and unfortunately that\u0027s not true :(\nThe problem here is that since I zero-normalized my features, the input will always be zero. Now suppose a is the parameter and x is the feature, and suppose f(x) \u003d ax, then the gradient with respect to a is x. So in our case, the corresponding weights never get updated and remain whatever value they get initialized as.",
+      "parentUuid": "cf095b54_0a5dfdcd",
       "range": {
         "startLine": 3745,
         "startChar": 4,
@@ -301,6 +589,30 @@
     },
     {
       "key": {
+        "uuid": "935763d0_325b7092",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 4439,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-12-19T18:27:57Z",
+      "side": 1,
+      "message": "\u003e what if you don\u0027t turn off ml_prune_rect_partition, but add \"\u0026\u0026 (!prune_horz || !prune_vert)\"here?\n\nThat\u0027s a good idea, I can run a test and see how well it works.",
+      "parentUuid": "4017209a_16e44fd3",
+      "range": {
+        "startLine": 4438,
+        "startChar": 6,
+        "endLine": 4439,
+        "endChar": 56
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d2579c86_d5b1c6c8",
         "filename": "av1/encoder/speed_features.c",
         "patchSetId": 10
@@ -324,6 +636,30 @@
     },
     {
       "key": {
+        "uuid": "6e2412f6_4e242730",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-12-19T18:27:57Z",
+      "side": 1,
+      "message": "I can try this later.\nBut currently I am pretty sure that the model won\u0027t work on BLOCK_128X128 level. The problem is that I trained the model on midres speed 1, and use_square_only_threshold is BLOCK_64X64 at this setting. So all our training data comes from the right and bottom edge for BLOCK_128_128.",
+      "parentUuid": "d2579c86_d5b1c6c8",
+      "range": {
+        "startLine": 247,
+        "startChar": 4,
+        "endLine": 247,
+        "endChar": 44
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "539464e0_3e847894",
         "filename": "av1/encoder/speed_features.c",
         "patchSetId": 10
@@ -335,6 +671,30 @@
       "writtenOn": "2018-12-19T04:04:53Z",
       "side": 1,
       "message": "I wonder if the two models can coexist. Or even better, can they be combined somehow? They are essentially trying to do the same thing. It\u0027s all about what features to use. I\u0027m pretty sure if you replace the features of source variance with motion search residue sse in ml_prune_rect_partition, it will also perform better. It can be future work of course.",
+      "range": {
+        "startLine": 248,
+        "startChar": 4,
+        "endLine": 248,
+        "endChar": 36
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e62387a7_5ea5f2ac",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2018-12-19T18:27:57Z",
+      "side": 1,
+      "message": "Yeah, I can try running the benchmark with both speed features turn on later.",
+      "parentUuid": "539464e0_3e847894",
       "range": {
         "startLine": 248,
         "startChar": 4,
