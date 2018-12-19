@@ -5091,6 +5091,7 @@ static void select_inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
         if (rd_info_tree != NULL) rd_info_tree += 1;
       }
     }
+
     if (skip_rd <= this_rd) {
       rd_stats->rate = 0;
       rd_stats->dist = rd_stats->sse;
@@ -5879,6 +5880,7 @@ static void pick_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
                               found_rd_info ? matched_rd_info : NULL);
   assert(IMPLIES(this_rd_stats.skip && !this_rd_stats.invalid_rate,
                  this_rd_stats.rate == 0));
+
   if (rd < INT64_MAX) {
     *rd_stats = this_rd_stats;
     found = 1;
@@ -10627,11 +10629,12 @@ static void sf_refine_fast_tx_type_search(
       }
     }
 
-    if (RDCOST(x->rdmult,
-               x->skip_cost[skip_ctx][0] + rd_stats_y.rate + rd_stats_uv.rate,
-               (rd_stats_y.dist + rd_stats_uv.dist)) >
-        RDCOST(x->rdmult, x->skip_cost[skip_ctx][1],
-               (rd_stats_y.sse + rd_stats_uv.sse))) {
+    if ((RDCOST(x->rdmult,
+                x->skip_cost[skip_ctx][0] + rd_stats_y.rate + rd_stats_uv.rate,
+                (rd_stats_y.dist + rd_stats_uv.dist)) >
+         RDCOST(x->rdmult, x->skip_cost[skip_ctx][1],
+                (rd_stats_y.sse + rd_stats_uv.sse))) ||
+        (rd_stats_y.skip && rd_stats_uv.skip)) {
       skip_blk = 1;
       rd_stats_y.rate = x->skip_cost[skip_ctx][1];
       rd_stats_uv.rate = 0;
