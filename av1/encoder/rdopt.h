@@ -156,6 +156,9 @@ void av1_inter_mode_data_init(struct TileDataEnc *tile_data);
 void av1_inter_mode_data_fit(TileDataEnc *tile_data, int rdmult);
 #endif
 
+int check_if_optimal_warp(const AV1_COMP *cpi, WarpedMotionParams *wm_params,
+                          int num_proj_ref);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
