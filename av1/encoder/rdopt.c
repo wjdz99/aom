@@ -5091,9 +5091,8 @@ static void select_inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
         if (rd_info_tree != NULL) rd_info_tree += 1;
       }
     }
+
     if (skip_rd <= this_rd) {
-      rd_stats->rate = 0;
-      rd_stats->dist = rd_stats->sse;
       rd_stats->skip = 1;
 #if CONFIG_ONE_PASS_SVM
       av1_reg_stat_skipmode_update(rd_stats, x->rdmult);
@@ -5773,10 +5772,24 @@ static void set_skip_flag(MACROBLOCK *x, RD_STATS *rd_stats, int bsize,
   mbmi->tx_size = tx_size;
   for (int i = 0; i < n4; ++i) set_blk_skip(x, 0, i, 1);
   rd_stats->skip = 1;
-  rd_stats->rate = 0;
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
     dist = ROUND_POWER_OF_TWO(dist, (xd->bd - 8) * 2);
   rd_stats->dist = rd_stats->sse = (dist << 4);
+
+  ENTROPY_CONTEXT ctxa[MAX_MIB_SIZE];
+  ENTROPY_CONTEXT ctxl[MAX_MIB_SIZE];
+  av1_get_entropy_contexts(bsize, &xd->plane[0], ctxa, ctxl);
+  ENTROPY_CONTEXT *ta = ctxa;
+  ENTROPY_CONTEXT *tl = ctxl;
+
+  const TX_SIZE txs_ctx = get_txsize_entropy_ctx(tx_size);
+  TXB_CTX txb_ctx;
+  get_txb_ctx(bsize, tx_size, 0, ta, tl, &txb_ctx);
+  const int zero_blk_rate = x->coeff_costs[txs_ctx][PLANE_TYPE_Y]
+                                .txb_skip_cost[txb_ctx.txb_skip_ctx][1];
+  rd_stats->rate = zero_blk_rate *
+                   (block_size_wide[bsize] >> tx_size_wide_log2[tx_size]) *
+                   (block_size_high[bsize] >> tx_size_high_log2[tx_size]);
 }
 
 // Search for best transform size and type for inter blocks.
@@ -5877,8 +5890,7 @@ static void pick_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   const int64_t rd =
       select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, ref_best_rd,
                               found_rd_info ? matched_rd_info : NULL);
-  assert(IMPLIES(this_rd_stats.skip && !this_rd_stats.invalid_rate,
-                 this_rd_stats.rate == 0));
+
   if (rd < INT64_MAX) {
     *rd_stats = this_rd_stats;
     found = 1;
