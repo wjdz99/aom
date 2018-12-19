@@ -614,6 +614,10 @@ typedef struct SPEED_FEATURES {
   // Gate warp evaluation for motions of type IDENTITY,
   // TRANSLATION and AFFINE(based on number of warp neighbors)
   int prune_warp_using_wmtype;
+
+  // Early terminate interpolation filter evaluation based on
+  // model rd threshold
+  int use_model_based_post_interp_filter_thresh;
 } SPEED_FEATURES;
 
 struct AV1_COMP;

@@ -247,6 +247,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_wedge_search_edge_thresh = 0;
     sf->prune_comp_type_by_comp_avg = 1;
     sf->prune_motion_mode_level = 2;
+    sf->use_model_based_post_interp_filter_thresh = 1;
   }
 
   if (speed >= 2) {
@@ -529,6 +530,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->prune_comp_type_by_comp_avg = 0;
   sf->prune_motion_mode_level = 0;
   sf->prune_warp_using_wmtype = 0;
+  sf->use_model_based_post_interp_filter_thresh = 0;
 
   if (oxcf->mode == GOOD)
     set_good_speed_features_framesize_independent(cpi, sf, oxcf->speed);
