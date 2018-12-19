@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dae32600_23b3b0c8",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3634,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-12-19T01:43:54Z",
+      "side": 1,
+      "message": "You are making decisions for H and V partitions. Are features from split subblocks necessary here?",
+      "range": {
+        "startLine": 3634,
+        "startChar": 0,
+        "endLine": 3634,
+        "endChar": 20
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ed1fbd3_97e4c65c",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3680,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-12-19T01:43:54Z",
+      "side": 1,
+      "message": "Is this info already available while evaluating the larger partition size? If so, some optimization can be done later.",
+      "range": {
+        "startLine": 3677,
+        "startChar": 2,
+        "endLine": 3680,
+        "endChar": 58
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2579c86_d5b1c6c8",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-12-19T01:43:54Z",
+      "side": 1,
+      "message": "Will you try this at speed 0?",
+      "range": {
+        "startLine": 247,
+        "startChar": 4,
+        "endLine": 247,
+        "endChar": 44
+      },
+      "revId": "c5e75d000bbf1c2d7e5d5e5258b24accae7cbcc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
