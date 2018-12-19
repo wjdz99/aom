@@ -959,6 +959,9 @@ unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
 
         if (!find_projection(mbmi->num_proj_ref, pts, pts_inref, bsize, *tr,
                              *tc, &mbmi->wm_params, mi_row, mi_col)) {
+          if (!check_if_optimal_warp(cpi, &mbmi->wm_params, mbmi->num_proj_ref))
+            continue;
+
           thismse =
               av1_compute_motion_cost(cpi, x, bsize, mi_row, mi_col, &this_mv);
 
