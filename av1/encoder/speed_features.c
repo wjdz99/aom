@@ -213,6 +213,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->disable_wedge_search_var_thresh = 0;
   sf->disable_wedge_search_edge_thresh = 0;
   sf->prune_motion_mode_level = 1;
+  sf->cb_pred_filter_search = 1;
 
   if (speed >= 1) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;
@@ -283,6 +284,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_dual_filter = 1;
     sf->use_jnt_comp_flag = JNT_COMP_DISABLED;
     sf->prune_comp_type_by_comp_avg = 2;
+    sf->cb_pred_filter_search = 0;
   }
 
   if (speed >= 3) {
