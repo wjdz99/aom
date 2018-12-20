@@ -509,6 +509,12 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes"){
 
     add_proto qw/void aom_ifft32x32_float/, "const float *input, float *temp, float *output";
     specialize qw/aom_ifft32x32_float avx2          sse2/;
+
+    add_proto qw/void aom_transpose_float/, "const float *A, float *B, int n";
+    specialize qw/aom_transpose_float sse2/;
+
+    add_proto qw/void aom_fft_unpack_2d_output/, "const float *packed, float *output, int n";
+    specialize qw/aom_fft_unpack_2d_output sse2/;
 }  # CONFIG_AV1_ENCODER
 
 #
