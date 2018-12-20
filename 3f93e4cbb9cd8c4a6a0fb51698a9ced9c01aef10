@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39998595_9c107970",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 595,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2018-12-20T22:00:32Z",
+      "side": 0,
+      "message": "These can also be renamed if necessary.",
+      "range": {
+        "startLine": 595,
+        "startChar": 33,
+        "endLine": 595,
+        "endChar": 44
+      },
+      "revId": "3f93e4cbb9cd8c4a6a0fb51698a9ced9c01aef10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e5c77f7f_5bcd0074",
+        "filename": "test/variance_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2018-12-20T22:00:32Z",
+      "side": 0,
+      "message": "These as well.",
+      "range": {
+        "startLine": 46,
+        "startChar": 23,
+        "endLine": 46,
+        "endChar": 32
+      },
+      "revId": "3f93e4cbb9cd8c4a6a0fb51698a9ced9c01aef10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
