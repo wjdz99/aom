@@ -11,12 +11,9 @@
 
 #include <immintrin.h>
 
+#include "config/aom_dsp_rtcd.h"
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_dsp/fft_common.h"
-
-extern void aom_transpose_float_sse2(const float *A, float *B, int n);
-extern void aom_fft_unpack_2d_output_sse2(const float *col_fft, float *output,
-                                          int n);
 
 // Generate the 1d forward transforms for float using _mm256
 GEN_FFT_8(static INLINE void, avx2, float, __m256, _mm256_load_ps,
