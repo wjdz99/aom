@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ca63797_a9616d68",
+        "filename": "aom_dsp/x86/fft_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-12-20T18:29:59Z",
+      "side": 1,
+      "message": "Without this CL, and with the -Wmissing-declarations warning enabled, this file gets the following warnings.\n\n[  4%] Building C object CMakeFiles/aom_dsp_common_avx2_intrinsics.dir/aom_dsp/x86/fft_avx2.c.o\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_avx2.c:32:6: warning: no previous declaration for ‘aom_fft8x8_float_avx2’ [-Wmissing-declarations]\n void aom_fft8x8_float_avx2(const float *input, float *temp, float *output) {\n      ^~~~~~~~~~~~~~~~~~~~~\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_avx2.c:37:6: warning: no previous declaration for ‘aom_fft16x16_float_avx2’ [-Wmissing-declarations]\n void aom_fft16x16_float_avx2(const float *input, float *temp, float *output) {\n      ^~~~~~~~~~~~~~~~~~~~~~~\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_avx2.c:42:6: warning: no previous declaration for ‘aom_fft32x32_float_avx2’ [-Wmissing-declarations]\n void aom_fft32x32_float_avx2(const float *input, float *temp, float *output) {\n      ^~~~~~~~~~~~~~~~~~~~~~~\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_avx2.c:58:6: warning: no previous declaration for ‘aom_ifft8x8_float_avx2’ [-Wmissing-declarations]\n void aom_ifft8x8_float_avx2(const float *input, float *temp, float *output) {\n      ^~~~~~~~~~~~~~~~~~~~~~\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_avx2.c:63:6: warning: no previous declaration for ‘aom_ifft16x16_float_avx2’ [-Wmissing-declarations]\n void aom_ifft16x16_float_avx2(const float *input, float *temp, float *output) {\n      ^~~~~~~~~~~~~~~~~~~~~~~~\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_avx2.c:69:6: warning: no previous declaration for ‘aom_ifft32x32_float_avx2’ [-Wmissing-declarations]\n void aom_ifft32x32_float_avx2(const float *input, float *temp, float *output) {\n      ^~~~~~~~~~~~~~~~~~~~~~~~",
+      "revId": "e4e59ca7a443e70af92feaf6587bc20c68e83b98",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9fad3626_80e2b643",
+        "filename": "aom_dsp/x86/fft_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-12-20T18:29:59Z",
+      "side": 1,
+      "message": "Without this CL, and with the -Wmissing-declarations warning enabled, this file gets the following warnings. The first two warnings cannot be eliminated by #include \"config/aom_dsp_rtcf.h\" alone. They require changes to aom_dsp/aom_dsp_rtcd_defs.pl.\n\n[  3%] Building C object CMakeFiles/aom_dsp_common_sse2_intrinsics.dir/aom_dsp/x86/fft_sse2.c.o\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_sse2.c:30:6: warning: no previous declaration for ‘aom_transpose_float_sse2’ [-Wmissing-declarations]\n void aom_transpose_float_sse2(const float *A, float *B, int n) {\n      ^~~~~~~~~~~~~~~~~~~~~~~~\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_sse2.c:38:6: warning: no previous declaration for ‘aom_fft_unpack_2d_output_sse2’ [-Wmissing-declarations]\n void aom_fft_unpack_2d_output_sse2(const float *packed, float *output, int n) {\n      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_sse2.c:116:6: warning: no previous declaration for ‘aom_fft4x4_float_sse2’ [-Wmissing-declarations]\n void aom_fft4x4_float_sse2(const float *input, float *temp, float *output) {\n      ^~~~~~~~~~~~~~~~~~~~~\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_sse2.c:121:6: warning: no previous declaration for ‘aom_fft8x8_float_sse2’ [-Wmissing-declarations]\n void aom_fft8x8_float_sse2(const float *input, float *temp, float *output) {\n      ^~~~~~~~~~~~~~~~~~~~~\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_sse2.c:126:6: warning: no previous declaration for ‘aom_fft16x16_float_sse2’ [-Wmissing-declarations]\n void aom_fft16x16_float_sse2(const float *input, float *temp, float *output) {\n      ^~~~~~~~~~~~~~~~~~~~~~~\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_sse2.c:131:6: warning: no previous declaration for ‘aom_fft32x32_float_sse2’ [-Wmissing-declarations]\n void aom_fft32x32_float_sse2(const float *input, float *temp, float *output) {\n      ^~~~~~~~~~~~~~~~~~~~~~~\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_sse2.c:146:6: warning: no previous declaration for ‘aom_ifft4x4_float_sse2’ [-Wmissing-declarations]\n void aom_ifft4x4_float_sse2(const float *input, float *temp, float *output) {\n      ^~~~~~~~~~~~~~~~~~~~~~\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_sse2.c:151:6: warning: no previous declaration for ‘aom_ifft8x8_float_sse2’ [-Wmissing-declarations]\n void aom_ifft8x8_float_sse2(const float *input, float *temp, float *output) {\n      ^~~~~~~~~~~~~~~~~~~~~~\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_sse2.c:156:6: warning: no previous declaration for ‘aom_ifft16x16_float_sse2’ [-Wmissing-declarations]\n void aom_ifft16x16_float_sse2(const float *input, float *temp, float *output) {\n      ^~~~~~~~~~~~~~~~~~~~~~~~\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_sse2.c:162:6: warning: no previous declaration for ‘aom_ifft32x32_float_sse2’ [-Wmissing-declarations]\n void aom_ifft32x32_float_sse2(const float *input, float *temp, float *output) {\n      ^~~~~~~~~~~~~~~~~~~~~~~~",
+      "revId": "e4e59ca7a443e70af92feaf6587bc20c68e83b98",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
