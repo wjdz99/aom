@@ -273,6 +273,9 @@ typedef struct MB_MODE_INFO {
 
   int compound_idx;
   int comp_group_idx;
+#if CONFIG_INSPECTION
+  int16_t tx_skip[TXK_TYPE_BUF_LEN];
+#endif
 } MB_MODE_INFO;
 
 static INLINE int is_intrabc_block(const MB_MODE_INFO *mbmi) {
