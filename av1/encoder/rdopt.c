@@ -3514,7 +3514,9 @@ static int64_t txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
                    AOM_PLANE_Y, bs, tx_size, cpi->sf.use_fast_coef_costing,
                    ftxs_mode);
   if (rd_stats->rate == INT_MAX) return INT64_MAX;
-
+  // rdstats->rate should include for all the rate except skip/non-skip cost.
+  // However the decisions should be done after considering the skip/non-skip
+  // cost
   if (rd_stats->skip) {
     if (is_inter) {
       rd = RDCOST(x->rdmult, s1, rd_stats->sse);
@@ -3523,22 +3525,30 @@ static int64_t txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
       // needed.
       av1_reg_stat_skipmode_update(rd_stats, x->rdmult);
 #endif
+      rd_stats->rate = 0;
+      rd_stats->dist = rd_stats->sse;
     } else {
       rd = RDCOST(x->rdmult, s1 + r_tx_size * tx_select, rd_stats->sse);
 #if CONFIG_ONE_PASS_SVM
       av1_reg_stat_skipmode_update(rd_stats, x->rdmult);
 #endif
+      rd_stats->rate = r_tx_size * tx_select;
+      rd_stats->dist = rd_stats->sse;
     }
   } else {
     rd = RDCOST(x->rdmult, rd_stats->rate + s0 + r_tx_size * tx_select,
                 rd_stats->dist);
+    rd_stats->rate = rd_stats->rate + r_tx_size * tx_select;
+    if (is_inter && !xd->lossless[xd->mi[0]->segment_id]) {
+      int64_t skip_rd = RDCOST(x->rdmult, s1, rd_stats->sse);
+      if (skip_rd < rd) {
+        rd = skip_rd;
+        rd_stats->rate = 0;
+        rd_stats->dist = rd_stats->sse;
+        rd_stats->skip = 1;
+      }
+    }
   }
-
-  if (tx_select) rd_stats->rate += r_tx_size;
-
-  if (is_inter && !xd->lossless[xd->mi[0]->segment_id] && !(rd_stats->skip))
-    rd = AOMMIN(rd, RDCOST(x->rdmult, s1, rd_stats->sse));
-
   return rd;
 }
 
@@ -3555,6 +3565,23 @@ static int64_t estimate_yrd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bs,
   *d = rd_stats.dist;
   *s = rd_stats.skip;
   *sse = rd_stats.sse;
+  if (rd != INT64_MAX) {
+    MACROBLOCKD *const xd = &x->e_mbd;
+    const int skip_ctx = av1_get_skip_context(xd);
+    int s0, s1;
+    assert(is_inter_block(xd->mi[0]) == 1);
+    s0 = x->skip_cost[skip_ctx][0];
+    s1 = x->skip_cost[skip_ctx][1];
+    int64_t nonskip_rd = RDCOST(x->rdmult, rd_stats.rate + s0, rd_stats.dist);
+    int64_t skip_rd = RDCOST(x->rdmult, s1, rd_stats.sse);
+    if ((nonskip_rd > skip_rd) || (rd_stats.skip)) {
+      *r = s1;
+      *d = rd_stats.sse;
+      *s = 1;
+    } else {
+      *r += s0;
+    }
+  }
   return rd;
 }
 
@@ -8672,7 +8699,8 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
     if (rd != INT64_MAX)
       rd = RDCOST(x->rdmult, *rate_mv + rmode + rate_sum + rwedge, dist_sum);
     best_interintra_rd = rd;
-    if (ref_best_rd < INT64_MAX && (best_interintra_rd >> 1) > ref_best_rd) {
+    if (ref_best_rd < INT64_MAX &&
+        ((best_interintra_rd >> 4) * 9) > ref_best_rd) {
       return -1;
     }
   }
@@ -9776,7 +9804,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi,
             &orig_dst, &tmp_dst, rd_buffers, &rate_mv, &best_rd_compound,
             rd_stats, ref_best_rd);
         if (ref_best_rd < INT64_MAX &&
-            (best_rd_compound >> 3) * 6 > ref_best_rd) {
+            (best_rd_compound >> 4) * 13 > ref_best_rd) {
           restore_dst_buf(xd, orig_dst, num_planes);
           continue;
         }
