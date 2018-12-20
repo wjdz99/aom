@@ -107,7 +107,7 @@ typedef struct av1_ext_ref_frame {
  *
  * \sa #aom_codec_control
  */
-enum {
+enum aom_dec_control_id {
   /** control function to get info on which reference frames were updated
    *  by the last decode
    */
@@ -252,7 +252,7 @@ enum {
   AV1D_SET_SKIP_FILM_GRAIN,
 
   AOM_DECODER_CTRL_ID_MAX,
-} UENUM2BYTE(aom_dec_control_id) /**< enum type decoder control function*/;
+} UENUM2BYTE(aom_dec_control_id_t) /**< enum type decoder control function*/;
 
 /*!\cond */
 /*!\brief AOM decoder control function parameter type

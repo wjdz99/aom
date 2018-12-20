@@ -221,7 +221,7 @@ typedef struct aom_codec_ctx {
  * *
  * This enumeration determines the bit depth of the codec.
  */
-enum {
+enum aom_bit_depth {
   AOM_BITS_8 = 8,              /**<  8 bits */
   AOM_BITS_10 = 10,            /**< 10 bits */
   AOM_BITS_12 = 12,            /**< 12 bits */
@@ -233,7 +233,7 @@ enum {
  * either be fixed at 64x64 or 128x128 pixels, or it can be dynamically
  * selected by the encoder for each frame.
  */
-enum {
+enum aom_superblock_size {
   AOM_SUPERBLOCK_SIZE_64X64,         /**< Always use 64x64 superblocks. */
   AOM_SUPERBLOCK_SIZE_128X128,       /**< Always use 128x128 superblocks. */
   AOM_SUPERBLOCK_SIZE_DYNAMIC        /**< Select superblock size dynamically. */

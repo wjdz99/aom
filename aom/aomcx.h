@@ -150,7 +150,7 @@ extern aom_codec_iface_t *aom_codec_av1_cx(void);
  *
  * \sa #aom_codec_control
  */
-enum {
+enum aome_enc_control_id {
   /*!\brief Codec control function to set which reference frame encoder can use.
    */
   AOME_USE_REFERENCE = 7,
@@ -976,13 +976,13 @@ enum {
   /*!\brief Control to select maximum height for the GF group pyramid structure
    * (valid values: 1 - 4) */
   AV1E_SET_GF_MAX_PYRAMID_HEIGHT,
-} UENUM1BYTE(aome_enc_control_id); /**<enum type encoder control function*/
+} UENUM1BYTE(aome_enc_control_id_t); /**<enum type encoder control function*/
 
 /*!\brief aom 1-D scaling mode
  *
  * This set of constants define 1-D aom scaling modes
  */
-enum {
+enum aom_scaling_mode_1d {
   AOME_NORMAL = 0,
   AOME_FOURFIVE = 1,
   AOME_THREEFIVE = 2,

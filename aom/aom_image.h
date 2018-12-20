@@ -55,7 +55,7 @@ typedef enum aom_img_fmt {
 } aom_img_fmt_t; /**< alias for enum aom_img_fmt */
 
 /*!\brief List of supported color primaries */
-enum {
+enum aom_color_primaries {
   AOM_CICP_CP_RESERVED_0 = 0,  /**< For future use */
   AOM_CICP_CP_BT_709 = 1,      /**< BT.709 */
   AOM_CICP_CP_UNSPECIFIED = 2, /**< Unspecified */
@@ -76,7 +76,7 @@ enum {
 } UENUM1BYTE(aom_color_primaries_t); /**< alias for enum aom_color_primaries */
 
 /*!\brief List of supported transfer functions */
-enum {
+enum aom_transfer_characteristics {
   AOM_CICP_TC_RESERVED_0 = 0,  /**< For future use */
   AOM_CICP_TC_BT_709 = 1,      /**< BT.709 */
   AOM_CICP_TC_UNSPECIFIED = 2, /**< Unspecified */
@@ -101,7 +101,7 @@ enum {
 } UENUM1BYTE(aom_transfer_characteristics_t); /**<transfer characteristics*/
 
 /*!\brief List of supported matrix coefficients */
-enum {
+enum aom_matrix_coefficients {
   AOM_CICP_MC_IDENTITY = 0,    /**< Identity matrix */
   AOM_CICP_MC_BT_709 = 1,      /**< BT.709 */
   AOM_CICP_MC_UNSPECIFIED = 2, /**< Unspecified */
@@ -123,13 +123,13 @@ enum {
 } SENUM1BYTE(aom_matrix_coefficients_t); /**<enum type Matrix Coefficients*/
 
 /*!\brief List of supported color range */
-enum {
+enum aom_color_range {
   AOM_CR_STUDIO_RANGE = 0,       /**< Y [16..235], UV [16..240] */
   AOM_CR_FULL_RANGE = 1          /**< YUV/RGB [0..255] */
 } UENUM1BYTE(aom_color_range_t); /**< alias for enum aom_color_range */
 
 /*!\brief List of chroma sample positions */
-enum {
+enum aom_chroma_sample_position {
   AOM_CSP_UNKNOWN = 0,   /**< Unknown */
   AOM_CSP_VERTICAL = 1,  /**< Horizontally co-located with luma(0, 0)*/
                          /**< sample, between two vertical samples */
