@@ -46,7 +46,7 @@ typedef unsigned int (*SumOfSquaresFunction)(const int16_t *src);
 typedef unsigned int (*JntSubpixAvgVarMxNFunc)(
     const uint8_t *a, int a_stride, int xoffset, int yoffset, const uint8_t *b,
     int b_stride, uint32_t *sse, const uint8_t *second_pred,
-    const JNT_COMP_PARAMS *jcp_param);
+    const DIST_WTD_COMP_PARAMS *jcp_param);
 typedef uint32_t (*ObmcSubpelVarFunc)(const uint8_t *pre, int pre_stride,
                                       int xoffset, int yoffset,
                                       const int32_t *wsrc, const int32_t *mask,
@@ -219,7 +219,7 @@ static uint32_t subpel_avg_variance_ref(const uint8_t *ref, const uint8_t *src,
 static uint32_t jnt_subpel_avg_variance_ref(
     const uint8_t *ref, const uint8_t *src, const uint8_t *second_pred, int l2w,
     int l2h, int xoff, int yoff, uint32_t *sse_ptr, bool use_high_bit_depth,
-    aom_bit_depth_t bit_depth, JNT_COMP_PARAMS *jcp_param) {
+    aom_bit_depth_t bit_depth, DIST_WTD_COMP_PARAMS *jcp_param) {
   int64_t se = 0;
   uint64_t sse = 0;
   const int w = 1 << l2w;
@@ -709,7 +709,7 @@ class SubpelVarianceTest
   uint8_t *ref_;
   uint8_t *sec_;
   TestParams<FunctionType> params_;
-  JNT_COMP_PARAMS jcp_param_;
+  DIST_WTD_COMP_PARAMS jcp_param_;
 
   // some relay helpers
   bool use_high_bit_depth() const { return params_.use_high_bit_depth; }
