@@ -3544,15 +3544,37 @@ static int64_t estimate_yrd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bs,
                                    MACROBLOCK *x, int *r, int64_t *d, int *s,
                                    int64_t *sse, int64_t ref_best_rd) {
   RD_STATS rd_stats;
+  TX_SIZE tx_size = max_txsize_rect_lookup[bs];
   av1_subtract_plane(x, bs, 0);
   x->rd_model = LOW_TXFM_RD;
-  int64_t rd = txfm_yrd(cpi, x, &rd_stats, ref_best_rd, bs,
-                        max_txsize_rect_lookup[bs], FTXS_NONE);
+  int64_t rd = txfm_yrd(cpi, x, &rd_stats, ref_best_rd, bs, tx_size, FTXS_NONE);
   x->rd_model = FULL_TXFM_RD;
-  *r = rd_stats.rate;
-  *d = rd_stats.dist;
-  *s = rd_stats.skip;
-  *sse = rd_stats.sse;
+  if (rd != INT64_MAX) {
+    MACROBLOCKD *const xd = &x->e_mbd;
+    const int skip_ctx = av1_get_skip_context(xd);
+    MB_MODE_INFO *const mbmi = xd->mi[0];
+    const int tx_select = cpi->common.tx_mode == TX_MODE_SELECT &&
+                          block_signals_txsize(mbmi->sb_type);
+    int ctx = txfm_partition_context(
+        xd->above_txfm_context, xd->left_txfm_context, mbmi->sb_type, tx_size);
+    const int r_tx_size = x->txfm_partition_cost[ctx][0];
+    int s0, s1;
+    assert(is_inter_block(mbmi) == 1);
+    s0 = x->skip_cost[skip_ctx][0];
+    s1 = x->skip_cost[skip_ctx][1];
+    *r = rd_stats.rate + s0 + r_tx_size * tx_select;
+    *d = rd_stats.dist;
+    *s = rd_stats.skip;
+    *sse = rd_stats.sse;
+    int64_t nonskip_rd = RDCOST(
+        x->rdmult, rd_stats.rate + s0 + r_tx_size * tx_select, rd_stats.dist);
+    int64_t skip_rd = RDCOST(x->rdmult, s1, rd_stats.sse);
+    if ((nonskip_rd > skip_rd) || (rd_stats.skip)) {
+      *r = s1;
+      *d = rd_stats.sse;
+      *s = 1;
+    }
+  }
   return rd;
 }
 
