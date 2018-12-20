@@ -34,6 +34,24 @@
       "revId": "7cbee82871ac4ed57d4cb4ddc560434fc26e472f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "44da0281_ac34ec1f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4877,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-12-20T16:44:22Z",
+      "side": 1,
+      "message": "Hi Dominic,\n\nThank you very much for the confirmation! Could you also confirm my speculation that the next line (line 4878) is intended to allow each showable frame to be shown at most once?\n\nThanks.",
+      "parentUuid": "38adb872_3bfe4da7",
+      "revId": "7cbee82871ac4ed57d4cb4ddc560434fc26e472f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
