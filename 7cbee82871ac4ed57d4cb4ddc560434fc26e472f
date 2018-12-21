@@ -52,6 +52,24 @@
       "revId": "7cbee82871ac4ed57d4cb4ddc560434fc26e472f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b6635ac_c9dfc95a",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4877,
+      "author": {
+        "id": 7984
+      },
+      "writtenOn": "2018-12-21T09:56:41Z",
+      "side": 1,
+      "message": "My recollection is that showable frames can be shown repeatedly unless they are key frames and that the next condition (line 4878) makes sure that a key frame can only be shown at most once.",
+      "parentUuid": "44da0281_ac34ec1f",
+      "revId": "7cbee82871ac4ed57d4cb4ddc560434fc26e472f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
