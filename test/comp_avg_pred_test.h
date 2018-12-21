@@ -25,7 +25,7 @@
 namespace libaom_test {
 const int kMaxSize = 128 + 32;  // padding
 
-namespace AV1JNTCOMPAVG {
+namespace AV1DISTWTDCOMPAVG {
 
 typedef void (*jntcompavg_func)(uint8_t *comp_pred, const uint8_t *pred,
                                 int width, int height, const uint8_t *ref,
@@ -45,30 +45,30 @@ typedef void (*highbdjntcompavgupsampled_func)(
     int ref_stride, int bd, const DIST_WTD_COMP_PARAMS *jcp_param,
     int subpel_search);
 
-typedef ::testing::tuple<jntcompavg_func, BLOCK_SIZE> JNTCOMPAVGParam;
+typedef ::testing::tuple<jntcompavg_func, BLOCK_SIZE> DISTWTDCOMPAVGParam;
 
 typedef ::testing::tuple<jntcompavgupsampled_func, BLOCK_SIZE>
-    JNTCOMPAVGUPSAMPLEDParam;
+    DISTWTDCOMPAVGUPSAMPLEDParam;
 
 typedef ::testing::tuple<int, jntcompavg_func, BLOCK_SIZE>
-    HighbdJNTCOMPAVGParam;
+    HighbdDISTWTDCOMPAVGParam;
 
 typedef ::testing::tuple<int, highbdjntcompavgupsampled_func, BLOCK_SIZE>
-    HighbdJNTCOMPAVGUPSAMPLEDParam;
+    HighbdDISTWTDCOMPAVGUPSAMPLEDParam;
 
-::testing::internal::ParamGenerator<JNTCOMPAVGParam> BuildParams(
+::testing::internal::ParamGenerator<DISTWTDCOMPAVGParam> BuildParams(
     jntcompavg_func filter) {
   return ::testing::Combine(::testing::Values(filter),
                             ::testing::Range(BLOCK_4X4, BLOCK_SIZES_ALL));
 }
 
-::testing::internal::ParamGenerator<JNTCOMPAVGUPSAMPLEDParam> BuildParams(
+::testing::internal::ParamGenerator<DISTWTDCOMPAVGUPSAMPLEDParam> BuildParams(
     jntcompavgupsampled_func filter) {
   return ::testing::Combine(::testing::Values(filter),
                             ::testing::Range(BLOCK_4X4, BLOCK_SIZES_ALL));
 }
 
-::testing::internal::ParamGenerator<HighbdJNTCOMPAVGParam> BuildParams(
+::testing::internal::ParamGenerator<HighbdDISTWTDCOMPAVGParam> BuildParams(
     jntcompavg_func filter, int is_hbd) {
   (void)is_hbd;
   return ::testing::Combine(::testing::Range(8, 13, 2),
@@ -76,16 +76,17 @@ typedef ::testing::tuple<int, highbdjntcompavgupsampled_func, BLOCK_SIZE>
                             ::testing::Range(BLOCK_4X4, BLOCK_SIZES_ALL));
 }
 
-::testing::internal::ParamGenerator<HighbdJNTCOMPAVGUPSAMPLEDParam> BuildParams(
-    highbdjntcompavgupsampled_func filter) {
+::testing::internal::ParamGenerator<HighbdDISTWTDCOMPAVGUPSAMPLEDParam>
+BuildParams(highbdjntcompavgupsampled_func filter) {
   return ::testing::Combine(::testing::Range(8, 13, 2),
                             ::testing::Values(filter),
                             ::testing::Range(BLOCK_4X4, BLOCK_SIZES_ALL));
 }
 
-class AV1JNTCOMPAVGTest : public ::testing::TestWithParam<JNTCOMPAVGParam> {
+class AV1DISTWTDCOMPAVGTest
+    : public ::testing::TestWithParam<DISTWTDCOMPAVGParam> {
  public:
-  ~AV1JNTCOMPAVGTest() {}
+  ~AV1DISTWTDCOMPAVGTest() {}
   void SetUp() { rnd_.Reset(ACMRandom::DeterministicSeed()); }
   void TearDown() { libaom_test::ClearSystemState(); }
 
@@ -107,27 +108,27 @@ class AV1JNTCOMPAVGTest : public ::testing::TestWithParam<JNTCOMPAVGParam> {
     const int in_w = block_size_wide[block_idx];
     const int in_h = block_size_high[block_idx];
 
-    DIST_WTD_COMP_PARAMS jnt_comp_params;
-    jnt_comp_params.use_dist_wtd_comp_avg = 1;
+    DIST_WTD_COMP_PARAMS dist_wtd_comp_params;
+    dist_wtd_comp_params.use_dist_wtd_comp_avg = 1;
 
     for (int ii = 0; ii < 2; ii++) {
       for (int jj = 0; jj < 4; jj++) {
-        jnt_comp_params.fwd_offset = quant_dist_lookup_table[ii][jj][0];
-        jnt_comp_params.bck_offset = quant_dist_lookup_table[ii][jj][1];
+        dist_wtd_comp_params.fwd_offset = quant_dist_lookup_table[ii][jj][0];
+        dist_wtd_comp_params.bck_offset = quant_dist_lookup_table[ii][jj][1];
 
         const int offset_r = 3 + rnd_.PseudoUniform(h - in_h - 7);
         const int offset_c = 3 + rnd_.PseudoUniform(w - in_w - 7);
-        aom_jnt_comp_avg_pred_c(output, pred8 + offset_r * w + offset_c, in_w,
-                                in_h, ref8 + offset_r * w + offset_c, in_w,
-                                &jnt_comp_params);
+        aom_dist_wtd_comp_avg_pred_c(output, pred8 + offset_r * w + offset_c,
+                                     in_w, in_h, ref8 + offset_r * w + offset_c,
+                                     in_w, &dist_wtd_comp_params);
         test_impl(output2, pred8 + offset_r * w + offset_c, in_w, in_h,
-                  ref8 + offset_r * w + offset_c, in_w, &jnt_comp_params);
+                  ref8 + offset_r * w + offset_c, in_w, &dist_wtd_comp_params);
 
         for (int i = 0; i < in_h; ++i) {
           for (int j = 0; j < in_w; ++j) {
             int idx = i * in_w + j;
             ASSERT_EQ(output[idx], output2[idx])
-                << "Mismatch at unit tests for AV1JNTCOMPAVGTest\n"
+                << "Mismatch at unit tests for AV1DISTWTDCOMPAVGTest\n"
                 << in_w << "x" << in_h << " Pixel mismatch at index " << idx
                 << " = (" << i << ", " << j << ")";
           }
@@ -152,19 +153,19 @@ class AV1JNTCOMPAVGTest : public ::testing::TestWithParam<JNTCOMPAVGParam> {
     const int in_w = block_size_wide[block_idx];
     const int in_h = block_size_high[block_idx];
 
-    DIST_WTD_COMP_PARAMS jnt_comp_params;
-    jnt_comp_params.use_dist_wtd_comp_avg = 1;
+    DIST_WTD_COMP_PARAMS dist_wtd_comp_params;
+    dist_wtd_comp_params.use_dist_wtd_comp_avg = 1;
 
-    jnt_comp_params.fwd_offset = quant_dist_lookup_table[0][0][0];
-    jnt_comp_params.bck_offset = quant_dist_lookup_table[0][0][1];
+    dist_wtd_comp_params.fwd_offset = quant_dist_lookup_table[0][0][0];
+    dist_wtd_comp_params.bck_offset = quant_dist_lookup_table[0][0][1];
 
     const int num_loops = 1000000000 / (in_w + in_h);
     aom_usec_timer timer;
     aom_usec_timer_start(&timer);
 
     for (int i = 0; i < num_loops; ++i)
-      aom_jnt_comp_avg_pred_c(output, pred8, in_w, in_h, ref8, in_w,
-                              &jnt_comp_params);
+      aom_dist_wtd_comp_avg_pred_c(output, pred8, in_w, in_h, ref8, in_w,
+                                   &dist_wtd_comp_params);
 
     aom_usec_timer_mark(&timer);
     const int elapsed_time = static_cast<int>(aom_usec_timer_elapsed(&timer));
@@ -175,7 +176,7 @@ class AV1JNTCOMPAVGTest : public ::testing::TestWithParam<JNTCOMPAVGParam> {
     aom_usec_timer_start(&timer1);
 
     for (int i = 0; i < num_loops; ++i)
-      test_impl(output2, pred8, in_w, in_h, ref8, in_w, &jnt_comp_params);
+      test_impl(output2, pred8, in_w, in_h, ref8, in_w, &dist_wtd_comp_params);
 
     aom_usec_timer_mark(&timer1);
     const int elapsed_time1 = static_cast<int>(aom_usec_timer_elapsed(&timer1));
@@ -184,12 +185,12 @@ class AV1JNTCOMPAVGTest : public ::testing::TestWithParam<JNTCOMPAVGParam> {
   }
 
   libaom_test::ACMRandom rnd_;
-};  // class AV1JNTCOMPAVGTest
+};  // class AV1DISTWTDCOMPAVGTest
 
-class AV1JNTCOMPAVGUPSAMPLEDTest
-    : public ::testing::TestWithParam<JNTCOMPAVGUPSAMPLEDParam> {
+class AV1DISTWTDCOMPAVGUPSAMPLEDTest
+    : public ::testing::TestWithParam<DISTWTDCOMPAVGUPSAMPLEDParam> {
  public:
-  ~AV1JNTCOMPAVGUPSAMPLEDTest() {}
+  ~AV1DISTWTDCOMPAVGUPSAMPLEDTest() {}
   void SetUp() { rnd_.Reset(ACMRandom::DeterministicSeed()); }
   void TearDown() { libaom_test::ClearSystemState(); }
 
@@ -211,8 +212,8 @@ class AV1JNTCOMPAVGUPSAMPLEDTest
     const int in_w = block_size_wide[block_idx];
     const int in_h = block_size_high[block_idx];
 
-    DIST_WTD_COMP_PARAMS jnt_comp_params;
-    jnt_comp_params.use_dist_wtd_comp_avg = 1;
+    DIST_WTD_COMP_PARAMS dist_wtd_comp_params;
+    dist_wtd_comp_params.use_dist_wtd_comp_avg = 1;
     int sub_x_q3, sub_y_q3;
     int subpel_search;
     for (subpel_search = USE_4_TAPS; subpel_search <= USE_8_TAPS;
@@ -221,28 +222,30 @@ class AV1JNTCOMPAVGUPSAMPLEDTest
         for (sub_y_q3 = 0; sub_y_q3 < 8; ++sub_y_q3) {
           for (int ii = 0; ii < 2; ii++) {
             for (int jj = 0; jj < 4; jj++) {
-              jnt_comp_params.fwd_offset = quant_dist_lookup_table[ii][jj][0];
-              jnt_comp_params.bck_offset = quant_dist_lookup_table[ii][jj][1];
+              dist_wtd_comp_params.fwd_offset =
+                  quant_dist_lookup_table[ii][jj][0];
+              dist_wtd_comp_params.bck_offset =
+                  quant_dist_lookup_table[ii][jj][1];
 
               const int offset_r = 3 + rnd_.PseudoUniform(h - in_h - 7);
               const int offset_c = 3 + rnd_.PseudoUniform(w - in_w - 7);
 
-              aom_jnt_comp_avg_upsampled_pred_c(
+              aom_dist_wtd_comp_avg_upsampled_pred_c(
                   NULL, NULL, 0, 0, NULL, output,
                   pred8 + offset_r * w + offset_c, in_w, in_h, sub_x_q3,
                   sub_y_q3, ref8 + offset_r * w + offset_c, in_w,
-                  &jnt_comp_params, subpel_search);
+                  &dist_wtd_comp_params, subpel_search);
               test_impl(NULL, NULL, 0, 0, NULL, output2,
                         pred8 + offset_r * w + offset_c, in_w, in_h, sub_x_q3,
                         sub_y_q3, ref8 + offset_r * w + offset_c, in_w,
-                        &jnt_comp_params, subpel_search);
+                        &dist_wtd_comp_params, subpel_search);
 
               for (int i = 0; i < in_h; ++i) {
                 for (int j = 0; j < in_w; ++j) {
                   int idx = i * in_w + j;
                   ASSERT_EQ(output[idx], output2[idx])
                       << "Mismatch at unit tests for "
-                         "AV1JNTCOMPAVGUPSAMPLEDTest\n"
+                         "AV1DISTWTDCOMPAVGUPSAMPLEDTest\n"
                       << in_w << "x" << in_h << " Pixel mismatch at index "
                       << idx << " = (" << i << ", " << j
                       << "), sub pixel offset = (" << sub_y_q3 << ", "
@@ -272,11 +275,11 @@ class AV1JNTCOMPAVGUPSAMPLEDTest
     const int in_w = block_size_wide[block_idx];
     const int in_h = block_size_high[block_idx];
 
-    DIST_WTD_COMP_PARAMS jnt_comp_params;
-    jnt_comp_params.use_dist_wtd_comp_avg = 1;
+    DIST_WTD_COMP_PARAMS dist_wtd_comp_params;
+    dist_wtd_comp_params.use_dist_wtd_comp_avg = 1;
 
-    jnt_comp_params.fwd_offset = quant_dist_lookup_table[0][0][0];
-    jnt_comp_params.bck_offset = quant_dist_lookup_table[0][0][1];
+    dist_wtd_comp_params.fwd_offset = quant_dist_lookup_table[0][0][0];
+    dist_wtd_comp_params.bck_offset = quant_dist_lookup_table[0][0][1];
 
     int sub_x_q3 = 0;
     int sub_y_q3 = 0;
@@ -287,9 +290,9 @@ class AV1JNTCOMPAVGUPSAMPLEDTest
     int subpel_search = USE_8_TAPS;  // set to USE_4_TAPS to test 4-tap filter.
 
     for (int i = 0; i < num_loops; ++i)
-      aom_jnt_comp_avg_upsampled_pred_c(NULL, NULL, 0, 0, NULL, output, pred8,
-                                        in_w, in_h, sub_x_q3, sub_y_q3, ref8,
-                                        in_w, &jnt_comp_params, subpel_search);
+      aom_dist_wtd_comp_avg_upsampled_pred_c(
+          NULL, NULL, 0, 0, NULL, output, pred8, in_w, in_h, sub_x_q3, sub_y_q3,
+          ref8, in_w, &dist_wtd_comp_params, subpel_search);
 
     aom_usec_timer_mark(&timer);
     const int elapsed_time = static_cast<int>(aom_usec_timer_elapsed(&timer));
@@ -301,7 +304,7 @@ class AV1JNTCOMPAVGUPSAMPLEDTest
 
     for (int i = 0; i < num_loops; ++i)
       test_impl(NULL, NULL, 0, 0, NULL, output2, pred8, in_w, in_h, sub_x_q3,
-                sub_y_q3, ref8, in_w, &jnt_comp_params, subpel_search);
+                sub_y_q3, ref8, in_w, &dist_wtd_comp_params, subpel_search);
 
     aom_usec_timer_mark(&timer1);
     const int elapsed_time1 = static_cast<int>(aom_usec_timer_elapsed(&timer1));
@@ -310,12 +313,12 @@ class AV1JNTCOMPAVGUPSAMPLEDTest
   }
 
   libaom_test::ACMRandom rnd_;
-};  // class AV1JNTCOMPAVGUPSAMPLEDTest
+};  // class AV1DISTWTDCOMPAVGUPSAMPLEDTest
 
-class AV1HighBDJNTCOMPAVGTest
-    : public ::testing::TestWithParam<HighbdJNTCOMPAVGParam> {
+class AV1HighBDDISTWTDCOMPAVGTest
+    : public ::testing::TestWithParam<HighbdDISTWTDCOMPAVGParam> {
  public:
-  ~AV1HighBDJNTCOMPAVGTest() {}
+  ~AV1HighBDDISTWTDCOMPAVGTest() {}
   void SetUp() { rnd_.Reset(ACMRandom::DeterministicSeed()); }
 
   void TearDown() { libaom_test::ClearSystemState(); }
@@ -338,31 +341,31 @@ class AV1HighBDJNTCOMPAVGTest
     const int in_w = block_size_wide[block_idx];
     const int in_h = block_size_high[block_idx];
 
-    DIST_WTD_COMP_PARAMS jnt_comp_params;
-    jnt_comp_params.use_dist_wtd_comp_avg = 1;
+    DIST_WTD_COMP_PARAMS dist_wtd_comp_params;
+    dist_wtd_comp_params.use_dist_wtd_comp_avg = 1;
 
     for (int ii = 0; ii < 2; ii++) {
       for (int jj = 0; jj < 4; jj++) {
-        jnt_comp_params.fwd_offset = quant_dist_lookup_table[ii][jj][0];
-        jnt_comp_params.bck_offset = quant_dist_lookup_table[ii][jj][1];
+        dist_wtd_comp_params.fwd_offset = quant_dist_lookup_table[ii][jj][0];
+        dist_wtd_comp_params.bck_offset = quant_dist_lookup_table[ii][jj][1];
 
         const int offset_r = 3 + rnd_.PseudoUniform(h - in_h - 7);
         const int offset_c = 3 + rnd_.PseudoUniform(w - in_w - 7);
-        aom_highbd_jnt_comp_avg_pred_c(
+        aom_highbd_dist_wtd_comp_avg_pred_c(
             CONVERT_TO_BYTEPTR(output),
             CONVERT_TO_BYTEPTR(pred8) + offset_r * w + offset_c, in_w, in_h,
             CONVERT_TO_BYTEPTR(ref8) + offset_r * w + offset_c, in_w,
-            &jnt_comp_params);
+            &dist_wtd_comp_params);
         test_impl(CONVERT_TO_BYTEPTR(output2),
                   CONVERT_TO_BYTEPTR(pred8) + offset_r * w + offset_c, in_w,
                   in_h, CONVERT_TO_BYTEPTR(ref8) + offset_r * w + offset_c,
-                  in_w, &jnt_comp_params);
+                  in_w, &dist_wtd_comp_params);
 
         for (int i = 0; i < in_h; ++i) {
           for (int j = 0; j < in_w; ++j) {
             int idx = i * in_w + j;
             ASSERT_EQ(output[idx], output2[idx])
-                << "Mismatch at unit tests for AV1HighBDJNTCOMPAVGTest\n"
+                << "Mismatch at unit tests for AV1HighBDDISTWTDCOMPAVGTest\n"
                 << in_w << "x" << in_h << " Pixel mismatch at index " << idx
                 << " = (" << i << ", " << j << ")";
           }
@@ -387,20 +390,20 @@ class AV1HighBDJNTCOMPAVGTest
     const int in_w = block_size_wide[block_idx];
     const int in_h = block_size_high[block_idx];
 
-    DIST_WTD_COMP_PARAMS jnt_comp_params;
-    jnt_comp_params.use_dist_wtd_comp_avg = 1;
+    DIST_WTD_COMP_PARAMS dist_wtd_comp_params;
+    dist_wtd_comp_params.use_dist_wtd_comp_avg = 1;
 
-    jnt_comp_params.fwd_offset = quant_dist_lookup_table[0][0][0];
-    jnt_comp_params.bck_offset = quant_dist_lookup_table[0][0][1];
+    dist_wtd_comp_params.fwd_offset = quant_dist_lookup_table[0][0][0];
+    dist_wtd_comp_params.bck_offset = quant_dist_lookup_table[0][0][1];
 
     const int num_loops = 1000000000 / (in_w + in_h);
     aom_usec_timer timer;
     aom_usec_timer_start(&timer);
 
     for (int i = 0; i < num_loops; ++i)
-      aom_highbd_jnt_comp_avg_pred_c(
+      aom_highbd_dist_wtd_comp_avg_pred_c(
           CONVERT_TO_BYTEPTR(output), CONVERT_TO_BYTEPTR(pred8), in_w, in_h,
-          CONVERT_TO_BYTEPTR(ref8), in_w, &jnt_comp_params);
+          CONVERT_TO_BYTEPTR(ref8), in_w, &dist_wtd_comp_params);
 
     aom_usec_timer_mark(&timer);
     const int elapsed_time = static_cast<int>(aom_usec_timer_elapsed(&timer));
@@ -412,7 +415,7 @@ class AV1HighBDJNTCOMPAVGTest
 
     for (int i = 0; i < num_loops; ++i)
       test_impl(CONVERT_TO_BYTEPTR(output2), CONVERT_TO_BYTEPTR(pred8), in_w,
-                in_h, CONVERT_TO_BYTEPTR(ref8), in_w, &jnt_comp_params);
+                in_h, CONVERT_TO_BYTEPTR(ref8), in_w, &dist_wtd_comp_params);
 
     aom_usec_timer_mark(&timer1);
     const int elapsed_time1 = static_cast<int>(aom_usec_timer_elapsed(&timer1));
@@ -421,12 +424,12 @@ class AV1HighBDJNTCOMPAVGTest
   }
 
   libaom_test::ACMRandom rnd_;
-};  // class AV1HighBDJNTCOMPAVGTest
+};  // class AV1HighBDDISTWTDCOMPAVGTest
 
-class AV1HighBDJNTCOMPAVGUPSAMPLEDTest
-    : public ::testing::TestWithParam<HighbdJNTCOMPAVGUPSAMPLEDParam> {
+class AV1HighBDDISTWTDCOMPAVGUPSAMPLEDTest
+    : public ::testing::TestWithParam<HighbdDISTWTDCOMPAVGUPSAMPLEDParam> {
  public:
-  ~AV1HighBDJNTCOMPAVGUPSAMPLEDTest() {}
+  ~AV1HighBDDISTWTDCOMPAVGUPSAMPLEDTest() {}
   void SetUp() { rnd_.Reset(ACMRandom::DeterministicSeed()); }
   void TearDown() { libaom_test::ClearSystemState(); }
 
@@ -448,8 +451,8 @@ class AV1HighBDJNTCOMPAVGUPSAMPLEDTest
     const int in_w = block_size_wide[block_idx];
     const int in_h = block_size_high[block_idx];
 
-    DIST_WTD_COMP_PARAMS jnt_comp_params;
-    jnt_comp_params.use_dist_wtd_comp_avg = 1;
+    DIST_WTD_COMP_PARAMS dist_wtd_comp_params;
+    dist_wtd_comp_params.use_dist_wtd_comp_avg = 1;
     int sub_x_q3, sub_y_q3;
     int subpel_search;
     for (subpel_search = USE_4_TAPS; subpel_search <= USE_8_TAPS;
@@ -458,30 +461,32 @@ class AV1HighBDJNTCOMPAVGUPSAMPLEDTest
         for (sub_y_q3 = 0; sub_y_q3 < 8; ++sub_y_q3) {
           for (int ii = 0; ii < 2; ii++) {
             for (int jj = 0; jj < 4; jj++) {
-              jnt_comp_params.fwd_offset = quant_dist_lookup_table[ii][jj][0];
-              jnt_comp_params.bck_offset = quant_dist_lookup_table[ii][jj][1];
+              dist_wtd_comp_params.fwd_offset =
+                  quant_dist_lookup_table[ii][jj][0];
+              dist_wtd_comp_params.bck_offset =
+                  quant_dist_lookup_table[ii][jj][1];
 
               const int offset_r = 3 + rnd_.PseudoUniform(h - in_h - 7);
               const int offset_c = 3 + rnd_.PseudoUniform(w - in_w - 7);
 
-              aom_highbd_jnt_comp_avg_upsampled_pred_c(
+              aom_highbd_dist_wtd_comp_avg_upsampled_pred_c(
                   NULL, NULL, 0, 0, NULL, CONVERT_TO_BYTEPTR(output),
                   CONVERT_TO_BYTEPTR(pred8) + offset_r * w + offset_c, in_w,
                   in_h, sub_x_q3, sub_y_q3,
                   CONVERT_TO_BYTEPTR(ref8) + offset_r * w + offset_c, in_w, bd,
-                  &jnt_comp_params, subpel_search);
+                  &dist_wtd_comp_params, subpel_search);
               test_impl(NULL, NULL, 0, 0, NULL, CONVERT_TO_BYTEPTR(output2),
                         CONVERT_TO_BYTEPTR(pred8) + offset_r * w + offset_c,
                         in_w, in_h, sub_x_q3, sub_y_q3,
                         CONVERT_TO_BYTEPTR(ref8) + offset_r * w + offset_c,
-                        in_w, bd, &jnt_comp_params, subpel_search);
+                        in_w, bd, &dist_wtd_comp_params, subpel_search);
 
               for (int i = 0; i < in_h; ++i) {
                 for (int j = 0; j < in_w; ++j) {
                   int idx = i * in_w + j;
                   ASSERT_EQ(output[idx], output2[idx])
                       << "Mismatch at unit tests for "
-                         "AV1HighBDJNTCOMPAVGUPSAMPLEDTest\n"
+                         "AV1HighBDDISTWTDCOMPAVGUPSAMPLEDTest\n"
                       << in_w << "x" << in_h << " Pixel mismatch at index "
                       << idx << " = (" << i << ", " << j
                       << "), sub pixel offset = (" << sub_y_q3 << ", "
@@ -511,11 +516,11 @@ class AV1HighBDJNTCOMPAVGUPSAMPLEDTest
     const int in_w = block_size_wide[block_idx];
     const int in_h = block_size_high[block_idx];
 
-    DIST_WTD_COMP_PARAMS jnt_comp_params;
-    jnt_comp_params.use_dist_wtd_comp_avg = 1;
+    DIST_WTD_COMP_PARAMS dist_wtd_comp_params;
+    dist_wtd_comp_params.use_dist_wtd_comp_avg = 1;
 
-    jnt_comp_params.fwd_offset = quant_dist_lookup_table[0][0][0];
-    jnt_comp_params.bck_offset = quant_dist_lookup_table[0][0][1];
+    dist_wtd_comp_params.fwd_offset = quant_dist_lookup_table[0][0][0];
+    dist_wtd_comp_params.bck_offset = quant_dist_lookup_table[0][0][1];
     int sub_x_q3 = 0;
     int sub_y_q3 = 0;
     const int num_loops = 1000000000 / (in_w + in_h);
@@ -523,10 +528,11 @@ class AV1HighBDJNTCOMPAVGUPSAMPLEDTest
     aom_usec_timer_start(&timer);
     int subpel_search = USE_8_TAPS;  // set to USE_4_TAPS to test 4-tap filter.
     for (int i = 0; i < num_loops; ++i)
-      aom_highbd_jnt_comp_avg_upsampled_pred_c(
+      aom_highbd_dist_wtd_comp_avg_upsampled_pred_c(
           NULL, NULL, 0, 0, NULL, CONVERT_TO_BYTEPTR(output),
           CONVERT_TO_BYTEPTR(pred8), in_w, in_h, sub_x_q3, sub_y_q3,
-          CONVERT_TO_BYTEPTR(ref8), in_w, bd, &jnt_comp_params, subpel_search);
+          CONVERT_TO_BYTEPTR(ref8), in_w, bd, &dist_wtd_comp_params,
+          subpel_search);
 
     aom_usec_timer_mark(&timer);
     const int elapsed_time = static_cast<int>(aom_usec_timer_elapsed(&timer));
@@ -539,7 +545,7 @@ class AV1HighBDJNTCOMPAVGUPSAMPLEDTest
     for (int i = 0; i < num_loops; ++i)
       test_impl(NULL, NULL, 0, 0, NULL, CONVERT_TO_BYTEPTR(output2),
                 CONVERT_TO_BYTEPTR(pred8), in_w, in_h, sub_x_q3, sub_y_q3,
-                CONVERT_TO_BYTEPTR(ref8), in_w, bd, &jnt_comp_params,
+                CONVERT_TO_BYTEPTR(ref8), in_w, bd, &dist_wtd_comp_params,
                 subpel_search);
 
     aom_usec_timer_mark(&timer1);
@@ -549,9 +555,9 @@ class AV1HighBDJNTCOMPAVGUPSAMPLEDTest
   }
 
   libaom_test::ACMRandom rnd_;
-};  // class AV1HighBDJNTCOMPAVGUPSAMPLEDTest
+};  // class AV1HighBDDISTWTDCOMPAVGUPSAMPLEDTest
 
-}  // namespace AV1JNTCOMPAVG
+}  // namespace AV1DISTWTDCOMPAVG
 }  // namespace libaom_test
 
 #endif  // AOM_TEST_COMP_AVG_PRED_TEST_H_
