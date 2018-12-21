@@ -71,6 +71,8 @@ enum {
 
 struct AV1Common;
 struct frame_contexts;
+void av1_avg_cdf_symbols(struct frame_contexts *ctx_curr,
+                         struct frame_contexts *ctx_tr, int wt_left, int wt_tr);
 void av1_reset_cdf_symbol_counters(struct frame_contexts *fc);
 void av1_default_coef_probs(struct AV1Common *cm);
 
