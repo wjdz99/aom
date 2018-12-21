@@ -285,6 +285,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_dual_filter = 1;
     sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
     sf->prune_comp_type_by_comp_avg = 2;
+    sf->gm_search_type = GM_DISABLE_SEARCH;
   }
 
   if (speed >= 3) {
