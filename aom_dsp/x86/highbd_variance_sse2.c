@@ -765,7 +765,7 @@ void aom_highbd_comp_avg_upsampled_pred_sse2(
   }
 }
 
-static INLINE void highbd_compute_jnt_comp_avg(__m128i *p0, __m128i *p1,
+static INLINE void highbd_compute_dist_wtd_avg(__m128i *p0, __m128i *p1,
                                                const __m128i *w0,
                                                const __m128i *w1,
                                                const __m128i *r,
@@ -780,7 +780,7 @@ static INLINE void highbd_compute_jnt_comp_avg(__m128i *p0, __m128i *p1,
   xx_storeu_128(result, shift);
 }
 
-void aom_highbd_jnt_comp_avg_pred_sse2(uint8_t *comp_pred8,
+void aom_highbd_dist_wtd_avg_pred_sse2(uint8_t *comp_pred8,
                                        const uint8_t *pred8, int width,
                                        int height, const uint8_t *ref8,
                                        int ref_stride,
@@ -806,7 +806,7 @@ void aom_highbd_jnt_comp_avg_pred_sse2(uint8_t *comp_pred8,
         __m128i p0 = xx_loadu_128(ref);
         __m128i p1 = xx_loadu_128(pred);
 
-        highbd_compute_jnt_comp_avg(&p0, &p1, &w0, &w1, &r, comp_pred);
+        highbd_compute_dist_wtd_avg(&p0, &p1, &w0, &w1, &r, comp_pred);
 
         comp_pred += 8;
         pred += 8;
@@ -823,7 +823,7 @@ void aom_highbd_jnt_comp_avg_pred_sse2(uint8_t *comp_pred8,
       __m128i p0 = _mm_unpacklo_epi64(p0_0, p0_1);
       __m128i p1 = xx_loadu_128(pred);
 
-      highbd_compute_jnt_comp_avg(&p0, &p1, &w0, &w1, &r, comp_pred);
+      highbd_compute_dist_wtd_avg(&p0, &p1, &w0, &w1, &r, comp_pred);
 
       comp_pred += 8;
       pred += 8;
@@ -832,7 +832,7 @@ void aom_highbd_jnt_comp_avg_pred_sse2(uint8_t *comp_pred8,
   }
 }
 
-void aom_highbd_jnt_comp_avg_upsampled_pred_sse2(
+void aom_highbd_dist_wtd_avg_upsampled_pred_sse2(
     MACROBLOCKD *xd, const struct AV1Common *const cm, int mi_row, int mi_col,
     const MV *const mv, uint8_t *comp_pred8, const uint8_t *pred8, int width,
     int height, int subpel_x_q3, int subpel_y_q3, const uint8_t *ref8,
@@ -860,7 +860,7 @@ void aom_highbd_jnt_comp_avg_upsampled_pred_sse2(
     __m128i p0 = xx_loadu_128(comp_pred16);
     __m128i p1 = xx_loadu_128(pred);
 
-    highbd_compute_jnt_comp_avg(&p0, &p1, &w0, &w1, &r, comp_pred16);
+    highbd_compute_dist_wtd_avg(&p0, &p1, &w0, &w1, &r, comp_pred16);
 
     comp_pred16 += 8;
     pred += 8;
