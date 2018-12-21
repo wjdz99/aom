@@ -260,6 +260,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_wedge_search_edge_thresh = 0;
     sf->prune_comp_type_by_comp_avg = 1;
     sf->prune_motion_mode_level = 2;
+    sf->gm_search_type = GM_REDUCED_REF_SEARCH_OPT;
   }
 
   if (speed >= 2) {

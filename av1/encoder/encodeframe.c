@@ -5734,6 +5734,9 @@ static int do_gm_search_logic(SPEED_FEATURES *const sf, int num_refs_using_gm,
     case GM_FULL_SEARCH: return 1;
     case GM_REDUCED_REF_SEARCH:
       return !(frame == LAST2_FRAME || frame == LAST3_FRAME);
+    case GM_REDUCED_REF_SEARCH_OPT:
+      return !(frame == LAST2_FRAME || frame == LAST3_FRAME ||
+               (frame == ALTREF2_FRAME));
     case GM_DISABLE_SEARCH: return 0;
     default: assert(0);
   }
