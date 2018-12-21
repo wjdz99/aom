@@ -32,7 +32,7 @@
 #define MIN_INLIER_PROB 0.1
 
 #define MIN_TRANS_THRESH (1 * GM_TRANS_DECODE_FACTOR)
-#define USE_GM_FEATURE_BASED 1
+#define USE_GM_FEATURE_BASED 0
 
 // Border over which to compute the global motion
 #define ERRORADV_BORDER 0
@@ -44,7 +44,7 @@
 // Center point of square patch
 #define PATCH_CENTER ((PATCH_SIZE + 1) >> 1)
 // Step size between patches, lower value means greater patch overlap
-#define PATCH_STEP 1
+#define PATCH_STEP 3
 // Minimum size of border padding for disflow
 #define MIN_PAD 7
 // Warp error convergence threshold for disflow
@@ -697,22 +697,26 @@ static void compute_flow_pyramids(unsigned char *frm, const int frm_width,
 }
 
 static INLINE void compute_flow_at_point(unsigned char *frm, unsigned char *ref,
-                                         double *dx, double *dy, int x, int y,
+                                         double *dx_patch, double *dy_patch,
+                                         int x, int y,
                                          int width, int height, int stride,
+                                         uint32_t *error_uv,
                                          double *u, double *v) {
   double M[4] = { 0 };
   double b[2] = { 0 };
+  int x_center = x + PATCH_CENTER;
+  int y_center = y + PATCH_CENTER;
   double tmp_output_vec[2] = { 0 };
   double error = 0;
-  int16_t dt[PATCH_SIZE * PATCH_SIZE];
+  int16_t dt_patch[PATCH_SIZE * PATCH_SIZE];
   double o_u = *u;
   double o_v = *v;
 
   for (int itr = 0; itr < DISFLOW_MAX_ITR; itr++) {
     error = compute_warp_and_error(ref, frm, width, height, stride, x, y, *u,
-                                   *v, dt);
+                                   *v, dt_patch);
     if (error <= DISFLOW_ERROR_TR) break;
-    compute_flow_system(dx, stride, dy, stride, dt, PATCH_SIZE, M, b);
+    compute_flow_system(dx_patch, stride, dy_patch, stride, dt_patch, PATCH_SIZE, M, b);
     solve_2x2_system(M, b, tmp_output_vec);
     *u += tmp_output_vec[0];
     *v += tmp_output_vec[1];
@@ -720,17 +724,123 @@ static INLINE void compute_flow_at_point(unsigned char *frm, unsigned char *ref,
   if (fabs(*u - o_u) > PATCH_SIZE || fabs(*v - o_u) > PATCH_SIZE) {
     *u = o_u;
     *v = o_v;
+    double x_w = x_center + *u;
+    double y_w = y_center + *v;
+    int warped = interpolate(ref, x_w, y_w, width, height, stride);
+    int err = warped - frm[x_center + y_center * stride];
+    *error_uv = err * err;
+  } else {
+    *error_uv =
+        dt_patch[PATCH_CENTER * PATCH_SIZE + PATCH_CENTER] *
+        dt_patch[PATCH_CENTER * PATCH_SIZE + PATCH_CENTER];
   }
 }
+
+//sarahparker can probably combine the two strides
+static void refine_flow_field(const double *flow_u, const double *flow_v,
+                              double *flow_u_out, double *flow_v_out,
+                              uint32_t *diff,
+                              int width, int height, int flow_stride,
+                              int diff_stride, int flow_margin) {
+  int error_sum, error;
+  double u, v;
+  double refined_u = 0;
+  double refined_v = 0;
+  int max_x, max_y;
+  // Initialize the location of the first patch center that was computed in
+  // dense inverse search
+  int init_patch_center = flow_margin + PATCH_CENTER;
+  int start_x = init_patch_center;
+  int start_y = init_patch_center;
+
+  for (int i = flow_margin; i < height - flow_margin; i++) {
+    if (i - PATCH_CENTER > start_y) start_y += PATCH_STEP;
+    for (int j = flow_margin; j < width - flow_margin; j++) {
+      error_sum = 0;
+      if (j - PATCH_CENTER > start_x) start_x += PATCH_STEP;
+      max_x = j + PATCH_CENTER;
+      max_y = i + PATCH_CENTER;
+
+      // Iterate over all patches that overlap with current (i, j)
+      for (int y = start_y; y <= max_y; y += PATCH_STEP) {
+        for (int x = start_x; x <= max_x; x += PATCH_STEP) {
+          u = flow_u[y * flow_stride + x];
+          v = flow_v[y * flow_stride + x];
+          /*
+          if(fabs(u - 69) > 0.1 || fabs(v - 69) > 0.1)
+            printf("%f, %f\n", u, v);
+            */
+          error = AOMMAX(1, diff[y * diff_stride + x]);
+          error_sum += error;
+          refined_u += u / error;
+          refined_v += v / error;
+        }
+      }
+      flow_u_out[i * flow_stride + j] = refined_u / error_sum;
+      flow_v_out[i * flow_stride + j] = refined_v / error_sum;
+    }
+    start_x = init_patch_center;
+  }
+}
+      ////////////////
+      ///*
+      /*
+      //n_overlap = get_overlap(j, i, width, height, flow_margin, x_overlap, y_overlap);
+      for (int n = 0; n < n_overlap; n++) {
+        x = x_overlap[n];
+        y = y_overlap[n];
+        u = flow_u[y * flow_stride + x];
+        v = flow_v[y * flow_stride + x];
+        error = AOMMAX(1, diff[y * diff_stride + x]);
+        error_sum += error;
+        refined_u += u / error;
+        refined_v += v / error;
+      }
+static INLINE int get_valid_patch_loc(int lower_bound, int flow_margin) {
+  // Find the nearest point at which a flow vector was computed
+  int patch_loc = flow_margin + (PATCH_STEP *
+                        (lower_bound - flow_margin / PATCH_STEP));
+  // Make sure the patch location is greater than or equal to the lower bound
+  return (patch_loc < lower_bound) ? patch_loc + PATCH_STEP : patch_loc;
+}
+
+static INLINE int get_overlap(int x, int y, int width, int height, int flow_margin,
+                              int *x_overlap, int *y_overlap) {
+  (void)x;
+  (void)y;
+  (void)x_overlap;
+  (void)y_overlap;
+  int start_x = get_valid_patch_loc(x - PATCH_CENTER, flow_margin);
+  int start_y = get_valid_patch_loc(y - PATCH_CENTER, flow_margin);
+  int max_x = x + PATCH_CENTER;
+  int max_y = y + PATCH_CENTER;
+  int n_overlap = 0;
+
+  for (int i = start_y; i < max_y; i += PATCH_STEP) {
+    for (int j = start_x; j < max_x; j += PATCH_STEP) {
+      if (valid_point(j, i, width, height)) {
+        n_overlap++;
+        x_overlap[n_overlap] = j;
+        y_overlap[n_overlap] = i;
+      }
+    }
+  }
+  return n_overlap;
+}
+
+      */
 
 // make sure flow_u and flow_v start at 0
 static void compute_flow_field(ImagePyramid *frm_pyr, ImagePyramid *ref_pyr,
                                double *flow_u, double *flow_v) {
   int cur_width, cur_height, cur_stride, cur_loc, patch_loc, patch_center;
-  double *u_upscale =
+  int flow_margin = PATCH_SIZE;
+  double *u_refined =
       aom_malloc(frm_pyr->strides[0] * frm_pyr->heights[0] * sizeof(*flow_u));
-  double *v_upscale =
+  double *v_refined =
       aom_malloc(frm_pyr->strides[0] * frm_pyr->heights[0] * sizeof(*flow_v));
+  uint32_t *error_image =
+      aom_malloc(frm_pyr->strides[0] * frm_pyr->heights[0] * sizeof(*error_image));
 
   assert(frm_pyr->n_levels == ref_pyr->n_levels);
 
@@ -741,8 +851,15 @@ static void compute_flow_field(ImagePyramid *frm_pyr, ImagePyramid *ref_pyr,
     cur_stride = frm_pyr->strides[level];
     cur_loc = frm_pyr->level_loc[level];
 
-    for (int i = PATCH_SIZE; i < cur_height - PATCH_SIZE; i += PATCH_STEP) {
-      for (int j = PATCH_SIZE; j < cur_width - PATCH_SIZE; j += PATCH_STEP) {
+    ///////////////
+    //debugging
+        /*
+    memset(flow_u, 0, frm_pyr->strides[0] * frm_pyr->heights[0] * sizeof(*flow_u));
+    memset(flow_v, 0, frm_pyr->strides[0] * frm_pyr->heights[0] * sizeof(*flow_u));
+    */
+    //////////
+    for (int i = flow_margin; i < cur_height - flow_margin; i += PATCH_STEP) {
+      for (int j = flow_margin; j < cur_width - flow_margin; j += PATCH_STEP) {
         patch_loc = i * cur_stride + j;
         patch_center = patch_loc + PATCH_CENTER * cur_stride + PATCH_CENTER;
         compute_flow_at_point(frm_pyr->level_buffer + cur_loc,
@@ -750,9 +867,16 @@ static void compute_flow_field(ImagePyramid *frm_pyr, ImagePyramid *ref_pyr,
                               frm_pyr->level_dx_buffer + cur_loc + patch_loc,
                               frm_pyr->level_dy_buffer + cur_loc + patch_loc, j,
                               i, cur_width, cur_height, cur_stride,
+                              error_image + patch_center,
                               flow_u + patch_center, flow_v + patch_center);
+        /*
+        flow_u[patch_center] = 69;
+        flow_v[patch_center] = 69;
+        */
       }
     }
+    refine_flow_field(flow_u, flow_v, u_refined, v_refined, error_image,
+                      cur_width, cur_height, cur_stride, cur_stride, flow_margin);
     // TODO(sarahparker) Replace this with upscale function in resize.c
     if (level > 0) {
       int h_upscale = frm_pyr->heights[level - 1];
@@ -760,20 +884,17 @@ static void compute_flow_field(ImagePyramid *frm_pyr, ImagePyramid *ref_pyr,
       int s_upscale = frm_pyr->strides[level - 1];
       for (int i = 0; i < h_upscale; ++i) {
         for (int j = 0; j < w_upscale; ++j) {
-          u_upscale[j + i * s_upscale] =
-              flow_u[(int)(j >> 1) + (int)(i >> 1) * cur_stride];
-          v_upscale[j + i * s_upscale] =
-              flow_v[(int)(j >> 1) + (int)(i >> 1) * cur_stride];
+          flow_u[j + i * s_upscale] =
+              u_refined[(int)(j >> 1) + (int)(i >> 1) * cur_stride];
+          flow_v[j + i * s_upscale] =
+              v_refined[(int)(j >> 1) + (int)(i >> 1) * cur_stride];
         }
       }
-      memcpy(flow_u, u_upscale,
-             frm_pyr->strides[0] * frm_pyr->heights[0] * sizeof(*flow_u));
-      memcpy(flow_v, v_upscale,
-             frm_pyr->strides[0] * frm_pyr->heights[0] * sizeof(*flow_v));
     }
   }
-  aom_free(u_upscale);
-  aom_free(v_upscale);
+  aom_free(u_refined);
+  aom_free(v_refined);
+  aom_free(error_image);
 }
 
 static int compute_global_motion_disflow_based(
