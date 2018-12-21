@@ -71,6 +71,7 @@
 #include "av1/encoder/speed_features.h"
 #include "av1/encoder/temporal_filter.h"
 #include "av1/encoder/reconinter_enc.h"
+#include "av1/encoder/var_based_part.h"
 
 #define DEFAULT_EXPLICIT_ORDER_HINT_BITS 7
 
@@ -4499,6 +4500,8 @@ static int encode_without_recode_loop(AV1_COMP *cpi) {
   }
 
   av1_set_quantizer(cm, q);
+  av1_set_variance_partition_thresholds(cpi, q, 0);
+
   setup_frame(cpi);
   suppress_active_map(cpi);
 
