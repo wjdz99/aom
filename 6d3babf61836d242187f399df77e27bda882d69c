@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7398209b_1a99e6ee",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-12-21T15:41:58Z",
+      "side": 1,
+      "message": "can you reference that commit here:\n4667aa1a37 Make enum size same for all compilers",
+      "revId": "6d3babf61836d242187f399df77e27bda882d69c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
