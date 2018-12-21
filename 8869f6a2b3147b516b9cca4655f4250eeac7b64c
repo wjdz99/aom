@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ce0de2c_b695d213",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-12-21T16:58:39Z",
+      "side": 1,
+      "message": "Since all averaging code only is used in encoder, better not add this in common part. This can be moved to encoder row-mt code? Also, it would be clear to add a comment there to state where it is used.",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 80
+      },
+      "revId": "8869f6a2b3147b516b9cca4655f4250eeac7b64c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed8eee3d_de3ff0e6",
+        "filename": "av1/encoder/av1_multi_thread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-12-21T16:58:39Z",
+      "side": 1,
+      "message": "As I understand, you need a SB rows of CDFs for each tile row? Is there an estimate on memory usage increase?",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 52
+      },
+      "revId": "8869f6a2b3147b516b9cca4655f4250eeac7b64c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
