@@ -54,12 +54,12 @@ extern "C" {
 
 #define BASE_CONTEXT_POSITION_NUM 12
 
-enum {
+typedef enum TX_CLASS {
   TX_CLASS_2D = 0,
   TX_CLASS_HORIZ = 1,
   TX_CLASS_VERT = 2,
   TX_CLASSES = 3,
-} UENUM1BYTE(TX_CLASS);
+} TX_CLASS;
 
 #define DCT_MAX_VALUE 16384
 #define DCT_MAX_VALUE_HIGH10 65536

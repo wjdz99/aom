@@ -26,7 +26,7 @@
 #include "av1/decoder/obu.h"
 
 // Picture prediction structures (0-12 are predefined) in scalability metadata.
-enum {
+typedef enum {
   SCALABILITY_L1T2 = 0,
   SCALABILITY_L1T3 = 1,
   SCALABILITY_L2T1 = 2,
@@ -42,7 +42,7 @@ enum {
   SCALABILITY_S2T2h = 12,
   SCALABILITY_S2T3h = 13,
   SCALABILITY_SS = 14
-} UENUM1BYTE(SCALABILITY_STRUCTURES);
+} SCALABILITY_STRUCTURES;
 
 aom_codec_err_t aom_get_num_layers_from_operating_point_idc(
     int operating_point_idc, unsigned int *number_spatial_layers,

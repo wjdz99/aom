@@ -79,14 +79,14 @@ extern "C" {
 #define TXCOEFF_TIMER 0
 #define TXCOEFF_COST_TIMER 0
 
-enum {
+typedef enum {
   SINGLE_REFERENCE = 0,
   COMPOUND_REFERENCE = 1,
   REFERENCE_MODE_SELECT = 2,
   REFERENCE_MODES = 3,
-} UENUM1BYTE(REFERENCE_MODE);
+} REFERENCE_MODE;
 
-enum {
+typedef enum {
   /**
    * Frame context updates are disabled
    */
@@ -96,7 +96,7 @@ enum {
    * updates based on entropy/counts in the decoded frame
    */
   REFRESH_FRAME_CONTEXT_BACKWARD,
-} UENUM1BYTE(REFRESH_FRAME_CONTEXT_MODE);
+} REFRESH_FRAME_CONTEXT_MODE;
 
 #define MFMV_STACK_SIZE 3
 typedef struct {
@@ -112,7 +112,7 @@ typedef struct {
 // FIXME(jack.haughton@argondesign.com): This enum was originally in
 // encoder/ratectrl.h, and is encoder specific. When we move to C++, this
 // should go back there and BufferPool should be templatized.
-enum {
+typedef enum {
   INTER_NORMAL = 0,
   INTER_LOW = 1,
   INTER_HIGH = 2,
@@ -120,7 +120,7 @@ enum {
   GF_ARF_STD = 4,
   KF_STD = 5,
   RATE_FACTOR_LEVELS = 6
-} UENUM1BYTE(RATE_FACTOR_LEVEL);
+} RATE_FACTOR_LEVEL;
 
 typedef struct RefCntBuffer {
   // For a RefCntBuffer, the following are reference-holding variables:

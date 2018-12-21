@@ -14,7 +14,7 @@
 
 #include "common/video_common.h"
 
-enum { kContainerIVF } UENUM1BYTE(AvxContainer);
+typedef enum { kContainerIVF } AvxContainer;
 
 struct AvxVideoWriterStruct;
 typedef struct AvxVideoWriterStruct AvxVideoWriter;
