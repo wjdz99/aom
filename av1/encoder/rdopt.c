@@ -782,6 +782,8 @@ static int get_est_rate_dist(const TileDataEnc *tile_data, BLOCK_SIZE bsize,
     }
     return 1;
   }
+  //  *est_residue_cost = 0;
+  //  *est_dist = sse;
   return 0;
 }
 
@@ -8150,7 +8152,6 @@ static INLINE void find_best_non_dual_interp_filter(
   // be the winner
   assert(x->e_mbd.mi[0]->interp_filters == filter_sets[0]);
   assert(filter_set_size == DUAL_FILTER_SET_SIZE);
-
   // Reuse regular filter's modeled rd data for sharp filter for following
   // cases
   // 1) When bsize is 4x4
@@ -9089,7 +9090,6 @@ static int64_t motion_mode_rd(
         }
         continue;
       }
-
       const int64_t curr_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
       ref_best_rd = AOMMIN(ref_best_rd, curr_rd);
       *disable_skip = 0;
@@ -12091,7 +12091,6 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     }
   }
 #endif
-
   for (int j = 0; j < intra_mode_num; ++j) {
     const int mode_index = intra_mode_idx_ls[j];
     const MV_REFERENCE_FRAME ref_frame =
@@ -12134,7 +12133,6 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif
     }
   }
-
   // In effect only when speed >= 2.
   sf_refine_fast_tx_type_search(
       cpi, x, mi_row, mi_col, rd_cost, bsize, ctx, search_state.best_mode_index,
@@ -12146,7 +12144,6 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     search_palette_mode(cpi, x, mi_row, mi_col, rd_cost, ctx, bsize, mbmi, pmi,
                         ref_costs_single, &search_state);
   }
-
   search_state.best_mbmode.skip_mode = 0;
   if (cm->current_frame.skip_mode_info.skip_mode_flag &&
       !segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME) &&

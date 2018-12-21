@@ -85,7 +85,10 @@ enum {
 enum {
   // Good Quality Fast Encoding. The encoder balances quality with the amount of
   // time it takes to encode the output. Speed setting controls how fast.
-  GOOD
+  GOOD,
+  // Realtime Fast Encoding. Will force some restrictions on bitrate
+  // constraints.
+  REALTIME
 } UENUM1BYTE(MODE);
 
 enum {
@@ -130,6 +133,16 @@ enum {
                          // q_index
   SUPERRES_MODES
 } UENUM1BYTE(SUPERRES_MODE);
+
+typedef enum {
+  kInvalid = 0,
+  kLowSadLowSumdiff = 1,
+  kLowSadHighSumdiff = 2,
+  kHighSadLowSumdiff = 3,
+  kHighSadHighSumdiff = 4,
+  kLowVarHighSumdiff = 5,
+  kVeryHighSad = 6,
+} CONTENT_STATE_SB;
 
 typedef struct TplDepStats {
   int64_t intra_cost;
@@ -783,6 +796,11 @@ typedef struct AV1_COMP {
                     // number of MBs in the current frame when the frame is
                     // scaled.
 
+  // Store frame variance info in SOURCE_VAR_BASED_PARTITION search type.
+  DIFF *source_diff_var;
+  // The threshold used in SOURCE_VAR_BASED_PARTITION search type.
+  unsigned int source_var_thresh;
+
   // When resize is triggered through external control, the desired width/height
   // are stored here until use in the next frame coded. They are effective only
   // for
@@ -812,6 +830,13 @@ typedef struct AV1_COMP {
 
   // VARIANCE_AQ segment map refresh
   int vaq_refresh;
+
+  // VAR_BASED_PARTITION thresholds
+  // 0 - threshold_64x64; 1 - threshold_32x32;
+  // 2 - threshold_16x16; 3 - vbp_threshold_8x8;
+  int64_t vbp_thresholds[4];
+  int64_t vbp_threshold_minmax;
+  int64_t vbp_threshold_sad;
 
   // Multi-threading
   int num_workers;

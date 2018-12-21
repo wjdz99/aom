@@ -191,7 +191,11 @@ enum {
   // Always use a fixed size partition
   FIXED_PARTITION,
 
-  REFERENCE_PARTITION
+  REFERENCE_PARTITION,
+
+  SOURCE_VAR_BASED_PARTITION,
+
+  VAR_BASED_PARTITION
 } UENUM1BYTE(PARTITION_SEARCH_TYPE);
 
 enum {
@@ -618,6 +622,9 @@ typedef struct SPEED_FEATURES {
   // Perform simple_motion_search on each possible subblock and use it to prune
   // PARTITION_HORZ and PARTITION_VERT.
   int simple_motion_search_prune_rect;
+
+  // This flag controls the use of non-RD mode decision.
+  int use_nonrd_pick_mode;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
