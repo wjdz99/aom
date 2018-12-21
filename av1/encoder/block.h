@@ -424,6 +424,11 @@ struct macroblock {
   // [Saved stat index]
   COMP_RD_STATS comp_rd_stats[MAX_COMP_RD_STATS];
   int comp_rd_stats_idx;
+
+  // Used to save the status of whether a block has a low variance in
+  // choose_partitioning. 0 for 64x64, 1~2 for 64x32, 3~4 for 32x64, 5~8 for
+  // 32x32, 9~24 for 16x16.
+  uint8_t variance_low[25];
 };
 
 static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {

@@ -191,7 +191,9 @@ enum {
   // Always use a fixed size partition
   FIXED_PARTITION,
 
-  REFERENCE_PARTITION
+  REFERENCE_PARTITION,
+
+  VAR_BASED_PARTITION
 } UENUM1BYTE(PARTITION_SEARCH_TYPE);
 
 enum {
@@ -646,6 +648,9 @@ typedef struct SPEED_FEATURES {
 
   // Enable/disable interintra wedge search.
   int disable_wedge_interintra_search;
+
+  // This flag controls the use of non-RD mode decision.
+  int use_nonrd_pick_mode;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
