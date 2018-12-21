@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "752c722f_535b294c",
+        "filename": "aom_ports/x86.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-12-21T17:37:13Z",
+      "side": 1,
+      "message": "Visual Studio 32-bit x86 build uses this definition of the cpuid() macro.\nNote that it substitutes the input arguments a, b, c, d directly into the\ninline assembly code. So if \u0027a\u0027 is \u0027ax\u0027, we would get\n\n  __asm mov ax, eax\n\nAnd Visual C++ warns that the registers ax and eax have different sizes.",
+      "range": {
+        "startLine": 107,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 18
+      },
+      "revId": "8c8b6aeaeea0b786b226f6af71d1ae9ec6d20888",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "723143ac_7eeb0ca6",
+        "filename": "aom_ports/x86.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-12-21T17:37:13Z",
+      "side": 1,
+      "message": "I got the reg_eax, reg_ebx, reg_ecx, reg_edx variable names from here.",
+      "range": {
+        "startLine": 192,
+        "startChar": 14,
+        "endLine": 192,
+        "endChar": 48
+      },
+      "revId": "8c8b6aeaeea0b786b226f6af71d1ae9ec6d20888",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9e5a5157_d5143127",
+        "filename": "aom_ports/x86.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-12-21T17:37:13Z",
+      "side": 1,
+      "message": "The compiler warnings are:\n\n  aom_dsp_rtcd.c\nc:\\src\\aom.1\\aom\\aom_ports\\x86.h(305): error C2443: operand size conflict [C:\\src\\aom.1\\build\\aom_rtcd.vcxproj]\nc:\\src\\aom.1\\aom\\aom_ports\\x86.h(312): error C2443: operand size conflict [C:\\src\\aom.1\\build\\aom_rtcd.vcxproj]\n  aom_scale_rtcd.c\nc:\\src\\aom.1\\aom\\aom_ports\\x86.h(305): error C2443: operand size conflict [C:\\src\\aom.1\\build\\aom_rtcd.vcxproj]\nc:\\src\\aom.1\\aom\\aom_ports\\x86.h(312): error C2443: operand size conflict [C:\\src\\aom.1\\build\\aom_rtcd.vcxproj]\n  av1_rtcd.c\nc:\\src\\aom.1\\aom\\aom_ports\\x86.h(305): error C2443: operand size conflict [C:\\src\\aom.1\\build\\aom_rtcd.vcxproj]\nc:\\src\\aom.1\\aom\\aom_ports\\x86.h(312): error C2443: operand size conflict [C:\\src\\aom.1\\build\\aom_rtcd.vcxproj]",
+      "revId": "8c8b6aeaeea0b786b226f6af71d1ae9ec6d20888",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
