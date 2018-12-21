@@ -1325,7 +1325,7 @@ static INLINE PARTITION_TYPE get_partition(const AV1_COMMON *const cm,
       // PARTITION_VERT_A, the right block will have height bhigh; with
       // PARTITION_HORZ_A, the lower block with have width bwide. Otherwise
       // it's PARTITION_SPLIT.
-      if (sswide * 2 != bwide || sshigh * 2 != bhigh) return PARTITION_SPLIT;
+      if (sswide * 2 == bwide && sshigh * 2 == bhigh) return PARTITION_SPLIT;
 
       if (mi_size_wide[mbmi_below->sb_type] == bwide) return PARTITION_HORZ_A;
       if (mi_size_high[mbmi_right->sb_type] == bhigh) return PARTITION_VERT_A;

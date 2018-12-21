@@ -40,6 +40,9 @@ void av1_encode_tile(struct AV1_COMP *cpi, struct ThreadData *td, int tile_row,
 void av1_encode_sb_row(struct AV1_COMP *cpi, struct ThreadData *td,
                        int tile_row, int tile_col, int mi_row);
 
+void av1_set_variance_partition_thresholds(struct AV1_COMP *cpi, int q,
+                                           int content_state);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

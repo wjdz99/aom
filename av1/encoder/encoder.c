@@ -4499,6 +4499,8 @@ static int encode_without_recode_loop(AV1_COMP *cpi) {
   }
 
   av1_set_quantizer(cm, q);
+  av1_set_variance_partition_thresholds(cpi, q, 0);
+
   setup_frame(cpi);
   suppress_active_map(cpi);
 

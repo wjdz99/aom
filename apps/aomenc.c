@@ -152,8 +152,6 @@ static const arg_def_t limit =
     ARG_DEF(NULL, "limit", 1, "Stop encoding after n input frames");
 static const arg_def_t skip =
     ARG_DEF(NULL, "skip", 1, "Skip the first n input frames");
-static const arg_def_t good_dl =
-    ARG_DEF(NULL, "good", 0, "Use Good Quality Deadline");
 static const arg_def_t quietarg =
     ARG_DEF("q", "quiet", 0, "Do not print encode progress");
 static const arg_def_t verbosearg =
@@ -218,7 +216,6 @@ static const arg_def_t *main_args[] = { &help,
                                         &fpf_name,
                                         &limit,
                                         &skip,
-                                        &good_dl,
                                         &quietarg,
                                         &verbosearg,
                                         &psnrarg,
@@ -1046,8 +1043,6 @@ static void parse_global_config(struct AvxEncoderConfig *global, int argc,
       argj++;
     } else if (arg_match(&arg, &usage, argi))
       global->usage = arg_parse_uint(&arg);
-    else if (arg_match(&arg, &good_dl, argi))
-      warn("Deprecated --good option! Ignoring\n");
     else if (arg_match(&arg, &use_yv12, argi))
       global->color_type = YV12;
     else if (arg_match(&arg, &use_i420, argi))
@@ -1702,6 +1697,7 @@ static void initialize_encoder(struct stream_state *stream,
   for (i = 0; i < stream->config.arg_ctrl_cnt; i++) {
     int ctrl = stream->config.arg_ctrls[i][0];
     int value = stream->config.arg_ctrls[i][1];
+    fprintf(stdout, ": Trying to set control %d = %d\n", ctrl, value);
     if (aom_codec_control_(&stream->encoder, ctrl, value))
       fprintf(stderr, "Error: Tried to set control %d = %d\n", ctrl, value);
 
