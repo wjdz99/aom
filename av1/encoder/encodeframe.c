@@ -5316,6 +5316,9 @@ static void init_simple_motion_search_mvs(PC_TREE *pc_tree) {
   }
 }
 
+#define AVG_CDF_WEIGHT_LEFT 3
+#define AVG_CDF_WEIGHT_TOP_RIGHT 1
+
 static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
                              TileDataEnc *tile_data, int mi_row,
                              TOKENEXTRA **tp) {
@@ -5349,10 +5352,22 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
        mi_col < tile_info->mi_col_end; mi_col += mib_size, sb_col_in_tile++) {
     (*(cpi->row_mt_sync_read_ptr))(&tile_data->row_mt_sync, sb_row,
                                    sb_col_in_tile);
-    if ((cpi->row_mt == 1) && (tile_info->mi_col_start == mi_col) &&
-        (tile_info->mi_row_start != mi_row)) {
-      // restore frame context of 1st column sb
-      memcpy(xd->tile_ctx, x->backup_tile_ctx, sizeof(*xd->tile_ctx));
+    if ((cpi->row_mt == 1) && (tile_info->mi_row_start != mi_row)) {
+      if ((tile_info->mi_col_start == mi_col)) {
+        // restore frame context of 1st column sb
+        memcpy(xd->tile_ctx, x->row_ctx, sizeof(*xd->tile_ctx));
+      } else {
+        if (tile_data->allow_update_cdf) {
+          int wt_left = AVG_CDF_WEIGHT_LEFT;
+          int wt_tr = AVG_CDF_WEIGHT_TOP_RIGHT;
+          if (tile_info->mi_col_end > (mi_col + mib_size))
+            av1_avg_cdf_symbols(xd->tile_ctx, x->row_ctx + sb_col_in_tile,
+                                wt_left, wt_tr);
+          else
+            av1_avg_cdf_symbols(xd->tile_ctx, x->row_ctx + sb_col_in_tile - 1,
+                                wt_left, wt_tr);
+        }
+      }
     }
     av1_fill_coeff_costs(&td->mb, xd->tile_ctx, num_planes);
     av1_fill_mode_rates(cm, x, xd->tile_ctx);
@@ -5458,11 +5473,12 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
       av1_inter_mode_data_fit(tile_data, x->rdmult);
     }
 #endif
-    if (cpi->row_mt == 1) {
-      int update_context = 0;
-      update_context = sb_cols_in_tile == 1 || sb_col_in_tile == 1;
-      if (update_context)
-        memcpy(x->backup_tile_ctx, xd->tile_ctx, sizeof(*xd->tile_ctx));
+    if ((cpi->row_mt == 1) && (tile_info->mi_row_end > (mi_row + mib_size))) {
+      if (sb_cols_in_tile == 1)
+        memcpy(x->row_ctx, xd->tile_ctx, sizeof(*xd->tile_ctx));
+      else if (sb_col_in_tile >= 1)
+        memcpy(x->row_ctx + sb_col_in_tile - 1, xd->tile_ctx,
+               sizeof(*xd->tile_ctx));
     }
     (*(cpi->row_mt_sync_write_ptr))(&tile_data->row_mt_sync, sb_row,
                                     sb_col_in_tile, sb_cols_in_tile);
@@ -5653,7 +5669,6 @@ static void encode_tiles(AV1_COMP *cpi) {
       cpi->td.intrabc_used = 0;
       cpi->td.mb.e_mbd.tile_ctx = &this_tile->tctx;
       cpi->td.mb.tile_pb_ctx = &this_tile->tctx;
-      cpi->td.mb.backup_tile_ctx = &this_tile->backup_tctx;
       av1_encode_tile(cpi, &cpi->td, tile_row, tile_col);
       cpi->intrabc_used |= cpi->td.intrabc_used;
     }
