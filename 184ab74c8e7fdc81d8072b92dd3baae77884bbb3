@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e9697547_628bc81f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-12-21T18:46:32Z",
+      "side": 1,
+      "message": "Only these two warnings remain in aom_dsp/x86/fft_sse2.c:\n\n[ 64%] Building C object CMakeFiles/aom_dsp_common_sse2_intrinsics.dir/aom_dsp/x86/fft_sse2.c.o\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_sse2.c:31:6: warning: no previous declaration for ‘aom_transpose_float_sse2’ [-Wmissing-declarations]\n void aom_transpose_float_sse2(const float *A, float *B, int n) {\n      ^~~~~~~~~~~~~~~~~~~~~~~~\n/usr/local/google/home/wtc/aom.2/aom/aom_dsp/x86/fft_sse2.c:39:6: warning: no previous declaration for ‘aom_fft_unpack_2d_output_sse2’ [-Wmissing-declarations]\n void aom_fft_unpack_2d_output_sse2(const float *packed, float *output, int n) {\n      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "range": {
+        "startLine": 10,
+        "startChar": 39,
+        "endLine": 11,
+        "endChar": 34
+      },
+      "revId": "184ab74c8e7fdc81d8072b92dd3baae77884bbb3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
