@@ -85,7 +85,10 @@ enum {
 enum {
   // Good Quality Fast Encoding. The encoder balances quality with the amount of
   // time it takes to encode the output. Speed setting controls how fast.
-  GOOD
+  GOOD,
+  // Realtime Fast Encoding. Will force some restrictions on bitrate
+  // constraints.
+  REALTIME
 } UENUM1BYTE(MODE);
 
 enum {
@@ -782,6 +785,11 @@ typedef struct AV1_COMP {
                     // normalize the firstpass stats. This will differ from the
                     // number of MBs in the current frame when the frame is
                     // scaled.
+
+  // Store frame variance info in SOURCE_VAR_BASED_PARTITION search type.
+  DIFF *source_diff_var;
+  // The threshold used in SOURCE_VAR_BASED_PARTITION search type.
+  unsigned int source_var_thresh;
 
   // When resize is triggered through external control, the desired width/height
   // are stored here until use in the next frame coded. They are effective only
