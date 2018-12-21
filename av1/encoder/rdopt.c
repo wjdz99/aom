@@ -199,7 +199,6 @@ struct rdcost_block_args {
   int64_t this_rd;
   int64_t best_rd;
   int exit_early;
-  int incomplete_exit;
   int use_fast_coef_costing;
   FAST_TX_SEARCH_MODE ftxs_mode;
 };
@@ -3353,7 +3352,6 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   av1_init_rd_stats(&this_rd_stats);
 
   if (args->exit_early) {
-    args->incomplete_exit = 1;
     return;
   }
 
@@ -3446,11 +3444,7 @@ static void txfm_rd_in_plane(MACROBLOCK *x, const AV1_COMP *cpi,
   av1_foreach_transformed_block_in_plane(xd, bsize, plane, block_rd_txfm,
                                          &args);
 
-  MB_MODE_INFO *const mbmi = xd->mi[0];
-  const int is_inter = is_inter_block(mbmi);
-  const int invalid_rd = is_inter ? args.incomplete_exit : args.exit_early;
-
-  if (invalid_rd) {
+  if (args.exit_early) {
     av1_invalid_rd_stats(rd_stats);
   } else {
     *rd_stats = args.rd_stats;
