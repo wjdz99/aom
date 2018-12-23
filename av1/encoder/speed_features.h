@@ -652,6 +652,9 @@ typedef struct SPEED_FEATURES {
 
   // Flag used to control the extent of coeff R-D optimization
   int perform_coeff_opt;
+
+  // Flag used to control the ref_best_rd based gating for chroma
+  int perform_best_rd_based_gating_for_chroma;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
