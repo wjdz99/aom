@@ -8531,8 +8531,13 @@ static int txfm_search(const AV1_COMP *cpi, const TileDataEnc *tile_data,
   av1_init_rd_stats(rd_stats_uv);
   const int num_planes = av1_num_planes(cm);
   if (num_planes > 1) {
+    // Calculate best rd cost possible for chroma
+    int64_t ref_best_chroma_rd =
+        (ref_best_rd == INT64_MAX)
+            ? INT64_MAX
+            : (ref_best_rd - AOMMIN(non_skip_rdcosty, skip_rdcosty));
     const int is_cost_valid_uv =
-        super_block_uvrd(cpi, x, rd_stats_uv, bsize, ref_best_rd);
+        super_block_uvrd(cpi, x, rd_stats_uv, bsize, ref_best_chroma_rd);
     if (!is_cost_valid_uv) {
       mbmi->ref_frame[1] = ref_frame_1;
       return 0;
