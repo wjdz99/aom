@@ -4590,6 +4590,14 @@ static int super_block_uvrd(const AV1_COMP *const cpi, MACROBLOCK *x,
 
   if (is_cost_valid) {
     for (plane = 1; plane < MAX_MB_PLANE; ++plane) {
+      // Early exit is introduced before the evaluation so that gating
+      // is not effective after all planes are evaluated. This can help in
+      // ref mv based early exits
+      if (RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) > ref_best_rd &&
+          RDCOST(x->rdmult, 0, rd_stats->sse) > ref_best_rd) {
+        is_cost_valid = 0;
+        break;
+      }
       RD_STATS pn_rd_stats;
       txfm_rd_in_plane(x, cpi, &pn_rd_stats, ref_best_rd, 0, plane, bsize,
                        uv_tx_size, cpi->sf.use_fast_coef_costing, FTXS_NONE);
@@ -4598,11 +4606,6 @@ static int super_block_uvrd(const AV1_COMP *const cpi, MACROBLOCK *x,
         break;
       }
       av1_merge_rd_stats(rd_stats, &pn_rd_stats);
-      if (RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) > ref_best_rd &&
-          RDCOST(x->rdmult, 0, rd_stats->sse) > ref_best_rd) {
-        is_cost_valid = 0;
-        break;
-      }
     }
   }
 
@@ -8531,8 +8534,13 @@ static int txfm_search(const AV1_COMP *cpi, const TileDataEnc *tile_data,
   av1_init_rd_stats(rd_stats_uv);
   const int num_planes = av1_num_planes(cm);
   if (num_planes > 1) {
+    // Calculate best rd cost possible for chroma
+    int64_t ref_best_chroma_rd =
+        (ref_best_rd == INT64_MAX)
+            ? INT64_MAX
+            : (ref_best_rd - AOMMIN(non_skip_rdcosty, skip_rdcosty));
     const int is_cost_valid_uv =
-        super_block_uvrd(cpi, x, rd_stats_uv, bsize, ref_best_rd);
+        super_block_uvrd(cpi, x, rd_stats_uv, bsize, ref_best_chroma_rd);
     if (!is_cost_valid_uv) {
       mbmi->ref_frame[1] = ref_frame_1;
       return 0;
