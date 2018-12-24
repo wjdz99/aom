@@ -18,6 +18,7 @@
 #define AOM_AOM_UTIL_AOM_THREAD_H_
 
 #include "config/aom_config.h"
+#include "aom_ports/mem.h"
 
 #ifdef __cplusplus
 extern "C" {
