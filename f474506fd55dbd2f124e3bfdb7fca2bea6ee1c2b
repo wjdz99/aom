@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd514d7c_e066df67",
+        "filename": "aom_ports/mem.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-12-24T18:08:43Z",
+      "side": 1,
+      "message": "1. Please move the *ENUM*BYTE macro definitions from \"av1/common/enums.h\"\nto this file. The reason is that aom_ports/ is currently the lowest\nlayer of the internal code and depends only on the public headers in\naom/, so this header should avoid including a header from av1/.\n\n2. Then, modify aom_thread.h, enums.h, and tools_common.h as follows:\n\ndiff --git a/aom_util/aom_thread.h b/aom_util/aom_thread.h\nindex 0cfb00014..bda8b756e 100644\n--- a/aom_util/aom_thread.h\n+++ b/aom_util/aom_thread.h\n@@ -363,11 +363,11 @@ static INLINE int pthread_cond_wait(pthread_cond_t *const condition,\n #endif  // CONFIG_MULTITHREAD\n \n // State of the worker thread object\n-enum {\n+typedef enum {\n   NOT_OK \u003d 0,  // object is unusable\n   OK,          // ready to work\n   WORK         // busy finishing the current task\n-} UENUM1BYTE(AVxWorkerStatus);\n+} AVxWorkerStatus;\n \n // Function to be called by the worker thread. Takes two opaque pointers as\n // arguments (data1 and data2). Should return true on success and return false\ndiff --git a/av1/common/enums.h b/av1/common/enums.h\nindex 24d4177aa..34e37193f 100644\n--- a/av1/common/enums.h\n+++ b/av1/common/enums.h\n@@ -16,6 +16,7 @@\n \n #include \"aom/aom_codec.h\"\n #include \"aom/aom_integer.h\"\n+#include \"aom_ports/mem.h\"\n \n #ifdef __cplusplus\n extern \"C\" {\ndiff --git a/common/tools_common.h b/common/tools_common.h\nindex 92b287c89..81f4061c2 100644\n--- a/common/tools_common.h\n+++ b/common/tools_common.h\n@@ -18,6 +18,7 @@\n #include \"aom/aom_codec.h\"\n #include \"aom/aom_image.h\"\n #include \"aom/aom_integer.h\"\n+#include \"aom_ports/mem.h\"\n #include \"aom_ports/msvc.h\"\n \n #if CONFIG_AV1_ENCODER",
+      "revId": "f474506fd55dbd2f124e3bfdb7fca2bea6ee1c2b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb8b4a82_96759120",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-12-24T18:08:43Z",
+      "side": 1,
+      "message": "This will be moot if you take my suggesting of defining the *ENUM*BYTE\nmacros in aom_ports/mem.h. If the macros are defined here, then please\nmove line 24 (#undef MAX_SB_SIZE) after the *ENUM*BYTE macro definitions,\nbecause #undef MAX_SB_SIZE is related to the MAX_SB_SIZE macro definition\nat lines 26-29.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "f474506fd55dbd2f124e3bfdb7fca2bea6ee1c2b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
