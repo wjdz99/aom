@@ -19,6 +19,7 @@
 #include "aom/aom_image.h"
 #include "aom/aom_integer.h"
 #include "aom_ports/msvc.h"
+#include "av1/common/enums.h"
 
 #if CONFIG_AV1_ENCODER
 #include "common/y4minput.h"

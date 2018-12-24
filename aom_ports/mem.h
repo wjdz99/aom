@@ -14,6 +14,7 @@
 
 #include "aom/aom_integer.h"
 #include "config/aom_config.h"
+#include "av1/common/enums.h"
 
 #if (defined(__GNUC__) && __GNUC__) || defined(__SUNPRO_C)
 #define DECLARE_ALIGNED(n, typ, val) typ val __attribute__((aligned(n)))

@@ -23,6 +23,36 @@ extern "C" {
 
 #undef MAX_SB_SIZE
 
+/*!\brief force enum to be unsigned 1 byte*/
+#define UENUM1BYTE(enumvar) \
+  ;                         \
+  typedef uint8_t enumvar
+
+/*!\brief force enum to be signed 1 byte*/
+#define SENUM1BYTE(enumvar) \
+  ;                         \
+  typedef int8_t enumvar
+
+/*!\brief force enum to be unsigned 2 byte*/
+#define UENUM2BYTE(enumvar) \
+  ;                         \
+  typedef uint16_t enumvar
+
+/*!\brief force enum to be signed 2 byte*/
+#define SENUM2BYTE(enumvar) \
+  ;                         \
+  typedef int16_t enumvar
+
+/*!\brief force enum to be unsigned 4 byte*/
+#define UENUM4BYTE(enumvar) \
+  ;                         \
+  typedef uint32_t enumvar
+
+/*!\brief force enum to be unsigned 4 byte*/
+#define SENUM4BYTE(enumvar) \
+  ;                         \
+  typedef int32_t enumvar
+
 // Max superblock size
 #define MAX_SB_SIZE_LOG2 7
 #define MAX_SB_SIZE (1 << MAX_SB_SIZE_LOG2)
