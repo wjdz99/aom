@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "524f6d82_cecdb931",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 10122
+      },
+      "writtenOn": "2018-12-24T18:00:09Z",
+      "side": 1,
+      "message": "Added reference commit id",
+      "parentUuid": "7398209b_1a99e6ee",
+      "revId": "6d3babf61836d242187f399df77e27bda882d69c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "79afbc66_c96ef55d",
         "filename": "aom/aom_image.h",
         "patchSetId": 2
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "9f9f58c7_9d0b49d4",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 10122
+      },
+      "writtenOn": "2018-12-24T18:00:09Z",
+      "side": 1,
+      "message": "Alignment is preserved",
+      "parentUuid": "79afbc66_c96ef55d",
+      "range": {
+        "startLine": 133,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 70
+      },
+      "revId": "6d3babf61836d242187f399df77e27bda882d69c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "630dad89_b7ae02d2",
         "filename": "aom/aom_image.h",
         "patchSetId": 2
@@ -56,6 +98,24 @@
       "revId": "6d3babf61836d242187f399df77e27bda882d69c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1014b3e_33c8a58a",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 10122
+      },
+      "writtenOn": "2018-12-24T18:00:09Z",
+      "side": 1,
+      "message": "Proper indentation is maintained.",
+      "parentUuid": "630dad89_b7ae02d2",
+      "revId": "6d3babf61836d242187f399df77e27bda882d69c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
