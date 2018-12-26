@@ -8169,53 +8169,87 @@ static INLINE void find_best_non_dual_interp_filter(
   // be the winner
   assert(x->e_mbd.mi[0]->interp_filters == filter_sets[0]);
   assert(filter_set_size == DUAL_FILTER_SET_SIZE);
-
-  // Reuse regular filter's modeled rd data for sharp filter for following
-  // cases
-  // 1) When bsize is 4x4
-  // 2) When block width is 4 (i.e. 4x8/4x16 blocks) and MV in vertical
-  // direction is full-pel
-  // 3) When block height is 4 (i.e. 8x4/16x4 blocks) and MV in horizontal
-  // direction is full-pel
-  // TODO(any): Optimize cases 2 and 3 further if luma MV in relavant direction
-  // alone is full-pel
-
-  if ((bsize == BLOCK_4X4) ||
-      (block_size_wide[bsize] == 4 &&
-       skip_ver == cpi->default_interp_skip_flags) ||
-      (block_size_high[bsize] == 4 &&
-       skip_hor == cpi->default_interp_skip_flags)) {
-    int skip_pred = cpi->default_interp_skip_flags;
-    for (i = filter_set_size - 1; i > 0; i -= (SWITCHABLE_FILTERS + 1)) {
-      // This assert tells that (filter_x == filter_y) for non-dual filter case
-      assert((filter_sets[i] & 0xffff) == (filter_sets[i] >> 16));
+  const AV1_COMMON *cm = &cpi->common;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  int bsl, pred_filter_search;
+  InterpFilters af = SWITCHABLE, lf = SWITCHABLE, filter_idx = 0;
+  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
+  bsl = mi_size_wide_log2[bsize];
+  pred_filter_search =
+      cpi->sf.cb_pred_filter_search
+          ? (((mi_row + mi_col) >> bsl) +
+             get_chessboard_index(cm->current_frame.frame_number)) &
+                0x1
+          : 0;
+  if (above_mbmi && is_inter_block(above_mbmi)) {
+    af = above_mbmi->interp_filters;
+  }
+  if (left_mbmi && is_inter_block(left_mbmi)) {
+    lf = left_mbmi->interp_filters;
+  }
+  pred_filter_search &= !have_newmv_in_inter_mode(mbmi->mode);
+  pred_filter_search &= ((af == lf) && (af != SWITCHABLE));
+  if (pred_filter_search) {
+    filter_idx = SWITCHABLE * (af & 0xf);
+    // This assert tells that (filter_x == filter_y) for non-dual filter case
+    assert((filter_sets[filter_idx] & 0xffff) ==
+           (filter_sets[filter_idx] >> 16));
+    if (filter_idx) {
       interpolation_filter_rd(x, cpi, tile_data, bsize, mi_row, mi_col,
                               orig_dst, rd, switchable_rate, skip_txfm_sb,
-                              skip_sse_sb, dst_bufs, i, switchable_ctx,
-                              skip_pred, rate, dist);
-      skip_pred = (skip_hor & skip_ver);
+                              skip_sse_sb, dst_bufs, filter_idx, switchable_ctx,
+                              (skip_hor & skip_ver), rate, dist);
     }
   } else {
-    int skip_pred = (skip_hor & skip_ver);
-    for (i = (SWITCHABLE_FILTERS + 1); i < filter_set_size;
-         i += (SWITCHABLE_FILTERS + 1)) {
-      // This assert tells that (filter_x == filter_y) for non-dual filter case
-      assert((filter_sets[i] & 0xffff) == (filter_sets[i] >> 16));
-      interpolation_filter_rd(x, cpi, tile_data, bsize, mi_row, mi_col,
-                              orig_dst, rd, switchable_rate, skip_txfm_sb,
-                              skip_sse_sb, dst_bufs, i, switchable_ctx,
-                              skip_pred, rate, dist);
-      // In first iteration, smooth filter is evaluated. If smooth filter
-      // (which is less sharper) is the winner among regular and smooth filters,
-      // sharp filter evaluation is skipped
-      // TODO(any): Refine this gating based on modelled rd only (i.e., by not
-      // accounting switchable filter rate)
-      if (cpi->sf.skip_sharp_interp_filter_search &&
-          skip_pred != cpi->default_interp_skip_flags) {
-        MACROBLOCKD *const xd = &x->e_mbd;
-        MB_MODE_INFO *const mbmi = xd->mi[0];
-        if (mbmi->interp_filters == filter_sets[(SWITCHABLE_FILTERS + 1)])
-          break;
+    // Reuse regular filter's modeled rd data for sharp filter for following
+    // cases
+    // 1) When bsize is 4x4
+    // 2) When block width is 4 (i.e. 4x8/4x16 blocks) and MV in vertical
+    // direction is full-pel
+    // 3) When block height is 4 (i.e. 8x4/16x4 blocks) and MV in horizontal
+    // direction is full-pel
+    // TODO(any): Optimize cases 2 and 3 further if luma MV in relavant
+    // direction alone is full-pel
+
+    if ((bsize == BLOCK_4X4) ||
+        (block_size_wide[bsize] == 4 &&
+         skip_ver == cpi->default_interp_skip_flags) ||
+        (block_size_high[bsize] == 4 &&
+         skip_hor == cpi->default_interp_skip_flags)) {
+      int skip_pred = cpi->default_interp_skip_flags;
+      for (i = filter_set_size - 1; i > 0; i -= (SWITCHABLE_FILTERS + 1)) {
+        // This assert tells that (filter_x == filter_y) for non-dual filter
+        // case
+        assert((filter_sets[i] & 0xffff) == (filter_sets[i] >> 16));
+        interpolation_filter_rd(x, cpi, tile_data, bsize, mi_row, mi_col,
+                                orig_dst, rd, switchable_rate, skip_txfm_sb,
+                                skip_sse_sb, dst_bufs, i, switchable_ctx,
+                                skip_pred, rate, dist);
+        skip_pred = (skip_hor & skip_ver);
+      }
+    } else {
+      int skip_pred = (skip_hor & skip_ver);
+      for (i = (SWITCHABLE_FILTERS + 1); i < filter_set_size;
+           i += (SWITCHABLE_FILTERS + 1)) {
+        // This assert tells that (filter_x == filter_y) for non-dual filter
+        // case
+        assert((filter_sets[i] & 0xffff) == (filter_sets[i] >> 16));
+        interpolation_filter_rd(x, cpi, tile_data, bsize, mi_row, mi_col,
+                                orig_dst, rd, switchable_rate, skip_txfm_sb,
+                                skip_sse_sb, dst_bufs, i, switchable_ctx,
+                                skip_pred, rate, dist);
+        // In first iteration, smooth filter is evaluated. If smooth filter
+        // (which is less sharper) is the winner among regular and smooth
+        // filters, sharp filter evaluation is skipped
+        // TODO(any): Refine this gating based on modelled rd only (i.e., by not
+        // accounting switchable filter rate)
+        if (cpi->sf.skip_sharp_interp_filter_search &&
+            skip_pred != cpi->default_interp_skip_flags) {
+          if (mbmi->interp_filters == filter_sets[(SWITCHABLE_FILTERS + 1)])
+            break;
+        }
       }
     }
   }
@@ -8376,6 +8410,31 @@ static int64_t interpolation_filter_search(
   if (!need_search || match_found == -1) {
     set_default_interp_filters(mbmi, assign_filter);
   }
+  int bsl, pred_filter_search;
+  InterpFilters af = SWITCHABLE, lf = SWITCHABLE;
+  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
+  bsl = mi_size_wide_log2[bsize];
+  pred_filter_search =
+      cpi->sf.cb_pred_filter_search
+          ? (((mi_row + mi_col) >> bsl) +
+             get_chessboard_index(cm->current_frame.frame_number)) &
+                0x1
+          : 0;
+  if (above_mbmi && is_inter_block(above_mbmi)) {
+    af = above_mbmi->interp_filters;
+  }
+  if (left_mbmi && is_inter_block(left_mbmi)) {
+    lf = left_mbmi->interp_filters;
+  }
+  int skip_filter_search = 0;
+  pred_filter_search &= !have_newmv_in_inter_mode(mbmi->mode);
+  pred_filter_search &= ((af == lf) && (af != SWITCHABLE));
+  if ((pred_filter_search) && (match_found == -1)) {
+    skip_filter_search = 1;
+    mbmi->interp_filters = af;
+  }
+
   int switchable_ctx[2];
   switchable_ctx[0] = av1_get_pred_context_switchable_interp(xd, 0);
   switchable_ctx[1] = av1_get_pred_context_switchable_interp(xd, 1);
@@ -8409,6 +8468,9 @@ static int64_t interpolation_filter_search(
   x->pred_sse[ref_frame] = (unsigned int)(best_skip_sse_sb[0] >> 4);
 
   if (assign_filter != SWITCHABLE || match_found != -1) {
+    return 0;
+  }
+  if (skip_filter_search) {
     return 0;
   }
   if (!need_search) {
