@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1773838f_a63985e7",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5739,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-12-28T00:18:25Z",
+      "side": 1,
+      "message": "What is the reason to choose ALTREF2_FRAME instead of other refs?",
+      "range": {
+        "startLine": 5739,
+        "startChar": 25,
+        "endLine": 5739,
+        "endChar": 38
+      },
+      "revId": "f861e36d0dd5a092e9c3ba7ab839f8460ade5029",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
