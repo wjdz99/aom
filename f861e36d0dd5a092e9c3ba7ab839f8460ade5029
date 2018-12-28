@@ -22,6 +22,30 @@
       "revId": "f861e36d0dd5a092e9c3ba7ab839f8460ade5029",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32255ea7_6a0d4d9e",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5739,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-12-28T15:11:13Z",
+      "side": 1,
+      "message": "We considered only future frames which are BWDREF_FRAME, ALTREF2_FRAME, ALTREF_FRAME for our analysis.\n\nIndividual speed gains when disabled gm_search for each of the above reference frames were equal.\nAs BWDREF_FRAME is closer reference from future, we felt that it is required reference (similar to LAST ref in past). Similarly we felt that ALTREF is required reference as it is coded with better quality (similar to GOLDEN ref in past).\nHence tried disabling ALTREF2 ( considering that it is similar to LAST2/LAST3 in past, but better in quality) as a part of this experiment.\n\nGoing by our observations we are planning to check importance of ALTREF2 for faster presets.\nPlease let us know your opinion on this approach.",
+      "parentUuid": "1773838f_a63985e7",
+      "range": {
+        "startLine": 5739,
+        "startChar": 25,
+        "endLine": 5739,
+        "endChar": 38
+      },
+      "revId": "f861e36d0dd5a092e9c3ba7ab839f8460ade5029",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
