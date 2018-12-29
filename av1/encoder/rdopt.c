@@ -3081,10 +3081,10 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   TX_TYPE txk_start = DCT_DCT;
   TX_TYPE txk_end = TX_TYPES - 1;
   if ((!is_inter && x->use_default_intra_tx_type) ||
-      (is_inter && x->use_default_inter_tx_type)) {
-    txk_start = txk_end = get_default_tx_type(0, xd, tx_size);
-  } else if (x->rd_model == LOW_TXFM_RD || x->cb_partition_scan) {
-    if (plane == 0) txk_end = DCT_DCT;
+      (is_inter && x->use_default_inter_tx_type) ||
+      (x->rd_model == LOW_TXFM_RD) || (x->cb_partition_scan)) {
+    txk_start = txk_end =
+        get_default_tx_type(0, xd, tx_size, cpi->is_screen_type);
   }
 
   uint8_t best_txb_ctx = 0;
@@ -10372,7 +10372,8 @@ static void sf_refine_fast_tx_type_search(
       ((sf->tx_type_search.fast_inter_tx_type_search == 1 &&
         is_inter_mode(best_mbmode->mode)) ||
        (sf->tx_type_search.fast_intra_tx_type_search == 1 &&
-        !is_inter_mode(best_mbmode->mode)))) {
+        !is_inter_mode(best_mbmode->mode))) &&
+      (!x->cb_partition_scan)) {
     int skip_blk = 0;
     RD_STATS rd_stats_y, rd_stats_uv;
     const int skip_ctx = av1_get_skip_context(xd);
