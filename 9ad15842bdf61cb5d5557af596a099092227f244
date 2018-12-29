@@ -22,6 +22,30 @@
       "revId": "9ad15842bdf61cb5d5557af596a099092227f244",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52ecb89f_1d6ecbe0",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1488,
+      "author": {
+        "id": 10175
+      },
+      "writtenOn": "2018-12-29T03:49:28Z",
+      "side": 1,
+      "message": "Since is_last passed to get_lower_levels_ctx_general is fixed to 1, which makes the execution the same as get_lower_levels_ctx_eob, which is:\n  if (scan_idx \u003d\u003d 0) return 0;\n  if (scan_idx \u003c\u003d (height \u003c\u003c bwl) / 8) return 1;\n  if (scan_idx \u003c\u003d (height \u003c\u003c bwl) / 4) return 2;\n  return 3;",
+      "parentUuid": "dc8600ee_6a365ff5",
+      "range": {
+        "startLine": 1488,
+        "startChar": 34,
+        "endLine": 1488,
+        "endChar": 76
+      },
+      "revId": "9ad15842bdf61cb5d5557af596a099092227f244",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
