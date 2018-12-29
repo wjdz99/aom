@@ -963,6 +963,11 @@ typedef struct AV1_COMP {
   // mse.
   unsigned int coeff_opt_dist_threshold;
 
+  // Factors to control rd_thresh partition gating
+  double sub_partition_rd_thresh_mul_factor;
+  double rem_partition_rd_thresh_mul_factor;
+  double partition_rd_thresh_div_factor;
+
   AV1LfSync lf_row_sync;
   AV1LrSync lr_row_sync;
   AV1LrStruct lr_ctxt;
