@@ -836,6 +836,10 @@ typedef struct AV1_COMP {
   int max_comp_type_rd_threshold_mul;
   int max_comp_type_rd_threshold_div;
 
+  // Factors to control rd_thresh partition gating
+  int partition_rd_thresh_mul_factor;
+  int partition_rd_thresh_div_factor;
+
   AV1LfSync lf_row_sync;
   AV1LrSync lr_row_sync;
   AV1LrStruct lr_ctxt;
