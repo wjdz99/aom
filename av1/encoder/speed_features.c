@@ -23,6 +23,9 @@
 // in the final encode.
 #define DISABLE_TRELLISQ_SEARCH 0
 
+// Maximum scaling value for gating based on scaled value of rd thresholds
+#define PARTITION_RD_THRESHOLD_DIV 32
+
 #define MAX_MESH_SPEED 5  // Max speed setting for mesh motion method
 // Max speed setting for tx domain evaluation
 #define MAX_TX_DOMAIN_EVAL_SPEED 5
@@ -68,6 +71,9 @@ static unsigned int coeff_opt_dist_thresholds[5] = { UINT_MAX, 162754, 162754,
 static int comp_type_rd_threshold_mul[3] = { 1, 11, 12 };
 static int comp_type_rd_threshold_div[3] = { 3, 16, 16 };
 
+// scaling values to be used for gating partition rd thresholds
+static int partition_rd_thresh_mul[2] = { -1, 32 };
+static int partition_rd_thresh_rem_mul[2] = { -1, 24 };
 // Intra only frames, golden frames (except alt ref overlays) and
 // alt ref frames tend to be coded at a higher than ambient quality
 static int frame_is_boosted(const AV1_COMP *cpi) {
@@ -333,6 +339,7 @@ static void set_good_speed_features_framesize_independent(
     // it with cpi->sf.disable_wedge_search_var_thresh.
     sf->disable_wedge_interintra_search = 1;
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
+    sf->scale_rd_thresh_for_partition_search = 1;
   }
 
   if (speed >= 4) {
@@ -574,6 +581,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->disable_wedge_interintra_search = 0;
   sf->perform_coeff_opt = 0;
 
+  sf->scale_rd_thresh_for_partition_search = 0;
   if (oxcf->mode == GOOD)
     set_good_speed_features_framesize_independent(cpi, sf, speed);
 
@@ -662,6 +670,12 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   assert(cpi->sf.perform_coeff_opt >= 0 && cpi->sf.perform_coeff_opt < 5);
   cpi->coeff_opt_dist_threshold =
       coeff_opt_dist_thresholds[cpi->sf.perform_coeff_opt];
+
+  cpi->partition_rd_thresh_mul_factor =
+      partition_rd_thresh_mul[sf->scale_rd_thresh_for_partition_search];
+  cpi->partition_rd_thresh_rem_mul_factor =
+      partition_rd_thresh_rem_mul[sf->scale_rd_thresh_for_partition_search];
+  cpi->partition_rd_thresh_div_factor = PARTITION_RD_THRESHOLD_DIV;
 
 #if CONFIG_DIST_8X8
   if (sf->use_transform_domain_distortion > 0) cpi->oxcf.using_dist_8x8 = 0;

@@ -652,6 +652,11 @@ typedef struct SPEED_FEATURES {
 
   // Flag used to control the extent of coeff R-D optimization
   int perform_coeff_opt;
+
+  // If set to 0, ref_best_rd is not scaled
+  // For non-zero values, ref_best_rd is scaled based on partition area yet to
+  // be processed
+  int scale_rd_thresh_for_partition_search;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
