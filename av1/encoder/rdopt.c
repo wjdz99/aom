@@ -10625,7 +10625,8 @@ static void sf_refine_fast_tx_type_search(
       ((sf->tx_type_search.fast_inter_tx_type_search == 1 &&
         is_inter_mode(best_mbmode->mode)) ||
        (sf->tx_type_search.fast_intra_tx_type_search == 1 &&
-        !is_inter_mode(best_mbmode->mode)))) {
+        !is_inter_mode(best_mbmode->mode))) &&
+      (!x->cb_partition_scan)) {
     int skip_blk = 0;
     RD_STATS rd_stats_y, rd_stats_uv;
     const int skip_ctx = av1_get_skip_context(xd);
