@@ -676,6 +676,10 @@ typedef struct SPEED_FEATURES {
 
   // use reduced ref set for real-time mode
   int use_real_time_ref_set;
+  // If set to 0, ref_best_rd is not scaled
+  // For non-zero values, ref_best_rd is conservatively prorated based on
+  // partition area yet to be processed
+  int scale_rd_thresh_for_partition_search;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
