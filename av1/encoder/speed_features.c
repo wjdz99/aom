@@ -54,6 +54,9 @@ static uint8_t intrabc_max_mesh_pct[MAX_MESH_SPEED + 1] = { 100, 100, 100,
 static int comp_type_rd_threshold_mul[3] = { 1, 10, 11 };
 static int comp_type_rd_threshold_div[3] = { 3, 16, 16 };
 
+// scaling values to be used for gating partition rd thresholds
+static int partition_rd_thresh_mul[5] = { -1, 16, 12, 8, 4 };
+static int partition_rd_thresh_div[5] = { -1, 16, 16, 16, 16 };
 // Intra only frames, golden frames (except alt ref overlays) and
 // alt ref frames tend to be coded at a higher than ambient quality
 static int frame_is_boosted(const AV1_COMP *cpi) {
@@ -260,6 +263,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_wedge_search_edge_thresh = 0;
     sf->prune_comp_type_by_comp_avg = 1;
     sf->prune_motion_mode_level = 2;
+    sf->scale_rd_thresh_for_partition_search = 1;
   }
 
   if (speed >= 2) {
@@ -285,6 +289,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_dual_filter = 1;
     sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
     sf->prune_comp_type_by_comp_avg = 2;
+    sf->scale_rd_thresh_for_partition_search = 2;
   }
 
   if (speed >= 3) {
@@ -304,6 +309,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->prune_comp_search_by_single_result = 2;
     sf->prune_motion_mode_level = boosted ? 2 : 3;
     sf->prune_warp_using_wmtype = 1;
+    sf->scale_rd_thresh_for_partition_search = 3;
   }
 
   if (speed >= 4) {
@@ -321,6 +327,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->cb_partition_search = !boosted;
     sf->alt_ref_search_fp = 1;
     sf->skip_sharp_interp_filter_search = 1;
+    sf->scale_rd_thresh_for_partition_search = 4;
   }
 
   if (speed >= 5) {
@@ -543,7 +550,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->prune_comp_type_by_comp_avg = 0;
   sf->prune_motion_mode_level = 0;
   sf->prune_warp_using_wmtype = 0;
-
+  sf->scale_rd_thresh_for_partition_search = 0;
   if (oxcf->mode == GOOD)
     set_good_speed_features_framesize_independent(cpi, sf, oxcf->speed);
 
@@ -622,6 +629,10 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
       comp_type_rd_threshold_mul[sf->prune_comp_type_by_comp_avg];
   cpi->max_comp_type_rd_threshold_div =
       comp_type_rd_threshold_div[sf->prune_comp_type_by_comp_avg];
+  cpi->partition_rd_thresh_mul_factor =
+      partition_rd_thresh_mul[sf->scale_rd_thresh_for_partition_search];
+  cpi->partition_rd_thresh_div_factor =
+      partition_rd_thresh_div[sf->scale_rd_thresh_for_partition_search];
 
 #if CONFIG_DIST_8X8
   if (sf->use_transform_domain_distortion > 0) cpi->oxcf.using_dist_8x8 = 0;

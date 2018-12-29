@@ -618,6 +618,11 @@ typedef struct SPEED_FEATURES {
   // Perform simple_motion_search on each possible subblock and use it to prune
   // PARTITION_HORZ and PARTITION_VERT.
   int simple_motion_search_prune_rect;
+
+  // If set to 0, ref_best_rd is not scaled
+  // For non-zero values, ref_best_rd is scaled based on partition area yet to
+  // be processed
+  int scale_rd_thresh_for_partition_search;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
