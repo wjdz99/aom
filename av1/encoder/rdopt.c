@@ -64,6 +64,8 @@
 // Set this macro as 1 to collect data about tx size selection.
 #define COLLECT_TX_SIZE_DATA 0
 
+#define DEFAULT_CB_PARTITION_SCAN_TX DCT_DCT
+
 #if COLLECT_TX_SIZE_DATA
 static const char av1_tx_size_data_output_file[] = "tx_size_data.txt";
 #endif
@@ -3086,7 +3088,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     txk_start = txk_end =
         get_default_tx_type(0, xd, tx_size, cpi->is_screen_content_type);
   } else if (x->rd_model == LOW_TXFM_RD || x->cb_partition_scan) {
-    if (plane == 0) txk_end = DCT_DCT;
+    if (plane == 0) txk_end = DEFAULT_CB_PARTITION_SCAN_TX;
   }
 
   uint8_t best_txb_ctx = 0;
@@ -10628,6 +10630,13 @@ static void sf_refine_fast_tx_type_search(
         !is_inter_mode(best_mbmode->mode)))) {
     int skip_blk = 0;
     RD_STATS rd_stats_y, rd_stats_uv;
+    if (x->cb_partition_scan) {
+      // During first pass partition search,
+      // default tx type is forced is based on intra/inter mode during mode
+      // evaluation. However during tx_type evaluation, DCT_DCT is forced. In
+      // case default transform was DCT_DCT, eval stage can be disbaled.
+      if (best_mbmode->txk_type[0] == DEFAULT_CB_PARTITION_SCAN_TX) return;
+    }
     const int skip_ctx = av1_get_skip_context(xd);
 
     x->use_default_inter_tx_type = 0;
