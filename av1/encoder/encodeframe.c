@@ -2290,6 +2290,69 @@ static void simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
     xd->plane[AOM_PLANE_Y].pre[ref_idx] = backup_yv12;
   }
 }
+// Calculate the area of the block in pixels
+static INLINE int calc_pixel_area(const BLOCK_SIZE bsize) {
+  int block_width = block_size_wide[bsize];
+  int block_height = block_size_high[bsize];
+  int block_area = block_width * block_height;
+
+  return block_area;
+}
+// Calculate the rd threshold, conservatively prorated based on the block area
+static int64_t calc_prorated_sub_partition_rd_thresh(
+    const AV1_COMP *const cpi, const int64_t best_remain_rdcost,
+    const int sub_partition_area, const int partition_area_left,
+    PICK_MODE_CONTEXT *this_ctx) {
+  int64_t rd_thresh;
+  if ((!cpi->sf.scale_rd_thresh_for_partition_search) ||
+      (best_remain_rdcost <= 0) ||
+      (sub_partition_area == partition_area_left) || (this_ctx == NULL) ||
+      (this_ctx != NULL && this_ctx->rd_mode_is_ready)) {
+    rd_thresh = best_remain_rdcost;
+  } else {
+    if (best_remain_rdcost == INT64_MAX) {
+      rd_thresh = INT64_MAX;
+    } else {
+      double curr_sub_partition_area_factor;
+      double curr_sub_partition_area_rd_thresh_factor;
+      double rem_partition_area_factor;
+      double rem_partition_area_rd_thresh_factor;
+      double rd_thresh_scale_factor;
+      assert(sub_partition_area > 0);
+      assert(partition_area_left > 0);
+
+      /*Calculate the rd_thresh based on area of the current partition*/
+      curr_sub_partition_area_factor =
+          ((double)sub_partition_area / partition_area_left);
+      assert(curr_sub_partition_area_factor > 0.);
+      curr_sub_partition_area_rd_thresh_factor =
+          curr_sub_partition_area_factor *
+          (1. + cpi->sub_partition_rd_thresh_mul_factor /
+                    cpi->partition_rd_thresh_div_factor);
+      assert(curr_sub_partition_area_rd_thresh_factor > 0.);
+
+      /*Calculate the rd_thresh based on remaining area of the current
+       * partition*/
+      rem_partition_area_factor =
+          ((double)(partition_area_left - sub_partition_area) /
+           partition_area_left);
+      assert(rem_partition_area_factor >= 0.);
+      assert(cpi->rem_partition_rd_thresh_mul_factor != -1);
+      rem_partition_area_rd_thresh_factor =
+          curr_sub_partition_area_factor +
+          rem_partition_area_factor * cpi->rem_partition_rd_thresh_mul_factor /
+              cpi->partition_rd_thresh_div_factor;
+      assert(rem_partition_area_rd_thresh_factor > 0.);
+      rd_thresh_scale_factor = curr_sub_partition_area_rd_thresh_factor;
+      /* AOMMIN(curr_sub_partition_area_rd_thresh_factor,
+                 rem_partition_area_rd_thresh_factor);*/
+      rd_thresh = (int64_t)(best_remain_rdcost * rd_thresh_scale_factor);
+      rd_thresh = AOMMIN(rd_thresh, best_remain_rdcost);
+      assert(rd_thresh <= best_remain_rdcost);
+    }
+  }
+  return rd_thresh;
+}
 
 static INLINE void store_pred_mv(MACROBLOCK *x, PICK_MODE_CONTEXT *ctx) {
   memcpy(ctx->pred_mv, x->pred_mv, sizeof(x->pred_mv));
@@ -2309,7 +2372,8 @@ static int rd_try_subblock(AV1_COMP *const cpi, ThreadData *td,
                            RD_STATS *best_rdc, RD_STATS *sum_rdc,
                            RD_STATS *this_rdc, PARTITION_TYPE partition,
                            PICK_MODE_CONTEXT *prev_ctx,
-                           PICK_MODE_CONTEXT *this_ctx) {
+                           PICK_MODE_CONTEXT *this_ctx,
+                           int *const partition_area_left) {
 #define RTS_X_RATE_NOCOEF_ARG
 #define RTS_MAX_RDCOST best_rdc->rdcost
 
@@ -2320,11 +2384,17 @@ static int rd_try_subblock(AV1_COMP *const cpi, ThreadData *td,
   const int64_t rdcost_remaining = best_rdc->rdcost == INT64_MAX
                                        ? INT64_MAX
                                        : (best_rdc->rdcost - sum_rdc->rdcost);
+  const int sub_partition_area = calc_pixel_area(subsize);
+  const int64_t best_rd_thresh = calc_prorated_sub_partition_rd_thresh(
+      cpi, rdcost_remaining, sub_partition_area, *partition_area_left,
+      this_ctx);
 
   pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, this_rdc,
                 RTS_X_RATE_NOCOEF_ARG partition, subsize, this_ctx,
-                rdcost_remaining, 0);
+                best_rd_thresh, 0);
 
+  *partition_area_left = *partition_area_left - sub_partition_area;
+  assert(*partition_area_left >= 0);
   if (this_rdc->rate == INT_MAX) {
     sum_rdc->rdcost = INT64_MAX;
   } else {
@@ -2364,14 +2434,17 @@ static void rd_test_partition3(AV1_COMP *const cpi, ThreadData *td,
   av1_init_rd_stats(&sum_rdc);
   sum_rdc.rate = x->partition_cost[pl][partition];
   sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
+  int partition_area_left = calc_pixel_area(bsize);
   if (!rd_try_subblock(cpi, td, tile_data, tp, 0, mi_row0, mi_col0, subsize0,
                        best_rdc, &sum_rdc, &this_rdc,
-                       RTP_STX_TRY_ARGS partition, ctx, &ctxs[0]))
+                       RTP_STX_TRY_ARGS partition, ctx, &ctxs[0],
+                       &partition_area_left))
     return;
 
   if (!rd_try_subblock(cpi, td, tile_data, tp, 0, mi_row1, mi_col1, subsize1,
                        best_rdc, &sum_rdc, &this_rdc,
-                       RTP_STX_TRY_ARGS partition, &ctxs[0], &ctxs[1]))
+                       RTP_STX_TRY_ARGS partition, &ctxs[0], &ctxs[1],
+                       &partition_area_left))
     return;
 
   // With the new layout of mixed partitions for PARTITION_HORZ_B and
@@ -2380,12 +2453,12 @@ static void rd_test_partition3(AV1_COMP *const cpi, ThreadData *td,
   // outside the image. In that case, we won't spend any bits coding it and the
   // difference (obviously) doesn't contribute to the error.
   const int try_block2 = 1;
-  if (try_block2 &&
-      !rd_try_subblock(cpi, td, tile_data, tp, 1, mi_row2, mi_col2, subsize2,
-                       best_rdc, &sum_rdc, &this_rdc,
-                       RTP_STX_TRY_ARGS partition, &ctxs[1], &ctxs[2]))
+  if (try_block2 && !rd_try_subblock(cpi, td, tile_data, tp, 1, mi_row2,
+                                     mi_col2, subsize2, best_rdc, &sum_rdc,
+                                     &this_rdc, RTP_STX_TRY_ARGS partition,
+                                     &ctxs[1], &ctxs[2], &partition_area_left))
     return;
-
+  assert(partition_area_left == 0);
   if (sum_rdc.rdcost >= best_rdc->rdcost) return;
 
   sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
@@ -4238,7 +4311,9 @@ BEGIN_PARTITION_SEARCH:
       (do_rectangular_split || active_h_edge(cpi, mi_row, mi_step)) &&
       !is_gt_max_sq_part) {
     av1_init_rd_stats(&sum_rdc);
+    int partition_area_left = calc_pixel_area(bsize);
     subsize = get_partition_subsize(bsize, PARTITION_HORZ);
+    const int sub_partition_area = calc_pixel_area(subsize);
     if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_none);
     if (cpi->sf.adaptive_pred_interp_filter && bsize == BLOCK_8X8 &&
         partition_none_allowed) {
@@ -4257,8 +4332,11 @@ BEGIN_PARTITION_SEARCH:
       partition_timer_on = 1;
     }
 #endif
+    const int64_t best_rd_thresh = calc_prorated_sub_partition_rd_thresh(
+        cpi, best_remain_rdcost, sub_partition_area, partition_area_left, NULL);
+
     pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc, PARTITION_HORZ,
-                  subsize, &pc_tree->horizontal[0], best_remain_rdcost, 0);
+                  subsize, &pc_tree->horizontal[0], best_rd_thresh, 0);
 
     if (this_rdc.rate == INT_MAX) {
       sum_rdc.rdcost = INT64_MAX;
@@ -4327,7 +4405,9 @@ BEGIN_PARTITION_SEARCH:
       (do_rectangular_split || active_v_edge(cpi, mi_col, mi_step)) &&
       !is_gt_max_sq_part) {
     av1_init_rd_stats(&sum_rdc);
+    int partition_area_left = calc_pixel_area(bsize);
     subsize = get_partition_subsize(bsize, PARTITION_VERT);
+    const int sub_partition_area = calc_pixel_area(subsize);
 
     if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_none);
 
@@ -4348,8 +4428,11 @@ BEGIN_PARTITION_SEARCH:
       partition_timer_on = 1;
     }
 #endif
+    const int64_t best_rd_thresh = calc_prorated_sub_partition_rd_thresh(
+        cpi, best_remain_rdcost, sub_partition_area, partition_area_left, NULL);
+
     pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc, PARTITION_VERT,
-                  subsize, &pc_tree->vertical[0], best_remain_rdcost, 0);
+                  subsize, &pc_tree->vertical[0], best_rd_thresh, 0);
 
     if (this_rdc.rate == INT_MAX) {
       sum_rdc.rdcost = INT64_MAX;
@@ -4740,6 +4823,7 @@ BEGIN_PARTITION_SEARCH:
     av1_init_rd_stats(&sum_rdc);
     const int quarter_step = mi_size_high[bsize] / 4;
     PICK_MODE_CONTEXT *ctx_prev = ctx_none;
+    int partition_area_left = calc_pixel_area(bsize);
 
     subsize = get_partition_subsize(bsize, PARTITION_HORZ_4);
     sum_rdc.rate = partition_cost[PARTITION_HORZ_4];
@@ -4762,9 +4846,10 @@ BEGIN_PARTITION_SEARCH:
       ctx_this->rd_mode_is_ready = 0;
       if (!rd_try_subblock(cpi, td, tile_data, tp, (i == 3), this_mi_row,
                            mi_col, subsize, &best_rdc, &sum_rdc, &this_rdc,
-                           PARTITION_HORZ_4, ctx_prev, ctx_this))
+                           PARTITION_HORZ_4, ctx_prev, ctx_this,
+                           &partition_area_left))
         break;
-
+      assert(partition_area_left >= 0);
       ctx_prev = ctx_this;
     }
 
@@ -4796,6 +4881,7 @@ BEGIN_PARTITION_SEARCH:
     const int quarter_step = mi_size_wide[bsize] / 4;
     PICK_MODE_CONTEXT *ctx_prev = ctx_none;
 
+    int partition_area_left = calc_pixel_area(bsize);
     subsize = get_partition_subsize(bsize, PARTITION_VERT_4);
     sum_rdc.rate = partition_cost[PARTITION_VERT_4];
     sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
@@ -4817,9 +4903,10 @@ BEGIN_PARTITION_SEARCH:
       ctx_this->rd_mode_is_ready = 0;
       if (!rd_try_subblock(cpi, td, tile_data, tp, (i == 3), mi_row,
                            this_mi_col, subsize, &best_rdc, &sum_rdc, &this_rdc,
-                           PARTITION_VERT_4, ctx_prev, ctx_this))
+                           PARTITION_VERT_4, ctx_prev, ctx_this,
+                           &partition_area_left))
         break;
-
+      assert(partition_area_left >= 0);
       ctx_prev = ctx_this;
     }
 
