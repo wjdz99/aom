@@ -18,6 +18,8 @@ extern "C" {
 
 #include "av1/encoder/encoder.h"
 
+#define AOM_LPF_FRAME_BORDER 32
+
 struct yv12_buffer_config;
 struct AV1_COMP;
 int av1_get_max_filter_level(const AV1_COMP *cpi);
