@@ -250,14 +250,14 @@ typedef struct SequenceHeader {
 
   OrderHintInfo order_hint_info;
 
-  int force_screen_content_tools;  // 0 - force off
-                                   // 1 - force on
-                                   // 2 - adaptive
-  int force_integer_mv;            // 0 - Not to force. MV can be in 1/4 or 1/8
+  uint8_t force_screen_content_tools;  // 0 - force off
+                                       // 1 - force on
+                                       // 2 - adaptive
+  uint8_t still_picture;               // Video is a single frame still picture
+  uint8_t reduced_still_picture_hdr;   // Use reduced header for still picture
+  uint8_t force_integer_mv;        // 0 - Not to force. MV can be in 1/4 or 1/8
                                    // 1 - force to integer
                                    // 2 - adaptive
-  int still_picture;               // Video is a single frame still picture
-  int reduced_still_picture_hdr;   // Use reduced header for still picture
   int enable_filter_intra;         // enables/disables filterintra
   int enable_intra_edge_filter;    // enables/disables corner/edge/upsampling
   int enable_interintra_compound;  // enables/disables interintra_compound
