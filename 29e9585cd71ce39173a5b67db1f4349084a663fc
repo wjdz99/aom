@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac7f813c_32a16849",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-01-02T18:20:43Z",
+      "side": 1,
+      "message": "Optional: There are a few occurrences of the following line in the libaom source tree:\n    const int use_highbd \u003d cm-\u003eseq_params.use_highbitdepth ? 1 : 0;\n\nI think they can all be changed to:\n    const int use_highbd \u003d cm-\u003eseq_params.use_highbitdepth;",
+      "revId": "29e9585cd71ce39173a5b67db1f4349084a663fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c738653_e604362b",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-01-02T18:20:43Z",
+      "side": 1,
+      "message": "Optional: This field is also copied to the related fields in other structs, such as:\n\nav1/decoder/decodeframe.c:\n  cm-\u003ecur_frame-\u003ebuf.monochrome \u003d seq_params-\u003emonochrome;\n\nav1/encoder/encoder.c:\n  cm-\u003eseq_params.monochrome \u003d oxcf-\u003emonochrome;\n\ncm-\u003ecur_frame-\u003ebuf.monochrome and oxcf-\u003emonochrome could also be changed to uint8_t.",
+      "revId": "29e9585cd71ce39173a5b67db1f4349084a663fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ae6be9c_96c03e26",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-01-02T18:20:43Z",
+      "side": 1,
+      "message": "Optional: This field is closely related to the seq_params-\u003eforce_integer_mv field modified in this CL. I suggest we also change this field to a uint8_t.",
+      "range": {
+        "startLine": 385,
+        "startChar": 2,
+        "endLine": 385,
+        "endChar": 33
+      },
+      "revId": "29e9585cd71ce39173a5b67db1f4349084a663fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dacaeaa_7c022110",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-01-02T18:20:43Z",
+      "side": 1,
+      "message": "Optional: This field is closely related to the seq_params-\u003eforce_screen_content_tools field modified in this CL. I suggest we also change this field to a uint8_t.",
+      "revId": "29e9585cd71ce39173a5b67db1f4349084a663fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
