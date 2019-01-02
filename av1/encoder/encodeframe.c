@@ -6511,6 +6511,23 @@ void av1_encode_frame(AV1_COMP *cpi) {
   }
 
   av1_setup_frame_buf_refs(cm);
+#if 0
+  {
+    MV_REFERENCE_FRAME ref_frame;
+    int total_valid_refs = 0;
+    fprintf(stderr, "\n%d :", current_frame->order_hint);
+    for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+      const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
+      if (buf != NULL) {
+        const unsigned int ref_order_hint = buf->order_hint;
+        fprintf(stderr, "%d ,", ref_order_hint);
+      }
+      if (cpi->ref_frame_flags & ref_frame_flag_list[ref_frame])
+        total_valid_refs++;
+    }
+    fprintf(stderr, "%d\n", total_valid_refs);
+  }
+#endif
   if (cpi->sf.selective_ref_frame >= 3) enforce_max_ref_frames(cpi);
   av1_setup_frame_sign_bias(cm);
 
