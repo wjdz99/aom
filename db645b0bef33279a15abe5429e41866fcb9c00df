@@ -22,6 +22,30 @@
       "revId": "db645b0bef33279a15abe5429e41866fcb9c00df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4652938_cbc998d8",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2019-01-02T22:40:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62867a16_b8d926d2",
+      "range": {
+        "startLine": 258,
+        "startChar": 46,
+        "endLine": 258,
+        "endChar": 76
+      },
+      "revId": "db645b0bef33279a15abe5429e41866fcb9c00df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
