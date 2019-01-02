@@ -11296,6 +11296,26 @@ static int inter_mode_search_order_independent_skip(
       return 1;
   }
 
+  if (sf->selective_ref_frame >= 1 && comp_pred) {
+    if ((ref_frame[0] == ALTREF2_FRAME || ref_frame[1] == ALTREF2_FRAME) &&
+        (cpi->ref_frame_flags & ref_frame_flag_list[BWDREF_FRAME])) {
+      if ((get_relative_dist(
+               order_hint_info,
+               cm->cur_frame->ref_order_hints[ALTREF2_FRAME - LAST_FRAME],
+               current_frame->order_hint) > 0) &&
+          (get_relative_dist(
+               order_hint_info,
+               cm->cur_frame->ref_order_hints[BWDREF_FRAME - LAST_FRAME],
+               current_frame->order_hint) > 0)) {
+        if (get_relative_dist(
+                order_hint_info,
+                cm->cur_frame->ref_order_hints[ALTREF2_FRAME - LAST_FRAME],
+                cm->cur_frame->ref_order_hints[BWDREF_FRAME - LAST_FRAME]) >= 0)
+          return 1;
+      }
+    }
+  }
+
   if (skip_repeated_mv(cm, x, this_mode, ref_frame, search_state)) {
     return 1;
   }
@@ -12034,6 +12054,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     const int ret = inter_mode_search_order_independent_skip(
         cpi, ctx, x, bsize, midx, mi_row, mi_col, &mode_skip_mask,
         &search_state);
+
     if (ret == 1) continue;
     args.skip_motion_mode = (ret == 2);
 
