@@ -7769,13 +7769,49 @@ static void get_inter_predictors_masked_compound(
   }
 }
 
+static void populate_comp_rate_mv_info(MACROBLOCK *x, MB_MODE_INFO *const mbmi,
+                                       const PREDICTION_MODE this_mode,
+                                       const int_mv *const cur_mv, int rate_mv,
+                                       int *out_rate_mv, int match_index) {
+  (void)cur_mv;
+  if (!have_newmv_in_inter_mode(this_mode)) {
+    assert(mbmi->mv[0].as_int == cur_mv[0].as_int);
+    assert(mbmi->mv[1].as_int == cur_mv[1].as_int);
+    *out_rate_mv = rate_mv;
+  } else if ((this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV)) {
+    assert(mbmi->mv[0].as_int == cur_mv[0].as_int);
+    mbmi->mv[1].as_int = x->comp_rd_stats[match_index].mbmi_mv[1].as_int;
+    const int_mv ref_mv = av1_get_ref_mv(x, 1);
+    *out_rate_mv =
+        av1_mv_bit_cost(&mbmi->mv[1].as_mv, &ref_mv.as_mv, x->nmv_vec_cost,
+                        x->mv_cost_stack, MV_COST_WEIGHT);
+  } else if ((this_mode == NEW_NEARESTMV || this_mode == NEW_NEARMV)) {
+    assert(mbmi->mv[1].as_int == cur_mv[1].as_int);
+    mbmi->mv[0].as_int = x->comp_rd_stats[match_index].mbmi_mv[0].as_int;
+    const int_mv ref_mv = av1_get_ref_mv(x, 0);
+    *out_rate_mv =
+        av1_mv_bit_cost(&mbmi->mv[0].as_mv, &ref_mv.as_mv, x->nmv_vec_cost,
+                        x->mv_cost_stack, MV_COST_WEIGHT);
+  } else {
+    *out_rate_mv = 0;
+    mbmi->mv[0].as_int = x->comp_rd_stats[match_index].mbmi_mv[0].as_int;
+    mbmi->mv[1].as_int = x->comp_rd_stats[match_index].mbmi_mv[1].as_int;
+    for (int ref = 0; ref < 2; ++ref) {
+      const int_mv ref_mv = av1_get_ref_mv(x, ref);
+      *out_rate_mv +=
+          av1_mv_bit_cost(&mbmi->mv[ref].as_mv, &ref_mv.as_mv, x->nmv_vec_cost,
+                          x->mv_cost_stack, MV_COST_WEIGHT);
+    }
+  }
+}
 static int64_t build_and_cost_compound_type(
     const AV1_COMP *const cpi, MACROBLOCK *x, const int_mv *const cur_mv,
     const BLOCK_SIZE bsize, const PREDICTION_MODE this_mode, int *rs2,
     int rate_mv, BUFFER_SET *ctx, int *out_rate_mv, uint8_t **preds0,
     uint8_t **preds1, int16_t *residual1, int16_t *diff10, int *strides,
     int mi_row, int mi_col, int mode_rate, int64_t ref_best_rd,
-    int *calc_pred_masked_compound, int32_t *comp_rate, int64_t *comp_dist) {
+    int *calc_pred_masked_compound, int32_t *comp_rate, int64_t *comp_dist,
+    int match_index) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
@@ -7855,9 +7891,11 @@ static int64_t build_and_cost_compound_type(
     }
   } else {
     assert(comp_dist[compound_type] != INT64_MAX);
-    // Rate is populated assuming no refinement is done=> not NEWMV case
-    assert(!have_newmv_in_inter_mode(this_mode));
-    *out_rate_mv = rate_mv;
+    if (compound_type == COMPOUND_WEDGE)
+      populate_comp_rate_mv_info(x, mbmi, this_mode, cur_mv, rate_mv,
+                                 out_rate_mv, match_index);
+    else
+      *out_rate_mv = rate_mv;
     // Calculate RD cost based on stored stats
     rd = RDCOST(x->rdmult, *rs2 + *out_rate_mv + comp_rate[compound_type],
                 comp_dist[compound_type]);
@@ -8311,7 +8349,7 @@ static INLINE int is_comp_rd_match(MACROBLOCK *const x, const COMP_RD_STATS *st,
   // Match MV and reference indices
   for (int i = 0; i < 2; ++i) {
     if ((st->ref_frames[i] != mi->ref_frame[i]) ||
-        (st->mv[i].as_int != mi->mv[i].as_int)) {
+        (st->cur_mv[i].as_int != mi->mv[i].as_int)) {
       return 0;
     }
     const WarpedMotionParams *const wm = &xd->global_motion[mi->ref_frame[i]];
@@ -8332,8 +8370,15 @@ static INLINE int is_comp_rd_match(MACROBLOCK *const x, const COMP_RD_STATS *st,
     return 1;
   }
 
-  // TODO(ranjit) : Check if compound wedge/segment can reuse data for NEWMV
-  // case as well based on speed feature
+  if (((mi->mode == NEW_NEARESTMV || mi->mode == NEW_NEARMV) &&
+       (st->mode == NEW_NEARESTMV || st->mode == NEW_NEARMV)) ||
+      ((mi->mode == NEAREST_NEWMV || mi->mode == NEAR_NEWMV) &&
+       (st->mode == NEAREST_NEWMV || st->mode == NEAR_NEWMV)) ||
+      ((mi->mode == NEW_NEWMV) && (st->mode == NEW_NEWMV))) {
+    memcpy(&comp_rate[1], &st->rate[1], sizeof(comp_rate[1]) * 2);
+    memcpy(&comp_dist[1], &st->dist[1], sizeof(comp_dist[1]) * 2);
+    return 1;
+  }
 
   return 1;
 }
@@ -8360,7 +8405,7 @@ static INLINE int find_comp_rd_in_stats(MACROBLOCK *x, MB_MODE_INFO *const mbmi,
   for (int j = 0; j < offset; ++j) {
     const COMP_RD_STATS *st = &x->comp_rd_stats[j];
     if (is_comp_rd_match(x, st, mbmi, comp_rate, comp_dist)) {
-      return 1;
+      return j;
     }
   }
   return -1;  // no match result found
@@ -8386,6 +8431,10 @@ static INLINE void save_comp_rd_search_stat(MACROBLOCK *x,
                                             int32_t *comp_rate,
                                             int64_t *comp_dist,
                                             int_mv *cur_mv) {
+  if (!have_newmv_in_inter_mode(mbmi->mode))
+    assert(cur_mv[0].as_int == mbmi->mv[0].as_int &&
+           cur_mv[1].as_int == mbmi->mv[1].as_int);
+
   const int offset = x->comp_rd_stats_idx;
   if (offset < MAX_COMP_RD_STATS) {
     MACROBLOCKD *const xd = &x->e_mbd;
@@ -8396,7 +8445,8 @@ static INLINE void save_comp_rd_search_stat(MACROBLOCK *x,
                            mbmi->mode,
                            mbmi->interp_filters,
                            mbmi->ref_mv_idx,
-                           { 0, 0 } };
+                           { 0, 0 },
+                           { { mbmi->mv[0].as_int }, { mbmi->mv[1].as_int } } };
     for (int i = 0; i < 2; ++i) {
       const WarpedMotionParams *const wm =
           &xd->global_motion[mbmi->ref_frame[i]];
@@ -9579,7 +9629,7 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
   int calc_pred_masked_compound = 1;
   int64_t comp_dist[COMPOUND_TYPES] = { INT64_MAX, INT64_MAX, INT64_MAX };
   int32_t comp_rate[COMPOUND_TYPES] = { INT_MAX, INT_MAX, INT_MAX };
-  int match_found = find_comp_rd_in_stats(x, mbmi, comp_rate, comp_dist);
+  int match_index = find_comp_rd_in_stats(x, mbmi, comp_rate, comp_dist);
   best_mv[0].as_int = cur_mv[0].as_int;
   best_mv[1].as_int = cur_mv[1].as_int;
   *rd = INT64_MAX;
@@ -9649,7 +9699,7 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
               cpi, x, cur_mv, bsize, this_mode, &rs2, *rate_mv, orig_dst,
               &tmp_rate_mv, preds0, preds1, buffers->residual1, buffers->diff10,
               strides, mi_row, mi_col, rd_stats->rate, ref_best_rd,
-              &calc_pred_masked_compound, comp_rate, comp_dist);
+              &calc_pred_masked_compound, comp_rate, comp_dist, match_index);
       }
     }
     if (best_rd_cur < *rd) {
@@ -9689,7 +9739,7 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
   restore_dst_buf(xd, *orig_dst, 1);
-  if (match_found == -1)
+  if (match_index == -1)
     save_comp_rd_search_stat(x, mbmi, comp_rate, comp_dist, cur_mv);
   return best_compmode_interinter_cost;
 }
