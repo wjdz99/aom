@@ -621,6 +621,8 @@ typedef struct SPEED_FEATURES {
   int simple_motion_search_prune_rect;
 
   int cb_pred_filter_search;
+
+  double tx_domain_thresh;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
