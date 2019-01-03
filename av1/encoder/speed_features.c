@@ -339,6 +339,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
         frame_is_intra_only(cm) ? USE_FULL_RD : USE_LARGESTALL;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
     sf->adaptive_pred_interp_filter = 0;
+    sf->comp_type_data_reuse = 1;
     sf->adaptive_mode_search = 1;
     sf->cb_partition_search = !boosted;
     sf->alt_ref_search_fp = 1;
@@ -515,6 +516,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->dist_wtd_comp_fast_tx_search = 0;
   sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_ENABLED;
   sf->reuse_inter_intra_mode = 0;
+  sf->comp_type_data_reuse = 0;
   sf->intra_angle_estimation = 0;
   sf->skip_obmc_in_uniform_mv_field = 0;
   sf->skip_wm_in_uniform_mv_field = 0;

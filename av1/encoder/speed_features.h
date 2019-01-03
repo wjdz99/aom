@@ -632,6 +632,9 @@ typedef struct SPEED_FEATURES {
   // TRANSLATION and AFFINE(based on number of warp neighbors)
   int prune_warp_using_wmtype;
 
+  // Ensures more reuse of R-D data in compound_type_rd()
+  int comp_type_data_reuse;
+
   // Perform simple_motion_search on each possible subblock and use it to prune
   // PARTITION_HORZ and PARTITION_VERT.
   int simple_motion_search_prune_rect;
