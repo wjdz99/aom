@@ -49,6 +49,15 @@ static MESH_PATTERN intrabc_mesh_patterns[MAX_MESH_SPEED + 1][MAX_MESH_STEP] = {
 };
 static uint8_t intrabc_max_mesh_pct[MAX_MESH_SPEED + 1] = { 100, 100, 100,
                                                             25,  25,  10 };
+
+// log(v+1) >= threshold
+// v >= exp(threshold)-1
+// exp(6.0) - 1.0;	-> 402.4287935
+// exp(8.0) - 1.0;	-> 2979.957987
+// exp(10.0) - 1.0;	-> 22025.46579
+// exp(12.0) - 1.0;	-> 162753.7914
+static double tx_dom_thresholds[6] = { INT64_MAX, INT64_MAX, 22025.46579, 0, 0, 0 };
+
 // scaling values to be used for gating wedge/compound segment based on best
 // approximate rd
 static int comp_type_rd_threshold_mul[3] = { 1, 11, 12 };
@@ -289,6 +298,8 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
     sf->prune_comp_type_by_comp_avg = 2;
     sf->cb_pred_filter_search = 0;
+    sf->use_transform_domain_distortion = boosted ? 0 : 1;
+    sf->tx_domain_thresh = tx_dom_thresholds[(speed < 6) ? speed : 5];
   }
 
   if (speed >= 3) {
