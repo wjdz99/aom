@@ -38,7 +38,7 @@ const int kNumIterations = 10000;
 static const int16_t kInt13Max = (1 << 12) - 1;
 
 typedef uint64_t (*SSI16Func)(const int16_t *src, int stride, int width,
-                              int height);
+                              int height, double *var);
 typedef libaom_test::FuncParam<SSI16Func> TestFuncs;
 
 class SumSquaresTest : public ::testing::TestWithParam<TestFuncs> {
@@ -99,15 +99,21 @@ void SumSquaresTest::RunTest(int isRandom) {
     } else {
       GenExtremeData(width, height, stride);
     }
-    const uint64_t res_ref = params_.ref_func(src_, stride, width, height);
+    double var_ref = 0;
+    const uint64_t res_ref =
+        params_.ref_func(src_, stride, width, height, &var_ref);
     uint64_t res_tst;
-    ASM_REGISTER_STATE_CHECK(res_tst =
-                                 params_.tst_func(src_, stride, width, height));
+    double var_tst = 0;
+    ASM_REGISTER_STATE_CHECK(
+        res_tst = params_.tst_func(src_, stride, width, height, &var_tst));
 
-    if (!failed) {
+    if ((res_ref != res_tst) || (var_ref != var_tst)) {
       failed = res_ref != res_tst;
       EXPECT_EQ(res_ref, res_tst)
           << "Error: Sum Squares Test [" << width << "x" << height
+          << "] C output does not match optimized output.";
+      EXPECT_EQ(var_ref, var_tst)
+          << "Error: varinace Test [" << width << "x" << height
           << "] C output does not match optimized output.";
     }
   }
@@ -125,9 +131,10 @@ void SumSquaresTest::RunSpeedTest() {
     const int num_loops = 1000000000 / (width + height);
     aom_usec_timer timer;
     aom_usec_timer_start(&timer);
+    double var_ref = 0, var_tst = 0;
 
     for (int i = 0; i < num_loops; ++i)
-      params_.ref_func(src_, stride, width, height);
+      params_.ref_func(src_, stride, width, height, &var_ref);
 
     aom_usec_timer_mark(&timer);
     const int elapsed_time = static_cast<int>(aom_usec_timer_elapsed(&timer));
@@ -137,7 +144,7 @@ void SumSquaresTest::RunSpeedTest() {
     aom_usec_timer timer1;
     aom_usec_timer_start(&timer1);
     for (int i = 0; i < num_loops; ++i)
-      params_.tst_func(src_, stride, width, height);
+      params_.tst_func(src_, stride, width, height, &var_tst);
     aom_usec_timer_mark(&timer1);
     const int elapsed_time1 = static_cast<int>(aom_usec_timer_elapsed(&timer1));
     printf("SumSquaresTest Test %3dx%-3d: %7.2f ns\n", width, height,
