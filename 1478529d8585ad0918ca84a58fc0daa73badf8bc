@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f77ae4cb_e9f18a80",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3086,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-01-03T07:22:15Z",
+      "side": 1,
+      "message": "After the change, for screen_content \u0026 intra mode, the default_tx_type is DCT_DCT instead of intra_mode_to_tx_type(mbmi, plane_type). Is this intended?",
+      "range": {
+        "startLine": 3086,
+        "startChar": 44,
+        "endLine": 3086,
+        "endChar": 71
+      },
+      "revId": "1478529d8585ad0918ca84a58fc0daa73badf8bc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
