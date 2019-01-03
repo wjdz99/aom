@@ -204,6 +204,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->model_based_prune_tx_search_level = 1;
   sf->model_based_post_interp_filter_breakout = 1;
   sf->model_based_motion_mode_rd_breakout = 1;
+  sf->inter_mode_rd_model_estimation = 2;
   sf->prune_ref_frame_for_rect_partitions =
       !(boosted || cpi->refresh_bwd_ref_frame || cpi->refresh_alt2_ref_frame);
   sf->prune_ref_mode_for_partitions = sf->prune_ref_frame_for_rect_partitions;
@@ -237,6 +238,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->tx_type_search.skip_tx_search = 1;
     sf->tx_type_search.ml_tx_split_thresh = 40;
     sf->model_based_prune_tx_search_level = 0;
+    sf->inter_mode_rd_model_estimation = 0;
     sf->adaptive_txb_search_level = 2;
     sf->use_intra_txb_hash = 1;
     sf->optimize_b_precheck = 1;
