@@ -621,6 +621,10 @@ typedef struct SPEED_FEATURES {
   int simple_motion_search_prune_rect;
 
   int cb_pred_filter_search;
+
+  // Ensures more reuse of R-D data in compound_type_rd()
+  int comp_type_data_reuse;
+
 } SPEED_FEATURES;
 
 struct AV1_COMP;

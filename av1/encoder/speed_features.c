@@ -263,6 +263,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->prune_motion_mode_level = 2;
     sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
     sf->cb_pred_filter_search = 1;
+    sf->comp_type_data_reuse = 1;
   }
 
   if (speed >= 2) {
@@ -499,6 +500,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->intra_angle_estimation = 0;
   sf->skip_obmc_in_uniform_mv_field = 0;
   sf->skip_wm_in_uniform_mv_field = 0;
+  sf->comp_type_data_reuse = 0;
 
   for (i = 0; i < TX_SIZES; i++) {
     sf->intra_y_mode_mask[i] = INTRA_ALL;

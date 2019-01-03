@@ -191,12 +191,13 @@ typedef struct {
 typedef struct {
   int32_t rate[COMPOUND_TYPES];
   int64_t dist[COMPOUND_TYPES];
-  int_mv mv[2];
+  int_mv cur_mv[2];
   int8_t ref_frames[2];
   PREDICTION_MODE mode;
   InterpFilters filter;
   int ref_mv_idx;
   int is_global[2];
+  int_mv mbmi_mv[2];
 } COMP_RD_STATS;
 
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
