@@ -643,6 +643,9 @@ typedef struct SPEED_FEATURES {
 
   // mask for skip evaluation of certain interp_filter type.
   INTERP_FILTER_MASK interp_filter_search_mask;
+
+  // Ensures more reuse of R-D data in compound_type_rd()
+  int comp_type_data_reuse;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
