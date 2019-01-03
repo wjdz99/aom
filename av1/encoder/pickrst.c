@@ -304,7 +304,7 @@ int64_t av1_highbd_pixel_proj_error_c(const uint8_t *src8, int width,
         int32_t v = half;
         v += exq * (flt[j] - u);
         const int32_t e = (v >> (SGRPROJ_RST_BITS + SGRPROJ_PRJ_BITS)) + d - s;
-        err += e * e;
+        err += (int64_t)e * e;
       }
       dat += dat_stride;
       flt += flt_stride;

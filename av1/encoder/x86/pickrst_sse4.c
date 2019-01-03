@@ -777,7 +777,7 @@ int64_t av1_highbd_pixel_proj_error_sse4_1(
         const int32_t u = (int32_t)(dat[k] << SGRPROJ_RST_BITS);
         int32_t v = xq_on * (flt[k] - u);
         const int32_t e = ROUND_POWER_OF_TWO(v, shift) + dat[k] - src[k];
-        err += e * e;
+        err += (int64_t)e * e;
       }
       dat += dat_stride;
       src += src_stride;
