@@ -570,6 +570,7 @@ typedef struct AV1Common {
 #endif
   const cfg_options_t *options;
   int is_decoding;
+  int border_in_pixels;
 } AV1_COMMON;
 
 // TODO(hkuang): Don't need to lock the whole pool after implementing atomic
