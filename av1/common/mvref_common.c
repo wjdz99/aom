@@ -1396,7 +1396,10 @@ void av1_set_frame_refs(AV1_COMMON *const cm, int lst_map_idx,
     ref_frame_info[i].buf = buf;
 
     if (buf == NULL) continue;
-    // TODO(zoeliu@google.com): To verify the checking on ref_count.
+    // TODO(wtc@google.com): Remove the assertion and the checking on
+    // ref_count after 2019-03-01. If this assertion fails, there is a
+    // reference leak.
+    assert(buf->ref_count > 0);
     if (buf->ref_count <= 0) continue;
 
     const int offset = (int)buf->order_hint;
