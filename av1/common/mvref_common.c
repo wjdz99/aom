@@ -1397,6 +1397,7 @@ void av1_set_frame_refs(AV1_COMMON *const cm, int lst_map_idx,
 
     if (buf == NULL) continue;
     // TODO(zoeliu@google.com): To verify the checking on ref_count.
+    assert(buf->ref_count > 0);
     if (buf->ref_count <= 0) continue;
 
     const int offset = (int)buf->order_hint;
