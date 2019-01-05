@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4192ff6_b03e9943",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1366,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-01-05T00:37:23Z",
+      "side": 1,
+      "message": "Just FYI: git history of the compare_ref_frame_info() function:\n\nhttps://aomedia-review.googlesource.com/c/aom/+/46926\nhttps://aomedia-review.googlesource.com/c/aom/+/50301\nhttps://aomedia-review.googlesource.com/c/aom/+/50821",
+      "revId": "b4edf3dbefeb71ea65171984af1fcffa1cf9adbc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9422302c_4b9c2a98",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1392,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-01-05T00:37:23Z",
+      "side": 1,
+      "message": "Note that ref_frame_info[i].map_idx is set to \u0027i\u0027, the original position of the element in the array. If multiple elements have the same sort_idx value, by breaking the tie with their map_idx values we make the sort stable.",
+      "range": {
+        "startLine": 1390,
+        "startChar": 0,
+        "endLine": 1392,
+        "endChar": 40
+      },
+      "revId": "b4edf3dbefeb71ea65171984af1fcffa1cf9adbc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
