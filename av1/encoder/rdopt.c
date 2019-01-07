@@ -3032,6 +3032,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   tran_low_t *best_dqcoeff = this_dqcoeff;
   const int txk_type_idx =
       av1_get_txk_type_index(plane_bsize, blk_row, blk_col);
+  int optimize_b = 1;
   av1_invalid_rd_stats(best_rd_stats);
 
   TXB_RD_INFO *intra_txb_rd_info = NULL;
@@ -3083,6 +3084,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   if ((!is_inter && x->use_default_intra_tx_type) ||
       (is_inter && x->use_default_inter_tx_type)) {
     txk_start = txk_end = get_default_tx_type(0, xd, tx_size);
+    optimize_b = 0;
   } else if (x->rd_model == LOW_TXFM_RD || x->cb_partition_scan) {
     if (plane == 0) txk_end = DCT_DCT;
   }
@@ -3172,19 +3174,25 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     } else {
       av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
                       tx_size, tx_type, AV1_XFORM_QUANT_FP);
-      if (cpi->sf.optimize_b_precheck && best_rd < INT64_MAX &&
-          eobs_ptr[block] >= 4) {
-        // Calculate distortion quickly in transform domain.
-        dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
-                             &this_rd_stats.sse);
+      if (optimize_b) {
+        if (cpi->sf.optimize_b_precheck && best_rd < INT64_MAX &&
+            eobs_ptr[block] >= 4) {
+          // Calculate distortion quickly in transform domain.
+          dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
+                               &this_rd_stats.sse);
 
-        const int64_t best_rd_ = AOMMIN(best_rd, ref_best_rd);
-        const int64_t dist_cost_estimate =
-            RDCOST(x->rdmult, 0, AOMMIN(this_rd_stats.dist, this_rd_stats.sse));
-        if (dist_cost_estimate - (dist_cost_estimate >> 3) > best_rd_) continue;
+          const int64_t best_rd_ = AOMMIN(best_rd, ref_best_rd);
+          const int64_t dist_cost_estimate = RDCOST(
+              x->rdmult, 0, AOMMIN(this_rd_stats.dist, this_rd_stats.sse));
+          if (dist_cost_estimate - (dist_cost_estimate >> 3) > best_rd_)
+            continue;
+        }
+        av1_optimize_b(cpi, x, plane, block, tx_size, tx_type, txb_ctx, 1,
+                       &rate_cost);
+      } else {
+        rate_cost = av1_cost_coeffs(cm, x, plane, block, tx_size, tx_type,
+                                    txb_ctx, use_fast_coef_costing);
       }
-      av1_optimize_b(cpi, x, plane, block, tx_size, tx_type, txb_ctx, 1,
-                     &rate_cost);
     }
     if (eobs_ptr[block] == 0) {
       // When eob is 0, pixel domain distortion is more efficient and accurate.
