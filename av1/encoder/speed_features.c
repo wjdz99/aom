@@ -290,6 +290,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
     sf->prune_comp_type_by_comp_avg = 2;
     sf->cb_pred_filter_search = 0;
+    sf->less_rectangular_check_level = boosted ? 1 : 2;
   }
 
   if (speed >= 3) {
