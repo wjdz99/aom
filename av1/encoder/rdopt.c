@@ -204,7 +204,7 @@ struct rdcost_block_args {
   FAST_TX_SEARCH_MODE ftxs_mode;
 };
 
-#define LAST_NEW_MV_INDEX 6
+#define LAST_NEW_MV_INDEX 13
 static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
   { NEARESTMV, { LAST_FRAME, NONE_FRAME } },
   { NEARESTMV, { LAST2_FRAME, NONE_FRAME } },
