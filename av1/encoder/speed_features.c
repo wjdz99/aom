@@ -309,6 +309,11 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->prune_comp_search_by_single_result = 2;
     sf->prune_motion_mode_level = boosted ? 2 : 3;
     sf->prune_warp_using_wmtype = 1;
+    sf->mode_search_skip_flags =
+        boosted ? 0
+                : FLAG_SKIP_INTRA_DIRMISMATCH | FLAG_SKIP_INTRA_BESTINTER |
+                      FLAG_SKIP_COMP_BESTINTRA | FLAG_SKIP_INTRA_LOWVAR |
+                      FLAG_EARLY_TERMINATE;
   }
 
   if (speed >= 4) {
