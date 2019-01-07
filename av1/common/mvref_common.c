@@ -1027,9 +1027,9 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
   for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ref_frame++) {
     const int ref_idx = ref_frame - LAST_FRAME;
     const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
-    int order_hint = 0;
+    assert(buf != NULL);
 
-    if (buf != NULL) order_hint = buf->order_hint;
+    const int order_hint = buf->order_hint;
 
     ref_buf[ref_idx] = buf;
     ref_order_hint[ref_idx] = order_hint;
@@ -1040,18 +1040,15 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
       cm->ref_frame_side[ref_frame] = -1;
   }
 
-  int ref_stamp = MFMV_STACK_SIZE - 1;
+  const int alt_of_lst_order_hint =
+      ref_buf[LAST_FRAME - LAST_FRAME]
+          ->ref_order_hints[ALTREF_FRAME - LAST_FRAME];
 
-  if (ref_buf[LAST_FRAME - LAST_FRAME] != NULL) {
-    const int alt_of_lst_order_hint =
-        ref_buf[LAST_FRAME - LAST_FRAME]
-            ->ref_order_hints[ALTREF_FRAME - LAST_FRAME];
+  const int is_lst_overlay =
+      (alt_of_lst_order_hint == ref_order_hint[GOLDEN_FRAME - LAST_FRAME]);
+  if (!is_lst_overlay) motion_field_projection(cm, LAST_FRAME, 2);
 
-    const int is_lst_overlay =
-        (alt_of_lst_order_hint == ref_order_hint[GOLDEN_FRAME - LAST_FRAME]);
-    if (!is_lst_overlay) motion_field_projection(cm, LAST_FRAME, 2);
-    --ref_stamp;
-  }
+  int ref_stamp = MFMV_STACK_SIZE - 2;
 
   if (get_relative_dist(order_hint_info,
                         ref_order_hint[BWDREF_FRAME - LAST_FRAME],
@@ -1071,8 +1068,7 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
       ref_stamp >= 0)
     if (motion_field_projection(cm, ALTREF_FRAME, 0)) --ref_stamp;
 
-  if (ref_stamp >= 0 && ref_buf[LAST2_FRAME - LAST_FRAME] != NULL)
-    if (motion_field_projection(cm, LAST2_FRAME, 2)) --ref_stamp;
+  if (ref_stamp >= 0) motion_field_projection(cm, LAST2_FRAME, 2);
 }
 
 static INLINE void record_samples(MB_MODE_INFO *mbmi, int *pts, int *pts_inref,
