@@ -264,6 +264,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->prune_motion_mode_level = 2;
     sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
     sf->cb_pred_filter_search = 1;
+    sf->less_rectangular_check_level = boosted ? 1 : 2;
   }
 
   if (speed >= 2) {
