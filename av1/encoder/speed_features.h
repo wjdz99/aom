@@ -626,6 +626,8 @@ typedef struct SPEED_FEATURES {
   int simple_motion_search_prune_rect;
 
   int cb_pred_filter_search;
+
+  int skip_default_coeff_opt;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
