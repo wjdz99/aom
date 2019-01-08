@@ -102,6 +102,9 @@ typedef enum {
   /*!\brief Operation completed without error */
   AOM_CODEC_OK,
 
+  /*!\brief Algorithm does not have required capability */
+  AOM_CODEC_INCAPABLE,
+
   /*!\brief Unspecified error */
   AOM_CODEC_ERROR,
 
@@ -110,9 +113,6 @@ typedef enum {
 
   /*!\brief ABI version mismatch */
   AOM_CODEC_ABI_MISMATCH,
-
-  /*!\brief Algorithm does not have required capability */
-  AOM_CODEC_INCAPABLE,
 
   /*!\brief The given bitstream is not supported.
    *
@@ -139,6 +139,9 @@ typedef enum {
    * is continued for the current GOP, artifacts may be present.
    */
   AOM_CODEC_CORRUPT_FRAME,
+
+  /*!\brief A new error inserted in the middle of the aom_codec_err_t enum */
+  AOM_CODEC_NEW_ERROR,
 
   /*!\brief An application-supplied parameter is not valid.
    *

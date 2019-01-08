@@ -47,6 +47,7 @@ const char *aom_codec_err_to_string(aom_codec_err_t err) {
     case AOM_CODEC_UNSUP_FEATURE:
       return "Bitstream required feature not supported by this decoder";
     case AOM_CODEC_CORRUPT_FRAME: return "Corrupt frame detected";
+    case AOM_CODEC_NEW_ERROR: return "New error";
     case AOM_CODEC_INVALID_PARAM: return "Invalid parameter";
     case AOM_CODEC_LIST_END: return "End of iterated list";
   }
