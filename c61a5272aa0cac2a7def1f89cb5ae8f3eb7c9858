@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ac762f5_4e075a76",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-01-08T22:57:30Z",
+      "side": 1,
+      "message": "Need to be updated?",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 134
+      },
+      "revId": "c61a5272aa0cac2a7def1f89cb5ae8f3eb7c9858",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3b8ba91_c7acff41",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 5771,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-01-08T22:57:30Z",
+      "side": 1,
+      "message": "Is this right? Should it be:\nrd_stats-\u003erate \u003d zero_blk_rate; ?",
+      "range": {
+        "startLine": 5769,
+        "startChar": 32,
+        "endLine": 5771,
+        "endChar": 73
+      },
+      "revId": "c61a5272aa0cac2a7def1f89cb5ae8f3eb7c9858",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
