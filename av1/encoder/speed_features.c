@@ -234,6 +234,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->disable_wedge_search_edge_thresh = 0;
   sf->prune_motion_mode_level = 1;
   sf->cb_pred_filter_search = 0;
+  sf->mode_skip_start = MAX_MODES;  // Mode index at which mode skip mask set
 
   if (speed >= 1) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;
@@ -326,6 +327,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
     // it with cpi->sf.disable_wedge_search_var_thresh.
     sf->disable_wedge_interintra_search = 1;
+    sf->mode_skip_start = 99;
   }
 
   if (speed >= 4) {
@@ -343,6 +345,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->cb_partition_search = !boosted;
     sf->alt_ref_search_fp = 1;
     sf->skip_sharp_interp_filter_search = 1;
+    sf->mode_skip_start = 99;
   }
 
   if (speed >= 5) {
