@@ -643,6 +643,11 @@ typedef struct SPEED_FEATURES {
 
   // mask for skip evaluation of certain interp_filter type.
   INTERP_FILTER_MASK interp_filter_search_mask;
+
+  // After looking at the first set of modes (set by index here), skip
+  // checking modes for reference frames that don't match the reference frame
+  // of the best so far.
+  int mode_skip_start;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
