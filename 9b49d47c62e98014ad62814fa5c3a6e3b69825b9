@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b70cad6_408427cf",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 2173,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-01-08T23:18:46Z",
+      "side": 1,
+      "message": "Not sure the cost of the division here. Change it to shifting if possible .",
+      "range": {
+        "startLine": 2173,
+        "startChar": 47,
+        "endLine": 2173,
+        "endChar": 48
+      },
+      "revId": "9b49d47c62e98014ad62814fa5c3a6e3b69825b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
