@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22e2d546_175dcc77",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 11312,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-01-08T23:45:00Z",
+      "side": 1,
+      "message": "Looks like these are already calculated above. Can the result be reused?",
+      "range": {
+        "startLine": 11305,
+        "startChar": 11,
+        "endLine": 11312,
+        "endChar": 46
+      },
+      "revId": "a8ae5253e0318e1b4020987cb64af8f03a54fc55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
