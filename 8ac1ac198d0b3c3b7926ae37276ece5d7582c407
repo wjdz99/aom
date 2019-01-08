@@ -34,6 +34,24 @@
       "revId": "8ac1ac198d0b3c3b7926ae37276ece5d7582c407",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03c24705_1cf132ea",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-01-08T00:37:28Z",
+      "side": 1,
+      "message": "\u003e It\u0027s triggered with exp(-200.0). I think the problem is the input to exp() is so small that \"the result is too small in magnitude to be represented as a value of the return type.\"\n\nThanks. Then the clamp should be OK assuming -10 doesn\u0027t change any behavior. With an underflow exp() returns 0",
+      "parentUuid": "b17e8458_c8cf8fc2",
+      "revId": "8ac1ac198d0b3c3b7926ae37276ece5d7582c407",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
