@@ -780,6 +780,10 @@ static int get_est_rate_dist(const TileDataEnc *tile_data, BLOCK_SIZE bsize,
           fabs(est_ld) < 1e-2
               ? INT_MAX / 2
               : (int)AOMMIN(round((sse - md->dist_mean) / est_ld), INT_MAX / 2);
+      if (*est_residue_cost <= 0) {
+        *est_residue_cost = 0;
+        *est_dist = sse;
+      }
     }
     return 1;
   }
@@ -9330,7 +9334,7 @@ static int64_t motion_mode_rd(
       ref_best_rd = AOMMIN(ref_best_rd, curr_rd);
       *disable_skip = 0;
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
-      if (cpi->sf.inter_mode_rd_model_estimation) {
+      if (cpi->sf.inter_mode_rd_model_estimation == 1) {
         const int skip_ctx = av1_get_skip_context(xd);
         inter_mode_data_push(tile_data, mbmi->sb_type, rd_stats->sse,
                              rd_stats->dist,
