@@ -164,6 +164,34 @@ static const InterpFilters filter_sets[DUAL_FILTER_SET_SIZE] = {
   0x00000002, 0x00010002, 0x00020002,  // y = 2
 };
 
+#define LAST_FRAME_MODE_MASK                                          \
+  ((1 << INTRA_FRAME) | (1 << LAST2_FRAME) | (1 << LAST3_FRAME) |     \
+   (1 << GOLDEN_FRAME) | (1 << BWDREF_FRAME) | (1 << ALTREF2_FRAME) | \
+   (1 << ALTREF_FRAME))
+#define LAST2_FRAME_MODE_MASK                                         \
+  ((1 << INTRA_FRAME) | (1 << LAST_FRAME) | (1 << LAST3_FRAME) |      \
+   (1 << GOLDEN_FRAME) | (1 << BWDREF_FRAME) | (1 << ALTREF2_FRAME) | \
+   (1 << ALTREF_FRAME))
+#define LAST3_FRAME_MODE_MASK                                         \
+  ((1 << INTRA_FRAME) | (1 << LAST_FRAME) | (1 << LAST2_FRAME) |      \
+   (1 << GOLDEN_FRAME) | (1 << BWDREF_FRAME) | (1 << ALTREF2_FRAME) | \
+   (1 << ALTREF_FRAME))
+#define GOLDEN_FRAME_MODE_MASK                                       \
+  ((1 << INTRA_FRAME) | (1 << LAST_FRAME) | (1 << LAST2_FRAME) |     \
+   (1 << LAST3_FRAME) | (1 << BWDREF_FRAME) | (1 << ALTREF2_FRAME) | \
+   (1 << ALTREF_FRAME))
+#define BWDREF_FRAME_MODE_MASK                                       \
+  ((1 << INTRA_FRAME) | (1 << LAST_FRAME) | (1 << LAST2_FRAME) |     \
+   (1 << LAST3_FRAME) | (1 << GOLDEN_FRAME) | (1 << ALTREF2_FRAME) | \
+   (1 << ALTREF_FRAME))
+#define ALTREF2_FRAME_MODE_MASK                                     \
+  ((1 << INTRA_FRAME) | (1 << LAST_FRAME) | (1 << LAST2_FRAME) |    \
+   (1 << LAST3_FRAME) | (1 << GOLDEN_FRAME) | (1 << BWDREF_FRAME) | \
+   (1 << ALTREF_FRAME))
+#define ALTREF_FRAME_MODE_MASK                                      \
+  ((1 << INTRA_FRAME) | (1 << LAST_FRAME) | (1 << LAST2_FRAME) |    \
+   (1 << LAST3_FRAME) | (1 << GOLDEN_FRAME) | (1 << BWDREF_FRAME) | \
+   (1 << ALTREF2_FRAME))
 #define SECOND_REF_FRAME_MASK                                         \
   ((1 << ALTREF_FRAME) | (1 << ALTREF2_FRAME) | (1 << BWDREF_FRAME) | \
    (1 << GOLDEN_FRAME) | (1 << LAST2_FRAME) | 0x01)
@@ -11989,6 +12017,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int *comp_inter_cost = x->comp_inter_cost[av1_get_reference_mode_context(xd)];
   mode_skip_mask_t mode_skip_mask;
   uint8_t motion_mode_skip_mask = 0;  // second pass of single ref modes
+  const int mode_skip_start = sf->mode_skip_start + 1;
 #if CONFIG_ONE_PASS_SVM
   int temp_y_eob = 0, temp_y_eob_0 = 0, temp_y_eob_1 = 0, temp_y_eob_2 = 0,
       temp_y_eob_3 = 0;
@@ -12050,6 +12079,47 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     const MV_REFERENCE_FRAME ref_frame = mode_order->ref_frame[0];
     const MV_REFERENCE_FRAME second_ref_frame = mode_order->ref_frame[1];
     const int comp_pred = second_ref_frame > INTRA_FRAME;
+
+    // Look at the reference frame of the best mode so far and set the
+    // skip mask to look at a subset of the remaining modes.
+    if (midx == mode_skip_start && search_state.best_mode_index >= 0) {
+      switch (search_state.best_mbmode.ref_frame[0]) {
+        case INTRA_FRAME: break;
+        case LAST_FRAME:
+          mode_skip_mask.ref_frame1 |= LAST_FRAME_MODE_MASK;
+          mode_skip_mask.ref_frame2 |= SECOND_REF_FRAME_MASK;
+          break;
+        case LAST2_FRAME:
+          mode_skip_mask.ref_frame1 |= LAST2_FRAME_MODE_MASK;
+          mode_skip_mask.ref_frame2 |= SECOND_REF_FRAME_MASK;
+          break;
+        case LAST3_FRAME:
+          mode_skip_mask.ref_frame1 |= LAST3_FRAME_MODE_MASK;
+          mode_skip_mask.ref_frame2 |= SECOND_REF_FRAME_MASK;
+          break;
+        case GOLDEN_FRAME:
+          mode_skip_mask.ref_frame1 |= GOLDEN_FRAME_MODE_MASK;
+          mode_skip_mask.ref_frame2 |= SECOND_REF_FRAME_MASK;
+          break;
+        case BWDREF_FRAME:
+          mode_skip_mask.ref_frame1 |= BWDREF_FRAME_MODE_MASK;
+          mode_skip_mask.ref_frame2 |= SECOND_REF_FRAME_MASK;
+          break;
+        case ALTREF2_FRAME:
+          mode_skip_mask.ref_frame1 |= ALTREF2_FRAME_MODE_MASK;
+          mode_skip_mask.ref_frame2 |= SECOND_REF_FRAME_MASK;
+          break;
+        case ALTREF_FRAME:
+          mode_skip_mask.ref_frame1 |= ALTREF_FRAME_MODE_MASK;
+          mode_skip_mask.ref_frame2 |= SECOND_REF_FRAME_MASK;
+          break;
+        case NONE_FRAME:
+        case REF_FRAMES: assert(0 && "Invalid Reference frame"); break;
+      }
+    }
+    if ((mode_skip_mask.ref_frame1 & (1 << ref_frame)) &&
+        (mode_skip_mask.ref_frame2 & (1 << AOMMAX(0, second_ref_frame))))
+      continue;
 
     // When single ref motion search ends:
     // 1st pass: To evaluate single ref RD results and rewind to the beginning;
