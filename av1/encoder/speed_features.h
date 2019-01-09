@@ -646,6 +646,8 @@ typedef struct SPEED_FEATURES {
 
   // Enable/disable interintra wedge search.
   int disable_wedge_interintra_search;
+
+  int perform_coeff_opt;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
