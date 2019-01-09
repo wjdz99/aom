@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c70660c3_449e008d",
+        "filename": "test/test_data_util.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-01-09T00:22:20Z",
+      "side": 1,
+      "message": "Yaowu: This file name does not follow your naming convention for test vector files:\n\n    av1-{bitstream_version}-{bit_depth}-{type_code}-{type_string}-{type_data}.ivf\n\nIs this OK?\n\nI know the bit_depth is 8, but I don\u0027t know what type_code, type_string, etc. I should use.",
+      "range": {
+        "startLine": 509,
+        "startChar": 15,
+        "endLine": 509,
+        "endChar": 43
+      },
+      "revId": "280ee5c6f02cf35232d80c985b43bed9aec4acbe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
