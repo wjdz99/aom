@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "47ddd523_4c327abc",
+        "filename": "aom_scale/yv12config.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 10122
+      },
+      "writtenOn": "2019-01-09T13:59:08Z",
+      "side": 1,
+      "message": "changed to AOM_ENC_NO_SCALE_BORDER",
+      "parentUuid": "736d1346_256a56d8",
+      "range": {
+        "startLine": 35,
+        "startChar": 8,
+        "endLine": 35,
+        "endChar": 11
+      },
+      "revId": "6dc532eefc98cbb4cb0581e3de3413b49e376696",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4a6203e7_9e0af822",
         "filename": "av1/common/onyxc_int.h",
         "patchSetId": 9
@@ -45,6 +69,30 @@
       "revId": "6dc532eefc98cbb4cb0581e3de3413b49e376696",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9e60495_10ef7344",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 10122
+      },
+      "writtenOn": "2019-01-09T13:59:08Z",
+      "side": 1,
+      "message": "Moved to AV1EncoderConfig",
+      "parentUuid": "4a6203e7_9e0af822",
+      "range": {
+        "startLine": 573,
+        "startChar": 2,
+        "endLine": 573,
+        "endChar": 22
+      },
+      "revId": "6dc532eefc98cbb4cb0581e3de3413b49e376696",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
