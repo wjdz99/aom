@@ -345,6 +345,7 @@ INSTANTIATE_TEST_CASE_P(
                                NULL, AOM_BITS_12, kZ3Start)));
 
 #if HAVE_AVX2
+/* TODO(https://crbug.com/aomedia/2288)
 INSTANTIATE_TEST_CASE_P(
     AVX2, LowbdDrPredTest,
     ::testing::Values(DrPredFunc<DrPred>(&z1_wrapper<av1_dr_prediction_z1_c>,
@@ -356,6 +357,7 @@ INSTANTIATE_TEST_CASE_P(
                       DrPredFunc<DrPred>(&z3_wrapper<av1_dr_prediction_z3_c>,
                                          &z3_wrapper<av1_dr_prediction_z3_avx2>,
                                          AOM_BITS_8, kZ3Start)));
+                                         */
 
 TEST_P(LowbdDrPredTest, DISABLED_Speed) {
   const int angles[] = { 3, 45, 87 };
@@ -397,6 +399,7 @@ INSTANTIATE_TEST_CASE_P(
                           &z1_wrapper_hbd<av1_highbd_dr_prediction_z1_c>,
                           &z1_wrapper_hbd<av1_highbd_dr_prediction_z1_avx2>,
                           AOM_BITS_12, kZ1Start),
+                      /* TODO(https://crbug.com/aomedia/2288)
                       DrPredFunc<DrPred_Hbd>(
                           &z2_wrapper_hbd<av1_highbd_dr_prediction_z2_c>,
                           &z2_wrapper_hbd<av1_highbd_dr_prediction_z2_avx2>,
@@ -409,6 +412,7 @@ INSTANTIATE_TEST_CASE_P(
                           &z2_wrapper_hbd<av1_highbd_dr_prediction_z2_c>,
                           &z2_wrapper_hbd<av1_highbd_dr_prediction_z2_avx2>,
                           AOM_BITS_12, kZ2Start),
+                          */
                       DrPredFunc<DrPred_Hbd>(
                           &z3_wrapper_hbd<av1_highbd_dr_prediction_z3_c>,
                           &z3_wrapper_hbd<av1_highbd_dr_prediction_z3_avx2>,
