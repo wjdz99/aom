@@ -26,6 +26,7 @@
 #define MAX_MESH_SPEED 5  // Max speed setting for mesh motion method
 // Max speed setting for tx domain evaluation
 #define MAX_TX_DOMAIN_EVAL_SPEED 5
+#define COEFF_OPT_EVAL_SPEED 5
 static MESH_PATTERN
     good_quality_mesh_patterns[MAX_MESH_SPEED + 1][MAX_MESH_STEP] = {
       { { 64, 8 }, { 28, 4 }, { 15, 1 }, { 7, 1 } },
@@ -60,6 +61,9 @@ static unsigned int tx_domain_dist_thresholds[MAX_TX_DOMAIN_EVAL_SPEED + 1] = {
   UINT_MAX, 162754, 22026, 0, 0, 0
 };
 
+static unsigned int coeff_opt_dist_thresholds[COEFF_OPT_EVAL_SPEED] = {
+  UINT_MAX, UINT_MAX, 162754, 22026, 22026
+};
 // scaling values to be used for gating wedge/compound segment based on best
 // approximate rd
 static int comp_type_rd_threshold_mul[3] = { 1, 11, 12 };
@@ -276,6 +280,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
     sf->cb_pred_filter_search = 1;
     sf->use_transform_domain_distortion = boosted ? 0 : 1;
+    sf->perform_coeff_opt = boosted ? 0 : 1;
   }
 
   if (speed >= 2) {
@@ -303,6 +308,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->prune_comp_type_by_comp_avg = 2;
     sf->cb_pred_filter_search = 0;
     sf->adaptive_interp_filter_search = 1;
+    sf->perform_coeff_opt = boosted ? 0 : 2;
   }
 
   if (speed >= 3) {
@@ -326,6 +332,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
     // it with cpi->sf.disable_wedge_search_var_thresh.
     sf->disable_wedge_interintra_search = 1;
+    sf->perform_coeff_opt = boosted ? 0 : 3;
   }
 
   if (speed >= 4) {
@@ -343,6 +350,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->cb_partition_search = !boosted;
     sf->alt_ref_search_fp = 1;
     sf->skip_sharp_interp_filter_search = 1;
+    sf->perform_coeff_opt = boosted ? 0 : 4;
   }
 
   if (speed >= 5) {
@@ -573,6 +581,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->prune_warp_using_wmtype = 0;
 
   sf->disable_wedge_interintra_search = 0;
+  sf->perform_coeff_opt = 0;
 
   if (oxcf->mode == GOOD)
     set_good_speed_features_framesize_independent(cpi, sf, oxcf->speed);
@@ -656,6 +665,10 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
                             ? MAX_TX_DOMAIN_EVAL_SPEED
                             : oxcf->speed;
   cpi->tx_domain_dist_threshold = tx_domain_dist_thresholds[tx_domain_speed];
+
+  assert(cpi->sf.perform_coeff_opt < 5);
+  cpi->coeff_opt_dist_threshold =
+      coeff_opt_dist_thresholds[cpi->sf.perform_coeff_opt];
 
 #if CONFIG_DIST_8X8
   if (sf->use_transform_domain_distortion > 0) cpi->oxcf.using_dist_8x8 = 0;
