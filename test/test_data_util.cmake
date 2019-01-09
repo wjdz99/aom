@@ -506,6 +506,8 @@ if(CONFIG_AV1_DECODER)
               "av1-1-b8-22-svc-L1T2.ivf.md5"
               "av1-1-b8-22-svc-L2T2.ivf"
               "av1-1-b8-22-svc-L2T2.ivf.md5"
+              "av1-1-aomedia-issue-2290.ivf"
+              "av1-1-aomedia-issue-2290.ivf.md5"
               "invalid-bug-1814.ivf"
               "invalid-bug-1814.ivf.res"
               "invalid-chromium-906381.ivf"
