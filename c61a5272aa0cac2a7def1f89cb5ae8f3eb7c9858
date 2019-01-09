@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "65fbc09b_638b3006",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2019-01-09T03:50:25Z",
+      "side": 1,
+      "message": "We see that BD rate impact is correct. Can you let us know the issue with the message.",
+      "parentUuid": "2ac762f5_4e075a76",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 134
+      },
+      "revId": "c61a5272aa0cac2a7def1f89cb5ae8f3eb7c9858",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3b8ba91_c7acff41",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 10
@@ -36,6 +60,30 @@
       "writtenOn": "2019-01-08T22:57:30Z",
       "side": 1,
       "message": "Is this right? Should it be:\nrd_stats-\u003erate \u003d zero_blk_rate; ?",
+      "range": {
+        "startLine": 5769,
+        "startChar": 32,
+        "endLine": 5771,
+        "endChar": 73
+      },
+      "revId": "c61a5272aa0cac2a7def1f89cb5ae8f3eb7c9858",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b4bef8d_e0b5f072",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 5771,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2019-01-09T03:50:25Z",
+      "side": 1,
+      "message": "zero_blk_rate corresponds to bits required to code tu_block as zero_blk. rd_stats-\u003erate should be set as zero_blk_rate * number of tu_blocks calculated as per max_tu_size possible.\nEg: For 128x128, max tu size possible is 64x64. Hence rate should be set as zero_blk_rate * 4.\nFor 64x64, max tu size possible is 64x64. In this case, rate is set as zero_blk_rate.\nMultiplication factor introduced is expected to take care of above.",
+      "parentUuid": "a3b8ba91_c7acff41",
       "range": {
         "startLine": 5769,
         "startChar": 32,
