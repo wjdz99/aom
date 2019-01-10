@@ -22,6 +22,30 @@
       "revId": "280ee5c6f02cf35232d80c985b43bed9aec4acbe",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e79edca5_8b6d666f",
+        "filename": "test/test_data_util.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2019-01-10T22:07:04Z",
+      "side": 1,
+      "message": "If you like, type-code and type-string can be defined and added into the reference document.",
+      "parentUuid": "c70660c3_449e008d",
+      "range": {
+        "startLine": 509,
+        "startChar": 15,
+        "endLine": 509,
+        "endChar": 43
+      },
+      "revId": "280ee5c6f02cf35232d80c985b43bed9aec4acbe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
