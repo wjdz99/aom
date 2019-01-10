@@ -136,8 +136,13 @@ void av1_copy_and_extend_frame(const YV12_BUFFER_CONFIG *src,
         src->uv_crop_width, src->uv_crop_height, et_uv, el_uv, eb_uv, er_uv);
     return;
   }
-
-  copy_and_extend_plane(src->y_buffer, src->y_stride, dst->y_buffer,
+  memcpy(dst->y_buffer, src->y_buffer,
+         (src->y_crop_width * src->y_crop_height));
+  memcpy(dst->u_buffer, src->u_buffer,
+         (src->uv_crop_width * src->uv_crop_height));
+  memcpy(dst->v_buffer, src->v_buffer,
+         (src->uv_crop_width * src->uv_crop_height));
+  /*copy_and_extend_plane(src->y_buffer, src->y_stride, dst->y_buffer,
                         dst->y_stride, src->y_crop_width, src->y_crop_height,
                         et_y, el_y, eb_y, er_y);
 
@@ -147,7 +152,7 @@ void av1_copy_and_extend_frame(const YV12_BUFFER_CONFIG *src,
 
   copy_and_extend_plane(src->v_buffer, src->uv_stride, dst->v_buffer,
                         dst->uv_stride, src->uv_crop_width, src->uv_crop_height,
-                        et_uv, el_uv, eb_uv, er_uv);
+                        et_uv, el_uv, eb_uv, er_uv);*/
 }
 
 void av1_copy_and_extend_frame_with_rect(const YV12_BUFFER_CONFIG *src,
