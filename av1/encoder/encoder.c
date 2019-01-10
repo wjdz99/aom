@@ -4237,6 +4237,11 @@ static uint8_t calculate_next_superres_scale(AV1_COMP *cpi) {
     case SUPERRES_QTHRESH: {
       // Do not use superres when screen content tools are used.
       if (cpi->common.allow_screen_content_tools) break;
+
+      // Reset superres params from previous frame, before computing params for
+      // this frame.
+      cpi->common.superres_scale_denominator = SCALE_NUMERATOR;
+
       if (oxcf->rc_mode == AOM_VBR || oxcf->rc_mode == AOM_CQ)
         av1_set_target_rate(cpi, cpi->oxcf.width, cpi->oxcf.height);
       int bottom_index, top_index;
