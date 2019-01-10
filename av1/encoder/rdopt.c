@@ -2549,7 +2549,9 @@ static void PrintPredictionUnitStats(const AV1_COMP *const cpi,
   (void)tile_data;
   // Generate small sample to restrict output size.
   static unsigned int seed = 95014;
-  if (lcg_rand16(&seed) % 256 > 0) return;
+
+  if ((lcg_rand16(&seed) % (1 << (15 - num_pels_log2_lookup[plane_bsize]))) > 0)
+    return;
 
   const char output_file[] = "pu_stats.txt";
   FILE *fout = fopen(output_file, "a");
