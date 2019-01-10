@@ -71,9 +71,9 @@ int aom_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
         (aligned_height + 2 * border) * (uint64_t)y_stride + byte_alignment;
     const int uv_width = aligned_width >> ss_x;
     const int uv_height = aligned_height >> ss_y;
-    const int uv_stride = y_stride >> ss_x;
-    const int uv_border_w = border >> ss_x;
-    const int uv_border_h = border >> ss_y;
+    const int uv_border_w = AOMMAX((border >> ss_x), AOM_DEC_MIN_CHROMA_BORDER);
+    const int uv_border_h = AOMMAX((border >> ss_x), AOM_DEC_MIN_CHROMA_BORDER);
+    const int uv_stride = ((uv_width + 2 * uv_border_w) + 31) & ~31;
     const uint64_t uvplane_size =
         (uv_height + 2 * uv_border_h) * (uint64_t)uv_stride + byte_alignment;
 

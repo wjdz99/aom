@@ -33,8 +33,10 @@ extern "C" {
 #else
 #define AOM_BORDER_IN_PIXELS 288
 #define AOM_ENC_NO_SCALE_BORDER 160
+#define AOM_DEC_BORDER_IN_PIXELS 32
+#define AOM_DEC_MIN_CHROMA_BORDER 32
 #endif  // CONFIG_REDUCED_ENCODER_BORDER
-
+#define AOMMAX(x, y) (((x) > (y)) ? (x) : (y))
 typedef struct yv12_buffer_config {
   union {
     struct {
