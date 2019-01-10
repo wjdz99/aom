@@ -3774,7 +3774,20 @@ static uint8_t calculate_next_resize_scale(const AV1_COMP *cpi) {
   return new_denom;
 }
 
-#define ENERGY_BY_Q2_THRESH 0.01
+#define ENERGY_BY_Q2_THRESH_KEYFRAME 0.01
+#define ENERGY_BY_Q2_THRESH_ARFFRAME 0.005
+
+static double get_energy_by_q2_thresh(const GF_GROUP *gf_group) {
+  // TODO(now): Return keyframe thresh * factor based on frame type / pyramid
+  // level.
+  if (gf_group->update_type[gf_group->index] == ARF_UPDATE)
+    return ENERGY_BY_Q2_THRESH_ARFFRAME;
+  else if (gf_group->update_type[gf_group->index] == KF_UPDATE)
+    return ENERGY_BY_Q2_THRESH_KEYFRAME;
+  else
+    assert(0);
+}
+
 #define ENERGY_BY_AC_THRESH 0.2
 
 static uint8_t get_superres_denom_from_qindex_energy(int qindex, double *energy,
@@ -3792,15 +3805,24 @@ static uint8_t get_superres_denom_from_qindex_energy(int qindex, double *energy,
 }
 
 static uint8_t get_superres_denom_for_qindex(const AV1_COMP *cpi, int qindex) {
+  // Use superres for Key-frames and Alt-ref frames only.
+  const GF_GROUP *gf_group = &cpi->twopass.gf_group;
+  if (gf_group->update_type[gf_group->index] != ARF_UPDATE &&
+      gf_group->update_type[gf_group->index] != KF_UPDATE) {
+    return SCALE_NUMERATOR;
+  }
+
   double energy[16];
   analyze_hor_freq(cpi, energy);
+
+  const double energy_by_q2_thresh = get_energy_by_q2_thresh(gf_group);
   /*
   printf("\nenergy = [");
   for (int k = 1; k < 16; ++k) printf("%f, ", energy[k]);
   printf("]\n");
   */
   return get_superres_denom_from_qindex_energy(
-      qindex, energy, ENERGY_BY_Q2_THRESH, ENERGY_BY_AC_THRESH);
+      qindex, energy, energy_by_q2_thresh, ENERGY_BY_AC_THRESH);
 }
 
 static uint8_t calculate_next_superres_scale(AV1_COMP *cpi) {
