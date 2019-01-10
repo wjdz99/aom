@@ -1263,6 +1263,16 @@ int av1_get_q_and_bounds_constant_quality_two_pass(const AV1_COMP *cpi,
 
         active_best_quality = min_boost - (int)(boost * rc->arf_boost_factor);
         *arf_q = active_best_quality;
+        // Tweak active_best_quality for AOM_Q mode when superres is on, as this
+        // will be used directly as 'q' later.
+        if ((oxcf->superres_mode == SUPERRES_QTHRESH ||
+             oxcf->superres_mode == SUPERRES_AUTO) &&
+            cm->superres_scale_denominator != SCALE_NUMERATOR) {
+          active_best_quality = AOMMAX(
+              active_best_quality -
+                  ((cm->superres_scale_denominator - SCALE_NUMERATOR) * 3),
+              0);
+        }
       } else {
         assert(rc->arf_q >= 0);  // Ensure it is set to a valid value.
         assert(is_intrl_arf_boost);
