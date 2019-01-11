@@ -1478,13 +1478,6 @@ static AOM_FORCE_INLINE void update_coeff_eob(
 
     int lower_level_new_eob = 0;
     const int new_eob = si + 1;
-    uint8_t tmp_levels[3];
-    for (int ni = 0; ni < *nz_num; ++ni) {
-      const int last_ci = nz_ci[ni];
-      tmp_levels[ni] = levels[get_padded_idx(last_ci, bwl)];
-      levels[get_padded_idx(last_ci, bwl)] = 0;
-    }
-
     const int coeff_ctx_new_eob = get_lower_levels_ctx_eob(bwl, height, si);
     const int new_eob_cost =
         get_eob_cost(new_eob, txb_eob_costs, txb_costs, tx_class);
@@ -1521,7 +1514,7 @@ static AOM_FORCE_INLINE void update_coeff_eob(
     if (sharpness == 0 && rd_new_eob < rd) {
       for (int ni = 0; ni < *nz_num; ++ni) {
         int last_ci = nz_ci[ni];
-        // levels[get_padded_idx(last_ci, bwl)] = 0;
+        levels[get_padded_idx(last_ci, bwl)] = 0;
         qcoeff[last_ci] = 0;
         dqcoeff[last_ci] = 0;
       }
@@ -1531,10 +1524,6 @@ static AOM_FORCE_INLINE void update_coeff_eob(
       *accu_dist = dist_new_eob;
       lower_level = lower_level_new_eob;
     } else {
-      for (int ni = 0; ni < *nz_num; ++ni) {
-        const int last_ci = nz_ci[ni];
-        levels[get_padded_idx(last_ci, bwl)] = tmp_levels[ni];
-      }
       *accu_rate += rate;
       *accu_dist += dist;
     }
