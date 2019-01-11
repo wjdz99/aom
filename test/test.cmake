@@ -227,17 +227,10 @@ endif()
 if(ENABLE_TESTS)
   find_package(PythonInterp)
   if(NOT PYTHONINTERP_FOUND)
-    message(FATAL_ERROR
-              "--- Unit tests require Python, rerun cmake with "
-              "-DENABLE_TESTS=0 to avoid this error, or install Python and "
-              "make sure it's in your PATH.")
-  endif()
-
-  if(MSVC) # Force static run time to avoid collisions with googletest.
-    include("${AOM_ROOT}/build/cmake/msvc_runtime.cmake")
-    if(BUILD_SHARED_LIBS)
-      set(AOM_DISABLE_GTEST_CMAKE 1)
-    endif()
+    message(
+      FATAL_ERROR "--- Unit tests require Python, rerun cmake with "
+                  "-DENABLE_TESTS=0 to avoid this error, or install Python and "
+                  "make sure it's in your PATH.")
   endif()
 
   if(BUILD_SHARED_LIBS AND APPLE) # Silence an RPATH warning.
@@ -247,16 +240,10 @@ if(ENABLE_TESTS)
   include_directories(
     "${AOM_ROOT}/third_party/googletest/src/googletest/include")
 
-  if(AOM_DISABLE_GTEST_CMAKE)
-    include_directories("${AOM_ROOT}/third_party/googletest/src/googletest")
-    add_library(
-      gtest
-      STATIC
-      "${AOM_ROOT}/third_party/googletest/src/googletest/src/gtest-all.cc")
-  else()
-    add_subdirectory("${AOM_ROOT}/third_party/googletest/src/googletest"
-                     EXCLUDE_FROM_ALL)
-  endif()
+  include_directories("${AOM_ROOT}/third_party/googletest/src/googletest")
+  add_library(
+    libaom_gtest STATIC
+    "${AOM_ROOT}/third_party/googletest/src/googletest/src/gtest-all.cc")
 endif()
 
 # Setup testdata download targets, test build targets, and test run targets. The
@@ -307,12 +294,12 @@ function(setup_aom_test_targets)
       add_executable(test_intra_pred_speed ${AOM_TEST_INTRA_PRED_SPEED_SOURCES}
                      $<TARGET_OBJECTS:aom_common_app_util>)
       target_link_libraries(test_intra_pred_speed ${AOM_LIB_LINK_TYPE} aom
-                            gtest)
+                            libaom_gtest)
       list(APPEND AOM_APP_TARGETS test_intra_pred_speed)
     endif()
   endif()
 
-  target_link_libraries(test_libaom ${AOM_LIB_LINK_TYPE} aom gtest)
+  target_link_libraries(test_libaom ${AOM_LIB_LINK_TYPE} aom libaom_gtest)
 
   if(CONFIG_LIBYUV)
     target_sources(test_libaom PRIVATE $<TARGET_OBJECTS:yuv>)
@@ -357,13 +344,12 @@ function(setup_aom_test_targets)
     foreach(test_index RANGE ${max_file_index})
       list(GET test_files ${test_index} test_file)
       list(GET test_file_checksums ${test_index} test_file_checksum)
-      add_custom_target(testdata_${test_index}
-                        COMMAND
-                          ${CMAKE_COMMAND} -DAOM_CONFIG_DIR="${AOM_CONFIG_DIR}"
-                          -DAOM_ROOT="${AOM_ROOT}"
-                          -DAOM_TEST_FILE="${test_file}"
-                          -DAOM_TEST_CHECKSUM=${test_file_checksum} -P
-                          "${AOM_ROOT}/test/test_data_download_worker.cmake")
+      add_custom_target(
+        testdata_${test_index}
+        COMMAND ${CMAKE_COMMAND} -DAOM_CONFIG_DIR="${AOM_CONFIG_DIR}"
+                -DAOM_ROOT="${AOM_ROOT}" -DAOM_TEST_FILE="${test_file}"
+                -DAOM_TEST_CHECKSUM=${test_file_checksum} -P
+                "${AOM_ROOT}/test/test_data_download_worker.cmake")
       list(APPEND testdata_targets testdata_${test_index})
     endforeach()
 
@@ -407,7 +393,7 @@ function(setup_aom_test_targets)
   foreach(var ${all_cmake_vars})
 
     # https://github.com/cheshirekow/cmake_format/issues/34
-# cmake-format: off
+    # cmake-format: off
     if (("${var}" MATCHES "_TEST_" AND NOT
          "${var}" MATCHES
          "_DATA_\|_CMAKE_\|INTRA_PRED\|_COMPILED\|_HOSTING\|_PERF_\|CODER_")
