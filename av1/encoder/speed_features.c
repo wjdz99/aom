@@ -63,8 +63,8 @@ static unsigned int tx_domain_dist_thresholds[MAX_TX_DOMAIN_EVAL_SPEED + 1] = {
 // based on block MSE
 // TODO(any): Extend the threshold logic for lower presets and refine the
 // thresholds
-static unsigned int coeff_opt_dist_thresholds[5] = { UINT_MAX, UINT_MAX, 162754,
-                                                     22026, 22026 };
+static unsigned int coeff_opt_dist_thresholds[5] = { UINT_MAX, 22026, 22026,
+                                                     403, 403 };
 // scaling values to be used for gating wedge/compound segment based on best
 // approximate rd
 static int comp_type_rd_threshold_mul[3] = { 1, 11, 12 };
