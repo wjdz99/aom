@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6f3b1a0a_5f709341",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3667,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-01-12T00:23:04Z",
+      "side": 1,
+      "message": "simple_motion_search_get_best_ref calls some SIMD functions, so on machines that use mmx, we will need to reset it before doing float operations. I could save the var and sses in a different array and then perform all the floating point operations at the end, but I don\u0027t think there is going to be any performance difference.",
+      "parentUuid": "7794bba0_0c035f1e",
+      "range": {
+        "startLine": 3667,
+        "startChar": 4,
+        "endLine": 3667,
+        "endChar": 26
+      },
+      "revId": "6251a660aa7b6b861db383cfdd33dee37880b9c7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "95df8ee7_f8068ef3",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 15
@@ -45,6 +69,30 @@
       "revId": "6251a660aa7b6b861db383cfdd33dee37880b9c7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a24c3055_aea8b959",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 4125,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-01-12T00:23:04Z",
+      "side": 1,
+      "message": "\u003e Is it possible to move the ml related code to a separate function?\n\nYeah, no problem.",
+      "parentUuid": "95df8ee7_f8068ef3",
+      "range": {
+        "startLine": 4078,
+        "startChar": 0,
+        "endLine": 4125,
+        "endChar": 3
+      },
+      "revId": "6251a660aa7b6b861db383cfdd33dee37880b9c7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
