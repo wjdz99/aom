@@ -25,6 +25,53 @@
     },
     {
       "key": {
+        "uuid": "a92b2c72_3b02f5c3",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-01-14T20:16:46Z",
+      "side": 1,
+      "message": "I think 8 * (1 + 1/2 + 1/2) \u003d 16 is the correct value. VideoLan\u0027s website supports this:\n\nhttps://wiki.videolan.org/YUV/",
+      "parentUuid": "b0bb18e5_fbb19cb3",
+      "range": {
+        "startLine": 60,
+        "startChar": 9,
+        "endLine": 60,
+        "endChar": 25
+      },
+      "revId": "5063bbb8d80a1da893ece96fb1e1ba346e0b2356",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "38bb92f2_0f5596e7",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-01-14T20:16:46Z",
+      "side": 1,
+      "message": "The bps value for AOM_IMG_FMT_I42216 is also wrong here. Should be 32, not 48.",
+      "range": {
+        "startLine": 64,
+        "startChar": 9,
+        "endLine": 64,
+        "endChar": 27
+      },
+      "revId": "5063bbb8d80a1da893ece96fb1e1ba346e0b2356",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9ffab534_ae9e06c2",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 1
@@ -45,6 +92,30 @@
       "revId": "5063bbb8d80a1da893ece96fb1e1ba346e0b2356",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10b4e3b9_36aabfb5",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-01-14T20:16:46Z",
+      "side": 1,
+      "message": "16 is the correct value.",
+      "parentUuid": "9ffab534_ae9e06c2",
+      "range": {
+        "startLine": 469,
+        "startChar": 9,
+        "endLine": 469,
+        "endChar": 25
+      },
+      "revId": "5063bbb8d80a1da893ece96fb1e1ba346e0b2356",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
