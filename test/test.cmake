@@ -244,13 +244,8 @@ if(ENABLE_TESTS)
   add_library(
     aom_gtest
     STATIC "${AOM_ROOT}/third_party/googletest/src/googletest/src/gtest-all.cc")
-  if(MSVC OR WIN32)
-    target_compile_definitions(aom_gtest PRIVATE GTEST_OS_WINDOWS=1)
-  elseif(CONFIG_MULTITHREAD AND CMAKE_USE_PTHREADS_INIT)
-    target_compile_definitions(aom_gtest PRIVATE GTEST_HAS_PTHREAD=1)
-  else()
-    target_compile_definitions(aom_gtest PRIVATE GTEST_HAS_PTHREAD=0)
-  endif()
+  #target_compile_definitions(aom_gtest PRIVATE GTEST_IS_THREADSAFE=0)
+  target_compile_definitions(aom_gtest PRIVATE GTEST_HAS_SEH=0)
 endif()
 
 # Setup testdata download targets, test build targets, and test run targets. The
