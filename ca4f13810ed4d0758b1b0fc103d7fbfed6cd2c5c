@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33bfc4aa_df9dbabc",
+        "filename": "aom_scale/generic/yv12config.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-01-14T18:36:55Z",
+      "side": 0,
+      "message": "The error returns at line 124 and this line may result in a null ybf-\u003ebuffer_alloc and a nonzero ybf-\u003ebuffer_alloc_sz. I believe we always check for a non-null ybf-\u003ebuffer_alloc before using ybf-\u003ebuffer_alloc_sz, so strictly speaking this change is unnecessary, but I think it is good to maintain an invariant on related fields.",
+      "range": {
+        "startLine": 127,
+        "startChar": 30,
+        "endLine": 127,
+        "endChar": 39
+      },
+      "revId": "ca4f13810ed4d0758b1b0fc103d7fbfed6cd2c5c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
