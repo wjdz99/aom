@@ -114,8 +114,8 @@ class ExternalFrameBufferList {
     return 0;
   }
 
-  // Checks that the ximage data is contained within the external frame buffer
-  // private data passed back in the ximage.
+  // Checks that the aom_image_t data is contained within the external frame
+  // buffer private data passed back in the aom_image_t.
   void CheckXImageFrameBuffer(const aom_image_t *img) {
     if (img->fb_priv != NULL) {
       const struct ExternalFrameBuffer *const ext_fb =
