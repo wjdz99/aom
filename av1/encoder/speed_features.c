@@ -305,6 +305,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_wedge_search_edge_thresh = 0;
     // TODO(any): evaluate this speed feature for speed 1
     sf->disable_interinter_wedge_newmv_search = 1;
+    sf->disable_smooth_interintra = boosted ? 0 : 1;
     sf->fast_wedge_sign_estimate = 1;
     sf->disable_dual_filter = 1;
     sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
@@ -581,6 +582,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->skip_sharp_interp_filter_search = 0;
   sf->prune_comp_type_by_comp_avg = 0;
   sf->disable_interinter_wedge_newmv_search = 0;
+  sf->disable_smooth_interintra = 0;
   sf->prune_motion_mode_level = 0;
   sf->prune_warp_using_wmtype = 0;
 
