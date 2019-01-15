@@ -368,6 +368,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->tx_size_search_method = USE_LARGESTALL;
     sf->mv.search_method = BIGDIA;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
+    sf->adaptive_mode_search = 2;
     sf->adaptive_rd_thresh = 4;
     sf->mode_search_skip_flags =
         (cm->current_frame.frame_type == KEY_FRAME)
@@ -400,12 +401,10 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->intra_y_mode_mask[TX_64X64] = INTRA_DC;
     sf->intra_y_mode_mask[TX_32X32] = INTRA_DC;
     sf->frame_parameter_update = 0;
-    sf->mv.search_method = FAST_HEX;
     sf->partition_search_type = REFERENCE_PARTITION;
     sf->mode_search_skip_flags |= FLAG_SKIP_INTRA_DIRMISMATCH;
   }
   if (speed >= 8) {
-    sf->mv.search_method = FAST_DIAMOND;
     sf->mv.subpel_force_stop = HALF_PEL;
     sf->lpf_pick = LPF_PICK_MINIMAL_LPF;
   }
