@@ -399,7 +399,6 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->default_min_partition_size = BLOCK_8X8;
     sf->intra_y_mode_mask[TX_64X64] = INTRA_DC;
     sf->intra_y_mode_mask[TX_32X32] = INTRA_DC;
-    sf->frame_parameter_update = 0;
     sf->mv.search_method = FAST_HEX;
     sf->partition_search_type = REFERENCE_PARTITION;
     sf->mode_search_skip_flags |= FLAG_SKIP_INTRA_DIRMISMATCH;
