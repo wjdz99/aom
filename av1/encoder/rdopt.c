@@ -12190,11 +12190,6 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
            mbmi->mode == SMOOTH_V_PRED))
         continue;
       if (!cpi->oxcf.enable_paeth_intra && mbmi->mode == PAETH_PRED) continue;
-      if (sf->adaptive_mode_search)
-        if ((x->source_variance << num_pels_log2_lookup[bsize]) >
-            search_state.best_pred_sse)
-          continue;
-
       if (this_mode != DC_PRED) {
         // Only search the oblique modes if the best so far is
         // one of the neighboring directional modes
