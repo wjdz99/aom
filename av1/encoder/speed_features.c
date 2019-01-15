@@ -425,13 +425,6 @@ void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi) {
     sf->adaptive_pred_interp_filter = 0;
   }
 
-  // Check for masked out split cases.
-  for (i = 0; i < MAX_REFS; ++i) {
-    if (sf->disable_split_mask & (1 << i)) {
-      rd->thresh_mult_sub8x8[i] = INT_MAX;
-    }
-  }
-
   // This is only used in motion vector unit test.
   if (cpi->oxcf.motion_vector_unit_test == 1)
     cpi->find_fractional_mv_step = av1_return_max_sub_pixel_mv;

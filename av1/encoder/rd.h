@@ -283,7 +283,6 @@ typedef struct RD_OPT {
   // is used in combination with the current block size, and thresh_freq_fact
   // to pick a threshold.
   int thresh_mult[MAX_MODES];
-  int thresh_mult_sub8x8[MAX_REFS];
 
   int threshes[MAX_SEGMENTS][BLOCK_SIZES_ALL][MAX_MODES];
 
