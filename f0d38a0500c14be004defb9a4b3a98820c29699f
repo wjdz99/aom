@@ -22,6 +22,30 @@
       "revId": "f0d38a0500c14be004defb9a4b3a98820c29699f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d4bd592_57ec7c05",
+        "filename": "aom_scale/yv12config.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 10122
+      },
+      "writtenOn": "2019-01-15T12:02:35Z",
+      "side": 1,
+      "message": "Decoder have on the fly padding in case of motion vector goes out of frame (which covers resizing as well). However we need 32 pixel padding for each plane to take care of alignment required for intrinsics. Making AOM_DEC_BORDER_IN_PIXELS 64 will pad luma with 64 and chroma with 32 pixel(for 420 format) which takes care of above requirement.",
+      "parentUuid": "9bf9dedd_c6dd26cd",
+      "range": {
+        "startLine": 36,
+        "startChar": 8,
+        "endLine": 36,
+        "endChar": 35
+      },
+      "revId": "f0d38a0500c14be004defb9a4b3a98820c29699f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
