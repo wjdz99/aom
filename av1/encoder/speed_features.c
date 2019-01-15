@@ -368,6 +368,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->tx_size_search_method = USE_LARGESTALL;
     sf->mv.search_method = BIGDIA;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
+    sf->adaptive_mode_search = 2;
     sf->adaptive_rd_thresh = 4;
     sf->mode_search_skip_flags =
         (cm->current_frame.frame_type == KEY_FRAME)
