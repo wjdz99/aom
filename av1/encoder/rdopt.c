@@ -8801,30 +8801,11 @@ static int txfm_search(const AV1_COMP *cpi, const TileDataEnc *tile_data,
     av1_merge_rd_stats(rd_stats, rd_stats_uv);
   }
 
-  if (rd_stats->skip) {
-    rd_stats->rate -= rd_stats_uv->rate + rd_stats_y->rate;
-    rd_stats_y->rate = 0;
-    rd_stats_uv->rate = 0;
-    rd_stats->dist = rd_stats->sse;
-    rd_stats_y->dist = rd_stats_y->sse;
-    rd_stats_uv->dist = rd_stats_uv->sse;
-    rd_stats->rate += skip_flag_cost[1];
-    mbmi->skip = 1;
-    // here mbmi->skip temporarily plays a role as what this_skip2 does
-
-    const int64_t tmprd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
-    if (tmprd > ref_best_rd) {
-      mbmi->ref_frame[1] = ref_frame_1;
-      return 0;
-    }
-#if CONFIG_ONE_PASS_SVM
-    av1_reg_stat_skipmode_update(rd_stats_y, x->rdmult);
-#endif
-  } else if (!xd->lossless[mbmi->segment_id] &&
-             (RDCOST(x->rdmult,
-                     rd_stats_y->rate + rd_stats_uv->rate + skip_flag_cost[0],
-                     rd_stats->dist) >=
-              RDCOST(x->rdmult, skip_flag_cost[1], rd_stats->sse))) {
+  if (!xd->lossless[mbmi->segment_id] &&
+      (RDCOST(x->rdmult,
+              rd_stats_y->rate + rd_stats_uv->rate + skip_flag_cost[0],
+              rd_stats->dist) >=
+       RDCOST(x->rdmult, skip_flag_cost[1], rd_stats->sse))) {
     rd_stats->rate -= rd_stats_uv->rate + rd_stats_y->rate;
     rd_stats->rate += skip_flag_cost[1];
     rd_stats->dist = rd_stats->sse;
