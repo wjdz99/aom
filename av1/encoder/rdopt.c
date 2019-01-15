@@ -8900,7 +8900,8 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
   mbmi->ref_frame[1] = INTRA_FRAME;
   best_interintra_mode = args->inter_intra_mode[mbmi->ref_frame[0]];
 
-  if (cpi->oxcf.enable_smooth_interintra) {
+  if (cpi->oxcf.enable_smooth_interintra &&
+      !cpi->sf.disable_smooth_interintra) {
     mbmi->use_wedge_interintra = 0;
     int j = 0;
     if (cpi->sf.reuse_inter_intra_mode == 0 ||
@@ -8925,7 +8926,8 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       }
       args->inter_intra_mode[mbmi->ref_frame[0]] = best_interintra_mode;
     }
-    assert(IMPLIES(!cpi->oxcf.enable_smooth_interintra,
+    assert(IMPLIES((!cpi->oxcf.enable_smooth_interintra ||
+                    cpi->sf.disable_smooth_interintra),
                    best_interintra_mode != II_SMOOTH_PRED));
     rmode = interintra_mode_cost[best_interintra_mode];
     if (j == 0 || best_interintra_mode != II_SMOOTH_PRED) {
@@ -8944,6 +8946,8 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       return -1;
     }
   }
+  // TODO(any): is_wedge_used always set as 1,so do cleanup
+  // if is_wedge_used == 0 taken care outside
   if (is_wedge_used) {
     int64_t best_interintra_rd_nowedge = rd;
     int64_t best_interintra_rd_wedge = INT64_MAX;
@@ -8954,7 +8958,8 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       rwedge = av1_cost_literal(get_interintra_wedge_bits(bsize)) +
                x->wedge_interintra_cost[bsize][1];
 
-      if (!cpi->oxcf.enable_smooth_interintra) {
+      if (!cpi->oxcf.enable_smooth_interintra ||
+          cpi->sf.disable_smooth_interintra) {
         if (best_interintra_mode == INTERINTRA_MODES) {
           mbmi->interintra_mode = II_SMOOTH_PRED;
           best_interintra_mode = II_SMOOTH_PRED;
@@ -9034,7 +9039,8 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
         rd = RDCOST(x->rdmult, rmode + tmp_rate_mv + rwedge + rate_sum,
                     dist_sum);
       best_interintra_rd_wedge = rd;
-      if (!cpi->oxcf.enable_smooth_interintra &&
+      if ((!cpi->oxcf.enable_smooth_interintra ||
+           cpi->sf.disable_smooth_interintra) &&
           best_interintra_rd_wedge == INT64_MAX)
         return -1;
       if (best_interintra_rd_wedge < best_interintra_rd_nowedge) {
@@ -9048,10 +9054,14 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
         av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, orig_dst, bsize);
       }
     } else {
-      if (!cpi->oxcf.enable_smooth_interintra) return -1;
+      if (!cpi->oxcf.enable_smooth_interintra ||
+          cpi->sf.disable_smooth_interintra)
+        return -1;
       mbmi->use_wedge_interintra = 0;
     }
-  }  // if (is_wedge_used)
+  } else {
+    if (best_interintra_rd == INT64_MAX) return -1;
+  }
   if (num_planes > 1) {
     av1_build_inter_predictors_sbuv(cm, xd, mi_row, mi_col, orig_dst, bsize);
   }
