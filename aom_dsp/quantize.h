@@ -16,6 +16,8 @@
 
 #include "aom_dsp/aom_dsp_common.h"
 
+#define OPTIMIZED_QUANT_B 1
+
 #ifdef __cplusplus
 extern "C" {
 #endif
