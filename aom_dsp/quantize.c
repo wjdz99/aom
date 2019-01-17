@@ -11,6 +11,7 @@
 
 #include "aom_dsp/quantize.h"
 #include "aom_mem/aom_mem.h"
+#include <stdio.h>
 
 void quantize_b_helper_c(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
                          const int16_t *zbin_ptr, const int16_t *round_ptr,
@@ -35,8 +36,14 @@ void quantize_b_helper_c(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
     const qm_val_t wt = qm_ptr != NULL ? qm_ptr[rc] : (1 << AOM_QM_BITS);
     const int coeff = coeff_ptr[rc] * wt;
 
+#if OPTIMIZED_QUANT_B
+    int prescan_add = ROUND_POWER_OF_TWO(dequant_ptr[rc != 0] * 325, 7);
+    if (coeff < (zbins[rc != 0] * (1 << AOM_QM_BITS) + prescan_add) &&
+        coeff > (nzbins[rc != 0] * (1 << AOM_QM_BITS) - prescan_add))
+#else
     if (coeff < (zbins[rc != 0] * (1 << AOM_QM_BITS)) &&
         coeff > (nzbins[rc != 0] * (1 << AOM_QM_BITS)))
+#endif
       non_zero_count--;
     else
       break;
@@ -101,8 +108,14 @@ void highbd_quantize_b_helper_c(
 
     // If the coefficient is out of the base ZBIN range, keep it for
     // quantization.
+#if OPTIMIZED_QUANT_B
+    int prescan_add = ROUND_POWER_OF_TWO(dequant_ptr[rc != 0] * 325, 7);
+    if (coeff < (zbins[rc != 0] * (1 << AOM_QM_BITS) + prescan_add) &&
+        coeff > (nzbins[rc != 0] * (1 << AOM_QM_BITS) - prescan_add))
+#else
     if (coeff >= (zbins[rc != 0] * (1 << AOM_QM_BITS)) ||
         coeff <= (nzbins[rc != 0] * (1 << AOM_QM_BITS)))
+#endif
       idx_arr[idx++] = i;
   }
 
@@ -139,6 +152,7 @@ void aom_quantize_b_c(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
                       tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr,
                       const int16_t *dequant_ptr, uint16_t *eob_ptr,
                       const int16_t *scan, const int16_t *iscan) {
+  printf("here 1\n");
   quantize_b_helper_c(coeff_ptr, n_coeffs, zbin_ptr, round_ptr, quant_ptr,
                       quant_shift_ptr, qcoeff_ptr, dqcoeff_ptr, dequant_ptr,
                       eob_ptr, scan, iscan, NULL, NULL, 0);
@@ -151,6 +165,7 @@ void aom_quantize_b_32x32_c(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
                             tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr,
                             const int16_t *dequant_ptr, uint16_t *eob_ptr,
                             const int16_t *scan, const int16_t *iscan) {
+  printf("here 2\n");
   quantize_b_helper_c(coeff_ptr, n_coeffs, zbin_ptr, round_ptr, quant_ptr,
                       quant_shift_ptr, qcoeff_ptr, dqcoeff_ptr, dequant_ptr,
                       eob_ptr, scan, iscan, NULL, NULL, 1);

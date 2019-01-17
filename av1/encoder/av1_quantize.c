@@ -281,6 +281,30 @@ void av1_quantize_b_facade(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
                         dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
                         sc->iscan, qm_ptr, iqm_ptr, qparam->log_scale);
   } else {
+    //TODO(sarahparker) These quantize_b optimizations need SIMD implementations
+#if OPTIMIZED_QUANT_B
+    switch (qparam->log_scale) {
+      case 0:
+        aom_quantize_b_c(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX,
+                       p->quant_QTX, p->quant_shift_QTX, qcoeff_ptr,
+                       dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
+                       sc->iscan);
+        break;
+      case 1:
+        aom_quantize_b_32x32_c(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX,
+                             p->quant_QTX, p->quant_shift_QTX, qcoeff_ptr,
+                             dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
+                             sc->iscan);
+        break;
+      case 2:
+        aom_quantize_b_64x64_c(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX,
+                             p->quant_QTX, p->quant_shift_QTX, qcoeff_ptr,
+                             dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
+                             sc->iscan);
+        break;
+      default: assert(0);
+    }
+#else
     switch (qparam->log_scale) {
       case 0:
         aom_quantize_b(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX,
@@ -302,6 +326,7 @@ void av1_quantize_b_facade(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
         break;
       default: assert(0);
     }
+#endif
   }
 }
 
@@ -314,8 +339,7 @@ static void quantize_dc(const tran_low_t *coeff_ptr, int n_coeffs,
   const int rc = 0;
   const int coeff = coeff_ptr[rc];
   const int coeff_sign = (coeff >> 31);
-  const int abs_coeff = (coeff ^ coeff_sign) - coeff_sign;
-  int64_t tmp;
+  const int abs_coeff = (coeff ^ coeff_sign) - coeff_sign; int64_t tmp;
   int eob = -1;
   int32_t tmp32;
   int dequant;
