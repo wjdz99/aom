@@ -94,6 +94,30 @@
       "revId": "f0d38a0500c14be004defb9a4b3a98820c29699f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b582c33b_d11d60a1",
+        "filename": "aom_scale/yv12config.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-01-17T17:58:50Z",
+      "side": 1,
+      "message": "Regarding \"API level, since currently pad length is set by the application ex. Lightfield Decoder\", the pad length is set the same as the one for internal frame buffer. Namely, if the internal frame buffer padding gets changed, the pad length in lightfield should be changed accordingly. This shouldn\u0027t cause issue for your change.\n\nThanks for looking deep. We can check in this patch for now while you continue with the study.",
+      "parentUuid": "18debd02_64b2a8f6",
+      "range": {
+        "startLine": 36,
+        "startChar": 8,
+        "endLine": 36,
+        "endChar": 35
+      },
+      "revId": "f0d38a0500c14be004defb9a4b3a98820c29699f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
