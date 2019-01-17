@@ -57,7 +57,7 @@ static uint8_t intrabc_max_mesh_pct[MAX_MESH_SPEED + 1] = { 100, 100, 100,
 // TODO(any): Extend the threshold logic for faster presets and refine the
 // thresholds
 static unsigned int tx_domain_dist_thresholds[MAX_TX_DOMAIN_EVAL_SPEED + 1] = {
-  UINT_MAX, 162754, 22026, 0, 0, 0
+  UINT_MAX, 162754, 22026, 22026, 22026, 0
 };
 // Threshold values to be used for disabling coeff RD-optimization
 // based on block MSE
