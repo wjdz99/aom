@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2be1eee_6e98c3e6",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 8823,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-01-18T16:59:56Z",
+      "side": 0,
+      "message": "How this part can be removed? Is rd_stats-\u003eskip\u003d1 handled somewhere else?",
+      "range": {
+        "startLine": 8804,
+        "startChar": 2,
+        "endLine": 8823,
+        "endChar": 3
+      },
+      "revId": "8055cda91d1f5d82c90137faf0166704b7e2fb84",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
