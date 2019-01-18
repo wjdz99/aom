@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3c9fdb52_bc9062ea",
+        "filename": "aom_dsp/quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-01-18T19:50:31Z",
+      "side": 1,
+      "message": "I think it is better to keep the multiplier (1 \u003c\u003c AOM_QM_BITS) the same and move the addition to inside, i.e.\nint prescan_add \u003d ROUND_POWER_OF_TWO(dequant_ptr[rc !\u003d 0] * 325, 7 - AOM_QM_BITS);\nif (coeff \u003c (zbins[rc !\u003d 0] + prescan_add) * (1 \u003c\u003c AOM_QM_BITS) \u0026\u0026\n    coeff \u003e (nzbins[rc !\u003d 0] - prescan_add) * (1 \u003c\u003c AOM_QM_BITS))",
+      "revId": "30b82d5e94c92ca80c1b0b79c19030bfb6f90ffe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "926eb5a4_3e899fe6",
+        "filename": "aom_dsp/quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-01-18T19:50:31Z",
+      "side": 1,
+      "message": "ditto\nalso you need to correct the checks (\u003e\u003d and \u003c\u003d instead of \u003c and \u003e)",
+      "revId": "30b82d5e94c92ca80c1b0b79c19030bfb6f90ffe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
