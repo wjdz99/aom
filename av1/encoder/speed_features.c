@@ -109,6 +109,7 @@ static void set_good_speed_feature_framesize_dependent(AV1_COMP *cpi,
   AV1_COMMON *const cm = &cpi->common;
   const int is_720p_or_larger = AOMMIN(cm->width, cm->height) >= 720;
   const int is_480p_or_larger = AOMMIN(cm->width, cm->height) >= 480;
+  const int boosted = frame_is_boosted(cpi);
 
   if (is_480p_or_larger) {
     sf->use_square_partition_only_threshold = BLOCK_128X128;
@@ -172,8 +173,8 @@ static void set_good_speed_feature_framesize_dependent(AV1_COMP *cpi,
   if (speed >= 3) {
     if (is_720p_or_larger) {
       sf->disable_split_mask = DISABLE_ALL_SPLIT;
-      sf->partition_search_breakout_dist_thr = (1 << 25);
-      sf->partition_search_breakout_rate_thr = 200;
+      sf->partition_search_breakout_dist_thr = boosted ? (1 << 25) : (1 << 26);
+      sf->partition_search_breakout_rate_thr = boosted ? 200 : 300;
     } else {
       sf->max_intra_bsize = BLOCK_32X32;
       sf->disable_split_mask = DISABLE_ALL_INTER_SPLIT;
