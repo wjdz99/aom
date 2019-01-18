@@ -336,6 +336,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     // it with cpi->sf.disable_wedge_search_var_thresh.
     sf->disable_wedge_interintra_search = 1;
     sf->perform_coeff_opt = boosted ? 0 : 3;
+    sf->mv.search_method = boosted ? sf->mv.search_method : BIGDIA;
   }
 
   if (speed >= 4) {
