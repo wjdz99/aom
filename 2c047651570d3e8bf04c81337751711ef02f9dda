@@ -16,6 +16,24 @@
       "revId": "2c047651570d3e8bf04c81337751711ef02f9dda",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9723e95_755dec65",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 6821,
+      "author": {
+        "id": 9974
+      },
+      "writtenOn": "2019-01-21T10:54:21Z",
+      "side": 1,
+      "message": "I think existing code in av1_get_compressed_data() assumes show_existing_frame only happens in pass 2.  I added this assertion to verify that show_existing_frame only occurs in pass2 (I have tests which I believe cover all existing encode strategies).\n\nIt probably makes most sense to remove this assertion and for anybody utilising pass0/pass1 show_existing_frame to verify that the encoder behaves as expected.",
+      "parentUuid": "db73ec69_62411f69",
+      "revId": "2c047651570d3e8bf04c81337751711ef02f9dda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
