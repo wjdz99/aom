@@ -8874,6 +8874,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
   MACROBLOCKD *xd = &x->e_mbd;
 
   INTERINTRA_MODE best_interintra_mode = II_DC_PRED;
+  INTERINTRA_MODE best_interintra_mode_tmp;
   int64_t rd = INT64_MAX;
   int64_t best_interintra_rd = INT64_MAX;
   int rmode, rate_sum;
@@ -8899,6 +8900,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
   restore_dst_buf(xd, *orig_dst, num_planes);
   mbmi->ref_frame[1] = INTRA_FRAME;
   best_interintra_mode = args->inter_intra_mode[mbmi->ref_frame[0]];
+  best_interintra_mode_tmp = best_interintra_mode;
 
   if (cpi->oxcf.enable_smooth_interintra) {
     mbmi->use_wedge_interintra = 0;
@@ -8927,18 +8929,25 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
     }
     assert(IMPLIES(!cpi->oxcf.enable_smooth_interintra,
                    best_interintra_mode != II_SMOOTH_PRED));
-    rmode = interintra_mode_cost[best_interintra_mode];
+
     if (j == 0 || best_interintra_mode != II_SMOOTH_PRED) {
       mbmi->interintra_mode = best_interintra_mode;
       av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
                                                 intrapred, bw);
       av1_combine_interintra(xd, bsize, 0, tmp_buf, bw, intrapred, bw);
     }
-    rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
-                             &tmp_skip_txfm_sb, &tmp_skip_sse_sb, INT64_MAX);
-    if (rd != INT64_MAX)
-      rd = RDCOST(x->rdmult, *rate_mv + rmode + rate_sum + rwedge, dist_sum);
-    best_interintra_rd = rd;
+
+    if (ref_best_rd < INT64_MAX && (best_interintra_rd >> 2) < ref_best_rd) {
+      rmode = interintra_mode_cost[best_interintra_mode];
+      rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
+                               &tmp_skip_txfm_sb, &tmp_skip_sse_sb, INT64_MAX);
+      if (rd != INT64_MAX)
+        rd = RDCOST(x->rdmult, *rate_mv + rmode + rate_sum + rwedge, dist_sum);
+      best_interintra_rd = rd;
+
+    } else {
+      args->inter_intra_mode[mbmi->ref_frame[0]] = best_interintra_mode_tmp;
+    }
     if (ref_best_rd < INT64_MAX &&
         ((best_interintra_rd >> 4) * 9) > ref_best_rd) {
       return -1;
