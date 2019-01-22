@@ -1715,7 +1715,8 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
         unsigned char const *block_offset[4];
 
         for (t = 0; t < 4; t++)
-          block_offset[t] = ss[i + t].offset + best_address;
+          block_offset[t] = ss[i + t].mv.row * in_what_stride +
+                            ss[i + t].mv.row + best_address;
 
         fn_ptr->sdx4df(what, what_stride, block_offset, in_what_stride,
                        sad_array);
@@ -1740,7 +1741,8 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
                              best_mv->col + ss[i].mv.col };
 
         if (is_mv_in(&x->mv_limits, &this_mv)) {
-          const uint8_t *const check_here = ss[i].offset + best_address;
+          const uint8_t *const check_here =
+              ss[i].mv.row * in_what_stride + ss[i].mv.col + best_address;
           unsigned int thissad =
               fn_ptr->sdf(what, what_stride, check_here, in_what_stride);
 
@@ -1759,7 +1761,8 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
       x->second_best_mv.as_mv = *best_mv;
       best_mv->row += ss[best_site].mv.row;
       best_mv->col += ss[best_site].mv.col;
-      best_address += ss[best_site].offset;
+      best_address +=
+          ss[best_site].mv.row * in_what_stride + ss[best_site].mv.col;
       last_site = best_site;
 #if defined(NEW_DIAMOND_SEARCH)
       while (1) {
@@ -2625,8 +2628,9 @@ static int obmc_diamond_search_sad(const MACROBLOCK *x,
       const MV mv = { best_mv->row + ss[i].mv.row,
                       best_mv->col + ss[i].mv.col };
       if (is_mv_in(&x->mv_limits, &mv)) {
-        int sad = fn_ptr->osdf(best_address + ss[i].offset, in_what->stride,
-                               wsrc, mask);
+        int sad = fn_ptr->osdf(best_address + (ss[i].mv.row * in_what->stride +
+                                               ss[i].mv.col) /*ss[i].offset*/,
+                               in_what->stride, wsrc, mask);
         if (sad < best_sad) {
           sad += mvsad_err_cost(x, &mv, &fcenter_mv, sad_per_bit);
           if (sad < best_sad) {
@@ -2642,7 +2646,8 @@ static int obmc_diamond_search_sad(const MACROBLOCK *x,
     if (best_site != last_site) {
       best_mv->row += ss[best_site].mv.row;
       best_mv->col += ss[best_site].mv.col;
-      best_address += ss[best_site].offset;
+      best_address +=
+          ss[best_site].mv.row * in_what->stride + ss[best_site].mv.col;
       last_site = best_site;
 #if defined(NEW_DIAMOND_SEARCH)
       while (1) {
