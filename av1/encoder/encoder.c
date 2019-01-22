@@ -855,7 +855,7 @@ static void alloc_raw_frame_buffers(AV1_COMP *cpi) {
     cpi->lookahead = av1_lookahead_init(
         oxcf->width, oxcf->height, seq_params->subsampling_x,
         seq_params->subsampling_y, seq_params->use_highbitdepth,
-        oxcf->lag_in_frames, oxcf->border_in_pixels);
+        oxcf->lag_in_frames, 64);
   if (!cpi->lookahead)
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate lag buffers");
