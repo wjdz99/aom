@@ -508,6 +508,17 @@ void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc,
         av1_cost_tokens_from_cdf(pcost->base_cost[ctx],
                                  fc->coeff_base_cdf[tx_size][plane][ctx], NULL);
 
+      for (int ctx = 0; ctx < SIG_COEF_CONTEXTS; ++ctx) {
+        pcost->base_cost[ctx][4] = 0;
+        pcost->base_cost[ctx][5] = pcost->base_cost[ctx][0] -
+                                   pcost->base_cost[ctx][1] -
+                                   av1_cost_literal(1);
+        pcost->base_cost[ctx][6] =
+            pcost->base_cost[ctx][1] - pcost->base_cost[ctx][2];
+        pcost->base_cost[ctx][7] =
+            pcost->base_cost[ctx][2] - pcost->base_cost[ctx][3];
+      }
+
       for (int ctx = 0; ctx < EOB_COEF_CONTEXTS; ++ctx)
         av1_cost_tokens_from_cdf(pcost->eob_extra_cost[ctx],
                                  fc->eob_extra_cdf[tx_size][plane][ctx], NULL);
