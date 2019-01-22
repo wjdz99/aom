@@ -1673,7 +1673,9 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
   // 0 = initial step (MAX_FIRST_STEP) pel
   // 1 = (MAX_FIRST_STEP/2) pel,
   // 2 = (MAX_FIRST_STEP/4) pel...
-  const search_site *ss = &cfg->ss[search_param * cfg->searches_per_step];
+  search_site_config temp;
+  av1_init3smotion_compensation(&temp, in_what_stride);
+  const search_site *ss = &temp.ss[search_param * cfg->searches_per_step];
   const int tot_steps = (cfg->ss_count / cfg->searches_per_step) - search_param;
 
   const MV fcenter_mv = { center_mv->row >> 3, center_mv->col >> 3 };
@@ -2598,7 +2600,11 @@ static int obmc_diamond_search_sad(const MACROBLOCK *x,
   // of iterations
   // 0 = initial step (MAX_FIRST_STEP) pel : 1 = (MAX_FIRST_STEP/2) pel, 2 =
   // (MAX_FIRST_STEP/4) pel... etc.
-  const search_site *const ss = &cfg->ss[search_param * cfg->searches_per_step];
+  search_site_config temp;
+  av1_init3smotion_compensation(&temp, in_what->stride);
+  const search_site *const ss = &temp.ss[search_param * cfg->searches_per_step];
+  // const search_site *const ss = &cfg->ss[search_param *
+  // cfg->searches_per_step];
   const int tot_steps = (cfg->ss_count / cfg->searches_per_step) - search_param;
   const MV fcenter_mv = { center_mv->row >> 3, center_mv->col >> 3 };
   const uint8_t *best_address, *in_what_ref;
