@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17d10961_32f5142e",
+        "filename": "examples/build_av1_dec_fuzzer.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-01-23T21:09:47Z",
+      "side": 1,
+      "message": "add a period at the end of this sentence to match the others",
+      "range": {
+        "startLine": 47,
+        "startChar": 53,
+        "endLine": 47,
+        "endChar": 62
+      },
+      "revId": "5136c702aad2d532acc25b1b637d02a72bed25ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc10f6a6_a544666f",
+        "filename": "examples/build_av1_dec_fuzzer.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-01-23T21:09:47Z",
+      "side": 1,
+      "message": "RelWithDebInfo might be enough rather than explicitly setting the C/CXXFLAGS",
+      "range": {
+        "startLine": 52,
+        "startChar": 38,
+        "endLine": 52,
+        "endChar": 45
+      },
+      "revId": "5136c702aad2d532acc25b1b637d02a72bed25ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ff17b57_1327260b",
+        "filename": "examples/build_av1_dec_fuzzer.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-01-23T21:09:47Z",
+      "side": 1,
+      "message": "these are compiler options",
+      "range": {
+        "startLine": 53,
+        "startChar": 45,
+        "endLine": 53,
+        "endChar": 70
+      },
+      "revId": "5136c702aad2d532acc25b1b637d02a72bed25ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
