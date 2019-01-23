@@ -101,7 +101,9 @@ int av1_optimize_b(const struct AV1_COMP *cpi, MACROBLOCK *mb, int plane,
                    const TXB_CTX *const txb_ctx, int fast_mode,
                    int *rate_cost) {
   MACROBLOCKD *const xd = &mb->e_mbd;
+  const AV1_COMMON *const cm = &cpi->common;
   struct macroblock_plane *const p = &mb->plane[plane];
+  const struct macroblockd_plane *const pd = &xd->plane[plane];
   const int eob = p->eobs[block];
   const int segment_id = xd->mi[0]->segment_id;
 
@@ -111,9 +113,91 @@ int av1_optimize_b(const struct AV1_COMP *cpi, MACROBLOCK *mb, int plane,
     return eob;
   }
 
+
+  ////////////////////
+  FILE *f = fopen("coeffs.txt", "a");
+  const SCAN_ORDER *scan_order = get_scan(tx_size, tx_type);
+  const int16_t *scan = scan_order->scan;
+  uint8_t tw = tx_size_wide[tx_size];
+  uint8_t th = tx_size_high[tx_size];
+  tran_low_t *const coeff = BLOCK_OFFSET(p->coeff, block);
+  tran_low_t *const qcoeff = BLOCK_OFFSET(p->qcoeff, block);
+  const TX_SIZE qm_tx_size = av1_get_adjusted_tx_size(tx_size);
+  // Use a flat matrix (i.e. no weighting) for 1D and Identity transforms
+  const qm_val_t *qmatrix =
+      IS_2D_TRANSFORM(tx_type) ? pd->seg_qmatrix[segment_id][qm_tx_size]
+                               : cm->gqmatrix[NUM_QM_LEVELS - 1][0][qm_tx_size];
+  const qm_val_t *iqmatrix =
+      IS_2D_TRANSFORM(tx_type)
+          ? pd->seg_iqmatrix[segment_id][qm_tx_size]
+          : cm->giqmatrix[NUM_QM_LEVELS - 1][0][qm_tx_size];
+  uint16_t eob2 = (uint16_t)eob;
+  int16_t dq0 = p->dequant_QTX[0];
+  int16_t dq1 = p->dequant_QTX[1];
+  int16_t q0 = p->quant_fp_QTX[0];
+  int16_t q1 = p->quant_fp_QTX[1];
+  int16_t round0 = p->round_fp_QTX[0];
+  int16_t round1 = p->round_fp_QTX[1];
+  //TODO(sarahparker), these need to be the full list
+  int8_t wt0 = qmatrix ? qmatrix[0] : (1 << AOM_QM_BITS);
+  int8_t wt1 = qmatrix ? qmatrix[1] : (1 << AOM_QM_BITS);
+  int8_t use_wt = !(qmatrix == NULL && iqmatrix == NULL);
+  int8_t log_scale = av1_get_tx_scale(tx_size);
+  if (tw == 32 && th == 32) log_scale = 1;
+  if (tw == 64 && th == 64) log_scale = 2;
+  if (cm->current_frame.frame_number % 5) {
+    fseek(f, 0, SEEK_END);
+    fwrite(&tw, 1, sizeof(tw), f);
+    fwrite(&th, 1, sizeof(th), f);
+
+
+    fwrite(&dq0, 1, sizeof(dq0), f);
+    fwrite(&dq1, 1, sizeof(dq1), f);
+    fwrite(&q0, 1, sizeof(q0), f);
+    fwrite(&q1, 1, sizeof(q1), f);
+    fwrite(&round0, 1, sizeof(round0), f);
+    fwrite(&round1, 1, sizeof(round1), f);
+    fwrite(&wt0, 1, sizeof(wt0), f);
+    fwrite(&wt1, 1, sizeof(wt1), f);
+    fwrite(&use_wt, 1, sizeof(use_wt), f);
+    fwrite(&log_scale, 1, sizeof(log_scale), f);
+    fwrite(&eob2, 1, sizeof(eob2), f);
+
+    for (int i = 0; i < eob; i++) {
+      const int16_t ci = scan[i];
+      fwrite(&ci, 1, sizeof(ci), f);
+    }
+
+    for (int i = 0; i < eob; i++) {
+      const int16_t ci = scan[i];
+      const tran_low_t c = coeff[ci];
+      fwrite(&c, 1, sizeof(c), f);
+    }
+
+    for (int i = 0; i < eob; i++) {
+      const int16_t ci = scan[i];
+      const tran_low_t qc = qcoeff[ci];
+      fwrite(&qc, 1, sizeof(qc), f);
+    }
+  }
+
   (void)fast_mode;
-  return av1_optimize_txb_new(cpi, mb, plane, block, tx_size, tx_type, txb_ctx,
-                              rate_cost, cpi->oxcf.sharpness);
+  int txb_new = av1_optimize_txb_new(cpi, mb, plane, block, tx_size, tx_type, txb_ctx,
+                                    rate_cost, cpi->oxcf.sharpness);
+  if (cm->current_frame.frame_number % 5) {
+    uint16_t eob3 = (uint16_t)txb_new;
+    fwrite(&eob3, 1, sizeof(eob3), f);
+    for (int i = 0; i < eob3; i++) {
+      const int ci = scan[i];
+      const tran_low_t qc = qcoeff[ci];
+      fwrite(&qc, 1, sizeof(qc), f);
+    }
+
+  }
+  ////////////////
+
+  fclose(f);
+  return txb_new;
 }
 
 enum {
