@@ -334,6 +334,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     // it with cpi->sf.disable_wedge_search_var_thresh.
     sf->disable_wedge_interintra_search = 1;
     sf->perform_coeff_opt = boosted ? 0 : 3;
+    sf->adaptive_txb_search_level = boosted ? 2 : 3;
   }
 
   if (speed >= 4) {
