@@ -7870,19 +7870,11 @@ static int64_t build_and_cost_compound_type(
       *out_rate_mv = interinter_compound_motion_search(
           cpi, x, cur_mv, bsize, this_mode, mi_row, mi_col);
       av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, ctx, bsize);
-      int rate_sum, tmp_skip_txfm_sb;
-      int64_t dist_sum, tmp_skip_sse_sb;
-      model_rd_sb_fn[MODELRD_TYPE_MASKED_COMPOUND](
-          cpi, bsize, x, xd, 0, 0, mi_row, mi_col, &rate_sum, &dist_sum,
-          &tmp_skip_txfm_sb, &tmp_skip_sse_sb, NULL, NULL, NULL);
-      rd = RDCOST(x->rdmult, *rs2 + *out_rate_mv + rate_sum, dist_sum);
-      if (rd >= best_rd_cur) {
-        mbmi->mv[0].as_int = cur_mv[0].as_int;
-        mbmi->mv[1].as_int = cur_mv[1].as_int;
-        *out_rate_mv = rate_mv;
-        av1_build_wedge_inter_predictor_from_buf(xd, bsize, 0, 0, preds0,
-                                                 strides, preds1, strides);
-      }
+      mbmi->mv[0].as_int = cur_mv[0].as_int;
+      mbmi->mv[1].as_int = cur_mv[1].as_int;
+      *out_rate_mv = rate_mv;
+      av1_build_wedge_inter_predictor_from_buf(xd, bsize, 0, 0, preds0,
+                                               strides, preds1, strides);
     } else {
       *out_rate_mv = rate_mv;
       av1_build_wedge_inter_predictor_from_buf(xd, bsize, 0, 0, preds0, strides,
