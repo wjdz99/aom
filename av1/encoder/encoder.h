@@ -607,6 +607,7 @@ typedef struct AV1_COMP {
   struct lookahead_ctx *lookahead;
   struct lookahead_entry *alt_ref_source;
   int no_show_kf;
+  int use_opt_b_adapt;
 
   int optimize_speed_feature;
   int optimize_seg_arr[MAX_SEGMENTS];
