@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b55fd8b_81191312",
+        "filename": "examples/build_av1_dec_fuzzer.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-01-23T01:57:56Z",
+      "side": 1,
+      "message": "better to do set -eu to avoid it being overrided with base ./build_av1_dec_fuzzer.sh",
+      "range": {
+        "startLine": 1,
+        "startChar": 12,
+        "endLine": 1,
+        "endChar": 3
+      },
+      "revId": "af4ea396fa74845d3ae97faf5bf2180447efe568",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cf75224_3b4efc49",
+        "filename": "examples/build_av1_dec_fuzzer.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-01-23T01:57:56Z",
+      "side": 1,
+      "message": "this is a very old workaround for \u0027test\u0027, you can just use [[ -z \"$CC\" ]] now",
+      "range": {
+        "startLine": 34,
+        "startChar": 5,
+        "endLine": 34,
+        "endChar": 15
+      },
+      "revId": "af4ea396fa74845d3ae97faf5bf2180447efe568",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d244f95_7c0d0ef1",
+        "filename": "examples/build_av1_dec_fuzzer.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-01-23T01:57:56Z",
+      "side": 1,
+      "message": "environment",
+      "range": {
+        "startLine": 35,
+        "startChar": 19,
+        "endLine": 35,
+        "endChar": 32
+      },
+      "revId": "af4ea396fa74845d3ae97faf5bf2180447efe568",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7684457_9564fa23",
+        "filename": "examples/build_av1_dec_fuzzer.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-01-23T01:57:56Z",
+      "side": 1,
+      "message": "same 2 comments here",
+      "revId": "af4ea396fa74845d3ae97faf5bf2180447efe568",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75b42ea1_c849cb03",
+        "filename": "examples/build_av1_dec_fuzzer.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-01-23T01:57:56Z",
+      "side": 1,
+      "message": "I don\u0027t see that; did you miss a -DSANITIZE\u003daddress?",
+      "range": {
+        "startLine": 45,
+        "startChar": 1,
+        "endLine": 45,
+        "endChar": 34
+      },
+      "revId": "af4ea396fa74845d3ae97faf5bf2180447efe568",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
