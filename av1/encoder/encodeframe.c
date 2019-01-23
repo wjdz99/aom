@@ -3545,7 +3545,7 @@ static void full_pixel_motion_search_based_split(
     nn_config = &full_pixel_motion_search_based_split_nn_config_16;
     split_only_thresh = full_pixel_motion_search_based_split_thresh_16;
   } else if (bsize == BLOCK_8X8) {
-    // Disable BLOCK_8X8 for now
+  // Disable BLOCK_8X8 for now
 #if !CONFIG_DISABLE_FULL_PIXEL_SPLIT_8X8
     nn_config = &full_pixel_motion_search_based_split_nn_config_8;
     split_only_thresh = full_pixel_motion_search_based_split_thresh_8;
