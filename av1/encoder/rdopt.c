@@ -8891,6 +8891,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
   const int_mv mv0 = mbmi->mv[0];
   const int is_wedge_used = is_interintra_wedge_used(bsize);
   int rwedge = is_wedge_used ? x->wedge_interintra_cost[bsize][0] : 0;
+  int have_newmv = have_newmv_in_inter_mode(mbmi->mode);
   mbmi->ref_frame[1] = NONE_FRAME;
   xd->plane[0].dst.buf = tmp_buf;
   xd->plane[0].dst.stride = bw;
@@ -8900,7 +8901,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
   mbmi->ref_frame[1] = INTRA_FRAME;
   best_interintra_mode = args->inter_intra_mode[mbmi->ref_frame[0]];
 
-  if (cpi->oxcf.enable_smooth_interintra) {
+  if (cpi->oxcf.enable_smooth_interintra && have_newmv) {
     mbmi->use_wedge_interintra = 0;
     int j = 0;
     if (cpi->sf.reuse_inter_intra_mode == 0 ||
@@ -8954,7 +8955,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       rwedge = av1_cost_literal(get_interintra_wedge_bits(bsize)) +
                x->wedge_interintra_cost[bsize][1];
 
-      if (!cpi->oxcf.enable_smooth_interintra) {
+      if (!cpi->oxcf.enable_smooth_interintra || !have_newmv) {
         if (best_interintra_mode == INTERINTRA_MODES) {
           mbmi->interintra_mode = II_SMOOTH_PRED;
           best_interintra_mode = II_SMOOTH_PRED;
@@ -9034,7 +9035,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
         rd = RDCOST(x->rdmult, rmode + tmp_rate_mv + rwedge + rate_sum,
                     dist_sum);
       best_interintra_rd_wedge = rd;
-      if (!cpi->oxcf.enable_smooth_interintra &&
+      if ((!cpi->oxcf.enable_smooth_interintra || !have_newmv) &&
           best_interintra_rd_wedge == INT64_MAX)
         return -1;
       if (best_interintra_rd_wedge < best_interintra_rd_nowedge) {
@@ -9048,10 +9049,12 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
         av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, orig_dst, bsize);
       }
     } else {
-      if (!cpi->oxcf.enable_smooth_interintra) return -1;
+      if ((!cpi->oxcf.enable_smooth_interintra || !have_newmv)) return -1;
       mbmi->use_wedge_interintra = 0;
     }
-  }  // if (is_wedge_used)
+  } else {
+    if (best_interintra_rd == INT64_MAX) return -1;
+  }
   if (num_planes > 1) {
     av1_build_inter_predictors_sbuv(cm, xd, mi_row, mi_col, orig_dst, bsize);
   }
