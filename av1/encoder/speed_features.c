@@ -333,7 +333,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
     // it with cpi->sf.disable_wedge_search_var_thresh.
     sf->disable_wedge_interintra_search = 1;
-    sf->perform_coeff_opt = boosted ? 0 : 3;
+    sf->perform_coeff_opt = 3;
   }
 
   if (speed >= 4) {
@@ -348,7 +348,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->cb_partition_search = !boosted;
     sf->alt_ref_search_fp = 1;
     sf->skip_sharp_interp_filter_search = 1;
-    sf->perform_coeff_opt = boosted ? 0 : 4;
+    sf->perform_coeff_opt = 4;
   }
 
   if (speed >= 5) {
