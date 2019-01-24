@@ -652,6 +652,10 @@ typedef struct SPEED_FEATURES {
 
   // Flag used to control the extent of coeff R-D optimization
   int perform_coeff_opt;
+
+  // prune wedge and compound segment approximate rd evaluation based on
+  // compound average modeled rd
+  int prune_comp_type_by_model_rd;
 } SPEED_FEATURES;
 
 struct AV1_COMP;

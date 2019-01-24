@@ -280,6 +280,7 @@ static void set_good_speed_features_framesize_independent(
     sf->cb_pred_filter_search = 1;
     sf->use_transform_domain_distortion = boosted ? 0 : 1;
     sf->perform_coeff_opt = boosted ? 0 : 1;
+    sf->prune_comp_type_by_model_rd = 1;
   }
 
   if (speed >= 2) {
@@ -573,6 +574,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
 
   sf->disable_wedge_interintra_search = 0;
   sf->perform_coeff_opt = 0;
+  sf->prune_comp_type_by_model_rd = 0;
 
   if (oxcf->mode == GOOD)
     set_good_speed_features_framesize_independent(cpi, sf, speed);
