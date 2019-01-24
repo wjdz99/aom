@@ -664,6 +664,46 @@ static INLINE int assign_dv(AV1_COMMON *cm, MACROBLOCKD *xd, int_mv *mv,
   return valid;
 }
 
+static void clip_dv(MV *dv, const AV1_COMMON *cm, const MACROBLOCKD *xd,
+                    int mi_row, int mi_col, BLOCK_SIZE bsize) {
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+  const int SCALE_PX_TO_MV = 8;
+  const TileInfo *const tile = &xd->tile;
+  const int src_top_edge = mi_row * MI_SIZE * SCALE_PX_TO_MV;
+  const int tile_top_edge = tile->mi_row_start * MI_SIZE * SCALE_PX_TO_MV;
+  if (src_top_edge + dv->row < tile_top_edge)
+    dv->row = tile_top_edge - src_top_edge;
+  const int src_left_edge = mi_col * MI_SIZE * SCALE_PX_TO_MV;
+  const int tile_left_edge = tile->mi_col_start * MI_SIZE * SCALE_PX_TO_MV;
+  if (src_left_edge + dv->col < tile_left_edge)
+    dv->col = tile_left_edge - src_left_edge;
+
+  const int src_bottom_edge = (mi_row * MI_SIZE + bh) * SCALE_PX_TO_MV;
+  const int tile_bottom_edge = tile->mi_row_end * MI_SIZE * SCALE_PX_TO_MV;
+  if (src_bottom_edge + dv->row > tile_bottom_edge)
+    dv->row = tile_bottom_edge - tile_bottom_edge;
+  const int src_right_edge = (mi_col * MI_SIZE + bw) * SCALE_PX_TO_MV;
+  const int tile_right_edge = tile->mi_col_end * MI_SIZE * SCALE_PX_TO_MV;
+  if (src_right_edge + dv->col > tile_right_edge)
+    dv->col = tile_right_edge - tile_right_edge;
+
+  // Special case for sub 8x8 chroma cases, to prevent referring to chroma
+  // pixels outside current tile.
+  for (int plane = 1; plane < av1_num_planes(cm); ++plane) {
+    const struct macroblockd_plane *const pd = &xd->plane[plane];
+    if (is_chroma_reference(mi_row, mi_col, bsize, pd->subsampling_x,
+                            pd->subsampling_y)) {
+      if (bw < 8 && pd->subsampling_x)
+        if (src_left_edge + dv->col < tile_left_edge + 4 * SCALE_PX_TO_MV)
+          dv->col = tile_left_edge - src_left_edge;
+      if (bh < 8 && pd->subsampling_y)
+        if (src_top_edge + dv->row < tile_top_edge + 4 * SCALE_PX_TO_MV)
+          dv->row = tile_top_edge - src_top_edge;
+    }
+  }
+}
+
 static void read_intrabc_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                               int mi_row, int mi_col, aom_reader *r) {
   MB_MODE_INFO *const mbmi = xd->mi[0];
@@ -700,6 +740,7 @@ static void read_intrabc_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     if (!valid_dv) {
       // Intra bc motion vectors are not valid - signal corrupt frame
       aom_merge_corrupted_flag(&xd->corrupted, 1);
+      clip_dv(&mbmi->mv[0].as_mv, cm, xd, mi_row, mi_col, bsize);
     }
   }
 }
