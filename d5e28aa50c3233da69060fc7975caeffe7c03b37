@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d094673_851e9066",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-01-24T21:42:18Z",
+      "side": 1,
+      "message": "I think the only downside of the change is that \u0027rounding\u0027 value is calculated repeatedly for \"i \u003e\u003d 1\".\nDid you see a speed difference?\nIf so, pre-computing \u0027rounding\u0027 values for \"rc \u003d\u003d 0\" and \"rc !\u003d 0\" case outside the loop may help.",
+      "range": {
+        "startLine": 56,
+        "startChar": 21,
+        "endLine": 56,
+        "endChar": 40
+      },
+      "revId": "d5e28aa50c3233da69060fc7975caeffe7c03b37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbb86f53_84817e9e",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-01-24T21:42:18Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 56,
+        "startChar": 6,
+        "endLine": 56,
+        "endChar": 9
+      },
+      "revId": "d5e28aa50c3233da69060fc7975caeffe7c03b37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "683b8665_e096f121",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-01-24T21:42:18Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 57,
+        "startChar": 6,
+        "endLine": 57,
+        "endChar": 13
+      },
+      "revId": "d5e28aa50c3233da69060fc7975caeffe7c03b37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
