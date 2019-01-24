@@ -9611,7 +9611,7 @@ typedef struct {
 
 static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
                             BLOCK_SIZE bsize, int mi_col, int mi_row,
-                            int_mv *cur_mv, int masked_compound_used,
+                            const int_mv *cur_mv, int masked_compound_used,
                             BUFFER_SET *orig_dst, const BUFFER_SET *tmp_dst,
                             CompoundTypeRdBuffers *buffers, int *rate_mv,
                             int64_t *rd, RD_STATS *rd_stats,
@@ -9621,7 +9621,6 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
   MB_MODE_INFO *mbmi = xd->mi[0];
   const PREDICTION_MODE this_mode = mbmi->mode;
   const int bw = block_size_wide[bsize];
-  int rs2;
   int_mv best_mv[2];
   int best_tmp_rate_mv = *rate_mv;
   INTERINTER_COMPOUND_DATA best_compound_data;
@@ -9629,29 +9628,30 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
   uint8_t *preds0[1] = { buffers->pred0 };
   uint8_t *preds1[1] = { buffers->pred1 };
   int strides[1] = { bw };
-  int tmp_rate_mv;
   const int num_pix = 1 << num_pels_log2_lookup[bsize];
   const int mask_len = 2 * num_pix * sizeof(uint8_t);
-  COMPOUND_TYPE cur_type;
   int best_compmode_interinter_cost = 0;
   int calc_pred_masked_compound = 1;
   int64_t comp_dist[COMPOUND_TYPES] = { INT64_MAX, INT64_MAX, INT64_MAX };
   int32_t comp_rate[COMPOUND_TYPES] = { INT_MAX, INT_MAX, INT_MAX };
   const int match_found = find_comp_rd_in_stats(x, mbmi, comp_rate, comp_dist);
+  const int comp_group_idx_ctx = get_comp_group_idx_context(xd);
+  const int comp_index_ctx = get_comp_index_context(cm, xd);
+
+  mbmi->compound_idx = 1;
   best_mv[0].as_int = cur_mv[0].as_int;
   best_mv[1].as_int = cur_mv[1].as_int;
   *rd = INT64_MAX;
-  for (cur_type = COMPOUND_AVERAGE; cur_type < COMPOUND_TYPES; cur_type++) {
+  for (COMPOUND_TYPE cur_type = COMPOUND_AVERAGE; cur_type < COMPOUND_TYPES;
+       cur_type++) {
     if (cur_type != COMPOUND_AVERAGE && !masked_compound_used) break;
     if (!is_interinter_compound_used(cur_type, bsize)) continue;
-    tmp_rate_mv = *rate_mv;
-    int64_t best_rd_cur = INT64_MAX;
     mbmi->interinter_comp.type = cur_type;
-    int masked_type_cost = 0;
 
-    const int comp_group_idx_ctx = get_comp_group_idx_context(xd);
-    const int comp_index_ctx = get_comp_index_context(cm, xd);
-    mbmi->compound_idx = 1;
+    int tmp_rate_mv = *rate_mv;
+    int64_t best_rd_cur = INT64_MAX;
+    int masked_type_cost = 0;
+    int rs2;
     if (cur_type == COMPOUND_AVERAGE) {
       mbmi->comp_group_idx = 0;
       if (masked_compound_used) {
@@ -9690,24 +9690,23 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       // use spare buffer for following compound type try
       restore_dst_buf(xd, *tmp_dst, 1);
     } else {
-      mbmi->comp_group_idx = 1;
-      masked_type_cost += x->comp_group_idx_cost[comp_group_idx_ctx][1];
-      masked_type_cost += x->compound_type_cost[bsize][cur_type - 1];
-      rs2 = masked_type_cost;
-
       if (((*rd / cpi->max_comp_type_rd_threshold_div) *
            cpi->max_comp_type_rd_threshold_mul) < ref_best_rd) {
         const COMPOUND_TYPE compound_type = mbmi->interinter_comp.type;
-
         if (!((compound_type == COMPOUND_WEDGE &&
                !enable_wedge_interinter_search(x, cpi)) ||
               (compound_type == COMPOUND_DIFFWTD &&
-               !cpi->oxcf.enable_diff_wtd_comp)))
+               !cpi->oxcf.enable_diff_wtd_comp))) {
+          mbmi->comp_group_idx = 1;
+          masked_type_cost += x->comp_group_idx_cost[comp_group_idx_ctx][1];
+          masked_type_cost += x->compound_type_cost[bsize][cur_type - 1];
+          rs2 = masked_type_cost;
           best_rd_cur = build_and_cost_compound_type(
               cpi, x, cur_mv, bsize, this_mode, &rs2, *rate_mv, orig_dst,
               &tmp_rate_mv, preds0, preds1, buffers->residual1, buffers->diff10,
               strides, mi_row, mi_col, rd_stats->rate, ref_best_rd,
               &calc_pred_masked_compound, comp_rate, comp_dist);
+        }
       }
     }
     if (best_rd_cur < *rd) {
