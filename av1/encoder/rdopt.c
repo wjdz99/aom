@@ -1907,14 +1907,18 @@ static void prune_tx(const AV1_COMP *cpi, BLOCK_SIZE bsize, MACROBLOCK *x,
   x->tx_search_prune[tx_set_type] = 0;
   x->tx_split_prune_flag = 0;
   const MB_MODE_INFO *mbmi = xd->mi[0];
+  int prune = 0;
   if (!is_inter_block(mbmi) || cpi->sf.tx_type_search.prune_mode == NO_PRUNE ||
       x->use_default_inter_tx_type || xd->lossless[mbmi->segment_id] ||
       x->cb_partition_scan)
     return;
+  if (cpi->oxcf.use_inter_dct_only) {
+    x->tx_search_prune[tx_set_type] = !(1 << DCT_DCT);
+    return;
+  }
   int tx_set = ext_tx_set_index[1][tx_set_type];
   assert(tx_set >= 0);
   const int *tx_set_1D = ext_tx_used_inter_1D[tx_set];
-  int prune = 0;
   switch (cpi->sf.tx_type_search.prune_mode) {
     case NO_PRUNE: return;
     case PRUNE_ONE:
@@ -3113,7 +3117,9 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   }
   const uint16_t ext_tx_used_flag = av1_ext_tx_used_flag[tx_set_type];
   if (xd->lossless[mbmi->segment_id] || txsize_sqr_up_map[tx_size] > TX_32X32 ||
-      ext_tx_used_flag == 0x0001) {
+      ext_tx_used_flag == 0x0001 ||
+      (is_inter && cpi->oxcf.use_inter_dct_only) ||
+      (!is_inter && cpi->oxcf.use_intra_dct_only)) {
     txk_start = txk_end = DCT_DCT;
   }
   uint16_t allowed_tx_mask = 0;  // 1: allow; 0: skip.
