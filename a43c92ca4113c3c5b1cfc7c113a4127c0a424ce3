@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7bdb6b15_10647d7a",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-01-25T18:17:29Z",
+      "side": 1,
+      "message": "assign_dv() will check if the DV is valid. If not, the decoder would mark the bitstream as corrupted, as done in line 742. Why do we need to clip the DV at this point?",
+      "range": {
+        "startLine": 743,
+        "startChar": 6,
+        "endLine": 743,
+        "endChar": 13
+      },
+      "revId": "a43c92ca4113c3c5b1cfc7c113a4127c0a424ce3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
