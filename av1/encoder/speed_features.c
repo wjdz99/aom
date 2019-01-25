@@ -315,6 +315,7 @@ static void set_good_speed_features_framesize_independent(
     sf->tx_size_search_method = boosted ? USE_FULL_RD : USE_LARGESTALL;
     sf->less_rectangular_check_level = 2;
     sf->adaptive_pred_interp_filter = 1;
+    sf->disable_loop_restoration_filter_search = boosted ? 0 : 1;
     // adaptive_motion_search breaks encoder multi-thread tests.
     // The values in x->pred_mv[] differ for single and multi-thread cases.
     // See aomedia:1778.
@@ -550,6 +551,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->gm_disable_recode = 0;
   sf->use_fast_interpolation_filter_search = 0;
   sf->disable_dual_filter = 0;
+  sf->disable_loop_restoration_filter_search = 0;
   sf->skip_repeat_interpolation_filter_search = 0;
   sf->use_hash_based_trellis = 0;
   sf->prune_comp_search_by_single_result = 0;
