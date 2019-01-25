@@ -867,6 +867,21 @@ typedef struct AV1_COMP {
 #endif
   // Set if screen content is set or relevant tools are enabled
   int is_screen_content_type;
+#if CONFIG_COLLECT_PARTITION_STATS
+  int *partition_decisions;
+  int *partition_attempted;
+  int partition_decisions_128[10];
+  int partition_attempted_128[10];
+  int partition_decisions_64[10];
+  int partition_attempted_64[10];
+  int partition_decisions_32[10];
+  int partition_attempted_32[10];
+  int partition_decisions_16[10];
+  int partition_attempted_16[10];
+  int partition_decisions_8[10];
+  int partition_attempted_8[10];
+  int partition_redo;
+#endif
 } AV1_COMP;
 
 // EncodeFrameParams contains per-frame encoding parameters decided upon by
