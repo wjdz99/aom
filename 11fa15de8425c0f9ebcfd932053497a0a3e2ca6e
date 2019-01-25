@@ -70,6 +70,30 @@
       "revId": "11fa15de8425c0f9ebcfd932053497a0a3e2ca6e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f455116_02767ee7",
+        "filename": "av1/encoder/partition_model_weights.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 3788,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-01-25T22:47:08Z",
+      "side": 1,
+      "message": "\u003e I think so. If AV2 includes this header file, and it happens to have another array named \"two_pass_split_partition_weights_128\", wouldn\u0027t there be a naming conflict?\n\nAll right, I didn\u0027t consider AV2. Since there are multiple variables in this function without the \"av1\" prefix, I will just submit this patch and change the names in this file later.",
+      "parentUuid": "ba2310d7_966a4cb1",
+      "range": {
+        "startLine": 3788,
+        "startChar": 19,
+        "endLine": 3788,
+        "endChar": 55
+      },
+      "revId": "11fa15de8425c0f9ebcfd932053497a0a3e2ca6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
