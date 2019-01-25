@@ -3733,16 +3733,21 @@ static void simple_motion_search_prune_part(
     int *do_square_split, int *do_rectangular_split, int *prune_horz,
     int *prune_vert) {
   const AV1_COMMON *const cm = &cpi->common;
+  const SPEED_FEATURES *const sf = &cpi->sf;
   // Get model parameters
   const NN_CONFIG *nn_config = NULL;
   const float *prune_thresh = NULL, *only_thresh = NULL;
   const float *ml_mean = NULL, *ml_std = NULL;
 
   if (bsize == BLOCK_128X128) {
-    nn_config = &simple_motion_search_prune_part_nn_config_128;
+    nn_config = &simple_motion_search_prune_part_nn_config_64;
     ml_mean = simple_motion_search_prune_part_mean_128;
     ml_std = simple_motion_search_prune_part_std_128;
-    prune_thresh = simple_motion_search_prune_part_prune_thresh_128;
+    if (sf->simple_motion_search_prune_rect == 1) {
+      prune_thresh = simple_motion_search_prune_part_prune_thresh_128_agg_1;
+    } else if (sf->simple_motion_search_prune_rect == 2) {
+      prune_thresh = simple_motion_search_prune_part_prune_thresh_128;
+    }
     only_thresh = simple_motion_search_prune_part_only_thresh_128;
   } else if (bsize == BLOCK_64X64) {
     nn_config = &simple_motion_search_prune_part_nn_config_64;
@@ -3797,7 +3802,7 @@ static void simple_motion_search_prune_part(
   av1_nn_softmax(scores, probs, num_classes);
 
   // Determine if we should prune rectangular partitions.
-  if (cpi->sf.simple_motion_search_prune_rect && !frame_is_intra_only(cm) &&
+  if (sf->simple_motion_search_prune_rect && !frame_is_intra_only(cm) &&
       (*partition_horz_allowed || *partition_vert_allowed) &&
       bsize >= BLOCK_8X8 && !av1_superres_scaled(cm)) {
     *prune_horz = probs[PARTITION_HORZ] <= prune_thresh[PARTITION_HORZ];

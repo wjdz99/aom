@@ -270,6 +270,9 @@ static void set_good_speed_features_framesize_independent(
 
     sf->simple_motion_search_split_only = 1;
 
+    // Slightly more aggressive pruning for simple motion search on speed 1
+    sf->simple_motion_search_prune_rect = 2;
+
     sf->disable_wedge_search_var_thresh = 0;
     sf->disable_wedge_search_edge_thresh = 0;
     sf->disable_interinter_wedge_newmv_search = boosted ? 0 : 1;

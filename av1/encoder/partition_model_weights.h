@@ -2914,6 +2914,9 @@ static const float simple_motion_search_prune_part_only_thresh_8[10] = {
 
 // Thresholds for pruning a partition type
 // TODO(chiyotsai@google.com): Retune the thresholds for rectangular partition.
+static const float simple_motion_search_prune_part_prune_thresh_128_agg_1[10] =
+    { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+
 static const float simple_motion_search_prune_part_prune_thresh_128[10] = {
   0.0f, 0.0110f, 0.0110f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
 };

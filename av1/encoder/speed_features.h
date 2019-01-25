@@ -632,7 +632,8 @@ typedef struct SPEED_FEATURES {
   int prune_warp_using_wmtype;
 
   // Perform simple_motion_search on each possible subblock and use it to prune
-  // PARTITION_HORZ and PARTITION_VERT.
+  // PARTITION_HORZ and PARTITION_VERT. Set to 1 for less aggressive pruning, 2
+  // for more aggressive setting.
   int simple_motion_search_prune_rect;
 
   // Perform simple motion search before none_partition to decide if we
