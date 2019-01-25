@@ -4426,7 +4426,13 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
   } else {
     av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 1);
-    av1_pick_filter_restoration(cpi->source, cpi);
+    if (!cpi->sf.disable_loop_restoration_filter_search) {
+      av1_pick_filter_restoration(cpi->source, cpi);
+    } else {
+      cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
+      cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
+      cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+    }
     if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
         cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
         cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
