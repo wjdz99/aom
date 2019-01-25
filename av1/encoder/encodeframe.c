@@ -3827,6 +3827,25 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
 
   (void)*tp_orig;
 
+#if CONFIG_COLLECT_PARTITION_STATS
+  if (bsize == BLOCK_128X128) {
+    cpi->partition_decisions = cpi->partition_decisions_128;
+    cpi->partition_attempted = cpi->partition_attempted_128;
+  } else if (bsize == BLOCK_64X64) {
+    cpi->partition_decisions = cpi->partition_decisions_64;
+    cpi->partition_attempted = cpi->partition_attempted_64;
+  } else if (bsize == BLOCK_32X32) {
+    cpi->partition_decisions = cpi->partition_decisions_32;
+    cpi->partition_attempted = cpi->partition_attempted_32;
+  } else if (bsize == BLOCK_16X16) {
+    cpi->partition_decisions = cpi->partition_decisions_16;
+    cpi->partition_attempted = cpi->partition_attempted_16;
+  } else if (bsize == BLOCK_8X8) {
+    cpi->partition_decisions = cpi->partition_decisions_8;
+    cpi->partition_attempted = cpi->partition_attempted_8;
+  }
+#endif
+
   // Override partition costs at the edges of the frame in the same
   // way as in read_partition (see decodeframe.c)
   if (!(has_rows && has_cols)) {
@@ -4083,6 +4102,11 @@ BEGIN_PARTITION_SEARCH:
     const int64_t best_remain_rdcost =
         (best_rdc.rdcost == INT64_MAX) ? INT64_MAX
                                        : (best_rdc.rdcost - partition_rd_cost);
+#if CONFIG_COLLECT_PARTITION_STATS
+    if (!frame_is_intra_only(cm) && best_remain_rdcost >= 0) {
+      cpi->partition_attempted[PARTITION_NONE] += 1;
+    }
+#endif
     rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc,
                      PARTITION_NONE, bsize, ctx_none, best_remain_rdcost);
     pb_source_variance = x->source_variance;
@@ -4220,6 +4244,11 @@ BEGIN_PARTITION_SEARCH:
     sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
 
     int idx;
+#if CONFIG_COLLECT_PARTITION_STATS
+    if (!frame_is_intra_only(cm) && best_rdc.rdcost - sum_rdc.rdcost >= 0) {
+      cpi->partition_attempted[PARTITION_SPLIT] += 1;
+    }
+#endif
     for (idx = 0; idx < 4 && sum_rdc.rdcost < best_rdc.rdcost; ++idx) {
       const int x_idx = (idx & 1) * mi_step;
       const int y_idx = (idx >> 1) * mi_step;
@@ -4403,6 +4432,11 @@ BEGIN_PARTITION_SEARCH:
                                            : (best_rdc.rdcost - sum_rdc.rdcost);
     sum_rdc.rate = partition_cost[PARTITION_HORZ];
     sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
+#if CONFIG_COLLECT_PARTITION_STATS
+    if (!frame_is_intra_only(cm) && best_remain_rdcost >= 0) {
+      cpi->partition_attempted[PARTITION_HORZ] += 1;
+    }
+#endif
     rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc,
                      PARTITION_HORZ, subsize, &pc_tree->horizontal[0],
                      best_remain_rdcost);
@@ -4480,6 +4514,11 @@ BEGIN_PARTITION_SEARCH:
     const int64_t best_remain_rdcost = best_rdc.rdcost == INT64_MAX
                                            ? INT64_MAX
                                            : (best_rdc.rdcost - sum_rdc.rdcost);
+#if CONFIG_COLLECT_PARTITION_STATS
+    if (!frame_is_intra_only(cm) && best_remain_rdcost >= 0) {
+      cpi->partition_attempted[PARTITION_VERT] += 1;
+    }
+#endif
     rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc,
                      PARTITION_VERT, subsize, &pc_tree->vertical[0],
                      best_remain_rdcost);
@@ -4699,6 +4738,18 @@ BEGIN_PARTITION_SEARCH:
         pc_tree->horizontala[2].ref_selected[0] = split_mbmi[2]->ref_frame[0];
       }
     }
+#if CONFIG_COLLECT_PARTITION_STATS
+    {
+      RD_STATS tmp_sum_rdc;
+      av1_init_rd_stats(&tmp_sum_rdc);
+      tmp_sum_rdc.rate = x->partition_cost[pl][PARTITION_HORZ_A];
+      tmp_sum_rdc.rdcost = RDCOST(x->rdmult, tmp_sum_rdc.rate, 0);
+      if (!frame_is_intra_only(cm) &&
+          best_rdc.rdcost - tmp_sum_rdc.rdcost >= 0) {
+        cpi->partition_attempted[PARTITION_HORZ_A] += 1;
+      }
+    }
+#endif
     rd_test_partition3(cpi, td, tile_data, tp, pc_tree, &best_rdc,
                        pc_tree->horizontala, ctx_none, mi_row, mi_col, bsize,
                        PARTITION_HORZ_A, mi_row, mi_col, bsize2, mi_row,
@@ -4758,6 +4809,18 @@ BEGIN_PARTITION_SEARCH:
         pc_tree->horizontalb[2].ref_selected[0] = split_mbmi[3]->ref_frame[0];
       }
     }
+#if CONFIG_COLLECT_PARTITION_STATS
+    {
+      RD_STATS tmp_sum_rdc;
+      av1_init_rd_stats(&tmp_sum_rdc);
+      tmp_sum_rdc.rate = x->partition_cost[pl][PARTITION_HORZ_B];
+      tmp_sum_rdc.rdcost = RDCOST(x->rdmult, tmp_sum_rdc.rate, 0);
+      if (!frame_is_intra_only(cm) &&
+          best_rdc.rdcost - tmp_sum_rdc.rdcost >= 0) {
+        cpi->partition_attempted[PARTITION_HORZ_B] += 1;
+      }
+    }
+#endif
     rd_test_partition3(cpi, td, tile_data, tp, pc_tree, &best_rdc,
                        pc_tree->horizontalb, ctx_none, mi_row, mi_col, bsize,
                        PARTITION_HORZ_B, mi_row, mi_col, subsize,
@@ -4815,6 +4878,18 @@ BEGIN_PARTITION_SEARCH:
         pc_tree->verticala[2].ref_selected[0] = split_mbmi[1]->ref_frame[0];
       }
     }
+#if CONFIG_COLLECT_PARTITION_STATS
+    {
+      RD_STATS tmp_sum_rdc;
+      av1_init_rd_stats(&tmp_sum_rdc);
+      tmp_sum_rdc.rate = x->partition_cost[pl][PARTITION_VERT_A];
+      tmp_sum_rdc.rdcost = RDCOST(x->rdmult, tmp_sum_rdc.rate, 0);
+      if (!frame_is_intra_only(cm) &&
+          best_rdc.rdcost - tmp_sum_rdc.rdcost >= 0) {
+        cpi->partition_attempted[PARTITION_VERT_A] += 1;
+      }
+    }
+#endif
     rd_test_partition3(cpi, td, tile_data, tp, pc_tree, &best_rdc,
                        pc_tree->verticala, ctx_none, mi_row, mi_col, bsize,
                        PARTITION_VERT_A, mi_row, mi_col, bsize2,
@@ -4871,6 +4946,18 @@ BEGIN_PARTITION_SEARCH:
         pc_tree->verticalb[2].ref_selected[0] = split_mbmi[3]->ref_frame[0];
       }
     }
+#if CONFIG_COLLECT_PARTITION_STATS
+    {
+      RD_STATS tmp_sum_rdc;
+      av1_init_rd_stats(&tmp_sum_rdc);
+      tmp_sum_rdc.rate = x->partition_cost[pl][PARTITION_VERT_A];
+      tmp_sum_rdc.rdcost = RDCOST(x->rdmult, tmp_sum_rdc.rate, 0);
+      if (!frame_is_intra_only(cm) &&
+          best_rdc.rdcost - tmp_sum_rdc.rdcost >= 0) {
+        cpi->partition_attempted[PARTITION_VERT_B] += 1;
+      }
+    }
+#endif
     rd_test_partition3(cpi, td, tile_data, tp, pc_tree, &best_rdc,
                        pc_tree->verticalb, ctx_none, mi_row, mi_col, bsize,
                        PARTITION_VERT_B, mi_row, mi_col, subsize, mi_row,
@@ -4929,6 +5016,11 @@ BEGIN_PARTITION_SEARCH:
     sum_rdc.rate = partition_cost[PARTITION_HORZ_4];
     sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
 
+#if CONFIG_COLLECT_PARTITION_STATS
+    if (!frame_is_intra_only(cm) && best_rdc.rdcost - sum_rdc.rdcost >= 0) {
+      cpi->partition_attempted[PARTITION_HORZ_4] += 1;
+    }
+#endif
     for (int i = 0; i < 4; ++i) {
       const int this_mi_row = mi_row + i * quarter_step;
 
@@ -4975,6 +5067,11 @@ BEGIN_PARTITION_SEARCH:
     sum_rdc.rate = partition_cost[PARTITION_VERT_4];
     sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
 
+#if CONFIG_COLLECT_PARTITION_STATS
+    if (!frame_is_intra_only(cm) && best_rdc.rdcost - sum_rdc.rdcost >= 0) {
+      cpi->partition_attempted[PARTITION_HORZ_4] += 1;
+    }
+#endif
     for (int i = 0; i < 4; ++i) {
       const int this_mi_col = mi_col + i * quarter_step;
 
@@ -5012,6 +5109,11 @@ BEGIN_PARTITION_SEARCH:
     // Did not find a valid partition, go back and search again, with less
     // constraint on which partition types to search.
     x->must_find_valid_partition = 1;
+#if CONFIG_COLLECT_PARTITION_STATS
+    if (!frame_is_intra_only(cm)) {
+      cpi->partition_redo += 1;
+    }
+#endif
     goto BEGIN_PARTITION_SEARCH;
   }
 
@@ -5021,6 +5123,27 @@ BEGIN_PARTITION_SEARCH:
   // checks occur in some sub function and thus are used...
   (void)best_rd;
   *rd_cost = best_rdc;
+
+#if CONFIG_COLLECT_PARTITION_STATS
+  if (!frame_is_intra_only(cm) && best_rdc.rate < INT_MAX &&
+      best_rdc.dist < INT64_MAX) {
+    cpi->partition_decisions[pc_tree->partitioning] += 1;
+  }
+
+  if (bsize == BLOCK_64X64) {
+    cpi->partition_decisions = cpi->partition_decisions_128;
+    cpi->partition_attempted = cpi->partition_attempted_128;
+  } else if (bsize == BLOCK_32X32) {
+    cpi->partition_decisions = cpi->partition_decisions_64;
+    cpi->partition_attempted = cpi->partition_attempted_64;
+  } else if (bsize == BLOCK_16X16) {
+    cpi->partition_decisions = cpi->partition_decisions_32;
+    cpi->partition_attempted = cpi->partition_attempted_32;
+  } else if (bsize == BLOCK_8X8) {
+    cpi->partition_decisions = cpi->partition_decisions_16;
+    cpi->partition_attempted = cpi->partition_attempted_16;
+  }
+#endif
 
   if (best_rdc.rate < INT_MAX && best_rdc.dist < INT64_MAX &&
       pc_tree->index != 3) {

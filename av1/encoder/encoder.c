@@ -2827,6 +2827,22 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
     cpi->tpl_stats[frame].mi_cols = cm->mi_cols;
   }
 
+#if CONFIG_COLLECT_PARTITION_STATS
+  for (int part = PARTITION_NONE; part < EXT_PARTITION_TYPES; part++) {
+    cpi->partition_decisions_128[part] = 0;
+    cpi->partition_attempted_128[part] = 0;
+    cpi->partition_decisions_64[part] = 0;
+    cpi->partition_attempted_64[part] = 0;
+    cpi->partition_decisions_32[part] = 0;
+    cpi->partition_attempted_32[part] = 0;
+    cpi->partition_decisions_16[part] = 0;
+    cpi->partition_attempted_16[part] = 0;
+    cpi->partition_decisions_8[part] = 0;
+    cpi->partition_attempted_8[part] = 0;
+  }
+  cpi->partition_redo = 0;
+#endif
+
 #define BFP(BT, SDF, SDAF, VF, SVF, SVAF, SDX4DF, JSDAF, JSVAF) \
   cpi->fn_ptr[BT].sdf = SDF;                                    \
   cpi->fn_ptr[BT].sdaf = SDAF;                                  \
@@ -3144,6 +3160,43 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       fprintf(stdout, "tx_search_count = %d\n", cpi->tx_search_count);
     }
 #endif  // CONFIG_SPEED_STATS
+#if CONFIG_COLLECT_PARTITION_STATS
+    if (cpi->oxcf.pass != 1) {
+      FILE *f = fopen("partition_stats.csv", "w");
+      fprintf(f, "bsize,redo,");
+      for (int part = 0; part < 10; part++) {
+        fprintf(f, "decision_%d,", part);
+      }
+      for (int part = 0; part < 10; part++) {
+        fprintf(f, "attempt_%d,", part);
+      }
+      fprintf(f, "\n");
+
+      int bsizes[5] = { 128, 64, 32, 16, 8 };
+      int *decisions[5] = { cpi->partition_decisions_128,
+                            cpi->partition_decisions_64,
+                            cpi->partition_decisions_32,
+                            cpi->partition_decisions_16,
+                            cpi->partition_decisions_8 };
+      int *attempts[5] = { cpi->partition_attempted_128,
+                           cpi->partition_attempted_64,
+                           cpi->partition_attempted_32,
+                           cpi->partition_attempted_16,
+                           cpi->partition_attempted_8 };
+
+      for (int idx = 0; idx < 5; idx++) {
+        fprintf(f, "%d,%d,", bsizes[idx], cpi->partition_redo);
+        for (int part = 0; part < 10; part++) {
+          fprintf(f, "%d,", decisions[idx][part]);
+        }
+        for (int part = 0; part < 10; part++) {
+          fprintf(f, "%d,", attempts[idx][part]);
+        }
+        fprintf(f, "\n");
+      }
+      fclose(f);
+    }
+#endif
   }
 
   for (int frame = 0; frame < MAX_LAG_BUFFERS; ++frame) {
