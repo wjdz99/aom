@@ -3113,7 +3113,9 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   }
   const uint16_t ext_tx_used_flag = av1_ext_tx_used_flag[tx_set_type];
   if (xd->lossless[mbmi->segment_id] || txsize_sqr_up_map[tx_size] > TX_32X32 ||
-      ext_tx_used_flag == 0x0001) {
+      ext_tx_used_flag == 0x0001 ||
+      (is_inter && cpi->oxcf.use_inter_dct_only) ||
+      (!is_inter && cpi->oxcf.use_intra_dct_only)) {
     txk_start = txk_end = DCT_DCT;
   }
   uint16_t allowed_tx_mask = 0;  // 1: allow; 0: skip.
