@@ -14,6 +14,9 @@
 #include "aom/aom_encoder.h"
 #include "aom_ports/mem_ops.h"
 
+// The fourcc for large_scale_tile encoding is "LSTC".
+#define LST_FOURCC 0x4354534c
+
 void ivf_write_file_header(FILE *outfile, const struct aom_codec_enc_cfg *cfg,
                            unsigned int fourcc, int frame_cnt) {
   char header[32];
@@ -24,7 +27,10 @@ void ivf_write_file_header(FILE *outfile, const struct aom_codec_enc_cfg *cfg,
   header[3] = 'F';
   mem_put_le16(header + 4, 0);                     // version
   mem_put_le16(header + 6, 32);                    // header size
-  mem_put_le32(header + 8, fourcc);                // fourcc
+  if (cfg->large_scale_tile)
+    mem_put_le32(header + 8, LST_FOURCC);
+  else
+    mem_put_le32(header + 8, fourcc);              // fourcc
   mem_put_le16(header + 12, cfg->g_w);             // width
   mem_put_le16(header + 14, cfg->g_h);             // height
   mem_put_le32(header + 16, cfg->g_timebase.den);  // rate
