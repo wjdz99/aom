@@ -147,6 +147,7 @@ set_aom_config_var(CONFIG_ADAPT_FILTER_INTRA 0 NUMBER "AV1 experiment flag.")
 # flag -DCONFIG_CNN_RESTORATION=1.
 set_aom_config_var(CONFIG_CNN_RESTORATION 0 NUMBER
                    "CNN Restoration experiment flag")
+set_aom_config_var(CONFIG_DATA_DRIVEN_TX 0 NUMBER "AV1 experiment flag.")
 
 #
 # Variables in this section control optional features of the build system.
