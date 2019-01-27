@@ -139,6 +139,7 @@ set_aom_config_var(CONFIG_SHARP_SETTINGS 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_ONE_PASS_SVM 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_DISABLE_FULL_PIXEL_SPLIT_8X8 1 NUMBER
                    "Disable full_pixel_motion_search_based_split on BLOCK_8X8")
+set_aom_config_var(CONFIG_DATA_DRIVEN_TX 0 NUMBER "AV1 experiment flag.")
 
 #
 # Variables in this section control optional features of the build system.
