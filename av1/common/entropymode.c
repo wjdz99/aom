@@ -414,6 +414,7 @@ static const aom_cdf_prob
     };
 
 #if CONFIG_DATA_DRIVEN_TX
+#if USE_DDTX_INTER
 static const aom_cdf_prob
     default_ddtx_type_inter_cdf[EXT_TX_SIZES][CDF_SIZE(DDTX_TYPES_INTER)] = {
   { AOM_CDF8(4096, 8192, 12288, 16384, 20480, 24576, 28672) },
@@ -427,6 +428,22 @@ static const aom_cdf_prob
   { AOM_CDF2(16384) }, { AOM_CDF2(16384) }, { AOM_CDF2(16384) },
   { AOM_CDF2(16384) },
 };
+#endif
+#if USE_DDTX_INTRA
+static const aom_cdf_prob
+    default_ddtx_type_intra_cdf[EXT_TX_SIZES][CDF_SIZE(DDTX_TYPES_INTRA)] = {
+  { AOM_CDF3(10923, 21845) },
+  { AOM_CDF3(10923, 21845) },
+  { AOM_CDF3(10923, 21845) },
+  { AOM_CDF3(10923, 21845) },
+};
+
+static const aom_cdf_prob
+    default_use_ddtx_intra_cdf[EXT_TX_SIZES][CDF_SIZE(2)] = {
+  { AOM_CDF2(16384) }, { AOM_CDF2(16384) }, { AOM_CDF2(16384) },
+  { AOM_CDF2(16384) },
+};
+#endif
 #endif
 
 static const aom_cdf_prob default_cfl_sign_cdf[CDF_SIZE(CFL_JOINT_SIGNS)] = {
@@ -1076,8 +1093,14 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->intra_ext_tx_cdf, default_intra_ext_tx_cdf);
   av1_copy(fc->inter_ext_tx_cdf, default_inter_ext_tx_cdf);
 #if CONFIG_DATA_DRIVEN_TX
+#if USE_DDTX_INTER
   av1_copy(fc->ddtx_type_inter_cdf, default_ddtx_type_inter_cdf);
 	av1_copy(fc->use_ddtx_inter_cdf, default_use_ddtx_inter_cdf);
+#endif
+#if USE_DDTX_INTRA
+  av1_copy(fc->ddtx_type_intra_cdf, default_ddtx_type_intra_cdf);
+	av1_copy(fc->use_ddtx_intra_cdf, default_use_ddtx_intra_cdf);
+#endif
 #endif
   av1_copy(fc->skip_mode_cdfs, default_skip_mode_cdfs);
   av1_copy(fc->skip_cdfs, default_skip_cdfs);
