@@ -70,6 +70,30 @@
       "revId": "a43c92ca4113c3c5b1cfc7c113a4127c0a424ce3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "11b0321c_62b19bb9",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-01-28T17:23:55Z",
+      "side": 1,
+      "message": "Looks like this reveals an existing bug in the decoder that the corrupted flag doesn\u0027t work correctly. Instead of clipping MV, we need to fix this bug. Could you please file a bug regarding it?",
+      "parentUuid": "40e4918f_8bd02d8e",
+      "range": {
+        "startLine": 743,
+        "startChar": 6,
+        "endLine": 743,
+        "endChar": 13
+      },
+      "revId": "a43c92ca4113c3c5b1cfc7c113a4127c0a424ce3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
