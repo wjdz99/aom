@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8c4d5653_ec65f077",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-01-28T18:18:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "595bfc0c_a719b1e1",
+      "range": {
+        "startLine": 10,
+        "startChar": 9,
+        "endLine": 10,
+        "endChar": 18
+      },
+      "revId": "a8ca62f188fd46a42e4f8c23518c685f5d87736c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33ecce68_b1a758a8",
         "filename": "/COMMIT_MSG",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "a8ca62f188fd46a42e4f8c23518c685f5d87736c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4ddb20e_404664dc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-01-28T18:18:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "33ecce68_b1a758a8",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 13
+      },
+      "revId": "a8ca62f188fd46a42e4f8c23518c685f5d87736c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "8beda7ff_88b35e2f",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4106,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-01-28T18:18:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "543e5eae_f45a10b9",
+      "range": {
+        "startLine": 4106,
+        "startChar": 8,
+        "endLine": 4106,
+        "endChar": 32
+      },
+      "revId": "a8ca62f188fd46a42e4f8c23518c685f5d87736c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a0eeff4_32b31619",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2019-01-28T18:11:47Z",
       "side": 1,
       "message": "Why do we need these lines?",
+      "range": {
+        "startLine": 5133,
+        "startChar": 2,
+        "endLine": 5145,
+        "endChar": 3
+      },
+      "revId": "a8ca62f188fd46a42e4f8c23518c685f5d87736c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8df75f14_f67cb335",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5145,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-01-28T18:18:24Z",
+      "side": 1,
+      "message": "For example, when we split from BLOCK_128X128 to BLOCK_64X64, we set the pointers to parition_[decisions|attempted]_64. So we need to reset them back to the pointers for 128X128 after we are done testing BLOCK_64X64.",
+      "parentUuid": "1a0eeff4_32b31619",
       "range": {
         "startLine": 5133,
         "startChar": 2,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "63e6eb87_5f3053a4",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2843,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-01-28T18:18:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "601176a1_90c78c69",
+      "range": {
+        "startLine": 2831,
+        "startChar": 2,
+        "endLine": 2843,
+        "endChar": 26
+      },
+      "revId": "a8ca62f188fd46a42e4f8c23518c685f5d87736c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03ae0c5f_8fbdb292",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 2
@@ -137,6 +257,30 @@
       "revId": "a8ca62f188fd46a42e4f8c23518c685f5d87736c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13b495ad_b6cf0f3f",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3165,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-01-28T18:18:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "03ae0c5f_8fbdb292",
+      "range": {
+        "startLine": 3165,
+        "startChar": 6,
+        "endLine": 3165,
+        "endChar": 50
+      },
+      "revId": "a8ca62f188fd46a42e4f8c23518c685f5d87736c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "9be67fd3_677c0fc0",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3175,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-01-28T18:18:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "949cbf34_94978cbc",
+      "range": {
+        "startLine": 3175,
+        "startChar": 6,
+        "endLine": 3175,
+        "endChar": 9
+      },
+      "revId": "a8ca62f188fd46a42e4f8c23518c685f5d87736c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8ab8dff2_d9db5cf9",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 2
@@ -183,6 +351,30 @@
       "revId": "a8ca62f188fd46a42e4f8c23518c685f5d87736c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b60c92f_7b26970d",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3176,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-01-28T18:18:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8ab8dff2_d9db5cf9",
+      "range": {
+        "startLine": 3176,
+        "startChar": 6,
+        "endLine": 3176,
+        "endChar": 9
+      },
+      "revId": "a8ca62f188fd46a42e4f8c23518c685f5d87736c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "36796c5e_ee77146a",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3181,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-01-28T18:18:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "625b9795_dd13d46d",
+      "range": {
+        "startLine": 3181,
+        "startChar": 6,
+        "endLine": 3181,
+        "endChar": 9
+      },
+      "revId": "a8ca62f188fd46a42e4f8c23518c685f5d87736c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b033cecc_9d8ef869",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 2
@@ -229,6 +445,30 @@
       "revId": "a8ca62f188fd46a42e4f8c23518c685f5d87736c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89b0c55c_ee7c3400",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 883,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-01-28T18:18:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b033cecc_9d8ef869",
+      "range": {
+        "startLine": 871,
+        "startChar": 2,
+        "endLine": 883,
+        "endChar": 21
+      },
+      "revId": "a8ca62f188fd46a42e4f8c23518c685f5d87736c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
