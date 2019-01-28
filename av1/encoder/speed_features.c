@@ -332,6 +332,11 @@ static void set_good_speed_features_framesize_independent(
     // it with cpi->sf.disable_wedge_search_var_thresh.
     sf->disable_wedge_interintra_search = 1;
     sf->perform_coeff_opt = boosted ? 0 : 3;
+    sf->mode_search_skip_flags =
+        (cm->current_frame.frame_type == KEY_FRAME)
+            ? 0
+            : FLAG_SKIP_INTRA_DIRMISMATCH | FLAG_SKIP_INTRA_BESTINTER |
+                  FLAG_SKIP_COMP_BESTINTRA | FLAG_SKIP_INTRA_LOWVAR;
   }
 
   if (speed >= 4) {
