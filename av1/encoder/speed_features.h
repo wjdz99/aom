@@ -635,6 +635,10 @@ typedef struct SPEED_FEATURES {
   // PARTITION_HORZ and PARTITION_VERT.
   int simple_motion_search_prune_rect;
 
+  // Early terminate interpolation filter evaluation based on
+  // model rd threshold
+  int use_model_based_post_interp_filter_thresh;
+
   // Perform simple motion search before none_partition to decide if we
   // want to split directly without trying other partition types.
   int simple_motion_search_split_only;

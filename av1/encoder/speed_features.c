@@ -303,6 +303,7 @@ static void set_good_speed_features_framesize_independent(
     sf->disable_interinter_wedge_newmv_search = 1;
     sf->fast_wedge_sign_estimate = 1;
     sf->disable_dual_filter = 1;
+    sf->use_model_based_post_interp_filter_thresh = 1;
     sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
     sf->prune_comp_type_by_comp_avg = 2;
     sf->cb_pred_filter_search = 0;
@@ -566,6 +567,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
 
   sf->obmc_full_pixel_search_level = 0;
   sf->skip_sharp_interp_filter_search = 0;
+  sf->use_model_based_post_interp_filter_thresh = 0;
   sf->prune_comp_type_by_comp_avg = 0;
   sf->disable_interinter_wedge_newmv_search = 0;
   sf->prune_motion_mode_level = 0;
