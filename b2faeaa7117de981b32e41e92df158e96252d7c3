@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8d22ef61_6ebf6ebc",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1910,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-01-28T18:53:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1690b11e_cfa1f652",
+      "range": {
+        "startLine": 1910,
+        "startChar": 2,
+        "endLine": 1910,
+        "endChar": 16
+      },
+      "revId": "b2faeaa7117de981b32e41e92df158e96252d7c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e33f18b7_47fbd922",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-01-28T17:49:19Z",
       "side": 1,
       "message": "Should be moved to beginning of this function. Also I don\u0027t think we really need to set x-\u003etx_search_prune, it would be bypassed in search_txk_type().",
+      "range": {
+        "startLine": 1915,
+        "startChar": 2,
+        "endLine": 1918,
+        "endChar": 3
+      },
+      "revId": "b2faeaa7117de981b32e41e92df158e96252d7c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d678155_66f951f0",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1918,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-01-28T18:53:29Z",
+      "side": 1,
+      "message": "This was meant only for inter, since for intra the previous logic would return 0. But I moved it to the top and handled both intra and inter.\nThe logic is not needed in the current state of the code, but it seems it would be needed if PRUNE_2D_ACCURATE is turned off and one of PRUNE_ONE or PRUNE_TWO was used.",
+      "parentUuid": "e33f18b7_47fbd922",
       "range": {
         "startLine": 1915,
         "startChar": 2,
