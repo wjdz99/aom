@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39751add_f3d20707",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-01-29T22:06:14Z",
+      "side": 1,
+      "message": "\"return (sse_norm \u003e 16.0);\" would be enough.",
+      "range": {
+        "startLine": 721,
+        "startChar": 0,
+        "endLine": 724,
+        "endChar": 13
+      },
+      "revId": "30ee8f2a4f7bd98d713db665c1aa08bc7e9d79f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
