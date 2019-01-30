@@ -1418,6 +1418,8 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi) {
                  highbd);
 
     for (RestorationType r = 0; r < num_rtypes; ++r) {
+      if (cpi->sf.disable_wiener_chroma && plane && (r == RESTORE_WIENER))
+        continue;
       if ((force_restore_type != RESTORE_TYPES) && (r != RESTORE_NONE) &&
           (r != force_restore_type))
         continue;

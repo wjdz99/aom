@@ -657,6 +657,9 @@ typedef struct SPEED_FEATURES {
 
   // This flag controls the use of non-RD mode decision.
   int use_nonrd_pick_mode;
+
+  // Disable wiener search for Chroma plane
+  int disable_wiener_chroma;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
