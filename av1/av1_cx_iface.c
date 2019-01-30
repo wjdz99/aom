@@ -727,9 +727,6 @@ static aom_codec_err_t set_encoder_config(
   oxcf->max_reference_frames = extra_cfg->max_reference_frames;
   if (oxcf->max_reference_frames > 3 && oxcf->max_reference_frames < 7) {
     // TODO(urvang): Enable all possible values, after they work properly.
-    warn(
-        "max_reference_frames values between 3 and 7 are not supported yet. "
-        "Using value 3 instead.");
     oxcf->max_reference_frames = 3;
   }
   oxcf->enable_masked_comp = extra_cfg->enable_masked_comp;
