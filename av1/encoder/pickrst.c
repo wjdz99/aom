@@ -1408,19 +1408,24 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi) {
     const int plane_ntiles = ntiles[plane > 0];
     const RestorationType num_rtypes =
         (plane_ntiles > 1) ? RESTORE_TYPES : RESTORE_SWITCHABLE_TYPES;
+    const int skip_for_chroma =
+        (!frame_is_kf_gf_arf(cpi) || !cpi->refresh_alt2_ref_frame) && !!plane;
 
     double best_cost = 0;
     RestorationType best_rtype = RESTORE_NONE;
 
     const int highbd = rsc.cm->seq_params.use_highbitdepth;
+
     extend_frame(rsc.dgd_buffer, rsc.plane_width, rsc.plane_height,
                  rsc.dgd_stride, RESTORATION_BORDER, RESTORATION_BORDER,
                  highbd);
-
     for (RestorationType r = 0; r < num_rtypes; ++r) {
+      const int skip_sgrproj_for_chroma =
+          skip_for_chroma && (r == RESTORE_SGRPROJ);
       if ((force_restore_type != RESTORE_TYPES) && (r != RESTORE_NONE) &&
           (r != force_restore_type))
         continue;
+      if (skip_sgrproj_for_chroma) continue;
 
       double cost = search_rest_type(&rsc, r);
 
