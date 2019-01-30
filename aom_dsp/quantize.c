@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <stdio.h>
 #include "aom_dsp/quantize.h"
 #include "aom_mem/aom_mem.h"
 
@@ -27,6 +28,26 @@ void quantize_b_adaptive_helper_c(
 
   memset(qcoeff_ptr, 0, n_coeffs * sizeof(*qcoeff_ptr));
   memset(dqcoeff_ptr, 0, n_coeffs * sizeof(*dqcoeff_ptr));
+  //const int zbin_boost_factors[16] = {0, 0, 8, 10, 12, 14, 16, 20, 24, 28, 32, 36, 40, 44, 44, 44};
+  //  static const int zbin_boost[16] = { 0,  0,  0,  8,  8,  8, 10, 12, 14, 16, 20, 24, 28, 32, 36, 40 };
+  const int zbin_boost_factors[128] = {0, 0, 0, 0, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 0, 0, 0, 40,
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 0, 0, 0, 0, //29
+                                       0, 0, 0, 0, 0, 0, 0, 0, //29
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 0, 0, 0, 0, //29
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 0, 0, 0, 0, //29
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+  };
 
   // Pre-scan pass
   for (i = (int)n_coeffs - 1; i >= 0; i--) {
@@ -41,18 +62,21 @@ void quantize_b_adaptive_helper_c(
     else
       break;
   }
-
   // Quantization pass: All coefficients with index >= zero_flag are
   // skippable. Note: zero_flag can be zero.
+  int zcount = 0;
   for (i = 0; i < non_zero_count; i++) {
     const int rc = scan[i];
     const int coeff = coeff_ptr[rc];
     const int coeff_sign = (coeff >> 31);
     const int abs_coeff = (coeff ^ coeff_sign) - coeff_sign;
-    int tmp32;
+    int tmp32 = 0;
 
     const qm_val_t wt = qm_ptr != NULL ? qm_ptr[rc] : (1 << AOM_QM_BITS);
-    if (abs_coeff * wt >= (zbins[rc != 0] << AOM_QM_BITS)) {
+    int zbin_boost = ROUND_POWER_OF_TWO((dequant_ptr[rc != 0] * (zbin_boost_factors[zcount])) >> 7, log_scale);
+    if (rc == 0) zbin_boost = 0;
+    zcount = AOMMIN(zcount + 1, 127);
+    if (abs_coeff * wt >= ((zbins[rc != 0] + zbin_boost) << AOM_QM_BITS)) {
       int64_t tmp =
           clamp(abs_coeff + ROUND_POWER_OF_TWO(round_ptr[rc != 0], log_scale),
                 INT16_MIN, INT16_MAX);
@@ -68,7 +92,10 @@ void quantize_b_adaptive_helper_c(
       const tran_low_t abs_dqcoeff = (tmp32 * dequant) >> log_scale;
       dqcoeff_ptr[rc] = (tran_low_t)((abs_dqcoeff ^ coeff_sign) - coeff_sign);
 
-      if (tmp32) eob = i;
+      if (tmp32) {
+        zcount = 0;
+        eob = i;
+      }
     }
   }
   *eob_ptr = eob + 1;
