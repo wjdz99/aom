@@ -8334,13 +8334,6 @@ static INLINE void find_best_non_dual_interp_filter(
 // check if there is saved result match with this search
 static INLINE int is_interp_filter_match(const INTERPOLATION_FILTER_STATS *st,
                                          MB_MODE_INFO *const mi) {
-  for (int i = 0; i < 2; ++i) {
-    if ((st->ref_frames[i] != mi->ref_frame[i]) ||
-        (st->mv[i].as_int != mi->mv[i].as_int)) {
-      return 0;
-    }
-  }
-  if (has_second_ref(mi) && st->comp_type != mi->interinter_comp.type) return 0;
   return 1;
 }
 // Checks if charactersticts of search match
