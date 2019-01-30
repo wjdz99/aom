@@ -1413,21 +1413,27 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi) {
     RestorationType best_rtype = RESTORE_NONE;
 
     const int highbd = rsc.cm->seq_params.use_highbitdepth;
-    extend_frame(rsc.dgd_buffer, rsc.plane_width, rsc.plane_height,
+    if (frame_is_kf_gf_arf(cpi) || !plane)
+    {
+      extend_frame(rsc.dgd_buffer, rsc.plane_width, rsc.plane_height,
                  rsc.dgd_stride, RESTORATION_BORDER, RESTORATION_BORDER,
                  highbd);
-
-    for (RestorationType r = 0; r < num_rtypes; ++r) {
-      if ((force_restore_type != RESTORE_TYPES) && (r != RESTORE_NONE) &&
+      for (RestorationType r = 0; r < num_rtypes; ++r) {
+        if ((force_restore_type != RESTORE_TYPES) && (r != RESTORE_NONE) &&
           (r != force_restore_type))
-        continue;
+          continue;
 
-      double cost = search_rest_type(&rsc, r);
+        double cost = search_rest_type(&rsc, r);
 
-      if (r == 0 || cost < best_cost) {
-        best_cost = cost;
-        best_rtype = r;
+        if (r == 0 || cost < best_cost) {
+          best_cost = cost;
+          best_rtype = r;
+        }
       }
+    }
+    else
+    {
+      best_rtype = RESTORE_NONE;
     }
 
     cm->rst_info[plane].frame_restoration_type = best_rtype;
