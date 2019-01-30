@@ -1435,6 +1435,7 @@ static INLINE void update_coeff_general(
     } else {
       *accu_rate += rate;
       *accu_dist += dist - dist0;
+      levels[get_padded_idx(ci, bwl)] = AOMMIN(abs_qc, INT8_MAX);
     }
   }
 }
@@ -1466,6 +1467,7 @@ static AOM_FORCE_INLINE void update_coeff_simple(
         ci, abs_qc, coeff_ctx, txb_costs, bwl, tx_class, levels, &rate_low);
     if (abs_dqc < abs_tqc) {
       *accu_rate += rate;
+      levels[get_padded_idx(ci, bwl)] = AOMMIN(abs_qc, INT8_MAX);
       return;
     }
 
@@ -1485,6 +1487,7 @@ static AOM_FORCE_INLINE void update_coeff_simple(
       *accu_rate += rate_low;
     } else {
       *accu_rate += rate;
+      levels[get_padded_idx(ci, bwl)] = AOMMIN(abs_qc, INT8_MAX);
     }
   }
 }
@@ -1593,6 +1596,8 @@ static AOM_FORCE_INLINE void update_coeff_eob(
       qcoeff[ci] = qc_low;
       dqcoeff[ci] = dqc_low;
       levels[get_padded_idx(ci, bwl)] = AOMMIN(abs_qc_low, INT8_MAX);
+    } else {
+      levels[get_padded_idx(ci, bwl)] = AOMMIN(abs_qc, INT8_MAX);
     }
     if (qcoeff[ci]) {
       nz_ci[*nz_num] = ci;
@@ -1666,7 +1671,11 @@ int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
   uint8_t *const levels = set_levels(levels_buf, width);
   int eob = p->eobs[block];
 
-  if (eob > 1) av1_txb_init_levels(qcoeff, width, height, levels);
+  if (eob > 1) {
+    memset(levels_buf, 0,
+           sizeof(*levels_buf) *
+               ((width + TX_PAD_HOR) * (height + TX_PAD_VER) + TX_PAD_END));
+  }
 
   // TODO(angirbird): check iqmatrix
 
@@ -1700,6 +1709,7 @@ int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
     const int64_t dist = get_coeff_dist(tqc, dqc, shift);
     const int64_t dist0 = get_coeff_dist(tqc, 0, shift);
     accu_dist += dist - dist0;
+    levels[get_padded_idx(ci, bwl)] = 1;
     --si;
   }
 
