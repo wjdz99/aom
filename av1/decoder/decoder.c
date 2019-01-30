@@ -256,6 +256,16 @@ aom_codec_err_t av1_set_reference_dec(AV1_COMMON *cm, int idx,
     return AOM_CODEC_ERROR;
   }
 
+  if (use_external_ref && cm->large_scale_tile) {
+    YV12_BUFFER_CONFIG *last_frame_buf =
+        get_ref_frame(cm, LAST_FRAME);
+    if (last_frame_buf != ref_buf) {
+      aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+                         "Incorrect buffer for LAST_FRAME");
+      return AOM_CODEC_ERROR;
+    }
+  }
+
   if (!use_external_ref) {
     if (!equal_dimensions(ref_buf, sd)) {
       aom_internal_error(&cm->error, AOM_CODEC_ERROR,
