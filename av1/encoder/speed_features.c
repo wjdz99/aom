@@ -334,6 +334,8 @@ static void set_good_speed_features_framesize_independent(
     // it with cpi->sf.disable_wedge_search_var_thresh.
     sf->disable_wedge_interintra_search = 1;
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
+    sf->disable_loop_restoration_chroma =
+        (boosted || cm->allow_screen_content_tools) ? 0 : 1;
   }
 
   if (speed >= 4) {
@@ -723,6 +725,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->skip_obmc_in_uniform_mv_field = 0;
   sf->skip_wm_in_uniform_mv_field = 0;
   sf->adaptive_interp_filter_search = 0;
+  sf->disable_loop_restoration_chroma = 0;
 
   for (i = 0; i < TX_SIZES; i++) {
     sf->intra_y_mode_mask[i] = INTRA_ALL;
