@@ -652,6 +652,7 @@ typedef struct SPEED_FEATURES {
 
   // Flag used to control the extent of coeff R-D optimization
   int perform_coeff_opt;
+  int refine_low_txfm_rd;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
