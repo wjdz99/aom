@@ -717,6 +717,10 @@ static const uint8_t bsize_model_cat_lookup[BLOCK_SIZES_ALL] = {
   0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 0, 0, 1, 1, 2, 2
 };
 
+static int sse_norm_model_cat_lookup(double sse_norm) {
+  return (sse_norm > 16.0);
+}
+
 static const double interp_rgrid_surf[4][33 * 18] = {
   {
       29.726102,   30.738006,   25.294088,   25.736759,   41.255961,
@@ -1390,27 +1394,43 @@ static const double interp_rgrid_curv[4][65] = {
   },
 };
 
-static const double interp_dgrid_curv[65] = {
-  14.604855, 14.604855, 14.604855, 14.604855, 14.604855, 14.604855, 14.604855,
-  14.604855, 14.604855, 14.604855, 14.604855, 14.604855, 14.555776, 14.533692,
-  14.439920, 14.257791, 13.977230, 13.623229, 13.064884, 12.355411, 11.560773,
-  10.728960, 9.861975,  8.643612,  6.916021,  5.154769,  3.734940,  2.680051,
-  1.925506,  1.408410,  1.042223,  0.767641,  0.565392,  0.420116,  0.310427,
-  0.231711,  0.172999,  0.128293,  0.094992,  0.072171,  0.052972,  0.039354,
-  0.029555,  0.022857,  0.016832,  0.013297,  0.000000,  0.000000,  0.000000,
-  0.000000,  0.000000,  0.000000,  0.000000,  0.000000,  0.000000,  0.000000,
-  0.000000,  0.000000,  0.000000,  0.000000,  0.000000,  0.000000,  0.000000,
-  0.000000,  0.000000,
+static const double interp_dgrid_curv[2][65] = {
+  {
+      16.000000, 15.962891, 15.925174, 15.886888, 15.848074, 15.808770,
+      15.769015, 15.728850, 15.688313, 15.647445, 15.606284, 15.564870,
+      15.525918, 15.483820, 15.373330, 15.126844, 14.637442, 14.184387,
+      13.560070, 12.880717, 12.165995, 11.378144, 10.438769, 9.130790,
+      7.487633,  5.688649,  4.267515,  3.196300,  2.434201,  1.834064,
+      1.369920,  1.035921,  0.775279,  0.574895,  0.427232,  0.314123,
+      0.233236,  0.171440,  0.128188,  0.092762,  0.067569,  0.049324,
+      0.036330,  0.027008,  0.019853,  0.015539,  0.011093,  0.008733,
+      0.007624,  0.008105,  0.005427,  0.004065,  0.003427,  0.002848,
+      0.002328,  0.001865,  0.001457,  0.001103,  0.000801,  0.000550,
+      0.000348,  0.000193,  0.000085,  0.000021,  0.000000,
+  },
+  {
+      16.000000, 15.996116, 15.984769, 15.966413, 15.941505, 15.910501,
+      15.873856, 15.832026, 15.785466, 15.734633, 15.679981, 15.621967,
+      15.560961, 15.460157, 15.288367, 15.052462, 14.466922, 13.921212,
+      13.073692, 12.222005, 11.237799, 9.985848,  8.898823,  7.423519,
+      5.995325,  4.773152,  3.744032,  2.938217,  2.294526,  1.762412,
+      1.327145,  1.020728,  0.765535,  0.570548,  0.425833,  0.313825,
+      0.232959,  0.171324,  0.128174,  0.092750,  0.067558,  0.049319,
+      0.036330,  0.027008,  0.019853,  0.015539,  0.011093,  0.008733,
+      0.007624,  0.008105,  0.005427,  0.004065,  0.003427,  0.002848,
+      0.002328,  0.001865,  0.001457,  0.001103,  0.000801,  0.000550,
+      0.000348,  0.000193,  0.000085,  0.000021,  -0.000000,
+  },
 };
 
 void av1_model_rd_curvfit(BLOCK_SIZE bsize, double sse_norm, double xqr,
                           double *rate_f, double *distbysse_f) {
-  (void)sse_norm;
   const double x_start = -15.5;
   const double x_end = 16.5;
   const double x_step = 0.5;
   const double epsilon = 1e-6;
   const int rcat = bsize_model_cat_lookup[bsize];
+  const int dcat = sse_norm_model_cat_lookup(sse_norm);
   (void)x_end;
 
   xqr = AOMMAX(xqr, x_start + x_step + epsilon);
@@ -1423,7 +1443,7 @@ void av1_model_rd_curvfit(BLOCK_SIZE bsize, double sse_norm, double xqr,
 
   const double *prate = &interp_rgrid_curv[rcat][(xi - 1)];
   *rate_f = interp_cubic(prate, xo);
-  const double *pdist = &interp_dgrid_curv[(xi - 1)];
+  const double *pdist = &interp_dgrid_curv[dcat][(xi - 1)];
   *distbysse_f = interp_cubic(pdist, xo);
 }
 
@@ -1586,7 +1606,7 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   } else {
     rd->thresh_mult[THR_NEARESTMV] = 0;
     rd->thresh_mult[THR_NEARESTL2] = 0;
-    rd->thresh_mult[THR_NEARESTL3] = 0;
+    rd->thresh_mult[THR_NEARESTL3] = 100;
     rd->thresh_mult[THR_NEARESTB] = 0;
     rd->thresh_mult[THR_NEARESTA2] = 0;
     rd->thresh_mult[THR_NEARESTA] = 0;
@@ -1597,7 +1617,7 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_NEWL2] += 1000;
   rd->thresh_mult[THR_NEWL3] += 1000;
   rd->thresh_mult[THR_NEWB] += 1000;
-  rd->thresh_mult[THR_NEWA2] = 1000;
+  rd->thresh_mult[THR_NEWA2] = 1100;
   rd->thresh_mult[THR_NEWA] += 1000;
   rd->thresh_mult[THR_NEWG] += 1000;
 
@@ -1609,18 +1629,18 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_NEARA] += 1000;
   rd->thresh_mult[THR_NEARG] += 1000;
 
-  rd->thresh_mult[THR_GLOBALMV] += 2000;
+  rd->thresh_mult[THR_GLOBALMV] += 2200;
   rd->thresh_mult[THR_GLOBALL2] += 2000;
   rd->thresh_mult[THR_GLOBALL3] += 2000;
-  rd->thresh_mult[THR_GLOBALB] += 2000;
+  rd->thresh_mult[THR_GLOBALB] += 2400;
   rd->thresh_mult[THR_GLOBALA2] = 2000;
   rd->thresh_mult[THR_GLOBALG] += 2000;
-  rd->thresh_mult[THR_GLOBALA] += 2000;
+  rd->thresh_mult[THR_GLOBALA] += 2400;
 
-  rd->thresh_mult[THR_COMP_NEAREST_NEARESTLA] += 1000;
+  rd->thresh_mult[THR_COMP_NEAREST_NEARESTLA] += 1100;
   rd->thresh_mult[THR_COMP_NEAREST_NEARESTL2A] += 1000;
-  rd->thresh_mult[THR_COMP_NEAREST_NEARESTL3A] += 1000;
-  rd->thresh_mult[THR_COMP_NEAREST_NEARESTGA] += 1000;
+  rd->thresh_mult[THR_COMP_NEAREST_NEARESTL3A] += 800;
+  rd->thresh_mult[THR_COMP_NEAREST_NEARESTGA] += 900;
   rd->thresh_mult[THR_COMP_NEAREST_NEARESTLB] += 1000;
   rd->thresh_mult[THR_COMP_NEAREST_NEARESTL2B] += 1000;
   rd->thresh_mult[THR_COMP_NEAREST_NEARESTL3B] += 1000;
@@ -1638,17 +1658,17 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_COMP_NEAR_NEARLA] += 1200;
   rd->thresh_mult[THR_COMP_NEAREST_NEWLA] += 1500;
   rd->thresh_mult[THR_COMP_NEW_NEARESTLA] += 1500;
-  rd->thresh_mult[THR_COMP_NEAR_NEWLA] += 1700;
-  rd->thresh_mult[THR_COMP_NEW_NEARLA] += 1700;
-  rd->thresh_mult[THR_COMP_NEW_NEWLA] += 2000;
-  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALLA] += 2500;
+  rd->thresh_mult[THR_COMP_NEAR_NEWLA] += 1530;
+  rd->thresh_mult[THR_COMP_NEW_NEARLA] += 1870;
+  rd->thresh_mult[THR_COMP_NEW_NEWLA] += 2400;
+  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALLA] += 2750;
 
   rd->thresh_mult[THR_COMP_NEAR_NEARL2A] += 1200;
   rd->thresh_mult[THR_COMP_NEAREST_NEWL2A] += 1500;
   rd->thresh_mult[THR_COMP_NEW_NEARESTL2A] += 1500;
-  rd->thresh_mult[THR_COMP_NEAR_NEWL2A] += 1700;
+  rd->thresh_mult[THR_COMP_NEAR_NEWL2A] += 1870;
   rd->thresh_mult[THR_COMP_NEW_NEARL2A] += 1700;
-  rd->thresh_mult[THR_COMP_NEW_NEWL2A] += 2000;
+  rd->thresh_mult[THR_COMP_NEW_NEWL2A] += 1800;
   rd->thresh_mult[THR_COMP_GLOBAL_GLOBALL2A] += 2500;
 
   rd->thresh_mult[THR_COMP_NEAR_NEARL3A] += 1200;
@@ -1657,23 +1677,23 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_COMP_NEAR_NEWL3A] += 1700;
   rd->thresh_mult[THR_COMP_NEW_NEARL3A] += 1700;
   rd->thresh_mult[THR_COMP_NEW_NEWL3A] += 2000;
-  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALL3A] += 2500;
+  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALL3A] += 3000;
 
-  rd->thresh_mult[THR_COMP_NEAR_NEARGA] += 1200;
+  rd->thresh_mult[THR_COMP_NEAR_NEARGA] += 1320;
   rd->thresh_mult[THR_COMP_NEAREST_NEWGA] += 1500;
   rd->thresh_mult[THR_COMP_NEW_NEARESTGA] += 1500;
-  rd->thresh_mult[THR_COMP_NEAR_NEWGA] += 1700;
+  rd->thresh_mult[THR_COMP_NEAR_NEWGA] += 2040;
   rd->thresh_mult[THR_COMP_NEW_NEARGA] += 1700;
   rd->thresh_mult[THR_COMP_NEW_NEWGA] += 2000;
-  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALGA] += 2500;
+  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALGA] += 2250;
 
   rd->thresh_mult[THR_COMP_NEAR_NEARLB] += 1200;
   rd->thresh_mult[THR_COMP_NEAREST_NEWLB] += 1500;
   rd->thresh_mult[THR_COMP_NEW_NEARESTLB] += 1500;
-  rd->thresh_mult[THR_COMP_NEAR_NEWLB] += 1700;
+  rd->thresh_mult[THR_COMP_NEAR_NEWLB] += 1360;
   rd->thresh_mult[THR_COMP_NEW_NEARLB] += 1700;
-  rd->thresh_mult[THR_COMP_NEW_NEWLB] += 2000;
-  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALLB] += 2500;
+  rd->thresh_mult[THR_COMP_NEW_NEWLB] += 2400;
+  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALLB] += 2250;
 
   rd->thresh_mult[THR_COMP_NEAR_NEARL2B] += 1200;
   rd->thresh_mult[THR_COMP_NEAREST_NEWL2B] += 1500;
@@ -1686,7 +1706,7 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_COMP_NEAR_NEARL3B] += 1200;
   rd->thresh_mult[THR_COMP_NEAREST_NEWL3B] += 1500;
   rd->thresh_mult[THR_COMP_NEW_NEARESTL3B] += 1500;
-  rd->thresh_mult[THR_COMP_NEAR_NEWL3B] += 1700;
+  rd->thresh_mult[THR_COMP_NEAR_NEWL3B] += 1870;
   rd->thresh_mult[THR_COMP_NEW_NEARL3B] += 1700;
   rd->thresh_mult[THR_COMP_NEW_NEWL3B] += 2000;
   rd->thresh_mult[THR_COMP_GLOBAL_GLOBALL3B] += 2500;
@@ -1700,7 +1720,7 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_COMP_GLOBAL_GLOBALGB] += 2500;
 
   rd->thresh_mult[THR_COMP_NEAR_NEARLA2] += 1200;
-  rd->thresh_mult[THR_COMP_NEAREST_NEWLA2] += 1500;
+  rd->thresh_mult[THR_COMP_NEAREST_NEWLA2] += 1800;
   rd->thresh_mult[THR_COMP_NEW_NEARESTLA2] += 1500;
   rd->thresh_mult[THR_COMP_NEAR_NEWLA2] += 1700;
   rd->thresh_mult[THR_COMP_NEW_NEARLA2] += 1700;
@@ -1715,7 +1735,7 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_COMP_NEW_NEWL2A2] += 2000;
   rd->thresh_mult[THR_COMP_GLOBAL_GLOBALL2A2] += 2500;
 
-  rd->thresh_mult[THR_COMP_NEAR_NEARL3A2] += 1200;
+  rd->thresh_mult[THR_COMP_NEAR_NEARL3A2] += 1440;
   rd->thresh_mult[THR_COMP_NEAREST_NEWL3A2] += 1500;
   rd->thresh_mult[THR_COMP_NEW_NEARESTL3A2] += 1500;
   rd->thresh_mult[THR_COMP_NEAR_NEWL3A2] += 1700;
@@ -1729,29 +1749,29 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_COMP_NEAR_NEWGA2] += 1700;
   rd->thresh_mult[THR_COMP_NEW_NEARGA2] += 1700;
   rd->thresh_mult[THR_COMP_NEW_NEWGA2] += 2000;
-  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALGA2] += 2500;
+  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALGA2] += 2750;
 
   rd->thresh_mult[THR_COMP_NEAR_NEARLL2] += 1600;
   rd->thresh_mult[THR_COMP_NEAREST_NEWLL2] += 2000;
   rd->thresh_mult[THR_COMP_NEW_NEARESTLL2] += 2000;
-  rd->thresh_mult[THR_COMP_NEAR_NEWLL2] += 2200;
+  rd->thresh_mult[THR_COMP_NEAR_NEWLL2] += 2640;
   rd->thresh_mult[THR_COMP_NEW_NEARLL2] += 2200;
   rd->thresh_mult[THR_COMP_NEW_NEWLL2] += 2400;
   rd->thresh_mult[THR_COMP_GLOBAL_GLOBALLL2] += 3200;
 
   rd->thresh_mult[THR_COMP_NEAR_NEARLL3] += 1600;
   rd->thresh_mult[THR_COMP_NEAREST_NEWLL3] += 2000;
-  rd->thresh_mult[THR_COMP_NEW_NEARESTLL3] += 2000;
+  rd->thresh_mult[THR_COMP_NEW_NEARESTLL3] += 1800;
   rd->thresh_mult[THR_COMP_NEAR_NEWLL3] += 2200;
   rd->thresh_mult[THR_COMP_NEW_NEARLL3] += 2200;
   rd->thresh_mult[THR_COMP_NEW_NEWLL3] += 2400;
   rd->thresh_mult[THR_COMP_GLOBAL_GLOBALLL3] += 3200;
 
-  rd->thresh_mult[THR_COMP_NEAR_NEARLG] += 1600;
-  rd->thresh_mult[THR_COMP_NEAREST_NEWLG] += 2000;
+  rd->thresh_mult[THR_COMP_NEAR_NEARLG] += 1760;
+  rd->thresh_mult[THR_COMP_NEAREST_NEWLG] += 2400;
   rd->thresh_mult[THR_COMP_NEW_NEARESTLG] += 2000;
-  rd->thresh_mult[THR_COMP_NEAR_NEWLG] += 2200;
-  rd->thresh_mult[THR_COMP_NEW_NEARLG] += 2200;
+  rd->thresh_mult[THR_COMP_NEAR_NEWLG] += 1760;
+  rd->thresh_mult[THR_COMP_NEW_NEARLG] += 2640;
   rd->thresh_mult[THR_COMP_NEW_NEWLG] += 2400;
   rd->thresh_mult[THR_COMP_GLOBAL_GLOBALLG] += 3200;
 
@@ -1759,21 +1779,21 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_COMP_NEAREST_NEWBA] += 2000;
   rd->thresh_mult[THR_COMP_NEW_NEARESTBA] += 2000;
   rd->thresh_mult[THR_COMP_NEAR_NEWBA] += 2200;
-  rd->thresh_mult[THR_COMP_NEW_NEARBA] += 2200;
-  rd->thresh_mult[THR_COMP_NEW_NEWBA] += 2400;
+  rd->thresh_mult[THR_COMP_NEW_NEARBA] += 1980;
+  rd->thresh_mult[THR_COMP_NEW_NEWBA] += 2640;
   rd->thresh_mult[THR_COMP_GLOBAL_GLOBALBA] += 3200;
 
   rd->thresh_mult[THR_DC] += 1000;
   rd->thresh_mult[THR_PAETH] += 1000;
-  rd->thresh_mult[THR_SMOOTH] += 2000;
+  rd->thresh_mult[THR_SMOOTH] += 2200;
   rd->thresh_mult[THR_SMOOTH_V] += 2000;
   rd->thresh_mult[THR_SMOOTH_H] += 2000;
   rd->thresh_mult[THR_H_PRED] += 2000;
-  rd->thresh_mult[THR_V_PRED] += 2000;
+  rd->thresh_mult[THR_V_PRED] += 1800;
   rd->thresh_mult[THR_D135_PRED] += 2500;
-  rd->thresh_mult[THR_D203_PRED] += 2500;
+  rd->thresh_mult[THR_D203_PRED] += 2000;
   rd->thresh_mult[THR_D157_PRED] += 2500;
-  rd->thresh_mult[THR_D67_PRED] += 2500;
+  rd->thresh_mult[THR_D67_PRED] += 2000;
   rd->thresh_mult[THR_D113_PRED] += 2500;
   rd->thresh_mult[THR_D45_PRED] += 2500;
 }
