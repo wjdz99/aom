@@ -2347,11 +2347,29 @@ static INLINE int64_t dist_block_px_domain(const AV1_COMP *cpi, MACROBLOCK *x,
                          blk_row, blk_col, plane_bsize, tx_bsize);
 }
 
-static double get_mean(const int16_t *diff, int stride, int w, int h) {
+static double get_diff_mean(const uint8_t *src, int src_stride,
+                            const uint8_t *dst, int dst_stride, int w, int h) {
   double sum = 0.0;
   for (int j = 0; j < h; ++j) {
     for (int i = 0; i < w; ++i) {
-      sum += diff[j * stride + i];
+      const int diff = src[j * src_stride + i] - dst[j * dst_stride + i];
+      sum += diff;
+    }
+  }
+  assert(w > 0 && h > 0);
+  return sum / (w * h);
+}
+
+static double get_highbd_diff_mean(const uint8_t *src8, int src_stride,
+                                   const uint8_t *dst8, int dst_stride, int w,
+                                   int h) {
+  const uint16_t *src = CONVERT_TO_SHORTPTR(src8);
+  const uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
+  double sum = 0.0;
+  for (int j = 0; j < h; ++j) {
+    for (int i = 0; i < w; ++i) {
+      const int diff = src[j * src_stride + i] - dst[j * dst_stride + i];
+      sum += diff;
     }
   }
   assert(w > 0 && h > 0);
@@ -2440,6 +2458,17 @@ static void get_2x2_normalized_sses_and_sads(
 #if CONFIG_COLLECT_RD_STATS
 
 #if CONFIG_COLLECT_RD_STATS == 1
+static double get_mean(const int16_t *diff, int stride, int w, int h) {
+  double sum = 0.0;
+  for (int j = 0; j < h; ++j) {
+    for (int i = 0; i < w; ++i) {
+      sum += diff[j * stride + i];
+    }
+  }
+  assert(w > 0 && h > 0);
+  return sum / (w * h);
+}
+
 static void PrintTransformUnitStats(const AV1_COMP *const cpi, MACROBLOCK *x,
                                     const RD_STATS *const rd_stats, int blk_row,
                                     int blk_col, BLOCK_SIZE plane_bsize,
@@ -2588,7 +2617,14 @@ static void PrintPredictionUnitStats(const AV1_COMP *const cpi,
   const int16_t *const src_diff = p->src_diff;
   const int shift = (xd->bd - 8);
 
-  int64_t sse = aom_sum_squares_2d_i16(src_diff, diff_stride, bw, bh);
+  int64_t sse;
+  if (is_cur_buf_hbd(xd)) {
+    sse = aom_highbd_sse(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride,
+                         bw, bh);
+  } else {
+    sse =
+        aom_sse(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride, bw, bh);
+  }
   sse = ROUND_POWER_OF_TWO(sse, shift * 2);
   const double sse_norm = (double)sse / num_samples;
 
@@ -2627,6 +2663,26 @@ static void PrintPredictionUnitStats(const AV1_COMP *const cpi,
   fprintf(fout, " %g %g %g", model_rate_norm, model_dist_norm,
           model_rdcost_norm);
 
+  double mean;
+  if (is_cur_buf_hbd(xd)) {
+    mean = get_highbd_diff_mean(p->src.buf, p->src.stride, pd->dst.buf,
+                                pd->dst.stride, bw, bh);
+  } else {
+    mean = get_diff_mean(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride,
+                         bw, bh);
+  }
+  mean /= (1 << shift);
+  float hor_corr, vert_corr;
+  av1_get_horver_correlation_full(src_diff, diff_stride, bw, bh, &hor_corr,
+                                  &vert_corr);
+  fprintf(fout, " %g %g %g", mean, hor_corr, vert_corr);
+
+  double hdist[4] = { 0 }, vdist[4] = { 0 };
+  get_energy_distribution_fine(cpi, plane_bsize, src, src_stride, dst,
+                               dst_stride, 1, hdist, vdist);
+  fprintf(fout, " %g %g %g %g %g %g %g %g", hdist[0], hdist[1], hdist[2],
+          hdist[3], vdist[0], vdist[1], vdist[2], vdist[3]);
+
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
   if (cpi->sf.inter_mode_rd_model_estimation == 1) {
     assert(tile_data->inter_mode_rd_models[plane_bsize].ready);
@@ -2643,19 +2699,6 @@ static void PrintPredictionUnitStats(const AV1_COMP *const cpi,
             est_rdcost_norm);
   }
 #endif
-
-  double mean = get_mean(src_diff, diff_stride, bw, bh);
-  mean /= (1 << shift);
-  float hor_corr, vert_corr;
-  av1_get_horver_correlation_full(src_diff, diff_stride, bw, bh, &hor_corr,
-                                  &vert_corr);
-  fprintf(fout, " %g %g %g", mean, hor_corr, vert_corr);
-
-  double hdist[4] = { 0 }, vdist[4] = { 0 };
-  get_energy_distribution_fine(cpi, plane_bsize, src, src_stride, dst,
-                               dst_stride, 1, hdist, vdist);
-  fprintf(fout, " %g %g %g %g %g %g %g %g", hdist[0], hdist[1], hdist[2],
-          hdist[3], vdist[0], vdist[1], vdist[2], vdist[3]);
 
   fprintf(fout, "\n");
   fclose(fout);
@@ -2708,7 +2751,12 @@ static void model_rd_with_dnn(const AV1_COMP *const cpi,
   get_2x2_normalized_sses_and_sads(cpi, plane_bsize, src, src_stride, dst,
                                    dst_stride, src_diff, diff_stride,
                                    sse_norm_arr, NULL);
-  double mean = get_mean(src_diff, bw, bw, bh);
+  double mean;
+  if (is_cur_buf_hbd(xd)) {
+    mean = get_highbd_diff_mean(src, src_stride, dst, dst_stride, bw, bh);
+  } else {
+    mean = get_diff_mean(src, src_stride, dst, dst_stride, bw, bh);
+  }
   if (shift) {
     for (int k = 0; k < 4; ++k) sse_norm_arr[k] /= (1 << (2 * shift));
     mean /= (1 << shift);
@@ -5831,7 +5879,7 @@ static void pick_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     // tighter.
     assert(cpi->sf.model_based_prune_tx_search_level >= 0 &&
            cpi->sf.model_based_prune_tx_search_level <= 2);
-    static const int prune_factor_by8[] = { 4, 6 };
+    static const int prune_factor_by8[] = { 3, 5 };
     if (!model_skip &&
         ((model_rd *
           prune_factor_by8[cpi->sf.model_based_prune_tx_search_level - 1]) >>
@@ -8160,7 +8208,8 @@ static INLINE int64_t interpolation_filter_rd(
                                     AOM_PLANE_Y, AOM_PLANE_Y);
 #if CONFIG_COLLECT_RD_STATS == 3
       RD_STATS rd_stats_y;
-      select_tx_type_yrd(cpi, x, &rd_stats_y, bsize, mi_row, mi_col, INT64_MAX);
+      pick_tx_size_type_yrd(cpi, x, &rd_stats_y, bsize, mi_row, mi_col,
+                            INT64_MAX);
       PrintPredictionUnitStats(cpi, tile_data, x, &rd_stats_y, bsize);
 #endif  // CONFIG_COLLECT_RD_STATS == 3
       model_rd_sb_fn[MODELRD_TYPE_INTERP_FILTER](
@@ -8515,7 +8564,7 @@ static int64_t interpolation_filter_search(
 
 #if CONFIG_COLLECT_RD_STATS == 3
   RD_STATS rd_stats_y;
-  select_tx_type_yrd(cpi, x, &rd_stats_y, bsize, mi_row, mi_col, INT64_MAX);
+  pick_tx_size_type_yrd(cpi, x, &rd_stats_y, bsize, mi_row, mi_col, INT64_MAX);
   PrintPredictionUnitStats(cpi, tile_data, x, &rd_stats_y, bsize);
 #endif  // CONFIG_COLLECT_RD_STATS == 3
   model_rd_sb_fn[MODELRD_TYPE_INTERP_FILTER](
@@ -8722,7 +8771,7 @@ static int txfm_search(const AV1_COMP *cpi, const TileDataEnc *tile_data,
    * This function combines y and uv planes' transform search processes
    * together, when the prediction is generated. It first does subtraction to
    * obtain the prediction error. Then it calls
-   * select_tx_type_yrd/super_block_yrd and super_block_uvrd sequentially and
+   * pick_tx_size_type_yrd/super_block_yrd and super_block_uvrd sequentially and
    * handles the early terminations happening in those functions. At the end, it
    * computes the rd_stats/_y/_uv accordingly.
    */
@@ -9091,6 +9140,53 @@ static int check_if_optimal_warp(const AV1_COMP *cpi,
   return is_valid_warp;
 }
 
+struct obmc_check_mv_field_ctxt {
+  MB_MODE_INFO *current_mi;
+  int mv_field_check_result;
+};
+
+static INLINE void obmc_check_identical_mv(MACROBLOCKD *xd, int rel_mi_col,
+                                           uint8_t nb_mi_width,
+                                           MB_MODE_INFO *nb_mi, void *fun_ctxt,
+                                           const int num_planes) {
+  (void)xd;
+  (void)rel_mi_col;
+  (void)nb_mi_width;
+  (void)num_planes;
+  struct obmc_check_mv_field_ctxt *ctxt =
+      (struct obmc_check_mv_field_ctxt *)fun_ctxt;
+  const MB_MODE_INFO *current_mi = ctxt->current_mi;
+
+  if (ctxt->mv_field_check_result == 0) return;
+
+  if (nb_mi->ref_frame[0] != current_mi->ref_frame[0] ||
+      nb_mi->mv[0].as_int != current_mi->mv[0].as_int ||
+      nb_mi->interp_filters != current_mi->interp_filters) {
+    ctxt->mv_field_check_result = 0;
+  }
+  return;
+}
+
+// Check if the neighbors' motions used by obmc have same parameters as for
+// the current block. If all the parameters are identical, obmc will produce
+// the same prediction as from regular bmc, therefore we can skip the
+// overlapping operations for less complexity. The parameters checked include
+// reference frame, motion vector, and interpolation filter.
+int check_identical_obmc_mv_field(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                                  int mi_row, int mi_col) {
+  const BLOCK_SIZE bsize = xd->mi[0]->sb_type;
+  struct obmc_check_mv_field_ctxt mv_field_check_ctxt = { xd->mi[0], 1 };
+
+  foreach_overlappable_nb_above(cm, xd, mi_col,
+                                max_neighbor_obmc[mi_size_wide_log2[bsize]],
+                                obmc_check_identical_mv, &mv_field_check_ctxt);
+  foreach_overlappable_nb_left(cm, xd, mi_row,
+                               max_neighbor_obmc[mi_size_high_log2[bsize]],
+                               obmc_check_identical_mv, &mv_field_check_ctxt);
+
+  return mv_field_check_ctxt.mv_field_check_result;
+}
+
 // TODO(afergs): Refactor the MBMI references in here - there's four
 // TODO(afergs): Refactor optional args - add them to a struct or remove
 static int64_t motion_mode_rd(
@@ -9149,7 +9245,7 @@ static int64_t motion_mode_rd(
   const int identical_obmc_mv_field_detected =
       (cpi->sf.skip_obmc_in_uniform_mv_field ||
        cpi->sf.skip_wm_in_uniform_mv_field)
-          ? av1_check_identical_obmc_mv_field(cm, xd, mi_row, mi_col)
+          ? check_identical_obmc_mv_field(cm, xd, mi_row, mi_col)
           : 0;
   for (int mode_index = (int)SIMPLE_TRANSLATION;
        mode_index <= (int)last_motion_mode_allowed + interintra_allowed;
@@ -10031,7 +10127,6 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi,
                       best_rd = RDCOST(x->rdmult, best_rd_stats.rate,
                                        best_rd_stats.dist);
                       if (best_rd < ref_best_rd) ref_best_rd = best_rd;
-
                       skip = 1;
                       break;
                     }
