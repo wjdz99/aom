@@ -12303,6 +12303,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       }
     }
 
+    printf("Mode: %d    Threshold: %d\n", midx,
+           search_state.mode_threshold[midx]);
     if (search_state.best_rd < search_state.mode_threshold[midx]) continue;
 
     if (sf->prune_comp_search_by_single_result > 0 && comp_pred) {
