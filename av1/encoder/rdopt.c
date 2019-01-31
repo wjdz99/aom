@@ -9179,6 +9179,40 @@ int check_identical_obmc_mv_field(const AV1_COMMON *cm, MACROBLOCKD *xd,
   return mv_field_check_ctxt.mv_field_check_result;
 }
 
+// TX search may be conditionally turned on for some modes. This data structure
+// keeps track of when TX search should be used.
+struct tx_search {
+  // Structure that keeps track of which modes always have TX search enabled.
+  bool enabled[MAX_MODES];
+};
+
+// Initialize the TX search structure.
+void init_tx_search(struct tx_search *do_tx_search,
+                    const int inter_mode_rd_model_estimation,
+                    const int md_ready, int source_variance) {
+  const bool enabled =
+      !((inter_mode_rd_model_estimation == 1 && md_ready) ||
+        (inter_mode_rd_model_estimation == 2 && source_variance < 512));
+  for (int i = 0; i < MAX_MODES; ++i) {
+    do_tx_search->enabled[i] = enabled;
+  }
+}
+
+// Check if a mode should use the full transform search.
+bool tx_search_enabled(const struct tx_search *do_tx_search, int mode) {
+  return do_tx_search->enabled[mode];
+}
+
+// Check if TX search was turned on for all modes.
+bool all_modes_tx_search_enabled(const struct tx_search *do_tx_search) {
+  for (int i = 0; i < MAX_MODES; ++i) {
+    if (!do_tx_search->enabled[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 // TODO(afergs): Refactor the MBMI references in here - there's four
 // TODO(afergs): Refactor optional args - add them to a struct or remove
 static int64_t motion_mode_rd(
@@ -9187,7 +9221,7 @@ static int64_t motion_mode_rd(
     RD_STATS *rd_stats_uv, int *disable_skip, int mi_row, int mi_col,
     HandleInterModeArgs *const args, int64_t ref_best_rd, const int *refs,
     int *rate_mv, const BUFFER_SET *orig_dst, int64_t *best_est_rd,
-    int do_tx_search, InterModesInfo *inter_modes_info) {
+    const struct tx_search *do_tx_search, InterModesInfo *inter_modes_info) {
   const AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &x->e_mbd;
@@ -9415,7 +9449,8 @@ static int64_t motion_mode_rd(
       }
     }
 
-    if (cpi->sf.model_based_motion_mode_rd_breakout && do_tx_search) {
+    if (cpi->sf.model_based_motion_mode_rd_breakout &&
+        tx_search_enabled(do_tx_search, this_mode)) {
       int model_rate;
       int64_t model_dist;
       model_rd_sb_fn[MODELRD_TYPE_MOTION_MODE_RD](
@@ -9429,7 +9464,7 @@ static int64_t motion_mode_rd(
       }
     }
 
-    if (!do_tx_search) {
+    if (!tx_search_enabled(do_tx_search, this_mode)) {
       int64_t curr_sse;
       int est_residue_cost = 0;
       int64_t est_dist = 0;
@@ -9904,7 +9939,7 @@ static int64_t handle_inter_mode(
     RD_STATS *rd_stats_uv, int *disable_skip, int mi_row, int mi_col,
     HandleInterModeArgs *args, int64_t ref_best_rd, uint8_t *const tmp_buf,
     CompoundTypeRdBuffers *rd_buffers, int64_t *best_est_rd,
-    const int do_tx_search, InterModesInfo *inter_modes_info) {
+    const struct tx_search *do_tx_search, InterModesInfo *inter_modes_info) {
   const AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &x->e_mbd;
@@ -12185,10 +12220,9 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int64_t best_est_rd = INT64_MAX;
   // TODO(angiebird): Turn this on when this speed feature is well tested
   const InterModeRdModel *md = &tile_data->inter_mode_rd_models[bsize];
-  const int do_tx_search =
-      !((cpi->sf.inter_mode_rd_model_estimation == 1 && md->ready) ||
-        (cpi->sf.inter_mode_rd_model_estimation == 2 &&
-         x->source_variance < 512));
+  struct tx_search do_tx_search;
+  init_tx_search(&do_tx_search, cpi->sf.inter_mode_rd_model_estimation,
+                 md->ready, x->source_variance);
   InterModesInfo *inter_modes_info = x->inter_modes_info;
   inter_modes_info->num = 0;
 
@@ -12352,7 +12386,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         this_rd = handle_inter_mode(
             cpi, tile_data, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
             &disable_skip, mi_row, mi_col, &args, ref_best_rd, tmp_buf,
-            &rd_buffers, &best_est_rd, do_tx_search, inter_modes_info);
+            &rd_buffers, &best_est_rd, &do_tx_search, inter_modes_info);
         rate2 = rd_stats.rate;
         skippable = rd_stats.skip;
         distortion2 = rd_stats.dist;
@@ -12405,8 +12439,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         search_state.best_mbmode = *mbmi;
         search_state.best_skip2 = this_skip2;
         search_state.best_mode_skippable = skippable;
-        if (do_tx_search) {
-          // When do_tx_search == 0, handle_inter_mode won't provide correct
+        if (tx_search_enabled(&do_tx_search, midx)) {
+          // When !tx_search_enabled, handle_inter_mode won't provide correct
           // rate_y and rate_uv because txfm_search process is replaced by
           // rd estimation.
           // Therfore, we should avoid updating best_rate_y and best_rate_uv
@@ -12462,7 +12496,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   release_compound_type_rd_buffers(&rd_buffers);
 
-  if (!do_tx_search) {
+  if (!all_modes_tx_search_enabled(&do_tx_search)) {
     inter_modes_info_sort(inter_modes_info, inter_modes_info->rd_idx_pair_arr);
     search_state.best_rd = INT64_MAX;
 
@@ -12476,6 +12510,14 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       *mbmi = inter_modes_info->mbmi_arr[data_idx];
       int64_t curr_est_rd = inter_modes_info->est_rd_arr[data_idx];
       if (curr_est_rd * 0.80 > top_est_rd) break;
+
+      // Note index of best mode so far
+      const int mode_index = get_prediction_mode_idx(
+          mbmi->mode, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+      if (tx_search_enabled(&do_tx_search, mode_index)) {
+        assert(curr_est_rd >= search_state.best_rd);
+        continue;
+      }
 
       const int mode_rate = inter_modes_info->mode_rate_arr[data_idx];
 
@@ -12513,9 +12555,6 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
       if (rd_stats.rdcost < search_state.best_rd) {
         search_state.best_rd = rd_stats.rdcost;
-        // Note index of best mode so far
-        const int mode_index = get_prediction_mode_idx(
-            mbmi->mode, mbmi->ref_frame[0], mbmi->ref_frame[1]);
         search_state.best_mode_index = mode_index;
         *rd_cost = rd_stats;
         search_state.best_rd = rd_stats.rdcost;
