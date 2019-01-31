@@ -3168,8 +3168,9 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   // Tranform domain distortion is accurate for higher residuals.
   // TODO(any): Experiment with variance and mean based thresholds
   int use_transform_domain_distortion =
-      (cpi->sf.use_transform_domain_distortion > 0) &&
-      (block_mse_q8 >= cpi->tx_domain_dist_threshold) &&
+      (((cpi->sf.use_transform_domain_distortion > 0) &&
+        (block_mse_q8 >= cpi->tx_domain_dist_threshold)) ||
+       x->rd_model == LOW_TXFM_RD) &&
       // Any 64-pt transforms only preserves half the coefficients.
       // Therefore transform domain distortion is not valid for these
       // transform sizes.
@@ -3191,7 +3192,8 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   // coeffs. For snaller residuals, coeff optimization would be helpful. For
   // larger residuals, R-D optimization may not be effective.
   // TODO(any): Experiment with variance and mean based thresholds
-  perform_block_coeff_opt = (block_mse_q8 <= cpi->coeff_opt_dist_threshold);
+  perform_block_coeff_opt = (block_mse_q8 <= cpi->coeff_opt_dist_threshold) &&
+                            x->rd_model != LOW_TXFM_RD;
 
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
