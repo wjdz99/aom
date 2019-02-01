@@ -714,7 +714,7 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
 
       av1_set_mv_search_range(&x->mv_limits, &best_ref_mv1);
       av1_full_pixel_search(
-          cpi, x, TF_SUB_BLOCK, &best_ref_mv1_full, step_param, NSTEP, 1, sadpb,
+          cpi, x, TF_SUB_BLOCK, &best_ref_mv1_full, step_param, NSTEP, 0, sadpb,
           cond_cost_list(cpi, cost_list), &best_ref_mv1, 0, 0, x_pos, y_pos, 0);
       x->mv_limits = tmp_mv_limits;
 
