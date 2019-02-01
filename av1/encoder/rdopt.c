@@ -3228,7 +3228,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   const uint16_t *eobs_ptr = x->plane[plane].eobs;
 
   // Used mse based threshold logic to take decision of R-D of optimization of
-  // coeffs. For snaller residuals, coeff optimization would be helpful. For
+  // coeffs. For smaller residuals, coeff optimization would be helpful. For
   // larger residuals, R-D optimization may not be effective.
   // TODO(any): Experiment with variance and mean based thresholds
   perform_block_coeff_opt = (block_mse_q8 <= cpi->coeff_opt_dist_threshold);
