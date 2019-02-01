@@ -3667,6 +3667,7 @@ static void simple_motion_search_prune_part(
   const NN_CONFIG *nn_config = NULL;
   const float *prune_thresh = NULL, *only_thresh = NULL;
   const float *ml_mean = NULL, *ml_std = NULL;
+  const int prune_horz_backup = *prune_horz, prune_vert_backup = *prune_vert;
 
   if (bsize == BLOCK_128X128) {
     nn_config = &av1_simple_motion_search_prune_part_nn_config_128;
@@ -3702,9 +3703,19 @@ static void simple_motion_search_prune_part(
     assert(0 && "Unexpected block size in simple_motion_prune_part");
   }
 
-  // If there is no valid threshold, return immediately.
-  if (!nn_config || (prune_thresh[PARTITION_HORZ] == 0.0f &&
-                     prune_thresh[PARTITION_VERT] == 0.0f)) {
+  // Only prune on an inter frame where at least one rectangular partition is
+  // allowed and there are other partition types available.
+  const int try_prune_rect =
+      cpi->sf.simple_motion_search_prune_rect && !frame_is_intra_only(cm) &&
+      *do_rectangular_split &&
+      (*partition_horz_allowed || *partition_vert_allowed) &&
+      ((*partition_horz_allowed && *partition_vert_allowed) ||
+       (*partition_none_allowed) || (*do_square_split)) &&
+      bsize >= BLOCK_8X8 && !av1_superres_scaled(cm) &&
+      (prune_thresh[PARTITION_HORZ] != 0.0f ||
+       prune_thresh[PARTITION_VERT] != 0.0f);
+
+  if (!try_prune_rect) {
     return;
   }
 
@@ -3727,11 +3738,18 @@ static void simple_motion_search_prune_part(
   av1_nn_softmax(scores, probs, num_classes);
 
   // Determine if we should prune rectangular partitions.
-  if (cpi->sf.simple_motion_search_prune_rect && !frame_is_intra_only(cm) &&
-      (*partition_horz_allowed || *partition_vert_allowed) &&
-      bsize >= BLOCK_8X8 && !av1_superres_scaled(cm)) {
+  if (try_prune_rect) {
     *prune_horz = probs[PARTITION_HORZ] <= prune_thresh[PARTITION_HORZ];
     *prune_vert = probs[PARTITION_VERT] <= prune_thresh[PARTITION_VERT];
+  }
+
+  // If there is no basic partition available after this, revert the pruning
+  // decisions
+  if ((!*partition_none_allowed) && (!*do_square_split) &&
+      (!*do_rectangular_split || !*partition_horz_allowed || *prune_horz) &&
+      (!*do_rectangular_split || !*partition_vert_allowed || *prune_vert)) {
+    *prune_horz = prune_horz_backup;
+    *prune_vert = prune_vert_backup;
   }
 
   // Silence compiler warnings
