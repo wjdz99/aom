@@ -2170,7 +2170,6 @@ void av1_highbd_dr_prediction_z2_avx2(uint16_t *dst, ptrdiff_t stride, int bw,
                                        upsample_above, upsample_left, dx, dy);
       break;
   }
-  return;
 }
 
 static void highbd_transpose(const uint16_t *src, ptrdiff_t pitchSrc,
@@ -4370,5 +4369,4 @@ void av1_dr_prediction_z3_avx2(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
       }
     }
   }
-  return;
 }
