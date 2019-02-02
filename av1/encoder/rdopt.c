@@ -9748,8 +9748,9 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
   COMPOUND_TYPE cur_type;
   int best_compmode_interinter_cost = 0;
   int calc_pred_masked_compound = 1;
-  int64_t comp_dist[COMPOUND_TYPES] = { INT64_MAX, INT64_MAX, INT64_MAX };
-  int32_t comp_rate[COMPOUND_TYPES] = { INT_MAX, INT_MAX, INT_MAX };
+  int64_t comp_dist[COMPOUND_TYPES] = { INT64_MAX, INT64_MAX, INT64_MAX,
+                                        INT64_MAX };
+  int32_t comp_rate[COMPOUND_TYPES] = { INT_MAX, INT_MAX, INT_MAX, INT_MAX };
   const int match_found =
       find_comp_rd_in_stats(cpi, x, mbmi, comp_rate, comp_dist);
   best_mv[0].as_int = cur_mv[0].as_int;
@@ -9758,6 +9759,9 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
   for (cur_type = COMPOUND_AVERAGE; cur_type < COMPOUND_TYPES; cur_type++) {
     if (cur_type != COMPOUND_AVERAGE && !masked_compound_used) break;
     if (!is_interinter_compound_used(cur_type, bsize)) continue;
+    // TODO(debargha): Integrate COMPOUNDP_DISTWTD search in the current flow.
+    // Until then, skip the dist_wtd_comp search.
+    if (cur_type == COMPOUND_DISTWTD) continue;
     tmp_rate_mv = *rate_mv;
     int64_t best_rd_cur = INT64_MAX;
     mbmi->interinter_comp.type = cur_type;
@@ -9765,9 +9769,9 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
 
     const int comp_group_idx_ctx = get_comp_group_idx_context(xd);
     const int comp_index_ctx = get_comp_index_context(cm, xd);
-    mbmi->compound_idx = 1;
-    if (cur_type == COMPOUND_AVERAGE) {
+    if (cur_type == COMPOUND_AVERAGE || cur_type == COMPOUND_DISTWTD) {
       mbmi->comp_group_idx = 0;
+      mbmi->compound_idx = (cur_type == COMPOUND_AVERAGE);
       if (masked_compound_used) {
         masked_type_cost += x->comp_group_idx_cost[comp_group_idx_ctx][0];
       }
@@ -9805,8 +9809,10 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       restore_dst_buf(xd, *tmp_dst, 1);
     } else {
       mbmi->comp_group_idx = 1;
+      mbmi->compound_idx = 1;
       masked_type_cost += x->comp_group_idx_cost[comp_group_idx_ctx][1];
-      masked_type_cost += x->compound_type_cost[bsize][cur_type - 1];
+      masked_type_cost +=
+          x->compound_type_cost[bsize][cur_type - COMPOUND_WEDGE];
       rs2 = masked_type_cost;
 
       if (((*rd / cpi->max_comp_type_rd_threshold_div) *
@@ -9847,8 +9853,8 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
     mbmi->mv[1].as_int = cur_mv[1].as_int;
   }
   if (mbmi->interinter_comp.type != best_compound_data.type) {
-    mbmi->comp_group_idx =
-        (best_compound_data.type == COMPOUND_AVERAGE) ? 0 : 1;
+    mbmi->comp_group_idx = (best_compound_data.type < COMPOUND_WEDGE) ? 0 : 1;
+    mbmi->compound_idx = !(best_compound_data.type == COMPOUND_DISTWTD);
     mbmi->interinter_comp = best_compound_data;
     memcpy(xd->seg_mask, buffers->tmp_best_mask_buf, mask_len);
   }
