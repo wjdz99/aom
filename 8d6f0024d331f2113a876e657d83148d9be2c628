@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d74d56d_cbeabd46",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3716,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-02-04T19:01:05Z",
+      "side": 1,
+      "message": "The logic has some overlap with line 4066. Maybe combine the checks? I think is more clear to do the check when calling this function.",
+      "range": {
+        "startLine": 3708,
+        "startChar": 2,
+        "endLine": 3716,
+        "endChar": 45
+      },
+      "revId": "8d6f0024d331f2113a876e657d83148d9be2c628",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b094fa00_f505a714",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3741,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-02-04T19:01:05Z",
+      "side": 1,
+      "message": "Not needed, would have already returned at line 3718.",
+      "range": {
+        "startLine": 3741,
+        "startChar": 2,
+        "endLine": 3741,
+        "endChar": 23
+      },
+      "revId": "8d6f0024d331f2113a876e657d83148d9be2c628",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
