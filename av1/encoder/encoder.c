@@ -846,12 +846,15 @@ static void alloc_util_frame_buffers(AV1_COMP *cpi) {
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate trial restored frame buffer");
 
-  if (aom_realloc_frame_buffer(
-          &cpi->scaled_source, cm->width, cm->height, seq_params->subsampling_x,
-          seq_params->subsampling_y, seq_params->use_highbitdepth,
-          cpi->oxcf.border_in_pixels, cm->byte_alignment, NULL, NULL, NULL))
-    aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
-                       "Failed to allocate scaled source buffer");
+  if (cpi->oxcf.resize_mode || cpi->oxcf.superres_mode) {
+    if (aom_realloc_frame_buffer(
+            &cpi->scaled_source, cm->width, cm->height,
+            seq_params->subsampling_x, seq_params->subsampling_y,
+            seq_params->use_highbitdepth, cpi->oxcf.border_in_pixels,
+            cm->byte_alignment, NULL, NULL, NULL))
+      aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                         "Failed to allocate scaled source buffer");
+  }
 
   if (aom_realloc_frame_buffer(
           &cpi->scaled_last_source, cm->width, cm->height,
@@ -3884,7 +3887,7 @@ static void set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
 }
 
 static void init_motion_estimation(AV1_COMP *cpi) {
-  int y_stride = cpi->scaled_source.y_stride;
+  int y_stride = cpi->scaled_last_source.y_stride;
 
   if (cpi->sf.mv.search_method == NSTEP) {
     av1_init3smotion_compensation(&cpi->ss_cfg, y_stride);
