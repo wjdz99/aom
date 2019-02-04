@@ -7082,7 +7082,7 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
     step_param = AOMMAX(step_param, boffset);
   }
 
-  if (cpi->sf.adaptive_motion_search) {
+  if (cpi->sf.adaptive_motion_search || x->cb_partition_scan) {
     int bwl = mi_size_wide_log2[bsize];
     int bhl = mi_size_high_log2[bsize];
     int tlevel = x->pred_mv_sad[ref] >> (bwl + bhl + 4);
@@ -7099,6 +7099,7 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
         if ((x->pred_mv_sad[ref] >> 3) > x->pred_mv_sad[i]) {
           x->pred_mv[ref].row = 0;
           x->pred_mv[ref].col = 0;
+          x->valid_mv[ref] = 0;
           x->best_mv.as_int = INVALID_MV;
 
           if (scaled_ref_frame) {
@@ -7226,8 +7227,11 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   *rate_mv = av1_mv_bit_cost(&x->best_mv.as_mv, &ref_mv, x->nmv_vec_cost,
                              x->mv_cost_stack, MV_COST_WEIGHT);
 
-  if (cpi->sf.adaptive_motion_search && mbmi->motion_mode == SIMPLE_TRANSLATION)
+  if ((cpi->sf.adaptive_motion_search || x->cb_partition_scan) &&
+      mbmi->motion_mode == SIMPLE_TRANSLATION) {
     x->pred_mv[ref] = x->best_mv.as_mv;
+    x->valid_mv[ref] = 1;
+  }
 }
 
 static INLINE void restore_dst_buf(MACROBLOCKD *xd, const BUFFER_SET dst,
@@ -9355,8 +9359,10 @@ static int64_t motion_mode_rd(
                                           x->nmv_vec_cost, x->mv_cost_stack,
                                           MV_COST_WEIGHT);
 
-            if (cpi->sf.adaptive_motion_search)
+            if (cpi->sf.adaptive_motion_search || x->cb_partition_scan) {
               x->pred_mv[ref] = mbmi->mv[0].as_mv;
+              x->valid_mv[ref] = 1;
+            }
 
 #if USE_DISCOUNT_NEWMV_TEST
             if (discount_newmv_test(cpi, x, this_mode, mbmi->mv[0])) {
