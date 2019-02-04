@@ -387,6 +387,7 @@ struct macroblock {
 
   // Used to store sub partition's choices.
   MV pred_mv[REF_FRAMES];
+  int valid_mv[REF_FRAMES];
 
   // Store the best motion vector during motion search
   int_mv best_mv;

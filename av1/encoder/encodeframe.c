@@ -2483,6 +2483,8 @@ static void reset_partition(PC_TREE *pc_tree, BLOCK_SIZE bsize) {
   pc_tree->pc_tree_stats.split = 0;
   pc_tree->pc_tree_stats.skip = 0;
   pc_tree->pc_tree_stats.rdcost = INT64_MAX;
+  av1_zero(pc_tree->pc_tree_stats.init_mvs);
+  av1_zero(pc_tree->pc_tree_stats.valid_mvs);
 
   for (int i = 0; i < 4; i++) {
     pc_tree->pc_tree_stats.sub_block_split[i] = 0;
@@ -2676,6 +2678,13 @@ static void rd_pick_sqr_partition(AV1_COMP *const cpi, ThreadData *td,
 
   // store estimated motion vector
   if (cpi->sf.adaptive_motion_search) store_pred_mv(x, ctx_none);
+
+  if (x->cb_partition_scan && this_rdc.rate < INT_MAX) {
+    memcpy(pc_tree->pc_tree_stats.init_mvs, x->pred_mv,
+           sizeof(pc_tree->pc_tree_stats.init_mvs));
+    memcpy(pc_tree->pc_tree_stats.valid_mvs, x->valid_mv,
+           sizeof(pc_tree->pc_tree_stats.valid_mvs));
+  }
 
   int64_t temp_best_rdcost = best_rdc.rdcost;
   pn_rdc = best_rdc;
@@ -3525,7 +3534,11 @@ static int simple_motion_search_get_best_ref(
   // Otherwise do loop through the reference frames and find the one with the
   // minimum SSE
   const MACROBLOCKD *xd = &x->e_mbd;
-  const MV *mv_ref_fulls = pc_tree->mv_ref_fulls;
+  // This is in units of 1/8 pels
+  const MV *first_pass_mv_refs = pc_tree->pc_tree_stats.init_mvs;
+  // This is in units of pixels
+  MV *large_block_mv_refs = pc_tree->mv_ref_fulls;
+  MV mv_ref_full;
 
   const int num_planes = 1;
 
@@ -3536,8 +3549,15 @@ static int simple_motion_search_get_best_ref(
 
     if (cpi->ref_frame_flags & ref_frame_flag_list[ref]) {
       unsigned int curr_sse = 0, curr_var = 0;
-      simple_motion_search(cpi, x, mi_row, mi_col, bsize, ref,
-                           mv_ref_fulls[ref], num_planes, use_subpixel);
+      if (pc_tree->pc_tree_stats.valid &&
+          pc_tree->pc_tree_stats.valid_mvs[ref]) {
+        mv_ref_full.row = first_pass_mv_refs[ref].row / 8;
+        mv_ref_full.row = first_pass_mv_refs[ref].row / 8;
+      } else {
+        mv_ref_full = large_block_mv_refs[ref];
+      }
+      simple_motion_search(cpi, x, mi_row, mi_col, bsize, ref, mv_ref_full,
+                           num_planes, use_subpixel);
       curr_var = cpi->fn_ptr[bsize].vf(
           x->plane[0].src.buf, x->plane[0].src.stride, xd->plane[0].dst.buf,
           xd->plane[0].dst.stride, &curr_sse);
@@ -3548,14 +3568,13 @@ static int simple_motion_search_get_best_ref(
       }
 
       if (save_mv_code == 4) {
-        pc_tree->mv_ref_fulls[ref].row = x->best_mv.as_mv.row / 8;
-        pc_tree->mv_ref_fulls[ref].col = x->best_mv.as_mv.col / 8;
+        large_block_mv_refs[ref].row = x->best_mv.as_mv.row / 8;
+        large_block_mv_refs[ref].col = x->best_mv.as_mv.col / 8;
       } else if (save_mv_code >= 0 && save_mv_code < 4) {
         // Propagate the new motion vectors to a lower level
-        pc_tree->split[save_mv_code]->mv_ref_fulls[ref].row =
-            x->best_mv.as_mv.row / 8;
-        pc_tree->split[save_mv_code]->mv_ref_fulls[ref].col =
-            x->best_mv.as_mv.col / 8;
+        MV *small_block_mv_refs = pc_tree->split[save_mv_code]->mv_ref_fulls;
+        small_block_mv_refs[ref].row = x->best_mv.as_mv.row / 8;
+        small_block_mv_refs[ref].col = x->best_mv.as_mv.col / 8;
       }
     }
   }
@@ -3589,13 +3608,13 @@ static void simple_motion_search_prune_part_features(
   const int num_refs = 2;
   const int use_subpixel = 0;
 
-  unsigned int none_sse = 0, none_var = 0;
   unsigned int int_features[NUM_FEATURES - 1];
 
   // Doing whole block first to update the mv
-  simple_motion_search_get_best_ref(cpi, x, pc_tree, mi_row, mi_col, bsize,
-                                    ref_list, num_refs, use_subpixel, 4,
-                                    &none_sse, &none_var);
+  simple_motion_search_get_best_ref(
+      cpi, x, pc_tree, mi_row, mi_col, bsize, ref_list, num_refs, use_subpixel,
+      4, &int_features[f_idx], &int_features[f_idx + 1]);
+  f_idx += 2;
 
   // Split subblocks
   BLOCK_SIZE subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
@@ -3606,7 +3625,7 @@ static void simple_motion_search_prune_part_features(
 
     simple_motion_search_get_best_ref(
         cpi, x, pc_tree, sub_mi_row, sub_mi_col, subsize, ref_list, num_refs,
-        use_subpixel, r_idx, &int_features[f_idx + 1], &int_features[f_idx]);
+        use_subpixel, r_idx, &int_features[f_idx], &int_features[f_idx + 1]);
     f_idx += 2;
   }
 
@@ -3618,7 +3637,7 @@ static void simple_motion_search_prune_part_features(
 
     simple_motion_search_get_best_ref(
         cpi, x, pc_tree, sub_mi_row, sub_mi_col, subsize, ref_list, num_refs,
-        use_subpixel, -1, &int_features[f_idx + 1], &int_features[f_idx]);
+        use_subpixel, -1, &int_features[f_idx], &int_features[f_idx + 1]);
 
     f_idx += 2;
   }
@@ -3631,14 +3650,10 @@ static void simple_motion_search_prune_part_features(
 
     simple_motion_search_get_best_ref(
         cpi, x, pc_tree, sub_mi_row, sub_mi_col, subsize, ref_list, num_refs,
-        use_subpixel, -1, &int_features[f_idx + 1], &int_features[f_idx]);
+        use_subpixel, -1, &int_features[f_idx], &int_features[f_idx + 1]);
 
     f_idx += 2;
   }
-
-  // Whole block
-  int_features[f_idx++] = none_var;
-  int_features[f_idx++] = none_sse;
 
   aom_clear_system_state();
   for (int idx = 0; idx < f_idx; idx++) {
@@ -3661,7 +3676,8 @@ static void simple_motion_search_prune_part(
     int mi_col, BLOCK_SIZE bsize, int *partition_none_allowed,
     int *partition_horz_allowed, int *partition_vert_allowed,
     int *do_square_split, int *do_rectangular_split, int *prune_horz,
-    int *prune_vert) {
+    int *prune_vert, float *features) {
+  /*
   const AV1_COMMON *const cm = &cpi->common;
   // Get model parameters
   const NN_CONFIG *nn_config = NULL;
@@ -3707,11 +3723,16 @@ static void simple_motion_search_prune_part(
                      prune_thresh[PARTITION_VERT] == 0.0f)) {
     return;
   }
+  */
+  if (bsize < BLOCK_8X8) {
+    return;
+  }
 
   // Get features
-  float features[NUM_FEATURES] = { 0.0f };
+  // float features[NUM_FEATURES] = { 0.0f };
   simple_motion_search_prune_part_features(cpi, x, pc_tree, mi_row, mi_col,
                                            bsize, features);
+  /*
   for (int f_idx = 0; f_idx < NUM_FEATURES; f_idx++) {
     features[f_idx] = (features[f_idx] - ml_mean[f_idx]) / ml_std[f_idx];
   }
@@ -3733,9 +3754,10 @@ static void simple_motion_search_prune_part(
     *prune_horz = probs[PARTITION_HORZ] <= prune_thresh[PARTITION_HORZ];
     *prune_vert = probs[PARTITION_VERT] <= prune_thresh[PARTITION_VERT];
   }
+  */
 
   // Silence compiler warnings
-  (void)only_thresh;
+  // (void)only_thresh;
   (void)partition_none_allowed;
   (void)do_square_split;
   (void)do_rectangular_split;
@@ -3784,6 +3806,8 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   int horz_ctx_is_ready = 0;
   int vert_ctx_is_ready = 0;
   BLOCK_SIZE bsize2 = get_partition_subsize(bsize, PARTITION_SPLIT);
+
+  float features[19] = { 0.0f };
 
   // Max and min square partition levels are defined as the partition nodes that
   // the recursive function rd_pick_partition() can reach. To implement this:
@@ -4032,6 +4056,7 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
 
   // Use simple_motion_search to prune partitions. This must be done prior to
   // PARTITION_SPLIT to propagate the initial mvs to a smaller blocksize.
+  /*
   const int try_split_only =
       cpi->sf.simple_motion_search_split_only && bsize >= BLOCK_8X8 &&
       do_square_split && mi_row + mi_size_high[bsize] <= cm->mi_rows &&
@@ -4048,12 +4073,16 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   const int try_prune_rect =
       cpi->sf.simple_motion_search_prune_rect && !frame_is_intra_only(cm) &&
       (partition_horz_allowed || partition_vert_allowed) && bsize >= BLOCK_8X8;
+      */
+
+  const int try_prune_rect =
+      !frame_is_intra_only(cm) && cm->show_frame && bsize >= BLOCK_8X8;
 
   if (try_prune_rect) {
     simple_motion_search_prune_part(
         cpi, x, pc_tree, mi_row, mi_col, bsize, &partition_none_allowed,
         &partition_horz_allowed, &partition_vert_allowed, &do_square_split,
-        &do_rectangular_split, &prune_horz, &prune_vert);
+        &do_rectangular_split, &prune_horz, &prune_vert, features);
   }
 
 BEGIN_PARTITION_SEARCH:
@@ -5119,6 +5148,18 @@ BEGIN_PARTITION_SEARCH:
   }
 #endif
 
+  if (!frame_is_intra_only(cm) && best_rdc.rate < INT_MAX &&
+      best_rdc.dist < INT64_MAX && try_prune_rect) {
+    FILE *f = fopen("data.csv", "a");
+    fprintf(f, "%d,%d,", bsize, pc_tree->partitioning);
+
+    for (int f_idx = 0; f_idx < 19; f_idx++) {
+      fprintf(f, "%f,", features[f_idx]);
+    }
+    fprintf(f, "\n");
+    fclose(f);
+  }
+
   if (best_rdc.rate < INT_MAX && best_rdc.dist < INT64_MAX &&
       pc_tree->index != 3) {
     if (bsize == cm->seq_params.sb_size) {
@@ -5303,6 +5344,7 @@ static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
   av1_zero(x->txb_rd_record_64X64);
   av1_zero(x->txb_rd_record_intra);
   av1_zero(x->pred_mv);
+  av1_zero(x->valid_mv);
   pc_root->index = 0;
 
   for (int idy = 0; idy < mi_size_high[sb_size]; ++idy) {
@@ -5593,6 +5635,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     av1_zero(x->txb_rd_record_intra);
 
     av1_zero(x->pred_mv);
+    av1_zero(x->valid_mv);
     PC_TREE *const pc_root = td->pc_root[mib_size_log2 - MIN_MIB_SIZE_LOG2];
     pc_root->index = 0;
 
