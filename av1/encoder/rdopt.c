@@ -9437,7 +9437,7 @@ static int64_t motion_mode_rd(
     }
 
     if (!do_tx_search) {
-      int64_t curr_sse;
+      int64_t curr_sse = 0;
       int est_residue_cost = 0;
       int64_t est_dist = 0;
       int64_t est_rd = 0;
