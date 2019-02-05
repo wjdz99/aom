@@ -336,6 +336,9 @@ static void set_good_speed_features_framesize_independent(
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
     sf->disable_smooth_intra =
         !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
+    sf->disable_paeth_intra =
+        (!frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1)) &&
+        !cm->allow_screen_content_tools;
   }
 
   if (speed >= 4) {
@@ -788,6 +791,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->perform_coeff_opt = 0;
   sf->prune_comp_type_by_model_rd = 0;
   sf->disable_smooth_intra = 0;
+  sf->disable_paeth_intra = 0;
 
   if (oxcf->mode == GOOD)
     set_good_speed_features_framesize_independent(cpi, sf, speed);
