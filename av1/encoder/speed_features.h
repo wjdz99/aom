@@ -652,6 +652,9 @@ typedef struct SPEED_FEATURES {
 
   // Flag used to control the extent of coeff R-D optimization
   int perform_coeff_opt;
+
+  // Enable/disable smooth intra modes.
+  int disable_smooth_intra;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
