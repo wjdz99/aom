@@ -4568,7 +4568,9 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         (mbmi->mode == SMOOTH_PRED || mbmi->mode == SMOOTH_H_PRED ||
          mbmi->mode == SMOOTH_V_PRED))
       continue;
-    if (!cpi->oxcf.enable_paeth_intra && mbmi->mode == PAETH_PRED) continue;
+    if ((!cpi->oxcf.enable_paeth_intra || cpi->sf.disable_paeth_intra) &&
+        mbmi->mode == PAETH_PRED)
+      continue;
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
     this_model_rd =
         intra_model_yrd(cpi, x, bsize, bmode_costs[mbmi->mode], mi_row, mi_col);
@@ -12303,7 +12305,9 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
           (mbmi->mode == SMOOTH_PRED || mbmi->mode == SMOOTH_H_PRED ||
            mbmi->mode == SMOOTH_V_PRED))
         continue;
-      if (!cpi->oxcf.enable_paeth_intra && mbmi->mode == PAETH_PRED) continue;
+      if ((!cpi->oxcf.enable_paeth_intra || cpi->sf.disable_paeth_intra) &&
+          mbmi->mode == PAETH_PRED)
+        continue;
       if (sf->adaptive_mode_search > 1)
         if ((x->source_variance << num_pels_log2_lookup[bsize]) >
             search_state.best_pred_sse)

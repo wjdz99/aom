@@ -655,6 +655,8 @@ typedef struct SPEED_FEATURES {
 
   // Enable/disable smooth intra modes.
   int disable_smooth_intra;
+  // Enable/disable paeth intra modes.
+  int disable_paeth_intra;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
