@@ -8416,8 +8416,6 @@ static INLINE int is_comp_rd_match(const AV1_COMP *const cpi,
                                    const COMP_RD_STATS *st,
                                    const MB_MODE_INFO *const mi,
                                    int32_t *comp_rate, int64_t *comp_dist) {
-  // TODO(ranjit): Ensure that compound type search use regular filter always
-  // and check if following check can be removed
   // Check if interp filter matches with previous case
   if (st->filter != mi->interp_filters) return 0;
 
@@ -8522,7 +8520,7 @@ static int64_t interpolation_filter_search(
     const BUFFER_SET *const tmp_dst, const BUFFER_SET *const orig_dst,
     InterpFilter (*const single_filter)[REF_FRAMES], int64_t *const rd,
     int *const switchable_rate, int *const skip_txfm_sb,
-    int64_t *const skip_sse_sb, const int skip_build_pred,
+    int64_t *const skip_sse_sb, InterpFilters luma_interp_filter_type,
     HandleInterModeArgs *args, int64_t ref_best_rd) {
   const AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
@@ -8553,9 +8551,9 @@ static int64_t interpolation_filter_search(
   switchable_ctx[1] = av1_get_pred_context_switchable_interp(xd, 1);
   *switchable_rate =
       get_switchable_rate(x, mbmi->interp_filters, switchable_ctx);
-  if (!skip_build_pred) {
+  if (luma_interp_filter_type != mbmi->interp_filters) {
     av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize, 0,
-                                  av1_num_planes(cm) - 1);
+                                  0);
   }
 
 #if CONFIG_COLLECT_RD_STATS == 3
@@ -8567,10 +8565,12 @@ static int64_t interpolation_filter_search(
       cpi, bsize, x, xd, 0, 0, mi_row, mi_col, &tmp_rate[0], &tmp_dist[0],
       &best_skip_txfm_sb[0], &best_skip_sse_sb[0], NULL, NULL, NULL);
   if (num_planes > 1)
-    model_rd_sb_fn[MODELRD_TYPE_INTERP_FILTER](
-        cpi, bsize, x, xd, 1, num_planes - 1, mi_row, mi_col, &tmp_rate[1],
-        &tmp_dist[1], &best_skip_txfm_sb[1], &best_skip_sse_sb[1], NULL, NULL,
-        NULL);
+    av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
+                                  AOM_PLANE_U, av1_num_planes(cm) - 1);
+  model_rd_sb_fn[MODELRD_TYPE_INTERP_FILTER](
+      cpi, bsize, x, xd, 1, num_planes - 1, mi_row, mi_col, &tmp_rate[1],
+      &tmp_dist[1], &best_skip_txfm_sb[1], &best_skip_sse_sb[1], NULL, NULL,
+      NULL);
   tmp_rate[1] =
       (int)AOMMIN((int64_t)tmp_rate[0] + (int64_t)tmp_rate[1], INT_MAX);
   assert(tmp_rate[1] >= 0);
@@ -9727,7 +9727,8 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
                             const BUFFER_SET *tmp_dst,
                             CompoundTypeRdBuffers *buffers, int *rate_mv,
                             int64_t *rd, RD_STATS *rd_stats,
-                            int64_t ref_best_rd, int *is_luma_interp_done) {
+                            int64_t ref_best_rd,
+                            InterpFilters *luma_interp_filter_type) {
   const AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
@@ -9778,7 +9779,7 @@ static int compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
         if (comp_rate[0] == INT_MAX) {
           av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
                                         AOM_PLANE_Y, AOM_PLANE_Y);
-          *is_luma_interp_done = 1;
+          *luma_interp_filter_type = mbmi->interp_filters;
           RD_STATS est_rd_stats;
           const int64_t est_rd =
               estimate_yrd_for_sb(cpi, bsize, x, INT64_MAX, &est_rd_stats);
@@ -10155,26 +10156,29 @@ static int64_t handle_inter_mode(
         continue;
       }
 
-      int skip_build_pred = 0;
+      InterpFilters luma_interp_filter_type = 0xFFFFFFFF;
       if (is_comp_pred && comp_idx) {
-        // Find matching interp filter or set to default interp filter
-        const int need_search =
-            av1_is_interp_needed(xd) && av1_is_interp_search_needed(xd);
-        int match_found = -1;
-        const InterpFilter assign_filter = cm->interp_filter;
-        int is_luma_interp_done = 0;
-        if (cpi->sf.skip_repeat_interpolation_filter_search && need_search) {
-          match_found = find_interp_filter_in_stats(x, mbmi);
-        }
-        if (!need_search || match_found == -1) {
-          set_default_interp_filters(mbmi, assign_filter);
+        if (!cpi->sf.use_reg_filter_for_comp_type_search) {
+          // Find matching interp filter or set to default interp filter
+          const int need_search =
+              av1_is_interp_needed(xd) && av1_is_interp_search_needed(xd);
+          int match_found = -1;
+          const InterpFilter assign_filter = cm->interp_filter;
+          if (cpi->sf.skip_repeat_interpolation_filter_search && need_search) {
+            match_found = find_interp_filter_in_stats(x, mbmi);
+          }
+          if (!need_search || match_found == -1) {
+            set_default_interp_filters(mbmi, assign_filter);
+          }
+        } else {
+          mbmi->interp_filters = 0;
         }
 
         int64_t best_rd_compound;
         compmode_interinter_cost = compound_type_rd(
             cpi, x, bsize, mi_col, mi_row, cur_mv, masked_compound_used,
             &orig_dst, &tmp_dst, rd_buffers, &rate_mv, &best_rd_compound,
-            rd_stats, ref_best_rd, &is_luma_interp_done);
+            rd_stats, ref_best_rd, &luma_interp_filter_type);
         if (ref_best_rd < INT64_MAX &&
             (best_rd_compound >> 4) * 13 > ref_best_rd) {
           restore_dst_buf(xd, orig_dst, num_planes);
@@ -10184,20 +10188,15 @@ static int64_t handle_inter_mode(
         // COMPOUND_AVERAGE is selected because it is the first
         // candidate in compound_type_rd, and the following
         // compound types searching uses tmp_dst buffer
-        if (mbmi->interinter_comp.type == COMPOUND_AVERAGE &&
-            is_luma_interp_done) {
-          if (num_planes > 1) {
-            av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst,
-                                          bsize, AOM_PLANE_U, num_planes - 1);
-          }
-          skip_build_pred = 1;
-        }
+
+        if (mbmi->interinter_comp.type != COMPOUND_AVERAGE)
+          luma_interp_filter_type = 0xFFFFFFFF;
       }
 
       ret_val = interpolation_filter_search(
           x, cpi, tile_data, bsize, mi_row, mi_col, &tmp_dst, &orig_dst,
           args->single_filter, &rd, &rs, &skip_txfm_sb, &skip_sse_sb,
-          skip_build_pred, args, ref_best_rd);
+          luma_interp_filter_type, args, ref_best_rd);
       if (args->modelled_rd != NULL && !is_comp_pred) {
         args->modelled_rd[this_mode][ref_mv_idx][refs[0]] = rd;
       }

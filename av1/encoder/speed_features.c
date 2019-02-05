@@ -323,6 +323,7 @@ static void set_good_speed_features_framesize_independent(
     sf->recode_loop = ALLOW_RECODE_KFARFGF;
     sf->use_transform_domain_distortion = boosted ? 1 : 2;
     sf->use_accurate_subpel_search = USE_2_TAPS;
+    sf->use_reg_filter_for_comp_type_search = 1;
     sf->adaptive_rd_thresh = 2;
     sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
     sf->gm_search_type = GM_DISABLE_SEARCH;
@@ -566,6 +567,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
 
   sf->obmc_full_pixel_search_level = 0;
   sf->skip_sharp_interp_filter_search = 0;
+  sf->use_reg_filter_for_comp_type_search = 0;
   sf->prune_comp_type_by_comp_avg = 0;
   sf->disable_interinter_wedge_newmv_search = 0;
   sf->prune_motion_mode_level = 0;
