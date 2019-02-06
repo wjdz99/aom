@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "faffd640_91716e1d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-02-06T21:17:10Z",
+      "side": 1,
+      "message": "This bug number doesn\u0027t exist. Perhaps this should say \"aomedia\", not \"webm\"?",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 13
+      },
+      "revId": "c475e92f486012f80ba9d41efcd434f29385f55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d290ae7a_7875efce",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1507,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-02-06T21:17:10Z",
+      "side": 1,
+      "message": "Code Search shows ctx-\u003ecx_data_sz and ctx-\u003ecx_data are assigned a value only in this block of code.\n\nPerhaps the static analyzer thinks img !\u003d NULL may be false and therefore this block of code is never executed, which would leave ctx-\u003ecx_data_sz \u003d 0 and ctx-\u003ecx_data \u003d NULL.\n\nPerhaps the static analyzer thinks that if we return AOM_CODEC_MEM_ERROR from line 1505, then we will end up with ctx-\u003ecx_data \u003d NULL and ctx-\u003ecx_data_sz !\u003d 0. That can be addressed by rewriting this block of code as follows:\n\n         if (ctx-\u003ecx_data \u003d\u003d NULL || ctx-\u003ecx_data_sz \u003c data_sz) {\n           free(ctx-\u003ecx_data);\n           ctx-\u003ecx_data \u003d (unsigned char *)malloc(data_sz);\n           if (ctx-\u003ecx_data \u003d\u003d NULL) {\n             ctx-\u003ecx_data_sz \u003d 0;\n             return AOM_CODEC_MEM_ERROR;\n           }\n           ctx-\u003ecx_data_sz \u003d data_sz;\n         }",
+      "range": {
+        "startLine": 1500,
+        "startChar": 0,
+        "endLine": 1507,
+        "endChar": 7
+      },
+      "revId": "c475e92f486012f80ba9d41efcd434f29385f55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c790f7b2_58787965",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1569,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-02-06T21:17:10Z",
+      "side": 1,
+      "message": "Ideally we should analyze this more. Please see my comment above.",
+      "revId": "c475e92f486012f80ba9d41efcd434f29385f55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73f1b5ac_66f698eb",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-02-06T21:17:10Z",
+      "side": 1,
+      "message": "I think it is better to use the approach in av1_add_to_hash_map_by_row_with_precal_data():\n\n  int add_value \u003d hash_block_size_to_index(block_size);\n  assert(add_value \u003e\u003d 0);\n  add_value \u003c\u003c\u003d crc_bits;\n\nI believe the static analyzer warns about this because it sees that hash_block_size_to_index(block_size) may return -1. If we assert the return value is \u003e\u003d0 before left-shifting it, I think the static analyzer will be satisfied.",
+      "range": {
+        "startLine": 397,
+        "startChar": 26,
+        "endLine": 397,
+        "endChar": 62
+      },
+      "revId": "c475e92f486012f80ba9d41efcd434f29385f55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58ff4550_446086a7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 9440,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-02-06T21:17:10Z",
+      "side": 1,
+      "message": "Optional: It is always safe to initialize a variable. Sometimes it is good to initialize the variable to an invalid value, so that we can detect if we use the variable without assigning it an appropriate value. So it may be better to initialize this variable to -1, but I am not sure.",
+      "range": {
+        "startLine": 9440,
+        "startChar": 6,
+        "endLine": 9440,
+        "endChar": 27
+      },
+      "revId": "c475e92f486012f80ba9d41efcd434f29385f55c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
