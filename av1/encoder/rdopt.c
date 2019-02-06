@@ -9916,7 +9916,7 @@ typedef struct {
   int_mv mv;
 } inter_mode_info;
 
-#define SEPARATE_COMP_DISTWTD_RD 1
+#define SEPARATE_COMP_DISTWTD_RD 0
 
 static int64_t handle_inter_mode(
     const AV1_COMP *const cpi, TileDataEnc *tile_data, MACROBLOCK *x,
