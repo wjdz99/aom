@@ -3169,11 +3169,19 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   // TODO(any): Experiment with variance and mean based thresholds
   int use_transform_domain_distortion =
       (cpi->sf.use_transform_domain_distortion > 0) &&
-      (block_mse_q8 >= cpi->tx_domain_dist_threshold) &&
-      // Any 64-pt transforms only preserves half the coefficients.
-      // Therefore transform domain distortion is not valid for these
-      // transform sizes.
-      txsize_sqr_up_map[tx_size] != TX_64X64;
+      (block_mse_q8 >= cpi->tx_domain_dist_threshold);
+  if ((txsize_sqr_up_map[tx_size] == TX_64X64) &&
+      use_transform_domain_distortion) {
+    int visible_cols, visible_rows;
+    get_txb_dimensions(xd, plane, plane_bsize, blk_row, blk_col, tx_bsize, NULL,
+                       NULL, &visible_cols, &visible_rows);
+    // tx domain distortion/sse is calculated over complete tx size. block_sse
+    // is calculated over valid block. Hence tx domain evaluation is skipped for
+    // those cases
+    if ((visible_rows != block_size_high[tx_bsize]) ||
+        (visible_cols != block_size_wide[tx_bsize]))
+      use_transform_domain_distortion = 0;
+  }
 #if CONFIG_DIST_8X8
   if (x->using_dist_8x8) use_transform_domain_distortion = 0;
 #endif
@@ -3228,6 +3236,11 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     } else if (use_transform_domain_distortion) {
       dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
                            &this_rd_stats.sse);
+      // Account the error due to remaining 32 sized blocks in the distortion
+      if (txsize_sqr_up_map[tx_size] == TX_64X64) {
+        this_rd_stats.dist += AOMMAX((block_sse - this_rd_stats.sse), 0);
+        this_rd_stats.sse = block_sse;
+      }
     } else {
       this_rd_stats.dist = dist_block_px_domain(
           cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size);
