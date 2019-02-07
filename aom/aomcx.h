@@ -982,6 +982,14 @@ enum aome_enc_control_id {
   /*!\brief Control to use adaptive quantize_b */
   AV1E_SET_QUANT_B_ADAPT,
 
+  /*!\brief Control to set quantized coeff optimization type
+   * (valid values: 0, 1, 2)
+   * 0: No quantized coeff optimization
+   * 1: Full RD based quantized coeff optimization
+   * 2: Final Pass RD based quantized coeff optimization
+   */
+  AV1E_SET_QCOEFF_OPT,
+
   /*!\brief Control to select maximum height for the GF group pyramid structure
    * (valid values: 1 - 4) */
   AV1E_SET_GF_MAX_PYRAMID_HEIGHT,
@@ -1371,6 +1379,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_INTER_DCT_ONLY, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_QUANT_B_ADAPT, unsigned int)
 #define AOM_CTRL_AV1E_SET_QUANT_B_ADAPT
+
+AOM_CTRL_USE_TYPE(AV1E_SET_QCOEFF_OPT, unsigned int)
+#define AOM_CTRL_AV1E_SET_QCOEFF_OPT
 
 AOM_CTRL_USE_TYPE(AV1E_SET_GF_MAX_PYRAMID_HEIGHT, unsigned int)
 #define AOM_CTRL_AV1E_SET_GF_MAX_PYRAMID_HEIGHT

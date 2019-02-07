@@ -17,12 +17,6 @@
 
 #include "aom_dsp/aom_dsp_common.h"
 
-// Setting this to 1 will disable trellis optimization completely.
-// Setting this to 2 will disable trellis optimization within the
-// transform search. Trellis optimization will still be applied
-// in the final encode.
-#define DISABLE_TRELLISQ_SEARCH 1
-
 #define MAX_MESH_SPEED 5  // Max speed setting for mesh motion method
 // Max speed setting for tx domain evaluation
 #define MAX_TX_DOMAIN_EVAL_SPEED 5
@@ -646,18 +640,20 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->mv.subpel_search_method = SUBPEL_TREE;
   sf->mv.subpel_iters_per_step = 2;
   sf->mv.subpel_force_stop = EIGHTH_PEL;
-#if DISABLE_TRELLISQ_SEARCH == 2
-  sf->optimize_coefficients = !is_lossless_requested(&cpi->oxcf)
-                                  ? FINAL_PASS_TRELLIS_OPT
-                                  : NO_TRELLIS_OPT;
-#elif DISABLE_TRELLISQ_SEARCH == 1
-  sf->optimize_coefficients = NO_TRELLIS_OPT;
-#else
-  if (is_lossless_requested(&cpi->oxcf))
+  if (cpi->oxcf.qcoeff_opt == 2) {
+    sf->optimize_coefficients = !is_lossless_requested(&cpi->oxcf)
+        ? FINAL_PASS_TRELLIS_OPT
+        : NO_TRELLIS_OPT;
+  } else if (cpi->oxcf.qcoeff_opt == 1) {
+    if (is_lossless_requested(&cpi->oxcf))
+      sf->optimize_coefficients = NO_TRELLIS_OPT;
+    else
+      sf->optimize_coefficients = FULL_TRELLIS_OPT;
+  } else if (cpi->oxcf.qcoeff_opt == 0) {
     sf->optimize_coefficients = NO_TRELLIS_OPT;
-  else
-    sf->optimize_coefficients = FULL_TRELLIS_OPT;
-#endif  // DISABLE_TRELLISQ_SEARCH
+  } else {
+    assert(0);
+  }
   sf->gm_erroradv_type = GM_ERRORADV_TR_0;
   sf->mv.reduce_first_step_size = 0;
   sf->mv.auto_mv_step_size = 0;
