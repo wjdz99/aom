@@ -71,6 +71,7 @@
 #include "av1/encoder/speed_features.h"
 #include "av1/encoder/temporal_filter.h"
 #include "av1/encoder/reconinter_enc.h"
+#include "av1/encoder/additionHandle_Frame.h"
 
 #define DEFAULT_EXPLICIT_ORDER_HINT_BITS 7
 
@@ -5421,7 +5422,11 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
   // Pick the loop filter level for the frame.
   if (!cm->allow_intrabc) {
-    loopfilter_frame(cpi, cm);
+    if (CONFIG_CNN_RESTORATION) {
+      additionHandle_blocks(cpi, cm, cm->cur_frame->frame_type);
+    } else {
+      loopfilter_frame(cpi, cm);
+    }
   } else {
     cm->lf.filter_level[0] = 0;
     cm->lf.filter_level[1] = 0;
