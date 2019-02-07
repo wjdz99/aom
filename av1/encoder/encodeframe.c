@@ -5734,8 +5734,26 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
                           wt_left, wt_tr);
       }
     }
-    av1_fill_coeff_costs(&td->mb, xd->tile_ctx, num_planes);
-    av1_fill_mode_rates(cm, x, xd->tile_ctx);
+
+    switch (cpi->oxcf.coeff_cost_upd_freq) {
+      case 2:  // Tile level
+        if (mi_row != tile_info->mi_row_start) break;
+      case 1:  // SB row level in tile
+        if (mi_col != tile_info->mi_col_start) break;
+      case 0:  // SB level
+        av1_fill_coeff_costs(&td->mb, xd->tile_ctx, num_planes);
+        break;
+    }
+
+    switch (cpi->oxcf.mode_cost_upd_freq) {
+      case 2:  // Tile level
+        if (mi_row != tile_info->mi_row_start) break;
+      case 1:  // SB row level in tile
+        if (mi_col != tile_info->mi_col_start) break;
+      case 0:  // SB level
+        av1_fill_mode_rates(cm, x, xd->tile_ctx);
+        break;
+    }
 
     if (sf->adaptive_pred_interp_filter) {
       for (int i = 0; i < leaf_nodes; ++i) {
