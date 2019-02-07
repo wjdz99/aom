@@ -71,6 +71,7 @@
 #include "av1/encoder/speed_features.h"
 #include "av1/encoder/temporal_filter.h"
 #include "av1/encoder/reconinter_enc.h"
+#include "av1/encoder/additionHandle_Frame.h"
 
 #define DEFAULT_EXPLICIT_ORDER_HINT_BITS 7
 
@@ -5421,7 +5422,11 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
   // Pick the loop filter level for the frame.
   if (!cm->allow_intrabc) {
+#if CONFIG_CNN_RESTORATION == 1
+    additionHandle_blocks(cpi, cm, cm->cur_frame->frame_type);
+#else
     loopfilter_frame(cpi, cm);
+#endif
   } else {
     cm->lf.filter_level[0] = 0;
     cm->lf.filter_level[1] = 0;
@@ -6489,13 +6494,13 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
     xd->mi[0]->sb_type = bsize;
     xd->mi[0]->ref_frame[0] = INTRA_FRAME;
 
-    av1_predict_intra_block(
-        cm, xd, block_size_wide[bsize], block_size_high[bsize], tx_size, mode,
-        0, 0, FILTER_INTRA_MODES, 
+    av1_predict_intra_block(cm, xd, block_size_wide[bsize],
+                            block_size_high[bsize], tx_size, mode, 0, 0,
+                            FILTER_INTRA_MODES,
 #if CONFIG_ADAPT_FILTER_INTRA
-        ADAPT_FILTER_INTRA_MODES,
+                            ADAPT_FILTER_INTRA_MODES,
 #endif
-        src, src_stride, dst, dst_stride, 0, 0, 0);
+                            src, src_stride, dst, dst_stride, 0, 0, 0);
 
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       aom_highbd_subtract_block(bh, bw, src_diff, bw, src, src_stride, dst,

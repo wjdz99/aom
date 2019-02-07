@@ -53,11 +53,17 @@ set_aom_detect_var(HAVE_SSE4_2 0 NUMBER "Enables SSE 4.2 optimizations.")
 set_aom_detect_var(HAVE_SSSE3 0 NUMBER "Enables SSSE3 optimizations.")
 
 # Flags describing the build environment.
-set_aom_detect_var(HAVE_FEXCEPT 0 NUMBER
+set_aom_detect_var(HAVE_FEXCEPT
+                   0
+                   NUMBER
                    "Internal flag, GNU fenv.h present for target.")
-set_aom_detect_var(HAVE_PTHREAD_H 0 NUMBER
+set_aom_detect_var(HAVE_PTHREAD_H
+                   0
+                   NUMBER
                    "Internal flag, target pthread support.")
-set_aom_detect_var(HAVE_UNISTD_H 0 NUMBER
+set_aom_detect_var(HAVE_UNISTD_H
+                   0
+                   NUMBER
                    "Internal flag, unistd.h present for target.")
 set_aom_detect_var(HAVE_WXWIDGETS 0 NUMBER "WxWidgets present.")
 
@@ -67,7 +73,9 @@ set_aom_detect_var(HAVE_WXWIDGETS 0 NUMBER "WxWidgets present.")
 #
 
 # Build configuration flags.
-set_aom_config_var(AOM_RTCD_FLAGS "" STRING
+set_aom_config_var(AOM_RTCD_FLAGS
+                   ""
+                   STRING
                    "Arguments to pass to rtcd.pl. Separate with ';'")
 set_aom_config_var(CONFIG_AV1_DECODER 1 NUMBER "Enable AV1 decoder.")
 set_aom_config_var(CONFIG_AV1_ENCODER 1 NUMBER "Enable AV1 encoder.")
@@ -75,13 +83,17 @@ set_aom_config_var(CONFIG_BIG_ENDIAN 0 NUMBER "Internal flag.")
 set_aom_config_var(CONFIG_GCC 0 NUMBER "Building with GCC (detect).")
 set_aom_config_var(CONFIG_GCOV 0 NUMBER "Enable gcov support.")
 set_aom_config_var(CONFIG_GPROF 0 NUMBER "Enable gprof support.")
-set_aom_config_var(CONFIG_LIBYUV 1 NUMBER
+set_aom_config_var(CONFIG_LIBYUV
+                   1
+                   NUMBER
                    "Enables libyuv scaling/conversion support.")
 
 set_aom_config_var(CONFIG_MULTITHREAD 1 NUMBER "Multithread support.")
 set_aom_config_var(CONFIG_OS_SUPPORT 0 NUMBER "Internal flag.")
 set_aom_config_var(CONFIG_PIC 0 NUMBER "Build with PIC enabled.")
-set_aom_config_var(CONFIG_RUNTIME_CPU_DETECT 1 NUMBER
+set_aom_config_var(CONFIG_RUNTIME_CPU_DETECT
+                   1
+                   NUMBER
                    "Runtime CPU detection support.")
 set_aom_config_var(CONFIG_SHARED 0 NUMBER "Build shared libs.")
 set_aom_config_var(CONFIG_STATIC 1 NUMBER "Build static libs.")
@@ -95,25 +107,43 @@ set_aom_config_var(CONFIG_MISMATCH_DEBUG 0 NUMBER "Mismatch debugging flag.")
 # AV1 feature flags.
 set_aom_config_var(CONFIG_ACCOUNTING 0 NUMBER "Enables bit accounting.")
 set_aom_config_var(CONFIG_ANALYZER 0 NUMBER "Enables bit stream analyzer.")
-set_aom_config_var(CONFIG_COEFFICIENT_RANGE_CHECKING 0 NUMBER
+set_aom_config_var(CONFIG_COEFFICIENT_RANGE_CHECKING
+                   0
+                   NUMBER
                    "Coefficient range check.")
-set_aom_config_var(CONFIG_DENOISE 1 NUMBER
+set_aom_config_var(CONFIG_DENOISE
+                   1
+                   NUMBER
                    "Denoise/noise modeling support in encoder.")
-set_aom_config_var(CONFIG_FILEOPTIONS 1 NUMBER
+set_aom_config_var(CONFIG_FILEOPTIONS
+                   1
+                   NUMBER
                    "Enables encoder config file support.")
-set_aom_config_var(CONFIG_FIX_GF_LENGTH 1 NUMBER
+set_aom_config_var(CONFIG_FIX_GF_LENGTH
+                   1
+                   NUMBER
                    "Fix the GF length if possible")
 set_aom_config_var(CONFIG_INSPECTION 0 NUMBER "Enables bitstream inspection.")
-set_aom_config_var(CONFIG_INTERNAL_STATS 0 NUMBER
+set_aom_config_var(CONFIG_INTERNAL_STATS
+                   0
+                   NUMBER
                    "Enables internal encoder stats.")
-set_aom_config_var(CONFIG_LOWBITDEPTH 1 NUMBER
+set_aom_config_var(CONFIG_LOWBITDEPTH
+                   1
+                   NUMBER
                    "Enables 8-bit optimized pipeline.")
-set_aom_config_var(CONFIG_MAX_DECODE_PROFILE 2 NUMBER
+set_aom_config_var(CONFIG_MAX_DECODE_PROFILE
+                   2
+                   NUMBER
                    "Max profile to support decoding.")
-set_aom_config_var(CONFIG_NORMAL_TILE_MODE 0 NUMBER
+set_aom_config_var(CONFIG_NORMAL_TILE_MODE
+                   0
+                   NUMBER
                    "Only enables normal tile mode.")
 set_aom_config_var(
-  CONFIG_REDUCED_ENCODER_BORDER 0 NUMBER
+  CONFIG_REDUCED_ENCODER_BORDER
+  0
+  NUMBER
   "Enable reduced border extention for encoder. \
                     Disables superres and resize support."
   )
@@ -123,7 +153,9 @@ set_aom_config_var(DECODE_HEIGHT_LIMIT 0 NUMBER "Set limit for decode height.")
 set_aom_config_var(DECODE_WIDTH_LIMIT 0 NUMBER "Set limit for decode width.")
 
 # AV1 experiment flags.
-set_aom_config_var(CONFIG_COLLECT_INTER_MODE_RD_STATS 1 NUMBER
+set_aom_config_var(CONFIG_COLLECT_INTER_MODE_RD_STATS
+                   1
+                   NUMBER
                    "AV1 experiment flag.")
 set_aom_config_var(CONFIG_SPEED_STATS 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_COLLECT_RD_STATS 0 NUMBER "AV1 experiment flag.")
@@ -132,17 +164,27 @@ set_aom_config_var(CONFIG_ENTROPY_STATS 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_FP_MB_STATS 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_INTER_STATS_ONLY 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_RD_DEBUG 0 NUMBER "AV1 experiment flag.")
-set_aom_config_var(CONFIG_2PASS_PARTITION_SEARCH_LVL 1 NUMBER
+set_aom_config_var(CONFIG_2PASS_PARTITION_SEARCH_LVL
+                   1
+                   NUMBER
                    "AV1 experiment flag.")
 set_aom_config_var(CONFIG_SHARP_SETTINGS 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_ONE_PASS_SVM 0 NUMBER "AV1 experiment flag.")
-set_aom_config_var(CONFIG_DISABLE_FULL_PIXEL_SPLIT_8X8 1 NUMBER
+set_aom_config_var(CONFIG_DISABLE_FULL_PIXEL_SPLIT_8X8
+                   1
+                   NUMBER
                    "Disable full_pixel_motion_search_based_split on BLOCK_8X8")
+set_aom_config_var(CONFIG_CNN_RESTORATION
+                   0
+                   NUMBER
+                   "CNN Restoration experiment flag")
 
 # AV2 experiment flags
 set_aom_config_var(CONFIG_ADAPT_FILTER_INTRA 0 NUMBER "AV1 experiment flag.")
-set_aom_config_var(CONFIG_CNN_RESTORATION 0 NUMBER
-	           "CNN Restoration experiment flag")
+set_aom_config_var(CONFIG_CNN_RESTORATION
+                   0
+                   NUMBER
+                   "CNN Restoration experiment flag")
 
 #
 # Variables in this section control optional features of the build system.
