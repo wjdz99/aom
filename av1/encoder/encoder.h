@@ -378,6 +378,8 @@ typedef struct AV1EncoderConfig {
   int use_intra_dct_only;
   int use_inter_dct_only;
   int quant_b_adapt;
+  int coeff_cost_upd_freq;
+  int mode_cost_upd_freq;
   int border_in_pixels;
 } AV1EncoderConfig;
 
