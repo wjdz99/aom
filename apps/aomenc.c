@@ -549,6 +549,10 @@ static const arg_def_t quant_b_adapt =
     ARG_DEF(NULL, "quant-b-adapt", 1, "Use adaptive quantize_b");
 static const arg_def_t qcoeff_opt =
     ARG_DEF(NULL, "qcoeff-opt", 1, "Quantized Coefficinet optimization type");
+static const arg_def_t coeff_cost_upd_freq =
+    ARG_DEF(NULL, "coeff-cost-upd-freq", 1, "Update freq for coeff costs");
+static const arg_def_t mode_cost_upd_freq =
+    ARG_DEF(NULL, "mode-cost-upd-freq", 1, "Update freq for mode costs");
 #if CONFIG_DIST_8X8
 static const arg_def_t enable_dist_8x8 =
     ARG_DEF(NULL, "enable-dist-8x8", 1,
@@ -867,6 +871,8 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_INTER_DEFAULT_TX_ONLY,
                                         AV1E_SET_QUANT_B_ADAPT,
                                         AV1E_SET_QCOEFF_OPT,
+                                        AV1E_SET_COEFF_COST_UPD_FREQ,
+                                        AV1E_SET_MODE_COST_UPD_FREQ,
 #if CONFIG_DIST_8X8
                                         AV1E_SET_ENABLE_DIST_8X8,
 #endif

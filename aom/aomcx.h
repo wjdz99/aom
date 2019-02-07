@@ -1003,6 +1003,22 @@ enum aome_enc_control_id {
   /*!\brief Control to select maximum reference frames allowed per frame
    * (valid values: 3 - 7) */
   AV1E_SET_MAX_REFERENCE_FRAMES,
+
+  /*!\brief Control to set frequency of the cost updates for coefficients
+   * Possible values are:
+   * 0: Update at SB level (default)
+   * 1: Update at SB row level
+   * 2: Update at frame level
+   */
+  AV1E_SET_COEFF_COST_UPD_FREQ,
+
+  /*!\brief Control to set frequency of the cost updates for mode
+   * Possible values are:
+   * 0: Update at SB level (default)
+   * 1: Update at SB row level
+   * 2: Update at frame level
+   */
+  AV1E_SET_MODE_COST_UPD_FREQ,
 };
 
 /*!\brief aom 1-D scaling mode

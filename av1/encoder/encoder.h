@@ -381,6 +381,8 @@ typedef struct AV1EncoderConfig {
   int use_inter_default_tx_only;
   int quant_b_adapt;
   int qcoeff_opt;
+  int coeff_cost_upd_freq;
+  int mode_cost_upd_freq;
   int border_in_pixels;
 } AV1EncoderConfig;
 

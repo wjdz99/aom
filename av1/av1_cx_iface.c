@@ -130,6 +130,8 @@ struct av1_extracfg {
   int use_inter_default_tx_only;
   int quant_b_adapt;
   int qcoeff_opt;
+  int coeff_cost_upd_freq;
+  int mode_cost_upd_freq;
 };
 
 static struct av1_extracfg default_extra_cfg = {
@@ -230,6 +232,8 @@ static struct av1_extracfg default_extra_cfg = {
   0,  // use_inter_default_tx_only
   0,  // quant_b_adapt
   1,  // qcoeff_opt
+  0,  // coeff_cost_upd_freq
+  1,  // mode_cost_upd_freq
 };
 
 struct aom_codec_alg_priv {
@@ -593,6 +597,8 @@ static aom_codec_err_t set_encoder_config(
   oxcf->use_inter_default_tx_only = extra_cfg->use_inter_default_tx_only;
   oxcf->quant_b_adapt = extra_cfg->quant_b_adapt;
   oxcf->qcoeff_opt = extra_cfg->qcoeff_opt;
+  oxcf->coeff_cost_upd_freq = extra_cfg->coeff_cost_upd_freq;
+  oxcf->mode_cost_upd_freq = extra_cfg->mode_cost_upd_freq;
 #if CONFIG_DIST_8X8
   oxcf->using_dist_8x8 = extra_cfg->enable_dist_8x8;
   if (extra_cfg->tuning == AOM_TUNE_CDEF_DIST ||
@@ -1363,6 +1369,20 @@ static aom_codec_err_t ctrl_set_qcoeff_opt(aom_codec_alg_priv_t *ctx,
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
+static aom_codec_err_t ctrl_set_coeff_cost_upd_freq(aom_codec_alg_priv_t *ctx,
+                                                    va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.coeff_cost_upd_freq = CAST(AV1E_SET_COEFF_COST_UPD_FREQ, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_mode_cost_upd_freq(aom_codec_alg_priv_t *ctx,
+                                                   va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.mode_cost_upd_freq = CAST(AV1E_SET_MODE_COST_UPD_FREQ, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
 static aom_codec_err_t ctrl_set_film_grain_test_vector(
     aom_codec_alg_priv_t *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
@@ -2090,6 +2110,8 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_INTER_DEFAULT_TX_ONLY, ctrl_set_inter_default_tx_only },
   { AV1E_SET_QUANT_B_ADAPT, ctrl_set_quant_b_adapt },
   { AV1E_SET_QCOEFF_OPT, ctrl_set_qcoeff_opt },
+  { AV1E_SET_COEFF_COST_UPD_FREQ, ctrl_set_coeff_cost_upd_freq },
+  { AV1E_SET_MODE_COST_UPD_FREQ, ctrl_set_mode_cost_upd_freq },
   { AV1E_SET_DELTAQ_MODE, ctrl_set_deltaq_mode },
   { AV1E_SET_FRAME_PERIODIC_BOOST, ctrl_set_frame_periodic_boost },
   { AV1E_SET_TUNE_CONTENT, ctrl_set_tune_content },
