@@ -541,6 +541,8 @@ static const arg_def_t use_inter_dct_only =
     ARG_DEF(NULL, "use-inter-dct-only", 1, "Use DCT only for INTER modes");
 static const arg_def_t quant_b_adapt =
     ARG_DEF(NULL, "quant-b-adapt", 1, "Use adaptive quantize_b");
+static const arg_def_t qcoeff_opt =
+    ARG_DEF(NULL, "qcoeff-opt", 1, "Quantized Coefficinet optimization type");
 #if CONFIG_DIST_8X8
 static const arg_def_t enable_dist_8x8 =
     ARG_DEF(NULL, "enable-dist-8x8", 1,
@@ -767,6 +769,7 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &use_intra_dct_only,
                                        &use_inter_dct_only,
                                        &quant_b_adapt,
+                                       &qcoeff_opt,
 #if CONFIG_DIST_8X8
                                        &enable_dist_8x8,
 #endif
@@ -853,6 +856,7 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_INTRA_DCT_ONLY,
                                         AV1E_SET_INTER_DCT_ONLY,
                                         AV1E_SET_QUANT_B_ADAPT,
+                                        AV1E_SET_QCOEFF_OPT,
 #if CONFIG_DIST_8X8
                                         AV1E_SET_ENABLE_DIST_8X8,
 #endif
