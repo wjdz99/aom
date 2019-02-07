@@ -539,6 +539,12 @@ static const arg_def_t use_intra_dct_only =
     ARG_DEF(NULL, "use-intra-dct-only", 1, "Use DCT only for INTRA modes");
 static const arg_def_t use_inter_dct_only =
     ARG_DEF(NULL, "use-inter-dct-only", 1, "Use DCT only for INTER modes");
+static const arg_def_t use_intra_default_tx_only =
+    ARG_DEF(NULL, "use-intra-default-tx-only", 1,
+            "Use Default-transform only for INTRA modes");
+static const arg_def_t use_inter_default_tx_only =
+    ARG_DEF(NULL, "use-inter-default-tx-only", 1,
+            "Use Default-transform only for INTER modes");
 static const arg_def_t quant_b_adapt =
     ARG_DEF(NULL, "quant-b-adapt", 1, "Use adaptive quantize_b");
 static const arg_def_t qcoeff_opt =
@@ -768,6 +774,8 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &reduced_tx_type_set,
                                        &use_intra_dct_only,
                                        &use_inter_dct_only,
+                                       &use_intra_default_tx_only,
+                                       &use_inter_default_tx_only,
                                        &quant_b_adapt,
                                        &qcoeff_opt,
 #if CONFIG_DIST_8X8
@@ -855,6 +863,8 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_REDUCED_TX_TYPE_SET,
                                         AV1E_SET_INTRA_DCT_ONLY,
                                         AV1E_SET_INTER_DCT_ONLY,
+                                        AV1E_SET_INTRA_DEFAULT_TX_ONLY,
+                                        AV1E_SET_INTER_DEFAULT_TX_ONLY,
                                         AV1E_SET_QUANT_B_ADAPT,
                                         AV1E_SET_QCOEFF_OPT,
 #if CONFIG_DIST_8X8

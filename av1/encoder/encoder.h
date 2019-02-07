@@ -377,6 +377,8 @@ typedef struct AV1EncoderConfig {
   int reduced_tx_type_set;
   int use_intra_dct_only;
   int use_inter_dct_only;
+  int use_intra_default_tx_only;
+  int use_inter_default_tx_only;
   int quant_b_adapt;
   int qcoeff_opt;
   int border_in_pixels;
