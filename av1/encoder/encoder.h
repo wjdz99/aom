@@ -821,7 +821,11 @@ typedef struct AV1_COMP {
 
   int frame_flags;
 
-  search_site_config ss_cfg;
+  // We are maintaining two ss_cfg as temporal filtering
+  // happens on source buffer. offset based on scaled
+  // stride will cause invalid memory access
+  // ss_cfg[1] : used only in temporal filtering
+  search_site_config ss_cfg[2];
 
   TileDataEnc *tile_data;
   int allocated_tiles;  // Keep track of memory allocated for tiles.
