@@ -381,14 +381,12 @@ static void update_state(const AV1_COMP *const cpi,
           seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
       mi_addr->segment_id =
           map ? get_segment_id(cm, map, bsize, mi_row, mi_col) : 0;
-      reset_tx_size(x, mi_addr, cm->tx_mode);
     }
     // Else for cyclic refresh mode update the segment map, set the segment id
     // and then update the quantizer.
     if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ) {
       av1_cyclic_refresh_update_segment(cpi, mi_addr, mi_row, mi_col, bsize,
                                         ctx->rate, ctx->dist, x->skip);
-      reset_tx_size(x, mi_addr, cm->tx_mode);
     }
     if (mi_addr->uv_mode == UV_CFL_PRED && !is_cfl_allowed(xd))
       mi_addr->uv_mode = UV_DC_PRED;
