@@ -111,9 +111,8 @@ int av1_optimize_b(const struct AV1_COMP *cpi, MACROBLOCK *mb, int plane,
     return eob;
   }
 
-  (void)fast_mode;
   return av1_optimize_txb_new(cpi, mb, plane, block, tx_size, tx_type, txb_ctx,
-                              rate_cost, cpi->oxcf.sharpness);
+                              rate_cost, cpi->oxcf.sharpness, fast_mode);
 }
 
 enum {

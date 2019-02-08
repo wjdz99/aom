@@ -221,6 +221,8 @@ void od_ec_encode_bool_q15(od_ec_enc *enc, int val, unsigned f) {
 void od_ec_encode_cdf_q15(od_ec_enc *enc, int s, const uint16_t *icdf,
                           int nsyms) {
   (void)nsyms;
+  if (s < 0)
+    printf("debug\n");
   assert(s >= 0);
   assert(s < nsyms);
   assert(icdf[nsyms - 1] == OD_ICDF(CDF_PROB_TOP));
