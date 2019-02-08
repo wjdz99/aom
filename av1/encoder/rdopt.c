@@ -9822,7 +9822,7 @@ static int compound_type_rd(
         }
       }
       // use spare buffer for following compound type try
-      restore_dst_buf(xd, *tmp_dst, 1);
+      if (cur_type == COMPOUND_AVERAGE) restore_dst_buf(xd, *tmp_dst, 1);
     } else {
       mbmi->comp_group_idx = 1;
       mbmi->compound_idx = 1;
@@ -9841,7 +9841,7 @@ static int compound_type_rd(
               (compound_type == COMPOUND_DIFFWTD &&
                !cpi->oxcf.enable_diff_wtd_comp)))
           best_rd_cur = build_and_cost_compound_type(
-              cpi, x, cur_mv, bsize, this_mode, &rs2, *rate_mv, orig_dst,
+              cpi, x, cur_mv, bsize, this_mode, &rs2, *rate_mv, tmp_dst,
               &tmp_rate_mv, preds0, preds1, buffers->residual1, buffers->diff10,
               strides, mi_row, mi_col, rd_stats->rate, ref_best_rd,
               &calc_pred_masked_compound, comp_rate, comp_dist);
@@ -9926,7 +9926,7 @@ typedef struct {
   int_mv mv;
 } inter_mode_info;
 
-#define SEPARATE_COMP_DISTWTD_RD 1
+#define SEPARATE_COMP_DISTWTD_RD 0
 
 static int64_t handle_inter_mode(
     const AV1_COMP *const cpi, TileDataEnc *tile_data, MACROBLOCK *x,
@@ -10047,18 +10047,19 @@ static int64_t handle_inter_mode(
     const RD_STATS backup_rd_stats = *rd_stats;
     // If !search_dist_wtd_comp, we need to force mbmi->compound_idx = 1.
     for (comp_idx = 1; comp_idx >= !search_dist_wtd_comp; --comp_idx) {
+      const int first = comp_idx == 1;
       int rs = 0;
       int compmode_interinter_cost = 0;
       mbmi->compound_idx = comp_idx;
 
-      if (is_comp_pred && comp_idx == 0) *rd_stats = backup_rd_stats;
+      if (is_comp_pred && !first) *rd_stats = backup_rd_stats;
 
       int_mv cur_mv[2];
       if (!build_cur_mv(cur_mv, this_mode, cm, x)) {
         continue;
       }
       if (have_newmv_in_inter_mode(this_mode)) {
-        if (comp_idx == 0) {
+        if (!first) {
           cur_mv[0] = backup_mv[0];
           cur_mv[1] = backup_mv[1];
           rate_mv = backup_rate_mv;
@@ -10070,10 +10071,7 @@ static int64_t handle_inter_mode(
           newmv_ret_val = args->single_newmv_valid[ref_mv_idx][ref0] ? 0 : 1;
           cur_mv[0] = args->single_newmv[ref_mv_idx][ref0];
           rate_mv = args->single_newmv_rate[ref_mv_idx][ref0];
-        } else if (!(search_dist_wtd_comp &&
-                     (cpi->sf.use_dist_wtd_comp_flag ==
-                      DIST_WTD_COMP_SKIP_MV_SEARCH) &&
-                     comp_idx == 0)) {
+        } else if (first) {
           newmv_ret_val = handle_newmv(cpi, x, bsize, cur_mv, mi_row, mi_col,
                                        &rate_mv, args);
 
@@ -10179,7 +10177,7 @@ static int64_t handle_inter_mode(
 
       int skip_build_pred = 0;
       if (is_comp_pred) {
-        if (comp_idx == 0) {
+        if (!first) {
           mbmi->interinter_comp.type = COMPOUND_DISTWTD;
           mbmi->num_proj_ref = 0;
           mbmi->motion_mode = SIMPLE_TRANSLATION;
@@ -10188,8 +10186,7 @@ static int64_t handle_inter_mode(
           const int comp_index_ctx = get_comp_index_context(cm, xd);
           compmode_interinter_cost +=
               x->comp_idx_cost[comp_index_ctx][mbmi->compound_idx];
-        }
-        if (comp_idx) {
+        } else {
           // Find matching interp filter or set to default interp filter
           const int need_search =
               av1_is_interp_needed(xd) && av1_is_interp_search_needed(xd);
@@ -10267,7 +10264,7 @@ static int64_t handle_inter_mode(
       rd_stats->rate += compmode_interinter_cost;
 
       if (search_dist_wtd_comp && cpi->sf.dist_wtd_comp_fast_tx_search &&
-          comp_idx == 0) {
+          !first) {
         // TODO(chengchen): this speed feature introduces big loss.
         // Need better estimation of rate distortion.
         int dummy_rate;
