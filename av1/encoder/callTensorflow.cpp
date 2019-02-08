@@ -1,4 +1,4 @@
-﻿#include "/usr/include/python3.6m/Python.h"
+#include "/usr/include/python3.6m/Python.h"
 #include "stdio.h"
 #include <sstream>
 
@@ -76,11 +76,11 @@ using namespace std;
 uint8_t **callTensorflow(uint8_t *ppp, int height, int width, int stride,
                          FRAME_TYPE frame_type) {
   Py_SetPath(
-      L"/home/chenjs/a5/aom_cnn_7/aom/av1/encoder:"
-      "/home/chenjs/.conda/envs/tf2/lib:"
-      "/home/chenjs/.conda/envs/tf2/lib/python3.6:"
-      "/home/chenjs/.conda/envs/tf2/lib/python3.6/site-packages:"
-      "/home/chenjs/.conda/envs/tf2/lib/python3.6/lib-dynload");
+      L"/usr/local/google/home/logangw/aom/av1/encoder:"
+      "/usr/lib:"
+      "/usr/lib/python3.6:"
+      "/usr/lib/python3.6/site-packages:"
+      "/usr/lib/python3.6/lib-dynload");
 
   PyObject *pModule = NULL;
   PyObject *pFuncI = NULL;
@@ -101,7 +101,6 @@ uint8_t **callTensorflow(uint8_t *ppp, int height, int width, int stride,
 
   // import python
   pModule = PyImport_ImportModule("TEST");
-  // pModule = PyImport_ImportModule("TEST_qp52_I");
 
   // PyEval_InitThreads();
   if (!pModule) {
@@ -126,15 +125,14 @@ uint8_t **callTensorflow(uint8_t *ppp, int height, int width, int stride,
   }
 
   PyObject *list = PyList_New(height);
-  pArgs = PyTuple_New(1);  //以元组方式传参
+  pArgs = PyTuple_New(1);
   PyObject **lists = new PyObject *[height];
   // stringstream ss;
-  //将图像缓冲区的数据读到列表中
+
   for (int i = 0; i < height; i++) {
     lists[i] = PyList_New(0);
     for (int j = 0; j < width; j++) {
-      PyList_Append(lists[i],
-                    Py_BuildValue("i", *(ppp + j)));  //转化为python对象
+      PyList_Append(lists[i], Py_BuildValue("i", *(ppp + j)));
     }
     PyList_SetItem(list, i, lists[i]);
     ppp += stride;
@@ -181,11 +179,11 @@ uint8_t **callTensorflow(uint8_t *ppp, int height, int width, int stride,
 uint16_t **callTensorflow_hbd(uint16_t *ppp, int height, int width, int stride,
                               FRAME_TYPE frame_type) {
   Py_SetPath(
-      L"/home/chenjs/a5/aom_cnn_7/aom/av1/encoder/:"
-      "/home/chenjs/.conda/envs/tf2/lib:"
-      "/home/chenjs/.conda/envs/tf2/lib/python3.6:"
-      "/home/chenjs/.conda/envs/tf2/lib/python3.6/site-packages:"
-      "/home/chenjs/.conda/envs/tf2/lib/python3.6/lib-dynload");
+      L"/usr/local/google/home/logangw/aom/av1/encoder:"
+      "/usr/lib:"
+      "/usr/lib/python3.6:"
+      "/usr/lib/python3.6/site-packages:"
+      "/usr/lib/python3.6/lib-dynload");
 
   PyObject *pModule = NULL;
   PyObject *pFuncI = NULL;
@@ -205,7 +203,6 @@ uint16_t **callTensorflow_hbd(uint16_t *ppp, int height, int width, int stride,
   // free(path);
 
   pModule = PyImport_ImportModule("TEST");
-  // pModule = PyImport_ImportModule("TEST_qp52_I");
 
   if (!pModule) {
     printf("don't load Pmodule\n");
@@ -282,11 +279,11 @@ uint8_t **blockCallTensorflow(uint8_t *ppp, int cur_buf_height,
                               int cur_buf_width, int stride,
                               FRAME_TYPE frame_type) {
   Py_SetPath(
-      L"/home/chenjs/a5/aom_cnn_7/aom/av1/encoder:"
-      "/home/chenjs/.conda/envs/tf2/lib:"
-      "/home/chenjs/.conda/envs/tf2/lib/python3.6:"
-      "/home/chenjs/.conda/envs/tf2/lib/python3.6/site-packages:"
-      "/home/chenjs/.conda/envs/tf2/lib/python3.6/lib-dynload");
+      L"/usr/local/google/home/logangw/aom/av1/encoder:"
+      "/usr/lib:"
+      "/usr/lib/python3.6:"
+      "/usr/lib/python3.6/site-packages:"
+      "/usr/lib/python3.6/lib-dynload");
 
   PyObject *pModule = NULL;
   PyObject *pFuncI = NULL;
@@ -300,14 +297,7 @@ uint8_t **blockCallTensorflow(uint8_t *ppp, int cur_buf_height,
     return NULL;
   }
 
-  // char *path = NULL;
-  // path = getcwd(NULL, 0);
-  // printf("current working directory : %s\n", path);
-  // free(path);
-
   pModule = PyImport_ImportModule("TEST");
-  // pModule = PyImport_ImportModule("TEST_qp52_B");
-  // pModule = PyImport_ImportModule("TEST_qp52_I");
 
   // PyEval_InitThreads();
   if (!pModule) {
@@ -322,6 +312,7 @@ uint8_t **blockCallTensorflow(uint8_t *ppp, int cur_buf_height,
     Py_Finalize();
     return NULL;
   }
+
   // printf("succeed acquire entranceFunc !\n");
   pFuncB = PyObject_GetAttrString(pModule, "entranceB");
   if (!pFuncB) {
@@ -329,6 +320,7 @@ uint8_t **blockCallTensorflow(uint8_t *ppp, int cur_buf_height,
     Py_Finalize();
     return NULL;
   }
+
   PyObject *list = PyList_New(cur_buf_height);
   pArgs = PyTuple_New(1);
   PyObject **lists = new PyObject *[cur_buf_height];
@@ -376,11 +368,11 @@ uint16_t **blockCallTensorflow_hbd(uint16_t *ppp, int cur_buf_height,
                                    int cur_buf_width, int stride,
                                    FRAME_TYPE frame_type) {
   Py_SetPath(
-      L"/home/chenjs/a5/aom_cnn_7/aom/av1/encoder:"
-      "/home/chenjs/.conda/envs/tf2/lib:"
-      "/home/chenjs/.conda/envs/tf2/lib/python3.6:"
-      "/home/chenjs/.conda/envs/tf2/lib/python3.6/site-packages:"
-      "/home/chenjs/.conda/envs/tf2/lib/python3.6/lib-dynload");
+      L"/usr/local/google/home/logangw/aom/av1/encoder:"
+      "/usr/lib:"
+      "/usr/lib/python3.6:"
+      "/usr/lib/python3.6/site-packages:"
+      "/usr/lib/python3.6/lib-dynload");
 
   PyObject *pModule = NULL;
   PyObject *pFuncI = NULL;
