@@ -2209,7 +2209,9 @@ static void highbd_dr_prediction_32bit_z2_HxW_avx2(
                                   1);  // 16 16bit values
 
       // y calc
-      if ((base_x < min_base_x)) {
+      resy[0] = resx[0];
+      // if ((base_x < min_base_x))
+      {
         DECLARE_ALIGNED(32, int, base_y_c[16]);
         __m256i r6, c256, dy256, y_c256, y_c_1_256, base_y_c256, mask256;
         r6 = _mm256_set1_epi32(r << 6);
@@ -2276,9 +2278,8 @@ static void highbd_dr_prediction_32bit_z2_HxW_avx2(
         resy[0] =
             _mm256_inserti128_si256(resy[0], _mm256_castsi256_si128(resy[1]),
                                     1);  // 16 16bit values
-      } else {
-        resy[0] = resx[0];
       }
+
       resxy = _mm256_blendv_epi8(resx[0], resy[0],
                                  *(__m256i *)HighbdBaseMask[base_min_diff]);
       _mm256_storeu_si256((__m256i *)(dst + j), resxy);
@@ -2398,7 +2399,8 @@ static void highbd_dr_prediction_z2_HxW_avx2(
 
       // y calc
       __m256i a0_y, a1_y, shifty;
-      if ((base_x < min_base_x)) {
+      // if ((base_x < min_base_x))
+      {
         DECLARE_ALIGNED(32, int16_t, base_y_c[16]);
         __m256i r6, c256, dy256, y_c256, base_y_c256, mask256, mul16;
         r6 = _mm256_set1_epi16(r << 6);
@@ -2439,9 +2441,9 @@ static void highbd_dr_prediction_z2_HxW_avx2(
         b = _mm256_mullo_epi16(diff, shifty);
         res = _mm256_add_epi16(a32, b);
         resy = _mm256_srli_epi16(res, 5);
-      } else {
-        resy = _mm256_setzero_si256();
-      }
+      }  // else {
+         // resy = _mm256_setzero_si256();
+      //}
 
       resxy = _mm256_blendv_epi8(resx, resy,
                                  *(__m256i *)HighbdBaseMask[base_min_diff]);
