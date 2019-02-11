@@ -15,8 +15,7 @@ extern uint16_t **blockCallTensorflow_hbd(uint16_t *ppp, int cur_buf_height,
                                           FRAME_TYPE frame_type);
 
 /*Feed full frame image into the network*/
-void additionHandle_frame(AV1_COMP *cpi, AV1_COMMON *cm,
-                          FRAME_TYPE frame_type) {
+void additionHandle_frame(AV1_COMMON *cm, FRAME_TYPE frame_type) {
   YV12_BUFFER_CONFIG pcPicYuvRec = cm->cur_frame->buf;
 
   if (!cm->seq_params.use_highbitdepth) {
@@ -70,8 +69,7 @@ void additionHandle_frame(AV1_COMP *cpi, AV1_COMMON *cm,
 }
 
 /*Split into 1000x1000 blocks into the network*/
-void additionHandle_blocks(AV1_COMP *cpi, AV1_COMMON *cm,
-                           FRAME_TYPE frame_type) {
+void additionHandle_blocks(AV1_COMMON *cm, FRAME_TYPE frame_type) {
   YV12_BUFFER_CONFIG pcPicYuvRec = cm->cur_frame->buf;
 
   int height = pcPicYuvRec.y_height;
