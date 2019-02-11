@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 03fdf31d2... Add cnn restoration to decoder.
 #include "/usr/include/python3.6m/Python.h"
 #include "stdio.h"
 #include <sstream>
@@ -458,6 +461,7 @@ uint16_t **blockCallTensorflow_hbd(uint16_t *ppp, int cur_buf_height,
   // Py_Finalize();
   return rePic;
 }
+<<<<<<< HEAD
 =======
 ﻿#include "/usr/include/python3.6m/Python.h"
 #include "stdio.h"
@@ -1214,3 +1218,5 @@ uint8_t** blockCallTensorflow(uint8_t* ppp, int cur_buf_height, int cur_buf_widt
                 return rePic;
               }
 >>>>>>> 89652f1b4... Fixed B_model bug yielding seg faults.
+=======
+>>>>>>> 03fdf31d2... Add cnn restoration to decoder.
