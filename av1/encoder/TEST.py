@@ -32,7 +32,8 @@ def prepare_test_data(fileOrDir):
   fileName_list.append(fileOrDir)
   imgY = np.reshape(fileOrDir,(1, len(fileOrDir), len(fileOrDir[0]), 1))
   imgY = normalize(imgY)
-  #print(imgY)
+  # tf.logging.warning(fileOrDir)
+  # tf.logging.warning(imgY)
 
   original_ycbcr.append([imgY, imgCbCr])
   return original_ycbcr, gt_y, fileName_list
@@ -65,6 +66,7 @@ def test_all_ckpt(modelPath, fileOrDir, is_key_frame_model):
     original_ycbcr, gt_y, fileName_list = prepare_test_data(fileOrDir)
 
     for ckpt in ckptFiles:
+      tf.logging.warning(ckpt)
       epoch = int(ckpt.split('_')[-1].split('.')[0])
       #tf.logging.warning("epoch: %d\t"%epoch)
 
@@ -72,7 +74,7 @@ def test_all_ckpt(modelPath, fileOrDir, is_key_frame_model):
         if epoch != 364:
           continue
       else:
-        if epoch != 570:
+        if epoch != 252:
           continue
 
       tf.logging.warning("epoch:%d\t" % epoch)

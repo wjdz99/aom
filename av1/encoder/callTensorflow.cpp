@@ -123,8 +123,8 @@ uint8_t** callTensorflow(uint8_t* ppp, int height, int width, int stride, FRAME_
     Py_Finalize();
     return NULL;
   }
-	
-  PyObject* list = PyList_New(height); 
+
+  PyObject* list = PyList_New(height);
   pArgs = PyTuple_New(1);                 //以元组方式传参
   PyObject** lists = new PyObject*[height];
   //stringstream ss;
@@ -333,12 +333,12 @@ uint8_t** blockCallTensorflow(uint8_t* ppp, int cur_buf_height, int cur_buf_widt
   }
 
   //printf("succeed acquire entranceFunc !\n");
-  // pFuncB = PyObject_GetAttrString(pModule, "entranceB");
-  // if (!pFuncB) {
-  //   printf("don't get B function!");
-  //   Py_Finalize();
-  //   return NULL;
-  // }
+  pFuncB = PyObject_GetAttrString(pModule, "entranceB");
+  if (!pFuncB) {
+    printf("don't get B function!");
+    Py_Finalize();
+    return NULL;
+  }
 
   PyObject* list = PyList_New(cur_buf_height);
   pArgs = PyTuple_New(1);
@@ -357,13 +357,11 @@ uint8_t** blockCallTensorflow(uint8_t* ppp, int cur_buf_height, int cur_buf_widt
   }
   PyTuple_SetItem(pArgs, 0, list);
   PyObject *presult = NULL;
-  presult = PyEval_CallObject(pFuncI, pArgs);
-  // if (frame_type == KEY_FRAME){
-  //   presult = PyEval_CallObject(pFuncI, pArgs);
-  // }
-  // else{
-  //   presult = PyEval_CallObject(pFuncB, pArgs);
-  // }
+  if (frame_type == KEY_FRAME){
+    presult = PyEval_CallObject(pFuncI, pArgs);
+  } else {
+    presult = PyEval_CallObject(pFuncB, pArgs);
+  }
 
   uint8_t **rePic = new uint8_t*[cur_buf_height];
   for (int i = 0; i < cur_buf_height; i++) {
