@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5af6d6a0_531efec5",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2402,
+      "author": {
+        "id": 7888
+      },
+      "writtenOn": "2019-02-11T09:09:52Z",
+      "side": 1,
+      "message": "can it be just removed instead of commenting out?",
+      "revId": "89d4eee605e9ca17f8c8db8ce792941298cfffcd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b29852ab_70d88f14",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2444,
+      "author": {
+        "id": 7888
+      },
+      "writtenOn": "2019-02-11T09:09:52Z",
+      "side": 1,
+      "message": "the same as above",
+      "revId": "89d4eee605e9ca17f8c8db8ce792941298cfffcd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
