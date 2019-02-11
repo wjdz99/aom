@@ -829,7 +829,9 @@ typedef struct AV1_COMP {
 
   int frame_flags;
 
-  search_site_config ss_cfg;
+  // ss_cfg[1] : used only in temporal filtering
+  // ss_cfg[0] : used everywhere except temporal filtering
+  search_site_config ss_cfg[2];
 
   TileDataEnc *tile_data;
   int allocated_tiles;  // Keep track of memory allocated for tiles.
