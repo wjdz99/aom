@@ -67,12 +67,21 @@
 extern "C" {
 #endif
 
+<<<<<<< HEAD
 void additionHandle_frame(
     AV1_COMP *cpi, AV1_COMMON *cm,
     FRAME_TYPE frame_type); /*����ͼƬ�������磬��ֱ�ӽ��������ڴ�ŵ��ؽ�ͼ��yֵ�滻��*/
 void additionHandle_blocks(
     AV1_COMP *cpi, AV1_COMMON *cm,
     FRAME_TYPE frame_type); /*�ֿ��������磬��ֱ�ӽ��������ڴ�ŵ��ؽ�ͼ��yֵ�滻��*/
+== == ==
+    = void additionHandle_frame(
+        AV1_COMMON * cm,
+        FRAME_TYPE frame_type); /*����ͼƬ�������磬��ֱ�ӽ��������ڴ�ŵ��ؽ�ͼ��yֵ�滻��*/
+void additionHandle_blocks(
+    AV1_COMMON *cm,
+    FRAME_TYPE frame_type); /*�ֿ��������磬��ֱ�ӽ��������ڴ�ŵ��ؽ�ͼ��yֵ�滻��*/
+>>>>>>> 325dcced6... Added cnn to decoder. Still fails to decode, saying frames are corrupted.
 
 /*�ú�������֡ͼ��ָ���ӿ飬Ȼ����tensorflow����󽫷���ֵƴ��ԭͼ��С,û���õ�CvMat�Ĳ���*/
 uint8_t **blocks_to_cnn_secondly(uint8_t *pBuffer_y, int height, int width,
