@@ -174,10 +174,6 @@ set_aom_config_var(CONFIG_DISABLE_FULL_PIXEL_SPLIT_8X8
                    1
                    NUMBER
                    "Disable full_pixel_motion_search_based_split on BLOCK_8X8")
-set_aom_config_var(CONFIG_CNN_RESTORATION
-                   0
-                   NUMBER
-                   "CNN Restoration experiment flag")
 
 # AV2 experiment flags
 set_aom_config_var(CONFIG_ADAPT_FILTER_INTRA 0 NUMBER "AV1 experiment flag.")
