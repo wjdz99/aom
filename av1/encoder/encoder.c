@@ -3884,9 +3884,17 @@ static void init_motion_estimation(AV1_COMP *cpi) {
   int y_stride = cpi->scaled_source.y_stride;
 
   if (cpi->sf.mv.search_method == NSTEP) {
-    av1_init3smotion_compensation(&cpi->ss_cfg, y_stride);
+    av1_init3smotion_compensation(&cpi->ss_cfg[0], y_stride);
   } else if (cpi->sf.mv.search_method == DIAMOND) {
-    av1_init_dsmotion_compensation(&cpi->ss_cfg, y_stride);
+    av1_init_dsmotion_compensation(&cpi->ss_cfg[0], y_stride);
+  }
+
+  int y_stride_src = cpi->lookahead->buf->img.y_stride;
+
+  if (cpi->sf.mv.search_method == NSTEP) {
+    av1_init3smotion_compensation(&cpi->ss_cfg[1], y_stride_src);
+  } else if (cpi->sf.mv.search_method == DIAMOND) {
+    av1_init_dsmotion_compensation(&cpi->ss_cfg[1], y_stride_src);
   }
 }
 
