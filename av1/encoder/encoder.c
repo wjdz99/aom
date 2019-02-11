@@ -5423,7 +5423,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   // Pick the loop filter level for the frame.
   if (!cm->allow_intrabc) {
 #if CONFIG_CNN_RESTORATION == 1
-    additionHandle_blocks(cpi, cm, cm->cur_frame->frame_type);
+    additionHandle_blocks(cm, cm->cur_frame->frame_type);
 #else
     loopfilter_frame(cpi, cm);
 #endif

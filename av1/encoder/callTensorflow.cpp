@@ -1,4 +1,4 @@
-﻿#include "/usr/include/python3.6m/Python.h"
+#include "/usr/include/python3.6m/Python.h"
 #include "stdio.h"
 #include <sstream>
 
@@ -73,55 +73,19 @@ using namespace std;
 
 */
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 uint8_t **callTensorflow(uint8_t *ppp, int height, int width, int stride,
                          FRAME_TYPE frame_type) {
   Py_SetPath(
-      L"/home/chenjs/a5/aom_cnn_7/aom/av1/encoder:"
-      "/home/chenjs/.conda/envs/tf2/lib:"
-      "/home/chenjs/.conda/envs/tf2/lib/python3.6:"
-      "/home/chenjs/.conda/envs/tf2/lib/python3.6/site-packages:"
-      "/home/chenjs/.conda/envs/tf2/lib/python3.6/lib-dynload");
+      L"/usr/local/google/home/logangw/aom/av1/encoder:"
+      "/usr/lib:"
+      "/usr/lib/python3.6:"
+      "/usr/lib/python3.6/site-packages:"
+      "/usr/lib/python3.6/lib-dynload");
 
   PyObject *pModule = NULL;
   PyObject *pFuncI = NULL;
   PyObject *pFuncB = NULL;
   PyObject *pArgs = NULL;
-  == == == = uint8_t * *callTensorflow(uint8_t * ppp, int height, int width,
-                                       int stride, FRAME_TYPE frame_type) {
-    Py_SetPath(
-        L"/usr/local/google/home/logangw/aom/av1/encoder:"
-        "/usr/lib:"
-        "/usr/lib/python3.6:"
-        "/usr/lib/python3.6/site-packages:"
-        "/usr/lib/python3.6/lib-dynload");
-
-    PyObject *pModule = NULL;
-    PyObject *pFuncI = NULL;
-    PyObject *pFuncB = NULL;
-    PyObject *pArgs = NULL;
->>>>>>> 6fb71f6ec... Adding models and test changes to exp repo.
-
-    // 初始化python环境
-    Py_Initialize();
-
-    if (!Py_IsInitialized()) {
-      printf("Python init failed!\n");
-      return NULL;
-=======
-uint8_t** callTensorflow(uint8_t* ppp, int height, int width, int stride, FRAME_TYPE frame_type) {
-
-  Py_SetPath(L"/usr/local/google/home/logangw/aom/av1/encoder:"
-             "/usr/lib:"
-             "/usr/lib/python3.6:"
-             "/usr/lib/python3.6/site-packages:"
-             "/usr/lib/python3.6/lib-dynload");
-
-  PyObject* pModule = NULL;
-  PyObject* pFuncI = NULL;
-  PyObject* pFuncB = NULL;
-  PyObject* pArgs = NULL;
 
   // 初始化python环境
   Py_Initialize();
@@ -130,22 +94,21 @@ uint8_t** callTensorflow(uint8_t* ppp, int height, int width, int stride, FRAME_
     printf("Python init failed!\n");
     return NULL;
   }
-  //char *path = NULL;
-  //path = getcwd(NULL, 0);
-  //printf("current working directory : %s\n", path);
-  //free(path);
+  // char *path = NULL;
+  // path = getcwd(NULL, 0);
+  // printf("current working directory : %s\n", path);
+  // free(path);
 
   // import python
   pModule = PyImport_ImportModule("TEST");
-  //pModule = PyImport_ImportModule("TEST_qp52_I");
 
-  //PyEval_InitThreads();
+  // PyEval_InitThreads();
   if (!pModule) {
     printf("don't load Pmodule\n");
     Py_Finalize();
     return NULL;
   }
-  //printf("succeed acquire python !\n");
+  // printf("succeed acquire python !\n");
   // 获得TensorFlow函数指针
   pFuncI = PyObject_GetAttrString(pModule, "entranceI");
   if (!pFuncI) {
@@ -153,7 +116,7 @@ uint8_t** callTensorflow(uint8_t* ppp, int height, int width, int stride, FRAME_
     Py_Finalize();
     return NULL;
   }
-  //printf("succeed acquire entranceFunc !\n");
+  // printf("succeed acquire entranceFunc !\n");
   pFuncB = PyObject_GetAttrString(pModule, "entranceB");
   if (!pFuncB) {
     printf("don't get B function!");
@@ -161,86 +124,171 @@ uint8_t** callTensorflow(uint8_t* ppp, int height, int width, int stride, FRAME_
     return NULL;
   }
 
-  PyObject* list = PyList_New(height);
-  pArgs = PyTuple_New(1);                 //以元组方式传参
-  PyObject** lists = new PyObject*[height];
-  //stringstream ss;
-  //将图像缓冲区的数据读到列表中
-  for (int i = 0; i < height; i++)
-  {
+  PyObject *list = PyList_New(height);
+  pArgs = PyTuple_New(1);
+  PyObject **lists = new PyObject *[height];
+  // stringstream ss;
+
+  for (int i = 0; i < height; i++) {
     lists[i] = PyList_New(0);
-    for (int j = 0; j < width; j++)
-    {
-      PyList_Append(lists[i], Py_BuildValue("i", *(ppp + j)));//转化为python对象
->>>>>>> a2660be03... Fixed B_model bug yielding seg faults.
+    for (int j = 0; j < width; j++) {
+      PyList_Append(lists[i], Py_BuildValue("i", *(ppp + j)));
     }
-    // char *path = NULL;
-    // path = getcwd(NULL, 0);
-    // printf("current working directory : %s\n", path);
-    // free(path);
-
-    // import python
-    pModule = PyImport_ImportModule("TEST");
-    // pModule = PyImport_ImportModule("TEST_qp52_I");
-
-    // PyEval_InitThreads();
-    if (!pModule) {
-      printf("don't load Pmodule\n");
-      Py_Finalize();
-      return NULL;
-    }
-    // printf("succeed acquire python !\n");
-    // 获得TensorFlow函数指针
-    pFuncI = PyObject_GetAttrString(pModule, "entranceI");
-    if (!pFuncI) {
-      printf("don't get I function!");
-      Py_Finalize();
-      return NULL;
-    }
-    // printf("succeed acquire entranceFunc !\n");
-    pFuncB = PyObject_GetAttrString(pModule, "entranceB");
-    if (!pFuncB) {
-      printf("don't get B function!");
-      Py_Finalize();
-      return NULL;
-    }
-
-<<<<<<< HEAD
-    PyObject *list = PyList_New(height);
-    pArgs = PyTuple_New(1);  //以元组方式传参
-    PyObject **lists = new PyObject *[height];
-    // stringstream ss;
-    //将图像缓冲区的数据读到列表中
-    for (int i = 0; i < height; i++) {
-      lists[i] = PyList_New(0);
-      for (int j = 0; j < width; j++) {
-        PyList_Append(lists[i],
-                      Py_BuildValue("i", *(ppp + j)));  //转化为python对象
-      }
-      PyList_SetItem(list, i, lists[i]);
-      ppp += stride;
-      // PyList_Append(list, lists[i]);
-=======
+    PyList_SetItem(list, i, lists[i]);
+    ppp += stride;
+    // PyList_Append(list, lists[i]);
   }
-  //fclose(fp);
+  PyTuple_SetItem(pArgs, 0, list);  //"list" is the input image
 
-  //Py_Finalize();//关闭python解释器
+  PyObject *presult = NULL;
+
+  // printf("\nstart tensorflow!\n");
+  if (frame_type == KEY_FRAME) {
+    presult = PyEval_CallObject(pFuncI, pArgs);  //将pArgs参数传递到Python中
+  } else {
+    presult = PyEval_CallObject(pFuncB, pArgs);  //将pArgs参数传递到Python中
+  }
+
+  /*
+    Py_ssize_t q = PyList_Size(presult);
+    printf("%d", q);
+  */
+
+  //需要定义一个二维数组；
+  uint8_t **rePic = new uint8_t *[height];
+  for (int i = 0; i < height; i++) {
+    rePic[i] = new uint8_t[width];
+  }
+  uint8_t s;
+
+  // FILE *fp = fopen("CPython.yuv", "wb");
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; j < width; j++) {
+      PyArg_Parse(PyList_GetItem(PyList_GetItem(presult, i), j), "B", &s);
+      rePic[i][j] = s;
+      // unsigned char uc = (unsigned char)s;
+      // fwrite(&uc, 1, 1, fp);
+    }
+  }
+  // fclose(fp);
+
+  // Py_Finalize();
   return rePic;
 }
 
+uint16_t **callTensorflow_hbd(uint16_t *ppp, int height, int width, int stride,
+                              FRAME_TYPE frame_type) {
+  Py_SetPath(
+      L"/usr/local/google/home/logangw/aom/av1/encoder:"
+      "/usr/lib:"
+      "/usr/lib/python3.6:"
+      "/usr/lib/python3.6/site-packages:"
+      "/usr/lib/python3.6/lib-dynload");
 
-uint8_t** blockCallTensorflow(uint8_t* ppp, int cur_buf_height, int cur_buf_width, int stride, FRAME_TYPE frame_type) {
+  PyObject *pModule = NULL;
+  PyObject *pFuncI = NULL;
+  PyObject *pFuncB = NULL;
+  PyObject *pArgs = NULL;
 
-  Py_SetPath(L"/usr/local/google/home/logangw/aom/av1/encoder:"
-             "/usr/lib:"
-             "/usr/lib/python3.6:"
-             "/usr/lib/python3.6/site-packages:"
-             "/usr/lib/python3.6/lib-dynload");
+  // 初始化python环境
+  Py_Initialize();
 
-  PyObject * pModule = NULL;
-  PyObject * pFuncI = NULL;
-  PyObject * pFuncB = NULL;
-  PyObject * pArgs = NULL;
+  if (!Py_IsInitialized()) {
+    printf("Python init failed!\n");
+    return NULL;
+  }
+  // char *path = NULL;
+  // path = getcwd(NULL, 0);
+  // printf("current working directory : %s\n", path);
+  // free(path);
+
+  pModule = PyImport_ImportModule("TEST");
+
+  if (!pModule) {
+    printf("don't load Pmodule\n");
+    Py_Finalize();
+    return NULL;
+  }
+  // printf("succeed acquire python !\n");
+  // 获得TensorFlow函数指针
+  pFuncI = PyObject_GetAttrString(pModule, "entranceI");
+  if (!pFuncI) {
+    printf("don't get I function!");
+    Py_Finalize();
+    return NULL;
+  }
+  // printf("succeed acquire entranceFunc !\n");
+  pFuncB = PyObject_GetAttrString(pModule, "entranceB");
+  if (!pFuncB) {
+    printf("don't get B function!");
+    Py_Finalize();
+    return NULL;
+  }
+
+  PyObject *list = PyList_New(height);
+  pArgs = PyTuple_New(1);  //以元组方式传参
+  PyObject **lists = new PyObject *[height];
+  // stringstream ss;
+  // Read the data from y buffer into the list
+  for (int i = 0; i < height; i++) {
+    lists[i] = PyList_New(0);
+    for (int j = 0; j < width; j++) {
+      PyList_Append(
+          lists[i],
+          Py_BuildValue("i", *(ppp + j)));  // Convert to Python objects
+    }
+    PyList_SetItem(list, i, lists[i]);
+    ppp += stride;
+    // PyList_Append(list, lists[i]);
+  }
+  PyTuple_SetItem(pArgs, 0, list);  //将列表赋给参数
+
+  PyObject *presult = NULL;
+
+  // printf("\nstart tensorflow!\n");
+  if (frame_type == KEY_FRAME) {
+    presult = PyEval_CallObject(pFuncI, pArgs);  //将pArgs参数传递到Python中
+  } else {
+    presult = PyEval_CallObject(pFuncB, pArgs);  //将pArgs参数传递到Python中
+  }
+
+  //需要定义一个二维数组；
+  uint16_t **rePic = new uint16_t *[height];
+  for (int i = 0; i < height; i++) {
+    rePic[i] = new uint16_t[width];
+  }
+  uint16_t s;
+
+  // FILE *fp = fopen("CPython.yuv", "wb");
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; j < width; j++) {
+      // PyList_GetItem(PyList_GetItem(presult, i), j)意味着presult的(i,j)位置
+      PyArg_Parse(PyList_GetItem(PyList_GetItem(presult, i), j), "H", &s);
+      rePic[i][j] = s;
+      // unsigned char uc = (unsigned char)s;
+      // fwrite(&uc, 1, 1, fp);
+    }
+  }
+  // fclose(fp);
+
+  // Py_Finalize();//关闭python解释器
+  return rePic;
+}
+
+uint8_t **blockCallTensorflow(uint8_t *ppp, int cur_buf_height,
+                              int cur_buf_width, int stride,
+                              FRAME_TYPE frame_type) {
+  Py_SetPath(
+      L"/usr/local/google/home/logangw/aom/av1/encoder:"
+      "/usr/lib:"
+      "/usr/lib/python3.6:"
+      "/usr/lib/python3.6/site-packages:"
+      "/usr/lib/python3.6/lib-dynload");
+
+  PyObject *pModule = NULL;
+  PyObject *pFuncI = NULL;
+  PyObject *pFuncB = NULL;
+  PyObject *pArgs = NULL;
 
   Py_Initialize();
 
@@ -251,7 +299,7 @@ uint8_t** blockCallTensorflow(uint8_t* ppp, int cur_buf_height, int cur_buf_widt
 
   pModule = PyImport_ImportModule("TEST");
 
-  //PyEval_InitThreads();
+  // PyEval_InitThreads();
   if (!pModule) {
     printf("don't load Pmodule\n");
     Py_Finalize();
@@ -265,7 +313,7 @@ uint8_t** blockCallTensorflow(uint8_t* ppp, int cur_buf_height, int cur_buf_widt
     return NULL;
   }
 
-  //printf("succeed acquire entranceFunc !\n");
+  // printf("succeed acquire entranceFunc !\n");
   pFuncB = PyObject_GetAttrString(pModule, "entranceB");
   if (!pFuncB) {
     printf("don't get B function!");
@@ -273,482 +321,139 @@ uint8_t** blockCallTensorflow(uint8_t* ppp, int cur_buf_height, int cur_buf_widt
     return NULL;
   }
 
-  PyObject* list = PyList_New(cur_buf_height);
+  PyObject *list = PyList_New(cur_buf_height);
   pArgs = PyTuple_New(1);
-  PyObject** lists = new PyObject*[cur_buf_height];
+  PyObject **lists = new PyObject *[cur_buf_height];
 
-  for (int i = 0; i < cur_buf_height; i++)
-  {
+  for (int i = 0; i < cur_buf_height; i++) {
     lists[i] = PyList_New(0);
-    for (int j = 0; j < cur_buf_width; j++)
-    {
+    for (int j = 0; j < cur_buf_width; j++) {
       PyList_Append(lists[i], Py_BuildValue("i", *(ppp + j)));
     }
     PyList_SetItem(list, i, lists[i]);
     ppp += stride;
-    //PyList_Append(list, lists[i]);
+    // PyList_Append(list, lists[i]);
   }
   PyTuple_SetItem(pArgs, 0, list);
   PyObject *presult = NULL;
-  if (frame_type == KEY_FRAME){
+  if (frame_type == KEY_FRAME) {
     presult = PyEval_CallObject(pFuncI, pArgs);
   } else {
     presult = PyEval_CallObject(pFuncB, pArgs);
   }
 
-  uint8_t **rePic = new uint8_t*[cur_buf_height];
+  uint8_t **rePic = new uint8_t *[cur_buf_height];
   for (int i = 0; i < cur_buf_height; i++) {
     rePic[i] = new uint8_t[cur_buf_width];
   }
   uint8_t s;
 
-  //FILE *fp = fopen("CPython.yuv", "wb");
-  for (int i = 0; i < cur_buf_height; i++)
-  {
-    for (int j = 0; j < cur_buf_width; j++)
-    {
-      //PyList_GetItem(PyList_GetItem(presult, i), j) mean presult(i,j)
+  // FILE *fp = fopen("CPython.yuv", "wb");
+  for (int i = 0; i < cur_buf_height; i++) {
+    for (int j = 0; j < cur_buf_width; j++) {
+      // PyList_GetItem(PyList_GetItem(presult, i), j) mean presult(i,j)
       PyArg_Parse(PyList_GetItem(PyList_GetItem(presult, i), j), "i", &s);
       rePic[i][j] = s;
-      //unsigned char uc = (unsigned char)s;
-      //fwrite(&uc, 1, 1, fp);
->>>>>>> a2660be03... Fixed B_model bug yielding seg faults.
+      // unsigned char uc = (unsigned char)s;
+      // fwrite(&uc, 1, 1, fp);
     }
-    PyTuple_SetItem(pArgs, 0, list);  //"list" is the input image
+  }
+  // fclose(fp);
 
-    PyObject *presult = NULL;
+  // Py_Finalize();
+  return rePic;
+}
 
-    // printf("\nstart tensorflow!\n");
-    if (frame_type == KEY_FRAME) {
-      presult = PyEval_CallObject(pFuncI, pArgs);  //将pArgs参数传递到Python中
-    } else {
-      presult = PyEval_CallObject(pFuncB, pArgs);  //将pArgs参数传递到Python中
-    }
+uint16_t **blockCallTensorflow_hbd(uint16_t *ppp, int cur_buf_height,
+                                   int cur_buf_width, int stride,
+                                   FRAME_TYPE frame_type) {
+  Py_SetPath(
+      L"/usr/local/google/home/logangw/aom/av1/encoder:"
+      "/usr/lib:"
+      "/usr/lib/python3.6:"
+      "/usr/lib/python3.6/site-packages:"
+      "/usr/lib/python3.6/lib-dynload");
 
-    /*
-      Py_ssize_t q = PyList_Size(presult);
-      printf("%d", q);
-    */
+  PyObject *pModule = NULL;
+  PyObject *pFuncI = NULL;
+  PyObject *pFuncB = NULL;
+  PyObject *pArgs = NULL;
 
-    //需要定义一个二维数组；
-    uint8_t **rePic = new uint8_t *[height];
-    for (int i = 0; i < height; i++) {
-      rePic[i] = new uint8_t[width];
-    }
-    uint8_t s;
+  Py_Initialize();
 
-    // FILE *fp = fopen("CPython.yuv", "wb");
-    for (int i = 0; i < height; i++) {
-      for (int j = 0; j < width; j++) {
-        PyArg_Parse(PyList_GetItem(PyList_GetItem(presult, i), j), "B", &s);
-        rePic[i][j] = s;
-        // unsigned char uc = (unsigned char)s;
-        // fwrite(&uc, 1, 1, fp);
-      }
-    }
-    // fclose(fp);
-
-    // Py_Finalize();
-    return rePic;
+  if (!Py_IsInitialized()) {
+    printf("Python init failed!\n");
+    return NULL;
   }
 
-  uint16_t **callTensorflow_hbd(uint16_t * ppp, int height, int width,
-                                int stride, FRAME_TYPE frame_type) {
-    Py_SetPath(
-        L"/home/chenjs/a5/aom_cnn_7/aom/av1/encoder/:"
-        "/home/chenjs/.conda/envs/tf2/lib:"
-        "/home/chenjs/.conda/envs/tf2/lib/python3.6:"
-        "/home/chenjs/.conda/envs/tf2/lib/python3.6/site-packages:"
-        "/home/chenjs/.conda/envs/tf2/lib/python3.6/lib-dynload");
+  // char *path = NULL;
+  // path = getcwd(NULL, 0);
+  // printf("current working directory : %s\n", path);
+  // free(path);
 
-<<<<<<< HEAD
-    PyObject *pModule = NULL;
-    PyObject *pFuncI = NULL;
-    PyObject *pFuncB = NULL;
-    PyObject *pArgs = NULL;
-    == == == = uint16_t * *callTensorflow_hbd(uint16_t * ppp, int height,
-                                              int width, int stride,
-                                              FRAME_TYPE frame_type) {
-      Py_SetPath(
-          L"/usr/local/google/home/logangw/aom/av1/encoder:"
-          "/usr/lib:"
-          "/usr/lib/python3.6:"
-          "/usr/lib/python3.6/site-packages:"
-          "/usr/lib/python3.6/lib-dynload");
+  pModule = PyImport_ImportModule("TEST");
+  // pModule = PyImport_ImportModule("TEST_qp52_B");
+  // pModule = PyImport_ImportModule("TEST_qp52_I");
 
-      PyObject *pModule = NULL;
-      PyObject *pFuncI = NULL;
-      PyObject *pFuncB = NULL;
-      PyObject *pArgs = NULL;
->>>>>>> 6fb71f6ec... Adding models and test changes to exp repo.
+  // PyEval_InitThreads();
+  if (!pModule) {
+    printf("don't load Pmodule\n");
+    Py_Finalize();
+    return NULL;
+  }
 
-      // 初始化python环境
-      Py_Initialize();
+  pFuncI = PyObject_GetAttrString(pModule, "entranceI");
+  if (!pFuncI) {
+    printf("don't get I function!");
+    Py_Finalize();
+    return NULL;
+  }
+  // printf("succeed acquire entranceFunc !\n");
+  pFuncB = PyObject_GetAttrString(pModule, "entranceB");
+  if (!pFuncB) {
+    printf("don't get B function!");
+    Py_Finalize();
+    return NULL;
+  }
+  PyObject *list = PyList_New(cur_buf_height);
+  pArgs = PyTuple_New(1);
+  PyObject **lists = new PyObject *[cur_buf_height];
 
-      if (!Py_IsInitialized()) {
-        printf("Python init failed!\n");
-        return NULL;
-      }
-      // char *path = NULL;
-      // path = getcwd(NULL, 0);
-      // printf("current working directory : %s\n", path);
-      // free(path);
+  for (int i = 0; i < cur_buf_height; i++) {
+    lists[i] = PyList_New(0);
+    for (int j = 0; j < cur_buf_width; j++) {
+      PyList_Append(lists[i], Py_BuildValue("i", *(ppp + j)));
+    }
+    PyList_SetItem(list, i, lists[i]);
+    ppp += stride;
+    // PyList_Append(list, lists[i]);
+  }
+  PyTuple_SetItem(pArgs, 0, list);
+  PyObject *presult = NULL;
+  if (frame_type == KEY_FRAME) {
+    presult = PyEval_CallObject(pFuncI, pArgs);
+  } else {
+    presult = PyEval_CallObject(pFuncB, pArgs);
+  }
 
-      pModule = PyImport_ImportModule("TEST");
-<<<<<<< HEAD
-      // pModule = PyImport_ImportModule("TEST_qp52_I");
-      == == == =
-                   // pModule = PyImport_ImportModule("TEST_qp52_I");
->>>>>>> 6fb71f6ec... Adding models and test changes to exp repo.
+  uint16_t **rePic = new uint16_t *[cur_buf_height];
+  for (int i = 0; i < cur_buf_height; i++) {
+    rePic[i] = new uint16_t[cur_buf_width];
+  }
+  uint16_t s;
 
-          if (!pModule) {
-        printf("don't load Pmodule\n");
-        Py_Finalize();
-        return NULL;
-      }
-      // printf("succeed acquire python !\n");
-      // 获得TensorFlow函数指针
-      pFuncI = PyObject_GetAttrString(pModule, "entranceI");
-      if (!pFuncI) {
-        printf("don't get I function!");
-        Py_Finalize();
-        return NULL;
-      }
-      // printf("succeed acquire entranceFunc !\n");
-      pFuncB = PyObject_GetAttrString(pModule, "entranceB");
-      if (!pFuncB) {
-        printf("don't get B function!");
-        Py_Finalize();
-        return NULL;
-      }
+  // FILE *fp = fopen("CPython.yuv", "wb");
+  for (int i = 0; i < cur_buf_height; i++) {
+    for (int j = 0; j < cur_buf_width; j++) {
+      // PyList_GetItem(PyList_GetItem(presult, i), j) mean presult(i,j)
+      PyArg_Parse(PyList_GetItem(PyList_GetItem(presult, i), j), "H", &s);
+      rePic[i][j] = s;
+      // unsigned char uc = (unsigned char)s;
+      // fwrite(&uc, 1, 1, fp);
+    }
+  }
+  // fclose(fp);
 
-<<<<<<< HEAD
-      PyObject *list = PyList_New(height);
-      pArgs = PyTuple_New(1);  //以元组方式传参
-      PyObject **lists = new PyObject *[height];
-      // stringstream ss;
-      // Read the data from y buffer into the list
-      for (int i = 0; i < height; i++) {
-        == == == = PyObject *list = PyList_New(height);
-        pArgs = PyTuple_New(1);  //以元组方式传参
-        PyObject **lists = new PyObject *[height];
-        // stringstream ss;
-        // Read the data from y buffer into the list
-        for (int i = 0; i < height; i++) {
->>>>>>> 6fb71f6ec... Adding models and test changes to exp repo.
-          lists[i] = PyList_New(0);
-          for (int j = 0; j < width; j++) {
-            PyList_Append(
-                lists[i],
-                Py_BuildValue("i", *(ppp + j)));  // Convert to Python objects
-          }
-          PyList_SetItem(list, i, lists[i]);
-          ppp += stride;
-          // PyList_Append(list, lists[i]);
-        }
-        PyTuple_SetItem(pArgs, 0, list);  //将列表赋给参数
-
-        PyObject *presult = NULL;
-
-        // printf("\nstart tensorflow!\n");
-        if (frame_type == KEY_FRAME) {
-          presult =
-              PyEval_CallObject(pFuncI, pArgs);  //将pArgs参数传递到Python中
-        } else {
-          presult =
-              PyEval_CallObject(pFuncB, pArgs);  //将pArgs参数传递到Python中
-        }
-
-        //需要定义一个二维数组；
-        uint16_t **rePic = new uint16_t *[height];
-        for (int i = 0; i < height; i++) {
-          rePic[i] = new uint16_t[width];
-        }
-        uint16_t s;
-
-<<<<<<< HEAD
-        // FILE *fp = fopen("CPython.yuv", "wb");
-        for (int i = 0; i < height; i++) {
-          for (int j = 0; j < width; j++) {
-            // PyList_GetItem(PyList_GetItem(presult, i),
-            // j)意味着presult的(i,j)位置
-            == == == =
-                         // FILE *fp = fopen("CPython.yuv", "wb");
-                for (int i = 0; i < height; i++) {
-              for (int j = 0; j < width; j++) {
-                // PyList_GetItem(PyList_GetItem(presult, i),
-                // j)意味着presult的(i,j)位置
->>>>>>> 6fb71f6ec... Adding models and test changes to exp repo.
-                PyArg_Parse(PyList_GetItem(PyList_GetItem(presult, i), j), "H",
-                            &s);
-                rePic[i][j] = s;
-                // unsigned char uc = (unsigned char)s;
-                // fwrite(&uc, 1, 1, fp);
-              }
-            }
-            // fclose(fp);
-
-            // Py_Finalize();//关闭python解释器
-            return rePic;
-          }
-
-<<<<<<< HEAD
-          uint8_t **blockCallTensorflow(uint8_t * ppp, int cur_buf_height,
-                                        int cur_buf_width, int stride,
-                                        FRAME_TYPE frame_type) {
-            Py_SetPath(
-                L"/home/chenjs/a5/aom_cnn_7/aom/av1/encoder:"
-                "/home/chenjs/.conda/envs/tf2/lib:"
-                "/home/chenjs/.conda/envs/tf2/lib/python3.6:"
-                "/home/chenjs/.conda/envs/tf2/lib/python3.6/site-packages:"
-                "/home/chenjs/.conda/envs/tf2/lib/python3.6/lib-dynload");
-
-            PyObject *pModule = NULL;
-            PyObject *pFuncI = NULL;
-            PyObject *pFuncB = NULL;
-            PyObject *pArgs = NULL;
-            == == == =
-
-                         uint8_t *
-                         *blockCallTensorflow(uint8_t * ppp, int cur_buf_height,
-                                              int cur_buf_width, int stride,
-                                              FRAME_TYPE frame_type) {
-              Py_SetPath(
-                  L"/usr/local/google/home/logangw/aom/av1/encoder:"
-                  "/usr/lib:"
-                  "/usr/lib/python3.6:"
-                  "/usr/lib/python3.6/site-packages:"
-                  "/usr/lib/python3.6/lib-dynload");
-
-              PyObject *pModule = NULL;
-              PyObject *pFuncI = NULL;
-              PyObject *pFuncB = NULL;
-              PyObject *pArgs = NULL;
->>>>>>> 6fb71f6ec... Adding models and test changes to exp repo.
-
-              Py_Initialize();
-
-              if (!Py_IsInitialized()) {
-                printf("Python init failed!\n");
-                return NULL;
-              }
-
-              // char *path = NULL;
-              // path = getcwd(NULL, 0);
-              // printf("current working directory : %s\n", path);
-              // free(path);
-
-              pModule = PyImport_ImportModule("TEST");
-              // pModule = PyImport_ImportModule("TEST_qp52_B");
-              // pModule = PyImport_ImportModule("TEST_qp52_I");
-
-<<<<<<< HEAD
-              // PyEval_InitThreads();
-              == == == =
-                           // PyRun_SimpleString("import TEST");
-
-                  // PyEval_InitThreads();
->>>>>>> 6fb71f6ec... Adding models and test changes to exp repo.
-                  if (!pModule) {
-                printf("don't load Pmodule\n");
-                Py_Finalize();
-                return NULL;
-              }
-
-              pFuncI = PyObject_GetAttrString(pModule, "entranceI");
-              if (!pFuncI) {
-                printf("don't get I function!");
-                Py_Finalize();
-                return NULL;
-              }
-<<<<<<< HEAD
-              // printf("succeed acquire entranceFunc !\n");
-              pFuncB = PyObject_GetAttrString(pModule, "entranceB");
-              if (!pFuncB) {
-                printf("don't get B function!");
-                Py_Finalize();
-                return NULL;
-              }
-              PyObject *list = PyList_New(cur_buf_height);
-              pArgs = PyTuple_New(1);
-              PyObject **lists = new PyObject *[cur_buf_height];
-              == == ==
-                  =
-
-                      // printf("succeed acquire entranceFunc !\n");
-                      // pFuncB = PyObject_GetAttrString(pModule, "entranceB");
-                      // if (!pFuncB) {
-                      //   printf("don't get B function!");
-                      //   Py_Finalize();
-                      //   return NULL;
-                      // }
-
-                  PyObject *list = PyList_New(cur_buf_height);
-              pArgs = PyTuple_New(1);
-              PyObject **lists = new PyObject *[cur_buf_height];
->>>>>>> 6fb71f6ec... Adding models and test changes to exp repo.
-
-              for (int i = 0; i < cur_buf_height; i++) {
-                lists[i] = PyList_New(0);
-                for (int j = 0; j < cur_buf_width; j++) {
-                  PyList_Append(lists[i], Py_BuildValue("i", *(ppp + j)));
-                }
-                PyList_SetItem(list, i, lists[i]);
-                ppp += stride;
-                // PyList_Append(list, lists[i]);
-              }
-              PyTuple_SetItem(pArgs, 0, list);
-              PyObject *presult = NULL;
-<<<<<<< HEAD
-              if (frame_type == KEY_FRAME) {
-                presult = PyEval_CallObject(pFuncI, pArgs);
-              } else {
-                presult = PyEval_CallObject(pFuncB, pArgs);
-              }
-              == == == = presult = PyEval_CallObject(pFuncI, pArgs);
-              // if (frame_type == KEY_FRAME){
-              //   presult = PyEval_CallObject(pFuncI, pArgs);
-              // }
-              // else{
-              //   presult = PyEval_CallObject(pFuncB, pArgs);
-              // }
->>>>>>> 6fb71f6ec... Adding models and test changes to exp repo.
-
-              uint8_t **rePic = new uint8_t *[cur_buf_height];
-              for (int i = 0; i < cur_buf_height; i++) {
-                rePic[i] = new uint8_t[cur_buf_width];
-              }
-              uint8_t s;
-
-              // FILE *fp = fopen("CPython.yuv", "wb");
-              for (int i = 0; i < cur_buf_height; i++) {
-                for (int j = 0; j < cur_buf_width; j++) {
-                  // PyList_GetItem(PyList_GetItem(presult, i), j) mean
-                  // presult(i,j)
-                  PyArg_Parse(PyList_GetItem(PyList_GetItem(presult, i), j),
-                              "i", &s);
-                  rePic[i][j] = s;
-                  // unsigned char uc = (unsigned char)s;
-                  // fwrite(&uc, 1, 1, fp);
-                }
-              }
-              // fclose(fp);
-
-              // Py_Finalize();
-              return rePic;
-            }
-
-<<<<<<< HEAD
-            uint16_t **blockCallTensorflow_hbd(
-                uint16_t * ppp, int cur_buf_height, int cur_buf_width,
-                int stride, FRAME_TYPE frame_type) {
-              Py_SetPath(
-                  L"/home/chenjs/a5/aom_cnn_7/aom/av1/encoder:"
-                  "/home/chenjs/.conda/envs/tf2/lib:"
-                  "/home/chenjs/.conda/envs/tf2/lib/python3.6:"
-                  "/home/chenjs/.conda/envs/tf2/lib/python3.6/site-packages:"
-                  "/home/chenjs/.conda/envs/tf2/lib/python3.6/lib-dynload");
-
-              PyObject *pModule = NULL;
-              PyObject *pFuncI = NULL;
-              PyObject *pFuncB = NULL;
-              PyObject *pArgs = NULL;
-              == == == =
-
-                           uint16_t * *blockCallTensorflow_hbd(
-                                          uint16_t * ppp, int cur_buf_height,
-                                          int cur_buf_width, int stride,
-                                          FRAME_TYPE frame_type) {
-                Py_SetPath(
-                    L"/usr/local/google/home/logangw/aom/av1/encoder:"
-                    "/usr/lib:"
-                    "/usr/lib/python3.6:"
-                    "/usr/lib/python3.6/site-packages:"
-                    "/usr/lib/python3.6/lib-dynload");
-
-                PyObject *pModule = NULL;
-                PyObject *pFuncI = NULL;
-                PyObject *pFuncB = NULL;
-                PyObject *pArgs = NULL;
->>>>>>> 6fb71f6ec... Adding models and test changes to exp repo.
-
-                Py_Initialize();
-
-                if (!Py_IsInitialized()) {
-                  printf("Python init failed!\n");
-                  return NULL;
-                }
-
-                // char *path = NULL;
-                // path = getcwd(NULL, 0);
-                // printf("current working directory : %s\n", path);
-                // free(path);
-
-                pModule = PyImport_ImportModule("TEST");
-                // pModule = PyImport_ImportModule("TEST_qp52_B");
-                // pModule = PyImport_ImportModule("TEST_qp52_I");
-
-                // PyEval_InitThreads();
-                if (!pModule) {
-                  printf("don't load Pmodule\n");
-                  Py_Finalize();
-                  return NULL;
-                }
-
-                pFuncI = PyObject_GetAttrString(pModule, "entranceI");
-                if (!pFuncI) {
-                  printf("don't get I function!");
-                  Py_Finalize();
-                  return NULL;
-                }
-                // printf("succeed acquire entranceFunc !\n");
-                pFuncB = PyObject_GetAttrString(pModule, "entranceB");
-                if (!pFuncB) {
-                  printf("don't get B function!");
-                  Py_Finalize();
-                  return NULL;
-                }
-                PyObject *list = PyList_New(cur_buf_height);
-                pArgs = PyTuple_New(1);
-                PyObject **lists = new PyObject *[cur_buf_height];
-
-                for (int i = 0; i < cur_buf_height; i++) {
-                  lists[i] = PyList_New(0);
-                  for (int j = 0; j < cur_buf_width; j++) {
-                    PyList_Append(lists[i], Py_BuildValue("i", *(ppp + j)));
-                  }
-                  PyList_SetItem(list, i, lists[i]);
-                  ppp += stride;
-                  // PyList_Append(list, lists[i]);
-                }
-                PyTuple_SetItem(pArgs, 0, list);
-                PyObject *presult = NULL;
-                if (frame_type == KEY_FRAME) {
-                  presult = PyEval_CallObject(pFuncI, pArgs);
-                } else {
-                  presult = PyEval_CallObject(pFuncB, pArgs);
-                }
-
-                uint16_t **rePic = new uint16_t *[cur_buf_height];
-                for (int i = 0; i < cur_buf_height; i++) {
-                  rePic[i] = new uint16_t[cur_buf_width];
-                }
-                uint16_t s;
-
-                // FILE *fp = fopen("CPython.yuv", "wb");
-                for (int i = 0; i < cur_buf_height; i++) {
-                  for (int j = 0; j < cur_buf_width; j++) {
-                    // PyList_GetItem(PyList_GetItem(presult, i), j) mean
-                    // presult(i,j)
-                    PyArg_Parse(PyList_GetItem(PyList_GetItem(presult, i), j),
-                                "H", &s);
-                    rePic[i][j] = s;
-                    // unsigned char uc = (unsigned char)s;
-                    // fwrite(&uc, 1, 1, fp);
-                  }
-                }
-                // fclose(fp);
-
-                // Py_Finalize();
-                return rePic;
-              }
+  // Py_Finalize();
+  return rePic;
+}
