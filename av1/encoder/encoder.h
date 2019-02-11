@@ -968,6 +968,9 @@ struct EncodeFrameParams {
   // Bitmask of which reference buffers may be referenced by this frame
   int ref_frame_flags;
 
+  // Reference buffer assignment for this frame.
+  int remapped_ref_idx[REF_FRAMES];
+
   // Flags which determine which reference buffers are refreshed by this frame
   int refresh_last_frame;
   int refresh_golden_frame;
@@ -977,8 +980,6 @@ struct EncodeFrameParams {
 
   // Speed level to use for this frame: Bigger number means faster.
   int speed;
-
-  unsigned int *frame_flags;
 };
 typedef struct EncodeFrameParams EncodeFrameParams;
 
