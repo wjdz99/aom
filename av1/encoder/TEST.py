@@ -93,7 +93,7 @@ def test_all_ckpt(modelPath, fileOrDir, is_key_frame_model):
 
 def entranceI(inp):
   tf.logging.warning("python, in I")
-  #print(inp)
+  tf.logging.warning("length %d" % len(inp))
   i = test_all_ckpt(I_MODEL_PATH, inp, True)
   return i
 

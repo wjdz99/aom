@@ -47,7 +47,7 @@ typedef void (*predict_inter_block_visitor_fn_t)(AV1_COMMON *const cm,
 typedef void (*cfl_store_inter_block_visitor_fn_t)(AV1_COMMON *const cm,
                                                    MACROBLOCKD *const xd);
 
-typedef struct ThreadData {
+typedef struct DecoderThreadData {
   aom_reader *bit_reader;
   DECLARE_ALIGNED(32, MACROBLOCKD, xd);
   CB_BUFFER cb_buffer_base;
@@ -65,7 +65,7 @@ typedef struct ThreadData {
   decode_block_visitor_fn_t inverse_tx_inter_block_visit;
   predict_inter_block_visitor_fn_t predict_inter_block_visit;
   cfl_store_inter_block_visitor_fn_t cfl_store_inter_block_visit;
-} ThreadData;
+} DecoderThreadData;
 
 typedef struct AV1DecRowMTJobInfo {
   int tile_row;
@@ -168,7 +168,7 @@ typedef struct AV1Decoder {
   AVxWorker *tile_workers;
   int num_workers;
   DecWorkerData *thread_data;
-  ThreadData td;
+  DecoderThreadData td;
   TileDataDec *tile_data;
   int allocated_tiles;
 
@@ -317,7 +317,7 @@ void av1_visit_palette(AV1Decoder *const pbi, MACROBLOCKD *const xd, int mi_row,
                        int mi_col, aom_reader *r, BLOCK_SIZE bsize,
                        palette_visitor_fn_t visit);
 
-typedef void (*block_visitor_fn_t)(AV1Decoder *const pbi, ThreadData *const td,
+typedef void (*block_visitor_fn_t)(AV1Decoder *const pbi, DecoderThreadData *const td,
                                    int mi_row, int mi_col, aom_reader *r,
                                    PARTITION_TYPE partition, BLOCK_SIZE bsize);
 
