@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "584132d7_f7fdeeec",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 9986,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-02-11T20:56:26Z",
+      "side": 1,
+      "message": "Right, but given that these are supposed to be all boolean values (even though the type is \"int\"), could you pls change to use \"\u0026\u0026\"s? (Here or separate patch is ok).",
+      "parentUuid": "073abb9f_f9d87656",
+      "revId": "625c57d934d748bc5080778bcf54d3b87ff3c16f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "75eef18a_3719349f",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
