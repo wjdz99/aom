@@ -307,7 +307,7 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 3) {
-    sf->selective_ref_frame = 4;
+    sf->selective_ref_frame = 3;
     sf->tx_size_search_method = boosted ? USE_FULL_RD : USE_LARGESTALL;
     sf->less_rectangular_check_level = 2;
     sf->adaptive_pred_interp_filter = 1;
