@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5d1464b_42ba0f63",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-02-12T17:13:55Z",
+      "side": 1,
+      "message": "static",
+      "range": {
+        "startLine": 224,
+        "startChar": 0,
+        "endLine": 224,
+        "endChar": 4
+      },
+      "revId": "e93c3600ee38c9969dd89139d9c4dae2f1bd9b9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
