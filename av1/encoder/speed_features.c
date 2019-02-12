@@ -335,6 +335,7 @@ static void set_good_speed_features_framesize_independent(
     // it with cpi->sf.disable_wedge_search_var_thresh.
     sf->disable_wedge_interintra_search = 1;
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
+    sf->adaptive_rd_thresh = is_boosted_arf2_bwd_type ? 2 : 3;
   }
 
   if (speed >= 4) {
