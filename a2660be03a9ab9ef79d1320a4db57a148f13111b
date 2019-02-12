@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47d56e6d_a36ad012",
+        "filename": "av1/encoder/callTensorflow.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2019-02-12T01:54:29Z",
+      "side": 1,
+      "message": "You can delete those comments in Chinese. To me, it does not convey very useful information",
+      "revId": "a2660be03a9ab9ef79d1320a4db57a148f13111b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7160bdc3_bb586d5e",
+        "filename": "av1/encoder/callTensorflow.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2019-02-12T01:54:29Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "a2660be03a9ab9ef79d1320a4db57a148f13111b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bddbe23e_5ae770a4",
+        "filename": "av1/encoder/callTensorflow.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2019-02-12T01:54:29Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "a2660be03a9ab9ef79d1320a4db57a148f13111b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
