@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd6e3102_c34d0ca6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-02-12T03:36:01Z",
+      "side": 1,
+      "message": "prefer the imperative present tense in commit messages (Add cnn...) [1].\n\n[1] https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines\n\"...It’s also a good idea to use the imperative present tense in these messages. In other words, use commands. Instead of “I added tests for” or “Adding tests for,” use “Add tests for.”\"",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 20
+      },
+      "revId": "defd6728d5f1d1b1cccf87405a93b5a72ebf6fcf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
