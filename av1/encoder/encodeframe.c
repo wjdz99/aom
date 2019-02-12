@@ -4276,6 +4276,7 @@ BEGIN_PARTITION_SEARCH:
       if (bsize_at_least_8x8) {
         this_rdc.rate += pt_cost;
         this_rdc.rdcost = RDCOST(x->rdmult, this_rdc.rate, this_rdc.dist);
+        cur_none_rd = this_rdc.rdcost;
       }
 
       if (this_rdc.rdcost < best_rdc.rdcost) {
