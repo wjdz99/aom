@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f60ac21d_c43816ea",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 9974
+      },
+      "writtenOn": "2019-02-12T17:43:35Z",
+      "side": 1,
+      "message": "clang-format is quite insistent on not having spaces here.  I\u0027m not sure what it\u0027s misinterpreted.",
+      "parentUuid": "14805488_6e6617ed",
+      "range": {
+        "startLine": 45,
+        "startChar": 45,
+        "endLine": 45,
+        "endChar": 46
+      },
+      "revId": "c380e349ac9ee6b61f25724c61522903966eaf03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3aee460a_92e149ad",
         "filename": "av1/encoder/gop_structure.h",
         "patchSetId": 1
@@ -39,6 +63,24 @@
       "revId": "c380e349ac9ee6b61f25724c61522903966eaf03",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "786b8025_f554371d",
+        "filename": "av1/encoder/gop_structure.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 9974
+      },
+      "writtenOn": "2019-02-12T17:43:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3aee460a_92e149ad",
+      "revId": "c380e349ac9ee6b61f25724c61522903966eaf03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "d2cdb806_4037153b",
+        "filename": "av1/encoder/gop_structure.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 9974
+      },
+      "writtenOn": "2019-02-12T17:43:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8a77b8d_75011aa7",
+      "range": {
+        "startLine": 51,
+        "startChar": 29,
+        "endLine": 51,
+        "endChar": 37
+      },
+      "revId": "c380e349ac9ee6b61f25724c61522903966eaf03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c595b16f_61475edf",
         "filename": "av1/encoder/pass2_strategy.h",
         "patchSetId": 1
@@ -85,6 +151,30 @@
       "revId": "c380e349ac9ee6b61f25724c61522903966eaf03",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6aebf1e_513ce4d1",
+        "filename": "av1/encoder/pass2_strategy.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 9974
+      },
+      "writtenOn": "2019-02-12T17:43:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c595b16f_61475edf",
+      "range": {
+        "startLine": 23,
+        "startChar": 33,
+        "endLine": 23,
+        "endChar": 41
+      },
+      "revId": "c380e349ac9ee6b61f25724c61522903966eaf03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
