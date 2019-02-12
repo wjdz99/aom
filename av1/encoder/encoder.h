@@ -603,6 +603,34 @@ typedef struct PartitionStats {
 } PartitionStats;
 #endif
 
+#if CONFIG_COLLECT_COMPONENT_TIMING
+#include "aom_ports/aom_timer.h"
+enum {
+  encode_sb_time,
+  rd_pick_partition_time,
+  rd_pick_sb_modes_time,
+  av1_rd_pick_intra_mode_sb_time,
+  av1_rd_pick_inter_mode_sb_time,
+  handle_inter_mode_time,
+  motion_mode_rd_time,
+  TIMING_COMPONENTS,
+} UENUM1BYTE(TIMING_COMPONENT);
+
+static INLINE char const *get_component_name(int index) {
+  switch (index) {
+    case 0: return "encode_sb_time";
+    case 1: return "rd_pick_partition_time";
+    case 2: return "rd_pick_sb_modes_time";
+    case 3: return "av1_rd_pick_intra_mode_sb_time";
+    case 4: return "av1_rd_pick_inter_mode_sb_time";
+    case 5: return "handle_inter_mode_time";
+    case 6: return "motion_mode_rd_time";
+    default: assert(0);
+  }
+  return "error";
+}
+#endif
+
 typedef struct AV1_COMP {
   QUANTS quants;
   ThreadData td;
@@ -876,6 +904,14 @@ typedef struct AV1_COMP {
   int is_screen_content_type;
 #if CONFIG_COLLECT_PARTITION_STATS
   PartitionStats partition_stats;
+#endif
+
+#if CONFIG_COLLECT_COMPONENT_TIMING
+  // component_time[] are initialized to zero while encoder starts.
+  uint64_t component_time[TIMING_COMPONENTS];
+  struct aom_usec_timer component_timer[TIMING_COMPONENTS];
+  // frame_component_time[] are initialized to zero at beginning of each frame.
+  uint64_t frame_component_time[TIMING_COMPONENTS];
 #endif
 } AV1_COMP;
 
@@ -1167,6 +1203,17 @@ static INLINE int av1_get_bsize_idx_for_part_stats(BLOCK_SIZE bsize) {
     case BLOCK_4X4: return 5;
     default: assert(0 && "Invalid bsize for partition_stats."); return -1;
   }
+}
+#endif
+
+#if CONFIG_COLLECT_COMPONENT_TIMING
+static INLINE void start_timing(AV1_COMP *cpi, int component) {
+  aom_usec_timer_start(&cpi->component_timer[component]);
+}
+static INLINE void end_timing(AV1_COMP *cpi, int component) {
+  aom_usec_timer_mark(&cpi->component_timer[component]);
+  cpi->frame_component_time[component] +=
+      aom_usec_timer_elapsed(&cpi->component_timer[component]);
 }
 #endif
 

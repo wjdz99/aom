@@ -540,6 +540,10 @@ static void rd_pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   const DELTAQ_MODE deltaq_mode = cpi->oxcf.deltaq_mode;
   int i, orig_rdmult;
 
+#if CONFIG_COLLECT_COMPONENT_TIMING
+  start_timing(cpi, rd_pick_sb_modes_time);
+#endif
+
   if (best_rd < 0) {
     ctx->rdcost = INT64_MAX;
     ctx->skip = 0;
@@ -641,8 +645,14 @@ static void rd_pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   // Find best coding mode & reconstruct the MB so it is available
   // as a predictor for MBs that follow in the SB
   if (frame_is_intra_only(cm)) {
+#if CONFIG_COLLECT_COMPONENT_TIMING
+    start_timing(cpi, av1_rd_pick_intra_mode_sb_time);
+#endif
     av1_rd_pick_intra_mode_sb(cpi, x, mi_row, mi_col, rd_cost, bsize, ctx,
                               best_rd);
+#if CONFIG_COLLECT_COMPONENT_TIMING
+    end_timing(cpi, av1_rd_pick_intra_mode_sb_time);
+#endif
   } else {
     if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
       av1_rd_pick_inter_mode_sb_seg_skip(cpi, tile_data, x, mi_row, mi_col,
@@ -651,8 +661,15 @@ static void rd_pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
       ctx->seg_feat = 1;
 #endif
     } else {
+#if CONFIG_COLLECT_COMPONENT_TIMING
+      start_timing(cpi, av1_rd_pick_inter_mode_sb_time);
+#endif
       av1_rd_pick_inter_mode_sb(cpi, tile_data, x, mi_row, mi_col, rd_cost,
                                 bsize, ctx, best_rd);
+#if CONFIG_COLLECT_COMPONENT_TIMING
+      end_timing(cpi, av1_rd_pick_inter_mode_sb_time);
+#endif
+
 #if CONFIG_ONE_PASS_SVM
       ctx->seg_feat = 0;
 #endif
@@ -677,6 +694,10 @@ static void rd_pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   ctx->rate = rd_cost->rate;
   ctx->dist = rd_cost->dist;
   ctx->rdcost = rd_cost->rdcost;
+
+#if CONFIG_COLLECT_COMPONENT_TIMING
+  end_timing(cpi, rd_pick_sb_modes_time);
+#endif
 }
 
 static void update_inter_mode_stats(FRAME_CONTEXT *fc, FRAME_COUNTS *counts,
@@ -5554,6 +5575,9 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
   // Code each SB in the row
   for (int mi_col = tile_info->mi_col_start, sb_col_in_tile = 0;
        mi_col < tile_info->mi_col_end; mi_col += mib_size, sb_col_in_tile++) {
+#if CONFIG_COLLECT_COMPONENT_TIMING
+    start_timing(cpi, encode_sb_time);
+#endif
     (*(cpi->row_mt_sync_read_ptr))(&tile_data->row_mt_sync, sb_row,
                                    sb_col_in_tile);
     if (tile_data->allow_update_cdf && (cpi->row_mt == 1) &&
@@ -5664,10 +5688,15 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
           cm->current_frame.frame_type != KEY_FRAME) {
         first_partition_search_pass(cpi, td, tile_data, mi_row, mi_col, tp);
       }
-
+#if CONFIG_COLLECT_COMPONENT_TIMING
+      start_timing(cpi, rd_pick_partition_time);
+#endif
       rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                         sb_size, BLOCK_4X4, &dummy_rdc, INT64_MAX, pc_root,
                         NULL);
+#if CONFIG_COLLECT_COMPONENT_TIMING
+      end_timing(cpi, rd_pick_partition_time);
+#endif
     }
     // TODO(angiebird): Let inter_mode_rd_model_estimation support multi-tile.
     if (cpi->sf.inter_mode_rd_model_estimation == 1 && cm->tile_cols == 1 &&
@@ -5684,6 +5713,9 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     }
     (*(cpi->row_mt_sync_write_ptr))(&tile_data->row_mt_sync, sb_row,
                                     sb_col_in_tile, sb_cols_in_tile);
+#if CONFIG_COLLECT_COMPONENT_TIMING
+    end_timing(cpi, encode_sb_time);
+#endif
   }
 }
 
@@ -6603,6 +6635,17 @@ void av1_encode_frame(AV1_COMP *cpi) {
   } else {
     encode_frame_internal(cpi);
   }
+
+#if CONFIG_COLLECT_COMPONENT_TIMING
+  int i;
+  for (i = 0; i < TIMING_COMPONENTS; i++) {
+    cpi->component_time[i] += cpi->frame_component_time[i];
+    fprintf(stderr, "\n %s:  %" PRId64 " us (  %" PRId64 " us)\n",
+            get_component_name(i), cpi->frame_component_time[i],
+            cpi->component_time[i]);
+    cpi->frame_component_time[i] = 0;
+  }
+#endif
 }
 
 static void update_txfm_count(MACROBLOCK *x, MACROBLOCKD *xd,
