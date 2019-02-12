@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14805488_6e6617ed",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-02-12T17:11:54Z",
+      "side": 1,
+      "message": "Space around \"-\" (minus)?\n[I know this was just moved, but while we are here, may as well correct the formatting].",
+      "range": {
+        "startLine": 45,
+        "startChar": 45,
+        "endLine": 45,
+        "endChar": 46
+      },
+      "revId": "c380e349ac9ee6b61f25724c61522903966eaf03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3aee460a_92e149ad",
+        "filename": "av1/encoder/gop_structure.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-02-12T17:11:54Z",
+      "side": 1,
+      "message": "Some comment here would be nice.",
+      "revId": "c380e349ac9ee6b61f25724c61522903966eaf03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8a77b8d_75011aa7",
+        "filename": "av1/encoder/gop_structure.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-02-12T17:11:54Z",
+      "side": 1,
+      "message": "As this is a header, these structs can just be forward declared, without including the relevant header files?",
+      "range": {
+        "startLine": 51,
+        "startChar": 29,
+        "endLine": 51,
+        "endChar": 37
+      },
+      "revId": "c380e349ac9ee6b61f25724c61522903966eaf03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c595b16f_61475edf",
+        "filename": "av1/encoder/pass2_strategy.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-02-12T17:11:54Z",
+      "side": 1,
+      "message": "As this is a header, these structs can just be forward declared, without including the relevant header files?",
+      "range": {
+        "startLine": 23,
+        "startChar": 33,
+        "endLine": 23,
+        "endChar": 41
+      },
+      "revId": "c380e349ac9ee6b61f25724c61522903966eaf03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
