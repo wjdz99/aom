@@ -45,6 +45,30 @@
       "revId": "fa4dbe8f180b5447d22a3c709f957c6ec3e48e56",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fab2a9a2_5e4e7686",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3823,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-02-12T20:43:14Z",
+      "side": 1,
+      "message": "In the past, we used to compare pass in above_bsize \u003c\u003d bsize into the model. But this behavior is incorrect because in AV1 bsizes are not increasing with respect to its value. More precisely, BLOCK_SIZE iterates through all square and 2:1 rectangular bsizes from BLOCK_4X4 to BLOCK_128X128 for indices 0 to 15. But for indices 16 to 21, we iterate back to the smaller 1:4 rectangular blocks. This does lead to some performance degradation compared to using h and w directly.\n\nI\u0027ve also tried passing in the area h*w, but it doesn\u0027t perform as well as this..\n\nYou ar ecorrect, has_above and has_left are used to make sure h and w are correct.",
+      "parentUuid": "7f1b2245_8be91778",
+      "range": {
+        "startLine": 3822,
+        "startChar": 2,
+        "endLine": 3823,
+        "endChar": 60
+      },
+      "revId": "fa4dbe8f180b5447d22a3c709f957c6ec3e48e56",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
