@@ -3881,9 +3881,7 @@ static void set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
     configure_static_seg_features(cpi);
 }
 
-static void init_motion_estimation(AV1_COMP *cpi) {
-  int y_stride = cpi->scaled_source.y_stride;
-
+void init_motion_estimation(AV1_COMP *cpi, int y_stride) {
   if (cpi->sf.mv.search_method == NSTEP) {
     av1_init3smotion_compensation(&cpi->ss_cfg, y_stride);
   } else if (cpi->sf.mv.search_method == DIAMOND) {
@@ -3945,8 +3943,6 @@ static void check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
     alloc_raw_frame_buffers(cpi);
     init_ref_frame_bufs(cpi);
     alloc_util_frame_buffers(cpi);
-
-    init_motion_estimation(cpi);  // TODO(agrange) This can be removed.
 
     cpi->initial_width = cm->width;
     cpi->initial_height = cm->height;
@@ -4029,7 +4025,6 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
 
   av1_alloc_restoration_buffers(cm);
   alloc_util_frame_buffers(cpi);
-  init_motion_estimation(cpi);
 
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);

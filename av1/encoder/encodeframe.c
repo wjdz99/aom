@@ -6662,6 +6662,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
          REF_FRAMES * sizeof(WarpedMotionParams));
 
   av1_setup_motion_field(cm);
+  if (cpi->sf.mv.search_method == NSTEP || cpi->sf.mv.search_method == DIAMOND)
+    init_motion_estimation(cpi, cpi->scaled_source.y_stride);
 
   cpi->all_one_sided_refs =
       frame_is_intra_only(cm) ? 0 : av1_refs_are_one_sided(cm);

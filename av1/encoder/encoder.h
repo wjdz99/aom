@@ -1301,7 +1301,7 @@ static INLINE char const *get_frame_type_enum(int type) {
   return "error";
 }
 #endif
-
+void init_motion_estimation(AV1_COMP *cpi, int y_stride);
 #ifdef __cplusplus
 }  // extern "C"
 #endif

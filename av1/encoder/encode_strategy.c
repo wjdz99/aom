@@ -596,6 +596,13 @@ static struct lookahead_entry *setup_arf_or_arf2(
     } else {
       if (oxcf->arnr_max_frames > 0) {
         // Produce the filtered ARF frame.
+        if (cpi->sf.mv.search_method == NSTEP ||
+            cpi->sf.mv.search_method == DIAMOND) {
+          int stride = ((cpi->oxcf.superres_mode || cpi->oxcf.resize_mode)
+                            ? cpi->scaled_source.y_stride
+                            : cpi->lookahead->buf->img.y_stride);
+          init_motion_estimation(cpi, stride);
+        }
         av1_temporal_filter(cpi, arf_src_index);
         aom_extend_frame_borders(&cpi->alt_ref_buffer, av1_num_planes(cm));
         *temporal_filtered = 1;

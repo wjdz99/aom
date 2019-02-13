@@ -603,6 +603,9 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
 
         // TODO(pengchong): Replace the hard-coded threshold
         if (raw_motion_error > 25) {
+          if (cpi->sf.mv.search_method == NSTEP ||
+              cpi->sf.mv.search_method == DIAMOND)
+            init_motion_estimation(cpi, cpi->scaled_source.y_stride);
           // Test last reference frame using the previous best mv as the
           // starting point (best reference) for the search.
           first_pass_motion_search(cpi, x, &best_ref_mv, &mv, &motion_error);
