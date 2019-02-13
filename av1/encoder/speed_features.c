@@ -334,6 +334,7 @@ static void set_good_speed_features_framesize_independent(
     // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
     // it with cpi->sf.disable_wedge_search_var_thresh.
     sf->disable_wedge_interintra_search = 1;
+    sf->refine_low_txfm_rd = 1;
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
     sf->disable_smooth_intra =
         !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
@@ -784,6 +785,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->prune_motion_mode_level = 0;
   sf->prune_warp_using_wmtype = 0;
   sf->disable_wedge_interintra_search = 0;
+  sf->refine_low_txfm_rd = 0;
   sf->perform_coeff_opt = 0;
   sf->disable_smooth_intra = 0;
 

@@ -661,6 +661,9 @@ typedef struct SPEED_FEATURES {
   // Flag used to control the extent of coeff R-D optimization
   int perform_coeff_opt;
 
+  // Used to disable coeff R-D optimization for low_txfm_rd path
+  int refine_low_txfm_rd;
+
   // This flag controls the use of non-RD mode decision.
   int use_nonrd_pick_mode;
 
