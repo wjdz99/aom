@@ -331,6 +331,7 @@ static void set_good_speed_features_framesize_independent(
     sf->prune_comp_search_by_single_result = 2;
     sf->prune_motion_mode_level = boosted ? 2 : 3;
     sf->prune_warp_using_wmtype = 1;
+    sf->adaptive_txb_search_level = boosted ? 2 : 3;
     // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
     // it with cpi->sf.disable_wedge_search_var_thresh.
     sf->disable_wedge_interintra_search = 1;
@@ -351,7 +352,6 @@ static void set_good_speed_features_framesize_independent(
     sf->alt_ref_search_fp = 1;
     sf->skip_sharp_interp_filter_search = 1;
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 4;
-    sf->adaptive_txb_search_level = boosted ? 2 : 3;
   }
 
   if (speed >= 5) {
