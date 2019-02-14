@@ -100,27 +100,58 @@ FILE *yuv_rec_file;
 #endif
 
 // Estimate if the source frame is screen content, based on the portion of
-// blocks that have no more than 4 (experimentally selected) luma colors.
-static int is_screen_content(const uint8_t *src, int use_hbd, int bd,
-                             int stride, int width, int height) {
+// blocks that have few luma colors.
+static int is_screen_content(AV1_COMP *cpi) {
+  const uint8_t *src = cpi->source->y_buffer;
   assert(src != NULL);
-  int counts = 0;
+  const int use_hbd = cpi->source->flags & YV12_FLAG_HIGHBITDEPTH;
+  const int stride = cpi->source->y_stride;
+  const int width = cpi->source->y_width;
+  const int height = cpi->source->y_height;
+  AV1_COMMON *cm = &cpi->common;
+  const int bd = cm->seq_params.bit_depth;
   const int blk_w = 16;
   const int blk_h = 16;
-  const int limit = 4;
+  // These threshold values are selected experimentally.
+  const int color_thresh = 4;
+  const unsigned int var_thresh = 0;
+  // Counts of blocks with no more than color_thresh colors.
+  int counts_1 = 0;
+  // Counts of blocks with no more than color_thresh colors and variance larger
+  // than var_thresh.
+  int counts_2 = 0;
+
   for (int r = 0; r + blk_h <= height; r += blk_h) {
     for (int c = 0; c + blk_w <= width; c += blk_w) {
       int count_buf[1 << 12];  // Maximum (1 << 12) color levels.
+      const uint8_t *const this_src = src + r * stride + c;
       const int n_colors =
-          use_hbd ? av1_count_colors_highbd(src + r * stride + c, stride, blk_w,
+          use_hbd ? av1_count_colors_highbd(this_src, stride, blk_w,
                                             blk_h, bd, count_buf)
-                  : av1_count_colors(src + r * stride + c, stride, blk_w, blk_h,
+                  : av1_count_colors(this_src, stride, blk_w, blk_h,
                                      count_buf);
-      if (n_colors > 1 && n_colors <= limit) counts++;
+      if (n_colors > 1 && n_colors <= color_thresh) {
+        ++counts_1;
+        struct buf_2d buf;
+        buf.stride = stride;
+        buf.buf = (uint8_t *)this_src;
+        const unsigned int var =
+            use_hbd ?
+                av1_high_get_sby_perpixel_variance(cpi, &buf, BLOCK_16X16, bd):
+                av1_get_sby_perpixel_variance(cpi, &buf, BLOCK_16X16);
+        if (var > var_thresh) ++counts_2;
+      }
     }
   }
-  // The threshold is 10%.
-  return counts * blk_h * blk_w * 10 > width * height;
+
+  // The threshold values are selected experimentally.
+  const int is_screen_content = counts_1 * blk_h * blk_w * 10 > width * height;
+  // Intrabc would force loop filters off, so we use more strict rules that also
+  // requires that the block has high variance.
+  cm->allow_intrabc =
+      is_screen_content && counts_2 * blk_h * blk_w * 15 > width * height;
+
+  return is_screen_content;
 }
 
 static INLINE void Scale2Ratio(AOM_SCALING mode, int *hr, int *hs) {
@@ -3843,13 +3874,9 @@ static void set_size_independent_vars(AV1_COMP *cpi) {
   if (frame_is_intra_only(cm)) {
     if (cm->seq_params.force_screen_content_tools == 2) {
       cm->allow_screen_content_tools =
-          cpi->oxcf.content == AOM_CONTENT_SCREEN ||
-          is_screen_content(cpi->source->y_buffer,
-                            cpi->source->flags & YV12_FLAG_HIGHBITDEPTH,
-                            cm->seq_params.bit_depth, cpi->source->y_stride,
-                            cpi->source->y_width, cpi->source->y_height);
+          cpi->oxcf.content == AOM_CONTENT_SCREEN || is_screen_content(cpi);
     } else {
-      cm->allow_screen_content_tools =
+      cm->allow_screen_content_tools = cm->allow_intrabc =
           cm->seq_params.force_screen_content_tools;
     }
   }
