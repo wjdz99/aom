@@ -2004,7 +2004,7 @@ void av1_predict_intra_block(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                                xd->color_index_map_offset[plane != 0];
     const uint16_t *const palette =
         mbmi->palette_mode_info.palette_colors + plane * PALETTE_MAX_SIZE;
-    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+    if (is_cur_buf_hbd(xd)) {
       uint16_t *dst16 = CONVERT_TO_SHORTPTR(dst);
       for (r = 0; r < txhpx; ++r) {
         for (c = 0; c < txwpx; ++c) {
@@ -2063,6 +2063,7 @@ void av1_predict_intra_block(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       tx_size, row_off, col_off, pd->subsampling_x, pd->subsampling_y);
 
   const int disable_edge_filter = !cm->seq_params.enable_intra_edge_filter;
+<<<<<<< HEAD   (494480 Add expt macro for CNN based in-loop restoration)
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     build_intra_predictors_high(xd, ref, ref_stride, dst, dst_stride, mode,
                                 angle_delta, filter_intra_mode, tx_size,
@@ -2075,6 +2076,16 @@ void av1_predict_intra_block(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                                 adapt_filter_intra_mode, col_off, row_off,
 #endif
                                 plane);
+=======
+  if (is_cur_buf_hbd(xd)) {
+    build_intra_predictors_high(
+        xd, ref, ref_stride, dst, dst_stride, mode, angle_delta,
+        filter_intra_mode, tx_size, disable_edge_filter,
+        have_top ? AOMMIN(txwpx, xr + txwpx) : 0,
+        have_top_right ? AOMMIN(txwpx, xr) : 0,
+        have_left ? AOMMIN(txhpx, yd + txhpx) : 0,
+        have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane);
+>>>>>>> BRANCH (e6d0be Facilitate separate frame buffer offset in diamond search)
     return;
   }
 
