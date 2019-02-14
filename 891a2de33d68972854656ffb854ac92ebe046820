@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5fa9c8bb_2dcf3b08",
+        "filename": ".cmake-format.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-02-14T00:37:12Z",
+      "side": 0,
+      "message": "I think you deleted this file by mistake, which may be causing the formatting warnings.\n(Maybe you don\u0027t even need the previous formatting patch)",
+      "revId": "891a2de33d68972854656ffb854ac92ebe046820",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
