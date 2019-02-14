@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da7619b9_78ce693a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-02-14T20:37:41Z",
+      "side": 1,
+      "message": "\"Fix formatting issues\" as you are fixing cmake + clang-format issues.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 29
+      },
+      "revId": "10113719f85633c780642a606f641c11452dd923",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
