@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a94493c_35862dfc",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3561,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-02-14T17:43:22Z",
+      "side": 0,
+      "message": "What happened to this logic?",
+      "range": {
+        "startLine": 3557,
+        "startChar": 4,
+        "endLine": 3561,
+        "endChar": 5
+      },
+      "revId": "53c90d9801e470e6ee626dac96d980eb52660d09",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
