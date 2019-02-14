@@ -34,6 +34,24 @@
       "revId": "4f1f181cc090c8b71779d709273f9032c97ff9f1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9344de9_790292b7",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2019-02-14T18:18:34Z",
+      "side": 0,
+      "message": "Will keep it in for COMPLEXITY_AQ mode, as i have not tested that mode",
+      "parentUuid": "d78c27ff_3bd337f9",
+      "revId": "4f1f181cc090c8b71779d709273f9032c97ff9f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
