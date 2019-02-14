@@ -106,6 +106,8 @@ list(APPEND AOM_AV1_DECODER_SOURCES
 
 list(APPEND AOM_AV1_ENCODER_SOURCES
             "${AOM_ROOT}/av1/av1_cx_iface.c"
+            "${AOM_ROOT}/av1/encoder/additionHandle_Frame.cpp"
+            "${AOM_ROOT}/av1/encoder/additionHandle_Frame.h"
             "${AOM_ROOT}/av1/encoder/aq_complexity.c"
             "${AOM_ROOT}/av1/encoder/aq_complexity.h"
             "${AOM_ROOT}/av1/encoder/aq_cyclicrefresh.c"
@@ -123,6 +125,7 @@ list(APPEND AOM_AV1_ENCODER_SOURCES
             "${AOM_ROOT}/av1/encoder/bitstream.c"
             "${AOM_ROOT}/av1/encoder/bitstream.h"
             "${AOM_ROOT}/av1/encoder/block.h"
+            "${AOM_ROOT}/av1/encoder/callTensorflow.cpp"
             "${AOM_ROOT}/av1/encoder/context_tree.c"
             "${AOM_ROOT}/av1/encoder/context_tree.h"
             "${AOM_ROOT}/av1/encoder/corner_detect.c"
@@ -481,4 +484,5 @@ function(setup_av1_targets)
 endfunction()
 
 function(setup_av1_test_targets)
+
 endfunction()
