@@ -9490,7 +9490,7 @@ static int64_t motion_mode_rd(
           &model_rate, &model_dist, NULL, NULL, NULL, NULL, NULL);
       const int64_t est_rd =
           RDCOST(x->rdmult, rd_stats->rate + model_rate, model_dist);
-      if ((est_rd >> 3) * 6 > ref_best_rd) {
+      if (est_rd > ref_best_rd) {
         mbmi->ref_frame[1] = ref_frame_1;
         continue;
       }
