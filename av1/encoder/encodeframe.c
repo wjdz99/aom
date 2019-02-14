@@ -2633,7 +2633,8 @@ static void rd_pick_sqr_partition(AV1_COMP *const cpi, ThreadData *td,
                                   TileDataEnc *tile_data, TOKENEXTRA **tp,
                                   int mi_row, int mi_col, BLOCK_SIZE bsize,
                                   RD_STATS *rd_cost, int64_t best_rd,
-                                  PC_TREE *pc_tree, int64_t *none_rd) {
+                                  PC_TREE *pc_tree, int64_t *none_rd,
+                                  int partial_sb) {
   const AV1_COMMON *const cm = &cpi->common;
   TileInfo *const tile_info = &tile_data->tile_info;
   MACROBLOCK *const x = &td->mb;
@@ -2673,7 +2674,8 @@ static void rd_pick_sqr_partition(AV1_COMP *const cpi, ThreadData *td,
     av1_invalid_rd_stats(rd_cost);
     return;
   }
-  pc_tree->pc_tree_stats.valid = 1;
+
+  if (!partial_sb) pc_tree->pc_tree_stats.valid = 1;
 
   // Override partition costs at the edges of the frame in the same
   // way as in read_partition (see decodeframe.c)
@@ -2835,9 +2837,10 @@ static void rd_pick_sqr_partition(AV1_COMP *const cpi, ThreadData *td,
       const int64_t best_remain_rdcost =
           (temp_best_rdcost == INT64_MAX) ? INT64_MAX
                                           : (temp_best_rdcost - sum_rdc.rdcost);
-      rd_pick_sqr_partition(
-          cpi, td, tile_data, tp, mi_row + y_idx, mi_col + x_idx, subsize,
-          &this_rdc, best_remain_rdcost, pc_tree->split[idx], p_split_rd);
+      rd_pick_sqr_partition(cpi, td, tile_data, tp, mi_row + y_idx,
+                            mi_col + x_idx, subsize, &this_rdc,
+                            best_remain_rdcost, pc_tree->split[idx], p_split_rd,
+                            partial_sb);
 
       pc_tree->pc_tree_stats.sub_block_rdcost[idx] = this_rdc.rdcost;
       pc_tree->pc_tree_stats.sub_block_skip[idx] =
@@ -5402,7 +5405,8 @@ static void setup_delta_q(AV1_COMP *const cpi, MACROBLOCK *const x,
 // unlikely partition candidates.
 static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
                                         TileDataEnc *tile_data, int mi_row,
-                                        int mi_col, TOKENEXTRA **tp) {
+                                        int mi_col, TOKENEXTRA **tp,
+                                        int partial_sb) {
   MACROBLOCK *const x = &td->mb;
   x->cb_partition_scan = 1;
 
@@ -5417,7 +5421,7 @@ static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
   PC_TREE *const pc_root = td->pc_root[mib_size_log2 - MIN_MIB_SIZE_LOG2];
   RD_STATS dummy_rdc;
   rd_pick_sqr_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
-                        &dummy_rdc, INT64_MAX, pc_root, NULL);
+                        &dummy_rdc, INT64_MAX, pc_root, NULL, partial_sb);
   x->cb_partition_scan = 0;
 
   x->source_variance = UINT_MAX;
@@ -5824,13 +5828,20 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       reset_partition(pc_root, sb_size);
       x->use_cb_search_range = 0;
       init_first_partition_pass_stats_tables(x->first_partition_pass_stats);
+      int partial_sb = 0;
       // Do the first pass if we need two pass partition search
       if (cpi->sf.two_pass_partition_search &&
           cpi->sf.use_square_partition_only_threshold > BLOCK_4X4 &&
-          mi_row + mi_size_high[sb_size] < cm->mi_rows &&
-          mi_col + mi_size_wide[sb_size] < cm->mi_cols &&
+          mi_row + mi_size_high[sb_size] <=
+              (cm->mi_rows + mi_size_high[sb_size]) &&
+          mi_col + mi_size_wide[sb_size] <=
+              (cm->mi_cols + mi_size_wide[sb_size]) &&
           cm->current_frame.frame_type != KEY_FRAME) {
-        first_partition_search_pass(cpi, td, tile_data, mi_row, mi_col, tp);
+        if ((mi_row + mi_size_high[sb_size] > cm->mi_rows) ||
+            (mi_col + mi_size_wide[sb_size] > cm->mi_cols))
+          partial_sb = 1;
+        first_partition_search_pass(cpi, td, tile_data, mi_row, mi_col, tp,
+                                    partial_sb);
       }
 #if CONFIG_COLLECT_COMPONENT_TIMING
       start_timing(cpi, rd_pick_partition_time);
