@@ -6489,13 +6489,13 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
     xd->mi[0]->sb_type = bsize;
     xd->mi[0]->ref_frame[0] = INTRA_FRAME;
 
-    av1_predict_intra_block(
-        cm, xd, block_size_wide[bsize], block_size_high[bsize], tx_size, mode,
-        0, 0, FILTER_INTRA_MODES, 
+    av1_predict_intra_block(cm, xd, block_size_wide[bsize],
+                            block_size_high[bsize], tx_size, mode, 0, 0,
+                            FILTER_INTRA_MODES,
 #if CONFIG_ADAPT_FILTER_INTRA
-        ADAPT_FILTER_INTRA_MODES,
+                            ADAPT_FILTER_INTRA_MODES,
 #endif
-        src, src_stride, dst, dst_stride, 0, 0, 0);
+                            src, src_stride, dst, dst_stride, 0, 0, 0);
 
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       aom_highbd_subtract_block(bh, bw, src_diff, bw, src, src_stride, dst,
