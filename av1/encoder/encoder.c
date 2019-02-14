@@ -46,6 +46,7 @@
 #include "av1/common/resize.h"
 #include "av1/common/tile_common.h"
 
+#include "av1/encoder/addition_handle_frame.h"
 #include "av1/encoder/av1_multi_thread.h"
 #include "av1/encoder/aq_complexity.h"
 #include "av1/encoder/aq_cyclicrefresh.h"
@@ -5327,7 +5328,11 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
   // Pick the loop filter level for the frame.
   if (!cm->allow_intrabc) {
+#if CONFIG_CNN_RESTORATION == 1
+    addition_handle_blocks(cm, cm->cur_frame->frame_type);
+#else
     loopfilter_frame(cpi, cm);
+#endif
   } else {
     cm->lf.filter_level[0] = 0;
     cm->lf.filter_level[1] = 0;
