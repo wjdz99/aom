@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85af0ba0_6685bc1b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-02-15T07:13:08Z",
+      "side": 1,
+      "message": "If you find that you need to provide a long list of what a change does the chances are that it can be split on logical bounds of some of the items in the list. Typically with a large feature small components are brought in separately with the feature disabled so they can be reviewed more easily and are guaranteed not to affect default code paths. Later when things have landed the feature can be enabled if it makes sense.\n\nProviding a change as \u0027DO NOT SUBMIT\u0027 with a branch squashed as one commit in tandem can give reviewers an idea of where iterative changes are headed. An email or doc can also achieve this.",
+      "revId": "1f0d7cb069acb8d272d0431b82872bb688ee6767",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a32e671_62996a97",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 17
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-02-15T07:13:08Z",
+      "side": 1,
+      "message": "Adding the files unconditionally to the encoder sources will have them built in all configurations. These should only be added when an experimental flag is set on the command line with -DCONFIG_MY_EXPERIMENT\u003d1",
+      "revId": "1f0d7cb069acb8d272d0431b82872bb688ee6767",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5866434d_008feaef",
+        "filename": "av1/decoder/decodeframe.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-02-15T07:13:08Z",
+      "side": 1,
+      "message": "for example, this could be a separate change",
+      "revId": "1f0d7cb069acb8d272d0431b82872bb688ee6767",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25d5b6bf_85c57ba8",
+        "filename": "av1/encoder/additionHandle_Frame.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-02-15T07:13:08Z",
+      "side": 1,
+      "message": "we use .cc as the extension for c++ files and name them with lowercase + \u0027_\u0027:\n\nhttp://go/cstyle#File_Names",
+      "revId": "1f0d7cb069acb8d272d0431b82872bb688ee6767",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c578b50b_f0c200a8",
+        "filename": "av1/encoder/additionHandle_Frame.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-02-15T07:13:08Z",
+      "side": 1,
+      "message": "this pollutes the namespace and is disallowed:\n\nhttp://go/cstyle#Scoping",
+      "revId": "1f0d7cb069acb8d272d0431b82872bb688ee6767",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
