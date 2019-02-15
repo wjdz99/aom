@@ -61,7 +61,7 @@ static INLINE int av1_get_spatial_seg_pred(const AV1_COMMON *const cm,
   }
 
   // Pick CDF index based on number of matching/out-of-bounds segment IDs.
-  if (prev_ul < 0 || prev_u < 0 || prev_l < 0) /* Edge case */
+  if (prev_ul < 0) /* Edge case */
     *cdf_index = 0;
   else if ((prev_ul == prev_u) && (prev_ul == prev_l))
     *cdf_index = 2;
