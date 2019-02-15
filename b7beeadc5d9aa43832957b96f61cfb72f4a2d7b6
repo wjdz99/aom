@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ebf1abdc_243625f1",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 9974
+      },
+      "writtenOn": "2019-02-15T11:40:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0224ca77_a8ff6116",
+      "range": {
+        "startLine": 718,
+        "startChar": 0,
+        "endLine": 718,
+        "endChar": 4
+      },
+      "revId": "b7beeadc5d9aa43832957b96f61cfb72f4a2d7b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "77a9ee55_0fa847a0",
         "filename": "av1/encoder/encode_strategy.c",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "8ce332bb_4b682f2c",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 9974
+      },
+      "writtenOn": "2019-02-15T11:40:08Z",
+      "side": 1,
+      "message": "I\u0027ve added a comment explaining the function and also removed cpi-\u003eframe_flags (simply passing the flags to the few places they are required) for clarity.",
+      "parentUuid": "77a9ee55_0fa847a0",
+      "range": {
+        "startLine": 720,
+        "startChar": 9,
+        "endLine": 720,
+        "endChar": 20
+      },
+      "revId": "b7beeadc5d9aa43832957b96f61cfb72f4a2d7b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d7b219e2_89b2a307",
         "filename": "av1/encoder/encode_strategy.c",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2019-02-14T17:43:22Z",
       "side": 1,
       "message": "Sorry, I\u0027m having trouble understanding this part of the comment.\nWhat do you mean by \"label\" here?",
+      "range": {
+        "startLine": 869,
+        "startChar": 5,
+        "endLine": 870,
+        "endChar": 66
+      },
+      "revId": "b7beeadc5d9aa43832957b96f61cfb72f4a2d7b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5e4028c_344f2162",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 870,
+      "author": {
+        "id": 9974
+      },
+      "writtenOn": "2019-02-15T11:40:08Z",
+      "side": 1,
+      "message": "I was referring to LAST_FRAME, ALTREF_FRAME, etc., as \"labels\" to distinguish them from the underlying reference buffers.  The spec (6.8.2) seems to refer to these as \"references\" and \"reference frames\" respectively, so I\u0027ll fix my terminology in this comment.\n\nAs I understand it, av1_set_frame_refs() modifies remapped_ref_idx[] but check_frame_refs_short_signaling() only enables frame_refs_short_signaling if every reference still points to the same RefCntBuffer afterwards thanks to ref_frame_map[].",
+      "parentUuid": "d7b219e2_89b2a307",
       "range": {
         "startLine": 869,
         "startChar": 5,
