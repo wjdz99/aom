@@ -409,7 +409,6 @@ static void set_good_speed_features_framesize_independent(
   if (speed >= 8) {
     sf->mv.search_method = FAST_DIAMOND;
     sf->mv.subpel_force_stop = HALF_PEL;
-    sf->lpf_pick = LPF_PICK_MINIMAL_LPF;
   }
 }
 
@@ -610,7 +609,6 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   }
   if (speed >= 8) {
     sf->mv.search_method = FAST_DIAMOND;
-    sf->lpf_pick = LPF_PICK_MINIMAL_LPF;
     sf->default_max_partition_size = BLOCK_128X128;
     sf->default_min_partition_size = BLOCK_8X8;
     sf->partition_search_type = VAR_BASED_PARTITION;
