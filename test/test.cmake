@@ -76,6 +76,7 @@ list(APPEND AOM_UNIT_TEST_ENCODER_SOURCES
             "${AOM_ROOT}/test/scalability_test.cc"
             "${AOM_ROOT}/test/y4m_test.cc"
             "${AOM_ROOT}/test/y4m_video_source.h"
+            "${AOM_ROOT}/test/yuv_temporal_filter_test.cc"
             "${AOM_ROOT}/test/yuv_video_source.h")
 
 list(APPEND AOM_DECODE_PERF_TEST_SOURCES "${AOM_ROOT}/test/decode_perf_test.cc")
