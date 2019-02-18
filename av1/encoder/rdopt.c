@@ -3523,7 +3523,8 @@ static void txfm_rd_in_plane(MACROBLOCK *x, const AV1_COMP *cpi,
 
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int is_inter = is_inter_block(mbmi);
-  const int invalid_rd = is_inter ? args.incomplete_exit : args.exit_early;
+  int invalid_rd = is_inter ? args.incomplete_exit : args.exit_early;
+  if (cpi->sf.prune_incomplete_exit) invalid_rd = args.exit_early;
 
   if (invalid_rd) {
     av1_invalid_rd_stats(rd_stats);
