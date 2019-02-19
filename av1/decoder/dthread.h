@@ -23,10 +23,10 @@ extern "C" {
 
 struct AV1Common;
 struct AV1Decoder;
-struct ThreadData;
+struct DecoderThreadData;
 
 typedef struct DecWorkerData {
-  struct ThreadData *td;
+  struct DecoderThreadData *td;
   const uint8_t *data_end;
   struct aom_internal_error_info error_info;
 } DecWorkerData;
