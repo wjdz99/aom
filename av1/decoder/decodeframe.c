@@ -281,7 +281,7 @@ static void set_cb_buffer_offsets(MACROBLOCKD *const xd, TX_SIZE tx_size,
       xd->cb_offset[plane] / (TX_SIZE_W_MIN * TX_SIZE_H_MIN);
 }
 
-static void decode_reconstruct_tx(AV1_COMMON *cm, ThreadData *const td,
+static void decode_reconstruct_tx(AV1_COMMON *cm, DecoderThreadData *const td,
                                   aom_reader *r, MB_MODE_INFO *const mbmi,
                                   int plane, BLOCK_SIZE plane_bsize,
                                   int blk_row, int blk_col, int block,
@@ -1106,7 +1106,7 @@ static void set_color_index_map_offset(MACROBLOCKD *const xd, int plane,
 }
 
 static void decode_token_recon_block(AV1Decoder *const pbi,
-                                     ThreadData *const td, int mi_row,
+                                     DecoderThreadData *const td, int mi_row,
                                      int mi_col, aom_reader *r,
                                      BLOCK_SIZE bsize) {
   AV1_COMMON *const cm = &pbi->common;
@@ -1581,8 +1581,9 @@ static void store_bitmask_other_info(AV1_COMMON *cm, int mi_row, int mi_col,
 }
 #endif
 
-static void parse_decode_block(AV1Decoder *const pbi, ThreadData *const td,
-                               int mi_row, int mi_col, aom_reader *r,
+static void parse_decode_block(AV1Decoder *const pbi,
+                               DecoderThreadData *const td, int mi_row,
+                               int mi_col, aom_reader *r,
                                PARTITION_TYPE partition, BLOCK_SIZE bsize) {
   MACROBLOCKD *const xd = &td->xd;
   decode_mbmi_block(pbi, xd, mi_row, mi_col, r, partition, bsize);
@@ -1668,8 +1669,9 @@ static void parse_decode_block(AV1Decoder *const pbi, ThreadData *const td,
 }
 
 static void set_offsets_for_pred_and_recon(AV1Decoder *const pbi,
-                                           ThreadData *const td, int mi_row,
-                                           int mi_col, BLOCK_SIZE bsize) {
+                                           DecoderThreadData *const td,
+                                           int mi_row, int mi_col,
+                                           BLOCK_SIZE bsize) {
   AV1_COMMON *const cm = &pbi->common;
   MACROBLOCKD *const xd = &td->xd;
   const int bw = mi_size_wide[bsize];
@@ -1693,7 +1695,7 @@ static void set_offsets_for_pred_and_recon(AV1Decoder *const pbi,
                        num_planes);
 }
 
-static void decode_block(AV1Decoder *const pbi, ThreadData *const td,
+static void decode_block(AV1Decoder *const pbi, DecoderThreadData *const td,
                          int mi_row, int mi_col, aom_reader *r,
                          PARTITION_TYPE partition, BLOCK_SIZE bsize) {
   (void)partition;
@@ -1731,7 +1733,7 @@ static PARTITION_TYPE read_partition(MACROBLOCKD *xd, int mi_row, int mi_col,
 }
 
 // TODO(slavarnway): eliminate bsize and subsize in future commits
-static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
+static void decode_partition(AV1Decoder *const pbi, DecoderThreadData *const td,
                              int mi_row, int mi_col, aom_reader *reader,
                              BLOCK_SIZE bsize, int parse_decode_flag) {
   AV1_COMMON *const cm = &pbi->common;
@@ -3014,7 +3016,7 @@ static INLINE void sync_write(AV1DecRowMTSync *const dec_row_mt_sync, int r,
 #endif  // CONFIG_MULTITHREAD
 }
 
-static void decode_tile_sb_row(AV1Decoder *pbi, ThreadData *const td,
+static void decode_tile_sb_row(AV1Decoder *pbi, DecoderThreadData *const td,
                                TileInfo tile_info, const int mi_row) {
   AV1_COMMON *const cm = &pbi->common;
   const int num_planes = av1_num_planes(cm);
@@ -3064,7 +3066,8 @@ static int check_trailing_bits_after_symbol_coder(aom_reader *r) {
   return 0;
 }
 
-static void set_decode_func_pointers(ThreadData *td, int parse_decode_flag) {
+static void set_decode_func_pointers(DecoderThreadData *td,
+                                     int parse_decode_flag) {
   td->read_coeffs_tx_intra_block_visit = decode_block_void;
   td->predict_and_recon_intra_block_visit = decode_block_void;
   td->read_coeffs_tx_inter_block_visit = decode_block_void;
@@ -3085,8 +3088,8 @@ static void set_decode_func_pointers(ThreadData *td, int parse_decode_flag) {
   }
 }
 
-static void decode_tile(AV1Decoder *pbi, ThreadData *const td, int tile_row,
-                        int tile_col) {
+static void decode_tile(AV1Decoder *pbi, DecoderThreadData *const td,
+                        int tile_row, int tile_col) {
   TileInfo tile_info;
 
   AV1_COMMON *const cm = &pbi->common;
@@ -3127,7 +3130,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
                                    const uint8_t *data_end, int start_tile,
                                    int end_tile) {
   AV1_COMMON *const cm = &pbi->common;
-  ThreadData *const td = &pbi->td;
+  DecoderThreadData *const td = &pbi->td;
   const int tile_cols = cm->tile_cols;
   const int tile_rows = cm->tile_rows;
   const int n_tiles = tile_cols * tile_rows;
@@ -3286,7 +3289,7 @@ static void tile_worker_hook_init(AV1Decoder *const pbi,
                                   TileDataDec *const tile_data,
                                   uint8_t allow_update_cdf) {
   AV1_COMMON *cm = &pbi->common;
-  ThreadData *const td = thread_data->td;
+  DecoderThreadData *const td = thread_data->td;
   int tile_row = tile_data->tile_info.tile_row;
   int tile_col = tile_data->tile_info.tile_col;
 
@@ -3325,7 +3328,7 @@ static int tile_worker_hook(void *arg1, void *arg2) {
   DecWorkerData *const thread_data = (DecWorkerData *)arg1;
   AV1Decoder *const pbi = (AV1Decoder *)arg2;
   AV1_COMMON *cm = &pbi->common;
-  ThreadData *const td = thread_data->td;
+  DecoderThreadData *const td = thread_data->td;
   uint8_t allow_update_cdf;
 
   // The jmp_buf is valid only for the duration of the function that calls
@@ -3517,7 +3520,7 @@ static INLINE void signal_parse_sb_row_done(AV1Decoder *const pbi,
 
 // This function is very similar to decode_tile(). It would be good to figure
 // out how to share code.
-static void parse_tile_row_mt(AV1Decoder *pbi, ThreadData *const td,
+static void parse_tile_row_mt(AV1Decoder *pbi, DecoderThreadData *const td,
                               TileDataDec *const tile_data) {
   AV1_COMMON *const cm = &pbi->common;
   const int sb_mi_size = mi_size_wide[cm->seq_params.sb_size];
@@ -3560,7 +3563,7 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
   DecWorkerData *const thread_data = (DecWorkerData *)arg1;
   AV1Decoder *const pbi = (AV1Decoder *)arg2;
   AV1_COMMON *cm = &pbi->common;
-  ThreadData *const td = thread_data->td;
+  DecoderThreadData *const td = thread_data->td;
   uint8_t allow_update_cdf;
   AV1DecRowMTInfo *frame_row_mt_info = &pbi->frame_row_mt_info;
   td->xd.corrupted = 0;
@@ -3726,7 +3729,7 @@ static void alloc_dec_jobs(AV1DecTileMT *tile_mt_info, AV1_COMMON *cm,
                   aom_malloc(sizeof(*tile_mt_info->job_queue) * num_tiles));
 }
 
-void av1_free_mc_tmp_buf(ThreadData *thread_data) {
+void av1_free_mc_tmp_buf(DecoderThreadData *thread_data) {
   int ref;
   for (ref = 0; ref < 2; ref++) {
     if (thread_data->mc_buf_use_highbd)
@@ -3746,8 +3749,9 @@ void av1_free_mc_tmp_buf(ThreadData *thread_data) {
   }
 }
 
-static void allocate_mc_tmp_buf(AV1_COMMON *const cm, ThreadData *thread_data,
-                                int buf_size, int use_highbd) {
+static void allocate_mc_tmp_buf(AV1_COMMON *const cm,
+                                DecoderThreadData *thread_data, int buf_size,
+                                int use_highbd) {
   for (int ref = 0; ref < 2; ref++) {
     if (use_highbd) {
       uint16_t *hbd_mc_buf;
