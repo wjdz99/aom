@@ -3255,9 +3255,13 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                              &this_rd_stats.sse);
 
         const int64_t best_rd_ = AOMMIN(best_rd, ref_best_rd);
-        const int64_t dist_cost_estimate =
-            RDCOST(x->rdmult, 0, AOMMIN(this_rd_stats.dist, this_rd_stats.sse));
+        const int64_t dist_est = AOMMIN(this_rd_stats.dist, this_rd_stats.sse);
+        const int64_t dist_cost_estimate = RDCOST(x->rdmult, 0, dist_est);
         if (dist_cost_estimate - (dist_cost_estimate >> 3) > best_rd_) continue;
+        if (eobs_ptr[block] > best_eob &&
+            (eobs_ptr[block] - best_eob) << 3 > best_eob &&
+            (dist_est - (dist_est >> 3)) > best_rd_stats->dist)
+          continue;
       }
       av1_optimize_b(cpi, x, plane, block, tx_size, tx_type, txb_ctx,
                      cpi->sf.trellis_eob_fast, &rate_cost);
