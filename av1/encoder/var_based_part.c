@@ -425,8 +425,7 @@ void av1_set_variance_partition_thresholds(AV1_COMP *cpi, int q,
 // This function chooses partitioning based on the variance between source and
 // reconstructed last, where variance is computed for down-sampled inputs.
 // TODO(kyslov): lot of things. Bring back noise estimation, brush up partition
-// selection
-//               and most of all - retune the thresholds
+// selection and most of all - retune the thresholds
 int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
                                       MACROBLOCK *x, int mi_row, int mi_col) {
   AV1_COMMON *const cm = &cpi->common;
@@ -455,6 +454,10 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   int compute_minmax_variance = 1;
   int is_key_frame = frame_is_intra_only(cm);
   int pixels_wide = 128, pixels_high = 128;
+  assert(cm->seq_params.sb_size == BLOCK_64X64 ||
+         cm->seq_params.sb_size == BLOCK_128X128);
+  const int is_small_sb = (cm->seq_params.sb_size == BLOCK_64X64);
+  const int num_biggest_block = is_small_sb ? 1 : 4;
 
   CHECK_MEM_ERROR(cm, vt, aom_calloc(1, sizeof(*vt)));
 
@@ -496,7 +499,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
                          get_ref_scale_factors(cm, LAST_FRAME), num_planes);
     mi->ref_frame[0] = LAST_FRAME;
     mi->ref_frame[1] = NONE_FRAME;
-    mi->sb_type = BLOCK_128X128;
+    mi->sb_type = is_small_sb ? BLOCK_64X64 : BLOCK_128X128;
     mi->mv[0].as_int = 0;
     mi->interp_filters = av1_make_interp_filters(BILINEAR, BILINEAR);
 
@@ -509,7 +512,8 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
     x->pred_mv[LAST_FRAME] = mi->mv[0].as_mv;
 
     set_ref_ptrs(cm, xd, mi->ref_frame[0], mi->ref_frame[1]);
-    av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, BLOCK_128X128,
+    av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL,
+                                  is_small_sb ? BLOCK_64X64 : BLOCK_128X128,
                                   AOM_PLANE_Y, AOM_PLANE_Y);
 
     d = xd->plane[0].dst.buf;
@@ -537,7 +541,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
     CHECK_MEM_ERROR(cm, vt2, aom_calloc(64, sizeof(*vt2)));
   // Fill in the entire tree of 8x8 (or 4x4 under some conditions) variances
   // for splits.
-  for (m = 0; m < 4; m++) {
+  for (m = 0; m < num_biggest_block; m++) {
     const int x64_idx = ((m & 1) << 6);
     const int y64_idx = ((m >> 1) << 6);
     const int m2 = m << 2;
@@ -618,7 +622,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   }
 
   // Fill the rest of the variance tree by summing split partition values.
-  for (m = 0; m < 4; ++m) {
+  for (m = 0; m < num_biggest_block; ++m) {
     avg_32x32 = 0;
     const int m2 = m << 2;
     for (i = 0; i < 4; i++) {
@@ -687,6 +691,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
           max_var_32x32 > thresholds[1] >> 1)
         force_split[1 + m] = 1;
     }
+    if (is_small_sb) force_split[0] = 1;
   }
 
   if (!force_split[0]) {
@@ -702,15 +707,15 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   const int mi_cols_remaining = tile->mi_col_end - mi_col;
   if (!((mi_cols_remaining >= cm->seq_params.mib_size) &&
         (mi_rows_remaining >= cm->seq_params.mib_size))) {
-    int bh = mi_size_high[BLOCK_128X128];
-    int bw = mi_size_wide[BLOCK_128X128];
+    int bh = mi_size_high[cm->seq_params.sb_size];
+    int bw = mi_size_wide[cm->seq_params.sb_size];
 
     int r, c;
     for (r = 0; r < cm->seq_params.mib_size; r += bh) {
-      bw = mi_size_wide[BLOCK_128X128];
+      bw = mi_size_wide[cm->seq_params.sb_size];
       for (c = 0; c < cm->seq_params.mib_size; c += bw) {
         BLOCK_SIZE sb_type =
-            find_partition_size(BLOCK_128X128, mi_rows_remaining - r,
+            find_partition_size(cm->seq_params.sb_size, mi_rows_remaining - r,
                                 mi_cols_remaining - c, &bh, &bw);
         set_block_size(cpi, x, xd, mi_row + r, mi_col + c, sb_type);
       }
@@ -719,7 +724,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   } else {
     if (!set_vt_partitioning(cpi, x, xd, vt, BLOCK_128X128, mi_row, mi_col,
                              thresholds[0], BLOCK_16X16, force_split[0])) {
-      for (m = 0; m < 4; ++m) {
+      for (m = 0; m < num_biggest_block; ++m) {
         const int x64_idx = ((m & 1) << 4);
         const int y64_idx = ((m >> 1) << 4);
         const int m2 = m << 2;
