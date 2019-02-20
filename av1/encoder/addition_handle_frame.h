@@ -71,18 +71,22 @@
 #include "av1/encoder/speed_features.h"
 #include "av1/encoder/temporal_filter.h"
 
-#ifndef ADDITIONHANDLE_FRAME
-#define ADDITIONHANDLE_FRAME
+#ifndef ADDITION_HANDLE_FRAME
+#define ADDITION_HANDLE_FRAME
 
-extern "C" void addition_handle_frame(AV1_COMP *cpi, AV1_COMMON *cm,
-                                      FRAME_TYPE frame_type);
-extern "C" void addition_handle_blocks(AV1_COMP *cpi, AV1_COMMON *cm,
-                                       FRAME_TYPE frame_type);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-extern "C" uint8_t **blocks_to_cnn_secondly(uint8_t *pBuffer_y, int height,
-                                            int width, int stride,
-                                            FRAME_TYPE frame_type);
+void addition_handle_frame(AV1_COMMON *cm, FRAME_TYPE frame_type);
+void addition_handle_blocks(AV1_COMMON *cm, FRAME_TYPE frame_type);
 
-#endif  // ADDITIONHANDLE_FRAME
+uint8_t **blocks_to_cnn_secondly(uint8_t *pBuffer_y, int height, int width,
+                                 int stride, FRAME_TYPE frame_type);
+#ifdef __cplusplus
+}  // extern "C"
+#endif
+
+#endif  // ADDITION_HANDLE_FRAME
 
 #pragma once
