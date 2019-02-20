@@ -22,6 +22,30 @@
       "revId": "1a191ae8fe0750b5ec165f06aa4c6eb45a0e1864",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2742cfe3_3360d839",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-02-20T23:22:02Z",
+      "side": 1,
+      "message": "Good catch! That was just buggy/over-enthusiastic renaming by the Eclipse.\nReverted.",
+      "parentUuid": "eb7e3b50_75ec468c",
+      "range": {
+        "startLine": 175,
+        "startChar": 18,
+        "endLine": 175,
+        "endChar": 28
+      },
+      "revId": "1a191ae8fe0750b5ec165f06aa4c6eb45a0e1864",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
