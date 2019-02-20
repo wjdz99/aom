@@ -9,10 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include "additionHandle_Frame.h"
-#include <iostream>
-
-using namespace std;
+#include "av1/encoder/addition_handle_frame.h"
 
 extern uint8_t **callTensorflow(uint8_t *ppp, int height, int width, int stride,
                                 FRAME_TYPE frame_type);
@@ -26,8 +23,8 @@ extern uint16_t **blockCallTensorflow_hbd(uint16_t *ppp, int cur_buf_height,
                                           FRAME_TYPE frame_type);
 
 /*Feed full frame image into the network*/
-void additionHandle_frame(AV1_COMP *cpi, AV1_COMMON *cm,
-                          FRAME_TYPE frame_type) {
+void addition_handle_frame(AV1_COMP *cpi, AV1_COMMON *cm,
+                           FRAME_TYPE frame_type) {
   YV12_BUFFER_CONFIG *pcPicYuvRec = cm->frame_to_show;
 
   if (!cm->use_highbitdepth) {
@@ -81,8 +78,8 @@ void additionHandle_frame(AV1_COMP *cpi, AV1_COMMON *cm,
 }
 
 /*Split into 1000x1000 blocks into the network*/
-void additionHandle_blocks(AV1_COMP *cpi, AV1_COMMON *cm,
-                           FRAME_TYPE frame_type) {
+void addition_handle_blocks(AV1_COMP *cpi, AV1_COMMON *cm,
+                            FRAME_TYPE frame_type) {
   YV12_BUFFER_CONFIG *pcPicYuvRec = cm->frame_to_show;
 
   int height = pcPicYuvRec->y_height;
