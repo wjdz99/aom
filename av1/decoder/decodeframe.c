@@ -62,6 +62,10 @@
 #include "av1/decoder/decodetxb.h"
 #include "av1/decoder/detokenize.h"
 
+#if CONFIG_CNN_RESTORATION
+#include "av1/encoder/addition_handle_frame.h"
+#endif  // CONFIG_CNN_RESTORATION
+
 #define ACCT_STR __func__
 
 #define AOM_MIN_THREADS_PER_TILE 1
@@ -5311,7 +5315,11 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 
   generate_next_ref_frame_map(pbi);
 
-  if (cm->allow_intrabc) {
+  if (!cm->allow_intrabc) {
+#if CONFIG_CNN_RESTORATION
+    addition_handle_blocks(cm, cm->cur_frame->frame_type);
+#endif  // CONFIG_CNN_RESTORATION
+  } else {
     // Set parameters corresponding to no filtering.
     struct loopfilter *lf = &cm->lf;
     lf->filter_level[0] = 0;
