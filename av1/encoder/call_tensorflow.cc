@@ -9,10 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include </usr/include/python3.6m/Python.h>
-#include "stdio.h"
-#include <sstream>
-
+#include <stdio.h>
 #include <limits.h>
 #include <math.h>
 
@@ -52,6 +49,7 @@
 #include "av1/encoder/aq_cyclicrefresh.h"
 #include "av1/encoder/aq_variance.h"
 #include "av1/encoder/bitstream.h"
+#include "av1/encoder/call_tensorflow.h"
 #include "av1/encoder/context_tree.h"
 #include "av1/encoder/encodeframe.h"
 #include "av1/encoder/encodemv.h"
@@ -71,7 +69,7 @@
 #include "av1/encoder/speed_features.h"
 #include "av1/encoder/temporal_filter.h"
 
-using namespace std;
+#include "/usr/include/python3.6m/Python.h"
 
 /*
         author：cgy
@@ -84,10 +82,10 @@ using namespace std;
 
 */
 
-uint8_t **callTensorflow(uint8_t *ppp, int height, int width, int stride,
-                         FRAME_TYPE frame_type) {
+uint8_t **call_tensorflow(uint8_t *ppp, int height, int width, int stride,
+                          FRAME_TYPE frame_type) {
   Py_SetPath(
-      L"/usr/local/google/home/logangw/AV1_CNN_in-loop_filter/aom/av1/encoder:"
+      L"/usr/local/google/home/logangw/aom/av1/encoder:"
       "/usr/lib:"
       "/usr/lib/python3.6:"
       "/usr/lib/python3.6/site-packages:"
@@ -189,10 +187,10 @@ uint8_t **callTensorflow(uint8_t *ppp, int height, int width, int stride,
   return rePic;
 }
 
-uint16_t **callTensorflow_hbd(uint16_t *ppp, int height, int width, int stride,
-                              FRAME_TYPE frame_type) {
+uint16_t **call_tensorflow_hbd(uint16_t *ppp, int height, int width, int stride,
+                               FRAME_TYPE frame_type) {
   Py_SetPath(
-      L"/usr/local/google/home/logangw/AV1_CNN_in-loop_filter/aom/av1/encoder:"
+      L"/usr/local/google/home/logangw/aom/av1/encoder:"
       "/usr/lib:"
       "/usr/lib/python3.6:"
       "/usr/lib/python3.6/site-packages:"
@@ -289,11 +287,11 @@ uint16_t **callTensorflow_hbd(uint16_t *ppp, int height, int width, int stride,
   return rePic;
 }
 
-uint8_t **blockCallTensorflow(uint8_t *ppp, int cur_buf_height,
-                              int cur_buf_width, int stride,
-                              FRAME_TYPE frame_type) {
+uint8_t **block_call_tensorflow(uint8_t *ppp, int cur_buf_height,
+                                int cur_buf_width, int stride,
+                                FRAME_TYPE frame_type) {
   Py_SetPath(
-      L"/usr/local/google/home/logangw/AV1_CNN_in-loop_filter/aom/av1/encoder:"
+      L"/usr/local/google/home/logangw/aom-iteration/aom/av1/encoder:"
       "/usr/lib:"
       "/usr/lib/python3.6:"
       "/usr/lib/python3.6/site-packages:"
@@ -310,15 +308,7 @@ uint8_t **blockCallTensorflow(uint8_t *ppp, int cur_buf_height,
     printf("Python init failed!\n");
     return NULL;
   }
-
-  // char *path = NULL;
-  // path = getcwd(NULL, 0);
-  // printf("current working directory : %s\n", path);
-  // free(path);
-
   pModule = PyImport_ImportModule("TEST");
-  // pModule = PyImport_ImportModule("TEST_qp52_B");
-  // pModule = PyImport_ImportModule("TEST_qp52_I");
 
   // PyEval_InitThreads();
   if (!pModule) {
@@ -333,7 +323,7 @@ uint8_t **blockCallTensorflow(uint8_t *ppp, int cur_buf_height,
     Py_Finalize();
     return NULL;
   }
-  // printf("succeed acquire entranceFunc !\n");
+
   pFuncB = PyObject_GetAttrString(pModule, "entranceB");
   if (!pFuncB) {
     printf("don't get B function!");
@@ -383,11 +373,11 @@ uint8_t **blockCallTensorflow(uint8_t *ppp, int cur_buf_height,
   return rePic;
 }
 
-uint16_t **blockCallTensorflow_hbd(uint16_t *ppp, int cur_buf_height,
-                                   int cur_buf_width, int stride,
-                                   FRAME_TYPE frame_type) {
+uint16_t **block_call_tensorflow_hbd(uint16_t *ppp, int cur_buf_height,
+                                     int cur_buf_width, int stride,
+                                     FRAME_TYPE frame_type) {
   Py_SetPath(
-      L"/usr/local/google/home/logangw/AV1_CNN_in-loop_filter/aom/av1/encoder:"
+      L"/usr/local/google/home/logangw/aom/av1/encoder:"
       "/usr/lib:"
       "/usr/lib/python3.6:"
       "/usr/lib/python3.6/site-packages:"

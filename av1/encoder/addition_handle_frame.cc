@@ -10,24 +10,13 @@
  */
 
 #include "av1/encoder/addition_handle_frame.h"
-
-extern uint8_t **callTensorflow(uint8_t *ppp, int height, int width, int stride,
-                                FRAME_TYPE frame_type);
-extern uint8_t **blockCallTensorflow(uint8_t *ppp, int cur_buf_height,
-                                     int cur_buf_width, int stride,
-                                     FRAME_TYPE frame_type);
-extern uint16_t **callTensorflow_hbd(uint16_t *ppp, int height, int width,
-                                     int stride, FRAME_TYPE frame_type);
-extern uint16_t **blockCallTensorflow_hbd(uint16_t *ppp, int cur_buf_height,
-                                          int cur_buf_width, int stride,
-                                          FRAME_TYPE frame_type);
+#include "av1/encoder/call_tensorflow.h"
 
 /*Feed full frame image into the network*/
-void addition_handle_frame(AV1_COMP *cpi, AV1_COMMON *cm,
-                           FRAME_TYPE frame_type) {
-  YV12_BUFFER_CONFIG *pcPicYuvRec = cm->frame_to_show;
+void addition_handle_frame(AV1_COMMON *cm, FRAME_TYPE frame_type) {
+  YV12_BUFFER_CONFIG *pcPicYuvRec = &cm->cur_frame->buf;
 
-  if (!cm->use_highbitdepth) {
+  if (!cm->seq_params.use_highbitdepth) {
     uint8_t *py = pcPicYuvRec->y_buffer;
     uint8_t *bkuPy = py;
 
@@ -40,7 +29,7 @@ void addition_handle_frame(AV1_COMP *cpi, AV1_COMMON *cm,
       buf[i] = new uint8_t[width];
     }
 
-    buf = callTensorflow(py, height, width, stride, frame_type);
+    buf = call_tensorflow(py, height, width, stride, frame_type);
 
     // FILE *ff = fopen("end.yuv", "wb");
     for (int i = 0; i < height; i++) {
@@ -64,7 +53,7 @@ void addition_handle_frame(AV1_COMP *cpi, AV1_COMMON *cm,
       buf[i] = new uint16_t[width];
     }
 
-    buf = callTensorflow_hbd(py, height, width, stride, frame_type);
+    buf = call_tensorflow_hbd(py, height, width, stride, frame_type);
 
     // FILE *ff = fopen("end.yuv", "wb");
     for (int i = 0; i < height; i++) {
@@ -78,9 +67,8 @@ void addition_handle_frame(AV1_COMP *cpi, AV1_COMMON *cm,
 }
 
 /*Split into 1000x1000 blocks into the network*/
-void addition_handle_blocks(AV1_COMP *cpi, AV1_COMMON *cm,
-                            FRAME_TYPE frame_type) {
-  YV12_BUFFER_CONFIG *pcPicYuvRec = cm->frame_to_show;
+void addition_handle_blocks(AV1_COMMON *cm, FRAME_TYPE frame_type) {
+  YV12_BUFFER_CONFIG *pcPicYuvRec = &cm->cur_frame->buf;
 
   int height = pcPicYuvRec->y_height;
   int width = pcPicYuvRec->y_width;
@@ -92,7 +80,7 @@ void addition_handle_blocks(AV1_COMP *cpi, AV1_COMMON *cm,
   int cur_buf_width;
   int cur_buf_height;
 
-  if (!cm->use_highbitdepth) {
+  if (!cm->seq_params.use_highbitdepth) {
     uint8_t *py = pcPicYuvRec->y_buffer;
     uint8_t *bkuPy = py;
     uint8_t *bkuPyTemp = bkuPy;
@@ -114,7 +102,7 @@ void addition_handle_blocks(AV1_COMP *cpi, AV1_COMMON *cm,
             buf[i] = new uint8_t[cur_buf_width];
           }
 
-          buf = blockCallTensorflow(
+          buf = block_call_tensorflow(
               py + x * buf_width + stride * buf_height * y, cur_buf_height,
               cur_buf_width, stride, frame_type);
 
@@ -154,7 +142,7 @@ void addition_handle_blocks(AV1_COMP *cpi, AV1_COMMON *cm,
             buf[i] = new uint16_t[cur_buf_width];
           }
 
-          buf = blockCallTensorflow_hbd(
+          buf = block_call_tensorflow_hbd(
               py + x * buf_width + stride * buf_height * y, cur_buf_height,
               cur_buf_width, stride, frame_type);
 
@@ -217,7 +205,7 @@ uint8_t **blocks_to_cnn_secondly(uint8_t *pBuffer_y, int height, int width,
           for (int i = 0; i < cur_buf_height; i++) {
             buf[i] = new uint8_t[cur_buf_width];
           }
-          buf = blockCallTensorflow(
+          buf = block_call_tensorflow(
               pBuffer_y + x * buf_width + stride * buf_height * y,
               cur_buf_height, cur_buf_width, stride, frame_type);
 
