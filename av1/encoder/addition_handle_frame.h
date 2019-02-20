@@ -11,20 +11,23 @@
 
 #include <stdint.h>
 
+#include "av1/common/blockd.h"
 #include "av1/common/onyxc_int.h"
 
-#include "av1/encoder/blockd.h"
+#ifndef ADDITION_HANDLE_FRAME
+#define ADDITION_HANDLE_FRAME
 
-#ifndef ADDITIONHANDLE_FRAME
-#define ADDITIONHANDLE_FRAME
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-extern "C" void addition_handle_frame(AV1_COMP *cpi, AV1_COMMON *cm,
-                                      FRAME_TYPE frame_type);
-extern "C" void addition_handle_blocks(AV1_COMP *cpi, AV1_COMMON *cm,
-                                       FRAME_TYPE frame_type);
+void addition_handle_frame(AV1_COMMON *cm, FRAME_TYPE frame_type);
+void addition_handle_blocks(AV1_COMMON *cm, FRAME_TYPE frame_type);
 
-extern "C" uint8_t **blocks_to_cnn_secondly(uint8_t *pBuffer_y, int height,
-                                            int width, int stride,
-                                            FRAME_TYPE frame_type);
+uint8_t **blocks_to_cnn_secondly(uint8_t *pBuffer_y, int height, int width,
+                                 int stride, FRAME_TYPE frame_type);
+#ifdef __cplusplus
+}  // extern "C"
+#endif
 
 #endif  // ADDITIONHANDLE_FRAME
