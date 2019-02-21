@@ -34,6 +34,31 @@ DECLARE_ALIGNED(32, static const uint8_t, filt4_d4_global_avx2[]) = {
   2, 3, 4, 5, 3, 4, 5, 6, 4, 5, 6, 7, 5, 6, 7, 8,
 };
 
+#define HORIZONTAL_FILTER_8TAP                                                 \
+  for (i = 0; i < (im_h - 2); i += 2) {                                        \
+    __m256i data = _mm256_castsi128_si256(                                     \
+        _mm_loadu_si128((__m128i *)&src_ptr[(i * src_stride) + j]));           \
+    data = _mm256_inserti128_si256(                                            \
+        data,                                                                  \
+        _mm_loadu_si128(                                                       \
+            (__m128i *)&src_ptr[(i * src_stride) + j + src_stride]),           \
+        1);                                                                    \
+                                                                               \
+    __m256i res = convolve_lowbd_x(data, coeffs_h, filt);                      \
+    res =                                                                      \
+        _mm256_sra_epi16(_mm256_add_epi16(res, round_const_h), round_shift_h); \
+    _mm256_store_si256((__m256i *)&im_block[i * im_stride], res);              \
+  }                                                                            \
+                                                                               \
+  __m256i data_1 = _mm256_castsi128_si256(                                     \
+      _mm_loadu_si128((__m128i *)&src_ptr[(i * src_stride) + j]));             \
+                                                                               \
+  __m256i res = convolve_lowbd_x(data_1, coeffs_h, filt);                      \
+                                                                               \
+  res = _mm256_sra_epi16(_mm256_add_epi16(res, round_const_h), round_shift_h); \
+                                                                               \
+  _mm256_store_si256((__m256i *)&im_block[i * im_stride], res);
+
 static INLINE void prepare_coeffs_lowbd(
     const InterpFilterParams *const filter_params, const int subpel_q4,
     __m256i *const coeffs /* [4] */) {
@@ -62,6 +87,25 @@ static INLINE void prepare_coeffs_lowbd(
   coeffs[3] = _mm256_shuffle_epi8(coeffs_1, _mm256_set1_epi16(0x0e0cu));
 }
 
+static INLINE void prepare_coeffs_lowbd_4tap(
+    const InterpFilterParams *const filter_params, const int subpel_q4,
+    __m256i *const coeffs) {
+  const int16_t *const filter = av1_get_interp_filter_subpel_kernel(
+      filter_params, subpel_q4 & SUBPEL_MASK);
+
+  const __m128i coeffs_8 = _mm_loadu_si128((__m128i *)filter);
+  const __m256i filter_coeffs = _mm256_broadcastsi128_si256(coeffs_8);
+  assert(_mm_test_all_zeros(_mm_and_si128(coeffs_8, _mm_set1_epi16(1)),
+                            _mm_set1_epi16(0xffff)));
+
+  const __m256i coeffs_1 = _mm256_srai_epi16(filter_coeffs, 1);
+
+  // coeffs 2 3 2 3 2 3 2 3
+  coeffs[0] = _mm256_shuffle_epi8(coeffs_1, _mm256_set1_epi16(0x0604u));
+  // coeffs 4 5 4 5 4 5 4 5
+  coeffs[1] = _mm256_shuffle_epi8(coeffs_1, _mm256_set1_epi16(0x0a08u));
+}
+
 static INLINE void prepare_coeffs(const InterpFilterParams *const filter_params,
                                   const int subpel_q4,
                                   __m256i *const coeffs /* [4] */) {
@@ -81,6 +125,21 @@ static INLINE void prepare_coeffs(const InterpFilterParams *const filter_params,
   coeffs[3] = _mm256_shuffle_epi32(coeff, 0xff);
 }
 
+static INLINE void prepare_coeffs_4tap(
+    const InterpFilterParams *const filter_params, const int subpel_q4,
+    __m256i *const coeffs) {
+  const int16_t *filter = av1_get_interp_filter_subpel_kernel(
+      filter_params, subpel_q4 & SUBPEL_MASK);
+
+  const __m128i coeff_8 = _mm_loadu_si128((__m128i *)filter);
+  const __m256i coeff = _mm256_broadcastsi128_si256(coeff_8);
+
+  // coeffs 2 3 2 3 2 3 2 3
+  coeffs[0] = _mm256_shuffle_epi32(coeff, 0x55);
+  // coeffs 4 5 4 5 4 5 4 5
+  coeffs[1] = _mm256_shuffle_epi32(coeff, 0xaa);
+}
+
 static INLINE __m256i convolve_lowbd(const __m256i *const s,
                                      const __m256i *const coeffs) {
   const __m256i res_01 = _mm256_maddubs_epi16(s[0], coeffs[0]);
@@ -91,6 +150,17 @@ static INLINE __m256i convolve_lowbd(const __m256i *const s,
   // order: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
   const __m256i res = _mm256_add_epi16(_mm256_add_epi16(res_01, res_45),
                                        _mm256_add_epi16(res_23, res_67));
+
+  return res;
+}
+
+static INLINE __m256i convolve_lowbd_4tap(const __m256i *const s,
+                                          const __m256i *const coeffs) {
+  const __m256i res_23 = _mm256_maddubs_epi16(s[0], coeffs[0]);
+  const __m256i res_45 = _mm256_maddubs_epi16(s[1], coeffs[1]);
+
+  // order: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+  const __m256i res = _mm256_add_epi16(res_45, res_23);
 
   return res;
 }
@@ -128,6 +198,17 @@ static INLINE __m256i convolve_lowbd_x(const __m256i data,
   s[3] = _mm256_shuffle_epi8(data, filt[3]);
 
   return convolve_lowbd(s, coeffs);
+}
+
+static INLINE __m256i convolve_lowbd_x_4tap(const __m256i data,
+                                            const __m256i *const coeffs,
+                                            const __m256i *const filt) {
+  __m256i s[2];
+
+  s[0] = _mm256_shuffle_epi8(data, filt[0]);
+  s[1] = _mm256_shuffle_epi8(data, filt[1]);
+
+  return convolve_lowbd_4tap(s, coeffs);
 }
 
 static INLINE void add_store_aligned_256(CONV_BUF_TYPE *const dst,
