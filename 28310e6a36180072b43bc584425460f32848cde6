@@ -34,6 +34,24 @@
       "revId": "28310e6a36180072b43bc584425460f32848cde6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2a98cce_47c29b69",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 802,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2019-02-21T18:11:21Z",
+      "side": 1,
+      "message": "sorry, my mistake, I didn\u0027t expand the code while reviewing and read this as disabled for \u003e\u003d 5.",
+      "parentUuid": "90956efc_16a3f5fb",
+      "revId": "28310e6a36180072b43bc584425460f32848cde6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
