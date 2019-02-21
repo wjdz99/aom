@@ -4261,11 +4261,31 @@ static void recode_loop_update_q(AV1_COMP *const cpi, int *const loop,
       // Raise Qlow as to at least the current value
       *q_low = *q < *q_high ? *q + 1 : *q_high;
 
-      if (*undershoot_seen || loop_at_this_size > 1) {
+      if (*undershoot_seen || loop_at_this_size > 2) {
         // Update rate_correction_factor unless
         av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
 
         *q = (*q_high + *q_low + 1) / 2;
+      } else if (loop_at_this_size == 2) {
+        // Calculate mid-level q.
+        const int q_mid = (*q_high + *q_low + 1) / 2;
+
+        // Calculate regulated q.
+        av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
+        int q_regulated = av1_rc_regulate_q(
+            cpi, rc->this_frame_target, bottom_index,
+            AOMMAX(*q_high, top_index), cm->width, cm->height);
+
+        while (q_regulated < *q_low && retries < 10) {
+          av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
+          q_regulated = av1_rc_regulate_q(
+              cpi, rc->this_frame_target, bottom_index,
+              AOMMAX(*q_high, top_index), cm->width, cm->height);
+          retries++;
+        }
+
+        // Get 'q' in-between 'q_mid' and 'q_regulated'.
+        *q = (q_mid + q_regulated + 1) / 2;
       } else {
         // Update rate_correction_factor unless
         av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
@@ -4288,9 +4308,36 @@ static void recode_loop_update_q(AV1_COMP *const cpi, int *const loop,
       // Frame is too small
       *q_high = *q > *q_low ? *q - 1 : *q_low;
 
-      if (*overshoot_seen || loop_at_this_size > 1) {
+      if (*overshoot_seen || loop_at_this_size > 2) {
         av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
         *q = (*q_high + *q_low) / 2;
+      } else if (loop_at_this_size == 2) {
+        // Calculate mid-level q.
+        const int q_mid = (*q_high + *q_low) / 2;
+
+        // Calculate regulated q.
+        av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
+        int q_regulated =
+            av1_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
+                              top_index, cm->width, cm->height);
+        // Special case reset for qlow for constrained quality.
+        // This should only trigger where there is very substantial
+        // undershoot on a frame and the auto cq level is above
+        // the user passsed in value.
+        if (cpi->oxcf.rc_mode == AOM_CQ && q_regulated < *q_low) {
+          *q_low = q_regulated;
+        }
+
+        while (q_regulated > *q_high && retries < 10) {
+          av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
+          q_regulated =
+              av1_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
+                                top_index, cm->width, cm->height);
+          retries++;
+        }
+
+        // Get 'q' in-between 'q_mid' and 'q_regulated'.
+        *q = (q_mid + q_regulated) / 2;
       } else {
         av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
         *q = av1_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
