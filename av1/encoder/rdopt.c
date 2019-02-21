@@ -8778,10 +8778,12 @@ static int64_t interpolation_filter_search(
       }
     }
   } else if (cm->seq_params.enable_dual_filter == 0) {
-    find_best_non_dual_interp_filter(
-        x, cpi, tile_data, bsize, mi_row, mi_col, orig_dst, rd, switchable_rate,
-        best_skip_txfm_sb, best_skip_sse_sb, dst_bufs, switchable_ctx, skip_ver,
-        skip_hor, tmp_rate, tmp_dist, filter_set_size);
+    if (!x->cb_partition_scan)
+      find_best_non_dual_interp_filter(
+          x, cpi, tile_data, bsize, mi_row, mi_col, orig_dst, rd,
+          switchable_rate, best_skip_txfm_sb, best_skip_sse_sb, dst_bufs,
+          switchable_ctx, skip_ver, skip_hor, tmp_rate, tmp_dist,
+          filter_set_size);
   } else {
     // EIGHTTAP_REGULAR mode is calculated beforehand
     for (i = 1; i < filter_set_size; ++i) {
