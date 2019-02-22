@@ -3262,6 +3262,10 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       av1_optimize_b(cpi, x, plane, block, tx_size, tx_type, txb_ctx,
                      cpi->sf.trellis_eob_fast, &rate_cost);
     }
+    this_rd_stats.rate = rate_cost;
+#if CONFIG_COEFFICIENT_RANGE_CHECKING
+
+#endif  // CONFIG_COEFFICIENT_RANGE_CHECKING
     if (eobs_ptr[block] == 0) {
       // When eob is 0, pixel domain distortion is more efficient and accurate.
       this_rd_stats.dist = this_rd_stats.sse = block_sse;
@@ -3269,12 +3273,16 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
                            &this_rd_stats.sse);
     } else {
-      this_rd_stats.dist = dist_block_px_domain(
-          cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size);
+      if (tx_size != TX_64X64 || ref_best_rd == INT64_MAX)
+        this_rd_stats.dist = dist_block_px_domain(
+            cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size);
+      else
+        this_rd_stats.dist = block_sse;
       this_rd_stats.sse = block_sse;
     }
 
-    this_rd_stats.rate = rate_cost;
+    if (this_rd_stats.dist == this_rd_stats.sse)
+      continue;
 
     const int64_t rd =
         RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
@@ -3347,7 +3355,8 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     if (cpi->sf.tx_type_search.skip_tx_search && !best_eob) break;
   }
 
-  assert(best_rd != INT64_MAX);
+  if (best_rd == INT64_MAX)
+    return INT64_MAX;
 
   best_rd_stats->skip = best_eob == 0;
   if (plane == 0) {
@@ -4591,7 +4600,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     this_distortion = this_rd_stats.dist;
     s = this_rd_stats.skip;
 
-    if (this_rate_tokenonly == INT_MAX) continue;
+    if (this_rate_tokenonly == INT_MAX || this_rate_tokenonly < 0) continue;
 
     if (!xd->lossless[mbmi->segment_id] &&
         block_signals_txsize(mbmi->sb_type)) {
@@ -4898,7 +4907,6 @@ static void try_tx_block_no_split(
   tx_type_rd(cpi, x, tx_size, blk_row, blk_col, 0, block, plane_bsize, &txb_ctx,
              rd_stats, ftxs_mode, ref_best_rd,
              rd_info_node != NULL ? rd_info_node->rd_info_array : NULL);
-  assert(rd_stats->rate < INT_MAX);
 
   if ((RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) >=
            RDCOST(x->rdmult, zero_blk_rate, rd_stats->sse) ||
@@ -6480,8 +6488,6 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   *mbmi = best_mbmi;
-  // Make sure we actually chose a mode
-  assert(best_rd < INT64_MAX);
   return best_rd;
 }
 
