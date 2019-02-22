@@ -64,9 +64,6 @@ void av1_cyclic_refresh_postencode(struct AV1_COMP *const cpi);
 // Set golden frame update interval, for 1 pass CBR mode.
 void av1_cyclic_refresh_set_golden_update(struct AV1_COMP *const cpi);
 
-// Check if we should not update golden reference, based on past refresh stats.
-void av1_cyclic_refresh_check_golden_update(struct AV1_COMP *const cpi);
-
 // Set/update global/frame level refresh parameters.
 void av1_cyclic_refresh_update_parameters(struct AV1_COMP *const cpi);
 
