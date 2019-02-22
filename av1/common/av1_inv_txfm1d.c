@@ -686,7 +686,7 @@ void av1_iadst4_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   // stage 2
   // NOTICE: (x0 - x2) here may use one extra bit compared to the
   // opt_range_row/col specified in av1_gen_inv_stage_range()
-  s7 = range_check_value((x0 - x2) + x3, stage_range[2]);
+  s7 = range_check_value((x0 - x2) + x3, stage_range[2] + 1);
 
   // stage 3
   s0 = range_check_value(s0 + s3, stage_range[3] + bit);

@@ -2285,6 +2285,32 @@ static INLINE void dist_block_tx_domain(MACROBLOCK *x, int plane, int block,
 
   *out_dist = RIGHT_SIGNED_SHIFT(*out_dist, shift);
   *out_sse = RIGHT_SIGNED_SHIFT(this_sse, shift);
+
+  // For 64x64 transform, we need examine energy outside of top left quadrant
+  if (tx_size == TX_64X64) {
+    int64_t pixel_sse, coeff_sse;
+    tran_low_t zeros[4096];
+    tran_low_t pix_diff[4096];
+    memset(zeros, 0, sizeof(zeros));
+    for (int i = 0; i < 4096; ++i) pix_diff[i] = p->src_diff[i];
+    if (is_cur_buf_hbd(xd)) {
+      av1_highbd_block_error(pix_diff, zeros, 4096, &pixel_sse, xd->bd);
+      av1_highbd_block_error(coeff, zeros, 1024, &coeff_sse, xd->bd);
+      coeff_sse = RIGHT_SIGNED_SHIFT(coeff_sse, shift);
+    } else {
+      av1_block_error(pix_diff, zeros, 4096, &pixel_sse);
+      av1_block_error(coeff, zeros, 1024, &coeff_sse);
+      coeff_sse = RIGHT_SIGNED_SHIFT(coeff_sse, shift);
+    }
+    pixel_sse *= 16;
+    if (pixel_sse * 4 > coeff_sse * 5) {
+      *out_dist = INT64_MAX;
+      *out_sse = INT64_MAX;
+    } else {
+      *out_dist += (pixel_sse - coeff_sse);
+      *out_sse += (pixel_sse - coeff_sse);
+    }
+  }
 }
 
 static INLINE int64_t dist_block_px_domain(const AV1_COMP *cpi, MACROBLOCK *x,
@@ -3254,10 +3280,11 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       av1_optimize_b(cpi, x, plane, block, tx_size, tx_type, txb_ctx,
                      cpi->sf.trellis_eob_fast, &rate_cost);
     }
+    this_rd_stats.rate = rate_cost;
     if (eobs_ptr[block] == 0) {
       // When eob is 0, pixel domain distortion is more efficient and accurate.
       this_rd_stats.dist = this_rd_stats.sse = block_sse;
-    } else if (use_transform_domain_distortion) {
+    } else if (use_transform_domain_distortion || tx_size == TX_64X64) {
       dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
                            &this_rd_stats.sse);
     } else {
@@ -3266,7 +3293,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       this_rd_stats.sse = block_sse;
     }
 
-    this_rd_stats.rate = rate_cost;
+    // if (this_rd_stats.dist == this_rd_stats.sse) continue;
 
     const int64_t rd =
         RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
@@ -3339,7 +3366,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     if (cpi->sf.tx_type_search.skip_tx_search && !best_eob) break;
   }
 
-  assert(best_rd != INT64_MAX);
+  if (best_rd == INT64_MAX) return INT64_MAX;
 
   best_rd_stats->skip = best_eob == 0;
   if (plane == 0) {
@@ -3457,26 +3484,30 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   else
     set_blk_skip(x, plane, blk_idx, 0);
 
-  const int64_t rd1 = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
-  const int64_t rd2 = RDCOST(x->rdmult, 0, this_rd_stats.sse);
+  if (this_rd_stats.rate != INT_MAX && this_rd_stats.sse != INT64_MAX) {
+    const int64_t rd1 =
+        RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
+    const int64_t rd2 = RDCOST(x->rdmult, 0, this_rd_stats.sse);
 
-  // TODO(jingning): temporarily enabled only for luma component
-  const int64_t rd = AOMMIN(rd1, rd2);
+    // TODO(jingning): temporarily enabled only for luma component
+    const int64_t rd = AOMMIN(rd1, rd2);
 
-  this_rd_stats.skip &= !x->plane[plane].eobs[block];
+    this_rd_stats.skip &= !x->plane[plane].eobs[block];
 
 #if CONFIG_ONE_PASS_SVM
-  if (plane == AOM_PLANE_Y && plane_bsize >= BLOCK_8X8) {
-    const int eob = x->plane[plane].eobs[block];
-    av1_add_reg_stat(&this_rd_stats, eob, rd, this_rd_stats.sse, blk_row,
-                     blk_col, plane_bsize, txsize_to_bsize[tx_size]);
-  }
+    if (plane == AOM_PLANE_Y && plane_bsize >= BLOCK_8X8) {
+      const int eob = x->plane[plane].eobs[block];
+      av1_add_reg_stat(&this_rd_stats, eob, rd, this_rd_stats.sse, blk_row,
+                       blk_col, plane_bsize, txsize_to_bsize[tx_size]);
+    }
 #endif
 
-  av1_merge_rd_stats(&args->rd_stats, &this_rd_stats);
-
-  args->this_rd += rd;
-
+    av1_merge_rd_stats(&args->rd_stats, &this_rd_stats);
+    args->this_rd += rd;
+  } else {
+    // av1_invalid_rd_stats(&args->rd_stats);
+    args->this_rd = INT64_MAX;
+  }
   if (args->this_rd > args->best_rd) args->exit_early = 1;
 }
 
@@ -5082,7 +5113,6 @@ static void try_tx_block_no_split(
   tx_type_rd(cpi, x, tx_size, blk_row, blk_col, 0, block, plane_bsize, &txb_ctx,
              rd_stats, ftxs_mode, ref_best_rd,
              rd_info_node != NULL ? rd_info_node->rd_info_array : NULL);
-  assert(rd_stats->rate < INT_MAX);
 
   if ((RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) >=
            RDCOST(x->rdmult, zero_blk_rate, rd_stats->sse) ||
@@ -6506,8 +6536,6 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   *mbmi = best_mbmi;
-  // Make sure we actually chose a mode
-  assert(best_rd < INT64_MAX);
   return best_rd;
 }
 
