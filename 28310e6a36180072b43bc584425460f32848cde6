@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "f3f5b3db_6a625711",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 4701,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-02-24T16:46:55Z",
+      "side": 1,
+      "message": "Thanks. I think I understand the following now.\nchroma_ref_best_rd \u003d ref_best_rd - AOMMIN(this_rd, skip_rd);",
+      "parentUuid": "633213d3_fe815fe9",
+      "range": {
+        "startLine": 4701,
+        "startChar": 3,
+        "endLine": 4701,
+        "endChar": 7
+      },
+      "revId": "28310e6a36180072b43bc584425460f32848cde6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f1782f8f_6b05f466",
         "filename": "av1/encoder/speed_features.c",
         "patchSetId": 15
