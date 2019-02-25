@@ -680,7 +680,7 @@ typedef struct SPEED_FEATURES {
   // prune wedge and compound segment approximate rd evaluation based on
   // compound average modeled rd
   int prune_comp_type_by_model_rd;
-
+  int disable_rect_for_non_boosted;
   // Enable/disable smooth intra modes.
   int disable_smooth_intra;
 } SPEED_FEATURES;

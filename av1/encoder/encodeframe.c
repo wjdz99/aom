@@ -3639,7 +3639,7 @@ static void simple_motion_search_based_split(
     nn_config = &av1_simple_motion_search_based_split_nn_config_16;
     split_only_thresh = av1_simple_motion_search_based_split_thresh_16;
   } else if (bsize == BLOCK_8X8) {
-    // Disable BLOCK_8X8 for now
+  // Disable BLOCK_8X8 for now
 #if !CONFIG_DISABLE_FULL_PIXEL_SPLIT_8X8
     nn_config = &av1_simple_motion_search_based_split_nn_config_8;
     split_only_thresh = av1_simple_motion_search_based_split_thresh_8;
@@ -4844,11 +4844,18 @@ BEGIN_PARTITION_SEARCH:
     // TODO(huisu@google.com): x->source_variance may not be the current
     // block's variance. The correct one to use is pb_source_variance. Need to
     // re-train the model to fix it.
-    ml_prune_ab_partition(bsize, pc_tree->partitioning,
-                          get_unsigned_bits(x->source_variance),
-                          best_rdc.rdcost, horz_rd, vert_rd, split_rd,
-                          &horza_partition_allowed, &horzb_partition_allowed,
-                          &verta_partition_allowed, &vertb_partition_allowed);
+    if (cpi->sf.disable_rect_for_non_boosted) {
+      horza_partition_allowed = 0;
+      horzb_partition_allowed = 0;
+      verta_partition_allowed = 0;
+      vertb_partition_allowed = 0;
+    } else {
+      ml_prune_ab_partition(bsize, pc_tree->partitioning,
+                            get_unsigned_bits(x->source_variance),
+                            best_rdc.rdcost, horz_rd, vert_rd, split_rd,
+                            &horza_partition_allowed, &horzb_partition_allowed,
+                            &verta_partition_allowed, &vertb_partition_allowed);
+    }
   }
 
   // PARTITION_HORZ_A
