@@ -6563,10 +6563,11 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                  do_gm_search_logic(&cpi->sf, num_refs_using_gm, frame) &&
                  !(cpi->sf.selective_ref_gm && skip_gm_frame(cm, frame))) {
         TransformationType model;
-        const int64_t ref_frame_error = av1_frame_error(
-            is_cur_buf_hbd(xd), xd->bd, ref_buf[frame]->y_buffer,
-            ref_buf[frame]->y_stride, cpi->source->y_buffer,
-            cpi->source->y_width, cpi->source->y_height, cpi->source->y_stride);
+        const int64_t ref_frame_error =
+            av1_frame_error(is_cur_buf_hbd(xd), xd->bd,
+                            ref_buf[frame]->y_buffer, ref_buf[frame]->y_stride,
+                            cpi->source->y_buffer, cpi->source->y_crop_width,
+                            cpi->source->y_crop_height, cpi->source->y_stride);
 
         if (ref_frame_error == 0) continue;
 
