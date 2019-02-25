@@ -8352,6 +8352,37 @@ static INLINE void pred_dual_interp_filter_rd(
   }
 }
 
+static int skip_smooth_interp_filter_based_on_first_pass_stats(
+    const AV1_COMP *const cpi, MACROBLOCK *const x, BLOCK_SIZE bsize,
+    int mi_row, int mi_col, int index) {
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  InterpFilter filter_type = av1_extract_interp_filter(filter_sets[index], 0);
+  if (cpi->two_pass_partition_search && !x->cb_partition_scan) {
+    const int mi_width = mi_size_wide[bsize];
+    const int mi_height = mi_size_high[bsize];
+    // Search in the stats table to see if a smooth interpolation filter
+    // was used in the first pass of partition search.
+    for (int row = mi_row; row < mi_row + mi_width;
+         row += FIRST_PARTITION_PASS_SAMPLE_REGION) {
+      for (int col = mi_col; col < mi_col + mi_height;
+           col += FIRST_PARTITION_PASS_SAMPLE_REGION) {
+        const int index = av1_first_partition_pass_stats_index(row, col);
+        const FIRST_PARTITION_PASS_STATS *const stats =
+            &x->first_partition_pass_stats[index];
+        if (stats->interp_filter_count_ref0[mbmi->ref_frame[0]][filter_type] &&
+            (mbmi->ref_frame[1] < 0 ||
+             stats
+                 ->interp_filter_count_ref1[mbmi->ref_frame[1]][filter_type])) {
+          return 0;
+        }
+      }
+    }
+    return 1;
+  }
+  return 0;
+}
+
 // Find the best interp filter if dual_interp_filter = 0
 static INLINE void find_best_non_dual_interp_filter(
     MACROBLOCK *const x, const AV1_COMP *const cpi,
@@ -8367,6 +8398,7 @@ static INLINE void find_best_non_dual_interp_filter(
   // be the winner
   assert(x->e_mbd.mi[0]->interp_filters == filter_sets[0]);
   assert(filter_set_size == DUAL_FILTER_SET_SIZE);
+  int skip_cur_filter = 0;
 
   // Reuse regular filter's modeled rd data for sharp filter for following
   // cases
@@ -8391,6 +8423,11 @@ static INLINE void find_best_non_dual_interp_filter(
           (cpi->sf.interp_filter_search_mask & (1 << (i >> 2)))) {
         continue;
       }
+      // Skip cur filter evaluation if skip_cur_filter is 1
+      if (bsize <= BLOCK_16X16)
+        skip_cur_filter = skip_smooth_interp_filter_based_on_first_pass_stats(
+            cpi, x, bsize, mi_row, mi_col, i);
+      if (skip_cur_filter) continue;
       interpolation_filter_rd(x, cpi, tile_data, bsize, mi_row, mi_col,
                               orig_dst, rd, switchable_rate, skip_txfm_sb,
                               skip_sse_sb, dst_bufs, i, switchable_ctx,
@@ -8407,6 +8444,11 @@ static INLINE void find_best_non_dual_interp_filter(
           (cpi->sf.interp_filter_search_mask & (1 << (i >> 2)))) {
         continue;
       }
+      // Skip filter evaluation if skip_cur_filter is 1
+      if (bsize <= BLOCK_16X16)
+        skip_cur_filter = skip_smooth_interp_filter_based_on_first_pass_stats(
+            cpi, x, bsize, mi_row, mi_col, i);
+      if (skip_cur_filter) continue;
       interpolation_filter_rd(x, cpi, tile_data, bsize, mi_row, mi_col,
                               orig_dst, rd, switchable_rate, skip_txfm_sb,
                               skip_sse_sb, dst_bufs, i, switchable_ctx,
