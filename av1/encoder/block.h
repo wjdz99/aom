@@ -176,6 +176,7 @@ typedef struct {
   uint8_t ref0_counts[REF_FRAMES];  // Counters for ref_frame[0].
   uint8_t ref1_counts[REF_FRAMES];  // Counters for ref_frame[1].
   int sample_counts;                // Number of samples collected.
+  uint8_t obmc_mode_count[REF_FRAMES];  // Counter for obmc motion mode.
 } FIRST_PARTITION_PASS_STATS;
 
 #define MAX_INTERP_FILTER_STATS 64

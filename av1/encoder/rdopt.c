@@ -9325,7 +9325,31 @@ static int64_t motion_mode_rd(
       assert(mbmi->ref_frame[1] != INTRA_FRAME);
     }
 
-    if (cpi->oxcf.enable_obmc == 0 && mbmi->motion_mode == OBMC_CAUSAL)
+    int found = 1;
+    if (cpi->sf.mode_pruning_based_on_two_pass_partition_search &&
+        !x->cb_partition_scan) {
+      const int mi_width = mi_size_wide[bsize];
+      const int mi_height = mi_size_high[bsize];
+      found = 0;
+      // Search in the stats table to see if obmc has won in
+      // first pass of partition search.
+      for (int row = mi_row; row < mi_row + mi_width && !found;
+           row += FIRST_PARTITION_PASS_SAMPLE_REGION) {
+        for (int col = mi_col; col < mi_col + mi_height && !found;
+             col += FIRST_PARTITION_PASS_SAMPLE_REGION) {
+          const int index = av1_first_partition_pass_stats_index(row, col);
+          const FIRST_PARTITION_PASS_STATS *const stats =
+              &x->first_partition_pass_stats[index];
+          if (stats->obmc_mode_count[mbmi->ref_frame[0]]) {
+            found = 1;
+            break;
+          }
+        }
+      }
+    }
+
+    if ((cpi->oxcf.enable_obmc == 0 || !found) &&
+        mbmi->motion_mode == OBMC_CAUSAL)
       continue;
 
     if (identical_obmc_mv_field_detected) {
