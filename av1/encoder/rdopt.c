@@ -3226,6 +3226,9 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   perform_block_coeff_opt = (block_mse_q8 <= cpi->coeff_opt_dist_threshold);
 
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
+#if 1
+    if (tx_type == IDTX) continue;
+#endif
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
     RD_STATS this_rd_stats;
