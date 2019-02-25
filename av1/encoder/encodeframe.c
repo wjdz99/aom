@@ -5328,6 +5328,12 @@ static void init_first_partition_pass_stats_tables(
     if (cpi->sf.use_first_partition_pass_interintra_stats)
       memset(stats[i].interintra_motion_mode_count, 0xff,
              sizeof(stats[i].interintra_motion_mode_count));
+    if (cpi->sf.use_first_partition_pass_interp_filter_stats) {
+      memset(stats[i].interp_filter_count_ref0, 0xff,
+             sizeof(stats[i].interp_filter_count_ref0));
+      memset(stats[i].interp_filter_count_ref1, 0xff,
+             sizeof(stats[i].interp_filter_count_ref1));
+    }
   }
 }
 
@@ -5505,6 +5511,12 @@ static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
       if (cpi->sf.use_first_partition_pass_interintra_stats)
         memset(stat->interintra_motion_mode_count, 0xff,
                sizeof(stat->interintra_motion_mode_count));
+      if (cpi->sf.use_first_partition_pass_interp_filter_stats) {
+        memset(stat->interp_filter_count_ref0, 0xff,
+               sizeof(stat->interp_filter_count_ref0));
+        memset(stat->interp_filter_count_ref1, 0xff,
+               sizeof(stat->interp_filter_count_ref1));
+      }
     } else if (sf->selective_ref_frame < 3) {
       // ALTREF2_FRAME and BWDREF_FRAME may be skipped during the
       // initial partition scan, so we don't eliminate them.
@@ -5515,6 +5527,14 @@ static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
       if (cpi->sf.use_first_partition_pass_interintra_stats) {
         stat->interintra_motion_mode_count[ALTREF2_FRAME] = 0xff;
         stat->interintra_motion_mode_count[BWDREF_FRAME] = 0xff;
+      }
+      if (cpi->sf.use_first_partition_pass_interp_filter_stats) {
+        for (int filter_idx = 0; filter_idx < 2; filter_idx++) {
+          stat->interp_filter_count_ref0[ALTREF2_FRAME][filter_idx] = 0xff;
+          stat->interp_filter_count_ref0[BWDREF_FRAME][filter_idx] = 0xff;
+          stat->interp_filter_count_ref1[ALTREF2_FRAME][filter_idx] = 0xff;
+          stat->interp_filter_count_ref1[BWDREF_FRAME][filter_idx] = 0xff;
+        }
       }
     }
   }
@@ -6972,6 +6992,8 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   const int mi_width = mi_size_wide[bsize];
   const int mi_height = mi_size_high[bsize];
   const int is_inter = is_inter_block(mbmi);
+  const int is_bsize_allowed = (mi_width * mi_height) <= 16 ? 1 : 0;
+  InterpFilter filter = av1_extract_interp_filter(mbmi->interp_filters, 0);
 
   if (cpi->two_pass_partition_search && x->cb_partition_scan) {
     for (int row = mi_row; row < mi_row + mi_width;
@@ -6994,6 +7016,34 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
           if (mbmi->motion_mode == 0 && mbmi->ref_frame[1] == INTRA_FRAME &&
               stats->interintra_motion_mode_count[mbmi->ref_frame[0]] < 255) {
             ++stats->interintra_motion_mode_count[mbmi->ref_frame[0]];
+          }
+        }
+        // Increase the counter for smooth and sharp interp filters for
+        // block_size <= BLOCK_16X16. Limited it to lower block sizes as smooth
+        // and sharp win by a lesser percentage for lower block sizes. Hence
+        // skipping its evaluation for lower block sizes alone would have lesser
+        // quality impact
+        if (cpi->sf.use_first_partition_pass_interp_filter_stats &&
+            is_bsize_allowed) {
+          // As use_first_partition_pass_interp_filter_stats is enabled for
+          // non-dual interp filter, both horizontal and vertical filters should
+          // be same
+          assert(filter == av1_extract_interp_filter(mbmi->interp_filters, 1));
+          // Collecting stats only for smooth and sharp interp filters as they
+          // win by lesser percentage
+          if (filter) {
+            int filt_stats_idx = filter - 1;
+            if (stats->interp_filter_count_ref0[mbmi->ref_frame[0]]
+                                               [filt_stats_idx] < 255) {
+              ++stats->interp_filter_count_ref0[mbmi->ref_frame[0]]
+                                               [filt_stats_idx];
+            }
+            if (mbmi->ref_frame[1] >= 0 &&
+                stats->interp_filter_count_ref1[mbmi->ref_frame[1]]
+                                               [filt_stats_idx] < 255) {
+              ++stats->interp_filter_count_ref1[mbmi->ref_frame[1]]
+                                               [filt_stats_idx];
+            }
           }
         }
       }
