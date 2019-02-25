@@ -5411,6 +5411,10 @@ static void init_first_partition_pass_stats_tables(
     memset(stats[i].ref0_counts, 0xff, sizeof(stats[i].ref0_counts));
     memset(stats[i].ref1_counts, 0xff, sizeof(stats[i].ref1_counts));
     stats[i].sample_counts = INT_MAX;
+    memset(stats[i].smooth_filter_ref0_count, 0xff,
+           sizeof(stats[i].smooth_filter_ref0_count));
+    memset(stats[i].smooth_filter_ref1_count, 0xff,
+           sizeof(stats[i].smooth_filter_ref1_count));
   }
 }
 
@@ -5579,20 +5583,29 @@ static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
 
   x->use_cb_search_range = 1;
 
-  for (int i = 0; i < FIRST_PARTITION_PASS_STATS_TABLES; ++i) {
-    FIRST_PARTITION_PASS_STATS *const stat = &x->first_partition_pass_stats[i];
-    if (stat->sample_counts < FIRST_PARTITION_PASS_MIN_SAMPLES) {
-      // If there are not enough samples collected, make all available.
-      memset(stat->ref0_counts, 0xff, sizeof(stat->ref0_counts));
-      memset(stat->ref1_counts, 0xff, sizeof(stat->ref1_counts));
-    } else if (sf->selective_ref_frame < 3) {
-      // ALTREF2_FRAME and BWDREF_FRAME may be skipped during the
-      // initial partition scan, so we don't eliminate them.
-      stat->ref0_counts[ALTREF2_FRAME] = 0xff;
-      stat->ref1_counts[ALTREF2_FRAME] = 0xff;
-      stat->ref0_counts[BWDREF_FRAME] = 0xff;
-      stat->ref1_counts[BWDREF_FRAME] = 0xff;
-    }
+    for (int i = 0; i < FIRST_PARTITION_PASS_STATS_TABLES; ++i) {
+      FIRST_PARTITION_PASS_STATS *const stat =
+          &x->first_partition_pass_stats[i];
+      if (stat->sample_counts < FIRST_PARTITION_PASS_MIN_SAMPLES) {
+        // If there are not enough samples collected, make all available.
+        memset(stat->ref0_counts, 0xff, sizeof(stat->ref0_counts));
+        memset(stat->ref1_counts, 0xff, sizeof(stat->ref1_counts));
+        memset(stat->smooth_filter_ref0_count, 0xff,
+               sizeof(stat->smooth_filter_ref0_count));
+        memset(stat->smooth_filter_ref1_count, 0xff,
+               sizeof(stat->smooth_filter_ref1_count));
+      } else if (sf->selective_ref_frame < 3) {
+        // ALTREF2_FRAME and BWDREF_FRAME may be skipped during the
+        // initial partition scan, so we don't eliminate them.
+        stat->ref0_counts[ALTREF2_FRAME] = 0xff;
+        stat->ref1_counts[ALTREF2_FRAME] = 0xff;
+        stat->ref0_counts[BWDREF_FRAME] = 0xff;
+        stat->ref1_counts[BWDREF_FRAME] = 0xff;
+        stat->smooth_filter_ref0_count[ALTREF2_FRAME] = 0xff;
+        stat->smooth_filter_ref0_count[BWDREF_FRAME] = 0xff;
+        stat->smooth_filter_ref1_count[ALTREF2_FRAME] = 0xff;
+        stat->smooth_filter_ref1_count[BWDREF_FRAME] = 0xff;
+      }
   }
 }
 
@@ -7047,6 +7060,7 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   const int mi_width = mi_size_wide[bsize];
   const int mi_height = mi_size_high[bsize];
   const int is_inter = is_inter_block(mbmi);
+  InterpFilter filter_type = av1_extract_interp_filter(mbmi->interp_filters, 0);
 
   if (cpi->two_pass_partition_search && x->cb_partition_scan) {
     for (int row = mi_row; row < mi_row + mi_width;
@@ -7064,6 +7078,16 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
         if (mbmi->ref_frame[1] >= 0 &&
             stats->ref1_counts[mbmi->ref_frame[1]] < 255)
           ++stats->ref1_counts[mbmi->ref_frame[1]];
+        // Increase the counter for smooth interp filter.
+        if (filter_type == 1) {
+          if (stats->smooth_filter_ref0_count[mbmi->ref_frame[0]] < 255) {
+            ++stats->smooth_filter_ref0_count[mbmi->ref_frame[0]];
+          }
+          if (mbmi->ref_frame[1] >= 0 &&
+              stats->smooth_filter_ref1_count[mbmi->ref_frame[1]] < 255) {
+            ++stats->smooth_filter_ref1_count[mbmi->ref_frame[1]];
+          }
+        }
       }
     }
   }

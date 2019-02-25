@@ -8343,6 +8343,36 @@ static INLINE void pred_dual_interp_filter_rd(
   }
 }
 
+static int skip_smooth_interp_filter_based_on_first_pass_stats(
+    const AV1_COMP *const cpi, MACROBLOCK *const x, BLOCK_SIZE bsize,
+    int mi_row, int mi_col) {
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  if (cpi->two_pass_partition_search &&
+      !x->cb_partition_scan) {
+    const int mi_width = mi_size_wide[bsize];
+    const int mi_height = mi_size_high[bsize];
+    // Search in the stats table to see if a smooth interpolation filter
+    // was used in the first pass of partition search.
+    for (int row = mi_row; row < mi_row + mi_width;
+         row += FIRST_PARTITION_PASS_SAMPLE_REGION) {
+      for (int col = mi_col; col < mi_col + mi_height;
+           col += FIRST_PARTITION_PASS_SAMPLE_REGION) {
+        const int index = av1_first_partition_pass_stats_index(row, col);
+        const FIRST_PARTITION_PASS_STATS *const stats =
+            &x->first_partition_pass_stats[index];
+        if (stats->smooth_filter_ref0_count[mbmi->ref_frame[0]] &&
+            (mbmi->ref_frame[1] < 0 ||
+             stats->smooth_filter_ref1_count[mbmi->ref_frame[1]])) {
+          return 0;
+        }
+      }
+    }
+    return 1;
+  }
+  return 0;
+}
+
 // Find the best interp filter if dual_interp_filter = 0
 static INLINE void find_best_non_dual_interp_filter(
     MACROBLOCK *const x, const AV1_COMP *const cpi,
@@ -8358,6 +8388,11 @@ static INLINE void find_best_non_dual_interp_filter(
   // be the winner
   assert(x->e_mbd.mi[0]->interp_filters == filter_sets[0]);
   assert(filter_set_size == DUAL_FILTER_SET_SIZE);
+
+  // Check if smooth filter evaluation can be skipped based on
+  // first partition search pass stats
+  int skip_smooth_filter = skip_smooth_interp_filter_based_on_first_pass_stats(
+      cpi, x, bsize, mi_row, mi_col);
 
   // Reuse regular filter's modeled rd data for sharp filter for following
   // cases
@@ -8382,6 +8417,8 @@ static INLINE void find_best_non_dual_interp_filter(
           (cpi->sf.interp_filter_search_mask & (1 << (i >> 2)))) {
         continue;
       }
+      // Skip smooth filter evaluation if skip_smooth_filter is 1
+      if (i == 4 && skip_smooth_filter) continue;
       interpolation_filter_rd(x, cpi, tile_data, bsize, mi_row, mi_col,
                               orig_dst, rd, switchable_rate, skip_txfm_sb,
                               skip_sse_sb, dst_bufs, i, switchable_ctx,
@@ -8398,6 +8435,8 @@ static INLINE void find_best_non_dual_interp_filter(
           (cpi->sf.interp_filter_search_mask & (1 << (i >> 2)))) {
         continue;
       }
+      // Skip smooth filter evaluation if skip_smooth_filter is 1
+      if (i == 4 && skip_smooth_filter) continue;
       interpolation_filter_rd(x, cpi, tile_data, bsize, mi_row, mi_col,
                               orig_dst, rd, switchable_rate, skip_txfm_sb,
                               skip_sse_sb, dst_bufs, i, switchable_ctx,
