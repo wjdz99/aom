@@ -329,6 +329,8 @@ static void set_good_speed_features_framesize_independent(
     sf->prune_comp_search_by_single_result = 2;
     sf->use_first_partition_pass_interintra_stats =
         sf->two_pass_partition_search;
+    sf->use_first_partition_pass_interp_filter_stats =
+        sf->two_pass_partition_search && sf->disable_dual_filter;
     sf->prune_motion_mode_level = boosted ? 2 : 3;
     sf->prune_warp_using_wmtype = 1;
     // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
@@ -716,6 +718,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->use_accurate_subpel_search = USE_8_TAPS;
   sf->disable_wedge_search_edge_thresh = 0;
   sf->use_first_partition_pass_interintra_stats = 0;
+  sf->use_first_partition_pass_interp_filter_stats = 0;
   sf->disable_wedge_search_var_thresh = 0;
   sf->disable_loop_restoration_chroma = 0;
   sf->fast_wedge_sign_estimate = 0;
