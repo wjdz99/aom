@@ -62,10 +62,14 @@ struct lookahead_ctx *av1_lookahead_init(
     ctx->buf = calloc(depth, sizeof(*ctx->buf));
     if (!ctx->buf) goto bail;
     for (i = 0; i < depth; i++)
-      if (aom_alloc_frame_buffer(&ctx->buf[i].img, width, height, subsampling_x,
-                                 subsampling_y, use_highbitdepth,
-                                 border_in_pixels, legacy_byte_alignment))
-        goto bail;
+      if (ctx->buf) {
+        aom_free_frame_buffer(&ctx->buf[i].img);
+        if (aom_realloc_lookahead_buffer(
+                &ctx->buf[i].img, width, height, subsampling_x, subsampling_y,
+                use_highbitdepth, border_in_pixels, legacy_byte_alignment, NULL,
+                NULL, NULL))
+          goto bail;
+      }
   }
   return ctx;
 bail:
