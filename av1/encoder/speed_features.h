@@ -371,6 +371,10 @@ typedef struct SPEED_FEATURES {
   // first_partition_search_pass
   int use_first_partition_pass_interintra_stats;
 
+  // Disable/Enable smooth and sharp interp filter based on stats collected
+  // during first_partition_search_pass
+  int use_first_partition_pass_interp_filter_stats;
+
   // Use a ML model to prune horz_a, horz_b, vert_a and vert_b partitions.
   int ml_prune_ab_partition;
 

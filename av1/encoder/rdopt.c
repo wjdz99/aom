@@ -8352,6 +8352,39 @@ static INLINE void pred_dual_interp_filter_rd(
   }
 }
 
+static INLINE int skip_interp_filter_based_on_first_pass_stats(
+    const AV1_COMP *const cpi, MACROBLOCK *const x, BLOCK_SIZE bsize,
+    int mi_row, int mi_col, int idx) {
+  if (cpi->sf.use_first_partition_pass_interp_filter_stats &&
+      cpi->two_pass_partition_search && !x->cb_partition_scan &&
+      bsize <= BLOCK_16X16) {
+    MACROBLOCKD *xd = &x->e_mbd;
+    MB_MODE_INFO *mbmi = xd->mi[0];
+    const int mi_width = mi_size_wide[bsize];
+    const int mi_height = mi_size_high[bsize];
+    InterpFilter filter = av1_extract_interp_filter(filter_sets[idx], 0);
+    assert(filter == av1_extract_interp_filter(filter_sets[idx], 1));
+    // Search in the stats table to see if a smooth interpolation filter
+    // was used in the first pass of partition search.
+    for (int row = mi_row; row < mi_row + mi_width;
+         row += FIRST_PARTITION_PASS_SAMPLE_REGION) {
+      for (int col = mi_col; col < mi_col + mi_height;
+           col += FIRST_PARTITION_PASS_SAMPLE_REGION) {
+        const int index = av1_first_partition_pass_stats_index(row, col);
+        const FIRST_PARTITION_PASS_STATS *const stats =
+            &x->first_partition_pass_stats[index];
+        if (stats->interp_filter_count_ref0[mbmi->ref_frame[0]][filter] &&
+            (mbmi->ref_frame[1] < 0 ||
+             stats->interp_filter_count_ref1[mbmi->ref_frame[1]][filter])) {
+          return 0;
+        }
+      }
+    }
+    return 1;
+  }
+  return 0;
+}
+
 // Find the best interp filter if dual_interp_filter = 0
 static INLINE void find_best_non_dual_interp_filter(
     MACROBLOCK *const x, const AV1_COMP *const cpi,
@@ -8391,6 +8424,10 @@ static INLINE void find_best_non_dual_interp_filter(
           (cpi->sf.interp_filter_search_mask & (1 << (i >> 2)))) {
         continue;
       }
+      // Skip filter evaluation based on first partition search pass stats
+      int skip_filter = skip_interp_filter_based_on_first_pass_stats(
+          cpi, x, bsize, mi_row, mi_col, i);
+      if (skip_filter) continue;
       interpolation_filter_rd(x, cpi, tile_data, bsize, mi_row, mi_col,
                               orig_dst, rd, switchable_rate, skip_txfm_sb,
                               skip_sse_sb, dst_bufs, i, switchable_ctx,
@@ -8407,6 +8444,10 @@ static INLINE void find_best_non_dual_interp_filter(
           (cpi->sf.interp_filter_search_mask & (1 << (i >> 2)))) {
         continue;
       }
+      // Skip filter evaluation based on first partition search pass stats
+      int skip_filter = skip_interp_filter_based_on_first_pass_stats(
+          cpi, x, bsize, mi_row, mi_col, i);
+      if (skip_filter) continue;
       interpolation_filter_rd(x, cpi, tile_data, bsize, mi_row, mi_col,
                               orig_dst, rd, switchable_rate, skip_txfm_sb,
                               skip_sse_sb, dst_bufs, i, switchable_ctx,
