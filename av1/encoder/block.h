@@ -178,6 +178,10 @@ typedef struct {
   int sample_counts;                // Number of samples collected.
   uint8_t interintra_motion_mode_count[REF_FRAMES];  // Counter for interintra
                                                      // motion mode
+  uint8_t smooth_interp_count_ref0[REF_FRAMES];  // Counter for smooth interp
+                                                 // filter type for ref0
+  uint8_t smooth_interp_count_ref1[REF_FRAMES];  // Counter for smooth interp
+                                                 // filter type for ref1
 } FIRST_PARTITION_PASS_STATS;
 
 #define MAX_INTERP_FILTER_STATS 64
