@@ -3180,6 +3180,11 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       }
     }
   }
+
+#if 1
+  allowed_tx_mask &= ~(1 << IDTX);
+#endif
+
   // Need to have at least one transform type allowed.
   if (allowed_tx_mask == 0) {
     txk_start = txk_end = (plane ? uv_tx_type : DCT_DCT);

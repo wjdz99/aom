@@ -805,6 +805,10 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
   TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col, tx_size,
                                     cm->reduced_tx_set_used);
 
+#if 0
+  if (tx_type == IDTX) printf("\n idtx used\n");
+#endif
+
   const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
   if (get_ext_tx_types(tx_size, is_inter, cm->reduced_tx_set_used) > 1 &&
       ((!cm->seg.enabled && cm->base_qindex > 0) ||
