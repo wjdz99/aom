@@ -3495,7 +3495,7 @@ static void simple_motion_search_based_split(
     nn_config = &av1_simple_motion_search_based_split_nn_config_16;
     split_only_thresh = av1_simple_motion_search_based_split_thresh_16;
   } else if (bsize == BLOCK_8X8) {
-    // Disable BLOCK_8X8 for now
+  // Disable BLOCK_8X8 for now
 #if !CONFIG_DISABLE_FULL_PIXEL_SPLIT_8X8
     nn_config = &av1_simple_motion_search_based_split_nn_config_8;
     split_only_thresh = av1_simple_motion_search_based_split_thresh_8;
@@ -5411,6 +5411,8 @@ static void init_first_partition_pass_stats_tables(
     memset(stats[i].ref0_counts, 0xff, sizeof(stats[i].ref0_counts));
     memset(stats[i].ref1_counts, 0xff, sizeof(stats[i].ref1_counts));
     stats[i].sample_counts = INT_MAX;
+    memset(stats[i].interintra_motion_mode_count, 0xff,
+           sizeof(stats[i].interintra_motion_mode_count));
   }
 }
 
@@ -5578,13 +5580,14 @@ static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
   }
 
   x->use_cb_search_range = 1;
-
   for (int i = 0; i < FIRST_PARTITION_PASS_STATS_TABLES; ++i) {
     FIRST_PARTITION_PASS_STATS *const stat = &x->first_partition_pass_stats[i];
     if (stat->sample_counts < FIRST_PARTITION_PASS_MIN_SAMPLES) {
       // If there are not enough samples collected, make all available.
       memset(stat->ref0_counts, 0xff, sizeof(stat->ref0_counts));
       memset(stat->ref1_counts, 0xff, sizeof(stat->ref1_counts));
+      memset(stat->interintra_motion_mode_count, 0xff,
+             sizeof(stat->interintra_motion_mode_count));
     } else if (sf->selective_ref_frame < 3) {
       // ALTREF2_FRAME and BWDREF_FRAME may be skipped during the
       // initial partition scan, so we don't eliminate them.
@@ -5592,6 +5595,8 @@ static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
       stat->ref1_counts[ALTREF2_FRAME] = 0xff;
       stat->ref0_counts[BWDREF_FRAME] = 0xff;
       stat->ref1_counts[BWDREF_FRAME] = 0xff;
+      stat->interintra_motion_mode_count[ALTREF2_FRAME] = 0xff;
+      stat->interintra_motion_mode_count[BWDREF_FRAME] = 0xff;
     }
   }
 }
@@ -7064,6 +7069,11 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
         if (mbmi->ref_frame[1] >= 0 &&
             stats->ref1_counts[mbmi->ref_frame[1]] < 255)
           ++stats->ref1_counts[mbmi->ref_frame[1]];
+        // Increase the counter for interintra_motion_mode_count.
+        if (mbmi->motion_mode == 0 && mbmi->ref_frame[1] == INTRA_FRAME &&
+            stats->interintra_motion_mode_count[mbmi->ref_frame[0]] < 255) {
+          ++stats->interintra_motion_mode_count[mbmi->ref_frame[0]];
+        }
       }
     }
   }
