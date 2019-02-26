@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29a13240_093b5782",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3786,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-02-26T00:06:19Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 3786,
+        "startChar": 38,
+        "endLine": 3786,
+        "endChar": 46
+      },
+      "revId": "fd8ece66e6ce742df07d24cda86c81b1ba25f4bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74259086_b5a8b744",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3788,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-02-26T00:06:19Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 3788,
+        "startChar": 2,
+        "endLine": 3788,
+        "endChar": 12
+      },
+      "revId": "fd8ece66e6ce742df07d24cda86c81b1ba25f4bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3614a3ce_839fd0fe",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3804,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-02-26T00:06:19Z",
+      "side": 1,
+      "message": "You can instead define a variable for block_size_high[mb_size] or mi_size_high_log2[mb_size] to avoid repeated table lookup.",
+      "range": {
+        "startLine": 3804,
+        "startChar": 13,
+        "endLine": 3804,
+        "endChar": 20
+      },
+      "revId": "fd8ece66e6ce742df07d24cda86c81b1ba25f4bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67ab0277_b57815a4",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3805,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-02-26T00:06:19Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 3804,
+        "startChar": 2,
+        "endLine": 3805,
+        "endChar": 46
+      },
+      "revId": "fd8ece66e6ce742df07d24cda86c81b1ba25f4bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1779ac9e_2bee82c7",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3815,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-02-26T00:06:19Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 3810,
+        "startChar": 2,
+        "endLine": 3815,
+        "endChar": 0
+      },
+      "revId": "fd8ece66e6ce742df07d24cda86c81b1ba25f4bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c25f36b_4ffa240d",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3834,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-02-26T00:06:19Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 3833,
+        "startChar": 6,
+        "endLine": 3834,
+        "endChar": 72
+      },
+      "revId": "fd8ece66e6ce742df07d24cda86c81b1ba25f4bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "312d829d_89244b0c",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3847,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-02-26T00:06:19Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 3843,
+        "startChar": 5,
+        "endLine": 3847,
+        "endChar": 39
+      },
+      "revId": "fd8ece66e6ce742df07d24cda86c81b1ba25f4bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d730a02_b2a1e529",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3872,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-02-26T00:06:19Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 3865,
+        "startChar": 2,
+        "endLine": 3872,
+        "endChar": 73
+      },
+      "revId": "fd8ece66e6ce742df07d24cda86c81b1ba25f4bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6af00f96_aee0c1d9",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3897,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-02-26T00:06:19Z",
+      "side": 1,
+      "message": "redundant",
+      "range": {
+        "startLine": 3897,
+        "startChar": 2,
+        "endLine": 3897,
+        "endChar": 25
+      },
+      "revId": "fd8ece66e6ce742df07d24cda86c81b1ba25f4bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c84506e_c702dcea",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5865,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-02-26T00:06:19Z",
+      "side": 1,
+      "message": "May define a macro, and check if the number of collected features is correct in get_max_min_partition_features().",
+      "range": {
+        "startLine": 5865,
+        "startChar": 23,
+        "endLine": 5865,
+        "endChar": 25
+      },
+      "revId": "fd8ece66e6ce742df07d24cda86c81b1ba25f4bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c722680b_7023db61",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5878,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-02-26T00:06:19Z",
+      "side": 1,
+      "message": "You can combine the two cases by defining max_sq_size with initial value of sb_size.",
+      "range": {
+        "startLine": 5864,
+        "startChar": 6,
+        "endLine": 5878,
+        "endChar": 7
+      },
+      "revId": "fd8ece66e6ce742df07d24cda86c81b1ba25f4bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
