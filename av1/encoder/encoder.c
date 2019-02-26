@@ -781,11 +781,15 @@ static void alloc_raw_frame_buffers(AV1_COMP *cpi) {
   const SequenceHeader *const seq_params = &cm->seq_params;
   const AV1EncoderConfig *oxcf = &cpi->oxcf;
 
-  if (!cpi->lookahead)
+  if (!cpi->lookahead) {
+    int border = (oxcf->resize_mode || oxcf->superres_mode)
+                     ? AOM_BORDER_IN_PIXELS
+                     : AOM_LOOKAHEAD_BORDER;
     cpi->lookahead = av1_lookahead_init(
         oxcf->width, oxcf->height, seq_params->subsampling_x,
         seq_params->subsampling_y, seq_params->use_highbitdepth,
-        oxcf->lag_in_frames, oxcf->border_in_pixels);
+        oxcf->lag_in_frames, border);
+  }
   if (!cpi->lookahead)
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate lag buffers");

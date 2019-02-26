@@ -10656,10 +10656,15 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     mvp_full.row >>= 3;
     const int sadpb = x->sadperbit16;
     int cost_list[5];
+    /*for screen contents,lookahead buffers are used.
+    so we need to pass lookahead offset.
+    SS_CFG_LOOKAHEAD = SS_CFG_SRC + cpi->common.allow_screen_content_tools
+    */
     const int bestsme = av1_full_pixel_search(
         cpi, x, bsize, &mvp_full, step_param, cpi->sf.mv.search_method, 0,
         sadpb, cond_cost_list(cpi, cost_list), &dv_ref.as_mv, INT_MAX, 1,
-        (MI_SIZE * mi_col), (MI_SIZE * mi_row), 1, &cpi->ss_cfg[SS_CFG_SRC]);
+        (MI_SIZE * mi_col), (MI_SIZE * mi_row), 1,
+        &cpi->ss_cfg[SS_CFG_SRC + cpi->common.allow_screen_content_tools]);
 
     x->mv_limits = tmp_mv_limits;
     if (bestsme == INT_MAX) continue;
