@@ -146,13 +146,21 @@ static const TX_SIZE max_txsize_rect_lookup[BLOCK_SIZES_ALL] = {
       TX_16X64,  TX_64X16
 };
 
+#if CONFIG_NONSEP_TX
+static const TX_TYPE_1D vtx_tab[TX_TYPES_NONSTX] = {
+#else
 static const TX_TYPE_1D vtx_tab[TX_TYPES] = {
+#endif
   DCT_1D,      ADST_1D, DCT_1D,      ADST_1D,
   FLIPADST_1D, DCT_1D,  FLIPADST_1D, ADST_1D, FLIPADST_1D, IDTX_1D,
   DCT_1D,      IDTX_1D, ADST_1D,     IDTX_1D, FLIPADST_1D, IDTX_1D,
 };
 
+#if CONFIG_NONSEP_TX
+static const TX_TYPE_1D htx_tab[TX_TYPES_NONSTX] = {
+#else
 static const TX_TYPE_1D htx_tab[TX_TYPES] = {
+#endif
   DCT_1D,  DCT_1D,      ADST_1D,     ADST_1D,
   DCT_1D,  FLIPADST_1D, FLIPADST_1D, FLIPADST_1D, ADST_1D, IDTX_1D,
   IDTX_1D, DCT_1D,      IDTX_1D,     ADST_1D,     IDTX_1D, FLIPADST_1D,

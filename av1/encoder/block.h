@@ -384,9 +384,19 @@ struct macroblock {
   int cfl_cost[CFL_JOINT_SIGNS][CFL_PRED_PLANES][CFL_ALPHABET_SIZE];
   int tx_size_cost[TX_SIZES - 1][TX_SIZE_CONTEXTS][TX_SIZES];
   int txfm_partition_cost[TXFM_PARTITION_CONTEXTS][2];
+#if CONFIG_NONSEP_TX
+  int nstx_type_inter_costs[EXT_TX_SIZES][NSTX_TYPES_INTER];
+  int nstx_type_intra_costs[EXT_TX_SIZES][NSTX_TYPES_INTRA];
+  int use_nstx_inter_costs[EXT_TX_SIZES][2];
+  int use_nstx_intra_costs[EXT_TX_SIZES][2];
+  int inter_tx_type_costs[EXT_TX_SETS_INTER][EXT_TX_SIZES][TX_TYPES_NONSTX];
+  int intra_tx_type_costs[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
+                         [TX_TYPES_NONSTX];
+#else
   int inter_tx_type_costs[EXT_TX_SETS_INTER][EXT_TX_SIZES][TX_TYPES];
   int intra_tx_type_costs[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
                          [TX_TYPES];
+#endif
   int angle_delta_cost[DIRECTIONAL_MODES][2 * MAX_ANGLE_DELTA + 1];
   int switchable_restore_cost[RESTORE_SWITCHABLE_TYPES];
   int wiener_restore_cost[2];

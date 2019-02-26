@@ -680,11 +680,45 @@ static INLINE int block_signals_txsize(BLOCK_SIZE bsize) {
   return bsize > BLOCK_4X4;
 }
 
+#if CONFIG_NONSEP_TX
+// Number of transform types in each set type
+static const int av1_num_ext_tx_set[EXT_TX_SET_TYPES] = {
+    1, 2, 5, 10, 7, 12, 24, 16,
+};
+#else
 // Number of transform types in each set type
 static const int av1_num_ext_tx_set[EXT_TX_SET_TYPES] = {
   1, 2, 5, 7, 12, 16,
 };
+#endif
 
+#if CONFIG_NONSEP_TX
+// av1_num_ext_tx_set is used to indicate the number of symbols in
+// inter_ext_tx_cdf, which has 16 symbols, so we use 16 even when NSTXs
+// are used
+static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+#if USE_NSTX_INTRA
+    {1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+#endif
+    {1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+#if USE_NSTX_INTER
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0},
+#endif
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+};
+#else
 static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
   { 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
@@ -693,6 +727,7 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 };
+#endif
 
 static const uint16_t av1_ext_tx_used_flag[EXT_TX_SET_TYPES] = {
   0x0001,  // 0000 0000 0000 0001
@@ -703,6 +738,16 @@ static const uint16_t av1_ext_tx_used_flag[EXT_TX_SET_TYPES] = {
   0xFFFF,  // 1111 1111 1111 1111
 };
 
+#if CONFIG_NONSEP_TX
+static INLINE int is_nstx_allowed(TX_TYPE tx_type, TX_SIZE tx_size,
+                                  int is_inter) {
+  if (tx_size != TX_4X4 && tx_size != TX_8X8)
+    return 0;
+
+  return (is_inter && tx_type <= NSTX8) || (!is_inter && tx_type > NSTX8);
+}
+#endif
+
 static INLINE TxSetType av1_get_ext_tx_set_type(TX_SIZE tx_size, int is_inter,
                                                 int use_reduced_set) {
   const TX_SIZE tx_size_sqr_up = txsize_sqr_up_map[tx_size];
@@ -712,6 +757,18 @@ static INLINE TxSetType av1_get_ext_tx_set_type(TX_SIZE tx_size, int is_inter,
   if (use_reduced_set)
     return is_inter ? EXT_TX_SET_DCT_IDTX : EXT_TX_SET_DTT4_IDTX;
   const TX_SIZE tx_size_sqr = txsize_sqr_map[tx_size];
+
+#if CONFIG_NONSEP_TX
+#if USE_NSTX_INTER
+  if (is_inter && tx_size <= TX_8X8)
+    return EXT_TX_SET_ALL16_NSTX8;
+#endif
+#if USE_NSTX_INTRA
+  if (!is_inter && tx_size <= TX_8X8)
+    return EXT_TX_SET_DTT4_IDTX_1DDCT_NSTX3;
+#endif
+#endif
+
   if (is_inter) {
     return (tx_size_sqr == TX_16X16 ? EXT_TX_SET_DTT9_IDTX_1DDCT
                                     : EXT_TX_SET_ALL16);

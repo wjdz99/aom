@@ -69,19 +69,26 @@ static const int use_inter_ext_tx_for_txsize[EXT_TX_SETS_INTER][EXT_TX_SIZES] =
 
 static const int av1_ext_tx_set_idx_to_type[2][AOMMAX(EXT_TX_SETS_INTRA,
                                                       EXT_TX_SETS_INTER)] = {
-  {
-      // Intra
-      EXT_TX_SET_DCTONLY,
-      EXT_TX_SET_DTT4_IDTX_1DDCT,
-      EXT_TX_SET_DTT4_IDTX,
-  },
-  {
-      // Inter
-      EXT_TX_SET_DCTONLY,
-      EXT_TX_SET_ALL16,
-      EXT_TX_SET_DTT9_IDTX_1DDCT,
-      EXT_TX_SET_DCT_IDTX,
-  },
+    {
+        // Intra
+        EXT_TX_SET_DCTONLY,
+#if CONFIG_NONSEP_TX && USE_NSTX_INTRA
+        EXT_TX_SET_DTT4_IDTX_1DDCT_NSTX3,
+#else
+        EXT_TX_SET_DTT4_IDTX_1DDCT,
+#endif
+        EXT_TX_SET_DTT4_IDTX,
+    },
+    {
+        // Inter
+        EXT_TX_SET_DCTONLY,
+#if CONFIG_NONSEP_TX && USE_NSTX_INTER
+        EXT_TX_SET_ALL16_NSTX8,
+#else
+        EXT_TX_SET_ALL16,
+#endif
+        EXT_TX_SET_DTT9_IDTX_1DDCT, EXT_TX_SET_DCT_IDTX,
+    },
 };
 
 void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
@@ -211,6 +218,28 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
       }
     }
   }
+#if CONFIG_NONSEP_TX
+#if USE_NSTX_INTER
+  for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
+    av1_cost_tokens_from_cdf(x->nstx_type_inter_costs[i],
+                             fc->nstx_type_inter_cdf[i], NULL);
+  }
+  for (int s = 0; s < EXT_TX_SIZES; ++s) {
+    av1_cost_tokens_from_cdf(x->use_nstx_inter_costs[s],
+                             fc->use_nstx_inter_cdf[s], NULL);
+  }
+#endif
+#if USE_NSTX_INTRA
+  for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
+    av1_cost_tokens_from_cdf(x->nstx_type_intra_costs[i],
+                             fc->nstx_type_intra_cdf[i], NULL);
+  }
+  for (int s = 0; s < EXT_TX_SIZES; ++s) {
+    av1_cost_tokens_from_cdf(x->use_nstx_intra_costs[s],
+                             fc->use_nstx_intra_cdf[s], NULL);
+  }
+#endif
+#endif
   for (i = 0; i < DIRECTIONAL_MODES; ++i) {
     av1_cost_tokens_from_cdf(x->angle_delta_cost[i], fc->angle_delta_cdf[i],
                              NULL);

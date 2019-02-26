@@ -107,8 +107,13 @@ static INLINE uint16_t highbd_clip_pixel_add(uint16_t dest, tran_high_t trans,
 typedef void (*TxfmFunc)(const int32_t *input, int32_t *output, int8_t cos_bit,
                          const int8_t *stage_range);
 
+#if CONFIG_NONSEP_TX
+typedef void (*FwdTxfm2dFunc)(const int16_t *input, int32_t *output, int stride,
+                              TX_TYPE tx_type, int is_inter, int bd);
+#else
 typedef void (*FwdTxfm2dFunc)(const int16_t *input, int32_t *output, int stride,
                               TX_TYPE tx_type, int bd);
+#endif
 
 enum {
   TXFM_TYPE_DCT4,
@@ -126,6 +131,34 @@ enum {
   TXFM_TYPES,
   TXFM_TYPE_INVALID,
 } UENUM1BYTE(TXFM_TYPE);
+
+#if CONFIG_NONSEP_TX
+enum {
+  NSTXFM_TYPE_NSTX4X4_1,
+  NSTXFM_TYPE_NSTX4X4_2,
+  NSTXFM_TYPE_NSTX4X4_3,
+  NSTXFM_TYPE_NSTX4X4_4,
+  NSTXFM_TYPE_NSTX4X4_5,
+  NSTXFM_TYPE_NSTX4X4_6,
+  NSTXFM_TYPE_NSTX4X4_7,
+  NSTXFM_TYPE_NSTX4X4_8,
+  NSTXFM_TYPE_NSTX4X4_9,
+  NSTXFM_TYPE_NSTX4X4_10,
+  NSTXFM_TYPE_NSTX4X4_11,
+  NSTXFM_TYPE_NSTX8X8_1,
+  NSTXFM_TYPE_NSTX8X8_2,
+  NSTXFM_TYPE_NSTX8X8_3,
+  NSTXFM_TYPE_NSTX8X8_4,
+  NSTXFM_TYPE_NSTX8X8_5,
+  NSTXFM_TYPE_NSTX8X8_6,
+  NSTXFM_TYPE_NSTX8X8_7,
+  NSTXFM_TYPE_NSTX8X8_8,
+  NSTXFM_TYPE_NSTX8X8_9,
+  NSTXFM_TYPE_NSTX8X8_10,
+  NSTXFM_TYPE_NSTX8X8_11,
+  NSTXFM_TYPE_INVALID,
+} UENUM1BYTE(NSTXFM_TYPE);
+#endif // CONFIG_NONSEP_TX
 
 typedef struct TXFM_2D_FLIP_CFG {
   TX_SIZE tx_size;
@@ -156,22 +189,41 @@ static INLINE void get_flip_cfg(TX_TYPE tx_type, int *ud_flip, int *lr_flip) {
     case H_DCT:
     case V_ADST:
     case H_ADST:
+#if CONFIG_NONSEP_TX
+    case NSTX1:
+    case NSTX5:
+    case NSTX9:
+    case NSTX10:
+    case NSTX11:
+#endif
       *ud_flip = 0;
       *lr_flip = 0;
       break;
     case FLIPADST_DCT:
     case FLIPADST_ADST:
     case V_FLIPADST:
+#if CONFIG_NONSEP_TX
+    case NSTX2:
+    case NSTX6:
+#endif
       *ud_flip = 1;
       *lr_flip = 0;
       break;
     case DCT_FLIPADST:
     case ADST_FLIPADST:
     case H_FLIPADST:
+#if CONFIG_NONSEP_TX
+    case NSTX3:
+    case NSTX7:
+#endif
       *ud_flip = 0;
       *lr_flip = 1;
       break;
     case FLIPADST_FLIPADST:
+#if CONFIG_NONSEP_TX
+    case NSTX4:
+    case NSTX8:
+#endif
       *ud_flip = 1;
       *lr_flip = 1;
       break;
@@ -225,6 +277,7 @@ static INLINE int get_txh_idx(TX_SIZE tx_size) {
 void av1_range_check_buf(int32_t stage, const int32_t *input,
                          const int32_t *buf, int32_t size, int8_t bit);
 #define MAX_TXWH_IDX 5
+
 #ifdef __cplusplus
 }
 #endif  // __cplusplus

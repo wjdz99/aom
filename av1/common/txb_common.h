@@ -37,22 +37,32 @@ static const int base_level_count_to_index[13] = {
 };
 
 static const TX_CLASS tx_type_to_class[TX_TYPES] = {
-  TX_CLASS_2D,     // DCT_DCT
-  TX_CLASS_2D,     // ADST_DCT
-  TX_CLASS_2D,     // DCT_ADST
-  TX_CLASS_2D,     // ADST_ADST
-  TX_CLASS_2D,     // FLIPADST_DCT
-  TX_CLASS_2D,     // DCT_FLIPADST
-  TX_CLASS_2D,     // FLIPADST_FLIPADST
-  TX_CLASS_2D,     // ADST_FLIPADST
-  TX_CLASS_2D,     // FLIPADST_ADST
-  TX_CLASS_2D,     // IDTX
-  TX_CLASS_VERT,   // V_DCT
-  TX_CLASS_HORIZ,  // H_DCT
-  TX_CLASS_VERT,   // V_ADST
-  TX_CLASS_HORIZ,  // H_ADST
-  TX_CLASS_VERT,   // V_FLIPADST
-  TX_CLASS_HORIZ,  // H_FLIPADST
+    TX_CLASS_2D,    // DCT_DCT
+    TX_CLASS_2D,    // ADST_DCT
+    TX_CLASS_2D,    // DCT_ADST
+    TX_CLASS_2D,    // ADST_ADST
+    TX_CLASS_2D,    // FLIPADST_DCT
+    TX_CLASS_2D,    // DCT_FLIPADST
+    TX_CLASS_2D,    // FLIPADST_FLIPADST
+    TX_CLASS_2D,    // ADST_FLIPADST
+    TX_CLASS_2D,    // FLIPADST_ADST
+    TX_CLASS_2D,    // IDTX
+    TX_CLASS_VERT,  // V_DCT
+    TX_CLASS_HORIZ, // H_DCT
+    TX_CLASS_VERT,  // V_ADST
+    TX_CLASS_HORIZ, // H_ADST
+    TX_CLASS_VERT,  // V_FLIPADST
+    TX_CLASS_HORIZ, // H_FLIPADST
+#if CONFIG_NONSEP_TX
+    TX_CLASS_2D, // NSTX1
+    TX_CLASS_2D, // NSTX2
+    TX_CLASS_2D, // NSTX3
+    TX_CLASS_2D, // NSTX4
+    TX_CLASS_2D, // NSTX5
+    TX_CLASS_2D, // NSTX6
+    TX_CLASS_2D, // NSTX7
+    TX_CLASS_2D, // NSTX8
+#endif
 };
 
 static INLINE int get_txb_bwl(TX_SIZE tx_size) {

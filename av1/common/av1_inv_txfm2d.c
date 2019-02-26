@@ -17,6 +17,10 @@
 #include "av1/common/av1_inv_txfm1d.h"
 #include "av1/common/av1_inv_txfm1d_cfg.h"
 
+#if CONFIG_NONSEP_TX
+#include "av1/common/nstx_coefficients.h"
+#endif
+
 void av1_highbd_iwht4x4_16_add_c(const tran_low_t *input, uint8_t *dest8,
                                  int stride, int bd) {
   /* 4-point reversible, orthonormal inverse Walsh-Hadamard in 3.5 adds,
@@ -181,6 +185,9 @@ const int8_t iadst4_range[7] = { 0, 1, 0, 0, 0, 0, 0 };
 
 void av1_get_inv_txfm_cfg(TX_TYPE tx_type, TX_SIZE tx_size,
                           TXFM_2D_FLIP_CFG *cfg) {
+#if CONFIG_NONSEP_TX
+  assert(tx_type < NSTX1);
+#endif
   assert(cfg != NULL);
   cfg->tx_size = tx_size;
   av1_zero(cfg->stage_range_col);
@@ -287,6 +294,27 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
   int32_t *buf_ptr = buf;
   int c, r;
 
+#if CONFIG_NONSEP_TX && SEP_TX_DEBUG
+  // debug
+  if (cfg->tx_size <= TX_8X8) {
+    fprintf(stderr, "INV: input block, tx_type_col %d, tx_type_row %d \n",
+            cfg->txfm_type_col, cfg->txfm_type_row);
+    for (c = 0; c < txfm_size_col; ++c) {
+      for (r = 0; r < txfm_size_row; ++r) {
+        fprintf(stderr, "%3d ", input[r * stride + c]);
+      }
+      fprintf(stderr, "\n");
+    }
+    fprintf(stderr, "INV: original output block\n");
+    for (c = 0; c < txfm_size_col; ++c) {
+      for (r = 0; r < txfm_size_row; ++r) {
+        fprintf(stderr, "%3d ", output[r * stride + c]);
+      }
+      fprintf(stderr, "\n");
+    }
+  }
+#endif
+
   // Rows
   for (r = 0; r < txfm_size_row; ++r) {
     if (abs(rect_type) == 1) {
@@ -333,7 +361,102 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
       }
     }
   }
+
+#if CONFIG_NONSEP_TX && SEP_TX_DEBUG
+  // debug
+  if (cfg->tx_size <= TX_8X8) {
+    fprintf(stderr, "INV: output block, tx_type_col %d, tx_type_row %d\n",
+            cfg->txfm_type_col, cfg->txfm_type_row);
+    for (c = 0; c < txfm_size_col; ++c) {
+      for (r = 0; r < txfm_size_row; ++r) {
+        fprintf(stderr, "%3d ", output[r * stride + c]);
+      }
+      fprintf(stderr, "\n");
+    }
+  }
+#endif
 }
+
+#if CONFIG_NONSEP_TX
+// (TODO) implement the bits arrays
+const int8_t inv_nstx_bit[MAX_TXWH_IDX /*txw_idx*/]
+                         [MAX_TXWH_IDX /*txh_idx*/] = {
+                             {12, 0, 0, 0, 0}, {0, 12, 0, 0, 0},
+                             {0, 0, 0, 0, 0},  {0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0},
+};
+
+static INLINE void inv_nonsep_txfm2d_add(const int32_t *input, uint16_t *output,
+                                         const int stride, int32_t *txfm_buf,
+                                         const int is_inter,
+                                         const TX_TYPE tx_type,
+                                         const TX_SIZE tx_size, int bd) {
+  assert(is_nstx_allowed(tx_type, tx_size, is_inter));
+  int ud_flip = 0, lr_flip = 0;
+  get_flip_cfg(tx_type, &ud_flip, &lr_flip);
+  const NSTXFM_TYPE nstx_type = tx_size == TX_4X4
+                                    ? tx_type - NSTX1 + NSTXFM_TYPE_NSTX4X4_1
+                                    : tx_type - NSTX1 + NSTXFM_TYPE_NSTX8X8_1;
+  // const int8_t *shift = inv_txfm_shift_ls[tx_size];
+  const int txw_idx = tx_size_wide_log2[tx_size] - tx_size_wide_log2[0];
+  const int txh_idx = tx_size_high_log2[tx_size] - tx_size_high_log2[0];
+  const int8_t nstx_bit = inv_nstx_bit[txw_idx][txh_idx];
+
+  const int32_t *nstx = tx_size == TX_4X4 ? nst4x4_arr(nstx_type, is_inter, bd)
+                                          : nst8x8_arr(nstx_type, is_inter, bd);
+  const int tx_stride = tx_size == TX_4X4 ? 16 : 64;
+
+  // column/row indices in pixel (p) or transform (t) domains
+  int cp, rp, ct, rt, kp, kt, lp, lt;
+  int txw = tx_size_wide[tx_size], txh = tx_size_high[tx_size];
+
+#if CONFIG_NONSEP_TX && NONSEP_TX_DEBUG
+  // debug
+  fprintf(stderr, "INV: input block, NSTX\n");
+  for (ct = 0; ct < txw; ++ct) {
+    for (rt = 0; rt < txh; ++rt) {
+      fprintf(stderr, "%3d ", input[rt * stride + ct]);
+    }
+    fprintf(stderr, "\n");
+  }
+  fprintf(stderr, "INV: original output block\n");
+  for (ct = 0; ct < txw; ++ct) {
+    for (rt = 0; rt < txh; ++rt) {
+      fprintf(stderr, "%3d ", output[rt * stride + ct]);
+    }
+    fprintf(stderr, "\n");
+  }
+#endif
+
+  // 2D transform
+  for (ct = 0; ct < txw; ++ct) {
+    for (rt = 0; rt < txh; ++rt) {
+      lp = ud_flip ? (txh - rt - 1) * stride : rt * stride;
+      lp += lr_flip ? txw - ct - 1 : ct;
+      lt = rt * txw + ct;
+      for (cp = 0; cp < txw; ++cp) {
+        for (rp = 0; rp < txh; ++rp) {
+          kp = rp * stride + cp;
+          kt = rp * txw + cp;
+          output[kp] +=
+              round_shift(nstx[kt * tx_stride + lt] * input[lp], nstx_bit);
+        }
+      }
+    }
+  }
+
+#if CONFIG_NONSEP_TX && NONSEP_TX_DEBUG
+  // debug
+  fprintf(stderr, "INV: resulting output block, NSTX\n");
+  for (ct = 0; ct < txw; ++ct) {
+    for (rt = 0; rt < txh; ++rt) {
+      fprintf(stderr, "%3d ", output[rt * stride + ct]);
+    }
+    fprintf(stderr, "\n");
+  }
+#endif
+}
+#endif // CONFIG_NONSEP_TX
 
 static INLINE void inv_txfm2d_add_facade(const int32_t *input, uint16_t *output,
                                          int stride, int32_t *txfm_buf,
@@ -347,67 +470,156 @@ static INLINE void inv_txfm2d_add_facade(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_4x8_c(const int32_t *input, uint16_t *output,
-                              int stride, TX_TYPE tx_type, int bd) {
+                              int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                              int is_inter,
+#endif
+                              int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   DECLARE_ALIGNED(32, int, txfm_buf[4 * 8 + 8 + 8]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X8, bd);
 }
 
 void av1_inv_txfm2d_add_8x4_c(const int32_t *input, uint16_t *output,
-                              int stride, TX_TYPE tx_type, int bd) {
+                              int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                              int is_inter,
+#endif
+                              int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   DECLARE_ALIGNED(32, int, txfm_buf[8 * 4 + 8 + 8]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X4, bd);
 }
 
 void av1_inv_txfm2d_add_8x16_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type, int bd) {
+                               int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                               int is_inter,
+#endif
+                               int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   DECLARE_ALIGNED(32, int, txfm_buf[8 * 16 + 16 + 16]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X16, bd);
 }
 
 void av1_inv_txfm2d_add_16x8_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type, int bd) {
+                               int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                               int is_inter,
+#endif
+                               int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   DECLARE_ALIGNED(32, int, txfm_buf[16 * 8 + 16 + 16]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X8, bd);
 }
 
 void av1_inv_txfm2d_add_16x32_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                                int is_inter,
+#endif
+                                int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   DECLARE_ALIGNED(32, int, txfm_buf[16 * 32 + 32 + 32]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X32, bd);
 }
 
 void av1_inv_txfm2d_add_32x16_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                                int is_inter,
+#endif
+                                int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   DECLARE_ALIGNED(32, int, txfm_buf[32 * 16 + 32 + 32]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X16, bd);
 }
 
 void av1_inv_txfm2d_add_4x4_c(const int32_t *input, uint16_t *output,
-                              int stride, TX_TYPE tx_type, int bd) {
+                              int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                              int is_inter,
+#endif
+                              int bd) {
   DECLARE_ALIGNED(32, int, txfm_buf[4 * 4 + 4 + 4]);
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X4, bd);
+#if CONFIG_NONSEP_TX
+  if (tx_type >= NSTX1) {
+    inv_nonsep_txfm2d_add(input, output, stride, txfm_buf, is_inter, tx_type,
+                          TX_4X4, bd);
+  } else {
+#endif
+    inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X4, bd);
+#if CONFIG_NONSEP_TX
+  }
+#endif
 }
 
 void av1_inv_txfm2d_add_8x8_c(const int32_t *input, uint16_t *output,
-                              int stride, TX_TYPE tx_type, int bd) {
+                              int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                              int is_inter,
+#endif
+                              int bd) {
   DECLARE_ALIGNED(32, int, txfm_buf[8 * 8 + 8 + 8]);
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X8, bd);
+#if CONFIG_NONSEP_TX
+  if (tx_type >= NSTX1) {
+    inv_nonsep_txfm2d_add(input, output, stride, txfm_buf, is_inter, tx_type,
+                          TX_8X8, bd);
+  } else {
+#endif
+    inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X8, bd);
+#if CONFIG_NONSEP_TX
+  }
+#endif
 }
 
 void av1_inv_txfm2d_add_16x16_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                                int is_inter,
+#endif
+                                int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   DECLARE_ALIGNED(32, int, txfm_buf[16 * 16 + 16 + 16]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X16, bd);
 }
 
 void av1_inv_txfm2d_add_32x32_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                                int is_inter,
+#endif
+                                int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   DECLARE_ALIGNED(32, int, txfm_buf[32 * 32 + 32 + 32]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X32, bd);
 }
 
 void av1_inv_txfm2d_add_64x64_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                                int is_inter,
+#endif
+                                int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   // TODO(urvang): Can the same array be reused, instead of using a new array?
   // Remap 32x32 input into a modified 64x64 by:
   // - Copying over these values in top-left 32x32 locations.
@@ -424,7 +636,14 @@ void av1_inv_txfm2d_add_64x64_c(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_64x32_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                                int is_inter,
+#endif
+                                int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   // Remap 32x32 input into a modified 64x32 by:
   // - Copying over these values in top-left 32x32 locations.
   // - Setting the rest of the locations to 0.
@@ -439,7 +658,14 @@ void av1_inv_txfm2d_add_64x32_c(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_32x64_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                                int is_inter,
+#endif
+                                int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   // Remap 32x32 input into a modified 32x64 input by:
   // - Copying over these values in top-left 32x32 locations.
   // - Setting the rest of the locations to 0.
@@ -452,7 +678,14 @@ void av1_inv_txfm2d_add_32x64_c(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_16x64_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                                int is_inter,
+#endif
+                                int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   // Remap 16x32 input into a modified 16x64 input by:
   // - Copying over these values in top-left 16x32 locations.
   // - Setting the rest of the locations to 0.
@@ -465,7 +698,14 @@ void av1_inv_txfm2d_add_16x64_c(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_64x16_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                                int is_inter,
+#endif
+                                int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   // Remap 32x16 input into a modified 64x16 by:
   // - Copying over these values in top-left 32x16 locations.
   // - Setting the rest of the locations to 0.
@@ -480,25 +720,53 @@ void av1_inv_txfm2d_add_64x16_c(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_4x16_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type, int bd) {
+                               int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                               int is_inter,
+#endif
+                               int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   DECLARE_ALIGNED(32, int, txfm_buf[4 * 16 + 16 + 16]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X16, bd);
 }
 
 void av1_inv_txfm2d_add_16x4_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type, int bd) {
+                               int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                               int is_inter,
+#endif
+                               int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   DECLARE_ALIGNED(32, int, txfm_buf[4 * 16 + 16 + 16]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X4, bd);
 }
 
 void av1_inv_txfm2d_add_8x32_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type, int bd) {
+                               int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                               int is_inter,
+#endif
+                               int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   DECLARE_ALIGNED(32, int, txfm_buf[8 * 32 + 32 + 32]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X32, bd);
 }
 
 void av1_inv_txfm2d_add_32x8_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type, int bd) {
+                               int stride, TX_TYPE tx_type,
+#if CONFIG_NONSEP_TX
+                               int is_inter,
+#endif
+                               int bd) {
+#if CONFIG_NONSEP_TX
+  (void)is_inter;
+#endif
   DECLARE_ALIGNED(32, int, txfm_buf[8 * 32 + 32 + 32]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X8, bd);
 }

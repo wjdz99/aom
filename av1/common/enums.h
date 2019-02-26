@@ -236,24 +236,46 @@ enum {
 } UENUM1BYTE(TX_TYPE_1D);
 
 enum {
-  DCT_DCT,            // DCT in both horizontal and vertical
-  ADST_DCT,           // ADST in vertical, DCT in horizontal
-  DCT_ADST,           // DCT in vertical, ADST in horizontal
-  ADST_ADST,          // ADST in both directions
-  FLIPADST_DCT,       // FLIPADST in vertical, DCT in horizontal
-  DCT_FLIPADST,       // DCT in vertical, FLIPADST in horizontal
-  FLIPADST_FLIPADST,  // FLIPADST in both directions
-  ADST_FLIPADST,      // ADST in vertical, FLIPADST in horizontal
-  FLIPADST_ADST,      // FLIPADST in vertical, ADST in horizontal
-  IDTX,               // Identity in both directions
-  V_DCT,              // DCT in vertical, identity in horizontal
-  H_DCT,              // Identity in vertical, DCT in horizontal
-  V_ADST,             // ADST in vertical, identity in horizontal
-  H_ADST,             // Identity in vertical, ADST in horizontal
-  V_FLIPADST,         // FLIPADST in vertical, identity in horizontal
-  H_FLIPADST,         // Identity in vertical, FLIPADST in horizontal
+  DCT_DCT,           // DCT in both horizontal and vertical
+  ADST_DCT,          // ADST in vertical, DCT in horizontal
+  DCT_ADST,          // DCT in vertical, ADST in horizontal
+  ADST_ADST,         // ADST in both directions
+  FLIPADST_DCT,      // FLIPADST in vertical, DCT in horizontal
+  DCT_FLIPADST,      // DCT in vertical, FLIPADST in horizontal
+  FLIPADST_FLIPADST, // FLIPADST in both directions
+  ADST_FLIPADST,     // ADST in vertical, FLIPADST in horizontal
+  FLIPADST_ADST,     // FLIPADST in vertical, ADST in horizontal
+  IDTX,              // Identity in both directions
+  V_DCT,             // DCT in vertical, identity in horizontal
+  H_DCT,             // Identity in vertical, DCT in horizontal
+  V_ADST,            // ADST in vertical, identity in horizontal
+  H_ADST,            // Identity in vertical, ADST in horizontal
+  V_FLIPADST,        // FLIPADST in vertical, identity in horizontal
+  H_FLIPADST,        // Identity in vertical, FLIPADST in horizontal
+#if CONFIG_NONSEP_TX
+  // 8 NSTXs for inter
+  NSTX1, // nonseparable transform 1 (no flip)
+  NSTX2, // nonseparable transform 2 (UD flip of NSTX1)
+  NSTX3, // nonseparable transform 3 (LR flip of NSTX1)
+  NSTX4, // nonseparable transform 4 (UDLR flip of NSTX1)
+  NSTX5, // nonseparable transform 5
+  NSTX6, // nonseparable transform 6 (UD flip of NSTX5)
+  NSTX7, // nonseparable transform 7 (LR flip NSTX5)
+  NSTX8, // nonseparable transform 8 (UDLR flip of NSTX5)
+  // 3 NSTXs for intra
+  NSTX9,  // nonseparable transform 9
+  NSTX10, // nonseparable transform 10
+  NSTX11, // nonseparable transform 11
+#endif
   TX_TYPES,
 } UENUM1BYTE(TX_TYPE);
+
+#if CONFIG_NONSEP_TX
+#define SEP_TX_DEBUG 0
+#define NONSEP_TX_DEBUG 1
+#define USE_NSTX_INTER 1
+#define USE_NSTX_INTRA 1
+#endif
 
 enum {
   REG_REG,
@@ -274,16 +296,33 @@ enum {
   EXT_TX_SET_DCT_IDTX,
   // Discrete Trig transforms w/o flip (4) + Identity (1)
   EXT_TX_SET_DTT4_IDTX,
+#if CONFIG_NONSEP_TX && USE_NSTX_INTRA
+  // Discrete Trig transforms w/o flip (4) + Identity (1) + 1D Hor/vert DCT (2)
+  //  + NSTXs (3)
+  EXT_TX_SET_DTT4_IDTX_1DDCT_NSTX3,
+#endif
   // Discrete Trig transforms w/o flip (4) + Identity (1) + 1D Hor/vert DCT (2)
   EXT_TX_SET_DTT4_IDTX_1DDCT,
   // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver DCT (2)
   EXT_TX_SET_DTT9_IDTX_1DDCT,
+#if CONFIG_NONSEP_TX && USE_NSTX_INTER
+  // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver (6)
+  //  + NSTXs (8)
+  EXT_TX_SET_ALL16_NSTX8,
+#endif
   // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver (6)
   EXT_TX_SET_ALL16,
   EXT_TX_SET_TYPES
 } UENUM1BYTE(TxSetType);
 
+#if CONFIG_NONSEP_TX
+#define TX_TYPES_NONSTX 16
+#define NSTX_TYPES_INTER 8
+#define NSTX_TYPES_INTRA 3
+#define IS_2D_TRANSFORM(tx_type) (tx_type < IDTX || tx_type > H_FLIPADST)
+#else
 #define IS_2D_TRANSFORM(tx_type) (tx_type < IDTX)
+#endif
 
 #define EXT_TX_SIZES 4       // number of sizes that use extended transforms
 #define EXT_TX_SETS_INTER 4  // Sets of transform selections for INTER

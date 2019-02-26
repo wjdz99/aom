@@ -1794,7 +1794,11 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
     FLIPADST_DCT, FLIPADST_ADST, FLIPADST_FLIPADST, V_FLIPADST,
     H_DCT,        H_ADST,        H_FLIPADST,        IDTX
   };
+#if CONFIG_NONSEP_TX && USE_NSTX_INTER
+  if (tx_set_type != EXT_TX_SET_ALL16_NSTX8 &&
+#else
   if (tx_set_type != EXT_TX_SET_ALL16 &&
+#endif
       tx_set_type != EXT_TX_SET_DTT9_IDTX_1DDCT)
     return 0;
   const NN_CONFIG *nn_config_hor = av1_tx_type_nnconfig_map_hor[tx_size];
@@ -1838,7 +1842,11 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
 
   const int prune_aggr_table[2][2] = { { 6, 4 }, { 10, 7 } };
   int pruning_aggressiveness = 1;
+#if CONFIG_NONSEP_TX && USE_NSTX_INTER
+  if (tx_set_type == EXT_TX_SET_ALL16_NSTX8) {
+#else
   if (tx_set_type == EXT_TX_SET_ALL16) {
+#endif
     score_2D_transform_pow8(scores_2D, (10 - score_2D_average));
     pruning_aggressiveness =
         prune_aggr_table[prune_mode - PRUNE_2D_ACCURATE][0];
@@ -3155,7 +3163,14 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   block_sse *= 16;
 
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
+#if CONFIG_NONSEP_TX
+    if ((tx_type < NSTX1 && !(allowed_tx_mask & (1 << tx_type))) ||
+        (tx_type >= NSTX1 && (!av1_ext_tx_used[tx_set_type][tx_type] ||
+                              !is_nstx_allowed(tx_type, tx_size, is_inter))))
+      continue;
+#else
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
+#endif
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
@@ -3663,7 +3678,11 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     depth = MAX_TX_DEPTH;
   }
 
+#if CONFIG_NONSEP_TX && USE_NSTX_INTER
+  prune_tx(cpi, bs, x, xd, EXT_TX_SET_ALL16_NSTX8);
+#else
   prune_tx(cpi, bs, x, xd, EXT_TX_SET_ALL16);
+#endif
 
   TX_TYPE best_txk_type[TXK_TYPE_BUF_LEN];
   uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
@@ -5774,6 +5793,9 @@ static int predict_skip_flag(MACROBLOCK *x, BLOCK_SIZE bsize, int64_t *dist,
   param.bd = xd->bd;
   param.is_hbd = get_bitdepth_data_path_index(xd);
   param.lossless = 0;
+#if CONFIG_NONSEP_TX
+  param.is_inter = is_inter_block(xd->mi[0]);
+#endif
   param.tx_set_type = av1_get_ext_tx_set_type(
       param.tx_size, is_inter_block(xd->mi[0]), reduced_tx_set);
   const int bd_idx = (xd->bd == 8) ? 0 : ((xd->bd == 10) ? 1 : 2);

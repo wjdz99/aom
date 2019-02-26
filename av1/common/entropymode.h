@@ -159,31 +159,54 @@ typedef struct frame_contexts {
   aom_cdf_prob delta_q_cdf[CDF_SIZE(DELTA_Q_PROBS + 1)];
   aom_cdf_prob delta_lf_multi_cdf[FRAME_LF_COUNT][CDF_SIZE(DELTA_LF_PROBS + 1)];
   aom_cdf_prob delta_lf_cdf[CDF_SIZE(DELTA_LF_PROBS + 1)];
+#if CONFIG_NONSEP_TX
+#if USE_NSTX_INTER
+  aom_cdf_prob nstx_type_inter_cdf[EXT_TX_SIZES][CDF_SIZE(NSTX_TYPES_INTER)];
+  aom_cdf_prob use_nstx_inter_cdf[EXT_TX_SIZES][CDF_SIZE(2)];
+#endif
+#if USE_NSTX_INTRA
+  aom_cdf_prob nstx_type_intra_cdf[EXT_TX_SIZES][CDF_SIZE(NSTX_TYPES_INTRA)];
+  aom_cdf_prob use_nstx_intra_cdf[EXT_TX_SIZES][CDF_SIZE(2)];
+#endif
+  aom_cdf_prob intra_ext_tx_cdf[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
+                               [CDF_SIZE(TX_TYPES_NONSTX)];
+  aom_cdf_prob inter_ext_tx_cdf[EXT_TX_SETS_INTER][EXT_TX_SIZES]
+                               [CDF_SIZE(TX_TYPES_NONSTX)];
+#else
   aom_cdf_prob intra_ext_tx_cdf[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
                                [CDF_SIZE(TX_TYPES)];
   aom_cdf_prob inter_ext_tx_cdf[EXT_TX_SETS_INTER][EXT_TX_SIZES]
                                [CDF_SIZE(TX_TYPES)];
+#endif
   aom_cdf_prob cfl_sign_cdf[CDF_SIZE(CFL_JOINT_SIGNS)];
   aom_cdf_prob cfl_alpha_cdf[CFL_ALPHA_CONTEXTS][CDF_SIZE(CFL_ALPHABET_SIZE)];
   int initialized;
 } FRAME_CONTEXT;
 
+#if CONFIG_NONSEP_TX
+static const int av1_ext_tx_ind[EXT_TX_SET_TYPES][TX_TYPES_NONSTX] = {
+#else
 static const int av1_ext_tx_ind[EXT_TX_SET_TYPES][TX_TYPES] = {
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 1, 3, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 1, 5, 6, 4, 0, 0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0 },
-  { 3, 4, 5, 8, 6, 7, 9, 10, 11, 0, 1, 2, 0, 0, 0, 0 },
-  { 7, 8, 9, 12, 10, 11, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6 },
+#endif
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 3, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 5, 6, 4, 0, 0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0},
+    {3, 4, 5, 8, 6, 7, 9, 10, 11, 0, 1, 2, 0, 0, 0, 0},
+    {7, 8, 9, 12, 10, 11, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6},
 };
 
+#if CONFIG_NONSEP_TX
+static const int av1_ext_tx_inv[EXT_TX_SET_TYPES][TX_TYPES_NONSTX] = {
+#else
 static const int av1_ext_tx_inv[EXT_TX_SET_TYPES][TX_TYPES] = {
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 9, 0, 3, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 9, 0, 10, 11, 3, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 9, 10, 11, 0, 1, 2, 4, 5, 3, 6, 7, 8, 0, 0, 0, 0 },
-  { 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 4, 5, 3, 6, 7, 8 },
+#endif
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {9, 0, 3, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {9, 0, 10, 11, 3, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {9, 10, 11, 0, 1, 2, 4, 5, 3, 6, 7, 8, 0, 0, 0, 0},
+    {9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 4, 5, 3, 6, 7, 8},
 };
 
 void av1_set_default_ref_deltas(int8_t *ref_deltas);

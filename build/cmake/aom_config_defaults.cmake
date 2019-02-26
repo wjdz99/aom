@@ -137,6 +137,7 @@ set_aom_config_var(CONFIG_2PASS_PARTITION_SEARCH_LVL 1 NUMBER
 set_aom_config_var(CONFIG_ADAPT_FILTER_INTRA 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_SHARP_SETTINGS 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_ONE_PASS_SVM 0 NUMBER "AV1 experiment flag.")
+set_aom_config_var(CONFIG_NONSEP_TX 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_DISABLE_FULL_PIXEL_SPLIT_8X8 1 NUMBER
                    "Disable full_pixel_motion_search_based_split on BLOCK_8X8")
 
