@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <wchar.h>
 
 #include "av1/common/blockd.h"
 #include "av1/common/onyxc_int.h"
@@ -237,7 +238,8 @@ void block_call_tensorflow(uint8_t **buf, uint8_t *ppp, int cur_buf_height,
                            int cur_buf_width, int stride,
                            FRAME_TYPE frame_type) {
   Py_SetPath(
-      L"/usr/local/google/home/logangw/aom-iteration/aom/av1/encoder:"
+      AOM_ROOT
+      L"/av1/encoder:"
       "/usr/lib:"
       "/usr/lib/python3.6:"
       "/usr/lib/python3.6/site-packages:"
@@ -277,7 +279,10 @@ void block_call_tensorflow(uint8_t **buf, uint8_t *ppp, int cur_buf_height,
     return;
   }
   PyObject *list = PyList_New(cur_buf_height);
-  pArgs = PyTuple_New(1);
+  pArgs = PyTuple_New(2);
+
+  PyTuple_SetItem(pArgs, 0, PyUnicode_FromString(AOM_ROOT));
+
   PyObject **lists = new PyObject *[cur_buf_height];
 
   for (int i = 0; i < cur_buf_height; i++) {
@@ -289,7 +294,7 @@ void block_call_tensorflow(uint8_t **buf, uint8_t *ppp, int cur_buf_height,
     ppp += stride;
     // PyList_Append(list, lists[i]);
   }
-  PyTuple_SetItem(pArgs, 0, list);
+  PyTuple_SetItem(pArgs, 1, list);
   PyObject *presult = NULL;
   if (frame_type == KEY_FRAME) {
     presult = PyEval_CallObject(pFuncI, pArgs);
