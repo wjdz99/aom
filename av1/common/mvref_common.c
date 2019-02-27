@@ -863,15 +863,35 @@ void av1_find_best_ref_mvs(int allow_hp, int_mv *mvlist, int_mv *nearest_mv,
   *near_mv = mvlist[1];
 }
 
+static const char *ref_names[] = { "INTRA_FRAME",   "LAST_FRAME",
+                                   "LAST2_FRAME",   "LAST3_FRAME",
+                                   "GOLDEN_FRAME",  "BWDREF_FRAME",
+                                   "ALTREF2_FRAME", "ALTREF_FRAME",
+                                   "EXTREF_FRAME" };
+
 void av1_setup_frame_buf_refs(AV1_COMMON *cm) {
   cm->cur_frame->order_hint = cm->current_frame.order_hint;
+
+  {
+    fprintf(stderr,
+            "\n\n----------------------------------------------------\n");
+    fprintf(stderr, "Display frame# = %d\n", cm->current_frame.order_hint);
+  }
 
   MV_REFERENCE_FRAME ref_frame;
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
-    if (buf != NULL)
+    if (buf != NULL) {
       cm->cur_frame->ref_order_hints[ref_frame - LAST_FRAME] = buf->order_hint;
+    }
+    fprintf(stderr, "%s = %d\n", ref_names[ref_frame],
+            buf != NULL ? (int)buf->order_hint : -1);
   }
+
+  const RefCntBuffer *const buf = get_ref_frame_buf(cm, EXTREF_FRAME);
+  fprintf(stderr, "%s = %d\n", ref_names[EXTREF_FRAME],
+          buf != NULL ? (int)buf->order_hint : -1);
+  fprintf(stderr, "\n");
 }
 
 void av1_setup_frame_sign_bias(AV1_COMMON *cm) {

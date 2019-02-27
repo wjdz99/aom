@@ -1087,6 +1087,12 @@ static int get_refresh_frame_flags(const AV1_COMP *const cpi,
   return refresh_mask;
 }
 
+static const char *ref_names[] = { "INTRA_FRAME",   "LAST_FRAME",
+                                   "LAST2_FRAME",   "LAST3_FRAME",
+                                   "GOLDEN_FRAME",  "BWDREF_FRAME",
+                                   "ALTREF2_FRAME", "ALTREF_FRAME",
+                                   "EXTREF_FRAME" };
+
 int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                         uint8_t *const dest, unsigned int *frame_flags,
                         int64_t *const time_stamp, int64_t *const time_end,
@@ -1280,6 +1286,13 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 
   if (oxcf->pass == 0 || oxcf->pass == 2) {
+    fprintf(stderr, "Now refreshing references:\n");
+    for (int i = LAST_FRAME; i <= EXTREF_FRAME; ++i) {
+      const int remapped_i = get_ref_frame_map_idx(cm, i);
+      if ((frame_params.refresh_frame_flags >> remapped_i) & 1) {
+        fprintf(stderr, "%s\n", ref_names[i]);
+      }
+    }
     // First pass doesn't modify reference buffer assignment or produce frame
     // flags
     update_frame_flags(cpi, frame_flags);

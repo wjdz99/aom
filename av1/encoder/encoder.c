@@ -4106,6 +4106,12 @@ static void fix_interp_filter(InterpFilter *const interp_filter,
   }
 }
 
+static const char *ref_names[] = { "INTRA_FRAME",   "LAST_FRAME",
+                                   "LAST2_FRAME",   "LAST3_FRAME",
+                                   "GOLDEN_FRAME",  "BWDREF_FRAME",
+                                   "ALTREF2_FRAME", "ALTREF_FRAME",
+                                   "EXTREF_FRAME" };
+
 static void finalize_encoded_frame(AV1_COMP *const cpi) {
   AV1_COMMON *const cm = &cpi->common;
   CurrentFrame *const current_frame = &cm->current_frame;
@@ -4121,6 +4127,20 @@ static void finalize_encoded_frame(AV1_COMP *const cpi) {
     }
     assert(frame_to_show->ref_count > 0);
     assign_frame_buffer_p(&cm->cur_frame, frame_to_show);
+
+    {
+      fprintf(stderr,
+              "\n\n----------------------------------------------------\n");
+      fprintf(stderr, "Display frame# = %d (SHOW EXISTING FRAME)\n",
+              cm->cur_frame->order_hint);
+    }
+    MV_REFERENCE_FRAME ref_frame;
+    for (ref_frame = LAST_FRAME; ref_frame <= EXTREF_FRAME; ++ref_frame) {
+      const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
+      fprintf(stderr, "%s = %d\n", ref_names[ref_frame],
+              buf != NULL ? (int)buf->order_hint : -1);
+    }
+    fprintf(stderr, "\n");
   }
 
   if (!encode_show_existing_frame(cm) &&
