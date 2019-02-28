@@ -22,6 +22,30 @@
       "revId": "f5deba4c3dd4ef2d285dbddaef3e3ebc8c3fd143",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdf7fbda_076a67ff",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-02-28T23:40:16Z",
+      "side": 1,
+      "message": "Currently I\u0027m checking for showframe flag in av1/encoder/encodeframe.c:4407. Is there any reason to check the flag in av1/encoder/speed_feature.c instead?",
+      "parentUuid": "b918dc4e_960db316",
+      "range": {
+        "startLine": 271,
+        "startChar": 47,
+        "endLine": 271,
+        "endChar": 49
+      },
+      "revId": "f5deba4c3dd4ef2d285dbddaef3e3ebc8c3fd143",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
