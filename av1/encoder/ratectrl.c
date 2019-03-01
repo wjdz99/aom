@@ -1003,7 +1003,18 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
       gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE;
 
   if (frame_is_intra_only(cm)) {
-    if (rc->frames_to_key == 1 && oxcf->rc_mode == AOM_Q) {
+    if (cm->current_frame.frame_type == KEY_FRAME && cm->show_frame == 0) {
+      // Handle the special case for forward reference key frames.
+      // Increase the boost because this keyframe is used as a forward and
+      // backward reference.
+      int qindex = rc->last_boosted_qindex;
+      double last_boosted_q = av1_convert_qindex_to_q(qindex, bit_depth);
+      int delta_qindex = av1_compute_qdelta(rc, last_boosted_q,
+                                            last_boosted_q * 0.25, bit_depth);
+      // Update the arf_q since the forward keyframe is replacing the ALTREF
+      *arf_q = get_gf_active_quality(rc, active_worst_quality, bit_depth);
+      active_best_quality = AOMMAX(qindex + delta_qindex, rc->best_quality);
+    } else if (rc->frames_to_key == 1 && oxcf->rc_mode == AOM_Q) {
       // If the next frame is also a key frame or the current frame is the
       // only frame in the sequence in AOM_Q mode, just use the cq_level
       // as q.
@@ -1026,13 +1037,10 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
         active_worst_quality =
             AOMMIN(qindex + delta_qindex, active_worst_quality);
       } else {
-        // Increase the boost if the forced keyframe is a forward reference.
-        // These numbers were derived empirically.
-        const double boost_factor = cpi->oxcf.fwd_kf_enabled ? 0.25 : 0.50;
         qindex = rc->last_boosted_qindex;
         last_boosted_q = av1_convert_qindex_to_q(qindex, bit_depth);
-        delta_qindex = av1_compute_qdelta(
-            rc, last_boosted_q, last_boosted_q * boost_factor, bit_depth);
+        delta_qindex = av1_compute_qdelta(rc, last_boosted_q,
+                                          last_boosted_q * 0.50, bit_depth);
         active_best_quality = AOMMAX(qindex + delta_qindex, rc->best_quality);
       }
     } else {
