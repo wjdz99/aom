@@ -647,6 +647,10 @@ typedef struct SPEED_FEATURES {
   // partition after PARTITION_NONE
   int simple_motion_search_early_term_none;
 
+  // Use features from simple_motion_search to terminate prediction block
+  // partition after PARTITION_SPLIT
+  int simple_motion_search_early_term_split;
+
   int cb_pred_filter_search;
 
   // adaptive interp_filter search to allow skip of certain filter types.

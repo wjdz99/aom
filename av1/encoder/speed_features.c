@@ -270,6 +270,7 @@ static void set_good_speed_features_framesize_independent(
 
     sf->simple_motion_search_split_only = 1;
     sf->simple_motion_search_early_term_none = 1;
+    sf->simple_motion_search_early_term_split = 1;
 
     sf->disable_wedge_search_var_thresh = 0;
     sf->disable_wedge_search_edge_thresh = 0;
