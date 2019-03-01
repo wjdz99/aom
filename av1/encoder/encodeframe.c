@@ -5414,8 +5414,8 @@ static void init_first_partition_pass_stats_tables(
   }
 }
 
-// Minimum number of samples to trigger the
-// mode_pruning_based_on_two_pass_partition_search feature.
+// Minimum number of samples to trigger the mode pruning in
+// two_pass_partition_search feature.
 #define FIRST_PARTITION_PASS_MIN_SAMPLES 16
 
 static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
@@ -5538,8 +5538,7 @@ static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
 
   const SPEED_FEATURES *const sf = &cpi->sf;
   // Reset the stats tables.
-  if (cpi->mode_pruning_based_on_two_pass_partition_search)
-    av1_zero(x->first_partition_pass_stats);
+  av1_zero(x->first_partition_pass_stats);
 
   AV1_COMMON *const cm = &cpi->common;
   const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
@@ -5580,7 +5579,6 @@ static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
 
   x->use_cb_search_range = 1;
 
-  if (cpi->mode_pruning_based_on_two_pass_partition_search) {
     for (int i = 0; i < FIRST_PARTITION_PASS_STATS_TABLES; ++i) {
       FIRST_PARTITION_PASS_STATS *const stat =
           &x->first_partition_pass_stats[i];
@@ -5597,7 +5595,6 @@ static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
         stat->ref1_counts[BWDREF_FRAME] = 0xff;
       }
     }
-  }
 }
 
 static void init_simple_motion_search_mvs(PC_TREE *pc_tree) {
@@ -7052,8 +7049,7 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   const int mi_height = mi_size_high[bsize];
   const int is_inter = is_inter_block(mbmi);
 
-  if (cpi->mode_pruning_based_on_two_pass_partition_search &&
-      x->cb_partition_scan) {
+  if (cpi->two_pass_partition_search && x->cb_partition_scan) {
     for (int row = mi_row; row < mi_row + mi_width;
          row += FIRST_PARTITION_PASS_SAMPLE_REGION) {
       for (int col = mi_col; col < mi_col + mi_height;
