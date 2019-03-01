@@ -214,6 +214,7 @@ static void set_good_speed_features_framesize_independent(
   sf->model_based_prune_tx_search_level = 1;
   sf->model_based_post_interp_filter_breakout = 1;
   sf->model_based_motion_mode_rd_breakout = 1;
+  sf->simple_motion_search_early_term_none = 1;
 
   // TODO(debargha): Test, tweak and turn on either 1 or 2
   sf->inter_mode_rd_model_estimation = 1;
