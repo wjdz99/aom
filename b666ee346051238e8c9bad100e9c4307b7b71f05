@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f310c5c_ff2f4b23",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1012,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-01T01:38:57Z",
+      "side": 1,
+      "message": "const for all 3",
+      "range": {
+        "startLine": 1012,
+        "startChar": 6,
+        "endLine": 1012,
+        "endChar": 9
+      },
+      "revId": "b666ee346051238e8c9bad100e9c4307b7b71f05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f50a8cf_feb50f69",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1015,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-01T01:38:57Z",
+      "side": 1,
+      "message": "In the other case we are computing \u0027active_best_quality\u0027 first, and then setting *arf_q \u003d active_best_quality.\nAny reason why this is different?",
+      "range": {
+        "startLine": 1015,
+        "startChar": 0,
+        "endLine": 1015,
+        "endChar": 74
+      },
+      "revId": "b666ee346051238e8c9bad100e9c4307b7b71f05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80f3c974_c9ebc883",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1022,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-01T01:38:57Z",
+      "side": 1,
+      "message": "I would still keep this part as the 1st \"if\", so it looks like:\n- (This) keyframe only coding case\n- 3 different keyframe cases for video in general",
+      "range": {
+        "startLine": 1017,
+        "startChar": 11,
+        "endLine": 1022,
+        "endChar": 37
+      },
+      "revId": "b666ee346051238e8c9bad100e9c4307b7b71f05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
