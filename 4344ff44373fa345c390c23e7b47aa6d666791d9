@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5a54d3f0_afebfa3d",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 6340,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-03-01T18:29:23Z",
+      "side": 1,
+      "message": "The leftover values seems quite risky. This table is not big, and always reset it here to make it safe.",
+      "parentUuid": "83998ed4_1604b6d2",
+      "range": {
+        "startLine": 6340,
+        "startChar": 2,
+        "endLine": 6340,
+        "endChar": 72
+      },
+      "revId": "4344ff44373fa345c390c23e7b47aa6d666791d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9fae47bb_365b100e",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2019-03-01T18:04:43Z",
       "side": 1,
       "message": "I think we can add one more condition \"cpi-\u003etwo_pass_partition_search \u0026\u0026 ..\".",
+      "range": {
+        "startLine": 4805,
+        "startChar": 44,
+        "endLine": 4805,
+        "endChar": 45
+      },
+      "revId": "4344ff44373fa345c390c23e7b47aa6d666791d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "311c7c84_ab435c73",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4805,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-03-01T18:29:23Z",
+      "side": 1,
+      "message": "Will consolidate cpi-\u003esf.mode_pruning_based_on_two_pass_partition_search and cpi-\u003esf.two_pass_partition_search in a separate patch.",
+      "parentUuid": "9fae47bb_365b100e",
       "range": {
         "startLine": 4805,
         "startChar": 44,
