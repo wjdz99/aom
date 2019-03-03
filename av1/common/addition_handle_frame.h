@@ -27,6 +27,8 @@ void addition_handle_blocks(AV1_COMMON *cm, FRAME_TYPE frame_type);
 
 uint8_t **blocks_to_cnn_secondly(uint8_t *pBuffer_y, int height, int width,
                                  int stride, FRAME_TYPE frame_type);
+
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

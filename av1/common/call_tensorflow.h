@@ -16,6 +16,12 @@
 #ifndef CALL_TENSORFLOW
 #define CALL_TENSORFLOW
 
+/*
+#ifdef __cplusplus
+extern "C" {
+#endif
+*/
+
 int init_python();
 int finish_python();
 uint8_t **call_tensorflow(uint8_t *ppp, int height, int width, int stride,
@@ -29,4 +35,9 @@ uint16_t **block_call_tensorflow_hbd(uint16_t *ppp, int cur_buf_height,
                                      int cur_buf_width, int stride,
                                      FRAME_TYPE frame_type);
 
+/*
+#ifdef __cplusplus
+}  // extern "C"
+#endif
+*/
 #endif  // CALL_TENSORFLOW
