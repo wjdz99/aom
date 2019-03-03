@@ -30,9 +30,9 @@ void addition_handle_frame(AV1_COMMON *cm, FRAME_TYPE frame_type) {
     int width = pcPicYuvRec->y_width;
     int stride = pcPicYuvRec->y_stride;
 
-    uint8_t **buf = new uint8_t *[height];
+    uint8_t **buf = (uint8_t **) malloc(height * sizeof(*buf));
     for (int i = 0; i < height; i++) {
-      buf[i] = new uint8_t[width];
+      buf[i] = (uint8_t *)malloc(width * sizeof(*buf[i]));
     }
 
     buf = call_tensorflow(py, height, width, stride, frame_type);
@@ -45,6 +45,8 @@ void addition_handle_frame(AV1_COMMON *cm, FRAME_TYPE frame_type) {
       }
       bkuPy += stride;
     }
+    for (int i = 0; i < height; i++) free(buf[i]);
+    free(buf);
     // fclose(ff);
   } else {
     uint16_t *py = CONVERT_TO_SHORTPTR(pcPicYuvRec->y_buffer);
@@ -54,9 +56,9 @@ void addition_handle_frame(AV1_COMMON *cm, FRAME_TYPE frame_type) {
     int width = pcPicYuvRec->y_width;
     int stride = pcPicYuvRec->y_stride;
 
-    uint16_t **buf = new uint16_t *[height];
+    uint16_t **buf = (uint16_t **) malloc(height * sizeof(*buf));
     for (int i = 0; i < height; i++) {
-      buf[i] = new uint16_t[width];
+      buf[i] = (uint16_t *)malloc(width * sizeof(*buf[i]));
     }
 
     buf = call_tensorflow_hbd(py, height, width, stride, frame_type);
@@ -69,8 +71,10 @@ void addition_handle_frame(AV1_COMMON *cm, FRAME_TYPE frame_type) {
       }
       bkuPy += stride;
     }
+    for (int i = 0; i < height; i++) free(buf[i]);
+    free(buf);
   }
-  finish_python();
+  // finish_python();
 }
 
 /*Split into 1000x1000 blocks into the network*/
@@ -106,9 +110,9 @@ void addition_handle_blocks(AV1_COMMON *cm, FRAME_TYPE frame_type) {
           cur_buf_height = buf_height;
 
         if (cur_buf_width != 0 && cur_buf_height != 0) {
-          uint8_t **buf = new uint8_t *[cur_buf_height];
+          uint8_t **buf = (uint8_t **)malloc(cur_buf_height * sizeof(*buf));
           for (int i = 0; i < cur_buf_height; i++) {
-            buf[i] = new uint8_t[cur_buf_width];
+            buf[i] = (uint8_t *)malloc(cur_buf_width * sizeof(*buf[i]));
           }
 
           block_call_tensorflow(
@@ -126,6 +130,8 @@ void addition_handle_blocks(AV1_COMMON *cm, FRAME_TYPE frame_type) {
             bkuPy += stride;
           }
           // fclose(ff);
+          // for (int i = 0; i < cur_buf_height; i++) free(buf[i]);
+          // free(buf);
         }
       }
     }
@@ -146,9 +152,9 @@ void addition_handle_blocks(AV1_COMMON *cm, FRAME_TYPE frame_type) {
           cur_buf_height = buf_height;
 
         if (cur_buf_width != 0 && cur_buf_height != 0) {
-          uint16_t **buf = new uint16_t *[cur_buf_height];
+          uint16_t **buf = (uint16_t **)malloc(cur_buf_height * sizeof(*buf));
           for (int i = 0; i < cur_buf_height; i++) {
-            buf[i] = new uint16_t[cur_buf_width];
+            buf[i] = (uint16_t *)malloc(cur_buf_width * sizeof(*buf[i]));
           }
 
           buf = block_call_tensorflow_hbd(
@@ -166,11 +172,13 @@ void addition_handle_blocks(AV1_COMMON *cm, FRAME_TYPE frame_type) {
             bkuPy += stride;
           }
           // fclose(ff);
+          for (int i = 0; i < cur_buf_height; i++) free(buf[i]);
+          free(buf);
         }
       }
     }
   }
-  finish_python();
+  // finish_python();
 }
 
 /*frame_type determines what kind of network blocks need to be fed into, not
@@ -178,9 +186,9 @@ void addition_handle_blocks(AV1_COMMON *cm, FRAME_TYPE frame_type) {
 /*Low bitdepth*/
 uint8_t **blocks_to_cnn_secondly(uint8_t *pBuffer_y, int height, int width,
                                  int stride, FRAME_TYPE frame_type) {
-  uint8_t **dst = new uint8_t *[height];
+  uint8_t **dst = (uint8_t **) malloc(height * sizeof(*dst));
   for (int i = 0; i < height; i++) {
-    dst[i] = new uint8_t[width];
+    dst[i] = (uint8_t *)malloc(width * sizeof(*dst[i]));
   }
 
   if (frame_type == FRAME_TYPES) {
@@ -211,9 +219,9 @@ uint8_t **blocks_to_cnn_secondly(uint8_t *pBuffer_y, int height, int width,
           cur_buf_height = buf_height;
 
         if (cur_buf_width != 0 && cur_buf_height != 0) {
-          uint8_t **buf = new uint8_t *[cur_buf_height];
+          uint8_t **buf = (uint8_t **)malloc(cur_buf_height * sizeof(*buf));
           for (int i = 0; i < cur_buf_height; i++) {
-            buf[i] = new uint8_t[cur_buf_width];
+            buf[i] = (uint8_t *)malloc(cur_buf_width * sizeof(*buf[i]));
           }
           block_call_tensorflow(
               buf, pBuffer_y + x * buf_width + stride * buf_height * y,
@@ -225,10 +233,8 @@ uint8_t **blocks_to_cnn_secondly(uint8_t *pBuffer_y, int height, int width,
             }
           }
 
-          for (int i = 0; i < cur_buf_height; i++) {
-            delete[] buf[i];
-          }
-          delete[] buf;
+          for (int i = 0; i < cur_buf_height; i++) free(buf[i]);
+          free(buf);
         }
       }
     }
