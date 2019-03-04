@@ -667,6 +667,9 @@ typedef struct SPEED_FEATURES {
   // Flag used to control the speed of the eob selection in trellis.
   int trellis_eob_fast;
 
+  // Flag used to disable calls to optimize_b from estimate_yrd_for_sb
+  int skip_trellis_estimate_yrd;
+
   // This flag controls the use of non-RD mode decision.
   int use_nonrd_pick_mode;
 
