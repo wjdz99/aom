@@ -812,6 +812,18 @@ static void assign_new_map(AV1_COMMON *const cm, int *new_map, int new_ref,
   new_map[new_ref - LAST_FRAME] = cm->remapped_ref_idx[old_ref - LAST_FRAME];
 }
 
+static int need_special_lf_update(const AV1_COMP *const cpi) {
+  return cpi->rc.baseline_gf_interval == 16 &&
+         cpi->twopass.gf_group.pyramid_height == 4 &&
+         cpi->new_bwdref_update_rule &&
+         (cpi->twopass.gf_group.index == 10 ||
+          cpi->twopass.gf_group.index == 12 ||
+          cpi->twopass.gf_group.index == 16 ||
+          cpi->twopass.gf_group.index == 18 ||
+          cpi->twopass.gf_group.index == 21 ||
+          cpi->twopass.gf_group.index == 23);
+}
+
 // Generate a new reference frame mapping.  This function updates
 // cm->remapped_ref_idx[] depending on the frame_update_type of this frame.
 // This determines which references (e.g. LAST_FRAME, ALTREF_FRAME) point at the
@@ -952,11 +964,18 @@ static void update_ref_frame_map(AV1_COMP *cpi,
              !encode_show_existing_frame(cm) &&
              (!cm->show_existing_frame ||
               frame_update_type == INTNL_OVERLAY_UPDATE)) {
-    // A standard last-frame: we refresh the LAST3_FRAME buffer and then push it
-    // into the last-frame FIFO.
-    assign_new_map(cm, new_map, LAST3_FRAME, LAST2_FRAME);
-    assign_new_map(cm, new_map, LAST2_FRAME, LAST_FRAME);
-    assign_new_map(cm, new_map, LAST_FRAME, LAST3_FRAME);
+    if (need_special_lf_update(cpi)) {
+      assign_new_map(cm, new_map, EXTREF_FRAME, LAST3_FRAME);
+      assign_new_map(cm, new_map, LAST3_FRAME, LAST2_FRAME);
+      assign_new_map(cm, new_map, LAST2_FRAME, LAST_FRAME);
+      assign_new_map(cm, new_map, LAST_FRAME, EXTREF_FRAME);
+    } else {
+      // A standard last-frame: we refresh the LAST3_FRAME buffer and then push
+      // it into the last-frame FIFO.
+      assign_new_map(cm, new_map, LAST3_FRAME, LAST2_FRAME);
+      assign_new_map(cm, new_map, LAST2_FRAME, LAST_FRAME);
+      assign_new_map(cm, new_map, LAST_FRAME, LAST3_FRAME);
+    }
   }
 
   memcpy(cm->remapped_ref_idx, new_map, sizeof(new_map));
@@ -1036,9 +1055,13 @@ static int get_refresh_frame_flags(const AV1_COMP *const cpi,
     case BIPRED_UPDATE:  // These updates all just implement last-frame updates
     case LAST_BIPRED_UPDATE:
     case LF_UPDATE:
-      // Refresh LAST3, which becomes the new LAST while LAST becomes LAST2
-      // and LAST2 becomes the new LAST3 (like a FIFO but circular)
-      refresh_mask |= 1 << get_ref_frame_map_idx(cm, LAST3_FRAME);
+      if (need_special_lf_update(cpi)) {
+        refresh_mask |= 1 << get_ref_frame_map_idx(cm, EXTREF_FRAME);
+      } else {
+        // Refresh LAST3, which becomes the new LAST while LAST becomes LAST2
+        // and LAST2 becomes the new LAST3 (like a FIFO but circular)
+        refresh_mask |= 1 << get_ref_frame_map_idx(cm, LAST3_FRAME);
+      }
       break;
     case GF_UPDATE:
       // In addition to refreshing the GF buffer, we refresh LAST3 and push it
