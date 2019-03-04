@@ -3972,6 +3972,8 @@ void av1_setup_frame_size(AV1_COMP *cpi) {
   cpi->common.superres_scale_denominator = SCALE_NUMERATOR;
   const size_params_type rsz = calculate_next_size_params(cpi);
   setup_frame_size_from_params(cpi, &rsz);
+
+  assert(is_min_tile_width_satisfied(cm));
 }
 
 static void superres_post_encode(AV1_COMP *cpi) {
