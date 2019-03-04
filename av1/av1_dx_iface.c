@@ -154,6 +154,38 @@ static aom_codec_err_t decoder_destroy(aom_codec_alg_priv_t *ctx) {
   return AOM_CODEC_OK;
 }
 
+static aom_codec_err_t parse_timing_info(struct aom_read_bit_buffer *rb) {
+  const uint32_t num_units_in_display_tick = aom_rb_read_literal(rb, 32);
+  const uint32_t time_scale = aom_rb_read_literal(rb, 32);
+  if (num_units_in_display_tick == 0 || time_scale == 0)
+    return AOM_CODEC_UNSUP_BITSTREAM;
+  const uint8_t equal_picture_interval = aom_rb_read_bit(rb);
+  if (equal_picture_interval) {
+    const int num_ticks_per_picture = aom_rb_read_uvlc(rb) + 1;
+    if (num_ticks_per_picture == 0) return AOM_CODEC_UNSUP_BITSTREAM;
+  }
+  return AOM_CODEC_OK;
+}
+
+static aom_codec_err_t parse_decoder_model_info(
+    struct aom_read_bit_buffer *rb) {
+  const uint8_t buffer_delay_length_minus_1 = aom_rb_read_literal(rb, 5);
+  const uint32_t num_units_in_decoding_tick = aom_rb_read_literal(rb, 32);
+  const uint8_t buffer_removal_time_length_minus_1 = aom_rb_read_literal(rb, 5);
+  const uint8_t frame_presentation_time_length_minus_1 =
+      aom_rb_read_literal(rb, 5);
+  return AOM_CODEC_OK;
+}
+
+static aom_codec_err_t parse_op_parameters_info(
+    struct aom_read_bit_buffer *rb, int buffer_delay_length_minus_1) {
+  const int n = buffer_delay_length_minus_1 + 1;
+  const int decoder_buffer_delay = aom_rb_read_literal(rb, n);
+  const int encoder_buffer_delay = aom_rb_read_literal(rb, n);
+  const uint8_t low_delay_mode_flag = aom_rb_read_bit(rb);
+  return AOM_CODEC_OK;
+}
+
 // Parses the operating points (including operating_point_idc, seq_level_idx,
 // and seq_tier) and then sets si->number_spatial_layers and
 // si->number_temporal_layers based on operating_point_idc[0].
@@ -161,10 +193,24 @@ static aom_codec_err_t parse_operating_points(struct aom_read_bit_buffer *rb,
                                               int is_reduced_header,
                                               aom_codec_stream_info_t *si) {
   int operating_point_idc0 = 0;
+  int decoder_model_info_present_flag = 0;
+  int buffer_delay_length_minus_1 = 0;
+  aom_codec_err_t status;
 
   if (is_reduced_header) {
     aom_rb_read_literal(rb, LEVEL_BITS);  // level
   } else {
+    const uint8_t timing_info_present_flag = aom_rb_read_bit(rb);
+    if (timing_info_present_flag) {
+      if ((status = parse_timing_info(rb)) != AOM_CODEC_OK) return status;
+      decoder_model_info_present_flag = aom_rb_read_bit(rb);
+      if (decoder_model_info_present_flag) {
+        if ((status = parse_decoder_model_info(
+                 rb, &buffer_delay_length_minus_1)) != AOM_CODEC_OK)
+          return status;
+      }
+    }
+    const uint8_t initial_display_delay_present_flag = aom_rb_read_bit(rb);
     const uint8_t operating_points_cnt_minus_1 =
         aom_rb_read_literal(rb, OP_POINTS_CNT_MINUS_1_BITS);
     for (int i = 0; i < operating_points_cnt_minus_1 + 1; i++) {
@@ -173,6 +219,20 @@ static aom_codec_err_t parse_operating_points(struct aom_read_bit_buffer *rb,
       if (i == 0) operating_point_idc0 = operating_point_idc;
       int seq_level_idx = aom_rb_read_literal(rb, LEVEL_BITS);  // level
       if (seq_level_idx > 7) aom_rb_read_bit(rb);               // tier
+      if (decoder_model_info_present_flag) {
+        const uint8_t decoder_model_present_for_this_op = aom_rb_read_bit(rb);
+        if (decoder_model_present_for_this_op) {
+          if ((status = parse_op_parameters_info(
+                   rb, buffer_delay_length_minus_1)) != AOM_CODEC_OK)
+            return status;
+        }
+      }
+      if (initial_display_delay_present_flag) {
+        const uint8_t initial_display_delay_present_for_this_op =
+            aom_rb_read_bit(rb);
+        if (initial_display_delay_present_for_this_op)
+          aom_rb_read_literal(rb, 4);  // initial_display_delay_minus_1
+      }
     }
   }
 
