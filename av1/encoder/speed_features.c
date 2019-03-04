@@ -305,6 +305,7 @@ static void set_good_speed_features_framesize_independent(
     sf->cb_pred_filter_search = 0;
     sf->adaptive_interp_filter_search = 1;
     sf->perform_coeff_opt = boosted ? 0 : 2;
+    sf->skip_trellis_estimate_yrd = 1;
   }
 
   if (speed >= 3) {
@@ -677,6 +678,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->adaptive_rd_thresh = 0;
   // TODO(sarahparker) Pair this with a speed setting once experiments are done
   sf->trellis_eob_fast = 0;
+  sf->skip_trellis_estimate_yrd = 0;
   sf->tx_size_search_method = USE_FULL_RD;
   sf->inter_tx_size_search_init_depth_sqr = 0;
   sf->inter_tx_size_search_init_depth_rect = 0;
