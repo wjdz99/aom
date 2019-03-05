@@ -12,7 +12,7 @@ import numpy as np
 import tensorflow as tf
 
 
-def model25(input_tensor):
+def model20(input_tensor):
   weights = []
   tensor = None
   convId = 0
@@ -30,7 +30,7 @@ def model25(input_tensor):
                                                   strides=[1,1,1,1],
                                                   padding='SAME'), conv_00_b))
 
-  for i in range(23):
+  for i in range(18):
     conv_w = tf.get_variable("conv_%02d_w" % (convId),
                              [3,3,64,64],
                              initializer=tf.random_normal_initializer(

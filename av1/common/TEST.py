@@ -14,13 +14,22 @@ if not hasattr(sys, 'argv'):
 import numpy as np
 import tensorflow as tf
 import os, time
+import VDSR15
+import VDSR20
 import VDSR25
 import UTILS
 
-I_MODEL_PATH = r"/av1/models/intra_frame_model"  #364
-B_MODEL_PATH = r"/av1/models/inter_frame_model"  #252
+I_MODEL_PATH = r"/av1/models/intra_frame_model/qp"
+B_MODEL_PATH = r"/av1/models/inter_frame_model/qp"
 
-def prepare_test_data(fileOrDir):
+layers_to_model = {
+    "15": VDSR15.model15,
+    "20": VDSR20.model20,
+    "25": VDSR25.model25
+}
+
+
+def _prepare_test_data(fileOrDir):
     original_ycbcr = []
     gt_y = []
     fileName_list = []
@@ -34,7 +43,7 @@ def prepare_test_data(fileOrDir):
     return original_ycbcr, gt_y, fileName_list
 
 
-def test_all_ckpt(modelPath, fileOrDir, flags):
+def _test_all_ckpt(modelPath, fileOrDir):
     tf.reset_default_graph()
     tf.logging.warning(modelPath)
 
@@ -45,20 +54,28 @@ def test_all_ckpt(modelPath, fileOrDir, flags):
     config.gpu_options.allow_growth = True
     with tf.Session(config=config) as sess:
         input_tensor = tf.placeholder(tf.float32, shape=(1, None, None, 1))
-        shared_model = tf.make_template('shared_model', VDSR25.model25)
+        layers = ckptFiles[0][4:6]
+
+        try:
+          shared_model = tf.make_template('shared_model', layers_to_model[layers])
+        except KeyError:
+          tf.logging.error("Invalid number of layers specified: %d" % layers)
+          return
+
         output_tensor, weights = shared_model(input_tensor)
         output_tensor = tf.clip_by_value(output_tensor, 0., 1.)
         output_tensor = output_tensor * 255
 
         sess.run(tf.global_variables_initializer())
 
-        original_ycbcr, gt_y, fileName_list = prepare_test_data(fileOrDir)
+        original_ycbcr, gt_y, fileName_list = _prepare_test_data(fileOrDir)
         for ckpt in ckptFiles:
             epoch = int(ckpt.split('_')[-1].split('.')[0])
 
             tf.logging.warning("epoch:%d\t" % epoch)
             saver = tf.train.Saver(tf.global_variables())
-            saver.restore(sess,os.path.join(modelPath, ckpt))
+            tf.logging.warning(os.path.join(modelPath, ckpt))
+            saver.restore(sess, os.path.join(modelPath, ckpt))
             total_imgs = len(fileName_list)
             for i in range(total_imgs):
                 imgY = original_ycbcr[i][0]
@@ -71,13 +88,26 @@ def test_all_ckpt(modelPath, fileOrDir, flags):
                 return out
 
 
-def entranceI(AOM_ROOT, inp):
+def get_closest_q(q_index):
+  if q_index <= 138:
+    return 32
+  elif q_index <= 158:
+    return 37
+  elif q_index <= 178:
+    return 42
+  elif q_index <= 198:
+    return 47
+  else:
+    return 52
+
+
+def entranceI(AOM_ROOT, inp, q_index):
     tf.logging.warning("python, in I")
-    i = test_all_ckpt(AOM_ROOT + I_MODEL_PATH, inp, 0)
-    return i
+    q = get_closest_q(q_index)
+    return _test_all_ckpt(AOM_ROOT + I_MODEL_PATH + str(q) + "/", inp)
 
 
-def entranceB(AOM_ROOT, inp):
+def entranceB(AOM_ROOT, inp, q_index):
     tf.logging.warning("python, in B")
-    b = test_all_ckpt(AOM_ROOT + B_MODEL_PATH, inp, 1)
-    return b
+    q = get_closest_q(q_index)
+    return _test_all_ckpt(AOM_ROOT + B_MODEL_PATH + str(q) + "/", inp)
