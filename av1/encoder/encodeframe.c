@@ -3495,7 +3495,7 @@ static void simple_motion_search_based_split(
     nn_config = &av1_simple_motion_search_based_split_nn_config_16;
     split_only_thresh = av1_simple_motion_search_based_split_thresh_16;
   } else if (bsize == BLOCK_8X8) {
-    // Disable BLOCK_8X8 for now
+  // Disable BLOCK_8X8 for now
 #if !CONFIG_DISABLE_FULL_PIXEL_SPLIT_8X8
     nn_config = &av1_simple_motion_search_based_split_nn_config_8;
     split_only_thresh = av1_simple_motion_search_based_split_thresh_8;
@@ -5410,6 +5410,8 @@ static void init_first_partition_pass_stats_tables(
   for (int i = 0; i < FIRST_PARTITION_PASS_STATS_TABLES; ++i) {
     memset(stats[i].ref0_counts, 0xff, sizeof(stats[i].ref0_counts));
     memset(stats[i].ref1_counts, 0xff, sizeof(stats[i].ref1_counts));
+    memset(stats[i].compound_ref_counts, 0xff,
+           sizeof(stats[i].compound_ref_counts));
     stats[i].sample_counts = INT_MAX;
   }
 }
@@ -5585,6 +5587,8 @@ static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
       // If there are not enough samples collected, make all available.
       memset(stat->ref0_counts, 0xff, sizeof(stat->ref0_counts));
       memset(stat->ref1_counts, 0xff, sizeof(stat->ref1_counts));
+      memset(stat->compound_ref_counts, 0xff,
+             sizeof(stat->compound_ref_counts));
     } else if (sf->selective_ref_frame < 3) {
       // ALTREF2_FRAME and BWDREF_FRAME may be skipped during the
       // initial partition scan, so we don't eliminate them.
@@ -5592,6 +5596,13 @@ static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
       stat->ref1_counts[ALTREF2_FRAME] = 0xff;
       stat->ref0_counts[BWDREF_FRAME] = 0xff;
       stat->ref1_counts[BWDREF_FRAME] = 0xff;
+
+      for (int ref_inc = INTRA_FRAME; ref_inc < REF_FRAMES - 1; ref_inc++) {
+        stat->compound_ref_counts[ALTREF2_FRAME][ref_inc] = 0xff;
+        stat->compound_ref_counts[BWDREF_FRAME][ref_inc] = 0xff;
+        stat->compound_ref_counts[ref_inc][ALTREF2_FRAME] = 0xff;
+        stat->compound_ref_counts[ref_inc][BWDREF_FRAME] = 0xff;
+      }
     }
   }
 }
@@ -7058,12 +7069,21 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
             &x->first_partition_pass_stats[index];
         // Increase the counter of data samples.
         ++stats->sample_counts;
-        // Increase the counter for ref_frame[0] and ref_frame[1].
-        if (stats->ref0_counts[mbmi->ref_frame[0]] < 255)
-          ++stats->ref0_counts[mbmi->ref_frame[0]];
-        if (mbmi->ref_frame[1] >= 0 &&
-            stats->ref1_counts[mbmi->ref_frame[1]] < 255)
-          ++stats->ref1_counts[mbmi->ref_frame[1]];
+
+        int is_compound_ref =
+            ((mbmi->ref_frame[0] >= 0) && (mbmi->ref_frame[1] > 0));
+
+        if (is_compound_ref) {
+          // Increase the counter for compound ref_frames
+          if (stats->compound_ref_counts[mbmi->ref_frame[0]]
+                                        [mbmi->ref_frame[1]] < 255)
+            ++stats
+                  ->compound_ref_counts[mbmi->ref_frame[0]][mbmi->ref_frame[1]];
+        } else {
+          // Increase the counter for ref_frame[0]
+          if (stats->ref0_counts[mbmi->ref_frame[0]] < 255)
+            ++stats->ref0_counts[mbmi->ref_frame[0]];
+        }
       }
     }
   }

@@ -11851,14 +11851,20 @@ static int inter_mode_search_order_independent_skip(
         const int index = av1_first_partition_pass_stats_index(row, col);
         const FIRST_PARTITION_PASS_STATS *const stats =
             &x->first_partition_pass_stats[index];
-        if (stats->ref0_counts[ref_frame[0]] &&
-            (ref_frame[1] < 0 || stats->ref1_counts[ref_frame[1]])) {
-          found = 1;
-          break;
+        if (comp_pred) {
+          if (stats->compound_ref_counts[ref_frame[0]][ref_frame[1]]) {
+            found = 1;
+            break;
+          }
+        } else {
+          if (stats->ref0_counts[ref_frame[0]]) {
+            found = 1;
+            break;
+          }
         }
       }
     }
-    if (!found) return 1;
+      if (!found) return 1;
   }
 
   // This is only used in motion vector unit test.

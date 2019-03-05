@@ -175,7 +175,9 @@ static INLINE int av1_first_partition_pass_stats_index(int mi_row, int mi_col) {
 typedef struct {
   uint8_t ref0_counts[REF_FRAMES];  // Counters for ref_frame[0].
   uint8_t ref1_counts[REF_FRAMES];  // Counters for ref_frame[1].
-  int sample_counts;                // Number of samples collected.
+  // Counter for compound ref frames.
+  uint8_t compound_ref_counts[REF_FRAMES][REF_FRAMES];
+  int sample_counts;  // Number of samples collected.
 } FIRST_PARTITION_PASS_STATS;
 
 #define MAX_INTERP_FILTER_STATS 64
