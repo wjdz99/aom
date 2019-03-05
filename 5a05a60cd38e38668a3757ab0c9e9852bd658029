@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27bd0646_6373712f",
+        "filename": "av1/common/av1_inv_txfm1d.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 688,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-03-05T18:14:26Z",
+      "side": 1,
+      "message": "Angie: This comment does not match the current code in av1_gen_inv_stage_range(). Here is the relevant code in av1_gen_inv_stage_range(). Note that it treats stage 1 of ADST4 as a special case, whereas the comment/code here treats stage 2 as a special case.\n\n  // i \u003c MAX_TXFM_STAGE_NUM will mute above array bounds warning\n  for (int i \u003d 0; i \u003c cfg-\u003estage_num_row \u0026\u0026 i \u003c MAX_TXFM_STAGE_NUM; ++i) {\n    int real_range_row \u003d cfg-\u003estage_range_row[i] + fwd_shift + bd + 1;\n    (void)real_range_row;\n    if (cfg-\u003etxfm_type_row \u003d\u003d TXFM_TYPE_ADST4 \u0026\u0026 i \u003d\u003d 1) {\n      // the adst4 may use 1 extra bit on top of opt_range_row at stage 1\n      // so opt_range_row \u003e\u003d real_range_row will not hold\n      stage_range_row[i] \u003d opt_range_row;\n    } else {\n      assert(opt_range_row \u003e\u003d real_range_row);\n      stage_range_row[i] \u003d opt_range_row;\n    }\n  }\n  // i \u003c MAX_TXFM_STAGE_NUM will mute above array bounds warning\n  for (int i \u003d 0; i \u003c cfg-\u003estage_num_col \u0026\u0026 i \u003c MAX_TXFM_STAGE_NUM; ++i) {\n    int real_range_col \u003d\n        cfg-\u003estage_range_col[i] + fwd_shift + shift[0] + bd + 1;\n    (void)real_range_col;\n    if (cfg-\u003etxfm_type_col \u003d\u003d TXFM_TYPE_ADST4 \u0026\u0026 i \u003d\u003d 1) {\n      // the adst4 may use 1 extra bit on top of opt_range_col at stage 1\n      // so opt_range_col \u003e\u003d real_range_col will not hold\n      stage_range_col[i] \u003d opt_range_col;\n    } else {\n      assert(opt_range_col \u003e\u003d real_range_col);\n      stage_range_col[i] \u003d opt_range_col;\n    }\n  }\n\nThe iadst4_range array also treats stage 1 as a special case:\n\nconst int8_t iadst4_range[7] \u003d { 0, 1, 0, 0, 0, 0, 0 };",
+      "range": {
+        "startLine": 686,
+        "startChar": 0,
+        "endLine": 688,
+        "endChar": 61
+      },
+      "revId": "5a05a60cd38e38668a3757ab0c9e9852bd658029",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb7b2a17_5ea52e43",
+        "filename": "av1/common/av1_inv_txfm1d.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 689,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-03-05T18:14:26Z",
+      "side": 1,
+      "message": "Yaowu: I assume this change is a bug fix?",
+      "revId": "5a05a60cd38e38668a3757ab0c9e9852bd658029",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
