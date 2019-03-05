@@ -206,10 +206,10 @@ typedef struct RD_STATS {
 // sent together in functions related to interinter compound modes
 typedef struct {
   uint8_t *seg_mask;
-  int wedge_index;
-  int wedge_sign;
   DIFFWTD_MASK_TYPE mask_type;
   COMPOUND_TYPE type;
+  int8_t wedge_index;
+  int8_t wedge_sign;
 } INTERINTER_COMPOUND_DATA;
 
 #define INTER_TX_SIZE_BUF_LEN 16
