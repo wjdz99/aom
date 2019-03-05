@@ -352,7 +352,9 @@ if(CONFIG_CNN_RESTORATION)
   set(CNN_RESTORATION_SOURCES "${AOM_ROOT}/av1/common/addition_handle_frame.cc"
       "${AOM_ROOT}/av1/common/addition_handle_frame.h"
       "${AOM_ROOT}/av1/common/call_tensorflow.cc"
-      "${AOM_ROOT}/av1/common/call_tensorflow.h")
+      "${AOM_ROOT}/av1/common/call_tensorflow.h"
+      "${AOM_ROOT}/av1/common/tmp/tensorflow_test.cc"
+      "${AOM_ROOT}/av1/common/tmp/tensorflow_test.h")
 
   list(APPEND AOM_AV1_DECODER_SOURCES ${CNN_RESOTRATION_SOURCES})
   list(APPEND AOM_AV1_ENCODER_SOURCES ${CNN_RESTORATION_SOURCES})
