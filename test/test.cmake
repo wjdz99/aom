@@ -281,6 +281,13 @@ function(setup_aom_test_targets)
                  $<TARGET_OBJECTS:test_aom_common>)
   list(APPEND AOM_APP_TARGETS test_libaom)
 
+  if(CONFIG_CNN_RESTORATION)
+    find_package(TensorflowCC REQUIRED)
+    target_link_libraries(
+      test_libaom PRIVATE TensorflowCC::Static
+      "${CMAKE_INSTALL_PREFIX}/lib/tensorflow_cc/libprotobuf.a")
+  endif()
+
   if(CONFIG_AV1_DECODER)
     target_sources(test_libaom PRIVATE $<TARGET_OBJECTS:aom_decoder_app_util>
                    $<TARGET_OBJECTS:test_aom_decoder>)
@@ -303,6 +310,12 @@ function(setup_aom_test_targets)
                      $<TARGET_OBJECTS:aom_common_app_util>)
       target_link_libraries(test_intra_pred_speed ${AOM_LIB_LINK_TYPE} aom
                             aom_gtest)
+      if(CONFIG_CNN_RESTORATION)
+        find_package(TensorflowCC REQUIRED)
+        target_link_libraries(
+          test_intra_pred_speed PRIVATE TensorflowCC::Static
+          "${CMAKE_INSTALL_PREFIX}/lib/tensorflow_cc/libprotobuf.a")
+      endif()
       list(APPEND AOM_APP_TARGETS test_intra_pred_speed)
     endif()
   endif()
