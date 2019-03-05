@@ -208,6 +208,11 @@ if(ENABLE_EXAMPLES)
 endif()
 add_library(aom ${AOM_SOURCES} $<TARGET_OBJECTS:aom_rtcd>)
 
+if(CONFIG_CNN_RESTORATION)
+  add_subdirectory("${AOM_ROOT}/third_party/tensorflow/tensorflow_cc")
+  target_link_libraries(aom INTERFACE tensorflow_cc_static)
+endif()
+
 if(NOT MSVC AND NOT APPLE)
   target_link_libraries(aom ${AOM_LIB_LINK_TYPE} m)
 endif()
@@ -687,7 +692,7 @@ foreach(aom_source_var ${aom_source_vars})
   endif()
 endforeach()
 
-if(CONFIG_CNN_RESTORATION)
+if(CONFIG_CNN_RESTORATION) # TO USE PYTHON
   set(py_libraries python3.6m)
   target_link_libraries(aom PRIVATE ${py_libraries})
 endif()

@@ -11,10 +11,10 @@
 
 #include <stdint.h>
 
-#include "av1/common/blockd.h"
-
 #include "av1/common/addition_handle_frame.h"
+#include "av1/common/blockd.h"
 #include "av1/common/call_tensorflow.h"
+#include "av1/common/tmp/tensorflow_test.h"
 
 /*Feed full frame image into the network*/
 void addition_handle_frame(AV1_COMMON *cm, FRAME_TYPE frame_type) {
@@ -87,6 +87,7 @@ void addition_handle_blocks(AV1_COMMON *cm, FRAME_TYPE frame_type) {
   int cur_buf_width;
   int cur_buf_height;
 
+  print_that_status();
   init_python();
 
   if (!cm->seq_params.use_highbitdepth) {
