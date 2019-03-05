@@ -49,6 +49,76 @@
     },
     {
       "key": {
+        "uuid": "325416c0_279aecda",
+        "filename": "aom_scale/generic/yv12config.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-03-05T17:51:17Z",
+      "side": 1,
+      "message": "Please refer to img_alloc_helper() to see how this can be handled. You can keep the common part in the helper function and move the different part out. I don\u0027t think it is good to have 2 functions with only several line difference.",
+      "parentUuid": "cb802021_3503a8a8",
+      "range": {
+        "startLine": 206,
+        "startChar": 4,
+        "endLine": 206,
+        "endChar": 32
+      },
+      "revId": "f0525e7656b9a65c8b27b237f4b166b8c79f847c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b8cdb88b_0c4d0949",
+        "filename": "aom_scale/generic/yv12config.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-03-05T17:51:17Z",
+      "side": 1,
+      "message": "Why this needs 128 byte aligned instead of 8 byte aligned?",
+      "range": {
+        "startLine": 227,
+        "startChar": 3,
+        "endLine": 228,
+        "endChar": 57
+      },
+      "revId": "f0525e7656b9a65c8b27b237f4b166b8c79f847c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56bd7578_a15ee629",
+        "filename": "aom_scale/generic/yv12config.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-03-05T17:51:17Z",
+      "side": 1,
+      "message": "For yplane_size, aligned_128_height is used, but here uv_height is used, why?",
+      "range": {
+        "startLine": 237,
+        "startChar": 19,
+        "endLine": 237,
+        "endChar": 31
+      },
+      "revId": "f0525e7656b9a65c8b27b237f4b166b8c79f847c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "da25fe5a_98b0db1a",
         "filename": "aom_scale/yv12config.h",
         "patchSetId": 13
