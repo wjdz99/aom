@@ -3997,11 +3997,51 @@ static void av1_simple_motion_search_early_term_none(
 //  - The current bsize is > BLOCK_8X8
 //  - blk_row + blk_height/2 < total_rows and blk_col + blk_width/2 < total_cols
 #define NUM_FEATURES 46
-static void av1_simple_motion_search_early_term_split(
+static void av1_simple_motion_search_term_split(
     AV1_COMP *const cpi, MACROBLOCK *x, PC_TREE *pc_tree, int mi_row,
     int mi_col, BLOCK_SIZE bsize, int none_valid, const RD_STATS *none_rdc,
     const int *split_valids, const RD_STATS *split_rdcs, int *early_terminate,
     float *simple_motion_features, int *simple_motion_features_are_valid) {
+  const NN_CONFIG *nn_config = NULL;
+  const float *ml_mean = NULL, *ml_std = NULL;
+  float thresh = 0.0f;
+  float normalized_features[NUM_FEATURES] = { 0.0f };
+
+  if (bsize == BLOCK_128X128) {
+    nn_config = &av1_simple_motion_search_term_split_nn_config_128;
+    ml_mean = av1_simple_motion_search_term_split_mean_128;
+    ml_std = av1_simple_motion_search_term_split_std_128;
+    thresh = av1_simple_motion_search_term_split_thresh_128;
+  } else if (bsize == BLOCK_64X64) {
+    nn_config = &av1_simple_motion_search_term_split_nn_config_64;
+    ml_mean = av1_simple_motion_search_term_split_mean_64;
+    ml_std = av1_simple_motion_search_term_split_std_64;
+    thresh = av1_simple_motion_search_term_split_thresh_64;
+  } else if (bsize == BLOCK_32X32) {
+    nn_config = &av1_simple_motion_search_term_split_nn_config_32;
+    ml_mean = av1_simple_motion_search_term_split_mean_32;
+    ml_std = av1_simple_motion_search_term_split_std_32;
+    thresh = av1_simple_motion_search_term_split_thresh_32;
+  } else if (bsize == BLOCK_16X16) {
+    nn_config = &av1_simple_motion_search_term_split_nn_config_16;
+    ml_mean = av1_simple_motion_search_term_split_mean_16;
+    ml_std = av1_simple_motion_search_term_split_std_16;
+    thresh = av1_simple_motion_search_term_split_thresh_16;
+  } else if (bsize == BLOCK_8X8) {
+    nn_config = &av1_simple_motion_search_term_split_nn_config_8;
+    ml_mean = av1_simple_motion_search_term_split_mean_8;
+    ml_std = av1_simple_motion_search_term_split_std_8;
+    thresh = av1_simple_motion_search_term_split_thresh_8;
+  } else {
+    assert(0 && "Unexpected block size in simple_motion_search_term_split");
+  }
+
+  // If there is no valid threshold, return immediately.
+  if (!nn_config || thresh == 0.0f) {
+    return;
+  }
+
+  // Get features
   int f_idx = 0;
   if (!*simple_motion_features_are_valid) {
     simple_motion_search_prune_part_features(cpi, x, pc_tree, mi_row, mi_col,
@@ -4038,8 +4078,24 @@ static void av1_simple_motion_search_early_term_split(
   }
 
   simple_motion_features[f_idx++] = pc_tree->partitioning == PARTITION_SPLIT;
-
   assert(f_idx == NUM_FEATURES);
+
+  // Get probabilities
+  float scores[2] = { 0.0f }, probs[2] = { 0.0f };
+  for (int idx = 0; idx < NUM_FEATURES; idx++) {
+    normalized_features[idx] =
+        (simple_motion_features[idx] - ml_mean[idx]) / ml_std[idx];
+  }
+
+  av1_nn_predict(normalized_features, nn_config, scores);
+  aom_clear_system_state();
+
+  av1_nn_softmax(scores, probs, 2);
+
+  // Determine if we should prune rectangular partitions.
+  if (probs[1] < thresh) {
+    *early_terminate = 1;
+  }
 }
 
 #undef NUM_FEATURES
@@ -4099,8 +4155,6 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   assert(min_sq_part <= max_sq_part);
   int is_eq_min_sq_part = bsize == min_sq_part;
   int is_gt_max_sq_part = bsize > max_sq_part;
-  int64_t curr_best_rdc = 0;
-  int data_valid = 0;
 
   if (best_rd < 0) {
     pc_tree->none.rdcost = INT64_MAX;
@@ -4629,12 +4683,10 @@ BEGIN_PARTITION_SEARCH:
       mi_row + mi_step < cm->mi_rows && mi_col + mi_step < cm->mi_cols &&
       best_rdc.rdcost < INT64_MAX && best_rdc.rdcost >= 0 &&
       best_rdc.rate < INT_MAX && best_rdc.rate >= 0 && do_rectangular_split) {
-    av1_simple_motion_search_early_term_split(
+    av1_simple_motion_search_term_split(
         cpi, x, pc_tree, mi_row, mi_col, bsize, none_valid, &none_rdc,
         split_valids, split_rdcs, &terminate_partition_search,
         simple_motion_features, &simple_motion_features_are_valid);
-    curr_best_rdc = best_rdc.rdcost;
-    data_valid = 1;
   }
 
   pc_tree->horizontal[0].skip_ref_frame_mask = 0;
@@ -5435,23 +5487,6 @@ BEGIN_PARTITION_SEARCH:
       }
     }
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
-  }
-
-  if (bsize >= BLOCK_8X8 && !frame_is_intra_only(cm) &&
-      best_rdc.rdcost < INT64_MAX && best_rdc.rdcost >= 0 &&
-      best_rdc.rate < INT_MAX && best_rdc.rate >= 0 && data_valid) {
-    FILE *f = fopen("data.csv", "a");
-
-    fprintf(f, "%d,%d,", bsize,
-            pc_tree->partitioning == PARTITION_NONE ||
-                pc_tree->partitioning == PARTITION_SPLIT);
-    for (int idx = 0; idx < 46; idx++) {
-      fprintf(f, "%f,", simple_motion_features[idx]);
-    }
-    fprintf(f, "%ld,", curr_best_rdc - best_rdc.rdcost);
-    fprintf(f, "%ld\n", best_rdc.rdcost);
-
-    fclose(f);
   }
 
   if (bsize == cm->seq_params.sb_size && best_rdc.rate == INT_MAX) {
