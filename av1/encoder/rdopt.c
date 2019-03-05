@@ -713,7 +713,6 @@ typedef struct InterModeSearchState {
   PALETTE_MODE_INFO pmi_uv[TX_SIZES_ALL];
   int8_t uv_angle_delta[TX_SIZES_ALL];
   int64_t best_pred_rd[REFERENCE_MODES];
-  int64_t best_pred_diff[REFERENCE_MODES];
   // Save a set of single_newmv for each checked ref_mv.
   int_mv single_newmv[MAX_REF_MV_SERCH][REF_FRAMES];
   int single_newmv_rate[MAX_REF_MV_SERCH][REF_FRAMES];
@@ -6972,9 +6971,7 @@ static void estimate_ref_frame_costs(
 }
 
 static void store_coding_context(MACROBLOCK *x, PICK_MODE_CONTEXT *ctx,
-                                 int mode_index,
-                                 int64_t comp_pred_diff[REFERENCE_MODES],
-                                 int skippable) {
+                                 int mode_index, int skippable) {
   MACROBLOCKD *const xd = &x->e_mbd;
 
   // Take a snapshot of the coding context so it can be
@@ -6984,9 +6981,6 @@ static void store_coding_context(MACROBLOCK *x, PICK_MODE_CONTEXT *ctx,
   ctx->best_mode_index = mode_index;
   ctx->mic = *xd->mi[0];
   ctx->mbmi_ext = *x->mbmi_ext;
-  ctx->single_pred_diff = (int)comp_pred_diff[SINGLE_REFERENCE];
-  ctx->comp_pred_diff = (int)comp_pred_diff[COMPOUND_REFERENCE];
-  ctx->hybrid_pred_diff = (int)comp_pred_diff[REFERENCE_MODE_SELECT];
 }
 
 static void setup_buffer_ref_mvs_inter(
@@ -13113,20 +13107,12 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     }
   }
 
-  for (i = 0; i < REFERENCE_MODES; ++i) {
-    if (search_state.best_pred_rd[i] == INT64_MAX)
-      search_state.best_pred_diff[i] = INT_MIN;
-    else
-      search_state.best_pred_diff[i] =
-          search_state.best_rd - search_state.best_pred_rd[i];
-  }
 
   x->skip |= search_state.best_mode_skippable;
 
   assert(search_state.best_mode_index >= 0);
 
   store_coding_context(x, ctx, search_state.best_mode_index,
-                       search_state.best_pred_diff,
                        search_state.best_mode_skippable);
 
   if (pmi->palette_size[1] > 0) {
@@ -13608,20 +13594,12 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     }
   }
 
-  for (i = 0; i < REFERENCE_MODES; ++i) {
-    if (search_state.best_pred_rd[i] == INT64_MAX)
-      search_state.best_pred_diff[i] = INT_MIN;
-    else
-      search_state.best_pred_diff[i] =
-          search_state.best_rd - search_state.best_pred_rd[i];
-  }
 
   x->skip |= search_state.best_mode_skippable;
 
   assert(search_state.best_mode_index >= 0);
 
   store_coding_context(x, ctx, search_state.best_mode_index,
-                       search_state.best_pred_diff,
                        search_state.best_mode_skippable);
 }
 
@@ -13637,7 +13615,6 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   unsigned char segment_id = mbmi->segment_id;
   const int comp_pred = 0;
   int i;
-  int64_t best_pred_diff[REFERENCE_MODES];
   unsigned int ref_costs_single[REF_FRAMES];
   unsigned int ref_costs_comp[REF_FRAMES][REF_FRAMES];
   int *comp_inter_cost = x->comp_inter_cost[av1_get_reference_mode_context(xd)];
@@ -13741,9 +13718,7 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   av1_update_rd_thresh_fact(cm, tile_data->thresh_freq_fact,
                             cpi->sf.adaptive_rd_thresh, bsize, THR_GLOBALMV);
 
-  av1_zero(best_pred_diff);
-
-  store_coding_context(x, ctx, THR_GLOBALMV, best_pred_diff, 0);
+  store_coding_context(x, ctx, THR_GLOBALMV, 0);
 }
 
 struct calc_target_weighted_pred_ctxt {

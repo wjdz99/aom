@@ -479,9 +479,6 @@ static void update_state(const AV1_COMP *const cpi,
                                mi_addr);
     }
 
-    rdc->comp_pred_diff[SINGLE_REFERENCE] += ctx->single_pred_diff;
-    rdc->comp_pred_diff[COMPOUND_REFERENCE] += ctx->comp_pred_diff;
-    rdc->comp_pred_diff[REFERENCE_MODE_SELECT] += ctx->hybrid_pred_diff;
   }
 
   const int x_mis = AOMMIN(bw, cm->mi_cols - mi_col);
@@ -6433,7 +6430,6 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   xd->mi[0] = cm->mi;
 
   av1_zero(*td->counts);
-  av1_zero(rdc->comp_pred_diff);
   // Two pass partition search can be enabled/disabled for different frames.
   // Reset this data at frame level to avoid any incorrect usage.
   init_first_partition_pass_stats_tables(x->first_partition_pass_stats);
@@ -6819,8 +6815,6 @@ void av1_encode_frame(AV1_COMP *cpi) {
 #endif
 
   if (cpi->sf.frame_parameter_update) {
-    int i;
-    RD_OPT *const rd_opt = &cpi->rd;
     RD_COUNTS *const rdc = &cpi->td.rd_counts;
 
     // This code does a single RD pass over the whole frame assuming
@@ -6834,7 +6828,6 @@ void av1_encode_frame(AV1_COMP *cpi) {
     // TODO(zoeliu): To investigate whether a frame_type other than
     // INTRA/ALTREF/GOLDEN/LAST needs to be specified seperately.
     const MV_REFERENCE_FRAME frame_type = get_frame_type(cpi);
-    int64_t *const mode_thrs = rd_opt->prediction_type_threshes[frame_type];
     const int is_alt_ref = frame_type == ALTREF_FRAME;
 
     /* prediction (compound, single or hybrid) mode selection */
@@ -6854,8 +6847,6 @@ void av1_encode_frame(AV1_COMP *cpi) {
 
     encode_frame_internal(cpi);
 
-    for (i = 0; i < REFERENCE_MODES; ++i)
-      mode_thrs[i] = (mode_thrs[i] + rdc->comp_pred_diff[i] / cm->MBs) / 2;
 
     if (current_frame->reference_mode == REFERENCE_MODE_SELECT) {
       // Use a flag that includes 4x4 blocks

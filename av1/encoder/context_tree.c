@@ -223,9 +223,6 @@ void av1_copy_tree_context(PICK_MODE_CONTEXT *dst_ctx,
   memcpy(dst_ctx->blk_skip, src_ctx->blk_skip,
          sizeof(uint8_t) * src_ctx->num_4x4_blk);
 
-  dst_ctx->hybrid_pred_diff = src_ctx->hybrid_pred_diff;
-  dst_ctx->comp_pred_diff = src_ctx->comp_pred_diff;
-  dst_ctx->single_pred_diff = src_ctx->single_pred_diff;
 
   dst_ctx->rate = src_ctx->rate;
   dst_ctx->dist = src_ctx->dist;
