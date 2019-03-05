@@ -3895,9 +3895,11 @@ static void get_max_min_partition_features(AV1_COMP *const cpi, MACROBLOCK *x,
 }
 
 #define MAX_NUM_CLASSES 4
-static BLOCK_SIZE predict_max_partition(float *features) {
+static BLOCK_SIZE predict_max_partition(AV1_COMP *const cpi, float *features) {
   float scores[MAX_NUM_CLASSES] = { 0.0f }, probs[MAX_NUM_CLASSES] = { 0.0f };
   const NN_CONFIG *nn_config = &av1_max_part_pred_nn_config;
+
+  assert(cpi->sf.auto_max_partition_based_on_simple_motion);
 
   aom_clear_system_state();
   av1_nn_predict(features, nn_config, scores);
@@ -3910,6 +3912,10 @@ static BLOCK_SIZE predict_max_partition(float *features) {
       max_prob = probs[i];
       result = i;
     }
+  }
+
+  if (cpi->sf.auto_max_partition_based_on_simple_motion > 1) {
+    if (result < 3 && probs[result] < 0.55) result++;
   }
 
   return (BLOCK_SIZE)((result + 2) * 3);
@@ -5872,7 +5878,8 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
         float features[FEATURE_SIZE_MAX_MIN_PART_PRED] = { 0.0f };
 
         get_max_min_partition_features(cpi, x, mi_row, mi_col, features);
-        max_sq_size = AOMMIN(predict_max_partition(features), sb_size);
+        max_sq_size = predict_max_partition(cpi, features);
+        max_sq_size = AOMMIN(max_sq_size, sb_size);
       }
       rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                         max_sq_size, BLOCK_4X4, &dummy_rdc, INT64_MAX, pc_root,
