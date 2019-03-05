@@ -105,6 +105,7 @@ static void set_good_speed_feature_framesize_dependent(
 
   if (is_480p_or_larger) {
     sf->use_square_partition_only_threshold = BLOCK_128X128;
+    sf->auto_max_partition_based_on_simple_motion = 2;
   } else {
     sf->use_square_partition_only_threshold = BLOCK_64X64;
     sf->auto_max_partition_based_on_simple_motion = 1;
