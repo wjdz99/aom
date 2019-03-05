@@ -55,9 +55,6 @@ typedef struct {
   // coefficients are quantized to 0, skippable is set to 1.
   int skippable;
   int best_mode_index;
-  int hybrid_pred_diff;
-  int comp_pred_diff;
-  int single_pred_diff;
   // Skip certain ref frames during RD search of rectangular partitions.
   int skip_ref_frame_mask;
 

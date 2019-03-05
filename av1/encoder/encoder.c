@@ -811,8 +811,8 @@ static void alloc_util_frame_buffers(AV1_COMP *cpi) {
   const SequenceHeader *const seq_params = &cm->seq_params;
   if (aom_realloc_frame_buffer(
           &cpi->last_frame_uf, cm->width, cm->height, seq_params->subsampling_x,
-          seq_params->subsampling_y, seq_params->use_highbitdepth,
-          cpi->oxcf.border_in_pixels, cm->byte_alignment, NULL, NULL, NULL))
+          seq_params->subsampling_y, seq_params->use_highbitdepth, 0,
+          cm->byte_alignment, NULL, NULL, NULL))
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate last frame buffer");
 
