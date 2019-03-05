@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5823f83_a8e64634",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-03-05T17:49:00Z",
+      "side": 1,
+      "message": "These two should be aom_rb_read_unsigned_literal(). aom_rb_read_literal() can only read at most 31 bits:\n\nint aom_rb_read_literal(struct aom_read_bit_buffer *rb, int bits) {\n  assert(bits \u003c\u003d 31);\n  int value \u003d 0, bit;\n  for (bit \u003d bits - 1; bit \u003e\u003d 0; bit--) value |\u003d aom_rb_read_bit(rb) \u003c\u003c bit;\n  return value;\n}",
+      "range": {
+        "startLine": 158,
+        "startChar": 0,
+        "endLine": 159,
+        "endChar": 58
+      },
+      "revId": "4ed0437a9b89c45672243af01cfd18a3dcd21faf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3aeddbd3_510b4e4d",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-03-05T17:49:00Z",
+      "side": 1,
+      "message": "I suggest declaring num_ticks_per_picture as uint32_t, to match av1_read_timing_info_header().",
+      "range": {
+        "startLine": 164,
+        "startChar": 10,
+        "endLine": 164,
+        "endChar": 13
+      },
+      "revId": "4ed0437a9b89c45672243af01cfd18a3dcd21faf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d71cd23c_049b473c",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-03-05T17:49:00Z",
+      "side": 1,
+      "message": "This should be aom_rb_read_unsigned_literal(). aom_rb_read_literal() can only read at most 31 bits.",
+      "range": {
+        "startLine": 173,
+        "startChar": 46,
+        "endLine": 173,
+        "endChar": 65
+      },
+      "revId": "4ed0437a9b89c45672243af01cfd18a3dcd21faf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c3adfd4_b684e3f2",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-03-05T17:49:00Z",
+      "side": 1,
+      "message": "These two should be aom_rb_read_unsigned_literal() because n may be 32. (0 \u003c\u003d buffer_delay_length_minus_1 \u003c\u003d 31.)",
+      "range": {
+        "startLine": 186,
+        "startChar": 0,
+        "endLine": 187,
+        "endChar": 62
+      },
+      "revId": "4ed0437a9b89c45672243af01cfd18a3dcd21faf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bda0e951_3d224536",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-03-05T17:49:00Z",
+      "side": 1,
+      "message": "Nit: Elsewhere in this CL, you declared boolean variables as uint8_t. Should we also declare decoder_model_info_present_flag as uint8_t for consistency?",
+      "range": {
+        "startLine": 202,
+        "startChar": 2,
+        "endLine": 202,
+        "endChar": 5
+      },
+      "revId": "4ed0437a9b89c45672243af01cfd18a3dcd21faf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6b02588_93691d2f",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-03-05T17:49:00Z",
+      "side": 1,
+      "message": "Nit/optional: The three new variables declared at lines 202-204 are used only in this block, so we could declare them here.",
+      "revId": "4ed0437a9b89c45672243af01cfd18a3dcd21faf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
