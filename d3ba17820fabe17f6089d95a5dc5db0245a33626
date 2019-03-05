@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3e5746b5_67c3dc7c",
+        "filename": "av1/common/VDSR15.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-05T20:06:48Z",
+      "side": 1,
+      "message": "Reformatted VDSR15, VDSR20, VDSR25.",
+      "parentUuid": "fe0334a6_afeab850",
+      "revId": "d3ba17820fabe17f6089d95a5dc5db0245a33626",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2dd2013f_f1eb8588",
         "filename": "av1/common/VDSR20.py",
         "patchSetId": 3
@@ -59,6 +77,30 @@
     },
     {
       "key": {
+        "uuid": "8e7c8bf7_2677ea41",
+        "filename": "av1/common/call_tensorflow.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-05T20:06:48Z",
+      "side": 1,
+      "message": "Plan on it. I wanted to discuss with Deb that we cannot call any type of PyFinalize without crashing the Python program. Specifically, I can\u0027t acquire the bitrate when these lines are uncommented.",
+      "parentUuid": "24d64126_fe8a540e",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 6
+      },
+      "revId": "d3ba17820fabe17f6089d95a5dc5db0245a33626",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ba7421bc_2ab2459d",
         "filename": "av1/common/call_tensorflow.h",
         "patchSetId": 3
@@ -70,6 +112,30 @@
       "writtenOn": "2019-03-05T02:17:53Z",
       "side": 1,
       "message": "You don\u0027t need this newline",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 0
+      },
+      "revId": "d3ba17820fabe17f6089d95a5dc5db0245a33626",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41823b37_c38299f9",
+        "filename": "av1/common/call_tensorflow.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-05T20:06:48Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "ba7421bc_2ab2459d",
       "range": {
         "startLine": 21,
         "startChar": 0,

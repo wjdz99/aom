@@ -22,6 +22,30 @@
       "revId": "e8025fd938c49dbd3c2acbbe77815e8e618685b4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d10a4049_02ad110c",
+        "filename": "av1/common/TEST.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-05T20:06:48Z",
+      "side": 0,
+      "message": "It signaled the number of epochs the model was trained on. Because we no longer use just two models, the comments lose their meaning.",
+      "parentUuid": "12c81c0d_28ebc7ca",
+      "range": {
+        "startLine": 20,
+        "startChar": 49,
+        "endLine": 20,
+        "endChar": 53
+      },
+      "revId": "e8025fd938c49dbd3c2acbbe77815e8e618685b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
