@@ -33,8 +33,9 @@ void quantize_b_adaptive_helper_c(
     const int rc = scan[i];
     const qm_val_t wt = qm_ptr != NULL ? qm_ptr[rc] : (1 << AOM_QM_BITS);
     const int coeff = coeff_ptr[rc] * wt;
+    const int factor = 325;  // + (i < 3 ? 8 * (3 - i) : 0);
 
-    int prescan_add = ROUND_POWER_OF_TWO(dequant_ptr[rc != 0] * 325, 7);
+    int prescan_add = ROUND_POWER_OF_TWO(dequant_ptr[rc != 0] * factor, 7);
     if (coeff < (zbins[rc != 0] * (1 << AOM_QM_BITS) + prescan_add) &&
         coeff > (nzbins[rc != 0] * (1 << AOM_QM_BITS) - prescan_add))
       non_zero_count--;
@@ -44,6 +45,7 @@ void quantize_b_adaptive_helper_c(
 
   // Quantization pass: All coefficients with index >= zero_flag are
   // skippable. Note: zero_flag can be zero.
+  int first = -1;
   for (i = 0; i < non_zero_count; i++) {
     const int rc = scan[i];
     const int coeff = coeff_ptr[rc];
@@ -68,7 +70,26 @@ void quantize_b_adaptive_helper_c(
       const tran_low_t abs_dqcoeff = (tmp32 * dequant) >> log_scale;
       dqcoeff_ptr[rc] = (tran_low_t)((abs_dqcoeff ^ coeff_sign) - coeff_sign);
 
-      if (tmp32) eob = i;
+      if (tmp32) {
+        eob = i;
+        if (first == -1) first = i;
+      }
+    }
+  }
+  if (eob >= 0 && first == eob) {
+    const int rc = scan[eob];
+    if (abs(qcoeff_ptr[rc]) == 1) {
+      const qm_val_t wt = qm_ptr != NULL ? qm_ptr[rc] : (1 << AOM_QM_BITS);
+      const int coeff = coeff_ptr[rc] * wt;
+      const int factor = 625;
+
+      int prescan_add = ROUND_POWER_OF_TWO(dequant_ptr[rc != 0] * factor, 7);
+      if (coeff < (zbins[rc != 0] * (1 << AOM_QM_BITS) + prescan_add) &&
+          coeff > (nzbins[rc != 0] * (1 << AOM_QM_BITS) - prescan_add)) {
+        qcoeff_ptr[rc] = 0;
+        dqcoeff_ptr[rc] = 0;
+        eob = -1;
+      }
     }
   }
   *eob_ptr = eob + 1;
