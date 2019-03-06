@@ -4558,6 +4558,9 @@ BEGIN_PARTITION_SEARCH:
   pc_tree->horizontal[1].skip_ref_frame_mask = 0;
   pc_tree->vertical[0].skip_ref_frame_mask = 0;
   pc_tree->vertical[1].skip_ref_frame_mask = 0;
+  // TODO(huisu@google.com): This causes large quality loss for speed 0 and 1.
+  // Consider enabling it for high speed settings.
+#if 0
   if (cpi->sf.prune_ref_frame_for_rect_partitions) {
     int used_frames;
     used_frames = ref_frames_used[0] | ref_frames_used[1];
@@ -4596,6 +4599,7 @@ BEGIN_PARTITION_SEARCH:
       }
     }
   }
+#endif
 
   if (cpi->sf.ml_prune_rect_partition && !frame_is_intra_only(cm) &&
       (partition_horz_allowed || partition_vert_allowed) &&
