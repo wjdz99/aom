@@ -4301,7 +4301,6 @@ void av1_setup_frame_size(AV1_COMP *cpi) {
   setup_frame_size_from_params(cpi, &rsz);
 }
 
-#if !CONFIG_CNN_RESTORATION
 static void superres_post_encode(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
@@ -4427,7 +4426,6 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
   }
 }
-#endif  // !CONFIG_CNN_RESTORATION
 
 static int get_refresh_frame_flags(const AV1_COMP *const cpi) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -5343,10 +5341,14 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   // Pick the loop filter level for the frame.
   if (!cm->allow_intrabc) {
 #if CONFIG_CNN_RESTORATION
-    if (cpi->rc.is_src_frame_alt_ref) {
-      addition_handle_blocks(cm, KEY_FRAME);
+    if (cm->base_qindex >= 100) {
+      if (cpi->rc.is_src_frame_alt_ref) {
+        addition_handle_blocks(cm, KEY_FRAME);
+      } else {
+        addition_handle_blocks(cm, cm->current_frame.frame_type);
+      }
     } else {
-      addition_handle_blocks(cm, cm->current_frame.frame_type);
+      loopfilter_frame(cpi, cm);
     }
 #else
     loopfilter_frame(cpi, cm);
