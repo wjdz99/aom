@@ -9,8 +9,12 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <stdlib.h>
 #include "aom_dsp/quantize.h"
 #include "aom_mem/aom_mem.h"
+
+#define EOB_FACTOR 325
+#define SKIP_EOB_FACTOR_ADJUST 200
 
 void quantize_b_adaptive_helper_c(
     const tran_low_t *coeff_ptr, intptr_t n_coeffs, const int16_t *zbin_ptr,
@@ -28,15 +32,18 @@ void quantize_b_adaptive_helper_c(
   memset(qcoeff_ptr, 0, n_coeffs * sizeof(*qcoeff_ptr));
   memset(dqcoeff_ptr, 0, n_coeffs * sizeof(*dqcoeff_ptr));
 
+  int prescan_add[2];
+  for (i = 0; i < 2; ++i)
+    prescan_add[i] = ROUND_POWER_OF_TWO(dequant_ptr[i] * EOB_FACTOR, 7);
+
   // Pre-scan pass
   for (i = (int)n_coeffs - 1; i >= 0; i--) {
     const int rc = scan[i];
     const qm_val_t wt = qm_ptr != NULL ? qm_ptr[rc] : (1 << AOM_QM_BITS);
     const int coeff = coeff_ptr[rc] * wt;
-
-    int prescan_add = ROUND_POWER_OF_TWO(dequant_ptr[rc != 0] * 325, 7);
-    if (coeff < (zbins[rc != 0] * (1 << AOM_QM_BITS) + prescan_add) &&
-        coeff > (nzbins[rc != 0] * (1 << AOM_QM_BITS) - prescan_add))
+    const int prescan_add_val = prescan_add[rc != 0];
+    if (coeff < (zbins[rc != 0] * (1 << AOM_QM_BITS) + prescan_add_val) &&
+        coeff > (nzbins[rc != 0] * (1 << AOM_QM_BITS) - prescan_add_val))
       non_zero_count--;
     else
       break;
@@ -44,6 +51,7 @@ void quantize_b_adaptive_helper_c(
 
   // Quantization pass: All coefficients with index >= zero_flag are
   // skippable. Note: zero_flag can be zero.
+  int first = -1;
   for (i = 0; i < non_zero_count; i++) {
     const int rc = scan[i];
     const int coeff = coeff_ptr[rc];
@@ -68,9 +76,30 @@ void quantize_b_adaptive_helper_c(
       const tran_low_t abs_dqcoeff = (tmp32 * dequant) >> log_scale;
       dqcoeff_ptr[rc] = (tran_low_t)((abs_dqcoeff ^ coeff_sign) - coeff_sign);
 
-      if (tmp32) eob = i;
+      if (tmp32) {
+        eob = i;
+        if (first == -1) first = i;
+      }
     }
   }
+#if SKIP_EOB_FACTOR_ADJUST
+  if (eob >= 0 && first == eob) {
+    const int rc = scan[eob];
+    if (abs(qcoeff_ptr[rc]) == 1) {
+      const qm_val_t wt = qm_ptr != NULL ? qm_ptr[rc] : (1 << AOM_QM_BITS);
+      const int coeff = coeff_ptr[rc] * wt;
+      const int factor = EOB_FACTOR + SKIP_EOB_FACTOR_ADJUST;
+      const int prescan_add_val =
+          ROUND_POWER_OF_TWO(dequant_ptr[rc != 0] * factor, 7);
+      if (coeff < (zbins[rc != 0] * (1 << AOM_QM_BITS) + prescan_add_val) &&
+          coeff > (nzbins[rc != 0] * (1 << AOM_QM_BITS) - prescan_add_val)) {
+        qcoeff_ptr[rc] = 0;
+        dqcoeff_ptr[rc] = 0;
+        eob = -1;
+      }
+    }
+  }
+#endif
   *eob_ptr = eob + 1;
 }
 
