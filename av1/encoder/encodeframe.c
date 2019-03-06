@@ -2641,7 +2641,7 @@ static void rd_pick_sqr_partition(AV1_COMP *const cpi, ThreadData *td,
 
         pc_tree->cb_search_range = SEARCH_FULL_PLANE;
 
-        if (!x->e_mbd.lossless[xd->mi[0]->segment_id] && ctx_none->skippable) {
+        if (!x->e_mbd.lossless[xd->mi[0]->segment_id]) {
           const int use_ml_based_breakout =
               bsize <= cpi->sf.use_square_partition_only_threshold &&
               bsize > BLOCK_4X4 && xd->bd == 8;
@@ -2661,9 +2661,11 @@ static void rd_pick_sqr_partition(AV1_COMP *const cpi, ThreadData *td,
           // is terminated for current branch of the partition search tree. The
           // dist & rate thresholds are set to 0 at speed 0 to disable the early
           // termination at that speed.
-          if (best_rdc.dist < dist_breakout_thr &&
-              best_rdc.rate < rate_breakout_thr) {
-            do_square_split = 0;
+          if (ctx_none->skippable) {
+            if (best_rdc.dist < dist_breakout_thr &&
+                best_rdc.rate < rate_breakout_thr) {
+              do_square_split = 0;
+            }
           }
         }
       }
@@ -4366,7 +4368,7 @@ BEGIN_PARTITION_SEARCH:
         }
 #endif
         if ((do_square_split || do_rectangular_split) &&
-            !x->e_mbd.lossless[xd->mi[0]->segment_id] && ctx_none->skippable) {
+            !x->e_mbd.lossless[xd->mi[0]->segment_id]) {
           const int use_ml_based_breakout =
               bsize <= cpi->sf.use_square_partition_only_threshold &&
               bsize > BLOCK_4X4 && xd->bd == 8;
@@ -4383,10 +4385,12 @@ BEGIN_PARTITION_SEARCH:
           // search is terminated for current branch of the partition search
           // tree. The dist & rate thresholds are set to 0 at speed 0 to
           // disable the early termination at that speed.
-          if (best_rdc.dist < dist_breakout_thr &&
-              best_rdc.rate < rate_breakout_thr) {
-            do_square_split = 0;
-            do_rectangular_split = 0;
+          if (ctx_none->skippable) {
+            if (best_rdc.dist < dist_breakout_thr &&
+                best_rdc.rate < rate_breakout_thr) {
+              do_square_split = 0;
+              do_rectangular_split = 0;
+            }
           }
         }
 
