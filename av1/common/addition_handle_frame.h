@@ -21,6 +21,14 @@
 extern "C" {
 #endif
 
+// Minimum base_qindex needed to run CNN_RESTORATION.
+#define MIN_CNN_Q_INDEX 100
+
+INLINE int av1_use_cnn(const AV1_COMMON *cm) {
+  return (cm->base_qindex > MIN_CNN_Q_INDEX) &&
+         (cm->width == cm->superres_upscaled_width);
+}
+
 void addition_handle_frame(AV1_COMMON *cm, FRAME_TYPE frame_type);
 
 void addition_handle_blocks(AV1_COMMON *cm, FRAME_TYPE frame_type);
