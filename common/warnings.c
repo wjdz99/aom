@@ -74,6 +74,25 @@ static void check_quantizer(int min_q, int max_q,
     add_warning(quantizer_warning_string, warning_list);
 }
 
+#if CONFIG_FILEOPTIONS
+static const char sbsize_warning_string[] =
+    "SuperBlockSize has to be 64 or 128.";
+static const char partsize_warning_string[] =
+    "MinPartitionSize has to be smaller or equal to MaxPartitionSize.";
+static const char maxpartsize_warning_string[] =
+    "MaxPartitionSize has to be smaller or equal to SuperBlockSize.";
+
+static void check_config(const cfg_options_t *pCfg,
+                         struct WarningList *warning_list) {
+  if (pCfg->SuperBlockSize != 128 && pCfg->SuperBlockSize != 64)
+    add_warning(sbsize_warning_string, warning_list);
+  if (pCfg->MinPartitionSize > pCfg->MaxPartitionSize)
+    add_warning(partsize_warning_string, warning_list);
+  if (pCfg->MaxPartitionSize > pCfg->SuperBlockSize)
+    add_warning(maxpartsize_warning_string, warning_list);
+}
+#endif
+
 void check_encoder_config(int disable_prompt,
                           const struct AvxEncoderConfig *global_config,
                           const struct aom_codec_enc_cfg *stream_config) {
@@ -83,6 +102,11 @@ void check_encoder_config(int disable_prompt,
   (void)global_config;
   check_quantizer(stream_config->rc_min_quantizer,
                   stream_config->rc_max_quantizer, &warning_list);
+
+#if CONFIG_FILEOPTIONS
+  check_config(&stream_config->encoder_cfg, &warning_list);
+#endif
+
   /* Count and print warnings. */
   for (warning = warning_list.warning_node; warning != NULL;
        warning = warning->next_warning, ++num_warnings) {
