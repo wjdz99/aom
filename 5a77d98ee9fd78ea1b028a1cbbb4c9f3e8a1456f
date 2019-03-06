@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c1c12f28_bb9b6222",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3264,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-03-06T23:29:15Z",
+      "side": 1,
+      "message": "Your change seems very similar to the existing one:\nif (dist_cost_estimate - (dist_cost_estimate \u003e\u003e 3) \u003e best_rd_) continue;\nexcept you try to consider rate \u0026 dist separately. Since rate is not available, you use eobs, but I am not confident that this is general enough and works for all videos.",
+      "range": {
+        "startLine": 3262,
+        "startChar": 6,
+        "endLine": 3264,
+        "endChar": 19
+      },
+      "revId": "5a77d98ee9fd78ea1b028a1cbbb4c9f3e8a1456f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
