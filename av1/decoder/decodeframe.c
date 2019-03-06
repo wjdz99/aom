@@ -5608,7 +5608,11 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 
   if (!cm->allow_intrabc && !cm->single_tile_decoding) {
 #if CONFIG_CNN_RESTORATION
-    addition_handle_blocks(cm, cm->cur_frame->frame_type);
+    if (cpi->rc.is_src_frame_alt_ref) {
+      addition_handle_blocks(cm, KEY_FRAME);
+    } else {
+      addition_handle_blocks(cm, cm->current_frame.frame_type);
+    }
 #else
     if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
       if (pbi->num_workers > 1) {
