@@ -36,6 +36,11 @@ extern "C" {
 #define DEFAULT_QM_FIRST 5
 #define DEFAULT_QM_LAST 9
 
+#if CONFIG_CNN_RESTORATION
+// Minimum base_qindex needed to run CNN_RESTORATION.
+#define MIN_CNN_Q_INDEX 100
+#endif  // CONFIG_CNN_RESTORATION
+
 struct AV1Common;
 
 int16_t av1_dc_quant_Q3(int qindex, int delta, aom_bit_depth_t bit_depth);
