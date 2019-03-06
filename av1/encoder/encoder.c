@@ -4301,7 +4301,6 @@ void av1_setup_frame_size(AV1_COMP *cpi) {
   setup_frame_size_from_params(cpi, &rsz);
 }
 
-#if !CONFIG_CNN_RESTORATION
 static void superres_post_encode(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
@@ -4349,6 +4348,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
                  cm->coded_lossless && cm->all_lossless));
 
   const int use_loopfilter = !cm->coded_lossless && !cm->large_scale_tile;
+  const int use_cnn = av1_use_cnn(cm);
   const int use_cdef = cm->seq_params.enable_cdef && !cm->coded_lossless &&
                        !cm->large_scale_tile;
   const int use_restoration = cm->seq_params.enable_restoration &&
@@ -4388,46 +4388,53 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
                             0, num_planes, 0);
   }
 
-  if (use_restoration)
-    av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 0);
-
-  if (use_cdef) {
-    // Find CDEF parameters
-    av1_cdef_search(&cm->cur_frame->buf, cpi->source, cm, xd,
-                    cpi->sf.fast_cdef_search);
-
-    // Apply the filter
-    av1_cdef_frame(&cm->cur_frame->buf, cm, xd);
+#if CONFIG_CNN_RESTORATION
+  if (use_cnn) {
+    addition_handle_blocks(cm, cm->current_frame.frame_type);
   } else {
-    cm->cdef_info.cdef_bits = 0;
-    cm->cdef_info.cdef_strengths[0] = 0;
-    cm->cdef_info.nb_cdef_strengths = 1;
-    cm->cdef_info.cdef_uv_strengths[0] = 0;
-  }
+#endif  // CONFIG_CNN_RESTORATION
+    if (use_restoration)
+      av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 0);
 
-  superres_post_encode(cpi);
+    if (use_cdef) {
+      // Find CDEF parameters
+      av1_cdef_search(&cm->cur_frame->buf, cpi->source, cm, xd,
+                      cpi->sf.fast_cdef_search);
 
-  if (use_restoration) {
-    av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 1);
-    av1_pick_filter_restoration(cpi->source, cpi);
-    if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
-        cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
-        cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
-      if (cpi->num_workers > 1)
-        av1_loop_restoration_filter_frame_mt(&cm->cur_frame->buf, cm, 0,
-                                             cpi->workers, cpi->num_workers,
-                                             &cpi->lr_row_sync, &cpi->lr_ctxt);
-      else
-        av1_loop_restoration_filter_frame(&cm->cur_frame->buf, cm, 0,
-                                          &cpi->lr_ctxt);
+      // Apply the filter
+      av1_cdef_frame(&cm->cur_frame->buf, cm, xd);
+    } else {
+      cm->cdef_info.cdef_bits = 0;
+      cm->cdef_info.cdef_strengths[0] = 0;
+      cm->cdef_info.nb_cdef_strengths = 1;
+      cm->cdef_info.cdef_uv_strengths[0] = 0;
     }
-  } else {
-    cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
-    cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
-    cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+
+    superres_post_encode(cpi);
+
+    if (use_restoration) {
+      av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 1);
+      av1_pick_filter_restoration(cpi->source, cpi);
+      if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
+          cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
+          cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
+        if (cpi->num_workers > 1)
+          av1_loop_restoration_filter_frame_mt(
+              &cm->cur_frame->buf, cm, 0, cpi->workers, cpi->num_workers,
+              &cpi->lr_row_sync, &cpi->lr_ctxt);
+        else
+          av1_loop_restoration_filter_frame(&cm->cur_frame->buf, cm, 0,
+                                            &cpi->lr_ctxt);
+      }
+    } else {
+      cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
+      cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
+      cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+    }
+#if CONFIG_CNN_RESTORATION
   }
+#endif  // CONFIG_CNN_RESTORATION
 }
-#endif  // !CONFIG_CNN_RESTORATION
 
 static int get_refresh_frame_flags(const AV1_COMP *const cpi) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -5342,11 +5349,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
   // Pick the loop filter level for the frame.
   if (!cm->allow_intrabc) {
-#if CONFIG_CNN_RESTORATION
-    addition_handle_blocks(cm, cm->cur_frame->frame_type);
-#else
     loopfilter_frame(cpi, cm);
-#endif  // CONFIG_CNN_RESTORATION
   } else {
     cm->lf.filter_level[0] = 0;
     cm->lf.filter_level[1] = 0;
