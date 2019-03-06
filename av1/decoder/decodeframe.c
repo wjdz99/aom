@@ -5607,73 +5607,74 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
   }
 
   if (!cm->allow_intrabc && !cm->single_tile_decoding) {
-#if CONFIG_CNN_RESTORATION
-    addition_handle_blocks(cm, cm->cur_frame->frame_type);
-#else
-    if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
-      if (pbi->num_workers > 1) {
-        av1_loop_filter_frame_mt(
-            &cm->cur_frame->buf, cm, &pbi->mb, 0, num_planes, 0,
-#if LOOP_FILTER_BITMASK
-            1,
-#endif
-            pbi->tile_workers, pbi->num_workers, &pbi->lf_row_sync);
-      } else {
-        av1_loop_filter_frame(&cm->cur_frame->buf, cm, &pbi->mb,
-#if LOOP_FILTER_BITMASK
-                              1,
-#endif
-                              0, num_planes, 0);
-      }
-    }
-
-    const int do_loop_restoration =
-        cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
-        cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
-        cm->rst_info[2].frame_restoration_type != RESTORE_NONE;
-    const int do_cdef =
-        !cm->skip_loop_filter && !cm->coded_lossless &&
-        (cm->cdef_info.cdef_bits || cm->cdef_info.cdef_strengths[0] ||
-         cm->cdef_info.cdef_uv_strengths[0]);
-    const int do_superres = av1_superres_scaled(cm);
-    const int optimized_loop_restoration = !do_cdef && !do_superres;
-
-    if (!optimized_loop_restoration) {
-      if (do_loop_restoration)
-        av1_loop_restoration_save_boundary_lines(&pbi->common.cur_frame->buf,
-                                                 cm, 0);
-
-      if (do_cdef) av1_cdef_frame(&pbi->common.cur_frame->buf, cm, &pbi->mb);
-
-      superres_post_decode(pbi);
-
-      if (do_loop_restoration) {
-        av1_loop_restoration_save_boundary_lines(&pbi->common.cur_frame->buf,
-                                                 cm, 1);
+    if (cm->base_qindex >= 100) {
+      addition_handle_blocks(cm, cm->cur_frame->frame_type);
+    } else {
+      if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
         if (pbi->num_workers > 1) {
-          av1_loop_restoration_filter_frame_mt(
-              (YV12_BUFFER_CONFIG *)xd->cur_buf, cm, optimized_loop_restoration,
-              pbi->tile_workers, pbi->num_workers, &pbi->lr_row_sync,
-              &pbi->lr_ctxt);
+          av1_loop_filter_frame_mt(
+              &cm->cur_frame->buf, cm, &pbi->mb, 0, num_planes, 0,
+#if LOOP_FILTER_BITMASK
+              1,
+#endif
+              pbi->tile_workers, pbi->num_workers, &pbi->lf_row_sync);
         } else {
-          av1_loop_restoration_filter_frame((YV12_BUFFER_CONFIG *)xd->cur_buf,
-                                            cm, optimized_loop_restoration,
-                                            &pbi->lr_ctxt);
+          av1_loop_filter_frame(&cm->cur_frame->buf, cm, &pbi->mb,
+#if LOOP_FILTER_BITMASK
+                                1,
+#endif
+                                0, num_planes, 0);
         }
       }
-    } else {
-      // In no cdef and no superres case. Provide an optimized version of
-      // loop_restoration_filter.
-      if (do_loop_restoration) {
-        if (pbi->num_workers > 1) {
-          av1_loop_restoration_filter_frame_mt(
-              (YV12_BUFFER_CONFIG *)xd->cur_buf, cm, optimized_loop_restoration,
-              pbi->tile_workers, pbi->num_workers, &pbi->lr_row_sync,
-              &pbi->lr_ctxt);
-        } else {
-          av1_loop_restoration_filter_frame((YV12_BUFFER_CONFIG *)xd->cur_buf,
-                                            cm, optimized_loop_restoration,
-                                            &pbi->lr_ctxt);
+
+      const int do_loop_restoration =
+          cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
+          cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
+          cm->rst_info[2].frame_restoration_type != RESTORE_NONE;
+      const int do_cdef =
+          !cm->skip_loop_filter && !cm->coded_lossless &&
+          (cm->cdef_info.cdef_bits || cm->cdef_info.cdef_strengths[0] ||
+           cm->cdef_info.cdef_uv_strengths[0]);
+      const int do_superres = av1_superres_scaled(cm);
+      const int optimized_loop_restoration = !do_cdef && !do_superres;
+
+      if (!optimized_loop_restoration) {
+        if (do_loop_restoration)
+          av1_loop_restoration_save_boundary_lines(&pbi->common.cur_frame->buf,
+                                                   cm, 0);
+
+        if (do_cdef) av1_cdef_frame(&pbi->common.cur_frame->buf, cm, &pbi->mb);
+
+        superres_post_decode(pbi);
+
+        if (do_loop_restoration) {
+          av1_loop_restoration_save_boundary_lines(&pbi->common.cur_frame->buf,
+                                                   cm, 1);
+          if (pbi->num_workers > 1) {
+            av1_loop_restoration_filter_frame_mt(
+                (YV12_BUFFER_CONFIG *)xd->cur_buf, cm,
+                optimized_loop_restoration, pbi->tile_workers, pbi->num_workers,
+                &pbi->lr_row_sync, &pbi->lr_ctxt);
+          } else {
+            av1_loop_restoration_filter_frame((YV12_BUFFER_CONFIG *)xd->cur_buf,
+                                              cm, optimized_loop_restoration,
+                                              &pbi->lr_ctxt);
+          }
+        }
+      } else {
+        // In no cdef and no superres case. Provide an optimized version of
+        // loop_restoration_filter.
+        if (do_loop_restoration) {
+          if (pbi->num_workers > 1) {
+            av1_loop_restoration_filter_frame_mt(
+                (YV12_BUFFER_CONFIG *)xd->cur_buf, cm,
+                optimized_loop_restoration, pbi->tile_workers, pbi->num_workers,
+                &pbi->lr_row_sync, &pbi->lr_ctxt);
+          } else {
+            av1_loop_restoration_filter_frame((YV12_BUFFER_CONFIG *)xd->cur_buf,
+                                              cm, optimized_loop_restoration,
+                                              &pbi->lr_ctxt);
+          }
         }
       }
     }

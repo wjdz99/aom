@@ -262,6 +262,7 @@ void block_call_tensorflow(uint8_t **buf, uint8_t *ppp, int cur_buf_height,
     printf("Python init failed!\n");
     return;
   }
+
   pModule = PyImport_ImportModule("TEST");
 
   // PyEval_InitThreads();
