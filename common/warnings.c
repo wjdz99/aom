@@ -83,6 +83,7 @@ void check_encoder_config(int disable_prompt,
   (void)global_config;
   check_quantizer(stream_config->rc_min_quantizer,
                   stream_config->rc_max_quantizer, &warning_list);
+
   /* Count and print warnings. */
   for (warning = warning_list.warning_node; warning != NULL;
        warning = warning->next_warning, ++num_warnings) {
