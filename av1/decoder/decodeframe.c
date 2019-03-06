@@ -121,12 +121,10 @@ static void set_planes_to_neutral_grey(const SequenceHeader *const seq_params,
   }
 }
 
-#if !CONFIG_CNN_RESTORATION
 static void loop_restoration_read_sb_coeffs(const AV1_COMMON *const cm,
                                             MACROBLOCKD *xd,
                                             aom_reader *const r, int plane,
                                             int runit_idx);
-#endif  // !CONFIG_CNN_RESTORATION
 
 static void setup_compound_reference_mode(AV1_COMMON *cm) {
   cm->comp_fwd_ref[0] = LAST_FRAME;
@@ -1762,7 +1760,6 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
   };
 
   if (parse_decode_flag & 1) {
-#if !CONFIG_CNN_RESTORATION
     const int num_planes = av1_num_planes(cm);
     for (int plane = 0; plane < num_planes; ++plane) {
       int rcol0, rcol1, rrow0, rrow1;
@@ -1777,25 +1774,26 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
         }
       }
     }
-#endif  // !CONFIG_CNN_RESTORATION
-
-    partition = (bsize < BLOCK_8X8) ? PARTITION_NONE
-                                    : read_partition(xd, mi_row, mi_col, reader,
-                                                     has_rows, has_cols, bsize);
-  } else {
-    partition = get_partition(cm, mi_row, mi_col, bsize);
   }
-  subsize = get_partition_subsize(bsize, partition);
 
-  // Check the bitstream is conformant: if there is subsampling on the
-  // chroma planes, subsize must subsample to a valid block size.
-  const struct macroblockd_plane *const pd_u = &xd->plane[1];
-  if (get_plane_block_size(subsize, pd_u->subsampling_x, pd_u->subsampling_y) ==
-      BLOCK_INVALID) {
-    aom_internal_error(xd->error_info, AOM_CODEC_CORRUPT_FRAME,
-                       "Block size %dx%d invalid with this subsampling mode",
-                       block_size_wide[subsize], block_size_high[subsize]);
-  }
+  partition = (bsize < BLOCK_8X8) ? PARTITION_NONE
+                                  : read_partition(xd, mi_row, mi_col, reader,
+                                                   has_rows, has_cols, bsize);
+}
+else {
+  partition = get_partition(cm, mi_row, mi_col, bsize);
+}
+subsize = get_partition_subsize(bsize, partition);
+
+// Check the bitstream is conformant: if there is subsampling on the
+// chroma planes, subsize must subsample to a valid block size.
+const struct macroblockd_plane *const pd_u = &xd->plane[1];
+if (get_plane_block_size(subsize, pd_u->subsampling_x, pd_u->subsampling_y) ==
+    BLOCK_INVALID) {
+  aom_internal_error(xd->error_info, AOM_CODEC_CORRUPT_FRAME,
+                     "Block size %dx%d invalid with this subsampling mode",
+                     block_size_wide[subsize], block_size_high[subsize]);
+}
 
 #define DEC_BLOCK_STX_ARG
 #define DEC_BLOCK_EPT_ARG partition,
@@ -1806,66 +1804,66 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
   decode_partition(pbi, td, DEC_BLOCK_STX_ARG(db_r), (db_c), reader, \
                    (db_subsize), parse_decode_flag)
 
-  switch (partition) {
-    case PARTITION_NONE: DEC_BLOCK(mi_row, mi_col, subsize); break;
-    case PARTITION_HORZ:
-      DEC_BLOCK(mi_row, mi_col, subsize);
-      if (has_rows) DEC_BLOCK(mi_row + hbs, mi_col, subsize);
-      break;
-    case PARTITION_VERT:
-      DEC_BLOCK(mi_row, mi_col, subsize);
-      if (has_cols) DEC_BLOCK(mi_row, mi_col + hbs, subsize);
-      break;
-    case PARTITION_SPLIT:
-      DEC_PARTITION(mi_row, mi_col, subsize);
-      DEC_PARTITION(mi_row, mi_col + hbs, subsize);
-      DEC_PARTITION(mi_row + hbs, mi_col, subsize);
-      DEC_PARTITION(mi_row + hbs, mi_col + hbs, subsize);
-      break;
-    case PARTITION_HORZ_A:
-      DEC_BLOCK(mi_row, mi_col, bsize2);
-      DEC_BLOCK(mi_row, mi_col + hbs, bsize2);
-      DEC_BLOCK(mi_row + hbs, mi_col, subsize);
-      break;
-    case PARTITION_HORZ_B:
-      DEC_BLOCK(mi_row, mi_col, subsize);
-      DEC_BLOCK(mi_row + hbs, mi_col, bsize2);
-      DEC_BLOCK(mi_row + hbs, mi_col + hbs, bsize2);
-      break;
-    case PARTITION_VERT_A:
-      DEC_BLOCK(mi_row, mi_col, bsize2);
-      DEC_BLOCK(mi_row + hbs, mi_col, bsize2);
-      DEC_BLOCK(mi_row, mi_col + hbs, subsize);
-      break;
-    case PARTITION_VERT_B:
-      DEC_BLOCK(mi_row, mi_col, subsize);
-      DEC_BLOCK(mi_row, mi_col + hbs, bsize2);
-      DEC_BLOCK(mi_row + hbs, mi_col + hbs, bsize2);
-      break;
-    case PARTITION_HORZ_4:
-      for (int i = 0; i < 4; ++i) {
-        int this_mi_row = mi_row + i * quarter_step;
-        if (i > 0 && this_mi_row >= cm->mi_rows) break;
-        DEC_BLOCK(this_mi_row, mi_col, subsize);
-      }
-      break;
-    case PARTITION_VERT_4:
-      for (int i = 0; i < 4; ++i) {
-        int this_mi_col = mi_col + i * quarter_step;
-        if (i > 0 && this_mi_col >= cm->mi_cols) break;
-        DEC_BLOCK(mi_row, this_mi_col, subsize);
-      }
-      break;
-    default: assert(0 && "Invalid partition type");
-  }
+switch (partition) {
+  case PARTITION_NONE: DEC_BLOCK(mi_row, mi_col, subsize); break;
+  case PARTITION_HORZ:
+    DEC_BLOCK(mi_row, mi_col, subsize);
+    if (has_rows) DEC_BLOCK(mi_row + hbs, mi_col, subsize);
+    break;
+  case PARTITION_VERT:
+    DEC_BLOCK(mi_row, mi_col, subsize);
+    if (has_cols) DEC_BLOCK(mi_row, mi_col + hbs, subsize);
+    break;
+  case PARTITION_SPLIT:
+    DEC_PARTITION(mi_row, mi_col, subsize);
+    DEC_PARTITION(mi_row, mi_col + hbs, subsize);
+    DEC_PARTITION(mi_row + hbs, mi_col, subsize);
+    DEC_PARTITION(mi_row + hbs, mi_col + hbs, subsize);
+    break;
+  case PARTITION_HORZ_A:
+    DEC_BLOCK(mi_row, mi_col, bsize2);
+    DEC_BLOCK(mi_row, mi_col + hbs, bsize2);
+    DEC_BLOCK(mi_row + hbs, mi_col, subsize);
+    break;
+  case PARTITION_HORZ_B:
+    DEC_BLOCK(mi_row, mi_col, subsize);
+    DEC_BLOCK(mi_row + hbs, mi_col, bsize2);
+    DEC_BLOCK(mi_row + hbs, mi_col + hbs, bsize2);
+    break;
+  case PARTITION_VERT_A:
+    DEC_BLOCK(mi_row, mi_col, bsize2);
+    DEC_BLOCK(mi_row + hbs, mi_col, bsize2);
+    DEC_BLOCK(mi_row, mi_col + hbs, subsize);
+    break;
+  case PARTITION_VERT_B:
+    DEC_BLOCK(mi_row, mi_col, subsize);
+    DEC_BLOCK(mi_row, mi_col + hbs, bsize2);
+    DEC_BLOCK(mi_row + hbs, mi_col + hbs, bsize2);
+    break;
+  case PARTITION_HORZ_4:
+    for (int i = 0; i < 4; ++i) {
+      int this_mi_row = mi_row + i * quarter_step;
+      if (i > 0 && this_mi_row >= cm->mi_rows) break;
+      DEC_BLOCK(this_mi_row, mi_col, subsize);
+    }
+    break;
+  case PARTITION_VERT_4:
+    for (int i = 0; i < 4; ++i) {
+      int this_mi_col = mi_col + i * quarter_step;
+      if (i > 0 && this_mi_col >= cm->mi_cols) break;
+      DEC_BLOCK(mi_row, this_mi_col, subsize);
+    }
+    break;
+  default: assert(0 && "Invalid partition type");
+}
 
 #undef DEC_PARTITION
 #undef DEC_BLOCK
 #undef DEC_BLOCK_EPT_ARG
 #undef DEC_BLOCK_STX_ARG
 
-  if (parse_decode_flag & 1)
-    update_ext_partition_context(xd, mi_row, mi_col, subsize, bsize, partition);
+if (parse_decode_flag & 1)
+  update_ext_partition_context(xd, mi_row, mi_col, subsize, bsize, partition);
 }
 
 static void setup_bool_decoder(const uint8_t *data, const uint8_t *data_end,
@@ -1959,7 +1957,6 @@ static void setup_segmentation(AV1_COMMON *const cm,
   segfeatures_copy(&cm->cur_frame->seg, seg);
 }
 
-#if !CONFIG_CNN_RESTORATION
 static void decode_restoration_mode(AV1_COMMON *cm,
                                     struct aom_read_bit_buffer *rb) {
   assert(!cm->all_lossless);
@@ -2221,7 +2218,6 @@ static void setup_cdef(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
         num_planes > 1 ? aom_rb_read_literal(rb, CDEF_STRENGTH_BITS) : 0;
   }
 }
-#endif  // !CONFIG_CNN_RESTORATION
 
 static INLINE int read_delta_q(struct aom_read_bit_buffer *rb) {
   return aom_rb_read_bit(rb) ? aom_rb_read_inv_signed_literal(rb, 6) : 0;
@@ -5395,7 +5391,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
   }
-#if !CONFIG_CNN_RESTORATION
+
   setup_loopfilter(cm, rb);
 
   if (!cm->coded_lossless && seq_params->enable_cdef) {
@@ -5404,7 +5400,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   if (!cm->all_lossless && seq_params->enable_restoration) {
     decode_restoration_mode(cm, rb);
   }
-#endif
 
   cm->tx_mode = read_tx_mode(cm, rb);
   current_frame->reference_mode = read_frame_reference_mode(cm, rb);
@@ -5464,7 +5459,6 @@ BITSTREAM_PROFILE av1_read_profile(struct aom_read_bit_buffer *rb) {
   return (BITSTREAM_PROFILE)profile;
 }
 
-#if !CONFIG_CNN_RESTORATION
 static void superres_post_decode(AV1Decoder *pbi) {
   AV1_COMMON *const cm = &pbi->common;
   BufferPool *const pool = cm->buffer_pool;
@@ -5476,7 +5470,6 @@ static void superres_post_decode(AV1Decoder *pbi) {
   av1_superres_upscale(cm, pool);
   unlock_buffer_pool(pool);
 }
-#endif  // !CONFIG_CNN_RESTORATION
 
 uint32_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
                                             struct aom_read_bit_buffer *rb,
@@ -5607,9 +5600,6 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
   }
 
   if (!cm->allow_intrabc && !cm->single_tile_decoding) {
-#if CONFIG_CNN_RESTORATION
-    addition_handle_blocks(cm, cm->cur_frame->frame_type);
-#else
     if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
       if (pbi->num_workers > 1) {
         av1_loop_filter_frame_mt(
@@ -5627,58 +5617,66 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
       }
     }
 
-    const int do_loop_restoration =
-        cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
-        cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
-        cm->rst_info[2].frame_restoration_type != RESTORE_NONE;
-    const int do_cdef =
-        !cm->skip_loop_filter && !cm->coded_lossless &&
-        (cm->cdef_info.cdef_bits || cm->cdef_info.cdef_strengths[0] ||
-         cm->cdef_info.cdef_uv_strengths[0]);
-    const int do_superres = av1_superres_scaled(cm);
-    const int optimized_loop_restoration = !do_cdef && !do_superres;
-
-    if (!optimized_loop_restoration) {
-      if (do_loop_restoration)
-        av1_loop_restoration_save_boundary_lines(&pbi->common.cur_frame->buf,
-                                                 cm, 0);
-
-      if (do_cdef) av1_cdef_frame(&pbi->common.cur_frame->buf, cm, &pbi->mb);
-
-      superres_post_decode(pbi);
-
-      if (do_loop_restoration) {
-        av1_loop_restoration_save_boundary_lines(&pbi->common.cur_frame->buf,
-                                                 cm, 1);
-        if (pbi->num_workers > 1) {
-          av1_loop_restoration_filter_frame_mt(
-              (YV12_BUFFER_CONFIG *)xd->cur_buf, cm, optimized_loop_restoration,
-              pbi->tile_workers, pbi->num_workers, &pbi->lr_row_sync,
-              &pbi->lr_ctxt);
-        } else {
-          av1_loop_restoration_filter_frame((YV12_BUFFER_CONFIG *)xd->cur_buf,
-                                            cm, optimized_loop_restoration,
-                                            &pbi->lr_ctxt);
-        }
-      }
+#if CONFIG_CNN_RESTORATION
+    if (av1_use_cnn(cm)) {
+      addition_handle_blocks(cm, cm->cur_frame->frame_type);
     } else {
-      // In no cdef and no superres case. Provide an optimized version of
-      // loop_restoration_filter.
-      if (do_loop_restoration) {
-        if (pbi->num_workers > 1) {
-          av1_loop_restoration_filter_frame_mt(
-              (YV12_BUFFER_CONFIG *)xd->cur_buf, cm, optimized_loop_restoration,
-              pbi->tile_workers, pbi->num_workers, &pbi->lr_row_sync,
-              &pbi->lr_ctxt);
-        } else {
-          av1_loop_restoration_filter_frame((YV12_BUFFER_CONFIG *)xd->cur_buf,
-                                            cm, optimized_loop_restoration,
-                                            &pbi->lr_ctxt);
+#endif  // CONFIG_CNN_RESTORATION
+
+      const int do_loop_restoration =
+          cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
+          cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
+          cm->rst_info[2].frame_restoration_type != RESTORE_NONE;
+      const int do_cdef =
+          !cm->skip_loop_filter && !cm->coded_lossless &&
+          (cm->cdef_info.cdef_bits || cm->cdef_info.cdef_strengths[0] ||
+           cm->cdef_info.cdef_uv_strengths[0]);
+      const int do_superres = av1_superres_scaled(cm);
+      const int optimized_loop_restoration = !do_cdef && !do_superres;
+
+      if (!optimized_loop_restoration) {
+        if (do_loop_restoration)
+          av1_loop_restoration_save_boundary_lines(&pbi->common.cur_frame->buf,
+                                                   cm, 0);
+
+        if (do_cdef) av1_cdef_frame(&pbi->common.cur_frame->buf, cm, &pbi->mb);
+
+        superres_post_decode(pbi);
+
+        if (do_loop_restoration) {
+          av1_loop_restoration_save_boundary_lines(&pbi->common.cur_frame->buf,
+                                                   cm, 1);
+          if (pbi->num_workers > 1) {
+            av1_loop_restoration_filter_frame_mt(
+                (YV12_BUFFER_CONFIG *)xd->cur_buf, cm,
+                optimized_loop_restoration, pbi->tile_workers, pbi->num_workers,
+                &pbi->lr_row_sync, &pbi->lr_ctxt);
+          } else {
+            av1_loop_restoration_filter_frame((YV12_BUFFER_CONFIG *)xd->cur_buf,
+                                              cm, optimized_loop_restoration,
+                                              &pbi->lr_ctxt);
+          }
+        }
+      } else {
+        // In no cdef and no superres case. Provide an optimized version of
+        // loop_restoration_filter.
+        if (do_loop_restoration) {
+          if (pbi->num_workers > 1) {
+            av1_loop_restoration_filter_frame_mt(
+                (YV12_BUFFER_CONFIG *)xd->cur_buf, cm,
+                optimized_loop_restoration, pbi->tile_workers, pbi->num_workers,
+                &pbi->lr_row_sync, &pbi->lr_ctxt);
+          } else {
+            av1_loop_restoration_filter_frame((YV12_BUFFER_CONFIG *)xd->cur_buf,
+                                              cm, optimized_loop_restoration,
+                                              &pbi->lr_ctxt);
+          }
         }
       }
     }
-#endif  // CONFIG_CNN_RESTORATION
+#if CONFIG_CNN_RESTORATION
   }
+#endif  // CONFIG_CNN_RESTORATION
 #if LOOP_FILTER_BITMASK
   av1_zero_array(cm->lf.lfm, cm->lf.lfm_num);
 #endif
