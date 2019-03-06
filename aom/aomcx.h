@@ -719,6 +719,38 @@ enum aome_enc_control_id {
    */
   AV1E_SET_ENABLE_RECT_PARTITIONS,
 
+  /*!\brief Codec control function to enable/disable T shape partitions.
+    *
+    * This will enable or disable usage of T shape partitions. The default
+    * value is 1.
+    *
+    */
+  AV1E_SET_ENABLE_TSHAPE_PARTITIONS,
+
+  /*!\brief Codec control function to enable/disable 1:4 and 4:1 partitions.
+    *
+    * This will enable or disable usage of 1:4 and 4:1 partitions. The default
+    * value is 1.
+    *
+    */
+  AV1E_SET_ENABLE_1TO4_PARTITIONS,
+
+  /*!\brief Codec control function to set min partition size.
+    *
+    * This will set min partition size. The default value is 4.
+    * valid values are [4, 8, 16, 32, 64, 128]
+    *
+    */
+  AV1E_SET_MIN_PARTITION_SIZE,
+
+  /*!\brief Codec control function to set max partition size.
+    *
+    * This will set max partition size. The default value is 128.
+    * valid values are [4, 8, 16, 32, 64, 128]
+    *
+    */
+  AV1E_SET_MAX_PARTITION_SIZE,
+
   /*!\brief Codec control function to turn on / off intra edge filter
    * at sequence level.
    *
@@ -747,6 +779,14 @@ enum aome_enc_control_id {
    *
    */
   AV1E_SET_ENABLE_TX64,
+
+  /*!\brief Codec control function to turn on / off extended transforms.
+    *
+    * This will enable or disable usage of extended transforms in any
+    * direction. The default value is 1.
+    *
+    */
+  AV1E_SET_ENABLE_EXTTX,
 
   /*!\brief Codec control function to turn on / off dist-wtd compound mode
    * at sequence level.
@@ -1227,6 +1267,18 @@ AOM_CTRL_USE_TYPE(AV1E_SET_TIMING_INFO_TYPE, int) /* aom_timing_info_type_t */
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_RECT_PARTITIONS, unsigned int)
 #define AOM_CTRL_AV1E_SET_ENABLE_RECT_PARTITIONS
 
+AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_TSHAPE_PARTITIONS, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENABLE_TSHAPE_PARTITIONS
+
+AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_1TO4_PARTITIONS, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENABLE_1TO4_PARTITIONS
+
+AOM_CTRL_USE_TYPE(AV1E_SET_MIN_PARTITION_SIZE, unsigned int)
+#define AOM_CTRL_AV1E_SET_MIN_PARTITION_SIZE
+
+AOM_CTRL_USE_TYPE(AV1E_SET_MAX_PARTITION_SIZE, unsigned int)
+#define AOM_CTRL_AV1E_SET_MAX_PARTITION_SIZE
+
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_INTRA_EDGE_FILTER, unsigned int)
 #define AOM_CTRL_AV1E_SET_ENABLE_INTRA_EDGE_FILTER
 
@@ -1235,6 +1287,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_ORDER_HINT, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_TX64, unsigned int)
 #define AOM_CTRL_AV1E_SET_ENABLE_TX64
+
+AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_EXTTX, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENABLE_EXTTX
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_DIST_WTD_COMP, unsigned int)
 #define AOM_CTRL_AV1E_SET_ENABLE_DIST_WTD_COMP

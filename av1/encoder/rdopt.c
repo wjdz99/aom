@@ -3189,6 +3189,13 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       }
     }
   }
+
+  if (cpi->oxcf.enable_ext_tx == 0) {
+    for (TX_TYPE tx_type = FLIPADST_DCT; tx_type <= H_FLIPADST; ++tx_type) {
+      allowed_tx_mask &= ~(1<<tx_type);
+    }
+  }
+
   // Need to have at least one transform type allowed.
   if (allowed_tx_mask == 0) {
     txk_start = txk_end = (plane ? uv_tx_type : DCT_DCT);
@@ -3982,7 +3989,9 @@ static int intra_mode_info_cost_y(const AV1_COMP *cpi, const MACROBLOCK *x,
   assert(((mbmi->mode != DC_PRED) + use_palette + use_intrabc +
           use_filter_intra) <= 1);
   const int try_palette =
+      cpi->oxcf.enable_palette &&
       av1_allow_palette(cpi->common.allow_screen_content_tools, mbmi->sb_type);
+
   if (try_palette && mbmi->mode == DC_PRED) {
     const MACROBLOCKD *xd = &x->e_mbd;
     const int bsize_ctx = av1_get_palette_bsize_ctx(bsize);
@@ -4037,7 +4046,9 @@ static int intra_mode_info_cost_uv(const AV1_COMP *cpi, const MACROBLOCK *x,
   assert(((mode != UV_DC_PRED) + use_palette + mbmi->use_intrabc) <= 1);
 
   const int try_palette =
+      cpi->oxcf.enable_palette &&
       av1_allow_palette(cpi->common.allow_screen_content_tools, mbmi->sb_type);
+
   if (try_palette && mode == UV_DC_PRED) {
     const PALETTE_MODE_INFO *pmi = &mbmi->palette_mode_info;
     total_rate +=
@@ -6454,6 +6465,12 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     const int is_directional_mode = av1_is_directional_mode(get_uv_mode(mode));
     if (!(cpi->sf.intra_uv_mode_mask[txsize_sqr_up_map[max_tx_size]] &
           (1 << mode)))
+      continue;
+    if (!cpi->oxcf.enable_smooth_intra && mode >= UV_SMOOTH_PRED &&
+      mode <= UV_SMOOTH_H_PRED)
+      continue;
+
+    if (!cpi->oxcf.enable_paeth_intra && mode == UV_PAETH_PRED)
       continue;
 
     mbmi->uv_mode = mode;
@@ -10898,6 +10915,12 @@ static void rd_pick_skip_mode(RD_STATS *rd_cost,
     return;
   }
 
+#if CONFIG_FILEOPTIONS
+  if (cpi->oxcf.encoder_cfg->DisableOneSidedComp && cpi->all_one_sided_refs) {
+    return;
+  }
+#endif
+
   mbmi->mode = this_mode;
   mbmi->uv_mode = UV_DC_PRED;
   mbmi->ref_frame[0] = ref_frame;
@@ -11971,6 +11994,27 @@ static int inter_mode_search_order_independent_skip(
   if (skip_motion_mode) {
     return 2;
   }
+
+  if (!cpi->oxcf.enable_smooth_intra && this_mode >= SMOOTH_PRED &&
+    this_mode <= SMOOTH_H_PRED) {
+    return 1;
+  }
+
+  if (!cpi->oxcf.enable_paeth_intra && this_mode == PAETH_PRED) {
+    return 1;
+  }
+
+  if (!cpi->oxcf.enable_global_motion &&
+    (this_mode == GLOBALMV || this_mode == GLOBAL_GLOBALMV)) {
+    return 1;
+  }
+
+#if CONFIG_FILEOPTIONS
+  if (cpi->oxcf.encoder_cfg->DisableOneSidedComp && comp_pred && cpi->all_one_sided_refs) {
+    return 1;
+  }
+#endif
+
   return 0;
 }
 
@@ -12006,6 +12050,7 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
   assert(mbmi->ref_frame[0] == INTRA_FRAME);
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
   const int try_palette =
+      cpi->oxcf.enable_palette &&
       av1_allow_palette(cm->allow_screen_content_tools, mbmi->sb_type);
   const int *const intra_mode_cost = x->mbmode_cost[size_group_lookup[bsize]];
   const int intra_cost_penalty = av1_get_intra_cost_penalty(

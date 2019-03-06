@@ -167,10 +167,12 @@ aom_codec_err_t aom_codec_enc_config_default(aom_codec_iface_t *iface,
     }
   }
 
+#if CONFIG_FILEOPTIONS
   /* default values */
   if (cfg) {
-    cfg->cfg.ext_partition = 1;
+    InitConfig(&cfg->encoder_cfg);
   }
+#endif
 
   return res;
 }

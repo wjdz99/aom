@@ -45,6 +45,7 @@ extern "C" {
 
 #include "aom/aom_image.h"
 #include "aom/aom_integer.h"
+#include "config/aom_config.h"
 
 /*!\brief Decorator indicating a function is deprecated */
 #ifndef AOM_DEPRECATED
@@ -503,18 +504,49 @@ typedef enum {
  */
 const char *aom_obu_type_to_string(OBU_TYPE type);
 
+#if CONFIG_FILEOPTIONS
 /*!\brief Config Options
  *
  * This type allows to enumerate and control options defined for control
  * via config file at runtime.
  */
 typedef struct cfg_options {
-  /*!\brief Reflects if ext_partition should be enabled
-   *
-   * If this value is non-zero it enabled the feature
-   */
-  unsigned int ext_partition;
+  unsigned int SuperBlockSize;
+  unsigned int MaxPartitionSize;  // max partition size(8, 16, 32, 64, 128)
+  unsigned int MinPartitionSize;  // min partition size(4, 8, 16, 32, 64)
+  unsigned int DisableTShapePartitionType;  // disable T Shape partition type
+  unsigned int DisableRectPartitionType;  // disable rectangle partition type
+  unsigned int Disable1to4PartitionType;  // disable 1to4 and 4to1 partition type
+  unsigned int DisableExtTx;  // disable extendeed trasnform type
+  unsigned int DisableCDEF;  // disable CDEF filter
+  unsigned int DisableLR;  // disable Loop Restoration Filter
+  unsigned int DisableOBMC;  // disable OBMC
+  unsigned int DisableWarpMotion;  // disable Warped Motion
+  unsigned int DisableGlobalMotion;  // disable global motion
+  unsigned int DisableDistWtdComp;  // disable distant weighted compound mode
+  unsigned int DisableDiffWtdComp;  // disable difference weighted compound mode
+  unsigned int DisableInterIntraComp;  // disable inter/intra compound mode.
+  unsigned int DisableMaskedComp;  // disable masked compound prediction
+  unsigned int DisableOneSidedComp;  // disable one sided compound mode
+  unsigned int DisablePalette;  // disable Palette
+  unsigned int DisableIBC;  // disable Intra Block Copy
+  unsigned int DisableCFL;  // disable chroma from luma prediction
+  unsigned int DisableSmoothIntra;  // disable intra smooth mode
+  unsigned int DisableFilterIntra;  // disable filter intra
+  unsigned int DisableDualFilter;  // disable dual interpolation filter
+  unsigned int DisableIntraAngleDelta;  // disable intra angle delta
+  unsigned int TxSizeSearchMethod;  // 0:FULL_RD, 1 : FAST_RD, 2 : USE_LARGEST
+  unsigned int DisableIntraEdgeFilter;  // disable intra edge filter
+  unsigned int DisableTx64x64;  // disable 64x64 transform
+  unsigned int DisableSmoothInterIntra;  // disable smooth inter/intra
+  unsigned int DisableInterInterWedge;  // disable inter/inter wedge comp
+  unsigned int DisableInterIntraWedge;  // disable inter/intra wedge comp
+  unsigned int DisablePaethIntra;  // disable paeth intra
+  unsigned int DisableTrellisQuant;  // disable trellis quantizaiton
 } cfg_options_t;
+
+void InitConfig(cfg_options_t *pConfig);
+#endif
 
 /*!@} - end defgroup codec*/
 #ifdef __cplusplus
