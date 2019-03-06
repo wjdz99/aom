@@ -677,6 +677,8 @@ typedef struct SPEED_FEATURES {
   // Enable/disable smooth intra modes.
   int disable_smooth_intra;
 
+  int clean_incomplete_exit;
+
   // use reduced ref set for real-time mode
   int use_real_time_ref_set;
 } SPEED_FEATURES;

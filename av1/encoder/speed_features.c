@@ -333,6 +333,7 @@ static void set_good_speed_features_framesize_independent(
     // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
     // it with cpi->sf.disable_wedge_search_var_thresh.
     sf->disable_wedge_interintra_search = 1;
+    sf->clean_incomplete_exit = is_boosted_arf2_bwd_type ? 0 : 1;
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
     sf->prune_comp_type_by_model_rd = boosted ? 0 : 1;
     sf->disable_smooth_intra =
