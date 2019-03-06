@@ -412,6 +412,10 @@ static void set_good_speed_features_framesize_independent(
     sf->mv.subpel_force_stop = HALF_PEL;
     sf->lpf_pick = LPF_PICK_FROM_Q;
   }
+
+#if CONFIG_FILEOPTIONS
+  sf->tx_size_search_method = cpi->oxcf.encoder_cfg->TxSizeSearchMethod;
+#endif
 }
 
 // TODO(kyslov): now this is very similar to
@@ -619,6 +623,10 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->use_nonrd_pick_mode = 1;
     sf->inter_mode_rd_model_estimation = 2;
   }
+
+#if CONFIG_FILEOPTIONS
+  sf->tx_size_search_method = cpi->oxcf.encoder_cfg->TxSizeSearchMethod;
+#endif
 }
 
 void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
@@ -676,6 +684,9 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   // TODO(sarahparker) Pair this with a speed setting once experiments are done
   sf->trellis_eob_fast = 0;
   sf->tx_size_search_method = USE_FULL_RD;
+#if CONFIG_FILEOPTIONS
+  sf->tx_size_search_method = cpi->oxcf.encoder_cfg->TxSizeSearchMethod;
+#endif
   sf->inter_tx_size_search_init_depth_sqr = 0;
   sf->inter_tx_size_search_init_depth_rect = 0;
   sf->intra_tx_size_search_init_depth_rect = 0;

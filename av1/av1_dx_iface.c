@@ -102,8 +102,6 @@ static aom_codec_err_t decoder_init(aom_codec_ctx_t *ctx,
     if (ctx->config.dec) {
       priv->cfg = *ctx->config.dec;
       ctx->config.dec = &priv->cfg;
-      // default values
-      priv->cfg.cfg.ext_partition = 1;
     }
     av1_zero(priv->image_with_grain);
     // Turn row_mt on by default.
@@ -473,7 +471,6 @@ static aom_codec_err_t init_decoder(aom_codec_alg_priv_t *ctx) {
       set_error_detail(ctx, "Failed to allocate frame_worker_data");
       return AOM_CODEC_MEM_ERROR;
     }
-    frame_worker_data->pbi->common.options = &ctx->cfg.cfg;
     frame_worker_data->worker_id = i;
     frame_worker_data->frame_context_ready = 0;
     frame_worker_data->received_frame = 0;
