@@ -32,6 +32,7 @@
 #include "av1/encoder/context_tree.h"
 #include "av1/encoder/encodemb.h"
 #include "av1/encoder/firstpass.h"
+#include "av1/encoder/level.h"
 #include "av1/encoder/lookahead.h"
 #include "av1/encoder/mbgraph.h"
 #include "av1/encoder/mcomp.h"
@@ -997,6 +998,7 @@ typedef struct AV1_COMP {
   // frame_component_time[] are initialized to zero at beginning of each frame.
   uint64_t frame_component_time[kTimingComponents];
 #endif
+  AV1LevelInfo level_info;
 } AV1_COMP;
 
 typedef struct {
@@ -1095,6 +1097,8 @@ int av1_set_internal_size(AV1_COMP *cpi, AOM_SCALING horiz_mode,
 int av1_get_quantizer(struct AV1_COMP *cpi);
 
 int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *input_size);
+
+AV1_LEVEL av1_get_level(const AV1LevelSpec *const level_spec);
 
 // av1 uses 10,000,000 ticks/second as time stamp
 #define TICKS_PER_SEC 10000000LL
