@@ -164,8 +164,6 @@ static const arg_def_t psnrarg =
     ARG_DEF(NULL, "psnr", 0, "Show PSNR in status line");
 #if CONFIG_FILEOPTIONS
 static const arg_def_t use_cfg = ARG_DEF("c", "cfg", 1, "Config file to use");
-static const arg_def_t ext_partition =
-    ARG_DEF(NULL, "ext-partition", 1, "corresponds to extended partitions");
 #endif
 
 static const struct arg_enum_list test_decode_enum[] = {
@@ -444,6 +442,22 @@ static const arg_def_t enable_rect_partitions =
     ARG_DEF(NULL, "enable-rect-partitions", 1,
             "Enable rectangular partitions "
             "(0: false, 1: true (default))");
+static const arg_def_t enable_tshape_partitions =
+    ARG_DEF(NULL, "enable-tshape-partitions", 1,
+            "Enable t shape partitions "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_1to4_partitions =
+    ARG_DEF(NULL, "enable-1to4-partitions", 1,
+            "Enable 1:4 and 4:1 partitions "
+            "(0: false, 1: true (default))");
+static const arg_def_t min_partition_size =
+    ARG_DEF(NULL, "min-partition-size", 4,
+            "Set min partition size "
+            "(4:4x4, 8:8x8, 16:16x16, 32:32x32, 64:64x64, 128:128x128)");
+static const arg_def_t max_partition_size =
+    ARG_DEF(NULL, "max-partition-size", 128,
+            "Set max partition size "
+            "(4:4x4, 8:8x8, 16:16x16, 32:32x32, 64:64x64, 128:128x128)");
 static const arg_def_t enable_dual_filter =
     ARG_DEF(NULL, "enable-dual-filter", 1,
             "Enable dual filter "
@@ -459,6 +473,9 @@ static const arg_def_t enable_order_hint =
 static const arg_def_t enable_tx64 =
     ARG_DEF(NULL, "enable-tx64", 1,
             "Enable 64-pt transform (0: false, 1: true (default))");
+static const arg_def_t enable_ext_tx =
+    ARG_DEF(NULL, "enable-ext-tx", 1,
+            "Enable extended transform type (0: false, 1: true (default))");
 static const arg_def_t enable_dist_wtd_comp =
     ARG_DEF(NULL, "enable-dist-wtd-comp", 1,
             "Enable distance-weighted compound "
@@ -759,10 +776,15 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &enable_cdef,
                                        &enable_restoration,
                                        &enable_rect_partitions,
+                                       &enable_tshape_partitions,
+                                       &enable_1to4_partitions,
+                                       &min_partition_size,
+                                       &max_partition_size,
                                        &enable_dual_filter,
                                        &enable_intra_edge_filter,
                                        &enable_order_hint,
                                        &enable_tx64,
+                                       &enable_ext_tx,
                                        &enable_dist_wtd_comp,
                                        &enable_masked_comp,
                                        &enable_interintra_comp,
@@ -850,10 +872,15 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_ENABLE_CDEF,
                                         AV1E_SET_ENABLE_RESTORATION,
                                         AV1E_SET_ENABLE_RECT_PARTITIONS,
+                                        AV1E_SET_ENABLE_TSHAPE_PARTITIONS,
+                                        AV1E_SET_ENABLE_1TO4_PARTITIONS,
+                                        AV1E_SET_MIN_PARTITION_SIZE,
+                                        AV1E_SET_MAX_PARTITION_SIZE,
                                         AV1E_SET_ENABLE_DUAL_FILTER,
                                         AV1E_SET_ENABLE_INTRA_EDGE_FILTER,
                                         AV1E_SET_ENABLE_ORDER_HINT,
                                         AV1E_SET_ENABLE_TX64,
+                                        AV1E_SET_ENABLE_EXTTX,
                                         AV1E_SET_ENABLE_DIST_WTD_COMP,
                                         AV1E_SET_ENABLE_MASKED_COMP,
                                         AV1E_SET_ENABLE_INTERINTRA_COMP,
@@ -1041,9 +1068,7 @@ static void parse_global_config(struct AvxEncoderConfig *global, int argc,
   struct arg arg;
   const int num_encoder = get_aom_encoder_count();
   char **argv_local = (char **)*argv;
-#if CONFIG_FILEOPTIONS
-  int argc_local = argc;
-#endif
+
   if (num_encoder < 1) die("Error: no valid encoder available\n");
 
   /* Initialize default parameters */
@@ -1054,22 +1079,17 @@ static void parse_global_config(struct AvxEncoderConfig *global, int argc,
   global->csp = AOM_CSP_UNKNOWN;
 
 #if CONFIG_FILEOPTIONS
-  const char *cfg = NULL;
   int cfg_included = 0;
 #endif
+
   for (argi = argj = argv_local; (*argj = *argi); argi += arg.argv_step) {
     arg.argv_step = 1;
 
 #if CONFIG_FILEOPTIONS
     if (arg_match(&arg, &use_cfg, argi)) {
       if (cfg_included) continue;
-      cfg = arg.val;
-
-      arg_cfg(&argc_local, &argv_local, cfg);
-
-      *argj = *argi = *argv_local;
-      argj = argi = argv_local;
-      *argv = argv_local;
+      InitConfig(&global->encoder_config);
+      parse_cfg(arg.val, &global->encoder_config);
       cfg_included = 1;
       continue;
     }
@@ -1265,6 +1285,11 @@ static struct stream_state *new_stream(struct AvxEncoderConfig *global,
 
     /* Allows removal of the application version from the EBML tags */
     stream->webm_ctx.debug = global->debug;
+
+#if CONFIG_FILEOPTIONS
+    memcpy(&stream->config.cfg.encoder_cfg, &global->encoder_config,
+           sizeof(cfg_options_t));
+#endif
   }
 
   /* Output files must be specified for each stream */
@@ -1482,10 +1507,6 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
     } else if (arg_match(&arg, &tile_height, argi)) {
       config->cfg.tile_height_count =
           arg_parse_list(&arg, config->cfg.tile_heights, MAX_TILE_HEIGHTS);
-#if CONFIG_FILEOPTIONS
-    } else if (arg_match(&arg, &ext_partition, argi)) {
-      config->cfg.cfg.ext_partition = !!arg_parse_uint(&arg) > 0;
-#endif
     } else {
       int i, match = 0;
       for (i = 0; ctrl_args[i]; i++) {
@@ -1655,6 +1676,45 @@ static void show_stream_config(struct stream_state *stream,
   SHOW(kf_mode);
   SHOW(kf_min_dist);
   SHOW(kf_max_dist);
+
+#if CONFIG_FILEOPTIONS
+#define SHOW_PARAMS(field)                    \
+  fprintf(stderr, "    %-28s = %d\n", #field, \
+          stream->config.cfg.encoder_cfg.field)
+
+  SHOW_PARAMS(SuperBlockSize);
+  SHOW_PARAMS(MaxPartitionSize);
+  SHOW_PARAMS(MinPartitionSize);
+  SHOW_PARAMS(DisableTShapePartitionType);
+  SHOW_PARAMS(DisableRectPartitionType);
+  SHOW_PARAMS(Disable1to4PartitionType);
+  SHOW_PARAMS(DisableExtTx);
+  SHOW_PARAMS(DisableCDEF);
+  SHOW_PARAMS(DisableLR);
+  SHOW_PARAMS(DisableOBMC);
+  SHOW_PARAMS(DisableWarpMotion);
+  SHOW_PARAMS(DisableGlobalMotion);
+  SHOW_PARAMS(DisableDistWtdComp);
+  SHOW_PARAMS(DisableDiffWtdComp);
+  SHOW_PARAMS(DisableInterIntraComp);
+  SHOW_PARAMS(DisableMaskedComp);
+  SHOW_PARAMS(DisableOneSidedComp);
+  SHOW_PARAMS(DisablePalette);
+  SHOW_PARAMS(DisableIBC);
+  SHOW_PARAMS(DisableCFL);
+  SHOW_PARAMS(DisableSmoothIntra);
+  SHOW_PARAMS(DisableFilterIntra);
+  SHOW_PARAMS(DisableDualFilter);
+  SHOW_PARAMS(DisableIntraAngleDelta);
+  SHOW_PARAMS(TxSizeSearchMethod);
+  SHOW_PARAMS(DisableIntraEdgeFilter);
+  SHOW_PARAMS(DisableTx64x64);
+  SHOW_PARAMS(DisableSmoothInterIntra);
+  SHOW_PARAMS(DisableInterInterWedge);
+  SHOW_PARAMS(DisableInterIntraWedge);
+  SHOW_PARAMS(DisablePaethIntra);
+  SHOW_PARAMS(DisableTrellisQuant);
+#endif
 }
 
 static void open_output_file(struct stream_state *stream,
@@ -1783,7 +1843,7 @@ static void initialize_encoder(struct stream_state *stream,
 #if CONFIG_AV1_DECODER
   if (global->test_decode != TEST_DECODE_OFF) {
     const AvxInterface *decoder = get_aom_decoder_by_name(global->codec->name);
-    aom_codec_dec_cfg_t cfg = { 0, 0, 0, CONFIG_LOWBITDEPTH, { 1 } };
+    aom_codec_dec_cfg_t cfg = { 0, 0, 0, CONFIG_LOWBITDEPTH };
     aom_codec_dec_init(&stream->decoder, decoder->codec_interface(), &cfg, 0);
 
     if (strcmp(global->codec->name, "av1") == 0) {

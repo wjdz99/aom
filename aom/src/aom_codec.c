@@ -15,6 +15,7 @@
  */
 #include <stdarg.h>
 #include <stdlib.h>
+#include <memory.h>
 
 #include "config/aom_config.h"
 #include "config/aom_version.h"
@@ -155,3 +156,12 @@ const char *aom_obu_type_to_string(OBU_TYPE type) {
   }
   return "<Invalid OBU Type>";
 }
+
+#if CONFIG_FILEOPTIONS
+void InitConfig(cfg_options_t *pConfig) {
+  memset(pConfig, 0, sizeof(cfg_options_t));
+  pConfig->SuperBlockSize = 128;
+  pConfig->MaxPartitionSize = 128;
+  pConfig->MinPartitionSize = 4;
+}
+#endif
