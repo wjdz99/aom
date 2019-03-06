@@ -45,6 +45,7 @@ extern "C" {
 
 #include "aom/aom_image.h"
 #include "aom/aom_integer.h"
+#include "config/aom_config.h"
 
 /*!\brief Decorator indicating a function is deprecated */
 #ifndef AOM_DEPRECATED
@@ -503,18 +504,143 @@ typedef enum {
  */
 const char *aom_obu_type_to_string(OBU_TYPE type);
 
+#if CONFIG_FILEOPTIONS
 /*!\brief Config Options
  *
  * This type allows to enumerate and control options defined for control
  * via config file at runtime.
  */
 typedef struct cfg_options {
-  /*!\brief Reflects if ext_partition should be enabled
-   *
-   * If this value is non-zero it enabled the feature
+  /*!\brief Superblock size
+   * 64 or 128
    */
-  unsigned int ext_partition;
+  unsigned int SuperBlockSize;
+  /*!\brief max partition size
+   * 8, 16, 32, 64, 128
+   */
+  unsigned int MaxPartitionSize;
+  /*!\brief min partition size
+   * 8, 16, 32, 64, 128
+   */
+  unsigned int MinPartitionSize;
+  /*!\brief disable T Shape partition type
+   *
+   */
+  unsigned int DisableTShapePartitionType;
+  /*!\brief disable rectangular partition type
+   *
+   */
+  unsigned int DisableRectPartitionType;
+  /*!\brief disable 1:4/4:1 partition type
+   *
+   */
+  unsigned int Disable1to4PartitionType;
+  /*!\brief disable extended trasnform type
+   *
+   */
+  unsigned int DisableExtTx;
+  /*!\brief disable CDEF filter
+   *
+   */
+  unsigned int DisableCDEF;
+  /*!\brief disable Loop Restoration Filter
+   *
+   */
+  unsigned int DisableLR;
+  /*!\brief disable OBMC
+   *
+   */
+  unsigned int DisableOBMC;
+  /*!\brief disable Warped Motion
+   *
+   */
+  unsigned int DisableWarpMotion;
+  /*!\brief disable global motion
+   *
+   */
+  unsigned int DisableGlobalMotion;
+  /*!\brief disable dist weighted compound
+   *
+   */
+  unsigned int DisableDistWtdComp;
+  /*!\brief disable diff weighted compound
+   *
+   */
+  unsigned int DisableDiffWtdComp;
+  /*!\brief disable inter/intra compound
+   *
+   */
+  unsigned int DisableInterIntraComp;
+  /*!\brief disable masked compound
+   *
+   */
+  unsigned int DisableMaskedComp;
+  /*!\brief disable one sided compound
+   *
+   */
+  unsigned int DisableOneSidedComp;
+  /*!\brief disable Palette
+   *
+   */
+  unsigned int DisablePalette;
+  /*!\brief disable Intra Block Copy
+   *
+   */
+  unsigned int DisableIBC;
+  /*!\brief disable chroma from luma
+   *
+   */
+  unsigned int DisableCFL;
+  /*!\brief disable intra smooth mode
+   *
+   */
+  unsigned int DisableSmoothIntra;
+  /*!\brief disable filter intra
+   *
+   */
+  unsigned int DisableFilterIntra;
+  /*!\brief disable dual filter
+   *
+   */
+  unsigned int DisableDualFilter;
+  /*!\brief disable intra angle delta
+   *
+   */
+  unsigned int DisableIntraAngleDelta;
+  /*!\brief specify transform size search method
+   * 0:FULLRD,1:FASTRD,2:USELARGEST
+   */
+  unsigned int TxSizeSearchMethod;
+  /*!\brief disable intra edge filter
+   *
+   */
+  unsigned int DisableIntraEdgeFilter;
+  /*!\brief disable 64x64 transform
+   *
+   */
+  unsigned int DisableTx64x64;
+  /*!\brief disable smooth inter/intra
+   *
+   */
+  unsigned int DisableSmoothInterIntra;
+  /*!\brief disable inter/inter wedge comp
+   *
+   */
+  unsigned int DisableInterInterWedge;
+  /*!\brief disable inter/intra wedge comp
+   *
+   */
+  unsigned int DisableInterIntraWedge;
+  /*!\brief disable paeth intra
+   *
+   */
+  unsigned int DisablePaethIntra;
+  /*!\brief disable trellis quantizaiton
+   *
+   */
+  unsigned int DisableTrellisQuant;
 } cfg_options_t;
+#endif
 
 /*!@} - end defgroup codec*/
 #ifdef __cplusplus

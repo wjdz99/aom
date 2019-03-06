@@ -351,10 +351,14 @@ typedef struct AV1EncoderConfig {
   unsigned int full_still_picture_hdr;
   int enable_dual_filter;
   unsigned int motion_vector_unit_test;
-  const cfg_options_t *cfg;
   int enable_rect_partitions;
+  int enable_tshape_partitions;
+  int enable_1to4_partitions;
+  int min_partition_size;
+  int max_partition_size;
   int enable_intra_edge_filter;
   int enable_tx64;
+  int enable_ext_tx;
   int enable_order_hint;
   int enable_dist_wtd_comp;
   int enable_ref_frame_mvs;
@@ -396,6 +400,9 @@ typedef struct AV1EncoderConfig {
   COST_UPDATE_TYPE mode_cost_upd_freq;
   int border_in_pixels;
   int target_seq_level_idx;
+#if CONFIG_FILEOPTIONS
+  const cfg_options_t *encoder_cfg;
+#endif
 } AV1EncoderConfig;
 
 static INLINE int is_lossless_requested(const AV1EncoderConfig *cfg) {

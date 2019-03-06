@@ -17,6 +17,7 @@
 
 #include "aom/aom_integer.h"
 #include "aom_ports/msvc.h"
+#include "aom/aom_codec.h"
 
 #if defined(__GNUC__) && __GNUC__
 extern void die(const char *fmt, ...) __attribute__((noreturn));
@@ -48,12 +49,24 @@ void ignore_end_spaces(char *str) {
   if (end >= str) end[1] = '\0';
 }
 
-int arg_cfg(int *argc, char ***argv, const char *file) {
-  char **argv_local = (char **)*argv;
-  char **argv_org = (char **)*argv;
+#if CONFIG_FILEOPTIONS
+void init_config(cfg_options_t *pConfig) {
+  memset(pConfig, 0, sizeof(cfg_options_t));
+  pConfig->SuperBlockSize = 128;
+  pConfig->MaxPartitionSize = 128;
+  pConfig->MinPartitionSize = 4;
+}
+
+int parse_cfg(const char *file, cfg_options_t *pConfig) {
   char line[1024 * 10];
   FILE *f = fopen(file, "r");
   if (!f) return 1;
+
+#define GET_PARAMS(field)          \
+  if (strcmp(left, #field) == 0) { \
+    pConfig->field = atoi(right);  \
+    continue;                      \
+  }
 
   while (fgets(line, sizeof(line) - 1, f)) {
     char *actual_line = ignore_front_spaces(line);
@@ -61,7 +74,7 @@ int arg_cfg(int *argc, char ***argv, const char *file) {
     size_t length = strlen(actual_line);
 
     if (length == 0 || actual_line[0] == '#') continue;
-    right = strchr(actual_line, ':');
+    right = strchr(actual_line, '=');
     if (right == NULL) continue;
     right[0] = '\0';
 
@@ -74,25 +87,46 @@ int arg_cfg(int *argc, char ***argv, const char *file) {
     ignore_end_spaces(left);
     ignore_end_spaces(right);
 
-    char **new_args = argv_dup(*argc, (const char **)argv_local);
-    char *new_line = (char *)malloc(sizeof(*new_line) * 128);
+    GET_PARAMS(SuperBlockSize);
+    GET_PARAMS(MaxPartitionSize);
+    GET_PARAMS(MinPartitionSize);
+    GET_PARAMS(DisableTShapePartitionType);
+    GET_PARAMS(DisableRectPartitionType);
+    GET_PARAMS(Disable1to4PartitionType);
+    GET_PARAMS(DisableExtTx);
+    GET_PARAMS(DisableCDEF);
+    GET_PARAMS(DisableLR);
+    GET_PARAMS(DisableOBMC);
+    GET_PARAMS(DisableWarpMotion);
+    GET_PARAMS(DisableGlobalMotion);
+    GET_PARAMS(DisableDistWtdComp);
+    GET_PARAMS(DisableDiffWtdComp);
+    GET_PARAMS(DisableInterIntraComp);
+    GET_PARAMS(DisableMaskedComp);
+    GET_PARAMS(DisableOneSidedComp);
+    GET_PARAMS(DisablePalette);
+    GET_PARAMS(DisableIBC);
+    GET_PARAMS(DisableCFL);
+    GET_PARAMS(DisableSmoothIntra);
+    GET_PARAMS(DisableFilterIntra);
+    GET_PARAMS(DisableDualFilter);
+    GET_PARAMS(DisableIntraAngleDelta);
+    GET_PARAMS(TxSizeSearchMethod);
+    GET_PARAMS(DisableIntraEdgeFilter);
+    GET_PARAMS(DisableTx64x64);
+    GET_PARAMS(DisableSmoothInterIntra);
+    GET_PARAMS(DisableInterInterWedge);
+    GET_PARAMS(DisableInterIntraWedge);
+    GET_PARAMS(DisablePaethIntra);
+    GET_PARAMS(DisableTrellisQuant);
 
-    if (argv_local != argv_org) free(argv_local);
-
-    if (!strcmp(right, "ON"))
-      snprintf(new_line, sizeof(*new_line) * 128, "--%s", left);
-    else
-      snprintf(new_line, sizeof(*new_line) * 128, "--%s=%s", left, right);
-
-    new_args[(*argc) - 1] = new_args[(*argc) - 2];
-    new_args[(*argc) - 2] = new_line;
-    argv_local = new_args;
-    *argv = new_args;
-    (*argc)++;
+    fprintf(stderr, "\nInvalid parameter: %s", left);
+    exit(-1);
   }
   fclose(f);
   return 0;
 }
+#endif
 
 int arg_match(struct arg *arg_, const struct arg_def *def, char **argv) {
   struct arg arg;
