@@ -99,6 +99,211 @@ FILE *yuv_rec_file;
 #define FILE_NAME_LEN 100
 #endif
 
+#define UNDEFINED_LEVEL                                                    \
+  {                                                                        \
+    .level = LEVEL_DISABLED, .max_picture_size = 2147483647,               \
+    .max_h_size = 2147483647, .max_v_size = 2147483647,                    \
+    .max_display_rate = 2147483647, .max_decode_rate = 2147483647,         \
+    .max_header_rate = 2147483647, .main_mbps = 2147483647,                \
+    .high_mbps = 2147483647, .main_cr = 2147483647, .high_cr = 2147483647, \
+    .max_tiles = 2147483647, .max_tile_cols = 2147483647                   \
+  }
+
+static const AV1LevelSpec av1_level_defs[LEVEL_END] = {
+  { .level = LEVEL_2_0,
+    .max_picture_size = 147456,
+    .max_h_size = 2048,
+    .max_v_size = 1152,
+    .max_display_rate = 4423680L,
+    .max_decode_rate = 5529600L,
+    .max_header_rate = 150,
+    .main_mbps = 1.5,
+    .high_mbps = 2147483647,
+    .main_cr = 2.0,
+    .high_cr = 2147483647,
+    .max_tiles = 8,
+    .max_tile_cols = 4 },
+  { .level = LEVEL_2_1,
+    .max_picture_size = 278784,
+    .max_h_size = 2816,
+    .max_v_size = 1584,
+    .max_display_rate = 8363520L,
+    .max_decode_rate = 10454400L,
+    .max_header_rate = 150,
+    .main_mbps = 3.0,
+    .high_mbps = 2147483647,
+    .main_cr = 2.0,
+    .high_cr = 2147483647,
+    .max_tiles = 8,
+    .max_tile_cols = 4 },
+  UNDEFINED_LEVEL,
+  UNDEFINED_LEVEL,
+  { .level = LEVEL_3_0,
+    .max_picture_size = 665856,
+    .max_h_size = 4352,
+    .max_v_size = 2448,
+    .max_display_rate = 19975680L,
+    .max_decode_rate = 24969600L,
+    .max_header_rate = 150,
+    .main_mbps = 6.0,
+    .high_mbps = 2147483647,
+    .main_cr = 2.0,
+    .high_cr = 2147483647,
+    .max_tiles = 16,
+    .max_tile_cols = 6 },
+  { .level = LEVEL_3_1,
+    .max_picture_size = 1065024,
+    .max_h_size = 5504,
+    .max_v_size = 3096,
+    .max_display_rate = 31950720L,
+    .max_decode_rate = 39938400L,
+    .max_header_rate = 150,
+    .main_mbps = 10.0,
+    .high_mbps = 2147483647,
+    .main_cr = 2.0,
+    .high_cr = 2147483647,
+    .max_tiles = 16,
+    .max_tile_cols = 6 },
+  UNDEFINED_LEVEL,
+  UNDEFINED_LEVEL,
+  { .level = LEVEL_4_0,
+    .max_picture_size = 2359296,
+    .max_h_size = 6144,
+    .max_v_size = 3456,
+    .max_display_rate = 70778880L,
+    .max_decode_rate = 77856768L,
+    .max_header_rate = 300,
+    .main_mbps = 12.0,
+    .high_mbps = 30.0,
+    .main_cr = 4.0,
+    .high_cr = 4.0,
+    .max_tiles = 32,
+    .max_tile_cols = 8 },
+  { .level = LEVEL_4_1,
+    .max_picture_size = 2359296,
+    .max_h_size = 6144,
+    .max_v_size = 3456,
+    .max_display_rate = 141557760L,
+    .max_decode_rate = 155713536L,
+    .max_header_rate = 300,
+    .main_mbps = 20.0,
+    .high_mbps = 50.0,
+    .main_cr = 4.0,
+    .high_cr = 4.0,
+    .max_tiles = 32,
+    .max_tile_cols = 8 },
+  UNDEFINED_LEVEL,
+  UNDEFINED_LEVEL,
+  { .level = LEVEL_5_0,
+    .max_picture_size = 8912896,
+    .max_h_size = 8192,
+    .max_v_size = 4352,
+    .max_display_rate = 267386880L,
+    .max_decode_rate = 273715200L,
+    .max_header_rate = 300,
+    .main_mbps = 30.0,
+    .high_mbps = 100.0,
+    .main_cr = 6.0,
+    .high_cr = 4.0,
+    .max_tiles = 64,
+    .max_tile_cols = 8 },
+  { .level = LEVEL_5_1,
+    .max_picture_size = 8912896,
+    .max_h_size = 8192,
+    .max_v_size = 4352,
+    .max_display_rate = 534773760L,
+    .max_decode_rate = 547430400L,
+    .max_header_rate = 300,
+    .main_mbps = 40.0,
+    .high_mbps = 160.0,
+    .main_cr = 8.0,
+    .high_cr = 4.0,
+    .max_tiles = 64,
+    .max_tile_cols = 8 },
+  { .level = LEVEL_5_2,
+    .max_picture_size = 8912896,
+    .max_h_size = 8192,
+    .max_v_size = 4352,
+    .max_display_rate = 1069547520L,
+    .max_decode_rate = 1094860800L,
+    .max_header_rate = 300,
+    .main_mbps = 60.0,
+    .high_mbps = 240.0,
+    .main_cr = 8.0,
+    .high_cr = 4.0,
+    .max_tiles = 64,
+    .max_tile_cols = 8 },
+  { .level = LEVEL_5_3,
+    .max_picture_size = 8912896,
+    .max_h_size = 8192,
+    .max_v_size = 4352,
+    .max_display_rate = 1069547520L,
+    .max_decode_rate = 1176502272L,
+    .max_header_rate = 300,
+    .main_mbps = 60.0,
+    .high_mbps = 240.0,
+    .main_cr = 8.0,
+    .high_cr = 4.0,
+    .max_tiles = 64,
+    .max_tile_cols = 8 },
+  { .level = LEVEL_6_0,
+    .max_picture_size = 35651584,
+    .max_h_size = 16384,
+    .max_v_size = 8704,
+    .max_display_rate = 1069547520L,
+    .max_decode_rate = 1176502272L,
+    .max_header_rate = 300,
+    .main_mbps = 60.0,
+    .high_mbps = 240.0,
+    .main_cr = 8.0,
+    .high_cr = 4.0,
+    .max_tiles = 128,
+    .max_tile_cols = 16 },
+  { .level = LEVEL_6_1,
+    .max_picture_size = 35651584,
+    .max_h_size = 16384,
+    .max_v_size = 8704,
+    .max_display_rate = 2139095040L,
+    .max_decode_rate = 2189721600L,
+    .max_header_rate = 300,
+    .main_mbps = 100.0,
+    .high_mbps = 480.0,
+    .main_cr = 8.0,
+    .high_cr = 4.0,
+    .max_tiles = 128,
+    .max_tile_cols = 16 },
+  { .level = LEVEL_6_2,
+    .max_picture_size = 35651584,
+    .max_h_size = 16384,
+    .max_v_size = 8704,
+    .max_display_rate = 4278190080L,
+    .max_decode_rate = 4379443200L,
+    .max_header_rate = 300,
+    .main_mbps = 160.0,
+    .high_mbps = 800.0,
+    .main_cr = 8.0,
+    .high_cr = 4.0,
+    .max_tiles = 128,
+    .max_tile_cols = 16 },
+  { .level = LEVEL_6_3,
+    .max_picture_size = 35651584,
+    .max_h_size = 16384,
+    .max_v_size = 8704,
+    .max_display_rate = 4278190080L,
+    .max_decode_rate = 4706009088L,
+    .max_header_rate = 300,
+    .main_mbps = 160.0,
+    .high_mbps = 800.0,
+    .main_cr = 8.0,
+    .high_cr = 4.0,
+    .max_tiles = 128,
+    .max_tile_cols = 16 },
+  UNDEFINED_LEVEL,
+  UNDEFINED_LEVEL,
+  UNDEFINED_LEVEL,
+  UNDEFINED_LEVEL,
+};
+
 static INLINE void Scale2Ratio(AOM_SCALING mode, int *hr, int *hs) {
   switch (mode) {
     case NORMAL:
@@ -2557,6 +2762,40 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   }
 }
 
+static void init_level_info(AV1LevelInfo *level_info) {
+  av1_zero(level_info);
+
+  level_info->level_spec.level = LEVEL_DISABLED;
+}
+
+// Returns the minimum level that level_spec corresponds to
+AV1_LEVEL av1_get_level(const AV1LevelSpec *const level_spec) {
+  AV1_LEVEL level;
+  for (level = LEVEL_START; level < LEVEL_END; level++) {
+    const AV1LevelSpec *const cur_level_spec = &av1_level_defs[level];
+    if (cur_level_spec->level == LEVEL_DISABLED) {
+      continue;
+    }
+
+    if (level_spec->max_picture_size <= cur_level_spec->max_picture_size &&
+        level_spec->max_h_size <= cur_level_spec->max_h_size &&
+        level_spec->max_v_size <= cur_level_spec->max_v_size &&
+        level_spec->max_display_rate <= cur_level_spec->max_display_rate &&
+        level_spec->max_decode_rate <= cur_level_spec->max_decode_rate &&
+        level_spec->max_header_rate <= cur_level_spec->max_header_rate &&
+        level_spec->main_mbps <= cur_level_spec->main_mbps &&
+        level_spec->high_mbps <= cur_level_spec->high_mbps &&
+        level_spec->main_cr <= cur_level_spec->main_cr &&
+        level_spec->high_cr <= cur_level_spec->high_cr &&
+        level_spec->max_tiles <= cur_level_spec->max_tiles &&
+        level_spec->max_tile_cols <= cur_level_spec->max_tile_cols) {
+      return level;
+    }
+  }
+
+  return LEVEL_DISABLED;
+}
+
 AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
                                 BufferPool *const pool) {
   unsigned int i;
@@ -2628,6 +2867,8 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 #endif
 
   cpi->refresh_alt_ref_frame = 0;
+
+  init_level_info(&cpi->level_info);
 
   cpi->b_calculate_psnr = CONFIG_INTERNAL_STATS;
 #if CONFIG_INTERNAL_STATS

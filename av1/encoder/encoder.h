@@ -705,6 +705,67 @@ static INLINE char const *get_component_name(int index) {
 }
 #endif
 
+// Defines an enum to store av1 level
+typedef enum {
+  LEVEL_DISABLED = -1,
+  LEVEL_2_0 = 0,
+  LEVEL_2_1 = 1,
+  LEVEL_2_2 = 2,
+  LEVEL_2_3 = 3,
+  LEVEL_3_0 = 4,
+  LEVEL_3_1 = 5,
+  LEVEL_3_2 = 6,
+  LEVEL_3_3 = 7,
+  LEVEL_4_0 = 8,
+  LEVEL_4_1 = 9,
+  LEVEL_4_2 = 10,
+  LEVEL_4_3 = 11,
+  LEVEL_5_0 = 12,
+  LEVEL_5_1 = 13,
+  LEVEL_5_2 = 14,
+  LEVEL_5_3 = 15,
+  LEVEL_6_0 = 16,
+  LEVEL_6_1 = 17,
+  LEVEL_6_2 = 18,
+  LEVEL_6_3 = 19,
+  LEVEL_7_0 = 20,
+  LEVEL_7_1 = 21,
+  LEVEL_7_2 = 22,
+  LEVEL_7_3 = 23,
+  LEVEL_MAX = 31,
+  LEVEL_MONITOR = LEVEL_MAX,
+  LEVEL_START = LEVEL_2_0,
+  LEVEL_END = LEVEL_7_3 + 1
+} AV1_LEVEL;
+
+// AV1 Level Specifications
+typedef struct {
+  AV1_LEVEL level;
+  uint32_t max_picture_size;
+  uint32_t max_h_size;
+  uint32_t max_v_size;
+  uint64_t max_display_rate;
+  uint64_t max_decode_rate;
+  uint32_t max_header_rate;
+  double main_mbps;
+  double high_mbps;
+  double main_cr;
+  double high_cr;
+  int32_t max_tiles;
+  int32_t max_tile_cols;
+} AV1LevelSpec;
+
+// Used to keep track of AV1 Level Stats. Currently unimplemented.
+typedef struct {
+  // Unimplemented
+  uint32_t dummy;
+} AV1LevelStats;
+
+typedef struct {
+  AV1LevelStats level_stats;
+  AV1LevelSpec level_spec;
+} AV1LevelInfo;
+
 typedef struct AV1_COMP {
   QUANTS quants;
   ThreadData td;
@@ -997,6 +1058,7 @@ typedef struct AV1_COMP {
   // frame_component_time[] are initialized to zero at beginning of each frame.
   uint64_t frame_component_time[kTimingComponents];
 #endif
+  AV1LevelInfo level_info;
 } AV1_COMP;
 
 typedef struct {
@@ -1095,6 +1157,8 @@ int av1_set_internal_size(AV1_COMP *cpi, AOM_SCALING horiz_mode,
 int av1_get_quantizer(struct AV1_COMP *cpi);
 
 int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *input_size);
+
+AV1_LEVEL av1_get_level(const AV1LevelSpec *const level_spec);
 
 // av1 uses 10,000,000 ticks/second as time stamp
 #define TICKS_PER_SEC 10000000LL
