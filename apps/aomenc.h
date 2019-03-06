@@ -12,6 +12,7 @@
 #define AOM_APPS_AOMENC_H_
 
 #include "aom/aom_encoder.h"
+#include "aom/aom_codec.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,6 +55,10 @@ struct AvxEncoderConfig {
   int disable_warning_prompt;
   int experimental_bitstream;
   aom_chroma_sample_position_t csp;
+
+#if CONFIG_FILEOPTIONS
+  cfg_options_t encoder_config;
+#endif
 };
 
 #ifdef __cplusplus
