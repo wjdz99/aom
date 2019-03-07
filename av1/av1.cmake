@@ -85,6 +85,8 @@ list(APPEND AOM_AV1_COMMON_SOURCES
             "${AOM_ROOT}/av1/common/token_cdfs.h"
             "${AOM_ROOT}/av1/common/txb_common.c"
             "${AOM_ROOT}/av1/common/txb_common.h"
+	    "${AOM_ROOT}/av1/common/cnn.c"
+	    "${AOM_ROOT}/av1/common/cnn.h"
             "${AOM_ROOT}/av1/common/warped_motion.c"
             "${AOM_ROOT}/av1/common/warped_motion.h")
 
