@@ -107,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "2e679030_f264334d",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2019-03-07T21:14:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c580444f_7f4af691",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 30
+      },
+      "revId": "b2ee9ab4736f73ac482a1e9bf35b9dadd96b1b65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6f2e397f_aae30cb6",
         "filename": "av1/encoder/level.c",
         "patchSetId": 3
@@ -127,6 +151,30 @@
       "revId": "b2ee9ab4736f73ac482a1e9bf35b9dadd96b1b65",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "083231fe_13b1b160",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2019-03-07T21:14:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f2e397f_aae30cb6",
+      "range": {
+        "startLine": 32,
+        "startChar": 18,
+        "endLine": 32,
+        "endChar": 22
+      },
+      "revId": "b2ee9ab4736f73ac482a1e9bf35b9dadd96b1b65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -200,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "44385d25_495ab6fd",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2019-03-07T21:14:04Z",
+      "side": 1,
+      "message": "\u003e Both can be const\n\nAV1_COMP *cpi can not be cost AV1_COMP *cpi, because it is get to cm \u003d \u0026cpi-\u003ecommon.\ncm can not be const, because of later passing of \u0026cm-\u003eerror to aom_internal_error",
+      "parentUuid": "22815aae_12bf44a0",
+      "range": {
+        "startLine": 44,
+        "startChar": 36,
+        "endLine": 44,
+        "endChar": 75
+      },
+      "revId": "b2ee9ab4736f73ac482a1e9bf35b9dadd96b1b65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c9e6497c_03a47ce5",
         "filename": "av1/encoder/level.c",
         "patchSetId": 3
@@ -223,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "6e0fa6cc_e3715632",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2019-03-07T21:14:04Z",
+      "side": 1,
+      "message": "\u003e I think this need to be floating point number. The spec says \"The ÷ operator represents standard mathematical division (in contrast to the / operator which represents integer division\".\n\nChanged. My idea was to round it to size_t becaue constraints are expressed in integer. But we can do it later...",
+      "parentUuid": "c9e6497c_03a47ce5",
+      "range": {
+        "startLine": 108,
+        "startChar": 15,
+        "endLine": 108,
+        "endChar": 32
+      },
+      "revId": "b2ee9ab4736f73ac482a1e9bf35b9dadd96b1b65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "97c3006b_5c1f64e9",
         "filename": "av1/encoder/level.c",
         "patchSetId": 3
@@ -243,6 +339,30 @@
       "revId": "b2ee9ab4736f73ac482a1e9bf35b9dadd96b1b65",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b0ef778_5420b119",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2019-03-07T21:14:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97c3006b_5c1f64e9",
+      "range": {
+        "startLine": 145,
+        "startChar": 54,
+        "endLine": 145,
+        "endChar": 58
+      },
+      "revId": "b2ee9ab4736f73ac482a1e9bf35b9dadd96b1b65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
