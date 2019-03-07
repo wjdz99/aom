@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b700c309_aac7589d",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2019-03-07T21:17:54Z",
+      "side": 1,
+      "message": "Is that (+2) to have same int value as former AV1_GET_LEVEL? I don\u0027t think this is that important as probably no one called it. I would avoid such hard-coded values in enums, because if this is needed that likely means that we are missing to set some dependencies.",
+      "revId": "c7e0f2f74dcb1f04e8ccb7ffde663d6501747c65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
