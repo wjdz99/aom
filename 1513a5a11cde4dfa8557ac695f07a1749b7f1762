@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bef70c7e_6db79954",
+        "filename": "av1/common/av1_inv_txfm1d.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 689,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-03-07T02:39:29Z",
+      "side": 1,
+      "message": "Yaowu: I understand this code now. According to the spec, the original code is correct. The third argument should be stage_range[2]. Here are the bit range requirements from Section 7.13.2.6 (Inverse ADST4 process):\n\n  It is a requirement of bitstream conformance that all values\n  stored in the s and x arrays by this process are representable\n  by a signed integer using r + 12 bits of precision.\n\n  It is a requirement of bitstream conformance that values\n  stored in the variable a7 by this process are representable\n  by a signed integer using r + 1 bits of precision.\n\n  It is a requirement of bitstream conformance that values\n  stored in the variable b7 by this process are representable\n  by a signed integer using r bits of precision.\n\nNote that (x0 - x2) is a7 in the spec, and (x0 - x2) + x3 is b7 in the spec. The bit range for b7 is just r, not r + 12. (The \u0027bit\u0027 argument is 12.)",
+      "range": {
+        "startLine": 689,
+        "startChar": 41,
+        "endLine": 689,
+        "endChar": 61
+      },
+      "revId": "1513a5a11cde4dfa8557ac695f07a1749b7f1762",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
