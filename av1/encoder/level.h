@@ -14,6 +14,8 @@
 #define AOM_AV1_ENCODER_LEVEL_H_
 #include "av1/common/enums.h"
 
+struct AV1_COMP;
+
 #define UNDEFINED_LEVEL                                                 \
   {                                                                     \
     .level = LEVEL_DISABLED, .max_picture_size = 0, .max_h_size = 0,    \
@@ -74,8 +76,8 @@ typedef struct {
 
 // Used to keep track of AV1 Level Stats. Currently unimplemented.
 typedef struct {
-  // Unimplemented
-  uint32_t dummy;
+  uint64_t total_compressed_size;
+  double total_time_encoded;
 } AV1LevelStats;
 
 typedef struct {
@@ -277,5 +279,8 @@ static const AV1LevelSpec av1_level_defs[LEVEL_END] = {
   UNDEFINED_LEVEL,
   UNDEFINED_LEVEL,
 };
+
+void av1_update_level_info(struct AV1_COMP *cpi, size_t size, int64_t ts_start,
+                           int64_t ts_end);
 
 #endif  // AOM_AV1_ENCODER_LEVEL_H_
