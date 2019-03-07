@@ -5328,6 +5328,14 @@ static void init_first_partition_pass_stats_tables(
     if (cpi->sf.use_first_partition_pass_interintra_stats)
       memset(stats[i].interintra_motion_mode_count, 0xff,
              sizeof(stats[i].interintra_motion_mode_count));
+    memset(stats[i].compound_ref_counts, 0xff,
+           sizeof(stats[i].compound_ref_counts));
+    memset(stats[i].non_newmv_ref0_counts, 0xff,
+           sizeof(stats[i].non_newmv_ref0_counts));
+    memset(stats[i].non_newmv_ref1_counts, 0xff,
+           sizeof(stats[i].non_newmv_ref1_counts));
+    memset(stats[i].non_newmv_compound_ref_counts, 0xff,
+           sizeof(stats[i].non_newmv_compound_ref_counts));
   }
 }
 
@@ -5505,6 +5513,14 @@ static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
       if (cpi->sf.use_first_partition_pass_interintra_stats)
         memset(stat->interintra_motion_mode_count, 0xff,
                sizeof(stat->interintra_motion_mode_count));
+      memset(stat[i].compound_ref_counts, 0xff,
+             sizeof(stat[i].compound_ref_counts));
+      memset(stat[i].non_newmv_ref0_counts, 0xff,
+             sizeof(stat[i].non_newmv_ref0_counts));
+      memset(stat[i].non_newmv_ref1_counts, 0xff,
+             sizeof(stat[i].non_newmv_ref1_counts));
+      memset(stat[i].non_newmv_compound_ref_counts, 0xff,
+             sizeof(stat[i].non_newmv_compound_ref_counts));
     } else if (sf->selective_ref_frame < 3) {
       // ALTREF2_FRAME and BWDREF_FRAME may be skipped during the
       // initial partition scan, so we don't eliminate them.
@@ -5515,6 +5531,20 @@ static void first_partition_search_pass(AV1_COMP *cpi, ThreadData *td,
       if (cpi->sf.use_first_partition_pass_interintra_stats) {
         stat->interintra_motion_mode_count[ALTREF2_FRAME] = 0xff;
         stat->interintra_motion_mode_count[BWDREF_FRAME] = 0xff;
+      }
+      stat->non_newmv_ref0_counts[ALTREF2_FRAME] = 0xff;
+      stat->non_newmv_ref1_counts[ALTREF2_FRAME] = 0xff;
+      stat->non_newmv_ref0_counts[BWDREF_FRAME] = 0xff;
+      stat->non_newmv_ref1_counts[BWDREF_FRAME] = 0xff;
+      for (int ref_num = INTRA_FRAME; ref_num < REF_FRAMES; ref_num++) {
+        stat->compound_ref_counts[ALTREF2_FRAME][ref_num] = 0xff;
+        stat->compound_ref_counts[BWDREF_FRAME][ref_num] = 0xff;
+        stat->compound_ref_counts[ref_num][ALTREF2_FRAME] = 0xff;
+        stat->compound_ref_counts[ref_num][BWDREF_FRAME] = 0xff;
+        stat->non_newmv_compound_ref_counts[ALTREF2_FRAME][ref_num] = 0xff;
+        stat->non_newmv_compound_ref_counts[BWDREF_FRAME][ref_num] = 0xff;
+        stat->non_newmv_compound_ref_counts[ref_num][ALTREF2_FRAME] = 0xff;
+        stat->non_newmv_compound_ref_counts[ref_num][BWDREF_FRAME] = 0xff;
       }
     }
   }
@@ -6983,12 +7013,45 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
             &x->first_partition_pass_stats[index];
         // Increase the counter of data samples.
         ++stats->sample_counts;
-        // Increase the counter for ref_frame[0] and ref_frame[1].
-        if (stats->ref0_counts[mbmi->ref_frame[0]] < 255)
-          ++stats->ref0_counts[mbmi->ref_frame[0]];
-        if (mbmi->ref_frame[1] >= 0 &&
-            stats->ref1_counts[mbmi->ref_frame[1]] < 255)
-          ++stats->ref1_counts[mbmi->ref_frame[1]];
+        int is_compound_ref = (mbmi->ref_frame[1] > 0);
+        if (is_compound_ref) {
+          if (have_newmv_in_inter_mode(mbmi->mode)) {
+            // Increase the counter for ref_frame[0]
+            if (stats->ref0_counts[mbmi->ref_frame[0]] < 255)
+              ++stats->ref0_counts[mbmi->ref_frame[0]];
+            // Increase the counter for ref_frame[0]
+            if (stats->ref1_counts[mbmi->ref_frame[1]] < 255)
+              ++stats->ref1_counts[mbmi->ref_frame[1]];
+            // Increase the counter for compound ref_frames
+            if (stats->compound_ref_counts[mbmi->ref_frame[0]]
+                                          [mbmi->ref_frame[1]] < 255)
+              ++stats->compound_ref_counts[mbmi->ref_frame[0]]
+                                          [mbmi->ref_frame[1]];
+          } else {
+            // Non newmv mode ref_frame[0] counter increase
+            if (stats->non_newmv_ref0_counts[mbmi->ref_frame[0]] < 255)
+              ++stats->non_newmv_ref0_counts[mbmi->ref_frame[0]];
+            // Non newmv mode ref_frame[1] counter increase
+            if (stats->non_newmv_ref1_counts[mbmi->ref_frame[1]] < 255)
+              ++stats->non_newmv_ref1_counts[mbmi->ref_frame[1]];
+            // Non newmv mode compound ref_frames counter increase
+            if (stats->non_newmv_compound_ref_counts[mbmi->ref_frame[0]]
+                                                    [mbmi->ref_frame[1]] < 255)
+              ++stats->non_newmv_compound_ref_counts[mbmi->ref_frame[0]]
+                                                    [mbmi->ref_frame[1]];
+          }
+        } else {
+          if (have_newmv_in_inter_mode(mbmi->mode)) {
+            // Increase the counter for ref_frame[0]
+            if (stats->ref0_counts[mbmi->ref_frame[0]] < 255)
+              ++stats->ref0_counts[mbmi->ref_frame[0]];
+          } else {
+            // Non newmv mode ref_frame[0] counter increase
+            if (stats->non_newmv_ref0_counts[mbmi->ref_frame[0]] < 255)
+              ++stats->non_newmv_ref0_counts[mbmi->ref_frame[0]];
+          }
+        }
+
         if (cpi->sf.use_first_partition_pass_interintra_stats) {
           // Increase the counter for interintra_motion_mode_count
           if (mbmi->motion_mode == 0 && mbmi->ref_frame[1] == INTRA_FRAME &&

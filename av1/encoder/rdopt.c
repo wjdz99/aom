@@ -11875,6 +11875,7 @@ static int inter_mode_search_order_independent_skip(
   if (cpi->two_pass_partition_search && !x->cb_partition_scan) {
     const int mi_width = mi_size_wide[bsize];
     const int mi_height = mi_size_high[bsize];
+    int is_mode_newmv = have_newmv_in_inter_mode(this_mode);
     int found = 0;
     // Search in the stats table to see if the ref frames have been used in the
     // first pass of partition search.
@@ -11885,10 +11886,34 @@ static int inter_mode_search_order_independent_skip(
         const int index = av1_first_partition_pass_stats_index(row, col);
         const FIRST_PARTITION_PASS_STATS *const stats =
             &x->first_partition_pass_stats[index];
-        if (stats->ref0_counts[ref_frame[0]] &&
-            (ref_frame[1] < 0 || stats->ref1_counts[ref_frame[1]])) {
-          found = 1;
-          break;
+
+        if (!is_mode_newmv) {
+          if (comp_pred) {
+            if (stats->non_newmv_compound_ref_counts[ref_frame[0]]
+                                                    [ref_frame[1]]) {
+              found = 1;
+              break;
+            }
+          } else {
+            if (stats->non_newmv_ref0_counts[ref_frame[0]] ||
+                stats->non_newmv_ref1_counts[ref_frame[0]]) {
+              found = 1;
+              break;
+            }
+          }
+        } else {
+          if (comp_pred) {
+            if (stats->compound_ref_counts[ref_frame[0]][ref_frame[1]]) {
+              found = 1;
+              break;
+            }
+          } else {
+            if (stats->ref0_counts[ref_frame[0]] ||
+                stats->ref1_counts[ref_frame[0]]) {
+              found = 1;
+              break;
+            }
+          }
         }
       }
     }

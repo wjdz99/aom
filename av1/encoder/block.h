@@ -178,6 +178,13 @@ typedef struct {
   int sample_counts;                // Number of samples collected.
   uint8_t interintra_motion_mode_count[REF_FRAMES];  // Counter for interintra
                                                      // motion mode
+  uint8_t compound_ref_counts[REF_FRAMES]
+                             [REF_FRAMES];  // Counters for compound
+                                            // ref_frames combination.
+  // Counters for non newmv ref_frame[0], ref_frame[1], compound_reference.
+  uint8_t non_newmv_ref0_counts[REF_FRAMES];
+  uint8_t non_newmv_ref1_counts[REF_FRAMES];
+  uint8_t non_newmv_compound_ref_counts[REF_FRAMES][REF_FRAMES];
 } FIRST_PARTITION_PASS_STATS;
 
 #define MAX_INTERP_FILTER_STATS 64
