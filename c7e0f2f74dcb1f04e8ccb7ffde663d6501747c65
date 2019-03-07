@@ -34,6 +34,24 @@
       "revId": "c7e0f2f74dcb1f04e8ccb7ffde663d6501747c65",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc96718b_2401091e",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-07T21:58:20Z",
+      "side": 1,
+      "message": "As discussed offline with Foydor and Chi-Yo, we can just replace the old ID with the new one.",
+      "parentUuid": "1447e4ec_1d93638d",
+      "revId": "c7e0f2f74dcb1f04e8ccb7ffde663d6501747c65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
