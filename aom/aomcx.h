@@ -1013,6 +1013,11 @@ enum aome_enc_control_id {
    * 2: Update at tile level
    */
   AV1E_SET_MODE_COST_UPD_FREQ,
+
+  /*!\brief Control to set bit mask that indicates high tier setting for the
+   * operating points
+   */
+  AV1E_SET_HIGH_TIER_MASK,
 };
 
 /*!\brief aom 1-D scaling mode
@@ -1408,6 +1413,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_MODE_COST_UPD_FREQ, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_TARGET_SEQ_LEVEL_IDX, int)
 #define AOM_CTRL_AV1E_SET_TARGET_SEQ_LEVEL_IDX
+
+AOM_CTRL_USE_TYPE(AV1E_SET_HIGH_TIER_MASK, unsigned int)
+#define AOM_CTRL_AV1E_SET_HIGH_TIER_MASK
 
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */
