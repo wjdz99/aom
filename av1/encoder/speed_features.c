@@ -300,7 +300,6 @@ static void set_good_speed_features_framesize_independent(
     sf->disable_dual_filter = 1;
     sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
     sf->prune_comp_type_by_comp_avg = 2;
-    sf->cb_pred_filter_search = 0;
     sf->adaptive_interp_filter_search = 1;
     sf->perform_coeff_opt = boosted ? 0 : 2;
   }
@@ -512,7 +511,6 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_dual_filter = 1;
     sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
     sf->prune_comp_type_by_comp_avg = 2;
-    sf->cb_pred_filter_search = 0;
     sf->adaptive_interp_filter_search = 1;
   }
 
