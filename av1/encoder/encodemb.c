@@ -138,7 +138,6 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   const struct macroblock_plane *const p = &x->plane[plane];
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
-
   tran_low_t *const coeff = BLOCK_OFFSET(p->coeff, block);
   tran_low_t *const qcoeff = BLOCK_OFFSET(p->qcoeff, block);
   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
@@ -174,7 +173,8 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   txfm_param.is_hbd = is_cur_buf_hbd(xd);
 
   av1_fwd_txfm(src_diff, coeff, diff_stride, &txfm_param);
-
+//if (cm->current_frame.frame_type == KEY_FRAME)
+//printf("quant func %d\n", xform_quant_idx);
   if (xform_quant_idx != AV1_XFORM_QUANT_SKIP_QUANT) {
     const int n_coeffs = av1_get_max_eob(tx_size);
     if (LIKELY(!x->skip_block)) {

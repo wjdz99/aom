@@ -1221,6 +1221,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     }
   } else if (oxcf->pass == 1) {
     cpi->td.mb.e_mbd.lossless[0] = is_lossless_requested(&cpi->oxcf);
+    printf("lossless %d\n", cpi->td.mb.e_mbd.lossless[0]);
     const int kf_requested = (cm->current_frame.frame_number == 0 ||
                               (*frame_flags & FRAMEFLAGS_KEY));
     if (kf_requested && frame_update_type != OVERLAY_UPDATE &&
