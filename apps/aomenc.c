@@ -736,6 +736,10 @@ static const struct arg_enum_list superblock_size_enum[] = {
 static const arg_def_t superblock_size = ARG_DEF_ENUM(
     NULL, "sb-size", 1, "Superblock size to use", superblock_size_enum);
 
+static const arg_def_t set_high_tier_mask =
+    ARG_DEF(NULL, "set-high-tier-mask", 1,
+            "Bit mask to indicate which operating points are high tier");
+
 static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &auto_altref,
                                        &sharpness,
@@ -819,6 +823,7 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &reduced_reference_set,
                                        &enable_ref_frame_mvs,
                                        &target_seq_level_idx,
+                                       &set_high_tier_mask,
                                        &bitdeptharg,
                                        &inbitdeptharg,
                                        &input_chroma_subsampling_x,
@@ -910,6 +915,7 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_REDUCED_REFERENCE_SET,
                                         AV1E_SET_ENABLE_REF_FRAME_MVS,
                                         AV1E_SET_TARGET_SEQ_LEVEL_IDX,
+                                        AV1E_SET_HIGH_TIER_MASK,
                                         0 };
 #endif  // CONFIG_AV1_ENCODER
 
