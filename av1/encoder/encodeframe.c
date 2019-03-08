@@ -2010,6 +2010,28 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
   *dist = chosen_rdc.dist;
 }
 
+static const BLOCK_SIZE min_partition_size[BLOCK_SIZES_ALL] = {
+  BLOCK_4X4,                              //                     4x4
+  BLOCK_4X4,   BLOCK_4X4,   BLOCK_4X4,    //    4x8,    8x4,     8x8
+  BLOCK_4X4,   BLOCK_4X4,   BLOCK_8X8,    //   8x16,   16x8,   16x16
+  BLOCK_8X8,   BLOCK_8X8,   BLOCK_16X16,  //  16x32,  32x16,   32x32
+  BLOCK_16X16, BLOCK_16X16, BLOCK_16X16,  //  32x64,  64x32,   64x64
+  BLOCK_16X16, BLOCK_16X16, BLOCK_16X16,  // 64x128, 128x64, 128x128
+  BLOCK_4X4,   BLOCK_4X4,   BLOCK_8X8,    //   4x16,   16x4,    8x32
+  BLOCK_8X8,   BLOCK_16X16, BLOCK_16X16,  //   32x8,  16x64,   64x16
+};
+
+static const BLOCK_SIZE max_partition_size[BLOCK_SIZES_ALL] = {
+  BLOCK_8X8,                                    //                     4x4
+  BLOCK_16X16,   BLOCK_16X16,   BLOCK_16X16,    //    4x8,    8x4,     8x8
+  BLOCK_32X32,   BLOCK_32X32,   BLOCK_32X32,    //   8x16,   16x8,   16x16
+  BLOCK_64X64,   BLOCK_64X64,   BLOCK_64X64,    //  16x32,  32x16,   32x32
+  BLOCK_LARGEST, BLOCK_LARGEST, BLOCK_LARGEST,  //  32x64,  64x32,   64x64
+  BLOCK_LARGEST, BLOCK_LARGEST, BLOCK_LARGEST,  // 64x128, 128x64, 128x128
+  BLOCK_16X16,   BLOCK_16X16,   BLOCK_32X32,    //   4x16,   16x4,    8x32
+  BLOCK_32X32,   BLOCK_LARGEST, BLOCK_LARGEST,  //   32x8,  16x64,   64x16
+};
+
 // TODO(kyslov): now this is very similar to rd_use_partition (except that
 // doesn't do extra search arounf suggested partitioning)
 //               consider passing a flag to select non-rd path (similar to
@@ -2340,6 +2362,57 @@ static void simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
   if (scaled_ref_frame) {
     xd->plane[AOM_PLANE_Y].pre[ref_idx] = backup_yv12;
   }
+}
+
+static void set_partition_range(const AV1_COMMON *const cm,
+                                const MACROBLOCKD *const xd, int mi_row,
+                                int mi_col, BLOCK_SIZE bsize,
+                                BLOCK_SIZE *const min_bs,
+                                BLOCK_SIZE *const max_bs) {
+  const int mi_width = mi_size_wide[bsize];
+  const int mi_height = mi_size_high[bsize];
+  int idx, idy;
+
+  const int idx_str = cm->mi_stride * mi_row + mi_col;
+  MB_MODE_INFO **const prev_mi = &cm->prev_mi_grid_visible[idx_str];
+  BLOCK_SIZE min_size = cm->seq_params.sb_size;  // default values
+  BLOCK_SIZE max_size = BLOCK_4X4;
+
+  if (prev_mi) {
+    for (idy = 0; idy < mi_height; ++idy) {
+      for (idx = 0; idx < mi_width; ++idx) {
+        const MB_MODE_INFO *const mi = prev_mi[idy * cm->mi_stride + idx];
+        const BLOCK_SIZE bs = mi ? mi->sb_type : bsize;
+        min_size = AOMMIN(min_size, bs);
+        max_size = AOMMAX(max_size, bs);
+      }
+    }
+  }
+
+  if (xd->left_available) {
+    for (idy = 0; idy < mi_height; ++idy) {
+      const MB_MODE_INFO *const mi = xd->mi[idy * cm->mi_stride - 1];
+      const BLOCK_SIZE bs = mi ? mi->sb_type : bsize;
+      min_size = AOMMIN(min_size, bs);
+      max_size = AOMMAX(max_size, bs);
+    }
+  }
+
+  if (xd->up_available) {
+    for (idx = 0; idx < mi_width; ++idx) {
+      const MB_MODE_INFO *const mi = xd->mi[idx - cm->mi_stride];
+      const BLOCK_SIZE bs = mi ? mi->sb_type : bsize;
+      min_size = AOMMIN(min_size, bs);
+      max_size = AOMMAX(max_size, bs);
+    }
+  }
+
+  if (min_size == max_size) {
+    min_size = min_partition_size[min_size];
+    max_size = max_partition_size[max_size];
+  }
+  *min_bs = AOMMIN(min_size, cm->seq_params.sb_size);
+  *max_bs = AOMMIN(max_size, cm->seq_params.sb_size);
 }
 
 static INLINE void store_pred_mv(MACROBLOCK *x, PICK_MODE_CONTEXT *ctx) {
@@ -3495,7 +3568,7 @@ static void simple_motion_search_based_split(
     nn_config = &av1_simple_motion_search_based_split_nn_config_16;
     split_only_thresh = av1_simple_motion_search_based_split_thresh_16;
   } else if (bsize == BLOCK_8X8) {
-    // Disable BLOCK_8X8 for now
+  // Disable BLOCK_8X8 for now
 #if !CONFIG_DISABLE_FULL_PIXEL_SPLIT_8X8
     nn_config = &av1_simple_motion_search_based_split_nn_config_8;
     split_only_thresh = av1_simple_motion_search_based_split_thresh_8;
@@ -4060,6 +4133,9 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   const int xss = x->e_mbd.plane[1].subsampling_x;
   const int yss = x->e_mbd.plane[1].subsampling_y;
 
+  BLOCK_SIZE min_size = x->min_partition_size;
+  BLOCK_SIZE max_size = x->max_partition_size;
+
   if (none_rd) *none_rd = 0;
 
 #if CONFIG_FP_MB_STATS
@@ -4125,6 +4201,27 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   best_rdc.rdcost = best_rd;
 
   set_offsets(cpi, tile_info, x, mi_row, mi_col, bsize);
+
+  if (cpi->sf.cb_partition_search && bsize == BLOCK_16X16) {
+    const int cb_partition_search_ctrl =
+        ((pc_tree->index == 0 || pc_tree->index == 3) +
+         get_chessboard_index(cm->current_frame.frame_number)) &
+        0x1;
+
+    if (cb_partition_search_ctrl && bsize > min_size && bsize < max_size)
+      set_partition_range(cm, xd, mi_row, mi_col, bsize, &min_size, &max_size);
+  }
+  // Determine partition types in search according to the speed features.
+  // The threshold set here has to be of square block size.
+  if (cpi->sf.auto_min_max_partition_size) {
+    const int no_partition_allowed = (bsize <= max_size && bsize >= min_size);
+    // Note: Further partitioning is NOT allowed when bsize == min_size already.
+    const int partition_allowed = (bsize <= max_size && bsize > min_size);
+    partition_none_allowed &= no_partition_allowed;
+    partition_horz_allowed &= partition_allowed || !has_rows;
+    partition_vert_allowed &= partition_allowed || !has_cols;
+    do_square_split &= bsize > min_size;
+  }
 
   if (bsize == BLOCK_16X16 && cpi->vaq_refresh)
     x->mb_energy = av1_log_block_var(cpi, x, bsize);
