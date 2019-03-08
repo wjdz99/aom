@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "4684acf1_96a513eb",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-08T01:45:05Z",
+      "side": 1,
+      "message": "Add CNN_RESTORATION guard?",
+      "revId": "ce9f7bf3e816e4f310e7fb23d1b9432fc7533114",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1b9a1522_c0fc45cd",
         "filename": "av1/av1.cmake",
         "patchSetId": 1
@@ -65,6 +82,23 @@
         "endLine": 17,
         "endChar": 62
       },
+      "revId": "ce9f7bf3e816e4f310e7fb23d1b9432fc7533114",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e39f0b58_5c5669eb",
+        "filename": "av1/common/cnn.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-08T01:45:05Z",
+      "side": 1,
+      "message": "Do we want **input to have type float? These values only range from 0 to 255, right?",
       "revId": "ce9f7bf3e816e4f310e7fb23d1b9432fc7533114",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
