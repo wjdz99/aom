@@ -130,6 +130,8 @@ struct av1_extracfg {
   int use_intra_default_tx_only;
   int quant_b_adapt;
   int target_seq_level_idx;
+  // Bit mask to indicate which operating points are high tier.
+  unsigned int high_tier_mask;
   COST_UPDATE_TYPE coeff_cost_upd_freq;
   COST_UPDATE_TYPE mode_cost_upd_freq;
 };
@@ -232,6 +234,7 @@ static struct av1_extracfg default_extra_cfg = {
   0,            // use_intra_default_tx_only
   0,            // quant_b_adapt
   -1,           // target_seq_level_idx
+  0,            // high_tier_mask
   COST_UPD_SB,  // coeff_cost_upd_freq
   COST_UPD_SB,  // mode_cost_upd_freq
 };
@@ -813,6 +816,7 @@ static aom_codec_err_t set_encoder_config(
                                ? AOM_BORDER_IN_PIXELS
                                : AOM_ENC_NO_SCALE_BORDER;
   oxcf->target_seq_level_idx = extra_cfg->target_seq_level_idx;
+  oxcf->high_tier_mask = extra_cfg->high_tier_mask;
   return AOM_CODEC_OK;
 }
 
@@ -1461,6 +1465,13 @@ static aom_codec_err_t ctrl_set_target_seq_level_idx(aom_codec_alg_priv_t *ctx,
                                                      va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.target_seq_level_idx = CAST(AV1E_SET_TARGET_SEQ_LEVEL_IDX, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_high_tier_mask(aom_codec_alg_priv_t *ctx,
+                                               va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.high_tier_mask = CAST(AV1E_SET_HIGH_TIER_MASK, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
@@ -2141,6 +2152,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
 #endif  // CONFIG_FILM_GRAIN
   { AV1E_ENABLE_MOTION_VECTOR_UNIT_TEST, ctrl_enable_motion_vector_unit_test },
   { AV1E_SET_TARGET_SEQ_LEVEL_IDX, ctrl_set_target_seq_level_idx },
+  { AV1E_SET_HIGH_TIER_MASK, ctrl_set_high_tier_mask },
 
   // Getters
   { AOME_GET_LAST_QUANTIZER, ctrl_get_quantizer },

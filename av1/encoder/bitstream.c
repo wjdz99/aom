@@ -3320,6 +3320,10 @@ uint32_t write_sequence_header_obu(AV1_COMP *cpi, uint8_t *const dst) {
     aom_wb_write_literal(&wb, cm->seq_params.operating_points_cnt_minus_1,
                          OP_POINTS_CNT_MINUS_1_BITS);
     int i;
+    for (i = 0; i < 32; ++i) {
+      printf("%2d ", cm->seq_params.tier[i]);
+    }
+    printf("\n");
     for (i = 0; i < cm->seq_params.operating_points_cnt_minus_1 + 1; i++) {
       aom_wb_write_literal(&wb, cm->seq_params.operating_point_idc[i],
                            OP_POINTS_IDC_BITS);

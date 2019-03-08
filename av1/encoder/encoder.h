@@ -393,6 +393,8 @@ typedef struct AV1EncoderConfig {
   COST_UPDATE_TYPE mode_cost_upd_freq;
   int border_in_pixels;
   int target_seq_level_idx;
+  // Bit mask to indicate which operating points are high tier.
+  unsigned int high_tier_mask;
 } AV1EncoderConfig;
 
 static INLINE int is_lossless_requested(const AV1EncoderConfig *cfg) {
