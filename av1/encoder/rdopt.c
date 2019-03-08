@@ -11102,8 +11102,7 @@ static const MV_REFERENCE_FRAME real_time_ref_combos[][2] = {
   { LAST_FRAME, NONE_FRAME },
   { ALTREF_FRAME, NONE_FRAME },
   { GOLDEN_FRAME, NONE_FRAME },
-  { INTRA_FRAME, NONE_FRAME },
-  { BWDREF_FRAME, NONE_FRAME }
+  { INTRA_FRAME, NONE_FRAME }
 };
 
 typedef enum { REF_SET_FULL, REF_SET_REDUCED, REF_SET_REALTIME } REF_SET;
@@ -11453,25 +11452,25 @@ static void set_params_nonrd_pick_inter_mode(
                                  yv12_mb);
     }
   }
+  if (!cpi->sf.use_real_time_ref_set) {
+    av1_count_overlappable_neighbors(cm, xd, mi_row, mi_col);
 
-  av1_count_overlappable_neighbors(cm, xd, mi_row, mi_col);
-
-  if (check_num_overlappable_neighbors(mbmi) &&
-      is_motion_variation_allowed_bsize(bsize)) {
-    av1_build_prediction_by_above_preds(cm, xd, mi_row, mi_col,
-                                        args->above_pred_buf, dst_width1,
-                                        dst_height1, args->above_pred_stride);
-    av1_build_prediction_by_left_preds(cm, xd, mi_row, mi_col,
-                                       args->left_pred_buf, dst_width2,
-                                       dst_height2, args->left_pred_stride);
-    av1_setup_dst_planes(xd->plane, bsize, &cm->cur_frame->buf, mi_row, mi_col,
-                         0, num_planes);
-    calc_target_weighted_pred(
-        cm, x, xd, mi_row, mi_col, args->above_pred_buf[0],
-        args->above_pred_stride[0], args->left_pred_buf[0],
-        args->left_pred_stride[0]);
+    if (check_num_overlappable_neighbors(mbmi) &&
+        is_motion_variation_allowed_bsize(bsize)) {
+      av1_build_prediction_by_above_preds(cm, xd, mi_row, mi_col,
+                                          args->above_pred_buf, dst_width1,
+                                          dst_height1, args->above_pred_stride);
+      av1_build_prediction_by_left_preds(cm, xd, mi_row, mi_col,
+                                         args->left_pred_buf, dst_width2,
+                                         dst_height2, args->left_pred_stride);
+      av1_setup_dst_planes(xd->plane, bsize, &cm->cur_frame->buf, mi_row,
+                           mi_col, 0, num_planes);
+      calc_target_weighted_pred(
+          cm, x, xd, mi_row, mi_col, args->above_pred_buf[0],
+          args->above_pred_stride[0], args->left_pred_buf[0],
+          args->left_pred_stride[0]);
+    }
   }
-
   init_mode_skip_mask(mode_skip_mask, cpi, x, bsize);
 
   if (cpi->sf.tx_type_search.fast_intra_tx_type_search)
