@@ -325,7 +325,7 @@ static void set_good_speed_features_framesize_independent(
     }
     sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
     sf->gm_search_type = GM_DISABLE_SEARCH;
-    sf->prune_comp_search_by_single_result = 2;
+    sf->prune_comp_search_by_single_result = boosted ? 2 : 3;
     sf->use_first_partition_pass_interintra_stats =
         sf->two_pass_partition_search;
     sf->prune_motion_mode_level = boosted ? 2 : 3;
