@@ -133,3 +133,59 @@ void av1_cnn_predict_c(const float *input, int in_width, int in_height,
     }
   }
 }
+
+void av1_restore_cnn(uint8_t *dgd, int width, int height, int stride,
+                     const CNN_CONFIG *cnn_config) {
+  float *input = (float *)aom_malloc(width * height * sizeof(*input));
+  float *output = (float *)aom_malloc(width * height * sizeof(*input));
+  const int in_stride = width;
+  const int out_stride = width;
+  for (int i = 0; i < height; ++i)
+    for (int j = 0; j < width; ++j)
+      input[i * in_stride + j] = (float)dgd[i * stride + j];
+
+  av1_cnn_predict(input, width, height, in_stride, cnn_config, output,
+                  out_stride);
+
+  for (int i = 0; i < height; ++i)
+    for (int j = 0; j < width; ++j)
+      dgd[i * stride + j] = clip_pixel((int)(output[i * out_stride + j] + 0.5));
+
+  aom_free(input);
+  aom_free(output);
+}
+
+void av1_restore_cnn_highbd(uint16_t *dgd, int width, int height, int stride,
+                            const CNN_CONFIG *cnn_config, int bit_depth) {
+  float *input = (float *)aom_malloc(width * height * sizeof(*input));
+  float *output = (float *)aom_malloc(width * height * sizeof(*input));
+  const int in_stride = width;
+  const int out_stride = width;
+  for (int i = 0; i < height; ++i)
+    for (int j = 0; j < width; ++j)
+      input[i * in_stride + j] = (float)dgd[i * stride + j];
+
+  av1_cnn_predict(input, width, height, in_stride, cnn_config, output,
+                  out_stride);
+
+  for (int i = 0; i < height; ++i)
+    for (int j = 0; j < width; ++j)
+      dgd[i * stride + j] =
+          clip_pixel_highbd((int)(output[i * out_stride + j] + 0.5), bit_depth);
+
+  aom_free(input);
+  aom_free(output);
+}
+
+void av1_restore_cnn_buffer(AV1_COMMON *cm, const CNN_CONFIG *cnn_config) {
+  YV12_BUFFER_CONFIG *buf = &cm->cur_frame->buf;
+  if (cm->seq_params.use_highbitdepth) {
+    av1_restore_cnn_highbd(CONVERT_TO_SHORTPTR(buf->y_buffer),
+                           buf->y_crop_width, buf->y_crop_height, buf->y_stride,
+                           cnn_config, cm->seq_params.bit_depth);
+  } else {
+    assert(cm->seq_params.bit_depth == 8);
+    av1_restore_cnn(buf->y_buffer, buf->y_crop_width, buf->y_crop_height,
+                    buf->y_stride, cnn_config);
+  }
+}

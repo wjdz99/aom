@@ -17,6 +17,7 @@ extern "C" {
 #endif
 
 #include "config/av1_rtcd.h"
+#include "av1/common/onyxc_int.h"
 
 #define CNN_MAX_HIDDEN_LAYERS 25
 #define CNN_MAX_LAYERS (CNN_MAX_HIDDEN_LAYERS + 1)
@@ -39,6 +40,12 @@ struct CNN_CONFIG {
   int num_layers;
   CNN_LAYER_CONFIG layer_config[CNN_MAX_LAYERS];
 };
+
+void av1_restore_cnn(uint8_t *dgd, int width, int height, int stride,
+                     const CNN_CONFIG *cnn_config);
+void av1_restore_cnn_highbd(uint16_t *dgd, int width, int height, int stride,
+                            const CNN_CONFIG *cnn_config, int bit_depth);
+void av1_restore_cnn_buffer(AV1_COMMON *cm, const CNN_CONFIG *cnn_config);
 
 #ifdef __cplusplus
 }  // extern "C"
