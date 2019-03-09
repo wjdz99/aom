@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d971c1d8_b1a15b55",
+        "filename": "av1/common/cnn.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-09T01:10:43Z",
+      "side": 1,
+      "message": "You can move this to \".c\" file, as the header only uses pointers to the structs in function signatures.\nSo, a forward declaration like \"struct AV1_COMMON;\" would be enough.\nAnd if needed, you can include the relevant header only for uint8_t, uint16_t.",
+      "range": {
+        "startLine": 20,
+        "startChar": 33,
+        "endLine": 21,
+        "endChar": 0
+      },
+      "revId": "7a211258930eb608a35990d242d31b069303e167",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66c04955_5a1458e1",
+        "filename": "av1/common/cnn.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-09T01:10:43Z",
+      "side": 1,
+      "message": "Add a comment, that you are restoring \u0027y\u0027 buffer only",
+      "range": {
+        "startLine": 48,
+        "startChar": 5,
+        "endLine": 48,
+        "endChar": 27
+      },
+      "revId": "7a211258930eb608a35990d242d31b069303e167",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
