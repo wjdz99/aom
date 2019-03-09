@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd0cf685_9d441169",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 6
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-03-09T01:28:14Z",
+      "side": 1,
+      "message": "A couple things:\n\n1. Can you add an example of the include failures that these paths fix?\n2. ${CMAKE_INSTALL_PREFIX}/include/tensorflow should be supplied by the user: require -DTENSORFLOW_INCLUDE_DIR be supplied at CMake run time when $CONFIG_CNN_RESTORATION is enabled.",
+      "range": {
+        "startLine": 221,
+        "startChar": 0,
+        "endLine": 229,
+        "endChar": 102
+      },
+      "revId": "b6a84bf48c3ac6171c346604fec5c75c6d07af90",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33024812_7d357283",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 6
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-03-09T01:28:14Z",
+      "side": 1,
+      "message": "This package is kind of a mess. It\u0027s installing includes in include/tensorflow/tensorflow and libs in lib/tensorflow_cc. Is it actually providing anything you can\u0027t have by just using the upstream tensorflow repo? If this is making things significantly easier it\u0027s fine. Just noting that this setup is kind of messy.\n\nAnyway, in addition to $TENSORFLOW_INCLUDE_DIR you should require $TENSORFLOW_LIB_DIR.",
+      "range": {
+        "startLine": 466,
+        "startChar": 6,
+        "endLine": 466,
+        "endChar": 63
+      },
+      "revId": "b6a84bf48c3ac6171c346604fec5c75c6d07af90",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dae71653_058d1c43",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-03-09T01:28:14Z",
+      "side": 1,
+      "message": "I think you can drop these now that the build is working, no?\n\nIf you need some tensorflow code somewhere to make sure things work why not just drop the example code from https://www.tensorflow.org/guide/extend/cc into call_tensorflow.cc?",
+      "range": {
+        "startLine": 358,
+        "startChar": 0,
+        "endLine": 360,
+        "endChar": 0
+      },
+      "revId": "b6a84bf48c3ac6171c346604fec5c75c6d07af90",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
