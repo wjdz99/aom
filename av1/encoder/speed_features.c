@@ -102,6 +102,7 @@ static void set_good_speed_feature_framesize_dependent(
   const AV1_COMMON *const cm = &cpi->common;
   const int is_720p_or_larger = AOMMIN(cm->width, cm->height) >= 720;
   const int is_480p_or_larger = AOMMIN(cm->width, cm->height) >= 480;
+  const int boosted = frame_is_boosted(cpi);
 
   if (is_480p_or_larger) {
     sf->use_square_partition_only_threshold = BLOCK_128X128;
@@ -173,6 +174,15 @@ static void set_good_speed_feature_framesize_dependent(
       sf->disable_split_mask = DISABLE_ALL_INTER_SPLIT;
       sf->partition_search_breakout_dist_thr = (1 << 23);
       sf->partition_search_breakout_rate_thr = 120;
+    }
+
+    if (is_720p_or_larger) {
+      sf->use_square_partition_only_threshold =
+          boosted ? BLOCK_64X64 : BLOCK_32X32;
+      ;
+    } else {
+      sf->use_square_partition_only_threshold =
+          boosted ? BLOCK_64X64 : BLOCK_16X16;
     }
   }
 
@@ -342,8 +352,6 @@ static void set_good_speed_features_framesize_independent(
   if (speed >= 4) {
     sf->use_intra_txb_hash = 0;
     sf->tx_type_search.fast_intra_tx_type_search = 1;
-    sf->use_square_partition_only_threshold =
-        boosted ? BLOCK_128X128 : BLOCK_4X4;
     sf->disable_loop_restoration_chroma =
         (boosted || cm->allow_screen_content_tools) ? 0 : 1;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
@@ -366,7 +374,6 @@ static void set_good_speed_features_framesize_independent(
     sf->intra_uv_mode_mask[TX_32X32] = UV_INTRA_DC_H_V_CFL;
     sf->intra_y_mode_mask[TX_16X16] = INTRA_DC_H_V;
     sf->intra_uv_mode_mask[TX_16X16] = UV_INTRA_DC_H_V_CFL;
-    sf->use_square_partition_only_threshold = BLOCK_4X4;
     sf->tx_size_search_method = USE_LARGESTALL;
     sf->mv.search_method = BIGDIA;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
@@ -547,8 +554,6 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->use_mb_rd_hash = 0;
     sf->tx_type_search.fast_intra_tx_type_search = 1;
     sf->tx_type_search.fast_inter_tx_type_search = 1;
-    sf->use_square_partition_only_threshold =
-        boosted ? BLOCK_128X128 : BLOCK_4X4;
     sf->tx_size_search_method =
         frame_is_intra_only(cm) ? USE_FULL_RD : USE_LARGESTALL;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
@@ -566,7 +571,6 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->intra_uv_mode_mask[TX_32X32] = UV_INTRA_DC_H_V_CFL;
     sf->intra_y_mode_mask[TX_16X16] = INTRA_DC_H_V;
     sf->intra_uv_mode_mask[TX_16X16] = UV_INTRA_DC_H_V_CFL;
-    sf->use_square_partition_only_threshold = BLOCK_4X4;
     sf->tx_size_search_method = USE_LARGESTALL;
     sf->mv.search_method = BIGDIA;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
