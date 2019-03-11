@@ -119,7 +119,7 @@ static void set_good_speed_feature_framesize_dependent(
     sf->ml_partition_search_breakout_thresh[4] = -1;   // BLOCK_128X128
   }
 
-  if (speed >= 1) {
+  if (0 && speed >= 1) {
     if (is_720p_or_larger) {
       sf->use_square_partition_only_threshold = BLOCK_128X128;
     } else if (is_480p_or_larger) {
@@ -254,6 +254,9 @@ static void set_good_speed_features_framesize_independent(
     sf->adaptive_txb_search_level = 2;
     sf->use_intra_txb_hash = 1;
     sf->optimize_b_precheck = 1;
+
+
+
     sf->dual_sgr_penalty_level = 1;
     sf->use_accurate_subpel_search = USE_4_TAPS;
     sf->reuse_inter_intra_mode = 1;
