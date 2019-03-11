@@ -454,7 +454,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK(extra_cfg, coeff_cost_upd_freq, 0, 2);
   RANGE_CHECK(extra_cfg, mode_cost_upd_freq, 0, 2);
 
-  for (int i = 0; i < MAX_NUM_OPERATING_POINTS; ++i) {
+  RANGE_CHECK(extra_cfg, min_partition_size, 4, 128);
     if (!is_valid_seq_level_idx(extra_cfg->target_seq_level_idx[i]))
       ERROR("Target sequence level index is invalid");
   }
