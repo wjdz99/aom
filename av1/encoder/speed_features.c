@@ -119,7 +119,7 @@ static void set_good_speed_feature_framesize_dependent(
     sf->ml_partition_search_breakout_thresh[4] = -1;   // BLOCK_128X128
   }
 
-  if (speed >= 1) {
+  if (0 && speed >= 1) {
     if (is_720p_or_larger) {
       sf->use_square_partition_only_threshold = BLOCK_128X128;
     } else if (is_480p_or_larger) {
@@ -235,26 +235,17 @@ static void set_good_speed_features_framesize_independent(
   sf->use_real_time_ref_set = 0;
 
   if (speed >= 1) {
+#if 0
+	  // partition
+	    if (speed >= CONFIG_2PASS_PARTITION_SEARCH_LVL_START &&
+	        speed < CONFIG_2PASS_PARTITION_SEARCH_LVL_END)
+	      sf->two_pass_partition_search = 1;
+	    sf->prune_ext_partition_types_search_level = 2;
+
+
+	  // motion & mode
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;
     sf->selective_ref_frame = 2;
-
-    sf->inter_tx_size_search_init_depth_rect = 1;
-    sf->inter_tx_size_search_init_depth_sqr = 1;
-    sf->intra_tx_size_search_init_depth_rect = 1;
-    sf->tx_size_search_lgr_block = 1;
-    if (speed >= CONFIG_2PASS_PARTITION_SEARCH_LVL_START &&
-        speed < CONFIG_2PASS_PARTITION_SEARCH_LVL_END)
-      sf->two_pass_partition_search = 1;
-
-    sf->prune_ext_partition_types_search_level = 2;
-    sf->skip_repeat_interpolation_filter_search = 1;
-    sf->tx_type_search.skip_tx_search = 1;
-    sf->tx_type_search.ml_tx_split_thresh = 40;
-    sf->model_based_prune_tx_search_level = 0;
-    sf->adaptive_txb_search_level = 2;
-    sf->use_intra_txb_hash = 1;
-    sf->optimize_b_precheck = 1;
-    sf->dual_sgr_penalty_level = 1;
     sf->use_accurate_subpel_search = USE_4_TAPS;
     sf->reuse_inter_intra_mode = 1;
     sf->prune_comp_search_by_single_result = 1;
@@ -264,16 +255,31 @@ static void set_good_speed_features_framesize_independent(
     // identify the appropriate tradeoff between encoder performance and its
     // speed.
     sf->prune_single_motion_modes_by_simple_trans = 1;
-
     sf->simple_motion_search_split_only = 1;
     sf->simple_motion_search_early_term_none = 1;
-
     sf->disable_wedge_search_var_thresh = 0;
     sf->disable_wedge_search_edge_thresh = 0;
     sf->disable_interinter_wedge_newmv_search = boosted ? 0 : 1;
     sf->prune_comp_type_by_comp_avg = 1;
     sf->prune_motion_mode_level = 2;
     sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
+#endif
+
+    // tx
+    sf->inter_tx_size_search_init_depth_rect = 1;
+    sf->inter_tx_size_search_init_depth_sqr = 1;
+    sf->intra_tx_size_search_init_depth_rect = 1;
+    sf->tx_size_search_lgr_block = 1;
+    sf->tx_type_search.skip_tx_search = 1;
+    sf->tx_type_search.ml_tx_split_thresh = 40;
+    sf->model_based_prune_tx_search_level = 0;
+    sf->adaptive_txb_search_level = 2;
+    sf->use_intra_txb_hash = 1;
+
+    // interp & others
+    sf->skip_repeat_interpolation_filter_search = 1;
+    sf->optimize_b_precheck = 1;
+    sf->dual_sgr_penalty_level = 1;
     sf->cb_pred_filter_search = 1;
     sf->use_transform_domain_distortion = boosted ? 0 : 1;
     sf->perform_coeff_opt = boosted ? 0 : 1;
