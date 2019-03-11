@@ -3837,6 +3837,11 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   int vert_ctx_is_ready = 0;
   BLOCK_SIZE bsize2 = get_partition_subsize(bsize, PARTITION_SPLIT);
 
+  int max_partition_size = cpi->oxcf.max_partition_size;
+  int min_partition_size = cpi->oxcf.min_partition_size;
+  int bwidth = block_size_wide[bsize];
+  int bheight = block_size_high[bsize];
+
   // Max and min square partition levels are defined as the partition nodes that
   // the recursive function rd_pick_partition() can reach. To implement this:
   // only PARTITION_SPLIT is NOT allowed if the current node equals min_sq_part,
@@ -4049,6 +4054,29 @@ BEGIN_PARTITION_SEARCH:
       do_square_split = 0;
   }
 #endif
+
+  if (bwidth > max_partition_size && bheight > max_partition_size) {
+    partition_none_allowed = 0;
+    partition_horz_allowed = 0;
+    partition_vert_allowed = 0;
+  } else if (bwidth > max_partition_size && bheight <= max_partition_size) {
+    partition_none_allowed = 0;
+    partition_horz_allowed = 0;
+  } else if (bwidth <= max_partition_size && bheight > max_partition_size) {
+    partition_none_allowed = 0;
+    partition_vert_allowed = 0;
+  }
+
+  if (bwidth == min_partition_size && bheight == min_partition_size) {
+    partition_horz_allowed = 0;
+    partition_vert_allowed = 0;
+    do_square_split = 0;
+  } else if (bwidth < min_partition_size || bheight < min_partition_size) {
+    partition_none_allowed = 0;
+    partition_horz_allowed = 0;
+    partition_vert_allowed = 0;
+    do_square_split = 0;
+  }
 
   // PARTITION_NONE
   if (is_eq_min_sq_part) partition_none_allowed = 1;
@@ -4447,8 +4475,10 @@ BEGIN_PARTITION_SEARCH:
 
   // The standard AB partitions are allowed whenever ext-partition-types are
   // allowed
-  int horzab_partition_allowed = ext_partition_allowed;
-  int vertab_partition_allowed = ext_partition_allowed;
+  int horzab_partition_allowed =
+      ext_partition_allowed & cpi->oxcf.enable_tshape_partitions;
+  int vertab_partition_allowed =
+      ext_partition_allowed & cpi->oxcf.enable_tshape_partitions;
 
 #if CONFIG_DIST_8X8
   if (x->using_dist_8x8) {
@@ -4533,6 +4563,11 @@ BEGIN_PARTITION_SEARCH:
                           &horza_partition_allowed, &horzb_partition_allowed,
                           &verta_partition_allowed, &vertb_partition_allowed);
   }
+
+  horza_partition_allowed &= cpi->oxcf.enable_tshape_partitions;
+  horzb_partition_allowed &= cpi->oxcf.enable_tshape_partitions;
+  verta_partition_allowed &= cpi->oxcf.enable_tshape_partitions;
+  vertb_partition_allowed &= cpi->oxcf.enable_tshape_partitions;
 
   // PARTITION_HORZ_A
   if (!terminate_partition_search && partition_horz_allowed &&
@@ -4708,8 +4743,10 @@ BEGIN_PARTITION_SEARCH:
   // PARTITION_VERT_4 for this block. This is almost the same as
   // ext_partition_allowed, except that we don't allow 128x32 or 32x128
   // blocks, so we require that bsize is not BLOCK_128X128.
-  const int partition4_allowed =
-      ext_partition_allowed && bsize != BLOCK_128X128;
+  const int partition4_allowed = cpi->oxcf.enable_1to4_partitions &&
+                                 ext_partition_allowed &&
+                                 bsize != BLOCK_128X128;
+
   int partition_horz4_allowed = partition4_allowed && partition_horz_allowed;
   int partition_vert4_allowed = partition4_allowed && partition_vert_allowed;
   if (cpi->sf.prune_ext_partition_types_search_level == 2) {
@@ -4740,6 +4777,9 @@ BEGIN_PARTITION_SEARCH:
     }
   }
 #endif
+
+  if (bheight < (min_partition_size << 2)) partition_horz4_allowed = 0;
+  if (bwidth < (min_partition_size << 2)) partition_vert4_allowed = 0;
 
   // PARTITION_HORZ_4
   assert(IMPLIES(!cpi->oxcf.enable_rect_partitions, !partition_horz4_allowed));
@@ -5964,6 +6004,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   if (av1_superres_scaled(cm)) {
     cm->allow_intrabc = 0;
   }
+
+  cm->allow_intrabc &= (cpi->oxcf.enable_intrabc);
 
   if (cpi->oxcf.pass != 1 && av1_use_hash_me(cm)) {
     // add to hash table
