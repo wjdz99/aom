@@ -3830,13 +3830,17 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
 
   // Max and min square partition levels are defined as the partition nodes that
   // the recursive function rd_pick_partition() can reach. To implement this:
-  // only PARTITION_SPLIT is NOT allowed if the current node equals min_sq_part,
+  // only PARTITION_NONE is allowed if the current node equals min_sq_part,
   // only PARTITION_SPLIT is allowed if the current node exceeds max_sq_part.
   assert(block_size_wide[min_sq_part] == block_size_high[min_sq_part]);
   assert(block_size_wide[max_sq_part] == block_size_high[max_sq_part]);
   assert(min_sq_part <= max_sq_part);
   int is_eq_min_sq_part = bsize == min_sq_part;
   int is_gt_max_sq_part = bsize > max_sq_part;
+  int max_partition_size = block_size_wide[max_sq_part];
+  int min_partition_size = block_size_wide[min_sq_part];
+  int bwidth = block_size_wide[bsize];
+  int bheight = block_size_high[bsize];
 
   if (best_rd < 0) {
     pc_tree->none.rdcost = INT64_MAX;
@@ -4040,6 +4044,29 @@ BEGIN_PARTITION_SEARCH:
       do_square_split = 0;
   }
 #endif
+
+  if (bwidth > max_partition_size && bheight > max_partition_size) {
+    partition_none_allowed = 0;
+    partition_horz_allowed = 0;
+    partition_vert_allowed = 0;
+  } else if (bwidth > max_partition_size && bheight <= max_partition_size) {
+    partition_none_allowed = 0;
+    partition_horz_allowed = 0;
+  } else if (bwidth <= max_partition_size && bheight > max_partition_size) {
+    partition_none_allowed = 0;
+    partition_vert_allowed = 0;
+  }
+
+  if (bwidth == min_partition_size && bheight == min_partition_size) {
+    partition_horz_allowed = 0;
+    partition_vert_allowed = 0;
+    do_square_split = 0;
+  } else if (bwidth < min_partition_size || bheight < min_partition_size) {
+    partition_none_allowed = 0;
+    partition_horz_allowed = 0;
+    partition_vert_allowed = 0;
+    do_square_split = 0;
+  }
 
   // PARTITION_NONE
   if (is_eq_min_sq_part) partition_none_allowed = 1;
@@ -4438,8 +4465,10 @@ BEGIN_PARTITION_SEARCH:
 
   // The standard AB partitions are allowed whenever ext-partition-types are
   // allowed
-  int horzab_partition_allowed = ext_partition_allowed;
-  int vertab_partition_allowed = ext_partition_allowed;
+  int horzab_partition_allowed =
+      ext_partition_allowed & cpi->oxcf.enable_ab_partitions;
+  int vertab_partition_allowed =
+      ext_partition_allowed & cpi->oxcf.enable_ab_partitions;
 
 #if CONFIG_DIST_8X8
   if (x->using_dist_8x8) {
@@ -4524,6 +4553,11 @@ BEGIN_PARTITION_SEARCH:
                           &horza_partition_allowed, &horzb_partition_allowed,
                           &verta_partition_allowed, &vertb_partition_allowed);
   }
+
+  horza_partition_allowed &= cpi->oxcf.enable_ab_partitions;
+  horzb_partition_allowed &= cpi->oxcf.enable_ab_partitions;
+  verta_partition_allowed &= cpi->oxcf.enable_ab_partitions;
+  vertb_partition_allowed &= cpi->oxcf.enable_ab_partitions;
 
   // PARTITION_HORZ_A
   if (!terminate_partition_search && partition_horz_allowed &&
@@ -4699,8 +4733,10 @@ BEGIN_PARTITION_SEARCH:
   // PARTITION_VERT_4 for this block. This is almost the same as
   // ext_partition_allowed, except that we don't allow 128x32 or 32x128
   // blocks, so we require that bsize is not BLOCK_128X128.
-  const int partition4_allowed =
-      ext_partition_allowed && bsize != BLOCK_128X128;
+  const int partition4_allowed = cpi->oxcf.enable_1to4_partitions &&
+                                 ext_partition_allowed &&
+                                 bsize != BLOCK_128X128;
+
   int partition_horz4_allowed = partition4_allowed && partition_horz_allowed;
   int partition_vert4_allowed = partition4_allowed && partition_vert_allowed;
   if (cpi->sf.prune_ext_partition_types_search_level == 2) {
@@ -4731,6 +4767,9 @@ BEGIN_PARTITION_SEARCH:
     }
   }
 #endif
+
+  if (bheight < (min_partition_size << 2)) partition_horz4_allowed = 0;
+  if (bwidth < (min_partition_size << 2)) partition_vert4_allowed = 0;
 
   // PARTITION_HORZ_4
   assert(IMPLIES(!cpi->oxcf.enable_rect_partitions, !partition_horz4_allowed));
@@ -5493,6 +5532,28 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       start_timing(cpi, rd_pick_partition_time);
 #endif
       BLOCK_SIZE max_sq_size = sb_size;
+      switch (cpi->oxcf.max_partition_size) {
+        case 4: max_sq_size = BLOCK_4X4; break;
+        case 8: max_sq_size = BLOCK_8X8; break;
+        case 16: max_sq_size = BLOCK_16X16; break;
+        case 32: max_sq_size = BLOCK_32X32; break;
+        case 64: max_sq_size = BLOCK_64X64; break;
+        case 128: max_sq_size = BLOCK_128X128; break;
+        default: assert(0); break;
+      }
+      max_sq_size = AOMMIN(max_sq_size, sb_size);
+
+      BLOCK_SIZE min_sq_size = BLOCK_4X4;
+      switch (cpi->oxcf.min_partition_size) {
+        case 4: min_sq_size = BLOCK_4X4; break;
+        case 8: min_sq_size = BLOCK_8X8; break;
+        case 16: min_sq_size = BLOCK_16X16; break;
+        case 32: min_sq_size = BLOCK_32X32; break;
+        case 64: min_sq_size = BLOCK_64X64; break;
+        case 128: min_sq_size = BLOCK_128X128; break;
+        default: assert(0); break;
+      }
+
       if (use_auto_max_partition(cpi, sb_size, mi_row, mi_col)) {
         float features[FEATURE_SIZE_MAX_MIN_PART_PRED] = { 0.0f };
 
@@ -5500,8 +5561,8 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
         max_sq_size = AOMMIN(predict_max_partition(features), sb_size);
       }
       rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
-                        max_sq_size, BLOCK_4X4, &dummy_rdc, INT64_MAX, pc_root,
-                        NULL);
+                        max_sq_size, min_sq_size, &dummy_rdc, INT64_MAX,
+                        pc_root, NULL);
 #if CONFIG_COLLECT_COMPONENT_TIMING
       end_timing(cpi, rd_pick_partition_time);
 #endif
@@ -5956,6 +6017,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   if (av1_superres_scaled(cm)) {
     cm->allow_intrabc = 0;
   }
+
+  cm->allow_intrabc &= (cpi->oxcf.enable_intrabc);
 
   if (cpi->oxcf.pass != 1 && av1_use_hash_me(cm)) {
     // add to hash table
