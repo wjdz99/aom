@@ -10150,11 +10150,20 @@ static int64_t handle_inter_mode(
     mode_info[ref_mv_idx].mv.as_int = INVALID_MV;
     mode_info[ref_mv_idx].rd = INT64_MAX;
 
-    if (cpi->sf.reduce_inter_modes && ref_mv_idx > 0) {
-      if (mbmi->ref_frame[0] == LAST2_FRAME ||
-          mbmi->ref_frame[0] == LAST3_FRAME ||
-          mbmi->ref_frame[1] == LAST2_FRAME ||
-          mbmi->ref_frame[1] == LAST3_FRAME) {
+    if (cpi->sf.reduce_inter_modes >= 1) {
+      if (ref_mv_idx > 0) {
+        if (mbmi->ref_frame[0] == LAST2_FRAME ||
+            mbmi->ref_frame[0] == LAST3_FRAME ||
+            mbmi->ref_frame[1] == LAST2_FRAME ||
+            mbmi->ref_frame[1] == LAST3_FRAME) {
+          if (mbmi_ext->ref_mv_stack[ref_frame_type][ref_mv_idx + has_nearmv]
+                  .weight < REF_CAT_LEVEL) {
+            continue;
+          }
+        }
+      }
+      if ((ref_mv_idx > 1) && (cpi->sf.reduce_inter_modes >= 2) &&
+          (have_newmv_in_inter_mode(mbmi->mode))) {
         if (mbmi_ext->ref_mv_stack[ref_frame_type][ref_mv_idx + has_nearmv]
                 .weight < REF_CAT_LEVEL) {
           continue;
