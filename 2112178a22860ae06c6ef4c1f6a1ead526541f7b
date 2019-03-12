@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "26c834a8_42027c94",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2444,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-12T17:54:21Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8d44da43_d774ff1a",
+      "range": {
+        "startLine": 2444,
+        "startChar": 2,
+        "endLine": 2444,
+        "endChar": 45
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab67d4a1_08266df8",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 15
@@ -45,6 +69,30 @@
       "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6202e7e6_9623e6c2",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3440,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-12T17:54:21Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ab67d4a1_08266df8",
+      "range": {
+        "startLine": 3439,
+        "startChar": 5,
+        "endLine": 3440,
+        "endChar": 48
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "d692235d_a3b7f861",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3885,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-12T17:54:21Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "fc938533_f2c0158e",
+      "range": {
+        "startLine": 3883,
+        "startChar": 2,
+        "endLine": 3885,
+        "endChar": 36
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0176b75a_a7de7c7b",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 15
@@ -91,6 +163,30 @@
       "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58710082_30309f37",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3905,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-12T17:54:21Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0176b75a_a7de7c7b",
+      "range": {
+        "startLine": 3905,
+        "startChar": 2,
+        "endLine": 3905,
+        "endChar": 12
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "0fa563fd_b3e3fa3d",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3906,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-12T17:54:21Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ebcc77ee_693d1802",
+      "range": {
+        "startLine": 3906,
+        "startChar": 6,
+        "endLine": 3906,
+        "endChar": 11
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7686adeb_3a2eff8c",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 15
@@ -128,6 +248,30 @@
       "writtenOn": "2019-03-12T17:10:34Z",
       "side": 1,
       "message": "I think it\u0027s better to keep them at the old location, closer to their first usage.",
+      "range": {
+        "startLine": 3982,
+        "startChar": 2,
+        "endLine": 3983,
+        "endChar": 43
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88b262c4_afc1a834",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3983,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-12T17:54:21Z",
+      "side": 1,
+      "message": "I wrote this code before the commit that moves simple_motion_features. I must have inadvertently moved it back when I rebased.",
+      "parentUuid": "7686adeb_3a2eff8c",
       "range": {
         "startLine": 3982,
         "startChar": 2,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "59e1d629_16b9af22",
+        "filename": "av1/encoder/partition_model_weights.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 4386,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-12T17:54:21Z",
+      "side": 1,
+      "message": "I will retrain the model without normalization to see if there is any difference. If not we can skip the normalization.",
+      "parentUuid": "9f1e8efd_d728f685",
+      "range": {
+        "startLine": 4386,
+        "startChar": 19,
+        "endLine": 4386,
+        "endChar": 65
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "db3363f8_67e5f412",
         "filename": "av1/encoder/partition_model_weights.h",
         "patchSetId": 15
@@ -174,6 +342,30 @@
       "writtenOn": "2019-03-12T17:10:34Z",
       "side": 1,
       "message": "Why are there 2 logit nodes? Isn\u0027t it a binary classification?",
+      "range": {
+        "startLine": 4452,
+        "startChar": 0,
+        "endLine": 4452,
+        "endChar": 24
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd83bdb6_a632bdb4",
+        "filename": "av1/encoder/partition_model_weights.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 4452,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-12T17:54:21Z",
+      "side": 1,
+      "message": "I was using one node for each label. But yes we can save some calculation by using a single node in this case.",
+      "parentUuid": "db3363f8_67e5f412",
       "range": {
         "startLine": 4452,
         "startChar": 0,
