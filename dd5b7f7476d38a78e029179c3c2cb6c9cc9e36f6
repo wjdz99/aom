@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "55d94374_921fc299",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 729,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-12T17:57:08Z",
+      "side": 1,
+      "message": "Done. please check the latest version",
+      "parentUuid": "cb88b5cf_74e8560c",
+      "revId": "dd5b7f7476d38a78e029179c3c2cb6c9cc9e36f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e3b02700_0a812afb",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 4
@@ -39,6 +57,53 @@
       "revId": "dd5b7f7476d38a78e029179c3c2cb6c9cc9e36f6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f724ecfe_255ca41d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 6436,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-12T17:57:08Z",
+      "side": 1,
+      "message": "for smooth intra and paeth, the existing flag only applies to luma intra mode, but not chroma. I think it is a bug. what I added here is for chroma smooth and paeth mode.",
+      "parentUuid": "e3b02700_0a812afb",
+      "range": {
+        "startLine": 6436,
+        "startChar": 0,
+        "endLine": 6436,
+        "endChar": 73
+      },
+      "revId": "dd5b7f7476d38a78e029179c3c2cb6c9cc9e36f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0ce603ec_fb7343dd",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 11958,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-12T17:57:08Z",
+      "side": 1,
+      "message": "the above two condition checks are redundant. I have removed them in the latest version.",
+      "range": {
+        "startLine": 11958,
+        "startChar": 7,
+        "endLine": 11958,
+        "endChar": 9
+      },
+      "revId": "dd5b7f7476d38a78e029179c3c2cb6c9cc9e36f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
