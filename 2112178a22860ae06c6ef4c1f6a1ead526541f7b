@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d44da43_d774ff1a",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2444,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-12T17:10:34Z",
+      "side": 1,
+      "message": "Can declare it inside the if loop at line 2475.",
+      "range": {
+        "startLine": 2444,
+        "startChar": 2,
+        "endLine": 2444,
+        "endChar": 45
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab67d4a1_08266df8",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3440,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-12T17:10:34Z",
+      "side": 1,
+      "message": "can be const",
+      "range": {
+        "startLine": 3439,
+        "startChar": 5,
+        "endLine": 3440,
+        "endChar": 48
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc938533_f2c0158e",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3885,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-12T17:10:34Z",
+      "side": 1,
+      "message": "Declare variables as close to their first usage as possible.",
+      "range": {
+        "startLine": 3883,
+        "startChar": 2,
+        "endLine": 3885,
+        "endChar": 36
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0176b75a_a7de7c7b",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3905,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-12T17:10:34Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 3905,
+        "startChar": 2,
+        "endLine": 3905,
+        "endChar": 12
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebcc77ee_693d1802",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3906,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-12T17:10:34Z",
+      "side": 1,
+      "message": "for (int r_idx \u003d 0; ...)",
+      "range": {
+        "startLine": 3906,
+        "startChar": 6,
+        "endLine": 3906,
+        "endChar": 11
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7686adeb_3a2eff8c",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3983,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-12T17:10:34Z",
+      "side": 1,
+      "message": "I think it\u0027s better to keep them at the old location, closer to their first usage.",
+      "range": {
+        "startLine": 3982,
+        "startChar": 2,
+        "endLine": 3983,
+        "endChar": 43
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f1e8efd_d728f685",
+        "filename": "av1/encoder/partition_model_weights.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 4386,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-12T17:10:34Z",
+      "side": 1,
+      "message": "I\u0027m still not sure if normalization is necessary for our use case, as long as we can make sure the features are roughly in a reasonable range. Getting rid of them can save us some memory and computations.",
+      "range": {
+        "startLine": 4386,
+        "startChar": 19,
+        "endLine": 4386,
+        "endChar": 65
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db3363f8_67e5f412",
+        "filename": "av1/encoder/partition_model_weights.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 4452,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-12T17:10:34Z",
+      "side": 1,
+      "message": "Why are there 2 logit nodes? Isn\u0027t it a binary classification?",
+      "range": {
+        "startLine": 4452,
+        "startChar": 0,
+        "endLine": 4452,
+        "endChar": 24
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
