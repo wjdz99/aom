@@ -22,6 +22,30 @@
       "revId": "195f10523cf0b99dc8a80ac10b874886bc40b643",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "592c957e_e34caf83",
+        "filename": "aom_scale/generic/yv12config.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 10122
+      },
+      "writtenOn": "2019-03-12T13:35:53Z",
+      "side": 1,
+      "message": "Thank you for pointing it out. Same has been moved to aom_realloc_frame_buffer()",
+      "parentUuid": "7eea5432_ea733646",
+      "range": {
+        "startLine": 56,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 43
+      },
+      "revId": "195f10523cf0b99dc8a80ac10b874886bc40b643",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
