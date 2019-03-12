@@ -16,6 +16,121 @@
       "revId": "051d91cb15b1fb4313566964ea72fa1e3526509d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd45258c_8035b417",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-12T21:25:24Z",
+      "side": 1,
+      "message": "Please use int for consistency, e.g. to match \"AOM_CTRL_USE_TYPE(AV1E_SET_MIN_PARTITION_SIZE, int)\".",
+      "range": {
+        "startLine": 97,
+        "startChar": 2,
+        "endLine": 98,
+        "endChar": 34
+      },
+      "revId": "051d91cb15b1fb4313566964ea72fa1e3526509d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f830281e_fac2a001",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3843,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-12T21:25:24Z",
+      "side": 1,
+      "message": "Can we use the existing input parameters \"max_sq_part\" and \"min_sq_part\" to control the min and max partition size?",
+      "range": {
+        "startLine": 3840,
+        "startChar": 2,
+        "endLine": 3843,
+        "endChar": 39
+      },
+      "revId": "051d91cb15b1fb4313566964ea72fa1e3526509d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6ba9857_3de38ccb",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 4079,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-12T21:25:24Z",
+      "side": 1,
+      "message": "I think there are problematic cases when the block is on frame boundary. For example, if current bsize is 16x16, but there are only 8 rows and 8 columns left to encode, then we must split regardless of the max and min partition size.",
+      "range": {
+        "startLine": 4058,
+        "startChar": 2,
+        "endLine": 4079,
+        "endChar": 3
+      },
+      "revId": "051d91cb15b1fb4313566964ea72fa1e3526509d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bdf49b4_755716f8",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 4570,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-12T21:25:24Z",
+      "side": 1,
+      "message": "These are not necessary. They were initialized as horzab_partition_allowed and vertab_partition_allowed.",
+      "range": {
+        "startLine": 4567,
+        "startChar": 2,
+        "endLine": 4570,
+        "endChar": 60
+      },
+      "revId": "051d91cb15b1fb4313566964ea72fa1e3526509d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adcfdb3f_2a8a2a83",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 4043,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-12T21:25:24Z",
+      "side": 1,
+      "message": "This should be removed. We should still consider the bits for signaling that palette is not used.",
+      "range": {
+        "startLine": 4043,
+        "startChar": 6,
+        "endLine": 4043,
+        "endChar": 33
+      },
+      "revId": "051d91cb15b1fb4313566964ea72fa1e3526509d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
