@@ -8568,6 +8568,31 @@ static int64_t interpolation_filter_search(
   if (!need_search || match_found_idx == -1) {
     set_default_interp_filters(mbmi, assign_filter);
   }
+  int skip_filter_search = 0;
+  int bsl, pred_filter_search;
+  InterpFilters af = SWITCHABLE, lf = SWITCHABLE;
+  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
+  bsl = mi_size_wide_log2[bsize];
+  if (match_found_idx == -1) {
+    pred_filter_search =
+        cpi->sf.cb_pred_filter_search
+            ? (((mi_row + mi_col) >> bsl) +
+               get_chessboard_index(cm->current_frame.frame_number)) &
+                  0x1
+            : 0;
+    if (above_mbmi && is_inter_block(above_mbmi)) {
+      af = above_mbmi->interp_filters;
+    }
+    if (left_mbmi && is_inter_block(left_mbmi)) {
+      lf = left_mbmi->interp_filters;
+    }
+    pred_filter_search &= ((af == lf) && (af != SWITCHABLE));
+    if (pred_filter_search) {
+      skip_filter_search = 1;
+      mbmi->interp_filters = af;
+    }
+  }
   int switchable_ctx[2];
   switchable_ctx[0] = av1_get_pred_context_switchable_interp(xd, 0);
   switchable_ctx[1] = av1_get_pred_context_switchable_interp(xd, 1);
@@ -8604,6 +8629,9 @@ static int64_t interpolation_filter_search(
   x->pred_sse[ref_frame] = (unsigned int)(best_skip_sse_sb[0] >> 4);
 
   if (assign_filter != SWITCHABLE || match_found_idx != -1) {
+    return 0;
+  }
+  if (skip_filter_search) {
     return 0;
   }
   if (!need_search) {
@@ -8689,12 +8717,8 @@ static int64_t interpolation_filter_search(
     const int bw = block_size_wide[bsize];
     const int bh = block_size_high[bsize];
     int skip_pred;
-    int bsl, pred_filter_search;
     InterpFilters af_horiz = SWITCHABLE, af_vert = SWITCHABLE,
                   lf_horiz = SWITCHABLE, lf_vert = SWITCHABLE, filter_idx = 0;
-    const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
-    const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
-    bsl = mi_size_wide_log2[bsize];
     pred_filter_search =
         cpi->sf.cb_pred_filter_search
             ? (((mi_row + mi_col) >> bsl) +
