@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "d51231e9_71e5db30",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2019-03-13T17:56:35Z",
+      "side": 1,
+      "message": "Not sure it is good approach.. For example - if the value is \u0027111\u0027 - what it would be? Level 11 for OP 1 or level_idx 1 for OP 11? Right now it would be L 11 for OP 1, but it probalby needs explanation that level idx is always two last digits.",
+      "revId": "1d4fa49b212c285edce70c6a2ae8fc15977f84c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "223d5843_a6200ded",
         "filename": "apps/aomenc.c",
         "patchSetId": 3
