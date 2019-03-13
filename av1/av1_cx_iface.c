@@ -204,21 +204,21 @@ static struct av1_extracfg default_extra_cfg = {
   0,                            // motion_vector_unit_test
   1,                            // CDF update mode
   1,                            // enable rectangular partitions
-  1,                            // enable ab shape partitions
-  1,                            // enable 1:4 and 4:1 partitions
-  128,                            // min_partition_size
+  0,                            // enable ab shape partitions
+  0,                            // enable 1:4 and 4:1 partitions
+  4,                            // min_partition_size
   128,                          // max_partition_size
   1,                            // enable intra edge filter
   1,                            // frame order hint
   1,                            // enable 64-pt transform usage
-  1,                            // enable extended transform
+  0,                            // enable extended transform
   1,                            // dist-wtd compound
   7,                            // max_reference_frames
   0,                            // enable_reduced_reference_set
   1,                            // enable_ref_frame_mvs sequence level
   1,                            // allow ref_frame_mvs frame level
   1,                            // enable masked compound at sequence level
-  1,                            // enable one sided compound at sequence level
+  0,                            // enable one sided compound at sequence level
   1,                            // enable interintra compound at sequence level
   1,                            // enable smooth interintra mode
   1,                            // enable difference-weighted compound
