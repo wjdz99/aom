@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "13beea71_5f33aeaa",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-13T17:07:27Z",
+      "side": 1,
+      "message": "Done. please see the new commit message.",
+      "parentUuid": "b01bb7d3_a96c93d1",
+      "revId": "051d91cb15b1fb4313566964ea72fa1e3526509d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd45258c_8035b417",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 6
@@ -39,6 +57,30 @@
       "revId": "051d91cb15b1fb4313566964ea72fa1e3526509d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a68f830_1de6c46e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-13T17:07:27Z",
+      "side": 1,
+      "message": "Done. please see the latest revision",
+      "parentUuid": "cd45258c_8035b417",
+      "range": {
+        "startLine": 97,
+        "startChar": 2,
+        "endLine": 98,
+        "endChar": 34
+      },
+      "revId": "051d91cb15b1fb4313566964ea72fa1e3526509d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "fbd395f7_5470514e",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3843,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-13T17:07:27Z",
+      "side": 1,
+      "message": "Done. please see the latest revision",
+      "parentUuid": "f830281e_fac2a001",
+      "range": {
+        "startLine": 3840,
+        "startChar": 2,
+        "endLine": 3843,
+        "endChar": 39
+      },
+      "revId": "051d91cb15b1fb4313566964ea72fa1e3526509d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d6ba9857_3de38ccb",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 6
@@ -76,6 +142,30 @@
       "writtenOn": "2019-03-12T21:25:24Z",
       "side": 1,
       "message": "I think there are problematic cases when the block is on frame boundary. For example, if current bsize is 16x16, but there are only 8 rows and 8 columns left to encode, then we must split regardless of the max and min partition size.",
+      "range": {
+        "startLine": 4058,
+        "startChar": 2,
+        "endLine": 4079,
+        "endChar": 3
+      },
+      "revId": "051d91cb15b1fb4313566964ea72fa1e3526509d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b44c62dd_a87ca277",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 4079,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-13T17:07:27Z",
+      "side": 1,
+      "message": "it is fine. I checked with video with non typical size. even the last pixel block is smaller than the min partition size, we only encode the valid pixel block at frame boundary",
+      "parentUuid": "d6ba9857_3de38ccb",
       "range": {
         "startLine": 4058,
         "startChar": 2,
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "09d1b96b_0f11084e",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 4570,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-13T17:07:27Z",
+      "side": 1,
+      "message": "these four variables can be changed by the ml_prune_ab_partition function above. that\u0027s why I had to reinitialize them again here.",
+      "parentUuid": "9bdf49b4_755716f8",
+      "range": {
+        "startLine": 4567,
+        "startChar": 2,
+        "endLine": 4570,
+        "endChar": 60
+      },
+      "revId": "051d91cb15b1fb4313566964ea72fa1e3526509d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "adcfdb3f_2a8a2a83",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 6
@@ -131,6 +245,30 @@
       "revId": "051d91cb15b1fb4313566964ea72fa1e3526509d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91ff151b_060719f1",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 4043,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-13T17:07:27Z",
+      "side": 1,
+      "message": "Done. please see the latest revision",
+      "parentUuid": "adcfdb3f_2a8a2a83",
+      "range": {
+        "startLine": 4043,
+        "startChar": 6,
+        "endLine": 4043,
+        "endChar": 33
+      },
+      "revId": "051d91cb15b1fb4313566964ea72fa1e3526509d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
