@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f599e08c_f00da7d7",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-13T05:16:14Z",
+      "side": 1,
+      "message": "Done. please check the latest revision",
+      "parentUuid": "05ccde41_7031c352",
+      "range": {
+        "startLine": 97,
+        "startChar": 2,
+        "endLine": 98,
+        "endChar": 34
+      },
+      "revId": "236568313d7b9a363c74c7b86acfef80fa285500",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "927af146_4153fba5",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "4003b793_28af3ca7",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3832,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-13T05:16:14Z",
+      "side": 1,
+      "message": "Done. please take a look at the latest revision. I had to make some change to disable rectangular, ab, and 1:4/4:1 partition when block size is the same as the min_sq_size. for example, if min_sq_size is 16x16, then only PARTITION_NONE is allowed, i.e, 16x8/8x16, 4/16/16x4 etx are not allowed.",
+      "parentUuid": "927af146_4153fba5",
+      "range": {
+        "startLine": 3831,
+        "startChar": 2,
+        "endLine": 3832,
+        "endChar": 56
+      },
+      "revId": "236568313d7b9a363c74c7b86acfef80fa285500",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "93e1f2f8_57adbb78",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2019-03-12T21:58:15Z",
       "side": 1,
       "message": "I think there are problematic cases when the block is on frame boundary. For example, if current bsize is 16x16, but there are only 8 rows and 8 columns left to encode, then we must split regardless of the max and min partition size.",
+      "range": {
+        "startLine": 4049,
+        "startChar": 2,
+        "endLine": 4070,
+        "endChar": 3
+      },
+      "revId": "236568313d7b9a363c74c7b86acfef80fa285500",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29a4523e_2afb6ba4",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4070,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-13T05:16:14Z",
+      "side": 1,
+      "message": "that is fine. I checked the picture boundary. even the valid pixel block size is smaller than the partition size, we only encode the valid pixel block.",
+      "parentUuid": "93e1f2f8_57adbb78",
       "range": {
         "startLine": 4049,
         "startChar": 2,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "bdb83bb7_50b1b952",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4561,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-13T05:16:14Z",
+      "side": 1,
+      "message": "No, these four variables can be changed by the above ml_prune_ab_partition function. so I have to re-initialize them.",
+      "parentUuid": "83034167_7b2c34cd",
+      "range": {
+        "startLine": 4558,
+        "startChar": 2,
+        "endLine": 4561,
+        "endChar": 60
+      },
+      "revId": "236568313d7b9a363c74c7b86acfef80fa285500",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "75eec789_7393b37d",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -114,6 +210,30 @@
       "revId": "236568313d7b9a363c74c7b86acfef80fa285500",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dc8dead_263507b9",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4040,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-13T05:16:14Z",
+      "side": 1,
+      "message": "Done. please look at the latest revision.",
+      "parentUuid": "75eec789_7393b37d",
+      "range": {
+        "startLine": 4040,
+        "startChar": 6,
+        "endLine": 4040,
+        "endChar": 33
+      },
+      "revId": "236568313d7b9a363c74c7b86acfef80fa285500",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
