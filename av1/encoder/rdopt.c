@@ -3518,7 +3518,7 @@ static void txfm_rd_in_plane(MACROBLOCK *x, const AV1_COMP *cpi,
 
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int is_inter = is_inter_block(mbmi);
-  const int invalid_rd = is_inter ? args.incomplete_exit : args.exit_early;
+  const int invalid_rd = args.incomplete_exit;
 
   if (invalid_rd) {
     av1_invalid_rd_stats(rd_stats);
@@ -3728,6 +3728,7 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
   int64_t best_rd = INT64_MAX;
   const int n4 = bsize_to_num_blk(bs);
   x->rd_model = FULL_TXFM_RD;
+  const int is_inter = is_inter_block(mbmi);
   for (int n = start_tx; depth <= MAX_TX_DEPTH;
        depth++, n = sub_tx_size_map[n]) {
 #if CONFIG_DIST_8X8
@@ -3749,6 +3750,8 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
       best_rd = rd;
       *rd_stats = this_rd_stats;
     }
+    if ((!is_inter) && ((rd == INT64_MAX) || ((rd - (rd >> 4)) > ref_best_rd)))
+      break;
     if (n == TX_4X4) break;
   }
 
