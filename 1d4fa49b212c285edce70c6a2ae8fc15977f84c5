@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9e123a35_46f0a1a5",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-13T18:56:19Z",
+      "side": 1,
+      "message": "Added more explanation.",
+      "parentUuid": "d51231e9_71e5db30",
+      "revId": "1d4fa49b212c285edce70c6a2ae8fc15977f84c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "223d5843_a6200ded",
         "filename": "apps/aomenc.c",
         "patchSetId": 3
@@ -39,6 +57,30 @@
       "revId": "1d4fa49b212c285edce70c6a2ae8fc15977f84c5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fea7bc01_c6c83a4e",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1288,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-13T18:56:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "223d5843_a6200ded",
+      "range": {
+        "startLine": 1288,
+        "startChar": 4,
+        "endLine": 1288,
+        "endChar": 38
+      },
+      "revId": "1d4fa49b212c285edce70c6a2ae8fc15977f84c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
