@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "9359ae05_2967796d",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2444,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-13T21:52:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26c834a8_42027c94",
+      "range": {
+        "startLine": 2444,
+        "startChar": 2,
+        "endLine": 2444,
+        "endChar": 45
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab67d4a1_08266df8",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 15
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "Ack",
       "parentUuid": "ab67d4a1_08266df8",
+      "range": {
+        "startLine": 3439,
+        "startChar": 5,
+        "endLine": 3440,
+        "endChar": 48
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26d5d181_e6732982",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3440,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-13T21:52:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6202e7e6_9623e6c2",
       "range": {
         "startLine": 3439,
         "startChar": 5,
@@ -143,6 +191,30 @@
     },
     {
       "key": {
+        "uuid": "27d044b5_bd064475",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3885,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-13T21:52:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d692235d_a3b7f861",
+      "range": {
+        "startLine": 3883,
+        "startChar": 2,
+        "endLine": 3885,
+        "endChar": 36
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0176b75a_a7de7c7b",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 15
@@ -178,6 +250,30 @@
       "side": 1,
       "message": "Ack",
       "parentUuid": "0176b75a_a7de7c7b",
+      "range": {
+        "startLine": 3905,
+        "startChar": 2,
+        "endLine": 3905,
+        "endChar": 12
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b9b6edb_2f0f6cef",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3905,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-13T21:52:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58710082_30309f37",
       "range": {
         "startLine": 3905,
         "startChar": 2,
@@ -237,6 +333,30 @@
     },
     {
       "key": {
+        "uuid": "4b69e905_b1bb92a2",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3906,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-13T21:52:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0fa563fd_b3e3fa3d",
+      "range": {
+        "startLine": 3906,
+        "startChar": 6,
+        "endLine": 3906,
+        "endChar": 11
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7686adeb_3a2eff8c",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 15
@@ -281,6 +401,30 @@
       "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2199e9d8_dc613261",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3983,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-13T21:52:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88b262c4_afc1a834",
+      "range": {
+        "startLine": 3982,
+        "startChar": 2,
+        "endLine": 3983,
+        "endChar": 43
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -331,6 +475,30 @@
     },
     {
       "key": {
+        "uuid": "ba4cd446_6eae6de5",
+        "filename": "av1/encoder/partition_model_weights.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 4386,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-13T21:52:50Z",
+      "side": 1,
+      "message": "Done retraining the model with and without normalization. Model with feature normalization definitely performs better, so I would prefer leaving the normalization in unless memory is an issue (even in this case the memory footprint of the nn models are much more significant though).",
+      "parentUuid": "59e1d629_16b9af22",
+      "range": {
+        "startLine": 4386,
+        "startChar": 19,
+        "endLine": 4386,
+        "endChar": 65
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "db3363f8_67e5f412",
         "filename": "av1/encoder/partition_model_weights.h",
         "patchSetId": 15
@@ -375,6 +543,30 @@
       "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7cbdaf0_7cf1f5be",
+        "filename": "av1/encoder/partition_model_weights.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 4452,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-13T21:52:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd83bdb6_a632bdb4",
+      "range": {
+        "startLine": 4452,
+        "startChar": 0,
+        "endLine": 4452,
+        "endChar": 24
+      },
+      "revId": "2112178a22860ae06c6ef4c1f6a1ead526541f7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
