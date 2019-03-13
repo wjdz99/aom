@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "689334db_b6e547c1",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-13T18:52:26Z",
+      "side": 1,
+      "message": "enable flip and identity transform types",
+      "range": {
+        "startLine": 214,
+        "startChar": 35,
+        "endLine": 214,
+        "endChar": 60
+      },
+      "revId": "ea741bce8623c42a5ed9245d81bd7ebd8d2e5d4e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cad7a75_ee73d0df",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3843,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-13T18:52:26Z",
+      "side": 1,
+      "message": "Here bsize is always square, so perhaps having one of them is enough.",
+      "range": {
+        "startLine": 3842,
+        "startChar": 2,
+        "endLine": 3843,
+        "endChar": 39
+      },
+      "revId": "ea741bce8623c42a5ed9245d81bd7ebd8d2e5d4e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77b4126c_d907593a",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3843,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-13T18:52:26Z",
+      "side": 1,
+      "message": "Can be const. Also can be moved to line 4047 for better readability.",
+      "range": {
+        "startLine": 3840,
+        "startChar": 2,
+        "endLine": 3843,
+        "endChar": 39
+      },
+      "revId": "ea741bce8623c42a5ed9245d81bd7ebd8d2e5d4e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50706092_80632b3b",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 4063,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-13T18:52:26Z",
+      "side": 1,
+      "message": "I still think this is problematic. On frame boundary, if the valid block size is smaller than current block size, we have to split. But here the min_partition_size will force the encoder to skip split partition search. Maybe do this: \"do_square_split \u003d !has_rows || !has_cols;\"?",
+      "range": {
+        "startLine": 4063,
+        "startChar": 4,
+        "endLine": 4063,
+        "endChar": 24
+      },
+      "revId": "ea741bce8623c42a5ed9245d81bd7ebd8d2e5d4e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17c63b5b_4f84111d",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 4068,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-13T18:52:26Z",
+      "side": 1,
+      "message": "These mean that none of the partition modes is allowed.",
+      "range": {
+        "startLine": 4065,
+        "startChar": 4,
+        "endLine": 4068,
+        "endChar": 24
+      },
+      "revId": "ea741bce8623c42a5ed9245d81bd7ebd8d2e5d4e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
