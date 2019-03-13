@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f14fb931_17cab8d9",
+        "filename": "aom_scale/generic/yv12config.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-03-13T15:55:24Z",
+      "side": 1,
+      "message": "#if CONFIG_SIZE_LIMIT\n  if (width \u003e DECODE_WIDTH_LIMIT || height \u003e DECODE_HEIGHT_LIMIT) return -1;\n#endif\nneeded as in aom_realloc_frame_buffer()?\nPlease make sure everything in aom_realloc_frame_buffer() is included here.",
+      "range": {
+        "startLine": 248,
+        "startChar": 0,
+        "endLine": 248,
+        "endChar": 12
+      },
+      "revId": "d1a91fbbc46261fc956dd2781e5c286f34445f53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afc4fa19_7e6101f5",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-03-13T15:55:24Z",
+      "side": 1,
+      "message": "if(\u0026ctx-\u003ebuf[i].img) then free \u0026 realloc?",
+      "range": {
+        "startLine": 71,
+        "startChar": 30,
+        "endLine": 71,
+        "endChar": 46
+      },
+      "revId": "d1a91fbbc46261fc956dd2781e5c286f34445f53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
