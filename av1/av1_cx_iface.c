@@ -206,8 +206,8 @@ static struct av1_extracfg default_extra_cfg = {
   1,                            // enable rectangular partitions
   1,                            // enable ab shape partitions
   1,                            // enable 1:4 and 4:1 partitions
-  4,                            // min_partition_size
-  128,                          // max_partition_size
+  8,                            // min_partition_size
+  8,                          // max_partition_size
   1,                            // enable intra edge filter
   1,                            // frame order hint
   1,                            // enable 64-pt transform usage
