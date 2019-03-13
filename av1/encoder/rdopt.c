@@ -5291,7 +5291,9 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   }
 
   if (x->e_mbd.bd == 8 && !x->cb_partition_scan && try_split) {
-    const int threshold = cpi->sf.tx_type_search.ml_tx_split_thresh;
+    int threshold = cpi->sf.tx_type_search.ml_tx_split_thresh;
+    if (mi_size_wide[plane_bsize] != mi_size_high[plane_bsize])
+      threshold = threshold * 2;
     if (threshold >= 0) {
       const int split_score =
           ml_predict_tx_split(x, plane_bsize, blk_row, blk_col, tx_size);
