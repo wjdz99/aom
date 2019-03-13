@@ -29,6 +29,7 @@ enum {
                            // the image area assumed to be 0 (default)
   PADDING_SAME_REPLICATE,  // tensorflow's SAME padding with pixels outside
                            // the image area replicated from closest edge
+  PADDING_VALID            // tensorflow's VALID padding
 } UENUM1BYTE(PADDING_TYPE);
 
 struct CNN_LAYER_CONFIG {
@@ -48,6 +49,11 @@ struct CNN_LAYER_CONFIG {
 struct CNN_CONFIG {
   int num_layers;  // number of CNN layers ( = number of hidden layers + 1)
   int is_residue;  // whether the output activation is a residue
+  int ext_width, ext_height;  // extension horizontally and vertically
+  int strict_bounds;          // whether the input bounds are strict or not.
+                              // If strict, the extension area is filled by
+                              // replication; if not strict, image data is
+                              // assumed available beyond the boounds.
   CNN_LAYER_CONFIG layer_config[CNN_MAX_LAYERS];
 };
 
