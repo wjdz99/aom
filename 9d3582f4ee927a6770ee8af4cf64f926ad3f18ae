@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c512f651_6c134348",
+        "filename": "av1/common/cnn.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-03-13T20:46:56Z",
+      "side": 1,
+      "message": "INLINE",
+      "revId": "9d3582f4ee927a6770ee8af4cf64f926ad3f18ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de9d3119_53fd367e",
+        "filename": "av1/common/cnn.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-03-13T20:46:56Z",
+      "side": 1,
+      "message": "Optional: You can use a typedef for the function pointer to the activation function.\nYou can pass an additional parameter to the activation function.",
+      "revId": "9d3582f4ee927a6770ee8af4cf64f926ad3f18ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
