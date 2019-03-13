@@ -3270,8 +3270,26 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
                            &this_rd_stats.sse);
     } else {
-      this_rd_stats.dist = dist_block_px_domain(
-          cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size);
+      int64_t sse_diff = INT64_MAX;
+      if (tx_size == TX_64X64) {
+        // Because 3 out 4 quadrants of transform coefficents are forced to
+        // zero, the inverse transform has a tendency to overflow. sse_diff
+        // is effectively the energy of those 3 quadrants, here we add it
+        // into distortion in coefficient domain to account for distortion
+        // introduced by forcing coefficients to 0 in the 3 quadrants, at
+        // the same time avoid doing inverse transform on abnormal transform
+        // coefficients.
+        dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
+                             &this_rd_stats.sse);
+        sse_diff = block_sse - this_rd_stats.sse;
+      }
+
+      if (tx_size != TX_64X64 || sse_diff < this_rd_stats.sse) {
+        this_rd_stats.dist = dist_block_px_domain(
+            cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size);
+      } else {
+        this_rd_stats.dist += sse_diff;
+      }
       this_rd_stats.sse = block_sse;
     }
 
@@ -3348,7 +3366,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     if (cpi->sf.tx_type_search.skip_tx_search && !best_eob) break;
   }
 
-  assert(best_rd != INT64_MAX);
+  if (best_rd == INT64_MAX) return INT64_MAX;
 
   best_rd_stats->skip = best_eob == 0;
   if (plane == 0) {
@@ -3467,18 +3485,23 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   else
     set_blk_skip(x, plane, blk_idx, 0);
 
-  const int64_t rd1 = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
-  const int64_t rd2 = RDCOST(x->rdmult, 0, this_rd_stats.sse);
+  if (this_rd_stats.rate != INT_MAX && this_rd_stats.sse != INT64_MAX &&
+      args->this_rd != INT64_MAX) {
+    const int64_t rd1 =
+        RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
+    const int64_t rd2 = RDCOST(x->rdmult, 0, this_rd_stats.sse);
 
-  // TODO(jingning): temporarily enabled only for luma component
-  const int64_t rd = AOMMIN(rd1, rd2);
+    // TODO(jingning): temporarily enabled only for luma component
+    const int64_t rd = AOMMIN(rd1, rd2);
 
-  this_rd_stats.skip &= !x->plane[plane].eobs[block];
+    this_rd_stats.skip &= !x->plane[plane].eobs[block];
 
-  av1_merge_rd_stats(&args->rd_stats, &this_rd_stats);
-
-  args->this_rd += rd;
-
+    av1_merge_rd_stats(&args->rd_stats, &this_rd_stats);
+    args->this_rd += rd;
+  } else {
+    // av1_invalid_rd_stats(&args->rd_stats);
+    args->this_rd = INT64_MAX;
+  }
   if (args->this_rd > args->best_rd) args->exit_early = 1;
 }
 
@@ -5139,7 +5162,12 @@ static void try_tx_block_no_split(
   tx_type_rd(cpi, x, tx_size, blk_row, blk_col, 0, block, plane_bsize, &txb_ctx,
              rd_stats, ftxs_mode, ref_best_rd,
              rd_info_node != NULL ? rd_info_node->rd_info_array : NULL);
-  assert(rd_stats->rate < INT_MAX);
+
+  if (rd_stats->rate == INT_MAX || rd_stats->dist == INT64_MAX) {
+    no_split->rd = INT64_MAX;
+    rd_stats->skip = 0;
+    return;
+  }
 
   if ((RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) >=
            RDCOST(x->rdmult, zero_blk_rate, rd_stats->sse) ||
@@ -5952,10 +5980,6 @@ static void pick_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   av1_zero(x->tx_search_prune);
   x->tx_split_prune_flag = 0;
 
-  // We should always find at least one candidate unless ref_best_rd is less
-  // than INT64_MAX (in which case, all the calls to select_tx_size_fix_type
-  // might have failed to find something better)
-  assert(IMPLIES(!found, ref_best_rd != INT64_MAX));
   if (!found) return;
 
   // Save the RD search results into tx_rd_record.
@@ -6475,8 +6499,6 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   *mbmi = best_mbmi;
-  // Make sure we actually chose a mode
-  assert(best_rd < INT64_MAX);
   return best_rd;
 }
 
