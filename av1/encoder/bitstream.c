@@ -369,10 +369,17 @@ static void pack_txb_tokens(aom_writer *w, AV1_COMMON *cm, MACROBLOCK *const x,
                                                          blk_col)];
 
   if (tx_size == plane_tx_size || plane) {
-    tran_low_t *tcoeff = BLOCK_OFFSET(x->mbmi_ext->tcoeff[plane], block);
-    const uint16_t eob = x->mbmi_ext->eobs[plane][block];
-    TXB_CTX txb_ctx = { x->mbmi_ext->txb_skip_ctx[plane][block],
-                        x->mbmi_ext->dc_sign_ctx[plane][block] };
+    const int txb_offset =
+        x->mbmi_ext->cb_offset / (TX_SIZE_W_MIN * TX_SIZE_H_MIN);
+    tran_low_t *tcoeff = BLOCK_OFFSET(
+        (x->mbmi_ext->cb_coef_buff->tcoeff[plane] + x->mbmi_ext->cb_offset),
+        block);
+    const uint16_t eob =
+        (x->mbmi_ext->cb_coef_buff->eobs[plane] + txb_offset)[block];
+    TXB_CTX txb_ctx = {
+      (x->mbmi_ext->cb_coef_buff->txb_skip_ctx[plane] + txb_offset)[block],
+      (x->mbmi_ext->cb_coef_buff->dc_sign_ctx[plane] + txb_offset)[block]
+    };
     av1_write_coeffs_txb(cm, xd, w, blk_row, blk_col, plane, tx_size, tcoeff,
                          eob, &txb_ctx);
 #if CONFIG_RD_DEBUG
