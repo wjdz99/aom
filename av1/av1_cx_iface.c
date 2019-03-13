@@ -211,14 +211,14 @@ static struct av1_extracfg default_extra_cfg = {
   1,                            // enable intra edge filter
   1,                            // frame order hint
   1,                            // enable 64-pt transform usage
-  1,                            // enable extended transform
+  0,                            // enable extended transform
   1,                            // dist-wtd compound
   7,                            // max_reference_frames
   0,                            // enable_reduced_reference_set
   1,                            // enable_ref_frame_mvs sequence level
   1,                            // allow ref_frame_mvs frame level
   1,                            // enable masked compound at sequence level
-  1,                            // enable one sided compound at sequence level
+  0,                            // enable one sided compound at sequence level
   1,                            // enable interintra compound at sequence level
   1,                            // enable smooth interintra mode
   1,                            // enable difference-weighted compound
