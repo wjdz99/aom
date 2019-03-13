@@ -3728,6 +3728,7 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
   int64_t best_rd = INT64_MAX;
   const int n4 = bsize_to_num_blk(bs);
   x->rd_model = FULL_TXFM_RD;
+  const int is_inter = is_inter_block(mbmi);
   for (int n = start_tx; depth <= MAX_TX_DEPTH;
        depth++, n = sub_tx_size_map[n]) {
 #if CONFIG_DIST_8X8
@@ -3741,6 +3742,7 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     const int64_t rd =
         txfm_yrd(cpi, x, &this_rd_stats, ref_best_rd, bs, n, FTXS_NONE, 0);
 
+    if ((!is_inter) && rd == INT64_MAX) break;
     if (rd < best_rd) {
       memcpy(best_txk_type, mbmi->txk_type,
              sizeof(best_txk_type[0]) * TXK_TYPE_BUF_LEN);
