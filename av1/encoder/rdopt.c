@@ -10068,6 +10068,36 @@ static int get_drl_refmv_count(const MACROBLOCK *const x,
   return ref_set;
 }
 
+static INLINE void init_inter_mode_map(SPEED_FEATURES *sf,
+                                       int64_t *mode_threshold,
+                                       uint8_t *mode_map) {
+  int i;
+  uint8_t mode_idx;
+  // Initialize the default mode map
+  for (i = 0; i < MAX_MODES; ++i) {
+    mode_map[i] = i;
+  }
+
+  // Sort single reference modes
+  // TODO(cherma): sort compound modes separately to avoid the dependency on
+  // single reference data followed by sorting of intra modes
+  if (sf->enable_inter_mode_reorder) {
+    mode_idx = SINGLE_REF_MODES;
+    while (mode_idx > 0) {
+      uint8_t end_pos = 0;
+      for (i = 1; i < mode_idx; ++i) {
+        if (mode_threshold[mode_map[i - 1]] > mode_threshold[mode_map[i]]) {
+          uint8_t tmp = mode_map[i];
+          mode_map[i] = mode_map[i - 1];
+          mode_map[i - 1] = tmp;
+          end_pos = i;
+        }
+      }
+      mode_idx = end_pos;
+    }
+  }
+}
+
 typedef struct {
   int64_t rd;
   int drl_cost;
@@ -12568,6 +12598,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int *comp_inter_cost = x->comp_inter_cost[av1_get_reference_mode_context(xd)];
   mode_skip_mask_t mode_skip_mask;
   uint8_t motion_mode_skip_mask = 0;  // second pass of single ref modes
+  uint8_t mode_map[MAX_MODES];
 
   InterModeSearchState search_state;
   init_inter_mode_search_state(&search_state, cpi, tile_data, x, bsize,
@@ -12636,7 +12667,11 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   CompoundTypeRdBuffers rd_buffers;
   alloc_compound_type_rd_buffers(cm, &rd_buffers);
 
-  for (int midx = 0; midx < MAX_MODES; ++midx) {
+  // Initialize inter mode order map
+  init_inter_mode_map(&cpi->sf, search_state.mode_threshold, mode_map);
+
+  for (int mode_index = 0; mode_index < MAX_MODES; ++mode_index) {
+    int midx = mode_map[mode_index];
     const int do_tx_search = do_tx_search_mode(do_tx_search_global, midx);
     const MODE_DEFINITION *mode_order = &av1_mode_order[midx];
     this_mode = mode_order->mode;
@@ -12652,7 +12687,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         args.single_ref_first_pass = 0;
         // Reach the first comp ref mode
         // Reset midx to start the 2nd pass for single ref motion search
-        midx = -1;
+        mode_index = -1;
         motion_mode_skip_mask = analyze_simple_trans_states(cpi, x);
         continue;
       }
