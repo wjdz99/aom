@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7adfcf6d_79e8c6cd",
+        "filename": "av1/common/cnn.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-14T18:33:49Z",
+      "side": 1,
+      "message": "This can be moved to .c",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 38
+      },
+      "revId": "a8947e6c94bc6b92fbce14451fa5b6131b866150",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
