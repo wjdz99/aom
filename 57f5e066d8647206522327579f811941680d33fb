@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce4e2f80_76a72f48",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 4059,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-14T16:34:24Z",
+      "side": 1,
+      "message": "What if blksize \u003d\u003d min_partition_size \u0026\u0026 !has_rows \u0026\u0026 !has_cols? Shouldn\u0027t we allow square_split?",
+      "range": {
+        "startLine": 4054,
+        "startChar": 2,
+        "endLine": 4059,
+        "endChar": 0
+      },
+      "revId": "57f5e066d8647206522327579f811941680d33fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf406832_2aaf35ee",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 4064,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-14T16:34:24Z",
+      "side": 1,
+      "message": "If do_square_split is true, we don\u0027t necessarily have to enable rectangular partitions.",
+      "range": {
+        "startLine": 4060,
+        "startChar": 2,
+        "endLine": 4064,
+        "endChar": 3
+      },
+      "revId": "57f5e066d8647206522327579f811941680d33fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "609ef7db_5eb90a68",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 5552,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-14T16:34:24Z",
+      "side": 1,
+      "message": "To be safe, you can add \"min_sq_size \u003d AOMMIN(min_sq_size, max_sq_size);\" here.",
+      "range": {
+        "startLine": 5552,
+        "startChar": 6,
+        "endLine": 5552,
+        "endChar": 7
+      },
+      "revId": "57f5e066d8647206522327579f811941680d33fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
