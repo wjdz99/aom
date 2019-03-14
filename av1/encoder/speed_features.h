@@ -681,6 +681,9 @@ typedef struct SPEED_FEATURES {
 
   // use reduced ref set for real-time mode
   int use_real_time_ref_set;
+
+  // Enable reordering of inter modes
+  int enable_inter_mode_reorder;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
