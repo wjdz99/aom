@@ -90,7 +90,7 @@ static void swap_tensor(TENSOR *t1, TENSOR *t2) {
 
 static void free_tensor(TENSOR *tensor) {
   if (tensor->allocsize) {
-    aom_free(tensor->buf[0]);
+    // aom_free(tensor->buf[0]);
     tensor->buf[0] = NULL;
     tensor->allocsize = 0;
   }
@@ -266,7 +266,11 @@ void av1_cnn_predict_c(const float *input, int in_width, int in_height,
   for (int layer = 0; layer < cnn_config->num_layers; ++layer) {
     if (layer == 0) {  // First layer
       assert(cnn_config->layer_config[layer].in_channels == 1);
-      assign_tensor(&tensor1, &input, 1, in_width, in_height, in_stride);
+      float *input_image =
+          (float *)aom_malloc(in_width * in_height * sizeof(*input));
+      memcpy(input_image, input, in_width * in_height * sizeof(*input));
+      assign_tensor(&tensor1, (const float **)&input_image, 1, in_width,
+                    in_height, in_stride);
       if (cnn_config->num_layers == 1) {  // single layer case
         assert(cnn_config->layer_config[layer].out_channels == 1);
         assign_tensor(&tensor2, (const float **)&output, 1, in_width, in_height,

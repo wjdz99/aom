@@ -254,6 +254,10 @@ if(ENABLE_TESTS)
   endif()
 endif()
 
+if(CONFIG_CNN_RESTORATION)
+  list(APPEND AOM_UNIT_TEST_COMMON_SOURCES "${AOM_ROOT}/test/cnn_test.cc")
+endif()
+
 # Setup testdata download targets, test build targets, and test run targets. The
 # libaom and app util targets must exist before this function is called.
 function(setup_aom_test_targets)
