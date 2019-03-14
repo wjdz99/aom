@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Alliance for Open Media. All rights reserved
+ * Copyright (c) 2019, Alliance for Open Media. All rights reserved
  *
  * This source code is subject to the terms of the BSD 2 Clause License and
  * the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
@@ -20,6 +20,8 @@ namespace {
 const int kMaxKfDists[6] = { 4, 6, 8, 12, 16, 18 };
 const double kPsnrThreshold[6] = { 37.3, 36.5, 35.8, 34.3, 34.3, 34.4 };
 
+// Params: encoding mode and index into the kMaxKfDists array to control
+// kf-max-dist
 class ForwardKeyTest
     : public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode, int>,
       public ::libaom_test::EncoderTest {
