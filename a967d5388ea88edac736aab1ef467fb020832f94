@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "817ec9b7_91398f4c",
+        "filename": "av1/common/cnn.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-14T16:33:22Z",
+      "side": 1,
+      "message": "Can you add asserts to ensure that layer_config-\u003eskip_width, skip_height \u003e 0? I triggered a seg fault by having too many layers and not enough layer_configs caused by division by zero.",
+      "range": {
+        "startLine": 123,
+        "startChar": 0,
+        "endLine": 123,
+        "endChar": 32
+      },
+      "revId": "a967d5388ea88edac736aab1ef467fb020832f94",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
