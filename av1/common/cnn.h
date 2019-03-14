@@ -62,18 +62,14 @@ struct CNN_CONFIG {
   CNN_LAYER_CONFIG layer_config[CNN_MAX_LAYERS];
 };
 
+typedef float (*activation_fn)(float);
+
 void av1_restore_cnn(uint8_t *dgd, int width, int height, int stride,
                      const CNN_CONFIG *cnn_config);
 void av1_restore_cnn_highbd(uint16_t *dgd, int width, int height, int stride,
                             const CNN_CONFIG *cnn_config, int bit_depth);
 void av1_restore_cnn_plane(struct AV1Common *cm, const CNN_CONFIG *cnn_config,
                            int plane);
-
-static INLINE float softsign(float x) { return x / (fabsf(x) + 1); }
-
-static INLINE float relu(float x) { return (x < 0) ? 0 : x; }
-
-static INLINE float identity(float x) { return x; }
 
 #ifdef __cplusplus
 }  // extern "C"
