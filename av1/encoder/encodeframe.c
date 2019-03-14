@@ -2432,17 +2432,7 @@ static void av1_firstpass_simple_motion_search_early_term(
   const NN_CONFIG *nn_config = NULL;
   float thresh = 0.0f;
   const float *ml_mean = NULL, *ml_std = NULL;
-  if (bsize == BLOCK_128X128) {
-    nn_config = &av1_fp_simple_motion_search_term_none_nn_config_128;
-    ml_mean = av1_fp_simple_motion_search_term_none_mean_128;
-    ml_std = av1_fp_simple_motion_search_term_none_std_128;
-    thresh = av1_fp_simple_motion_search_term_none_thresh_128;
-  } else if (bsize == BLOCK_64X64) {
-    nn_config = &av1_fp_simple_motion_search_term_none_nn_config_64;
-    ml_mean = av1_fp_simple_motion_search_term_none_mean_64;
-    ml_std = av1_fp_simple_motion_search_term_none_std_64;
-    thresh = av1_fp_simple_motion_search_term_none_thresh_64;
-  } else if (bsize == BLOCK_32X32) {
+  if (bsize == BLOCK_32X32) {
     nn_config = &av1_fp_simple_motion_search_term_none_nn_config_32;
     ml_mean = av1_fp_simple_motion_search_term_none_mean_32;
     ml_std = av1_fp_simple_motion_search_term_none_std_32;
@@ -2665,10 +2655,11 @@ static void rd_pick_sqr_partition(AV1_COMP *const cpi, ThreadData *td,
         }
 
         if (cpi->sf.firstpass_simple_motion_search_early_term &&
-            cm->show_frame && bsize >= BLOCK_8X8 && !frame_is_intra_only(cm) &&
-            mi_row + mi_step < cm->mi_rows && mi_col + mi_step < cm->mi_cols &&
-            this_rdc.rdcost < INT64_MAX && this_rdc.rdcost >= 0 &&
-            this_rdc.rate < INT_MAX && this_rdc.rate >= 0 && do_square_split) {
+            cm->show_frame && bsize <= BLOCK_32X32 && bsize >= BLOCK_8X8 &&
+            !frame_is_intra_only(cm) && mi_row + mi_step < cm->mi_rows &&
+            mi_col + mi_step < cm->mi_cols && this_rdc.rdcost < INT64_MAX &&
+            this_rdc.rdcost >= 0 && this_rdc.rate < INT_MAX &&
+            this_rdc.rate >= 0 && do_square_split) {
           av1_firstpass_simple_motion_search_early_term(
               cpi, x, pc_tree, mi_row, mi_col, bsize, &this_rdc,
               &do_square_split);
