@@ -238,10 +238,6 @@ static void set_good_speed_features_framesize_independent(
     sf->prune_comp_search_by_single_result = 1;
     sf->skip_repeated_newmv = 1;
     sf->obmc_full_pixel_search_level = 1;
-    // TODO(anyone): Following speed feature will be further explored to
-    // identify the appropriate tradeoff between encoder performance and its
-    // speed.
-    sf->prune_single_motion_modes_by_simple_trans = 1;
 
     sf->simple_motion_search_split_only = 1;
     sf->simple_motion_search_early_term_none = 1;
