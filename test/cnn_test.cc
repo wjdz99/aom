@@ -1,0 +1,327 @@
+/*
+ * Copyright (c) 2019, Alliance for Open Media. All rights reserved
+ *
+ * This source code is subject to the terms of the BSD 2 Clause License and
+ * the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
+ * was not distributed with this source code in the LICENSE file, you can
+ * obtain it at www.aomedia.org/license/software. If the Alliance for Open
+ * Media Patent License 1.0 was not distributed with this source code in the
+ * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
+ */
+
+#include <assert.h>
+#include <math.h>
+#include <stdio.h>
+
+#include "third_party/googletest/src/googletest/include/gtest/gtest.h"
+
+#include "av1/common/cnn.h"
+
+#define SQR(x) ((x) * (x))
+
+struct CNNTestConfig {
+  const int image_width;
+  const int image_height;
+  float *input_tensor;
+  float *expected_tensor;
+  const int in_stride;
+  const int out_stride;
+  const CNN_CONFIG cnn_config;
+};
+
+namespace {
+class CNNTest : public ::testing::Test {
+ protected:
+  static const CNNTestConfig SetupCNNTest(
+      int image_width, int image_height, float *input, float *expected_output,
+      int layers, int is_residue, float *layer_weights, float *layer_bias,
+      int *filter_width, int *filter_height, int *input_channels,
+      int *output_channels, int *skip_width, int *skip_height,
+      PADDING_TYPE *pads, ACTIVATION *activations) {
+    const size_t image_size = sizeof(float) * image_width * image_height;
+
+    float *input_tensor = (float *)aom_malloc(image_size);
+    assert(input_tensor != NULL);
+    memcpy(input_tensor, input, image_size);
+
+    float *expected_tensor = (float *)aom_malloc(image_size);
+    assert(expected_tensor != NULL);
+    memcpy(expected_tensor, expected_output, image_size);
+
+    CNN_CONFIG cnn_config;
+    cnn_config.num_layers = layers;
+    cnn_config.is_residue = is_residue;
+
+    size_t weight_offset = 0;
+    size_t bias_offset = 0;
+
+    for (int i = 0; i < layers; ++i) {
+      const size_t weights_size = filter_width[i] * filter_height[i] *
+                                  input_channels[i] * output_channels[i] *
+                                  sizeof(float);
+
+      float *weights = (float *)aom_malloc(weights_size);
+      assert(weights != NULL);
+      memcpy(weights, (float *)layer_weights + weight_offset, weights_size);
+
+      const int bias_size = output_channels[i] * sizeof(float);
+      float *bias = (float *)aom_malloc(bias_size);
+      assert(bias != NULL);
+      memcpy(bias, (float *)layer_bias + bias_offset, bias_size);
+
+      cnn_config.layer_config[i] =
+          (CNN_LAYER_CONFIG){ .in_channels = input_channels[i],
+                              .filter_width = filter_width[i],
+                              .filter_height = filter_height[i],
+                              .out_channels = output_channels[i],
+                              .skip_width = skip_width[i],
+                              .skip_height = skip_height[i],
+                              .weights = weights,
+                              .bias = bias,
+                              .pad = pads[i],
+                              .activation = activations[i] };
+      weight_offset += (weights_size / sizeof(float));
+      bias_offset += (bias_size / sizeof(float));
+    }
+    return { .image_width = image_width,
+             .image_height = image_height,
+             .input_tensor = input_tensor,
+             .expected_tensor = expected_tensor,
+             .in_stride = image_width,
+             .out_stride = image_width,
+             .cnn_config = cnn_config };
+  }
+
+  static void TearDownCNNTest(CNNTestConfig cnn_test_config) {
+    aom_free(cnn_test_config.input_tensor);
+    aom_free(cnn_test_config.expected_tensor);
+    for (int i = 0; i < cnn_test_config.cnn_config.num_layers; ++i) {
+      aom_free(cnn_test_config.cnn_config.layer_config[i].weights);
+      aom_free(cnn_test_config.cnn_config.layer_config[i].bias);
+    }
+  }
+
+  static const CNNTestConfig SetupTestNonActivationSingleLayerSingleKernel() {
+    int image_width = 8;
+    int image_height = 8;
+    int layers = 1;
+    int is_residue = 0;
+    float inputs[64] = {
+      104, 153, 86, 88,  45,  128, 44,  138, 123, 178, 93,  102, 177,
+      23,  64,  39, 87,  70,  189, 252, 119, 76,  92,  192, 196, 77,
+      247, 214, 8,  220, 113, 98,  64,  9,   197, 49,  247, 221, 197,
+      182, 170, 53, 186, 96,  125, 163, 212, 221, 235, 97,  139, 89,
+      234, 100, 32, 94,  112, 211, 107, 23,  189, 140, 14,  77,
+    };
+    float expected[64] = {
+      245, 219, 226, 248, 124, 157, 132, 70,  264, 483, 544, 382, 348,
+      289, 399, 146, 252, 566, 583, 413, 527, 364, 300, 175, 160, 511,
+      450, 693, 612, 496, 514, 255, 193, 556, 432, 565, 576, 563, 665,
+      286, 200, 423, 315, 626, 461, 576, 598, 359, 392, 487, 317, 553,
+      458, 407, 458, 291, 233, 397, 265, 325, 309, 326, 190, 91,
+    };
+    float weights[] = { 0.725f, 0.414f, 0.412f, 0.282f, 0.316f,
+                        0.284f, 0.182f, 0.053f, 0.91f };
+    float bias[] = { 0.665f };
+    int filter_width[] = { 3 };
+    int filter_height[] = { 3 };
+    int input_channels[] = { 1 };
+    int output_channels[] = { 1 };
+    int skip_width[] = { 1 };
+    int skip_height[] = { 1 };
+    PADDING_TYPE pads[] = { PADDING_SAME_ZERO };
+    ACTIVATION activations[] = { NONE };
+    return SetupCNNTest(image_width, image_height, inputs, expected, layers,
+                        is_residue, weights, bias, filter_width, filter_height,
+                        input_channels, output_channels, skip_width,
+                        skip_height, pads, activations);
+  }
+
+  static const CNNTestConfig SetupTestRELUMultiLayerMultiKernel() {
+    int image_width = 8;
+    int image_height = 8;
+    int layers = 3;
+    int is_residue = 0;
+    float inputs[64] = { 1, 8, 2, 2, 4, 8, 1, 8, 3, 3, 7, 1, 3, 3, 2, 6,
+                         3, 6, 0, 6, 2, 4, 9, 2, 8, 2, 0, 4, 8, 3, 9, 3,
+                         2, 7, 1, 7, 6, 0, 2, 5, 2, 7, 0, 7, 0, 5, 5, 8,
+                         7, 8, 4, 5, 1, 5, 6, 6, 8, 5, 5, 1, 2, 9, 3, 9 };
+    float expected[64] = {
+      1377431, 2173407, 2435745, 2471195, 2626654, 2734721, 2482994, 1513223,
+      2152462, 3496400, 3977867, 4146647, 4441683, 4586838, 4090693, 2476698,
+      2473040, 4021092, 4676039, 4978473, 5348027, 5489855, 4786816, 2901849,
+      2605592, 4290798, 5007352, 5291078, 5588990, 5626708, 4904796, 2983677,
+      2849105, 4608427, 5275136, 5340961, 5559243, 5600541, 5035205, 3090147,
+      3059302, 4828189, 5325228, 5101868, 5277427, 5383493, 5012109, 3098909,
+      2773077, 4309552, 4577133, 4273240, 4465622, 4670977, 4454622, 2768211,
+      1651264, 2588284, 2694330, 2500518, 2627716, 2758369, 2646960, 1649032,
+    };
+    float weights[] = {
+      7, 0, 4, 1, 2, 0, 4, 6, 6, 0, 9, 2, 9, 2, 0, 2, 4, 5, 4, 8, 4, 8, 9, 2,
+      7, 5, 8, 9, 2, 8, 8, 3, 8, 8, 9, 1, 9, 8, 8, 8, 0, 3, 3, 5, 2, 4, 0, 7,
+      5, 8, 9, 8, 7, 2, 5, 8, 6, 2, 8, 6, 8, 6, 1, 3, 4, 2, 0, 4, 3, 9, 9, 8,
+      5, 9, 2, 4, 9, 7, 6, 5, 9, 6, 6, 4, 9, 2, 7, 6, 0, 8, 5, 7, 9, 6, 6, 5,
+      5, 2, 4, 1, 5, 3, 6, 5, 8, 6, 6, 9, 8, 9, 9, 4, 1, 7, 5, 5, 8, 0, 8, 3,
+      3, 0, 6, 3, 7, 2, 5, 1, 9, 7, 0, 3, 7, 0, 6, 0, 3, 5, 7, 2, 5, 5, 7, 9,
+      2, 1, 5, 5, 3, 9, 6, 2, 4, 9, 7, 6, 2, 3, 3, 2, 1, 3, 2, 8, 0, 4, 7, 2,
+      2, 6, 9, 0, 9, 8, 9, 8, 4, 1, 4, 3, 8, 2, 7, 1, 0, 7, 1, 7, 8, 3, 2, 3,
+      9, 0, 5, 4, 4, 4, 8, 5, 7, 5, 9, 1, 1, 6, 1, 6, 2, 8, 8, 9, 2, 1, 4, 6,
+    };
+    float bias[] = {
+      9, 6, 6, 7, 9, 1, 2, 9, 5,
+    };
+    int filter_width[] = { 3, 3, 3 };
+    int filter_height[] = { 3, 3, 3 };
+    int input_channels[] = { 1, 4, 4 };
+    int output_channels[] = { 4, 4, 1 };
+    int skip_width[] = { 1, 1, 1 };
+    int skip_height[] = { 1, 1, 1 };
+    PADDING_TYPE pads[] = { PADDING_SAME_ZERO, PADDING_SAME_ZERO,
+                            PADDING_SAME_ZERO };
+    ACTIVATION activations[] = { RELU, RELU, RELU };
+    return SetupCNNTest(image_width, image_height, inputs, expected, layers,
+                        is_residue, weights, bias, filter_width, filter_height,
+                        input_channels, output_channels, skip_width,
+                        skip_height, pads, activations);
+  }
+
+  static const CNNTestConfig SetupTestRELUMultiLayerMultiKernel() {
+    int image_width = 8;
+    int image_height = 8;
+    int layers = 3;
+    int is_residue = 0;
+    float inputs[64] = { 0.363f, 0.62f,  0.315f, 0.148f, 0.867f, 0.783f, 0.851f,
+                         0.481f, 0.272f, 0.281f, 0.056f, 0.671f, 0.536f, 0.837f,
+                         0.31f,  0.333f, 0.217f, 0.285f, 0.73f,  0.202f, 0.011f,
+                         0.842f, 0.402f, 0.921f, 0.188f, 0.388f, 0.505f, 0.196f,
+                         0.141f, 0.057f, 0.982f, 0.987f, 0.721f, 0.094f, 0.524f,
+                         0.772f, 0.811f, 0.4f,   0.283f, 0.282f, 0.288f, 0.447f,
+                         0.277f, 0.734f, 0.938f, 0.363f, 0.543f, 0.135f, 0.445f,
+                         0.804f, 0.749f, 0.918f, 0.649f, 0.78f,  0.393f, 0.932f,
+                         0.65f,  0.825f, 0.828f, 0.6f,   0.119f, 0.094f, 0.372f,
+                         0.608f };
+    float expected[64] = {
+      0.9f,   0.93f,  0.931f, 0.931f, 0.932f, 0.932f, 0.931f, 0.899f,
+      0.927f, 0.95f,  0.951f, 0.951f, 0.952f, 0.952f, 0.951f, 0.93f,
+      0.928f, 0.951f, 0.952f, 0.952f, 0.952f, 0.952f, 0.952f, 0.931f,
+      0.929f, 0.951f, 0.952f, 0.952f, 0.952f, 0.952f, 0.952f, 0.931f,
+      0.929f, 0.951f, 0.952f, 0.952f, 0.952f, 0.952f, 0.952f, 0.931f,
+      0.929f, 0.951f, 0.952f, 0.952f, 0.952f, 0.952f, 0.951f, 0.93f,
+      0.928f, 0.951f, 0.952f, 0.952f, 0.952f, 0.951f, 0.951f, 0.93f,
+      0.897f, 0.927f, 0.928f, 0.928f, 0.928f, 0.928f, 0.927f, 0.898f,
+    };
+    float weights[] = {
+      0.199f, 0.292f, 0.743f, 0.802f, 0.053f, 0.453f, 0.884f, 0.502f, 0.812f,
+      0.388f, 0.047f, 0.845f, 0.554f, 0.268f, 0.517f, 0.895f, 0.815f, 0.701f,
+      0.689f, 0.33f,  0.151f, 0.568f, 0.769f, 0.975f, 0.238f, 0.505f, 0.743f,
+      0.662f, 0.927f, 0.766f, 0.512f, 0.218f, 0.268f, 0.72f,  0.285f, 0.233f,
+      0.815f, 0.153f, 0.571f, 0.579f, 0.542f, 0.396f, 0.969f, 0.044f, 0.338f,
+      0.754f, 0.264f, 0.794f, 0.188f, 0.879f, 0.192f, 0.32f,  0.016f, 0.503f,
+      0.658f, 0.205f, 0.342f, 0.441f, 0.217f, 0.746f, 0.271f, 0.732f, 0.657f,
+      0.444f, 0.407f, 0.98f,  0.789f, 0.778f, 0.155f, 0.972f, 0.706f, 0.12f,
+      0.276f, 0.53f,  0.964f, 0.404f, 0.162f, 0.487f, 0.749f, 0.742f, 0.702f,
+      0.634f, 0.528f, 0.808f, 0.144f, 0.912f, 0.21f,  0.482f, 0.578f, 0.44f,
+      0.267f, 0.864f, 0.838f, 0.765f, 0.286f, 0.637f, 0.974f, 0.989f, 0.465f,
+      0.94f,  0.917f, 0.299f, 0.222f, 0.066f, 0.076f, 0.258f, 0.2f,   0.483f,
+      0.804f, 0.109f, 0.391f, 0.164f, 0.637f, 0.14f,  0.921f, 0.022f, 0.964f,
+      0.692f, 0.678f, 0.344f, 0.662f, 0.703f, 0.459f, 0.005f, 0.677f, 0.414f,
+      0.073f, 0.651f, 0.249f, 0.837f, 0.744f, 0.535f, 0.866f, 0.079f, 0.155f,
+      0.441f, 0.177f, 0.525f, 0.806f, 0.552f, 0.662f, 0.201f, 0.77f,  0.972f,
+      0.3f,   0.995f, 0.4f,   0.678f, 0.55f,  0.011f, 0.911f, 0.744f, 0.163f,
+      0.529f, 0.387f, 0.676f, 0.15f,  0.075f, 0.073f, 0.57f,  0.753f, 0.183f,
+      0.211f, 0.154f, 0.37f,  0.289f, 0.515f, 0.725f, 0.448f, 0.425f, 0.445f,
+      0.23f,  0.53f,  0.78f,  0.643f, 0.804f, 0.262f, 0.484f, 0.648f, 0.764f,
+      0.457f, 0.324f, 0.551f, 0.956f, 0.856f, 0.887f, 0.433f, 0.326f, 0.715f,
+      0.408f, 0.158f, 0.404f, 0.636f, 0.619f, 0.426f, 0.409f, 0.809f, 0.176f,
+      0.325f, 0.698f, 0.512f, 0.647f, 0.669f, 0.708f, 0.996f, 0.371f, 0.762f,
+      0.464f, 0.5f,   0.663f, 0.253f, 0.845f, 0.4f,   0.309f, 0.755f, 0.993f,
+    };
+    float bias[] = {
+      0.474f,
+      0.111f,
+      0.298f,
+      0.235f,
+      0.325f,
+      0.407f,
+      0.395f,
+      0.67f,
+      0.867f,
+    } int filter_width[] = { 3, 3, 3 };
+    int filter_height[] = { 3, 3, 3 };
+    int input_channels[] = { 1, 4, 4 };
+    int output_channels[] = { 4, 4, 1 };
+    int skip_width[] = { 1, 1, 1 };
+    int skip_height[] = { 1, 1, 1 };
+    PADDING_TYPE pads[] = { PADDING_SAME_ZERO, PADDING_SAME_ZERO,
+                            PADDING_SAME_ZERO };
+    ACTIVATION activations[] = { SOFTSIGN, SOFTSIGN, SOFTSIGN };
+    return SetupCNNTest(image_width, image_height, inputs, expected, layers,
+                        is_residue, weights, bias, filter_width, filter_height,
+                        input_channels, output_channels, skip_width,
+                        skip_height, pads, activations);
+  }
+
+  static void VerifyOutput(const float *expected_output, float *output_tensor) {
+    double mean_squared_error = 0;
+    for (int i = 0; i < 64; ++i) {
+      EXPECT_LE(fabsf(expected_output[i] - output_tensor[i]), 1);
+      int truncated_output = (int)output_tensor[i];
+      mean_squared_error += SQR(expected_output[i] - truncated_output);
+    }
+    EXPECT_LE(mean_squared_error, 1E-4);
+  }
+};
+}  // namespace
+
+TEST_F(CNNTest, TestNonActivationSingleLayerSingleKernel) {
+  const CNNTestConfig cnn_test_config =
+      SetupTestNonActivationSingleLayerSingleKernel();
+  size_t image_size = cnn_test_config.image_width *
+                      cnn_test_config.image_height * sizeof(float);
+
+  // Rule out any memory leaking issues.
+  float *output_tensor = (float *)aom_malloc(image_size);
+  memset(output_tensor, 0, image_size);
+
+  av1_cnn_predict_c(cnn_test_config.input_tensor, cnn_test_config.image_width,
+                    cnn_test_config.image_height, cnn_test_config.in_stride,
+                    &cnn_test_config.cnn_config, output_tensor,
+                    cnn_test_config.out_stride);
+
+  VerifyOutput(cnn_test_config.expected_tensor, output_tensor);
+  TearDownCNNTest(cnn_test_config);
+  aom_free(output_tensor);
+}
+
+TEST_F(CNNTest, TestRELUMultiLayerMultiKernel) {
+  const CNNTestConfig cnn_test_config = SetupTestRELUMultiLayerMultiKernel();
+  float *output_tensor =
+      (float *)aom_malloc(cnn_test_config.image_width *
+                          cnn_test_config.image_height * sizeof(float));
+
+  av1_cnn_predict_c(cnn_test_config.input_tensor, cnn_test_config.image_width,
+                    cnn_test_config.image_height, cnn_test_config.in_stride,
+                    &cnn_test_config.cnn_config, output_tensor,
+                    cnn_test_config.out_stride);
+
+  VerifyOutput(cnn_test_config.expected_tensor, output_tensor);
+  TearDownCNNTest(cnn_test_config);
+  aom_free(output_tensor);
+}
+
+TEST_F(CNNTest, TestSoftsignMultiLayerMultiKernel) {
+  const CNNTestConfig cnn_test_config =
+      SetupTestSoftsignMultiLayerMultiKernel();
+  float *output_tensor =
+      (float *)aom_malloc(cnn_test_config.image_width *
+                          cnn_test_config.image_height * sizeof(float));
+
+  av1_cnn_predict_c(cnn_test_config.input_tensor, cnn_test_config.image_width,
+                    cnn_test_config.image_height, cnn_test_config.in_stride,
+                    &cnn_test_config.cnn_config, output_tensor,
+                    cnn_test_config.out_stride);
+
+  VerifyOutput(cnn_test_config.expected_tensor, output_tensor);
+  TearDownCNNTest(cnn_test_config);
+  aom_free(output_tensor);
+}
