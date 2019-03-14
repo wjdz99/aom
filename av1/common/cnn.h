@@ -44,6 +44,10 @@ struct CNN_LAYER_CONFIG {
                    // and the outer most scan is filter_height.
   float *bias;     // array of length out_channels
   PADDING_TYPE pad;  // padding type
+  int input_copy;    // copy the input tensor to the layer and store for future
+                     // use as a skip addition layer
+  int output_add;    // add previously stored tensor to the output tensor of the
+                     // layer
 };
 
 struct CNN_CONFIG {
