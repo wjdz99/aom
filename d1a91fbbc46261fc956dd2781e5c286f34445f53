@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "505e3bf3_2546cd3a",
+        "filename": "aom_scale/generic/yv12config.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-03-14T16:29:09Z",
+      "side": 1,
+      "message": "Thanks for checking it!",
+      "parentUuid": "3c4409bf_22eaeb11",
+      "range": {
+        "startLine": 248,
+        "startChar": 0,
+        "endLine": 248,
+        "endChar": 12
+      },
+      "revId": "d1a91fbbc46261fc956dd2781e5c286f34445f53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "afc4fa19_7e6101f5",
         "filename": "av1/encoder/lookahead.c",
         "patchSetId": 16
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "aom_free_frame_buffer() function has null check before calling free. We feel keeping a check here is redundant.",
       "parentUuid": "afc4fa19_7e6101f5",
+      "range": {
+        "startLine": 71,
+        "startChar": 30,
+        "endLine": 71,
+        "endChar": 46
+      },
+      "revId": "d1a91fbbc46261fc956dd2781e5c286f34445f53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca0b7748_150b487b",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-03-14T16:29:09Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0b22a35a_46bdfdf4",
       "range": {
         "startLine": 71,
         "startChar": 30,
