@@ -123,6 +123,9 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
 static void find_layer_output_size(int in_width, int in_height,
                                    const CNN_LAYER_CONFIG *layer_config,
                                    int *out_width, int *out_height) {
+  assert(layer_config->skip_height > 0);
+  assert(layer_config->skip_width > 0);
+
   switch (layer_config->pad) {
     case PADDING_SAME_ZERO:
     case PADDING_SAME_REPLICATE:
