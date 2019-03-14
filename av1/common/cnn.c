@@ -18,6 +18,12 @@
 
 #define CLAMPINDEX(a, hi) ((a) < 0 ? 0 : ((a) >= (hi) ? ((hi)-1) : (a)))
 
+static float softsign(float x) { return x / (fabsf(x) + 1); }
+
+static float relu(float x) { return (x < 0) ? 0 : x; }
+
+static float identity(float x) { return x; }
+
 void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
                         int in_stride, const CNN_LAYER_CONFIG *layer_config,
                         float **output, int out_stride) {
@@ -28,7 +34,7 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
   const int filter_height_half = layer_config->filter_height >> 1;
   const int filter_width_half = layer_config->filter_width >> 1;
 
-  float (*activation)(float) = identity;
+  activation_fn activation = identity;
   switch (layer_config->activation) {
     case RELU: activation = relu; break;
     case SOFTSIGN: activation = softsign; break;
