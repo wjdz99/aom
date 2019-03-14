@@ -4446,9 +4446,13 @@ static const float av1_fp_simple_motion_search_term_none_std_8[20] = {
   0.127879f, 0.741096f, 0.742186f, 1.042003f, 1.292524f, 1.250398f,
 };
 
-static const NN_CONFIG av1_fp_simple_motion_search_term_none_nn_config_128 = {};
+static const NN_CONFIG av1_fp_simple_motion_search_term_none_nn_config_128 = {
+  0
+};
 
-static const NN_CONFIG av1_fp_simple_motion_search_term_none_nn_config_64 = {};
+static const NN_CONFIG av1_fp_simple_motion_search_term_none_nn_config_64 = {
+  0
+};
 
 #define NUM_HIDDEN_LAYERS_32 1
 #define NUM_FEATURES_32 20
