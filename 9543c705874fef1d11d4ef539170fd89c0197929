@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "854b93d6_4253e0f0",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2019-03-15T20:15:16Z",
+      "side": 1,
+      "message": "As I mentioned in encodeframe.c, the meaning of this encoding option will be confusing. For example, when it is 4, actually 2x8 is also allowed since 2x8 belongs to 8x8 partition level, however, it has one side \u003c 4. \nIt would be great if someone come up with a name that is less confusing.\nOtherwise if there is no strong reason to change the meaning of min_sq_size for rd_pick_partition(), I would recommend revert that part.",
+      "range": {
+        "startLine": 753,
+        "startChar": 2,
+        "endLine": 753,
+        "endChar": 29
+      },
+      "revId": "9543c705874fef1d11d4ef539170fd89c0197929",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
