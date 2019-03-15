@@ -12583,11 +12583,14 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int picked_ref_frames_mask = 0;
   if (cpi->sf.prune_ref_frame_for_rect_partitions &&
       mbmi->partition != PARTITION_NONE && mbmi->partition != PARTITION_SPLIT) {
-    // Don't enable for vert and horz partition blocks if current frame
-    // will be used as bwd or arf2.
-    if ((!cpi->refresh_bwd_ref_frame && !cpi->refresh_alt2_ref_frame) ||
-        (mbmi->partition != PARTITION_VERT &&
-         mbmi->partition != PARTITION_HORZ)) {
+    if (cpi->sf.prune_ref_frame_for_rect_partitions == 1) {
+      // Don't enable for vert and horz partition blocks
+      if ((mbmi->partition != PARTITION_VERT &&
+           mbmi->partition != PARTITION_HORZ)) {
+        picked_ref_frames_mask = fetch_picked_ref_frames_mask(
+            x, bsize, cm->seq_params.mib_size, mi_row, mi_col);
+      }
+    } else if (cpi->sf.prune_ref_frame_for_rect_partitions >= 2) {
       picked_ref_frames_mask = fetch_picked_ref_frames_mask(
           x, bsize, cm->seq_params.mib_size, mi_row, mi_col);
     }
