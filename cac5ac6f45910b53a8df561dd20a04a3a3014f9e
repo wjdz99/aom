@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "361e0c38_527cd4a7",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 5701,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-15T18:43:49Z",
+      "side": 1,
+      "message": "This has to be done at line 5709. max_sq_size may become smaller at line 5707.",
+      "range": {
+        "startLine": 5701,
+        "startChar": 6,
+        "endLine": 5701,
+        "endChar": 53
+      },
+      "revId": "cac5ac6f45910b53a8df561dd20a04a3a3014f9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
