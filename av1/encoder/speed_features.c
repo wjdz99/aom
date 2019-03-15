@@ -214,6 +214,10 @@ static void set_good_speed_features_framesize_independent(
   sf->use_nonrd_pick_mode = 0;
   sf->use_real_time_ref_set = 0;
 
+#if UPDATE_DIFFWTD_MV
+  sf->disable_interinter_diffwtd_newmv_search = 0;
+#endif
+
   if (speed >= 1) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;
     sf->selective_ref_frame = 2;
