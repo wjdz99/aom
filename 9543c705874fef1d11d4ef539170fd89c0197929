@@ -46,6 +46,30 @@
       "revId": "9543c705874fef1d11d4ef539170fd89c0197929",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "daebcf94_b8f6f50e",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2019-03-15T20:49:20Z",
+      "side": 1,
+      "message": "Thanks Ryan, for this case, my concern is, when it is 8, 4x16 and 16x4 is actually still allowed because they have been tried when top bsize\u003d16x16 in rd_pick_partition(). Correct me if I missed the logic.",
+      "parentUuid": "829e91ed_9ce394d8",
+      "range": {
+        "startLine": 753,
+        "startChar": 2,
+        "endLine": 753,
+        "endChar": 29
+      },
+      "revId": "9543c705874fef1d11d4ef539170fd89c0197929",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
