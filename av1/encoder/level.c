@@ -355,3 +355,14 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
     check_level_constraints(cpi, i, level_spec);
   }
 }
+
+int av1_get_seq_level_idx(const AV1_COMP *cpi, int *seq_level_idx) {
+  // TODO(chiyotsai@, kyslov@, huisu@): put in real implementations.
+  (void)cpi;
+  for (int i = 0; i < MAX_NUM_OPERATING_POINTS; ++i) {
+    seq_level_idx[i] = (int)SEQ_LEVEL_MAX;
+  }
+
+  // Return 0 upon success.
+  return 0;
+}
