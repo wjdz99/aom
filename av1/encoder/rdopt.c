@@ -733,6 +733,33 @@ typedef struct InterModeSearchState {
   MV_REFERENCE_FRAME single_rd_order[2][SINGLE_INTER_MODE_NUM][FWD_REFS];
 } InterModeSearchState;
 
+// Struct for buffers used by compound_type_rd() function.
+// For sizes and alignment of these arrays, refer to
+// alloc_compound_type_rd_buffers() function.
+typedef struct {
+    uint8_t *pred0;
+    uint8_t *pred1;
+    int16_t *residual1;          // src - pred1
+    int16_t *diff10;             // pred1 - pred0
+    uint8_t *tmp_best_mask_buf;  // backup of the best segmentation mask
+} CompoundTypeRdBuffers;
+
+static void alloc_compound_type_rd_buffers_no_check(
+        CompoundTypeRdBuffers *const bufs) {
+  bufs->pred0 =
+      (uint8_t *) aom_memalign(16, 2 * MAX_SB_SQUARE * sizeof(*bufs->pred0));
+  bufs->pred1 =
+      (uint8_t *) aom_memalign(16, 2 * MAX_SB_SQUARE * sizeof(*bufs->pred1));
+  bufs->residual1 =
+      (int16_t *) aom_memalign(32, MAX_SB_SQUARE * sizeof(*bufs->residual1));
+  bufs->diff10 =
+      (int16_t *) aom_memalign(32, MAX_SB_SQUARE * sizeof(*bufs->diff10));
+  bufs->tmp_best_mask_buf =
+      (uint8_t *)aom_malloc(2 * MAX_SB_SQUARE * sizeof(*bufs->tmp_best_mask_buf));
+}
+
+static void release_compound_type_rd_buffers(CompoundTypeRdBuffers *const bufs);
+
 static int inter_mode_data_block_idx(BLOCK_SIZE bsize) {
   if (bsize == BLOCK_4X4 || bsize == BLOCK_4X8 || bsize == BLOCK_8X4 ||
       bsize == BLOCK_4X16 || bsize == BLOCK_16X4) {
@@ -7944,6 +7971,44 @@ static int64_t build_and_cost_compound_type(
                                                  strides, preds1, strides);
         *comp_model_rd_cur = best_rd_cur;
       }
+#if UPDATE_DIFFWTD_MV
+    } else if (have_newmv_in_inter_mode(this_mode) &&
+               compound_type == COMPOUND_DIFFWTD &&
+               !cpi->sf.disable_interinter_diffwtd_newmv_search) {
+      *out_rate_mv = interinter_compound_motion_search(
+          cpi, x, cur_mv, bsize, this_mode, mi_row, mi_col);
+      // we need to update the mask according to the new motion vector
+      {
+        CompoundTypeRdBuffers tmp_buf;
+        alloc_compound_type_rd_buffers_no_check(&tmp_buf);
+
+        uint8_t *tmp_preds0[1] = { tmp_buf.pred0 };
+        uint8_t *tmp_preds1[1] = { tmp_buf.pred1 };
+
+        get_inter_predictors_masked_compound(
+            cpi, x, bsize, mi_row, mi_col, tmp_preds0, tmp_preds1,
+            tmp_buf.residual1, tmp_buf.diff10, strides);
+
+        rd = pick_interinter_mask(cpi, x, bsize, *tmp_preds0, *tmp_preds1,
+                                  tmp_buf.residual1, tmp_buf.diff10);
+        // we can reuse rs2 here
+        rd += RDCOST(x->rdmult, *rs2 + *out_rate_mv, 0);
+        *comp_model_rd_cur = rd;
+        if (rd >= best_rd_cur) {
+          mbmi->mv[0].as_int = cur_mv[0].as_int;
+          mbmi->mv[1].as_int = cur_mv[1].as_int;
+          *out_rate_mv = rate_mv;
+          av1_build_wedge_inter_predictor_from_buf(xd, bsize, 0, 0, preds0,
+                                                   strides, preds1, strides);
+          *comp_model_rd_cur = best_rd_cur;
+        } else {
+          // build the final prediciton using the updated mv
+          av1_build_wedge_inter_predictor_from_buf(xd, bsize, 0, 0, tmp_preds0,
+                                                   strides, tmp_preds1, strides);
+        }
+        release_compound_type_rd_buffers(&tmp_buf);
+      }
+#endif  // UPDATE_DIFFWTD_MV
     } else {
       *out_rate_mv = rate_mv;
       av1_build_wedge_inter_predictor_from_buf(xd, bsize, 0, 0, preds0, strides,
@@ -9788,17 +9853,6 @@ static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
   return cost;
 }
 
-// Struct for buffers used by compound_type_rd() function.
-// For sizes and alignment of these arrays, refer to
-// alloc_compound_type_rd_buffers() function.
-typedef struct {
-  uint8_t *pred0;
-  uint8_t *pred1;
-  int16_t *residual1;          // src - pred1
-  int16_t *diff10;             // pred1 - pred0
-  uint8_t *tmp_best_mask_buf;  // backup of the best segmentation mask
-} CompoundTypeRdBuffers;
-
 static int compound_type_rd(
     const AV1_COMP *const cpi, MACROBLOCK *x, BLOCK_SIZE bsize, int mi_col,
     int mi_row, int_mv *cur_mv, int mode_search_mask, int masked_compound_used,
@@ -10036,7 +10090,11 @@ static int compound_type_rd(
       }
       best_compmode_interinter_cost = rs2;
       if (have_newmv_in_inter_mode(this_mode)) {
-        if (cur_type == COMPOUND_WEDGE) {
+        if (cur_type == COMPOUND_WEDGE
+#if UPDATE_DIFFWTD_MV
+            || cur_type == COMPOUND_DIFFWTD
+#endif
+           ) {
           best_tmp_rate_mv = tmp_rate_mv;
           best_mv[0].as_int = mbmi->mv[0].as_int;
           best_mv[1].as_int = mbmi->mv[1].as_int;
@@ -10059,7 +10117,11 @@ static int compound_type_rd(
   if (have_newmv_in_inter_mode(this_mode)) {
     mbmi->mv[0].as_int = best_mv[0].as_int;
     mbmi->mv[1].as_int = best_mv[1].as_int;
-    if (mbmi->interinter_comp.type == COMPOUND_WEDGE) {
+    if (mbmi->interinter_comp.type == COMPOUND_WEDGE
+#if UPDATE_DIFFWTD_MV
+        || mbmi->interinter_comp.type == COMPOUND_DIFFWTD
+#endif
+        ) {
       rd_stats->rate += best_tmp_rate_mv - *rate_mv;
       *rate_mv = best_tmp_rate_mv;
     }
