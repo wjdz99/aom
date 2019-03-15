@@ -3938,6 +3938,10 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
                               BLOCK_SIZE max_sq_part, BLOCK_SIZE min_sq_part,
                               RD_STATS *rd_cost, int64_t best_rd,
                               PC_TREE *pc_tree, int64_t *none_rd) {
+  assert(block_size_wide[bsize] == block_size_high[bsize]);
+  assert(block_size_wide[min_sq_part] == block_size_high[min_sq_part]);
+  assert(block_size_wide[max_sq_part] == block_size_high[max_sq_part]);
+  assert(min_sq_part <= max_sq_part);
   const AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   TileInfo *const tile_info = &tile_data->tile_info;
@@ -3971,16 +3975,6 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   int horz_ctx_is_ready = 0;
   int vert_ctx_is_ready = 0;
   BLOCK_SIZE bsize2 = get_partition_subsize(bsize, PARTITION_SPLIT);
-
-  // Max and min square partition levels are defined as the partition nodes that
-  // the recursive function rd_pick_partition() can reach. To implement this:
-  // only PARTITION_NONE is allowed if the current node equals min_sq_part,
-  // only PARTITION_SPLIT is allowed if the current node exceeds max_sq_part.
-  assert(block_size_wide[min_sq_part] == block_size_high[min_sq_part]);
-  assert(block_size_wide[max_sq_part] == block_size_high[max_sq_part]);
-  assert(min_sq_part <= max_sq_part);
-  int is_eq_min_sq_part = bsize == min_sq_part;
-  int is_gt_max_sq_part = bsize > max_sq_part;
 
   if (best_rd < 0) {
     pc_tree->none.rdcost = INT64_MAX;
@@ -4185,30 +4179,29 @@ BEGIN_PARTITION_SEARCH:
   }
 #endif
 
-  assert(block_size_wide[bsize] == block_size_high[bsize]);
-  const int max_partition_size = block_size_wide[max_sq_part];
-  const int min_partition_size = block_size_wide[min_sq_part];
-  const int blksize = block_size_wide[bsize];
-  assert(min_partition_size <= max_partition_size);
-  if (blksize > max_partition_size) {
+  // Max and min square partition levels are defined as the partition nodes that
+  // the recursive function rd_pick_partition() can reach. To implement this:
+  // only PARTITION_NONE is allowed if the current node equals min_sq_part,
+  // only PARTITION_SPLIT is allowed if the current node exceeds max_sq_part.
+
+  const int is_le_min_sq_part = bsize <= min_sq_part;
+  const int is_gt_max_sq_part = bsize > max_sq_part;
+  if (is_gt_max_sq_part) {
+    // If current block size is larger than max, only allow split.
     partition_none_allowed = 0;
     partition_horz_allowed = 0;
     partition_vert_allowed = 0;
-  }
-  if (blksize == min_partition_size) {
+    do_square_split = 1;
+  } else if (is_le_min_sq_part) {
+    // If current block size is less or equal to min, only allow none if valid
+    // block large enough; only allow split otherwise.
     partition_horz_allowed = 0;
     partition_vert_allowed = 0;
-    do_square_split = 0;
-  }
-
-  if (!has_rows && has_cols) {
-    partition_horz_allowed &= 1;
-  } else if (has_rows && !has_cols) {
-    partition_vert_allowed &= 1;
+    do_square_split = !has_rows || !has_cols;
+    partition_none_allowed = !do_square_split;
   }
 
   // PARTITION_NONE
-  if (is_eq_min_sq_part && has_rows && has_cols) partition_none_allowed = 1;
   if (!terminate_partition_search && partition_none_allowed &&
       !is_gt_max_sq_part) {
     int pt_cost = 0;
@@ -4312,7 +4305,6 @@ BEGIN_PARTITION_SEARCH:
   if (cpi->sf.adaptive_motion_search) store_pred_mv(x, ctx_none);
 
   // PARTITION_SPLIT
-  if (is_eq_min_sq_part) do_square_split = 0;
   if ((!terminate_partition_search && do_square_split) || is_gt_max_sq_part) {
     av1_init_rd_stats(&sum_rdc);
     subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
@@ -4907,7 +4899,7 @@ BEGIN_PARTITION_SEARCH:
   }
 #endif
 
-  if (blksize < (min_partition_size << 2)) {
+  if (block_size_high[bsize] < (block_size_high[min_sq_part] << 2)) {
     partition_horz4_allowed = 0;
     partition_vert4_allowed = 0;
   }
