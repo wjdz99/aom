@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "aed7e767_60524671",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 4201,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-15T17:21:35Z",
+      "side": 1,
+      "message": "Done. you are right. I merged the fix from the other CL. please look at the latest revision",
+      "parentUuid": "1d6d93e8_d86c6678",
+      "range": {
+        "startLine": 4201,
+        "startChar": 4,
+        "endLine": 4201,
+        "endChar": 24
+      },
+      "revId": "54f4c25282c00b20628ab0fdaa05e824fa24187b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "56704683_35d7a1c2",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 14
@@ -45,6 +69,30 @@
       "revId": "54f4c25282c00b20628ab0fdaa05e824fa24187b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d81a0cc_79f7bdd1",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 4205,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-15T17:21:35Z",
+      "side": 1,
+      "message": "Done. these four lines are removed in the latest revision",
+      "parentUuid": "56704683_35d7a1c2",
+      "range": {
+        "startLine": 4205,
+        "startChar": 4,
+        "endLine": 4205,
+        "endChar": 32
+      },
+      "revId": "54f4c25282c00b20628ab0fdaa05e824fa24187b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "7b060b7d_41d64946",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 5705,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-15T17:21:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8588a9c0_b981ce60",
+      "range": {
+        "startLine": 5705,
+        "startChar": 62,
+        "endLine": 5705,
+        "endChar": 69
+      },
+      "revId": "54f4c25282c00b20628ab0fdaa05e824fa24187b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5d110ae8_09806609",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 14
@@ -91,6 +163,30 @@
       "revId": "54f4c25282c00b20628ab0fdaa05e824fa24187b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4feee5d5_56f6a411",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 5707,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-15T17:21:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d110ae8_09806609",
+      "range": {
+        "startLine": 5706,
+        "startChar": 7,
+        "endLine": 5707,
+        "endChar": 6
+      },
+      "revId": "54f4c25282c00b20628ab0fdaa05e824fa24187b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }

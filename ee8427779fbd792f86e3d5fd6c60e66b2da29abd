@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8fd7661_8ace6ef5",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 4161,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-15T17:21:35Z",
+      "side": 1,
+      "message": "Hui, I prefer to use the actual block size (blksize) for the comparison, because it is an integer type. the min_sq_part/max_sq_part/bsize are BLK_SIZE enum type. their order might be different than the actual order. for example BLK_4X16 is actually greater than BLK_8X16, whcih doesn\u0027t make sense. so I convert them to actual integer to avoid confusion.",
+      "range": {
+        "startLine": 4161,
+        "startChar": 12,
+        "endLine": 4161,
+        "endChar": 15
+      },
+      "revId": "ee8427779fbd792f86e3d5fd6c60e66b2da29abd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef698c8e_a7c8e432",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 4178,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-15T17:21:35Z",
+      "side": 1,
+      "message": "this logic is the same as what you have in the other CL",
+      "range": {
+        "startLine": 4178,
+        "startChar": 8,
+        "endLine": 4178,
+        "endChar": 9
+      },
+      "revId": "ee8427779fbd792f86e3d5fd6c60e66b2da29abd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
