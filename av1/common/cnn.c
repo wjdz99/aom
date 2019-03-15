@@ -31,7 +31,7 @@ static void realloc_tensor(TENSOR *tensor, int channels, int width,
                            int height) {
   const int newallocsize = channels * width * height;
   if (tensor->allocsize < newallocsize) {
-    aom_free(tensor->buf[0]);
+    if (tensor->allocsize) aom_free(tensor->buf[0]);
     tensor->buf[0] =
         (float *)aom_malloc(sizeof(*tensor->buf[0]) * newallocsize);
     tensor->allocsize = newallocsize;
