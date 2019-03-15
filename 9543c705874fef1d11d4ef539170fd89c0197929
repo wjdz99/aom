@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "0599024e_298eebbc",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2019-03-15T20:56:28Z",
+      "side": 1,
+      "message": "no. I have the following check. so if min_partition_size \u003d 8, 4x16 and 16x4 are not allowed.\n\n  if (blksize \u003c (min_partition_size \u003c\u003c 2)) {\n    partition_horz4_allowed \u003d 0;\n    partition_vert4_allowed \u003d 0;\n  }",
+      "parentUuid": "daebcf94_b8f6f50e",
+      "range": {
+        "startLine": 753,
+        "startChar": 2,
+        "endLine": 753,
+        "endChar": 29
+      },
+      "revId": "9543c705874fef1d11d4ef539170fd89c0197929",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d37c5786_f433fa3d",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 19
