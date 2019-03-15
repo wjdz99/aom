@@ -205,23 +205,38 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
 static void find_layer_output_size(int in_width, int in_height,
                                    const CNN_LAYER_CONFIG *layer_config,
                                    int *out_width, int *out_height) {
-  switch (layer_config->pad) {
-    case PADDING_SAME_ZERO:
-    case PADDING_SAME_REPLICATE:
-      *out_width =
-          (in_width + layer_config->skip_width - 1) / layer_config->skip_width;
-      *out_height = (in_height + layer_config->skip_height - 1) /
-                    layer_config->skip_height;
-      break;
-    case PADDING_VALID:
-      *out_width =
-          (in_width - layer_config->filter_width + layer_config->skip_width) /
-          layer_config->skip_width;
-      *out_height = (in_height - layer_config->filter_height +
-                     layer_config->skip_height) /
-                    layer_config->skip_height;
-      break;
-    default: assert(0 && "Unknown padding type");
+  if (!layer_config->deconvolve) {
+    switch (layer_config->pad) {
+      case PADDING_SAME_ZERO:
+      case PADDING_SAME_REPLICATE:
+        *out_width =
+            (in_width + layer_config->skip_width - 1) / layer_config->skip_width;
+        *out_height = (in_height + layer_config->skip_height - 1) /
+            layer_config->skip_height;
+        break;
+      case PADDING_VALID:
+        *out_width =
+            (in_width - layer_config->filter_width + layer_config->skip_width) /
+            layer_config->skip_width;
+        *out_height = (in_height - layer_config->filter_height +
+                       layer_config->skip_height) /
+            layer_config->skip_height;
+        break;
+      default: assert(0 && "Unknown padding type");
+    }
+  } else {
+    switch (layer_config->pad) {
+      case PADDING_SAME_ZERO:
+      case PADDING_SAME_REPLICATE:
+        *out_width = in_width * layer_config->skip_width;
+        *out_height = in_height * layer_config->skip_height;
+        break;
+      case PADDING_VALID:
+        *out_width = (in_width - 1) * layer_config->skip_width + layer_config->filter_width;
+        *out_height = (in_height - 1) * layer_config->skip_height + layer_config->filter_height;
+        break;
+      default: assert(0 && "Unknown padding type");
+    }
   }
 }
 
