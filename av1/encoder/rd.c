@@ -1305,10 +1305,13 @@ void av1_update_rd_thresh_fact(const AV1_COMMON *const cm,
     const int top_mode = MAX_MODES;
     int mode;
     for (mode = 0; mode < top_mode; ++mode) {
-      const BLOCK_SIZE min_size = AOMMAX(bsize - 1, BLOCK_4X4);
+      const BLOCK_SIZE min_size =
+          bsize < BLOCK_4X16 ? AOMMAX(bsize - 1, BLOCK_4X4) : bsize;
       const BLOCK_SIZE max_size =
-          AOMMIN(bsize + 2, (int)cm->seq_params.sb_size);
+          bsize < BLOCK_4X16 ? AOMMIN(bsize + 2, (int)cm->seq_params.sb_size)
+                             : bsize;
       BLOCK_SIZE bs;
+
       for (bs = min_size; bs <= max_size; ++bs) {
         int *const fact = &factor_buf[bs][mode];
         if (mode == best_mode_index) {
