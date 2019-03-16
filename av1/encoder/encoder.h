@@ -472,18 +472,18 @@ typedef struct FRAME_COUNTS {
   unsigned int delta_lf_multi[FRAME_LF_COUNT][DELTA_LF_PROBS][2];
   unsigned int delta_lf[DELTA_LF_PROBS][2];
 
-#if CONFIG_DATA_DRIVEN_TX
-#if USE_DDTX_INTER
-  unsigned int use_ddtx_inter[EXT_TX_SIZES][2];
-  unsigned int ddtx_type_inter[EXT_TX_SIZES][DDTX_TYPES_INTER];
+#if CONFIG_NONSEP_TX
+#if USE_NSTX_INTER
+  unsigned int use_nstx_inter[EXT_TX_SIZES][2];
+  unsigned int nstx_type_inter[EXT_TX_SIZES][NSTX_TYPES_INTER];
 #endif
-#if USE_DDTX_INTRA
-  unsigned int use_ddtx_intra[EXT_TX_SIZES][2];
-  unsigned int ddtx_type_intra[EXT_TX_SIZES][DDTX_TYPES_INTRA];
+#if USE_NSTX_INTRA
+  unsigned int use_nstx_intra[EXT_TX_SIZES][2];
+  unsigned int nstx_type_intra[EXT_TX_SIZES][NSTX_TYPES_INTRA];
 #endif
-  unsigned int inter_ext_tx[EXT_TX_SETS_INTER][EXT_TX_SIZES][TX_TYPES_NODDTX];
+  unsigned int inter_ext_tx[EXT_TX_SETS_INTER][EXT_TX_SIZES][TX_TYPES_NONSTX];
   unsigned int intra_ext_tx[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
-                           [TX_TYPES_NODDTX];
+                           [TX_TYPES_NONSTX];
 #else
   unsigned int inter_ext_tx[EXT_TX_SETS_INTER][EXT_TX_SIZES][TX_TYPES];
   unsigned int intra_ext_tx[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]

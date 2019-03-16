@@ -52,44 +52,43 @@ static const uint8_t rd_thresh_block_size_factor[BLOCK_SIZES_ALL] = {
   2, 3, 3, 4, 6, 6, 8, 12, 12, 16, 24, 24, 32, 48, 48, 64, 4, 4, 8, 8, 16, 16
 };
 
-static const int use_intra_ext_tx_for_txsize[EXT_TX_SETS_INTRA][EXT_TX_SIZES] =
-    {
-      { 1, 1, 1, 1 },  // unused
-      { 1, 1, 0, 0 },
-      { 0, 0, 1, 0 },
-    };
+static const int use_intra_ext_tx_for_txsize[EXT_TX_SETS_INTRA]
+                                            [EXT_TX_SIZES] = {
+                                                {1, 1, 1, 1}, // unused
+                                                {1, 1, 0, 0},
+                                                {0, 0, 1, 0},
+#if CONFIG_NONSEP_TX && USE_NSTX_INTRA
+                                                {1, 1, 0, 0},
+#endif
+};
 
-static const int use_inter_ext_tx_for_txsize[EXT_TX_SETS_INTER][EXT_TX_SIZES] =
-    {
-      { 1, 1, 1, 1 },  // unused
-      { 1, 1, 0, 0 },
-      { 0, 0, 1, 0 },
-      { 0, 0, 0, 1 },
-    };
+static const int use_inter_ext_tx_for_txsize[EXT_TX_SETS_INTER]
+                                            [EXT_TX_SIZES] = {
+                                                {1, 1, 1, 1}, // unused
+                                                {1, 1, 0, 0}, {0, 0, 1, 0},
+                                                {0, 0, 0, 1},
+#if CONFIG_NONSEP_TX && USE_NSTX_INTER
+                                                {1, 1, 0, 0},
+#endif
+};
 
 static const int av1_ext_tx_set_idx_to_type[2][AOMMAX(EXT_TX_SETS_INTRA,
                                                       EXT_TX_SETS_INTER)] = {
-  {
-      // Intra
-      EXT_TX_SET_DCTONLY,
-#if CONFIG_DATA_DRIVEN_TX && USE_DDTX_INTRA
-      EXT_TX_SET_DTT4_IDTX_1DDCT_DDTX,
-#else
-      EXT_TX_SET_DTT4_IDTX_1DDCT,
+    {
+        // Intra
+        EXT_TX_SET_DCTONLY, EXT_TX_SET_DTT4_IDTX_1DDCT, EXT_TX_SET_DTT4_IDTX,
+#if CONFIG_NONSEP_TX && USE_NSTX_INTRA
+        EXT_TX_SET_DTT4_IDTX_1DDCT_NSTX3,
 #endif
-      EXT_TX_SET_DTT4_IDTX,
-  },
-  {
-      // Inter
-      EXT_TX_SET_DCTONLY,
-#if CONFIG_DATA_DRIVEN_TX && USE_DDTX_INTER
-      EXT_TX_SET_ALL16_DDTX,
-#else
-      EXT_TX_SET_ALL16,
+    },
+    {
+        // Inter
+        EXT_TX_SET_DCTONLY, EXT_TX_SET_ALL16, EXT_TX_SET_DTT9_IDTX_1DDCT,
+        EXT_TX_SET_DCT_IDTX,
+#if CONFIG_NONSEP_TX && USE_NSTX_INTER
+        EXT_TX_SET_ALL16_NSTX8,
 #endif
-      EXT_TX_SET_DTT9_IDTX_1DDCT,
-      EXT_TX_SET_DCT_IDTX,
-  },
+    },
 };
 
 void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
@@ -219,25 +218,25 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
       }
     }
   }
-#if CONFIG_DATA_DRIVEN_TX
-#if USE_DDTX_INTER
+#if CONFIG_NONSEP_TX
+#if USE_NSTX_INTER
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-    av1_cost_tokens_from_cdf(x->ddtx_type_inter_costs[i],
-                             fc->ddtx_type_inter_cdf[i], NULL);
+    av1_cost_tokens_from_cdf(x->nstx_type_inter_costs[i],
+                             fc->nstx_type_inter_cdf[i], NULL);
   }
   for (int s = 0; s < EXT_TX_SIZES; ++s) {
-    av1_cost_tokens_from_cdf(x->use_ddtx_inter_costs[s],
-                             fc->use_ddtx_inter_cdf[s], NULL);
+    av1_cost_tokens_from_cdf(x->use_nstx_inter_costs[s],
+                             fc->use_nstx_inter_cdf[s], NULL);
   }
 #endif
-#if USE_DDTX_INTRA
+#if USE_NSTX_INTRA
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
-    av1_cost_tokens_from_cdf(x->ddtx_type_intra_costs[i],
-                             fc->ddtx_type_intra_cdf[i], NULL);
+    av1_cost_tokens_from_cdf(x->nstx_type_intra_costs[i],
+                             fc->nstx_type_intra_cdf[i], NULL);
   }
   for (int s = 0; s < EXT_TX_SIZES; ++s) {
-    av1_cost_tokens_from_cdf(x->use_ddtx_intra_costs[s],
-                             fc->use_ddtx_intra_cdf[s], NULL);
+    av1_cost_tokens_from_cdf(x->use_nstx_intra_costs[s],
+                             fc->use_nstx_intra_cdf[s], NULL);
   }
 #endif
 #endif

@@ -17,6 +17,10 @@
 #include "av1/common/av1_inv_txfm1d.h"
 #include "av1/common/av1_inv_txfm1d_cfg.h"
 
+#if CONFIG_NONSEP_TX
+#include "av1/common/nstx_coefficients.h"
+#endif
+
 void av1_highbd_iwht4x4_16_add_c(const tran_low_t *input, uint8_t *dest8,
                                  int stride, int bd) {
   /* 4-point reversible, orthonormal inverse Walsh-Hadamard in 3.5 adds,
@@ -121,10 +125,6 @@ static INLINE TxfmFunc inv_txfm_type_to_func(TXFM_TYPE txfm_type) {
     case TXFM_TYPE_ADST4: return av1_iadst4_new;
     case TXFM_TYPE_ADST8: return av1_iadst8_new;
     case TXFM_TYPE_ADST16: return av1_iadst16_new;
-#if CONFIG_DATA_DRIVEN_TX
-    case TXFM_TYPE_DDTX4: return av1_iddt4;
-    case TXFM_TYPE_DDTX8: return av1_iddt8;
-#endif
     case TXFM_TYPE_IDENTITY4: return av1_iidentity4_c;
     case TXFM_TYPE_IDENTITY8: return av1_iidentity8_c;
     case TXFM_TYPE_IDENTITY16: return av1_iidentity16_c;
@@ -258,9 +258,6 @@ void av1_gen_inv_stage_range(int8_t *stage_range_col, int8_t *stage_range_row,
 static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
                                     int stride, TXFM_2D_FLIP_CFG *cfg,
                                     int32_t *txfm_buf, TX_SIZE tx_size,
-#if CONFIG_DATA_DRIVEN_TX
-                                    int is_inter,
-#endif
                                     int bd) {
   // Note when assigning txfm_size_col, we use the txfm_size from the
   // row configuration and vice versa. This is intentionally done to
@@ -283,14 +280,6 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
   const int8_t cos_bit_row = cfg->cos_bit_row;
   const TxfmFunc txfm_func_col = inv_txfm_type_to_func(cfg->txfm_type_col);
   const TxfmFunc txfm_func_row = inv_txfm_type_to_func(cfg->txfm_type_row);
-#if CONFIG_DATA_DRIVEN_TX
-  // For DDTX, the stage_range argument is not required. Instead, we pass
-  // is_inter here.
-  if (txfm_func_col == av1_iddt4 || txfm_func_col == av1_iddt8)
-    stage_range_col[0] = is_inter;
-  if (txfm_func_row == av1_iddt4 || txfm_func_col == av1_iddt8)
-    stage_range_row[0] = is_inter;
-#endif
 
   // txfm_buf's length is  txfm_size_row * txfm_size_col + 2 *
   // AOMMAX(txfm_size_row, txfm_size_col)
@@ -302,229 +291,290 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
   int32_t *buf_ptr = buf;
   int c, r;
 
-  // Rows
-  for (r = 0; r < txfm_size_row; ++r) {
-    if (abs(rect_type) == 1) {
-      for (c = 0; c < txfm_size_col; ++c) {
-        temp_in[c] = round_shift((int64_t)input[c] * NewInvSqrt2, NewSqrt2Bits);
-      }
-      clamp_buf(temp_in, txfm_size_col, bd + 8);
-      txfm_func_row(temp_in, buf_ptr, cos_bit_row, stage_range_row);
-    } else {
-      for (c = 0; c < txfm_size_col; ++c) {
-        temp_in[c] = input[c];
-      }
-      clamp_buf(temp_in, txfm_size_col, bd + 8);
-      txfm_func_row(temp_in, buf_ptr, cos_bit_row, stage_range_row);
-    }
-    av1_round_shift_array(buf_ptr, txfm_size_col, -shift[0]);
-    input += txfm_size_col;
-    buf_ptr += txfm_size_col;
-  }
-
-  // Columns
-  for (c = 0; c < txfm_size_col; ++c) {
-    if (cfg->lr_flip == 0) {
-      for (r = 0; r < txfm_size_row; ++r)
-        temp_in[r] = buf[r * txfm_size_col + c];
-    } else {
-      // flip left right
-      for (r = 0; r < txfm_size_row; ++r)
-        temp_in[r] = buf[r * txfm_size_col + (txfm_size_col - c - 1)];
-    }
-    clamp_buf(temp_in, txfm_size_row, AOMMAX(bd + 6, 16));
-    txfm_func_col(temp_in, temp_out, cos_bit_col, stage_range_col);
-    av1_round_shift_array(temp_out, txfm_size_row, -shift[1]);
-    if (cfg->ud_flip == 0) {
+#if CONFIG_NONSEP_TX && SEP_TX_DEBUG
+  // debug
+  if (cfg->tx_size <= TX_8X8) {
+    fprintf(stderr, "INV: input block, tx_type_col %d, tx_type_row %d \n",
+            cfg->txfm_type_col, cfg->txfm_type_row);
+    for (c = 0; c < txfm_size_col; ++c) {
       for (r = 0; r < txfm_size_row; ++r) {
-        output[r * stride + c] =
-            highbd_clip_pixel_add(output[r * stride + c], temp_out[r], bd);
+        fprintf(stderr, "%3d ", input[r * txfm_size_col + c]);
       }
-    } else {
-      // flip upside down
+      fprintf(stderr, "\n");
+    }
+#if 0
+    fprintf(stderr, "INV: original output block\n");
+    for (c = 0; c < txfm_size_col; ++c) {
       for (r = 0; r < txfm_size_row; ++r) {
-        output[r * stride + c] = highbd_clip_pixel_add(
-            output[r * stride + c], temp_out[txfm_size_row - r - 1], bd);
+        fprintf(stderr, "%3d ", output[r * stride + c]);
       }
+      fprintf(stderr, "\n");
     }
   }
-}
+#endif
+#endif
 
-static INLINE void inv_txfm2d_add_facade(const int32_t *input, uint16_t *output,
-                                         int stride, int32_t *txfm_buf,
-                                         TX_TYPE tx_type, TX_SIZE tx_size,
-#if CONFIG_DATA_DRIVEN_TX
-                                         int is_inter,
-#endif
-                                         int bd) {
-  TXFM_2D_FLIP_CFG cfg;
-  av1_get_inv_txfm_cfg(tx_type, tx_size, &cfg);
-  // Forward shift sum uses larger square size, to be consistent with what
-  // av1_gen_inv_stage_range() does for inverse shifts.
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_c(input, output, stride, &cfg, txfm_buf, tx_size, is_inter,
-                   bd);
-#else
-  inv_txfm2d_add_c(input, output, stride, &cfg, txfm_buf, tx_size, bd);
-#endif
-}
+    // Rows
+    for (r = 0; r < txfm_size_row; ++r) {
+      if (abs(rect_type) == 1) {
+        for (c = 0; c < txfm_size_col; ++c) {
+          temp_in[c] =
+              round_shift((int64_t)input[c] * NewInvSqrt2, NewSqrt2Bits);
+        }
+        clamp_buf(temp_in, txfm_size_col, bd + 8);
+        txfm_func_row(temp_in, buf_ptr, cos_bit_row, stage_range_row);
+      } else {
+        for (c = 0; c < txfm_size_col; ++c) {
+          temp_in[c] = input[c];
+        }
+        clamp_buf(temp_in, txfm_size_col, bd + 8);
+        txfm_func_row(temp_in, buf_ptr, cos_bit_row, stage_range_row);
+      }
+      av1_round_shift_array(buf_ptr, txfm_size_col, -shift[0]);
+      input += txfm_size_col;
+      buf_ptr += txfm_size_col;
+    }
 
-void av1_inv_txfm2d_add_4x8_c(const int32_t *input, uint16_t *output,
-                              int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                              int is_inter,
-#endif
-                              int bd) {
-  DECLARE_ALIGNED(32, int, txfm_buf[4 * 8 + 8 + 8]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X8,
-                        is_inter, bd);
-#else
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X8, bd);
-#endif
-}
+    // Columns
+    for (c = 0; c < txfm_size_col; ++c) {
+      if (cfg->lr_flip == 0) {
+        for (r = 0; r < txfm_size_row; ++r)
+          temp_in[r] = buf[r * txfm_size_col + c];
+      } else {
+        // flip left right
+        for (r = 0; r < txfm_size_row; ++r)
+          temp_in[r] = buf[r * txfm_size_col + (txfm_size_col - c - 1)];
+      }
+      clamp_buf(temp_in, txfm_size_row, AOMMAX(bd + 6, 16));
+      txfm_func_col(temp_in, temp_out, cos_bit_col, stage_range_col);
+      av1_round_shift_array(temp_out, txfm_size_row, -shift[1]);
+      if (cfg->ud_flip == 0) {
+        for (r = 0; r < txfm_size_row; ++r) {
+          output[r * stride + c] =
+              highbd_clip_pixel_add(output[r * stride + c], temp_out[r], bd);
+        }
+      } else {
+        // flip upside down
+        for (r = 0; r < txfm_size_row; ++r) {
+          output[r * stride + c] = highbd_clip_pixel_add(
+              output[r * stride + c], temp_out[txfm_size_row - r - 1], bd);
+        }
+      }
+    }
 
-void av1_inv_txfm2d_add_8x4_c(const int32_t *input, uint16_t *output,
-                              int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                              int is_inter,
+#if CONFIG_NONSEP_TX && SEP_TX_DEBUG
+    // debug
+    if (cfg->tx_size <= TX_8X8) {
+      fprintf(stderr, "INV: output block, tx_type_col %d, tx_type_row %d\n",
+              cfg->txfm_type_col, cfg->txfm_type_row);
+      for (c = 0; c < txfm_size_col; ++c) {
+        for (r = 0; r < txfm_size_row; ++r) {
+          fprintf(stderr, "%3d ", output[r * stride + c]);
+        }
+        fprintf(stderr, "\n");
+      }
+    }
 #endif
-                              int bd) {
-  DECLARE_ALIGNED(32, int, txfm_buf[8 * 4 + 8 + 8]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X4,
-                        is_inter, bd);
-#else
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X4, bd);
-#endif
-}
+  }
 
-void av1_inv_txfm2d_add_8x16_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                               int is_inter,
-#endif
-                               int bd) {
-  DECLARE_ALIGNED(32, int, txfm_buf[8 * 16 + 16 + 16]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X16,
-                        is_inter, bd);
-#else
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X16, bd);
-#endif
-}
+#if CONFIG_NONSEP_TX
+  static INLINE void inv_nonsep_txfm2d_add(
+      const int32_t *input, uint16_t *output, const int stride,
+      int32_t *txfm_buf, const TX_TYPE tx_type, const TX_SIZE tx_size, int bd) {
+    int ud_flip = 0, lr_flip = 0;
+    get_flip_cfg(tx_type, &ud_flip, &lr_flip);
 
-void av1_inv_txfm2d_add_16x8_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                               int is_inter,
-#endif
-                               int bd) {
-  DECLARE_ALIGNED(32, int, txfm_buf[16 * 8 + 16 + 16]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X8,
-                        is_inter, bd);
-#else
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X8, bd);
-#endif
-}
+    const int32_t *nstx = nstx_arr(tx_type, tx_size, bd);
+    const int tx_stride = tx_size == TX_4X4 ? 16 : 64;
 
-void av1_inv_txfm2d_add_16x32_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                                int is_inter,
-#endif
-                                int bd) {
-  DECLARE_ALIGNED(32, int, txfm_buf[16 * 32 + 32 + 32]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X32,
-                        is_inter, bd);
-#else
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X32, bd);
-#endif
-}
+    // column/row indices in pixel (p) or transform (t) domains
+    int cp, rp, ct, rt, kp, kt, l;
+    int txw = tx_size_wide[tx_size], txh = tx_size_high[tx_size];
 
-void av1_inv_txfm2d_add_32x16_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                                int is_inter,
+#if NONSEP_TX_DEBUG
+    // debug
+    fprintf(stderr, "tx_type %d bd %d ud_flip %d lr_flip %d\n", tx_type, bd,
+            ud_flip, lr_flip);
+    fprintf(stderr, "INV: input block, NSTX\n");
+    for (rt = 0; rt < txh; ++rt) {
+      for (ct = 0; ct < txw; ++ct) {
+        fprintf(stderr, "%3d ", input[rt * txw + ct]);
+      }
+      fprintf(stderr, "\n");
+    }
+#if 0
+  fprintf(stderr, "INV: original output block\n");
+  for (rt = 0; rt < txh; ++rt) {
+    for (ct = 0; ct < txw; ++ct) {
+      fprintf(stderr, "%3d ", output[rt * stride + ct]);
+    }
+    fprintf(stderr, "\n");
+  }
 #endif
-                                int bd) {
-  DECLARE_ALIGNED(32, int, txfm_buf[32 * 16 + 32 + 32]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X16,
-                        is_inter, bd);
-#else
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X16, bd);
 #endif
-}
 
-void av1_inv_txfm2d_add_4x4_c(const int32_t *input, uint16_t *output,
-                              int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                              int is_inter,
+    // Values of input[l]: transform coefficients * 2^3
+    // Max possible bit depth: 19
+
+    // initialize txfm_buf
+    for (rt = 0; rt < txh; ++rt) {
+      for (ct = 0; ct < txw; ++ct) {
+        txfm_buf[rt * txw + ct] = 0;
+      }
+    }
+
+    // 2D transform
+    for (rp = 0; rp < txh; ++rp) {
+      for (cp = 0; cp < txw; ++cp) {
+        kt = idx_flip(txw, txh, rp, cp, ud_flip, lr_flip);
+        for (rt = 0; rt < txh; ++rt) {
+          for (ct = 0; ct < txw; ++ct) {
+            l = rt * txw + ct;
+            // Values of txfm_buf[kt] = residue value * 2*3 * 2^bd * 2^(-1)
+            //                        = residue value * 2^(bd+2)
+            // Bit depth = 19 + 3 + bd - 1 = bd + 21
+            // Max possible bit depth = 19 + 3 + 16 - 1 = 37
+            // However, the transform coefficients are supposed to come from
+            // residues, and those operations are the reversal of the previous
+            // forward transform. Thus, there should not be an overflow issue.
+            txfm_buf[kt] += round_shift(nstx[l * tx_stride + kt] * input[l], 1);
+#if NONSEP_TX_DEBUG && 0
+            fprintf(stderr, "(%d,%d,%d)[%d,%d,%d]", l, tx_stride, kt,
+                    nstx[l * tx_stride + kt], input[l], txfm_buf[kt]);
 #endif
-                              int bd) {
-  DECLARE_ALIGNED(32, int, txfm_buf[4 * 4 + 4 + 4]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X4,
-                        is_inter, bd);
-#else
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X4, bd);
+          }
+#if NONSEP_TX_DEBUG && 0
+          fprintf(stderr, "\n");
+#endif
+        }
+      }
+    }
+
+    for (rt = 0; rt < txh; ++rt) {
+      for (ct = 0; ct < txw; ++ct) {
+        kp = rt * stride + ct;
+        kt = rt * txw + ct;
+        // Values of txfm_buf[kt] = residue value
+        txfm_buf[kt] = round_shift(txfm_buf[kt], bd + 2);
+        output[kp] = highbd_clip_pixel_add(output[kp], txfm_buf[kt], bd);
+      }
+    }
+#if NONSEP_TX_DEBUG
+    // debug
+    fprintf(stderr, "INV: reconstructed residues, NSTX\n");
+    for (rt = 0; rt < txh; ++rt) {
+      for (ct = 0; ct < txw; ++ct) {
+        fprintf(stderr, "%3d ", txfm_buf[rt * txw + ct]);
+      }
+      fprintf(stderr, "\n");
+    }
+#if 0
+  fprintf(stderr, "INV: resulting output block, NSTX\n");
+  for (rt = 0; rt < txh; ++rt) {
+    for (ct = 0; ct < txw; ++ct) {
+      fprintf(stderr, "%3d ", output[rt * stride + ct]);
+    }
+    fprintf(stderr, "\n");
+  }
+#endif
+#endif
+  }
+#endif // CONFIG_NONSEP_TX
+
+  static INLINE void inv_txfm2d_add_facade(
+      const int32_t *input, uint16_t *output, int stride, int32_t *txfm_buf,
+      TX_TYPE tx_type, TX_SIZE tx_size, int bd) {
+    TXFM_2D_FLIP_CFG cfg;
+    av1_get_inv_txfm_cfg(tx_type, tx_size, &cfg);
+    // Forward shift sum uses larger square size, to be consistent with what
+    // av1_gen_inv_stage_range() does for inverse shifts.
+    inv_txfm2d_add_c(input, output, stride, &cfg, txfm_buf, tx_size, bd);
+  }
+
+  void av1_inv_txfm2d_add_4x8_c(const int32_t *input, uint16_t *output,
+                                int stride, TX_TYPE tx_type, int bd) {
+    DECLARE_ALIGNED(32, int, txfm_buf[4 * 8 + 8 + 8]);
+    inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X8, bd);
+  }
+
+  void av1_inv_txfm2d_add_8x4_c(const int32_t *input, uint16_t *output,
+                                int stride, TX_TYPE tx_type, int bd) {
+    DECLARE_ALIGNED(32, int, txfm_buf[8 * 4 + 8 + 8]);
+    inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X4, bd);
+  }
+
+  void av1_inv_txfm2d_add_8x16_c(const int32_t *input, uint16_t *output,
+                                 int stride, TX_TYPE tx_type, int bd) {
+    DECLARE_ALIGNED(32, int, txfm_buf[8 * 16 + 16 + 16]);
+    inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X16,
+                          bd);
+  }
+
+  void av1_inv_txfm2d_add_16x8_c(const int32_t *input, uint16_t *output,
+                                 int stride, TX_TYPE tx_type, int bd) {
+    DECLARE_ALIGNED(32, int, txfm_buf[16 * 8 + 16 + 16]);
+    inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X8,
+                          bd);
+  }
+
+  void av1_inv_txfm2d_add_16x32_c(const int32_t *input, uint16_t *output,
+                                  int stride, TX_TYPE tx_type, int bd) {
+    DECLARE_ALIGNED(32, int, txfm_buf[16 * 32 + 32 + 32]);
+    inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X32,
+                          bd);
+  }
+
+  void av1_inv_txfm2d_add_32x16_c(const int32_t *input, uint16_t *output,
+                                  int stride, TX_TYPE tx_type, int bd) {
+    DECLARE_ALIGNED(32, int, txfm_buf[32 * 16 + 32 + 32]);
+    inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X16,
+                          bd);
+  }
+
+  void av1_inv_txfm2d_add_4x4_c(const int32_t *input, uint16_t *output,
+                                int stride, TX_TYPE tx_type, int bd) {
+    DECLARE_ALIGNED(32, int, txfm_buf[4 * 4 + 4 + 4]);
+#if CONFIG_NONSEP_TX
+    if (tx_type > H_FLIPADST) {
+      inv_nonsep_txfm2d_add(input, output, stride, txfm_buf, tx_type, TX_4X4,
+                            bd);
+    } else {
+#endif
+      inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X4,
+                            bd);
+#if CONFIG_NONSEP_TX
+    }
 #endif
 }
 
 void av1_inv_txfm2d_add_8x8_c(const int32_t *input, uint16_t *output,
-                              int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                              int is_inter,
-#endif
-                              int bd) {
+                              int stride, TX_TYPE tx_type, int bd) {
   DECLARE_ALIGNED(32, int, txfm_buf[8 * 8 + 8 + 8]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X8,
-                        is_inter, bd);
-#else
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X8, bd);
+#if CONFIG_NONSEP_TX
+  if (tx_type > H_FLIPADST) {
+    inv_nonsep_txfm2d_add(input, output, stride, txfm_buf, tx_type, TX_8X8, bd);
+  } else {
+#endif
+    inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X8, bd);
+#if CONFIG_NONSEP_TX
+  }
 #endif
 }
 
 void av1_inv_txfm2d_add_16x16_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                                int is_inter,
-#endif
-                                int bd) {
+                                int stride, TX_TYPE tx_type, int bd) {
   DECLARE_ALIGNED(32, int, txfm_buf[16 * 16 + 16 + 16]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X16,
-                        is_inter, bd);
-#else
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X16, bd);
-#endif
 }
 
 void av1_inv_txfm2d_add_32x32_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                                int is_inter,
-#endif
-                                int bd) {
+                                int stride, TX_TYPE tx_type, int bd) {
   DECLARE_ALIGNED(32, int, txfm_buf[32 * 32 + 32 + 32]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X32,
-                        is_inter, bd);
-#else
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X32, bd);
-#endif
 }
 
 void av1_inv_txfm2d_add_64x64_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                                int is_inter,
-#endif
-                                int bd) {
+                                int stride, TX_TYPE tx_type, int bd) {
   // TODO(urvang): Can the same array be reused, instead of using a new array?
   // Remap 32x32 input into a modified 64x64 by:
   // - Copying over these values in top-left 32x32 locations.
@@ -536,21 +586,12 @@ void av1_inv_txfm2d_add_64x64_c(const int32_t *input, uint16_t *output,
   }
   memset(mod_input + 32 * 64, 0, 32 * 64 * sizeof(*mod_input));
   DECLARE_ALIGNED(32, int, txfm_buf[64 * 64 + 64 + 64]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(mod_input, output, stride, txfm_buf, tx_type, TX_64X64,
-                        is_inter, bd);
-#else
   inv_txfm2d_add_facade(mod_input, output, stride, txfm_buf, tx_type, TX_64X64,
                         bd);
-#endif
 }
 
 void av1_inv_txfm2d_add_64x32_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                                int is_inter,
-#endif
-                                int bd) {
+                                int stride, TX_TYPE tx_type, int bd) {
   // Remap 32x32 input into a modified 64x32 by:
   // - Copying over these values in top-left 32x32 locations.
   // - Setting the rest of the locations to 0.
@@ -560,21 +601,12 @@ void av1_inv_txfm2d_add_64x32_c(const int32_t *input, uint16_t *output,
     memset(mod_input + row * 64 + 32, 0, 32 * sizeof(*mod_input));
   }
   DECLARE_ALIGNED(32, int, txfm_buf[64 * 32 + 64 + 64]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(mod_input, output, stride, txfm_buf, tx_type, TX_64X32,
-                        is_inter, bd);
-#else
   inv_txfm2d_add_facade(mod_input, output, stride, txfm_buf, tx_type, TX_64X32,
                         bd);
-#endif
 }
 
 void av1_inv_txfm2d_add_32x64_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                                int is_inter,
-#endif
-                                int bd) {
+                                int stride, TX_TYPE tx_type, int bd) {
   // Remap 32x32 input into a modified 32x64 input by:
   // - Copying over these values in top-left 32x32 locations.
   // - Setting the rest of the locations to 0.
@@ -582,21 +614,12 @@ void av1_inv_txfm2d_add_32x64_c(const int32_t *input, uint16_t *output,
   memcpy(mod_input, input, 32 * 32 * sizeof(*mod_input));
   memset(mod_input + 32 * 32, 0, 32 * 32 * sizeof(*mod_input));
   DECLARE_ALIGNED(32, int, txfm_buf[64 * 32 + 64 + 64]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(mod_input, output, stride, txfm_buf, tx_type, TX_32X64,
-                        is_inter, bd);
-#else
   inv_txfm2d_add_facade(mod_input, output, stride, txfm_buf, tx_type, TX_32X64,
                         bd);
-#endif
 }
 
 void av1_inv_txfm2d_add_16x64_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                                int is_inter,
-#endif
-                                int bd) {
+                                int stride, TX_TYPE tx_type, int bd) {
   // Remap 16x32 input into a modified 16x64 input by:
   // - Copying over these values in top-left 16x32 locations.
   // - Setting the rest of the locations to 0.
@@ -604,21 +627,12 @@ void av1_inv_txfm2d_add_16x64_c(const int32_t *input, uint16_t *output,
   memcpy(mod_input, input, 16 * 32 * sizeof(*mod_input));
   memset(mod_input + 16 * 32, 0, 16 * 32 * sizeof(*mod_input));
   DECLARE_ALIGNED(32, int, txfm_buf[16 * 64 + 64 + 64]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(mod_input, output, stride, txfm_buf, tx_type, TX_16X64,
-                        is_inter, bd);
-#else
   inv_txfm2d_add_facade(mod_input, output, stride, txfm_buf, tx_type, TX_16X64,
                         bd);
-#endif
 }
 
 void av1_inv_txfm2d_add_64x16_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                                int is_inter,
-#endif
-                                int bd) {
+                                int stride, TX_TYPE tx_type, int bd) {
   // Remap 32x16 input into a modified 64x16 by:
   // - Copying over these values in top-left 32x16 locations.
   // - Setting the rest of the locations to 0.
@@ -628,71 +642,30 @@ void av1_inv_txfm2d_add_64x16_c(const int32_t *input, uint16_t *output,
     memset(mod_input + row * 64 + 32, 0, 32 * sizeof(*mod_input));
   }
   DECLARE_ALIGNED(32, int, txfm_buf[16 * 64 + 64 + 64]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(mod_input, output, stride, txfm_buf, tx_type, TX_64X16,
-                        is_inter, bd);
-#else
   inv_txfm2d_add_facade(mod_input, output, stride, txfm_buf, tx_type, TX_64X16,
                         bd);
-#endif
 }
 
 void av1_inv_txfm2d_add_4x16_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                               int is_inter,
-#endif
-                               int bd) {
+                               int stride, TX_TYPE tx_type, int bd) {
   DECLARE_ALIGNED(32, int, txfm_buf[4 * 16 + 16 + 16]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X16,
-                        is_inter, bd);
-#else
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X16, bd);
-#endif
 }
 
 void av1_inv_txfm2d_add_16x4_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                               int is_inter,
-#endif
-                               int bd) {
+                               int stride, TX_TYPE tx_type, int bd) {
   DECLARE_ALIGNED(32, int, txfm_buf[4 * 16 + 16 + 16]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X4,
-                        is_inter, bd);
-#else
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X4, bd);
-#endif
 }
 
 void av1_inv_txfm2d_add_8x32_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                               int is_inter,
-#endif
-                               int bd) {
+                               int stride, TX_TYPE tx_type, int bd) {
   DECLARE_ALIGNED(32, int, txfm_buf[8 * 32 + 32 + 32]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X32,
-                        is_inter, bd);
-#else
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X32, bd);
-#endif
 }
 
 void av1_inv_txfm2d_add_32x8_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                               int is_inter,
-#endif
-                               int bd) {
+                               int stride, TX_TYPE tx_type, int bd) {
   DECLARE_ALIGNED(32, int, txfm_buf[8 * 32 + 32 + 32]);
-#if CONFIG_DATA_DRIVEN_TX
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X8,
-                        is_inter, bd);
-#else
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X8, bd);
-#endif
 }

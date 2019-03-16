@@ -842,14 +842,19 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
     assert(eset > 0);
     assert(av1_ext_tx_used[tx_set_type][tx_type]);
     if (is_inter) {
-#if CONFIG_DATA_DRIVEN_TX && USE_DDTX_INTER
-      if (tx_set_type == EXT_TX_SET_ALL16_DDTX) {
-        aom_write_symbol(w, tx_type >= DDTX1_DDTX1,
-                         ec_ctx->use_ddtx_inter_cdf[square_tx_size], 2);
-        if (tx_type >= DDTX1_DDTX1) {
-          aom_write_symbol(w, tx_type - DDTX1_DDTX1,
-                           ec_ctx->ddtx_type_inter_cdf[square_tx_size],
-                           DDTX_TYPES_INTER);
+#if CONFIG_NONSEP_TX && USE_NSTX_INTER
+      if (tx_set_type == EXT_TX_SET_ALL16_NSTX8) {
+        int is_nstx = tx_type >= NSTX_INTER_1 && tx_type <= NSTX_INTER_8;
+#if NONSEP_TX_DEBUG
+        fprintf(stderr, "(w, is_inter %d is_nstx %d tx_size %d tx_type %d)\n",
+                is_inter, is_nstx, tx_size, tx_type);
+#endif
+        aom_write_symbol(w, is_nstx, ec_ctx->use_nstx_inter_cdf[square_tx_size],
+                         2);
+        if (is_nstx) {
+          aom_write_symbol(w, tx_type - NSTX_INTER_1,
+                           ec_ctx->nstx_type_inter_cdf[square_tx_size],
+                           NSTX_TYPES_INTER);
         } else {
           aom_write_symbol(w, av1_ext_tx_ind[tx_set_type][tx_type],
                            ec_ctx->inter_ext_tx_cdf[eset][square_tx_size],
@@ -860,7 +865,7 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
         aom_write_symbol(w, av1_ext_tx_ind[tx_set_type][tx_type],
                          ec_ctx->inter_ext_tx_cdf[eset][square_tx_size],
                          av1_num_ext_tx_set[tx_set_type]);
-#if CONFIG_DATA_DRIVEN_TX && USE_DDTX_INTER
+#if CONFIG_NONSEP_TX && USE_NSTX_INTER
       }
 #endif
     } else {
@@ -876,14 +881,19 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
 #endif  // CONFIG_ADAPT_FILTER_INTRA
       else
         intra_dir = mbmi->mode;
-#if CONFIG_DATA_DRIVEN_TX && USE_DDTX_INTRA
-      if (tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT_DDTX) {
-        aom_write_symbol(w, tx_type >= DDTX1_DDTX1,
-                         ec_ctx->use_ddtx_intra_cdf[square_tx_size], 2);
-        if (tx_type >= DDTX1_DDTX1) {
-          aom_write_symbol(w, tx_type - DDTX1_DDTX1,
-                           ec_ctx->ddtx_type_intra_cdf[square_tx_size],
-                           DDTX_TYPES_INTRA);
+#if CONFIG_NONSEP_TX && USE_NSTX_INTRA
+      if (tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT_NSTX3) {
+        int is_nstx = tx_type >= NSTX_INTRA_1 && tx_type <= NSTX_INTRA_3;
+#if NONSEP_TX_DEBUG
+        fprintf(stderr, "(w, is_inter %d is_nstx %d tx_type %d)\n", is_inter,
+                is_nstx, tx_type);
+#endif
+        aom_write_symbol(w, is_nstx, ec_ctx->use_nstx_intra_cdf[square_tx_size],
+                         2);
+        if (is_nstx) {
+          aom_write_symbol(w, tx_type - NSTX_INTRA_1,
+                           ec_ctx->nstx_type_intra_cdf[square_tx_size],
+                           NSTX_TYPES_INTRA);
         } else {
           aom_write_symbol(
               w, av1_ext_tx_ind[tx_set_type][tx_type],
@@ -896,7 +906,7 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
             w, av1_ext_tx_ind[tx_set_type][tx_type],
             ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][intra_dir],
             av1_num_ext_tx_set[tx_set_type]);
-#if CONFIG_DATA_DRIVEN_TX && USE_DDTX_INTRA
+#if CONFIG_NONSEP_TX && USE_NSTX_INTRA
       }
 #endif
     }

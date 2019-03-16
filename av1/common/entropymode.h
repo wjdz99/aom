@@ -160,19 +160,19 @@ typedef struct frame_contexts {
   aom_cdf_prob delta_q_cdf[CDF_SIZE(DELTA_Q_PROBS + 1)];
   aom_cdf_prob delta_lf_multi_cdf[FRAME_LF_COUNT][CDF_SIZE(DELTA_LF_PROBS + 1)];
   aom_cdf_prob delta_lf_cdf[CDF_SIZE(DELTA_LF_PROBS + 1)];
-#if CONFIG_DATA_DRIVEN_TX
-#if USE_DDTX_INTER
-  aom_cdf_prob ddtx_type_inter_cdf[EXT_TX_SIZES][CDF_SIZE(DDTX_TYPES_INTER)];
-  aom_cdf_prob use_ddtx_inter_cdf[EXT_TX_SIZES][CDF_SIZE(2)];
+#if CONFIG_NONSEP_TX
+#if USE_NSTX_INTER
+  aom_cdf_prob nstx_type_inter_cdf[EXT_TX_SIZES][CDF_SIZE(NSTX_TYPES_INTER)];
+  aom_cdf_prob use_nstx_inter_cdf[EXT_TX_SIZES][CDF_SIZE(2)];
 #endif
-#if USE_DDTX_INTRA
-  aom_cdf_prob ddtx_type_intra_cdf[EXT_TX_SIZES][CDF_SIZE(DDTX_TYPES_INTRA)];
-  aom_cdf_prob use_ddtx_intra_cdf[EXT_TX_SIZES][CDF_SIZE(2)];
+#if USE_NSTX_INTRA
+  aom_cdf_prob nstx_type_intra_cdf[EXT_TX_SIZES][CDF_SIZE(NSTX_TYPES_INTRA)];
+  aom_cdf_prob use_nstx_intra_cdf[EXT_TX_SIZES][CDF_SIZE(2)];
 #endif
   aom_cdf_prob intra_ext_tx_cdf[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
-                               [CDF_SIZE(TX_TYPES_NODDTX)];
+                               [CDF_SIZE(TX_TYPES_NONSTX)];
   aom_cdf_prob inter_ext_tx_cdf[EXT_TX_SETS_INTER][EXT_TX_SIZES]
-                               [CDF_SIZE(TX_TYPES_NODDTX)];
+                               [CDF_SIZE(TX_TYPES_NONSTX)];
 #else
   aom_cdf_prob intra_ext_tx_cdf[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
                                [CDF_SIZE(TX_TYPES)];
@@ -184,30 +184,42 @@ typedef struct frame_contexts {
   int initialized;
 } FRAME_CONTEXT;
 
-#if CONFIG_DATA_DRIVEN_TX
-static const int av1_ext_tx_ind[EXT_TX_SET_TYPES][TX_TYPES_NODDTX] = {
+#if CONFIG_NONSEP_TX
+static const int av1_ext_tx_ind[EXT_TX_SET_TYPES][TX_TYPES_NONSTX] = {
 #else
 static const int av1_ext_tx_ind[EXT_TX_SET_TYPES][TX_TYPES] = {
 #endif
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 1, 3, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 1, 5, 6, 4, 0, 0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0 },
-  { 3, 4, 5, 8, 6, 7, 9, 10, 11, 0, 1, 2, 0, 0, 0, 0 },
-  { 7, 8, 9, 12, 10, 11, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6 },
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 3, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 5, 6, 4, 0, 0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0},
+#if CONFIG_NONSEP_TX && USE_NSTX_INTRA
+    {1, 5, 6, 4, 0, 0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0},
+#endif
+    {3, 4, 5, 8, 6, 7, 9, 10, 11, 0, 1, 2, 0, 0, 0, 0},
+    {7, 8, 9, 12, 10, 11, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6},
+#if CONFIG_NONSEP_TX && USE_NSTX_INTER
+    {7, 8, 9, 12, 10, 11, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6},
+#endif
 };
 
-#if CONFIG_DATA_DRIVEN_TX
-static const int av1_ext_tx_inv[EXT_TX_SET_TYPES][TX_TYPES_NODDTX] = {
+#if CONFIG_NONSEP_TX
+static const int av1_ext_tx_inv[EXT_TX_SET_TYPES][TX_TYPES_NONSTX] = {
 #else
 static const int av1_ext_tx_inv[EXT_TX_SET_TYPES][TX_TYPES] = {
 #endif
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 9, 0, 3, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 9, 0, 10, 11, 3, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  { 9, 10, 11, 0, 1, 2, 4, 5, 3, 6, 7, 8, 0, 0, 0, 0 },
-  { 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 4, 5, 3, 6, 7, 8 },
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {9, 0, 3, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {9, 0, 10, 11, 3, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+#if CONFIG_NONSEP_TX && USE_NSTX_INTRA
+    {9, 0, 10, 11, 3, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+#endif
+    {9, 10, 11, 0, 1, 2, 4, 5, 3, 6, 7, 8, 0, 0, 0, 0},
+    {9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 4, 5, 3, 6, 7, 8},
+#if CONFIG_NONSEP_TX && USE_NSTX_INTER
+    {9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 4, 5, 3, 6, 7, 8},
+#endif
 };
 
 void av1_set_default_ref_deltas(int8_t *ref_deltas);
