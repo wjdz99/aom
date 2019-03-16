@@ -99,8 +99,6 @@ set_aom_config_var(CONFIG_COEFFICIENT_RANGE_CHECKING 0 NUMBER
                    "Coefficient range check.")
 set_aom_config_var(CONFIG_DENOISE 1 NUMBER
                    "Denoise/noise modeling support in encoder.")
-set_aom_config_var(CONFIG_FILEOPTIONS 1 NUMBER
-                   "Enables encoder config file support.")
 set_aom_config_var(CONFIG_INSPECTION 0 NUMBER "Enables bitstream inspection.")
 set_aom_config_var(CONFIG_INTERNAL_STATS 0 NUMBER
                    "Enables internal encoder stats.")
