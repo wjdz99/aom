@@ -29,6 +29,7 @@ list(APPEND AOM_UNIT_TEST_COMMON_SOURCES
             "${AOM_ROOT}/test/av1_config_test.cc"
             "${AOM_ROOT}/test/blockd_test.cc"
             "${AOM_ROOT}/test/clear_system_state.h"
+            "${AOM_ROOT}/test/cnn_test.cc"
             "${AOM_ROOT}/test/codec_factory.h"
             "${AOM_ROOT}/test/decode_test_driver.cc"
             "${AOM_ROOT}/test/decode_test_driver.h"
@@ -252,10 +253,6 @@ if(ENABLE_TESTS)
   else()
     target_compile_definitions(aom_gtest PRIVATE GTEST_HAS_PTHREAD=0)
   endif()
-endif()
-
-if(CONFIG_CNN_RESTORATION)
-  list(APPEND AOM_UNIT_TEST_COMMON_SOURCES "${AOM_ROOT}/test/cnn_test.cc")
 endif()
 
 # Setup testdata download targets, test build targets, and test run targets. The
