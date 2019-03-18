@@ -53,6 +53,7 @@ const TestVideoParam kTestVectors[] = {
     AOM_BITS_8, 0 },
   { "rush_hour_444.y4m", 352, 288, 30, 1, 8, AOM_IMG_FMT_I444, AOM_BITS_8, 1 },
   // Add list of profile 2/3 test videos here ...
+
 };
 
 const TestEncodeParam kEncodeVectors[] = {

@@ -660,7 +660,7 @@ void av1_iadst4_new(const int32_t *input, int32_t *output, int8_t cos_bit,
                     const int8_t *stage_range) {
   int bit = cos_bit;
   const int32_t *sinpi = sinpi_arr(bit);
-  int32_t s0, s1, s2, s3, s4, s5, s6, s7;
+  int32_t s0, s1, s2, s3, s4, s5, s6;
 
   int32_t x0 = input[0];
   int32_t x1 = input[1];
@@ -683,16 +683,12 @@ void av1_iadst4_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   s5 = range_check_value(sinpi[2] * x3, stage_range[1] + bit);
   s6 = range_check_value(sinpi[4] * x3, stage_range[1] + bit);
 
-  // stage 2
-  // NOTICE: (x0 - x2) here may use one extra bit compared to the
-  // opt_range_row/col specified in av1_gen_inv_stage_range()
-  s7 = range_check_value((x0 - x2) + x3, stage_range[2]);
-
   // stage 3
   s0 = range_check_value(s0 + s3, stage_range[3] + bit);
   s1 = range_check_value(s1 - s4, stage_range[3] + bit);
   s3 = range_check_value(s2, stage_range[3] + bit);
-  s2 = range_check_value(sinpi[3] * s7, stage_range[3] + bit);
+  // NOTICE: (x0 - x2) here may use one extra bit beyond stage_range[2]
+  s2 = range_check_value(sinpi[3] * ((x0 - x2) + x3), stage_range[3] + bit);
 
   // stage 4
   s0 = range_check_value(s0 + s5, stage_range[4] + bit);
