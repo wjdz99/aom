@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "bd3d09f9_24bd62d7",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-18T17:37:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78b4f300_adc37ab5",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 11
+      },
+      "revId": "48f7c27632fd44db45ab7af68bf637d067c966ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c14ce41e_c036980a",
         "filename": "test/cnn_test.cc",
         "patchSetId": 5
@@ -53,6 +77,30 @@
       "writtenOn": "2019-03-16T00:30:11Z",
       "side": 1,
       "message": "Use ASSERT_TRUE() in tests instead.",
+      "range": {
+        "startLine": 46,
+        "startChar": 4,
+        "endLine": 46,
+        "endChar": 10
+      },
+      "revId": "48f7c27632fd44db45ab7af68bf637d067c966ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16bdad6d_cdeae7b8",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-18T17:37:21Z",
+      "side": 1,
+      "message": "Why should these asserts be ASSERT_TRUE? This assert isn\u0027t testing anything relevant to the CNN. It\u0027s there to make sure we don\u0027t seg fault in the middle of the test.",
+      "parentUuid": "c14ce41e_c036980a",
       "range": {
         "startLine": 46,
         "startChar": 4,
