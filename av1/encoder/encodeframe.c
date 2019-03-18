@@ -307,6 +307,44 @@ static void set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
   }
 }
 
+static void set_offsets_for_motion_search(const AV1_COMP *const cpi,
+                                          const TileInfo *const tile,
+                                          MACROBLOCK *const x, int mi_row,
+                                          int mi_col, BLOCK_SIZE bsize) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const int num_planes = av1_num_planes(cm);
+  MACROBLOCKD *const xd = &x->e_mbd;
+  const int mi_width = mi_size_wide[bsize];
+  const int mi_height = mi_size_high[bsize];
+
+  set_mode_info_offsets(cpi, x, xd, mi_row, mi_col);
+
+  // Set up destination pointers.
+  av1_setup_dst_planes(xd->plane, bsize, &cm->cur_frame->buf, mi_row, mi_col, 0,
+                       num_planes);
+
+  // Set up limit values for MV components.
+  // Mv beyond the range do not produce new/different prediction block.
+  x->mv_limits.row_min =
+      -(((mi_row + mi_height) * MI_SIZE) + AOM_INTERP_EXTEND);
+  x->mv_limits.col_min = -(((mi_col + mi_width) * MI_SIZE) + AOM_INTERP_EXTEND);
+  x->mv_limits.row_max = (cm->mi_rows - mi_row) * MI_SIZE + AOM_INTERP_EXTEND;
+  x->mv_limits.col_max = (cm->mi_cols - mi_col) * MI_SIZE + AOM_INTERP_EXTEND;
+
+  set_plane_n4(xd, mi_width, mi_height, num_planes);
+
+  // Set up distance of MB to edge of frame in 1/8th pel units.
+  assert(!(mi_col & (mi_width - 1)) && !(mi_row & (mi_height - 1)));
+  set_mi_row_col(xd, tile, mi_row, mi_height, mi_col, mi_width, cm->mi_rows,
+                 cm->mi_cols);
+
+  // Set up source buffers.
+  av1_setup_src_planes(x, cpi->source, mi_row, mi_col, num_planes, bsize);
+
+  // R/D setup.
+  x->rdmult = cpi->rd.RDMULT;
+}
+
 static void update_filter_type_count(uint8_t allow_update_cdf,
                                      FRAME_COUNTS *counts,
                                      const MACROBLOCKD *xd,
@@ -2214,7 +2252,7 @@ static void simple_motion_search(AV1_COMP *const cpi,
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
 
-  set_offsets(cpi, tile_info, x, mi_row, mi_col, bsize);
+  set_offsets_for_motion_search(cpi, tile_info, x, mi_row, mi_col, bsize);
 
   MB_MODE_INFO *mbmi = xd->mi[0];
   mbmi->sb_type = bsize;
@@ -3522,7 +3560,7 @@ static void simple_motion_search_prune_part_features(
   }
 
   const MACROBLOCKD *xd = &x->e_mbd;
-  set_offsets(cpi, &xd->tile, x, mi_row, mi_col, bsize);
+  set_offsets_for_motion_search(cpi, tile_info, x, mi_row, mi_col, bsize);
 
   // Q_INDEX
   const int dc_q = av1_dc_quant_QTX(x->qindex, 0, xd->bd) >> (xd->bd - 8);
@@ -3922,7 +3960,7 @@ static void firstpass_simple_motion_search_features(
   }
 
   const MACROBLOCKD *xd = &x->e_mbd;
-  set_offsets(cpi, &xd->tile, x, mi_row, mi_col, bsize);
+  set_offsets_for_motion_search(cpi, &xd->tile, x, mi_row, mi_col, bsize);
 
   // Q_INDEX
   const int dc_q = av1_dc_quant_QTX(x->qindex, 0, xd->bd) >> (xd->bd - 8);
