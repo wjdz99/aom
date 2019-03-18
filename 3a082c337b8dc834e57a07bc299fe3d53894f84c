@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d3392b3a_ada289fc",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5710,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-18T19:57:04Z",
+      "side": 1,
+      "message": "I think an alternative one-line fix is to simply initialize x-\u003etile here, i.e. \"x-\u003etile \u003d *tile_info\". But I agree the ultimate fix is to cleanup the excessive use of set_offsets().",
+      "range": {
+        "startLine": 5710,
+        "startChar": 8,
+        "endLine": 5710,
+        "endChar": 38
+      },
+      "revId": "3a082c337b8dc834e57a07bc299fe3d53894f84c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
