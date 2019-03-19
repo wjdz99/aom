@@ -234,7 +234,7 @@ static void define_flat_gf_group_structure(
   //     golden group interval.
   const int is_bipred_enabled =
       cpi->extra_arf_allowed && rc->source_alt_ref_pending &&
-      rc->bipred_group_interval &&
+      cpi->oxcf.gf_max_pyr_height > 1 && rc->bipred_group_interval &&
       rc->bipred_group_interval <=
           (rc->baseline_gf_interval - rc->source_alt_ref_pending);
   int bipred_group_end = 0;
