@@ -723,6 +723,20 @@ static aom_codec_err_t set_encoder_config(
   oxcf->min_gf_interval = extra_cfg->min_gf_interval;
   oxcf->max_gf_interval = extra_cfg->max_gf_interval;
   oxcf->gf_max_pyr_height = extra_cfg->gf_max_pyr_height;
+  // Update max_gf_interval based on pyramid height.
+  {
+    oxcf->min_gf_interval =
+        (oxcf->min_gf_interval > 0)
+            ? oxcf->min_gf_interval
+            : av1_rc_get_default_min_gf_interval(oxcf->width, oxcf->height,
+                                                 oxcf->init_framerate);
+    const int max_gf_interval_for_height = av1_rc_get_default_max_gf_interval(
+        oxcf->init_framerate, oxcf->min_gf_interval, oxcf->gf_max_pyr_height);
+    oxcf->max_gf_interval =
+        (oxcf->max_gf_interval == 0)
+            ? max_gf_interval_for_height
+            : AOMMIN(oxcf->max_gf_interval, max_gf_interval_for_height);
+  }
 
   oxcf->tuning = extra_cfg->tuning;
   oxcf->content = extra_cfg->content;
