@@ -3023,18 +3023,25 @@ static void ml_prune_ab_partition(BLOCK_SIZE bsize, int part_ctx, int var_ctx,
     case BLOCK_32X32: thresh -= 100; break;
     default: break;
   }
-  *horza_partition_allowed = 0;
-  *horzb_partition_allowed = 0;
-  *verta_partition_allowed = 0;
-  *vertb_partition_allowed = 0;
+
+  int allow_horiza_partition = 0;
+  int allow_horizb_partition = 0;
+  int allow_verta_partition = 0;
+  int allow_vertb_partition = 0;
   for (int i = 0; i < 16; ++i) {
     if (int_score[i] >= thresh) {
-      if ((i >> 0) & 1) *horza_partition_allowed = 1;
-      if ((i >> 1) & 1) *horzb_partition_allowed = 1;
-      if ((i >> 2) & 1) *verta_partition_allowed = 1;
-      if ((i >> 3) & 1) *vertb_partition_allowed = 1;
+      if ((i >> 0) & 1) allow_horiza_partition = 1;
+      if ((i >> 1) & 1) allow_horizb_partition = 1;
+      if ((i >> 2) & 1) allow_verta_partition = 1;
+      if ((i >> 3) & 1) allow_vertb_partition = 1;
     }
   }
+  // Allow horiz/vert ab partitioning only if all the relevant speed features
+  // evaluate to 1
+  *horza_partition_allowed &= allow_horiza_partition;
+  *horzb_partition_allowed &= allow_horizb_partition;
+  *verta_partition_allowed &= allow_verta_partition;
+  *vertb_partition_allowed &= allow_vertb_partition;
 }
 
 #define FEATURES 18
@@ -3191,14 +3198,19 @@ static void ml_prune_4_partition(const AV1_COMP *const cpi, MACROBLOCK *const x,
     case BLOCK_64X64: thresh -= 200; break;
     default: break;
   }
-  *partition_horz4_allowed = 0;
-  *partition_vert4_allowed = 0;
+
+  int allow_horiz4_partition = 0;
+  int allow_vert4_partition = 0;
   for (int i = 0; i < LABELS; ++i) {
     if (int_score[i] >= thresh) {
-      if ((i >> 0) & 1) *partition_horz4_allowed = 1;
-      if ((i >> 1) & 1) *partition_vert4_allowed = 1;
+      if ((i >> 0) & 1) allow_horiz4_partition = 1;
+      if ((i >> 1) & 1) allow_vert4_partition = 1;
     }
   }
+  // Allow horiz/vert 4 partitioning only if all the relevant speed features
+  // evaluate to 1
+  *partition_horz4_allowed &= allow_horiz4_partition;
+  *partition_vert4_allowed &= allow_vert4_partition;
 }
 #undef FEATURES
 #undef LABELS

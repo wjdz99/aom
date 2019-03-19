@@ -188,7 +188,6 @@ static void set_good_speed_features_framesize_independent(
 
   // Speed 0 for all speed features that give neutral coding performance change.
   sf->reduce_inter_modes = 1;
-  sf->prune_ext_partition_types_search_level = 1;
   sf->ml_prune_rect_partition = 1;
   sf->ml_prune_ab_partition = 1;
   sf->ml_prune_4_partition = 1;
@@ -228,7 +227,6 @@ static void set_good_speed_features_framesize_independent(
         speed < CONFIG_2PASS_PARTITION_SEARCH_LVL_END)
       sf->two_pass_partition_search = 1;
 
-    sf->prune_ext_partition_types_search_level = 2;
     sf->skip_repeat_interpolation_filter_search = 1;
     sf->tx_type_search.skip_tx_search = 1;
     sf->tx_type_search.ml_tx_split_thresh = 40;
@@ -321,6 +319,9 @@ static void set_good_speed_features_framesize_independent(
     // TODO(any): Experiment with the early exit mechanism for speeds 0, 1 and 2
     // and clean-up the speed feature
     sf->perform_best_rd_based_gating_for_chroma = 1;
+    // TODO(Remya): Experiment with ext pruning flag as 1 or 2 for speeds 1 and
+    // 2 and clean-up the code accordingly
+    sf->prune_ext_partition_types_search_level = 2;
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
     sf->prune_comp_type_by_model_rd = boosted ? 0 : 1;
     sf->disable_smooth_intra =
