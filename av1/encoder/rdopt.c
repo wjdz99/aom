@@ -9620,7 +9620,6 @@ static int64_t motion_mode_rd(
     if (mode_index == 0) {
       args->simple_rd[this_mode][mbmi->ref_mv_idx][mbmi->ref_frame[0]] = tmp_rd;
       if (!is_comp_pred) {
-        printf("@@@@@@@@@@@@@@@@@@@@Copying block skip or something\n");
         simple_states->rd_stats = *rd_stats;
         simple_states->rd_stats.rdcost = tmp_rd;
         simple_states->rd_stats_y = *rd_stats_y;
@@ -12578,13 +12577,13 @@ static void release_compound_type_rd_buffers(
 int do_tx_search_mode(int do_tx_search_global, int midx) {
   // 0 and 1 correspond to off and on for all modes.
   switch (do_tx_search_global) {
-    case 0:
+    //case 0:
     case 1: return do_tx_search_global;
     default:
       // Otherwise, turn it on conditionally for some modes.
       // A value of 2 indicates it is being turned on conditionally
       // for the mode. Turn it on for the first 7 modes.
-      return midx < 7 ? 2 : 0;
+      return 1;//midx < 169 ? 2 : 0;
   }
 }
 
@@ -12679,7 +12678,6 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   CompoundTypeRdBuffers rd_buffers;
   alloc_compound_type_rd_buffers(cm, &rd_buffers);
 
-  printf("************** NEW BLOCK\n");
   for (int midx = 0; midx < MAX_MODES; ++midx) {
     const int do_tx_search = do_tx_search_mode(do_tx_search_global, midx);
 
