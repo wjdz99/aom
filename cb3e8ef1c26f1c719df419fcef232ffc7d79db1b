@@ -46,6 +46,30 @@
       "revId": "cb3e8ef1c26f1c719df419fcef232ffc7d79db1b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97188e78_9e61f913",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-19T16:59:16Z",
+      "side": 1,
+      "message": "Sorry I missed this part. Your patch may trigger integer overflow if aom_rb_read_uvlc(rb) returns uint32_max. So I propose this:\n\nconst uint32_t val \u003d aom_rb_read_uvlc(rb);\nconst uint32_t num_ticks_per_picture \u003d\n    (val \u003e UINT32_MAX - 2) ? 0 : val + 1;\nif (num_ticks_per_picture \u003d\u003d 0) return AOM_CODEC_UNSUP_BITSTREAM;",
+      "parentUuid": "58b4e430_26dcc983",
+      "range": {
+        "startLine": 165,
+        "startChar": 0,
+        "endLine": 169,
+        "endChar": 5
+      },
+      "revId": "cb3e8ef1c26f1c719df419fcef232ffc7d79db1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
