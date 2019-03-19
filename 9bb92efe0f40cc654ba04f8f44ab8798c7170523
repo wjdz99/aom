@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6a51a80_935e2d26",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-03-19T16:57:00Z",
+      "side": 1,
+      "message": "This change broke the bitstream conformance requirement check for num_ticks_per_picture_minus_1. I wrote a fix in https://aomedia-review.googlesource.com/c/aom/+/83461.",
+      "range": {
+        "startLine": 165,
+        "startChar": 0,
+        "endLine": 168,
+        "endChar": 69
+      },
+      "revId": "9bb92efe0f40cc654ba04f8f44ab8798c7170523",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
