@@ -252,7 +252,7 @@ int av1_rc_get_default_min_gf_interval(int width, int height,
 int av1_rc_get_default_max_gf_interval(double framerate, int min_gf_interval,
                                        int max_pyr_height) {
   int interval = AOMMIN(MAX_GF_INTERVAL, (int)(framerate * 0.75));
-  interval = AOMMAX(get_fixed_gf_length(max_pyr_height), interval);
+  interval = AOMMIN(get_fixed_gf_length(max_pyr_height), interval);
   return AOMMAX(interval, min_gf_interval);
 }
 
