@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "65a77dfe_acdfe37d",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-03-19T20:09:14Z",
+      "side": 1,
+      "message": "The UINT32_MAX macro is defined in \u003cstdint.h\u003e. See https://en.cppreference.com/w/c/types/integer\n\nSince this file already uses uint32_t (which is also defined in \u003cstdint.h\u003e), I\u0027ve removed this #include.",
+      "parentUuid": "89a0b58e_e069e9a7",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 19
+      },
+      "revId": "cd02495b00c2f21f03ae4a8f50d4587e373f9446",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "357e1bd6_28608bc0",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "cd02495b00c2f21f03ae4a8f50d4587e373f9446",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cc923bb_8ec10869",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-03-19T20:09:14Z",
+      "side": 1,
+      "message": "No, (1 \u003c\u003c 32) − 1 is not allowed. Note that UINT32_MAX is (1 \u003c\u003c 32) − 1, not 1 \u003c\u003c 32.",
+      "parentUuid": "357e1bd6_28608bc0",
+      "range": {
+        "startLine": 167,
+        "startChar": 8,
+        "endLine": 167,
+        "endChar": 37
+      },
+      "revId": "cd02495b00c2f21f03ae4a8f50d4587e373f9446",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
