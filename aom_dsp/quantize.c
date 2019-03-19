@@ -11,9 +11,7 @@
 
 #include "aom_dsp/quantize.h"
 #include "aom_mem/aom_mem.h"
-
-#define EOB_FACTOR 325
-#define SKIP_EOB_FACTOR_ADJUST 200
+#include "av1/encoder/av1_quantize.h"
 
 void quantize_b_adaptive_helper_c(
     const tran_low_t *coeff_ptr, intptr_t n_coeffs, const int16_t *zbin_ptr,
@@ -47,9 +45,8 @@ void quantize_b_adaptive_helper_c(
     else
       break;
   }
-
-  // Quantization pass: All coefficients with index >= zero_flag are
-  // skippable. Note: zero_flag can be zero.
+// Quantization pass: All coefficients with index >= zero_flag are
+// skippable. Note: zero_flag can be zero.
 #if SKIP_EOB_FACTOR_ADJUST
   int first = -1;
 #endif  // SKIP_EOB_FACTOR_ADJUST
@@ -204,9 +201,8 @@ void highbd_quantize_b_adaptive_helper_c(
         coeff <= (nzbins[rc != 0] * (1 << AOM_QM_BITS) - prescan_add_val))
       idx_arr[idx++] = i;
   }
-
-  // Quantization pass: only process the coefficients selected in
-  // pre-scan pass. Note: idx can be zero.
+// Quantization pass: only process the coefficients selected in
+// pre-scan pass. Note: idx can be zero.
 #if SKIP_EOB_FACTOR_ADJUST
   int first = -1;
 #endif  // SKIP_EOB_FACTOR_ADJUST
