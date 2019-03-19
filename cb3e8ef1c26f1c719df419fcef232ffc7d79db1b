@@ -70,6 +70,30 @@
       "revId": "cb3e8ef1c26f1c719df419fcef232ffc7d79db1b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a87de229_1f0d18a1",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-03-19T19:48:21Z",
+      "side": 1,
+      "message": "Done. In C and C++, unsigned integer overflow is defined behavior -- the result is reduced modulo 2^n for an n-bit unsigned integer type. For example, UINT32_MAX + 1 is defined to be 0. So the original code was correct. But I found that UBSan has an unsigned-integer-overflow check because unsigned integer overflow is often unintentional. So I changed our code to check num_ticks_per_picture_minus_1 before adding 1.",
+      "parentUuid": "97188e78_9e61f913",
+      "range": {
+        "startLine": 165,
+        "startChar": 0,
+        "endLine": 169,
+        "endChar": 5
+      },
+      "revId": "cb3e8ef1c26f1c719df419fcef232ffc7d79db1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
