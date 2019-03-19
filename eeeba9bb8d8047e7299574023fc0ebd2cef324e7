@@ -16,6 +16,24 @@
       "revId": "eeeba9bb8d8047e7299574023fc0ebd2cef324e7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98e71e23_9c4f62f5",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-03-19T18:22:52Z",
+      "side": 1,
+      "message": "Stricter is better. If it fails in any test later we can revisit.",
+      "parentUuid": "7725a2f1_05b230ec",
+      "revId": "eeeba9bb8d8047e7299574023fc0ebd2cef324e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
