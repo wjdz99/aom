@@ -22,6 +22,30 @@
       "revId": "cb3e8ef1c26f1c719df419fcef232ffc7d79db1b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "58cbf6b5_d11c69a4",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-03-19T16:56:15Z",
+      "side": 1,
+      "message": "I found an error in my alternative fix. The second line should read:\n\n    if (num_ticks_per_picture_minus_1 \u003d\u003d UINT32_MAX) return AOM_CODEC_UNSUP_BITSTREAM;",
+      "parentUuid": "58b4e430_26dcc983",
+      "range": {
+        "startLine": 165,
+        "startChar": 0,
+        "endLine": 169,
+        "endChar": 5
+      },
+      "revId": "cb3e8ef1c26f1c719df419fcef232ffc7d79db1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
