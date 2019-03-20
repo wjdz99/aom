@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "680bfc65_b37b1031",
+        "filename": "av1/common/cnn.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-03-20T18:02:26Z",
+      "side": 1,
+      "message": "No - you can concatenate easily in tensorflow. So as long as you are consistent it does not matter.",
+      "parentUuid": "0d5b9d19_8eb37563",
+      "range": {
+        "startLine": 43,
+        "startChar": 39,
+        "endLine": 43,
+        "endChar": 49
+      },
+      "revId": "ad50c6d3b61f04f76ab6a955269f1e7e0b08eb10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "057b4dbe_af3f1f58",
         "filename": "av1/common/cnn.h",
         "patchSetId": 4
