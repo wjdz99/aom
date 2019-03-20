@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5484fee_d4063d31",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 730,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-03-20T23:16:22Z",
+      "side": 1,
+      "message": "TestNonActivationSingleLayerSingleKernel already tests padding valid for skip strides \u003d 1. So this case does not need any further tests I think.",
+      "revId": "004917e3a8a07da27f51fcb1008a7529e53e902f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
