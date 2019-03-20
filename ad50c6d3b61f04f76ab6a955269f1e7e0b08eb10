@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d5b9d19_8eb37563",
+        "filename": "av1/common/cnn.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-20T17:51:46Z",
+      "side": 1,
+      "message": "Does the order of concatenation matter? E.g., would concatenating the skip tensor onto the convolution tensor differ from concatenating the convolution tensor onto the skip tensor?",
+      "range": {
+        "startLine": 43,
+        "startChar": 39,
+        "endLine": 43,
+        "endChar": 49
+      },
+      "revId": "ad50c6d3b61f04f76ab6a955269f1e7e0b08eb10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "057b4dbe_af3f1f58",
+        "filename": "av1/common/cnn.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-20T17:51:46Z",
+      "side": 1,
+      "message": "I\u0027ll update the header generator once this is pushed.",
+      "revId": "ad50c6d3b61f04f76ab6a955269f1e7e0b08eb10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
