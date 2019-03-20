@@ -870,7 +870,7 @@ static void inter_modes_info_push(InterModesInfo *inter_modes_info,
   inter_modes_info->mode_rate_arr[num] = mode_rate;
   inter_modes_info->sse_arr[num] = sse;
   inter_modes_info->est_rd_arr[num] = rd;
-  inter_modes_info->true_rd_arr[num] = true_rd;
+  inter_modes_info->true_rd_arr[num] = false;  // true_rd;
   if (blk_skip != NULL) {
     memcpy(inter_modes_info->blk_skip_arr[num], blk_skip,
            sizeof(blk_skip[0]) * MAX_MIB_SIZE * MAX_MIB_SIZE);
@@ -9604,8 +9604,8 @@ static int64_t motion_mode_rd(
       // structure, since some modes will be conditionally TX searched.
       if (do_tx_search == 2) {
         inter_modes_info_push(inter_modes_info, rd_stats->rate, rd_stats->sse,
-                              rd_stats->rdcost, true, x->blk_skip, rd_stats,
-                              rd_stats_y, rd_stats_uv, mbmi);
+                              curr_rd, true, x->blk_skip, rd_stats, rd_stats_y,
+                              rd_stats_uv, mbmi);
       }
     }
 
