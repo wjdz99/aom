@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "297d5141_bf770100",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 10
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-20T23:46:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09040289_4d0d15d6",
+      "revId": "5979be9dcf127e17ac52ea1aff1adb87ef81853c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e8036b50_1f507f73",
         "filename": "CMakeLists.txt",
         "patchSetId": 10
@@ -113,6 +131,30 @@
     },
     {
       "key": {
+        "uuid": "38532b4f_c88737e4",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 10
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-20T23:46:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae2656ac_fcaaa795",
+      "range": {
+        "startLine": 470,
+        "startChar": 6,
+        "endLine": 470,
+        "endChar": 24
+      },
+      "revId": "5979be9dcf127e17ac52ea1aff1adb87ef81853c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "615ec285_2a3945bf",
         "filename": "build/cmake/aom_config_defaults.cmake",
         "patchSetId": 10
@@ -124,6 +166,30 @@
       "writtenOn": "2019-03-20T16:58:51Z",
       "side": 1,
       "message": "This information should be moved to README.md.",
+      "range": {
+        "startLine": 152,
+        "startChar": 0,
+        "endLine": 154,
+        "endChar": 53
+      },
+      "revId": "5979be9dcf127e17ac52ea1aff1adb87ef81853c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ebebaaa_69e623f8",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-20T23:46:34Z",
+      "side": 1,
+      "message": "What section would this go under?",
+      "parentUuid": "615ec285_2a3945bf",
       "range": {
         "startLine": 152,
         "startChar": 0,
@@ -207,6 +273,30 @@
     },
     {
       "key": {
+        "uuid": "63213a4c_1507a230",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-20T23:46:34Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e455d116_577d520c",
+      "range": {
+        "startLine": 156,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 62
+      },
+      "revId": "5979be9dcf127e17ac52ea1aff1adb87ef81853c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f34fc86a_44cd2f49",
         "filename": "build/cmake/generate_aom_config_templates.cmake",
         "patchSetId": 10
@@ -227,6 +317,30 @@
       "revId": "5979be9dcf127e17ac52ea1aff1adb87ef81853c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a5e90f1_fa2fc9ac",
+        "filename": "build/cmake/generate_aom_config_templates.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-20T23:46:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f34fc86a_44cd2f49",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 30
+      },
+      "revId": "5979be9dcf127e17ac52ea1aff1adb87ef81853c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -277,6 +391,30 @@
     },
     {
       "key": {
+        "uuid": "230c6466_c038848d",
+        "filename": "test/test.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-20T23:46:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "efc19ce3_940da950",
+      "range": {
+        "startLine": 126,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 11
+      },
+      "revId": "5979be9dcf127e17ac52ea1aff1adb87ef81853c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "764f20e5_587e078e",
         "filename": "test/test.cmake",
         "patchSetId": 10
@@ -300,6 +438,30 @@
     },
     {
       "key": {
+        "uuid": "3601149d_efff3221",
+        "filename": "test/test.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-20T23:46:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "764f20e5_587e078e",
+      "range": {
+        "startLine": 297,
+        "startChar": 0,
+        "endLine": 297,
+        "endChar": 25
+      },
+      "revId": "5979be9dcf127e17ac52ea1aff1adb87ef81853c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6d26d826_90205995",
         "filename": "test/test.cmake",
         "patchSetId": 10
@@ -320,6 +482,30 @@
       "revId": "5979be9dcf127e17ac52ea1aff1adb87ef81853c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffc15981_dd2d89ee",
+        "filename": "test/test.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-20T23:46:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d26d826_90205995",
+      "range": {
+        "startLine": 330,
+        "startChar": 0,
+        "endLine": 330,
+        "endChar": 29
+      },
+      "revId": "5979be9dcf127e17ac52ea1aff1adb87ef81853c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
