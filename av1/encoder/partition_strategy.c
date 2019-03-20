@@ -9,6 +9,8 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <float.h>
+
 #include "aom_ports/system_state.h"
 
 #include "av1/common/enums.h"
@@ -565,3 +567,133 @@ void av1_firstpass_simple_motion_search_early_term(AV1_COMP *const cpi,
   }
 }
 #undef NUM_FEATURES
+
+void av1_get_max_min_partition_features(AV1_COMP *const cpi, MACROBLOCK *x,
+                                        int mi_row, int mi_col,
+                                        float *features) {
+  AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCKD *xd = &x->e_mbd;
+  const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
+
+  assert(sb_size == BLOCK_128X128);
+
+  int f_idx = 0;
+
+  const int dc_q = av1_dc_quant_QTX(x->qindex, 0, xd->bd) >> (xd->bd - 8);
+  aom_clear_system_state();
+  const float log_q_sq = logf(1.0f + (float)(dc_q * dc_q) / 256.0f);
+
+  // Perform full-pixel single motion search in Y plane of 16x16 mbs in the sb
+  float sum_mv_row_sq = 0;
+  float sum_mv_row = 0;
+  float min_abs_mv_row = FLT_MAX;
+  float max_abs_mv_row = 0;
+
+  float sum_mv_col_sq = 0;
+  float sum_mv_col = 0;
+  float min_abs_mv_col = FLT_MAX;
+  float max_abs_mv_col = 0;
+
+  float sum_log_sse_sq = 0;
+  float sum_log_sse = 0;
+  float min_log_sse = FLT_MAX;
+  float max_log_sse = 0;
+
+  const BLOCK_SIZE mb_size = BLOCK_16X16;
+  const int mb_rows = block_size_high[sb_size] / block_size_high[mb_size];
+  const int mb_cols = block_size_wide[sb_size] / block_size_wide[mb_size];
+  const int mb_in_mi_size_high_log2 = mi_size_high_log2[mb_size];
+  const int mb_in_mi_size_wide_log2 = mi_size_wide_log2[mb_size];
+
+  for (int mb_row = 0; mb_row < mb_rows; mb_row++)
+    for (int mb_col = 0; mb_col < mb_cols; mb_col++) {
+      const int this_mi_row = mi_row + (mb_row << mb_in_mi_size_high_log2);
+      const int this_mi_col = mi_col + (mb_col << mb_in_mi_size_wide_log2);
+      unsigned int sse = 0;
+      unsigned int var = 0;
+      const MV ref_mv_full = { .row = 0, .col = 0 };
+
+      av1_simple_motion_sse_var(cpi, x, this_mi_row, this_mi_col, mb_size,
+                                ref_mv_full, 0, &sse, &var);
+
+      aom_clear_system_state();
+      const float mv_row = (float)(x->best_mv.as_mv.row / 8);
+      const float mv_col = (float)(x->best_mv.as_mv.col / 8);
+      const float log_sse = logf(1.0f + (float)sse);
+      const float abs_mv_row = fabsf(mv_row);
+      const float abs_mv_col = fabsf(mv_col);
+
+      sum_mv_row_sq += mv_row * mv_row;
+      sum_mv_row += mv_row;
+      sum_mv_col_sq += mv_col * mv_col;
+      sum_mv_col += mv_col;
+
+      if (abs_mv_row < min_abs_mv_row) min_abs_mv_row = abs_mv_row;
+      if (abs_mv_row > max_abs_mv_row) max_abs_mv_row = abs_mv_row;
+      if (abs_mv_col < min_abs_mv_col) min_abs_mv_col = abs_mv_col;
+      if (abs_mv_col > max_abs_mv_col) max_abs_mv_col = abs_mv_col;
+
+      sum_log_sse_sq += log_sse * log_sse;
+      sum_log_sse += log_sse;
+      if (log_sse < min_log_sse) min_log_sse = log_sse;
+      if (log_sse > max_log_sse) max_log_sse = log_sse;
+    }
+  aom_clear_system_state();
+  const float avg_mv_row = sum_mv_row / 64.0f;
+  const float var_mv_row = sum_mv_row_sq / 64.0f - avg_mv_row * avg_mv_row;
+
+  const float avg_mv_col = sum_mv_col / 64.0f;
+  const float var_mv_col = sum_mv_col_sq / 64.0f - avg_mv_col * avg_mv_col;
+
+  const float avg_log_sse = sum_log_sse / 64.0f;
+  const float var_log_sse = sum_log_sse_sq / 64.0f - avg_log_sse * avg_log_sse;
+
+  features[f_idx++] = avg_log_sse;
+  features[f_idx++] = avg_mv_col;
+  features[f_idx++] = avg_mv_row;
+  features[f_idx++] = log_q_sq;
+  features[f_idx++] = max_abs_mv_col;
+  features[f_idx++] = max_abs_mv_row;
+  features[f_idx++] = max_log_sse;
+  features[f_idx++] = min_abs_mv_col;
+  features[f_idx++] = min_abs_mv_row;
+  features[f_idx++] = min_log_sse;
+  features[f_idx++] = var_log_sse;
+  features[f_idx++] = var_mv_col;
+  features[f_idx++] = var_mv_row;
+
+  assert(f_idx == FEATURE_SIZE_MAX_MIN_PART_PRED);
+}
+
+#define MAX_NUM_CLASSES 4
+BLOCK_SIZE av1_predict_max_partition(
+    const MAX_PART_PRED_MODE max_part_pred_mode, const float *features) {
+  float scores[MAX_NUM_CLASSES] = { 0.0f }, probs[MAX_NUM_CLASSES] = { 0.0f };
+  const NN_CONFIG *nn_config = &av1_max_part_pred_nn_config;
+
+  assert(max_part_pred_mode != NOT_IN_USE);
+
+  aom_clear_system_state();
+  av1_nn_predict(features, nn_config, scores);
+  av1_nn_softmax(scores, probs, MAX_NUM_CLASSES);
+
+  int result = MAX_NUM_CLASSES - 1;
+  if (max_part_pred_mode == DIRECT_PRED) {
+    result = 0;
+    float max_prob = probs[0];
+    for (int i = 1; i < MAX_NUM_CLASSES; ++i) {
+      if (probs[i] > max_prob) {
+        max_prob = probs[i];
+        result = i;
+      }
+    }
+  } else if (max_part_pred_mode == RELAXED_PRED) {
+    for (result = MAX_NUM_CLASSES - 1; result >= 0; --result) {
+      if (result < MAX_NUM_CLASSES - 1) probs[result] += probs[result + 1];
+      if (probs[result] > 0.2) break;
+    }
+  }
+
+  return (BLOCK_SIZE)((result + 2) * 3);
+}
+#undef MAX_NUM_CLASSES
