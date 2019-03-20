@@ -860,8 +860,9 @@ static void inter_mode_data_push(TileDataEnc *tile_data, BLOCK_SIZE bsize,
 
 static void inter_modes_info_push(InterModesInfo *inter_modes_info,
                                   int mode_rate, int64_t sse, int64_t rd,
-                                  bool true_rd, RD_STATS *rd_cost,
-                                  RD_STATS *rd_cost_y, RD_STATS *rd_cost_uv,
+                                  bool true_rd, uint8_t *blk_skip,
+                                  RD_STATS *rd_cost, RD_STATS *rd_cost_y,
+                                  RD_STATS *rd_cost_uv,
                                   const MB_MODE_INFO *mbmi) {
   const int num = inter_modes_info->num;
   assert(num < MAX_INTER_MODES);
@@ -870,6 +871,10 @@ static void inter_modes_info_push(InterModesInfo *inter_modes_info,
   inter_modes_info->sse_arr[num] = sse;
   inter_modes_info->est_rd_arr[num] = rd;
   inter_modes_info->true_rd_arr[num] = true_rd;
+  if (blk_skip != NULL) {
+    memcpy(inter_modes_info->blk_skip_arr[num], blk_skip,
+           sizeof(blk_skip[0]) * MAX_MIB_SIZE * MAX_MIB_SIZE);
+  }
   inter_modes_info->rd_cost_arr[num] = *rd_cost;
   inter_modes_info->rd_cost_y_arr[num] = *rd_cost_y;
   inter_modes_info->rd_cost_uv_arr[num] = *rd_cost_uv;
@@ -9562,14 +9567,14 @@ static int64_t motion_mode_rd(
         if (!is_comp_pred) {
           assert(curr_sse >= 0);
           inter_modes_info_push(inter_modes_info, mode_rate, curr_sse,
-                                rd_stats->rdcost, false, rd_stats, rd_stats_y,
-                                rd_stats_uv, mbmi);
+                                rd_stats->rdcost, false, NULL, rd_stats,
+                                rd_stats_y, rd_stats_uv, mbmi);
         }
       } else {
         assert(curr_sse >= 0);
         inter_modes_info_push(inter_modes_info, mode_rate, curr_sse,
-                              rd_stats->rdcost, false, rd_stats, rd_stats_y,
-                              rd_stats_uv, mbmi);
+                              rd_stats->rdcost, false, NULL, rd_stats,
+                              rd_stats_y, rd_stats_uv, mbmi);
       }
     } else {
       if (!txfm_search(cpi, tile_data, x, bsize, mi_row, mi_col, rd_stats,
@@ -9599,8 +9604,8 @@ static int64_t motion_mode_rd(
       // structure, since some modes will be conditionally TX searched.
       if (do_tx_search == 2) {
         inter_modes_info_push(inter_modes_info, rd_stats->rate, rd_stats->sse,
-                              rd_stats->rdcost, true, rd_stats, rd_stats_y,
-                              rd_stats_uv, mbmi);
+                              rd_stats->rdcost, true, x->blk_skip, rd_stats,
+                              rd_stats_y, rd_stats_uv, mbmi);
       }
     }
 
@@ -12952,10 +12957,12 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       RD_STATS rd_stats_uv;
 
       bool true_rd = inter_modes_info->true_rd_arr[data_idx];
+      uint8_t *blk_skip = x->blk_skip;
       if (true_rd) {
         rd_stats = inter_modes_info->rd_cost_arr[data_idx];
         rd_stats_y = inter_modes_info->rd_cost_y_arr[data_idx];
         rd_stats_uv = inter_modes_info->rd_cost_uv_arr[data_idx];
+        blk_skip = inter_modes_info->blk_skip_arr[data_idx];
       } else {
         const int mode_rate = inter_modes_info->mode_rate_arr[data_idx];
 
@@ -13004,8 +13011,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
             rd_stats_y.rate +
             x->skip_cost[av1_get_skip_context(xd)][rd_stats.skip || mbmi->skip];
         search_state.best_rate_uv = rd_stats_uv.rate;
-        memcpy(ctx->blk_skip, x->blk_skip,
-               sizeof(x->blk_skip[0]) * ctx->num_4x4_blk);
+        memcpy(ctx->blk_skip, blk_skip, sizeof(blk_skip[0]) * ctx->num_4x4_blk);
       }
     }
   }
