@@ -16,6 +16,8 @@
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/encodemb.h"
 
+#define FEATURE_SIZE_MAX_MIN_PART_PRED 13
+
 // Performs a motion search in SIMPLE_TRANSLATION mode using reference frame
 // ref. Note that this sets the offset of mbmi, so we will need to reset it
 // after calling this function.
@@ -67,6 +69,17 @@ void av1_firstpass_simple_motion_search_early_term(AV1_COMP *const cpi,
                                                    int mi_col, BLOCK_SIZE bsize,
                                                    const RD_STATS *none_rdc,
                                                    int *do_square_split);
+
+// Get the features for selecting the max and min partition size. Currently this
+// performs simple_motion_search on 16X16 subblocks of the currnet superblock,
+// and then extract the statistics of  sse and motion vectors as features.
+void av1_get_max_min_partition_features(AV1_COMP *const cpi, MACROBLOCK *x,
+                                        int mi_row, int mi_col,
+                                        float *features);
+
+// Predict the maximum BLOCK_SIZE to be used to encoder the current superblock.
+BLOCK_SIZE av1_predict_max_partition(
+    const MAX_PART_PRED_MODE max_part_pred_mode, const float *features);
 
 // A simplified version of set_offsets meant to be used for
 // simple_motion_search.
@@ -122,4 +135,28 @@ static INLINE void init_simple_motion_search_mvs(PC_TREE *pc_tree) {
     init_simple_motion_search_mvs(pc_tree->split[3]);
   }
 }
+
+static INLINE int is_full_sb(AV1_COMMON *const cm, int mi_row, int mi_col,
+                             BLOCK_SIZE sb_size) {
+  const int sb_mi_wide = mi_size_wide[sb_size];
+  const int sb_mi_high = mi_size_high[sb_size];
+
+  return (mi_row + sb_mi_high) <= cm->mi_rows &&
+         (mi_col + sb_mi_wide) <= cm->mi_cols;
+}
+
+static INLINE int use_auto_max_partition(AV1_COMP *const cpi,
+                                         BLOCK_SIZE sb_size, int mi_row,
+                                         int mi_col) {
+  AV1_COMMON *const cm = &cpi->common;
+
+  return !frame_is_intra_only(cm) &&
+         cpi->sf.auto_max_partition_based_on_simple_motion != NOT_IN_USE &&
+         sb_size == BLOCK_128X128 && is_full_sb(cm, mi_row, mi_col, sb_size) &&
+         cpi->twopass.gf_group.update_type[cpi->twopass.gf_group.index] !=
+             OVERLAY_UPDATE &&
+         cpi->twopass.gf_group.update_type[cpi->twopass.gf_group.index] !=
+             INTNL_OVERLAY_UPDATE;
+}
+
 #endif  // AOM_AV1_ENCODER_PARTITION_STRATEGY_H_
