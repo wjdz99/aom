@@ -3366,7 +3366,8 @@ static void get_res_var_features(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
 static void simple_motion_search_based_split(
     AV1_COMP *const cpi, MACROBLOCK *x, int mi_row, int mi_col,
     BLOCK_SIZE bsize, int *partition_none_allowed, int *partition_horz_allowed,
-    int *partition_vert_allowed, int *do_rectangular_split) {
+    int *partition_vert_allowed, int *do_rectangular_split,
+    int *do_square_split) {
   const NN_CONFIG *nn_config = NULL;
   float split_only_thresh = 0.0f;
   if (bsize == BLOCK_128X128) {
@@ -3402,6 +3403,8 @@ static void simple_motion_search_based_split(
       *partition_vert_allowed = 0;
       *do_rectangular_split = 0;
     }
+
+    if (score < -split_only_thresh) *do_square_split = 0;
   }
 }
 
@@ -4167,8 +4170,8 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   if (try_split_only) {
     simple_motion_search_based_split(
         cpi, x, mi_row, mi_col, bsize, &partition_none_allowed,
-        &partition_horz_allowed, &partition_vert_allowed,
-        &do_rectangular_split);
+        &partition_horz_allowed, &partition_vert_allowed, &do_rectangular_split,
+        &do_square_split);
   }
 
   const int try_prune_rect =
