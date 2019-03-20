@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1675b3f3_9378c04a",
+        "filename": "av1/common/cnn.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 569,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-20T19:13:05Z",
+      "side": 1,
+      "message": "These casts aren\u0027t needed now I think",
+      "range": {
+        "startLine": 569,
+        "startChar": 30,
+        "endLine": 569,
+        "endChar": 46
+      },
+      "revId": "7a3288510d574aca748ea539a6047f1805ad95d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
