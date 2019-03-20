@@ -60,20 +60,51 @@ static void realloc_tensor(TENSOR *tensor, int channels, int width,
     tensor->buf[c] = &tensor->buf[0][c * width * height];
 }
 
-static void copy_tensor(TENSOR *src, TENSOR *dst) {
+static void copy_tensor(TENSOR *src, int dst_offset, TENSOR *dst) {
   assert(src->width == dst->width);
   assert(src->height == dst->height);
   if (src->stride == dst->width && dst->stride == dst->width) {
-    memcpy(dst->buf[0], src->buf[0],
-           sizeof(*dst->buf[0]) * dst->width * dst->height * dst->channels);
+    memcpy(dst->buf[dst_offset], src->buf[0],
+           sizeof(*dst->buf[dst_offset]) * src->width * src->height *
+               src->channels);
   } else {
-    for (int c = 0; c < dst->channels; ++c) {
+    for (int c = 0; c < src->channels; ++c) {
       for (int r = 0; r < dst->height; ++r) {
-        memcpy(&dst->buf[c][r * dst->stride], &src->buf[c][r * src->stride],
+        memcpy(&dst->buf[dst_offset + c][r * dst->stride],
+               &src->buf[c][r * src->stride],
                dst->width * sizeof(*dst->buf[c]));
       }
     }
   }
+}
+
+static void swap_tensor(TENSOR *t1, TENSOR *t2) {
+  TENSOR t = *t1;
+  *t1 = *t2;
+  *t2 = t;
+}
+
+static void concat_tensor(TENSOR *src, TENSOR *dst) {
+  assert(src->width == dst->width);
+  assert(src->height == dst->height);
+
+  const int dst_channels = dst->channels;
+  const int channels = dst->channels + src->channels;
+  const int newallocsize = channels * dst->width * dst->height;
+  if (dst->allocsize < newallocsize) {
+    TENSOR t;
+    init_tensor(&t);
+    // allocate new buffers and copy first the dst channels
+    realloc_tensor(&t, channels, dst->width, dst->height);
+    copy_tensor(dst, 0, &t);
+    // Swap the tensors and free the old buffers
+    swap_tensor(dst, &t);
+    free_tensor(&t);
+  }
+  for (int c = 1; c < channels; ++c)
+    dst->buf[c] = &dst->buf[0][c * dst->width * dst->height];
+  // Copy the channels in src after the first dst_channels channels.
+  copy_tensor(src, dst_channels, dst);
 }
 
 static void assign_tensor(TENSOR *tensor, const float *buf[CNN_MAX_CHANNELS],
@@ -90,10 +121,8 @@ static void assign_tensor(TENSOR *tensor, const float *buf[CNN_MAX_CHANNELS],
   }
 }
 
-static void swap_tensor(TENSOR *t1, TENSOR *t2) {
-  TENSOR t = *t1;
-  *t1 = *t2;
-  *t2 = t;
+int check_tensor_equal_dims(TENSOR *t1, TENSOR *t2) {
+  return (t1->width == t2->width && t1->height == t2->height);
 }
 
 int check_tensor_equal_size(TENSOR *t1, TENSOR *t2) {
@@ -185,7 +214,7 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
           for (int w = 0, v = 0; w < in_width;
                w += layer_config->skip_width, ++v) {
             float sum = layer_config->bias[i];
-            if (layer_config->output_add)
+            if (layer_config->skip_combine == SKIP_ADD)
               sum += skip_buf[i][u * skip_stride + v];
             for (int k = 0; k < layer_config->in_channels; ++k) {
               int off = k * layer_config->out_channels + i;
@@ -213,7 +242,7 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
           for (int w = 0, v = 0; w < in_width;
                w += layer_config->skip_width, ++v) {
             float sum = layer_config->bias[i];
-            if (layer_config->output_add)
+            if (layer_config->skip_combine == SKIP_ADD)
               sum += skip_buf[i][u * skip_stride + v];
             for (int k = 0; k < layer_config->in_channels; ++k) {
               int off = k * layer_config->out_channels + i;
@@ -246,7 +275,7 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
                in_width - layer_config->filter_width + filter_width_half + 1;
                w += layer_config->skip_width, ++v) {
             float sum = layer_config->bias[i];
-            if (layer_config->output_add)
+            if (layer_config->skip_combine == SKIP_ADD)
               sum += skip_buf[i][u * skip_stride + v];
             for (int k = 0; k < layer_config->in_channels; ++k) {
               int off = k * layer_config->out_channels + i;
@@ -290,7 +319,7 @@ void av1_cnn_deconvolve_c(const float **input, int in_width, int in_height,
         for (int u = 0; u < out_height; ++u) {
           for (int v = 0; v < out_width; ++v) {
             float sum = layer_config->bias[i];
-            if (layer_config->output_add)
+            if (layer_config->skip_combine == SKIP_ADD)
               sum += skip_buf[i][u * skip_stride + v];
             for (int k = 0; k < layer_config->in_channels; ++k) {
               int off = k * layer_config->out_channels + i;
@@ -321,7 +350,7 @@ void av1_cnn_deconvolve_c(const float **input, int in_width, int in_height,
         for (int u = 0; u < out_height; ++u) {
           for (int v = 0; v < out_width; ++v) {
             float sum = layer_config->bias[i];
-            if (layer_config->output_add)
+            if (layer_config->skip_combine == SKIP_ADD)
               sum += skip_buf[i][u * skip_stride + v];
             for (int k = 0; k < layer_config->in_channels; ++k) {
               int off = k * layer_config->out_channels + i;
@@ -354,7 +383,7 @@ void av1_cnn_deconvolve_c(const float **input, int in_width, int in_height,
         for (int u = 0; u < out_height; ++u) {
           for (int v = 0; v < out_width; ++v) {
             float sum = layer_config->bias[i];
-            if (layer_config->output_add)
+            if (layer_config->skip_combine == SKIP_ADD)
               sum += skip_buf[i][u * skip_stride + v];
             for (int k = 0; k < layer_config->in_channels; ++k) {
               int off = k * layer_config->out_channels + i;
@@ -418,7 +447,7 @@ void av1_cnn_predict_c(const float *input, int in_width, int in_height,
         realloc_tensor(&skip_tensor,
                        cnn_config->layer_config[layer].in_channels, in_width,
                        in_height);
-        copy_tensor(&tensor1, &skip_tensor);
+        copy_tensor(&tensor1, 0, &skip_tensor);
       }
     } else {  // Non-first layer
       assert(cnn_config->layer_config[layer].in_channels ==
@@ -433,7 +462,7 @@ void av1_cnn_predict_c(const float *input, int in_width, int in_height,
         realloc_tensor(&skip_tensor,
                        cnn_config->layer_config[layer].in_channels, i_width,
                        i_height);
-        copy_tensor(&tensor1, &skip_tensor);
+        copy_tensor(&tensor1, 0, &skip_tensor);
       }
       find_layer_output_size(i_width, i_height,
                              &cnn_config->layer_config[layer], &o_width,
@@ -448,8 +477,13 @@ void av1_cnn_predict_c(const float *input, int in_width, int in_height,
                       out_stride);
       }
     }
-    assert(IMPLIES(cnn_config->layer_config[layer].output_add,
+    assert(IMPLIES(cnn_config->layer_config[layer].skip_combine == SKIP_ADD,
                    check_tensor_equal_size(&skip_tensor, &tensor2)));
+    assert(IMPLIES(cnn_config->layer_config[layer].skip_combine == SKIP_CAT,
+                   check_tensor_equal_dims(&skip_tensor, &tensor2)));
+
+    assert(tensor1.channels == cnn_config->layer_config[layer].in_channels);
+    assert(tensor2.channels == cnn_config->layer_config[layer].out_channels);
     if (!cnn_config->layer_config[layer].deconvolve) {
       av1_cnn_convolve((const float **)tensor1.buf, tensor1.width,
                        tensor1.height, tensor1.stride,
@@ -462,6 +496,9 @@ void av1_cnn_predict_c(const float *input, int in_width, int in_height,
                          &cnn_config->layer_config[layer],
                          (const float **)skip_tensor.buf, skip_tensor.stride,
                          tensor2.buf, tensor2.stride);
+    }
+    if (cnn_config->layer_config[layer].skip_combine == SKIP_CAT) {
+      concat_tensor(&skip_tensor, &tensor2);
     }
   }
   free_tensor(&tensor1);
