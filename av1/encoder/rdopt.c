@@ -5062,8 +5062,8 @@ static void get_mean_and_dev_float(const float *data, int stride, int bw,
 
 // Feature used by the model to predict tx split: the mean and standard
 // deviation values of the block and sub-blocks.
-static void get_mean_dev_features(const int16_t *data, int stride, int bw,
-                                  int bh, int levels, float *feature) {
+static int get_mean_dev_features(const int16_t *data, int stride, int bw,
+                                 int bh, int levels, float *feature) {
   int feature_idx = 0;
   int width = bw;
   int height = bh;
@@ -5103,6 +5103,8 @@ static void get_mean_dev_features(const int16_t *data, int stride, int bw,
       width = width >> 1;
     }
   }
+
+  return feature_idx;
 }
 
 static int ml_predict_tx_split(MACROBLOCK *x, BLOCK_SIZE bsize, int blk_row,
@@ -5292,6 +5294,32 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 #endif
   TxCandidateInfo no_split = { INT64_MAX, 0, TX_TYPES };
 
+
+#if 1
+  const int diff_stride = block_size_wide[plane_bsize];
+  const int16_t *diff =
+      x->plane[0].src_diff + 4 * blk_row * diff_stride + 4 * blk_col;
+  const int tbw = tx_size_wide[tx_size];
+  const int tbh = tx_size_high[tx_size];
+  aom_clear_system_state();
+  float features[64] = { 0.0f };
+  const int feature_num =
+      get_mean_dev_features(diff, diff_stride, tbw, tbh, 2, features);
+
+  const int dc_q = av1_dc_quant_QTX(x->qindex, 0, xd->bd) >> (xd->bd - 8);
+  const int has_left = !!xd->left_mbmi;
+  const int has_above = !!xd->above_mbmi;
+  const int left_tx_size = has_left? xd->left_mbmi->tx_size : tx_size;
+  const int above_tx_size = has_above? xd->above_mbmi->tx_size : tx_size;
+
+#if 0
+  for (int i = 0; i < feature_num; ++i) {
+    printf("%4.3f ", features[i]);
+  }
+  printf("\n");
+#endif
+
+#endif
   // TX no split
   if (try_no_split) {
     try_tx_block_no_split(cpi, x, blk_row, blk_col, block, tx_size, depth,
@@ -5318,7 +5346,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
     }
   }
 
-  if (x->e_mbd.bd == 8 && !x->cb_partition_scan && try_split) {
+  if (0 && x->e_mbd.bd == 8 && !x->cb_partition_scan && try_split) {
     const int threshold = cpi->sf.tx_type_search.ml_tx_split_thresh;
     if (threshold >= 0) {
       const int split_score =
@@ -5337,6 +5365,32 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
                        AOMMIN(no_split.rd, ref_best_rd), ftxs_mode,
                        rd_info_node, &split_rd_stats, &split_rd);
   }
+
+#if 1
+  do {
+    if (!try_split || !try_no_split) break;
+    FILE *fp = fopen("tx_split_data.txt", "a");
+    if (!fp) break;
+
+    fprintf(fp, "%d,%d,"
+                "%d,%d,%d,%d,%d,"
+                "%d,%d,%d,%d,%d,%d,"
+                "%d,%d,",
+            block_size_wide[plane_bsize], block_size_high[plane_bsize],
+            tx_size, depth, blk_row, blk_col, block,
+            has_left, left_tx_size, has_above, above_tx_size, dc_q, feature_num,
+            (int)AOMMIN(no_split.rd, INT_MAX), (int)AOMMIN(split_rd, INT_MAX)
+            );
+
+    for (int i = 0; i < feature_num; ++i) {
+      const int val = (int)(features[i] * 1000000.0f);
+      fprintf(fp, "%d,", AOMMIN(val, INT_MAX));
+    }
+
+    fprintf(fp, "\n");
+    fclose(fp);
+  } while (0);
+#endif
 
   if (no_split.rd < split_rd) {
     ENTROPY_CONTEXT *pta = ta + blk_col;

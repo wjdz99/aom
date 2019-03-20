@@ -193,7 +193,7 @@ static void set_good_speed_features_framesize_independent(
   sf->ml_prune_ab_partition = 1;
   sf->ml_prune_4_partition = 1;
   sf->simple_motion_search_prune_rect = 1;
-  sf->adaptive_txb_search_level = 1;
+  sf->adaptive_txb_search_level = 0;
   sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_SKIP_MV_SEARCH;
   sf->model_based_prune_tx_search_level = 1;
   sf->model_based_post_interp_filter_breakout = 1;
@@ -224,7 +224,7 @@ static void set_good_speed_features_framesize_independent(
     sf->selective_ref_frame = 2;
 
     sf->intra_tx_size_search_init_depth_rect = 1;
-    sf->tx_size_search_lgr_block = 1;
+    sf->tx_size_search_lgr_block = 0;
     if (speed >= CONFIG_2PASS_PARTITION_SEARCH_LVL_START &&
         speed < CONFIG_2PASS_PARTITION_SEARCH_LVL_END)
       sf->two_pass_partition_search = 1;
@@ -234,7 +234,7 @@ static void set_good_speed_features_framesize_independent(
     sf->tx_type_search.skip_tx_search = 1;
     sf->tx_type_search.ml_tx_split_thresh = 40;
     sf->model_based_prune_tx_search_level = 0;
-    sf->adaptive_txb_search_level = 2;
+    sf->adaptive_txb_search_level = 0;
     sf->use_intra_txb_hash = 1;
     sf->optimize_b_precheck = 1;
     sf->dual_sgr_penalty_level = 1;
