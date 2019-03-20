@@ -76,6 +76,8 @@
 
 #if CONFIG_CNN_RESTORATION
 #include "av1/common/addition_handle_frame.h"
+#include "av1/models/intra_frame_model/trial_model.h"
+#include "av1/common/cnn.h"
 #endif  // CONFIG_CNN_RESTORATION
 
 #define DEFAULT_EXPLICIT_ORDER_HINT_BITS 7
@@ -4438,7 +4440,8 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 
 #if CONFIG_CNN_RESTORATION
   if (use_cnn) {
-    addition_handle_blocks(cm, cm->current_frame.frame_type);
+    av1_restore_cnn_plane(cm, &trial_cnn_config, AOM_PLANE_Y);
+    // addition_handle_blocks(cm, cm->current_frame.frame_type);
   }
 #endif  // CONFIG_CNN_RESTORATION
 }
