@@ -408,3 +408,189 @@ TEST_F(CNNTest, TestSoftsignMultiLayerMultiKernel) {
   RunCNNTest(image_width, image_height, input, expected, cnn_config,
              image_width, FLOAT_TOL, 0);
 }
+
+TEST_F(CNNTest, TestSingleLayerEvenStrideEvenDimImage) {
+  int image_width = 4;
+  int image_height = 4;
+  float input[] = {
+    -4, 4, -2, 8, -5, 9, 4, -2, 8, 7, 8, 4, -1, -5, 2, 6,
+  };
+  float expected_horizontal[] = {
+    57, -42, 20, 14, -85, -52, -23, -60,
+  };
+  float expected_vertical[] = {
+    13, 20, -81, 14, 7, -23, -21, -60,
+  };
+  float expected_ver_hor[] = {
+    20,
+    14,
+    -23,
+    -60,
+  };
+  float weights[] = {
+    -4, 2, -3, -5, -4, -2, -2, 5, -1,
+  };
+  float bias[] = { -2 };
+
+  CNN_CONFIG cnn_config = { .num_layers = 1,
+                            .is_residue = 0,
+                            .ext_width = 0,
+                            .ext_height = 0,
+                            .strict_bounds = 0,
+                            {
+                                {
+                                    .deconvolve = 0,
+                                    .in_channels = 1,
+                                    .filter_width = 3,
+                                    .filter_height = 3,
+                                    .out_channels = 1,
+                                    .skip_width = 2,
+                                    .skip_height = 1,
+                                    .maxpool = 0,
+                                    .weights = weights,
+                                    .bias = bias,
+                                    .pad = PADDING_SAME_ZERO,
+                                    .activation = NONE,
+                                    .input_copy = 0,
+                                    .skip_combine = SKIP_NONE,
+                                },
+                            } };
+
+  RunCNNTest(image_width, image_height, input, expected_horizontal, cnn_config,
+             image_width, INT_TOL, 0);
+
+  cnn_config.layer_config[0].skip_width = 1;
+  cnn_config.layer_config[0].skip_height = 2;
+
+  RunCNNTest(image_width, image_height, input, expected_vertical, cnn_config,
+             image_width, INT_TOL, 0);
+
+  cnn_config.layer_config[0].skip_width = 2;
+  cnn_config.layer_config[0].skip_height = 2;
+
+  RunCNNTest(image_width, image_height, input, expected_ver_hor, cnn_config,
+             image_width, INT_TOL, 0);
+}
+
+TEST_F(CNNTest, TestSingleLayerEvenStrideOddDimImage) {
+  int image_width = 5;
+  int image_height = 5;
+  float input[] = {
+    8, 9, 0,  5, 9,  7,  -4, 7, 0, 1, 2, 9,  6,
+    9, 4, -5, 8, -2, -1, 2,  5, 3, 6, 8, -5,
+  };
+  float expected_horizontal[] = {
+    1, -27, -59, -27, 6, 42, -136, -42, -50, 54, -15, -43, 2, -109, -5,
+  };
+  float expected_vertical[] = {
+    1, -99, -27, -16, -59, -136, -39, -42, -142, -50, 2, -45, -109, -31, -5,
+  };
+  float expected_ver_hor[] = {
+    1, -27, -59, -136, -42, -50, 2, -109, -5,
+  };
+  float weights[] = {
+    -5, -1, 4, -4, -5, -3, 6, 7, -5,
+  };
+  float bias[] = { -1 };
+
+  CNN_CONFIG cnn_config = { .num_layers = 1,
+                            .is_residue = 0,
+                            .ext_width = 0,
+                            .ext_height = 0,
+                            .strict_bounds = 0,
+                            {
+                                {
+                                    .deconvolve = 0,
+                                    .in_channels = 1,
+                                    .filter_width = 3,
+                                    .filter_height = 3,
+                                    .out_channels = 1,
+                                    .skip_width = 2,
+                                    .skip_height = 1,
+                                    .maxpool = 0,
+                                    .weights = weights,
+                                    .bias = bias,
+                                    .pad = PADDING_SAME_ZERO,
+                                    .activation = NONE,
+                                    .input_copy = 0,
+                                    .skip_combine = SKIP_NONE,
+                                },
+                            } };
+
+  RunCNNTest(image_width, image_height, input, expected_horizontal, cnn_config,
+             image_width, INT_TOL, 0);
+
+  cnn_config.layer_config[0].skip_width = 1;
+  cnn_config.layer_config[0].skip_height = 2;
+
+  RunCNNTest(image_width, image_height, input, expected_vertical, cnn_config,
+             image_width, INT_TOL, 0);
+
+  cnn_config.layer_config[0].skip_width = 2;
+  cnn_config.layer_config[0].skip_height = 2;
+
+  RunCNNTest(image_width, image_height, input, expected_ver_hor, cnn_config,
+             image_width, INT_TOL, 0);
+}
+
+TEST_F(CNNTest, TestSingleLayerOddStrideOddDimImage) {
+  int image_width = 7;
+  int image_height = 7;
+  float input[] = {
+    -5, -3, -1, 1, 4,  4, 6,  4,  0,  0,  3,  2, -5, 3, -5, 2, 7,
+    8,  -4, 7,  5, 9,  2, -5, -3, -2, -2, -5, 9, 8,  7, 9,  7, -1,
+    -3, 9,  1,  4, -3, 1, -2, 9,  5,  8,  -1, 4, 2,  7, 9,
+  };
+  float expected_horizontal[] = {
+    1, -27, -59, -27, 6, 42, -136, -42, -50, 54, -15, -43, 2, -109, -5,
+  };
+  float expected_vertical[] = {
+    1, -99, -27, -16, -59, -136, -39, -42, -142, -50, 2, -45, -109, -31, -5,
+  };
+  float expected_ver_hor[] = {
+    -2, -4, 28, -39, 19, 43, 119, 7, -3, 44, -23, -37, 50, 79, 50, 2,
+  };
+  float weights[] = {
+    2, 3, -3, 3, -5, 6, 3, -3, -3,
+  };
+  float bias[] = { 3 };
+
+  CNN_CONFIG cnn_config = { .num_layers = 1,
+                            .is_residue = 0,
+                            .ext_width = 0,
+                            .ext_height = 0,
+                            .strict_bounds = 0,
+                            {
+                                {
+                                    .deconvolve = 0,
+                                    .in_channels = 1,
+                                    .filter_width = 3,
+                                    .filter_height = 3,
+                                    .out_channels = 1,
+                                    .skip_width = 2,
+                                    .skip_height = 1,
+                                    .maxpool = 0,
+                                    .weights = weights,
+                                    .bias = bias,
+                                    .pad = PADDING_SAME_ZERO,
+                                    .activation = NONE,
+                                    .input_copy = 0,
+                                    .skip_combine = SKIP_NONE,
+                                },
+                            } };
+
+  RunCNNTest(image_width, image_height, input, expected_horizontal, cnn_config,
+             image_width, INT_TOL, 0);
+
+  cnn_config.layer_config[0].skip_width = 1;
+  cnn_config.layer_config[0].skip_height = 2;
+
+  RunCNNTest(image_width, image_height, input, expected_vertical, cnn_config,
+             image_width, INT_TOL, 0);
+
+  cnn_config.layer_config[0].skip_width = 2;
+  cnn_config.layer_config[0].skip_height = 2;
+
+  RunCNNTest(image_width, image_height, input, expected_ver_hor, cnn_config,
+             image_width, INT_TOL, 0);
+}
