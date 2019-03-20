@@ -213,10 +213,10 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
     switch (layer_config->pad) {
       case PADDING_SAME_ZERO:
         for (int i = 0; i < layer_config->out_channels; ++i) {
-          for (int h = 0, u = 0; h < in_height;
-               h += layer_config->skip_height, ++u) {
-            for (int w = 0, v = 0; w < in_width;
-                 w += layer_config->skip_width, ++v) {
+          for (int h = (in_height - 1) % layer_config->skip_height, u = 0;
+               h < in_height; h += layer_config->skip_height, ++u) {
+            for (int w = (in_width - 1) % layer_config->skip_width, v = 0;
+                 w < in_width; w += layer_config->skip_width, ++v) {
               for (int hh = h;
                    hh < AOMMIN(in_height, h + layer_config->skip_height);
                    ++hh) {
@@ -255,10 +255,10 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
         break;
       case PADDING_SAME_REPLICATE:
         for (int i = 0; i < layer_config->out_channels; ++i) {
-          for (int h = 0, u = 0; h < in_height;
-               h += layer_config->skip_height, ++u) {
-            for (int w = 0, v = 0; w < in_width;
-                 w += layer_config->skip_width, ++v) {
+          for (int h = (in_height - 1) % layer_config->skip_height, u = 0;
+               h < in_height; h += layer_config->skip_height, ++u) {
+            for (int w = (in_width - 1) % layer_config->skip_width, v = 0;
+                 w < in_width; w += layer_config->skip_width, ++v) {
               for (int hh = h;
                    hh < AOMMIN(in_height, h + layer_config->skip_height);
                    ++hh) {
@@ -298,10 +298,10 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
         break;
       case PADDING_VALID:
         for (int i = 0; i < layer_config->out_channels; ++i) {
-          for (int h = 0, u = 0;
+          for (int h = (in_height - 1) % layer_config->skip_height, u = 0;
                h < in_height - layer_config->filter_height + 1;
                h += layer_config->skip_height, ++u) {
-            for (int w = 0, v = 0;
+            for (int w = (in_width - 1) % layer_config->skip_width, v = 0;
                  w < in_width - layer_config->filter_width + 1;
                  w += layer_config->skip_width, ++v) {
               for (int hh = h;
@@ -345,10 +345,10 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
     switch (layer_config->pad) {
       case PADDING_SAME_ZERO:
         for (int i = 0; i < layer_config->out_channels; ++i) {
-          for (int h = 0, u = 0; h < in_height;
-               h += layer_config->skip_height, ++u) {
-            for (int w = 0, v = 0; w < in_width;
-                 w += layer_config->skip_width, ++v) {
+          for (int h = (in_height - 1) % layer_config->skip_height, u = 0;
+               h < in_height; h += layer_config->skip_height, ++u) {
+            for (int w = (in_width - 1) % layer_config->skip_width, v = 0;
+                 w < in_width; w += layer_config->skip_width, ++v) {
               float sum = layer_config->bias[i];
               if (layer_config->skip_combine == SKIP_ADD)
                 sum += skip_buf[i][u * skip_stride + v];
@@ -373,10 +373,10 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
         break;
       case PADDING_SAME_REPLICATE:
         for (int i = 0; i < layer_config->out_channels; ++i) {
-          for (int h = 0, u = 0; h < in_height;
-               h += layer_config->skip_height, ++u) {
-            for (int w = 0, v = 0; w < in_width;
-                 w += layer_config->skip_width, ++v) {
+          for (int h = (in_height - 1) % layer_config->skip_height, u = 0;
+               h < in_height; h += layer_config->skip_height, ++u) {
+            for (int w = (in_width - 1) % layer_config->skip_width, v = 0;
+                 w < in_width; w += layer_config->skip_width, ++v) {
               float sum = layer_config->bias[i];
               if (layer_config->skip_combine == SKIP_ADD)
                 sum += skip_buf[i][u * skip_stride + v];
@@ -403,10 +403,10 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
         break;
       case PADDING_VALID:
         for (int i = 0; i < layer_config->out_channels; ++i) {
-          for (int h = 0, u = 0;
+          for (int h = (in_height - 1) % layer_config->skip_height, u = 0;
                h < in_height - layer_config->filter_height + 1;
                h += layer_config->skip_height, ++u) {
-            for (int w = 0, v = 0;
+            for (int w = (in_width - 1) % layer_config->skip_width, v = 0;
                  w < in_width - layer_config->filter_width + 1;
                  w += layer_config->skip_width, ++v) {
               float sum = layer_config->bias[i];
