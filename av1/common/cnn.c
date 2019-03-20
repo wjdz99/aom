@@ -552,7 +552,7 @@ void av1_cnn_deconvolve_c(const float **input, int in_width, int in_height,
 
 void av1_cnn_predict_c(const float *input, int in_width, int in_height,
                        int in_stride, const CNN_CONFIG *cnn_config,
-                       float *output, int out_stride) {
+                       float **output, int out_stride) {
   TENSOR tensor1 = { 0 };
   TENSOR tensor2 = { 0 };
   TENSOR skip_tensor = { 0 };
@@ -570,9 +570,9 @@ void av1_cnn_predict_c(const float *input, int in_width, int in_height,
       assign_tensor(&tensor1, (const float **)&input, 1, in_width, in_height,
                     in_stride);
       if (cnn_config->num_layers == 1) {  // single layer case
-        assert(cnn_config->layer_config[layer].out_channels == 1);
-        assign_tensor(&tensor2, (const float **)&output, 1, in_width, in_height,
-                      out_stride);
+        assign_tensor(&tensor2, (const float **)output,
+                      cnn_config->layer_config[layer].out_channels, in_width,
+                      in_height, out_stride);
       } else {  // more than one layer case
         find_layer_output_size(in_width, in_height,
                                &cnn_config->layer_config[layer], &o_width,
@@ -608,10 +608,10 @@ void av1_cnn_predict_c(const float *input, int in_width, int in_height,
         realloc_tensor(&tensor2, cnn_config->layer_config[layer].out_channels,
                        o_width, o_height);
       } else {  // Last layer
-        assert(cnn_config->layer_config[layer].out_channels == 1);
         free_tensor(&tensor2);
-        assign_tensor(&tensor2, (const float **)&output, 1, o_width, o_height,
-                      out_stride);
+        assign_tensor(&tensor2, (const float **)output,
+                      cnn_config->layer_config[layer].out_channels, o_width,
+                      o_height, out_stride);
       }
     }
     assert(IMPLIES(cnn_config->layer_config[layer].skip_combine == SKIP_ADD,
@@ -686,7 +686,7 @@ void av1_restore_cnn(uint8_t *dgd, int width, int height, int stride,
         input[i * in_stride + j] = (float)dgd[i * stride + j] / max_val;
   }
 
-  av1_cnn_predict(input_, in_width, in_height, in_stride, cnn_config, output,
+  av1_cnn_predict(input_, in_width, in_height, in_stride, cnn_config, &output,
                   out_stride);
 
   if (cnn_config->is_residue) {
@@ -750,7 +750,7 @@ void av1_restore_cnn_highbd(uint16_t *dgd, int width, int height, int stride,
         input[i * in_stride + j] = (float)dgd[i * stride + j] / max_val;
   }
 
-  av1_cnn_predict(input, width, height, in_stride, cnn_config, output,
+  av1_cnn_predict(input, width, height, in_stride, cnn_config, &output,
                   out_stride);
 
   if (cnn_config->is_residue) {
