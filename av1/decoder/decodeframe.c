@@ -64,6 +64,8 @@
 
 #if CONFIG_CNN_RESTORATION
 #include "av1/common/addition_handle_frame.h"
+#include "av1/models/intra_frame_model/trial_model.h"
+#include "av1/common/cnn.h"
 #endif  // CONFIG_CNN_RESTORATION
 
 #define ACCT_STR __func__
@@ -5630,7 +5632,8 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 
 #if CONFIG_CNN_RESTORATION
     if (av1_use_cnn(cm)) {
-      addition_handle_blocks(cm, cm->cur_frame->frame_type);
+      av1_restore_cnn_plane(cm, &trial_cnn_config, AOM_PLANE_Y);
+      // addition_handle_blocks(cm, cm->cur_frame->frame_type);
     } else {
 #endif  // CONFIG_CNN_RESTORATION
 
