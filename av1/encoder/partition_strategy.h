@@ -37,6 +37,37 @@ void av1_simple_motion_search_based_split(
     BLOCK_SIZE bsize, int *partition_none_allowed, int *partition_horz_allowed,
     int *partition_vert_allowed, int *do_rectangular_split);
 
+// Performs a simple_motion_search with two reference frames and extract
+// the variance of residues. Then use the features to determine whether we want
+// to prune some partitions.
+void av1_simple_motion_search_prune_part(
+    AV1_COMP *const cpi, MACROBLOCK *x, PC_TREE *pc_tree, int mi_row,
+    int mi_col, BLOCK_SIZE bsize, int *partition_none_allowed,
+    int *partition_horz_allowed, int *partition_vert_allowed,
+    int *do_square_split, int *do_rectangular_split, int *prune_horz,
+    int *prune_vert, float *features, int *valid);
+
+// Early terminates PARTITION_NONE using simple_motion_search features and the
+// rate, distortion, and rdcost of PARTITION_NONE. This is only called when:
+//  - The frame is a show frame
+//  - The frame is not intra only
+//  - The current bsize is > BLOCK_8X8
+//  - blk_row + blk_height/2 < total_rows and blk_col + blk_width/2 < total_cols
+void av1_simple_motion_search_early_term_none(
+    AV1_COMP *const cpi, MACROBLOCK *x, PC_TREE *pc_tree, int mi_row,
+    int mi_col, BLOCK_SIZE bsize, const RD_STATS *none_rdc,
+    int *early_terminate, float *simple_motion_features,
+    int *simple_motion_features_are_valid);
+
+// Early terminates after  PARTITION_NONE in firstpass of two pass partition
+// search.
+void av1_firstpass_simple_motion_search_early_term(AV1_COMP *const cpi,
+                                                   MACROBLOCK *x,
+                                                   PC_TREE *pc_tree, int mi_row,
+                                                   int mi_col, BLOCK_SIZE bsize,
+                                                   const RD_STATS *none_rdc,
+                                                   int *do_square_split);
+
 // A simplified version of set_offsets meant to be used for
 // simple_motion_search.
 static INLINE void set_offsets_for_motion_search(const AV1_COMP *const cpi,
