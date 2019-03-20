@@ -22,6 +22,29 @@
       "revId": "fe8ee78743896b1de30bc7168d0d9313b221706a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "321af898_1baf3e04",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3784,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2019-03-20T18:45:00Z",
+      "side": 1,
+      "message": "Maybe do (MAX_TX_DEPTH - init_depth) \u003e\u003d 2 in case someone decided to experiment with the value of MAX_TX_DEPTH.",
+      "range": {
+        "startLine": 3784,
+        "startChar": 8,
+        "endLine": 3784,
+        "endChar": 23
+      },
+      "revId": "fe8ee78743896b1de30bc7168d0d9313b221706a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
