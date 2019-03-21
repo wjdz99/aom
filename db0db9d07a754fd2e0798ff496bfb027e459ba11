@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "94e1d1f3_502710d6",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-21T23:08:44Z",
+      "side": 1,
+      "message": "This is like a helper function for recursion, so they mean \"left\" and \"right\" here. That is, we need to set parameters from frames between \u0027l\u0027 and \u0027r\u0027.\nI renamed them to \u0027start\u0027 and \u0027end\u0027 to be clear.",
+      "parentUuid": "d7f252aa_b735397c",
+      "range": {
+        "startLine": 28,
+        "startChar": 60,
+        "endLine": 28,
+        "endChar": 73
+      },
+      "revId": "db0db9d07a754fd2e0798ff496bfb027e459ba11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95b00ffe_81b488d2",
         "filename": "av1/encoder/gop_structure.c",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "db0db9d07a754fd2e0798ff496bfb027e459ba11",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4ba2868_76ca49cf",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-21T23:08:44Z",
+      "side": 1,
+      "message": "My thought was that one could consider level \"1\" to be the bottom level or \"0\", depending on how things are indexed / how code is written.\nSo, this seemed clearer to me.",
+      "parentUuid": "95b00ffe_81b488d2",
+      "range": {
+        "startLine": 44,
+        "startChar": 44,
+        "endLine": 44,
+        "endChar": 59
+      },
+      "revId": "db0db9d07a754fd2e0798ff496bfb027e459ba11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "89b3441c_dda89e92",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-21T23:08:44Z",
+      "side": 1,
+      "message": "Let me explain the design I\u0027m thinking of:\n- This function is a low-level function that just creates the structure based on what it\u0027s given: length and height.\n- The function(s) above this in call-chain have the actual logic / strategy for picking the \u0027length\u0027 and \u0027height\u0027 parameters.\n\nThat\u0027s why I prefer the current logic.\n\nLet me know if you prefer adding extra asserts about \"rc-\u003esource_alt_ref_pending\" and \"height\" somewhere outside this function.",
+      "parentUuid": "562b8286_ff578ca1",
+      "range": {
+        "startLine": 97,
+        "startChar": 25,
+        "endLine": 97,
+        "endChar": 55
+      },
+      "revId": "db0db9d07a754fd2e0798ff496bfb027e459ba11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8542557a_ee475df9",
         "filename": "av1/encoder/ratectrl.h",
         "patchSetId": 6
@@ -91,6 +163,30 @@
       "revId": "db0db9d07a754fd2e0798ff496bfb027e459ba11",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7d3e86b_a8e2f869",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-21T23:08:44Z",
+      "side": 1,
+      "message": "Confusingly enough, this macro was used only for the pyramid structure, hence the value 2 before -- because earlier, pyramid structure assumed presence of ALTREF and at least one internal Altref.",
+      "parentUuid": "8542557a_ee475df9",
+      "range": {
+        "startLine": 41,
+        "startChar": 8,
+        "endLine": 41,
+        "endChar": 25
+      },
+      "revId": "db0db9d07a754fd2e0798ff496bfb027e459ba11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
