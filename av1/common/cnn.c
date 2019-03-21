@@ -355,10 +355,12 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
               for (int k = 0; k < layer_config->in_channels; ++k) {
                 int off = k * layer_config->out_channels + i;
                 for (int l = 0; l < layer_config->filter_height; ++l) {
-                  const int ii = h + l - filter_height_half;
+                  const int ii = h + l - filter_height_half +
+                                 (layer_config->filter_height - 1) % 2;
                   for (int m = 0; m < layer_config->filter_width;
                        ++m, off += cstep) {
-                    const int jj = w + m - filter_width_half;
+                    const int jj = w + m - filter_width_half +
+                                   (layer_config->filter_width - 1) % 2;
                     if (ii < 0 || ii >= in_height || jj < 0 || jj >= in_width)
                       continue;
                     sum += layer_config->weights[off] *
@@ -384,11 +386,15 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
                 int off = k * layer_config->out_channels + i;
                 for (int l = 0; l < layer_config->filter_height; ++l) {
                   const int ii =
-                      CLAMPINDEX(h + l - filter_height_half, in_height);
+                      CLAMPINDEX(h + l - filter_height_half +
+                                     (layer_config->filter_height - 1) % 2,
+                                 in_height);
                   for (int m = 0; m < layer_config->filter_width;
                        ++m, off += cstep) {
                     const int jj =
-                        CLAMPINDEX(w + m - filter_width_half, in_width);
+                        CLAMPINDEX(w + m - filter_width_half +
+                                       (layer_config->filter_width - 1) % 2,
+                                   in_width);
                     assert(ii >= 0 && ii < in_height && jj >= 0 &&
                            jj < in_width);
                     sum += layer_config->weights[off] *
