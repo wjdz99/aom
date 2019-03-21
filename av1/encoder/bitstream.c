@@ -25,9 +25,13 @@
 #include "aom_util/debug_util.h"
 #endif  // CONFIG_BITSTREAM_DEBUG
 
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_PYTHON_CNN_RESTORATION
 #include "av1/common/addition_handle_frame.h"
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_PYTHON_CNN_RESTORATION
+
+#if CONFIG_C_CNN_RESTORATION
+#include "av1/common/cnn_wrapper.h"
+#endif  // CONFIG_C_CNN_RESTORATION
 
 #include "av1/common/cdef.h"
 #include "av1/common/cfl.h"
@@ -1657,9 +1661,9 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_PYTHON_CNN_RESTORATION || CONFIG_C_CNN_RESTORATION
   if (!av1_use_cnn(cm)) {
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_PYTHON_CNN_RESTORATION || CONFIG_C_CNN_RESTORATION
     const int num_planes = av1_num_planes(cm);
     for (int plane = 0; plane < num_planes; ++plane) {
       int rcol0, rcol1, rrow0, rrow1;
@@ -1677,9 +1681,9 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
         }
       }
     }
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_PYTHON_CNN_RESTORATION || CONFIG_C_CNN_RESTORATION
   }
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_PYTHON_CNN_RESTORATION || CONFIG_C_CNN_RESTORATION
 
   write_partition(cm, xd, hbs, mi_row, mi_col, partition, bsize, w);
   switch (partition) {
@@ -3143,7 +3147,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   if (cm->all_lossless) {
     assert(!av1_superres_scaled(cm));
   } else {
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_PYTHON_CNN_RESTORATION || CONFIG_C_CNN_RESTORATION
     if (!cm->coded_lossless) {
       encode_loopfilter(cm, wb);
     }
@@ -3159,7 +3163,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       encode_cdef(cm, wb);
     }
     encode_restoration_mode(cm, wb);
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_PYTHON_CNN_RESTORATION || CONFIG_C_CNN_RESTORATION
   }
 
   // Write TX mode
