@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7f252aa_b735397c",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2019-03-21T22:47:14Z",
+      "side": 1,
+      "message": "This isn\u0027t related to this patch, but these names could be better. I assume \u0027l\u0027 is for leaf but I don\u0027t know what \u0027r\u0027 is supposed to stand for.",
+      "range": {
+        "startLine": 28,
+        "startChar": 60,
+        "endLine": 28,
+        "endChar": 73
+      },
+      "revId": "db0db9d07a754fd2e0798ff496bfb027e459ba11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95b00ffe_81b488d2",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2019-03-21T22:47:14Z",
+      "side": 1,
+      "message": "It doesn\u0027t make sense for a leaf node to be at any level other than 0, so it seems weird to use a macro here.",
+      "range": {
+        "startLine": 44,
+        "startChar": 44,
+        "endLine": 44,
+        "endChar": 59
+      },
+      "revId": "db0db9d07a754fd2e0798ff496bfb027e459ba11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "562b8286_ff578ca1",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2019-03-21T22:47:14Z",
+      "side": 1,
+      "message": "I am a little skeptical of using this check for use_altref rather than rc-\u003esource_alt_ref_pending. Could you possibly call get_pyramid_height from within this function so it is guaranteed the height came from a function that asserts pyramid_height will be 0 if there is no altref? Or use source_alt_ref_pending directly?",
+      "range": {
+        "startLine": 97,
+        "startChar": 25,
+        "endLine": 97,
+        "endChar": 55
+      },
+      "revId": "db0db9d07a754fd2e0798ff496bfb027e459ba11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8542557a_ee475df9",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2019-03-21T22:47:14Z",
+      "side": 1,
+      "message": "Why was this originally 2? Is there any issue with this being 0 when we are still using the old structure?",
+      "range": {
+        "startLine": 41,
+        "startChar": 8,
+        "endLine": 41,
+        "endChar": 25
+      },
+      "revId": "db0db9d07a754fd2e0798ff496bfb027e459ba11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
