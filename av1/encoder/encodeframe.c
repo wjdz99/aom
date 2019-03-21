@@ -3788,8 +3788,9 @@ static void get_max_min_partition_features(AV1_COMP *const cpi, MACROBLOCK *x,
 }
 
 #define MAX_NUM_CLASSES 4
-static BLOCK_SIZE predict_max_partition(
-    const MAX_PART_PRED_MODE max_part_pred_mode, const float *features) {
+static BLOCK_SIZE predict_max_partition(AV1_COMP *const cpi,
+                                        MACROBLOCK *const x,
+                                        const float *features) {
   float scores[MAX_NUM_CLASSES] = { 0.0f }, probs[MAX_NUM_CLASSES] = { 0.0f };
   const NN_CONFIG *nn_config = &av1_max_part_pred_nn_config;
 
@@ -3800,7 +3801,7 @@ static BLOCK_SIZE predict_max_partition(
   av1_nn_softmax(scores, probs, MAX_NUM_CLASSES);
 
   int result = MAX_NUM_CLASSES - 1;
-  if (max_part_pred_mode == DIRECT_PRED) {
+  if (cpi->sf.auto_max_partition_based_on_simple_motion == DIRECT_PRED) {
     result = 0;
     float max_prob = probs[0];
     for (int i = 1; i < MAX_NUM_CLASSES; ++i) {
@@ -3809,10 +3810,29 @@ static BLOCK_SIZE predict_max_partition(
         result = i;
       }
     }
-  } else if (max_part_pred_mode == RELAXED_PRED) {
+  } else if (cpi->sf.auto_max_partition_based_on_simple_motion ==
+             RELAXED_PRED) {
     for (result = MAX_NUM_CLASSES - 1; result >= 0; --result) {
       if (result < MAX_NUM_CLASSES - 1) probs[result] += probs[result + 1];
       if (probs[result] > 0.2) break;
+    }
+  } else if (cpi->sf.auto_max_partition_based_on_simple_motion == ADAPT_PRED) {
+    for (result = MAX_NUM_CLASSES - 1; result >= 0; --result) {
+      if (result < MAX_NUM_CLASSES - 1) probs[result] += probs[result + 1];
+      unsigned int source_variance;
+      const BLOCK_SIZE sb_size = cpi->common.seq_params.sb_size;
+      MACROBLOCKD *const xd = &x->e_mbd;
+      // NOTE that x->source_variance is unavailable at this point.
+      if (is_cur_buf_hbd(xd)) {
+        source_variance = av1_high_get_sby_perpixel_variance(
+            cpi, &x->plane[0].src, sb_size, xd->bd);
+      } else {
+        source_variance =
+            av1_get_sby_perpixel_variance(cpi, &x->plane[0].src, sb_size);
+      }
+      const double th =
+          source_variance < 256 ? 0.05 : (source_variance < 1024 ? 0.1 : 0.15);
+      if (probs[result] > th) break;
     }
   }
 
@@ -5740,10 +5760,8 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
         float features[FEATURE_SIZE_MAX_MIN_PART_PRED] = { 0.0f };
 
         get_max_min_partition_features(cpi, x, mi_row, mi_col, features);
-        max_sq_size = AOMMIN(
-            predict_max_partition(
-                cpi->sf.auto_max_partition_based_on_simple_motion, features),
-            max_sq_size);
+        max_sq_size =
+            AOMMIN(predict_max_partition(cpi, x, features), max_sq_size);
       }
 
       min_sq_size = AOMMIN(min_sq_size, max_sq_size);
