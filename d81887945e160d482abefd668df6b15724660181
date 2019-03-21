@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3bf58bcb_cf2b7ab4",
+        "filename": "aom_dsp/x86/adaptive_quantize_sse2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 10311
+      },
+      "writtenOn": "2019-03-21T14:41:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ee926e7_972ee33b",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 22
+      },
+      "revId": "d81887945e160d482abefd668df6b15724660181",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "89450129_34b04395",
         "filename": "aom_dsp/x86/adaptive_quantize_sse2.c",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2019-03-20T16:02:12Z",
       "side": 1,
       "message": "undefine them later in this file",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 34
+      },
+      "revId": "d81887945e160d482abefd668df6b15724660181",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fe40bcc_b38b133c",
+        "filename": "aom_dsp/x86/adaptive_quantize_sse2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 10311
+      },
+      "writtenOn": "2019-03-21T14:41:20Z",
+      "side": 1,
+      "message": "We have moved the macros to av1_quantize.h as the same are used in quantize.c as well.",
+      "parentUuid": "89450129_34b04395",
       "range": {
         "startLine": 21,
         "startChar": 0,
