@@ -62,9 +62,13 @@
 #include "av1/decoder/decodetxb.h"
 #include "av1/decoder/detokenize.h"
 
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_PYTHON_CNN_RESTORATION
 #include "av1/common/addition_handle_frame.h"
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_PYTHON_CNN_RESTORATION
+
+#if CONFIG_C_CNN_RESTORATION
+#include "av1/common/cnn_wrapper.h"
+#endif  // CONFIG_C_CNN_RESTORATION
 
 #define ACCT_STR __func__
 
@@ -1760,9 +1764,9 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
   };
 
   if (parse_decode_flag & 1) {
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_PYTHON_CNN_RESTORATION || CONFIG_C_CNN_RESTORATION
     if (!av1_use_cnn(cm)) {
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_PYTHON_CNN_RESTORATION || CONFIG_C_CNN_RESTORATION
       const int num_planes = av1_num_planes(cm);
       for (int plane = 0; plane < num_planes; ++plane) {
         int rcol0, rcol1, rrow0, rrow1;
@@ -1778,9 +1782,9 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
           }
         }
       }
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_PYTHON_CNN_RESTORATION || CONFIG_C_CNN_RESTORATION
     }
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_PYTHON_CNN_RESTORATION || CONFIG_C_CNN_RESTORATION
 
     partition = (bsize < BLOCK_8X8) ? PARTITION_NONE
                                     : read_partition(xd, mi_row, mi_col, reader,
@@ -5398,9 +5402,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   }
 
   setup_loopfilter(cm, rb);
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_PYTHON_CNN_RESTORATION || CONFIG_C_CNN_RESTORATION
   if (!av1_use_cnn(cm)) {
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_PYTHON_CNN_RESTORATION || CONFIG_C_CNN_RESTORATION
 
     if (!cm->coded_lossless && seq_params->enable_cdef) {
       setup_cdef(cm, rb);
@@ -5408,9 +5412,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     if (!cm->all_lossless && seq_params->enable_restoration) {
       decode_restoration_mode(cm, rb);
     }
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_PYTHON_CNN_RESTORATION || CONFIG_C_CNN_RESTORATION
   }
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_PYTHON_CNN_RESTORATION || CONFIG_C_CNN_RESTORATION
 
   cm->tx_mode = read_tx_mode(cm, rb);
   current_frame->reference_mode = read_frame_reference_mode(cm, rb);
@@ -5628,66 +5632,75 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
       }
     }
 
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_PYTHON_CNN_RESTORATION
     if (av1_use_cnn(cm)) {
       addition_handle_blocks(cm, cm->cur_frame->frame_type);
     } else {
-#endif  // CONFIG_CNN_RESTORATION
-
-      const int do_loop_restoration =
-          cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
-          cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
-          cm->rst_info[2].frame_restoration_type != RESTORE_NONE;
-      const int do_cdef =
-          !cm->skip_loop_filter && !cm->coded_lossless &&
-          (cm->cdef_info.cdef_bits || cm->cdef_info.cdef_strengths[0] ||
-           cm->cdef_info.cdef_uv_strengths[0]);
-      const int do_superres = av1_superres_scaled(cm);
-      const int optimized_loop_restoration = !do_cdef && !do_superres;
-
-      if (!optimized_loop_restoration) {
-        if (do_loop_restoration)
-          av1_loop_restoration_save_boundary_lines(&pbi->common.cur_frame->buf,
-                                                   cm, 0);
-
-        if (do_cdef) av1_cdef_frame(&pbi->common.cur_frame->buf, cm, &pbi->mb);
-
-        superres_post_decode(pbi);
-
-        if (do_loop_restoration) {
-          av1_loop_restoration_save_boundary_lines(&pbi->common.cur_frame->buf,
-                                                   cm, 1);
-          if (pbi->num_workers > 1) {
-            av1_loop_restoration_filter_frame_mt(
-                (YV12_BUFFER_CONFIG *)xd->cur_buf, cm,
-                optimized_loop_restoration, pbi->tile_workers, pbi->num_workers,
-                &pbi->lr_row_sync, &pbi->lr_ctxt);
-          } else {
-            av1_loop_restoration_filter_frame((YV12_BUFFER_CONFIG *)xd->cur_buf,
-                                              cm, optimized_loop_restoration,
-                                              &pbi->lr_ctxt);
-          }
-        }
+#endif  // CONFIG_PYTHON_CNN_RESTORATION
+#if CONFIG_C_CNN_RESTORATION
+      if (av1_use_cnn(cm)) {
+        cnn_restoration(cm);
       } else {
-        // In no cdef and no superres case. Provide an optimized version of
-        // loop_restoration_filter.
-        if (do_loop_restoration) {
-          if (pbi->num_workers > 1) {
-            av1_loop_restoration_filter_frame_mt(
-                (YV12_BUFFER_CONFIG *)xd->cur_buf, cm,
-                optimized_loop_restoration, pbi->tile_workers, pbi->num_workers,
-                &pbi->lr_row_sync, &pbi->lr_ctxt);
-          } else {
-            av1_loop_restoration_filter_frame((YV12_BUFFER_CONFIG *)xd->cur_buf,
-                                              cm, optimized_loop_restoration,
-                                              &pbi->lr_ctxt);
+#endif  // CONFIG_C_CNN_RESTORATION
+
+        const int do_loop_restoration =
+            cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
+            cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
+            cm->rst_info[2].frame_restoration_type != RESTORE_NONE;
+        const int do_cdef =
+            !cm->skip_loop_filter && !cm->coded_lossless &&
+            (cm->cdef_info.cdef_bits || cm->cdef_info.cdef_strengths[0] ||
+             cm->cdef_info.cdef_uv_strengths[0]);
+        const int do_superres = av1_superres_scaled(cm);
+        const int optimized_loop_restoration = !do_cdef && !do_superres;
+
+        if (!optimized_loop_restoration) {
+          if (do_loop_restoration)
+            av1_loop_restoration_save_boundary_lines(
+                &pbi->common.cur_frame->buf, cm, 0);
+
+          if (do_cdef)
+            av1_cdef_frame(&pbi->common.cur_frame->buf, cm, &pbi->mb);
+
+          superres_post_decode(pbi);
+
+          if (do_loop_restoration) {
+            av1_loop_restoration_save_boundary_lines(
+                &pbi->common.cur_frame->buf, cm, 1);
+            if (pbi->num_workers > 1) {
+              av1_loop_restoration_filter_frame_mt(
+                  (YV12_BUFFER_CONFIG *)xd->cur_buf, cm,
+                  optimized_loop_restoration, pbi->tile_workers,
+                  pbi->num_workers, &pbi->lr_row_sync, &pbi->lr_ctxt);
+            } else {
+              av1_loop_restoration_filter_frame(
+                  (YV12_BUFFER_CONFIG *)xd->cur_buf, cm,
+                  optimized_loop_restoration, &pbi->lr_ctxt);
+            }
+          }
+        } else {
+          // In no cdef and no superres case. Provide an optimized version of
+          // loop_restoration_filter.
+          if (do_loop_restoration) {
+            if (pbi->num_workers > 1) {
+              av1_loop_restoration_filter_frame_mt(
+                  (YV12_BUFFER_CONFIG *)xd->cur_buf, cm,
+                  optimized_loop_restoration, pbi->tile_workers,
+                  pbi->num_workers, &pbi->lr_row_sync, &pbi->lr_ctxt);
+            } else {
+              av1_loop_restoration_filter_frame(
+                  (YV12_BUFFER_CONFIG *)xd->cur_buf, cm,
+                  optimized_loop_restoration, &pbi->lr_ctxt);
+            }
           }
         }
       }
+#if CONFIG_C_CNN_RESTORATION
     }
-#if CONFIG_CNN_RESTORATION
+#endif  // CONFIG_C_CNN_RESTORATION
+#if CONFIG_PYTHON_CNN_RESTORATION
   }
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_PYTHON_CNN_RESTORATION
 #if LOOP_FILTER_BITMASK
   av1_zero_array(cm->lf.lfm, cm->lf.lfm_num);
 #endif
