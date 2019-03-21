@@ -78,31 +78,186 @@ class CNNTest : public ::testing::Test {
 
 }  // namespace
 
-TEST_F(CNNTest, TestNonActivationSingleLayerSingleKernel) {
+TEST_F(CNNTest, TestMultilayerConvolution) {
+  int image_height = 16;
+  int image_width = 16;
+  int filter_height = 5;
+  int filter_width = 4;
+
+  float input[] = {
+    2,  -1, -4, 0,  0,  -4, -4, -5, 3,  -1, 3,  1,  2,  2,  0,  0,  0,  -2, 3,
+    4,  -3, -1, -1, 3,  3,  1,  -3, -3, 3,  4,  3,  0,  -4, 0,  4,  -2, -1, -2,
+    0,  -5, 3,  -1, -2, -2, 0,  -3, -2, -4, 2,  -2, -1, 3,  -2, -3, 3,  2,  -4,
+    -3, 4,  -3, -4, -4, -3, -1, -1, 3,  -1, 0,  -2, -4, 2,  3,  0,  1,  4,  3,
+    1,  1,  2,  -1, -2, -5, 1,  -5, 1,  0,  -5, -5, -2, -3, -1, -1, -3, 1,  -4,
+    -5, -1, 4,  3,  -1, -1, 2,  -1, -3, 3,  -5, 3,  -4, -5, -5, -5, -3, 2,  0,
+    -2, -2, 2,  3,  2,  1,  2,  -4, -1, -1, 2,  -5, 3,  -5, 0,  -4, 1,  3,  -3,
+    3,  -4, -4, -4, 2,  0,  4,  4,  4,  -1, 1,  -4, -2, 0,  -2, -4, -2, 2,  0,
+    -3, 3,  -1, -4, -4, 1,  3,  -3, -3, -2, -3, -5, -4, -1, -3, -4, -3, -4, 4,
+    2,  3,  2,  -4, 3,  0,  -1, -4, 0,  -1, 2,  -1, 3,  1,  -1, -5, -3, -2, 3,
+    3,  4,  -2, -3, 3,  -1, -4, -5, 4,  -4, 1,  1,  4,  2,  -2, -3, -4, -1, 1,
+    -4, 2,  -5, 0,  -5, 1,  4,  -3, -5, -4, 1,  2,  4,  -5, 4,  1,  3,  2,  3,
+    -3, 1,  -5, 2,  -3, 2,  -1, 4,  0,  -2, 1,  -2, 4,  -2, -3, 0,  2,  -1, -1,
+    3,  -5, 0,  3,  0,  -4, 3,  -5, 3,
+  };
+
+  float weights[] = {
+    3,  -5, 2,  4,  2,  4,  3,  -3, 3,  1,  0,  1,  3,  2,  1,  4,  -1, 3,  2,
+    3,  1,  4,  1,  2,  -1, 3,  0,  4,  3,  4,  -2, -3, 2,  -3, -5, 4,  1,  2,
+    -1, 4,  -4, -3, -4, -5, 2,  3,  4,  2,  -4, -2, 2,  4,  -1, 0,  -4, 3,  1,
+    -3, -5, 1,  2,  -1, -4, -1, -2, -1, -3, 2,  -3, -1, -1, -5, 4,  1,  3,  1,
+    4,  4,  4,  3,  3,  0,  3,  -1, -4, -1, 4,  1,  -2, 1,  -5, 1,  -5, 3,  1,
+    2,  -2, 3,  -4, -4, -2, 4,  -4, 2,  4,  -3, -5, -5, -3, -2, -5, 2,  0,  3,
+    -5, -3, 1,  -4, -2, 0,  -5, 2,  4,  0,  -2, -1, -4, 3,  0,  3,  2,  1,  1,
+    3,  -4, -1, -2, -5, -4, -4, -1, -4, -1, 3,  -4, 3,  -3, -5, -4, -5, 3,  -1,
+    -1, 0,  2,  0,  -1, -1, -3, 4,  -2, -4, -3, -4, -3, -5, 1,  0,  -3, -3, -3,
+    -5, 3,  3,  -2, 2,  -3, 4,  1,  -2, -2, -2, -2, -4, 4,  -2, 1,  3,  -5, -5,
+    4,  -3, -5, -1, -4, 3,  3,  -5, 3,  -3, -2, -1, -5, 2,  -5, 1,  -5, 1,  2,
+    4,  -3, 4,  -5, -5, -5, -4, 0,  1,  4,  3,  3,  1,  4,  -2, 1,  2,  0,  0,
+    2,  2,  3,  -2, -2, -3, 4,  -1, 4,  -4, -5, 2,  -5, 2,  -4, 4,  -1, -5, -4,
+    -1, 0,  3,  2,  -4, 4,  -2, 1,  2,  2,  -2, 3,  -5, 2,  -2, -2, -4, -1, -1,
+    -4, -3, 1,  -3, -5, 4,  -5, -4, 1,  -2, -3, 1,  3,  1,  4,  -4, 2,  1,  3,
+    0,  2,  3,  -3, 4,  2,  4,  -5, 3,  3,  -4, 1,  -1, 3,  1,
+  };
+
+  float bias[] = {
+    2, -1, 4, 2, -3, -1, 4,
+  };
+
+  float expected_same[] = {
+    2412,   -1353,  -36855, -13267, -1353,  -7223,  -28091, -10749, -1390,
+    14674,  8070,   -7313,  5838,   18967,  19163,  12784,  -5344,  -7332,
+    15894,  6061,   7721,   8502,   -4010,  -312,   31069,  45410,  15857,
+    34720,  35293,  38747,  22561,  7262,   -11152, -11603, 4140,   -27075,
+    -37735, -26126, -30887, 3408,   776,    4609,   7914,   20675,  15715,
+    2733,   -5979,  2130,   31779,  30184,  -13805, 6444,   -1153,  -12613,
+    14648,  -4999,  -4238,  -19152, -18056, 15026,  9023,   -7714,  15410,
+    8405,   -1379,  -12796, 8300,   25404,  8627,   12156,  3264,   -9059,
+    -13648, 34210,  24965,  7790,   -992,   11812,  18209,  4691,   -9101,
+    -3233,  -15160, -23722, -38272, -32806, -41914, -22635, -6012,  19254,
+    -20767, -22402, -10091, -17617, -28073, -16045, 2587,   7860,   -21220,
+    -14177, 10389,  -4491,  248,    19575,  15685,  -1359,  -17640, -3632,
+    -13841, -49222, -32822, -26854, 5381,   4693,   -8310,  9519,   3587,
+    -16949, -24650, -27537, -26269, -29909, -30116, -45298, -36634, -45915,
+    -18383, -6127,  24443,  24706,  4035,   23397,  22435,  -15255, 11452,
+    -5270,  -27475, -260,   -42195, -7682,  -37525, -22571, -12201, -33152,
+    5887,   17927,  40896,  13472,  26607,  10167,  -46,    -25187, -29185,
+    -18555, 16337,  -16873, -18328, -19878, -32956, -10003, -17438, 5109,
+    -29156, -63238, -20460, -27501, -20033, -22191, -336,   21400,  4625,
+    14473,  27766,  13775,  30088,  -4718,  206,    -15532, -46812, -7503,
+    -22897, 9217,   -24039, -28894, -2080,  -13868, 20672,  17776,  9825,
+    -13053, 13383,  4378,   -58379, -49322, -41920, -38439, -31943, -46785,
+    -18418, -8618,  -11034, -18459, -12504, -16734, 13054,  14207,  12332,
+    -4743,  -25130, -15763, -10218, -29675, -38421, -16386, -12881, -32016,
+    -12225, -24790, -30425, 8730,   24811,  173,    17422,  -450,   -3268,
+    11600,  -36617, -33881, -17016, -14122, -24865, -731,   -1673,  -22517,
+    10455,  -12649, -7425,  -16148, -7160,  -3403,  -943,   663,    -28774,
+    -10435, -35024, -4955,  -14204, -42191, -12220, -5036,  -14723, 3055,
+    -6123,  -11845, 20722,  -13351,
+  };
+
+  float expected_valid[] = {
+    -14177, 10389, -4491,  248,    19575,  15685,  -1359,
+    9519,   3587,  -16949, -24650, -27537, -26269, -29909,
+    23397,  22435, -15255, 11452,  -5270,  -27475, -260,
+    13472,  26607, 10167,  -46,    -25187, -29185, -18555,
+  };
+
+  CNN_CONFIG cnn_config = { .num_layers = 3,
+                            .is_residue = 0,
+                            .ext_width = 0,
+                            .ext_height = 0,
+                            .strict_bounds = 0,
+                            {
+                                {
+                                    .deconvolve = 0,
+                                    .in_channels = 1,
+                                    .filter_width = filter_width,
+                                    .filter_height = filter_height,
+                                    .out_channels = 3,
+                                    .skip_width = 1,
+                                    .skip_height = 1,
+                                    .maxpool = 0,
+                                    .weights = nullptr,
+                                    .bias = nullptr,
+                                    .pad = PADDING_SAME_ZERO,
+                                    .activation = NONE,
+                                    .input_copy = 0,
+                                    .skip_combine = SKIP_NONE,
+                                },
+                                {
+                                    .deconvolve = 0,
+                                    .in_channels = 3,
+                                    .filter_width = filter_width,
+                                    .filter_height = filter_height,
+                                    .out_channels = 3,
+                                    .skip_width = 1,
+                                    .skip_height = 1,
+                                    .maxpool = 0,
+                                    .weights = nullptr,
+                                    .bias = nullptr,
+                                    .pad = PADDING_SAME_ZERO,
+                                    .activation = NONE,
+                                    .input_copy = 0,
+                                    .skip_combine = SKIP_NONE,
+                                },
+                                {
+                                    .deconvolve = 0,
+                                    .in_channels = 3,
+                                    .filter_width = filter_width,
+                                    .filter_height = filter_height,
+                                    .out_channels = 1,
+                                    .skip_width = 1,
+                                    .skip_height = 1,
+                                    .maxpool = 0,
+                                    .weights = nullptr,
+                                    .bias = nullptr,
+                                    .pad = PADDING_SAME_ZERO,
+                                    .activation = NONE,
+                                    .input_copy = 0,
+                                    .skip_combine = SKIP_NONE,
+                                },
+                            } };
+
+  // Weights and biases need to be specified separately because
+  // of the offset.
+  AssignLayerWeightsBiases(&cnn_config, weights, bias);
+
+  RunCNNTest(image_width, image_height, input, expected_same, cnn_config,
+             image_width, INT_TOL, 1);
+
+  for (int i = 0; i < cnn_config.num_layers; ++i) {
+    cnn_config.layer_config[i].pad = PADDING_VALID;
+  }
+
+  RunCNNTest(image_width, image_height, input, expected_valid, cnn_config,
+             image_width, INT_TOL, 1);
+}
+
+TEST_F(CNNTest, TestRELUSingleLayer) {
   int image_width = 8;
   int image_height = 8;
+  int filter_height = 5;
+  int filter_width = 4;
   float input[] = {
-    166, 125, 167, 37,  25,  16,  104, 136, 163, 37,  89,  162, 164,
-    177, 108, 182, 46,  119, 64,  144, 100, 33,  157, 113, 183, 129,
-    121, 42,  177, 221, 241, 150, 9,   70,  0,   96,  189, 208, 205,
-    48,  117, 142, 202, 39,  35,  152, 100, 41,  225, 65,  213, 147,
-    201, 18,  18,  191, 153, 23,  109, 134, 158, 12,  99,  120,
+    2,  -5, 4,  -2, 1, 1,  -3, 0,  2,  -4, -4, -5, 4,  0, 3,  4,
+    0,  -4, -1, -5, 4, -2, -3, 3,  -5, 1,  -2, -4, 1,  2, 0,  4,
+    1,  0,  4,  -4, 2, 4,  -3, 4,  -2, 3,  4,  -3, -4, 4, -2, 4,
+    -3, 3,  -3, 4,  2, -3, 2,  -2, -5, -3, 2,  3,  0,  2, 0,  0,
   };
   float expected_same[] = {
-    1182, 2221, 827,  1890, 2635, 3076, 2994, 1266, 451,  3041, 2935,
-    3128, 2427, 2040, 2463, 1491, 1578, 3932, 3122, 2774, 3169, 5148,
-    5426, 2396, 941,  867,  1973, 2382, 3967, 5163, 3118, 1953, 1504,
-    3536, 3523, 4372, 2400, 3542, 2882, 1897, 2148, 3290, 2486, 3594,
-    4152, 3589, 1686, 2171, 912,  3931, 1896, 4044, 2188, 1767, 2998,
-    1382, -667, 2881, 1009, 2496, -16,  1847, 1442, -902,
+    67, 0,  63, 0,  54, 0,  0, 0,  33, 36, 77, 0, 50, 0,  0,  52,
+    11, 63, 71, 0,  43, 0,  0, 18, 0,  0,  89, 0, 22, 5,  0,  31,
+    0,  0,  0,  40, 0,  17, 0, 14, 0,  0,  0,  3, 0,  0,  0,  6,
+    0,  58, 0,  0,  39, 0,  0, 13, 24, 0,  0,  6, 16, 11, 22, 0,
   };
   float expected_valid[] = {
-    3041, 2935, 3128, 2427, 2040, 2463, 3932, 3122, 2774, 3169, 5148, 5426,
-    867,  1973, 2382, 3967, 5163, 3118, 3536, 3523, 4372, 2400, 3542, 2882,
-    3290, 2486, 3594, 4152, 3589, 1686, 3931, 1896, 4044, 2188, 1767, 2998,
+    63, 71, 0, 43, 0, 0, 89, 0, 22, 5, 0, 0, 40, 0, 17, 0, 0, 3, 0, 0,
   };
-  float weights[] = { 7, -3, 5, -1, -3, 6, 8, 5, 3 };
-  float bias[] = { 4 };
+  float weights[] = {
+    -4, -1, 4, 1, -3, 0, -3, -4, 2, 3, -5, 1, -5, -1, -5, 1, -1, 3, -3, -5,
+  };
+  float bias[] = { 1 };
 
   CNN_CONFIG cnn_config = { .num_layers = 1,
                             .is_residue = 0,
@@ -112,8 +267,8 @@ TEST_F(CNNTest, TestNonActivationSingleLayerSingleKernel) {
                             { {
                                 .deconvolve = 0,
                                 .in_channels = 1,
-                                .filter_width = 3,
-                                .filter_height = 3,
+                                .filter_width = filter_width,
+                                .filter_height = filter_height,
                                 .out_channels = 1,
                                 .skip_width = 1,
                                 .skip_height = 1,
@@ -121,19 +276,237 @@ TEST_F(CNNTest, TestNonActivationSingleLayerSingleKernel) {
                                 .weights = weights,
                                 .bias = bias,
                                 .pad = PADDING_SAME_ZERO,
-                                .activation = NONE,
+                                .activation = RELU,
+                                .input_copy = 0,
+                                .skip_combine = SKIP_NONE,
+                            } } };
+
+  // Run multilayer same_zero test
+  RunCNNTest(image_width, image_height, input, expected_same, cnn_config,
+             image_width, INT_TOL, 1);
+
+  cnn_config.layer_config[0].pad = PADDING_VALID;
+
+  RunCNNTest(image_width, image_height, input, expected_valid, cnn_config,
+             image_width, INT_TOL, 1);
+}
+
+TEST_F(CNNTest, TestSoftsignSingleLayer) {
+  int image_width = 8;
+  int image_height = 8;
+  int filter_height = 5;
+  int filter_width = 4;
+  float input[] = {
+    0.5080f,  -0.4050f, -0.2010f, 0.0090f,  -0.6280f, 0.0790f,  0.7740f,
+    0.4640f,  -0.7550f, -0.5970f, 0.1530f,  0.4030f,  -0.810f,  -0.0150f,
+    -0.5730f, 0.5370f,  0.3490f,  0.0170f,  0.5340f,  0.2070f,  0.6720f,
+    -0.1580f, 0.1530f,  -0.4260f, -0.4260f, 0.7920f,  -0.4860f, 0.8210f,
+    -0.7250f, -0.2590f, -0.6120f, -0.9450f, -0.0370f, 0.3180f,  0.6750f,
+    -0.0980f, -0.8830f, 0.3110f,  -0.2580f, -0.2920f, 0.8290f,  -0.5590f,
+    -0.5050f, -0.2860f, 0.5760f,  -0.4720f, 0.7030f,  -0.1910f, 0.9380f,
+    0.8150f,  -0.0560f, -0.460f,  0.9120f,  -0.9630f, -0.6020f, -0.6660f,
+    0.3370f,  -0.8270f, 0.5880f,  -0.5850f, 0.3840f,  -0.7920f, -0.6080f,
+    0.1920f,
+  };
+  float expected_same[] = {
+    -0.1180f, -0.5310f, 0.4640f,  0.4640f,  -0.1180f, -0.1180f, -0.5310f,
+    -0.1180f, -0.5310f, 0.4640f,  0.4640f,  -0.5310f, 0.4640f,  -0.6810f,
+    0.4640f,  -0.1180f, -0.6810f, -0.5310f, -0.1180f, 0.6510f,  -0.5310f,
+    -0.6810f, -0.1180f, -0.6810f, 0.4640f,  0.4640f,  0.6510f,  -0.5310f,
+    0.4640f,  0.6510f,  -0.1180f, 0.4640f,  0.4640f,  -0.1180f, 0.7410f,
+    -0.8050f, 0.4640f,  -0.5310f, -0.6810f, -0.5310f, 0.4640f,  0.4640f,
+    0.4640f,  -0.5310f, -0.5310f, 0.4640f,  -0.6810f, -0.5310f, 0.4640f,
+    -0.5310f, -0.7580f, 0.4640f,  -0.1180f, 0.6510f,  -0.5310f, 0.4640f,
+    -0.5310f, 0.6510f,  -0.1180f, 0.7410f,  -0.5310f, -0.1180f, -0.5310f,
+    -0.5310f,
+  };
+  float expected_valid[] = {
+    -0.5310f, -0.1180f, 0.6510f, -0.5310f, -0.6810f, 0.4640f,  0.6510f,
+    -0.5310f, 0.4640f,  0.6510f, -0.1180f, 0.7410f,  -0.8050f, 0.4640f,
+    -0.5310f, 0.4640f,  0.4640f, -0.5310f, -0.5310f, 0.4640f,
+  };
+  float weights[] = {
+    -0.7410f, -0.6210f, 0.1720f,  -0.1260f, 0.9920f,  0.3560f, 0.790f,
+    -0.7620f, -0.290f,  -0.5810f, 0.640f,   -0.7310f, 0.4190f, 0.6890f,
+    -0.4630f, -0.2740f, 0.8910f,  0.5280f,  -0.3640f, 0.8570f,
+  };
+  float bias[] = { -0.1340f };
+
+  CNN_CONFIG cnn_config = { .num_layers = 1,
+                            .is_residue = 0,
+                            .ext_width = 0,
+                            .ext_height = 0,
+                            .strict_bounds = 0,
+                            { {
+                                .deconvolve = 0,
+                                .in_channels = 1,
+                                .filter_width = filter_width,
+                                .filter_height = filter_height,
+                                .out_channels = 1,
+                                .skip_width = 1,
+                                .skip_height = 1,
+                                .maxpool = 0,
+                                .weights = weights,
+                                .bias = bias,
+                                .pad = PADDING_SAME_ZERO,
+                                .activation = SOFTSIGN,
                                 .input_copy = 0,
                                 .skip_combine = SKIP_NONE,
                             } } };
 
   RunCNNTest(image_width, image_height, input, expected_same, cnn_config,
-             image_width, INT_TOL, 1);
+             image_width, FLOAT_TOL, 1);
 
-  // Change padding to valid
   cnn_config.layer_config[0].pad = PADDING_VALID;
 
   RunCNNTest(image_width, image_height, input, expected_valid, cnn_config,
-             image_width, INT_TOL, 1);
+             image_width, FLOAT_TOL, 1);
+}
+
+TEST_F(CNNTest, TestVaryingStridesVaryingDimImages) {
+  float weights[] = {
+    3, -3, -3, 0, -2, -4, 0, -4, 3, 0, -5, -1, 0, -2, 2, 4, -2, -1, 1, 1,
+  };
+  float bias[] = { 3 };
+
+  CNN_CONFIG cnn_config = { .num_layers = 1,
+                            .is_residue = 0,
+                            .ext_width = 0,
+                            .ext_height = 0,
+                            .strict_bounds = 0,
+                            {
+                                {
+                                    .deconvolve = 0,
+                                    .in_channels = 1,
+                                    .filter_width = 4,
+                                    .filter_height = 5,
+                                    .out_channels = 1,
+                                    .skip_width = 3,
+                                    .skip_height = 4,
+                                    .maxpool = 0,
+                                    .weights = weights,
+                                    .bias = bias,
+                                    .pad = PADDING_SAME_ZERO,
+                                    .activation = NONE,
+                                    .input_copy = 0,
+                                    .skip_combine = SKIP_NONE,
+                                },
+                            } };
+
+  float input_16x9[] = {
+    1,  -5, -1, 2,  2,  -3, -4, -5, 1,  3,  -2, 3,  3,  2,  -1, -5, -3, 2,
+    2,  2,  2,  1,  0,  -5, 0,  2,  -3, -3, -2, -2, 4,  3,  3,  -1, 3,  -2,
+    -2, 1,  0,  1,  -3, -3, 0,  -1, -1, -5, 0,  0,  2,  -3, -1, -4, 1,  -2,
+    2,  2,  4,  -5, 2,  0,  0,  1,  -4, -1, 0,  1,  2,  -2, 2,  -3, 0,  4,
+    2,  -1, 3,  2,  -1, 1,  0,  1,  4,  -2, -2, -1, -1, 3,  -1, -2, -2, 4,
+    -5, -2, -3, -3, -2, -1, 3,  3,  -3, -5, -4, -1, -1, -3, 3,  2,  0,  -1,
+    -3, -3, -4, 1,  -1, 4,  2,  -3, 1,  -2, -3, -4, 3,  0,  3,  1,  1,  -2,
+    4,  -2, -4, 1,  -2, -1, 1,  0,  -1, 4,  -3, -1, -2, -1, 4,  2,  -5, 0,
+  };
+  float expected_even_height_odd_width_strides_16x9[] = {
+    29, 40, 30, -1, 27, 44, 30, 25, 22, 46, 12, 27,
+  };
+  float expected_odd_height_even_width_strides_16x9[] = {
+    33, -5, -17, 7, -1, 7, 18, 27, -2, -9, 37, -26, 39, 0, 21, 34, -23, 1,
+  };
+
+  int image_height = 16;
+  int image_width = 9;
+
+  RunCNNTest(image_width, image_height, input_16x9,
+             expected_even_height_odd_width_strides_16x9, cnn_config,
+             image_width, INT_TOL, 0);
+
+  // cnn_config.layer_config[0].skip_width = 4;
+  // cnn_config.layer_config[0].skip_height = 3;
+
+  // RunCNNTest(image_width, image_height, input_16x9,
+  //            expected_odd_vertical_even_horizontal_strides_16x9,
+  //            cnn_config, image_width, INT_TOL, 0);
+
+  float input_9x16[] = {
+    0,  -5, 0,  1,  -4, -1, -3, -3, 4,  -2, -4, -2, 3,  4,  0,  3,  4,  2,
+    1,  2,  4,  3,  -4, 2,  -2, 3,  3,  3,  1,  -1, -1, 1,  4,  4,  1,  3,
+    -2, 3,  -3, -1, 3,  -4, 1,  -3, -3, 4,  -3, 2,  3,  0,  3,  3,  4,  2,
+    -5, 2,  0,  1,  -5, -4, 4,  -1, -4, -4, -5, -3, -3, -1, -1, 3,  0,  4,
+    -2, 1,  -1, 3,  3,  -1, 1,  -5, -5, -1, -2, 2,  -5, 4,  3,  -3, 1,  -1,
+    2,  -2, 4,  -1, -1, 1,  -3, 3,  3,  3,  1,  -2, 3,  1,  -1, 2,  3,  4,
+    4,  0,  2,  0,  -5, 3,  -2, -5, 2,  2,  0,  -5, 4,  4,  -1, -4, 2,  -1,
+    0,  2,  1,  2,  -4, -4, 3,  -5, -5, 4,  -4, 4,  3,  -4, 1,  2,  -3, -5,
+  };
+  float expected_even_vertical_odd_horizontal_strides_9x16[] = {
+    29, 36,  14, 45, -21, 5,   -18, 19, 57, -3, -91, -6,  -18, -38, 24,
+    34, -12, 9,  42, 18,  -13, -38, 8,  32, 25, -6,  -66, -46, -16, -8,
+  };
+  float expected_odd_vertical_even_horizontal_strides_9x16[] = {
+    -4, 21, 9,   21, -21, -13, 11,  -1, -18, -45, 13,  24,
+    35, -7, -12, 60, -6,  22,  -71, 40, -22, -12, -61, -25,
+  };
+
+  image_height = 9;
+  image_width = 16;
+
+  // RunCNNTest(image_width, image_height, input_9x16,
+  //            expected_odd_vertical_even_horizontal_strides_9x16,
+  //            cnn_config, image_width, INT_TOL, 0);
+
+  // cnn_config.layer_config[0].skip_width = 3;
+  // cnn_config.layer_config[0].skip_height = 2;
+
+  // RunCNNTest(image_width, image_height, input_9x16,
+  //            expected_even_vertical_odd_horizontal_strides_9x16,
+  //            cnn_config, image_width, INT_TOL, 0);
+}
+
+TEST_F(CNNTest, TestMaxPool) {
+  int image_width = 8;
+  int image_height = 8;
+  int stride = 3;
+  float input[] = {
+    1,  -4, -4, 8, 0, 7, -5, -2, 8, 2, 2, 8,  5,  -1, -1, 9,
+    -3, 0,  -2, 0, 6, 3, -4, 8,  7, 8, 7, -1, 4,  -1, 0,  2,
+    -5, -2, 8,  5, 5, 4, 2,  7,  4, 6, 2, 8,  8,  -4, -3, -4,
+    -3, -1, 2,  3, 3, 6, -5, 8,  9, 5, 0, -2, -1, 6,  5,  7,
+  };
+
+  float expected[] = {
+    49, 58, 70, 68, 68, 70, 48, 57, 88,
+  };
+
+  float weights[] = {
+    3, 1, 3, 4, -1, 5, -2, 1, -4,
+  };
+
+  float bias[] = {
+    -3,
+  };
+
+  CNN_CONFIG cnn_config = { .num_layers = 1,
+                            .is_residue = 0,
+                            .ext_width = 0,
+                            .ext_height = 0,
+                            .strict_bounds = 0,
+                            {
+                                {
+                                    .deconvolve = 0,
+                                    .in_channels = 1,
+                                    .filter_width = 3,
+                                    .filter_height = 3,
+                                    .out_channels = 1,
+                                    .skip_width = stride,
+                                    .skip_height = stride,
+                                    .maxpool = 1,
+                                    .weights = weights,
+                                    .bias = bias,
+                                    .pad = PADDING_SAME_ZERO,
+                                    .activation = NONE,
+                                    .input_copy = 0,
+                                    .skip_combine = SKIP_NONE,
+                                },
+                            } };
+
+  RunCNNTest(image_width, image_height, input, expected, cnn_config,
+             image_width, INT_TOL, 0);
 }
 
 TEST_F(CNNTest, TestDeconvolveNonActivationSingleLayerSingleKernel) {
@@ -195,216 +568,4 @@ TEST_F(CNNTest, TestDeconvolveNonActivationSingleLayerSingleKernel) {
 
   RunCNNTest(image_width, image_height, input, expected_valid, cnn_config,
              image_width, INT_TOL, 1);
-}
-
-TEST_F(CNNTest, TestRELUMultiLayerMultiKernel) {
-  int image_width = 8;
-  int image_height = 8;
-  float input[] = { 1, 8, 2, 2, 4, 8, 1, 8, 3, 3, 7, 1, 3, 3, 2, 6,
-                    3, 6, 0, 6, 2, 4, 9, 2, 8, 2, 0, 4, 8, 3, 9, 3,
-                    2, 7, 1, 7, 6, 0, 2, 5, 2, 7, 0, 7, 0, 5, 5, 8,
-                    7, 8, 4, 5, 1, 5, 6, 6, 8, 5, 5, 1, 2, 9, 3, 9 };
-  float expected[] = {
-    1377431, 2173407, 2435745, 2471195, 2626654, 2734721, 2482994, 1513223,
-    2152462, 3496400, 3977867, 4146647, 4441683, 4586838, 4090693, 2476698,
-    2473040, 4021092, 4676039, 4978473, 5348027, 5489855, 4786816, 2901849,
-    2605592, 4290798, 5007352, 5291078, 5588990, 5626708, 4904796, 2983677,
-    2849105, 4608427, 5275136, 5340961, 5559243, 5600541, 5035205, 3090147,
-    3059302, 4828189, 5325228, 5101868, 5277427, 5383493, 5012109, 3098909,
-    2773077, 4309552, 4577133, 4273240, 4465622, 4670977, 4454622, 2768211,
-    1651264, 2588284, 2694330, 2500518, 2627716, 2758369, 2646960, 1649032,
-  };
-  float weights[] = {
-    7, 0, 4, 1, 2, 0, 4, 6, 6, 0, 9, 2, 9, 2, 0, 2, 4, 5, 4, 8, 4, 8, 9, 2,
-    7, 5, 8, 9, 2, 8, 8, 3, 8, 8, 9, 1, 9, 8, 8, 8, 0, 3, 3, 5, 2, 4, 0, 7,
-    5, 8, 9, 8, 7, 2, 5, 8, 6, 2, 8, 6, 8, 6, 1, 3, 4, 2, 0, 4, 3, 9, 9, 8,
-    5, 9, 2, 4, 9, 7, 6, 5, 9, 6, 6, 4, 9, 2, 7, 6, 0, 8, 5, 7, 9, 6, 6, 5,
-    5, 2, 4, 1, 5, 3, 6, 5, 8, 6, 6, 9, 8, 9, 9, 4, 1, 7, 5, 5, 8, 0, 8, 3,
-    3, 0, 6, 3, 7, 2, 5, 1, 9, 7, 0, 3, 7, 0, 6, 0, 3, 5, 7, 2, 5, 5, 7, 9,
-    2, 1, 5, 5, 3, 9, 6, 2, 4, 9, 7, 6, 2, 3, 3, 2, 1, 3, 2, 8, 0, 4, 7, 2,
-    2, 6, 9, 0, 9, 8, 9, 8, 4, 1, 4, 3, 8, 2, 7, 1, 0, 7, 1, 7, 8, 3, 2, 3,
-    9, 0, 5, 4, 4, 4, 8, 5, 7, 5, 9, 1, 1, 6, 1, 6, 2, 8, 8, 9, 2, 1, 4, 6,
-  };
-  float bias[] = {
-    9, 6, 6, 7, 9, 1, 2, 9, 5,
-  };
-
-  CNN_CONFIG cnn_config = { .num_layers = 3,
-                            .is_residue = 0,
-                            .ext_width = 0,
-                            .ext_height = 0,
-                            .strict_bounds = 0,
-                            {
-                                {
-                                    .deconvolve = 0,
-                                    .in_channels = 1,
-                                    .filter_width = 3,
-                                    .filter_height = 3,
-                                    .out_channels = 4,
-                                    .skip_width = 1,
-                                    .skip_height = 1,
-                                    .maxpool = 0,
-                                    .weights = NULL,
-                                    .bias = NULL,
-                                    .pad = PADDING_SAME_ZERO,
-                                    .activation = RELU,
-                                    .input_copy = 0,
-                                    .skip_combine = SKIP_NONE,
-                                },
-                                {
-                                    .deconvolve = 0,
-                                    .in_channels = 4,
-                                    .filter_width = 3,
-                                    .filter_height = 3,
-                                    .out_channels = 4,
-                                    .skip_width = 1,
-                                    .skip_height = 1,
-                                    .maxpool = 0,
-                                    .weights = NULL,
-                                    .bias = NULL,
-                                    .pad = PADDING_SAME_ZERO,
-                                    .activation = RELU,
-                                    .input_copy = 0,
-                                    .skip_combine = SKIP_NONE,
-                                },
-                                {
-                                    .deconvolve = 0,
-                                    .in_channels = 4,
-                                    .filter_width = 3,
-                                    .filter_height = 3,
-                                    .out_channels = 1,
-                                    .skip_width = 1,
-                                    .skip_height = 1,
-                                    .maxpool = 0,
-                                    .weights = NULL,
-                                    .bias = NULL,
-                                    .pad = PADDING_SAME_ZERO,
-                                    .activation = RELU,
-                                    .input_copy = 0,
-                                    .skip_combine = SKIP_NONE,
-                                },
-                            } };
-
-  // Weights and biases need to be specified separately because
-  // of the offset.
-  AssignLayerWeightsBiases(&cnn_config, weights, bias);
-
-  RunCNNTest(image_width, image_height, input, expected, cnn_config,
-             image_width, INT_TOL, 1);
-}
-
-TEST_F(CNNTest, TestSoftsignMultiLayerMultiKernel) {
-  int image_width = 8;
-  int image_height = 8;
-  float input[] = { 0.517f, 0.505f, 0.769f, 0.537f, 0.55f,  0.264f, 0.991f,
-                    0.282f, 0.87f,  0.63f,  0.165f, 0.463f, 0.075f, 0.46f,
-                    0.098f, 0.954f, 0.592f, 0.439f, 0.389f, 0.316f, 0.921f,
-                    0.551f, 0.815f, 0.512f, 0.784f, 0.65f,  0.417f, 0.472f,
-                    0.509f, 0.258f, 0.631f, 0.235f, 0.353f, 0.541f, 0.538f,
-                    0.148f, 0.683f, 0.957f, 0.294f, 0.269f, 0.15f,  0.773f,
-                    0.404f, 0.279f, 0.076f, 0.693f, 0.536f, 0.055f, 0.868f,
-                    0.605f, 0.288f, 0.024f, 0.424f, 0.924f, 0.476f, 0.031f,
-                    0.728f, 0.972f, 0.543f, 0.701f, 0.56f,  0.726f, 0.37f,
-                    0.046f };
-  float expected[] = {
-    0.864f, 0.91f,  0.911f, 0.911f, 0.911f, 0.911f, 0.91f,  0.871f,
-    0.915f, 0.939f, 0.94f,  0.94f,  0.94f,  0.94f,  0.938f, 0.902f,
-    0.916f, 0.94f,  0.94f,  0.94f,  0.94f,  0.94f,  0.939f, 0.904f,
-    0.916f, 0.94f,  0.941f, 0.941f, 0.941f, 0.941f, 0.939f, 0.903f,
-    0.916f, 0.94f,  0.941f, 0.941f, 0.941f, 0.94f,  0.939f, 0.903f,
-    0.916f, 0.94f,  0.94f,  0.94f,  0.941f, 0.94f,  0.939f, 0.903f,
-    0.915f, 0.939f, 0.94f,  0.94f,  0.94f,  0.939f, 0.938f, 0.901f,
-    0.878f, 0.904f, 0.904f, 0.904f, 0.904f, 0.904f, 0.902f, 0.846f,
-  };
-  float weights[] = {
-    0.44f,  0.863f, 0.551f, 0.281f, 0.727f, 0.97f,  0.48f,  0.751f, 0.976f,
-    0.836f, 0.067f, 0.486f, 0.015f, 0.06f,  0.189f, 0.674f, 0.617f, 0.359f,
-    0.251f, 0.262f, 0.245f, 0.369f, 0.369f, 0.689f, 0.195f, 0.079f, 0.357f,
-    0.086f, 0.873f, 0.339f, 0.878f, 0.507f, 0.547f, 0.054f, 0.097f, 0.085f,
-    0.617f, 0.159f, 0.639f, 0.946f, 0.103f, 0.958f, 0.423f, 0.349f, 0.131f,
-    0.149f, 0.29f,  0.782f, 0.513f, 0.523f, 0.229f, 0.638f, 0.939f, 0.245f,
-    0.942f, 0.421f, 0.683f, 0.642f, 0.937f, 0.193f, 0.559f, 0.962f, 0.413f,
-    0.421f, 0.052f, 0.414f, 0.398f, 0.196f, 0.2f,   0.76f,  0.645f, 0.893f,
-    0.201f, 0.584f, 0.901f, 0.009f, 0.664f, 0.749f, 0.979f, 0.303f, 0.409f,
-    0.972f, 0.483f, 0.375f, 0.021f, 0.798f, 0.728f, 0.881f, 0.298f, 0.51f,
-    0.167f, 0.257f, 0.212f, 0.342f, 0.458f, 0.284f, 0.187f, 0.733f, 0.164f,
-    0.358f, 0.247f, 0.403f, 0.829f, 0.816f, 0.294f, 0.446f, 0.64f,  0.791f,
-    0.926f, 0.064f, 0.28f,  0.087f, 0.83f,  0.069f, 0.656f, 0.082f, 0.985f,
-    0.845f, 0.117f, 0.487f, 0.436f, 0.767f, 0.43f,  0.524f, 0.259f, 0.735f,
-    0.295f, 0.698f, 0.765f, 0.595f, 0.783f, 0.715f, 0.226f, 0.314f, 0.373f,
-    0.398f, 0.819f, 0.506f, 0.718f, 0.529f, 0.622f, 0.762f, 0.375f, 0.081f,
-    0.257f, 0.159f, 0.32f,  0.706f, 0.021f, 0.707f, 0.683f, 0.921f, 0.785f,
-    0.372f, 0.034f, 0.424f, 0.375f, 0.413f, 0.623f, 0.375f, 0.582f, 0.33f,
-    0.186f, 0.356f, 0.688f, 0.967f, 0.782f, 0.707f, 0.818f, 0.134f, 0.757f,
-    0.148f, 0.409f, 0.908f, 0.675f, 0.861f, 0.313f, 0.861f, 0.926f, 0.572f,
-    0.14f,  0.103f, 0.249f, 0.542f, 0.479f, 0.191f, 0.528f, 0.486f, 0.54f,
-    0.728f, 0.936f, 0.883f, 0.152f, 0.237f, 0.65f,  0.335f, 0.372f, 0.109f,
-    0.971f, 0.705f, 0.398f, 0.028f, 0.315f, 0.206f, 0.742f, 0.466f, 0.618f,
-    0.943f, 0.314f, 0.346f, 0.465f, 0.104f, 0.962f, 0.1f,   0.831f, 0.793f,
-  };
-  float bias[] = { 0.988f, 0.336f, 0.038f, 0.06f, 0.001f,
-                   0.391f, 0.519f, 0.689f, 0.1f };
-
-  CNN_CONFIG cnn_config = { .num_layers = 3,
-                            .is_residue = 0,
-                            .ext_width = 0,
-                            .ext_height = 0,
-                            .strict_bounds = 0,
-                            {
-                                {
-                                    .deconvolve = 0,
-                                    .in_channels = 1,
-                                    .filter_width = 3,
-                                    .filter_height = 3,
-                                    .out_channels = 4,
-                                    .skip_width = 1,
-                                    .skip_height = 1,
-                                    .maxpool = 0,
-                                    .weights = 0,
-                                    .bias = 0,
-                                    .pad = PADDING_SAME_ZERO,
-                                    .activation = SOFTSIGN,
-                                    .input_copy = 0,
-                                    .skip_combine = SKIP_NONE,
-                                },
-                                {
-                                    .deconvolve = 0,
-                                    .in_channels = 4,
-                                    .filter_width = 3,
-                                    .filter_height = 3,
-                                    .out_channels = 4,
-                                    .skip_width = 1,
-                                    .skip_height = 1,
-                                    .maxpool = 0,
-                                    .weights = NULL,
-                                    .bias = NULL,
-                                    .pad = PADDING_SAME_ZERO,
-                                    .activation = SOFTSIGN,
-                                    .input_copy = 0,
-                                    .skip_combine = SKIP_NONE,
-                                },
-                                {
-                                    .deconvolve = 0,
-                                    .in_channels = 4,
-                                    .filter_width = 3,
-                                    .filter_height = 3,
-                                    .out_channels = 1,
-                                    .skip_width = 1,
-                                    .skip_height = 1,
-                                    .maxpool = 0,
-                                    .weights = NULL,
-                                    .bias = NULL,
-                                    .pad = PADDING_SAME_ZERO,
-                                    .activation = SOFTSIGN,
-                                    .input_copy = 0,
-                                    .skip_combine = SKIP_NONE,
-                                },
-                            } };
-
-  // Weights and biases need to be specified separately because
-  // of the offset.
-  AssignLayerWeightsBiases(&cnn_config, weights, bias);
-
-  RunCNNTest(image_width, image_height, input, expected, cnn_config,
-             image_width, FLOAT_TOL, 0);
 }
