@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "39f1a454_bd113abe",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2019-03-21T23:24:16Z",
+      "side": 1,
+      "message": "Oh I see, thanks for the explanation.",
+      "parentUuid": "94e1d1f3_502710d6",
+      "range": {
+        "startLine": 28,
+        "startChar": 60,
+        "endLine": 28,
+        "endChar": 73
+      },
+      "revId": "db0db9d07a754fd2e0798ff496bfb027e459ba11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95b00ffe_81b488d2",
         "filename": "av1/encoder/gop_structure.c",
         "patchSetId": 6
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "My thought was that one could consider level \"1\" to be the bottom level or \"0\", depending on how things are indexed / how code is written.\nSo, this seemed clearer to me.",
       "parentUuid": "95b00ffe_81b488d2",
+      "range": {
+        "startLine": 44,
+        "startChar": 44,
+        "endLine": 44,
+        "endChar": 59
+      },
+      "revId": "db0db9d07a754fd2e0798ff496bfb027e459ba11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0cda344f_81d46fb1",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2019-03-21T23:24:16Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d4ba2868_76ca49cf",
       "range": {
         "startLine": 44,
         "startChar": 44,
@@ -143,6 +191,30 @@
     },
     {
       "key": {
+        "uuid": "53fd7fb4_79fccf09",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2019-03-21T23:24:16Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "89b3441c_dda89e92",
+      "range": {
+        "startLine": 97,
+        "startChar": 25,
+        "endLine": 97,
+        "endChar": 55
+      },
+      "revId": "db0db9d07a754fd2e0798ff496bfb027e459ba11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8542557a_ee475df9",
         "filename": "av1/encoder/ratectrl.h",
         "patchSetId": 6
@@ -178,6 +250,30 @@
       "side": 1,
       "message": "Confusingly enough, this macro was used only for the pyramid structure, hence the value 2 before -- because earlier, pyramid structure assumed presence of ALTREF and at least one internal Altref.",
       "parentUuid": "8542557a_ee475df9",
+      "range": {
+        "startLine": 41,
+        "startChar": 8,
+        "endLine": 41,
+        "endChar": 25
+      },
+      "revId": "db0db9d07a754fd2e0798ff496bfb027e459ba11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "28aa0d58_48620c1f",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2019-03-21T23:24:16Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d7d3e86b_a8e2f869",
       "range": {
         "startLine": 41,
         "startChar": 8,
