@@ -74,9 +74,13 @@
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/var_based_part.h"
 
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_PYTHON_CNN_RESTORATION
 #include "av1/common/addition_handle_frame.h"
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_PYTHON_CNN_RESTORATION
+
+#if CONFIG_C_CNN_RESTORATION
+#include "av1/common/cnn_wrapper.h"
+#endif  // CONFIG_C_CNN_RESTORATION
 
 #define DEFAULT_EXPLICIT_ORDER_HINT_BITS 7
 
@@ -4349,7 +4353,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 
   const int use_loopfilter = !cm->coded_lossless && !cm->large_scale_tile;
 
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_C_CNN_RESTORATION || CONFIG_PYTHON_CNN_RESTORATION
   const int use_cnn = av1_use_cnn(cm);
   const int use_cdef = cm->seq_params.enable_cdef && !cm->coded_lossless &&
                        !cm->large_scale_tile && !use_cnn;
@@ -4361,7 +4365,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
                        !cm->large_scale_tile;
   const int use_restoration = cm->seq_params.enable_restoration &&
                               !cm->all_lossless && !cm->large_scale_tile;
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_C_CNN_RESTORATION || CONFIG_PYTHON_CNN_RESTORATION
 
   struct loopfilter *lf = &cm->lf;
 
@@ -4436,11 +4440,16 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
   }
 
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_PYTHON_CNN_RESTORATION
   if (use_cnn) {
     addition_handle_blocks(cm, cm->current_frame.frame_type);
   }
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_PYTHON_CNN_RESTORATION
+#if CONFIG_C_CNN_RESTORATION
+  if (use_cnn) {
+    cnn_restoration(cm);
+  }
+#endif  // CONFIG_C_CNN_RESTORATION
 }
 
 static int get_refresh_frame_flags(const AV1_COMP *const cpi) {
