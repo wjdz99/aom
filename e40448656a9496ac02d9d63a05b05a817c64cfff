@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "23c54df5_c643029c",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2019-03-21T00:08:27Z",
+      "side": 1,
+      "message": "if set_offsets_for_motion_search() is moved here, then we don\u0027t need the dependency any more.",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 43
+      },
+      "revId": "e40448656a9496ac02d9d63a05b05a817c64cfff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bb9fcef1_910af7a0",
         "filename": "av1/encoder/partition_strategy.h",
         "patchSetId": 9
