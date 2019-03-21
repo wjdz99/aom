@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "37e61140_8dc34624",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-21T17:01:57Z",
+      "side": 1,
+      "message": "I see what you mean, but set_offsets_for_motion_search actually gets called by a couple functions in encodeframe.c as well, so I feel like it wouldn\u0027t really fit in mcomp.",
+      "parentUuid": "46c7c417_61f5f777",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 43
+      },
+      "revId": "e40448656a9496ac02d9d63a05b05a817c64cfff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bb9fcef1_910af7a0",
         "filename": "av1/encoder/partition_strategy.h",
         "patchSetId": 9
