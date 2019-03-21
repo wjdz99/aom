@@ -25,6 +25,40 @@
     },
     {
       "key": {
+        "uuid": "f2de1430_9c997209",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3296,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2019-03-21T17:37:48Z",
+      "side": 1,
+      "message": "Otherwise, the author probably meant to use this_rd_stats.dist, i.e. sse_diff \u003d block_sse - this_rd_stats.dist; , to obtain the difference between tx and pixel domain distortions.",
+      "revId": "39edc6a5c1555a4683693ad91cf00f7c1da55359",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13e4a7d8_9d4e25c6",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3299,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2019-03-21T17:37:48Z",
+      "side": 1,
+      "message": "Also, I think abs() should be used over (sse_diff * 2), i.e. abs(sse_diff * 2) since sse_diff can be negative.",
+      "revId": "39edc6a5c1555a4683693ad91cf00f7c1da55359",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0045a953_16c73865",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 4
