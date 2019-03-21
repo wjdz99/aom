@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e422700_cfe45a64",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3296,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2019-03-21T17:13:51Z",
+      "side": 1,
+      "message": "I am afraid sse_diff is not what we wanted.\nBecause \u0027block_sse\u0027 is a distortion value that comes from pixel_diff_dist(), while \u0027this_rd_stats.sse\u0027 is a variance (not normalized) or energy of input source. I believe, we did not mean to derive any new info from those two different kinds.\nTo verify this, simply putting \"assert(sse_diff \u003e\u003d 0);\" right after this line and it will hit.\nHence, the below condition \"(sse_diff * 2) \u003c this_rd_stats.sse\" is undefined and will cause unpredictable behaviors.\n\nI\u0027ve been thinking that the name \u0027sse\u0027 always mislead us to think that it is any kind of distortion, but it is being used for two cases, 1) prediction error 2) energy or non-normalized variance of input source.",
+      "range": {
+        "startLine": 3296,
+        "startChar": 8,
+        "endLine": 3296,
+        "endChar": 48
+      },
+      "revId": "39edc6a5c1555a4683693ad91cf00f7c1da55359",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
