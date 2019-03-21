@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "559e8044_7019cdc8",
+        "filename": "av1/common/cnn_wrapper.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-21T23:53:36Z",
+      "side": 1,
+      "message": "Use regular case (non-caps)",
+      "range": {
+        "startLine": 20,
+        "startChar": 20,
+        "endLine": 20,
+        "endChar": 55
+      },
+      "revId": "5f31d131372df27b3cc081846b2c6a90ddc8276a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc776eb6_ccdd9586",
+        "filename": "av1/common/cnn_wrapper.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-21T23:53:36Z",
+      "side": 1,
+      "message": "- \"av1_\" prefix in name as this is in a header.\n- Add a comment on what the function will do.\n- Commonly, function names are more verb-like than noun-like.  e.g. av1_cnn_restore() or av1_restore_with_cnn()",
+      "range": {
+        "startLine": 29,
+        "startChar": 5,
+        "endLine": 29,
+        "endChar": 20
+      },
+      "revId": "5f31d131372df27b3cc081846b2c6a90ddc8276a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afa13052_51004c5e",
+        "filename": "av1/models/intra_frame_model/trial_model.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-21T23:53:36Z",
+      "side": 1,
+      "message": "This should match the file path (see other headers for reference)",
+      "range": {
+        "startLine": 12,
+        "startChar": 8,
+        "endLine": 12,
+        "endChar": 39
+      },
+      "revId": "5f31d131372df27b3cc081846b2c6a90ddc8276a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
