@@ -46,6 +46,30 @@
       "revId": "20d2ba6a86f66e47190bd0193047c79e392c1771",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8601c1fa_ac88980e",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-03-22T17:17:46Z",
+      "side": 1,
+      "message": "It makes sense. The result you got is nice. Looks good to me.",
+      "parentUuid": "b5c77b1c_c4735ae5",
+      "range": {
+        "startLine": 124,
+        "startChar": 18,
+        "endLine": 124,
+        "endChar": 36
+      },
+      "revId": "20d2ba6a86f66e47190bd0193047c79e392c1771",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
