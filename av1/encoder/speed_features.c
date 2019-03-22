@@ -254,6 +254,7 @@ static void set_good_speed_features_framesize_independent(
     // speed.
     sf->prune_single_motion_modes_by_simple_trans = 1;
 
+    sf->simple_motion_search_split_speed = 1;
     sf->simple_motion_search_split_only = 1;
     sf->simple_motion_search_early_term_none = 1;
 
@@ -336,6 +337,7 @@ static void set_good_speed_features_framesize_independent(
     // simple_motion_search_split_only in partition search function and set the
     // speed feature accordingly
     // TODO(Venkat): Evaluate this speed feature for speed 1 & 2
+    sf->simple_motion_search_split_speed = 2;
     sf->simple_motion_search_split_only =
         cm->allow_screen_content_tools ? 1 : 2;
     sf->disable_smooth_intra =
