@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c623c9ab_383dff1b",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5171,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-03-22T19:55:30Z",
+      "side": 1,
+      "message": "Note that another copy of the comment says \"NULLs\" correctly,",
+      "range": {
+        "startLine": 5171,
+        "startChar": 23,
+        "endLine": 5171,
+        "endChar": 28
+      },
+      "revId": "62e4bbd23836d39a7c988df646d3ed5d8a835bbd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
