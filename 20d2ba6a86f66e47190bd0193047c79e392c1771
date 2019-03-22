@@ -22,6 +22,30 @@
       "revId": "20d2ba6a86f66e47190bd0193047c79e392c1771",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5c77b1c_c4735ae5",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2019-03-22T17:00:41Z",
+      "side": 1,
+      "message": "As per parent version, for larger confidence scores (\u003esplit_only_thresh),none and rectangular partitions are skipped and split partition is evaluated. As confidence score reduces, possibility of none/rectangular partition winning increases and possibility of split partition winning reduces. For confidence scores around zero, both of these cases could be equally possible. Hence we tried using a symmetric decision mechanism for gating square partitions (possibly conservative).",
+      "parentUuid": "33d6a09e_beb9e5d7",
+      "range": {
+        "startLine": 124,
+        "startChar": 18,
+        "endLine": 124,
+        "endChar": 36
+      },
+      "revId": "20d2ba6a86f66e47190bd0193047c79e392c1771",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
