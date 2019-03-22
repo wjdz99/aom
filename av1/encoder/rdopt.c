@@ -12702,6 +12702,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         continue;
       }
     }
+    if (search_state.best_mode_skippable)
+      search_state.mode_threshold[midx] <<= 1;
 
     if (search_state.best_rd < search_state.mode_threshold[midx]) continue;
 
