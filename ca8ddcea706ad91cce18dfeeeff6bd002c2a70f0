@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "926c292b_4694fa31",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-03-22T19:35:17Z",
+      "side": 1,
+      "message": "Letting this be for now: Since this is a brand new experiment adding it to README.md is probably way premature right now.",
+      "range": {
+        "startLine": 152,
+        "startChar": 0,
+        "endLine": 154,
+        "endChar": 53
+      },
+      "revId": "ca8ddcea706ad91cce18dfeeeff6bd002c2a70f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
