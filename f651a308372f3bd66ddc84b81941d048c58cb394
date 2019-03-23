@@ -270,6 +270,24 @@
       "revId": "f651a308372f3bd66ddc84b81941d048c58cb394",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5db3fd7_8d21922f",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1609,
+      "author": {
+        "id": 12014
+      },
+      "writtenOn": "2019-03-23T02:10:02Z",
+      "side": 1,
+      "message": "Also, if \"ivf file header\" means some external media file then I would assume it\u0027s user\u0027s timestamps that should be written. In other words, the original g_timebase specified by user and the original pts (or losslessly converted back from libaom\u0027s timestamp using timestamp_ratio) should be written to the file. If my understanding is correct, you can promote timestamp_ratio to 64-bit integers since it should not be written to the file; g_timebase should.",
+      "parentUuid": "8cfa8ed3_d6a52507",
+      "revId": "f651a308372f3bd66ddc84b81941d048c58cb394",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
