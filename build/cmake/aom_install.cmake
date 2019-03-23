@@ -76,15 +76,15 @@ macro(setup_aom_install_targets)
 
     # Setup the install rules.
     install(FILES ${AOM_INSTALL_INCS} DESTINATION
-                  "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/aom")
+                  "${CMAKE_INSTALL_INCLUDEDIR}/aom")
     install(FILES "${AOM_PKG_CONFIG_FILE}" DESTINATION
-                  "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+                  "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
     install(TARGETS ${AOM_INSTALL_LIBS} DESTINATION
-                    "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+                    "${CMAKE_INSTALL_LIBDIR}")
 
     if(ENABLE_EXAMPLES)
       install(TARGETS ${AOM_INSTALL_BINS} DESTINATION
-                      "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
+                      "${CMAKE_INSTALL_BINDIR}")
     endif()
   endif()
 endmacro()
