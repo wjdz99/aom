@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93639b93_5c349aa6",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-25T19:23:48Z",
+      "side": 0,
+      "message": "Probably no harm in keeping the old test as it is, and adding a new one.",
+      "range": {
+        "startLine": 501,
+        "startChar": 0,
+        "endLine": 501,
+        "endChar": 56
+      },
+      "revId": "485cbcec21cedbc1c1b7905ba687ee73f923642e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
