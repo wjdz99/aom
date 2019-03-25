@@ -22,6 +22,30 @@
       "revId": "485cbcec21cedbc1c1b7905ba687ee73f923642e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8969842_5a602cf0",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-03-25T20:03:53Z",
+      "side": 0,
+      "message": "All the stride/dim tests are covered in TestVaryingStridesVaryingDimImages (all these tests operate on square images) while ValidPadding has been integrated into TestMultilayerConvolution and TestRELUSingleLayer.",
+      "parentUuid": "93639b93_5c349aa6",
+      "range": {
+        "startLine": 501,
+        "startChar": 0,
+        "endLine": 501,
+        "endChar": 56
+      },
+      "revId": "485cbcec21cedbc1c1b7905ba687ee73f923642e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
