@@ -5459,6 +5459,11 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       generate_psnr_packet(cpi);
     }
   }
+
+  if (oxcf->pass != 1 && !cm->show_existing_frame)
+    printf("frame_header_count %d\n",
+           cpi->frame_header_count);
+
   if (cpi->keep_level_stats && oxcf->pass != 1 && !cm->show_existing_frame)
     av1_update_level_info(cpi, *size, *time_stamp, *time_end);
 
@@ -5694,7 +5699,7 @@ aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi) {
   if (payload_offset + sequence_header_size > sizeof(header_buf)) return NULL;
   memmove(&header_buf[payload_offset], &header_buf[0], sequence_header_size);
 
-  if (write_obu_header(OBU_SEQUENCE_HEADER, 0, &header_buf[0]) !=
+  if (av1_write_obu_header(cpi, OBU_SEQUENCE_HEADER, 0, &header_buf[0]) !=
       obu_header_size) {
     return NULL;
   }
