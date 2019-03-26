@@ -3460,8 +3460,9 @@ BEGIN_PARTITION_SEARCH:
           // search is terminated for current branch of the partition search
           // tree. The dist & rate thresholds are set to 0 at speed 0 to
           // disable the early termination at that speed.
-          if (best_rdc.dist < dist_breakout_thr &&
-              best_rdc.rate < rate_breakout_thr) {
+          if ((best_rdc.dist < (dist_breakout_thr >> 2)) ||
+              (best_rdc.dist < dist_breakout_thr &&
+               best_rdc.rate < rate_breakout_thr)) {
             do_square_split = 0;
             do_rectangular_split = 0;
           }
