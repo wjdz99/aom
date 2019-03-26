@@ -19,6 +19,8 @@
 extern "C" {
 #endif
 
+#define RC_USE_RANKING 1
+
 struct AV1_COMP;
 struct EncodeFrameParams;
 

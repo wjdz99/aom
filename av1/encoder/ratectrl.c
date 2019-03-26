@@ -804,12 +804,6 @@ static int rc_pick_q_and_bounds_one_pass_cbr(const AV1_COMP *cpi, int width,
   return q;
 }
 
-static int gf_group_pyramid_level(const AV1_COMP *cpi) {
-  const GF_GROUP *gf_group = &cpi->twopass.gf_group;
-  int this_height = gf_group->pyramid_level[gf_group->index];
-  return this_height;
-}
-
 static int get_active_cq_level(const RATE_CONTROL *rc,
                                const AV1EncoderConfig *const oxcf,
                                int intra_only, int superres_denom) {
@@ -1018,8 +1012,16 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
   const int bit_depth = cm->seq_params.bit_depth;
   ASSIGN_MINQ_TABLE(bit_depth, inter_minq);
 
-  const int is_intrl_arf_boost =
+  const int boost_height = gf_group->rc_boost_level[gf_group->index];
+
+#if RC_USE_RANKING
+  // TODO(sarahparker) this should work with the old structure so the #if
+  // is probably not necessary here
+  const int is_boosted_pyr_frame = (boost_height > 0);
+#else
+  const int is_boosted_pyr_frame =
       gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE;
+#endif
 
   if (frame_is_intra_only(cm)) {
     if (rc->frames_to_key == 1 && oxcf->rc_mode == AOM_Q) {
@@ -1091,7 +1093,7 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
           av1_compute_qdelta(rc, q_val, q_val * q_adj_factor, bit_depth);
     }
   } else if (!rc->is_src_frame_alt_ref &&
-             (cpi->refresh_golden_frame || is_intrl_arf_boost ||
+             (cpi->refresh_golden_frame || is_boosted_pyr_frame ||
               cpi->refresh_alt_ref_frame)) {
     // Use the lower of active_worst_quality and recent
     // average Q as basis for GF/ARF best Q limit unless last frame was
@@ -1117,17 +1119,17 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
 
         active_best_quality = min_boost - (int)(boost * rc->arf_boost_factor);
         *arf_q = active_best_quality;
-      } else if (is_intrl_arf_boost) {
+      } else if (is_boosted_pyr_frame) {
         assert(rc->arf_q >= 0);  // Ensure it is set to a valid value.
         active_best_quality = rc->arf_q;
-        int this_height = gf_group_pyramid_level(cpi);
+        int this_height = boost_height;
         while (this_height < gf_group->pyramid_height) {
           active_best_quality = (active_best_quality + cq_level + 1) / 2;
           ++this_height;
         }
       }
     } else if (oxcf->rc_mode == AOM_Q) {
-      if (!cpi->refresh_alt_ref_frame && !is_intrl_arf_boost) {
+      if (!cpi->refresh_alt_ref_frame && !is_boosted_pyr_frame) {
         active_best_quality = cq_level;
       } else {
         if (gf_group->update_type[gf_group->index] == ARF_UPDATE) {
@@ -1139,9 +1141,9 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
           *arf_q = active_best_quality;
         } else {
           assert(rc->arf_q >= 0);  // Ensure it is set to a valid value.
-          assert(is_intrl_arf_boost);
+          assert(is_boosted_pyr_frame);
           active_best_quality = rc->arf_q;
-          int this_height = gf_group_pyramid_level(cpi);
+          int this_height = boost_height;
           while (this_height < gf_group->pyramid_height) {
             active_best_quality = (active_best_quality + cq_level + 1) / 2;
             ++this_height;
@@ -1154,8 +1156,8 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
       const int boost = min_boost - active_best_quality;
 
       active_best_quality = min_boost - (int)(boost * rc->arf_boost_factor);
-      if (is_intrl_arf_boost) {
-        int this_height = gf_group_pyramid_level(cpi);
+      if (is_boosted_pyr_frame) {
+        int this_height = boost_height;
         while (this_height < gf_group->pyramid_height) {
           active_best_quality =
               (active_best_quality + active_worst_quality + 1) / 2;
@@ -1164,6 +1166,7 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
       }
     }
   } else {
+    assert(this_height == 0);
     if (oxcf->rc_mode == AOM_Q) {
       active_best_quality = cq_level;
     } else {
@@ -1182,7 +1185,7 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
   if (cpi->oxcf.rc_mode != AOM_Q) {
     if (frame_is_intra_only(cm) ||
         (!rc->is_src_frame_alt_ref &&
-         (cpi->refresh_golden_frame || is_intrl_arf_boost ||
+         (cpi->refresh_golden_frame || is_boosted_pyr_frame ||
           cpi->refresh_alt_ref_frame))) {
       active_best_quality -=
           (cpi->twopass.extend_minq + cpi->twopass.extend_minq_fast);

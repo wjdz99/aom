@@ -582,6 +582,9 @@ static void allocate_gf_group_bits(
   const int max_bits = frame_max_bits(&cpi->rc, &cpi->oxcf);
   int64_t total_group_bits = gf_group_bits;
   int ext_arf_boost[MAX_EXT_ARFS];
+  int update_ind = 0;
+  int boost_height = 0;
+  int is_boosted_frame = 0;
 
   av1_zero_array(ext_arf_boost, MAX_EXT_ARFS);
 
@@ -641,23 +644,36 @@ static void allocate_gf_group_bits(
         clamp((int)((double)total_group_bits * err_fraction), 0,
               AOMMIN(max_bits, (int)total_group_bits));
 
+    boost_height = gf_group->rc_boost_level[frame_index];
+#if RC_USE_RANKING
+    // TODO(sarahparker) this should work for both cases and we can probably
+    // remove the #if
+    is_boosted_frame =
+        (boost_height > 0) &&
+        ((gf_group->update_type[frame_index] == INTNL_OVERLAY_UPDATE) ||
+         (gf_group->update_type[frame_index] == LF_UPDATE));
+#else
+    is_boosted_frame =
+        (gf_group->update_type[frame_index] == INTNL_OVERLAY_UPDATE);
+#endif
     if (gf_group->update_type[frame_index] == INTNL_OVERLAY_UPDATE) {
       assert(gf_group->pyramid_height <= MAX_PYRAMID_LVL &&
              "non-valid height for a pyramid structure");
 
-      const int arf_pos = gf_group->arf_pos_in_gf[frame_index];
+      update_ind = gf_group->arf_pos_in_gf[frame_index];
       gf_group->bit_allocation[frame_index] = 0;
-
-      gf_group->bit_allocation[arf_pos] = target_frame_size;
       // Note: Boost, if needed, is added in the next loop.
     } else {
-      assert(gf_group->update_type[frame_index] == LF_UPDATE ||
-             gf_group->update_type[frame_index] == INTNL_OVERLAY_UPDATE);
-      gf_group->bit_allocation[frame_index] = target_frame_size;
+      assert(gf_group->update_type[frame_index] == LF_UPDATE);
+      update_ind = frame_index;
+    }
+
+    gf_group->bit_allocation[update_ind] = target_frame_size;
+    if (!is_boosted_frame) {
       if (cpi->num_extra_arfs > 0) {
         const int this_budget_reduction =
             (int)(target_frame_size * LEAF_REDUCTION_FACTOR);
-        gf_group->bit_allocation[frame_index] -= this_budget_reduction;
+        gf_group->bit_allocation[update_ind] -= this_budget_reduction;
         budget_reduced_from_leaf_level += this_budget_reduction;
       }
     }
@@ -681,15 +697,36 @@ static void allocate_gf_group_bits(
       if (gf_group->update_type[frame_index] == INTNL_OVERLAY_UPDATE) {
         assert(gf_group->pyramid_height <= MAX_PYRAMID_LVL &&
                "non-valid height for a pyramid structure");
-        const int arf_pos = gf_group->arf_pos_in_gf[frame_index];
-        const int this_lvl = gf_group->pyramid_level[arf_pos];
+        update_ind = gf_group->arf_pos_in_gf[frame_index];
+      } else {
+        update_ind = frame_index;
+      }
+      boost_height = gf_group->rc_boost_level[update_ind];
+#if RC_USE_RANKING
+      // TODO(sarahparker) this should work for both cases and we can probably
+      // remove the #if
+      is_boosted_frame =
+          (boost_height > 0) &&
+          ((gf_group->update_type[frame_index] == INTNL_OVERLAY_UPDATE) ||
+           (gf_group->update_type[frame_index] == LF_UPDATE));
+#else
+      is_boosted_frame =
+          (gf_group->update_type[frame_index] == INTNL_OVERLAY_UPDATE);
+#endif
+      if (is_boosted_frame) {
+        const int this_lvl = boost_height;  // replaced by ranking
         const int dist2top = gf_group->pyramid_height - 1 - this_lvl;
         const double lvl_boost_factor =
             lvl_budget_factor[gf_group->pyramid_height - 2][dist2top];
-        const int extra_size =
-            (int)(budget_reduced_from_leaf_level * lvl_boost_factor /
-                  gf_group->pyramid_lvl_nodes[this_lvl]);
-        gf_group->bit_allocation[arf_pos] += extra_size;
+        // TODO(sarahparker) merge these two arrays
+#if RC_USE_RANKING
+        const int level_nodes = gf_group->pyramid_rank_lvl_nodes[this_lvl];
+#else
+        const int level_nodes = gf_group->pyramid_lvl_nodes[this_lvl];
+#endif
+        const int extra_size = (int)(budget_reduced_from_leaf_level *
+                                     lvl_boost_factor / level_nodes);
+        gf_group->bit_allocation[update_ind] += extra_size;
       }
       ++frame_index;
 
@@ -722,6 +759,63 @@ static INLINE int is_almost_static(double gf_zero_motion, int kf_zero_motion) {
 #define RC_FACTOR_MAX 1.75
 #endif  // GROUP_ADAPTIVE_MAXQ
 #define MIN_FWD_KF_INTERVAL 8
+
+static void rank_frames_by_ref_use(
+    AV1_COMP *cpi, const EncodeFrameParams *const frame_params) {
+  TWO_PASS *const twopass = &cpi->twopass;
+  GF_GROUP *const gf_group = &twopass->gf_group;
+  // RATE_CONTROL *const rc = &cpi->rc;
+  assert(cm->seq_params.order_hint_info.enable_order_hint);
+  (void)frame_params;
+  // TODO(sarahparker) Automate ranking generation, this is a hard coded
+  // ranking for testing
+  /*
+   //ranking by duration
+                                    // 0   1   2   3
+  int ranking[MAX_GF_INTERVAL + 1] = { 1, 16, 10, 12,
+                                    // 4   5   6   7
+                                       8, 15,  9,  4,
+                                    // 8   9  10  11
+                                       3, 14, 11, 13,
+                                    // 12 13 14 15 16
+                                       7, 6, 2, 5, 0 };
+                                       */
+  // ranking by height
+  // 0   1   2   3
+  int ranking[MAX_GF_INTERVAL + 1] = { 0, 9, 5, 10,
+                                       // 4   5   6   7
+                                       3, 11, 6, 12,
+                                       // 8   9  10  11
+                                       2, 13, 7, 14,
+                                       // 12 13  14  15  16
+                                       4, 15, 8, 16, 1 };
+
+  int level[MAX_GF_INTERVAL + 1] = { 4, 4, 3, 2, 2, 1, 1, 1, 1,
+                                     0, 0, 0, 0, 0, 0, 0, 0 };
+
+  for (int frame_index = 0; frame_index <= gf_group->gf_update_frames;
+       ++frame_index) {
+#if RC_USE_RANKING
+    // Only currently tested on gf interval of 16
+    assert(RC_USE_RANKING && cpi->rc.baseline_gf_interval == 16 &&
+           cpi->twopass.gf_group.pyramid_height == 4);
+
+    const int disp_order = gf_group->display_order[frame_index];
+    const int rank = ranking[disp_order];
+    const int cur_level = level[rank];
+    gf_group->rc_boost_level[frame_index] = cur_level;
+
+    // Don't count internal altrefs twice
+    if (gf_group->update_type[frame_index] != INTNL_OVERLAY_UPDATE)
+      gf_group->pyramid_rank_lvl_nodes[cur_level]++;
+#else
+    (void)ranking;
+    (void)level;
+    gf_group->rc_boost_level[frame_index] =
+        gf_group->pyramid_level[frame_index];
+#endif
+  }
+}
 
 // Analyse and define a gf/arf group.
 static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
@@ -988,6 +1082,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   } else {
     rc->baseline_gf_interval = i - rc->source_alt_ref_pending;
   }
+  rc->baseline_gf_interval = 16;
 
 #define LAST_ALR_BOOST_FACTOR 0.2f
   rc->arf_boost_factor = 1.0;
@@ -1081,6 +1176,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
   // Set up the structure of this Group-Of-Pictures (same as GF_GROUP)
   av1_gop_setup_structure(cpi, frame_params);
+
+  // Rank ref frames
+  rank_frames_by_ref_use(cpi, frame_params);
 
   // Allocate bits to each of the frames in the GF group.
   allocate_gf_group_bits(cpi, gf_group_bits, gf_group_error_left, gf_arf_bits,
