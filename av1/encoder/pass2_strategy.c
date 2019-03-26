@@ -924,6 +924,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   // The length reduction strategy is tweaked for certain cases, and doesn't
   // work well for certain other cases.
   const int allow_gf_length_reduction =
+      (i > active_min_gf_interval + 1) &&
       ((cpi->oxcf.rc_mode == AOM_Q && cpi->oxcf.cq_level <= 128) ||
        !cpi->internal_altref_allowed) &&
       !is_lossless_requested(&cpi->oxcf);
