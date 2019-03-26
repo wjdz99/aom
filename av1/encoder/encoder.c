@@ -3377,11 +3377,12 @@ static void scale_references(AV1_COMP *cpi) {
         }
 
         if (force_scaling || new_fb->buf.y_crop_width != cm->width ||
-            new_fb->buf.y_crop_height != cm->height) {
+            new_fb->buf.y_crop_height != cm->height ||
+            new_fb->buf.border != AOM_BORDER_IN_PIXELS) {
           if (aom_realloc_frame_buffer(
                   &new_fb->buf, cm->width, cm->height,
                   cm->seq_params.subsampling_x, cm->seq_params.subsampling_y,
-                  cm->seq_params.use_highbitdepth, cpi->oxcf.border_in_pixels,
+                  cm->seq_params.use_highbitdepth, AOM_BORDER_IN_PIXELS,
                   cm->byte_alignment, NULL, NULL, NULL)) {
             if (force_scaling) {
               // Release the reference acquired in the get_free_fb() call above.
