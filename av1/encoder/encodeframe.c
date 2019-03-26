@@ -3166,7 +3166,6 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
                                cpi->oxcf.enable_rect_partitions;
   int partition_vert_allowed = has_rows && xss <= yss && bsize_at_least_8x8 &&
                                cpi->oxcf.enable_rect_partitions;
-
   (void)*tp_orig;
 
 #if CONFIG_COLLECT_PARTITION_STATS
@@ -3655,6 +3654,7 @@ BEGIN_PARTITION_SEARCH:
       sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
       if (sum_rdc.rdcost < best_rdc.rdcost) {
         best_rdc = sum_rdc;
+        if (pc_tree->partitioning == PARTITION_NONE) prune_vert = 1;
         pc_tree->partitioning = PARTITION_HORZ;
       }
     }
