@@ -843,9 +843,7 @@ static aom_codec_err_t set_encoder_config(
 
   oxcf->chroma_subsampling_x = extra_cfg->chroma_subsampling_x;
   oxcf->chroma_subsampling_y = extra_cfg->chroma_subsampling_y;
-  oxcf->border_in_pixels = (oxcf->resize_mode || oxcf->superres_mode)
-                               ? AOM_BORDER_IN_PIXELS
-                               : AOM_ENC_NO_SCALE_BORDER;
+  oxcf->border_in_pixels = AOM_BORDER_IN_PIXELS;
   memcpy(oxcf->target_seq_level_idx, extra_cfg->target_seq_level_idx,
          sizeof(oxcf->target_seq_level_idx));
   oxcf->tier_mask = extra_cfg->tier_mask;
