@@ -119,6 +119,11 @@ static void set_good_speed_feature_framesize_dependent(
   if (speed >= 1) {
     if (is_720p_or_larger) {
       sf->use_square_partition_only_threshold = BLOCK_128X128;
+
+      if (speed >= CONFIG_2PASS_PARTITION_SEARCH_LVL_START &&
+          speed < CONFIG_2PASS_PARTITION_SEARCH_LVL_END) {
+        sf->two_pass_partition_search = 1;
+      }
     } else if (is_480p_or_larger) {
       sf->use_square_partition_only_threshold = BLOCK_64X64;
     } else {
@@ -225,9 +230,6 @@ static void set_good_speed_features_framesize_independent(
 
     sf->intra_tx_size_search_init_depth_rect = 1;
     sf->tx_size_search_lgr_block = 1;
-    if (speed >= CONFIG_2PASS_PARTITION_SEARCH_LVL_START &&
-        speed < CONFIG_2PASS_PARTITION_SEARCH_LVL_END)
-      sf->two_pass_partition_search = 1;
 
     sf->prune_ext_partition_types_search_level = 2;
     sf->skip_repeat_interpolation_filter_search = 1;
