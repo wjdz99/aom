@@ -333,6 +333,7 @@ static void set_good_speed_features_framesize_independent(
     // TODO(Venkat): Evaluate this speed feature for speed 1 & 2
     sf->simple_motion_search_split_only =
         cm->allow_screen_content_tools ? 1 : 2;
+    sf->prune_none_part_search = boosted ? 0 : 1;
     sf->disable_smooth_intra =
         !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
   }
@@ -749,6 +750,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
     sf->ml_partition_search_breakout_thresh[i] = -1;  // -1 means not enabled.
   }
   sf->simple_motion_search_split_only = 0;
+  sf->prune_none_part_search = 0;
   sf->simple_motion_search_prune_rect = 0;
   sf->simple_motion_search_early_term_none = 0;
 

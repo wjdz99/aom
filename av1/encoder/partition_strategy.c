@@ -120,6 +120,10 @@ void av1_simple_motion_search_based_split(
       *partition_vert_allowed = 0;
       *do_rectangular_split = 0;
     }
+    if (cpi->sf.prune_none_part_search) {
+      if (score > (split_only_thresh / 1.5)) *partition_none_allowed = 0;
+    }
+
     // TODO(Venkat): Experiment to skip only rectangular/extended parititions
     if (cpi->sf.simple_motion_search_split_only >= 2) {
       if (score < -split_only_thresh) *do_square_split = 0;
