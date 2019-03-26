@@ -1037,6 +1037,7 @@ void av1_iidentity4_c(const int32_t *input, int32_t *output, int8_t cos_bit,
   (void)stage_range;
   for (int i = 0; i < 4; ++i) {
     output[i] = round_shift((int64_t)NewSqrt2 * input[i], NewSqrt2Bits);
+    range_check_value(output[i], stage_range[0]);
   }
   assert(stage_range[0] + NewSqrt2Bits <= 32);
 }
@@ -1045,15 +1046,20 @@ void av1_iidentity8_c(const int32_t *input, int32_t *output, int8_t cos_bit,
                       const int8_t *stage_range) {
   (void)cos_bit;
   (void)stage_range;
-  for (int i = 0; i < 8; ++i) output[i] = (int32_t)((int64_t)input[i] * 2);
+  for (int i = 0; i < 8; ++i) {
+    output[i] = (int32_t)((int64_t)input[i] * 2);
+    range_check_value(output[i], stage_range[0]);
+  }
 }
 
 void av1_iidentity16_c(const int32_t *input, int32_t *output, int8_t cos_bit,
                        const int8_t *stage_range) {
   (void)cos_bit;
   (void)stage_range;
-  for (int i = 0; i < 16; ++i)
+  for (int i = 0; i < 16; ++i) {
     output[i] = round_shift((int64_t)NewSqrt2 * 2 * input[i], NewSqrt2Bits);
+    range_check_value(output[i], stage_range[0]);
+  }
   assert(stage_range[0] + NewSqrt2Bits <= 32);
 }
 
@@ -1061,7 +1067,10 @@ void av1_iidentity32_c(const int32_t *input, int32_t *output, int8_t cos_bit,
                        const int8_t *stage_range) {
   (void)cos_bit;
   (void)stage_range;
-  for (int i = 0; i < 32; ++i) output[i] = (int32_t)((int64_t)input[i] * 4);
+  for (int i = 0; i < 32; ++i) {
+    output[i] = (int32_t)((int64_t)input[i] * 4);
+    range_check_value(output[i], stage_range[0]);
+  }
 }
 
 void av1_idct64_new(const int32_t *input, int32_t *output, int8_t cos_bit,
