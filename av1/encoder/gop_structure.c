@@ -41,6 +41,7 @@ static void set_multi_layer_params(GF_GROUP *const gf_group, int start, int end,
       gf_group->update_type[*frame_ind] = LF_UPDATE;
       gf_group->arf_src_offset[*frame_ind] = 0;
       gf_group->arf_pos_in_gf[*frame_ind] = 0;
+      gf_group->display_order[*frame_ind] = end - 1;
       gf_group->arf_update_idx[*frame_ind] = arf_ind;
       gf_group->pyramid_level[*frame_ind] = MIN_PYRAMID_LVL;
       ++gf_group->pyramid_lvl_nodes[MIN_PYRAMID_LVL];
@@ -53,6 +54,7 @@ static void set_multi_layer_params(GF_GROUP *const gf_group, int start, int end,
     // Internal ARF.
     gf_group->update_type[*frame_ind] = INTNL_ARF_UPDATE;
     gf_group->arf_src_offset[*frame_ind] = m - start - 1;
+    gf_group->display_order[*frame_ind] = m;
     gf_group->arf_pos_in_gf[*frame_ind] = 0;
     gf_group->arf_update_idx[*frame_ind] = 1;  // mark all internal ARF 1
     gf_group->pyramid_level[*frame_ind] = level;
@@ -65,6 +67,7 @@ static void set_multi_layer_params(GF_GROUP *const gf_group, int start, int end,
     // Overlay for internal ARF.
     gf_group->update_type[*frame_ind] = INTNL_OVERLAY_UPDATE;
     gf_group->arf_src_offset[*frame_ind] = 0;
+    gf_group->display_order[*frame_ind] = m;
     gf_group->arf_pos_in_gf[*frame_ind] = arf_pos_in_gf;  // For bit allocation.
     gf_group->arf_update_idx[*frame_ind] = 1;
     gf_group->pyramid_level[*frame_ind] = MIN_PYRAMID_LVL;
@@ -90,6 +93,7 @@ static int construct_multi_layer_gf_structure(
   gf_group->update_type[frame_index] = first_frame_update_type;
   gf_group->arf_src_offset[frame_index] = 0;
   gf_group->arf_pos_in_gf[frame_index] = 0;
+  gf_group->display_order[frame_index] = 0;
   gf_group->arf_update_idx[frame_index] = 0;
   gf_group->pyramid_level[frame_index] = MIN_PYRAMID_LVL;
   ++frame_index;
@@ -99,6 +103,7 @@ static int construct_multi_layer_gf_structure(
   if (use_altref) {
     gf_group->update_type[frame_index] = ARF_UPDATE;
     gf_group->arf_src_offset[frame_index] = gf_interval - 1;
+    gf_group->display_order[frame_index] = gf_interval;
     gf_group->arf_pos_in_gf[frame_index] = 0;
     gf_group->arf_update_idx[frame_index] = 0;
     gf_group->pyramid_level[frame_index] = gf_group->pyramid_height;
@@ -232,6 +237,7 @@ static void define_pyramid_gf_group_structure(
   gf_group->brf_src_offset[gf_update_frames] = 0;
   gf_group->arf_update_idx[gf_update_frames] = 0;
   gf_group->arf_pos_in_gf[gf_update_frames] = 0;
+  gf_group->gf_update_frames = gf_update_frames;
 
 #if CHECK_GF_PARAMETER
   check_frame_params(gf_group, rc->baseline_gf_interval, gf_update_frames);

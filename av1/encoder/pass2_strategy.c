@@ -764,6 +764,65 @@ static INLINE int is_almost_static(double gf_zero_motion, int kf_zero_motion) {
 #endif  // GROUP_ADAPTIVE_MAXQ
 #define MIN_FWD_KF_INTERVAL 8
 
+#define RC_USE_RANKING 0
+static void rank_frames_by_ref_use(AV1_COMP *cpi,
+                                   const EncodeFrameParams *const frame_params) {
+  AV1_COMMON *const cm = &cpi->common;
+  TWO_PASS *const twopass = &cpi->twopass;
+  GF_GROUP *const gf_group = &twopass->gf_group;
+  //RATE_CONTROL *const rc = &cpi->rc;
+  assert(cm->seq_params.order_hint_info.enable_order_hint);
+  (void)frame_params;
+  // TODO(sarahparker) Automate ranking generation, this is a hard coded
+  // ranking for testing
+                                    // 0   1   2   3
+  int ranking[MAX_GF_INTERVAL + 1] = { 1, 16, 10, 12,
+                                    // 4   5   6   7
+                                       8, 15, 9, 4,
+                                    // 8   0  10  11
+                                       3, 14, 11, 13,
+                                    // 12 13 14 15 16
+                                       7, 6, 2, 5, 0 };
+  int level[MAX_GF_INTERVAL + 1] = { 1, // 0
+                                     6, // 1
+                                     0, // 2
+                                     2, // 3
+                                     8, // 4
+                                     5, // 5
+                                     9, // 6
+                                     4, // 7
+                                     3, // 8
+                                     4, // 9
+                                     1, // 10
+                                     3, // 11
+                                     7, // 12
+                                     6, // 13
+                                     2, // 14
+                                     5, // 15
+                                     0  // 16
+  };
+  int use_ranking =
+      RC_USE_RANKING && cpi->rc.baseline_gf_interval == 16
+      && cpi->twopass.gf_group.pyramid_height == 4
+      && cpi->new_bwdref_update_rule;
+
+  for (int frame_index = 0; frame_index <= gf_group->gf_update_frames; ++frame_index) {
+#if RC_USE_RANKING
+    if (use_ranking) {
+      const int disp_order = gf_group->display_order[frame_index];
+      gf_group->rc_boost_level[frame_index] = level[ranking[disp_order]];
+    } else {
+      gf_group->rc_boost_level[frame_index] = gf_group->pyramid_level[frame_index];
+    }
+#else
+    (void)use_ranking;
+    (void)ranking;
+    (void)level;
+    gf_group->rc_boost_level[frame_index] = gf_group->pyramid_level[frame_index];
+#endif
+  }
+}
+
 // Analyse and define a gf/arf group.
 static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
                             const EncodeFrameParams *const frame_params) {
@@ -1029,6 +1088,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   } else {
     rc->baseline_gf_interval = i - rc->source_alt_ref_pending;
   }
+  rc->baseline_gf_interval = 16;
 
 #define LAST_ALR_BOOST_FACTOR 0.2f
   rc->arf_boost_factor = 1.0;
@@ -1126,6 +1186,15 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
   // Set up the structure of this Group-Of-Pictures (same as GF_GROUP)
   av1_gop_setup_structure(cpi, frame_params);
+
+  // Rank ref frames
+  //if (cm->seq_params.order_hint_info.enable_order_hint)
+  /*
+  if (cpi->rc.baseline_gf_interval == 16
+      && cpi->twopass.gf_group.pyramid_height == 4
+      && cpi->new_bwdref_update_rule)
+      */
+  rank_frames_by_ref_use(cpi, frame_params);
 
   // Allocate bits to each of the frames in the GF group.
   allocate_gf_group_bits(cpi, gf_group_bits, gf_group_error_left, gf_arf_bits,
