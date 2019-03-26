@@ -32,6 +32,9 @@
 #include "av1/encoder/temporal_filter.h"
 #include "av1/encoder/tpl_model.h"
 
+
+
+
 void av1_configure_buffer_updates(AV1_COMP *const cpi,
                                   EncodeFrameParams *const frame_params,
                                   const FRAME_UPDATE_TYPE type,
@@ -812,6 +815,7 @@ static void assign_new_map(AV1_COMMON *const cm, int *new_map, int new_ref,
   new_map[new_ref - LAST_FRAME] = cm->remapped_ref_idx[old_ref - LAST_FRAME];
 }
 
+//sarahparker
 // Generate a new reference frame mapping.  This function updates
 // cm->remapped_ref_idx[] depending on the frame_update_type of this frame.
 // This determines which references (e.g. LAST_FRAME, ALTREF_FRAME) point at the
@@ -967,6 +971,7 @@ static void update_ref_frame_map(AV1_COMP *cpi,
 #endif  // DUMP_REF_FRAME_IMAGES
 }
 
+//sarahparker
 static int get_refresh_frame_flags(const AV1_COMP *const cpi,
                                    const EncodeFrameParams *const frame_params,
                                    FRAME_UPDATE_TYPE frame_update_type) {
@@ -1021,6 +1026,8 @@ static int get_refresh_frame_flags(const AV1_COMP *const cpi,
   // buffer management strategy currently in use.  This function just decides
   // which buffers should be refreshed.
 
+  //TODO(sarahparker) refactor out these rules, everything below will already be
+  // decided when gf group is created
   switch (frame_update_type) {
     case KF_UPDATE:
       // Note that a real shown key-frame or S-frame refreshes every buffer,

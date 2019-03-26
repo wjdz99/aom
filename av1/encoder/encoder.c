@@ -4816,6 +4816,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
   cpi->two_pass_partition_search = cpi->sf.two_pass_partition_search &&
                                    !cpi->partition_search_skippable_frame;
+  if (current_frame->frame_type == KEY_FRAME) printf("KEY FRAME\n");
 
   if (encode_show_existing_frame(cm)) {
     restore_coding_context(cpi);
