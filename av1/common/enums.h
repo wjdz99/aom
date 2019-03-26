@@ -25,6 +25,8 @@ extern "C" {
 #undef MAX_SB_SIZE
 
 #define UPDATE_DIFFWTD_MV 1
+#define FIXED_DIFFWTD_WEIGHT 1
+#define DIFFWTD_WEIGHT 43
 
 // Max superblock size
 #define MAX_SB_SIZE_LOG2 7
