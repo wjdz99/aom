@@ -901,6 +901,8 @@ static int get_refresh_frame_flags(const AV1_COMP *const cpi,
   // buffer management strategy currently in use.  This function just decides
   // which buffers should be refreshed.
 
+  //TODO(sarahparker) refactor out these rules, everything below will already be
+  // decided when gf group is created
   switch (frame_update_type) {
     case KF_UPDATE:
       // Note that a real shown key-frame or S-frame refreshes every buffer,
