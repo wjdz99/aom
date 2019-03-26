@@ -227,6 +227,7 @@ typedef enum {
   CROPPED_TILE_WIDTH_TOO_SMALL,
   CROPPED_TILE_HEIGHT_TOO_SMALL,
   TILE_WIDTH_INVALID,
+  DISPLAY_RATE_TOO_LARGE,
 
   TARGET_LEVEL_FAIL_IDS
 } TARGET_LEVEL_FAIL_ID;
@@ -241,6 +242,7 @@ static const char *level_fail_messages[TARGET_LEVEL_FAIL_IDS] = {
   "The cropped tile width is less than 8",
   "The cropped tile height is less than 8",
   "The tile width is invalid",
+  "The display luma sample rate is too large",
 };
 
 static void check_level_constraints(AV1_COMP *cpi, int operating_point_idx,
@@ -296,6 +298,11 @@ static void check_level_constraints(AV1_COMP *cpi, int operating_point_idx,
 
     if (!level_spec->tile_width_is_valid) {
       fail_id = TILE_WIDTH_INVALID;
+      break;
+    }
+
+    if (level_spec->max_display_rate > target_level_spec->max_display_rate) {
+      fail_id = DISPLAY_RATE_TOO_LARGE;
       break;
     }
   } while (0);
@@ -369,11 +376,19 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
   const AV1_COMMON *const cm = &cpi->common;
   const int upscaled_width = cm->superres_upscaled_width;
   const int height = cm->height;
+  const int luma_pic_size = upscaled_width * height;
+  int64_t display_rate = 0;
+  aom_clear_system_state();
+  if (cm->show_frame) {
+    const double display_time =
+        AOMMAX(ts_end - ts_start, 1) / (double)TICKS_PER_SEC;
+    display_rate = (int64_t)(luma_pic_size / display_time);
+  }
+
+
   const int tile_cols = cm->tile_cols;
   const int tile_rows = cm->tile_rows;
   const int tiles = tile_cols * tile_rows;
-  const int luma_pic_size = upscaled_width * height;
-
   int max_tile_size;
   int min_cropped_tile_width;
   int min_cropped_tile_height;
@@ -388,8 +403,6 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
   const size_t frame_compressed_size = (size > 129 ? size - 128 : 1);
   const size_t frame_uncompressed_size =
       (luma_pic_size * pic_size_profile_factor) >> 3;
-
-  aom_clear_system_state();
   const double compression_ratio =
       frame_uncompressed_size / (double)frame_compressed_size;
   const double total_time_encoded =
@@ -431,11 +444,13 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
     level_spec->min_cropped_tile_height =
         AOMMIN(level_spec->min_cropped_tile_height, min_cropped_tile_height);
     level_spec->tile_width_is_valid &= tile_width_is_valid;
+    if (cm->show_frame) {
+      level_spec->max_display_rate =
+          AOMMAX(level_spec->max_display_rate, display_rate);
+    }
 
     // TODO(kyslov@) These are needed for further level stat calculations
     (void)compression_ratio;
-    (void)ts_start;
-    (void)ts_end;
 
     check_level_constraints(cpi, i, level_spec);
   }
