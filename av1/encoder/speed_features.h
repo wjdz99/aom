@@ -580,12 +580,10 @@ typedef struct SPEED_FEATURES {
   // adding a penalty of 1%
   int dual_sgr_penalty_level;
 
+
   // 2-pass inter mode model estimation where the preliminary pass skips
   // transform search and uses a model to estimate rd, while the final pass
-  // computes the full transform search. two types of models are supported:
-  // 0: not used
-  // 1: used with online dynamic rd model
-  // 2: used with static rd model
+  // computes the full transform search.
   int inter_mode_rd_model_estimation;
 
   // Skip some ref frames in compound motion search by single motion search
@@ -690,6 +688,11 @@ typedef struct SPEED_FEATURES {
 
   // use reduced ref set for real-time mode
   int use_real_time_ref_set;
+
+  // Perform a full TX search on some modes while using the
+  // inter-mode RD model for others. Only enabled when
+  // inter_mode_rd_model_estimation != 0
+  int inter_mode_rd_model_estimation_adaptive;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
