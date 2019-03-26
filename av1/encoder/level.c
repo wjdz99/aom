@@ -374,6 +374,23 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
   const int tiles = tile_cols * tile_rows;
   const int luma_pic_size = upscaled_width * height;
 
+  // Store info. of current frame into FrameWindowBuffer.
+  int new_idx = 0;
+  FrameWindowBuffer *const buffer = &cpi->frame_window_buffer;
+  if (cpi->frame_window_buffer.num < FRAME_WINDOW_SIZE) {
+    new_idx = (buffer->start + buffer->num++) % FRAME_WINDOW_SIZE;
+  } else {
+    new_idx = buffer->start;
+    buffer->start = (new_idx + 1) % FRAME_WINDOW_SIZE;
+  }
+  FrameRecord *const record = &buffer->buf[new_idx];
+  record->ts_start = ts_start;
+  record->ts_end = ts_end;
+  record->pic_size = luma_pic_size;
+  record->frame_header_count = cpi->frame_header_count;
+  record->show_frame = cm->show_frame;
+  record->show_existing_frame = cm->show_existing_frame;
+
   int max_tile_size;
   int min_cropped_tile_width;
   int min_cropped_tile_height;
@@ -399,7 +416,6 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
   const SequenceHeader *const seq = &cm->seq_params;
   const int temporal_layer_id = cm->temporal_layer_id;
   const int spatial_layer_id = cm->spatial_layer_id;
-
   // update level_stats
   // TODO(kyslov@) fix the implementation according to buffer model
   for (int i = 0; i < seq->operating_points_cnt_minus_1 + 1; ++i) {
