@@ -94,6 +94,10 @@ typedef struct {
   unsigned char pyramid_level[MAX_STATIC_GF_GROUP_LENGTH + 1];
   unsigned char pyramid_height;
   unsigned char pyramid_lvl_nodes[MAX_PYRAMID_LVL];
+  unsigned char pyramid_rank_lvl_nodes[MAX_PYRAMID_LVL];
+  int rc_boost_level[MAX_STATIC_GF_GROUP_LENGTH + 1];
+  int display_order[MAX_STATIC_GF_GROUP_LENGTH + 1];
+  int gf_update_frames;
   int bit_allocation[MAX_STATIC_GF_GROUP_LENGTH + 1];
 } GF_GROUP;
 
