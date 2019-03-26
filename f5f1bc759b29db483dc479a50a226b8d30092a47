@@ -22,6 +22,30 @@
       "revId": "f5f1bc759b29db483dc479a50a226b8d30092a47",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a608deb_3221cace",
+        "filename": "av1/common/cnn.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-03-26T17:17:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8ffc37c_ec9e99bc",
+      "range": {
+        "startLine": 465,
+        "startChar": 18,
+        "endLine": 465,
+        "endChar": 67
+      },
+      "revId": "f5f1bc759b29db483dc479a50a226b8d30092a47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
