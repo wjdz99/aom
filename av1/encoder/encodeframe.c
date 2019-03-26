@@ -3382,6 +3382,13 @@ BEGIN_PARTITION_SEARCH:
       do_square_split = 0;
   }
 #endif
+  // Adjust dist breakout threshold according to the partition size.
+  const int64_t dist_breakout_thr =
+      cpi->sf.partition_search_breakout_dist_thr >>
+      ((2 * (MAX_SB_SIZE_LOG2 - 2)) -
+       (mi_size_wide_log2[bsize] + mi_size_high_log2[bsize]));
+  const int rate_breakout_thr =
+      cpi->sf.partition_search_breakout_rate_thr * num_pels_log2_lookup[bsize];
 
   // PARTITION_NONE
   if (is_le_min_sq_part && has_rows && has_cols) partition_none_allowed = 1;
@@ -3430,15 +3437,6 @@ BEGIN_PARTITION_SEARCH:
       }
 
       if (this_rdc.rdcost < best_rdc.rdcost) {
-        // Adjust dist breakout threshold according to the partition size.
-        const int64_t dist_breakout_thr =
-            cpi->sf.partition_search_breakout_dist_thr >>
-            ((2 * (MAX_SB_SIZE_LOG2 - 2)) -
-             (mi_size_wide_log2[bsize] + mi_size_high_log2[bsize]));
-        const int rate_breakout_thr =
-            cpi->sf.partition_search_breakout_rate_thr *
-            num_pels_log2_lookup[bsize];
-
         best_rdc = this_rdc;
         if (bsize_at_least_8x8) pc_tree->partitioning = PARTITION_NONE;
 
@@ -3460,8 +3458,9 @@ BEGIN_PARTITION_SEARCH:
           // search is terminated for current branch of the partition search
           // tree. The dist & rate thresholds are set to 0 at speed 0 to
           // disable the early termination at that speed.
-          if (best_rdc.dist < dist_breakout_thr &&
-              best_rdc.rate < rate_breakout_thr) {
+          if ((best_rdc.dist < (dist_breakout_thr >> 2)) ||
+              (best_rdc.dist < dist_breakout_thr &&
+               best_rdc.rate < rate_breakout_thr)) {
             do_square_split = 0;
             do_rectangular_split = 0;
           }
@@ -3554,6 +3553,17 @@ BEGIN_PARTITION_SEARCH:
       if (sum_rdc.rdcost < best_rdc.rdcost) {
         best_rdc = sum_rdc;
         pc_tree->partitioning = PARTITION_SPLIT;
+        // If all y, u, v transform blocks in this partition are skippable,
+        // and the dist & rate are within the thresholds, the partition
+        // search is terminated for current branch of the partition search
+        // tree. The dist & rate thresholds are set to 0 at speed 0 to
+        // disable the early termination at that speed.
+        if ((best_rdc.dist < (dist_breakout_thr >> 2)) ||
+            (best_rdc.dist < dist_breakout_thr &&
+             best_rdc.rate < rate_breakout_thr)) {
+          do_square_split = 0;
+          do_rectangular_split = 0;
+        }
       }
     } else if (cpi->sf.less_rectangular_check_level > 0) {
       // skip rectangular partition test when larger block size
