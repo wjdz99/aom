@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d40bb5ab_b0d86b3a",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 8407,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-03-26T15:53:40Z",
+      "side": 1,
+      "message": "Instead of copying part of code here, can we do some refactoring to reduce duplicate code?",
+      "range": {
+        "startLine": 8394,
+        "startChar": 1,
+        "endLine": 8407,
+        "endChar": 29
+      },
+      "revId": "1138dc7aaa8c309bd859fe364b09314f391b4dd2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
