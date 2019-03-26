@@ -3166,7 +3166,6 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
                                cpi->oxcf.enable_rect_partitions;
   int partition_vert_allowed = has_rows && xss <= yss && bsize_at_least_8x8 &&
                                cpi->oxcf.enable_rect_partitions;
-
   (void)*tp_orig;
 
 #if CONFIG_COLLECT_PARTITION_STATS
@@ -3438,6 +3437,9 @@ BEGIN_PARTITION_SEARCH:
         const int rate_breakout_thr =
             cpi->sf.partition_search_breakout_rate_thr *
             num_pels_log2_lookup[bsize];
+        const int64_t cost_breakout_thr =
+            RDCOST(x->rdmult, ((rate_breakout_thr * 3) >> 3),
+                   ((dist_breakout_thr * 3) >> 3));
 
         best_rdc = this_rdc;
         if (bsize_at_least_8x8) pc_tree->partitioning = PARTITION_NONE;
@@ -3460,8 +3462,9 @@ BEGIN_PARTITION_SEARCH:
           // search is terminated for current branch of the partition search
           // tree. The dist & rate thresholds are set to 0 at speed 0 to
           // disable the early termination at that speed.
-          if (best_rdc.dist < dist_breakout_thr &&
-              best_rdc.rate < rate_breakout_thr) {
+          const int64_t best_none_cost =
+              RDCOST(x->rdmult, best_rdc.rate, best_rdc.dist);
+          if (best_none_cost < cost_breakout_thr) {
             do_square_split = 0;
             do_rectangular_split = 0;
           }
