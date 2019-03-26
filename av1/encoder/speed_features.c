@@ -199,8 +199,8 @@ static void set_good_speed_features_framesize_independent(
   sf->model_based_post_interp_filter_breakout = 1;
   sf->model_based_motion_mode_rd_breakout = 1;
 
-  // TODO(debargha): Test, tweak and turn on either 1 or 2
-  sf->inter_mode_rd_model_estimation = 1;
+  // TODO(debargha): Test, tweak and turn on either static or dynamic.
+  sf->inter_mode_rd_model_estimation = ONLINE_MODEL_EST_RD;
   sf->two_loop_comp_search = 0;
   sf->prune_ref_frame_for_rect_partitions =
       boosted ? 0 : (is_boosted_arf2_bwd_type ? 1 : 2);
@@ -431,8 +431,8 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->model_based_post_interp_filter_breakout = 1;
   sf->model_based_motion_mode_rd_breakout = 1;
 
-  // TODO(debargha): Test, tweak and turn on either 1 or 2
-  sf->inter_mode_rd_model_estimation = 0;
+  // TODO(debargha): Test, tweak and turn on either online or static model.
+  sf->inter_mode_rd_model_estimation = ALWAYS_USE_TRUE_RD;
   sf->two_loop_comp_search = 0;
 
   sf->prune_ref_frame_for_rect_partitions = !boosted;
@@ -608,7 +608,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     // and disabled TX64
     if (!cpi->oxcf.enable_tx64) sf->tx_size_search_method = USE_FAST_RD;
     sf->use_nonrd_pick_mode = 1;
-    sf->inter_mode_rd_model_estimation = 2;
+    sf->inter_mode_rd_model_estimation = STATIC_MODEL_EST_RD;
   }
 }
 
@@ -772,7 +772,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   // TODO(angiebird, debargha): Re-evaluate the impact of
   // inter_mode_rd_model_estimation in conjunction with
   // model_based_motion_mode_rd_breakout
-  sf->inter_mode_rd_model_estimation = 0;
+  sf->inter_mode_rd_model_estimation = ALWAYS_USE_TRUE_RD;
 
   sf->obmc_full_pixel_search_level = 0;
   sf->skip_sharp_interp_filter_search = 0;
@@ -881,7 +881,8 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
 #endif  // CONFIG_DIST_8X8
   if (cpi->oxcf.row_mt == 1 && (cpi->oxcf.max_threads > 1)) {
     sf->adaptive_rd_thresh = 0;
-    if (sf->inter_mode_rd_model_estimation == 1)
-      sf->inter_mode_rd_model_estimation = 0;
+    if (sf->inter_mode_rd_model_estimation == ONLINE_MODEL_EST_RD) {
+      sf->inter_mode_rd_model_estimation = ALWAYS_USE_TRUE_RD;
+    }
   }
 }

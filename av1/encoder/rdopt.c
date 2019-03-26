@@ -2573,7 +2573,7 @@ static void PrintPredictionUnitStats(const AV1_COMP *const cpi,
   if (rd_stats->invalid_rate) return;
   if (rd_stats->rate == INT_MAX || rd_stats->dist == INT64_MAX) return;
 
-  if (cpi->sf.inter_mode_rd_model_estimation == 1 &&
+  if (cpi->sf.inter_mode_rd_model_estimation == ONLINE_MODEL_EST_RD &&
       (tile_data == NULL ||
        !tile_data->inter_mode_rd_models[plane_bsize].ready))
     return;
@@ -2681,7 +2681,7 @@ static void PrintPredictionUnitStats(const AV1_COMP *const cpi,
   fprintf(fout, " %g %g %g %g %g %g %g %g", hdist[0], hdist[1], hdist[2],
           hdist[3], vdist[0], vdist[1], vdist[2], vdist[3]);
 
-  if (cpi->sf.inter_mode_rd_model_estimation == 1) {
+  if (cpi->sf.inter_mode_rd_model_estimation == ONLINE_MODEL_EST_RD) {
     assert(tile_data->inter_mode_rd_models[plane_bsize].ready);
     const int64_t overall_sse = get_sse(cpi, x);
     int est_residue_cost = 0;
@@ -9595,14 +9595,15 @@ static int64_t motion_mode_rd(
       int est_residue_cost = 0;
       int64_t est_dist = 0;
       int64_t est_rd = 0;
-      if (cpi->sf.inter_mode_rd_model_estimation == 1) {
+      if (cpi->sf.inter_mode_rd_model_estimation == ONLINE_MODEL_EST_RD) {
         curr_sse = get_sse(cpi, x);
         const int has_est_rd = get_est_rate_dist(tile_data, bsize, curr_sse,
                                                  &est_residue_cost, &est_dist);
         (void)has_est_rd;
         assert(has_est_rd);
-      } else if (cpi->sf.inter_mode_rd_model_estimation == 2 ||
-                 cpi->sf.use_nonrd_pick_mode) {
+      } else if (
+          cpi->sf.inter_mode_rd_model_estimation == STATIC_MODEL_EST_RD ||
+          cpi->sf.use_nonrd_pick_mode) {
         model_rd_sb_fn[MODELRD_TYPE_MOTION_MODE_RD](
             cpi, bsize, x, xd, 0, num_planes - 1, mi_row, mi_col,
             &est_residue_cost, &est_dist, NULL, &curr_sse, NULL, NULL, NULL);
@@ -9646,7 +9647,7 @@ static int64_t motion_mode_rd(
       const int64_t curr_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
       ref_best_rd = AOMMIN(ref_best_rd, curr_rd);
       *disable_skip = 0;
-      if (cpi->sf.inter_mode_rd_model_estimation == 1) {
+      if (cpi->sf.inter_mode_rd_model_estimation == ONLINE_MODEL_EST_RD) {
         const int skip_ctx = av1_get_skip_context(xd);
         inter_mode_data_push(tile_data, mbmi->sb_type, rd_stats->sse,
                              rd_stats->dist,
@@ -12629,17 +12630,17 @@ static void release_compound_type_rd_buffers(
 }
 
 // Enables do_tx_search on a per-mode basis.
-int do_tx_search_mode(int do_tx_search_global, int midx) {
-  // 0 and 1 correspond to off and on for all modes.
-  switch (do_tx_search_global) {
-    case 0:
-    case 1: return do_tx_search_global;
-    default:
-      // Otherwise, turn it on conditionally for some modes.
-      // A value of 2 indicates it is being turned on conditionally
-      // for the mode. Turn it on for the first 7 modes.
-      return midx < 7 ? 2 : 0;
+int do_tx_search_mode(int do_tx_search_global, int midx, InterModeRdCalc calc) {
+  if (do_tx_search_global) {
+    return do_tx_search_global;
   }
+  if (calc != CONDITIONAL_ONLINE_MODEL_EST_RD &&
+      calc != CONDITIONAL_STATIC_MODEL_EST_RD) {
+    return do_tx_search_global;
+  }
+  // A value of 2 indicates it is being turned on conditionally
+  // for the mode. Turn it on for the first 7 modes.
+  return midx < 7 ? 2 : 0;
 }
 
 void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
@@ -12718,8 +12719,9 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   // If do_tx_search_global is 1, all modes have TX search performed.
   // If do_tx_search_global is 2, some modes will have TX search performed.
   const int do_tx_search_global =
-      !((cpi->sf.inter_mode_rd_model_estimation == 1 && md->ready) ||
-        (cpi->sf.inter_mode_rd_model_estimation == 2 &&
+      !((cpi->sf.inter_mode_rd_model_estimation == ONLINE_MODEL_EST_RD &&
+         md->ready) ||
+        (cpi->sf.inter_mode_rd_model_estimation == STATIC_MODEL_EST_RD &&
          x->source_variance < 512));
   InterModesInfo *inter_modes_info = x->inter_modes_info;
   inter_modes_info->num = 0;
@@ -12735,7 +12737,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   alloc_compound_type_rd_buffers(cm, &rd_buffers);
 
   for (int midx = 0; midx < MAX_MODES; ++midx) {
-    const int do_tx_search = do_tx_search_mode(do_tx_search_global, midx);
+    const int do_tx_search =
+        do_tx_search_mode(do_tx_search_global, midx, sf->adaptive_tx_search);
     const MODE_DEFINITION *mode_order = &av1_mode_order[midx];
     this_mode = mode_order->mode;
     const MV_REFERENCE_FRAME ref_frame = mode_order->ref_frame[0];
@@ -13042,7 +13045,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                          &rd_stats_y, &rd_stats_uv, mode_rate,
                          search_state.best_rd)) {
           continue;
-        } else if (cpi->sf.inter_mode_rd_model_estimation == 1) {
+        } else if (
+            cpi->sf.inter_mode_rd_model_estimation == ONLINE_MODEL_EST_RD) {
           const int skip_ctx = av1_get_skip_context(xd);
           inter_mode_data_push(tile_data, mbmi->sb_type, rd_stats.sse,
                                rd_stats.dist,
@@ -13558,7 +13562,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     if (txfm_search(cpi, tile_data, x, bsize, mi_row, mi_col, &rd_stats,
                     &rd_stats_y, &rd_stats_uv, mode_rate,
                     search_state.best_rd)) {
-      if (cpi->sf.inter_mode_rd_model_estimation == 1) {
+      if (cpi->sf.inter_mode_rd_model_estimation == ONLINE_MODEL_EST_RD) {
         const int skip_ctx = av1_get_skip_context(xd);
         inter_mode_data_push(tile_data, mbmi->sb_type, rd_stats.sse,
                              rd_stats.dist,

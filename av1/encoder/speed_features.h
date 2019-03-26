@@ -275,6 +275,20 @@ typedef enum {
   FLAG_SKIP_EIGHTTAP_SHARP = 1 << MULTITAP_SHARP,
 } INTERP_FILTER_MASK;
 
+// 2-pass inter mode model estimation where the preliminary pass skips
+// transform search and uses a model to estimate rd, while the final pass
+// computes the full transform search.
+typedef enum {
+  ALWAYS_USE_TRUE_RD,  // Always use the true RD.
+  ONLINE_MODEL_EST_RD, // Use a dynamic model that trains on data.
+  STATIC_MODEL_EST_RD, // Use a statically calculated model.
+  // Use the online model, but conditionally switch to a true RD calculation
+  // when beneficial.
+  CONDITIONAL_ONLINE_MODEL_EST_RD,
+  // Same as above, but for the static model.
+  CONDITIONAL_STATIC_MODEL_EST_RD
+} InterModeRdCalc;
+
 typedef struct SPEED_FEATURES {
   MV_SPEED_FEATURES mv;
 
@@ -580,13 +594,7 @@ typedef struct SPEED_FEATURES {
   // adding a penalty of 1%
   int dual_sgr_penalty_level;
 
-  // 2-pass inter mode model estimation where the preliminary pass skips
-  // transform search and uses a model to estimate rd, while the final pass
-  // computes the full transform search. two types of models are supported:
-  // 0: not used
-  // 1: used with online dynamic rd model
-  // 2: used with static rd model
-  int inter_mode_rd_model_estimation;
+  InterModeRdCalc inter_mode_rd_model_estimation;
 
   // Skip some ref frames in compound motion search by single motion search
   // result. Has three levels for now: 0 referring to no skipping, and 1 - 3
