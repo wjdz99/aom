@@ -235,19 +235,19 @@ TEST_P(BuildCompDiffwtdMaskD16Test, DISABLED_Speed) {
 
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_CASE_P(SSE4_1, BuildCompDiffwtdMaskTest,
-                        BuildParams(av1_build_compound_diffwtd_mask_sse4_1));
+                        BuildParams(av1_build_compound_diffwtd_mask_c));
 
 INSTANTIATE_TEST_CASE_P(
     SSE4_1, BuildCompDiffwtdMaskD16Test,
-    BuildParams(av1_build_compound_diffwtd_mask_d16_sse4_1));
+    BuildParams(av1_build_compound_diffwtd_mask_d16_c));
 #endif
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_CASE_P(AVX2, BuildCompDiffwtdMaskTest,
-                        BuildParams(av1_build_compound_diffwtd_mask_avx2));
+                        BuildParams(av1_build_compound_diffwtd_mask_c));
 
 INSTANTIATE_TEST_CASE_P(AVX2, BuildCompDiffwtdMaskD16Test,
-                        BuildParams(av1_build_compound_diffwtd_mask_d16_avx2));
+                        BuildParams(av1_build_compound_diffwtd_mask_d16_c));
 #endif
 
 #if HAVE_NEON
