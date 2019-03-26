@@ -707,10 +707,17 @@ void av1_iadst4_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   // stage 6
   x3 = range_check_value(x3 - s3, stage_range[6] + bit);
 
-  output[0] = round_shift(x0, bit);
-  output[1] = round_shift(x1, bit);
-  output[2] = round_shift(x2, bit);
-  output[3] = round_shift(x3, bit);
+  output[0] = range_check_value(round_shift(x0, bit), stage_range[6]);
+  output[1] = range_check_value(round_shift(x1, bit), stage_range[6]);
+  output[2] = range_check_value(round_shift(x2, bit), stage_range[6]);
+  output[3] = range_check_value(round_shift(x3, bit), stage_range[6]);
+  if (x0 >= 0x7fff800 || x1 >= 0x7fff800 || x2 >= 0x7fff800 ||
+      x3 >= 0x7fff800) {
+    fprintf(stderr,
+            "av1_iadst4_new: output range %d bits. x0=0x%x, x1=0x%x, x3=0x%x, "
+            "output[0]=0x%x output[1]=0x%x output[3]=0x%x\n",
+            stage_range[6], x0, x1, x3, output[0], output[1], output[3]);
+  }
 }
 
 void av1_iadst8_new(const int32_t *input, int32_t *output, int8_t cos_bit,
@@ -820,6 +827,7 @@ void av1_iadst8_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   bf1[5] = -bf0[7];
   bf1[6] = bf0[5];
   bf1[7] = -bf0[1];
+  av1_range_check_buf(stage, input, bf1, size, stage_range[stage - 1]);
 }
 
 void av1_iadst16_new(const int32_t *input, int32_t *output, int8_t cos_bit,
@@ -1029,6 +1037,7 @@ void av1_iadst16_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   bf1[13] = -bf0[13];
   bf1[14] = bf0[9];
   bf1[15] = -bf0[1];
+  av1_range_check_buf(stage, input, bf1, size, stage_range[stage - 1]);
 }
 
 void av1_iidentity4_c(const int32_t *input, int32_t *output, int8_t cos_bit,
