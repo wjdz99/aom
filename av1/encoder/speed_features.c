@@ -879,7 +879,6 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   assert(cpi->sf.perform_coeff_opt >= 0 && cpi->sf.perform_coeff_opt < 5);
   cpi->coeff_opt_dist_threshold =
       coeff_opt_dist_thresholds[cpi->sf.perform_coeff_opt];
-
 #if CONFIG_DIST_8X8
   if (sf->use_transform_domain_distortion > 0) cpi->oxcf.using_dist_8x8 = 0;
 
