@@ -690,6 +690,10 @@ typedef struct SPEED_FEATURES {
 
   // use reduced ref set for real-time mode
   int use_real_time_ref_set;
+
+  // Perform a full TX search on some modes while using the
+  // inter-mode RD model for others.
+  int adaptive_tx_search;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
