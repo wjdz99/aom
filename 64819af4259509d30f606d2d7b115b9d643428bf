@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "98acd9d9_994a4672",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-03-26T18:02:57Z",
+      "side": 1,
+      "message": "Without it there is a compiler warning.",
+      "parentUuid": "d03fffac_f4f92586",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 40
+      },
+      "revId": "64819af4259509d30f606d2d7b115b9d643428bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fe813c7a_4c28ac7b",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 2
@@ -60,6 +84,30 @@
       "writtenOn": "2019-03-25T16:09:07Z",
       "side": 1,
       "message": "In the master branch, these two lines have been changed to the following to avoid unsigned integer overflow of the \"+ 1\":\n\n    const uint32_t num_ticks_per_picture_minus_1 \u003d aom_rb_read_uvlc(rb);\n    if (num_ticks_per_picture_minus_1 \u003d\u003d UINT32_MAX) {\n      // num_ticks_per_picture_minus_1 cannot be (1 \u003c\u003c 32) − 1.\n      return AOM_CODEC_UNSUP_BITSTREAM;\n    }\n\nI think it is fine to use your version for the av1-normative branch.\n\nNote: The new code is the result of two commits:\n\ncommit 2d7e831266d300cec03e307a1021efe2edc7a01b\nAuthor: Wan-Teh Chang \u003cwtc@google.com\u003e\nDate:   Tue Mar 19 09:32:40 2019 -0700\n\n    Change the check for num_ticks_per_picture_minus_1\n\ncommit 9bb92efe0f40cc654ba04f8f44ab8798c7170523\nAuthor: Hui Su \u003chuisu@google.com\u003e\nDate:   Mon Mar 18 16:23:39 2019 -0700\n\n    Fix possible infinite loop in aom_rb_read_uvlc()\n\nSo if you prefer the new code, you\u0027ll need to cherry-pick these two commits. Note that the two changes in Hui\u0027s commit 9bb92efe0f40cc654ba04f8f44ab8798c7170523 are independent.",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 160,
+        "endChar": 69
+      },
+      "revId": "64819af4259509d30f606d2d7b115b9d643428bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d899890_f373fe2c",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-03-26T18:02:57Z",
+      "side": 1,
+      "message": "Let\u0027s keep the previous version.",
+      "parentUuid": "fe813c7a_4c28ac7b",
       "range": {
         "startLine": 159,
         "startChar": 0,
