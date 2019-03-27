@@ -65,6 +65,24 @@
     },
     {
       "key": {
+        "uuid": "753ccc2e_a57c724e",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1087,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f57c97d_ab2d9e1d",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "396e63f3_0762d5a0",
         "filename": "aom_dsp/x86/intrapred_avx2.c",
         "patchSetId": 1
@@ -76,6 +94,24 @@
       "writtenOn": "2019-03-15T06:23:15Z",
       "side": 1,
       "message": "this can be const",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b96c88c_9afa2ea4",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1092,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "well... i assume it couldn\u0027t - we change x at each loop iteration...",
+      "parentUuid": "396e63f3_0762d5a0",
       "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -99,6 +135,24 @@
     },
     {
       "key": {
+        "uuid": "d27628ee_e444ee62",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1095,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "Well... while memset wouldn\u0027t work there - it is about sse\\avx registers copying, you are right in the suggestion to look into the better ways of doing that copying. TBD.",
+      "parentUuid": "83e6eb5a_ac37c72a",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "43ea7b0c_3d18561f",
         "filename": "aom_dsp/x86/intrapred_avx2.c",
         "patchSetId": 1
@@ -113,6 +167,24 @@
       "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41b9da46_f5442eea",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1141,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "43ea7b0c_3d18561f",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -139,6 +211,30 @@
     },
     {
       "key": {
+        "uuid": "3bed2c3e_a7ca07d9",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1146,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f07ca862_a916c725",
+      "range": {
+        "startLine": 1146,
+        "startChar": 26,
+        "endLine": 1146,
+        "endChar": 38
+      },
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6df0e94f_bae73c03",
         "filename": "aom_dsp/x86/intrapred_avx2.c",
         "patchSetId": 1
@@ -153,6 +249,24 @@
       "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbb71273_484ff2e5",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1314,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6df0e94f_bae73c03",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -179,6 +293,30 @@
     },
     {
       "key": {
+        "uuid": "2ce8c91b_f5be79d8",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1319,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c40c9f6_13fa30bd",
+      "range": {
+        "startLine": 1319,
+        "startChar": 26,
+        "endLine": 1319,
+        "endChar": 37
+      },
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f9cff54_19431fe4",
         "filename": "aom_dsp/x86/intrapred_avx2.c",
         "patchSetId": 1
@@ -196,6 +334,24 @@
     },
     {
       "key": {
+        "uuid": "5096202b_1d5d1ae9",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1330,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f9cff54_19431fe4",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "39e9c4d0_214b585a",
         "filename": "aom_dsp/x86/intrapred_avx2.c",
         "patchSetId": 1
@@ -207,6 +363,24 @@
       "writtenOn": "2019-03-15T06:23:15Z",
       "side": 1,
       "message": "this can be const",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "478ec90a_b788d143",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1334,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "no I guess... x is changing every loop iteration",
+      "parentUuid": "39e9c4d0_214b585a",
       "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -230,6 +404,24 @@
     },
     {
       "key": {
+        "uuid": "75fee6ff_c27d8eb5",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1511,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0d260d3_3cf1b697",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9357389f_a06605d4",
         "filename": "aom_dsp/x86/intrapred_avx2.c",
         "patchSetId": 1
@@ -241,6 +433,24 @@
       "writtenOn": "2019-03-15T06:23:15Z",
       "side": 1,
       "message": "this can be const",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4a94639_c281be49",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1515,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "see above",
+      "parentUuid": "9357389f_a06605d4",
       "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -264,6 +474,24 @@
     },
     {
       "key": {
+        "uuid": "85c686fe_45b75419",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1683,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6913733_12051c50",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c175ac3b_07563649",
         "filename": "aom_dsp/x86/intrapred_avx2.c",
         "patchSetId": 1
@@ -275,6 +503,24 @@
       "writtenOn": "2019-03-15T06:23:15Z",
       "side": 1,
       "message": "this can be const",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2383e584_fe3dd0c0",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1687,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "see above",
+      "parentUuid": "c175ac3b_07563649",
       "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -315,6 +561,24 @@
     },
     {
       "key": {
+        "uuid": "d263d49b_d05104d2",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1724,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dbfdc0cd_bdbdbc1c",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "80e19ceb_ea34a4bc",
         "filename": "aom_dsp/x86/intrapred_avx2.c",
         "patchSetId": 1
@@ -329,6 +593,24 @@
       "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be6fd6ca_2192d50a",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1878,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80e19ceb_ea34a4bc",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -349,6 +631,24 @@
     },
     {
       "key": {
+        "uuid": "7dd34314_53c43b2f",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1882,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "see above",
+      "parentUuid": "12e8e85a_388138e5",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cac7ab45_67bc2e37",
         "filename": "aom_dsp/x86/intrapred_avx2.c",
         "patchSetId": 1
@@ -360,6 +660,24 @@
       "writtenOn": "2019-03-15T06:23:15Z",
       "side": 1,
       "message": "this can be const I think",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4dd3274_c0abe45b",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1894,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2019-03-27T11:42:56Z",
+      "side": 1,
+      "message": "no... x is being changing as stated above",
+      "parentUuid": "cac7ab45_67bc2e37",
       "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
