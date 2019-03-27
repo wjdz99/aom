@@ -2332,6 +2332,10 @@ static void rd_pick_sqr_partition(AV1_COMP *const cpi, ThreadData *td,
   const int has_rows = (mi_row + mi_step < cm->mi_rows);
   const int has_cols = (mi_col + mi_step < cm->mi_cols);
 
+  const int last_or_altref_is_scaled =
+      av1_get_scaled_ref_frame(cpi, LAST_FRAME) ||
+      av1_get_scaled_ref_frame(cpi, ALTREF_FRAME);
+
   if (none_rd) *none_rd = 0;
 
   int partition_none_allowed = has_rows && has_cols;
@@ -2478,7 +2482,8 @@ static void rd_pick_sqr_partition(AV1_COMP *const cpi, ThreadData *td,
             !frame_is_intra_only(cm) && mi_row + mi_step < cm->mi_rows &&
             mi_col + mi_step < cm->mi_cols && this_rdc.rdcost < INT64_MAX &&
             this_rdc.rdcost >= 0 && this_rdc.rate < INT_MAX &&
-            this_rdc.rate >= 0 && do_square_split) {
+            this_rdc.rate >= 0 && do_square_split &&
+            !last_or_altref_is_scaled) {
           av1_firstpass_simple_motion_search_early_term(
               cpi, x, pc_tree, mi_row, mi_col, bsize, &this_rdc,
               &do_square_split);
@@ -3140,6 +3145,9 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   int prune_horz = 0;
   int prune_vert = 0;
   int terminate_partition_search = 0;
+  const int last_or_altref_is_scaled =
+      av1_get_scaled_ref_frame(cpi, LAST_FRAME) ||
+      av1_get_scaled_ref_frame(cpi, ALTREF_FRAME);
 
   int split_ctx_is_ready[2] = { 0, 0 };
   int horz_ctx_is_ready = 0;
@@ -3309,7 +3317,8 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
       do_rectangular_split &&
       (do_square_split || partition_none_allowed ||
        (prune_horz && prune_vert)) &&
-      (partition_horz_allowed || partition_vert_allowed) && bsize >= BLOCK_8X8;
+      (partition_horz_allowed || partition_vert_allowed) &&
+      bsize >= BLOCK_8X8 && !last_or_altref_is_scaled;
 
   float simple_motion_features[NUM_SIMPLE_MOTION_FEATURES] = { 0.0f };
   int simple_motion_features_are_valid = 0;
@@ -3468,11 +3477,11 @@ BEGIN_PARTITION_SEARCH:
         }
 
         if (cpi->sf.simple_motion_search_early_term_none && cm->show_frame &&
-            !frame_is_intra_only(cm) && bsize >= BLOCK_16X16 &&
-            mi_row + mi_step < cm->mi_rows && mi_col + mi_step < cm->mi_cols &&
-            this_rdc.rdcost < INT64_MAX && this_rdc.rdcost >= 0 &&
-            this_rdc.rate < INT_MAX && this_rdc.rate >= 0 &&
-            (do_square_split || do_rectangular_split)) {
+            !frame_is_intra_only(cm) && !last_or_altref_is_scaled &&
+            bsize >= BLOCK_16X16 && mi_row + mi_step < cm->mi_rows &&
+            mi_col + mi_step < cm->mi_cols && this_rdc.rdcost < INT64_MAX &&
+            this_rdc.rdcost >= 0 && this_rdc.rate < INT_MAX &&
+            this_rdc.rate >= 0 && (do_square_split || do_rectangular_split)) {
           av1_simple_motion_search_early_term_none(
               cpi, x, pc_tree, mi_row, mi_col, bsize, &this_rdc,
               &terminate_partition_search, simple_motion_features,
