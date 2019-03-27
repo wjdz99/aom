@@ -46,6 +46,53 @@
       "revId": "7036bee167544b60703fd12a8ae0802ee8ecd038",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b90b76fb_1c089d6b",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 927,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-27T19:34:59Z",
+      "side": 1,
+      "message": "It\u0027s tricky to check here because the value of REDUCE_GF_LENGTH_BY can be changed, the logic to calculate roll_back can also be changed.",
+      "parentUuid": "9aed911e_b53f70cf",
+      "range": {
+        "startLine": 927,
+        "startChar": 6,
+        "endLine": 927,
+        "endChar": 38
+      },
+      "revId": "7036bee167544b60703fd12a8ae0802ee8ecd038",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97c06f73_0ad1a9c4",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 953,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-27T19:34:59Z",
+      "side": 1,
+      "message": "You can potentially check if i is no smaller than active_min_gf_interval here.",
+      "range": {
+        "startLine": 952,
+        "startChar": 6,
+        "endLine": 953,
+        "endChar": 21
+      },
+      "revId": "7036bee167544b60703fd12a8ae0802ee8ecd038",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
