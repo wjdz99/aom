@@ -259,7 +259,7 @@ static void set_good_speed_features_framesize_independent(
     sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
     sf->cb_pred_filter_search = 1;
     sf->use_transform_domain_distortion = boosted ? 0 : 1;
-    sf->perform_coeff_opt = boosted ? 0 : 1;
+    sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 1 : 2;
     sf->use_inter_txb_hash = 0;
   }
 
@@ -289,7 +289,7 @@ static void set_good_speed_features_framesize_independent(
     sf->prune_comp_type_by_comp_avg = 2;
     sf->cb_pred_filter_search = 0;
     sf->adaptive_interp_filter_search = 1;
-    sf->perform_coeff_opt = boosted ? 0 : 2;
+    sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
   }
 
   if (speed >= 3) {
@@ -325,7 +325,6 @@ static void set_good_speed_features_framesize_independent(
     sf->perform_best_rd_based_gating_for_chroma = 1;
     sf->prune_ref_frame_for_rect_partitions =
         frame_is_intra_only(&cpi->common) ? 0 : (boosted ? 1 : 2);
-    sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
     sf->prune_comp_type_by_model_rd = boosted ? 0 : 1;
     // TODO(Venkat): Clean-up frame type dependency for
     // simple_motion_search_split_only in partition search function and set the
