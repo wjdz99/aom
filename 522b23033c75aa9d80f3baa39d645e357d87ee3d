@@ -22,6 +22,30 @@
       "revId": "522b23033c75aa9d80f3baa39d645e357d87ee3d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09bacb27_4d01492e",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3384,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-03-27T20:26:42Z",
+      "side": 1,
+      "message": "I believe we need to realloc to wider border and copy the ref buffer also, within \"if (ref-\u003ey_crop_width !\u003d cm-\u003ewidth || ref-\u003ey_crop_height !\u003d cm-\u003eheight)\" - which is not done here yet on this patch. That is what I was planning to add in the next patch.",
+      "parentUuid": "5d6bdcfc_b39e39b9",
+      "range": {
+        "startLine": 3384,
+        "startChar": 51,
+        "endLine": 3384,
+        "endChar": 71
+      },
+      "revId": "522b23033c75aa9d80f3baa39d645e357d87ee3d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
