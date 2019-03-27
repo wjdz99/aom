@@ -227,6 +227,7 @@ typedef enum {
   CROPPED_TILE_WIDTH_TOO_SMALL,
   CROPPED_TILE_HEIGHT_TOO_SMALL,
   TILE_WIDTH_INVALID,
+  FRAME_HEADER_RATE_TOO_HIGH,
 
   TARGET_LEVEL_FAIL_IDS
 } TARGET_LEVEL_FAIL_ID;
@@ -241,6 +242,7 @@ static const char *level_fail_messages[TARGET_LEVEL_FAIL_IDS] = {
   "The cropped tile width is less than 8",
   "The cropped tile height is less than 8",
   "The tile width is invalid",
+  "The frame header rate is too high",
 };
 
 static void check_level_constraints(AV1_COMP *cpi, int operating_point_idx,
@@ -296,6 +298,11 @@ static void check_level_constraints(AV1_COMP *cpi, int operating_point_idx,
 
     if (!level_spec->tile_width_is_valid) {
       fail_id = TILE_WIDTH_INVALID;
+      break;
+    }
+
+    if (level_spec->max_header_rate > target_level_spec->max_header_rate) {
+      fail_id = FRAME_HEADER_RATE_TOO_HIGH;
       break;
     }
   } while (0);
@@ -408,6 +415,24 @@ static int count_frames(const FrameWindowBuffer *const buffer,
   return num_frames;
 }
 
+// Scan previously encoded frames and update level metrics accordingly.
+static void scan_past_frames(const FrameWindowBuffer *const buffer,
+                             int num_frames, AV1LevelSpec *const level_spec) {
+  const int num_frames_in_buffre = buffer->num;
+  int index = (buffer->start + num_frames_in_buffre - 1) % FRAME_WINDOW_SIZE;
+  int total_frame_headers = 0;
+  for (int i = 0; i < AOMMIN(num_frames_in_buffre, num_frames); ++i) {
+    const FrameRecord *const record = &buffer->buf[index];
+    if (!record->show_existing_frame) {
+      total_frame_headers += record->frame_header_count;
+    }
+    --index;
+    if (index < 0) index = FRAME_WINDOW_SIZE - 1;
+  }
+  level_spec->max_header_rate =
+      AOMMAX(level_spec->max_header_rate, total_frame_headers);
+}
+
 void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
                            int64_t ts_end) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -428,9 +453,6 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
   // Count the number of frames encoded in the past 1 second.
   const int encoded_frames_in_last_second =
       show_frame ? count_frames(buffer, TICKS_PER_SEC) : 0;
-  // TODO(huisu@): calculate stats using the info. of the
-  // encoded_frames_in_last_sescond frames in frame_window_buffer.
-  (void)encoded_frames_in_last_second;
 
   int max_tile_size;
   int min_cropped_tile_width;
@@ -488,6 +510,10 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
     level_spec->min_cropped_tile_height =
         AOMMIN(level_spec->min_cropped_tile_height, min_cropped_tile_height);
     level_spec->tile_width_is_valid &= tile_width_is_valid;
+
+    if (show_frame) {
+      scan_past_frames(buffer, encoded_frames_in_last_second, level_spec);
+    }
 
     // TODO(kyslov@) These are needed for further level stat calculations
     (void)compression_ratio;
