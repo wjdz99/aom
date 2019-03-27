@@ -176,6 +176,9 @@ sobel_xy sobel(const uint8_t *input, int stride, int i, int j, bool high_bd);
 void av1_inter_mode_data_init(struct TileDataEnc *tile_data);
 void av1_inter_mode_data_fit(TileDataEnc *tile_data, int rdmult);
 
+uint64_t aom_variance_2d_i16_c(const int16_t *src, int src_stride, int width,
+	int height, uint64_t *avg);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
