@@ -3071,6 +3071,36 @@ static void model_rd_for_sb_with_curvfit(
   *out_dist_sum = dist_sum;
 }
 
+const int8_t fwd_txfm_shift_4x4[3] = { 2, 0, 0 };
+const int8_t fwd_txfm_shift_8x8[3] = { 2, -1, 0 };
+const int8_t fwd_txfm_shift_16x16[3] = { 2, -2, 0 };
+const int8_t fwd_txfm_shift_32x32[3] = { 2, -4, 0 };
+const int8_t fwd_txfm_shift_64x64[3] = { 0, -2, -2 };
+const int8_t fwd_txfm_shift_4x8[3] = { 2, -1, 0 };
+const int8_t fwd_txfm_shift_8x4[3] = { 2, -1, 0 };
+const int8_t fwd_txfm_shift_8x16[3] = { 2, -2, 0 };
+const int8_t fwd_txfm_shift_16x8[3] = { 2, -2, 0 };
+const int8_t fwd_txfm_shift_16x32[3] = { 2, -4, 0 };
+const int8_t fwd_txfm_shift_32x16[3] = { 2, -4, 0 };
+const int8_t fwd_txfm_shift_32x64[3] = { 0, -2, -2 };
+const int8_t fwd_txfm_shift_64x32[3] = { 2, -4, -2 };
+const int8_t fwd_txfm_shift_4x16[3] = { 2, -1, 0 };
+const int8_t fwd_txfm_shift_16x4[3] = { 2, -1, 0 };
+const int8_t fwd_txfm_shift_8x32[3] = { 2, -2, 0 };
+const int8_t fwd_txfm_shift_32x8[3] = { 2, -2, 0 };
+const int8_t fwd_txfm_shift_16x64[3] = { 0, -2, 0 };
+const int8_t fwd_txfm_shift_64x16[3] = { 2, -4, 0 };
+
+const int8_t *fwd_txfm_shift[TX_SIZES_ALL] = {
+  fwd_txfm_shift_4x4,   fwd_txfm_shift_8x8,   fwd_txfm_shift_16x16,
+  fwd_txfm_shift_32x32, fwd_txfm_shift_64x64, fwd_txfm_shift_4x8,
+  fwd_txfm_shift_8x4,   fwd_txfm_shift_8x16,  fwd_txfm_shift_16x8,
+  fwd_txfm_shift_16x32, fwd_txfm_shift_32x16, fwd_txfm_shift_32x64,
+  fwd_txfm_shift_64x32, fwd_txfm_shift_4x16,  fwd_txfm_shift_16x4,
+  fwd_txfm_shift_8x32,  fwd_txfm_shift_32x8,  fwd_txfm_shift_16x64,
+  fwd_txfm_shift_64x16,
+};
+
 static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                                int block, int blk_row, int blk_col,
                                BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
@@ -3220,11 +3250,40 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     block_mse_q8 = ROUND_POWER_OF_TWO(block_mse_q8, (xd->bd - 8) * 2);
   }
   block_sse *= 16;
+
+  double block_mse_q8_temp;
+  double block_mse_q8_qscale;
+  const int is_arf2_bwd_type =
+      cpi->refresh_bwd_ref_frame || cpi->refresh_alt2_ref_frame;
+  int net_scale_tx_quant;
+  int log_sclae;
+  const int8_t *txfm_shift;
+  log_sclae = av1_get_tx_scale(tx_size);
+  txfm_shift = fwd_txfm_shift[tx_size];
+  net_scale_tx_quant =
+      txfm_shift[0] + txfm_shift[1] + txfm_shift[2] + log_sclae;
+  const int txfm_size_col = tx_size_wide[tx_size];
+  const int txfm_size_row = tx_size_high[tx_size];
+  const int rect_type = get_rect_tx_log_ratio(txfm_size_col, txfm_size_row);
+  double div_factor = 1 << (2 - net_scale_tx_quant);
+  if (abs(rect_type) == 1) {
+    div_factor /= 1.414;
+  }
+  block_mse_q8_temp = (double)block_mse_q8 / (double)(div_factor * div_factor);
+  int16_t dc_q = av1_dc_quant_QTX(x->qindex, cm->y_dc_delta_q, AOM_BITS_8);
+  block_mse_q8_qscale = (double)block_mse_q8_temp / (double)(dc_q * dc_q);
+
+  double block_mse_thresh;
+  if (is_arf2_bwd_type) {
+    block_mse_thresh = block_mse_q8_qscale;
+  } else {
+    block_mse_thresh = (double)block_mse_q8;
+  }
   // Tranform domain distortion is accurate for higher residuals.
   // TODO(any): Experiment with variance and mean based thresholds
   int use_transform_domain_distortion =
       (cpi->sf.use_transform_domain_distortion > 0) &&
-      (block_mse_q8 >= cpi->tx_domain_dist_threshold) &&
+      (block_mse_thresh >= cpi->tx_domain_dist_threshold) &&
       // Any 64-pt transforms only preserves half the coefficients.
       // Therefore transform domain distortion is not valid for these
       // transform sizes.
