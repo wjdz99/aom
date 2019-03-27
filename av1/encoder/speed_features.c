@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <float.h>
 #include <limits.h>
 
 #include "av1/encoder/encoder.h"
@@ -49,14 +50,21 @@ static uint8_t intrabc_max_mesh_pct[MAX_MESH_SPEED + 1] = { 100, 100, 100,
 // Threshold values to be used for pruning the txfm_domain_distortion
 // based on block MSE
 // TODO(any): Experiment the threshold logic based on variance metric
-static unsigned int tx_domain_dist_thresholds[MAX_TX_DOMAIN_EVAL_SPEED + 1] = {
-  UINT_MAX, 162754, 22026, 22026, 22026, 0
+static double tx_domain_dist_thresholds[MAX_TX_DOMAIN_EVAL_SPEED + 1] = {
+  FLT_MAX, 162754, 22026, 22026, 22026, 0
 };
 // Threshold values to be used for disabling coeff RD-optimization
 // based on block MSE
 // TODO(any): Experiment the threshold logic based on variance metric
 static unsigned int coeff_opt_dist_thresholds[5] = { UINT_MAX, 162754, 162754,
                                                      22026, 22026 };
+
+// the previos threshold 0.075 corresponds to 22026/dc_q*dc_q = 0.075
+// which results into the dc_q value of 541 ( qp value is of 238)
+// Now as the metrci changes threshold value is 22026*ac_q*ac_q
+static double tx_domain_dist_thresholds_qscale[MAX_TX_DOMAIN_EVAL_SPEED + 1] = {
+  FLT_MAX, 162754.0, 3541802826.0, 22026.0, 22026.0, 0.0
+};
 // scaling values to be used for gating wedge/compound segment based on best
 // approximate rd
 static int comp_type_rd_threshold_mul[3] = { 1, 11, 12 };
@@ -880,8 +888,16 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   cpi->max_comp_type_rd_threshold_div =
       comp_type_rd_threshold_div[sf->prune_comp_type_by_comp_avg];
   const int tx_domain_speed = AOMMIN(speed, MAX_TX_DOMAIN_EVAL_SPEED);
-  cpi->tx_domain_dist_threshold = tx_domain_dist_thresholds[tx_domain_speed];
 
+  const int is_arf2_bwd_type =
+      cpi->refresh_bwd_ref_frame || cpi->refresh_alt2_ref_frame;
+
+  if (is_arf2_bwd_type) {
+    cpi->tx_domain_dist_threshold =
+        tx_domain_dist_thresholds_qscale[tx_domain_speed];
+  } else {
+    cpi->tx_domain_dist_threshold = tx_domain_dist_thresholds[tx_domain_speed];
+  }
   // assert ensures that coeff_opt_dist_thresholds is accessed correctly
   assert(cpi->sf.perform_coeff_opt >= 0 && cpi->sf.perform_coeff_opt < 5);
   cpi->coeff_opt_dist_threshold =
