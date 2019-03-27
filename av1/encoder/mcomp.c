@@ -3071,10 +3071,19 @@ void av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
                               int mi_col, BLOCK_SIZE bsize, int ref,
                               MV ref_mv_full, int num_planes,
                               int use_subpixel) {
+  // TODO(chiyotsai@google.com): This function probably doesn't handle the
+  // subpixel test correctly when we have scaled reference frame. Reeable it
+  // once we are sure that it works properly.
   assert(num_planes == 1 &&
          "Currently simple_motion_search only supports luma plane");
   assert(!frame_is_intra_only(&cpi->common) &&
          "Simple motion search only enabled for non-key frames");
+  if (scaled_ref_frame) {
+    assert(!(use_usbpixel && av1_get_scaled_ref_frame(cpi, ref)) &&
+           "Simple motion search currently doesn't not support subpel search "
+           "on scaled frames");
+    xd->plane[AOM_PLANE_Y].pre[ref_idx] = backup_yv12;
+  }
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
 
@@ -3102,13 +3111,12 @@ void av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
   const int ref_idx = 0;
   int var;
 
+  av1_setup_pre_planes(xd, ref_idx, yv12, mi_row, mi_col,
+                       get_ref_scale_factors(cm, ref), num_planes);
   if (scaled_ref_frame) {
     backup_yv12 = xd->plane[AOM_PLANE_Y].pre[ref_idx];
     av1_setup_pre_planes(xd, ref_idx, scaled_ref_frame, mi_row, mi_col, NULL,
                          num_planes);
-  } else {
-    av1_setup_pre_planes(xd, ref_idx, yv12, mi_row, mi_col,
-                         get_ref_scale_factors(cm, ref), num_planes);
   }
 
   // This overwrites the mv_limits so we will need to restore it later.
