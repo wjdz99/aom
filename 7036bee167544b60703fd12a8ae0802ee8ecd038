@@ -22,6 +22,30 @@
       "revId": "7036bee167544b60703fd12a8ae0802ee8ecd038",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9aed911e_b53f70cf",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 927,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-27T19:29:33Z",
+      "side": 1,
+      "message": "As we are checking for strict \"\u003e\", and assuming REDUCE_GF_LENGTH_BY is 1, the length would still be at least active_min_gf_interval after roll-back.\n\nIf you suggest, we can make this condition \"(i \u003e active_min_gf_interval + REDUCE_GF_LENGTH_BY)\" to be more generic",
+      "parentUuid": "ba6e4677_14cf61d8",
+      "range": {
+        "startLine": 927,
+        "startChar": 6,
+        "endLine": 927,
+        "endChar": 38
+      },
+      "revId": "7036bee167544b60703fd12a8ae0802ee8ecd038",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
