@@ -269,7 +269,7 @@ static void set_good_speed_features_framesize_independent(
     sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
     sf->cb_pred_filter_search = 1;
     sf->use_transform_domain_distortion = boosted ? 0 : 1;
-    sf->perform_coeff_opt = boosted ? 0 : 1;
+    sf->perform_coeff_opt = boosted ? 1 : 2;
     sf->use_inter_txb_hash = 0;
   }
 
@@ -300,7 +300,6 @@ static void set_good_speed_features_framesize_independent(
     // TODO(Sachin): Enable/Enhance this speed feature for speed 2 & 3
     sf->cb_pred_filter_search = 0;
     sf->adaptive_interp_filter_search = 1;
-    sf->perform_coeff_opt = boosted ? 0 : 2;
   }
 
   if (speed >= 3) {

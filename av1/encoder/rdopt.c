@@ -2157,13 +2157,29 @@ static unsigned pixel_dist(const AV1_COMP *const cpi, const MACROBLOCK *x,
   return sse;
 }
 
+uint64_t aom_variance_2d_i16_c(const int16_t *src, int src_stride, int width,
+	int height, uint64_t *avg) {
+	int r, c;
+	uint64_t ss = 0;
+	for (r = 0; r < height; r++) {
+		for (c = 0; c < width; c++) {
+			const int16_t v = src[c];
+			*avg += v;
+			ss += v * v;
+		}
+		src += src_stride;
+	}
+
+	return ss;
+}
+
 // Compute the pixel domain distortion from diff on all visible 4x4s in the
 // transform block.
 static INLINE int64_t pixel_diff_dist(const MACROBLOCK *x, int plane,
                                       int blk_row, int blk_col,
                                       const BLOCK_SIZE plane_bsize,
                                       const BLOCK_SIZE tx_bsize,
-                                      unsigned int *block_mse_q8) {
+                                      unsigned int *block_mse_q8, uint64_t *var) {
   int visible_rows, visible_cols;
   const MACROBLOCKD *xd = &x->e_mbd;
   get_txb_dimensions(xd, plane, plane_bsize, blk_row, blk_col, tx_bsize, NULL,
@@ -2186,10 +2202,22 @@ static INLINE int64_t pixel_diff_dist(const MACROBLOCK *x, int plane,
   }
 #endif
   diff += ((blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]);
-  uint64_t sse =
-      aom_sum_squares_2d_i16(diff, diff_stride, visible_cols, visible_rows);
+  uint64_t sse = UINT64_MAX;
+
   if (block_mse_q8 != NULL)
-    *block_mse_q8 = (unsigned int)((256 * sse) / (visible_cols * visible_rows));
+  {
+	  uint64_t avg = 0;
+	  uint64_t temp;
+	  sse = aom_variance_2d_i16_c(diff, diff_stride, visible_cols, visible_rows, &avg);
+	  temp = sse - (unsigned int)(((int64_t)avg * avg) / (visible_rows * visible_cols));
+	  *var =  (unsigned int)(((uint64_t)256 * temp) / (visible_rows * visible_cols));
+	  //*var = log(*var + 1);
+	  *block_mse_q8 = (unsigned int)((256 * sse) / (visible_cols * visible_rows));
+  }
+  else
+  {
+	  sse = aom_sum_squares_2d_i16(diff, diff_stride, visible_cols, visible_rows);
+  }
   return sse;
 }
 
@@ -3212,12 +3240,15 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   const BLOCK_SIZE tx_bsize = txsize_to_bsize[tx_size];
   int64_t block_sse = 0;
   unsigned int block_mse_q8 = UINT_MAX;
+  uint64_t var = UINT64_MAX;
   block_sse = pixel_diff_dist(x, plane, blk_row, blk_col, plane_bsize, tx_bsize,
-                              &block_mse_q8);
+                              &block_mse_q8, &var);
+
   assert(block_mse_q8 != UINT_MAX);
   if (is_cur_buf_hbd(xd)) {
     block_sse = ROUND_POWER_OF_TWO(block_sse, (xd->bd - 8) * 2);
     block_mse_q8 = ROUND_POWER_OF_TWO(block_mse_q8, (xd->bd - 8) * 2);
+	var = ROUND_POWER_OF_TWO(var, (xd->bd - 8) * 2);
   }
   block_sse *= 16;
   // Tranform domain distortion is accurate for higher residuals.
@@ -3246,7 +3277,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   // coeffs. For smaller residuals, coeff optimization would be helpful. For
   // larger residuals, R-D optimization may not be effective.
   // TODO(any): Experiment with variance and mean based thresholds
-  perform_block_coeff_opt = (block_mse_q8 <= cpi->coeff_opt_dist_threshold);
+	 perform_block_coeff_opt = (var <= cpi->coeff_opt_dist_threshold);
 
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
@@ -3852,7 +3883,7 @@ static int predict_skip_flag(MACROBLOCK *x, BLOCK_SIZE bsize, int64_t *dist,
   const MACROBLOCKD *xd = &x->e_mbd;
   const int16_t dc_q = av1_dc_quant_QTX(x->qindex, 0, xd->bd);
 
-  *dist = pixel_diff_dist(x, 0, 0, 0, bsize, bsize, NULL);
+  *dist = pixel_diff_dist(x, 0, 0, 0, bsize, bsize, NULL, NULL);
 
   const int64_t mse = *dist / bw / bh;
   // Normalized quantizer takes the transform upscaling factor (8 for tx size
