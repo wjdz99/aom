@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b905f633_883123c1",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2019-03-28T20:32:23Z",
+      "side": 1,
+      "message": "maybe in a separate patch, this variable can be renamed to better represent the meaning. For example, \u0027coded_error_golden_as_inter_ref\u0027",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 24
+      },
+      "revId": "4398b7dc96f6ae343f5b7378a71ac2e5b5f6bc0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e472355e_a7ab50eb",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2019-03-28T20:32:23Z",
+      "side": 1,
+      "message": "What about make it \u0027frame_count\u0027 in a separate patch. Also why it needs to be a \u0027double\u0027 type?",
+      "range": {
+        "startLine": 91,
+        "startChar": 2,
+        "endLine": 93,
+        "endChar": 15
+      },
+      "revId": "4398b7dc96f6ae343f5b7378a71ac2e5b5f6bc0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
