@@ -1663,7 +1663,9 @@ static void parse_decode_block(AV1Decoder *const pbi, ThreadData *const td,
     }
   }
   if (mbmi->skip) av1_reset_skip_context(xd, mi_row, mi_col, bsize, num_planes);
-
+  // printf("BLK %dx%d %d, MBMI skip %d, mode %d, MMode %d, MV %d\n", mi_row,
+  //       mi_col, bsize, mbmi->skip, mbmi->mode, mbmi->motion_mode,
+  //       mbmi->mv[0]);
   decode_token_recon_block(pbi, td, mi_row, mi_col, r, bsize);
 }
 
@@ -1705,6 +1707,7 @@ static PARTITION_TYPE read_partition(MACROBLOCKD *xd, int mi_row, int mi_col,
                                      aom_reader *r, int has_rows, int has_cols,
                                      BLOCK_SIZE bsize) {
   const int ctx = partition_plane_context(xd, mi_row, mi_col, bsize);
+  // printf("Part CTX %d\n", ctx);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 
   if (!has_rows && !has_cols) return PARTITION_SPLIT;

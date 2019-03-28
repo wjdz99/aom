@@ -1050,6 +1050,10 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   const int is_compound = has_second_ref(mbmi);
   int ref;
 
+  // printf("BLK %dx%d %d, MBMI skip %d, mode %d, MMode %d, MV %d\n", mi_row,
+  //       mi_col, bsize, mbmi->skip, mbmi->mode, mbmi->motion_mode,
+  //       mbmi->mv[0]);
+
   write_inter_segment_id(cpi, w, seg, segp, mi_row, mi_col, 0, 1);
 
   write_skip_mode(cm, xd, segment_id, mbmi, w);
@@ -1555,6 +1559,7 @@ static void write_partition(const AV1_COMMON *const cm,
   const int has_rows = (mi_row + hbs) < cm->mi_rows;
   const int has_cols = (mi_col + hbs) < cm->mi_cols;
   const int ctx = partition_plane_context(xd, mi_row, mi_col, bsize);
+  // printf("Part CTX %d\n", ctx);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 
   if (!has_rows && !has_cols) {

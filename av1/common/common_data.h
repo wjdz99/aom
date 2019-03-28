@@ -48,10 +48,18 @@ static const uint8_t block_size_wide[BLOCK_SIZES_ALL] = {
   64, 64, 64, 128, 128, 4,  16, 8,  32, 16, 64
 };
 
+static const uint8_t block_size_wide_log2_lookup[BLOCK_SIZES_ALL] = {
+  2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 2, 4, 3, 5, 4, 6
+};
+
 // The Block_Height table in the spec (Section 9.3. Conversion tables).
 static const uint8_t block_size_high[BLOCK_SIZES_ALL] = {
   4,  8,  4,   8,  16,  8,  16, 32, 16, 32, 64,
   32, 64, 128, 64, 128, 16, 4,  32, 8,  64, 16
+};
+
+static const uint8_t block_size_high_log2_lookup[BLOCK_SIZES_ALL] = {
+  2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 6, 7, 4, 2, 5, 3, 6, 4
 };
 
 // Maps a block size to a context.
