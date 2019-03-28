@@ -2531,7 +2531,6 @@ int main(int argc, const char **argv_) {
           }
         }
       }
-
       fflush(stdout);
       if (!global.quiet) fprintf(stderr, "\033[K");
     }
