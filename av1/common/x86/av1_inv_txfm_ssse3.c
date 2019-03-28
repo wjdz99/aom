@@ -2820,8 +2820,18 @@ static void lowbd_inv_txfm2d_add_4x16_ssse3(const int32_t *input,
     load_buffer_32bit_to_16bit_w4(input_cur, txfm_size_col, buf_cur,
                                   row_one_loop);
     transpose_16bit_4x8(buf_cur, buf_cur);
-    row_txfm(buf_cur, buf_cur, cos_bit_row);
-    round_shift_16bit_ssse3(buf_cur, row_one_loop, shift[0]);
+    if (row_txfm == iidentity4_new_ssse3) {
+      const int16_t scale_fractional = (NewSqrt2 - (1 << NewSqrt2Bits));
+      const __m128i scale =
+          _mm_set1_epi16(scale_fractional << (15 - NewSqrt2Bits));
+      for (int j = 0; j < 4; ++j) {
+        buf_cur[j] =
+            _mm_avg_epu16(_mm_mulhrs_epi16(buf_cur[j], scale), buf_cur[j]);
+      }
+    } else {
+      row_txfm(buf_cur, buf_cur, cos_bit_row);
+      round_shift_16bit_ssse3(buf_cur, row_one_loop, shift[0]);
+    }
     if (lr_flip) {
       __m128i temp[8];
       flip_buf_sse2(buf_cur, temp, txfm_size_col);
@@ -2916,22 +2926,14 @@ void av1_lowbd_inv_txfm2d_add_ssse3(const int32_t *input, uint8_t *output,
       break;
   }
 }
+
 void av1_inv_txfm_add_ssse3(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
                             const TxfmParam *txfm_param) {
-  const TX_TYPE tx_type = txfm_param->tx_type;
   if (!txfm_param->lossless) {
-    switch (txfm_param->tx_size) {
-      case TX_4X16:
-      case TX_16X4:
-        // TODO(http://crbug.com/aomedia/2350): the ssse3 versions cause test
-        // vector mismatches.
-        av1_inv_txfm_add_c(dqcoeff, dst, stride, txfm_param);
-        break;
-      default:
-        av1_lowbd_inv_txfm2d_add_ssse3(dqcoeff, dst, stride, tx_type,
-                                       txfm_param->tx_size, txfm_param->eob);
-        break;
-    }
+    const TX_TYPE tx_type = txfm_param->tx_type;
+    av1_lowbd_inv_txfm2d_add_ssse3(dqcoeff, dst, stride, tx_type,
+                                   txfm_param->tx_size, txfm_param->eob);
+
   } else {
     av1_inv_txfm_add_c(dqcoeff, dst, stride, txfm_param);
   }
