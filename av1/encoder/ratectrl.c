@@ -1001,6 +1001,24 @@ int av1_frame_type_qdelta(const AV1_COMP *cpi, int q) {
                                     cpi->common.seq_params.bit_depth);
 }
 
+static int rc_pick_q_and_bounds_one_pass_cq(const AV1_COMP *cpi, int width,
+                                            int height, int *bottom_index,
+                                            int *top_index) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const RATE_CONTROL *const rc = &cpi->rc;
+  const CurrentFrame *const current_frame = &cm->current_frame;
+  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  const int cq_level = get_active_cq_level(rc, oxcf, frame_is_intra_only(cm),
+                                           cm->superres_scale_denominator);
+  const int bit_depth = cm->seq_params.bit_depth;
+  const int q = (int)av1_convert_qindex_to_q(cq_level, bit_depth);
+
+  *top_index = q;
+  *bottom_index = q;
+
+  return q;
+}
+
 #define STATIC_MOTION_THRESH 95
 static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
                                          int height, int *bottom_index,
@@ -1260,6 +1278,9 @@ int av1_rc_pick_q_and_bounds(AV1_COMP *cpi, int width, int height,
     if (cpi->oxcf.rc_mode == AOM_CBR)
       q = rc_pick_q_and_bounds_one_pass_cbr(cpi, width, height, bottom_index,
                                             top_index);
+    else if (cpi->oxcf.rc_mode == AOM_CQ)
+      q = rc_pick_q_and_bounds_one_pass_cq(cpi, width, height, bottom_index,
+                                           top_index);
     else
       q = rc_pick_q_and_bounds_one_pass_vbr(cpi, width, height, bottom_index,
                                             top_index);

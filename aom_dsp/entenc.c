@@ -92,12 +92,14 @@ static void od_ec_enc_normalize(od_ec_enc *enc, od_ec_window low,
     if (s >= 8) {
       assert(offs < storage);
       buf[offs++] = (uint16_t)(low >> c);
+      printf("EC Buff %04x\n", buf[offs - 1]);
       low &= m;
       c -= 8;
       m >>= 8;
     }
     assert(offs < storage);
     buf[offs++] = (uint16_t)(low >> c);
+    printf("EC Buff %04x\n", buf[offs - 1]);
     s = c + d - 24;
     low &= m;
     enc->offs = offs;
@@ -165,6 +167,7 @@ static void od_ec_encode_q15(od_ec_enc *enc, unsigned fl, unsigned fh, int s,
   assert(fh <= fl);
   assert(fl <= 32768U);
   assert(7 - EC_PROB_SHIFT - CDF_SHIFT >= 0);
+  printf("EC enc %d of L %d\n", s, nsyms);
   const int N = nsyms - 1;
   if (fl < CDF_PROB_TOP) {
     u = ((r >> 8) * (uint32_t)(fl >> EC_PROB_SHIFT) >>
@@ -198,6 +201,7 @@ void od_ec_encode_bool_q15(od_ec_enc *enc, int val, unsigned f) {
   assert(f < 32768U);
   l = enc->low;
   r = enc->rng;
+  printf("EC enc B %d\n", val);
   assert(32768U <= r);
   v = ((r >> 8) * (uint32_t)(f >> EC_PROB_SHIFT) >> (7 - EC_PROB_SHIFT));
   v += EC_MIN_PROB;

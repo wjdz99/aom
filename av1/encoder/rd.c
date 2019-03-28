@@ -350,6 +350,25 @@ static const int rd_frame_type_factor[FRAME_UPDATE_TYPES] = {
 int av1_compute_rd_mult_based_on_qindex(const AV1_COMP *cpi, int qindex) {
   const int q = av1_dc_quant_Q3(qindex, 0, cpi->common.seq_params.bit_depth);
   int rdmult = q * q;
+
+  // if (cpi->common.current_frame.frame_type != KEY_FRAME) {
+  //   if (qindex < 128)
+  //     rdmult = rdmult * 4;
+  //   else if (qindex < 190)
+  //     rdmult = rdmult * 4 + rdmult / 2;
+  //   else
+  //     rdmult = rdmult * 3;
+  // } else {
+  //   if (qindex < 64)
+  //     rdmult = rdmult * 4;
+  //   else if (qindex <= 128)
+  //     rdmult = rdmult * 3 + rdmult / 2;
+  //   else if (qindex < 190)
+  //     rdmult = rdmult * 4 + rdmult / 2;
+  //   else
+  //     rdmult = rdmult * 7 + rdmult / 2;
+  // }
+
   rdmult = rdmult * 3 + (rdmult * 2 / 3);
   switch (cpi->common.seq_params.bit_depth) {
     case AOM_BITS_8: break;
@@ -967,6 +986,7 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
                  int ref_y_stride, int ref_frame, BLOCK_SIZE block_size) {
   int i;
   int zero_seen = 0;
+  int best_index = 0;
   int best_sad = INT_MAX;
   int this_sad = INT_MAX;
   int max_mv = 0;
@@ -1007,10 +1027,12 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
     // Note if it is the best so far.
     if (this_sad < best_sad) {
       best_sad = this_sad;
+      best_index = i;
     }
   }
 
   // Note the index of the mv that worked best in the reference list.
+  // x->mv_best_ref_index[ref_frame] = best_index;
   x->max_mv_context[ref_frame] = max_mv;
   x->pred_mv_sad[ref_frame] = best_sad;
 }
