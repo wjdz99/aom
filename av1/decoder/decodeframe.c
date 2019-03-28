@@ -1663,7 +1663,6 @@ static void parse_decode_block(AV1Decoder *const pbi, ThreadData *const td,
     }
   }
   if (mbmi->skip) av1_reset_skip_context(xd, mi_row, mi_col, bsize, num_planes);
-
   decode_token_recon_block(pbi, td, mi_row, mi_col, r, bsize);
 }
 
