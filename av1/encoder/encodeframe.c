@@ -1713,7 +1713,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
   BLOCK_SIZE sub_subsize = BLOCK_4X4;
   int splits_below = 0;
   BLOCK_SIZE bs_type = mib[0]->sb_type;
-  int do_partition_search = 1;
+  int do_partition_search = 0;
   PICK_MODE_CONTEXT *ctx_none = &pc_tree->none;
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
@@ -1774,7 +1774,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
   switch (partition) {
     case PARTITION_NONE:
       pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &last_part_rdc,
-                    PARTITION_NONE, bsize, ctx_none, INT64_MAX, 0);
+                    PARTITION_NONE, bsize, ctx_none, INT64_MAX, 1);
       break;
     case PARTITION_HORZ:
       pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &last_part_rdc,
@@ -1951,15 +1951,11 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
   *dist = chosen_rdc.dist;
 }
 
-// TODO(kyslov): now this is very similar to rd_use_partition (except that
-// doesn't do extra search arounf suggested partitioning)
-//               consider passing a flag to select non-rd path (similar to
-//               encode_sb_row)
 static void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
                                 TileDataEnc *tile_data, MB_MODE_INFO **mib,
                                 TOKENEXTRA **tp, int mi_row, int mi_col,
                                 BLOCK_SIZE bsize, int *rate, int64_t *dist,
-                                int do_recon, PC_TREE *pc_tree) {
+                                PC_TREE *pc_tree) {
   AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   TileInfo *const tile_info = &tile_data->tile_info;
@@ -1967,94 +1963,31 @@ static void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
   MACROBLOCKD *const xd = &x->e_mbd;
   const int bs = mi_size_wide[bsize];
   const int hbs = bs / 2;
-  int i;
-  const int pl = (bsize >= BLOCK_8X8)
-                     ? partition_plane_context(xd, mi_row, mi_col, bsize)
-                     : 0;
   const PARTITION_TYPE partition =
       (bsize >= BLOCK_8X8) ? get_partition(cm, mi_row, mi_col, bsize)
                            : PARTITION_NONE;
   const BLOCK_SIZE subsize = get_partition_subsize(bsize, partition);
-  RD_SEARCH_MACROBLOCK_CONTEXT x_ctx;
-  RD_STATS last_part_rdc;
-  PICK_MODE_CONTEXT *ctx_none = &pc_tree->none;
+  RD_STATS dummy_cost;
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
   assert(mi_size_wide[bsize] == mi_size_high[bsize]);
-
-  av1_invalid_rd_stats(&last_part_rdc);
 
   pc_tree->partitioning = partition;
 
   xd->above_txfm_context = cm->above_txfm_context[tile_info->tile_row] + mi_col;
   xd->left_txfm_context =
       xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
-  save_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
-
-  if (bsize == BLOCK_16X16 && cpi->vaq_refresh) {
-    set_offsets(cpi, tile_info, x, mi_row, mi_col, bsize);
-    x->mb_energy = av1_log_block_var(cpi, x, bsize);
-  }
 
   switch (partition) {
     case PARTITION_NONE:
-      pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &last_part_rdc,
-                    PARTITION_NONE, bsize, ctx_none, INT64_MAX, 1);
-      break;
-    case PARTITION_HORZ:
-      pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &last_part_rdc,
-                    PARTITION_HORZ, subsize, &pc_tree->horizontal[0], INT64_MAX,
-                    1);
-      if (last_part_rdc.rate != INT_MAX && bsize >= BLOCK_8X8 &&
-          mi_row + hbs < cm->mi_rows) {
-        RD_STATS tmp_rdc;
-        const PICK_MODE_CONTEXT *const ctx_h = &pc_tree->horizontal[0];
-        av1_init_rd_stats(&tmp_rdc);
-        update_state(cpi, tile_data, td, ctx_h, mi_row, mi_col, subsize, 1);
-        encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, mi_row,
-                          mi_col, subsize, NULL);
-        pick_sb_modes(cpi, tile_data, x, mi_row + hbs, mi_col, &tmp_rdc,
-                      PARTITION_HORZ, subsize, &pc_tree->horizontal[1],
-                      INT64_MAX, 1);
-        if (tmp_rdc.rate == INT_MAX || tmp_rdc.dist == INT64_MAX) {
-          av1_invalid_rd_stats(&last_part_rdc);
-          break;
-        }
-        last_part_rdc.rate += tmp_rdc.rate;
-        last_part_rdc.dist += tmp_rdc.dist;
-        last_part_rdc.rdcost += tmp_rdc.rdcost;
-      }
-      break;
-    case PARTITION_VERT:
-      pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &last_part_rdc,
-                    PARTITION_VERT, subsize, &pc_tree->vertical[0], INT64_MAX,
-                    1);
-      if (last_part_rdc.rate != INT_MAX && bsize >= BLOCK_8X8 &&
-          mi_col + hbs < cm->mi_cols) {
-        RD_STATS tmp_rdc;
-        const PICK_MODE_CONTEXT *const ctx_v = &pc_tree->vertical[0];
-        av1_init_rd_stats(&tmp_rdc);
-        update_state(cpi, tile_data, td, ctx_v, mi_row, mi_col, subsize, 1);
-        encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, mi_row,
-                          mi_col, subsize, NULL);
-        pick_sb_modes(cpi, tile_data, x, mi_row, mi_col + hbs, &tmp_rdc,
-                      PARTITION_VERT, subsize,
-                      &pc_tree->vertical[bsize > BLOCK_8X8], INT64_MAX, 1);
-        if (tmp_rdc.rate == INT_MAX || tmp_rdc.dist == INT64_MAX) {
-          av1_invalid_rd_stats(&last_part_rdc);
-          break;
-        }
-        last_part_rdc.rate += tmp_rdc.rate;
-        last_part_rdc.dist += tmp_rdc.dist;
-        last_part_rdc.rdcost += tmp_rdc.rdcost;
-      }
+      pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &dummy_cost,
+                    PARTITION_NONE, bsize, &pc_tree->none, INT64_MAX, 1);
+      encode_b(cpi, tile_data, td, tp, mi_row, mi_col, 0, bsize, partition,
+               &pc_tree->none, NULL);
       break;
     case PARTITION_SPLIT:
-      last_part_rdc.rate = 0;
-      last_part_rdc.dist = 0;
-      last_part_rdc.rdcost = 0;
-      for (i = 0; i < 4; i++) {
+      for (int i = 0; i < 4; i++) {
         int x_idx = (i & 1) * hbs;
         int y_idx = (i >> 1) * hbs;
         int jj = i >> 1, ii = i & 0x01;
@@ -2063,18 +1996,17 @@ static void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
           continue;
 
         av1_init_rd_stats(&tmp_rdc);
-        nonrd_use_partition(
-            cpi, td, tile_data, mib + jj * hbs * cm->mi_stride + ii * hbs, tp,
-            mi_row + y_idx, mi_col + x_idx, subsize, &tmp_rdc.rate,
-            &tmp_rdc.dist, i != 3, pc_tree->split[i]);
-        if (tmp_rdc.rate == INT_MAX || tmp_rdc.dist == INT64_MAX) {
-          av1_invalid_rd_stats(&last_part_rdc);
-          break;
-        }
-        last_part_rdc.rate += tmp_rdc.rate;
-        last_part_rdc.dist += tmp_rdc.dist;
+        nonrd_use_partition(cpi, td, tile_data,
+                            mib + jj * hbs * cm->mi_stride + ii * hbs, tp,
+                            mi_row + y_idx, mi_col + x_idx, subsize,
+                            &tmp_rdc.rate, &tmp_rdc.dist, pc_tree->split[i]);
       }
       break;
+    case PARTITION_HORZ:
+    case PARTITION_VERT:
+      assert(0 && "Cannot yet handle non-square partition types");
+      break;
+
     case PARTITION_VERT_A:
     case PARTITION_VERT_B:
     case PARTITION_HORZ_A:
@@ -2085,36 +2017,8 @@ static void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
     default: assert(0); break;
   }
 
-  if (last_part_rdc.rate < INT_MAX) {
-    last_part_rdc.rate += x->partition_cost[pl][partition];
-    last_part_rdc.rdcost =
-        RDCOST(x->rdmult, last_part_rdc.rate, last_part_rdc.dist);
-  }
-
-  restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
-
-  // We must have chosen a partitioning and encoding or we'll fail later on.
-  // No other opportunities for success.
-  if (bsize == cm->seq_params.sb_size)
-    assert(last_part_rdc.rate < INT_MAX && last_part_rdc.dist < INT64_MAX);
-
-  if (do_recon) {
-    if (bsize == cm->seq_params.sb_size) {
-      // NOTE: To get estimate for rate due to the tokens, use:
-      // int rate_coeffs = 0;
-      // encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, DRY_RUN_COSTCOEFFS,
-      //           bsize, pc_tree, &rate_coeffs);
-      x->cb_offset = 0;
-      encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, OUTPUT_ENABLED, bsize,
-                pc_tree, NULL);
-    } else {
-      encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, DRY_RUN_NORMAL, bsize,
-                pc_tree, NULL);
-    }
-  }
-
-  *rate = last_part_rdc.rate;
-  *dist = last_part_rdc.dist;
+  if (partition != PARTITION_SPLIT || bsize == BLOCK_8X8)
+    update_partition_context(xd, mi_row, mi_col, subsize, bsize);
 }
 
 // Checks to see if a super block is on a horizontal image edge.
@@ -4746,18 +4650,18 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       av1_zero(x->txb_rd_record_32X32);
       av1_zero(x->txb_rd_record_64X64);
       av1_zero(x->txb_rd_record_intra);
+
+      av1_zero(x->picked_ref_frames_mask);
+
+      av1_zero(x->pred_mv);
     }
-
-    av1_zero(x->picked_ref_frames_mask);
-
-    av1_zero(x->pred_mv);
     PC_TREE *const pc_root = td->pc_root[mib_size_log2 - MIN_MIB_SIZE_LOG2];
     pc_root->index = 0;
 
     if ((sf->simple_motion_search_prune_rect ||
          sf->simple_motion_search_early_term_none ||
          sf->firstpass_simple_motion_search_early_term) &&
-        !frame_is_intra_only(cm)) {
+        !frame_is_intra_only(cm) && !use_nonrd_mode) {
       init_simple_motion_search_mvs(pc_root);
     }
 
@@ -4783,25 +4687,38 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
     MB_MODE_INFO **mi = cm->mi_grid_visible + idx_str;
     x->source_variance = UINT_MAX;
     x->simple_motion_pred_sse = UINT_MAX;
-    if (sf->partition_search_type == FIXED_PARTITION || seg_skip) {
+    /*    if (sf->partition_search_type == FIXED_PARTITION || seg_skip) {
+          set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
+          const BLOCK_SIZE bsize = seg_skip ? sb_size :
+       sf->always_this_block_size; set_fixed_partitioning(cpi, tile_info, mi,
+       mi_row, mi_col, bsize); rd_use_partition(cpi, td, tile_data, mi, tp,
+       mi_row, mi_col, sb_size, &dummy_rate, &dummy_dist, 1, pc_root); } else if
+       (cpi->partition_search_skippable_frame) { set_offsets(cpi, tile_info, x,
+       mi_row, mi_col, sb_size); const BLOCK_SIZE bsize =
+              get_rd_var_based_fixed_partition(cpi, x, mi_row, mi_col);
+          set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
+          rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
+                           &dummy_rate, &dummy_dist, 1, pc_root);
+        } else */
+    if (sf->partition_search_type == FIXED_PARTITION && use_nonrd_mode) {
       set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
-      const BLOCK_SIZE bsize = seg_skip ? sb_size : sf->always_this_block_size;
-      set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
-      rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
-                       &dummy_rate, &dummy_dist, 1, pc_root);
-    } else if (cpi->partition_search_skippable_frame) {
-      set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
-      const BLOCK_SIZE bsize =
-          get_rd_var_based_fixed_partition(cpi, x, mi_row, mi_col);
-      set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
-      rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
-                       &dummy_rate, &dummy_dist, 1, pc_root);
-    } else if (sf->partition_search_type == VAR_BASED_PARTITION &&
-               use_nonrd_mode) {
-      set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
-      av1_choose_var_based_partitioning(cpi, tile_info, x, mi_row, mi_col);
-      nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
-                          &dummy_rate, &dummy_dist, 1, pc_root);
+
+      if (frame_is_intra_only(cm)) {
+        const BLOCK_SIZE bsize =
+            seg_skip ? sb_size : sf->always_this_block_size;
+        set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
+        rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
+                         &dummy_rate, &dummy_dist, 1, pc_root);
+
+      } else {
+        // const BLOCK_SIZE bsize =
+        //     seg_skip ? sb_size : sf->always_this_block_size;
+        // set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
+        av1_choose_var_based_partitioning(cpi, tile_info, x, mi_row, mi_col);
+        td->mb.cb_offset = 0;
+        nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
+                            &dummy_rate, &dummy_dist, pc_root);
+      }
 
     } else {
       const int orig_rdmult = cpi->rd.RDMULT;
@@ -5315,11 +5232,11 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   xd->mi = cm->mi_grid_visible;
   xd->mi[0] = cm->mi;
 
-  av1_zero(*td->counts);
-  av1_zero(rdc->comp_pred_diff);
+  // av1_zero(*td->counts);
+  // av1_zero(rdc->comp_pred_diff);
   // Two pass partition search can be enabled/disabled for different frames.
   // Reset this data at frame level to avoid any incorrect usage.
-  init_first_partition_pass_stats_tables(cpi, x->first_partition_pass_stats);
+  // init_first_partition_pass_stats_tables(cpi, x->first_partition_pass_stats);
 
   // Reset the flag.
   cpi->intrabc_used = 0;
@@ -5330,7 +5247,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
   cm->allow_intrabc &= (cpi->oxcf.enable_intrabc);
 
-  if (cpi->oxcf.pass != 1 && av1_use_hash_me(cm)) {
+  if (0) {  // cpi->oxcf.pass != 1 && av1_use_hash_me(cm)) {
     // add to hash table
     const int pic_width = cpi->source->y_crop_width;
     const int pic_height = cpi->source->y_crop_height;
@@ -5491,10 +5408,11 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, av1_compute_global_motion_time);
 #endif
-  av1_zero(rdc->global_motion_used);
-  av1_zero(cpi->gmparams_cost);
-  if (cpi->common.current_frame.frame_type == INTER_FRAME && cpi->source &&
-      cpi->oxcf.enable_global_motion && !cpi->global_motion_search_done) {
+  // av1_zero(rdc->global_motion_used);
+  // av1_zero(cpi->gmparams_cost);
+  if (0) {  // cpi->common.current_frame.frame_type == INTER_FRAME &&
+            // cpi->source &&
+    // cpi->oxcf.enable_global_motion && !cpi->global_motion_search_done) {
     YV12_BUFFER_CONFIG *ref_buf[REF_FRAMES];
     int frame;
     double params_by_motion[RANSAC_NUM_MOTIONS * (MAX_PARAMDIM - 1)];
