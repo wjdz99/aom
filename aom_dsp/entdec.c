@@ -91,6 +91,7 @@ static void od_ec_dec_refill(od_ec_dec *dec) {
        is incremented by 8, so the total number of consumed bits (the return
        value of od_ec_dec_tell) does not change.*/
     assert(s <= OD_EC_WINDOW_SIZE - 8);
+    // printf("ED Byte %02x\n", bptr[0]);
     dif ^= (od_ec_window)bptr[0] << s;
     cnt += 8;
   }
@@ -134,6 +135,7 @@ static int od_ec_dec_normalize(od_ec_dec *dec, od_ec_window dif, unsigned rng,
   dec->dif = ((dif + 1) << d) - 1;
   dec->rng = rng << d;
   if (dec->cnt < 0) od_ec_dec_refill(dec);
+  // printf("ED. Read %d\n", ret);
   return ret;
 }
 
