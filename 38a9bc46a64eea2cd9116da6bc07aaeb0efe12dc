@@ -118,6 +118,24 @@
     },
     {
       "key": {
+        "uuid": "9abd9d91_dda51ecd",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1092,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-03-29T01:08:07Z",
+      "side": 1,
+      "message": "\u003e well... i assume it couldn\u0027t - we change x at each loop iteration...\n\nx changes, but base does not within the scope of 1 iteration of the loop, const int base \u003d ... will work and let\u0027s the reader know it won\u0027t change after its assignment.",
+      "parentUuid": "9b96c88c_9afa2ea4",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "83e6eb5a_ac37c72a",
         "filename": "aom_dsp/x86/intrapred_avx2.c",
         "patchSetId": 1
@@ -150,6 +168,24 @@
       "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "199308da_4f5ecbb4",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1095,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-03-29T01:08:07Z",
+      "side": 1,
+      "message": "\u003e Well... while memset wouldn\u0027t work there - it is about sse\\avx registers copying, you are right in the suggestion to look into the better ways of doing that copying. TBD.\n\nSorry, I missed the type we were writing to.",
+      "parentUuid": "d27628ee_e444ee62",
+      "revId": "38a9bc46a64eea2cd9116da6bc07aaeb0efe12dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
