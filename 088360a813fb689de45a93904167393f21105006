@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "51ff2773_e3d28b85",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-03-29T18:42:09Z",
+      "side": 1,
+      "message": "You could try using EXPECT_FLOAT_EQ here (instead of adding a \u0027verbose\u0027 flag) as discussed offline.",
+      "range": {
+        "startLine": 60,
+        "startChar": 6,
+        "endLine": 60,
+        "endChar": 15
+      },
+      "revId": "088360a813fb689de45a93904167393f21105006",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
