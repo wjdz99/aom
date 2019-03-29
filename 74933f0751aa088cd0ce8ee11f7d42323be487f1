@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4695877b_185d12d5",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-03-29T22:14:39Z",
+      "side": 1,
+      "message": "We might want to change this to SCALABILITY_STRUCTURES later and add an extra value to the enum to avoid setting it to -1. Not an urgent thing though.",
+      "range": {
+        "startLine": 274,
+        "startChar": 41,
+        "endLine": 274,
+        "endChar": 44
+      },
+      "revId": "74933f0751aa088cd0ce8ee11f7d42323be487f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
