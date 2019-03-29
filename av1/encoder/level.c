@@ -235,6 +235,7 @@ typedef enum {
   DISPLAY_RATE_TOO_HIGH,
   DECODE_RATE_TOO_HIGH,
   CR_TOO_SMALL,
+  TILE_SIZE_HEADER_RATE_TOO_HIGH,
 
   TARGET_LEVEL_FAIL_IDS,
   TARGET_LEVEL_OK,
@@ -258,6 +259,7 @@ static const char *level_fail_messages[TARGET_LEVEL_FAIL_IDS] = {
   "The display luma sample rate is too high.",
   "The decoded luma sample rate is too high.",
   "The compression ratio is too small.",
+  "The product of max tile size and header rate is too high.",
 };
 
 static double get_min_cr(const AV1LevelSpec *const level_spec, int tier,
@@ -267,6 +269,23 @@ static double get_min_cr(const AV1LevelSpec *const level_spec, int tier,
   const double speed_adj =
       (double)decoded_sample_rate / level_spec->max_display_rate;
   return AOMMAX(min_cr_basis * speed_adj, 0.8);
+}
+
+static void get_temporal_parallel_params(int scalability_mode_idc,
+                                         int *temporal_parallel_num,
+                                         int *temporal_parallel_denom) {
+  if (scalability_mode_idc < 0) {
+    *temporal_parallel_num = 1;
+    *temporal_parallel_denom = 1;
+    return;
+  }
+
+  // TODO(huisu@): handle scalability cases.
+  if (scalability_mode_idc == SCALABILITY_SS) {
+    (void)scalability_mode_idc;
+  } else {
+    (void)scalability_mode_idc;
+  }
 }
 
 static TARGET_LEVEL_FAIL_ID check_level_constraints(
@@ -362,6 +381,21 @@ static TARGET_LEVEL_FAIL_ID check_level_constraints(
       fail_id = CR_TOO_SMALL;
       break;
     }
+
+    if (target_level_spec->level > SEQ_LEVEL_5_1) {
+      int temporal_parallel_num;
+      int temporal_parallel_denom;
+      const int scalability_mode_idc = -1;
+      get_temporal_parallel_params(scalability_mode_idc, &temporal_parallel_num,
+                                   &temporal_parallel_denom);
+      const int val = level_stats->max_tile_size * level_spec->max_header_rate *
+                      temporal_parallel_denom / temporal_parallel_num;
+      if (val > 588251136) {
+        fail_id = TILE_SIZE_HEADER_RATE_TOO_HIGH;
+        break;
+      }
+    }
+
   } while (0);
 
   return fail_id;
