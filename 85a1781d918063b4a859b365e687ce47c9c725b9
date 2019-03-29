@@ -16,6 +16,24 @@
       "revId": "85a1781d918063b4a859b365e687ce47c9c725b9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25729cec_1a85cca6",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-03-29T21:31:03Z",
+      "side": 1,
+      "message": "Good idea. I defined some macros for this and other constants.",
+      "parentUuid": "fb17fc72_f42c4703",
+      "revId": "85a1781d918063b4a859b365e687ce47c9c725b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
