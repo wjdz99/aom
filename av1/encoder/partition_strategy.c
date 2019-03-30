@@ -120,7 +120,8 @@ void av1_simple_motion_search_based_split(
       *partition_vert_allowed = 0;
       *do_rectangular_split = 0;
     }
-    if (cpi->sf.simple_motion_search_split_only >= 2) {
+    if ((cpi->sf.simple_motion_search_split_only >= 2) ||
+        cpi->sf.prune_part_search_low_res) {
       if (score < -split_only_thresh) *do_square_split = 0;
       // For larger scores (>split_only_thresh), none and rectangular partitions
       // are skipped. As score reduces, possibility of split decreases. Hence

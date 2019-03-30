@@ -651,6 +651,8 @@ typedef struct SPEED_FEATURES {
   // want to split directly without trying other partition types.
   int simple_motion_search_split_only;
 
+  int prune_part_search_low_res;
+
   // Use features from simple_motion_search to terminate prediction block
   // partition after PARTITION_NONE
   int simple_motion_search_early_term_none;

@@ -119,6 +119,7 @@ static void set_good_speed_feature_framesize_dependent(
   if (is_720p_or_larger && speed >= CONFIG_2PASS_PARTITION_SEARCH_LVL_START &&
       speed < CONFIG_2PASS_PARTITION_SEARCH_LVL_END) {
     sf->two_pass_partition_search = 1;
+    sf->prune_part_search_low_res = 0;
   }
 
   if (speed >= 1) {
@@ -756,6 +757,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
     sf->ml_partition_search_breakout_thresh[i] = -1;  // -1 means not enabled.
   }
   sf->simple_motion_search_split_only = 0;
+  sf->prune_part_search_low_res = 1;
   sf->simple_motion_search_prune_rect = 0;
   sf->simple_motion_search_early_term_none = 0;
 
