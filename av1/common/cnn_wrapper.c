@@ -20,9 +20,6 @@
 #include "av1/models/intra_frame_model/qp43.h"
 #include "av1/models/intra_frame_model/qp53.h"
 #include "av1/models/intra_frame_model/qp63.h"
-#include "av1/models/intra_frame_model/trial_model.h"
-#include "av1/models/intra_frame_model/trial_model_2.h"
-#include "av1/models/intra_frame_model/trial_model_3.h"
 
 static void restore_cnn_plane(AV1_COMMON *cm, int plane) {
   // TODO(logangw): Add infrastructure to choose models.
@@ -32,7 +29,7 @@ static void restore_cnn_plane(AV1_COMMON *cm, int plane) {
   } else if (qindex < 128) {
     av1_restore_cnn_plane(cm, &model22, plane);
   } else if (qindex < 172) {
-    av1_restore_cnn_plane(cm, &model32, AOM_PLANE_Y);
+    av1_restore_cnn_plane(cm, &model32, plane);
   } else if (qindex < 212) {
     av1_restore_cnn_plane(cm, &model43, plane);
   } else if (qindex < 252) {
@@ -42,15 +39,11 @@ static void restore_cnn_plane(AV1_COMMON *cm, int plane) {
   }
 }
 
-int av1_encode_restore_cnn(AV1_COMP *cpi, AV1_COMMON *cm) {
-  const int plane = AOM_PLANE_Y;
-
-  restore_cnn_plane(cm, plane);
-
-  return aom_get_sse_plane(sd, &cm->cur_frame->buf, plane,
-                           cm->seq_params.use_highbitdepth);
+void av1_encode_restore_cnn(AV1_COMMON *cm) {
+  // TODO(logangw): Add mechanism to restore AOM_PLANE_U and AOM_PLANE_V.
+  restore_cnn_plane(cm, AOM_PLANE_Y);
 }
 
-void av1_decode_restore_cnn(AV1_COMMON *cm, int plane) {
-  restore_cnn_plane(cm, plane);
+void av1_decode_restore_cnn(AV1_COMMON *cm) {
+  restore_cnn_plane(cm, AOM_PLANE_Y);
 }
