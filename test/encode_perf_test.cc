@@ -40,16 +40,7 @@ struct EncodePerfTestVideo {
 };
 
 const EncodePerfTestVideo kAV1EncodePerfTestVectors[] = {
-  EncodePerfTestVideo("desktop_640_360_30.yuv", 640, 360, 200, 2484),
-  EncodePerfTestVideo("kirland_640_480_30.yuv", 640, 480, 200, 300),
-  EncodePerfTestVideo("macmarcomoving_640_480_30.yuv", 640, 480, 200, 987),
-  EncodePerfTestVideo("macmarcostationary_640_480_30.yuv", 640, 480, 200, 718),
   EncodePerfTestVideo("niklas_640_480_30.yuv", 640, 480, 200, 471),
-  EncodePerfTestVideo("tacomanarrows_640_480_30.yuv", 640, 480, 200, 300),
-  EncodePerfTestVideo("tacomasmallcameramovement_640_480_30.yuv", 640, 480, 200,
-                      300),
-  EncodePerfTestVideo("thaloundeskmtg_640_480_30.yuv", 640, 480, 200, 300),
-  EncodePerfTestVideo("niklas_1280_720_30.yuv", 1280, 720, 600, 470),
 };
 
 const int kEncodePerfTestSpeeds[] = { 5, 6, 7, 8 };

@@ -32,10 +32,6 @@ list(APPEND AOM_TEST_DATA_FILE_NAMES
             "vase10x10.yuv"
             "vase10x10_tiles.txt")
 
-if(ENABLE_DECODE_PERF_TESTS AND CONFIG_AV1_ENCODER)
-  list(APPEND AOM_TEST_DATA_FILE_NAMES "niklas_1280_720_30.yuv")
-endif()
-
 if(CONFIG_AV1_DECODER)
   list(APPEND AOM_TEST_DATA_FILE_NAMES
               "av1-1-b8-00-quantizer-00.ivf"
@@ -546,15 +542,6 @@ if(CONFIG_AV1_DECODER)
               "invalid-oss-fuzz-9482.ivf.res"
               "invalid-oss-fuzz-9720.ivf"
               "invalid-oss-fuzz-9720.ivf.res")
-endif()
-
-if(ENABLE_ENCODE_PERF_TESTS AND CONFIG_AV1_ENCODER)
-  list(APPEND AOM_TEST_DATA_FILE_NAMES "desktop_640_360_30.yuv"
-              "kirland_640_480_30.yuv" "macmarcomoving_640_480_30.yuv"
-              "macmarcostationary_640_480_30.yuv" "niklas_1280_720_30.yuv"
-              "tacomanarrows_640_480_30.yuv"
-              "tacomasmallcameramovement_640_480_30.yuv"
-              "thaloundeskmtg_640_480_30.yuv")
 endif()
 
 # Parses test/test-data.sha1 and writes captured file names and checksums to
