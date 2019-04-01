@@ -4351,11 +4351,6 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 
 #if CONFIG_CNN_RESTORATION
   const int use_cnn = av1_use_cnn(cm);
-  const int use_cdef = cm->seq_params.enable_cdef && !cm->coded_lossless &&
-                       !cm->large_scale_tile && !use_cnn;
-  const int use_restoration = cm->seq_params.enable_restoration &&
-                              !cm->all_lossless && !cm->large_scale_tile &&
-                              !use_cnn;
 #else
   const int use_cdef = cm->seq_params.enable_cdef && !cm->coded_lossless &&
                        !cm->large_scale_tile;
@@ -4397,6 +4392,35 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
                             0, num_planes, 0);
   }
 
+#if CONFIG_CNN_RESTORATION
+  int use_cdef = cm->seq_params.enable_cdef && !cm->coded_lossless &&
+                 !cm->large_scale_tile;
+  int use_restoration = cm->seq_params.enable_restoration &&
+                        !cm->all_lossless && !cm->large_scale_tile;
+
+  if (use_cnn) {
+    const int plane = AOM_PLANE_Y;
+    int64_t dgd_error =
+        aom_get_sse_plane(cpi->source, &cm->cur_frame->buf, plane,
+                          cm->seq_params.use_highbitdepth);
+
+    av1_encode_restore_cnn(cm);
+
+    int64_t cnn_error =
+        aom_get_sse_plane(cpi->source, &cm->cur_frame->buf, plane,
+                          cm->seq_params.use_highbitdepth);
+
+    if (dgd_error > cnn_error) {
+      cm->use_cnn = 1;
+      use_cdef = 0;
+      use_restoration = 0;
+    } else {
+      aom_yv12_copy_y(&cpi->last_frame_uf, &cm->cur_frame->buf);
+    }
+  }
+
+#endif  // CONFIG_CNN_RESTORATION
+
   if (use_restoration)
     av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 0);
 
@@ -4435,12 +4459,6 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
   }
-
-#if CONFIG_CNN_RESTORATION
-  if (use_cnn) {
-    av1_restore_cnn_plane_Y_wrapper(cm);
-  }
-#endif  // CONFIG_CNN_RESTORATION
 }
 
 static int get_refresh_frame_flags(const AV1_COMP *const cpi) {

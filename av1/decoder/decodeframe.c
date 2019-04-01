@@ -1962,6 +1962,12 @@ static void setup_segmentation(AV1_COMMON *const cm,
   segfeatures_copy(&cm->cur_frame->seg, seg);
 }
 
+#if CONFIG_CNN_RESTORATION
+static void decode_cnn(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
+  cm->use_cnn = aom_rb_read_bit(rb);
+}
+#endif  // CONFIG_CNN_RESTORATION
+
 static void decode_restoration_mode(AV1_COMMON *cm,
                                     struct aom_read_bit_buffer *rb) {
   assert(!cm->all_lossless);
@@ -5399,9 +5405,10 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 
   setup_loopfilter(cm, rb);
 #if CONFIG_CNN_RESTORATION
-  if (!av1_use_cnn(cm)) {
+  if (av1_use_cnn(cm)) {
+    decode_cnn(cm, rb);
+  } else {
 #endif  // CONFIG_CNN_RESTORATION
-
     if (!cm->coded_lossless && seq_params->enable_cdef) {
       setup_cdef(cm, rb);
     }
@@ -5630,7 +5637,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 
 #if CONFIG_CNN_RESTORATION
     if (av1_use_cnn(cm)) {
-      av1_restore_cnn_plane_Y_wrapper(cm);
+      av1_decode_restore_cnn(cm);
     } else {
 #endif  // CONFIG_CNN_RESTORATION
 

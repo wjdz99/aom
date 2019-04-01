@@ -39,3 +39,12 @@ void av1_restore_cnn_plane_Y_wrapper(AV1_COMMON *cm) {
     av1_restore_cnn_plane(cm, &model63, plane);
   }
 }
+
+void av1_encode_restore_cnn(AV1_COMMON *cm) {
+  // TODO(logangw): Add mechanism to restore AOM_PLANE_U and AOM_PLANE_V.
+  restore_cnn_plane(cm, AOM_PLANE_Y);
+}
+
+void av1_decode_restore_cnn(AV1_COMMON *cm) {
+  restore_cnn_plane(cm, AOM_PLANE_Y);
+}

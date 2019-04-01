@@ -1984,6 +1984,13 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
   }
 }
 
+#if CONFIG_CNN_RESTORATION
+static void encode_cnn(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
+  assert(cm->use_cnn);
+  aom_wb_write_literal(wb, cm->use_cnn, 1);
+}
+#endif  // CONFIG_CNN_RESTORATION
+
 static void encode_loopfilter(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
   assert(!cm->coded_lossless);
   if (cm->allow_intrabc) return;
@@ -3147,7 +3154,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
     if (!cm->coded_lossless) {
       encode_loopfilter(cm, wb);
     }
-    if (!av1_use_cnn(cm)) {
+    if (av1_use_cnn(cm)) {
+      encode_cnn(cm, wb);
+    } else {
       if (!cm->coded_lossless) {
         encode_cdef(cm, wb);
       }
