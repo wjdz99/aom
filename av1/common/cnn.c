@@ -478,7 +478,6 @@ void av1_cnn_deconvolve_c(const float **input, int in_width, int in_height,
 
   const int cstep = layer_config->in_channels * layer_config->out_channels;
 
-  activation_fn activation = get_activation(layer_config->activation);
   int out_width = 0;
   int out_height = 0;
   find_layer_output_size(in_width, in_height, layer_config, &out_width,
