@@ -211,11 +211,13 @@ typedef struct {
 #define TXK_TYPE_BUF_LEN 64
 // This structure now relates to 4x4 block regions.
 typedef struct MB_MODE_INFO {
-  PALETTE_MODE_INFO palette_mode_info;
-  WarpedMotionParams wm_params;
-  // interinter members
-  INTERINTER_COMPOUND_DATA interinter_comp;
-  FILTER_INTRA_MODE_INFO filter_intra_mode_info;
+  union {
+    PALETTE_MODE_INFO palette_mode_info;
+    WarpedMotionParams wm_params;
+    // interinter members
+    INTERINTER_COMPOUND_DATA interinter_comp;
+    FILTER_INTRA_MODE_INFO filter_intra_mode_info;
+  };
   int_mv mv[2];
   // Only for INTER blocks
   InterpFilters interp_filters;
