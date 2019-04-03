@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53d2b292_23fa1ede",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-04-03T03:34:45Z",
+      "side": 1,
+      "message": "Could add return here since you removed the if(nn_config) below.",
+      "range": {
+        "startLine": 109,
+        "startChar": 69,
+        "endLine": 109,
+        "endChar": 70
+      },
+      "revId": "df49af17e5373bd7a36862b26528ea5523bb57c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b61de5f0_547067d6",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-04-03T03:34:45Z",
+      "side": 1,
+      "message": "return;",
+      "range": {
+        "startLine": 177,
+        "startChar": 69,
+        "endLine": 177,
+        "endChar": 70
+      },
+      "revId": "df49af17e5373bd7a36862b26528ea5523bb57c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54a45b36_59b21842",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-04-03T03:34:45Z",
+      "side": 1,
+      "message": "use for loops?",
+      "range": {
+        "startLine": 350,
+        "startChar": 2,
+        "endLine": 375,
+        "endChar": 3
+      },
+      "revId": "df49af17e5373bd7a36862b26528ea5523bb57c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bcfaab6_9c76104e",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 654,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-04-03T03:34:45Z",
+      "side": 1,
+      "message": "You may add more detailed comments, e.g. only valid when simple_motion_search_split_only is true; 1 means slower/larger model; 2 means faster/smaller model.",
+      "range": {
+        "startLine": 654,
+        "startChar": 5,
+        "endLine": 654,
+        "endChar": 66
+      },
+      "revId": "df49af17e5373bd7a36862b26528ea5523bb57c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
