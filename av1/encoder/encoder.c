@@ -4340,6 +4340,49 @@ static void superres_post_encode(AV1_COMP *cpi) {
   }
 }
 
+static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
+                                   MACROBLOCKD *xd, int use_restoration,
+                                   int use_cdef) {
+  if (use_restoration)
+    av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 0);
+
+  if (use_cdef) {
+    // Find CDEF parameters
+    av1_cdef_search(&cm->cur_frame->buf, cpi->source, cm, xd,
+                    cpi->sf.fast_cdef_search);
+
+    // Apply the filter
+    av1_cdef_frame(&cm->cur_frame->buf, cm, xd);
+  } else {
+    cm->cdef_info.cdef_bits = 0;
+    cm->cdef_info.cdef_strengths[0] = 0;
+    cm->cdef_info.nb_cdef_strengths = 1;
+    cm->cdef_info.cdef_uv_strengths[0] = 0;
+  }
+
+  superres_post_encode(cpi);
+
+  if (use_restoration) {
+    av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 1);
+    av1_pick_filter_restoration(cpi->source, cpi);
+    if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
+        cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
+        cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
+      if (cpi->num_workers > 1)
+        av1_loop_restoration_filter_frame_mt(&cm->cur_frame->buf, cm, 0,
+                                             cpi->workers, cpi->num_workers,
+                                             &cpi->lr_row_sync, &cpi->lr_ctxt);
+      else
+        av1_loop_restoration_filter_frame(&cm->cur_frame->buf, cm, 0,
+                                          &cpi->lr_ctxt);
+    }
+  } else {
+    cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
+    cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
+    cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+  }
+}
+
 static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
@@ -4388,70 +4431,61 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   }
 
 #if CONFIG_CNN_RESTORATION
+  YV12_BUFFER_CONFIG cnn_buffer;
+  int64_t dgd_error = INT64_MIN;
+  int64_t cnn_error = INT64_MIN;
+  int64_t res_error = INT64_MIN;
+
   if (av1_use_cnn(cm)) {
     aom_yv12_copy_y(&cm->cur_frame->buf, &cpi->last_frame_uf);
     const int plane = AOM_PLANE_Y;
-    int64_t dgd_error =
-        aom_get_sse_plane(cpi->source, &cm->cur_frame->buf, plane,
-                          cm->seq_params.use_highbitdepth);
+
+    dgd_error = aom_get_sse_plane(cpi->source, &cm->cur_frame->buf, plane,
+                                  cm->seq_params.use_highbitdepth);
 
     av1_encode_restore_cnn(cm);
 
-    int64_t cnn_error =
-        aom_get_sse_plane(cpi->source, &cm->cur_frame->buf, plane,
-                          cm->seq_params.use_highbitdepth);
+    cnn_error = aom_get_sse_plane(cpi->source, &cm->cur_frame->buf, plane,
+                                  cm->seq_params.use_highbitdepth);
 
-    if (dgd_error > cnn_error) {
-      cm->use_cnn = 1;
-      use_cdef = 0;
-      use_restoration = 0;
-    } else {
-      cm->use_cnn = 0;
+    if (dgd_error > cnn_error && (use_cdef || use_restoration)) {
+      if (aom_realloc_frame_buffer(
+              &cnn_buffer, cm->width, cm->height, cm->seq_params.subsampling_x,
+              cm->seq_params.subsampling_y, cm->seq_params.use_highbitdepth,
+              cpi->oxcf.border_in_pixels, cm->byte_alignment, NULL, NULL, NULL))
+        aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                           "Failed to allocate last frame buffer");
+
+      aom_yv12_copy_y(&cm->cur_frame->buf, &cnn_buffer);
       aom_yv12_copy_y(&cpi->last_frame_uf, &cm->cur_frame->buf);
+
+      cdef_restoration_frame(cpi, cm, xd, use_cdef, use_restoration);
+
+      res_error = aom_get_sse_plane(cpi->source, &cm->cur_frame->buf, plane,
+                                    cm->seq_params.use_highbitdepth);
     }
+  }
+
+  printf("\n\ndgd: %ld\ncnn: %ld\nres: %ld\n\n", dgd_error, cnn_error,
+         res_error);
+
+  if (res_error > cnn_error) {
+    cm->use_cnn = 1;
+    aom_yv12_copy_y(&cnn_buffer, &cm->cur_frame->buf);
+    cdef_restoration_frame(cpi, cm, xd, 0, 0);
   } else {
     cm->use_cnn = 0;
+    aom_yv12_copy_y(&cpi->last_frame_uf, &cm->cur_frame->buf);
+    if (dgd_error <= cnn_error)
+      cdef_restoration_frame(cpi, cm, xd, use_cdef, use_restoration);
   }
+
+  if (dgd_error > cnn_error && (use_cdef || use_restoration)) {
+    aom_free_frame_buffer(&cnn_buffer);
+  }
+#else
+  cdef_restoration_frame(cpi, cm, xd, use_cdef, use_restoration);
 #endif  // CONFIG_CNN_RESTORATION
-
-  if (use_restoration)
-    av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 0);
-
-  if (use_cdef) {
-    // Find CDEF parameters
-    av1_cdef_search(&cm->cur_frame->buf, cpi->source, cm, xd,
-                    cpi->sf.fast_cdef_search);
-
-    // Apply the filter
-    av1_cdef_frame(&cm->cur_frame->buf, cm, xd);
-  } else {
-    cm->cdef_info.cdef_bits = 0;
-    cm->cdef_info.cdef_strengths[0] = 0;
-    cm->cdef_info.nb_cdef_strengths = 1;
-    cm->cdef_info.cdef_uv_strengths[0] = 0;
-  }
-
-  superres_post_encode(cpi);
-
-  if (use_restoration) {
-    av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 1);
-    av1_pick_filter_restoration(cpi->source, cpi);
-    if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
-        cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
-        cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
-      if (cpi->num_workers > 1)
-        av1_loop_restoration_filter_frame_mt(&cm->cur_frame->buf, cm, 0,
-                                             cpi->workers, cpi->num_workers,
-                                             &cpi->lr_row_sync, &cpi->lr_ctxt);
-      else
-        av1_loop_restoration_filter_frame(&cm->cur_frame->buf, cm, 0,
-                                          &cpi->lr_ctxt);
-    }
-  } else {
-    cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
-    cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
-    cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
-  }
 }
 
 static int get_refresh_frame_flags(const AV1_COMP *const cpi) {
