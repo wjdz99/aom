@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cd0c2e0_4801385c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-04-03T17:46:17Z",
+      "side": 1,
+      "message": "add BUG\u003daomedia:2357",
+      "revId": "6cc0739229e8bd7702faf25ebbb14af9f38bcec0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
