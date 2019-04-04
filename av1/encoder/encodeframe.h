@@ -20,7 +20,8 @@
 extern "C" {
 #endif
 
-#define DELTAQ_MODULATION 1  // 0: variance based, 1: wavelet AC energy based
+#define DELTA_Q_PERCEPT_MODULATION 1  // 0: variance based
+                                      // 1: wavelet AC energy based
 
 struct macroblock;
 struct yv12_buffer_config;
