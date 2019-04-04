@@ -11817,35 +11817,40 @@ static int inter_mode_search_order_independent_skip(
     }
   }
 
+  const int lag_in_frames = cpi->oxcf.lag_in_frames;
+  const int arnr_max_frames = cpi->oxcf.arnr_max_frames;
+
   if (sf->selective_ref_frame) {
     if (sf->selective_ref_frame >= 3 || x->cb_partition_scan) {
       if (ref_frame[0] == ALTREF2_FRAME || ref_frame[1] == ALTREF2_FRAME)
-        if (get_relative_dist(
+        if (get_adjusted_relative_dist(
                 order_hint_info,
                 cm->cur_frame->ref_order_hints[ALTREF2_FRAME - LAST_FRAME],
-                current_frame->order_hint) < 0)
+                current_frame->order_hint, lag_in_frames, arnr_max_frames) < 0)
           return 1;
       if (ref_frame[0] == BWDREF_FRAME || ref_frame[1] == BWDREF_FRAME)
-        if (get_relative_dist(
+        if (get_adjusted_relative_dist(
                 order_hint_info,
                 cm->cur_frame->ref_order_hints[BWDREF_FRAME - LAST_FRAME],
-                current_frame->order_hint) < 0)
+                current_frame->order_hint, lag_in_frames, arnr_max_frames) < 0)
           return 1;
     }
 
     if (sf->selective_ref_frame >= 2 ||
         (sf->selective_ref_frame == 1 && comp_pred)) {
       if (ref_frame[0] == LAST3_FRAME || ref_frame[1] == LAST3_FRAME)
-        if (get_relative_dist(
+        if (get_adjusted_relative_dist(
                 order_hint_info,
                 cm->cur_frame->ref_order_hints[LAST3_FRAME - LAST_FRAME],
-                cm->cur_frame->ref_order_hints[GOLDEN_FRAME - LAST_FRAME]) <= 0)
+                cm->cur_frame->ref_order_hints[GOLDEN_FRAME - LAST_FRAME],
+                lag_in_frames, arnr_max_frames) <= 0)
           return 1;
       if (ref_frame[0] == LAST2_FRAME || ref_frame[1] == LAST2_FRAME)
-        if (get_relative_dist(
+        if (get_adjusted_relative_dist(
                 order_hint_info,
                 cm->cur_frame->ref_order_hints[LAST2_FRAME - LAST_FRAME],
-                cm->cur_frame->ref_order_hints[GOLDEN_FRAME - LAST_FRAME]) <= 0)
+                cm->cur_frame->ref_order_hints[GOLDEN_FRAME - LAST_FRAME],
+                lag_in_frames, arnr_max_frames) <= 0)
           return 1;
     }
   }
@@ -11858,14 +11863,18 @@ static int inter_mode_search_order_independent_skip(
       assert(buf != NULL);
       ref_offsets[i] = buf->order_hint;
     }
-    if ((get_relative_dist(order_hint_info, ref_offsets[0],
-                           current_frame->order_hint) <= 0 &&
-         get_relative_dist(order_hint_info, ref_offsets[1],
-                           current_frame->order_hint) <= 0) ||
-        (get_relative_dist(order_hint_info, ref_offsets[0],
-                           current_frame->order_hint) > 0 &&
-         get_relative_dist(order_hint_info, ref_offsets[1],
-                           current_frame->order_hint) > 0))
+    if ((get_adjusted_relative_dist(order_hint_info, ref_offsets[0],
+                                    current_frame->order_hint, lag_in_frames,
+                                    arnr_max_frames) <= 0 &&
+         get_adjusted_relative_dist(order_hint_info, ref_offsets[1],
+                                    current_frame->order_hint, lag_in_frames,
+                                    arnr_max_frames) <= 0) ||
+        (get_adjusted_relative_dist(order_hint_info, ref_offsets[0],
+                                    current_frame->order_hint, lag_in_frames,
+                                    arnr_max_frames) > 0 &&
+         get_adjusted_relative_dist(order_hint_info, ref_offsets[1],
+                                    current_frame->order_hint, lag_in_frames,
+                                    arnr_max_frames) > 0))
       return 1;
   }
 
@@ -11875,21 +11884,23 @@ static int inter_mode_search_order_independent_skip(
     if ((ref_frame[0] == ALTREF2_FRAME || ref_frame[1] == ALTREF2_FRAME) &&
         (cpi->ref_frame_flags & av1_ref_frame_flag_list[BWDREF_FRAME])) {
       // Check if both ALTREF2_FRAME and BWDREF_FRAME are future references.
-      if ((get_relative_dist(
+      if ((get_adjusted_relative_dist(
                order_hint_info,
                cm->cur_frame->ref_order_hints[ALTREF2_FRAME - LAST_FRAME],
-               current_frame->order_hint) > 0) &&
-          (get_relative_dist(
+               current_frame->order_hint, lag_in_frames,
+               arnr_max_frames) > 0) &&
+          (get_adjusted_relative_dist(
                order_hint_info,
                cm->cur_frame->ref_order_hints[BWDREF_FRAME - LAST_FRAME],
-               current_frame->order_hint) > 0)) {
+               current_frame->order_hint, lag_in_frames,
+               arnr_max_frames) > 0)) {
         // Drop ALTREF2_FRAME as a reference if BWDREF_FRAME is a closer
         // reference to the current frame than ALTREF2_FRAME
-        if (get_relative_dist(
+        if (get_adjusted_relative_dist(
                 order_hint_info,
                 cm->cur_frame->ref_order_hints[ALTREF2_FRAME - LAST_FRAME],
-                cm->cur_frame->ref_order_hints[BWDREF_FRAME - LAST_FRAME]) >=
-            0) {
+                cm->cur_frame->ref_order_hints[BWDREF_FRAME - LAST_FRAME],
+                lag_in_frames, arnr_max_frames) >= 0) {
           const RefCntBuffer *const buf_arf2 =
               get_ref_frame_buf(cm, ALTREF2_FRAME);
           assert(buf_arf2 != NULL);

@@ -1381,6 +1381,20 @@ static INLINE char const *get_frame_type_enum(int type) {
 }
 #endif
 
+static INLINE int get_adjusted_relative_dist(const OrderHintInfo *oh, int a,
+                                             int b, int lag_in_frames,
+                                             int arnr_max_frames) {
+  const int base_relative_dist = get_relative_dist(oh, a, b);
+  const int max_positive_dist = lag_in_frames - (arnr_max_frames / 2);
+  if (base_relative_dist <= max_positive_dist) return base_relative_dist;
+
+  // If base_relative_dist seems wrong based on lag_in_frames, offset it
+  // appropriately.
+  assert(oh->enable_order_hint);
+  const int offset = 1 << (oh->order_hint_bits_minus_1 + 1);
+  return base_relative_dist - offset;
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

@@ -4692,7 +4692,8 @@ static void enforce_max_ref_frames(AV1_COMP *cpi) {
   assert(total_valid_refs <= max_allowed_refs);
 }
 
-static INLINE int av1_refs_are_one_sided(const AV1_COMMON *cm) {
+static INLINE int av1_refs_are_one_sided(const AV1_COMP *const cpi) {
+  const AV1_COMMON *const cm = &cpi->common;
   assert(!frame_is_intra_only(cm));
 
   int one_sided_refs = 1;
@@ -4701,8 +4702,10 @@ static INLINE int av1_refs_are_one_sided(const AV1_COMMON *cm) {
     if (buf == NULL) continue;
 
     const int ref_order_hint = buf->order_hint;
-    if (get_relative_dist(&cm->seq_params.order_hint_info, ref_order_hint,
-                          (int)cm->current_frame.order_hint) > 0) {
+    if (get_adjusted_relative_dist(
+            &cm->seq_params.order_hint_info, ref_order_hint,
+            (int)cm->current_frame.order_hint, cpi->oxcf.lag_in_frames,
+            cpi->oxcf.arnr_max_frames) > 0) {
       one_sided_refs = 0;  // bwd reference
       break;
     }
@@ -4737,10 +4740,12 @@ static int check_skip_mode_enabled(AV1_COMP *const cpi) {
   const int cur_offset = (int)cm->current_frame.order_hint;
   int ref_offset[2];
   get_skip_mode_ref_offsets(cm, ref_offset);
-  const int cur_to_ref0 = get_relative_dist(&cm->seq_params.order_hint_info,
-                                            cur_offset, ref_offset[0]);
-  const int cur_to_ref1 = abs(get_relative_dist(&cm->seq_params.order_hint_info,
-                                                cur_offset, ref_offset[1]));
+  const int cur_to_ref0 = get_adjusted_relative_dist(
+      &cm->seq_params.order_hint_info, cur_offset, ref_offset[0],
+      cpi->oxcf.lag_in_frames, cpi->oxcf.arnr_max_frames);
+  const int cur_to_ref1 = abs(get_adjusted_relative_dist(
+      &cm->seq_params.order_hint_info, cur_offset, ref_offset[1],
+      cpi->oxcf.lag_in_frames, cpi->oxcf.arnr_max_frames));
   if (abs(cur_to_ref0 - cur_to_ref1) > 1) return 0;
 
   // High Latency: Turn off skip mode if all refs are fwd.
@@ -4767,13 +4772,15 @@ static int check_skip_mode_enabled(AV1_COMP *const cpi) {
 
 // Function to decide if we can skip the global motion parameter computation
 // for a particular ref frame
-static INLINE int skip_gm_frame(AV1_COMMON *const cm, int ref_frame) {
+static INLINE int skip_gm_frame(const AV1_COMP *const cpi, int ref_frame) {
+  const AV1_COMMON *const cm = &cpi->common;
   if ((ref_frame == LAST3_FRAME || ref_frame == LAST2_FRAME) &&
       cm->global_motion[GOLDEN_FRAME].wmtype != IDENTITY) {
-    return get_relative_dist(
+    return get_adjusted_relative_dist(
                &cm->seq_params.order_hint_info,
                cm->cur_frame->ref_order_hints[ref_frame - LAST_FRAME],
-               cm->cur_frame->ref_order_hints[GOLDEN_FRAME - LAST_FRAME]) <= 0;
+               cm->cur_frame->ref_order_hints[GOLDEN_FRAME - LAST_FRAME],
+               cpi->oxcf.lag_in_frames, cpi->oxcf.arnr_max_frames) <= 0;
   }
   return 0;
 }
@@ -5039,7 +5046,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                  ref_buf[frame]->y_crop_width == cpi->source->y_crop_width &&
                  ref_buf[frame]->y_crop_height == cpi->source->y_crop_height &&
                  do_gm_search_logic(&cpi->sf, num_refs_using_gm, frame) &&
-                 !(cpi->sf.selective_ref_gm && skip_gm_frame(cm, frame))) {
+                 !(cpi->sf.selective_ref_gm && skip_gm_frame(cpi, frame))) {
         TransformationType model;
         const int64_t ref_frame_error = av1_frame_error(
             is_cur_buf_hbd(xd), xd->bd, ref_buf[frame]->y_buffer,
@@ -5053,9 +5060,10 @@ static void encode_frame_internal(AV1_COMP *cpi) {
         // TODO(sarahparker, debargha): Explore do_adaptive_gm_estimation = 1
         const int do_adaptive_gm_estimation = 0;
 
-        const int ref_frame_dist = get_relative_dist(
+        const int ref_frame_dist = get_adjusted_relative_dist(
             &cm->seq_params.order_hint_info, cm->current_frame.order_hint,
-            cm->cur_frame->ref_order_hints[frame - LAST_FRAME]);
+            cm->cur_frame->ref_order_hints[frame - LAST_FRAME],
+            cpi->oxcf.lag_in_frames, cpi->oxcf.arnr_max_frames);
         const GlobalMotionEstimationType gm_estimation_type =
             cm->seq_params.order_hint_info.enable_order_hint &&
                     abs(ref_frame_dist) <= 2 && do_adaptive_gm_estimation
@@ -5161,7 +5169,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #endif
 
   cpi->all_one_sided_refs =
-      frame_is_intra_only(cm) ? 0 : av1_refs_are_one_sided(cm);
+      frame_is_intra_only(cm) ? 0 : av1_refs_are_one_sided(cpi);
 
   cm->current_frame.skip_mode_info.skip_mode_flag =
       check_skip_mode_enabled(cpi);
