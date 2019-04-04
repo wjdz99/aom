@@ -1306,7 +1306,7 @@ void av1_update_rd_thresh_fact(const AV1_COMMON *const cm,
       for (bs = min_size; bs <= max_size; ++bs) {
         int *const fact = &factor_buf[bs][mode];
         if (mode == best_mode_index) {
-          *fact -= (*fact >> 4);
+          *fact -= (*fact >> 5);
         } else {
           *fact = AOMMIN(*fact + RD_THRESH_INC, rd_thresh * RD_THRESH_MAX_FACT);
         }
