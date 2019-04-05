@@ -4224,9 +4224,9 @@ static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
   return dr;
 }
 
-static void setup_delta_q(AV1_COMP *const cpi, MACROBLOCK *const x,
-                          const TileInfo *const tile_info, int mi_row,
-                          int mi_col, int num_planes) {
+static void setup_delta_q_perceptual(AV1_COMP *const cpi, MACROBLOCK *const x,
+                                     const TileInfo *const tile_info,
+                                     int mi_row, int mi_col, int num_planes) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   const DeltaQInfo *const delta_q_info = &cm->delta_q_info;
@@ -4536,6 +4536,24 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
               CFL_ALPHABET_SIZE);
 }
 
+static void adjust_rdmult_and_deltaq(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
+                                     int mi_col) {
+  const BLOCK_SIZE sb_size = cpi->common.seq_params.sb_size;
+  const int orig_rdmult = cpi->rd.RDMULT;
+  x->cb_rdmult = orig_rdmult;
+  if (cpi->twopass.gf_group.index > 0 && cpi->oxcf.enable_tpl_model &&
+      cpi->oxcf.aq_mode == NO_AQ) {
+    if (cpi->oxcf.deltaq_mode == NO_DELTA_Q) {
+      const int dr =
+          get_rdmult_delta(cpi, sb_size, mi_row, mi_col, orig_rdmult);
+      x->rdmult = dr;
+      x->cb_rdmult = x->rdmult;
+    } else if (cpi->oxcf.deltaq_mode == DELTA_Q_OBJECTIVE) {
+      // TODO(debargha, yuec): change qindex, update rd_mult
+    }
+  }
+}
+
 static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
                           int mi_row, TOKENEXTRA **tp, int use_nonrd_mode) {
   AV1_COMMON *const cm = &cpi->common;
@@ -4661,7 +4679,8 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
 
     x->sb_energy_level = 0;
     if (cm->delta_q_info.delta_q_present_flag)
-      setup_delta_q(cpi, x, tile_info, mi_row, mi_col, num_planes);
+      if (cpi->oxcf.deltaq_mode == DELTA_Q_PERCEPTUAL)
+        setup_delta_q_perceptual(cpi, x, tile_info, mi_row, mi_col, num_planes);
 
     int dummy_rate;
     int64_t dummy_dist;
@@ -4671,12 +4690,14 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
     x->source_variance = UINT_MAX;
     x->simple_motion_pred_sse = UINT_MAX;
     if (sf->partition_search_type == FIXED_PARTITION || seg_skip) {
+      adjust_rdmult_and_deltaq(cpi, x, mi_row, mi_col);
       set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
       const BLOCK_SIZE bsize = seg_skip ? sb_size : sf->always_this_block_size;
       set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
       rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                        &dummy_rate, &dummy_dist, 1, pc_root);
     } else if (cpi->partition_search_skippable_frame) {
+      adjust_rdmult_and_deltaq(cpi, x, mi_row, mi_col);
       set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
       const BLOCK_SIZE bsize =
           get_rd_var_based_fixed_partition(cpi, x, mi_row, mi_col);
@@ -4692,17 +4713,7 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
                           pc_root);
 
     } else {
-      const int orig_rdmult = cpi->rd.RDMULT;
-      x->cb_rdmult = orig_rdmult;
-      if (cpi->twopass.gf_group.index > 0 && cpi->oxcf.enable_tpl_model &&
-          cpi->oxcf.aq_mode == NO_AQ && cpi->oxcf.deltaq_mode == NO_DELTA_Q) {
-        const int dr =
-            get_rdmult_delta(cpi, BLOCK_128X128, mi_row, mi_col, orig_rdmult);
-
-        x->cb_rdmult = dr;
-        x->rdmult = x->cb_rdmult;
-      }
-
+      adjust_rdmult_and_deltaq(cpi, x, mi_row, mi_col);
       reset_partition(pc_root, sb_size);
       x->use_cb_search_range = 0;
 #if CONFIG_COLLECT_COMPONENT_TIMING
