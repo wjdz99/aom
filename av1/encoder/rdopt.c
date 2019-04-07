@@ -6468,8 +6468,8 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (!(cpi->sf.intra_uv_mode_mask[txsize_sqr_up_map[max_tx_size]] &
           (1 << mode)))
       continue;
-    if (!cpi->oxcf.enable_smooth_intra && mode >= UV_SMOOTH_PRED &&
-        mode <= UV_SMOOTH_H_PRED)
+    if ((!cpi->oxcf.enable_smooth_intra || cpi->sf.disable_smooth_intra) &&
+        mode >= UV_SMOOTH_PRED && mode <= UV_SMOOTH_H_PRED)
       continue;
 
     if (!cpi->oxcf.enable_paeth_intra && mode == UV_PAETH_PRED) continue;
@@ -13367,7 +13367,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     }
 
     if (ref_frame == INTRA_FRAME) {
-      if (!cpi->oxcf.enable_smooth_intra &&
+      if ((!cpi->oxcf.enable_smooth_intra || sf->disable_smooth_intra) &&
           (mbmi->mode == SMOOTH_PRED || mbmi->mode == SMOOTH_H_PRED ||
            mbmi->mode == SMOOTH_V_PRED))
         continue;
