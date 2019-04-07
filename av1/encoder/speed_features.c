@@ -342,8 +342,8 @@ static void set_good_speed_features_framesize_independent(
     // TODO(Venkat): Evaluate this speed feature for speed 1 & 2
     sf->simple_motion_search_split_only =
         cm->allow_screen_content_tools ? 1 : 2;
-    sf->disable_smooth_intra =
-        !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
+    // sf->disable_smooth_intra =
+    //     !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
   }
 
   if (speed >= 4) {
