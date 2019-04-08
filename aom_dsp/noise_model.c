@@ -426,6 +426,9 @@ int aom_flat_block_finder_init(aom_flat_block_finder_t *block_finder,
   double *AtA_inv = 0;
   double *A = 0;
   int x = 0, y = 0, i = 0, j = 0;
+  block_finder->A = NULL;
+  block_finder->AtA_inv = NULL;
+
   if (!equation_system_init(&eqns, kLowPolyNumParams)) {
     fprintf(stderr, "Failed to init equation system for block_size=%d\n",
             block_size);
@@ -484,8 +487,8 @@ int aom_flat_block_finder_init(aom_flat_block_finder_t *block_finder,
 
 void aom_flat_block_finder_free(aom_flat_block_finder_t *block_finder) {
   if (!block_finder) return;
-  aom_free(block_finder->A);
-  aom_free(block_finder->AtA_inv);
+  if (block_finder->A) aom_free(block_finder->A);
+  if (block_finder->AtA_inv) aom_free(block_finder->AtA_inv);
   memset(block_finder, 0, sizeof(*block_finder));
 }
 
