@@ -168,4 +168,16 @@ static INLINE int use_auto_max_partition(AV1_COMP *const cpi,
              INTNL_OVERLAY_UPDATE;
 }
 
+void simple_motion_search_prune_part_features(
+    AV1_COMP *const cpi, MACROBLOCK *x, PC_TREE *pc_tree, int mi_row,
+    int mi_col, BLOCK_SIZE bsize, float *features, int features_to_get);
+
+void av1_ml_early_term_after_split(const AV1_COMP *const cpi,
+                                   const MACROBLOCK *const x,
+                                   const PC_TREE *const pc_tree,
+                                   BLOCK_SIZE bsize, int64_t best_rd,
+                                   int64_t part_none_rd, int64_t part_split_rd,
+                                   int64_t *split_rd,
+                                   int *const terminate_partition_search);
+
 #endif  // AOM_AV1_ENCODER_PARTITION_STRATEGY_H_

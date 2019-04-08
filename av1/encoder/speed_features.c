@@ -280,6 +280,7 @@ static void set_good_speed_features_framesize_independent(
     sf->use_transform_domain_distortion = boosted ? 0 : 1;
     sf->perform_coeff_opt = boosted ? 0 : 1;
     sf->use_inter_txb_hash = 0;
+    sf->ml_early_term_after_part_split = 1;
   }
 
   if (speed >= 2) {
@@ -761,6 +762,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->ml_prune_rect_partition = 0;
   sf->ml_prune_ab_partition = 0;
   sf->ml_prune_4_partition = 0;
+  sf->ml_early_term_after_part_split = 0;
   sf->fast_cdef_search = 0;
   for (i = 0; i < PARTITION_BLOCK_SIZES; ++i) {
     sf->ml_partition_search_breakout_thresh[i] = -1;  // -1 means not enabled.
