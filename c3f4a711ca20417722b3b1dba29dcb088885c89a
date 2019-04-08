@@ -16,6 +16,24 @@
       "revId": "c3f4a711ca20417722b3b1dba29dcb088885c89a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99bf9673_678e6cbc",
+        "filename": "av1/common/cnn.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-04-08T21:03:56Z",
+      "side": 1,
+      "message": "For BRANCH_TYPE, do you mean the type of branching that is being performed? I think COPY_TYPE is more suitable because the \"branching\" doesn\u0027t change.",
+      "parentUuid": "ab08a249_ad3134d7",
+      "revId": "c3f4a711ca20417722b3b1dba29dcb088885c89a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
