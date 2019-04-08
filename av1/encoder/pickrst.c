@@ -564,7 +564,7 @@ static SgrprojInfo search_selfguided_restoration(
   assert(pu_height == (RESTORATION_PROC_UNIT_SIZE >> 1) ||
          pu_height == RESTORATION_PROC_UNIT_SIZE);
 
-  for (ep = 0; ep < SGRPROJ_PARAMS; ep++) {
+  for (ep = 0; ep < SGRPROJ_PARAMS - 6; ep++) {
     int exq[2];
     apply_sgr(ep, dat8, width, height, dat_stride, use_highbitdepth, bit_depth,
               pu_width, pu_height, flt0, flt1, flt_stride);
