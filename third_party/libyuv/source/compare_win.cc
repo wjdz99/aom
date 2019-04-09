@@ -17,15 +17,15 @@ extern "C" {
 #endif
 
 // This module is for Visual C x86.
-#if !defined(LIBYUV_DISABLE_X86) && defined(_M_IX86) && \
-    defined(_MSC_VER) && !defined(__clang__)
+#if !defined(LIBYUV_DISABLE_X86) && defined(_M_IX86) && defined(_MSC_VER) && \
+    !defined(__clang__)
 
-__declspec(naked)
-uint32 SumSquareError_SSE2(const uint8* src_a, const uint8* src_b, int count) {
+__declspec(naked) uint32
+    SumSquareError_SSE2(const uint8 *src_a, const uint8 *src_b, int count) {
   __asm {
-    mov        eax, [esp + 4]    // src_a
-    mov        edx, [esp + 8]    // src_b
-    mov        ecx, [esp + 12]   // count
+    mov        eax, [esp + 4]  // src_a
+    mov        edx, [esp + 8]  // src_b
+    mov        ecx, [esp + 12]  // count
     pxor       xmm0, xmm0
     pxor       xmm5, xmm5
 
@@ -60,13 +60,13 @@ uint32 SumSquareError_SSE2(const uint8* src_a, const uint8* src_b, int count) {
 // Visual C 2012 required for AVX2.
 #if _MSC_VER >= 1700
 // C4752: found Intel(R) Advanced Vector Extensions; consider using /arch:AVX.
-#pragma warning(disable: 4752)
-__declspec(naked)
-uint32 SumSquareError_AVX2(const uint8* src_a, const uint8* src_b, int count) {
+#pragma warning(disable : 4752)
+__declspec(naked) uint32
+    SumSquareError_AVX2(const uint8 *src_a, const uint8 *src_b, int count) {
   __asm {
-    mov        eax, [esp + 4]    // src_a
-    mov        edx, [esp + 8]    // src_b
-    mov        ecx, [esp + 12]   // count
+    mov        eax, [esp + 4]  // src_a
+    mov        edx, [esp + 8]  // src_b
+    mov        ecx, [esp + 12]  // count
     vpxor      ymm0, ymm0, ymm0  // sum
     vpxor      ymm5, ymm5, ymm5  // constant 0 for unpck
     sub        edx, eax
@@ -132,42 +132,42 @@ static uvec32 kHashMul3 = {
 // 59: 66 0F 38 40 E5     pmulld      xmm4,xmm5
 // 72: 66 0F 38 40 D5     pmulld      xmm2,xmm5
 // 83: 66 0F 38 40 CD     pmulld      xmm1,xmm5
-#define pmulld(reg) _asm _emit 0x66 _asm _emit 0x0F _asm _emit 0x38 \
-    _asm _emit 0x40 _asm _emit reg
+#define pmulld(reg) \
+  _asm _emit 0x66 _asm _emit 0x0F _asm _emit 0x38 _asm _emit 0x40 _asm _emit reg
 
-__declspec(naked)
-uint32 HashDjb2_SSE41(const uint8* src, int count, uint32 seed) {
+__declspec(naked) uint32
+    HashDjb2_SSE41(const uint8 *src, int count, uint32 seed) {
   __asm {
-    mov        eax, [esp + 4]    // src
-    mov        ecx, [esp + 8]    // count
+    mov        eax, [esp + 4]  // src
+    mov        ecx, [esp + 8]  // count
     movd       xmm0, [esp + 12]  // seed
 
-    pxor       xmm7, xmm7        // constant 0 for unpck
+    pxor       xmm7, xmm7  // constant 0 for unpck
     movdqa     xmm6, kHash16x33
 
   wloop:
-    movdqu     xmm1, [eax]       // src[0-15]
+    movdqu     xmm1, [eax]  // src[0-15]
     lea        eax, [eax + 16]
-    pmulld(0xc6)                 // pmulld      xmm0,xmm6  hash *= 33 ^ 16
+    pmulld(0xc6)  // pmulld      xmm0,xmm6  hash *= 33 ^ 16
     movdqa     xmm5, kHashMul0
     movdqa     xmm2, xmm1
-    punpcklbw  xmm2, xmm7        // src[0-7]
+    punpcklbw  xmm2, xmm7  // src[0-7]
     movdqa     xmm3, xmm2
-    punpcklwd  xmm3, xmm7        // src[0-3]
-    pmulld(0xdd)                 // pmulld     xmm3, xmm5
+    punpcklwd  xmm3, xmm7  // src[0-3]
+    pmulld(0xdd)  // pmulld     xmm3, xmm5
     movdqa     xmm5, kHashMul1
     movdqa     xmm4, xmm2
-    punpckhwd  xmm4, xmm7        // src[4-7]
-    pmulld(0xe5)                 // pmulld     xmm4, xmm5
+    punpckhwd  xmm4, xmm7  // src[4-7]
+    pmulld(0xe5)  // pmulld     xmm4, xmm5
     movdqa     xmm5, kHashMul2
-    punpckhbw  xmm1, xmm7        // src[8-15]
+    punpckhbw  xmm1, xmm7  // src[8-15]
     movdqa     xmm2, xmm1
-    punpcklwd  xmm2, xmm7        // src[8-11]
-    pmulld(0xd5)                 // pmulld     xmm2, xmm5
+    punpcklwd  xmm2, xmm7  // src[8-11]
+    pmulld(0xd5)  // pmulld     xmm2, xmm5
     movdqa     xmm5, kHashMul3
-    punpckhwd  xmm1, xmm7        // src[12-15]
-    pmulld(0xcd)                 // pmulld     xmm1, xmm5
-    paddd      xmm3, xmm4        // add 16 results
+    punpckhwd  xmm1, xmm7  // src[12-15]
+    pmulld(0xcd)  // pmulld     xmm1, xmm5
+    paddd      xmm3, xmm4  // add 16 results
     paddd      xmm1, xmm2
     paddd      xmm1, xmm3
 
@@ -179,18 +179,18 @@ uint32 HashDjb2_SSE41(const uint8* src, int count, uint32 seed) {
     sub        ecx, 16
     jg         wloop
 
-    movd       eax, xmm0         // return hash
+    movd       eax, xmm0  // return hash
     ret
   }
 }
 
 // Visual C 2012 required for AVX2.
 #if _MSC_VER >= 1700
-__declspec(naked)
-uint32 HashDjb2_AVX2(const uint8* src, int count, uint32 seed) {
+__declspec(naked) uint32
+    HashDjb2_AVX2(const uint8 *src, int count, uint32 seed) {
   __asm {
-    mov        eax, [esp + 4]    // src
-    mov        ecx, [esp + 8]    // count
+    mov        eax, [esp + 4]  // src
+    mov        ecx, [esp + 8]  // count
     movd       xmm0, [esp + 12]  // seed
     movdqa     xmm6, kHash16x33
 
@@ -205,7 +205,7 @@ uint32 HashDjb2_AVX2(const uint8* src, int count, uint32 seed) {
     pmulld     xmm2, kHashMul2
     lea        eax, [eax + 16]
     pmulld     xmm1, kHashMul3
-    paddd      xmm3, xmm4        // add 16 results
+    paddd      xmm3, xmm4  // add 16 results
     paddd      xmm1, xmm2
     paddd      xmm1, xmm3
     pshufd     xmm2, xmm1, 0x0e  // upper 2 dwords
@@ -216,7 +216,7 @@ uint32 HashDjb2_AVX2(const uint8* src, int count, uint32 seed) {
     sub        ecx, 16
     jg         wloop
 
-    movd       eax, xmm0         // return hash
+    movd       eax, xmm0  // return hash
     ret
   }
 }

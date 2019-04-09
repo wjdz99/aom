@@ -51,7 +51,7 @@ int InitCpuFlags(void);
 
 // Internal function for parsing /proc/cpuinfo.
 LIBYUV_API
-int ArmCpuCaps(const char* cpuinfo_name);
+int ArmCpuCaps(const char *cpuinfo_name);
 
 // Detect CPU has SSE2 etc.
 // Test_flag parameter should be one of kCpuHas constants above.
@@ -72,7 +72,7 @@ void MaskCpuFlags(int enable_flags);
 // eax is the info type that you want.
 // ecx is typically the cpu number, and should normally be zero.
 LIBYUV_API
-void CpuId(uint32 eax, uint32 ecx, uint32* cpu_info);
+void CpuId(uint32 eax, uint32 ecx, uint32 *cpu_info);
 
 #ifdef __cplusplus
 }  // extern "C"

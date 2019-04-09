@@ -20,18 +20,18 @@ extern "C" {
     !defined(__aarch64__)
 
 // Read 8 Y, 4 U and 4 V from 422
-#define READYUV422                                                             \
-    MEMACCESS(0)                                                               \
-    "vld1.8     {d0}, [%0]!                    \n"                             \
+#define READYUV422 \
+  MEMACCESS(0)     \
+  "vld1.8     {d0}, [%0]!                    \n"                             \
     MEMACCESS(1)                                                               \
     "vld1.32    {d2[0]}, [%1]!                 \n"                             \
     MEMACCESS(2)                                                               \
     "vld1.32    {d2[1]}, [%2]!                 \n"
 
 // Read 8 Y, 2 U and 2 V from 422
-#define READYUV411                                                             \
-    MEMACCESS(0)                                                               \
-    "vld1.8     {d0}, [%0]!                    \n"                             \
+#define READYUV411 \
+  MEMACCESS(0)     \
+  "vld1.8     {d0}, [%0]!                    \n"                             \
     MEMACCESS(1)                                                               \
     "vld1.16    {d2[0]}, [%1]!                 \n"                             \
     MEMACCESS(2)                                                               \
@@ -40,9 +40,9 @@ extern "C" {
     "vzip.u8    d2, d3                         \n"
 
 // Read 8 Y, 8 U and 8 V from 444
-#define READYUV444                                                             \
-    MEMACCESS(0)                                                               \
-    "vld1.8     {d0}, [%0]!                    \n"                             \
+#define READYUV444 \
+  MEMACCESS(0)     \
+  "vld1.8     {d0}, [%0]!                    \n"                             \
     MEMACCESS(1)                                                               \
     "vld1.8     {d2}, [%1]!                    \n"                             \
     MEMACCESS(2)                                                               \
@@ -51,15 +51,15 @@ extern "C" {
     "vrshrn.u16 d2, q1, #1                     \n"
 
 // Read 8 Y, and set 4 U and 4 V to 128
-#define READYUV400                                                             \
-    MEMACCESS(0)                                                               \
-    "vld1.8     {d0}, [%0]!                    \n"                             \
-    "vmov.u8    d2, #128                       \n"
+#define READYUV400                               \
+  MEMACCESS(0)                                   \
+  "vld1.8     {d0}, [%0]!                    \n" \
+  "vmov.u8    d2, #128                       \n"
 
 // Read 8 Y and 4 UV from NV12
-#define READNV12                                                               \
-    MEMACCESS(0)                                                               \
-    "vld1.8     {d0}, [%0]!                    \n"                             \
+#define READNV12 \
+  MEMACCESS(0)   \
+  "vld1.8     {d0}, [%0]!                    \n"                             \
     MEMACCESS(1)                                                               \
     "vld1.8     {d2}, [%1]!                    \n"                             \
     "vmov.u8    d3, d2                         \n"/* split odd/even uv apart */\
@@ -67,9 +67,9 @@ extern "C" {
     "vtrn.u32   d2, d3                         \n"
 
 // Read 8 Y and 4 VU from NV21
-#define READNV21                                                               \
-    MEMACCESS(0)                                                               \
-    "vld1.8     {d0}, [%0]!                    \n"                             \
+#define READNV21 \
+  MEMACCESS(0)   \
+  "vld1.8     {d0}, [%0]!                    \n"                             \
     MEMACCESS(1)                                                               \
     "vld1.8     {d2}, [%1]!                    \n"                             \
     "vmov.u8    d3, d2                         \n"/* split odd/even uv apart */\
@@ -77,25 +77,25 @@ extern "C" {
     "vtrn.u32   d2, d3                         \n"
 
 // Read 8 YUY2
-#define READYUY2                                                               \
-    MEMACCESS(0)                                                               \
-    "vld2.8     {d0, d2}, [%0]!                \n"                             \
-    "vmov.u8    d3, d2                         \n"                             \
-    "vuzp.u8    d2, d3                         \n"                             \
-    "vtrn.u32   d2, d3                         \n"
+#define READYUY2                                 \
+  MEMACCESS(0)                                   \
+  "vld2.8     {d0, d2}, [%0]!                \n" \
+  "vmov.u8    d3, d2                         \n" \
+  "vuzp.u8    d2, d3                         \n" \
+  "vtrn.u32   d2, d3                         \n"
 
 // Read 8 UYVY
-#define READUYVY                                                               \
-    MEMACCESS(0)                                                               \
-    "vld2.8     {d2, d3}, [%0]!                \n"                             \
-    "vmov.u8    d0, d3                         \n"                             \
-    "vmov.u8    d3, d2                         \n"                             \
-    "vuzp.u8    d2, d3                         \n"                             \
-    "vtrn.u32   d2, d3                         \n"
+#define READUYVY                                 \
+  MEMACCESS(0)                                   \
+  "vld2.8     {d2, d3}, [%0]!                \n" \
+  "vmov.u8    d0, d3                         \n" \
+  "vmov.u8    d3, d2                         \n" \
+  "vuzp.u8    d2, d3                         \n" \
+  "vtrn.u32   d2, d3                         \n"
 
-#define YUV422TORGB_SETUP_REG                                                  \
-    MEMACCESS([kUVToRB])                                                       \
-    "vld1.8     {d24}, [%[kUVToRB]]            \n"                             \
+#define YUV422TORGB_SETUP_REG \
+  MEMACCESS([kUVToRB])        \
+  "vld1.8     {d24}, [%[kUVToRB]]            \n"                             \
     MEMACCESS([kUVToG])                                                        \
     "vld1.8     {d25}, [%[kUVToG]]             \n"                             \
     MEMACCESS([kUVBiasBGR])                                                    \
@@ -107,32 +107,32 @@ extern "C" {
     MEMACCESS([kYToRgb])                                                       \
     "vld1.32    {d30[], d31[]}, [%[kYToRgb]]     \n"
 
-#define YUV422TORGB                                                            \
-    "vmull.u8   q8, d2, d24                    \n" /* u/v B/R component      */\
-    "vmull.u8   q9, d2, d25                    \n" /* u/v G component        */\
-    "vmovl.u8   q0, d0                         \n" /* Y                      */\
-    "vmovl.s16  q10, d1                        \n"                             \
-    "vmovl.s16  q0, d0                         \n"                             \
-    "vmul.s32   q10, q10, q15                  \n"                             \
-    "vmul.s32   q0, q0, q15                    \n"                             \
-    "vqshrun.s32 d0, q0, #16                   \n"                             \
-    "vqshrun.s32 d1, q10, #16                  \n" /* Y                      */\
-    "vadd.s16   d18, d19                       \n"                             \
-    "vshll.u16  q1, d16, #16                   \n" /* Replicate u * UB       */\
-    "vshll.u16  q10, d17, #16                  \n" /* Replicate v * VR       */\
-    "vshll.u16  q3, d18, #16                   \n" /* Replicate (v*VG + u*UG)*/\
-    "vaddw.u16  q1, q1, d16                    \n"                             \
-    "vaddw.u16  q10, q10, d17                  \n"                             \
-    "vaddw.u16  q3, q3, d18                    \n"                             \
-    "vqadd.s16  q8, q0, q13                    \n" /* B */                     \
-    "vqadd.s16  q9, q0, q14                    \n" /* R */                     \
-    "vqadd.s16  q0, q0, q4                     \n" /* G */                     \
-    "vqadd.s16  q8, q8, q1                     \n" /* B */                     \
-    "vqadd.s16  q9, q9, q10                    \n" /* R */                     \
-    "vqsub.s16  q0, q0, q3                     \n" /* G */                     \
-    "vqshrun.s16 d20, q8, #6                   \n" /* B */                     \
-    "vqshrun.s16 d22, q9, #6                   \n" /* R */                     \
-    "vqshrun.s16 d21, q0, #6                   \n" /* G */
+#define YUV422TORGB                                                           \
+  "vmull.u8   q8, d2, d24                    \n" /* u/v B/R component      */ \
+  "vmull.u8   q9, d2, d25                    \n" /* u/v G component        */ \
+  "vmovl.u8   q0, d0                         \n" /* Y                      */ \
+  "vmovl.s16  q10, d1                        \n"                              \
+  "vmovl.s16  q0, d0                         \n"                              \
+  "vmul.s32   q10, q10, q15                  \n"                              \
+  "vmul.s32   q0, q0, q15                    \n"                              \
+  "vqshrun.s32 d0, q0, #16                   \n"                              \
+  "vqshrun.s32 d1, q10, #16                  \n" /* Y                      */ \
+  "vadd.s16   d18, d19                       \n"                              \
+  "vshll.u16  q1, d16, #16                   \n" /* Replicate u * UB       */ \
+  "vshll.u16  q10, d17, #16                  \n" /* Replicate v * VR       */ \
+  "vshll.u16  q3, d18, #16                   \n" /* Replicate (v*VG + u*UG)*/ \
+  "vaddw.u16  q1, q1, d16                    \n"                              \
+  "vaddw.u16  q10, q10, d17                  \n"                              \
+  "vaddw.u16  q3, q3, d18                    \n"                              \
+  "vqadd.s16  q8, q0, q13                    \n" /* B */                      \
+  "vqadd.s16  q9, q0, q14                    \n" /* R */                      \
+  "vqadd.s16  q0, q0, q4                     \n" /* G */                      \
+  "vqadd.s16  q8, q8, q1                     \n" /* B */                      \
+  "vqadd.s16  q9, q9, q10                    \n" /* R */                      \
+  "vqsub.s16  q0, q0, q3                     \n" /* G */                      \
+  "vqshrun.s16 d20, q8, #6                   \n" /* B */                      \
+  "vqshrun.s16 d22, q9, #6                   \n" /* R */                      \
+  "vqshrun.s16 d21, q0, #6                   \n" /* G */
 
 // YUV to RGB conversion constants.
 // Y contribution to R,G,B.  Scale and bias.
@@ -141,19 +141,20 @@ extern "C" {
 
 // U and V contributions to R,G,B.
 #define UB -128 /* -min(128, round(2.018 * 64)) */
-#define UG 25 /* -round(-0.391 * 64) */
-#define VG 52 /* -round(-0.813 * 64) */
+#define UG 25   /* -round(-0.391 * 64) */
+#define VG 52   /* -round(-0.813 * 64) */
 #define VR -102 /* -round(1.596 * 64) */
 
 // Bias values to subtract 16 from Y and 128 from U and V.
-#define BB (UB * 128            - YGB)
+#define BB (UB * 128 - YGB)
 #define BG (UG * 128 + VG * 128 - YGB)
-#define BR            (VR * 128 - YGB)
+#define BR (VR * 128 - YGB)
 
-static uvec8 kUVToRB  = { 128, 128, 128, 128, 102, 102, 102, 102,
-                          0, 0, 0, 0, 0, 0, 0, 0 };
-static uvec8 kUVToG = { 25, 25, 25, 25, 52, 52, 52, 52,
-                        0, 0, 0, 0, 0, 0, 0, 0 };
+static uvec8 kUVToRB = { 128, 128, 128, 128, 102, 102, 102, 102,
+                         0,   0,   0,   0,   0,   0,   0,   0 };
+static uvec8 kUVToG = {
+  25, 25, 25, 25, 52, 52, 52, 52, 0, 0, 0, 0, 0, 0, 0, 0
+};
 static vec16 kUVBiasBGR = { BB, BG, BR, 0, 0, 0, 0, 0 };
 static vec32 kYToRgb = { 0x0101 * YG, 0, 0, 0 };
 
@@ -167,11 +168,8 @@ static vec32 kYToRgb = { 0x0101 * YG, 0, 0, 0 };
 #undef BG
 #undef BR
 
-void I444ToARGBRow_NEON(const uint8* src_y,
-                        const uint8* src_u,
-                        const uint8* src_v,
-                        uint8* dst_argb,
-                        int width) {
+void I444ToARGBRow_NEON(const uint8 *src_y, const uint8 *src_u,
+                        const uint8 *src_v, uint8 *dst_argb, int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
     ".p2align   2                              \n"
@@ -197,11 +195,8 @@ void I444ToARGBRow_NEON(const uint8* src_y,
   );
 }
 
-void I422ToARGBRow_NEON(const uint8* src_y,
-                        const uint8* src_u,
-                        const uint8* src_v,
-                        uint8* dst_argb,
-                        int width) {
+void I422ToARGBRow_NEON(const uint8 *src_y, const uint8 *src_u,
+                        const uint8 *src_v, uint8 *dst_argb, int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
     ".p2align   2                              \n"
@@ -227,11 +222,8 @@ void I422ToARGBRow_NEON(const uint8* src_y,
   );
 }
 
-void I411ToARGBRow_NEON(const uint8* src_y,
-                        const uint8* src_u,
-                        const uint8* src_v,
-                        uint8* dst_argb,
-                        int width) {
+void I411ToARGBRow_NEON(const uint8 *src_y, const uint8 *src_u,
+                        const uint8 *src_v, uint8 *dst_argb, int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
     ".p2align   2                              \n"
@@ -257,11 +249,8 @@ void I411ToARGBRow_NEON(const uint8* src_y,
   );
 }
 
-void I422ToBGRARow_NEON(const uint8* src_y,
-                        const uint8* src_u,
-                        const uint8* src_v,
-                        uint8* dst_bgra,
-                        int width) {
+void I422ToBGRARow_NEON(const uint8 *src_y, const uint8 *src_u,
+                        const uint8 *src_v, uint8 *dst_bgra, int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
     ".p2align   2                              \n"
@@ -288,11 +277,8 @@ void I422ToBGRARow_NEON(const uint8* src_y,
   );
 }
 
-void I422ToABGRRow_NEON(const uint8* src_y,
-                        const uint8* src_u,
-                        const uint8* src_v,
-                        uint8* dst_abgr,
-                        int width) {
+void I422ToABGRRow_NEON(const uint8 *src_y, const uint8 *src_u,
+                        const uint8 *src_v, uint8 *dst_abgr, int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
     ".p2align   2                              \n"
@@ -319,11 +305,8 @@ void I422ToABGRRow_NEON(const uint8* src_y,
   );
 }
 
-void I422ToRGBARow_NEON(const uint8* src_y,
-                        const uint8* src_u,
-                        const uint8* src_v,
-                        uint8* dst_rgba,
-                        int width) {
+void I422ToRGBARow_NEON(const uint8 *src_y, const uint8 *src_u,
+                        const uint8 *src_v, uint8 *dst_rgba, int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
     ".p2align   2                              \n"
@@ -349,11 +332,8 @@ void I422ToRGBARow_NEON(const uint8* src_y,
   );
 }
 
-void I422ToRGB24Row_NEON(const uint8* src_y,
-                         const uint8* src_u,
-                         const uint8* src_v,
-                         uint8* dst_rgb24,
-                         int width) {
+void I422ToRGB24Row_NEON(const uint8 *src_y, const uint8 *src_u,
+                         const uint8 *src_v, uint8 *dst_rgb24, int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
     ".p2align   2                              \n"
@@ -378,11 +358,8 @@ void I422ToRGB24Row_NEON(const uint8* src_y,
   );
 }
 
-void I422ToRAWRow_NEON(const uint8* src_y,
-                       const uint8* src_u,
-                       const uint8* src_v,
-                       uint8* dst_raw,
-                       int width) {
+void I422ToRAWRow_NEON(const uint8 *src_y, const uint8 *src_u,
+                       const uint8 *src_v, uint8 *dst_raw, int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
     ".p2align   2                              \n"
@@ -408,23 +385,20 @@ void I422ToRAWRow_NEON(const uint8* src_y,
   );
 }
 
-#define ARGBTORGB565                                                           \
-    "vshr.u8    d20, d20, #3                   \n"  /* B                    */ \
-    "vshr.u8    d21, d21, #2                   \n"  /* G                    */ \
-    "vshr.u8    d22, d22, #3                   \n"  /* R                    */ \
-    "vmovl.u8   q8, d20                        \n"  /* B                    */ \
-    "vmovl.u8   q9, d21                        \n"  /* G                    */ \
-    "vmovl.u8   q10, d22                       \n"  /* R                    */ \
-    "vshl.u16   q9, q9, #5                     \n"  /* G                    */ \
-    "vshl.u16   q10, q10, #11                  \n"  /* R                    */ \
-    "vorr       q0, q8, q9                     \n"  /* BG                   */ \
-    "vorr       q0, q0, q10                    \n"  /* BGR                  */
+#define ARGBTORGB565                                                        \
+  "vshr.u8    d20, d20, #3                   \n" /* B                    */ \
+  "vshr.u8    d21, d21, #2                   \n" /* G                    */ \
+  "vshr.u8    d22, d22, #3                   \n" /* R                    */ \
+  "vmovl.u8   q8, d20                        \n" /* B                    */ \
+  "vmovl.u8   q9, d21                        \n" /* G                    */ \
+  "vmovl.u8   q10, d22                       \n" /* R                    */ \
+  "vshl.u16   q9, q9, #5                     \n" /* G                    */ \
+  "vshl.u16   q10, q10, #11                  \n" /* R                    */ \
+  "vorr       q0, q8, q9                     \n" /* BG                   */ \
+  "vorr       q0, q0, q10                    \n" /* BGR                  */
 
-void I422ToRGB565Row_NEON(const uint8* src_y,
-                          const uint8* src_u,
-                          const uint8* src_v,
-                          uint8* dst_rgb565,
-                          int width) {
+void I422ToRGB565Row_NEON(const uint8 *src_y, const uint8 *src_u,
+                          const uint8 *src_v, uint8 *dst_rgb565, int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
     ".p2align   2                              \n"
@@ -450,25 +424,23 @@ void I422ToRGB565Row_NEON(const uint8* src_y,
   );
 }
 
-#define ARGBTOARGB1555                                                         \
-    "vshr.u8    q10, q10, #3                   \n"  /* B                    */ \
-    "vshr.u8    d22, d22, #3                   \n"  /* R                    */ \
-    "vshr.u8    d23, d23, #7                   \n"  /* A                    */ \
-    "vmovl.u8   q8, d20                        \n"  /* B                    */ \
-    "vmovl.u8   q9, d21                        \n"  /* G                    */ \
-    "vmovl.u8   q10, d22                       \n"  /* R                    */ \
-    "vmovl.u8   q11, d23                       \n"  /* A                    */ \
-    "vshl.u16   q9, q9, #5                     \n"  /* G                    */ \
-    "vshl.u16   q10, q10, #10                  \n"  /* R                    */ \
-    "vshl.u16   q11, q11, #15                  \n"  /* A                    */ \
-    "vorr       q0, q8, q9                     \n"  /* BG                   */ \
-    "vorr       q1, q10, q11                   \n"  /* RA                   */ \
-    "vorr       q0, q0, q1                     \n"  /* BGRA                 */
+#define ARGBTOARGB1555                                                      \
+  "vshr.u8    q10, q10, #3                   \n" /* B                    */ \
+  "vshr.u8    d22, d22, #3                   \n" /* R                    */ \
+  "vshr.u8    d23, d23, #7                   \n" /* A                    */ \
+  "vmovl.u8   q8, d20                        \n" /* B                    */ \
+  "vmovl.u8   q9, d21                        \n" /* G                    */ \
+  "vmovl.u8   q10, d22                       \n" /* R                    */ \
+  "vmovl.u8   q11, d23                       \n" /* A                    */ \
+  "vshl.u16   q9, q9, #5                     \n" /* G                    */ \
+  "vshl.u16   q10, q10, #10                  \n" /* R                    */ \
+  "vshl.u16   q11, q11, #15                  \n" /* A                    */ \
+  "vorr       q0, q8, q9                     \n" /* BG                   */ \
+  "vorr       q1, q10, q11                   \n" /* RA                   */ \
+  "vorr       q0, q0, q1                     \n" /* BGRA                 */
 
-void I422ToARGB1555Row_NEON(const uint8* src_y,
-                            const uint8* src_u,
-                            const uint8* src_v,
-                            uint8* dst_argb1555,
+void I422ToARGB1555Row_NEON(const uint8 *src_y, const uint8 *src_u,
+                            const uint8 *src_v, uint8 *dst_argb1555,
                             int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
@@ -496,19 +468,17 @@ void I422ToARGB1555Row_NEON(const uint8* src_y,
   );
 }
 
-#define ARGBTOARGB4444                                                         \
-    "vshr.u8    d20, d20, #4                   \n"  /* B                    */ \
-    "vbic.32    d21, d21, d4                   \n"  /* G                    */ \
-    "vshr.u8    d22, d22, #4                   \n"  /* R                    */ \
-    "vbic.32    d23, d23, d4                   \n"  /* A                    */ \
-    "vorr       d0, d20, d21                   \n"  /* BG                   */ \
-    "vorr       d1, d22, d23                   \n"  /* RA                   */ \
-    "vzip.u8    d0, d1                         \n"  /* BGRA                 */
+#define ARGBTOARGB4444                                                      \
+  "vshr.u8    d20, d20, #4                   \n" /* B                    */ \
+  "vbic.32    d21, d21, d4                   \n" /* G                    */ \
+  "vshr.u8    d22, d22, #4                   \n" /* R                    */ \
+  "vbic.32    d23, d23, d4                   \n" /* A                    */ \
+  "vorr       d0, d20, d21                   \n" /* BG                   */ \
+  "vorr       d1, d22, d23                   \n" /* RA                   */ \
+  "vzip.u8    d0, d1                         \n" /* BGRA                 */
 
-void I422ToARGB4444Row_NEON(const uint8* src_y,
-                            const uint8* src_u,
-                            const uint8* src_v,
-                            uint8* dst_argb4444,
+void I422ToARGB4444Row_NEON(const uint8 *src_y, const uint8 *src_u,
+                            const uint8 *src_v, uint8 *dst_argb4444,
                             int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
@@ -537,9 +507,7 @@ void I422ToARGB4444Row_NEON(const uint8* src_y,
   );
 }
 
-void I400ToARGBRow_NEON(const uint8* src_y,
-                        uint8* dst_argb,
-                        int width) {
+void I400ToARGBRow_NEON(const uint8 *src_y, uint8 *dst_argb, int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
     ".p2align   2                              \n"
@@ -563,9 +531,7 @@ void I400ToARGBRow_NEON(const uint8* src_y,
   );
 }
 
-void J400ToARGBRow_NEON(const uint8* src_y,
-                        uint8* dst_argb,
-                        int width) {
+void J400ToARGBRow_NEON(const uint8 *src_y, uint8 *dst_argb, int width) {
   asm volatile (
     "vmov.u8    d23, #255                      \n"
     ".p2align   2                              \n"
@@ -586,10 +552,8 @@ void J400ToARGBRow_NEON(const uint8* src_y,
   );
 }
 
-void NV12ToARGBRow_NEON(const uint8* src_y,
-                        const uint8* src_uv,
-                        uint8* dst_argb,
-                        int width) {
+void NV12ToARGBRow_NEON(const uint8 *src_y, const uint8 *src_uv,
+                        uint8 *dst_argb, int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
     ".p2align   2                              \n"
@@ -614,10 +578,8 @@ void NV12ToARGBRow_NEON(const uint8* src_y,
   );
 }
 
-void NV21ToARGBRow_NEON(const uint8* src_y,
-                        const uint8* src_uv,
-                        uint8* dst_argb,
-                        int width) {
+void NV21ToARGBRow_NEON(const uint8 *src_y, const uint8 *src_uv,
+                        uint8 *dst_argb, int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
     ".p2align   2                              \n"
@@ -642,10 +604,8 @@ void NV21ToARGBRow_NEON(const uint8* src_y,
   );
 }
 
-void NV12ToRGB565Row_NEON(const uint8* src_y,
-                          const uint8* src_uv,
-                          uint8* dst_rgb565,
-                          int width) {
+void NV12ToRGB565Row_NEON(const uint8 *src_y, const uint8 *src_uv,
+                          uint8 *dst_rgb565, int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
     ".p2align   2                              \n"
@@ -670,10 +630,8 @@ void NV12ToRGB565Row_NEON(const uint8* src_y,
   );
 }
 
-void NV21ToRGB565Row_NEON(const uint8* src_y,
-                          const uint8* src_uv,
-                          uint8* dst_rgb565,
-                          int width) {
+void NV21ToRGB565Row_NEON(const uint8 *src_y, const uint8 *src_uv,
+                          uint8 *dst_rgb565, int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
     ".p2align   2                              \n"
@@ -698,9 +656,7 @@ void NV21ToRGB565Row_NEON(const uint8* src_y,
   );
 }
 
-void YUY2ToARGBRow_NEON(const uint8* src_yuy2,
-                        uint8* dst_argb,
-                        int width) {
+void YUY2ToARGBRow_NEON(const uint8 *src_yuy2, uint8 *dst_argb, int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
     ".p2align   2                              \n"
@@ -724,9 +680,7 @@ void YUY2ToARGBRow_NEON(const uint8* src_yuy2,
   );
 }
 
-void UYVYToARGBRow_NEON(const uint8* src_uyvy,
-                        uint8* dst_argb,
-                        int width) {
+void UYVYToARGBRow_NEON(const uint8 *src_uyvy, uint8 *dst_argb, int width) {
   asm volatile (
     YUV422TORGB_SETUP_REG
     ".p2align   2                              \n"
@@ -751,7 +705,7 @@ void UYVYToARGBRow_NEON(const uint8* src_uyvy,
 }
 
 // Reads 16 pairs of UV and write even values to dst_u and odd to dst_v.
-void SplitUVRow_NEON(const uint8* src_uv, uint8* dst_u, uint8* dst_v,
+void SplitUVRow_NEON(const uint8 *src_uv, uint8 *dst_u, uint8 *dst_v,
                      int width) {
   asm volatile (
     ".p2align   2                              \n"
@@ -774,7 +728,7 @@ void SplitUVRow_NEON(const uint8* src_uv, uint8* dst_u, uint8* dst_v,
 }
 
 // Reads 16 U's and V's and writes out 16 pairs of UV.
-void MergeUVRow_NEON(const uint8* src_u, const uint8* src_v, uint8* dst_uv,
+void MergeUVRow_NEON(const uint8 *src_u, const uint8 *src_v, uint8 *dst_uv,
                      int width) {
   asm volatile (
     ".p2align   2                              \n"
@@ -798,7 +752,7 @@ void MergeUVRow_NEON(const uint8* src_u, const uint8* src_v, uint8* dst_uv,
 }
 
 // Copy multiple of 32.  vld4.8  allow unaligned and is fastest on a15.
-void CopyRow_NEON(const uint8* src, uint8* dst, int count) {
+void CopyRow_NEON(const uint8 *src, uint8 *dst, int count) {
   asm volatile (
     ".p2align   2                              \n"
   "1:                                          \n"
@@ -817,7 +771,7 @@ void CopyRow_NEON(const uint8* src, uint8* dst, int count) {
 }
 
 // SetRow writes 'count' bytes using an 8 bit value repeated.
-void SetRow_NEON(uint8* dst, uint8 v8, int count) {
+void SetRow_NEON(uint8 *dst, uint8 v8, int count) {
   asm volatile (
     "vdup.8    q0, %2                          \n"  // duplicate 16 bytes
   "1:                                          \n"
@@ -833,7 +787,7 @@ void SetRow_NEON(uint8* dst, uint8 v8, int count) {
 }
 
 // ARGBSetRow writes 'count' pixels using an 32 bit value repeated.
-void ARGBSetRow_NEON(uint8* dst, uint32 v32, int count) {
+void ARGBSetRow_NEON(uint8 *dst, uint32 v32, int count) {
   asm volatile (
     "vdup.u32  q0, %2                          \n"  // duplicate 4 ints
   "1:                                          \n"
@@ -848,7 +802,7 @@ void ARGBSetRow_NEON(uint8* dst, uint32 v32, int count) {
   );
 }
 
-void MirrorRow_NEON(const uint8* src, uint8* dst, int width) {
+void MirrorRow_NEON(const uint8 *src, uint8 *dst, int width) {
   asm volatile (
     // Start at end of source row.
     "mov        r3, #-16                       \n"
@@ -874,7 +828,7 @@ void MirrorRow_NEON(const uint8* src, uint8* dst, int width) {
   );
 }
 
-void MirrorUVRow_NEON(const uint8* src_uv, uint8* dst_u, uint8* dst_v,
+void MirrorUVRow_NEON(const uint8 *src_uv, uint8 *dst_u, uint8 *dst_v,
                       int width) {
   asm volatile (
     // Start at end of source row.
@@ -902,7 +856,7 @@ void MirrorUVRow_NEON(const uint8* src_uv, uint8* dst_u, uint8* dst_v,
   );
 }
 
-void ARGBMirrorRow_NEON(const uint8* src, uint8* dst, int width) {
+void ARGBMirrorRow_NEON(const uint8 *src, uint8 *dst, int width) {
   asm volatile (
     // Start at end of source row.
     "mov        r3, #-16                       \n"
@@ -928,7 +882,7 @@ void ARGBMirrorRow_NEON(const uint8* src, uint8* dst, int width) {
   );
 }
 
-void RGB24ToARGBRow_NEON(const uint8* src_rgb24, uint8* dst_argb, int pix) {
+void RGB24ToARGBRow_NEON(const uint8 *src_rgb24, uint8 *dst_argb, int pix) {
   asm volatile (
     "vmov.u8    d4, #255                       \n"  // Alpha
     ".p2align   2                              \n"
@@ -947,7 +901,7 @@ void RGB24ToARGBRow_NEON(const uint8* src_rgb24, uint8* dst_argb, int pix) {
   );
 }
 
-void RAWToARGBRow_NEON(const uint8* src_raw, uint8* dst_argb, int pix) {
+void RAWToARGBRow_NEON(const uint8 *src_raw, uint8 *dst_argb, int pix) {
   asm volatile (
     "vmov.u8    d4, #255                       \n"  // Alpha
     ".p2align   2                              \n"
@@ -967,19 +921,19 @@ void RAWToARGBRow_NEON(const uint8* src_raw, uint8* dst_argb, int pix) {
   );
 }
 
-#define RGB565TOARGB                                                           \
-    "vshrn.u16  d6, q0, #5                     \n"  /* G xxGGGGGG           */ \
-    "vuzp.u8    d0, d1                         \n"  /* d0 xxxBBBBB RRRRRxxx */ \
-    "vshl.u8    d6, d6, #2                     \n"  /* G GGGGGG00 upper 6   */ \
-    "vshr.u8    d1, d1, #3                     \n"  /* R 000RRRRR lower 5   */ \
-    "vshl.u8    q0, q0, #3                     \n"  /* B,R BBBBB000 upper 5 */ \
-    "vshr.u8    q2, q0, #5                     \n"  /* B,R 00000BBB lower 3 */ \
-    "vorr.u8    d0, d0, d4                     \n"  /* B                    */ \
-    "vshr.u8    d4, d6, #6                     \n"  /* G 000000GG lower 2   */ \
-    "vorr.u8    d2, d1, d5                     \n"  /* R                    */ \
-    "vorr.u8    d1, d4, d6                     \n"  /* G                    */
+#define RGB565TOARGB                                                        \
+  "vshrn.u16  d6, q0, #5                     \n" /* G xxGGGGGG           */ \
+  "vuzp.u8    d0, d1                         \n" /* d0 xxxBBBBB RRRRRxxx */ \
+  "vshl.u8    d6, d6, #2                     \n" /* G GGGGGG00 upper 6   */ \
+  "vshr.u8    d1, d1, #3                     \n" /* R 000RRRRR lower 5   */ \
+  "vshl.u8    q0, q0, #3                     \n" /* B,R BBBBB000 upper 5 */ \
+  "vshr.u8    q2, q0, #5                     \n" /* B,R 00000BBB lower 3 */ \
+  "vorr.u8    d0, d0, d4                     \n" /* B                    */ \
+  "vshr.u8    d4, d6, #6                     \n" /* G 000000GG lower 2   */ \
+  "vorr.u8    d2, d1, d5                     \n" /* R                    */ \
+  "vorr.u8    d1, d4, d6                     \n" /* G                    */
 
-void RGB565ToARGBRow_NEON(const uint8* src_rgb565, uint8* dst_argb, int pix) {
+void RGB565ToARGBRow_NEON(const uint8 *src_rgb565, uint8 *dst_argb, int pix) {
   asm volatile (
     "vmov.u8    d3, #255                       \n"  // Alpha
     ".p2align   2                              \n"
@@ -999,34 +953,34 @@ void RGB565ToARGBRow_NEON(const uint8* src_rgb565, uint8* dst_argb, int pix) {
   );
 }
 
-#define ARGB1555TOARGB                                                         \
-    "vshrn.u16  d7, q0, #8                     \n"  /* A Arrrrrxx           */ \
-    "vshr.u8    d6, d7, #2                     \n"  /* R xxxRRRRR           */ \
-    "vshrn.u16  d5, q0, #5                     \n"  /* G xxxGGGGG           */ \
-    "vmovn.u16  d4, q0                         \n"  /* B xxxBBBBB           */ \
-    "vshr.u8    d7, d7, #7                     \n"  /* A 0000000A           */ \
-    "vneg.s8    d7, d7                         \n"  /* A AAAAAAAA upper 8   */ \
-    "vshl.u8    d6, d6, #3                     \n"  /* R RRRRR000 upper 5   */ \
-    "vshr.u8    q1, q3, #5                     \n"  /* R,A 00000RRR lower 3 */ \
-    "vshl.u8    q0, q2, #3                     \n"  /* B,G BBBBB000 upper 5 */ \
-    "vshr.u8    q2, q0, #5                     \n"  /* B,G 00000BBB lower 3 */ \
-    "vorr.u8    q1, q1, q3                     \n"  /* R,A                  */ \
-    "vorr.u8    q0, q0, q2                     \n"  /* B,G                  */ \
+#define ARGB1555TOARGB                                                      \
+  "vshrn.u16  d7, q0, #8                     \n" /* A Arrrrrxx           */ \
+  "vshr.u8    d6, d7, #2                     \n" /* R xxxRRRRR           */ \
+  "vshrn.u16  d5, q0, #5                     \n" /* G xxxGGGGG           */ \
+  "vmovn.u16  d4, q0                         \n" /* B xxxBBBBB           */ \
+  "vshr.u8    d7, d7, #7                     \n" /* A 0000000A           */ \
+  "vneg.s8    d7, d7                         \n" /* A AAAAAAAA upper 8   */ \
+  "vshl.u8    d6, d6, #3                     \n" /* R RRRRR000 upper 5   */ \
+  "vshr.u8    q1, q3, #5                     \n" /* R,A 00000RRR lower 3 */ \
+  "vshl.u8    q0, q2, #3                     \n" /* B,G BBBBB000 upper 5 */ \
+  "vshr.u8    q2, q0, #5                     \n" /* B,G 00000BBB lower 3 */ \
+  "vorr.u8    q1, q1, q3                     \n" /* R,A                  */ \
+  "vorr.u8    q0, q0, q2                     \n" /* B,G                  */
 
 // RGB555TOARGB is same as ARGB1555TOARGB but ignores alpha.
-#define RGB555TOARGB                                                           \
-    "vshrn.u16  d6, q0, #5                     \n"  /* G xxxGGGGG           */ \
-    "vuzp.u8    d0, d1                         \n"  /* d0 xxxBBBBB xRRRRRxx */ \
-    "vshl.u8    d6, d6, #3                     \n"  /* G GGGGG000 upper 5   */ \
-    "vshr.u8    d1, d1, #2                     \n"  /* R 00xRRRRR lower 5   */ \
-    "vshl.u8    q0, q0, #3                     \n"  /* B,R BBBBB000 upper 5 */ \
-    "vshr.u8    q2, q0, #5                     \n"  /* B,R 00000BBB lower 3 */ \
-    "vorr.u8    d0, d0, d4                     \n"  /* B                    */ \
-    "vshr.u8    d4, d6, #5                     \n"  /* G 00000GGG lower 3   */ \
-    "vorr.u8    d2, d1, d5                     \n"  /* R                    */ \
-    "vorr.u8    d1, d4, d6                     \n"  /* G                    */
+#define RGB555TOARGB                                                        \
+  "vshrn.u16  d6, q0, #5                     \n" /* G xxxGGGGG           */ \
+  "vuzp.u8    d0, d1                         \n" /* d0 xxxBBBBB xRRRRRxx */ \
+  "vshl.u8    d6, d6, #3                     \n" /* G GGGGG000 upper 5   */ \
+  "vshr.u8    d1, d1, #2                     \n" /* R 00xRRRRR lower 5   */ \
+  "vshl.u8    q0, q0, #3                     \n" /* B,R BBBBB000 upper 5 */ \
+  "vshr.u8    q2, q0, #5                     \n" /* B,R 00000BBB lower 3 */ \
+  "vorr.u8    d0, d0, d4                     \n" /* B                    */ \
+  "vshr.u8    d4, d6, #5                     \n" /* G 00000GGG lower 3   */ \
+  "vorr.u8    d2, d1, d5                     \n" /* R                    */ \
+  "vorr.u8    d1, d4, d6                     \n" /* G                    */
 
-void ARGB1555ToARGBRow_NEON(const uint8* src_argb1555, uint8* dst_argb,
+void ARGB1555ToARGBRow_NEON(const uint8 *src_argb1555, uint8 *dst_argb,
                             int pix) {
   asm volatile (
     "vmov.u8    d3, #255                       \n"  // Alpha
@@ -1047,17 +1001,17 @@ void ARGB1555ToARGBRow_NEON(const uint8* src_argb1555, uint8* dst_argb,
   );
 }
 
-#define ARGB4444TOARGB                                                         \
-    "vuzp.u8    d0, d1                         \n"  /* d0 BG, d1 RA         */ \
-    "vshl.u8    q2, q0, #4                     \n"  /* B,R BBBB0000         */ \
-    "vshr.u8    q1, q0, #4                     \n"  /* G,A 0000GGGG         */ \
-    "vshr.u8    q0, q2, #4                     \n"  /* B,R 0000BBBB         */ \
-    "vorr.u8    q0, q0, q2                     \n"  /* B,R BBBBBBBB         */ \
-    "vshl.u8    q2, q1, #4                     \n"  /* G,A GGGG0000         */ \
-    "vorr.u8    q1, q1, q2                     \n"  /* G,A GGGGGGGG         */ \
-    "vswp.u8    d1, d2                         \n"  /* B,R,G,A -> B,G,R,A   */
+#define ARGB4444TOARGB                                                      \
+  "vuzp.u8    d0, d1                         \n" /* d0 BG, d1 RA         */ \
+  "vshl.u8    q2, q0, #4                     \n" /* B,R BBBB0000         */ \
+  "vshr.u8    q1, q0, #4                     \n" /* G,A 0000GGGG         */ \
+  "vshr.u8    q0, q2, #4                     \n" /* B,R 0000BBBB         */ \
+  "vorr.u8    q0, q0, q2                     \n" /* B,R BBBBBBBB         */ \
+  "vshl.u8    q2, q1, #4                     \n" /* G,A GGGG0000         */ \
+  "vorr.u8    q1, q1, q2                     \n" /* G,A GGGGGGGG         */ \
+  "vswp.u8    d1, d2                         \n" /* B,R,G,A -> B,G,R,A   */
 
-void ARGB4444ToARGBRow_NEON(const uint8* src_argb4444, uint8* dst_argb,
+void ARGB4444ToARGBRow_NEON(const uint8 *src_argb4444, uint8 *dst_argb,
                             int pix) {
   asm volatile (
     "vmov.u8    d3, #255                       \n"  // Alpha
@@ -1078,7 +1032,7 @@ void ARGB4444ToARGBRow_NEON(const uint8* src_argb4444, uint8* dst_argb,
   );
 }
 
-void ARGBToRGB24Row_NEON(const uint8* src_argb, uint8* dst_rgb24, int pix) {
+void ARGBToRGB24Row_NEON(const uint8 *src_argb, uint8 *dst_rgb24, int pix) {
   asm volatile (
     ".p2align   2                              \n"
   "1:                                          \n"
@@ -1096,7 +1050,7 @@ void ARGBToRGB24Row_NEON(const uint8* src_argb, uint8* dst_rgb24, int pix) {
   );
 }
 
-void ARGBToRAWRow_NEON(const uint8* src_argb, uint8* dst_raw, int pix) {
+void ARGBToRAWRow_NEON(const uint8 *src_argb, uint8 *dst_raw, int pix) {
   asm volatile (
     ".p2align   2                              \n"
   "1:                                          \n"
@@ -1115,7 +1069,7 @@ void ARGBToRAWRow_NEON(const uint8* src_argb, uint8* dst_raw, int pix) {
   );
 }
 
-void YUY2ToYRow_NEON(const uint8* src_yuy2, uint8* dst_y, int pix) {
+void YUY2ToYRow_NEON(const uint8 *src_yuy2, uint8 *dst_y, int pix) {
   asm volatile (
     ".p2align   2                              \n"
   "1:                                          \n"
@@ -1133,7 +1087,7 @@ void YUY2ToYRow_NEON(const uint8* src_yuy2, uint8* dst_y, int pix) {
   );
 }
 
-void UYVYToYRow_NEON(const uint8* src_uyvy, uint8* dst_y, int pix) {
+void UYVYToYRow_NEON(const uint8 *src_uyvy, uint8 *dst_y, int pix) {
   asm volatile (
     ".p2align   2                              \n"
   "1:                                          \n"
@@ -1151,7 +1105,7 @@ void UYVYToYRow_NEON(const uint8* src_uyvy, uint8* dst_y, int pix) {
   );
 }
 
-void YUY2ToUV422Row_NEON(const uint8* src_yuy2, uint8* dst_u, uint8* dst_v,
+void YUY2ToUV422Row_NEON(const uint8 *src_yuy2, uint8 *dst_u, uint8 *dst_v,
                          int pix) {
   asm volatile (
     ".p2align   2                              \n"
@@ -1173,7 +1127,7 @@ void YUY2ToUV422Row_NEON(const uint8* src_yuy2, uint8* dst_u, uint8* dst_v,
   );
 }
 
-void UYVYToUV422Row_NEON(const uint8* src_uyvy, uint8* dst_u, uint8* dst_v,
+void UYVYToUV422Row_NEON(const uint8 *src_uyvy, uint8 *dst_u, uint8 *dst_v,
                          int pix) {
   asm volatile (
     ".p2align   2                              \n"
@@ -1195,8 +1149,8 @@ void UYVYToUV422Row_NEON(const uint8* src_uyvy, uint8* dst_u, uint8* dst_v,
   );
 }
 
-void YUY2ToUVRow_NEON(const uint8* src_yuy2, int stride_yuy2,
-                      uint8* dst_u, uint8* dst_v, int pix) {
+void YUY2ToUVRow_NEON(const uint8 *src_yuy2, int stride_yuy2, uint8 *dst_u,
+                      uint8 *dst_v, int pix) {
   asm volatile (
     "add        %1, %0, %1                     \n"  // stride + src_yuy2
     ".p2align   2                              \n"
@@ -1223,8 +1177,8 @@ void YUY2ToUVRow_NEON(const uint8* src_yuy2, int stride_yuy2,
   );
 }
 
-void UYVYToUVRow_NEON(const uint8* src_uyvy, int stride_uyvy,
-                      uint8* dst_u, uint8* dst_v, int pix) {
+void UYVYToUVRow_NEON(const uint8 *src_uyvy, int stride_uyvy, uint8 *dst_u,
+                      uint8 *dst_v, int pix) {
   asm volatile (
     "add        %1, %0, %1                     \n"  // stride + src_uyvy
     ".p2align   2                              \n"
@@ -1252,8 +1206,8 @@ void UYVYToUVRow_NEON(const uint8* src_uyvy, int stride_uyvy,
 }
 
 // For BGRAToARGB, ABGRToARGB, RGBAToARGB, and ARGBToRGBA.
-void ARGBShuffleRow_NEON(const uint8* src_argb, uint8* dst_argb,
-                         const uint8* shuffler, int pix) {
+void ARGBShuffleRow_NEON(const uint8 *src_argb, uint8 *dst_argb,
+                         const uint8 *shuffler, int pix) {
   asm volatile (
     MEMACCESS(3)
     "vld1.8     {q2}, [%3]                     \n"  // shuffler
@@ -1274,10 +1228,8 @@ void ARGBShuffleRow_NEON(const uint8* src_argb, uint8* dst_argb,
   );
 }
 
-void I422ToYUY2Row_NEON(const uint8* src_y,
-                        const uint8* src_u,
-                        const uint8* src_v,
-                        uint8* dst_yuy2, int width) {
+void I422ToYUY2Row_NEON(const uint8 *src_y, const uint8 *src_u,
+                        const uint8 *src_v, uint8 *dst_yuy2, int width) {
   asm volatile (
     ".p2align   2                              \n"
   "1:                                          \n"
@@ -1301,10 +1253,8 @@ void I422ToYUY2Row_NEON(const uint8* src_y,
   );
 }
 
-void I422ToUYVYRow_NEON(const uint8* src_y,
-                        const uint8* src_u,
-                        const uint8* src_v,
-                        uint8* dst_uyvy, int width) {
+void I422ToUYVYRow_NEON(const uint8 *src_y, const uint8 *src_u,
+                        const uint8 *src_v, uint8 *dst_uyvy, int width) {
   asm volatile (
     ".p2align   2                              \n"
   "1:                                          \n"
@@ -1328,7 +1278,7 @@ void I422ToUYVYRow_NEON(const uint8* src_y,
   );
 }
 
-void ARGBToRGB565Row_NEON(const uint8* src_argb, uint8* dst_rgb565, int pix) {
+void ARGBToRGB565Row_NEON(const uint8 *src_argb, uint8 *dst_rgb565, int pix) {
   asm volatile (
     ".p2align   2                              \n"
   "1:                                          \n"
@@ -1347,7 +1297,7 @@ void ARGBToRGB565Row_NEON(const uint8* src_argb, uint8* dst_rgb565, int pix) {
   );
 }
 
-void ARGBToRGB565DitherRow_NEON(const uint8* src_argb, uint8* dst_rgb,
+void ARGBToRGB565DitherRow_NEON(const uint8 *src_argb, uint8 *dst_rgb,
                                 const uint32 dither4, int width) {
   asm volatile (
     ".p2align   2                              \n"
@@ -1371,7 +1321,7 @@ void ARGBToRGB565DitherRow_NEON(const uint8* src_argb, uint8* dst_rgb,
   );
 }
 
-void ARGBToARGB1555Row_NEON(const uint8* src_argb, uint8* dst_argb1555,
+void ARGBToARGB1555Row_NEON(const uint8 *src_argb, uint8 *dst_argb1555,
                             int pix) {
   asm volatile (
     ".p2align   2                              \n"
@@ -1391,7 +1341,7 @@ void ARGBToARGB1555Row_NEON(const uint8* src_argb, uint8* dst_argb1555,
   );
 }
 
-void ARGBToARGB4444Row_NEON(const uint8* src_argb, uint8* dst_argb4444,
+void ARGBToARGB4444Row_NEON(const uint8 *src_argb, uint8 *dst_argb4444,
                             int pix) {
   asm volatile (
     "vmov.u8    d4, #0x0f                      \n"  // bits to clear with vbic.
@@ -1412,7 +1362,7 @@ void ARGBToARGB4444Row_NEON(const uint8* src_argb, uint8* dst_argb4444,
   );
 }
 
-void ARGBToYRow_NEON(const uint8* src_argb, uint8* dst_y, int pix) {
+void ARGBToYRow_NEON(const uint8 *src_argb, uint8 *dst_y, int pix) {
   asm volatile (
     "vmov.u8    d24, #13                       \n"  // B * 0.1016 coefficient
     "vmov.u8    d25, #65                       \n"  // G * 0.5078 coefficient
@@ -1439,7 +1389,7 @@ void ARGBToYRow_NEON(const uint8* src_argb, uint8* dst_y, int pix) {
   );
 }
 
-void ARGBToYJRow_NEON(const uint8* src_argb, uint8* dst_y, int pix) {
+void ARGBToYJRow_NEON(const uint8 *src_argb, uint8 *dst_y, int pix) {
   asm volatile (
     "vmov.u8    d24, #15                       \n"  // B * 0.11400 coefficient
     "vmov.u8    d25, #75                       \n"  // G * 0.58700 coefficient
@@ -1465,7 +1415,7 @@ void ARGBToYJRow_NEON(const uint8* src_argb, uint8* dst_y, int pix) {
 }
 
 // 8x1 pixels.
-void ARGBToUV444Row_NEON(const uint8* src_argb, uint8* dst_u, uint8* dst_v,
+void ARGBToUV444Row_NEON(const uint8 *src_argb, uint8 *dst_u, uint8 *dst_v,
                          int pix) {
   asm volatile (
     "vmov.u8    d24, #112                      \n"  // UB / VR 0.875 coefficient
@@ -1507,7 +1457,7 @@ void ARGBToUV444Row_NEON(const uint8* src_argb, uint8* dst_u, uint8* dst_v,
 }
 
 // 16x1 pixels -> 8x1.  pix is number of argb pixels. e.g. 16.
-void ARGBToUV422Row_NEON(const uint8* src_argb, uint8* dst_u, uint8* dst_v,
+void ARGBToUV422Row_NEON(const uint8 *src_argb, uint8 *dst_u, uint8 *dst_v,
                          int pix) {
   asm volatile (
     "vmov.s16   q10, #112 / 2                  \n"  // UB / VR 0.875 coefficient
@@ -1557,7 +1507,7 @@ void ARGBToUV422Row_NEON(const uint8* src_argb, uint8* dst_u, uint8* dst_v,
 }
 
 // 32x1 pixels -> 8x1.  pix is number of argb pixels. e.g. 32.
-void ARGBToUV411Row_NEON(const uint8* src_argb, uint8* dst_u, uint8* dst_v,
+void ARGBToUV411Row_NEON(const uint8 *src_argb, uint8 *dst_u, uint8 *dst_v,
                          int pix) {
   asm volatile (
     "vmov.s16   q10, #112 / 2                  \n"  // UB / VR 0.875 coefficient
@@ -1621,21 +1571,27 @@ void ARGBToUV411Row_NEON(const uint8* src_argb, uint8* dst_u, uint8* dst_v,
 }
 
 // 16x2 pixels -> 8x1.  pix is number of argb pixels. e.g. 16.
-#define RGBTOUV(QB, QG, QR) \
-    "vmul.s16   q8, " #QB ", q10               \n"  /* B                    */ \
-    "vmls.s16   q8, " #QG ", q11               \n"  /* G                    */ \
-    "vmls.s16   q8, " #QR ", q12               \n"  /* R                    */ \
-    "vadd.u16   q8, q8, q15                    \n"  /* +128 -> unsigned     */ \
-    "vmul.s16   q9, " #QR ", q10               \n"  /* R                    */ \
-    "vmls.s16   q9, " #QG ", q14               \n"  /* G                    */ \
-    "vmls.s16   q9, " #QB ", q13               \n"  /* B                    */ \
-    "vadd.u16   q9, q9, q15                    \n"  /* +128 -> unsigned     */ \
-    "vqshrn.u16  d0, q8, #8                    \n"  /* 16 bit to 8 bit U    */ \
-    "vqshrn.u16  d1, q9, #8                    \n"  /* 16 bit to 8 bit V    */
+#define RGBTOUV(QB, QG, QR)                                                 \
+  "vmul.s16   q8, " #QB                                                     \
+  ", q10               \n" /* B                    */                       \
+  "vmls.s16   q8, " #QG                                                     \
+  ", q11               \n" /* G                    */                       \
+  "vmls.s16   q8, " #QR                                                     \
+  ", q12               \n"                       /* R                    */ \
+  "vadd.u16   q8, q8, q15                    \n" /* +128 -> unsigned     */ \
+  "vmul.s16   q9, " #QR                                                     \
+  ", q10               \n" /* R                    */                       \
+  "vmls.s16   q9, " #QG                                                     \
+  ", q14               \n" /* G                    */                       \
+  "vmls.s16   q9, " #QB                                                     \
+  ", q13               \n"                       /* B                    */ \
+  "vadd.u16   q9, q9, q15                    \n" /* +128 -> unsigned     */ \
+  "vqshrn.u16  d0, q8, #8                    \n" /* 16 bit to 8 bit U    */ \
+  "vqshrn.u16  d1, q9, #8                    \n" /* 16 bit to 8 bit V    */
 
 // TODO(fbarchard): Consider vhadd vertical, then vpaddl horizontal, avoid shr.
-void ARGBToUVRow_NEON(const uint8* src_argb, int src_stride_argb,
-                      uint8* dst_u, uint8* dst_v, int pix) {
+void ARGBToUVRow_NEON(const uint8 *src_argb, int src_stride_argb, uint8 *dst_u,
+                      uint8 *dst_v, int pix) {
   asm volatile (
     "add        %1, %0, %1                     \n"  // src_stride + src_argb
     "vmov.s16   q10, #112 / 2                  \n"  // UB / VR 0.875 coefficient
@@ -1684,8 +1640,8 @@ void ARGBToUVRow_NEON(const uint8* src_argb, int src_stride_argb,
 }
 
 // TODO(fbarchard): Subsample match C code.
-void ARGBToUVJRow_NEON(const uint8* src_argb, int src_stride_argb,
-                       uint8* dst_u, uint8* dst_v, int pix) {
+void ARGBToUVJRow_NEON(const uint8 *src_argb, int src_stride_argb, uint8 *dst_u,
+                       uint8 *dst_v, int pix) {
   asm volatile (
     "add        %1, %0, %1                     \n"  // src_stride + src_argb
     "vmov.s16   q10, #127 / 2                  \n"  // UB / VR 0.500 coefficient
@@ -1733,8 +1689,8 @@ void ARGBToUVJRow_NEON(const uint8* src_argb, int src_stride_argb,
   );
 }
 
-void BGRAToUVRow_NEON(const uint8* src_bgra, int src_stride_bgra,
-                      uint8* dst_u, uint8* dst_v, int pix) {
+void BGRAToUVRow_NEON(const uint8 *src_bgra, int src_stride_bgra, uint8 *dst_u,
+                      uint8 *dst_v, int pix) {
   asm volatile (
     "add        %1, %0, %1                     \n"  // src_stride + src_bgra
     "vmov.s16   q10, #112 / 2                  \n"  // UB / VR 0.875 coefficient
@@ -1782,8 +1738,8 @@ void BGRAToUVRow_NEON(const uint8* src_bgra, int src_stride_bgra,
   );
 }
 
-void ABGRToUVRow_NEON(const uint8* src_abgr, int src_stride_abgr,
-                      uint8* dst_u, uint8* dst_v, int pix) {
+void ABGRToUVRow_NEON(const uint8 *src_abgr, int src_stride_abgr, uint8 *dst_u,
+                      uint8 *dst_v, int pix) {
   asm volatile (
     "add        %1, %0, %1                     \n"  // src_stride + src_abgr
     "vmov.s16   q10, #112 / 2                  \n"  // UB / VR 0.875 coefficient
@@ -1831,8 +1787,8 @@ void ABGRToUVRow_NEON(const uint8* src_abgr, int src_stride_abgr,
   );
 }
 
-void RGBAToUVRow_NEON(const uint8* src_rgba, int src_stride_rgba,
-                      uint8* dst_u, uint8* dst_v, int pix) {
+void RGBAToUVRow_NEON(const uint8 *src_rgba, int src_stride_rgba, uint8 *dst_u,
+                      uint8 *dst_v, int pix) {
   asm volatile (
     "add        %1, %0, %1                     \n"  // src_stride + src_rgba
     "vmov.s16   q10, #112 / 2                  \n"  // UB / VR 0.875 coefficient
@@ -1880,8 +1836,8 @@ void RGBAToUVRow_NEON(const uint8* src_rgba, int src_stride_rgba,
   );
 }
 
-void RGB24ToUVRow_NEON(const uint8* src_rgb24, int src_stride_rgb24,
-                       uint8* dst_u, uint8* dst_v, int pix) {
+void RGB24ToUVRow_NEON(const uint8 *src_rgb24, int src_stride_rgb24,
+                       uint8 *dst_u, uint8 *dst_v, int pix) {
   asm volatile (
     "add        %1, %0, %1                     \n"  // src_stride + src_rgb24
     "vmov.s16   q10, #112 / 2                  \n"  // UB / VR 0.875 coefficient
@@ -1929,8 +1885,8 @@ void RGB24ToUVRow_NEON(const uint8* src_rgb24, int src_stride_rgb24,
   );
 }
 
-void RAWToUVRow_NEON(const uint8* src_raw, int src_stride_raw,
-                     uint8* dst_u, uint8* dst_v, int pix) {
+void RAWToUVRow_NEON(const uint8 *src_raw, int src_stride_raw, uint8 *dst_u,
+                     uint8 *dst_v, int pix) {
   asm volatile (
     "add        %1, %0, %1                     \n"  // src_stride + src_raw
     "vmov.s16   q10, #112 / 2                  \n"  // UB / VR 0.875 coefficient
@@ -1979,8 +1935,8 @@ void RAWToUVRow_NEON(const uint8* src_raw, int src_stride_raw,
 }
 
 // 16x2 pixels -> 8x1.  pix is number of argb pixels. e.g. 16.
-void RGB565ToUVRow_NEON(const uint8* src_rgb565, int src_stride_rgb565,
-                        uint8* dst_u, uint8* dst_v, int pix) {
+void RGB565ToUVRow_NEON(const uint8 *src_rgb565, int src_stride_rgb565,
+                        uint8 *dst_u, uint8 *dst_v, int pix) {
   asm volatile (
     "add        %1, %0, %1                     \n"  // src_stride + src_argb
     "vmov.s16   q10, #112 / 2                  \n"  // UB / VR 0.875 coefficient
@@ -2049,8 +2005,8 @@ void RGB565ToUVRow_NEON(const uint8* src_rgb565, int src_stride_rgb565,
 }
 
 // 16x2 pixels -> 8x1.  pix is number of argb pixels. e.g. 16.
-void ARGB1555ToUVRow_NEON(const uint8* src_argb1555, int src_stride_argb1555,
-                        uint8* dst_u, uint8* dst_v, int pix) {
+void ARGB1555ToUVRow_NEON(const uint8 *src_argb1555, int src_stride_argb1555,
+                          uint8 *dst_u, uint8 *dst_v, int pix) {
   asm volatile (
     "add        %1, %0, %1                     \n"  // src_stride + src_argb
     "vmov.s16   q10, #112 / 2                  \n"  // UB / VR 0.875 coefficient
@@ -2119,8 +2075,8 @@ void ARGB1555ToUVRow_NEON(const uint8* src_argb1555, int src_stride_argb1555,
 }
 
 // 16x2 pixels -> 8x1.  pix is number of argb pixels. e.g. 16.
-void ARGB4444ToUVRow_NEON(const uint8* src_argb4444, int src_stride_argb4444,
-                          uint8* dst_u, uint8* dst_v, int pix) {
+void ARGB4444ToUVRow_NEON(const uint8 *src_argb4444, int src_stride_argb4444,
+                          uint8 *dst_u, uint8 *dst_v, int pix) {
   asm volatile (
     "add        %1, %0, %1                     \n"  // src_stride + src_argb
     "vmov.s16   q10, #112 / 2                  \n"  // UB / VR 0.875 coefficient
@@ -2188,7 +2144,7 @@ void ARGB4444ToUVRow_NEON(const uint8* src_argb4444, int src_stride_argb4444,
   );
 }
 
-void RGB565ToYRow_NEON(const uint8* src_rgb565, uint8* dst_y, int pix) {
+void RGB565ToYRow_NEON(const uint8 *src_rgb565, uint8 *dst_y, int pix) {
   asm volatile (
     "vmov.u8    d24, #13                       \n"  // B * 0.1016 coefficient
     "vmov.u8    d25, #65                       \n"  // G * 0.5078 coefficient
@@ -2216,7 +2172,7 @@ void RGB565ToYRow_NEON(const uint8* src_rgb565, uint8* dst_y, int pix) {
   );
 }
 
-void ARGB1555ToYRow_NEON(const uint8* src_argb1555, uint8* dst_y, int pix) {
+void ARGB1555ToYRow_NEON(const uint8 *src_argb1555, uint8 *dst_y, int pix) {
   asm volatile (
     "vmov.u8    d24, #13                       \n"  // B * 0.1016 coefficient
     "vmov.u8    d25, #65                       \n"  // G * 0.5078 coefficient
@@ -2244,7 +2200,7 @@ void ARGB1555ToYRow_NEON(const uint8* src_argb1555, uint8* dst_y, int pix) {
   );
 }
 
-void ARGB4444ToYRow_NEON(const uint8* src_argb4444, uint8* dst_y, int pix) {
+void ARGB4444ToYRow_NEON(const uint8 *src_argb4444, uint8 *dst_y, int pix) {
   asm volatile (
     "vmov.u8    d24, #13                       \n"  // B * 0.1016 coefficient
     "vmov.u8    d25, #65                       \n"  // G * 0.5078 coefficient
@@ -2272,7 +2228,7 @@ void ARGB4444ToYRow_NEON(const uint8* src_argb4444, uint8* dst_y, int pix) {
   );
 }
 
-void BGRAToYRow_NEON(const uint8* src_bgra, uint8* dst_y, int pix) {
+void BGRAToYRow_NEON(const uint8 *src_bgra, uint8 *dst_y, int pix) {
   asm volatile (
     "vmov.u8    d4, #33                        \n"  // R * 0.2578 coefficient
     "vmov.u8    d5, #65                        \n"  // G * 0.5078 coefficient
@@ -2299,7 +2255,7 @@ void BGRAToYRow_NEON(const uint8* src_bgra, uint8* dst_y, int pix) {
   );
 }
 
-void ABGRToYRow_NEON(const uint8* src_abgr, uint8* dst_y, int pix) {
+void ABGRToYRow_NEON(const uint8 *src_abgr, uint8 *dst_y, int pix) {
   asm volatile (
     "vmov.u8    d4, #33                        \n"  // R * 0.2578 coefficient
     "vmov.u8    d5, #65                        \n"  // G * 0.5078 coefficient
@@ -2326,7 +2282,7 @@ void ABGRToYRow_NEON(const uint8* src_abgr, uint8* dst_y, int pix) {
   );
 }
 
-void RGBAToYRow_NEON(const uint8* src_rgba, uint8* dst_y, int pix) {
+void RGBAToYRow_NEON(const uint8 *src_rgba, uint8 *dst_y, int pix) {
   asm volatile (
     "vmov.u8    d4, #13                        \n"  // B * 0.1016 coefficient
     "vmov.u8    d5, #65                        \n"  // G * 0.5078 coefficient
@@ -2353,7 +2309,7 @@ void RGBAToYRow_NEON(const uint8* src_rgba, uint8* dst_y, int pix) {
   );
 }
 
-void RGB24ToYRow_NEON(const uint8* src_rgb24, uint8* dst_y, int pix) {
+void RGB24ToYRow_NEON(const uint8 *src_rgb24, uint8 *dst_y, int pix) {
   asm volatile (
     "vmov.u8    d4, #13                        \n"  // B * 0.1016 coefficient
     "vmov.u8    d5, #65                        \n"  // G * 0.5078 coefficient
@@ -2380,7 +2336,7 @@ void RGB24ToYRow_NEON(const uint8* src_rgb24, uint8* dst_y, int pix) {
   );
 }
 
-void RAWToYRow_NEON(const uint8* src_raw, uint8* dst_y, int pix) {
+void RAWToYRow_NEON(const uint8 *src_raw, uint8 *dst_y, int pix) {
   asm volatile (
     "vmov.u8    d4, #33                        \n"  // R * 0.2578 coefficient
     "vmov.u8    d5, #65                        \n"  // G * 0.5078 coefficient
@@ -2408,9 +2364,9 @@ void RAWToYRow_NEON(const uint8* src_raw, uint8* dst_y, int pix) {
 }
 
 // Bilinear filter 16x2 -> 16x1
-void InterpolateRow_NEON(uint8* dst_ptr,
-                         const uint8* src_ptr, ptrdiff_t src_stride,
-                         int dst_width, int source_y_fraction) {
+void InterpolateRow_NEON(uint8 *dst_ptr, const uint8 *src_ptr,
+                         ptrdiff_t src_stride, int dst_width,
+                         int source_y_fraction) {
   asm volatile (
     "cmp        %4, #0                         \n"
     "beq        100f                           \n"
@@ -2505,8 +2461,8 @@ void InterpolateRow_NEON(uint8* dst_ptr,
 }
 
 // dr * (256 - sa) / 256 + sr = dr - dr * sa / 256 + sr
-void ARGBBlendRow_NEON(const uint8* src_argb0, const uint8* src_argb1,
-                       uint8* dst_argb, int width) {
+void ARGBBlendRow_NEON(const uint8 *src_argb0, const uint8 *src_argb1,
+                       uint8 *dst_argb, int width) {
   asm volatile (
     "subs       %3, #8                         \n"
     "blt        89f                            \n"
@@ -2570,7 +2526,7 @@ void ARGBBlendRow_NEON(const uint8* src_argb0, const uint8* src_argb1,
 }
 
 // Attenuate 8 pixels at a time.
-void ARGBAttenuateRow_NEON(const uint8* src_argb, uint8* dst_argb, int width) {
+void ARGBAttenuateRow_NEON(const uint8 *src_argb, uint8 *dst_argb, int width) {
   asm volatile (
     // Attenuate 8 pixels.
   "1:                                          \n"
@@ -2596,7 +2552,7 @@ void ARGBAttenuateRow_NEON(const uint8* src_argb, uint8* dst_argb, int width) {
 
 // Quantize 8 ARGB pixels (32 bytes).
 // dst = (dst * scale >> 16) * interval_size + interval_offset;
-void ARGBQuantizeRow_NEON(uint8* dst_argb, int scale, int interval_size,
+void ARGBQuantizeRow_NEON(uint8 *dst_argb, int scale, int interval_size,
                           int interval_offset, int width) {
   asm volatile (
     "vdup.u16   q8, %2                         \n"
@@ -2640,7 +2596,7 @@ void ARGBQuantizeRow_NEON(uint8* dst_argb, int scale, int interval_size,
 // Shade 8 pixels at a time by specified value.
 // NOTE vqrdmulh.s16 q10, q10, d0[0] must use a scaler register from 0 to 8.
 // Rounding in vqrdmulh does +1 to high if high bit of low s16 is set.
-void ARGBShadeRow_NEON(const uint8* src_argb, uint8* dst_argb, int width,
+void ARGBShadeRow_NEON(const uint8 *src_argb, uint8 *dst_argb, int width,
                        uint32 value) {
   asm volatile (
     "vdup.u32   q0, %3                         \n"  // duplicate scale value.
@@ -2679,7 +2635,7 @@ void ARGBShadeRow_NEON(const uint8* src_argb, uint8* dst_argb, int width,
 // Convert 8 ARGB pixels (64 bytes) to 8 Gray ARGB pixels
 // Similar to ARGBToYJ but stores ARGB.
 // C code is (15 * b + 75 * g + 38 * r + 64) >> 7;
-void ARGBGrayRow_NEON(const uint8* src_argb, uint8* dst_argb, int width) {
+void ARGBGrayRow_NEON(const uint8 *src_argb, uint8 *dst_argb, int width) {
   asm volatile (
     "vmov.u8    d24, #15                       \n"  // B * 0.11400 coefficient
     "vmov.u8    d25, #75                       \n"  // G * 0.58700 coefficient
@@ -2710,7 +2666,7 @@ void ARGBGrayRow_NEON(const uint8* src_argb, uint8* dst_argb, int width) {
 //    b = (r * 35 + g * 68 + b * 17) >> 7
 //    g = (r * 45 + g * 88 + b * 22) >> 7
 //    r = (r * 50 + g * 98 + b * 24) >> 7
-void ARGBSepiaRow_NEON(uint8* dst_argb, int width) {
+void ARGBSepiaRow_NEON(uint8 *dst_argb, int width) {
   asm volatile (
     "vmov.u8    d20, #17                       \n"  // BB coefficient
     "vmov.u8    d21, #68                       \n"  // BG coefficient
@@ -2752,8 +2708,8 @@ void ARGBSepiaRow_NEON(uint8* dst_argb, int width) {
 // Tranform 8 ARGB pixels (32 bytes) with color matrix.
 // TODO(fbarchard): Was same as Sepia except matrix is provided.  This function
 // needs to saturate.  Consider doing a non-saturating version.
-void ARGBColorMatrixRow_NEON(const uint8* src_argb, uint8* dst_argb,
-                             const int8* matrix_argb, int width) {
+void ARGBColorMatrixRow_NEON(const uint8 *src_argb, uint8 *dst_argb,
+                             const int8 *matrix_argb, int width) {
   asm volatile (
     MEMACCESS(3)
     "vld1.8     {q2}, [%3]                     \n"  // load 3 ARGB vectors.
@@ -2816,8 +2772,8 @@ void ARGBColorMatrixRow_NEON(const uint8* src_argb, uint8* dst_argb,
 // TODO(fbarchard): fix vqshrun in ARGBMultiplyRow_NEON and reenable.
 #ifdef HAS_ARGBMULTIPLYROW_NEON
 // Multiply 2 rows of ARGB pixels together, 8 pixels at a time.
-void ARGBMultiplyRow_NEON(const uint8* src_argb0, const uint8* src_argb1,
-                          uint8* dst_argb, int width) {
+void ARGBMultiplyRow_NEON(const uint8 *src_argb0, const uint8 *src_argb1,
+                          uint8 *dst_argb, int width) {
   asm volatile (
     // 8 pixel loop.
     ".p2align   2                              \n"
@@ -2850,8 +2806,8 @@ void ARGBMultiplyRow_NEON(const uint8* src_argb0, const uint8* src_argb1,
 #endif  // HAS_ARGBMULTIPLYROW_NEON
 
 // Add 2 rows of ARGB pixels together, 8 pixels at a time.
-void ARGBAddRow_NEON(const uint8* src_argb0, const uint8* src_argb1,
-                     uint8* dst_argb, int width) {
+void ARGBAddRow_NEON(const uint8 *src_argb0, const uint8 *src_argb1,
+                     uint8 *dst_argb, int width) {
   asm volatile (
     // 8 pixel loop.
     ".p2align   2                              \n"
@@ -2877,8 +2833,8 @@ void ARGBAddRow_NEON(const uint8* src_argb0, const uint8* src_argb1,
 }
 
 // Subtract 2 rows of ARGB pixels, 8 pixels at a time.
-void ARGBSubtractRow_NEON(const uint8* src_argb0, const uint8* src_argb1,
-                          uint8* dst_argb, int width) {
+void ARGBSubtractRow_NEON(const uint8 *src_argb0, const uint8 *src_argb1,
+                          uint8 *dst_argb, int width) {
   asm volatile (
     // 8 pixel loop.
     ".p2align   2                              \n"
@@ -2908,8 +2864,8 @@ void ARGBSubtractRow_NEON(const uint8* src_argb0, const uint8* src_argb1,
 // R = Sobel
 // G = Sobel
 // B = Sobel
-void SobelRow_NEON(const uint8* src_sobelx, const uint8* src_sobely,
-                     uint8* dst_argb, int width) {
+void SobelRow_NEON(const uint8 *src_sobelx, const uint8 *src_sobely,
+                   uint8 *dst_argb, int width) {
   asm volatile (
     "vmov.u8    d3, #255                       \n"  // alpha
     // 8 pixel loop.
@@ -2936,8 +2892,8 @@ void SobelRow_NEON(const uint8* src_sobelx, const uint8* src_sobely,
 }
 
 // Adds Sobel X and Sobel Y and stores Sobel into plane.
-void SobelToPlaneRow_NEON(const uint8* src_sobelx, const uint8* src_sobely,
-                          uint8* dst_y, int width) {
+void SobelToPlaneRow_NEON(const uint8 *src_sobelx, const uint8 *src_sobely,
+                          uint8 *dst_y, int width) {
   asm volatile (
     // 16 pixel loop.
     ".p2align   2                              \n"
@@ -2965,8 +2921,8 @@ void SobelToPlaneRow_NEON(const uint8* src_sobelx, const uint8* src_sobely,
 // R = Sobel X
 // G = Sobel
 // B = Sobel Y
-void SobelXYRow_NEON(const uint8* src_sobelx, const uint8* src_sobely,
-                     uint8* dst_argb, int width) {
+void SobelXYRow_NEON(const uint8 *src_sobelx, const uint8 *src_sobely,
+                     uint8 *dst_argb, int width) {
   asm volatile (
     "vmov.u8    d3, #255                       \n"  // alpha
     // 8 pixel loop.
@@ -2994,8 +2950,8 @@ void SobelXYRow_NEON(const uint8* src_sobelx, const uint8* src_sobely,
 // -1  0  1
 // -2  0  2
 // -1  0  1
-void SobelXRow_NEON(const uint8* src_y0, const uint8* src_y1,
-                    const uint8* src_y2, uint8* dst_sobelx, int width) {
+void SobelXRow_NEON(const uint8 *src_y0, const uint8 *src_y1,
+                    const uint8 *src_y2, uint8 *dst_sobelx, int width) {
   asm volatile (
     ".p2align   2                              \n"
   "1:                                          \n"
@@ -3038,8 +2994,8 @@ void SobelXRow_NEON(const uint8* src_y0, const uint8* src_y1,
 // -1 -2 -1
 //  0  0  0
 //  1  2  1
-void SobelYRow_NEON(const uint8* src_y0, const uint8* src_y1,
-                    uint8* dst_sobely, int width) {
+void SobelYRow_NEON(const uint8 *src_y0, const uint8 *src_y1, uint8 *dst_sobely,
+                    int width) {
   asm volatile (
     ".p2align   2                              \n"
   "1:                                          \n"

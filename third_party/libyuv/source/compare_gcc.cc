@@ -18,7 +18,7 @@ extern "C" {
 
 #if !defined(LIBYUV_DISABLE_X86) && (defined(__x86_64__) || defined(__i386__))
 
-uint32 SumSquareError_SSE2(const uint8* src_a, const uint8* src_b, int count) {
+uint32 SumSquareError_SSE2(const uint8 *src_a, const uint8 *src_b, int count) {
   uint32 sse;
   asm volatile (  // NOLINT
     "pxor      %%xmm0,%%xmm0                   \n"
@@ -89,7 +89,7 @@ static uvec32 kHashMul3 = {
   0x00000001,  // 33 ^ 0
 };
 
-uint32 HashDjb2_SSE41(const uint8* src, int count, uint32 seed) {
+uint32 HashDjb2_SSE41(const uint8 *src, int count, uint32 seed) {
   uint32 hash;
   asm volatile (  // NOLINT
     "movd      %2,%%xmm0                       \n"
@@ -149,4 +149,3 @@ uint32 HashDjb2_SSE41(const uint8* src, int count, uint32 seed) {
 }  // extern "C"
 }  // namespace libyuv
 #endif
-

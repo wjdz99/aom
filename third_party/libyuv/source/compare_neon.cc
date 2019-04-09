@@ -19,7 +19,7 @@ extern "C" {
 #if !defined(LIBYUV_DISABLE_NEON) && defined(__ARM_NEON__) && \
     !defined(__aarch64__)
 
-uint32 SumSquareError_NEON(const uint8* src_a, const uint8* src_b, int count) {
+uint32 SumSquareError_NEON(const uint8 *src_a, const uint8 *src_b, int count) {
   volatile uint32 sse;
   asm volatile (
     "vmov.u8    q8, #0                         \n"

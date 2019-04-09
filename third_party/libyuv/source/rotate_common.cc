@@ -16,8 +16,8 @@ namespace libyuv {
 extern "C" {
 #endif
 
-void TransposeWx8_C(const uint8* src, int src_stride,
-                    uint8* dst, int dst_stride, int width) {
+void TransposeWx8_C(const uint8 *src, int src_stride, uint8 *dst,
+                    int dst_stride, int width) {
   int i;
   for (i = 0; i < width; ++i) {
     dst[0] = src[0 * src_stride];
@@ -33,9 +33,9 @@ void TransposeWx8_C(const uint8* src, int src_stride,
   }
 }
 
-void TransposeUVWx8_C(const uint8* src, int src_stride,
-                      uint8* dst_a, int dst_stride_a,
-                      uint8* dst_b, int dst_stride_b, int width) {
+void TransposeUVWx8_C(const uint8 *src, int src_stride, uint8 *dst_a,
+                      int dst_stride_a, uint8 *dst_b, int dst_stride_b,
+                      int width) {
   int i;
   for (i = 0; i < width; ++i) {
     dst_a[0] = src[0 * src_stride + 0];
@@ -60,9 +60,8 @@ void TransposeUVWx8_C(const uint8* src, int src_stride,
   }
 }
 
-void TransposeWxH_C(const uint8* src, int src_stride,
-                    uint8* dst, int dst_stride,
-                    int width, int height) {
+void TransposeWxH_C(const uint8 *src, int src_stride, uint8 *dst,
+                    int dst_stride, int width, int height) {
   int i;
   for (i = 0; i < width; ++i) {
     int j;
@@ -72,9 +71,8 @@ void TransposeWxH_C(const uint8* src, int src_stride,
   }
 }
 
-void TransposeUVWxH_C(const uint8* src, int src_stride,
-                      uint8* dst_a, int dst_stride_a,
-                      uint8* dst_b, int dst_stride_b,
+void TransposeUVWxH_C(const uint8 *src, int src_stride, uint8 *dst_a,
+                      int dst_stride_a, uint8 *dst_b, int dst_stride_b,
                       int width, int height) {
   int i;
   for (i = 0; i < width * 2; i += 2) {

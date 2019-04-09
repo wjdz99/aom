@@ -18,16 +18,16 @@ namespace libyuv {
 extern "C" {
 #endif
 
-#define TANY(NAMEANY, TPOS_SIMD, TPOS_C, MASK)                                 \
-    void NAMEANY(const uint8* src, int src_stride,                             \
-                 uint8* dst, int dst_stride, int width) {                      \
-      int r = width & MASK;                                                    \
-      int n = width - r;                                                       \
-      if (n > 0) {                                                             \
-        TPOS_SIMD(src, src_stride, dst, dst_stride, n);                        \
-      }                                                                        \
-      TPOS_C(src + n, src_stride, dst + n * dst_stride, dst_stride, r);        \
-    }
+#define TANY(NAMEANY, TPOS_SIMD, TPOS_C, MASK)                               \
+  void NAMEANY(const uint8 *src, int src_stride, uint8 *dst, int dst_stride, \
+               int width) {                                                  \
+    int r = width & MASK;                                                    \
+    int n = width - r;                                                       \
+    if (n > 0) {                                                             \
+      TPOS_SIMD(src, src_stride, dst, dst_stride, n);                        \
+    }                                                                        \
+    TPOS_C(src + n, src_stride, dst + n * dst_stride, dst_stride, r);        \
+  }
 
 #ifdef HAS_TRANSPOSEWX8_NEON
 TANY(TransposeWx8_Any_NEON, TransposeWx8_NEON, TransposeWx8_C, 7)
@@ -48,8 +48,3 @@ TANY(TransposeWx8_Any_MIPS_DSPR2, TransposeWx8_MIPS_DSPR2, TransposeWx8_C, 7)
 }  // extern "C"
 }  // namespace libyuv
 #endif
-
-
-
-
-

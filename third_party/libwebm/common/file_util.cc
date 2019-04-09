@@ -24,10 +24,10 @@ namespace libwebm {
 std::string GetTempFileName() {
 #if !defined _MSC_VER && !defined __MINGW32__
   std::string temp_file_name_template_str =
-      std::string(std::getenv("TEST_TMPDIR") ? std::getenv("TEST_TMPDIR") :
-                                               ".") +
+      std::string(std::getenv("TEST_TMPDIR") ? std::getenv("TEST_TMPDIR")
+                                             : ".") +
       "/libwebm_temp.XXXXXX";
-  char* temp_file_name_template =
+  char *temp_file_name_template =
       new char[temp_file_name_template_str.length() + 1];
   memset(temp_file_name_template, 0, temp_file_name_template_str.length() + 1);
   temp_file_name_template_str.copy(temp_file_name_template,
@@ -45,7 +45,7 @@ std::string GetTempFileName() {
 #if defined _MSC_VER || defined MINGW_HAS_SECURE_API
   errno_t err = tmpnam_s(tmp_file_name);
 #else
-  char* fname_pointer = tmpnam(tmp_file_name);
+  char *fname_pointer = tmpnam(tmp_file_name);
   int err = (fname_pointer == &tmp_file_name[0]) ? 0 : -1;
 #endif
   if (err == 0) {
@@ -55,7 +55,7 @@ std::string GetTempFileName() {
 #endif
 }
 
-uint64_t GetFileSize(const std::string& file_name) {
+uint64_t GetFileSize(const std::string &file_name) {
   uint64_t file_size = 0;
 #ifndef _MSC_VER
   struct stat st;
@@ -71,7 +71,7 @@ uint64_t GetFileSize(const std::string& file_name) {
   return file_size;
 }
 
-bool GetFileContents(const std::string& file_name, std::string* contents) {
+bool GetFileContents(const std::string &file_name, std::string *contents) {
   std::ifstream file(file_name.c_str());
   *contents = std::string(static_cast<size_t>(GetFileSize(file_name)), 0);
   if (file.good() && contents->size()) {

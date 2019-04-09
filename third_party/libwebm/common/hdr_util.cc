@@ -16,12 +16,11 @@
 namespace libwebm {
 const int Vp9CodecFeatures::kValueNotPresent = INT_MAX;
 
-bool CopyPrimaryChromaticity(const mkvparser::PrimaryChromaticity& parser_pc,
-                             PrimaryChromaticityPtr* muxer_pc) {
+bool CopyPrimaryChromaticity(const mkvparser::PrimaryChromaticity &parser_pc,
+                             PrimaryChromaticityPtr *muxer_pc) {
   muxer_pc->reset(new (std::nothrow)
                       mkvmuxer::PrimaryChromaticity(parser_pc.x, parser_pc.y));
-  if (!muxer_pc->get())
-    return false;
+  if (!muxer_pc->get()) return false;
   return true;
 }
 
@@ -29,8 +28,8 @@ bool MasteringMetadataValuePresent(double value) {
   return value != mkvparser::MasteringMetadata::kValueNotPresent;
 }
 
-bool CopyMasteringMetadata(const mkvparser::MasteringMetadata& parser_mm,
-                           mkvmuxer::MasteringMetadata* muxer_mm) {
+bool CopyMasteringMetadata(const mkvparser::MasteringMetadata &parser_mm,
+                           mkvmuxer::MasteringMetadata *muxer_mm) {
   if (MasteringMetadataValuePresent(parser_mm.luminance_max))
     muxer_mm->set_luminance_max(parser_mm.luminance_max);
   if (MasteringMetadataValuePresent(parser_mm.luminance_min))
@@ -42,20 +41,16 @@ bool CopyMasteringMetadata(const mkvparser::MasteringMetadata& parser_mm,
   PrimaryChromaticityPtr wp_ptr(nullptr);
 
   if (parser_mm.r) {
-    if (!CopyPrimaryChromaticity(*parser_mm.r, &r_ptr))
-      return false;
+    if (!CopyPrimaryChromaticity(*parser_mm.r, &r_ptr)) return false;
   }
   if (parser_mm.g) {
-    if (!CopyPrimaryChromaticity(*parser_mm.g, &g_ptr))
-      return false;
+    if (!CopyPrimaryChromaticity(*parser_mm.g, &g_ptr)) return false;
   }
   if (parser_mm.b) {
-    if (!CopyPrimaryChromaticity(*parser_mm.b, &b_ptr))
-      return false;
+    if (!CopyPrimaryChromaticity(*parser_mm.b, &b_ptr)) return false;
   }
   if (parser_mm.white_point) {
-    if (!CopyPrimaryChromaticity(*parser_mm.white_point, &wp_ptr))
-      return false;
+    if (!CopyPrimaryChromaticity(*parser_mm.white_point, &wp_ptr)) return false;
   }
 
   if (!muxer_mm->SetChromaticity(r_ptr.get(), g_ptr.get(), b_ptr.get(),
@@ -70,10 +65,9 @@ bool ColourValuePresent(long long value) {
   return value != mkvparser::Colour::kValueNotPresent;
 }
 
-bool CopyColour(const mkvparser::Colour& parser_colour,
-                mkvmuxer::Colour* muxer_colour) {
-  if (!muxer_colour)
-    return false;
+bool CopyColour(const mkvparser::Colour &parser_colour,
+                mkvmuxer::Colour *muxer_colour) {
+  if (!muxer_colour) return false;
 
   if (ColourValuePresent(parser_colour.matrix_coefficients))
     muxer_colour->set_matrix_coefficients(parser_colour.matrix_coefficients);
@@ -112,8 +106,7 @@ bool CopyColour(const mkvparser::Colour& parser_colour,
     mkvmuxer::MasteringMetadata muxer_mm;
     if (!CopyMasteringMetadata(*parser_colour.mastering_metadata, &muxer_mm))
       return false;
-    if (!muxer_colour->SetMasteringMetadata(muxer_mm))
-      return false;
+    if (!muxer_colour->SetMasteringMetadata(muxer_mm)) return false;
   }
   return true;
 }
@@ -140,8 +133,8 @@ bool CopyColour(const mkvparser::Colour& parser_colour,
 //
 // See the following link for more information:
 // http://www.webmproject.org/vp9/profiles/
-bool ParseVpxCodecPrivate(const uint8_t* private_data, int32_t length,
-                          Vp9CodecFeatures* features) {
+bool ParseVpxCodecPrivate(const uint8_t *private_data, int32_t length,
+                          Vp9CodecFeatures *features) {
   const int kVpxCodecPrivateMinLength = 3;
   if (!private_data || !features || length < kVpxCodecPrivateMinLength)
     return false;
@@ -161,12 +154,10 @@ bool ParseVpxCodecPrivate(const uint8_t* private_data, int32_t length,
   do {
     const uint8_t id_byte = private_data[offset++];
     const uint8_t length_byte = private_data[offset++];
-    if (length_byte != kVpxFeatureLength)
-      return false;
+    if (length_byte != kVpxFeatureLength) return false;
     if (id_byte == kVp9ProfileId) {
       const int priv_profile = static_cast<int>(private_data[offset++]);
-      if (priv_profile < 0 || priv_profile > 3)
-        return false;
+      if (priv_profile < 0 || priv_profile > 3) return false;
       if (features->profile != Vp9CodecFeatures::kValueNotPresent &&
           features->profile != priv_profile) {
         return false;
@@ -176,8 +167,8 @@ bool ParseVpxCodecPrivate(const uint8_t* private_data, int32_t length,
       const int priv_level = static_cast<int>(private_data[offset++]);
 
       const int kNumLevels = 14;
-      const int levels[kNumLevels] = {10, 11, 20, 21, 30, 31, 40,
-                                      41, 50, 51, 52, 60, 61, 62};
+      const int levels[kNumLevels] = { 10, 11, 20, 21, 30, 31, 40,
+                                       41, 50, 51, 52, 60, 61, 62 };
 
       for (int i = 0; i < kNumLevels; ++i) {
         if (priv_level == levels[i]) {
@@ -189,8 +180,7 @@ bool ParseVpxCodecPrivate(const uint8_t* private_data, int32_t length,
           break;
         }
       }
-      if (features->level == Vp9CodecFeatures::kValueNotPresent)
-        return false;
+      if (features->level == Vp9CodecFeatures::kValueNotPresent) return false;
     } else if (id_byte == kVp9BitDepthId) {
       const int priv_profile = static_cast<int>(private_data[offset++]);
       if (priv_profile != 8 && priv_profile != 10 && priv_profile != 12)

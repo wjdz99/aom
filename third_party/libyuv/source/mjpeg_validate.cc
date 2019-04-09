@@ -23,12 +23,12 @@ extern "C" {
 #ifdef ENABLE_SCASB
 
 // Multiple of 1.
-__declspec(naked)
-const uint8* ScanRow_ERMS(const uint8* src, uint32 val, int count) {
+__declspec(naked) const uint8 *ScanRow_ERMS(const uint8 *src, uint32 val,
+                                            int count) {
   __asm {
     mov        edx, edi
-    mov        edi, [esp + 4]   // src
-    mov        eax, [esp + 8]   // val
+    mov        edi, [esp + 4]  // src
+    mov        eax, [esp + 8]  // val
     mov        ecx, [esp + 12]  // count
     repne scasb
     jne        sr99
@@ -46,14 +46,14 @@ const uint8* ScanRow_ERMS(const uint8* src, uint32 val, int count) {
 #endif
 
 // Helper function to scan for EOI marker.
-static LIBYUV_BOOL ScanEOI(const uint8* sample, size_t sample_size) {
-  const uint8* end = sample + sample_size - 1;
-  const uint8* it = sample;
+static LIBYUV_BOOL ScanEOI(const uint8 *sample, size_t sample_size) {
+  const uint8 *end = sample + sample_size - 1;
+  const uint8 *it = sample;
   for (;;) {
 #ifdef ENABLE_SCASB
     it = ScanRow_ERMS(it, 0xff, end - it);
 #else
-    it = static_cast<const uint8*>(memchr(it, 0xff, end - it));
+    it = static_cast<const uint8 *>(memchr(it, 0xff, end - it));
 #endif
     if (it == NULL) {
       break;
@@ -68,7 +68,7 @@ static LIBYUV_BOOL ScanEOI(const uint8* sample, size_t sample_size) {
 }
 
 // Helper function to validate the jpeg appears intact.
-LIBYUV_BOOL ValidateJpeg(const uint8* sample, size_t sample_size) {
+LIBYUV_BOOL ValidateJpeg(const uint8 *sample, size_t sample_size) {
   const size_t kBackSearchSize = 1024;
   if (sample_size < 64) {
     // ERROR: Invalid jpeg size: sample_size
@@ -91,11 +91,9 @@ LIBYUV_BOOL ValidateJpeg(const uint8* sample, size_t sample_size) {
     sample_size = sample_size - kBackSearchSize + 1;
   }
   return ScanEOI(sample, sample_size);
-
 }
 
 #ifdef __cplusplus
 }  // extern "C"
 }  // namespace libyuv
 #endif
-
