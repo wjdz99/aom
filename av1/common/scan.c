@@ -2404,8 +2404,10 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_4x8[32]) = {
 };
 
 DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_8x4[32]) = {
-  0, 2, 5,  9,  13, 17, 21, 25, 1, 4,  8,  12, 16, 20, 24, 28,
-  3, 7, 11, 15, 19, 23, 27, 30, 6, 10, 14, 18, 22, 26, 29, 31,
+  0, 2, 5,  9,  13, 17, 21, 25,
+  1, 4,  8,  12, 16, 20, 24, 28,
+  3, 7, 11, 15, 19, 23, 27, 30,
+  6, 10, 14, 18, 22, 26, 29, 31,
 };
 
 DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_8x4[32]) = {
