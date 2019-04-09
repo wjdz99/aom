@@ -28,9 +28,13 @@ typedef double (*ComputeCrossCorrFunc)(unsigned char *im1, int stride1, int x1,
                                        int y1, unsigned char *im2, int stride2,
                                        int x2, int y2);
 
-using ::testing::make_tuple;
-using ::testing::tuple;
-typedef tuple<int, ComputeCrossCorrFunc> CornerMatchParam;
+struct CornerMatchParam {
+  CornerMatchParam(int mode, ComputeCrossCorrFunc func)
+      : mode(mode), func(func) {}
+
+  int mode;
+  ComputeCrossCorrFunc func;
+};
 
 class AV1CornerMatchTest : public ::testing::TestWithParam<CornerMatchParam> {
  public:
@@ -49,7 +53,7 @@ class AV1CornerMatchTest : public ::testing::TestWithParam<CornerMatchParam> {
 AV1CornerMatchTest::~AV1CornerMatchTest() {}
 void AV1CornerMatchTest::SetUp() {
   rnd_.Reset(ACMRandom::DeterministicSeed());
-  target_func = GET_PARAM(1);
+  target_func = GetParam().func;
 }
 void AV1CornerMatchTest::TearDown() { libaom_test::ClearSystemState(); }
 
@@ -65,7 +69,7 @@ void AV1CornerMatchTest::RunCheckOutput(int run_times) {
   // Test the two extreme cases:
   // i) Random data, should have correlation close to 0
   // ii) Linearly related data + noise, should have correlation close to 1
-  int mode = GET_PARAM(0);
+  int mode = GetParam().mode;
   if (mode == 0) {
     for (i = 0; i < h; ++i)
       for (j = 0; j < w; ++j) {
@@ -127,15 +131,15 @@ TEST_P(AV1CornerMatchTest, DISABLED_Speed) { RunCheckOutput(100000); }
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_CASE_P(
     SSE4_1, AV1CornerMatchTest,
-    ::testing::Values(make_tuple(0, compute_cross_correlation_sse4_1),
-                      make_tuple(1, compute_cross_correlation_sse4_1)));
+    ::testing::Values(CornerMatchParam(0, compute_cross_correlation_sse4_1),
+                      CornerMatchParam(1, compute_cross_correlation_sse4_1)));
 #endif
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_CASE_P(
     AVX2, AV1CornerMatchTest,
-    ::testing::Values(make_tuple(0, compute_cross_correlation_avx2),
-                      make_tuple(1, compute_cross_correlation_avx2)));
+    ::testing::Values(CornerMatchParam(0, compute_cross_correlation_avx2),
+                      CornerMatchParam(1, compute_cross_correlation_avx2)));
 #endif
 }  // namespace AV1CornerMatch
 
