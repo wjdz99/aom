@@ -11,6 +11,7 @@
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 #include "av1/common/scan.h"
+#include "av1/common/scan.c"
 #include "av1/common/txb_common.h"
 #include "test/av1_txfm_test.h"
 
@@ -131,3 +132,24 @@ TEST(Av1ScanTest, Dependency) {
     }
   }
 }
+
+TEST(Av1ScanTest, FindScanOrderLimit) {
+  const int16_t *scan = default_scan_8x4;
+  const int w = 8;
+  const int h = 8;
+  const int size = w * h;
+  const int sub_w = 4;
+  const int sub_h = 4;
+  int max_eob = size;
+  for (int si = 0; si < size; ++si) {
+    int pos = scan[si];
+    int r = pos / w;
+    int c = pos % w;
+    if (r >= sub_h || c >= sub_w) {
+      max_eob = si;
+      break;
+    }
+  }
+  printf("max_eob %d\n", max_eob);
+}
+
