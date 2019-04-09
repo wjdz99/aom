@@ -22,6 +22,30 @@
       "revId": "2d62766608f2d131196c8ffcbf6d01eda41cf031",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d89422a2_982ba5c1",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3098,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-04-09T19:07:32Z",
+      "side": 1,
+      "message": "I don\u0027t think we\u0027ll get a segfault even if cpi-\u003esf.mv.search_method is changed to NSTEP. The issue we are having is that search_sites_cfg is initialized based on the values of cpi-\u003esf.mv.search_method. On speed 6 and above, cpi-\u003esf.mv.search_method is not set to NSTEP, so search_sites_cfg is not configured for NSTEP. As long as we keep our search_methods consistent with sf.mv.search_method, then everything should work out fine.",
+      "parentUuid": "8878927f_4996e542",
+      "range": {
+        "startLine": 3098,
+        "startChar": 40,
+        "endLine": 3098,
+        "endChar": 65
+      },
+      "revId": "2d62766608f2d131196c8ffcbf6d01eda41cf031",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
