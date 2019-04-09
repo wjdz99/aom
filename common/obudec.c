@@ -440,7 +440,7 @@ int obudec_read_temporal_unit(struct ObuDecInputContext *obu_ctx,
 #endif
   uint8_t *new_buffer = (uint8_t *)realloc(*buffer, tu_size);
   if (!new_buffer) {
-    free(*buffer);
+    if (tu_size) free(*buffer);
     fprintf(stderr, "obudec: Out of memory.\n");
     return -1;
   }
