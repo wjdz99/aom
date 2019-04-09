@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8878927f_4996e542",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3098,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-04-09T05:10:19Z",
+      "side": 1,
+      "message": "The segfault would come back if NSTEP is used here later. Could we modify the offset based on the scale factor as you mentioned in the commit message?",
+      "range": {
+        "startLine": 3098,
+        "startChar": 40,
+        "endLine": 3098,
+        "endChar": 65
+      },
+      "revId": "2d62766608f2d131196c8ffcbf6d01eda41cf031",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
