@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa63cc7b_9fd5781e",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1782,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-04-10T01:34:20Z",
+      "side": 1,
+      "message": "get_plane_block_size() includes this check and reflects BLOCK_INVALID back, was the problem with the lookup in the existing call to aom_internal_error()?",
+      "revId": "2b0ccf9e19ce854567a26344c4a79c700b1ba143",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e588f13c_ac90cdf0",
+        "filename": "common/obudec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-04-10T01:34:20Z",
+      "side": 1,
+      "message": "this one is a bit strange, but this would probably need more work to avoid a 0 tu_size and to remove the frequent realloc()",
+      "revId": "2b0ccf9e19ce854567a26344c4a79c700b1ba143",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
