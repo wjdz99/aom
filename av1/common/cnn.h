@@ -97,6 +97,14 @@ struct CNN_LAYER_CONFIG {
                             // For example, if branches_to_combine = 0x0A,
                             // it means that braches 1 and 3 are combined
                             // with the current branch.
+  float *bn_gamma, *bn_beta, *bn_mean,
+      *bn_std;  // The parameters used to scale each channel in batch
+                // normalization. The processing in done on a per-channel basis.
+                // e.g. bn_mean[c] is the mean for all pixels in channel c. If
+                // the pointers are NULL, then no scaling/shifting is done. This
+                // is always applied after activation. Batch norm k
+                // out[c,i,j] = norm[c,i,j] * bn_gamma[c] + bn_beta[c] where
+                // norm[c,i,j] = (in[c,i,j] - bn_mean[c]) / bn_std[c]
 };
 
 struct CNN_CONFIG {
