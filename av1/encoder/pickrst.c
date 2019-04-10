@@ -548,7 +548,7 @@ static void apply_sgr(int sgr_params_idx, const uint8_t *dat8, int width,
     }
   }
 }
-
+#define prune_sgr_ep 1
 static SgrprojInfo search_selfguided_restoration(
     const uint8_t *dat8, int width, int height, int dat_stride,
     const uint8_t *src8, int src_stride, int use_highbitdepth, int bit_depth,
@@ -563,8 +563,19 @@ static SgrprojInfo search_selfguided_restoration(
          pu_width == RESTORATION_PROC_UNIT_SIZE);
   assert(pu_height == (RESTORATION_PROC_UNIT_SIZE >> 1) ||
          pu_height == RESTORATION_PROC_UNIT_SIZE);
-
+#if prune_sgr_ep
+  int64_t besterr_tmp[3] = { -1, -1, -1 };
+  int ep_map[] = { 8, 7, 9, 0, 1, 2, 3, 4, 5, 6, 10, 11, 12, 13, 14, 15 };
+  for (int idx = 0; idx < SGRPROJ_PARAMS; idx++) {
+    if (idx == 3)
+      idx = (abs(besterr_tmp[0] - besterr_tmp[1])) <
+                    (abs(besterr_tmp[0] - besterr_tmp[2]))
+                ? 3
+                : 10;
+    ep = ep_map[idx];
+#else
   for (ep = 0; ep < SGRPROJ_PARAMS; ep++) {
+#endif
     int exq[2];
     apply_sgr(ep, dat8, width, height, dat_stride, use_highbitdepth, bit_depth,
               pu_width, pu_height, flt0, flt1, flt_stride);
@@ -584,6 +595,10 @@ static SgrprojInfo search_selfguided_restoration(
       bestxqd[0] = exqd[0];
       bestxqd[1] = exqd[1];
     }
+#if prune_sgr_ep
+    if (idx < 3) besterr_tmp[idx] = err;
+    if (ep == 6) break;
+#endif
   }
 
   SgrprojInfo ret;
