@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7cd256ac_329c5ba2",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1782,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2019-04-10T18:15:15Z",
+      "side": 1,
+      "message": "The reason for the error was in the error message (line 1794). block_size_wide(high)[subsize] is incorrectly addressed if subsize is invalid. I had an option to either change the error message or to add an extra check on subsize.",
+      "parentUuid": "aa63cc7b_9fd5781e",
+      "revId": "2b0ccf9e19ce854567a26344c4a79c700b1ba143",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e588f13c_ac90cdf0",
         "filename": "common/obudec.c",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2019-04-10T01:34:20Z",
       "side": 1,
       "message": "this one is a bit strange, but this would probably need more work to avoid a 0 tu_size and to remove the frequent realloc()",
+      "revId": "2b0ccf9e19ce854567a26344c4a79c700b1ba143",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb773239_7ccfbbdc",
+        "filename": "common/obudec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2019-04-10T18:15:15Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e588f13c_ac90cdf0",
       "revId": "2b0ccf9e19ce854567a26344c4a79c700b1ba143",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
