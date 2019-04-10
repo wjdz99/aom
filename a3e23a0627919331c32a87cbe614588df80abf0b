@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aed74a40_00a05bd5",
+        "filename": "av1/common/cnn.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-04-10T23:41:26Z",
+      "side": 1,
+      "message": "why not just call copy_channels or channels_to_copy ?\nIn the comment mention that many channels from the beginning are copied.",
+      "revId": "a3e23a0627919331c32a87cbe614588df80abf0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb8958d7_2ec6a561",
+        "filename": "av1/common/cnn.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-04-10T23:41:26Z",
+      "side": 1,
+      "message": "It may be better to group branch_copy_mode,  input_to_branches, channels_to_copy into a separate sub-structure called BRANCH_INFO or something like that.\nLikewise group branch_combine_type, branches_to_combine into a separate sub-structure called MERGE_INFO\n\nThis refactor can be done in a separate patch.",
+      "revId": "a3e23a0627919331c32a87cbe614588df80abf0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
