@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "d56ce6d0_ccbadb5c",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1782,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-04-10T19:14:39Z",
+      "side": 1,
+      "message": "\u003e The reason for the error was in the error message (line 1794). block_size_wide(high)[subsize] is incorrectly addressed if subsize is invalid. I had an option to either change the error message or to add an extra check on subsize.\n\nThis has the potential of getting \u0027cleaned up\u0027 given the duplicate check, but with the static analysis in place the reason should be clear. It\u0027s OK for now.",
+      "parentUuid": "7cd256ac_329c5ba2",
+      "revId": "2b0ccf9e19ce854567a26344c4a79c700b1ba143",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e588f13c_ac90cdf0",
         "filename": "common/obudec.c",
         "patchSetId": 2
