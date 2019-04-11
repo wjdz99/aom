@@ -1146,6 +1146,7 @@ int aom_noise_model_get_grain_parameters(aom_noise_model_t *const noise_model,
 
   // Convert the scaling functions to 8 bit values
   aom_noise_strength_lut_t scaling_points[3];
+  memset(scaling_points, 0, sizeof(scaling_points));
   aom_noise_strength_solver_fit_piecewise(
       &noise_model->combined_state[0].strength_solver, 14, scaling_points + 0);
   aom_noise_strength_solver_fit_piecewise(
