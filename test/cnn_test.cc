@@ -35,25 +35,39 @@ class CNNTest : public ::testing::Test {
                          float *expected, CNN_CONFIG cnn_config, int in_stride,
                          double tolerance) {
     int out_width, out_height;
+    const int out_ch =
+        cnn_config.layer_config[cnn_config.num_layers - 1].out_channels;
     av1_find_cnn_output_size(image_width, image_height, &cnn_config, &out_width,
                              &out_height);
     const int out_size = out_width * out_height;
-    float *output = (float *)aom_malloc(sizeof(*output) * out_size);
+    float *outputs[CNN_MAX_CHANNELS] = { nullptr };
+    for (int ch = 0; ch < out_ch; ch++) {
+      outputs[ch] = (float *)aom_malloc(sizeof(*(outputs[ch])) * out_size);
+    }
     const int out_stride = out_width;
 
     av1_cnn_predict((const float **)&input, image_width, image_height,
-                    in_stride, &cnn_config, &output, out_stride);
+                    in_stride, &cnn_config, outputs, out_stride);
 
     double mse = 0;
-    for (int i = 0; i < out_size; ++i) {
-      EXPECT_NEAR(expected[i], output[i], PIXELWISE_FLOAT_TOL)
-          << i << ": " << expected[i] << "/" << output[i] << std::endl;
-      mse += SQR(expected[i] - output[i]);
-    }
-    mse /= out_size;
-    EXPECT_LE(mse, tolerance);
+    int target_idx = 0;
+    for (int ch = 0; ch < out_ch; ch++) {
+      float *output = outputs[ch];
+      for (int i = 0; i < out_size; ++i) {
+        EXPECT_NEAR(expected[target_idx], output[i], PIXELWISE_FLOAT_TOL)
+            << i << ": " << expected[target_idx] << "/" << output[i]
+            << std::endl;
+        mse += SQR(expected[target_idx] - output[i]);
+        target_idx++;
+      }
 
-    aom_free(output);
+      mse /= out_size;
+      EXPECT_LE(mse, tolerance);
+    }
+
+    for (int ch = 0; ch < out_ch; ch++) {
+      aom_free(outputs[ch]);
+    }
   }
 
   static void AssignLayerWeightsBiases(CNN_CONFIG *cnn_config, float *weights,
@@ -208,6 +222,7 @@ TEST_F(CNNTest, TestMultilayerConvolution) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_NOC,
                                     .branches_to_combine = 0,
+                                    .bn_params = { 0 },
                                 },
                                 {
                                     .branch = 0,
@@ -228,6 +243,7 @@ TEST_F(CNNTest, TestMultilayerConvolution) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_NOC,
                                     .branches_to_combine = 0,
+                                    .bn_params = { 0 },
                                 },
                                 {
                                     .branch = 0,
@@ -248,6 +264,7 @@ TEST_F(CNNTest, TestMultilayerConvolution) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_NOC,
                                     .branches_to_combine = 0,
+                                    .bn_params = { 0 },
                                 },
                             } };
 
@@ -328,6 +345,7 @@ TEST_F(CNNTest, TestRELUSingleLayer) {
                                 .channels_to_copy = -1,
                                 .branch_combine_type = BRANCH_NOC,
                                 .branches_to_combine = 0,
+                                .bn_params = { 0 },
                             } } };
 
   RunCNNTest(image_width, image_height, input, expected_same, cnn_config,
@@ -377,6 +395,7 @@ TEST_F(CNNTest, TestVaryingStridesVaryingDimImages) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_NOC,
                                     .branches_to_combine = 0,
+                                    .bn_params = { 0 },
                                 },
                             } };
 
@@ -491,6 +510,7 @@ TEST_F(CNNTest, TestMaxPool) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_NOC,
                                     .branches_to_combine = 0,
+                                    .bn_params = { 0 },
                                 },
                             } };
 
@@ -570,6 +590,7 @@ TEST_F(CNNTest, TestDeconvolveNonActivationSingleLayerSingleKernel) {
                                 .channels_to_copy = -1,
                                 .branch_combine_type = BRANCH_NOC,
                                 .branches_to_combine = 0,
+                                .bn_params = { 0 },
                             } } };
 
   RunCNNTest(image_width, image_height, input, expected_1_same, cnn_config,
@@ -841,6 +862,7 @@ TEST_F(CNNTest, TestLargeKernelsAndStrides) {
                                 .channels_to_copy = -1,
                                 .branch_combine_type = BRANCH_NOC,
                                 .branches_to_combine = 0,
+                                .bn_params = { 0 },
                             } } };
 
   int image_height = 10;
@@ -991,6 +1013,7 @@ TEST_F(CNNTest, TestSoftsignSingleLayer) {
                                 .channels_to_copy = -1,
                                 .branch_combine_type = BRANCH_NOC,
                                 .branches_to_combine = 0,
+                                .bn_params = { 0 },
                             } } };
 
   RunCNNTest(image_width, image_height, input, expected_same, cnn_config,
@@ -1063,6 +1086,7 @@ TEST_F(CNNTest, TestBranchTensorAdd) {
                                   .channels_to_copy = -1,
                                   .branch_combine_type = BRANCH_NOC,
                                   .branches_to_combine = 0,
+                                  .bn_params = { 0 },
                               },
                               {
                                   .branch = 0,
@@ -1083,6 +1107,7 @@ TEST_F(CNNTest, TestBranchTensorAdd) {
                                   .channels_to_copy = -1,
                                   .branch_combine_type = BRANCH_NOC,
                                   .branches_to_combine = 0,
+                                  .bn_params = { 0 },
                               },
                               {
                                   .branch = 1,
@@ -1103,6 +1128,7 @@ TEST_F(CNNTest, TestBranchTensorAdd) {
                                   .channels_to_copy = -1,
                                   .branch_combine_type = BRANCH_NOC,
                                   .branches_to_combine = 0,
+                                  .bn_params = { 0 },
                               },
                               {
                                   .branch = 1,
@@ -1123,6 +1149,7 @@ TEST_F(CNNTest, TestBranchTensorAdd) {
                                   .channels_to_copy = -1,
                                   .branch_combine_type = BRANCH_NOC,
                                   .branches_to_combine = 0,
+                                  .bn_params = { 0 },
                               },
                               {
                                   .branch = 0,
@@ -1143,6 +1170,7 @@ TEST_F(CNNTest, TestBranchTensorAdd) {
                                   .channels_to_copy = -1,
                                   .branch_combine_type = BRANCH_ADD,
                                   .branches_to_combine = 0x02,
+                                  .bn_params = { 0 },
                               },
                               {
                                   .branch = 0,
@@ -1163,6 +1191,7 @@ TEST_F(CNNTest, TestBranchTensorAdd) {
                                   .channels_to_copy = -1,
                                   .branch_combine_type = BRANCH_NOC,
                                   .branches_to_combine = 0,
+                                  .bn_params = { 0 },
                               } } };
 
   // Weights and biases need to be specified separately because
@@ -1229,6 +1258,7 @@ TEST_F(CNNTest, TestBranchTensorConcatenation) {
                                   .channels_to_copy = -1,
                                   .branch_combine_type = BRANCH_NOC,
                                   .branches_to_combine = 0,
+                                  .bn_params = { 0 },
                               },
                               {
                                   .branch = 0,
@@ -1249,6 +1279,7 @@ TEST_F(CNNTest, TestBranchTensorConcatenation) {
                                   .channels_to_copy = -1,
                                   .branch_combine_type = BRANCH_NOC,
                                   .branches_to_combine = 0,
+                                  .bn_params = { 0 },
                               },
                               {
                                   .branch = 1,
@@ -1269,6 +1300,7 @@ TEST_F(CNNTest, TestBranchTensorConcatenation) {
                                   .channels_to_copy = -1,
                                   .branch_combine_type = BRANCH_NOC,
                                   .branches_to_combine = 0,
+                                  .bn_params = { 0 },
                               },
                               {
                                   .branch = 1,
@@ -1289,6 +1321,7 @@ TEST_F(CNNTest, TestBranchTensorConcatenation) {
                                   .channels_to_copy = -1,
                                   .branch_combine_type = BRANCH_NOC,
                                   .branches_to_combine = 0,
+                                  .bn_params = { 0 },
                               },
                               {
                                   .branch = 0,
@@ -1309,6 +1342,7 @@ TEST_F(CNNTest, TestBranchTensorConcatenation) {
                                   .channels_to_copy = -1,
                                   .branch_combine_type = BRANCH_CAT,
                                   .branches_to_combine = 0x02,
+                                  .bn_params = { 0 },
                               },
                               {
                                   .branch = 0,
@@ -1329,6 +1363,7 @@ TEST_F(CNNTest, TestBranchTensorConcatenation) {
                                   .channels_to_copy = -1,
                                   .branch_combine_type = BRANCH_NOC,
                                   .branches_to_combine = 0,
+                                  .bn_params = { 0 },
                               } } };
 
   // Weights and biases need to be specified separately because
@@ -1403,6 +1438,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_NOC,
                                     .branches_to_combine = 0,
+                                    .bn_params = { 0 },
                                 },
                                 {
                                     .branch = 0,
@@ -1423,6 +1459,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_NOC,
                                     .branches_to_combine = 0,
+                                    .bn_params = { 0 },
                                 },
                                 {
                                     .branch = 2,
@@ -1443,6 +1480,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_NOC,
                                     .branches_to_combine = 0,
+                                    .bn_params = { 0 },
                                 },
                                 {
                                     .branch = 3,
@@ -1463,6 +1501,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_NOC,
                                     .branches_to_combine = 0,
+                                    .bn_params = { 0 },
                                 },
                                 {
                                     .branch = 2,
@@ -1483,6 +1522,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_ADD,
                                     .branches_to_combine = 0x08,
+                                    .bn_params = { 0 },
                                 },
                                 {
                                     .branch = 2,
@@ -1503,6 +1543,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_NOC,
                                     .branches_to_combine = 0x00,
+                                    .bn_params = { 0 },
                                 },
                                 {
                                     .branch = 1,
@@ -1523,6 +1564,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_NOC,
                                     .branches_to_combine = 0,
+                                    .bn_params = { 0 },
                                 },
                                 {
                                     .branch = 1,
@@ -1543,6 +1585,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_ADD,
                                     .branches_to_combine = 0x0C,
+                                    .bn_params = { 0 },
                                 },
                                 {
                                     .branch = 0,
@@ -1563,6 +1606,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_ADD,
                                     .branches_to_combine = 0x02,
+                                    .bn_params = { 0 },
                                 },
                                 {
                                     .branch = 0,
@@ -1583,6 +1627,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_NOC,
                                     .branches_to_combine = 0,
+                                    .bn_params = { 0 },
                                 },
                             } };
 
@@ -1648,6 +1693,7 @@ TEST_F(CNNTest, TestSplittingTensors) {
                                     .channels_to_copy = 2,
                                     .branch_combine_type = BRANCH_NOC,
                                     .branches_to_combine = 0,
+                                    .bn_params = { 0 },
                                 },
                                 {
                                     .branch = 0,
@@ -1668,6 +1714,7 @@ TEST_F(CNNTest, TestSplittingTensors) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_CAT,
                                     .branches_to_combine = 0x02,
+                                    .bn_params = { 0 },
                                 },
                                 {
                                     .branch = 0,
@@ -1688,6 +1735,7 @@ TEST_F(CNNTest, TestSplittingTensors) {
                                     .channels_to_copy = 0,
                                     .branch_combine_type = BRANCH_NOC,
                                     .branches_to_combine = 0,
+                                    .bn_params = { 0 },
                                 },
                             } };
 
@@ -1697,4 +1745,233 @@ TEST_F(CNNTest, TestSplittingTensors) {
 
   RunCNNTest(image_width, image_height, input, expected, cnn_config,
              image_width, MSE_INT_TOL);
+}
+
+TEST_F(CNNTest, TestBatchNorm) {
+  int image_width = 28;
+  int image_height = 28;
+  int filter_height = 7;
+  int filter_width = 7;
+  float input[] = {
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0117647f,  0.0705882f,  0.0705882f,  0.0705882f,
+    0.494118f,  0.533333f,  0.686275f,   0.101961f,   0.65098f,    1.0f,
+    0.968627f,  0.498039f,  0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.117647f,   0.141176f,   0.368627f,   0.603922f,
+    0.666667f,  0.992157f,  0.992157f,   0.992157f,   0.992157f,   0.992157f,
+    0.882353f,  0.67451f,   0.992157f,   0.94902f,    0.764706f,   0.25098f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.192157f,
+    0.933333f,  0.992157f,  0.992157f,   0.992157f,   0.992157f,   0.992157f,
+    0.992157f,  0.992157f,  0.992157f,   0.984314f,   0.364706f,   0.321569f,
+    0.321569f,  0.219608f,  0.152941f,   0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0705882f,  0.858824f,   0.992157f,
+    0.992157f,  0.992157f,  0.992157f,   0.992157f,   0.776471f,   0.713725f,
+    0.968627f,  0.945098f,  0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.313725f,   0.611765f,   0.419608f,   0.992157f,
+    0.992157f,  0.803922f,  0.0431373f,  0.0f,        0.168627f,   0.603922f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.054902f,  0.00392157f, 0.603922f,   0.992157f,   0.352941f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.545098f,  0.992157f,   0.745098f,   0.00784314f, 0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0431373f,
+    0.745098f,  0.992157f,  0.27451f,    0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.137255f,   0.945098f,
+    0.882353f,  0.627451f,  0.423529f,   0.00392157f, 0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.317647f,   0.941176f,   0.992157f,
+    0.992157f,  0.466667f,  0.0980392f,  0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.176471f,   0.729412f,   0.992157f,   0.992157f,
+    0.588235f,  0.105882f,  0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0627451f, 0.364706f,   0.988235f,   0.992157f,   0.733333f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.976471f,  0.992157f,   0.976471f,   0.25098f,    0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.180392f,   0.509804f,   0.717647f,   0.992157f,
+    0.992157f,  0.811765f,  0.00784314f, 0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.152941f,   0.580392f,
+    0.898039f,  0.992157f,  0.992157f,   0.992157f,   0.980392f,   0.713725f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0941176f, 0.447059f,  0.866667f,   0.992157f,   0.992157f,   0.992157f,
+    0.992157f,  0.788235f,  0.305882f,   0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0901961f,  0.258824f,   0.835294f,   0.992157f,
+    0.992157f,  0.992157f,  0.992157f,   0.776471f,   0.317647f,   0.00784314f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0705882f,  0.670588f,
+    0.858824f,  0.992157f,  0.992157f,   0.992157f,   0.992157f,   0.764706f,
+    0.313725f,  0.0352941f, 0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.215686f,  0.67451f,   0.886275f,   0.992157f,   0.992157f,   0.992157f,
+    0.992157f,  0.956863f,  0.521569f,   0.0431373f,  0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.533333f,   0.992157f,
+    0.992157f,  0.992157f,  0.831373f,   0.529412f,   0.517647f,   0.0627451f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f,        0.0f,        0.0f,
+    0.0f,       0.0f,       0.0f,        0.0f
+  };
+  float expected[] = {
+    -0.836424f, -0.857365f, -1.62739f,  -1.62739f,  -0.836424f, 5.40742f,
+    0.920853f,  -0.692567f, -0.836424f, -0.534405f, -1.62739f,  -0.836424f,
+    1.32602f,   1.36312f,   0.112766f,  -0.836424f, -0.192962f, 1.56975f,
+    2.45777f,   0.944414f,  -0.192962f, -1.5519f,   -1.5519f,   -0.554006f,
+    -0.192962f, 1.4231f,    -1.5519f,   -0.192962f, 1.3661f,    -1.5519f,
+    -1.5519f,   -0.192962f, -0.843708f, -0.359025f, -0.843708f, -0.843708f,
+    -0.843708f, 4.53065f,   0.0429584f, -0.796804f, -0.843708f, 0.3473f,
+    -0.843708f, -0.843708f, -0.114439f, 3.14817f,   0.0811934f, -0.843708f
+  };
+  float kernel[] = {
+    0.119643f,    -0.237864f,   0.0462892f,   0.0502297f,   -0.0134528f,
+    0.146347f,    0.153133f,    0.0513307f,   0.0752369f,   0.0135557f,
+    -0.111434f,   0.0941854f,   0.0788362f,   0.0299412f,   0.111762f,
+    0.144066f,    0.00431504f,  -0.0177954f,  0.0738092f,   -0.0344215f,
+    0.0832582f,   0.053989f,    -0.112691f,   0.0962145f,   0.0186525f,
+    -0.00660205f, -0.111962f,   -0.126801f,   -0.231625f,   0.17309f,
+    0.0748875f,   -0.179569f,   -0.00513812f, -0.156579f,   -0.147322f,
+    0.184168f,    0.189308f,    -0.200359f,   -0.0156733f,  0.140649f,
+    0.0858496f,   -0.0263217f,  -0.0740749f,  -0.112563f,   0.107528f,
+    0.0609729f,   -0.221625f,   0.0769944f,   -0.00900815f, -0.00136441f,
+    -0.0236521f,  -0.0418025f,  -0.00286299f, 0.12241f,     0.0964093f,
+    -0.0150897f,  0.0532171f,   0.0625916f,   0.116939f,    0.118024f,
+    0.161918f,    -0.00909767f, 0.100897f,    -0.054563f,   -0.175179f,
+    -0.0687892f,  0.00734235f,  0.109833f,    -0.113776f,   0.0595405f,
+    -0.170255f,   0.0124815f,   -0.0363301f,  -0.0127038f,  0.0445554f,
+    -0.0729894f,  0.107428f,    -0.0341417f,  0.132619f,    0.00984557f,
+    -0.00443654f, 0.202929f,    0.0945134f,   0.0148725f,   0.00998574f,
+    -0.0226449f,  0.0478197f,   -0.0793442f,  0.0707599f,   -0.084225f,
+    0.0865795f,   0.071104f,    -0.047894f,   0.0838322f,   0.0635493f,
+    -0.00370265f, -0.157247f,   -0.0289622f,  -0.0590963f,  0.13207f,
+    0.00468011f,  -0.0345372f,  0.217939f,    0.18861f,     -0.0290393f,
+    -0.0440664f,  0.0126197f,   -0.129132f,   -0.124943f,   0.0968156f,
+    -0.0853643f,  -0.182305f,   0.00461618f,  -0.147095f,   -0.230282f,
+    0.00856019f,  0.0278893f,   -0.0300229f,  0.0417871f,   0.0804717f,
+    -0.0768571f,  -0.0397085f,  -0.0601096f,  0.100901f,    -0.0184926f,
+    0.0350673f,   0.0971094f,   -0.0171837f,  -0.289644f,   -0.0899041f,
+    0.08998f,     -0.160319f,   -0.0195103f,  0.0392167f,   -0.137864f,
+    -0.0136294f,  0.0330886f,   -0.0409244f,  -0.092533f,   -0.0427934f,
+    -0.191144f,   -0.0969461f,  0.112035f,    0.138611f,    0.128717f,
+    0.191184f,    0.197462f
+  };
+  float bias[] = { 0.186703f, 0.204358f, -0.0230452f };
+
+  float bn_gamma[] = { 1.32173f, 1.26171f, 1.21966f };
+  float bn_beta[] = { -0.232595f, -0.222652f, -0.232209f };
+  float bn_mean[] = { 0.329233f, 0.199894f, 0.12389f };
+  float bn_std[] = { 0.311986f, 0.189737f, 0.247104f };
+
+  BATCHNORM_PARAMS bn_params = {
+    .bn_gamma = bn_gamma,
+    .bn_beta = bn_beta,
+    .bn_mean = bn_mean,
+    .bn_std = bn_std,
+  };
+
+  CNN_CONFIG cnn_config = {
+    .num_layers = 1,
+    .is_residue = 0,
+    .ext_width = 0,
+    .ext_height = 0,
+    .strict_bounds = 0,
+    {
+        {
+            .branch = 0,
+            .deconvolve = 0,
+            .in_channels = 1,
+            .filter_width = filter_width,
+            .filter_height = filter_height,
+            .out_channels = 3,
+            .skip_width = 7,
+            .skip_height = 7,
+            .maxpool = 0,
+            .weights = kernel,
+            .bias = bias,
+            .pad = PADDING_VALID,
+            .activation = RELU,
+            .branch_copy_mode = COPY_NONE,
+            .input_to_branches = 0,
+            .channels_to_copy = 0,
+            .branch_combine_type = BRANCH_NOC,
+            .branches_to_combine = 0,
+            .bn_params = bn_params,
+        },
+    },
+  };
+
+  RunCNNTest(image_width, image_height, input, expected, cnn_config,
+             image_width, MSE_FLOAT_TOL);
 }
