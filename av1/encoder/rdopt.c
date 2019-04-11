@@ -2181,6 +2181,7 @@ static INLINE int64_t pixel_diff_dist(const MACROBLOCK *x, int plane,
   const MACROBLOCKD *xd = &x->e_mbd;
   get_txb_dimensions(xd, plane, plane_bsize, blk_row, blk_col, tx_bsize, NULL,
                      NULL, &visible_cols, &visible_rows);
+  assert(visible_cols * visible_rows > 0);
   const int diff_stride = block_size_wide[plane_bsize];
   const int16_t *diff = x->plane[plane].src_diff;
 #if CONFIG_DIST_8X8
