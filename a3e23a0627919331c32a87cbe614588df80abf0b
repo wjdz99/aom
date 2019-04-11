@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4b66ebc4_92fd9e2d",
+        "filename": "av1/common/cnn.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-04-11T16:00:43Z",
+      "side": 1,
+      "message": "I wanted to capture the fact we copy only the first n channels. That\u0027s a good point though. I will rename it to channels_to_copy.",
+      "parentUuid": "aed74a40_00a05bd5",
+      "revId": "a3e23a0627919331c32a87cbe614588df80abf0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bb8958d7_2ec6a561",
         "filename": "av1/common/cnn.h",
         "patchSetId": 7
