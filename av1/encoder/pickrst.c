@@ -1188,8 +1188,10 @@ static void search_wiener(const RestorationTileLimits *limits,
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
 
-  const int wiener_win =
-      (rsc->plane == AOM_PLANE_Y) ? WIENER_WIN : WIENER_WIN_CHROMA;
+  int wiener_win =
+      rsc->sf->reduce_wiener_search_win_size
+          ? WIENER_WIN_CHROMA
+          : ((rsc->plane == AOM_PLANE_Y) ? WIENER_WIN : WIENER_WIN_CHROMA);
 
   int64_t M[WIENER_WIN2];
   int64_t H[WIENER_WIN2 * WIENER_WIN2];
@@ -1248,7 +1250,7 @@ static void search_wiener(const RestorationTileLimits *limits,
     assert(rui.wiener_info.hfilter[0] == 0 &&
            rui.wiener_info.hfilter[WIENER_WIN - 1] == 0);
   }
-
+  wiener_win = (rsc->plane == AOM_PLANE_Y) ? WIENER_WIN : WIENER_WIN_CHROMA;
   const int64_t bits_wiener =
       x->wiener_restore_cost[1] +
       (count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener)
