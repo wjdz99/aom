@@ -16,6 +16,24 @@
       "revId": "ceab497faedbeba15d033264ff68491416d1aed0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db6770ec_2f76623e",
+        "filename": "av1/common/cnn.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-04-12T19:19:41Z",
+      "side": 1,
+      "message": "Since tensorflow returns var instead of std, we will probably want to precompute std when we extract the model instead of repeatedly taking sqrt in the codec. But the std is computed as std \u003d sqrt(var + var_epsilon), so my thought was to include the effect of epsilon during model extraction.\n\nI can define a batchnorm struct to pack these parameters.",
+      "parentUuid": "e5fa3f97_dab2cde0",
+      "revId": "ceab497faedbeba15d033264ff68491416d1aed0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
