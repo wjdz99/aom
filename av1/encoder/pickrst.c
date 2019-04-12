@@ -114,6 +114,7 @@ typedef struct {
   SgrprojInfo sgrproj;
   WienerInfo wiener;
   AV1PixelRect tile_rect;
+  int isBoosted;
 } RestSearchCtxt;
 
 static void rsc_on_tile(void *priv) {
@@ -1189,7 +1190,9 @@ static void search_wiener(const RestorationTileLimits *limits,
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
 
   const int wiener_win =
-      (rsc->plane == AOM_PLANE_Y) ? WIENER_WIN : WIENER_WIN_CHROMA;
+      rsc->isBoosted
+          ? ((rsc->plane == AOM_PLANE_Y) ? WIENER_WIN : WIENER_WIN_CHROMA)
+          : WIENER_WIN_CHROMA;
 
   int64_t M[WIENER_WIN2];
   int64_t H[WIENER_WIN2 * WIENER_WIN2];
@@ -1248,10 +1251,11 @@ static void search_wiener(const RestorationTileLimits *limits,
     assert(rui.wiener_info.hfilter[0] == 0 &&
            rui.wiener_info.hfilter[WIENER_WIN - 1] == 0);
   }
-
+  const int wiener_win_tmp =
+      (rsc->plane == AOM_PLANE_Y) ? WIENER_WIN : WIENER_WIN_CHROMA;
   const int64_t bits_wiener =
       x->wiener_restore_cost[1] +
-      (count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener)
+      (count_wiener_bits(wiener_win_tmp, &rusi->wiener, &rsc->wiener)
        << AV1_PROB_COST_SHIFT);
 
   double cost_none =
@@ -1404,7 +1408,7 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi) {
   for (int plane = plane_start; plane <= plane_end; ++plane) {
     init_rsc(src, &cpi->common, &cpi->td.mb, &cpi->sf, plane, rusi,
              &cpi->trial_frame_rst, &rsc);
-
+    rsc.isBoosted = frame_is_kf_gf_arf(cpi);
     const int plane_ntiles = ntiles[plane > 0];
     const RestorationType num_rtypes =
         (plane_ntiles > 1) ? RESTORE_TYPES : RESTORE_SWITCHABLE_TYPES;
