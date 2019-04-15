@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "911e2cf4_9fcd73f2",
+        "filename": "av1/common/cnn.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-04-15T17:18:30Z",
+      "side": 1,
+      "message": "Optional suggestion: I was thinking if it may be better to have two separate public functions:\nav1_find_cnn_output_size() which would be the same as before, and another:\nav1_find_cnn_output_channels() which would be the new one to return number of output channels.\nI will let you decide what you want to do.",
+      "range": {
+        "startLine": 224,
+        "startChar": 0,
+        "endLine": 224,
+        "endChar": 1
+      },
+      "revId": "858313f773e0d480dc2c8767417701377b2bdeaa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
