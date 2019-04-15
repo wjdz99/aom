@@ -148,11 +148,15 @@ static double calc_psnrhvs(const unsigned char *src, int _systride,
    Jaakko Astola, Vladimir Lukin, "On between-coefficient contrast masking
    of DCT basis functions", CD-ROM Proceedings of the Third
    International Workshop on Video Processing and Quality Metrics for Consumer
-   Electronics VPQM-07, Scottsdale, Arizona, USA, 25-26 January, 2007, 4 p.*/
+   Electronics VPQM-07, Scottsdale, Arizona, USA, 25-26 January, 2007, 4 p.
+
+   Suggested in aomedia issue#2363:
+   0.3885746225901003 is a reciprocal of the maximum coefficient (2.573509)
+   of the old JPEG based matrix from the paper. Since you are not using that,
+   divide by actual maximum coefficient. */
   for (x = 0; x < 8; x++)
     for (y = 0; y < 8; y++)
-      mask[x][y] =
-          (_csf[x][y] * 0.3885746225901003) * (_csf[x][y] * 0.3885746225901003);
+      mask[x][y] = (_csf[x][y] / _csf[1][0]) * (_csf[x][y] / _csf[1][0]);
   for (y = 0; y < _h - 7; y += _step) {
     for (x = 0; x < _w - 7; x += _step) {
       int i;
