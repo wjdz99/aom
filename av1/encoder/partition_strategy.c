@@ -946,6 +946,7 @@ void av1_ml_early_term_after_split(AV1_COMP *const cpi, MACROBLOCK *const x,
   float score = 0.0f;
   av1_nn_predict(features, nn_config, &score);
   // Score is indicator of confidence that we should NOT terminate.
+  if (cpi->oxcf.speed == 0) thresh -= 0.3f;
   if (score < thresh) *terminate_partition_search = 1;
 }
 #undef FEATURES

@@ -114,6 +114,7 @@ static void set_good_speed_feature_framesize_dependent(
     sf->ml_partition_search_breakout_thresh[2] = 300;  // BLOCK_32X32
     sf->ml_partition_search_breakout_thresh[3] = 500;  // BLOCK_64X64
     sf->ml_partition_search_breakout_thresh[4] = -1;   // BLOCK_128X128
+    sf->ml_early_term_after_part_split = 1;
   }
 
   if (is_720p_or_larger && speed >= CONFIG_2PASS_PARTITION_SEARCH_LVL_START &&
@@ -143,7 +144,6 @@ static void set_good_speed_feature_framesize_dependent(
       // TODO(chiyotsai@google.com): Try to disable two pass partition search
       // and turn on hdres
       sf->simple_motion_search_split_speed = 1;
-      sf->ml_early_term_after_part_split = 1;
     }
   }
 
