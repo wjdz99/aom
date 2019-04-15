@@ -278,7 +278,7 @@ static void copy_active_tensor_to_branches(const TENSOR *layer_active_tensor,
 
 void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
                         int in_stride, const CNN_LAYER_CONFIG *layer_config,
-                        float **output, int out_stride) {
+                        int start_x, int step, float **output, int out_stride) {
   assert(!layer_config->deconvolve);
 
   const int cstep = layer_config->in_channels * layer_config->out_channels;
@@ -292,8 +292,8 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
         for (int i = 0; i < layer_config->out_channels; ++i) {
           for (int h = 0, u = 0; h < in_height;
                h += layer_config->skip_height, ++u) {
-            for (int w = 0, v = 0; w < in_width;
-                 w += layer_config->skip_width, ++v) {
+            for (int w = start_x, v = 0; w < in_width;
+                 w += layer_config->skip_width + step, v += step) {
               for (int hh = h;
                    hh < AOMMIN(in_height, h + layer_config->skip_height);
                    ++hh) {
@@ -333,7 +333,7 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
           for (int h = 0, u = 0; h < in_height;
                h += layer_config->skip_height, ++u) {
             for (int w = 0, v = 0; w < in_width;
-                 w += layer_config->skip_width, ++v) {
+                 w += layer_config->skip_width + step, v += step) {
               for (int hh = h;
                    hh < AOMMIN(in_height, h + layer_config->skip_height);
                    ++hh) {
@@ -376,7 +376,7 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
                h += layer_config->skip_height, ++u) {
             for (int w = 0, v = 0;
                  w < in_width - layer_config->filter_width + 1;
-                 w += layer_config->skip_width, ++v) {
+                 w += layer_config->skip_width + step, v += step) {
               for (int hh = h;
                    hh < AOMMIN(in_height, h + layer_config->skip_height);
                    ++hh) {
@@ -425,7 +425,8 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
                                                   layer_config->filter_width,
                                                   layer_config->skip_width),
                      v = 0;
-                 w < in_width; w += layer_config->skip_width, ++v) {
+                 w < in_width;
+                 w += layer_config->skip_width + step, v += step) {
               float sum = layer_config->bias[i];
               for (int k = 0; k < layer_config->in_channels; ++k) {
                 int off = k * layer_config->out_channels + i;
@@ -459,7 +460,8 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
                                                   layer_config->filter_width,
                                                   layer_config->skip_width),
                      v = 0;
-                 w < in_width; w += layer_config->skip_width, ++v) {
+                 w < in_width;
+                 w += layer_config->skip_width + step, v += step) {
               float sum = layer_config->bias[i];
               for (int k = 0; k < layer_config->in_channels; ++k) {
                 int off = k * layer_config->out_channels + i;
@@ -493,7 +495,7 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
                h += layer_config->skip_height, ++u) {
             for (int w = 0, v = 0;
                  w < in_width - layer_config->filter_width + 1;
-                 w += layer_config->skip_width, ++v) {
+                 w += layer_config->skip_width + step, v += step) {
               float sum = layer_config->bias[i];
               for (int k = 0; k < layer_config->in_channels; ++k) {
                 int off = k * layer_config->out_channels + i;
@@ -526,7 +528,8 @@ static int get_start_shift_deconvolve(int filt_width, int stride) {
 
 void av1_cnn_deconvolve_c(const float **input, int in_width, int in_height,
                           int in_stride, const CNN_LAYER_CONFIG *layer_config,
-                          float **output, int out_stride) {
+                          int start_x, int step, float **output,
+                          int out_stride) {
   assert(layer_config->deconvolve);
 
   const int cstep = layer_config->in_channels * layer_config->out_channels;
@@ -539,7 +542,7 @@ void av1_cnn_deconvolve_c(const float **input, int in_width, int in_height,
     case PADDING_SAME_ZERO:
       for (int i = 0; i < layer_config->out_channels; ++i) {
         for (int u = 0; u < out_height; ++u) {
-          for (int v = 0; v < out_width; ++v) {
+          for (int v = start_x; v < out_width; v += step) {
             float sum = layer_config->bias[i];
             for (int k = 0; k < layer_config->in_channels; ++k) {
               int off = k * layer_config->out_channels + i;
@@ -574,7 +577,7 @@ void av1_cnn_deconvolve_c(const float **input, int in_width, int in_height,
     case PADDING_SAME_REPLICATE:
       for (int i = 0; i < layer_config->out_channels; ++i) {
         for (int u = 0; u < out_height; ++u) {
-          for (int v = 0; v < out_width; ++v) {
+          for (int v = start_x; v < out_width; v += step) {
             float sum = layer_config->bias[i];
             for (int k = 0; k < layer_config->in_channels; ++k) {
               int off = k * layer_config->out_channels + i;
@@ -611,7 +614,7 @@ void av1_cnn_deconvolve_c(const float **input, int in_width, int in_height,
     case PADDING_VALID:
       for (int i = 0; i < layer_config->out_channels; ++i) {
         for (int u = 0; u < out_height; ++u) {
-          for (int v = 0; v < out_width; ++v) {
+          for (int v = start_x; v < out_width; v += step) {
             float sum = layer_config->bias[i];
             for (int k = 0; k < layer_config->in_channels; ++k) {
               int off = k * layer_config->out_channels + i;
@@ -639,6 +642,75 @@ void av1_cnn_deconvolve_c(const float **input, int in_width, int in_height,
       break;
     default: assert(0 && "Unknown padding type");
   }
+}
+
+typedef struct {
+  const float **input;
+  int in_width;
+  int in_height;
+  int in_stride;
+  const CNN_LAYER_CONFIG *layer_config;
+  float **output;
+  int out_stride;
+} LayerParams;
+
+typedef struct {
+  int start_row_index;
+  int step;
+} ThreadParams;
+
+static int av1_cnn_step_worker(void *arg1, void *arg2) {
+  LayerParams *const layer_params = (LayerParams *)arg1;
+  ThreadParams *const thread_params = (ThreadParams *)arg2;
+  if (!layer_params->layer_config->deconvolve) {
+    av1_cnn_convolve(layer_params->input, layer_params->in_width,
+                     layer_params->in_height, layer_params->in_stride,
+                     layer_params->layer_config, thread_params->start_row_index,
+                     thread_params->step, layer_params->output,
+                     layer_params->out_stride);
+  } else {
+    av1_cnn_deconvolve(layer_params->input, layer_params->in_width,
+                       layer_params->in_height, layer_params->in_stride,
+                       layer_params->layer_config,
+                       thread_params->start_row_index, thread_params->step,
+                       layer_params->output, layer_params->out_stride);
+  }
+  return 1;
+}
+
+void av1_cnn_apply_layer_mt(const float **input, int in_width, int in_height,
+                            int in_stride, const CNN_LAYER_CONFIG *layer_config,
+                            int num_workers, float **output, int out_stride) {
+  AVxWorker *workers = (AVxWorker *)aom_malloc(sizeof(*workers) * num_workers);
+  const AVxWorkerInterface *const winterface = aom_get_worker_interface();
+  for (int i = 0; i < num_workers; ++i) {
+    LayerParams layer_params = { input,        in_width, in_height, in_stride,
+                                 layer_config, output,   out_stride };
+    ThreadParams thread_params = { i, num_workers };
+
+    AVxWorker *const worker = &worker[i];
+    winterface->init(worker);
+
+    worker->hook = av1_cnn_step_worker;
+    worker->data1 = &layer_params;
+    worker->data2 = &thread_params;
+
+    // Start convolving
+    if (i == num_workers - 1) {
+      winterface->execute(worker);
+    } else {
+      winterface->launch(worker);
+    }
+  }
+
+  // Wait till all workers are finished
+  for (int i = 0; i < num_workers; ++i) {
+    winterface->sync(&workers[i]);
+  }
+  for (int i = 0; i < num_workers; ++i) {
+    winterface->end(&workers[i]);
+  }
+  aom_free(workers);
 }
 
 void av1_cnn_predict_c(const float **input, int in_width, int in_height,
@@ -712,18 +784,31 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
     assert(tensor2[branch].channels ==
            cnn_config->layer_config[layer].out_channels);
 
-    // Convolve/Deconvolve
-    if (!cnn_config->layer_config[layer].deconvolve) {
-      av1_cnn_convolve((const float **)tensor1[branch].buf,
-                       tensor1[branch].width, tensor1[branch].height,
-                       tensor1[branch].stride, &cnn_config->layer_config[layer],
-                       tensor2[branch].buf, tensor2[branch].stride);
+    int num_workers = 8;
+
+    if (num_workers > 1) {
+      // Convolve/Deconvolve
+      av1_cnn_apply_layer_mt((const float **)tensor1[branch].buf,
+                             tensor1[branch].width, tensor1[branch].height,
+                             tensor1[branch].stride,
+                             &cnn_config->layer_config[layer], num_workers,
+                             tensor2[branch].buf, tensor2[branch].stride);
     } else {
-      av1_cnn_deconvolve((const float **)tensor1[branch].buf,
+      int start_row_index = 0;
+      int step = 1;
+      if (!cnn_config->layer_config[layer].deconvolve) {
+        av1_cnn_convolve((const float **)tensor1[branch].buf,
                          tensor1[branch].width, tensor1[branch].height,
                          tensor1[branch].stride,
-                         &cnn_config->layer_config[layer], tensor2[branch].buf,
-                         tensor2[branch].stride);
+                         &cnn_config->layer_config[layer], start_row_index,
+                         step, tensor2[branch].buf, tensor2[branch].stride);
+      } else {
+        av1_cnn_deconvolve((const float **)tensor1[branch].buf,
+                           tensor1[branch].width, tensor1[branch].height,
+                           tensor1[branch].stride,
+                           &cnn_config->layer_config[layer], start_row_index,
+                           step, tensor2[branch].buf, tensor2[branch].stride);
+      }
     }
 
     if (cnn_config->layer_config[layer].branch_copy_mode == COPY_OUTPUT) {
