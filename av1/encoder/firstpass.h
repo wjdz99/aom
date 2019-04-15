@@ -123,6 +123,9 @@ typedef struct {
   unsigned char pyramid_level[MAX_STATIC_GF_GROUP_LENGTH + 1];
   unsigned char pyramid_height;
   unsigned char pyramid_lvl_nodes[MAX_PYRAMID_LVL];
+  unsigned char q_val[MAX_STATIC_GF_GROUP_LENGTH + 1];
+  unsigned char q_upper[MAX_STATIC_GF_GROUP_LENGTH + 1];
+  unsigned char q_lower[MAX_STATIC_GF_GROUP_LENGTH + 1];
   int bit_allocation[MAX_STATIC_GF_GROUP_LENGTH + 1];
   int size;
 } GF_GROUP;
