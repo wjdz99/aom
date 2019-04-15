@@ -1026,190 +1026,110 @@ static int rc_pick_q_and_bounds_one_pass_cq(const AV1_COMP *cpi, int width,
 #endif  // USE_UNRESTRICTED_Q_IN_CQ_MODE
 
 #define STATIC_MOTION_THRESH 95
-static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
-                                         int height, int *bottom_index,
-                                         int *top_index, int *arf_q) {
+static void get_kf_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
+                                         int height, int *active_best,
+                                         int *active_worst, int *arf_q, int cq_level) {
   const AV1_COMMON *const cm = &cpi->common;
   const RATE_CONTROL *const rc = &cpi->rc;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
-  const GF_GROUP *gf_group = &cpi->twopass.gf_group;
-  const int cq_level = get_active_cq_level(rc, oxcf, frame_is_intra_only(cm),
-                                           cm->superres_scale_denominator);
-  int active_best_quality;
-  int active_worst_quality = cpi->twopass.active_worst_quality;
-  int q;
-  int *inter_minq;
+  int active_best_quality = *active_best;
+  int active_worst_quality = *active_worst;
   const int bit_depth = cm->seq_params.bit_depth;
-  ASSIGN_MINQ_TABLE(bit_depth, inter_minq);
 
-  const int is_intrl_arf_boost =
-      gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE;
+  if (rc->frames_to_key == 1 && oxcf->rc_mode == AOM_Q) {
+    // If the next frame is also a key frame or the current frame is the
+    // only frame in the sequence in AOM_Q mode, just use the cq_level
+    // as q.
+    active_best_quality = cq_level;
+    active_worst_quality = cq_level;
+  } else if (cm->current_frame.frame_type == KEY_FRAME &&
+             cm->show_frame == 0) {
+    // Handle the special case for forward reference key frames.
+    // Increase the boost because this keyframe is used as a forward and
+    // backward reference.
+    const int qindex = rc->last_boosted_qindex;
+    const double last_boosted_q = av1_convert_qindex_to_q(qindex, bit_depth);
+    const int delta_qindex = av1_compute_qdelta(
+        rc, last_boosted_q, last_boosted_q * 0.25, bit_depth);
+    active_best_quality = AOMMAX(qindex + delta_qindex, rc->best_quality);
+    // Update the arf_q since the forward keyframe is replacing the ALTREF
+    *arf_q = active_best_quality;
+  } else if (rc->this_key_frame_forced) {
+    // Handle the special case for key frames forced when we have reached
+    // the maximum key frame interval. Here force the Q to a range
+    // based on the ambient Q to reduce the risk of popping.
+    double last_boosted_q;
+    int delta_qindex;
+    int qindex;
 
-  if (frame_is_intra_only(cm)) {
-    if (rc->frames_to_key == 1 && oxcf->rc_mode == AOM_Q) {
-      // If the next frame is also a key frame or the current frame is the
-      // only frame in the sequence in AOM_Q mode, just use the cq_level
-      // as q.
-      active_best_quality = cq_level;
-      active_worst_quality = cq_level;
-    } else if (cm->current_frame.frame_type == KEY_FRAME &&
-               cm->show_frame == 0) {
-      // Handle the special case for forward reference key frames.
-      // Increase the boost because this keyframe is used as a forward and
-      // backward reference.
-      const int qindex = rc->last_boosted_qindex;
-      const double last_boosted_q = av1_convert_qindex_to_q(qindex, bit_depth);
-      const int delta_qindex = av1_compute_qdelta(
-          rc, last_boosted_q, last_boosted_q * 0.25, bit_depth);
+    if (cpi->twopass.last_kfgroup_zeromotion_pct >= STATIC_MOTION_THRESH) {
+      qindex = AOMMIN(rc->last_kf_qindex, rc->last_boosted_qindex);
+      active_best_quality = qindex;
+      last_boosted_q = av1_convert_qindex_to_q(qindex, bit_depth);
+      delta_qindex = av1_compute_qdelta(rc, last_boosted_q,
+                                        last_boosted_q * 1.25, bit_depth);
+      active_worst_quality =
+          AOMMIN(qindex + delta_qindex, active_worst_quality);
+    } else {
+      qindex = rc->last_boosted_qindex;
+      last_boosted_q = av1_convert_qindex_to_q(qindex, bit_depth);
+      delta_qindex = av1_compute_qdelta(rc, last_boosted_q,
+                                        last_boosted_q * 0.50, bit_depth);
       active_best_quality = AOMMAX(qindex + delta_qindex, rc->best_quality);
-      // Update the arf_q since the forward keyframe is replacing the ALTREF
-      *arf_q = active_best_quality;
-    } else if (rc->this_key_frame_forced) {
-      // Handle the special case for key frames forced when we have reached
-      // the maximum key frame interval. Here force the Q to a range
-      // based on the ambient Q to reduce the risk of popping.
-      double last_boosted_q;
-      int delta_qindex;
-      int qindex;
-
-      if (cpi->twopass.last_kfgroup_zeromotion_pct >= STATIC_MOTION_THRESH) {
-        qindex = AOMMIN(rc->last_kf_qindex, rc->last_boosted_qindex);
-        active_best_quality = qindex;
-        last_boosted_q = av1_convert_qindex_to_q(qindex, bit_depth);
-        delta_qindex = av1_compute_qdelta(rc, last_boosted_q,
-                                          last_boosted_q * 1.25, bit_depth);
-        active_worst_quality =
-            AOMMIN(qindex + delta_qindex, active_worst_quality);
-      } else {
-        qindex = rc->last_boosted_qindex;
-        last_boosted_q = av1_convert_qindex_to_q(qindex, bit_depth);
-        delta_qindex = av1_compute_qdelta(rc, last_boosted_q,
-                                          last_boosted_q * 0.50, bit_depth);
-        active_best_quality = AOMMAX(qindex + delta_qindex, rc->best_quality);
-      }
-    } else {
-      // Not forced keyframe.
-      double q_adj_factor = 1.0;
-      double q_val;
-
-      // Baseline value derived from cpi->active_worst_quality and kf boost.
-      active_best_quality =
-          get_kf_active_quality(rc, active_worst_quality, bit_depth);
-
-      if (cpi->twopass.kf_zeromotion_pct >= STATIC_KF_GROUP_THRESH) {
-        active_best_quality /= 3;
-      }
-
-      // Allow somewhat lower kf minq with small image formats.
-      if ((width * height) <= (352 * 288)) {
-        q_adj_factor -= 0.25;
-      }
-
-      // Make a further adjustment based on the kf zero motion measure.
-      q_adj_factor += 0.05 - (0.001 * (double)cpi->twopass.kf_zeromotion_pct);
-
-      // Convert the adjustment factor to a qindex delta
-      // on active_best_quality.
-      q_val = av1_convert_qindex_to_q(active_best_quality, bit_depth);
-      active_best_quality +=
-          av1_compute_qdelta(rc, q_val, q_val * q_adj_factor, bit_depth);
-
-      // Tweak active_best_quality for AOM_Q mode when superres is on, as this
-      // will be used directly as 'q' later.
-      if (oxcf->rc_mode == AOM_Q && oxcf->superres_mode == SUPERRES_QTHRESH &&
-          cm->superres_scale_denominator != SCALE_NUMERATOR) {
-        active_best_quality =
-            AOMMAX(active_best_quality -
-                       ((cm->superres_scale_denominator - SCALE_NUMERATOR) * 4),
-                   0);
-      }
-    }
-  } else if (!rc->is_src_frame_alt_ref &&
-             (cpi->refresh_golden_frame || is_intrl_arf_boost ||
-              cpi->refresh_alt_ref_frame)) {
-    // Use the lower of active_worst_quality and recent
-    // average Q as basis for GF/ARF best Q limit unless last frame was
-    // a key frame.
-    if (rc->frames_since_key > 1 &&
-        rc->avg_frame_qindex[INTER_FRAME] < active_worst_quality) {
-      q = rc->avg_frame_qindex[INTER_FRAME];
-    } else {
-      q = active_worst_quality;
-    }
-    // For constrained quality dont allow Q less than the cq level
-    if (oxcf->rc_mode == AOM_CQ) {
-      if (q < cq_level) q = cq_level;
-
-      active_best_quality = get_gf_active_quality(rc, q, bit_depth);
-
-      // Constrained quality use slightly lower active best.
-      active_best_quality = active_best_quality * 15 / 16;
-
-      if (gf_group->update_type[gf_group->index] == ARF_UPDATE) {
-        const int min_boost = get_gf_high_motion_quality(q, bit_depth);
-        const int boost = min_boost - active_best_quality;
-
-        active_best_quality = min_boost - (int)(boost * rc->arf_boost_factor);
-        *arf_q = active_best_quality;
-      } else if (is_intrl_arf_boost) {
-        assert(rc->arf_q >= 0);  // Ensure it is set to a valid value.
-        active_best_quality = rc->arf_q;
-        int this_height = gf_group_pyramid_level(cpi);
-        while (this_height < gf_group->pyramid_height) {
-          active_best_quality = (active_best_quality + cq_level + 1) / 2;
-          ++this_height;
-        }
-      }
-    } else if (oxcf->rc_mode == AOM_Q) {
-      if (!cpi->refresh_alt_ref_frame && !is_intrl_arf_boost) {
-        active_best_quality = cq_level;
-      } else {
-        if (gf_group->update_type[gf_group->index] == ARF_UPDATE) {
-          active_best_quality = get_gf_active_quality(rc, q, bit_depth);
-          const int min_boost = get_gf_high_motion_quality(q, bit_depth);
-          const int boost = min_boost - active_best_quality;
-
-          active_best_quality = min_boost - (int)(boost * rc->arf_boost_factor);
-          *arf_q = active_best_quality;
-        } else {
-          assert(rc->arf_q >= 0);  // Ensure it is set to a valid value.
-          assert(is_intrl_arf_boost);
-          active_best_quality = rc->arf_q;
-          int this_height = gf_group_pyramid_level(cpi);
-          while (this_height < gf_group->pyramid_height) {
-            active_best_quality = (active_best_quality + cq_level + 1) / 2;
-            ++this_height;
-          }
-        }
-      }
-    } else {
-      active_best_quality = get_gf_active_quality(rc, q, bit_depth);
-      const int min_boost = get_gf_high_motion_quality(q, bit_depth);
-      const int boost = min_boost - active_best_quality;
-
-      active_best_quality = min_boost - (int)(boost * rc->arf_boost_factor);
-      if (is_intrl_arf_boost) {
-        int this_height = gf_group_pyramid_level(cpi);
-        while (this_height < gf_group->pyramid_height) {
-          active_best_quality =
-              (active_best_quality + active_worst_quality + 1) / 2;
-          ++this_height;
-        }
-      }
     }
   } else {
-    if (oxcf->rc_mode == AOM_Q) {
-      active_best_quality = cq_level;
-    } else {
-      active_best_quality = inter_minq[active_worst_quality];
+    // Not forced keyframe.
+    double q_adj_factor = 1.0;
+    double q_val;
 
-      // For the constrained quality mode we don't want
-      // q to fall below the cq level.
-      if ((oxcf->rc_mode == AOM_CQ) && (active_best_quality < cq_level)) {
-        active_best_quality = cq_level;
-      }
+    // Baseline value derived from cpi->active_worst_quality and kf boost.
+    active_best_quality =
+        get_kf_active_quality(rc, active_worst_quality, bit_depth);
+
+    if (cpi->twopass.kf_zeromotion_pct >= STATIC_KF_GROUP_THRESH) {
+      active_best_quality /= 3;
+    }
+
+    // Allow somewhat lower kf minq with small image formats.
+    if ((width * height) <= (352 * 288)) {
+      q_adj_factor -= 0.25;
+    }
+
+    // Make a further adjustment based on the kf zero motion measure.
+    q_adj_factor += 0.05 - (0.001 * (double)cpi->twopass.kf_zeromotion_pct);
+
+    // Convert the adjustment factor to a qindex delta
+    // on active_best_quality.
+    q_val = av1_convert_qindex_to_q(active_best_quality, bit_depth);
+    active_best_quality +=
+        av1_compute_qdelta(rc, q_val, q_val * q_adj_factor, bit_depth);
+
+    // Tweak active_best_quality for AOM_Q mode when superres is on, as this
+    // will be used directly as 'q' later.
+    if (oxcf->rc_mode == AOM_Q && oxcf->superres_mode == SUPERRES_QTHRESH &&
+        cm->superres_scale_denominator != SCALE_NUMERATOR) {
+      active_best_quality =
+          AOMMAX(active_best_quality -
+                     ((cm->superres_scale_denominator - SCALE_NUMERATOR) * 4),
+                 0);
     }
   }
+  *active_best = active_best_quality;
+  *active_worst = active_worst_quality;
+}
+
+
+static void postprocess_q_and_bounds(const AV1_COMP *cpi, int width, int height,
+                                     int *active_worst, int *active_best, int *q_out,
+                                     int is_intrl_arf_boost) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const RATE_CONTROL *const rc = &cpi->rc;
+  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  const int bit_depth = cpi->common.seq_params.bit_depth;
+  int active_best_quality = *active_best;
+  int active_worst_quality = *active_worst;
+  int q = *q_out;
+
 
   // Extension to max or min Q if undershoot or overshoot is outside
   // the permitted range.
@@ -1276,6 +1196,176 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
     }
   }
   clamp(q, active_best_quality, active_worst_quality);
+
+  *active_best = active_best_quality;
+  *active_worst = active_worst_quality;
+  *q_out = q;
+}
+
+int q_mode_inter_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
+                                         int height, int *bottom_index,
+                                         int *top_index, int *arf_q,
+                                         int gf_index) {
+
+  const AV1_COMMON *const cm = &cpi->common;
+  const RATE_CONTROL *const rc = &cpi->rc;
+  const GF_GROUP *gf_group = &cpi->twopass.gf_group;
+  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  const int cq_level = get_active_cq_level(rc, oxcf, frame_is_intra_only(cm),
+                                           cm->superres_scale_denominator);
+  int active_best_quality = 0;
+  int active_worst_quality = cpi->twopass.active_worst_quality;
+  int q;
+  const int bit_depth = cm->seq_params.bit_depth;
+
+  const int is_intrl_arf_boost =
+      gf_group->update_type[gf_index] == INTNL_ARF_UPDATE;
+
+  if (frame_is_intra_only(cm)) {
+    printf("KF INDEX %d, w %d h %d, abq %d awq %d aq %d cq %d\n", gf_index, width,
+           height, active_best_quality, active_worst_quality, arf_q, cq_level);
+    get_kf_q_and_bounds_two_pass(cpi, width, height, &active_best_quality,
+                                 &active_worst_quality, arf_q, cq_level);
+  } else if (!rc->is_src_frame_alt_ref &&
+             (cpi->refresh_golden_frame || is_intrl_arf_boost ||
+              cpi->refresh_alt_ref_frame)) {
+    // Use the lower of active_worst_quality and recent
+    // average Q as basis for GF/ARF best Q limit unless last frame was
+    // a key frame.
+    if (rc->frames_since_key > 1 &&
+        rc->avg_frame_qindex[INTER_FRAME] < active_worst_quality) {
+      q = rc->avg_frame_qindex[INTER_FRAME];
+    } else {
+      q = active_worst_quality;
+    }
+    if (!cpi->refresh_alt_ref_frame && !is_intrl_arf_boost) {
+      active_best_quality = cq_level;
+    } else {
+      if (gf_group->update_type[gf_index] == ARF_UPDATE) {
+        active_best_quality = get_gf_active_quality(rc, q, bit_depth);
+        const int min_boost = get_gf_high_motion_quality(q, bit_depth);
+        const int boost = min_boost - active_best_quality;
+
+        active_best_quality = min_boost - (int)(boost * rc->arf_boost_factor);
+        *arf_q = active_best_quality;
+      } else {
+        assert(rc->arf_q >= 0);  // Ensure it is set to a valid value.
+        assert(is_intrl_arf_boost);
+        active_best_quality = rc->arf_q;
+        int this_height = gf_group_pyramid_level(cpi);
+        while (this_height < gf_group->pyramid_height) {
+          active_best_quality = (active_best_quality + cq_level + 1) / 2;
+          ++this_height;
+        }
+      }
+    }
+  } else {
+    active_best_quality = cq_level;
+  }
+
+  postprocess_q_and_bounds(cpi, width, height, &active_worst_quality,
+                           &active_best_quality, &q, is_intrl_arf_boost);
+
+  *top_index = active_worst_quality;
+  *bottom_index = active_best_quality;
+
+  assert(*top_index <= rc->worst_quality && *top_index >= rc->best_quality);
+  assert(*bottom_index <= rc->worst_quality &&
+         *bottom_index >= rc->best_quality);
+  assert(q <= rc->worst_quality && q >= rc->best_quality);
+  printf("OLDindex %d, q %d top %d bottom %d\n", gf_group->index, q, *top_index, *bottom_index);
+  return q;
+}
+
+static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
+                                         int height, int *bottom_index,
+                                         int *top_index, int *arf_q) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const RATE_CONTROL *const rc = &cpi->rc;
+  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  const GF_GROUP *gf_group = &cpi->twopass.gf_group;
+  const int cq_level = get_active_cq_level(rc, oxcf, frame_is_intra_only(cm),
+                                           cm->superres_scale_denominator);
+  int active_best_quality = 0;
+  int active_worst_quality = cpi->twopass.active_worst_quality;
+  int q;
+  int *inter_minq;
+  const int bit_depth = cm->seq_params.bit_depth;
+  ASSIGN_MINQ_TABLE(bit_depth, inter_minq);
+
+  const int is_intrl_arf_boost =
+      gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE;
+
+  if (oxcf->rc_mode == AOM_Q)
+    return q_mode_inter_q_and_bounds_two_pass(cpi, width, height,
+                                              bottom_index, top_index, arf_q,
+                                              gf_group->index);
+  if (frame_is_intra_only(cm)) {
+    get_kf_q_and_bounds_two_pass(cpi, width, height, &active_best_quality,
+                                 &active_worst_quality, arf_q, cq_level);
+  } else if (!rc->is_src_frame_alt_ref &&
+             (cpi->refresh_golden_frame || is_intrl_arf_boost ||
+              cpi->refresh_alt_ref_frame)) {
+    // Use the lower of active_worst_quality and recent
+    // average Q as basis for GF/ARF best Q limit unless last frame was
+    // a key frame.
+    if (rc->frames_since_key > 1 &&
+        rc->avg_frame_qindex[INTER_FRAME] < active_worst_quality) {
+      q = rc->avg_frame_qindex[INTER_FRAME];
+    } else {
+      q = active_worst_quality;
+    }
+    // For constrained quality dont allow Q less than the cq level
+    if (oxcf->rc_mode == AOM_CQ) {
+      if (q < cq_level) q = cq_level;
+
+      active_best_quality = get_gf_active_quality(rc, q, bit_depth);
+
+      // Constrained quality use slightly lower active best.
+      active_best_quality = active_best_quality * 15 / 16;
+
+      if (gf_group->update_type[gf_group->index] == ARF_UPDATE) {
+        const int min_boost = get_gf_high_motion_quality(q, bit_depth);
+        const int boost = min_boost - active_best_quality;
+
+        active_best_quality = min_boost - (int)(boost * rc->arf_boost_factor);
+        *arf_q = active_best_quality;
+      } else if (is_intrl_arf_boost) {
+        assert(rc->arf_q >= 0);  // Ensure it is set to a valid value.
+        active_best_quality = rc->arf_q;
+        int this_height = gf_group_pyramid_level(cpi);
+        while (this_height < gf_group->pyramid_height) {
+          active_best_quality = (active_best_quality + cq_level + 1) / 2;
+          ++this_height;
+        }
+      }
+    } else {
+      active_best_quality = get_gf_active_quality(rc, q, bit_depth);
+      const int min_boost = get_gf_high_motion_quality(q, bit_depth);
+      const int boost = min_boost - active_best_quality;
+
+      active_best_quality = min_boost - (int)(boost * rc->arf_boost_factor);
+      if (is_intrl_arf_boost) {
+        int this_height = gf_group_pyramid_level(cpi);
+        while (this_height < gf_group->pyramid_height) {
+          active_best_quality =
+              (active_best_quality + active_worst_quality + 1) / 2;
+          ++this_height;
+        }
+      }
+    }
+  } else {
+    active_best_quality = inter_minq[active_worst_quality];
+
+    // For the constrained quality mode we don't want
+    // q to fall below the cq level.
+    if ((oxcf->rc_mode == AOM_CQ) && (active_best_quality < cq_level)) {
+      active_best_quality = cq_level;
+    }
+  }
+
+  postprocess_q_and_bounds(cpi, width, height, &active_worst_quality,
+                           &active_best_quality, &q, is_intrl_arf_boost);
 
   *top_index = active_worst_quality;
   *bottom_index = active_best_quality;

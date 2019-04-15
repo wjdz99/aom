@@ -24,6 +24,7 @@
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/firstpass.h"
 #include "av1/encoder/gop_structure.h"
+#include "av1/encoder/ratectrl.h"
 
 // Calculate an active area of the image that discounts formatting
 // bars and partially discounts other 0 energy areas.
@@ -729,6 +730,32 @@ static INLINE int is_almost_static(double gf_zero_motion, int kf_zero_motion) {
 #endif  // GROUP_ADAPTIVE_MAXQ
 #define MIN_FWD_KF_INTERVAL 8
 
+static void assign_q_and_bounds_q_mode(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  GF_GROUP *const gf_group = &cpi->twopass.gf_group;
+  const int width = cm->width;
+  const int height = cm->height;
+  int bottom_index, top_index;
+  int q;
+
+  for (int cur_index = 0; cur_index <= gf_group->size;
+       ++cur_index) {
+    /*
+    if (gf_group->update_type[cur_index] == OVERLAY_UPDATE ||
+        gf_group->update_type[cur_index] == INTNL_OVERLAY_UPDATE) continue;
+        */
+    int arf_q = -1;  // Initialize to invalid value, for sanity check later.
+
+    q = q_mode_inter_q_and_bounds_two_pass(cpi, width, height,
+                                       &bottom_index, &top_index, &arf_q, cur_index);
+    if (gf_group->update_type[cur_index] == ARF_UPDATE) {
+      cpi->rc.arf_q = arf_q;
+    }
+    printf("index %d, q %d top %d bottom %d\n", cur_index, q, top_index, bottom_index);
+  }
+  (void)q;
+}
+
 // Analyse and define a gf/arf group.
 static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
                             const EncodeFrameParams *const frame_params) {
@@ -1070,6 +1097,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
   // Set up the structure of this Group-Of-Pictures (same as GF_GROUP)
   av1_gop_setup_structure(cpi, frame_params);
+
+  if (oxcf->rc_mode == AOM_Q)
+    assign_q_and_bounds_q_mode(cpi);
 
   // Allocate bits to each of the frames in the GF group.
   allocate_gf_group_bits(cpi, gf_group_bits, gf_group_error_left, gf_arf_bits,
