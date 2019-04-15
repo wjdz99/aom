@@ -2105,20 +2105,17 @@ static int rd_try_subblock(AV1_COMP *const cpi, ThreadData *td,
                            RD_STATS *this_rdc, PARTITION_TYPE partition,
                            PICK_MODE_CONTEXT *prev_ctx,
                            PICK_MODE_CONTEXT *this_ctx) {
-#define RTS_X_RATE_NOCOEF_ARG
-#define RTS_MAX_RDCOST best_rdc->rdcost
-
+  const int64_t best_rdcost = best_rdc->rdcost;
   MACROBLOCK *const x = &td->mb;
 
   if (cpi->sf.adaptive_motion_search) load_pred_mv(x, prev_ctx);
 
-  const int64_t rdcost_remaining = best_rdc->rdcost == INT64_MAX
+  const int64_t rdcost_remaining = best_rdcost == INT64_MAX
                                        ? INT64_MAX
-                                       : (best_rdc->rdcost - sum_rdc->rdcost);
+                                       : (best_rdcost - sum_rdc->rdcost);
 
   pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, this_rdc,
-                RTS_X_RATE_NOCOEF_ARG partition, subsize, this_ctx,
-                rdcost_remaining, PICK_MODE_RD);
+                partition, subsize, this_ctx, rdcost_remaining, PICK_MODE_RD);
 
   if (this_rdc->rate == INT_MAX) {
     sum_rdc->rdcost = INT64_MAX;
@@ -2128,7 +2125,7 @@ static int rd_try_subblock(AV1_COMP *const cpi, ThreadData *td,
     sum_rdc->rdcost += this_rdc->rdcost;
   }
 
-  if (sum_rdc->rdcost >= RTS_MAX_RDCOST) return 0;
+  if (sum_rdc->rdcost >= best_rdcost) return 0;
 
   if (!is_last) {
     update_state(cpi, tile_data, td, this_ctx, mi_row, mi_col, subsize, 1);
@@ -2137,9 +2134,6 @@ static int rd_try_subblock(AV1_COMP *const cpi, ThreadData *td,
   }
 
   return 1;
-
-#undef RTS_X_RATE_NOCOEF_ARG
-#undef RTS_MAX_RDCOST
 }
 
 static void rd_test_partition3(AV1_COMP *const cpi, ThreadData *td,
