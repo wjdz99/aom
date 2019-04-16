@@ -4810,7 +4810,11 @@ static void show_existing_frame_reset(AV1Decoder *const pbi,
   // Note that the displayed frame must be valid for referencing in order to
   // have been selected.
   if (cm->seq_params.frame_id_numbers_present_flag) {
-    update_ref_frame_id(cm, cm->ref_frame_id[existing_frame_idx]);
+    cm->current_frame_id = cm->ref_frame_id[existing_frame_idx];
+    update_ref_frame_id(cm, cm->current_frame_id);
+    for (int i = 0; i < REF_FRAMES; i++) {
+      cm->valid_for_referencing[i] = 0;
+    }
   }
 
   cm->refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
