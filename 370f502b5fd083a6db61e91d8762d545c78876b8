@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "6d8243ab_1111e522",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3485,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-04-16T01:01:58Z",
+      "side": 1,
+      "message": "Nice speed gain. Also, looks like the model learned is not very robust, which doesn\u0027t work well with a changing code base.",
+      "parentUuid": "1a1f1661_75a2d1bd",
+      "range": {
+        "startLine": 3485,
+        "startChar": 2,
+        "endLine": 3485,
+        "endChar": 48
+      },
+      "revId": "370f502b5fd083a6db61e91d8762d545c78876b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d17a2cdb_b743d334",
         "filename": "av1/encoder/partition_strategy.c",
         "patchSetId": 4
