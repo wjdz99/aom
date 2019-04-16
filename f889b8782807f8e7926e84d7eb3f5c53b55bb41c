@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c27bb944_dd17fcf2",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 906,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-04-16T18:38:23Z",
+      "side": 1,
+      "message": "Could sf-\u003eml_early_term_after_part_split be used instead of cpi-\u003eoxcf.speed? Maybe use different sf-\u003eml_early_term_after_part_split value for different speed?",
+      "range": {
+        "startLine": 906,
+        "startChar": 2,
+        "endLine": 906,
+        "endChar": 43
+      },
+      "revId": "f889b8782807f8e7926e84d7eb3f5c53b55bb41c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
