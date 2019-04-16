@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e9066ece_fe1a2d9b",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4814,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2019-04-16T23:27:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "684b88a2_845ff056",
+      "range": {
+        "startLine": 4813,
+        "startChar": 0,
+        "endLine": 4814,
+        "endChar": 64
+      },
+      "revId": "95835e07e1095da9a5aeafb6f48a396f6b5cc041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e469115d_b83f977b",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-04-16T23:04:24Z",
       "side": 1,
       "message": "It seems wrong to set cm-\u003evalid_for_referencing[i] to 0 for all reference frames.\n\nThe spec says that refresh_frame_flags should be set to allFrames in this case (Section 5.9.2), so the reference frame update process in Section 7.20 will set RefValid[ i ] to 1 for all reference frames.",
+      "range": {
+        "startLine": 4815,
+        "startChar": 0,
+        "endLine": 4817,
+        "endChar": 5
+      },
+      "revId": "95835e07e1095da9a5aeafb6f48a396f6b5cc041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1356d5b4_b845bd8d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4817,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2019-04-16T23:27:30Z",
+      "side": 1,
+      "message": "Yes, sorry I did not realize where valid_for_referencing was being reset to 1. If you look at line 5036, it looks like a showable key frame is supposed to reset these to 0 and I thought this was being left out for the forward key frame case.",
+      "parentUuid": "e469115d_b83f977b",
       "range": {
         "startLine": 4815,
         "startChar": 0,
