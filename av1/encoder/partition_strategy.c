@@ -84,57 +84,7 @@ static void get_res_var_features(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
   }
 }
 
-static void simple_motion_search_based_split_fast(
-    AV1_COMP *const cpi, MACROBLOCK *x, int mi_row, int mi_col,
-    BLOCK_SIZE bsize, int *partition_none_allowed, int *partition_horz_allowed,
-    int *partition_vert_allowed, int *do_rectangular_split,
-    int *do_square_split) {
-  aom_clear_system_state();
-  const NN_CONFIG *nn_config = NULL;
-  float split_only_thresh = 1.0f;
-  if (bsize == BLOCK_128X128) {
-    nn_config = &av1_simple_motion_search_based_split_nn_config_128;
-    split_only_thresh = av1_simple_motion_search_based_split_thresh_128;
-  } else if (bsize == BLOCK_64X64) {
-    nn_config = &av1_simple_motion_search_based_split_nn_config_64;
-    split_only_thresh = av1_simple_motion_search_based_split_thresh_64;
-  } else if (bsize == BLOCK_32X32) {
-    nn_config = &av1_simple_motion_search_based_split_nn_config_32;
-    split_only_thresh = av1_simple_motion_search_based_split_thresh_32;
-  } else if (bsize == BLOCK_16X16) {
-    nn_config = &av1_simple_motion_search_based_split_nn_config_16;
-    split_only_thresh = av1_simple_motion_search_based_split_thresh_16;
-  } else if (bsize == BLOCK_8X8) {
-    return;
-  } else {
-    assert(0 && "Unexpected block size in simple_motion_based_split");
-    return;
-  }
-
-  float features[FEATURE_SIZE_SMS_SPLIT_FAST] = { 0.0f };
-  float score = 0.0f;
-  get_res_var_features(cpi, x, mi_row, mi_col, bsize, features);
-  av1_nn_predict(features, nn_config, &score);
-  aom_clear_system_state();
-
-  if (score > split_only_thresh) {
-    *partition_none_allowed = 0;
-    *partition_horz_allowed = 0;
-    *partition_vert_allowed = 0;
-    *do_rectangular_split = 0;
-  }
-  if (cpi->sf.simple_motion_search_split_only >= 2) {
-    if (score < -split_only_thresh) *do_square_split = 0;
-    // For larger scores (>split_only_thresh), none and rectangular partitions
-    // are skipped. As score reduces, possibility of split decreases. Hence
-    // for near larger scores (.875 * split_only_thresh to split_only_thresh)
-    // none partition is disabled, but rectangular partitions are evaluated
-    // additionally.
-    if (score > (split_only_thresh * 0.875)) *partition_none_allowed = 0;
-  }
-}
-
-static int convert_bsize_to_idx(BLOCK_SIZE bsize) {
+static INLINE int convert_bsize_to_idx(BLOCK_SIZE bsize) {
   switch (bsize) {
     case BLOCK_128X128: return 0;
     case BLOCK_64X64: return 1;
@@ -150,15 +100,6 @@ void av1_simple_motion_search_based_split(
     int mi_col, BLOCK_SIZE bsize, int *partition_none_allowed,
     int *partition_horz_allowed, int *partition_vert_allowed,
     int *do_rectangular_split, int *do_square_split) {
-  if (cpi->sf.simple_motion_search_split_speed >= 2) {
-    simple_motion_search_based_split_fast(
-        cpi, x, mi_row, mi_col, bsize, partition_none_allowed,
-        partition_horz_allowed, partition_vert_allowed, do_rectangular_split,
-        do_square_split);
-
-    return;
-  }
-
   aom_clear_system_state();
 
   const AV1_COMMON *const cm = &cpi->common;
@@ -204,7 +145,7 @@ void av1_simple_motion_search_based_split(
     *do_rectangular_split = 0;
   }
 
-  if (cpi->sf.simple_motion_search_split_only >= 2 && score < no_split_thresh) {
+  if (cpi->sf.simple_motion_search_split >= 2 && score < no_split_thresh) {
     *do_square_split = 0;
   }
 }
