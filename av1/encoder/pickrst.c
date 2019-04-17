@@ -1193,8 +1193,8 @@ static void search_wiener(const RestorationTileLimits *limits,
 
   int reduced_wiener_win = wiener_win;
   if (rsc->sf->reduce_wiener_window_size) {
-    reduced_wiener_win =
-        (rsc->plane == AOM_PLANE_Y) ? WIENER_WIN_REDUCED : WIENER_WIN_CHROMA;
+    reduced_wiener_win = (rsc->plane == AOM_PLANE_Y) ? WIENER_WIN_REDUCED
+                                                     : WIENER_WIN_CHROMA - 2;
   }
 
   int64_t M[WIENER_WIN2];
