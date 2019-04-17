@@ -5934,7 +5934,7 @@ static void pick_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     // tighter.
     assert(cpi->sf.model_based_prune_tx_search_level >= 0 &&
            cpi->sf.model_based_prune_tx_search_level <= 2);
-    static const int prune_factor_by8[] = { 3, 5 };
+    static const int prune_factor_by8[] = { 4, 5 };
     if (!model_skip &&
         ((model_rd *
           prune_factor_by8[cpi->sf.model_based_prune_tx_search_level - 1]) >>
