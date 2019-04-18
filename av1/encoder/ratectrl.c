@@ -1028,7 +1028,8 @@ static int rc_pick_q_and_bounds_one_pass_cq(const AV1_COMP *cpi, int width,
 #define STATIC_MOTION_THRESH 95
 static void get_kf_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
                                          int height, int *active_best,
-                                         int *active_worst, int *arf_q, int cq_level) {
+                                         int *active_worst, int *arf_q,
+                                         int cq_level, int is_fwd_kf) {
   const AV1_COMMON *const cm = &cpi->common;
   const RATE_CONTROL *const rc = &cpi->rc;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
@@ -1042,8 +1043,7 @@ static void get_kf_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
     // as q.
     active_best_quality = cq_level;
     active_worst_quality = cq_level;
-  } else if (cm->current_frame.frame_type == KEY_FRAME &&
-             cm->show_frame == 0) {
+  } else if (is_fwd_kf) {
     // Handle the special case for forward reference key frames.
     // Increase the boost because this keyframe is used as a forward and
     // backward reference.
@@ -1118,34 +1118,32 @@ static void get_kf_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
   *active_worst = active_worst_quality;
 }
 
-
+// Does some final adjustments to the q value and bounds. This does not apply to
+// AOM_Q mode.
 static void postprocess_q_and_bounds(const AV1_COMP *cpi, int width, int height,
-                                     int *active_worst, int *active_best, int *q_out,
-                                     int is_intrl_arf_boost) {
+                                     int *active_worst, int *active_best,
+                                     int *q_out, int is_intrl_arf_boost) {
   const AV1_COMMON *const cm = &cpi->common;
   const RATE_CONTROL *const rc = &cpi->rc;
-  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   const int bit_depth = cpi->common.seq_params.bit_depth;
   int active_best_quality = *active_best;
   int active_worst_quality = *active_worst;
   int q = *q_out;
-
+  assert(cpi->oxcf.rc_mode != AOM_Q);
 
   // Extension to max or min Q if undershoot or overshoot is outside
   // the permitted range.
-  if (cpi->oxcf.rc_mode != AOM_Q) {
-    if (frame_is_intra_only(cm) ||
-        (!rc->is_src_frame_alt_ref &&
-         (cpi->refresh_golden_frame || is_intrl_arf_boost ||
-          cpi->refresh_alt_ref_frame))) {
-      active_best_quality -=
-          (cpi->twopass.extend_minq + cpi->twopass.extend_minq_fast);
-      active_worst_quality += (cpi->twopass.extend_maxq / 2);
-    } else {
-      active_best_quality -=
-          (cpi->twopass.extend_minq + cpi->twopass.extend_minq_fast) / 2;
-      active_worst_quality += cpi->twopass.extend_maxq;
-    }
+  if (frame_is_intra_only(cm) ||
+      (!rc->is_src_frame_alt_ref &&
+       (cpi->refresh_golden_frame || is_intrl_arf_boost ||
+        cpi->refresh_alt_ref_frame))) {
+    active_best_quality -=
+        (cpi->twopass.extend_minq + cpi->twopass.extend_minq_fast);
+    active_worst_quality += (cpi->twopass.extend_maxq / 2);
+  } else {
+    active_best_quality -=
+        (cpi->twopass.extend_minq + cpi->twopass.extend_minq_fast) / 2;
+    active_worst_quality += cpi->twopass.extend_maxq;
   }
 
   aom_clear_system_state();
@@ -1170,10 +1168,9 @@ static void postprocess_q_and_bounds(const AV1_COMP *cpi, int width, int height,
   active_worst_quality =
       clamp(active_worst_quality, active_best_quality, rc->worst_quality);
 
-  if (oxcf->rc_mode == AOM_Q ||
-      (frame_is_intra_only(cm) && !rc->this_key_frame_forced &&
-       cpi->twopass.kf_zeromotion_pct >= STATIC_KF_GROUP_THRESH &&
-       rc->frames_to_key > 1)) {
+  if (frame_is_intra_only(cm) && !rc->this_key_frame_forced &&
+      cpi->twopass.kf_zeromotion_pct >= STATIC_KF_GROUP_THRESH &&
+      rc->frames_to_key > 1) {
     q = active_best_quality;
     // Special case code to try and match quality with forced key frames.
   } else if (frame_is_intra_only(cm) && rc->this_key_frame_forced) {
@@ -1203,10 +1200,9 @@ static void postprocess_q_and_bounds(const AV1_COMP *cpi, int width, int height,
 }
 
 int q_mode_inter_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
-                                         int height, int *bottom_index,
-                                         int *top_index, int *arf_q,
-                                         int gf_index) {
-
+                                       int height, int *bottom_index,
+                                       int *top_index, int *arf_q,
+                                       int gf_index) {
   const AV1_COMMON *const cm = &cpi->common;
   const RATE_CONTROL *const rc = &cpi->rc;
   const GF_GROUP *gf_group = &cpi->twopass.gf_group;
@@ -1221,24 +1217,34 @@ int q_mode_inter_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
   const int is_intrl_arf_boost =
       gf_group->update_type[gf_index] == INTNL_ARF_UPDATE;
 
-  if (frame_is_intra_only(cm)) {
-    printf("KF INDEX %d, w %d h %d, abq %d awq %d aq %d cq %d\n", gf_index, width,
-           height, active_best_quality, active_worst_quality, arf_q, cq_level);
+  const int is_boosted_frame = gf_group->update_type[gf_index] == GF_UPDATE ||
+                               gf_group->update_type[gf_index] == ARF_UPDATE ||
+                               is_intrl_arf_boost;
+
+  int is_fwd_kf = 0;
+  if (gf_group->update_type[gf_index] == ARF_UPDATE) {
+    assert(is_altref_enabled(cpi));
+    const int arf_src_index = gf_group->arf_src_offset[gf_index];
+    is_fwd_kf = arf_src_index == (rc->frames_to_key - 1);
+  }
+
+  if (gf_group->update_type[gf_index] == KF_UPDATE || is_fwd_kf) {
     get_kf_q_and_bounds_two_pass(cpi, width, height, &active_best_quality,
-                                 &active_worst_quality, arf_q, cq_level);
-  } else if (!rc->is_src_frame_alt_ref &&
-             (cpi->refresh_golden_frame || is_intrl_arf_boost ||
-              cpi->refresh_alt_ref_frame)) {
+                                 &active_worst_quality, arf_q, cq_level,
+                                 is_fwd_kf);
+  } else if (is_boosted_frame) {
     // Use the lower of active_worst_quality and recent
     // average Q as basis for GF/ARF best Q limit unless last frame was
     // a key frame.
-    if (rc->frames_since_key > 1 &&
-        rc->avg_frame_qindex[INTER_FRAME] < active_worst_quality) {
-      q = rc->avg_frame_qindex[INTER_FRAME];
-    } else {
-      q = active_worst_quality;
-    }
-    if (!cpi->refresh_alt_ref_frame && !is_intrl_arf_boost) {
+    // TODO(sarahparker) need to replicate this
+    //  if (rc->frames_since_key > 1 &&
+    //      rc->avg_frame_qindex[INTER_FRAME] < active_worst_quality) {
+    //    q = rc->avg_frame_qindex[INTER_FRAME];
+    //  } else {
+    q = active_worst_quality;
+    //  }
+    //  if (!cpi->refresh_alt_ref_frame && !is_intrl_arf_boost) {
+    if (gf_group->update_type[gf_index] != ARF_UPDATE && !is_intrl_arf_boost) {
       active_best_quality = cq_level;
     } else {
       if (gf_group->update_type[gf_index] == ARF_UPDATE) {
@@ -1252,7 +1258,7 @@ int q_mode_inter_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
         assert(rc->arf_q >= 0);  // Ensure it is set to a valid value.
         assert(is_intrl_arf_boost);
         active_best_quality = rc->arf_q;
-        int this_height = gf_group_pyramid_level(cpi);
+        int this_height = gf_group->pyramid_level[gf_index];
         while (this_height < gf_group->pyramid_height) {
           active_best_quality = (active_best_quality + cq_level + 1) / 2;
           ++this_height;
@@ -1263,8 +1269,32 @@ int q_mode_inter_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
     active_best_quality = cq_level;
   }
 
-  postprocess_q_and_bounds(cpi, width, height, &active_worst_quality,
-                           &active_best_quality, &q, is_intrl_arf_boost);
+  aom_clear_system_state();
+  // Static forced key frames Q restrictions dealt with elsewhere.
+  if ((gf_group->update_type[gf_index] != KF_UPDATE) ||
+      !rc->this_key_frame_forced ||
+      (cpi->twopass.last_kfgroup_zeromotion_pct < STATIC_MOTION_THRESH)) {
+    const int qdelta = av1_frame_type_qdelta(cpi, active_worst_quality);
+    active_worst_quality =
+        AOMMAX(active_worst_quality + qdelta, active_best_quality);
+  }
+  /////////////////////////////////////////////////////////////////
+  // TODO(sarahparker) figure out for superres
+  if (0 && av1_frame_scaled(cm) && !frame_is_kf_gf_arf(cpi)) {
+    int qdelta = av1_compute_qdelta_by_rate(
+        rc, cm->current_frame.frame_type, active_best_quality, 2.0, bit_depth);
+    active_best_quality =
+        AOMMAX(active_best_quality + qdelta, rc->best_quality);
+  }
+  //////////////////////////////////////////////////////////////////////
+
+  active_best_quality =
+      clamp(active_best_quality, rc->best_quality, rc->worst_quality);
+  active_worst_quality =
+      clamp(active_worst_quality, active_best_quality, rc->worst_quality);
+
+  q = active_best_quality;
+  clamp(q, active_best_quality, active_worst_quality);
 
   *top_index = active_worst_quality;
   *bottom_index = active_best_quality;
@@ -1273,7 +1303,6 @@ int q_mode_inter_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
   assert(*bottom_index <= rc->worst_quality &&
          *bottom_index >= rc->best_quality);
   assert(q <= rc->worst_quality && q >= rc->best_quality);
-  printf("OLDindex %d, q %d top %d bottom %d\n", gf_group->index, q, *top_index, *bottom_index);
   return q;
 }
 
@@ -1296,13 +1325,22 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
   const int is_intrl_arf_boost =
       gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE;
 
-  if (oxcf->rc_mode == AOM_Q)
-    return q_mode_inter_q_and_bounds_two_pass(cpi, width, height,
-                                              bottom_index, top_index, arf_q,
-                                              gf_group->index);
+  // AOM_Q mode determines quality when the gf structure is created. The only
+  // case in which the q values from this process are unreliable is for an
+  // INTRA_ONLY frame.
+  if (oxcf->rc_mode == AOM_Q &&
+      cm->current_frame.frame_type != INTRA_ONLY_FRAME) {
+    *top_index = gf_group->q_upper[gf_group->index];
+    *bottom_index = gf_group->q_lower[gf_group->index];
+    return gf_group->q_val[gf_group->index];
+  }
+
   if (frame_is_intra_only(cm)) {
+    const int is_fwd_kf =
+        cm->current_frame.frame_type == KEY_FRAME && cm->show_frame == 0;
     get_kf_q_and_bounds_two_pass(cpi, width, height, &active_best_quality,
-                                 &active_worst_quality, arf_q, cq_level);
+                                 &active_worst_quality, arf_q, cq_level,
+                                 is_fwd_kf);
   } else if (!rc->is_src_frame_alt_ref &&
              (cpi->refresh_golden_frame || is_intrl_arf_boost ||
               cpi->refresh_alt_ref_frame)) {

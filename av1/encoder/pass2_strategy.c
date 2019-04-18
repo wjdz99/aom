@@ -735,25 +735,43 @@ static void assign_q_and_bounds_q_mode(AV1_COMP *cpi) {
   GF_GROUP *const gf_group = &cpi->twopass.gf_group;
   const int width = cm->width;
   const int height = cm->height;
+  RATE_CONTROL *const rc = &cpi->rc;
+  const int last_boosted_q = rc->last_boosted_qindex;
+  const int last_kf_q = rc->last_kf_qindex;
   int bottom_index, top_index;
   int q;
 
-  for (int cur_index = 0; cur_index <= gf_group->size;
-       ++cur_index) {
-    /*
-    if (gf_group->update_type[cur_index] == OVERLAY_UPDATE ||
-        gf_group->update_type[cur_index] == INTNL_OVERLAY_UPDATE) continue;
-        */
+  for (int cur_index = 0; cur_index <= gf_group->size; ++cur_index) {
     int arf_q = -1;  // Initialize to invalid value, for sanity check later.
 
-    q = q_mode_inter_q_and_bounds_two_pass(cpi, width, height,
-                                       &bottom_index, &top_index, &arf_q, cur_index);
+    q = q_mode_inter_q_and_bounds_two_pass(cpi, width, height, &bottom_index,
+                                           &top_index, &arf_q, cur_index);
     if (gf_group->update_type[cur_index] == ARF_UPDATE) {
       cpi->rc.arf_q = arf_q;
     }
-    printf("index %d, q %d top %d bottom %d\n", cur_index, q, top_index, bottom_index);
+    gf_group->q_val[cur_index] = q;
+    gf_group->q_upper[cur_index] = top_index;
+    gf_group->q_lower[cur_index] = bottom_index;
+
+    // Keep record of last boosted (KF/GF/ARF) Q value.
+    // If the current frame is coded at a lower Q then we also update it.
+    // If all mbs in this group are skipped only update if the Q value is
+    // better than that already stored.
+    // This is used to help set quality in forced key frames to reduce popping
+    const int is_intrl_arf_boost =
+        gf_group->update_type[cur_index] == INTNL_ARF_UPDATE;
+    if ((q < rc->last_boosted_qindex) ||
+        (gf_group->update_type[cur_index] == KF_UPDATE) ||
+        (!rc->constrained_gf_group &&
+         (gf_group->update_type[cur_index] == ARF_UPDATE ||
+          is_intrl_arf_boost ||
+          gf_group->update_type[cur_index] == GF_UPDATE))) {
+      rc->last_boosted_qindex = q;
+    }
+    if (gf_group->update_type[cur_index] == KF_UPDATE) rc->last_kf_qindex = q;
   }
-  (void)q;
+  rc->last_boosted_qindex = last_boosted_q;
+  rc->last_kf_qindex = last_kf_q;
 }
 
 // Analyse and define a gf/arf group.
@@ -1098,8 +1116,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   // Set up the structure of this Group-Of-Pictures (same as GF_GROUP)
   av1_gop_setup_structure(cpi, frame_params);
 
-  if (oxcf->rc_mode == AOM_Q)
-    assign_q_and_bounds_q_mode(cpi);
+  if (cpi->oxcf.rc_mode == AOM_Q) assign_q_and_bounds_q_mode(cpi);
 
   // Allocate bits to each of the frames in the GF group.
   allocate_gf_group_bits(cpi, gf_group_bits, gf_group_error_left, gf_arf_bits,
