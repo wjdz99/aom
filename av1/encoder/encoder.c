@@ -4832,6 +4832,11 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   cpi->two_pass_partition_search = cpi->sf.two_pass_partition_search &&
                                    !cpi->partition_search_skippable_frame;
 
+  // TODO(sarahparker) enable for all bit depths once the highbitdepth
+  // adapt_b quantize functions have SIMD impelementations.
+  cm->use_quant_b_adapt &=
+      (cpi->source->flags & YV12_FLAG_HIGHBITDEPTH) ? 1 : 0;
+
   if (encode_show_existing_frame(cm)) {
     restore_coding_context(cpi);
 
