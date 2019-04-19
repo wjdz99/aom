@@ -5435,7 +5435,10 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
   // Indicates whether or not to use an adaptive quantize b rather than
   // the traditional version
-  cm->use_quant_b_adapt = cpi->oxcf.quant_b_adapt;
+  // TODO(sarahparker) enable for all bit depths once the highbitdepth
+  // adapt_b quantize functions have SIMD impelementations.
+  cm->use_quant_b_adapt =
+      (cpi->oxcf.quant_b_adapt && cm->seq_params.bit_depth == 8);
 
   cm->showable_frame = 0;
   *size = 0;
