@@ -22,6 +22,30 @@
       "revId": "bfa21752a8a291f0f53c613cd26089072d424beb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13a74978_cba65b91",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-04-19T00:09:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7bf71657_5531061d",
+      "range": {
+        "startLine": 163,
+        "startChar": 53,
+        "endLine": 163,
+        "endChar": 60
+      },
+      "revId": "bfa21752a8a291f0f53c613cd26089072d424beb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
