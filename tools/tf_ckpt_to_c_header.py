@@ -71,8 +71,18 @@ FLAGS = None
 CNN_CONFIG_ORDER = {}
 LAYER_CONFIG_ORDER = {}
 BIT_ALIGNMENT = 32
+WEIGHT_STRING = "w"
+BIAS_STRING = "b"
 
 logging.set_verbosity("INFO")
+
+
+def _get_weight_tensor_from_prefix(tensor_prefix):
+  return tensor_prefix + WEIGHT_STRING
+
+
+def _get_bias_tensor_from_prefix(tensor_prefix):
+  return tensor_prefix + BIAS_STRING
 
 
 def _generate_layer_index_tensor_name_map(input_reader, var_regex):
@@ -82,9 +92,14 @@ def _generate_layer_index_tensor_name_map(input_reader, var_regex):
   for k, _ in input_reader.get_variable_to_shape_map().iteritems():
     match = re.match(var_regex, k)
     if match:
-      var_indices = tuple(int(x) for x in match.group(1).split("_")[:-1])
       # Value is the prefix of the layer variables.
+      var_indices = tuple(int(x) for x in match.group(1).split("_")[:-1])
+      # Ignore the (b|w) decorator since we cannot control the order they
+      # are read.
       layer_index_tensor_name_map[var_indices] = k[:-1]
+  logging.info("Collected {0} variables...".format(
+      len(layer_index_tensor_name_map)))
+  logging.info([value for _, value in layer_index_tensor_name_map.iteritems()])
   return layer_index_tensor_name_map
 
 
@@ -137,12 +152,16 @@ def _extract_layer_variables(input_reader):
   # By the end of this process, every layer should have weights and biases.
   for _, tensor_name in sorted(layer_index_tensor_name_map.iteritems()):
     cnn_config["layer_config"][layer] = _build_layer_config(
-        input_reader.get_variable_to_shape_map()[tensor_name + "w"], layer,
+        input_reader.get_variable_to_shape_map()[
+            _get_weight_tensor_from_prefix(tensor_name)],
+        layer,
         num_layers)
     weights[layer] = _format_tensor(
-        input_reader.get_tensor(tensor_name + "w"), layer)
+        input_reader.get_tensor(_get_weight_tensor_from_prefix(tensor_name)),
+        layer)
     biases[layer] = _format_tensor(
-        input_reader.get_tensor(tensor_name + "b"), layer)
+        input_reader.get_tensor(_get_bias_tensor_from_prefix(tensor_name)),
+        layer)
     layer += 1
   return cnn_config, weights, biases
 
@@ -293,7 +312,7 @@ if __name__ == "__main__":
   parser.add_argument(
       "--var_regex",
       type=str,
-      default=r"conv_(([0-9][0-9]*_)*)(w|b)",
+      default=r"conv_(([0-9][0-9]*_)*)(w|b)$",
       help="Regex to match tensor names against in the model ckpt.")
   parser.add_argument(
       "--trained_qp",
@@ -352,8 +371,6 @@ if __name__ == "__main__":
       ("ext_height", FLAGS.ext_height),
       ("strict_bounds", FLAGS.strict_bounds)))
   LAYER_CONFIG_ORDER = collections.OrderedDict((
-      ("branch", 0),
-      ("deconvolve", 0),
       ("in_channels", -1),
       ("filter_width", -1),
       ("filter_height", -1),
@@ -365,11 +382,12 @@ if __name__ == "__main__":
       ("bias", ""),
       ("pad", "PADDING_SAME_ZERO"),
       ("activation", "NONE"),
-      ("branch_copy_mode", "COPY_NONE"),
-      ("input_to_branches", "0x00"),
-      ("channels_to_copy", 0),
+      ("deconvolve", 0),
+      ("branch", 0),
+      ("branch_copy_type", "BRANCH_NO_COPY"),
       ("branch_combine_type", "BRANCH_NOC"),
-      ("branches_to_combine", "0x00"),
-      ("bn_params", "{}")))
+      ("branch_config", "{ 0 }"),
+      ("bn_params", "{ 0 }")))
+
 
   app.run(main=main, argv=[sys.argv[0]] + unparsed)
