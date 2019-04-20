@@ -191,15 +191,17 @@ void find_cnn_out_channels(const CNN_LAYER_CONFIG *layer_config,
                            int channels_per_branch[]) {
   int branch = layer_config->branch;
   for (int b = 0; b < CNN_MAX_BRANCHES; ++b) {
-    if ((layer_config->input_to_branches & (1 << b)) && b != branch) {
-      if (layer_config->branch_copy_mode == COPY_INPUT) {
+    if ((layer_config->branch_config.input_to_branches & (1 << b)) &&
+        b != branch) {
+      if (layer_config->branch_copy_type == BRANCH_INPUT) {
         channels_per_branch[b] = layer_config->in_channels;
-      } else if (layer_config->branch_copy_mode == COPY_OUTPUT) {
+      } else if (layer_config->branch_copy_type == BRANCH_OUTPUT) {
         channels_per_branch[b] = layer_config->out_channels;
-      } else if (layer_config->branch_copy_mode == COPY_COMBINED) {
+      } else if (layer_config->branch_copy_type == BRANCH_COMBINED) {
         channels_per_branch[b] = layer_config->out_channels;
         for (int c = 0; c < CNN_MAX_BRANCHES; ++c) {
-          if ((layer_config->branches_to_combine & (1 << c)) && c != branch) {
+          if ((layer_config->branch_config.branches_to_combine & (1 << c)) &&
+              c != branch) {
             assert(channels_per_branch[c] > 0);
             channels_per_branch[b] += channels_per_branch[c];
           }
@@ -209,7 +211,8 @@ void find_cnn_out_channels(const CNN_LAYER_CONFIG *layer_config,
   }
   channels_per_branch[branch] = layer_config->out_channels;
   for (int c = 0; c < CNN_MAX_BRANCHES; ++c) {
-    if ((layer_config->branches_to_combine & (1 << c)) && c != branch) {
+    if ((layer_config->branch_config.branches_to_combine & (1 << c)) &&
+        c != branch) {
       assert(channels_per_branch[c] > 0);
       channels_per_branch[branch] += channels_per_branch[c];
     }
@@ -276,12 +279,13 @@ static void copy_active_tensor_to_branches(const TENSOR *layer_active_tensor,
                                            const CNN_LAYER_CONFIG *layer_config,
                                            int branch, TENSOR branch_output[]) {
   for (int b = 0; b < CNN_MAX_BRANCHES; ++b) {
-    if ((layer_config->input_to_branches & (1 << b)) && b != branch) {
+    if ((layer_config->branch_config.input_to_branches & (1 << b)) &&
+        b != branch) {
       // Copy layer's active tensor to output tensor of branch b if set in
       // mask. The output becomes the input of the first layer of the branch
       // because the layer of the branch is not the first layer.
-      int copy_channels = layer_config->channels_to_copy > 0
-                              ? layer_config->channels_to_copy
+      int copy_channels = layer_config->branch_config.channels_to_copy > 0
+                              ? layer_config->branch_config.channels_to_copy
                               : layer_active_tensor->channels;
       realloc_tensor(&branch_output[b], copy_channels,
                      layer_active_tensor->width, layer_active_tensor->height);
@@ -835,10 +839,10 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
     // is different from the current branch.
     assert(IMPLIES(
         cnn_config->layer_config[layer].branch_combine_type != BRANCH_NOC,
-        !(cnn_config->layer_config[layer].branches_to_combine &
+        !(cnn_config->layer_config[layer].branch_config.branches_to_combine &
           (1 << branch))));
 
-    if (cnn_config->layer_config[layer].branch_copy_mode == COPY_INPUT) {
+    if (cnn_config->layer_config[layer].branch_copy_type == BRANCH_INPUT) {
       copy_active_tensor_to_branches(
           &tensor1[branch], &cnn_config->layer_config[layer], branch, tensor2);
     }
@@ -871,7 +875,7 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
                          tensor2[branch].stride);
     }
 
-    if (cnn_config->layer_config[layer].branch_copy_mode == COPY_OUTPUT) {
+    if (cnn_config->layer_config[layer].branch_copy_type == BRANCH_OUTPUT) {
       copy_active_tensor_to_branches(
           &tensor2[branch], &cnn_config->layer_config[layer], branch, tensor2);
     }
@@ -879,7 +883,8 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
     // Add tensors from other branches if needed
     if (cnn_config->layer_config[layer].branch_combine_type == BRANCH_ADD) {
       for (int b = 0; b < CNN_MAX_BRANCHES; ++b) {
-        if ((cnn_config->layer_config[layer].branches_to_combine & (1 << b)) &&
+        if ((cnn_config->layer_config[layer].branch_config.branches_to_combine &
+             (1 << b)) &&
             b != branch) {
           assert(check_tensor_equal_size(&tensor2[b], &tensor2[branch]));
           av1_cnn_add(tensor2[branch].buf, tensor2[branch].channels,
@@ -910,7 +915,8 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
     if (cnn_config->layer_config[layer].branch_combine_type == BRANCH_CAT) {
       if (layer < cnn_config->num_layers - 1) {  // Non-last layer
         for (int b = 0; b < CNN_MAX_BRANCHES; ++b) {
-          if ((cnn_config->layer_config[layer].branches_to_combine &
+          if ((cnn_config->layer_config[layer]
+                   .branch_config.branches_to_combine &
                (1 << b)) &&
               b != branch) {
             assert(check_tensor_equal_dims(&tensor2[b], &tensor2[branch]));
@@ -920,7 +926,8 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
         }
       } else {  // Last layer
         for (int b = 0; b < CNN_MAX_BRANCHES; ++b) {
-          if ((cnn_config->layer_config[layer].branches_to_combine &
+          if ((cnn_config->layer_config[layer]
+                   .branch_config.branches_to_combine &
                (1 << b)) &&
               b != branch) {
             assert(check_tensor_equal_dims(&tensor2[b], &tensor2[branch]));
@@ -936,7 +943,7 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
       }
     }
 
-    if (cnn_config->layer_config[layer].branch_copy_mode == COPY_COMBINED) {
+    if (cnn_config->layer_config[layer].branch_copy_type == BRANCH_COMBINED) {
       copy_active_tensor_to_branches(
           &tensor2[branch], &cnn_config->layer_config[layer], branch, tensor2);
     }
