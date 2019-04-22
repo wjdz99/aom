@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "36f1b4ac_952ee490",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-04-22T17:21:02Z",
+      "side": 1,
+      "message": "Not a dictionary word:\n\"Make output allocation versatile\".",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 11
+      },
+      "revId": "4f48f14fb3ac9b6d8a4b757905bfcedb56f213ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be348d93_af03b9cd",
+        "filename": "av1/common/cnn.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-04-22T17:21:02Z",
+      "side": 1,
+      "message": "optional suggestion: \nThis is technically correct, but seems inconsistent with 1st memcpy argument.\nI\u0027d suggest just \"*dst-\u003ebuf[dst_offset + c]\" or otherwise just \"*dst-\u003ebuf[0]\" is also ok.",
+      "range": {
+        "startLine": 71,
+        "startChar": 20,
+        "endLine": 71,
+        "endChar": 32
+      },
+      "revId": "4f48f14fb3ac9b6d8a4b757905bfcedb56f213ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
