@@ -16,6 +16,8 @@
  *
  * @{
  */
+#include "config/aom_config.h"
+
 #include "aom/aom.h"
 #include "aom/aom_encoder.h"
 
@@ -1473,7 +1475,7 @@ AOM_CTRL_USE_TYPE(AV1E_SET_FILM_GRAIN_TABLE, const char *)
 AOM_CTRL_USE_TYPE(AV1E_SET_CDF_UPDATE_MODE, unsigned int)
 #define AOM_CTRL_AV1E_SET_CDF_UPDATE_MODE
 
-#ifdef CONFIG_DENOISE
+#if CONFIG_DENOISE
 AOM_CTRL_USE_TYPE(AV1E_SET_DENOISE_NOISE_LEVEL, int);
 #define AOM_CTRL_AV1E_SET_DENOISE_NOISE_LEVEL
 
