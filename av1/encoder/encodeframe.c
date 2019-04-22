@@ -4834,6 +4834,22 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   RD_COUNTS *const rdc = &cpi->td.rd_counts;
   int i;
 
+#if 0
+  {
+    printf("\n %d, %d, %d, %d\n",
+           cpi->common.timing_info.num_units_in_display_tick,
+           cpi->common.timing_info.time_scale,
+           cpi->common.timing_info.equal_picture_interval,
+           cpi->common.timing_info.num_ticks_per_picture);
+  }
+#endif
+
+#if 0
+  {
+    printf("\n frame rate %4.2f\n", cpi->framerate);
+  }
+#endif
+
   x->min_partition_size = AOMMIN(x->min_partition_size, cm->seq_params.sb_size);
   x->max_partition_size = AOMMIN(x->max_partition_size, cm->seq_params.sb_size);
 #if CONFIG_DIST_8X8

@@ -1015,6 +1015,7 @@ typedef struct AV1_COMP {
   // Count the number of OBU_FRAME and OBU_FRAME_HEADER for level calculation.
   int frame_header_count;
   FrameWindowBuffer frame_window_buffer;
+  DECODER_MODEL decoder_model;
 
   // whether any no-zero delta_q was actually used
   int delta_q_used;

@@ -2610,6 +2610,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   cpi->refresh_alt_ref_frame = 0;
 
   av1_init_level_info(cpi->level_info);
+  //av1_decoder_model_init(cpi, &cpi->decoder_model);
 
   cpi->b_calculate_psnr = CONFIG_INTERNAL_STATS;
 #if CONFIG_INTERNAL_STATS
@@ -5500,6 +5501,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     // Initialize level info. at the beginning of each sequence.
     if (cm->current_frame.frame_type == KEY_FRAME && cm->show_frame) {
       av1_init_level_info(cpi->level_info);
+      av1_decoder_model_init(cpi, SEQ_LEVEL_2_0, 0, &cpi->decoder_model);
     }
     av1_update_level_info(cpi, *size, *time_stamp, *time_end);
   }
