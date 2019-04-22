@@ -574,9 +574,12 @@ static int64_t highbd_warp_error(
                         CONVERT_TO_BYTEPTR(tmp), j, i, warp_w, warp_h,
                         WARP_ERROR_BLOCK, subsampling_x, subsampling_y, bd,
                         &conv_params);
+<<<<<<< HEAD   (b22520 Add script to translate from ckpt to c-header.)
 
       assert(warp_w - 1 + (warp_h - 1) * stride <
              WARP_ERROR_BLOCK * WARP_ERROR_BLOCK);
+=======
+>>>>>>> BRANCH (08ee14 Use better simple_motion_search_split on speed 3+)
       gm_sumerr += highbd_frame_error(
           tmp, WARP_ERROR_BLOCK, CONVERT_TO_SHORTPTR(dst8) + j + i * p_stride,
           warp_w, warp_h, p_stride, bd);
