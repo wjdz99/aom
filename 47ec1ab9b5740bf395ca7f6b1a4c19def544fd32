@@ -16,6 +16,24 @@
       "revId": "47ec1ab9b5740bf395ca7f6b1a4c19def544fd32",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b86db514_cff0b208",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2308,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-04-23T22:19:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0b96be7_597b22f1",
+      "revId": "47ec1ab9b5740bf395ca7f6b1a4c19def544fd32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
