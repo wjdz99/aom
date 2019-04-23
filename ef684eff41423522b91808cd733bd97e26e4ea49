@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "3de5415c_70c2b0db",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-04-23T21:41:43Z",
+      "side": 1,
+      "message": "\u003e Done. James, I am glad I asked you to review this CL.\n\u003e \n\u003e Now I can see config/aom_config.h is designed as an internal config header. (For example, none of the config macros it defines have a library-specific prefix.)\n\u003e \n\u003e It is common for a library to ship its own public config header. Does libaom have a public config header?\n\nlibvpx and libwebp avoid shipping one, as does ffmpeg. libjpeg ships its (unnamespaced) config.",
+      "parentUuid": "3c02553a_14b66723",
+      "revId": "ef684eff41423522b91808cd733bd97e26e4ea49",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2ec3180e_5722e597",
         "filename": "aom/aomcx.h",
         "patchSetId": 1
