@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baedbaf1_3d92152c",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1482,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-04-23T01:05:25Z",
+      "side": 0,
+      "message": "This was originally added in commit a2893ab0671c675af9a9dd375658cb2a934e88b8:\n\nhttps://aomedia-review.googlesource.com/c/aom/+/51661",
+      "range": {
+        "startLine": 1476,
+        "startChar": 0,
+        "endLine": 1482,
+        "endChar": 6
+      },
+      "revId": "0a0368368712d979889100bc6d8a50bc742740a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
