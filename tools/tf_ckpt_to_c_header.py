@@ -59,6 +59,7 @@ $ python tf_ckpt_to_c_header.py --input_path="./model.ckpt" --output_path=
 
 import argparse
 import collections
+import copy
 import re
 import sys
 
@@ -116,21 +117,18 @@ def _extract_layer_variables(input_reader):
   layer = 0
   # By the end of this process, every layer should have weights and biases.
   for _, tensor_name in sorted(layer_index_tensor_name_map.iteritems()):
-    if cnn_config["layer_config"][layer]:
-      layer_config = cnn_config["layer_config"][layer]
-    else:
-      layer_config = LAYER_CONFIG_ORDER
-      layer_config["weights"] = "%s_weight_%s" % (FLAGS.config_name, layer)
-      shape = input_reader.get_variable_to_shape_map()[tensor_name + "w"]
-      layer_config["filter_width"] = shape[0]
-      layer_config["filter_height"] = shape[1]
-      layer_config["in_channels"] = shape[2]
-      layer_config["out_channels"] = shape[3]
-      weights[layer] = _format_tensor(
-          input_reader.get_tensor(tensor_name + "w"), layer)
-      layer_config["bias"] = "%s_bias_%s" % (FLAGS.config_name, layer)
-      biases[layer] = _format_tensor(
-          input_reader.get_tensor(tensor_name + "b"), layer)
+    layer_config = copy.deepcopy(LAYER_CONFIG_ORDER)
+    layer_config["weights"] = "%s_weight_%s" % (FLAGS.config_name, layer)
+    shape = input_reader.get_variable_to_shape_map()[tensor_name + "w"]
+    layer_config["filter_width"] = shape[0]
+    layer_config["filter_height"] = shape[1]
+    layer_config["in_channels"] = shape[2]
+    layer_config["out_channels"] = shape[3]
+    weights[layer] = _format_tensor(
+        input_reader.get_tensor(tensor_name + "w"), layer)
+    layer_config["bias"] = "%s_bias_%s" % (FLAGS.config_name, layer)
+    biases[layer] = _format_tensor(
+        input_reader.get_tensor(tensor_name + "b"), layer)
     cnn_config["layer_config"][layer] = layer_config
     layer += 1
   return cnn_config, weights, biases
@@ -187,20 +185,26 @@ def _print_cnn_config(cnn_config, weights, biases, output_file):
                       (FLAGS.config_name, layer, biases[layer]))
 
   output_file.write("\nconst CNN_CONFIG %s = {" % FLAGS.config_name)
-  for key in CNN_CONFIG_ORDER:
-    if FLAGS.enable_explicit_field_names:
-      output_file.write("\n  .%s = %s," % (key, cnn_config[key]))
-    else:
-      output_file.write("\n  %s," % cnn_config[key])
-  output_file.write("\n  .layer_config = {")
-  for layer_num, layer in enumerate(cnn_config["layer_config"]):
-    output_file.write("\n    { // layer_%d" % layer_num)
-    for key in LAYER_CONFIG_ORDER:
-      if FLAGS.enable_explicit_field_names:
+  if FLAGS.enable_explicit_field_names:
+    for key in CNN_CONFIG_ORDER:
+      if key is not "layer_config":
+        output_file.write("\n  .%s = %s," % (key, cnn_config[key]))
+    output_file.write("\n  .layer_config = {")
+    for layer_num, layer in enumerate(cnn_config["layer_config"]):
+      output_file.write("\n    { // layer_%d" % layer_num)
+      for key in LAYER_CONFIG_ORDER:
         output_file.write("\n  .%s = %s," % (key, layer[key]))
-      else:
-        output_file.write("\n  %s," % layer[key])
-    output_file.write("\n    },")
+      output_file.write("\n    },")
+  else:
+    for key in CNN_CONFIG_ORDER:
+      if key is not "layer_config":
+        output_file.write("\n  %s," % cnn_config[key])
+    output_file.write("\n  {")
+    for layer_num, layer in enumerate(cnn_config["layer_config"]):
+      output_file.write("\n    { // layer_%d" % layer_num)
+      for key in LAYER_CONFIG_ORDER:
+        output_file.write("\n  %s, \t// %s" % (layer[key], key))
+      output_file.write("\n    },")
   output_file.write("\n  }")
   output_file.write("\n};\n")
 
