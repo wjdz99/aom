@@ -1071,7 +1071,7 @@ static void init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
       seq->order_hint_info.enable_order_hint;
   seq->enable_superres = oxcf->enable_superres;
   seq->enable_cdef = oxcf->enable_cdef;
-  seq->enable_restoration = oxcf->enable_restoration;
+  seq->enable_restoration = oxcf->enable_restoration > 0;
   seq->enable_warped_motion = oxcf->enable_warped_motion;
   seq->enable_interintra_compound = oxcf->enable_interintra_comp;
   seq->enable_masked_compound = oxcf->enable_masked_comp;

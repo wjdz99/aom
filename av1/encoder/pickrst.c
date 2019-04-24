@@ -33,10 +33,6 @@
 #include "av1/encoder/picklpf.h"
 #include "av1/encoder/pickrst.h"
 
-// When set to RESTORE_WIENER or RESTORE_SGRPROJ only those are allowed.
-// When set to RESTORE_TYPES we allow switchable.
-static const RestorationType force_restore_type = RESTORE_TYPES;
-
 // Number of Wiener iterations
 #define NUM_WIENER_ITERS 5
 
@@ -1403,6 +1399,14 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi) {
   // Valgrind's warnings we initialise the array below.
   memset(rusi, 0, sizeof(*rusi) * ntiles[0]);
   cpi->td.mb.rdmult = cpi->rd.RDMULT;
+
+  assert(cpi->oxcf.enable_restoration > 0);
+  int force_restore_type;
+  switch (cpi->oxcf.enable_restoration) {
+    case 1: force_restore_type = RESTORE_WIENER; break;
+    case 2: force_restore_type = RESTORE_SGRPROJ; break;
+    default: force_restore_type = RESTORE_TYPES;
+  }
 
   RestSearchCtxt rsc;
   const int plane_start = AOM_PLANE_Y;

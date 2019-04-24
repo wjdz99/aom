@@ -434,8 +434,9 @@ static const arg_def_t enable_cdef =
             "1: true (default))");
 static const arg_def_t enable_restoration =
     ARG_DEF(NULL, "enable-restoration", 1,
-            "Enable the loop restoration filter (0: false, "
-            "1: true (default))");
+            "Enable the loop restoration filters ("
+            "0: None, 1: Wiener filter only, "
+            "2: Self-guided filter only, 3: Both (default))");
 static const arg_def_t enable_rect_partitions =
     ARG_DEF(NULL, "enable-rect-partitions", 1,
             "Enable rectangular partitions "
