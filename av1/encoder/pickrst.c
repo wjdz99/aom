@@ -549,10 +549,30 @@ static void apply_sgr(int sgr_params_idx, const uint8_t *dat8, int width,
   }
 }
 
+void compute_sgrproj_err(const uint8_t *dat8, int width, int height,
+                         int dat_stride, const uint8_t *src8, int src_stride,
+                         int use_highbitdepth, int bit_depth, int pu_width,
+                         int pu_height, int ep, int32_t *flt0, int32_t *flt1,
+                         int flt_stride, int *exqd, int64_t *err) {
+  int exq[2];
+  apply_sgr(ep, dat8, width, height, dat_stride, use_highbitdepth, bit_depth,
+            pu_width, pu_height, flt0, flt1, flt_stride);
+  aom_clear_system_state();
+  const sgr_params_type *const params = &sgr_params[ep];
+  get_proj_subspace(src8, width, height, src_stride, dat8, dat_stride,
+                    use_highbitdepth, flt0, flt_stride, flt1, flt_stride, exq,
+                    params);
+  aom_clear_system_state();
+  encode_xq(exq, exqd, params);
+  *err = finer_search_pixel_proj_error(
+      src8, width, height, src_stride, dat8, dat_stride, use_highbitdepth, flt0,
+      flt_stride, flt1, flt_stride, 2, exqd, params);
+}
+
 static SgrprojInfo search_selfguided_restoration(
     const uint8_t *dat8, int width, int height, int dat_stride,
     const uint8_t *src8, int src_stride, int use_highbitdepth, int bit_depth,
-    int pu_width, int pu_height, int32_t *rstbuf) {
+    int pu_width, int pu_height, int32_t *rstbuf, int disable_sgr_ep_pruning) {
   int32_t *flt0 = rstbuf;
   int32_t *flt1 = flt0 + RESTORATION_UNITPELS_MAX;
   int ep, bestep = 0;
@@ -563,26 +583,90 @@ static SgrprojInfo search_selfguided_restoration(
          pu_width == RESTORATION_PROC_UNIT_SIZE);
   assert(pu_height == (RESTORATION_PROC_UNIT_SIZE >> 1) ||
          pu_height == RESTORATION_PROC_UNIT_SIZE);
+  if (disable_sgr_ep_pruning) {
+    for (ep = 0; ep < 16; ep++) {
+      int64_t err;
+      compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
+                          use_highbitdepth, bit_depth, pu_width, pu_height, ep,
+                          flt0, flt1, flt_stride, exqd, &err);
+      if (besterr == -1 || err < besterr) {
+        bestep = ep;
+        besterr = err;
+        bestxqd[0] = exqd[0];
+        bestxqd[1] = exqd[1];
+      }
+    }
+  } else {
+    int seed_ep[] = { 0, 3, 6, 9 };
+    for (int idx = 0; idx < 4; idx++) {
+      ep = seed_ep[idx];
+      int64_t err;
+      compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
+                          use_highbitdepth, bit_depth, pu_width, pu_height, ep,
+                          flt0, flt1, flt_stride, exqd, &err);
+      if (besterr == -1 || err < besterr) {
+        bestep = ep;
+        besterr = err;
+        bestxqd[0] = exqd[0];
+        bestxqd[1] = exqd[1];
+      }
+    }
+    // based on choosen mode, evaluate nearest two point
+    if (bestep == 9 || bestep == 0) {
+      if (bestep == 0)
+        ep = 1;
+      else
+        ep = 8;
+      int64_t err;
+      compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
+                          use_highbitdepth, bit_depth, pu_width, pu_height, ep,
+                          flt0, flt1, flt_stride, exqd, &err);
+      if (err < besterr) {
+        bestep = ep;
+        besterr = err;
+        bestxqd[0] = exqd[0];
+        bestxqd[1] = exqd[1];
+      }
+    } else {
+      int map_3[] = { 2, 4 };
+      int map_6[] = { 5, 7 };
+      for (int idx = 0; idx < 2; idx++) {
+        if (bestep < 5)
+          ep = map_3[idx];
+        else
+          ep = map_6[idx];
+        int64_t err;
+        compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
+                            use_highbitdepth, bit_depth, pu_width, pu_height,
+                            ep, flt0, flt1, flt_stride, exqd, &err);
+        if (err < besterr) {
+          bestep = ep;
+          besterr = err;
+          bestxqd[0] = exqd[0];
+          bestxqd[1] = exqd[1];
+        }
+      }
+    }
 
-  for (ep = 0; ep < SGRPROJ_PARAMS; ep++) {
-    int exq[2];
-    apply_sgr(ep, dat8, width, height, dat_stride, use_highbitdepth, bit_depth,
-              pu_width, pu_height, flt0, flt1, flt_stride);
-    aom_clear_system_state();
-    const sgr_params_type *const params = &sgr_params[ep];
-    get_proj_subspace(src8, width, height, src_stride, dat8, dat_stride,
-                      use_highbitdepth, flt0, flt_stride, flt1, flt_stride, exq,
-                      params);
-    aom_clear_system_state();
-    encode_xq(exq, exqd, params);
-    int64_t err = finer_search_pixel_proj_error(
-        src8, width, height, src_stride, dat8, dat_stride, use_highbitdepth,
-        flt0, flt_stride, flt1, flt_stride, 2, exqd, params);
-    if (besterr == -1 || err < besterr) {
-      bestep = ep;
-      besterr = err;
-      bestxqd[0] = exqd[0];
-      bestxqd[1] = exqd[1];
+    // evaluate last two group
+    int group_2_ep[] = { 10, 10, 11, 11, 12, 12, 13, 13, 13, 13 };
+    int group_3_ep[] = { 14, 14, 14, 14, 14, 14, 14, 15,
+                         15, 15, 15, 15, 15, 15, 16, 16 };
+    for (int idx = 0; idx < 2; idx++) {
+      if (idx)
+        ep = group_3_ep[bestep];
+      else
+        ep = group_2_ep[bestep];
+      int64_t err;
+      compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
+                          use_highbitdepth, bit_depth, pu_width, pu_height, ep,
+                          flt0, flt1, flt_stride, exqd, &err);
+      if (err < besterr) {
+        bestep = ep;
+        besterr = err;
+        bestxqd[0] = exqd[0];
+        bestxqd[1] = exqd[1];
+      }
     }
   }
 
@@ -638,7 +722,7 @@ static void search_sgrproj(const RestorationTileLimits *limits,
       dgd_start, limits->h_end - limits->h_start,
       limits->v_end - limits->v_start, rsc->dgd_stride, src_start,
       rsc->src_stride, highbd, bit_depth, procunit_width, procunit_height,
-      tmpbuf);
+      tmpbuf, rsc->sf->disable_sgr_ep_pruning);
 
   RestorationUnitInfo rui;
   rui.restoration_type = RESTORE_SGRPROJ;
