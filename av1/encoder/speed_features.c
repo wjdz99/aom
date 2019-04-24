@@ -123,6 +123,7 @@ static void set_good_speed_feature_framesize_dependent(
       speed < CONFIG_2PASS_PARTITION_SEARCH_LVL_END) {
     sf->two_pass_partition_search = 1;
   }
+  sf->two_pass_partition_search = 0;
 
   if (speed >= 1) {
     if (is_720p_or_larger) {
@@ -272,6 +273,8 @@ static void set_good_speed_features_framesize_independent(
     sf->disable_wedge_search_var_thresh = 0;
     sf->disable_wedge_search_edge_thresh = 0;
     sf->disable_interinter_wedge_newmv_search = boosted ? 0 : 1;
+    sf->prune_ref_frame_for_rect_partitions =
+        frame_is_intra_only(&cpi->common) ? 0 : 2;
     sf->prune_comp_type_by_comp_avg = 1;
     sf->prune_motion_mode_level = 2;
     sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
