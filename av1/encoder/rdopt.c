@@ -10168,6 +10168,278 @@ typedef struct {
   int_mv mv;
 } inter_mode_info;
 
+// Whether this reference motion vector can be skipped, based on initial
+// heuristics.
+static bool ref_mv_idx_early_breakout(int ref_mv_idx) {
+  if (cpi->sf.reduce_inter_modes && ref_mv_idx > 0) {
+    if (mbmi->ref_frame[0] == LAST2_FRAME ||
+        mbmi->ref_frame[0] == LAST3_FRAME ||
+        mbmi->ref_frame[1] == LAST2_FRAME ||
+        mbmi->ref_frame[1] == LAST3_FRAME) {
+      if (mbmi_ext->weight[ref_frame_type][ref_mv_idx + has_nearmv] <
+          REF_CAT_LEVEL) {
+        return true;
+      }
+    }
+  }
+  if (cpi->sf.prune_single_motion_modes_by_simple_trans && !is_comp_pred &&
+      args->single_ref_first_pass == 0) {
+    if (args->simple_rd_state[ref_mv_idx].early_skipped) {
+      return true;
+    }
+  }
+  if (is_comp_pred && (!is_single_newmv_valid(args, mbmi, this_mode))) {
+    return true;
+  }
+  if (RDCOST(x->rdmult, rd_stats->rate, 0) > ref_best_rd &&
+      mbmi->mode != NEARESTMV && mbmi->mode != NEAREST_NEARESTMV) {
+    return true;
+  }
+  return false;
+}
+
+// Calculate the SSE for simple translation for the motion vector.
+unsigned int simple_translation_pred_sse(int ref_mv_idx) {
+  for (int comp_loop_idx = 0; comp_loop_idx <= do_two_loop_comp_search;
+       ++comp_loop_idx) {
+    int rs = 0;
+    int compmode_interinter_cost = 0;
+
+    if (is_comp_pred && comp_loop_idx == 1) *rd_stats = backup_rd_stats;
+
+    int_mv cur_mv[2];
+    if (!build_cur_mv(cur_mv, this_mode, cm, x)) {
+      continue;
+    }
+    if (have_newmv_in_inter_mode(this_mode)) {
+      if (comp_loop_idx == 1) {
+        cur_mv[0] = backup_mv[0];
+        cur_mv[1] = backup_mv[1];
+        rate_mv = backup_rate_mv;
+      }
+
+      if (cpi->sf.prune_single_motion_modes_by_simple_trans &&
+          args->single_ref_first_pass == 0 && !is_comp_pred) {
+        const int ref0 = mbmi->ref_frame[0];
+        newmv_ret_val = args->single_newmv_valid[ref_mv_idx][ref0] ? 0 : 1;
+        cur_mv[0] = args->single_newmv[ref_mv_idx][ref0];
+        rate_mv = args->single_newmv_rate[ref_mv_idx][ref0];
+      } else if (comp_loop_idx == 0) {
+        newmv_ret_val =
+            handle_newmv(cpi, x, bsize, cur_mv, mi_row, mi_col, &rate_mv, args);
+
+        // Store cur_mv and rate_mv so that they can be restored in the next
+        // iteration of the loop
+        backup_mv[0] = cur_mv[0];
+        backup_mv[1] = cur_mv[1];
+        backup_rate_mv = rate_mv;
+      }
+      if (newmv_ret_val != 0) {
+        continue;
+      } else {
+        rd_stats->rate += rate_mv;
+      }
+
+      if (cpi->sf.skip_repeated_newmv) {
+        if (!is_comp_pred && this_mode == NEWMV && ref_mv_idx > 0) {
+          int skip = 0;
+          int this_rate_mv = 0;
+          for (i = 0; i < ref_mv_idx; ++i) {
+            // Check if the motion search result same as previous results
+            if (cur_mv[0].as_int == args->single_newmv[i][refs[0]].as_int) {
+              // If the compared mode has no valid rd, it is unlikely this
+              // mode will be the best mode
+              if (mode_info[i].rd == INT64_MAX) {
+                skip = 1;
+                break;
+              }
+              // Compare the cost difference including drl cost and mv cost
+              if (mode_info[i].mv.as_int != INVALID_MV) {
+                const int compare_cost =
+                    mode_info[i].rate_mv + mode_info[i].drl_cost;
+                const int_mv ref_mv = av1_get_ref_mv(x, 0);
+                this_rate_mv = av1_mv_bit_cost(
+                    &mode_info[i].mv.as_mv, &ref_mv.as_mv, x->nmv_vec_cost,
+                    x->mv_cost_stack, MV_COST_WEIGHT);
+                const int this_cost = this_rate_mv + drl_cost;
+
+                if (compare_cost < this_cost) {
+                  skip = 1;
+                  break;
+                } else {
+                  // If the cost is less than current best result, make this
+                  // the best and update corresponding variables
+                  if (best_mbmi.ref_mv_idx == i) {
+                    assert(best_rd != INT64_MAX);
+                    best_mbmi.ref_mv_idx = ref_mv_idx;
+                    best_rd_stats.rate += this_cost - compare_cost;
+                    best_rd = RDCOST(x->rdmult, best_rd_stats.rate,
+                                     best_rd_stats.dist);
+                    if (best_rd < ref_best_rd) ref_best_rd = best_rd;
+                    skip = 1;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          if (skip) {
+            args->modelled_rd[this_mode][ref_mv_idx][refs[0]] =
+                args->modelled_rd[this_mode][i][refs[0]];
+            args->simple_rd[this_mode][ref_mv_idx][refs[0]] =
+                args->simple_rd[this_mode][i][refs[0]];
+            mode_info[ref_mv_idx].rd = mode_info[i].rd;
+            mode_info[ref_mv_idx].rate_mv = this_rate_mv;
+            mode_info[ref_mv_idx].mv.as_int = mode_info[i].mv.as_int;
+
+            restore_dst_buf(xd, orig_dst, num_planes);
+            continue;
+          }
+        }
+      }
+    }
+    for (i = 0; i < is_comp_pred + 1; ++i) {
+      mbmi->mv[i].as_int = cur_mv[i].as_int;
+    }
+    const int ref_mv_cost = cost_mv_ref(x, this_mode, mode_ctx);
+#if USE_DISCOUNT_NEWMV_TEST
+    // We don't include the cost of the second reference here, because there
+    // are only three options: Last/Golden, ARF/Last or Golden/ARF, or in
+    // other words if you present them in that order, the second one is always
+    // known if the first is known.
+    //
+    // Under some circumstances we discount the cost of new mv mode to
+    // encourage initiation of a motion field.
+    if (discount_newmv_test(cpi, x, this_mode, mbmi->mv[0])) {
+      // discount_newmv_test only applies discount on NEWMV mode.
+      assert(this_mode == NEWMV);
+      rd_stats->rate += AOMMIN(cost_mv_ref(x, this_mode, mode_ctx),
+                               cost_mv_ref(x, NEARESTMV, mode_ctx));
+    } else {
+      rd_stats->rate += ref_mv_cost;
+    }
+#else
+    rd_stats->rate += ref_mv_cost;
+#endif
+
+    if (RDCOST(x->rdmult, rd_stats->rate, 0) > ref_best_rd &&
+        mbmi->mode != NEARESTMV && mbmi->mode != NEAREST_NEARESTMV) {
+      continue;
+    }
+
+    int skip_build_pred = 0;
+    if (is_comp_pred) {
+      if (mode_search_mask[comp_loop_idx] == (1 << COMPOUND_AVERAGE)) {
+        // Only compound_average
+        mbmi->interinter_comp.type = COMPOUND_AVERAGE;
+        mbmi->num_proj_ref = 0;
+        mbmi->motion_mode = SIMPLE_TRANSLATION;
+        mbmi->comp_group_idx = 0;
+        mbmi->compound_idx = 1;
+        const int comp_index_ctx = get_comp_index_context(cm, xd);
+        compmode_interinter_cost +=
+            x->comp_idx_cost[comp_index_ctx][mbmi->compound_idx];
+      } else if (mode_search_mask[comp_loop_idx] == (1 << COMPOUND_DISTWTD)) {
+        // Only compound_distwtd
+        if (!cm->seq_params.order_hint_info.enable_dist_wtd_comp ||
+            cpi->sf.use_dist_wtd_comp_flag == DIST_WTD_COMP_DISABLED ||
+            (do_two_loop_comp_search && mbmi->mode == GLOBAL_GLOBALMV))
+          continue;
+        mbmi->interinter_comp.type = COMPOUND_DISTWTD;
+        mbmi->num_proj_ref = 0;
+        mbmi->motion_mode = SIMPLE_TRANSLATION;
+        mbmi->comp_group_idx = 0;
+        mbmi->compound_idx = 0;
+        const int comp_index_ctx = get_comp_index_context(cm, xd);
+        compmode_interinter_cost +=
+            x->comp_idx_cost[comp_index_ctx][mbmi->compound_idx];
+      } else {
+        // Find matching interp filter or set to default interp filter
+        const int need_search =
+            av1_is_interp_needed(xd) && av1_is_interp_search_needed(xd);
+        int match_found = -1;
+        const InterpFilter assign_filter = cm->interp_filter;
+        int is_luma_interp_done = 0;
+        if (cpi->sf.skip_repeat_interpolation_filter_search && need_search) {
+          match_found = find_interp_filter_in_stats(x, mbmi);
+        }
+        if (!need_search || match_found == -1) {
+          set_default_interp_filters(mbmi, assign_filter);
+        }
+
+        int64_t best_rd_compound;
+        compmode_interinter_cost = compound_type_rd(
+            cpi, x, bsize, mi_col, mi_row, cur_mv,
+            mode_search_mask[comp_loop_idx], masked_compound_used, &orig_dst,
+            &tmp_dst, rd_buffers, &rate_mv, &best_rd_compound, rd_stats,
+            ref_best_rd, &is_luma_interp_done);
+        if (ref_best_rd < INT64_MAX &&
+            (best_rd_compound >> 4) * (11 + 2 * do_two_loop_comp_search) >
+                ref_best_rd) {
+          restore_dst_buf(xd, orig_dst, num_planes);
+          continue;
+        }
+        // No need to call av1_enc_build_inter_predictor for luma if
+        // COMPOUND_AVERAGE is selected because it is the first
+        // candidate in compound_type_rd, and the following
+        // compound types searching uses tmp_dst buffer
+
+        if (mbmi->interinter_comp.type == COMPOUND_AVERAGE &&
+            is_luma_interp_done) {
+          if (num_planes > 1) {
+            av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst,
+                                          bsize, AOM_PLANE_U, num_planes - 1);
+          }
+          skip_build_pred = 1;
+        }
+      }
+    }
+    return interpolation_filter_search(x, cpi, tile_data, bsize, mi_row, mi_col,
+                                       &tmp_dst, &orig_dst, args->single_filter,
+                                       &rd, &rs, &skip_txfm_sb, &skip_sse_sb,
+                                       &skip_build_pred, args, ref_best_rd);
+  }
+}
+
+// Before performing the full MV search in handle_inter_mode, do a simple
+// translation search and see if we can eliminate any motion vectors.
+// Returns an integer where, if the i-th bit is set, it means that the i-th
+// motion vector should be searched.
+static int ref_mv_idx_to_search(
+    AV1_COMP *const cpi, TileDataEnc *tile_data, MACROBLOCK *x,
+    BLOCK_SIZE bsize, RD_STATS *rd_stats, RD_STATS *rd_stats_y,
+    RD_STATS *rd_stats_uv, int *disable_skip, int mi_row, int mi_col,
+    HandleInterModeArgs *args, int64_t ref_best_rd, uint8_t *const tmp_buf,
+    CompoundTypeRdBuffers *rd_buffers, int64_t *best_est_rd,
+    const int do_tx_search, InterModesInfo *inter_modes_info) {
+  // Calculate the predictor for the motion vectors using simple translation.
+  unsigned int idx_sse[] = { UINT_MAX, UINT_MAX, UINT_MAX, UINT_MAX };
+  const int ref_set = get_drl_refmv_count(x, mbmi->ref_frame, this_mode);
+  for (int ref_mv_idx = 0; ref_mv_idx < ref_set; ++ref_mv_idx) {
+    if (ref_mv_idx_early_breakout(ref_mv_idx)) {
+      continue;
+    }
+    idx_sse[ref_mv_idx] = simple_translation_pred_sse(ref_mv_idx);
+  }
+
+  // Find the index with the best SSE.
+  int best_sse_idx = 0;
+  for (int i = 1; i < sizeof(idx_sse) / sizeof(idx_sse[0]); ++i) {
+    if (idx_sse[i] < idx_sse[best_sse_idx]) {
+      best_sse_idx = i;
+    }
+  }
+  // Only include indices that are within 20% of the best.
+  int result = 0;
+  for (int i = 0; i < sizeof(idx_sse) / sizeof(idx_sse[0]) && i < ref_set;
+       ++i) {
+    if (5 * idx_sse[i] < 6 * idx_sse[best_sse_idx]) {
+      result += (1 << i);
+    }
+  }
+  return result;
+}
+
 static int64_t handle_inter_mode(
     AV1_COMP *const cpi, TileDataEnc *tile_data, MACROBLOCK *x,
     BLOCK_SIZE bsize, RD_STATS *rd_stats, RD_STATS *rd_stats_y,
@@ -10237,9 +10509,20 @@ static int64_t handle_inter_mode(
 
   // TODO(jingning): This should be deprecated shortly.
   const int has_nearmv = have_nearmv_in_inter_mode(mbmi->mode) ? 1 : 0;
-  const int ref_set = get_drl_refmv_count(x, mbmi->ref_frame, this_mode);
 
-  for (int ref_mv_idx = 0; ref_mv_idx < ref_set; ++ref_mv_idx) {
+  // First, perform a simple translation search for each of the indices. If
+  // an index performs well, it will be fully searched here.
+  int idx_mask = ref_mv_idx_to_search();
+  int ref_mv_idx = -1;
+  while (idx_mask) {
+    ref_mv_idx++;
+    bool search = idx_mask & 0x1;
+    idx_mask >>= 1;
+    if (!search) {
+      continue;
+    }
+    // TODO: need to pass in the simple translation results here so they aren't
+    // recomputed.
     mode_info[ref_mv_idx].mv.as_int = INVALID_MV;
     mode_info[ref_mv_idx].rd = INT64_MAX;
 
