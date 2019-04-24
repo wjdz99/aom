@@ -3596,6 +3596,7 @@ static void show_existing_frame_reset(AV1Decoder *const pbi,
   cm->cur_frame->intra_only = 1;
 
   if (cm->seq_params.frame_id_numbers_present_flag) {
+    cm->current_frame_id = cm->ref_frame_id[existing_frame_idx];
     /* If bitmask is set, update reference frame id values and
        mark frames as valid for reference.
        Note that the displayed frame be valid for referencing
