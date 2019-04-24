@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "acdf1fad_76ce7af9",
+        "filename": "examples/lightfield_encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-04-24T16:36:31Z",
+      "side": 1,
+      "message": "Minus 1 because of 1st key frame? Could you also add more in the comment to make people aware that this setting wouldn\u0027t work if reference_image_num \u003e 17(right?)?",
+      "range": {
+        "startLine": 279,
+        "startChar": 24,
+        "endLine": 279,
+        "endChar": 47
+      },
+      "revId": "cbc9638d7fa8dc0baaa2d749945adf802b6e299a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
