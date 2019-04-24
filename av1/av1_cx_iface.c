@@ -168,7 +168,7 @@ static struct av1_extracfg default_extra_cfg = {
   0,                       // gf_cbr_boost_pct
   0,                       // lossless
   !CONFIG_SHARP_SETTINGS,  // enable_cdef
-  1,                       // enable_restoration
+  3,                       // enable_restoration
   1,                       // enable_obmc
   3,                       // disable_trellis_quant
   0,                       // enable_qm
@@ -486,6 +486,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK(extra_cfg, enable_reduced_reference_set, 0, 1);
   RANGE_CHECK_HI(extra_cfg, chroma_subsampling_x, 1);
   RANGE_CHECK_HI(extra_cfg, chroma_subsampling_y, 1);
+  RANGE_CHECK_HI(extra_cfg, enable_restoration, 3);
 
   RANGE_CHECK_HI(extra_cfg, disable_trellis_quant, 3);
   RANGE_CHECK(extra_cfg, coeff_cost_upd_freq, 0, 2);

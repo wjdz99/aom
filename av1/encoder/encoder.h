@@ -246,6 +246,8 @@ typedef struct AV1EncoderConfig {
   DELTAQ_MODE deltaq_mode;
   int deltalf_mode;
   int enable_cdef;
+  // Control which restoration filters are enabled.
+  // 0: None, 1: Wiener filter only, 2: Self-guided filter only, 3: Both.
   int enable_restoration;
   int enable_obmc;
   int disable_trellis_quant;
