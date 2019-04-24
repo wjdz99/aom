@@ -2532,7 +2532,7 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   PICK_MODE_CONTEXT *ctx_none = &pc_tree->none;
   int tmp_partition_cost[PARTITION_TYPES];
   BLOCK_SIZE subsize;
-  RD_STATS this_rdc, sum_rdc, best_rdc;
+  RD_STATS this_rdc, sum_rdc, best_rdc, pn_rdc;
   const int bsize_at_least_8x8 = (bsize >= BLOCK_8X8);
   int do_square_split = bsize_at_least_8x8;
   const int pl = bsize_at_least_8x8
@@ -2889,7 +2889,7 @@ BEGIN_PARTITION_SEARCH:
 
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
-
+  pn_rdc = best_rdc;
   // store estimated motion vector
   if (cpi->sf.adaptive_motion_search) store_pred_mv(x, ctx_none);
 
@@ -2968,6 +2968,30 @@ BEGIN_PARTITION_SEARCH:
       if (cpi->sf.less_rectangular_check_level == 2 || idx <= 2)
         do_rectangular_split &= !partition_none_allowed;
     }
+    if (pc_tree->partitioning == PARTITION_SPLIT) {
+      int has_split = 0;
+      for (int cb_idx = 0; cb_idx <= AOMMIN(idx, 3); ++cb_idx) {
+        if (pc_tree->split[cb_idx]->partitioning == PARTITION_SPLIT)
+          ++has_split;
+      }
+      if (has_split >= 3 || sum_rdc.rdcost < (pn_rdc.rdcost >> 1)) {
+        do_rectangular_split = 0;
+        partition_none_allowed = 0;
+        partition_horz_allowed = 0;
+        partition_vert_allowed = 0;
+      }
+    }
+
+    if (pc_tree->partitioning == PARTITION_NONE) {
+      // pc_tree->cb_search_range = SEARCH_SAME_PLANE; // Not applicable
+      if (pn_rdc.dist <= sum_rdc.dist) {
+        do_square_split = 0;
+        partition_horz_allowed = 0;
+        partition_vert_allowed = 0;
+      }
+    }
+
+    if (pn_rdc.rate == INT_MAX) pc_tree->cb_search_range = NONE_PARTITION_PLANE;
 
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }  // if (do_split)
