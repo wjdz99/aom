@@ -37,9 +37,15 @@
 #define EDGE_THRESHOLD 50
 #define SQRT_PI_BY_2 1.25331413732
 
-static unsigned int index_mult[14] = {
-  0, 0, 0, 0, 49152, 39322, 32768, 28087, 24576, 21846, 19661, 17874, 0, 15124
-};
+static unsigned int index_mult[14] = { 0,     0,     0,     0,     49152,
+                                       39322, 32768, 28087, 24576, 21846,
+                                       19661, 17874, 0,     15124 };
+
+static int64_t highbd_index_mult[14] = { 0U,          0U,          0U,
+                                         0U,          3221225472U, 2576980378U,
+                                         2147483648U, 1840700270U, 1610612736U,
+                                         1431655766U, 1288490189U, 1171354718U,
+                                         0U,          991146300U };
 
 static void temporal_filter_predictors_mb_c(
     MACROBLOCKD *xd, uint8_t *y_mb_ptr, uint8_t *u_mb_ptr, uint8_t *v_mb_ptr,
@@ -190,10 +196,19 @@ static INLINE int mod_index(int sum_dist, int index, int rounding, int strength,
 
 static INLINE int highbd_mod_index(int64_t sum_dist, int index, int rounding,
                                    int strength, int filter_weight) {
-  int mod = (int)(((sum_dist * 3) / index + rounding) >> strength);
+  assert(index >= 0 && index <= 13);
+  assert(highbd_index_mult[index] != 0);
+
+  int mod =
+      (int)((AOMMIN(sum_dist, INT32_MAX) * highbd_index_mult[index]) >> 32);
+  mod += rounding;
+  mod >>= strength;
+
   mod = AOMMIN(16, mod);
+
   mod = 16 - mod;
   mod *= filter_weight;
+
   return mod;
 }
 
@@ -1238,9 +1253,8 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
   // Apply context specific adjustments to the arnr filter parameters.
   if (gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE) {
     // TODO(weitinglin): Currently, we enforce the filtering strength on
-    //                   extra ARFs' to be zeros. We should investigate in which
-    //                   case it is more beneficial to use non-zero strength
-    //                   filtering.
+    // internal ARFs to be zeros. We should investigate in which case it is more
+    // beneficial to use non-zero strength filtering.
     strength = 0;
     frames_to_blur = 1;
   } else {

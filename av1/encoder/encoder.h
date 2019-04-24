@@ -12,6 +12,7 @@
 #ifndef AOM_AV1_ENCODER_ENCODER_H_
 #define AOM_AV1_ENCODER_ENCODER_H_
 
+#include <stdbool.h>
 #include <stdio.h>
 
 #include "config/aom_config.h"
@@ -31,6 +32,7 @@
 #include "av1/encoder/context_tree.h"
 #include "av1/encoder/encodemb.h"
 #include "av1/encoder/firstpass.h"
+#include "av1/encoder/level.h"
 #include "av1/encoder/lookahead.h"
 #include "av1/encoder/mbgraph.h"
 #include "av1/encoder/mcomp.h"
@@ -54,6 +56,13 @@
 extern "C" {
 #endif
 
+// Rational number with an int64 numerator
+// This structure holds a fractional value
+typedef struct aom_rational64 {
+  int64_t num;       // fraction numerator
+  int den;           // fraction denominator
+} aom_rational64_t;  // alias for struct aom_rational
+
 typedef struct {
   int nmv_vec_cost[MV_JOINTS];
   int nmv_costs[2][MV_VALS];
@@ -63,18 +72,12 @@ typedef struct {
 } CODING_CONTEXT;
 
 enum {
-  // regular inter frame
-  REGULAR_FRAME = 0,
-  // alternate reference frame
-  ARF_FRAME = 1,
-  // overlay frame
-  OVERLAY_FRAME = 2,
-  // golden frame
-  GLD_FRAME = 3,
-  // backward reference frame
-  BRF_FRAME = 4,
-  // extra alternate reference frame
-  EXT_ARF_FRAME = 5,
+  REGULAR_FRAME,       // regular inter frame
+  ARF_FRAME,           // alternate reference frame
+  OVERLAY_FRAME,       // overlay frame
+  GLD_FRAME,           // golden frame
+  BRF_FRAME,           // backward reference frame
+  INTERNAL_ARF_FRAME,  // internal alternate reference frame
   FRAME_CONTEXT_INDEXES
 } UENUM1BYTE(FRAME_CONTEXT_INDEX);
 
@@ -114,9 +117,9 @@ enum {
 } UENUM1BYTE(AQ_MODE);
 enum {
   NO_DELTA_Q = 0,
-  DELTA_Q_ONLY = 1,
-  DELTA_Q_LF = 2,
-  DELTAQ_MODE_COUNT  // This should always be the last member of the enum
+  DELTA_Q_OBJECTIVE = 1,   // Modulation to improve objective quality
+  DELTA_Q_PERCEPTUAL = 2,  // Modulation to improve perceptual quality
+  DELTA_Q_MODE_COUNT       // This should always be the last member of the enum
 } UENUM1BYTE(DELTAQ_MODE);
 
 enum {
@@ -154,12 +157,13 @@ enum {
   SS_CFG_TOTAL = 2
 } UENUM1BYTE(SS_CFG_OFFSET);
 
+#define MAX_LENGTH_TPL_FRAME_STATS MAX_STATIC_GF_GROUP_LENGTH + 3
+
 typedef struct TplDepStats {
   int64_t intra_cost;
   int64_t inter_cost;
   int64_t mc_flow;
   int64_t mc_dep_cost;
-  int64_t mc_ref_cost;
 
   int ref_frame_index;
   int_mv mv;
@@ -242,6 +246,7 @@ typedef struct AV1EncoderConfig {
   int cq_level;
   AQ_MODE aq_mode;  // Adaptive Quantization mode
   DELTAQ_MODE deltaq_mode;
+  int deltalf_mode;
   int enable_cdef;
   int enable_restoration;
   int enable_obmc;
@@ -320,10 +325,6 @@ typedef struct AV1EncoderConfig {
 
   aom_fixed_buf_t two_pass_stats_in;
 
-#if CONFIG_FP_MB_STATS
-  aom_fixed_buf_t firstpass_mb_stats_in;
-#endif
-
   aom_tune_metric tuning;
   aom_tune_content content;
   int use_highbitdepth;
@@ -353,8 +354,14 @@ typedef struct AV1EncoderConfig {
   unsigned int motion_vector_unit_test;
   const cfg_options_t *cfg;
   int enable_rect_partitions;
+  int enable_ab_partitions;
+  int enable_1to4_partitions;
+  int min_partition_size;
+  int max_partition_size;
   int enable_intra_edge_filter;
   int enable_tx64;
+  int tx_size_search_method;
+  int enable_flip_idtx;
   int enable_order_hint;
   int enable_dist_wtd_comp;
   int enable_ref_frame_mvs;
@@ -362,6 +369,7 @@ typedef struct AV1EncoderConfig {
   int enable_reduced_reference_set;
   unsigned int allow_ref_frame_mvs;
   int enable_masked_comp;
+  int enable_onesided_comp;
   int enable_interintra_comp;
   int enable_smooth_interintra;
   int enable_diff_wtd_comp;
@@ -395,6 +403,10 @@ typedef struct AV1EncoderConfig {
   COST_UPDATE_TYPE coeff_cost_upd_freq;
   COST_UPDATE_TYPE mode_cost_upd_freq;
   int border_in_pixels;
+  AV1_LEVEL target_seq_level_idx[MAX_NUM_OPERATING_POINTS];
+  // Bit mask to specify which tier each of the 32 possible operating points
+  // conforms to.
+  unsigned int tier_mask;
 } AV1EncoderConfig;
 
 static INLINE int is_lossless_requested(const AV1EncoderConfig *cfg) {
@@ -520,6 +532,11 @@ typedef struct inter_modes_info {
   int64_t sse_arr[MAX_INTER_MODES];
   int64_t est_rd_arr[MAX_INTER_MODES];
   RdIdxPair rd_idx_pair_arr[MAX_INTER_MODES];
+  bool true_rd_arr[MAX_INTER_MODES];
+  uint8_t blk_skip_arr[MAX_INTER_MODES][MAX_MIB_SIZE * MAX_MIB_SIZE];
+  RD_STATS rd_cost_arr[MAX_INTER_MODES];
+  RD_STATS rd_cost_y_arr[MAX_INTER_MODES];
+  RD_STATS rd_cost_uv_arr[MAX_INTER_MODES];
 } InterModesInfo;
 
 // Encoder row synchronization
@@ -626,10 +643,11 @@ typedef struct {
   YV12_BUFFER_CONFIG buf;
 } EncRefCntBuffer;
 
-#if CONFIG_COLLECT_PARTITION_STATS
+#if CONFIG_COLLECT_PARTITION_STATS == 2
 typedef struct PartitionStats {
   int partition_decisions[6][EXT_PARTITION_TYPES];
   int partition_attempts[6][EXT_PARTITION_TYPES];
+  int64_t partition_times[6][EXT_PARTITION_TYPES];
 
   int partition_redo;
 } PartitionStats;
@@ -655,7 +673,6 @@ enum {
   av1_rd_pick_intra_mode_sb_time,
   av1_rd_pick_inter_mode_sb_time,
   handle_intra_mode_time,
-  handle_inter_mode_time,
   do_tx_search_time,
   handle_newmv_time,
   compound_type_rd_time,
@@ -687,7 +704,6 @@ static INLINE char const *get_component_name(int index) {
     case av1_rd_pick_inter_mode_sb_time:
       return "av1_rd_pick_inter_mode_sb_time";
     case handle_intra_mode_time: return "handle_intra_mode_time";
-    case handle_inter_mode_time: return "handle_inter_mode_time";
     case do_tx_search_time: return "do_tx_search_time";
     case handle_newmv_time: return "handle_newmv_time";
     case compound_type_rd_time: return "compound_type_rd_time";
@@ -699,6 +715,9 @@ static INLINE char const *get_component_name(int index) {
   return "error";
 }
 #endif
+
+// The maximum number of internal ARFs except ALTREF_FRAME
+#define MAX_INTERNAL_ARFS (REF_FRAMES - BWDREF_FRAME - 1)
 
 typedef struct AV1_COMP {
   QUANTS quants;
@@ -722,7 +741,7 @@ typedef struct AV1_COMP {
   YV12_BUFFER_CONFIG *unscaled_last_source;
   YV12_BUFFER_CONFIG scaled_last_source;
 
-  TplDepFrame tpl_stats[MAX_LAG_BUFFERS];
+  TplDepFrame tpl_stats[MAX_LENGTH_TPL_FRAME_STATS];
   YV12_BUFFER_CONFIG *tpl_recon_frames[INTER_REFS_PER_FRAME + 1];
 
   // For a still frame, this flag is set to 1 to skip partition search.
@@ -764,13 +783,6 @@ typedef struct AV1_COMP {
   // choose our primary reference frame (which is the most recent reference
   // frame of the same type as the current frame).
   int fb_of_context_type[REF_FRAMES];
-
-  // When true, a new rule for backward (future) reference frames is in effect:
-  // - BWDREF_FRAME is always the closest future frame available
-  // - ALTREF2_FRAME is always the 2nd closest future frame available
-  // - 'refresh_bwd_ref_frame' flag is used for updating both the BWDREF_FRAME
-  // and ALTREF2_FRAME. ('refresh_alt2_ref_frame' flag is irrelevant).
-  int new_bwdref_update_rule;
 
   int ext_refresh_frame_flags_pending;
   int ext_refresh_last_frame;
@@ -839,10 +851,6 @@ typedef struct AV1_COMP {
 #if CONFIG_INTERNAL_STATS
   uint64_t time_receive_data;
   uint64_t time_compress_data;
-#endif
-
-#if CONFIG_FP_MB_STATS
-  int use_fp_mb_stats;
 #endif
 
   TWO_PASS twopass;
@@ -937,12 +945,9 @@ typedef struct AV1_COMP {
   AVxWorker *workers;
   struct EncWorkerData *tile_thr_data;
   int existing_fb_idx_to_show;
-  int is_arf_filter_off[MAX_EXT_ARFS + 1];
-  int num_extra_arfs;
-  int arf_pos_in_gf[MAX_EXT_ARFS + 1];
-  int arf_pos_for_ovrly[MAX_EXT_ARFS + 1];
+  int is_arf_filter_off[MAX_INTERNAL_ARFS + 1];
   int global_motion_search_done;
-  int extra_arf_allowed;
+  int internal_altref_allowed;
   // A flag to indicate if intrabc is ever used in current frame.
   int intrabc_used;
   int dv_cost[2][MV_VALS];
@@ -981,7 +986,7 @@ typedef struct AV1_COMP {
 #endif
   // Set if screen content is set or relevant tools are enabled
   int is_screen_content_type;
-#if CONFIG_COLLECT_PARTITION_STATS
+#if CONFIG_COLLECT_PARTITION_STATS == 2
   PartitionStats partition_stats;
 #endif
 
@@ -992,6 +997,14 @@ typedef struct AV1_COMP {
   // frame_component_time[] are initialized to zero at beginning of each frame.
   uint64_t frame_component_time[kTimingComponents];
 #endif
+
+  // The following data are for AV1 bitstream levels.
+  AV1_LEVEL target_seq_level_idx[MAX_NUM_OPERATING_POINTS];
+  int keep_level_stats;
+  AV1LevelInfo level_info[MAX_NUM_OPERATING_POINTS];
+  // Count the number of OBU_FRAME and OBU_FRAME_HEADER for level calculation.
+  int frame_header_count;
+  FrameWindowBuffer frame_window_buffer;
 } AV1_COMP;
 
 typedef struct {
@@ -1055,7 +1068,7 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
 int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
                             size_t *size, uint8_t *dest, int64_t *time_stamp,
                             int64_t *time_end, int flush,
-                            const aom_rational_t *timebase);
+                            const aom_rational64_t *timebase);
 
 int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
                const EncodeFrameInput *const frame_input,
@@ -1094,15 +1107,16 @@ int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *input_size);
 // av1 uses 10,000,000 ticks/second as time stamp
 #define TICKS_PER_SEC 10000000LL
 
-static INLINE int64_t timebase_units_to_ticks(const aom_rational_t *timebase,
-                                              int64_t n) {
-  return n * TICKS_PER_SEC * timebase->num / timebase->den;
+static INLINE int64_t
+timebase_units_to_ticks(const aom_rational64_t *timestamp_ratio, int64_t n) {
+  return n * timestamp_ratio->num / timestamp_ratio->den;
 }
 
-static INLINE int64_t ticks_to_timebase_units(const aom_rational_t *timebase,
-                                              int64_t n) {
-  const int64_t round = TICKS_PER_SEC * timebase->num / 2 - 1;
-  return (n * timebase->den + round) / timebase->num / TICKS_PER_SEC;
+static INLINE int64_t
+ticks_to_timebase_units(const aom_rational64_t *timestamp_ratio, int64_t n) {
+  int64_t round = timestamp_ratio->num / 2;
+  if (round > 0) --round;
+  return (n * timestamp_ratio->den + round) / timestamp_ratio->num;
 }
 
 static INLINE int frame_is_kf_gf_arf(const AV1_COMP *cpi) {
@@ -1273,6 +1287,15 @@ static INLINE BLOCK_SIZE find_partition_size(BLOCK_SIZE bsize, int rows_left,
   return (BLOCK_SIZE)int_size;
 }
 
+static const uint8_t av1_ref_frame_flag_list[REF_FRAMES] = { 0,
+                                                             AOM_LAST_FLAG,
+                                                             AOM_LAST2_FLAG,
+                                                             AOM_LAST3_FLAG,
+                                                             AOM_GOLD_FLAG,
+                                                             AOM_BWD_FLAG,
+                                                             AOM_ALT2_FLAG,
+                                                             AOM_ALT_FLAG };
+
 // Returns a Sequence Header OBU stored in an aom_fixed_buf_t, or NULL upon
 // failure. When a non-NULL aom_fixed_buf_t pointer is returned by this
 // function, the memory must be freed by the caller. Both the buf member of the
@@ -1284,7 +1307,7 @@ static INLINE BLOCK_SIZE find_partition_size(BLOCK_SIZE bsize, int rows_left,
 // field.
 aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi);
 
-#if CONFIG_COLLECT_PARTITION_STATS
+#if CONFIG_COLLECT_PARTITION_STATS == 2
 static INLINE void av1_print_partition_stats(PartitionStats *part_stats) {
   FILE *f = fopen("partition_stats.csv", "w");
   if (!f) {
@@ -1298,6 +1321,9 @@ static INLINE void av1_print_partition_stats(PartitionStats *part_stats) {
   for (int part = 0; part < EXT_PARTITION_TYPES; part++) {
     fprintf(f, "attempt_%d,", part);
   }
+  for (int part = 0; part < EXT_PARTITION_TYPES; part++) {
+    fprintf(f, "time_%d,", part);
+  }
   fprintf(f, "\n");
 
   const int bsizes[6] = { 128, 64, 32, 16, 8, 4 };
@@ -1310,6 +1336,9 @@ static INLINE void av1_print_partition_stats(PartitionStats *part_stats) {
     for (int part = 0; part < EXT_PARTITION_TYPES; part++) {
       fprintf(f, "%d,", part_stats->partition_attempts[bsize_idx][part]);
     }
+    for (int part = 0; part < EXT_PARTITION_TYPES; part++) {
+      fprintf(f, "%ld,", part_stats->partition_times[bsize_idx][part]);
+    }
     fprintf(f, "\n");
   }
   fclose(f);
@@ -1317,7 +1346,8 @@ static INLINE void av1_print_partition_stats(PartitionStats *part_stats) {
 
 static INLINE int av1_get_bsize_idx_for_part_stats(BLOCK_SIZE bsize) {
   assert(bsize == BLOCK_128X128 || bsize == BLOCK_64X64 ||
-         bsize == BLOCK_32X32 || bsize == BLOCK_16X16 || bsize == BLOCK_8X8);
+         bsize == BLOCK_32X32 || bsize == BLOCK_16X16 || bsize == BLOCK_8X8 ||
+         bsize == BLOCK_4X4);
   switch (bsize) {
     case BLOCK_128X128: return 0;
     case BLOCK_64X64: return 1;
