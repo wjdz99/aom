@@ -160,6 +160,8 @@ list(APPEND AOM_AV1_ENCODER_SOURCES
             "${AOM_ROOT}/av1/encoder/hash_motion.h"
             "${AOM_ROOT}/av1/encoder/hybrid_fwd_txfm.c"
             "${AOM_ROOT}/av1/encoder/hybrid_fwd_txfm.h"
+            "${AOM_ROOT}/av1/encoder/level.c"
+            "${AOM_ROOT}/av1/encoder/level.h"
             "${AOM_ROOT}/av1/encoder/lookahead.c"
             "${AOM_ROOT}/av1/encoder/lookahead.h"
             "${AOM_ROOT}/av1/encoder/mbgraph.c"
@@ -170,6 +172,8 @@ list(APPEND AOM_AV1_ENCODER_SOURCES
             "${AOM_ROOT}/av1/encoder/ml.h"
             "${AOM_ROOT}/av1/encoder/palette.c"
             "${AOM_ROOT}/av1/encoder/palette.h"
+            "${AOM_ROOT}/av1/encoder/partition_strategy.h"
+            "${AOM_ROOT}/av1/encoder/partition_strategy.c"
             "${AOM_ROOT}/av1/encoder/pass2_strategy.h"
             "${AOM_ROOT}/av1/encoder/pass2_strategy.c"
             "${AOM_ROOT}/av1/encoder/pickcdef.c"
@@ -184,6 +188,7 @@ list(APPEND AOM_AV1_ENCODER_SOURCES
             "${AOM_ROOT}/av1/encoder/rd.c"
             "${AOM_ROOT}/av1/encoder/rd.h"
             "${AOM_ROOT}/av1/encoder/rdopt.c"
+            "${AOM_ROOT}/av1/encoder/nonrd_pickmode.c"
             "${AOM_ROOT}/av1/encoder/rdopt.h"
             "${AOM_ROOT}/av1/encoder/reconinter_enc.c"
             "${AOM_ROOT}/av1/encoder/reconinter_enc.h"
@@ -288,6 +293,7 @@ list(APPEND AOM_AV1_ENCODER_INTRIN_SSE4_1
             "${AOM_ROOT}/av1/encoder/x86/rdopt_sse4.c"
             "${AOM_ROOT}/av1/encoder/x86/temporal_filter_constants.h"
             "${AOM_ROOT}/av1/encoder/x86/temporal_filter_sse4.c"
+            "${AOM_ROOT}/av1/encoder/x86/highbd_temporal_filter_sse4.c"
             "${AOM_ROOT}/av1/encoder/x86/pickrst_sse4.c")
 
 list(APPEND AOM_AV1_ENCODER_INTRIN_AVX2
@@ -354,15 +360,7 @@ endif()
 function(setup_av1_targets)
   add_library(aom_av1_common OBJECT ${AOM_AV1_COMMON_SOURCES})
   list(APPEND AOM_LIB_TARGETS aom_av1_common)
-
-  create_dummy_source_file("aom_av1" "c" "dummy_source_file")
-  add_library(aom_av1 OBJECT "${dummy_source_file}")
   target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_av1_common>)
-  list(APPEND AOM_LIB_TARGETS aom_av1)
-
-  # Not all generators support libraries consisting only of object files. Add a
-  # dummy source file to the aom_av1 target.
-  add_dummy_source_file_to_target("aom_av1" "c")
 
   if(CONFIG_AV1_DECODER)
     add_library(aom_av1_decoder OBJECT ${AOM_AV1_DECODER_SOURCES})
@@ -460,13 +458,13 @@ function(setup_av1_targets)
 
   if(HAVE_NEON)
     if(AOM_AV1_COMMON_INTRIN_NEON)
-      add_intrinsics_object_library("${AOM_INTRIN_NEON_FLAG}" "neon"
+      add_intrinsics_object_library("${AOM_NEON_INTRIN_FLAG}" "neon"
                                     "aom_av1_common"
                                     "AOM_AV1_COMMON_INTRIN_NEON" "aom")
     endif()
 
     if(AOM_AV1_ENCODER_INTRIN_NEON)
-      add_intrinsics_object_library("${AOM_INTRIN_NEON_FLAG}" "neon"
+      add_intrinsics_object_library("${AOM_NEON_INTRIN_FLAG}" "neon"
                                     "aom_av1_encoder"
                                     "AOM_AV1_ENCODER_INTRIN_NEON" "aom")
     endif()
@@ -484,13 +482,7 @@ function(setup_av1_targets)
                                   "AOM_AV1_ENCODER_INTRIN_MSA" "aom")
   endif()
 
-  target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_dsp>)
-  target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_scale>)
-
   # Pass the new lib targets up to the parent scope instance of
   # $AOM_LIB_TARGETS.
   set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} PARENT_SCOPE)
-endfunction()
-
-function(setup_av1_test_targets)
 endfunction()
