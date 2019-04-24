@@ -123,6 +123,7 @@ static void set_good_speed_feature_framesize_dependent(
       speed < CONFIG_2PASS_PARTITION_SEARCH_LVL_END) {
     sf->two_pass_partition_search = 1;
   }
+  sf->two_pass_partition_search = 0;
 
   if (speed >= 1) {
     if (is_720p_or_larger) {
