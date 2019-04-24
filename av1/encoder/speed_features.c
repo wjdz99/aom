@@ -220,7 +220,7 @@ static void set_good_speed_features_framesize_independent(
   sf->model_based_post_interp_filter_breakout = 1;
 
   // TODO(debargha): Test, tweak and turn on either 1 or 2
-  sf->inter_mode_rd_model_estimation = 1;
+  sf->inter_mode_rd_model_estimation = 2;
   sf->inter_mode_rd_model_estimation_adaptive = 0;
 
   sf->two_loop_comp_search = 0;
