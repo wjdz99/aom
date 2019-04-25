@@ -10215,13 +10215,10 @@ typedef struct {
 static int64_t simple_translation_pred_rd(
     AV1_COMP *const cpi, MACROBLOCK *x, RD_STATS *rd_stats,
     HandleInterModeArgs *args, int ref_mv_idx, inter_mode_info *mode_info,
-    int64_t ref_best_rd, TileDataEnc *tile_data, BLOCK_SIZE bsize, int mi_row,
-    int mi_col, uint8_t *const tmp_buf) {
-  // TODO : check that assuming !do_two_loop_comp_search is okay
+    int64_t ref_best_rd, BLOCK_SIZE bsize, int mi_row, int mi_col) {
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
-  int64_t skip_sse_sb = INT64_MAX;
   const int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
   const AV1_COMMON *cm = &cpi->common;
   const int is_comp_pred = has_second_ref(mbmi);
@@ -10231,10 +10228,6 @@ static int64_t simple_translation_pred_rd(
     { p[0].dst.buf, p[1].dst.buf, p[2].dst.buf },
     { p[0].dst.stride, p[1].dst.stride, p[2].dst.stride },
   };
-  const BUFFER_SET tmp_dst = { { tmp_buf, tmp_buf + 1 * MAX_SB_SQUARE,
-                                 tmp_buf + 2 * MAX_SB_SQUARE },
-                               { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE } };
-
   av1_init_rd_stats(rd_stats);
 
   mbmi->interinter_comp.type = COMPOUND_AVERAGE;
@@ -10256,9 +10249,6 @@ static int64_t simple_translation_pred_rd(
   rd_stats->rate += drl_cost;
   mode_info[ref_mv_idx].drl_cost = drl_cost;
 
-  int rs = 0;
-  int compmode_interinter_cost = 0;
-
   int_mv cur_mv[2];
   if (!build_cur_mv(cur_mv, mbmi->mode, cm, x)) {
     return INT64_MAX;
@@ -10276,25 +10266,24 @@ static int64_t simple_translation_pred_rd(
     return INT64_MAX;
   }
 
-  int skip_build_pred = 0;
+  mbmi->motion_mode = SIMPLE_TRANSLATION;
+  mbmi->num_proj_ref = 0;
   if (is_comp_pred) {
     // Only compound_average
     mbmi->interinter_comp.type = COMPOUND_AVERAGE;
-    mbmi->num_proj_ref = 0;
-    mbmi->motion_mode = SIMPLE_TRANSLATION;
     mbmi->comp_group_idx = 0;
     mbmi->compound_idx = 1;
-    const int comp_index_ctx = get_comp_index_context(cm, xd);
-    compmode_interinter_cost +=
-        x->comp_idx_cost[comp_index_ctx][mbmi->compound_idx];
   }
-  int64_t rd = INT64_MAX;
-  int skip_txfm_sb = 0;
+  set_default_interp_filters(mbmi, cm->interp_filter);
 
-  return interpolation_filter_search(x, cpi, tile_data, bsize, mi_row, mi_col,
-                                     &tmp_dst, &orig_dst, args->single_filter,
-                                     &rd, &rs, &skip_txfm_sb, &skip_sse_sb,
-                                     &skip_build_pred, args, ref_best_rd);
+  av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst, bsize,
+                                AOM_PLANE_Y, AOM_PLANE_Y);
+  int est_rate;
+  int64_t est_dist;
+  model_rd_sb_fn[MODELRD_CURVFIT](cpi, bsize, x, xd, 0, 0, mi_row, mi_col,
+                                  &est_rate, &est_dist, NULL, NULL, NULL, NULL,
+                                  NULL);
+  return RDCOST(x->rdmult, rd_stats->rate + est_rate, est_dist);
 }
 
 // Before performing the full MV search in handle_inter_mode, do a simple
@@ -10305,9 +10294,7 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
                                 RD_STATS *rd_stats,
                                 HandleInterModeArgs *const args,
                                 int64_t ref_best_rd, inter_mode_info *mode_info,
-                                TileDataEnc *tile_data, BLOCK_SIZE bsize,
-                                int mi_row, int mi_col,
-                                uint8_t *const tmp_buf) {
+                                BLOCK_SIZE bsize, int mi_row, int mi_col) {
   const MACROBLOCKD *const xd = &x->e_mbd;
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   const PREDICTION_MODE this_mode = mbmi->mode;
@@ -10326,8 +10313,8 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
       continue;
     }
     idx_rdcost[ref_mv_idx] = simple_translation_pred_rd(
-        cpi, x, rd_stats, args, ref_mv_idx, mode_info, ref_best_rd, tile_data,
-        bsize, mi_row, mi_col, tmp_buf);
+        cpi, x, rd_stats, args, ref_mv_idx, mode_info, ref_best_rd, bsize,
+        mi_row, mi_col);
   }
   // Find the index with the best RD cost.
   int best_idx = 0;
@@ -10337,18 +10324,10 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
 
-  // If the best index is greater than INT64_MAX / 6, search all of them.
-  // This must be special-cased to prevent integer overflow later.
-  if (idx_rdcost[best_idx] > INT64_MAX / 6) {
-    return (1 << ref_set) - 1;
-  }
-
-  // Otherwise, only include indices that are within 20% of the best.
+  // Otherwise, only include indices that are within 2% of the best.
   int result = 0;
   for (int i = 0; i < ref_set; ++i) {
-    // If the rdcost would cause an integer overflow, it is invalid.
-    if (idx_rdcost[i] <= INT64_MAX / 5 &&
-        5 * idx_rdcost[i] < 6 * idx_rdcost[best_idx]) {
+    if ((1.0 * idx_rdcost[i]) / idx_rdcost[best_idx] < 1.02) {
       result += (1 << i);
     }
   }
@@ -10424,9 +10403,8 @@ static int64_t handle_inter_mode(
 
   // First, perform a simple translation search for each of the indices. If
   // an index performs well, it will be fully searched here.
-  int idx_mask =
-      ref_mv_idx_to_search(cpi, x, rd_stats, args, ref_best_rd, mode_info,
-                           tile_data, bsize, mi_row, mi_col, tmp_buf);
+  int idx_mask = ref_mv_idx_to_search(cpi, x, rd_stats, args, ref_best_rd,
+                                      mode_info, bsize, mi_row, mi_col);
 
   const int ref_set = get_drl_refmv_count(x, mbmi->ref_frame, this_mode);
   for (int ref_mv_idx = 0; ref_mv_idx < ref_set; ++ref_mv_idx) {
