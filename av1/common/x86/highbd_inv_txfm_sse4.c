@@ -606,23 +606,28 @@ static void iidentity4_sse4_1(__m128i *in, __m128i *out, int bit, int do_cols,
   (void)bit;
   (void)out_shift;
   __m128i v[4];
+  __m128i zero = _mm_set1_epi32(0);
   __m128i fact = _mm_set1_epi32(NewSqrt2);
   __m128i offset = _mm_set1_epi32(1 << (NewSqrt2Bits - 1));
-  __m128i a0, a1;
+  __m128i a0_low, a1_low;
+  __m128i a0_high, a1_high;
 
-  a0 = _mm_mullo_epi32(in[0], fact);
-  a1 = _mm_mullo_epi32(in[1], fact);
-  a0 = _mm_add_epi32(a0, offset);
-  a1 = _mm_add_epi32(a1, offset);
-  out[0] = _mm_srai_epi32(a0, NewSqrt2Bits);
-  out[1] = _mm_srai_epi32(a1, NewSqrt2Bits);
+  offset = _mm_unpacklo_epi32(offset, zero);
 
-  a0 = _mm_mullo_epi32(in[2], fact);
-  a1 = _mm_mullo_epi32(in[3], fact);
-  a0 = _mm_add_epi32(a0, offset);
-  a1 = _mm_add_epi32(a1, offset);
-  out[2] = _mm_srai_epi32(a0, NewSqrt2Bits);
-  out[3] = _mm_srai_epi32(a1, NewSqrt2Bits);
+  for (int i = 0; i < 4; i++) {
+    a0_low = _mm_mul_epi32(in[i], fact);
+    a0_low = _mm_add_epi32(a0_low, offset);
+    a0_low = _mm_srli_epi64(a0_low, NewSqrt2Bits);
+
+    a0_high = _mm_srli_si128(in[i], 4);
+    a0_high = _mm_mul_epi32(a0_high, fact);
+    a0_high = _mm_add_epi32(a0_high, offset);
+    a0_high = _mm_srli_epi64(a0_high, NewSqrt2Bits);
+
+    a1_low = _mm_unpacklo_epi32(a0_low, a0_high);
+    a1_high = _mm_unpackhi_epi32(a0_low, a0_high);
+    out[i] = _mm_unpacklo_epi64(a1_low, a1_high);
+  }
 
   if (!do_cols) {
     const int log_range = AOMMAX(16, bd + 6);
@@ -3165,36 +3170,23 @@ static void iidentity16_sse4_1(__m128i *in, __m128i *out, int bit, int do_cols,
   __m128i v[16];
   __m128i fact = _mm_set1_epi32(2 * NewSqrt2);
   __m128i offset = _mm_set1_epi32(1 << (NewSqrt2Bits - 1));
-  __m128i a0, a1, a2, a3;
+  __m128i a0_low, a0_high, a1_low, a1_high;
+  __m128i zero = _mm_set1_epi32(0);
+  offset = _mm_unpacklo_epi32(offset, zero);
 
-  for (int i = 0; i < 16; i += 8) {
-    a0 = _mm_mullo_epi32(in[i], fact);
-    a1 = _mm_mullo_epi32(in[i + 1], fact);
-    a0 = _mm_add_epi32(a0, offset);
-    a1 = _mm_add_epi32(a1, offset);
-    v[i] = _mm_srai_epi32(a0, NewSqrt2Bits);
-    v[i + 1] = _mm_srai_epi32(a1, NewSqrt2Bits);
+  for (int i = 0; i < 16; i++) {
+    a0_low = _mm_mul_epi32(in[i], fact);
+    a0_low = _mm_add_epi32(a0_low, offset);
+    a0_low = _mm_srli_epi64(a0_low, NewSqrt2Bits);
 
-    a2 = _mm_mullo_epi32(in[i + 2], fact);
-    a3 = _mm_mullo_epi32(in[i + 3], fact);
-    a2 = _mm_add_epi32(a2, offset);
-    a3 = _mm_add_epi32(a3, offset);
-    v[i + 2] = _mm_srai_epi32(a2, NewSqrt2Bits);
-    v[i + 3] = _mm_srai_epi32(a3, NewSqrt2Bits);
+    a0_high = _mm_srli_si128(in[i], 4);
+    a0_high = _mm_mul_epi32(a0_high, fact);
+    a0_high = _mm_add_epi32(a0_high, offset);
+    a0_high = _mm_srli_epi64(a0_high, NewSqrt2Bits);
 
-    a0 = _mm_mullo_epi32(in[i + 4], fact);
-    a1 = _mm_mullo_epi32(in[i + 5], fact);
-    a0 = _mm_add_epi32(a0, offset);
-    a1 = _mm_add_epi32(a1, offset);
-    v[i + 4] = _mm_srai_epi32(a0, NewSqrt2Bits);
-    v[i + 5] = _mm_srai_epi32(a1, NewSqrt2Bits);
-
-    a2 = _mm_mullo_epi32(in[i + 6], fact);
-    a3 = _mm_mullo_epi32(in[i + 7], fact);
-    a2 = _mm_add_epi32(a2, offset);
-    a3 = _mm_add_epi32(a3, offset);
-    v[i + 6] = _mm_srai_epi32(a2, NewSqrt2Bits);
-    v[i + 7] = _mm_srai_epi32(a3, NewSqrt2Bits);
+    a1_low = _mm_unpacklo_epi32(a0_low, a0_high);
+    a1_high = _mm_unpackhi_epi32(a0_low, a0_high);
+    v[i] = _mm_unpacklo_epi64(a1_low, a1_high);
   }
 
   if (!do_cols) {
