@@ -232,9 +232,9 @@ static INLINE uint64_t mse_4x4_16bit(uint16_t *dst, int dstride, uint16_t *src,
 }
 
 /* Compute MSE only on the blocks we filtered. */
-uint64_t compute_cdef_dist(uint16_t *dst, int dstride, uint16_t *src,
-                           cdef_list *dlist, int cdef_count, BLOCK_SIZE bsize,
-                           int coeff_shift, int pli) {
+static uint64_t compute_cdef_dist(uint16_t *dst, int dstride, uint16_t *src,
+                                  cdef_list *dlist, int cdef_count,
+                                  BLOCK_SIZE bsize, int coeff_shift, int pli) {
   uint64_t sum = 0;
   int bi, bx, by;
   if (bsize == BLOCK_8X8) {
