@@ -3227,11 +3227,25 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     block_mse_q8 = ROUND_POWER_OF_TWO(block_mse_q8, (xd->bd - 8) * 2);
   }
   block_sse *= 16;
+
+  double block_mse_q8_qscale;
+  const int is_arf2_bwd_type =
+      cpi->refresh_bwd_ref_frame || cpi->refresh_alt2_ref_frame;
+  // int16_t ac_q = av1_ac_quant_QTX(255, 0, AOM_BITS_8);
+  int16_t dc_q = av1_dc_quant_QTX(x->qindex, cm->y_dc_delta_q, AOM_BITS_8);
+  block_mse_q8_qscale = (double)block_mse_q8 * dc_q * dc_q;
+
+  double block_mse_thresh;
+  if (is_arf2_bwd_type) {
+    block_mse_thresh = block_mse_q8_qscale;
+  } else {
+    block_mse_thresh = (double)block_mse_q8;
+  }
   // Tranform domain distortion is accurate for higher residuals.
   // TODO(any): Experiment with variance and mean based thresholds
   int use_transform_domain_distortion =
       (cpi->sf.use_transform_domain_distortion > 0) &&
-      (block_mse_q8 >= cpi->tx_domain_dist_threshold) &&
+      (block_mse_thresh >= cpi->tx_domain_dist_threshold) &&
       // Any 64-pt transforms only preserves half the coefficients.
       // Therefore transform domain distortion is not valid for these
       // transform sizes.
