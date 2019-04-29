@@ -354,6 +354,7 @@ static void set_good_speed_features_framesize_independent(
     sf->tx_type_search.fast_intra_tx_type_search = 1;
     sf->disable_loop_restoration_chroma =
         (boosted || cm->allow_screen_content_tools) ? 0 : 1;
+    sf->disable_sgr_ep_pruning = cm->allow_screen_content_tools;
     sf->reduce_wiener_window_size = !boosted;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
     sf->adaptive_pred_interp_filter = 0;
@@ -719,6 +720,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->use_first_partition_pass_interintra_stats = 0;
   sf->disable_wedge_search_var_thresh = 0;
   sf->disable_loop_restoration_chroma = 0;
+  sf->disable_sgr_ep_pruning = 0;
   sf->reduce_wiener_window_size = 0;
   sf->fast_wedge_sign_estimate = 0;
   sf->prune_wedge_pred_diff_based = 0;
