@@ -46,6 +46,53 @@
       "revId": "ee4076eea7dd6a33814990f4a5d26701d93d76a9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0231c047_b7490a16",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-04-29T18:47:25Z",
+      "side": 1,
+      "message": "Yes, it is fine to first use the current \"cdef_, cfl_, od_\" prefixes. I thought if cdef_find_dir and cdef_filter_block are the only two functins with the cdef_ prefix, then it might be just a little extra work to convert all four functions to the av1_cdef_ prefix.",
+      "parentUuid": "d346929c_568176e7",
+      "range": {
+        "startLine": 322,
+        "startChar": 18,
+        "endLine": 322,
+        "endChar": 23
+      },
+      "revId": "ee4076eea7dd6a33814990f4a5d26701d93d76a9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "648dee71_e32eca3d",
+        "filename": "av1/common/cdef.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-04-29T18:47:25Z",
+      "side": 1,
+      "message": "[No change requested.] I found that this is also a global function (defined in av1/common/cdef.c. Used by both av1/common/cdef.c and av1/encoder/pickcdef.c).",
+      "range": {
+        "startLine": 34,
+        "startChar": 3,
+        "endLine": 34,
+        "endChar": 24
+      },
+      "revId": "ee4076eea7dd6a33814990f4a5d26701d93d76a9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
