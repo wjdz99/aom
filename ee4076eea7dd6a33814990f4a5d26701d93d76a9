@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e6c141c_41c6924e",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-04-29T17:14:46Z",
+      "side": 1,
+      "message": "Since the goal of bug aomedia:1540 is to namespace global symbols, it seems that these functions should use the \"av1_\" prefix (in addition to the \"cdef_\" prefix). Would that work?\n\nThis would also apply to the cdef_find_dir and cdef_filter_block functions at lines 319-320 above.",
+      "range": {
+        "startLine": 322,
+        "startChar": 18,
+        "endLine": 322,
+        "endChar": 23
+      },
+      "revId": "ee4076eea7dd6a33814990f4a5d26701d93d76a9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
