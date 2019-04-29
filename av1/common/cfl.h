@@ -233,46 +233,46 @@ void subtract_average_4x16_c(const uint16_t *src, int16_t *dst);
 #define CFL_PREDICT_X(arch, width, height, bd) \
   CFL_PREDICT_##bd(arch, width, height)
 
-#define CFL_PREDICT_FN(arch, bd)                                          \
-  CFL_PREDICT_X(arch, 4, 4, bd)                                           \
-  CFL_PREDICT_X(arch, 4, 8, bd)                                           \
-  CFL_PREDICT_X(arch, 4, 16, bd)                                          \
-  CFL_PREDICT_X(arch, 8, 4, bd)                                           \
-  CFL_PREDICT_X(arch, 8, 8, bd)                                           \
-  CFL_PREDICT_X(arch, 8, 16, bd)                                          \
-  CFL_PREDICT_X(arch, 8, 32, bd)                                          \
-  CFL_PREDICT_X(arch, 16, 4, bd)                                          \
-  CFL_PREDICT_X(arch, 16, 8, bd)                                          \
-  CFL_PREDICT_X(arch, 16, 16, bd)                                         \
-  CFL_PREDICT_X(arch, 16, 32, bd)                                         \
-  CFL_PREDICT_X(arch, 32, 8, bd)                                          \
-  CFL_PREDICT_X(arch, 32, 16, bd)                                         \
-  CFL_PREDICT_X(arch, 32, 32, bd)                                         \
-  cfl_predict_##bd##_fn get_predict_##bd##_fn_##arch(TX_SIZE tx_size) {   \
-    static const cfl_predict_##bd##_fn pred[TX_SIZES_ALL] = {             \
-      predict_##bd##_4x4_##arch,   /* 4x4 */                              \
-      predict_##bd##_8x8_##arch,   /* 8x8 */                              \
-      predict_##bd##_16x16_##arch, /* 16x16 */                            \
-      predict_##bd##_32x32_##arch, /* 32x32 */                            \
-      NULL,                        /* 64x64 (invalid CFL size) */         \
-      predict_##bd##_4x8_##arch,   /* 4x8 */                              \
-      predict_##bd##_8x4_##arch,   /* 8x4 */                              \
-      predict_##bd##_8x16_##arch,  /* 8x16 */                             \
-      predict_##bd##_16x8_##arch,  /* 16x8 */                             \
-      predict_##bd##_16x32_##arch, /* 16x32 */                            \
-      predict_##bd##_32x16_##arch, /* 32x16 */                            \
-      NULL,                        /* 32x64 (invalid CFL size) */         \
-      NULL,                        /* 64x32 (invalid CFL size) */         \
-      predict_##bd##_4x16_##arch,  /* 4x16  */                            \
-      predict_##bd##_16x4_##arch,  /* 16x4  */                            \
-      predict_##bd##_8x32_##arch,  /* 8x32  */                            \
-      predict_##bd##_32x8_##arch,  /* 32x8  */                            \
-      NULL,                        /* 16x64 (invalid CFL size) */         \
-      NULL,                        /* 64x16 (invalid CFL size) */         \
-    };                                                                    \
-    /* Modulo TX_SIZES_ALL to ensure that an attacker won't be able to */ \
-    /* index the function pointer array out of bounds. */                 \
-    return pred[tx_size % TX_SIZES_ALL];                                  \
+#define CFL_PREDICT_FN(arch, bd)                                            \
+  CFL_PREDICT_X(arch, 4, 4, bd)                                             \
+  CFL_PREDICT_X(arch, 4, 8, bd)                                             \
+  CFL_PREDICT_X(arch, 4, 16, bd)                                            \
+  CFL_PREDICT_X(arch, 8, 4, bd)                                             \
+  CFL_PREDICT_X(arch, 8, 8, bd)                                             \
+  CFL_PREDICT_X(arch, 8, 16, bd)                                            \
+  CFL_PREDICT_X(arch, 8, 32, bd)                                            \
+  CFL_PREDICT_X(arch, 16, 4, bd)                                            \
+  CFL_PREDICT_X(arch, 16, 8, bd)                                            \
+  CFL_PREDICT_X(arch, 16, 16, bd)                                           \
+  CFL_PREDICT_X(arch, 16, 32, bd)                                           \
+  CFL_PREDICT_X(arch, 32, 8, bd)                                            \
+  CFL_PREDICT_X(arch, 32, 16, bd)                                           \
+  CFL_PREDICT_X(arch, 32, 32, bd)                                           \
+  cfl_predict_##bd##_fn cfl_get_predict_##bd##_fn_##arch(TX_SIZE tx_size) { \
+    static const cfl_predict_##bd##_fn pred[TX_SIZES_ALL] = {               \
+      predict_##bd##_4x4_##arch,   /* 4x4 */                                \
+      predict_##bd##_8x8_##arch,   /* 8x8 */                                \
+      predict_##bd##_16x16_##arch, /* 16x16 */                              \
+      predict_##bd##_32x32_##arch, /* 32x32 */                              \
+      NULL,                        /* 64x64 (invalid CFL size) */           \
+      predict_##bd##_4x8_##arch,   /* 4x8 */                                \
+      predict_##bd##_8x4_##arch,   /* 8x4 */                                \
+      predict_##bd##_8x16_##arch,  /* 8x16 */                               \
+      predict_##bd##_16x8_##arch,  /* 16x8 */                               \
+      predict_##bd##_16x32_##arch, /* 16x32 */                              \
+      predict_##bd##_32x16_##arch, /* 32x16 */                              \
+      NULL,                        /* 32x64 (invalid CFL size) */           \
+      NULL,                        /* 64x32 (invalid CFL size) */           \
+      predict_##bd##_4x16_##arch,  /* 4x16  */                              \
+      predict_##bd##_16x4_##arch,  /* 16x4  */                              \
+      predict_##bd##_8x32_##arch,  /* 8x32  */                              \
+      predict_##bd##_32x8_##arch,  /* 32x8  */                              \
+      NULL,                        /* 16x64 (invalid CFL size) */           \
+      NULL,                        /* 64x16 (invalid CFL size) */           \
+    };                                                                      \
+    /* Modulo TX_SIZES_ALL to ensure that an attacker won't be able to */   \
+    /* index the function pointer array out of bounds. */                   \
+    return pred[tx_size % TX_SIZES_ALL];                                    \
   }
 
 #endif  // AOM_AV1_COMMON_CFL_H_

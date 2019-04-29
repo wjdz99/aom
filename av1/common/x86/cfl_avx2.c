@@ -273,7 +273,7 @@ CFL_PREDICT_X(avx2, 32, 8, lbd);
 CFL_PREDICT_X(avx2, 32, 16, lbd);
 CFL_PREDICT_X(avx2, 32, 32, lbd);
 
-cfl_predict_lbd_fn get_predict_lbd_fn_avx2(TX_SIZE tx_size) {
+cfl_predict_lbd_fn cfl_get_predict_lbd_fn_avx2(TX_SIZE tx_size) {
   static const cfl_predict_lbd_fn pred[TX_SIZES_ALL] = {
     predict_lbd_4x4_ssse3,   /* 4x4 */
     predict_lbd_8x8_ssse3,   /* 8x8 */
@@ -346,7 +346,7 @@ CFL_PREDICT_X(avx2, 32, 8, hbd)
 CFL_PREDICT_X(avx2, 32, 16, hbd)
 CFL_PREDICT_X(avx2, 32, 32, hbd)
 
-cfl_predict_hbd_fn get_predict_hbd_fn_avx2(TX_SIZE tx_size) {
+cfl_predict_hbd_fn cfl_get_predict_hbd_fn_avx2(TX_SIZE tx_size) {
   static const cfl_predict_hbd_fn pred[TX_SIZES_ALL] = {
     predict_hbd_4x4_ssse3,  /* 4x4 */
     predict_hbd_8x8_ssse3,  /* 8x8 */

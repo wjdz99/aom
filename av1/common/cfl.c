@@ -198,11 +198,11 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
          CFL_BUF_SQUARE);
   if (is_cur_buf_hbd(xd)) {
     uint16_t *dst_16 = CONVERT_TO_SHORTPTR(dst);
-    get_predict_hbd_fn(tx_size)(cfl->ac_buf_q3, dst_16, dst_stride, alpha_q3,
-                                xd->bd);
+    cfl_get_predict_hbd_fn(tx_size)(cfl->ac_buf_q3, dst_16, dst_stride,
+                                    alpha_q3, xd->bd);
     return;
   }
-  get_predict_lbd_fn(tx_size)(cfl->ac_buf_q3, dst, dst_stride, alpha_q3);
+  cfl_get_predict_lbd_fn(tx_size)(cfl->ac_buf_q3, dst, dst_stride, alpha_q3);
 }
 
 static void cfl_luma_subsampling_420_lbd_c(const uint8_t *input,

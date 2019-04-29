@@ -360,7 +360,7 @@ class CFLPredictTest : public ::testing::TestWithParam<predict_param>,
   virtual void SetUp() {
     CFLTest::init(::testing::get<0>(this->GetParam()));
     predict = ::testing::get<1>(this->GetParam())(tx_size);
-    predict_ref = get_predict_lbd_fn_c(tx_size);
+    predict_ref = cfl_get_predict_lbd_fn_c(tx_size);
   }
   virtual ~CFLPredictTest() {}
 
@@ -406,7 +406,7 @@ class CFLPredictHBDTest : public ::testing::TestWithParam<predict_param_hbd>,
   virtual void SetUp() {
     CFLTest::init(::testing::get<0>(this->GetParam()));
     predict = ::testing::get<1>(this->GetParam())(tx_size);
-    predict_ref = get_predict_hbd_fn_c(tx_size);
+    predict_ref = cfl_get_predict_hbd_fn_c(tx_size);
   }
   virtual ~CFLPredictHBDTest() {}
 
@@ -469,10 +469,10 @@ const subsample_hbd_param subsample_hbd_sizes_ssse3[] = {
 };
 
 const predict_param predict_sizes_ssse3[] = { ALL_CFL_TX_SIZES(
-    get_predict_lbd_fn_ssse3) };
+    cfl_get_predict_lbd_fn_ssse3) };
 
 const predict_param_hbd predict_sizes_hbd_ssse3[] = { ALL_CFL_TX_SIZES(
-    get_predict_hbd_fn_ssse3) };
+    cfl_get_predict_hbd_fn_ssse3) };
 
 INSTANTIATE_TEST_CASE_P(SSSE3, CFLSubsampleLBDTest,
                         ::testing::ValuesIn(subsample_lbd_sizes_ssse3));
@@ -504,10 +504,10 @@ const subsample_hbd_param subsample_hbd_sizes_avx2[] = {
 };
 
 const predict_param predict_sizes_avx2[] = { ALL_CFL_TX_SIZES(
-    get_predict_lbd_fn_avx2) };
+    cfl_get_predict_lbd_fn_avx2) };
 
 const predict_param_hbd predict_sizes_hbd_avx2[] = { ALL_CFL_TX_SIZES(
-    get_predict_hbd_fn_avx2) };
+    cfl_get_predict_hbd_fn_avx2) };
 
 INSTANTIATE_TEST_CASE_P(AVX2, CFLSubAvgTest,
                         ::testing::ValuesIn(sub_avg_sizes_avx2));
@@ -543,10 +543,10 @@ const subsample_hbd_param subsample_hbd_sizes_neon[] = {
 };
 
 const predict_param predict_sizes_neon[] = { ALL_CFL_TX_SIZES(
-    get_predict_lbd_fn_neon) };
+    cfl_get_predict_lbd_fn_neon) };
 
 const predict_param_hbd predict_sizes_hbd_neon[] = { ALL_CFL_TX_SIZES(
-    get_predict_hbd_fn_neon) };
+    cfl_get_predict_hbd_fn_neon) };
 
 INSTANTIATE_TEST_CASE_P(NEON, CFLSubAvgTest,
                         ::testing::ValuesIn(sub_avg_sizes_neon));
