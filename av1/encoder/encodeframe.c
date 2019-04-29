@@ -3841,7 +3841,7 @@ static void setup_delta_q(AV1_COMP *const cpi, MACROBLOCK *const x,
   const int sign_deltaq_index =
       current_qindex - xd->current_qindex >= 0 ? 1 : -1;
 
-  const int deltaq_deadzone = 0;  // delta_q_info->delta_q_res / 2;
+  const int deltaq_deadzone = 0;
   int abs_deltaq_index = abs(current_qindex - xd->current_qindex);
   abs_deltaq_index = (abs_deltaq_index + deltaq_deadzone) & qmask;
   current_qindex = xd->current_qindex + sign_deltaq_index * abs_deltaq_index;
