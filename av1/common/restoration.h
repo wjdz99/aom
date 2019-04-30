@@ -278,10 +278,10 @@ typedef struct AV1LrStruct {
   YV12_BUFFER_CONFIG *dst;
 } AV1LrStruct;
 
-extern const sgr_params_type sgr_params[SGRPROJ_PARAMS];
+extern const sgr_params_type av1_sgr_params[SGRPROJ_PARAMS];
 extern int sgrproj_mtable[SGRPROJ_PARAMS][2];
-extern const int32_t x_by_xplus1[256];
-extern const int32_t one_by_x[MAX_NELEM];
+extern const int32_t av1_x_by_xplus1[256];
+extern const int32_t av1_one_by_x[MAX_NELEM];
 
 void av1_alloc_restoration_struct(struct AV1Common *cm, RestorationInfo *rsi,
                                   int is_uv);
