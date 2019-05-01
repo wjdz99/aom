@@ -673,31 +673,6 @@ void av1_fdct32_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   av1_range_check_buf(stage, input, bf1, size, stage_range[stage]);
 }
 
-#if CONFIG_DATA_DRIVEN_TX
-void av1_fddt4(const int32_t *input, int32_t *output, int8_t cos_bit,
-               const int8_t *side_info) {
-  // The argument side_info is included in a way that the function has the same
-  // signature as other 1D transforms. Here, it is used to carry inter/intra
-  // block information
-  int32_t s[4] = { 0 };
-  const int32_t *ddt = ddt4_arr(side_info[0], cos_bit);
-  for (int i = 0; i < 4; i++)
-    for (int j = 0; j < 4; j++) s[j] += ddt[j * 4 + i] * input[i];
-
-  for (int i = 0; i < 4; i++) output[i] = round_shift(s[i], cos_bit + 1);
-}
-
-void av1_fddt8(const int32_t *input, int32_t *output, int8_t cos_bit,
-               const int8_t *side_info) {
-  int32_t s[8] = { 0 };
-  const int32_t *ddt = ddt8_arr(side_info[0], cos_bit);
-  for (int i = 0; i < 8; i++)
-    for (int j = 0; j < 8; j++) s[j] += ddt[j * 8 + i] * input[i];
-
-  for (int i = 0; i < 8; i++) output[i] = round_shift(s[i], cos_bit + 1);
-}
-#endif  // CONFIG_DATA_DRIVEN_TX
-
 void av1_fadst4_new(const int32_t *input, int32_t *output, int8_t cos_bit,
                     const int8_t *stage_range) {
   int bit = cos_bit;

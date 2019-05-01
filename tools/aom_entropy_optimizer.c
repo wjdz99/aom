@@ -331,46 +331,30 @@ int main(int argc, const char **argv) {
       "static const aom_cdf_prob default_partition_cdf[PARTITION_CONTEXTS]"
       "[CDF_SIZE(EXT_PARTITION_TYPES)]");
 
-#if CONFIG_DATA_DRIVEN_TX
-  /* ddt_type */
-#if USE_DDTX_INTER
+#if CONFIG_MODEDEP_TX
+/* nstx_type */
   cts_each_dim[0] = EXT_TX_SIZES;
   cts_each_dim[1] = 2;
   optimize_cdf_table(
-      &fc.use_ddtx_inter[0][0], probsfile, 2, cts_each_dim,
-      "static const aom_cdf_prob default_use_ddtx_inter[EXT_TX_SIZES]"
+      &fc.use_nstx_intra[0][0], probsfile, 2, cts_each_dim,
+      "static const aom_cdf_prob default_use_nstx_intra_cdf[EXT_TX_SIZES]"
       "[CDF_SIZE(2)]");
 
   cts_each_dim[0] = EXT_TX_SIZES;
-  cts_each_dim[1] = DDTX_TYPES_INTER;
-  optimize_cdf_table(&fc.ddtx_type_inter[0][0], probsfile, 2, cts_each_dim,
+  cts_each_dim[1] = INTRA_MODES;
+  cts_each_dim[2] = NSTX_TYPES_INTRA;
+  optimize_cdf_table(&fc.nstx_type_intra[0][0][0], probsfile, 3, cts_each_dim,
                      "static const aom_cdf_prob\n"
-                     "default_ddtx_type_inter[EXT_TX_SIZES]"
-                     "[CDF_SIZE(DDTX_TYPES_INTER)]");
-#endif
-#if USE_DDTX_INTRA
-  cts_each_dim[0] = EXT_TX_SIZES;
-  cts_each_dim[1] = 2;
-  optimize_cdf_table(
-      &fc.use_ddtx_intra[0][0], probsfile, 2, cts_each_dim,
-      "static const aom_cdf_prob default_use_ddtx_intra[EXT_TX_SIZES]"
-      "[CDF_SIZE(2)]");
-
-  cts_each_dim[0] = EXT_TX_SIZES;
-  cts_each_dim[1] = DDTX_TYPES_INTRA;
-  optimize_cdf_table(&fc.ddtx_type_intra[0][0], probsfile, 2, cts_each_dim,
-                     "static const aom_cdf_prob\n"
-                     "default_ddtx_type_intra[EXT_TX_SIZES]"
-                     "[CDF_SIZE(DDTX_TYPES_INTRA)]");
-#endif
+                     "default_nstx_type_intra_cdf[EXT_TX_SIZES][INTRA_MODES]"
+                     "[CDF_SIZE(NSTX_TYPES_INTRA)]");
 #endif
 
   /* tx type */
   cts_each_dim[0] = EXT_TX_SETS_INTRA;
   cts_each_dim[1] = EXT_TX_SIZES;
   cts_each_dim[2] = INTRA_MODES;
-#if CONFIG_DATA_DRIVEN_TX
-  cts_each_dim[3] = TX_TYPES_NODDTX;
+#if CONFIG_MODEDEP_TX
+  cts_each_dim[3] = TX_TYPES_NONSTX;
 #else
   cts_each_dim[3] = TX_TYPES;
 #endif
@@ -383,8 +367,8 @@ int main(int argc, const char **argv) {
 
   cts_each_dim[0] = EXT_TX_SETS_INTER;
   cts_each_dim[1] = EXT_TX_SIZES;
-#if CONFIG_DATA_DRIVEN_TX
-  cts_each_dim[2] = TX_TYPES_NODDTX;
+#if CONFIG_MODEDEP_TX
+  cts_each_dim[2] = TX_TYPES_NONSTX;
 #else
   cts_each_dim[2] = TX_TYPES;
 #endif

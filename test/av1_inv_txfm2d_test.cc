@@ -116,8 +116,8 @@ class AV1InvTxfm2d : public ::testing::TestWithParam<AV1InvTxfm2dParam> {
         for (int ni = 0; ni < txfm2d_size; ++ni) {
           ref_coeffs_int[ni] = (int32_t)round(ref_coeffs[ni]);
         }
-#if CONFIG_DATA_DRIVEN_TX
-        inv_txfm_func(ref_coeffs_int, expected, tx_w, tx_type_, 1, bd);
+#if CONFIG_MODEDEP_TX
+        inv_txfm_func(ref_coeffs_int, expected, tx_w, tx_type_, 0, bd);
 #else
         inv_txfm_func(ref_coeffs_int, expected, tx_w, tx_type_, bd);
 #endif
@@ -130,16 +130,17 @@ class AV1InvTxfm2d : public ::testing::TestWithParam<AV1InvTxfm2dParam> {
 
       DECLARE_ALIGNED(16, int32_t, coeffs[64 * 64]) = { 0 };
       ASSERT_LE(txfm2d_size, NELEMENTS(coeffs));
-#if CONFIG_DATA_DRIVEN_TX
-      fwd_txfm_func(input, coeffs, tx_w, tx_type_, 1, bd);
+#if CONFIG_MODEDEP_TX
+      fwd_txfm_func(input, coeffs, tx_w, tx_type_, 0, bd);
 #else
       fwd_txfm_func(input, coeffs, tx_w, tx_type_, bd);
 #endif
 
       DECLARE_ALIGNED(16, uint16_t, actual[64 * 64]) = { 0 };
+
       ASSERT_LE(txfm2d_size, NELEMENTS(actual));
-#if CONFIG_DATA_DRIVEN_TX
-      inv_txfm_func(coeffs, actual, tx_w, tx_type_, 1, bd);
+#if CONFIG_MODEDEP_TX
+      inv_txfm_func(coeffs, actual, tx_w, tx_type_, 0, bd);
 #else
       inv_txfm_func(coeffs, actual, tx_w, tx_type_, bd);
 #endif
@@ -320,8 +321,8 @@ void AV1LbdInvTxfm2d::RunAV1InvTxfm2dTest(TxType tx_type, TxSize tx_size,
         ref_output[r * stride + c] = output[r * stride + c];
       }
     }
-#if CONFIG_DATA_DRIVEN_TX
-    fwd_func_(input, inv_input, stride, tx_type, 1, bd);
+#if CONFIG_MODEDEP_TX
+    fwd_func_(input, inv_input, stride, tx_type, 0, bd);
 #else
     fwd_func_(input, inv_input, stride, tx_type, bd);
 #endif
@@ -337,8 +338,8 @@ void AV1LbdInvTxfm2d::RunAV1InvTxfm2dTest(TxType tx_type, TxSize tx_size,
     aom_usec_timer timer;
     aom_usec_timer_start(&timer);
     for (int i = 0; i < run_times; ++i) {
-#if CONFIG_DATA_DRIVEN_TX
-      ref_func_(inv_input, ref_output, stride, tx_type, 1, bd);
+#if CONFIG_MODEDEP_TX
+      ref_func_(inv_input, ref_output, stride, tx_type, 0, bd);
 #else
       ref_func_(inv_input, ref_output, stride, tx_type, bd);
 #endif
@@ -347,8 +348,8 @@ void AV1LbdInvTxfm2d::RunAV1InvTxfm2dTest(TxType tx_type, TxSize tx_size,
     const double time1 = static_cast<double>(aom_usec_timer_elapsed(&timer));
     aom_usec_timer_start(&timer);
     for (int i = 0; i < run_times; ++i) {
-#if CONFIG_DATA_DRIVEN_TX
-      target_func_(inv_input, output, stride, tx_type, tx_size, 1, eob);
+#if CONFIG_MODEDEP_TX
+      target_func_(inv_input, output, stride, tx_type, tx_size, 0, eob);
 #else
       target_func_(inv_input, output, stride, tx_type, tx_size, eob);
 #endif
@@ -421,17 +422,13 @@ INSTANTIATE_TEST_CASE_P(SSSE3, AV1LbdInvTxfm2d,
 #endif  // HAVE_SSSE3
 
 #if HAVE_AVX2
-#if CONFIG_DATA_DRIVEN_TX
 extern "C" void av1_lowbd_inv_txfm2d_add_avx2(const int32_t *input,
                                               uint8_t *output, int stride,
                                               TX_TYPE tx_type, TX_SIZE tx_size,
-                                              int is_inter, int eob);
-#else
-extern "C" void av1_lowbd_inv_txfm2d_add_avx2(const int32_t *input,
-                                              uint8_t *output, int stride,
-                                              TxType tx_type, TxSize tx_size,
-                                              int eob);
+#if CONFIG_MODEDEP_TX
+                                              PREDICTION_MODE mode,
 #endif
+                                              int eob);
 INSTANTIATE_TEST_CASE_P(AVX2, AV1LbdInvTxfm2d,
                         ::testing::Values(av1_lowbd_inv_txfm2d_add_avx2));
 #endif  // HAVE_AVX2
@@ -440,18 +437,14 @@ INSTANTIATE_TEST_CASE_P(AVX2, AV1LbdInvTxfm2d,
 // are fixed.
 // #if HAVE_NEON
 //
-// #if CONFIG_DATA_DRIVEN_TX
 // extern "C" void av1_lowbd_inv_txfm2d_add_neon(const int32_t *input,
 //                                               uint8_t *output, int stride,
 //                                               TX_TYPE tx_type,
-//                                               TX_SIZE tx_size, int is_inter,
-//                                               int eob);
-// #else
-// extern "C" void av1_lowbd_inv_txfm2d_add_neon(const int32_t *input,
-//                                               uint8_t *output, int stride,
-//                                               TX_TYPE tx_type,
-//                                               TX_SIZE tx_size, int eob);
+//                                               TX_SIZE tx_size,
+// #if CONFIG_MODEDEP_TX
+//                                               PREDICTION_MODE mode,
 // #endif
+//                                               int eob);
 // INSTANTIATE_TEST_CASE_P(NEON, AV1LbdInvTxfm2d,
 //                         ::testing::Values(av1_lowbd_inv_txfm2d_add_neon));
 // #endif  // HAVE_NEON

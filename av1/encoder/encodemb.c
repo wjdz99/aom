@@ -171,12 +171,12 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   txfm_param.lossless = xd->lossless[mbmi->segment_id];
   txfm_param.tx_set_type = av1_get_ext_tx_set_type(
       txfm_param.tx_size, is_inter_block(mbmi), cm->reduced_tx_set_used);
+#if CONFIG_MODEDEP_TX
+  txfm_param.mode = mbmi->mode;
+#endif
 
   txfm_param.bd = xd->bd;
   txfm_param.is_hbd = is_cur_buf_hbd(xd);
-#if CONFIG_DATA_DRIVEN_TX
-  txfm_param.is_inter = is_inter_block(mbmi);
-#endif
 
   av1_fwd_txfm(src_diff, coeff, diff_stride, &txfm_param);
 
@@ -444,6 +444,9 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
     txfm_param.tx_type = DCT_DCT;
     txfm_param.tx_size = tx_size;
     txfm_param.eob = p->eobs[block];
+#if CONFIG_MODEDEP_TX
+    txfm_param.mode = xd->mi[0]->mode;
+#endif
     txfm_param.lossless = xd->lossless[xd->mi[0]->segment_id];
     txfm_param.tx_set_type = av1_get_ext_tx_set_type(
         txfm_param.tx_size, is_inter_block(xd->mi[0]), cm->reduced_tx_set_used);
