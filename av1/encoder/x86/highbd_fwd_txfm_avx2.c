@@ -544,7 +544,14 @@ static void av1_idtx8_avx2(__m256i *in, __m256i *out, const int8_t bit,
   }
 }
 void av1_fwd_txfm2d_8x8_avx2(const int16_t *input, int32_t *coeff, int stride,
-                             TX_TYPE tx_type, int bd) {
+                             TX_TYPE tx_type,
+#if CONFIG_MODEDEP_TX
+                             PREDICTION_MODE mode,
+#endif
+                             int bd) {
+#if CONFIG_MODEDEP_TX
+  (void)mode;
+#endif
   __m256i in[8], out[8];
   const TX_SIZE tx_size = TX_8X8;
   const int8_t *shift = fwd_txfm_shift_ls[tx_size];
@@ -1316,7 +1323,14 @@ static const transform_1d_avx2 row_highbd_txfm8x8_arr[TX_TYPES] = {
   av1_fadst8_avx2   // H_FLIPADST
 };
 void av1_fwd_txfm2d_8x16_avx2(const int16_t *input, int32_t *coeff, int stride,
-                              TX_TYPE tx_type, int bd) {
+                              TX_TYPE tx_type,
+#if CONFIG_MODEDEP_TX
+                              PREDICTION_MODE mode,
+#endif
+                              int bd) {
+#if CONFIG_MODEDEP_TX
+  (void)mode;
+#endif
   __m256i in[16], out[16];
   const int8_t *shift = fwd_txfm_shift_ls[TX_8X16];
   const int txw_idx = get_txw_idx(TX_8X16);
@@ -1377,7 +1391,14 @@ static const transform_1d_avx2 row_highbd_txfm8x16_arr[TX_TYPES] = {
   av1_fadst16_avx2   // H_FLIPADST
 };
 void av1_fwd_txfm2d_16x8_avx2(const int16_t *input, int32_t *coeff, int stride,
-                              TX_TYPE tx_type, int bd) {
+                              TX_TYPE tx_type,
+#if CONFIG_MODEDEP_TX
+                              PREDICTION_MODE mode,
+#endif
+                              int bd) {
+#if CONFIG_MODEDEP_TX
+  (void)mode;
+#endif
   __m256i in[16], out[16];
   const int8_t *shift = fwd_txfm_shift_ls[TX_16X8];
   const int txw_idx = get_txw_idx(TX_16X8);
@@ -1402,7 +1423,14 @@ void av1_fwd_txfm2d_16x8_avx2(const int16_t *input, int32_t *coeff, int stride,
   (void)bd;
 }
 void av1_fwd_txfm2d_16x16_avx2(const int16_t *input, int32_t *coeff, int stride,
-                               TX_TYPE tx_type, int bd) {
+                               TX_TYPE tx_type,
+#if CONFIG_MODEDEP_TX
+                               PREDICTION_MODE mode,
+#endif
+                               int bd) {
+#if CONFIG_MODEDEP_TX
+  (void)mode;
+#endif
   __m256i in[32], out[32];
   const TX_SIZE tx_size = TX_16X16;
   const int8_t *shift = fwd_txfm_shift_ls[tx_size];
@@ -2046,12 +2074,12 @@ static const transform_1d_avx2 row_txfm8x32_arr[TX_TYPES] = {
 };
 void av1_fwd_txfm2d_32x32_avx2(const int16_t *input, int32_t *output,
                                int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                               int is_inter,
+#if CONFIG_MODEDEP_TX
+                               PREDICTION_MODE mode,
 #endif
                                int bd) {
-#if CONFIG_DATA_DRIVEN_TX
-  (void)is_inter;
+#if CONFIG_MODEDEP_TX
+  (void)mode;
 #endif
   (void)bd;
   __m256i buf0[128], buf1[128];
@@ -3116,12 +3144,12 @@ static void av1_fdct64_avx2(__m256i *input, __m256i *output, int8_t cos_bit,
 }
 void av1_fwd_txfm2d_64x64_avx2(const int16_t *input, int32_t *output,
                                int stride, TX_TYPE tx_type,
-#if CONFIG_DATA_DRIVEN_TX
-                               int is_inter,
+#if CONFIG_MODEDEP_TX
+                               PREDICTION_MODE mode,
 #endif
                                int bd) {
-#if CONFIG_DATA_DRIVEN_TX
-  (void)is_inter;
+#if CONFIG_MODEDEP_TX
+  (void)mode;
 #endif
   (void)bd;
   (void)tx_type;
