@@ -32,7 +32,7 @@
 #define WARPED_MOTION_DEBUG 0
 #define DEFAULT_WMTYPE AFFINE
 
-extern const int16_t warped_filter[WARPEDPIXEL_PREC_SHIFTS * 3 + 1][8];
+extern const int16_t av1_warped_filter[WARPEDPIXEL_PREC_SHIFTS * 3 + 1][8];
 
 static const uint8_t warp_pad_left[14][16] = {
   { 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 },
@@ -87,9 +87,9 @@ void av1_warp_plane(WarpedMotionParams *wm, int use_hbd, int bd,
                     int p_height, int p_stride, int subsampling_x,
                     int subsampling_y, ConvolveParams *conv_params);
 
-int find_projection(int np, int *pts1, int *pts2, BLOCK_SIZE bsize, int mvy,
-                    int mvx, WarpedMotionParams *wm_params, int mi_row,
-                    int mi_col);
+int av1_find_projection(int np, int *pts1, int *pts2, BLOCK_SIZE bsize, int mvy,
+                        int mvx, WarpedMotionParams *wm_params, int mi_row,
+                        int mi_col);
 
-int get_shear_params(WarpedMotionParams *wm);
+int av1_get_shear_params(WarpedMotionParams *wm);
 #endif  // AOM_AV1_COMMON_WARPED_MOTION_H_
