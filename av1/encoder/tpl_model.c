@@ -40,7 +40,7 @@ static void get_quantize_error(MACROBLOCK *x, int plane, tran_low_t *coeff,
   const SCAN_ORDER *const scan_order = &av1_default_scan_orders[tx_size];
   uint16_t eob;
   int pix_num = 1 << num_pels_log2_lookup[txsize_to_bsize[tx_size]];
-  const int shift = tx_size == TX_32X32 ? 0 : 2;
+  const int shift = tx_size == TX_64X64 ? -2 : (tx_size == TX_32X32 ? 0 : 2);
 
   if (tx_size == TX_64X64)
     av1_quantize_fp_64x64(coeff, pix_num, p->zbin_QTX, p->round_fp_QTX,
@@ -56,11 +56,16 @@ static void get_quantize_error(MACROBLOCK *x, int plane, tran_low_t *coeff,
     av1_quantize_fp(coeff, pix_num, p->zbin_QTX, p->round_fp_QTX,
                     p->quant_fp_QTX, p->quant_shift_QTX, qcoeff, dqcoeff,
                     p->dequant_QTX, &eob, scan_order->scan, scan_order->iscan);
-
-  *recon_error = av1_block_error(coeff, dqcoeff, pix_num, sse) >> shift;
+  if (shift)
+    *recon_error = av1_block_error(coeff, dqcoeff, pix_num, sse) >> shift;
+  else
+    *recon_error = av1_block_error(coeff, dqcoeff, pix_num, sse) << (-shift);
   *recon_error = AOMMAX(*recon_error, 1);
 
-  *sse = (*sse) >> shift;
+  if (shift)
+    *sse = (*sse) >> shift;
+  else
+    *sse = (*sse) << (-shift);
   *sse = AOMMAX(*sse, 1);
 }
 
@@ -210,7 +215,7 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
   x->mv_limits.col_max =
       ((cm->mi_cols - 1 - mi_col) * MI_SIZE) + (17 - 2 * AOM_INTERP_EXTEND);
 
-  for (rf_idx = 0; rf_idx < 7; ++rf_idx) {
+  for (rf_idx = 0; rf_idx < INTER_REFS_PER_FRAME; ++rf_idx) {
     if (ref_frame[rf_idx] == NULL) continue;
 
     int q_ref =
@@ -259,7 +264,6 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
   best_inter_cost = AOMMIN(best_intra_cost, (int64_t)best_inter_cost_weighted);
   tpl_stats->inter_cost = best_inter_cost << TPL_DEP_COST_SCALE_LOG2;
   tpl_stats->intra_cost = best_intra_cost << TPL_DEP_COST_SCALE_LOG2;
-  tpl_stats->mc_dep_cost = tpl_stats->intra_cost + tpl_stats->mc_flow;
 
   tpl_stats->ref_frame_index = gf_picture[frame_idx].ref_frame[best_rf_idx];
   tpl_stats->mv.as_int = best_mv.as_int;
@@ -340,16 +344,16 @@ static void tpl_model_update_b(TplDepFrame *tpl_frame, TplDepStats *tpl_stats,
       int64_t mc_flow = tpl_stats->mc_dep_cost -
                         (tpl_stats->mc_dep_cost * tpl_stats->inter_cost) /
                             tpl_stats->intra_cost;
-
+      int64_t mc_saved = tpl_stats->intra_cost - tpl_stats->inter_cost;
       int idx, idy;
-
       for (idy = 0; idy < mi_height; ++idy) {
         for (idx = 0; idx < mi_width; ++idx) {
           TplDepStats *des_stats =
               &ref_stats[(ref_mi_row + idy) * ref_tpl_frame->stride +
                          (ref_mi_col + idx)];
-
           des_stats->mc_flow += (mc_flow * overlap_area) / pix_num;
+          des_stats->mc_count += overlap_area << TPL_DEP_COST_SCALE_LOG2;
+          des_stats->mc_saved += (mc_saved * overlap_area) / pix_num;
           assert(overlap_area >= 0);
         }
       }
@@ -454,7 +458,7 @@ static void mc_flow_dispenser(AV1_COMP *cpi, GF_PICTURE *gf_picture,
 
   // Prepare reference frame pointers. If any reference frame slot is
   // unavailable, the pointer will be set to Null.
-  for (idx = 0; idx < 7; ++idx) {
+  for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
     int rf_idx = gf_picture[frame_idx].ref_frame[idx];
     if (rf_idx != -1) ref_frame[idx] = gf_picture[rf_idx].frame;
   }
@@ -557,16 +561,16 @@ static void init_gop_frames_for_tpl(AV1_COMP *cpi, GF_PICTURE *gf_picture,
 
       gf_picture[frame_idx].frame = &buf->img;
     }
-
     memcpy(gf_picture[frame_idx].ref_frame,
            gf_group->ref_frame_gop_idx[frame_idx],
            sizeof(gf_picture[0].ref_frame[0]) * INTER_REFS_PER_FRAME);
 
+    cpi->tpl_stats[frame_idx].base_qindex = gf_group->q_val[frame_idx];
+    if (gf_group->update_type[frame_idx] == LF_UPDATE)
+      pframe_qindex = gf_group->q_val[frame_idx];
+
     ++*tpl_group_frames;
   }
-  cpi->tpl_stats[frame_idx].base_qindex = gf_group->q_val[frame_idx];
-  if (gf_group->update_type[frame_idx] == LF_UPDATE)
-    pframe_qindex = gf_group->q_val[frame_idx];
 
   ++frame_disp_idx;
   int extend_frame_count = 0;
@@ -601,6 +605,20 @@ static void init_gop_frames_for_tpl(AV1_COMP *cpi, GF_PICTURE *gf_picture,
     ++extend_frame_count;
     ++frame_disp_idx;
   }
+  /*
+  for (frame_idx = 0; frame_idx < *tpl_group_frames; ++frame_idx) {
+    printf("frame_idx:%d -> %d [ %d ]\n", frame_idx,
+           gf_group->frame_disp_idx[frame_idx],
+           cpi->tpl_stats[frame_idx].base_qindex);
+    for (int i = 0; i < INTER_REFS_PER_FRAME; ++i)
+      printf("%d, ", gf_picture[frame_idx].ref_frame[i]);
+    printf(" -> ");
+    for (int i = 0; i < INTER_REFS_PER_FRAME; ++i)
+      printf("%d, ",
+             gf_group->frame_disp_idx[gf_picture[frame_idx].ref_frame[i]]);
+    printf("\n");
+  }
+  */
 }
 
 static void init_tpl_stats(AV1_COMP *cpi) {
