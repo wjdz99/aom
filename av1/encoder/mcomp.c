@@ -19,6 +19,7 @@
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/mem.h"
+#include "aom_ports/aom_timer.h"
 #include "aom_ports/system_state.h"
 
 #include "av1/common/common.h"
@@ -2308,6 +2309,22 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
 
   return best_sad;
 }
+static int search_hit[BLOCK_SIZES];
+static int64_t search_time[BLOCK_SIZES];
+void print_search_hit() {
+  uint64_t pixel_count = 0;
+  int64_t total_time = 0;
+  for (int i = 0; i < BLOCK_SIZES; i++) {
+    pixel_count += block_size_wide[i] * block_size_high[i] * search_hit[i];
+    total_time += search_time[i];
+    printf("BSize %dx%d, hit %d, time per block %f\n", block_size_wide[i],
+           block_size_high[i], search_hit[i],
+           (double)search_time[i] /
+               (search_hit[i] * block_size_wide[i] * block_size_high[i]));
+  }
+  printf("Pixel count %ld, avg time pp %f\n", pixel_count,
+         (double)total_time / pixel_count);
+}
 
 int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
                           MV *mvp_full, int step_param, int method,
@@ -2318,7 +2335,10 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   const SPEED_FEATURES *const sf = &cpi->sf;
   const aom_variance_fn_ptr_t *fn_ptr = &cpi->fn_ptr[bsize];
   int var = 0;
+  struct aom_usec_timer timer;
 
+  search_hit[bsize]++;
+  aom_usec_timer_start(&timer);
   if (cost_list) {
     cost_list[0] = INT_MAX;
     cost_list[1] = INT_MAX;
@@ -2474,7 +2494,9 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
       }
     }
   } while (0);
-
+  aom_usec_timer_mark(&timer);
+  int64_t dx_time = aom_usec_timer_elapsed(&timer);
+  search_time[bsize] += dx_time;
   return var;
 }
 

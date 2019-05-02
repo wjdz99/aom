@@ -5341,7 +5341,6 @@ void av1_encode_frame(AV1_COMP *cpi) {
     rdc->skip_mode_used_flag = 0;
 
     encode_frame_internal(cpi);
-
     for (i = 0; i < REFERENCE_MODES; ++i)
       mode_thrs[i] = (mode_thrs[i] + rdc->comp_pred_diff[i] / cm->MBs) / 2;
 

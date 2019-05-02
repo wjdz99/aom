@@ -182,6 +182,8 @@ static INLINE void av1_set_fractional_mv(int_mv *fractional_best_mv) {
   }
 }
 
+void print_search_hit();
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
