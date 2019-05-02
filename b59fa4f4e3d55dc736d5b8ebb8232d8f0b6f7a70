@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a827e3be_149b5abf",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 10311
+      },
+      "writtenOn": "2019-05-02T07:26:26Z",
+      "side": 1,
+      "message": "All spaces",
+      "parentUuid": "02dea462_10a92aeb",
+      "range": {
+        "startLine": 268,
+        "startChar": 0,
+        "endLine": 268,
+        "endChar": 12
+      },
+      "revId": "b59fa4f4e3d55dc736d5b8ebb8232d8f0b6f7a70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d618d465_13672bc9",
         "filename": "av1/common/warped_motion.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "b59fa4f4e3d55dc736d5b8ebb8232d8f0b6f7a70",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5504f8f_17a40f6d",
+        "filename": "av1/common/warped_motion.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 10311
+      },
+      "writtenOn": "2019-05-02T07:26:26Z",
+      "side": 1,
+      "message": "It is 8 byte aligned, as the load happens for 8 bytes at a time. Declared here as extern to reuse the same in AVX2 implementation.",
+      "parentUuid": "d618d465_13672bc9",
+      "range": {
+        "startLine": 37,
+        "startChar": 16,
+        "endLine": 37,
+        "endChar": 17
+      },
+      "revId": "b59fa4f4e3d55dc736d5b8ebb8232d8f0b6f7a70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "bb7f755f_8a250531",
+        "filename": "av1/common/x86/warp_plane_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 10311
+      },
+      "writtenOn": "2019-05-02T07:26:26Z",
+      "side": 1,
+      "message": "These tables are unaligned for consistency with sse4_1 module. \nHowever we are planning to submit a separate patch in which these tables (in both avx2 and sse4_1 paths) would be aligned and loads will be modified accordingly (as aligned loads).",
+      "parentUuid": "3a0ce400_761a315c",
+      "range": {
+        "startLine": 16,
+        "startChar": 1,
+        "endLine": 16,
+        "endChar": 55
+      },
+      "revId": "b59fa4f4e3d55dc736d5b8ebb8232d8f0b6f7a70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2014fef7_1f71b3e9",
         "filename": "av1/common/x86/warp_plane_avx2.c",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2019-04-30T14:12:17Z",
       "side": 1,
       "message": "similar here and below?",
+      "range": {
+        "startLine": 21,
+        "startChar": 1,
+        "endLine": 21,
+        "endChar": 51
+      },
+      "revId": "b59fa4f4e3d55dc736d5b8ebb8232d8f0b6f7a70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f19c0474_b7b6b0d7",
+        "filename": "av1/common/x86/warp_plane_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 10311
+      },
+      "writtenOn": "2019-05-02T07:26:26Z",
+      "side": 1,
+      "message": "Same as above.",
+      "parentUuid": "2014fef7_1f71b3e9",
       "range": {
         "startLine": 21,
         "startChar": 1,
