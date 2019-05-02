@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bda29d97_846e1c18",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-05-02T18:36:41Z",
+      "side": 1,
+      "message": "Using present tense in the subject is preferred (Fix CFI...).",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 5
+      },
+      "revId": "589f9b332b2dc3ea6473c9b9042f9fa3ac840c79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d54ac875_5327e19b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-05-02T18:36:41Z",
+      "side": 1,
+      "message": "add BUG\u003dwebm:1564 so we can track the work; I added the other couple of changes on the libaom side in a comment.",
+      "revId": "589f9b332b2dc3ea6473c9b9042f9fa3ac840c79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
