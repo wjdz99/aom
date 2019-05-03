@@ -81,6 +81,7 @@ const libaom_test::TestMode kEncodingModeVectors[] = {
 
 // Speed settings tested
 const int kCpuUsedVectors[] = { 1, 2, 3, 5, 6 };
+const int kCpuUsedRealtimeVectors[] = { 7, 8 };
 
 int is_extension_y4m(const char *filename) {
   const char *dot = strrchr(filename, '.');
@@ -91,14 +92,14 @@ int is_extension_y4m(const char *filename) {
 }
 
 class EndToEndTest
-    : public ::libaom_test::CodecTestWith3Params<libaom_test::TestMode,
-                                                 TestVideoParam, int>,
+    : public ::libaom_test::CodecTestWith4Params<libaom_test::TestMode,
+                                                 TestVideoParam, int, int>,
       public ::libaom_test::EncoderTest {
  protected:
   EndToEndTest()
       : EncoderTest(GET_PARAM(0)), test_video_param_(GET_PARAM(2)),
         cpu_used_(GET_PARAM(3)), psnr_(0.0), nframes_(0),
-        encoding_mode_(GET_PARAM(1)) {}
+        aq_mode_(GET_PARAM(4)), encoding_mode_(GET_PARAM(1)) {}
 
   virtual ~EndToEndTest() {}
 
@@ -187,22 +188,35 @@ class EndToEndTest
  private:
   double psnr_;
   unsigned int nframes_;
+  int aq_mode_;
   libaom_test::TestMode encoding_mode_;
 };
 
 class EndToEndTestLarge : public EndToEndTest {};
 
+class EndToEndTestRealtime : public EndToEndTest {};
+
+TEST_P(EndToEndTestRealtime, EndtoEndPSNRTest) { DoTest(); }
+
 TEST_P(EndToEndTestLarge, EndtoEndPSNRTest) { DoTest(); }
 
 TEST_P(EndToEndTest, EndtoEndPSNRTest) { DoTest(); }
 
+AV1_INSTANTIATE_TEST_CASE(EndToEndTestRealtime,
+                          ::testing::Values(kEncodingModeVectors[2]),
+                          ::testing::Values(kTestVectors[0]),
+                          ::testing::ValuesIn(kCpuUsedRealtimeVectors),
+                          ::testing::Range(0, 4));
+
 AV1_INSTANTIATE_TEST_CASE(EndToEndTestLarge,
                           ::testing::ValuesIn(kEncodingModeVectors),
                           ::testing::ValuesIn(kTestVectors),
-                          ::testing::ValuesIn(kCpuUsedVectors));
+                          ::testing::ValuesIn(kCpuUsedVectors),
+                          ::testing::Range(0, 4));
 
 AV1_INSTANTIATE_TEST_CASE(EndToEndTest,
                           ::testing::Values(kEncodingModeVectors[0]),
                           ::testing::Values(kTestVectors[2]),  // 444
-                          ::testing::Values(kCpuUsedVectors[2]));
+                          ::testing::Values(kCpuUsedVectors[2]),
+                          ::testing::Range(0, 4));
 }  // namespace
