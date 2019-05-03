@@ -16,6 +16,24 @@
       "revId": "e8b7f63ec51b3db38e825af8888ab11f61df890e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7c902ecf_a3a69266",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-05-03T02:21:09Z",
+      "side": 1,
+      "message": "Conditions on resolution aren\u0027t very consistent.. sometimes the number of pixels is used and sometimes it compares width and height separately..",
+      "parentUuid": "0a465b7f_d409c2e6",
+      "revId": "e8b7f63ec51b3db38e825af8888ab11f61df890e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
