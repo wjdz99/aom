@@ -2926,6 +2926,36 @@ static void model_rd_for_sb_with_curvfit(
   *out_dist_sum = dist_sum;
 }
 
+const int8_t fwd_txfm_shift_4x4[3] = { 2, 0, 0 };
+const int8_t fwd_txfm_shift_8x8[3] = { 2, -1, 0 };
+const int8_t fwd_txfm_shift_16x16[3] = { 2, -2, 0 };
+const int8_t fwd_txfm_shift_32x32[3] = { 2, -4, 0 };
+const int8_t fwd_txfm_shift_64x64[3] = { 0, -2, -2 };
+const int8_t fwd_txfm_shift_4x8[3] = { 2, -1, 0 };
+const int8_t fwd_txfm_shift_8x4[3] = { 2, -1, 0 };
+const int8_t fwd_txfm_shift_8x16[3] = { 2, -2, 0 };
+const int8_t fwd_txfm_shift_16x8[3] = { 2, -2, 0 };
+const int8_t fwd_txfm_shift_16x32[3] = { 2, -4, 0 };
+const int8_t fwd_txfm_shift_32x16[3] = { 2, -4, 0 };
+const int8_t fwd_txfm_shift_32x64[3] = { 0, -2, -2 };
+const int8_t fwd_txfm_shift_64x32[3] = { 2, -4, -2 };
+const int8_t fwd_txfm_shift_4x16[3] = { 2, -1, 0 };
+const int8_t fwd_txfm_shift_16x4[3] = { 2, -1, 0 };
+const int8_t fwd_txfm_shift_8x32[3] = { 2, -2, 0 };
+const int8_t fwd_txfm_shift_32x8[3] = { 2, -2, 0 };
+const int8_t fwd_txfm_shift_16x64[3] = { 0, -2, 0 };
+const int8_t fwd_txfm_shift_64x16[3] = { 2, -4, 0 };
+
+const int8_t *fwd_txfm_shift[TX_SIZES_ALL] = {
+  fwd_txfm_shift_4x4,   fwd_txfm_shift_8x8,   fwd_txfm_shift_16x16,
+  fwd_txfm_shift_32x32, fwd_txfm_shift_64x64, fwd_txfm_shift_4x8,
+  fwd_txfm_shift_8x4,   fwd_txfm_shift_8x16,  fwd_txfm_shift_16x8,
+  fwd_txfm_shift_16x32, fwd_txfm_shift_32x16, fwd_txfm_shift_32x64,
+  fwd_txfm_shift_64x32, fwd_txfm_shift_4x16,  fwd_txfm_shift_16x4,
+  fwd_txfm_shift_8x32,  fwd_txfm_shift_32x8,  fwd_txfm_shift_16x64,
+  fwd_txfm_shift_64x16,
+};
+
 static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                                int block, int blk_row, int blk_col,
                                BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
@@ -3096,96 +3126,119 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   // coeffs. For smaller residuals, coeff optimization would be helpful. For
   // larger residuals, R-D optimization may not be effective.
   // TODO(any): Experiment with variance and mean based thresholds
-  perform_block_coeff_opt = (block_mse_q8 <= cpi->coeff_opt_dist_threshold);
+  const int16_t dc_q =
+      av1_dc_quant_QTX(x->qindex, cm->y_dc_delta_q, AOM_BITS_8);
+  int boosted = frame_is_kf_gf_arf(cpi);
+  double mse_qscale;
+  double blk_mse_temp;
+  int net_scale_tx_quant;
+  int log_sclae;
+  const int8_t *txfm_shift;
+  log_sclae = av1_get_tx_scale(tx_size);
+  txfm_shift = fwd_txfm_shift[tx_size];
+  net_scale_tx_quant =
+      txfm_shift[0] + txfm_shift[1] + txfm_shift[2] + log_sclae;
+  const int txfm_size_col = tx_size_wide[tx_size];
+  const int txfm_size_row = tx_size_high[tx_size];
+  const int rect_type = get_rect_tx_log_ratio(txfm_size_col, txfm_size_row);
+  double div_factor = 1 << (2 - net_scale_tx_quant);
+  if (abs(rect_type) == 1) {
+    div_factor /= 1.414;
+   }
+   blk_mse_temp = (double)block_mse_q8 / (div_factor * div_factor);
+   mse_qscale = (double)block_mse_q8 * dc_q * dc_q;
 
-  for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
-    if (!(allowed_tx_mask & (1 << tx_type))) continue;
-    if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
-    RD_STATS this_rd_stats;
-    av1_invalid_rd_stats(&this_rd_stats);
-    if (skip_trellis || (!perform_block_coeff_opt)) {
-      av1_xform_quant(
-          cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size, tx_type,
-          USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP);
-      rate_cost = av1_cost_coeffs(cm, x, plane, block, tx_size, tx_type,
-                                  txb_ctx, use_fast_coef_costing);
-    } else {
-      av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
-                      tx_size, tx_type, AV1_XFORM_QUANT_FP);
-      if (cpi->sf.optimize_b_precheck && best_rd < INT64_MAX &&
-          eobs_ptr[block] >= 4) {
-        // Calculate distortion quickly in transform domain.
-        dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
-                             &this_rd_stats.sse);
+   perform_block_coeff_opt = (mse_qscale <= cpi->coeff_opt_dist_threshold);
 
-        const int64_t best_rd_ = AOMMIN(best_rd, ref_best_rd);
-        const int64_t dist_cost_estimate =
-            RDCOST(x->rdmult, 0, AOMMIN(this_rd_stats.dist, this_rd_stats.sse));
-        if (dist_cost_estimate - (dist_cost_estimate >> 3) > best_rd_) continue;
-      }
-      av1_optimize_b(cpi, x, plane, block, tx_size, tx_type, txb_ctx,
-                     cpi->sf.trellis_eob_fast, &rate_cost);
-    }
-    if (eobs_ptr[block] == 0) {
-      // When eob is 0, pixel domain distortion is more efficient and accurate.
-      this_rd_stats.dist = this_rd_stats.sse = block_sse;
-    } else if (use_transform_domain_distortion) {
-      dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
-                           &this_rd_stats.sse);
-    } else {
-      int64_t sse_diff = INT64_MAX;
-      // high_energy threshold assumes that every pixel within a txfm block
-      // has a residue energy of at least 25% of the maximum, i.e. 128 * 128
-      // for 8 bit, then the threshold is scaled based on input bit depth.
-      const int64_t high_energy_thresh =
-          ((int64_t)128 * 128 * tx_size_2d[tx_size]) << ((xd->bd - 8) * 2);
-      const int is_high_energy = (block_sse >= high_energy_thresh);
-      if (tx_size == TX_64X64 || is_high_energy) {
-        // Because 3 out 4 quadrants of transform coefficients are forced to
-        // zero, the inverse transform has a tendency to overflow. sse_diff
-        // is effectively the energy of those 3 quadrants, here we use it
-        // to decide if we should do pixel domain distortion. If the energy
-        // is mostly in first quadrant, then it is unlikely that we have
-        // overflow issue in inverse transform.
-        dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
-                             &this_rd_stats.sse);
-        sse_diff = block_sse - this_rd_stats.sse;
-      }
-      if (tx_size != TX_64X64 || !is_high_energy ||
-          (sse_diff * 2) < this_rd_stats.sse) {
-        const int64_t tx_domain_dist = this_rd_stats.dist;
-        this_rd_stats.dist = dist_block_px_domain(
-            cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size);
-        // For high energy blocks, occasionally, the pixel domain distortion
-        // can be artificially low due to clamping at reconstruction stage
-        // even when inverse transform output is hugely different from the
-        // actual residue.
-        if (is_high_energy && this_rd_stats.dist < tx_domain_dist)
-          this_rd_stats.dist = tx_domain_dist;
-      } else {
-        this_rd_stats.dist += sse_diff;
-      }
-      this_rd_stats.sse = block_sse;
-    }
+   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
+     if (!(allowed_tx_mask & (1 << tx_type))) continue;
+     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
+     RD_STATS this_rd_stats;
+     av1_invalid_rd_stats(&this_rd_stats);
+     if (skip_trellis || (!perform_block_coeff_opt)) {
+       av1_xform_quant(
+           cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size, tx_type,
+           USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP);
+       rate_cost = av1_cost_coeffs(cm, x, plane, block, tx_size, tx_type,
+                                   txb_ctx, use_fast_coef_costing);
+     } else {
+       av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
+                       tx_size, tx_type, AV1_XFORM_QUANT_FP);
+       if (cpi->sf.optimize_b_precheck && best_rd < INT64_MAX &&
+           eobs_ptr[block] >= 4) {
+         // Calculate distortion quickly in transform domain.
+         dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
+                              &this_rd_stats.sse);
 
-    this_rd_stats.rate = rate_cost;
+         const int64_t best_rd_ = AOMMIN(best_rd, ref_best_rd);
+         const int64_t dist_cost_estimate = RDCOST(
+             x->rdmult, 0, AOMMIN(this_rd_stats.dist, this_rd_stats.sse));
+         if (dist_cost_estimate - (dist_cost_estimate >> 3) > best_rd_)
+           continue;
+       }
+       av1_optimize_b(cpi, x, plane, block, tx_size, tx_type, txb_ctx,
+                      cpi->sf.trellis_eob_fast, &rate_cost);
+     }
+     if (eobs_ptr[block] == 0) {
+       // When eob is 0, pixel domain distortion is more efficient and accurate.
+       this_rd_stats.dist = this_rd_stats.sse = block_sse;
+     } else if (use_transform_domain_distortion) {
+       dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
+                            &this_rd_stats.sse);
+     } else {
+       int64_t sse_diff = INT64_MAX;
+       // high_energy threshold assumes that every pixel within a txfm block
+       // has a residue energy of at least 25% of the maximum, i.e. 128 * 128
+       // for 8 bit, then the threshold is scaled based on input bit depth.
+       const int64_t high_energy_thresh =
+           ((int64_t)128 * 128 * tx_size_2d[tx_size]) << ((xd->bd - 8) * 2);
+       const int is_high_energy = (block_sse >= high_energy_thresh);
+       if (tx_size == TX_64X64 || is_high_energy) {
+         // Because 3 out 4 quadrants of transform coefficients are forced to
+         // zero, the inverse transform has a tendency to overflow. sse_diff
+         // is effectively the energy of those 3 quadrants, here we use it
+         // to decide if we should do pixel domain distortion. If the energy
+         // is mostly in first quadrant, then it is unlikely that we have
+         // overflow issue in inverse transform.
+         dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
+                              &this_rd_stats.sse);
+         sse_diff = block_sse - this_rd_stats.sse;
+       }
+       if (tx_size != TX_64X64 || !is_high_energy ||
+           (sse_diff * 2) < this_rd_stats.sse) {
+         const int64_t tx_domain_dist = this_rd_stats.dist;
+         this_rd_stats.dist = dist_block_px_domain(
+             cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size);
+         // For high energy blocks, occasionally, the pixel domain distortion
+         // can be artificially low due to clamping at reconstruction stage
+         // even when inverse transform output is hugely different from the
+         // actual residue.
+         if (is_high_energy && this_rd_stats.dist < tx_domain_dist)
+           this_rd_stats.dist = tx_domain_dist;
+       } else {
+         this_rd_stats.dist += sse_diff;
+       }
+       this_rd_stats.sse = block_sse;
+     }
 
-    const int64_t rd =
-        RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
+     this_rd_stats.rate = rate_cost;
 
-    if (rd < best_rd) {
-      best_rd = rd;
-      *best_rd_stats = this_rd_stats;
-      best_tx_type = tx_type;
-      best_txb_ctx = x->plane[plane].txb_entropy_ctx[block];
-      best_eob = x->plane[plane].eobs[block];
-      last_tx_type = best_tx_type;
+     const int64_t rd =
+         RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
 
-      // Swap qcoeff and dqcoeff buffers
-      tran_low_t *const tmp_dqcoeff = best_dqcoeff;
-      best_dqcoeff = pd->dqcoeff;
-      pd->dqcoeff = tmp_dqcoeff;
-    }
+     if (rd < best_rd) {
+       best_rd = rd;
+       *best_rd_stats = this_rd_stats;
+       best_tx_type = tx_type;
+       best_txb_ctx = x->plane[plane].txb_entropy_ctx[block];
+       best_eob = x->plane[plane].eobs[block];
+       last_tx_type = best_tx_type;
+
+       // Swap qcoeff and dqcoeff buffers
+       tran_low_t *const tmp_dqcoeff = best_dqcoeff;
+       best_dqcoeff = pd->dqcoeff;
+       pd->dqcoeff = tmp_dqcoeff;
+     }
 
 #if CONFIG_COLLECT_RD_STATS == 1
     if (plane == 0) {
