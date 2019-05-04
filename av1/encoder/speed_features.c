@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <float.h>
 #include <limits.h>
 
 #include "av1/encoder/encoder.h"
@@ -49,8 +50,12 @@ static uint8_t intrabc_max_mesh_pct[MAX_MESH_SPEED + 1] = { 100, 100, 100,
 // Threshold values to be used for pruning the txfm_domain_distortion
 // based on block MSE
 // TODO(any): Experiment the threshold logic based on variance metric
-static unsigned int tx_domain_dist_thresholds[MAX_TX_DOMAIN_EVAL_SPEED + 1] = {
-  UINT_MAX, 22026, 22026, 22026, 22026, 0
+static double tx_domain_dist_thresholds[MAX_TX_DOMAIN_EVAL_SPEED + 1] = {
+  FLT_MAX, 22026.0, 22026.0, 22026.0, 22026.0, 0.0
+};
+
+static double tx_domain_dist_thresholds_qscale[MAX_TX_DOMAIN_EVAL_SPEED + 1] = {
+  FLT_MAX, 113732.135, 22026.0, 22026.0, 22026.0, 0.0
 };
 // Threshold values to be used for disabling coeff RD-optimization
 // based on block MSE
@@ -877,7 +882,13 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   cpi->max_comp_type_rd_threshold_div =
       comp_type_rd_threshold_div[sf->prune_comp_type_by_comp_avg];
   const int tx_domain_speed = AOMMIN(speed, MAX_TX_DOMAIN_EVAL_SPEED);
-  cpi->tx_domain_dist_threshold = tx_domain_dist_thresholds[tx_domain_speed];
+  int boosted = frame_is_kf_gf_arf(cpi);
+  if (!boosted) {
+    cpi->tx_domain_dist_threshold =
+        tx_domain_dist_thresholds_qscale[tx_domain_speed];
+  } else {
+    cpi->tx_domain_dist_threshold = tx_domain_dist_thresholds[tx_domain_speed];
+  }
 
   // assert ensures that coeff_opt_dist_thresholds is accessed correctly
   assert(cpi->sf.perform_coeff_opt >= 0 && cpi->sf.perform_coeff_opt < 5);
