@@ -2926,6 +2926,35 @@ static void model_rd_for_sb_with_curvfit(
   *out_dist_sum = dist_sum;
 }
 
+const int8_t fwd_txfm_shift_4x4[3] = { 2, 0, 0 };
+const int8_t fwd_txfm_shift_8x8[3] = { 2, -1, 0 };
+const int8_t fwd_txfm_shift_16x16[3] = { 2, -2, 0 };
+const int8_t fwd_txfm_shift_32x32[3] = { 2, -4, 0 };
+const int8_t fwd_txfm_shift_64x64[3] = { 0, -2, -2 };
+const int8_t fwd_txfm_shift_4x8[3] = { 2, -1, 0 };
+const int8_t fwd_txfm_shift_8x4[3] = { 2, -1, 0 };
+const int8_t fwd_txfm_shift_8x16[3] = { 2, -2, 0 };
+const int8_t fwd_txfm_shift_16x8[3] = { 2, -2, 0 };
+const int8_t fwd_txfm_shift_16x32[3] = { 2, -4, 0 };
+const int8_t fwd_txfm_shift_32x16[3] = { 2, -4, 0 };
+const int8_t fwd_txfm_shift_32x64[3] = { 0, -2, -2 };
+const int8_t fwd_txfm_shift_64x32[3] = { 2, -4, -2 };
+const int8_t fwd_txfm_shift_4x16[3] = { 2, -1, 0 };
+const int8_t fwd_txfm_shift_16x4[3] = { 2, -1, 0 };
+const int8_t fwd_txfm_shift_8x32[3] = { 2, -2, 0 };
+const int8_t fwd_txfm_shift_32x8[3] = { 2, -2, 0 };
+const int8_t fwd_txfm_shift_16x64[3] = { 0, -2, 0 };
+const int8_t fwd_txfm_shift_64x16[3] = { 2, -4, 0 };
+
+const int8_t *fwd_txfm_shift[TX_SIZES_ALL] = {
+  fwd_txfm_shift_4x4,   fwd_txfm_shift_8x8,   fwd_txfm_shift_16x16,
+  fwd_txfm_shift_32x32, fwd_txfm_shift_64x64, fwd_txfm_shift_4x8,
+  fwd_txfm_shift_8x4,   fwd_txfm_shift_8x16,  fwd_txfm_shift_16x8,
+  fwd_txfm_shift_16x32, fwd_txfm_shift_32x16, fwd_txfm_shift_32x64,
+  fwd_txfm_shift_64x32, fwd_txfm_shift_4x16,  fwd_txfm_shift_16x4,
+  fwd_txfm_shift_8x32,  fwd_txfm_shift_32x8,  fwd_txfm_shift_16x64,
+  fwd_txfm_shift_64x16,
+};
 static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                                int block, int blk_row, int blk_col,
                                BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
@@ -3096,7 +3125,33 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   // coeffs. For smaller residuals, coeff optimization would be helpful. For
   // larger residuals, R-D optimization may not be effective.
   // TODO(any): Experiment with variance and mean based thresholds
-  perform_block_coeff_opt = (block_mse_q8 <= cpi->coeff_opt_dist_threshold);
+  const int16_t dc_q =
+      av1_dc_quant_QTX(x->qindex, cm->y_dc_delta_q, AOM_BITS_8);
+  int boosted = frame_is_kf_gf_arf(cpi);
+  double mse_qscale;
+  if (!boosted) {
+    double blk_mse_temp;
+    int net_scale_tx_quant;
+    int log_sclae;
+    const int8_t *txfm_shift;
+    log_sclae = av1_get_tx_scale(tx_size);
+    txfm_shift = fwd_txfm_shift[tx_size];
+    net_scale_tx_quant =
+        txfm_shift[0] + txfm_shift[1] + txfm_shift[2] + log_sclae;
+    const int txfm_size_col = tx_size_wide[tx_size];
+    const int txfm_size_row = tx_size_high[tx_size];
+    const int rect_type = get_rect_tx_log_ratio(txfm_size_col, txfm_size_row);
+    double div_factor = 1 << (2 - net_scale_tx_quant);
+    if (abs(rect_type) == 1) {
+      div_factor /= 1.414;
+    }
+    blk_mse_temp = (double)block_mse_q8 / (div_factor * div_factor);
+    mse_qscale = blk_mse_temp * dc_q * dc_q;
+  } else {
+    mse_qscale = (double)block_mse_q8;
+  }
+
+  perform_block_coeff_opt = (mse_qscale <= cpi->coeff_opt_dist_threshold);
 
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
