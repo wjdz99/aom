@@ -63,7 +63,7 @@
 
 // Set this macro as 1 to collect data about tx size selection.
 #define COLLECT_TX_SIZE_DATA 0
-
+#define quant_stats_collection 0
 #if COLLECT_TX_SIZE_DATA
 static const char av1_tx_size_data_output_file[] = "tx_size_data.txt";
 #endif
@@ -3096,20 +3096,62 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   // coeffs. For smaller residuals, coeff optimization would be helpful. For
   // larger residuals, R-D optimization may not be effective.
   // TODO(any): Experiment with variance and mean based thresholds
-  perform_block_coeff_opt = (block_mse_q8 <= cpi->coeff_opt_dist_threshold);
+  int boosted = frame_is_kf_gf_arf(cpi);
+  double mse_qscale;
+  if (!boosted) {
+    const int16_t dc_q =
+        av1_dc_quant_QTX(x->qindex, cm->y_dc_delta_q, AOM_BITS_8);
+    mse_qscale = (double)block_mse_q8 / (dc_q * dc_q);
+  } else {
+    mse_qscale = (double)block_mse_q8;
+  }
+  // perform_block_coeff_opt = (block_mse_q8 <= cpi->coeff_opt_dist_threshold);
+  perform_block_coeff_opt = (mse_qscale <= cpi->coeff_opt_dist_threshold);
 
+#if quant_stats_collection
+  int64_t pixel_dist2, pixel_dist1;
+  int num_points_considered = 500;
+  int quant_rate_cost;
+  static int tx_size_data[TX_SIZES_ALL] = { 0 };
+  static unsigned int mse_data[TX_SIZES_ALL][501] = { 0 };
+  static double mse_div_qscale[TX_SIZES_ALL][501] = { 0 };
+  static double dist_ratio_data[TX_SIZES_ALL][501] = { 0 };
+  static double dc_q_data[TX_SIZES_ALL][501] = { 0 };
+  static double q_index_data[TX_SIZES_ALL][501] = { 0 };
+  static double rdcost_ratio[TX_SIZES_ALL][501] = { 0 };
+  const int16_t ac_q = av1_ac_quant_QTX(x->qindex, 0, xd->bd);
+  const int16_t dc_q =
+      av1_dc_quant_QTX(x->qindex, cm->y_dc_delta_q, AOM_BITS_8);
+  int boosted = frame_is_kf_gf_arf(cpi);
+#endif
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
+#if quant_stats_collection
+    if (0) {
+#else
     if (skip_trellis || (!perform_block_coeff_opt)) {
+#endif
       av1_xform_quant(
           cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size, tx_type,
           USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP);
       rate_cost = av1_cost_coeffs(cm, x, plane, block, tx_size, tx_type,
                                   txb_ctx, use_fast_coef_costing);
     } else {
+#if quant_stats_collection
+      if (!boosted) {
+        av1_xform_quant(
+            cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+            tx_type,
+            USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP);
+        quant_rate_cost = av1_cost_coeffs(cm, x, plane, block, tx_size, tx_type,
+                                          txb_ctx, use_fast_coef_costing);
+        pixel_dist1 = dist_block_px_domain(cpi, x, plane, plane_bsize, block,
+                                           blk_row, blk_col, tx_size);
+      }
+#endif
       av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
                       tx_size, tx_type, AV1_XFORM_QUANT_FP);
       if (cpi->sf.optimize_b_precheck && best_rd < INT64_MAX &&
@@ -3125,6 +3167,10 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       }
       av1_optimize_b(cpi, x, plane, block, tx_size, tx_type, txb_ctx,
                      cpi->sf.trellis_eob_fast, &rate_cost);
+#if quant_stats_collection
+      pixel_dist2 = dist_block_px_domain(cpi, x, plane, plane_bsize, block,
+                                         blk_row, blk_col, tx_size);
+#endif
     }
     if (eobs_ptr[block] == 0) {
       // When eob is 0, pixel domain distortion is more efficient and accurate.
@@ -3132,6 +3178,41 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     } else if (use_transform_domain_distortion) {
       dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
                            &this_rd_stats.sse);
+#if quant_stats_collection
+      if (!boosted) {
+        static int i_count = 0;
+        const int64_t quant_rd =
+            RDCOST(x->rdmult, quant_rate_cost, pixel_dist1);
+        const int64_t rdoq_rd = RDCOST(x->rdmult, rate_cost, pixel_dist2);
+
+        tx_size_data[tx_size] += 1;
+        double ratio =
+            ((double)(pixel_dist2 - this_rd_stats.dist) / pixel_dist2) * 100;
+        double mse_qscale = (double)block_mse_q8 / (dc_q * dc_q);
+        double rd_cost_ratio = ((double)(rdoq_rd - quant_rd) / rdoq_rd) * 100;
+
+        mse_div_qscale[tx_size][501] += mse_qscale;
+        dist_ratio_data[tx_size][501] += fabs(ratio);
+        rdcost_ratio[tx_size][501] += fabs(rd_cost_ratio);
+        dc_q_data[tx_size][501] += dc_q;
+        q_index_data[tx_size][501] += x->qindex;
+        mse_data[tx_size][501] += block_mse_q8;
+
+        if (tx_size_data[tx_size] == num_points_considered) {
+          mse_data[tx_size][501] /= num_points_considered;
+          mse_div_qscale[tx_size][501] /= num_points_considered;
+          dist_ratio_data[tx_size][501] /= num_points_considered;
+          rdcost_ratio[tx_size][501] /= num_points_considered;
+          dc_q_data[tx_size][501] /= num_points_considered;
+          q_index_data[tx_size][501] /= num_points_considered;
+
+          printf("tx_size=%d \t %u \t %f \t %f \t %f \t %f \t %f\n", tx_size,
+                 mse_data[tx_size][501], dc_q_data[tx_size][501],
+                 q_index_data[tx_size][501], mse_div_qscale[tx_size][501],
+                 dist_ratio_data[tx_size][501], rdcost_ratio[tx_size][501]);
+        }
+      }
+#endif
     } else {
       int64_t sse_diff = INT64_MAX;
       // high_energy threshold assumes that every pixel within a txfm block

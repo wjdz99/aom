@@ -964,7 +964,7 @@ typedef struct AV1_COMP {
 
   // Factor to control R-D optimization of coeffs based on block
   // mse.
-  unsigned int coeff_opt_dist_threshold;
+  double coeff_opt_dist_threshold;
 
   AV1LfSync lf_row_sync;
   AV1LrSync lr_row_sync;
