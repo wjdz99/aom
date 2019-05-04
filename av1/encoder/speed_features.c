@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <float.h>
 #include <limits.h>
 
 #include "av1/encoder/encoder.h"
@@ -55,8 +56,12 @@ static unsigned int tx_domain_dist_thresholds[MAX_TX_DOMAIN_EVAL_SPEED + 1] = {
 // Threshold values to be used for disabling coeff RD-optimization
 // based on block MSE
 // TODO(any): Experiment the threshold logic based on variance metric
-static unsigned int coeff_opt_dist_thresholds[5] = { UINT_MAX, 162754, 162754,
-                                                     22026, 22026 };
+static double coeff_opt_dist_thresholds[5] = { FLT_MAX, 162754.0, 162754.0,
+                                               22026.0, 22026.0 };
+
+static double coeff_opt_dist_thresholds_qscale[5] = { FLT_MAX, 14157783735.0,
+                                                      14157783735.0, 22026.0,
+                                                      22026.0 };
 // scaling values to be used for gating wedge/compound segment based on best
 // approximate rd
 static int comp_type_rd_threshold_mul[3] = { 1, 11, 12 };
@@ -270,7 +275,7 @@ static void set_good_speed_features_framesize_independent(
     sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
     sf->cb_pred_filter_search = 1;
     sf->use_transform_domain_distortion = boosted ? 1 : 2;
-    sf->perform_coeff_opt = boosted ? 0 : 1;
+    sf->perform_coeff_opt = boosted ? 1 : 2;
     sf->use_inter_txb_hash = 0;
   }
 
@@ -302,7 +307,6 @@ static void set_good_speed_features_framesize_independent(
     // TODO(Sachin): Enable/Enhance this speed feature for speed 2 & 3
     sf->cb_pred_filter_search = 0;
     sf->adaptive_interp_filter_search = 1;
-    sf->perform_coeff_opt = boosted ? 0 : 2;
     sf->model_based_prune_tx_search_level = 0;
   }
 
@@ -882,7 +886,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   // assert ensures that coeff_opt_dist_thresholds is accessed correctly
   assert(cpi->sf.perform_coeff_opt >= 0 && cpi->sf.perform_coeff_opt < 5);
   cpi->coeff_opt_dist_threshold =
-      coeff_opt_dist_thresholds[cpi->sf.perform_coeff_opt];
+      coeff_opt_dist_thresholds_qscale[cpi->sf.perform_coeff_opt];
 
 #if CONFIG_DIST_8X8
   if (sf->use_transform_domain_distortion > 0) cpi->oxcf.using_dist_8x8 = 0;
