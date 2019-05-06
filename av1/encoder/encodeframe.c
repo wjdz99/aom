@@ -3806,7 +3806,7 @@ static int get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
         mc_count_base != 0.0
             ? ((double)mc_count - mc_count_base) / mc_count_base
             : 0.0;
-    offset = -(int)rint(mc_count_beta * 8.0);
+    offset = -(int)rint(mc_count_beta * 2.0);
     // printf("mc_count_beta %g, offset %d\n", mc_count_beta, offset);
   } else if (analysis_type == 2) {
     const double mc_saved_base = (mi_count * cpi->rd.mc_saved_base);
