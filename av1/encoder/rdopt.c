@@ -637,6 +637,17 @@ static const int16_t comp_inter_to_mode_idx[COMP_INTER_MODE_NUM][REF_FRAMES]
 };
 /* clang-format on */
 
+static INLINE int64_t get_rd_thresh(int64_t ref_best_rd, int mul_shift_factor,
+                                    int div_factor) {
+  int64_t rd_thresh = ref_best_rd;
+  if (div_factor != 0) {
+    rd_thresh = ref_best_rd < (div_factor * (INT64_MAX >> mul_shift_factor))
+                    ? ((ref_best_rd / div_factor) << mul_shift_factor)
+                    : INT64_MAX;
+  }
+  return rd_thresh;
+}
+
 static int get_prediction_mode_idx(PREDICTION_MODE this_mode,
                                    MV_REFERENCE_FRAME ref_frame,
                                    MV_REFERENCE_FRAME second_ref_frame) {
@@ -8705,7 +8716,7 @@ static int txfm_search(const AV1_COMP *cpi, const TileDataEnc *tile_data,
                        MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row, int mi_col,
                        RD_STATS *rd_stats, RD_STATS *rd_stats_y,
                        RD_STATS *rd_stats_uv, int mode_rate,
-                       int64_t ref_best_rd) {
+                       int64_t ref_best_rd, int early_skip_case) {
   /*
    * This function combines y and uv planes' transform search processes
    * together, when the prediction is generated. It first does subtraction to
@@ -8719,7 +8730,7 @@ static int txfm_search(const AV1_COMP *cpi, const TileDataEnc *tile_data,
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int ref_frame_1 = mbmi->ref_frame[1];
   const int64_t mode_rd = RDCOST(x->rdmult, mode_rate, 0);
-  const int64_t rd_thresh =
+  int64_t rd_thresh =
       ref_best_rd == INT64_MAX ? INT64_MAX : ref_best_rd - mode_rd;
   const int skip_ctx = av1_get_skip_context(xd);
   const int skip_flag_cost[2] = { x->skip_cost[skip_ctx][0],
@@ -8739,6 +8750,12 @@ static int txfm_search(const AV1_COMP *cpi, const TileDataEnc *tile_data,
   av1_init_rd_stats(rd_stats);
   av1_init_rd_stats(rd_stats_y);
   rd_stats->rate = mode_rate;
+
+  if (early_skip_case) {
+    int mul_shift_factor = cpi->sf.prune_motion_mode_level;
+    int div_factor = (1 << cpi->sf.prune_motion_mode_level) - 1;
+    rd_thresh = get_rd_thresh(rd_thresh, mul_shift_factor, div_factor);
+  }
 
   // cost and distortion
   av1_subtract_plane(x, bsize, 0);
@@ -9448,8 +9465,10 @@ static int64_t motion_mode_rd(
                               rd_stats_y, rd_stats_uv, mbmi);
       }
     } else {
+      int early_skip_case = (mode_index == 0);
       if (!txfm_search(cpi, tile_data, x, bsize, mi_row, mi_col, rd_stats,
-                       rd_stats_y, rd_stats_uv, rd_stats->rate, ref_best_rd)) {
+                       rd_stats_y, rd_stats_uv, rd_stats->rate, ref_best_rd,
+                       early_skip_case)) {
         if (rd_stats_y->rate == INT_MAX && mode_index == 0) {
           if (cpi->sf.prune_single_motion_modes_by_simple_trans &&
               !is_comp_pred) {
@@ -10746,7 +10765,8 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     const int rate_mode = x->intrabc_cost[1];
     RD_STATS rd_stats_yuv, rd_stats_y, rd_stats_uv;
     if (!txfm_search(cpi, NULL, x, bsize, mi_row, mi_col, &rd_stats_yuv,
-                     &rd_stats_y, &rd_stats_uv, rate_mode + rate_mv, INT64_MAX))
+                     &rd_stats_y, &rd_stats_uv, rate_mode + rate_mv, INT64_MAX,
+                     0))
       continue;
     rd_stats_yuv.rdcost =
         RDCOST(x->rdmult, rd_stats_yuv.rate, rd_stats_yuv.dist);
@@ -12902,7 +12922,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
         if (!txfm_search(cpi, tile_data, x, bsize, mi_row, mi_col, &rd_stats,
                          &rd_stats_y, &rd_stats_uv, mode_rate,
-                         search_state.best_rd)) {
+                         search_state.best_rd, 0)) {
           continue;
         } else if (cpi->sf.inter_mode_rd_model_estimation == 1) {
           const int skip_ctx = av1_get_skip_context(xd);
@@ -13505,8 +13525,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
 
     if (txfm_search(cpi, tile_data, x, bsize, mi_row, mi_col, &rd_stats,
-                    &rd_stats_y, &rd_stats_uv, mode_rate,
-                    search_state.best_rd)) {
+                    &rd_stats_y, &rd_stats_uv, mode_rate, search_state.best_rd,
+                    0)) {
       if (cpi->sf.inter_mode_rd_model_estimation == 1) {
         const int skip_ctx = av1_get_skip_context(xd);
         inter_mode_data_push(tile_data, mbmi->sb_type, rd_stats.sse,
