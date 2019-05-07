@@ -34,45 +34,6 @@ typedef struct GF_PICTURE {
   int ref_frame[INTER_REFS_PER_FRAME];
 } GF_PICTURE;
 
-/*
-static void get_quantize_error(MACROBLOCK *x, int plane, tran_low_t *coeff,
-                               tran_low_t *qcoeff, tran_low_t *dqcoeff,
-                               TX_SIZE tx_size, int64_t *recon_error,
-                               int64_t *sse) {
-  const struct macroblock_plane *const p = &x->plane[plane];
-  const SCAN_ORDER *const scan_order = &av1_default_scan_orders[tx_size];
-  uint16_t eob;
-  int pix_num = 1 << num_pels_log2_lookup[txsize_to_bsize[tx_size]];
-  const int shift = tx_size == TX_64X64 ? -2 : (tx_size == TX_32X32 ? 0 : 2);
-
-  if (tx_size == TX_64X64)
-    av1_quantize_fp_64x64(coeff, pix_num, p->zbin_QTX, p->round_fp_QTX,
-                          p->quant_fp_QTX, p->quant_shift_QTX, qcoeff, dqcoeff,
-                          p->dequant_QTX, &eob, scan_order->scan,
-                          scan_order->iscan);
-  else if (tx_size == TX_32X32)
-    av1_quantize_fp_32x32(coeff, pix_num, p->zbin_QTX, p->round_fp_QTX,
-                          p->quant_fp_QTX, p->quant_shift_QTX, qcoeff, dqcoeff,
-                          p->dequant_QTX, &eob, scan_order->scan,
-                          scan_order->iscan);
-  else
-    av1_quantize_fp(coeff, pix_num, p->zbin_QTX, p->round_fp_QTX,
-                    p->quant_fp_QTX, p->quant_shift_QTX, qcoeff, dqcoeff,
-                    p->dequant_QTX, &eob, scan_order->scan, scan_order->iscan);
-  if (shift)
-    *recon_error = av1_block_error(coeff, dqcoeff, pix_num, sse) >> shift;
-  else
-    *recon_error = av1_block_error(coeff, dqcoeff, pix_num, sse) << (-shift);
-  *recon_error = AOMMAX(*recon_error, 1);
-
-  if (shift)
-    *sse = (*sse) >> shift;
-  else
-    *sse = (*sse) << (-shift);
-  *sse = AOMMAX(*sse, 1);
-}
-*/
-
 static void wht_fwd_txfm(int16_t *src_diff, int bw, tran_low_t *coeff,
                          TX_SIZE tx_size) {
   switch (tx_size) {
@@ -259,15 +220,12 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
                  : (1.0 + weight_factor * (1.0 - exp(-delta_q / 16)))) +
         0.5);
     if (inter_cost_weighted < best_inter_cost_weighted) {
-      // int64_t recon_error, sse;
       (void)coeff;
       (void)qcoeff;
       (void)dqcoeff;
       best_rf_idx = rf_idx;
       best_inter_cost_weighted = inter_cost_weighted;
       best_mv.as_int = x->best_mv.as_int;
-      // get_quantize_error(x, 0, coeff, qcoeff, dqcoeff, tx_size, &recon_error,
-      //                    &sse);
     }
   }
   best_intra_cost = AOMMAX(best_intra_cost, 1);
