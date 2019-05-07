@@ -48,8 +48,10 @@ class CNNTest : public ::testing::Test {
       output[channel] = output_ + (channel * out_size);
     }
 
+    const CNN_THREAD_DATA thread_data = { 1, NULL };
+
     av1_cnn_predict((const float **)&input, image_width, image_height,
-                    in_stride, &cnn_config, output, out_stride);
+                    in_stride, &cnn_config, &thread_data, output, out_stride);
 
     double mse = 0;
     for (int channel = 0; channel < out_channels; ++channel) {
