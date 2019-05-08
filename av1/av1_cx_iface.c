@@ -638,7 +638,8 @@ static aom_codec_err_t set_encoder_config(
   oxcf->fixed_q = -1;
 
   oxcf->enable_cdef = extra_cfg->enable_cdef;
-  oxcf->enable_restoration = extra_cfg->enable_restoration;
+  oxcf->enable_restoration =
+      (cfg->g_usage == 1) ? 0 : extra_cfg->enable_restoration;
   oxcf->enable_obmc = extra_cfg->enable_obmc;
   oxcf->enable_palette = extra_cfg->enable_palette;
   oxcf->enable_intrabc = extra_cfg->enable_intrabc;
