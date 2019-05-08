@@ -4066,9 +4066,68 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #if CONFIG_COLLECT_COMPONENT_TIMING
     start_timing(cpi, cdef_time);
 #endif
+
+#if 1
+    const int q =
+        av1_ac_quant_Q3(cm->base_qindex, 0, cm->seq_params.bit_depth);
+    CdefInfo *const cdef_info = &cm->cdef_info;
+    cdef_info->cdef_bits = 0;
+    cdef_info->nb_cdef_strengths = 1;
+    cdef_info->cdef_pri_damping = 3 + (cm->base_qindex >> 6);
+    cdef_info->cdef_sec_damping = 3 + (cm->base_qindex >> 6);
+
+    aom_clear_system_state();
+    if (!frame_is_intra_only(cm)) {
+      const int predicted_y_f1 =
+          clamp((int)roundf(-q * q * 0.00000235939456f + q * 0.0068615186f + 0.02709886f),
+                0, 15);
+      const int predicted_y_f2 =
+          clamp((int)roundf(-q * q * 0.000000576297339f + q * 0.00139933452f + 0.03831067f),
+                0, 3);
+      const int predicted_uv_f1 =
+          clamp((int)roundf(-q * q * 0.000000709506878f + q * 0.00346288458f + 0.00887099f),
+                0, 15);
+      const int predicted_uv_f2 =
+          clamp((int)roundf(q * q * 0.000000238740853f + q * 0.000282235851f + 0.05576307f),
+                0, 3);
+      cdef_info->cdef_strengths[0] =
+          predicted_y_f1 * CDEF_SEC_STRENGTHS + predicted_y_f2;
+      cdef_info->cdef_uv_strengths[0] =
+          predicted_uv_f1 * CDEF_SEC_STRENGTHS + predicted_uv_f2;
+    } else {
+      const int predicted_y_f1 =
+          clamp((int)roundf(q * q * 0.00000337319739f + q * 0.0080705937f + 0.0187634f),
+                0, 15);
+      const int predicted_y_f2 =
+          clamp((int)roundf(-q * q * -0.00000291673427f + q * 0.00277986238f + 0.0079405f),
+                0, 3);
+      const int predicted_uv_f1 =
+          clamp((int)roundf(-q * q * 0.0000130790995f + q * 0.0128924046f - 0.00748388f),
+                0, 15);
+      const int predicted_uv_f2 =
+          clamp((int)roundf(q * q * 0.00000326517829f + q * 0.000355201832f + 0.00228092f),
+                0, 3);
+      cdef_info->cdef_strengths[0] =
+          predicted_y_f1 * CDEF_SEC_STRENGTHS + predicted_y_f2;
+      cdef_info->cdef_uv_strengths[0] =
+          predicted_uv_f1 * CDEF_SEC_STRENGTHS + predicted_uv_f2;
+    }
+
+    const int nvfb = (cm->mi_rows + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
+    const int nhfb = (cm->mi_cols + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
+    for (int r = 0; r < nvfb; ++r) {
+      for (int c = 0; c < nhfb; ++c) {
+        MB_MODE_INFO *const mbmi =
+            cm->mi_grid_visible[MI_SIZE_64X64 * r * cm->mi_stride +
+                                MI_SIZE_64X64 * c];
+        mbmi->cdef_strength = 0;
+      }
+    }
+#else
     // Find CDEF parameters
     av1_cdef_search(&cm->cur_frame->buf, cpi->source, cm, xd,
                     cpi->sf.fast_cdef_search);
+#endif
 
     // Apply the filter
     av1_cdef_frame(&cm->cur_frame->buf, cm, xd);
