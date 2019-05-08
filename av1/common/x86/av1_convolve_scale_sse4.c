@@ -21,7 +21,7 @@
 // A specialised version of hfilter, the horizontal filter for
 // av1_convolve_2d_scale_sse4_1. This version only supports 8 tap filters.
 static void hfilter8(const uint8_t *src, int src_stride, int16_t *dst, int w,
-                     int h, int subpel_x_qn, int x_step_qn,
+                     int h, int subpel_x_q4, int x_step_qn,
                      const InterpFilterParams *filter_params, unsigned round) {
   const int bd = 8;
   const int ntaps = 8;
@@ -32,7 +32,7 @@ static void hfilter8(const uint8_t *src, int src_stride, int16_t *dst, int w,
   const __m128i round_add = _mm_set1_epi32(round_add32);
   const __m128i round_shift = _mm_cvtsi32_si128(round);
 
-  int x_qn = subpel_x_qn;
+  int x_qn = subpel_x_q4;
   for (int x = 0; x < w; ++x, x_qn += x_step_qn) {
     const uint8_t *const src_col = src + (x_qn >> SCALE_SUBPEL_BITS);
     const int filter_idx = (x_qn & SCALE_SUBPEL_MASK) >> SCALE_EXTRA_BITS;
@@ -105,7 +105,7 @@ static __m128i convolve_16_8(const int16_t *src, __m128i coeff) {
 // A specialised version of vfilter, the vertical filter for
 // av1_convolve_2d_scale_sse4_1. This version only supports 8 tap filters.
 static void vfilter8(const int16_t *src, int src_stride, uint8_t *dst,
-                     int dst_stride, int w, int h, int subpel_y_qn,
+                     int dst_stride, int w, int h, int subpel_y_q4,
                      int y_step_qn, const InterpFilterParams *filter_params,
                      const ConvolveParams *conv_params, int bd) {
   const int offset_bits = bd + 2 * FILTER_BITS - conv_params->round_0;
@@ -133,7 +133,7 @@ static void vfilter8(const int16_t *src, int src_stride, uint8_t *dst,
   const __m128i wt1 = _mm_set1_epi16(w1);
   const __m128i wt = _mm_unpacklo_epi16(wt0, wt1);
 
-  int y_qn = subpel_y_qn;
+  int y_qn = subpel_y_q4;
   for (int y = 0; y < h; ++y, y_qn += y_step_qn) {
     const int16_t *src_y = src + (y_qn >> SCALE_SUBPEL_BITS);
     const int filter_idx = (y_qn & SCALE_SUBPEL_MASK) >> SCALE_EXTRA_BITS;
@@ -233,12 +233,12 @@ void av1_convolve_2d_scale_sse4_1(const uint8_t *src, int src_stride,
                                   uint8_t *dst8, int dst8_stride, int w, int h,
                                   const InterpFilterParams *filter_params_x,
                                   const InterpFilterParams *filter_params_y,
-                                  const int subpel_x_qn, const int x_step_qn,
-                                  const int subpel_y_qn, const int y_step_qn,
+                                  const int subpel_x_q4, const int x_step_qn,
+                                  const int subpel_y_q4, const int y_step_qn,
                                   ConvolveParams *conv_params) {
   // TODO(yaowu): remove unnecessary initializations
   int16_t tmp[(2 * MAX_SB_SIZE + MAX_FILTER_TAP) * MAX_SB_SIZE] = { 0 };
-  int im_h = (((h - 1) * y_step_qn + subpel_y_qn) >> SCALE_SUBPEL_BITS) +
+  int im_h = (((h - 1) * y_step_qn + subpel_y_q4) >> SCALE_SUBPEL_BITS) +
              filter_params_y->taps;
 
   const int xtaps = filter_params_x->taps;
@@ -248,11 +248,11 @@ void av1_convolve_2d_scale_sse4_1(const uint8_t *src, int src_stride,
   (void)xtaps;
 
   // horizontal filter
-  hfilter8(src - fo_vert * src_stride, src_stride, tmp, w, im_h, subpel_x_qn,
+  hfilter8(src - fo_vert * src_stride, src_stride, tmp, w, im_h, subpel_x_q4,
            x_step_qn, filter_params_x, conv_params->round_0);
 
   // vertical filter (input is transposed)
-  vfilter8(tmp, im_h, dst8, dst8_stride, w, h, subpel_y_qn, y_step_qn,
+  vfilter8(tmp, im_h, dst8, dst8_stride, w, h, subpel_y_q4, y_step_qn,
            filter_params_y, conv_params, 8);
 }
 
@@ -260,7 +260,7 @@ void av1_convolve_2d_scale_sse4_1(const uint8_t *src, int src_stride,
 // av1_highbd_convolve_2d_scale_sse4_1. This version only supports 8 tap
 // filters.
 static void highbd_hfilter8(const uint16_t *src, int src_stride, int16_t *dst,
-                            int w, int h, int subpel_x_qn, int x_step_qn,
+                            int w, int h, int subpel_x_q4, int x_step_qn,
                             const InterpFilterParams *filter_params,
                             unsigned round, int bd) {
   const int ntaps = 8;
@@ -271,7 +271,7 @@ static void highbd_hfilter8(const uint16_t *src, int src_stride, int16_t *dst,
   const __m128i round_add = _mm_set1_epi32(round_add32);
   const __m128i round_shift = _mm_cvtsi32_si128(round);
 
-  int x_qn = subpel_x_qn;
+  int x_qn = subpel_x_q4;
   for (int x = 0; x < w; ++x, x_qn += x_step_qn) {
     const uint16_t *const src_col = src + (x_qn >> SCALE_SUBPEL_BITS);
     const int filter_idx = (x_qn & SCALE_SUBPEL_MASK) >> SCALE_EXTRA_BITS;
@@ -331,7 +331,7 @@ static void highbd_hfilter8(const uint16_t *src, int src_stride, int16_t *dst,
 // av1_highbd_convolve_2d_scale_sse4_1. This version only supports 8 tap
 // filters.
 static void highbd_vfilter8(const int16_t *src, int src_stride, uint16_t *dst,
-                            int dst_stride, int w, int h, int subpel_y_qn,
+                            int dst_stride, int w, int h, int subpel_y_q4,
                             int y_step_qn,
                             const InterpFilterParams *filter_params,
                             const ConvolveParams *conv_params, int bd) {
@@ -365,7 +365,7 @@ static void highbd_vfilter8(const int16_t *src, int src_stride, uint16_t *dst,
   const __m128i wt0 = _mm_set1_epi32(w0);
   const __m128i wt1 = _mm_set1_epi32(w1);
 
-  int y_qn = subpel_y_qn;
+  int y_qn = subpel_y_q4;
   for (int y = 0; y < h; ++y, y_qn += y_step_qn) {
     const int16_t *src_y = src + (y_qn >> SCALE_SUBPEL_BITS);
     const int filter_idx = (y_qn & SCALE_SUBPEL_MASK) >> SCALE_EXTRA_BITS;
@@ -472,13 +472,13 @@ static void highbd_vfilter8(const int16_t *src, int src_stride, uint16_t *dst,
 void av1_highbd_convolve_2d_scale_sse4_1(
     const uint16_t *src, int src_stride, uint16_t *dst, int dst_stride, int w,
     int h, const InterpFilterParams *filter_params_x,
-    const InterpFilterParams *filter_params_y, const int subpel_x_qn,
-    const int x_step_qn, const int subpel_y_qn, const int y_step_qn,
+    const InterpFilterParams *filter_params_y, const int subpel_x_q4,
+    const int x_step_qn, const int subpel_y_q4, const int y_step_qn,
     ConvolveParams *conv_params, int bd) {
   // TODO(yaowu): Move this out of stack
   DECLARE_ALIGNED(16, int16_t,
                   tmp[(2 * MAX_SB_SIZE + MAX_FILTER_TAP) * MAX_SB_SIZE]);
-  int im_h = (((h - 1) * y_step_qn + subpel_y_qn) >> SCALE_SUBPEL_BITS) +
+  int im_h = (((h - 1) * y_step_qn + subpel_y_q4) >> SCALE_SUBPEL_BITS) +
              filter_params_y->taps;
   const int xtaps = filter_params_x->taps;
   const int ytaps = filter_params_y->taps;
@@ -490,10 +490,10 @@ void av1_highbd_convolve_2d_scale_sse4_1(
 
   // horizontal filter
   highbd_hfilter8(src - fo_vert * src_stride, src_stride, tmp, w, im_h,
-                  subpel_x_qn, x_step_qn, filter_params_x, conv_params->round_0,
+                  subpel_x_q4, x_step_qn, filter_params_x, conv_params->round_0,
                   bd);
 
   // vertical filter (input is transposed)
-  highbd_vfilter8(tmp, im_h, dst, dst_stride, w, h, subpel_y_qn, y_step_qn,
+  highbd_vfilter8(tmp, im_h, dst, dst_stride, w, h, subpel_y_q4, y_step_qn,
                   filter_params_y, conv_params, bd);
 }
