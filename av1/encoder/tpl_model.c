@@ -29,9 +29,9 @@
 
 typedef struct GF_PICTURE {
   YV12_BUFFER_CONFIG *frame;
-  int disp_frame;
+  // int disp_frame;
   int base_qindex;
-  int ref_frame[INTER_REFS_PER_FRAME];
+  // int ref_frame[INTER_REFS_PER_FRAME];
 } GF_PICTURE;
 
 /*
@@ -223,7 +223,8 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
   for (rf_idx = 0; rf_idx < INTER_REFS_PER_FRAME; ++rf_idx) {
     if (ref_frame[rf_idx] == NULL) continue;
 
-    int q_ref = gf_group->q_val[gf_picture[frame_idx].ref_frame[rf_idx]];
+    // int q_ref = gf_group->q_val[gf_picture[frame_idx].ref_frame[rf_idx]];
+    int q_ref = gf_group->q_val[gf_group->ref_frame_gop_idx[frame_idx][rf_idx]];
     double delta_q = (double)(q_ref - q_current);
 
     motion_compensated_prediction(cpi, td, xd->cur_buf->y_buffer + mb_y_offset,
@@ -275,10 +276,10 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
   tpl_stats->inter_cost = best_inter_cost << TPL_DEP_COST_SCALE_LOG2;
   tpl_stats->intra_cost = best_intra_cost << TPL_DEP_COST_SCALE_LOG2;
 
-  tpl_stats->ref_frame_index = gf_picture[frame_idx].ref_frame[best_rf_idx];
-  tpl_stats->ref_disp_frame_index =
-      cpi->twopass.gf_group
-          .frame_disp_idx[gf_picture[frame_idx].ref_frame[best_rf_idx]];
+  // tpl_stats->ref_frame_index = gf_picture[frame_idx].ref_frame[best_rf_idx];
+  const int idx = gf_group->ref_frame_gop_idx[frame_idx][best_rf_idx];
+  tpl_stats->ref_frame_index = idx;
+  tpl_stats->ref_disp_frame_index = cpi->twopass.gf_group.frame_disp_idx[idx];
   tpl_stats->mv.as_int = best_mv.as_int;
 }
 
@@ -423,7 +424,9 @@ static void tpl_model_store(TplDepStats *tpl_stats_ptr, int mi_row, int mi_col,
 
 static void mc_flow_dispenser(AV1_COMP *cpi, GF_PICTURE *gf_picture,
                               int frame_idx) {
-  int tpl_idx = gf_picture[frame_idx].disp_frame;
+  const GF_GROUP *gf_group = &cpi->twopass.gf_group;
+  int tpl_idx = gf_group->frame_disp_idx[frame_idx];
+  // int tpl_idx = gf_picture[frame_idx].disp_frame;
   TplDepFrame *tpl_frame = &cpi->tpl_stats[tpl_idx];
   YV12_BUFFER_CONFIG *this_frame = gf_picture[frame_idx].frame;
   YV12_BUFFER_CONFIG *ref_frame[7] = {
@@ -476,7 +479,8 @@ static void mc_flow_dispenser(AV1_COMP *cpi, GF_PICTURE *gf_picture,
   // Prepare reference frame pointers. If any reference frame slot is
   // unavailable, the pointer will be set to Null.
   for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
-    int rf_idx = gf_picture[frame_idx].ref_frame[idx];
+    // int rf_idx = gf_picture[frame_idx].ref_frame[idx];
+    int rf_idx = gf_group->ref_frame_gop_idx[frame_idx][idx];
     if (rf_idx > 0) ref_frame[idx] = gf_picture[rf_idx].frame;
   }
 
@@ -518,16 +522,8 @@ static void mc_flow_dispenser(AV1_COMP *cpi, GF_PICTURE *gf_picture,
 
 #define REF_IDX(ref) ((ref)-LAST_FRAME)
 
-static INLINE void init_ref_frame_array(GF_PICTURE *gf_picture) {
-  for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
-    gf_picture->ref_frame[i] = -1;
-  }
-  gf_picture->disp_frame = -1;
-}
-
 static void init_gop_frames_for_tpl(AV1_COMP *cpi, GF_PICTURE *gf_picture,
-                                    const GF_GROUP *gf_group,
-                                    int *tpl_group_frames,
+                                    GF_GROUP *gf_group, int *tpl_group_frames,
                                     const EncodeFrameInput *const frame_input) {
   AV1_COMMON *cm = &cpi->common;
   const SequenceHeader *const seq_params = &cm->seq_params;
@@ -557,8 +553,6 @@ static void init_gop_frames_for_tpl(AV1_COMP *cpi, GF_PICTURE *gf_picture,
   // Initialize Golden reference frame.
   RefCntBuffer *ref_buf = get_ref_frame_buf(cm, GOLDEN_FRAME);
   gf_picture[0].frame = &ref_buf->buf;
-  gf_picture[0].disp_frame = 0;
-  init_ref_frame_array(&gf_picture[0]);
   ++*tpl_group_frames;
 
   // Initialize frames in the GF group
@@ -580,11 +574,8 @@ static void init_gop_frames_for_tpl(AV1_COMP *cpi, GF_PICTURE *gf_picture,
 
       gf_picture[frame_idx].frame = &buf->img;
     }
-    gf_picture[frame_idx].disp_frame = frame_disp_idx;
+    // gf_picture[frame_idx].disp_frame = frame_disp_idx;
     gf_picture[frame_idx].base_qindex = gf_group->q_val[frame_idx];
-    memcpy(gf_picture[frame_idx].ref_frame,
-           gf_group->ref_frame_gop_idx[frame_idx],
-           sizeof(gf_picture[0].ref_frame[0]) * INTER_REFS_PER_FRAME);
 
     if (gf_group->update_type[frame_idx] == LF_UPDATE)
       pframe_qindex = gf_group->q_val[frame_idx];
@@ -597,11 +588,11 @@ static void init_gop_frames_for_tpl(AV1_COMP *cpi, GF_PICTURE *gf_picture,
     int extend_frame_count = 0;
     const int gld_idx_next_gop = gf_group->size;
     const int lst_idx_next_gop =
-        gf_picture[gld_idx_next_gop].ref_frame[REF_IDX(LAST_FRAME)];
+        gf_group->ref_frame_gop_idx[gld_idx_next_gop][REF_IDX(LAST_FRAME)];
     const int lst2_idx_next_gop =
-        gf_picture[gld_idx_next_gop].ref_frame[REF_IDX(LAST2_FRAME)];
+        gf_group->ref_frame_gop_idx[gld_idx_next_gop][REF_IDX(LAST2_FRAME)];
     const int lst3_idx_next_gop =
-        gf_picture[gld_idx_next_gop].ref_frame[REF_IDX(LAST3_FRAME)];
+        gf_group->ref_frame_gop_idx[gld_idx_next_gop][REF_IDX(LAST3_FRAME)];
 
     // Extend two frames outside the current gf group.
     for (; frame_idx < MAX_LENGTH_TPL_FRAME_STATS && extend_frame_count < 2;
@@ -611,16 +602,18 @@ static void init_gop_frames_for_tpl(AV1_COMP *cpi, GF_PICTURE *gf_picture,
 
       if (buf == NULL) break;
 
-      init_ref_frame_array(&gf_picture[frame_idx]);
-
       gf_picture[frame_idx].frame = &buf->img;
       gf_picture[frame_idx].base_qindex = pframe_qindex;
-      gf_picture[frame_idx].disp_frame = frame_disp_idx;
+      gf_group->frame_disp_idx[frame_idx] = frame_disp_idx;
 
-      gf_picture[frame_idx].ref_frame[REF_IDX(GOLDEN_FRAME)] = gld_idx_next_gop;
-      gf_picture[frame_idx].ref_frame[REF_IDX(LAST_FRAME)] = lst_idx_next_gop;
-      gf_picture[frame_idx].ref_frame[REF_IDX(LAST2_FRAME)] = lst2_idx_next_gop;
-      gf_picture[frame_idx].ref_frame[REF_IDX(LAST3_FRAME)] = lst3_idx_next_gop;
+      gf_group->ref_frame_gop_idx[frame_idx][REF_IDX(GOLDEN_FRAME)] =
+          gld_idx_next_gop;
+      gf_group->ref_frame_gop_idx[frame_idx][REF_IDX(LAST_FRAME)] =
+          lst_idx_next_gop;
+      gf_group->ref_frame_gop_idx[frame_idx][REF_IDX(LAST2_FRAME)] =
+          lst2_idx_next_gop;
+      gf_group->ref_frame_gop_idx[frame_idx][REF_IDX(LAST3_FRAME)] =
+          lst3_idx_next_gop;
 
       ++*tpl_group_frames;
       ++extend_frame_count;
@@ -631,15 +624,19 @@ static void init_gop_frames_for_tpl(AV1_COMP *cpi, GF_PICTURE *gf_picture,
   /*
   for (frame_idx = 0; frame_idx < *tpl_group_frames; ++frame_idx) {
     printf("frame_idx:%d -> %d [ %d ]\n", frame_idx,
-           gf_picture[frame_idx].disp_frame, gf_picture[frame_idx].base_qindex);
+           gf_group->frame_disp_idx[frame_idx],
+           gf_picture[frame_idx].base_qindex);
     for (int i = 0; i < INTER_REFS_PER_FRAME; ++i)
-      printf("%d, ", gf_picture[frame_idx].ref_frame[i]);
+      printf("%d, ", gf_group->ref_frame_gop_idx[frame_idx][i]);
+    printf(" -> ");
+    for (int i = 0; i < INTER_REFS_PER_FRAME; ++i)
+      printf(
+          "%d, ",
+          gf_group->frame_disp_idx[gf_group->ref_frame_gop_idx[frame_idx][i]]);
     printf(" -> ");
     for (int i = 0; i < INTER_REFS_PER_FRAME; ++i)
       printf("%d, ",
-  gf_group->frame_disp_idx[gf_picture[frame_idx].ref_frame[i]]); printf(" -> ");
-    for (int i = 0; i < INTER_REFS_PER_FRAME; ++i)
-      printf("%d, ", gf_group->q_val[gf_picture[frame_idx].ref_frame[i]]);
+             gf_group->q_val[gf_group->ref_frame_gop_idx[frame_idx][i]]);
     printf("\n");
   }
   */
@@ -659,7 +656,7 @@ static void init_tpl_stats(AV1_COMP *cpi) {
 void av1_tpl_setup_stats(AV1_COMP *cpi,
                          const EncodeFrameInput *const frame_input) {
   GF_PICTURE gf_picture[MAX_LENGTH_TPL_FRAME_STATS];
-  const GF_GROUP *gf_group = &cpi->twopass.gf_group;
+  GF_GROUP *gf_group = &cpi->twopass.gf_group;
   int tpl_group_frames = 0;
   int frame_idx;
 
@@ -668,7 +665,9 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
 
   init_tpl_stats(cpi);
 
-  // Backward propagation from tpl_group_frames to 1.
-  for (frame_idx = tpl_group_frames - 1; frame_idx > 0; --frame_idx)
-    mc_flow_dispenser(cpi, gf_picture, frame_idx);
+  if (cpi->oxcf.enable_tpl_model == 1) {
+    // Backward propagation from tpl_group_frames to 1.
+    for (frame_idx = tpl_group_frames - 1; frame_idx > 0; --frame_idx)
+      mc_flow_dispenser(cpi, gf_picture, frame_idx);
+  }
 }
