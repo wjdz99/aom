@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "aom_dsp/aom_dsp_common.h"
 #include "aom_dsp/noise_util.h"
 #include "aom_dsp/fft_common.h"
 #include "aom_mem/aom_mem.h"
@@ -96,7 +97,9 @@ void aom_noise_tx_filter(struct aom_noise_tx_t *noise_tx, const float *psd) {
     for (int x = 0; x < block_size; ++x) {
       int i = y * block_size + x;
       float *c = noise_tx->tx_block + 2 * i;
-      const float p = c[0] * c[0] + c[1] * c[1];
+      const float c0 = AOMMAX(c[0], 1e-4);
+      const float c1 = AOMMAX(c[1], 1e-4);
+      const float p = c0 * c0 + c1 * c1;
       if (p > kBeta * psd[i] && p > 1e-6) {
         noise_tx->tx_block[2 * i + 0] *= (p - psd[i]) / AOMMAX(p, kEps);
         noise_tx->tx_block[2 * i + 1] *= (p - psd[i]) / AOMMAX(p, kEps);
