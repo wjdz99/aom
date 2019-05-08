@@ -63,8 +63,11 @@
 
 #define DIVIDE_AND_ROUND(x, y) (((x) + ((y) >> 1)) / (y))
 
-#define CONVERT_TO_SHORTPTR(x) ((uint16_t *)(((uintptr_t)(x)) << 1))
-#define CONVERT_TO_BYTEPTR(x) ((uint8_t *)(((uintptr_t)(x)) >> 1))
+//#define CONVERT_TO_SHORTPTR(x) ((uint16_t *)(((uintptr_t)(x)) << 1))
+//#define CONVERT_TO_BYTEPTR(x) ((uint8_t *)(((uintptr_t)(x)) >> 1))
+
+#define CONVERT_TO_SHORTPTR(x) ((uint16_t *)(x))
+#define CONVERT_TO_BYTEPTR(x) ((uint8_t *)(x))
 
 /*!\brief force enum to be unsigned 1 byte*/
 #define UENUM1BYTE(enumvar) \
