@@ -1535,6 +1535,8 @@ static void score_2D_transform_pow8(float *scores_2D, float shift) {
   for (i = 0; i < 16; i++) {
     if (scores_2D[i] < sum * 1e-4)
       scores_2D[i] = 0.0f;
+    else if (sum < 1e-4)
+      scores_2D[i] *= 10000;
     else
       scores_2D[i] /= sum;
   }
