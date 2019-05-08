@@ -1526,7 +1526,7 @@ static void score_2D_transform_pow8(float *scores_2D, float shift) {
   float sum = 0.0f;
   int i;
   for (i = 0; i < 16; i++) {
-    const float v = AOMMIN(AOMMAX(scores_2D[i] + shift, 0.0f), 100.0f);
+    const float v = AOMMIN(AOMMAX(scores_2D[i] + shift, 0.01f), 100.0f);
     const float v2 = v * v;
     const float v4 = v2 * v2;
     scores_2D[i] = v4 * v4;
@@ -1535,6 +1535,8 @@ static void score_2D_transform_pow8(float *scores_2D, float shift) {
   for (i = 0; i < 16; i++) {
     if (scores_2D[i] < sum * 1e-4)
       scores_2D[i] = 0.0f;
+    else if (sum < 1e-4)
+      scores_2D[i] *= 10000;
     else
       scores_2D[i] /= sum;
   }
