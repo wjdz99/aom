@@ -188,7 +188,7 @@ int64_t av1_refine_integerized_param(
                      dst + border * d_stride + border, border, border,
                      d_width - 2 * border, d_height - 2 * border, d_stride, 0,
                      0, best_frame_error, segment_map, segment_map_stride);
-  best_error = AOMMIN(best_error, best_frame_error);
+//  best_error = AOMMIN(best_error, best_frame_error);
   step = 1 << (n_refinements - 1);
   for (i = 0; i < n_refinements; i++, step >>= 1) {
     for (p = 0; p < n_params; ++p) {
@@ -305,8 +305,8 @@ void av1_compute_feature_segmentation_map(uint8_t *segment_map, int width,
 
   // If this motion does not make up a large enough portion of the frame,
   // use the unsegmented version of the error metric
-  if (seg_count < (width * height * SEG_COUNT_TR))
-    memset(segment_map, 1, width * height * sizeof(*segment_map));
+//if (seg_count < (width * height * SEG_COUNT_TR))
+//  memset(segment_map, 1, width * height * sizeof(*segment_map));
 }
 
 static int compute_global_motion_feature_based(
@@ -892,11 +892,11 @@ int av1_compute_global_motion(TransformationType type,
           type, frm_buffer, frm_width, frm_height, frm_stride, frm_corners,
           num_frm_corners, ref, bit_depth, num_inliers_by_motion,
           params_by_motion, num_motions);
-    case GLOBAL_MOTION_DISFLOW_BASED:
-      return compute_global_motion_disflow_based(
-          type, frm_buffer, frm_width, frm_height, frm_stride, frm_corners,
-          num_frm_corners, ref, bit_depth, num_inliers_by_motion,
-          params_by_motion, num_motions);
+//  case GLOBAL_MOTION_DISFLOW_BASED:
+//    return compute_global_motion_disflow_based(
+//        type, frm_buffer, frm_width, frm_height, frm_stride, frm_corners,
+//        num_frm_corners, ref, bit_depth, num_inliers_by_motion,
+//        params_by_motion, num_motions);
     default: assert(0 && "Unknown global motion estimation type");
   }
   return 0;
