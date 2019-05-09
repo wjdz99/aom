@@ -55,8 +55,7 @@ static unsigned int tx_domain_dist_thresholds[MAX_TX_DOMAIN_EVAL_SPEED + 1] = {
 // Threshold values to be used for disabling coeff RD-optimization
 // based on block MSE
 // TODO(any): Experiment the threshold logic based on variance metric
-static unsigned int coeff_opt_dist_thresholds[5] = { UINT_MAX, 162754, 162754,
-                                                     22026, 22026 };
+static unsigned int coeff_opt_dist_thresholds[5] = { 0, 0, 0, 0, 0 };
 // scaling values to be used for gating wedge/compound segment based on best
 // approximate rd
 static int comp_type_rd_threshold_mul[3] = { 1, 11, 12 };
