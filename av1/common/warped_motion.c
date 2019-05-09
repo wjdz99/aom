@@ -490,6 +490,7 @@ static int64_t highbd_segmented_frame_error(
   const int error_bsize_w = AOMMIN(p_width, WARP_ERROR_BLOCK);
   const int error_bsize_h = AOMMIN(p_height, WARP_ERROR_BLOCK);
   int64_t sum_error = 0;
+  /*
   for (int i = 0; i < p_height; i += WARP_ERROR_BLOCK) {
     for (int j = 0; j < p_width; j += WARP_ERROR_BLOCK) {
       int seg_x = j >> WARP_ERROR_BLOCK_LOG;
@@ -506,6 +507,7 @@ static int64_t highbd_segmented_frame_error(
                                                patch_h, p_stride, bd);
     }
   }
+  */
   return sum_error;
 }
 
