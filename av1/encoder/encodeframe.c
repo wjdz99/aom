@@ -4231,6 +4231,7 @@ static int do_gm_search_logic(SPEED_FEATURES *const sf, int num_refs_using_gm,
                               int frame) {
   (void)num_refs_using_gm;
   (void)frame;
+  //  return (frame == GOLDEN_FRAME) || (frame == ALTREF_FRAME);
   switch (sf->gm_search_type) {
     case GM_FULL_SEARCH: return 1;
     case GM_REDUCED_REF_SEARCH_SKIP_L2_L3:
@@ -4385,6 +4386,142 @@ static void set_default_interp_skip_flags(AV1_COMP *cpi) {
   cpi->default_interp_skip_flags = (num_planes == 1)
                                        ? DEFAULT_LUMA_INTERP_SKIP_FLAG
                                        : DEFAULT_INTERP_SKIP_FLAG;
+}
+
+static float compute_model_overlap(MotionModel *params1, MotionModel *params2,
+                                   int *corners) {
+  int inliers1 = params1->num_inliers;
+  int inliers2 = params2->num_inliers;
+  int x1, y1, x2, y2;
+  if (inliers1 == 0 || inliers2 == 0) return -1.0;
+  if (params1->refined_params.wmtype == IDENTITY ||
+      params2->refined_params.wmtype == IDENTITY)
+    return -2.0;
+  int model_index1 = 0;
+  int model_index2 = 0;
+  int overlap = 0;
+  (void)corners;
+  while (model_index1 < inliers1 && model_index2 < inliers2) {
+    x1 = params1->inliers[2 * model_index1];
+    y1 = params1->inliers[2 * model_index1 + 1];
+    x2 = params2->inliers[2 * model_index2];
+    y2 = params2->inliers[2 * model_index2 + 1];
+    if (x1 == x2 && y1 == y2) {
+      overlap++;
+      model_index1++;
+      model_index2++;
+    } else if (y1 == y2) {
+      if (x1 < x2) {
+        model_index1++;
+      } else if (x2 < x1) {
+        model_index2++;
+      } else {
+        printf("ERROR1\n");
+        assert(0);
+      }
+    } else if (y1 < y2) {
+      model_index1++;
+    } else if (y2 < y1) {
+      model_index2++;
+    } else {
+      printf("ERROR2\n");
+      assert(0);
+    }
+  }
+  return ((float)overlap) / AOMMIN(inliers1, inliers2);
+}
+/*
+ *
+ *
+int64_t div_warp_error(WarpedMotionParams *wm1, const uint8_t *const ref1,
+                          int width, int height, int stride1,
+                          WarpedMotionParams *wm2, const uint8_t *const ref2,
+                          int stride2,
+                          const uint8_t *const dst, int p_col, int p_row,
+                          int p_width, int p_height, int p_stride,
+                          int subsampling_x, int subsampling_y) {
+ *
+ */
+
+static void diversify_motion(
+    AV1_COMP *cpi, MotionModel params_by_motion[REF_FRAMES][RANSAC_NUM_MOTIONS],
+    int *corners) {
+  AV1_COMMON *const cm = &cpi->common;
+  (void)corners;
+  int64_t best_error = INT64_MAX;
+  int primary_frame = -1;
+  int secondary_frame = -1;
+  for (int frame1 = LAST_FRAME; frame1 <= ALTREF_FRAME; ++frame1) {
+    if (!(do_gm_search_logic(&cpi->sf, 0, frame1) &&
+          !(cpi->sf.selective_ref_gm && skip_gm_frame(cm, frame1)))) {
+      continue;
+    }
+    for (int frame2 = frame1; frame2 <= ALTREF_FRAME; ++frame2) {
+      if (!(do_gm_search_logic(&cpi->sf, 0, frame2) &&
+            !(cpi->sf.selective_ref_gm && skip_gm_frame(cm, frame2)))) {
+        continue;
+      }
+//      if (frame1 == frame2) continue;
+      if (cm->global_motion[frame1].wmtype == IDENTITY ||
+          cm->global_motion[frame2].wmtype == IDENTITY)
+        continue;
+      RefCntBuffer *buf1 = get_ref_frame_buf(cm, frame1);
+      if (buf1 == NULL) continue;
+      RefCntBuffer *buf2 = get_ref_frame_buf(cm, frame2);
+      if (buf2 == NULL) continue;
+      int64_t div_error1 = div_warp_error(
+          &params_by_motion[frame1][0].refined_params, buf1->buf.y_buffer,
+          cpi->source->y_width, cpi->source->y_height, buf1->buf.y_stride,
+          &params_by_motion[frame2][1].refined_params, buf2->buf.y_buffer,
+          buf2->buf.y_stride, cpi->source->y_buffer, 0, 0, cpi->source->y_width,
+          cpi->source->y_height, cpi->source->y_stride, 0, 0);
+      int64_t div_error2 = div_warp_error(
+          &params_by_motion[frame1][1].refined_params, buf1->buf.y_buffer,
+          cpi->source->y_width, cpi->source->y_height, buf1->buf.y_stride,
+          &params_by_motion[frame2][2].refined_params, buf2->buf.y_buffer,
+          buf2->buf.y_stride, cpi->source->y_buffer, 0, 0, cpi->source->y_width,
+          cpi->source->y_height, cpi->source->y_stride, 0, 0);
+
+      int64_t orig_error = div_warp_error(
+          &cm->global_motion[frame1], buf1->buf.y_buffer, cpi->source->y_width,
+          cpi->source->y_height, buf1->buf.y_stride, &cm->global_motion[frame2],
+          buf2->buf.y_buffer, buf2->buf.y_stride, cpi->source->y_buffer, 0, 0,
+          cpi->source->y_width, cpi->source->y_height, cpi->source->y_stride, 0,
+          0);
+      printf("here\n");
+      if (div_error1 < div_error2 && div_error1 < best_error &&
+          div_error1 < orig_error) {
+        best_error = div_error1;
+        primary_frame = frame1;
+        secondary_frame = frame2;
+      } else if (div_error2 < div_error1 && div_error2 < best_error &&
+                 div_error2 < orig_error) {
+        best_error = div_error2;
+        primary_frame = frame2;
+        secondary_frame = frame1;
+      }
+    }
+  }
+  if (best_error < INT64_MAX) {
+    memcpy(&cm->global_motion[primary_frame],
+           &params_by_motion[primary_frame][0].refined_params,
+           sizeof(cm->global_motion[primary_frame]));
+    memcpy(&cm->global_motion[secondary_frame],
+           &params_by_motion[secondary_frame][1].refined_params,
+           sizeof(cm->global_motion[secondary_frame]));
+    printf("diversify\n");
+  }
+
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    const WarpedMotionParams *ref_params =
+        cm->prev_frame ? &cm->prev_frame->global_motion[frame]
+                       : &default_warp_params;
+    cpi->gmparams_cost[frame] =
+        gm_get_params_cost(&cm->global_motion[frame], ref_params,
+                           cm->allow_high_precision_mv) +
+        cpi->gmtype_cost[cm->global_motion[frame].wmtype] -
+        cpi->gmtype_cost[IDENTITY];
+  }
 }
 
 static void encode_frame_internal(AV1_COMP *cpi) {
@@ -4626,22 +4763,28 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       cpi->oxcf.enable_global_motion && !cpi->global_motion_search_done) {
     YV12_BUFFER_CONFIG *ref_buf[REF_FRAMES];
     int frame;
-    MotionModel params_by_motion[RANSAC_NUM_MOTIONS];
-    for (int m = 0; m < RANSAC_NUM_MOTIONS; m++) {
-      memset(&params_by_motion[m], 0, sizeof(params_by_motion[m]));
-      params_by_motion[m].inliers =
-          aom_malloc(sizeof(*(params_by_motion[m].inliers)) * 2 * MAX_CORNERS);
+    MotionModel params_by_motion[REF_FRAMES][RANSAC_NUM_MOTIONS];
+    for (int f = 0; f < REF_FRAMES; f++) {
+      for (int m = 0; m < RANSAC_NUM_MOTIONS; m++) {
+        memset(&(params_by_motion[f][m]), 0, sizeof(params_by_motion[f][m]));
+        params_by_motion[f][m].inliers = aom_malloc(
+            sizeof(*(params_by_motion[f][m].inliers)) * 2 * MAX_CORNERS);
+        params_by_motion[f][m].outliers = aom_malloc(
+            sizeof(*(params_by_motion[f][m].outliers)) * 2 * MAX_CORNERS);
+      }
     }
-
     const double *params_this_motion;
     int inliers_by_motion[RANSAC_NUM_MOTIONS];
     WarpedMotionParams tmp_wm_params;
+    WarpedMotionParams tmp_wm_params_full;
     // clang-format off
     static const double kIdentityParams[MAX_PARAMDIM - 1] = {
       0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0
     };
     // clang-format on
     int num_refs_using_gm = 0;
+    //  int num_frm_corners_orig;
+    //  int frm_corners_orig[2 * MAX_CORNERS];
     int num_frm_corners = -1;
     int frm_corners[2 * MAX_CORNERS];
     unsigned char *frm_buffer = cpi->source->y_buffer;
@@ -4651,6 +4794,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       frm_buffer =
           av1_downconvert_frame(cpi->source, cpi->common.seq_params.bit_depth);
     }
+
     const int segment_map_w =
         (cpi->source->y_width + WARP_ERROR_BLOCK) >> WARP_ERROR_BLOCK_LOG;
     const int segment_map_h =
@@ -4660,7 +4804,19 @@ static void encode_frame_internal(AV1_COMP *cpi) {
         aom_malloc(sizeof(*segment_map) * segment_map_w * segment_map_h);
     memset(segment_map, 0,
            sizeof(*segment_map) * segment_map_w * segment_map_h);
+    uint8_t *segment_map_full =
+        aom_malloc(sizeof(*segment_map) * segment_map_w * segment_map_h);
+    memset(segment_map_full, 1,
+           sizeof(*segment_map_full) * segment_map_w * segment_map_h);
 
+    // compute interest points using FAST features
+    //  num_frm_corners_orig = av1_fast_corner_detect(
+    //      frm_buffer, cpi->source->y_width, cpi->source->y_height,
+    //      cpi->source->y_stride, frm_corners_orig, MAX_CORNERS);
+    //  memcpy(frm_corners, frm_corners_orig, sizeof(*frm_corners) * 2 *
+    //  MAX_CORNERS);
+    //  //printf("\n\nGLOBAL\n");
+    //  num_frm_corners = num_frm_corners_orig;
     for (frame = ALTREF_FRAME; frame >= LAST_FRAME; --frame) {
       ref_buf[frame] = NULL;
       RefCntBuffer *buf = get_ref_frame_buf(cm, frame);
@@ -4705,30 +4861,38 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                 : GLOBAL_MOTION_FEATURE_BASED;
         for (model = ROTZOOM; model < GLOBAL_TRANS_TYPES_ENC; ++model) {
           int64_t best_warp_error = INT64_MAX;
+          int best_motion_model = INT_MAX;
           // Initially set all params to identity.
           for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
-            memcpy(params_by_motion[i].params, kIdentityParams,
-                   (MAX_PARAMDIM - 1) * sizeof(*(params_by_motion[i].params)));
+            memcpy(params_by_motion[frame][i].params, kIdentityParams,
+                   (MAX_PARAMDIM - 1) *
+                       sizeof(*(params_by_motion[frame][i].params)));
           }
 
+          if (cm->current_frame.frame_number == 33)
           av1_compute_global_motion(
               model, frm_buffer, cpi->source->y_width, cpi->source->y_height,
               cpi->source->y_stride, frm_corners, num_frm_corners,
               ref_buf[frame], cpi->common.seq_params.bit_depth,
-              gm_estimation_type, inliers_by_motion, params_by_motion,
+              gm_estimation_type, inliers_by_motion, params_by_motion[frame],
               RANSAC_NUM_MOTIONS);
 
           for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
             if (inliers_by_motion[i] == 0) continue;
 
-            params_this_motion = params_by_motion[i].params;
+            params_this_motion = params_by_motion[frame][i].params;
             av1_convert_model_to_params(params_this_motion, &tmp_wm_params);
+            // sarahparker make this a memcpy
+            av1_convert_model_to_params(params_this_motion,
+                                        &tmp_wm_params_full);
 
             if (tmp_wm_params.wmtype != IDENTITY) {
               av1_compute_feature_segmentation_map(
                   segment_map, segment_map_w, segment_map_h,
-                  params_by_motion[i].inliers, params_by_motion[i].num_inliers);
+                  params_by_motion[frame][i].inliers,
+                  params_by_motion[frame][i].num_inliers);
 
+              // Segmented warp error
               const int64_t warp_error = av1_refine_integerized_param(
                   &tmp_wm_params, tmp_wm_params.wmtype, is_cur_buf_hbd(xd),
                   xd->bd, ref_buf[frame]->y_buffer, ref_buf[frame]->y_width,
@@ -4736,15 +4900,35 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                   cpi->source->y_buffer, cpi->source->y_width,
                   cpi->source->y_height, cpi->source->y_stride, 5,
                   best_warp_error, segment_map, segment_map_w);
-              if (warp_error < best_warp_error) {
-                best_warp_error = warp_error;
+              // printf("warp error %f, motion %d\n", (double)warp_error
+              // /ref_frame_error, i);
+              params_by_motion[frame][i].warp_error = warp_error;
+
+              // Full warp error
+              const int64_t warp_error_full = av1_refine_integerized_param(
+                  &tmp_wm_params_full, tmp_wm_params_full.wmtype,
+                  is_cur_buf_hbd(xd), xd->bd, ref_buf[frame]->y_buffer,
+                  ref_buf[frame]->y_width, ref_buf[frame]->y_height,
+                  ref_buf[frame]->y_stride, cpi->source->y_buffer,
+                  cpi->source->y_width, cpi->source->y_height,
+                  cpi->source->y_stride, 5, best_warp_error, segment_map_full,
+                  segment_map_w);
+              params_by_motion[frame][i].warp_error_full = warp_error_full;
+              if (warp_error_full < best_warp_error && i == 0) {
+                best_warp_error = warp_error_full;
+                best_motion_model = i;
                 // Save the wm_params modified by
                 // av1_refine_integerized_param() rather than motion index to
                 // avoid rerunning refine() below.
-                memcpy(&(cm->global_motion[frame]), &tmp_wm_params,
+                memcpy(&(cm->global_motion[frame]), &tmp_wm_params_full,
                        sizeof(WarpedMotionParams));
               }
             }
+            // Save the models
+            memcpy(&(params_by_motion[frame][i].refined_params), &tmp_wm_params,
+                   sizeof(WarpedMotionParams));
+            memcpy(&(params_by_motion[frame][i].refined_params_full),
+                   &tmp_wm_params_full, sizeof(WarpedMotionParams));
           }
           if (cm->global_motion[frame].wmtype <= AFFINE)
             if (!av1_get_shear_params(&cm->global_motion[frame]))
@@ -4768,30 +4952,54 @@ static void encode_frame_internal(AV1_COMP *cpi) {
               ref_buf[frame]->y_stride, cpi->source->y_buffer,
               cpi->source->y_width, cpi->source->y_height,
               cpi->source->y_stride, segment_map, segment_map_w);
+          const int64_t ref_frame_error_full = av1_segmented_frame_error(
+              is_cur_buf_hbd(xd), xd->bd, ref_buf[frame]->y_buffer,
+              ref_buf[frame]->y_stride, cpi->source->y_buffer,
+              cpi->source->y_width, cpi->source->y_height,
+              cpi->source->y_stride, segment_map_full, segment_map_w);
 
           if (ref_frame_error == 0) continue;
+
+          for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
+            params_by_motion[frame][i].ref_error = ref_frame_error;
+            params_by_motion[frame][i].ref_error_full = ref_frame_error_full;
+          }
 
           // If the best error advantage found doesn't meet the threshold for
           // this motion type, revert to IDENTITY.
           if (!av1_is_enough_erroradvantage(
-                  (double)best_warp_error / ref_frame_error,
+                  (double)best_warp_error / ref_frame_error_full,
                   gm_get_params_cost(&cm->global_motion[frame], ref_params,
                                      cm->allow_high_precision_mv),
                   cpi->sf.gm_erroradv_type)) {
             cm->global_motion[frame] = default_warp_params;
           }
-          if (cm->global_motion[frame].wmtype != IDENTITY) break;
+          // for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
+          //  if (inliers_by_motion[i] == 0) continue;
+          //  if (!av1_is_enough_erroradvantage(
+          //        ((double)params_by_motion[frame][i].warp_error_full) /
+          //        params_by_motion[frame][i].ref_error_full,
+          //        gm_get_params_cost(&params_by_motion[frame][i].refined_params_full,
+          //        ref_params,
+          //                           cm->allow_high_precision_mv),
+          //        cpi->sf.gm_erroradv_type)) {
+          //    params_by_motion[frame][i].refined_params_full =
+          //    default_warp_params;
+          //  } else {
+          //    //printf("frame %d m %d\n", frame, i);
+          //  }
+          //}
+          if (cm->global_motion[frame].wmtype != IDENTITY) {
+            params_by_motion[frame][best_motion_model].is_best = 1;
+            break;
+          }
         }
         aom_clear_system_state();
       }
-      if (cm->global_motion[frame].wmtype != IDENTITY) num_refs_using_gm++;
-      cpi->gmparams_cost[frame] =
-          gm_get_params_cost(&cm->global_motion[frame], ref_params,
-                             cm->allow_high_precision_mv) +
-          cpi->gmtype_cost[cm->global_motion[frame].wmtype] -
-          cpi->gmtype_cost[IDENTITY];
     }
+    diversify_motion(cpi, params_by_motion, frm_corners);
     aom_free(segment_map);
+
     // clear disabled ref_frames
     for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
       const int ref_disabled =
@@ -4802,8 +5010,11 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       }
     }
     cpi->global_motion_search_done = 1;
-    for (int m = 0; m < RANSAC_NUM_MOTIONS; m++) {
-      aom_free(params_by_motion[m].inliers);
+    for (int f = 0; f < REF_FRAMES; f++) {
+      for (int m = 0; m < RANSAC_NUM_MOTIONS; m++) {
+        aom_free(params_by_motion[f][m].inliers);
+        aom_free(params_by_motion[f][m].outliers);
+      }
     }
   }
   memcpy(cm->cur_frame->global_motion, cm->global_motion,

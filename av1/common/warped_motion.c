@@ -857,6 +857,47 @@ static int64_t warp_error(WarpedMotionParams *wm, const uint8_t *const ref,
   return gm_sumerr;
 }
 
+int64_t div_warp_error(WarpedMotionParams *wm1, const uint8_t *const ref1,
+                          int width, int height, int stride1,
+                          WarpedMotionParams *wm2, const uint8_t *const ref2,
+                          int stride2,
+                          const uint8_t *const dst, int p_col, int p_row,
+                          int p_width, int p_height, int p_stride,
+                          int subsampling_x, int subsampling_y) {
+  int64_t gm_sumerr = 0;
+  int warp_w, warp_h;
+  const int warp_error_block = 8;//1 << warp_error_block_log;
+  const int error_bsize_w = AOMMIN(p_width, warp_error_block);
+  const int error_bsize_h = AOMMIN(p_height, warp_error_block);
+  uint8_t tmp[8 * 8];
+  ConvolveParams conv_params = get_conv_params(0, 0, 8);
+  conv_params.use_dist_wtd_comp_avg = 0;
+
+  for (int i = p_row; i < p_row + p_height; i += warp_error_block) {
+    for (int j = p_col; j < p_col + p_width; j += warp_error_block) {
+      // avoid warping extra 8x8 blocks in the padded region of the frame
+      // when p_width and p_height are not multiples of WARP_ERROR_BLOCK
+      warp_w = AOMMIN(error_bsize_w, p_col + p_width - j);
+      warp_h = AOMMIN(error_bsize_h, p_row + p_height - i);
+      warp_plane(wm1, ref1, width, height, stride1, tmp, j, i, warp_w, warp_h,
+                 warp_error_block, subsampling_x, subsampling_y, &conv_params);
+
+      int64_t err1 =
+          av1_calc_frame_error(tmp, warp_error_block, dst + j + i * p_stride,
+                               warp_w, warp_h, p_stride);
+
+      warp_plane(wm2, ref2, width, height, stride2, tmp, j, i, warp_w, warp_h,
+                 warp_error_block, subsampling_x, subsampling_y, &conv_params);
+
+      int64_t err2 =
+          av1_calc_frame_error(tmp, warp_error_block, dst + j + i * p_stride,
+                               warp_w, warp_h, p_stride);
+      gm_sumerr += AOMMIN(err1, err2);
+    }
+  }
+  return gm_sumerr;
+}
+
 int64_t av1_frame_error(int use_hbd, int bd, const uint8_t *ref, int stride,
                         uint8_t *dst, int p_width, int p_height, int p_stride) {
   if (use_hbd) {
