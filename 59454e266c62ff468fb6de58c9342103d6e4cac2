@@ -117,6 +117,30 @@
       "revId": "59454e266c62ff468fb6de58c9342103d6e4cac2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4526a571_5c2ad3d4",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1534,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-09T23:35:39Z",
+      "side": 1,
+      "message": "I meant the threshold for \"sum\", at line 1538.",
+      "parentUuid": "57e5151c_5e81d347",
+      "range": {
+        "startLine": 1534,
+        "startChar": 2,
+        "endLine": 1534,
+        "endChar": 3
+      },
+      "revId": "59454e266c62ff468fb6de58c9342103d6e4cac2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
