@@ -3819,7 +3819,7 @@ static int get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
         mc_saved_base != 0.0
             ? ((double)mc_saved - mc_saved_base) / mc_saved_base
             : 0.0;
-    offset = -(int)rint(mc_saved_beta * 4.0);
+    offset = -(int)rint(mc_saved_beta * 8.0);
   }
 
   aom_clear_system_state();
