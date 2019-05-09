@@ -268,7 +268,7 @@ static int compute_global_motion_feature_based(
     TransformationType type, unsigned char *frm_buffer, int frm_width,
     int frm_height, int frm_stride, int *frm_corners, int num_frm_corners,
     YV12_BUFFER_CONFIG *ref, int bit_depth, int *num_inliers_by_motion,
-    double *params_by_motion, int num_motions) {
+    MotionModel *params_by_motion, int num_motions) {
   int i;
   int num_ref_corners;
   int num_correspondences;
@@ -752,8 +752,9 @@ static int compute_global_motion_disflow_based(
     TransformationType type, unsigned char *frm_buffer, int frm_width,
     int frm_height, int frm_stride, int *frm_corners, int num_frm_corners,
     YV12_BUFFER_CONFIG *ref, int bit_depth, int *num_inliers_by_motion,
-    double *params_by_motion, int num_motions) {
+    MotionModel *params_by_motion, int num_motions) {
   unsigned char *ref_buffer = ref->y_buffer;
+  double *params = params_by_motion->params;
   const int ref_width = ref->y_width;
   const int ref_height = ref->y_height;
   const int pad_size = AOMMAX(PATCH_SIZE, MIN_PAD);
@@ -808,8 +809,8 @@ static int compute_global_motion_disflow_based(
   num_correspondences = determine_disflow_correspondence(
       frm_corners, num_frm_corners, flow_u, flow_v, frm_width, frm_height,
       frm_pyr->strides[0], correspondences);
-  ransac(correspondences, num_correspondences, num_inliers_by_motion,
-         params_by_motion, num_motions);
+  ransac(correspondences, num_correspondences, num_inliers_by_motion, params,
+         num_motions);
 
   free_pyramid(frm_pyr);
   free_pyramid(ref_pyr);
@@ -837,7 +838,7 @@ int av1_compute_global_motion(TransformationType type,
                               int bit_depth,
                               GlobalMotionEstimationType gm_estimation_type,
                               int *num_inliers_by_motion,
-                              double *params_by_motion, int num_motions) {
+                              MotionModel *params_by_motion, int num_motions) {
   switch (gm_estimation_type) {
     case GLOBAL_MOTION_FEATURE_BASED:
       return compute_global_motion_feature_based(
