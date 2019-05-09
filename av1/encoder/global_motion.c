@@ -187,7 +187,7 @@ int64_t av1_refine_integerized_param(
                               d_width - 2 * border, d_height - 2 * border,
                               d_stride, 0, 0, best_frame_error, segment_map,
                               segment_map_w, segment_map_h);
-  best_error = AOMMIN(best_error, best_frame_error);
+  //best_error = AOMMIN(best_error, best_frame_error);
   step = 1 << (n_refinements - 1);
   for (i = 0; i < n_refinements; i++, step >>= 1) {
     for (p = 0; p < n_params; ++p) {
@@ -307,6 +307,37 @@ void av1_compute_feature_segmentation_map(uint8_t *segment_map, int width,
     memset(segment_map, 1, width * height * sizeof(*segment_map));
 }
 
+static void processes_in_and_outliers(MotionModel *params,
+                                     int *frm_corners, int num_frm_corners,
+                                     int *correspondences, int num_correspondences) {
+
+  int *inliers_tmp =
+      (int *)aom_malloc(2 * MAX_CORNERS * sizeof(*correspondences));
+  int num_inliers = 0;
+  int num_outliers = 0;
+  (void)num_correspondences;
+  for (int i = 0; i < num_frm_corners; i++) {
+    int corner_x = frm_corners[2 * i];
+    int corner_y = frm_corners[2 * i + 1];
+    int is_inlier = 0;
+    for (int j = 0; j < params->num_inliers; j++) {
+      int index = params->inliers[j];
+      if ((corner_x == correspondences[4 * index]) &&
+          (corner_y == correspondences[4 * index + 1])) {
+        inliers_tmp[num_inliers++] = i;
+        is_inlier = 1;
+        break;
+      }
+    }
+    if (!is_inlier) params->outliers[num_outliers++] = i;
+  }
+  memcpy(params->inliers, inliers_tmp, sizeof(*inliers_tmp) * 2 * MAX_CORNERS);
+  params->num_outliers = num_outliers;
+  params->num_inliers = num_inliers;
+  assert((num_inliers + num_outliers) == num_frm_corners);
+  aom_free(inliers_tmp);
+}
+
 static int compute_global_motion_feature_based(
     TransformationType type, unsigned char *frm_buffer, int frm_width,
     int frm_height, int frm_stride, int *frm_corners, int num_frm_corners,
@@ -328,6 +359,20 @@ static int compute_global_motion_feature_based(
       av1_fast_corner_detect(ref_buffer, ref->y_width, ref->y_height,
                              ref->y_stride, ref_corners, MAX_CORNERS);
 
+  ////////////////////////////////////////////////
+  /*
+  printf("im = [");
+  for (i = 0; i < frm_height; ++i) {
+    for (int j = 0; j < frm_width; ++j) {
+      printf("%d ", frm_buffer[i * frm_stride + j]);
+    }
+    printf(";\n");
+  }
+  printf("];\n\n");
+
+  */
+  //////////////////////////////////////////////
+
   // find correspondences between the two images
   correspondences =
       (int *)malloc(num_frm_corners * 4 * sizeof(*correspondences));
@@ -335,6 +380,19 @@ static int compute_global_motion_feature_based(
       frm_buffer, (int *)frm_corners, num_frm_corners, ref_buffer,
       (int *)ref_corners, num_ref_corners, frm_width, frm_height, frm_stride,
       ref->y_stride, correspondences);
+
+  /*
+  printf("x = [");
+  for (i = 0; i < num_correspondences; i++) {
+    printf("%d ", correspondences[i * 4]);
+  }
+  printf("];\n\n");
+  printf("y = [");
+  for (i = 0; i < num_correspondences; i++) {
+    printf("%d ", correspondences[i * 4 + 1]);
+  }
+  printf("];\n\n");
+  */
 
   ransac(correspondences, num_correspondences, num_inliers_by_motion,
          params_by_motion, num_motions);
@@ -345,6 +403,7 @@ static int compute_global_motion_feature_based(
         num_correspondences == 0) {
       num_inliers_by_motion[i] = 0;
     } else {
+      //TODO(process in and)
       get_inliers_from_indices(&params_by_motion[i], correspondences);
     }
   }
@@ -890,11 +949,11 @@ int av1_compute_global_motion(TransformationType type,
           type, frm_buffer, frm_width, frm_height, frm_stride, frm_corners,
           num_frm_corners, ref, bit_depth, num_inliers_by_motion,
           params_by_motion, num_motions);
-    case GLOBAL_MOTION_DISFLOW_BASED:
-      return compute_global_motion_disflow_based(
-          type, frm_buffer, frm_width, frm_height, frm_stride, frm_corners,
-          num_frm_corners, ref, bit_depth, num_inliers_by_motion,
-          params_by_motion, num_motions);
+//  case GLOBAL_MOTION_DISFLOW_BASED:
+//    return compute_global_motion_disflow_based(
+//        type, frm_buffer, frm_width, frm_height, frm_stride, frm_corners,
+//        num_frm_corners, ref, bit_depth, num_inliers_by_motion,
+//        params_by_motion, num_motions);
     default: assert(0 && "Unknown global motion estimation type");
   }
   return 0;
