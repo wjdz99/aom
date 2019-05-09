@@ -22,7 +22,7 @@ extern "C" {
 #endif
 
 #define MAX_CORNERS 4096
-#define RANSAC_NUM_MOTIONS 1
+#define RANSAC_NUM_MOTIONS 3
 
 typedef enum {
   GLOBAL_MOTION_FEATURE_BASED,
@@ -34,7 +34,12 @@ unsigned char *av1_downconvert_frame(YV12_BUFFER_CONFIG *frm, int bit_depth);
 typedef struct {
   double params[MAX_PARAMDIM - 1];
   int *inliers;
+  int *outliers;
   int num_inliers;
+  int num_outliers;
+  double warp_error;
+  int is_best;
+  WarpedMotionParams refined_params;
 } MotionModel;
 
 void av1_convert_model_to_params(const double *params,
