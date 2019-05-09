@@ -5052,7 +5052,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       cpi->oxcf.enable_global_motion && !cpi->global_motion_search_done) {
     YV12_BUFFER_CONFIG *ref_buf[REF_FRAMES];
     int frame;
-    double params_by_motion[RANSAC_NUM_MOTIONS * (MAX_PARAMDIM - 1)];
+    MotionModel params_by_motion[RANSAC_NUM_MOTIONS];
     const double *params_this_motion;
     int inliers_by_motion[RANSAC_NUM_MOTIONS];
     WarpedMotionParams tmp_wm_params;
@@ -5123,8 +5123,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
           int64_t best_warp_error = INT64_MAX;
           // Initially set all params to identity.
           for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
-            memcpy(params_by_motion + (MAX_PARAMDIM - 1) * i, kIdentityParams,
-                   (MAX_PARAMDIM - 1) * sizeof(*params_by_motion));
+            memcpy(params_by_motion[i].params, kIdentityParams,
+                   (MAX_PARAMDIM - 1) * sizeof(*(params_by_motion[i].params)));
           }
 
           av1_compute_global_motion(
@@ -5137,7 +5137,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
           for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
             if (inliers_by_motion[i] == 0) continue;
 
-            params_this_motion = params_by_motion + (MAX_PARAMDIM - 1) * i;
+            params_this_motion = params_by_motion[i].params;
             av1_convert_model_to_params(params_this_motion, &tmp_wm_params);
 
             if (tmp_wm_params.wmtype != IDENTITY) {
