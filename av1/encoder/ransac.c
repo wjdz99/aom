@@ -330,8 +330,10 @@ static int get_rand_indices(int npoints, int minpts, int *indices,
 
 typedef struct {
   int num_inliers;
+  int num_outliers;
   double variance;
   int *inlier_indices;
+  int *outlier_indices;
 } RANSAC_MOTION;
 
 // Return -1 if 'a' is a better motion, 1 if 'b' is better, 0 otherwise.
@@ -364,9 +366,12 @@ static const double kInfiniteVariance = 1e12;
 
 static void clear_motion(RANSAC_MOTION *motion, int num_points) {
   motion->num_inliers = 0;
+  motion->num_outliers = 0;
   motion->variance = kInfiniteVariance;
   memset(motion->inlier_indices, 0,
          sizeof(*motion->inlier_indices * num_points));
+  memset(motion->outlier_indices, 0,
+         sizeof(*motion->outlier_indices * num_points));
 }
 
 static int ransac(const int *matched_points, int npoints,
@@ -417,13 +422,17 @@ static int ransac(const int *matched_points, int npoints,
   for (i = 0; i < num_desired_motions; ++i) {
     motions[i].inlier_indices =
         (int *)aom_malloc(sizeof(*motions->inlier_indices) * npoints);
+    motions[i].outlier_indices =
+        (int *)aom_malloc(sizeof(*motions->outlier_indices) * npoints);
     clear_motion(motions + i, npoints);
   }
   current_motion.inlier_indices =
       (int *)aom_malloc(sizeof(*current_motion.inlier_indices) * npoints);
+  current_motion.outlier_indices =
+      (int *)aom_malloc(sizeof(*current_motion.outlier_indices) * npoints);
   clear_motion(&current_motion, npoints);
 
-  worst_kept_motion = motions;
+  //worst_kept_motion = motions;
 
   if (!(points1 && points2 && corners1 && corners2 && image1_coord && motions &&
         current_motion.inlier_indices)) {
@@ -440,78 +449,93 @@ static int ransac(const int *matched_points, int npoints,
     *(cnp2++) = *(matched_points++);
   }
 
-  while (MIN_TRIALS > trial_count) {
-    double sum_distance = 0.0;
-    double sum_distance_squared = 0.0;
+  int npoints_to_use = npoints;
+  /////////////////////////////////
+  for (i = 0; i < num_desired_motions; i++) {
+    if (i > 0) npoints_to_use = motions[i - 1].num_outliers;
+    if (npoints_to_use <= minpts) break;
+    while (MIN_TRIALS > trial_count) {
+      double sum_distance = 0.0;
+      double sum_distance_squared = 0.0;
 
-    clear_motion(&current_motion, npoints);
+      clear_motion(&current_motion, npoints);
 
-    int degenerate = 1;
-    int num_degenerate_iter = 0;
+      int degenerate = 1;
+      int num_degenerate_iter = 0;
 
-    while (degenerate) {
-      num_degenerate_iter++;
-      if (!get_rand_indices(npoints, minpts, indices, &seed)) {
-        ret_val = 1;
-        goto finish_ransac;
-      }
+      while (degenerate) {
+        num_degenerate_iter++;
+        if (!get_rand_indices(npoints_to_use, minpts, indices, &seed)) {
+          ret_val = 1;
+          goto finish_ransac;
+        }
+        if (i > 0) {
+          for (int pt = 0; pt < minpts; pt++)
+            indices[pt] = motions[i - 1].outlier_indices[indices[pt]];
+        }
 
-      copy_points_at_indices(points1, corners1, indices, minpts);
-      copy_points_at_indices(points2, corners2, indices, minpts);
+        copy_points_at_indices(points1, corners1, indices, minpts);
+        copy_points_at_indices(points2, corners2, indices, minpts);
 
-      degenerate = is_degenerate(points1);
-      if (num_degenerate_iter > MAX_DEGENERATE_ITER) {
-        ret_val = 1;
-        goto finish_ransac;
-      }
-    }
-
-    if (find_transformation(minpts, points1, points2, params_this_motion)) {
-      trial_count++;
-      continue;
-    }
-
-    projectpoints(params_this_motion, corners1, image1_coord, npoints, 2, 2);
-
-    for (i = 0; i < npoints; ++i) {
-      double dx = image1_coord[i * 2] - corners2[i * 2];
-      double dy = image1_coord[i * 2 + 1] - corners2[i * 2 + 1];
-      double distance = sqrt(dx * dx + dy * dy);
-
-      if (distance < INLIER_THRESHOLD) {
-        current_motion.inlier_indices[current_motion.num_inliers++] = i;
-        sum_distance += distance;
-        sum_distance_squared += distance * distance;
-      }
-    }
-
-    if (current_motion.num_inliers >= worst_kept_motion->num_inliers &&
-        current_motion.num_inliers > 1) {
-      double mean_distance;
-      mean_distance = sum_distance / ((double)current_motion.num_inliers);
-      current_motion.variance =
-          sum_distance_squared / ((double)current_motion.num_inliers - 1.0) -
-          mean_distance * mean_distance * ((double)current_motion.num_inliers) /
-              ((double)current_motion.num_inliers - 1.0);
-      if (is_better_motion(&current_motion, worst_kept_motion)) {
-        // This motion is better than the worst currently kept motion. Remember
-        // the inlier points and variance. The parameters for each kept motion
-        // will be recomputed later using only the inliers.
-        worst_kept_motion->num_inliers = current_motion.num_inliers;
-        worst_kept_motion->variance = current_motion.variance;
-        memcpy(worst_kept_motion->inlier_indices, current_motion.inlier_indices,
-               sizeof(*current_motion.inlier_indices) * npoints);
-        assert(npoints > 0);
-        // Determine the new worst kept motion and its num_inliers and variance.
-        for (i = 0; i < num_desired_motions; ++i) {
-          if (is_better_motion(worst_kept_motion, &motions[i])) {
-            worst_kept_motion = &motions[i];
-          }
+        degenerate = is_degenerate(points1);
+        if (num_degenerate_iter > MAX_DEGENERATE_ITER) {
+          ret_val = 1;
+          goto finish_ransac;
         }
       }
+
+      if (find_transformation(minpts, points1, points2, params_this_motion)) {
+        trial_count++;
+        continue;
+      }
+
+      projectpoints(params_this_motion, corners1, image1_coord, npoints, 2, 2);
+
+      for (int p = 0; p < npoints_to_use; ++p) {
+        int ind = p;
+        if (i > 0) {
+          ind = motions[i - 1].outlier_indices[p];
+        }
+        double dx = image1_coord[ind * 2] - corners2[ind * 2];
+        double dy = image1_coord[ind * 2 + 1] - corners2[ind * 2 + 1];
+        double distance = sqrt(dx * dx + dy * dy);
+
+        if (distance < INLIER_THRESHOLD) {
+          current_motion.inlier_indices[current_motion.num_inliers++] = ind;
+          sum_distance += distance;
+          sum_distance_squared += distance * distance;
+        } else {
+          current_motion.outlier_indices[current_motion.num_outliers++] = ind;
+        }
+      }
+
+      if (current_motion.num_inliers >= motions[i].num_inliers &&
+          current_motion.num_inliers > 1) {
+        double mean_distance;
+        mean_distance = sum_distance / ((double)current_motion.num_inliers);
+        current_motion.variance =
+            sum_distance_squared / ((double)current_motion.num_inliers - 1.0) -
+            mean_distance * mean_distance * ((double)current_motion.num_inliers) /
+                ((double)current_motion.num_inliers - 1.0);
+        if (is_better_motion(&current_motion, &motions[i])) {
+          // This motion is better than the worst currently kept motion. Remember
+          // the inlier points and variance. The parameters for each kept motion
+          // will be recomputed later using only the inliers.
+          motions[i].num_inliers = current_motion.num_inliers;
+          motions[i].num_outliers = current_motion.num_outliers;
+          motions[i].variance = current_motion.variance;
+          memcpy(motions[i].inlier_indices, current_motion.inlier_indices,
+                 sizeof(*current_motion.inlier_indices) * npoints);
+          memcpy(motions[i].outlier_indices, current_motion.outlier_indices,
+                 sizeof(*current_motion.outlier_indices) * npoints);
+          assert(npoints > 0);
+        }
+      }
+      trial_count++;
     }
-    trial_count++;
+    trial_count = 0;
   }
+  //////////////////////////////
 
   // Sort the motions, best first.
   qsort(motions, num_desired_motions, sizeof(RANSAC_MOTION), compare_motions);
@@ -530,6 +554,8 @@ static int ransac(const int *matched_points, int npoints,
       params_by_motion[i].num_inliers = motions[i].num_inliers;
       memcpy(params_by_motion[i].inliers, motions[i].inlier_indices,
              sizeof(*motions[i].inlier_indices) * npoints);
+      memcpy(params_by_motion[i].outliers, motions[i].outlier_indices,
+             sizeof(*motions[i].outlier_indices) * npoints);
     }
     num_inliers_by_motion[i] = motions[i].num_inliers;
   }
@@ -598,9 +624,13 @@ static int ransac_double_prec(const double *matched_points, int npoints,
   for (i = 0; i < num_desired_motions; ++i) {
     motions[i].inlier_indices =
         (int *)aom_malloc(sizeof(*motions->inlier_indices) * npoints);
+    motions[i].outlier_indices =
+        (int *)aom_malloc(sizeof(*motions->inlier_indices) * npoints);
     clear_motion(motions + i, npoints);
   }
   current_motion.inlier_indices =
+      (int *)aom_malloc(sizeof(*current_motion.inlier_indices) * npoints);
+  current_motion.outlier_indices =
       (int *)aom_malloc(sizeof(*current_motion.inlier_indices) * npoints);
   clear_motion(&current_motion, npoints);
 
@@ -720,8 +750,10 @@ finish_ransac:
   aom_free(corners2);
   aom_free(image1_coord);
   aom_free(current_motion.inlier_indices);
+  aom_free(current_motion.outlier_indices);
   for (i = 0; i < num_desired_motions; ++i) {
     aom_free(motions[i].inlier_indices);
+    aom_free(motions[i].outlier_indices);
   }
   aom_free(motions);
 

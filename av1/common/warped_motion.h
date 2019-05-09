@@ -176,5 +176,13 @@ int av1_find_projection(int np, int *pts1, int *pts2, BLOCK_SIZE bsize, int mvy,
                         int mvx, WarpedMotionParams *wm_params, int mi_row,
                         int mi_col);
 
+int64_t div_warp_error(WarpedMotionParams *wm1, const uint8_t *const ref1,
+                          int width, int height, int stride1,
+                          WarpedMotionParams *wm2, const uint8_t *const ref2,
+                          int stride2,
+                          const uint8_t *const dst, int p_col, int p_row,
+                          int p_width, int p_height, int p_stride,
+                          int subsampling_x, int subsampling_y);
+
 int av1_get_shear_params(WarpedMotionParams *wm);
 #endif  // AOM_AV1_COMMON_WARPED_MOTION_H_
