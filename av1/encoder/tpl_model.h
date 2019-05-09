@@ -19,6 +19,12 @@ extern "C" {
 void av1_tpl_setup_stats(AV1_COMP *cpi,
                          const EncodeFrameInput *const frame_input);
 
+void av1_get_frame_tpl_stats_forward_mode(AV1_COMP *cpi, MACROBLOCK *x,
+                                          MACROBLOCKD *xd, BLOCK_SIZE bsize,
+                                          YV12_BUFFER_CONFIG *ref,
+                                          YV12_BUFFER_CONFIG *src,
+                                          TplDepFrame *ref_tpl_frame);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
