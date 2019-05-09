@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dab4150e_86ef245a",
+        "filename": "aom_dsp/noise_util.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-09T21:50:50Z",
+      "side": 1,
+      "message": "Can c[0] and c[1] be negative? If so, we may need to take absolute value.",
+      "range": {
+        "startLine": 99,
+        "startChar": 5,
+        "endLine": 100,
+        "endChar": 43
+      },
+      "revId": "59454e266c62ff468fb6de58c9342103d6e4cac2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03d36f6d_69b16420",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1534,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-09T21:50:50Z",
+      "side": 1,
+      "message": "I think we can simply add \"if (sum \u003c 1e-4) return;\" here.",
+      "range": {
+        "startLine": 1534,
+        "startChar": 2,
+        "endLine": 1534,
+        "endChar": 3
+      },
+      "revId": "59454e266c62ff468fb6de58c9342103d6e4cac2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
