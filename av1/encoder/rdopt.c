@@ -2926,6 +2926,26 @@ static void model_rd_for_sb_with_curvfit(
   *out_dist_sum = dist_sum;
 }
 
+void invalidate_txk_type_allowed(TX_TYPE winner_tx, int start_tx, int end_tx,
+                                 TX_TYPE current_tx, const int allowed_tx_mask,
+                                 unsigned int *valid_tx) {
+  for (int tx = start_tx; tx <= end_tx; tx++) {
+    if (!(allowed_tx_mask & (1 << tx)) /*|| !(*valid_tx & (1 << tx))*/)
+      continue;
+    if (vtx_tab[tx] == vtx_tab[winner_tx]) {
+      TX_TYPE loser_h_tx = htx_tab[tx];
+      for (TX_TYPE txk_type = current_tx + 1; txk_type < TX_TYPES - 1;
+           txk_type++)
+        if (loser_h_tx == htx_tab[txk_type]) *valid_tx &= ~(1 << txk_type);
+    } else if (htx_tab[tx] == htx_tab[winner_tx]) {
+      TX_TYPE loser_v_tx = vtx_tab[tx];
+      for (TX_TYPE txk_type = current_tx + 1; txk_type < TX_TYPES - 1;
+           txk_type++)
+        if (loser_v_tx == vtx_tab[txk_type]) *valid_tx &= ~(1 << txk_type);
+    }
+  }
+}
+
 static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                                int block, int blk_row, int blk_col,
                                BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
@@ -3097,9 +3117,11 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   // larger residuals, R-D optimization may not be effective.
   // TODO(any): Experiment with variance and mean based thresholds
   perform_block_coeff_opt = (block_mse_q8 <= cpi->coeff_opt_dist_threshold);
-
+  int is_intra = frame_is_intra_only(cm);
+  unsigned int valid_tx_type = 0xFFFFFFFF;
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
+    if (!(valid_tx_type & (1 << tx_type))) continue;
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
@@ -3176,6 +3198,8 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     if (rd < best_rd) {
       best_rd = rd;
       *best_rd_stats = this_rd_stats;
+      invalidate_txk_type_allowed(tx_type, best_tx_type, tx_type, tx_type,
+                                  allowed_tx_mask, &valid_tx_type);
       best_tx_type = tx_type;
       best_txb_ctx = x->plane[plane].txb_entropy_ctx[block];
       best_eob = x->plane[plane].eobs[block];
@@ -3185,6 +3209,9 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       tran_low_t *const tmp_dqcoeff = best_dqcoeff;
       best_dqcoeff = pd->dqcoeff;
       pd->dqcoeff = tmp_dqcoeff;
+    } else {
+      invalidate_txk_type_allowed(best_tx_type, tx_type, tx_type, tx_type,
+                                  allowed_tx_mask, &valid_tx_type);
     }
 
 #if CONFIG_COLLECT_RD_STATS == 1
