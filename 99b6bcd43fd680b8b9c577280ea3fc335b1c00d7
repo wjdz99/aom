@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f650d8f_c5c09ee9",
+        "filename": "test/rt_end_to_end_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-05-10T19:27:38Z",
+      "side": 1,
+      "message": "you could add a note that these are used to simplify test filtering to avoid them from getting \u0027cleaned up\u0027",
+      "revId": "99b6bcd43fd680b8b9c577280ea3fc335b1c00d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
