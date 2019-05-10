@@ -356,6 +356,8 @@ static void set_good_speed_features_framesize_independent(
     sf->skip_sharp_interp_filter_search = 1;
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 4;
     sf->adaptive_txb_search_level = boosted ? 2 : 3;
+    sf->prune_txk_type_using_winner_dir =
+        1;  // is_boosted_arf2_bwd_type ? 0 : 1;
   }
 
   if (speed >= 5) {
@@ -733,6 +735,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_ENABLED;
   sf->reuse_inter_intra_mode = 0;
   sf->intra_angle_estimation = 0;
+  sf->prune_txk_type_using_winner_dir = 0;
   sf->skip_obmc_in_uniform_mv_field = 0;
   sf->skip_wm_in_uniform_mv_field = 0;
   sf->adaptive_interp_filter_search = 0;
