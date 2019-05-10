@@ -49,8 +49,8 @@ const TestVideoParam kTestVectors[] = {
 };
 
 class RTEndToEndTest
-    : public ::libaom_test::CodecTestWith3Params<TestVideoParam, int,
-                                                 unsigned int>,
+    : public ::libaom_test::CodecTestWith4Params<TestVideoParam, int,
+                                                 unsigned int, int>,
       public ::libaom_test::EncoderTest {
  protected:
   RTEndToEndTest()
@@ -67,6 +67,7 @@ class RTEndToEndTest
     cfg_.g_usage =
         AOM_USAGE_REALTIME;  // TODO(kyslov): Move it to encode_test_driver.cc
     cfg_.rc_end_usage = AOM_CBR;
+    cfg_.g_threads = GET_PARAM(4);
     cfg_.rc_buf_sz = 1000;
     cfg_.rc_buf_initial_sz = 500;
     cfg_.rc_buf_optimal_sz = 600;
@@ -131,16 +132,38 @@ class RTEndToEndTest
 
 class RTEndToEndTestLarge : public RTEndToEndTest {};
 
+class RTEndToEndTestThreadedLarge : public RTEndToEndTest {};
+
+class RTEndToEndTestThreaded : public RTEndToEndTest {};
+
 TEST_P(RTEndToEndTestLarge, EndtoEndPSNRTest) { DoTest(); }
 
+TEST_P(RTEndToEndTestThreadedLarge, EndtoEndPSNRTest) { DoTest(); }
+
 TEST_P(RTEndToEndTest, EndtoEndPSNRTest) { DoTest(); }
+
+TEST_P(RTEndToEndTestThreaded, EndtoEndPSNRTest) { DoTest(); }
 
 AV1_INSTANTIATE_TEST_CASE(RTEndToEndTestLarge,
                           ::testing::ValuesIn(kTestVectors),
                           ::testing::Range(0, 7),
-                          ::testing::Values<unsigned int>(0));
+                          ::testing::Values<unsigned int>(0),
+                          ::testing::Values(1));
+
+AV1_INSTANTIATE_TEST_CASE(RTEndToEndTestThreadedLarge,
+                          ::testing::ValuesIn(kTestVectors),
+                          ::testing::Range(0, 7),
+                          ::testing::Values<unsigned int>(0),
+                          ::testing::Values(2, 5));
 
 AV1_INSTANTIATE_TEST_CASE(RTEndToEndTest, ::testing::Values(kTestVectors[0]),
                           ::testing::Range(7, 9),
-                          ::testing::Range<unsigned int>(0, 4));
+                          ::testing::Range<unsigned int>(0, 4),
+                          ::testing::Values(1));
+
+AV1_INSTANTIATE_TEST_CASE(RTEndToEndTestThreaded,
+                          ::testing::Values(kTestVectors[0]),
+                          ::testing::Range(7, 9),
+                          ::testing::Range<unsigned int>(0, 4),
+                          ::testing::Range(2, 5));
 }  // namespace
