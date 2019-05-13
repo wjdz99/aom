@@ -718,6 +718,8 @@ typedef struct SPEED_FEATURES {
 
   // Use compound reference for non-RD mode.
   int use_comp_ref_nonrd;
+
+  int motion_field_mode_search;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
