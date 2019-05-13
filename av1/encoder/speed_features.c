@@ -95,6 +95,9 @@ static void set_good_speed_feature_framesize_dependent(
   const AV1_COMMON *const cm = &cpi->common;
   const int is_720p_or_larger = AOMMIN(cm->width, cm->height) >= 720;
   const int is_480p_or_larger = AOMMIN(cm->width, cm->height) >= 480;
+  const int boosted = frame_is_boosted(cpi);
+  const int is_boosted_arf2_bwd_type =
+      boosted || cpi->refresh_bwd_ref_frame || cpi->refresh_alt2_ref_frame;
 
   if (is_480p_or_larger) {
     sf->use_square_partition_only_threshold = BLOCK_128X128;
@@ -164,9 +167,13 @@ static void set_good_speed_feature_framesize_dependent(
   if (speed >= 3) {
     sf->ml_early_term_after_part_split_level = 0;
     if (is_720p_or_larger) {
+      sf->use_square_partition_only_threshold =
+          is_boosted_arf2_bwd_type ? BLOCK_64X64 : BLOCK_32X32;
       sf->partition_search_breakout_dist_thr = (1 << 25);
       sf->partition_search_breakout_rate_thr = 200;
     } else {
+      sf->use_square_partition_only_threshold =
+          is_boosted_arf2_bwd_type ? BLOCK_32X32 : BLOCK_16X16;
       sf->max_intra_bsize = BLOCK_32X32;
       sf->partition_search_breakout_dist_thr = (1 << 23);
       sf->partition_search_breakout_rate_thr = 120;
