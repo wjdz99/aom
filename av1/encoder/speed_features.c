@@ -258,7 +258,8 @@ static void set_good_speed_features_framesize_independent(
     // identify the appropriate tradeoff between encoder performance and its
     // speed.
     sf->prune_single_motion_modes_by_simple_trans = 1;
-
+    sf->prune_ref_frame_for_rect_partitions =
+        frame_is_intra_only(&cpi->common) ? 0 : (boosted ? 1 : 2);
     sf->simple_motion_search_split = 1;
     sf->simple_motion_search_early_term_none = 1;
 
