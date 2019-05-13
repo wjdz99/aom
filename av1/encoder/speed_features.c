@@ -271,6 +271,7 @@ static void set_good_speed_features_framesize_independent(
     sf->cb_pred_filter_search = 1;
     sf->use_transform_domain_distortion = boosted ? 1 : 2;
     sf->perform_coeff_opt = boosted ? 0 : 1;
+    sf->prune_comp_type_by_model_rd = boosted ? 0 : 1;
     sf->use_inter_txb_hash = 0;
   }
 
@@ -337,7 +338,6 @@ static void set_good_speed_features_framesize_independent(
     sf->prune_ref_frame_for_rect_partitions =
         frame_is_intra_only(&cpi->common) ? 0 : (boosted ? 1 : 2);
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
-    sf->prune_comp_type_by_model_rd = boosted ? 0 : 1;
     sf->disable_smooth_intra =
         !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
   }
