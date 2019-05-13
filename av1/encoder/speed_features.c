@@ -257,8 +257,9 @@ static void set_good_speed_features_framesize_independent(
     // TODO(jianj): Following speed feature will be further explored to
     // identify the appropriate tradeoff between encoder performance and its
     // speed.
-    sf->prune_single_motion_modes_by_simple_trans = 1;
-
+    sf->prune_single_motion_modes_by_simple_trans = 0;
+    sf->prune_ref_frame_for_rect_partitions =
+        frame_is_intra_only(&cpi->common) ? 0 : (boosted ? 1 : 2);
     sf->simple_motion_search_split = 1;
     sf->simple_motion_search_early_term_none = 1;
 
@@ -334,8 +335,6 @@ static void set_good_speed_features_framesize_independent(
     // TODO(any): Experiment with the early exit mechanism for speeds 0, 1 and 2
     // and clean-up the speed feature
     sf->perform_best_rd_based_gating_for_chroma = 1;
-    sf->prune_ref_frame_for_rect_partitions =
-        frame_is_intra_only(&cpi->common) ? 0 : (boosted ? 1 : 2);
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
     sf->prune_comp_type_by_model_rd = boosted ? 0 : 1;
     sf->disable_smooth_intra =
