@@ -12509,6 +12509,13 @@ static int do_tx_search_mode(int do_tx_search_global, int midx, int adaptive) {
   return midx < 7 ? 2 : 0;
 }
 
+const uint8_t num_4x4_blocks_wide_lookup[BLOCK_SIZES_ALL] = {
+  1, 1, 2, 2, 2, 4, 4, 4, 8, 8, 8, 16, 16, 16, 32, 32, 1, 4, 2, 8, 4, 16
+};
+const uint8_t num_4x4_blocks_high_lookup[BLOCK_SIZES_ALL] = {
+  1, 2, 1, 2, 4, 2, 4, 8, 4, 8, 16, 8, 16, 32, 16, 32, 4, 1, 8, 2, 16, 4
+};
+
 void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                MACROBLOCK *x, int mi_row, int mi_col,
                                RD_STATS *rd_cost, BLOCK_SIZE bsize,
@@ -12669,6 +12676,55 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     }
 
     if (search_state.best_rd < search_state.mode_threshold[midx]) continue;
+
+    if (sf->motion_field_mode_search) {
+      TileInfo *const tile_info = &tile_data->tile_info;
+      const int mi_width = AOMMIN(num_4x4_blocks_wide_lookup[bsize],
+                                  tile_info->mi_col_end - mi_col);
+      const int mi_height = AOMMIN(num_4x4_blocks_high_lookup[bsize],
+                                   tile_info->mi_row_end - mi_row);
+      const int bsl = mi_size_wide_log2[bsize];
+      int cb_partition_search_ctrl =
+          (((mi_row + mi_col) >> bsl) +
+           get_chessboard_index(cm->current_frame.frame_number)) &
+          0x1;
+      MB_MODE_INFO *ref_mi;
+      int const_motion = 1;
+      int skip_ref_frame = !cb_partition_search_ctrl;
+      MV_REFERENCE_FRAME rf = -1;
+      int_mv ref_mv;
+      ref_mv.as_int = INVALID_MV;
+
+      if ((mi_row - 1) >= tile_info->mi_row_start) {
+        ref_mv = xd->mi[-xd->mi_stride]->mv[0];
+        rf = xd->mi[-xd->mi_stride]->ref_frame[0];
+        for (i = 0; i < mi_width; ++i) {
+          ref_mi = xd->mi[-xd->mi_stride + i];
+          const_motion &= (ref_mv.as_int == ref_mi->mv[0].as_int) &&
+                          (ref_frame == ref_mi->ref_frame[0]);
+          skip_ref_frame &= (rf == ref_mi->ref_frame[0]);
+        }
+      }
+
+      if ((mi_col - 1) >= tile_info->mi_col_start) {
+        if (ref_mv.as_int == INVALID_MV) ref_mv = xd->mi[-1]->mv[0];
+        if (rf == -1) rf = xd->mi[-1]->ref_frame[0];
+        for (i = 0; i < mi_height; ++i) {
+          ref_mi = xd->mi[i * xd->mi_stride - 1];
+          const_motion &= (ref_mv.as_int == ref_mi->mv[0].as_int) &&
+                          (ref_frame == ref_mi->ref_frame[0]);
+          skip_ref_frame &= (rf == ref_mi->ref_frame[0]);
+        }
+      }
+
+      if (skip_ref_frame && this_mode != NEARESTMV && this_mode != NEWMV)
+        if (rf > INTRA_FRAME)
+          if (ref_frame != rf) continue;
+
+      if (const_motion)
+        // if (this_mode == NEARMV || this_mode == ZEROMV) continue;
+        if (this_mode == NEARMV) continue;
+    }
 
     if (sf->prune_comp_search_by_single_result > 0 && comp_pred) {
       if (compound_skip_by_single_states(cpi, &search_state, this_mode,
