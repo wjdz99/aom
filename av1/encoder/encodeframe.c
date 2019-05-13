@@ -3710,7 +3710,9 @@ static void init_first_partition_pass_stats_tables(
 
 static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
                             int mi_col, int orig_rdmult) {
-  TplDepFrame *tpl_frame = &cpi->tpl_stats[cpi->twopass.gf_group.index];
+  const int tpl_idx =
+      cpi->twopass.gf_group.frame_disp_idx[cpi->twopass.gf_group.index];
+  TplDepFrame *tpl_frame = &cpi->tpl_stats[tpl_idx];
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   int tpl_stride = tpl_frame->stride;
   int64_t intra_cost = 0;
@@ -3865,7 +3867,7 @@ static void setup_delta_q(AV1_COMP *const cpi, MACROBLOCK *const x,
     assert(cpi->oxcf.enable_tpl_model);
     // Setup deltaq based on tpl stats
     current_qindex =
-        get_q_for_deltaq_objective(cpi, sb_size, 2, mi_row, mi_col);
+        get_q_for_deltaq_objective(cpi, sb_size, 1, mi_row, mi_col);
   }
 
   const int qmask = ~(delta_q_info->delta_q_res - 1);
