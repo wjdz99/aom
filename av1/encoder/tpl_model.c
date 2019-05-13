@@ -27,6 +27,9 @@
 #define MC_FLOW_BSIZE 16
 #define MC_FLOW_NUM_PELS (MC_FLOW_BSIZE * MC_FLOW_BSIZE)
 
+#define USE_SATD_COST 0
+
+#if USE_SATD_COST
 static void wht_fwd_txfm(int16_t *src_diff, int bw, tran_low_t *coeff,
                          TX_SIZE tx_size) {
   switch (tx_size) {
@@ -36,6 +39,7 @@ static void wht_fwd_txfm(int16_t *src_diff, int bw, tran_low_t *coeff,
     default: assert(0);
   }
 }
+#endif  // USE_SATD_COST
 
 static uint32_t motion_compensated_prediction(AV1_COMP *cpi, ThreadData *td,
                                               uint8_t *cur_frame_buf,
@@ -104,7 +108,6 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
 
   const int bw = 4 << mi_size_wide_log2[bsize];
   const int bh = 4 << mi_size_high_log2[bsize];
-  const int pix_num = bw * bh;
   const InterpFilters kernel =
       av1_make_interp_filters(EIGHTTAP_REGULAR, EIGHTTAP_REGULAR);
 
@@ -141,6 +144,8 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
         cm, xd, block_size_wide[bsize], block_size_high[bsize], tx_size, mode,
         0, 0, FILTER_INTRA_MODES, src, src_stride, dst, dst_stride, 0, 0, 0);
 
+#if USE_SATD_COST
+    const int pix_num = bw * bh;
     if (is_cur_buf_hbd(xd)) {
       aom_highbd_subtract_block(bh, bw, src_diff, bw, src, src_stride, dst,
                                 dst_stride, xd->bd);
@@ -152,6 +157,19 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
     wht_fwd_txfm(src_diff, bw, coeff, tx_size);
 
     intra_cost = aom_satd(coeff, pix_num);
+#else
+    (void)src_diff;
+    (void)coeff;
+    int64_t sse;
+    if (is_cur_buf_hbd(xd)) {
+      sse = aom_highbd_sse(xd->cur_buf->y_buffer + mb_y_offset,
+                           xd->cur_buf->y_stride, &predictor[0], bw, bw, bh);
+    } else {
+      sse = aom_sse(xd->cur_buf->y_buffer + mb_y_offset, xd->cur_buf->y_stride,
+                    &predictor[0], bw, bw, bh);
+    }
+    intra_cost = ROUND_POWER_OF_TWO(sse, (xd->bd - 8) * 2);
+#endif
 
     if (intra_cost < best_intra_cost) best_intra_cost = intra_cost;
   }
@@ -200,6 +218,7 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
                               kernel, &warp_types, mi_col * MI_SIZE,
                               mi_row * MI_SIZE, 0, 0, MV_PRECISION_Q3,
                               mi_col * MI_SIZE, mi_row * MI_SIZE, xd, 0);
+#if USE_SATD_COST
     if (is_cur_buf_hbd(xd)) {
       aom_highbd_subtract_block(
           bh, bw, src_diff, bw, xd->cur_buf->y_buffer + mb_y_offset,
@@ -212,6 +231,18 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
     wht_fwd_txfm(src_diff, bw, coeff, tx_size);
 
     inter_cost = aom_satd(coeff, pix_num);
+#else
+    int64_t sse;
+    if (is_cur_buf_hbd(xd)) {
+      sse = aom_highbd_sse(xd->cur_buf->y_buffer + mb_y_offset,
+                           xd->cur_buf->y_stride, &predictor[0], bw, bw, bh);
+    } else {
+      sse = aom_sse(xd->cur_buf->y_buffer + mb_y_offset, xd->cur_buf->y_stride,
+                    &predictor[0], bw, bw, bh);
+    }
+    inter_cost = ROUND_POWER_OF_TWO(sse, (xd->bd - 8) * 2);
+#endif  // USE_SATD_COST
+
     const double weight_factor = 0.5;
     inter_cost_weighted = (int64_t)(
         (double)inter_cost *
@@ -658,8 +689,10 @@ static void get_tpl_forward_stats(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
   DECLARE_ALIGNED(32, uint16_t, predictor16[MC_FLOW_NUM_PELS * 3]);
   DECLARE_ALIGNED(32, uint8_t, predictor8[MC_FLOW_NUM_PELS * 3]);
   uint8_t *predictor;
+#if USE_SATD_COST
   DECLARE_ALIGNED(32, int16_t, src_diff[MC_FLOW_NUM_PELS]);
   DECLARE_ALIGNED(32, tran_low_t, coeff[MC_FLOW_NUM_PELS]);
+#endif  // USE_SATD_COST
 
   if (is_cur_buf_hbd(xd))
     predictor = CONVERT_TO_BYTEPTR(predictor16);
@@ -712,6 +745,7 @@ static void get_tpl_forward_stats(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
                                 FILTER_INTRA_MODES, src_buf, src_stride,
                                 dst_buf, dst_stride, 0, 0, 0);
 
+#if USE_SATD_COST
         if (is_cur_buf_hbd(xd)) {
           aom_highbd_subtract_block(bh, bw, src_diff, bw, src_buf, src_stride,
                                     dst_buf, dst_stride, xd->bd);
@@ -723,7 +757,16 @@ static void get_tpl_forward_stats(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
         wht_fwd_txfm(src_diff, bw, coeff, tx_size);
 
         intra_cost = aom_satd(coeff, pix_num);
-
+#else
+        int64_t sse;
+        if (is_cur_buf_hbd(xd)) {
+          sse =
+              aom_highbd_sse(src_buf, src_stride, dst_buf, dst_stride, bw, bh);
+        } else {
+          sse = aom_sse(src_buf, src_stride, dst_buf, dst_stride, bw, bh);
+        }
+        intra_cost = ROUND_POWER_OF_TWO(sse, (xd->bd - 8) * 2);
+#endif  // USE_SATD_COST
         if (intra_cost < best_intra_cost) best_intra_cost = intra_cost;
       }
 
@@ -744,6 +787,7 @@ static void get_tpl_forward_stats(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
           &x->best_mv.as_mv, &sf, bw, bh, &conv_params, kernel, &warp_types,
           mi_col * MI_SIZE, mi_row * MI_SIZE, 0, 0, MV_PRECISION_Q3,
           mi_col * MI_SIZE, mi_row * MI_SIZE, xd, 0);
+#if USE_SATD_COST
       if (is_cur_buf_hbd(xd)) {
         aom_highbd_subtract_block(bh, bw, src_diff, bw,
                                   src->y_buffer + mb_y_offset, src->y_stride,
@@ -754,6 +798,17 @@ static void get_tpl_forward_stats(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
       }
       wht_fwd_txfm(src_diff, bw, coeff, tx_size);
       inter_cost = aom_satd(coeff, pix_num);
+#else
+      int64_t sse;
+      if (is_cur_buf_hbd(xd)) {
+        sse = aom_highbd_sse(src->y_buffer + mb_y_offset, src->y_stride,
+                             &predictor[0], bw, bw, bh);
+      } else {
+        sse = aom_sse(src->y_buffer + mb_y_offset, src->y_stride, &predictor[0],
+                      bw, bw, bh);
+      }
+      inter_cost = ROUND_POWER_OF_TWO(sse, (xd->bd - 8) * 2);
+#endif  // USE_SATD_COST
 
       // Finalize stats
       best_intra_cost = AOMMAX(best_intra_cost, 1);
