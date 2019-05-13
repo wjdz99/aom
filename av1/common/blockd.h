@@ -143,6 +143,11 @@ static INLINE int have_nearmv_in_inter_mode(PREDICTION_MODE mode) {
           mode == NEW_NEARMV);
 }
 
+static INLINE int have_nearestmv_in_inter_mode(PREDICTION_MODE mode) {
+  return (mode == NEARESTMV || mode == NEAREST_NEARESTMV ||
+          mode == NEAREST_NEWMV || mode == NEW_NEARESTMV);
+}
+
 static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
   return (mode == NEWMV || mode == NEW_NEWMV || mode == NEAREST_NEWMV ||
           mode == NEW_NEARESTMV || mode == NEAR_NEWMV || mode == NEW_NEARMV);

@@ -348,6 +348,7 @@ static void set_good_speed_features_framesize_independent(
     sf->skip_sharp_interp_filter_search = 1;
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 4;
     sf->adaptive_txb_search_level = boosted ? 2 : 3;
+    sf->motion_field_mode_search = 1;
   }
 
   if (speed >= 5) {
@@ -766,6 +767,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->skip_repeat_interpolation_filter_search = 0;
   sf->use_hash_based_trellis = 0;
   sf->prune_comp_search_by_single_result = 0;
+  sf->motion_field_mode_search = 0;
   sf->skip_repeated_newmv = 0;
   // TODO(any) Cleanup this speed feature
   sf->prune_single_motion_modes_by_simple_trans = 0;

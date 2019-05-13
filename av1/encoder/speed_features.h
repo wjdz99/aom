@@ -716,6 +716,8 @@ typedef struct SPEED_FEATURES {
 
   // check intra prediction for non-RD mode.
   int check_intra_pred_nonrd;
+
+  int motion_field_mode_search;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
