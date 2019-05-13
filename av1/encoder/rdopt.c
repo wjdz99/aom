@@ -637,6 +637,17 @@ static const int16_t comp_inter_to_mode_idx[COMP_INTER_MODE_NUM][REF_FRAMES]
 };
 /* clang-format on */
 
+static INLINE int64_t get_rd_thresh(int64_t ref_best_rd, int mul_shift_factor,
+                                    int div_factor) {
+  int64_t rd_thresh = ref_best_rd;
+  if (div_factor != 0) {
+    rd_thresh = ref_best_rd < (div_factor * (INT64_MAX >> mul_shift_factor))
+                    ? ((ref_best_rd / div_factor) << mul_shift_factor)
+                    : INT64_MAX;
+  }
+  return rd_thresh;
+}
+
 static int get_prediction_mode_idx(PREDICTION_MODE this_mode,
                                    MV_REFERENCE_FRAME ref_frame,
                                    MV_REFERENCE_FRAME second_ref_frame) {
@@ -5146,13 +5157,21 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
   // TX no split
   if (try_no_split) {
+    int64_t rd_thresh;
+    if (cpi->sf.adaptive_txb_search_level) {
+      int mul_shift_factor = 2 + cpi->sf.adaptive_txb_search_level;
+      int div_factor = (1 << (2 + cpi->sf.adaptive_txb_search_level)) - 1;
+      rd_thresh = get_rd_thresh(ref_best_rd, mul_shift_factor, div_factor);
+    } else {
+      rd_thresh = ref_best_rd;
+    }
     try_tx_block_no_split(cpi, x, blk_row, blk_col, block, tx_size, depth,
-                          plane_bsize, ta, tl, ctx, rd_stats, ref_best_rd,
+                          plane_bsize, ta, tl, ctx, rd_stats, rd_thresh,
                           ftxs_mode, rd_info_node, &no_split);
 
     if (cpi->sf.adaptive_txb_search_level &&
         (no_split.rd -
-         (no_split.rd >> (1 + cpi->sf.adaptive_txb_search_level))) >
+         (no_split.rd >> (2 + cpi->sf.adaptive_txb_search_level))) >
             ref_best_rd) {
       *is_cost_valid = 0;
       return;
