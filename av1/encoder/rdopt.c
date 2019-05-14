@@ -2295,7 +2295,8 @@ static uint32_t get_intra_txb_hash(MACROBLOCK *x, int plane, int blk_row,
     hash_data = (uint8_t *)tmp_data;
   }
   CRC32C *crc = &x->mb_rd_record.crc_calculator;
-  const uint32_t hash = av1_get_crc32c_value(crc, hash_data, 2 * txb_w * txb_h);
+  const uint32_t hash =
+      av1_get_crc32c_value((void *)crc, hash_data, 2 * txb_w * txb_h);
   return (hash << 5) + tx_size;
 }
 
