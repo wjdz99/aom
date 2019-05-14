@@ -71,6 +71,8 @@ FLAGS = None
 CNN_CONFIG_ORDER = {}
 LAYER_CONFIG_ORDER = {}
 
+logging.set_verbosity("INFO")
+
 
 def _generate_layer_index_tensor_name_map(input_reader, var_regex):
   """Create a map from tuples of indices to tensor names."""
@@ -108,21 +110,67 @@ def _extract_layer_variables(input_reader):
 
   layer = 0
   # By the end of this process, every layer should have weights and biases.
-  for _, tensor_name in sorted(layer_index_tensor_name_map.iteritems()):
-    layer_config = copy.deepcopy(LAYER_CONFIG_ORDER)
-    layer_config["weights"] = "%s_weight_%s" % (FLAGS.config_name, layer)
-    shape = input_reader.get_variable_to_shape_map()[tensor_name + "w"]
-    layer_config["filter_width"] = shape[0]
-    layer_config["filter_height"] = shape[1]
-    layer_config["in_channels"] = shape[2]
-    layer_config["out_channels"] = shape[3]
-    weights[layer] = _format_tensor(
-        input_reader.get_tensor(tensor_name + "w"), layer)
-    layer_config["bias"] = "%s_bias_%s" % (FLAGS.config_name, layer)
-    biases[layer] = _format_tensor(
-        input_reader.get_tensor(tensor_name + "b"), layer)
-    cnn_config["layer_config"][layer] = layer_config
-    layer += 1
+  if FLAGS.architecture == "WDSR":
+    for _, tensor_name in sorted(layer_index_tensor_name_map.iteritems()):
+      layer_config = copy.deepcopy(LAYER_CONFIG_ORDER)
+      layer_config["weights"] = "%s_weight_%s" % (FLAGS.config_name, layer)
+      shape = input_reader.get_variable_to_shape_map()[tensor_name + "w"]
+      layer_config["filter_width"] = shape[0]
+      layer_config["filter_height"] = shape[1]
+      layer_config["in_channels"] = shape[2]
+      layer_config["out_channels"] = shape[3]
+      weights[layer] = _format_tensor(
+          input_reader.get_tensor(tensor_name + "w"), layer)
+      layer_config["bias"] = "%s_bias_%s" % (FLAGS.config_name, layer)
+      biases[layer] = _format_tensor(
+          input_reader.get_tensor(tensor_name + "b"), layer)
+      if 0 < layer and layer < num_layers - 1:
+        # If layer belongs to a residual block.
+        if (layer % 3) == 1:
+          # Input residual block layer.
+          layer_config["activation"] = "RELU"
+          layer_config["branch_copy_mode"] = "COPY_INPUT"
+          layer_config["input_to_branches"] = "0x02"
+        elif (layer % 3) == 0:
+          # Output residual block layer.
+          layer_config["branch_combine_type"] = "BRANCH_ADD"
+          layer_config["branches_to_combine"] = "0x02"
+      cnn_config["layer_config"][layer] = layer_config
+      layer += 1
+  elif FLAGS.architecture == "VDSR":
+    for _, tensor_name in sorted(layer_index_tensor_name_map.iteritems()):
+      layer_config = copy.deepcopy(LAYER_CONFIG_ORDER)
+      layer_config["weights"] = "%s_weight_%s" % (FLAGS.config_name, layer)
+      shape = input_reader.get_variable_to_shape_map()[tensor_name + "w"]
+      layer_config["filter_width"] = shape[0]
+      layer_config["filter_height"] = shape[1]
+      layer_config["in_channels"] = shape[2]
+      layer_config["out_channels"] = shape[3]
+      weights[layer] = _format_tensor(
+          input_reader.get_tensor(tensor_name + "w"), layer)
+      layer_config["bias"] = "%s_bias_%s" % (FLAGS.config_name, layer)
+      biases[layer] = _format_tensor(
+          input_reader.get_tensor(tensor_name + "b"), layer)
+      if layer < num_layers - 1:
+        layer_config["activation"] = "RELU"
+      cnn_config["layer_config"][layer] = layer_config
+      layer += 1
+  else:
+    for _, tensor_name in sorted(layer_index_tensor_name_map.iteritems()):
+      layer_config = copy.deepcopy(LAYER_CONFIG_ORDER)
+      layer_config["weights"] = "%s_weight_%s" % (FLAGS.config_name, layer)
+      shape = input_reader.get_variable_to_shape_map()[tensor_name + "w"]
+      layer_config["filter_width"] = shape[0]
+      layer_config["filter_height"] = shape[1]
+      layer_config["in_channels"] = shape[2]
+      layer_config["out_channels"] = shape[3]
+      weights[layer] = _format_tensor(
+          input_reader.get_tensor(tensor_name + "w"), layer)
+      layer_config["bias"] = "%s_bias_%s" % (FLAGS.config_name, layer)
+      biases[layer] = _format_tensor(
+          input_reader.get_tensor(tensor_name + "b"), layer)
+      cnn_config["layer_config"][layer] = layer_config
+      layer += 1
   return cnn_config, weights, biases
 
 
@@ -291,7 +339,18 @@ if __name__ == "__main__":
       default=False,
       action="store_true",
       help="Whether to print field names along side values in cnn config.")
+  parser.add_argument(
+      "--architecture",
+      default=None,
+      choices=["WDSR", "VDSR"],
+      help="Kind of architecture the network uses.")
   FLAGS, unparsed = parser.parse_known_args()
+
+  if FLAGS.architecture:
+    logging.info("Using %s architecture.", FLAGS.architecture)
+  else:
+    logging.info("Using default architecture. You will need to fill network "
+                 "details manually.")
 
   # The order of these fields must reflect the order of the structs in
   # ${AOM_ROOT}/av1/common/cnn.h.
