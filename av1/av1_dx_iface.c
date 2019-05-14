@@ -281,10 +281,10 @@ static aom_codec_err_t decoder_peek_si_internal(const uint8_t *data,
   // If the first OBU is a temporal delimiter, skip over it and look at the next
   // OBU in the bitstream
   if (obu_header.type == OBU_TEMPORAL_DELIMITER) {
-    // Skip any associated payload (there shouldn't be one, but just in case)
-    if (data_sz < bytes_read + payload_size) return AOM_CODEC_CORRUPT_FRAME;
-    data += bytes_read + payload_size;
-    data_sz -= bytes_read + payload_size;
+    // There shouldn't any associated payload.
+    if (payload_size != 0) return AOM_CODEC_CORRUPT_FRAME;
+    data += bytes_read;
+    data_sz -= bytes_read;
 
     status = aom_read_obu_header_and_size(
         data, data_sz, si->is_annexb, &obu_header, &payload_size, &bytes_read);

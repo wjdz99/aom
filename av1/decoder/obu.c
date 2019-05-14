@@ -735,6 +735,11 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
 
     switch (obu_header.type) {
       case OBU_TEMPORAL_DELIMITER:
+        // Section 5.6: The temporal delimiter has an empty payload.
+        if (payload_size != 0) {
+          cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+          return -1;
+        }
         decoded_payload_size = read_temporal_delimiter_obu();
         pbi->seen_frame_header = 0;
         break;
