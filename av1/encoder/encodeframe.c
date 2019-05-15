@@ -3708,23 +3708,43 @@ static void init_first_partition_pass_stats_tables(
 // two_pass_partition_search feature.
 #define FIRST_PARTITION_PASS_MIN_SAMPLES 16
 
-static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
-                            int mi_col, int orig_rdmult) {
+static int get_adaptive_rdmult(const AV1_COMP *cpi, double beta) {
+  const AV1_COMMON *cm = &cpi->common;
+  int64_t q =
+      av1_dc_quant_Q3(cm->base_qindex, 0, cpi->common.seq_params.bit_depth);
+  int64_t rdmult = 0;
+
+  switch (cpi->common.seq_params.bit_depth) {
+    case AOM_BITS_8: rdmult = (int)((88 * q * q / beta) / 24); break;
+    case AOM_BITS_10:
+      rdmult = ROUND_POWER_OF_TWO((int)((88 * q * q / beta) / 24), 4);
+      break;
+    default:
+      assert(cpi->common.seq_params.bit_depth == AOM_BITS_12);
+      rdmult = ROUND_POWER_OF_TWO((int)((88 * q * q / beta) / 24), 8);
+      break;
+  }
+
+  if (cpi->oxcf.pass == 2 &&
+      (cpi->common.current_frame.frame_type != KEY_FRAME)) {
+    const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
+    const FRAME_UPDATE_TYPE frame_type = gf_group->update_type[gf_group->index];
+    const int boost_index = AOMMIN(15, (cpi->rc.gfu_boost / 100));
+
+    rdmult = (rdmult * rd_frame_type_factor[frame_type]) >> 7;
+    rdmult += ((rdmult * rd_boost_factor[boost_index]) >> 7);
+  }
+  if (rdmult < 1) rdmult = 1;
+  return (int)rdmult;
+}
+
+static int get_tpl_rdmult(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
+                          int mi_col, int orig_rdmult) {
   assert(IMPLIES(cpi->twopass.gf_group.size > 0,
                  cpi->twopass.gf_group.index < cpi->twopass.gf_group.size));
   const int tpl_idx =
       cpi->twopass.gf_group.frame_disp_idx[cpi->twopass.gf_group.index];
   TplDepFrame *tpl_frame = &cpi->tpl_stats[tpl_idx];
-  TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
-  int tpl_stride = tpl_frame->stride;
-  int64_t intra_cost = 0;
-  int64_t mc_dep_cost = 0;
-  int mi_wide = mi_size_wide[bsize];
-  int mi_high = mi_size_high[bsize];
-  int row, col;
-
-  int dr = 0;
-  double r0, rk, beta;
 
   if (tpl_frame->is_valid == 0) return orig_rdmult;
 
@@ -3732,8 +3752,14 @@ static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
 
   if (cpi->twopass.gf_group.index >= MAX_LAG_BUFFERS) return orig_rdmult;
 
-  for (row = mi_row; row < mi_row + mi_high; ++row) {
-    for (col = mi_col; col < mi_col + mi_wide; ++col) {
+  TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+  const int tpl_stride = tpl_frame->stride;
+  const int mi_wide = mi_size_wide[bsize];
+  const int mi_high = mi_size_high[bsize];
+  int64_t intra_cost = 0;
+  int64_t mc_dep_cost = 0;
+  for (int row = mi_row; row < mi_row + mi_high; ++row) {
+    for (int col = mi_col; col < mi_col + mi_wide; ++col) {
       TplDepStats *this_stats = &tpl_stats[row * tpl_stride + col];
 
       if (row >= cpi->common.mi_rows || col >= cpi->common.mi_cols) continue;
@@ -3745,17 +3771,17 @@ static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
 
   aom_clear_system_state();
 
-  r0 = cpi->rd.r0;
-  rk = (double)intra_cost / mc_dep_cost;
-  beta = r0 / rk;
-  dr = av1_get_adaptive_rdmult(cpi, beta);
+  const double r0 = cpi->rd.r0;
+  const double rk = (double)intra_cost / mc_dep_cost;
+  const double beta = pow(r0 / rk, 0.125);
+  int rdmult = get_adaptive_rdmult(cpi, beta);
 
-  dr = AOMMIN(dr, orig_rdmult * 3 / 2);
-  dr = AOMMAX(dr, orig_rdmult * 1 / 2);
+  rdmult = AOMMIN(rdmult, orig_rdmult * 3 / 2);
+  rdmult = AOMMAX(rdmult, orig_rdmult * 1 / 2);
 
-  dr = AOMMAX(1, dr);
+  rdmult = AOMMAX(1, rdmult);
 
-  return dr;
+  return rdmult;
 }
 
 // analysis_type 0: Use mc_dep_cost and intra_cost
@@ -4189,7 +4215,7 @@ static void adjust_rdmult_tpl_model(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   if (cpi->oxcf.enable_tpl_model && cpi->oxcf.aq_mode == NO_AQ &&
       cpi->oxcf.deltaq_mode == NO_DELTA_Q && gf_group_index > 0 &&
       cpi->twopass.gf_group.update_type[gf_group_index] == ARF_UPDATE) {
-    const int dr = get_rdmult_delta(cpi, sb_size, mi_row, mi_col, orig_rdmult);
+    const int dr = get_tpl_rdmult(cpi, sb_size, mi_row, mi_col, orig_rdmult);
     x->rdmult = dr;
     x->cb_rdmult = x->rdmult;
   }
