@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa635452_ff280803",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-05-15T19:47:19Z",
+      "side": 1,
+      "message": "it is better to move this to encoder/encodeframe.c where this function is called.\nThat keeps the meaning of beta in this function clean in that it is a factor by which rdmult is reduced.",
+      "range": {
+        "startLine": 385,
+        "startChar": 0,
+        "endLine": 385,
+        "endChar": 26
+      },
+      "revId": "d6f998c49f282f25f85225745bf4e91574b3d626",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
