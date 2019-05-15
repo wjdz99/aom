@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "70e2f3f0_bd771fed",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-15T23:13:36Z",
+      "side": 1,
+      "message": "Here it means \"if and only if\".",
+      "parentUuid": "3200e5cf_54b2803b",
+      "range": {
+        "startLine": 277,
+        "startChar": 32,
+        "endLine": 277,
+        "endChar": 35
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0d7ae628_feb5fd93",
         "filename": "av1/encoder/level.c",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64110c3f_ae9c9683",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-15T23:13:36Z",
+      "side": 1,
+      "message": "Ack. I copied this name from the spec. I guess \"release_buffer\" is more appropriate.",
+      "parentUuid": "0d7ae628_feb5fd93",
+      "range": {
+        "startLine": 281,
+        "startChar": 12,
+        "endLine": 281,
+        "endChar": 23
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
