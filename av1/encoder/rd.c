@@ -382,6 +382,7 @@ int av1_get_adaptive_rdmult(const AV1_COMP *cpi, double beta) {
       av1_dc_quant_Q3(cm->base_qindex, 0, cpi->common.seq_params.bit_depth);
   int64_t rdmult = 0;
 
+  beta = pow(beta, 0.125);
   switch (cpi->common.seq_params.bit_depth) {
     case AOM_BITS_8: rdmult = (int)((88 * q * q / beta) / 24); break;
     case AOM_BITS_10:
