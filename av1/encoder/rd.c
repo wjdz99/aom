@@ -376,7 +376,7 @@ int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {
   return (int)rdmult;
 }
 
-int av1_get_adaptive_rdmult(const AV1_COMP *cpi, double beta) {
+static int get_adaptive_rdmult(const AV1_COMP *cpi, double beta) {
   const AV1_COMMON *cm = &cpi->common;
   int64_t q =
       av1_dc_quant_Q3(cm->base_qindex, 0, cpi->common.seq_params.bit_depth);
@@ -404,6 +404,52 @@ int av1_get_adaptive_rdmult(const AV1_COMP *cpi, double beta) {
   }
   if (rdmult < 1) rdmult = 1;
   return (int)rdmult;
+}
+
+int av1_get_tpl_rdmult(struct AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
+                       int mi_col, int orig_rdmult) {
+  assert(IMPLIES(cpi->twopass.gf_group.size > 0,
+                 cpi->twopass.gf_group.index < cpi->twopass.gf_group.size));
+  const int tpl_idx =
+      cpi->twopass.gf_group.frame_disp_idx[cpi->twopass.gf_group.index];
+  TplDepFrame *tpl_frame = &cpi->tpl_stats[tpl_idx];
+
+  if (tpl_frame->is_valid == 0) return orig_rdmult;
+
+  if (cpi->common.show_frame) return orig_rdmult;
+
+  if (cpi->twopass.gf_group.index >= MAX_LAG_BUFFERS) return orig_rdmult;
+
+  TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+  const int tpl_stride = tpl_frame->stride;
+  const int mi_wide = mi_size_wide[bsize];
+  const int mi_high = mi_size_high[bsize];
+  int64_t intra_cost = 0;
+  int64_t mc_dep_cost = 0;
+  for (int row = mi_row; row < mi_row + mi_high; ++row) {
+    for (int col = mi_col; col < mi_col + mi_wide; ++col) {
+      TplDepStats *this_stats = &tpl_stats[row * tpl_stride + col];
+
+      if (row >= cpi->common.mi_rows || col >= cpi->common.mi_cols) continue;
+
+      intra_cost += this_stats->intra_cost;
+      mc_dep_cost += this_stats->intra_cost + this_stats->mc_flow;
+    }
+  }
+
+  aom_clear_system_state();
+
+  const double r0 = cpi->rd.r0;
+  const double rk = (double)intra_cost / mc_dep_cost;
+  const double beta = pow(r0 / rk, 0.125);
+  int rdmult = get_adaptive_rdmult(cpi, beta);
+
+  rdmult = AOMMIN(rdmult, orig_rdmult * 3 / 2);
+  rdmult = AOMMAX(rdmult, orig_rdmult * 1 / 2);
+
+  rdmult = AOMMAX(1, rdmult);
+
+  return rdmult;
 }
 
 static int compute_rd_thresh_factor(int qindex, aom_bit_depth_t bit_depth) {

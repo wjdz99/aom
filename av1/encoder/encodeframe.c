@@ -3708,56 +3708,6 @@ static void init_first_partition_pass_stats_tables(
 // two_pass_partition_search feature.
 #define FIRST_PARTITION_PASS_MIN_SAMPLES 16
 
-static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
-                            int mi_col, int orig_rdmult) {
-  assert(IMPLIES(cpi->twopass.gf_group.size > 0,
-                 cpi->twopass.gf_group.index < cpi->twopass.gf_group.size));
-  const int tpl_idx =
-      cpi->twopass.gf_group.frame_disp_idx[cpi->twopass.gf_group.index];
-  TplDepFrame *tpl_frame = &cpi->tpl_stats[tpl_idx];
-  TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
-  int tpl_stride = tpl_frame->stride;
-  int64_t intra_cost = 0;
-  int64_t mc_dep_cost = 0;
-  int mi_wide = mi_size_wide[bsize];
-  int mi_high = mi_size_high[bsize];
-  int row, col;
-
-  int dr = 0;
-  double r0, rk, beta;
-
-  if (tpl_frame->is_valid == 0) return orig_rdmult;
-
-  if (cpi->common.show_frame) return orig_rdmult;
-
-  if (cpi->twopass.gf_group.index >= MAX_LAG_BUFFERS) return orig_rdmult;
-
-  for (row = mi_row; row < mi_row + mi_high; ++row) {
-    for (col = mi_col; col < mi_col + mi_wide; ++col) {
-      TplDepStats *this_stats = &tpl_stats[row * tpl_stride + col];
-
-      if (row >= cpi->common.mi_rows || col >= cpi->common.mi_cols) continue;
-
-      intra_cost += this_stats->intra_cost;
-      mc_dep_cost += this_stats->intra_cost + this_stats->mc_flow;
-    }
-  }
-
-  aom_clear_system_state();
-
-  r0 = cpi->rd.r0;
-  rk = (double)intra_cost / mc_dep_cost;
-  beta = r0 / rk;
-  dr = av1_get_adaptive_rdmult(cpi, beta);
-
-  dr = AOMMIN(dr, orig_rdmult * 3 / 2);
-  dr = AOMMAX(dr, orig_rdmult * 1 / 2);
-
-  dr = AOMMAX(1, dr);
-
-  return dr;
-}
-
 // analysis_type 0: Use mc_dep_cost and intra_cost
 // analysis_type 1: Use count of best inter predictor chosen
 // analysis_type 2: Use cost reduction from intra to inter for best inter
@@ -4189,7 +4139,8 @@ static void adjust_rdmult_tpl_model(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   if (cpi->oxcf.enable_tpl_model && cpi->oxcf.aq_mode == NO_AQ &&
       cpi->oxcf.deltaq_mode == NO_DELTA_Q && gf_group_index > 0 &&
       cpi->twopass.gf_group.update_type[gf_group_index] == ARF_UPDATE) {
-    const int dr = get_rdmult_delta(cpi, sb_size, mi_row, mi_col, orig_rdmult);
+    const int dr =
+        av1_get_tpl_rdmult(cpi, sb_size, mi_row, mi_col, orig_rdmult);
     x->rdmult = dr;
     x->cb_rdmult = x->rdmult;
   }
