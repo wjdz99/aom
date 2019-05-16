@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c07e3328_b3388881",
+        "filename": "av1/common/cnn.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-05-16T18:56:00Z",
+      "side": 1,
+      "message": "typedef struct {\n...\n} CONVOLVE_OPS;\n\nThat way you are typedef\u0027ing an anonymous struct to be called \u0027CONVOLVE_OPS\u0027",
+      "range": {
+        "startLine": 21,
+        "startChar": 15,
+        "endLine": 21,
+        "endChar": 27
+      },
+      "revId": "a939373f0d4753d9ef0fe1dadd36c6535971d95c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2972302b_5b6a76b9",
+        "filename": "av1/common/cnn_wrapper.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-05-16T18:56:00Z",
+      "side": 1,
+      "message": "Unrelated change?",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 56
+      },
+      "revId": "a939373f0d4753d9ef0fe1dadd36c6535971d95c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f299a19_270c3e2f",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-05-16T18:56:00Z",
+      "side": 1,
+      "message": "Add another test to check that single thread and multi-thread produce the same result.",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 52
+      },
+      "revId": "a939373f0d4753d9ef0fe1dadd36c6535971d95c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
