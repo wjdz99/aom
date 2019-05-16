@@ -99,7 +99,7 @@ static int are_seq_headers_consistent(const SequenceHeader *seq_params_old,
 static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
                                          struct aom_read_bit_buffer *rb) {
   AV1_COMMON *const cm = &pbi->common;
-  const uint32_t saved_bit_offset = rb->bit_offset;
+  assert(rb->bit_offset == 0);
 
   // Verify rb has been configured to report errors.
   assert(rb->error_handler);
@@ -257,7 +257,8 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
   cm->seq_params = *seq_params;
   pbi->sequence_header_ready = 1;
 
-  return ((rb->bit_offset - saved_bit_offset + 7) >> 3);
+  assert((rb->bit_offset & 7) == 0);
+  return (rb->bit_offset >> 3);
 }
 
 // On success, returns the frame header size. On failure, calls
@@ -538,8 +539,8 @@ static void read_metadata_itut_t35(struct aom_read_bit_buffer *rb) {
   if (itu_t_t35_country_code == 0xFF) {
     aom_rb_read_literal(rb, 8);
   }
-  // Ignore itu_t_t35_payload_bytes, whose exact syntax is not defined in the
-  // spec.
+  // Do not read itu_t_t35_payload_bytes, whose exact syntax is not defined in
+  // the spec.
 }
 
 static void read_metadata_hdr_cll(struct aom_read_bit_buffer *rb) {
@@ -634,8 +635,9 @@ static void read_metadata_timecode(struct aom_read_bit_buffer *rb) {
 
 // Checks the metadata for correct syntax but ignores the parsed metadata.
 //
-// On success, returns sz. On failure, sets pbi->common.error.error_code and
-// returns 0, or calls aom_internal_error() and does not return.
+// On success, returns the number of bytes read from 'data'. On failure, sets
+// pbi->common.error.error_code and returns 0, or calls aom_internal_error()
+// and does not return.
 static size_t read_metadata(AV1Decoder *pbi, const uint8_t *data, size_t sz) {
   size_t type_length;
   uint64_t type_value;
@@ -646,19 +648,35 @@ static size_t read_metadata(AV1Decoder *pbi, const uint8_t *data, size_t sz) {
   struct aom_read_bit_buffer rb;
   av1_init_read_bit_buffer(pbi, &rb, data + type_length, data + sz);
   const OBU_METADATA_TYPE metadata_type = (OBU_METADATA_TYPE)type_value;
+  if (metadata_type == 0 || metadata_type >= 6) {
+    // If metadata_type is reserved for future use or a user private value,
+    // ignore the entire OBU. Don't check the trailing bit because the spec's
+    // description of the payload data in Section 5.8.1 is not very clear.
+    return sz;
+  }
   if (metadata_type == OBU_METADATA_TYPE_ITUT_T35) {
     read_metadata_itut_t35(&rb);
-  } else if (metadata_type == OBU_METADATA_TYPE_HDR_CLL) {
+    // Ignore itu_t_t35_payload_bytes. Don't check the trailing bit because
+    // the spec's description of itu_t_t35_payload_bytes in Section 5.8.2 is
+    // not very clear.
+    return sz;
+  }
+  if (metadata_type == OBU_METADATA_TYPE_HDR_CLL) {
     read_metadata_hdr_cll(&rb);
   } else if (metadata_type == OBU_METADATA_TYPE_HDR_MDCV) {
     read_metadata_hdr_mdcv(&rb);
   } else if (metadata_type == OBU_METADATA_TYPE_SCALABILITY) {
     read_metadata_scalability(&rb);
-  } else if (metadata_type == OBU_METADATA_TYPE_TIMECODE) {
+  } else {
+    assert(metadata_type == OBU_METADATA_TYPE_TIMECODE);
     read_metadata_timecode(&rb);
   }
-
-  return sz;
+  if (av1_check_trailing_bits(pbi, &rb) != 0) {
+    // cm->error.error_code is already set.
+    return 0;
+  }
+  assert((rb.bit_offset & 7) == 0);
+  return type_length + (rb.bit_offset >> 3);
 }
 
 // On success, returns a boolean that indicates whether the decoding of the
