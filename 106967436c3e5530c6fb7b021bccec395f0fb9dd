@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "033278fb_bdea7ca3",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3103,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-05-16T01:13:38Z",
+      "side": 1,
+      "message": "Will incorporate this later.",
+      "parentUuid": "2fb3fdef_b39c40e2",
+      "revId": "106967436c3e5530c6fb7b021bccec395f0fb9dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a710b256_3fc374d3",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2019-05-16T00:03:49Z",
       "side": 1,
       "message": "\"tx_type \u003c TX_TYPES\" may be better.",
+      "range": {
+        "startLine": 3104,
+        "startChar": 34,
+        "endLine": 3104,
+        "endChar": 55
+      },
+      "revId": "106967436c3e5530c6fb7b021bccec395f0fb9dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5fe2661_78b0e679",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3104,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-05-16T01:13:38Z",
+      "side": 1,
+      "message": "This will be removed in next CL.",
+      "parentUuid": "a710b256_3fc374d3",
       "range": {
         "startLine": 3104,
         "startChar": 34,
