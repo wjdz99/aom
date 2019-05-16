@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "984a359a_fb0ecd05",
+        "filename": "av1/common/cnn.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-05-16T23:55:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c07e3328_b3388881",
+      "range": {
+        "startLine": 21,
+        "startChar": 15,
+        "endLine": 21,
+        "endChar": 27
+      },
+      "revId": "a939373f0d4753d9ef0fe1dadd36c6535971d95c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2972302b_5b6a76b9",
         "filename": "av1/common/cnn_wrapper.c",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "6439eb34_841e281b",
+        "filename": "av1/common/cnn_wrapper.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-05-16T23:55:31Z",
+      "side": 1,
+      "message": "Removed change. I\u0027ll remove qp12 in another patch.",
+      "parentUuid": "2972302b_5b6a76b9",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 56
+      },
+      "revId": "a939373f0d4753d9ef0fe1dadd36c6535971d95c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f299a19_270c3e2f",
         "filename": "test/cnn_test.cc",
         "patchSetId": 5
@@ -68,6 +116,30 @@
       "revId": "a939373f0d4753d9ef0fe1dadd36c6535971d95c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17e99cc9_515d7425",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-05-16T23:55:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f299a19_270c3e2f",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 52
+      },
+      "revId": "a939373f0d4753d9ef0fe1dadd36c6535971d95c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
