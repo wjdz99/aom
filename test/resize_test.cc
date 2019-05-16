@@ -421,10 +421,6 @@ class ResizeRealtimeTest
     cfg_.g_error_resilient = 0;
     // Run at low bitrate.
     cfg_.rc_target_bitrate = 200;
-    // We use max(kInitialWidth, kInitialHeight) because during the test
-    // the width and height of the frame are swapped
-    cfg_.g_forced_max_frame_width = cfg_.g_forced_max_frame_height =
-        AOMMAX(kInitialWidth, kInitialHeight);
   }
 
   std::vector<FrameInfo> frame_info_list_;
@@ -464,7 +460,7 @@ TEST_P(ResizeRealtimeTest, TestExternalResizeWorks) {
 // Verify the dynamic resizer behavior for real time, 1 pass CBR mode.
 // Run at low bitrate, with resize_allowed = 1, and verify that we get
 // one resize down event.
-TEST_P(ResizeRealtimeTest, DISABLED_TestInternalResizeDown) {
+TEST_P(ResizeRealtimeTest, TestInternalResizeDown) {
   ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                        30, 1, 0, 299);
   DefaultConfig();
@@ -502,7 +498,7 @@ TEST_P(ResizeRealtimeTest, DISABLED_TestInternalResizeDown) {
 // Verify the dynamic resizer behavior for real time, 1 pass CBR mode.
 // Start at low target bitrate, raise the bitrate in the middle of the clip,
 // scaling-up should occur after bitrate changed.
-TEST_P(ResizeRealtimeTest, DISABLED_TestInternalResizeDownUpChangeBitRate) {
+TEST_P(ResizeRealtimeTest, TestInternalResizeDownUpChangeBitRate) {
   ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                        30, 1, 0, 359);
   DefaultConfig();
