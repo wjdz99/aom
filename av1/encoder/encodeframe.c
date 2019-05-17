@@ -2546,7 +2546,7 @@ BEGIN_PARTITION_SEARCH:
             num_pels_log2_lookup[bsize];
 
         best_rdc = this_rdc;
-        if (bsize_at_least_8x8) pc_tree->partitioning = PARTITION_NONE;
+        pc_tree->partitioning = PARTITION_NONE;
 
         if ((do_square_split || do_rectangular_split) &&
             !x->e_mbd.lossless[xd->mi[0]->segment_id] && ctx_none->skippable) {
