@@ -6961,22 +6961,26 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
     step_param = cpi->mv_step_param;
   }
 
+#if 0
   if (cpi->sf.adaptive_motion_search && bsize < cm->seq_params.sb_size) {
     int boffset =
         2 * (mi_size_wide_log2[cm->seq_params.sb_size] -
              AOMMIN(mi_size_high_log2[bsize], mi_size_wide_log2[bsize]));
     step_param = AOMMAX(step_param, boffset);
   }
+#endif
 
   if (cpi->sf.adaptive_motion_search) {
     int bwl = mi_size_wide_log2[bsize];
     int bhl = mi_size_high_log2[bsize];
     int tlevel = x->pred_mv_sad[ref] >> (bwl + bhl + 4);
 
+#if 1
     if (tlevel < 5) {
       step_param += 2;
       step_param = AOMMIN(step_param, MAX_MVSEARCH_STEPS - 1);
     }
+#endif
 
     // prev_mv_sad is not setup for dynamically scaled frames.
     if (cpi->oxcf.resize_mode != RESIZE_RANDOM) {
