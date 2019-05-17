@@ -88,6 +88,10 @@ list(APPEND AOM_AV1_COMMON_SOURCES
             "${AOM_ROOT}/av1/common/warped_motion.c"
             "${AOM_ROOT}/av1/common/warped_motion.h")
 
+if(CONFIG_LPF_MASK)
+  list(APPEND AOM_AV1_COMMON_SOURCES "${AOM_ROOT}/av1/common/loopfiltermask.c")
+endif()
+
 list(APPEND AOM_AV1_DECODER_SOURCES
             "${AOM_ROOT}/av1/av1_dx_iface.c"
             "${AOM_ROOT}/av1/decoder/decodeframe.c"
@@ -238,7 +242,6 @@ list(APPEND AOM_AV1_COMMON_INTRIN_SSE4_1
             "${AOM_ROOT}/av1/common/cdef_block_sse4.c"
             "${AOM_ROOT}/av1/common/x86/av1_convolve_horiz_rs_sse4.c"
             "${AOM_ROOT}/av1/common/x86/av1_convolve_scale_sse4.c"
-            "${AOM_ROOT}/av1/common/x86/av1_highbd_convolve_sse4.c"
             "${AOM_ROOT}/av1/common/x86/av1_txfm_sse4.c"
             "${AOM_ROOT}/av1/common/x86/av1_txfm_sse4.h"
             "${AOM_ROOT}/av1/common/x86/filterintra_sse4.c"
@@ -265,6 +268,7 @@ list(APPEND AOM_AV1_COMMON_INTRIN_AVX2
             "${AOM_ROOT}/av1/common/x86/jnt_convolve_avx2.c"
             "${AOM_ROOT}/av1/common/x86/reconinter_avx2.c"
             "${AOM_ROOT}/av1/common/x86/selfguided_avx2.c"
+            "${AOM_ROOT}/av1/common/x86/warp_plane_avx2.c"
             "${AOM_ROOT}/av1/common/x86/wiener_convolve_avx2.c")
 
 list(APPEND AOM_AV1_ENCODER_ASM_SSE2 "${AOM_ROOT}/av1/encoder/x86/dct_sse2.asm"

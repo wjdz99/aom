@@ -421,7 +421,8 @@ static const arg_def_t tile_rows =
     ARG_DEF(NULL, "tile-rows", 1, "Number of tile rows to use, log2");
 static const arg_def_t enable_tpl_model =
     ARG_DEF(NULL, "enable-tpl-model", 1,
-            "RDO modulation based on frame temporal dependency");
+            "RDO based on frame temporal dependency "
+            "(0: off, 1: backward source based, 2: forward 2-pass");
 static const arg_def_t tile_width =
     ARG_DEF(NULL, "tile-width", 1, "Tile widths (comma separated)");
 static const arg_def_t tile_height =
@@ -432,10 +433,10 @@ static const arg_def_t enable_cdef =
     ARG_DEF(NULL, "enable-cdef", 1,
             "Enable the constrained directional enhancement filter (0: false, "
             "1: true (default))");
-static const arg_def_t enable_restoration =
-    ARG_DEF(NULL, "enable-restoration", 1,
-            "Enable the loop restoration filter (0: false, "
-            "1: true (default))");
+static const arg_def_t enable_restoration = ARG_DEF(
+    NULL, "enable-restoration", 1,
+    "Enable the loop restoration filter (0: false (default in Realtime mode), "
+    "1: true (default in Non-realtime mode))");
 static const arg_def_t enable_rect_partitions =
     ARG_DEF(NULL, "enable-rect-partitions", 1,
             "Enable rectangular partitions "
@@ -1543,6 +1544,11 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
     } else if (arg_match(&arg, &ext_partition, argi)) {
       config->cfg.cfg.ext_partition = !!arg_parse_uint(&arg) > 0;
 #endif
+    } else if (global->usage == AOM_USAGE_REALTIME &&
+               arg_match(&arg, &enable_restoration, argi)) {
+      if (arg_parse_uint(&arg) == 1) {
+        warn("non-zero %s option ignored in realtime mode.\n", arg.name);
+      }
     } else {
       int i, match = 0;
       for (i = 0; ctrl_args[i]; i++) {

@@ -73,11 +73,6 @@ extern "C" {
 #define DIST_PRECISION_BITS 4
 #define DIST_PRECISION (1 << DIST_PRECISION_BITS)  // 16
 
-// TODO(chengchen): Temporal flag serve as experimental flag for WIP
-// bitmask construction.
-// Shall be removed when bitmask code is completely checkedin
-#define LOOP_FILTER_BITMASK 0
-
 #define PROFILE_BITS 3
 // The following three profiles are currently defined.
 // Profile 0.  8-bit and 10-bit 4:2:0 and 4:0:0 only.
@@ -527,7 +522,7 @@ enum {
 #define DELTA_Q_SMALL 3
 #define DELTA_Q_PROBS (DELTA_Q_SMALL)
 #define DEFAULT_DELTA_Q_RES_PERCEPTUAL 4
-#define DEFAULT_DELTA_Q_RES_OBJECTIVE 8
+#define DEFAULT_DELTA_Q_RES_OBJECTIVE 4
 
 #define DELTA_LF_SMALL 3
 #define DELTA_LF_PROBS (DELTA_LF_SMALL)

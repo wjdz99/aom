@@ -47,6 +47,7 @@
 #include "av1/encoder/aq_complexity.h"
 #include "av1/encoder/aq_cyclicrefresh.h"
 #include "av1/encoder/aq_variance.h"
+#include "av1/encoder/corner_detect.h"
 #include "av1/encoder/global_motion.h"
 #include "av1/encoder/encodeframe.h"
 #include "av1/encoder/encodemb.h"
@@ -446,7 +447,8 @@ static void update_state(const AV1_COMP *const cpi,
 
   const int x_mis = AOMMIN(bw, cm->mi_cols - mi_col);
   const int y_mis = AOMMIN(bh, cm->mi_rows - mi_row);
-  av1_copy_frame_mvs(cm, mi, mi_row, mi_col, x_mis, y_mis);
+  if (cm->seq_params.order_hint_info.enable_ref_frame_mvs)
+    av1_copy_frame_mvs(cm, mi, mi_row, mi_col, x_mis, y_mis);
 }
 
 void av1_setup_src_planes(MACROBLOCK *x, const YV12_BUFFER_CONFIG *src,
@@ -2594,7 +2596,8 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   if (!(has_rows && has_cols)) {
     assert(bsize_at_least_8x8 && pl >= 0);
     const aom_cdf_prob *partition_cdf = cm->fc->partition_cdf[pl];
-    for (int i = 0; i < PARTITION_TYPES; ++i) tmp_partition_cost[i] = INT_MAX;
+    const int max_cost = av1_cost_symbol(0);
+    for (int i = 0; i < PARTITION_TYPES; ++i) tmp_partition_cost[i] = max_cost;
     if (has_cols) {
       // At the bottom, the two possibilities are HORZ and SPLIT
       aom_cdf_prob bot_cdf[2];
@@ -2613,7 +2616,6 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
     }
 
     partition_cost = tmp_partition_cost;
-    do_square_split &= partition_cost[PARTITION_SPLIT] != INT_MAX;
   }
 
 #ifndef NDEBUG
@@ -2757,12 +2759,10 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
     if (has_rows && has_cols) do_square_split = 0;
     partition_none_allowed = !do_square_split;
   }
-  do_square_split &= partition_cost[PARTITION_SPLIT] != INT_MAX;
 
 BEGIN_PARTITION_SEARCH:
   if (x->must_find_valid_partition) {
-    do_square_split =
-        bsize_at_least_8x8 && partition_cost[PARTITION_SPLIT] != INT_MAX;
+    do_square_split = bsize_at_least_8x8;
     partition_none_allowed = has_rows && has_cols;
     partition_horz_allowed = has_cols && yss <= xss && bsize_at_least_8x8 &&
                              cpi->oxcf.enable_rect_partitions;
@@ -3710,7 +3710,11 @@ static void init_first_partition_pass_stats_tables(
 
 static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
                             int mi_col, int orig_rdmult) {
-  TplDepFrame *tpl_frame = &cpi->tpl_stats[cpi->twopass.gf_group.index];
+  assert(IMPLIES(cpi->twopass.gf_group.size > 0,
+                 cpi->twopass.gf_group.index < cpi->twopass.gf_group.size));
+  const int tpl_idx =
+      cpi->twopass.gf_group.frame_disp_idx[cpi->twopass.gf_group.index];
+  TplDepFrame *tpl_frame = &cpi->tpl_stats[tpl_idx];
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   int tpl_stride = tpl_frame->stride;
   int64_t intra_cost = 0;
@@ -3718,9 +3722,6 @@ static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
   int mi_wide = mi_size_wide[bsize];
   int mi_high = mi_size_high[bsize];
   int row, col;
-
-  int dr = 0;
-  double r0, rk, beta;
 
   if (tpl_frame->is_valid == 0) return orig_rdmult;
 
@@ -3735,29 +3736,38 @@ static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
       if (row >= cpi->common.mi_rows || col >= cpi->common.mi_cols) continue;
 
       intra_cost += this_stats->intra_cost;
-      mc_dep_cost += this_stats->mc_dep_cost;
+      mc_dep_cost += this_stats->intra_cost + this_stats->mc_flow;
     }
   }
 
   aom_clear_system_state();
 
-  r0 = cpi->rd.r0;
-  rk = (double)intra_cost / mc_dep_cost;
-  beta = r0 / rk;
-  dr = av1_get_adaptive_rdmult(cpi, beta);
+  const double r0 = cpi->rd.r0;
+  const double rk = (double)intra_cost / mc_dep_cost;
+  const double beta = pow(r0 / rk, 0.125);
+  int rdmult = av1_get_adaptive_rdmult(cpi, beta);
 
-  dr = AOMMIN(dr, orig_rdmult * 3 / 2);
-  dr = AOMMAX(dr, orig_rdmult * 1 / 2);
+  rdmult = AOMMIN(rdmult, orig_rdmult * 3 / 2);
+  rdmult = AOMMAX(rdmult, orig_rdmult * 1 / 2);
 
-  dr = AOMMAX(1, dr);
+  rdmult = AOMMAX(1, rdmult);
 
-  return dr;
+  return rdmult;
 }
 
+// analysis_type 0: Use mc_dep_cost and intra_cost
+// analysis_type 1: Use count of best inter predictor chosen
+// analysis_type 2: Use cost reduction from intra to inter for best inter
+//                  predictor chosen
 static int get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
-                                      int mi_row, int mi_col) {
+                                      int analysis_type, int mi_row,
+                                      int mi_col) {
   AV1_COMMON *const cm = &cpi->common;
-  TplDepFrame *tpl_frame = &cpi->tpl_stats[cpi->twopass.gf_group.index];
+  assert(IMPLIES(cpi->twopass.gf_group.size > 0,
+                 cpi->twopass.gf_group.index < cpi->twopass.gf_group.size));
+  const int tpl_idx =
+      cpi->twopass.gf_group.frame_disp_idx[cpi->twopass.gf_group.index];
+  TplDepFrame *tpl_frame = &cpi->tpl_stats[tpl_idx];
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   int tpl_stride = tpl_frame->stride;
   int64_t intra_cost = 0;
@@ -3768,32 +3778,61 @@ static int get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
 
   double r0, rk, beta;
 
+  if (cpi->tpl_model_pass == 1) {
+    assert(cpi->oxcf.enable_tpl_model == 2);
+    return cm->base_qindex;
+  }
+
+  if (cm->base_qindex > 200) return cm->base_qindex;
+
   if (tpl_frame->is_valid == 0) return cm->base_qindex;
 
   if (cpi->common.show_frame) return cm->base_qindex;
 
   if (cpi->twopass.gf_group.index >= MAX_LAG_BUFFERS) return cm->base_qindex;
 
+  int64_t mc_count = 0, mc_saved = 0;
+  int mi_count = 0;
   for (row = mi_row; row < mi_row + mi_high; ++row) {
     for (col = mi_col; col < mi_col + mi_wide; ++col) {
       TplDepStats *this_stats = &tpl_stats[row * tpl_stride + col];
-
       if (row >= cm->mi_rows || col >= cm->mi_cols) continue;
-
       intra_cost += this_stats->intra_cost;
-      mc_dep_cost += this_stats->mc_dep_cost;
+      mc_dep_cost += this_stats->intra_cost + this_stats->mc_flow;
+      mc_count += this_stats->mc_count;
+      mc_saved += this_stats->mc_saved;
+      mi_count++;
     }
+  }
+
+  int offset = 0;
+  if (analysis_type == 0) {
+    r0 = cpi->rd.r0;
+    rk = (double)intra_cost / mc_dep_cost;
+    beta = r0 / rk;
+    offset = -(int)(log(beta) * 8.0);
+  } else if (analysis_type == 1) {
+    const double mc_count_base = (mi_count * cpi->rd.mc_count_base);
+    const double mc_count_beta =
+        mc_count_base != 0.0
+            ? ((double)mc_count - mc_count_base) / mc_count_base
+            : 0.0;
+    offset = -(int)rint(mc_count_beta * 8.0);
+    // printf("mc_count_beta %g, offset %d\n", mc_count_beta, offset);
+  } else if (analysis_type == 2) {
+    const double mc_saved_base = (mi_count * cpi->rd.mc_saved_base);
+    const double mc_saved_beta =
+        mc_saved_base != 0.0
+            ? ((double)mc_saved - mc_saved_base) / mc_saved_base
+            : 0.0;
+    offset = -(int)rint(mc_saved_beta * 2.0);
+    // printf("mc_saved_beta %g, offset %d\n", mc_saved_beta, offset);
   }
 
   aom_clear_system_state();
 
-  r0 = cpi->rd.r0;
-  rk = (double)intra_cost / mc_dep_cost;
-  beta = r0 / rk;
-
-  int offset = -(int)(log(beta) * 8.0);
-  offset = AOMMIN(offset, 16);
-  offset = AOMMAX(offset, -16);
+  offset = AOMMIN(offset, DEFAULT_DELTA_Q_RES_OBJECTIVE * 3 - 1);
+  offset = AOMMAX(offset, -DEFAULT_DELTA_Q_RES_OBJECTIVE * 3 + 1);
   int qindex = cm->base_qindex + offset;
   qindex = AOMMIN(qindex, MAXQ);
   qindex = AOMMAX(qindex, MINQ);
@@ -3830,7 +3869,8 @@ static void setup_delta_q(AV1_COMP *const cpi, MACROBLOCK *const x,
   } else if (cpi->oxcf.deltaq_mode == DELTA_Q_OBJECTIVE) {
     assert(cpi->oxcf.enable_tpl_model);
     // Setup deltaq based on tpl stats
-    current_qindex = get_q_for_deltaq_objective(cpi, sb_size, mi_row, mi_col);
+    current_qindex =
+        get_q_for_deltaq_objective(cpi, sb_size, 1, mi_row, mi_col);
   }
 
   const int qmask = ~(delta_q_info->delta_q_res - 1);
@@ -3852,6 +3892,9 @@ static void setup_delta_q(AV1_COMP *const cpi, MACROBLOCK *const x,
   xd->mi[0]->current_qindex = current_qindex;
   av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
   x->rdmult = set_deltaq_rdmult(cpi, xd);
+
+  // keep track of any non-zero delta-q used
+  cpi->delta_q_used |= (xd->delta_qindex != 0);
 
   if (cpi->oxcf.deltaq_mode != NO_DELTA_Q && cpi->oxcf.deltalf_mode) {
     const int lfmask = ~(delta_q_info->delta_lf_res - 1);
@@ -4131,9 +4174,17 @@ static void adjust_rdmult_tpl_model(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
                                     int mi_col) {
   const BLOCK_SIZE sb_size = cpi->common.seq_params.sb_size;
   const int orig_rdmult = cpi->rd.RDMULT;
-  const int gf_group_index = cpi->twopass.gf_group.index;
   x->cb_rdmult = orig_rdmult;
 
+  if (cpi->tpl_model_pass == 1) {
+    assert(cpi->oxcf.enable_tpl_model == 2);
+    x->rdmult = orig_rdmult;
+    return;
+  }
+
+  assert(IMPLIES(cpi->twopass.gf_group.size > 0,
+                 cpi->twopass.gf_group.index < cpi->twopass.gf_group.size));
+  const int gf_group_index = cpi->twopass.gf_group.index;
   if (cpi->oxcf.enable_tpl_model && cpi->oxcf.aq_mode == NO_AQ &&
       cpi->oxcf.deltaq_mode == NO_DELTA_Q && gf_group_index > 0 &&
       cpi->twopass.gf_group.update_type[gf_group_index] == ARF_UPDATE) {
@@ -4924,9 +4975,13 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   // Set delta_q_present_flag before it is used for the first time
   cm->delta_q_info.delta_lf_res = DEFAULT_DELTA_LF_RES;
   cm->delta_q_info.delta_q_present_flag = cpi->oxcf.deltaq_mode != NO_DELTA_Q;
+  // Reset delta_q_used flag
+  cpi->delta_q_used = 0;
+
   cm->delta_q_info.delta_lf_present_flag =
       cpi->oxcf.deltaq_mode != NO_DELTA_Q && cpi->oxcf.deltalf_mode;
   cm->delta_q_info.delta_lf_multi = DEFAULT_DELTA_LF_MULTI;
+
   // update delta_q_present_flag and delta_lf_present_flag based on
   // base_qindex
   cm->delta_q_info.delta_q_present_flag &= cm->base_qindex > 0;
@@ -4934,27 +4989,40 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
   if (cpi->twopass.gf_group.index &&
       cpi->twopass.gf_group.index < MAX_LAG_BUFFERS &&
-      cpi->oxcf.enable_tpl_model) {
-    TplDepFrame *tpl_frame = &cpi->tpl_stats[cpi->twopass.gf_group.index];
+      cpi->oxcf.enable_tpl_model && cpi->tpl_model_pass == 0) {
+    assert(IMPLIES(cpi->twopass.gf_group.size > 0,
+                   cpi->twopass.gf_group.index < cpi->twopass.gf_group.size));
+    const int tpl_idx =
+        cpi->twopass.gf_group.frame_disp_idx[cpi->twopass.gf_group.index];
+    TplDepFrame *tpl_frame = &cpi->tpl_stats[tpl_idx];
     TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
 
     int tpl_stride = tpl_frame->stride;
     int64_t intra_cost_base = 0;
     int64_t mc_dep_cost_base = 0;
+    int64_t mc_saved_base = 0;
+    int64_t mc_count_base = 0;
     int row, col;
 
     for (row = 0; row < cm->mi_rows; ++row) {
       for (col = 0; col < cm->mi_cols; ++col) {
         TplDepStats *this_stats = &tpl_stats[row * tpl_stride + col];
         intra_cost_base += this_stats->intra_cost;
-        mc_dep_cost_base += this_stats->mc_dep_cost;
+        mc_dep_cost_base += this_stats->intra_cost + this_stats->mc_flow;
+        mc_count_base += this_stats->mc_count;
+        mc_saved_base += this_stats->mc_saved;
       }
     }
 
     aom_clear_system_state();
 
-    if (tpl_frame->is_valid)
+    if (tpl_frame->is_valid) {
       cpi->rd.r0 = (double)intra_cost_base / mc_dep_cost_base;
+      cpi->rd.mc_count_base =
+          (double)mc_count_base / (cm->mi_rows * cm->mi_cols);
+      cpi->rd.mc_saved_base =
+          (double)mc_saved_base / (cm->mi_rows * cm->mi_cols);
+    }
   }
 
   av1_frame_init_quantizer(cpi);
@@ -4995,7 +5063,13 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       cpi->oxcf.enable_global_motion && !cpi->global_motion_search_done) {
     YV12_BUFFER_CONFIG *ref_buf[REF_FRAMES];
     int frame;
-    double params_by_motion[RANSAC_NUM_MOTIONS * (MAX_PARAMDIM - 1)];
+    MotionModel params_by_motion[RANSAC_NUM_MOTIONS];
+    for (int m = 0; m < RANSAC_NUM_MOTIONS; m++) {
+      memset(&params_by_motion[m], 0, sizeof(params_by_motion[m]));
+      params_by_motion[m].inliers =
+          aom_malloc(sizeof(*(params_by_motion[m].inliers)) * 2 * MAX_CORNERS);
+    }
+
     const double *params_this_motion;
     int inliers_by_motion[RANSAC_NUM_MOTIONS];
     WarpedMotionParams tmp_wm_params;
@@ -5005,6 +5079,26 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     };
     // clang-format on
     int num_refs_using_gm = 0;
+    int num_frm_corners = -1;
+    int frm_corners[2 * MAX_CORNERS];
+    unsigned char *frm_buffer = cpi->source->y_buffer;
+    if (cpi->source->flags & YV12_FLAG_HIGHBITDEPTH) {
+      // The frame buffer is 16-bit, so we need to convert to 8 bits for the
+      // following code. We cache the result until the frame is released.
+      frm_buffer =
+          av1_downconvert_frame(cpi->source, cpi->common.seq_params.bit_depth);
+    }
+    const int segment_map_w =
+        (cpi->source->y_width + (WARP_ERROR_BLOCK >> 1)) >>
+        WARP_ERROR_BLOCK_LOG;
+    const int segment_map_h =
+        (cpi->source->y_height + (WARP_ERROR_BLOCK >> 1)) >>
+        WARP_ERROR_BLOCK_LOG;
+
+    uint8_t *segment_map =
+        aom_malloc(sizeof(*segment_map) * segment_map_w * segment_map_h);
+    memset(segment_map, 0,
+           sizeof(*segment_map) * segment_map_w * segment_map_h);
 
     for (frame = ALTREF_FRAME; frame >= LAST_FRAME; --frame) {
       ref_buf[frame] = NULL;
@@ -5027,13 +5121,13 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                  ref_buf[frame]->y_crop_height == cpi->source->y_crop_height &&
                  do_gm_search_logic(&cpi->sf, num_refs_using_gm, frame) &&
                  !(cpi->sf.selective_ref_gm && skip_gm_frame(cm, frame))) {
+        if (num_frm_corners < 0) {
+          // compute interest points using FAST features
+          num_frm_corners = av1_fast_corner_detect(
+              frm_buffer, cpi->source->y_width, cpi->source->y_height,
+              cpi->source->y_stride, frm_corners, MAX_CORNERS);
+        }
         TransformationType model;
-        const int64_t ref_frame_error = av1_frame_error(
-            is_cur_buf_hbd(xd), xd->bd, ref_buf[frame]->y_buffer,
-            ref_buf[frame]->y_stride, cpi->source->y_buffer,
-            cpi->source->y_width, cpi->source->y_height, cpi->source->y_stride);
-
-        if (ref_frame_error == 0) continue;
 
         aom_clear_system_state();
 
@@ -5052,29 +5146,35 @@ static void encode_frame_internal(AV1_COMP *cpi) {
           int64_t best_warp_error = INT64_MAX;
           // Initially set all params to identity.
           for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
-            memcpy(params_by_motion + (MAX_PARAMDIM - 1) * i, kIdentityParams,
-                   (MAX_PARAMDIM - 1) * sizeof(*params_by_motion));
+            memcpy(params_by_motion[i].params, kIdentityParams,
+                   (MAX_PARAMDIM - 1) * sizeof(*(params_by_motion[i].params)));
           }
 
-          av1_compute_global_motion(model, cpi->source, ref_buf[frame],
-                                    cpi->common.seq_params.bit_depth,
-                                    gm_estimation_type, inliers_by_motion,
-                                    params_by_motion, RANSAC_NUM_MOTIONS);
+          av1_compute_global_motion(
+              model, frm_buffer, cpi->source->y_width, cpi->source->y_height,
+              cpi->source->y_stride, frm_corners, num_frm_corners,
+              ref_buf[frame], cpi->common.seq_params.bit_depth,
+              gm_estimation_type, inliers_by_motion, params_by_motion,
+              RANSAC_NUM_MOTIONS);
 
           for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
             if (inliers_by_motion[i] == 0) continue;
 
-            params_this_motion = params_by_motion + (MAX_PARAMDIM - 1) * i;
+            params_this_motion = params_by_motion[i].params;
             av1_convert_model_to_params(params_this_motion, &tmp_wm_params);
 
             if (tmp_wm_params.wmtype != IDENTITY) {
+              av1_compute_feature_segmentation_map(
+                  segment_map, segment_map_w, segment_map_h,
+                  params_by_motion[i].inliers, params_by_motion[i].num_inliers);
+
               const int64_t warp_error = av1_refine_integerized_param(
                   &tmp_wm_params, tmp_wm_params.wmtype, is_cur_buf_hbd(xd),
                   xd->bd, ref_buf[frame]->y_buffer, ref_buf[frame]->y_width,
                   ref_buf[frame]->y_height, ref_buf[frame]->y_stride,
                   cpi->source->y_buffer, cpi->source->y_width,
                   cpi->source->y_height, cpi->source->y_stride, 5,
-                  best_warp_error);
+                  best_warp_error, segment_map, segment_map_w);
               if (warp_error < best_warp_error) {
                 best_warp_error = warp_error;
                 // Save the wm_params modified by
@@ -5086,7 +5186,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
             }
           }
           if (cm->global_motion[frame].wmtype <= AFFINE)
-            if (!get_shear_params(&cm->global_motion[frame]))
+            if (!av1_get_shear_params(&cm->global_motion[frame]))
               cm->global_motion[frame] = default_warp_params;
 
           if (cm->global_motion[frame].wmtype == TRANSLATION) {
@@ -5099,6 +5199,16 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                                       cm->global_motion[frame].wmmat[1]) *
                 GM_TRANS_ONLY_DECODE_FACTOR;
           }
+
+          if (cm->global_motion[frame].wmtype == IDENTITY) continue;
+
+          const int64_t ref_frame_error = av1_segmented_frame_error(
+              is_cur_buf_hbd(xd), xd->bd, ref_buf[frame]->y_buffer,
+              ref_buf[frame]->y_stride, cpi->source->y_buffer,
+              cpi->source->y_width, cpi->source->y_height,
+              cpi->source->y_stride, segment_map, segment_map_w);
+
+          if (ref_frame_error == 0) continue;
 
           // If the best error advantage found doesn't meet the threshold for
           // this motion type, revert to IDENTITY.
@@ -5120,6 +5230,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
           cpi->gmtype_cost[cm->global_motion[frame].wmtype] -
           cpi->gmtype_cost[IDENTITY];
     }
+    aom_free(segment_map);
     // clear disabled ref_frames
     for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
       const int ref_disabled =
@@ -5130,6 +5241,9 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       }
     }
     cpi->global_motion_search_done = 1;
+    for (int m = 0; m < RANSAC_NUM_MOTIONS; m++) {
+      aom_free(params_by_motion[m].inliers);
+    }
   }
   memcpy(cm->cur_frame->global_motion, cm->global_motion,
          REF_FRAMES * sizeof(WarpedMotionParams));

@@ -157,15 +157,18 @@ enum {
   SS_CFG_TOTAL = 2
 } UENUM1BYTE(SS_CFG_OFFSET);
 
-#define MAX_LENGTH_TPL_FRAME_STATS MAX_STATIC_GF_GROUP_LENGTH + 3
+#define MAX_LENGTH_TPL_FRAME_STATS 27
 
 typedef struct TplDepStats {
   int64_t intra_cost;
   int64_t inter_cost;
   int64_t mc_flow;
   int64_t mc_dep_cost;
+  int64_t mc_count;
+  int64_t mc_saved;
 
   int ref_frame_index;
+  int ref_disp_frame_index;
   int_mv mv;
 } TplDepStats;
 
@@ -177,7 +180,6 @@ typedef struct TplDepFrame {
   int height;
   int mi_rows;
   int mi_cols;
-  int base_qindex;
 } TplDepFrame;
 
 typedef enum {
@@ -742,7 +744,6 @@ typedef struct AV1_COMP {
   YV12_BUFFER_CONFIG scaled_last_source;
 
   TplDepFrame tpl_stats[MAX_LENGTH_TPL_FRAME_STATS];
-  YV12_BUFFER_CONFIG *tpl_recon_frames[INTER_REFS_PER_FRAME + 1];
 
   // For a still frame, this flag is set to 1 to skip partition search.
   int partition_search_skippable_frame;
@@ -852,6 +853,15 @@ typedef struct AV1_COMP {
   uint64_t time_receive_data;
   uint64_t time_compress_data;
 #endif
+
+  // number of show frames encoded in current gf_group
+  int num_gf_group_show_frames;
+
+  // when two pass tpl model is used, set to 1 for the
+  // first pass, then 0 for the final pass.
+  int tpl_model_pass;
+  // Number of gf_group frames for tpl stats
+  int tpl_gf_group_frames;
 
   TWO_PASS twopass;
 
@@ -1005,6 +1015,9 @@ typedef struct AV1_COMP {
   // Count the number of OBU_FRAME and OBU_FRAME_HEADER for level calculation.
   int frame_header_count;
   FrameWindowBuffer frame_window_buffer;
+
+  // whether any no-zero delta_q was actually used
+  int delta_q_used;
 } AV1_COMP;
 
 typedef struct {
