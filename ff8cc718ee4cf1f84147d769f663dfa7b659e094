@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "bb06dde3_4e4ea071",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-17T21:34:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70e2f3f0_bd771fed",
+      "range": {
+        "startLine": 277,
+        "startChar": 32,
+        "endLine": 277,
+        "endChar": 35
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d7ae628_feb5fd93",
         "filename": "av1/encoder/level.c",
         "patchSetId": 5
@@ -96,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "ac9a477f_5a9ccc09",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-17T21:34:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "64110c3f_ae9c9683",
+      "range": {
+        "startLine": 281,
+        "startChar": 12,
+        "endLine": 281,
+        "endChar": 23
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bad5e162_af706071",
         "filename": "av1/encoder/level.c",
         "patchSetId": 5
@@ -119,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "12e889ae_eaa4039d",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-17T21:34:00Z",
+      "side": 1,
+      "message": "Done. Changed its name also added note that it corresponds to \"start_decode_at_removal_time\" in the spec.",
+      "parentUuid": "bad5e162_af706071",
+      "range": {
+        "startLine": 350,
+        "startChar": 12,
+        "endLine": 350,
+        "endChar": 40
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "115ec9f4_6aef1852",
         "filename": "av1/encoder/level.c",
         "patchSetId": 5
@@ -133,6 +205,24 @@
       "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd65425e_1dcd2faf",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-17T21:34:00Z",
+      "side": 1,
+      "message": "Done. Initialized it as a macro MAX_TIME.",
+      "parentUuid": "115ec9f4_6aef1852",
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -159,6 +249,30 @@
     },
     {
       "key": {
+        "uuid": "19161ea7_eb5e4d6b",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-17T21:34:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "089986bc_f155b761",
+      "range": {
+        "startLine": 429,
+        "startChar": 5,
+        "endLine": 429,
+        "endChar": 35
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f85b75fb_9bd9e647",
         "filename": "av1/encoder/level.c",
         "patchSetId": 5
@@ -173,6 +287,24 @@
       "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a609b110_980938cc",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-17T21:34:00Z",
+      "side": 1,
+      "message": "Done. We always set show_frame as 1 when show_existing_frame is 1. I changed to if (show_frame || show_existing_frame) to be safe, and consistent with the spec.",
+      "parentUuid": "f85b75fb_9bd9e647",
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -199,6 +331,30 @@
     },
     {
       "key": {
+        "uuid": "59bd1c45_cb924922",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-17T21:34:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "250bc013_d1b7ff26",
+      "range": {
+        "startLine": 543,
+        "startChar": 7,
+        "endLine": 543,
+        "endChar": 13
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d99375b7_f7bd8a45",
         "filename": "av1/encoder/level.c",
         "patchSetId": 5
@@ -213,6 +369,24 @@
       "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d852832f_af1ddd4e",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-17T21:34:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d99375b7_f7bd8a45",
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -239,6 +413,30 @@
     },
     {
       "key": {
+        "uuid": "268e5808_c1614508",
+        "filename": "av1/encoder/level.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-17T21:34:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "56e6e333_478a7b00",
+      "range": {
+        "startLine": 89,
+        "startChar": 9,
+        "endLine": 89,
+        "endChar": 15
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d4ddef0_c118a46f",
         "filename": "av1/encoder/level.h",
         "patchSetId": 5
@@ -259,6 +457,30 @@
       "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2316d2f6_7f105d8a",
+        "filename": "av1/encoder/level.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-17T21:34:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d4ddef0_c118a46f",
+      "range": {
+        "startLine": 105,
+        "startChar": 13,
+        "endLine": 105,
+        "endChar": 31
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -285,6 +507,30 @@
     },
     {
       "key": {
+        "uuid": "26c9c175_1afb227c",
+        "filename": "av1/encoder/level.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-17T21:34:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc8f0a6b_07559459",
+      "range": {
+        "startLine": 108,
+        "startChar": 2,
+        "endLine": 108,
+        "endChar": 18
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "43913188_14e7ce55",
         "filename": "av1/encoder/level.h",
         "patchSetId": 5
@@ -305,6 +551,30 @@
       "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "729e5fba_f3e6d9c1",
+        "filename": "av1/encoder/level.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-17T21:34:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "43913188_14e7ce55",
+      "range": {
+        "startLine": 113,
+        "startChar": 2,
+        "endLine": 113,
+        "endChar": 25
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
