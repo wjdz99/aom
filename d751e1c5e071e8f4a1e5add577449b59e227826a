@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8b93004_2db4897d",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-05-17T17:51:21Z",
+      "side": 1,
+      "message": "I believe this is only used to flag whether two pass partition search is used. So we can remove this.",
+      "range": {
+        "startLine": 196,
+        "startChar": 2,
+        "endLine": 198,
+        "endChar": 0
+      },
+      "revId": "d751e1c5e071e8f4a1e5add577449b59e227826a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae80ae46_bc30adf3",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2371,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-05-17T17:51:21Z",
+      "side": 1,
+      "message": "This block of code handles the actual partition logic of first partition pass. Remove this if it is no longer used.",
+      "range": {
+        "startLine": 2345,
+        "startChar": 0,
+        "endLine": 2371,
+        "endChar": 5
+      },
+      "revId": "d751e1c5e071e8f4a1e5add577449b59e227826a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "656088a4_6e0a5d63",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-05-17T17:51:21Z",
+      "side": 1,
+      "message": "We should remove this speed feature as well. The corresponding functions are in partition_strategy.h/c and the models are in partition_model_weights.h.",
+      "range": {
+        "startLine": 386,
+        "startChar": 0,
+        "endLine": 389,
+        "endChar": 0
+      },
+      "revId": "d751e1c5e071e8f4a1e5add577449b59e227826a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
