@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f9dfcc6_688ff44b",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-05-17T00:15:43Z",
+      "side": 1,
+      "message": "Pass a pointer/reference to avoid struct being copied",
+      "range": {
+        "startLine": 36,
+        "startChar": 25,
+        "endLine": 36,
+        "endChar": 52
+      },
+      "revId": "9c5d02af999b119106845795545f755ae90e7c9a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
