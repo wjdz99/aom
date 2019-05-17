@@ -1538,57 +1538,17 @@ unsigned int arf_count = 0;
 #endif
 #define DEFAULT_GRP_WEIGHT 1.0
 
-void av1_get_second_pass_params(AV1_COMP *cpi,
-                                EncodeFrameParams *const frame_params,
-                                unsigned int frame_flags) {
+static void process_first_pass_stats(AV1_COMP *cpi,
+                                     FIRSTPASS_STATS *this_frame) {
   AV1_COMMON *const cm = &cpi->common;
   CurrentFrame *const current_frame = &cm->current_frame;
   RATE_CONTROL *const rc = &cpi->rc;
   TWO_PASS *const twopass = &cpi->twopass;
-  GF_GROUP *const gf_group = &twopass->gf_group;
-  int frames_left;
-  FIRSTPASS_STATS this_frame;
 
-  int target_rate;
+  if (cpi->oxcf.rc_mode != AOM_Q && current_frame->frame_number == 0) {
+    const int frames_left =
+        (int)(twopass->total_stats.count - current_frame->frame_number);
 
-  frames_left = (int)(twopass->total_stats.count - current_frame->frame_number);
-
-  if (!twopass->stats_in) return;
-
-  if (rc->frames_till_gf_update_due > 0) {
-    assert(gf_group->index < gf_group->size);
-    const int update_type = gf_group->update_type[gf_group->index];
-
-    // If this is an arf frame then we dont want to read the stats file or
-    // advance the input pointer as we already have what we need.
-    if (update_type == ARF_UPDATE || update_type == INTNL_ARF_UPDATE) {
-      target_rate = gf_group->bit_allocation[gf_group->index];
-      target_rate =
-          av1_rc_clamp_pframe_target_size(cpi, target_rate, update_type);
-      rc->base_frame_target = target_rate;
-
-      if (cpi->no_show_kf) {
-        assert(update_type == ARF_UPDATE);
-        frame_params->frame_type = KEY_FRAME;
-      } else {
-        frame_params->frame_type = INTER_FRAME;
-      }
-
-      // Do the firstpass stats indicate that this frame is skippable for the
-      // partition search?
-      if (cpi->sf.allow_partition_search_skip && cpi->oxcf.pass == 2) {
-        cpi->partition_search_skippable_frame = is_skippable_frame(cpi);
-      }
-
-      return;
-    }
-  }
-
-  aom_clear_system_state();
-
-  if (cpi->oxcf.rc_mode == AOM_Q) {
-    twopass->active_worst_quality = cpi->oxcf.cq_level;
-  } else if (current_frame->frame_number == 0) {
     // Special case code for first frame.
     const int section_target_bandwidth =
         (int)(twopass->bits_left / frames_left);
@@ -1614,14 +1574,80 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     rc->avg_frame_qindex[KEY_FRAME] = rc->last_q[KEY_FRAME];
   }
 
-  av1_zero(this_frame);
-  if (EOF == input_stats(twopass, &this_frame)) return;
+  if (EOF == input_stats(twopass, this_frame)) return;
+
+  {
+    const int num_mbs = (cpi->oxcf.resize_mode != RESIZE_NONE)
+                            ? cpi->initial_mbs
+                            : cpi->common.MBs;
+    // The multiplication by 256 reverses a scaling factor of (>> 8)
+    // applied when combining MB error values for the frame.
+    twopass->mb_av_energy = log((this_frame->intra_error / num_mbs) + 1.0);
+    twopass->frame_avg_haar_energy =
+        log((this_frame->frame_avg_wavelet_energy / num_mbs) + 1.0);
+  }
+
+  // Update the total stats remaining structure.
+  subtract_stats(&twopass->total_left_stats, this_frame);
 
   // Set the frame content type flag.
-  if (this_frame.intra_skip_pct >= FC_ANIMATION_THRESH)
+  if (this_frame->intra_skip_pct >= FC_ANIMATION_THRESH)
     twopass->fr_content_type = FC_GRAPHICS_ANIMATION;
   else
     twopass->fr_content_type = FC_NORMAL;
+}
+
+void av1_get_second_pass_params(AV1_COMP *cpi,
+                                EncodeFrameParams *const frame_params,
+                                unsigned int frame_flags) {
+  RATE_CONTROL *const rc = &cpi->rc;
+  TWO_PASS *const twopass = &cpi->twopass;
+  GF_GROUP *const gf_group = &twopass->gf_group;
+
+  int target_rate;
+
+  if (!twopass->stats_in) return;
+
+  if (rc->frames_till_gf_update_due > 0) {
+    assert(gf_group->index < gf_group->size);
+    const int update_type = gf_group->update_type[gf_group->index];
+
+    // If this is an arf frame then we dont want to read the stats file or
+    // advance the input pointer as we already have what we need.
+    if (update_type == ARF_UPDATE || update_type == INTNL_ARF_UPDATE) {
+      target_rate = gf_group->bit_allocation[gf_group->index];
+      target_rate =
+          av1_rc_clamp_pframe_target_size(cpi, target_rate, update_type);
+      rc->base_frame_target = target_rate;
+
+      if (cpi->no_show_kf) {
+        assert(update_type == ARF_UPDATE);
+        frame_params->frame_type = KEY_FRAME;
+      } else {
+        frame_params->frame_type = INTER_FRAME;
+      }
+
+      // Do the firstpass stats indicate that this frame is skippable for the
+      // partition search?
+      if (cpi->sf.allow_partition_search_skip && cpi->oxcf.pass == 2) {
+        cpi->partition_search_skippable_frame =
+            is_skippable_frame(cpi);  // sarahparker
+      }
+
+      return;
+    }
+  }
+
+  aom_clear_system_state();
+
+  /////////////////////////////////////////////
+  if (cpi->oxcf.rc_mode == AOM_Q)
+    twopass->active_worst_quality = cpi->oxcf.cq_level;
+  FIRSTPASS_STATS this_frame;
+  av1_zero(this_frame);
+  // call above fn
+  process_first_pass_stats(cpi, &this_frame);
+  /////////////////////////////////////////////////////////////////
 
   // Keyframe and section processing.
   if (rc->frames_to_key == 0 || (frame_flags & FRAMEFLAGS_KEY)) {
@@ -1629,7 +1655,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     this_frame_copy = this_frame;
     frame_params->frame_type = KEY_FRAME;
     // Define next KF group and assign bits to it.
-    find_next_key_frame(cpi, &this_frame);
+    find_next_key_frame(cpi, &this_frame);  // sarahparker
     this_frame = this_frame_copy;
   } else {
     frame_params->frame_type = INTER_FRAME;
@@ -1639,7 +1665,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   if (rc->frames_till_gf_update_due == 0) {
     assert(current_frame->frame_number == 0 ||
            gf_group->index == gf_group->size);
-    define_gf_group(cpi, &this_frame, frame_params);
+    define_gf_group(cpi, &this_frame, frame_params);  // sarahparker
     rc->frames_till_gf_update_due = rc->baseline_gf_interval;
     cpi->num_gf_group_show_frames = 0;
     assert(gf_group->index == 0);
@@ -1662,7 +1688,8 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   // Do the firstpass stats indicate that this frame is skippable for the
   // partition search?
   if (cpi->sf.allow_partition_search_skip && cpi->oxcf.pass == 2) {
-    cpi->partition_search_skippable_frame = is_skippable_frame(cpi);
+    cpi->partition_search_skippable_frame =
+        is_skippable_frame(cpi);  // sarahparker
   }
 
   target_rate = gf_group->bit_allocation[gf_group->index];
@@ -1675,20 +1702,6 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   }
 
   rc->base_frame_target = target_rate;
-
-  {
-    const int num_mbs = (cpi->oxcf.resize_mode != RESIZE_NONE)
-                            ? cpi->initial_mbs
-                            : cpi->common.MBs;
-    // The multiplication by 256 reverses a scaling factor of (>> 8)
-    // applied when combining MB error values for the frame.
-    twopass->mb_av_energy = log((this_frame.intra_error / num_mbs) + 1.0);
-    twopass->frame_avg_haar_energy =
-        log((this_frame.frame_avg_wavelet_energy / num_mbs) + 1.0);
-  }
-
-  // Update the total stats remaining structure.
-  subtract_stats(&twopass->total_left_stats, &this_frame);
 }
 
 void av1_init_second_pass(AV1_COMP *cpi) {
