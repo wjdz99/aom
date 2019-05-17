@@ -102,7 +102,7 @@ void av1_configure_buffer_updates(AV1_COMP *const cpi,
     case INTNL_ARF_UPDATE:
       frame_params->refresh_last_frame = 0;
       frame_params->refresh_golden_frame = 0;
-      if (cpi->oxcf.pass == 2) {
+      if (cpi->oxcf.pass != 1) {
         frame_params->refresh_bwd_ref_frame = 1;
         frame_params->refresh_alt2_ref_frame = 0;
       } else {
@@ -166,8 +166,9 @@ static INLINE void update_frames_till_gf_update(AV1_COMP *cpi) {
   // instead of checking the other condition to update the counter properly.
   if (cpi->common.show_frame || is_frame_droppable(cpi)) {
     // Decrement count down till next gf
-    if (cpi->rc.frames_till_gf_update_due > 0)
+    if (cpi->rc.frames_till_gf_update_due > 0) {
       cpi->rc.frames_till_gf_update_due--;
+    }
   }
 }
 
@@ -188,7 +189,8 @@ static void update_rc_counts(AV1_COMP *cpi) {
   update_keyframe_counters(cpi);
   update_frames_till_gf_update(cpi);
 #if !CONFIG_REALTIME_ONLY
-  if (cpi->oxcf.pass == 2) update_twopass_gf_group_index(cpi);
+  // TODO(sarahparker) delete this if
+  if (cpi->oxcf.pass != 1) update_twopass_gf_group_index(cpi);
 #endif
 }
 
@@ -499,7 +501,7 @@ static void adjust_frame_rate(AV1_COMP *cpi,
 static int get_arf_src_index(AV1_COMP *cpi) {
   RATE_CONTROL *const rc = &cpi->rc;
   int arf_src_index = 0;
-  if (cpi->oxcf.pass == 2) {
+  if (cpi->oxcf.pass != 1) {
     const GF_GROUP *const gf_group = &cpi->gf_group;
     if (get_frame_update_type(cpi) == ARF_UPDATE) {
       assert(is_altref_enabled(cpi));
@@ -515,7 +517,7 @@ static int get_arf_src_index(AV1_COMP *cpi) {
 // as the internal arf midpoint. Otherwise, returns 0.
 static int get_internal_arf_src_index(AV1_COMP *cpi) {
   int internal_arf_src_index = 0;
-  if (cpi->oxcf.pass == 2) {
+  if (cpi->oxcf.pass != 1) {
     const GF_GROUP *const gf_group = &cpi->gf_group;
     if (gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE) {
       assert(is_altref_enabled(cpi) && cpi->internal_altref_allowed);
@@ -971,7 +973,7 @@ static int get_refresh_frame_flags(const AV1_COMP *const cpi,
       refresh_mask |= 1 << get_ref_frame_map_idx(cm, LAST3_FRAME);
       break;
     case INTNL_ARF_UPDATE:
-      if (cpi->oxcf.pass == 2) {
+      if (cpi->oxcf.pass != 1) {
         // Push the new ARF2 onto the bwdref stack.  We refresh EXTREF which is
         // at the bottom of the stack then move it to the top.
         refresh_mask |= 1 << get_ref_frame_map_idx(cm, EXTREF_FRAME);
@@ -1000,6 +1002,10 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   memset(&frame_params, 0, sizeof(frame_params));
   memset(&frame_results, 0, sizeof(frame_results));
 
+//if (oxcf->pass == 0) {
+//  cpi->oxcf.gf_max_pyr_height = USE_ALTREF_FOR_ONE_PASS;
+//}
+
   if (oxcf->pass == 0 || oxcf->pass == 2) {
     check_show_existing_frame(cpi, &frame_params);
     frame_params.show_existing_frame &= allow_show_existing(cpi, *frame_flags);
@@ -1019,8 +1025,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                                  &frame_update_type, &frame_params);
   }
 
-  // In pass 2 we get the frame_update_type from gf_group
-  if (oxcf->pass == 2) {
+  // In pass 0 and 2, we get the frame_update_type from gf_group
+  if (oxcf->pass != 1) {
     frame_update_type = get_frame_update_type(cpi);
   }
 
@@ -1076,7 +1082,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 
 #if !CONFIG_REALTIME_ONLY
-  if (oxcf->pass == 2 && (!frame_params.show_existing_frame || is_overlay)) {
+  if (oxcf->pass != 1 && (!frame_params.show_existing_frame || is_overlay)) {
     // GF_GROUP needs updating for arf overlays as well as non-show-existing
     av1_get_second_pass_params(cpi, &frame_params, *frame_flags);
     frame_update_type = get_frame_update_type(cpi);
@@ -1115,14 +1121,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 
   // Work out some encoding parameters specific to the pass:
-  if (oxcf->pass == 0) {
-    if (cpi->oxcf.rc_mode == AOM_CBR) {
-      av1_rc_get_one_pass_cbr_params(cpi, &frame_update_type, &frame_params,
-                                     *frame_flags);
-    } else {
-      av1_rc_get_one_pass_vbr_params(cpi, &frame_update_type, &frame_params,
-                                     *frame_flags);
-    }
+  if (cpi->oxcf.pass == 0 && cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ) {
+    av1_cyclic_refresh_update_parameters(cpi);
   } else if (oxcf->pass == 1) {
     cpi->td.mb.e_mbd.lossless[0] = is_lossless_requested(&cpi->oxcf);
     const int kf_requested = (cm->current_frame.frame_number == 0 ||
@@ -1181,7 +1181,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       AOM_CODEC_OK) {
     return AOM_CODEC_ERROR;
   }
-  if (oxcf->pass == 2) cpi->num_gf_group_show_frames += frame_params.show_frame;
+  if (oxcf->pass != 1) cpi->num_gf_group_show_frames += frame_params.show_frame;
 
   if (oxcf->pass == 0 || oxcf->pass == 2) {
     // First pass doesn't modify reference buffer assignment or produce frame
@@ -1191,7 +1191,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 
 #if !CONFIG_REALTIME_ONLY
-  if (oxcf->pass == 2) {
+  if (oxcf->pass != 1) {
 #if TXCOEFF_COST_TIMER
     cm->cum_txcoeff_cost_timer += cm->txcoeff_cost_timer;
     fprintf(stderr,
