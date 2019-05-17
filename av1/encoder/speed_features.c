@@ -308,7 +308,7 @@ static void set_good_speed_features_framesize_independent(
     // adaptive_motion_search breaks encoder multi-thread tests.
     // The values in x->pred_mv[] differ for single and multi-thread cases.
     // See aomedia:1778.
-    // sf->adaptive_motion_search = 1;
+    sf->adaptive_motion_search = 1;
     sf->recode_loop = ALLOW_RECODE_KFARFGF;
     sf->use_accurate_subpel_search = USE_2_TAPS;
     sf->adaptive_rd_thresh = 2;
