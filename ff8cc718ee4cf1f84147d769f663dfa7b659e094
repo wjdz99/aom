@@ -93,6 +93,218 @@
       "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bad5e162_af706071",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-17T17:22:21Z",
+      "side": 1,
+      "message": "Function name doesn\u0027t seem to match what it does?\n\nMaybe something like release_processed_frames ?",
+      "range": {
+        "startLine": 350,
+        "startChar": 12,
+        "endLine": 350,
+        "endChar": 40
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "115ec9f4_6aef1852",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-17T17:22:21Z",
+      "side": 1,
+      "message": "If you initialize buf_free_time to DBL_MAX (or whatever its called) you could remove the first part of this test.",
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "089986bc_f155b761",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-17T17:22:21Z",
+      "side": 1,
+      "message": "Suggestions (feel free to ignore):\n\n(1) I found a more compact output format was easier to scan, one line per frame. So for example you could output the 10 ref frames in the form (%d, %d %d %6.4f) or even (%2d, %4d %4d %6.4f) to get horizontal alignment. (should it be %6.4lf BTW?)\n\n(2) When I wrote my decoder model simulator I found it useful to I found it useful to be able to import into a spreadsheet to analyze. So a CSV variant of this function might also be useful.",
+      "range": {
+        "startLine": 429,
+        "startChar": 5,
+        "endLine": 429,
+        "endChar": 35
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f85b75fb_9bd9e647",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-17T17:22:21Z",
+      "side": 1,
+      "message": "Not sure about this but shouldn\u0027t the condition be:\nif (show_frame || show_existing_frame) ++decoder_model-\u003enum_shown_frame;",
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "250bc013_d1b7ff26",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-17T17:22:21Z",
+      "side": 1,
+      "message": "Smoothing",
+      "range": {
+        "startLine": 543,
+        "startChar": 7,
+        "endLine": 543,
+        "endChar": 13
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d99375b7_f7bd8a45",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-17T17:22:21Z",
+      "side": 1,
+      "message": "As above, should this also include show_existing_frame \u003d\u003d 1 ?",
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56e6e333_478a7b00",
+        "filename": "av1/encoder/level.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-17T17:22:21Z",
+      "side": 1,
+      "message": "smoothing rather than smooth",
+      "range": {
+        "startLine": 89,
+        "startChar": 9,
+        "endLine": 89,
+        "endChar": 15
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d4ddef0_c118a46f",
+        "filename": "av1/encoder/level.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-17T17:22:21Z",
+      "side": 1,
+      "message": "_MODEL_ rather than _MODLE_",
+      "range": {
+        "startLine": 105,
+        "startChar": 13,
+        "endLine": 105,
+        "endChar": 31
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc8f0a6b_07559459",
+        "filename": "av1/encoder/level.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-17T17:22:21Z",
+      "side": 1,
+      "message": "_MODEL_ not _MODLE_ (there are other instances of this elsewhere)",
+      "range": {
+        "startLine": 108,
+        "startChar": 2,
+        "endLine": 108,
+        "endChar": 18
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43913188_14e7ce55",
+        "filename": "av1/encoder/level.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-05-17T17:22:21Z",
+      "side": 1,
+      "message": "SMOOTHING rather than SMOOTH",
+      "range": {
+        "startLine": 113,
+        "startChar": 2,
+        "endLine": 113,
+        "endChar": 25
+      },
+      "revId": "ff8cc718ee4cf1f84147d769f663dfa7b659e094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
