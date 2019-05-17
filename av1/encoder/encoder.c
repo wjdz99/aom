@@ -71,6 +71,7 @@
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/segmentation.h"
 #include "av1/encoder/speed_features.h"
+#include "av1/encoder/tpl_model.h"
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/var_based_part.h"
 
@@ -243,7 +244,7 @@ int av1_get_active_map(AV1_COMP *cpi, unsigned char *new_map_16x16, int rows,
 // Compute the horizontal frequency components' energy in a frame
 // by calculuating the 16x4 Horizontal DCT. This is to be used to
 // decide the superresolution parameters.
-void analyze_hor_freq(const AV1_COMP *cpi, double *energy) {
+static void analyze_hor_freq(const AV1_COMP *cpi, double *energy) {
   uint64_t freq_energy[16] = { 0 };
   const YV12_BUFFER_CONFIG *buf = cpi->source;
   const int bd = cpi->td.mb.e_mbd.bd;
@@ -1013,7 +1014,7 @@ static void set_bitstream_level_tier(SequenceHeader *seq, AV1_COMMON *cm,
     seq->seq_level_idx[i] = level;
     // Set the maximum parameters for bitrate and buffer size for this profile,
     // level, and tier
-    cm->op_params[i].bitrate = max_level_bitrate(
+    cm->op_params[i].bitrate = av1_max_level_bitrate(
         cm->seq_params.profile, seq->seq_level_idx[i], seq->tier[i]);
     // Level with seq_level_idx = 31 returns a high "dummy" bitrate to pass the
     // check
@@ -1031,7 +1032,7 @@ static void init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   seq->still_picture = (oxcf->limit == 1);
   seq->reduced_still_picture_hdr = seq->still_picture;
   seq->reduced_still_picture_hdr &= !oxcf->full_still_picture_hdr;
-  seq->force_screen_content_tools = 2;
+  seq->force_screen_content_tools = (oxcf->mode == REALTIME) ? 0 : 2;
   seq->force_integer_mv = 2;
   seq->order_hint_info.enable_order_hint = oxcf->enable_order_hint;
   seq->frame_id_numbers_present_flag =
@@ -1126,13 +1127,13 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
     cm->buffer_model.num_units_in_decoding_tick =
         oxcf->buffer_model.num_units_in_decoding_tick;
     cm->buffer_removal_time_present = 1;
-    set_aom_dec_model_info(&cm->buffer_model);
-    set_dec_model_op_parameters(&cm->op_params[0]);
+    av1_set_aom_dec_model_info(&cm->buffer_model);
+    av1_set_dec_model_op_parameters(&cm->op_params[0]);
   } else if (cm->timing_info_present &&
              cm->timing_info.equal_picture_interval &&
              !cm->seq_params.decoder_model_info_present_flag) {
     // set the decoder model parameters in resource availability mode
-    set_resource_availability_parameters(&cm->op_params[0]);
+    av1_set_resource_availability_parameters(&cm->op_params[0]);
   } else {
     cm->op_params[0].initial_display_delay =
         10;  // Default value (not signaled)
@@ -2422,13 +2423,13 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     cm->buffer_model.num_units_in_decoding_tick =
         oxcf->buffer_model.num_units_in_decoding_tick;
     cm->buffer_removal_time_present = 1;
-    set_aom_dec_model_info(&cm->buffer_model);
-    set_dec_model_op_parameters(&cm->op_params[0]);
+    av1_set_aom_dec_model_info(&cm->buffer_model);
+    av1_set_dec_model_op_parameters(&cm->op_params[0]);
   } else if (cm->timing_info_present &&
              cm->timing_info.equal_picture_interval &&
              !seq_params->decoder_model_info_present_flag) {
     // set the decoder model parameters in resource availability mode
-    set_resource_availability_parameters(&cm->op_params[0]);
+    av1_set_resource_availability_parameters(&cm->op_params[0]);
   } else {
     cm->op_params[0].initial_display_delay =
         10;  // Default value (not signaled)
@@ -3125,7 +3126,9 @@ void av1_remove_compressor(AV1_COMP *cpi) {
   for (i = 0; i < FRAME_BUFFERS; ++i) {
     av1_hash_table_destroy(&cm->buffer_pool->frame_bufs[i].hash_table);
   }
+#if CONFIG_HTB_TRELLIS
   if (cpi->sf.use_hash_based_trellis) hbt_destroy();
+#endif  // CONFIG_HTB_TRELLIS
   av1_free_ref_frame_buffers(cm->buffer_pool);
   aom_free(cpi);
 
@@ -3970,7 +3973,7 @@ void av1_setup_frame_size(AV1_COMP *cpi) {
   const size_params_type rsz = calculate_next_size_params(cpi);
   setup_frame_size_from_params(cpi, &rsz);
 
-  assert(is_min_tile_width_satisfied(cm));
+  assert(av1_is_min_tile_width_satisfied(cm));
 }
 
 static void superres_post_encode(AV1_COMP *cpi) {
@@ -4041,14 +4044,14 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   if (lf->filter_level[0] || lf->filter_level[1]) {
     if (cpi->num_workers > 1)
       av1_loop_filter_frame_mt(&cm->cur_frame->buf, cm, xd, 0, num_planes, 0,
-#if LOOP_FILTER_BITMASK
+#if CONFIG_LPF_MASK
                                0,
 #endif
                                cpi->workers, cpi->num_workers,
                                &cpi->lf_row_sync);
     else
       av1_loop_filter_frame(&cm->cur_frame->buf, cm, xd,
-#if LOOP_FILTER_BITMASK
+#if CONFIG_LPF_MASK
                             0,
 #endif
                             0, num_planes, 0);
@@ -4066,7 +4069,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #endif
     // Find CDEF parameters
     av1_cdef_search(&cm->cur_frame->buf, cpi->source, cm, xd,
-                    cpi->sf.fast_cdef_search);
+                    cpi->sf.cdef_pick_method);
 
     // Apply the filter
     av1_cdef_frame(&cm->cur_frame->buf, cm, xd);
@@ -4368,7 +4371,7 @@ static void recode_loop_update_q(AV1_COMP *const cpi, int *const loop,
 static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
-  const int allow_recode = cpi->sf.recode_loop != DISALLOW_RECODE;
+  const int allow_recode = (cpi->sf.recode_loop != DISALLOW_RECODE);
 
   set_size_independent_vars(cpi);
 
@@ -4393,6 +4396,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   printf("\n Encoding a frame:");
 #endif
   do {
+    loop = 0;
     aom_clear_system_state();
 
     // if frame was scaled calculate global_motion_search again if already
@@ -4448,7 +4452,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       if (!cm->seg.update_data && cm->prev_frame) {
         segfeatures_copy(&cm->seg, &cm->prev_frame->seg);
       } else {
-        calculate_segdata(&cm->seg);
+        av1_calculate_segdata(&cm->seg);
       }
     } else {
       memset(&cm->seg, 0, sizeof(cm->seg));
@@ -4496,6 +4500,13 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 
     if (allow_recode && !cpi->sf.gm_disable_recode &&
         recode_loop_test_global_motion(cpi)) {
+      loop = 1;
+    }
+
+    if (cpi->tpl_model_pass == 1) {
+      assert(cpi->oxcf.enable_tpl_model == 2);
+      av1_tpl_setup_forward_stats(cpi);
+      cpi->tpl_model_pass = 0;
       loop = 1;
     }
 
@@ -4988,6 +4999,15 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, encode_with_recode_loop_time);
 #endif
+
+  if (cpi->oxcf.pass == 2 && cpi->oxcf.enable_tpl_model == 2 &&
+      current_frame->frame_type == INTER_FRAME) {
+    if (!cm->show_frame) {
+      assert(cpi->tpl_model_pass == 0);
+      cpi->tpl_model_pass = 1;
+    }
+  }
+
   if (encode_with_recode_loop(cpi, size, dest) != AOM_CODEC_OK)
     return AOM_CODEC_ERROR;
 #if CONFIG_COLLECT_COMPONENT_TIMING
@@ -5429,8 +5449,8 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   assert(cpi->oxcf.max_threads == 0 &&
          "bitstream debug tool does not support multithreading");
   bitstream_queue_record_write();
-  bitstream_queue_set_frame_write(cm->current_frame.frame_number * 2 +
-                                  cm->show_frame);
+  aom_bitstream_queue_set_frame_write(cm->current_frame.frame_number * 2 +
+                                      cm->show_frame);
 #endif
 
   // Indicates whether or not to use an adaptive quantize b rather than
@@ -5705,7 +5725,7 @@ aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi) {
 
   uint8_t header_buf[512] = { 0 };
   const uint32_t sequence_header_size =
-      write_sequence_header_obu(cpi, &header_buf[0]);
+      av1_write_sequence_header_obu(cpi, &header_buf[0]);
   assert(sequence_header_size <= sizeof(header_buf));
   if (sequence_header_size == 0) return NULL;
 

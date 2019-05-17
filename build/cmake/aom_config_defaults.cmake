@@ -122,10 +122,6 @@ set_aom_config_var(CONFIG_DIST_8X8 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_ENTROPY_STATS 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_INTER_STATS_ONLY 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_RD_DEBUG 0 NUMBER "AV1 experiment flag.")
-set_aom_config_var(CONFIG_2PASS_PARTITION_SEARCH_LVL_START 1 NUMBER
-                   "AV1 experiment flag.")
-set_aom_config_var(CONFIG_2PASS_PARTITION_SEARCH_LVL_END 3 NUMBER
-                   "AV1 experiment flag.")
 set_aom_config_var(CONFIG_SHARP_SETTINGS 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_DISABLE_FULL_PIXEL_SPLIT_8X8 1 NUMBER
                    "Disable full_pixel_motion_search_based_split on BLOCK_8X8.")
@@ -133,6 +129,10 @@ set_aom_config_var(CONFIG_COLLECT_PARTITION_STATS 0 NUMBER
                    "Collect stats on partition decisions.")
 set_aom_config_var(CONFIG_COLLECT_COMPONENT_TIMING 0 NUMBER
                    "Collect encoding component timing information.")
+set_aom_config_var(CONFIG_LPF_MASK 0 NUMBER
+                   "Enable the use loop filter bitmasks for optimizations.")
+set_aom_config_var(CONFIG_HTB_TRELLIS 0 NUMBER
+                   "Enable the use of hash table for trellis optimizations.")
 #
 # Variables in this section control optional features of the build system.
 #

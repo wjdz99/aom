@@ -225,7 +225,7 @@ struct macroblock {
   INTERPOLATION_FILTER_STATS interp_filter_stats[2][MAX_INTERP_FILTER_STATS];
   int interp_filter_stats_idx[2];
 
-  // prune_comp_search_by_single_result (3:MAX_REF_MV_SERCH)
+  // prune_comp_search_by_single_result (3:MAX_REF_MV_SEARCH)
   SimpleRDState simple_rd_state[SINGLE_REF_MODES][3];
 
   // Activate constrained coding block partition search range.
@@ -328,8 +328,6 @@ struct macroblock {
   int skip_mode;  // 0: off; 1: on
   int skip_mode_cost[SKIP_CONTEXTS][2];
 
-  int compound_idx;
-
   LV_MAP_COEFF_COST coeff_costs[TX_SIZES][PLANE_TYPES];
   LV_MAP_EOB_COST eob_costs[7][2];
   uint16_t cb_offset;
@@ -416,10 +414,7 @@ struct macroblock {
 #endif  // CONFIG_DIST_8X8
   int comp_idx_cost[COMP_INDEX_CONTEXTS][2];
   int comp_group_idx_cost[COMP_GROUP_IDX_CONTEXTS][2];
-  // Bit flags for pruning tx type search, tx split, etc.
-  int tx_search_prune[EXT_TX_SET_TYPES];
   int must_find_valid_partition;
-  int tx_split_prune_flag;  // Flag to skip tx split RD search.
   int recalc_luma_mc_data;  // Flag to indicate recalculation of MC data during
                             // interpolation filter search
   // The likelihood of an edge existing in the block (using partial Canny edge
@@ -429,6 +424,7 @@ struct macroblock {
   // The strongest edge strength seen along the x/y axis.
   uint16_t edge_strength_x;
   uint16_t edge_strength_y;
+  uint8_t compound_idx;
 
   // [Saved stat index]
   COMP_RD_STATS comp_rd_stats[MAX_COMP_RD_STATS];

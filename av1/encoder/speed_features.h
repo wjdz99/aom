@@ -131,6 +131,12 @@ enum {
 } UENUM1BYTE(LPF_PICK_METHOD);
 
 enum {
+  CDEF_FULL_SEARCH,
+  CDEF_FAST_SEARCH,  // Search among a subset of all possible filters.
+  CDEF_PICK_FROM_Q   // Estimate filter strength based on quantizer.
+} UENUM1BYTE(CDEF_PICK_METHOD);
+
+enum {
   // Terminate search early based on distortion so far compared to
   // qp step, distortion in the neighborhood of the frame, etc.
   FLAG_EARLY_TERMINATE = 1 << 0,
@@ -151,15 +157,11 @@ enum {
 
 enum {
   NO_PRUNE = 0,
-  // eliminates one tx type in vertical and horizontal direction
-  PRUNE_ONE = 1,
-  // eliminates two tx types in each direction
-  PRUNE_TWO = 2,
   // adaptively prunes the least perspective tx types out of all 16
   // (tuned to provide negligible quality loss)
-  PRUNE_2D_ACCURATE = 3,
+  PRUNE_2D_ACCURATE = 1,
   // similar, but applies much more aggressive pruning to get better speed-up
-  PRUNE_2D_FAST = 4,
+  PRUNE_2D_FAST = 2,
 } UENUM1BYTE(TX_TYPE_PRUNE_MODE);
 
 typedef struct {
@@ -385,8 +387,6 @@ typedef struct SPEED_FEATURES {
   // 1 - 2 increasing aggressiveness in order.
   int ml_early_term_after_part_split_level;
 
-  int fast_cdef_search;
-
   // 2-pass coding block partition search, and also use the mode decisions made
   // in the initial partition search to prune mode candidates, e.g. ref frames.
   int two_pass_partition_search;
@@ -485,6 +485,9 @@ typedef struct SPEED_FEATURES {
 
   // This feature controls how the loop filter level is determined.
   LPF_PICK_METHOD lpf_pick;
+
+  // Control how the CDEF strength is determined.
+  CDEF_PICK_METHOD cdef_pick_method;
 
   // This feature controls whether we do the expensive context update and
   // calculation in the rd coefficient costing loop.
@@ -639,6 +642,9 @@ typedef struct SPEED_FEATURES {
   // aggressiveness
   int prune_motion_mode_level;
 
+  // prune sgr ep using binary search like mechanism
+  int enable_sgr_ep_pruning;
+
   // Gate warp evaluation for motions of type IDENTITY,
   // TRANSLATION and AFFINE(based on number of warp neighbors)
   int prune_warp_using_wmtype;
@@ -711,6 +717,17 @@ typedef struct SPEED_FEATURES {
 
   // Perform coarse ME before calculating variance in variance-based partition
   int estimate_motion_for_var_based_partition;
+
+  // Instead of performing a full MV search, do a simple translation first
+  // and only perform a full MV search on the motion vectors that performed
+  // well.
+  int prune_mode_search_simple_translation;
+
+  // Use compound reference for non-RD mode.
+  int use_comp_ref_nonrd;
+
+  // check intra prediction for non-RD mode.
+  int check_intra_pred_nonrd;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
