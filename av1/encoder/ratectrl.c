@@ -41,6 +41,7 @@
 #define MAX_MB_RATE 250
 #define MAXRATE_1080P 2025000
 
+//TODO(sarahparker) delete these
 #define DEFAULT_KF_BOOST 2000
 #define DEFAULT_GF_BOOST 2000
 
@@ -406,10 +407,11 @@ static void set_rate_correction_factor(AV1_COMP *cpi, double factor, int width,
   } else {
     if ((cpi->refresh_alt_ref_frame || cpi->refresh_golden_frame) &&
         !rc->is_src_frame_alt_ref &&
-        (cpi->oxcf.rc_mode != AOM_CBR || cpi->oxcf.gf_cbr_boost_pct > 20))
+        (cpi->oxcf.rc_mode != AOM_CBR || cpi->oxcf.gf_cbr_boost_pct > 20)) {
       rc->rate_correction_factors[GF_ARF_STD] = factor;
-    else
+    } else {
       rc->rate_correction_factors[INTER_NORMAL] = factor;
+    }
   }
 }
 
@@ -980,6 +982,11 @@ static int rc_pick_q_and_bounds_one_pass_vbr(const AV1_COMP *cpi, int width,
     }
   }
 
+//*top_index = 28;
+//*bottom_index = 28;
+//q = 28;
+//printf("~~~q %d top %d bot %d\n", q, *top_index, *bottom_index);
+
   assert(*top_index <= rc->worst_quality && *top_index >= rc->best_quality);
   assert(*bottom_index <= rc->worst_quality &&
          *bottom_index >= rc->best_quality);
@@ -1478,7 +1485,7 @@ void av1_rc_compute_frame_size_bounds(const AV1_COMP *cpi, int frame_target,
   }
 }
 
-static void rc_set_frame_target(AV1_COMP *cpi, int target, int width,
+void rc_set_frame_target(AV1_COMP *cpi, int target, int width,
                                 int height) {
   const AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
@@ -1557,8 +1564,8 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && cm->seg.enabled) {
     av1_cyclic_refresh_postencode(cpi);
   }
-
   // Update rate control heuristics
+  //printf("bytes used %d\n", bytes_used);
   rc->projected_frame_size = (int)(bytes_used << 3);
 
   // Post encode loop adjustment of Q prediction.
@@ -1651,8 +1658,6 @@ void av1_rc_postencode_update_drop_frame(AV1_COMP *cpi) {
   cpi->rc.rc_1_frame = 0;
 }
 
-// Use this macro to turn on/off use of alt-refs in one-pass mode.
-#define USE_ALTREF_FOR_ONE_PASS 1
 
 static int calc_pframe_target_size_one_pass_vbr(
     const AV1_COMP *const cpi, FRAME_UPDATE_TYPE frame_update_type) {

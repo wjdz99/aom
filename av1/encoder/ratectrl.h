@@ -27,6 +27,9 @@ extern "C" {
 // Bits Per MB at different Q (Multiplied by 512)
 #define BPER_MB_NORMBITS 9
 
+// Use this macro to turn on/off use of alt-refs in one-pass mode.
+#define USE_ALTREF_FOR_ONE_PASS 1
+
 // Threshold used to define if a KF group is static (e.g. a slide show).
 // Essentially, this means that no frame in the group has more than 1% of MBs
 // that are not marked as coded with 0,0 motion in the first pass.
@@ -262,6 +265,9 @@ void av1_rc_set_gf_interval_range(const struct AV1_COMP *const cpi,
 void av1_set_target_rate(struct AV1_COMP *cpi, int width, int height);
 
 int av1_resize_one_pass_cbr(struct AV1_COMP *cpi);
+
+void rc_set_frame_target(struct AV1_COMP *cpi, int target, int width,
+                                int height);
 
 int av1_get_q_and_bounds_constant_quality_two_pass(const struct AV1_COMP *cpi,
                                                    int width, int height,

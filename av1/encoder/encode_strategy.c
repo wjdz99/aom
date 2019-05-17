@@ -185,7 +185,7 @@ static INLINE void update_twopass_gf_group_index(AV1_COMP *cpi) {
 static void update_rc_counts(AV1_COMP *cpi) {
   update_keyframe_counters(cpi);
   update_frames_till_gf_update(cpi);
-  if (cpi->oxcf.pass == 2) update_twopass_gf_group_index(cpi);
+  if (cpi->oxcf.pass != 1) update_twopass_gf_group_index(cpi);
 }
 
 // Get update type of the current frame.
@@ -594,6 +594,7 @@ static struct lookahead_entry *choose_frame_source(
 
   // Should we encode an alt-ref frame.
   int arf_src_index = get_arf_src_index(cpi);
+  printf("arf src index %d\n", arf_src_index);
   if (arf_src_index &&
       is_forced_keyframe_pending(cpi->lookahead, arf_src_index)) {
     arf_src_index = 0;
@@ -992,6 +993,10 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   memset(&frame_params, 0, sizeof(frame_params));
   memset(&frame_results, 0, sizeof(frame_results));
 
+  if (oxcf->pass == 0) {
+    cpi->oxcf.gf_max_pyr_height = USE_ALTREF_FOR_ONE_PASS;
+  }
+
   if (oxcf->pass == 0 || oxcf->pass == 2) {
     check_show_existing_frame(cpi, &frame_params);
     frame_params.show_existing_frame &= allow_show_existing(cpi, *frame_flags);
@@ -1012,7 +1017,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 
   // In pass 2 we get the frame_update_type from gf_group
-  if (oxcf->pass == 2) {
+  //if (oxcf->pass == 2) {
+  if (oxcf->pass != 1) {
     frame_update_type = get_frame_update_type(cpi);
   }
 
@@ -1065,7 +1071,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     cpi->common.frame_presentation_time = (uint32_t)pts64;
   }
 
-  if (oxcf->pass == 2 && (!frame_params.show_existing_frame || is_overlay)) {
+  //if (oxcf->pass == 2 && (!frame_params.show_existing_frame || is_overlay)) {
+  if (oxcf->pass != 1 && (!frame_params.show_existing_frame || is_overlay)) {
     // GF_GROUP needs updating for arf overlays as well as non-show-existing
     av1_get_second_pass_params(cpi, &frame_params, *frame_flags);
     frame_update_type = get_frame_update_type(cpi);
@@ -1103,7 +1110,9 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 
   // Work out some encoding parameters specific to the pass:
-  if (oxcf->pass == 0) {
+//if (cpi->oxcf.pass == 0 && cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ)
+//  av1_cyclic_refresh_update_parameters(cpi);
+  if (0 && oxcf->pass == 0) {
     if (cpi->oxcf.rc_mode == AOM_CBR) {
       av1_rc_get_one_pass_cbr_params(cpi, &frame_update_type, &frame_params,
                                      *frame_flags);
@@ -1130,6 +1139,20 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     cm->txcoeff_cost_count = 0;
 #endif
   }
+    RATE_CONTROL *const rc = &cpi->rc;
+    if (rc->frames_till_gf_update_due == 10 && rc->this_frame_target == 208)
+      printf("here\n");
+  printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n \
+         PARAMS: \n frame type %d \n kf forced %d\n ftk %d\n kf boost %d\n altref active %d \
+          ftgf update %d\n gf interval %d\n constrained %d\n gfu boost %d\n \
+          this frame target %d sb64 target %d  \
+          \n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n", frame_params.frame_type,
+          rc->this_key_frame_forced, rc->frames_to_key, rc->kf_boost, rc->source_alt_ref_active,
+          rc->frames_till_gf_update_due, rc->baseline_gf_interval, rc->constrained_gf_group,
+          rc->gfu_boost,
+          rc->this_frame_target, rc->sb64_target_rate);
+
+
 
   if (oxcf->pass == 0 || oxcf->pass == 2) set_ext_overrides(cpi, &frame_params);
 
@@ -1165,6 +1188,18 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   // cm->remapped_ref_idx then update_ref_frame_map() will have no effect.
   memcpy(frame_params.remapped_ref_idx, cm->remapped_ref_idx,
          REF_FRAMES * sizeof(*cm->remapped_ref_idx));
+
+  /*
+  printf("~~~~~~~\n type %d\n\nref last %d\n ref gold %d \n \
+         ref bwd %d\n ref alt2 %d\n \
+         ref alt ref %d\n ~~~~~~~~~~~~~~~\n\n",
+         frame_update_type,
+      frame_params.refresh_last_frame ,
+      frame_params.refresh_golden_frame ,
+      frame_params.refresh_bwd_ref_frame ,
+      frame_params.refresh_alt2_ref_frame ,
+      frame_params.refresh_alt_ref_frame);
+      */
 
   if (av1_encode(cpi, dest, &frame_input, &frame_params, &frame_results) !=
       AOM_CODEC_OK) {

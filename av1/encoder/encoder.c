@@ -4150,6 +4150,7 @@ static void finalize_encoded_frame(AV1_COMP *const cpi) {
     }
     assert(frame_to_show->ref_count > 0);
     assign_frame_buffer_p(&cm->cur_frame, frame_to_show);
+    printf("SHOW EXISTING\n");
   }
 
   if (!encode_show_existing_frame(cm) &&
