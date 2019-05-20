@@ -35,6 +35,14 @@ struct search_site_config;
 struct yv12_buffer_config;
 struct NN_CONFIG;
 typedef struct NN_CONFIG NN_CONFIG;
+enum { NONE, RELU, SOFTSIGN } UENUM1BYTE(ACTIVATION);
+
+struct CNN_CONFIG;
+typedef struct CNN_CONFIG CNN_CONFIG;
+struct CNN_LAYER_CONFIG;
+typedef struct CNN_LAYER_CONFIG CNN_LAYER_CONFIG;
+struct CNN_THREAD_DATA;
+typedef struct CNN_THREAD_DATA CNN_THREAD_DATA;
 
 /* Function pointers return by CfL functions */
 typedef void (*cfl_subsample_lbd_fn)(const uint8_t *input, int input_stride,
@@ -309,6 +317,15 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/av1_nn_predict sse3/;
 }
 # end encoder functions
+
+# CNN functions
+
+add_proto qw/void av1_cnn_activate/, " float **input, int channels, int width, int height, int stride, ACTIVATION layer_activation";
+add_proto qw/void av1_cnn_add/, " float **input, int channels, int width, int height, int stride, const float **add";
+add_proto qw/void av1_cnn_predict/, " const float **input, int in_width, int in_height, int in_stride, const CNN_CONFIG *cnn_config, const CNN_THREAD_DATA *thread_data, float **output, int out_stride";
+add_proto qw/void av1_cnn_convolve/, " const float **input, int in_width, int in_height, int in_stride, const CNN_LAYER_CONFIG *layer_config, float **output, int out_stride, int start_idx, int step";
+add_proto qw/void av1_cnn_deconvolve/, " const float **input, int in_width, int in_height, int in_stride, const CNN_LAYER_CONFIG *layer_config, float **output, int out_stride";
+add_proto qw/void av1_cnn_batchnorm/, "float **image, int channels, int width, int height, int stride, const float *gamma, const float *beta, const float *mean, const float *std";
 
 # Deringing Functions
 
