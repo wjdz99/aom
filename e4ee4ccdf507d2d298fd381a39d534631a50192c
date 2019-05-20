@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95b669fb_886cf6c3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-05-20T21:54:19Z",
+      "side": 1,
+      "message": "Nit: It would be good to acknowledge that this change was\nsuggested by the person who reported bug 1987. (I am not\nsure if we can show the person\u0027s email address, perhaps\nmora.e...@gmail.com would be OK?)",
+      "revId": "e4ee4ccdf507d2d298fd381a39d534631a50192c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e62c1be_3ed68379",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-05-20T21:54:19Z",
+      "side": 1,
+      "message": "Optional: This \"else\" can be omitted because of the \"break\" statement in the previous line.",
+      "range": {
+        "startLine": 339,
+        "startChar": 12,
+        "endLine": 339,
+        "endChar": 16
+      },
+      "revId": "e4ee4ccdf507d2d298fd381a39d534631a50192c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
