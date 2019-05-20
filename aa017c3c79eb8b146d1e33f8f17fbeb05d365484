@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b77ee607_b2953720",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-05-20T22:24:46Z",
+      "side": 1,
+      "message": "Lines 670-674 are the only change I made to this patch.",
+      "range": {
+        "startLine": 670,
+        "startChar": 0,
+        "endLine": 674,
+        "endChar": 60
+      },
+      "revId": "aa017c3c79eb8b146d1e33f8f17fbeb05d365484",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
