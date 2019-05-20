@@ -3744,7 +3744,7 @@ static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
 
   const double r0 = cpi->rd.r0;
   const double rk = (double)intra_cost / mc_dep_cost;
-  const double beta = pow(r0 / rk, 0.125);
+  const double beta = pow(r0 / rk, 1);
   int rdmult = av1_get_adaptive_rdmult(cpi, beta);
 
   rdmult = AOMMIN(rdmult, orig_rdmult * 3 / 2);
@@ -4180,11 +4180,17 @@ static void adjust_rdmult_tpl_model(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
     return;
   }
 
+  if (cpi->common.base_qindex < 8) {
+    x->rdmult = orig_rdmult;
+    return;
+  }
+
   assert(IMPLIES(cpi->twopass.gf_group.size > 0,
                  cpi->twopass.gf_group.index < cpi->twopass.gf_group.size));
   const int gf_group_index = cpi->twopass.gf_group.index;
   if (cpi->oxcf.enable_tpl_model && cpi->oxcf.aq_mode == NO_AQ &&
       cpi->oxcf.deltaq_mode == NO_DELTA_Q && gf_group_index > 0 &&
+      // cpi->common.show_frame == 0) {
       cpi->twopass.gf_group.update_type[gf_group_index] == ARF_UPDATE) {
     const int dr = get_rdmult_delta(cpi, sb_size, mi_row, mi_col, orig_rdmult);
     x->rdmult = dr;
