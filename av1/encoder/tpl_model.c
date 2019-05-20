@@ -213,6 +213,7 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
 
     inter_cost = aom_satd(coeff, pix_num);
     const double weight_factor = 0.5;
+    delta_q = 0;
     inter_cost_weighted = (int64_t)(
         (double)inter_cost *
             (delta_q < 0
@@ -224,7 +225,14 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
       best_inter_cost_weighted = inter_cost_weighted;
       best_mv.as_int = x->best_mv.as_int;
     }
+    if (rf_idx == ALTREF_FRAME - LAST_FRAME && frame_idx == 12) {
+      printf("row %d col %d mvrow %d mvcol %d intracost %ld intercost %ld\n",
+             mi_row * MI_SIZE, mi_col * MI_SIZE, best_mv.as_mv.row,
+             best_mv.as_mv.col, intra_cost, inter_cost);
+    }
   }
+  if (frame_idx == 12 && best_rf_idx == ALTREF_FRAME - LAST_FRAME)
+    printf("ALTREF picked!===================================");
   best_intra_cost = AOMMAX(best_intra_cost, 1);
   best_inter_cost = AOMMIN(best_intra_cost, (int64_t)best_inter_cost_weighted);
   tpl_stats->inter_cost = best_inter_cost << TPL_DEP_COST_SCALE_LOG2;
@@ -484,6 +492,23 @@ static void mc_flow_dispenser(AV1_COMP *cpi, YV12_BUFFER_CONFIG **gf_picture,
                        bsize);
     }
   }
+
+  // printf out final stats of altref frame in the gop (frame_index == 1)
+  if (frame_idx == 1 && gf_group->size > 2) {
+    for (mi_row = 0; mi_row < cm->mi_rows; mi_row += 2)
+      for (mi_col = 0; mi_col < cm->mi_cols; mi_col += 2) {
+        TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+        int tpl_stride = tpl_frame->stride;
+        TplDepStats *cur_tpl_stats = &tpl_stats[mi_col + mi_row * tpl_stride];
+
+        printf(
+            "row %d col %d intracost %ld intercost %ld mc_flow %ld mc_dep_cost "
+            "%ld\n",
+            mi_row * MI_SIZE, mi_col * MI_SIZE, cur_tpl_stats->intra_cost,
+            cur_tpl_stats->inter_cost, cur_tpl_stats->mc_flow,
+            cur_tpl_stats->mc_dep_cost);
+      }
+  }
 }
 
 #define REF_IDX(ref) ((ref)-LAST_FRAME)
@@ -548,6 +573,14 @@ static void init_gop_frames_for_tpl(AV1_COMP *cpi,
       pframe_qindex = gf_group->q_val[frame_idx];
 
     ++*tpl_group_frames;
+  }
+
+  // print out gop map to verify the first gop has the same size as
+  // libvpx
+  for (int i = 1; i <= gf_group->size; i++) {
+    printf("gop idx %d disp idx %d alt disp idx %d\n", i,
+           gf_group->frame_disp_idx[i],
+           gf_group->ref_frame_disp_idx[i][ALTREF_FRAME - LAST_FRAME]);
   }
 
   if (frame_idx < MAX_LENGTH_TPL_FRAME_STATS) {
