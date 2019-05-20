@@ -637,6 +637,17 @@ static const int16_t comp_inter_to_mode_idx[COMP_INTER_MODE_NUM][REF_FRAMES]
 };
 /* clang-format on */
 
+static INLINE int64_t get_rd_thresh(int64_t ref_best_rd, int mul_shift_factor,
+                                    int div_factor) {
+  int64_t rd_thresh = ref_best_rd;
+  if (div_factor != 0) {
+    rd_thresh = ref_best_rd < (div_factor * (INT64_MAX >> mul_shift_factor))
+                    ? ((ref_best_rd / div_factor) << mul_shift_factor)
+                    : INT64_MAX;
+  }
+  return rd_thresh;
+}
+
 static int get_prediction_mode_idx(PREDICTION_MODE this_mode,
                                    MV_REFERENCE_FRAME ref_frame,
                                    MV_REFERENCE_FRAME second_ref_frame) {
@@ -7849,6 +7860,7 @@ static int64_t build_and_cost_compound_type(
       *comp_model_rd_cur = INT64_MAX;
       return INT64_MAX;
     }
+
     rd = estimate_yrd_for_sb(cpi, bsize, x, ref_best_rd, &rd_stats);
     if (rd != INT64_MAX) {
       rd =
@@ -8908,7 +8920,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
   int64_t rd = INT64_MAX;
   int64_t best_interintra_rd = INT64_MAX;
   int rmode, rate_sum;
-  int64_t dist_sum;
+  int64_t dist_sum, rd_thresh;
   int tmp_rate_mv = 0;
   int tmp_skip_txfm_sb;
   int bw = block_size_wide[bsize];
@@ -8970,7 +8982,11 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
     }
 
     RD_STATS rd_stats;
-    rd = estimate_yrd_for_sb(cpi, bsize, x, ref_best_rd, &rd_stats);
+
+    // Add macros for 4 and 9
+    rd_thresh = get_rd_thresh(ref_best_rd, 4, 9);
+
+    rd = estimate_yrd_for_sb(cpi, bsize, x, rd_thresh, &rd_stats);
     if (rd != INT64_MAX) {
       rd = RDCOST(x->rdmult, *rate_mv + rmode + rd_stats.rate + rwedge,
                   rd_stats.dist);
@@ -9067,7 +9083,12 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       }
       // Evaluate closer to true rd
       RD_STATS rd_stats;
-      rd = estimate_yrd_for_sb(cpi, bsize, x, ref_best_rd, &rd_stats);
+
+      rd_thresh = (best_interintra_rd_wedge == INT64_MAX)
+                      ? INT64_MAX
+                      : best_interintra_rd_nowedge;
+
+      rd = estimate_yrd_for_sb(cpi, bsize, x, rd_thresh, &rd_stats);
       if (rd != INT64_MAX) {
         rd = RDCOST(x->rdmult, rmode + tmp_rate_mv + rwedge + rd_stats.rate,
                     rd_stats.dist);
