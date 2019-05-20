@@ -177,6 +177,9 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
       ((cm->mi_cols - 1 - mi_col) * MI_SIZE) + (17 - 2 * AOM_INTERP_EXTEND);
 
   for (rf_idx = 0; rf_idx < INTER_REFS_PER_FRAME; ++rf_idx) {
+    //if (rf_idx == GOLDEN_FRAME - LAST_FRAME && frame_idx == 1 && gf_group->size > 2)
+      //printf("%d %d\n", ref_frame[rf_idx] == NULL, gf_group->ref_frame_disp_idx[1][rf_idx]);
+
     if (ref_frame[rf_idx] == NULL) continue;
 
     int q_ref = gf_group->q_val[gf_group->ref_frame_gop_idx[frame_idx][rf_idx]];
@@ -213,6 +216,7 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
 
     inter_cost = aom_satd(coeff, pix_num);
     const double weight_factor = 0.5;
+    delta_q = 0;
     inter_cost_weighted = (int64_t)(
         (double)inter_cost *
             (delta_q < 0
@@ -224,6 +228,18 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
       best_inter_cost_weighted = inter_cost_weighted;
       best_mv.as_int = x->best_mv.as_int;
     }
+    if (rf_idx == ALTREF_FRAME - LAST_FRAME && frame_idx == 12) {
+      printf("row %d col %d mvrow %d mvcol %d intracost %ld intercost %ld\n",
+             mi_row * MI_SIZE, mi_col * MI_SIZE, best_mv.as_mv.row,
+             best_mv.as_mv.col, intra_cost, inter_cost);
+    }
+  }
+  if (frame_idx == 12 && best_rf_idx == ALTREF_FRAME - LAST_FRAME)
+    printf("ALTREF picked!===================================");
+
+  if (frame_idx == 1 && gf_group->size > 2) {
+    printf("row %d col %d intracost %ld intercost %ld\n", mi_row * MI_SIZE,
+      mi_col * MI_SIZE, best_intra_cost, best_inter_cost_weighted);
   }
   best_intra_cost = AOMMAX(best_intra_cost, 1);
   best_inter_cost = AOMMIN(best_intra_cost, (int64_t)best_inter_cost_weighted);
@@ -447,7 +463,7 @@ static void mc_flow_dispenser(AV1_COMP *cpi, YV12_BUFFER_CONFIG **gf_picture,
   // unavailable, the pointer will be set to Null.
   for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
     int rf_idx = gf_group->ref_frame_gop_idx[frame_idx][idx];
-    if (rf_idx > 0) ref_frame[idx] = gf_picture[rf_idx];
+    if (rf_idx != -1) ref_frame[idx] = gf_picture[rf_idx];
   }
 
   xd->mi = cm->mi_grid_visible;
@@ -483,6 +499,23 @@ static void mc_flow_dispenser(AV1_COMP *cpi, YV12_BUFFER_CONFIG **gf_picture,
       tpl_model_update(cpi->tpl_stats, tpl_frame->tpl_stats_ptr, mi_row, mi_col,
                        bsize);
     }
+  }
+
+  // printf out final stats of altref frame in the gop (frame_index == 1)
+  if (frame_idx == 1 && gf_group->size > 2) {
+    for (mi_row = 0; mi_row < cm->mi_rows; mi_row += 2)
+      for (mi_col = 0; mi_col < cm->mi_cols; mi_col += 2) {
+        TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+        int tpl_stride = tpl_frame->stride;
+        TplDepStats *cur_tpl_stats = &tpl_stats[mi_col + mi_row * tpl_stride];
+
+        printf(
+            "row %d col %d intracost %ld intercost %ld mc_flow %ld mc_dep_cost "
+            "%ld\n",
+            mi_row * MI_SIZE, mi_col * MI_SIZE, cur_tpl_stats->intra_cost,
+            cur_tpl_stats->inter_cost, cur_tpl_stats->mc_flow,
+            cur_tpl_stats->mc_dep_cost);
+      }
   }
 }
 
@@ -527,7 +560,7 @@ static void init_gop_frames_for_tpl(AV1_COMP *cpi,
        ++frame_idx) {
     if (frame_idx == 1) {
       gf_picture[frame_idx] = frame_input->source;
-      frame_disp_idx = gf_group->frame_disp_idx[frame_idx];
+      frame_disp_idx = gf_group->frame_disp_idx[frame_idx];      
     } else {
       frame_disp_idx = frame_idx == gf_group->size
                            ? gf_group->frame_disp_idx[1]
@@ -548,6 +581,14 @@ static void init_gop_frames_for_tpl(AV1_COMP *cpi,
       pframe_qindex = gf_group->q_val[frame_idx];
 
     ++*tpl_group_frames;
+  }
+
+  // print out gop map to verify the first gop has the same size as
+  // libvpx
+  for (int i = 1; i <= gf_group->size; i++) {
+    printf("gop idx %d disp idx %d alt disp idx %d\n", i,
+           gf_group->frame_disp_idx[i],
+           gf_group->ref_frame_disp_idx[i][ALTREF_FRAME - LAST_FRAME]);
   }
 
   if (frame_idx < MAX_LENGTH_TPL_FRAME_STATS) {
