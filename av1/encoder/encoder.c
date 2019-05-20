@@ -878,6 +878,21 @@ void av1_new_framerate(AV1_COMP *cpi, double framerate) {
   av1_rc_update_framerate(cpi, cpi->common.width, cpi->common.height);
 }
 
+double av1_get_cr(const AV1_COMMON *const cm, size_t encoded_frame_size) {
+  const int upscaled_width = cm->superres_upscaled_width;
+  const int height = cm->height;
+  const int luma_pic_size = upscaled_width * height;
+  const SequenceHeader *const seq_params = &cm->seq_params;
+  const BITSTREAM_PROFILE profile = seq_params->profile;
+  const int pic_size_profile_factor =
+      profile == PROFILE_0 ? 15 : (profile == PROFILE_1 ? 30 : 36);
+  encoded_frame_size =
+      (encoded_frame_size > 129 ? encoded_frame_size - 128 : 1);
+  const size_t uncompressed_frame_size =
+      (luma_pic_size * pic_size_profile_factor) >> 3;
+  return uncompressed_frame_size / (double)encoded_frame_size;
+}
+
 static void set_tile_info(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   int i, start_sb;
@@ -4231,9 +4246,31 @@ static void recode_loop_update_q(AV1_COMP *const cpi, int *const loop,
                                  const int bottom_index,
                                  int *const undershoot_seen,
                                  int *const overshoot_seen,
+                                 int *const low_cr_seen,
                                  const int loop_at_this_size) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
+
+  const int min_cr = cpi->oxcf.min_cr;
+  if (min_cr > 0) {
+    aom_clear_system_state();
+    const double compression_ratio =
+        av1_get_cr(cm, rc->projected_frame_size >> 3);;
+    const double target_cr = min_cr / 100.0;
+    if (compression_ratio < target_cr) {
+      *low_cr_seen = 1;
+      if (*q < rc->worst_quality) {
+        const double cr_ratio = target_cr / compression_ratio;
+        int projected_q = AOMMAX(*q + 1, (int)(*q * cr_ratio * cr_ratio));
+        projected_q = AOMMIN(projected_q, *q + 32);
+        *q = AOMMIN(projected_q, rc->worst_quality);
+        *q_low = AOMMAX(*q, *q_low);
+        *q_high = AOMMAX(*q, *q_high);
+        *loop = 1;
+      }
+    }
+    if (*low_cr_seen) return;
+  }
 
   int frame_over_shoot_limit = 0, frame_under_shoot_limit = 0;
   av1_rc_compute_frame_size_bounds(cpi, rc->this_frame_target,
@@ -4391,6 +4428,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   int loop = 0;
   int overshoot_seen = 0;
   int undershoot_seen = 0;
+  int low_cr_seen = 0;
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   printf("\n Encoding a frame:");
@@ -4490,8 +4528,22 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       // Update q and decide whether to do a recode loop
       recode_loop_update_q(cpi, &loop, &q, &q_low, &q_high, top_index,
                            bottom_index, &undershoot_seen, &overshoot_seen,
+                           &low_cr_seen,
                            loop_at_this_size);
     }
+
+#if 0
+    aom_clear_system_state();
+    const double compression_ratio =
+        av1_get_cr(cm, rc->projected_frame_size >> 3);
+    printf("frame %d %d, target %d, cr %6.4f\n",
+           cm->current_frame.order_hint,
+           cm->current_frame.frame_number,
+           cpi->oxcf.min_cr, compression_ratio);
+    printf("loop %d, q %d, top_index %d, bottom_index %d, worst_quality %d\n",
+           loop, q, top_index, bottom_index, rc->worst_quality);
+#endif
+
 
     // Special case for overlay frame.
     if (rc->is_src_frame_alt_ref &&
