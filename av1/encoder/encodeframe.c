@@ -631,7 +631,7 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
     if (cyclic_refresh_segment_id_boosted(mbmi->segment_id))
       x->rdmult = av1_cyclic_refresh_get_rdmult(cpi->cyclic_refresh);
   } else if (cpi->oxcf.enable_tpl_model) {
-    x->rdmult = x->cb_rdmult;
+    // x->rdmult = x->cb_rdmult;
   }
 
   if (deltaq_mode != NO_DELTA_Q) x->rdmult = set_deltaq_rdmult(cpi, xd);
@@ -1488,7 +1488,7 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   update_state(cpi, tile_data, td, ctx, mi_row, mi_col, bsize, dry_run);
   if (cpi->oxcf.enable_tpl_model && cpi->oxcf.aq_mode == NO_AQ &&
       cpi->oxcf.deltaq_mode == NO_DELTA_Q) {
-    x->rdmult = x->cb_rdmult;
+    // x->rdmult = x->cb_rdmult;
   }
 
   if (!dry_run) {
@@ -3508,8 +3508,9 @@ static void setup_delta_q(AV1_COMP *const cpi, MACROBLOCK *const x,
   xd->delta_qindex = current_qindex - cm->base_qindex;
   set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
   xd->mi[0]->current_qindex = current_qindex;
-  av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
   x->rdmult = set_deltaq_rdmult(cpi, xd);
+  // x->cb_rdmult = x->rdmult;
+  av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
 
   // keep track of any non-zero delta-q used
   cpi->delta_q_used |= (xd->delta_qindex != 0);
@@ -3716,7 +3717,7 @@ static void adjust_rdmult_tpl_model(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
                                     int mi_col) {
   const BLOCK_SIZE sb_size = cpi->common.seq_params.sb_size;
   const int orig_rdmult = cpi->rd.RDMULT;
-  x->cb_rdmult = orig_rdmult;
+  // x->cb_rdmult = orig_rdmult;
 
   if (cpi->tpl_model_pass == 1) {
     assert(cpi->oxcf.enable_tpl_model == 2);
@@ -3732,7 +3733,7 @@ static void adjust_rdmult_tpl_model(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
       cpi->twopass.gf_group.update_type[gf_group_index] == ARF_UPDATE) {
     const int dr = get_rdmult_delta(cpi, sb_size, mi_row, mi_col, orig_rdmult);
     x->rdmult = dr;
-    x->cb_rdmult = x->rdmult;
+    // x->cb_rdmult = x->rdmult;
   }
 }
 
