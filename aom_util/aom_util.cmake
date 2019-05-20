@@ -22,7 +22,7 @@ list(APPEND AOM_UTIL_SOURCES "${AOM_ROOT}/aom_util/aom_thread.c"
 # Creates the aom_util build target and makes libaom depend on it. The libaom
 # target must exist before this function is called.
 function(setup_aom_util_targets)
-  add_library(aom_util OBJECT ${AOM_UTIL_SOURCES})
+  add_library(aom_util ${AOM_UTIL_SOURCES} OBJECT)
   set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_util PARENT_SCOPE)
   target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_util>)
 endfunction()

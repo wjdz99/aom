@@ -20,7 +20,7 @@ list(APPEND AOM_MEM_SOURCES "${AOM_ROOT}/aom_mem/aom_mem.c"
 # Creates the aom_mem build target and makes libaom depend on it. The libaom
 # target must exist before this function is called.
 function(setup_aom_mem_targets)
-  add_library(aom_mem OBJECT ${AOM_MEM_SOURCES})
+  add_library(aom_mem ${AOM_MEM_SOURCES} OBJECT)
   set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_mem PARENT_SCOPE)
   target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_mem>)
 endfunction()
