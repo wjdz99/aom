@@ -87,6 +87,24 @@
       "revId": "49d03bd9caa067caacec7433e5150cb377290402",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7443edb5_9281e799",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4527,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-21T23:35:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a46134c_663a380d",
+      "revId": "49d03bd9caa067caacec7433e5150cb377290402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
