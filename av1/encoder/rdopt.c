@@ -12596,7 +12596,11 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     const MV_REFERENCE_FRAME ref_frame = mode_order->ref_frame[0];
     const MV_REFERENCE_FRAME second_ref_frame = mode_order->ref_frame[1];
     const int comp_pred = second_ref_frame > INTRA_FRAME;
-
+    if (this_mode != NEAREST_NEARESTMV) {
+      if ((ref_frame == LAST3_FRAME) && ((second_ref_frame == ALTREF_FRAME) ||
+                                         (second_ref_frame == BWDREF_FRAME)))
+        continue;
+    }
     // Reach the first compound prediction mode
     if (sf->prune_comp_search_by_single_result > 0 && comp_pred &&
         reach_first_comp_mode == 0) {
