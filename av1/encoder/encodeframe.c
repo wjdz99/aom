@@ -3326,8 +3326,8 @@ BEGIN_PARTITION_SEARCH:
 }
 #undef NUM_SIMPLE_MOTION_FEATURES
 
-static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
-                            int mi_col, int orig_rdmult) {
+static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int analysis_type,
+                            int mi_row, int mi_col, int orig_rdmult) {
   assert(IMPLIES(cpi->twopass.gf_group.size > 0,
                  cpi->twopass.gf_group.index < cpi->twopass.gf_group.size));
   const int tpl_idx =
@@ -3347,6 +3347,8 @@ static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
 
   if (cpi->twopass.gf_group.index >= MAX_LAG_BUFFERS) return orig_rdmult;
 
+  int64_t mc_count = 0, mc_saved = 0;
+  int mi_count = 0;
   for (row = mi_row; row < mi_row + mi_high; ++row) {
     for (col = mi_col; col < mi_col + mi_wide; ++col) {
       TplDepStats *this_stats = &tpl_stats[row * tpl_stride + col];
@@ -3355,14 +3357,31 @@ static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
 
       intra_cost += this_stats->intra_cost;
       mc_dep_cost += this_stats->intra_cost + this_stats->mc_flow;
+      mc_count += this_stats->mc_count;
+      mc_saved += this_stats->mc_saved;
+      mi_count++;
     }
   }
 
   aom_clear_system_state();
 
-  const double r0 = cpi->rd.r0;
-  const double rk = (double)intra_cost / mc_dep_cost;
-  const double beta = pow(r0 / rk, 0.125);
+  double beta = 1.0;
+  if (analysis_type == 0) {
+    const double r0 = cpi->rd.r0;
+    const double rk = (double)intra_cost / mc_dep_cost;
+    beta = pow(r0 / rk, 0.125);
+  } else if (analysis_type == 1) {
+    const double mc_count_base = (mi_count * cpi->rd.mc_count_base);
+    beta = mc_count_base != 0.0
+               ? ((double)mc_count - mc_count_base) / mc_count_base
+               : 1.0;
+  } else if (analysis_type == 2) {
+    const double mc_saved_base = (mi_count * cpi->rd.mc_saved_base);
+    beta = mc_saved_base != 0.0
+               ? ((double)mc_saved - mc_saved_base) / mc_saved_base
+               : 1.0;
+  }
+
   int rdmult = av1_get_adaptive_rdmult(cpi, beta);
 
   rdmult = AOMMIN(rdmult, orig_rdmult * 3 / 2);
@@ -3443,7 +3462,7 @@ static int get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
         mc_saved_base != 0.0
             ? ((double)mc_saved - mc_saved_base) / mc_saved_base
             : 0.0;
-    offset = -(int)rint(mc_saved_beta * 2.0);
+    offset = -(int)rint(mc_saved_beta * 3.0);
     // printf("mc_saved_beta %g, offset %d\n", mc_saved_beta, offset);
   }
 
@@ -3508,8 +3527,9 @@ static void setup_delta_q(AV1_COMP *const cpi, MACROBLOCK *const x,
   xd->delta_qindex = current_qindex - cm->base_qindex;
   set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
   xd->mi[0]->current_qindex = current_qindex;
-  av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
   x->rdmult = set_deltaq_rdmult(cpi, xd);
+  x->cb_rdmult = x->rdmult;
+  av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
 
   // keep track of any non-zero delta-q used
   cpi->delta_q_used |= (xd->delta_qindex != 0);
@@ -3730,7 +3750,8 @@ static void adjust_rdmult_tpl_model(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   if (cpi->oxcf.enable_tpl_model && cpi->oxcf.aq_mode == NO_AQ &&
       cpi->oxcf.deltaq_mode == NO_DELTA_Q && gf_group_index > 0 &&
       cpi->twopass.gf_group.update_type[gf_group_index] == ARF_UPDATE) {
-    const int dr = get_rdmult_delta(cpi, sb_size, mi_row, mi_col, orig_rdmult);
+    const int dr =
+        get_rdmult_delta(cpi, sb_size, 0, mi_row, mi_col, orig_rdmult);
     x->rdmult = dr;
     x->cb_rdmult = x->rdmult;
   }
