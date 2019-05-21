@@ -97,6 +97,9 @@ def _generate_layer_index_tensor_name_map(input_reader, var_regex):
       # Ignore the (b|w) decorator since we cannot control the order they
       # are read.
       layer_index_tensor_name_map[var_indices] = k[:-1]
+  logging.info("Gathered {0} variables: {1}".format(
+      len(layer_index_tensor_name_map),
+      [value for _, value in layer_index_tensor_name_map.iteritems()])
   return layer_index_tensor_name_map
 
 
@@ -309,7 +312,7 @@ if __name__ == "__main__":
   parser.add_argument(
       "--var_regex",
       type=str,
-      default=r"conv_(([0-9][0-9]*_)*)(w|b)",
+      default=r"conv_(([0-9][0-9]*_)*)(w|b)$",
       help="Regex to match tensor names against in the model ckpt.")
   parser.add_argument(
       "--trained_qp",
