@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Alliance for Open Media. All rights reserved
+1;5002;0c * Copyright (c) 2019, Alliance for Open Media. All rights reserved
  *
  * This source code is subject to the terms of the BSD 2 Clause License and
  * the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
@@ -20,7 +20,7 @@ extern "C" {
 #endif
 
 // Minimum base_qindex needed to run cnn.
-#define MIN_CNN_Q_INDEX 20
+#define MIN_CNN_Q_INDEX 100
 
 static INLINE int av1_use_cnn(const AV1_COMMON *cm) {
   return ((cm->base_qindex > MIN_CNN_Q_INDEX) && !av1_superres_scaled(cm));
