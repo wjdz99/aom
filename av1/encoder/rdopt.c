@@ -12498,6 +12498,12 @@ static int do_tx_search_mode(int do_tx_search_global, int midx, int adaptive) {
   return midx < 7 ? 2 : 0;
 }
 
+int skip_mode_based_on_mode_stats(PREDICTION_MODE mode) {
+  return (mode == THR_COMP_NEW_NEWL3B || mode == THR_COMP_NEW_NEARESTL3B ||
+          mode == THR_COMP_NEW_NEARL3B || mode == THR_COMP_NEW_NEWL3A ||
+          mode == THR_COMP_NEW_NEARESTL3A || mode == THR_COMP_NEW_NEARL3A);
+}
+
 void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                MACROBLOCK *x, int mi_row, int mi_col,
                                RD_STATS *rd_cost, BLOCK_SIZE bsize,
@@ -12589,6 +12595,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   alloc_compound_type_rd_buffers(cm, &rd_buffers);
 
   for (int midx = 0; midx < MAX_MODES; ++midx) {
+    if (skip_mode_based_on_mode_stats(midx) == 1) continue;
     const int do_tx_search = do_tx_search_mode(
         do_tx_search_global, midx, sf->inter_mode_rd_model_estimation_adaptive);
     const MODE_DEFINITION *mode_order = &av1_mode_order[midx];
