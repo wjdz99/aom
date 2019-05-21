@@ -34,6 +34,8 @@
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/reconinter_enc.h"
 
+#define _TMP_USE_CURVFIT_ 1
+
 extern int g_pick_inter_mode_cnt;
 typedef struct {
   uint8_t *data;
@@ -460,6 +462,50 @@ static void model_rd_from_sse(const AV1_COMP *const cpi,
   *dist <<= 4;
 }
 
+static void model_rd_with_curvfit(const AV1_COMP *const cpi,
+                                  const MACROBLOCK *const x,
+                                  BLOCK_SIZE plane_bsize, int plane,
+                                  int64_t sse, int num_samples, int *rate,
+                                  int64_t *dist) {
+  (void)cpi;
+  (void)plane_bsize;
+  const MACROBLOCKD *const xd = &x->e_mbd;
+  const struct macroblockd_plane *const pd = &xd->plane[plane];
+  const int dequant_shift = (is_cur_buf_hbd(xd)) ? xd->bd - 5 : 3;
+  const int qstep = AOMMAX(pd->dequant_Q3[1] >> dequant_shift, 1);
+
+  if (sse == 0) {
+    if (rate) *rate = 0;
+    if (dist) *dist = 0;
+    return;
+  }
+  aom_clear_system_state();
+  const double sse_norm = (double)sse / num_samples;
+  const double qstepsqr = (double)qstep * qstep;
+  const double xqr = log2(sse_norm / qstepsqr);
+
+  double rate_f, dist_by_sse_norm_f;
+  av1_model_rd_curvfit(plane_bsize, sse_norm, xqr, &rate_f,
+                       &dist_by_sse_norm_f);
+
+  const double dist_f = dist_by_sse_norm_f * sse_norm;
+  int rate_i = (int)(AOMMAX(0.0, rate_f * num_samples) + 0.5);
+  int64_t dist_i = (int64_t)(AOMMAX(0.0, dist_f * num_samples) + 0.5);
+  aom_clear_system_state();
+
+  // Check if skip is better
+  if (rate_i == 0) {
+    dist_i = sse << 4;
+  } else if (RDCOST(x->rdmult, rate_i, dist_i) >=
+             RDCOST(x->rdmult, 0, sse << 4)) {
+    rate_i = 0;
+    dist_i = sse << 4;
+  }
+
+  if (rate) *rate = rate_i;
+  if (dist) *dist = dist_i;
+}
+
 static void model_rd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
                             MACROBLOCK *x, MACROBLOCKD *xd, int plane_from,
                             int plane_to, int mi_row, int mi_col,
@@ -500,9 +546,15 @@ static void model_rd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
                     bh);
     }
     sse = ROUND_POWER_OF_TWO(sse, (xd->bd - 8) * 2);
-
-    model_rd_from_sse(cpi, x, plane_bsize, plane, sse, bw * bh, &rate, &dist);
-
+#if _TMP_USE_CURVFIT_
+    model_rd_with_curvfit(cpi, x, plane_bsize, plane, sse, bw * bh, &rate,
+                          &dist);
+    // model_rd_from_sse(cpi, x, plane_bsize, plane, sse, bw * bh, &rate,
+    // &dist);
+#else
+    rate_sum = INT_MAX;  // this will be overwritten later with block_yrd
+    dist_sum = INT_MAX;
+#endif
     if (plane == 0) x->pred_sse[ref] = (unsigned int)AOMMIN(sse, UINT_MAX);
 
     total_sse += sse;
@@ -514,7 +566,7 @@ static void model_rd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
     assert(rate_sum >= 0);
   }
 
-  if (skip_txfm_sb) *skip_txfm_sb = total_sse == 0;
+  if (skip_txfm_sb) *skip_txfm_sb = rate_sum == 0;
   if (skip_sse_sb) *skip_sse_sb = total_sse << 4;
   rate_sum = AOMMIN(rate_sum, INT_MAX);
   *out_rate_sum = (int)rate_sum;
@@ -597,7 +649,7 @@ static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
       block += step;
     }
   }
-
+  this_rdc->skip = *skippable;
   this_rdc->rate = 0;
   if (*sse < INT64_MAX) {
     *sse = (*sse << 6) >> 2;
@@ -1164,21 +1216,30 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     const int skip_ctx = av1_get_skip_context(xd);
     const int skip_cost = x->skip_cost[skip_ctx][1];
+    const int no_skip_cost = x->skip_cost[skip_ctx][0];
 
     this_sse = (int64_t)sse_y;
-
+#if !_TMP_USE_CURVFIT_
     block_yrd(cpi, x, mi_row, mi_col, &this_rdc, &is_skippable, &this_sse,
               bsize, mi->tx_size, rd_computed);
+#endif
 
-    x->skip = is_skippable;
-    if (is_skippable) {
+    x->skip = this_rdc.skip;
+    if (this_rdc.skip) {
       this_rdc.rate = skip_cost;
     } else {
+#if !_TMP_USE_CURVFIT_
+      // on CurvFit this condition is checked inside curvfit modeling
       if (RDCOST(x->rdmult, this_rdc.rate, this_rdc.dist) >=
-          RDCOST(x->rdmult, 0, this_sse)) {
+          RDCOST(x->rdmult, 0,
+                 this_sse)) {  // this_sse already multiplied by 16 in block_yrd
         x->skip = 1;
         this_rdc.rate = skip_cost;
         this_rdc.dist = this_sse;
+      } else
+#endif
+      {
+        this_rdc.rate += skip_cost;
       }
     }
 
