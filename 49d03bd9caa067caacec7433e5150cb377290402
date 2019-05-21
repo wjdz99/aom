@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6aa1e776_6f53c12c",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-21T18:36:52Z",
+      "side": 1,
+      "message": "The level work probably need more time, especially for the decoder model, which determines how the timing should be calculated. Even the compression ratio conformance depends partly on that. Achieving target level requires lots of more work on top of level checking. Adding this new parameter allows us to address the request promptly. And we can reuse this mechanism for target level control later.",
+      "parentUuid": "25d45128_9f308424",
+      "revId": "49d03bd9caa067caacec7433e5150cb377290402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "36a01ddc_540f1abd",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2019-05-21T17:00:30Z",
       "side": 1,
       "message": "The min Cr check should be used in AOM_Q mode as well.",
+      "revId": "49d03bd9caa067caacec7433e5150cb377290402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a46134c_663a380d",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4527,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-05-21T18:36:52Z",
+      "side": 1,
+      "message": "I thought in q mode the encoder should stick to the specified QP as much as possible. I\u0027m OK either way though. I can make q mode respect min_cr as well.",
+      "parentUuid": "36a01ddc_540f1abd",
       "revId": "49d03bd9caa067caacec7433e5150cb377290402",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
