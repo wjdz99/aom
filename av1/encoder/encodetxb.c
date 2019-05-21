@@ -1737,16 +1737,17 @@ int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
     accu_dist += dist - dist0;
     --si;
   }
-
-#define UPDATE_COEFF_EOB_CASE(tx_class_literal)                            \
-  case tx_class_literal:                                                   \
-    for (; si >= 0 && nz_num <= max_nz_num && !fast_mode; --si) {          \
-      update_coeff_eob(&accu_rate, &accu_dist, &eob, &nz_num, nz_ci, si,   \
-                       tx_size, tx_class_literal, bwl, height,             \
-                       txb_ctx->dc_sign_ctx, rdmult, shift, dequant, scan, \
-                       txb_eob_costs, txb_costs, tcoeff, qcoeff, dqcoeff,  \
-                       levels, sharpness);                                 \
-    }                                                                      \
+  const int skip_eob_call = eob <= 16;
+#define UPDATE_COEFF_EOB_CASE(tx_class_literal)                             \
+  case tx_class_literal:                                                    \
+    for (; !skip_eob_call && si >= 0 && nz_num <= max_nz_num && !fast_mode; \
+         --si) {                                                            \
+      update_coeff_eob(&accu_rate, &accu_dist, &eob, &nz_num, nz_ci, si,    \
+                       tx_size, tx_class_literal, bwl, height,              \
+                       txb_ctx->dc_sign_ctx, rdmult, shift, dequant, scan,  \
+                       txb_eob_costs, txb_costs, tcoeff, qcoeff, dqcoeff,   \
+                       levels, sharpness);                                  \
+    }                                                                       \
     break;
   switch (tx_class) {
     UPDATE_COEFF_EOB_CASE(TX_CLASS_2D);
