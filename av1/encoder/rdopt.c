@@ -3132,6 +3132,9 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   // coeffs. For smaller residuals, coeff optimization would be helpful. For
   // larger residuals, R-D optimization may not be effective.
   // TODO(any): Experiment with variance and mean based thresholds
+  const int height_ = get_txb_high(tx_size);
+  const int width_ = get_txb_wide(tx_size);
+  const int skip_rdoq = height_ * width_ <= 16;
   perform_block_coeff_opt = (block_mse_q8 <= cpi->coeff_opt_dist_threshold);
 
   assert(IMPLIES(txk_allowed < TX_TYPES, allowed_tx_mask == 1 << txk_allowed));
@@ -3142,7 +3145,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
-    if (skip_trellis || (!perform_block_coeff_opt)) {
+    if (skip_rdoq || skip_trellis || (!perform_block_coeff_opt)) {
       av1_xform_quant(
           cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size, tx_type,
           USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP);
