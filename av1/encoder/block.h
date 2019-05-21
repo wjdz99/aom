@@ -220,6 +220,7 @@ struct macroblock {
   // for sub-8x8 blocks.
   int sadperbit4;
   int rdmult;
+  int rdmult_adjusted;
   int mb_energy;
   int sb_energy_level;
   int *m_search_count_ptr;
