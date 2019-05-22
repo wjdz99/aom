@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4185071d_6e83cfd6",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3359,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2019-05-22T04:30:42Z",
+      "side": 1,
+      "message": "would it be better to go directly with: \nbeta \u003d r0 / rk;",
+      "range": {
+        "startLine": 3359,
+        "startChar": 2,
+        "endLine": 3359,
+        "endChar": 38
+      },
+      "revId": "8b6b668881db02dfcb2c3897b59485468cbc1c65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
