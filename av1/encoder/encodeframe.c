@@ -245,9 +245,6 @@ static void set_offsets_without_segment_id(const AV1_COMP *const cpi,
   // Set up source buffers.
   av1_setup_src_planes(x, cpi->source, mi_row, mi_col, num_planes, bsize);
 
-  // R/D setup.
-  x->rdmult = cpi->rd.RDMULT;
-
   // required by av1_append_sub8x8_mvs_for_idx() and av1_find_best_ref_mvs()
   xd->tile = *tile;
 
@@ -633,6 +630,9 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   }
 
   if (deltaq_mode != NO_DELTA_Q) x->rdmult = set_deltaq_rdmult(cpi, xd);
+
+  // Set error per bit for current rdmult
+  set_error_per_bit(x, x->rdmult);
 
   // Find best coding mode & reconstruct the MB so it is available
   // as a predictor for MBs that follow in the SB
@@ -3815,6 +3815,9 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
         td->pc_tree[i].horizontal[1].pred_interp_filter = SWITCHABLE;
       }
     }
+
+    // Setup Rdmult based on base_qindex at the frame level
+    x->rdmult = cpi->rd.RDMULT;
 
     x->mb_rd_record.num = x->mb_rd_record.index_start = 0;
 
