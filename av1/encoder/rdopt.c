@@ -12292,7 +12292,7 @@ static int compound_skip_get_candidates(
   }
 
   candidates = max_candidates;
-  if (cpi->sf.prune_comp_search_by_single_result >= 2) {
+  if (cpi->sf.prune_comp_search_by_single_result >= 1) {
     candidates = AOMMIN(2, max_candidates);
   }
   if (cpi->sf.prune_comp_search_by_single_result >= 3) {
