@@ -3374,6 +3374,8 @@ static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int analysis_type,
 
   int rdmult = av1_get_adaptive_rdmult(cpi, beta);
 
+  aom_clear_system_state();
+
   rdmult = AOMMIN(rdmult, orig_rdmult * 3 / 2);
   rdmult = AOMMAX(rdmult, orig_rdmult * 1 / 2);
 
@@ -3433,6 +3435,8 @@ static int get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
       mi_count++;
     }
   }
+
+  aom_clear_system_state();
 
   int offset = 0;
   double beta = 1.0;
@@ -4546,6 +4550,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
           (double)mc_count_base / (cm->mi_rows * cm->mi_cols);
       cpi->rd.mc_saved_base =
           (double)mc_saved_base / (cm->mi_rows * cm->mi_cols);
+      aom_clear_system_state();
     }
   }
 

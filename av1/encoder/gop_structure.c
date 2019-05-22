@@ -115,6 +115,11 @@ static int construct_multi_layer_gf_structure(
   assert(next_height >= MIN_PYRAMID_LVL);
   set_multi_layer_params(gf_group, 0, gf_interval, &frame_index, 0,
                          next_height);
+  /*  if (use_altref) {
+      gf_group->update_type[frame_index] = OVERLAY_UPDATE;
+      gf_group->frame_disp_idx[frame_index] = gf_interval;
+      gf_group->pyramid_level[frame_index] = gf_group->pyramid_height;
+    }*/
   return frame_index;
 }
 
@@ -297,6 +302,16 @@ static void set_gop_ref_frame_map(GF_GROUP *const gf_group) {
   // Set the map in display order index by converting from gop indices in the
   // above map
   set_ref_frame_disp_idx(gf_group);
+
+  /*  for (int i = 0; i <= gf_group->size; i++) {
+      printf("gop idx %d disp idx %d update_type %d:\n",
+       i, gf_group->frame_disp_idx[i], gf_group->update_type[i]);
+      for (int j = 0; j < REF_FRAMES; j++) {
+        printf("(%d %d) ", gf_group->ref_frame_gop_idx[i][j],
+          gf_group->ref_frame_disp_idx[i][j]);
+      }
+      printf("\n");
+    }*/
 }
 
 void av1_gop_setup_structure(AV1_COMP *cpi,
