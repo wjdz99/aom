@@ -249,7 +249,7 @@ static void set_good_speed_features_framesize_independent(
     sf->dual_sgr_penalty_level = 1;
     sf->use_accurate_subpel_search = USE_4_TAPS;
     sf->reuse_inter_intra_mode = 1;
-    sf->prune_comp_search_by_single_result = 1;
+    sf->prune_comp_search_by_single_result = 2;
     sf->skip_repeated_newmv = 1;
     sf->obmc_full_pixel_search_level = 1;
     sf->simple_motion_search_split = 1;
