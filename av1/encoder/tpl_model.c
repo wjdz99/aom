@@ -46,14 +46,13 @@ static void wht_fwd_txfm(int16_t *src_diff, int bw, tran_low_t *coeff,
   }
 }
 
-static uint32_t motion_compensated_prediction(AV1_COMP *cpi, ThreadData *td,
+static uint32_t motion_compensated_prediction(AV1_COMP *cpi, MACROBLOCK *x,
                                               uint8_t *cur_frame_buf,
                                               uint8_t *ref_frame_buf,
                                               int stride, int stride_ref,
                                               BLOCK_SIZE bsize, int mi_row,
                                               int mi_col) {
   AV1_COMMON *cm = &cpi->common;
-  MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   MV_SPEED_FEATURES *const mv_sf = &cpi->sf.mv;
   const SEARCH_METHODS search_method = NSTEP;
@@ -108,7 +107,6 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
                             TX_SIZE tx_size, YV12_BUFFER_CONFIG *ref_frame[],
                             uint8_t *predictor, TplDepStats *tpl_stats) {
   AV1_COMMON *cm = &cpi->common;
-  ThreadData *td = &cpi->td;
   const GF_GROUP *gf_group = &cpi->twopass.gf_group;
 
   const int bw = 4 << mi_size_wide_log2[bsize];
@@ -218,7 +216,7 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
         mi_row * MI_SIZE * ref_frame[rf_idx]->y_stride + mi_col * MI_SIZE;
 
     motion_compensated_prediction(
-        cpi, td, xd->cur_buf->y_buffer + mb_y_offset,
+        cpi, x, xd->cur_buf->y_buffer + mb_y_offset,
         ref_frame[rf_idx]->y_buffer + mb_y_offset_ref, xd->cur_buf->y_stride,
         ref_frame[rf_idx]->y_stride, bsize, mi_row, mi_col);
 
@@ -702,7 +700,6 @@ static void get_tpl_forward_stats(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
                                   YV12_BUFFER_CONFIG *src,
                                   TplDepFrame *ref_tpl_frame) {
   AV1_COMMON *cm = &cpi->common;
-  ThreadData *td = &cpi->td;
 
   const int bw = 4 << mi_size_wide_log2[bsize];
   const int bh = 4 << mi_size_high_log2[bsize];
@@ -801,7 +798,7 @@ static void get_tpl_forward_stats(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
       const int mb_y_offset_ref =
           mi_row * MI_SIZE * ref->y_stride + mi_col * MI_SIZE;
       motion_compensated_prediction(
-          cpi, td, src->y_buffer + mb_y_offset, ref->y_buffer + mb_y_offset_ref,
+          cpi, x, src->y_buffer + mb_y_offset, ref->y_buffer + mb_y_offset_ref,
           src->y_stride, ref->y_stride, bsize, mi_row, mi_col);
 
       av1_build_inter_predictor(
