@@ -65,10 +65,18 @@
 #include "av1/encoder/tokenize.h"
 #include "av1/encoder/var_based_part.h"
 
+#define CU_LEVEL_TPL_RDMULT 1
+
 static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                               ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
                               int mi_row, int mi_col, BLOCK_SIZE bsize,
                               int *rate);
+
+#if CU_LEVEL_TPL_RDMULT
+static int enable_tpl_based_rdmult_adjust(AV1_COMP *cpi);
+static int get_adjusted_rdmult(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
+                               int mi_col, BLOCK_SIZE bsize);
+#endif
 
 // This is used as a reference when computing the source variance for the
 //  purposes of activity masking.
@@ -517,7 +525,7 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   struct macroblockd_plane *const pd = xd->plane;
   const AQ_MODE aq_mode = cpi->oxcf.aq_mode;
   const DELTAQ_MODE deltaq_mode = cpi->oxcf.deltaq_mode;
-  int i, orig_rdmult;
+  int i;
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, rd_pick_sb_modes_time);
@@ -611,7 +619,7 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
     x->edge_strength_y = ei.y;
   }
   // Save rdmult before it might be changed, so it can be restored later.
-  orig_rdmult = x->rdmult;
+  // orig_rdmult = x->rdmult;
 
   if (aq_mode == VARIANCE_AQ) {
     if (cpi->vaq_refresh) {
@@ -633,6 +641,13 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
 
   // Set error per bit for current rdmult
   set_error_per_bit(x, x->rdmult);
+
+#if CU_LEVEL_TPL_RDMULT
+  x->rdmult = get_adjusted_rdmult(cpi, x, mi_row, mi_col, bsize);
+  if (enable_tpl_based_rdmult_adjust(cpi))
+    best_rd = best_rd == INT64_MAX ? INT64_MAX : best_rd * 3 >> 1;
+  assert(best_rd >= 0);
+#endif
 
   // Find best coding mode & reconstruct the MB so it is available
   // as a predictor for MBs that follow in the SB
@@ -685,7 +700,7 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
     av1_caq_select_segment(cpi, x, bsize, mi_row, mi_col, rd_cost->rate);
   }
 
-  x->rdmult = orig_rdmult;
+  x->rdmult = x->sb_rdmult;
 
   // TODO(jingning) The rate-distortion optimization flow needs to be
   // refactored to provide proper exit/return handle.
@@ -2108,6 +2123,7 @@ static int rd_try_subblock(AV1_COMP *const cpi, ThreadData *td,
   const int64_t rdcost_remaining =
       best_rdcost == INT64_MAX ? INT64_MAX : (best_rdcost - sum_rdc->rdcost);
   RD_STATS this_rdc;
+
   pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc, partition,
                 subsize, this_ctx, rdcost_remaining, PICK_MODE_RD);
 
@@ -2116,7 +2132,7 @@ static int rd_try_subblock(AV1_COMP *const cpi, ThreadData *td,
   } else {
     sum_rdc->rate += this_rdc.rate;
     sum_rdc->dist += this_rdc.dist;
-    sum_rdc->rdcost += this_rdc.rdcost;
+    sum_rdc->rdcost += RDCOST(x->sb_rdmult, this_rdc.rate, this_rdc.dist);
   }
 
   if (sum_rdc->rdcost >= best_rdcost) return 0;
@@ -2161,7 +2177,7 @@ static void rd_test_partition3(AV1_COMP *const cpi, ThreadData *td,
     return;
 
   if (sum_rdc.rdcost >= best_rdc->rdcost) return;
-  sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
+  sum_rdc.rdcost = RDCOST(x->sb_rdmult, sum_rdc.rate, sum_rdc.dist);
   if (sum_rdc.rdcost >= best_rdc->rdcost) return;
 
   *best_rdc = sum_rdc;
@@ -2258,6 +2274,7 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
                                cpi->oxcf.enable_rect_partitions;
   int partition_vert_allowed = has_rows && xss <= yss && bsize_at_least_8x8 &&
                                cpi->oxcf.enable_rect_partitions;
+  int partition_rdmult = x->sb_rdmult;
 
   (void)*tp_orig;
 
@@ -2428,7 +2445,7 @@ BEGIN_PARTITION_SEARCH:
                     ? partition_cost[PARTITION_NONE]
                     : 0;
     }
-    const int64_t partition_rd_cost = RDCOST(x->rdmult, pt_cost, 0);
+    const int64_t partition_rd_cost = RDCOST(partition_rdmult, pt_cost, 0);
     const int64_t best_remain_rdcost =
         (best_rdc.rdcost == INT64_MAX) ? INT64_MAX
                                        : (best_rdc.rdcost - partition_rd_cost);
@@ -2461,7 +2478,8 @@ BEGIN_PARTITION_SEARCH:
       }
       if (bsize_at_least_8x8) {
         this_rdc.rate += pt_cost;
-        this_rdc.rdcost = RDCOST(x->rdmult, this_rdc.rate, this_rdc.dist);
+        this_rdc.rdcost =
+            RDCOST(partition_rdmult, this_rdc.rate, this_rdc.dist);
       }
 
       part_none_rd = this_rdc.rdcost;
@@ -2528,7 +2546,7 @@ BEGIN_PARTITION_SEARCH:
     av1_init_rd_stats(&sum_rdc);
     subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
     sum_rdc.rate = partition_cost[PARTITION_SPLIT];
-    sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
+    sum_rdc.rdcost = RDCOST(partition_rdmult, sum_rdc.rate, 0);
 
     int idx;
 #if CONFIG_COLLECT_PARTITION_STATS
@@ -2562,7 +2580,8 @@ BEGIN_PARTITION_SEARCH:
       } else {
         sum_rdc.rate += this_rdc.rate;
         sum_rdc.dist += this_rdc.dist;
-        sum_rdc.rdcost += this_rdc.rdcost;
+        sum_rdc.rdcost +=
+            RDCOST(partition_rdmult, this_rdc.rate, this_rdc.dist);
         if (idx <= 1 && (bsize <= BLOCK_8X8 ||
                          pc_tree->split[idx]->partitioning == PARTITION_NONE)) {
           const MB_MODE_INFO *const mbmi = &pc_tree->split[idx]->none.mic;
@@ -2586,7 +2605,7 @@ BEGIN_PARTITION_SEARCH:
 
     part_split_rd = sum_rdc.rdcost;
     if (reached_last_index && sum_rdc.rdcost < best_rdc.rdcost) {
-      sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
+      sum_rdc.rdcost = RDCOST(partition_rdmult, sum_rdc.rate, sum_rdc.dist);
       if (sum_rdc.rdcost < best_rdc.rdcost) {
         best_rdc = sum_rdc;
         pc_tree->partitioning = PARTITION_SPLIT;
@@ -2633,7 +2652,7 @@ BEGIN_PARTITION_SEARCH:
           av1_extract_interp_filter(ctx_none->mic.interp_filters, 0);
     }
     sum_rdc.rate = partition_cost[PARTITION_HORZ];
-    sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
+    sum_rdc.rdcost = RDCOST(partition_rdmult, sum_rdc.rate, 0);
     const int64_t best_remain_rdcost = best_rdc.rdcost == INT64_MAX
                                            ? INT64_MAX
                                            : (best_rdc.rdcost - sum_rdc.rdcost);
@@ -2653,7 +2672,7 @@ BEGIN_PARTITION_SEARCH:
     } else {
       sum_rdc.rate += this_rdc.rate;
       sum_rdc.dist += this_rdc.dist;
-      sum_rdc.rdcost += this_rdc.rdcost;
+      sum_rdc.rdcost += RDCOST(partition_rdmult, this_rdc.rate, this_rdc.dist);
     }
     horz_rd[0] = this_rdc.rdcost;
 
@@ -2686,7 +2705,8 @@ BEGIN_PARTITION_SEARCH:
       } else {
         sum_rdc.rate += this_rdc.rate;
         sum_rdc.dist += this_rdc.dist;
-        sum_rdc.rdcost += this_rdc.rdcost;
+        sum_rdc.rdcost +=
+            RDCOST(partition_rdmult, this_rdc.rate, this_rdc.dist);
       }
     }
 #if CONFIG_COLLECT_PARTITION_STATS
@@ -2699,7 +2719,7 @@ BEGIN_PARTITION_SEARCH:
 #endif
 
     if (sum_rdc.rdcost < best_rdc.rdcost) {
-      sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
+      sum_rdc.rdcost = RDCOST(partition_rdmult, sum_rdc.rate, sum_rdc.dist);
       if (sum_rdc.rdcost < best_rdc.rdcost) {
         best_rdc = sum_rdc;
         pc_tree->partitioning = PARTITION_HORZ;
@@ -2725,7 +2745,7 @@ BEGIN_PARTITION_SEARCH:
           av1_extract_interp_filter(ctx_none->mic.interp_filters, 0);
     }
     sum_rdc.rate = partition_cost[PARTITION_VERT];
-    sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
+    sum_rdc.rdcost = RDCOST(partition_rdmult, sum_rdc.rate, 0);
     const int64_t best_remain_rdcost = best_rdc.rdcost == INT64_MAX
                                            ? INT64_MAX
                                            : (best_rdc.rdcost - sum_rdc.rdcost);
@@ -2745,7 +2765,7 @@ BEGIN_PARTITION_SEARCH:
     } else {
       sum_rdc.rate += this_rdc.rate;
       sum_rdc.dist += this_rdc.dist;
-      sum_rdc.rdcost += this_rdc.rdcost;
+      sum_rdc.rdcost += RDCOST(partition_rdmult, this_rdc.rate, this_rdc.dist);
     }
     vert_rd[0] = this_rdc.rdcost;
     if (sum_rdc.rdcost < best_rdc.rdcost && has_cols) {
@@ -2777,7 +2797,8 @@ BEGIN_PARTITION_SEARCH:
       } else {
         sum_rdc.rate += this_rdc.rate;
         sum_rdc.dist += this_rdc.dist;
-        sum_rdc.rdcost += this_rdc.rdcost;
+        sum_rdc.rdcost +=
+            RDCOST(partition_rdmult, this_rdc.rate, this_rdc.dist);
       }
     }
 #if CONFIG_COLLECT_PARTITION_STATS
@@ -2790,7 +2811,7 @@ BEGIN_PARTITION_SEARCH:
 #endif
 
     if (sum_rdc.rdcost < best_rdc.rdcost) {
-      sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
+      sum_rdc.rdcost = RDCOST(partition_rdmult, sum_rdc.rate, sum_rdc.dist);
       if (sum_rdc.rdcost < best_rdc.rdcost) {
         best_rdc = sum_rdc;
         pc_tree->partitioning = PARTITION_VERT;
@@ -2944,7 +2965,7 @@ BEGIN_PARTITION_SEARCH:
       RD_STATS tmp_sum_rdc;
       av1_init_rd_stats(&tmp_sum_rdc);
       tmp_sum_rdc.rate = x->partition_cost[pl][PARTITION_HORZ_A];
-      tmp_sum_rdc.rdcost = RDCOST(x->rdmult, tmp_sum_rdc.rate, 0);
+      tmp_sum_rdc.rdcost = RDCOST(partition_rdmult, tmp_sum_rdc.rate, 0);
       if (best_rdc.rdcost - tmp_sum_rdc.rdcost >= 0) {
         partition_attempts[PARTITION_HORZ_A] += 1;
         aom_usec_timer_start(&partition_timer);
@@ -2984,7 +3005,7 @@ BEGIN_PARTITION_SEARCH:
       RD_STATS tmp_sum_rdc;
       av1_init_rd_stats(&tmp_sum_rdc);
       tmp_sum_rdc.rate = x->partition_cost[pl][PARTITION_HORZ_B];
-      tmp_sum_rdc.rdcost = RDCOST(x->rdmult, tmp_sum_rdc.rate, 0);
+      tmp_sum_rdc.rdcost = RDCOST(partition_rdmult, tmp_sum_rdc.rate, 0);
       if (best_rdc.rdcost - tmp_sum_rdc.rdcost >= 0) {
         partition_attempts[PARTITION_HORZ_B] += 1;
         aom_usec_timer_start(&partition_timer);
@@ -3026,7 +3047,7 @@ BEGIN_PARTITION_SEARCH:
       RD_STATS tmp_sum_rdc;
       av1_init_rd_stats(&tmp_sum_rdc);
       tmp_sum_rdc.rate = x->partition_cost[pl][PARTITION_VERT_A];
-      tmp_sum_rdc.rdcost = RDCOST(x->rdmult, tmp_sum_rdc.rate, 0);
+      tmp_sum_rdc.rdcost = RDCOST(partition_rdmult, tmp_sum_rdc.rate, 0);
       if (best_rdc.rdcost - tmp_sum_rdc.rdcost >= 0) {
         partition_attempts[PARTITION_VERT_A] += 1;
         aom_usec_timer_start(&partition_timer);
@@ -3066,7 +3087,7 @@ BEGIN_PARTITION_SEARCH:
       RD_STATS tmp_sum_rdc;
       av1_init_rd_stats(&tmp_sum_rdc);
       tmp_sum_rdc.rate = x->partition_cost[pl][PARTITION_VERT_B];
-      tmp_sum_rdc.rdcost = RDCOST(x->rdmult, tmp_sum_rdc.rate, 0);
+      tmp_sum_rdc.rdcost = RDCOST(partition_rdmult, tmp_sum_rdc.rate, 0);
       if (!frame_is_intra_only(cm) &&
           best_rdc.rdcost - tmp_sum_rdc.rdcost >= 0) {
         partition_attempts[PARTITION_VERT_B] += 1;
@@ -3146,7 +3167,7 @@ BEGIN_PARTITION_SEARCH:
 
     subsize = get_partition_subsize(bsize, PARTITION_HORZ_4);
     sum_rdc.rate = partition_cost[PARTITION_HORZ_4];
-    sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
+    sum_rdc.rdcost = RDCOST(partition_rdmult, sum_rdc.rate, 0);
 
 #if CONFIG_COLLECT_PARTITION_STATS
     if (best_rdc.rdcost - sum_rdc.rdcost >= 0) {
@@ -3172,7 +3193,7 @@ BEGIN_PARTITION_SEARCH:
     }
 
     if (sum_rdc.rdcost < best_rdc.rdcost) {
-      sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
+      sum_rdc.rdcost = RDCOST(partition_rdmult, sum_rdc.rate, sum_rdc.dist);
       if (sum_rdc.rdcost < best_rdc.rdcost) {
         best_rdc = sum_rdc;
         pc_tree->partitioning = PARTITION_HORZ_4;
@@ -3201,7 +3222,7 @@ BEGIN_PARTITION_SEARCH:
 
     subsize = get_partition_subsize(bsize, PARTITION_VERT_4);
     sum_rdc.rate = partition_cost[PARTITION_VERT_4];
-    sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
+    sum_rdc.rdcost = RDCOST(partition_rdmult, sum_rdc.rate, 0);
 
 #if CONFIG_COLLECT_PARTITION_STATS
     if (best_rdc.rdcost - sum_rdc.rdcost >= 0) {
@@ -3227,7 +3248,7 @@ BEGIN_PARTITION_SEARCH:
     }
 
     if (sum_rdc.rdcost < best_rdc.rdcost) {
-      sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
+      sum_rdc.rdcost = RDCOST(partition_rdmult, sum_rdc.rate, sum_rdc.dist);
       if (sum_rdc.rdcost < best_rdc.rdcost) {
         best_rdc = sum_rdc;
         pc_tree->partitioning = PARTITION_VERT_4;
@@ -3706,6 +3727,28 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
               CFL_ALPHABET_SIZE);
 }
 
+#if CU_LEVEL_TPL_RDMULT
+static int enable_tpl_based_rdmult_adjust(AV1_COMP *cpi) {
+  const int gf_group_index = cpi->twopass.gf_group.index;
+
+  return cpi->tpl_model_pass != 1 && cpi->oxcf.enable_tpl_model &&
+         cpi->oxcf.aq_mode == NO_AQ && cpi->oxcf.deltaq_mode == NO_DELTA_Q &&
+         gf_group_index > 0 &&
+         cpi->twopass.gf_group.update_type[gf_group_index] == ARF_UPDATE;
+}
+
+static int get_adjusted_rdmult(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
+                               int mi_col, BLOCK_SIZE bsize) {
+  assert(IMPLIES(cpi->twopass.gf_group.size > 0,
+                 cpi->twopass.gf_group.index < cpi->twopass.gf_group.size));
+
+  if (enable_tpl_based_rdmult_adjust(cpi))
+    return get_rdmult_delta(cpi, bsize, mi_row, mi_col, cpi->rd.RDMULT);
+  else
+    return x->rdmult;
+}
+#endif
+
 static void adjust_rdmult_tpl_model(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
                                     int mi_col) {
   const BLOCK_SIZE sb_size = cpi->common.seq_params.sb_size;
@@ -3714,18 +3757,20 @@ static void adjust_rdmult_tpl_model(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   if (cpi->tpl_model_pass == 1) {
     assert(cpi->oxcf.enable_tpl_model == 2);
     x->rdmult = orig_rdmult;
-    return;
+  } else {
+    assert(IMPLIES(cpi->twopass.gf_group.size > 0,
+                   cpi->twopass.gf_group.index < cpi->twopass.gf_group.size));
+    const int gf_group_index = cpi->twopass.gf_group.index;
+    if (cpi->oxcf.enable_tpl_model && cpi->oxcf.aq_mode == NO_AQ &&
+        cpi->oxcf.deltaq_mode == NO_DELTA_Q && gf_group_index > 0 &&
+        cpi->twopass.gf_group.update_type[gf_group_index] == ARF_UPDATE) {
+      const int dr =
+          get_rdmult_delta(cpi, sb_size, mi_row, mi_col, orig_rdmult);
+      x->rdmult = dr;
+    }
   }
-
-  assert(IMPLIES(cpi->twopass.gf_group.size > 0,
-                 cpi->twopass.gf_group.index < cpi->twopass.gf_group.size));
-  const int gf_group_index = cpi->twopass.gf_group.index;
-  if (cpi->oxcf.enable_tpl_model && cpi->oxcf.aq_mode == NO_AQ &&
-      cpi->oxcf.deltaq_mode == NO_DELTA_Q && gf_group_index > 0 &&
-      cpi->twopass.gf_group.update_type[gf_group_index] == ARF_UPDATE) {
-    const int dr = get_rdmult_delta(cpi, sb_size, mi_row, mi_col, orig_rdmult);
-    x->rdmult = dr;
-  }
+  x->sb_rdmult = x->rdmult;
+  return;
 }
 
 static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
@@ -3886,7 +3931,11 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                           pc_root);
     } else {
+#if CU_LEVEL_TPL_RDMULT
+      x->sb_rdmult = get_adjusted_rdmult(cpi, x, mi_row, mi_col, sb_size);
+#else
       adjust_rdmult_tpl_model(cpi, x, mi_row, mi_col);
+#endif
       reset_partition(pc_root, sb_size);
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
