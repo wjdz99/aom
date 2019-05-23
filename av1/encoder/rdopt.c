@@ -12299,7 +12299,6 @@ static int compound_skip_get_candidates(
     if (state[0].rd != INT64_MAX && state_modelled[0].rd != INT64_MAX &&
         state[0].ref_frame == state_modelled[0].ref_frame)
       candidates = 1;
-    if (mode == NEARMV || mode == GLOBALMV) candidates = 1;
   }
   return candidates;
 }
