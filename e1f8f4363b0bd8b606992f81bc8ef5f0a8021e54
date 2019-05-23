@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1afa09ac_cc0fae94",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-05-23T19:21:00Z",
+      "side": 1,
+      "message": "I regret that the new code is more verbose, but the targeted error messages will be a big help to me and the test engineer. After the test vectors are updated, we can go back to the original code.",
+      "revId": "e1f8f4363b0bd8b606992f81bc8ef5f0a8021e54",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bcaca04_dc435dbd",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 670,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-05-23T19:21:00Z",
+      "side": 1,
+      "message": "Both of the two syntax elements in metadata_itut_t35() are of the type f(8), so we don\u0027t need use an aom_read_bit_buffer to read them. Just pass the data buffer to read_metadata_itut_t35().",
+      "revId": "e1f8f4363b0bd8b606992f81bc8ef5f0a8021e54",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
