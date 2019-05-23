@@ -12192,7 +12192,7 @@ static void analyze_single_states(const AV1_COMP *cpi,
       int64_t best_rd;
       SingleInterModeState(*state)[FWD_REFS];
       const int prune_factor =
-          cpi->sf.prune_comp_search_by_single_result >= 2 ? 6 : 5;
+          cpi->sf.prune_comp_search_by_single_result >= 2 ? 7 : 5;
 
       // Use the best rd of GLOBALMV or NEWMV to prune the unlikely
       // reference frames for all the modes (NEARESTMV and NEARMV may not
