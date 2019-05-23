@@ -265,6 +265,8 @@ static void set_good_speed_features_framesize_independent(
     sf->use_transform_domain_distortion = boosted ? 1 : 2;
     sf->perform_coeff_opt = boosted ? 1 : 2;
     sf->use_inter_txb_hash = 0;
+    sf->disable_smooth_intra =
+        !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
   }
 
   if (speed >= 2) {
@@ -332,8 +334,6 @@ static void set_good_speed_features_framesize_independent(
             ? 0
             : (boosted ? 1 : 2);
     sf->prune_comp_type_by_model_rd = boosted ? 0 : 1;
-    sf->disable_smooth_intra =
-        !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
   }
 
   if (speed >= 4) {
