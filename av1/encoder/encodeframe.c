@@ -4567,7 +4567,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
   // Special case: set prev_mi to NULL when the previous mode info
   // context cannot be used.
-  cm->prev_mi = cm->allow_ref_frame_mvs ? cm->prev_mip : NULL;
+  cm->prev_mi = cm->allow_ref_frame_mvs ? cm->prev_mi : NULL;
 
   x->txb_split_count = 0;
 #if CONFIG_SPEED_STATS
