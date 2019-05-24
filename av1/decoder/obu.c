@@ -703,6 +703,32 @@ static size_t read_metadata(AV1Decoder *pbi, const uint8_t *data, size_t sz) {
   return type_length + (rb.bit_offset >> 3);
 }
 
+// On success, returns 'sz'. On failure, sets pbi->common.error.error_code and
+// returns 0.
+static size_t read_padding(AV1_COMMON *const cm, const uint8_t *data,
+                           size_t sz) {
+  if (sz > 0) {
+    // The payload of a padding OBU is byte aligned. Therefore the first
+    // trailing byte should be 0x80. See https://crbug.com/aomedia/2393.
+    const uint8_t last_nonzero_byte = get_last_nonzero_byte(data, sz);
+    // TODO(wtc): Set cm->error.error_code to AOM_CODEC_CORRUPT_FRAME and return
+    // 0. For now we just print an error message.
+    if (last_nonzero_byte == 0) {
+      fprintf(stderr,
+              "The payload data for the padding OBU does not contain a nonzero "
+              "trailing bit.\n");
+      (void)cm;
+    } else if (last_nonzero_byte != 0x80) {
+      fprintf(stderr,
+              "The last nonzero byte in the payload data for the padding OBU "
+              "should be 0x80 but is 0x%02x.\n",
+              last_nonzero_byte);
+      (void)cm;
+    }
+  }
+  return sz;
+}
+
 // On success, returns a boolean that indicates whether the decoding of the
 // current frame is finished. On failure, sets cm->error.error_code and
 // returns -1.
@@ -893,8 +919,8 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         if (cm->error.error_code != AOM_CODEC_OK) return -1;
         break;
       case OBU_PADDING:
-        // TODO(wtc): Check trailing bits.
-        decoded_payload_size = payload_size;
+        decoded_payload_size = read_padding(&pbi->common, data, payload_size);
+        if (cm->error.error_code != AOM_CODEC_OK) return -1;
         break;
       default:
         // Skip unrecognized OBUs
