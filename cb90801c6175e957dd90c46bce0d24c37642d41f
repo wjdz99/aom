@@ -108,6 +108,30 @@
     },
     {
       "key": {
+        "uuid": "809d33f1_e4d8f4e2",
+        "filename": "av1/common/cnn.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-05-24T17:02:19Z",
+      "side": 1,
+      "message": "We could do that. Right now, folding these parameters into the struct and checking for null would force all the instances that we call branch_config to be wrapped in that if null check. I feel that would complicate the readability of the code. All the checks are spread out over av1_cnn_predict (PS8:cnn.c:[886,923]) to name a few.",
+      "parentUuid": "5497d084_dbbb0560",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 37
+      },
+      "revId": "cb90801c6175e957dd90c46bce0d24c37642d41f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9c6b1dfe_4cb3567f",
         "filename": "av1/models/intra_frame_model/qp12.h",
         "patchSetId": 7
