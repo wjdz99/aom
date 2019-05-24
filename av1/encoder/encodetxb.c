@@ -1517,7 +1517,8 @@ static AOM_FORCE_INLINE void update_coeff_eob(
     int dc_sign_ctx, int64_t rdmult, int shift, const int16_t *dequant,
     const int16_t *scan, const LV_MAP_EOB_COST *txb_eob_costs,
     const LV_MAP_COEFF_COST *txb_costs, const tran_low_t *tcoeff,
-    tran_low_t *qcoeff, tran_low_t *dqcoeff, uint8_t *levels, int sharpness) {
+    tran_low_t *qcoeff, tran_low_t *dqcoeff, uint8_t *levels, int sharpness,
+    int *stop_eob_search) {
   const int dqv = dequant[si != 0];
   assert(si != *eob - 1);
   const int ci = scan[si];
@@ -1610,7 +1611,7 @@ static AOM_FORCE_INLINE void update_coeff_eob(
       *accu_rate += rate;
       *accu_dist += dist;
     }
-
+    if (abs_qc > 1) *stop_eob_search = 1;
     if (lower_level) {
       qcoeff[ci] = qc_low;
       dqcoeff[ci] = dqc_low;
@@ -1737,16 +1738,17 @@ int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
     accu_dist += dist - dist0;
     --si;
   }
-
-#define UPDATE_COEFF_EOB_CASE(tx_class_literal)                            \
-  case tx_class_literal:                                                   \
-    for (; si >= 0 && nz_num <= max_nz_num && !fast_mode; --si) {          \
-      update_coeff_eob(&accu_rate, &accu_dist, &eob, &nz_num, nz_ci, si,   \
-                       tx_size, tx_class_literal, bwl, height,             \
-                       txb_ctx->dc_sign_ctx, rdmult, shift, dequant, scan, \
-                       txb_eob_costs, txb_costs, tcoeff, qcoeff, dqcoeff,  \
-                       levels, sharpness);                                 \
-    }                                                                      \
+  int stop_eob_search = 0;
+#define UPDATE_COEFF_EOB_CASE(tx_class_literal)                               \
+  case tx_class_literal:                                                      \
+    for (; !stop_eob_search && si >= 0 && nz_num <= max_nz_num && !fast_mode; \
+         --si) {                                                              \
+      update_coeff_eob(&accu_rate, &accu_dist, &eob, &nz_num, nz_ci, si,      \
+                       tx_size, tx_class_literal, bwl, height,                \
+                       txb_ctx->dc_sign_ctx, rdmult, shift, dequant, scan,    \
+                       txb_eob_costs, txb_costs, tcoeff, qcoeff, dqcoeff,     \
+                       levels, sharpness, &stop_eob_search);                  \
+    }                                                                         \
     break;
   switch (tx_class) {
     UPDATE_COEFF_EOB_CASE(TX_CLASS_2D);
