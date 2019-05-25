@@ -104,8 +104,7 @@ list(APPEND AOM_DSP_COMMON_INTRIN_AVX2
             "${AOM_ROOT}/aom_dsp/x86/avg_intrin_avx2.c"
             "${AOM_ROOT}/aom_dsp/x86/bitdepth_conversion_avx2.h")
 
-list(APPEND AOM_DSP_COMMON_INTRIN_NEON
-            "${AOM_ROOT}/aom_dsp/arm/fwd_txfm_neon.c"
+list(APPEND AOM_DSP_COMMON_INTRIN_NEON "${AOM_ROOT}/aom_dsp/arm/fwd_txfm_neon.c"
             "${AOM_ROOT}/aom_dsp/arm/loopfilter_neon.c"
             "${AOM_ROOT}/aom_dsp/arm/intrapred_neon.c"
             "${AOM_ROOT}/aom_dsp/arm/subtract_neon.c"
@@ -239,8 +238,7 @@ if(CONFIG_AV1_ENCODER)
               "${AOM_ROOT}/aom_dsp/x86/obmc_sad_sse4.c"
               "${AOM_ROOT}/aom_dsp/x86/obmc_variance_sse4.c")
 
-  list(APPEND AOM_DSP_ENCODER_INTRIN_NEON
-              "${AOM_ROOT}/aom_dsp/arm/sad4d_neon.c"
+  list(APPEND AOM_DSP_ENCODER_INTRIN_NEON "${AOM_ROOT}/aom_dsp/arm/sad4d_neon.c"
               "${AOM_ROOT}/aom_dsp/arm/sad_neon.c"
               "${AOM_ROOT}/aom_dsp/arm/subpel_variance_neon.c"
               "${AOM_ROOT}/aom_dsp/arm/variance_neon.c")
@@ -260,10 +258,10 @@ endif()
 # Creates aom_dsp build targets. Must not be called until after libaom target
 # has been created.
 function(setup_aom_dsp_targets)
-  add_library(aom_dsp_common OBJECT ${AOM_DSP_COMMON_SOURCES})
+  add_library(aom_dsp_common ${AOM_DSP_COMMON_SOURCES} OBJECT)
   list(APPEND AOM_LIB_TARGETS aom_dsp_common)
   create_dummy_source_file("aom_av1" "c" "dummy_source_file")
-  add_library(aom_dsp OBJECT "${dummy_source_file}")
+  add_library(aom_dsp "${dummy_source_file}" OBJECT)
   target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_dsp_common>)
   list(APPEND AOM_LIB_TARGETS aom_dsp)
 
@@ -272,13 +270,13 @@ function(setup_aom_dsp_targets)
   add_dummy_source_file_to_target("aom_dsp" "c")
 
   if(CONFIG_AV1_DECODER)
-    add_library(aom_dsp_decoder OBJECT ${AOM_DSP_DECODER_SOURCES})
+    add_library(aom_dsp_decoder ${AOM_DSP_DECODER_SOURCES} OBJECT)
     list(APPEND AOM_LIB_TARGETS aom_dsp_decoder)
     target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_dsp_decoder>)
   endif()
 
   if(CONFIG_AV1_ENCODER)
-    add_library(aom_dsp_encoder OBJECT ${AOM_DSP_ENCODER_SOURCES})
+    add_library(aom_dsp_encoder ${AOM_DSP_ENCODER_SOURCES} OBJECT)
     list(APPEND AOM_LIB_TARGETS aom_dsp_encoder)
     target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_dsp_encoder>)
   endif()
