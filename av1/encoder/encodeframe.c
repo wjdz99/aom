@@ -2821,10 +2821,15 @@ BEGIN_PARTITION_SEARCH:
   }
 
   assert(IMPLIES(!cpi->oxcf.enable_rect_partitions, !do_rectangular_split));
-
-  const int ext_partition_allowed =
-      do_rectangular_split && bsize > BLOCK_8X8 && partition_none_allowed;
-
+  const int boosted = frame_is_kf_gf_arf(cpi);
+  int ext_partition_allowed;
+  if (boosted || cm->allow_screen_content_tools) {
+    ext_partition_allowed =
+        do_rectangular_split && bsize > BLOCK_8X8 && partition_none_allowed;
+  } else {
+    ext_partition_allowed =
+        do_rectangular_split && bsize > BLOCK_16X16 && partition_none_allowed;
+  }
   // The standard AB partitions are allowed whenever ext-partition-types are
   // allowed
   int horzab_partition_allowed =
