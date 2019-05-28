@@ -58,6 +58,7 @@
 #include "av1/encoder/ml.h"
 #include "av1/encoder/partition_strategy.h"
 #include "av1/encoder/partition_model_weights.h"
+#include "av1/encoder/pass2_strategy.h"
 #include "av1/encoder/rd.h"
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/reconinter_enc.h"
@@ -3329,8 +3330,20 @@ BEGIN_PARTITION_SEARCH:
 #undef NUM_SIMPLE_MOTION_FEATURES
 
 #define MAX_PYR_LEVEL_FROMTOP_DELTAQ 0
-static int is_frame_tpl_eligible(AV1_COMP *const cpi) {
+static int is_frame_arf_and_tpl_eligible(AV1_COMP *const cpi) {
   const int max_pyr_level_fromtop_deltaq = 0;
+  const int pyr_lev_from_top =
+      cpi->twopass.gf_group.pyramid_height -
+      cpi->twopass.gf_group.pyramid_level[cpi->twopass.gf_group.index];
+  if (pyr_lev_from_top > max_pyr_level_fromtop_deltaq ||
+      cpi->twopass.gf_group.pyramid_height <= max_pyr_level_fromtop_deltaq + 1)
+    return 0;
+  else
+    return 1;
+}
+
+static int is_frame_tpl_eligible(AV1_COMP *const cpi) {
+  const int max_pyr_level_fromtop_deltaq = MAX_PYR_LEVEL_FROMTOP_DELTAQ;
   const int pyr_lev_from_top =
       cpi->twopass.gf_group.pyramid_height -
       cpi->twopass.gf_group.pyramid_level[cpi->twopass.gf_group.index];
@@ -3387,10 +3400,12 @@ static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int analysis_type,
     }
   } else if (analysis_type == 1) {
     const double mc_count_base = (mi_count * cpi->rd.mc_count_base);
-    beta = (mc_count + 10.0) / (mc_count_base + 10.0);
+    beta = (mc_count + 1.0) / (mc_count_base + 1.0);
+    beta = pow(beta, 0.5);
   } else if (analysis_type == 2) {
     const double mc_saved_base = (mi_count * cpi->rd.mc_saved_base);
-    beta = (mc_saved + 100.0) / (mc_saved_base + 100.0);
+    beta = (mc_saved + 1.0) / (mc_saved_base + 1.0);
+    beta = pow(beta, 0.5);
   }
 
   int rdmult = av1_get_adaptive_rdmult(cpi, beta);
@@ -3461,10 +3476,12 @@ static int get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
     }
   } else if (analysis_type == 1) {
     const double mc_count_base = (mi_count * cpi->rd.mc_count_base);
-    beta = (mc_count + 10.0) / (mc_count_base + 10.0);
+    beta = (mc_count + 1.0) / (mc_count_base + 1.0);
+    beta = pow(beta, 0.5);
   } else if (analysis_type == 2) {
     const double mc_saved_base = (mi_count * cpi->rd.mc_saved_base);
-    beta = (mc_saved + 100.0) / (mc_saved_base + 100.0);
+    beta = ((double)mc_saved + 1.0) / (mc_saved_base + 1.0);
+    beta = pow(beta, 0.5);
   }
   offset = (7 * av1_get_deltaq_offset(cpi, cm->base_qindex, beta)) / 8;
   // printf("[%d/%d]: beta %g offset %d\n", pyr_lev_from_top,
@@ -4387,6 +4404,11 @@ static void set_default_interp_skip_flags(AV1_COMP *cpi) {
                                        : DEFAULT_INTERP_SKIP_FLAG;
 }
 
+static int get_gfu_boost_from_r0(double r0) {
+  int boost = (int)rint(140.0 / r0);
+  return boost;
+}
+
 static void encode_frame_internal(AV1_COMP *cpi) {
   ThreadData *const td = &cpi->td;
   MACROBLOCK *const x = &td->mb;
@@ -4573,10 +4595,14 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       }
     }
 
-    aom_clear_system_state();
-
     if (tpl_frame->is_valid) {
+      aom_clear_system_state();
       cpi->rd.r0 = (double)intra_cost_base / mc_dep_cost_base;
+      if (is_frame_arf_and_tpl_eligible(cpi)) {
+        cpi->rd.arf_r0 = cpi->rd.r0;
+        const int gfu_boost = get_gfu_boost_from_r0(cpi->rd.arf_r0);
+        cpi->rc.gfu_boost = (cpi->rc.gfu_boost + gfu_boost) / 2;
+      }
       cpi->rd.mc_count_base =
           (double)mc_count_base / (cm->mi_rows * cm->mi_cols);
       cpi->rd.mc_saved_base =
