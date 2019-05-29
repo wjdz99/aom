@@ -237,6 +237,7 @@ typedef enum {
   CR_TOO_SMALL,
   TILE_SIZE_HEADER_RATE_TOO_HIGH,
   BITRATE_TOO_HIGH,
+  DECODER_MODEL_FAIL,
 
   TARGET_LEVEL_FAIL_IDS,
   TARGET_LEVEL_OK,
@@ -262,6 +263,7 @@ static const char *level_fail_messages[TARGET_LEVEL_FAIL_IDS] = {
   "The compression ratio is too small.",
   "The product of max tile size and header rate is too high.",
   "The bitrate is too high.",
+  "The decoder model fails.",
 };
 
 static double get_max_bitrate(const AV1LevelSpec *const level_spec, int tier,
@@ -639,9 +641,9 @@ void av1_decoder_model_process_frame(const AV1_COMP *const cpi,
   }
 }
 
-void av1_init_level_info(AV1LevelInfo *level_info[]) {
-  for (int i = 0; i < MAX_NUM_OPERATING_POINTS; ++i) {
-    AV1LevelInfo *this_level_info = level_info[i];
+void av1_init_level_info(AV1_COMP *cpi) {
+  for (int op_index = 0; op_index < MAX_NUM_OPERATING_POINTS; ++op_index) {
+    AV1LevelInfo *const this_level_info = cpi->level_info[op_index];
     if (!this_level_info) continue;
     memset(this_level_info, 0, sizeof(*this_level_info));
     AV1LevelSpec *const level_spec = &this_level_info->level_spec;
@@ -653,6 +655,22 @@ void av1_init_level_info(AV1LevelInfo *level_info[]) {
     level_stats->min_frame_height = INT_MAX;
     level_stats->tile_width_is_valid = 1;
     level_stats->min_cr = 1e8;
+
+    AV1_COMMON *const cm = &cpi->common;
+    const int upscaled_width = cm->superres_upscaled_width;
+    const int height = cm->height;
+    for (AV1_LEVEL level = SEQ_LEVEL_2_0; level < SEQ_LEVELS; ++level) {
+      const AV1LevelSpec *spec = &av1_level_defs[level];
+      if (upscaled_width > spec->max_h_size || height > spec->max_v_size ||
+          upscaled_width * height > spec->max_picture_size) {
+        // Turn off decoder model for this level as the frame size already
+        // exceeds level constraints.
+        this_level_info->decoder_models[level].status = DECODER_MODEL_DISABLED;
+      } else {
+        av1_decoder_model_init(cpi, level, op_index,
+                               &this_level_info->decoder_models[level]);
+      }
+    }
   }
 }
 
@@ -691,10 +709,14 @@ static void get_temporal_parallel_params(int scalability_mode_idc,
 #define MAX_TILE_SIZE_HEADER_RATE_PRODUCT 588251136
 
 static TARGET_LEVEL_FAIL_ID check_level_constraints(
-    const AV1LevelSpec *const target_level_spec,
-    const AV1LevelSpec *const level_spec,
-    const AV1LevelStats *const level_stats, int tier, int is_still_picture,
-    BITSTREAM_PROFILE profile) {
+    const AV1LevelInfo *const level_info, AV1_LEVEL level, int tier,
+    int is_still_picture, BITSTREAM_PROFILE profile) {
+  if (level_info->decoder_models[level].status != DECODER_MODEL_OK) {
+    return DECODER_MODEL_FAIL;
+  }
+
+  const AV1LevelSpec *const level_spec = &level_info->level_spec;
+  const AV1LevelSpec *const target_level_spec = &av1_level_defs[level];
   const double min_cr = get_min_cr(target_level_spec, tier, is_still_picture,
                                    level_spec->max_decode_rate);
   const double max_bitrate = get_max_bitrate(target_level_spec, tier, profile);
@@ -746,6 +768,7 @@ static TARGET_LEVEL_FAIL_ID check_level_constraints(
       break;
     }
 
+    const AV1LevelStats *const level_stats = &level_info->level_stats;
     if (level_stats->max_tile_size > MAX_TILE_SIZE) {
       fail_id = TILE_TOO_LARGE;
       break;
@@ -1040,18 +1063,23 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
                        level_stats);
     }
 
+    DECODER_MODEL *const decoder_models = level_info->decoder_models;
+    for (AV1_LEVEL level = SEQ_LEVEL_2_0; level < SEQ_LEVELS; ++level) {
+      av1_decoder_model_process_frame(cpi, size << 3, &decoder_models[level]);
+    }
+
     // Check whether target level is met.
-    const AV1_LEVEL target_seq_level_idx = cpi->target_seq_level_idx[i];
-    if (target_seq_level_idx < SEQ_LEVELS) {
-      const AV1LevelSpec *const target_level_spec =
-          av1_level_defs + target_seq_level_idx;
+    const AV1_LEVEL target_level = cpi->target_seq_level_idx[i];
+    if (target_level < SEQ_LEVELS) {
       const int tier = seq_params->tier[i];
       const TARGET_LEVEL_FAIL_ID fail_id =
-          check_level_constraints(target_level_spec, level_spec, level_stats,
-                                  tier, is_still_picture, profile);
+          decoder_models[target_level].status == DECODER_MODEL_OK ?
+          check_level_constraints(level_info, target_level,
+                                  tier, is_still_picture, profile) :
+          DECODER_MODEL_FAIL;
       if (fail_id != TARGET_LEVEL_OK) {
-        const int target_level_major = 2 + (target_seq_level_idx >> 2);
-        const int target_level_minor = target_seq_level_idx & 3;
+        const int target_level_major = 2 + (target_level >> 2);
+        const int target_level_minor = target_level & 3;
         aom_internal_error(&cm->error, AOM_CODEC_ERROR,
                            "Failed to encode to the target level %d_%d. %s",
                            target_level_major, target_level_minor,
@@ -1071,12 +1099,9 @@ aom_codec_err_t av1_get_seq_level_idx(const AV1_COMP *cpi, int *seq_level_idx) {
     const int tier = seq_params->tier[op];
     const AV1LevelInfo *const level_info = cpi->level_info[op];
     assert(level_info != NULL);
-    const AV1LevelStats *const level_stats = &level_info->level_stats;
-    const AV1LevelSpec *const level_spec = &level_info->level_spec;
     for (int level = 0; level < SEQ_LEVELS; ++level) {
-      const AV1LevelSpec *const target_level_spec = av1_level_defs + level;
       const TARGET_LEVEL_FAIL_ID fail_id =
-          check_level_constraints(target_level_spec, level_spec, level_stats,
+          check_level_constraints(level_info, level,
                                   tier, is_still_picture, profile);
       if (fail_id == TARGET_LEVEL_OK) {
         seq_level_idx[op] = level;
