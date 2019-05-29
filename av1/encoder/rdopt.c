@@ -3527,14 +3527,14 @@ static int64_t txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   // same is accounted in the caller functions after rd evaluation of all
   // planes. However the decisions should be done after considering the
   // skip/non-skip header cost
-  if (rd_stats->skip) {
-    if (is_inter) {
-      rd = RDCOST(x->rdmult, s1, rd_stats->sse);
-    } else {
-      rd = RDCOST(x->rdmult, s1 + r_tx_size * tx_select, rd_stats->sse);
-      rd_stats->rate += r_tx_size * tx_select;
-    }
+  // TODO(any): Refactor the code for inter blocks by merging two 'if' cases
+  // below
+  if (rd_stats->skip && is_inter) {
+    rd = RDCOST(x->rdmult, s1, rd_stats->sse);
   } else {
+    // Even though block is implicit skip based on luma data, rd cost is
+    // calculated assuming that block is non-skip to keep the decisions in
+    // consistency with intra mode evaluation.
     rd = RDCOST(x->rdmult, rd_stats->rate + s0 + r_tx_size * tx_select,
                 rd_stats->dist);
     rd_stats->rate += r_tx_size * tx_select;
