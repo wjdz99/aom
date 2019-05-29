@@ -3527,14 +3527,14 @@ static int64_t txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   // same is accounted in the caller functions after rd evaluation of all
   // planes. However the decisions should be done after considering the
   // skip/non-skip header cost
-  if (rd_stats->skip) {
-    if (is_inter) {
-      rd = RDCOST(x->rdmult, s1, rd_stats->sse);
-    } else {
-      rd = RDCOST(x->rdmult, s1 + r_tx_size * tx_select, rd_stats->sse);
-      rd_stats->rate += r_tx_size * tx_select;
-    }
+  // TODO(any): Refactor the code for inter blocks by merging two 'if' cases
+  // below
+  if (rd_stats->skip && is_inter) {
+    rd = RDCOST(x->rdmult, s1, rd_stats->sse);
   } else {
+    // Even though block is implicit skip based on luma data, rd cost is
+    // calculated assuming that block is non-skip to keep the decisions in
+    // consistency with intra mode evaluation.
     rd = RDCOST(x->rdmult, rd_stats->rate + s0 + r_tx_size * tx_select,
                 rd_stats->dist);
     rd_stats->rate += r_tx_size * tx_select;
@@ -10870,17 +10870,30 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
         rd_pick_intra_sbuv_mode(cpi, x, &rate_uv, &rate_uv_tokenonly, &dist_uv,
                                 &uv_skip, bsize, max_uv_tx_size);
     }
-
-    if (y_skip && (uv_skip || x->skip_chroma_rd)) {
-      rd_cost->rate = rate_y + rate_uv - rate_y_tokenonly - rate_uv_tokenonly +
-                      x->skip_cost[av1_get_skip_context(xd)][1];
-      rd_cost->dist = dist_y + dist_uv;
+    rd_cost->dist = dist_y + dist_uv;
+    // As the mode decision does't use the cost incurred for signaling skip, RD
+    // cost based check between skip_rd and this_rd is considered
+    const int skip_ctx = av1_get_skip_context(xd);
+    const int is_skip = (y_skip && (uv_skip || x->skip_chroma_rd));
+    const int skip_blk_rate = rate_y + rate_uv - rate_y_tokenonly -
+                              rate_uv_tokenonly + x->skip_cost[skip_ctx][1];
+    const int non_skip_blk_rate = rate_y + rate_uv + x->skip_cost[skip_ctx][0];
+    const int64_t tmp_skip_rd =
+        is_skip ? RDCOST(x->rdmult, skip_blk_rate, rd_cost->dist) : INT64_MAX;
+    const int64_t tmp_this_rd =
+        RDCOST(x->rdmult, non_skip_blk_rate, rd_cost->dist);
+    if (is_skip && tmp_skip_rd < tmp_this_rd) {
+      // Even though block is implicit skip, signal the same accordingly only if
+      // skip rd cost is lower. This will be helpful in key frames as signalling
+      // block skip can be costlier
+      rd_cost->rate = skip_blk_rate;
+      rd_cost->rdcost = tmp_skip_rd;
+      rd_cost->skip = 1;
     } else {
-      rd_cost->rate =
-          rate_y + rate_uv + x->skip_cost[av1_get_skip_context(xd)][0];
-      rd_cost->dist = dist_y + dist_uv;
+      rd_cost->rate = non_skip_blk_rate;
+      rd_cost->rdcost = tmp_this_rd;
+      rd_cost->skip = 0;
     }
-    rd_cost->rdcost = RDCOST(x->rdmult, rd_cost->rate, rd_cost->dist);
   } else {
     rd_cost->rate = INT_MAX;
   }
@@ -12150,19 +12163,30 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
   // Estimate the reference frame signaling cost and add it
   // to the rolling cost variable.
   rd_stats->rate += ref_frame_cost;
-  if (rd_stats->skip) {
-    // Back out the coefficient coding costs
-    rd_stats->rate -= (rd_stats_y->rate + rd_stats_uv->rate);
+  // As the mode decision does't use the cost incurred for signaling skip, RD
+  // cost based check between skip_rd and this_rd is considered
+  const int skip_blk_rate = rd_stats->rate -
+                            (rd_stats_y->rate + rd_stats_uv->rate) +
+                            x->skip_cost[skip_ctx][1];
+  const int non_skip_blk_rate = rd_stats->rate + x->skip_cost[skip_ctx][0];
+  const int64_t tmp_skip_rd =
+      rd_stats->skip ? RDCOST(x->rdmult, skip_blk_rate, rd_stats->dist)
+                     : INT64_MAX;
+  const int64_t tmp_this_rd =
+      RDCOST(x->rdmult, non_skip_blk_rate, rd_stats->dist);
+  int64_t this_rd;
+  if (rd_stats->skip && tmp_skip_rd < tmp_this_rd) {
+    // Even though block is implicit skip, signal the same accordingly only if
+    // skip rd cost is lower.
+    rd_stats->rate = skip_blk_rate;
     rd_stats_y->rate = 0;
     rd_stats_uv->rate = 0;
-    // Cost the skip mb case
-    rd_stats->rate += x->skip_cost[skip_ctx][1];
+    this_rd = tmp_skip_rd;
   } else {
-    // Add in the cost of the no skip flag.
-    rd_stats->rate += x->skip_cost[skip_ctx][0];
+    rd_stats->rate = non_skip_blk_rate;
+    rd_stats->skip = 0;
+    this_rd = tmp_this_rd;
   }
-  // Calculate the final RD estimate for this mode.
-  const int64_t this_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
   // Keep record of best intra rd
   if (this_rd < search_state->best_intra_rd) {
     search_state->best_intra_rd = this_rd;
