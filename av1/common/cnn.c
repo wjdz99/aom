@@ -331,7 +331,9 @@ static void convolve_layer_mt(const float **input, int in_width, int in_height,
 
   // Wait until all workers have finished.
   for (int th = 0; th < AOMMIN(num_workers, CNN_MAX_THREADS); ++th) {
-    winterface->sync(&thread_data->workers[th]);
+    AVxWorker *const worker = &(thread_data->workers[th]);
+    winterface->sync(worker);
+    winterface->reset(worker);
   }
 }
 
