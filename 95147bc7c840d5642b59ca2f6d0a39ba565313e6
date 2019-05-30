@@ -34,6 +34,24 @@
       "revId": "95147bc7c840d5642b59ca2f6d0a39ba565313e6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "558b60e4_ac9a7e4f",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-05-30T22:30:03Z",
+      "side": 1,
+      "message": "\u003e this is to keep consistent with vp9 flag...\n\nI think he meant the next line, vp9\u0027s configure says:\n  --enable-realtime-only          enable this option while building for real-time encoding",
+      "parentUuid": "f2dd9ebe_b4b2886a",
+      "revId": "95147bc7c840d5642b59ca2f6d0a39ba565313e6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
