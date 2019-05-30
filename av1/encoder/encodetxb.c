@@ -1517,7 +1517,8 @@ static AOM_FORCE_INLINE void update_coeff_eob(
     int dc_sign_ctx, int64_t rdmult, int shift, const int16_t *dequant,
     const int16_t *scan, const LV_MAP_EOB_COST *txb_eob_costs,
     const LV_MAP_COEFF_COST *txb_costs, const tran_low_t *tcoeff,
-    tran_low_t *qcoeff, tran_low_t *dqcoeff, uint8_t *levels, int sharpness) {
+    tran_low_t *qcoeff, tran_low_t *dqcoeff, uint8_t *levels, int sharpness,
+    int *acc_energy) {
   const int dqv = dequant[si != 0];
   assert(si != *eob - 1);
   const int ci = scan[si];
@@ -1529,6 +1530,7 @@ static AOM_FORCE_INLINE void update_coeff_eob(
   } else {
     int lower_level = 0;
     const tran_low_t abs_qc = abs(qc);
+    *acc_energy += abs_qc;
     const tran_low_t tqc = tcoeff[ci];
     const tran_low_t dqc = dqcoeff[ci];
     const int sign = (qc < 0) ? 1 : 0;
@@ -1618,7 +1620,7 @@ static AOM_FORCE_INLINE void update_coeff_eob(
     }
     if (qcoeff[ci]) {
       nz_ci[*nz_num] = ci;
-      ++*nz_num;
+      //++*nz_num;
     }
   }
 }
@@ -1737,15 +1739,18 @@ int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
     accu_dist += dist - dist0;
     --si;
   }
-
+  int acc_energy = 0;
+  int threshold = 5;
 #define UPDATE_COEFF_EOB_CASE(tx_class_literal)                            \
   case tx_class_literal:                                                   \
-    for (; si >= 0 && nz_num <= max_nz_num && !fast_mode; --si) {          \
+    for (; acc_energy < threshold && si >= 0 && nz_num <= max_nz_num &&    \
+           !fast_mode;                                                     \
+         --si) {                                                           \
       update_coeff_eob(&accu_rate, &accu_dist, &eob, &nz_num, nz_ci, si,   \
                        tx_size, tx_class_literal, bwl, height,             \
                        txb_ctx->dc_sign_ctx, rdmult, shift, dequant, scan, \
                        txb_eob_costs, txb_costs, tcoeff, qcoeff, dqcoeff,  \
-                       levels, sharpness);                                 \
+                       levels, sharpness, &acc_energy);                    \
     }                                                                      \
     break;
   switch (tx_class) {
