@@ -1104,9 +1104,13 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   int i;
   RD_OPT *const rd = &cpi->rd;
   SPEED_FEATURES *const sf = &cpi->sf;
+  const int boosted = frame_is_kf_gf_arf(cpi);
 
   // Set baseline threshold values.
-  for (i = 0; i < MAX_MODES; ++i) rd->thresh_mult[i] = cpi->oxcf.mode == 0;
+  for (i = 0; i < MAX_MODES; ++i) {
+    rd->thresh_mult[i] = boosted ? 0 : 300;
+    cpi->oxcf.mode == 0;
+  }
 
   if (sf->adaptive_rd_thresh) {
     rd->thresh_mult[THR_NEARESTMV] = 300;
