@@ -2677,6 +2677,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   yuv_rec_file = fopen("rec.yuv", "wb");
 #endif
 
+#if !CONFIG_REALTIME_ONLY
   if (oxcf->pass == 1) {
     av1_init_first_pass(cpi);
   } else if (oxcf->pass == 2) {
@@ -2689,6 +2690,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
     av1_init_second_pass(cpi);
   }
+#endif
 
   CHECK_MEM_ERROR(
       cm, cpi->td.mb.above_pred_buf,
@@ -5261,7 +5263,9 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
   }
 
   if (cpi->oxcf.pass == 1) {
+#if !CONFIG_REALTIME_ONLY
     av1_first_pass(cpi, frame_input->ts_duration);
+#endif
   } else if (cpi->oxcf.pass == 0 || cpi->oxcf.pass == 2) {
     if (encode_frame_to_data_rate(cpi, &frame_results->size, dest) !=
         AOM_CODEC_OK) {
