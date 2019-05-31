@@ -3082,7 +3082,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     allowed_tx_mask = 1 << txk_allowed;
     allowed_tx_mask &= ext_tx_used_flag;
   } else if (fast_tx_search) {
-    allowed_tx_mask = 0x0c01;  // V_DCT, H_DCT, DCT_DCT
+    allowed_tx_mask = 0x0001;  // DCT_DCT
     allowed_tx_mask &= ext_tx_used_flag;
   } else {
     assert(plane == 0);
