@@ -236,23 +236,23 @@ void av1_quantize_fp_facade(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
               p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr,
               p->dequant_QTX, eob_ptr, sc->scan, sc->iscan, NULL, NULL, 0);
         } else {
-          av1_quantize_fp(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
-                          p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr,
-                          dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
-                          sc->iscan);
+          av1_quantize_fp_c(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
+                            p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr,
+                            dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
+                            sc->iscan);
         }
         break;
       case 1:
-        av1_quantize_fp_32x32(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
-                              p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr,
-                              dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
-                              sc->iscan);
+        av1_quantize_fp_32x32_c(coeff_ptr, n_coeffs, p->zbin_QTX,
+                                p->round_fp_QTX, p->quant_fp_QTX,
+                                p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr,
+                                p->dequant_QTX, eob_ptr, sc->scan, sc->iscan);
         break;
       case 2:
-        av1_quantize_fp_64x64(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
-                              p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr,
-                              dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
-                              sc->iscan);
+        av1_quantize_fp_64x64_c(coeff_ptr, n_coeffs, p->zbin_QTX,
+                                p->round_fp_QTX, p->quant_fp_QTX,
+                                p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr,
+                                p->dequant_QTX, eob_ptr, sc->scan, sc->iscan);
         break;
       default: assert(0);
     }
@@ -589,7 +589,7 @@ void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
     const int qrounding_factor = q == 0 ? 64 : 48;
 
     for (i = 0; i < 2; ++i) {
-      int qrounding_factor_fp = 64;
+      int qrounding_factor_fp = 127;
       // y quantizer setup with original coeff shift of Q3
       quant_Q3 = i == 0 ? av1_dc_quant_Q3(q, y_dc_delta_q, bit_depth)
                         : av1_ac_quant_Q3(q, 0, bit_depth);
