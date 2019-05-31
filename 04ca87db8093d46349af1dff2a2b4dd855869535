@@ -22,6 +22,30 @@
       "revId": "04ca87db8093d46349af1dff2a2b4dd855869535",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08b6b426_0b7b5262",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3534,
+      "author": {
+        "id": 12554
+      },
+      "writtenOn": "2019-05-31T18:14:25Z",
+      "side": 0,
+      "message": "We do feel the same for inter blocks. However for intra blocks, we see that intra mode decision (finding best of angular modes etc) does not consider skip case. This could be because of the following:\n1.\tChroma evaluation may make the block as non-skip (though so far block is implicit skip)\n2.\tMaking intra blocks as skip may be good in rd-sense (for that frame), however subsequent frames (referring intra frames) may not be coded with good quality as skip distortion can be high\nDue to above, we felt that doing all the evaluations considering non-skip cost may be recommended for consistency (in case of intra).\n\nIn this case rdcost-\u003erate corresponds to zero_blk_rate of all TU blocks and rdcost-\u003edist corresponds to SSE (if the block turns out to be implicit skip after quantization).",
+      "parentUuid": "5f63ebc7_7326c552",
+      "range": {
+        "startLine": 3534,
+        "startChar": 6,
+        "endLine": 3534,
+        "endChar": 72
+      },
+      "revId": "04ca87db8093d46349af1dff2a2b4dd855869535",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
