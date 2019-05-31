@@ -305,7 +305,8 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 3) {
-    sf->tx_size_search_method = boosted ? USE_FULL_RD : USE_LARGESTALL;
+    sf->tx_size_search_method =
+        frame_is_intra_only(cm) ? USE_FULL_RD : USE_LARGESTALL;
     sf->less_rectangular_check_level = 2;
     sf->adaptive_pred_interp_filter = 1;
     // adaptive_motion_search breaks encoder multi-thread tests.
