@@ -236,23 +236,23 @@ void av1_quantize_fp_facade(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
               p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr,
               p->dequant_QTX, eob_ptr, sc->scan, sc->iscan, NULL, NULL, 0);
         } else {
-          av1_quantize_fp(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
-                          p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr,
-                          dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
-                          sc->iscan);
+          av1_quantize_fp_c(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
+                            p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr,
+                            dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
+                            sc->iscan);
         }
         break;
       case 1:
-        av1_quantize_fp_32x32(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
-                              p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr,
-                              dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
-                              sc->iscan);
+        av1_quantize_fp_32x32_c(coeff_ptr, n_coeffs, p->zbin_QTX,
+                                p->round_fp_QTX, p->quant_fp_QTX,
+                                p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr,
+                                p->dequant_QTX, eob_ptr, sc->scan, sc->iscan);
         break;
       case 2:
-        av1_quantize_fp_64x64(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
-                              p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr,
-                              dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
-                              sc->iscan);
+        av1_quantize_fp_64x64_c(coeff_ptr, n_coeffs, p->zbin_QTX,
+                                p->round_fp_QTX, p->quant_fp_QTX,
+                                p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr,
+                                p->dequant_QTX, eob_ptr, sc->scan, sc->iscan);
         break;
       default: assert(0);
     }
@@ -599,7 +599,8 @@ void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
       invert_quant(&quants->y_quant[q][i], &quants->y_quant_shift[q][i],
                    quant_QTX);
       quants->y_quant_fp[q][i] = (1 << 16) / quant_QTX;
-      quants->y_round_fp[q][i] = (qrounding_factor_fp * quant_QTX) >> 7;
+      quants->y_round_fp[q][i] =
+          quant_QTX - 1;  //(qrounding_factor_fp * quant_QTX) >> 7;
       quants->y_zbin[q][i] = ROUND_POWER_OF_TWO(qzbin_factor * quant_QTX, 7);
       quants->y_round[q][i] = (qrounding_factor * quant_QTX) >> 7;
       deq->y_dequant_QTX[q][i] = quant_QTX;
@@ -614,7 +615,8 @@ void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
       invert_quant(&quants->u_quant[q][i], &quants->u_quant_shift[q][i],
                    quant_QTX);
       quants->u_quant_fp[q][i] = (1 << 16) / quant_QTX;
-      quants->u_round_fp[q][i] = (qrounding_factor_fp * quant_QTX) >> 7;
+      quants->u_round_fp[q][i] =
+          quant_QTX - 1;  //(qrounding_factor_fp * quant_QTX) >> 7;
       quants->u_zbin[q][i] = ROUND_POWER_OF_TWO(qzbin_factor * quant_QTX, 7);
       quants->u_round[q][i] = (qrounding_factor * quant_QTX) >> 7;
       deq->u_dequant_QTX[q][i] = quant_QTX;
@@ -629,7 +631,8 @@ void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
       invert_quant(&quants->v_quant[q][i], &quants->v_quant_shift[q][i],
                    quant_QTX);
       quants->v_quant_fp[q][i] = (1 << 16) / quant_QTX;
-      quants->v_round_fp[q][i] = (qrounding_factor_fp * quant_QTX) >> 7;
+      quants->v_round_fp[q][i] =
+          quant_QTX - 1;  //(qrounding_factor_fp * quant_QTX) >> 7;
       quants->v_zbin[q][i] = ROUND_POWER_OF_TWO(qzbin_factor * quant_QTX, 7);
       quants->v_round[q][i] = (qrounding_factor * quant_QTX) >> 7;
       deq->v_dequant_QTX[q][i] = quant_QTX;
