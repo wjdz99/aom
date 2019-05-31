@@ -22,6 +22,30 @@
       "revId": "c35698139027872899b9d8cd4a871c1bc2c25a1a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf14ddd6_28704dd4",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 632,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-05-31T18:38:38Z",
+      "side": 0,
+      "message": "Earlier, first-pass was not using any future frames, so lag was set to 0.\nNow, we use future source frames as an approximation for alt-ref frames, so lag is same as one used by 2nd pass.",
+      "parentUuid": "087f9a72_bc764c25",
+      "range": {
+        "startLine": 632,
+        "startChar": 21,
+        "endLine": 632,
+        "endChar": 42
+      },
+      "revId": "c35698139027872899b9d8cd4a871c1bc2c25a1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
