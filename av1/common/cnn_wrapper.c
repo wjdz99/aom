@@ -16,6 +16,7 @@
 #include "av1/common/cnn_wrapper.h"
 #include "av1/common/onyxc_int.h"
 
+#include "av1/models/intra_frame_model/qp12.h"
 #include "av1/models/intra_frame_model/qp22.h"
 #include "av1/models/intra_frame_model/qp32.h"
 #include "av1/models/intra_frame_model/qp43.h"
@@ -28,6 +29,8 @@ static void av1_restore_cnn_plane_Y_wrapper(
   int qindex = cm->base_qindex;
   if (qindex <= MIN_CNN_Q_INDEX) {
     return;
+  } else if (qindex < 68) {
+    av1_restore_cnn_plane(cm, &intra_model_12, plane, thread_data);
   } else if (qindex < 108) {
     av1_restore_cnn_plane(cm, &intra_frame_model_qp22, plane, thread_data);
   } else if (qindex < 148) {
