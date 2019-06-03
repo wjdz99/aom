@@ -277,7 +277,7 @@ static void set_good_speed_features_framesize_independent(
     sf->disable_wedge_search_edge_thresh = 0;
     sf->disable_interinter_wedge_newmv_search = boosted ? 0 : 1;
     sf->prune_comp_type_by_comp_avg = 1;
-    sf->prune_motion_mode_level = 2;
+    sf->prune_motion_mode_level = boosted ? 2 : 3;
     sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
     sf->disable_adaptive_warp_error_thresh = 0;
     sf->cb_pred_filter_search = 1;
@@ -344,7 +344,7 @@ static void set_good_speed_features_framesize_independent(
       sf->disable_smooth_interintra = boosted ? 0 : 1;
     sf->gm_search_type = GM_DISABLE_SEARCH;
     sf->prune_comp_search_by_single_result = 2;
-    sf->prune_motion_mode_level = boosted ? 2 : 3;
+    sf->prune_motion_mode_level = boosted ? 3 : 4;
     // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
     // it with cpi->sf.disable_wedge_search_var_thresh.
     sf->disable_wedge_interintra_search = 1;
