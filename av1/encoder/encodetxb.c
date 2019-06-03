@@ -1586,7 +1586,7 @@ static AOM_FORCE_INLINE void update_coeff_eob(
         dist_new_eob = dist_new_eob_low;
       }
     }
-
+    rd_new_eob = INT64_MAX;
     if (rd_low < rd) {
       lower_level = 1;
       rd = rd_low;
