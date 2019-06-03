@@ -12668,6 +12668,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                        INT64_MAX, INT64_MAX, INT64_MAX,
                                        INT64_MAX, INT64_MAX };
   for (int midx = 0; midx < MAX_MODES; ++midx) {
+    if (midx > 27 && midx < 156) continue;
     const int do_tx_search = do_tx_search_mode(
         do_tx_search_global, midx, sf->inter_mode_rd_model_estimation_adaptive);
     const MODE_DEFINITION *mode_order = &av1_mode_order[midx];
