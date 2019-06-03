@@ -55,6 +55,7 @@
 #include "av1/encoder/encodetxb.h"
 #include "av1/encoder/ethread.h"
 #include "av1/encoder/extend.h"
+#include "av1/encoder/hybrid_fwd_txfm.h"
 #include "av1/encoder/ml.h"
 #include "av1/encoder/partition_strategy.h"
 #if !CONFIG_REALTIME_ONLY
@@ -3816,6 +3817,284 @@ static void adjust_rdmult_tpl_model(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
 }
 #endif
 
+static void compute_energy(MACROBLOCKD *const xd, const uint8_t* src,
+                           const int src_stride, int width, int height,
+                           int64_t *energy_dc, int64_t *energy_ac) {
+  int16_t src16[64];
+  const int stride = 8;
+  int32_t coeff[64] = { 0 };
+  TxfmParam txfm_param;
+  txfm_param.tx_type = DCT_DCT;
+  if (width == 8) {
+    txfm_param.tx_size = TX_8X8;
+  } else {
+    txfm_param.tx_size = TX_4X4;
+  }
+  txfm_param.lossless = 0;
+  txfm_param.tx_set_type = av1_get_ext_tx_set_type(txfm_param.tx_size, 0, 0);
+  txfm_param.bd = xd->bd;
+  txfm_param.is_hbd = is_cur_buf_hbd(xd);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      src16[y * stride + x] = src[y * src_stride + x];
+    }
+  }
+  av1_fwd_txfm(src16, coeff, stride, &txfm_param);
+
+  int64_t dc = 0;
+  int64_t ac_all = 0;
+  int64_t ac_first_two = 0;
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      // Sum of square.
+      if (x == 0 && y == 0) {
+        dc = coeff[0] * coeff[0];
+      } else {
+        if (x + y == 1) {
+          ac_first_two += coeff[y * stride + x] * coeff[y * stride + x];
+        }
+        ac_all += coeff[y * stride + x] * coeff[y * stride + x];
+      }
+      /*
+      // Sum of absolute.
+      if (x == 0 && y == 0) {
+        dc = abs(coeff[0]);
+      } else {
+        if (x + y == 1) {
+          ac_first_two += abs(coeff[y * stride + x]);
+        }
+        ac_all += abs(coeff[y * stride + x]);
+      }
+      */
+    }
+  }
+
+  /*
+  {
+    FILE *pfile = fopen("energy.txt", "a");
+    fprintf(pfile, "src:\n");
+    for (int y = 0; y < height; ++y) {
+      for (int x = 0; x < width; ++x) {
+        fprintf(pfile, " %3d", src16[y * 8 + x]);
+      }
+      fprintf(pfile, "\n");
+    }
+    fprintf(pfile, "\n");
+
+    fprintf(pfile, "dc %ld, ac_all %ld, ac_first_two %ld, ratio %f, coeff:\n",
+            dc, ac_all, ac_first_two, ac_all/((double)dc));
+    for (int y = 0; y < height; ++y) {
+      for (int x = 0; x < width; ++x) {
+        fprintf(pfile, " %3d", coeff[y * 8 + x]);
+      }
+      fprintf(pfile, "\n");
+    }
+    fprintf(pfile, "\n");
+
+    fclose(pfile);
+  }
+  */
+
+  *energy_dc += dc;
+  *energy_ac += ac_all;
+}
+
+static void compute_frame_energy_ratio(AV1_COMP *cpi, MACROBLOCK *const x) {
+  AV1_COMMON *const cm = &cpi->common;
+  const int num_planes = av1_num_planes(cm);
+  MACROBLOCKD *const xd = &x->e_mbd;
+  const int step_superblock = mi_size_wide[cm->seq_params.sb_size];
+  const int step = mi_size_wide[BLOCK_8X8];
+  const int mi_frame_width_y = cpi->source->y_crop_width >> MI_SIZE_LOG2;
+  const int mi_frame_height_y = cpi->source->y_crop_height >> MI_SIZE_LOG2;
+  int num_of_superblock = 0;
+
+  av1_setup_src_planes(x, cpi->source, 0, 0, num_planes,
+                       cm->seq_params.sb_size);
+  for (int mi_row = 0; mi_row < mi_frame_height_y; mi_row += step_superblock) {
+    for (int mi_col = 0; mi_col < mi_frame_width_y; mi_col += step_superblock) {
+      int64_t energy_dc = 0;
+      int64_t energy_ac = 0;
+
+      for (int plane = 0; plane < num_planes; ++plane) {
+        const int stride = x->plane[plane].src.stride;
+        const int subsampling_x = plane > 0 ? cm->seq_params.subsampling_x : 0;
+        const int subsampling_y = plane > 0 ? cm->seq_params.subsampling_y : 0;
+        const int frame_width =
+            plane > 0 ? cpi->source->uv_crop_width : cpi->source->y_crop_width;
+        const int frame_height =
+            plane > 0 ? cpi->source->uv_crop_height : cpi->source->y_crop_height;
+        const int mi_frame_width = frame_width >> MI_SIZE_LOG2;
+        const int mi_frame_height = frame_height >> MI_SIZE_LOG2;
+
+        for (int row = 0;
+             row < AOMMIN(step_superblock, mi_frame_height - mi_row);
+             row += step) {
+          for (int col = 0;
+               col < AOMMIN(step_superblock, mi_frame_width - mi_col);
+               col += step) {
+            const uint8_t* const src = x->plane[plane].src.buf +
+                ((MI_SIZE * (mi_row + row) * stride) >> subsampling_y) +
+                ((MI_SIZE * (mi_col + col)) >> subsampling_x);
+            const int curr_x = (MI_SIZE * (mi_col + col)) >> subsampling_x;
+            const int curr_y = (MI_SIZE * (mi_row + row)) >> subsampling_y;
+            const int width = AOMMIN(8 >> subsampling_x, frame_width - curr_x);
+            const int height = AOMMIN(8 >> subsampling_y, frame_height - curr_y);
+            compute_energy(xd, src, stride, width, height, &energy_dc, &energy_ac);
+          }
+        }
+      }
+
+      const double ratio = (energy_dc == 0) ? 0 : energy_ac / (double)energy_dc;
+      cpi->energy_ratio += ratio;
+      ++num_of_superblock;
+    }
+  }
+
+  cpi->energy_ratio /= num_of_superblock;
+}
+
+static int compute_rdmult_based_on_ratio(AV1_COMP *cpi, int orig_rdmult,
+                                         int64_t energy_dc, int64_t energy_ac) {
+  const double ratio = (energy_dc == 0) ? 0 : energy_ac / (double)energy_dc;
+  double multiplier = (energy_dc == 0) ? 1 : ratio / cpi->energy_ratio;
+  const double diff = multiplier - 1;
+  /*
+  const double a = 2;
+  const double b = 0;
+  multiplier = a * diff + b;
+  multiplier = (multiplier <= 0) ? 1 : multiplier;
+  */
+  if (diff >= 1) {
+    multiplier = 1.2;
+  } else {
+    multiplier = 1;
+  }
+  const int new_rdmult = (int)(orig_rdmult * multiplier);
+  {
+    /*
+    printf("orig_rdmult: %d, new_rdmult: %d, ovr ratio: %f, current ratio: %f, "
+           "multiplier %f\n",
+           orig_rdmult, new_rdmult, cpi->energy_ratio, ratio, multiplier);
+
+    FILE *pfile = fopen("multiplier.txt", "a");
+    fprintf(pfile, "%f\n", multiplier);
+    fclose(pfile);
+    */
+  }
+  return new_rdmult;
+}
+
+static int compute_rdmult_based_on_energy(AV1_COMP *cpi, MACROBLOCK *const x,
+                                          BLOCK_SIZE bsize, int mi_row,
+                                          int mi_col, int orig_rdmult) {
+  AV1_COMMON *const cm = &cpi->common;
+  const int num_planes = av1_num_planes(cm);
+  MACROBLOCKD *const xd = &x->e_mbd;
+  const int mib_size = mi_size_wide[bsize];
+  const int step = mi_size_wide[BLOCK_8X8];
+  int64_t energy_dc = 0;
+  int64_t energy_ac = 0;
+
+  av1_setup_src_planes(x, cpi->source, mi_row, mi_col, num_planes, bsize);
+  for (int plane = 0; plane < num_planes; ++plane) {
+    const int stride = x->plane[plane].src.stride;
+    const int subsampling_x = plane > 0 ? cm->seq_params.subsampling_x : 0;
+    const int subsampling_y = plane > 0 ? cm->seq_params.subsampling_y : 0;
+    const int frame_width =
+        plane > 0 ? cpi->source->uv_crop_width : cpi->source->y_crop_width;
+    const int frame_height =
+        plane > 0 ? cpi->source->uv_crop_height : cpi->source->y_crop_height;
+    const int mi_frame_width = frame_width >> MI_SIZE_LOG2;
+    const int mi_frame_height = frame_height >> MI_SIZE_LOG2;
+
+    // Note: be careful in handling frame boundary conditions for 8x8 transform.
+    for (int row = 0; row < AOMMIN(mib_size, mi_frame_height - mi_row); row += step) {
+      for (int col = 0; col < AOMMIN(mib_size, mi_frame_width - mi_col); col += step) {
+        const uint8_t* const src = x->plane[plane].src.buf +
+            ((MI_SIZE * row * stride) >> subsampling_y) +
+            ((MI_SIZE * col) >> subsampling_x);
+        const int curr_x = (MI_SIZE * (mi_col + col)) >> subsampling_x;
+        const int curr_y = (MI_SIZE * (mi_row + row)) >> subsampling_y;
+        const int width = AOMMIN(8 >> subsampling_x, frame_width - curr_x);
+        const int height = AOMMIN(8 >> subsampling_y, frame_height - curr_y);
+        compute_energy(xd, src, stride, width, height, &energy_dc,
+                       &energy_ac);
+      }
+    }
+  }
+
+  return compute_rdmult_based_on_ratio(cpi, orig_rdmult, energy_dc, energy_ac);
+
+  /*
+  double mu;
+  if (cm->height >= 720) {
+    mu = 0.02;
+  } else if (cm->height >= 480) {
+    mu = 0.03;
+  } else {
+    mu = 0.04;
+  }
+  double ratio = (energy_dc == 0) ? mu : energy_ac / (double)energy_dc;
+  */
+  // alpha, beta, offset: (4.0, 4.0, 0.22)
+  /*
+  double alpha = 2.0;
+  double beta = 8.0;
+  double gamma = 30;
+  double offset = 0.78;
+  double multiplier = alpha / (1 + beta * exp(mu - ratio)) + offset;
+  multiplier = 1 + (multiplier - 1) * gamma;
+  const int new_rdmult = (int)(multiplier * orig_rdmult);
+  */
+  /*
+  double theta = 80;
+  double delta = 0.2;
+  double multiplier = theta * ratio + delta;
+  const int new_rdmult = (int)(multiplier * orig_rdmult);
+  printf("ratio: %f, orig_rdmult %d, new_rdmult %d, multiplier %f",
+         ratio, orig_rdmult, new_rdmult, multiplier);
+  if (new_rdmult > orig_rdmult) {
+    printf(", +\n");
+  } else {
+    printf(", -\n");
+  }
+  */
+  /*
+  const int new_rdmult = (int)((1 + ratio) * orig_rdmult);
+  {
+    FILE *pfile;
+    if (cm->height >= 720) {
+      pfile = fopen("ratio_hdres.txt", "a");
+    } else if (cm->height >= 480) {
+      pfile = fopen("ratio_midres.txt", "a");
+    } else {
+      pfile = fopen("ratio_lowres.txt", "a");
+    }
+    fprintf(pfile, "%f\n", ratio);
+    fclose(pfile);
+  }
+  */
+
+  //return new_rdmult;
+}
+
+static void adjust_rdmult_energy_model(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
+                                    int mi_col) {
+  const BLOCK_SIZE sb_size = cpi->common.seq_params.sb_size;
+  const int orig_rdmult = x->rdmult;
+  assert(IMPLIES(cpi->twopass.gf_group.size > 0,
+                 cpi->twopass.gf_group.index < cpi->twopass.gf_group.size));
+  // deltaq_mode set to DELTA_Q_OBJECTIVE by default.
+  // Think about whether my method could work with it.
+  if (cpi->oxcf.aq_mode == NO_AQ /*&& cpi->oxcf.deltaq_mode == NO_DELTA_Q*/) {
+    const int new_rdmult =
+        compute_rdmult_based_on_energy(cpi, x, sb_size, mi_row, mi_col, orig_rdmult);
+    x->rdmult = new_rdmult;
+  }
+}
+
 static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
                           int mi_row, TOKENEXTRA **tp, int use_nonrd_mode) {
   AV1_COMMON *const cm = &cpi->common;
@@ -3983,6 +4262,7 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
     } else if (!(sf->partition_search_type == VAR_BASED_PARTITION &&
                  use_nonrd_mode)) {
       adjust_rdmult_tpl_model(cpi, x, mi_row, mi_col);
+      adjust_rdmult_energy_model(cpi, x, mi_row, mi_col);
       reset_partition(pc_root, sb_size);
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
@@ -4208,6 +4488,8 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
   cfl_init(&td->mb.e_mbd.cfl, &cm->seq_params);
 
   av1_crc32c_calculator_init(&td->mb.mb_rd_record.crc_calculator);
+
+  compute_frame_energy_ratio(cpi, &td->mb);
 
   for (mi_row = tile_info->mi_row_start; mi_row < tile_info->mi_row_end;
        mi_row += cm->seq_params.mib_size) {
