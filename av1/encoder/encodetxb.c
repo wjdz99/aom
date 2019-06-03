@@ -1558,7 +1558,7 @@ static AOM_FORCE_INLINE void update_coeff_eob(
                                  dc_sign_ctx, txb_costs, bwl, tx_class, levels);
       rd_low = RDCOST(rdmult, *accu_rate + rate_low, *accu_dist + dist_low);
     }
-
+    rd_low = INT64_MAX;
     int lower_level_new_eob = 0;
     const int new_eob = si + 1;
     const int coeff_ctx_new_eob = get_lower_levels_ctx_eob(bwl, height, si);
