@@ -3883,6 +3883,15 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
     if (cm->delta_q_info.delta_q_present_flag)
       setup_delta_q(cpi, td, x, tile_info, mi_row, mi_col, num_planes);
 
+    /*    if (cm->delta_q_info.delta_q_present_flag) {
+          if (cm->current_frame.frame_type == KEY_FRAME)
+            printf("kf dq: %d %d %d %d\n", mi_row, mi_col,
+                   xd->delta_qindex, cm->base_qindex);
+          else
+            printf("dq: %d %d %d %d\n", mi_row, mi_col, xd->delta_qindex,
+                   cm->base_qindex);
+        }*/
+
     td->mb.cb_coef_buff = av1_get_cb_coeff_buffer(cpi, mi_row, mi_col);
 
     int dummy_rate;
