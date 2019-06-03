@@ -1020,6 +1020,8 @@ typedef struct AV1_COMP {
 
   // whether any no-zero delta_q was actually used
   int deltaq_used;
+
+  double energy_ratio;
 } AV1_COMP;
 
 typedef struct {
