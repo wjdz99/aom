@@ -35,6 +35,8 @@
 #include "av1/encoder/rd.h"
 #include "av1/encoder/rdopt.h"
 
+// test
+
 // Check if one needs to use c version subtraction.
 static int check_subtract_block_size(int w, int h) { return w < 4 || h < 4; }
 
