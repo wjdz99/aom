@@ -22,6 +22,30 @@
       "revId": "886a7ae448ffe89654d560cd75dc4c8cf5fd0cf8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d178a56b_753211fd",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4579,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-06-04T19:54:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fdc84af_302146ce",
+      "range": {
+        "startLine": 4577,
+        "startChar": 0,
+        "endLine": 4579,
+        "endChar": 5
+      },
+      "revId": "886a7ae448ffe89654d560cd75dc4c8cf5fd0cf8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
