@@ -60,7 +60,7 @@ enum {
 enum { BRANCH_NOC, BRANCH_ADD, BRANCH_CAT } UENUM1BYTE(BRANCH_COMBINE);
 
 struct CNN_BATCHNORM_PARAMS {
-  float *bn_gamma, *bn_beta, *bn_mean,
+  const float *bn_gamma, *bn_beta, *bn_mean,
       *bn_std;  // The parameters used to scale each channel in batch
                 // normalization. The processing in done on a per-channel basis.
                 // e.g. bn_mean[c] is the mean for all pixels in channel c. This
@@ -101,12 +101,13 @@ struct CNN_LAYER_CONFIG {
   int out_channels;
   int skip_width;
   int skip_height;
-  int maxpool;     // whether to use maxpool or not (only effective when
-                   // skip width or skip_height are > 1)
-  float *weights;  // array of length filter_height x filter_width x in_channels
-                   // x out_channels where the inner-most scan is out_channels
-                   // and the outer most scan is filter_height.
-  float *bias;     // array of length out_channels
+  int maxpool;  // whether to use maxpool or not (only effective when
+                // skip width or skip_height are > 1)
+  const float
+      *weights;  // array of length filter_height x filter_width x in_channels
+                 // x out_channels where the inner-most scan is out_channels
+                 // and the outer most scan is filter_height.
+  const float *bias;      // array of length out_channels
   PADDING_TYPE pad;       // padding type
   ACTIVATION activation;  // the activation function to use after convolution
   int deconvolve;         // whether this is a deconvolution layer.
