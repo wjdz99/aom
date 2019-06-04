@@ -166,9 +166,9 @@ set_aom_config_var(CONFIG_DERIVED_MV 0 NUMBER
                    "AV2 derived motion vector experiment flag")
 set_aom_config_var(CONFIG_DERIVED_MV_NO_PD 1 NUMBER
                    "AV2 derived MV without parsing dependency experiment flag")
-set_aom_config_var(CONFIG_SKIP_INTERP_FILTER 0 NUMBER
-                   "AV2 experiment to skip interp filter signaling for"
-                   "full pel MV")
+set_aom_config_var(
+  CONFIG_SKIP_INTERP_FILTER 0 NUMBER
+  "AV2 experiment to skip interp filter signaling for" "full pel MV")
 set_aom_config_var(CONFIG_NEW_TX_PARTITION 0 NUMBER
                    "AV2 new transform partitions experiment flag")
 set_aom_config_var(CONFIG_OPTFLOW_REFINEMENT 0 NUMBER
@@ -252,6 +252,7 @@ set_aom_config_var(CONFIG_REF_MV_BANK 0 NUMBER
 set_aom_config_var(
   CONFIG_RST_MERGECOEFFS 0 NUMBER
   "AV2 in-loop restoration merging coefficients experiment flag")
+set_aom_config_var(CONFIG_COLLECT_PRED_RES 0 NUMBER "AV2 experiment flag.")
 
 # To include Tensorflow, make sure to build tensorflow locally using
 # tensorflow/contrib/makefile/build_all_linux.sh and then providing the correct
@@ -272,9 +273,10 @@ set_aom_config_var(CONFIG_REALTIME_ONLY 0 NUMBER
 set_aom_config_var(CONFIG_AV1_HIGHBITDEPTH 1 NUMBER
                    "Build with high bitdepth support.")
 set_aom_config_var(CONFIG_NN_V2 0 NUMBER "Fully-connected neural nets ver.2.")
-set_aom_config_var(CONFIG_SUPERRES_IN_RECODE 1 NUMBER
-                   "Enable encoding both full-res and superres in recode loop"
-                   "when SUPERRES_AUTO mode is used.")
+set_aom_config_var(
+  CONFIG_SUPERRES_IN_RECODE 1 NUMBER
+  "Enable encoding both full-res and superres in recode loop"
+  "when SUPERRES_AUTO mode is used.")
 #
 # Variables in this section control optional features of the build system.
 #
@@ -313,10 +315,10 @@ set_aom_option_var(ENABLE_VSX "Enables VSX optimizations on PowerPC targets."
                    ON)
 
 # x86/x86_64 assembly/intrinsics flags.
-set_aom_option_var(ENABLE_MMX "Enables MMX optimizations on x86/x86_64 targets."
-                   ON)
-set_aom_option_var(ENABLE_SSE "Enables SSE optimizations on x86/x86_64 targets."
-                   ON)
+set_aom_option_var(ENABLE_MMX
+                   "Enables MMX optimizations on x86/x86_64 targets." ON)
+set_aom_option_var(ENABLE_SSE
+                   "Enables SSE optimizations on x86/x86_64 targets." ON)
 set_aom_option_var(ENABLE_SSE2
                    "Enables SSE2 optimizations on x86/x86_64 targets." ON)
 set_aom_option_var(ENABLE_SSE3
@@ -327,7 +329,7 @@ set_aom_option_var(ENABLE_SSE4_1
                    "Enables SSE4_1 optimizations on x86/x86_64 targets." ON)
 set_aom_option_var(ENABLE_SSE4_2
                    "Enables SSE4_2 optimizations on x86/x86_64 targets." ON)
-set_aom_option_var(ENABLE_AVX "Enables AVX optimizations on x86/x86_64 targets."
-                   ON)
+set_aom_option_var(ENABLE_AVX
+                   "Enables AVX optimizations on x86/x86_64 targets." ON)
 set_aom_option_var(ENABLE_AVX2
                    "Enables AVX2 optimizations on x86/x86_64 targets." ON)

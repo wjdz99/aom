@@ -39,7 +39,18 @@
 #include "av1/encoder/interintra_ml_data_collect.h"
 #endif
 
+#if CONFIG_COLLECT_PRED_RES
+#define COLLECT_SRC 0  // Also print the source (for validation)
+#define COLLECT_INTER_TXTYPE 0
+#define COLLECT_UV 0
+#define COLLECT_FIXED_SIZE 0
+static const char pred_res_inter_bin[] = "pred_res_inter.bin";
+static const char pred_res_intra_bin[] = "pred_res_intra.bin";
+static const char pred_res_inter_log[] = "pred_res_inter.log";
+static const char pred_res_intra_log[] = "pred_res_intra.log";
+#endif  // CONFIG_COLLECT_PRED_RES
 // Check if one needs to use c version subtraction.
+//
 static int check_subtract_block_size(int w, int h) { return w < 4 || h < 4; }
 
 static void subtract_block(const MACROBLOCKD *xd, int rows, int cols,
@@ -665,6 +676,149 @@ void av1_encode_inter_txfm_block(const struct AV1_COMP *cpi, MACROBLOCK *x,
 
     av1_subtract_plane(x, bsizec, plane);
 
+#if CONFIG_COLLECT_PRED_RES
+    if (dry_run == OUTPUT_ENABLED
+#if !COLLECT_UV
+        && plane == 0
+#endif
+#if COLLECT_FIXED_SIZE
+        && mbmi->tx_size == TX_16X16 && plane_bsize == BLOCK_16X16
+#endif
+    ) {
+      FILE *f = fopen(pred_res_inter_bin, "ab+");
+      FILE *ft = fopen(pred_res_inter_log, "a");
+      const int diff_stride = block_size_wide[plane_bsize];
+      const uint8_t rows = block_size_high[plane_bsize];
+      const uint8_t cols = block_size_wide[plane_bsize];
+      int r, c;
+      int16_t *const src_diff = x->plane[plane].src_diff;
+      const RefCntBuffer *const r0 = get_ref_frame_buf(cm, mbmi->ref_frame[0]);
+      if (!r0) break;
+      int8_t i0 = r0->order_hint, i1 = -1, ct = -1;
+      if (has_second_ref(mbmi)) {
+        const RefCntBuffer *const r1 =
+            get_ref_frame_buf(cm, mbmi->ref_frame[1]);
+        i1 = r1->order_hint;
+        ct = mbmi->interinter_comp.type;
+      }
+      const uint16_t frameid = cm->cur_frame->order_hint;
+      const uint8_t pl = plane;
+      const uint16_t mirow = xd->mi_row;
+      const uint16_t micol = xd->mi_col;
+      const int16_t mv0_row = mbmi->mv[0].as_mv.row;
+      const int16_t mv0_col = mbmi->mv[0].as_mv.col;
+      const int16_t mv1_row = mbmi->mv[1].as_mv.row;
+      const int16_t mv1_col = mbmi->mv[1].as_mv.col;
+      const uint16_t qindex = cm->base_qindex;
+      const uint8_t mode = mbmi->mode;
+      const uint8_t is_chroma_ref = mbmi->chroma_ref_info.is_chroma_ref;
+      const uint8_t mm = mbmi->motion_mode;
+      const uint8_t tw = tx_size_wide[mbmi->tx_size];
+      const uint8_t th = tx_size_high[mbmi->tx_size];
+      if (plane == 0) {
+        fprintf(ft,
+                "[INTER BLOCK] frame %d mi_row %d mi_col %d base_qindex %d\n"
+                "mode %d is_chroma_ref %d ref0_order %d ref1_order %d mv0 "
+                "(%d,%d) mv1 (%d,%d)\n motion_mode %d comp_type %d\n"
+#if COLLECT_INTER_TXTYPE
+                "block_size %dx%d tx_size %dx%d tx_type:\n\n",
+#else
+                "block_size %dx%d tx_size %dx%d\n",
+#endif
+                frameid, mirow, micol, qindex, mbmi->mode, is_chroma_ref, i0,
+                i1, mv0_row, mv0_col, mv1_row, mv1_col, mm, ct, cols, rows, tw,
+                th);
+        fwrite(&frameid, sizeof(frameid), 1, f);
+        fwrite(&mirow, sizeof(mirow), 1, f);
+        fwrite(&micol, sizeof(micol), 1, f);
+        fwrite(&qindex, sizeof(qindex), 1, f);
+        fwrite(&mode, sizeof(mode), 1, f);
+        fwrite(&is_chroma_ref, sizeof(is_chroma_ref), 1, f);
+        fwrite(&i0, sizeof(i0), 1, f);
+        fwrite(&i1, sizeof(i1), 1, f);
+        fwrite(&mv0_row, sizeof(mv0_row), 1, f);
+        fwrite(&mv0_col, sizeof(mv0_col), 1, f);
+        fwrite(&mv1_row, sizeof(mv1_row), 1, f);
+        fwrite(&mv1_col, sizeof(mv1_col), 1, f);
+        fwrite(&mm, sizeof(mm), 1, f);
+        fwrite(&ct, sizeof(ct), 1, f);
+        fwrite(&cols, sizeof(cols), 1, f);
+        fwrite(&rows, sizeof(rows), 1, f);
+        fwrite(&tw, sizeof(tw), 1, f);
+        fwrite(&th, sizeof(th), 1, f);
+#if COLLECT_INTER_TXTYPE
+        // print tx_type
+        for (int blk_row = 0; blk_row < rows; blk_row += th) {
+          for (int blk_col = 0; blk_col < cols; blk_col += tw) {
+            if (!is_blk_skip(x, plane, blk_row * bw + blk_col) &&
+                !mbmi->skip_mode) {
+              const int txk_type_idx =
+                  av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
+              const int8_t ttype = mbmi->txk_type[txk_type_idx];
+              fprintf(ft, "%2d ", ttype);
+              fwrite(&ttype, sizeof(ttype), 1, f);
+            } else {
+              fprintf(ft, "-1 ");  // skip block
+              const int8_t ttype = -1;
+              fwrite(&ttype, sizeof(ttype), 1, f);
+            }
+          }
+          fprintf(ft, "\n");
+        }
+#endif
+      }
+      fprintf(ft, "\nplane %d\n", plane);
+      fwrite(&pl, sizeof(pl), 1, f);
+#if COLLECT_SRC
+      fprintf(ft, "\nSrc:\n\n");
+      const int src_stride = x->plane[plane].src.stride;
+      for (r = 0; r < rows; ++r) {
+        for (c = 0; c < cols; ++c) {
+          uint16_t srcval = 0;
+          if (is_cur_buf_hbd(xd)) {
+            const uint16_t *sv16 = CONVERT_TO_SHORTPTR(x->plane[plane].src.buf);
+            srcval = sv16[r * src_stride + c];
+          } else {
+            const uint8_t *sv = x->plane[plane].src.buf;
+            srcval = (uint16_t)sv[r * src_stride + c];
+          }
+          fprintf(ft, "%3d ", srcval);
+          fwrite(&srcval, sizeof(srcval), 1, f);
+        }
+        fprintf(ft, "\n");
+      }
+#endif  // COLLECT_SRC
+      fprintf(ft, "\nPred:\n\n");
+      for (r = 0; r < rows; ++r) {
+        for (c = 0; c < cols; ++c) {
+          uint16_t predval = 0;
+          if (is_cur_buf_hbd(xd)) {
+            uint16_t *pv16 = CONVERT_TO_SHORTPTR(pd->dst.buf);
+            predval = pv16[r * pd->dst.stride + c];
+          } else {
+            uint8_t *pv = pd->dst.buf;
+            predval = (uint16_t)pv[r * pd->dst.stride + c];
+          }
+          fprintf(ft, "%3d ", predval);
+          fwrite(&predval, sizeof(predval), 1, f);
+        }
+        fprintf(ft, "\n");
+      }
+      fprintf(ft, "\nRes:\n\n");
+      for (r = 0; r < rows; ++r) {
+        for (c = 0; c < cols; ++c) {
+          const int16_t resval = src_diff[r * diff_stride + c];
+          fprintf(ft, "%4d ", resval);
+          fwrite(&resval, sizeof(resval), 1, f);
+        }
+        fprintf(ft, "\n");
+      }
+      fprintf(ft, "\n");
+      fclose(f);
+      fclose(ft);
+    }
+#endif  // CONFIG_COLLECT_PRED_RES
+
     arg.ta = ctx.ta[plane];
     arg.tl = ctx.tl[plane];
 
@@ -737,6 +891,106 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
     p->txb_entropy_ctx[block] = 0;
   } else {
     av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
+
+#if CONFIG_COLLECT_PRED_RES
+    if (args->dry_run == OUTPUT_ENABLED
+#if !COLLECT_UV
+        && plane == 0
+#endif
+#if COLLECT_FIXED_SIZE
+        && tx_size == TX_16X16 && plane_bsize == BLOCK_16X16
+#endif
+    ) {
+      FILE *f = fopen(pred_res_intra_bin, "ab+");
+      FILE *ft = fopen(pred_res_intra_log, "a");
+      int r, c;
+      const uint8_t th = tx_size_high[tx_size];
+      const uint8_t tw = tx_size_wide[tx_size];
+      const uint8_t blk_h = block_size_high[plane_bsize];
+      const uint8_t blk_w = block_size_wide[plane_bsize];
+      int16_t *const src_diff =
+          &p->src_diff[(blk_row * blk_w + blk_col) << tx_size_wide_log2[0]];
+      const uint8_t mb_mode = (plane == AOM_PLANE_Y)
+                                  ? xd->mi[0]->mode
+                                  : get_uv_mode(xd->mi[0]->uv_mode);
+      const uint16_t frameid = cm->cur_frame->order_hint;
+      const uint16_t mirow = xd->mi_row;
+      const uint16_t micol = xd->mi_col;
+      const uint8_t blkrow = blk_row;
+      const uint8_t blkcol = blk_col;
+      const uint16_t qindex = cm->base_qindex;
+      const int8_t ttype = tx_type;
+      const uint8_t pl = plane;
+      if (plane == 0) {
+        fprintf(ft,
+                "[INTRA BLOCK] frame %d mi_row %d mi_col %d\n"
+                "base_qindex %d blk_row %d blk_col %d\n"
+                "block_size %dx%d tx_size %dx%d tx_type %d\n\n",
+                frameid, xd->mi_row, xd->mi_col, qindex, blk_row, blk_col,
+                blk_w, blk_h, tw, th, tx_type);
+        fwrite(&frameid, sizeof(frameid), 1, f);
+        fwrite(&mirow, sizeof(mirow), 1, f);
+        fwrite(&micol, sizeof(micol), 1, f);
+        fwrite(&qindex, sizeof(qindex), 1, f);
+        fwrite(&blkrow, sizeof(blkrow), 1, f);
+        fwrite(&blkcol, sizeof(blkcol), 1, f);
+        fwrite(&blk_w, sizeof(blk_w), 1, f);
+        fwrite(&blk_h, sizeof(blk_h), 1, f);
+        fwrite(&tw, sizeof(tw), 1, f);
+        fwrite(&th, sizeof(th), 1, f);
+        fwrite(&ttype, sizeof(ttype), 1, f);
+      }
+      fprintf(ft, "plane %d mode %d\n", plane, mb_mode);
+      fwrite(&pl, sizeof(pl), 1, f);
+      fwrite(&mb_mode, sizeof(mb_mode), 1, f);
+#if COLLECT_SRC
+      const int src_stride = p->src.stride;
+      uint8_t *const src =
+          &p->src.buf[(blk_row * src_stride + blk_col) << tx_size_wide_log2[0]];
+      fprintf(ft, "\nSrc:\n\n");
+      for (r = 0; r < th; ++r) {
+        for (c = 0; c < tw; ++c) {
+          if (is_cur_buf_hbd(xd)) {
+            uint16_t *srcval16 = CONVERT_TO_SHORTPTR(src);
+            fprintf(ft, "%3d ", srcval16[r * src_stride + c]);
+            fwrite(&srcval16[r * src_stride + c], sizeof(srcval16[0]), 1, f);
+          } else {
+            uint8_t *srcval = src;
+            fprintf(ft, "%3d ", srcval[r * src_stride + c]);
+            fwrite(&srcval[r * src_stride + c], sizeof(srcval[0]), 1, f);
+          }
+        }
+        fprintf(ft, "\n");
+      }
+#endif  // COLLECT_SRC
+      fprintf(ft, "\nPred:\n\n");
+      for (r = 0; r < th; ++r) {
+        for (c = 0; c < tw; ++c) {
+          if (is_cur_buf_hbd(xd)) {
+            uint16_t *dst16 = CONVERT_TO_SHORTPTR(dst);
+            fprintf(ft, "%3d ", dst16[r * pd->dst.stride + c]);
+            fwrite(&dst16[r * pd->dst.stride + c], sizeof(dst16[0]), 1, f);
+          } else {
+            fprintf(ft, "%3d ", dst[r * dst_stride + c]);
+            fwrite(&dst[r * dst_stride + c], sizeof(dst[0]), 1, f);
+          }
+        }
+        fprintf(ft, "\n");
+      }
+      fprintf(ft, "\nRes:\n\n");
+      for (r = 0; r < th; ++r) {
+        for (c = 0; c < tw; ++c) {
+          int16_t resval = src_diff[r * blk_w + c];
+          fprintf(ft, "%4d ", resval);
+          fwrite(&resval, sizeof(resval), 1, f);
+        }
+        fprintf(ft, "\n");
+      }
+      fprintf(ft, "\n");
+      fclose(f);
+      fclose(ft);
+    }
+#endif  // CONFIG_COLLECT_PRED_RES
 
     const ENTROPY_CONTEXT *a = &args->ta[blk_col];
     const ENTROPY_CONTEXT *l = &args->tl[blk_row];
