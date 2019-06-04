@@ -756,6 +756,7 @@ typedef struct AV1_COMP {
   int previous_index;
 
   unsigned int row_mt;
+  unsigned int row_mt_alloc;
   RefCntBuffer *scaled_ref_buf[INTER_REFS_PER_FRAME];
 
   RefCntBuffer *last_show_frame_buf;  // last show frame buffer
@@ -1302,6 +1303,15 @@ static INLINE BLOCK_SIZE find_partition_size(BLOCK_SIZE bsize, int rows_left,
     }
   }
   return (BLOCK_SIZE)int_size;
+}
+
+static INLINE int is_tile_mt_eligible(const AV1_COMP *const cpi) {
+  const AV1_COMMON *const cm = &cpi->common;
+  return (AOMMIN(cpi->oxcf.max_threads, cm->tile_cols * cm->tile_rows) > 1);
+}
+
+static INLINE int is_row_mt_eligible(const AV1_COMP *const cpi) {
+  return (cpi->oxcf.row_mt && cpi->oxcf.max_threads > 1);
 }
 
 static const uint8_t av1_ref_frame_flag_list[REF_FRAMES] = { 0,

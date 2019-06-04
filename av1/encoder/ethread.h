@@ -43,6 +43,8 @@ void av1_row_mt_sync_mem_alloc(AV1RowMTSync *row_mt_sync, struct AV1Common *cm,
 
 void av1_encode_tiles_mt(struct AV1_COMP *cpi);
 void av1_encode_tiles_row_mt(struct AV1_COMP *cpi);
+void av1_setup_row_mt_workers(struct AV1_COMP *cpi);
+void av1_setup_tile_mt_workers(struct AV1_COMP *cpi);
 
 void av1_accumulate_frame_counts(struct FRAME_COUNTS *acc_counts,
                                  const struct FRAME_COUNTS *counts);

@@ -385,7 +385,7 @@ static void create_enc_workers(AV1_COMP *cpi, int num_workers) {
                   aom_calloc(num_workers, sizeof(*cpi->tile_thr_data)));
 
 #if CONFIG_MULTITHREAD
-  if (cpi->row_mt == 1) {
+  if (cpi->row_mt_alloc == 1) {
     if (cpi->row_mt_mutex_ == NULL) {
       CHECK_MEM_ERROR(cm, cpi->row_mt_mutex_,
                       aom_malloc(sizeof(*(cpi->row_mt_mutex_))));
@@ -473,7 +473,7 @@ static void create_enc_workers(AV1_COMP *cpi, int num_workers) {
       // Main thread acts as a worker and uses the thread data in cpi.
       thread_data->td = &cpi->td;
     }
-    if (cpi->row_mt == 1)
+    if (cpi->row_mt_alloc == 1)
       CHECK_MEM_ERROR(
           cm, thread_data->td->tctx,
           (FRAME_CONTEXT *)aom_memalign(16, sizeof(*thread_data->td->tctx)));
@@ -587,22 +587,23 @@ static void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
   }
 }
 
+void av1_setup_tile_mt_workers(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  const int tile_cols = cm->tile_cols;
+  const int tile_rows = cm->tile_rows;
+  int num_workers = AOMMIN(cpi->oxcf.max_threads, tile_cols * tile_rows);
+
+  create_enc_workers(cpi, num_workers);
+}
+
 void av1_encode_tiles_mt(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const int tile_cols = cm->tile_cols;
   const int tile_rows = cm->tile_rows;
   int num_workers = AOMMIN(cpi->oxcf.max_threads, tile_cols * tile_rows);
 
-  if (cpi->tile_data == NULL || cpi->allocated_tiles < tile_cols * tile_rows)
-    av1_alloc_tile_data(cpi);
+  num_workers = AOMMIN(num_workers, cpi->num_workers);
 
-  av1_init_tile_data(cpi);
-  // Only run once to create threads and allocate thread data.
-  if (cpi->num_workers == 0) {
-    create_enc_workers(cpi, num_workers);
-  } else {
-    num_workers = AOMMIN(num_workers, cpi->num_workers);
-  }
   prepare_enc_workers(cpi, enc_worker_hook, num_workers);
   launch_enc_workers(cpi, num_workers);
   sync_enc_workers(cpi, num_workers);
@@ -621,21 +622,12 @@ void av1_accumulate_frame_counts(FRAME_COUNTS *acc_counts,
   for (unsigned int i = 0; i < n_counts; i++) acc[i] += cnt[i];
 }
 
-void av1_encode_tiles_row_mt(AV1_COMP *cpi) {
+static int num_row_mt_workers(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const int tile_cols = cm->tile_cols;
   const int tile_rows = cm->tile_rows;
-  MultiThreadHandle *multi_thread_ctxt = &cpi->multi_thread_ctxt;
-  int num_workers = 0;
   int total_num_threads_row_mt = 0;
-  int max_sb_rows = 0;
-
-  if (cpi->tile_data == NULL || cpi->allocated_tiles < tile_cols * tile_rows) {
-    av1_row_mt_mem_dealloc(cpi);
-    av1_alloc_tile_data(cpi);
-  }
-
-  av1_init_tile_data(cpi);
+  int num_workers = 0;
 
   for (int row = 0; row < tile_rows; row++) {
     for (int col = 0; col < tile_cols; col++) {
@@ -646,7 +638,6 @@ void av1_encode_tiles_row_mt(AV1_COMP *cpi) {
           av1_get_sb_cols_in_tile(cm, tile_data->tile_info);
       total_num_threads_row_mt +=
           AOMMIN((num_sb_cols_in_tile + 1) >> 1, num_sb_rows_in_tile);
-      max_sb_rows = AOMMAX(max_sb_rows, num_sb_rows_in_tile);
     }
   }
   // TODO(ravi.chaudhary@ittiam.com): Currently the percentage of
@@ -655,6 +646,34 @@ void av1_encode_tiles_row_mt(AV1_COMP *cpi) {
   // post-processing multi-threading stage. Need to revisit this when
   // post-processing time starts shooting up.
   num_workers = AOMMIN(cpi->oxcf.max_threads, total_num_threads_row_mt);
+
+  return num_workers;
+}
+
+void av1_setup_row_mt_workers(AV1_COMP *cpi) {
+  int num_workers = 0;
+  num_workers = num_row_mt_workers(cpi);
+  create_enc_workers(cpi, num_workers);
+}
+
+void av1_encode_tiles_row_mt(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  const int tile_cols = cm->tile_cols;
+  const int tile_rows = cm->tile_rows;
+  MultiThreadHandle *multi_thread_ctxt = &cpi->multi_thread_ctxt;
+  int num_workers = 0;
+  int max_sb_rows = 0;
+
+  for (int row = 0; row < tile_rows; row++) {
+    for (int col = 0; col < tile_cols; col++) {
+      TileDataEnc *tile_data = &cpi->tile_data[row * cm->tile_cols + col];
+      int num_sb_rows_in_tile =
+          av1_get_sb_rows_in_tile(cm, tile_data->tile_info);
+      max_sb_rows = AOMMAX(max_sb_rows, num_sb_rows_in_tile);
+    }
+  }
+
+  num_workers = num_row_mt_workers(cpi);
 
   if (multi_thread_ctxt->allocated_tile_cols != tile_cols ||
       multi_thread_ctxt->allocated_tile_rows != tile_rows ||
@@ -686,12 +705,7 @@ void av1_encode_tiles_row_mt(AV1_COMP *cpi) {
     }
   }
 
-  // Only run once to create threads and allocate thread data.
-  if (cpi->num_workers == 0) {
-    create_enc_workers(cpi, num_workers);
-  } else {
-    num_workers = AOMMIN(num_workers, cpi->num_workers);
-  }
+  num_workers = AOMMIN(num_workers, cpi->num_workers);
   assign_tile_to_thread(multi_thread_ctxt, tile_cols * tile_rows, num_workers);
   prepare_enc_workers(cpi, enc_row_mt_worker_hook, num_workers);
   launch_enc_workers(cpi, num_workers);

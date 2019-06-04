@@ -47,6 +47,7 @@
 #include "av1/encoder/aq_complexity.h"
 #include "av1/encoder/aq_cyclicrefresh.h"
 #include "av1/encoder/aq_variance.h"
+#include "av1/encoder/av1_multi_thread.h"
 #include "av1/encoder/corner_detect.h"
 #include "av1/encoder/global_motion.h"
 #include "av1/encoder/encodeframe.h"
@@ -4152,11 +4153,6 @@ static void encode_tiles(AV1_COMP *cpi) {
   const int tile_rows = cm->tile_rows;
   int tile_col, tile_row;
 
-  if (cpi->tile_data == NULL || cpi->allocated_tiles < tile_cols * tile_rows)
-    av1_alloc_tile_data(cpi);
-
-  av1_init_tile_data(cpi);
-
   for (tile_row = 0; tile_row < tile_rows; ++tile_row) {
     for (tile_col = 0; tile_col < tile_cols; ++tile_col) {
       TileDataEnc *const this_tile =
@@ -4818,17 +4814,40 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       check_skip_mode_enabled(cpi);
 
   {
+    const int tile_rows = cm->tile_rows;
+    const int tile_cols = cm->tile_cols;
+    const int row_mt_eligible = is_row_mt_eligible(cpi);
+    const int tile_mt_eligible = is_tile_mt_eligible(cpi);
     cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read_dummy;
     cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write_dummy;
     cpi->row_mt = 0;
-    if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads > 1) &&
-        !cm->delta_q_info.delta_q_present_flag) {
+
+    if (cpi->tile_data == NULL ||
+        cpi->allocated_tiles < tile_rows * tile_cols) {
+      if (row_mt_eligible) av1_row_mt_mem_dealloc(cpi);
+      av1_alloc_tile_data(cpi);
+    }
+    av1_init_tile_data(cpi);
+
+    if (row_mt_eligible || tile_mt_eligible) {
+      // Only run once to create threads and allocate thread data.
+      if (cpi->num_workers == 0) {
+        if (row_mt_eligible) {
+          cpi->row_mt_alloc = 1;
+          av1_setup_row_mt_workers(cpi);
+        } else {
+          av1_setup_tile_mt_workers(cpi);
+        }
+      }
+    }
+
+    if (row_mt_eligible && !cm->delta_q_info.delta_q_present_flag) {
       cpi->row_mt = 1;
       cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read;
       cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write;
       av1_encode_tiles_row_mt(cpi);
     } else {
-      if (AOMMIN(cpi->oxcf.max_threads, cm->tile_cols * cm->tile_rows) > 1)
+      if (tile_mt_eligible)
         av1_encode_tiles_mt(cpi);
       else
         encode_tiles(cpi);
