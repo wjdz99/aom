@@ -4575,6 +4575,9 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     aom_clear_system_state();
 
     if (tpl_frame->is_valid) {
+      if (mc_dep_cost_base == 0) tpl_frame->is_valid = 0;
+    }
+    if (tpl_frame->is_valid) {
       cpi->rd.r0 = (double)intra_cost_base / mc_dep_cost_base;
       cpi->rd.mc_count_base =
           (double)mc_count_base / (cm->mi_rows * cm->mi_cols);
