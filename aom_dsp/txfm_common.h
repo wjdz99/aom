@@ -30,11 +30,11 @@ typedef struct txfm_param {
   int bd;
   // are the pixel buffers octets or shorts?  This should collapse to
   // bd==8 implies !is_hbd, but that's not certain right now.
+#if CONFIG_MODEDEP_TX
+  PREDICTION_MODE mode;
+#endif
   int is_hbd;
   TxSetType tx_set_type;
-#if CONFIG_DATA_DRIVEN_TX
-  int is_inter;
-#endif
   // for inverse transforms only
   int eob;
 } TxfmParam;
