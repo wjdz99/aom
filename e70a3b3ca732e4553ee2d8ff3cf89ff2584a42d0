@@ -70,6 +70,24 @@
       "revId": "e70a3b3ca732e4553ee2d8ff3cf89ff2584a42d0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0ce5e719_fa7494d0",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3937,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-06-05T17:53:47Z",
+      "side": 1,
+      "message": "\u003e I put rd code in if (0) but it still gets compiled using default cmake settings...\n\u003e \n\u003e I just put them under #if !CONFIG_REALTIME_ONLY since they\u0027re different paths..\n\nRight I\u0027d expect it to compile, but not end up in the object file. The current structure is fine.",
+      "parentUuid": "cd698e63_c744ffdd",
+      "revId": "e70a3b3ca732e4553ee2d8ff3cf89ff2584a42d0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
