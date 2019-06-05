@@ -19,6 +19,7 @@ extern "C" {
 #include <math.h>
 
 #include "aom_util/aom_thread.h"
+
 #include "config/av1_rtcd.h"
 
 struct AV1Common;
