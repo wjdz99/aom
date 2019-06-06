@@ -140,6 +140,8 @@ set_aom_config_var(CONFIG_DATA_DRIVEN_TX 0 NUMBER "AV2 experiment flag.")
 
 set_aom_config_var(CONFIG_CNN_RESTORATION 0 NUMBER
                    "AV2 CNN Restoration experiment flag")
+set_aom_config_var(CONFIG_LOOP_RESTORE_CNN 0 NUMBER
+                   "AV2 CNN Restoration experiment flag")
 
 # To include Tensorflow, make sure to build tensorflow locally using
 # tensorflow/contrib/makefile/build_all_linux.sh and then providing the correct
@@ -184,10 +186,10 @@ set_aom_option_var(ENABLE_VSX "Enables VSX optimizations on PowerPC targets."
                    ON)
 
 # x86/x86_64 assembly/intrinsics flags.
-set_aom_option_var(ENABLE_MMX "Enables MMX optimizations on x86/x86_64 targets."
-                   ON)
-set_aom_option_var(ENABLE_SSE "Enables SSE optimizations on x86/x86_64 targets."
-                   ON)
+set_aom_option_var(ENABLE_MMX
+                   "Enables MMX optimizations on x86/x86_64 targets." ON)
+set_aom_option_var(ENABLE_SSE
+                   "Enables SSE optimizations on x86/x86_64 targets." ON)
 set_aom_option_var(ENABLE_SSE2
                    "Enables SSE2 optimizations on x86/x86_64 targets." ON)
 set_aom_option_var(ENABLE_SSE3
@@ -198,7 +200,7 @@ set_aom_option_var(ENABLE_SSE4_1
                    "Enables SSE4_1 optimizations on x86/x86_64 targets." ON)
 set_aom_option_var(ENABLE_SSE4_2
                    "Enables SSE4_2 optimizations on x86/x86_64 targets." ON)
-set_aom_option_var(ENABLE_AVX "Enables AVX optimizations on x86/x86_64 targets."
-                   ON)
+set_aom_option_var(ENABLE_AVX
+                   "Enables AVX optimizations on x86/x86_64 targets." ON)
 set_aom_option_var(ENABLE_AVX2
                    "Enables AVX2 optimizations on x86/x86_64 targets." ON)
