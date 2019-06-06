@@ -1292,6 +1292,82 @@ static void search_norestore(const RestorationTileLimits *limits,
   rsc->sse += rusi->sse[RESTORE_NONE];
 }
 
+#if CONFIG_LOOP_RESTORE_CNN
+static void search_cnn(const RestorationTileLimits *limits,
+                       const AV1PixelRect *tile_rect, int rest_unit_idx,
+                       void *priv, int32_t *tmpbuf,
+                       RestorationLineBuffers *rlbs) {
+  (void)tile_rect;
+  (void)tmpbuf;
+  (void)rlbs;
+  RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
+  RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
+  AV1_COMMON *cm = rsc->cm;
+
+  const int highbd = rsc->cm->seq_params.use_highbitdepth;
+  rusi->sse[RESTORE_NONE] = sse_restoration_unit(
+      limits, rsc->src, &rsc->cm->cur_frame->buf, rsc->plane, highbd);
+
+  rsc->sse += rusi->sse[RESTORE_NONE];
+
+  if (av1_use_cnn(cm)) {
+    const int plane = AOM_PLANE_Y;
+    const int start_x = limits->h_start;
+    const int start_y = limits->v_start;
+    const int width = limits->h_end - limits->h_start;
+    const int height = limits->v_end - limits->v_start;
+    const int qindex = cm->base_qindex;
+    // TODO(logangw): retrieve list of available threads and number of threads.
+    const CNN_THREAD_DATA thread_data = { 1, NULL };
+    if (cm->current_frame.frame_type == KEY_FRAME) {
+      if (qindex < 108) {
+        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp22, &thread_data,
+                                   plane, start_x, start_y, width, height);
+      } else if (qindex < 148) {
+        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp32, &thread_data,
+                                   plane, start_x, start_y, width, height);
+      } else if (qindex < 192) {
+        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp43, &thread_data,
+                                   plane, start_x, start_y, width, height);
+      } else if (qindex < 232) {
+        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp53, &thread_data,
+                                   plane, start_x, start_y, width, height);
+      } else {
+        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp63, &thread_data,
+                                   plane, start_x, start_y, width, height);
+      }
+    } else {
+      // TODO(logangw): replaced intra_frame_models with inter_frame_models.
+      if (qindex < 108) {
+        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp22, &thread_data,
+                                   plane, start_x, start_y, width, height);
+      } else if (qindex < 148) {
+        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp32, &thread_data,
+                                   plane, start_x, start_y, width, height);
+      } else if (qindex < 192) {
+        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp43, &thread_data,
+                                   plane, start_x, start_y, width, height);
+      } else if (qindex < 232) {
+        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp53, &thread_data,
+                                   plane, start_x, start_y, width, height);
+      } else {
+        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp63, &thread_data,
+                                   plane, start_x, start_y, width, height);
+      }
+    }
+    // TODO(logangw): Add models for U and V planes and av1_num_planes(cm).
+    rusi->sse[RESTORE_CNN] = sse_restoration_unit(
+        limits, rsc->src, &rsc->cm->cur_frame->buf, plane, highbd);
+  }
+  RestorationType rtype = (rusi->sse[RESTORE_CNN] < rusi->sse[RESTORE_NONE])
+                              ? RESTORE_CNN
+                              : RESTORE_NONE;
+  rusi->best_rtype[RESTORE_CNN - 1] = rtype;
+  rsc->sse += rusi->sse[rtype];
+  rsc->bits = 0;
+}
+#endif  // CONFIG_LOOP_RESTORE_CNN
+
 static void search_switchable(const RestorationTileLimits *limits,
                               const AV1PixelRect *tile_rect, int rest_unit_idx,
                               void *priv, int32_t *tmpbuf,
