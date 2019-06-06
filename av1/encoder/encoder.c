@@ -3558,13 +3558,11 @@ static int get_gfu_boost_from_r0(double r0) {
 
 static void process_tpl_stats_frame(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
-  if (cpi->twopass.gf_group.index &&
-      cpi->twopass.gf_group.index < MAX_LAG_BUFFERS &&
+  if (cpi->gf_group.index && cpi->gf_group.index < MAX_LAG_BUFFERS &&
       cpi->oxcf.enable_tpl_model && cpi->tpl_model_pass == 0) {
-    assert(IMPLIES(cpi->twopass.gf_group.size > 0,
-                   cpi->twopass.gf_group.index < cpi->twopass.gf_group.size));
-    const int tpl_idx =
-        cpi->twopass.gf_group.frame_disp_idx[cpi->twopass.gf_group.index];
+    assert(IMPLIES(cpi->gf_group.size > 0,
+                   cpi->gf_group.index < cpi->gf_group.size));
+    const int tpl_idx = cpi->gf_group.frame_disp_idx[cpi->gf_group.index];
     TplDepFrame *tpl_frame = &cpi->tpl_stats[tpl_idx];
     TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
 
@@ -4688,11 +4686,11 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
       "show_frame=%d, show_existing_frame=%d, source_alt_ref_active=%d, "
       "refresh_alt_ref_frame=%d, "
       "y_stride=%4d, uv_stride=%4d, cm->width=%4d, cm->height=%4d\n\n",
-      current_frame->frame_number, cpi->twopass.gf_group.index,
-      cpi->twopass.gf_group.update_type[cpi->twopass.gf_group.index],
-      current_frame->order_hint, cm->show_frame, cm->show_existing_frame,
-      cpi->rc.source_alt_ref_active, cpi->refresh_alt_ref_frame,
-      recon_buf->y_stride, recon_buf->uv_stride, cm->width, cm->height);
+      current_frame->frame_number, cpi->gf_group.index,
+      cpi->gf_group.update_type[cpi->gf_group.index], current_frame->order_hint,
+      cm->show_frame, cm->show_existing_frame, cpi->rc.source_alt_ref_active,
+      cpi->refresh_alt_ref_frame, recon_buf->y_stride, recon_buf->uv_stride,
+      cm->width, cm->height);
 #if 0
   int ref_frame;
   printf("get_ref_frame_map_idx: [");
