@@ -33,8 +33,10 @@ void av1_build_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
                                const struct scale_factors *sf, int w, int h,
                                ConvolveParams *conv_params,
                                InterpFilters interp_filters,
+#if !CONFIG_REALTIME_ONLY
                                const WarpTypesAllowed *warp_types, int p_col,
                                int p_row, int plane, int ref,
+#endif
                                mv_precision precision, int x, int y,
                                const MACROBLOCKD *xd, int can_use_previous);
 

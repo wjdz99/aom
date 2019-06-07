@@ -205,21 +205,25 @@ static INLINE int get_interintra_wedge_bits(BLOCK_SIZE sb_type) {
   return av1_wedge_params_lookup[sb_type].bits;
 }
 
-void av1_make_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
-                              int dst_stride, const SubpelParams *subpel_params,
+void av1_make_inter_predictor(const uint8_t *src, const MB_MODE_INFO *mi,
+                              int src_stride, uint8_t *dst, int dst_stride,
+                              const SubpelParams *subpel_params,
                               const struct scale_factors *sf, int w, int h,
                               ConvolveParams *conv_params,
                               InterpFilters interp_filters,
+#if !CONFIG_REALTIME_ONLY
                               const WarpTypesAllowed *warp_types, int p_col,
-                              int p_row, int plane, int ref,
-                              const MB_MODE_INFO *mi, int build_for_obmc,
+                              int p_row, int plane, int ref, int build_for_obmc,
+#endif
                               const MACROBLOCKD *xd, int can_use_previous);
 
 void av1_make_masked_inter_predictor(
     const uint8_t *pre, int pre_stride, uint8_t *dst, int dst_stride,
     const SubpelParams *subpel_params, const struct scale_factors *sf, int w,
     int h, ConvolveParams *conv_params, InterpFilters interp_filters, int plane,
+#if !CONFIG_REALTIME_ONLY
     const WarpTypesAllowed *warp_types, int p_col, int p_row, int ref,
+#endif
     MACROBLOCKD *xd, int can_use_previous);
 
 // TODO(jkoleszar): yet another mv clamping function :-(

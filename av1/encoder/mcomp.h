@@ -155,6 +155,7 @@ int av1_find_best_obmc_sub_pixel_tree_up(
     int *mvjcost, int *mvcost[2], int *distortion, unsigned int *sse1,
     int is_second, int use_accurate_subpel_search);
 
+#if !CONFIG_REALTIME_ONLY
 unsigned int av1_compute_motion_cost(const struct AV1_COMP *cpi,
                                      MACROBLOCK *const x, BLOCK_SIZE bsize,
                                      int mi_row, int mi_col, const MV *this_mv);
@@ -162,6 +163,7 @@ unsigned int av1_refine_warped_mv(const struct AV1_COMP *cpi,
                                   MACROBLOCK *const x, BLOCK_SIZE bsize,
                                   int mi_row, int mi_col, int *pts0,
                                   int *pts_inref0, int total_samples);
+#endif
 
 // Performs a motion search in SIMPLE_TRANSLATION mode using reference frame
 // ref. Note that this sets the offset of mbmi, so we will need to reset it

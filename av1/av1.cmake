@@ -366,6 +366,8 @@ if(CONFIG_REALTIME_ONLY)
   list(REMOVE_ITEM AOM_AV1_ENCODER_SOURCES
                    "${AOM_ROOT}/av1/encoder/firstpass.c"
                    "${AOM_ROOT}/av1/encoder/firstpass.h"
+                   "${AOM_ROOT}/av1/encoder/global_motion.c"
+                   "${AOM_ROOT}/av1/encoder/global_motion.h"
                    "${AOM_ROOT}/av1/encoder/pass2_strategy.c"
                    "${AOM_ROOT}/av1/encoder/mbgraph.c"
                    "${AOM_ROOT}/av1/encoder/mbgraph.h"
@@ -375,6 +377,14 @@ if(CONFIG_REALTIME_ONLY)
                    "${AOM_ROOT}/av1/encoder/temporal_filter_constants.h"
                    "${AOM_ROOT}/av1/encoder/x86/temporal_filter_sse4.c"
                    "${AOM_ROOT}/av1/encoder/x86/highbd_temporal_filter_sse4.c")
+  list(REMOVE_ITEM AOM_AV1_COMMON_SOURCES
+                   "${AOM_ROOT}/av1/common/warped_motion.c"
+                   "${AOM_ROOT}/av1/common/warped_motion.h")
+  list(REMOVE_ITEM AOM_AV1_COMMON_INTRIN_SSE4_1
+                   "${AOM_ROOT}/av1/common/x86/highbd_warp_plane_sse4.c"
+                   "${AOM_ROOT}/av1/common/x86/warp_plane_sse4.c")
+  list(REMOVE_ITEM AOM_AV1_COMMON_INTRIN_AVX2
+                   "${AOM_ROOT}/av1/common/x86/warp_plane_avx2.c")
 endif()
 
 # Setup AV1 common/decoder/encoder targets. The libaom target must exist before
