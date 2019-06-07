@@ -407,233 +407,233 @@ static const int16_t intra_to_mode_idx[INTRA_MODE_NUM] = {
 
 /* clang-format off */
 static const int16_t single_inter_to_mode_idx[SINGLE_INTER_MODE_NUM]
-                                             [REF_FRAMES] = {
-  // NEARESTMV,
-  { -1, THR_NEARESTMV, THR_NEARESTL2, THR_NEARESTL3,
-    THR_NEARESTG, THR_NEARESTB, THR_NEARESTA2, THR_NEARESTA, },
-  // NEARMV,
-  { -1, THR_NEARMV, THR_NEARL2, THR_NEARL3,
-    THR_NEARG, THR_NEARB, THR_NEARA2, THR_NEARA, },
-  // GLOBALMV,
-  { -1, THR_GLOBALMV, THR_GLOBALL2, THR_GLOBALL3,
-    THR_GLOBALG, THR_GLOBALB, THR_GLOBALA2, THR_GLOBALA, },
-  // NEWMV,
-  { -1, THR_NEWMV, THR_NEWL2, THR_NEWL3,
-    THR_NEWG, THR_NEWB, THR_NEWA2, THR_NEWA, },
+[REF_FRAMES] = {
+	// NEARESTMV,
+	{ -1, THR_NEARESTMV, THR_NEARESTL2, THR_NEARESTL3,
+	THR_NEARESTG, THR_NEARESTB, THR_NEARESTA2, THR_NEARESTA, },
+	// NEARMV,
+	{ -1, THR_NEARMV, THR_NEARL2, THR_NEARL3,
+	THR_NEARG, THR_NEARB, THR_NEARA2, THR_NEARA, },
+	// GLOBALMV,
+	{ -1, THR_GLOBALMV, THR_GLOBALL2, THR_GLOBALL3,
+	THR_GLOBALG, THR_GLOBALB, THR_GLOBALA2, THR_GLOBALA, },
+	// NEWMV,
+	{ -1, THR_NEWMV, THR_NEWL2, THR_NEWL3,
+	THR_NEWG, THR_NEWB, THR_NEWA2, THR_NEWA, },
 };
 /* clang-format on */
 
 /* clang-format off */
 static const int16_t comp_inter_to_mode_idx[COMP_INTER_MODE_NUM][REF_FRAMES]
-                                     [REF_FRAMES] = {
-  // NEAREST_NEARESTMV,
-  {
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-    { -1, -1,
-      THR_COMP_NEAREST_NEARESTLL2, THR_COMP_NEAREST_NEARESTLL3,
-      THR_COMP_NEAREST_NEARESTLG, THR_COMP_NEAREST_NEARESTLB,
-      THR_COMP_NEAREST_NEARESTLA2, THR_COMP_NEAREST_NEARESTLA, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEAREST_NEARESTL2B,
-      THR_COMP_NEAREST_NEARESTL2A2, THR_COMP_NEAREST_NEARESTL2A, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEAREST_NEARESTL3B,
-      THR_COMP_NEAREST_NEARESTL3A2, THR_COMP_NEAREST_NEARESTL3A, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEAREST_NEARESTGB,
-      THR_COMP_NEAREST_NEARESTGA2, THR_COMP_NEAREST_NEARESTGA, },
-    { -1, -1,
-      -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEAREST_NEARESTBA, },
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-  },
-  // NEAR_NEARMV,
-  {
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-    { -1, -1,
-      THR_COMP_NEAR_NEARLL2, THR_COMP_NEAR_NEARLL3,
-      THR_COMP_NEAR_NEARLG, THR_COMP_NEAR_NEARLB,
-      THR_COMP_NEAR_NEARLA2, THR_COMP_NEAR_NEARLA, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEAR_NEARL2B,
-      THR_COMP_NEAR_NEARL2A2, THR_COMP_NEAR_NEARL2A, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEAR_NEARL3B,
-      THR_COMP_NEAR_NEARL3A2, THR_COMP_NEAR_NEARL3A, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEAR_NEARGB,
-      THR_COMP_NEAR_NEARGA2, THR_COMP_NEAR_NEARGA, },
-    { -1, -1,
-      -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEAR_NEARBA, },
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-  },
-  // NEAREST_NEWMV,
-  {
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-    { -1, -1,
-      THR_COMP_NEAREST_NEWLL2, THR_COMP_NEAREST_NEWLL3,
-      THR_COMP_NEAREST_NEWLG, THR_COMP_NEAREST_NEWLB,
-      THR_COMP_NEAREST_NEWLA2, THR_COMP_NEAREST_NEWLA, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEAREST_NEWL2B,
-      THR_COMP_NEAREST_NEWL2A2, THR_COMP_NEAREST_NEWL2A, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEAREST_NEWL3B,
-      THR_COMP_NEAREST_NEWL3A2, THR_COMP_NEAREST_NEWL3A, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEAREST_NEWGB,
-      THR_COMP_NEAREST_NEWGA2, THR_COMP_NEAREST_NEWGA, },
-    { -1, -1,
-      -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEAREST_NEWBA, },
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-  },
-  // NEW_NEARESTMV,
-  {
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-    { -1, -1,
-      THR_COMP_NEW_NEARESTLL2, THR_COMP_NEW_NEARESTLL3,
-      THR_COMP_NEW_NEARESTLG, THR_COMP_NEW_NEARESTLB,
-      THR_COMP_NEW_NEARESTLA2, THR_COMP_NEW_NEARESTLA, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEW_NEARESTL2B,
-      THR_COMP_NEW_NEARESTL2A2, THR_COMP_NEW_NEARESTL2A, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEW_NEARESTL3B,
-      THR_COMP_NEW_NEARESTL3A2, THR_COMP_NEW_NEARESTL3A, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEW_NEARESTGB,
-      THR_COMP_NEW_NEARESTGA2, THR_COMP_NEW_NEARESTGA, },
-    { -1, -1,
-      -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEW_NEARESTBA, },
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-  },
-  // NEAR_NEWMV,
-  {
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-    { -1, -1,
-      THR_COMP_NEAR_NEWLL2, THR_COMP_NEAR_NEWLL3,
-      THR_COMP_NEAR_NEWLG, THR_COMP_NEAR_NEWLB,
-      THR_COMP_NEAR_NEWLA2, THR_COMP_NEAR_NEWLA, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEAR_NEWL2B,
-      THR_COMP_NEAR_NEWL2A2, THR_COMP_NEAR_NEWL2A, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEAR_NEWL3B,
-      THR_COMP_NEAR_NEWL3A2, THR_COMP_NEAR_NEWL3A, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEAR_NEWGB,
-      THR_COMP_NEAR_NEWGA2, THR_COMP_NEAR_NEWGA, },
-    { -1, -1,
-      -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEAR_NEWBA, },
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-  },
-  // NEW_NEARMV,
-  {
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-    { -1, -1,
-      THR_COMP_NEW_NEARLL2, THR_COMP_NEW_NEARLL3,
-      THR_COMP_NEW_NEARLG, THR_COMP_NEW_NEARLB,
-      THR_COMP_NEW_NEARLA2, THR_COMP_NEW_NEARLA, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEW_NEARL2B,
-      THR_COMP_NEW_NEARL2A2, THR_COMP_NEW_NEARL2A, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEW_NEARL3B,
-      THR_COMP_NEW_NEARL3A2, THR_COMP_NEW_NEARL3A, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEW_NEARGB,
-      THR_COMP_NEW_NEARGA2, THR_COMP_NEW_NEARGA, },
-    { -1, -1,
-      -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEW_NEARBA, },
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-  },
-  // GLOBAL_GLOBALMV,
-  {
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-    { -1, -1,
-      THR_COMP_GLOBAL_GLOBALLL2, THR_COMP_GLOBAL_GLOBALLL3,
-      THR_COMP_GLOBAL_GLOBALLG, THR_COMP_GLOBAL_GLOBALLB,
-      THR_COMP_GLOBAL_GLOBALLA2, THR_COMP_GLOBAL_GLOBALLA, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_GLOBAL_GLOBALL2B,
-      THR_COMP_GLOBAL_GLOBALL2A2, THR_COMP_GLOBAL_GLOBALL2A, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_GLOBAL_GLOBALL3B,
-      THR_COMP_GLOBAL_GLOBALL3A2, THR_COMP_GLOBAL_GLOBALL3A, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_GLOBAL_GLOBALGB,
-      THR_COMP_GLOBAL_GLOBALGA2, THR_COMP_GLOBAL_GLOBALGA, },
-    { -1, -1,
-      -1, -1,
-      -1, -1,
-      -1, THR_COMP_GLOBAL_GLOBALBA, },
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-  },
-  // NEW_NEWMV,
-  {
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-    { -1, -1,
-      THR_COMP_NEW_NEWLL2, THR_COMP_NEW_NEWLL3,
-      THR_COMP_NEW_NEWLG, THR_COMP_NEW_NEWLB,
-      THR_COMP_NEW_NEWLA2, THR_COMP_NEW_NEWLA, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEW_NEWL2B,
-      THR_COMP_NEW_NEWL2A2, THR_COMP_NEW_NEWL2A, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEW_NEWL3B,
-      THR_COMP_NEW_NEWL3A2, THR_COMP_NEW_NEWL3A, },
-    { -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEW_NEWGB,
-      THR_COMP_NEW_NEWGA2, THR_COMP_NEW_NEWGA, },
-    { -1, -1,
-      -1, -1,
-      -1, -1,
-      -1, THR_COMP_NEW_NEWBA, },
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-    { -1, -1, -1, -1, -1, -1, -1, -1, },
-  },
+[REF_FRAMES] = {
+	// NEAREST_NEARESTMV,
+	{
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+		{ -1, -1,
+		THR_COMP_NEAREST_NEARESTLL2, THR_COMP_NEAREST_NEARESTLL3,
+		THR_COMP_NEAREST_NEARESTLG, THR_COMP_NEAREST_NEARESTLB,
+		THR_COMP_NEAREST_NEARESTLA2, THR_COMP_NEAREST_NEARESTLA, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEAREST_NEARESTL2B,
+		THR_COMP_NEAREST_NEARESTL2A2, THR_COMP_NEAREST_NEARESTL2A, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEAREST_NEARESTL3B,
+		THR_COMP_NEAREST_NEARESTL3A2, THR_COMP_NEAREST_NEARESTL3A, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEAREST_NEARESTGB,
+		THR_COMP_NEAREST_NEARESTGA2, THR_COMP_NEAREST_NEARESTGA, },
+		{ -1, -1,
+		-1, -1,
+		-1, -1,
+		-1, THR_COMP_NEAREST_NEARESTBA, },
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+	},
+	// NEAR_NEARMV,
+	{
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+		{ -1, -1,
+		THR_COMP_NEAR_NEARLL2, THR_COMP_NEAR_NEARLL3,
+		THR_COMP_NEAR_NEARLG, THR_COMP_NEAR_NEARLB,
+		THR_COMP_NEAR_NEARLA2, THR_COMP_NEAR_NEARLA, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEAR_NEARL2B,
+		THR_COMP_NEAR_NEARL2A2, THR_COMP_NEAR_NEARL2A, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEAR_NEARL3B,
+		THR_COMP_NEAR_NEARL3A2, THR_COMP_NEAR_NEARL3A, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEAR_NEARGB,
+		THR_COMP_NEAR_NEARGA2, THR_COMP_NEAR_NEARGA, },
+		{ -1, -1,
+		-1, -1,
+		-1, -1,
+		-1, THR_COMP_NEAR_NEARBA, },
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+	},
+	// NEAREST_NEWMV,
+	{
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+		{ -1, -1,
+		THR_COMP_NEAREST_NEWLL2, THR_COMP_NEAREST_NEWLL3,
+		THR_COMP_NEAREST_NEWLG, THR_COMP_NEAREST_NEWLB,
+		THR_COMP_NEAREST_NEWLA2, THR_COMP_NEAREST_NEWLA, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEAREST_NEWL2B,
+		THR_COMP_NEAREST_NEWL2A2, THR_COMP_NEAREST_NEWL2A, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEAREST_NEWL3B,
+		THR_COMP_NEAREST_NEWL3A2, THR_COMP_NEAREST_NEWL3A, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEAREST_NEWGB,
+		THR_COMP_NEAREST_NEWGA2, THR_COMP_NEAREST_NEWGA, },
+		{ -1, -1,
+		-1, -1,
+		-1, -1,
+		-1, THR_COMP_NEAREST_NEWBA, },
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+	},
+	// NEW_NEARESTMV,
+	{
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+		{ -1, -1,
+		THR_COMP_NEW_NEARESTLL2, THR_COMP_NEW_NEARESTLL3,
+		THR_COMP_NEW_NEARESTLG, THR_COMP_NEW_NEARESTLB,
+		THR_COMP_NEW_NEARESTLA2, THR_COMP_NEW_NEARESTLA, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEW_NEARESTL2B,
+		THR_COMP_NEW_NEARESTL2A2, THR_COMP_NEW_NEARESTL2A, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEW_NEARESTL3B,
+		THR_COMP_NEW_NEARESTL3A2, THR_COMP_NEW_NEARESTL3A, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEW_NEARESTGB,
+		THR_COMP_NEW_NEARESTGA2, THR_COMP_NEW_NEARESTGA, },
+		{ -1, -1,
+		-1, -1,
+		-1, -1,
+		-1, THR_COMP_NEW_NEARESTBA, },
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+	},
+	// NEAR_NEWMV,
+	{
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+		{ -1, -1,
+		THR_COMP_NEAR_NEWLL2, THR_COMP_NEAR_NEWLL3,
+		THR_COMP_NEAR_NEWLG, THR_COMP_NEAR_NEWLB,
+		THR_COMP_NEAR_NEWLA2, THR_COMP_NEAR_NEWLA, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEAR_NEWL2B,
+		THR_COMP_NEAR_NEWL2A2, THR_COMP_NEAR_NEWL2A, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEAR_NEWL3B,
+		THR_COMP_NEAR_NEWL3A2, THR_COMP_NEAR_NEWL3A, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEAR_NEWGB,
+		THR_COMP_NEAR_NEWGA2, THR_COMP_NEAR_NEWGA, },
+		{ -1, -1,
+		-1, -1,
+		-1, -1,
+		-1, THR_COMP_NEAR_NEWBA, },
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+	},
+	// NEW_NEARMV,
+	{
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+		{ -1, -1,
+		THR_COMP_NEW_NEARLL2, THR_COMP_NEW_NEARLL3,
+		THR_COMP_NEW_NEARLG, THR_COMP_NEW_NEARLB,
+		THR_COMP_NEW_NEARLA2, THR_COMP_NEW_NEARLA, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEW_NEARL2B,
+		THR_COMP_NEW_NEARL2A2, THR_COMP_NEW_NEARL2A, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEW_NEARL3B,
+		THR_COMP_NEW_NEARL3A2, THR_COMP_NEW_NEARL3A, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEW_NEARGB,
+		THR_COMP_NEW_NEARGA2, THR_COMP_NEW_NEARGA, },
+		{ -1, -1,
+		-1, -1,
+		-1, -1,
+		-1, THR_COMP_NEW_NEARBA, },
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+	},
+	// GLOBAL_GLOBALMV,
+	{
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+		{ -1, -1,
+		THR_COMP_GLOBAL_GLOBALLL2, THR_COMP_GLOBAL_GLOBALLL3,
+		THR_COMP_GLOBAL_GLOBALLG, THR_COMP_GLOBAL_GLOBALLB,
+		THR_COMP_GLOBAL_GLOBALLA2, THR_COMP_GLOBAL_GLOBALLA, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_GLOBAL_GLOBALL2B,
+		THR_COMP_GLOBAL_GLOBALL2A2, THR_COMP_GLOBAL_GLOBALL2A, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_GLOBAL_GLOBALL3B,
+		THR_COMP_GLOBAL_GLOBALL3A2, THR_COMP_GLOBAL_GLOBALL3A, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_GLOBAL_GLOBALGB,
+		THR_COMP_GLOBAL_GLOBALGA2, THR_COMP_GLOBAL_GLOBALGA, },
+		{ -1, -1,
+		-1, -1,
+		-1, -1,
+		-1, THR_COMP_GLOBAL_GLOBALBA, },
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+	},
+	// NEW_NEWMV,
+	{
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+		{ -1, -1,
+		THR_COMP_NEW_NEWLL2, THR_COMP_NEW_NEWLL3,
+		THR_COMP_NEW_NEWLG, THR_COMP_NEW_NEWLB,
+		THR_COMP_NEW_NEWLA2, THR_COMP_NEW_NEWLA, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEW_NEWL2B,
+		THR_COMP_NEW_NEWL2A2, THR_COMP_NEW_NEWL2A, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEW_NEWL3B,
+		THR_COMP_NEW_NEWL3A2, THR_COMP_NEW_NEWL3A, },
+		{ -1, -1,
+		-1, -1,
+		-1, THR_COMP_NEW_NEWGB,
+		THR_COMP_NEW_NEWGA2, THR_COMP_NEW_NEWGA, },
+		{ -1, -1,
+		-1, -1,
+		-1, -1,
+		-1, THR_COMP_NEW_NEWBA, },
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+		{ -1, -1, -1, -1, -1, -1, -1, -1, },
+	},
 };
 /* clang-format on */
 // Calculate rd threshold based on ref best rd and relevant scaling factors
@@ -1039,9 +1039,9 @@ static int od_compute_var_4x4(uint16_t *x, int stride) {
 }
 
 /* OD_DIST_LP_MID controls the frequency weighting filter used for computing
-   the distortion. For a value X, the filter is [1 X 1]/(X + 2) and
-   is applied both horizontally and vertically. For X=5, the filter is
-   a good approximation for the OD_QM8_Q4_HVS quantization matrix. */
+the distortion. For a value X, the filter is [1 X 1]/(X + 2) and
+is applied both horizontally and vertically. For X=5, the filter is
+a good approximation for the OD_QM8_Q4_HVS quantization matrix. */
 #define OD_DIST_LP_MID (5)
 #define OD_DIST_LP_NORM (OD_DIST_LP_MID + 2)
 
@@ -1075,9 +1075,9 @@ static double od_compute_dist_8x8(int use_activity_masking, uint16_t *x,
     }
   }
   /* We use a different variance statistic depending on whether activity
-     masking is used, since the harmonic mean appeared slightly worse with
-     masking off. The calibration constant just ensures that we preserve the
-     rate compared to activity=1. */
+  masking is used, since the harmonic mean appeared slightly worse with
+  masking off. The calibration constant just ensures that we preserve the
+  rate compared to activity=1. */
   if (use_activity_masking) {
     calibration = 1.95;
     var_stat = 9. / mean_var;
@@ -1086,7 +1086,7 @@ static double od_compute_dist_8x8(int use_activity_masking, uint16_t *x,
     var_stat = min_var;
   }
   /* 1.62 is a calibration constant, 0.25 is a noise floor and 1/6 is the
-     activity masking constant. */
+  activity masking constant. */
   activity = calibration * pow(.25 + var_stat, -1. / 6);
 #else
   activity = 1;
@@ -4549,8 +4549,8 @@ static const uint8_t gradient_to_angle_bin[2][7][16] = {
 
 /* clang-format off */
 static const uint8_t mode_to_angle_bin[INTRA_MODES] = {
-  0, 2, 6, 0, 4, 3, 5, 7, 1, 0,
-  0,
+	0, 2, 6, 0, 4, 3, 5, 7, 1, 0,
+	0,
 };
 /* clang-format on */
 
@@ -10947,11 +10947,142 @@ static void calc_target_weighted_pred(const AV1_COMMON *cm, const MACROBLOCK *x,
                                       int above_stride, const uint8_t *left,
                                       int left_stride);
 
-static void rd_pick_skip_mode(RD_STATS *rd_cost,
+static void rd_pick_skip_mode(RD_STATS *skip_cost,
                               InterModeSearchState *search_state,
                               const AV1_COMP *const cpi, MACROBLOCK *const x,
                               BLOCK_SIZE bsize, int mi_row, int mi_col,
-                              struct buf_2d yv12_mb[REF_FRAMES][MAX_MB_PLANE]) {
+                              struct buf_2d yv12_mb[REF_FRAMES][MAX_MB_PLANE],
+                              int64_t best_rd_so_far) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const SkipModeInfo *const skip_mode_info = &cm->current_frame.skip_mode_info;
+  const int num_planes = av1_num_planes(cm);
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  MB_MODE_INFO temp_mbmi;
+
+  x->compound_idx = 1;  // COMPOUND_AVERAGE
+
+  if (skip_mode_info->ref_frame_idx_0 == INVALID_IDX ||
+      skip_mode_info->ref_frame_idx_1 == INVALID_IDX) {
+    return;
+  }
+
+  const MV_REFERENCE_FRAME ref_frame =
+      LAST_FRAME + skip_mode_info->ref_frame_idx_0;
+  const MV_REFERENCE_FRAME second_ref_frame =
+      LAST_FRAME + skip_mode_info->ref_frame_idx_1;
+  const PREDICTION_MODE this_mode = NEAREST_NEARESTMV;
+  const int mode_index =
+      get_prediction_mode_idx(this_mode, ref_frame, second_ref_frame);
+
+  if (mode_index == -1) {
+    return;
+  }
+
+  if (!cpi->oxcf.enable_onesided_comp && cpi->all_one_sided_refs) {
+    return;
+  }
+
+  mbmi->mode = this_mode;
+  mbmi->uv_mode = UV_DC_PRED;
+  mbmi->ref_frame[0] = ref_frame;
+  mbmi->ref_frame[1] = second_ref_frame;
+  const uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+  if (x->mbmi_ext->ref_mv_count[ref_frame_type] == UINT8_MAX) {
+    if (x->mbmi_ext->ref_mv_count[ref_frame] == UINT8_MAX ||
+        x->mbmi_ext->ref_mv_count[second_ref_frame] == UINT8_MAX) {
+      return;
+    }
+    MB_MODE_INFO_EXT *mbmi_ext = x->mbmi_ext;
+    av1_find_mv_refs(cm, xd, mbmi, ref_frame_type, mbmi_ext->ref_mv_count,
+                     mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
+                     mbmi_ext->global_mvs, mi_row, mi_col,
+                     mbmi_ext->mode_context);
+  }
+
+  assert(this_mode == NEAREST_NEARESTMV);
+  if (!build_cur_mv(mbmi->mv, this_mode, cm, x)) {
+    return;
+  }
+
+  mbmi->filter_intra_mode_info.use_filter_intra = 0;
+  mbmi->interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
+  mbmi->comp_group_idx = 0;
+  mbmi->compound_idx = x->compound_idx;
+  mbmi->interinter_comp.type = COMPOUND_AVERAGE;
+  mbmi->motion_mode = SIMPLE_TRANSLATION;
+  mbmi->ref_mv_idx = 0;
+  mbmi->skip_mode = mbmi->skip = 1;
+
+  set_default_interp_filters(mbmi, cm->interp_filter);
+
+  set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+  for (int i = 0; i < num_planes; i++) {
+    xd->plane[i].pre[0] = yv12_mb[mbmi->ref_frame[0]][i];
+    xd->plane[i].pre[1] = yv12_mb[mbmi->ref_frame[1]][i];
+  }
+
+  BUFFER_SET orig_dst;
+  for (int i = 0; i < num_planes; i++) {
+    orig_dst.plane[i] = xd->plane[i].dst.buf;
+    orig_dst.stride[i] = xd->plane[i].dst.stride;
+  }
+
+  // Obtain the rdcost for skip_mode.
+  skip_mode_rd(skip_cost, cpi, x, bsize, mi_row, mi_col, &orig_dst);
+  if (skip_cost->rdcost <= best_rd_so_far) {
+    assert(mode_index != -1);
+    search_state->best_mbmode.skip_mode = 1;
+    search_state->best_mbmode = *mbmi;
+
+    search_state->best_mbmode.skip_mode = search_state->best_mbmode.skip = 1;
+    search_state->best_mbmode.mode = NEAREST_NEARESTMV;
+    search_state->best_mbmode.ref_frame[0] = mbmi->ref_frame[0];
+    search_state->best_mbmode.ref_frame[1] = mbmi->ref_frame[1];
+    search_state->best_mbmode.mv[0].as_int = mbmi->mv[0].as_int;
+    search_state->best_mbmode.mv[1].as_int = mbmi->mv[1].as_int;
+    search_state->best_mbmode.ref_mv_idx = 0;
+
+    // Set up tx_size related variables for skip-specific loop filtering.
+    search_state->best_mbmode.tx_size =
+        block_signals_txsize(bsize) ? tx_size_from_tx_mode(bsize, cm->tx_mode)
+                                    : max_txsize_rect_lookup[bsize];
+    memset(search_state->best_mbmode.inter_tx_size,
+           search_state->best_mbmode.tx_size,
+           sizeof(search_state->best_mbmode.inter_tx_size));
+    set_txfm_ctxs(search_state->best_mbmode.tx_size, xd->n4_w, xd->n4_h,
+                  search_state->best_mbmode.skip && is_inter_block(mbmi), xd);
+
+    // Set up color-related variables for skip mode.
+    search_state->best_mbmode.uv_mode = UV_DC_PRED;
+    search_state->best_mbmode.palette_mode_info.palette_size[0] = 0;
+    search_state->best_mbmode.palette_mode_info.palette_size[1] = 0;
+
+    search_state->best_mbmode.comp_group_idx = 0;
+    search_state->best_mbmode.compound_idx = x->compound_idx;
+    search_state->best_mbmode.interinter_comp.type = COMPOUND_AVERAGE;
+    search_state->best_mbmode.motion_mode = SIMPLE_TRANSLATION;
+
+    search_state->best_mbmode.interintra_mode =
+        (INTERINTRA_MODE)(II_DC_PRED - 1);
+    search_state->best_mbmode.filter_intra_mode_info.use_filter_intra = 0;
+
+    set_default_interp_filters(&search_state->best_mbmode, cm->interp_filter);
+
+    search_state->best_mode_index = mode_index;
+
+    search_state->best_rd = skip_cost->rdcost;
+    search_state->best_skip2 = 1;
+    search_state->best_mode_skippable = 1;
+
+    skip_cost->dist = skip_cost->sse;
+  }
+}
+
+static void non_rd_pick_skip_mode(
+    RD_STATS *rd_cost, InterModeSearchState *search_state,
+    const AV1_COMP *const cpi, MACROBLOCK *const x, BLOCK_SIZE bsize,
+    int mi_row, int mi_col, struct buf_2d yv12_mb[REF_FRAMES][MAX_MB_PLANE]) {
   const AV1_COMMON *const cm = &cpi->common;
   const SkipModeInfo *const skip_mode_info = &cm->current_frame.skip_mode_info;
   const int num_planes = av1_num_planes(cm);
@@ -12571,6 +12702,80 @@ static INLINE bool in_top_2_ref(int64_t ref_frame_rd[REF_FRAMES],
          ref_frame_rd[frame2] <= ref_frame_rd[0];
 }
 
+static INLINE void rd_inter_mode_update_sb(
+    AV1_COMP *cpi, TileDataEnc *tile_data, MACROBLOCK *x,
+    InterModeSearchState *search_state, RD_STATS *rd_cost, int bsize,
+    PICK_MODE_CONTEXT *ctx, int64_t best_rd_so_far) {
+  AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  const SPEED_FEATURES *const sf = &cpi->sf;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  int i;
+
+  // Make sure that the ref_mv_idx is only nonzero when we're
+  // using a mode which can support ref_mv_idx
+  if (search_state->best_mbmode.ref_mv_idx != 0 &&
+      !(search_state->best_mbmode.mode == NEWMV ||
+        search_state->best_mbmode.mode == NEW_NEWMV ||
+        have_nearmv_in_inter_mode(search_state->best_mbmode.mode))) {
+    search_state->best_mbmode.ref_mv_idx = 0;
+  }
+
+  if (search_state->best_mode_index < 0 ||
+      search_state->best_rd >= best_rd_so_far) {
+    rd_cost->rate = INT_MAX;
+    rd_cost->rdcost = INT64_MAX;
+    return;
+  }
+
+  assert(
+      (cm->interp_filter == SWITCHABLE) ||
+      (cm->interp_filter == av1_extract_interp_filter(
+                                search_state->best_mbmode.interp_filters, 0)) ||
+      !is_inter_block(&search_state->best_mbmode));
+  assert(
+      (cm->interp_filter == SWITCHABLE) ||
+      (cm->interp_filter == av1_extract_interp_filter(
+                                search_state->best_mbmode.interp_filters, 1)) ||
+      !is_inter_block(&search_state->best_mbmode));
+
+  if (!cpi->rc.is_src_frame_alt_ref)
+    av1_update_rd_thresh_fact(cm, tile_data->thresh_freq_fact,
+                              sf->adaptive_rd_thresh, bsize,
+                              search_state->best_mode_index);
+
+  // macroblock modes
+  *mbmi = search_state->best_mbmode;
+  x->skip |= search_state->best_skip2;
+
+  // Note: this section is needed since the mode may have been forced to
+  // GLOBALMV by the all-zero mode handling of ref-mv.
+  if (mbmi->mode == GLOBALMV || mbmi->mode == GLOBAL_GLOBALMV) {
+    // Correct the interp filters for GLOBALMV
+    if (is_nontrans_global_motion(xd, xd->mi[0])) {
+      assert(mbmi->interp_filters ==
+             av1_broadcast_interp_filter(
+                 av1_unswitchable_filter(cm->interp_filter)));
+    }
+  }
+
+  for (i = 0; i < REFERENCE_MODES; ++i) {
+    if (search_state->best_pred_rd[i] == INT64_MAX)
+      search_state->best_pred_diff[i] = INT_MIN;
+    else
+      search_state->best_pred_diff[i] =
+          search_state->best_rd - search_state->best_pred_rd[i];
+  }
+
+  x->skip |= search_state->best_mode_skippable;
+
+  assert(search_state->best_mode_index >= 0);
+
+  store_coding_context(x, ctx, search_state->best_mode_index,
+                       search_state->best_pred_diff,
+                       search_state->best_mode_skippable);
+}
+
 void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                MACROBLOCK *x, int mi_row, int mi_col,
                                RD_STATS *rd_cost, BLOCK_SIZE bsize,
@@ -12594,9 +12799,17 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int *comp_inter_cost = x->comp_inter_cost[av1_get_reference_mode_context(xd)];
   mode_skip_mask_t mode_skip_mask;
 
+  RD_STATS skip_mode_rd_stats;
+  av1_invalid_rd_stats(&skip_mode_rd_stats);
+
   InterModeSearchState search_state;
+  InterModeSearchState skip_search_state;
+
   init_inter_mode_search_state(&search_state, cpi, tile_data, x, bsize,
                                best_rd_so_far);
+  init_inter_mode_search_state(&skip_search_state, cpi, tile_data, x, bsize,
+                               best_rd_so_far);
+
   INTERINTRA_MODE interintra_modes[REF_FRAMES] = {
     INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES,
     INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES
@@ -12657,6 +12870,11 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   // Temporary buffers used by handle_inter_mode().
   uint8_t *const tmp_buf = get_buf_by_bd(xd, x->tmp_obmc_bufs[0]);
+
+  const int try_skip_mode =
+      (cm->current_frame.skip_mode_info.skip_mode_flag &
+       !segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME) &
+       is_comp_ref_allowed(bsize));
 
   CompoundTypeRdBuffers rd_buffers;
   alloc_compound_type_rd_buffers(cm, &rd_buffers);
@@ -13050,76 +13268,35 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     search_palette_mode(cpi, x, mi_row, mi_col, rd_cost, ctx, bsize, mbmi, pmi,
                         ref_costs_single, &search_state);
   }
+
   search_state.best_mbmode.skip_mode = 0;
-  if (cm->current_frame.skip_mode_info.skip_mode_flag &&
-      !segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME) &&
-      is_comp_ref_allowed(bsize)) {
-    rd_pick_skip_mode(rd_cost, &search_state, cpi, x, bsize, mi_row, mi_col,
-                      yv12_mb);
-  }
+  if (try_skip_mode) {
+    // Compare the use of skip_mode with the best intra/inter mode obtained.
+    const int skip_mode_ctx = av1_get_skip_mode_context(xd);
+    int64_t best_intra_inter_mode_cost = INT64_MAX;
+    if (rd_cost->dist < INT64_MAX && rd_cost->rate < INT32_MAX) {
+      best_intra_inter_mode_cost =
+          RDCOST(x->rdmult, rd_cost->rate + x->skip_mode_cost[skip_mode_ctx][0],
+                 rd_cost->dist);
+      // Account for non-skip mode rate in total rd stats
+      rd_cost->rate += x->skip_mode_cost[skip_mode_ctx][0];
+    }
 
-  // Make sure that the ref_mv_idx is only nonzero when we're
-  // using a mode which can support ref_mv_idx
-  if (search_state.best_mbmode.ref_mv_idx != 0 &&
-      !(search_state.best_mbmode.mode == NEWMV ||
-        search_state.best_mbmode.mode == NEW_NEWMV ||
-        have_nearmv_in_inter_mode(search_state.best_mbmode.mode))) {
-    search_state.best_mbmode.ref_mv_idx = 0;
-  }
+    rd_pick_skip_mode(&skip_mode_rd_stats, &skip_search_state, cpi, x, bsize,
+                      mi_row, mi_col, yv12_mb, best_intra_inter_mode_cost);
 
-  if (search_state.best_mode_index < 0 ||
-      search_state.best_rd >= best_rd_so_far) {
-    rd_cost->rate = INT_MAX;
-    rd_cost->rdcost = INT64_MAX;
-    return;
-  }
-
-  assert(
-      (cm->interp_filter == SWITCHABLE) ||
-      (cm->interp_filter ==
-       av1_extract_interp_filter(search_state.best_mbmode.interp_filters, 0)) ||
-      !is_inter_block(&search_state.best_mbmode));
-  assert(
-      (cm->interp_filter == SWITCHABLE) ||
-      (cm->interp_filter ==
-       av1_extract_interp_filter(search_state.best_mbmode.interp_filters, 1)) ||
-      !is_inter_block(&search_state.best_mbmode));
-
-  if (!cpi->rc.is_src_frame_alt_ref)
-    av1_update_rd_thresh_fact(cm, tile_data->thresh_freq_fact,
-                              sf->adaptive_rd_thresh, bsize,
-                              search_state.best_mode_index);
-
-  // macroblock modes
-  *mbmi = search_state.best_mbmode;
-  x->skip |= search_state.best_skip2;
-
-  // Note: this section is needed since the mode may have been forced to
-  // GLOBALMV by the all-zero mode handling of ref-mv.
-  if (mbmi->mode == GLOBALMV || mbmi->mode == GLOBAL_GLOBALMV) {
-    // Correct the interp filters for GLOBALMV
-    if (is_nontrans_global_motion(xd, xd->mi[0])) {
-      assert(mbmi->interp_filters ==
-             av1_broadcast_interp_filter(
-                 av1_unswitchable_filter(cm->interp_filter)));
+    if (skip_search_state.best_mbmode.skip_mode == 1) {
+      memcpy(&search_state, &skip_search_state, sizeof(InterModeSearchState));
+      // Update rd_cost with skip mode info
+      rd_cost->rate = skip_mode_rd_stats.rate;
+      rd_cost->dist = rd_cost->sse = skip_mode_rd_stats.dist;
+      rd_cost->rdcost = skip_mode_rd_stats.rdcost;
+      x->skip = 1;
     }
   }
 
-  for (i = 0; i < REFERENCE_MODES; ++i) {
-    if (search_state.best_pred_rd[i] == INT64_MAX)
-      search_state.best_pred_diff[i] = INT_MIN;
-    else
-      search_state.best_pred_diff[i] =
-          search_state.best_rd - search_state.best_pred_rd[i];
-  }
-
-  x->skip |= search_state.best_mode_skippable;
-
-  assert(search_state.best_mode_index >= 0);
-
-  store_coding_context(x, ctx, search_state.best_mode_index,
-                       search_state.best_pred_diff,
-                       search_state.best_mode_skippable);
+  rd_inter_mode_update_sb(cpi, tile_data, x, &search_state, rd_cost, bsize, ctx,
+                          best_rd_so_far);
 
   if (pmi->palette_size[1] > 0) {
     assert(try_palette);
@@ -13635,8 +13812,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   if (cm->current_frame.skip_mode_info.skip_mode_flag &&
       !segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME) &&
       is_comp_ref_allowed(bsize)) {
-    rd_pick_skip_mode(rd_cost, &search_state, cpi, x, bsize, mi_row, mi_col,
-                      yv12_mb);
+    // TODO(Anyone): Replace non_rd_pick_skip_mode() by rd_pick_skip_mode()
+    // by taking care of the dependencies
+    non_rd_pick_skip_mode(rd_cost, &search_state, cpi, x, bsize, mi_row, mi_col,
+                          yv12_mb);
   }
 
   // Make sure that the ref_mv_idx is only nonzero when we're
@@ -14036,7 +14215,7 @@ static void calc_target_weighted_pred(const AV1_COMMON *cm, const MACROBLOCK *x,
 }
 
 /* Use standard 3x3 Sobel matrix. Macro so it can be used for either high or
-   low bit-depth arrays. */
+low bit-depth arrays. */
 #define SOBEL_X(src, stride, i, j)                       \
   ((src)[((i)-1) + (stride) * ((j)-1)] -                 \
    (src)[((i) + 1) + (stride) * ((j)-1)] +  /* NOLINT */ \
