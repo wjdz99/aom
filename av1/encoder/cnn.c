@@ -93,7 +93,7 @@ static void copy_tensor(const TENSOR *src, int copy_channels, int dst_offset,
   }
 }
 
-static void assign_tensor(TENSOR *tensor, const float *buf[CNN_MAX_CHANNELS],
+static void assign_tensor(TENSOR *tensor, float *buf[CNN_MAX_CHANNELS],
                           int channels, int width, int height, int stride) {
   tensor->allocsize = 0;
   tensor->channels = channels;
@@ -780,12 +780,13 @@ void av1_cnn_deconvolve_c(const float **input, int in_width, int in_height,
 
 void av1_cnn_predict_c(const float **input, int in_width, int in_height,
                        int in_stride, const CNN_CONFIG *cnn_config,
-                       const CNN_THREAD_DATA *thread_data, float **output,
-                       int out_stride) {
+                       const CNN_THREAD_DATA *thread_data, float ***output,
+                       const int *out_stride) {
   TENSOR tensor1[CNN_MAX_BRANCHES] = { 0 };
   TENSOR tensor2[CNN_MAX_BRANCHES] = { 0 };
 
-  int i_width, i_height;
+  int i_width = in_width;
+  int i_height = in_height;
   int o_width = 0, o_height = 0;
   for (int b = 0; b < CNN_MAX_BRANCHES; ++b) {
     init_tensor(&tensor1[b]);
@@ -796,38 +797,32 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
     const CNN_LAYER_CONFIG *layer_config = &cnn_config->layer_config[layer];
     const int branch = layer_config->branch;
     const CNN_BRANCH_CONFIG *branch_config = &layer_config->branch_config;
+
+    // Allocate input tensor
     if (layer == 0) {       // First layer
       assert(branch == 0);  // First layer must be primary branch
-      assign_tensor(&tensor1[branch], input, layer_config->in_channels,
-                    in_width, in_height, in_stride);
-      find_layer_output_size(in_width, in_height, layer_config, &o_width,
-                             &o_height);
-      if (cnn_config->num_layers == 1) {  // single layer case
-        assign_tensor(&tensor2[branch], (const float **)output,
-                      layer_config->out_channels, o_width, o_height,
-                      out_stride);
-      } else {  // more than one layer case
-        realloc_tensor(&tensor2[branch], layer_config->out_channels, o_width,
-                       o_height);
-      }
+      assign_tensor(&tensor1[branch], (float **)input,
+                    layer_config->in_channels, in_width, in_height, in_stride);
     } else {  // Non-first layer
       // Swap tensor1 and tensor2
       swap_tensor(&tensor1[branch], &tensor2[branch]);
 
       i_width = o_width;
       i_height = o_height;
-      find_layer_output_size(i_width, i_height, layer_config, &o_width,
-                             &o_height);
-      if (layer < cnn_config->num_layers - 1) {  // Non-last layer
-        realloc_tensor(&tensor2[branch], layer_config->out_channels, o_width,
-                       o_height);
-      } else {                // Last layer
-        assert(branch == 0);  // Last layer must be primary branch
-        free_tensor(&tensor2[branch]);
-        assign_tensor(&tensor2[branch], (const float **)output,
-                      layer_config->out_channels, o_width, o_height,
-                      out_stride);
-      }
+    }
+
+    // Allocate output tensor
+    find_layer_output_size(i_width, i_height, layer_config, &o_width,
+                           &o_height);
+    const int output_num = layer_config->output_num;
+    if (output_num != -1) {  // We need to write the output
+      free_tensor(&tensor2[branch]);
+      assign_tensor(&tensor2[branch], output[output_num],
+                    layer_config->out_channels, o_width, o_height,
+                    out_stride[output_num]);
+    } else {  // We don't need to write the output
+      realloc_tensor(&tensor2[branch], layer_config->out_channels, o_width,
+                     o_height);
     }
 
     // If we are combining branches make sure that the branch to combine
@@ -896,25 +891,25 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
 
     // Concatenate tensors
     if (layer_config->branch_combine_type == BRANCH_CAT) {
-      if (layer < cnn_config->num_layers - 1) {  // Non-last layer
-        for (int b = 0; b < CNN_MAX_BRANCHES; ++b) {
-          if ((branch_config->branches_to_combine & (1 << b)) && b != branch) {
-            assert(check_tensor_equal_dims(&tensor2[b], &tensor2[branch]));
-            assert(tensor2[b].channels > 0);
-            concat_tensor(&tensor2[b], &tensor2[branch]);
-          }
-        }
-      } else {  // Last layer
+      if (output_num != -1) {  // Output layer
         for (int b = 0; b < CNN_MAX_BRANCHES; ++b) {
           if ((branch_config->branches_to_combine & (1 << b)) && b != branch) {
             assert(check_tensor_equal_dims(&tensor2[b], &tensor2[branch]));
             const int existing_channels = tensor2[branch].channels;
             // Needed only to assign the new channel buffers
-            assign_tensor(&tensor2[branch], (const float **)output,
+            assign_tensor(&tensor2[branch], output[output_num],
                           existing_channels + tensor2[b].channels, o_width,
-                          o_height, out_stride);
+                          o_height, out_stride[output_num]);
             copy_tensor(&tensor2[b], tensor2[b].channels, existing_channels,
                         &tensor2[branch]);
+          }
+        }
+      } else {  // Non-output layer
+        for (int b = 0; b < CNN_MAX_BRANCHES; ++b) {
+          if ((branch_config->branches_to_combine & (1 << b)) && b != branch) {
+            assert(check_tensor_equal_dims(&tensor2[b], &tensor2[branch]));
+            assert(tensor2[b].channels > 0);
+            concat_tensor(&tensor2[b], &tensor2[branch]);
           }
         }
       }
@@ -930,6 +925,65 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
     free_tensor(&tensor1[b]);
     free_tensor(&tensor2[b]);
   }
+}
+
+// Assume output already has proper allocation
+// Assume input image buffers all have same resolution and strides
+void av1_cnn_predict_img_multi_out(uint8_t **dgd, int width, int height,
+                                   int stride, const CNN_CONFIG *cnn_config,
+                                   const CNN_THREAD_DATA *thread_data,
+                                   float ***output, int *out_stride) {
+  const float max_val = 255.0;
+  int out_width = 0;
+  int out_height = 0;
+  int out_channels = 0;
+  av1_find_cnn_output_size(width, height, cnn_config, &out_width, &out_height,
+                           &out_channels);
+
+  int in_width = width + 2 * cnn_config->ext_width;
+  int in_height = height + 2 * cnn_config->ext_height;
+  int in_channels = cnn_config->layer_config[0].in_channels;
+  float *inputs[CNN_MAX_CHANNELS];
+  float *input_ =
+      (float *)aom_malloc(in_width * in_height * in_channels * sizeof(*input_));
+  const int in_stride = in_width;
+
+  for (int c = 0; c < in_channels; ++c) {
+    inputs[c] = input_ + c * in_stride * in_height;
+    float *input =
+        inputs[c] + cnn_config->ext_height * in_stride + cnn_config->ext_width;
+
+    if (cnn_config->strict_bounds) {
+      for (int i = 0; i < height; ++i)
+        for (int j = 0; j < width; ++j)
+          input[i * in_stride + j] = (float)dgd[c][i * stride + j] / max_val;
+      // extend left and right
+      for (int i = 0; i < height; ++i) {
+        for (int j = -cnn_config->ext_width; j < 0; ++j)
+          input[i * in_stride + j] = input[i * in_stride];
+        for (int j = width; j < width + cnn_config->ext_width; ++j)
+          input[i * in_stride + j] = input[i * in_stride + width - 1];
+      }
+      // extend top and bottom
+      for (int i = -cnn_config->ext_height; i < 0; ++i)
+        memcpy(&input[i * in_stride - cnn_config->ext_width],
+               &input[-cnn_config->ext_width], in_width * sizeof(*input));
+      for (int i = height; i < height + cnn_config->ext_height; ++i)
+        memcpy(&input[i * in_stride - cnn_config->ext_width],
+               &input[(height - 1) * in_stride - cnn_config->ext_width],
+               in_width * sizeof(*input));
+    } else {
+      for (int i = -cnn_config->ext_height; i < height + cnn_config->ext_height;
+           ++i)
+        for (int j = -cnn_config->ext_width; j < width + cnn_config->ext_width;
+             ++j)
+          input[i * in_stride + j] = (float)dgd[c][i * stride + j] / max_val;
+    }
+  }
+  av1_cnn_predict((const float **)inputs, in_width, in_height, in_stride,
+                  cnn_config, thread_data, output, out_stride);
+
+  aom_free(input_);
 }
 
 // Assume output already has proper allocation
@@ -986,7 +1040,7 @@ void av1_cnn_predict_img(uint8_t **dgd, int width, int height, int stride,
     }
   }
   av1_cnn_predict((const float **)inputs, in_width, in_height, in_stride,
-                  cnn_config, thread_data, output, out_stride);
+                  cnn_config, thread_data, &output, &out_stride);
 
   aom_free(input_);
 }
@@ -1045,7 +1099,7 @@ void av1_cnn_predict_img_highbd(uint16_t **dgd, int width, int height,
     }
   }
   av1_cnn_predict((const float **)inputs, width, height, in_stride, cnn_config,
-                  thread_data, output, out_stride);
+                  thread_data, &output, &out_stride);
   aom_free(input_);
 }
 
