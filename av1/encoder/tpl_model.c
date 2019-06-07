@@ -214,12 +214,14 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
     WarpTypesAllowed warp_types;
     memset(&warp_types, 0, sizeof(WarpTypesAllowed));
 
-    av1_build_inter_predictor(ref_frame[rf_idx]->y_buffer + mb_y_offset_ref,
-                              ref_frame[rf_idx]->y_stride, &predictor[0], bw,
-                              &x->best_mv.as_mv, sf, bw, bh, &conv_params,
-                              kernel, &warp_types, mi_col * MI_SIZE,
-                              mi_row * MI_SIZE, 0, 0, MV_PRECISION_Q3,
-                              mi_col * MI_SIZE, mi_row * MI_SIZE, xd, 0);
+    av1_build_inter_predictor(
+        ref_frame[rf_idx]->y_buffer + mb_y_offset_ref,
+        ref_frame[rf_idx]->y_stride, &predictor[0], bw, &x->best_mv.as_mv, sf,
+        bw, bh, &conv_params, kernel,
+#if !CONFIG_REALTIME_ONLY
+        &warp_types, mi_col * MI_SIZE, mi_row * MI_SIZE, 0, 0,
+#endif
+        MV_PRECISION_Q3, mi_col * MI_SIZE, mi_row * MI_SIZE, xd, 0);
     if (use_satd) {
       if (is_cur_buf_hbd(xd)) {
         aom_highbd_subtract_block(
@@ -804,9 +806,11 @@ static void get_tpl_forward_stats(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
 
       av1_build_inter_predictor(
           ref->y_buffer + mb_y_offset_ref, ref->y_stride, &predictor[0], bw,
-          &x->best_mv.as_mv, &sf, bw, bh, &conv_params, kernel, &warp_types,
-          mi_col * MI_SIZE, mi_row * MI_SIZE, 0, 0, MV_PRECISION_Q3,
-          mi_col * MI_SIZE, mi_row * MI_SIZE, xd, 0);
+          &x->best_mv.as_mv, &sf, bw, bh, &conv_params, kernel,
+#if !CONFIG_REALTIME_ONLY
+          &warp_types, mi_col * MI_SIZE, mi_row * MI_SIZE, 0, 0,
+#endif
+          MV_PRECISION_Q3, mi_col * MI_SIZE, mi_row * MI_SIZE, xd, 0);
       if (use_satd) {
         if (is_cur_buf_hbd(xd)) {
           aom_highbd_subtract_block(bh, bw, src_diff, bw,

@@ -554,7 +554,7 @@ void aom_upsampled_pred_sse2(MACROBLOCKD *xd, const struct AV1Common *const cm,
       const SubpelParams subpel_params = { sf->x_step_q4, sf->y_step_q4,
                                            pos_x & SCALE_SUBPEL_MASK,
                                            pos_y & SCALE_SUBPEL_MASK };
-
+#if !CONFIG_REALTIME_ONLY
       // Get warp types.
       const WarpedMotionParams *const wm =
           &xd->global_motion[mi->ref_frame[ref_num]];
@@ -562,19 +562,20 @@ void aom_upsampled_pred_sse2(MACROBLOCKD *xd, const struct AV1Common *const cm,
       WarpTypesAllowed warp_types;
       warp_types.global_warp_allowed = is_global;
       warp_types.local_warp_allowed = mi->motion_mode == WARPED_CAUSAL;
-
+#endif
       // Get convolve parameters.
       ConvolveParams conv_params = get_conv_params(0, plane, xd->bd);
       const InterpFilters filters =
           av1_broadcast_interp_filter(EIGHTTAP_REGULAR);
 
-      // Get the inter predictor.
-      const int build_for_obmc = 0;
-      av1_make_inter_predictor(pre, pre_buf->stride, comp_pred, width,
+      av1_make_inter_predictor(pre, mi, pre_buf->stride, comp_pred, width,
                                &subpel_params, sf, width, height, &conv_params,
-                               filters, &warp_types, mi_x >> pd->subsampling_x,
-                               mi_y >> pd->subsampling_y, plane, ref_num, mi,
-                               build_for_obmc, xd, cm->allow_warped_motion);
+                               filters,
+#if !CONFIG_REALTIME_ONLY
+                               &warp_types, mi_x >> pd->subsampling_x,
+                               mi_y >> pd->subsampling_y, plane, ref_num, 0,
+#endif
+                               xd, cm->allow_warped_motion);
 
       return;
     }
