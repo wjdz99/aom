@@ -124,8 +124,12 @@ struct CNN_LAYER_CONFIG {
   BRANCH_COMBINE branch_combine_type;
   struct CNN_BRANCH_CONFIG branch_config;
   struct CNN_BATCHNORM_PARAMS
-      bn_params;  // A struct that contains the parameters
-                  // used for batch normalization.
+      bn_params;   // A struct that contains the parameters
+                   // used for batch normalization.
+  int output_num;  // The output buffer to which the layer output is written.
+                   // Set to -1 to disable writing it to the output. In the case
+                   // that branch_combine_type is BRANCH_CAT, all concatenated
+                   // channels will be written to output.
 };
 
 struct CNN_CONFIG {
@@ -148,6 +152,12 @@ struct CNN_THREAD_DATA {
 void av1_find_cnn_output_size(int in_width, int in_height,
                               const CNN_CONFIG *cnn_config, int *out_width,
                               int *out_height, int *out_channels);
+
+// Prediction functions from set of input image buffers
+void av1_cnn_predict_img_multi_out(uint8_t **dgd, int width, int height,
+                                   int stride, const CNN_CONFIG *cnn_config,
+                                   const CNN_THREAD_DATA *thread_data,
+                                   float ***output, int *out_stride);
 
 // Prediction functions from set of input image buffers
 void av1_cnn_predict_img(uint8_t **dgd, int width, int height, int stride,
