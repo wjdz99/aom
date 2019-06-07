@@ -1659,13 +1659,12 @@ int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
   tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   const tran_low_t *tcoeff = BLOCK_OFFSET(p->coeff, block);
 
+  // This function is not called if eob = 0;
+  assert(eob > 0);
+
   if (fast_mode) {
     update_coeff_eob_fast(&eob, shift, dequant, scan, tcoeff, qcoeff, dqcoeff);
     p->eobs[block] = eob;
-    if (eob == 0) {
-      *rate_cost = av1_cost_skip_txb(x, txb_ctx, plane, tx_size);
-      return eob;
-    }
   }
 
   const AV1_COMMON *cm = &cpi->common;
