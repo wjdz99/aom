@@ -777,6 +777,11 @@ static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
   return intra_mode_to_tx_type(mbmi, plane_type);
 }
 
+static INLINE BLOCK_SIZE get_subsize(BLOCK_SIZE bsize,
+                                     PARTITION_TYPE partition) {
+  return subsize_lookup[partition][bsize];
+}
+
 // Implements the get_plane_residual_size() function in the spec (Section
 // 5.11.38. Get plane residual size function).
 static INLINE BLOCK_SIZE get_plane_block_size(BLOCK_SIZE bsize,

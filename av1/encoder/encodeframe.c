@@ -1998,10 +1998,50 @@ static void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
       encode_b(cpi, tile_data, td, tp, mi_row, mi_col, 0, bsize, partition,
                &pc_tree->none, NULL);
       break;
-    // TODO(kyslov@) Add HORZ and VERT partitions
-    case PARTITION_HORZ:
     case PARTITION_VERT:
-      assert(0 && "Cannot yet handle non-square partition types");
+      pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &dummy_cost,
+                    PARTITION_NONE, subsize, &pc_tree->vertical[0], INT16_MAX,
+                    sf->use_fast_nonrd_pick_mode ? PICK_MODE_FAST_NONRD
+                                                 : PICK_MODE_NONRD);
+      pc_tree->vertical[0].mic = *xd->mi[0];
+      pc_tree->vertical[0].mbmi_ext = *x->mbmi_ext;
+      pc_tree->vertical[0].skippable = x->skip;
+      encode_b(cpi, td, tile_info, tp, mi_row, mi_col, output_enabled, subsize,
+               &pc_tree->vertical[0]);
+      if (mi_col + hbs < cm->mi_cols && bsize > BLOCK_8X8) {
+        pc_tree->vertical[1].pred_pixel_ready = 1;
+        nonrd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col + hbs, dummy_cost,
+                            subsize, &pc_tree->vertical[1]);
+        pc_tree->vertical[1].mic = *xd->mi[0];
+        pc_tree->vertical[1].mbmi_ext = *x->mbmi_ext;
+        pc_tree->vertical[1].skip_txfm[0] = x->skip_txfm[0];
+        pc_tree->vertical[1].skip = x->skip;
+        encode_b_rt(cpi, td, tile_info, tp, mi_row, mi_col + hbs,
+                    output_enabled, subsize, &pc_tree->vertical[1]);
+      }
+      break;
+    case PARTITION_HORZ:
+      pc_tree->horizontal[0].pred_pixel_ready = 1;
+      nonrd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, dummy_cost,
+                          subsize, &pc_tree->horizontal[0]);
+      pc_tree->horizontal[0].mic = *xd->mi[0];
+      pc_tree->horizontal[0].mbmi_ext = *x->mbmi_ext;
+      pc_tree->horizontal[0].skip_txfm[0] = x->skip_txfm[0];
+      pc_tree->horizontal[0].skip = x->skip;
+      encode_b_rt(cpi, td, tile_info, tp, mi_row, mi_col, output_enabled,
+                  subsize, &pc_tree->horizontal[0]);
+
+      if (mi_row + hbs < cm->mi_rows && bsize > BLOCK_8X8) {
+        pc_tree->horizontal[1].pred_pixel_ready = 1;
+        nonrd_pick_sb_modes(cpi, tile_data, x, mi_row + hbs, mi_col, dummy_cost,
+                            subsize, &pc_tree->horizontal[1]);
+        pc_tree->horizontal[1].mic = *xd->mi[0];
+        pc_tree->horizontal[1].mbmi_ext = *x->mbmi_ext;
+        pc_tree->horizontal[1].skip_txfm[0] = x->skip_txfm[0];
+        pc_tree->horizontal[1].skip = x->skip;
+        encode_b_rt(cpi, td, tile_info, tp, mi_row + hbs, mi_col,
+                    output_enabled, subsize, &pc_tree->horizontal[1]);
+      }
       break;
     case PARTITION_SPLIT:
       for (int i = 0; i < 4; i++) {
