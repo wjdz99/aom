@@ -889,6 +889,7 @@ int av1_find_best_sub_pixel_tree(
 #undef PRE
 #undef CHECK_BETTER
 
+#if !CONFIG_REALTIME_ONLY
 unsigned int av1_compute_motion_cost(const AV1_COMP *cpi, MACROBLOCK *const x,
                                      BLOCK_SIZE bsize, int mi_row, int mi_col,
                                      const MV *this_mv) {
@@ -961,7 +962,6 @@ unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
         if (total_samples > 1)
           mbmi->num_proj_ref =
               av1_selectSamples(&this_mv, pts, pts_inref, total_samples, bsize);
-
         if (!av1_find_projection(mbmi->num_proj_ref, pts, pts_inref, bsize, *tr,
                                  *tc, &mbmi->wm_params, mi_row, mi_col)) {
           thismse =
@@ -991,6 +991,7 @@ unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
   mbmi->num_proj_ref = best_num_proj_ref;
   return bestmse;
 }
+#endif  // !CONFIG_REALTIME_ONLY
 
 static INLINE int check_bounds(const MvLimits *mv_limits, int row, int col,
                                int range) {

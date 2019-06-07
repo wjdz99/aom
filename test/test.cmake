@@ -234,6 +234,13 @@ if(NOT BUILD_SHARED_LIBS)
     list(APPEND AOM_UNIT_TEST_ENCODER_SOURCES "${AOM_ROOT}/test/hash_test.cc")
   endif()
 
+  if(CONFIG_REALTIME_ONLY)
+    list(REMOVE_ITEM AOM_UNIT_TEST_ENCODER_SOURCES
+                    "${AOM_ROOT}/test/frame_error_test.cc"
+                    "${AOM_ROOT}/test/warp_filter_test.cc"
+                    "${AOM_ROOT}/test/warp_filter_test_util.cc"
+                    "${AOM_ROOT}/test/warp_filter_test_util.h")
+  endif()
 endif()
 
 if(ENABLE_TESTS)
