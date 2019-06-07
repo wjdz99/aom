@@ -48,9 +48,14 @@ class CNNTest : public ::testing::Test {
     for (int channel = 0; channel < out_channels; ++channel) {
       output[channel] = output_ + (channel * out_size);
     }
+    const int num_outputs = 1;
+    const int output_chs[1] = { out_channels };
+    const int output_strides[1] = { out_stride };
+    CNN_MULTI_OUT output_struct = { num_outputs, output_chs, output_strides,
+                                    output };
 
     av1_cnn_predict((const float **)&input, image_width, image_height,
-                    in_stride, cnn_config, thread_data, output, out_stride);
+                    in_stride, cnn_config, thread_data, &output_struct);
 
     double mse = 0;
     for (int channel = 0; channel < out_channels; ++channel) {
@@ -219,6 +224,7 @@ TEST_F(CNNTest, TestMultilayerConvolution) {
                                     BRANCH_NOC,
                                     {},
                                     {},
+                                    -1,
                                 },
                                 {
                                     3,
@@ -238,6 +244,7 @@ TEST_F(CNNTest, TestMultilayerConvolution) {
                                     BRANCH_NOC,
                                     {},
                                     {},
+                                    -1,
                                 },
                                 {
                                     3,
@@ -257,6 +264,7 @@ TEST_F(CNNTest, TestMultilayerConvolution) {
                                     BRANCH_NOC,
                                     {},
                                     {},
+                                    0,
                                 },
                             } };
 
@@ -338,6 +346,7 @@ TEST_F(CNNTest, TestRELUSingleLayer) {
                                 BRANCH_NOC,
                                 {},
                                 {},
+                                0,
                             } } };
 
   CNN_THREAD_DATA thread_data = { 1, NULL };
@@ -388,6 +397,7 @@ TEST_F(CNNTest, TestVaryingStridesVaryingDimImages) {
                                     BRANCH_NOC,
                                     {},
                                     {},
+                                    0,
                                 },
                             } };
 
@@ -502,6 +512,7 @@ TEST_F(CNNTest, TestMaxPool) {
                                 BRANCH_NOC,
                                 {},
                                 {},
+                                0,
                             } } };
 
   CNN_THREAD_DATA thread_data = { 1, NULL };
@@ -581,6 +592,7 @@ TEST_F(CNNTest, TestDeconvolveNonActivationSingleLayerSingleKernel) {
                                 BRANCH_NOC,
                                 {},
                                 {},
+                                0,
                             } } };
 
   CNN_THREAD_DATA thread_data = { 1, NULL };
@@ -853,6 +865,7 @@ TEST_F(CNNTest, TestLargeKernelsAndStrides) {
                                 BRANCH_NOC,
                                 {},
                                 {},
+                                0,
                             } } };
 
   int image_height = 10;
@@ -1004,6 +1017,7 @@ TEST_F(CNNTest, TestSoftsignSingleLayer) {
                                 BRANCH_NOC,
                                 {},
                                 {},
+                                0,
                             } } };
 
   CNN_THREAD_DATA thread_data = { 1, NULL };
@@ -1077,6 +1091,7 @@ TEST_F(CNNTest, TestBranchTensorAdd) {
                                   BRANCH_NOC,
                                   {},
                                   {},
+                                  -1,
                               },
                               {
                                   channels,
@@ -1100,6 +1115,7 @@ TEST_F(CNNTest, TestBranchTensorAdd) {
                                       0x00,
                                   },
                                   {},
+                                  -1,
                               },
                               {
                                   channels,
@@ -1119,6 +1135,7 @@ TEST_F(CNNTest, TestBranchTensorAdd) {
                                   BRANCH_NOC,
                                   {},
                                   {},
+                                  -1,
                               },
                               {
                                   channels,
@@ -1138,6 +1155,7 @@ TEST_F(CNNTest, TestBranchTensorAdd) {
                                   BRANCH_NOC,
                                   {},
                                   {},
+                                  -1,
                               },
                               {
                                   channels,
@@ -1161,6 +1179,7 @@ TEST_F(CNNTest, TestBranchTensorAdd) {
                                       0x02,
                                   },
                                   {},
+                                  -1,
                               },
                               {
                                   channels,
@@ -1180,6 +1199,7 @@ TEST_F(CNNTest, TestBranchTensorAdd) {
                                   BRANCH_NOC,
                                   {},
                                   {},
+                                  0,
                               } } };
 
   // Weights and biases need to be specified separately because
@@ -1247,6 +1267,7 @@ TEST_F(CNNTest, TestBranchTensorConcatenation) {
                                   BRANCH_NOC,
                                   {},
                                   {},
+                                  -1,
                               },
                               {
                                   channels,
@@ -1270,6 +1291,7 @@ TEST_F(CNNTest, TestBranchTensorConcatenation) {
                                       0x00,
                                   },
                                   {},
+                                  -1,
                               },
                               {
                                   channels,
@@ -1289,6 +1311,7 @@ TEST_F(CNNTest, TestBranchTensorConcatenation) {
                                   BRANCH_NOC,
                                   {},
                                   {},
+                                  -1,
                               },
                               {
                                   channels,
@@ -1308,6 +1331,7 @@ TEST_F(CNNTest, TestBranchTensorConcatenation) {
                                   BRANCH_NOC,
                                   {},
                                   {},
+                                  -1,
                               },
                               {
                                   channels,
@@ -1331,6 +1355,7 @@ TEST_F(CNNTest, TestBranchTensorConcatenation) {
                                       0x02,
                                   },
                                   {},
+                                  -1,
                               },
                               {
                                   channels + channels,
@@ -1350,6 +1375,7 @@ TEST_F(CNNTest, TestBranchTensorConcatenation) {
                                   BRANCH_NOC,
                                   {},
                                   {},
+                                  0,
                               } } };
 
   // Weights and biases need to be specified separately because
@@ -1425,6 +1451,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                     BRANCH_NOC,
                                     {},
                                     {},
+                                    -1,
                                 },
                                 {
                                     channels,
@@ -1448,6 +1475,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                         0x00,
                                     },
                                     {},
+                                    -1,
                                 },
                                 {
                                     channels,
@@ -1471,6 +1499,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                         0x00,
                                     },
                                     {},
+                                    -1,
                                 },
                                 {
                                     channels,
@@ -1490,6 +1519,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                     BRANCH_NOC,
                                     {},
                                     {},
+                                    -1,
                                 },
                                 {
                                     channels,
@@ -1513,6 +1543,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                         0x08,
                                     },
                                     {},
+                                    -1,
                                 },
                                 {
                                     channels,
@@ -1532,6 +1563,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                     BRANCH_NOC,
                                     {},
                                     {},
+                                    -1,
                                 },
                                 {
                                     channels,
@@ -1551,6 +1583,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                     BRANCH_NOC,
                                     {},
                                     {},
+                                    -1,
                                 },
                                 {
                                     channels,
@@ -1574,6 +1607,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                         0x0C,
                                     },
                                     {},
+                                    -1,
                                 },
                                 {
                                     channels,
@@ -1597,6 +1631,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                         0x02,
                                     },
                                     {},
+                                    -1,
                                 },
                                 {
                                     channels,
@@ -1616,6 +1651,7 @@ TEST_F(CNNTest, TestBranchCombinations) {
                                     BRANCH_NOC,
                                     {},
                                     {},
+                                    0,
                                 },
                             } };
 
@@ -1686,6 +1722,7 @@ TEST_F(CNNTest, TestSplittingTensors) {
                                         0x00,
                                     },
                                     {},
+                                    -1,
                                 },
                                 {
                                     4,
@@ -1709,6 +1746,7 @@ TEST_F(CNNTest, TestSplittingTensors) {
                                         0x02,
                                     },
                                     {},
+                                    -1,
                                 },
                                 {
                                     4,
@@ -1728,6 +1766,7 @@ TEST_F(CNNTest, TestSplittingTensors) {
                                     BRANCH_NOC,
                                     {},
                                     {},
+                                    0,
                                 },
                             } };
 
@@ -1787,6 +1826,7 @@ TEST_F(CNNTest, TestOutputChannelsCount) {
                                         0x00,
                                     },
                                     {},
+                                    -1,
                                 },
                                 {
                                     1,
@@ -1810,6 +1850,7 @@ TEST_F(CNNTest, TestOutputChannelsCount) {
                                         0x03,
                                     },
                                     {},
+                                    -1,
                                 },
                                 {
                                     2,
@@ -1833,6 +1874,7 @@ TEST_F(CNNTest, TestOutputChannelsCount) {
                                         0x04,
                                     },
                                     {},
+                                    0,
                                 },
                             } };
 
@@ -2065,6 +2107,7 @@ TEST_F(CNNTest, TestBatchNorm) {
             BRANCH_NOC,
             {},
             bn_params,
+            0,
         },
     },
   };
@@ -2129,6 +2172,7 @@ TEST_F(CNNTest, TestMultithreading) {
             BRANCH_NOC,
             {},
             {},
+            0,
         },
     },
   };
