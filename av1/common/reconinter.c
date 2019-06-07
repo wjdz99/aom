@@ -59,28 +59,30 @@ int av1_allow_warp(const MB_MODE_INFO *const mbmi,
   return 0;
 }
 
-void av1_make_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
-                              int dst_stride, const SubpelParams *subpel_params,
+void av1_make_inter_predictor(const uint8_t *src, const MB_MODE_INFO *mi,
+                              int src_stride, uint8_t *dst, int dst_stride,
+                              const SubpelParams *subpel_params,
                               const struct scale_factors *sf, int w, int h,
                               ConvolveParams *conv_params,
                               InterpFilters interp_filters,
+#if !CONFIG_REALTIME_ONLY
                               const WarpTypesAllowed *warp_types, int p_col,
-                              int p_row, int plane, int ref,
-                              const MB_MODE_INFO *mi, int build_for_obmc,
+                              int p_row, int plane, int ref, int build_for_obmc,
+#endif
                               const MACROBLOCKD *xd, int can_use_previous) {
   // Make sure the selected motion mode is valid for this configuration
   assert_motion_mode_valid(mi->motion_mode, xd->global_motion, xd, mi,
                            can_use_previous);
   assert(IMPLIES(conv_params->is_compound, conv_params->dst != NULL));
 
+  const int is_intrabc = mi->use_intrabc;
+#if !CONFIG_REALTIME_ONLY
   WarpedMotionParams final_warp_params;
   const int do_warp =
       (w >= 8 && h >= 8 &&
        av1_allow_warp(mi, warp_types, &xd->global_motion[mi->ref_frame[ref]],
                       build_for_obmc, sf, &final_warp_params));
-  const int is_intrabc = mi->use_intrabc;
   assert(IMPLIES(is_intrabc, !do_warp));
-
   if (do_warp && xd->cur_frame_force_integer_mv == 0) {
     const struct macroblockd_plane *const pd = &xd->plane[plane];
     const struct buf_2d *const pre_buf = &pd->pre[ref];
@@ -88,7 +90,9 @@ void av1_make_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
                    pre_buf->buf0, pre_buf->width, pre_buf->height,
                    pre_buf->stride, dst, p_col, p_row, w, h, dst_stride,
                    pd->subsampling_x, pd->subsampling_y, conv_params);
-  } else if (is_cur_buf_hbd(xd)) {
+  }
+#endif
+  if (is_cur_buf_hbd(xd)) {
     highbd_inter_predictor(src, src_stride, dst, dst_stride, subpel_params, sf,
                            w, h, conv_params, interp_filters, is_intrabc,
                            xd->bd);
@@ -583,7 +587,9 @@ void av1_make_masked_inter_predictor(
     const uint8_t *pre, int pre_stride, uint8_t *dst, int dst_stride,
     const SubpelParams *subpel_params, const struct scale_factors *sf, int w,
     int h, ConvolveParams *conv_params, InterpFilters interp_filters, int plane,
+#if !CONFIG_REALTIME_ONLY
     const WarpTypesAllowed *warp_types, int p_col, int p_row, int ref,
+#endif
     MACROBLOCKD *xd, int can_use_previous) {
   MB_MODE_INFO *mi = xd->mi[0];
   (void)dst;
@@ -612,10 +618,12 @@ void av1_make_masked_inter_predictor(
   assert(conv_params->do_average == 0);
 
   // This will generate a prediction in tmp_buf for the second reference
-  av1_make_inter_predictor(pre, pre_stride, tmp_dst, MAX_SB_SIZE, subpel_params,
-                           sf, w, h, conv_params, interp_filters, warp_types,
-                           p_col, p_row, plane, ref, mi, 0, xd,
-                           can_use_previous);
+  av1_make_inter_predictor(pre, mi, pre_stride, tmp_dst, MAX_SB_SIZE,
+                           subpel_params, sf, w, h, conv_params, interp_filters,
+#if !CONFIG_REALTIME_ONLY
+                           warp_types, p_col, p_row, plane, ref, 0,
+#endif
+                           xd, can_use_previous);
 
   if (!plane && comp_data->type == COMPOUND_DIFFWTD) {
     av1_build_compound_diffwtd_mask_d16(

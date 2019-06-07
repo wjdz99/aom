@@ -1465,7 +1465,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     if (mbmi->num_proj_ref > 1)
       mbmi->num_proj_ref = av1_selectSamples(&mbmi->mv[0].as_mv, pts, pts_inref,
                                              mbmi->num_proj_ref, bsize);
-
+#if !CONFIG_REALTIME_ONLY
     if (av1_find_projection(mbmi->num_proj_ref, pts, pts_inref, bsize,
                             mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
                             &mbmi->wm_params, mi_row, mi_col)) {
@@ -1474,6 +1474,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #endif
       mbmi->wm_params.invalid = 1;
     }
+#endif
   }
 
   xd->cfl.is_chroma_reference =

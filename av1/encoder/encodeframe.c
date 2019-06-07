@@ -4199,6 +4199,7 @@ static void encode_tiles(AV1_COMP *cpi) {
   }
 }
 
+#if !CONFIG_REALTIME_ONLY
 #define GLOBAL_TRANS_TYPES_ENC 3  // highest motion model to search
 static int gm_get_params_cost(const WarpedMotionParams *gm,
                               const WarpedMotionParams *ref_gm, int allow_hp) {
@@ -4265,6 +4266,7 @@ static int do_gm_search_logic(SPEED_FEATURES *const sf, int num_refs_using_gm,
   }
   return 1;
 }
+#endif  // !CONFIG_REALTIME_ONLY
 
 static int get_max_allowed_ref_frames(const AV1_COMP *cpi) {
   const unsigned int max_allowed_refs_for_given_speed =
@@ -4596,6 +4598,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   x->tx_search_count = 0;
 #endif  // CONFIG_SPEED_STATS
 
+#if !CONFIG_REALTIME_ONLY
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, av1_compute_global_motion_time);
 #endif
@@ -4725,10 +4728,11 @@ static void encode_frame_internal(AV1_COMP *cpi) {
               }
             }
           }
+#if !CONFIG_REALTIME_ONLY
           if (cm->global_motion[frame].wmtype <= AFFINE)
             if (!av1_get_shear_params(&cm->global_motion[frame]))
               cm->global_motion[frame] = default_warp_params;
-
+#endif
           if (cm->global_motion[frame].wmtype == TRANSLATION) {
             cm->global_motion[frame].wmmat[0] =
                 convert_to_trans_prec(cm->allow_high_precision_mv,
@@ -4742,6 +4746,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
           if (cm->global_motion[frame].wmtype == IDENTITY) continue;
 
+#if !CONFIG_REALTIME_ONLY
           const int64_t ref_frame_error = av1_segmented_frame_error(
               is_cur_buf_hbd(xd), xd->bd, ref_buf[frame]->y_buffer,
               ref_buf[frame]->y_stride, cpi->source->y_buffer,
@@ -4760,6 +4765,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
             cm->global_motion[frame] = default_warp_params;
           }
           if (cm->global_motion[frame].wmtype != IDENTITY) break;
+#endif
         }
         aom_clear_system_state();
       }
@@ -4790,6 +4796,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, av1_compute_global_motion_time);
 #endif
+#endif  // !CONFIG_REALTIME_ONLY
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, av1_setup_motion_field_time);

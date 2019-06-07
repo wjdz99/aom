@@ -6523,7 +6523,12 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
                                 BLOCK_SIZE bsize, int_mv *cur_mv, int mi_row,
                                 int mi_col, int_mv *ref_mv_sub8x8[2],
                                 const uint8_t *mask, int mask_stride,
-                                int *rate_mv, const int block) {
+                                int *rate_mv
+#if !CONFIG_REALTIME_ONLY
+                                ,
+                                const int block
+#endif
+) {
   const AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   const int pw = block_size_wide[bsize];
@@ -6537,15 +6542,16 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   const int refs[2] = { mbmi->ref_frame[0], mbmi->ref_frame[1] };
   int_mv ref_mv[2];
   int ite, ref;
+  ConvolveParams conv_params = get_conv_params(0, plane, xd->bd);
+  conv_params.use_dist_wtd_comp_avg = 0;
+
+#if !CONFIG_REALTIME_ONLY
+  struct macroblockd_plane *const pd = &xd->plane[0];
   // ic and ir are the 4x4 coordinates of the sub8x8 at index "block"
   const int ic = block & 1;
   const int ir = (block - ic) >> 1;
-  struct macroblockd_plane *const pd = &xd->plane[0];
   const int p_col = ((mi_col * MI_SIZE) >> pd->subsampling_x) + 4 * ic;
   const int p_row = ((mi_row * MI_SIZE) >> pd->subsampling_y) + 4 * ir;
-
-  ConvolveParams conv_params = get_conv_params(0, plane, xd->bd);
-  conv_params.use_dist_wtd_comp_avg = 0;
   WarpTypesAllowed warp_types[2];
   for (ref = 0; ref < 2; ++ref) {
     const WarpedMotionParams *const wm =
@@ -6554,7 +6560,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     warp_types[ref].global_warp_allowed = is_global;
     warp_types[ref].local_warp_allowed = mbmi->motion_mode == WARPED_CAUSAL;
   }
-
+#endif
   // Do joint motion search in compound mode to get more accurate mv.
   struct buf_2d backup_yv12[2][MAX_MB_PLANE];
   int last_besterr[2] = { INT_MAX, INT_MAX };
@@ -6627,8 +6633,11 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     av1_build_inter_predictor(ref_yv12[!id].buf, ref_yv12[!id].stride,
                               second_pred, pw, &cur_mv[!id].as_mv,
                               &cm->sf_identity, pw, ph, &conv_params,
-                              interp_filters, &warp_types[!id], p_col, p_row,
-                              plane, !id, MV_PRECISION_Q3, mi_col * MI_SIZE,
+                              interp_filters,
+#if !CONFIG_REALTIME_ONLY
+                              &warp_types[!id], p_col, p_row, plane, !id,
+#endif
+                              MV_PRECISION_Q3, mi_col * MI_SIZE,
                               mi_row * MI_SIZE, xd, cm->allow_warped_motion);
 
     const int order_idx = id != 0;
@@ -7140,22 +7149,16 @@ static INLINE void restore_dst_buf(MACROBLOCKD *xd, const BUFFER_SET dst,
 
 static void build_second_inter_pred(const AV1_COMP *cpi, MACROBLOCK *x,
                                     BLOCK_SIZE bsize, const MV *other_mv,
-                                    int mi_row, int mi_col, const int block,
+                                    int mi_row, int mi_col,
+#if !CONFIG_REALTIME_ONLY
+                                    const int block,
+#endif
                                     int ref_idx, uint8_t *second_pred) {
   const AV1_COMMON *const cm = &cpi->common;
   const int pw = block_size_wide[bsize];
   const int ph = block_size_high[bsize];
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
-  const int other_ref = mbmi->ref_frame[!ref_idx];
-  struct macroblockd_plane *const pd = &xd->plane[0];
-  // ic and ir are the 4x4 coordinates of the sub8x8 at index "block"
-  const int ic = block & 1;
-  const int ir = (block - ic) >> 1;
-  const int p_col = ((mi_col * MI_SIZE) >> pd->subsampling_x) + 4 * ic;
-  const int p_row = ((mi_row * MI_SIZE) >> pd->subsampling_y) + 4 * ir;
-  const WarpedMotionParams *const wm = &xd->global_motion[other_ref];
-  int is_global = is_global_mv_block(xd->mi[0], wm->wmtype);
 
   // This function should only ever be called for compound modes
   assert(has_second_ref(mbmi));
@@ -7168,16 +7171,29 @@ static void build_second_inter_pred(const AV1_COMP *cpi, MACROBLOCK *x,
                                     cm->width, cm->height);
 
   ConvolveParams conv_params = get_conv_params(0, plane, xd->bd);
+#if !CONFIG_REALTIME_ONLY
+  const int other_ref = mbmi->ref_frame[!ref_idx];
+  struct macroblockd_plane *const pd = &xd->plane[0];
+  // ic and ir are the 4x4 coordinates of the sub8x8 at index "block"
+  const int ic = block & 1;
+  const int ir = (block - ic) >> 1;
+  const WarpedMotionParams *const wm = &xd->global_motion[other_ref];
+  int is_global = is_global_mv_block(xd->mi[0], wm->wmtype);
+  const int p_col = ((mi_col * MI_SIZE) >> pd->subsampling_x) + 4 * ic;
+  const int p_row = ((mi_row * MI_SIZE) >> pd->subsampling_y) + 4 * ir;
   WarpTypesAllowed warp_types;
   warp_types.global_warp_allowed = is_global;
   warp_types.local_warp_allowed = mbmi->motion_mode == WARPED_CAUSAL;
-
+#endif
   // Get the prediction block from the 'other' reference frame.
   av1_build_inter_predictor(ref_yv12.buf, ref_yv12.stride, second_pred, pw,
                             other_mv, &sf, pw, ph, &conv_params,
-                            mbmi->interp_filters, &warp_types, p_col, p_row,
-                            plane, !ref_idx, MV_PRECISION_Q3, mi_col * MI_SIZE,
-                            mi_row * MI_SIZE, xd, cm->allow_warped_motion);
+                            mbmi->interp_filters,
+#if !CONFIG_REALTIME_ONLY
+                            &warp_types, p_col, p_row, plane, !ref_idx,
+#endif
+                            MV_PRECISION_Q3, mi_col * MI_SIZE, mi_row * MI_SIZE,
+                            xd, cm->allow_warped_motion);
 
   av1_dist_wtd_comp_weight_assign(cm, mbmi, 0, &xd->jcp_param.fwd_offset,
                                   &xd->jcp_param.bck_offset,
@@ -7299,7 +7315,10 @@ static void compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 static void compound_single_motion_search_interinter(
     const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize, int_mv *cur_mv,
     int mi_row, int mi_col, const uint8_t *mask, int mask_stride, int *rate_mv,
-    const int block, int ref_idx) {
+#if !CONFIG_REALTIME_ONLY
+    const int block,
+#endif
+    int ref_idx) {
   MACROBLOCKD *xd = &x->e_mbd;
   // This function should only ever be called for compound modes
   assert(has_second_ref(xd->mi[0]));
@@ -7315,7 +7334,10 @@ static void compound_single_motion_search_interinter(
   MV *this_mv = &cur_mv[ref_idx].as_mv;
   const MV *other_mv = &cur_mv[!ref_idx].as_mv;
 
-  build_second_inter_pred(cpi, x, bsize, other_mv, mi_row, mi_col, block,
+  build_second_inter_pred(cpi, x, bsize, other_mv, mi_row, mi_col,
+#if !CONFIG_REALTIME_ONLY
+                          block,
+#endif
                           ref_idx, second_pred);
 
   compound_single_motion_search(cpi, x, bsize, this_mv, mi_row, mi_col,
@@ -7341,10 +7363,18 @@ static void do_masked_motion_search_indexed(
   if (which == 0 || which == 1) {
     compound_single_motion_search_interinter(cpi, x, bsize, tmp_mv, mi_row,
                                              mi_col, mask, mask_stride, rate_mv,
-                                             0, which);
+#if !CONFIG_REALTIME_ONLY
+                                             0,
+#endif
+                                             which);
   } else if (which == 2) {
     joint_motion_search(cpi, x, bsize, tmp_mv, mi_row, mi_col, NULL, mask,
-                        mask_stride, rate_mv, 0);
+                        mask_stride,
+#if !CONFIG_REALTIME_ONLY
+                        rate_mv, 0);
+#else
+                        rate_mv);
+#endif
   }
 }
 
@@ -8007,7 +8037,12 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
 
       if (cpi->sf.comp_inter_joint_search_thresh <= bsize) {
         joint_motion_search(cpi, x, bsize, cur_mv, mi_row, mi_col, NULL, NULL,
-                            0, rate_mv, 0);
+                            0,
+#if !CONFIG_REALTIME_ONLY
+                            rate_mv, 0);
+#else
+                            rate_mv);
+#endif
       } else {
         *rate_mv = 0;
         for (i = 0; i < 2; ++i) {
@@ -8020,8 +8055,12 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
     } else if (this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV) {
       cur_mv[1].as_int = args->single_newmv[ref_mv_idx][refs[1]].as_int;
       if (cpi->sf.comp_inter_joint_search_thresh <= bsize) {
-        compound_single_motion_search_interinter(
-            cpi, x, bsize, cur_mv, mi_row, mi_col, NULL, 0, rate_mv, 0, 1);
+        compound_single_motion_search_interinter(cpi, x, bsize, cur_mv, mi_row,
+                                                 mi_col, NULL, 0, rate_mv,
+#if !CONFIG_REALTIME_ONLY
+                                                 0,
+#endif
+                                                 1);
       } else {
         const int_mv ref_mv = av1_get_ref_mv(x, 1);
         *rate_mv =
@@ -8032,8 +8071,12 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
       assert(this_mode == NEW_NEARESTMV || this_mode == NEW_NEARMV);
       cur_mv[0].as_int = args->single_newmv[ref_mv_idx][refs[0]].as_int;
       if (cpi->sf.comp_inter_joint_search_thresh <= bsize) {
-        compound_single_motion_search_interinter(
-            cpi, x, bsize, cur_mv, mi_row, mi_col, NULL, 0, rate_mv, 0, 0);
+        compound_single_motion_search_interinter(cpi, x, bsize, cur_mv, mi_row,
+                                                 mi_col, NULL, 0, rate_mv,
+#if !CONFIG_REALTIME_ONLY
+                                                 0,
+#endif
+                                                 0);
       } else {
         const int_mv ref_mv = av1_get_ref_mv(x, 0);
         *rate_mv =
@@ -9132,6 +9175,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
   return 0;
 }
 
+#if !CONFIG_REALTIME_ONLY
 // If number of valid neighbours is 1,
 // 1) ROTZOOM parameters can be obtained reliably (2 parameters from
 // one neighbouring MV)
@@ -9139,7 +9183,6 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
 // a different interpolation filter being used. However the quality
 // gains (due to the same) may not be much
 // For above 2 cases warp evaluation is skipped
-
 static int check_if_optimal_warp(const AV1_COMP *cpi,
                                  WarpedMotionParams *wm_params,
                                  int num_proj_ref) {
@@ -9154,6 +9197,7 @@ static int check_if_optimal_warp(const AV1_COMP *cpi,
   }
   return is_valid_warp;
 }
+#endif  // !CONFIG_REALTIME_ONLY
 
 struct obmc_check_mv_field_ctxt {
   MB_MODE_INFO *current_mi;
@@ -9207,7 +9251,10 @@ static int64_t motion_mode_rd(
     const AV1_COMP *const cpi, TileDataEnc *tile_data, MACROBLOCK *const x,
     BLOCK_SIZE bsize, RD_STATS *rd_stats, RD_STATS *rd_stats_y,
     RD_STATS *rd_stats_uv, int *disable_skip, int mi_row, int mi_col,
-    HandleInterModeArgs *const args, int64_t ref_best_rd, const int *refs,
+    HandleInterModeArgs *const args, int64_t ref_best_rd,
+#if !CONFIG_REALTIME_ONLY
+    const int *refs,
+#endif
     int *rate_mv, const BUFFER_SET *orig_dst, int64_t *best_est_rd,
     int do_tx_search, InterModesInfo *inter_modes_info) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -9349,59 +9396,58 @@ static int64_t motion_mode_rd(
         mbmi->num_proj_ref = av1_selectSamples(
             &mbmi->mv[0].as_mv, pts, pts_inref, mbmi->num_proj_ref, bsize);
       }
+#if !CONFIG_REALTIME_ONLY
+      if (av1_find_projection(mbmi->num_proj_ref, pts, pts_inref, bsize,
+                              mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                              &mbmi->wm_params, mi_row, mi_col))
+        continue;
+      // Refine MV for NEWMV mode
+      assert(!is_comp_pred);
+      if (have_newmv_in_inter_mode(this_mode)) {
+        const int_mv mv0 = mbmi->mv[0];
+        const WarpedMotionParams wm_params0 = mbmi->wm_params;
+        const int num_proj_ref0 = mbmi->num_proj_ref;
 
-      if (!av1_find_projection(mbmi->num_proj_ref, pts, pts_inref, bsize,
-                               mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
-                               &mbmi->wm_params, mi_row, mi_col)) {
-        // Refine MV for NEWMV mode
-        assert(!is_comp_pred);
-        if (have_newmv_in_inter_mode(this_mode)) {
-          const int_mv mv0 = mbmi->mv[0];
-          const WarpedMotionParams wm_params0 = mbmi->wm_params;
-          const int num_proj_ref0 = mbmi->num_proj_ref;
-
-          if (cpi->sf.prune_warp_using_wmtype) {
-            TransformationType wmtype = get_wmtype(&mbmi->wm_params);
-            if (wmtype < ROTZOOM) continue;
-          }
-
-          // Refine MV in a small range.
-          av1_refine_warped_mv(cpi, x, bsize, mi_row, mi_col, pts0, pts_inref0,
-                               total_samples);
-
-          // Keep the refined MV and WM parameters.
-          if (mv0.as_int != mbmi->mv[0].as_int) {
-            const int ref = refs[0];
-            const int_mv ref_mv = av1_get_ref_mv(x, 0);
-            tmp_rate_mv = av1_mv_bit_cost(&mbmi->mv[0].as_mv, &ref_mv.as_mv,
-                                          x->nmv_vec_cost, x->mv_cost_stack,
-                                          MV_COST_WEIGHT);
-
-            if (cpi->sf.adaptive_motion_search)
-              x->pred_mv[ref] = mbmi->mv[0].as_mv;
-
-#if USE_DISCOUNT_NEWMV_TEST
-            if (discount_newmv_test(cpi, x, this_mode, mbmi->mv[0])) {
-              tmp_rate_mv = AOMMAX((tmp_rate_mv / NEW_MV_DISCOUNT_FACTOR), 1);
-            }
-#endif
-            tmp_rate2 = rate2_nocoeff - rate_mv0 + tmp_rate_mv;
-          } else {
-            // Restore the old MV and WM parameters.
-            mbmi->mv[0] = mv0;
-            mbmi->wm_params = wm_params0;
-            mbmi->num_proj_ref = num_proj_ref0;
-          }
-        } else {
-          if (!check_if_optimal_warp(cpi, &mbmi->wm_params, mbmi->num_proj_ref))
-            continue;
+        if (cpi->sf.prune_warp_using_wmtype) {
+          TransformationType wmtype = get_wmtype(&mbmi->wm_params);
+          if (wmtype < ROTZOOM) continue;
         }
 
-        av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
-                                      av1_num_planes(cm) - 1);
+        // Refine MV in a small range.
+        av1_refine_warped_mv(cpi, x, bsize, mi_row, mi_col, pts0, pts_inref0,
+                             total_samples);
+
+        // Keep the refined MV and WM parameters.
+        if (mv0.as_int != mbmi->mv[0].as_int) {
+          const int ref = refs[0];
+          const int_mv ref_mv = av1_get_ref_mv(x, 0);
+          tmp_rate_mv = av1_mv_bit_cost(&mbmi->mv[0].as_mv, &ref_mv.as_mv,
+                                        x->nmv_vec_cost, x->mv_cost_stack,
+                                        MV_COST_WEIGHT);
+
+          if (cpi->sf.adaptive_motion_search)
+            x->pred_mv[ref] = mbmi->mv[0].as_mv;
+
+#if USE_DISCOUNT_NEWMV_TEST
+          if (discount_newmv_test(cpi, x, this_mode, mbmi->mv[0])) {
+            tmp_rate_mv = AOMMAX((tmp_rate_mv / NEW_MV_DISCOUNT_FACTOR), 1);
+          }
+#endif
+          tmp_rate2 = rate2_nocoeff - rate_mv0 + tmp_rate_mv;
+        } else {
+          // Restore the old MV and WM parameters.
+          mbmi->mv[0] = mv0;
+          mbmi->wm_params = wm_params0;
+          mbmi->num_proj_ref = num_proj_ref0;
+        }
       } else {
-        continue;
+        if (!check_if_optimal_warp(cpi, &mbmi->wm_params, mbmi->num_proj_ref))
+          continue;
       }
+
+      av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
+                                    av1_num_planes(cm) - 1);
+#endif  // !CONFIG_REALTIME_ONLY
     } else if (is_interintra_mode) {
       const int ret = handle_inter_intra_mode(
           cpi, x, bsize, mi_row, mi_col, mbmi, args, ref_best_rd, &tmp_rate_mv,
@@ -10594,10 +10640,13 @@ static int64_t handle_inter_mode(
 #if CONFIG_COLLECT_COMPONENT_TIMING
         start_timing(cpi, motion_mode_rd_time);
 #endif
-        ret_val = motion_mode_rd(cpi, tile_data, x, bsize, rd_stats, rd_stats_y,
-                                 rd_stats_uv, disable_skip, mi_row, mi_col,
-                                 args, ref_best_rd, refs, &rate_mv, &orig_dst,
-                                 best_est_rd, do_tx_search, inter_modes_info);
+        ret_val = motion_mode_rd(
+            cpi, tile_data, x, bsize, rd_stats, rd_stats_y, rd_stats_uv,
+            disable_skip, mi_row, mi_col, args, ref_best_rd,
+#if !CONFIG_REALTIME_ONLY
+            refs,
+#endif
+            &rate_mv, &orig_dst, best_est_rd, do_tx_search, inter_modes_info);
 #if CONFIG_COLLECT_COMPONENT_TIMING
         end_timing(cpi, motion_mode_rd_time);
 #endif
