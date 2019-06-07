@@ -708,7 +708,6 @@ enum {
   RESTORE_SWITCHABLE,
   RESTORE_SWITCHABLE_TYPES = RESTORE_SWITCHABLE,
   RESTORE_TYPES = 4,
-#endif  // CONFIG_LOOP_RESTORE_CNN
 } UENUM1BYTE(RestorationType);
 
 // Picture prediction structures (0-12 are predefined) in scalability metadata.
