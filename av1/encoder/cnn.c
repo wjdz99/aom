@@ -780,10 +780,17 @@ void av1_cnn_deconvolve_c(const float **input, int in_width, int in_height,
 
 void av1_cnn_predict_c(const float **input, int in_width, int in_height,
                        int in_stride, const CNN_CONFIG *cnn_config,
-                       const CNN_THREAD_DATA *thread_data, float **output,
-                       int out_stride) {
+                       const CNN_THREAD_DATA *thread_data,
+                       CNN_MULTI_OUT *output_struct) {
   TENSOR tensor1[CNN_MAX_BRANCHES] = { 0 };
   TENSOR tensor2[CNN_MAX_BRANCHES] = { 0 };
+
+  float **output[CNN_MAX_BRANCHES];
+  const int *out_stride = output_struct->output_strides;
+  output[0] = output_struct->output_buffer;
+  for (int out_idx = 1; out_idx < output_struct->num_outputs; out_idx++) {
+    output[out_idx] = output[out_idx - 1] + out_stride[out_idx - 1];
+  }
 
   int i_width = in_width;
   int i_height = in_height;
@@ -814,14 +821,15 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
     // Allocate output tensor
     find_layer_output_size(i_width, i_height, layer_config, &o_width,
                            &o_height);
-    if (layer < cnn_config->num_layers - 1) {  // Non-last layer
+    const int output_num = layer_config->output_num;
+    if (output_num == -1) {  // Non-output layer
       realloc_tensor(&tensor2[branch], layer_config->out_channels, o_width,
                      o_height);
-    } else {                // Last layer
-      assert(branch == 0);  // Last layer must be primary branch
+    } else {  // Output layer
       free_tensor(&tensor2[branch]);
-      assign_tensor(&tensor2[branch], output, layer_config->out_channels,
-                    o_width, o_height, out_stride);
+      assign_tensor(&tensor2[branch], output[output_num],
+                    layer_config->out_channels, o_width, o_height,
+                    out_stride[output_num]);
     }
 
     // If we are combining branches make sure that the branch to combine
@@ -890,7 +898,7 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
 
     // Concatenate tensors
     if (layer_config->branch_combine_type == BRANCH_CAT) {
-      if (layer < cnn_config->num_layers - 1) {  // Non-last layer
+      if (output_num == -1) {  // Non-output layer
         for (int b = 0; b < CNN_MAX_BRANCHES; ++b) {
           if ((branch_config->branches_to_combine & (1 << b)) && b != branch) {
             assert(check_tensor_equal_dims(&tensor2[b], &tensor2[branch]));
@@ -898,15 +906,15 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
             concat_tensor(&tensor2[b], &tensor2[branch]);
           }
         }
-      } else {  // Last layer
+      } else {  // Output layer
         for (int b = 0; b < CNN_MAX_BRANCHES; ++b) {
           if ((branch_config->branches_to_combine & (1 << b)) && b != branch) {
             assert(check_tensor_equal_dims(&tensor2[b], &tensor2[branch]));
             const int existing_channels = tensor2[branch].channels;
             // Needed only to assign the new channel buffers
-            assign_tensor(&tensor2[branch], output,
+            assign_tensor(&tensor2[branch], output[output_num],
                           existing_channels + tensor2[b].channels, o_width,
-                          o_height, out_stride);
+                          o_height, out_stride[output_num]);
             copy_tensor(&tensor2[b], tensor2[b].channels, existing_channels,
                         &tensor2[branch]);
           }
@@ -928,20 +936,15 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
 
 // Assume output already has proper allocation
 // Assume input image buffers all have same resolution and strides
-void av1_cnn_predict_img(uint8_t **dgd, int width, int height, int stride,
-                         const CNN_CONFIG *cnn_config,
-                         const CNN_THREAD_DATA *thread_data, float **output,
-                         int out_stride) {
+void av1_cnn_predict_img_multi_out(uint8_t **dgd, int width, int height,
+                                   int stride, const CNN_CONFIG *cnn_config,
+                                   const CNN_THREAD_DATA *thread_data,
+                                   CNN_MULTI_OUT *output) {
   const float max_val = 255.0;
-  int out_width = 0;
-  int out_height = 0;
-  int out_channels = 0;
-  av1_find_cnn_output_size(width, height, cnn_config, &out_width, &out_height,
-                           &out_channels);
 
-  int in_width = width + 2 * cnn_config->ext_width;
-  int in_height = height + 2 * cnn_config->ext_height;
-  int in_channels = cnn_config->layer_config[0].in_channels;
+  const int in_width = width + 2 * cnn_config->ext_width;
+  const int in_height = height + 2 * cnn_config->ext_height;
+  const int in_channels = cnn_config->layer_config[0].in_channels;
   float *inputs[CNN_MAX_CHANNELS];
   float *input_ =
       (float *)aom_malloc(in_width * in_height * in_channels * sizeof(*input_));
@@ -980,27 +983,22 @@ void av1_cnn_predict_img(uint8_t **dgd, int width, int height, int stride,
     }
   }
   av1_cnn_predict((const float **)inputs, in_width, in_height, in_stride,
-                  cnn_config, thread_data, output, out_stride);
+                  cnn_config, thread_data, output);
 
   aom_free(input_);
 }
 
 // Assume output already has proper allocation
 // Assume input image buffers all have same resolution and strides
-void av1_cnn_predict_img_highbd(uint16_t **dgd, int width, int height,
-                                int stride, const CNN_CONFIG *cnn_config,
-                                const CNN_THREAD_DATA *thread_data,
-                                int bit_depth, float **output, int out_stride) {
-  const float max_val = (float)((1 << bit_depth) - 1);
-  int out_width = 0;
-  int out_height = 0;
-  int out_channels = 0;
-  av1_find_cnn_output_size(width, height, cnn_config, &out_width, &out_height,
-                           &out_channels);
+void av1_cnn_predict_img(uint8_t **dgd, int width, int height, int stride,
+                         const CNN_CONFIG *cnn_config,
+                         const CNN_THREAD_DATA *thread_data, float **output,
+                         int out_stride) {
+  const float max_val = 255.0;
 
-  int in_width = width + 2 * cnn_config->ext_width;
-  int in_height = height + 2 * cnn_config->ext_height;
-  int in_channels = cnn_config->layer_config[0].in_channels;
+  const int in_width = width + 2 * cnn_config->ext_width;
+  const int in_height = height + 2 * cnn_config->ext_height;
+  const int in_channels = cnn_config->layer_config[0].in_channels;
   float *inputs[CNN_MAX_CHANNELS];
   float *input_ =
       (float *)aom_malloc(in_width * in_height * in_channels * sizeof(*input_));
@@ -1038,7 +1036,79 @@ void av1_cnn_predict_img_highbd(uint16_t **dgd, int width, int height,
           input[i * in_stride + j] = (float)dgd[c][i * stride + j] / max_val;
     }
   }
-  av1_cnn_predict((const float **)inputs, width, height, in_stride, cnn_config,
-                  thread_data, output, out_stride);
+
+  int out_width = 0, out_height = 0, out_channels = 0;
+  av1_find_cnn_output_size(width, height, cnn_config, &out_width, &out_height,
+                           &out_channels);
+  const int output_chs[1] = { out_channels };
+  const int output_strides[1] = { out_stride };
+  CNN_MULTI_OUT output_struct = { .output_chs = output_chs,
+                                  .output_strides = output_strides,
+                                  .output_buffer = output };
+  av1_cnn_predict((const float **)inputs, in_width, in_height, in_stride,
+                  cnn_config, thread_data, &output_struct);
+
+  aom_free(input_);
+}
+
+// Assume output already has proper allocation
+// Assume input image buffers all have same resolution and strides
+void av1_cnn_predict_img_highbd(uint16_t **dgd, int width, int height,
+                                int stride, const CNN_CONFIG *cnn_config,
+                                const CNN_THREAD_DATA *thread_data,
+                                int bit_depth, float **output, int out_stride) {
+  const float max_val = (float)((1 << bit_depth) - 1);
+
+  const int in_width = width + 2 * cnn_config->ext_width;
+  const int in_height = height + 2 * cnn_config->ext_height;
+  const int in_channels = cnn_config->layer_config[0].in_channels;
+  float *inputs[CNN_MAX_CHANNELS];
+  float *input_ =
+      (float *)aom_malloc(in_width * in_height * in_channels * sizeof(*input_));
+  const int in_stride = in_width;
+
+  for (int c = 0; c < in_channels; ++c) {
+    inputs[c] = input_ + c * in_stride * in_height;
+    float *input =
+        inputs[c] + cnn_config->ext_height * in_stride + cnn_config->ext_width;
+
+    if (cnn_config->strict_bounds) {
+      for (int i = 0; i < height; ++i)
+        for (int j = 0; j < width; ++j)
+          input[i * in_stride + j] = (float)dgd[c][i * stride + j] / max_val;
+      // extend left and right
+      for (int i = 0; i < height; ++i) {
+        for (int j = -cnn_config->ext_width; j < 0; ++j)
+          input[i * in_stride + j] = input[i * in_stride];
+        for (int j = width; j < width + cnn_config->ext_width; ++j)
+          input[i * in_stride + j] = input[i * in_stride + width - 1];
+      }
+      // extend top and bottom
+      for (int i = -cnn_config->ext_height; i < 0; ++i)
+        memcpy(&input[i * in_stride - cnn_config->ext_width],
+               &input[-cnn_config->ext_width], in_width * sizeof(*input));
+      for (int i = height; i < height + cnn_config->ext_height; ++i)
+        memcpy(&input[i * in_stride - cnn_config->ext_width],
+               &input[(height - 1) * in_stride - cnn_config->ext_width],
+               in_width * sizeof(*input));
+    } else {
+      for (int i = -cnn_config->ext_height; i < height + cnn_config->ext_height;
+           ++i)
+        for (int j = -cnn_config->ext_width; j < width + cnn_config->ext_width;
+             ++j)
+          input[i * in_stride + j] = (float)dgd[c][i * stride + j] / max_val;
+    }
+  }
+  int out_width = 0, out_height = 0, out_channels = 0;
+  av1_find_cnn_output_size(width, height, cnn_config, &out_width, &out_height,
+                           &out_channels);
+  const int output_chs[1] = { out_channels };
+  const int output_strides[1] = { out_stride };
+  CNN_MULTI_OUT output_struct = { .output_chs = output_chs,
+                                  .output_strides = output_strides,
+                                  .output_buffer = output };
+  av1_cnn_predict((const float **)inputs, in_width, in_height, in_stride,
+                  cnn_config, thread_data, &output_struct);
+
   aom_free(input_);
 }
