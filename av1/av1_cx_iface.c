@@ -251,7 +251,7 @@ static struct av1_extracfg default_extra_cfg = {
   0,  // use_intra_dct_only
   0,  // use_inter_dct_only
   0,  // use_intra_default_tx_only
-  0,  // quant_b_adapt
+  1,  // quant_b_adapt
   {
       SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX,
       SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX,
