@@ -50,6 +50,8 @@
 // Max number of iterations if warp convergence is not found
 #define DISFLOW_MAX_ITR 10
 
+int frame_number_rick_and_morty;
+
 // Struct for an image pyramid
 typedef struct {
   int n_levels;
@@ -314,6 +316,21 @@ static int compute_global_motion_feature_based(
     int frm_height, int frm_stride, int *frm_corners, int num_frm_corners,
     YV12_BUFFER_CONFIG *ref, int bit_depth, int *num_inliers_by_motion,
     MotionModel *params_by_motion, int num_motions) {
+
+
+/*
+
+	HACK THIS ! ! ! ! ! ! ! !
+
+	Will also need to FORCE use this function from av1_compute_global_motion.
+
+	maybe - read address of macroblock motion vectors from a file and then use those in ransac.
+
+*/
+
+
+
+
   int i;
   int num_ref_corners;
   int num_correspondences;
@@ -328,7 +345,7 @@ static int compute_global_motion_feature_based(
 
   num_ref_corners =
       av1_fast_corner_detect(ref_buffer, ref->y_width, ref->y_height,
-                             ref->y_stride, ref_corners, MAX_CORNERS);
+                             ref->y_stride, ref_corners, MAX_CORNERS); // now useless
 
   // find correspondences between the two images
   correspondences =
@@ -337,6 +354,11 @@ static int compute_global_motion_feature_based(
       frm_buffer, (int *)frm_corners, num_frm_corners, ref_buffer,
       (int *)ref_corners, num_ref_corners, frm_width, frm_height, frm_stride,
       ref->y_stride, correspondences);
+
+  correspondences = frame_block_mv_correspondences[frame_number_rick_and_morty++];
+  num_correspondences = frm_width * frm_height;
+
+  // won't work for different frame sizes;
 
   ransac(correspondences, num_correspondences, num_inliers_by_motion,
          params_by_motion, num_motions);
@@ -886,6 +908,10 @@ int av1_compute_global_motion(TransformationType type,
                               GlobalMotionEstimationType gm_estimation_type,
                               int *num_inliers_by_motion,
                               MotionModel *params_by_motion, int num_motions) {
+	return compute_global_motion_feature_based(
+          type, frm_buffer, frm_width, frm_height, frm_stride, frm_corners,
+          num_frm_corners, ref, bit_depth, num_inliers_by_motion,
+          params_by_motion, num_motions);
   switch (gm_estimation_type) {
     case GLOBAL_MOTION_FEATURE_BASED:
       return compute_global_motion_feature_based(
