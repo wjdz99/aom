@@ -53,6 +53,10 @@
 #define NCOUNT_INTRA_THRESH 8192
 #define NCOUNT_INTRA_FACTOR 3
 
+#define MAX_FRAMES 1000
+
+int* frame_block_mv_correspondences[MAX_FRAMES];
+
 static void output_stats(FIRSTPASS_STATS *stats,
                          struct aom_codec_pkt_list *pktlist) {
   struct aom_codec_cx_pkt pkt;
@@ -215,6 +219,14 @@ static int get_search_range(const AV1_COMP *cpi) {
 static void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
                                      const MV *ref_mv, MV *best_mv,
                                      int *best_motion_err) {
+
+
+	/*
+
+	DONE FOR EACH MACROBLOCK IN EACH FRAME.
+
+	*/
+
   MACROBLOCKD *const xd = &x->e_mbd;
   MV tmp_mv = kZeroMv;
   MV ref_mv_full = { ref_mv->row >> 3, ref_mv->col >> 3 };
@@ -436,6 +448,23 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   recon_y_stride = new_yv12->y_stride;
   recon_uv_stride = new_yv12->uv_stride;
   uv_mb_height = 16 >> (new_yv12->y_height > new_yv12->uv_height);
+
+  /*
+
+	Make a new pointer. Store all the matched points in it. Then call RANSAC with those points. 
+	OR JUST DUMP EVERYTHING IN A FILE.
+  */
+  char buf_fopen[50];
+  snprintf(buf_fopen, 50, "motion_vector_data_%d.txt", cm->current_frame.frame_number);
+
+  frame_block_mv_correspondences[cm->current_frame.frame_number] = malloc(sizeof(int) * 4 * cm->mb_rows * cm->mb_cols);
+
+  FILE * pFile  = fopen(buf_fopen, "w");
+  setbuf(pFile, NULL);
+/*
+  int *points = malloc(sizeof(int) * 4 * cm->mb_rows * cm->mb_cols);
+  int npoints = 2 * cm->mb_rows * cm->mb_cols; 
+*/
 
   for (mb_row = 0; mb_row < cm->mb_rows; ++mb_row) {
     MV best_ref_mv = kZeroMv;
@@ -718,6 +747,21 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
 
           best_ref_mv = mv;
 
+          int blck_center_x = 8 + 16 * (mb_row);
+          int blck_center_y = 8 + 16 * (mb_col);
+
+          printf("frame_block_mv_correspondences[cm->current_frame.frame_number] - frame_block_mv_correspondences = %d\n", 
+          	frame_block_mv_correspondences[cm->current_frame.frame_number] - frame_block_mv_correspondences[0]);
+
+          *(frame_block_mv_correspondences[cm->current_frame.frame_number]++) = blck_center_x; 
+          *(frame_block_mv_correspondences[cm->current_frame.frame_number]++) = blck_center_y;
+          *(frame_block_mv_correspondences[cm->current_frame.frame_number]++) = blck_center_x + (int)mv.row;
+          *(frame_block_mv_correspondences[cm->current_frame.frame_number]++) = blck_center_y + (int)mv.col;
+
+          fprintf(pFile, "%d %d\n", //blck_center_x, blck_center_y,
+          	 best_ref_mv.row, 
+          		best_ref_mv.col);
+
           if (!is_zero_mv(&mv)) {
             ++mvcount;
 
@@ -778,6 +822,9 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
 
     aom_clear_system_state();
   }
+
+  fclose(pFile);
+
   const double raw_err_stdev =
       raw_motion_error_stdev(raw_motion_err_list, raw_motion_err_counts);
   aom_free(raw_motion_err_list);
