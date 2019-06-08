@@ -50,6 +50,9 @@
 #include "third_party/libyuv/include/libyuv/scale.h"
 #endif
 
+#define MAX_FRAMES 1000000
+
+
 /* Swallow warnings about unused results of fread/fwrite */
 static size_t wrap_fread(void *ptr, size_t size, size_t nmemb, FILE *stream) {
   return fread(ptr, size, nmemb, stream);

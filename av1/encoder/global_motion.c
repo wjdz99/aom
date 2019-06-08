@@ -27,6 +27,7 @@
 #include "av1/encoder/corner_detect.h"
 #include "av1/encoder/corner_match.h"
 #include "av1/encoder/ransac.h"
+#include "av1/encoder/encodeframe.h"
 
 #define MIN_INLIER_PROB 0.1
 
@@ -49,6 +50,8 @@
 #define DISFLOW_ERROR_TR 0.01
 // Max number of iterations if warp convergence is not found
 #define DISFLOW_MAX_ITR 10
+
+int frame_number_rick_and_morty = 0;
 
 // Struct for an image pyramid
 typedef struct {
@@ -314,6 +317,28 @@ static int compute_global_motion_feature_based(
     int frm_height, int frm_stride, int *frm_corners, int num_frm_corners,
     YV12_BUFFER_CONFIG *ref, int bit_depth, int *num_inliers_by_motion,
     MotionModel *params_by_motion, int num_motions) {
+
+
+/*
+
+	HACK THIS ! ! ! ! ! ! ! !
+
+	Will also need to FORCE use this function from av1_compute_global_motion.
+
+	maybe - read address of macroblock motion vectors from a file and then use those in ransac.
+
+*/
+
+  char buf_fopen[50];
+  snprintf(buf_fopen, 50, "motion_vector_data_%d.txt", __frame_number);
+
+  // frame_block_mv_correspondences[cm->current_frame.frame_number] = malloc(sizeof(int) * 4 * (cm->mb_rows) * (cm->mb_cols));
+
+  FILE * fp  = fopen(buf_fopen, "r");
+  //setbuf(pFile, NULL);
+
+
+
   int i;
   int num_ref_corners;
   int num_correspondences;
@@ -328,15 +353,45 @@ static int compute_global_motion_feature_based(
 
   num_ref_corners =
       av1_fast_corner_detect(ref_buffer, ref->y_width, ref->y_height,
-                             ref->y_stride, ref_corners, MAX_CORNERS);
+                             ref->y_stride, ref_corners, MAX_CORNERS); // now useless
 
   // find correspondences between the two images
-  correspondences =
-      (int *)malloc(num_frm_corners * 4 * sizeof(*correspondences));
-  num_correspondences = av1_determine_correspondence(
+  //correspondences =
+    //  (int *)malloc(num_frm_corners * 4 * sizeof(int));
+  num_correspondences = /*av1_determine_correspondence(
       frm_buffer, (int *)frm_corners, num_frm_corners, ref_buffer,
       (int *)ref_corners, num_ref_corners, frm_width, frm_height, frm_stride,
-      ref->y_stride, correspondences);
+      ref->y_stride, correspondences);*/ num_frm_corners;
+
+  frame_number_rick_and_morty = __frame_number;
+
+ // printf("frame_number_rick_and_morty %d\n", frame_number_rick_and_morty);
+
+
+  correspondences = (int *) malloc(sizeof(int) * 4 * num_frm_corners);
+  if(correspondences == NULL) {
+    fprintf(stderr, "out of memory!\n");
+    exit(1);
+  }
+  int* temp = correspondences;
+
+  for(int i = 0; i < num_frm_corners; i++) {
+    int x1, y1, x2, y2;
+    fscanf(fp, "%d %d %d %d", &x1, &y1, &x2, &y2);
+    *(temp++) = x1;
+    *(temp++) = y1;
+    *(temp++) = x2;
+    *(temp++) = y2;
+    printf("%d %d %d %d\n", x1, y1, x2, y2);
+  }
+
+  fclose(fp);
+
+//  if(correspondences == NULL)
+//    correspondences = frame_block_mv_correspondences[frame_number_rick_and_morty - 1];
+//  num_correspondences = (frm_width * frm_height;
+
+  // won't work for different frame sizes;
 
   ransac(correspondences, num_correspondences, num_inliers_by_motion,
          params_by_motion, num_motions);
@@ -350,6 +405,7 @@ static int compute_global_motion_feature_based(
       get_inliers_from_indices(&params_by_motion[i], correspondences);
     }
   }
+
 
   free(correspondences);
 

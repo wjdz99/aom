@@ -30,6 +30,8 @@ extern "C" {
 
 #define VLOW_MOTION_THRESHOLD 950
 
+#define MAX_FRAMES 1000000
+
 typedef struct {
   // Frame number in display order, if stats are for a single frame.
   // No real meaning for a collection of frames.
@@ -190,6 +192,9 @@ void av1_first_pass(struct AV1_COMP *cpi, const int64_t ts_duration);
 void av1_end_first_pass(struct AV1_COMP *cpi);
 
 void av1_twopass_zero_stats(FIRSTPASS_STATS *section);
+
+extern int* frame_block_mv_correspondences[];
+
 
 #ifdef __cplusplus
 }  // extern "C"
