@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0554e39e_cfbf387f",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-06-10T22:32:43Z",
+      "side": 1,
+      "message": "Can you get block_mse_q8 from stored sse? If yes, may not need to store perform_block_coeff_opt.",
+      "range": {
+        "startLine": 117,
+        "startChar": 10,
+        "endLine": 117,
+        "endChar": 13
+      },
+      "revId": "06fc13b4a3080bd7dc23367ab67f491086d66a8a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
