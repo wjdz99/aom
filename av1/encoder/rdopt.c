@@ -12531,34 +12531,29 @@ static int do_tx_search_mode(int do_tx_search_global, int midx, int adaptive) {
   return midx < 7 ? 2 : 0;
 }
 
-static int compare_int64(const void *a, const void *b) {
-  int64_t a64 = *((int64_t *)a);
-  int64_t b64 = *((int64_t *)b);
-  if (a64 < b64) {
-    return -1;
-  } else if (a64 == b64) {
-    return 0;
-  } else {
-    return 1;
-  }
-}
-
-// Find the 2nd best RD for a reference frame (among single reference modes)
+// Find the cut off a reference frame (among single reference modes)
 // and store it in the 0-th element in ref_frame_rd.
-static void find_top_2_ref(int64_t ref_frame_rd[REF_FRAMES]) {
+static void find_single_ref_cutoff(int64_t ref_frame_rd[REF_FRAMES]) {
   assert(ref_frame_rd[0] == INT64_MAX);
-  int64_t ref_copy[REF_FRAMES - 1];
-  memcpy(ref_copy, ref_frame_rd + 1,
-         sizeof(ref_frame_rd[0]) * (REF_FRAMES - 1));
-  qsort(ref_copy, REF_FRAMES - 1, sizeof(int64_t), compare_int64);
-  int64_t second_best = ref_copy[1];
-  ref_frame_rd[0] = second_best;
+  // Find the lowest value.
+  int64_t cutoff = ref_frame_rd[1];
+  for (int i = 2; i < REF_FRAMES; ++i) {
+    if (cutoff > ref_frame_rd[i]) {
+      cutoff = ref_frame_rd[i];
+    }
+  }
+  // The cut-off is within 20% of the best.
+  if (cutoff != INT64_MAX) {
+    assert(cutoff < INT64_MAX / 6);
+    cutoff = (6 * cutoff) / 5;
+  }
+  ref_frame_rd[0] = cutoff;
 }
 
-// Check if either frame is one of the top two.
-static INLINE bool in_top_2_ref(int64_t ref_frame_rd[REF_FRAMES],
-                                MV_REFERENCE_FRAME frame1,
-                                MV_REFERENCE_FRAME frame2) {
+// Check if either frame's single-ref RD is within the cutoff.
+static INLINE bool in_top_single_ref(int64_t ref_frame_rd[REF_FRAMES],
+                                     MV_REFERENCE_FRAME frame1,
+                                     MV_REFERENCE_FRAME frame2) {
   assert(frame2 > 0);
   return ref_frame_rd[frame1] <= ref_frame_rd[0] ||
          ref_frame_rd[frame2] <= ref_frame_rd[0];
@@ -12669,15 +12664,16 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     const MV_REFERENCE_FRAME second_ref_frame = mode_order->ref_frame[1];
     const int comp_pred = second_ref_frame > INTRA_FRAME;
 
-    // After we done with single reference modes, find the 2nd best RD
-    // for a reference frame. Only search compound modes that have a reference
-    // frame at least as good as the 2nd best.
+    // After we done with single reference modes, find the RD cut off for a
+    // reference frame. Only search compound modes that have a reference
+    // frame at least as good as the cutoff.
     if (sf->prune_compound_using_single_ref &&
         midx == MAX_SINGLE_REF_MODES + 1) {
-      find_top_2_ref(ref_frame_rd);
+      find_single_ref_cutoff(ref_frame_rd);
     }
     if (sf->prune_compound_using_single_ref && midx > MAX_SINGLE_REF_MODES &&
-        comp_pred && !in_top_2_ref(ref_frame_rd, ref_frame, second_ref_frame)) {
+        comp_pred &&
+        !in_top_single_ref(ref_frame_rd, ref_frame, second_ref_frame)) {
       continue;
     }
 
