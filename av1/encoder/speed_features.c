@@ -331,6 +331,7 @@ static void set_good_speed_features_framesize_independent(
     sf->prune_comp_type_by_model_rd = boosted ? 0 : 1;
     sf->disable_smooth_intra =
         !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
+    sf->adaptive_txb_search_level = boosted ? 2 : 3;
   }
 
   if (speed >= 4) {
@@ -346,7 +347,7 @@ static void set_good_speed_features_framesize_independent(
     sf->alt_ref_search_fp = 1;
     sf->skip_sharp_interp_filter_search = 1;
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 4;
-    sf->adaptive_txb_search_level = boosted ? 2 : 3;
+    sf->adaptive_txb_search_level = 3;
   }
 
   if (speed >= 5) {
