@@ -3554,6 +3554,11 @@ static int get_gfu_boost_from_r0(double r0) {
   return boost;
 }
 
+static int get_kf_boost_from_r0(double r0) {
+  int boost = (int)rint(140.0 / r0);
+  return boost;
+}
+
 static void process_tpl_stats_frame(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
 
@@ -3591,8 +3596,13 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
         cpi->rd.arf_r0 = cpi->rd.r0;
         const int gfu_boost = get_gfu_boost_from_r0(cpi->rd.arf_r0);
         // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
-        // gfu_boost);
+        //        gfu_boost);
         cpi->rc.gfu_boost = (cpi->rc.gfu_boost + gfu_boost) / 2;
+      } else if (frame_is_intra_only(cm)) {
+        const int kf_boost = get_kf_boost_from_r0(cpi->rd.r0);
+        // printf("old kf boost %d new kf boost %d\n", cpi->rc.kf_boost,
+        //        kf_boost);
+        cpi->rc.kf_boost = (cpi->rc.kf_boost + kf_boost) / 2;
       }
       cpi->rd.mc_count_base =
           (double)mc_count_base / (cm->mi_rows * cm->mi_cols);
