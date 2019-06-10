@@ -42,7 +42,7 @@ typedef struct {
   int allocsize;
   int channels;
   int width, height, stride;
-  float *buf[CNN_MAX_CHANNELS];
+  float **buf;
 } TENSOR;
 
 static void init_tensor(TENSOR *tensor) { memset(tensor, 0, sizeof(*tensor)); }
@@ -50,7 +50,8 @@ static void init_tensor(TENSOR *tensor) { memset(tensor, 0, sizeof(*tensor)); }
 static void free_tensor(TENSOR *tensor) {
   if (tensor->allocsize) {
     aom_free(tensor->buf[0]);
-    tensor->buf[0] = NULL;
+    aom_free(tensor->buf);
+    tensor->buf = NULL;
     tensor->allocsize = 0;
   }
 }
@@ -60,50 +61,84 @@ static void realloc_tensor(TENSOR *tensor, int channels, int width,
   const int newallocsize = channels * width * height;
   if (tensor->allocsize < newallocsize) {
     free_tensor(tensor);
-    tensor->buf[0] =
-        (float *)aom_malloc(sizeof(*tensor->buf[0]) * newallocsize);
+    float *buf = (float *)aom_malloc(sizeof(*buf) * newallocsize);
+    tensor->buf =
+        (float **)aom_malloc(sizeof(*tensor->buf[0]) * width * height);
+    for (int i = 0; i < width * height; ++i) {
+      tensor->buf[i] = buf + i * channels;
+    }
     tensor->allocsize = newallocsize;
   }
   tensor->width = width;
   tensor->height = height;
   tensor->stride = width;
   tensor->channels = channels;
-  for (int c = 1; c < channels; ++c)
-    tensor->buf[c] = &tensor->buf[0][c * width * height];
 }
 
-static void copy_tensor(const TENSOR *src, int copy_channels, int dst_offset,
-                        TENSOR *dst) {
+static void copy_equal_channel_tensor(const TENSOR *src, TENSOR *dst) {
   assert(src->width == dst->width);
   assert(src->height == dst->height);
-  assert(copy_channels <= src->channels);
-  if (src->stride == dst->width && dst->stride == dst->width) {
-    for (int c = 0; c < copy_channels; ++c) {
-      memcpy(dst->buf[dst_offset + c], src->buf[c],
-             sizeof(*dst->buf[0]) * src->width * src->height);
+  assert(src->channels == dst->channels);
+  memcpy(dst->buf, src->buf,
+         sizeof(*src->buf[0]) * src->width * src->height * src->channels);
+}
+
+static void copy_tensor_to_branch_tensor(const TENSOR *src,
+                                         int max_copy_channels, TENSOR *dst) {
+  assert(src->width == dst->width);
+  assert(src->height == dst->height);
+  assert(max_copy_channels <= src->channels);
+  if (src->stride == dst->width && dst->width == dst->stride) {
+    for (int i = 0; i < src->width * src->height; ++i) {
+      memcpy(&dst->buf[i * dst->channels], &src->buf[i * src->channels],
+             sizeof(*src->buf[0]) * max_copy_channels);
     }
   } else {
-    for (int c = 0; c < copy_channels; ++c) {
-      for (int r = 0; r < dst->height; ++r) {
-        memcpy(&dst->buf[dst_offset + c][r * dst->stride],
-               &src->buf[c][r * src->stride],
-               dst->width * sizeof(*dst->buf[c]));
+    for (int i = 0; i < src->width * src->height; i += src->width) {
+      for (int j = 0; j < src->stride; ++j) {
+        memcpy(&dst->buf[i * dst->channels], &src->buf[i * src->channels],
+               sizeof(*src->buf[0]) * max_copy_channels);
       }
     }
   }
 }
 
-static void assign_tensor(TENSOR *tensor, const float *buf[CNN_MAX_CHANNELS],
-                          int channels, int width, int height, int stride) {
+static void concat_copy_tensor(const TENSOR *src, int dst_offset, TENSOR *dst) {
+  assert(src->width == dst->width);
+  assert(src->height == dst->height);
+  assert(dst_offset <= dst->channels);
+  if (src->stride == dst->width && dst->stride == dst->width) {
+    for (int i = 0; i < src->width * src->height; ++i) {
+      memcpy(&dst->buf[i * dst->channels + dst_offset],
+             &dst->buf[i * src->channels],
+             sizeof(*src->buf[0]) * src->channels);
+    }
+  } else {
+    for (int i = 0; i < src->width * src->height; i += src->width) {
+      for (int j = 0; j < src->stride; ++j) {
+        memcpy(&dst->buf[i * dst->channels + dst_offset],
+               &src->buf[i * src->channels],
+               sizeof(*src->buf[0]) * src->channels);
+      }
+    }
+  }
+}
+
+static void assign_tensor(TENSOR *tensor, const float **buf, int channels,
+                          int width, int height, int stride) {
   tensor->allocsize = 0;
   tensor->channels = channels;
   tensor->width = width;
   tensor->height = height;
   tensor->stride = stride;
   if (buf) {
-    for (int c = 0; c < channels; ++c) tensor->buf[c] = (float *)buf[c];
+    for (int i = 0; i < height * width; ++i) {
+      tensor->buf = (float **)buf;
+    }
   } else {
-    for (int c = 0; c < channels; ++c) tensor->buf[c] = NULL;
+    for (int i = 0; i < height * width; ++i) {
+      tensor->buf = NULL;
+    }
   }
 }
 
@@ -119,7 +154,6 @@ static void concat_tensor(const TENSOR *src, TENSOR *dst) {
   assert(src->width == dst->width);
   assert(src->height == dst->height);
 
-  const int dst_channels = dst->channels;
   const int channels = dst->channels + src->channels;
   const int newallocsize = channels * dst->width * dst->height;
   if (dst->allocsize < newallocsize) {
@@ -127,15 +161,13 @@ static void concat_tensor(const TENSOR *src, TENSOR *dst) {
     init_tensor(&t);
     // allocate new buffers and copy first the dst channels
     realloc_tensor(&t, channels, dst->width, dst->height);
-    copy_tensor(dst, dst->channels, 0, &t);
+    concat_copy_tensor(dst, 0, &t);
     // Swap the tensors and free the old buffers
     swap_tensor(dst, &t);
     free_tensor(&t);
   }
-  for (int c = 1; c < channels; ++c)
-    dst->buf[c] = &dst->buf[0][c * dst->width * dst->height];
   // Copy the channels in src after the first dst_channels channels.
-  copy_tensor(src, src->channels, dst_channels, dst);
+  concat_copy_tensor(src, dst->channels, dst);
 }
 
 int check_tensor_equal_dims(TENSOR *t1, TENSOR *t2) {
@@ -257,9 +289,12 @@ static INLINE int get_start_shift_convolve(int width, int filt_width,
 void av1_cnn_add_c(float **output, int channels, int width, int height,
                    int stride, const float **add) {
   for (int c = 0; c < channels; ++c) {
-    for (int i = 0; i < height; ++i)
-      for (int j = 0; j < width; ++j)
-        output[c][i * stride + j] += add[c][i * stride + j];
+    for (int i = 0; i < height; ++i) {
+      for (int j = 0; j < width; ++j) {
+        const int index = i * stride + j;
+        output[index][c] += add[index][c];
+      }
+    }
   }
 }
 
@@ -267,9 +302,12 @@ void av1_cnn_activate_c(float **output, int channels, int width, int height,
                         int stride, ACTIVATION layer_activation) {
   activation_fn activation = get_activation(layer_activation);
   for (int c = 0; c < channels; ++c) {
-    for (int i = 0; i < height; ++i)
-      for (int j = 0; j < width; ++j)
-        output[c][i * stride + j] = activation(output[c][i * stride + j]);
+    for (int i = 0; i < height; ++i) {
+      for (int j = 0; j < width; ++j) {
+        const int index = i * stride + j;
+        output[index][c] = activation(output[index][c]);
+      }
+    }
   }
 }
 
@@ -287,7 +325,8 @@ static void copy_active_tensor_to_branches(const TENSOR *layer_active_tensor,
                               : layer_active_tensor->channels;
       realloc_tensor(&branch_output[b], copy_channels,
                      layer_active_tensor->width, layer_active_tensor->height);
-      copy_tensor(layer_active_tensor, copy_channels, 0, &branch_output[b]);
+      copy_tensor_to_branch_tensor(layer_active_tensor, copy_channels,
+                                   &branch_output[b]);
     }
   }
 }
@@ -374,16 +413,16 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
                             jj >= in_width)
                           continue;
                         sum += layer_config->weights[off] *
-                               input[k][ii * in_stride + jj];
+                               input[ii * in_stride + jj][k];
                       }
                     }
                   }
                   const float a = sum;
                   if (h == hh && w == ww)
-                    output[i][u * out_stride + v] = a;
+                    output[u * out_stride + v][i] = a;
                   else
-                    output[i][u * out_stride + v] =
-                        AOMMAX(output[i][u * out_stride + v], a);
+                    output[u * out_stride + v][i] =
+                        AOMMAX(output[u * out_stride + v][i], a);
                 }
               }
             }
@@ -415,16 +454,16 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
                         assert(ii >= 0 && ii < in_height && jj >= 0 &&
                                jj < in_width);
                         sum += layer_config->weights[off] *
-                               input[k][ii * in_stride + jj];
+                               input[ii * in_stride + jj][k];
                       }
                     }
                   }
                   const float a = sum;
                   if (h == hh && w == ww)
-                    output[i][u * out_stride + v] = a;
+                    output[u * out_stride + v][i] = a;
                   else
-                    output[i][u * out_stride + v] =
-                        AOMMAX(output[i][u * out_stride + v], a);
+                    output[u * out_stride + v][i] =
+                        AOMMAX(output[u * out_stride + v][i], a);
                 }
               }
             }
@@ -456,16 +495,16 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
                         assert(ii >= 0 && ii < in_height && jj >= 0 &&
                                jj < in_width);
                         sum += layer_config->weights[off] *
-                               input[k][ii * in_stride + jj];
+                               input[ii * in_stride + jj][k];
                       }
                     }
                   }
                   const float a = sum;
                   if (h == hh && w == ww)
-                    output[i][u * out_stride + v] = a;
+                    output[u * out_stride + v][i] = a;
                   else
-                    output[i][u * out_stride + v] =
-                        AOMMAX(output[i][u * out_stride + v], a);
+                    output[u * out_stride + v][i] =
+                        AOMMAX(output[u * out_stride + v][i], a);
                 }
               }
             }
@@ -483,7 +522,7 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
           get_start_shift_convolve(in_width, layer_config->filter_width,
                                    layer_config->skip_width) +
           start_idx * layer_config->skip_width;
-      const int out_w_step = AOMMAX(step, 1);
+      const int out_w_step = AOMMAX(step, 1) * layer_config->out_channels;
       const int in_w_step = layer_config->skip_width * out_w_step;
       for (int i = 0; i < layer_config->out_channels; ++i) {
         for (int h = start_h, u = 0; h < in_height;
@@ -495,9 +534,9 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
             float sum = layer_config->bias[i];
             for (int k = 0; k < layer_config->in_channels; ++k) {
               sum += layer_config->weights[k * layer_config->out_channels + i] *
-                     input[k][in_h + w];
+                     input[in_h + w][k];
             }
-            output[i][out_index] = sum;
+            output[out_index][i] = sum;
           }
         }
       }
@@ -545,12 +584,12 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
                   off += left_cstep;
                   for (int jj = start_jj; jj < end_jj; ++jj, off += cstep) {
                     sum += layer_config->weights[off] *
-                           input[k][ii * in_stride + jj];
+                           input[ii * in_stride + jj][k];
                   }
                   off += right_cstep;
                 }
               }
-              output[i][out_index] = sum;
+              output[out_index][i] = sum;
             }
           }
         }
@@ -588,12 +627,11 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
                     assert(clamped_ii >= 0 && clamped_ii < in_height &&
                            clamped_jj >= 0 && clamped_jj < in_width);
                     sum += layer_config->weights[off] *
-                           input[k][clamped_ii * in_stride + clamped_jj];
-                    off += cstep;
+                           input[clamped_ii * in_stride + clamped_jj][k];
                   }
                 }
               }
-              output[i][out_index] = sum;
+              output[out_index][i] = sum;
             }
           }
         }
@@ -619,12 +657,12 @@ void av1_cnn_convolve_c(const float **input, int in_width, int in_height,
                     assert(ii >= 0 && ii < in_height && jj >= 0 &&
                            jj < in_width);
                     sum += layer_config->weights[off] *
-                           input[k][ii * in_stride + jj];
+                           input[ii * in_stride + jj][k];
                     off += cstep;
                   }
                 }
               }
-              output[i][out_index] = sum;
+              output[out_index][i] = sum;
             }
           }
         }
@@ -699,11 +737,11 @@ void av1_cnn_deconvolve_c(const float **input, int in_width, int in_height,
                   if (ii < 0 || ii >= in_height || jj < 0 || jj >= in_width)
                     continue;
                   sum += layer_config->weights[off] *
-                         input[k][ii * in_stride + jj];
+                         input[ii * in_stride + jj][k];
                 }
               }
             }
-            output[i][u * out_stride + v] = sum;
+            output[u * out_stride + v][i] = sum;
           }
         }
       }
@@ -736,11 +774,11 @@ void av1_cnn_deconvolve_c(const float **input, int in_width, int in_height,
                   assert(ii >= 0 && ii < in_height && jj >= 0 && jj < in_width);
                   continue;
                   sum += layer_config->weights[off] *
-                         input[k][ii * in_stride + jj];
+                         input[ii * in_stride + jj][k];
                 }
               }
             }
-            output[i][u * out_stride + v] = sum;
+            output[u * out_stride + v][i] = sum;
           }
         }
       }
@@ -765,11 +803,11 @@ void av1_cnn_deconvolve_c(const float **input, int in_width, int in_height,
                   if (ii < 0 || ii >= in_height || jj < 0 || jj >= in_width)
                     continue;
                   sum += layer_config->weights[off] *
-                         input[k][ii * in_stride + jj];
+                         input[ii * in_stride + jj][k];
                 }
               }
             }
-            output[i][u * out_stride + v] = sum;
+            output[u * out_stride + v][i] = sum;
           }
         }
       }
@@ -905,6 +943,7 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
           }
         }
       } else {  // Last layer
+        // Handle last layer separately since we don't own output buffer.
         for (int b = 0; b < CNN_MAX_BRANCHES; ++b) {
           if ((branch_config->branches_to_combine & (1 << b)) && b != branch) {
             assert(check_tensor_equal_dims(&tensor2[b], &tensor2[branch]));
@@ -913,8 +952,8 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
             assign_tensor(&tensor2[branch], (const float **)output,
                           existing_channels + tensor2[b].channels, o_width,
                           o_height, out_stride);
-            copy_tensor(&tensor2[b], tensor2[b].channels, existing_channels,
-                        &tensor2[branch]);
+            concat_copy_tensor(&tensor2[b], existing_channels,
+                               &tensor2[branch]);
           }
         }
       }
@@ -948,47 +987,61 @@ void av1_cnn_predict_img(uint8_t **dgd, int width, int height, int stride,
   int in_width = width + 2 * cnn_config->ext_width;
   int in_height = height + 2 * cnn_config->ext_height;
   int in_channels = cnn_config->layer_config[0].in_channels;
-  float *inputs[CNN_MAX_CHANNELS];
+  float **inputs =
+      (float **)aom_malloc(in_width * in_height * sizeof(**inputs));
   float *input_ =
       (float *)aom_malloc(in_width * in_height * in_channels * sizeof(*input_));
   const int in_stride = in_width;
+  int lower_h_index = -cnn_config->ext_height;
+  int lower_w_index = -cnn_config->ext_width;
+  int upper_h_index = cnn_config->ext_height + height;
+  int upper_w_index = cnn_config->ext_width + width;
 
-  for (int c = 0; c < in_channels; ++c) {
-    inputs[c] = input_ + c * in_stride * in_height;
-    float *input =
-        inputs[c] + cnn_config->ext_height * in_stride + cnn_config->ext_width;
-
-    if (cnn_config->strict_bounds) {
-      for (int i = 0; i < height; ++i)
-        for (int j = 0; j < width; ++j)
-          input[i * in_stride + j] = (float)dgd[c][i * stride + j] / max_val;
-      // extend left and right
-      for (int i = 0; i < height; ++i) {
-        for (int j = -cnn_config->ext_width; j < 0; ++j)
-          input[i * in_stride + j] = input[i * in_stride];
-        for (int j = width; j < width + cnn_config->ext_width; ++j)
-          input[i * in_stride + j] = input[i * in_stride + width - 1];
+  if (cnn_config->strict_bounds) {
+    lower_h_index = 0;
+    lower_w_index = 0;
+    upper_h_index = height;
+    upper_w_index = width;
+    // extend left and right
+    for (int i = 0; i < height; ++i) {
+      float *input = input_ + (i * in_stride) * in_channels;
+      for (int j = -cnn_config->ext_width; j < 0; ++j) {
+        inputs[i * in_stride + j] = input;
       }
-      // extend top and bottom
-      for (int i = -cnn_config->ext_height; i < 0; ++i)
-        memcpy(&input[i * in_stride - cnn_config->ext_width],
-               &input[-cnn_config->ext_width], in_width * sizeof(*input));
-      for (int i = height; i < height + cnn_config->ext_height; ++i)
-        memcpy(&input[i * in_stride - cnn_config->ext_width],
-               &input[(height - 1) * in_stride - cnn_config->ext_width],
-               in_width * sizeof(*input));
-    } else {
-      for (int i = -cnn_config->ext_height; i < height + cnn_config->ext_height;
-           ++i)
-        for (int j = -cnn_config->ext_width; j < width + cnn_config->ext_width;
-             ++j)
-          input[i * in_stride + j] = (float)dgd[c][i * stride + j] / max_val;
+      input = input_ + (i * in_stride + width - 1) * in_channels;
+      for (int j = width; j < width + cnn_config->ext_width; ++j) {
+        inputs[i * in_stride + j] = input;
+      }
+    }
+    // extend top and bottom
+    for (int j = -cnn_config->ext_width; j < width + cnn_config->ext_width;
+         ++j) {
+      float *input = input_ + j * in_channels;
+      for (int i = -cnn_config->ext_height; i < 0; ++i) {
+        inputs[i * in_stride + j] = input;
+      }
+      input = input_ + (j + in_stride * (height - 1)) * in_channels;
+      for (int i = height; i < height + cnn_config->ext_height; ++i) {
+        inputs[i * in_stride + j] = input;
+      }
     }
   }
-  av1_cnn_predict((const float **)inputs, in_width, in_height, in_stride,
-                  cnn_config, thread_data, output, out_stride);
+  // Set image pixels.
+  for (int i = lower_h_index; i < upper_h_index; ++i) {
+    for (int j = lower_w_index; j < upper_w_index; ++j) {
+      const int pixel_index = i * in_stride + j;
+      inputs[pixel_index] = input_ + pixel_index * in_channels;
+      for (int c = 0; c < in_channels; ++c) {
+        inputs[pixel_index][c] = (float)dgd[c][i * stride + j] / max_val;
+      }
+    }
+  }
+
+  av1_cnn_predict((const float **)inputs, width, height, stride, cnn_config,
+                  thread_data, output, out_stride);
 
   aom_free(input_);
+  aom_free(inputs);
 }
 
 // Assume output already has proper allocation
@@ -1007,44 +1060,57 @@ void av1_cnn_predict_img_highbd(uint16_t **dgd, int width, int height,
   int in_width = width + 2 * cnn_config->ext_width;
   int in_height = height + 2 * cnn_config->ext_height;
   int in_channels = cnn_config->layer_config[0].in_channels;
-  float *inputs[CNN_MAX_CHANNELS];
+  float **inputs;
   float *input_ =
       (float *)aom_malloc(in_width * in_height * in_channels * sizeof(*input_));
   const int in_stride = in_width;
+  int lower_h_index = -cnn_config->ext_height;
+  int lower_w_index = -cnn_config->ext_width;
+  int upper_h_index = cnn_config->ext_height + height;
+  int upper_w_index = cnn_config->ext_width + width;
 
-  for (int c = 0; c < in_channels; ++c) {
-    inputs[c] = input_ + c * in_stride * in_height;
-    float *input =
-        inputs[c] + cnn_config->ext_height * in_stride + cnn_config->ext_width;
-
-    if (cnn_config->strict_bounds) {
-      for (int i = 0; i < height; ++i)
-        for (int j = 0; j < width; ++j)
-          input[i * in_stride + j] = (float)dgd[c][i * stride + j] / max_val;
-      // extend left and right
-      for (int i = 0; i < height; ++i) {
-        for (int j = -cnn_config->ext_width; j < 0; ++j)
-          input[i * in_stride + j] = input[i * in_stride];
-        for (int j = width; j < width + cnn_config->ext_width; ++j)
-          input[i * in_stride + j] = input[i * in_stride + width - 1];
+  if (cnn_config->strict_bounds) {
+    lower_h_index = 0;
+    lower_w_index = 0;
+    upper_h_index = height;
+    upper_w_index = width;
+    // extend left and right
+    for (int i = 0; i < height; ++i) {
+      float *input = input_ + (i * in_stride) * in_channels;
+      for (int j = -cnn_config->ext_width; j < 0; ++j) {
+        inputs[i * in_stride + j] = input;
       }
-      // extend top and bottom
-      for (int i = -cnn_config->ext_height; i < 0; ++i)
-        memcpy(&input[i * in_stride - cnn_config->ext_width],
-               &input[-cnn_config->ext_width], in_width * sizeof(*input));
-      for (int i = height; i < height + cnn_config->ext_height; ++i)
-        memcpy(&input[i * in_stride - cnn_config->ext_width],
-               &input[(height - 1) * in_stride - cnn_config->ext_width],
-               in_width * sizeof(*input));
-    } else {
-      for (int i = -cnn_config->ext_height; i < height + cnn_config->ext_height;
-           ++i)
-        for (int j = -cnn_config->ext_width; j < width + cnn_config->ext_width;
-             ++j)
-          input[i * in_stride + j] = (float)dgd[c][i * stride + j] / max_val;
+      input = input_ + (i * in_stride + width - 1) * in_channels;
+      for (int j = width; j < width + cnn_config->ext_width; ++j) {
+        inputs[i * in_stride + j] = input;
+      }
+    }
+    // extend top and bottom
+    for (int j = -cnn_config->ext_width; j < width + cnn_config->ext_width;
+         ++j) {
+      float *input = input_ + j * in_channels;
+      for (int i = -cnn_config->ext_height; i < 0; ++i) {
+        inputs[i * in_stride + j] = input;
+      }
+      input = input_ + (j + in_stride * (height - 1)) * in_channels;
+      for (int i = height; i < height + cnn_config->ext_height; ++i) {
+        inputs[i * in_stride + j] = input;
+      }
     }
   }
-  av1_cnn_predict((const float **)inputs, width, height, in_stride, cnn_config,
+  // Set image pixels.
+  for (int i = lower_h_index; i < upper_h_index; ++i) {
+    for (int j = lower_w_index; j < upper_w_index; ++j) {
+      const int pixel_index = i * in_stride + j;
+      const int dgd_index = i * stride + j;
+      inputs[pixel_index] = input_ + pixel_index * in_channels;
+      for (int c = 0; c < in_channels; ++c) {
+        inputs[pixel_index][c] = (float)dgd[c][dgd_index] / max_val;
+      }
+    }
+  }
+
+  av1_cnn_predict((const float **)inputs, width, height, stride, cnn_config,
                   thread_data, output, out_stride);
   aom_free(input_);
 }
