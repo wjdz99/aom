@@ -87,8 +87,9 @@ static void add_ref_mv_candidate(
       if (candidate->ref_frame[ref] == rf[0]) {
         const int is_gm_block =
             is_global_mv_block(candidate, gm_params[rf[0]].wmtype);
-        const int_mv this_refmv = is_gm_block ?
-            gm_mv_candidates[0] : get_sub_block_mv(candidate, ref, col);
+        const int_mv this_refmv = is_gm_block
+                                      ? gm_mv_candidates[0]
+                                      : get_sub_block_mv(candidate, ref, col);
         for (index = 0; index < *refmv_count; ++index) {
           if (ref_mv_stack[index].this_mv.as_int == this_refmv.as_int) {
             ref_mv_weight[index] += weight;
@@ -707,17 +708,19 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       }
 
       // Build up the compound mv predictor
-      int_mv comp_list[3][2];
+      int_mv comp_list[MAX_MV_REF_CANDIDATES][2];
 
       for (int idx = 0; idx < 2; ++idx) {
         int comp_idx = 0;
-        for (int list_idx = 0; list_idx < ref_id_count[idx] && comp_idx < 2;
+        for (int list_idx = 0;
+             list_idx < ref_id_count[idx] && comp_idx < MAX_MV_REF_CANDIDATES;
              ++list_idx, ++comp_idx)
           comp_list[comp_idx][idx] = ref_id[idx][list_idx];
-        for (int list_idx = 0; list_idx < ref_diff_count[idx] && comp_idx < 2;
+        for (int list_idx = 0;
+             list_idx < ref_diff_count[idx] && comp_idx < MAX_MV_REF_CANDIDATES;
              ++list_idx, ++comp_idx)
           comp_list[comp_idx][idx] = ref_diff[idx][list_idx];
-        for (; comp_idx < 3; ++comp_idx)
+        for (; comp_idx < MAX_MV_REF_CANDIDATES; ++comp_idx)
           comp_list[comp_idx][idx] = gm_mv_candidates[idx];
       }
 
