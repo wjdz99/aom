@@ -297,8 +297,6 @@ static void set_good_speed_features_framesize_independent(
     sf->disable_dual_filter = 1;
     sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
     sf->prune_comp_type_by_comp_avg = 2;
-    // TODO(Sachin): Enable/Enhance this speed feature for speed 2 & 3
-    sf->cb_pred_filter_search = 0;
     sf->adaptive_interp_filter_search = 1;
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
     sf->model_based_prune_tx_search_level = 0;
@@ -341,7 +339,6 @@ static void set_good_speed_features_framesize_independent(
     sf->reduce_wiener_window_size = !boosted;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
     sf->adaptive_pred_interp_filter = 0;
-    sf->cb_pred_filter_search = 1;
     sf->adaptive_mode_search = 1;
     sf->alt_ref_search_fp = 1;
     sf->skip_sharp_interp_filter_search = 1;
