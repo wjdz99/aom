@@ -4616,7 +4616,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       cpi->oxcf.enable_global_motion && !cpi->global_motion_search_done) {
 
     //  do global motion (probably) FOR EACH FRAME
-    printf("\nframe number for global motion: %d\n", cpi->common.current_frame.frame_number);
+//    printf("\nframe number for global motion: %d\n", cpi->common.current_frame.frame_number);
 
     __frame_number = cpi->common.current_frame.frame_number;
 

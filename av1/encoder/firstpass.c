@@ -55,7 +55,7 @@
 
 #define MAX_FRAMES 1000000
 
-int* frame_block_mv_correspondences[MAX_FRAMES];
+// int* frame_block_mv_correspondences[MAX_FRAMES];
 
 static void output_stats(FIRSTPASS_STATS *stats,
                          struct aom_codec_pkt_list *pktlist) {
@@ -449,7 +449,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   recon_uv_stride = new_yv12->uv_stride;
   uv_mb_height = 16 >> (new_yv12->y_height > new_yv12->uv_height);
 
-  printf("cm->current_frame.frame_number %d\n", cm->current_frame.frame_number);
+ // printf("cm->current_frame.frame_number %d\n", cm->current_frame.frame_number);
 
   /*
 
@@ -459,7 +459,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   char buf_fopen[50];
   snprintf(buf_fopen, 50, "motion_vector_data_%d.txt", cm->current_frame.frame_number);
 
-  frame_block_mv_correspondences[cm->current_frame.frame_number] = malloc(sizeof(int) * 4 * (cm->mb_rows) * (cm->mb_cols));
+  // frame_block_mv_correspondences[cm->current_frame.frame_number] = malloc(sizeof(int) * 4 * (cm->mb_rows) * (cm->mb_cols));
 
   FILE * pFile  = fopen(buf_fopen, "w");
   setbuf(pFile, NULL);
@@ -467,7 +467,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   int *points = malloc(sizeof(int) * 4 * cm->mb_rows * cm->mb_cols);
   int npoints = 2 * cm->mb_rows * cm->mb_cols; 
 */
-  int* tempf = frame_block_mv_correspondences[cm->current_frame.frame_number];
+//  int* tempf = frame_block_mv_correspondences[cm->current_frame.frame_number];
 
   for (mb_row = 0; mb_row < cm->mb_rows; ++mb_row) {
     MV best_ref_mv = kZeroMv;
@@ -749,14 +749,14 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
           ++intercount;
 
           best_ref_mv = mv;
-
+/*
           int blck_center_x = 8 + 16 * (mb_row);
           int blck_center_y = 8 + 16 * (mb_col);
 
           
         //  printf("frame_block_mv_correspondences[cm->current_frame.frame_number] - frame_block_mv_correspondences = %d\n", 
           //	frame_block_mv_correspondences[cm->current_frame.frame_number] - frame_block_mv_correspondences[0]);
-
+/*
           printf("%llx \n", tempf);
           *(tempf++) = blck_center_x; 
           *(tempf++) = blck_center_y;
@@ -766,7 +766,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
           fprintf(pFile, "%d %d %d %d\n", blck_center_x, blck_center_y,
           	 blck_center_x + best_ref_mv.row, 
           		blck_center_y + best_ref_mv.col);
-
+*/
           if (!is_zero_mv(&mv)) {
             ++mvcount;
 
@@ -807,6 +807,24 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
         tr_coded_error += (int64_t)this_intra_error;
       }
       coded_error += (int64_t)this_intra_error;
+
+      int blck_center_x = 8 + 16 * (mb_row);
+      int blck_center_y = 8 + 16 * (mb_col);
+
+          
+        //  printf("frame_block_mv_correspondences[cm->current_frame.frame_number] - frame_block_mv_correspondences = %d\n", 
+          //  frame_block_mv_correspondences[cm->current_frame.frame_number] - frame_block_mv_correspondences[0]);
+/*
+          printf("%llx \n", tempf);
+          *(tempf++) = blck_center_x; 
+          *(tempf++) = blck_center_y;
+          *(tempf++) = blck_center_x + (int) mv.row;
+          *(tempf++) = blck_center_y + (int) mv.col;
+*/
+      fprintf(pFile, "%d %d %d %d\n", blck_center_x, blck_center_y,
+             blck_center_x + best_ref_mv.row, 
+              blck_center_y + best_ref_mv.col);
+
 
       // Adjust to the next column of MBs.
       x->plane[0].src.buf += 16;

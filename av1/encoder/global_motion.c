@@ -329,6 +329,13 @@ static int compute_global_motion_feature_based(
 
 */
 
+  char buf_fopen[50];
+  snprintf(buf_fopen, 50, "motion_vector_data_%d.txt", __frame_number);
+
+  // frame_block_mv_correspondences[cm->current_frame.frame_number] = malloc(sizeof(int) * 4 * (cm->mb_rows) * (cm->mb_cols));
+
+  FILE * fp  = fopen(buf_fopen, "r");
+  //setbuf(pFile, NULL);
 
 
 
@@ -360,7 +367,20 @@ static int compute_global_motion_feature_based(
 
  // printf("frame_number_rick_and_morty %d\n", frame_number_rick_and_morty);
 
-  correspondences = frame_block_mv_correspondences[__frame_number];
+
+  correspondences = malloc(sizeof(int) * 4 * num_frm_corners);
+  
+  int* temp = correspondences;
+
+  for(int i = 0; i < num_frm_corners; i++) {
+    int x1, y1, x2, y2;
+    fscanf(fp, "%d %d %d %d", &x1, &y1, &x2, &y2);
+    *(temp++) = x1;
+    *(temp++) = y1;
+    *(temp++) = x2;
+    *(temp++) = y2;
+  }
+
 //  if(correspondences == NULL)
 //    correspondences = frame_block_mv_correspondences[frame_number_rick_and_morty - 1];
 //  num_correspondences = (frm_width * frm_height;
@@ -380,7 +400,7 @@ static int compute_global_motion_feature_based(
     }
   }
 
-//  free(correspondences);
+  free(correspondences);
 
   // Return true if any one of the motions has inliers.
   for (i = 0; i < num_motions; ++i) {
