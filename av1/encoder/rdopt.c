@@ -1434,6 +1434,109 @@ static void get_energy_distribution_finer(const int16_t *diff, int stride,
   for (i = 0; i < esq_h - 1; i++) verdist[i] *= e_recip;
 }
 
+static void get_energy_distribution_finer_new(const int16_t *diff, int stride,
+                                              int bw, int bh, float *hordist,
+                                              float *verdist, float *hor1dist,
+                                              float *ver1dist) {
+  // First compute downscaled block energy values (esq); downscale factors
+  // are defined by w_shift and h_shift.
+  unsigned int esq[256];
+  const int w_shift = bw <= 8 ? 0 : 1;
+  const int h_shift = bh <= 8 ? 0 : 1;
+  const int esq_w = bw >> w_shift;
+  const int esq_h = bh >> h_shift;
+  const int esq_sz = esq_w * esq_h;
+  int i, j;
+  int do_1d = (hor1dist != NULL && ver1dist != NULL);
+
+  unsigned int esq1[256];
+
+  memset(esq, 0, esq_sz * sizeof(esq[0]));
+  if (do_1d) memset(esq1, 0, esq_sz * sizeof(esq1[0]));
+
+  if (w_shift) {
+    for (i = 0; i < bh; i++) {
+      unsigned int *cur_esq_row = esq + (i >> h_shift) * esq_w;
+      unsigned int *cur_esq1_row = esq1 + (i >> h_shift) * esq_w;
+
+      const int16_t *cur_diff_row = diff + i * stride;
+      for (j = 0; j < bw; j += 2) {
+        cur_esq_row[j >> 1] += (cur_diff_row[j] * cur_diff_row[j] +
+                                cur_diff_row[j + 1] * cur_diff_row[j + 1]);
+        if (do_1d)
+          cur_esq1_row[j >> 1] +=
+              abs(cur_diff_row[j]) + abs(cur_diff_row[j + 1]);
+      }
+    }
+  } else {
+    for (i = 0; i < bh; i++) {
+      unsigned int *cur_esq_row = esq + (i >> h_shift) * esq_w;
+      unsigned int *cur_esq1_row = esq1 + (i >> h_shift) * esq_w;
+
+      const int16_t *cur_diff_row = diff + i * stride;
+      for (j = 0; j < bw; j++) {
+        cur_esq_row[j] += cur_diff_row[j] * cur_diff_row[j];
+        if (do_1d) cur_esq1_row[j] += abs(cur_diff_row[j]);
+      }
+    }
+  }
+
+  uint64_t total = 0, total1 = 0;
+  for (i = 0; i < esq_sz; i++) {
+    total += esq[i];
+    if (do_1d) total1 += esq1[i];
+  }
+
+  // Output hordist and verdist arrays are normalized 1D projections of esq
+  if (total == 0) {
+    float hor_val = 1.0f / esq_w;
+    for (j = 0; j < esq_w; j++) hordist[j] = hor_val;
+    float ver_val = 1.0f / esq_h;
+    for (i = 0; i < esq_h; i++) verdist[i] = ver_val;
+    //    return;
+  } else {
+    const float e_recip = 1.0f / (float)total;
+    memset(hordist, 0, esq_w * sizeof(hordist[0]));
+    memset(verdist, 0, esq_h * sizeof(verdist[0]));
+    const unsigned int *cur_esq_row;
+    for (i = 0; i < esq_h; i++) {
+      cur_esq_row = esq + i * esq_w;
+      for (j = 0; j < esq_w; j++) {
+        hordist[j] += (float)cur_esq_row[j];
+        verdist[i] += (float)cur_esq_row[j];
+      }
+    }
+    for (j = 0; j < esq_w; j++) hordist[j] *= e_recip;
+    for (i = 0; i < esq_h; i++) verdist[i] *= e_recip;
+  }
+
+  // Output hor1dist and ver1dist arrays are normalized 1D projections of esq1
+  if (do_1d) {
+    if (total1 == 0) {
+      float hor1_val = 1.0f / esq_w;
+      for (j = 0; j < esq_w; j++) hor1dist[j] = hor1_val;
+      float ver1_val = 1.0f / esq_h;
+      for (i = 0; i < esq_h; i++) ver1dist[i] = ver1_val;
+      //    return;
+    } else {
+      // abs
+      const float e_recip1 = 1.0f / (float)total1;
+      memset(hor1dist, 0, esq_w * sizeof(hor1dist[0]));
+      memset(ver1dist, 0, esq_h * sizeof(ver1dist[0]));
+      const unsigned int *cur_esq1_row;
+      for (i = 0; i < esq_h; i++) {
+        cur_esq1_row = esq1 + i * esq_w;
+        for (j = 0; j < esq_w; j++) {
+          hor1dist[j] += (float)cur_esq1_row[j];
+          ver1dist[i] += (float)cur_esq1_row[j];
+        }
+      }
+      for (j = 0; j < esq_w; j++) hor1dist[j] *= e_recip1;
+      for (i = 0; i < esq_h; i++) ver1dist[i] *= e_recip1;
+    }
+  }
+}
+
 // Similar to get_horver_correlation, but also takes into account first
 // row/column, when computing horizontal/vertical correlation.
 void av1_get_horver_correlation_full_c(const int16_t *diff, int stride,
@@ -1615,6 +1718,47 @@ static const float *prune_2D_adaptive_thresholds[] = {
   NULL,
 };
 
+static const float *tx_type_2d_prob_thr[] = {
+  // TX_4X4
+  NULL,
+  // TX_8X8
+  (float[]){ 0.005f, 0.1f },
+  // TX_16X16
+  NULL,
+  // TX_32X32
+  NULL,
+  // TX_64X64
+  NULL,
+  // TX_4X8
+  NULL,
+  // TX_8X4
+  NULL,
+  // TX_8X16
+  NULL,
+  // TX_16X8
+  NULL,
+  // TX_16X32
+  NULL,
+  // TX_32X16
+  NULL,
+  // TX_32X64
+  NULL,
+  // TX_64X32
+  NULL,
+  // TX_4X16
+  NULL,
+  // TX_16X4
+  NULL,
+  // TX_8X32
+  NULL,
+  // TX_32X8
+  NULL,
+  // TX_16X64
+  NULL,
+  // TX_64X16
+  NULL,
+};
+
 // Probablities are sorted in descending order.
 static INLINE void sort_probability(float prob[], int txk[], int len) {
   int i, j, k;
@@ -1727,6 +1871,67 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
 
   sort_probability(scores_2D, tx_type_table_2D, TX_TYPES);
   memcpy(txk_map, tx_type_table_2D, sizeof(tx_type_table_2D));
+
+  return prune_bitmask;
+}
+
+static uint16_t prune_tx_2D_new(MACROBLOCK *x, BLOCK_SIZE bsize,
+                                TX_SIZE tx_size, int blk_row, int blk_col,
+                                TxSetType tx_set_type,
+                                TX_TYPE_PRUNE_MODE prune_mode, int *txk_map) {
+  if (tx_set_type != EXT_TX_SET_ALL16 &&
+      tx_set_type != EXT_TX_SET_DTT9_IDTX_1DDCT)
+    return 0;
+  const NN_CONFIG *nn_config = av1_tx_type_2d_nnconfig_map[tx_size];
+  if (!nn_config) return 0;  // Model not established yet.
+
+  aom_clear_system_state();
+  int idx = 0;
+  float features[19];
+  //  float hfeatures1[16], vfeatures1[16];
+  float scores_2D[16];
+  const int bw = tx_size_wide[tx_size];
+  const int bh = tx_size_high[tx_size];
+
+  // Reduce the calculation.
+  const MACROBLOCKD *xd = &x->e_mbd;
+  const int max_dc_q = av1_dc_quant_QTX(MAXQ, 0, xd->bd);
+  const float log_max_dc_q = logf((float)max_dc_q);
+  const int dc_q = x->plane[0].dequant_QTX[0];
+  features[idx++] = logf((float)dc_q) / log_max_dc_q;
+
+  const struct macroblock_plane *const p = &x->plane[0];
+  const int diff_stride = block_size_wide[bsize];
+  const int16_t *diff = p->src_diff + 4 * blk_row * diff_stride + 4 * blk_col;
+  get_energy_distribution_finer_new(diff, diff_stride, bw, bh, &features[idx],
+                                    &features[idx + 9], NULL,
+                                    NULL);  // hfeatures1, vfeatures1);
+  av1_get_horver_correlation_full(diff, diff_stride, bw, bh, &features[idx + 8],
+                                  &features[idx + 17]);
+
+  av1_nn_predict(features, nn_config, scores_2D);
+  aom_clear_system_state();
+
+  float probs[16] = { 0.0f };
+  av1_nn_softmax(scores_2D, probs, 16);
+
+  if (tx_set_type != EXT_TX_SET_ALL16) {
+    for (int i = 0; i < 16; i++) {
+      if (!av1_ext_tx_used[tx_set_type][txk_map[i]]) probs[i] = 0.0f;
+    }
+  }
+  sort_probability(probs, txk_map, TX_TYPES);
+
+  const float score_thresh =
+      tx_type_2d_prob_thr[tx_size][prune_mode - PRUNE_2D_ACCURATE];
+  uint16_t prune_bitmask = 0;
+  // Always keep the TX type with highest prob.
+  for (int i = 1; i < 16; i++) {
+    if (probs[i] < score_thresh) {
+      for (int j = i; j < 16; j++) prune_bitmask |= (1 << txk_map[j]);
+      break;
+    }
+  }
 
   return prune_bitmask;
 }
@@ -3089,10 +3294,18 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     allowed_tx_mask = ext_tx_used_flag;
     // !fast_tx_search && txk_end != txk_start && plane == 0
     if (cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE && is_inter) {
-      const uint16_t prune =
-          prune_tx_2D(x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
-                      cpi->sf.tx_type_search.prune_mode, txk_map);
-      allowed_tx_mask &= (~prune);
+      const NN_CONFIG *nn_config = av1_tx_type_2d_nnconfig_map[tx_size];
+      if (!nn_config) {
+        const uint16_t prune =
+            prune_tx_2D(x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
+                        cpi->sf.tx_type_search.prune_mode, txk_map);
+        allowed_tx_mask &= (~prune);
+      } else {
+        const uint16_t prune = prune_tx_2D_new(
+            x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
+            cpi->sf.tx_type_search.prune_mode, txk_map);
+        allowed_tx_mask &= (~prune);
+      }
     }
   }
 
