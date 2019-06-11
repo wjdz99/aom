@@ -70,6 +70,8 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                               int mi_row, int mi_col, BLOCK_SIZE bsize,
                               int *rate);
 
+int __frame_number = 0;
+
 // This is used as a reference when computing the source variance for the
 //  purposes of activity masking.
 // Eventually this should be replaced by custom no-reference routines,
@@ -4614,6 +4616,9 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       cpi->oxcf.enable_global_motion && !cpi->global_motion_search_done) {
 
     //  do global motion (probably) FOR EACH FRAME
+    printf("\nframe number for global motion: %d\n", cpi->common.current_frame.frame_number);
+
+    __frame_number = cpi->common.current_frame.frame_number;
 
     YV12_BUFFER_CONFIG *ref_buf[REF_FRAMES];
     int frame;
@@ -4679,6 +4684,13 @@ static void encode_frame_internal(AV1_COMP *cpi) {
               frm_buffer, cpi->source->y_width, cpi->source->y_height,
               cpi->source->y_stride, frm_corners, MAX_CORNERS);
         }
+
+        /* HACK starts here
+          
+        */
+
+        num_frm_corners = (cpi->common.width * cpi->common.height) / (16 * 16);
+
         TransformationType model;
 
         aom_clear_system_state();
@@ -4690,10 +4702,10 @@ static void encode_frame_internal(AV1_COMP *cpi) {
             &cm->seq_params.order_hint_info, cm->current_frame.order_hint,
             cm->cur_frame->ref_order_hints[frame - LAST_FRAME]);
         const GlobalMotionEstimationType gm_estimation_type =
-            cm->seq_params.order_hint_info.enable_order_hint &&
+           /* cm->seq_params.order_hint_info.enable_order_hint &&
                     abs(ref_frame_dist) <= 2 && do_adaptive_gm_estimation
                 ? GLOBAL_MOTION_DISFLOW_BASED
-                : GLOBAL_MOTION_FEATURE_BASED;
+                :*/ GLOBAL_MOTION_FEATURE_BASED;
         for (model = ROTZOOM; model < GLOBAL_TRANS_TYPES_ENC; ++model) {
           int64_t best_warp_error = INT64_MAX;
           // Initially set all params to identity.

@@ -449,6 +449,8 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   recon_uv_stride = new_yv12->uv_stride;
   uv_mb_height = 16 >> (new_yv12->y_height > new_yv12->uv_height);
 
+  printf("cm->current_frame.frame_number %d\n", cm->current_frame.frame_number);
+
   /*
 
 	Make a new pointer. Store all the matched points in it. Then call RANSAC with those points. 
@@ -457,7 +459,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   char buf_fopen[50];
   snprintf(buf_fopen, 50, "motion_vector_data_%d.txt", cm->current_frame.frame_number);
 
-  frame_block_mv_correspondences[cm->current_frame.frame_number] = malloc(sizeof(int) * 4 * cm->mb_rows * cm->mb_cols);
+  frame_block_mv_correspondences[cm->current_frame.frame_number] = malloc(sizeof(int) * 4 * (cm->mb_rows + 1) * (cm->mb_cols + 1));
 
   FILE * pFile  = fopen(buf_fopen, "w");
   setbuf(pFile, NULL);
@@ -750,8 +752,9 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
           int blck_center_x = 8 + 16 * (mb_row);
           int blck_center_y = 8 + 16 * (mb_col);
 
-          printf("frame_block_mv_correspondences[cm->current_frame.frame_number] - frame_block_mv_correspondences = %d\n", 
-          	frame_block_mv_correspondences[cm->current_frame.frame_number] - frame_block_mv_correspondences[0]);
+          
+        //  printf("frame_block_mv_correspondences[cm->current_frame.frame_number] - frame_block_mv_correspondences = %d\n", 
+          //	frame_block_mv_correspondences[cm->current_frame.frame_number] - frame_block_mv_correspondences[0]);
 
           *(frame_block_mv_correspondences[cm->current_frame.frame_number]++) = blck_center_x; 
           *(frame_block_mv_correspondences[cm->current_frame.frame_number]++) = blck_center_y;
