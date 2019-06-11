@@ -27,6 +27,7 @@
 #include "av1/encoder/corner_detect.h"
 #include "av1/encoder/corner_match.h"
 #include "av1/encoder/ransac.h"
+#include "av1/encoder/encodeframe.h"
 
 #define MIN_INLIER_PROB 0.1
 
@@ -50,7 +51,7 @@
 // Max number of iterations if warp convergence is not found
 #define DISFLOW_MAX_ITR 10
 
-int frame_number_rick_and_morty;
+int frame_number_rick_and_morty = 0;
 
 // Struct for an image pyramid
 typedef struct {
@@ -348,15 +349,21 @@ static int compute_global_motion_feature_based(
                              ref->y_stride, ref_corners, MAX_CORNERS); // now useless
 
   // find correspondences between the two images
-  correspondences =
-      (int *)malloc(num_frm_corners * 4 * sizeof(*correspondences));
-  num_correspondences = av1_determine_correspondence(
+  //correspondences =
+    //  (int *)malloc(num_frm_corners * 4 * sizeof(int));
+  num_correspondences = /*av1_determine_correspondence(
       frm_buffer, (int *)frm_corners, num_frm_corners, ref_buffer,
       (int *)ref_corners, num_ref_corners, frm_width, frm_height, frm_stride,
-      ref->y_stride, correspondences);
+      ref->y_stride, correspondences);*/ num_frm_corners;
+
+  frame_number_rick_and_morty = __frame_number;
+
+ // printf("frame_number_rick_and_morty %d\n", frame_number_rick_and_morty);
 
   correspondences = frame_block_mv_correspondences[frame_number_rick_and_morty++];
-  num_correspondences = frm_width * frm_height;
+//  if(correspondences == NULL)
+//    correspondences = frame_block_mv_correspondences[frame_number_rick_and_morty - 1];
+//  num_correspondences = (frm_width * frm_height;
 
   // won't work for different frame sizes;
 
@@ -373,7 +380,7 @@ static int compute_global_motion_feature_based(
     }
   }
 
-  free(correspondences);
+//  free(correspondences);
 
   // Return true if any one of the motions has inliers.
   for (i = 0; i < num_motions; ++i) {
@@ -908,10 +915,6 @@ int av1_compute_global_motion(TransformationType type,
                               GlobalMotionEstimationType gm_estimation_type,
                               int *num_inliers_by_motion,
                               MotionModel *params_by_motion, int num_motions) {
-	return compute_global_motion_feature_based(
-          type, frm_buffer, frm_width, frm_height, frm_stride, frm_corners,
-          num_frm_corners, ref, bit_depth, num_inliers_by_motion,
-          params_by_motion, num_motions);
   switch (gm_estimation_type) {
     case GLOBAL_MOTION_FEATURE_BASED:
       return compute_global_motion_feature_based(
