@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f25e6eb7_eb9c59d7",
+        "filename": "av1/encoder/encodemv.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2019-06-11T19:01:03Z",
+      "side": 1,
+      "message": "Prefer not using else after return.\n\nYou can write as:\nif (ref_frame[1] \u003e INTRA_FRAME) {\n  assert(ref_idx \u003d\u003d 0 || ref_idx \u003d\u003d 1);\n  return ref_idx ? curr_ref_mv_stack[ref_mv_idx].comp_mv\n                   : curr_ref_mv_stack[ref_mv_idx].this_mv;\n}\n\nassert(ref_idx \u003d\u003d 0);\nreturn ref_mv_idx \u003c mbmi_ext-\u003eref_mv_count[ref_frame_type]\n               ? curr_ref_mv_stack[ref_mv_idx].this_mv\n               : mbmi_ext-\u003eglobal_mvs[ref_frame_type];",
+      "range": {
+        "startLine": 200,
+        "startChar": 2,
+        "endLine": 200,
+        "endChar": 10
+      },
+      "revId": "1efe020427ce7e83e1adced4ea60d286dd91b418",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
