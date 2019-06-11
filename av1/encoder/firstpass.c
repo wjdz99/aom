@@ -459,7 +459,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   char buf_fopen[50];
   snprintf(buf_fopen, 50, "motion_vector_data_%d.txt", cm->current_frame.frame_number);
 
-  frame_block_mv_correspondences[cm->current_frame.frame_number] = malloc(sizeof(int) * 4 * (cm->mb_rows + 1) * (cm->mb_cols + 1));
+  frame_block_mv_correspondences[cm->current_frame.frame_number] = malloc(sizeof(int) * 4 * (cm->mb_rows) * (cm->mb_cols));
 
   FILE * pFile  = fopen(buf_fopen, "w");
   setbuf(pFile, NULL);
@@ -467,6 +467,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   int *points = malloc(sizeof(int) * 4 * cm->mb_rows * cm->mb_cols);
   int npoints = 2 * cm->mb_rows * cm->mb_cols; 
 */
+  int* tempf = frame_block_mv_correspondences[cm->current_frame.frame_number];
 
   for (mb_row = 0; mb_row < cm->mb_rows; ++mb_row) {
     MV best_ref_mv = kZeroMv;
@@ -756,14 +757,15 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
         //  printf("frame_block_mv_correspondences[cm->current_frame.frame_number] - frame_block_mv_correspondences = %d\n", 
           //	frame_block_mv_correspondences[cm->current_frame.frame_number] - frame_block_mv_correspondences[0]);
 
-          *(frame_block_mv_correspondences[cm->current_frame.frame_number]++) = blck_center_x; 
-          *(frame_block_mv_correspondences[cm->current_frame.frame_number]++) = blck_center_y;
-          *(frame_block_mv_correspondences[cm->current_frame.frame_number]++) = blck_center_x + (int)mv.row;
-          *(frame_block_mv_correspondences[cm->current_frame.frame_number]++) = blck_center_y + (int)mv.col;
+          printf("%llx \n", tempf);
+          *(tempf++) = blck_center_x; 
+          *(tempf++) = blck_center_y;
+          *(tempf++) = blck_center_x + (int) mv.row;
+          *(tempf++) = blck_center_y + (int) mv.col;
 
-          fprintf(pFile, "%d %d\n", //blck_center_x, blck_center_y,
-          	 best_ref_mv.row, 
-          		best_ref_mv.col);
+          fprintf(pFile, "%d %d %d %d\n", blck_center_x, blck_center_y,
+          	 blck_center_x + best_ref_mv.row, 
+          		blck_center_y + best_ref_mv.col);
 
           if (!is_zero_mv(&mv)) {
             ++mvcount;
