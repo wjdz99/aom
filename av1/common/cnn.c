@@ -783,7 +783,7 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
   TENSOR tensor1[CNN_MAX_BRANCHES] = { 0 };
   TENSOR tensor2[CNN_MAX_BRANCHES] = { 0 };
 
-  int i_width, i_height;
+  int i_width = in_width, i_height = in_height;
   int o_width = 0, o_height = 0;
   for (int b = 0; b < CNN_MAX_BRANCHES; ++b) {
     init_tensor(&tensor1[b]);
@@ -792,43 +792,32 @@ void av1_cnn_predict_c(const float **input, int in_width, int in_height,
 
   for (int layer = 0; layer < cnn_config->num_layers; ++layer) {
     const int branch = cnn_config->layer_config[layer].branch;
+    // Set up input tensor
     if (layer == 0) {       // First layer
       assert(branch == 0);  // First layer must be primary branch
       assign_tensor(&tensor1[branch], input,
                     cnn_config->layer_config[layer].in_channels, in_width,
                     in_height, in_stride);
-      find_layer_output_size(in_width, in_height,
-                             &cnn_config->layer_config[layer], &o_width,
-                             &o_height);
-      if (cnn_config->num_layers == 1) {  // single layer case
-        assign_tensor(&tensor2[branch], (const float **)output,
-                      cnn_config->layer_config[layer].out_channels, o_width,
-                      o_height, out_stride);
-      } else {  // more than one layer case
-        realloc_tensor(&tensor2[branch],
-                       cnn_config->layer_config[layer].out_channels, o_width,
-                       o_height);
-      }
     } else {  // Non-first layer
       // Swap tensor1 and tensor2
       swap_tensor(&tensor1[branch], &tensor2[branch]);
 
       i_width = o_width;
       i_height = o_height;
-      find_layer_output_size(i_width, i_height,
-                             &cnn_config->layer_config[layer], &o_width,
-                             &o_height);
-      if (layer < cnn_config->num_layers - 1) {  // Non-last layer
-        realloc_tensor(&tensor2[branch],
-                       cnn_config->layer_config[layer].out_channels, o_width,
-                       o_height);
-      } else {                // Last layer
-        assert(branch == 0);  // Last layer must be primary branch
-        free_tensor(&tensor2[branch]);
-        assign_tensor(&tensor2[branch], (const float **)output,
-                      cnn_config->layer_config[layer].out_channels, o_width,
-                      o_height, out_stride);
-      }
+    }
+    // Set up output tensor
+    find_layer_output_size(i_width, i_height, &cnn_config->layer_config[layer],
+                           &o_width, &o_height);
+    if (layer < cnn_config->num_layers - 1) {  // Non-last layer
+      realloc_tensor(&tensor2[branch],
+                     cnn_config->layer_config[layer].out_channels, o_width,
+                     o_height);
+    } else {                // Last layer
+      assert(branch == 0);  // Last layer must be primary branch
+      free_tensor(&tensor2[branch]);
+      assign_tensor(&tensor2[branch], (const float **)output,
+                    cnn_config->layer_config[layer].out_channels, o_width,
+                    o_height, out_stride);
     }
 
     // If we are combining branches make sure that the branch to combine
