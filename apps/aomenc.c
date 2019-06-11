@@ -50,7 +50,7 @@
 #include "third_party/libyuv/include/libyuv/scale.h"
 #endif
 
-#define MAX_FRAMES 1000
+#define MAX_FRAMES 1000000
 
 
 /* Swallow warnings about unused results of fread/fwrite */

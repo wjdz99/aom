@@ -53,7 +53,7 @@
 #define NCOUNT_INTRA_THRESH 8192
 #define NCOUNT_INTRA_FACTOR 3
 
-#define MAX_FRAMES 1000
+#define MAX_FRAMES 1000000
 
 int* frame_block_mv_correspondences[MAX_FRAMES];
 
