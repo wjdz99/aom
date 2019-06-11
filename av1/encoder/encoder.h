@@ -1119,6 +1119,10 @@ int av1_get_quantizer(struct AV1_COMP *cpi);
 
 int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *input_size);
 
+void av1_alloc_compound_type_rd_buffers(AV1_COMMON *const cm,
+                                        CompoundTypeRdBuffers *const bufs);
+void av1_release_compound_type_rd_buffers(CompoundTypeRdBuffers *const bufs);
+
 // av1 uses 10,000,000 ticks/second as time stamp
 #define TICKS_PER_SEC 10000000LL
 
