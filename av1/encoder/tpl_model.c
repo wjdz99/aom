@@ -183,24 +183,13 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
   int best_rf_idx = -1;
   int_mv best_mv;
   int64_t inter_cost;
-  int64_t best_inter_cost;
-  int64_t inter_cost_weighted;
-  int64_t best_inter_cost_weighted = INT64_MAX;
+  int64_t best_inter_cost = INT64_MAX;
   int rf_idx;
 
   best_mv.as_int = 0;
 
   for (rf_idx = 0; rf_idx < INTER_REFS_PER_FRAME; ++rf_idx) {
     if (ref_frame[rf_idx] == NULL) continue;
-
-    int q_ref = gf_group->q_val[gf_group->ref_frame_gop_idx[frame_idx][rf_idx]];
-
-    const int16_t qstep_ref =
-        ROUND_POWER_OF_TWO(av1_ac_quant_QTX(q_ref, 0, xd->bd), xd->bd - 8);
-    const int qstep_ref_noise =
-        use_satd
-            ? ((int)qstep_ref * pix_num + 16) / (4 * 8)
-            : ((int)qstep_ref * (int)qstep_ref * pix_num + 384) / (12 * 64);
 
     int mb_y_offset_ref =
         mi_row * MI_SIZE * ref_frame[rf_idx]->y_stride + mi_col * MI_SIZE;
@@ -244,11 +233,24 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
       }
       inter_cost = ROUND_POWER_OF_TWO(sse, (xd->bd - 8) * 2);
     }
-    inter_cost_weighted = inter_cost + qstep_ref_noise;
 
-    if (inter_cost_weighted < best_inter_cost_weighted) {
+    const int cur_frame_idx = gf_group->index;
+    if (gf_group->ref_frame_gop_idx[cur_frame_idx][rf_idx] >= cur_frame_idx) {
+      const int q_ref =
+          gf_group->q_val[gf_group->ref_frame_gop_idx[frame_idx][rf_idx]];
+      const int16_t qstep_ref =
+          ROUND_POWER_OF_TWO(av1_ac_quant_QTX(q_ref, 0, xd->bd), xd->bd - 8);
+      const int qstep_ref_noise =
+          use_satd
+              ? ((int)qstep_ref * pix_num + 16) / (4 * 8)
+              : ((int)qstep_ref * (int)qstep_ref * pix_num + 384) / (12 * 64);
+
+      inter_cost += qstep_ref_noise;
+    }
+
+    if (inter_cost < best_inter_cost) {
       best_rf_idx = rf_idx;
-      best_inter_cost_weighted = inter_cost_weighted;
+      best_inter_cost = inter_cost;
       best_mv.as_int = x->best_mv.as_int;
     }
   }
@@ -256,8 +258,7 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
   if (frame_idx == 0)
     best_inter_cost = 0;
   else
-    best_inter_cost =
-        AOMMIN(best_intra_cost, (int64_t)best_inter_cost_weighted);
+    best_inter_cost = AOMMIN(best_intra_cost, best_inter_cost);
   tpl_stats->inter_cost = best_inter_cost << TPL_DEP_COST_SCALE_LOG2;
   tpl_stats->intra_cost = best_intra_cost << TPL_DEP_COST_SCALE_LOG2;
 
