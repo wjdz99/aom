@@ -204,7 +204,7 @@ static struct av1_extracfg default_extra_cfg = {
   0,                            // s_frame_mode off by default.
   0,                            // film_grain_test_vector
   0,                            // film_grain_table_filename
-  0,                            // motion_vector_unit_test
+  1,                            // motion_vector_unit_test
   1,                            // CDF update mode
   1,                            // enable rectangular partitions
   1,                            // enable ab shape partitions

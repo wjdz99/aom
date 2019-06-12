@@ -1356,6 +1356,30 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   int mv_corrupted_flag =
       !assign_mv(cm, xd, mbmi->mode, mbmi->ref_frame, mbmi->mv, ref_mv,
                  nearestmv, nearmv, mi_row, mi_col, is_compound, allow_hp, r);
+
+  int flag = 0;
+
+  if (mv_corrupted_flag) {
+    flag = 1;
+
+    printf(
+        "\n Frame_number: %d; show_frame: %d; mi_row/mi_col:(%d,%d); bsize:%d; "
+        "mode:%d; is_compound:%d;"
+        " mv0:(%d, %d); ref_mv0:(%d, %d); diff_mv0:(%d, %d);     "
+        " for compound case: mv1:(%d, %d); ref_mv1:(%d, %d); diff_mv1:(%d, "
+        "%d);    "
+        " ref:(%d; %d) \n",
+        cm->current_frame.frame_number, cm->show_frame, mi_row, mi_col,
+        mbmi->sb_type, mbmi->mode, is_compound, mbmi->mv[0].as_mv.row,
+        mbmi->mv[0].as_mv.col, ref_mv[0].as_mv.row, ref_mv[0].as_mv.col,
+        mbmi->mv[0].as_mv.row - ref_mv[0].as_mv.row,
+        mbmi->mv[0].as_mv.col - ref_mv[0].as_mv.col, mbmi->mv[1].as_mv.row,
+        mbmi->mv[1].as_mv.col, ref_mv[1].as_mv.row, ref_mv[1].as_mv.col,
+        mbmi->mv[1].as_mv.row - ref_mv[1].as_mv.row,
+        mbmi->mv[1].as_mv.col - ref_mv[1].as_mv.col, mbmi->ref_frame[0],
+        mbmi->ref_frame[1]);
+  }
+
   aom_merge_corrupted_flag(&xd->corrupted, mv_corrupted_flag);
 
   mbmi->use_wedge_interintra = 0;
@@ -1399,6 +1423,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
   if (mbmi->ref_frame[1] != INTRA_FRAME)
     mbmi->motion_mode = read_motion_mode(cm, xd, mbmi, r);
+
+  if (flag) printf(" mbmi->motion_mode = %d; \n", mbmi->motion_mode);
 
   // init
   mbmi->comp_group_idx = 0;
