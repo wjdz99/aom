@@ -610,6 +610,8 @@ typedef struct SPEED_FEATURES {
   int skip_obmc_in_uniform_mv_field;
   int skip_wm_in_uniform_mv_field;
 
+  int eval_txfm_with_high_probablity;
+
   // Enable/disable ME for interinter wedge search.
   int disable_interinter_wedge_newmv_search;
 
