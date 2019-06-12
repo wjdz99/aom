@@ -12784,6 +12784,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         rd_cost->rate = rate2;
         rd_cost->dist = distortion2;
         rd_cost->rdcost = this_rd;
+        av1_rd_cost_update(x->rdmult, rd_cost);
         search_state.best_rd = this_rd;
         search_state.best_mbmode = *mbmi;
         search_state.best_skip2 = this_skip2;
@@ -12906,6 +12907,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
             mbmi->mode, mbmi->ref_frame[0], mbmi->ref_frame[1]);
         search_state.best_mode_index = mode_index;
         *rd_cost = rd_stats;
+        av1_rd_cost_update(x->rdmult, rd_cost);
         search_state.best_rd = rd_stats.rdcost;
         search_state.best_mbmode = *mbmi;
         search_state.best_skip2 = mbmi->skip;
@@ -12953,6 +12955,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       // Note index of best mode so far
       search_state.best_mode_index = mode_index;
       *rd_cost = intra_rd_stats;
+      av1_rd_cost_update(x->rdmult, rd_cost);
       search_state.best_rd = intra_rd_stats.rdcost;
       search_state.best_mbmode = *mbmi;
       search_state.best_skip2 = 0;
@@ -12974,11 +12977,13 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       cpi, x, mi_row, mi_col, rd_cost, bsize, ctx, search_state.best_mode_index,
       &search_state.best_mbmode, yv12_mb, search_state.best_rate_y,
       search_state.best_rate_uv, &search_state.best_skip2);
+  av1_rd_cost_update(x->rdmult, rd_cost);
 
   // Only try palette mode when the best mode so far is an intra mode.
   if (try_palette && !is_inter_mode(search_state.best_mbmode.mode)) {
     search_palette_mode(cpi, x, mi_row, mi_col, rd_cost, ctx, bsize, mbmi, pmi,
                         ref_costs_single, &search_state);
+    av1_rd_cost_update(x->rdmult, rd_cost);
   }
   search_state.best_mbmode.skip_mode = 0;
   if (cm->current_frame.skip_mode_info.skip_mode_flag &&
@@ -12986,6 +12991,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       is_comp_ref_allowed(bsize)) {
     rd_pick_skip_mode(rd_cost, &search_state, cpi, x, bsize, mi_row, mi_col,
                       yv12_mb);
+    av1_rd_cost_update(x->rdmult, rd_cost);
   }
 
   // Make sure that the ref_mv_idx is only nonzero when we're
