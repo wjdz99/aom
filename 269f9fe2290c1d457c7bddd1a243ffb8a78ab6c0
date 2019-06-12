@@ -22,6 +22,30 @@
       "revId": "269f9fe2290c1d457c7bddd1a243ffb8a78ab6c0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00bf53f7_b2a960ed",
+        "filename": "av1/encoder/cnn.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-06-12T02:11:14Z",
+      "side": 0,
+      "message": "I have submitted another CL to cherry pick the change. We can rebase this commit on top of that CL once it is in.",
+      "parentUuid": "f877484a_d1b2c2df",
+      "range": {
+        "startLine": 800,
+        "startChar": 0,
+        "endLine": 812,
+        "endChar": 7
+      },
+      "revId": "269f9fe2290c1d457c7bddd1a243ffb8a78ab6c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
