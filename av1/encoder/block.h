@@ -137,20 +137,6 @@ typedef struct tx_size_rd_info_node {
   struct tx_size_rd_info_node *children[4];
 } TXB_RD_INFO_NODE;
 
-// Simple translation rd state for prune_comp_search_by_single_result
-typedef struct {
-  RD_STATS rd_stats;
-  RD_STATS rd_stats_y;
-  RD_STATS rd_stats_uv;
-  uint8_t blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
-  uint8_t skip;
-  uint8_t disable_skip;
-  uint8_t early_skipped;
-} SimpleRDState;
-
-// 4: NEAREST, NEW, NEAR, GLOBAL
-#define SINGLE_REF_MODES ((REF_FRAMES - 1) * 4)
-
 #define MAX_INTERP_FILTER_STATS 64
 typedef struct {
   InterpFilters filters;
@@ -200,9 +186,6 @@ struct macroblock {
   // [comp_idx][saved stat_idx]
   INTERPOLATION_FILTER_STATS interp_filter_stats[2][MAX_INTERP_FILTER_STATS];
   int interp_filter_stats_idx[2];
-
-  // prune_comp_search_by_single_result (3:MAX_REF_MV_SEARCH)
-  SimpleRDState simple_rd_state[SINGLE_REF_MODES][3];
 
   // Inter macroblock RD search info.
   MB_RD_RECORD mb_rd_record;
