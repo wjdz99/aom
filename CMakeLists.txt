@@ -10,7 +10,7 @@
 #
 cmake_minimum_required(VERSION 3.5)
 
-# set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Debug)
 
 if(NOT EMSCRIPTEN)
   if(NOT CMAKE_BUILD_TYPE)
