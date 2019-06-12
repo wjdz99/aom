@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "05269582_c64d884b",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 1109,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2019-06-12T03:19:44Z",
+      "side": 1,
+      "message": "It came from the functions I removed in ratectrl.c. See av1_rc_get_one_pass_vbr_params, for example.",
+      "parentUuid": "cb3e9e93_c9a52dbe",
+      "range": {
+        "startLine": 1109,
+        "startChar": 4,
+        "endLine": 1109,
+        "endChar": 46
+      },
+      "revId": "72adef700d07b2be86e1fb1b8ad2f25e7a035ecc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7b23060c_5d0c68e4",
         "filename": "av1/encoder/pass2_strategy.c",
         "patchSetId": 23
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "38fecccb_1d3ebc60",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 780,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2019-06-12T03:19:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b23060c_5d0c68e4",
+      "range": {
+        "startLine": 780,
+        "startChar": 8,
+        "endLine": 780,
+        "endChar": 31
+      },
+      "revId": "72adef700d07b2be86e1fb1b8ad2f25e7a035ecc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c5be083e_c6bccc13",
         "filename": "av1/encoder/pass2_strategy.c",
         "patchSetId": 23
@@ -62,6 +110,24 @@
       "revId": "72adef700d07b2be86e1fb1b8ad2f25e7a035ecc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0869a3da_f1d42d6d",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 929,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2019-06-12T03:19:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c5be083e_c6bccc13",
+      "revId": "72adef700d07b2be86e1fb1b8ad2f25e7a035ecc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -85,6 +151,30 @@
       "revId": "72adef700d07b2be86e1fb1b8ad2f25e7a035ecc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abb84b0d_9866d452",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2019-06-12T03:19:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9accd4ad_f62405b6",
+      "range": {
+        "startLine": 262,
+        "startChar": 5,
+        "endLine": 262,
+        "endChar": 24
+      },
+      "revId": "72adef700d07b2be86e1fb1b8ad2f25e7a035ecc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
