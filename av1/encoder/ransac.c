@@ -18,6 +18,9 @@
 #include "av1/encoder/ransac.h"
 #include "av1/encoder/mathutils.h"
 #include "av1/encoder/random.h"
+#include "av1/encoder/ransac.h"
+#include "av1/encoder/encodeframe.h"
+
 
 #define MAX_MINPTS 4
 #define MAX_DEGENERATE_ITER 10
@@ -375,6 +378,16 @@ static int ransac(const int *matched_points, int npoints,
                   IsDegenerateFunc is_degenerate,
                   FindTransformationFunc find_transformation,
                   ProjectPointsDoubleFunc projectpoints) {
+
+
+  char buf_fopen[50];
+  snprintf(buf_fopen, 50, "motion_vector_data_%d.txt", __frame_number);
+  printf("currently in ransac frame_number=%d\n", __frame_number);
+
+  // frame_block_mv_correspondences[cm->current_frame.frame_number] = malloc(sizeof(int) * 4 * (cm->mb_rows) * (cm->mb_cols));
+
+  FILE * fp  = fopen(buf_fopen, "r");
+
   int trial_count = 0;
   int i = 0;
   int ret_val = 0;
@@ -434,11 +447,17 @@ static int ransac(const int *matched_points, int npoints,
   cnp1 = corners1;
   cnp2 = corners2;
   for (i = 0; i < npoints; ++i) {
-    *(cnp1++) = *(matched_points++);
-    *(cnp1++) = *(matched_points++);
-    *(cnp2++) = *(matched_points++);
-    *(cnp2++) = *(matched_points++);
+
+  	int x1, y1, x2, y2;
+  	fscanf(fp, "%d %d %d %d", &x1, &y1, &x2, &y2);
+
+    *(cnp1++) = x1; //*(matched_points++);
+    *(cnp1++) = y1; //*(matched_points++);
+    *(cnp2++) = x2; //*(matched_points++);
+    *(cnp2++) = y2; //*(matched_points++);
   }
+
+  fclose(fp);
 
   while (MIN_TRIALS > trial_count) {
     double sum_distance = 0.0;
@@ -560,6 +579,15 @@ static int ransac_double_prec(const double *matched_points, int npoints,
   int i = 0;
   int ret_val = 0;
 
+  char buf_fopen[50];
+  snprintf(buf_fopen, 50, "motion_vector_data_%d.txt", __frame_number);
+  printf("currently in ransac frame_number=%d\n", __frame_number);
+
+  // frame_block_mv_correspondences[cm->current_frame.frame_number] = malloc(sizeof(int) * 4 * (cm->mb_rows) * (cm->mb_cols));
+
+  FILE * fp  = fopen(buf_fopen, "r");
+
+
   unsigned int seed = (unsigned int)npoints;
 
   int indices[MAX_MINPTS] = { 0 };
@@ -615,11 +643,17 @@ static int ransac_double_prec(const double *matched_points, int npoints,
   cnp1 = corners1;
   cnp2 = corners2;
   for (i = 0; i < npoints; ++i) {
-    *(cnp1++) = *(matched_points++);
-    *(cnp1++) = *(matched_points++);
-    *(cnp2++) = *(matched_points++);
-    *(cnp2++) = *(matched_points++);
+
+  	int x1, y1, x2, y2;
+  	fscanf(fp, "%d %d %d %d", &x1, &y1, &x2, &y2);
+
+    *(cnp1++) = x1; //*(matched_points++);
+    *(cnp1++) = y1; //*(matched_points++);
+    *(cnp2++) = x2; //*(matched_points++);
+    *(cnp2++) = y2; //*(matched_points++);
   }
+
+  fclose(fp);
 
   while (MIN_TRIALS > trial_count) {
     double sum_distance = 0.0;

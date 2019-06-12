@@ -368,7 +368,7 @@ static int compute_global_motion_feature_based(
  // printf("frame_number_rick_and_morty %d\n", frame_number_rick_and_morty);
 
 
-  correspondences = (int *) malloc(sizeof(int) * 4 * 8 * num_frm_corners);
+  correspondences = (int *) malloc(sizeof(int) * 4 * num_frm_corners);
   if(correspondences == NULL) {
     fprintf(stderr, "out of memory!\n");
     exit(1);
@@ -386,6 +386,7 @@ static int compute_global_motion_feature_based(
   }
 
   fclose(fp);
+
 //  if(correspondences == NULL)
 //    correspondences = frame_block_mv_correspondences[frame_number_rick_and_morty - 1];
 //  num_correspondences = (frm_width * frm_height;
