@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6511db0_1c33e8ee",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2019-06-13T06:16:51Z",
+      "side": 1,
+      "message": "Will remove this, by defining IVF_FRAME_HDR_SZ macro here.\nSimilar change was done in https://chromium-review.googlesource.com/c/webm/libvpx/+/1450169/4/examples/vpx_dec_fuzzer.cc",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 26
+      },
+      "revId": "93167f971d80f62c707d9a67a7a8acbc222dfb86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
