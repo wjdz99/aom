@@ -3916,8 +3916,10 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
     xd->cur_frame_force_integer_mv = cm->cur_frame_force_integer_mv;
 
     x->sb_energy_level = 0;
-    if (cm->delta_q_info.delta_q_present_flag)
+    if (cm->delta_q_info.delta_q_present_flag) {
       setup_delta_q(cpi, td, x, tile_info, mi_row, mi_col, num_planes);
+      x->rdmult = set_deltaq_rdmult(cpi, xd);
+    }
 
     td->mb.cb_coef_buff = av1_get_cb_coeff_buffer(cpi, mi_row, mi_col);
 
