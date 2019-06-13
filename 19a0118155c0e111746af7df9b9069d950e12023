@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "0fd2d461_ba9c68b7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 12289,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-13T23:53:11Z",
+      "side": 1,
+      "message": "It can be true. Note I removed \"\u0026\u0026 !state_s[j].valid\".",
+      "parentUuid": "1c18e902_c1817e01",
+      "range": {
+        "startLine": 12289,
+        "startChar": 12,
+        "endLine": 12289,
+        "endChar": 37
+      },
+      "revId": "19a0118155c0e111746af7df9b9069d950e12023",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9eeb65ec_fbb3726e",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 4
@@ -60,6 +84,30 @@
       "writtenOn": "2019-06-13T23:42:22Z",
       "side": 1,
       "message": "Add bracket if it can\u0027t fit in one line.",
+      "range": {
+        "startLine": 12359,
+        "startChar": 6,
+        "endLine": 12359,
+        "endChar": 14
+      },
+      "revId": "19a0118155c0e111746af7df9b9069d950e12023",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24da81be_8caa3b62",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 12359,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-13T23:53:11Z",
+      "side": 1,
+      "message": "Ack. I\u0027ll do it in a follow up CL. Otherwise all the depending CLs need to run Jenkins tests again.",
+      "parentUuid": "9eeb65ec_fbb3726e",
       "range": {
         "startLine": 12359,
         "startChar": 6,
