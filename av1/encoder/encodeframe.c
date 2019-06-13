@@ -1970,6 +1970,54 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
 }
 #endif  // !CONFIG_REALTIME_ONLY
 
+static int is_leaf_split_partition(AV1_COMMON *cm, int mi_row, int mi_col,
+                                   BLOCK_SIZE bsize) {
+  const int bs = mi_size_wide[bsize];
+  const int hbs = bs / 2;
+  assert(bsize >= BLOCK_8X8);
+  const BLOCK_SIZE subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
+  for (int i = 0; i < 4; i++) {
+    int x_idx = (i & 1) * hbs;
+    int y_idx = (i >> 1) * hbs;
+    int jj = i >> 1, ii = i & 0x01;
+    if ((mi_row + y_idx >= cm->mi_rows) || (mi_col + x_idx >= cm->mi_cols))
+      return 0;
+    if (get_partition(cm, mi_row + y_idx, mi_col + x_idx, subsize) !=
+        PARTITION_NONE)
+      return 0;
+  }
+  return 1;
+}
+
+static int is_split_sb_equal(PC_TREE *pc_tree) {
+  if (pc_tree->split[0]->none.mic.ref_frame[0] != LAST_FRAME ||
+      pc_tree->split[1]->none.mic.ref_frame[0] != LAST_FRAME ||
+      pc_tree->split[2]->none.mic.ref_frame[0] != LAST_FRAME ||
+      pc_tree->split[3]->none.mic.ref_frame[0] != LAST_FRAME)
+    return 0;
+  int_mv mv = pc_tree->split[0]->none.mic.mv[0];
+  if (pc_tree->split[1]->none.mic.mv[0].as_int != mv.as_int ||
+      pc_tree->split[2]->none.mic.mv[0].as_int != mv.as_int ||
+      pc_tree->split[3]->none.mic.mv[0].as_int != mv.as_int)
+    return 0;
+
+  PREDICTION_MODE mode = pc_tree->split[0]->none.mic.mode;
+  if (pc_tree->split[1]->none.mic.mode != mode ||
+      pc_tree->split[2]->none.mic.mode != mode ||
+      pc_tree->split[3]->none.mic.mode != mode)
+    return 0;
+
+  int skip = pc_tree->split[1]->none.skippable;
+  if (pc_tree->split[1]->none.skippable != skip ||
+      pc_tree->split[2]->none.skippable != skip ||
+      pc_tree->split[3]->none.skippable != skip)
+    return 0;
+
+  // if (!skip) return 0;
+
+  return 1;
+}
+
 static void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
                                 TileDataEnc *tile_data, MB_MODE_INFO **mib,
                                 TOKENEXTRA **tp, int mi_row, int mi_col,
@@ -2043,15 +2091,64 @@ static void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
       }
       break;
     case PARTITION_SPLIT:
-      for (int i = 0; i < 4; i++) {
-        int x_idx = (i & 1) * hbs;
-        int y_idx = (i >> 1) * hbs;
-        int jj = i >> 1, ii = i & 0x01;
-        if ((mi_row + y_idx >= cm->mi_rows) || (mi_col + x_idx >= cm->mi_cols))
-          continue;
-        nonrd_use_partition(
-            cpi, td, tile_data, mib + jj * hbs * cm->mi_stride + ii * hbs, tp,
-            mi_row + y_idx, mi_col + x_idx, subsize, pc_tree->split[i]);
+      if (is_leaf_split_partition(cm, mi_row, mi_col, bsize) ||
+          subsize == BLOCK_8X8) {
+        RD_SEARCH_MACROBLOCK_CONTEXT x_ctx;
+        save_context(x, &x_ctx, mi_row, mi_col, bsize, 3);
+        for (int i = 0; i < 4; i++) {
+          int x_idx = (i & 1) * hbs;
+          int y_idx = (i >> 1) * hbs;
+          int jj = i >> 1, ii = i & 0x01;
+          if ((mi_row + y_idx >= cm->mi_rows) ||
+              (mi_col + x_idx >= cm->mi_cols))
+            continue;
+          xd->above_txfm_context =
+              cm->above_txfm_context[tile_info->tile_row] + mi_col + x_idx;
+          xd->left_txfm_context =
+              xd->left_txfm_context_buffer + ((mi_row + y_idx) & MAX_MIB_MASK);
+          pc_tree->split[i]->partitioning = PARTITION_NONE;
+          pick_sb_modes(cpi, tile_data, x, mi_row + y_idx, mi_col + x_idx,
+                        &dummy_cost, PARTITION_NONE, subsize,
+                        &pc_tree->split[i]->none, INT64_MAX,
+                        sf->use_fast_nonrd_pick_mode ? PICK_MODE_FAST_NONRD
+                                                     : PICK_MODE_NONRD);
+
+          encode_b(cpi, tile_data, td, tp, mi_row + y_idx, mi_col + x_idx, 1,
+                   subsize, PARTITION_NONE, &pc_tree->split[i]->none, NULL);
+
+          update_partition_context(
+              xd, mi_row + y_idx, mi_col + x_idx,
+              get_partition_subsize(subsize, PARTITION_NONE), subsize);
+        }
+
+        restore_context(x, &x_ctx, mi_row, mi_col, bsize, 3);
+        if (is_split_sb_equal(pc_tree)) {
+          xd->above_txfm_context =
+              cm->above_txfm_context[tile_info->tile_row] + mi_col;
+          xd->left_txfm_context =
+              xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
+          pc_tree->partitioning = PARTITION_NONE;
+          pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &dummy_cost,
+                        PARTITION_NONE, bsize, &pc_tree->none, INT64_MAX,
+                        sf->use_fast_nonrd_pick_mode ? PICK_MODE_FAST_NONRD
+                                                     : PICK_MODE_NONRD);
+        }
+        encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, OUTPUT_ENABLED, bsize,
+                  pc_tree, NULL);
+        update_partition_context(xd, mi_row, mi_col, subsize, bsize);
+      } else {
+        for (int i = 0; i < 4; i++) {
+          int x_idx = (i & 1) * hbs;
+          int y_idx = (i >> 1) * hbs;
+          int jj = i >> 1, ii = i & 0x01;
+          if ((mi_row + y_idx >= cm->mi_rows) ||
+              (mi_col + x_idx >= cm->mi_cols))
+            continue;
+
+          nonrd_use_partition(
+              cpi, td, tile_data, mib + jj * hbs * cm->mi_stride + ii * hbs, tp,
+              mi_row + y_idx, mi_col + x_idx, subsize, pc_tree->split[i]);
+        }
       }
       break;
     case PARTITION_VERT_A:
