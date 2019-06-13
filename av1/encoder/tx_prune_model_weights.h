@@ -19,7 +19,7 @@ extern "C" {
 #include "av1/encoder/ml.h"
 
 // Tx type model for 4x4 block.
-static const float av1_tx_type_nn_weights_4x4_hor_layer0[32] = {
+static float av1_tx_type_nn_weights_4x4_hor_layer0[32] = {
   -1.64947f, -1.54497f, -1.62832f, -0.17774f, -2.89498f, -0.72498f, 0.72036f,
   0.17996f,  1.20000f,  -0.27654f, 0.77396f,  1.21684f,  -1.75909f, -0.51272f,
   -1.25923f, 0.35005f,  -0.04257f, -0.23389f, -0.41841f, -0.08229f, 0.09503f,
@@ -27,12 +27,12 @@ static const float av1_tx_type_nn_weights_4x4_hor_layer0[32] = {
   1.35792f,  0.27733f,  0.88660f,  -0.68304f,
 };
 
-static const float av1_tx_type_nn_bias_4x4_hor_layer0[8] = {
+static float av1_tx_type_nn_bias_4x4_hor_layer0[8] = {
   1.38742f, 0.59540f,  -1.37622f, 1.92114f,
   0.00000f, -0.38998f, -0.32726f, -0.15650f,
 };
 
-static const float av1_tx_type_nn_weights_4x4_hor_layer1[32] = {
+static float av1_tx_type_nn_weights_4x4_hor_layer1[32] = {
   1.65254f,  1.00915f,  -0.89318f, -2.05142f, -0.23235f, 0.96781f,  -0.37145f,
   -0.21056f, 1.13891f,  0.38675f,  0.87739f,  -1.42697f, 0.48015f,  0.61883f,
   -0.03979f, 0.11487f,  0.48042f,  0.45200f,  -0.23242f, 0.75166f,  0.55458f,
@@ -40,7 +40,7 @@ static const float av1_tx_type_nn_weights_4x4_hor_layer1[32] = {
   -0.26782f, -0.65416f, -0.10648f, 0.05568f,
 };
 
-static const float av1_tx_type_nn_bias_4x4_hor_layer1[4] = {
+static float av1_tx_type_nn_bias_4x4_hor_layer1[4] = {
   4.07177f,
   3.26961f,
   0.58083f,
@@ -59,7 +59,50 @@ static const NN_CONFIG av1_tx_type_nnconfig_4x4_hor = {
   { av1_tx_type_nn_bias_4x4_hor_layer0, av1_tx_type_nn_bias_4x4_hor_layer1 }
 };
 
-static const float av1_tx_type_nn_weights_4x4_ver_layer0[32] = {
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_4x4_hor_layer0_out[8]={0};
+static float av1_tx_type_nn_4x4_hor_layer0_dout[8]={0};
+static float av1_tx_type_nn_4x4_hor_layer0_dW[32]={0};
+static float av1_tx_type_nn_4x4_hor_layer0_db[8]={0};
+
+static float av1_tx_type_nn_4x4_hor_layer1_out[4]={0};
+static float av1_tx_type_nn_4x4_hor_layer1_dout[4]={0};
+static float av1_tx_type_nn_4x4_hor_layer1_dW[32]={0};
+static float av1_tx_type_nn_4x4_hor_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_4x4_hor_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      4,                                   // num_inputs
+      8,                                   // num_outputs
+      av1_tx_type_nn_weights_4x4_hor_layer0,  // weights
+      av1_tx_type_nn_bias_4x4_hor_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_4x4_hor_layer0_out,      // output
+      av1_tx_type_nn_4x4_hor_layer0_dout,     // dY
+      av1_tx_type_nn_4x4_hor_layer0_dW,       // dW
+      av1_tx_type_nn_4x4_hor_layer0_db,       // db
+    },
+    {
+      8,         // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_4x4_hor_layer1,
+      av1_tx_type_nn_bias_4x4_hor_layer1,
+      none,
+      av1_tx_type_nn_4x4_hor_layer1_out,
+      av1_tx_type_nn_4x4_hor_layer1_dout,
+      av1_tx_type_nn_4x4_hor_layer1_dW,
+      av1_tx_type_nn_4x4_hor_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_4x4_hor_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
+
+static float av1_tx_type_nn_weights_4x4_ver_layer0[32] = {
   -0.02032f, 2.61610f,  0.02098f,  -0.30217f, 0.12637f,  0.11017f,  -3.01996f,
   0.35144f,  1.93776f,  -0.20463f, 1.64102f,  -1.41986f, -3.66717f, -0.51655f,
   0.43910f,  0.37778f,  -1.02634f, 0.85337f,  -0.69753f, 1.00206f,  2.11784f,
@@ -67,12 +110,12 @@ static const float av1_tx_type_nn_weights_4x4_ver_layer0[32] = {
   -0.06589f, -0.28142f, -0.33118f, 1.72227f,
 };
 
-static const float av1_tx_type_nn_bias_4x4_ver_layer0[8] = {
+static float av1_tx_type_nn_bias_4x4_ver_layer0[8] = {
   -0.33685f, 0.22025f,  0.28140f, 0.56138f,
   0.93489f,  -1.77048f, 1.34989f, -0.93747f,
 };
 
-static const float av1_tx_type_nn_weights_4x4_ver_layer1[32] = {
+static float av1_tx_type_nn_weights_4x4_ver_layer1[32] = {
   -1.39506f, -1.06271f, -1.10886f, -1.69719f, 0.19699f,  -2.39850f, -1.26457f,
   0.75328f,  -1.26005f, -0.82738f, -0.12015f, -1.02702f, 1.40828f,  -2.37739f,
   -0.65639f, -0.71992f, -0.90453f, -1.12510f, -2.41362f, -1.16061f, -1.85577f,
@@ -80,7 +123,7 @@ static const float av1_tx_type_nn_weights_4x4_ver_layer1[32] = {
   -0.86315f, -0.53336f, 0.30320f,  -1.32331f,
 };
 
-static const float av1_tx_type_nn_bias_4x4_ver_layer1[4] = {
+static float av1_tx_type_nn_bias_4x4_ver_layer1[4] = {
   -1.31519f,
   -3.26321f,
   1.71794f,
@@ -98,10 +141,53 @@ static const NN_CONFIG av1_tx_type_nnconfig_4x4_ver = {
     av1_tx_type_nn_weights_4x4_ver_layer1 },
   { av1_tx_type_nn_bias_4x4_ver_layer0, av1_tx_type_nn_bias_4x4_ver_layer1 }
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_4x4_ver_layer0_out[8]={0};
+static float av1_tx_type_nn_4x4_ver_layer0_dout[8]={0};
+static float av1_tx_type_nn_4x4_ver_layer0_dW[32]={0};
+static float av1_tx_type_nn_4x4_ver_layer0_db[8]={0};
+
+static float av1_tx_type_nn_4x4_ver_layer1_out[4]={0};
+static float av1_tx_type_nn_4x4_ver_layer1_dout[4]={0};
+static float av1_tx_type_nn_4x4_ver_layer1_dW[32]={0};
+static float av1_tx_type_nn_4x4_ver_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_4x4_ver_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      4,                                   // num_inputs
+      8,                                   // num_outputs
+      av1_tx_type_nn_weights_4x4_ver_layer0,  // weights
+      av1_tx_type_nn_bias_4x4_ver_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_4x4_ver_layer0_out,      // output
+      av1_tx_type_nn_4x4_ver_layer0_dout,     // dY
+      av1_tx_type_nn_4x4_ver_layer0_dW,       // dW
+      av1_tx_type_nn_4x4_ver_layer0_db,       // db
+    },
+    {
+      8,        // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_4x4_ver_layer1,
+      av1_tx_type_nn_bias_4x4_ver_layer1,
+      none,
+      av1_tx_type_nn_4x4_ver_layer1_out,
+      av1_tx_type_nn_4x4_ver_layer1_dout,
+      av1_tx_type_nn_4x4_ver_layer1_dW,
+      av1_tx_type_nn_4x4_ver_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_4x4_ver_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx type model for 4x8 block.
-static const float av1_tx_type_nn_weights_4x8_hor_layer0[32] = {
+static float av1_tx_type_nn_weights_4x8_hor_layer0[32] = {
   0.00218f,  -0.41880f, -0.61215f, -0.92588f, 0.54291f,  -0.10898f, 0.70691f,
   0.46819f,  -1.61598f, -0.08834f, -0.96839f, 1.18489f,  -0.45171f, -0.65445f,
   -0.32179f, -0.10399f, 1.04379f,  0.91895f,  0.85589f,  0.08267f,  1.35388f,
@@ -109,12 +195,12 @@ static const float av1_tx_type_nn_weights_4x8_hor_layer0[32] = {
   -1.35896f, -1.17121f, 1.68866f,  0.10357f,
 };
 
-static const float av1_tx_type_nn_bias_4x8_hor_layer0[8] = {
+static float av1_tx_type_nn_bias_4x8_hor_layer0[8] = {
   2.93391f,  0.66831f, -0.21419f, 0.00000f,
   -0.72878f, 0.15127f, -1.46755f, 0.16658f,
 };
 
-static const float av1_tx_type_nn_weights_4x8_hor_layer1[32] = {
+static float av1_tx_type_nn_weights_4x8_hor_layer1[32] = {
   -1.52077f, -1.06243f, 0.35319f,  -0.49207f, 0.54524f,  0.44271f, 1.37117f,
   -0.38957f, -1.28889f, -0.57133f, 0.04658f,  0.62278f,  0.37984f, 0.33247f,
   1.65547f,  -0.56806f, -1.38645f, -0.76258f, 0.67926f,  0.08783f, -0.01443f,
@@ -122,7 +208,7 @@ static const float av1_tx_type_nn_weights_4x8_hor_layer1[32] = {
   -0.50191f, 0.18219f,  1.83664f,  -0.75276f,
 };
 
-static const float av1_tx_type_nn_bias_4x8_hor_layer1[4] = {
+static float av1_tx_type_nn_bias_4x8_hor_layer1[4] = {
   -1.17455f,
   -2.26089f,
   -1.79863f,
@@ -141,7 +227,50 @@ static const NN_CONFIG av1_tx_type_nnconfig_4x8_hor = {
   { av1_tx_type_nn_bias_4x8_hor_layer0, av1_tx_type_nn_bias_4x8_hor_layer1 }
 };
 
-static const float av1_tx_type_nn_weights_4x8_ver_layer0[128] = {
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_4x8_hor_layer0_out[8]={0};
+static float av1_tx_type_nn_4x8_hor_layer0_dout[8]={0};
+static float av1_tx_type_nn_4x8_hor_layer0_dW[32]={0};
+static float av1_tx_type_nn_4x8_hor_layer0_db[8]={0};
+
+static float av1_tx_type_nn_4x8_hor_layer1_out[4]={0};
+static float av1_tx_type_nn_4x8_hor_layer1_dout[4]={0};
+static float av1_tx_type_nn_4x8_hor_layer1_dW[32]={0};
+static float av1_tx_type_nn_4x8_hor_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_4x8_hor_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      4,                                   // num_inputs
+      8,                                   // num_outputs
+      av1_tx_type_nn_weights_4x8_hor_layer0,  // weights
+      av1_tx_type_nn_bias_4x8_hor_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_4x8_hor_layer0_out,      // output
+      av1_tx_type_nn_4x8_hor_layer0_dout,     // dY
+      av1_tx_type_nn_4x8_hor_layer0_dW,       // dW
+      av1_tx_type_nn_4x8_hor_layer0_db,       // db
+    },
+    {
+      8,            // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_4x8_hor_layer1,
+      av1_tx_type_nn_bias_4x8_hor_layer1,
+      none,
+      av1_tx_type_nn_4x8_hor_layer1_out,
+      av1_tx_type_nn_4x8_hor_layer1_dout,
+      av1_tx_type_nn_4x8_hor_layer1_dW,
+      av1_tx_type_nn_4x8_hor_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_4x8_hor_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
+
+static float av1_tx_type_nn_weights_4x8_ver_layer0[128] = {
   -0.00952f, -0.98858f, -0.93181f, 1.39594f,  0.96559f,  0.18162f,  -0.76064f,
   -0.06066f, 0.07907f,  -0.09365f, -0.21313f, -0.02187f, -2.61707f, -2.68702f,
   -0.10982f, 0.18559f,  1.17049f,  1.11387f,  1.12697f,  1.05804f,  1.12764f,
@@ -163,13 +292,13 @@ static const float av1_tx_type_nn_weights_4x8_ver_layer0[128] = {
   -0.21958f, 0.05970f,
 };
 
-static const float av1_tx_type_nn_bias_4x8_ver_layer0[16] = {
+static float av1_tx_type_nn_bias_4x8_ver_layer0[16] = {
   0.04205f, 0.22260f, -1.03870f, -1.19568f, 0.44283f,  0.01143f,
   0.00235f, 4.26772f, 0.44364f,  -0.33199f, -0.39076f, -0.35129f,
   0.08288f, 0.18195f, -0.79890f, 0.10047f,
 };
 
-static const float av1_tx_type_nn_weights_4x8_ver_layer1[64] = {
+static float av1_tx_type_nn_weights_4x8_ver_layer1[64] = {
   -0.38193f, -0.12095f, 1.57802f,  0.34932f,  -0.47333f, -0.12304f, -0.01736f,
   -2.52445f, 0.18983f,  -0.64707f, -0.60889f, -0.53750f, 0.91666f,  -0.62823f,
   -0.13377f, -0.43594f, -0.38618f, -0.01328f, 0.97457f,  1.48589f,  -1.03238f,
@@ -182,7 +311,7 @@ static const float av1_tx_type_nn_weights_4x8_ver_layer1[64] = {
   -1.01848f,
 };
 
-static const float av1_tx_type_nn_bias_4x8_ver_layer1[4] = {
+static float av1_tx_type_nn_bias_4x8_ver_layer1[4] = {
   -1.45955f,
   -2.08949f,
   -1.24813f,
@@ -200,10 +329,54 @@ static const NN_CONFIG av1_tx_type_nnconfig_4x8_ver = {
     av1_tx_type_nn_weights_4x8_ver_layer1 },
   { av1_tx_type_nn_bias_4x8_ver_layer0, av1_tx_type_nn_bias_4x8_ver_layer1 }
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_4x8_ver_layer0_out[16]={0};
+static float av1_tx_type_nn_4x8_ver_layer0_dout[16]={0};
+static float av1_tx_type_nn_4x8_ver_layer0_dW[128]={0};
+static float av1_tx_type_nn_4x8_ver_layer0_db[16]={0};
+
+static float av1_tx_type_nn_4x8_ver_layer1_out[4]={0};
+static float av1_tx_type_nn_4x8_ver_layer1_dout[4]={0};
+static float av1_tx_type_nn_4x8_ver_layer1_dW[64]={0};
+static float av1_tx_type_nn_4x8_ver_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_4x8_ver_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      16,                                   // num_outputs
+      av1_tx_type_nn_weights_4x8_ver_layer0,  // weights
+      av1_tx_type_nn_bias_4x8_ver_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_4x8_ver_layer0_out,      // output
+      av1_tx_type_nn_4x8_ver_layer0_dout,     // dY
+      av1_tx_type_nn_4x8_ver_layer0_dW,       // dW
+      av1_tx_type_nn_4x8_ver_layer0_db,       // db
+    },
+    {
+      16,            // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_4x8_ver_layer1,
+      av1_tx_type_nn_bias_4x8_ver_layer1,
+      none,
+      av1_tx_type_nn_4x8_ver_layer1_out,
+      av1_tx_type_nn_4x8_ver_layer1_dout,
+      av1_tx_type_nn_4x8_ver_layer1_dW,
+      av1_tx_type_nn_4x8_ver_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_4x8_ver_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
+
 /******************************************************************************/
 
 // Tx type model for 8x4 block.
-static const float av1_tx_type_nn_weights_8x4_hor_layer0[128] = {
+static float av1_tx_type_nn_weights_8x4_hor_layer0[128] = {
   -0.22492f, 0.13341f,  -4.03243f, -0.64015f, 0.02783f,  0.60466f,  -0.13335f,
   0.16828f,  0.12336f,  0.52904f,  1.18455f,  -0.32425f, 0.13052f,  0.93810f,
   -3.71165f, 0.02990f,  -4.63558f, 0.05666f,  0.03524f,  -0.07449f, -0.44006f,
@@ -225,13 +398,13 @@ static const float av1_tx_type_nn_weights_8x4_hor_layer0[128] = {
   -1.85523f, 0.92532f,
 };
 
-static const float av1_tx_type_nn_bias_8x4_hor_layer0[16] = {
+static float av1_tx_type_nn_bias_8x4_hor_layer0[16] = {
   0.36631f,  0.02901f,  0.64305f,  1.53074f, -1.40229f, 0.03852f,
   -0.05043f, 0.89632f,  -1.23312f, 0.07036f, 0.17070f,  0.56250f,
   -0.28958f, -0.32869f, -0.01704f, 0.68171f,
 };
 
-static const float av1_tx_type_nn_weights_8x4_hor_layer1[64] = {
+static float av1_tx_type_nn_weights_8x4_hor_layer1[64] = {
   -0.49441f, -0.31960f, -0.84946f, -0.85800f, -2.37767f, 0.81373f,  -0.73172f,
   -0.69337f, 0.88807f,  -0.49242f, -0.44717f, -0.11436f, 0.09978f,  0.15393f,
   0.17083f,  1.44850f,  -0.20582f, -0.04906f, 0.42990f,  -0.61939f, -1.09692f,
@@ -244,7 +417,7 @@ static const float av1_tx_type_nn_weights_8x4_hor_layer1[64] = {
   -1.10654f,
 };
 
-static const float av1_tx_type_nn_bias_8x4_hor_layer1[4] = {
+static float av1_tx_type_nn_bias_8x4_hor_layer1[4] = {
   -0.92861f,
   -1.45151f,
   -1.33588f,
@@ -263,7 +436,50 @@ static const NN_CONFIG av1_tx_type_nnconfig_8x4_hor = {
   { av1_tx_type_nn_bias_8x4_hor_layer0, av1_tx_type_nn_bias_8x4_hor_layer1 }
 };
 
-static const float av1_tx_type_nn_weights_8x4_ver_layer0[32] = {
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_8x4_hor_layer0_out[16]={0};
+static float av1_tx_type_nn_8x4_hor_layer0_dout[16]={0};
+static float av1_tx_type_nn_8x4_hor_layer0_dW[128]={0};
+static float av1_tx_type_nn_8x4_hor_layer0_db[16]={0};
+
+static float av1_tx_type_nn_8x4_hor_layer1_out[4]={0};
+static float av1_tx_type_nn_8x4_hor_layer1_dout[4]={0};
+static float av1_tx_type_nn_8x4_hor_layer1_dW[64]={0};
+static float av1_tx_type_nn_8x4_hor_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_8x4_hor_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      16,                                   // num_outputs
+      av1_tx_type_nn_weights_8x4_hor_layer0,  // weights
+      av1_tx_type_nn_bias_8x4_hor_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_8x4_hor_layer0_out,      // output
+      av1_tx_type_nn_8x4_hor_layer0_dout,     // dY
+      av1_tx_type_nn_8x4_hor_layer0_dW,       // dW
+      av1_tx_type_nn_8x4_hor_layer0_db,       // db
+    },
+    {
+      16,      // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_8x4_hor_layer1,
+      av1_tx_type_nn_bias_8x4_hor_layer1,
+      none,
+      av1_tx_type_nn_8x4_hor_layer1_out,
+      av1_tx_type_nn_8x4_hor_layer1_dout,
+      av1_tx_type_nn_8x4_hor_layer1_dW,
+      av1_tx_type_nn_8x4_hor_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_8x4_hor_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
+
+static float av1_tx_type_nn_weights_8x4_ver_layer0[32] = {
   -1.10946f, 1.86574f,  -1.59343f, 0.27018f, -1.70676f, -0.73982f, -0.19021f,
   -1.94208f, -2.29759f, -1.44402f, 0.28700f, -1.18340f, -1.50158f, -0.44175f,
   -1.36831f, 1.00374f,  2.59312f,  0.50291f, -0.71042f, -0.12238f, -0.15901f,
@@ -271,12 +487,12 @@ static const float av1_tx_type_nn_weights_8x4_ver_layer0[32] = {
   1.66212f,  1.70826f,  1.55182f,  0.12230f,
 };
 
-static const float av1_tx_type_nn_bias_8x4_ver_layer0[8] = {
+static float av1_tx_type_nn_bias_8x4_ver_layer0[8] = {
   0.10943f,  2.09789f, 2.16578f, 0.15766f,
   -0.42461f, 0.00000f, 1.22090f, -1.28717f,
 };
 
-static const float av1_tx_type_nn_weights_8x4_ver_layer1[32] = {
+static float av1_tx_type_nn_weights_8x4_ver_layer1[32] = {
   1.20426f,  -1.23237f, 2.41053f, -0.72488f, 1.25249f,  0.18018f,  -0.09586f,
   2.17901f,  0.15364f,  1.21535f, -0.38263f, -0.74309f, 0.50551f,  -0.54208f,
   0.59139f,  1.16095f,  0.55919f, -0.60183f, 1.18949f,  1.60787f,  0.54002f,
@@ -284,7 +500,7 @@ static const float av1_tx_type_nn_weights_8x4_ver_layer1[32] = {
   -1.15005f, -0.39311f, 1.51236f, -1.68973f,
 };
 
-static const float av1_tx_type_nn_bias_8x4_ver_layer1[4] = {
+static float av1_tx_type_nn_bias_8x4_ver_layer1[4] = {
   1.81013f,
   1.10517f,
   2.90059f,
@@ -302,10 +518,53 @@ static const NN_CONFIG av1_tx_type_nnconfig_8x4_ver = {
     av1_tx_type_nn_weights_8x4_ver_layer1 },
   { av1_tx_type_nn_bias_8x4_ver_layer0, av1_tx_type_nn_bias_8x4_ver_layer1 }
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_8x4_ver_layer0_out[8]={0};
+static float av1_tx_type_nn_8x4_ver_layer0_dout[8]={0};
+static float av1_tx_type_nn_8x4_ver_layer0_dW[32]={0};
+static float av1_tx_type_nn_8x4_ver_layer0_db[8]={0};
+
+static float av1_tx_type_nn_8x4_ver_layer1_out[4]={0};
+static float av1_tx_type_nn_8x4_ver_layer1_dout[4]={0};
+static float av1_tx_type_nn_8x4_ver_layer1_dW[32]={0};
+static float av1_tx_type_nn_8x4_ver_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_8x4_ver_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      4,                                   // num_inputs
+      8,                                   // num_outputs
+      av1_tx_type_nn_weights_8x4_ver_layer0,  // weights
+      av1_tx_type_nn_bias_8x4_ver_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_8x4_ver_layer0_out,      // output
+      av1_tx_type_nn_8x4_ver_layer0_dout,     // dY
+      av1_tx_type_nn_8x4_ver_layer0_dW,       // dW
+      av1_tx_type_nn_8x4_ver_layer0_db,       // db
+    },
+    {
+      8,           // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_8x4_ver_layer1,
+      av1_tx_type_nn_bias_8x4_ver_layer1,
+      none,
+      av1_tx_type_nn_8x4_ver_layer1_out,
+      av1_tx_type_nn_8x4_ver_layer1_dout,
+      av1_tx_type_nn_8x4_ver_layer1_dW,
+      av1_tx_type_nn_8x4_ver_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_8x4_ver_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx type model for 8x8 block.
-static const float av1_tx_type_nn_weights_8x8_hor_layer0[128] = {
+static float av1_tx_type_nn_weights_8x8_hor_layer0[128] = {
   -0.85529f, 0.37619f,  0.12754f,  0.08622f,  0.45278f,  0.54929f,  1.60651f,
   -0.62654f, -0.54929f, -0.10131f, -0.17569f, 0.13948f,  0.31695f,  -0.05616f,
   0.20483f,  -0.36448f, 2.27203f,  -0.33087f, 0.47679f,  0.86888f,  0.39370f,
@@ -327,13 +586,13 @@ static const float av1_tx_type_nn_weights_8x8_hor_layer0[128] = {
   -0.99892f, 1.09823f,
 };
 
-static const float av1_tx_type_nn_bias_8x8_hor_layer0[16] = {
+static float av1_tx_type_nn_bias_8x8_hor_layer0[16] = {
   -0.49232f, -0.29685f, -1.44020f, 1.10940f,  1.16452f, -0.34862f,
   -0.38761f, -0.36243f, 0.21776f,  0.28234f,  2.34269f, -0.04104f,
   -0.26319f, 2.65579f,  -1.30137f, -0.01487f,
 };
 
-static const float av1_tx_type_nn_weights_8x8_hor_layer1[64] = {
+static float av1_tx_type_nn_weights_8x8_hor_layer1[64] = {
   -0.38058f, -0.41295f, -1.26884f, -0.75560f, -1.57450f, 0.56072f,  -1.42322f,
   -0.29106f, 0.07228f,  0.04391f,  1.61388f,  -0.03055f, 0.81637f,  2.06045f,
   0.27119f,  -0.48328f, -0.45528f, -0.60534f, -1.61209f, -0.78157f, -1.65034f,
@@ -346,7 +605,7 @@ static const float av1_tx_type_nn_weights_8x8_hor_layer1[64] = {
   0.06161f,
 };
 
-static const float av1_tx_type_nn_bias_8x8_hor_layer1[4] = {
+static float av1_tx_type_nn_bias_8x8_hor_layer1[4] = {
   1.70385f,
   1.82373f,
   1.78496f,
@@ -365,7 +624,50 @@ static const NN_CONFIG av1_tx_type_nnconfig_8x8_hor = {
   { av1_tx_type_nn_bias_8x8_hor_layer0, av1_tx_type_nn_bias_8x8_hor_layer1 }
 };
 
-static const float av1_tx_type_nn_weights_8x8_ver_layer0[128] = {
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_8x8_hor_layer0_out[16]={0};
+static float av1_tx_type_nn_8x8_hor_layer0_dout[16]={0};
+static float av1_tx_type_nn_8x8_hor_layer0_dW[128]={0};
+static float av1_tx_type_nn_8x8_hor_layer0_db[16]={0};
+
+static float av1_tx_type_nn_8x8_hor_layer1_out[4]={0};
+static float av1_tx_type_nn_8x8_hor_layer1_dout[4]={0};
+static float av1_tx_type_nn_8x8_hor_layer1_dW[64]={0};
+static float av1_tx_type_nn_8x8_hor_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_8x8_hor_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      16,                                   // num_outputs
+      av1_tx_type_nn_weights_8x8_hor_layer0,  // weights
+      av1_tx_type_nn_bias_8x8_hor_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_8x8_hor_layer0_out,      // output
+      av1_tx_type_nn_8x8_hor_layer0_dout,     // dY
+      av1_tx_type_nn_8x8_hor_layer0_dW,       // dW
+      av1_tx_type_nn_8x8_hor_layer0_db,       // db
+    },
+    {
+      16,             // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_8x8_hor_layer1,
+      av1_tx_type_nn_bias_8x8_hor_layer1,
+      none,
+      av1_tx_type_nn_8x8_hor_layer1_out,
+      av1_tx_type_nn_8x8_hor_layer1_dout,
+      av1_tx_type_nn_8x8_hor_layer1_dW,
+      av1_tx_type_nn_8x8_hor_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_8x8_hor_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
+
+static float av1_tx_type_nn_weights_8x8_ver_layer0[128] = {
   -0.67016f, -1.72366f, -1.86576f, -1.50962f, -1.70419f, -1.73964f, -1.84615f,
   2.09681f,  -0.05081f, -0.61030f, 2.02541f,  0.60222f,  0.99936f,  2.02114f,
   -0.53893f, -0.23757f, 0.73566f,  0.25443f,  0.00132f,  -0.74036f, -0.75351f,
@@ -387,13 +689,13 @@ static const float av1_tx_type_nn_weights_8x8_ver_layer0[128] = {
   -1.29848f, 0.39308f,
 };
 
-static const float av1_tx_type_nn_bias_8x8_ver_layer0[16] = {
+static float av1_tx_type_nn_bias_8x8_ver_layer0[16] = {
   -0.14868f, -0.48343f, 3.94416f,  -0.78037f, -1.33789f, -0.60611f,
   0.51793f,  0.44030f,  -0.71563f, 0.22561f,  -1.19083f, -0.46149f,
   0.83015f,  0.06024f,  1.17180f,  0.65122f,
 };
 
-static const float av1_tx_type_nn_weights_8x8_ver_layer1[64] = {
+static float av1_tx_type_nn_weights_8x8_ver_layer1[64] = {
   -1.42711f, -0.21683f, 2.12061f,  0.20489f,  -0.50228f, -0.24770f, 0.23391f,
   1.03470f,  -0.44847f, -0.63225f, -0.21583f, -0.06467f, -0.21892f, -0.07786f,
   1.43322f,  0.00280f,  -1.53057f, -0.18912f, 1.95333f,  0.31151f,  -2.07601f,
@@ -406,7 +708,7 @@ static const float av1_tx_type_nn_weights_8x8_ver_layer1[64] = {
   -0.41305f,
 };
 
-static const float av1_tx_type_nn_bias_8x8_ver_layer1[4] = {
+static float av1_tx_type_nn_bias_8x8_ver_layer1[4] = {
   2.14067f,
   2.76699f,
   2.04233f,
@@ -424,10 +726,53 @@ static const NN_CONFIG av1_tx_type_nnconfig_8x8_ver = {
     av1_tx_type_nn_weights_8x8_ver_layer1 },
   { av1_tx_type_nn_bias_8x8_ver_layer0, av1_tx_type_nn_bias_8x8_ver_layer1 }
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_8x8_ver_layer0_out[16]={0};
+static float av1_tx_type_nn_8x8_ver_layer0_dout[16]={0};
+static float av1_tx_type_nn_8x8_ver_layer0_dW[128]={0};
+static float av1_tx_type_nn_8x8_ver_layer0_db[16]={0};
+
+static float av1_tx_type_nn_8x8_ver_layer1_out[4]={0};
+static float av1_tx_type_nn_8x8_ver_layer1_dout[4]={0};
+static float av1_tx_type_nn_8x8_ver_layer1_dW[64]={0};
+static float av1_tx_type_nn_8x8_ver_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_8x8_ver_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      16,                                   // num_outputs
+      av1_tx_type_nn_weights_8x8_ver_layer0,  // weights
+      av1_tx_type_nn_bias_8x8_ver_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_8x8_ver_layer0_out,      // output
+      av1_tx_type_nn_8x8_ver_layer0_dout,     // dY
+      av1_tx_type_nn_8x8_ver_layer0_dW,       // dW
+      av1_tx_type_nn_8x8_ver_layer0_db,       // db
+    },
+    {
+      16,              // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_8x8_ver_layer1,
+      av1_tx_type_nn_bias_8x8_ver_layer1,
+      none,
+      av1_tx_type_nn_8x8_ver_layer1_out,
+      av1_tx_type_nn_8x8_ver_layer1_dout,
+      av1_tx_type_nn_8x8_ver_layer1_dW,
+      av1_tx_type_nn_8x8_ver_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_8x8_ver_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx type model for 8x16 block.
-static const float av1_tx_type_nn_weights_8x16_hor_layer0[128] = {
+static float av1_tx_type_nn_weights_8x16_hor_layer0[128] = {
   -1.61872f, -1.58520f, -1.41236f, -1.53255f, -1.59794f, -1.25769f, -1.90043f,
   0.73431f,  1.10135f,  0.47054f,  0.43230f,  -0.43009f, -0.09135f, -0.07289f,
   -0.38785f, 1.23775f,  -0.35312f, 0.73789f,  0.88864f,  0.75957f,  0.62579f,
@@ -449,13 +794,13 @@ static const float av1_tx_type_nn_weights_8x16_hor_layer0[128] = {
   -0.28136f, 0.42556f,
 };
 
-static const float av1_tx_type_nn_bias_8x16_hor_layer0[16] = {
+static float av1_tx_type_nn_bias_8x16_hor_layer0[16] = {
   0.93617f,  -0.24000f, -1.26821f, 0.78780f,  0.13690f, -0.21948f,
   -1.45162f, 0.44584f,  -1.92582f, -0.23169f, 0.56004f, -1.19937f,
   1.81560f,  -1.02643f, -0.81690f, 0.08302f,
 };
 
-static const float av1_tx_type_nn_weights_8x16_hor_layer1[64] = {
+static float av1_tx_type_nn_weights_8x16_hor_layer1[64] = {
   0.06696f,  -0.11538f, -1.42029f, 0.32965f,  0.81046f,  0.01146f,  1.20945f,
   -0.16899f, 0.53224f,  -0.40232f, 0.01786f,  -0.73242f, 1.29750f,  1.95185f,
   0.70143f,  1.43287f,  0.76220f,  0.79937f,  -1.79011f, -1.15178f, 0.42526f,
@@ -468,7 +813,7 @@ static const float av1_tx_type_nn_weights_8x16_hor_layer1[64] = {
   -1.31243f,
 };
 
-static const float av1_tx_type_nn_bias_8x16_hor_layer1[4] = {
+static float av1_tx_type_nn_bias_8x16_hor_layer1[4] = {
   0.83359f,
   1.06875f,
   1.77645f,
@@ -487,7 +832,50 @@ static const NN_CONFIG av1_tx_type_nnconfig_8x16_hor = {
   { av1_tx_type_nn_bias_8x16_hor_layer0, av1_tx_type_nn_bias_8x16_hor_layer1 }
 };
 
-static const float av1_tx_type_nn_weights_8x16_ver_layer0[128] = {
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_8x16_hor_layer0_out[16]={0};
+static float av1_tx_type_nn_8x16_hor_layer0_dout[16]={0};
+static float av1_tx_type_nn_8x16_hor_layer0_dW[128]={0};
+static float av1_tx_type_nn_8x16_hor_layer0_db[16]={0};
+
+static float av1_tx_type_nn_8x16_hor_layer1_out[4]={0};
+static float av1_tx_type_nn_8x16_hor_layer1_dout[4]={0};
+static float av1_tx_type_nn_8x16_hor_layer1_dW[64]={0};
+static float av1_tx_type_nn_8x16_hor_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_8x16_hor_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      16,                                   // num_outputs
+      av1_tx_type_nn_weights_8x16_hor_layer0,  // weights
+      av1_tx_type_nn_bias_8x16_hor_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_8x16_hor_layer0_out,      // output
+      av1_tx_type_nn_8x16_hor_layer0_dout,     // dY
+      av1_tx_type_nn_8x16_hor_layer0_dW,       // dW
+      av1_tx_type_nn_8x16_hor_layer0_db,       // db
+    },
+    {
+      16,        // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_8x16_hor_layer1,
+      av1_tx_type_nn_bias_8x16_hor_layer1,
+      none,
+      av1_tx_type_nn_8x16_hor_layer1_out,
+      av1_tx_type_nn_8x16_hor_layer1_dout,
+      av1_tx_type_nn_8x16_hor_layer1_dW,
+      av1_tx_type_nn_8x16_hor_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_8x16_hor_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
+
+static float av1_tx_type_nn_weights_8x16_ver_layer0[128] = {
   0.32858f,  -1.28887f, 0.25632f,  -0.05262f, 2.69203f,  -0.07004f, 1.37337f,
   -0.05725f, -0.05659f, 0.05592f,  0.01039f,  -0.29343f, 1.58628f,  -0.30003f,
   -3.43118f, 0.00272f,  1.70928f,  -0.76348f, 0.05889f,  -0.03263f, -0.07724f,
@@ -509,13 +897,13 @@ static const float av1_tx_type_nn_weights_8x16_ver_layer0[128] = {
   -0.12236f, 0.16075f,
 };
 
-static const float av1_tx_type_nn_bias_8x16_ver_layer0[16] = {
+static float av1_tx_type_nn_bias_8x16_ver_layer0[16] = {
   -0.35385f, 0.30491f,  -0.90011f, 0.42941f,  1.20928f, -0.88331f,
   -1.48818f, -0.34785f, -0.32668f, -0.22695f, 0.89188f, 0.65521f,
   0.57598f,  0.99819f,  0.75175f,  0.17044f,
 };
 
-static const float av1_tx_type_nn_weights_8x16_ver_layer1[64] = {
+static float av1_tx_type_nn_weights_8x16_ver_layer1[64] = {
   -0.62913f, -0.34304f, 0.42963f,  -0.17440f, -1.44092f, 0.69142f,  -1.36067f,
   0.52211f,  0.44658f,  -0.26501f, -0.41657f, 0.34428f,  -0.34390f, -0.58567f,
   -0.84097f, -1.96311f, -0.37215f, -0.22250f, -1.23811f, -0.07247f, -0.81731f,
@@ -528,7 +916,7 @@ static const float av1_tx_type_nn_weights_8x16_ver_layer1[64] = {
   2.20547f,
 };
 
-static const float av1_tx_type_nn_bias_8x16_ver_layer1[4] = {
+static float av1_tx_type_nn_bias_8x16_ver_layer1[4] = {
   -0.44080f,
   -1.67455f,
   -1.46332f,
@@ -546,10 +934,53 @@ static const NN_CONFIG av1_tx_type_nnconfig_8x16_ver = {
     av1_tx_type_nn_weights_8x16_ver_layer1 },
   { av1_tx_type_nn_bias_8x16_ver_layer0, av1_tx_type_nn_bias_8x16_ver_layer1 }
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_8x16_ver_layer0_out[16]={0};
+static float av1_tx_type_nn_8x16_ver_layer0_dout[16]={0};
+static float av1_tx_type_nn_8x16_ver_layer0_dW[128]={0};
+static float av1_tx_type_nn_8x16_ver_layer0_db[16]={0};
+
+static float av1_tx_type_nn_8x16_ver_layer1_out[4]={0};
+static float av1_tx_type_nn_8x16_ver_layer1_dout[4]={0};
+static float av1_tx_type_nn_8x16_ver_layer1_dW[64]={0};
+static float av1_tx_type_nn_8x16_ver_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_8x16_ver_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      16,                                   // num_outputs
+      av1_tx_type_nn_weights_8x16_ver_layer0,  // weights
+      av1_tx_type_nn_bias_8x16_ver_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_8x16_ver_layer0_out,      // output
+      av1_tx_type_nn_8x16_ver_layer0_dout,     // dY
+      av1_tx_type_nn_8x16_ver_layer0_dW,       // dW
+      av1_tx_type_nn_8x16_ver_layer0_db,       // db
+    },
+    {
+      16,           // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_8x16_ver_layer1,
+      av1_tx_type_nn_bias_8x16_ver_layer1,
+      none,
+      av1_tx_type_nn_8x16_ver_layer1_out,
+      av1_tx_type_nn_8x16_ver_layer1_dout,
+      av1_tx_type_nn_8x16_ver_layer1_dW,
+      av1_tx_type_nn_8x16_ver_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_8x16_ver_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx type model for 16x8 block.
-static const float av1_tx_type_nn_weights_16x8_hor_layer0[128] = {
+static float av1_tx_type_nn_weights_16x8_hor_layer0[128] = {
   0.02600f,  0.09786f,  -1.05107f, -0.35594f, -0.15658f, 2.99828f,  -0.07106f,
   -0.10101f, -0.14412f, -0.83790f, -0.19434f, 2.28368f,  1.91727f,  -0.00956f,
   -0.90640f, 0.09174f,  1.58895f,  1.38945f,  1.49431f,  1.51381f,  1.44803f,
@@ -571,13 +1002,13 @@ static const float av1_tx_type_nn_weights_16x8_hor_layer0[128] = {
   -0.36570f, -0.50757f,
 };
 
-static const float av1_tx_type_nn_bias_16x8_hor_layer0[16] = {
+static float av1_tx_type_nn_bias_16x8_hor_layer0[16] = {
   -0.08696f, -0.22110f, -1.43604f, -1.00451f, -1.51029f, 0.63736f,
   0.45260f,  0.16229f,  4.01393f,  -0.21748f, 0.36411f,  -0.08764f,
   -0.12329f, 0.08986f,  1.08117f,  -0.00220f,
 };
 
-static const float av1_tx_type_nn_weights_16x8_hor_layer1[64] = {
+static float av1_tx_type_nn_weights_16x8_hor_layer1[64] = {
   0.55824f,  -0.14648f, 0.81947f,  -0.45867f, -1.86078f, -0.17291f, 0.34849f,
   0.15153f,  1.75625f,  -0.25760f, 0.72015f,  -0.30059f, -0.57975f, 0.07609f,
   -0.02036f, 0.07912f,  0.57080f,  -0.13792f, 0.74184f,  -0.87669f, -1.87572f,
@@ -590,7 +1021,7 @@ static const float av1_tx_type_nn_weights_16x8_hor_layer1[64] = {
   -0.23347f,
 };
 
-static const float av1_tx_type_nn_bias_16x8_hor_layer1[4] = {
+static float av1_tx_type_nn_bias_16x8_hor_layer1[4] = {
   3.57175f,
   2.42612f,
   3.31259f,
@@ -609,7 +1040,50 @@ static const NN_CONFIG av1_tx_type_nnconfig_16x8_hor = {
   { av1_tx_type_nn_bias_16x8_hor_layer0, av1_tx_type_nn_bias_16x8_hor_layer1 }
 };
 
-static const float av1_tx_type_nn_weights_16x8_ver_layer0[128] = {
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_16x8_hor_layer0_out[16]={0};
+static float av1_tx_type_nn_16x8_hor_layer0_dout[16]={0};
+static float av1_tx_type_nn_16x8_hor_layer0_dW[128]={0};
+static float av1_tx_type_nn_16x8_hor_layer0_db[16]={0};
+
+static float av1_tx_type_nn_16x8_hor_layer1_out[4]={0};
+static float av1_tx_type_nn_16x8_hor_layer1_dout[4]={0};
+static float av1_tx_type_nn_16x8_hor_layer1_dW[64]={0};
+static float av1_tx_type_nn_16x8_hor_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_16x8_hor_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      16,                                   // num_outputs
+      av1_tx_type_nn_weights_16x8_hor_layer0,  // weights
+      av1_tx_type_nn_bias_16x8_hor_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_16x8_hor_layer0_out,      // output
+      av1_tx_type_nn_16x8_hor_layer0_dout,     // dY
+      av1_tx_type_nn_16x8_hor_layer0_dW,       // dW
+      av1_tx_type_nn_16x8_hor_layer0_db,       // db
+    },
+    {
+      16,         // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_16x8_hor_layer1,
+      av1_tx_type_nn_bias_16x8_hor_layer1,
+      none,
+      av1_tx_type_nn_16x8_hor_layer1_out,
+      av1_tx_type_nn_16x8_hor_layer1_dout,
+      av1_tx_type_nn_16x8_hor_layer1_dW,
+      av1_tx_type_nn_16x8_hor_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_16x8_hor_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
+
+static float av1_tx_type_nn_weights_16x8_ver_layer0[128] = {
   0.46633f,  1.55328f,  -0.11230f, -0.29571f, 0.18814f,  -1.52430f, -2.34660f,
   0.08644f,  -1.97718f, -1.29140f, -1.12262f, -1.12985f, -1.25911f, -0.96506f,
   -1.57129f, 0.96021f,  1.34192f,  1.28623f,  1.21655f,  1.28758f,  1.25482f,
@@ -631,13 +1105,13 @@ static const float av1_tx_type_nn_weights_16x8_ver_layer0[128] = {
   -0.81945f, -0.41647f,
 };
 
-static const float av1_tx_type_nn_bias_16x8_ver_layer0[16] = {
+static float av1_tx_type_nn_bias_16x8_ver_layer0[16] = {
   0.17841f,  0.67315f,  -1.24450f, 3.13859f,  0.16203f, -0.14992f,
   0.29553f,  -1.15567f, -0.71421f, 1.15977f,  1.14585f, 3.02460f,
   -0.04510f, 0.48000f,  -0.09354f, -0.42422f,
 };
 
-static const float av1_tx_type_nn_weights_16x8_ver_layer1[64] = {
+static float av1_tx_type_nn_weights_16x8_ver_layer1[64] = {
   0.29912f,  -0.10009f, -1.11478f, 1.76812f,  -0.27719f, 0.52148f,  0.17622f,
   -1.17116f, 0.73397f,  -0.69279f, -0.11080f, 1.53751f,  -1.42003f, 0.14731f,
   0.13592f,  -0.04883f, 0.39186f,  -0.13655f, -0.43994f, 1.82759f,  -0.25601f,
@@ -650,7 +1124,7 @@ static const float av1_tx_type_nn_weights_16x8_ver_layer1[64] = {
   -0.00873f,
 };
 
-static const float av1_tx_type_nn_bias_16x8_ver_layer1[4] = {
+static float av1_tx_type_nn_bias_16x8_ver_layer1[4] = {
   3.34981f,
   3.74710f,
   1.38339f,
@@ -668,10 +1142,53 @@ static const NN_CONFIG av1_tx_type_nnconfig_16x8_ver = {
     av1_tx_type_nn_weights_16x8_ver_layer1 },
   { av1_tx_type_nn_bias_16x8_ver_layer0, av1_tx_type_nn_bias_16x8_ver_layer1 }
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_16x8_ver_layer0_out[16]={0};
+static float av1_tx_type_nn_16x8_ver_layer0_dout[16]={0};
+static float av1_tx_type_nn_16x8_ver_layer0_dW[128]={0};
+static float av1_tx_type_nn_16x8_ver_layer0_db[16]={0};
+
+static float av1_tx_type_nn_16x8_ver_layer1_out[4]={0};
+static float av1_tx_type_nn_16x8_ver_layer1_dout[4]={0};
+static float av1_tx_type_nn_16x8_ver_layer1_dW[64]={0};
+static float av1_tx_type_nn_16x8_ver_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_16x8_ver_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      16,                                   // num_outputs
+      av1_tx_type_nn_weights_16x8_ver_layer0,  // weights
+      av1_tx_type_nn_bias_16x8_ver_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_16x8_ver_layer0_out,      // output
+      av1_tx_type_nn_16x8_ver_layer0_dout,     // dY
+      av1_tx_type_nn_16x8_ver_layer0_dW,       // dW
+      av1_tx_type_nn_16x8_ver_layer0_db,       // db
+    },
+    {
+      16,        // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_16x8_ver_layer1,
+      av1_tx_type_nn_bias_16x8_ver_layer1,
+      none,
+      av1_tx_type_nn_16x8_ver_layer1_out,
+      av1_tx_type_nn_16x8_ver_layer1_dout,
+      av1_tx_type_nn_16x8_ver_layer1_dW,
+      av1_tx_type_nn_16x8_ver_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_16x8_ver_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx type model for 16x16 block.
-static const float av1_tx_type_nn_weights_16x16_layer0[128] = {
+static float av1_tx_type_nn_weights_16x16_layer0[128] = {
   1.26592f,  1.36313f,  1.30956f,  1.29926f,  1.48816f,  1.68851f,  1.32000f,
   0.13321f,  -0.22477f, -0.88906f, -0.19622f, 1.69605f,  1.22180f,  -1.57771f,
   -1.15765f, 0.05710f,  -1.13355f, -0.85486f, -0.99971f, -0.91571f, -1.06031f,
@@ -693,13 +1210,13 @@ static const float av1_tx_type_nn_weights_16x16_layer0[128] = {
   0.50355f,  0.08592f,
 };
 
-static const float av1_tx_type_nn_bias_16x16_layer0[16] = {
+static float av1_tx_type_nn_bias_16x16_layer0[16] = {
   -1.31834f, 0.14346f,  -0.10062f, 0.84489f,  0.95617f,  -0.06720f,
   -0.68502f, -0.91442f, -0.31932f, 0.25276f,  -0.15138f, -1.57661f,
   -0.14062f, -0.42120f, 0.94573f,  -0.09287f,
 };
 
-static const float av1_tx_type_nn_weights_16x16_layer1[64] = {
+static float av1_tx_type_nn_weights_16x16_layer1[64] = {
   -1.80333f, -1.06353f, 0.55139f,  0.74644f,  0.13747f, -0.93018f, -0.10286f,
   0.67133f,  0.24460f,  1.44583f,  0.02173f,  0.26037f, -0.73687f, 0.19566f,
   0.61846f,  -0.58601f, -1.03196f, -0.74415f, 0.30041f, -0.41967f, 1.08740f,
@@ -712,7 +1229,7 @@ static const float av1_tx_type_nn_weights_16x16_layer1[64] = {
   1.08829f,
 };
 
-static const float av1_tx_type_nn_bias_16x16_layer1[4] = {
+static float av1_tx_type_nn_bias_16x16_layer1[4] = {
   0.81986f,
   1.26865f,
   0.11118f,
@@ -735,10 +1252,53 @@ static const NN_CONFIG av1_tx_type_nnconfig_16x16 = {
       av1_tx_type_nn_bias_16x16_layer1,
   },
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_16x16_layer0_out[16]={0};
+static float av1_tx_type_nn_16x16_layer0_dout[16]={0};
+static float av1_tx_type_nn_16x16_layer0_dW[128]={0};
+static float av1_tx_type_nn_16x16_layer0_db[16]={0};
+
+static float av1_tx_type_nn_16x16_layer1_out[4]={0};
+static float av1_tx_type_nn_16x16_layer1_dout[4]={0};
+static float av1_tx_type_nn_16x16_layer1_dW[64]={0};
+static float av1_tx_type_nn_16x16_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_16x16_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      16,                                   // num_outputs
+      av1_tx_type_nn_weights_16x16_layer0,  // weights
+      av1_tx_type_nn_bias_16x16_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_16x16_layer0_out,      // output
+      av1_tx_type_nn_16x16_layer0_dout,     // dY
+      av1_tx_type_nn_16x16_layer0_dW,       // dW
+      av1_tx_type_nn_16x16_layer0_db,       // db
+    },
+    {
+      16,     // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_16x16_layer1,
+      av1_tx_type_nn_bias_16x16_layer1,
+      none,
+      av1_tx_type_nn_16x16_layer1_out,
+      av1_tx_type_nn_16x16_layer1_dout,
+      av1_tx_type_nn_16x16_layer1_dW,
+      av1_tx_type_nn_16x16_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_16x16_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx type model for 4x16 block.
-static const float av1_tx_type_nn_weights_4x16_hor_layer0[32] = {
+static float av1_tx_type_nn_weights_4x16_hor_layer0[32] = {
   0.36539f,  0.25667f,  0.01491f,  -0.21959f, 2.55105f,  0.17615f, 1.79884f,
   1.65936f,  -0.44363f, 0.00706f,  -0.68004f, -0.64360f, 1.75760f, 1.91906f,
   1.47682f,  0.09650f,  -3.59244f, -0.35004f, 0.93295f,  0.25806f, -0.08154f,
@@ -746,12 +1306,12 @@ static const float av1_tx_type_nn_weights_4x16_hor_layer0[32] = {
   -1.74563f, -0.88830f, -1.77603f, 2.15935f,
 };
 
-static const float av1_tx_type_nn_bias_4x16_hor_layer0[8] = {
+static float av1_tx_type_nn_bias_4x16_hor_layer0[8] = {
   -0.36435f, -2.22731f, -0.00837f, -1.34546f,
   0.62806f,  -0.20675f, 4.91940f,  -0.56079f,
 };
 
-static const float av1_tx_type_nn_weights_4x16_hor_layer1[32] = {
+static float av1_tx_type_nn_weights_4x16_hor_layer1[32] = {
   -0.57191f, -1.46418f, 0.67331f,  -1.15027f, 0.46288f,  0.81251f,  2.51768f,
   -0.27147f, 0.00761f,  -2.15214f, -0.69650f, -0.50808f, 0.92832f,  0.45668f,
   2.34201f,  -0.52941f, 0.51008f,  -1.55496f, -0.01371f, -0.12356f, 0.66624f,
@@ -759,7 +1319,7 @@ static const float av1_tx_type_nn_weights_4x16_hor_layer1[32] = {
   1.28413f,  -0.30326f, 2.45329f,  -0.83335f,
 };
 
-static const float av1_tx_type_nn_bias_4x16_hor_layer1[4] = {
+static float av1_tx_type_nn_bias_4x16_hor_layer1[4] = {
   2.33198f,
   3.36245f,
   1.62603f,
@@ -778,7 +1338,50 @@ static const NN_CONFIG av1_tx_type_nnconfig_4x16_hor = {
   { av1_tx_type_nn_bias_4x16_hor_layer0, av1_tx_type_nn_bias_4x16_hor_layer1 }
 };
 
-static const float av1_tx_type_nn_weights_4x16_ver_layer0[128] = {
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_4x16_hor_layer0_out[8]={0};
+static float av1_tx_type_nn_4x16_hor_layer0_dout[8]={0};
+static float av1_tx_type_nn_4x16_hor_layer0_dW[32]={0};
+static float av1_tx_type_nn_4x16_hor_layer0_db[8]={0};
+
+static float av1_tx_type_nn_4x16_hor_layer1_out[4]={0};
+static float av1_tx_type_nn_4x16_hor_layer1_dout[4]={0};
+static float av1_tx_type_nn_4x16_hor_layer1_dW[32]={0};
+static float av1_tx_type_nn_4x16_hor_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_4x16_hor_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      4,                                   // num_inputs
+      8,                                   // num_outputs
+      av1_tx_type_nn_weights_4x16_hor_layer0,  // weights
+      av1_tx_type_nn_bias_4x16_hor_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_4x16_hor_layer0_out,      // output
+      av1_tx_type_nn_4x16_hor_layer0_dout,     // dY
+      av1_tx_type_nn_4x16_hor_layer0_dW,       // dW
+      av1_tx_type_nn_4x16_hor_layer0_db,       // db
+    },
+    {
+      8,           // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_4x16_hor_layer1,
+      av1_tx_type_nn_bias_4x16_hor_layer1,
+      none,
+      av1_tx_type_nn_4x16_hor_layer1_out,
+      av1_tx_type_nn_4x16_hor_layer1_dout,
+      av1_tx_type_nn_4x16_hor_layer1_dW,
+      av1_tx_type_nn_4x16_hor_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_4x16_hor_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
+
+static float av1_tx_type_nn_weights_4x16_ver_layer0[128] = {
   1.61392f,  1.41239f,  1.47646f,  1.47325f,  1.46110f,  1.49208f,  1.49414f,
   0.12835f,  -0.76986f, 0.07087f,  -0.24572f, -0.93168f, 3.07935f,  -0.18183f,
   -0.09831f, -0.07703f, -0.03222f, -0.25473f, -0.06090f, 2.93713f,  -0.38711f,
@@ -800,13 +1403,13 @@ static const float av1_tx_type_nn_weights_4x16_ver_layer0[128] = {
   -0.27975f, -0.01149f,
 };
 
-static const float av1_tx_type_nn_bias_4x16_ver_layer0[16] = {
+static float av1_tx_type_nn_bias_4x16_ver_layer0[16] = {
   -1.37863f, -0.05763f, -0.07041f, 0.15306f,  0.96026f,  -1.42105f,
   -0.55822f, 1.04845f,  -0.17662f, -1.25345f, -0.11927f, 0.49845f,
   -0.32530f, 0.73483f,  0.08322f,  -0.23890f,
 };
 
-static const float av1_tx_type_nn_weights_4x16_ver_layer1[64] = {
+static float av1_tx_type_nn_weights_4x16_ver_layer1[64] = {
   0.27194f,  0.50607f,  0.49229f,  -0.48192f, 0.15667f,  -1.38891f, 0.38102f,
   -0.58825f, -0.07337f, -0.52909f, 0.36975f,  0.28710f,  0.34992f,  -0.73630f,
   0.30386f,  -0.58822f, 0.36127f,  0.57950f,  0.55878f,  -0.42796f, 0.19967f,
@@ -819,7 +1422,7 @@ static const float av1_tx_type_nn_weights_4x16_ver_layer1[64] = {
   -0.56513f,
 };
 
-static const float av1_tx_type_nn_bias_4x16_ver_layer1[4] = {
+static float av1_tx_type_nn_bias_4x16_ver_layer1[4] = {
   4.60896f,
   4.53551f,
   4.53124f,
@@ -837,10 +1440,53 @@ static const NN_CONFIG av1_tx_type_nnconfig_4x16_ver = {
     av1_tx_type_nn_weights_4x16_ver_layer1 },
   { av1_tx_type_nn_bias_4x16_ver_layer0, av1_tx_type_nn_bias_4x16_ver_layer1 }
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_4x16_ver_layer0_out[16]={0};
+static float av1_tx_type_nn_4x16_ver_layer0_dout[16]={0};
+static float av1_tx_type_nn_4x16_ver_layer0_dW[128]={0};
+static float av1_tx_type_nn_4x16_ver_layer0_db[16]={0};
+
+static float av1_tx_type_nn_4x16_ver_layer1_out[4]={0};
+static float av1_tx_type_nn_4x16_ver_layer1_dout[4]={0};
+static float av1_tx_type_nn_4x16_ver_layer1_dW[64]={0};
+static float av1_tx_type_nn_4x16_ver_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_4x16_ver_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      16,                                   // num_outputs
+      av1_tx_type_nn_weights_4x16_ver_layer0,  // weights
+      av1_tx_type_nn_bias_4x16_ver_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_4x16_ver_layer0_out,      // output
+      av1_tx_type_nn_4x16_ver_layer0_dout,     // dY
+      av1_tx_type_nn_4x16_ver_layer0_dW,       // dW
+      av1_tx_type_nn_4x16_ver_layer0_db,       // db
+    },
+    {
+      16,          // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_4x16_ver_layer1,
+      av1_tx_type_nn_bias_4x16_ver_layer1,
+      none,
+      av1_tx_type_nn_4x16_ver_layer1_out,
+      av1_tx_type_nn_4x16_ver_layer1_dout,
+      av1_tx_type_nn_4x16_ver_layer1_dW,
+      av1_tx_type_nn_4x16_ver_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_4x16_ver_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx type model for 16x4 block.
-static const float av1_tx_type_nn_weights_16x4_hor_layer0[128] = {
+static float av1_tx_type_nn_weights_16x4_hor_layer0[128] = {
   1.45347f,  -0.15743f, 0.44236f,  0.25808f,  0.33944f,  0.38678f,  0.24428f,
   1.67287f,  0.09539f,  -0.42940f, -0.31507f, -0.00154f, -2.98755f, -2.27744f,
   -0.49183f, 0.09333f,  -0.99026f, -0.22157f, 0.53701f,  0.60447f,  0.15686f,
@@ -862,13 +1508,13 @@ static const float av1_tx_type_nn_weights_16x4_hor_layer0[128] = {
   0.19055f,  -1.56413f,
 };
 
-static const float av1_tx_type_nn_bias_16x4_hor_layer0[16] = {
+static float av1_tx_type_nn_bias_16x4_hor_layer0[16] = {
   -1.71227f, 0.47291f, -0.97536f, -0.66216f, 0.11729f,  -0.21451f,
   2.75281f,  0.04318f, 2.03965f,  0.14618f,  -0.70483f, -0.24517f,
   1.14048f,  0.33308f, -1.10886f, 0.41184f,
 };
 
-static const float av1_tx_type_nn_weights_16x4_hor_layer1[64] = {
+static float av1_tx_type_nn_weights_16x4_hor_layer1[64] = {
   -1.17079f, 0.19096f,  -1.05753f, -0.30803f, -1.21680f, -0.67255f, 1.60115f,
   0.05972f,  1.44759f,  -0.04068f, -0.26331f, 0.31400f,  0.96923f,  0.33443f,
   -0.77215f, -0.91316f, -1.78928f, 0.21483f,  -1.24008f, -0.46190f, -0.12127f,
@@ -881,7 +1527,7 @@ static const float av1_tx_type_nn_weights_16x4_hor_layer1[64] = {
   -0.43819f,
 };
 
-static const float av1_tx_type_nn_bias_16x4_hor_layer1[4] = {
+static float av1_tx_type_nn_bias_16x4_hor_layer1[4] = {
   2.32575f,
   2.75703f,
   1.12304f,
@@ -900,7 +1546,50 @@ static const NN_CONFIG av1_tx_type_nnconfig_16x4_hor = {
   { av1_tx_type_nn_bias_16x4_hor_layer0, av1_tx_type_nn_bias_16x4_hor_layer1 }
 };
 
-static const float av1_tx_type_nn_weights_16x4_ver_layer0[32] = {
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_16x4_hor_layer0_out[16]={0};
+static float av1_tx_type_nn_16x4_hor_layer0_dout[16]={0};
+static float av1_tx_type_nn_16x4_hor_layer0_dW[128]={0};
+static float av1_tx_type_nn_16x4_hor_layer0_db[16]={0};
+
+static float av1_tx_type_nn_16x4_hor_layer1_out[4]={0};
+static float av1_tx_type_nn_16x4_hor_layer1_dout[4]={0};
+static float av1_tx_type_nn_16x4_hor_layer1_dW[64]={0};
+static float av1_tx_type_nn_16x4_hor_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_16x4_hor_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      16,                                   // num_outputs
+      av1_tx_type_nn_weights_16x4_hor_layer0,  // weights
+      av1_tx_type_nn_bias_16x4_hor_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_16x4_hor_layer0_out,      // output
+      av1_tx_type_nn_16x4_hor_layer0_dout,     // dY
+      av1_tx_type_nn_16x4_hor_layer0_dW,       // dW
+      av1_tx_type_nn_16x4_hor_layer0_db,       // db
+    },
+    {
+      16,          // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_16x4_hor_layer1,
+      av1_tx_type_nn_bias_16x4_hor_layer1,
+      none,
+      av1_tx_type_nn_16x4_hor_layer1_out,
+      av1_tx_type_nn_16x4_hor_layer1_dout,
+      av1_tx_type_nn_16x4_hor_layer1_dW,
+      av1_tx_type_nn_16x4_hor_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_16x4_hor_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
+
+static float av1_tx_type_nn_weights_16x4_ver_layer0[32] = {
   0.26047f,  0.99930f,  1.16484f,  -0.28196f, -2.67483f, -0.21456f, -0.16854f,
   0.46375f,  1.47951f,  1.13735f,  1.12356f,  0.27385f,  0.50978f,  2.09967f,
   -1.47386f, 0.01950f,  -0.06362f, 0.26014f,  1.04544f,  -0.03099f, 0.07478f,
@@ -908,12 +1597,12 @@ static const float av1_tx_type_nn_weights_16x4_ver_layer0[32] = {
   -0.17967f, -0.96622f, 0.42635f,  -1.04784f,
 };
 
-static const float av1_tx_type_nn_bias_16x4_ver_layer0[8] = {
+static float av1_tx_type_nn_bias_16x4_ver_layer0[8] = {
   -0.52088f, 0.52844f,  -1.03655f, -0.30974f,
   2.59952f,  -1.93604f, 0.00000f,  2.51787f,
 };
 
-static const float av1_tx_type_nn_weights_16x4_ver_layer1[32] = {
+static float av1_tx_type_nn_weights_16x4_ver_layer1[32] = {
   0.10916f,  -0.21219f, -0.51340f, 0.69161f,  1.45988f,  -1.36942f, -0.40899f,
   1.05136f,  -0.08486f, 0.10008f,  -0.55304f, 0.88012f,  1.61177f,  -1.64507f,
   0.63428f,  1.15130f,  -0.17287f, -0.18592f, -0.01143f, 0.88293f,  1.73326f,
@@ -921,7 +1610,7 @@ static const float av1_tx_type_nn_weights_16x4_ver_layer1[32] = {
   1.26814f,  -1.93873f, -0.00768f, 1.58309f,
 };
 
-static const float av1_tx_type_nn_bias_16x4_ver_layer1[4] = {
+static float av1_tx_type_nn_bias_16x4_ver_layer1[4] = {
   2.34713f,
   1.68667f,
   1.25488f,
@@ -939,6 +1628,49 @@ static const NN_CONFIG av1_tx_type_nnconfig_16x4_ver = {
     av1_tx_type_nn_weights_16x4_ver_layer1 },
   { av1_tx_type_nn_bias_16x4_ver_layer0, av1_tx_type_nn_bias_16x4_ver_layer1 }
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_type_nn_16x4_ver_layer0_out[8]={0};
+static float av1_tx_type_nn_16x4_ver_layer0_dout[8]={0};
+static float av1_tx_type_nn_16x4_ver_layer0_dW[32]={0};
+static float av1_tx_type_nn_16x4_ver_layer0_db[8]={0};
+
+static float av1_tx_type_nn_16x4_ver_layer1_out[4]={0};
+static float av1_tx_type_nn_16x4_ver_layer1_dout[4]={0};
+static float av1_tx_type_nn_16x4_ver_layer1_dW[32]={0};
+static float av1_tx_type_nn_16x4_ver_layer1_db[4]={0};
+
+static NN_CONFIG_v2 av1_tx_type_nnconfig_16x4_ver_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      4,                                   // num_inputs
+      8,                                   // num_outputs
+      av1_tx_type_nn_weights_16x4_ver_layer0,  // weights
+      av1_tx_type_nn_bias_16x4_ver_layer0,     // bias
+      relu,                                // activation
+      av1_tx_type_nn_16x4_ver_layer0_out,      // output
+      av1_tx_type_nn_16x4_ver_layer0_dout,     // dY
+      av1_tx_type_nn_16x4_ver_layer0_dW,       // dW
+      av1_tx_type_nn_16x4_ver_layer0_db,       // db
+    },
+    {
+      8,           // num_inputs (!!same as num_outputs of last layer)
+      4,
+      av1_tx_type_nn_weights_16x4_ver_layer1,
+      av1_tx_type_nn_bias_16x4_ver_layer1,
+      none,
+      av1_tx_type_nn_16x4_ver_layer1_out,
+      av1_tx_type_nn_16x4_ver_layer1_dout,
+      av1_tx_type_nn_16x4_ver_layer1_dW,
+      av1_tx_type_nn_16x4_ver_layer1_db,
+    },
+  },
+  4,          // num_outputs
+  av1_tx_type_nn_16x4_ver_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Map tx_size to its corresponding neural net model for tx type prediction.
@@ -986,8 +1718,54 @@ static const NN_CONFIG *av1_tx_type_nnconfig_map_ver[] = {
   NULL,                            // 64x16 transform
 };
 
+#if CONFIG_NN_FORWARD_V2
+static NN_CONFIG_v2 *av1_tx_type_nnconfig_map_hor_v2[] = {
+  &av1_tx_type_nnconfig_4x4_hor_v2,   // 4x4 transform
+  &av1_tx_type_nnconfig_8x8_hor_v2,   // 8x8 transform
+  &av1_tx_type_nnconfig_16x16_v2,     // 16x16 transform
+  NULL,                            // 32x32 transform
+  NULL,                            // 64x64 transform
+  &av1_tx_type_nnconfig_4x8_hor_v2,   // 4x8 transform
+  &av1_tx_type_nnconfig_8x4_hor_v2,   // 8x4 transform
+  &av1_tx_type_nnconfig_8x16_hor_v2,  // 8x16 transform
+  &av1_tx_type_nnconfig_16x8_hor_v2,  // 16x8 transform
+  NULL,                            // 16x32 transform
+  NULL,                            // 32x16 transform
+  NULL,                            // 32x64 transform
+  NULL,                            // 64x32 transform
+  &av1_tx_type_nnconfig_4x16_hor_v2,  // 4x16 transform
+  &av1_tx_type_nnconfig_16x4_hor_v2,  // 16x4 transform
+  NULL,                            // 8x32 transform
+  NULL,                            // 32x8 transform
+  NULL,                            // 16x64 transform
+  NULL,                            // 64x16 transform
+};
+
+static NN_CONFIG_v2 *av1_tx_type_nnconfig_map_ver_v2[] = {
+  &av1_tx_type_nnconfig_4x4_ver_v2,   // 4x4 transform
+  &av1_tx_type_nnconfig_8x8_ver_v2,   // 8x8 transform
+  &av1_tx_type_nnconfig_16x16_v2,     // 16x16 transform
+  NULL,                            // 32x32 transform
+  NULL,                            // 64x64 transform
+  &av1_tx_type_nnconfig_4x8_ver_v2,   // 4x8 transform
+  &av1_tx_type_nnconfig_8x4_ver_v2,   // 8x4 transform
+  &av1_tx_type_nnconfig_8x16_ver_v2,  // 8x16 transform
+  &av1_tx_type_nnconfig_16x8_ver_v2,  // 16x8 transform
+  NULL,                            // 16x32 transform
+  NULL,                            // 32x16 transform
+  NULL,                            // 32x64 transform
+  NULL,                            // 64x32 transform
+  &av1_tx_type_nnconfig_4x16_ver_v2,  // 4x16 transform
+  &av1_tx_type_nnconfig_16x4_ver_v2,  // 16x4 transform
+  NULL,                            // 8x32 transform
+  NULL,                            // 32x8 transform
+  NULL,                            // 16x64 transform
+  NULL,                            // 64x16 transform
+};
+#endif
+
 // Tx split model for 4x8 block.
-static const float av1_tx_split_nn_weights_4x8_layer0[8 * 16] = {
+static float av1_tx_split_nn_weights_4x8_layer0[8 * 16] = {
   0.068650f,  -0.732073f, -0.040361f, 0.322550f,  -0.021123f, 0.212518f,
   -0.350546f, 0.435987f,  -0.111756f, -0.401568f, 0.069548f,  -0.313000f,
   0.073918f,  -0.373805f, -0.775810f, -0.124753f, 0.181094f,  -0.602641f,
@@ -1012,19 +1790,19 @@ static const float av1_tx_split_nn_weights_4x8_layer0[8 * 16] = {
   -0.792429f, -0.385862f,
 };
 
-static const float av1_tx_split_nn_bias_4x8_layer0[16] = {
+static float av1_tx_split_nn_bias_4x8_layer0[16] = {
   0.238621f,  2.186830f,  1.383035f,  -0.867139f, 1.257119f, -0.351571f,
   -0.240650f, -0.971692f, 2.744843f,  1.116991f,  0.139062f, -0.165332f,
   0.262171f,  -1.598153f, -1.427340f, -1.602306f,
 };
 
-static const float av1_tx_split_nn_weights_4x8_layer1[16] = {
+static float av1_tx_split_nn_weights_4x8_layer1[16] = {
   -0.367134f, 1.373058f, -0.897039f, -0.326819f, -0.734030f, -0.290413f,
   -0.501249f, 0.505321f, -0.537692f, -0.767893f, 0.268697f,  0.278987f,
   0.085082f,  0.614986f, 0.847904f,  0.637578f,
 };
 
-static const float av1_tx_split_nn_bias_4x8_layer1[1] = {
+static float av1_tx_split_nn_bias_4x8_layer1[1] = {
   0.20586078f,
 };
 
@@ -1044,10 +1822,53 @@ static const NN_CONFIG av1_tx_split_nnconfig_4x8 = {
       av1_tx_split_nn_bias_4x8_layer1,
   },
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_split_nn_4x8_layer0_out[16]={0};
+static float av1_tx_split_nn_4x8_layer0_dout[16]={0};
+static float av1_tx_split_nn_4x8_layer0_dW[8*16]={0};
+static float av1_tx_split_nn_4x8_layer0_db[16]={0};
+
+static float av1_tx_split_nn_4x8_layer1_out[1]={0};
+static float av1_tx_split_nn_4x8_layer1_dout[1]={0};
+static float av1_tx_split_nn_4x8_layer1_dW[16]={0};
+static float av1_tx_split_nn_4x8_layer1_db[1]={0};
+
+static NN_CONFIG_v2 av1_tx_split_nnconfig_4x8_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      16,                                   // num_outputs
+      av1_tx_split_nn_weights_4x8_layer0,  // weights
+      av1_tx_split_nn_bias_4x8_layer0,     // bias
+      relu,                                // activation
+      av1_tx_split_nn_4x8_layer0_out,      // output
+      av1_tx_split_nn_4x8_layer0_dout,     // dY
+      av1_tx_split_nn_4x8_layer0_dW,       // dW
+      av1_tx_split_nn_4x8_layer0_db,       // db
+    },
+    {
+      16,             // num_inputs (!!same as num_outputs of last layer)
+      1,
+      av1_tx_split_nn_weights_4x8_layer1,
+      av1_tx_split_nn_bias_4x8_layer1,
+      none,
+      av1_tx_split_nn_4x8_layer1_out,
+      av1_tx_split_nn_4x8_layer1_dout,
+      av1_tx_split_nn_4x8_layer1_dW,
+      av1_tx_split_nn_4x8_layer1_db,
+    },
+  },
+  1,          // num_outputs
+  av1_tx_split_nn_4x8_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx split model for 8x8 block.
-static const float av1_tx_split_nn_weights_8x8_layer0[144] = {
+static float av1_tx_split_nn_weights_8x8_layer0[144] = {
   0.177983f,  -0.938386f, -0.074460f, -0.221843f, -0.073182f, -0.295155f,
   -0.098202f, -0.279510f, 0.001054f,  -0.119319f, -1.835282f, -0.581507f,
   -1.222222f, -1.049006f, -0.807508f, -0.454252f, -0.774879f, -0.180607f,
@@ -1074,17 +1895,17 @@ static const float av1_tx_split_nn_weights_8x8_layer0[144] = {
   0.081185f,  0.127420f,  0.083664f,  0.051096f,  1.361688f,  0.386093f,
 };
 
-static const float av1_tx_split_nn_bias_8x8_layer0[12] = {
+static float av1_tx_split_nn_bias_8x8_layer0[12] = {
   4.280443f, 2.218902f, -0.256953f, 3.161431f,  2.082548f, 2.506052f,
   2.563224f, 1.421976f, -1.627813f, -1.436085f, 2.297265f, 1.500469f,
 };
 
-static const float av1_tx_split_nn_weights_8x8_layer1[12] = {
+static float av1_tx_split_nn_weights_8x8_layer1[12] = {
   1.178833f,  -0.428527f, -0.078737f, 0.381434f, -0.466895f, -0.901745f,
   -0.766968f, -0.356663f, 0.450146f,  0.509370f, -0.356604f, -0.443506f,
 };
 
-static const float av1_tx_split_nn_bias_8x8_layer1[1] = {
+static float av1_tx_split_nn_bias_8x8_layer1[1] = {
   -0.156294f,
 };
 
@@ -1104,10 +1925,53 @@ static const NN_CONFIG av1_tx_split_nnconfig_8x8 = {
       av1_tx_split_nn_bias_8x8_layer1,
   },
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_split_nn_8x8_layer0_out[12]={0};
+static float av1_tx_split_nn_8x8_layer0_dout[12]={0};
+static float av1_tx_split_nn_8x8_layer0_dW[144]={0};
+static float av1_tx_split_nn_8x8_layer0_db[12]={0};
+
+static float av1_tx_split_nn_8x8_layer1_out[1]={0};
+static float av1_tx_split_nn_8x8_layer1_dout[1]={0};
+static float av1_tx_split_nn_8x8_layer1_dW[12]={0};
+static float av1_tx_split_nn_8x8_layer1_db[1]={0};
+
+static NN_CONFIG_v2 av1_tx_split_nnconfig_8x8_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      12,                                   // num_inputs
+      12,                                   // num_outputs
+      av1_tx_split_nn_weights_8x8_layer0,  // weights
+      av1_tx_split_nn_bias_8x8_layer0,     // bias
+      relu,                                // activation
+      av1_tx_split_nn_8x8_layer0_out,      // output
+      av1_tx_split_nn_8x8_layer0_dout,     // dY
+      av1_tx_split_nn_8x8_layer0_dW,       // dW
+      av1_tx_split_nn_8x8_layer0_db,       // db
+    },
+    {
+      12,           // num_inputs (!!same as num_outputs of last layer)
+      1,
+      av1_tx_split_nn_weights_8x8_layer1,
+      av1_tx_split_nn_bias_8x8_layer1,
+      none,
+      av1_tx_split_nn_8x8_layer1_out,
+      av1_tx_split_nn_8x8_layer1_dout,
+      av1_tx_split_nn_8x8_layer1_dW,
+      av1_tx_split_nn_8x8_layer1_db,
+    },
+  },
+  1,          // num_outputs
+  av1_tx_split_nn_8x8_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx split model for 8x16 block.
-static const float av1_tx_split_nn_weights_8x16_layer0[8 * 64] = {
+static float av1_tx_split_nn_weights_8x16_layer0[8 * 64] = {
   0.374660f,  0.218905f,  -0.139779f, 0.212141f,  0.056517f,  0.051114f,
   0.042860f,  -0.273258f, -0.340809f, 0.138983f,  -0.216996f, -0.241519f,
   -0.123244f, 0.078577f,  -0.472273f, -0.194201f, 0.125056f,  0.239761f,
@@ -1196,7 +2060,7 @@ static const float av1_tx_split_nn_weights_8x16_layer0[8 * 64] = {
   -0.408768f, 0.184693f,
 };
 
-static const float av1_tx_split_nn_bias_8x16_layer0[64] = {
+static float av1_tx_split_nn_bias_8x16_layer0[64] = {
   -0.274107f, 0.445751f,  0.234359f,  0.291593f,  0.163298f,  0.183707f,
   -0.548839f, -0.190779f, -0.163346f, -0.669028f, 0.399209f,  -0.354974f,
   0.000000f,  -0.254630f, 0.220149f,  0.371104f,  0.789759f,  0.270300f,
@@ -1210,7 +2074,7 @@ static const float av1_tx_split_nn_bias_8x16_layer0[64] = {
   -0.255844f, -0.078400f, 0.476752f,  0.643001f,
 };
 
-static const float av1_tx_split_nn_weights_8x16_layer1[64] = {
+static float av1_tx_split_nn_weights_8x16_layer1[64] = {
   -0.145065f, -0.145101f, 0.174786f,  0.196692f,  0.102025f,  -0.087735f,
   0.386353f,  -0.660539f, -0.183940f, 0.490045f,  -0.276404f, -0.145669f,
   0.209846f,  -0.085574f, -0.156821f, -0.377450f, -0.950010f, 0.450709f,
@@ -1224,7 +2088,7 @@ static const float av1_tx_split_nn_weights_8x16_layer1[64] = {
   -0.256734f, 0.177370f,  0.213522f,  -0.530158f,
 };
 
-static const float av1_tx_split_nn_bias_8x16_layer1[1] = {
+static float av1_tx_split_nn_bias_8x16_layer1[1] = {
   0.14910713f,
 };
 
@@ -1244,10 +2108,53 @@ static const NN_CONFIG av1_tx_split_nnconfig_8x16 = {
       av1_tx_split_nn_bias_8x16_layer1,
   },
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_split_nn_8x16_layer0_out[64]={0};
+static float av1_tx_split_nn_8x16_layer0_dout[64]={0};
+static float av1_tx_split_nn_8x16_layer0_dW[8*64]={0};
+static float av1_tx_split_nn_8x16_layer0_db[64]={0};
+
+static float av1_tx_split_nn_8x16_layer1_out[1]={0};
+static float av1_tx_split_nn_8x16_layer1_dout[1]={0};
+static float av1_tx_split_nn_8x16_layer1_dW[64]={0};
+static float av1_tx_split_nn_8x16_layer1_db[1]={0};
+
+static NN_CONFIG_v2 av1_tx_split_nnconfig_8x16_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      64,                                   // num_outputs
+      av1_tx_split_nn_weights_8x16_layer0,  // weights
+      av1_tx_split_nn_bias_8x16_layer0,     // bias
+      relu,                                // activation
+      av1_tx_split_nn_8x16_layer0_out,      // output
+      av1_tx_split_nn_8x16_layer0_dout,     // dY
+      av1_tx_split_nn_8x16_layer0_dW,       // dW
+      av1_tx_split_nn_8x16_layer0_db,       // db
+    },
+    {
+      64,              // num_inputs (!!same as num_outputs of last layer)
+      1,
+      av1_tx_split_nn_weights_8x16_layer1,
+      av1_tx_split_nn_bias_8x16_layer1,
+      none,
+      av1_tx_split_nn_8x16_layer1_out,
+      av1_tx_split_nn_8x16_layer1_dout,
+      av1_tx_split_nn_8x16_layer1_dW,
+      av1_tx_split_nn_8x16_layer1_db,
+    },
+  },
+  1,          // num_outputs
+  av1_tx_split_nn_8x16_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx split model for 16x16 block.
-static const float av1_tx_split_nn_weights_16x16_layer0[12 * 24] = {
+static float av1_tx_split_nn_weights_16x16_layer0[12 * 24] = {
   -0.177215f, -0.297166f, 0.299924f,  0.207878f,  0.216871f,  0.173264f,
   0.295464f,  0.048395f,  0.154731f,  0.305880f,  0.056787f,  -0.166617f,
   0.115653f,  -0.529477f, -0.073995f, -0.211746f, -0.018169f, 0.000788f,
@@ -1298,21 +2205,21 @@ static const float av1_tx_split_nn_weights_16x16_layer0[12 * 24] = {
   0.044115f,  0.004065f,  0.066729f,  0.043558f,  0.102991f,  -0.477574f,
 };
 
-static const float av1_tx_split_nn_bias_16x16_layer0[24] = {
+static float av1_tx_split_nn_bias_16x16_layer0[24] = {
   -0.479033f, 1.467402f,  -0.366291f, 0.372511f,  0.715322f,  -0.605500f,
   0.176848f,  0.032318f,  0.237429f,  -0.046047f, 0.452082f,  0.451805f,
   -0.822845f, 0.636762f,  -0.057350f, 1.163978f,  0.728287f,  0.603654f,
   -0.245519f, -0.893569f, -1.428185f, 0.808870f,  -0.076159f, 1.231976f,
 };
 
-static const float av1_tx_split_nn_weights_16x16_layer1[24] = {
+static float av1_tx_split_nn_weights_16x16_layer1[24] = {
   -0.176161f, 1.670188f, -0.180755f, -0.321326f, 0.249728f,  -0.170504f,
   -0.538432f, 0.033893f, 0.149842f,  0.404140f,  -0.377812f, 0.338838f,
   -0.176091f, 0.249844f, -0.362533f, 1.412460f,  0.196862f,  0.278194f,
   -0.140444f, 0.297746f, 0.172533f,  0.116470f,  -0.151656f, -0.603250f,
 };
 
-static const float av1_tx_split_nn_bias_16x16_layer1[1] = {
+static float av1_tx_split_nn_bias_16x16_layer1[1] = {
   0.184803f,
 };
 
@@ -1332,10 +2239,53 @@ static const NN_CONFIG av1_tx_split_nnconfig_16x16 = {
       av1_tx_split_nn_bias_16x16_layer1,
   },
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_split_nn_16x16_layer0_out[24]={0};
+static float av1_tx_split_nn_16x16_layer0_dout[24]={0};
+static float av1_tx_split_nn_16x16_layer0_dW[12*24]={0};
+static float av1_tx_split_nn_16x16_layer0_db[24]={0};
+
+static float av1_tx_split_nn_16x16_layer1_out[1]={0};
+static float av1_tx_split_nn_16x16_layer1_dout[1]={0};
+static float av1_tx_split_nn_16x16_layer1_dW[24]={0};
+static float av1_tx_split_nn_16x16_layer1_db[1]={0};
+
+static NN_CONFIG_v2 av1_tx_split_nnconfig_16x16_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      12,                                   // num_inputs
+      24,                                   // num_outputs
+      av1_tx_split_nn_weights_16x16_layer0,  // weights
+      av1_tx_split_nn_bias_16x16_layer0,     // bias
+      relu,                                // activation
+      av1_tx_split_nn_16x16_layer0_out,      // output
+      av1_tx_split_nn_16x16_layer0_dout,     // dY
+      av1_tx_split_nn_16x16_layer0_dW,       // dW
+      av1_tx_split_nn_16x16_layer0_db,       // db
+    },
+    {
+      24,           // num_inputs (!!same as num_outputs of last layer)
+      1,
+      av1_tx_split_nn_weights_16x16_layer1,
+      av1_tx_split_nn_bias_16x16_layer1,
+      none,
+      av1_tx_split_nn_16x16_layer1_out,
+      av1_tx_split_nn_16x16_layer1_dout,
+      av1_tx_split_nn_16x16_layer1_dW,
+      av1_tx_split_nn_16x16_layer1_db,
+    },
+  },
+  1,          // num_outputs
+  av1_tx_split_nn_16x16_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx split model for 32x32 block.
-static const float av1_tx_split_nn_weights_32x32_layer0[12 * 32] = {
+static float av1_tx_split_nn_weights_32x32_layer0[12 * 32] = {
   -0.439303f, 0.004813f,  -0.365052f, -0.116868f, -0.356716f, -0.196537f,
   -0.196770f, -0.076096f, 0.357004f,  -0.044909f, -0.112910f, -0.129081f,
   0.156725f,  -0.386346f, 0.038971f,  0.160696f,  0.204923f,  -0.384333f,
@@ -1402,7 +2352,7 @@ static const float av1_tx_split_nn_weights_32x32_layer0[12 * 32] = {
   0.391863f,  -0.214244f, -0.241734f, -0.281851f, -0.035133f, -0.153157f,
 };
 
-static const float av1_tx_split_nn_bias_32x32_layer0[32] = {
+static float av1_tx_split_nn_bias_32x32_layer0[32] = {
   0.143343f,  -0.021982f, -0.314939f, 0.170867f,  -0.081248f, 0.125758f,
   -0.355762f, 0.279798f,  1.027712f,  -0.434660f, 1.072005f,  0.668893f,
   -0.031216f, -0.528650f, 0.328349f,  0.543645f,  -0.188810f, 0.221110f,
@@ -1411,7 +2361,7 @@ static const float av1_tx_split_nn_bias_32x32_layer0[32] = {
   0.254942f,  -0.017796f,
 };
 
-static const float av1_tx_split_nn_weights_32x32_layer1[32] = {
+static float av1_tx_split_nn_weights_32x32_layer1[32] = {
   -0.090326f, -0.267553f, -0.026071f, 0.100912f,  0.279137f,  0.079064f,
   -0.074885f, 0.053804f,  0.736810f,  -0.031693f, -0.970514f, 0.174069f,
   0.095940f,  -0.065047f, 0.052911f,  0.176728f,  -0.058274f, 0.148364f,
@@ -1420,7 +2370,7 @@ static const float av1_tx_split_nn_weights_32x32_layer1[32] = {
   -0.068547f, -0.154148f,
 };
 
-static const float av1_tx_split_nn_bias_32x32_layer1[1] = {
+static float av1_tx_split_nn_bias_32x32_layer1[1] = {
   0.316622f,
 };
 
@@ -1440,10 +2390,53 @@ static const NN_CONFIG av1_tx_split_nnconfig_32x32 = {
       av1_tx_split_nn_bias_32x32_layer1,
   },
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_split_nn_32x32_layer0_out[32]={0};
+static float av1_tx_split_nn_32x32_layer0_dout[32]={0};
+static float av1_tx_split_nn_32x32_layer0_dW[12*32]={0};
+static float av1_tx_split_nn_32x32_layer0_db[32]={0};
+
+static float av1_tx_split_nn_32x32_layer1_out[1]={0};
+static float av1_tx_split_nn_32x32_layer1_dout[1]={0};
+static float av1_tx_split_nn_32x32_layer1_dW[32]={0};
+static float av1_tx_split_nn_32x32_layer1_db[1]={0};
+
+static NN_CONFIG_v2 av1_tx_split_nnconfig_32x32_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      12,                                   // num_inputs
+      32,                                   // num_outputs
+      av1_tx_split_nn_weights_32x32_layer0,  // weights
+      av1_tx_split_nn_bias_32x32_layer0,     // bias
+      relu,                                // activation
+      av1_tx_split_nn_32x32_layer0_out,      // output
+      av1_tx_split_nn_32x32_layer0_dout,     // dY
+      av1_tx_split_nn_32x32_layer0_dW,       // dW
+      av1_tx_split_nn_32x32_layer0_db,       // db
+    },
+    {
+      32,           // num_inputs (!!same as num_outputs of last layer)
+      1,
+      av1_tx_split_nn_weights_32x32_layer1,
+      av1_tx_split_nn_bias_32x32_layer1,
+      none,
+      av1_tx_split_nn_32x32_layer1_out,
+      av1_tx_split_nn_32x32_layer1_dout,
+      av1_tx_split_nn_32x32_layer1_dW,
+      av1_tx_split_nn_32x32_layer1_db,
+    },
+  },
+  1,          // num_outputs
+  av1_tx_split_nn_32x32_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx split model for 64x64 block.
-static const float av1_tx_split_nn_weights_64x64_layer0[12 * 32] = {
+static float av1_tx_split_nn_weights_64x64_layer0[12 * 32] = {
   -0.006828f, 0.149944f,  -0.017614f, -0.044599f, -0.024517f, 0.507698f,
   0.001039f,  0.037164f,  0.015091f,  -0.306620f, -0.162047f, -0.369440f,
   0.396310f,  0.087121f,  0.208609f,  -0.083068f, 0.493774f,  0.217682f,
@@ -1510,7 +2503,7 @@ static const float av1_tx_split_nn_weights_64x64_layer0[12 * 32] = {
   0.302659f,  -0.209501f, 0.217756f,  0.253079f,  -0.089505f, -0.205614f,
 };
 
-static const float av1_tx_split_nn_bias_64x64_layer0[32] = {
+static float av1_tx_split_nn_bias_64x64_layer0[32] = {
   0.296914f,  -1.826816f, 0.346130f,  0.969520f,  -0.528154f, 1.175862f,
   -0.075985f, -0.097323f, -0.233059f, 0.004846f,  0.401279f,  -2.272435f,
   0.086257f,  0.414162f,  -0.194786f, -0.233887f, -0.113215f, -2.453546f,
@@ -1519,7 +2512,7 @@ static const float av1_tx_split_nn_bias_64x64_layer0[32] = {
   -0.365437f, 0.229255f,
 };
 
-static const float av1_tx_split_nn_weights_64x64_layer1[32] = {
+static float av1_tx_split_nn_weights_64x64_layer1[32] = {
   0.502104f,  -0.708023f, 0.419648f,  1.583418f,  0.419355f,  -1.462981f,
   -0.439623f, 0.405691f,  0.823257f,  0.061654f,  0.750875f,  0.775031f,
   -0.387909f, 0.447385f,  0.284690f,  0.353262f,  -0.224347f, 0.832864f,
@@ -1528,7 +2521,7 @@ static const float av1_tx_split_nn_weights_64x64_layer1[32] = {
   0.207812f,  0.513560f,
 };
 
-static const float av1_tx_split_nn_bias_64x64_layer1[1] = { -0.2307045f };
+static float av1_tx_split_nn_bias_64x64_layer1[1] = { -0.2307045f };
 
 static const NN_CONFIG av1_tx_split_nnconfig_64x64 = {
   12,  // num_inputs
@@ -1546,10 +2539,53 @@ static const NN_CONFIG av1_tx_split_nnconfig_64x64 = {
       av1_tx_split_nn_bias_64x64_layer1,
   },
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_split_nn_64x64_layer0_out[32]={0};
+static float av1_tx_split_nn_64x64_layer0_dout[32]={0};
+static float av1_tx_split_nn_64x64_layer0_dW[12*32]={0};
+static float av1_tx_split_nn_64x64_layer0_db[32]={0};
+
+static float av1_tx_split_nn_64x64_layer1_out[1]={0};
+static float av1_tx_split_nn_64x64_layer1_dout[1]={0};
+static float av1_tx_split_nn_64x64_layer1_dW[32]={0};
+static float av1_tx_split_nn_64x64_layer1_db[1]={0};
+
+static NN_CONFIG_v2 av1_tx_split_nnconfig_64x64_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      12,                                   // num_inputs
+      32,                                   // num_outputs
+      av1_tx_split_nn_weights_64x64_layer0,  // weights
+      av1_tx_split_nn_bias_64x64_layer0,     // bias
+      relu,                                // activation
+      av1_tx_split_nn_64x64_layer0_out,      // output
+      av1_tx_split_nn_64x64_layer0_dout,     // dY
+      av1_tx_split_nn_64x64_layer0_dW,       // dW
+      av1_tx_split_nn_64x64_layer0_db,       // db
+    },
+    {
+      32,       // num_inputs (!!same as num_outputs of last layer)
+      1,
+      av1_tx_split_nn_weights_64x64_layer1,
+      av1_tx_split_nn_bias_64x64_layer1,
+      none,
+      av1_tx_split_nn_64x64_layer1_out,
+      av1_tx_split_nn_64x64_layer1_dout,
+      av1_tx_split_nn_64x64_layer1_dW,
+      av1_tx_split_nn_64x64_layer1_db,
+    },
+  },
+  1,          // num_outputs
+  av1_tx_split_nn_64x64_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx split model for 4x16 block.
-static const float av1_tx_split_nn_weights_4x16_layer0[8 * 16] = {
+static float av1_tx_split_nn_weights_4x16_layer0[8 * 16] = {
   -1.344184f, -1.454625f, -0.703110f, -0.140570f, -0.841536f, -0.068131f,
   -2.128968f, -0.655518f, 0.432180f,  0.879752f,  -0.222211f, 0.061615f,
   -0.230969f, 0.569496f,  1.424188f,  0.598063f,  -0.436005f, -0.737606f,
@@ -1574,19 +2610,19 @@ static const float av1_tx_split_nn_weights_4x16_layer0[8 * 16] = {
   -1.416451f, -0.166467f,
 };
 
-static const float av1_tx_split_nn_bias_4x16_layer0[16] = {
+static float av1_tx_split_nn_bias_4x16_layer0[16] = {
   3.086118f,  -3.235095f, 4.830956f,  -0.165706f, 0.955031f,  4.055783f,
   -0.311489f, 4.660205f,  -0.576277f, -0.248111f, -0.790519f, -1.686412f,
   -1.191704f, -3.800073f, 4.121552f,  -1.399397f,
 };
 
-static const float av1_tx_split_nn_weights_4x16_layer1[16] = {
+static float av1_tx_split_nn_weights_4x16_layer1[16] = {
   -0.758677f, 0.388776f,  0.439906f,  0.011390f, -0.084319f, -0.667969f,
   -0.467316f, -0.875491f, -0.160668f, 0.805292f, 0.114393f,  -0.549682f,
   0.462109f,  0.343315f,  1.092593f,  0.483152f,
 };
 
-static const float av1_tx_split_nn_bias_4x16_layer1[1] = {
+static float av1_tx_split_nn_bias_4x16_layer1[1] = {
   0.8205083f,
 };
 
@@ -1606,10 +2642,53 @@ static const NN_CONFIG av1_tx_split_nnconfig_4x16 = {
       av1_tx_split_nn_bias_4x16_layer1,
   },
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_split_nn_4x16_layer0_out[16]={0};
+static float av1_tx_split_nn_4x16_layer0_dout[16]={0};
+static float av1_tx_split_nn_4x16_layer0_dW[8*16]={0};
+static float av1_tx_split_nn_4x16_layer0_db[16]={0};
+
+static float av1_tx_split_nn_4x16_layer1_out[1]={0};
+static float av1_tx_split_nn_4x16_layer1_dout[1]={0};
+static float av1_tx_split_nn_4x16_layer1_dW[16]={0};
+static float av1_tx_split_nn_4x16_layer1_db[1]={0};
+
+static NN_CONFIG_v2 av1_tx_split_nnconfig_4x16_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      16,                                   // num_outputs
+      av1_tx_split_nn_weights_4x16_layer0,  // weights
+      av1_tx_split_nn_bias_4x16_layer0,     // bias
+      relu,                                // activation
+      av1_tx_split_nn_4x16_layer0_out,      // output
+      av1_tx_split_nn_4x16_layer0_dout,     // dY
+      av1_tx_split_nn_4x16_layer0_dW,       // dW
+      av1_tx_split_nn_4x16_layer0_db,       // db
+    },
+    {
+      16,          // num_inputs (!!same as num_outputs of last layer)
+      1,
+      av1_tx_split_nn_weights_4x16_layer1,
+      av1_tx_split_nn_bias_4x16_layer1,
+      none,
+      av1_tx_split_nn_4x16_layer1_out,
+      av1_tx_split_nn_4x16_layer1_dout,
+      av1_tx_split_nn_4x16_layer1_dW,
+      av1_tx_split_nn_4x16_layer1_db,
+    },
+  },
+  1,          // num_outputs
+  av1_tx_split_nn_4x16_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx split model for 16x32 block.
-static const float av1_tx_split_nn_weights_16x32_layer0[8 * 32] = {
+static float av1_tx_split_nn_weights_16x32_layer0[8 * 32] = {
   0.180713f,  0.033211f,  0.607561f,  0.138642f,  0.637204f,  -0.000940f,
   0.012630f,  0.358109f,  0.022238f,  0.190418f,  0.079088f,  0.065925f,
   0.038242f,  0.162380f,  -0.122728f, 0.379382f,  -0.303283f, -0.327550f,
@@ -1655,7 +2734,7 @@ static const float av1_tx_split_nn_weights_16x32_layer0[8 * 32] = {
   -0.129147f, 0.045916f,  -0.606865f, -0.101378f,
 };
 
-static const float av1_tx_split_nn_bias_16x32_layer0[32] = {
+static float av1_tx_split_nn_bias_16x32_layer0[32] = {
   0.051664f,  -0.212487f, -0.077596f, -0.818467f, 0.638475f,  -0.759937f,
   0.157198f,  0.989640f,  1.586035f,  0.431144f,  0.041605f,  0.543085f,
   0.498379f,  0.320504f,  0.134233f,  0.670979f,  -0.105562f, -1.574879f,
@@ -1664,7 +2743,7 @@ static const float av1_tx_split_nn_bias_16x32_layer0[32] = {
   -0.294389f, 1.456413f,
 };
 
-static const float av1_tx_split_nn_weights_16x32_layer1[32] = {
+static float av1_tx_split_nn_weights_16x32_layer1[32] = {
   1.208914f,  0.324728f,  0.383352f,  -0.874321f, 0.172565f,  -0.580927f,
   -0.432927f, 0.433698f,  -0.801935f, 0.672028f,  0.563493f,  0.260077f,
   -0.200557f, -0.121638f, 0.530735f,  -0.525196f, 0.281799f,  0.624204f,
@@ -1673,7 +2752,7 @@ static const float av1_tx_split_nn_weights_16x32_layer1[32] = {
   0.418904f,  1.792187f,
 };
 
-static const float av1_tx_split_nn_bias_16x32_layer1[1] = {
+static float av1_tx_split_nn_bias_16x32_layer1[1] = {
   -0.29233751f,
 };
 
@@ -1693,10 +2772,53 @@ static const NN_CONFIG av1_tx_split_nnconfig_16x32 = {
       av1_tx_split_nn_bias_16x32_layer1,
   },
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_split_nn_16x32_layer0_out[32]={0};
+static float av1_tx_split_nn_16x32_layer0_dout[32]={0};
+static float av1_tx_split_nn_16x32_layer0_dW[8*32]={0};
+static float av1_tx_split_nn_16x32_layer0_db[32]={0};
+
+static float av1_tx_split_nn_16x32_layer1_out[1]={0};
+static float av1_tx_split_nn_16x32_layer1_dout[1]={0};
+static float av1_tx_split_nn_16x32_layer1_dW[32]={0};
+static float av1_tx_split_nn_16x32_layer1_db[1]={0};
+
+static NN_CONFIG_v2 av1_tx_split_nnconfig_16x32_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      32,                                   // num_outputs
+      av1_tx_split_nn_weights_16x32_layer0,  // weights
+      av1_tx_split_nn_bias_16x32_layer0,     // bias
+      relu,                                // activation
+      av1_tx_split_nn_16x32_layer0_out,      // output
+      av1_tx_split_nn_16x32_layer0_dout,     // dY
+      av1_tx_split_nn_16x32_layer0_dW,       // dW
+      av1_tx_split_nn_16x32_layer0_db,       // db
+    },
+    {
+      32,       // num_inputs (!!same as num_outputs of last layer)
+      1,
+      av1_tx_split_nn_weights_16x32_layer1,
+      av1_tx_split_nn_bias_16x32_layer1,
+      none,
+      av1_tx_split_nn_16x32_layer1_out,
+      av1_tx_split_nn_16x32_layer1_dout,
+      av1_tx_split_nn_16x32_layer1_dW,
+      av1_tx_split_nn_16x32_layer1_db,
+    },
+  },
+  1,          // num_outputs
+  av1_tx_split_nn_16x32_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx split model for 32x64 block.
-static const float av1_tx_split_nn_weights_32x64_layer0[8 * 32] = {
+static float av1_tx_split_nn_weights_32x64_layer0[8 * 32] = {
   0.031614f,  -0.110926f, 0.052418f,  -0.702506f, 0.045708f,  0.238329f,
   -0.021806f, -0.208128f, 0.509745f,  -0.293891f, 0.277788f,  0.113937f,
   0.741576f,  0.062848f,  0.351878f,  0.212532f,  0.385842f,  0.081517f,
@@ -1742,7 +2864,7 @@ static const float av1_tx_split_nn_weights_32x64_layer0[8 * 32] = {
   0.440626f,  -0.158048f, -0.461031f, -0.146280f,
 };
 
-static const float av1_tx_split_nn_bias_32x64_layer0[32] = {
+static float av1_tx_split_nn_bias_32x64_layer0[32] = {
   0.490777f,  -1.894238f, 0.621333f,  -0.076756f, 0.286298f, 0.286375f,
   -0.126431f, -0.350034f, -1.017572f, 0.620125f,  0.408128f, 0.238756f,
   -0.060728f, 0.210912f,  0.043124f,  0.445649f,  0.907025f, 0.360272f,
@@ -1751,7 +2873,7 @@ static const float av1_tx_split_nn_bias_32x64_layer0[32] = {
   0.552712f,  0.299410f,
 };
 
-static const float av1_tx_split_nn_weights_32x64_layer1[32] = {
+static float av1_tx_split_nn_weights_32x64_layer1[32] = {
   1.033823f,  0.603439f,  0.304591f,  -0.279940f, -0.780909f, -0.132801f,
   0.154059f,  0.662014f,  -0.718368f, 0.198733f,  0.039766f,  -0.208516f,
   -0.104909f, -0.394209f, 0.081617f,  0.365041f,  -0.874960f, -0.063315f,
@@ -1760,7 +2882,7 @@ static const float av1_tx_split_nn_weights_32x64_layer1[32] = {
   0.352981f,  0.111265f,
 };
 
-static const float av1_tx_split_nn_bias_32x64_layer1[1] = {
+static float av1_tx_split_nn_bias_32x64_layer1[1] = {
   -0.18160765f,
 };
 
@@ -1780,10 +2902,53 @@ static const NN_CONFIG av1_tx_split_nnconfig_32x64 = {
       av1_tx_split_nn_bias_32x64_layer1,
   },
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_split_nn_32x64_layer0_out[32]={0};
+static float av1_tx_split_nn_32x64_layer0_dout[32]={0};
+static float av1_tx_split_nn_32x64_layer0_dW[8*32]={0};
+static float av1_tx_split_nn_32x64_layer0_db[32]={0};
+
+static float av1_tx_split_nn_32x64_layer1_out[1]={0};
+static float av1_tx_split_nn_32x64_layer1_dout[1]={0};
+static float av1_tx_split_nn_32x64_layer1_dW[32]={0};
+static float av1_tx_split_nn_32x64_layer1_db[1]={0};
+
+static NN_CONFIG_v2 av1_tx_split_nnconfig_32x64_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      32,                                   // num_outputs
+      av1_tx_split_nn_weights_32x64_layer0,  // weights
+      av1_tx_split_nn_bias_32x64_layer0,     // bias
+      relu,                                // activation
+      av1_tx_split_nn_32x64_layer0_out,      // output
+      av1_tx_split_nn_32x64_layer0_dout,     // dY
+      av1_tx_split_nn_32x64_layer0_dW,       // dW
+      av1_tx_split_nn_32x64_layer0_db,       // db
+    },
+    {
+      32,       // num_inputs (!!same as num_outputs of last layer)
+      1,
+      av1_tx_split_nn_weights_32x64_layer1,
+      av1_tx_split_nn_bias_32x64_layer1,
+      none,
+      av1_tx_split_nn_32x64_layer1_out,
+      av1_tx_split_nn_32x64_layer1_dout,
+      av1_tx_split_nn_32x64_layer1_dW,
+      av1_tx_split_nn_32x64_layer1_db,
+    },
+  },
+  1,          // num_outputs
+  av1_tx_split_nn_32x64_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx split model for 8x32 block.
-static const float av1_tx_split_nn_weights_8x32_layer0[8 * 24] = {
+static float av1_tx_split_nn_weights_8x32_layer0[8 * 24] = {
   -0.687846f, 0.121404f,  -0.372905f, 0.126770f,  -0.103298f, -0.101650f,
   -0.148490f, -0.271740f, 0.682915f,  -0.079765f, 0.634347f,  -0.151503f,
   0.287692f,  -0.079072f, -0.236948f, 0.065064f,  0.713383f,  0.397123f,
@@ -1818,21 +2983,21 @@ static const float av1_tx_split_nn_weights_8x32_layer0[8 * 24] = {
   0.122081f,  -0.379659f, 0.037219f,  -0.519913f, -0.128975f, -0.404365f,
 };
 
-static const float av1_tx_split_nn_bias_8x32_layer0[24] = {
+static float av1_tx_split_nn_bias_8x32_layer0[24] = {
   -1.198965f, 0.395204f,  -0.408627f, -0.021654f, -0.658355f, 0.154525f,
   -0.288354f, 1.207574f,  0.411608f,  0.964678f,  -1.176893f, 1.059006f,
   -0.472969f, 2.087975f,  1.065536f,  0.595569f,  0.197907f,  -0.349938f,
   1.013651f,  -0.931093f, -0.973595f, -0.459094f, -1.253062f, 1.624782f,
 };
 
-static const float av1_tx_split_nn_weights_8x32_layer1[24] = {
+static float av1_tx_split_nn_weights_8x32_layer1[24] = {
   0.815787f,  -0.393465f, -0.483427f, -0.565592f, 0.493494f,  0.430229f,
   -0.507073f, -0.251379f, -0.353418f, -0.495445f, 0.820029f,  0.649146f,
   -0.487383f, 1.844503f,  0.480324f,  -0.982705f, -0.501446f, -0.220584f,
   0.334299f,  0.802238f,  0.805838f,  -0.487848f, 0.300772f,  -1.232857f,
 };
 
-static const float av1_tx_split_nn_bias_8x32_layer1[1] = {
+static float av1_tx_split_nn_bias_8x32_layer1[1] = {
   0.13435879f,
 };
 
@@ -1852,10 +3017,53 @@ static const NN_CONFIG av1_tx_split_nnconfig_8x32 = {
       av1_tx_split_nn_bias_8x32_layer1,
   },
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_split_nn_8x32_layer0_out[24]={0};
+static float av1_tx_split_nn_8x32_layer0_dout[24]={0};
+static float av1_tx_split_nn_8x32_layer0_dW[8*24]={0};
+static float av1_tx_split_nn_8x32_layer0_db[24]={0};
+
+static float av1_tx_split_nn_8x32_layer1_out[1]={0};
+static float av1_tx_split_nn_8x32_layer1_dout[1]={0};
+static float av1_tx_split_nn_8x32_layer1_dW[24]={0};
+static float av1_tx_split_nn_8x32_layer1_db[1]={0};
+
+static NN_CONFIG_v2 av1_tx_split_nnconfig_8x32_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      24,                                   // num_outputs
+      av1_tx_split_nn_weights_8x32_layer0,  // weights
+      av1_tx_split_nn_bias_8x32_layer0,     // bias
+      relu,                                // activation
+      av1_tx_split_nn_8x32_layer0_out,      // output
+      av1_tx_split_nn_8x32_layer0_dout,     // dY
+      av1_tx_split_nn_8x32_layer0_dW,       // dW
+      av1_tx_split_nn_8x32_layer0_db,       // db
+    },
+    {
+      24,         // num_inputs (!!same as num_outputs of last layer)
+      1,
+      av1_tx_split_nn_weights_8x32_layer1,
+      av1_tx_split_nn_bias_8x32_layer1,
+      none,
+      av1_tx_split_nn_8x32_layer1_out,
+      av1_tx_split_nn_8x32_layer1_dout,
+      av1_tx_split_nn_8x32_layer1_dW,
+      av1_tx_split_nn_8x32_layer1_db,
+    },
+  },
+  1,          // num_outputs
+  av1_tx_split_nn_8x32_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Tx split model for 16x32 block.
-static const float av1_tx_split_nn_weights_16x64_layer0[8 * 16] = {
+static float av1_tx_split_nn_weights_16x64_layer0[8 * 16] = {
   -0.378223f, -0.124216f, -0.514089f, -0.110117f, -0.585801f, -0.094838f,
   -0.455385f, -0.220254f, -0.504568f, -0.082351f, -0.476420f, -0.253993f,
   -0.454709f, -0.059461f, 0.210313f,  -0.155683f, 0.192968f,  -0.127804f,
@@ -1880,19 +3088,19 @@ static const float av1_tx_split_nn_weights_16x64_layer0[8 * 16] = {
   0.101996f,  0.120878f,
 };
 
-static const float av1_tx_split_nn_bias_16x64_layer0[16] = {
+static float av1_tx_split_nn_bias_16x64_layer0[16] = {
   1.036995f,  0.160249f,  0.100264f,  0.694881f,  0.694677f,  0.128379f,
   -0.843405f, -0.405515f, 0.104139f,  0.182980f,  -0.025472f, 0.901067f,
   -0.299866f, -0.103079f, -0.190352f, -0.048121f,
 };
 
-static const float av1_tx_split_nn_weights_16x64_layer1[16] = {
+static float av1_tx_split_nn_weights_16x64_layer1[16] = {
   -1.778868f, 0.174690f,  0.211991f, 0.712138f,  0.589352f,  0.466652f,
   1.029146f,  -0.490044f, 0.483015f, 0.600215f,  -0.577776f, -0.755546f,
   0.348337f,  -0.205082f, 0.347129f, -0.322277f,
 };
 
-static const float av1_tx_split_nn_bias_16x64_layer1[1] = {
+static float av1_tx_split_nn_bias_16x64_layer1[1] = {
   0.04230947f,
 };
 
@@ -1912,6 +3120,49 @@ static const NN_CONFIG av1_tx_split_nnconfig_16x64 = {
       av1_tx_split_nn_bias_16x64_layer1,
   },
 };
+
+#if CONFIG_NN_FORWARD_V2
+static float av1_tx_split_nn_16x64_layer0_out[16]={0};
+static float av1_tx_split_nn_16x64_layer0_dout[16]={0};
+static float av1_tx_split_nn_16x64_layer0_dW[8*16]={0};
+static float av1_tx_split_nn_16x64_layer0_db[16]={0};
+
+static float av1_tx_split_nn_16x64_layer1_out[1]={0};
+static float av1_tx_split_nn_16x64_layer1_dout[1]={0};
+static float av1_tx_split_nn_16x64_layer1_dW[16]={0};
+static float av1_tx_split_nn_16x64_layer1_db[1]={0};
+
+static NN_CONFIG_v2 av1_tx_split_nnconfig_16x64_v2 = {
+  1,          // num_hidden_layers
+  {           // fc layer setting
+    {         // layer 0
+      8,                                   // num_inputs
+      16,                                   // num_outputs
+      av1_tx_split_nn_weights_16x64_layer0,  // weights
+      av1_tx_split_nn_bias_16x64_layer0,     // bias
+      relu,                                // activation
+      av1_tx_split_nn_16x64_layer0_out,      // output
+      av1_tx_split_nn_16x64_layer0_dout,     // dY
+      av1_tx_split_nn_16x64_layer0_dW,       // dW
+      av1_tx_split_nn_16x64_layer0_db,       // db
+    },
+    {
+      16,             // num_inputs (!!same as num_outputs of last layer)
+      1,
+      av1_tx_split_nn_weights_16x64_layer1,
+      av1_tx_split_nn_bias_16x64_layer1,
+      none,
+      av1_tx_split_nn_16x64_layer1_out,
+      av1_tx_split_nn_16x64_layer1_dout,
+      av1_tx_split_nn_16x64_layer1_dW,
+      av1_tx_split_nn_16x64_layer1_db,
+    },
+  },
+  1,          // num_outputs
+  av1_tx_split_nn_16x64_layer1_out,  // logits (!!same as last layer output)
+  softmax_cross_entropy,
+};
+#endif
 /******************************************************************************/
 
 // Map block size to its corresponding neural net model for tx split prediction.
@@ -1936,6 +3187,30 @@ static const NN_CONFIG *av1_tx_split_nnconfig_map[TX_SIZES_ALL] = {
   &av1_tx_split_nnconfig_16x64,  // TX_16X64,
   &av1_tx_split_nnconfig_16x64,  // TX_64X16,
 };
+
+#if CONFIG_NN_FORWARD_V2
+static const NN_CONFIG_v2 *av1_tx_split_nnconfig_map_v2[TX_SIZES_ALL] = {
+  NULL,                          // TX_4X4,
+  &av1_tx_split_nnconfig_8x8_v2,    // TX_8X8,
+  &av1_tx_split_nnconfig_16x16_v2,  // TX_16X16,
+  &av1_tx_split_nnconfig_32x32_v2,  // TX_32X32,
+  &av1_tx_split_nnconfig_64x64_v2,  // TX_64X64,
+  &av1_tx_split_nnconfig_4x8_v2,    // TX_4X8,
+  &av1_tx_split_nnconfig_4x8_v2,    // TX_8X4,
+  &av1_tx_split_nnconfig_8x16_v2,   // TX_8X16,
+  &av1_tx_split_nnconfig_8x16_v2,   // TX_16X8,
+  &av1_tx_split_nnconfig_16x32_v2,  // TX_16X32,
+  &av1_tx_split_nnconfig_16x32_v2,  // TX_32X16,
+  &av1_tx_split_nnconfig_32x64_v2,  // TX_32X64,
+  &av1_tx_split_nnconfig_32x64_v2,  // TX_64X32,
+  &av1_tx_split_nnconfig_4x16_v2,   // TX_4X16,
+  &av1_tx_split_nnconfig_4x16_v2,   // TX_16X4,
+  &av1_tx_split_nnconfig_8x32_v2,   // TX_8X32,
+  &av1_tx_split_nnconfig_8x32_v2,   // TX_32X8,
+  &av1_tx_split_nnconfig_16x64_v2,  // TX_16X64,
+  &av1_tx_split_nnconfig_16x64_v2,  // TX_64X16,
+};
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"
