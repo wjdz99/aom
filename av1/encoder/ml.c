@@ -57,6 +57,64 @@ void av1_nn_predict_c(const float *input_nodes,
   }
 }
 
+void av1_nn_predict_v2(const float *feature, NN_CONFIG_v2 *nn_config,
+                       float *output) {
+  const float *input_nodes = feature;
+
+  // Propagate the layers.
+  const int num_layers = nn_config->num_hidden_layers;
+  assert(num_layers <= NN_MAX_HIDDEN_LAYERS);
+  for (int i = 0; i < num_layers; ++i) {
+    input_nodes = av1_nn_fc_forward(input_nodes, nn_config->layer + i);
+    assert(nn_config->layer[i + 1].num_inputs ==
+           nn_config->layer[i].num_outputs);
+  }
+
+  // Final layer
+  input_nodes = av1_nn_fc_forward(input_nodes, nn_config->layer + num_layers);
+  assert(nn_config->layer[num_layers].num_outputs == nn_config->num_logits);
+  // Copy the final layer output
+  for (int i = 0; i < nn_config->num_logits; ++i) {
+    output[i] = input_nodes[i];
+  }
+}
+
+float *av1_nn_fc_forward(const float *input, FC_Layer *layer) {
+  const float *weights = layer->weights;
+  const float *bias = layer->bias;
+  assert(layer->num_outputs < NN_MAX_NODES_PER_LAYER);
+  // fc
+  for (int node = 0; node < layer->num_outputs; ++node) {
+    float val = 0.0f;
+    for (int i = 0; i < layer->num_inputs; ++i) val += weights[i] * input[i];
+    layer->output[node] = val + bias[node];
+    weights += layer->num_inputs;
+  }
+
+  // activation
+  switch (layer->activation) {
+    case none: break;
+    case relu: av1_nn_relu(layer->output, layer); break;
+    case sigmoid: av1_nn_sigmoid(layer->output, layer); break;
+  }
+
+  return layer->output;
+}
+
+float *av1_nn_relu(const float *input, FC_Layer *layer) {
+  for (int i = 0; i < layer->num_outputs; ++i)
+    layer->output[i] = AOMMAX(input[i], 0.0f);
+
+  return layer->output;
+}
+
+float *av1_nn_sigmoid(const float *input, FC_Layer *layer) {
+  for (int i = 0; i < layer->num_outputs; ++i)
+    layer->output[i] = 1.0f / (1.0f + expf(-input[i]));
+
+  return layer->output;
+}
+
 void av1_nn_softmax(const float *input, float *output, int n) {
   // Softmax function is invariant to adding the same constant
   // to all input values, so we subtract the maximum input to avoid
