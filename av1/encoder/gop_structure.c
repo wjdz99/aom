@@ -302,7 +302,8 @@ static void set_gop_ref_frame_map(GF_GROUP *const gf_group) {
 void av1_gop_setup_structure(AV1_COMP *cpi,
                              const EncodeFrameParams *const frame_params) {
   RATE_CONTROL *const rc = &cpi->rc;
-  GF_GROUP *const gf_group = &cpi->gf_group;
+  TWO_PASS *const twopass = &cpi->twopass;
+  GF_GROUP *const gf_group = &twopass->gf_group;
   const int key_frame = (frame_params->frame_type == KEY_FRAME);
   const FRAME_UPDATE_TYPE first_frame_update_type =
       key_frame ? KF_UPDATE
