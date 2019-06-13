@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c18e902_c1817e01",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 12289,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2019-06-13T23:42:22Z",
+      "side": 1,
+      "message": "Add \"assert(state_s[j].valid \u003d\u003d false)\".",
+      "range": {
+        "startLine": 12289,
+        "startChar": 12,
+        "endLine": 12289,
+        "endChar": 37
+      },
+      "revId": "19a0118155c0e111746af7df9b9069d950e12023",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9eeb65ec_fbb3726e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 12359,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2019-06-13T23:42:22Z",
+      "side": 1,
+      "message": "Add bracket if it can\u0027t fit in one line.",
+      "range": {
+        "startLine": 12359,
+        "startChar": 6,
+        "endLine": 12359,
+        "endChar": 14
+      },
+      "revId": "19a0118155c0e111746af7df9b9069d950e12023",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
