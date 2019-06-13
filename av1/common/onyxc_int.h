@@ -1375,7 +1375,7 @@ static INLINE int is_coded_lossless(const AV1_COMMON *cm,
 }
 
 static INLINE int is_valid_seq_level_idx(AV1_LEVEL seq_level_idx) {
-  return seq_level_idx < SEQ_LEVELS || seq_level_idx == SEQ_LEVEL_MAX;
+  return seq_level_idx <= SEQ_LEVELS || seq_level_idx == SEQ_LEVEL_MAX;
 }
 
 #ifdef __cplusplus
