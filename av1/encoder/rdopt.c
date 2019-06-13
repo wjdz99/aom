@@ -12629,6 +12629,20 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     const MV_REFERENCE_FRAME second_ref_frame = mode_order->ref_frame[1];
     const int comp_pred = second_ref_frame > INTRA_FRAME;
 
+    if (comp_pred) {
+      TileInfo *const tile_info = &tile_data->tile_info;
+      if (((mi_row - 1) >= tile_info->mi_row_start) &&
+          ((mi_col - 1) >= tile_info->mi_col_start)) {
+        MB_MODE_INFO *mbmi_left = xd->mi[-1];
+        MB_MODE_INFO *mbmi_top = xd->mi[-xd->mi_stride];
+        if ((mbmi_left->mode == mbmi_top->mode) &&
+            (mbmi_left->ref_frame[1] == mbmi_top->ref_frame[1]))
+          if ((this_mode != mbmi_left->mode) &&
+              (second_ref_frame != mbmi_left->ref_frame[1]))
+            continue;
+      }
+    }
+
     // After we done with single reference modes, find the 2nd best RD
     // for a reference frame. Only search compound modes that have a reference
     // frame at least as good as the 2nd best.
