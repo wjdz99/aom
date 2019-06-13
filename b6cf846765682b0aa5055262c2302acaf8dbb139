@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d29caf52_6419a70d",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2019-06-13T06:10:38Z",
+      "side": 1,
+      "message": "Have added the comment that was added in vpx_dec_fuzzer.cc\nI am trying to get this fuzzer plugin integrated in Android Security team\u0027s fuzz testing.\nThat team prefers to remove fmemopen from fuzzer, so I am planning a follow up CL where file read operations are removed and I am planning to remove read_frame completely and inline required frame_size derivation in the calling function.",
+      "parentUuid": "ec0ce84d_da49f32c",
+      "range": {
+        "startLine": 30,
+        "startChar": 11,
+        "endLine": 30,
+        "endChar": 70
+      },
+      "revId": "b6cf846765682b0aa5055262c2302acaf8dbb139",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1e141c09_9f76663b",
         "filename": "examples/av1_dec_fuzzer.cc",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-06-13T05:04:30Z",
       "side": 1,
       "message": "I am not familiar with the IVF format. Some clarification would be helpful:\n\nIt looks like if the header cannot be read, or if the frame size is greater than 256mb, or if the memory realloc fails when growing the buffer, then 0 bytes will be read and the return code is 0 (success). Should these situations signal 1 (failure)?",
+      "range": {
+        "startLine": 35,
+        "startChar": 2,
+        "endLine": 35,
+        "endChar": 60
+      },
+      "revId": "b6cf846765682b0aa5055262c2302acaf8dbb139",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea959fea_dcd224e4",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2019-06-13T06:10:38Z",
+      "side": 1,
+      "message": "This is copied from ivf_read_frame(), so I haven\u0027t changed much of the code to keep it consistent with original version.\n\nif fread fails to read IVF_FRAME_HDR_SIZE bytes, then it should have hit end of file and check in 54 will ensure 1 is returned.\n\nframe_size continues to be handled the way it was handled in original function.",
+      "parentUuid": "1e141c09_9f76663b",
       "range": {
         "startLine": 35,
         "startChar": 2,
@@ -83,6 +131,30 @@
       "side": 1,
       "message": "\u003e If fread returns less than frame_size bytes, should this signal an error?\n\nI don\u0027t think so, passing a short count to the decoder can only help coverage.",
       "parentUuid": "4518f083_b68e543d",
+      "range": {
+        "startLine": 55,
+        "startChar": 3,
+        "endLine": 55,
+        "endChar": 56
+      },
+      "revId": "b6cf846765682b0aa5055262c2302acaf8dbb139",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d34dd18_4cf585fa",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2019-06-13T06:10:38Z",
+      "side": 1,
+      "message": "Yes, this deviates from ivf_read_frame and is done intentionally.",
+      "parentUuid": "7b598a06_0ebf2015",
       "range": {
         "startLine": 55,
         "startChar": 3,
