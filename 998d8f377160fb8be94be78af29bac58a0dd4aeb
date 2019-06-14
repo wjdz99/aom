@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "728b659f_bc3500f2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-14T23:36:37Z",
+      "side": 1,
+      "message": "You may add more contexts about why we are doing this refactor.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 56
+      },
+      "revId": "998d8f377160fb8be94be78af29bac58a0dd4aeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d05500bf_14b1b562",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-14T23:36:37Z",
+      "side": 1,
+      "message": "can initialize as bias[node].",
+      "range": {
+        "startLine": 89,
+        "startChar": 15,
+        "endLine": 89,
+        "endChar": 20
+      },
+      "revId": "998d8f377160fb8be94be78af29bac58a0dd4aeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6adf7aca_3e075655",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-14T23:36:37Z",
+      "side": 1,
+      "message": "can be return layer-\u003eoutput;",
+      "range": {
+        "startLine": 97,
+        "startChar": 15,
+        "endLine": 97,
+        "endChar": 20
+      },
+      "revId": "998d8f377160fb8be94be78af29bac58a0dd4aeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d856593_5df84582",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-14T23:36:37Z",
+      "side": 1,
+      "message": "can be just return av1_nn_relu(layer-\u003eoutput, layer);",
+      "range": {
+        "startLine": 98,
+        "startChar": 15,
+        "endLine": 98,
+        "endChar": 56
+      },
+      "revId": "998d8f377160fb8be94be78af29bac58a0dd4aeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d95ddb1_1a0b7918",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-14T23:36:37Z",
+      "side": 1,
+      "message": "can be just return av1_nn_sigmoid(layer-\u003eoutput, layer);",
+      "range": {
+        "startLine": 99,
+        "startChar": 4,
+        "endLine": 99,
+        "endChar": 59
+      },
+      "revId": "998d8f377160fb8be94be78af29bac58a0dd4aeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85d8b462_28e14f25",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-14T23:36:37Z",
+      "side": 1,
+      "message": "Recommend adding {}.",
+      "range": {
+        "startLine": 106,
+        "startChar": 45,
+        "endLine": 108,
+        "endChar": 0
+      },
+      "revId": "998d8f377160fb8be94be78af29bac58a0dd4aeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8471dd5a_275b14fd",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-14T23:36:37Z",
+      "side": 1,
+      "message": "Recommend adding {}.",
+      "range": {
+        "startLine": 113,
+        "startChar": 45,
+        "endLine": 113,
+        "endChar": 1
+      },
+      "revId": "998d8f377160fb8be94be78af29bac58a0dd4aeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e217e470_8abc90d8",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-14T23:36:37Z",
+      "side": 1,
+      "message": "Extremely large or small values of input[i] may cause overflow or underflow. See how it is handled in av1_nn_softmax().",
+      "range": {
+        "startLine": 114,
+        "startChar": 38,
+        "endLine": 114,
+        "endChar": 53
+      },
+      "revId": "998d8f377160fb8be94be78af29bac58a0dd4aeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63f72cb3_6247d962",
+        "filename": "av1/encoder/ml.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-14T23:36:37Z",
+      "side": 1,
+      "message": "activation?",
+      "range": {
+        "startLine": 58,
+        "startChar": 70,
+        "endLine": 58,
+        "endChar": 74
+      },
+      "revId": "998d8f377160fb8be94be78af29bac58a0dd4aeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f7ee19a_96a733fc",
+        "filename": "av1/encoder/ml.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-14T23:36:37Z",
+      "side": 1,
+      "message": "These functions are used only in ml.c. So they can be moved to ml.c as local functions. e.g. static float *nn_fc_forward(const float *input, FC_LAYER *layer)...",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 59
+      },
+      "revId": "998d8f377160fb8be94be78af29bac58a0dd4aeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
