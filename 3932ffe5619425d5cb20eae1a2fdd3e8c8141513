@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eefa665e_c93c918b",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-14T18:53:20Z",
+      "side": 1,
+      "message": "put under #if .. #endif",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 116,
+        "endChar": 1
+      },
+      "revId": "3932ffe5619425d5cb20eae1a2fdd3e8c8141513",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a609ec1_dde24be6",
+        "filename": "av1/encoder/ml.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-14T18:53:20Z",
+      "side": 1,
+      "message": "The should be put under #if .. #endif. The naming style is different from existing code. See common/enums.h",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 54
+      },
+      "revId": "3932ffe5619425d5cb20eae1a2fdd3e8c8141513",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b423f2f1_e793b89c",
+        "filename": "av1/encoder/ml.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-14T18:53:20Z",
+      "side": 1,
+      "message": "put under #if .. #endif",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 0
+      },
+      "revId": "3932ffe5619425d5cb20eae1a2fdd3e8c8141513",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddd99dc8_5f08c388",
+        "filename": "av1/encoder/tx_prune_model_weights.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-14T18:53:20Z",
+      "side": 1,
+      "message": "The changes in this file are not necessary, right?",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 12
+      },
+      "revId": "3932ffe5619425d5cb20eae1a2fdd3e8c8141513",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77e6d652_ef7710bd",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-14T18:53:20Z",
+      "side": 1,
+      "message": "maybe just CONFIG_NN_V2 for simplicity.",
+      "range": {
+        "startLine": 138,
+        "startChar": 19,
+        "endLine": 138,
+        "endChar": 39
+      },
+      "revId": "3932ffe5619425d5cb20eae1a2fdd3e8c8141513",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
