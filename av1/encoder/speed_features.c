@@ -471,7 +471,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     // TODO(jianj): Following speed feature will be further explored to
     // identify the appropriate tradeoff between encoder performance and its
     // speed.
-    sf->prune_single_motion_modes_by_simple_trans = 1;
+    sf->prune_single_motion_modes_by_simple_trans = 0;
 
     sf->simple_motion_search_prune_rect = 1;
 
