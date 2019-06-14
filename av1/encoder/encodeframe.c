@@ -4717,12 +4717,14 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                    (MAX_PARAMDIM - 1) * sizeof(*(params_by_motion[i].params)));
           }
 
+          num_frm_corners = cm->MBs;
+
           av1_compute_global_motion(
               model, frm_buffer, cpi->source->y_width, cpi->source->y_height,
               cpi->source->y_stride, frm_corners, num_frm_corners,
               ref_buf[frame], cpi->common.seq_params.bit_depth,
               gm_estimation_type, inliers_by_motion, params_by_motion,
-              RANSAC_NUM_MOTIONS);
+              RANSAC_NUM_MOTIONS, cm);
 
           for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
             if (inliers_by_motion[i] == 0) continue;
@@ -4812,6 +4814,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       aom_free(params_by_motion[m].inliers);
     }
   }
+  
   memcpy(cm->cur_frame->global_motion, cm->global_motion,
          REF_FRAMES * sizeof(WarpedMotionParams));
 #if CONFIG_COLLECT_COMPONENT_TIMING

@@ -16,12 +16,14 @@
 #include "aom_scale/yv12config.h"
 #include "av1/common/mv.h"
 #include "av1/common/warped_motion.h"
+#include "av1/encoder/encodeframe.h"
+#include "av1/encoder/firstpass.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define MAX_CORNERS 4096
+#define MAX_CORNERS 20000
 #define RANSAC_NUM_MOTIONS 1
 
 typedef enum {
@@ -78,7 +80,7 @@ int av1_compute_global_motion(TransformationType type,
                               int bit_depth,
                               GlobalMotionEstimationType gm_estimation_type,
                               int *num_inliers_by_motion,
-                              MotionModel *params_by_motion, int num_motions);
+                              MotionModel *params_by_motion, int num_motions, AV1_COMMON *cm);
 #ifdef __cplusplus
 }  // extern "C"
 #endif

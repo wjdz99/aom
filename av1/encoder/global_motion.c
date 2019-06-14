@@ -14,6 +14,7 @@
 #include <memory.h>
 #include <math.h>
 #include <assert.h>
+#include <signal.h>
 
 #include "config/aom_dsp_rtcd.h"
 
@@ -313,7 +314,7 @@ static int compute_global_motion_feature_based(
     TransformationType type, unsigned char *frm_buffer, int frm_width,
     int frm_height, int frm_stride, int *frm_corners, int num_frm_corners,
     YV12_BUFFER_CONFIG *ref, int bit_depth, int *num_inliers_by_motion,
-    MotionModel *params_by_motion, int num_motions) {
+    MotionModel *params_by_motion, int num_motions, AV1_COMMON *cm) {
   int i;
   int num_ref_corners;
   int num_correspondences;
@@ -326,17 +327,63 @@ static int compute_global_motion_feature_based(
     ref_buffer = av1_downconvert_frame(ref, bit_depth);
   }
 
-  num_ref_corners =
-      av1_fast_corner_detect(ref_buffer, ref->y_width, ref->y_height,
-                             ref->y_stride, ref_corners, MAX_CORNERS);
+
+  char buf_fopen[500];
+  snprintf(buf_fopen, 500, "motion_vector_data_%d.txt", cm->current_frame.frame_number);
+
+  // frame_block_mv_correspondences[cm->current_frame.frame_number] = malloc(sizeof(int) * 4 * (cm->mb_rows) * (cm->mb_cols));
+
+  FILE * filepointer  = fopen(buf_fopen, "r");
+  printf("opened file pointer = %x, filename: %s \n", filepointer, buf_fopen);
+  if(filepointer == NULL) {
+    printf("frame number when file couldn't open = %d\n", cm->current_frame.frame_number);
+    raise(SIGINT);
+  }
+
+
+  /* ref_buffer vs frm_buffer
+  */
+
+//  assert(fp != NULL;)
+
+
+  num_ref_corners = num_frm_corners;
+     // av1_fast_corner_detect(ref_buffer, ref->y_width, ref->y_height,
+       //                      ref->y_stride, ref_corners, MAX_CORNERS);
+
+  num_ref_corners = cm->mb_rows * cm->mb_cols;
 
   // find correspondences between the two images
   correspondences =
       (int *)malloc(num_frm_corners * 4 * sizeof(*correspondences));
-  num_correspondences = av1_determine_correspondence(
+  num_correspondences = num_frm_corners;/* av1_determine_correspondence(
       frm_buffer, (int *)frm_corners, num_frm_corners, ref_buffer,
       (int *)ref_corners, num_ref_corners, frm_width, frm_height, frm_stride,
-      ref->y_stride, correspondences);
+      ref->y_stride, cm->current_frame.frame_number, correspondences);
+*/
+
+
+   // correspondences = (int *) malloc(sizeof(int) * 4 * num_frm_corners);
+    if(correspondences == NULL) {
+      fprintf(stderr, "out of memory!\n");
+      exit(1);
+    }
+    
+    int* temp = correspondences;
+
+    for(int i = 0; i < num_frm_corners; i++) {
+      int x1, y1, x2, y2;
+      fscanf(filepointer, "%d %d %d %d", &x1, &y1, &x2, &y2);
+  //    printf("%d %d %d %d\n", x1, y1, x2, y2);
+      *(temp++) = x1;
+      *(temp++) = y1;
+      *(temp++) = x2;
+      *(temp++) = y2;
+      //printf("%d %d %d %d\n", x1, y1, x2, y2);
+    }
+    printf("closing file \n");
+  //  fclose(filepointer);
+    printf("successfully closed \n");
 
   ransac(correspondences, num_correspondences, num_inliers_by_motion,
          params_by_motion, num_motions);
@@ -885,13 +932,30 @@ int av1_compute_global_motion(TransformationType type,
                               int bit_depth,
                               GlobalMotionEstimationType gm_estimation_type,
                               int *num_inliers_by_motion,
-                              MotionModel *params_by_motion, int num_motions) {
+                              MotionModel *params_by_motion, int num_motions, AV1_COMMON *cm) {
+  int ret = compute_global_motion_feature_based(
+      type, frm_buffer, frm_width, frm_height, frm_stride, frm_corners,
+      num_frm_corners, ref, bit_depth, num_inliers_by_motion,
+      params_by_motion, num_motions, cm);
+
+  printf("%d\n", num_motions);
+  
+  for(int i = 0; i < num_motions; i++) {
+    for(int j = 0; j < 8; j++) {
+      printf("%f ", params_by_motion[i].params[j]);
+    }
+    printf("\n");
+  }
+
+  return ret;
+
+/*
   switch (gm_estimation_type) {
     case GLOBAL_MOTION_FEATURE_BASED:
       return compute_global_motion_feature_based(
           type, frm_buffer, frm_width, frm_height, frm_stride, frm_corners,
           num_frm_corners, ref, bit_depth, num_inliers_by_motion,
-          params_by_motion, num_motions);
+          params_by_motion, num_motions, frame_number_);
     case GLOBAL_MOTION_DISFLOW_BASED:
       return compute_global_motion_disflow_based(
           type, frm_buffer, frm_width, frm_height, frm_stride, frm_corners,
@@ -900,4 +964,5 @@ int av1_compute_global_motion(TransformationType type,
     default: assert(0 && "Unknown global motion estimation type");
   }
   return 0;
+  */
 }

@@ -143,7 +143,7 @@ int av1_determine_correspondence(unsigned char *frm, int *frm_corners,
                                  int num_frm_corners, unsigned char *ref,
                                  int *ref_corners, int num_ref_corners,
                                  int width, int height, int frm_stride,
-                                 int ref_stride, int *correspondence_pts) {
+                                 int ref_stride, int __frame_number, int *correspondence_pts) {
   // TODO(sarahparker) Improve this to include 2-way match
   int i, j;
   Correspondence *correspondences = (Correspondence *)correspondence_pts;

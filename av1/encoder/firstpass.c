@@ -12,6 +12,7 @@
 #include <limits.h>
 #include <math.h>
 #include <stdio.h>
+#include <signal.h>
 
 #include "config/aom_dsp_rtcd.h"
 #include "config/aom_scale_rtcd.h"
@@ -437,6 +438,22 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   recon_uv_stride = new_yv12->uv_stride;
   uv_mb_height = 16 >> (new_yv12->y_height > new_yv12->uv_height);
 
+  char buf_fopen[50];
+  snprintf(buf_fopen, 50, "motion_vector_data_%d.txt", cm->current_frame.frame_number);
+
+  // frame_block_mv_correspondences[cm->current_frame.frame_number] = malloc(sizeof(int) * 4 * (cm->mb_rows) * (cm->mb_cols));
+
+  FILE * pFile  = fopen(buf_fopen, "w");
+//  setbuf(pFile, NULL);
+
+  if(pFile == NULL) {
+    printf("couldn't open file at beginning of first pass\n");
+    raise(SIGINT);
+  }
+
+
+  printf("firstpass: successfully opened for writing %x \n", pFile);  
+
   for (mb_row = 0; mb_row < cm->mb_rows; ++mb_row) {
     MV best_ref_mv = kZeroMv;
 
@@ -568,6 +585,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
         // Compute the motion error of the 0,0 motion using the last source
         // frame as the reference. Skip the further motion search on
         // reconstructed frame if this error is small.
+        assert(1 < 0);
         unscaled_last_source_buf_2d.buf =
             cpi->unscaled_last_source->y_buffer + src_yoffset;
         unscaled_last_source_buf_2d.stride =
@@ -759,6 +777,14 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
       }
       coded_error += (int64_t)this_intra_error;
 
+      int blck_center_x = 8 + 16 * (mb_row);
+      int blck_center_y = 8 + 16 * (mb_col);
+
+      fprintf(pFile, "%d %d %d %d\n", blck_center_x , blck_center_y,
+             blck_center_x + (best_ref_mv.row / 8), 
+              blck_center_y + (best_ref_mv.col / 8));
+
+
       // Adjust to the next column of MBs.
       x->plane[0].src.buf += 16;
       x->plane[1].src.buf += uv_mb_height;
@@ -778,6 +804,11 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
 
     aom_clear_system_state();
   }
+
+  fclose(pFile);
+
+  printf("%s ready and closed [firstpass] \n", buf_fopen);
+
   const double raw_err_stdev =
       raw_motion_error_stdev(raw_motion_err_list, raw_motion_err_counts);
   aom_free(raw_motion_err_list);
