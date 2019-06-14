@@ -3582,8 +3582,11 @@ static void set_size_independent_vars(AV1_COMP *cpi) {
   cm->switchable_motion_mode = 1;
 }
 
-static int get_gfu_boost_from_r0(double r0) {
-  int boost = (int)rint(260.0 / r0);
+static int get_gfu_boost_from_r0(double r0, int frames_to_key) {
+  double factor = sqrt((double)frames_to_key);
+  factor = AOMMIN(factor, 10.0);
+  factor = AOMMAX(factor, 4.0);
+  int boost = (int)rint((200.0 + 10.0 * factor) / r0);
   return boost;
 }
 
@@ -3591,7 +3594,7 @@ static int get_kf_boost_from_r0(double r0, int frames_to_key) {
   double factor = sqrt((double)frames_to_key);
   factor = AOMMIN(factor, 10.0);
   factor = AOMMAX(factor, 4.0);
-  int boost = (int)rint((75.0 + 14.0 * factor) / r0);
+  int boost = (int)rint((70.0 + 14.0 * factor) / r0);
   return boost;
 }
 
@@ -3629,7 +3632,8 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
       cpi->rd.r0 = (double)intra_cost_base / mc_dep_cost_base;
       if (is_frame_arf_and_tpl_eligible(cpi)) {
         cpi->rd.arf_r0 = cpi->rd.r0;
-        const int gfu_boost = get_gfu_boost_from_r0(cpi->rd.arf_r0);
+        const int gfu_boost =
+            get_gfu_boost_from_r0(cpi->rd.arf_r0, cpi->rc.frames_to_key);
         // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
         //        gfu_boost);
         cpi->rc.gfu_boost = (cpi->rc.gfu_boost + gfu_boost) / 2;
