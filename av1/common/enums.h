@@ -223,12 +223,17 @@ enum {
   ADST_1D,
   FLIPADST_1D,
   IDTX_1D,
-#if CONFIG_DATA_DRIVEN_TX
-  DDTX1_1D,
-  DDTX2_1D,
-#endif
   TX_TYPES_1D,
 } UENUM1BYTE(TX_TYPE_1D);
+
+#if CONFIG_MODEDEP_TX
+#define SEP_TX_DEBUG 0
+#define MODEDEP_TX_DEBUG_BLOCK 0
+#define MODEDEP_TX_DEBUG_MULT 0
+#define MODEDEP_TX_DEBUG_MATCH 0
+#define USE_NSTX_INTER 1
+#define USE_NSTX_INTRA 1
+#endif
 
 enum {
   DCT_DCT,            // DCT in both horizontal and vertical
@@ -247,23 +252,27 @@ enum {
   H_ADST,             // Identity in vertical, ADST in horizontal
   V_FLIPADST,         // FLIPADST in vertical, identity in horizontal
   H_FLIPADST,         // Identity in vertical, FLIPADST in horizontal
-#if CONFIG_DATA_DRIVEN_TX
-  DDTX1_DDTX1,
-  DDTX1_DCT,
-  DCT_DDTX1,
-  DDTX2_DDTX2,
-  DDTX2_DCT,
-  DCT_DDTX2,
-  DDTX2_DDTX1,
-  DDTX1_DDTX2,
+#if CONFIG_MODEDEP_TX
+#if USE_NSTX_INTRA
+  // 3 non-separable transforms for intra
+  NSTX_INTRA_1,
+  NSTX_INTRA_2,
+  NSTX_INTRA_3,
+#endif
+#if USE_NSTX_INTER
+  // 8 non-separable transforms for inter
+  NSTX_INTER_1,  // nonseparable transform 1 (no flip)
+  NSTX_INTER_2,  // nonseparable transform 2 (UD flip of NSTX_INTER_1)
+  NSTX_INTER_3,  // nonseparable transform 3 (LR flip of NSTX_INTER_1)
+  NSTX_INTER_4,  // nonseparable transform 4 (UDLR flip of NSTX_INTER_1)
+  NSTX_INTER_5,  // nonseparable transform 5
+  NSTX_INTER_6,  // nonseparable transform 6 (UD flip of NSTX_INTER_5)
+  NSTX_INTER_7,  // nonseparable transform 7 (LR flip NSTX_INTER_5)
+  NSTX_INTER_8,  // nonseparable transform 8 (UDLR flip of NSTX_INTER_5)
+#endif
 #endif
   TX_TYPES,
 } UENUM1BYTE(TX_TYPE);
-
-#if CONFIG_DATA_DRIVEN_TX
-#define USE_DDTX_INTER 1
-#define USE_DDTX_INTRA 1
-#endif
 
 enum {
   REG_REG,
@@ -284,39 +293,47 @@ enum {
   EXT_TX_SET_DCT_IDTX,
   // Discrete Trig transforms w/o flip (4) + Identity (1)
   EXT_TX_SET_DTT4_IDTX,
-#if CONFIG_DATA_DRIVEN_TX && USE_DDTX_INTRA
-  // Discrete Trig transforms w/o flip (4) + Identity (1) + 1D Hor/vert DCT (2)
-  //  + DCT w/ 1 DDTX (2) + DDTX1_DDTX1 (1)
-  EXT_TX_SET_DTT4_IDTX_1DDCT_DDTX,
-#else
   // Discrete Trig transforms w/o flip (4) + Identity (1) + 1D Hor/vert DCT (2)
   EXT_TX_SET_DTT4_IDTX_1DDCT,
+#if CONFIG_MODEDEP_TX && USE_NSTX_INTRA
+  // Discrete Trig transforms w/o flip (4) + Identity (1) + 1D Hor/vert DCT (2)
+  //  + NSTXs (3)
+  EXT_TX_SET_DTT4_IDTX_1DDCT_NSTX3,
 #endif
   // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver DCT (2)
   EXT_TX_SET_DTT9_IDTX_1DDCT,
-#if CONFIG_DATA_DRIVEN_TX && USE_DDTX_INTER
-  // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver (6)
-  //  + DCT w/ 2 DDTXs (4) + 2 DDTXs (4)
-  EXT_TX_SET_ALL16_DDTX,
-#else
   // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver (6)
   EXT_TX_SET_ALL16,
+#if CONFIG_MODEDEP_TX && USE_NSTX_INTER
+  // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver (6)
+  //  + NSTXs (8)
+  EXT_TX_SET_ALL16_NSTX8,
 #endif
   EXT_TX_SET_TYPES
 } UENUM1BYTE(TxSetType);
 
-#if CONFIG_DATA_DRIVEN_TX
-#define TX_TYPES_NODDTX 16
-#define DDTX_TYPES_INTER 8
-#define DDTX_TYPES_INTRA 3
+#if CONFIG_MODEDEP_TX
+#define TX_TYPES_NONSTX 16
+#define NSTX_TYPES_INTER 8
+#define NSTX_TYPES_INTRA 3
 #define IS_2D_TRANSFORM(tx_type) (tx_type < IDTX || tx_type > H_FLIPADST)
 #else
 #define IS_2D_TRANSFORM(tx_type) (tx_type < IDTX)
 #endif
 
-#define EXT_TX_SIZES 4       // number of sizes that use extended transforms
+#if CONFIG_MODEDEP_TX && USE_NSTX_INTER
+#define EXT_TX_SETS_INTER 5  // Sets of transform selections for INTER
+#else
 #define EXT_TX_SETS_INTER 4  // Sets of transform selections for INTER
+#endif
+
+#if CONFIG_MODEDEP_TX && USE_NSTX_INTRA
+#define EXT_TX_SETS_INTRA 4  // Sets of transform selections for INTRA
+#else
 #define EXT_TX_SETS_INTRA 3  // Sets of transform selections for INTRA
+#endif
+
+#define EXT_TX_SIZES 4  // number of sizes that use extended transforms
 
 enum {
   AOM_LAST_FLAG = 1 << 0,

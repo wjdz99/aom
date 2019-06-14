@@ -1875,8 +1875,8 @@ static INLINE void lowbd_inv_txfm2d_add_universe_avx2(const int32_t *input,
                                                       int stride,
                                                       TX_TYPE tx_type,
                                                       TX_SIZE tx_size,
-#if CONFIG_DATA_DRIVEN_TX
-                                                      int is_inter,
+#if CONFIG_MODEDEP_TX
+                                                      PREDICTION_MODE mode,
 #endif
                                                       int eob) {
   (void)eob;
@@ -1910,8 +1910,8 @@ static INLINE void lowbd_inv_txfm2d_add_universe_avx2(const int32_t *input,
       break;
     default:
       av1_lowbd_inv_txfm2d_add_ssse3(input, output, stride, tx_type, tx_size,
-#if CONFIG_DATA_DRIVEN_TX
-                                     is_inter,
+#if CONFIG_MODEDEP_TX
+                                     mode,
 #endif
                                      eob);
       break;
@@ -1920,8 +1920,8 @@ static INLINE void lowbd_inv_txfm2d_add_universe_avx2(const int32_t *input,
 
 void av1_lowbd_inv_txfm2d_add_avx2(const int32_t *input, uint8_t *output,
                                    int stride, TX_TYPE tx_type, TX_SIZE tx_size,
-#if CONFIG_DATA_DRIVEN_TX
-                                   int is_inter,
+#if CONFIG_MODEDEP_TX
+                                   PREDICTION_MODE mode,
 #endif
                                    int eob) {
   switch (tx_size) {
@@ -1936,8 +1936,8 @@ void av1_lowbd_inv_txfm2d_add_avx2(const int32_t *input, uint8_t *output,
     case TX_8X32:
     case TX_32X8:
       av1_lowbd_inv_txfm2d_add_ssse3(input, output, stride, tx_type, tx_size,
-#if CONFIG_DATA_DRIVEN_TX
-                                     is_inter,
+#if CONFIG_MODEDEP_TX
+                                     mode,
 #endif
                                      eob);
       break;
@@ -1953,8 +1953,8 @@ void av1_lowbd_inv_txfm2d_add_avx2(const int32_t *input, uint8_t *output,
     default:
       lowbd_inv_txfm2d_add_universe_avx2(input, output, stride, tx_type,
                                          tx_size,
-#if CONFIG_DATA_DRIVEN_TX
-                                         is_inter,
+#if CONFIG_MODEDEP_TX
+                                         mode,
 #endif
                                          eob);
       break;
@@ -1967,8 +1967,8 @@ void av1_inv_txfm_add_avx2(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
   if (!txfm_param->lossless) {
     av1_lowbd_inv_txfm2d_add_avx2(dqcoeff, dst, stride, tx_type,
                                   txfm_param->tx_size,
-#if CONFIG_DATA_DRIVEN_TX
-                                  txfm_param->is_inter,
+#if CONFIG_MODEDEP_TX
+                                  txfm_param->mode,
 #endif
                                   txfm_param->eob);
   } else {
