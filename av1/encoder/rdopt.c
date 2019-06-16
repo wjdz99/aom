@@ -6614,7 +6614,8 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     ref_yv12[1] = xd->plane[plane].pre[1];
 
     // Get the prediction block from the 'other' reference frame.
-    const InterpFilters interp_filters = EIGHTTAP_REGULAR;
+    const InterpFilters interp_filters =
+        av1_broadcast_interp_filter(EIGHTTAP_REGULAR);
 
     // Since we have scaled the reference frames to match the size of the
     // current frame we must use a unit scaling factor during mode selection.
@@ -8245,8 +8246,8 @@ static INLINE int is_pred_filter_search_allowed(
              get_chessboard_index(cm->current_frame.frame_number)) &
                 0x1
           : 0;
-  pred_filter_search &= ((af_horiz == lf_horiz) && (af_horiz != SWITCHABLE)) ||
-                        ((af_vert == lf_vert) && (af_vert != SWITCHABLE));
+  pred_filter_search &= ((af_horiz == lf_horiz) && (af_horiz != UINT32_MAX)) ||
+                        ((af_vert == lf_vert) && (af_vert != UINT32_MAX));
   return pred_filter_search;
 }
 
@@ -8311,7 +8312,8 @@ static INLINE void find_best_non_dual_interp_filter(
   assert(filter_set_size == DUAL_FILTER_SET_SIZE);
   if ((skip_hor & skip_ver) != cpi->default_interp_skip_flags) {
     int pred_filter_search;
-    InterpFilters af = SWITCHABLE, lf = SWITCHABLE, filter_idx = 0;
+    InterpFilters af = UINT32_MAX, lf = UINT32_MAX;
+    InterpFilter filter_idx;
     const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
     const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
     if (above_mbmi && is_inter_block(above_mbmi)) {
@@ -8701,8 +8703,9 @@ static int64_t interpolation_filter_search(
     const int bh = block_size_high[bsize];
     int skip_pred;
     int pred_filter_search = 0;
-    InterpFilters af_horiz = SWITCHABLE, af_vert = SWITCHABLE,
-                  lf_horiz = SWITCHABLE, lf_vert = SWITCHABLE, filter_idx = 0;
+    InterpFilters af_horiz = UINT32_MAX, af_vert = UINT32_MAX,
+                  lf_horiz = UINT32_MAX, lf_vert = UINT32_MAX;
+    InterpFilter filter_idx;
     if (!have_newmv_in_inter_mode(mbmi->mode)) {
       const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
       const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
