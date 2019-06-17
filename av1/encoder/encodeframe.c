@@ -209,6 +209,13 @@ static BLOCK_SIZE get_rd_var_based_fixed_partition(AV1_COMP *cpi, MACROBLOCK *x,
 }
 #endif  // !CONFIG_REALTIME_ONLY
 
+static int set_deltaq_rdmult(const AV1_COMP *const cpi, MACROBLOCKD *const xd) {
+  const AV1_COMMON *const cm = &cpi->common;
+
+  return av1_compute_rd_mult(
+      cpi, cm->base_qindex + xd->delta_qindex + cm->y_dc_delta_q);
+}
+
 static void set_ssim_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
                             const BLOCK_SIZE bsize, const int mi_row,
                             const int mi_col, int *const rdmult) {
@@ -289,6 +296,14 @@ static void set_offsets_without_segment_id(const AV1_COMP *const cpi,
 
   xd->cfl.mi_row = mi_row;
   xd->cfl.mi_col = mi_col;
+
+  // R/D setup.
+  x->rdmult = cpi->rd.RDMULT;
+  if (cm->delta_q_info.delta_q_present_flag)
+    x->rdmult = set_deltaq_rdmult(cpi, xd);
+  if (cpi->oxcf.tuning == AOM_TUNE_SSIM) {
+    set_ssim_rdmult(cpi, x, bsize, mi_row, mi_col, &x->rdmult);
+  }
 }
 
 static void set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
@@ -312,9 +327,6 @@ static void set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
           map ? get_segment_id(cm, map, bsize, mi_row, mi_col) : 0;
     }
     av1_init_plane_quantizers(cpi, x, mbmi->segment_id);
-  }
-  if (cpi->oxcf.tuning == AOM_TUNE_SSIM) {
-    set_ssim_rdmult(cpi, x, bsize, mi_row, mi_col, &x->rdmult);
   }
 }
 
@@ -516,13 +528,6 @@ static int set_segment_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   return av1_compute_rd_mult(cpi, segment_qindex + cm->y_dc_delta_q);
 }
 
-static int set_deltaq_rdmult(const AV1_COMP *const cpi, MACROBLOCKD *const xd) {
-  const AV1_COMMON *const cm = &cpi->common;
-
-  return av1_compute_rd_mult(
-      cpi, cm->base_qindex + xd->delta_qindex + cm->y_dc_delta_q);
-}
-
 static EdgeInfo edge_info(const struct buf_2d *ref, const BLOCK_SIZE bsize,
                           const bool high_bd, const int bd) {
   const int width = block_size_wide[bsize];
@@ -654,6 +659,7 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   // Save rdmult before it might be changed, so it can be restored later.
   orig_rdmult = x->rdmult;
 
+  x->rdmult = cpi->rd.RDMULT;
   if (aq_mode == VARIANCE_AQ) {
     if (cpi->vaq_refresh) {
       const int energy = bsize <= BLOCK_16X16
@@ -3284,8 +3290,10 @@ BEGIN_PARTITION_SEARCH:
       ctx_this->rd_mode_is_ready = 0;
       if (!rd_try_subblock(cpi, td, tile_data, tp, (i == 3), this_mi_row,
                            mi_col, subsize, best_rdc, &sum_rdc,
-                           PARTITION_HORZ_4, ctx_prev, ctx_this))
+                           PARTITION_HORZ_4, ctx_prev, ctx_this)) {
+        av1_invalid_rd_stats(&sum_rdc);
         break;
+      }
 
       ctx_prev = ctx_this;
     }
@@ -3338,8 +3346,10 @@ BEGIN_PARTITION_SEARCH:
       ctx_this->rd_mode_is_ready = 0;
       if (!rd_try_subblock(cpi, td, tile_data, tp, (i == 3), mi_row,
                            this_mi_col, subsize, best_rdc, &sum_rdc,
-                           PARTITION_VERT_4, ctx_prev, ctx_this))
+                           PARTITION_VERT_4, ctx_prev, ctx_this)) {
+        av1_invalid_rd_stats(&sum_rdc);
         break;
+      }
 
       ctx_prev = ctx_this;
     }
