@@ -313,6 +313,9 @@ static void set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
     }
     av1_init_plane_quantizers(cpi, x, mbmi->segment_id);
   }
+
+  // R/D setup.
+  x->rdmult = cpi->rd.RDMULT;
   if (cpi->oxcf.tuning == AOM_TUNE_SSIM) {
     set_ssim_rdmult(cpi, x, bsize, mi_row, mi_col, &x->rdmult);
   }
@@ -654,6 +657,7 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   // Save rdmult before it might be changed, so it can be restored later.
   orig_rdmult = x->rdmult;
 
+  x->rdmult = cpi->rd.RDMULT;
   if (aq_mode == VARIANCE_AQ) {
     if (cpi->vaq_refresh) {
       const int energy = bsize <= BLOCK_16X16
