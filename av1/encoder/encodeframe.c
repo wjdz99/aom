@@ -278,6 +278,9 @@ static void set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
     }
     av1_init_plane_quantizers(cpi, x, mbmi->segment_id);
   }
+
+  // R/D setup.
+  x->rdmult = cpi->rd.RDMULT;
 }
 
 static void update_filter_type_count(uint8_t allow_update_cdf,
@@ -520,7 +523,7 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   struct macroblock_plane *const p = x->plane;
   struct macroblockd_plane *const pd = xd->plane;
   const AQ_MODE aq_mode = cpi->oxcf.aq_mode;
-  int i, orig_rdmult;
+  int i;
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, rd_pick_sb_modes_time);
@@ -613,9 +616,8 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
     x->edge_strength_x = ei.x;
     x->edge_strength_y = ei.y;
   }
-  // Save rdmult before it might be changed, so it can be restored later.
-  orig_rdmult = x->rdmult;
 
+  x->rdmult = cpi->rd.RDMULT;
   if (aq_mode == VARIANCE_AQ) {
     if (cpi->vaq_refresh) {
       const int energy = bsize <= BLOCK_16X16
@@ -693,8 +695,6 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
        (cpi->refresh_golden_frame && !cpi->rc.is_src_frame_alt_ref))) {
     av1_caq_select_segment(cpi, x, bsize, mi_row, mi_col, rd_cost->rate);
   }
-
-  x->rdmult = orig_rdmult;
 
   // TODO(jingning) The rate-distortion optimization flow needs to be
   // refactored to provide proper exit/return handle.
