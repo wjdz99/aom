@@ -14,9 +14,15 @@
 
 #include "test/codec_factory.h"
 #include "test/encode_test_driver.h"
+#include "test/i420_video_source.h"
 #include "test/util.h"
 #include "test/y4m_video_source.h"
 #include "test/yuv_video_source.h"
+
+
+#define LEVEL_MIN 0
+#define LEVEL_MAX 31
+#define LEVEL_KEEP_STATS 24
 
 namespace {
 // Speed settings tested
@@ -63,11 +69,16 @@ class LevelTest
         encoder->Control(AOME_SET_ARNR_STRENGTH, 5);
       }
     }
+
+    encoder->Control(AV1E_GET_SEQ_LEVEL_IDX, level_);
+    ASSERT_LE(level_[0], LEVEL_MAX);
+    ASSERT_GE(level_[0], LEVEL_MIN);
   }
 
   libaom_test::TestMode encoding_mode_;
   int cpu_used_;
   int target_level_;
+  int level_[32];
 };
 
 TEST_P(LevelTest, TestTargetLevelApi) {
@@ -100,6 +111,28 @@ TEST_P(LevelTest, TestTargetLevel19) {
   // Level index 19 corresponding to level 6.3.
   target_level_ = 19;
   ASSERT_NO_FATAL_FAILURE(RunLoop(video.get()));
+}
+
+TEST_P(LevelTest, TestLevelMonitoringLowBitrate) {
+  // To save run time, we only test speed 4.
+  if (cpu_used_ == 4) {
+    libaom_test::I420VideoSource video("hantro_odd.yuv", 208, 144, 30, 1, 0, 30);
+    target_level_ = LEVEL_KEEP_STATS;
+    cfg_.rc_target_bitrate = 1000;
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+    ASSERT_EQ(level_[0], 0);
+  }
+}
+
+TEST_P(LevelTest, TestLevelMonitoringHighBitrate) {
+  // To save run time, we only test speed 4.
+  if (cpu_used_ == 4) {
+    libaom_test::I420VideoSource video("hantro_odd.yuv", 208, 144, 30, 1, 0, 30);
+    target_level_ = LEVEL_KEEP_STATS;
+    cfg_.rc_target_bitrate = 2000;
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+    ASSERT_EQ(level_[0], 1);
+  }
 }
 
 AV1_INSTANTIATE_TEST_CASE(LevelTest,
