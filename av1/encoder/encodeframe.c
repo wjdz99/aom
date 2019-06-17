@@ -209,6 +209,41 @@ static BLOCK_SIZE get_rd_var_based_fixed_partition(AV1_COMP *cpi, MACROBLOCK *x,
 }
 #endif  // !CONFIG_REALTIME_ONLY
 
+static void set_ssim_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
+                            const BLOCK_SIZE bsize, const int mi_row,
+                            const int mi_col, int *const rdmult) {
+  const AV1_COMMON *const cm = &cpi->common;
+
+  const int bsize_base = BLOCK_16X16;
+  const int num_mi_w = mi_size_wide[bsize_base];
+  const int num_mi_h = mi_size_high[bsize_base];
+  const int num_cols = (cm->mi_cols + num_mi_w - 1) / num_mi_w;
+  const int num_rows = (cm->mi_rows + num_mi_h - 1) / num_mi_h;
+  const int num_bcols = (mi_size_wide[bsize] + num_mi_w - 1) / num_mi_w;
+  const int num_brows = (mi_size_high[bsize] + num_mi_h - 1) / num_mi_h;
+  int row, col;
+  double num_of_mi = 0.0;
+  double geom_mean_of_scale = 0.0;
+
+  assert(cpi->oxcf.tuning == AOM_TUNE_SSIM);
+
+  for (row = mi_row / num_mi_w;
+       row < num_rows && row < mi_row / num_mi_w + num_brows; ++row) {
+    for (col = mi_col / num_mi_h;
+         col < num_cols && col < mi_col / num_mi_h + num_bcols; ++col) {
+      const int index = row * num_cols + col;
+      geom_mean_of_scale += log(cpi->ssim_rdmult_scaling_factors[index]);
+      num_of_mi += 1.0;
+    }
+  }
+  geom_mean_of_scale = exp(geom_mean_of_scale / num_of_mi);
+
+  *rdmult = (int)((double)(*rdmult) * geom_mean_of_scale);
+  *rdmult = AOMMAX(*rdmult, 0);
+  set_error_per_bit(x, *rdmult);
+  aom_clear_system_state();
+}
+
 static void set_offsets_without_segment_id(const AV1_COMP *const cpi,
                                            const TileInfo *const tile,
                                            MACROBLOCK *const x, int mi_row,
@@ -281,6 +316,9 @@ static void set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
 
   // R/D setup.
   x->rdmult = cpi->rd.RDMULT;
+  if (cpi->oxcf.tuning == AOM_TUNE_SSIM) {
+    set_ssim_rdmult(cpi, x, bsize, mi_row, mi_col, &x->rdmult);
+  }
 }
 
 static void update_filter_type_count(uint8_t allow_update_cdf,
@@ -640,6 +678,9 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   // Set error per bit for current rdmult
   set_error_per_bit(x, x->rdmult);
 
+  if (cpi->oxcf.tuning == AOM_TUNE_SSIM) {
+    set_ssim_rdmult(cpi, x, bsize, mi_row, mi_col, &x->rdmult);
+  }
   av1_rd_cost_update(x->rdmult, &best_rd);
 
   // Find best coding mode & reconstruct the MB so it is available
