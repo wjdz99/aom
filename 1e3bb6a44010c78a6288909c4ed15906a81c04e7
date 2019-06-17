@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3f0298f_4a324f2d",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-17T16:28:27Z",
+      "side": 1,
+      "message": "Static functions don\u0027t need av1_ prefix, just nn_relu is fine.",
+      "range": {
+        "startLine": 63,
+        "startChar": 14,
+        "endLine": 63,
+        "endChar": 18
+      },
+      "revId": "1e3bb6a44010c78a6288909c4ed15906a81c04e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b674ea9_03b10ba2",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-17T16:28:27Z",
+      "side": 1,
+      "message": "remove.",
+      "range": {
+        "startLine": 73,
+        "startChar": 14,
+        "endLine": 73,
+        "endChar": 18
+      },
+      "revId": "1e3bb6a44010c78a6288909c4ed15906a81c04e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8914c055_e747f0dc",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-17T16:28:27Z",
+      "side": 1,
+      "message": "Can be const float.",
+      "range": {
+        "startLine": 75,
+        "startChar": 4,
+        "endLine": 75,
+        "endChar": 9
+      },
+      "revId": "1e3bb6a44010c78a6288909c4ed15906a81c04e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33fda582_af30b916",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-17T16:28:27Z",
+      "side": 1,
+      "message": "remove.",
+      "range": {
+        "startLine": 83,
+        "startChar": 14,
+        "endLine": 83,
+        "endChar": 18
+      },
+      "revId": "1e3bb6a44010c78a6288909c4ed15906a81c04e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4913007e_7f5dc03d",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-17T16:28:27Z",
+      "side": 1,
+      "message": "can be moved to first line of this function.",
+      "range": {
+        "startLine": 86,
+        "startChar": 1,
+        "endLine": 86,
+        "endChar": 54
+      },
+      "revId": "1e3bb6a44010c78a6288909c4ed15906a81c04e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ef9c175_ab88beb7",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-17T16:28:27Z",
+      "side": 1,
+      "message": "Instead of a comment like this, it may be better to have an assertion: assert(0 \u0026\u0026 \"Unknown activation\");",
+      "range": {
+        "startLine": 99,
+        "startChar": 27,
+        "endLine": 99,
+        "endChar": 61
+      },
+      "revId": "1e3bb6a44010c78a6288909c4ed15906a81c04e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
