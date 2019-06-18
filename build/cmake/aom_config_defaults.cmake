@@ -135,6 +135,7 @@ set_aom_config_var(CONFIG_HTB_TRELLIS 0 NUMBER
                    "Enable the use of hash table for trellis optimizations.")
 set_aom_config_var(CONFIG_REALTIME_ONLY 0 NUMBER
                    "Build for RTC-only to reduce binary size.")
+
 #
 # Variables in this section control optional features of the build system.
 #
