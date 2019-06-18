@@ -188,6 +188,9 @@ typedef struct {
   RestorationType restoration_type;
   WienerInfo wiener_info;
   SgrprojInfo sgrproj_info;
+#if CONFIG_LOOP_RESTORE_CNN
+  CNNInfo cnn_info;
+#endif  // CONFIG_LOOP_RESTORE_CNN
 } RestorationUnitInfo;
 
 // A restoration line buffer needs space for two lines plus a horizontal filter
