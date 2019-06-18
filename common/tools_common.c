@@ -228,18 +228,6 @@ int aom_img_read(aom_image_t *img, FILE *file) {
   return 1;
 }
 
-// TODO(dkovalev) change sse_to_psnr signature: double -> int64_t
-double sse_to_psnr(double samples, double peak, double sse) {
-  static const double kMaxPSNR = 100.0;
-
-  if (sse > 0.0) {
-    const double psnr = 10.0 * log10(samples * peak * peak / sse);
-    return psnr > kMaxPSNR ? kMaxPSNR : psnr;
-  } else {
-    return kMaxPSNR;
-  }
-}
-
 // TODO(debargha): Consolidate the functions below into a separate file.
 static void highbd_img_upshift(aom_image_t *dst, const aom_image_t *src,
                                int input_shift) {
