@@ -573,6 +573,98 @@ static int calculate_boost_bits(int frame_count, int boost,
 static double lvl_budget_factor[MAX_PYRAMID_LVL - 1][MAX_PYRAMID_LVL - 1] = {
   { 1.0, 0.0, 0.0 }, { 0.6, 0.4, 0 }, { 0.45, 0.35, 0.20 }
 };
+
+static int calc_pframe_target_size_one_pass_vbr(
+    const AV1_COMP *const cpi, FRAME_UPDATE_TYPE frame_update_type) {
+  static const int af_ratio = 10;
+  const RATE_CONTROL *const rc = &cpi->rc;
+  int target;
+#if USE_ALTREF_FOR_ONE_PASS
+  if (frame_update_type == KF_UPDATE || frame_update_type == GF_UPDATE ||
+      frame_update_type == ARF_UPDATE) {
+    target = (rc->avg_frame_bandwidth * rc->baseline_gf_interval * af_ratio) /
+             (rc->baseline_gf_interval + af_ratio - 1);
+  } else {
+    target = (rc->avg_frame_bandwidth * rc->baseline_gf_interval) /
+             (rc->baseline_gf_interval + af_ratio - 1);
+  }
+#else
+  target = rc->avg_frame_bandwidth;
+#endif
+  return av1_rc_clamp_pframe_target_size(cpi, target, frame_update_type);
+}
+
+
+#define FRAME_OVERHEAD_BITS 200
+static int calc_pframe_target_size_one_pass_cbr(
+    const AV1_COMP *cpi, FRAME_UPDATE_TYPE frame_update_type) {
+  const AV1EncoderConfig *oxcf = &cpi->oxcf;
+  const RATE_CONTROL *rc = &cpi->rc;
+  const int64_t diff = rc->optimal_buffer_level - rc->buffer_level;
+  const int64_t one_pct_bits = 1 + rc->optimal_buffer_level / 100;
+  int min_frame_target =
+      AOMMAX(rc->avg_frame_bandwidth >> 4, FRAME_OVERHEAD_BITS);
+  int target;
+
+  if (oxcf->gf_cbr_boost_pct) {
+    const int af_ratio_pct = oxcf->gf_cbr_boost_pct + 100;
+    if (frame_update_type == GF_UPDATE || frame_update_type == OVERLAY_UPDATE) {
+      target =
+          (rc->avg_frame_bandwidth * rc->baseline_gf_interval * af_ratio_pct) /
+          (rc->baseline_gf_interval * 100 + af_ratio_pct - 100);
+    } else {
+      target = (rc->avg_frame_bandwidth * rc->baseline_gf_interval * 100) /
+               (rc->baseline_gf_interval * 100 + af_ratio_pct - 100);
+    }
+  } else {
+    target = rc->avg_frame_bandwidth;
+  }
+
+  if (diff > 0) {
+    // Lower the target bandwidth for this frame.
+    const int pct_low = (int)AOMMIN(diff / one_pct_bits, oxcf->under_shoot_pct);
+    target -= (target * pct_low) / 200;
+  } else if (diff < 0) {
+    // Increase the target bandwidth for this frame.
+    const int pct_high =
+        (int)AOMMIN(-diff / one_pct_bits, oxcf->over_shoot_pct);
+    target += (target * pct_high) / 200;
+  }
+  if (oxcf->rc_max_inter_bitrate_pct) {
+    const int max_rate =
+        rc->avg_frame_bandwidth * oxcf->rc_max_inter_bitrate_pct / 100;
+    target = AOMMIN(target, max_rate);
+  }
+  return AOMMAX(min_frame_target, target);
+}
+
+
+static int get_target_frame_size(AV1_COMP *cpi, int64_t total_group_bits,
+                                 double group_error, int index) {
+  TWO_PASS *const twopass = &cpi->twopass;
+  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+
+  if (oxcf->pass == 2) {
+    const int max_bits = frame_max_bits(&cpi->rc, &cpi->oxcf);
+    FIRSTPASS_STATS frame_stats;
+    if (EOF == input_stats(twopass, &frame_stats)) return -1;
+
+    const double modified_err =
+        calculate_modified_err(cpi, twopass, oxcf, &frame_stats);
+    const double err_fraction =
+      (group_error > 0) ? modified_err / DOUBLE_DIVIDE_CHECK(group_error)
+                        : 0.0;
+    return clamp((int)((double)total_group_bits * err_fraction), 0,
+          AOMMIN(max_bits, (int)total_group_bits));
+  }
+
+  assert (oxcf->pass == 0);
+  const FRAME_UPDATE_TYPE cur_update_type = cpi->gf_group.update_type[index];
+  if (cpi->oxcf.rc_mode == AOM_CBR)
+    return calc_pframe_target_size_one_pass_cbr(cpi, cur_update_type);
+  return calc_pframe_target_size_one_pass_vbr(cpi, cur_update_type);
+}
+
 static void allocate_gf_group_bits(
     AV1_COMP *cpi, int64_t gf_group_bits, double group_error, int gf_arf_bits,
     const EncodeFrameParams *const frame_params) {
@@ -581,7 +673,6 @@ static void allocate_gf_group_bits(
   TWO_PASS *const twopass = &cpi->twopass;
   GF_GROUP *const gf_group = &cpi->gf_group;
   const int key_frame = (frame_params->frame_type == KEY_FRAME);
-  const int max_bits = frame_max_bits(&cpi->rc, &cpi->oxcf);
   int64_t total_group_bits = gf_group_bits;
 
   // Check if GF group has any internal arfs.
@@ -603,9 +694,12 @@ static void allocate_gf_group_bits(
     else
       gf_group->bit_allocation[frame_index] = gf_arf_bits;
 
-    // Step over the golden frame / overlay frame
-    FIRSTPASS_STATS frame_stats;
-    if (EOF == input_stats(twopass, &frame_stats)) return;
+
+    if (oxcf->pass == 2) {
+      // Step over the golden frame / overlay frame
+      FIRSTPASS_STATS frame_stats;
+      if (EOF == input_stats(twopass, &frame_stats)) return;
+    }
   }
 
   // Deduct the boost bits for arf (or gf if it is not a key frame)
@@ -639,17 +733,9 @@ static void allocate_gf_group_bits(
   const int normal_frames = rc->baseline_gf_interval - 1;
 
   for (int i = 0; i < normal_frames; ++i) {
-    FIRSTPASS_STATS frame_stats;
-    if (EOF == input_stats(twopass, &frame_stats)) break;
-
-    const double modified_err =
-        calculate_modified_err(cpi, twopass, oxcf, &frame_stats);
-    const double err_fraction =
-        (group_error > 0) ? modified_err / DOUBLE_DIVIDE_CHECK(group_error)
-                          : 0.0;
     const int target_frame_size =
-        clamp((int)((double)total_group_bits * err_fraction), 0,
-              AOMMIN(max_bits, (int)total_group_bits));
+      get_target_frame_size(cpi, total_group_bits, group_error, frame_index);
+    if (target_frame_size < 0) break;
 
     if (gf_group->update_type[frame_index] == INTNL_OVERLAY_UPDATE) {
       assert(gf_group->pyramid_height <= MAX_PYRAMID_LVL &&
@@ -776,75 +862,12 @@ void av1_assign_q_and_bounds_q_mode(AV1_COMP *cpi) {
   rc->avg_frame_qindex[INTER_FRAME] = avg_frame_qindex;
 }
 
-static int calc_pframe_target_size_one_pass_vbr(
-    const AV1_COMP *const cpi, FRAME_UPDATE_TYPE frame_update_type) {
-  static const int af_ratio = 10;
-  const RATE_CONTROL *const rc = &cpi->rc;
-  int target;
-#if USE_ALTREF_FOR_ONE_PASS
-  if (frame_update_type == KF_UPDATE || frame_update_type == GF_UPDATE ||
-      frame_update_type == ARF_UPDATE) {
-    target = (rc->avg_frame_bandwidth * rc->baseline_gf_interval * af_ratio) /
-             (rc->baseline_gf_interval + af_ratio - 1);
-  } else {
-    target = (rc->avg_frame_bandwidth * rc->baseline_gf_interval) /
-             (rc->baseline_gf_interval + af_ratio - 1);
-  }
-#else
-  target = rc->avg_frame_bandwidth;
-#endif
-  return av1_rc_clamp_pframe_target_size(cpi, target, frame_update_type);
-}
-
+/*
 static int calc_iframe_target_size_one_pass_vbr(const AV1_COMP *const cpi) {
   static const int kf_ratio = 25;
   const RATE_CONTROL *rc = &cpi->rc;
   const int target = rc->avg_frame_bandwidth * kf_ratio;
   return av1_rc_clamp_iframe_target_size(cpi, target);
-}
-
-#define FRAME_OVERHEAD_BITS 200
-
-static int calc_pframe_target_size_one_pass_cbr(
-    const AV1_COMP *cpi, FRAME_UPDATE_TYPE frame_update_type) {
-  const AV1EncoderConfig *oxcf = &cpi->oxcf;
-  const RATE_CONTROL *rc = &cpi->rc;
-  const int64_t diff = rc->optimal_buffer_level - rc->buffer_level;
-  const int64_t one_pct_bits = 1 + rc->optimal_buffer_level / 100;
-  int min_frame_target =
-      AOMMAX(rc->avg_frame_bandwidth >> 4, FRAME_OVERHEAD_BITS);
-  int target;
-
-  if (oxcf->gf_cbr_boost_pct) {
-    const int af_ratio_pct = oxcf->gf_cbr_boost_pct + 100;
-    if (frame_update_type == GF_UPDATE || frame_update_type == OVERLAY_UPDATE) {
-      target =
-          (rc->avg_frame_bandwidth * rc->baseline_gf_interval * af_ratio_pct) /
-          (rc->baseline_gf_interval * 100 + af_ratio_pct - 100);
-    } else {
-      target = (rc->avg_frame_bandwidth * rc->baseline_gf_interval * 100) /
-               (rc->baseline_gf_interval * 100 + af_ratio_pct - 100);
-    }
-  } else {
-    target = rc->avg_frame_bandwidth;
-  }
-
-  if (diff > 0) {
-    // Lower the target bandwidth for this frame.
-    const int pct_low = (int)AOMMIN(diff / one_pct_bits, oxcf->under_shoot_pct);
-    target -= (target * pct_low) / 200;
-  } else if (diff < 0) {
-    // Increase the target bandwidth for this frame.
-    const int pct_high =
-        (int)AOMMIN(-diff / one_pct_bits, oxcf->over_shoot_pct);
-    target += (target * pct_high) / 200;
-  }
-  if (oxcf->rc_max_inter_bitrate_pct) {
-    const int max_rate =
-        rc->avg_frame_bandwidth * oxcf->rc_max_inter_bitrate_pct / 100;
-    target = AOMMIN(target, max_rate);
-  }
-  return AOMMAX(min_frame_target, target);
 }
 
 static int calc_iframe_target_size_one_pass_cbr(const AV1_COMP *cpi) {
@@ -866,12 +889,13 @@ static int calc_iframe_target_size_one_pass_cbr(const AV1_COMP *cpi) {
   }
   return av1_rc_clamp_iframe_target_size(cpi, target);
 }
+*/
 
 static void define_gf_group_pass0(AV1_COMP *cpi,
                                   const EncodeFrameParams *const frame_params) {
   RATE_CONTROL *const rc = &cpi->rc;
-  GF_GROUP *const gf_group = &cpi->gf_group;
-  int target;
+//GF_GROUP *const gf_group = &cpi->gf_group;
+//int target;
 
   if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ)
     av1_cyclic_refresh_set_golden_update(cpi);
@@ -897,8 +921,10 @@ static void define_gf_group_pass0(AV1_COMP *cpi,
 
   if (cpi->oxcf.rc_mode == AOM_Q) av1_assign_q_and_bounds_q_mode(cpi);
 
+  //////////////////////////////
   // Allocate bits to each of the frames in the GF group.
   // TODO(sarahparker) Extend this to work with pyramid structure.
+  /*
   for (int cur_index = 0; cur_index < gf_group->size; ++cur_index) {
     const FRAME_UPDATE_TYPE cur_update_type = gf_group->update_type[cur_index];
     if (cpi->oxcf.rc_mode == AOM_CBR) {
@@ -916,6 +942,26 @@ static void define_gf_group_pass0(AV1_COMP *cpi,
     }
     gf_group->bit_allocation[cur_index] = target;
   }
+  */
+  // TODO(sarahparker) how is kf allocation done?
+  int gf_arf_bits = (int)(rc->avg_frame_bandwidth * 1.3);
+  // Allocate bits to each of the frames in the GF group.
+  int64_t gf_group_bits = (rc->avg_frame_bandwidth * rc->baseline_gf_interval);
+  allocate_gf_group_bits(cpi, gf_group_bits, 0, gf_arf_bits,
+                         frame_params);
+  /*
+  // Adjust KF group bits and error remaining.
+  twopass->kf_group_error_left -= (int64_t)gf_group_err;
+  // Calculate the extra bits to be used for boosted frame(s)
+  gf_arf_bits = calculate_boost_bits(rc->baseline_gf_interval, rc->gfu_boost,
+                                     gf_group_bits);
+  int64_t gf_group_bits;
+  int64_t gf_group_bits;
+  // Calculate the bits to be allocated to the gf/arf group as a whole
+  gf_group_bits = calculate_total_gf_group_bits(cpi, gf_group_err);
+  double gf_group_error_left;
+                         */
+  ///////////////////////////////////
 }
 
 // Analyse and define a gf/arf group.
