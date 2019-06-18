@@ -34,7 +34,6 @@ typedef struct {
  * \param[in]    peak          Max sample value
  * \param[in]    sse           Sum of squared errors
  */
-double aom_sse_to_psnr(double samples, double peak, double sse);
 int64_t aom_get_y_sse_part(const YV12_BUFFER_CONFIG *a,
                            const YV12_BUFFER_CONFIG *b, int hstart, int width,
                            int vstart, int height);

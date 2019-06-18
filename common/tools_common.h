@@ -163,7 +163,7 @@ const AvxInterface *get_aom_decoder_by_fourcc(uint32_t fourcc);
 void aom_img_write(const aom_image_t *img, FILE *file);
 int aom_img_read(aom_image_t *img, FILE *file);
 
-double sse_to_psnr(double samples, double peak, double mse);
+double aom_sse_to_psnr(double samples, double peak, double mse);
 void aom_img_upshift(aom_image_t *dst, const aom_image_t *src, int input_shift);
 void aom_img_downshift(aom_image_t *dst, const aom_image_t *src,
                        int down_shift);

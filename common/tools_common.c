@@ -229,7 +229,7 @@ int aom_img_read(aom_image_t *img, FILE *file) {
 }
 
 // TODO(dkovalev) change sse_to_psnr signature: double -> int64_t
-double sse_to_psnr(double samples, double peak, double sse) {
+double aom_sse_to_psnr(double samples, double peak, double sse) {
   static const double kMaxPSNR = 100.0;
 
   if (sse > 0.0) {

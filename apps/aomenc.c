@@ -2043,8 +2043,8 @@ static void show_psnr(struct stream_state *stream, double peak, int64_t bps) {
   if (!stream->psnr_count) return;
 
   fprintf(stderr, "Stream %d PSNR (Overall/Avg/Y/U/V)", stream->index);
-  ovpsnr = sse_to_psnr((double)stream->psnr_samples_total, peak,
-                       (double)stream->psnr_sse_total);
+  ovpsnr = aom_sse_to_psnr((double)stream->psnr_samples_total, peak,
+                           (double)stream->psnr_sse_total);
   fprintf(stderr, " %.3f", ovpsnr);
 
   for (i = 0; i < 4; i++) {
