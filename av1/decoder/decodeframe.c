@@ -1990,8 +1990,17 @@ static void decode_restoration_mode(AV1_COMMON *cm,
       rsi->frame_restoration_type =
           aom_rb_read_bit(rb) ? RESTORE_SGRPROJ : RESTORE_WIENER;
     } else {
+#if CONFIG_LOOP_RESTORE_CNN
+      if (aom_rb_read_bit(rb)) {
+        rsi->frame_restoration_type = RESTORE_SWITCHABLE;
+      } else {
+        rsi->frame_restoration_type =
+            aom_rb_read_bit(rb) ? RESTORE_CNN : RESTORE_NONE;
+      }
+#else
       rsi->frame_restoration_type =
           aom_rb_read_bit(rb) ? RESTORE_SWITCHABLE : RESTORE_NONE;
+#endif  // CONFIG_LOOP_RESTORE_CNN
     }
     if (rsi->frame_restoration_type != RESTORE_NONE) {
       all_none = 0;
