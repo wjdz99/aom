@@ -1634,15 +1634,23 @@ static INLINE void sort_probability(float prob[], int txk[], int len) {
   }
 }
 
+// (Inverse) mapping table for TX_TYPE
+static int tx_type_table_2D[16] = {
+  DCT_DCT,      DCT_ADST,      DCT_FLIPADST,      V_DCT,
+  ADST_DCT,     ADST_ADST,     ADST_FLIPADST,     V_ADST,
+  FLIPADST_DCT, FLIPADST_ADST, FLIPADST_FLIPADST, V_FLIPADST,
+  H_DCT,        H_ADST,        H_FLIPADST,        IDTX
+};
+
+#if CONFIG_NN_V2
+static int tx_type_table_2D_inverse[16] = { 0, 4,  1, 5,  8, 2,  10, 6,
+                                            9, 15, 3, 12, 7, 13, 11, 14 };
+#endif  // CONFIG_NN_V2
+
 static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
                             int blk_row, int blk_col, TxSetType tx_set_type,
-                            TX_TYPE_PRUNE_MODE prune_mode, int *txk_map) {
-  int tx_type_table_2D[16] = {
-    DCT_DCT,      DCT_ADST,      DCT_FLIPADST,      V_DCT,
-    ADST_DCT,     ADST_ADST,     ADST_FLIPADST,     V_ADST,
-    FLIPADST_DCT, FLIPADST_ADST, FLIPADST_FLIPADST, V_FLIPADST,
-    H_DCT,        H_ADST,        H_FLIPADST,        IDTX
-  };
+                            TX_TYPE_PRUNE_MODE prune_mode, int *txk_map,
+                            bool *nn_model_used) {
   if (tx_set_type != EXT_TX_SET_ALL16 &&
       tx_set_type != EXT_TX_SET_DTT9_IDTX_1DDCT)
     return 0;
@@ -1678,9 +1686,11 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
 #if CONFIG_NN_V2
   av1_nn_predict_v2(hfeatures, nn_config_hor, hscores);
   av1_nn_predict_v2(vfeatures, nn_config_ver, vscores);
+  *nn_model_used = true;
 #else
   av1_nn_predict(hfeatures, nn_config_hor, hscores);
   av1_nn_predict(vfeatures, nn_config_ver, vscores);
+  *nn_model_used = false;
 #endif
   aom_clear_system_state();
 
@@ -3082,6 +3092,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     txk_allowed = DCT_DCT;
   }
   uint16_t allowed_tx_mask = 0;  // 1: allow; 0: skip.
+  bool prune_tx_2D_flag = false;
   if (txk_allowed < TX_TYPES) {
     allowed_tx_mask = 1 << txk_allowed;
     allowed_tx_mask &= ext_tx_used_flag;
@@ -3093,9 +3104,9 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     allowed_tx_mask = ext_tx_used_flag;
     // !fast_tx_search && txk_end != txk_start && plane == 0
     if (cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE && is_inter) {
-      const uint16_t prune =
-          prune_tx_2D(x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
-                      cpi->sf.tx_type_search.prune_mode, txk_map);
+      const uint16_t prune = prune_tx_2D(
+          x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
+          cpi->sf.tx_type_search.prune_mode, txk_map, &prune_tx_2D_flag);
       allowed_tx_mask &= (~prune);
     }
   }
@@ -3297,6 +3308,17 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   }
 
   assert(best_rd != INT64_MAX);
+
+#if CONFIG_NN_V2
+  // Update the NN models in prune_tx_2D
+  if (prune_tx_2D_flag) {
+    av1_nn_outer_product_backprop(av1_tx_type_nnconfig_map_hor[tx_size],
+                                  av1_tx_type_nnconfig_map_ver[tx_size],
+                                  tx_type_table_2D_inverse[best_tx_type]);
+    av1_nn_update(av1_tx_type_nnconfig_map_hor[tx_size], 0.01f);
+    av1_nn_update(av1_tx_type_nnconfig_map_ver[tx_size], 0.01f);
+  }
+#endif  // CONFIG_NN_V2
 
   best_rd_stats->skip = best_eob == 0;
   if (plane == 0) {
