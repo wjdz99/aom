@@ -1637,7 +1637,7 @@ static INLINE void sort_probability(float prob[], int txk[], int len) {
 static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
                             int blk_row, int blk_col, TxSetType tx_set_type,
                             TX_TYPE_PRUNE_MODE prune_mode, int *txk_map) {
-  int tx_type_table_2D[16] = {
+  static int tx_type_table_2D[16] = {
     DCT_DCT,      DCT_ADST,      DCT_FLIPADST,      V_DCT,
     ADST_DCT,     ADST_ADST,     ADST_FLIPADST,     V_ADST,
     FLIPADST_DCT, FLIPADST_ADST, FLIPADST_FLIPADST, V_FLIPADST,
