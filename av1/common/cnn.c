@@ -187,32 +187,52 @@ static void find_layer_output_size(int in_width, int in_height,
   }
 }
 
-void find_cnn_out_channels(const CNN_LAYER_CONFIG *layer_config,
-                           int channels_per_branch[]) {
+void find_cnn_out_dimensions(const CNN_LAYER_CONFIG *layer_config,
+                             int width_per_branch[], int height_per_branch[],
+                             int channels_per_branch[]) {
   int branch = layer_config->branch;
   const CNN_BRANCH_CONFIG *branch_config = &layer_config->branch_config;
+
+  // Compute dimensions of inputs to all other branches from
+  // layer_config->branch.
+  int o_width = 0;
+  int o_height = 0;
+  find_layer_output_size(width_per_branch[branch], height_per_branch[branch],
+                         layer_config, &o_width, &o_height);
   for (int b = 0; b < CNN_MAX_BRANCHES; ++b) {
     if ((branch_config->input_to_branches & (1 << b)) && b != branch) {
       if (layer_config->branch_copy_type == BRANCH_INPUT) {
+        width_per_branch[b] = width_per_branch[branch];
+        height_per_branch[b] = height_per_branch[branch];
         channels_per_branch[b] = layer_config->in_channels;
-      } else if (layer_config->branch_copy_type == BRANCH_OUTPUT) {
+      } else if (layer_config->branch_copy_type == BRANCH_OUTPUT ||
+                 layer_config->branch_copy_type == BRANCH_COMBINED) {
+        width_per_branch[b] = o_width;
+        height_per_branch[b] = o_height;
         channels_per_branch[b] = layer_config->out_channels;
-      } else if (layer_config->branch_copy_type == BRANCH_COMBINED) {
-        channels_per_branch[b] = layer_config->out_channels;
-        for (int c = 0; c < CNN_MAX_BRANCHES; ++c) {
-          if ((branch_config->branches_to_combine & (1 << c)) && c != branch) {
-            assert(channels_per_branch[c] > 0);
-            channels_per_branch[b] += channels_per_branch[c];
+        if (layer_config->branch_combine_type == BRANCH_CAT) {
+          for (int c = 0; c < CNN_MAX_BRANCHES; ++c) {
+            if ((branch_config->branches_to_combine & (1 << c)) &&
+                c != branch) {
+              assert(channels_per_branch[c] > 0);
+              channels_per_branch[b] += channels_per_branch[c];
+            }
           }
         }
       }
     }
   }
+  // Compute dimensions for our own layer by checking if any branches
+  // are concatenated to layer_config->branch.
+  width_per_branch[branch] = o_width;
+  height_per_branch[branch] = o_height;
   channels_per_branch[branch] = layer_config->out_channels;
-  for (int c = 0; c < CNN_MAX_BRANCHES; ++c) {
-    if ((branch_config->branches_to_combine & (1 << c)) && c != branch) {
-      assert(channels_per_branch[c] > 0);
-      channels_per_branch[branch] += channels_per_branch[c];
+  if (layer_config->branch_combine_type == BRANCH_CAT) {
+    for (int c = 0; c < CNN_MAX_BRANCHES; ++c) {
+      if ((branch_config->branches_to_combine & (1 << c)) && c != branch) {
+        assert(channels_per_branch[c] > 0);
+        channels_per_branch[branch] += channels_per_branch[c];
+      }
     }
   }
 }
@@ -220,47 +240,21 @@ void find_cnn_out_channels(const CNN_LAYER_CONFIG *layer_config,
 void av1_find_cnn_output_size(int in_width, int in_height,
                               const CNN_CONFIG *cnn_config, int *out_width,
                               int *out_height, int *out_channels) {
-  int channels_per_branch[CNN_MAX_BRANCHES] = { 0 };
+  int i_channels[CNN_MAX_BRANCHES];
   int i_width[CNN_MAX_BRANCHES];
   int i_height[CNN_MAX_BRANCHES];
   i_width[0] = in_width + cnn_config->ext_width * 2;
   i_height[0] = in_height + cnn_config->ext_height * 2;
   for (int i = 0; i < cnn_config->num_layers; ++i) {
     const CNN_LAYER_CONFIG *layer_config = &cnn_config->layer_config[i];
-    const CNN_BRANCH_CONFIG *branch_config = &layer_config->branch_config;
-    const int branch = layer_config->branch;
-    int o_width = 0, o_height = 0;
-
-    if (layer_config->branch_copy_type == BRANCH_INPUT) {
-      for (int b = 0; b < CNN_MAX_BRANCHES; ++b) {
-        if ((branch_config->input_to_branches & (1 << b)) && b != branch) {
-          i_width[b] = i_width[branch];
-          i_height[b] = i_height[branch];
-        }
-      }
-    }
-
-    find_layer_output_size(i_width[branch], i_height[branch], layer_config,
-                           &o_width, &o_height);
-    i_width[branch] = o_width;
-    i_height[branch] = o_height;
-
-    if (layer_config->branch_copy_type == BRANCH_OUTPUT) {
-      for (int b = 0; b < CNN_MAX_BRANCHES; ++b) {
-        if ((branch_config->input_to_branches & (1 << b)) && b != branch) {
-          i_width[b] = o_width;
-          i_height[b] = o_height;
-        }
-      }
-    }
-
-    find_cnn_out_channels(layer_config, channels_per_branch);
+    find_cnn_out_dimensions(layer_config, i_width, i_height, i_channels);
 
     const int output_num = layer_config->output_num;
     if (output_num != -1) {  // Current layer is an output layer
-      out_width[output_num] = o_width;
-      out_height[output_num] = o_height;
-      out_channels[output_num] = channels_per_branch[layer_config->branch];
+      int branch = layer_config->branch;
+      out_width[output_num] = i_width[branch];
+      out_height[output_num] = i_height[branch];
+      out_channels[output_num] = i_channels[branch];
     }
   }
 }
