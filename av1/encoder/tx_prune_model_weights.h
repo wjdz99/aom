@@ -49,11 +49,20 @@ static float av1_tx_type_nn_4x4_hor_layer1_bias[4] = {
   1.21199f,
 };
 
+static float av1_tx_type_nn_4x4_hor_in[4] = { 0 };
 static float av1_tx_type_nn_4x4_hor_layer0_out[8] = { 0 };
+static float av1_tx_type_nn_4x4_hor_layer0_dout[8] = { 0 };
+static float av1_tx_type_nn_4x4_hor_layer0_dW[32] = { 0 };
+static float av1_tx_type_nn_4x4_hor_layer0_db[8] = { 0 };
 static float av1_tx_type_nn_4x4_hor_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_4x4_hor_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_4x4_hor_layer1_dW[32] = { 0 };
+static float av1_tx_type_nn_4x4_hor_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_4x4_hor = {
-  1,  // num_hidden_layers
+  0,                          // counter (!!Initialize to 0)
+  1,                          // num_hidden_layers
+  av1_tx_type_nn_4x4_hor_in,  // feature
   {
       // fc layer setting
       {
@@ -64,9 +73,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_4x4_hor = {
           av1_tx_type_nn_4x4_hor_layer0_bias,     // bias
           RELU,                                   // activation
           av1_tx_type_nn_4x4_hor_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_4x4_hor_layer0_dout,     // d_out
+          av1_tx_type_nn_4x4_hor_layer0_dW,       // dW
+          av1_tx_type_nn_4x4_hor_layer0_db,       // db
       },
       {
           8,  // num_inputs (!!same as num_outputs of last layer)
@@ -75,9 +84,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_4x4_hor = {
           av1_tx_type_nn_4x4_hor_layer1_bias,
           NONE,
           av1_tx_type_nn_4x4_hor_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_4x4_hor_layer1_dout,
+          av1_tx_type_nn_4x4_hor_layer1_dW,
+          av1_tx_type_nn_4x4_hor_layer1_db,
       },
   },
   4,                                  // num_outputs
@@ -113,11 +122,20 @@ static float av1_tx_type_nn_4x4_ver_layer1_bias[4] = {
   -1.90778f,
 };
 
+static float av1_tx_type_nn_4x4_ver_in[4] = { 0 };
 static float av1_tx_type_nn_4x4_ver_layer0_out[8] = { 0 };
+static float av1_tx_type_nn_4x4_ver_layer0_dout[8] = { 0 };
+static float av1_tx_type_nn_4x4_ver_layer0_dW[32] = { 0 };
+static float av1_tx_type_nn_4x4_ver_layer0_db[8] = { 0 };
 static float av1_tx_type_nn_4x4_ver_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_4x4_ver_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_4x4_ver_layer1_dW[32] = { 0 };
+static float av1_tx_type_nn_4x4_ver_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_4x4_ver = {
-  1,  // num_hidden_layers
+  0,                          // counter (!!Initialize to 0)
+  1,                          // num_hidden_layers
+  av1_tx_type_nn_4x4_ver_in,  // feature
   {
       // fc layer setting
       {
@@ -128,9 +146,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_4x4_ver = {
           av1_tx_type_nn_4x4_ver_layer0_bias,     // bias
           RELU,                                   // activation
           av1_tx_type_nn_4x4_ver_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_4x4_ver_layer0_dout,     // d_out
+          av1_tx_type_nn_4x4_ver_layer0_dW,       // dW
+          av1_tx_type_nn_4x4_ver_layer0_db,       // db
       },
       {
           8,  // num_inputs (!!same as num_outputs of last layer)
@@ -139,9 +157,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_4x4_ver = {
           av1_tx_type_nn_4x4_ver_layer1_bias,
           NONE,
           av1_tx_type_nn_4x4_ver_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_4x4_ver_layer1_dout,
+          av1_tx_type_nn_4x4_ver_layer1_dW,
+          av1_tx_type_nn_4x4_ver_layer1_db,
       },
   },
   4,                                  // num_outputs
@@ -179,11 +197,20 @@ static float av1_tx_type_nn_4x8_hor_layer1_bias[4] = {
   -2.26333f,
 };
 
+static float av1_tx_type_nn_4x8_hor_in[4] = { 0 };
 static float av1_tx_type_nn_4x8_hor_layer0_out[8] = { 0 };
+static float av1_tx_type_nn_4x8_hor_layer0_dout[8] = { 0 };
+static float av1_tx_type_nn_4x8_hor_layer0_dW[32] = { 0 };
+static float av1_tx_type_nn_4x8_hor_layer0_db[8] = { 0 };
 static float av1_tx_type_nn_4x8_hor_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_4x8_hor_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_4x8_hor_layer1_dW[32] = { 0 };
+static float av1_tx_type_nn_4x8_hor_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_4x8_hor = {
-  1,  // num_hidden_layers
+  0,                          // counter (!!Initialize to 0)
+  1,                          // num_hidden_layers
+  av1_tx_type_nn_4x8_hor_in,  // feature
   {
       // fc layer setting
       {
@@ -194,9 +221,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_4x8_hor = {
           av1_tx_type_nn_4x8_hor_layer0_bias,     // bias
           RELU,                                   // activation
           av1_tx_type_nn_4x8_hor_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_4x8_hor_layer0_dout,     // dY
+          av1_tx_type_nn_4x8_hor_layer0_dW,       // dW
+          av1_tx_type_nn_4x8_hor_layer0_db,       // db
       },
       {
           8,  // num_inputs (!!same as num_outputs of last layer)
@@ -205,9 +232,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_4x8_hor = {
           av1_tx_type_nn_4x8_hor_layer1_bias,
           NONE,
           av1_tx_type_nn_4x8_hor_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_4x8_hor_layer1_dout,
+          av1_tx_type_nn_4x8_hor_layer1_dW,
+          av1_tx_type_nn_4x8_hor_layer1_db,
       },
   },
   4,                                  // num_outputs
@@ -263,11 +290,20 @@ static float av1_tx_type_nn_4x8_ver_layer1_bias[4] = {
   -1.55368f,
 };
 
+static float av1_tx_type_nn_4x8_ver_in[8] = { 0 };
 static float av1_tx_type_nn_4x8_ver_layer0_out[16] = { 0 };
+static float av1_tx_type_nn_4x8_ver_layer0_dout[16] = { 0 };
+static float av1_tx_type_nn_4x8_ver_layer0_dW[128] = { 0 };
+static float av1_tx_type_nn_4x8_ver_layer0_db[16] = { 0 };
 static float av1_tx_type_nn_4x8_ver_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_4x8_ver_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_4x8_ver_layer1_dW[64] = { 0 };
+static float av1_tx_type_nn_4x8_ver_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_4x8_ver = {
-  1,  // num_hidden_layers
+  0,                          // counter (!!Initialize to 0)
+  1,                          // num_hidden_layers
+  av1_tx_type_nn_4x8_ver_in,  // feature
   {
       // fc layer setting
       {
@@ -278,9 +314,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_4x8_ver = {
           av1_tx_type_nn_4x8_ver_layer0_bias,     // bias
           RELU,                                   // activation
           av1_tx_type_nn_4x8_ver_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_4x8_ver_layer0_dout,     // dY
+          av1_tx_type_nn_4x8_ver_layer0_dW,       // dW
+          av1_tx_type_nn_4x8_ver_layer0_db,       // db
       },
       {
           16,  // num_inputs (!!same as num_outputs of last layer)
@@ -289,9 +325,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_4x8_ver = {
           av1_tx_type_nn_4x8_ver_layer1_bias,
           NONE,
           av1_tx_type_nn_4x8_ver_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_4x8_ver_layer1_dout,
+          av1_tx_type_nn_4x8_ver_layer1_dW,
+          av1_tx_type_nn_4x8_ver_layer1_db,
       },
   },
   4,                                  // num_outputs
@@ -350,11 +386,20 @@ static float av1_tx_type_nn_8x4_hor_layer1_bias[4] = {
   -4.33853f,
 };
 
+static float av1_tx_type_nn_8x4_hor_in[8] = { 0 };
 static float av1_tx_type_nn_8x4_hor_layer0_out[16] = { 0 };
+static float av1_tx_type_nn_8x4_hor_layer0_dout[16] = { 0 };
+static float av1_tx_type_nn_8x4_hor_layer0_dW[128] = { 0 };
+static float av1_tx_type_nn_8x4_hor_layer0_db[16] = { 0 };
 static float av1_tx_type_nn_8x4_hor_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_8x4_hor_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_8x4_hor_layer1_dW[64] = { 0 };
+static float av1_tx_type_nn_8x4_hor_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_8x4_hor = {
-  1,  // num_hidden_layers
+  0,                          // counter (!!Initialize to 0)
+  1,                          // num_hidden_layers
+  av1_tx_type_nn_8x4_hor_in,  // feature
   {
       // fc layer setting
       {
@@ -365,9 +410,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_8x4_hor = {
           av1_tx_type_nn_8x4_hor_layer0_bias,     // bias
           RELU,                                   // activation
           av1_tx_type_nn_8x4_hor_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_8x4_hor_layer0_dout,     // dY
+          av1_tx_type_nn_8x4_hor_layer0_dW,       // dW
+          av1_tx_type_nn_8x4_hor_layer0_db,       // db
       },
       {
           16,  // num_inputs (!!same as num_outputs of last layer)
@@ -376,9 +421,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_8x4_hor = {
           av1_tx_type_nn_8x4_hor_layer1_bias,
           NONE,
           av1_tx_type_nn_8x4_hor_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_8x4_hor_layer1_dout,
+          av1_tx_type_nn_8x4_hor_layer1_dW,
+          av1_tx_type_nn_8x4_hor_layer1_db,
       },
   },
   4,                                  // num_outputs
@@ -414,11 +459,20 @@ static float av1_tx_type_nn_8x4_ver_layer1_bias[4] = {
   0.95391f,
 };
 
+static float av1_tx_type_nn_8x4_ver_in[4] = { 0 };
 static float av1_tx_type_nn_8x4_ver_layer0_out[8] = { 0 };
+static float av1_tx_type_nn_8x4_ver_layer0_dout[8] = { 0 };
+static float av1_tx_type_nn_8x4_ver_layer0_dW[32] = { 0 };
+static float av1_tx_type_nn_8x4_ver_layer0_db[8] = { 0 };
 static float av1_tx_type_nn_8x4_ver_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_8x4_ver_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_8x4_ver_layer1_dW[32] = { 0 };
+static float av1_tx_type_nn_8x4_ver_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_8x4_ver = {
-  1,  // num_hidden_layers
+  0,                          // counter (!!Initialize to 0)
+  1,                          // num_hidden_layers
+  av1_tx_type_nn_8x4_ver_in,  // feature
   {
       // fc layer setting
       {
@@ -429,9 +483,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_8x4_ver = {
           av1_tx_type_nn_8x4_ver_layer0_bias,     // bias
           RELU,                                   // activation
           av1_tx_type_nn_8x4_ver_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_8x4_ver_layer0_dout,     // dY
+          av1_tx_type_nn_8x4_ver_layer0_dW,       // dW
+          av1_tx_type_nn_8x4_ver_layer0_db,       // db
       },
       {
           8,  // num_inputs (!!same as num_outputs of last layer)
@@ -440,9 +494,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_8x4_ver = {
           av1_tx_type_nn_8x4_ver_layer1_bias,
           NONE,
           av1_tx_type_nn_8x4_ver_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_8x4_ver_layer1_dout,
+          av1_tx_type_nn_8x4_ver_layer1_dW,
+          av1_tx_type_nn_8x4_ver_layer1_db,
       },
   },
   4,                                  // num_outputs
@@ -500,11 +554,20 @@ static float av1_tx_type_nn_8x8_hor_layer1_bias[4] = {
   1.80826f,
 };
 
+static float av1_tx_type_nn_8x8_hor_in[8] = { 0 };
 static float av1_tx_type_nn_8x8_hor_layer0_out[16] = { 0 };
+static float av1_tx_type_nn_8x8_hor_layer0_dout[16] = { 0 };
+static float av1_tx_type_nn_8x8_hor_layer0_dW[128] = { 0 };
+static float av1_tx_type_nn_8x8_hor_layer0_db[16] = { 0 };
 static float av1_tx_type_nn_8x8_hor_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_8x8_hor_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_8x8_hor_layer1_dW[64] = { 0 };
+static float av1_tx_type_nn_8x8_hor_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_8x8_hor = {
-  1,  // num_hidden_layers
+  0,                          // counter (!!Initialize to 0)
+  1,                          // num_hidden_layers
+  av1_tx_type_nn_8x8_hor_in,  // feature
   {
       // fc layer setting
       {
@@ -515,9 +578,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_8x8_hor = {
           av1_tx_type_nn_8x8_hor_layer0_bias,     // bias
           RELU,                                   // activation
           av1_tx_type_nn_8x8_hor_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_8x8_hor_layer0_dout,     // dY
+          av1_tx_type_nn_8x8_hor_layer0_dW,       // dW
+          av1_tx_type_nn_8x8_hor_layer0_db,       // db
       },
       {
           16,  // num_inputs (!!same as num_outputs of last layer)
@@ -526,9 +589,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_8x8_hor = {
           av1_tx_type_nn_8x8_hor_layer1_bias,
           NONE,
           av1_tx_type_nn_8x8_hor_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_8x8_hor_layer1_dout,
+          av1_tx_type_nn_8x8_hor_layer1_dW,
+          av1_tx_type_nn_8x8_hor_layer1_db,
       },
   },
   4,                                  // num_outputs
@@ -584,11 +647,20 @@ static float av1_tx_type_nn_8x8_ver_layer1_bias[4] = {
   1.34803f,
 };
 
+static float av1_tx_type_nn_8x8_ver_in[8] = { 0 };
 static float av1_tx_type_nn_8x8_ver_layer0_out[16] = { 0 };
+static float av1_tx_type_nn_8x8_ver_layer0_dout[16] = { 0 };
+static float av1_tx_type_nn_8x8_ver_layer0_dW[128] = { 0 };
+static float av1_tx_type_nn_8x8_ver_layer0_db[16] = { 0 };
 static float av1_tx_type_nn_8x8_ver_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_8x8_ver_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_8x8_ver_layer1_dW[64] = { 0 };
+static float av1_tx_type_nn_8x8_ver_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_8x8_ver = {
-  1,  // num_hidden_layers
+  0,                          // counter (!!Initialize to 0)
+  1,                          // num_hidden_layers
+  av1_tx_type_nn_8x8_ver_in,  // feature
   {
       // fc layer setting
       {
@@ -599,9 +671,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_8x8_ver = {
           av1_tx_type_nn_8x8_ver_layer0_bias,     // bias
           RELU,                                   // activation
           av1_tx_type_nn_8x8_ver_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_8x8_ver_layer0_dout,     // dY
+          av1_tx_type_nn_8x8_ver_layer0_dW,       // dW
+          av1_tx_type_nn_8x8_ver_layer0_db,       // db
       },
       {
           16,  // num_inputs (!!same as num_outputs of last layer)
@@ -610,9 +682,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_8x8_ver = {
           av1_tx_type_nn_8x8_ver_layer1_bias,
           NONE,
           av1_tx_type_nn_8x8_ver_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_8x8_ver_layer1_dout,
+          av1_tx_type_nn_8x8_ver_layer1_dW,
+          av1_tx_type_nn_8x8_ver_layer1_db,
       },
   },
   4,                                  // num_outputs
@@ -670,11 +742,20 @@ static float av1_tx_type_nn_8x16_hor_layer1_bias[4] = {
   1.49570f,
 };
 
+static float av1_tx_type_nn_8x16_hor_in[8] = { 0 };
 static float av1_tx_type_nn_8x16_hor_layer0_out[16] = { 0 };
+static float av1_tx_type_nn_8x16_hor_layer0_dout[16] = { 0 };
+static float av1_tx_type_nn_8x16_hor_layer0_dW[128] = { 0 };
+static float av1_tx_type_nn_8x16_hor_layer0_db[16] = { 0 };
 static float av1_tx_type_nn_8x16_hor_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_8x16_hor_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_8x16_hor_layer1_dW[64] = { 0 };
+static float av1_tx_type_nn_8x16_hor_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_8x16_hor = {
-  1,  // num_hidden_layers
+  0,                           // counter (!!Initialize to 0)
+  1,                           // num_hidden_layers
+  av1_tx_type_nn_8x16_hor_in,  // feature
   {
       // fc layer setting
       {
@@ -685,9 +766,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_8x16_hor = {
           av1_tx_type_nn_8x16_hor_layer0_bias,     // bias
           RELU,                                    // activation
           av1_tx_type_nn_8x16_hor_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_8x16_hor_layer0_dout,     // dY
+          av1_tx_type_nn_8x16_hor_layer0_dW,       // dW
+          av1_tx_type_nn_8x16_hor_layer0_db,       // db
       },
       {
           16,  // num_inputs (!!same as num_outputs of last layer)
@@ -696,9 +777,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_8x16_hor = {
           av1_tx_type_nn_8x16_hor_layer1_bias,
           NONE,
           av1_tx_type_nn_8x16_hor_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_8x16_hor_layer1_dout,
+          av1_tx_type_nn_8x16_hor_layer1_dW,
+          av1_tx_type_nn_8x16_hor_layer1_db,
       },
   },
   4,                                   // num_outputs
@@ -754,11 +835,20 @@ static float av1_tx_type_nn_8x16_ver_layer1_bias[4] = {
   -6.13206f,
 };
 
+static float av1_tx_type_nn_8x16_ver_in[8] = { 0 };
 static float av1_tx_type_nn_8x16_ver_layer0_out[16] = { 0 };
+static float av1_tx_type_nn_8x16_ver_layer0_dout[16] = { 0 };
+static float av1_tx_type_nn_8x16_ver_layer0_dW[128] = { 0 };
+static float av1_tx_type_nn_8x16_ver_layer0_db[16] = { 0 };
 static float av1_tx_type_nn_8x16_ver_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_8x16_ver_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_8x16_ver_layer1_dW[64] = { 0 };
+static float av1_tx_type_nn_8x16_ver_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_8x16_ver = {
-  1,  // num_hidden_layers
+  0,                           // counter (!!Initialize to 0)
+  1,                           // num_hidden_layers
+  av1_tx_type_nn_8x16_ver_in,  // feature
   {
       // fc layer setting
       {
@@ -769,9 +859,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_8x16_ver = {
           av1_tx_type_nn_8x16_ver_layer0_bias,     // bias
           RELU,                                    // activation
           av1_tx_type_nn_8x16_ver_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_8x16_ver_layer0_dout,
+          av1_tx_type_nn_8x16_ver_layer0_dW,
+          av1_tx_type_nn_8x16_ver_layer0_db,
       },
       {
           16,  // num_inputs (!!same as num_outputs of last layer)
@@ -780,9 +870,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_8x16_ver = {
           av1_tx_type_nn_8x16_ver_layer1_bias,
           NONE,
           av1_tx_type_nn_8x16_ver_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_8x16_ver_layer1_dout,
+          av1_tx_type_nn_8x16_ver_layer1_dW,
+          av1_tx_type_nn_8x16_ver_layer1_db,
       },
   },
   4,                                   // num_outputs
@@ -840,11 +930,20 @@ static float av1_tx_type_nn_16x8_hor_layer1_bias[4] = {
   2.08287f,
 };
 
+static float av1_tx_type_nn_16x8_hor_in[8] = { 0 };
 static float av1_tx_type_nn_16x8_hor_layer0_out[16] = { 0 };
+static float av1_tx_type_nn_16x8_hor_layer0_dout[16] = { 0 };
+static float av1_tx_type_nn_16x8_hor_layer0_dW[128] = { 0 };
+static float av1_tx_type_nn_16x8_hor_layer0_db[16] = { 0 };
 static float av1_tx_type_nn_16x8_hor_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_16x8_hor_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_16x8_hor_layer1_dW[64] = { 0 };
+static float av1_tx_type_nn_16x8_hor_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_16x8_hor = {
-  1,  // num_hidden_layers
+  0,                           // counter (!!Initialize to 0)
+  1,                           // num_hidden_layers
+  av1_tx_type_nn_16x8_hor_in,  // feature
   {
       // fc layer setting
       {
@@ -855,21 +954,15 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_16x8_hor = {
           av1_tx_type_nn_16x8_hor_layer0_bias,     // bias
           RELU,                                    // activation
           av1_tx_type_nn_16x8_hor_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_16x8_hor_layer0_dout,     // dY
+          av1_tx_type_nn_16x8_hor_layer0_dW,       // dW
+          av1_tx_type_nn_16x8_hor_layer0_db,       // db
       },
-      {
-          16,  // num_inputs (!!same as num_outputs of last layer)
-          4,
-          av1_tx_type_nn_16x8_hor_layer1_weights,
-          av1_tx_type_nn_16x8_hor_layer1_bias,
-          NONE,
-          av1_tx_type_nn_16x8_hor_layer1_out,
-          NULL,
-          NULL,
-          NULL,
-      },
+      { 16,  // num_inputs (!!same as num_outputs of last layer)
+        4, av1_tx_type_nn_16x8_hor_layer1_weights,
+        av1_tx_type_nn_16x8_hor_layer1_bias, NONE,
+        av1_tx_type_nn_16x8_hor_layer1_out, av1_tx_type_nn_16x8_hor_layer1_dout,
+        av1_tx_type_nn_16x8_hor_layer1_dW, av1_tx_type_nn_16x8_hor_layer1_db },
   },
   4,                                   // num_outputs
   av1_tx_type_nn_16x8_hor_layer1_out,  // logits (!!same as last layer output)
@@ -924,11 +1017,20 @@ static float av1_tx_type_nn_16x8_ver_layer1_bias[4] = {
   0.45176f,
 };
 
+static float av1_tx_type_nn_16x8_ver_in[8] = { 0 };
 static float av1_tx_type_nn_16x8_ver_layer0_out[16] = { 0 };
+static float av1_tx_type_nn_16x8_ver_layer0_dout[16] = { 0 };
+static float av1_tx_type_nn_16x8_ver_layer0_dW[128] = { 0 };
+static float av1_tx_type_nn_16x8_ver_layer0_db[16] = { 0 };
 static float av1_tx_type_nn_16x8_ver_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_16x8_ver_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_16x8_ver_layer1_dW[64] = { 0 };
+static float av1_tx_type_nn_16x8_ver_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_16x8_ver = {
-  1,  // num_hidden_layers
+  0,                           // counter (!!Initialize to 0)
+  1,                           // num_hidden_layers
+  av1_tx_type_nn_16x8_ver_in,  // feature
   {
       // fc layer setting
       {
@@ -939,9 +1041,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_16x8_ver = {
           av1_tx_type_nn_16x8_ver_layer0_bias,     // bias
           RELU,                                    // activation
           av1_tx_type_nn_16x8_ver_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_16x8_ver_layer0_dout,     // dY
+          av1_tx_type_nn_16x8_ver_layer0_dW,       // dW
+          av1_tx_type_nn_16x8_ver_layer0_db,       // db
       },
       {
           16,  // num_inputs (!!same as num_outputs of last layer)
@@ -950,9 +1052,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_16x8_ver = {
           av1_tx_type_nn_16x8_ver_layer1_bias,
           NONE,
           av1_tx_type_nn_16x8_ver_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_16x8_ver_layer1_dout,
+          av1_tx_type_nn_16x8_ver_layer1_dW,
+          av1_tx_type_nn_16x8_ver_layer1_db,
       },
   },
   4,                                   // num_outputs
@@ -1010,11 +1112,20 @@ static float av1_tx_type_nn_16x16_layer1_bias[4] = {
   2.48404f,
 };
 
+static float av1_tx_type_nn_16x16_in[8] = { 0 };
 static float av1_tx_type_nn_16x16_layer0_out[16] = { 0 };
+static float av1_tx_type_nn_16x16_layer0_dout[16] = { 0 };
+static float av1_tx_type_nn_16x16_layer0_dW[128] = { 0 };
+static float av1_tx_type_nn_16x16_layer0_db[16] = { 0 };
 static float av1_tx_type_nn_16x16_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_16x16_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_16x16_layer1_dW[64] = { 0 };
+static float av1_tx_type_nn_16x16_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_16x16 = {
-  1,  // num_hidden_layers
+  0,                        // counter (!!Initialize to 0)
+  1,                        // num_hidden_layers
+  av1_tx_type_nn_16x16_in,  // feature
   {
       // fc layer setting
       {
@@ -1025,9 +1136,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_16x16 = {
           av1_tx_type_nn_16x16_layer0_bias,     // bias
           RELU,                                 // activation
           av1_tx_type_nn_16x16_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_16x16_layer0_dout,     // dY
+          av1_tx_type_nn_16x16_layer0_dW,       // dW
+          av1_tx_type_nn_16x16_layer0_db,       // db
       },
       {
           16,  // num_inputs (!!same as num_outputs of last layer)
@@ -1036,9 +1147,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_16x16 = {
           av1_tx_type_nn_16x16_layer1_bias,
           NONE,
           av1_tx_type_nn_16x16_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_16x16_layer1_dout,
+          av1_tx_type_nn_16x16_layer1_dW,
+          av1_tx_type_nn_16x16_layer1_db,
       },
   },
   4,                                // num_outputs
@@ -1076,11 +1187,20 @@ static float av1_tx_type_nn_4x16_hor_layer1_bias[4] = {
   2.91056f,
 };
 
+static float av1_tx_type_nn_4x16_hor_in[4] = { 0 };
 static float av1_tx_type_nn_4x16_hor_layer0_out[8] = { 0 };
+static float av1_tx_type_nn_4x16_hor_layer0_dout[8] = { 0 };
+static float av1_tx_type_nn_4x16_hor_layer0_dW[32] = { 0 };
+static float av1_tx_type_nn_4x16_hor_layer0_db[8] = { 0 };
 static float av1_tx_type_nn_4x16_hor_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_4x16_hor_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_4x16_hor_layer1_dW[32] = { 0 };
+static float av1_tx_type_nn_4x16_hor_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_4x16_hor = {
-  1,  // num_hidden_layers
+  0,                           // counter (!!Initialize to 0)
+  1,                           // num_hidden_layers
+  av1_tx_type_nn_4x16_hor_in,  // feature
   {
       // fc layer setting
       {
@@ -1091,9 +1211,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_4x16_hor = {
           av1_tx_type_nn_4x16_hor_layer0_bias,     // bias
           RELU,                                    // activation
           av1_tx_type_nn_4x16_hor_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_4x16_hor_layer0_dout,     // dY
+          av1_tx_type_nn_4x16_hor_layer0_dW,       // dW
+          av1_tx_type_nn_4x16_hor_layer0_db,       // db
       },
       {
           8,  // num_inputs (!!same as num_outputs of last layer)
@@ -1102,9 +1222,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_4x16_hor = {
           av1_tx_type_nn_4x16_hor_layer1_bias,
           NONE,
           av1_tx_type_nn_4x16_hor_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_4x16_hor_layer1_dout,
+          av1_tx_type_nn_4x16_hor_layer1_dW,
+          av1_tx_type_nn_4x16_hor_layer1_db,
       },
   },
   4,                                   // num_outputs
@@ -1160,11 +1280,20 @@ static float av1_tx_type_nn_4x16_ver_layer1_bias[4] = {
   4.27435f,
 };
 
+static float av1_tx_type_nn_4x16_ver_in[8] = { 0 };
 static float av1_tx_type_nn_4x16_ver_layer0_out[16] = { 0 };
+static float av1_tx_type_nn_4x16_ver_layer0_dout[16] = { 0 };
+static float av1_tx_type_nn_4x16_ver_layer0_dW[128] = { 0 };
+static float av1_tx_type_nn_4x16_ver_layer0_db[16] = { 0 };
 static float av1_tx_type_nn_4x16_ver_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_4x16_ver_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_4x16_ver_layer1_dW[64] = { 0 };
+static float av1_tx_type_nn_4x16_ver_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_4x16_ver = {
-  1,  // num_hidden_layers
+  0,                           // counter (!!Initialize to 0)
+  1,                           // num_hidden_layers
+  av1_tx_type_nn_4x16_ver_in,  // feature
   {
       // fc layer setting
       {
@@ -1175,9 +1304,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_4x16_ver = {
           av1_tx_type_nn_4x16_ver_layer0_bias,     // bias
           RELU,                                    // activation
           av1_tx_type_nn_4x16_ver_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_4x16_ver_layer0_dout,     // dY
+          av1_tx_type_nn_4x16_ver_layer0_dW,       // dW
+          av1_tx_type_nn_4x16_ver_layer0_db,       // db
       },
       {
           16,  // num_inputs (!!same as num_outputs of last layer)
@@ -1186,9 +1315,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_4x16_ver = {
           av1_tx_type_nn_4x16_ver_layer1_bias,
           NONE,
           av1_tx_type_nn_4x16_ver_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_4x16_ver_layer1_dout,
+          av1_tx_type_nn_4x16_ver_layer1_dW,
+          av1_tx_type_nn_4x16_ver_layer1_db,
       },
   },
   4,                                   // num_outputs
@@ -1246,11 +1375,20 @@ static float av1_tx_type_nn_16x4_hor_layer1_bias[4] = {
   2.15567f,
 };
 
+static float av1_tx_type_nn_16x4_hor_in[8] = { 0 };
 static float av1_tx_type_nn_16x4_hor_layer0_out[16] = { 0 };
+static float av1_tx_type_nn_16x4_hor_layer0_dout[16] = { 0 };
+static float av1_tx_type_nn_16x4_hor_layer0_dW[128] = { 0 };
+static float av1_tx_type_nn_16x4_hor_layer0_db[16] = { 0 };
 static float av1_tx_type_nn_16x4_hor_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_16x4_hor_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_16x4_hor_layer1_dW[64] = { 0 };
+static float av1_tx_type_nn_16x4_hor_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_16x4_hor = {
-  1,  // num_hidden_layers
+  0,                           // counter (!!Initialize to 0)
+  1,                           // num_hidden_layers
+  av1_tx_type_nn_16x4_hor_in,  // feature
   {
       // fc layer setting
       {
@@ -1261,9 +1399,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_16x4_hor = {
           av1_tx_type_nn_16x4_hor_layer0_bias,     // bias
           RELU,                                    // activation
           av1_tx_type_nn_16x4_hor_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_16x4_hor_layer0_dout,     // dY
+          av1_tx_type_nn_16x4_hor_layer0_dW,       // dW
+          av1_tx_type_nn_16x4_hor_layer0_db,       // db
       },
       {
           16,  // num_inputs (!!same as num_outputs of last layer)
@@ -1272,9 +1410,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_16x4_hor = {
           av1_tx_type_nn_16x4_hor_layer1_bias,
           NONE,
           av1_tx_type_nn_16x4_hor_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_16x4_hor_layer1_dout,
+          av1_tx_type_nn_16x4_hor_layer1_dW,
+          av1_tx_type_nn_16x4_hor_layer1_db,
       },
   },
   4,                                   // num_outputs
@@ -1310,11 +1448,20 @@ static float av1_tx_type_nn_16x4_ver_layer1_bias[4] = {
   1.69812f,
 };
 
+static float av1_tx_type_nn_16x4_ver_in[4] = { 0 };
 static float av1_tx_type_nn_16x4_ver_layer0_out[8] = { 0 };
+static float av1_tx_type_nn_16x4_ver_layer0_dout[8] = { 0 };
+static float av1_tx_type_nn_16x4_ver_layer0_dW[32] = { 0 };
+static float av1_tx_type_nn_16x4_ver_layer0_db[8] = { 0 };
 static float av1_tx_type_nn_16x4_ver_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_16x4_ver_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_16x4_ver_layer1_dW[32] = { 0 };
+static float av1_tx_type_nn_16x4_ver_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_16x4_ver = {
-  1,  // num_hidden_layers
+  0,                           // counter (!!Initialize to 0)
+  1,                           // num_hidden_layers
+  av1_tx_type_nn_16x4_ver_in,  // feature
   {
       // fc layer setting
       {
@@ -1325,9 +1472,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_16x4_ver = {
           av1_tx_type_nn_16x4_ver_layer0_bias,     // bias
           RELU,                                    // activation
           av1_tx_type_nn_16x4_ver_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_16x4_ver_layer0_dout,     // dY
+          av1_tx_type_nn_16x4_ver_layer0_dW,       // dW
+          av1_tx_type_nn_16x4_ver_layer0_db,       // db
       },
       {
           8,  // num_inputs (!!same as num_outputs of last layer)
@@ -1336,9 +1483,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_16x4_ver = {
           av1_tx_type_nn_16x4_ver_layer1_bias,
           NONE,
           av1_tx_type_nn_16x4_ver_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_16x4_ver_layer1_dout,
+          av1_tx_type_nn_16x4_ver_layer1_dW,
+          av1_tx_type_nn_16x4_ver_layer1_db,
       },
   },
   4,                                   // num_outputs
