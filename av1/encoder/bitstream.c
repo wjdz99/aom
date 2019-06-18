@@ -1811,9 +1811,10 @@ static void encode_restoration_mode(AV1_COMMON *cm,
       chroma_none &= p == 0;
     }
     switch (rsi->frame_restoration_type) {
-      case RESTORE_NONE:
+      case RESTORE_NONE: aom_wb_write_bit(wb, 0); aom_wb_write_bit(wb, 0);
+#if CONFIG_LOOP_RESTORE_CNN
         aom_wb_write_bit(wb, 0);
-        aom_wb_write_bit(wb, 0);
+#endif  // CONFIG_LOOP_RESTORE_CNN
         break;
       case RESTORE_WIENER:
         aom_wb_write_bit(wb, 1);
@@ -1823,6 +1824,13 @@ static void encode_restoration_mode(AV1_COMMON *cm,
         aom_wb_write_bit(wb, 1);
         aom_wb_write_bit(wb, 1);
         break;
+#if CONFIG_LOOP_RESTORE_CNN
+      case RESTORE_CNN:
+        aom_wb_write_bit(wb, 0);
+        aom_wb_write_bit(wb, 0);
+        aom_wb_write_bit(wb, 1);
+        break;
+#endif  // CONFIG_LOOP_RESTORE_CNN
       case RESTORE_SWITCHABLE:
         aom_wb_write_bit(wb, 0);
         aom_wb_write_bit(wb, 1);
