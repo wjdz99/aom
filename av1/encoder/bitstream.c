@@ -25,9 +25,9 @@
 #include "aom_util/debug_util.h"
 #endif  // CONFIG_BITSTREAM_DEBUG
 
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
 #include "av1/common/cnn_wrapper.h"
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
 
 #include "av1/common/cdef.h"
 #include "av1/common/cfl.h"
@@ -1667,9 +1667,9 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
   if (!cm->use_cnn) {
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
     const int num_planes = av1_num_planes(cm);
     for (int plane = 0; plane < num_planes; ++plane) {
       int rcol0, rcol1, rrow0, rrow1;
@@ -1687,9 +1687,9 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
         }
       }
     }
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
   }
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
 
   write_partition(cm, xd, hbs, mi_row, mi_col, partition, bsize, w);
   switch (partition) {
@@ -1806,14 +1806,17 @@ static void encode_restoration_mode(AV1_COMMON *cm,
   int all_none = 1, chroma_none = 1;
   for (int p = 0; p < num_planes; ++p) {
     RestorationInfo *rsi = &cm->rst_info[p];
+    printf("\nrsi->frame_restore_type = %u\n",
+           rsi->frame_restoration_type == RESTORE_CNN);
     if (rsi->frame_restoration_type != RESTORE_NONE) {
       all_none = 0;
       chroma_none &= p == 0;
     }
     switch (rsi->frame_restoration_type) {
-      case RESTORE_NONE:
+      case RESTORE_NONE: aom_wb_write_bit(wb, 0); aom_wb_write_bit(wb, 0);
+#if CONFIG_LOOP_RESTORE_CNN
         aom_wb_write_bit(wb, 0);
-        aom_wb_write_bit(wb, 0);
+#endif  // CONFIG_LOOP_RESTORE_CNN
         break;
       case RESTORE_WIENER:
         aom_wb_write_bit(wb, 1);
@@ -1823,6 +1826,13 @@ static void encode_restoration_mode(AV1_COMMON *cm,
         aom_wb_write_bit(wb, 1);
         aom_wb_write_bit(wb, 1);
         break;
+#if CONFIG_LOOP_RESTORE_CNN
+      case RESTORE_CNN:
+        aom_wb_write_bit(wb, 0);
+        aom_wb_write_bit(wb, 0);
+        aom_wb_write_bit(wb, 1);
+        break;
+#endif  // CONFIG_LOOP_RESTORE_CNN
       case RESTORE_SWITCHABLE:
         aom_wb_write_bit(wb, 0);
         aom_wb_write_bit(wb, 1);
@@ -1972,6 +1982,9 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
       case RESTORE_SGRPROJ:
         write_sgrproj_filter(&rui->sgrproj_info, ref_sgrproj_info, w);
         break;
+#if CONFIG_LOOP_RESTORE_CNN
+      case RESTORE_CNN: break;
+#endif  // CONFIG_LOOP_RESTORE_CNN
       default: assert(unit_rtype == RESTORE_NONE); break;
     }
   } else if (frame_rtype == RESTORE_WIENER) {
@@ -1993,9 +2006,18 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
       write_sgrproj_filter(&rui->sgrproj_info, ref_sgrproj_info, w);
     }
   }
+#if CONFIG_LOOP_RESTORE_CNN
+  else if (frame_rtype == RESTORE_CNN) {
+    aom_write_symbol(w, unit_rtype != RESTORE_NONE,
+                     xd->tile_ctx->cnn_restore_cdf, 2);
+#if CONFIG_ENTROPY_STATS
+    ++counts->cnn_restore[unit_rtype != RESTORE_NONE];
+#endif
+  }
+#endif  // CONFIG_LOOP_RESTORE_CNN
 }
 
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
 static void encode_cnn(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
   if (av1_use_cnn(cm)) {
     aom_wb_write_bit(wb, cm->use_cnn);
@@ -2003,7 +2025,7 @@ static void encode_cnn(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
     assert(!cm->use_cnn);
   }
 }
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
 
 static void encode_loopfilter(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
   assert(!cm->coded_lossless);
@@ -3153,7 +3175,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   if (cm->all_lossless) {
     assert(!av1_superres_scaled(cm));
   } else {
-#if CONFIG_CNN_RESTORATION
+#if CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
     if (!cm->coded_lossless) {
       encode_loopfilter(cm, wb);
       encode_cnn(cm, wb);
@@ -3170,7 +3192,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       encode_cdef(cm, wb);
     }
     encode_restoration_mode(cm, wb);
-#endif  // CONFIG_CNN_RESTORATION
+#endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
   }
 
   // Write TX mode

@@ -23,9 +23,6 @@
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/mem.h"
 #include "aom_ports/system_state.h"
-#if CONFIG_LOOP_RESTORE_CNN
-#include "av1/common/cnn_restore_models.h"
-#endif  // CONFIG_LOOP_RESTORE_CNN
 #include "av1/common/onyxc_int.h"
 #include "av1/common/quant_common.h"
 #include "av1/common/restoration.h"
@@ -49,11 +46,11 @@ static const RestorationType force_restore_type = RESTORE_TYPES;
 // Working precision for Wiener filter coefficients
 #define WIENER_TAP_SCALE_FACTOR ((int64_t)1 << 16)
 
-const int frame_level_restore_bits[RESTORE_TYPES] = { 2, 2, 2,
 #if CONFIG_LOOP_RESTORE_CNN
-                                                      2,
+const int frame_level_restore_bits[RESTORE_TYPES] = { 3, 2, 2, 3, 2 };
+#else
+const int frame_level_restore_bits[RESTORE_TYPES] = { 2, 2, 2, 2 };
 #endif  // CONFIG_LOOP_RESTORE_CNN
-                                                      2 };
 
 typedef int64_t (*sse_extractor_type)(const YV12_BUFFER_CONFIG *a,
                                       const YV12_BUFFER_CONFIG *b);
@@ -1300,78 +1297,43 @@ static void search_norestore(const RestorationTileLimits *limits,
 }
 
 #if CONFIG_LOOP_RESTORE_CNN
+static INLINE int av1_use_cnn(const AV1_COMMON *cm) {
+  return ((cm->base_qindex > 100) && !av1_superres_scaled(cm));
+}
+
 static void search_cnn(const RestorationTileLimits *limits,
                        const AV1PixelRect *tile_rect, int rest_unit_idx,
                        void *priv, int32_t *tmpbuf,
                        RestorationLineBuffers *rlbs) {
-  (void)tile_rect;
   (void)tmpbuf;
   (void)rlbs;
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
-  AV1_COMMON *cm = rsc->cm;
-
-  const int highbd = rsc->cm->seq_params.use_highbitdepth;
-  rusi->sse[RESTORE_NONE] = sse_restoration_unit(
-      limits, rsc->src, &rsc->cm->cur_frame->buf, rsc->plane, highbd);
-
-  rsc->sse += rusi->sse[RESTORE_NONE];
+  AV1_COMMON *cm = (AV1_COMMON *)rsc->cm;
 
   if (av1_use_cnn(cm)) {
-    const int plane = AOM_PLANE_Y;
-    const int start_x = limits->h_start;
-    const int start_y = limits->v_start;
-    const int width = limits->h_end - limits->h_start;
-    const int height = limits->v_end - limits->v_start;
-    const int qindex = cm->base_qindex;
-    // TODO(logangw): retrieve list of available threads and number of threads.
-    const CNN_THREAD_DATA thread_data = { 1, NULL };
-    if (cm->current_frame.frame_type == KEY_FRAME) {
-      if (qindex < 108) {
-        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp22, &thread_data,
-                                   plane, start_x, start_y, width, height);
-      } else if (qindex < 148) {
-        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp32, &thread_data,
-                                   plane, start_x, start_y, width, height);
-      } else if (qindex < 192) {
-        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp43, &thread_data,
-                                   plane, start_x, start_y, width, height);
-      } else if (qindex < 232) {
-        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp53, &thread_data,
-                                   plane, start_x, start_y, width, height);
-      } else {
-        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp63, &thread_data,
-                                   plane, start_x, start_y, width, height);
-      }
-    } else {
-      // TODO(logangw): replaced intra_frame_models with inter_frame_models.
-      if (qindex < 108) {
-        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp22, &thread_data,
-                                   plane, start_x, start_y, width, height);
-      } else if (qindex < 148) {
-        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp32, &thread_data,
-                                   plane, start_x, start_y, width, height);
-      } else if (qindex < 192) {
-        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp43, &thread_data,
-                                   plane, start_x, start_y, width, height);
-      } else if (qindex < 232) {
-        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp53, &thread_data,
-                                   plane, start_x, start_y, width, height);
-      } else {
-        av1_restore_cnn_plane_part(cm, &intra_frame_model_qp63, &thread_data,
-                                   plane, start_x, start_y, width, height);
-      }
-    }
-    // TODO(logangw): Add models for U and V planes and av1_num_planes(cm).
-    rusi->sse[RESTORE_CNN] = sse_restoration_unit(
-        limits, rsc->src, &rsc->cm->cur_frame->buf, plane, highbd);
+    RestorationUnitInfo rui;
+    memset(&rui, 0, sizeof(rui));
+    rui.restoration_type = RESTORE_CNN;
+    rui.cnn_info.base_qindex = cm->base_qindex;
+    rusi->sse[RESTORE_CNN] = try_restoration_unit(rsc, limits, tile_rect, &rui);
+  } else {
+    rusi->sse[RESTORE_CNN] = INT64_MAX;
   }
-  RestorationType rtype = (rusi->sse[RESTORE_CNN] < rusi->sse[RESTORE_NONE])
-                              ? RESTORE_CNN
-                              : RESTORE_NONE;
+
+  const MACROBLOCK *const x = rsc->x;
+  const int64_t bits_none = x->cnn_restore_cost[0];
+  const int64_t bits_cnn = x->cnn_restore_cost[1];
+
+  double cost_none =
+      RDCOST_DBL(x->rdmult, bits_none >> 4, rusi->sse[RESTORE_NONE]);
+  double cost_cnn =
+      RDCOST_DBL(x->rdmult, bits_cnn >> 4, rusi->sse[RESTORE_CNN]);
+
+  RestorationType rtype = (cost_cnn < cost_none) ? RESTORE_CNN : RESTORE_NONE;
   rusi->best_rtype[RESTORE_CNN - 1] = rtype;
   rsc->sse += rusi->sse[rtype];
-  rsc->bits = 0;
+  rsc->bits += (cost_cnn < cost_none) ? bits_cnn : bits_none;
 }
 #endif  // CONFIG_LOOP_RESTORE_CNN
 
@@ -1407,7 +1369,12 @@ static void search_switchable(const RestorationTileLimits *limits,
     const int64_t sse = rusi->sse[r];
     int64_t coeff_pcost = 0;
     switch (r) {
-      case RESTORE_NONE: coeff_pcost = 0; break;
+      case RESTORE_NONE:
+#if CONFIG_LOOP_RESTORE_CNN
+      case RESTORE_CNN:
+#endif  // CONFIG_LOOP_RESTORE_CNN
+        coeff_pcost = 0;
+        break;
       case RESTORE_WIENER:
         coeff_pcost =
             count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener);
@@ -1454,8 +1421,7 @@ static double search_rest_type(RestSearchCtxt *rsc, RestorationType rtype) {
     search_wiener,
     search_sgrproj,
 #if CONFIG_LOOP_RESTORE_CNN
-    // TODO(logangw): Replace with search_cnn when bits are added.
-    search_norestore,
+    search_cnn,
 #endif  // CONFIG_LOOP_RESTORE_CNN
     search_switchable
   };
@@ -1520,6 +1486,7 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi) {
           continue;
 
         double cost = search_rest_type(&rsc, r);
+        printf("\n%u, %lf\n", r, cost);
 
         if (r == 0 || cost < best_cost) {
           best_cost = cost;
