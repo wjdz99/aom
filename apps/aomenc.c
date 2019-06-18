@@ -30,11 +30,11 @@
 #include "aom/aom_integer.h"
 #include "aom/aomcx.h"
 #include "aom_dsp/aom_dsp_common.h"
+#include "aom_dsp/psnr.h"
 #include "aom_ports/aom_timer.h"
 #include "aom_ports/mem_ops.h"
 #include "common/args.h"
 #include "common/ivfenc.h"
-#include "common/tools_common.h"
 #include "common/warnings.h"
 
 #if CONFIG_WEBM_IO
@@ -2043,7 +2043,7 @@ static void show_psnr(struct stream_state *stream, double peak, int64_t bps) {
   if (!stream->psnr_count) return;
 
   fprintf(stderr, "Stream %d PSNR (Overall/Avg/Y/U/V)", stream->index);
-  ovpsnr = sse_to_psnr((double)stream->psnr_samples_total, peak,
+  ovpsnr = aom_sse_to_psnr((double)stream->psnr_samples_total, peak,
                        (double)stream->psnr_sse_total);
   fprintf(stderr, " %.3f", ovpsnr);
 
