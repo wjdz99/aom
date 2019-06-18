@@ -50,9 +50,16 @@ static float av1_tx_type_nn_4x4_hor_layer1_bias[4] = {
 };
 
 static float av1_tx_type_nn_4x4_hor_layer0_out[8] = { 0 };
+static float av1_tx_type_nn_4x4_hor_layer0_dout[8] = { 0 };
+static float av1_tx_type_nn_4x4_hor_layer0_dW[32] = { 0 };
+static float av1_tx_type_nn_4x4_hor_layer0_db[8] = { 0 };
 static float av1_tx_type_nn_4x4_hor_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_4x4_hor_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_4x4_hor_layer1_dW[32] = { 0 };
+static float av1_tx_type_nn_4x4_hor_layer1_db[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_4x4_hor = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting
@@ -64,9 +71,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_4x4_hor = {
           av1_tx_type_nn_4x4_hor_layer0_bias,     // bias
           RELU,                                   // activation
           av1_tx_type_nn_4x4_hor_layer0_out,      // output
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_4x4_hor_layer0_dout,     // d_out
+          av1_tx_type_nn_4x4_hor_layer0_dW,       // dW
+          av1_tx_type_nn_4x4_hor_layer0_db,       // db
       },
       {
           8,  // num_inputs (!!same as num_outputs of last layer)
@@ -75,9 +82,9 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_4x4_hor = {
           av1_tx_type_nn_4x4_hor_layer1_bias,
           NONE,
           av1_tx_type_nn_4x4_hor_layer1_out,
-          NULL,
-          NULL,
-          NULL,
+          av1_tx_type_nn_4x4_hor_layer1_dout,
+          av1_tx_type_nn_4x4_hor_layer1_dW,
+          av1_tx_type_nn_4x4_hor_layer1_db,
       },
   },
   4,                                  // num_outputs
@@ -117,6 +124,7 @@ static float av1_tx_type_nn_4x4_ver_layer0_out[8] = { 0 };
 static float av1_tx_type_nn_4x4_ver_layer1_out[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_4x4_ver = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting
@@ -183,6 +191,7 @@ static float av1_tx_type_nn_4x8_hor_layer0_out[8] = { 0 };
 static float av1_tx_type_nn_4x8_hor_layer1_out[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_4x8_hor = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting
@@ -267,6 +276,7 @@ static float av1_tx_type_nn_4x8_ver_layer0_out[16] = { 0 };
 static float av1_tx_type_nn_4x8_ver_layer1_out[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_4x8_ver = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting
@@ -354,6 +364,7 @@ static float av1_tx_type_nn_8x4_hor_layer0_out[16] = { 0 };
 static float av1_tx_type_nn_8x4_hor_layer1_out[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_8x4_hor = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting
@@ -418,6 +429,7 @@ static float av1_tx_type_nn_8x4_ver_layer0_out[8] = { 0 };
 static float av1_tx_type_nn_8x4_ver_layer1_out[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_8x4_ver = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting
@@ -504,6 +516,7 @@ static float av1_tx_type_nn_8x8_hor_layer0_out[16] = { 0 };
 static float av1_tx_type_nn_8x8_hor_layer1_out[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_8x8_hor = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting
@@ -588,6 +601,7 @@ static float av1_tx_type_nn_8x8_ver_layer0_out[16] = { 0 };
 static float av1_tx_type_nn_8x8_ver_layer1_out[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_8x8_ver = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting
@@ -674,6 +688,7 @@ static float av1_tx_type_nn_8x16_hor_layer0_out[16] = { 0 };
 static float av1_tx_type_nn_8x16_hor_layer1_out[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_8x16_hor = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting
@@ -758,6 +773,7 @@ static float av1_tx_type_nn_8x16_ver_layer0_out[16] = { 0 };
 static float av1_tx_type_nn_8x16_ver_layer1_out[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_8x16_ver = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting
@@ -844,6 +860,7 @@ static float av1_tx_type_nn_16x8_hor_layer0_out[16] = { 0 };
 static float av1_tx_type_nn_16x8_hor_layer1_out[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_16x8_hor = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting
@@ -928,6 +945,7 @@ static float av1_tx_type_nn_16x8_ver_layer0_out[16] = { 0 };
 static float av1_tx_type_nn_16x8_ver_layer1_out[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_16x8_ver = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting
@@ -1014,6 +1032,7 @@ static float av1_tx_type_nn_16x16_layer0_out[16] = { 0 };
 static float av1_tx_type_nn_16x16_layer1_out[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_16x16 = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting
@@ -1080,6 +1099,7 @@ static float av1_tx_type_nn_4x16_hor_layer0_out[8] = { 0 };
 static float av1_tx_type_nn_4x16_hor_layer1_out[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_4x16_hor = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting
@@ -1164,6 +1184,7 @@ static float av1_tx_type_nn_4x16_ver_layer0_out[16] = { 0 };
 static float av1_tx_type_nn_4x16_ver_layer1_out[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_4x16_ver = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting
@@ -1250,6 +1271,7 @@ static float av1_tx_type_nn_16x4_hor_layer0_out[16] = { 0 };
 static float av1_tx_type_nn_16x4_hor_layer1_out[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_16x4_hor = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting
@@ -1314,6 +1336,7 @@ static float av1_tx_type_nn_16x4_ver_layer0_out[8] = { 0 };
 static float av1_tx_type_nn_16x4_ver_layer1_out[4] = { 0 };
 
 static NN_CONFIG_V2 av1_tx_type_nnconfig_16x4_ver = {
+  0,  // counter (!!Initialize to 0)
   1,  // num_hidden_layers
   {
       // fc layer setting

@@ -58,6 +58,7 @@ void av1_nn_predict_c(const float *input_nodes,
 }
 
 #if CONFIG_NN_V2
+/**************************** Forward prediction ******************************/
 // Applies the ReLu activation to one fc layer
 // output[i] = Max(input[i],0.0f)
 static float *nn_relu(const float *input, FC_LAYER *layer) {
@@ -124,6 +125,118 @@ void av1_nn_predict_v2(const float *feature, NN_CONFIG_V2 *nn_config,
   assert(nn_config->layer[num_layers].num_outputs == nn_config->num_logits);
   // Copy the final layer output
   memcpy(output, input_nodes, sizeof(*input_nodes) * nn_config->num_logits);
+}
+
+/***************************Backprop for gradient******************************/
+// Backprop for ReLU activation
+static void nn_relu_back(float *dX_out, FC_LAYER *layer) {
+  const float *dY = layer->dY;
+  for (int i = 0; i < layer->num_outputs; ++i)
+    dX_out[i] = layer->output[i] > 0.0f ? dY[i] : 0.0f;
+}
+
+// Backprop for sigmoid activation
+static void nn_sigmoid_back(float *dX_out, FC_LAYER *layer) {
+  const float *dY = layer->dY;
+  for (int i = 0; i < layer->num_outputs; ++i)
+    dX_out[i] =
+        dY[i] * layer->output[i] * (1 - layer->output[i]);  // dX=dY*sigmoid(X)
+}
+
+// Backprop for softmax cross entropy loss
+static void nn_softmax_cross_entropy_loss_back(float *dX_out,
+                                               NN_CONFIG_V2 *nn_config,
+                                               const int label) {
+  const float *logits = nn_config->logits;
+  const int num_logits = nn_config->num_logits;
+  if (num_logits == 1) {
+    // sigmoid
+    assert(label < 2);  // label [0,1]
+    dX_out[0] = 1.0f / (1.0f + expf(-logits[0])) - (float)label;
+  } else {
+    // softmax
+    assert(num_logits > label);  // label [0,1,... num_logits-1]
+    av1_nn_softmax(logits, dX_out, num_logits);
+    dX_out[label] -= 1;
+  }
+}
+
+// Backprop in one fc layer, used in function av1_nn_backprop
+static void nn_fc_backward(const float *X, float *dX_out, FC_LAYER *layer) {
+  // backprop on activation
+  float dY_fc[NN_MAX_NODES_PER_LAYER] = { 0 };  // dY for fc
+  switch (layer->activation) {
+    case NONE:  // no activation, dY_fc <-- dY
+      memcpy(dY_fc, layer->dY, sizeof(*(layer->dY)) * layer->num_outputs);
+      break;
+    case RELU: nn_relu_back(dY_fc, layer); break;
+    case SIGMOID: nn_sigmoid_back(dY_fc, layer); break;
+    case SOFTSIGN:
+      assert(0 && "Softsign has not been supported in NN.");  // TO DO
+      break;
+    default: assert(0 && "Unknown activation");  // Unknown activation
+  }
+
+  // backprop on fc
+  // gradient of W, b
+  float *dW = layer->dW;
+  float *db = layer->db;
+  for (int j = 0; j < layer->num_outputs; ++j) {
+    for (int i = 0; i < layer->num_inputs; ++i) dW[i] = dY_fc[j] * X[i];
+    db[j] = dY_fc[j];
+    dW += layer->num_inputs;
+  }
+
+  // gradient of the input, i.e., the output of last layer
+  if (dX_out) {
+    for (int i = 0; i < layer->num_inputs; ++i) {
+      float *w = layer->weights + i;
+      float val = 0.0f;
+      for (int j = 0; j < layer->num_outputs; ++j) {
+        val += dY_fc[j] * w[j * layer->num_inputs];
+      }
+      dX_out[i] = val;
+    }
+  }
+}
+
+void av1_nn_backprop(const float *feature, NN_CONFIG_V2 *nn_config,
+                     const int label) {
+  const int num_layers = nn_config->num_hidden_layers;
+
+  // loss layer
+  switch (nn_config->loss) {
+    case SOFTMAX_CROSS_ENTROPY:
+      nn_softmax_cross_entropy_loss_back(nn_config->layer[num_layers].dY,
+                                         nn_config, label);
+      break;
+  }
+
+  // hidden fc layer
+  FC_LAYER *layer_ptr = nn_config->layer + num_layers;
+  for (int i = 0; i < num_layers; ++i) {
+    nn_fc_backward(layer_ptr[-1].output, layer_ptr[-1].dY, layer_ptr);
+    layer_ptr -= 1;
+  }
+  nn_fc_backward(feature, NULL, layer_ptr);  // first layer (no dX for feature)
+  ++nn_config->counter;                      // increment the counter
+}
+
+void av1_nn_update(NN_CONFIG_V2 *nn_config, float mu) {
+  const int num_layers = nn_config->num_hidden_layers;
+
+  // Update the weights
+  mu /= nn_config->counter;
+  for (int i = 0; i <= num_layers; ++i) {
+    FC_LAYER layer = nn_config->layer[i];
+    for (int j = 0; j < layer.num_inputs * layer.num_outputs; ++j) {
+      layer.weights[j] -= mu * layer.dW[j];
+    }
+    for (int j = 0; j < layer.num_outputs; ++j) {
+      layer.bias[j] -= mu * layer.db[j];
+    }
+  }
+  nn_config->counter = 0;  // reset the counter after update
 }
 #endif  // CONFIG_NN_V2
 

@@ -52,6 +52,7 @@ struct FC_LAYER {
 
 // NN configure structure V2
 struct NN_CONFIG_V2 {
+  int counter;                  // Counter for the input in one batch
   const int num_hidden_layers;  // Number of hidden layers, max = 10.
   FC_LAYER layer[NN_MAX_HIDDEN_LAYERS + 1];  // The layer array
   const int num_logits;                      // Number of output nodes.
@@ -64,6 +65,14 @@ struct NN_CONFIG_V2 {
 // layer.
 void av1_nn_predict_v2(const float *features, NN_CONFIG_V2 *nn_config,
                        float *output);
+
+// Back propagation on the given NN model.
+void av1_nn_backprop(const float *features, NN_CONFIG_V2 *nn_config,
+                     const int label);
+
+// Update the weights via gradient descent.
+// mu: learning rate, usually chosen from 0.01~0.001.
+void av1_nn_update(NN_CONFIG_V2 *nn_config, float mu);
 #endif  // CONFIG_NN_V2
 
 // Applies the softmax normalization function to the input
