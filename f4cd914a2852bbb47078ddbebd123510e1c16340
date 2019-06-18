@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "18bc0b9f_6c3928d6",
+        "filename": "av1/common/cnn_restore_models.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-06-18T21:14:30Z",
+      "side": 1,
+      "message": "I am phasing out cnn_wrapper in a few patches to replace it with this file. Should I leave that for a later patch?",
+      "parentUuid": "fa29bc9f_9354bce5",
+      "range": {
+        "startLine": 30,
+        "startChar": 8,
+        "endLine": 30,
+        "endChar": 23
+      },
+      "revId": "f4cd914a2852bbb47078ddbebd123510e1c16340",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5c979436_a468dcc3",
         "filename": "av1/common/cnn_restore_models.h",
         "patchSetId": 7
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "c2959104_2104c61a",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 710,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-06-18T21:14:30Z",
+      "side": 1,
+      "message": "Good catch. I forgot to reintroduce the case statement.",
+      "parentUuid": "ac37d7ab_f21f5758",
+      "range": {
+        "startLine": 710,
+        "startChar": 19,
+        "endLine": 710,
+        "endChar": 20
+      },
+      "revId": "f4cd914a2852bbb47078ddbebd123510e1c16340",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "701db67d_fe88acf3",
         "filename": "av1/encoder/pickrst.c",
         "patchSetId": 7
@@ -82,6 +130,30 @@
       "writtenOn": "2019-06-18T20:05:27Z",
       "side": 1,
       "message": "search_cnn?",
+      "range": {
+        "startLine": 1457,
+        "startChar": 4,
+        "endLine": 1457,
+        "endChar": 20
+      },
+      "revId": "f4cd914a2852bbb47078ddbebd123510e1c16340",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cd519d2_3c6f38c8",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1457,
+      "author": {
+        "id": 11494
+      },
+      "writtenOn": "2019-06-18T21:14:30Z",
+      "side": 1,
+      "message": "We can\u0027t use search_cnn right now because the bits aren\u0027t being signaled in the bitstream, so I am leaving it as search_norestore for now. I suppose I could also do RESTORE_TYPES - 1 and change around this function. Let me see what that looks like.",
+      "parentUuid": "701db67d_fe88acf3",
       "range": {
         "startLine": 1457,
         "startChar": 4,
