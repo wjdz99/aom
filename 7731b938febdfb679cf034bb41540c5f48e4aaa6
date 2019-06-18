@@ -94,6 +94,30 @@
     },
     {
       "key": {
+        "uuid": "bbfc3004_76ff0eb9",
+        "filename": "av1/encoder/ml.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 13125
+      },
+      "writtenOn": "2019-06-18T01:47:45Z",
+      "side": 1,
+      "message": "The activation and loss function should not be modified in other places after we initialize the model. I think the \"const\" should be kept.",
+      "parentUuid": "d41f10c5_97532ec1",
+      "range": {
+        "startLine": 45,
+        "startChar": 2,
+        "endLine": 45,
+        "endChar": 7
+      },
+      "revId": "7731b938febdfb679cf034bb41540c5f48e4aaa6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "53ba1392_0ded1489",
         "filename": "av1/encoder/ml.h",
         "patchSetId": 18
