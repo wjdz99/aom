@@ -316,6 +316,9 @@ static void set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
 
   // R/D setup.
   x->rdmult = cpi->rd.RDMULT;
+  if (cpi->oxcf.tuning == AOM_TUNE_SSIM) {
+    set_ssim_rdmult(cpi, x, bsize, mi_row, mi_col, &x->rdmult);
+  }
 }
 
 static void update_filter_type_count(uint8_t allow_update_cdf,
@@ -677,6 +680,9 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   // Set error per bit for current rdmult
   set_error_per_bit(x, x->rdmult);
 
+  if (cpi->oxcf.tuning == AOM_TUNE_SSIM) {
+    set_ssim_rdmult(cpi, x, bsize, mi_row, mi_col, &x->rdmult);
+  }
   av1_rd_cost_update(x->rdmult, &best_rd);
 
   // Find best coding mode & reconstruct the MB so it is available
