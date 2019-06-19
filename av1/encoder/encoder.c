@@ -4970,7 +4970,7 @@ static void refresh_reference_frames(AV1_COMP *cpi) {
 // rate distortion optimization using SSIM," Circuits and Systems for Video
 // Technology, IEEE Transactions on, vol. 23, no. 7, pp. 1170-1181, 2013.
 // SSIM_VAR_SCALE defines the strength of the bias towards SSIM in RDO.
-#define SSIM_VAR_SCALE 16.0
+#define SSIM_VAR_SCALE 96.0
 static void set_mb_ssim_rdmult_scaling(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
   ThreadData *td = &cpi->td;
@@ -4996,6 +4996,7 @@ static void set_mb_ssim_rdmult_scaling(AV1_COMP *cpi) {
   } else {
     c2 = 58.5225;  // (.03*255)^2
   }
+  c2 *= SSIM_VAR_SCALE;
 
   // Loop through each 16x16 block.
   for (row = 0; row < num_rows; ++row) {
@@ -5027,7 +5028,7 @@ static void set_mb_ssim_rdmult_scaling(AV1_COMP *cpi) {
           num_of_var += 1.0;
         }
       }
-      var = var / num_of_var / SSIM_VAR_SCALE;
+      var = var / num_of_var;
       var = 2.0 * var + c2;
       cpi->ssim_rdmult_scaling_factors[index] = var;
       log_sum += log(var);
