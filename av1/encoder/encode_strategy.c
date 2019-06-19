@@ -32,6 +32,8 @@
 #include "av1/encoder/temporal_filter.h"
 #include "av1/encoder/tpl_model.h"
 
+#define TEMPORAL_FILTER_KEY_FRAME (CONFIG_REALTIME_ONLY ? 0 : 1)
+
 void av1_configure_buffer_updates(AV1_COMP *const cpi,
                                   EncodeFrameParams *const frame_params,
                                   const FRAME_UPDATE_TYPE type,
@@ -985,6 +987,45 @@ static int get_refresh_frame_flags(const AV1_COMP *const cpi,
   return refresh_mask;
 }
 
+/*
+static void print_frame(const YV12_BUFFER_CONFIG *img, int is_filtered_source) {
+  FILE *pfile;
+  if (is_filtered_source == 1) {
+    pfile = fopen("source_1.txt", "a");
+  } else if (is_filtered_source == 2) {
+    pfile = fopen("source_2.txt", "a");
+  } else if (is_filtered_source == 3) {
+    pfile = fopen("filtered_source.txt", "a");
+  } else if (is_filtered_source == 4) {
+    pfile = fopen("filtered_source_2.txt", "a");
+  } else if (is_filtered_source == 5) {
+    pfile = fopen("filtered_source_3.txt", "a");
+  } else if (is_filtered_source == 6) {
+    pfile = fopen("filtered_source_4.txt", "a");
+  } else {
+    pfile = fopen("source.txt", "a");
+  }
+  const int widths[3] = { img->y_crop_width, img->uv_crop_width,
+    img->uv_crop_width };
+  const int heights[3] = { img->y_crop_height, img->uv_crop_height,
+                           img->uv_crop_height };
+  const int img_strides[3] = { img->y_stride, img->uv_stride, img->uv_stride };
+  for (int i = 0; i < 3; ++i) {
+    const int w = widths[i];
+    const int h = heights[i];
+    fprintf(pfile, "plane %i, (%d, %d)\n", i, w, h);
+    for (int y = 0; y < h; ++y) {
+      for (int x = 0; x < w; ++x) {
+        fprintf(pfile, " %3d", img->buffers[i][y * img_strides[i] + x]);
+      }
+      fprintf(pfile, "\n");
+    }
+    fprintf(pfile, "\n");
+  }
+  fclose(pfile);
+}
+*/
+
 int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                         uint8_t *const dest, unsigned int *frame_flags,
                         int64_t *const time_stamp, int64_t *const time_end,
@@ -1037,6 +1078,31 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
 #endif
     return -1;
   }
+
+#if TEMPORAL_FILTER_KEY_FRAME
+  // Try temporal filtering on key frame.
+  if (oxcf->pass == 2 && frame_params.frame_type == KEY_FRAME) {
+    if (0 && cpi->oxcf.arnr_max_frames > 0) {
+      {
+        MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
+
+        av1_set_mb_mi(cm, cm->width, cm->height);
+        const int new_mi_size = cm->mi_stride * calc_mi_size(cm->mi_rows);
+        if (cm->alloc_mi(cm, new_mi_size)) {
+          av1_set_mb_mi(cm, 0, 0);
+          av1_free_context_buffers(cm);
+        }
+        av1_init_context_buffers(cm);
+        av1_init_macroblockd(cm, xd, NULL);
+        memset(cpi->mbmi_ext_base, 0,
+               cm->mi_rows * cm->mi_cols * sizeof(*cpi->mbmi_ext_base));
+      }
+      av1_temporal_filter(cpi, -1);
+      aom_extend_frame_borders(&cpi->alt_ref_buffer, av1_num_planes(cm));
+      temporal_filtered = 1;
+    }
+  }
+#endif  // TEMPORAL_FILTER_KEY_FRAME
 
   frame_input.source = temporal_filtered ? &cpi->alt_ref_buffer : &source->img;
   frame_input.last_source = last_source != NULL ? &last_source->img : NULL;
@@ -1184,10 +1250,55 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     }
   }
 
+#if !TEMPORAL_FILTER_KEY_FRAME
+  cpi->pack_bitstream = 1;
   if (av1_encode(cpi, dest, &frame_input, &frame_params, &frame_results) !=
       AOM_CODEC_OK) {
     return AOM_CODEC_ERROR;
   }
+#else  // TEMPORAL_FILTER_KEY_FRAME
+  // Apply filtering to key frame.
+  if (oxcf->pass == 2 && cm->current_frame.order_hint == 0 &&
+      cm->current_frame.frame_number == 0) {
+    const int num_planes = av1_num_planes(cm);
+    // Keep a copy of the source image.
+    aom_yv12_copy_frame(frame_input.source, &cpi->source_kf_buffer, num_planes);
+    // TODO(chengchen): Encode the key frame, this is a workaround to get
+    // internal data structures properly initialized, for example, mi, x, xd.
+    // Do not pack bitstream in this case.
+    cpi->pack_bitstream = 0;
+    if (av1_encode(cpi, dest, &frame_input, &frame_params, &frame_results) !=
+        AOM_CODEC_OK) {
+      return AOM_CODEC_ERROR;
+    }
+    // Set frame_input source to temporal filtered key frame.
+    if (oxcf->arnr_max_frames > 0) {
+      // Produce the filtered key frame.
+      av1_temporal_filter(cpi, -1);
+      aom_extend_frame_borders(&cpi->alt_ref_buffer, num_planes);
+      temporal_filtered = 1;
+      frame_input.source = &cpi->alt_ref_buffer;
+    }
+    // Encode the filtered key frame. Pack bitstream.
+    cpi->pack_bitstream = 1;
+    if (av1_encode(cpi, dest, &frame_input, &frame_params, &frame_results) !=
+        AOM_CODEC_OK) {
+      return AOM_CODEC_ERROR;
+    }
+    // Set frame_input source to true source for psnr calculation.
+    if (oxcf->arnr_max_frames > 0 && temporal_filtered) {
+      aom_yv12_copy_frame(&cpi->source_kf_buffer, cpi->source, num_planes);
+      aom_yv12_copy_frame(&cpi->source_kf_buffer, cpi->unscaled_source,
+                          num_planes);
+    }
+  } else {
+    cpi->pack_bitstream = 1;
+    if (av1_encode(cpi, dest, &frame_input, &frame_params, &frame_results) !=
+        AOM_CODEC_OK) {
+      return AOM_CODEC_ERROR;
+    }
+  }
+#endif  // TEMPORAL_FILTER_KEY_FRAME
   if (oxcf->pass != 1) cpi->num_gf_group_show_frames += frame_params.show_frame;
 
   if (oxcf->pass == 0 || oxcf->pass == 2) {
