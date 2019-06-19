@@ -1490,6 +1490,12 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
     // beneficial to use non-zero strength filtering.
     strength = 0;
     frames_to_blur = 1;
+  } else if (distance == -1) {
+    // Apply temporal filtering on key frame.
+    adjust_arnr_filter(cpi, distance, rc->gfu_boost, &frames_to_blur, &strength,
+                       &sigma);
+    // Number of frames for temporal filtering, not tuned yet.
+    frames_to_blur = 5;
   } else {
     adjust_arnr_filter(cpi, distance, rc->gfu_boost, &frames_to_blur, &strength,
                        &sigma);
@@ -1504,9 +1510,15 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
     cpi->is_arf_filter_off[which_arf] = 0;
   cpi->common.showable_frame = cpi->is_arf_filter_off[which_arf];
 
-  frames_to_blur_backward = (frames_to_blur / 2);
-  frames_to_blur_forward = ((frames_to_blur - 1) / 2);
-  start_frame = distance + frames_to_blur_forward;
+  if (distance == -1) {
+    frames_to_blur_backward = 0;
+    frames_to_blur_forward = frames_to_blur - 1;
+    start_frame = distance + frames_to_blur_forward;
+  } else {
+    frames_to_blur_backward = (frames_to_blur / 2);
+    frames_to_blur_forward = ((frames_to_blur - 1) / 2);
+    start_frame = distance + frames_to_blur_forward;
+  }
 
   // Setup frame pointers, NULL indicates frame not included in filter.
   for (frame = 0; frame < frames_to_blur; ++frame) {

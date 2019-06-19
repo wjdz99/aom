@@ -1022,6 +1022,8 @@ typedef struct AV1_COMP {
   int deltaq_used;
 
   double *ssim_rdmult_scaling_factors;
+
+  int pack_bitstream;
 } AV1_COMP;
 
 typedef struct {
