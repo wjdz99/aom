@@ -810,6 +810,16 @@ static void alloc_raw_frame_buffers(AV1_COMP *cpi) {
           cm->byte_alignment, NULL, NULL, NULL))
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate altref buffer");
+
+  // Allocate frame buffer to hold source frame whey key frame filtering
+  // is applied.
+  if (aom_realloc_frame_buffer(
+          &cpi->source_kf_buffer, oxcf->width, oxcf->height,
+          seq_params->subsampling_x, seq_params->subsampling_y,
+          seq_params->use_highbitdepth, oxcf->border_in_pixels,
+          cm->byte_alignment, NULL, NULL, NULL))
+    aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                       "Failed to allocate altref buffer");
 }
 
 static void alloc_util_frame_buffers(AV1_COMP *cpi) {
