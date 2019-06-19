@@ -1407,7 +1407,12 @@ static void search_switchable(const RestorationTileLimits *limits,
     const int64_t sse = rusi->sse[r];
     int64_t coeff_pcost = 0;
     switch (r) {
-      case RESTORE_NONE: coeff_pcost = 0; break;
+      case RESTORE_NONE:
+#if CONFIG_LOOP_RESTORE_CNN
+      case RESTORE_CNN:
+#endif  // CONFIG_LOOP_RESTORE_CNN
+        coeff_pcost = 0;
+        break;
       case RESTORE_WIENER:
         coeff_pcost =
             count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener);
@@ -1454,8 +1459,7 @@ static double search_rest_type(RestSearchCtxt *rsc, RestorationType rtype) {
     search_wiener,
     search_sgrproj,
 #if CONFIG_LOOP_RESTORE_CNN
-    // TODO(logangw): Replace with search_cnn when bits are added.
-    search_norestore,
+    search_cnn,
 #endif  // CONFIG_LOOP_RESTORE_CNN
     search_switchable
   };
