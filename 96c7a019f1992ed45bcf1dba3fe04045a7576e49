@@ -46,6 +46,30 @@
       "revId": "96c7a019f1992ed45bcf1dba3fe04045a7576e49",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc855151_76b9a3fb",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1859,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-06-20T23:46:54Z",
+      "side": 1,
+      "message": "OK, that makes sense, if tests set the flags explicitly.\n(Regular aomenc flow shouldn\u0027t cause this issue though I believe).",
+      "parentUuid": "e4a75c60_c64b0390",
+      "range": {
+        "startLine": 1859,
+        "startChar": 0,
+        "endLine": 1859,
+        "endChar": 77
+      },
+      "revId": "96c7a019f1992ed45bcf1dba3fe04045a7576e49",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
