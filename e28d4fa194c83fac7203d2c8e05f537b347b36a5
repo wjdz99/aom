@@ -46,6 +46,30 @@
       "revId": "e28d4fa194c83fac7203d2c8e05f537b347b36a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e92fc6b2_8625ee26",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 8325,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-06-20T16:31:43Z",
+      "side": 1,
+      "message": "Where was is_pred_filter_search_allowed() modified? It seems InterpFilters is still used in top of tree code.\nhttps://aomedia.googlesource.com/aom/+/refs/heads/master/av1/encoder/rdopt.c#8248",
+      "parentUuid": "2f0d371d_d9046627",
+      "range": {
+        "startLine": 8325,
+        "startChar": 25,
+        "endLine": 8325,
+        "endChar": 54
+      },
+      "revId": "e28d4fa194c83fac7203d2c8e05f537b347b36a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
