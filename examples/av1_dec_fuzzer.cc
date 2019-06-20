@@ -46,15 +46,24 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   data += IVF_FILE_HDR_SZ;
   size -= IVF_FILE_HDR_SZ;
 
+  int frame_in = 0;
   while (size > IVF_FRAME_HDR_SZ) {
     size_t frame_size = mem_get_le32(data);
     size -= IVF_FRAME_HDR_SZ;
     data += IVF_FRAME_HDR_SZ;
     frame_size = std::min(size, frame_size);
+    frame_in++;
 
     const aom_codec_err_t err =
         aom_codec_decode(&codec, data, frame_size, nullptr);
-    static_cast<void>(err);
+    if (err != AOM_CODEC_OK) {
+      const char *detail = aom_codec_error_detail(&codec);
+      fprintf(stderr, "Warning: Failed to decode frame %d: %s\n", frame_in,
+              aom_codec_error(&codec));
+
+      if (detail)
+        fprintf(stderr, "Warning: Additional information: %s\n", detail);
+    }
     aom_codec_iter_t iter = nullptr;
     aom_image_t *img = nullptr;
     while ((img = aom_codec_get_frame(&codec, &iter)) != nullptr) {
