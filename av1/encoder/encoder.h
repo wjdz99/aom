@@ -69,6 +69,7 @@ typedef struct {
   int nmv_costs_hp[2][MV_VALS];
 
   FRAME_CONTEXT fc;
+  struct loopfilter lf;
 } CODING_CONTEXT;
 
 enum {
