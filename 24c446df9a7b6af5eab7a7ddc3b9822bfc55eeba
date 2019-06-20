@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58276465_418eb858",
+        "filename": "av1/common/x86/highbd_inv_txfm_sse4.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 649,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2019-06-20T17:47:36Z",
+      "side": 1,
+      "message": "PREDICTION_MODE instead of unsigned char?",
+      "range": {
+        "startLine": 649,
+        "startChar": 35,
+        "endLine": 649,
+        "endChar": 48
+      },
+      "revId": "24c446df9a7b6af5eab7a7ddc3b9822bfc55eeba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "213df618_cd44f233",
+        "filename": "test/av1_highbd_iht_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2019-06-20T17:47:36Z",
+      "side": 1,
+      "message": "PREDICTION_MODE?",
+      "range": {
+        "startLine": 33,
+        "startChar": 43,
+        "endLine": 33,
+        "endChar": 56
+      },
+      "revId": "24c446df9a7b6af5eab7a7ddc3b9822bfc55eeba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
