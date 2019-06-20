@@ -34,7 +34,7 @@
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/reconinter_enc.h"
 
-#define _TMP_USE_CURVFIT_ 0
+#define _TMP_USE_CURVFIT_ 1
 
 extern int g_pick_inter_mode_cnt;
 typedef struct {
@@ -473,7 +473,9 @@ static void model_rd_with_curvfit(const AV1_COMP *const cpi,
   double rate_f, dist_by_sse_norm_f;
   av1_model_rd_curvfit(plane_bsize, sse_norm, xqr, &rate_f,
                        &dist_by_sse_norm_f);
-
+  // 9.0 gives the best quality gain on a test video
+  // but it likely shall be qstep dependent
+  if (rate_f < 9.0) rate_f = 0.0;
   const double dist_f = dist_by_sse_norm_f * sse_norm;
   int rate_i = (int)(AOMMAX(0.0, rate_f * num_samples) + 0.5);
   int64_t dist_i = (int64_t)(AOMMAX(0.0, dist_f * num_samples) + 0.5);
@@ -516,7 +518,7 @@ static TX_SIZE calculate_tx_size(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
   if (bsize > BLOCK_32X32) tx_size = TX_16X16;
   return AOMMIN(tx_size, TX_16X16);
 }
-
+#if !_TMP_USE_CURVFIT_
 static const uint8_t b_width_log2_lookup[BLOCK_SIZES] = { 0, 0, 1, 1, 1, 2,
                                                           2, 2, 3, 3, 3, 4,
                                                           4, 4, 5, 5 };
@@ -677,6 +679,7 @@ static void model_skip_for_sb_y_large(AV1_COMP *cpi, BLOCK_SIZE bsize,
     }
   }
 }
+#endif
 
 static void model_rd_for_sb_y(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
                               MACROBLOCK *x, MACROBLOCKD *xd, int *out_rate_sum,
@@ -701,7 +704,10 @@ static void model_rd_for_sb_y(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
   xd->mi[0]->tx_size = calculate_tx_size(cpi, bsize, xd, var, sse);
 
 #if _TMP_USE_CURVFIT_
-  model_rd_with_curvfit(cpi, x, plane_bsize, plane, sse, bw * bh, &rate, &dist);
+  const int bwide = block_size_wide[bsize];
+  const int bhigh = block_size_high[bsize];
+  model_rd_with_curvfit(cpi, x, bsize, AOM_PLANE_Y, sse, bwide * bhigh, &rate,
+                        &dist);
 #else
   (void)cpi;
   rate = INT_MAX;  // this will be overwritten later with block_yrd
@@ -1365,6 +1371,7 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                 &this_early_term);
     } else {
 #endif
+      (void)use_model_yrd_large;
       model_rd_for_sb_y(cpi, bsize, x, xd, &this_rdc.rate, &this_rdc.dist,
                         &this_rdc.skip, NULL, &var_y, &sse_y);
 #if !_TMP_USE_CURVFIT_
@@ -1407,7 +1414,6 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       this_rdc.rate = skip_cost;
       this_rdc.dist = sse_y << 4;
     }
-
     // TODO(kyslov) account for UV prediction cost
     this_rdc.rate += rate_mv;
     const int16_t mode_ctx =
