@@ -179,6 +179,7 @@ static void set_good_speed_feature_framesize_dependent(
     sf->simple_motion_search_split = cm->allow_screen_content_tools ? 1 : 2;
   }
 
+#if 1
   if (speed >= 4) {
     if (is_720p_or_larger) {
       sf->partition_search_breakout_dist_thr = (1 << 26);
@@ -186,6 +187,7 @@ static void set_good_speed_feature_framesize_dependent(
       sf->partition_search_breakout_dist_thr = (1 << 24);
     }
   }
+#endif
 }
 
 static void set_good_speed_features_framesize_independent(
@@ -332,7 +334,7 @@ static void set_good_speed_features_framesize_independent(
     sf->disable_smooth_intra =
         !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
   }
-
+#if 1
   if (speed >= 4) {
     sf->use_intra_txb_hash = 0;
     sf->tx_type_search.fast_intra_tx_type_search = 1;
@@ -340,15 +342,15 @@ static void set_good_speed_features_framesize_independent(
         (boosted || cm->allow_screen_content_tools) ? 0 : 1;
     sf->reduce_wiener_window_size = !boosted;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
-    sf->adaptive_pred_interp_filter = 0;
-    sf->cb_pred_filter_search = 1;
+    // sf->adaptive_pred_interp_filter = 0;
+    // sf->cb_pred_filter_search = 1;
     sf->adaptive_mode_search = 1;
     sf->alt_ref_search_fp = 1;
     sf->skip_sharp_interp_filter_search = 1;
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 4;
     sf->adaptive_txb_search_level = boosted ? 2 : 3;
   }
-
+#endif
   if (speed >= 5) {
     sf->recode_loop = ALLOW_RECODE_KFMAXBW;
     sf->intra_y_mode_mask[TX_64X64] = INTRA_DC_H_V;
