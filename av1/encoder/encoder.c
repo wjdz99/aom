@@ -4676,7 +4676,8 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 
 static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
                                               uint8_t *dest, int use_superres,
-                                              int64_t *rdcost) {
+                                              double *rdcost,
+                                              int *largest_tile_id) {
   cpi->oxcf.superres_mode = use_superres ? SUPERRES_AUTO : SUPERRES_NONE;
   aom_codec_err_t err = encode_with_recode_loop(cpi, size, dest);
   if (err != AOM_CODEC_OK) return err;
@@ -4740,11 +4741,10 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
 
   finalize_encoded_frame(cpi);
   // Build the bitstream
-  int largest_tile_id = 0;  // Output from pack_bitstream
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, av1_pack_bitstream_final_time);
 #endif
-  if (av1_pack_bitstream(cpi, dest, size, &largest_tile_id) != AOM_CODEC_OK)
+  if (av1_pack_bitstream(cpi, dest, size, largest_tile_id) != AOM_CODEC_OK)
     return AOM_CODEC_ERROR;
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, av1_pack_bitstream_final_time);
@@ -4762,23 +4762,29 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
         av1_compute_rd_mult_based_on_qindex(cpi, cm->base_qindex);
     *rdcost = RDCOST_DBL(rdmult, rate, sse);
   }
+  return AOM_CODEC_OK;
 }
 
 static int encodes_with_and_without_superres(AV1_COMP *cpi, size_t *size,
-                                             uint8_t *dest) {
+                                             uint8_t *dest,
+                                             int *largest_tile_id) {
   // TODO(now): For key-frame only?
   aom_codec_err_t err;
   save_coding_context(cpi);
 
   // Encode with superres.
-  int64_t proj_rdcost1 = INT64_MAX;
-  err = encode_with_recode_loop_and_filter(cpi, size, dest, 1, &proj_rdcost1);
+  double proj_rdcost1;
+  int largest_tile_id1;
+  err = encode_with_recode_loop_and_filter(cpi, size, dest, 1, &proj_rdcost1,
+                                           &largest_tile_id1);
   if (err != AOM_CODEC_OK) return err;
   restore_coding_context(cpi);
 
   // Encode without superres.
-  int64_t proj_rdcost2 = INT64_MAX;
-  err = encode_with_recode_loop_and_filter(cpi, size, dest, 0, &proj_rdcost2);
+  double proj_rdcost2;
+  int largest_tile_id2;
+  err = encode_with_recode_loop_and_filter(cpi, size, dest, 0, &proj_rdcost2,
+                                           &largest_tile_id2);
   if (err != AOM_CODEC_OK) return err;
 
   // Re-encode with superres if it's better.
@@ -4786,7 +4792,10 @@ static int encodes_with_and_without_superres(AV1_COMP *cpi, size_t *size,
     restore_coding_context(cpi);
     // TODO(now): Shouldn't actually run whole recode loop, just the selected q
     // from previous recode loop).
-    err = encode_with_recode_loop_and_filter(cpi, size, dest, 1, &proj_rdcost1);
+    err = encode_with_recode_loop_and_filter(cpi, size, dest, 1, NULL,
+                                             largest_tile_id);
+  } else {
+    *largest_tile_id = largest_tile_id2;
   }
 
   return err;
@@ -5271,8 +5280,11 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     }
   }
 
-  if (encodes_with_and_without_superres(cpi, size, dest) != AOM_CODEC_OK)
+  int largest_tile_id = 0;
+  if (encodes_with_and_without_superres(cpi, size, dest, &largest_tile_id) !=
+      AOM_CODEC_OK) {
     return AOM_CODEC_ERROR;
+  }
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, encode_with_recode_loop_time);
