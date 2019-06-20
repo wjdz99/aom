@@ -2963,6 +2963,40 @@ static void model_rd_for_sb_with_curvfit(
   *out_dist_sum = dist_sum;
 }
 
+void invalidate_txk_type_allowed(const int is_inter, TX_TYPE winner_tx,
+                                 int start_tx, int end_tx, int current_idx,
+                                 const int allowed_tx_mask,
+                                 unsigned int *valid_tx, int *txk_map,
+                                 int64_t *stored_rd, int winner_idx,
+                                 int loser_idx) {
+  if (!is_inter || loser_idx == -1) return;
+  int64_t winner_rd = stored_rd[txk_map[winner_idx]];
+  for (int tx = start_tx; tx <= end_tx; tx++) {
+    if (!(allowed_tx_mask & (1 << txk_map[tx]))) continue;
+    int64_t loser_rd = stored_rd[txk_map[tx]];
+    if (loser_rd != INT64_MAX && ((winner_rd / (double)loser_rd) < 0.8)) {
+      if (vtx_tab[txk_map[tx]] == vtx_tab[winner_tx]) {
+        TX_TYPE loser_h_tx = htx_tab[txk_map[tx]];
+        for (int txk_type = current_idx + 1; txk_type < TX_TYPES; txk_type++) {
+          if (loser_h_tx == htx_tab[txk_map[txk_type]]) {
+            {
+              *valid_tx &= ~(1 << txk_map[txk_type]);
+            }
+          }
+        }
+      } else if (htx_tab[txk_map[tx]] == htx_tab[winner_tx]) {
+        TX_TYPE loser_v_tx = vtx_tab[txk_map[tx]];
+        for (int txk_type = current_idx + 1; txk_type < TX_TYPES; txk_type++)
+          if (loser_v_tx == vtx_tab[txk_map[txk_type]]) {
+            {
+              *valid_tx &= ~(1 << txk_map[txk_type]);
+            }
+          }
+      }
+    }
+  }
+}
+
 static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                                int block, int blk_row, int blk_col,
                                BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
@@ -3140,10 +3174,16 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   perform_block_coeff_opt = (block_mse_q8 <= cpi->coeff_opt_dist_threshold);
 
   assert(IMPLIES(txk_allowed < TX_TYPES, allowed_tx_mask == 1 << txk_allowed));
-
+  unsigned int valid_tx_type = 0xFFFFFFFF;
+  int winner_idx = -1;
+  int64_t stored_rd[TX_TYPES] = { INT64_MAX, INT64_MAX, INT64_MAX, INT64_MAX,
+                                  INT64_MAX, INT64_MAX, INT64_MAX, INT64_MAX,
+                                  INT64_MAX, INT64_MAX, INT64_MAX, INT64_MAX,
+                                  INT64_MAX, INT64_MAX, INT64_MAX, INT64_MAX };
   for (int idx = 0; idx < TX_TYPES; ++idx) {
     const TX_TYPE tx_type = (TX_TYPE)txk_map[idx];
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
+    if (!(valid_tx_type & (1 << tx_type))) continue;
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
@@ -3216,10 +3256,15 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
     const int64_t rd =
         RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
-
+    stored_rd[tx_type] = rd;
     if (rd < best_rd) {
       best_rd = rd;
       *best_rd_stats = this_rd_stats;
+      invalidate_txk_type_allowed(
+          (cpi->sf.prune_txk_type_using_winner_dir && !is_inter), tx_type, 0,
+          idx - 1, idx, allowed_tx_mask, &valid_tx_type, txk_map, stored_rd,
+          idx, winner_idx);
+      winner_idx = idx;
       best_tx_type = tx_type;
       best_txb_ctx = x->plane[plane].txb_entropy_ctx[block];
       best_eob = x->plane[plane].eobs[block];
@@ -3229,6 +3274,11 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       tran_low_t *const tmp_dqcoeff = best_dqcoeff;
       best_dqcoeff = pd->dqcoeff;
       pd->dqcoeff = tmp_dqcoeff;
+    } else {
+      invalidate_txk_type_allowed(
+          ((cpi->sf.prune_txk_type_using_winner_dir && !is_inter)),
+          best_tx_type, idx, idx, idx, allowed_tx_mask, &valid_tx_type, txk_map,
+          stored_rd, winner_idx, idx);
     }
 
 #if CONFIG_COLLECT_RD_STATS == 1
