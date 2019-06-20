@@ -4750,8 +4750,6 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
   end_timing(cpi, av1_pack_bitstream_final_time);
 #endif
 
-  // TODO(now): Save and restore context.
-
   // Compute RDcost
   if (rdcost != NULL) {
     const int64_t sse =
@@ -4768,12 +4766,15 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
 
 static int encodes_with_and_without_superres(AV1_COMP *cpi, size_t *size,
                                              uint8_t *dest) {
+  // TODO(now): For key-frame only?
   aom_codec_err_t err;
+  save_coding_context(cpi);
 
   // Encode with superres.
   int64_t proj_rdcost1 = INT64_MAX;
   err = encode_with_recode_loop_and_filter(cpi, size, dest, 1, &proj_rdcost1);
   if (err != AOM_CODEC_OK) return err;
+  restore_coding_context(cpi);
 
   // Encode without superres.
   int64_t proj_rdcost2 = INT64_MAX;
@@ -4782,6 +4783,9 @@ static int encodes_with_and_without_superres(AV1_COMP *cpi, size_t *size,
 
   // Re-encode with superres if it's better.
   if (proj_rdcost1 < proj_rdcost2) {
+    restore_coding_context(cpi);
+    // TODO(now): Shouldn't actually run whole recode loop, just the selected q
+    // from previous recode loop).
     err = encode_with_recode_loop_and_filter(cpi, size, dest, 1, &proj_rdcost1);
   }
 
