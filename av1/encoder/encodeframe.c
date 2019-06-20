@@ -2327,7 +2327,8 @@ static bool rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
                               int mi_row, int mi_col, BLOCK_SIZE bsize,
                               BLOCK_SIZE max_sq_part, BLOCK_SIZE min_sq_part,
                               RD_STATS *rd_cost, RD_STATS best_rdc,
-                              PC_TREE *pc_tree, int64_t *none_rd) {
+                              PC_TREE *pc_tree, int64_t *none_rd,
+                              int quad_tree_idx) {
   const AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   TileInfo *const tile_info = &tile_data->tile_info;
@@ -2366,6 +2367,10 @@ static bool rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   if (best_rdc.rdcost < 0) {
     av1_invalid_rd_stats(rd_cost);
     return found_best_partition;
+  }
+
+  if (bsize == BLOCK_64X64 && frame_is_intra_only(cm)) {
+    quad_tree_idx = 0;
   }
 
   if (bsize == cm->seq_params.sb_size) x->must_find_valid_partition = 0;
@@ -2456,6 +2461,19 @@ static bool rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   xd->left_txfm_context =
       xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
   save_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
+
+  const int try_intra_cnn_split =
+      frame_is_intra_only(cm) && cpi->sf.intra_cnn_split &&
+      cm->seq_params.sb_size >= BLOCK_64X64 && bsize <= BLOCK_64X64 &&
+      bsize >= BLOCK_8X8 && mi_row + mi_size_high[bsize] <= cm->mi_rows &&
+      mi_col + mi_size_wide[bsize] <= cm->mi_cols;
+
+  if (try_intra_cnn_split) {
+    av1_intra_mode_cnn_partition(
+        &cpi->common, x, bsize, quad_tree_idx, &partition_none_allowed,
+        &partition_horz_allowed, &partition_vert_allowed, &do_rectangular_split,
+        &do_square_split);
+  }
 
   // Use simple_motion_search to prune partitions. This must be done prior to
   // PARTITION_SPLIT to propagate the initial mvs to a smaller blocksize.
@@ -2611,7 +2629,8 @@ BEGIN_PARTITION_SEARCH:
         found_best_partition = true;
         if (bsize_at_least_8x8) pc_tree->partitioning = PARTITION_NONE;
 
-        if ((do_square_split || do_rectangular_split) &&
+        if (!frame_is_intra_only(cm) &&
+            (do_square_split || do_rectangular_split) &&
             !x->e_mbd.lossless[xd->mi[0]->segment_id] && ctx_none->skippable) {
           const int use_ml_based_breakout =
               bsize <= cpi->sf.use_square_partition_only_threshold &&
@@ -2690,7 +2709,7 @@ BEGIN_PARTITION_SEARCH:
       if (!rd_pick_partition(cpi, td, tile_data, tp, mi_row + y_idx,
                              mi_col + x_idx, subsize, max_sq_part, min_sq_part,
                              &this_rdc, best_remain_rdcost, pc_tree->split[idx],
-                             p_split_rd)) {
+                             p_split_rd, 4 * quad_tree_idx + idx + 1)) {
         av1_invalid_rd_stats(&sum_rdc);
         break;
       }
@@ -4110,7 +4129,7 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
 
       rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                         max_sq_size, min_sq_size, &dummy_rdc, dummy_rdc,
-                        pc_root, NULL);
+                        pc_root, NULL, 0);
 #if CONFIG_COLLECT_COMPONENT_TIMING
       end_timing(cpi, rd_pick_partition_time);
 #endif
