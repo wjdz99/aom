@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21e3a71e_c89b3fde",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 7725,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-06-20T17:58:28Z",
+      "side": 1,
+      "message": "Thanks for adding the comment to make it easy to follow.",
+      "range": {
+        "startLine": 7724,
+        "startChar": 4,
+        "endLine": 7725,
+        "endChar": 73
+      },
+      "revId": "09e2fcb81fbb408eddb33ae415843d8a0dd74b6d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
