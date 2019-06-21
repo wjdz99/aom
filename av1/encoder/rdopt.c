@@ -1552,36 +1552,23 @@ static void score_2D_transform_pow8(float *scores_2D, float shift) {
 // will lead to pruning i+1 TX types on average
 static const float *prune_2D_adaptive_thresholds[] = {
   // TX_4X4
-  (float[]){ 0.00549f, 0.01306f, 0.02039f, 0.02747f, 0.03406f, 0.04065f,
-             0.04724f, 0.05383f, 0.06067f, 0.06799f, 0.07605f, 0.08533f,
-             0.09778f, 0.11780f },
+  (float[]){ 0.04724f, 0.06799f },
   // TX_8X8
-  (float[]){ 0.00037f, 0.00183f, 0.00525f, 0.01038f, 0.01697f, 0.02502f,
-             0.03381f, 0.04333f, 0.05286f, 0.06287f, 0.07434f, 0.08850f,
-             0.10803f, 0.14124f },
+  (float[]){ 0.03381f, 0.06287f },
   // TX_16X16
-  (float[]){ 0.01404f, 0.02820f, 0.04211f, 0.05164f, 0.05798f, 0.06335f,
-             0.06897f, 0.07629f, 0.08875f, 0.11169f },
+  (float[]){ 0.05798f, 0.06897f },
   // TX_32X32
   NULL,
   // TX_64X64
   NULL,
   // TX_4X8
-  (float[]){ 0.00183f, 0.00745f, 0.01428f, 0.02185f, 0.02966f, 0.03723f,
-             0.04456f, 0.05188f, 0.05920f, 0.06702f, 0.07605f, 0.08704f,
-             0.10168f, 0.12585f },
+  (float[]){ 0.04456f, 0.06702f },
   // TX_8X4
-  (float[]){ 0.00085f, 0.00476f, 0.01135f, 0.01892f, 0.02698f, 0.03528f,
-             0.04358f, 0.05164f, 0.05994f, 0.06848f, 0.07849f, 0.09021f,
-             0.10583f, 0.13123f },
+  (float[]){ 0.04358f, 0.06848f },
   // TX_8X16
-  (float[]){ 0.00037f, 0.00232f, 0.00671f, 0.01257f, 0.01965f, 0.02722f,
-             0.03552f, 0.04382f, 0.05237f, 0.06189f, 0.07336f, 0.08728f,
-             0.10730f, 0.14221f },
+  (float[]){ 0.03552f, 0.06189f },
   // TX_16X8
-  (float[]){ 0.00061f, 0.00330f, 0.00818f, 0.01453f, 0.02185f, 0.02966f,
-             0.03772f, 0.04578f, 0.05383f, 0.06262f, 0.07288f, 0.08582f,
-             0.10339f, 0.13464f },
+  (float[]){ 0.03772f, 0.06262f },
   // TX_16X32
   NULL,
   // TX_32X16
@@ -1591,13 +1578,9 @@ static const float *prune_2D_adaptive_thresholds[] = {
   // TX_64X32
   NULL,
   // TX_4X16
-  (float[]){ 0.00232f, 0.00671f, 0.01257f, 0.01941f, 0.02673f, 0.03430f,
-             0.04211f, 0.04968f, 0.05750f, 0.06580f, 0.07507f, 0.08655f,
-             0.10242f, 0.12878f },
+  (float[]){ 0.04211f, 0.06580f },
   // TX_16X4
-  (float[]){ 0.00110f, 0.00525f, 0.01208f, 0.01990f, 0.02795f, 0.03601f,
-             0.04358f, 0.05115f, 0.05896f, 0.06702f, 0.07629f, 0.08752f,
-             0.10217f, 0.12610f },
+  (float[]){ 0.04358f, 0.06702f },
   // TX_8X32
   NULL,
   // TX_32X8
@@ -1695,17 +1678,10 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
                         cur_scores_2D[3];
   }
   score_2D_average /= 16;
-
-  const int prune_aggr_table[2][2] = { { 7, 5 }, { 10, 7 } };
-  int pruning_aggressiveness = 1;
   if (tx_set_type == EXT_TX_SET_ALL16) {
     score_2D_transform_pow8(scores_2D, (10 - score_2D_average));
-    pruning_aggressiveness =
-        prune_aggr_table[prune_mode - PRUNE_2D_ACCURATE][0];
   } else if (tx_set_type == EXT_TX_SET_DTT9_IDTX_1DDCT) {
     score_2D_transform_pow8(scores_2D, (20 - score_2D_average));
-    pruning_aggressiveness =
-        prune_aggr_table[prune_mode - PRUNE_2D_ACCURATE][1];
   }
 
   // Always keep the TX type with the highest score, prune all others with
@@ -1721,7 +1697,7 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
   }
 
   const float score_thresh =
-      prune_2D_adaptive_thresholds[tx_size][pruning_aggressiveness - 1];
+      prune_2D_adaptive_thresholds[tx_size][prune_mode - PRUNE_2D_ACCURATE];
 
   uint16_t prune_bitmask = 0;
   for (int i = 0; i < 16; i++) {
