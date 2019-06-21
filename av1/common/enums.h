@@ -234,7 +234,7 @@ enum {
 #define USE_MDTX_INTRA 1
 #define TX_TYPES_NOMDTX 16
 #define MDTX_TYPES_INTER 8
-#define MDTX_TYPES_INTRA 3
+#define MDTX_TYPES_INTRA 4
 #endif
 
 enum {
@@ -260,6 +260,7 @@ enum {
   MDTX_INTRA_1,  // MDTX in both horizontal and vertical
   MDTX_INTRA_2,  // MDTX in vertical, DCT in horizontal
   MDTX_INTRA_3,  // DCT in vertical, MDTX in horizontal
+  MDTX_INTRA_4,
 #endif
 #if USE_MDTX_INTER
   // 8 mode-dependent tx for inter
@@ -298,7 +299,7 @@ enum {
 #if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA
   // Discrete Trig transforms w/o flip (4) + Identity (1) + 1D Hor/vert DCT (2)
   //  + DCT w/ 1 MDTX (2) + MDTX1_MDTX1 (1)
-  EXT_TX_SET_DTT4_IDTX_1DDCT_MDTX3,
+  EXT_TX_SET_DTT4_IDTX_1DDCT_MDTX4,
 #else
   // Discrete Trig transforms w/o flip (4) + Identity (1) + 1D Hor/vert DCT (2)
   EXT_TX_SET_DTT4_IDTX_1DDCT,
