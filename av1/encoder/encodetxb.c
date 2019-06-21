@@ -740,8 +740,8 @@ static int get_tx_type_cost(const AV1_COMMON *cm, const MACROBLOCK *x,
 #if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA
         const TxSetType tx_set_type =
             av1_get_ext_tx_set_type(tx_size, is_inter, cm->reduced_tx_set_used);
-        if (tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT_MDTX3) {
-          int is_mdtx = tx_type >= MDTX_INTRA_1 && tx_type <= MDTX_INTRA_3;
+        if (tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT_MDTX4) {
+          int is_mdtx = tx_type >= MDTX_INTRA_1 && tx_type <= MDTX_INTRA_4;
           int use_mdtx_cost =
               x->use_mdtx_intra_costs[square_tx_size][intra_dir][is_mdtx];
           int tx_type_cost =
@@ -2031,8 +2031,8 @@ static void update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
           intra_dir = mbmi->mode;
 #if CONFIG_ENTROPY_STATS
 #if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA
-        if (tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT_MDTX3) {
-          int is_mdtx = tx_type >= MDTX_INTRA_1 && tx_type <= MDTX_INTRA_3;
+        if (tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT_MDTX4) {
+          int is_mdtx = tx_type >= MDTX_INTRA_1 && tx_type <= MDTX_INTRA_4;
           ++counts->use_mdtx_intra[txsize_sqr_map[tx_size]][intra_dir][is_mdtx];
           if (is_mdtx)
             ++counts->mdtx_type_intra[txsize_sqr_map[tx_size]][intra_dir]
@@ -2050,8 +2050,8 @@ static void update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_ENTROPY_STATS
         if (allow_update_cdf) {
 #if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA
-          if (tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT_MDTX3) {
-            int is_mdtx = tx_type >= MDTX_INTRA_1 && tx_type <= MDTX_INTRA_3;
+          if (tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT_MDTX4) {
+            int is_mdtx = tx_type >= MDTX_INTRA_1 && tx_type <= MDTX_INTRA_4;
             update_cdf(
                 fc->use_mdtx_intra_cdf[txsize_sqr_map[tx_size]][intra_dir],
                 is_mdtx, 2);
