@@ -46,6 +46,30 @@
       "revId": "ecea3300dd4156db440bee0c375e921521f522bd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b61cf5d3_ddc7ac6d",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-06-21T15:10:59Z",
+      "side": 1,
+      "message": "I see. Also, if possible, can elements related to 1 tool be put together? for example, compound_idx and comp_group_idx.",
+      "parentUuid": "16fa3468_cd122aa6",
+      "range": {
+        "startLine": 259,
+        "startChar": 10,
+        "endLine": 259,
+        "endChar": 22
+      },
+      "revId": "ecea3300dd4156db440bee0c375e921521f522bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
