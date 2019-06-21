@@ -12,6 +12,7 @@
 #include <limits.h>
 #include <math.h>
 #include <stdio.h>
+#include <float.h>
 
 #include "config/aom_config.h"
 #include "config/aom_dsp_rtcd.h"
@@ -4526,6 +4527,12 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 
   av1_setup_frame_size(cpi);
 
+  if (cpi->oxcf.superres_mode == SUPERRES_AUTO &&
+      cm->superres_scale_denominator == SCALE_NUMERATOR) {
+    // Superres won't be picked, so no need to try.
+    return -1;
+  }
+
   int top_index = 0, bottom_index = 0;
   int q = 0, q_low = 0, q_high = 0;
   set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
@@ -4679,8 +4686,15 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
                                               double *rdcost,
                                               int *largest_tile_id) {
   cpi->oxcf.superres_mode = use_superres ? SUPERRES_AUTO : SUPERRES_NONE;
-  aom_codec_err_t err = encode_with_recode_loop(cpi, size, dest);
-  if (err != AOM_CODEC_OK) return err;
+  int err = encode_with_recode_loop(cpi, size, dest);
+  if (err != AOM_CODEC_OK) {
+    if (err == -1) {  // special case.
+      err = AOM_CODEC_OK;
+      *rdcost = DBL_MAX;
+      *largest_tile_id = 0;
+    }
+    return err;
+  }
 
 #ifdef OUTPUT_YUV_SKINMAP
   if (cpi->common.current_frame.frame_number > 1) {
@@ -4768,7 +4782,9 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
 static int encodes_with_and_without_superres(AV1_COMP *cpi, size_t *size,
                                              uint8_t *dest,
                                              int *largest_tile_id) {
-  // TODO(now): For key-frame only?
+  cpi->common.seq_params.enable_superres = 1;
+  // TODO(now): Currently,SUPERRES_AUTO will enable superres for keyframe only.
+  // Modify that if we want to try all frames.
   aom_codec_err_t err;
   save_coding_context(cpi);
 
