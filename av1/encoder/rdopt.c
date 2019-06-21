@@ -1894,11 +1894,12 @@ static uint16_t prune_tx_2D_new(MACROBLOCK *x, BLOCK_SIZE bsize,
   const int bh = tx_size_high[tx_size];
 
   // Reduce the calculation.
-  const MACROBLOCKD *xd = &x->e_mbd;
-  const int max_dc_q = av1_dc_quant_QTX(MAXQ, 0, xd->bd);
-  const float log_max_dc_q = logf((float)max_dc_q);
+  // const MACROBLOCKD *xd = &x->e_mbd;
+  // const int max_dc_q = av1_dc_quant_QTX(MAXQ, 0, xd->bd);
+  // const float log_max_dc_q = logf((float)max_dc_q);
   const int dc_q = x->plane[0].dequant_QTX[0];
-  features[idx++] = logf((float)dc_q) / log_max_dc_q;
+  // features[idx++] = logf((float)dc_q) / log_max_dc_q;
+  features[idx++] = (float)dc_q * dc_q;
 
   const struct macroblock_plane *const p = &x->plane[0];
   const int diff_stride = block_size_wide[bsize];
