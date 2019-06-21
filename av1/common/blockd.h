@@ -738,6 +738,15 @@ static const uint16_t av1_ext_tx_used_flag[EXT_TX_SET_TYPES] = {
   0xFFFF,  // 1111 1111 1111 1111
 };
 
+#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA
+static INLINE int use_nstx(TX_TYPE tx_type, TX_SIZE tx_size,
+                           PREDICTION_MODE mode) {
+  (void)mode;
+  if (tx_size > TX_8X8) return 0;
+  return tx_type == MDTX_INTRA_4;
+}
+#endif
+
 static INLINE TxSetType av1_get_ext_tx_set_type(TX_SIZE tx_size, int is_inter,
                                                 int use_reduced_set) {
   const TX_SIZE tx_size_sqr_up = txsize_sqr_up_map[tx_size];

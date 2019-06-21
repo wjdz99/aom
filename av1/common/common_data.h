@@ -152,10 +152,10 @@ static const TX_TYPE_1D vtx_tab[TX_TYPES] = {
   DCT_1D,      IDTX_1D,  ADST_1D,     IDTX_1D, FLIPADST_1D, IDTX_1D,
 #if CONFIG_MODE_DEP_TX
 #if USE_MDTX_INTRA
-  MDTX1_1D,    MDTX1_1D, DCT_1D,      MDTX1_1D,
+  MDTX1_1D,    MDTX1_1D, DCT_1D,      NSTX,
 #endif
 #if USE_MDTX_INTER
-  MDTX1_1D,    MDTX1_1D, DCT_1D,      MDTX1_1D, MDTX1_1D,     DCT_1D,
+  MDTX1_1D,    MDTX1_1D, DCT_1D,      MDTX1_1D, MDTX1_1D,   DCT_1D,
   MDTX1_1D,    MDTX1_1D,
 #endif
 #endif
@@ -167,10 +167,10 @@ static const TX_TYPE_1D htx_tab[TX_TYPES] = {
   IDTX_1D,  DCT_1D,      IDTX_1D,     ADST_1D,     IDTX_1D, FLIPADST_1D,
 #if CONFIG_MODE_DEP_TX
 #if USE_MDTX_INTRA
-  MDTX1_1D, DCT_1D,      MDTX1_1D,    MDTX1_1D,
+  MDTX1_1D, DCT_1D,      MDTX1_1D,    NSTX,
 #endif
 #if USE_MDTX_INTER
-  MDTX1_1D, DCT_1D,      MDTX1_1D,     MDTX1_1D,     DCT_1D,  MDTX1_1D,
+  MDTX1_1D, DCT_1D,      MDTX1_1D,    MDTX1_1D,    DCT_1D,  MDTX1_1D,
   MDTX1_1D, MDTX1_1D,
 #endif
 #endif
