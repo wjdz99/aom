@@ -44,7 +44,7 @@ class AV1FwdTxfm2d : public ::testing::TestWithParam<AV1FwdTxfm2dParam> {
     count_ = 500;
     TXFM_2D_FLIP_CFG fwd_txfm_flip_cfg;
 #if CONFIG_MODE_DEP_TX
-    av1_get_fwd_txfm_cfg(tx_type_, tx_size_, 0, &fwd_txfm_flip_cfg);
+    av1_get_fwd_txfm_cfg(tx_type_, tx_size_, 0, 12, &fwd_txfm_flip_cfg);
 #else
     av1_get_fwd_txfm_cfg(tx_type_, tx_size_, &fwd_txfm_flip_cfg);
 #endif
@@ -224,7 +224,7 @@ TEST(AV1FwdTxfm2d, CfgTest) {
         TXFM_2D_FLIP_CFG cfg;
 #if CONFIG_MODE_DEP_TX
         av1_get_fwd_txfm_cfg(static_cast<TX_TYPE>(tx_type),
-                             static_cast<TX_SIZE>(tx_size), 0, &cfg);
+                             static_cast<TX_SIZE>(tx_size), 0, 12, &cfg);
 #else
         av1_get_fwd_txfm_cfg(static_cast<TX_TYPE>(tx_type),
                              static_cast<TX_SIZE>(tx_size), &cfg);

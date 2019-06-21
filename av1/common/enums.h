@@ -226,6 +226,7 @@ enum {
 #if CONFIG_MODE_DEP_TX
   MDTX1_1D,
   MDTX2_1D,
+  NSTX,  // this is a placeholder
 #endif
   TX_TYPES_1D,
 } UENUM1BYTE(TX_TYPE_1D);
@@ -236,6 +237,9 @@ enum {
 #define TX_TYPES_NOMDTX 16
 #define MDTX_TYPES_INTER 8
 #define MDTX_TYPES_INTRA 4
+#define MDTX_DEBUG_MULT 0
+#define MDTX_DEBUG_BLOCK 0
+#define SEP_TX_DEBUG 0
 #endif
 
 enum {

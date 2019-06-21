@@ -138,6 +138,24 @@ enum {
   TXFM_TYPE_INVALID,
 } UENUM1BYTE(TXFM_TYPE);
 
+#if CONFIG_MODE_DEP_TX
+static INLINE int idx_flip(const int txw, const int txh, const int idxr,
+                           const int idxc, const int ud_flip,
+                           const int lr_flip) {
+  if (ud_flip == 1 && lr_flip == 1) {
+    // return (txh - idxr - 1) * txw + txw - idxc - 1;
+    return (txh - idxr) * txw - idxc - 1;
+  } else if (ud_flip == 1 && lr_flip == 0) {
+    return (txh - idxr - 1) * txw + idxc;
+  } else if (ud_flip == 0 && lr_flip == 1) {
+    // return idxr * txw + txw - idxc - 1;
+    return (idxr + 1) * txw - idxc - 1;
+  } else {
+    return idxr * txw + idxc;
+  }
+}
+#endif
+
 typedef struct TXFM_2D_FLIP_CFG {
   TX_SIZE tx_size;
   int ud_flip;  // flip upside down
@@ -153,6 +171,7 @@ typedef struct TXFM_2D_FLIP_CFG {
   int stage_num_row;
 #if CONFIG_MODE_DEP_TX
   PREDICTION_MODE mode;
+  const int32_t *nstx_mtx_ptr;
 #endif
 } TXFM_2D_FLIP_CFG;
 
@@ -249,12 +268,12 @@ void av1_gen_inv_stage_range(int8_t *stage_range_col, int8_t *stage_range_row,
 
 void av1_get_fwd_txfm_cfg(TX_TYPE tx_type, TX_SIZE tx_size,
 #if CONFIG_MODE_DEP_TX
-                          PREDICTION_MODE mode,
+                          PREDICTION_MODE mode, int bd,
 #endif
                           TXFM_2D_FLIP_CFG *cfg);
 void av1_get_inv_txfm_cfg(TX_TYPE tx_type, TX_SIZE tx_size,
 #if CONFIG_MODE_DEP_TX
-                          PREDICTION_MODE mode,
+                          PREDICTION_MODE mode, int bd,
 #endif
                           TXFM_2D_FLIP_CFG *cfg);
 extern const TXFM_TYPE av1_txfm_type_ls[5][TX_TYPES_1D];
