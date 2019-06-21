@@ -184,7 +184,7 @@ void av1_reset_cdf_symbol_counters(FRAME_CONTEXT *fc) {
 #endif
 #if USE_MDTX_INTRA
   RESET_CDF_COUNTER(fc->use_mdtx_intra_cdf, 2);
-  RESET_CDF_COUNTER_STRIDE(fc->mdtx_type_intra_cdf, 3,
+  RESET_CDF_COUNTER_STRIDE(fc->mdtx_type_intra_cdf, 4,
                            CDF_SIZE(MDTX_TYPES_INTRA));
 #endif
   RESET_CDF_COUNTER_STRIDE(fc->intra_ext_tx_cdf[1], 7,

@@ -172,6 +172,7 @@ static INLINE void get_flip_cfg(TX_TYPE tx_type, int *ud_flip, int *lr_flip) {
     case MDTX_INTRA_1:
     case MDTX_INTRA_2:
     case MDTX_INTRA_3:
+    case MDTX_INTRA_4:
 #endif
 #if USE_MDTX_INTER
     case MDTX_INTER_1:
