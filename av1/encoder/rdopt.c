@@ -1526,27 +1526,6 @@ void av1_get_horver_correlation_full_c(const int16_t *diff, int stride,
   }
 }
 
-// Transforms raw scores into a probability distribution across 16 TX types
-static void score_2D_transform_pow8(float *scores_2D, float shift) {
-  float sum = 0.0f;
-  int i;
-  for (i = 0; i < 16; i++) {
-    const float v = AOMMIN(AOMMAX(scores_2D[i] + shift, 1e-3f), 100.0f);
-    const float v2 = v * v;
-    const float v4 = v2 * v2;
-    scores_2D[i] = v4 * v4;
-    sum += scores_2D[i];
-  }
-  for (i = 0; i < 16; i++) {
-    if (scores_2D[i] * 10000 < sum)
-      scores_2D[i] = 0.0f;
-    else if (sum < 1e-16f)
-      scores_2D[i] *= 1e16f;
-    else
-      scores_2D[i] /= sum;
-  }
-}
-
 // These thresholds were calibrated to provide a certain number of TX types
 // pruned by the model on average, i.e. selecting a threshold with index i
 // will lead to pruning i+1 TX types on average
@@ -1684,26 +1663,24 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
 #endif
   aom_clear_system_state();
 
-  float score_2D_average = 0.0f;
+  float hprobs[4] = { 0.0f };
+  float vprobs[4] = { 0.0f };
+  av1_nn_softmax(hscores, hprobs, 4);
+  av1_nn_softmax(vscores, vprobs, 4);
   for (int i = 0; i < 4; i++) {
     float *cur_scores_2D = scores_2D + i * 4;
-    cur_scores_2D[0] = vscores[i] * hscores[0];
-    cur_scores_2D[1] = vscores[i] * hscores[1];
-    cur_scores_2D[2] = vscores[i] * hscores[2];
-    cur_scores_2D[3] = vscores[i] * hscores[3];
-    score_2D_average += cur_scores_2D[0] + cur_scores_2D[1] + cur_scores_2D[2] +
-                        cur_scores_2D[3];
+    cur_scores_2D[0] = vprobs[i] * hprobs[0];
+    cur_scores_2D[1] = vprobs[i] * hprobs[1];
+    cur_scores_2D[2] = vprobs[i] * hprobs[2];
+    cur_scores_2D[3] = vprobs[i] * hprobs[3];
   }
-  score_2D_average /= 16;
 
   const int prune_aggr_table[2][2] = { { 7, 5 }, { 10, 7 } };
   int pruning_aggressiveness = 1;
   if (tx_set_type == EXT_TX_SET_ALL16) {
-    score_2D_transform_pow8(scores_2D, (10 - score_2D_average));
     pruning_aggressiveness =
         prune_aggr_table[prune_mode - PRUNE_2D_ACCURATE][0];
   } else if (tx_set_type == EXT_TX_SET_DTT9_IDTX_1DDCT) {
-    score_2D_transform_pow8(scores_2D, (20 - score_2D_average));
     pruning_aggressiveness =
         prune_aggr_table[prune_mode - PRUNE_2D_ACCURATE][1];
   }
