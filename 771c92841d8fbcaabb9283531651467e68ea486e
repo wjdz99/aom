@@ -70,6 +70,30 @@
       "revId": "771c92841d8fbcaabb9283531651467e68ea486e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97e7e4bb_cfa3b466",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1552,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-06-24T17:53:48Z",
+      "side": 1,
+      "message": "I took a quick look at his code. It seems like he set a target percentage of tx_types that needs to be attempted, and then perform bisection on the thresholds.",
+      "parentUuid": "ccce2c9a_f18322e8",
+      "range": {
+        "startLine": 1550,
+        "startChar": 2,
+        "endLine": 1552,
+        "endChar": 47
+      },
+      "revId": "771c92841d8fbcaabb9283531651467e68ea486e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
