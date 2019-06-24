@@ -845,6 +845,37 @@ void av1_inter_mode_data_fit(TileDataEnc *tile_data, int rdmult) {
   }
 }
 
+static void sub_blk_skip_vs_non_skip(MACROBLOCK *x, RD_STATS *rd_stats,
+                                     TXB_CTX *txb_ctx, int plane, int block,
+                                     int blk_row, int blk_col,
+                                     BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = xd->mi[0];
+
+  const TX_SIZE txs_ctx = get_txsize_entropy_ctx(tx_size);
+  const int zero_blk_rate =
+      x->coeff_costs[txs_ctx][plane].txb_skip_cost[txb_ctx->txb_skip_ctx][1];
+  rd_stats->zero_rate = zero_blk_rate;
+
+  const int64_t rd1 = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
+  const int64_t rd2 = RDCOST(x->rdmult, rd_stats->zero_rate, rd_stats->sse);
+
+  if ((rd1 >= rd2 || rd_stats->skip == 1) && !xd->lossless[mbmi->segment_id]) {
+#if CONFIG_RD_DEBUG
+    av1_update_txb_coeff_cost(rd_stats, 0, tx_size, blk_row, blk_col,
+                              zero_blk_rate - rd_stats->rate);
+#endif  // CONFIG_RD_DEBUG
+    rd_stats->rate = zero_blk_rate;
+    rd_stats->dist = rd_stats->sse;
+    rd_stats->skip = 1;
+    x->plane[plane].eobs[block] = 0;
+    update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
+                     DCT_DCT);
+  } else {
+    rd_stats->skip = 0;
+  }
+}
+
 static void inter_mode_data_push(TileDataEnc *tile_data, BLOCK_SIZE bsize,
                                  int64_t sse, int64_t dist, int residue_cost) {
   if (residue_cost == 0 || sse == dist) return;
@@ -3405,6 +3436,10 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   const int blk_idx =
       blk_row * (block_size_wide[plane_bsize] >> tx_size_wide_log2[0]) +
       blk_col;
+
+  if (is_inter && plane == 0)
+    sub_blk_skip_vs_non_skip(x, &this_rd_stats, &txb_ctx, plane, block, blk_row,
+                             blk_col, plane_bsize, tx_size);
 
   if (plane == 0)
     set_blk_skip(x, plane, blk_idx, x->plane[plane].eobs[block] == 0);
