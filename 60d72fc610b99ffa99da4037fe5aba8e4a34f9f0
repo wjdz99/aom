@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73e7301a_80c1c0fa",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3603,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2019-06-24T22:01:51Z",
+      "side": 1,
+      "message": "can it be directly returned? otherwise declare it as a const?",
+      "range": {
+        "startLine": 3603,
+        "startChar": 14,
+        "endLine": 3603,
+        "endChar": 54
+      },
+      "revId": "60d72fc610b99ffa99da4037fe5aba8e4a34f9f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1d1cd02_7a6f9f3e",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3621,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2019-06-24T22:01:51Z",
+      "side": 1,
+      "message": "can it be directly returned? otherwise declare it as a const?",
+      "range": {
+        "startLine": 3621,
+        "startChar": 14,
+        "endLine": 3621,
+        "endChar": 79
+      },
+      "revId": "60d72fc610b99ffa99da4037fe5aba8e4a34f9f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
