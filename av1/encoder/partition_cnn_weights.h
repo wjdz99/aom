@@ -2090,27 +2090,20 @@ static const NN_CONFIG av1_intra_mode_cnn_partition_branch_3_dnn_config = {
 #undef BRANCH_3_NUM_LOGITS
 
 static const float av1_intra_mode_cnn_partition_split_thresh_hdres[5] = {
-  1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+  100.0f, 100.0f, 100.0f, 100.0f, 100.0f,
 };
 
 static const float av1_intra_mode_cnn_partition_no_split_thresh_hdres[5] = {
-  0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-};
-
-static const float av1_intra_mode_cnn_partition_no_rect_thresh_hdres[5] = {
-  0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+  -100.0f, -100.0f, -100.0f, -100.0f, -100.0f,
 };
 
 static const float av1_intra_mode_cnn_partition_split_thresh_midres[5] = {
-  1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+  100.000000f, 2.946272f, 2.201920f, 0.862633f, 0.886757f,
 };
 
 static const float av1_intra_mode_cnn_partition_no_split_thresh_midres[5] = {
-  0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-};
 
-static const float av1_intra_mode_cnn_partition_no_rect_thresh_midres[5] = {
-  0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+  -100.000000f, -4.958117f, -3.211310f, -3.304787f, -1.895600f,
 };
 
 static const float av1_intra_mode_cnn_partition_split_thresh_lowres[5] = {
