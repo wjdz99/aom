@@ -339,7 +339,10 @@ static int get_ref_frame_flags(const AV1_COMP *const cpi) {
 
   if (last3_is_last || last3_is_alt || last3_is_last2) flags &= ~AOM_LAST3_FLAG;
 
-  if (gld_is_last || gld_is_alt || gld_is_last2 || gld_is_last3)
+  if (((gld_is_last || gld_is_last2 || gld_is_last3) &&
+       cpi->sf.use_nonrd_pick_mode) ||
+      ((gld_is_last || gld_is_alt || gld_is_last2 || gld_is_last3) &&
+       !cpi->sf.use_nonrd_pick_mode))
     flags &= ~AOM_GOLD_FLAG;
 
   if ((bwd_is_last || bwd_is_alt || bwd_is_last2 || bwd_is_last3 || bwd_is_gld))
