@@ -1064,7 +1064,7 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_16x8_ver = {
 /******************************************************************************/
 
 // Tx type model for 16x16 block.
-static float av1_tx_type_nn_16x16_layer0_weights[128] = {
+static float av1_tx_type_nn_16x16_hor_layer0_weights[128] = {
   1.26592f,  1.36313f,  1.30956f,  1.29926f,  1.48816f,  1.68851f,  1.32000f,
   0.13321f,  -0.22477f, -0.88906f, -0.19622f, 1.69605f,  1.22180f,  -1.57771f,
   -1.15765f, 0.05710f,  -1.13355f, -0.85486f, -0.99971f, -0.91571f, -1.06031f,
@@ -1086,13 +1086,13 @@ static float av1_tx_type_nn_16x16_layer0_weights[128] = {
   0.50355f,  0.08592f,
 };
 
-static float av1_tx_type_nn_16x16_layer0_bias[16] = {
+static float av1_tx_type_nn_16x16_hor_layer0_bias[16] = {
   -1.31834f, 0.14346f,  -0.10062f, 0.84489f,  0.95617f,  -0.06720f,
   -0.68502f, -0.91442f, -0.31932f, 0.25276f,  -0.15138f, -1.57661f,
   -0.14062f, -0.42120f, 0.94573f,  -0.09287f,
 };
 
-static float av1_tx_type_nn_16x16_layer1_weights[64] = {
+static float av1_tx_type_nn_16x16_hor_layer1_weights[64] = {
   -1.80333f, -1.06353f, 0.55139f,  0.74644f,  0.13747f, -0.93018f, -0.10286f,
   0.67133f,  0.24460f,  1.44583f,  0.02173f,  0.26037f, -0.73687f, 0.19566f,
   0.61846f,  -0.58601f, -1.03196f, -0.74415f, 0.30041f, -0.41967f, 1.08740f,
@@ -1105,55 +1105,148 @@ static float av1_tx_type_nn_16x16_layer1_weights[64] = {
   1.08829f,
 };
 
-static float av1_tx_type_nn_16x16_layer1_bias[4] = {
+static float av1_tx_type_nn_16x16_hor_layer1_bias[4] = {
   0.81986f,
   1.26865f,
   0.11118f,
   2.48404f,
 };
 
-static float av1_tx_type_nn_16x16_in[8] = { 0 };
-static float av1_tx_type_nn_16x16_layer0_out[16] = { 0 };
-static float av1_tx_type_nn_16x16_layer0_dout[16] = { 0 };
-static float av1_tx_type_nn_16x16_layer0_dW[128] = { 0 };
-static float av1_tx_type_nn_16x16_layer0_db[16] = { 0 };
-static float av1_tx_type_nn_16x16_layer1_out[4] = { 0 };
-static float av1_tx_type_nn_16x16_layer1_dout[4] = { 0 };
-static float av1_tx_type_nn_16x16_layer1_dW[64] = { 0 };
-static float av1_tx_type_nn_16x16_layer1_db[4] = { 0 };
+static float av1_tx_type_nn_16x16_hor_in[8] = { 0 };
+static float av1_tx_type_nn_16x16_hor_layer0_out[16] = { 0 };
+static float av1_tx_type_nn_16x16_hor_layer0_dout[16] = { 0 };
+static float av1_tx_type_nn_16x16_hor_layer0_dW[128] = { 0 };
+static float av1_tx_type_nn_16x16_hor_layer0_db[16] = { 0 };
+static float av1_tx_type_nn_16x16_hor_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_16x16_hor_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_16x16_hor_layer1_dW[64] = { 0 };
+static float av1_tx_type_nn_16x16_hor_layer1_db[4] = { 0 };
 
-static NN_CONFIG_V2 av1_tx_type_nnconfig_16x16 = {
-  0,                        // counter (!!Initialize to 0)
-  1,                        // num_hidden_layers
-  av1_tx_type_nn_16x16_in,  // feature
+static NN_CONFIG_V2 av1_tx_type_nnconfig_16x16_hor = {
+  0,                            // counter (!!Initialize to 0)
+  1,                            // num_hidden_layers
+  av1_tx_type_nn_16x16_hor_in,  // feature
   {
       // fc layer setting
       {
           // layer 0
-          8,                                    // num_inputs
-          16,                                   // num_outputs
-          av1_tx_type_nn_16x16_layer0_weights,  // weights
-          av1_tx_type_nn_16x16_layer0_bias,     // bias
-          RELU,                                 // activation
-          av1_tx_type_nn_16x16_layer0_out,      // output
-          av1_tx_type_nn_16x16_layer0_dout,     // dY
-          av1_tx_type_nn_16x16_layer0_dW,       // dW
-          av1_tx_type_nn_16x16_layer0_db,       // db
+          8,                                        // num_inputs
+          16,                                       // num_outputs
+          av1_tx_type_nn_16x16_hor_layer0_weights,  // weights
+          av1_tx_type_nn_16x16_hor_layer0_bias,     // bias
+          RELU,                                     // activation
+          av1_tx_type_nn_16x16_hor_layer0_out,      // output
+          av1_tx_type_nn_16x16_hor_layer0_dout,     // dY
+          av1_tx_type_nn_16x16_hor_layer0_dW,       // dW
+          av1_tx_type_nn_16x16_hor_layer0_db,       // db
       },
       {
           16,  // num_inputs (!!same as num_outputs of last layer)
           4,
-          av1_tx_type_nn_16x16_layer1_weights,
-          av1_tx_type_nn_16x16_layer1_bias,
+          av1_tx_type_nn_16x16_hor_layer1_weights,
+          av1_tx_type_nn_16x16_hor_layer1_bias,
           NONE,
-          av1_tx_type_nn_16x16_layer1_out,
-          av1_tx_type_nn_16x16_layer1_dout,
-          av1_tx_type_nn_16x16_layer1_dW,
-          av1_tx_type_nn_16x16_layer1_db,
+          av1_tx_type_nn_16x16_hor_layer1_out,
+          av1_tx_type_nn_16x16_hor_layer1_dout,
+          av1_tx_type_nn_16x16_hor_layer1_dW,
+          av1_tx_type_nn_16x16_hor_layer1_db,
       },
   },
-  4,                                // num_outputs
-  av1_tx_type_nn_16x16_layer1_out,  // logits (!!same as last layer output)
+  4,                                    // num_outputs
+  av1_tx_type_nn_16x16_hor_layer1_out,  // logits (!!same as last layer output)
+  SOFTMAX_CROSS_ENTROPY,
+};
+
+static float av1_tx_type_nn_16x16_ver_layer0_weights[128] = {
+  1.26592f,  1.36313f,  1.30956f,  1.29926f,  1.48816f,  1.68851f,  1.32000f,
+  0.13321f,  -0.22477f, -0.88906f, -0.19622f, 1.69605f,  1.22180f,  -1.57771f,
+  -1.15765f, 0.05710f,  -1.13355f, -0.85486f, -0.99971f, -0.91571f, -1.06031f,
+  -0.77952f, -1.15723f, 1.17809f,  1.35602f,  -0.05243f, -0.37596f, 0.26108f,
+  0.17611f,  -0.10323f, 0.77279f,  -0.48911f, -0.79308f, 0.55112f,  0.43918f,
+  0.27872f,  0.28714f,  0.45830f,  1.05689f,  0.03705f,  -2.49975f, -0.01940f,
+  0.05709f,  0.07942f,  -0.13290f, -0.10359f, 0.00143f,  0.37303f,  0.96470f,
+  0.53293f,  1.14459f,  0.89185f,  0.43378f,  0.47764f,  0.90924f,  0.15279f,
+  -0.15361f, 0.02949f,  0.42240f,  0.68143f,  0.89588f,  0.73754f,  0.10974f,
+  1.57755f,  -0.39870f, -0.32914f, 0.35638f,  0.34991f,  -0.00003f, -0.23373f,
+  0.29630f,  -0.76699f, -0.01356f, 0.04234f,  0.84253f,  1.92078f,  0.93160f,
+  0.71993f,  0.71604f,  0.76455f,  -1.59782f, 0.32332f,  1.11628f,  0.33062f,
+  -0.03728f, -0.05710f, 0.80447f,  -0.14719f, 1.34658f,  -0.05718f, 0.64015f,
+  0.21926f,  0.41653f,  0.12720f,  0.54092f,  1.39411f,  1.81819f,  -0.24513f,
+  0.00955f,  0.38011f,  -0.57787f, -0.41759f, 0.68834f,  -0.31783f, -0.40607f,
+  -0.10107f, -0.79374f, 0.75599f,  -0.16282f, -0.14490f, -0.20783f, -0.55019f,
+  -0.13793f, -0.22293f, 0.18305f,  0.12445f,  0.56830f,  0.24567f,  0.09278f,
+  0.70803f,  0.35803f,  -1.52676f, -0.89624f, 0.77665f,  0.19877f,  0.77175f,
+  0.50355f,  0.08592f,
+};
+
+static float av1_tx_type_nn_16x16_ver_layer0_bias[16] = {
+  -1.31834f, 0.14346f,  -0.10062f, 0.84489f,  0.95617f,  -0.06720f,
+  -0.68502f, -0.91442f, -0.31932f, 0.25276f,  -0.15138f, -1.57661f,
+  -0.14062f, -0.42120f, 0.94573f,  -0.09287f,
+};
+
+static float av1_tx_type_nn_16x16_ver_layer1_weights[64] = {
+  -1.80333f, -1.06353f, 0.55139f,  0.74644f,  0.13747f, -0.93018f, -0.10286f,
+  0.67133f,  0.24460f,  1.44583f,  0.02173f,  0.26037f, -0.73687f, 0.19566f,
+  0.61846f,  -0.58601f, -1.03196f, -0.74415f, 0.30041f, -0.41967f, 1.08740f,
+  0.96224f,  -0.59139f, 0.03813f,  0.05403f,  1.33427f, -0.54375f, -1.92181f,
+  0.54704f,  0.13608f,  0.22151f,  -0.38076f, 1.18390f, -0.77508f, -1.84283f,
+  1.00894f,  0.62318f,  -0.15296f, 1.27600f,  0.22822f, 0.12751f,  0.93910f,
+  -0.28502f, 0.53912f,  -0.96889f, 0.10182f,  0.81508f, -0.43028f, 2.67386f,
+  0.52204f,  0.49820f,  -0.41711f, 1.05038f,  1.12192f, 0.74349f,  -0.75417f,
+  -0.03718f, -0.35769f, 0.89651f,  0.63236f,  0.54215f, -0.07894f, 0.48274f,
+  1.08829f,
+};
+
+static float av1_tx_type_nn_16x16_ver_layer1_bias[4] = {
+  0.81986f,
+  1.26865f,
+  0.11118f,
+  2.48404f,
+};
+
+static float av1_tx_type_nn_16x16_ver_in[8] = { 0 };
+static float av1_tx_type_nn_16x16_ver_layer0_out[16] = { 0 };
+static float av1_tx_type_nn_16x16_ver_layer0_dout[16] = { 0 };
+static float av1_tx_type_nn_16x16_ver_layer0_dW[128] = { 0 };
+static float av1_tx_type_nn_16x16_ver_layer0_db[16] = { 0 };
+static float av1_tx_type_nn_16x16_ver_layer1_out[4] = { 0 };
+static float av1_tx_type_nn_16x16_ver_layer1_dout[4] = { 0 };
+static float av1_tx_type_nn_16x16_ver_layer1_dW[64] = { 0 };
+static float av1_tx_type_nn_16x16_ver_layer1_db[4] = { 0 };
+
+static NN_CONFIG_V2 av1_tx_type_nnconfig_16x16_ver = {
+  0,                            // counter (!!Initialize to 0)
+  1,                            // num_hidden_layers
+  av1_tx_type_nn_16x16_ver_in,  // feature
+  {
+      // fc layer setting
+      {
+          // layer 0
+          8,                                        // num_inputs
+          16,                                       // num_outputs
+          av1_tx_type_nn_16x16_ver_layer0_weights,  // weights
+          av1_tx_type_nn_16x16_ver_layer0_bias,     // bias
+          RELU,                                     // activation
+          av1_tx_type_nn_16x16_ver_layer0_out,      // output
+          av1_tx_type_nn_16x16_ver_layer0_dout,     // dY
+          av1_tx_type_nn_16x16_ver_layer0_dW,       // dW
+          av1_tx_type_nn_16x16_ver_layer0_db,       // db
+      },
+      {
+          16,  // num_inputs (!!same as num_outputs of last layer)
+          4,
+          av1_tx_type_nn_16x16_ver_layer1_weights,
+          av1_tx_type_nn_16x16_ver_layer1_bias,
+          NONE,
+          av1_tx_type_nn_16x16_ver_layer1_out,
+          av1_tx_type_nn_16x16_ver_layer1_dout,
+          av1_tx_type_nn_16x16_ver_layer1_dW,
+          av1_tx_type_nn_16x16_ver_layer1_db,
+      },
+  },
+  4,                                    // num_outputs
+  av1_tx_type_nn_16x16_ver_layer1_out,  // logits (!!same as last layer output)
   SOFTMAX_CROSS_ENTROPY,
 };
 /******************************************************************************/
@@ -1496,47 +1589,47 @@ static NN_CONFIG_V2 av1_tx_type_nnconfig_16x4_ver = {
 
 // Map tx_size to its corresponding neural net model for tx type prediction.
 static NN_CONFIG_V2 *av1_tx_type_nnconfig_map_hor[] = {
-  &av1_tx_type_nnconfig_4x4_hor,   // 4x4 transform
-  &av1_tx_type_nnconfig_8x8_hor,   // 8x8 transform
-  &av1_tx_type_nnconfig_16x16,     // 16x16 transform
-  NULL,                            // 32x32 transform
-  NULL,                            // 64x64 transform
-  &av1_tx_type_nnconfig_4x8_hor,   // 4x8 transform
-  &av1_tx_type_nnconfig_8x4_hor,   // 8x4 transform
-  &av1_tx_type_nnconfig_8x16_hor,  // 8x16 transform
-  &av1_tx_type_nnconfig_16x8_hor,  // 16x8 transform
-  NULL,                            // 16x32 transform
-  NULL,                            // 32x16 transform
-  NULL,                            // 32x64 transform
-  NULL,                            // 64x32 transform
-  &av1_tx_type_nnconfig_4x16_hor,  // 4x16 transform
-  &av1_tx_type_nnconfig_16x4_hor,  // 16x4 transform
-  NULL,                            // 8x32 transform
-  NULL,                            // 32x8 transform
-  NULL,                            // 16x64 transform
-  NULL,                            // 64x16 transform
+  &av1_tx_type_nnconfig_4x4_hor,    // 4x4 transform
+  &av1_tx_type_nnconfig_8x8_hor,    // 8x8 transform
+  &av1_tx_type_nnconfig_16x16_hor,  // 16x16 transform
+  NULL,                             // 32x32 transform
+  NULL,                             // 64x64 transform
+  &av1_tx_type_nnconfig_4x8_hor,    // 4x8 transform
+  &av1_tx_type_nnconfig_8x4_hor,    // 8x4 transform
+  &av1_tx_type_nnconfig_8x16_hor,   // 8x16 transform
+  &av1_tx_type_nnconfig_16x8_hor,   // 16x8 transform
+  NULL,                             // 16x32 transform
+  NULL,                             // 32x16 transform
+  NULL,                             // 32x64 transform
+  NULL,                             // 64x32 transform
+  &av1_tx_type_nnconfig_4x16_hor,   // 4x16 transform
+  &av1_tx_type_nnconfig_16x4_hor,   // 16x4 transform
+  NULL,                             // 8x32 transform
+  NULL,                             // 32x8 transform
+  NULL,                             // 16x64 transform
+  NULL,                             // 64x16 transform
 };
 
 static NN_CONFIG_V2 *av1_tx_type_nnconfig_map_ver[] = {
-  &av1_tx_type_nnconfig_4x4_ver,   // 4x4 transform
-  &av1_tx_type_nnconfig_8x8_ver,   // 8x8 transform
-  &av1_tx_type_nnconfig_16x16,     // 16x16 transform
-  NULL,                            // 32x32 transform
-  NULL,                            // 64x64 transform
-  &av1_tx_type_nnconfig_4x8_ver,   // 4x8 transform
-  &av1_tx_type_nnconfig_8x4_ver,   // 8x4 transform
-  &av1_tx_type_nnconfig_8x16_ver,  // 8x16 transform
-  &av1_tx_type_nnconfig_16x8_ver,  // 16x8 transform
-  NULL,                            // 16x32 transform
-  NULL,                            // 32x16 transform
-  NULL,                            // 32x64 transform
-  NULL,                            // 64x32 transform
-  &av1_tx_type_nnconfig_4x16_ver,  // 4x16 transform
-  &av1_tx_type_nnconfig_16x4_ver,  // 16x4 transform
-  NULL,                            // 8x32 transform
-  NULL,                            // 32x8 transform
-  NULL,                            // 16x64 transform
-  NULL,                            // 64x16 transform
+  &av1_tx_type_nnconfig_4x4_ver,    // 4x4 transform
+  &av1_tx_type_nnconfig_8x8_ver,    // 8x8 transform
+  &av1_tx_type_nnconfig_16x16_ver,  // 16x16 transform
+  NULL,                             // 32x32 transform
+  NULL,                             // 64x64 transform
+  &av1_tx_type_nnconfig_4x8_ver,    // 4x8 transform
+  &av1_tx_type_nnconfig_8x4_ver,    // 8x4 transform
+  &av1_tx_type_nnconfig_8x16_ver,   // 8x16 transform
+  &av1_tx_type_nnconfig_16x8_ver,   // 16x8 transform
+  NULL,                             // 16x32 transform
+  NULL,                             // 32x16 transform
+  NULL,                             // 32x64 transform
+  NULL,                             // 64x32 transform
+  &av1_tx_type_nnconfig_4x16_ver,   // 4x16 transform
+  &av1_tx_type_nnconfig_16x4_ver,   // 16x4 transform
+  NULL,                             // 8x32 transform
+  NULL,                             // 32x8 transform
+  NULL,                             // 16x64 transform
+  NULL,                             // 64x16 transform
 };
 #else
 /******************************CONFIG_NN***************************************/
