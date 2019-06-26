@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aac3bedc_2b07bf89",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2019-06-26T20:40:13Z",
+      "side": 1,
+      "message": "if AQ mode is not enabled, then is this set to MAX_GF_INTERVAL (\u003d16), instead of 20?",
+      "range": {
+        "startLine": 269,
+        "startChar": 5,
+        "endLine": 269,
+        "endChar": 41
+      },
+      "revId": "576dd0c8350c437d2288a067fbff837fa571d6b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "828df2bf_80cf344d",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1151,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2019-06-26T20:40:13Z",
+      "side": 1,
+      "message": "should this be: usable_ref_frame \u003d LAST_FRAME ?",
+      "revId": "576dd0c8350c437d2288a067fbff837fa571d6b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
