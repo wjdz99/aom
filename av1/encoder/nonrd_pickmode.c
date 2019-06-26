@@ -965,9 +965,6 @@ static void newmv_diff_bias(MACROBLOCKD *xd, PREDICTION_MODE this_mode,
         this_rdc->rdcost = 5 * this_rdc->rdcost >> 2;
     }
   }
-  if (bsize >= BLOCK_16X16 && is_last_frame && mv_row < 16 && mv_row > -16 &&
-      mv_col < 16 && mv_col > -16)
-    this_rdc->rdcost = 7 * (this_rdc->rdcost >> 3);
 }
 
 struct estimate_block_intra_args {
