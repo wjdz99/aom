@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6190595b_481a4d41",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4921,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-06-26T01:17:24Z",
+      "side": 1,
+      "message": "|buf| is set to cm-\u003eref_frame_map[ref_idx]. Therefore, after decrease_ref_count(buf, pool), we should reset cm-\u003eref_frame_map[ref_idx] to NULL.",
+      "revId": "4609a4e295d78ecc39d533a0d45dbc6192e1e9d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e77fb6c_a75e43e0",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4934,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-06-26T01:17:24Z",
+      "side": 1,
+      "message": "We may return on error here.",
+      "revId": "4609a4e295d78ecc39d533a0d45dbc6192e1e9d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0eae4b26_d31c68eb",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4947,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-06-26T01:17:24Z",
+      "side": 1,
+      "message": "We may also return on error here.",
+      "revId": "4609a4e295d78ecc39d533a0d45dbc6192e1e9d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "446a67d2_4cd77f30",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4952,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-06-26T01:17:24Z",
+      "side": 1,
+      "message": "Here we set cm-\u003eref_frame_map[ref_idx] to a new value of |buf| that we own a reference to.",
+      "revId": "4609a4e295d78ecc39d533a0d45dbc6192e1e9d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
