@@ -16,6 +16,24 @@
       "revId": "69d920fff63310fa1a605f6b771ca5c7ff006f60",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b40bafb9_71f08d4f",
+        "filename": "aom_dsp/arm/hadamard_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-06-26T18:16:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b0bc3749_4cb08003",
+      "revId": "69d920fff63310fa1a605f6b771ca5c7ff006f60",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
