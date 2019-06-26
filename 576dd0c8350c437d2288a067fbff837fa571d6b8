@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bb84ee09_3f82eb7b",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2019-06-26T23:38:18Z",
+      "side": 1,
+      "message": "This is 40 by default AFAIK",
+      "parentUuid": "aac3bedc_2b07bf89",
+      "range": {
+        "startLine": 269,
+        "startChar": 5,
+        "endLine": 269,
+        "endChar": 41
+      },
+      "revId": "576dd0c8350c437d2288a067fbff837fa571d6b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "828df2bf_80cf344d",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 6
@@ -36,6 +60,24 @@
       "writtenOn": "2019-06-26T20:40:13Z",
       "side": 1,
       "message": "should this be: usable_ref_frame \u003d LAST_FRAME ?",
+      "revId": "576dd0c8350c437d2288a067fbff837fa571d6b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdf2b7a2_89c55aa8",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1151,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2019-06-26T23:38:18Z",
+      "side": 1,
+      "message": "So, this is used to not calculate best_sad_pred (on LAST FRAME) that is later used on GoldFrame ME to early stop it. I removed the wrong \"continue\" clause (on line 1303) that was never \"true\" anyway.",
+      "parentUuid": "828df2bf_80cf344d",
       "revId": "576dd0c8350c437d2288a067fbff837fa571d6b8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
