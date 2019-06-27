@@ -39,6 +39,10 @@ struct NN_CONFIG {
 // output[i] = exp(input[i]) / sum_{k \in [0,n)}(exp(input[k]))
 void av1_nn_softmax(const float *input, float *output, int n);
 
+// Applies a precision reduction to output of av1_nn_predict to prevent
+// mismatches between C and SIMD implementations.
+void av1_nn_output_prec_reduce(float *const output, int num_output);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

@@ -240,4 +240,5 @@ void av1_nn_predict_sse3(const float *input_nodes,
     num_inputs = num_outputs;
     buf_index = 1 - buf_index;
   }
+  av1_nn_output_prec_reduce(output, nn_config->num_outputs);
 }
