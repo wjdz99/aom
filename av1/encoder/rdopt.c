@@ -1427,6 +1427,65 @@ static void get_energy_distribution_finer(const int16_t *diff, int stride,
   for (i = 0; i < esq_h - 1; i++) verdist[i] *= e_recip;
 }
 
+static void get_energy_distribution_finer_new(const int16_t *diff, int stride,
+                                              int bw, int bh, float *hordist,
+                                              float *verdist) {
+  // First compute downscaled block energy values (esq); downscale factors
+  // are defined by w_shift and h_shift.
+  unsigned int esq[256];
+  const int w_shift = bw <= 8 ? 0 : 1;
+  const int h_shift = bh <= 8 ? 0 : 1;
+  const int esq_w = bw >> w_shift;
+  const int esq_h = bh >> h_shift;
+  const int esq_sz = esq_w * esq_h;
+  int i, j;
+  memset(esq, 0, esq_sz * sizeof(esq[0]));
+  if (w_shift) {
+    for (i = 0; i < bh; i++) {
+      unsigned int *cur_esq_row = esq + (i >> h_shift) * esq_w;
+      const int16_t *cur_diff_row = diff + i * stride;
+      for (j = 0; j < bw; j += 2) {
+        cur_esq_row[j >> 1] += (cur_diff_row[j] * cur_diff_row[j] +
+                                cur_diff_row[j + 1] * cur_diff_row[j + 1]);
+      }
+    }
+  } else {
+    for (i = 0; i < bh; i++) {
+      unsigned int *cur_esq_row = esq + (i >> h_shift) * esq_w;
+      const int16_t *cur_diff_row = diff + i * stride;
+      for (j = 0; j < bw; j++) {
+        cur_esq_row[j] += cur_diff_row[j] * cur_diff_row[j];
+      }
+    }
+  }
+
+  uint64_t total = 0;
+  for (i = 0; i < esq_sz; i++) total += esq[i];
+
+  // Output hordist and verdist arrays are normalized 1D projections of esq
+  if (total == 0) {
+    float hor_val = 1.0f / esq_w;
+    for (j = 0; j < esq_w; j++) hordist[j] = hor_val;
+    float ver_val = 1.0f / esq_h;
+    for (i = 0; i < esq_h; i++) verdist[i] = ver_val;
+    return;
+  }
+
+  const float e_recip = 1.0f / (float)total;
+  memset(hordist, 0, esq_w * sizeof(hordist[0]));
+  memset(verdist, 0, esq_h * sizeof(verdist[0]));
+  const unsigned int *cur_esq_row;
+  for (i = 0; i < esq_h; i++) {
+    cur_esq_row = esq + i * esq_w;
+    for (j = 0; j < esq_w; j++) {
+      hordist[j] += (float)cur_esq_row[j];
+      verdist[i] += (float)cur_esq_row[j];
+    }
+  }
+  for (j = 0; j < esq_w; j++) hordist[j] *= e_recip;
+  for (i = 0; i < esq_h; i++) verdist[i] *= e_recip;
+}
+
 // Similar to get_horver_correlation, but also takes into account first
 // row/column, when computing horizontal/vertical correlation.
 void av1_get_horver_correlation_full_c(const int16_t *diff, int stride,
@@ -1636,6 +1695,7 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
 
   aom_clear_system_state();
   float hfeatures[16], vfeatures[16];
+  float hcor, vcor;
   float hscores[4], vscores[4];
   float scores_2D_raw[16];
   float scores_2D[16];
@@ -1649,11 +1709,21 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
   const struct macroblock_plane *const p = &x->plane[0];
   const int diff_stride = block_size_wide[bsize];
   const int16_t *diff = p->src_diff + 4 * blk_row * diff_stride + 4 * blk_col;
-  get_energy_distribution_finer(diff, diff_stride, bw, bh, hfeatures,
-                                vfeatures);
-  av1_get_horver_correlation_full(diff, diff_stride, bw, bh,
-                                  &hfeatures[hfeatures_num - 1],
-                                  &vfeatures[vfeatures_num - 1]);
+
+  av1_get_horver_correlation_full(diff, diff_stride, bw, bh, &hcor, &vcor);
+
+  if (tx_size == TX_8X8) {
+    get_energy_distribution_finer_new(diff, diff_stride, bw, bh, hfeatures,
+                                      vfeatures);
+    vfeatures[vfeatures_num] = vcor;
+    hfeatures[hfeatures_num] = hcor;
+  } else {
+    get_energy_distribution_finer(diff, diff_stride, bw, bh, hfeatures,
+                                  vfeatures);
+    vfeatures[vfeatures_num - 1] = vcor;
+    hfeatures[hfeatures_num - 1] = hcor;
+  }
+
   aom_clear_system_state();
 #if CONFIG_NN_V2
   av1_nn_predict_v2(hfeatures, nn_config_hor, hscores);
@@ -1674,8 +1744,8 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
 
   av1_nn_softmax(scores_2D_raw, scores_2D, 16);
 
-  const int prune_aggr_table[2][2] = { { 5, 2 }, { 7, 4 } };
-  int pruning_aggressiveness = 1;
+  const int prune_aggr_table[2][2] = { { 4, 1 }, { 6, 3 } };
+  int pruning_aggressiveness = 0;
   if (tx_set_type == EXT_TX_SET_ALL16) {
     pruning_aggressiveness =
         prune_aggr_table[prune_mode - PRUNE_2D_ACCURATE][0];
@@ -1696,8 +1766,10 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
     }
   }
 
-  const float score_thresh =
-      prune_2D_adaptive_thresholds[tx_size][pruning_aggressiveness - 1];
+  float score_thresh =
+      prune_2D_adaptive_thresholds[tx_size][pruning_aggressiveness];
+  if (tx_size == TX_8X8) score_thresh = 0.0f;
+  //        prune_2D_adaptive_thresholds[tx_size][pruning_aggressiveness - 2];
 
   uint16_t prune_bitmask = 0;
   for (int i = 0; i < 16; i++) {
