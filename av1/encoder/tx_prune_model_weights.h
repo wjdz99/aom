@@ -1740,6 +1740,68 @@ static const NN_CONFIG av1_tx_type_nnconfig_8x8_hor = {
   { av1_tx_type_nn_bias_8x8_hor_layer0, av1_tx_type_nn_bias_8x8_hor_layer1 }
 };
 
+#if 1
+#define NUM_HIDDEN_LAYERS_1 1
+#define NUM_FEATURES_1 9
+#define NUM_LAYER_0_UNITS_1 8
+#define NUM_LOGITS_1 4
+
+static const float av1_tx_type_hiddenlayer_0_kernel_1[] = {
+  1.52409f,    1.38079f,   0.862643f,   0.620505f,  -1.15839f,  -1.82518f,
+  -3.25893f,   0.698746f,  -0.624217f,  2.01401f,   -0.422545f, -0.671768f,
+  -0.662906f,  -0.52593f,  -0.342493f,  -0.102325f, 2.86632f,   0.870918f,
+  -1.39155f,   -1.01177f,  -0.980847f,  -0.536806f, 0.318584f,  0.849421f,
+  1.49098f,    1.49719f,   2.25438f,    -0.421912f, 0.728028f,  0.92681f,
+  1.15308f,    1.26787f,   0.983062f,   0.81393f,   -1.14013f,  -1.96561f,
+  -5.89019f,   -0.563869f, 0.469338f,   0.643674f,  0.814339f,  0.639659f,
+  0.206292f,   0.952674f,  0.77508f,    2.26195f,   -0.249075f, -0.355324f,
+  0.161756f,   0.854896f,  0.711484f,   0.423583f,  -4.48609f,  1.16868f,
+  -0.107006f,  -1.44519f,  -2.17482f,   -1.84326f,  -0.457265f, 0.754989f,
+  1.7392f,     2.3322f,    -0.0556056f, -0.256029f, 0.112222f,  -0.65104f,
+  0.00483375f, -0.136796f, 0.272918f,   -0.488797f, 0.175249f,  -0.888049f
+};
+
+static const float av1_tx_type_hiddenlayer_0_bias_1[] = {
+  0.00689442f, 0.121466f,  0.0203547f, 0.346811f,
+  -0.0588953f, -0.121207f, 0.195662f,  -0.272646f
+};
+
+static const float av1_tx_type_logits_kernel_1[] = {
+  -0.88936f,  1.29875f,   1.12673f,   0.610977f,   -1.07398f,  -0.546667f,
+  -1.23289f,  -0.365227f, -0.803604f, 0.181189f,   0.872748f,  -0.575525f,
+  0.757667f,  -1.31631f,  -0.52383f,  -0.0747271f, -0.864059f, -0.716676f,
+  0.0109271f, -1.31892f,  -1.22657f,  1.22126f,    -0.124031f, 0.06161f,
+  1.20893f,   0.122843f,  -1.52059f,  1.40715f,    1.8461f,    0.81049f,
+  2.70208f,   -0.59363f
+};
+
+static const float av1_tx_type_logits_bias_1[] = { 0.301252f, 0.0565284f,
+                                                   0.803844f, -1.33102f };
+
+static const NN_CONFIG av1_tx_type_nnconfig_8x8_ver = {
+  NUM_FEATURES_1,
+  NUM_LOGITS_1,
+  NUM_HIDDEN_LAYERS_1,
+  {
+      NUM_LAYER_0_UNITS_1,
+  },
+  {
+      av1_tx_type_hiddenlayer_0_kernel_1,
+      av1_tx_type_logits_kernel_1,
+  },
+  {
+      av1_tx_type_hiddenlayer_0_bias_1,
+      av1_tx_type_logits_bias_1,
+  },
+};
+
+#undef NUM_HIDDEN_LAYERS_1
+#undef NUM_FEATURES_1
+#undef NUM_LAYER_0_UNITS_1
+#undef NUM_LOGITS_1
+
+#else
+
 static const float av1_tx_type_nn_weights_8x8_ver_layer0[128] = {
   -0.67016f, -1.72366f, -1.86576f, -1.50962f, -1.70419f, -1.73964f, -1.84615f,
   2.09681f,  -0.05081f, -0.61030f, 2.02541f,  0.60222f,  0.99936f,  2.02114f,
@@ -1799,6 +1861,7 @@ static const NN_CONFIG av1_tx_type_nnconfig_8x8_ver = {
     av1_tx_type_nn_weights_8x8_ver_layer1 },
   { av1_tx_type_nn_bias_8x8_ver_layer0, av1_tx_type_nn_bias_8x8_ver_layer1 }
 };
+#endif
 /******************************************************************************/
 
 // Tx type model for 8x16 block.
