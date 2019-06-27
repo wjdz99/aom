@@ -59,6 +59,11 @@ static uint8_t *pad_8tap_convolve(const int *data, int w, int h, bool high_bd) {
   } else {
     dst = (uint8_t *)aom_memalign(32, sizeof(uint8_t) * pad_w * pad_h);
   }
+  if (dst == NULL) {
+    EXPECT_TRUE(dst != NULL);
+    return NULL;
+  }
+
   for (int j = 0; j < pad_h; ++j) {
     for (int i = 0; i < pad_w; ++i) {
       const int v = get_nearest_pix(data, w, h, i - 3, j - 3);
@@ -117,12 +122,15 @@ class EdgeDetectBrightnessTest :
 
     // Create the padded image of uniform brightness.
     int *orig = (int *)malloc(width * height * sizeof(int));
+    ASSERT_TRUE(orig != NULL);
     for (int i = 0; i < width * height; ++i) {
       orig[i] = brightness;
     }
     input_ = pad_8tap_convolve(orig, width, height, high_bd);
+    ASSERT_TRUE(input_ != NULL);
     free(orig);
     output_ = malloc_bd(width * height, high_bd);
+    ASSERT_TRUE(output_ != NULL);
   }
 
   void TearDown() override {
@@ -243,6 +251,7 @@ TEST_P(EdgeDetectImageTest, BlackWhite) {
     }
   }
   uint8_t *padded = pad_8tap_convolve(orig, width, height, high_bd);
+  ASSERT_TRUE(padded != NULL);
   free(orig);
   // Value should be between 556 and 560.
   ASSERT_LE(556, av1_edge_exists(padded, stride_8tap(width), width, height,
@@ -275,7 +284,9 @@ static void hardcoded_blur_test_aux(const bool high_bd) {
       break;
     }
     uint8_t *output = malloc_bd(w * h, high_bd);
+    ASSERT_TRUE(output != NULL);
     uint8_t *padded = pad_8tap_convolve(luma, w, h, high_bd);
+    ASSERT_TRUE(padded != NULL);
     av1_gaussian_blur(padded, stride_8tap(w), w, h, output, high_bd, bd);
     for (int i = 0; i < w * h; ++i) {
       ASSERT_EQ(expected[i], get_pix(output, i, high_bd));
@@ -291,7 +302,9 @@ static void hardcoded_blur_test_aux(const bool high_bd) {
         scaled_luma[i] = luma[i] * c;
       }
       uint8_t *output = malloc_bd(w * h, high_bd);
+      ASSERT_TRUE(output != NULL);
       uint8_t *padded = pad_8tap_convolve(scaled_luma, w, h, high_bd);
+      ASSERT_TRUE(padded != NULL);
       av1_gaussian_blur(padded, stride_8tap(w), w, h, output, high_bd, bd);
       for (int i = 0; i < w * h; ++i) {
         ASSERT_GE(c / 2, abs(expected[i] * c - get_pix(output, i, high_bd)));
