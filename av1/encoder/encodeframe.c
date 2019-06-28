@@ -2792,11 +2792,6 @@ BEGIN_PARTITION_SEARCH:
     av1_init_rd_stats(&sum_rdc);
     subsize = get_partition_subsize(bsize, PARTITION_HORZ);
     if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_none);
-    if (cpi->sf.adaptive_pred_interp_filter && bsize == BLOCK_8X8 &&
-        partition_none_allowed) {
-      pc_tree->horizontal[0].pred_interp_filter =
-          ctx_none->mic.interp_filters.as_filters.y_filter;
-    }
     sum_rdc.rate = partition_cost[PARTITION_HORZ];
     sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
     RD_STATS best_remain_rdcost;
@@ -2836,12 +2831,6 @@ BEGIN_PARTITION_SEARCH:
                         subsize, NULL);
 
       if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_h);
-
-      if (cpi->sf.adaptive_pred_interp_filter && bsize == BLOCK_8X8 &&
-          partition_none_allowed) {
-        pc_tree->horizontal[1].pred_interp_filter =
-            ctx_h->mic.interp_filters.as_filters.y_filter;
-      }
 
       av1_rd_stats_subtraction(x->rdmult, &best_rdc, &sum_rdc,
                                &best_remain_rdcost);
@@ -2891,11 +2880,6 @@ BEGIN_PARTITION_SEARCH:
 
     if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_none);
 
-    if (cpi->sf.adaptive_pred_interp_filter && bsize == BLOCK_8X8 &&
-        partition_none_allowed) {
-      pc_tree->vertical[0].pred_interp_filter =
-          ctx_none->mic.interp_filters.as_filters.y_filter;
-    }
     sum_rdc.rate = partition_cost[PARTITION_VERT];
     sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
     RD_STATS best_remain_rdcost;
@@ -2934,12 +2918,6 @@ BEGIN_PARTITION_SEARCH:
                         subsize, NULL);
 
       if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_none);
-
-      if (cpi->sf.adaptive_pred_interp_filter && bsize == BLOCK_8X8 &&
-          partition_none_allowed) {
-        pc_tree->vertical[1].pred_interp_filter =
-            ctx_none->mic.interp_filters.as_filters.y_filter;
-      }
 
       av1_rd_stats_subtraction(x->rdmult, &best_rdc, &sum_rdc,
                                &best_remain_rdcost);
@@ -4006,15 +3984,6 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
         av1_fill_mode_rates(cm, x, xd->tile_ctx);
         break;
       default: assert(0);
-    }
-
-    if (sf->adaptive_pred_interp_filter) {
-      for (int i = 0; i < leaf_nodes; ++i) {
-        td->pc_tree[i].vertical[0].pred_interp_filter = SWITCHABLE;
-        td->pc_tree[i].vertical[1].pred_interp_filter = SWITCHABLE;
-        td->pc_tree[i].horizontal[0].pred_interp_filter = SWITCHABLE;
-        td->pc_tree[i].horizontal[1].pred_interp_filter = SWITCHABLE;
-      }
     }
 
     x->mb_rd_record.num = x->mb_rd_record.index_start = 0;
