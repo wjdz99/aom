@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a4d5180e_83b227b4",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-06-28T23:07:48Z",
+      "side": 1,
+      "message": "The local variable bps is set by this switch statement and used at three places below.",
+      "revId": "7219e96e9b72518d67babe0cbf2b3c4624eaa053",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d7435d2e_821f5159",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-06-28T23:07:48Z",
+      "side": 1,
+      "message": "This is the first place where bps is used. Since we use planar image formats, we can ignore this case.",
+      "revId": "7219e96e9b72518d67babe0cbf2b3c4624eaa053",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd6bcf68_5bd29547",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-06-28T23:07:48Z",
+      "side": 1,
+      "message": "This is the second place where bps is used. The effect of the bug is that we allocate more memory than we need for the I422 and I42216 formats. Unless we monitor memory consumption, we won\u0027t notice this effect.",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 59
+      },
+      "revId": "7219e96e9b72518d67babe0cbf2b3c4624eaa053",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4f25ae65_36011dd1",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-06-28T23:07:48Z",
+      "side": 1,
+      "message": "This is the third place where bps is used. Code search shows we only use the img-\u003ebps field at two places:\n\n1. Inside the aom_img_set_rect() function below. This is only used for non-planar formats, which we can ignore.\n\n2. In test/video_source.h. The effect of the bug is that we set or zero more bytes than necessary for I422 and I42216, but we won\u0027t go outside the memory buffer.",
+      "revId": "7219e96e9b72518d67babe0cbf2b3c4624eaa053",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
