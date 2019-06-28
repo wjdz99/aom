@@ -30,7 +30,10 @@ static aom_image_t *img_alloc_helper(
     aom_image_t *img, aom_img_fmt_t fmt, unsigned int d_w, unsigned int d_h,
     unsigned int buf_align, unsigned int stride_align, unsigned int size_align,
     unsigned char *img_data, unsigned int border) {
-  unsigned int h, w, s, xcs, ycs, bps;
+  /* NOTE: In this function, bit_depth is either 8 or 16 (if
+   * AOM_IMG_FMT_HIGHBITDEPTH is set), never 10 or 12.
+   */
+  unsigned int h, w, s, xcs, ycs, bps, bit_depth;
   unsigned int stride_in_bytes;
 
   /* Treat align==0 like align==1 */
@@ -66,6 +69,8 @@ static aom_image_t *img_alloc_helper(
     default: bps = 16; break;
   }
 
+  bit_depth = (fmt & AOM_IMG_FMT_HIGHBITDEPTH) ? 16 : 8;
+
   /* Get chroma shift values for this format */
   switch (fmt) {
     case AOM_IMG_FMT_I420:
@@ -93,9 +98,9 @@ static aom_image_t *img_alloc_helper(
   w = align_image_dimension(d_w, xcs, size_align);
   h = align_image_dimension(d_h, ycs, size_align);
 
-  s = (fmt & AOM_IMG_FMT_PLANAR) ? w : bps * w / 8;
+  s = (fmt & AOM_IMG_FMT_PLANAR) ? w : bps * w / bit_depth;
   s = (s + 2 * border + stride_align - 1) & ~(stride_align - 1);
-  stride_in_bytes = (fmt & AOM_IMG_FMT_HIGHBITDEPTH) ? s * 2 : s;
+  stride_in_bytes = s * bit_depth / 8;
 
   /* Allocate the new image */
   if (!img) {
@@ -113,7 +118,7 @@ static aom_image_t *img_alloc_helper(
   if (!img_data) {
     const uint64_t alloc_size =
         (fmt & AOM_IMG_FMT_PLANAR)
-            ? (uint64_t)(h + 2 * border) * stride_in_bytes * bps / 8
+            ? (uint64_t)(h + 2 * border) * stride_in_bytes * bps / bit_depth
             : (uint64_t)(h + 2 * border) * stride_in_bytes;
 
     if (alloc_size != (size_t)alloc_size) goto fail;
@@ -126,7 +131,7 @@ static aom_image_t *img_alloc_helper(
   if (!img->img_data) goto fail;
 
   img->fmt = fmt;
-  img->bit_depth = (fmt & AOM_IMG_FMT_HIGHBITDEPTH) ? 16 : 8;
+  img->bit_depth = bit_depth;
   // aligned width and aligned height
   img->w = w;
   img->h = h;
