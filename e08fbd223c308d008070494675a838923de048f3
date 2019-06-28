@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f451453_fdd80ee7",
+        "filename": "av1/common/cdef_block.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-06-28T19:03:23Z",
+      "side": 1,
+      "message": "another option would be to shift the sizeof() directly",
+      "range": {
+        "startLine": 202,
+        "startChar": 0,
+        "endLine": 202,
+        "endChar": 56
+      },
+      "revId": "e08fbd223c308d008070494675a838923de048f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
