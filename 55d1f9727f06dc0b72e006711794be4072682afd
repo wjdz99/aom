@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1f324f7f_aedb7162",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-28T17:28:47Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6db46c01_4374ad90",
+      "range": {
+        "startLine": 530,
+        "startChar": 8,
+        "endLine": 530,
+        "endChar": 23
+      },
+      "revId": "55d1f9727f06dc0b72e006711794be4072682afd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cf10f8de_9a9126cd",
         "filename": "av1/encoder/pickcdef.c",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2019-06-28T17:16:07Z",
       "side": 1,
       "message": "This line can be removed.",
+      "range": {
+        "startLine": 544,
+        "startChar": 6,
+        "endLine": 544,
+        "endChar": 27
+      },
+      "revId": "55d1f9727f06dc0b72e006711794be4072682afd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d05419ba_aa1299e3",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-06-28T17:28:47Z",
+      "side": 1,
+      "message": "nb_strength_bits is the optimal number of bits, and should be updated here I think.",
+      "parentUuid": "cf10f8de_9a9126cd",
       "range": {
         "startLine": 544,
         "startChar": 6,
