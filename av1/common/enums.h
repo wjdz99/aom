@@ -244,6 +244,8 @@ enum {
 #define TX_TYPES_NOMDTX 16
 #define MDTX_TYPES_INTER 8
 #define MDTX_TYPES_INTRA 4
+#define USE_NST_4X8_8X4 1
+#define USE_NST_8X8 1
 #define MDTX_DEBUG_MULT 0
 #define MDTX_DEBUG_BLOCK 0
 #define SEP_TX_DEBUG 0
