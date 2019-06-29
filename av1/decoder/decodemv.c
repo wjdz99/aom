@@ -693,16 +693,28 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd, int blk_row,
                   r, ec_ctx->mdtx_type_intra_cdf[square_tx_size][intra_mode],
                   MDTX_TYPES_INTRA, ACCT_STR);
         } else {
+#if CONFIG_REDUCED_SEPTX_SET
+          *tx_type = av1_reduced_intra_tx_set_inv[intra_mode][aom_read_symbol(
+              r, ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][intra_mode],
+              av1_num_ext_tx_set[tx_set_type], ACCT_STR)];
+#else
           *tx_type = av1_ext_tx_inv[tx_set_type][aom_read_symbol(
               r, ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][intra_mode],
               av1_num_ext_tx_set[tx_set_type], ACCT_STR)];
+#endif
         }
+      } else {
+#elif CONFIG_REDUCED_SEPTX_SET
+      if (tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT) {
+        *tx_type = av1_reduced_intra_tx_set_inv[intra_mode][aom_read_symbol(
+            r, ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][intra_mode],
+            av1_num_ext_tx_set[tx_set_type], ACCT_STR)];
       } else {
 #endif
         *tx_type = av1_ext_tx_inv[tx_set_type][aom_read_symbol(
             r, ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][intra_mode],
             av1_num_ext_tx_set[tx_set_type], ACCT_STR)];
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA
+#if (CONFIG_MODE_DEP_TX && USE_MDTX_INTRA) || CONFIG_REDUCED_SEPTX_SET
       }
 #endif
     }

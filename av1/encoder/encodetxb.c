@@ -2038,13 +2038,25 @@ static void update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
             ++counts->mdtx_type_intra[txsize_sqr_map[tx_size]][intra_dir]
                                      [tx_type - MDTX_INTRA_1];
           else
+#if CONFIG_REDUCED_SEPTX_SET
+            ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][intra_dir]
+                                  [av1_reduced_intra_tx_set_ind[intra_dir]
+                                                               [tx_type]];
+#else
             ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][intra_dir]
                                   [av1_ext_tx_ind[tx_set_type][tx_type]];
+#endif
+        } else {
+#elif CONFIG_REDUCED_SEPTX_SET
+        if (tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT) {
+          ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][intra_dir]
+                                [av1_reduced_intra_tx_set_ind[intra_dir]
+                                                             [tx_type]];
         } else {
 #endif
           ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][intra_dir]
                                 [av1_ext_tx_ind[tx_set_type][tx_type]];
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA
+#if (CONFIG_MODE_DEP_TX && USE_MDTX_INTRA) || CONFIG_REDUCED_SEPTX_SET
         }
 #endif
 #endif  // CONFIG_ENTROPY_STATS
@@ -2062,16 +2074,27 @@ static void update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
             } else {
               update_cdf(fc->intra_ext_tx_cdf[eset][txsize_sqr_map[tx_size]]
                                              [intra_dir],
-                         av1_ext_tx_ind[tx_set_type][tx_type],
+#if CONFIG_REDUCED_SEPTX_SET
+                         av1_reduced_intra_tx_set_ind[intra_dir][tx_type],
+#else
+                           av1_ext_tx_ind[tx_set_type][tx_type],
+#endif
                          av1_num_ext_tx_set[tx_set_type]);
             }
+          } else {
+#elif CONFIG_REDUCED_SEPTX_SET
+          if (tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT) {
+            update_cdf(
+                fc->intra_ext_tx_cdf[eset][txsize_sqr_map[tx_size]][intra_dir],
+                av1_reduced_intra_tx_set_ind[intra_dir][tx_type],
+                av1_num_ext_tx_set[tx_set_type]);
           } else {
 #endif
             update_cdf(
                 fc->intra_ext_tx_cdf[eset][txsize_sqr_map[tx_size]][intra_dir],
                 av1_ext_tx_ind[tx_set_type][tx_type],
                 av1_num_ext_tx_set[tx_set_type]);
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA
+#if (CONFIG_MODE_DEP_TX && USE_MDTX_INTRA) || CONFIG_REDUCED_SEPTX_SET
           }
 #endif
         }
@@ -2150,8 +2173,8 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   av1_update_eob_context(cdf_idx, eob, tx_size, tx_class, plane_type, ec_ctx,
                          td->counts, allow_update_cdf);
 #else
-  av1_update_eob_context(eob, tx_size, tx_class, plane_type, ec_ctx,
-                         allow_update_cdf);
+    av1_update_eob_context(eob, tx_size, tx_class, plane_type, ec_ctx,
+                           allow_update_cdf);
 #endif
 
   DECLARE_ALIGNED(16, int8_t, coeff_contexts[MAX_TX_SQUARE]);
