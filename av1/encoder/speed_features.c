@@ -684,6 +684,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->tx_type_search.prune_mode = PRUNE_2D_ACCURATE;
   sf->tx_type_search.ml_tx_split_thresh = 30;
   sf->tx_type_search.use_skip_flag_prediction = 1;
+  sf->tx_type_search.use_reduced_intra_txset = 1;
   sf->tx_type_search.fast_intra_tx_type_search = 0;
   sf->tx_type_search.fast_inter_tx_type_search = 0;
   sf->tx_type_search.skip_tx_search = 0;
