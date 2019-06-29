@@ -2038,8 +2038,14 @@ static void update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
             ++counts->mdtx_type_intra[txsize_sqr_map[tx_size]][intra_dir]
                                      [tx_type - MDTX_INTRA_1];
           else
+#if USE_REDUCED_SEPTX_SET
+            ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][intra_dir]
+                                  [av1_reduced_intra_tx_set_ind[intra_dir]
+                                                               [tx_type]];
+#else
             ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][intra_dir]
                                   [av1_ext_tx_ind[tx_set_type][tx_type]];
+#endif
         } else {
 #endif
           ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][intra_dir]
@@ -2062,7 +2068,11 @@ static void update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
             } else {
               update_cdf(fc->intra_ext_tx_cdf[eset][txsize_sqr_map[tx_size]]
                                              [intra_dir],
+#if USE_REDUCED_SEPTX_SET
+                         av1_reduced_intra_tx_set_ind[intra_dir][tx_type],
+#else
                          av1_ext_tx_ind[tx_set_type][tx_type],
+#endif
                          av1_num_ext_tx_set[tx_set_type]);
             }
           } else {

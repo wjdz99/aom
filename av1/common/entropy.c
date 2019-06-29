@@ -184,8 +184,13 @@ void av1_reset_cdf_symbol_counters(FRAME_CONTEXT *fc) {
   RESET_CDF_COUNTER_STRIDE(fc->mdtx_type_intra_cdf, 3,
                            CDF_SIZE(MDTX_TYPES_INTRA));
 #endif
+#if USE_REDUCED_SEPTX_SET
+  RESET_CDF_COUNTER_STRIDE(fc->intra_ext_tx_cdf[1], 5,
+                           CDF_SIZE(TX_TYPES_NOMDTX));
+#else
   RESET_CDF_COUNTER_STRIDE(fc->intra_ext_tx_cdf[1], 7,
                            CDF_SIZE(TX_TYPES_NOMDTX));
+#endif
   RESET_CDF_COUNTER_STRIDE(fc->intra_ext_tx_cdf[2], 5,
                            CDF_SIZE(TX_TYPES_NOMDTX));
   RESET_CDF_COUNTER_STRIDE(fc->inter_ext_tx_cdf[1], 16,
