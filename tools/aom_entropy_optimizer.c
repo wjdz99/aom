@@ -336,7 +336,12 @@ int main(int argc, const char **argv) {
   cts_each_dim[1] = EXT_TX_SIZES;
   cts_each_dim[2] = INTRA_MODES;
   cts_each_dim[3] = TX_TYPES;
+#endif
+#if CONFIG_REDUCED_SEPTX_SET
+  int intra_ext_tx_types_each_ctx[EXT_TX_SETS_INTRA] = { 0, 5, 5 };
+#else
   int intra_ext_tx_types_each_ctx[EXT_TX_SETS_INTRA] = { 0, 7, 5 };
+#endif
   optimize_cdf_table_var_modes_4d(
       &fc.intra_ext_tx[0][0][0][0], probsfile, 4, cts_each_dim,
       intra_ext_tx_types_each_ctx,

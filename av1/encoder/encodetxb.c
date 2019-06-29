@@ -1992,14 +1992,35 @@ static void update_tx_type_count(const AV1_COMP *cpi, const AV1_COMMON *cm,
         else
           intra_dir = mbmi->mode;
 #if CONFIG_ENTROPY_STATS
-        ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][intra_dir]
-                              [av1_ext_tx_ind[tx_set_type][tx_type]];
+#if CONFIG_REDUCED_SEPTX_SET
+        if (tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT) {
+          ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][intra_dir]
+                                [av1_reduced_intra_tx_set_ind[intra_dir]
+                                                             [tx_type]];
+        } else {
+#endif
+          ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][intra_dir]
+                                [av1_ext_tx_ind[tx_set_type][tx_type]];
+#if CONFIG_REDUCED_SEPTX_SET
+        }
+#endif
 #endif  // CONFIG_ENTROPY_STATS
         if (allow_update_cdf) {
-          update_cdf(
-              fc->intra_ext_tx_cdf[eset][txsize_sqr_map[tx_size]][intra_dir],
-              av1_ext_tx_ind[tx_set_type][tx_type],
-              av1_num_ext_tx_set[tx_set_type]);
+#if CONFIG_REDUCED_SEPTX_SET
+          if (tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT) {
+            update_cdf(
+                fc->intra_ext_tx_cdf[eset][txsize_sqr_map[tx_size]][intra_dir],
+                av1_reduced_intra_tx_set_ind[intra_dir][tx_type],
+                av1_num_ext_tx_set[tx_set_type]);
+          } else {
+#endif
+            update_cdf(
+                fc->intra_ext_tx_cdf[eset][txsize_sqr_map[tx_size]][intra_dir],
+                av1_ext_tx_ind[tx_set_type][tx_type],
+                av1_num_ext_tx_set[tx_set_type]);
+#if CONFIG_REDUCED_SEPTX_SET
+          }
+#endif
         }
       }
     }
