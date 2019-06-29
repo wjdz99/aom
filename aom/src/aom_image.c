@@ -93,8 +93,9 @@ static aom_image_t *img_alloc_helper(
   w = align_image_dimension(d_w, xcs, size_align);
   h = align_image_dimension(d_h, ycs, size_align);
 
-  s = (fmt & AOM_IMG_FMT_PLANAR) ? w : bps * w / 8;
-  s = (s + 2 * border + stride_align - 1) & ~(stride_align - 1);
+  s = w + 2 * border;
+  s = (fmt & AOM_IMG_FMT_PLANAR) ? s : s * bps / 8;
+  s = (s + stride_align - 1) & ~(stride_align - 1);
   stride_in_bytes = (fmt & AOM_IMG_FMT_HIGHBITDEPTH) ? s * 2 : s;
 
   /* Allocate the new image */
