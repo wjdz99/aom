@@ -3033,6 +3033,7 @@ BEGIN_PARTITION_SEARCH:
         horzb_partition_allowed &= (horz_b_rd / 16 * 14 < best_rdc.rdcost);
         break;
       case 2:
+      case 3:
       default:
         horza_partition_allowed &= (horz_a_rd / 16 * 15 < best_rdc.rdcost);
         horzb_partition_allowed &= (horz_b_rd / 16 * 15 < best_rdc.rdcost);
@@ -3051,6 +3052,7 @@ BEGIN_PARTITION_SEARCH:
         vertb_partition_allowed &= (vert_b_rd / 16 * 14 < best_rdc.rdcost);
         break;
       case 2:
+      case 3:
       default:
         verta_partition_allowed &= (vert_a_rd / 16 * 15 < best_rdc.rdcost);
         vertb_partition_allowed &= (vert_b_rd / 16 * 15 < best_rdc.rdcost);
@@ -3264,6 +3266,13 @@ BEGIN_PARTITION_SEARCH:
     partition_vert4_allowed &= (pc_tree->partitioning == PARTITION_VERT ||
                                 pc_tree->partitioning == PARTITION_VERT_A ||
                                 pc_tree->partitioning == PARTITION_VERT_B ||
+                                pc_tree->partitioning == PARTITION_SPLIT ||
+                                pc_tree->partitioning == PARTITION_NONE);
+  } else if (cpi->sf.prune_ext_partition_types_search_level == 3) {
+    partition_horz4_allowed &= (pc_tree->partitioning == PARTITION_HORZ ||
+                                pc_tree->partitioning == PARTITION_SPLIT ||
+                                pc_tree->partitioning == PARTITION_NONE);
+    partition_vert4_allowed &= (pc_tree->partitioning == PARTITION_VERT ||
                                 pc_tree->partitioning == PARTITION_SPLIT ||
                                 pc_tree->partitioning == PARTITION_NONE);
   }

@@ -1236,13 +1236,24 @@ void av1_ml_prune_4_partition(const AV1_COMP *const cpi, MACROBLOCK *const x,
     case BLOCK_64X64: thresh -= 200; break;
     default: break;
   }
-  *partition_horz4_allowed = 0;
-  *partition_vert4_allowed = 0;
+
+  int allow_horiz4_partition = 0;
+  int allow_vert4_partition = 0;
   for (int i = 0; i < LABELS; ++i) {
     if (int_score[i] >= thresh) {
-      if ((i >> 0) & 1) *partition_horz4_allowed = 1;
-      if ((i >> 1) & 1) *partition_vert4_allowed = 1;
+      if ((i >> 0) & 1) allow_horiz4_partition = 1;
+      if ((i >> 1) & 1) allow_vert4_partition = 1;
     }
+  }
+
+  if (cpi->sf.ml_prune_4_partition == 2) {
+    // Allow horiz/vert 4 partitioning only if all the relevant speed features
+    // evaluate to 1
+    *partition_horz4_allowed &= allow_horiz4_partition;
+    *partition_vert4_allowed &= allow_vert4_partition;
+  } else {
+    *partition_horz4_allowed = allow_horiz4_partition;
+    *partition_vert4_allowed = allow_vert4_partition;
   }
 }
 #undef FEATURES

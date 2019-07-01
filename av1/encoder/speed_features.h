@@ -375,7 +375,9 @@ typedef struct SPEED_FEATURES {
   // Use a ML model to prune horz_a, horz_b, vert_a and vert_b partitions.
   int ml_prune_ab_partition;
 
-  // Use a ML model to prune horz4 and vert4 partitions.
+  // ml_prune_4_partition 1 implies use ml decisions for pruning
+  // ml_prune_4_partition 2 implies consider ml decisions in conjuction with
+  // other pruning techniques
   int ml_prune_4_partition;
 
   // Use a ML model to adaptively terminate partition search after trying

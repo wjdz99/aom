@@ -324,6 +324,13 @@ static void set_good_speed_features_framesize_independent(
     // and clean-up the speed feature
     sf->perform_best_rd_based_gating_for_chroma = 1;
     sf->prune_comp_type_by_model_rd = boosted ? 0 : 1;
+    // TODO(Remya): Experiment with ml_prune_4_partition 2 for speeds 1 and 2
+    sf->prune_ext_partition_types_search_level =
+        (boosted || cm->allow_screen_content_tools) ? 2 : 3;
+    sf->ml_prune_4_partition =
+        (frame_is_intra_only(&cpi->common) || cm->allow_screen_content_tools)
+            ? 1
+            : 2;
     sf->disable_smooth_intra =
         !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
   }
