@@ -187,17 +187,19 @@ class DummyVideoSource : public VideoSource {
 
  protected:
   virtual void FillFrame() {
-    if (img_) memset(img_->img_data, 0, raw_sz_);
+    if (img_) memset(img_->img_data, 0, img_->sz);
   }
 
   void ReallocImage() {
     aom_img_free(img_);
     img_ = aom_img_alloc(NULL, format_, width_, height_, 32);
-    raw_sz_ = ((img_->w + 31) & ~31) * img_->h * img_->bps / 8;
+    if ((((img_->w + 31) & ~31) * img_->h * img_->bps / 8) != img_->sz) {
+      int *p = NULL;
+      *p = 0;
+    }
   }
 
   aom_image_t *img_;
-  size_t raw_sz_;
   unsigned int limit_;
   unsigned int frame_;
   unsigned int width_;
@@ -223,9 +225,9 @@ class RandomVideoSource : public DummyVideoSource {
   virtual void FillFrame() {
     if (img_) {
       if (frame_ % 30 < 15)
-        for (size_t i = 0; i < raw_sz_; ++i) img_->img_data[i] = rnd_.Rand8();
+        for (size_t i = 0; i < img_->sz; ++i) img_->img_data[i] = rnd_.Rand8();
       else
-        memset(img_->img_data, 0, raw_sz_);
+        memset(img_->img_data, 0, img_->sz);
     }
   }
 
