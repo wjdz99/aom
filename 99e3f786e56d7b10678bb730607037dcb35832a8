@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "45df5d42_5f39e973",
+        "filename": "av1/common/txb_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-07-02T15:46:36Z",
+      "side": 1,
+      "message": "Please ignore this comment. I was mistaken. The bitwise-AND is intended to remove the \"dc coefficient\" context in the two most significant bits of a[k]. Only the six least significant bits of a[k] are the \"coefficient level\" context.",
+      "parentUuid": "2cd61f9a_d75f25d6",
+      "range": {
+        "startLine": 414,
+        "startChar": 6,
+        "endLine": 414,
+        "endChar": 32
+      },
+      "revId": "99e3f786e56d7b10678bb730607037dcb35832a8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "366a2d3e_33fd6c60",
         "filename": "av1/common/txb_common.h",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2019-07-01T23:12:44Z",
       "side": 1,
       "message": "Similarly, this bitwise-AND operation can be omitted if we cast l[k] to unsigned char in line 419:\n\n        left |\u003d (unsigned char)l[k];",
+      "revId": "99e3f786e56d7b10678bb730607037dcb35832a8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7359c696_cef02bae",
+        "filename": "av1/common/txb_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-07-02T15:46:36Z",
+      "side": 1,
+      "message": "Please ignore this comment. I was mistaken.",
+      "parentUuid": "366a2d3e_33fd6c60",
       "revId": "99e3f786e56d7b10678bb730607037dcb35832a8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
