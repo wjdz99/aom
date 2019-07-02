@@ -89,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "dfc0e397_34042050",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2019-07-02T16:37:45Z",
+      "side": 1,
+      "message": "hmm,if the macro is useful to external, should it should exposed in aom_mem.h instead?",
+      "parentUuid": "a308df58_4ab522ec",
+      "revId": "e924a4d42981a2c57335af32ab2a16a20659cca1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "82032c16_5dc5aa10",
         "filename": "aom/src/aom_image.c",
         "patchSetId": 7
