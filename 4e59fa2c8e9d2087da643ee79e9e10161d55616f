@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2397fd47_e5986637",
+        "filename": "test/avg_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-07-02T03:18:43Z",
+      "side": 1,
+      "message": "these outer ()s can go",
+      "range": {
+        "startLine": 59,
+        "startChar": 11,
+        "endLine": 59,
+        "endChar": 12
+      },
+      "revId": "4e59fa2c8e9d2087da643ee79e9e10161d55616f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b77c8c4_8a59eb87",
+        "filename": "test/avg_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-07-02T03:18:43Z",
+      "side": 1,
+      "message": "these outer ()s can go",
+      "revId": "4e59fa2c8e9d2087da643ee79e9e10161d55616f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a9f7db1_de2aaf27",
+        "filename": "test/avg_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-07-02T03:18:43Z",
+      "side": 1,
+      "message": "no need to call this twice, you can do:\n\n    unsigned int actual;\n    ASM_REGISTER_STATE_CHECK(\n        actual \u003d GET_PARAM(4)(source_data_ + GET_PARAM(2), source_stride_));",
+      "revId": "4e59fa2c8e9d2087da643ee79e9e10161d55616f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
