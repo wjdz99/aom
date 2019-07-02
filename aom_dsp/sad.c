@@ -177,12 +177,11 @@ static INLINE unsigned int highbd_sad(const uint8_t *a8, int a_stride,
   return sad;
 }
 
-static INLINE unsigned int highbd_sadb(const uint8_t *a8, int a_stride,
+static INLINE unsigned int highbd_sadb(const uint16_t *a, int a_stride,
                                        const uint16_t *b, int b_stride,
                                        int width, int height) {
   int y, x;
   unsigned int sad = 0;
-  const uint16_t *a = CONVERT_TO_SHORTPTR(a8);
   for (y = 0; y < height; y++) {
     for (x = 0; x < width; x++) {
       sad += abs(a[x] - b[x]);
@@ -206,7 +205,8 @@ static INLINE unsigned int highbd_sadb(const uint8_t *a8, int a_stride,
     uint16_t comp_pred[m * n];                                                 \
     aom_highbd_comp_avg_pred(CONVERT_TO_BYTEPTR(comp_pred), second_pred, m, n, \
                              ref, ref_stride);                                 \
-    return highbd_sadb(src, src_stride, comp_pred, m, m, n);                   \
+    return highbd_sadb(CONVERT_TO_SHORTPTR(src), src_stride, comp_pred, m, m,  \
+                       n);                                                     \
   }                                                                            \
   unsigned int aom_highbd_dist_wtd_sad##m##x##n##_avg_c(                       \
       const uint8_t *src, int src_stride, const uint8_t *ref, int ref_stride,  \
@@ -215,7 +215,8 @@ static INLINE unsigned int highbd_sadb(const uint8_t *a8, int a_stride,
     aom_highbd_dist_wtd_comp_avg_pred(CONVERT_TO_BYTEPTR(comp_pred),           \
                                       second_pred, m, n, ref, ref_stride,      \
                                       jcp_param);                              \
-    return highbd_sadb(src, src_stride, comp_pred, m, m, n);                   \
+    return highbd_sadb(CONVERT_TO_SHORTPTR(src), src_stride, comp_pred, m, m,  \
+                       n);                                                     \
   }
 
 #define highbd_sadMxNx4D(m, n)                                               \
