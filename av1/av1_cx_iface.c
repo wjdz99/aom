@@ -57,6 +57,7 @@ struct av1_extracfg {
   unsigned int enable_restoration;
   unsigned int force_video_mode;
   unsigned int enable_obmc;
+  unsigned int disable_refmv_idx;
   unsigned int disable_trellis_quant;
   unsigned int enable_qm;
   unsigned int qm_y;
@@ -182,6 +183,7 @@ static struct av1_extracfg default_extra_cfg = {
   1,                                         // enable_restoration
   0,                                         // force_video_mode
   1,                                         // enable_obmc
+  0,                                         // disable_refmv_idx
   3,                                         // disable_trellis_quant
   0,                                         // enable_qm
   DEFAULT_QM_Y,                              // qm_y
@@ -757,6 +759,7 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   oxcf->force_video_mode = extra_cfg->force_video_mode;
   oxcf->enable_obmc = extra_cfg->enable_obmc;
   oxcf->enable_overlay = extra_cfg->enable_overlay;
+  oxcf->disable_refmv_idx = extra_cfg->disable_refmv_idx;
   oxcf->enable_palette = extra_cfg->enable_palette;
   oxcf->enable_intrabc = extra_cfg->enable_intrabc;
   oxcf->enable_angle_delta = extra_cfg->enable_angle_delta;
@@ -1247,6 +1250,13 @@ static aom_codec_err_t ctrl_set_enable_obmc(aom_codec_alg_priv_t *ctx,
                                             va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.enable_obmc = CAST(AV1E_SET_ENABLE_OBMC, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_disable_refmv_idx(aom_codec_alg_priv_t *ctx,
+                                                  va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.disable_refmv_idx = CAST(AV1E_SET_DISABLE_REFMV_IDX, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
@@ -2636,6 +2646,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_ENABLE_RESTORATION, ctrl_set_enable_restoration },
   { AV1E_SET_FORCE_VIDEO_MODE, ctrl_set_force_video_mode },
   { AV1E_SET_ENABLE_OBMC, ctrl_set_enable_obmc },
+  { AV1E_SET_DISABLE_REFMV_IDX, ctrl_set_disable_refmv_idx },
   { AV1E_SET_DISABLE_TRELLIS_QUANT, ctrl_set_disable_trellis_quant },
   { AV1E_SET_ENABLE_QM, ctrl_set_enable_qm },
   { AV1E_SET_QM_Y, ctrl_set_qm_y },

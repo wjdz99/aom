@@ -608,6 +608,16 @@ enum aome_enc_control_id {
    */
   AV1E_SET_ENABLE_OBMC = 61,
 
+  /*!\brief Codec control function to prevent usage or refmv_idx other than 0.
+   *
+   *                          0 = do not allow refmv_idx other than 0
+   *                          1 = allow refmv_idx other than 0
+   *
+   *  By default, the encoder allows refmv_idx other than 0.
+   *
+   */
+  AV1E_SET_DISABLE_REFMV_IDX,
+
   /*!\brief Codec control function to encode without trellis quantization.
    *
    *                          0 = apply trellis quantization
@@ -1407,6 +1417,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_FORCE_VIDEO_MODE, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_OBMC, unsigned int)
 #define AOM_CTRL_AV1E_SET_ENABLE_OBMC
+
+AOM_CTRL_USE_TYPE(AV1E_SET_DISABLE_REFMV_IDX, unsigned int)
+#define AOM_CTRL_DISABLE_REFMV_IDX
 
 AOM_CTRL_USE_TYPE(AV1E_SET_DISABLE_TRELLIS_QUANT, unsigned int)
 #define AOM_CTRL_AV1E_SET_DISABLE_TRELLIS_QUANT
