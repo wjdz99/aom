@@ -252,6 +252,7 @@ typedef struct AV1EncoderConfig {
   int enable_cdef;
   int enable_restoration;
   int enable_obmc;
+  int disable_refmv_idx;
   int disable_trellis_quant;
   int using_qm;
   int qm_y;
