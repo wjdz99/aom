@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5eccc8fb_8168f171",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 9715,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-07-02T22:36:01Z",
+      "side": 1,
+      "message": "Use COMPOUND_AVERAGE instead of 0? Same for 1, 2, 3.",
+      "range": {
+        "startLine": 9715,
+        "startChar": 21,
+        "endLine": 9715,
+        "endChar": 22
+      },
+      "revId": "047ed29150c8743b548403cb2b61e93576977282",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcaafa43_67a457c7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 9715,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-07-02T22:36:01Z",
+      "side": 1,
+      "message": "Just feel it becomes a little hard to follow. May add a comment to state 0 is mbmi-\u003ecomp_group_idx?",
+      "range": {
+        "startLine": 9715,
+        "startChar": 70,
+        "endLine": 9715,
+        "endChar": 71
+      },
+      "revId": "047ed29150c8743b548403cb2b61e93576977282",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
