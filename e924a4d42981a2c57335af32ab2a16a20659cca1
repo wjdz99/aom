@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "18bd7a85_4fe206fd",
+        "filename": "aom/internal/aom_image_internal.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-07-02T18:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b0da62ed_60ceaee7",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "e924a4d42981a2c57335af32ab2a16a20659cca1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c6fa6b63_ed0c390d",
         "filename": "aom/internal/aom_image_internal.h",
         "patchSetId": 7
@@ -72,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "5a3a52cb_9f2a9c60",
+        "filename": "aom/internal/aom_image_internal.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-07-02T18:27:20Z",
+      "side": 1,
+      "message": "Done. I also added the aom_ prefix to the alloc_img_data_cb_fn_t typedef.",
+      "parentUuid": "890095cd_a2c67e40",
+      "range": {
+        "startLine": 58,
+        "startChar": 13,
+        "endLine": 58,
+        "endChar": 34
+      },
+      "revId": "e924a4d42981a2c57335af32ab2a16a20659cca1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a308df58_4ab522ec",
         "filename": "aom/src/aom_image.c",
         "patchSetId": 7
@@ -101,6 +149,24 @@
       "side": 1,
       "message": "hmm,if the macro is useful to external, should it should exposed in aom_mem.h instead?",
       "parentUuid": "a308df58_4ab522ec",
+      "revId": "e924a4d42981a2c57335af32ab2a16a20659cca1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bdb1103c_780d43f8",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-07-02T18:27:20Z",
+      "side": 1,
+      "message": "Yes, it should. I will make this change in a separate CL. (I found two copies of that macro.)",
+      "parentUuid": "dfc0e397_34042050",
       "revId": "e924a4d42981a2c57335af32ab2a16a20659cca1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
