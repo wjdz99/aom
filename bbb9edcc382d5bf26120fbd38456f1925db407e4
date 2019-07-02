@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d4ec4268_77ab727f",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-07-02T18:00:38Z",
+      "side": 1,
+      "message": "Good question. I looked into this. Based on the following Web pages, what we call \"bps\" (bits per sample) here is called \"bpp\" (bits per pixel) by others:\n\nhttps://en.wikipedia.org/wiki/Color_depth\nhttps://wiki.videolan.org/YUV\nhttps://en.wikipedia.org/wiki/Chroma_subsampling#4:2:0 (search for \"bits/component\" and \"bits/pixel\")\n\nThe AV1 spec also uses the term \"sample\" as a sample of a component (Y, U, or V) of a pixel. So I think our use of the term \"bps\" in the aom_image_t struct is nonstandard. I don\u0027t know if we can rename the \"bps\" field to \"bpp\" or \"bits_per_pixel\" without breaking backward compatibility.\n\nI have renamed the new variable I introduced to \"bit_depth\". It is also not ideal, because it differs from the meaning of \"bit depth\" in the AV1 spec. So I added a comment to point that out.",
+      "parentUuid": "f24e0dee_4eaa03c4",
+      "range": {
+        "startLine": 33,
+        "startChar": 2,
+        "endLine": 33,
+        "endChar": 50
+      },
+      "revId": "bbb9edcc382d5bf26120fbd38456f1925db407e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "223d9e03_bf5a77af",
         "filename": "aom/src/aom_image.c",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "bbb9edcc382d5bf26120fbd38456f1925db407e4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b7fd936_dcd1964e",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-07-02T18:00:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "223d9e03_bf5a77af",
+      "range": {
+        "startLine": 101,
+        "startChar": 20,
+        "endLine": 101,
+        "endChar": 65
+      },
+      "revId": "bbb9edcc382d5bf26120fbd38456f1925db407e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
