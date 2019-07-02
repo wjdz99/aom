@@ -2425,9 +2425,16 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
       // MV did not perform well in simple translation search. Skip it.
       continue;
     }
+
     if (cpi->oxcf.disable_refmv_idx && ref_mv_idx > 0) {
-      // STAN
-      continue;
+      bool is_new  = this_mode == NEWMV  || this_mode == NEW_NEWMV;
+      bool is_near = this_mode == NEARMV || this_mode == NEAR_NEARMV;
+      if ((cpi->oxcf.disable_refmv_idx == 2 && is_new)  ||
+          (cpi->oxcf.disable_refmv_idx == 3 && is_near) ||
+          cpi->oxcf.disable_refmv_idx == 1) {
+        // STAN
+        continue;
+      }
     }
     av1_init_rd_stats(rd_stats);
 
