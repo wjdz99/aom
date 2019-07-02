@@ -297,6 +297,7 @@ void av1_rc_init(const AV1EncoderConfig *oxcf, int pass, RATE_CONTROL *rc) {
 
   for (i = 0; i < RATE_FACTOR_LEVELS; ++i) {
     rc->rate_correction_factors[i] = 0.7;
+    rc->damped_adjustment[i] = 0;
   }
   rc->rate_correction_factors[KF_STD] = 1.0;
   rc->min_gf_interval = oxcf->min_gf_interval;
@@ -416,6 +417,7 @@ void av1_rc_update_rate_correction_factors(AV1_COMP *cpi, int width,
       get_rate_correction_factor(cpi, width, height);
   double adjustment_limit;
   const int MBs = av1_get_MBs(width, height);
+  const RATE_FACTOR_LEVEL rf_lvl = get_rate_factor_level(&cpi->gf_group);
 
   int projected_size_based_on_q = 0;
 
@@ -444,8 +446,16 @@ void av1_rc_update_rate_correction_factors(AV1_COMP *cpi, int width,
   // More heavily damped adjustment used if we have been oscillating either side
   // of target.
   if (correction_factor > 0) {
-    adjustment_limit =
-        0.25 + 0.5 * AOMMIN(1, fabs(log10(0.01 * correction_factor)));
+    // Do not use damped adjustment for the first frame of each frame type
+    if (!cpi->rc.damped_adjustment[rf_lvl]) {
+      adjustment_limit = 1.0;
+      cpi->rc.damped_adjustment[rf_lvl] = 1;
+    } else {
+      // More heavily damped adjustment used if we have been oscillating either
+      // side of target.
+      adjustment_limit =
+          0.25 + 0.5 * AOMMIN(1, fabs(log10(0.01 * correction_factor)));
+    }
   } else {
     adjustment_limit = 0.75;
   }
