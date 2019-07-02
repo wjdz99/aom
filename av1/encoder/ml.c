@@ -288,6 +288,75 @@ void av1_nn_outer_product_backprop(NN_CONFIG_V2 *nn_config_hor,
   ++nn_config_ver->counter;
 }
 
+void av1_nn_outer_product_backprop_with_mask(NN_CONFIG_V2 *nn_config_hor,
+                                             NN_CONFIG_V2 *nn_config_ver,
+                                             const int label, uint16_t mask) {
+  assert(nn_config_hor->loss == nn_config_ver->loss);
+  const int num_layers1 = nn_config_hor->num_hidden_layers;
+  const int num_layers2 = nn_config_ver->num_hidden_layers;
+  const float *logits1 = nn_config_hor->logits;
+  const int n1 = nn_config_hor->num_logits;
+  const float *logits2 = nn_config_ver->logits;
+  const int n2 = nn_config_ver->num_logits;
+
+  // outer product
+  assert(n1 * n2 <= NN_MAX_NODES_PER_LAYER);
+  float out_product[NN_MAX_NODES_PER_LAYER];
+  for (int i = 0; i < n2; ++i) {
+    for (int j = 0; j < n1; ++j) {
+      out_product[i * n1 + j] = logits1[j] * logits2[i];
+    }
+  }
+
+  // loss layer
+  float dY[NN_MAX_NODES_PER_LAYER];
+  switch (nn_config_hor->loss) {
+    case SOFTMAX_CROSS_ENTROPY:
+      nn_softmax_cross_entropy_loss_back(dY, out_product, n1 * n2, label);
+      break;
+  }
+
+  // mask
+  for (int tx_type = 0; tx_type < TX_TYPES; ++tx_type) {
+    if (mask & (1 << tx_type)) {
+      dY[tx_type] = 0.f;
+    }
+  }
+
+  // hidden fc layer in hor
+  FC_LAYER *layer_ptr = nn_config_hor->layer + num_layers1;
+  for (int i = 0; i < n1; ++i) {
+    layer_ptr->dY[i] = 0;
+    for (int j = 0; j < n2; ++j) {
+      layer_ptr->dY[i] += dY[i + j * n1] * logits2[j];
+    }
+  }
+  for (int i = 0; i < num_layers1; ++i) {
+    nn_fc_backward(layer_ptr[-1].output, layer_ptr[-1].dY, layer_ptr);
+    layer_ptr -= 1;
+  }
+  nn_fc_backward(nn_config_hor->feature, NULL,
+                 layer_ptr);  // first layer (no dX of the feature)
+
+  // hidden fc layer in ver
+  layer_ptr = nn_config_ver->layer + num_layers2;
+  for (int i = 0; i < n2; ++i) {
+    layer_ptr->dY[i] = 0;
+    for (int j = 0; j < n1; ++j) {
+      layer_ptr->dY[i] += dY[i * n1 + j] * logits1[j];
+    }
+  }
+  for (int i = 0; i < num_layers2; ++i) {
+    nn_fc_backward(layer_ptr[-1].output, layer_ptr[-1].dY, layer_ptr);
+    layer_ptr -= 1;
+  }
+  nn_fc_backward(nn_config_ver->feature, NULL,
+                 layer_ptr);  // first layer (no dX of the feature)
+
+  ++nn_config_hor->counter;  // increment the counter
+  ++nn_config_ver->counter;
+}
+
 void av1_nn_update(NN_CONFIG_V2 *nn_config, float mu) {
   const int num_layers = nn_config->num_hidden_layers;
 

@@ -75,6 +75,11 @@ void av1_nn_outer_product_backprop(NN_CONFIG_V2 *nn_config_hor,
                                    NN_CONFIG_V2 *nn_config_ver,
                                    const int label);
 
+// mask: 1: pruned, 0: not pruned
+void av1_nn_outer_product_backprop_with_mask(NN_CONFIG_V2 *nn_config_hor,
+                                             NN_CONFIG_V2 *nn_config_ver,
+                                             const int label, uint16_t mask);
+
 // Update the weights via gradient descent.
 // mu: learning rate, usually chosen from 0.01~0.001.
 void av1_nn_update(NN_CONFIG_V2 *nn_config, float mu);
