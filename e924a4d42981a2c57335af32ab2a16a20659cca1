@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "b0da62ed_60ceaee7",
+        "filename": "aom/internal/aom_image_internal.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2019-07-02T16:32:56Z",
+      "side": 1,
+      "message": "2019",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "e924a4d42981a2c57335af32ab2a16a20659cca1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c6fa6b63_ed0c390d",
         "filename": "aom/internal/aom_image_internal.h",
         "patchSetId": 7
@@ -13,6 +36,30 @@
       "writtenOn": "2019-07-02T16:17:30Z",
       "side": 1,
       "message": "Yaowu: Should I use a different function name prefix for this new internal function? I assume \"aom_\" should only be used for public functions.",
+      "range": {
+        "startLine": 58,
+        "startChar": 13,
+        "endLine": 58,
+        "endChar": 34
+      },
+      "revId": "e924a4d42981a2c57335af32ab2a16a20659cca1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "890095cd_a2c67e40",
+        "filename": "aom/internal/aom_image_internal.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2019-07-02T16:32:56Z",
+      "side": 1,
+      "message": "we use \"aom_\" and \"av1\" prefixes for \"C\" global names to avoid libaom to have name collisions with other libraries.  It looks like we need the prefix here.",
+      "parentUuid": "c6fa6b63_ed0c390d",
       "range": {
         "startLine": 58,
         "startChar": 13,
