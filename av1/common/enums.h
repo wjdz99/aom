@@ -225,6 +225,7 @@ enum {
   IDTX_1D,
 #if CONFIG_MODE_DEP_TX
   MDTX1_1D,
+  NSST,  // this is a placeholder
 #endif
   TX_TYPES_1D,
 } UENUM1BYTE(TX_TYPE_1D);
@@ -235,6 +236,8 @@ enum {
 #define TX_TYPES_NOMDTX 16
 #define MDTX_TYPES_INTER 8
 #define MDTX_TYPES_INTRA 4
+#define MDTX_DEBUG_MULT 0
+#define MDTX_DEBUG_BLOCK 0
 #endif
 
 enum {
@@ -260,7 +263,7 @@ enum {
   MDTX_INTRA_1,  // MDTX in both horizontal and vertical
   MDTX_INTRA_2,  // MDTX in vertical, DCT in horizontal
   MDTX_INTRA_3,  // DCT in vertical, MDTX in horizontal
-  MDTX_INTRA_4,
+  MDTX_INTRA_4,  // NSST (non-separable secondary transform)
 #endif
 #if USE_MDTX_INTER
   // 8 mode-dependent tx for inter
