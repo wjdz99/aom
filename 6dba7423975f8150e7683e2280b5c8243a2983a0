@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb7419f7_d8d6473f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-03T20:18:49Z",
+      "side": 1,
+      "message": "What are the numbers for ugc360p set? This set has some clips where some GF groups use height of 0, so may have more changes in stats there.",
+      "revId": "6dba7423975f8150e7683e2280b5c8243a2983a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
