@@ -64,6 +64,10 @@
 // Set this macro as 1 to collect data about tx size selection.
 #define COLLECT_TX_SIZE_DATA 0
 
+// Test MACROS
+#define MODEL_RD_CALC_INTRA_SBY_MODE 1
+#define MODEL_RD_CALC_FILTER_INTRA_SBY 0
+
 #if COLLECT_TX_SIZE_DATA
 static const char av1_tx_size_data_output_file[] = "tx_size_data.txt";
 #endif
@@ -4347,6 +4351,9 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
   int filter_intra_selected_flag = 0;
+#if (MODEL_RD_CALC_FILTER_INTRA_SBY)
+  int64_t model_rd[FILTER_INTRA_MODES];
+#endif
   FILTER_INTRA_MODE mode;
   TX_SIZE best_tx_size = TX_8X8;
   FILTER_INTRA_MODE_INFO filter_intra_mode_info;
@@ -4357,15 +4364,30 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   mbmi->mode = DC_PRED;
   mbmi->palette_mode_info.palette_size[0] = 0;
 
+#if (MODEL_RD_CALC_FILTER_INTRA_SBY)
+  for (mode = 0; mode < FILTER_INTRA_MODES; ++mode) {
+    mbmi->filter_intra_mode_info.filter_intra_mode = mode;
+    model_rd[mode] = intra_model_yrd(cpi, x, bsize, mode_cost, mi_row, mi_col);
+    *best_model_rd = AOMMIN(*best_model_rd, model_rd[mode]);
+  }
+#endif
+
   for (mode = 0; mode < FILTER_INTRA_MODES; ++mode) {
     int64_t this_rd, this_model_rd;
     RD_STATS tokenonly_rd_stats;
     mbmi->filter_intra_mode_info.filter_intra_mode = mode;
+#if (MODEL_RD_CALC_FILTER_INTRA_SBY)
+    this_model_rd = model_rd[mode];
+#else
     this_model_rd = intra_model_yrd(cpi, x, bsize, mode_cost, mi_row, mi_col);
+#endif
+
     if (*best_model_rd != INT64_MAX &&
         this_model_rd > *best_model_rd + (*best_model_rd >> 1))
       continue;
+#if (!MODEL_RD_CALC_FILTER_INTRA_SBY)
     if (this_model_rd < *best_model_rd) *best_model_rd = this_model_rd;
+#endif
     super_block_yrd(cpi, x, &tokenonly_rd_stats, bsize, *best_rd);
     if (tokenonly_rd_stats.rate == INT_MAX) continue;
     const int this_rate =
@@ -4678,6 +4700,9 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int cols = block_size_wide[bsize];
   int is_directional_mode;
   uint8_t directional_mode_skip_mask[INTRA_MODES] = { 0 };
+#if (MODEL_RD_CALC_INTRA_SBY_MODE)
+  int64_t model_rd[INTRA_MODE_END - INTRA_MODE_START];
+#endif
   int beat_best_rd = 0;
   const int *bmode_costs;
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
@@ -4710,6 +4735,24 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   else
     x->use_default_intra_tx_type = 0;
 
+#if (MODEL_RD_CALC_INTRA_SBY_MODE)
+  // Calculate intra_model_yrd for all modes
+  for (int mode_idx = INTRA_MODE_START; mode_idx < INTRA_MODE_END; ++mode_idx) {
+    model_rd[mode_idx] = INT64_MAX;
+    mbmi->mode = intra_rd_search_mode_order[mode_idx];
+
+    if ((!cpi->oxcf.enable_smooth_intra || cpi->sf.disable_smooth_intra) &&
+        (mbmi->mode == SMOOTH_PRED || mbmi->mode == SMOOTH_H_PRED ||
+         mbmi->mode == SMOOTH_V_PRED))
+      continue;
+    if (!cpi->oxcf.enable_paeth_intra && mbmi->mode == PAETH_PRED) continue;
+
+    model_rd[mode_idx] =
+        intra_model_yrd(cpi, x, bsize, bmode_costs[mbmi->mode], mi_row, mi_col);
+    best_model_rd = AOMMIN(best_model_rd, model_rd[mode_idx]);
+  }
+#endif
+
   MB_MODE_INFO best_mbmi = *mbmi;
   /* Y Search for intra prediction mode */
   for (int mode_idx = INTRA_MODE_START; mode_idx < INTRA_MODE_END; ++mode_idx) {
@@ -4717,18 +4760,31 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     int this_rate, this_rate_tokenonly, s;
     int64_t this_distortion, this_rd, this_model_rd;
     mbmi->mode = intra_rd_search_mode_order[mode_idx];
+#if (MODEL_RD_CALC_INTRA_SBY_MODE)
+    if (model_rd[mode_idx] == INT64_MAX) {
+      continue;
+    }
+#else
     if ((!cpi->oxcf.enable_smooth_intra || cpi->sf.disable_smooth_intra) &&
         (mbmi->mode == SMOOTH_PRED || mbmi->mode == SMOOTH_H_PRED ||
          mbmi->mode == SMOOTH_V_PRED))
       continue;
     if (!cpi->oxcf.enable_paeth_intra && mbmi->mode == PAETH_PRED) continue;
+#endif
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
+#if (MODEL_RD_CALC_INTRA_SBY_MODE)
+    assert(model_rd[mode_idx] != INT64_MAX);
+    this_model_rd = model_rd[mode_idx];
+#else
     this_model_rd =
         intra_model_yrd(cpi, x, bsize, bmode_costs[mbmi->mode], mi_row, mi_col);
+#endif
     if (best_model_rd != INT64_MAX &&
         this_model_rd > best_model_rd + (best_model_rd >> 1))
       continue;
+#if (!MODEL_RD_CALC_INTRA_SBY_MODE)
     if (this_model_rd < best_model_rd) best_model_rd = this_model_rd;
+#endif
     is_directional_mode = av1_is_directional_mode(mbmi->mode);
     if (is_directional_mode && directional_mode_skip_mask[mbmi->mode]) continue;
     if (is_directional_mode && av1_use_angle_delta(bsize) &&
