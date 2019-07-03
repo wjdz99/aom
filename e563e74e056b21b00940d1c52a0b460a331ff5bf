@@ -70,6 +70,30 @@
       "revId": "e563e74e056b21b00940d1c52a0b460a331ff5bf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ad1145d_064986fb",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-07-03T20:07:50Z",
+      "side": 1,
+      "message": "Done.\n\nAdded here \nhttps://aomedia-review.googlesource.com/c/aom/+/90704\n\nThanks.",
+      "parentUuid": "0ccacf06_ad4d6a62",
+      "range": {
+        "startLine": 47,
+        "startChar": 16,
+        "endLine": 47,
+        "endChar": 29
+      },
+      "revId": "e563e74e056b21b00940d1c52a0b460a331ff5bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
