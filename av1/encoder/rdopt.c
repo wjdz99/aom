@@ -9468,13 +9468,15 @@ static int64_t motion_mode_rd(
       int est_residue_cost = 0;
       int64_t est_dist = 0;
       int64_t est_rd = 0;
-      if (cpi->sf.inter_mode_rd_model_estimation == 1) {
+      const InterModeRdModel *md = &tile_data->inter_mode_rd_models[bsize];
+      if (cpi->sf.inter_mode_rd_model_estimation == 1 && md->ready) {
         curr_sse = get_sse(cpi, x);
         const int has_est_rd = get_est_rate_dist(tile_data, bsize, curr_sse,
                                                  &est_residue_cost, &est_dist);
         (void)has_est_rd;
         assert(has_est_rd);
-      } else if (cpi->sf.inter_mode_rd_model_estimation == 2 ||
+      } else if ((cpi->sf.inter_mode_rd_model_estimation == 1 && !md->ready) ||
+                 cpi->sf.inter_mode_rd_model_estimation == 2 ||
                  cpi->sf.use_nonrd_pick_mode) {
         model_rd_sb_fn[MODELRD_TYPE_MOTION_MODE_RD](
             cpi, bsize, x, xd, 0, num_planes - 1, mi_row, mi_col,
@@ -12582,6 +12584,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   // If do_tx_search_global is 2, some modes will have TX search performed.
   const int do_tx_search_global =
       !((cpi->sf.inter_mode_rd_model_estimation == 1 && md->ready) ||
+        (cpi->sf.inter_mode_rd_model_estimation == 1 && !md->ready &&
+         num_pels_log2_lookup[bsize] > 8) ||
         (cpi->sf.inter_mode_rd_model_estimation == 2 &&
          num_pels_log2_lookup[bsize] > 8));
   InterModesInfo *inter_modes_info = x->inter_modes_info;
