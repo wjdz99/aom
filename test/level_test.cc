@@ -69,6 +69,7 @@ class LevelTest
     }
 
     encoder->Control(AV1E_GET_SEQ_LEVEL_IDX, level_);
+    ASSERT_EQ(level_[0], 0);
     ASSERT_LE(level_[0], kLevelMax);
     ASSERT_GE(level_[0], kLevelMin);
   }
@@ -129,7 +130,7 @@ TEST_P(LevelTest, TestLevelMonitoringHighBitrate) {
     libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                        30, 1, 0, 40);
     target_level_ = kLevelKeepStats;
-    cfg_.rc_target_bitrate = 3000;
+    cfg_.rc_target_bitrate = 4000;
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
     ASSERT_EQ(level_[0], 1);
   }
