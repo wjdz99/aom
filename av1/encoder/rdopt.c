@@ -4669,7 +4669,9 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                       int mi_row, int mi_col, int *rate,
                                       int *rate_tokenonly, int64_t *distortion,
                                       int *skippable, BLOCK_SIZE bsize,
-                                      int64_t best_rd, PICK_MODE_CONTEXT *ctx) {
+                                      int64_t best_rd, PICK_MODE_CONTEXT *ctx,
+                                      RdIdxPair *luma_rd_idx_pair_arr,
+                                      int *arr_length) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   assert(!is_inter_block(mbmi));
@@ -4769,6 +4771,8 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       *skippable = s;
       memcpy(ctx->blk_skip, x->blk_skip,
              sizeof(x->blk_skip[0]) * ctx->num_4x4_blk);
+      luma_rd_idx_pair_arr[mode_idx].rd = best_rd;
+      *arr_length += 1;
     }
   }
 
@@ -6319,16 +6323,19 @@ static void init_sbuv_mode(MB_MODE_INFO *const mbmi) {
 static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                        int *rate, int *rate_tokenonly,
                                        int64_t *distortion, int *skippable,
-                                       BLOCK_SIZE bsize, TX_SIZE max_tx_size) {
+                                       BLOCK_SIZE bsize, TX_SIZE max_tx_size,
+                                       int8_t *uv_modes, int8_t num_modes) {
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
   assert(!is_inter_block(mbmi));
   MB_MODE_INFO best_mbmi = *mbmi;
   int64_t best_rd = INT64_MAX, this_rd;
+  int mode_idx;
 
-  for (int mode_idx = 0; mode_idx < UV_INTRA_MODES; ++mode_idx) {
+  for (int j = 0; j < num_modes; ++j) {
     int this_rate;
     RD_STATS tokenonly_rd_stats;
+    mode_idx = uv_modes[j];
     UV_PREDICTION_MODE mode = uv_rd_search_mode_order[mode_idx];
     const int is_directional_mode = av1_is_directional_mode(get_uv_mode(mode));
     if (!(cpi->sf.intra_uv_mode_mask[txsize_sqr_up_map[max_tx_size]] &
@@ -6441,7 +6448,7 @@ static void choose_intra_uv_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
     xd->cfl.store_y = 0;
   }
   rd_pick_intra_sbuv_mode(cpi, x, rate_uv, rate_uv_tokenonly, dist_uv, skip_uv,
-                          bsize, max_tx_size);
+                          bsize, max_tx_size, NULL, 0);
   *mode_uv = mbmi->uv_mode;
 }
 
@@ -10816,6 +10823,12 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   int y_skip = 0, uv_skip = 0;
   int64_t dist_y = 0, dist_uv = 0;
   TX_SIZE max_uv_tx_size;
+  int uv_mode_arr_len = 0;
+  RdIdxPair luma_rd_idx_pair_arr[INTRA_MODE_END - INTRA_MODE_START];
+  for (int8_t i = INTRA_MODE_START; i < INTRA_MODE_END; i++) {
+    luma_rd_idx_pair_arr[i].idx = i;
+    luma_rd_idx_pair_arr[i].rd = INT64_MAX;
+  }
 
   ctx->rd_stats.skip = 0;
   mbmi->ref_frame[0] = INTRA_FRAME;
@@ -10823,9 +10836,9 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   mbmi->use_intrabc = 0;
   mbmi->mv[0].as_int = 0;
 
-  const int64_t intra_yrd =
-      rd_pick_intra_sby_mode(cpi, x, mi_row, mi_col, &rate_y, &rate_y_tokenonly,
-                             &dist_y, &y_skip, bsize, best_rd, ctx);
+  const int64_t intra_yrd = rd_pick_intra_sby_mode(
+      cpi, x, mi_row, mi_col, &rate_y, &rate_y_tokenonly, &dist_y, &y_skip,
+      bsize, best_rd, ctx, luma_rd_idx_pair_arr, &uv_mode_arr_len);
 
   if (intra_yrd < best_rd) {
     // Only store reconstructed luma when there's chroma RDO. When there's no
@@ -10846,9 +10859,46 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
     if (num_planes > 1) {
       max_uv_tx_size = av1_get_tx_size(AOM_PLANE_U, xd);
       init_sbuv_mode(mbmi);
-      if (!x->skip_chroma_rd)
+      if (!x->skip_chroma_rd) {
+        qsort(luma_rd_idx_pair_arr, INTRA_MODE_END - INTRA_MODE_START,
+              sizeof(luma_rd_idx_pair_arr[0]), compare_rd_idx_pair);
+#if 1
+        int dc_not_present = 1;
+        for (int8_t j = 0; j < uv_mode_arr_len; j++) {
+          if (luma_rd_idx_pair_arr[j].idx == DC_PRED) dc_not_present = 0;
+        }
+        int8_t arr_length =
+            uv_mode_arr_len + 1 + dc_not_present;  // luma winners + cfl + dc
+        int8_t *uv_mode_idx;
+        int8_t start_index = 0, cnt = 0;
+        uv_mode_idx = malloc(arr_length * sizeof(int8_t));
+        if (dc_not_present) {
+          uv_mode_idx[0] = DC_PRED;
+          start_index = 1;
+        }
+        for (int8_t k = start_index; k < (arr_length - 1); k++) {
+          uv_mode_idx[k] = luma_rd_idx_pair_arr[cnt++].idx;
+        }
+        uv_mode_idx[arr_length - 1] = UV_CFL_PRED;
+#else
+        int8_t arr_length =
+            uv_mode_arr_len +
+            1;  // luma winners + cfl (dc will be a winner always)
+        int8_t *uv_mode_idx;
+        uv_mode_idx = malloc(arr_length * sizeof(int8_t));
+        int check = 0;
+        for (int8_t k = 0; k < (arr_length - 1); k++) {
+          uv_mode_idx[k] = luma_rd_idx_pair_arr[k].idx;
+          if (luma_rd_idx_pair_arr[k].idx == 0) check = 1;
+        }
+        assert(check == 1);
+        uv_mode_idx[arr_length - 1] = UV_CFL_PRED;
+
+#endif
         rd_pick_intra_sbuv_mode(cpi, x, &rate_uv, &rate_uv_tokenonly, &dist_uv,
-                                &uv_skip, bsize, max_uv_tx_size);
+                                &uv_skip, bsize, max_uv_tx_size, uv_mode_idx,
+                                arr_length);
+      }
     }
 
     if (y_skip && (uv_skip || x->skip_chroma_rd)) {
