@@ -1316,6 +1316,30 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_D45_PRED] += 2500;
 }
 
+static int is_update_rd_thresh_fact_valid(int mode, int best_mode_index) {
+  const int ref_0_present = (av1_mode_order[mode].ref_frame[0] != NONE_FRAME) &&
+                            (av1_mode_order[mode].ref_frame[0] != INTRA_FRAME);
+  const int ref_1_present = av1_mode_order[mode].ref_frame[1] != NONE_FRAME &&
+                            (av1_mode_order[mode].ref_frame[1] != INTRA_FRAME);
+  const int ref_0_mode = av1_mode_order[mode].ref_frame[0];
+  const int ref_1_mode = av1_mode_order[mode].ref_frame[1];
+  const int ref_0_best_mode = av1_mode_order[best_mode_index].ref_frame[0];
+  const int ref_1_best_mode = av1_mode_order[best_mode_index].ref_frame[1];
+
+  if (ref_0_present && ref_1_present) {
+    if (((ref_0_mode == ref_0_best_mode) || (ref_0_mode == ref_1_best_mode)) &&
+        ((ref_1_mode == ref_0_best_mode) || (ref_1_mode == ref_1_best_mode)))
+      return 0;
+  } else if (ref_0_present) {
+    if ((ref_0_mode == ref_0_best_mode) || (ref_0_mode == ref_1_best_mode))
+      return 0;
+  } else if (ref_1_present) {
+    if ((ref_1_mode == ref_0_best_mode) || (ref_1_mode == ref_1_best_mode))
+      return 0;
+  }
+  return 1;
+}
+
 void av1_update_rd_thresh_fact(const AV1_COMMON *const cm,
                                int (*factor_buf)[MAX_MODES], int rd_thresh,
                                int bsize, int best_mode_index) {
@@ -1332,6 +1356,7 @@ void av1_update_rd_thresh_fact(const AV1_COMMON *const cm,
         if (mode == best_mode_index) {
           *fact -= (*fact >> 4);
         } else {
+          // if (is_update_rd_thresh_fact_valid(mode, best_mode_index))
           *fact = AOMMIN(*fact + RD_THRESH_INC, rd_thresh * RD_THRESH_MAX_FACT);
         }
       }
