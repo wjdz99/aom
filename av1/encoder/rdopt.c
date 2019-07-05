@@ -3125,7 +3125,8 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   // coeffs. For smaller residuals, coeff optimization would be helpful. For
   // larger residuals, R-D optimization may not be effective.
   // TODO(any): Experiment with variance and mean based thresholds
-  perform_block_coeff_opt = (block_mse_q8 <= cpi->coeff_opt_dist_threshold);
+  perform_block_coeff_opt =
+      (((int)block_mse_q8) <= x->coeff_opt_dist_threshold);
 
   assert(IMPLIES(txk_allowed < TX_TYPES, allowed_tx_mask == 1 << txk_allowed));
 
@@ -4710,6 +4711,11 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   else
     x->use_default_intra_tx_type = 0;
 
+  if (0)  // cpi->sf.perform_coeff_opt_winner_only)
+    x->coeff_opt_dist_threshold = -1;
+  else
+    x->coeff_opt_dist_threshold = (int)cpi->coeff_opt_dist_threshold;
+
   MB_MODE_INFO best_mbmi = *mbmi;
   /* Y Search for intra prediction mode */
   for (int mode_idx = INTRA_MODE_START; mode_idx < INTRA_MODE_END; ++mode_idx) {
@@ -4789,8 +4795,14 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
   // If previous searches use only the default tx type, do an extra search for
   // the best tx type.
-  if (cpi->sf.tx_type_search.fast_intra_tx_type_search &&
-      !cpi->oxcf.use_intra_default_tx_only) {
+  if ((cpi->sf.tx_type_search.fast_intra_tx_type_search &&
+       !cpi->oxcf.use_intra_default_tx_only) ||
+      cpi->sf.perform_coeff_opt_winner_only) {
+    if (cpi->sf.perform_coeff_opt_winner_only) {
+      x->coeff_opt_dist_threshold = INT32_MAX;
+      // x->coeff_opt_dist_threshold = (int)cpi->coeff_opt_dist_threshold;
+    } else
+      x->coeff_opt_dist_threshold = (int)cpi->coeff_opt_dist_threshold;
     *mbmi = best_mbmi;
     x->use_default_intra_tx_type = 0;
     intra_block_yrd(cpi, x, bsize, bmode_costs, &best_rd, rate, rate_tokenonly,
@@ -6325,6 +6337,8 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   assert(!is_inter_block(mbmi));
   MB_MODE_INFO best_mbmi = *mbmi;
   int64_t best_rd = INT64_MAX, this_rd;
+
+  x->coeff_opt_dist_threshold = (int)cpi->coeff_opt_dist_threshold;
 
   for (int mode_idx = 0; mode_idx < UV_INTRA_MODES; ++mode_idx) {
     int this_rate;
@@ -11092,13 +11106,19 @@ static void sf_refine_fast_tx_type_search(
         !cpi->oxcf.use_inter_dct_only && is_inter_mode(best_mbmode->mode)) ||
        (sf->tx_type_search.fast_intra_tx_type_search &&
         !cpi->oxcf.use_intra_default_tx_only && !cpi->oxcf.use_intra_dct_only &&
-        !is_inter_mode(best_mbmode->mode)))) {
+        !is_inter_mode(best_mbmode->mode)) ||
+       (cpi->sf.perform_coeff_opt_winner_only))) {
     int skip_blk = 0;
     RD_STATS rd_stats_y, rd_stats_uv;
     const int skip_ctx = av1_get_skip_context(xd);
 
     x->use_default_inter_tx_type = 0;
     x->use_default_intra_tx_type = 0;
+    if (cpi->sf.perform_coeff_opt_winner_only) {
+      x->coeff_opt_dist_threshold = INT32_MAX;
+      // x->coeff_opt_dist_threshold = (int)cpi->coeff_opt_dist_threshold;
+    } else
+      x->coeff_opt_dist_threshold = (int)cpi->coeff_opt_dist_threshold;
 
     *mbmi = *best_mbmode;
 
@@ -11482,6 +11502,12 @@ static void set_params_rd_pick_inter_mode(
     x->use_default_inter_tx_type = 1;
   else
     x->use_default_inter_tx_type = 0;
+
+  if (0)  // cpi->sf.perform_coeff_opt_winner_only)
+    x->coeff_opt_dist_threshold = -1;
+  else
+    x->coeff_opt_dist_threshold = (int)cpi->coeff_opt_dist_threshold;
+
   if (cpi->sf.skip_repeat_interpolation_filter_search) {
     x->interp_filter_stats_idx[0] = 0;
     x->interp_filter_stats_idx[1] = 0;
