@@ -417,6 +417,10 @@ struct macroblock {
   int use_inter_txb_hash;
   int use_mb_rd_hash;
 
+  // Threshold used to decide the applicability of R-D optimization of
+  // quantized coeffs
+  uint32_t coeff_opt_dist_threshold;
+
 #if !CONFIG_REALTIME_ONLY
   int quad_tree_idx;
   int cnn_output_valid;
