@@ -410,6 +410,7 @@ struct macroblock {
   int comp_rd_stats_idx;
 
   CB_COEFF_BUFFER *cb_coef_buff;
+  uint32_t coeff_opt_dist_threshold;
 
 #if !CONFIG_REALTIME_ONLY
   int quad_tree_idx;
