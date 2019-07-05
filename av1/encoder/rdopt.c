@@ -11618,7 +11618,7 @@ static void init_inter_mode_search_state(InterModeSearchState *search_state,
   const int *const rd_threshes = cpi->rd.threshes[segment_id][bsize];
   for (int i = LAST_NEW_MV_INDEX + 1; i < MAX_MODES; ++i)
     search_state->mode_threshold[i] =
-        ((int64_t)rd_threshes[i] * tile_data->thresh_freq_fact[bsize][i]) >> 5;
+        ((int64_t)rd_threshes[i] * x->thresh_freq_fact[bsize][i]) >> 5;
 
   search_state->best_intra_mode = DC_PRED;
   search_state->best_intra_rd = INT64_MAX;
@@ -13002,9 +13002,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
          !is_inter_block(&search_state.best_mbmode));
 
   if (!cpi->rc.is_src_frame_alt_ref)
-    av1_update_rd_thresh_fact(cm, tile_data->thresh_freq_fact,
-                              sf->adaptive_rd_thresh, bsize,
-                              search_state.best_mode_index);
+    av1_update_rd_thresh_fact(cm, x->thresh_freq_fact, sf->adaptive_rd_thresh,
+                              bsize, search_state.best_mode_index);
 
   // macroblock modes
   *mbmi = search_state.best_mbmode;
@@ -13579,9 +13578,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
          !is_inter_block(&search_state.best_mbmode));
 
   if (!cpi->rc.is_src_frame_alt_ref)
-    av1_update_rd_thresh_fact(cm, tile_data->thresh_freq_fact,
-                              sf->adaptive_rd_thresh, bsize,
-                              search_state.best_mode_index);
+    av1_update_rd_thresh_fact(cm, x->thresh_freq_fact, sf->adaptive_rd_thresh,
+                              bsize, search_state.best_mode_index);
 
   // macroblock modes
   *mbmi = search_state.best_mbmode;
@@ -13729,8 +13727,8 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   assert((cm->interp_filter == SWITCHABLE) ||
          (cm->interp_filter == mbmi->interp_filters.as_filters.y_filter));
 
-  av1_update_rd_thresh_fact(cm, tile_data->thresh_freq_fact,
-                            cpi->sf.adaptive_rd_thresh, bsize, THR_GLOBALMV);
+  av1_update_rd_thresh_fact(cm, x->thresh_freq_fact, cpi->sf.adaptive_rd_thresh,
+                            bsize, THR_GLOBALMV);
 
   av1_zero(best_pred_diff);
 
