@@ -766,6 +766,20 @@ static INLINE void set_hash_flags(MACROBLOCK *const x, int use_intra_txb_hash,
   x->use_inter_txb_hash = use_inter_txb_hash;
   x->use_mb_rd_hash = use_mb_rd_hash;
 }
+// Get the threshold for R-D optimization of coefficients depending upon mode
+// decision/winner mode processing
+static INLINE uint32_t get_rd_opt_coeff_thresh(const AV1_COMP *const cpi,
+                                               int is_winner_mode) {
+  uint32_t coeff_opt_dist_threshold = cpi->coeff_opt_dist_threshold;
+  // TODO(any): Experiment with coeff_opt_dist_threshold values when
+  // enable_winner_mode_for_coeff_opt is ON
+  // TODO(any): Skip the winner mode processing for blocks with lower residual
+  // energy as R-D optimization of coefficients would have been enabled during
+  // mode decision
+  if (is_winner_mode && cpi->sf.enable_winner_mode_for_coeff_opt)
+    coeff_opt_dist_threshold = UINT32_MAX;
+  return coeff_opt_dist_threshold;
+}
 
 static int get_est_rate_dist(const TileDataEnc *tile_data, BLOCK_SIZE bsize,
                              int64_t sse, int *est_residue_cost,
@@ -3134,7 +3148,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   // coeffs. For smaller residuals, coeff optimization would be helpful. For
   // larger residuals, R-D optimization may not be effective.
   // TODO(any): Experiment with variance and mean based thresholds
-  perform_block_coeff_opt = (block_mse_q8 <= cpi->coeff_opt_dist_threshold);
+  perform_block_coeff_opt = (block_mse_q8 <= x->coeff_opt_dist_threshold);
 
   assert(IMPLIES(txk_allowed < TX_TYPES, allowed_tx_mask == 1 << txk_allowed));
 
@@ -4723,6 +4737,9 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   set_hash_flags(x, cpi->sf.use_intra_txb_hash, cpi->sf.use_inter_txb_hash,
                  cpi->sf.use_mb_rd_hash);
 
+  // Get the threshold for R-D optimization of coefficients for mode decision
+  x->coeff_opt_dist_threshold = get_rd_opt_coeff_thresh(cpi, 0);
+
   MB_MODE_INFO best_mbmi = *mbmi;
   /* Y Search for intra prediction mode */
   for (int mode_idx = INTRA_MODE_START; mode_idx < INTRA_MODE_END; ++mode_idx) {
@@ -4800,10 +4817,16 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
 
-  // If previous searches use only the default tx type, do an extra search for
-  // the best tx type.
-  if (cpi->sf.tx_type_search.fast_intra_tx_type_search &&
-      !cpi->oxcf.use_intra_default_tx_only) {
+  // If previous searches use only the default tx type/no R-D optimization of
+  // quantized coeffs, do an extra search for the best tx type/better R-D
+  // optimization of quantized coeffs
+  if ((cpi->sf.tx_type_search.fast_intra_tx_type_search &&
+       !cpi->oxcf.use_intra_default_tx_only) ||
+      (cpi->sf.enable_winner_mode_for_coeff_opt &&
+       (cpi->optimize_seg_arr[mbmi->segment_id] != NO_TRELLIS_OPT &&
+        cpi->optimize_seg_arr[mbmi->segment_id] != FINAL_PASS_TRELLIS_OPT))) {
+    // Get the threshold for R-D optimization of coefficients for winner mode
+    x->coeff_opt_dist_threshold = get_rd_opt_coeff_thresh(cpi, 1);
     *mbmi = best_mbmi;
     x->use_default_intra_tx_type = 0;
     // Disable hash logic for winner mode processing
@@ -10849,6 +10872,11 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
     }
     if (num_planes > 1) {
       max_uv_tx_size = av1_get_tx_size(AOM_PLANE_U, xd);
+
+      // Get the threshold for R-D optimization of coefficients for mode
+      // decision
+      x->coeff_opt_dist_threshold = get_rd_opt_coeff_thresh(cpi, 0);
+
       init_sbuv_mode(mbmi);
       if (!x->skip_chroma_rd)
         rd_pick_intra_sbuv_mode(cpi, x, &rate_uv, &rate_uv_tokenonly, &dist_uv,
@@ -11107,7 +11135,10 @@ static void sf_refine_fast_tx_type_search(
         !cpi->oxcf.use_inter_dct_only && is_inter_mode(best_mbmode->mode)) ||
        (sf->tx_type_search.fast_intra_tx_type_search &&
         !cpi->oxcf.use_intra_default_tx_only && !cpi->oxcf.use_intra_dct_only &&
-        !is_inter_mode(best_mbmode->mode)))) {
+        !is_inter_mode(best_mbmode->mode)) ||
+       (cpi->sf.enable_winner_mode_for_coeff_opt &&
+        (cpi->optimize_seg_arr[mbmi->segment_id] != NO_TRELLIS_OPT &&
+         cpi->optimize_seg_arr[mbmi->segment_id] != FINAL_PASS_TRELLIS_OPT)))) {
     int skip_blk = 0;
     RD_STATS rd_stats_y, rd_stats_uv;
     const int skip_ctx = av1_get_skip_context(xd);
@@ -11117,6 +11148,9 @@ static void sf_refine_fast_tx_type_search(
 
     // Disable hash logic for winner mode processing
     set_hash_flags(x, 0, 0, 0);
+
+    // Get the threshold for R-D optimization of coefficients for winner mode
+    x->coeff_opt_dist_threshold = get_rd_opt_coeff_thresh(cpi, 1);
 
     *mbmi = *best_mbmode;
 
@@ -11504,6 +11538,9 @@ static void set_params_rd_pick_inter_mode(
   // Enable hash logic for mode evaluation
   set_hash_flags(x, cpi->sf.use_intra_txb_hash, cpi->sf.use_inter_txb_hash,
                  cpi->sf.use_mb_rd_hash);
+
+  // Get the threshold for R-D optimization of coefficients for mode decision
+  x->coeff_opt_dist_threshold = get_rd_opt_coeff_thresh(cpi, 0);
 
   if (cpi->sf.skip_repeat_interpolation_filter_search) {
     x->interp_filter_stats_idx[0] = 0;
