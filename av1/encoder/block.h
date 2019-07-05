@@ -417,6 +417,7 @@ struct macroblock {
   float cnn_buffer[CNN_OUT_BUF_SIZE];
   float log_q;
 #endif
+  int coeff_opt_dist_threshold;
 };
 
 static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {

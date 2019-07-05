@@ -326,6 +326,7 @@ static void set_good_speed_features_framesize_independent(
     sf->prune_comp_type_by_model_rd = boosted ? 0 : 1;
     sf->disable_smooth_intra =
         !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
+    sf->perform_coeff_opt_winner_only = boosted ? 0 : 1;
   }
 
   if (speed >= 4) {
@@ -778,6 +779,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->prune_warp_using_wmtype = 0;
   sf->disable_wedge_interintra_search = 0;
   sf->perform_coeff_opt = 0;
+  sf->perform_coeff_opt_winner_only = 0;
   sf->prune_comp_type_by_model_rd = 0;
   sf->disable_smooth_intra = 0;
   sf->perform_best_rd_based_gating_for_chroma = 0;
