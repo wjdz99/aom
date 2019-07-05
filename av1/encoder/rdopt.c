@@ -164,11 +164,6 @@ static const int_interpfilters filter_sets[DUAL_FILTER_SET_SIZE] = {
   { 0x00000002 }, { 0x00010002 }, { 0x00020002 },  // y = 2
 };
 
-typedef struct {
-  PREDICTION_MODE mode;
-  MV_REFERENCE_FRAME ref_frame[2];
-} MODE_DEFINITION;
-
 enum {
   FTXS_NONE = 0,
   FTXS_DCT_AND_1D_DCT_ONLY = 1 << 0,
@@ -192,202 +187,6 @@ struct rdcost_block_args {
 };
 
 #define LAST_NEW_MV_INDEX 6
-static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
-  { NEARESTMV, { LAST_FRAME, NONE_FRAME } },
-  { NEARESTMV, { LAST2_FRAME, NONE_FRAME } },
-  { NEARESTMV, { LAST3_FRAME, NONE_FRAME } },
-  { NEARESTMV, { BWDREF_FRAME, NONE_FRAME } },
-  { NEARESTMV, { ALTREF2_FRAME, NONE_FRAME } },
-  { NEARESTMV, { ALTREF_FRAME, NONE_FRAME } },
-  { NEARESTMV, { GOLDEN_FRAME, NONE_FRAME } },
-
-  { NEWMV, { LAST_FRAME, NONE_FRAME } },
-  { NEWMV, { LAST2_FRAME, NONE_FRAME } },
-  { NEWMV, { LAST3_FRAME, NONE_FRAME } },
-  { NEWMV, { BWDREF_FRAME, NONE_FRAME } },
-  { NEWMV, { ALTREF2_FRAME, NONE_FRAME } },
-  { NEWMV, { ALTREF_FRAME, NONE_FRAME } },
-  { NEWMV, { GOLDEN_FRAME, NONE_FRAME } },
-
-  { NEARMV, { LAST_FRAME, NONE_FRAME } },
-  { NEARMV, { LAST2_FRAME, NONE_FRAME } },
-  { NEARMV, { LAST3_FRAME, NONE_FRAME } },
-  { NEARMV, { BWDREF_FRAME, NONE_FRAME } },
-  { NEARMV, { ALTREF2_FRAME, NONE_FRAME } },
-  { NEARMV, { ALTREF_FRAME, NONE_FRAME } },
-  { NEARMV, { GOLDEN_FRAME, NONE_FRAME } },
-
-  { GLOBALMV, { LAST_FRAME, NONE_FRAME } },
-  { GLOBALMV, { LAST2_FRAME, NONE_FRAME } },
-  { GLOBALMV, { LAST3_FRAME, NONE_FRAME } },
-  { GLOBALMV, { BWDREF_FRAME, NONE_FRAME } },
-  { GLOBALMV, { ALTREF2_FRAME, NONE_FRAME } },
-  { GLOBALMV, { GOLDEN_FRAME, NONE_FRAME } },
-  { GLOBALMV, { ALTREF_FRAME, NONE_FRAME } },
-
-  // TODO(zoeliu): May need to reconsider the order on the modes to check
-
-  { NEAREST_NEARESTMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEARESTMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEARESTMV, { LAST3_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEARESTMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEARESTMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEARESTMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEARESTMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEARESTMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEARESTMV, { LAST_FRAME, ALTREF2_FRAME } },
-  { NEAREST_NEARESTMV, { LAST2_FRAME, ALTREF2_FRAME } },
-  { NEAREST_NEARESTMV, { LAST3_FRAME, ALTREF2_FRAME } },
-  { NEAREST_NEARESTMV, { GOLDEN_FRAME, ALTREF2_FRAME } },
-
-  { NEAREST_NEARESTMV, { LAST_FRAME, LAST2_FRAME } },
-  { NEAREST_NEARESTMV, { LAST_FRAME, LAST3_FRAME } },
-  { NEAREST_NEARESTMV, { LAST_FRAME, GOLDEN_FRAME } },
-  { NEAREST_NEARESTMV, { BWDREF_FRAME, ALTREF_FRAME } },
-
-  { NEAR_NEARMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEW_NEARESTMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEWMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEW_NEARMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEAR_NEWMV, { LAST_FRAME, ALTREF_FRAME } },
-  { NEW_NEWMV, { LAST_FRAME, ALTREF_FRAME } },
-  { GLOBAL_GLOBALMV, { LAST_FRAME, ALTREF_FRAME } },
-
-  { NEAR_NEARMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEW_NEARESTMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEWMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEW_NEARMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEAR_NEWMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { NEW_NEWMV, { LAST2_FRAME, ALTREF_FRAME } },
-  { GLOBAL_GLOBALMV, { LAST2_FRAME, ALTREF_FRAME } },
-
-  { NEAR_NEARMV, { LAST3_FRAME, ALTREF_FRAME } },
-  { NEW_NEARESTMV, { LAST3_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEWMV, { LAST3_FRAME, ALTREF_FRAME } },
-  { NEW_NEARMV, { LAST3_FRAME, ALTREF_FRAME } },
-  { NEAR_NEWMV, { LAST3_FRAME, ALTREF_FRAME } },
-  { NEW_NEWMV, { LAST3_FRAME, ALTREF_FRAME } },
-  { GLOBAL_GLOBALMV, { LAST3_FRAME, ALTREF_FRAME } },
-
-  { NEAR_NEARMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { NEW_NEARESTMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEWMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { NEW_NEARMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { NEAR_NEWMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { NEW_NEWMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-  { GLOBAL_GLOBALMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-
-  { NEAR_NEARMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEW_NEARESTMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEWMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEW_NEARMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEAR_NEWMV, { LAST_FRAME, BWDREF_FRAME } },
-  { NEW_NEWMV, { LAST_FRAME, BWDREF_FRAME } },
-  { GLOBAL_GLOBALMV, { LAST_FRAME, BWDREF_FRAME } },
-
-  { NEAR_NEARMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEW_NEARESTMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEWMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEW_NEARMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEAR_NEWMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { NEW_NEWMV, { LAST2_FRAME, BWDREF_FRAME } },
-  { GLOBAL_GLOBALMV, { LAST2_FRAME, BWDREF_FRAME } },
-
-  { NEAR_NEARMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEW_NEARESTMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEWMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEW_NEARMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEAR_NEWMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { NEW_NEWMV, { LAST3_FRAME, BWDREF_FRAME } },
-  { GLOBAL_GLOBALMV, { LAST3_FRAME, BWDREF_FRAME } },
-
-  { NEAR_NEARMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-  { NEW_NEARESTMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-  { NEAREST_NEWMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-  { NEW_NEARMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-  { NEAR_NEWMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-  { NEW_NEWMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-  { GLOBAL_GLOBALMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-
-  { NEAR_NEARMV, { LAST_FRAME, ALTREF2_FRAME } },
-  { NEW_NEARESTMV, { LAST_FRAME, ALTREF2_FRAME } },
-  { NEAREST_NEWMV, { LAST_FRAME, ALTREF2_FRAME } },
-  { NEW_NEARMV, { LAST_FRAME, ALTREF2_FRAME } },
-  { NEAR_NEWMV, { LAST_FRAME, ALTREF2_FRAME } },
-  { NEW_NEWMV, { LAST_FRAME, ALTREF2_FRAME } },
-  { GLOBAL_GLOBALMV, { LAST_FRAME, ALTREF2_FRAME } },
-
-  { NEAR_NEARMV, { LAST2_FRAME, ALTREF2_FRAME } },
-  { NEW_NEARESTMV, { LAST2_FRAME, ALTREF2_FRAME } },
-  { NEAREST_NEWMV, { LAST2_FRAME, ALTREF2_FRAME } },
-  { NEW_NEARMV, { LAST2_FRAME, ALTREF2_FRAME } },
-  { NEAR_NEWMV, { LAST2_FRAME, ALTREF2_FRAME } },
-  { NEW_NEWMV, { LAST2_FRAME, ALTREF2_FRAME } },
-  { GLOBAL_GLOBALMV, { LAST2_FRAME, ALTREF2_FRAME } },
-
-  { NEAR_NEARMV, { LAST3_FRAME, ALTREF2_FRAME } },
-  { NEW_NEARESTMV, { LAST3_FRAME, ALTREF2_FRAME } },
-  { NEAREST_NEWMV, { LAST3_FRAME, ALTREF2_FRAME } },
-  { NEW_NEARMV, { LAST3_FRAME, ALTREF2_FRAME } },
-  { NEAR_NEWMV, { LAST3_FRAME, ALTREF2_FRAME } },
-  { NEW_NEWMV, { LAST3_FRAME, ALTREF2_FRAME } },
-  { GLOBAL_GLOBALMV, { LAST3_FRAME, ALTREF2_FRAME } },
-
-  { NEAR_NEARMV, { GOLDEN_FRAME, ALTREF2_FRAME } },
-  { NEW_NEARESTMV, { GOLDEN_FRAME, ALTREF2_FRAME } },
-  { NEAREST_NEWMV, { GOLDEN_FRAME, ALTREF2_FRAME } },
-  { NEW_NEARMV, { GOLDEN_FRAME, ALTREF2_FRAME } },
-  { NEAR_NEWMV, { GOLDEN_FRAME, ALTREF2_FRAME } },
-  { NEW_NEWMV, { GOLDEN_FRAME, ALTREF2_FRAME } },
-  { GLOBAL_GLOBALMV, { GOLDEN_FRAME, ALTREF2_FRAME } },
-
-  { NEAR_NEARMV, { LAST_FRAME, LAST2_FRAME } },
-  { NEW_NEARESTMV, { LAST_FRAME, LAST2_FRAME } },
-  { NEAREST_NEWMV, { LAST_FRAME, LAST2_FRAME } },
-  { NEW_NEARMV, { LAST_FRAME, LAST2_FRAME } },
-  { NEAR_NEWMV, { LAST_FRAME, LAST2_FRAME } },
-  { NEW_NEWMV, { LAST_FRAME, LAST2_FRAME } },
-  { GLOBAL_GLOBALMV, { LAST_FRAME, LAST2_FRAME } },
-
-  { NEAR_NEARMV, { LAST_FRAME, LAST3_FRAME } },
-  { NEW_NEARESTMV, { LAST_FRAME, LAST3_FRAME } },
-  { NEAREST_NEWMV, { LAST_FRAME, LAST3_FRAME } },
-  { NEW_NEARMV, { LAST_FRAME, LAST3_FRAME } },
-  { NEAR_NEWMV, { LAST_FRAME, LAST3_FRAME } },
-  { NEW_NEWMV, { LAST_FRAME, LAST3_FRAME } },
-  { GLOBAL_GLOBALMV, { LAST_FRAME, LAST3_FRAME } },
-
-  { NEAR_NEARMV, { LAST_FRAME, GOLDEN_FRAME } },
-  { NEW_NEARESTMV, { LAST_FRAME, GOLDEN_FRAME } },
-  { NEAREST_NEWMV, { LAST_FRAME, GOLDEN_FRAME } },
-  { NEW_NEARMV, { LAST_FRAME, GOLDEN_FRAME } },
-  { NEAR_NEWMV, { LAST_FRAME, GOLDEN_FRAME } },
-  { NEW_NEWMV, { LAST_FRAME, GOLDEN_FRAME } },
-  { GLOBAL_GLOBALMV, { LAST_FRAME, GOLDEN_FRAME } },
-
-  { NEAR_NEARMV, { BWDREF_FRAME, ALTREF_FRAME } },
-  { NEW_NEARESTMV, { BWDREF_FRAME, ALTREF_FRAME } },
-  { NEAREST_NEWMV, { BWDREF_FRAME, ALTREF_FRAME } },
-  { NEW_NEARMV, { BWDREF_FRAME, ALTREF_FRAME } },
-  { NEAR_NEWMV, { BWDREF_FRAME, ALTREF_FRAME } },
-  { NEW_NEWMV, { BWDREF_FRAME, ALTREF_FRAME } },
-  { GLOBAL_GLOBALMV, { BWDREF_FRAME, ALTREF_FRAME } },
-
-  // intra modes
-  { DC_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { PAETH_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { SMOOTH_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { SMOOTH_V_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { SMOOTH_H_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { H_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { V_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D135_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D203_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D157_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D67_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D113_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D45_PRED, { INTRA_FRAME, NONE_FRAME } },
-};
 
 static const int16_t intra_to_mode_idx[INTRA_MODE_NUM] = {
   THR_DC,         // DC_PRED,
@@ -11618,7 +11417,7 @@ static void init_inter_mode_search_state(InterModeSearchState *search_state,
   const int *const rd_threshes = cpi->rd.threshes[segment_id][bsize];
   for (int i = LAST_NEW_MV_INDEX + 1; i < MAX_MODES; ++i)
     search_state->mode_threshold[i] =
-        ((int64_t)rd_threshes[i] * tile_data->thresh_freq_fact[bsize][i]) >> 5;
+        ((int64_t)rd_threshes[i] * x->thresh_freq_fact[bsize][i]) >> 5;
 
   search_state->best_intra_mode = DC_PRED;
   search_state->best_intra_rd = INT64_MAX;
@@ -13002,9 +12801,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
          !is_inter_block(&search_state.best_mbmode));
 
   if (!cpi->rc.is_src_frame_alt_ref)
-    av1_update_rd_thresh_fact(cm, tile_data->thresh_freq_fact,
-                              sf->adaptive_rd_thresh, bsize,
-                              search_state.best_mode_index);
+    av1_update_rd_thresh_fact(cm, x->thresh_freq_fact, sf->adaptive_rd_thresh,
+                              bsize, search_state.best_mode_index);
 
   // macroblock modes
   *mbmi = search_state.best_mbmode;
@@ -13579,9 +13377,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
          !is_inter_block(&search_state.best_mbmode));
 
   if (!cpi->rc.is_src_frame_alt_ref)
-    av1_update_rd_thresh_fact(cm, tile_data->thresh_freq_fact,
-                              sf->adaptive_rd_thresh, bsize,
-                              search_state.best_mode_index);
+    av1_update_rd_thresh_fact(cm, x->thresh_freq_fact, sf->adaptive_rd_thresh,
+                              bsize, search_state.best_mode_index);
 
   // macroblock modes
   *mbmi = search_state.best_mbmode;
@@ -13729,8 +13526,8 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   assert((cm->interp_filter == SWITCHABLE) ||
          (cm->interp_filter == mbmi->interp_filters.as_filters.y_filter));
 
-  av1_update_rd_thresh_fact(cm, tile_data->thresh_freq_fact,
-                            cpi->sf.adaptive_rd_thresh, bsize, THR_GLOBALMV);
+  av1_update_rd_thresh_fact(cm, x->thresh_freq_fact, cpi->sf.adaptive_rd_thresh,
+                            bsize, THR_GLOBALMV);
 
   av1_zero(best_pred_diff);
 
