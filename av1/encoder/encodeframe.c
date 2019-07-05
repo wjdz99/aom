@@ -710,8 +710,8 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
     start_timing(cpi, av1_rd_pick_inter_mode_sb_time);
 #endif
     if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
-      av1_rd_pick_inter_mode_sb_seg_skip(cpi, tile_data, x, mi_row, mi_col,
-                                         rd_cost, bsize, ctx, best_rd.rdcost);
+      av1_rd_pick_inter_mode_sb_seg_skip(cpi, x, mi_row, mi_col, rd_cost, bsize,
+                                         ctx, best_rd.rdcost);
     } else {
       // TODO(kyslov): do the same for pick_intra_mode and
       //               pick_inter_mode_sb_seg_skip
@@ -3909,6 +3909,15 @@ static void adjust_rdmult_tpl_model(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
 }
 #endif
 
+static INLINE void reset_thresh_freq_fact(MACROBLOCK *const x) {
+  int i, j;
+  for (i = 0; i < BLOCK_SIZES_ALL; ++i) {
+    for (j = 0; j < MAX_MODES; ++j) {
+      x->thresh_freq_fact[i][j] = 32;
+    }
+  }
+}
+
 static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
                           int mi_row, TOKENEXTRA **tp, int use_nonrd_mode) {
   AV1_COMMON *const cm = &cpi->common;
@@ -3938,6 +3947,7 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       av1_reset_loop_filter_delta(xd, av1_num_planes(cm));
     }
   }
+  reset_thresh_freq_fact(x);
 
   // Code each SB in the row
   for (int mi_col = tile_info->mi_col_start, sb_col_in_tile = 0;
@@ -4181,25 +4191,12 @@ void av1_alloc_tile_data(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const int tile_cols = cm->tile_cols;
   const int tile_rows = cm->tile_rows;
-  int tile_col, tile_row;
 
   if (cpi->tile_data != NULL) aom_free(cpi->tile_data);
   CHECK_MEM_ERROR(
       cm, cpi->tile_data,
       aom_memalign(32, tile_cols * tile_rows * sizeof(*cpi->tile_data)));
   cpi->allocated_tiles = tile_cols * tile_rows;
-
-  for (tile_row = 0; tile_row < tile_rows; ++tile_row)
-    for (tile_col = 0; tile_col < tile_cols; ++tile_col) {
-      TileDataEnc *const tile_data =
-          &cpi->tile_data[tile_row * tile_cols + tile_col];
-      int i, j;
-      for (i = 0; i < BLOCK_SIZES_ALL; ++i) {
-        for (j = 0; j < MAX_MODES; ++j) {
-          tile_data->thresh_freq_fact[i][j] = 32;
-        }
-      }
-    }
 }
 
 void av1_init_tile_data(AV1_COMP *cpi) {
