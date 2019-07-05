@@ -143,10 +143,12 @@ void av1_nonrd_pick_inter_mode_sb(struct AV1_COMP *cpi,
                                   PICK_MODE_CONTEXT *ctx,
                                   int64_t best_rd_so_far);
 
-void av1_rd_pick_inter_mode_sb_seg_skip(
-    const struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
-    struct macroblock *x, int mi_row, int mi_col, struct RD_STATS *rd_cost,
-    BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx, int64_t best_rd_so_far);
+void av1_rd_pick_inter_mode_sb_seg_skip(const struct AV1_COMP *cpi,
+                                        struct macroblock *x, int mi_row,
+                                        int mi_col, struct RD_STATS *rd_cost,
+                                        BLOCK_SIZE bsize,
+                                        PICK_MODE_CONTEXT *ctx,
+                                        int64_t best_rd_so_far);
 
 // The best edge strength seen in the block, as well as the best x and y
 // components of edge strength seen.
