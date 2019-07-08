@@ -6325,12 +6325,16 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   assert(!is_inter_block(mbmi));
   MB_MODE_INFO best_mbmi = *mbmi;
   int64_t best_rd = INT64_MAX, this_rd;
+  int8_t skip_mode = (bsize > BLOCK_16X16 && bsize <= BLOCK_128X128);
 
   for (int mode_idx = 0; mode_idx < UV_INTRA_MODES; ++mode_idx) {
     int this_rate;
     RD_STATS tokenonly_rd_stats;
     UV_PREDICTION_MODE mode = uv_rd_search_mode_order[mode_idx];
     const int is_directional_mode = av1_is_directional_mode(get_uv_mode(mode));
+    const int is_angular_modes = (mode >= UV_D45_PRED && mode <= UV_D67_PRED);
+    if (is_angular_modes)
+      if (skip_mode) continue;
     if (!(cpi->sf.intra_uv_mode_mask[txsize_sqr_up_map[max_tx_size]] &
           (1 << mode)))
       continue;
