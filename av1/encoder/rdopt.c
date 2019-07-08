@@ -3712,8 +3712,8 @@ static const uint32_t skip_pred_threshold[3][BLOCK_SIZES_ALL] = {
 //   max_tx_size = AOMMIN(max_txsize_lookup[bsize], TX_16X16);
 static const TX_SIZE max_predict_sf_tx_size[BLOCK_SIZES_ALL] = {
   TX_4X4,   TX_4X8,   TX_8X4,   TX_8X8,   TX_8X16,  TX_16X8,
-  TX_16X16, TX_16X16, TX_16X16, TX_16X16, TX_16X16, TX_16X16,
-  TX_16X16, TX_16X16, TX_16X16, TX_16X16, TX_4X16,  TX_16X4,
+  TX_16X16, TX_16X32, TX_32X16, TX_32X32, TX_32X64, TX_64X32,
+  TX_64X64, TX_64X64, TX_64X64, TX_64X64, TX_4X16,  TX_16X4,
   TX_8X8,   TX_8X8,   TX_16X16, TX_16X16,
 };
 
