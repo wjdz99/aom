@@ -2994,7 +2994,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   skip_trellis |=
       cpi->optimize_seg_arr[mbmi->segment_id] == NO_TRELLIS_OPT ||
       cpi->optimize_seg_arr[mbmi->segment_id] == FINAL_PASS_TRELLIS_OPT;
-  if (within_border && cpi->sf.use_intra_txb_hash && frame_is_intra_only(cm) &&
+  if (within_border && x->use_intra_txb_hash && frame_is_intra_only(cm) &&
       !is_inter && plane == 0 &&
       tx_size_wide[tx_size] == tx_size_high[tx_size]) {
     const uint32_t intra_hash =
@@ -3937,7 +3937,7 @@ static void super_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
                             mi_col >= xd->tile.mi_col_start &&
                             (mi_col + mi_size_wide[bs] < xd->tile.mi_col_end);
   const int is_mb_rd_hash_enabled =
-      (within_border && cpi->sf.use_mb_rd_hash && is_inter);
+      (within_border && x->use_mb_rd_hash && is_inter);
   const int n4 = bsize_to_num_blk(bs);
   if (is_mb_rd_hash_enabled) {
     hash = get_block_residue_hash(x, bs);
@@ -4758,6 +4758,9 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   // Set the transform size search method for mode evaluation
   set_tx_size_search_method(cpi, x, cpi->sf.enable_winner_mode_for_tx_size_srch,
                             0);
+  // Enable hash logic for normal mode evaluation
+  set_hash_flags(x, cpi->sf.use_intra_txb_hash, cpi->sf.use_inter_txb_hash,
+                 cpi->sf.use_mb_rd_hash);
 
   MB_MODE_INFO best_mbmi = *mbmi;
   /* Y Search for intra prediction mode */
@@ -4835,6 +4838,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
 
+
   // If previous searches use only the default tx type/no R-D optimization of
   // quantized coeffs, do an extra search for the best tx type/better R-D
   // optimization of quantized coeffs
@@ -4852,6 +4856,8 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     // Set the transform size search method for winner mode processing
     set_tx_size_search_method(cpi, x,
                               cpi->sf.enable_winner_mode_for_tx_size_srch, 1);
+    // Disable hash logic for winner mode processing
+    set_hash_flags(x, 0, 0, 0);
     *mbmi = best_mbmi;
     x->use_default_intra_tx_type = 0;
     intra_block_yrd(cpi, x, bsize, bmode_costs, &best_rd, rate, rate_tokenonly,
@@ -5860,7 +5866,7 @@ static void pick_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
       (mi_row + mi_size_high[bsize] < xd->tile.mi_row_end) &&
       mi_col >= xd->tile.mi_col_start &&
       (mi_col + mi_size_wide[bsize] < xd->tile.mi_col_end);
-  const int is_mb_rd_hash_enabled = (within_border && cpi->sf.use_mb_rd_hash);
+  const int is_mb_rd_hash_enabled = (within_border && x->use_mb_rd_hash);
   const int n4 = bsize_to_num_blk(bsize);
   if (is_mb_rd_hash_enabled) {
     hash = get_block_residue_hash(x, bsize);
@@ -5892,7 +5898,7 @@ static void pick_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   // store and reuse rate and distortion values to speed up TX size search.
   TXB_RD_INFO_NODE matched_rd_info[4 + 16 + 64];
   int found_rd_info = 0;
-  if (ref_best_rd != INT64_MAX && within_border && cpi->sf.use_inter_txb_hash) {
+  if (ref_best_rd != INT64_MAX && within_border && x->use_inter_txb_hash) {
     found_rd_info =
         find_tx_size_rd_records(x, bsize, mi_row, mi_col, matched_rd_info);
   }
@@ -11009,6 +11015,9 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
       get_rd_opt_coeff_thresh(cpi->coeff_opt_dist_threshold, 0, 0);
   // Set the transform size search method for mode evaluation
   set_tx_size_search_method(cpi, x, 0, 0);
+  // Enable hash logic for normal mode evaluation
+  set_hash_flags(x, cpi->sf.use_intra_txb_hash, cpi->sf.use_inter_txb_hash,
+                 cpi->sf.use_mb_rd_hash);
 
   if (intra_yrd < best_rd) {
     // Only store reconstructed luma when there's chroma RDO. When there's no
@@ -11283,6 +11292,7 @@ static void sf_refine_fast_tx_type_search(
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int num_planes = av1_num_planes(cm);
 
+
   // TODO(any) : Refactor the winner mode evaluation check control code
   if (xd->lossless[mbmi->segment_id] == 0 && best_mode_index >= 0 &&
       ((sf->tx_type_search.fast_inter_tx_type_search &&
@@ -11308,6 +11318,8 @@ static void sf_refine_fast_tx_type_search(
     // Set the transform size search method for winner mode processing
     set_tx_size_search_method(cpi, x,
                               cpi->sf.enable_winner_mode_for_tx_size_srch, 1);
+    // Disable hash logic for winner mode processing
+    set_hash_flags(x, 0, 0, 0);
 
     *mbmi = *best_mbmode;
 
@@ -11715,6 +11727,9 @@ static void set_params_rd_pick_inter_mode(
   // Set the transform size search method for mode evaluation
   set_tx_size_search_method(cpi, x, cpi->sf.enable_winner_mode_for_tx_size_srch,
                             0);
+  // Enable hash logic for mode evaluation
+  set_hash_flags(x, cpi->sf.use_intra_txb_hash, cpi->sf.use_inter_txb_hash,
+                 cpi->sf.use_mb_rd_hash);
 
   if (cpi->sf.skip_repeat_interpolation_filter_search) {
     x->interp_filter_stats_idx[0] = 0;
@@ -13175,6 +13190,9 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       get_rd_opt_coeff_thresh(cpi->coeff_opt_dist_threshold, 0, 0);
   // Set the transform size search method for winner mode processing
   set_tx_size_search_method(cpi, x, 0, 0);
+  // Enable hash logic for normal mode evaluation
+  set_hash_flags(x, cpi->sf.use_intra_txb_hash, cpi->sf.use_inter_txb_hash,
+                 cpi->sf.use_mb_rd_hash);
 
   // Only try palette mode when the best mode so far is an intra mode.
   const int try_palette =
