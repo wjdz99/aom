@@ -717,6 +717,8 @@ typedef struct SPEED_FEATURES {
   // Use CNN with luma pixels on source frame on each of the 64x64 subblock to
   // perform split/no_split decision on intra-frames.
   int intra_cnn_split;
+
+  int prune_horiz_vert_a_b;
 } SPEED_FEATURES;
 
 struct AV1_COMP;

@@ -2271,13 +2271,28 @@ static bool rd_test_partition3(AV1_COMP *const cpi, ThreadData *td,
   av1_init_rd_stats(&sum_rdc);
   sum_rdc.rate = x->partition_cost[pl][partition];
   sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
-  if (!rd_try_subblock(cpi, td, tile_data, tp, 0, mi_row0, mi_col0, subsize0,
-                       *best_rdc, &sum_rdc, partition, ctx, &ctxs[0]))
-    return false;
+  double half_best_rdc = (best_rdc->rdcost >> 1) * 1.06;
+  double two_by_three_best_rdc = (half_best_rdc * 1.5) * 1.06;
 
-  if (!rd_try_subblock(cpi, td, tile_data, tp, 0, mi_row1, mi_col1, subsize1,
-                       *best_rdc, &sum_rdc, partition, &ctxs[0], &ctxs[1]))
+  int is_exceed =
+      rd_try_subblock(cpi, td, tile_data, tp, 0, mi_row0, mi_col0, subsize0,
+                      *best_rdc, &sum_rdc, partition, ctx, &ctxs[0]);
+
+  if (!is_exceed ||
+      (cpi->sf.prune_horiz_vert_a_b && (sum_rdc.rdcost >= half_best_rdc)))
     return false;
+  is_exceed =
+      rd_try_subblock(cpi, td, tile_data, tp, 0, mi_row1, mi_col1, subsize1,
+                      *best_rdc, &sum_rdc, partition, &ctxs[0], &ctxs[1]);
+  if (!is_exceed) return false;
+
+  if (cpi->sf.prune_horiz_vert_a_b) {
+    if (sum_rdc.rdcost >= two_by_three_best_rdc) return false;
+    if ((partition == PARTITION_HORZ_A || partition == PARTITION_VERT_A) &&
+        (sum_rdc.rdcost >= half_best_rdc)) {
+      return false;
+    }
+  }
 
   if (!rd_try_subblock(cpi, td, tile_data, tp, 1, mi_row2, mi_col2, subsize2,
                        *best_rdc, &sum_rdc, partition, &ctxs[1], &ctxs[2]))

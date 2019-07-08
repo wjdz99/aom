@@ -329,6 +329,7 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 4) {
+    sf->prune_horiz_vert_a_b = frame_is_intra_only(&cpi->common) ? 0 : 1;
     sf->use_intra_txb_hash = 0;
     sf->tx_type_search.fast_intra_tx_type_search = 1;
     sf->disable_loop_restoration_chroma =
@@ -718,7 +719,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->skip_obmc_in_uniform_mv_field = 0;
   sf->skip_wm_in_uniform_mv_field = 0;
   sf->adaptive_interp_filter_search = 0;
-
+  sf->prune_horiz_vert_a_b = 0;
   for (i = 0; i < TX_SIZES; i++) {
     sf->intra_y_mode_mask[i] = INTRA_ALL;
     sf->intra_uv_mode_mask[i] = UV_INTRA_ALL;
