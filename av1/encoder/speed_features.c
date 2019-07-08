@@ -326,6 +326,7 @@ static void set_good_speed_features_framesize_independent(
     sf->prune_comp_type_by_model_rd = boosted ? 0 : 1;
     sf->disable_smooth_intra =
         !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
+    sf->tx_type_search.use_skip_flag_prediction = 0;
   }
 
   if (speed >= 4) {
