@@ -411,6 +411,12 @@ struct macroblock {
 
   CB_COEFF_BUFFER *cb_coef_buff;
 
+  // Used to control the disable/enable of hash data usage during normal/winner
+  // mode evaluation
+  int use_intra_txb_hash;
+  int use_inter_txb_hash;
+  int use_mb_rd_hash;
+
 #if !CONFIG_REALTIME_ONLY
   int quad_tree_idx;
   int cnn_output_valid;

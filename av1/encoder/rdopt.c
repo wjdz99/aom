@@ -758,6 +758,15 @@ void av1_inter_mode_data_init(TileDataEnc *tile_data) {
   }
 }
 
+// Call this function appropriately to set/reset the hash flags based on
+// winner/normal mode evaluation
+static INLINE set_hash_flags(MACROBLOCK *const x, int use_intra_txb_hash,
+                             int use_inter_txb_hash, int use_mb_rd_hash) {
+  x->use_intra_txb_hash = use_intra_txb_hash;
+  x->use_inter_txb_hash = use_inter_txb_hash;
+  x->use_mb_rd_hash = use_mb_rd_hash;
+}
+
 static int get_est_rate_dist(const TileDataEnc *tile_data, BLOCK_SIZE bsize,
                              int64_t sse, int *est_residue_cost,
                              int64_t *est_dist) {
@@ -2989,7 +2998,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   skip_trellis |=
       cpi->optimize_seg_arr[mbmi->segment_id] == NO_TRELLIS_OPT ||
       cpi->optimize_seg_arr[mbmi->segment_id] == FINAL_PASS_TRELLIS_OPT;
-  if (within_border && cpi->sf.use_intra_txb_hash && frame_is_intra_only(cm) &&
+  if (within_border && x->use_intra_txb_hash && frame_is_intra_only(cm) &&
       !is_inter && plane == 0 &&
       tx_size_wide[tx_size] == tx_size_high[tx_size]) {
     const uint32_t intra_hash =
@@ -4710,6 +4719,10 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   else
     x->use_default_intra_tx_type = 0;
 
+  // Enable hash logic for normal mode evaluation
+  set_hash_flags(x, cpi->sf.use_intra_txb_hash, cpi->sf.use_inter_txb_hash,
+                 cpi->sf.use_mb_rd_hash);
+
   MB_MODE_INFO best_mbmi = *mbmi;
   /* Y Search for intra prediction mode */
   for (int mode_idx = INTRA_MODE_START; mode_idx < INTRA_MODE_END; ++mode_idx) {
@@ -4793,6 +4806,8 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       !cpi->oxcf.use_intra_default_tx_only) {
     *mbmi = best_mbmi;
     x->use_default_intra_tx_type = 0;
+    // Disable hash logic for winner mode evaluation
+    set_hash_flags(x, 0, 0, 0);
     intra_block_yrd(cpi, x, bsize, bmode_costs, &best_rd, rate, rate_tokenonly,
                     distortion, skippable, &best_mbmi, ctx);
   }
@@ -5819,7 +5834,7 @@ static void pick_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
       (mi_row + mi_size_high[bsize] < xd->tile.mi_row_end) &&
       mi_col >= xd->tile.mi_col_start &&
       (mi_col + mi_size_wide[bsize] < xd->tile.mi_col_end);
-  const int is_mb_rd_hash_enabled = (within_border && cpi->sf.use_mb_rd_hash);
+  const int is_mb_rd_hash_enabled = (within_border && x->use_mb_rd_hash);
   const int n4 = bsize_to_num_blk(bsize);
   if (is_mb_rd_hash_enabled) {
     hash = get_block_residue_hash(x, bsize);
@@ -5851,7 +5866,7 @@ static void pick_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   // store and reuse rate and distortion values to speed up TX size search.
   TXB_RD_INFO_NODE matched_rd_info[4 + 16 + 64];
   int found_rd_info = 0;
-  if (ref_best_rd != INT64_MAX && within_border && cpi->sf.use_inter_txb_hash) {
+  if (ref_best_rd != INT64_MAX && within_border && x->use_inter_txb_hash) {
     found_rd_info =
         find_tx_size_rd_records(x, bsize, mi_row, mi_col, matched_rd_info);
   }
@@ -11100,6 +11115,9 @@ static void sf_refine_fast_tx_type_search(
     x->use_default_inter_tx_type = 0;
     x->use_default_intra_tx_type = 0;
 
+    // Disable hash logic for winner mode evaluation
+    set_hash_flags(x, 0, 0, 0);
+
     *mbmi = *best_mbmode;
 
     set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
@@ -11482,6 +11500,11 @@ static void set_params_rd_pick_inter_mode(
     x->use_default_inter_tx_type = 1;
   else
     x->use_default_inter_tx_type = 0;
+
+  // Enable hash logic for normal mode evaluation
+  set_hash_flags(x, cpi->sf.use_intra_txb_hash, cpi->sf.use_inter_txb_hash,
+                 cpi->sf.use_mb_rd_hash);
+
   if (cpi->sf.skip_repeat_interpolation_filter_search) {
     x->interp_filter_stats_idx[0] = 0;
     x->interp_filter_stats_idx[1] = 0;
