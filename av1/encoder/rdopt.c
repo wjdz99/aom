@@ -5835,7 +5835,8 @@ static void pick_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   // If we predict that skip is the optimal RD decision - set the respective
   // context and terminate early.
   int64_t dist;
-  if (cpi->sf.tx_type_search.use_skip_flag_prediction &&
+  int do_ezcbf = (bsize <= BLOCK_16X16);
+  if (cpi->sf.tx_type_search.use_skip_flag_prediction && do_ezcbf &&
       predict_skip_flag(x, bsize, &dist, cm->reduced_tx_set_used)) {
     set_skip_flag(x, rd_stats, bsize, dist);
     // Save the RD search results into tx_rd_record.
