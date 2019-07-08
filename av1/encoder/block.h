@@ -432,6 +432,12 @@ struct macroblock {
   // quantized coeffs
   uint32_t coeff_opt_dist_threshold;
 
+  // Used to disable/enable hash data usage during mode evaluation/winner mode
+  // processing
+  int use_intra_txb_hash;
+  int use_inter_txb_hash;
+  int use_mb_rd_hash;
+
 #if !CONFIG_REALTIME_ONLY
   int quad_tree_idx;
   int cnn_output_valid;
