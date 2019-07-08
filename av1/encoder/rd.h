@@ -279,6 +279,15 @@ static INLINE uint32_t get_rd_opt_coeff_thresh(
   return coeff_opt_thresh;
 }
 
+// Used to set/reset the hash flags based on mode evaluation/winner mode
+// processing
+static INLINE void set_hash_flags(MACROBLOCK *const x, int use_intra_txb_hash,
+                                  int use_inter_txb_hash, int use_mb_rd_hash) {
+  x->use_intra_txb_hash = use_intra_txb_hash;
+  x->use_inter_txb_hash = use_inter_txb_hash;
+  x->use_mb_rd_hash = use_mb_rd_hash;
+}
+
 void av1_setup_pred_block(const MACROBLOCKD *xd,
                           struct buf_2d dst[MAX_MB_PLANE],
                           const YV12_BUFFER_CONFIG *src, int mi_row, int mi_col,
