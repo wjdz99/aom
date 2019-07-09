@@ -4212,6 +4212,61 @@ static void superres_post_encode(AV1_COMP *cpi) {
   }
 }
 
+static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
+                                   MACROBLOCKD *xd, int use_restoration,
+                                   int use_cdef) {
+  if (use_restoration)
+    av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 0);
+
+  if (use_cdef) {
+#if CONFIG_COLLECT_COMPONENT_TIMING
+    start_timing(cpi, cdef_time);
+#endif
+    // Find CDEF parameters
+    av1_cdef_search(&cm->cur_frame->buf, cpi->source, cm, xd,
+                    cpi->sf.fast_cdef_search);
+
+    // Apply the filter
+    av1_cdef_frame(&cm->cur_frame->buf, cm, xd);
+#if CONFIG_COLLECT_COMPONENT_TIMING
+    end_timing(cpi, cdef_time);
+#endif
+  } else {
+    cm->cdef_info.cdef_bits = 0;
+    cm->cdef_info.cdef_strengths[0] = 0;
+    cm->cdef_info.nb_cdef_strengths = 1;
+    cm->cdef_info.cdef_uv_strengths[0] = 0;
+  }
+
+  superres_post_encode(cpi);
+
+#if CONFIG_COLLECT_COMPONENT_TIMING
+  start_timing(cpi, loop_restoration_time);
+#endif
+  if (use_restoration) {
+    av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 1);
+    av1_pick_filter_restoration(cpi->source, cpi);
+    if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
+        cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
+        cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
+      if (cpi->num_workers > 1)
+        av1_loop_restoration_filter_frame_mt(&cm->cur_frame->buf, cm, 0,
+                                             cpi->workers, cpi->num_workers,
+                                             &cpi->lr_row_sync, &cpi->lr_ctxt);
+      else
+        av1_loop_restoration_filter_frame(&cm->cur_frame->buf, cm, 0,
+                                          &cpi->lr_ctxt);
+    }
+  } else {
+    cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
+    cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
+    cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+  }
+#if CONFIG_COLLECT_COMPONENT_TIMING
+  end_timing(cpi, loop_restoration_time);
+#endif
+}
+
 static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
@@ -4257,56 +4312,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   end_timing(cpi, loop_filter_time);
 #endif
 
-  if (use_restoration)
-    av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 0);
-
-  if (use_cdef) {
-#if CONFIG_COLLECT_COMPONENT_TIMING
-    start_timing(cpi, cdef_time);
-#endif
-    // Find CDEF parameters
-    av1_cdef_search(&cm->cur_frame->buf, cpi->source, cm, xd,
-                    cpi->sf.cdef_pick_method, cpi->td.mb.rdmult);
-
-    // Apply the filter
-    av1_cdef_frame(&cm->cur_frame->buf, cm, xd);
-#if CONFIG_COLLECT_COMPONENT_TIMING
-    end_timing(cpi, cdef_time);
-#endif
-  } else {
-    cm->cdef_info.cdef_bits = 0;
-    cm->cdef_info.cdef_strengths[0] = 0;
-    cm->cdef_info.nb_cdef_strengths = 1;
-    cm->cdef_info.cdef_uv_strengths[0] = 0;
-  }
-
-  superres_post_encode(cpi);
-
-#if CONFIG_COLLECT_COMPONENT_TIMING
-  start_timing(cpi, loop_restoration_time);
-#endif
-  if (use_restoration) {
-    av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 1);
-    av1_pick_filter_restoration(cpi->source, cpi);
-    if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
-        cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
-        cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
-      if (cpi->num_workers > 1)
-        av1_loop_restoration_filter_frame_mt(&cm->cur_frame->buf, cm, 0,
-                                             cpi->workers, cpi->num_workers,
-                                             &cpi->lr_row_sync, &cpi->lr_ctxt);
-      else
-        av1_loop_restoration_filter_frame(&cm->cur_frame->buf, cm, 0,
-                                          &cpi->lr_ctxt);
-    }
-  } else {
-    cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
-    cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
-    cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
-  }
-#if CONFIG_COLLECT_COMPONENT_TIMING
-  end_timing(cpi, loop_restoration_time);
-#endif
+  cdef_restoration_frame(cpi, cm, xd, use_restoration, use_cdef);
 }
 
 static void fix_interp_filter(InterpFilter *const interp_filter,
