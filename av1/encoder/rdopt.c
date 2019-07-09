@@ -64,6 +64,9 @@
 // Set this macro as 1 to collect data about tx size selection.
 #define COLLECT_TX_SIZE_DATA 0
 
+// Set this macro to the number of angular modes to be evaluated for chroma
+#define NUM_ANGULAR_MODES 2
+
 #if COLLECT_TX_SIZE_DATA
 static const char av1_tx_size_data_output_file[] = "tx_size_data.txt";
 #endif
@@ -4665,11 +4668,12 @@ static void intra_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
 }
 
 // This function is used only for intra_only frames
-static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
-                                      int mi_row, int mi_col, int *rate,
-                                      int *rate_tokenonly, int64_t *distortion,
-                                      int *skippable, BLOCK_SIZE bsize,
-                                      int64_t best_rd, PICK_MODE_CONTEXT *ctx) {
+static int64_t rd_pick_intra_sby_mode(
+    const AV1_COMP *const cpi, MACROBLOCK *x, int mi_row, int mi_col, int *rate,
+    int *rate_tokenonly, int64_t *distortion, int *skippable, BLOCK_SIZE bsize,
+    int64_t best_rd, PICK_MODE_CONTEXT *ctx, RdIdxPair *luma_rd_idx_pair_arr,
+    RdIdxPair *luma_model_rd_idx_pair_arr, int *rd_based_count,
+    int *model_rd_based_count) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   assert(!is_inter_block(mbmi));
@@ -4725,6 +4729,10 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
     this_model_rd =
         intra_model_yrd(cpi, x, bsize, bmode_costs[mbmi->mode], mi_row, mi_col);
+    if ((mbmi->mode >= D45_PRED) && (mbmi->mode <= D67_PRED)) {
+      luma_model_rd_idx_pair_arr[mbmi->mode].rd = this_model_rd;
+      *model_rd_based_count += 1;
+    }
     if (best_model_rd != INT64_MAX &&
         this_model_rd > best_model_rd + (best_model_rd >> 1))
       continue;
@@ -4759,6 +4767,10 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         this_rd_stats.rate +
         intra_mode_info_cost_y(cpi, x, mbmi, bsize, bmode_costs[mbmi->mode]);
     this_rd = RDCOST(x->rdmult, this_rate, this_distortion);
+    if ((mbmi->mode >= D45_PRED) && (mbmi->mode <= D67_PRED)) {
+      luma_rd_idx_pair_arr[mbmi->mode].rd = this_rd;
+      *rd_based_count += 1;
+    }
     if (this_rd < best_rd) {
       best_mbmi = *mbmi;
       best_rd = this_rd;
@@ -6319,7 +6331,9 @@ static void init_sbuv_mode(MB_MODE_INFO *const mbmi) {
 static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                        int *rate, int *rate_tokenonly,
                                        int64_t *distortion, int *skippable,
-                                       BLOCK_SIZE bsize, TX_SIZE max_tx_size) {
+                                       BLOCK_SIZE bsize, TX_SIZE max_tx_size,
+                                       uint16_t uv_modes_mask,
+                                       int prune_uv_modes) {
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
   assert(!is_inter_block(mbmi));
@@ -6330,6 +6344,9 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     int this_rate;
     RD_STATS tokenonly_rd_stats;
     UV_PREDICTION_MODE mode = uv_rd_search_mode_order[mode_idx];
+    if (prune_uv_modes) {
+      if ((uv_modes_mask & (1 << mode)) == 0) continue;
+    }
     const int is_directional_mode = av1_is_directional_mode(get_uv_mode(mode));
     if (!(cpi->sf.intra_uv_mode_mask[txsize_sqr_up_map[max_tx_size]] &
           (1 << mode)))
@@ -6441,7 +6458,7 @@ static void choose_intra_uv_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
     xd->cfl.store_y = 0;
   }
   rd_pick_intra_sbuv_mode(cpi, x, rate_uv, rate_uv_tokenonly, dist_uv, skip_uv,
-                          bsize, max_tx_size);
+                          bsize, max_tx_size, 0, 0);
   *mode_uv = mbmi->uv_mode;
 }
 
@@ -10816,6 +10833,16 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   int y_skip = 0, uv_skip = 0;
   int64_t dist_y = 0, dist_uv = 0;
   TX_SIZE max_uv_tx_size;
+  int rd_based_count = 0;
+  int model_rd_based_count = 0;
+  RdIdxPair luma_rd_idx_pair_arr[INTRA_MODE_END - INTRA_MODE_START];
+  RdIdxPair luma_model_rd_idx_pair_arr[INTRA_MODE_END - INTRA_MODE_START];
+  for (int8_t i = INTRA_MODE_START; i < INTRA_MODE_END; i++) {
+    luma_rd_idx_pair_arr[i].idx = i;
+    luma_model_rd_idx_pair_arr[i].idx = i;
+    luma_rd_idx_pair_arr[i].rd = INT64_MAX;
+    luma_model_rd_idx_pair_arr[i].rd = INT64_MAX;
+  }
 
   ctx->rd_stats.skip = 0;
   mbmi->ref_frame[0] = INTRA_FRAME;
@@ -10823,9 +10850,10 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   mbmi->use_intrabc = 0;
   mbmi->mv[0].as_int = 0;
 
-  const int64_t intra_yrd =
-      rd_pick_intra_sby_mode(cpi, x, mi_row, mi_col, &rate_y, &rate_y_tokenonly,
-                             &dist_y, &y_skip, bsize, best_rd, ctx);
+  const int64_t intra_yrd = rd_pick_intra_sby_mode(
+      cpi, x, mi_row, mi_col, &rate_y, &rate_y_tokenonly, &dist_y, &y_skip,
+      bsize, best_rd, ctx, luma_rd_idx_pair_arr, luma_model_rd_idx_pair_arr,
+      &rd_based_count, &model_rd_based_count);
 
   if (intra_yrd < best_rd) {
     // Only store reconstructed luma when there's chroma RDO. When there's no
@@ -10846,9 +10874,33 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
     if (num_planes > 1) {
       max_uv_tx_size = av1_get_tx_size(AOM_PLANE_U, xd);
       init_sbuv_mode(mbmi);
-      if (!x->skip_chroma_rd)
+      if (!x->skip_chroma_rd) {
+        // mask for all chroma intra modes set to 1 except for angular modes
+        // mask binary value:11111000000111
+        uint16_t uv_mode_mask = 0x3E07;
+
+        if (rd_based_count) {
+          qsort(luma_rd_idx_pair_arr, INTRA_MODE_END - INTRA_MODE_START,
+                sizeof(luma_rd_idx_pair_arr[0]), compare_rd_idx_pair);
+          rd_based_count = AOMMIN(rd_based_count, NUM_ANGULAR_MODES);
+          for (int j = 0; j < rd_based_count; j++) {
+            // Setting the required angular modes
+            uv_mode_mask += (1 << luma_rd_idx_pair_arr[j].idx);
+          }
+        } else if (model_rd_based_count) {
+          qsort(luma_model_rd_idx_pair_arr, INTRA_MODE_END - INTRA_MODE_START,
+                sizeof(luma_model_rd_idx_pair_arr[0]), compare_rd_idx_pair);
+          model_rd_based_count =
+              AOMMIN(model_rd_based_count, NUM_ANGULAR_MODES);
+          for (int j = 0; j < model_rd_based_count; j++) {
+            // Setting the required angular modes
+            uv_mode_mask += (1 << luma_model_rd_idx_pair_arr[j].idx);
+          }
+        }
         rd_pick_intra_sbuv_mode(cpi, x, &rate_uv, &rate_uv_tokenonly, &dist_uv,
-                                &uv_skip, bsize, max_uv_tx_size);
+                                &uv_skip, bsize, max_uv_tx_size, uv_mode_mask,
+                                1);
+      }
     }
 
     if (y_skip && (uv_skip || x->skip_chroma_rd)) {
