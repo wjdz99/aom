@@ -11333,9 +11333,13 @@ static void init_mode_skip_mask(mode_skip_mask_t *mask, const AV1_COMP *cpi,
   }
 
   if (sf->alt_ref_search_fp)
-    if (!cm->show_frame && x->pred_mv_sad[GOLDEN_FRAME] < INT_MAX)
-      if (x->pred_mv_sad[ALTREF_FRAME] > (x->pred_mv_sad[GOLDEN_FRAME] << 1))
-        mask->pred_modes[ALTREF_FRAME] |= INTER_ALL;
+    if (!cm->show_frame && x->pred_mv_sad[GOLDEN_FRAME] < INT_MAX) {
+      for (ref_frame = BWDREF_FRAME; ref_frame <= ALTREF_FRAME; ref_frame++) {
+        if (cm->cur_frame->is_past_ref[ref_frame - LAST_FRAME])
+          if (x->pred_mv_sad[ref_frame] > (x->pred_mv_sad[GOLDEN_FRAME] << 1))
+            mask->pred_modes[ref_frame] |= INTER_ALL;
+      }
+    }
 
   if (sf->adaptive_mode_search) {
     if (cm->show_frame && !cpi->rc.is_src_frame_alt_ref &&

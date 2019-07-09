@@ -4405,9 +4405,16 @@ static int get_max_allowed_ref_frames(const AV1_COMP *cpi) {
 // Enforce the number of references for each arbitrary frame based on user
 // options and speed.
 static void enforce_max_ref_frames(AV1_COMP *cpi) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const OrderHintInfo *const order_hint_info = &cm->seq_params.order_hint_info;
   MV_REFERENCE_FRAME ref_frame;
   int total_valid_refs = 0;
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    int dist = get_relative_dist(
+        order_hint_info, cm->cur_frame->ref_order_hints[ref_frame - LAST_FRAME],
+        cm->current_frame.order_hint);
+    cm->cur_frame->is_past_ref[ref_frame - LAST_FRAME] = (dist > 0) ? 0 : 1;
+
     if (cpi->ref_frame_flags & av1_ref_frame_flag_list[ref_frame]) {
       total_valid_refs++;
     }
