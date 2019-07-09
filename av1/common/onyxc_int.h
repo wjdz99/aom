@@ -129,6 +129,9 @@ typedef struct RefCntBuffer {
   unsigned int order_hint;
   unsigned int ref_order_hints[INTER_REFS_PER_FRAME];
 
+  // Indicate references are past or future
+  int8_t is_past_ref[INTER_REFS_PER_FRAME];
+
   MV_REF *mvs;
   uint8_t *seg_map;
   struct segmentation seg;
