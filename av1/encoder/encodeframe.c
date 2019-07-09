@@ -4052,24 +4052,24 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
     int64_t dummy_dist;
     RD_STATS dummy_rdc;
     av1_invalid_rd_stats(&dummy_rdc);
+    adjust_rdmult_tpl_model(cpi, x, mi_row, mi_col);
     if (sf->partition_search_type == FIXED_PARTITION || seg_skip) {
-      adjust_rdmult_tpl_model(cpi, x, mi_row, mi_col);
       set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
       const BLOCK_SIZE bsize = seg_skip ? sb_size : sf->always_this_block_size;
       set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
       rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                        &dummy_rate, &dummy_dist, 1, pc_root);
     } else if (cpi->partition_search_skippable_frame) {
-      adjust_rdmult_tpl_model(cpi, x, mi_row, mi_col);
       set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
       const BLOCK_SIZE bsize =
           get_rd_var_based_fixed_partition(cpi, x, mi_row, mi_col);
       set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
       rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                        &dummy_rate, &dummy_dist, 1, pc_root);
-    } else if (!(sf->partition_search_type == VAR_BASED_PARTITION &&
-                 use_nonrd_mode)) {
-      adjust_rdmult_tpl_model(cpi, x, mi_row, mi_col);
+    } else {
+      assert(!(sf->partition_search_type == VAR_BASED_PARTITION &&
+               use_nonrd_mode));
+
       reset_partition(pc_root, sb_size);
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
