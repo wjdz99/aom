@@ -4431,7 +4431,7 @@ static void set_rel_frame_dist(AV1_COMP *cpi) {
   MV_REFERENCE_FRAME ref_frame;
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     cpi->ref_relative_dist[ref_frame - LAST_FRAME] = 0;
-    if (sf->alt_ref_search_fp) {
+    if (sf->alt_ref_search_fp || cpi->sf.adaptive_mode_search) {
       int dist = av1_encoder_get_relative_dist(
           order_hint_info,
           cm->cur_frame->ref_display_order_hint[ref_frame - LAST_FRAME],
