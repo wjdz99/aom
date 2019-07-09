@@ -4544,7 +4544,7 @@ static void recode_loop_update_q(
     *loop = 0;
   }
 }
-
+static int dummy = 0;
 static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
@@ -4700,6 +4700,8 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     if (loop) printf("\n Recoding:");
 #endif
   } while (loop);
+  dummy = dummy + loop_count;
+  printf("Num recodes %d \n", dummy);
 
   return AOM_CODEC_OK;
 }
