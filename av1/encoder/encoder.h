@@ -1021,6 +1021,9 @@ typedef struct AV1_COMP {
   // whether any no-zero delta_q was actually used
   int deltaq_used;
 
+  // Indicates if a reference frame is past or future
+  int8_t is_past_ref[INTER_REFS_PER_FRAME];
+
   double *ssim_rdmult_scaling_factors;
 } AV1_COMP;
 
