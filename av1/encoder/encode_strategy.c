@@ -840,7 +840,7 @@ static void update_ref_frame_map(AV1_COMP *cpi,
         stack_push(cpi->arf_stack, &cpi->arf_stack_size, ref_map_index);
         break;
       case OVERLAY_UPDATE:
-        if (cpi->preserve_arf_as_gld) {
+        if (cpi->preserve_arf_as_gld || cm->show_existing_frame) {
           ref_map_index = stack_pop(cpi->arf_stack, &cpi->arf_stack_size);
           stack_push(cpi->gld_stack, &cpi->gld_stack_size, ref_map_index);
         } else {
@@ -851,14 +851,13 @@ static void update_ref_frame_map(AV1_COMP *cpi,
         break;
       case INTNL_OVERLAY_UPDATE:
         ref_map_index = stack_pop(cpi->arf_stack, &cpi->arf_stack_size);
-        if (cpi->gf_group.layer_depth[cpi->gf_group.index] == 2)
-          stack_push(cpi->gld_stack, &cpi->gld_stack_size, ref_map_index);
-        else
-          stack_push(cpi->lst_stack, &cpi->lst_stack_size, ref_map_index);
+        stack_push(cpi->lst_stack, &cpi->lst_stack_size, ref_map_index);
         break;
       default: assert(0 && "unknown type");
     }
   }
+
+  return;
 
   // If check_frame_refs_short_signaling() decided to set
   // frame_refs_short_signaling=1 then we update remapped_ref_idx[] here.  Every
@@ -966,6 +965,21 @@ static void update_ref_frame_map(AV1_COMP *cpi,
 #endif  // DUMP_REF_FRAME_IMAGES
 }
 
+static int get_free_ref_map_index(const AV1_COMP *cpi) {
+  for (int idx = 0; idx < REF_FRAMES; ++idx) {
+    int is_free = 1;
+    for (int i = 0; i < cpi->arf_stack_size; ++i)
+      if (cpi->arf_stack[i] == idx) is_free = 0;
+    for (int i = 0; i < cpi->lst_stack_size; ++i)
+      if (cpi->lst_stack[i] == idx) is_free = 0;
+    for (int i = 0; i < cpi->gld_stack_size; ++i)
+      if (cpi->gld_stack[i] == idx) is_free = 0;
+
+    if (is_free) return idx;
+  }
+  return INVALID_IDX;
+}
+
 static int get_refresh_frame_flags(const AV1_COMP *const cpi,
                                    const EncodeFrameParams *const frame_params,
                                    FRAME_UPDATE_TYPE frame_update_type) {
@@ -1013,6 +1027,67 @@ static int get_refresh_frame_flags(const AV1_COMP *const cpi,
   // See update_ref_frame_map() for a thorough description of the reference
   // buffer management strategy currently in use.  This function just decides
   // which buffers should be refreshed.
+
+  int free_fb_index = get_free_ref_map_index(cpi);
+  switch (frame_update_type) {
+    case KF_UPDATE:
+    case GF_UPDATE:
+      if (free_fb_index != INVALID_IDX) {
+        refresh_mask = 1 << free_fb_index;
+      } else {
+        if (cpi->gld_stack_size)
+          refresh_mask = 1 << cpi->gld_stack[cpi->gld_stack_size - 1];
+        else
+          refresh_mask = 1 << cpi->lst_stack[cpi->lst_stack_size - 1];
+      }
+      break;
+    case LF_UPDATE:
+      if (free_fb_index != INVALID_IDX) {
+        refresh_mask = 1 << free_fb_index;
+      } else {
+        if (cpi->lst_stack_size >= 2)
+          refresh_mask = 1 << cpi->lst_stack[cpi->lst_stack_size - 1];
+        else
+          assert(0 && "No ref map index found");
+      }
+      break;
+    case ARF_UPDATE:
+      if (free_fb_index != INVALID_IDX) {
+        refresh_mask = 1 << free_fb_index;
+      } else {
+        if (cpi->gld_stack_size >= 3)
+          refresh_mask = 1 << cpi->gld_stack[cpi->gld_stack_size - 1];
+        else if (cpi->lst_stack_size >= 2)
+          refresh_mask = 1 << cpi->lst_stack[cpi->lst_stack_size - 1];
+        else
+          assert(0 && "No ref map index found");
+      }
+      break;
+    case INTNL_ARF_UPDATE:
+      if (free_fb_index != INVALID_IDX) {
+        refresh_mask = 1 << free_fb_index;
+      } else {
+        refresh_mask = 1 << cpi->lst_stack[cpi->lst_stack_size - 1];
+      }
+      break;
+    case OVERLAY_UPDATE:
+      if (!cpi->preserve_arf_as_gld) {
+        if (free_fb_index != INVALID_IDX) {
+          refresh_mask = 1 << free_fb_index;
+        } else if (cpi->arf_stack_size) {
+          refresh_mask = 1 << cpi->arf_stack[cpi->arf_stack_size - 1];
+        } else {
+          refresh_mask = 1 << cpi->lst_stack[cpi->lst_stack_size - 1];
+        }
+      }
+      break;
+    case INTNL_OVERLAY_UPDATE:
+    default: break;
+  }
+
+  return refresh_mask;
+
+  refresh_mask = 0;
 
   switch (frame_update_type) {
     case KF_UPDATE:
@@ -1152,6 +1227,96 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
   return AOM_CODEC_OK;
 }
 #endif  // !CONFIG_REALTIME_ONLY
+
+static void get_ref_frames(AV1_COMP *const cpi,
+                           FRAME_UPDATE_TYPE frame_update_type) {
+  AV1_COMMON *cm = &cpi->common;
+  (void)frame_update_type;
+
+  const int arf_stack_size = cpi->arf_stack_size;
+  const int lst_stack_size = cpi->lst_stack_size;
+  const int gld_stack_size = cpi->gld_stack_size;
+
+  // Initialization
+  for (int i = 0; i < REF_FRAMES; ++i) cm->remapped_ref_idx[i] = INVALID_IDX;
+
+  if (arf_stack_size)
+    cm->remapped_ref_idx[ALTREF_FRAME - LAST_FRAME] =
+        cpi->arf_stack[arf_stack_size - 1];
+
+  if (arf_stack_size > 1)
+    cm->remapped_ref_idx[BWDREF_FRAME - LAST_FRAME] = cpi->arf_stack[0];
+
+  if (arf_stack_size > 2)
+    cm->remapped_ref_idx[ALTREF2_FRAME - LAST_FRAME] = cpi->arf_stack[1];
+
+  if (lst_stack_size)
+    cm->remapped_ref_idx[LAST_FRAME - LAST_FRAME] = cpi->lst_stack[0];
+
+  if (lst_stack_size > 1)
+    cm->remapped_ref_idx[LAST2_FRAME - LAST_FRAME] = cpi->lst_stack[1];
+
+  if (gld_stack_size)
+    cm->remapped_ref_idx[GOLDEN_FRAME - LAST_FRAME] =
+        cpi->gld_stack[gld_stack_size - 1];
+
+  if (gld_stack_size > 1) {
+    if (arf_stack_size <= 1)
+      cm->remapped_ref_idx[BWDREF_FRAME - LAST_FRAME] = cpi->gld_stack[0];
+    else
+      cm->remapped_ref_idx[LAST3_FRAME - LAST_FRAME] = cpi->gld_stack[0];
+  }
+
+  for (int idx = ALTREF_FRAME - LAST_FRAME; idx >= 0; --idx) {
+    int ref_map_index = cm->remapped_ref_idx[idx];
+
+    if (ref_map_index != INVALID_IDX) continue;
+
+    for (int i = 0; i < cpi->arf_stack_size && ref_map_index == INVALID_IDX;
+         ++i) {
+      int ref_idx = 0;
+      for (ref_idx = 0; ref_idx <= ALTREF_FRAME - LAST_FRAME; ++ref_idx)
+        if (cpi->arf_stack[i] == cm->remapped_ref_idx[ref_idx]) break;
+
+      // not in use
+      if (ref_idx > ALTREF_FRAME - LAST_FRAME) {
+        ref_map_index = cpi->arf_stack[i];
+        break;
+      }
+    }
+
+    for (int i = 0; i < cpi->gld_stack_size && ref_map_index == INVALID_IDX;
+         ++i) {
+      int ref_idx = 0;
+      for (ref_idx = 0; ref_idx <= ALTREF_FRAME - LAST_FRAME; ++ref_idx)
+        if (cpi->gld_stack[i] == cm->remapped_ref_idx[ref_idx]) break;
+
+      // not in use
+      if (ref_idx > ALTREF_FRAME - LAST_FRAME) {
+        ref_map_index = cpi->gld_stack[i];
+        break;
+      }
+    }
+
+    for (int i = 0; i < cpi->lst_stack_size && ref_map_index == INVALID_IDX;
+         ++i) {
+      int ref_idx = 0;
+      for (ref_idx = 0; ref_idx <= ALTREF_FRAME - LAST_FRAME; ++ref_idx)
+        if (cpi->lst_stack[i] == cm->remapped_ref_idx[ref_idx]) break;
+
+      // not in use
+      if (ref_idx > ALTREF_FRAME - LAST_FRAME) {
+        ref_map_index = cpi->lst_stack[i];
+        break;
+      }
+    }
+
+    if (ref_map_index != INVALID_IDX)
+      cm->remapped_ref_idx[idx] = ref_map_index;
+    else
+      cm->remapped_ref_idx[idx] = cpi->gld_stack[0];
+  }
+}
 
 int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                         uint8_t *const dest, unsigned int *frame_flags,
@@ -1314,6 +1479,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                                force_refresh_all);
 
   if (oxcf->pass == 0 || oxcf->pass == 2) {
+    get_ref_frames(cpi, frame_update_type);
+
     // Work out which reference frame slots may be used.
     frame_params.ref_frame_flags = get_ref_frame_flags(cpi);
 
