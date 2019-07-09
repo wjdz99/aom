@@ -11494,9 +11494,13 @@ static void init_mode_skip_mask(mode_skip_mask_t *mask, const AV1_COMP *cpi,
 
   if (sf->adaptive_mode_search) {
     if (cm->show_frame && !cpi->rc.is_src_frame_alt_ref &&
-        cpi->rc.frames_since_golden >= 3)
-      if ((x->pred_mv_sad[GOLDEN_FRAME] >> 1) > x->pred_mv_sad[LAST_FRAME])
-        mask->pred_modes[GOLDEN_FRAME] |= INTER_ALL;
+        x->best_pred_mv_sad < INT_MAX) {
+      int sad_thresh = x->best_pred_mv_sad + (x->best_pred_mv_sad >> 1);
+      for (ref_frame = LAST2_FRAME; ref_frame <= GOLDEN_FRAME; ref_frame++) {
+        if (x->pred_mv_sad[ref_frame] > sad_thresh)
+          mask->pred_modes[ref_frame] |= INTER_ALL;
+      }
+    }
   }
 
   if (bsize > sf->max_intra_bsize) {
@@ -11579,7 +11583,7 @@ static void set_params_rd_pick_inter_mode(
                                  yv12_mb);
     }
     // Store the best pred_mv_sad across all past frames
-    if (cpi->sf.alt_ref_search_fp &&
+    if ((cpi->sf.alt_ref_search_fp || cpi->sf.adaptive_mode_search) &&
         cpi->ref_relative_dist[ref_frame - LAST_FRAME] < 0)
       x->best_pred_mv_sad =
           AOMMIN(x->best_pred_mv_sad, x->pred_mv_sad[ref_frame]);
