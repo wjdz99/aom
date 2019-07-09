@@ -334,6 +334,7 @@ static void set_good_speed_features_framesize_independent(
     // TODO(any): Experiment on the dependency of this speed feature with
     // use_intra_txb_hash, use_inter_txb_hash and use_mb_rd_hash speed features
     sf->enable_winner_mode_for_coeff_opt = 1;
+    sf->adaptive_mode_search = 1;
   }
 
   if (speed >= 4) {
@@ -344,7 +345,6 @@ static void set_good_speed_features_framesize_independent(
     sf->reduce_wiener_window_size = !boosted;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
     sf->cb_pred_filter_search = 1;
-    sf->adaptive_mode_search = 1;
     sf->alt_ref_search_fp = 1;
     sf->skip_sharp_interp_filter_search = 1;
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 4;
@@ -539,6 +539,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
     // it with cpi->sf.disable_wedge_search_var_thresh.
     sf->disable_wedge_interintra_search = 1;
+    sf->adaptive_mode_search = 1;
   }
 
   if (speed >= 4) {
@@ -549,7 +550,6 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->tx_size_search_method =
         frame_is_intra_only(cm) ? USE_FULL_RD : USE_LARGESTALL;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
-    sf->adaptive_mode_search = 1;
     sf->alt_ref_search_fp = 1;
     sf->skip_sharp_interp_filter_search = 1;
   }
