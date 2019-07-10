@@ -4664,6 +4664,35 @@ static void intra_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 }
 
+// Grouping intra modes
+// DC_H_V_modes: DC_PRED, V_PRED, H_PRED
+// ANGULAR_MODES:D45_PRED, D135_PRED, D113_PRED, D157_PRED, D203_PRED, D67_PRED
+// SMOOTH_MODES: SMOOTH_PRED, SMOOTH_V_PRED, SMOOTH_H_PRED, PAETH_PRED
+enum {
+  DC_H_V_modes,
+  ANGULAR_MODES,
+  SMOOTH_MODES,
+  ALL_GROUPS,
+} UENUM1BYTE(INTRA_MODE_GROUPS);
+
+// The table maps the different intra modes to INTRA_MODE_GROUPS
+static const INTRA_MODE_GROUPS
+    map_intra_modes_to_group[INTRA_MODE_END - INTRA_MODE_START] = {
+      DC_H_V_modes,   // DC_PRED
+      DC_H_V_modes,   // V_PRED
+      DC_H_V_modes,   // H_PRED
+      ANGULAR_MODES,  // D45_PRED
+      ANGULAR_MODES,  // D135_PRED
+      ANGULAR_MODES,  // D113_PRED
+      ANGULAR_MODES,  // D157_PRED
+      ANGULAR_MODES,  // D203_PRED
+      ANGULAR_MODES,  // D67_PRED
+      SMOOTH_MODES,   // SMOOTH_PRED
+      SMOOTH_MODES,   // SMOOTH_V_PRED
+      SMOOTH_MODES,   // SMOOTH_H_PRED
+      SMOOTH_MODES,   // PAETH_PRED
+    };
+
 // This function is used only for intra_only frames
 static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                       int mi_row, int mi_col, int *rate,
@@ -4673,12 +4702,15 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   assert(!is_inter_block(mbmi));
+  int64_t best_group_model_rd[ALL_GROUPS] = { INT64_MAX, INT64_MAX, INT64_MAX };
   int64_t best_model_rd = INT64_MAX;
+  int64_t model_rd[INTRA_MODE_END - INTRA_MODE_START];
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
   int is_directional_mode;
   uint8_t directional_mode_skip_mask[INTRA_MODES] = { 0 };
   int beat_best_rd = 0;
+  INTRA_MODE_GROUPS group_idx;
   const int *bmode_costs;
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
   const int try_palette =
@@ -4710,6 +4742,28 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   else
     x->use_default_intra_tx_type = 0;
 
+  // Calculate intra_model_yrd for all modes
+  // best_model_rd will be populated as the min model_rd of all modes
+  // best_group_model_rd[group_idx] will be populated as the min model_rd of the
+  // corresponding group.
+  for (int mode_idx = INTRA_MODE_START; mode_idx < INTRA_MODE_END; ++mode_idx) {
+    model_rd[mode_idx] = INT64_MAX;
+    mbmi->mode = intra_rd_search_mode_order[mode_idx];
+    group_idx = map_intra_modes_to_group[mbmi->mode];
+
+    if ((!cpi->oxcf.enable_smooth_intra || cpi->sf.disable_smooth_intra) &&
+        (mbmi->mode == SMOOTH_PRED || mbmi->mode == SMOOTH_H_PRED ||
+         mbmi->mode == SMOOTH_V_PRED))
+      continue;
+    if (!cpi->oxcf.enable_paeth_intra && mbmi->mode == PAETH_PRED) continue;
+
+    model_rd[mode_idx] =
+        intra_model_yrd(cpi, x, bsize, bmode_costs[mbmi->mode], mi_row, mi_col);
+    best_model_rd = AOMMIN(best_model_rd, model_rd[mode_idx]);
+    best_group_model_rd[group_idx] =
+        AOMMIN(best_group_model_rd[group_idx], model_rd[mode_idx]);
+  }
+
   MB_MODE_INFO best_mbmi = *mbmi;
   /* Y Search for intra prediction mode */
   for (int mode_idx = INTRA_MODE_START; mode_idx < INTRA_MODE_END; ++mode_idx) {
@@ -4717,18 +4771,15 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     int this_rate, this_rate_tokenonly, s;
     int64_t this_distortion, this_rd, this_model_rd;
     mbmi->mode = intra_rd_search_mode_order[mode_idx];
-    if ((!cpi->oxcf.enable_smooth_intra || cpi->sf.disable_smooth_intra) &&
-        (mbmi->mode == SMOOTH_PRED || mbmi->mode == SMOOTH_H_PRED ||
-         mbmi->mode == SMOOTH_V_PRED))
-      continue;
-    if (!cpi->oxcf.enable_paeth_intra && mbmi->mode == PAETH_PRED) continue;
+    group_idx = map_intra_modes_to_group[mbmi->mode];
+    if (model_rd[mode_idx] == INT64_MAX) continue;
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
-    this_model_rd =
-        intra_model_yrd(cpi, x, bsize, bmode_costs[mbmi->mode], mi_row, mi_col);
-    if (best_model_rd != INT64_MAX &&
-        this_model_rd > best_model_rd + (best_model_rd >> 1))
+    assert(model_rd[mode_idx] != INT64_MAX);
+    this_model_rd = model_rd[mode_idx];
+    if (best_group_model_rd[group_idx] != INT64_MAX &&
+        this_model_rd > best_group_model_rd[group_idx] +
+                            (best_group_model_rd[group_idx] >> 1))
       continue;
-    if (this_model_rd < best_model_rd) best_model_rd = this_model_rd;
     is_directional_mode = av1_is_directional_mode(mbmi->mode);
     if (is_directional_mode && directional_mode_skip_mask[mbmi->mode]) continue;
     if (is_directional_mode && av1_use_angle_delta(bsize) &&
@@ -4736,7 +4787,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       this_rd_stats.rate = INT_MAX;
       rd_pick_intra_angle_sby(cpi, x, mi_row, mi_col, &this_rate,
                               &this_rd_stats, bsize, bmode_costs[mbmi->mode],
-                              best_rd, &best_model_rd, 1);
+                              best_rd, &best_group_model_rd[group_idx], 1);
     } else {
       super_block_yrd(cpi, x, &this_rd_stats, bsize, best_rd);
     }
@@ -4771,6 +4822,12 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
              sizeof(x->blk_skip[0]) * ctx->num_4x4_blk);
     }
   }
+
+  // best_group_model_rd values eveolve in the case of directional modes,
+  // hence updating best_model_rd to the final minimum model_rd of all modes
+  best_model_rd =
+      AOMMIN(best_model_rd, AOMMIN(best_group_model_rd[DC_H_V_modes],
+                                   best_group_model_rd[ANGULAR_MODES]));
 
   if (try_palette) {
     rd_pick_palette_intra_sby(
