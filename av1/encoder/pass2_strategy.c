@@ -1835,13 +1835,6 @@ static void setup_target_rate(AV1_COMP *cpi, FRAME_TYPE frame_type) {
   if (cpi->oxcf.pass == 0) {
     av1_rc_set_frame_target(cpi, target_rate, cpi->common.width,
                             cpi->common.height);
-  } else {
-    if (frame_type == KEY_FRAME) {
-      target_rate = av1_rc_clamp_iframe_target_size(cpi, target_rate);
-    } else {
-      target_rate = av1_rc_clamp_pframe_target_size(
-          cpi, target_rate, gf_group->update_type[gf_group->index]);
-    }
   }
 
   rc->base_frame_target = target_rate;
