@@ -309,6 +309,7 @@ static void set_good_speed_features_framesize_independent(
     // sf->adaptive_motion_search = 1;
     sf->recode_loop = ALLOW_RECODE_KFARFGF;
     sf->use_accurate_subpel_search = USE_2_TAPS;
+    sf->restrict_comp_type = 1;
     if (cpi->oxcf.enable_smooth_interintra)
       sf->disable_smooth_interintra = boosted ? 0 : 1;
     sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
@@ -674,6 +675,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->selective_ref_gm = 1;
   sf->adaptive_motion_search = 0;
   sf->adaptive_mode_search = 0;
+  sf->restrict_comp_type = 0;
   sf->alt_ref_search_fp = 0;
   sf->partition_search_type = SEARCH_PARTITION;
   sf->tx_type_search.prune_mode = PRUNE_2D_ACCURATE;

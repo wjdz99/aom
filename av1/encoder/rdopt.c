@@ -10294,8 +10294,7 @@ static int64_t handle_inter_mode(
   inter_mode_info mode_info[MAX_REF_MV_SEARCH];
 
   int mode_search_mask[2];
-  const int do_two_loop_comp_search =
-      is_comp_pred && cpi->sf.two_loop_comp_search;
+  int do_two_loop_comp_search = is_comp_pred && cpi->sf.two_loop_comp_search;
   if (do_two_loop_comp_search) {
     // TODO(debargha): Change this to try alternate ways of splitting
     // modes while doing two pass compound_mode search.
@@ -10307,6 +10306,21 @@ static int64_t handle_inter_mode(
   mode_search_mask[1] = ((1 << COMPOUND_AVERAGE) | (1 << COMPOUND_DISTWTD) |
                          (1 << COMPOUND_WEDGE) | (1 << COMPOUND_DIFFWTD)) -
                         mode_search_mask[0];
+
+  if (cpi->sf.restrict_comp_type && is_comp_pred) {
+    if (xd->left_available && xd->up_available) {
+      const MB_MODE_INFO *mi_left = xd->mi[-1];
+      const MB_MODE_INFO *mi_top = xd->mi[-xd->mi_stride];
+      if (mi_left->mode < SINGLE_INTER_MODE_END &&
+          mi_top->mode < SINGLE_INTER_MODE_END &&
+          mi_left->ref_frame[0] == mi_top->ref_frame[0]) {
+        // Disable compound type RD's other than compound_average
+        mode_search_mask[0] = (1 << COMPOUND_AVERAGE);
+        mode_search_mask[1] = 0;
+        do_two_loop_comp_search = 0;
+      }
+    }
+  }
 
   // First, perform a simple translation search for each of the indices. If
   // an index performs well, it will be fully searched here.
