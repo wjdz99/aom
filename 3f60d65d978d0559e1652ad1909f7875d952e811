@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed2dae59_9f305bbe",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-11T21:35:01Z",
+      "side": 1,
+      "message": "Pls add a note about what the warning was",
+      "revId": "3f60d65d978d0559e1652ad1909f7875d952e811",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
