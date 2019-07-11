@@ -1306,16 +1306,16 @@ static void search_norestore(const RestorationTileLimits *limits,
 }
 
 #if CONFIG_LOOP_RESTORE_CNN
-static void search_cnn(const RestorationTileLimits *limits,
-                       const AV1PixelRect *tile_rect, int rest_unit_idx,
-                       void *priv, int32_t *tmpbuf,
-                       RestorationLineBuffers *rlbs) {
+void search_cnn(const RestorationTileLimits *limits,
+                const AV1PixelRect *tile_rect, int rest_unit_idx,
+                void *priv, int32_t *tmpbuf,
+                RestorationLineBuffers *rlbs) {
   (void)tile_rect;
   (void)tmpbuf;
   (void)rlbs;
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
-  AV1_COMMON *cm = rsc->cm;
+  const AV1_COMMON *cm = rsc->cm;
 
   const int highbd = rsc->cm->seq_params.use_highbitdepth;
   rusi->sse[RESTORE_NONE] = sse_restoration_unit(
