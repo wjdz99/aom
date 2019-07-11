@@ -8198,6 +8198,7 @@ static INLINE int64_t interpolation_filter_rd(
                             INT64_MAX);
       PrintPredictionUnitStats(cpi, tile_data, x, &rd_stats_y, bsize);
 #endif  // CONFIG_COLLECT_RD_STATS == 3
+      // Fall through.
     case INTERP_SKIP_LUMA_EVAL_CHROMA:
       // skip_pred = 1: skip luma evaluation (retain previous best luma stats)
       // and do chroma evaluation.
@@ -8217,7 +8218,7 @@ static INLINE int64_t interpolation_filter_rd(
       this_rd_stats = *rd_stats;
       break;
     case INTERP_EVAL_INVALID:
-    default: assert(1); return 0;
+    default: assert(0); return 0;
   }
   int64_t tmp_rd =
       RDCOST(x->rdmult, tmp_rs + this_rd_stats.rate, this_rd_stats.dist);
