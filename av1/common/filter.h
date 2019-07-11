@@ -52,6 +52,12 @@ enum {
   INTERP_SKIP_LUMA_SKIP_CHROMA,
 } UENUM1BYTE(INTERP_EVAL_PLANE);
 
+enum {
+  HORZ_NEQ_VERT_NEQ = 0,
+  HORZ_EQ_VERT_NEQ,
+  HORZ_NEQ_VERT_EQ,
+  HORZ_EQ_VERT_EQ,
+} UENUM1BYTE(INTERP_PRED_TYPE);
 // Pack two InterpFilter's into a uint32_t: since there are at most 10 filters,
 // we can use 16 bits for each and have more than enough space. This reduces
 // argument passing and unifies the operation of setting a (pair of) filters.
