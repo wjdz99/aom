@@ -31,6 +31,10 @@ extern "C" {
   (ROUND_POWER_OF_TWO(((int64_t)(R)) * (RM), AV1_PROB_COST_SHIFT) + \
    ((D) * (1 << RDDIV_BITS)))
 
+#define RDCOST_NEG_R(RM, R, D) \
+  (((D) * (1 << RDDIV_BITS)) - \
+   ROUND_POWER_OF_TWO(((int64_t)(R)) * (RM), AV1_PROB_COST_SHIFT))
+
 #define RDCOST_DBL(RM, R, D)                                       \
   (((((double)(R)) * (RM)) / (double)(1 << AV1_PROB_COST_SHIFT)) + \
    ((double)(D) * (1 << RDDIV_BITS)))
@@ -290,7 +294,8 @@ typedef struct RD_OPT {
 
   int RDMULT;
 
-  double r0;
+  double r0, arf_r0;
+  double mc_saved_base, mc_count_base;
 } RD_OPT;
 
 static INLINE void av1_init_rd_stats(RD_STATS *rd_stats) {
@@ -346,7 +351,8 @@ static INLINE void av1_invalid_rd_stats(RD_STATS *rd_stats) {
 static INLINE void av1_merge_rd_stats(RD_STATS *rd_stats_dst,
                                       const RD_STATS *rd_stats_src) {
   assert(rd_stats_dst->rate != INT_MAX && rd_stats_src->rate != INT_MAX);
-  rd_stats_dst->rate += rd_stats_src->rate;
+  rd_stats_dst->rate = (int)AOMMIN(
+      ((int64_t)rd_stats_dst->rate + (int64_t)rd_stats_src->rate), INT_MAX);
   if (!rd_stats_dst->zero_rate)
     rd_stats_dst->zero_rate = rd_stats_src->zero_rate;
   rd_stats_dst->dist += rd_stats_src->dist;
@@ -371,6 +377,49 @@ static INLINE void av1_merge_rd_stats(RD_STATS *rd_stats_dst,
     }
   }
 #endif
+}
+
+static INLINE void av1_accumulate_rd_stats(RD_STATS *rd_stats, int64_t dist,
+                                           int rate, int skip, int64_t sse,
+                                           int zero_rate) {
+  assert(rd_stats->rate != INT_MAX && rate != INT_MAX);
+  rd_stats->rate += rate;
+  if (!rd_stats->zero_rate) rd_stats->zero_rate = zero_rate;
+  rd_stats->dist += dist;
+  rd_stats->skip &= skip;
+  rd_stats->sse += sse;
+}
+
+static INLINE int64_t av1_calculate_rd_cost(int mult, int rate, int64_t dist) {
+  assert(mult >= 0);
+  if (rate >= 0) {
+    return RDCOST(mult, rate, dist);
+  }
+  return RDCOST_NEG_R(mult, -rate, dist);
+}
+
+static INLINE void av1_rd_cost_update(int mult, RD_STATS *rd_cost) {
+  if (rd_cost->rate < INT_MAX && rd_cost->dist < INT64_MAX &&
+      rd_cost->rdcost < INT64_MAX) {
+    rd_cost->rdcost = av1_calculate_rd_cost(mult, rd_cost->rate, rd_cost->dist);
+  } else {
+    av1_invalid_rd_stats(rd_cost);
+  }
+}
+
+static INLINE void av1_rd_stats_subtraction(int mult,
+                                            const RD_STATS *const left,
+                                            const RD_STATS *const right,
+                                            RD_STATS *result) {
+  if (left->rate == INT_MAX || right->rate == INT_MAX ||
+      left->dist == INT64_MAX || right->dist == INT64_MAX ||
+      left->rdcost == INT64_MAX || right->rdcost == INT64_MAX) {
+    av1_invalid_rd_stats(result);
+  } else {
+    result->rate = left->rate - right->rate;
+    result->dist = left->dist - right->dist;
+    result->rdcost = av1_calculate_rd_cost(mult, result->rate, result->dist);
+  }
 }
 
 struct TileInfo;
@@ -438,6 +487,22 @@ static INLINE void set_error_per_bit(MACROBLOCK *x, int rdmult) {
   x->errorperbit += (x->errorperbit == 0);
 }
 
+// Get the threshold for R-D optimization of coefficients depending upon mode
+// decision/winner mode processing
+static INLINE uint32_t get_rd_opt_coeff_thresh(
+    uint32_t coeff_opt_dist_threshold, int enable_winner_mode_for_coeff_opt,
+    int is_winner_mode) {
+  uint32_t coeff_opt_thresh = coeff_opt_dist_threshold;
+  // TODO(any): Experiment with coeff_opt_dist_threshold values when
+  // enable_winner_mode_for_coeff_opt is ON
+  // TODO(any): Skip the winner mode processing for blocks with lower residual
+  // energy as R-D optimization of coefficients would have been enabled during
+  // mode decision
+  if (is_winner_mode && enable_winner_mode_for_coeff_opt)
+    coeff_opt_thresh = UINT32_MAX;
+  return coeff_opt_thresh;
+}
+
 void av1_setup_pred_block(const MACROBLOCKD *xd,
                           struct buf_2d dst[MAX_MB_PLANE],
                           const YV12_BUFFER_CONFIG *src, int mi_row, int mi_col,
@@ -455,6 +520,8 @@ void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc,
                           const int num_planes);
 
 int av1_get_adaptive_rdmult(const struct AV1_COMP *cpi, double beta);
+
+int av1_get_deltaq_offset(const struct AV1_COMP *cpi, int qindex, double beta);
 
 #ifdef __cplusplus
 }  // extern "C"

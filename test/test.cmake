@@ -128,9 +128,15 @@ if(NOT BUILD_SHARED_LIBS)
                 "${AOM_ROOT}/test/superframe_test.cc"
                 "${AOM_ROOT}/test/tile_independence_test.cc"
                 "${AOM_ROOT}/test/yuv_temporal_filter_test.cc")
+
     if(CONFIG_TENSORFLOW)
       list(APPEND AOM_UNIT_TEST_COMMON_SOURCES
                   "${AOM_ROOT}/test/tensorflow_link_test.cc")
+    endif()
+
+    if(CONFIG_REALTIME_ONLY)
+      list(REMOVE_ITEM AOM_UNIT_TEST_COMMON_SOURCES
+                       "${AOM_ROOT}/test/yuv_temporal_filter_test.cc")
     endif()
   endif()
 
@@ -186,6 +192,7 @@ if(NOT BUILD_SHARED_LIBS)
               "${AOM_ROOT}/test/av1_txfm_test.cc"
               "${AOM_ROOT}/test/av1_txfm_test.h"
               "${AOM_ROOT}/test/av1_wedge_utils_test.cc"
+              "${AOM_ROOT}/test/avg_test.cc"
               "${AOM_ROOT}/test/blend_a64_mask_1d_test.cc"
               "${AOM_ROOT}/test/blend_a64_mask_test.cc"
               "${AOM_ROOT}/test/comp_avg_pred_test.cc"
@@ -210,6 +217,7 @@ if(NOT BUILD_SHARED_LIBS)
               "${AOM_ROOT}/test/sum_squares_test.cc"
               "${AOM_ROOT}/test/variance_test.cc"
               "${AOM_ROOT}/test/wiener_test.cc"
+              "${AOM_ROOT}/test/frame_error_test.cc"
               "${AOM_ROOT}/test/warp_filter_test.cc"
               "${AOM_ROOT}/test/warp_filter_test_util.cc"
               "${AOM_ROOT}/test/warp_filter_test_util.h")
