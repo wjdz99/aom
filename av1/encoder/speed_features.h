@@ -438,6 +438,9 @@ typedef struct SPEED_FEATURES {
 
   int alt_ref_search_fp;
 
+  // Restrict compond mode evaluations
+  int restrict_comp_mode;
+
   // Implements various heuristics to skip searching modes
   // The heuristics selected are based on  flags
   // defined in the MODE_SEARCH_SKIP_HEURISTICS enum

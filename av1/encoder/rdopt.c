@@ -10279,6 +10279,21 @@ static int64_t handle_inter_mode(
                          (1 << COMPOUND_WEDGE) | (1 << COMPOUND_DIFFWTD)) -
                         mode_search_mask[0];
 
+  // Disable compound prediction for selective cases
+  if (cpi->sf.restrict_comp_mode && is_comp_pred) {
+    const MB_MODE_INFO *mi_left = xd->left_available ? xd->mi[-1] : NULL;
+    const MB_MODE_INFO *mi_top =
+        xd->up_available ? xd->mi[-xd->mi_stride] : NULL;
+    if (mi_left != NULL && mi_top != NULL) {
+      if (mi_left->mode <= NEWMV && mi_top->mode <= NEWMV &&
+          mi_left->ref_frame[1] == NONE_FRAME &&
+          mi_top->ref_frame[1] == NONE_FRAME &&
+          mi_left->ref_frame[0] == mi_top->ref_frame[0] &&
+          mi_left->ref_frame[0] != INTRA_FRAME)
+        mode_search_mask[0] = mode_search_mask[1] = 0;
+    }
+  }
+
   // First, perform a simple translation search for each of the indices. If
   // an index performs well, it will be fully searched here.
   const int ref_set = get_drl_refmv_count(x, mbmi->ref_frame, this_mode);
@@ -12524,6 +12539,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   unsigned int ref_costs_single[REF_FRAMES];
   unsigned int ref_costs_comp[REF_FRAMES][REF_FRAMES];
   int *comp_inter_cost = x->comp_inter_cost[av1_get_reference_mode_context(xd)];
+  int skip_comp_pred = 0;
   mode_skip_mask_t mode_skip_mask;
 
   InterModeSearchState search_state;
@@ -12597,6 +12613,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                        INT64_MAX, INT64_MAX, INT64_MAX,
                                        INT64_MAX, INT64_MAX };
   const int skip_ctx = av1_get_skip_context(xd);
+
   for (int midx = 0; midx < MAX_MODES; ++midx) {
     if (inter_mode_compatible_skip(cpi, x, bsize, midx)) continue;
 
@@ -12649,6 +12666,10 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       if (sf_check_is_drop_ref(mode_order, &search_state)) {
         continue;
       }
+    }
+
+    if (sf->restrict_comp_mode && comp_pred) {
+      if (skip_comp_pred) continue;
     }
 
     if (search_state.best_rd < search_state.mode_threshold[midx]) continue;
