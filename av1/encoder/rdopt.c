@@ -10294,19 +10294,24 @@ static int64_t handle_inter_mode(
   inter_mode_info mode_info[MAX_REF_MV_SEARCH];
 
   int mode_search_mask[2];
-  const int do_two_loop_comp_search =
-      is_comp_pred && cpi->sf.two_loop_comp_search;
+  int do_two_loop_comp_search = is_comp_pred && cpi->sf.two_loop_comp_search;
   if (do_two_loop_comp_search) {
     // TODO(debargha): Change this to try alternate ways of splitting
     // modes while doing two pass compound_mode search.
     mode_search_mask[0] = (1 << COMPOUND_AVERAGE);
   } else {
     mode_search_mask[0] = (1 << COMPOUND_AVERAGE) | (1 << COMPOUND_DISTWTD) |
-                          (1 << COMPOUND_WEDGE) | (1 << COMPOUND_DIFFWTD);
+                          (1 << COMPOUND_DIFFWTD);
   }
   mode_search_mask[1] = ((1 << COMPOUND_AVERAGE) | (1 << COMPOUND_DISTWTD) |
-                         (1 << COMPOUND_WEDGE) | (1 << COMPOUND_DIFFWTD)) -
+                         (1 << COMPOUND_DIFFWTD)) -
                         mode_search_mask[0];
+
+  if (x->restrict_comp_type) {
+    mode_search_mask[0] = (1 << COMPOUND_DIFFWTD);
+    mode_search_mask[1] = 0;
+    do_two_loop_comp_search = 0;
+  }
 
   // First, perform a simple translation search for each of the indices. If
   // an index performs well, it will be fully searched here.
@@ -12623,6 +12628,27 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                        INT64_MAX, INT64_MAX, INT64_MAX,
                                        INT64_MAX, INT64_MAX };
   const int skip_ctx = av1_get_skip_context(xd);
+  const int boosted = frame_is_kf_gf_arf(cpi);
+  const int is_boosted_arf2_bwd_type =
+      boosted || cpi->refresh_bwd_ref_frame || cpi->refresh_alt2_ref_frame;
+
+  // Disable restriction of compound modes and compound type RD by default
+  x->restrict_comp_mode = 0;
+  x->restrict_comp_type = 0;
+  if (cpi->sf.restrict_comp_modes) {
+    if (xd->left_available && xd->up_available) {
+      const MB_MODE_INFO *mi_left = xd->mi[-1];
+      const MB_MODE_INFO *mi_top = xd->mi[-xd->mi_stride];
+      if (mi_left->mode < SINGLE_INTER_MODE_END &&
+          mi_top->mode < SINGLE_INTER_MODE_END &&
+          mi_left->ref_frame[0] == mi_top->ref_frame[0]) {
+        // This code enables restrictions for compound mode prediction
+        x->restrict_comp_mode = is_boosted_arf2_bwd_type ? 0 : 0;
+        x->restrict_comp_type = is_boosted_arf2_bwd_type ? 1 : 1;
+      }
+    }
+  }
+
   for (int midx = 0; midx < MAX_MODES; ++midx) {
     if (inter_mode_compatible_skip(cpi, x, bsize, midx)) continue;
 
@@ -12676,6 +12702,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         continue;
       }
     }
+
+    if (x->restrict_comp_mode && comp_pred) continue;
 
     if (search_state.best_rd < search_state.mode_threshold[midx]) continue;
 
