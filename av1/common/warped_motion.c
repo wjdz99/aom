@@ -516,7 +516,7 @@ void av1_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
 
 static void highbd_warp_plane(WarpedMotionParams *wm, const uint8_t *const ref8,
                               int width, int height, int stride,
-                              const uint8_t *const pred8, int p_col, int p_row,
+                              uint8_t *const pred8, int p_col, int p_row,
                               int p_width, int p_height, int p_stride,
                               int subsampling_x, int subsampling_y, int bd,
                               ConvolveParams *conv_params) {
