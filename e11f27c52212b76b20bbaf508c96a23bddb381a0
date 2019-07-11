@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "63698c35_308669b7",
+        "filename": "av1/encoder/rd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 9096
+      },
+      "writtenOn": "2019-07-11T07:13:54Z",
+      "side": 0,
+      "message": "MAX_MODES is needed in block.h but defined in rd.h. One possible approach could be including rd.h in block.h. But, this will cause compilation issues because of cyclic dependency as rd.h includes block.h. \nTherefore, we feel that adding this enum here seems a better solution.\n\nPlease let us know, in case you have a different opinion.",
+      "parentUuid": "40c3ea0a_d2fab246",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 6
+      },
+      "revId": "e11f27c52212b76b20bbaf508c96a23bddb381a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "919a4030_ea4d6b52",
         "filename": "av1/encoder/rdopt.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "e11f27c52212b76b20bbaf508c96a23bddb381a0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7d18ac6_a5a3d4f3",
+        "filename": "av1/encoder/rdopt.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 9096
+      },
+      "writtenOn": "2019-07-11T07:13:54Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "919a4030_ea4d6b52",
+      "range": {
+        "startLine": 147,
+        "startChar": 31,
+        "endLine": 147,
+        "endChar": 61
+      },
+      "revId": "e11f27c52212b76b20bbaf508c96a23bddb381a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
