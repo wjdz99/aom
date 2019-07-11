@@ -1849,3 +1849,36 @@ void av1_set_target_rate(AV1_COMP *cpi, int width, int height) {
     vbr_rate_correction(cpi, &target_rate);
   av1_rc_set_frame_target(cpi, target_rate, width, height);
 }
+
+static void onepass_setup_target_rate(AV1_COMP *cpi, FRAME_TYPE frame_type) {
+  RATE_CONTROL *const rc = &cpi->rc;
+  GF_GROUP *const gf_group = &cpi->gf_group;
+  int target_rate = rc->avg_frame_bandwidth;
+  if (frame_type == KEY_FRAME) {
+    target_rate = av1_rc_clamp_iframe_target_size(cpi, target_rate);
+    target_rate = 9999;
+  } else {
+    target_rate = av1_rc_clamp_pframe_target_size(
+      cpi, target_rate, gf_group->update_type[gf_group->index]);
+  }
+  av1_rc_set_frame_target(cpi, target_rate, cpi->common.width,
+                          cpi->common.height);
+  rc->base_frame_target = target_rate;
+}
+
+void av1_get_one_pass_cbr_params(AV1_COMP *cpi,
+                                EncodeFrameParams *const frame_params,
+                                unsigned int frame_flags) {
+  RATE_CONTROL *const rc = &cpi->rc;
+  aom_clear_system_state();
+  if (rc->frames_to_key == 0 || (frame_flags & FRAMEFLAGS_KEY)) {
+    frame_params->frame_type = KEY_FRAME;
+  } else {
+    frame_params->frame_type = INTER_FRAME;
+  }
+  if (rc->frames_till_gf_update_due == 0) {
+    rc->frames_till_gf_update_due = rc->baseline_gf_interval;
+  }
+  onepass_setup_target_rate(cpi, frame_params->frame_type);
+  rc->active_worst_quality = calc_active_worst_quality_one_pass_cbr(cpi);
+}
