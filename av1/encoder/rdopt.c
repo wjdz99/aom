@@ -10452,8 +10452,22 @@ static int64_t handle_inter_mode(
 #if CONFIG_COLLECT_COMPONENT_TIMING
       start_timing(cpi, compound_type_rd_time);
 #endif
+      // Disable compound production for selective cases
+      int skip_compound_pred = 0;
+      MB_MODE_INFO *mi_left;
+      MB_MODE_INFO *mi_top;
+
+      mi_left = (mi_col >= 8) ? xd->mi[-1] : NULL;
+      mi_top = (mi_row >= 8) ? xd->mi[-xd->mi_stride] : NULL;
+
+      if (mi_left != NULL && mi_top != NULL) {
+        if (mi_left->mode <= NEWMV && mi_top->mode <= NEWMV &&
+            mi_left->ref_frame[1] <= 1 && mi_top->ref_frame[1] <= 1)
+          skip_compound_pred = 1;
+      }
+
       int skip_build_pred = 0;
-      if (is_comp_pred) {
+      if (is_comp_pred && !skip_compound_pred) {
         if (mode_search_mask[comp_loop_idx] == (1 << COMPOUND_AVERAGE)) {
           // Only compound_average
           mbmi->interinter_comp.type = COMPOUND_AVERAGE;
