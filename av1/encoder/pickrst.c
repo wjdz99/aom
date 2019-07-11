@@ -24,7 +24,13 @@
 #include "aom_ports/mem.h"
 #include "aom_ports/system_state.h"
 #if CONFIG_LOOP_RESTORE_CNN
-#include "av1/common/cnn_restore_models.h"
+#include "av1/common/cnn.h"
+#include "av1/common/cnn_wrapper.h"
+#include "av1/models/intra_frame_model/qp22.h"
+#include "av1/models/intra_frame_model/qp32.h"
+#include "av1/models/intra_frame_model/qp43.h"
+#include "av1/models/intra_frame_model/qp53.h"
+#include "av1/models/intra_frame_model/qp63.h"
 #endif  // CONFIG_LOOP_RESTORE_CNN
 #include "av1/common/onyxc_int.h"
 #include "av1/common/quant_common.h"
