@@ -212,9 +212,21 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
     for (s = 1; s < EXT_TX_SETS_INTRA; ++s) {
       if (use_intra_ext_tx_for_txsize[s][i]) {
         for (j = 0; j < INTRA_MODES; ++j) {
-          av1_cost_tokens_from_cdf(
-              x->intra_tx_type_costs[s][i][j], fc->intra_ext_tx_cdf[s][i][j],
-              av1_ext_tx_inv[av1_ext_tx_set_idx_to_type[0][s]]);
+#if CONFIG_REDUCED_INTRA_TX
+          if (av1_ext_tx_set_idx_to_type[0][s] ==
+#if CONFIG_MODE_DEP_TX
+              EXT_TX_SET_DTT4_IDTX_1DDCT_MDTX3)
+#else
+              EXT_TX_SET_DTT4_IDTX_1DDCT)
+#endif
+            av1_cost_tokens_from_cdf(x->intra_tx_type_costs[s][i][j],
+                                     fc->intra_ext_tx_cdf[s][i][j],
+                                     av1_reduced_intra_tx_set_inv[j]);
+          else
+#endif
+            av1_cost_tokens_from_cdf(
+                x->intra_tx_type_costs[s][i][j], fc->intra_ext_tx_cdf[s][i][j],
+                av1_ext_tx_inv[av1_ext_tx_set_idx_to_type[0][s]]);
         }
       }
     }

@@ -2038,13 +2038,25 @@ static void update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
             ++counts->mdtx_type_intra[txsize_sqr_map[tx_size]][intra_dir]
                                      [tx_type - MDTX_INTRA_1];
           else
+#if CONFIG_REDUCED_INTRA_TX
+            ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][intra_dir]
+                                  [av1_reduced_intra_tx_set_ind[intra_dir]
+                                                               [tx_type]];
+#else
             ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][intra_dir]
                                   [av1_ext_tx_ind[tx_set_type][tx_type]];
+#endif
+        } else {
+#elif CONFIG_REDUCED_INTRA_TX
+        if (tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT) {
+          ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][intra_dir]
+                                [av1_reduced_intra_tx_set_ind[intra_dir]
+                                                             [tx_type]];
         } else {
 #endif
           ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][intra_dir]
                                 [av1_ext_tx_ind[tx_set_type][tx_type]];
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA
+#if (CONFIG_MODE_DEP_TX && USE_MDTX_INTRA) || CONFIG_REDUCED_INTRA_TX
         }
 #endif
 #endif  // CONFIG_ENTROPY_STATS
@@ -2062,16 +2074,27 @@ static void update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
             } else {
               update_cdf(fc->intra_ext_tx_cdf[eset][txsize_sqr_map[tx_size]]
                                              [intra_dir],
+#if CONFIG_REDUCED_INTRA_TX
+                         av1_reduced_intra_tx_set_ind[intra_dir][tx_type],
+#else
                          av1_ext_tx_ind[tx_set_type][tx_type],
+#endif
                          av1_num_ext_tx_set[tx_set_type]);
             }
+          } else {
+#elif CONFIG_REDUCED_INTRA_TX
+          if (tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT) {
+            update_cdf(
+                fc->intra_ext_tx_cdf[eset][txsize_sqr_map[tx_size]][intra_dir],
+                av1_reduced_intra_tx_set_ind[intra_dir][tx_type],
+                av1_num_ext_tx_set[tx_set_type]);
           } else {
 #endif
             update_cdf(
                 fc->intra_ext_tx_cdf[eset][txsize_sqr_map[tx_size]][intra_dir],
                 av1_ext_tx_ind[tx_set_type][tx_type],
                 av1_num_ext_tx_set[tx_set_type]);
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA
+#if (CONFIG_MODE_DEP_TX && USE_MDTX_INTRA) || CONFIG_REDUCED_INTRA_TX
           }
 #endif
         }

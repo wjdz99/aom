@@ -174,10 +174,25 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
   txfm_param.bd = xd->bd;
   txfm_param.is_hbd = is_cur_buf_hbd(xd);
+#if CONFIG_MODE_DEP_TX || CONFIG_REDUCED_INTRA_TX
+  PREDICTION_MODE intra_dir =
+      mbmi->filter_intra_mode_info.use_filter_intra
+          ? fimode_to_intradir[mbmi->filter_intra_mode_info.filter_intra_mode]
+          : mbmi->mode;
 #if CONFIG_MODE_DEP_TX
-  txfm_param.mode = mbmi->mode;
+  txfm_param.mode = intra_dir;
+#endif
 #endif
 
+#if CONFIG_REDUCED_INTRA_TX
+#if CONFIG_MODE_DEP_TX
+  if (txfm_param.tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT_MDTX3) {
+#else
+  if (txfm_param.tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT) {
+#endif
+    assert(av1_reduced_tx_used[intra_dir][tx_type]);
+  }
+#endif
   av1_fwd_txfm(src_diff, coeff, diff_stride, &txfm_param);
 
   if (xform_quant_idx != AV1_XFORM_QUANT_SKIP_QUANT) {
