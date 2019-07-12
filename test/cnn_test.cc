@@ -15,8 +15,9 @@
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
-#include "av1/common/cnn.h"
 #include "config/av1_rtcd.h"
+
+#include "av1/common/cnn.h"
 
 #define SQR(x) ((x) * (x))
 
