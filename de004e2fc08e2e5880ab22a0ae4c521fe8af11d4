@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a84efe5a_f8d66aec",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-07-12T21:57:42Z",
+      "side": 1,
+      "message": "you could change these to C++ naming style (HadamardLoop)",
+      "range": {
+        "startLine": 29,
+        "startChar": 5,
+        "endLine": 29,
+        "endChar": 18
+      },
+      "revId": "de004e2fc08e2e5880ab22a0ae4c521fe8af11d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "448e96e2_a9e4b769",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-07-12T21:57:42Z",
+      "side": 1,
+      "message": "some day we could normalize all the tests to use \u0027override\u0027, etc. since they\u0027re now building as c++11",
+      "range": {
+        "startLine": 134,
+        "startChar": 2,
+        "endLine": 134,
+        "endChar": 10
+      },
+      "revId": "de004e2fc08e2e5880ab22a0ae4c521fe8af11d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a435069_94ff3ecb",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-07-12T21:57:42Z",
+      "side": 1,
+      "message": "these can be in the more natural order now: (memcmp, 0)",
+      "revId": "de004e2fc08e2e5880ab22a0ae4c521fe8af11d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5577cb7_27c7a673",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-07-12T21:57:42Z",
+      "side": 1,
+      "message": "these could be private since they\u0027re just used in the class itself",
+      "revId": "de004e2fc08e2e5880ab22a0ae4c521fe8af11d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9e0a19a_59f61b1f",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-07-12T21:57:42Z",
+      "side": 1,
+      "message": "public",
+      "revId": "de004e2fc08e2e5880ab22a0ae4c521fe8af11d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
