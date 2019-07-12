@@ -2593,10 +2593,14 @@ static void rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
 
   if (none_rd) *none_rd = 0;
   int partition_none_allowed = has_rows && has_cols;
-  int partition_horz_allowed = has_cols && yss <= xss && bsize_at_least_8x8 &&
-                               cpi->oxcf.enable_rect_partitions;
-  int partition_vert_allowed = has_rows && xss <= yss && bsize_at_least_8x8 &&
-                               cpi->oxcf.enable_rect_partitions;
+  int partition_horz_allowed =
+      has_cols && bsize_at_least_8x8 && cpi->oxcf.enable_rect_partitions &&
+      get_plane_block_size(get_partition_subsize(bsize, PARTITION_HORZ), xss,
+                           yss) != BLOCK_INVALID;
+  int partition_vert_allowed =
+      has_rows && bsize_at_least_8x8 && cpi->oxcf.enable_rect_partitions &&
+      get_plane_block_size(get_partition_subsize(bsize, PARTITION_VERT), xss,
+                           yss) != BLOCK_INVALID;
 
   (void)*tp_orig;
 
@@ -2786,10 +2790,14 @@ BEGIN_PARTITION_SEARCH:
     do_square_split =
         bsize_at_least_8x8 && partition_cost[PARTITION_SPLIT] != INT_MAX;
     partition_none_allowed = has_rows && has_cols;
-    partition_horz_allowed = has_cols && yss <= xss && bsize_at_least_8x8 &&
-                             cpi->oxcf.enable_rect_partitions;
-    partition_vert_allowed = has_rows && xss <= yss && bsize_at_least_8x8 &&
-                             cpi->oxcf.enable_rect_partitions;
+    partition_horz_allowed =
+        has_cols && bsize_at_least_8x8 && cpi->oxcf.enable_rect_partitions &&
+        get_plane_block_size(get_partition_subsize(bsize, PARTITION_HORZ), xss,
+                             yss) != BLOCK_INVALID;
+    partition_vert_allowed =
+        has_rows && bsize_at_least_8x8 && cpi->oxcf.enable_rect_partitions &&
+        get_plane_block_size(get_partition_subsize(bsize, PARTITION_VERT), xss,
+                             yss) != BLOCK_INVALID;
     terminate_partition_search = 0;
   }
 
@@ -3492,8 +3500,14 @@ BEGIN_PARTITION_SEARCH:
                                  ext_partition_allowed &&
                                  bsize != BLOCK_128X128;
 
-  int partition_horz4_allowed = partition4_allowed && partition_horz_allowed;
-  int partition_vert4_allowed = partition4_allowed && partition_vert_allowed;
+  int partition_horz4_allowed =
+      partition4_allowed && partition_horz_allowed &&
+      get_plane_block_size(get_partition_subsize(bsize, PARTITION_HORZ_4), xss,
+                           yss) != BLOCK_INVALID;
+  int partition_vert4_allowed =
+      partition4_allowed && partition_vert_allowed &&
+      get_plane_block_size(get_partition_subsize(bsize, PARTITION_VERT_4), xss,
+                           yss) != BLOCK_INVALID;
   if (cpi->sf.prune_ext_partition_types_search_level == 2) {
     partition_horz4_allowed &= (pc_tree->partitioning == PARTITION_HORZ ||
                                 pc_tree->partitioning == PARTITION_HORZ_A ||
