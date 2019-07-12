@@ -4337,13 +4337,12 @@ static int rd_pick_palette_intra_sby(
 }
 
 // Return 1 if an filter intra mode is selected; return 0 otherwise.
-static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
-                                    int mi_row, int mi_col, int *rate,
-                                    int *rate_tokenonly, int64_t *distortion,
-                                    int *skippable, BLOCK_SIZE bsize,
-                                    int mode_cost, int64_t *best_rd,
-                                    int64_t *best_model_rd,
-                                    PICK_MODE_CONTEXT *ctx) {
+static int rd_pick_filter_intra_sby(
+    const AV1_COMP *const cpi, MACROBLOCK *x, int mi_row, int mi_col, int *rate,
+    int *rate_tokenonly, int64_t *distortion, int *skippable, BLOCK_SIZE bsize,
+    int mode_cost, int64_t *best_rd, int64_t *best_model_rd,
+    PICK_MODE_CONTEXT *ctx, RdIdxPair *model_rd_idx_pair) {
+  const AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
   int filter_intra_selected_flag = 0;
@@ -4361,11 +4360,31 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
     int64_t this_rd, this_model_rd;
     RD_STATS tokenonly_rd_stats;
     mbmi->filter_intra_mode_info.filter_intra_mode = mode;
-    this_model_rd = intra_model_yrd(cpi, x, bsize, mode_cost, mi_row, mi_col);
+    // If corresponding intra model_rd computed, reuse it
+    if (model_rd_idx_pair[mode].rd != INT64_MAX)
+      this_model_rd = model_rd_idx_pair[mode].rd;
+    else
+      this_model_rd = intra_model_yrd(cpi, x, bsize, mode_cost, mi_row, mi_col);
     if (*best_model_rd != INT64_MAX &&
         this_model_rd > *best_model_rd + (*best_model_rd >> 1))
       continue;
     if (this_model_rd < *best_model_rd) *best_model_rd = this_model_rd;
+    // Prediction done if intra_model_yrd not called
+    if (model_rd_idx_pair[mode].rd != INT64_MAX) {
+      int col, row;
+      TX_SIZE tx_size = tx_size_from_tx_mode(bsize, cm->tx_mode);
+      const int stepr = tx_size_high_unit[tx_size];
+      const int stepc = tx_size_wide_unit[tx_size];
+      const int max_blocks_wide = max_block_wide(xd, bsize, 0);
+      const int max_blocks_high = max_block_high(xd, bsize, 0);
+      mbmi->tx_size = tx_size;
+      // Prediction.
+      for (row = 0; row < max_blocks_high; row += stepr) {
+        for (col = 0; col < max_blocks_wide; col += stepc) {
+          av1_predict_intra_block_facade(cm, xd, 0, col, row, tx_size);
+        }
+      }
+    }
     super_block_yrd(cpi, x, &tokenonly_rd_stats, bsize, *best_rd);
     if (tokenonly_rd_stats.rate == INT_MAX) continue;
     const int this_rate =
@@ -4664,6 +4683,25 @@ static void intra_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 }
 
+// Table to map intra modes to filter_intra modes
+// 0xFF is set for invalid cases
+const FILTER_INTRA_MODE
+    map_intra_to_filter_intra[INTRA_MODE_END - INTRA_MODE_START] = {
+      FILTER_DC_PRED,     // DC_PRED
+      FILTER_V_PRED,      // V_PRED
+      FILTER_H_PRED,      // H_PRED
+      0xFF,               // D45_PRED
+      0xFF,               // D135_PRED
+      0xFF,               // D113_PRED
+      FILTER_D157_PRED,   // D157_PRED
+      0xFF,               // D203_PRED
+      0xFF,               // D67_PRED
+      0xFF,               // SMOOTH_PRED
+      0xFF,               // SMOOTH_V_PRED
+      NULL,               // SMOOTH_H_PRED
+      FILTER_PAETH_PRED,  // PAETH_PRED
+    };
+
 // This function is used only for intra_only frames
 static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                       int mi_row, int mi_col, int *rate,
@@ -4676,6 +4714,12 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   int64_t best_model_rd = INT64_MAX;
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
+  RdIdxPair filter_intra_modes_model_rd[FILTER_INTRA_MODES];
+  for (int i = 0; i < FILTER_INTRA_MODES; i++) {
+    filter_intra_modes_model_rd[i].idx = i;
+    filter_intra_modes_model_rd[i].rd = INT64_MAX;
+  }
+  FILTER_INTRA_MODE filter_intra_mode_type;
   int is_directional_mode;
   uint8_t directional_mode_skip_mask[INTRA_MODES] = { 0 };
   int beat_best_rd = 0;
@@ -4693,7 +4737,6 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int above_ctx = intra_mode_context[A];
   const int left_ctx = intra_mode_context[L];
   bmode_costs = x->y_mode_costs[above_ctx][left_ctx];
-
   mbmi->angle_delta[PLANE_TYPE_Y] = 0;
   if (cpi->sf.intra_angle_estimation) {
     const int src_stride = x->plane[0].src.stride;
@@ -4725,6 +4768,10 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
     this_model_rd =
         intra_model_yrd(cpi, x, bsize, bmode_costs[mbmi->mode], mi_row, mi_col);
+    filter_intra_mode_type = map_intra_to_filter_intra[mbmi->mode];
+    if (filter_intra_mode_type != 0xFF) {
+      filter_intra_modes_model_rd[filter_intra_mode_type].rd = this_model_rd;
+    }
     if (best_model_rd != INT64_MAX &&
         this_model_rd > best_model_rd + (best_model_rd >> 1))
       continue;
@@ -4780,9 +4827,10 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   if (beat_best_rd && av1_filter_intra_allowed_bsize(&cpi->common, bsize)) {
-    if (rd_pick_filter_intra_sby(
-            cpi, x, mi_row, mi_col, rate, rate_tokenonly, distortion, skippable,
-            bsize, bmode_costs[DC_PRED], &best_rd, &best_model_rd, ctx)) {
+    if (rd_pick_filter_intra_sby(cpi, x, mi_row, mi_col, rate, rate_tokenonly,
+                                 distortion, skippable, bsize,
+                                 bmode_costs[DC_PRED], &best_rd, &best_model_rd,
+                                 ctx, filter_intra_modes_model_rd)) {
       best_mbmi = *mbmi;
     }
   }
