@@ -22,6 +22,7 @@
 #include "av1/common/reconintra.h"
 
 #include "av1/encoder/encoder.h"
+#include "av1/encoder/encode_strategy.h"
 #include "av1/encoder/reconinter_enc.h"
 
 #define MC_FLOW_BSIZE 16
@@ -556,6 +557,10 @@ static void init_gop_frames_for_tpl(AV1_COMP *cpi,
   RefCntBuffer *frame_bufs = cm->buffer_pool->frame_bufs;
   int pframe_qindex = 0;
   int cur_frame_idx = gf_group->index;
+  
+  YV12_BUFFER_CONFIG *ref_picture_map[REF_FRAMES];
+  for (int i = 0; i < REF_FRAMES; ++i)
+    ref_picture_map[i] = &cm->ref_frame_map[i]->buf;
 
   for (int i = 0; i < FRAME_BUFFERS && frame_idx < INTER_REFS_PER_FRAME + 1;
        ++i) {
