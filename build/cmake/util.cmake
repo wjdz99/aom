@@ -25,7 +25,11 @@ macro(create_dummy_source_file basename extension out_file_list_var)
        "// Generated file. DO NOT EDIT!\n"
        "// ${target_name} needs a ${extension} file to force link language, \n"
        "// or to silence a harmless CMake warning: Ignore me.\n"
+<<<<<<< HEAD   (9d61ba Enable cnn as an option in loop_restoration.)
        "void ${target_name}_dummy_function(void) {}\n")
+=======
+       "void aom_${target_name}_dummy_function(void) {}\n")
+>>>>>>> BRANCH (cd1af9 Remove redundant assert in compound_type_rd)
   list(APPEND "${out_file_list_var}" "${dummy_source_file}")
 endmacro()
 
