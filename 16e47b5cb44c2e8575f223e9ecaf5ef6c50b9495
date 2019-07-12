@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "674e05c9_55f4959c",
+        "filename": "av1/common/cnn.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-12T23:18:54Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 192,
+        "startChar": 2,
+        "endLine": 192,
+        "endChar": 5
+      },
+      "revId": "16e47b5cb44c2e8575f223e9ecaf5ef6c50b9495",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35cfb6fd_5733f638",
+        "filename": "av1/common/cnn.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-12T23:18:54Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 292,
+        "startChar": 6,
+        "endLine": 292,
+        "endChar": 9
+      },
+      "revId": "16e47b5cb44c2e8575f223e9ecaf5ef6c50b9495",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
