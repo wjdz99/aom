@@ -122,10 +122,6 @@ set_aom_config_var(CONFIG_DIST_8X8 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_ENTROPY_STATS 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_INTER_STATS_ONLY 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_RD_DEBUG 0 NUMBER "AV1 experiment flag.")
-set_aom_config_var(CONFIG_2PASS_PARTITION_SEARCH_LVL_START 1 NUMBER
-                   "AV1 experiment flag.")
-set_aom_config_var(CONFIG_2PASS_PARTITION_SEARCH_LVL_END 3 NUMBER
-                   "AV1 experiment flag.")
 set_aom_config_var(CONFIG_SHARP_SETTINGS 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_DISABLE_FULL_PIXEL_SPLIT_8X8 1 NUMBER
                    "Disable full_pixel_motion_search_based_split on BLOCK_8X8.")
@@ -133,6 +129,7 @@ set_aom_config_var(CONFIG_COLLECT_PARTITION_STATS 0 NUMBER
                    "Collect stats on partition decisions.")
 set_aom_config_var(CONFIG_COLLECT_COMPONENT_TIMING 0 NUMBER
                    "Collect encoding component timing information.")
+<<<<<<< HEAD   (c6d61d Add support for multiple CNN outputs)
 
 # AV2 experiment flags
 set_aom_config_var(CONFIG_ADAPT_FILTER_INTRA 0 NUMBER "AV2 experiment flag.")
@@ -148,6 +145,15 @@ set_aom_config_var(CONFIG_LOOP_RESTORE_CNN 0 NUMBER
 # path to tensorflow root via TENSORFLOW_INCLUDE_DIR.
 set_aom_config_var(CONFIG_TENSORFLOW 0 NUMBER "AV2 TF experiment flag.")
 
+=======
+set_aom_config_var(CONFIG_LPF_MASK 0 NUMBER
+                   "Enable the use loop filter bitmasks for optimizations.")
+set_aom_config_var(CONFIG_HTB_TRELLIS 0 NUMBER
+                   "Enable the use of hash table for trellis optimizations.")
+set_aom_config_var(CONFIG_REALTIME_ONLY 0 NUMBER
+                   "Build for RTC-only to reduce binary size.")
+set_aom_config_var(CONFIG_NN_V2 0 NUMBER "Fully-connected neural nets ver.2.")
+>>>>>>> BRANCH (cb07fb Add comment in av1_update_rd_thresh_fact())
 #
 # Variables in this section control optional features of the build system.
 #
