@@ -54,6 +54,28 @@ push @block_sizes, [32, 8];
 push @block_sizes, [16, 64];
 push @block_sizes, [64, 16];
 
+@block_sizes_flex_part = ();
+foreach $w (@block_widths) {
+  foreach $h (@block_widths) {
+    push @block_sizes_flex_part, [$w, $h] if ($w <= 2*$h && $h <= 2*$w) ;
+  }
+}
+push @block_sizes_flex_part, [4, 16];
+push @block_sizes_flex_part, [16, 4];
+push @block_sizes_flex_part, [8, 32];
+push @block_sizes_flex_part, [32, 8];
+push @block_sizes_flex_part, [16, 64];
+push @block_sizes_flex_part, [64, 16];
+
+if (aom_config("CONFIG_FLEX_PARTITION") eq "yes") {
+  push @block_sizes_flex_part, [4, 32];
+  push @block_sizes_flex_part, [32, 4];
+  push @block_sizes_flex_part, [8, 64];
+  push @block_sizes_flex_part, [64, 8];
+  push @block_sizes_flex_part, [4, 64];
+  push @block_sizes_flex_part, [64, 4];
+} # CONFIG_FLEX_PARTITION
+
 @tx_dims = (2, 4, 8, 16, 32, 64);
 @tx_sizes = ();
 foreach $w (@tx_dims) {
@@ -598,7 +620,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   #
   # Single block SAD / Single block Avg SAD
   #
-  foreach (@block_sizes) {
+  foreach (@block_sizes_flex_part) {
     ($w, $h) = @$_;
     add_proto qw/unsigned int/, "aom_sad${w}x${h}", "const uint8_t *src_ptr, int src_stride, const uint8_t *ref_ptr, int ref_stride";
     add_proto qw/unsigned int/, "aom_sad${w}x${h}_avg", "const uint8_t *src_ptr, int src_stride, const uint8_t *ref_ptr, int ref_stride, const uint8_t *second_pred";
@@ -653,6 +675,21 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_sad16x64_avg sse2/;
   specialize qw/aom_sad64x16_avg sse2/;
 
+  if (aom_config("CONFIG_FLEX_PARTITION") eq "yes") {
+    specialize qw/aom_sad4x32      sse2/;
+    specialize qw/aom_sad32x4      sse2/;
+    specialize qw/aom_sad8x64      sse2/;
+    specialize qw/aom_sad64x8      sse2/;
+    specialize qw/aom_sad4x64      sse2/;
+    specialize qw/aom_sad64x4      sse2/;
+    specialize qw/aom_sad4x32_avg  sse2/;
+    specialize qw/aom_sad32x4_avg  sse2/;
+    specialize qw/aom_sad8x64_avg  sse2/;
+    specialize qw/aom_sad64x8_avg  sse2/;
+    specialize qw/aom_sad4x64_avg  sse2/;
+    specialize qw/aom_sad64x4_avg  sse2/;
+  }
+
   specialize qw/aom_dist_wtd_sad128x128_avg ssse3/;
   specialize qw/aom_dist_wtd_sad128x64_avg  ssse3/;
   specialize qw/aom_dist_wtd_sad64x128_avg  ssse3/;
@@ -674,8 +711,17 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_dist_wtd_sad16x4_avg     ssse3/;
   specialize qw/aom_dist_wtd_sad8x32_avg     ssse3/;
   specialize qw/aom_dist_wtd_sad32x8_avg     ssse3/;
-  specialize qw/aom_dist_wtd_sad16x64_avg     ssse3/;
-  specialize qw/aom_dist_wtd_sad64x16_avg     ssse3/;
+  specialize qw/aom_dist_wtd_sad16x64_avg    ssse3/;
+  specialize qw/aom_dist_wtd_sad64x16_avg    ssse3/;
+
+  if (aom_config("CONFIG_FLEX_PARTITION") eq "yes") {
+    specialize qw/aom_dist_wtd_sad4x32_avg     ssse3/;
+    specialize qw/aom_dist_wtd_sad32x4_avg     ssse3/;
+    specialize qw/aom_dist_wtd_sad8x64_avg     ssse3/;
+    specialize qw/aom_dist_wtd_sad64x8_avg     ssse3/;
+    specialize qw/aom_dist_wtd_sad4x64_avg     ssse3/;
+    specialize qw/aom_dist_wtd_sad64x4_avg     ssse3/;
+  }
 
   add_proto qw/unsigned int/, "aom_sad4xh", "const uint8_t *a, int a_stride, const uint8_t *b, int b_stride, int width, int height";
   add_proto qw/unsigned int/, "aom_sad8xh", "const uint8_t *a, int a_stride, const uint8_t *b, int b_stride, int width, int height";
@@ -692,75 +738,89 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_sad128xh sse2/;
 
 
-    foreach (@block_sizes) {
-      ($w, $h) = @$_;
-      add_proto qw/unsigned int/, "aom_highbd_sad${w}x${h}", "const uint8_t *src_ptr, int src_stride, const uint8_t *ref_ptr, int ref_stride";
-      add_proto qw/unsigned int/, "aom_highbd_sad${w}x${h}_avg", "const uint8_t *src_ptr, int src_stride, const uint8_t *ref_ptr, int ref_stride, const uint8_t *second_pred";
-      if ($w != 128 && $h != 128 && $w != 4) {
-        specialize "aom_highbd_sad${w}x${h}", qw/sse2/;
-        specialize "aom_highbd_sad${w}x${h}_avg", qw/sse2/;
-      }
-      add_proto qw/unsigned int/, "aom_highbd_dist_wtd_sad${w}x${h}_avg", "const uint8_t *src_ptr, int src_stride, const uint8_t *ref_ptr, int ref_stride, const uint8_t *second_pred, const DIST_WTD_COMP_PARAMS* jcp_param";
+  foreach (@block_sizes_flex_part) {
+    ($w, $h) = @$_;
+    add_proto qw/unsigned int/, "aom_highbd_sad${w}x${h}", "const uint8_t *src_ptr, int src_stride, const uint8_t *ref_ptr, int ref_stride";
+    add_proto qw/unsigned int/, "aom_highbd_sad${w}x${h}_avg", "const uint8_t *src_ptr, int src_stride, const uint8_t *ref_ptr, int ref_stride, const uint8_t *second_pred";
+    if ($w != 128 && $h != 128 && $w != 4) {
+      specialize "aom_highbd_sad${w}x${h}", qw/sse2/;
+      specialize "aom_highbd_sad${w}x${h}_avg", qw/sse2/;
     }
-    specialize qw/aom_highbd_sad128x128 avx2/;
-    specialize qw/aom_highbd_sad128x64  avx2/;
-    specialize qw/aom_highbd_sad64x128  avx2/;
-    specialize qw/aom_highbd_sad64x64   avx2 sse2/;
-    specialize qw/aom_highbd_sad64x32   avx2 sse2/;
-    specialize qw/aom_highbd_sad32x64   avx2 sse2/;
-    specialize qw/aom_highbd_sad32x32   avx2 sse2/;
-    specialize qw/aom_highbd_sad32x16   avx2 sse2/;
-    specialize qw/aom_highbd_sad16x32   avx2 sse2/;
-    specialize qw/aom_highbd_sad16x16   avx2 sse2/;
-    specialize qw/aom_highbd_sad16x8    avx2 sse2/;
-    specialize qw/aom_highbd_sad8x4     sse2/;
+    add_proto qw/unsigned int/, "aom_highbd_dist_wtd_sad${w}x${h}_avg", "const uint8_t *src_ptr, int src_stride, const uint8_t *ref_ptr, int ref_stride, const uint8_t *second_pred, const DIST_WTD_COMP_PARAMS* jcp_param";
+  }
+  specialize qw/aom_highbd_sad128x128 avx2/;
+  specialize qw/aom_highbd_sad128x64  avx2/;
+  specialize qw/aom_highbd_sad64x128  avx2/;
+  specialize qw/aom_highbd_sad64x64   avx2 sse2/;
+  specialize qw/aom_highbd_sad64x32   avx2 sse2/;
+  specialize qw/aom_highbd_sad32x64   avx2 sse2/;
+  specialize qw/aom_highbd_sad32x32   avx2 sse2/;
+  specialize qw/aom_highbd_sad32x16   avx2 sse2/;
+  specialize qw/aom_highbd_sad16x32   avx2 sse2/;
+  specialize qw/aom_highbd_sad16x16   avx2 sse2/;
+  specialize qw/aom_highbd_sad16x8    avx2 sse2/;
+  specialize qw/aom_highbd_sad8x4     sse2/;
 
-    specialize qw/aom_highbd_sad128x128_avg avx2/;
-    specialize qw/aom_highbd_sad128x64_avg  avx2/;
-    specialize qw/aom_highbd_sad64x128_avg  avx2/;
-    specialize qw/aom_highbd_sad64x64_avg   avx2 sse2/;
-    specialize qw/aom_highbd_sad64x32_avg   avx2 sse2/;
-    specialize qw/aom_highbd_sad32x64_avg   avx2 sse2/;
-    specialize qw/aom_highbd_sad32x32_avg   avx2 sse2/;
-    specialize qw/aom_highbd_sad32x16_avg   avx2 sse2/;
-    specialize qw/aom_highbd_sad16x32_avg   avx2 sse2/;
-    specialize qw/aom_highbd_sad16x16_avg   avx2 sse2/;
-    specialize qw/aom_highbd_sad16x8_avg    avx2 sse2/;
-    specialize qw/aom_highbd_sad8x4_avg     sse2/;
+  specialize qw/aom_highbd_sad128x128_avg avx2/;
+  specialize qw/aom_highbd_sad128x64_avg  avx2/;
+  specialize qw/aom_highbd_sad64x128_avg  avx2/;
+  specialize qw/aom_highbd_sad64x64_avg   avx2 sse2/;
+  specialize qw/aom_highbd_sad64x32_avg   avx2 sse2/;
+  specialize qw/aom_highbd_sad32x64_avg   avx2 sse2/;
+  specialize qw/aom_highbd_sad32x32_avg   avx2 sse2/;
+  specialize qw/aom_highbd_sad32x16_avg   avx2 sse2/;
+  specialize qw/aom_highbd_sad16x32_avg   avx2 sse2/;
+  specialize qw/aom_highbd_sad16x16_avg   avx2 sse2/;
+  specialize qw/aom_highbd_sad16x8_avg    avx2 sse2/;
+  specialize qw/aom_highbd_sad8x4_avg     sse2/;
 
-    specialize qw/aom_highbd_sad16x4       sse2/;
-    specialize qw/aom_highbd_sad8x32       sse2/;
-    specialize qw/aom_highbd_sad32x8       sse2/;
-    specialize qw/aom_highbd_sad16x64      sse2/;
-    specialize qw/aom_highbd_sad64x16      sse2/;
+  specialize qw/aom_highbd_sad16x4       sse2/;
+  specialize qw/aom_highbd_sad8x32       sse2/;
+  specialize qw/aom_highbd_sad32x8       sse2/;
+  specialize qw/aom_highbd_sad16x64      sse2/;
+  specialize qw/aom_highbd_sad64x16      sse2/;
 
-    specialize qw/aom_highbd_sad16x4_avg   sse2/;
-    specialize qw/aom_highbd_sad8x32_avg   sse2/;
-    specialize qw/aom_highbd_sad32x8_avg   sse2/;
-    specialize qw/aom_highbd_sad16x64_avg  sse2/;
-    specialize qw/aom_highbd_sad64x16_avg  sse2/;
+  specialize qw/aom_highbd_sad16x4_avg   sse2/;
+  specialize qw/aom_highbd_sad8x32_avg   sse2/;
+  specialize qw/aom_highbd_sad32x8_avg   sse2/;
+  specialize qw/aom_highbd_sad16x64_avg  sse2/;
+  specialize qw/aom_highbd_sad64x16_avg  sse2/;
+
+  if (aom_config("CONFIG_FLEX_PARTITION") eq "yes") {
+    specialize qw/aom_highbd_sad32x4       sse2/;
+    specialize qw/aom_highbd_sad8x64       sse2/;
+    specialize qw/aom_highbd_sad64x8       sse2/;
+    specialize qw/aom_highbd_sad4x64       sse2/;
+    specialize qw/aom_highbd_sad64x4       sse2/;
+
+    specialize qw/aom_highbd_sad32x4_avg   sse2/;
+    specialize qw/aom_highbd_sad8x64_avg   sse2/;
+    specialize qw/aom_highbd_sad64x8_avg   sse2/;
+    specialize qw/aom_highbd_sad4x64_avg   sse2/;
+    specialize qw/aom_highbd_sad64x4_avg   sse2/;
+  }
 
   #
   # Masked SAD
   #
-  foreach (@block_sizes) {
+  foreach (@block_sizes_flex_part) {
     ($w, $h) = @$_;
     add_proto qw/unsigned int/, "aom_masked_sad${w}x${h}", "const uint8_t *src, int src_stride, const uint8_t *ref, int ref_stride, const uint8_t *second_pred, const uint8_t *msk, int msk_stride, int invert_mask";
     specialize "aom_masked_sad${w}x${h}", qw/ssse3 avx2/;
   }
 
 
-    foreach (@block_sizes) {
-      ($w, $h) = @$_;
-      add_proto qw/unsigned int/, "aom_highbd_masked_sad${w}x${h}", "const uint8_t *src8, int src_stride, const uint8_t *ref8, int ref_stride, const uint8_t *second_pred8, const uint8_t *msk, int msk_stride, int invert_mask";
-      specialize "aom_highbd_masked_sad${w}x${h}", qw/ssse3 avx2/;
-    }
+  foreach (@block_sizes_flex_part) {
+    ($w, $h) = @$_;
+    add_proto qw/unsigned int/, "aom_highbd_masked_sad${w}x${h}", "const uint8_t *src8, int src_stride, const uint8_t *ref8, int ref_stride, const uint8_t *second_pred8, const uint8_t *msk, int msk_stride, int invert_mask";
+    specialize "aom_highbd_masked_sad${w}x${h}", qw/ssse3 avx2/;
+  }
 
 
   #
   # OBMC SAD
   #
-  foreach (@block_sizes) {
+  foreach (@block_sizes_flex_part) {
     ($w, $h) = @$_;
     add_proto qw/unsigned int/, "aom_obmc_sad${w}x${h}", "const uint8_t *pre, int pre_stride, const int32_t *wsrc, const int32_t *mask";
     if (! (($w == 128 && $h == 32) || ($w == 32 && $h == 128))) {
@@ -769,19 +829,19 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   }
 
 
-    foreach (@block_sizes) {
-      ($w, $h) = @$_;
-      add_proto qw/unsigned int/, "aom_highbd_obmc_sad${w}x${h}", "const uint8_t *pre, int pre_stride, const int32_t *wsrc, const int32_t *mask";
-      if (! (($w == 128 && $h == 32) || ($w == 32 && $h == 128))) {
-        specialize "aom_highbd_obmc_sad${w}x${h}", qw/sse4_1 avx2/;
-      }
+  foreach (@block_sizes_flex_part) {
+    ($w, $h) = @$_;
+    add_proto qw/unsigned int/, "aom_highbd_obmc_sad${w}x${h}", "const uint8_t *pre, int pre_stride, const int32_t *wsrc, const int32_t *mask";
+    if (! (($w == 128 && $h == 32) || ($w == 32 && $h == 128))) {
+      specialize "aom_highbd_obmc_sad${w}x${h}", qw/sse4_1 avx2/;
     }
+  }
 
 
   #
   # Multi-block SAD, comparing a reference to N independent blocks
   #
-  foreach (@block_sizes) {
+  foreach (@block_sizes_flex_part) {
     ($w, $h) = @$_;
     add_proto qw/void/, "aom_sad${w}x${h}x4d", "const uint8_t *src_ptr, int src_stride, const uint8_t * const ref_ptr[], int ref_stride, uint32_t *sad_array";
   }
@@ -813,7 +873,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   #
   # Multi-block SAD, comparing a reference to N independent blocks
   #
-  foreach (@block_sizes) {
+  foreach (@block_sizes_flex_part) {
     ($w, $h) = @$_;
     add_proto qw/void/, "aom_highbd_sad${w}x${h}x4d", "const uint8_t *src_ptr, int src_stride, const uint8_t * const ref_ptr[], int ref_stride, uint32_t *sad_array";
     if ($w != 128 && $h != 128) {
