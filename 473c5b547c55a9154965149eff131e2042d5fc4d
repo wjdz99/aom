@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78588060_00253e22",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 4414,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-07-15T20:52:09Z",
+      "side": 1,
+      "message": "We had issues with this function, which wouldn\u0027t always give right answer. I can forward you the previous discussion.",
+      "range": {
+        "startLine": 4414,
+        "startChar": 17,
+        "endLine": 4414,
+        "endChar": 34
+      },
+      "revId": "473c5b547c55a9154965149eff131e2042d5fc4d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
