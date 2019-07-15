@@ -3480,7 +3480,8 @@ static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int analysis_type,
                             int mi_row, int mi_col, int orig_rdmult) {
   assert(IMPLIES(cpi->gf_group.size > 0,
                  cpi->gf_group.index < cpi->gf_group.size));
-  const int tpl_idx = cpi->gf_group.frame_disp_idx[cpi->gf_group.index];
+//  const int tpl_idx = cpi->gf_group.frame_disp_idx[cpi->gf_group.index];
+  const int tpl_idx = cpi->gf_group.index;
   TplDepFrame *tpl_frame = &cpi->tpl_frame[tpl_idx];
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   int tpl_stride = tpl_frame->stride;
@@ -3554,7 +3555,9 @@ static int get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   AV1_COMMON *const cm = &cpi->common;
   assert(IMPLIES(cpi->gf_group.size > 0,
                  cpi->gf_group.index < cpi->gf_group.size));
-  const int tpl_idx = cpi->gf_group.frame_disp_idx[cpi->gf_group.index];
+//  const int tpl_idx = cpi->gf_group.frame_disp_idx[cpi->gf_group.index];
+
+  const int tpl_idx = cpi->gf_group.index;
   TplDepFrame *tpl_frame = &cpi->tpl_frame[tpl_idx];
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   int tpl_stride = tpl_frame->stride;

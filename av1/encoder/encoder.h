@@ -157,7 +157,7 @@ enum {
   SS_CFG_TOTAL = 2
 } UENUM1BYTE(SS_CFG_OFFSET);
 
-#define MAX_LENGTH_TPL_FRAME_STATS (27 + 8)
+#define MAX_LENGTH_TPL_FRAME_STATS (27 + 9)
 
 typedef struct TplDepStats {
   int64_t intra_cost;
@@ -175,7 +175,8 @@ typedef struct TplDepStats {
 typedef struct TplDepFrame {
   uint8_t is_valid;
   TplDepStats *tpl_stats_ptr;
-  YV12_BUFFER_CONFIG *gf_picture;
+  const YV12_BUFFER_CONFIG *gf_picture;
+  int ref_map_index[REF_FRAMES];
   int stride;
   int width;
   int height;
