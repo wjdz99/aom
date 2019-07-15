@@ -19,7 +19,7 @@
 #include "aom/aom_integer.h"
 #include "aom_dsp/aom_filter.h"
 #include "aom_ports/mem.h"
-
+#include "av1/common/enums.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -57,6 +57,7 @@ enum {
   INTERP_HORZ_EQ_VERT_NEQ,
   INTERP_HORZ_NEQ_VERT_EQ,
   INTERP_HORZ_EQ_VERT_EQ,
+  INTERP_PRED_TYPE_ALL,
 } UENUM1BYTE(INTERP_PRED_TYPE);
 // Pack two InterpFilter's into a uint32_t: since there are at most 10 filters,
 // we can use 16 bits for each and have more than enough space. This reduces
@@ -96,6 +97,7 @@ static INLINE InterpFilter av1_unswitchable_filter(InterpFilter filter) {
 #define SWITCHABLE_FILTER_CONTEXTS ((SWITCHABLE_FILTERS + 1) * 4)
 #define INTER_FILTER_COMP_OFFSET (SWITCHABLE_FILTERS + 1)
 #define INTER_FILTER_DIR_OFFSET ((SWITCHABLE_FILTERS + 1) * 2)
+#define ALLOW_ALL_INTERP_FILT_MASK (0x01ff)
 
 typedef struct InterpFilterParams {
   const int16_t *filter_ptr;
@@ -198,6 +200,40 @@ DECLARE_ALIGNED(256, static const InterpKernel,
   { 0, 0, 4, 36, 62, 26, 0, 0 },  { 0, 0, 2, 34, 62, 30, 0, 0 }
 };
 
+// Lookup table with selected filter types, which are to be
+// evaluated in horizontal/vertical direction w.r.t pred_filter_type.
+// pred_horz_filt[pred_filter_type][best_filter][No.of filters to be evaluated]
+// pred_filter_type: can take values of 0, 1, 2
+//	  0: evaluate REG_REG, REG_SMOOTH, REG_SHARP
+//    1: horz best filt is fixed and evaluate filter in vertical direction
+//    2: vert best filt is fixed and evaluate filter in horizontal direction
+static const DUAL_FILTER_TYPE
+    av1_interp_pred_filt_stage_0[INTERP_PRED_TYPE_ALL - 1][SWITCHABLE_FILTERS]
+                                [SWITCHABLE_FILTERS] = {
+                                  { { REG_REG, REG_SMOOTH, REG_SHARP },
+                                    { REG_REG, REG_SMOOTH, REG_SHARP },
+                                    { REG_REG, REG_SMOOTH, REG_SHARP } },
+                                  { { REG_REG, REG_REG, REG_REG },
+                                    { REG_SMOOTH, REG_SMOOTH, REG_SMOOTH },
+                                    { REG_SHARP, REG_SHARP, REG_SHARP } },
+                                  { { REG_REG, REG_REG, REG_REG },
+                                    { SMOOTH_REG, SMOOTH_REG, SMOOTH_REG },
+                                    { SHARP_REG, SHARP_REG, SHARP_REG } }
+                                };
+
+static const DUAL_FILTER_TYPE
+    av1_interp_pred_filt_stage_1[INTERP_PRED_TYPE_ALL - 1][SWITCHABLE_FILTERS]
+                                [SWITCHABLE_FILTERS - 1] = {
+                                  { { SMOOTH_REG, SHARP_REG },
+                                    { SMOOTH_SMOOTH, SHARP_SMOOTH },
+                                    { SMOOTH_SHARP, SHARP_SHARP } },
+                                  { { SMOOTH_REG, SHARP_REG },
+                                    { SMOOTH_SMOOTH, SHARP_SMOOTH },
+                                    { SMOOTH_SHARP, SHARP_SHARP } },
+                                  { { REG_SMOOTH, REG_SHARP },
+                                    { SMOOTH_SMOOTH, SMOOTH_SHARP },
+                                    { SHARP_SMOOTH, SHARP_SHARP } }
+                                };
 // For w<=4, MULTITAP_SHARP is the same as EIGHTTAP_REGULAR
 static const InterpFilterParams av1_interp_4tap[SWITCHABLE_FILTERS + 1] = {
   { (const int16_t *)av1_sub_pel_filters_4, SUBPEL_TAPS, SUBPEL_SHIFTS,
@@ -246,6 +282,22 @@ static INLINE const InterpFilterParams *av1_get_filter(int subpel_search) {
     case USE_8_TAPS: return &av1_interp_filter_params_list[EIGHTTAP_REGULAR];
     default: assert(0); return NULL;
   }
+}
+
+static INLINE void reset_filter_type_allowed_mask(uint16_t *allow_interp_mask,
+                                                  DUAL_FILTER_TYPE filt_idx) {
+  uint16_t tmp = ~(1 << filt_idx);
+  *allow_interp_mask &= (tmp & ALLOW_ALL_INTERP_FILT_MASK);
+}
+
+static INLINE void set_filter_type_allowed_mask(uint16_t *allow_interp_mask,
+                                                DUAL_FILTER_TYPE filt_idx) {
+  *allow_interp_mask |= (1 << filt_idx);
+}
+
+static INLINE uint8_t get_filter_type_allowed_mask(uint16_t allow_interp_mask,
+                                                   DUAL_FILTER_TYPE filt_idx) {
+  return (allow_interp_mask >> filt_idx) & 1;
 }
 
 #ifdef __cplusplus
