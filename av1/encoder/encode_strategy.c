@@ -1062,7 +1062,7 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
   // buffer management strategy currently in use.  This function just decides
   // which buffers should be refreshed.
 
-  int free_fb_index = get_free_ref_map_index(&cpi->ref_buffer_stack);
+  int free_fb_index = get_free_ref_map_index(ref_buffer_stack);
   switch (frame_update_type) {
     case KF_UPDATE:
     case GF_UPDATE:
