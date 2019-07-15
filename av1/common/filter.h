@@ -57,6 +57,7 @@ enum {
   INTERP_HORZ_EQ_VERT_NEQ,
   INTERP_HORZ_NEQ_VERT_EQ,
   INTERP_HORZ_EQ_VERT_EQ,
+  INTERP_PRED_TYPE_ALL,
 } UENUM1BYTE(INTERP_PRED_TYPE);
 // Pack two InterpFilter's into a uint32_t: since there are at most 10 filters,
 // we can use 16 bits for each and have more than enough space. This reduces
@@ -198,6 +199,54 @@ DECLARE_ALIGNED(256, static const InterpKernel,
   { 0, 0, 4, 36, 62, 26, 0, 0 },  { 0, 0, 2, 34, 62, 30, 0, 0 }
 };
 
+// Lookup table with selected filter types, which are to be
+// evaluated in horizontal/vertical direction w.r.t pred_filter_type.
+// pred_horz_filt[pred_filter_type][horz/vert][No.of filter type gets evaluated]
+// The following is the list of pred_filter_type and type of
+// filters gets evaluted in horizontal direction
+// pred_filter_type = 0: REG_SMOOTH, REG_SHARP
+// pred_filter_type = 1: horz pred is equal, neighbour
+// pred_filter_type = 2: vert pred is equal, neighbour
+#if 0
+static const uint8_t
+av1_interp_pred_horz[INTERP_PRED_TYPE_ALL - 1][SWITCHABLE_FILTERS]
+[SWITCHABLE_FILTERS] = {
+	{ { REG_REG, REG_SMOOTH, REG_SHARP },
+	{ REG_REG, REG_SMOOTH, REG_SHARP },
+	{ REG_REG, REG_SMOOTH, REG_SHARP } },
+	{ { REG_REG, REG_REG, REG_REG },
+	{ REG_SMOOTH, REG_SMOOTH, REG_SMOOTH },
+	{ REG_SHARP, REG_SHARP, REG_SHARP } },
+	{ { REG_REG, REG_REG, REG_REG },
+	{ SMOOTH_REG, SMOOTH_REG, SMOOTH_REG },
+	{ SHARP_REG, SHARP_REG, SHARP_REG } }
+};
+
+static const uint8_t
+    av1_interp_pred_vert[INTERP_PRED_TYPE_ALL - 1][SWITCHABLE_FILTERS]
+                        [SWITCHABLE_FILTERS - 1] = {
+                          { { SMOOTH_REG, SHARP_REG },
+                            { SMOOTH_SMOOTH, SHARP_SMOOTH },
+                            { SMOOTH_SHARP, SHARP_SHARP } },
+                          { { SMOOTH_REG, SHARP_REG },
+                            { SMOOTH_SMOOTH, SHARP_SMOOTH },
+                            { SMOOTH_SHARP, SHARP_SHARP } },
+                          { { REG_SMOOTH, REG_SHARP },
+                            { SMOOTH_SMOOTH, SMOOTH_SHARP },
+                            { SHARP_SMOOTH, SHARP_SHARP } }
+                        };
+#endif
+static const uint8_t av1_interp_pred_horz[3][3][3] = {
+  { { 0, 1, 2 }, { 0, 1, 2 }, { 0, 1, 2 } },
+  { { 0, 0, 0 }, { 1, 1, 1 }, { 2, 2, 2 } },
+  { { 0, 0, 0 }, { 3, 3, 3 }, { 6, 6, 6 } }
+};
+
+static const uint8_t av1_interp_pred_vert[3][3][2] = {
+  { { 3, 6 }, { 4, 7 }, { 5, 8 } },
+  { { 3, 6 }, { 4, 7 }, { 5, 8 } },
+  { { 1, 2 }, { 4, 5 }, { 7, 8 } }
+};
 // For w<=4, MULTITAP_SHARP is the same as EIGHTTAP_REGULAR
 static const InterpFilterParams av1_interp_4tap[SWITCHABLE_FILTERS + 1] = {
   { (const int16_t *)av1_sub_pel_filters_4, SUBPEL_TAPS, SUBPEL_SHIFTS,
