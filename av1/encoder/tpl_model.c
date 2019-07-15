@@ -430,7 +430,7 @@ static void mc_flow_dispenser(AV1_COMP *cpi, YV12_BUFFER_CONFIG **gf_picture,
   const GF_GROUP *gf_group = &cpi->gf_group;
   if (frame_idx == gf_group->size) return;
   int tpl_idx = gf_group->frame_disp_idx[frame_idx];
-  TplDepFrame *tpl_frame = &cpi->tpl_stats[tpl_idx];
+  TplDepFrame *tpl_frame = &cpi->tpl_frame[tpl_idx];
   YV12_BUFFER_CONFIG *this_frame = gf_picture[frame_idx];
   YV12_BUFFER_CONFIG *ref_frame[7] = {
     NULL, NULL, NULL, NULL, NULL, NULL, NULL
@@ -538,7 +538,7 @@ static void mc_flow_dispenser(AV1_COMP *cpi, YV12_BUFFER_CONFIG **gf_picture,
                       tpl_frame->stride, &tpl_stats);
 
       if (frame_idx)
-        tpl_model_update(cpi->tpl_stats, tpl_frame->tpl_stats_ptr, mi_row,
+        tpl_model_update(cpi->tpl_frame, tpl_frame->tpl_stats_ptr, mi_row,
                          mi_col, bsize);
     }
   }
@@ -547,6 +547,7 @@ static void mc_flow_dispenser(AV1_COMP *cpi, YV12_BUFFER_CONFIG **gf_picture,
 #define REF_IDX(ref) ((ref)-LAST_FRAME)
 
 static void init_gop_frames_for_tpl(AV1_COMP *cpi,
+                                    const EncodeFrameParams *const init_frame_params,
                                     YV12_BUFFER_CONFIG **gf_picture,
                                     GF_GROUP *gf_group, int *tpl_group_frames,
                                     const EncodeFrameInput *const frame_input) {
@@ -557,7 +558,10 @@ static void init_gop_frames_for_tpl(AV1_COMP *cpi,
   RefCntBuffer *frame_bufs = cm->buffer_pool->frame_bufs;
   int pframe_qindex = 0;
   int cur_frame_idx = gf_group->index;
-  
+
+  RefBufferStack ref_buffer_stack = cpi->ref_buffer_stack;
+  EncodeFrameParams frame_params = *init_frame_params;
+
   YV12_BUFFER_CONFIG *ref_picture_map[REF_FRAMES];
   for (int i = 0; i < REF_FRAMES; ++i)
     ref_picture_map[i] = &cm->ref_frame_map[i]->buf;
@@ -576,6 +580,27 @@ static void init_gop_frames_for_tpl(AV1_COMP *cpi,
       ++frame_idx;
     }
   }
+
+  for (int i = LAST_FRAME; i < REF_FRAMES; ++i)
+    cpi->tpl_frame[-i].gf_picture = get_ref_frame_yv12_buf(cm, i);
+
+  for (int gf_index = gf_group->index; gf_index < gf_group->size; ++gf_index) {
+    FRAME_UPDATE_TYPE frame_update_type = gf_group->update_type[gf_index];
+    frame_params.show_frame =
+      frame_update_type != ARF_UPDATE && frame_update_type != INTNL_ARF_UPDATE;
+    frame_params.show_existing_frame = frame_update_type == INTNL_OVERLAY_UPDATE;
+    frame_params.frame_type = frame_update_type == KF_UPDATE ? KEY_FRAME : INTER_FRAME;
+
+    av1_get_ref_frames(cpi, frame_update_type, &ref_buffer_stack);
+    int refresh_mask = av1_get_refresh_frame_flags(cpi, &frame_params,
+                           frame_update_type, &ref_buffer_stack);
+    int ref_map_index =
+        av1_get_refresh_ref_frame_map(refresh_mask);
+    av1_update_ref_frame_map(cpi, frame_update_type, ref_map_index, &ref_buffer_stack);
+  }
+
+  av1_get_ref_frames(cpi, gf_group->update_type[gf_group->index],
+      &cpi->ref_buffer_stack);
 
   *tpl_group_frames = 0;
 
@@ -690,7 +715,7 @@ static void init_gop_frames_for_tpl(AV1_COMP *cpi,
 
 static void init_tpl_stats(AV1_COMP *cpi) {
   for (int frame_idx = 0; frame_idx < MAX_LENGTH_TPL_FRAME_STATS; ++frame_idx) {
-    TplDepFrame *tpl_frame = &cpi->tpl_stats[frame_idx];
+    TplDepFrame *tpl_frame = &cpi->tpl_stats_buffer[frame_idx];
     memset(tpl_frame->tpl_stats_ptr, 0,
            tpl_frame->height * tpl_frame->width *
                sizeof(*tpl_frame->tpl_stats_ptr));
@@ -698,12 +723,13 @@ static void init_tpl_stats(AV1_COMP *cpi) {
   }
 }
 
-void av1_tpl_setup_stats(AV1_COMP *cpi,
+void av1_tpl_setup_stats(AV1_COMP *cpi, const EncodeFrameParams *const frame_params,
                          const EncodeFrameInput *const frame_input) {
-  YV12_BUFFER_CONFIG *gf_picture[MAX_LENGTH_TPL_FRAME_STATS];
+  YV12_BUFFER_CONFIG *gf_picture_buffer[MAX_LENGTH_TPL_FRAME_STATS + REF_FRAMES];
+  YV12_BUFFER_CONFIG **gf_picture = &gf_picture_buffer[REF_FRAMES];
   GF_GROUP *gf_group = &cpi->gf_group;
 
-  init_gop_frames_for_tpl(cpi, gf_picture, gf_group, &cpi->tpl_gf_group_frames,
+  init_gop_frames_for_tpl(cpi, frame_params, gf_picture, gf_group, &cpi->tpl_gf_group_frames,
                           frame_input);
 
   init_tpl_stats(cpi);
@@ -923,7 +949,7 @@ void av1_tpl_setup_forward_stats(AV1_COMP *cpi) {
   const GF_GROUP *gf_group = &cpi->gf_group;
   assert(IMPLIES(gf_group->size > 0, gf_group->index < gf_group->size));
   const int tpl_cur_idx = gf_group->frame_disp_idx[gf_group->index];
-  TplDepFrame *tpl_frame = &cpi->tpl_stats[tpl_cur_idx];
+  TplDepFrame *tpl_frame = &cpi->tpl_frame[tpl_cur_idx];
   memset(
       tpl_frame->tpl_stats_ptr, 0,
       tpl_frame->height * tpl_frame->width * sizeof(*tpl_frame->tpl_stats_ptr));
