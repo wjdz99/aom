@@ -229,6 +229,17 @@ unsigned int aom_highbd_sad32x16_avx2(const uint8_t *src, int src_stride,
   return get_sad_from_mm256_epi32(&sad);
 }
 
+#if CONFIG_FLEX_PARTITION
+unsigned int aom_highbd_sad32x4_avx2(const uint8_t *src, int src_stride,
+                                     const uint8_t *ref, int ref_stride) {
+  __m256i sad = _mm256_setzero_si256();
+  uint16_t *srcp = CONVERT_TO_SHORTPTR(src);
+  uint16_t *refp = CONVERT_TO_SHORTPTR(ref);
+  sad32x4(srcp, src_stride, refp, ref_stride, NULL, &sad);
+  return get_sad_from_mm256_epi32(&sad);
+}
+#endif  // CONFIG_FLEX_PARTITION
+
 unsigned int aom_highbd_sad16x32_avx2(const uint8_t *src, int src_stride,
                                       const uint8_t *ref, int ref_stride) {
   uint32_t sum = aom_highbd_sad16x16_avx2(src, src_stride, ref, ref_stride);
@@ -351,6 +362,42 @@ unsigned int aom_highbd_sad64x32_avx2(const uint8_t *src, int src_stride,
   }
   return get_sad_from_mm256_epi32(&sad);
 }
+
+#if CONFIG_FLEX_PARTITION
+unsigned int aom_highbd_sad64x8_avx2(const uint8_t *src, int src_stride,
+                                     const uint8_t *ref, int ref_stride) {
+  __m256i sad = _mm256_setzero_si256();
+  uint16_t *srcp = CONVERT_TO_SHORTPTR(src);
+  uint16_t *refp = CONVERT_TO_SHORTPTR(ref);
+  const int left_shift = 1;
+  int row_section = 0;
+
+  while (row_section < 4) {
+    sad64x2(srcp, src_stride, refp, ref_stride, NULL, &sad);
+    srcp += src_stride << left_shift;
+    refp += ref_stride << left_shift;
+    row_section += 1;
+  }
+  return get_sad_from_mm256_epi32(&sad);
+}
+
+unsigned int aom_highbd_sad64x4_avx2(const uint8_t *src, int src_stride,
+                                     const uint8_t *ref, int ref_stride) {
+  __m256i sad = _mm256_setzero_si256();
+  uint16_t *srcp = CONVERT_TO_SHORTPTR(src);
+  uint16_t *refp = CONVERT_TO_SHORTPTR(ref);
+  const int left_shift = 1;
+  int row_section = 0;
+
+  while (row_section < 2) {
+    sad64x2(srcp, src_stride, refp, ref_stride, NULL, &sad);
+    srcp += src_stride << left_shift;
+    refp += ref_stride << left_shift;
+    row_section += 1;
+  }
+  return get_sad_from_mm256_epi32(&sad);
+}
+#endif  // CONFIG_FLEX_PARTITION
 
 unsigned int aom_highbd_sad64x64_avx2(const uint8_t *src, int src_stride,
                                       const uint8_t *ref, int ref_stride) {
