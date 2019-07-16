@@ -3679,6 +3679,8 @@ static void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
       // Setup deltaq based on tpl stats
       current_qindex =
           get_q_for_deltaq_objective(cpi, sb_size, 0, mi_row, mi_col);
+    } else if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+      current_qindex = (rand() % 180) + 60;
     }
   }
 
@@ -3697,6 +3699,7 @@ static void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
   assert(current_qindex > 0);
 
   xd->delta_qindex = current_qindex - cm->base_qindex;
+  printf("QP %d,%d %d\n", mi_col, mi_row, current_qindex);
   set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
   xd->mi[0]->current_qindex = current_qindex;
   av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
@@ -4046,8 +4049,10 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
     xd->cur_frame_force_integer_mv = cm->cur_frame_force_integer_mv;
 
     x->sb_energy_level = 0;
-    if (cm->delta_q_info.delta_q_present_flag)
+    if (cm->delta_q_info.delta_q_present_flag) {
+      // DELTAQ
       setup_delta_q(cpi, td, x, tile_info, mi_row, mi_col, num_planes);
+    }
 
     td->mb.cb_coef_buff = av1_get_cb_coeff_buffer(cpi, mi_row, mi_col);
 
@@ -4253,6 +4258,8 @@ void av1_init_tile_data(AV1_COMP *cpi) {
 
 void av1_encode_sb_row(AV1_COMP *cpi, ThreadData *td, int tile_row,
                        int tile_col, int mi_row) {
+
+  srand(time(0));
   AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   const int tile_cols = cm->tile_cols;
@@ -4686,6 +4693,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_OBJECTIVE;
   else if (cpi->oxcf.deltaq_mode == DELTA_Q_PERCEPTUAL)
     cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
+  else if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN)
+    cm->delta_q_info.delta_q_res = 1;
   // Set delta_q_present_flag before it is used for the first time
   cm->delta_q_info.delta_lf_res = DEFAULT_DELTA_LF_RES;
   cm->delta_q_info.delta_q_present_flag = cpi->oxcf.deltaq_mode != NO_DELTA_Q;
