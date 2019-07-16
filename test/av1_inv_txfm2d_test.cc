@@ -438,6 +438,7 @@ INSTANTIATE_TEST_CASE_P(AVX2, AV1LbdInvTxfm2d,
 
 // TODO(yunqing): Re-enable this unit test for NEON version after the functions
 // are fixed.
+<<<<<<< HEAD   (9d61ba Enable cnn as an option in loop_restoration.)
 // #if HAVE_NEON
 //
 // #if CONFIG_MODE_DEP_TX
@@ -456,5 +457,16 @@ INSTANTIATE_TEST_CASE_P(AVX2, AV1LbdInvTxfm2d,
 // INSTANTIATE_TEST_CASE_P(NEON, AV1LbdInvTxfm2d,
 //                         ::testing::Values(av1_lowbd_inv_txfm2d_add_neon));
 // #endif  // HAVE_NEON
+=======
+#if HAVE_NEON
+extern "C" void av1_lowbd_inv_txfm2d_add_neon(const int32_t *input,
+                                              uint8_t *output, int stride,
+                                              TX_TYPE tx_type, TX_SIZE tx_size,
+                                              int eob);
+
+INSTANTIATE_TEST_CASE_P(NEON, AV1LbdInvTxfm2d,
+                        ::testing::Values(av1_lowbd_inv_txfm2d_add_neon));
+#endif  // HAVE_NEON
+>>>>>>> BRANCH (cd1af9 Remove redundant assert in compound_type_rd)
 
 }  // namespace
