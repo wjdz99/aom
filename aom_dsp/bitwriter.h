@@ -61,6 +61,10 @@ static INLINE void aom_write(aom_writer *br, int bit, int probability) {
   aom_daala_write(br, bit, probability);
 }
 
+static INLINE int aom_get_total_bits(aom_writer *br) {
+  return ((daala_writer*)br)->ec.total_bits;
+}
+
 static INLINE void aom_write_bit(aom_writer *w, int bit) {
   aom_write(w, bit, 128);  // aom_prob_half
 }
