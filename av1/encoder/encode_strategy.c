@@ -1165,11 +1165,11 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 
 #if CONFIG_REALTIME_ONLY
-  av1_get_one_pass_params(cpi, &frame_params, *frame_flags);
+  av1_get_one_pass_rt_params(cpi, &frame_params, *frame_flags);
   frame_update_type = get_frame_update_type(cpi);
 #else
-  if (oxcf->pass == 0) {
-    av1_get_one_pass_params(cpi, &frame_params, *frame_flags);
+  if (oxcf->pass == 0 && oxcf->mode == REALTIME && oxcf->lag_in_frames == 0) {
+    av1_get_one_pass_rt_params(cpi, &frame_params, *frame_flags);
     frame_update_type = get_frame_update_type(cpi);
   } else if (oxcf->pass != 1 &&
              (!frame_params.show_existing_frame || is_overlay)) {

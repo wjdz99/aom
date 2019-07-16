@@ -256,7 +256,6 @@ void av1_rc_set_gf_interval_range(const struct AV1_COMP *const cpi,
                                   RATE_CONTROL *const rc);
 
 void av1_set_target_rate(struct AV1_COMP *cpi, int width, int height);
-
 int av1_resize_one_pass_cbr(struct AV1_COMP *cpi);
 
 void av1_rc_set_frame_target(struct AV1_COMP *cpi, int target, int width,
@@ -266,7 +265,7 @@ int av1_estimate_q_constant_quality_two_pass(const struct AV1_COMP *cpi,
                                              int width, int height, int *arf_q,
                                              int gf_index);
 
-void av1_get_one_pass_params(struct AV1_COMP *cpi,
+void av1_get_one_pass_rt_params(struct AV1_COMP *cpi,
                              struct EncodeFrameParams *const frame_params,
                              unsigned int frame_flags);
 
