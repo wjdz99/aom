@@ -192,11 +192,13 @@ VAR_FN(16, 16, 16, 8);
 VAR_FN(16, 8, 8, 7);
 VAR_FN(8, 16, 8, 7);
 VAR_FN(8, 8, 8, 6);
-VAR_FN(16, 4, 16, 6);
-VAR_FN(8, 32, 8, 8);
-VAR_FN(32, 8, 8, 8);
-VAR_FN(16, 64, 16, 10);
-VAR_FN(64, 16, 16, 10);
+// TODO(yunqing): add SIMD version for extended partition types. The following
+// ones are not used or tested.
+// VAR_FN(16, 4, 16, 6);
+// VAR_FN(8, 32, 8, 8);
+// VAR_FN(32, 8, 8, 8);
+// VAR_FN(16, 64, 16, 10);
+// VAR_FN(64, 16, 16, 10);
 
 #undef VAR_FN
 
