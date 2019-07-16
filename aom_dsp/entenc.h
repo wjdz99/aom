@@ -48,6 +48,7 @@ struct od_ec_enc {
   double entropy;
   int nb_symbols;
 #endif
+  int total_bits;
 };
 
 /*See entenc.c for further documentation.*/

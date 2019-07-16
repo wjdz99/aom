@@ -650,7 +650,7 @@ static const arg_def_t aq_mode = ARG_DEF(
 static const arg_def_t deltaq_mode =
     ARG_DEF(NULL, "deltaq-mode", 1,
             "Delta qindex mode (0: off, 1: deltaq objective (default), "
-            "2: deltaq perceptual). "
+            "2: deltaq perceptual, 3: stan). "
             "Currently this requires enable-tpl-model as a prerequisite.");
 static const arg_def_t deltalf_mode = ARG_DEF(
     NULL, "delta-lf-mode", 1, "Enable delta-lf-mode (0: off (default), 1: on)");

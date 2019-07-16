@@ -123,6 +123,7 @@ enum {
   NO_DELTA_Q = 0,
   DELTA_Q_OBJECTIVE = 1,   // Modulation to improve objective quality
   DELTA_Q_PERCEPTUAL = 2,  // Modulation to improve perceptual quality
+  DELTA_Q_STAN = 3,
   DELTA_Q_MODE_COUNT       // This should always be the last member of the enum
 } UENUM1BYTE(DELTAQ_MODE);
 

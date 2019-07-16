@@ -105,6 +105,7 @@ static void od_ec_enc_normalize(od_ec_enc *enc, od_ec_window low,
   enc->low = low << d;
   enc->rng = rng << d;
   enc->cnt = s;
+  enc->total_bits += d;
 }
 
 /*Initializes the encoder.
@@ -328,6 +329,7 @@ unsigned char *od_ec_enc_done(od_ec_enc *enc, uint32_t *nbytes) {
       n >>= 8;
     } while (s > 0);
   }
+  enc->total_bits += enc->cnt;
   /*Make sure there's enough room for the entropy-coded bits.*/
   out = enc->buf;
   storage = enc->storage;

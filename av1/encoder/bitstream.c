@@ -1719,8 +1719,11 @@ static AOM_INLINE void write_modes(AV1_COMP *const cpi,
     for (mi_col = mi_col_start; mi_col < mi_col_end;
          mi_col += cm->seq_params.mib_size) {
       cpi->td.mb.cb_coef_buff = av1_get_cb_coeff_buffer(cpi, mi_row, mi_col);
+      int start = aom_get_total_bits(w);
       write_modes_sb(cpi, tile, w, &tok, tok_end, mi_row, mi_col,
                      cm->seq_params.sb_size);
+      int total = aom_get_total_bits(w) - start;
+      printf("SB %d,%d %d\n", mi_col, mi_row, total);
     }
     assert(tok == cpi->tplist[tile_row][tile_col][sb_row_in_tile].stop);
   }

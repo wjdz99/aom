@@ -4020,6 +4020,8 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
       x->sb_energy_level = block_var_level;
       current_qindex =
           av1_compute_q_from_energy_level_deltaq_mode(cpi, block_var_level);
+    } else if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+      current_qindex = (rand() % 180) + 60;
     }
   } else if (cpi->oxcf.deltaq_mode == DELTA_Q_OBJECTIVE &&
              cpi->oxcf.enable_tpl_model) {
@@ -4049,6 +4051,7 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
   assert(current_qindex > 0);
 
   xd->delta_qindex = current_qindex - cm->base_qindex;
+  printf("QP %d,%d %d\n", mi_col, mi_row, current_qindex);
   set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
   xd->mi[0]->current_qindex = current_qindex;
   av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
@@ -4790,6 +4793,8 @@ void av1_init_tile_data(AV1_COMP *cpi) {
 
 void av1_encode_sb_row(AV1_COMP *cpi, ThreadData *td, int tile_row,
                        int tile_col, int mi_row) {
+
+  srand(time(0));
   AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   const int tile_cols = cm->tile_cols;
@@ -5451,6 +5456,8 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
     cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_OBJECTIVE;
   else if (cpi->oxcf.deltaq_mode == DELTA_Q_PERCEPTUAL)
     cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
+  else if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN)
+    cm->delta_q_info.delta_q_res = 1;
   // Set delta_q_present_flag before it is used for the first time
   cm->delta_q_info.delta_lf_res = DEFAULT_DELTA_LF_RES;
   cm->delta_q_info.delta_q_present_flag = cpi->oxcf.deltaq_mode != NO_DELTA_Q;
