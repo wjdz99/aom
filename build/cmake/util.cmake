@@ -25,7 +25,11 @@ macro(create_dummy_source_file basename extension out_file_list_var)
        "// Generated file. DO NOT EDIT!\n"
        "// ${target_name} needs a ${extension} file to force link language, \n"
        "// or to silence a harmless CMake warning: Ignore me.\n"
+<<<<<<< HEAD   (45c7b4 Start a FLEX_PARTITION experiment)
        "void ${target_name}_dummy_function(void) {}\n")
+=======
+       "void aom_${target_name}_dummy_function(void) {}\n")
+>>>>>>> BRANCH (b9da78 Enable adaptive_rd_thresh for row-mt)
   list(APPEND "${out_file_list_var}" "${dummy_source_file}")
 endmacro()
 
