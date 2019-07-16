@@ -348,9 +348,9 @@ class SADTest : public ::testing::WithParamInterface<SadMxNParam>,
   unsigned int SAD(int block_idx) {
     unsigned int ret;
     const uint8_t *const reference = GetReference(block_idx);
-
-    ASM_REGISTER_STATE_CHECK(ret = GET_PARAM(2)(source_data_, source_stride_,
-                                                reference, reference_stride_));
+    ASM_REGISTER_STATE_CHECK(
+        (ret = GET_PARAM(2)(source_data_, source_stride_, reference,
+                            reference_stride_)));
     return ret;
   }
 
@@ -1128,6 +1128,9 @@ const SadMxNParam sse2_tests[] = {
   make_tuple(8, 16, &aom_highbd_sad8x16_sse2, 10),
   make_tuple(8, 8, &aom_highbd_sad8x8_sse2, 10),
   make_tuple(8, 4, &aom_highbd_sad8x4_sse2, 10),
+  make_tuple(4, 16, &aom_highbd_sad4x16_sse2, 10),
+  make_tuple(4, 8, &aom_highbd_sad4x8_sse2, 10),
+  make_tuple(4, 4, &aom_highbd_sad4x4_sse2, 10),
   make_tuple(64, 64, &aom_highbd_sad64x64_sse2, 12),
   make_tuple(64, 32, &aom_highbd_sad64x32_sse2, 12),
   make_tuple(32, 64, &aom_highbd_sad32x64_sse2, 12),
@@ -1139,6 +1142,9 @@ const SadMxNParam sse2_tests[] = {
   make_tuple(8, 16, &aom_highbd_sad8x16_sse2, 12),
   make_tuple(8, 8, &aom_highbd_sad8x8_sse2, 12),
   make_tuple(8, 4, &aom_highbd_sad8x4_sse2, 12),
+  make_tuple(4, 16, &aom_highbd_sad4x16_sse2, 12),
+  make_tuple(4, 8, &aom_highbd_sad4x8_sse2, 12),
+  make_tuple(4, 4, &aom_highbd_sad4x4_sse2, 12),
 };
 INSTANTIATE_TEST_CASE_P(SSE2, SADTest, ::testing::ValuesIn(sse2_tests));
 
