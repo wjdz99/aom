@@ -196,6 +196,10 @@ VAR_FN(8, 32, 8, 8);
 VAR_FN(32, 8, 8, 8);
 VAR_FN(16, 64, 16, 10);
 VAR_FN(64, 16, 16, 10);
+#if CONFIG_FLEX_PARTITION
+VAR_FN(8, 64, 8, 9);
+VAR_FN(64, 8, 8, 9);
+#endif  // CONFIG_FLEX_PARTITION
 
 #undef VAR_FN
 
@@ -441,7 +445,7 @@ DECLS(sse2);
   FN(8, 32, 8, 3, 5, opt, (int64_t));     \
   FN(32, 8, 16, 5, 3, opt, (int64_t));    \
   FN(16, 64, 16, 4, 6, opt, (int64_t));   \
-  FN(64, 16, 16, 6, 4, opt, (int64_t))
+  FN(64, 16, 16, 6, 4, opt, (int64_t));
 
 FNS(sse2);
 
@@ -493,6 +497,18 @@ DECLS(sse2);
             dst_stride, sec + 3 * wf, w, h, &sse2, NULL, NULL);                \
         se += se2;                                                             \
         sse += sse2;                                                           \
+      if (w > wf * 4) {                                                        \
+        se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(                 \
+            src + 32, src_stride, x_offset, y_offset, dst + 32, dst_stride,    \
+            sec + 32, w, h, &sse2, NULL, NULL);                                \
+        se += se2;                                                             \
+        sse += sse2;                                                           \
+        se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(                 \
+            src + 48, src_stride, x_offset, y_offset, dst + 48, dst_stride,    \
+            sec + 48, w, h, &sse2, NULL, NULL);                                \
+        se += se2;                                                             \
+        sse += sse2;                                                           \
+      }                                                                        \
       }                                                                        \
     }                                                                          \
     *sse_ptr = sse;                                                            \
