@@ -1942,56 +1942,12 @@ static int calc_iframe_target_size_one_pass_cbr(const AV1_COMP *cpi) {
 #define DEFAULT_KF_BOOST 2300
 #define DEFAULT_GF_BOOST 2000
 
-static void define_gf_group_pass0(AV1_COMP *cpi,
-                                  const EncodeFrameParams *const frame_params) {
-  RATE_CONTROL *const rc = &cpi->rc;
-  GF_GROUP *const gf_group = &cpi->gf_group;
-  int target;
-
-  if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ)
-    av1_cyclic_refresh_set_golden_update(cpi);
-  else
-    rc->baseline_gf_interval = MAX_GF_INTERVAL;
-
-  if (rc->baseline_gf_interval > rc->frames_to_key)
-    rc->baseline_gf_interval = rc->frames_to_key;
-
-  rc->gfu_boost = DEFAULT_GF_BOOST;
-  rc->constrained_gf_group =
-      (rc->baseline_gf_interval >= rc->frames_to_key) ? 1 : 0;
-
-  // Set up the structure of this Group-Of-Pictures (same as GF_GROUP)
-  av1_gop_setup_structure(cpi, frame_params);
-
-  // Allocate bits to each of the frames in the GF group.
-  // TODO(marpan): Fix this: frame size should be based on current
-  // buffer level, updated after each encoded frame.
-  for (int cur_index = 0; cur_index < gf_group->size; ++cur_index) {
-    const FRAME_UPDATE_TYPE cur_update_type = gf_group->update_type[cur_index];
-    if (cpi->oxcf.rc_mode == AOM_CBR) {
-      if (cur_update_type == KEY_FRAME) {
-        target = calc_iframe_target_size_one_pass_cbr(cpi);
-      } else {
-        target = calc_pframe_target_size_one_pass_cbr(cpi, cur_update_type);
-      }
-    } else {
-      if (cur_update_type == KEY_FRAME) {
-        target = calc_iframe_target_size_one_pass_vbr(cpi);
-      } else {
-        target = calc_pframe_target_size_one_pass_vbr(cpi, cur_update_type);
-      }
-    }
-    gf_group->bit_allocation[cur_index] = target;
-  }
-}
-
 void av1_get_one_pass_params(AV1_COMP *cpi,
                              EncodeFrameParams *const frame_params,
                              unsigned int frame_flags) {
   RATE_CONTROL *const rc = &cpi->rc;
   AV1_COMMON *const cm = &cpi->common;
-  GF_GROUP *const gf_group = &cpi->gf_group;
-  int target_size;
+  int target;
   if (rc->frames_to_key == 0 || (frame_flags & FRAMEFLAGS_KEY)) {
     frame_params->frame_type = KEY_FRAME;
     rc->this_key_frame_forced =
@@ -1999,21 +1955,39 @@ void av1_get_one_pass_params(AV1_COMP *cpi,
     rc->frames_to_key = cpi->oxcf.key_freq;
     rc->kf_boost = DEFAULT_KF_BOOST;
     rc->source_alt_ref_active = 0;
-    gf_group->update_type[0] = KF_UPDATE;
   } else {
     frame_params->frame_type = INTER_FRAME;
   }
   if (rc->frames_till_gf_update_due == 0) {
-    assert(cpi->common.current_frame.frame_number == 0 ||
-           gf_group->index == gf_group->size);
-    define_gf_group_pass0(cpi, frame_params);
+    GF_GROUP *const gf_group = &cpi->gf_group;
+    if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ)
+      av1_cyclic_refresh_set_golden_update(cpi);
+    else
+      rc->baseline_gf_interval = MAX_GF_INTERVAL;
+    if (rc->baseline_gf_interval > rc->frames_to_key)
+      rc->baseline_gf_interval = rc->frames_to_key;
     rc->frames_till_gf_update_due = rc->baseline_gf_interval;
-    cpi->num_gf_group_show_frames = 0;
+    rc->gfu_boost = DEFAULT_GF_BOOST;
+    rc->constrained_gf_group =
+        (rc->baseline_gf_interval >= rc->frames_to_key) ? 1 : 0;
+    av1_gop_setup_structure(cpi, frame_params);
     gf_group->index = 0;
   }
-  assert(gf_group->index < gf_group->size);
-  target_size = gf_group->bit_allocation[gf_group->index];
-  av1_rc_set_frame_target(cpi, target_size, cpi->common.width,
+  if (cpi->oxcf.rc_mode == AOM_CBR) {
+    if (frame_params->frame_type == KEY_FRAME) {
+      target = calc_iframe_target_size_one_pass_cbr(cpi);
+    } else {
+      target = calc_pframe_target_size_one_pass_cbr(cpi, LF_UPDATE);
+    }
+  } else {
+    if (frame_params->frame_type == KEY_FRAME) {
+      target = calc_iframe_target_size_one_pass_vbr(cpi);
+    } else {
+      target = calc_pframe_target_size_one_pass_vbr(cpi, LF_UPDATE);
+    }
+  }
+  printf("%d %d %d \n", frame_params->frame_type, target, rc->buffer_level);
+  av1_rc_set_frame_target(cpi, target, cpi->common.width,
                           cpi->common.height);
-  rc->base_frame_target = target_size;
+  rc->base_frame_target = target;
 }
