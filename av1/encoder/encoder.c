@@ -75,7 +75,7 @@
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/var_based_part.h"
 
-#define DEFAULT_EXPLICIT_ORDER_HINT_BITS 7
+#define DEFAULT_EXPLICIT_ORDER_HINT_BITS 5
 
 #if CONFIG_ENTROPY_STATS
 FRAME_COUNTS aggregate_fc;
