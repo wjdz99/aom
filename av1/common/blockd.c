@@ -28,6 +28,26 @@ PREDICTION_MODE av1_above_block_mode(const MB_MODE_INFO *above_mi) {
   return above_mi->mode;
 }
 
+// MC 2019
+void av1_block_mode(const MB_MODE_INFO *mi, PREDICTION_MODE *mode,
+                    int8_t *angle_delta, int *qindex, BLOCK_SIZE *sb_type,
+                    TX_SIZE *tx_size) {
+  if (!mi) {
+    *mode = 255;
+    *angle_delta = 0;
+    *qindex = 0;
+    *sb_type = 255;
+    *tx_size = 255;
+  } else {
+    assert(!is_inter_block(mi) || is_intrabc_block(mi));
+    *mode = mi->mode;
+    *angle_delta = mi->angle_delta[PLANE_TYPE_Y];
+    *qindex = mi->current_qindex;
+    *sb_type = mi->sb_type;
+    *tx_size = mi->tx_size;
+  }
+}
+
 void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
                       int plane, BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
                       int has_eob, int aoff, int loff) {

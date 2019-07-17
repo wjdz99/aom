@@ -64,6 +64,9 @@ static size_t wrap_fwrite(const void *ptr, size_t size, size_t nmemb,
 
 static const char *exec_name;
 
+extern int total;  // MC 2019
+extern float bit_length0, bit_length1;
+
 static void warn_or_exit_on_errorv(aom_codec_ctx_t *ctx, int fatal,
                                    const char *s, va_list ap) {
   if (ctx->err) {
@@ -2645,6 +2648,15 @@ int main(int argc, const char **argv_) {
     }
   }
 #endif
+
+  // MC 2019
+  FILE *fp = fopen("bit_length.txt", "a");
+  if (fp) {
+    fprintf(fp, "%f %f %d %f %f\n", bit_length0, bit_length1, total,
+            bit_length0 / total, bit_length1 / total);
+  }
+  printf("%f %f %d %f %f\n", bit_length0, bit_length1, total,
+         bit_length0 / total, bit_length1 / total);  // MC 2019
 
   if (allocated_raw_shift) aom_img_free(&raw_shift);
   aom_img_free(&raw);

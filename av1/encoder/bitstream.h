@@ -18,6 +18,8 @@ extern "C" {
 
 #include "av1/encoder/encoder.h"
 
+#include "av1/encoder/ml.h"
+
 struct aom_write_bit_buffer;
 
 // Writes only the OBU Sequence Header payload, and returns the size of the

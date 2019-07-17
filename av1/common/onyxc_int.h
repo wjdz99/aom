@@ -852,6 +852,14 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
     xd->left_mbmi = NULL;
   }
 
+  // MC 2019
+  if (xd->left_available && xd->up_available) {
+    xd->aboveleft_mbmi = xd->mi[-xd->mi_stride-1];
+  } else {
+    xd->aboveleft_mbmi = NULL;
+  }
+
+
   const int chroma_ref = ((mi_row & 0x01) || !(bh & 0x01) || !ss_y) &&
                          ((mi_col & 0x01) || !(bw & 0x01) || !ss_x);
   if (chroma_ref) {

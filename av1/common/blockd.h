@@ -344,6 +344,11 @@ PREDICTION_MODE av1_left_block_mode(const MB_MODE_INFO *left_mi);
 
 PREDICTION_MODE av1_above_block_mode(const MB_MODE_INFO *above_mi);
 
+// MC 2019
+void av1_block_mode(const MB_MODE_INFO *mi, PREDICTION_MODE *mode,
+                    int8_t *angle_delta, int *qindex, BLOCK_SIZE *sb_type,
+                    TX_SIZE *tx_size);
+
 static INLINE int is_global_mv_block(const MB_MODE_INFO *const mbmi,
                                      TransformationType type) {
   const PREDICTION_MODE mode = mbmi->mode;
@@ -490,6 +495,7 @@ typedef struct macroblockd {
   MB_MODE_INFO **mi;
   MB_MODE_INFO *left_mbmi;
   MB_MODE_INFO *above_mbmi;
+  MB_MODE_INFO *aboveleft_mbmi;  // (MC 2019)
   MB_MODE_INFO *chroma_left_mbmi;
   MB_MODE_INFO *chroma_above_mbmi;
 
