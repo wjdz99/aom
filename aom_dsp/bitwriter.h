@@ -24,6 +24,8 @@
 #include "av1/encoder/cost.h"
 #endif
 
+#include "av1/common/entropymode.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -80,6 +82,17 @@ static INLINE void aom_write_symbol(aom_writer *w, int symb, aom_cdf_prob *cdf,
                                     int nsymbs) {
   aom_write_cdf(w, symb, cdf, nsymbs);
   if (w->allow_update_cdf) update_cdf(cdf, symb, nsymbs);
+}
+
+// For neural network
+static INLINE void aom_write_symbol_nn(aom_writer *w, int symb,
+                                       aom_cdf_prob *cdf,
+                                       NN_CONFIG_EM *nn_model, int nsymbs) {
+  aom_write_cdf(w, symb, cdf, nsymbs);
+  if (w->allow_update_cdf) {
+    av1_nn_backprop_em(nn_model, symb);
+    av1_nn_update_em(nn_model, nn_model->lr);
+  }
 }
 
 #ifdef __cplusplus
