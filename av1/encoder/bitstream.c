@@ -70,6 +70,7 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
                                              aom_writer *const w, int plane,
                                              FRAME_COUNTS *counts);
 
+
 static void write_intra_y_mode_kf(FRAME_CONTEXT *frame_ctx,
                                   const MB_MODE_INFO *mi,
                                   const MB_MODE_INFO *above_mi,
