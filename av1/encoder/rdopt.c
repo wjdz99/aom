@@ -11880,17 +11880,21 @@ static int inter_mode_search_order_independent_skip(
     if (sf->selective_ref_frame >= 2 ||
         (sf->selective_ref_frame == 1 && comp_pred)) {
       if (ref_frame[0] == LAST3_FRAME || ref_frame[1] == LAST3_FRAME) {
-        if (get_relative_dist(
+        if (av1_encoder_get_relative_dist(
                 order_hint_info,
-                cm->cur_frame->ref_order_hints[LAST3_FRAME - LAST_FRAME],
-                cm->cur_frame->ref_order_hints[GOLDEN_FRAME - LAST_FRAME]) <= 0)
+                cm->cur_frame
+                    ->ref_display_order_count[LAST3_FRAME - LAST_FRAME],
+                cm->cur_frame
+                    ->ref_display_order_count[GOLDEN_FRAME - LAST_FRAME]) <= 0)
           return 1;
       }
       if (ref_frame[0] == LAST2_FRAME || ref_frame[1] == LAST2_FRAME) {
-        if (get_relative_dist(
+        if (av1_encoder_get_relative_dist(
                 order_hint_info,
-                cm->cur_frame->ref_order_hints[LAST2_FRAME - LAST_FRAME],
-                cm->cur_frame->ref_order_hints[GOLDEN_FRAME - LAST_FRAME]) <= 0)
+                cm->cur_frame
+                    ->ref_display_order_count[LAST2_FRAME - LAST_FRAME],
+                cm->cur_frame
+                    ->ref_display_order_count[GOLDEN_FRAME - LAST_FRAME]) <= 0)
           return 1;
       }
     }
@@ -11901,12 +11905,12 @@ static int inter_mode_search_order_independent_skip(
       for (int i = 0; i < 2; ++i) {
         const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame[i]);
         assert(buf != NULL);
-        ref_offsets[i] = buf->order_hint;
+        ref_offsets[i] = buf->display_order_count;
       }
-      const int ref0_dist = get_relative_dist(order_hint_info, ref_offsets[0],
-                                              current_frame->order_hint);
-      const int ref1_dist = get_relative_dist(order_hint_info, ref_offsets[1],
-                                              current_frame->order_hint);
+      const int ref0_dist = av1_encoder_get_relative_dist(
+          order_hint_info, ref_offsets[0], current_frame->display_order_count);
+      const int ref1_dist = av1_encoder_get_relative_dist(
+          order_hint_info, ref_offsets[1], current_frame->display_order_count);
       if ((ref0_dist <= 0 && ref1_dist <= 0) ||
           (ref0_dist > 0 && ref1_dist > 0)) {
         return 1;
@@ -11915,16 +11919,18 @@ static int inter_mode_search_order_independent_skip(
 
     if (sf->selective_ref_frame >= 3) {
       if (ref_frame[0] == ALTREF2_FRAME || ref_frame[1] == ALTREF2_FRAME)
-        if (get_relative_dist(
+        if (av1_encoder_get_relative_dist(
                 order_hint_info,
-                cm->cur_frame->ref_order_hints[ALTREF2_FRAME - LAST_FRAME],
-                current_frame->order_hint) < 0)
+                cm->cur_frame
+                    ->ref_display_order_count[ALTREF2_FRAME - LAST_FRAME],
+                current_frame->display_order_count) < 0)
           return 1;
       if (ref_frame[0] == BWDREF_FRAME || ref_frame[1] == BWDREF_FRAME)
-        if (get_relative_dist(
+        if (av1_encoder_get_relative_dist(
                 order_hint_info,
-                cm->cur_frame->ref_order_hints[BWDREF_FRAME - LAST_FRAME],
-                current_frame->order_hint) < 0)
+                cm->cur_frame
+                    ->ref_display_order_count[BWDREF_FRAME - LAST_FRAME],
+                current_frame->display_order_count) < 0)
           return 1;
     }
 
