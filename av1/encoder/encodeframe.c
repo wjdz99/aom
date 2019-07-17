@@ -285,7 +285,8 @@ static void setup_block_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   }
 
   const AV1_COMMON *const cm = &cpi->common;
-  if (cm->delta_q_info.delta_q_present_flag) {
+  if (cm->delta_q_info.delta_q_present_flag &&
+      cpi->oxcf.tuning != AOM_TUNE_SSIM) {
     MACROBLOCKD *const xd = &x->e_mbd;
     x->rdmult = set_deltaq_rdmult(cpi, xd);
   }
@@ -3488,6 +3489,31 @@ BEGIN_PARTITION_SEARCH:
 #endif  // !CONFIG_REALTIME_ONLY
 #undef NUM_SIMPLE_MOTION_FEATURES
 
+static int get_q_from_ssim_rdmult(AV1_COMP *const cpi, MACROBLOCK *const x,
+                                  BLOCK_SIZE bsize, int mi_row, int mi_col) {
+  AV1_COMMON *const cm = &cpi->common;
+
+  const int orig_qindex = cm->base_qindex;
+  if (bsize <= BLOCK_16X16) return orig_qindex;
+
+  const int orig_rdmult = av1_compute_rd_mult(cpi, orig_qindex);
+  int target_rdmult = orig_rdmult;
+  set_ssim_rdmult(cpi, x, bsize, mi_row, mi_col, &target_rdmult);
+
+  if (orig_rdmult == target_rdmult) return orig_qindex;
+
+  int offset = av1_get_deltaq_from_rdmult(cpi, orig_qindex, target_rdmult);
+
+  const DeltaQInfo *const delta_q_info = &cm->delta_q_info;
+  offset = AOMMIN(offset, delta_q_info->delta_q_res * 9 - 1);
+  offset = AOMMAX(offset, -delta_q_info->delta_q_res * 9 + 1);
+  int qindex = cm->base_qindex + offset;
+  qindex = AOMMIN(qindex, MAXQ);
+  qindex = AOMMAX(qindex, MINQ);
+
+  return qindex;
+}
+
 #if !CONFIG_REALTIME_ONLY
 static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int analysis_type,
                             int mi_row, int mi_col, int orig_rdmult) {
@@ -3677,8 +3703,13 @@ static void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
     } else if (cpi->oxcf.deltaq_mode == DELTA_Q_OBJECTIVE) {
       assert(cpi->oxcf.enable_tpl_model);
       // Setup deltaq based on tpl stats
-      current_qindex =
-          get_q_for_deltaq_objective(cpi, sb_size, 0, mi_row, mi_col);
+      if (cpi->oxcf.tuning == AOM_TUNE_SSIM) {
+        current_qindex =
+            get_q_from_ssim_rdmult(cpi, x, sb_size, mi_row, mi_col);
+      } else {
+        current_qindex =
+            get_q_for_deltaq_objective(cpi, sb_size, 0, mi_row, mi_col);
+      }
     }
   }
 

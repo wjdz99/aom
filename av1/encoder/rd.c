@@ -382,6 +382,43 @@ int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {
   return (int)rdmult;
 }
 
+int av1_compute_rd_mult_from_qindex_wo_adj(const AV1_COMP *cpi, int qindex) {
+  const int q = av1_dc_quant_QTX(qindex, 0, cpi->common.seq_params.bit_depth);
+  int rdmult = q * q;
+  rdmult = rdmult * 3 + (rdmult * 2 / 3);
+
+  switch (cpi->common.seq_params.bit_depth) {
+    case AOM_BITS_8: break;
+    case AOM_BITS_10: rdmult = ROUND_POWER_OF_TWO(rdmult, 4); break;
+    case AOM_BITS_12: rdmult = ROUND_POWER_OF_TWO(rdmult, 8); break;
+    default:
+      assert(0 && "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
+      return -1;
+  }
+  return rdmult > 0 ? rdmult : 1;
+}
+
+int av1_get_deltaq_from_rdmult(const AV1_COMP *cpi, int orig_qindex,
+                               int target_rdmult) {
+  assert(target_rdmult >= 0);
+
+  int rdmult = av1_compute_rd_mult_from_qindex_wo_adj(cpi, orig_qindex);
+  int qindex = orig_qindex;
+
+  if (rdmult > target_rdmult) {
+    do {
+      qindex--;
+      rdmult = av1_compute_rd_mult_from_qindex_wo_adj(cpi, qindex);
+    } while (rdmult > target_rdmult && qindex > 0);
+  } else if (rdmult < target_rdmult) {
+    do {
+      qindex++;
+      rdmult = av1_compute_rd_mult_from_qindex_wo_adj(cpi, qindex);
+    } while (rdmult < target_rdmult && qindex < MAXQ);
+  }
+  return qindex - orig_qindex;
+}
+
 int av1_get_deltaq_offset(const AV1_COMP *cpi, int qindex, double beta) {
   assert(beta > 0.0);
   int q = av1_dc_quant_QTX(qindex, 0, cpi->common.seq_params.bit_depth);
