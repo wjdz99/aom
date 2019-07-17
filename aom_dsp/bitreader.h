@@ -32,6 +32,7 @@
 #define ACCT_STR_PARAM
 #define ACCT_STR_ARG(s)
 #endif
+#include "av1/common/entropymode.h"
 
 #define aom_read(r, prob, ACCT_STR_NAME) \
   aom_read_(r, prob ACCT_STR_ARG(ACCT_STR_NAME))
@@ -146,6 +147,17 @@ static INLINE int aom_read_symbol_(aom_reader *r, aom_cdf_prob *cdf,
   int ret;
   ret = aom_read_cdf(r, cdf, nsymbs, ACCT_STR_NAME);
   if (r->allow_update_cdf) update_cdf(cdf, ret, nsymbs);
+  return ret;
+}
+
+static INLINE int aom_read_symbol_nn(aom_reader *r, aom_cdf_prob *cdf,
+                                     NN_CONFIG_EM *nn_model, int nsymbs) {
+  int ret;
+  ret = aom_read_cdf(r, cdf, nsymbs, ACCT_STR_NAME);
+  if (r->allow_update_cdf) {
+    av1_nn_backprop_em(nn_model, ret);
+    av1_nn_update_em(nn_model, nn_model->lr);
+  }
   return ret;
 }
 

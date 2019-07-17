@@ -37,12 +37,12 @@ struct NN_CONFIG {
 #if CONFIG_NN_V2
 // Fully-connectedly layer configuration
 struct FC_LAYER {
-  const int num_inputs;   // Number of input nodes, i.e. features.
-  const int num_outputs;  // Number of output nodes.
+  int num_inputs;   // Number of input nodes, i.e. features.
+  int num_outputs;  // Number of output nodes.
 
-  float *weights;               // Weight parameters.
-  float *bias;                  // Bias parameters.
-  const ACTIVATION activation;  // Activation function.
+  float *weights;         // Weight parameters.
+  float *bias;            // Bias parameters.
+  ACTIVATION activation;  // Activation function.
 
   float *output;  // The output array.
   float *dY;      // Gradient of outputs
@@ -52,11 +52,13 @@ struct FC_LAYER {
 
 // NN configure structure V2
 struct NN_CONFIG_V2 {
-  const int num_hidden_layers;  // Number of hidden layers, max = 10.
+  int counter;            // Counter for the input in one batch
+  int num_hidden_layers;  // Number of hidden layers, max = 10.
+  float *feature;         // Input feature
   FC_LAYER layer[NN_MAX_HIDDEN_LAYERS + 1];  // The layer array
-  const int num_logits;                      // Number of output nodes.
-  float *logits;    // Raw prediction (same as output of final layer)
-  const LOSS loss;  // Loss function
+  int num_logits;                            // Number of output nodes.
+  float *logits;  // Raw prediction (same as output of final layer)
+  LOSS loss;      // Loss function
 };
 
 // Calculate prediction based on the given input features and neural net config.
@@ -64,6 +66,18 @@ struct NN_CONFIG_V2 {
 // layer.
 void av1_nn_predict_v2(const float *features, NN_CONFIG_V2 *nn_config,
                        int reduce_prec, float *output);
+
+// Back propagation on the given NN model.
+void av1_nn_backprop(NN_CONFIG_V2 *nn_config, const int label);
+
+// Back propagation on the given two NN models (!!Only for transform type).
+void av1_nn_outer_product_backprop(NN_CONFIG_V2 *nn_config_hor,
+                                   NN_CONFIG_V2 *nn_config_ver,
+                                   const int label);
+
+// Update the weights via gradient descent.
+// mu: learning rate, usually chosen from 0.01~0.001.
+void av1_nn_update(NN_CONFIG_V2 *nn_config, float mu);
 #endif  // CONFIG_NN_V2
 
 // Applies the softmax normalization function to the input
