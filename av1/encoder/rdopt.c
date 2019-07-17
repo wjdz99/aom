@@ -4689,6 +4689,26 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
       av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
                                     av1_num_planes(cm) - 1);
+      for (int pl = 0; pl < num_planes; pl++) {
+        struct macroblockd_plane *const pd = &xd->plane[pl];
+        struct buf_2d *const dst_buf = &pd->dst;
+        //const BLOCK_SIZE bsize = xd->mi[0]->sb_type;
+        const int ss_x = pd->subsampling_x;
+        const int ss_y = pd->subsampling_y;
+        const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, ss_x, ss_y);
+        const int b8_w = block_size_wide[plane_bsize] >> ss_x;
+        const int b8_h = block_size_high[plane_bsize] >> ss_y;
+        if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+          printf("PREDICTOR %d,%d %d,%d ", mi_col, mi_row, b8_w, b8_h);
+          for (int ii = 0; ii < b8_h; ii++) {
+            for (int jj = 0; jj < b8_w; jj++) {
+              uint8_t *dst = dst_buf->buf + dst_buf->stride * ii + jj;
+              printf("%02x ", *dst);
+            }
+          }
+          printf("\n");
+        }
+      }
       if (mbmi->motion_mode == OBMC_CAUSAL) {
         av1_build_obmc_inter_predictors_sb(cm, xd);
       }

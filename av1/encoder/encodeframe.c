@@ -1893,7 +1893,7 @@ static AOM_INLINE void set_fixed_partitioning(AV1_COMP *cpi,
 static AOM_INLINE void rd_use_partition(
     AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data, MB_MODE_INFO **mib,
     TOKENEXTRA **tp, int mi_row, int mi_col, BLOCK_SIZE bsize, int *rate,
-    int64_t *dist, int do_recon, PC_TREE *pc_tree) {
+    int64_t *dist, int64_t* rdcost, int do_recon, PC_TREE *pc_tree) {
   AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   TileInfo *const tile_info = &tile_data->tile_info;
@@ -1941,6 +1941,9 @@ static AOM_INLINE void rd_use_partition(
   // Save rdmult before it might be changed, so it can be restored later.
   const int orig_rdmult = x->rdmult;
   setup_block_rdmult(cpi, x, mi_row, mi_col, bsize, NO_AQ, NULL);
+  if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+    printf("    LAMBDA %d,%d %d\n", mi_col, mi_row, orig_rdmult);
+  }
 
   if (do_partition_search &&
       cpi->sf.part_sf.partition_search_type == SEARCH_PARTITION &&
@@ -2047,7 +2050,8 @@ static AOM_INLINE void rd_use_partition(
         rd_use_partition(cpi, td, tile_data,
                          mib + jj * hbs * cm->mi_stride + ii * hbs, tp,
                          mi_row + y_idx, mi_col + x_idx, subsize, &tmp_rdc.rate,
-                         &tmp_rdc.dist, i != 3, pc_tree->split[i]);
+                         &tmp_rdc.dist, &tmp_rdc.rdcost,
+                         i != 3, pc_tree->split[i]);
         if (tmp_rdc.rate == INT_MAX || tmp_rdc.dist == INT64_MAX) {
           av1_invalid_rd_stats(&last_part_rdc);
           break;
@@ -2157,6 +2161,7 @@ static AOM_INLINE void rd_use_partition(
 
   *rate = chosen_rdc.rate;
   *dist = chosen_rdc.dist;
+  *rdcost = chosen_rdc.rdcost;
   x->rdmult = orig_rdmult;
 }
 
@@ -4015,13 +4020,13 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
       x->sb_energy_level = block_wavelet_energy_level;
       current_qindex = av1_compute_q_from_energy_level_deltaq_mode(
           cpi, block_wavelet_energy_level);
+    } else if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+      current_qindex = (rand() % 180) + 60;
     } else {
       const int block_var_level = av1_log_block_var(cpi, x, sb_size);
       x->sb_energy_level = block_var_level;
       current_qindex =
           av1_compute_q_from_energy_level_deltaq_mode(cpi, block_var_level);
-    } else if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
-      current_qindex = (rand() % 180) + 60;
     }
   } else if (cpi->oxcf.deltaq_mode == DELTA_Q_OBJECTIVE &&
              cpi->oxcf.enable_tpl_model) {
@@ -4051,7 +4056,9 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
   assert(current_qindex > 0);
 
   xd->delta_qindex = current_qindex - cm->base_qindex;
-  printf("QP %d,%d %d\n", mi_col, mi_row, current_qindex);
+  if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+    printf("QP %d,%d %d\n", mi_col, mi_row, current_qindex);
+  }
   set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
   xd->mi[0]->current_qindex = current_qindex;
   av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
@@ -4319,6 +4326,9 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
   td->mb.cb_offset = 0;
   nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                       pc_root);
+  if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+    printf("NONRD\n");
+  }
 }
 
 // Memset the mbmis at the current superblock to 0
@@ -4485,6 +4495,7 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
   int dummy_rate;
   int64_t dummy_dist;
+  int64_t dummy_rdcost;
   RD_STATS dummy_rdc;
 
 #if CONFIG_REALTIME_ONLY
@@ -4497,7 +4508,11 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
     set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col, sb_size);
     av1_choose_var_based_partitioning(cpi, tile_info, x, mi_row, mi_col);
     rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
-                     &dummy_rate, &dummy_dist, 1, pc_root);
+                     &dummy_rate, &dummy_dist, &dummy_rdcost, 1, pc_root);
+    if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+      printf("    RDC %d,%d %d,%"PRId64",%"PRId64"\n", mi_col, mi_row,
+             dummy_rate, dummy_dist, dummy_rdcost);
+    }
   }
 #if !CONFIG_REALTIME_ONLY
   else if (sf->part_sf.partition_search_type == FIXED_PARTITION || seg_skip) {
@@ -4506,14 +4521,22 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
         seg_skip ? sb_size : sf->part_sf.always_this_block_size;
     set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
     rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
-                     &dummy_rate, &dummy_dist, 1, pc_root);
+                     &dummy_rate, &dummy_dist, &dummy_rdcost, 1, pc_root);
+    if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+      printf("    RDC %d,%d %d,%"PRId64",%"PRId64"\n", mi_col, mi_row,
+             dummy_rate, dummy_dist, dummy_rdcost);
+    }
   } else if (cpi->partition_search_skippable_frame) {
     set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
     const BLOCK_SIZE bsize =
         get_rd_var_based_fixed_partition(cpi, x, mi_row, mi_col);
     set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
     rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
-                     &dummy_rate, &dummy_dist, 1, pc_root);
+                     &dummy_rate, &dummy_dist, &dummy_rdcost, 1, pc_root);
+    if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+      printf("    RDC %d,%d %d,%"PRId64",%"PRId64"\n", mi_col, mi_row,
+             dummy_rate, dummy_dist, dummy_rdcost);
+    }
   } else {
     // No stats for overlay frames. Exclude key frame.
     x->valid_cost_b =
@@ -4564,7 +4587,10 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
                         max_sq_size, min_sq_size, &dummy_rdc, dummy_rdc,
                         pc_root, NULL, SB_WET_PASS);
     }
-
+    if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+      printf("    RDC %d,%d %d,%"PRId64",%"PRId64"\n", mi_col, mi_row,
+             dummy_rdc.rate, dummy_rdc.dist, dummy_rdc.rdcost);
+    }
 #if CONFIG_COLLECT_COMPONENT_TIMING
     end_timing(cpi, rd_pick_partition_time);
 #endif
