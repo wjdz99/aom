@@ -1768,7 +1768,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
                              TileDataEnc *tile_data, MB_MODE_INFO **mib,
                              TOKENEXTRA **tp, int mi_row, int mi_col,
                              BLOCK_SIZE bsize, int *rate, int64_t *dist,
-                             int do_recon, PC_TREE *pc_tree) {
+                             int64_t* rdcost, int do_recon, PC_TREE *pc_tree) {
   AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   TileInfo *const tile_info = &tile_data->tile_info;
@@ -1816,6 +1816,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
   // Save rdmult before it might be changed, so it can be restored later.
   const int orig_rdmult = x->rdmult;
   setup_block_rdmult(cpi, x, mi_row, mi_col, bsize, NO_AQ, NULL);
+  printf("    LAMBDA %d,%d %d\n", mi_col, mi_row, orig_rdmult);
 
   if (do_partition_search &&
       cpi->sf.partition_search_type == SEARCH_PARTITION &&
@@ -1922,7 +1923,8 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
         rd_use_partition(cpi, td, tile_data,
                          mib + jj * hbs * cm->mi_stride + ii * hbs, tp,
                          mi_row + y_idx, mi_col + x_idx, subsize, &tmp_rdc.rate,
-                         &tmp_rdc.dist, i != 3, pc_tree->split[i]);
+                         &tmp_rdc.dist, &tmp_rdc.rdcost, i != 3,
+                         pc_tree->split[i]);
         if (tmp_rdc.rate == INT_MAX || tmp_rdc.dist == INT64_MAX) {
           av1_invalid_rd_stats(&last_part_rdc);
           break;
@@ -2031,6 +2033,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
 
   *rate = chosen_rdc.rate;
   *dist = chosen_rdc.dist;
+  *rdcost = chosen_rdc.rdcost;
   x->rdmult = orig_rdmult;
 }
 #endif  // !CONFIG_REALTIME_ONLY
@@ -4080,10 +4083,12 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       td->mb.cb_offset = 0;
       nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                           pc_root);
+      printf("NONRD\n");
     } else {
 #if !CONFIG_REALTIME_ONLY
       int dummy_rate;
       int64_t dummy_dist;
+      int64_t dummy_rdcost;
       RD_STATS dummy_rdc;
       av1_invalid_rd_stats(&dummy_rdc);
       adjust_rdmult_tpl_model(cpi, x, mi_row, mi_col);
@@ -4093,14 +4098,18 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
             seg_skip ? sb_size : sf->always_this_block_size;
         set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
         rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
-                         &dummy_rate, &dummy_dist, 1, pc_root);
+                         &dummy_rate, &dummy_dist, &dummy_rdcost, 1, pc_root);
+        printf("    RDC %d,%d %d,%"PRId64",%"PRId64"\n", mi_col, mi_row,
+               dummy_rate, dummy_dist, dummy_rdcost);
       } else if (cpi->partition_search_skippable_frame) {
         set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
         const BLOCK_SIZE bsize =
             get_rd_var_based_fixed_partition(cpi, x, mi_row, mi_col);
         set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
         rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
-                         &dummy_rate, &dummy_dist, 1, pc_root);
+                         &dummy_rate, &dummy_dist, &dummy_rdcost, 1, pc_root);
+        printf("    RDC %d,%d %d,%"PRId64",%"PRId64"\n", mi_col, mi_row,
+               dummy_rate, dummy_dist, dummy_rdcost);
       } else {
         reset_partition(pc_root, sb_size);
 
@@ -4143,6 +4152,8 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
         rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                           max_sq_size, min_sq_size, &dummy_rdc, dummy_rdc,
                           pc_root, NULL);
+        printf("    RDC %d,%d %d,%"PRId64",%"PRId64"\n", mi_col, mi_row,
+               dummy_rdc.rate, dummy_rdc.dist, dummy_rdc.rdcost);
 #if CONFIG_COLLECT_COMPONENT_TIMING
         end_timing(cpi, rd_pick_partition_time);
 #endif
