@@ -5188,7 +5188,11 @@ static void get_mean_dev_features(const int16_t *data, int stride, int bw,
 
 static int ml_predict_tx_split(MACROBLOCK *x, BLOCK_SIZE bsize, int blk_row,
                                int blk_col, TX_SIZE tx_size) {
+#if CONFIG_NN_V2
+  NN_CONFIG_V2 *nn_config = av1_tx_split_nnconfig_map[tx_size];
+#else
   const NN_CONFIG *nn_config = av1_tx_split_nnconfig_map[tx_size];
+#endif  // CONFIG_NN_V2
   if (!nn_config) return -1;
 
   const int diff_stride = block_size_wide[bsize];
@@ -5202,7 +5206,11 @@ static int ml_predict_tx_split(MACROBLOCK *x, BLOCK_SIZE bsize, int blk_row,
   get_mean_dev_features(diff, diff_stride, bw, bh, 2, features);
 
   float score = 0.0f;
+#if CONFIG_NN_V2
+  av1_nn_predict_v2(features, nn_config, 0, &score);
+#else
   av1_nn_predict(features, nn_config, 1, &score);
+#endif  // CONFIG_NN_V2
   aom_clear_system_state();
   if (score > 8.0f) return 100;
   if (score < -8.0f) return 0;

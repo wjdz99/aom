@@ -74,11 +74,216 @@ static void write_intra_y_mode_kf(FRAME_CONTEXT *frame_ctx,
                                   const MB_MODE_INFO *mi,
                                   const MB_MODE_INFO *above_mi,
                                   const MB_MODE_INFO *left_mi,
+                                  const MB_MODE_INFO *aboveleft_mi,
                                   PREDICTION_MODE mode, aom_writer *w) {
   assert(!is_intrabc_block(mi));
   (void)mi;
+  (void)aboveleft_mi;
+
+#if CONFIG_INTRA_ENTROPY
+  PREDICTION_MODE above, left, aboveleft;
+  int8_t above_angle, left_angle, al_angle;
+  int above_q, left_q, al_q;
+  BLOCK_SIZE above_sb, left_sb, al_sb;
+  TX_SIZE above_txs, left_txs, al_txs;
+  const uint64_t *above_hist = av1_block_mode(above_mi, &above, &above_angle,
+                                              &above_q, &above_sb, &above_txs);
+  const uint64_t *left_hist =
+      av1_block_mode(left_mi, &left, &left_angle, &left_q, &left_sb, &left_txs);
+  const uint64_t *al_hist = av1_block_mode(aboveleft_mi, &aboveleft, &al_angle,
+                                           &al_q, &al_sb, &al_txs);
+
+  float features[54], logits[INTRA_MODES];
+  float hist_total[3] = { 0.f, 0.f, 0.f };
+  int pt = 0;
+
+#if INTRA_MODEL > 0
+  if (above_hist) {
+    for (int i = 0; i < 8; ++i) {
+      hist_total[0] += (float)above_hist[i];
+    }
+  }
+  if (hist_total[0] > 0.1f) {
+    for (int i = 0; i < 8; ++i) {
+      features[pt++] = (float)above_hist[i] / hist_total[0];
+    }
+  } else {
+    // deal with all 0 case
+    for (int i = 0; i < 8; ++i) {
+      features[pt++] = 0.125f;
+    }
+  }
+
+  if (left_hist) {
+    for (int i = 0; i < 8; ++i) {
+      hist_total[1] += (float)left_hist[i];
+    }
+  }
+  if (hist_total[1] > 0.1f) {
+    for (int i = 0; i < 8; ++i) {
+      features[pt++] = (float)left_hist[i] / hist_total[1];
+    }
+  } else {
+    for (int i = 0; i < 8; ++i) {
+      features[pt++] = 0.125f;
+    }
+  }
+
+  if (al_hist) {
+    for (int i = 0; i < 8; ++i) {
+      hist_total[2] += (float)al_hist[i];
+    }
+  }
+  if (hist_total[2] > 0.1f) {
+    for (int i = 0; i < 8; ++i) {
+      features[pt++] = (float)al_hist[i] / hist_total[2];
+    }
+  } else {
+    for (int i = 0; i < 8; ++i) {
+      features[pt++] = 0.125f;
+    }
+  }
+#endif  // INTRA_MODEL
+#if INTRA_MODEL == 2
+  for (int i = 0; i < 5; ++i) {
+    features[pt++] =
+        (above < INTRA_MODES && intra_mode_context[above] == i) ? 1.0f : 0.0f;
+  }
+  for (int i = 0; i < 5; ++i) {
+    features[pt++] =
+        (left < INTRA_MODES && intra_mode_context[left] == i) ? 1.0f : 0.0f;
+  }
+  for (int i = 0; i < 5; ++i) {
+    features[pt++] =
+        (aboveleft < INTRA_MODES && intra_mode_context[aboveleft] == i) ? 1.0f
+                                                                        : 0.0f;
+  }
+#endif  // INTRA_MODEL
+#if INTRA_MODEL == 0
+  for (int i = 0; i < INTRA_MODES; ++i) {
+    features[pt++] = (above == i) ? 1.0f : 0.0f;
+  }
+  features[pt++] = (float)above_angle / 3.f;
+  if (above_sb == 255) {
+    features[pt++] = 0.0f;
+    features[pt++] = 0.0f;
+  } else {
+    features[pt++] = mi_size_wide_log2[above_sb] / 5.f;
+    features[pt++] = mi_size_high_log2[above_sb] / 5.f;
+  }
+  if (above_txs == 255) {
+    features[pt++] = 0.0f;
+    features[pt++] = 0.0f;
+  } else {
+    features[pt++] = tx_size_wide_log2[above_txs] / 6.f;
+    features[pt++] = tx_size_high_log2[above_txs] / 6.f;
+  }
+
+  for (int i = 0; i < INTRA_MODES; ++i) {
+    features[pt++] = (left == i) ? 1.0f : 0.0f;
+  }
+  features[pt++] = (float)left_angle / 3.f;
+  if (left_sb == 255) {
+    features[pt++] = 0.0f;
+    features[pt++] = 0.0f;
+  } else {
+    features[pt++] = mi_size_wide_log2[left_sb] / 5.f;
+    features[pt++] = mi_size_high_log2[left_sb] / 5.f;
+  }
+  if (left_txs == 255) {
+    features[pt++] = 0.0f;
+    features[pt++] = 0.0f;
+  } else {
+    features[pt++] = tx_size_wide_log2[left_txs] / 6.f;
+    features[pt++] = tx_size_high_log2[left_txs] / 6.f;
+  }
+
+  for (int i = 0; i < INTRA_MODES; ++i) {
+    features[pt++] = (aboveleft == i) ? 1.0f : 0.0f;
+  }
+  features[pt++] = (float)al_angle / 3.f;
+  if (al_sb == 255) {
+    features[pt++] = 0.0f;
+    features[pt++] = 0.0f;
+  } else {
+    features[pt++] = mi_size_wide_log2[al_sb] / 5.f;
+    features[pt++] = mi_size_high_log2[al_sb] / 5.f;
+  }
+  if (al_txs == 255) {
+    features[pt++] = 0.0f;
+    features[pt++] = 0.0f;
+  } else {
+    features[pt++] = tx_size_wide_log2[al_txs] / 6.f;
+    features[pt++] = tx_size_high_log2[al_txs] / 6.f;
+  }
+#endif  // INTRA_MODEL
+
+  av1_nn_predict_em(features, &(frame_ctx->av1_intra_mode), logits);
+  float scores[INTRA_MODES], pre = 1.f;
+  av1_nn_softmax(logits, scores, INTRA_MODES);
+  aom_cdf_prob icdf[CDF_SIZE(INTRA_MODES)] = { 0 };
+  for (int i = 0; i < INTRA_MODES; ++i) {
+    pre -= scores[i];
+    icdf[i] = (aom_cdf_prob)(pre * CDF_PROB_TOP);
+  }
+
+  aom_write_symbol(w, mode, icdf, INTRA_MODES);
+#else
   aom_write_symbol(w, mode, get_y_mode_cdf(frame_ctx, above_mi, left_mi),
                    INTRA_MODES);
+#endif  // CONFIG_INTRA_ENTROPY
+
+  // write data into file
+#if 0
+  PREDICTION_MODE above, left, aboveleft;
+  int8_t above_angle, left_angle, al_angle;
+  int above_q,left_q,al_q;
+  BLOCK_SIZE above_sb, left_sb, al_sb;
+  TX_SIZE above_txs,left_txs,al_txs;
+  const uint64_t *above_hist = av1_block_mode(above_mi, &above, &above_angle,&above_q,&above_sb,&above_txs);
+  const uint64_t *left_hist =
+  av1_block_mode(left_mi, &left, &left_angle,&left_q,&left_sb,&left_txs);
+  const uint64_t *al_hist = av1_block_mode(aboveleft_mi, &aboveleft, &al_angle, &al_q, &al_sb, &al_txs);
+  FILE *fp = fopen("intra_data_1.csv", "a");
+  if (fp) {
+    fprintf(fp, "%d,"
+            "%d,%d,%d,"
+            "%d,%d,%d,"
+            "%d,%d,%d,"
+            "%d,%d,%d,"
+            "%d,%d,%d,",
+            mode,
+            above, left, aboveleft,
+            above_angle, left_angle, al_angle,
+            above_q, left_q, al_q,
+            above_sb, left_sb, al_sb,
+            above_txs, left_txs, al_txs
+            );
+    if (above_hist) {
+      for (int i = 0; i < 8; ++i) {
+        fprintf(fp, "%"PRIu64",", above_hist[i]);
+      }
+    } else {
+      fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,", 0,0,0,0,0,0,0,0);
+    }
+    if (left_hist) {
+      for (int i = 0; i < 8; ++i) {
+            fprintf(fp, "%"PRIu64",", left_hist[i]);
+      }
+    }else {
+      fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,", 0,0,0,0,0,0,0,0);
+    }
+    if (al_hist) {
+      for (int i = 0; i < 8; ++i) {
+            fprintf(fp, "%"PRIu64",", al_hist[i]);
+      }
+    } else {
+      fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,", 0,0,0,0,0,0,0,0);
+    }
+    fprintf(fp, "\n");
+    fclose(fp);
+  }
+#endif
 }
 
 static void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
@@ -1066,7 +1271,9 @@ static void write_intra_prediction_modes(AV1_COMP *cpi, const int mi_row,
   if (is_keyframe) {
     const MB_MODE_INFO *const above_mi = xd->above_mbmi;
     const MB_MODE_INFO *const left_mi = xd->left_mbmi;
-    write_intra_y_mode_kf(ec_ctx, mbmi, above_mi, left_mi, mode, w);
+    const MB_MODE_INFO *const aboveleft_mi = xd->aboveleft_mbmi;
+    write_intra_y_mode_kf(ec_ctx, mbmi, above_mi, left_mi, aboveleft_mi, mode,
+                          w);
   } else {
     write_intra_y_mode_nonkf(ec_ctx, bsize, mode, w);
   }
