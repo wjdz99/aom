@@ -679,6 +679,48 @@ static INLINE int block_signals_txsize(BLOCK_SIZE bsize) {
   return bsize > BLOCK_4X4;
 }
 
+#if CONFIG_NEW_TX_PARTITION
+static const int new_tx_partition_used[TX_SIZES_ALL][TX_PARTITION_TYPES] = {
+ { 1, 0 },    // 4x4 transform
+ { 1, 1 },    // 8x8 transform
+ { 1, 1 },  // 16x16 transform
+ { 1, 1 },  // 32x32 transform
+ { 1, 1 },  // 64x64 transform
+ { 1, 1 },    // 4x8 transform
+ { 1, 1 },    // 8x4 transform
+ { 1, 1 },   // 8x16 transform
+ { 1, 1 },   // 16x8 transform
+ { 1, 1 },  // 16x32 transform
+ { 1, 1 },  // 32x16 transform
+ { 1, 1 },  // 32x64 transform
+ { 1, 1 },  // 64x32 transform
+ { 1, 1 },   // 4x16 transform
+ { 1, 1 },   // 16x4 transform
+ { 1, 1 },   // 8x32 transform
+ { 1, 1 },   // 32x8 transform
+ { 1, 1 },  // 16x64 transform
+ { 1, 1 },  // 64x16 transform
+};
+
+/*
+static int search_tx_partition_type(BLOCK_SIZE bsize,
+                                    TX_PARTITION_TYPE partition) {
+  const TX_SIZE max_tx_size = max_txsize_rect_lookup[bsize];
+  int search_partition = 1;
+  switch (partition) {
+    case TX_PARTITION_NONE:
+      search_partition =
+        cpi->oxcf.enable_tx64 || txsize_sqr_up_map[tx_size] != TX_64X64;
+      break;
+    case TX_PARTITION_SPLIT:
+      break;
+    default: assert(0);
+  }
+  return new_tx_partition_used[max_tx_size][partition] && search_partition;
+}
+*/
+#endif  // CONFIG_NEW_TX_PARTITION
+
 // Number of transform types in each set type
 static const int av1_num_ext_tx_set[EXT_TX_SET_TYPES] = {
   1, 2, 5, 7, 12, 16,

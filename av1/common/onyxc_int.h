@@ -1258,6 +1258,7 @@ static INLINE TX_SIZE get_tx_size(int width, int height) {
       }
     }
   }
+  printf("here %d %d\n", width, height);
   assert(0);
   return TX_4X4;
 }
