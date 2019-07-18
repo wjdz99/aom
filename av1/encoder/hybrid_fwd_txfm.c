@@ -326,79 +326,81 @@ static void highbd_fwd_txfm_64x64(const int16_t *src_diff, tran_low_t *coeff,
 #if CONFIG_FLEX_PARTITION
 static void highbd_fwd_txfm_4x32(const int16_t *src_diff, tran_low_t *coeff,
                                  int diff_stride, TxfmParam *txfm_param) {
-  assert(txfm_param->tx_type == DCT_DCT);
+//assert(txfm_param->tx_type == DCT_DCT);
   int32_t *dst_coeff = (int32_t *)coeff;
   const int bd = txfm_param->bd;
 #if CONFIG_MODE_DEP_TX
   av1_fwd_txfm2d_4x32(src_diff, dst_coeff, diff_stride, DCT_DCT,
                       txfm_param->mode, bd);
 #else
-  av1_fwd_txfm2d_4x32(src_diff, dst_coeff, diff_stride, DCT_DCT, bd);
+  av1_fwd_txfm2d_4x32_c(src_diff, dst_coeff, diff_stride, DCT_DCT, bd);
 #endif
 }
 
 static void highbd_fwd_txfm_32x4(const int16_t *src_diff, tran_low_t *coeff,
                                  int diff_stride, TxfmParam *txfm_param) {
-  assert(txfm_param->tx_type == DCT_DCT);
+//if (txfm_param->tx_type != DCT_DCT)
+//  printf("tx type %d\n", txfm_param->tx_type);
+//assert(txfm_param->tx_type == DCT_DCT);
   int32_t *dst_coeff = (int32_t *)coeff;
   const int bd = txfm_param->bd;
 #if CONFIG_MODE_DEP_TX
   av1_fwd_txfm2d_32x4(src_diff, dst_coeff, diff_stride, DCT_DCT,
                       txfm_param->mode, bd);
 #else
-  av1_fwd_txfm2d_32x4(src_diff, dst_coeff, diff_stride, DCT_DCT, bd);
+  av1_fwd_txfm2d_32x4_c(src_diff, dst_coeff, diff_stride, DCT_DCT, bd);
 #endif
 }
 
 static void highbd_fwd_txfm_8x64(const int16_t *src_diff, tran_low_t *coeff,
                                  int diff_stride, TxfmParam *txfm_param) {
-  assert(txfm_param->tx_type == DCT_DCT);
+//assert(txfm_param->tx_type == DCT_DCT);
   int32_t *dst_coeff = (int32_t *)coeff;
   const int bd = txfm_param->bd;
 #if CONFIG_MODE_DEP_TX
   av1_fwd_txfm2d_8x64(src_diff, dst_coeff, diff_stride, DCT_DCT,
                       txfm_param->mode, bd);
 #else
-  av1_fwd_txfm2d_8x64(src_diff, dst_coeff, diff_stride, DCT_DCT, bd);
+  av1_fwd_txfm2d_8x64_c(src_diff, dst_coeff, diff_stride, DCT_DCT, bd);
 #endif
 }
 
 static void highbd_fwd_txfm_64x8(const int16_t *src_diff, tran_low_t *coeff,
                                  int diff_stride, TxfmParam *txfm_param) {
-  assert(txfm_param->tx_type == DCT_DCT);
+//assert(txfm_param->tx_type == DCT_DCT);
   int32_t *dst_coeff = (int32_t *)coeff;
   const int bd = txfm_param->bd;
 #if CONFIG_MODE_DEP_TX
   av1_fwd_txfm2d_64x8(src_diff, dst_coeff, diff_stride, DCT_DCT,
                       txfm_param->mode, bd);
 #else
-  av1_fwd_txfm2d_64x8(src_diff, dst_coeff, diff_stride, DCT_DCT, bd);
+  av1_fwd_txfm2d_64x8_c(src_diff, dst_coeff, diff_stride, DCT_DCT, bd);
 #endif
 }
 
 static void highbd_fwd_txfm_4x64(const int16_t *src_diff, tran_low_t *coeff,
                                  int diff_stride, TxfmParam *txfm_param) {
-  assert(txfm_param->tx_type == DCT_DCT);
+//assert(txfm_param->tx_type == DCT_DCT);
   int32_t *dst_coeff = (int32_t *)coeff;
   const int bd = txfm_param->bd;
 #if CONFIG_MODE_DEP_TX
   av1_fwd_txfm2d_4x64(src_diff, dst_coeff, diff_stride, DCT_DCT,
                       txfm_param->mode, bd);
 #else
-  av1_fwd_txfm2d_4x64(src_diff, dst_coeff, diff_stride, DCT_DCT, bd);
+  av1_fwd_txfm2d_4x64_c(src_diff, dst_coeff, diff_stride, DCT_DCT, bd);
 #endif
 }
 
 static void highbd_fwd_txfm_64x4(const int16_t *src_diff, tran_low_t *coeff,
                                  int diff_stride, TxfmParam *txfm_param) {
-  assert(txfm_param->tx_type == DCT_DCT);
+//assert(txfm_param->tx_type == DCT_DCT);
   int32_t *dst_coeff = (int32_t *)coeff;
   const int bd = txfm_param->bd;
 #if CONFIG_MODE_DEP_TX
   av1_fwd_txfm2d_64x4(src_diff, dst_coeff, diff_stride, DCT_DCT,
                       txfm_param->mode, bd);
 #else
-  av1_fwd_txfm2d_64x4(src_diff, dst_coeff, diff_stride, DCT_DCT, bd);
+  av1_fwd_txfm2d_64x4_c(src_diff, dst_coeff, diff_stride, DCT_DCT, bd);
 #endif
 }
 #endif  // CONFIG_FLEX_PARTITION
@@ -408,10 +410,11 @@ void av1_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
 #if CONFIG_MODE_DEP_TX
   av1_lowbd_fwd_txfm_c(src_diff, coeff, diff_stride, txfm_param);
 #else
-  if (txfm_param->bd == 8)
-    av1_lowbd_fwd_txfm(src_diff, coeff, diff_stride, txfm_param);
-  else
+  if (txfm_param->bd == 8) {
+    av1_lowbd_fwd_txfm_c(src_diff, coeff, diff_stride, txfm_param);
+  } else {
     av1_highbd_fwd_txfm(src_diff, coeff, diff_stride, txfm_param);
+  }
 #endif
 }
 

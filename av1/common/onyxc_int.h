@@ -1242,6 +1242,12 @@ static INLINE TX_SIZE get_sqr_tx_size(int tx_dim) {
   }
 }
 
+   // 4x32 transform
+   // 32x4 transform
+   // 8x64 transform
+   // 64x8 transform
+   // 4x64 transform
+   // 64x4 transform
 static INLINE TX_SIZE get_tx_size(int width, int height) {
   if (width == height) {
     return get_sqr_tx_size(width);
@@ -1254,6 +1260,13 @@ static INLINE TX_SIZE get_tx_size(int width, int height) {
         case 16: return TX_16X32; break;
         case 32: return TX_32X64; break;
       }
+#if CONFIG_FLEX_PARTITION
+    } else if ((4 * width) < height) {
+      switch (width) {
+        case 4: return (height == 32) ? TX_4X32 : TX_4X64; break;
+        case 8: return TX_8X64; break;
+      }
+#endif
     } else {
       switch (width) {
         case 4: return TX_4X16; break;
@@ -1269,6 +1282,13 @@ static INLINE TX_SIZE get_tx_size(int width, int height) {
         case 16: return TX_32X16; break;
         case 32: return TX_64X32; break;
       }
+#if CONFIG_FLEX_PARTITION
+    } else if ((4 * height) < width) {
+      switch (height) {
+        case 4: return (width == 32) ? TX_32X4 : TX_64X4; break;
+        case 8: return TX_64X8; break;
+      }
+#endif
     } else {
       switch (height) {
         case 4: return TX_16X4; break;
@@ -1283,6 +1303,57 @@ static INLINE TX_SIZE get_tx_size(int width, int height) {
 
 #if CONFIG_NEW_TX_PARTITION
 #if CONFIG_NEW_TX_PARTITION_EXT
+#if !CONFIG_FLEX_PARTITION
+static const int new_tx_partition_used[TX_SIZES_ALL][TX_PARTITION_TYPES] = {
+  { 1, 0, 0, 0, 0, 0 },  // 4x4 transform
+  { 1, 1, 1, 1, 0, 0 },  // 8x8 transform
+  { 1, 1, 1, 1, 1, 1 },  // 16x16 transform
+  { 1, 1, 1, 1, 1, 1 },  // 32x32 transform
+  { 1, 1, 1, 1, 1, 1 },  // 64x64 transform
+  { 1, 0, 1, 0, 0, 0 },  // 4x8 transform
+  { 1, 0, 0, 1, 0, 0 },  // 8x4 transform
+  { 1, 1, 1, 1, 1, 0 },  // 8x16 transform
+  { 1, 1, 1, 1, 0, 1 },  // 16x8 transform
+  { 1, 1, 1, 1, 1, 1 },  // 16x32 transform
+  { 1, 1, 1, 1, 1, 1 },  // 32x16 transform
+  { 1, 1, 1, 1, 1, 1 },  // 32x64 transform
+  { 1, 1, 1, 1, 1, 1 },  // 64x32 transform
+  { 1, 0, 1, 0, 1, 0 },  // 4x16 transform
+  { 1, 0, 0, 1, 0, 1 },  // 16x4 transform
+  { 1, 1, 1, 0, 1, 0 },  // 8x32 transform
+  { 1, 1, 1, 1, 0, 1 },  // 32x8 transform
+  { 1, 1, 1, 0, 1, 1 },  // 16x64 transform
+  { 1, 1, 1, 1, 1, 1 },  // 64x16 transform
+  { 1, 0, 1, 0, 1, 0 },    // 4x32 transform
+  { 1, 0, 0, 1, 0, 1 },    // 32x4 transform
+  { 1, 1, 1, 1, 1, 0 },    // 8x64 transform
+  { 1, 1, 1, 1, 0, 1 },    // 64x8 transform
+  { 1, 0, 1, 0, 1, 0 },    // 4x64 transform
+  { 1, 0, 0, 1, 0, 1 },    // 64x4 transform
+};
+#else
+static const int new_tx_partition_used[TX_SIZES_ALL][TX_PARTITION_TYPES] = {
+  { 1, 0, 0, 0, 0, 0 },  // 4x4 transform
+  { 1, 1, 1, 1, 0, 0 },  // 8x8 transform
+  { 1, 1, 1, 1, 1, 1 },  // 16x16 transform
+  { 1, 1, 1, 1, 1, 1 },  // 32x32 transform
+  { 1, 1, 1, 1, 1, 1 },  // 64x64 transform
+  { 1, 0, 1, 0, 0, 0 },  // 4x8 transform
+  { 1, 0, 0, 1, 0, 0 },  // 8x4 transform
+  { 1, 1, 1, 1, 1, 0 },  // 8x16 transform
+  { 1, 1, 1, 1, 0, 1 },  // 16x8 transform
+  { 1, 1, 1, 1, 1, 0/*4x32*/ },  // 16x32 transform ///////
+  { 1, 1, 1, 1, 0/*32x4*/, 1 },  // 32x16 transform ///////
+  { 1, 1, 1, 1, 1, 1/*8x64*/ },  // 32x64 transform ////////
+  { 1, 1, 1, 1, 1/*64x8*/, 1 },  // 64x32 transform  ///////
+  { 1, 0, 1, 0, 1, 0 },  // 4x16 transform
+  { 1, 0, 0, 1, 0, 1 },  // 16x4 transform
+  { 1, 1, 1, 1/*4x32*/, 1, 0 },  // 8x32 transform
+  { 1, 1, 0/*32x4*/, 1, 0, 1 },  // 32x8 transform  //////
+  { 1, 1, 1, 1/*8x64*/, 1, 1/*4x64*/ },  // 16x64 transform /////
+  { 1, 1, 1/*64x8*/, 1, 1/*64x4*/, 1 },  // 64x16 transform /////
+};
+/*
 static const int new_tx_partition_used[TX_SIZES_ALL][TX_PARTITION_TYPES] = {
   { 1, 0, 0, 0, 0, 0 },  // 4x4 transform
   { 1, 1, 1, 1, 0, 0 },  // 8x8 transform
@@ -1304,6 +1375,8 @@ static const int new_tx_partition_used[TX_SIZES_ALL][TX_PARTITION_TYPES] = {
   { 1, 1, 1, 0, 1, 0 },  // 16x64 transform
   { 1, 1, 0, 1, 0, 1 },  // 64x16 transform
 };
+*/
+#endif                // CONFIG_FLEX_PARTITION
 #else
 static const int new_tx_partition_used[TX_SIZES_ALL][TX_PARTITION_TYPES] = {
   { 1, 0 },  // 4x4 transform
@@ -1325,6 +1398,14 @@ static const int new_tx_partition_used[TX_SIZES_ALL][TX_PARTITION_TYPES] = {
   { 1, 1 },  // 32x8 transform
   { 1, 1 },  // 16x64 transform
   { 1, 1 },  // 64x16 transform
+#if CONFIG_FLEX_PARTITION
+  { 1, 1 },    // 4x32 transform
+  { 1, 1 },    // 32x4 transform
+  { 1, 1 },    // 8x64 transform
+  { 1, 1 },    // 64x8 transform
+  { 1, 1 },    // 4x64 transform
+  { 1, 1 },    // 64x4 transform
+#endif                // CONFIG_FLEX_PARTITION
 };
 #endif  // CONFIG_NEW_TX_PARTITION
 
@@ -1399,6 +1480,13 @@ static INLINE int get_tx_partition_sizes(TX_PARTITION_TYPE partition,
 
 static INLINE int use_tx_partition(TX_PARTITION_TYPE partition,
                                    TX_SIZE max_tx_size) {
+//if (max_tx_size == TX_4X32 ||
+//max_tx_size == TX_32X4 ||
+//max_tx_size == TX_8X64 ||
+//max_tx_size == TX_64X8 ||
+//max_tx_size == TX_4X64 ||
+//max_tx_size == TX_64X4)
+//  printf("DEBUG\n");
   return new_tx_partition_used[max_tx_size][partition];
 }
 #endif  // CONFIG_NEW_TX_PARTITION

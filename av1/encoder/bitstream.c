@@ -203,6 +203,7 @@ static void write_tx_partition(MACROBLOCKD *xd, const MB_MODE_INFO *mbmi,
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   const TX_PARTITION_TYPE partition = mbmi->partition_type[txb_size_index];
+  if (max_tx_size == TX_8X32) printf("FINAL partition %d\n", partition);
 #if CONFIG_NEW_TX_PARTITION_EXT
   const int is_rect = is_rect_tx(max_tx_size);
   aom_write_symbol(w, partition, ec_ctx->txfm_partition_cdf[is_rect][ctx],

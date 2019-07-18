@@ -125,6 +125,7 @@ static uint8_t has_tr_32x8[8] = {
 static uint8_t has_tr_16x64[2] = { 255, 127 };
 static uint8_t has_tr_64x16[2] = { 3, 1 };
 
+/*
 #if CONFIG_FLEX_PARTITION
 static uint8_t has_tr_4x32[16] = {
   255, 255, 255, 255, 255, 127, 255, 127,
@@ -149,6 +150,7 @@ static uint8_t has_tr_64x8[4] = {
   0,
 };
 #endif  // CONFIG_FLEX_PARTITION
+*/
 
 static const uint8_t *const has_tr_tables[BLOCK_SIZES_ALL] = {
   has_tr_4x4,     has_tr_4x8,   has_tr_8x4,   has_tr_8x8,    has_tr_8x16,
@@ -156,10 +158,12 @@ static const uint8_t *const has_tr_tables[BLOCK_SIZES_ALL] = {
   has_tr_32x64,   has_tr_64x32, has_tr_64x64, has_tr_64x128, has_tr_128x64,
   has_tr_128x128, has_tr_4x16,  has_tr_16x4,  has_tr_8x32,   has_tr_32x8,
   has_tr_16x64,   has_tr_64x16,
+  /*
 #if CONFIG_FLEX_PARTITION
   has_tr_4x32,    has_tr_32x4,  has_tr_8x64,  has_tr_64x8,   has_tr_4x64,
   has_tr_64x4
 #endif  // CONFIG_FLEX_PARTITION
+*/
 };
 
 static uint8_t has_tr_vert_8x8[32] = {
@@ -348,6 +352,7 @@ static uint8_t has_bl_32x8[8] = {
 };
 static uint8_t has_bl_16x64[2] = { 0, 0 };
 static uint8_t has_bl_64x16[2] = { 42, 42 };
+/*
 #if CONFIG_FLEX_PARTITION
 static uint8_t has_bl_4x32[16] = { 0, 0, 1, 0, 0, 0, 0, 0,
                                    0, 0, 1, 0, 0, 0, 0, 0 };
@@ -369,6 +374,7 @@ static uint8_t has_bl_64x8[4] = {
   42,
 };
 #endif  // CONFIG_FLEX_PARTITION
+*/
 
 static const uint8_t *const has_bl_tables[BLOCK_SIZES_ALL] = {
   has_bl_4x4,     has_bl_4x8,   has_bl_8x4,   has_bl_8x8,    has_bl_8x16,
@@ -376,10 +382,12 @@ static const uint8_t *const has_bl_tables[BLOCK_SIZES_ALL] = {
   has_bl_32x64,   has_bl_64x32, has_bl_64x64, has_bl_64x128, has_bl_128x64,
   has_bl_128x128, has_bl_4x16,  has_bl_16x4,  has_bl_8x32,   has_bl_32x8,
   has_bl_16x64,   has_bl_64x16,
+  /*
 #if CONFIG_FLEX_PARTITION
   has_bl_4x32,    has_bl_32x4,  has_bl_8x64,  has_bl_64x8,   has_bl_4x64,
   has_bl_64x4,
 #endif  // CONFIG_FLEX_PARTITION
+*/
 };
 
 static uint8_t has_bl_vert_8x8[32] = {

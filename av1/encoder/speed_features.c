@@ -792,7 +792,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
     sf->intra_y_mode_mask[i] = INTRA_ALL;
     sf->intra_uv_mode_mask[i] = UV_INTRA_ALL;
   }
-  sf->lpf_pick = LPF_PICK_FROM_FULL_IMAGE;
+  sf->lpf_pick = LPF_PICK_MINIMAL_LPF;//LPF_PICK_FROM_FULL_IMAGE;
   sf->cdef_pick_method = CDEF_FULL_SEARCH;
   sf->use_fast_coef_costing = 0;
   sf->max_intra_bsize = BLOCK_LARGEST;

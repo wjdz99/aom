@@ -2938,7 +2938,7 @@ static void model_rd_for_sb_with_curvfit(
     struct macroblockd_plane *const pd = &xd->plane[plane];
     const BLOCK_SIZE plane_bsize = get_plane_block_size(
         mi_row, mi_col, bsize, pd->subsampling_x, pd->subsampling_y);
-    int64_t dist, sse;
+    int64_t dist, sse = 0;
     int rate;
 
     if (x->skip_chroma_rd && plane) continue;
@@ -2953,7 +2953,7 @@ static void model_rd_for_sb_with_curvfit(
       sse = aom_highbd_sse(p->src.buf, p->src.stride, pd->dst.buf,
                            pd->dst.stride, bw, bh);
     } else {
-      sse = aom_sse(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride, bw,
+      sse = aom_sse_c(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride, bw,
                     bh);
     }
 
@@ -3778,23 +3778,29 @@ static const uint32_t skip_pred_threshold[3][BLOCK_SIZES_ALL] = {
   {
       64, 64, 64, 70, 60, 60, 68, 68, 68, 68, 68,
       68, 68, 68, 68, 68, 64, 64, 70, 70, 68, 68,
+      /*
 #if CONFIG_FLEX_PARTITION
       60, 60, 68, 68, 68, 68,
 #endif  // CONFIG_FLEX_PARTITION
+*/
   },
   {
       88, 88, 88, 86, 87, 87, 68, 68, 68, 68, 68,
       68, 68, 68, 68, 68, 88, 88, 86, 86, 68, 68,
+      /*
 #if CONFIG_FLEX_PARTITION
       87, 87, 68, 68, 68, 68,
 #endif  // CONFIG_FLEX_PARTITION
+*/
   },
   {
       90, 93, 93, 90, 93, 93, 74, 74, 74, 74, 74,
       74, 74, 74, 74, 74, 90, 90, 90, 90, 74, 74,
+      /*
 #if CONFIG_FLEX_PARTITION
       93, 93, 74, 74, 74, 74,
 #endif  // CONFIG_FLEX_PARTITION
+*/
   },
 };
 
@@ -3825,6 +3831,7 @@ static const TX_SIZE max_predict_sf_tx_size[BLOCK_SIZES_ALL] = {
   TX_8X8,
   TX_16X16,
   TX_16X16,
+  /*
 #if CONFIG_FLEX_PARTITION
   TX_4X16,
   TX_16X4,
@@ -3833,6 +3840,7 @@ static const TX_SIZE max_predict_sf_tx_size[BLOCK_SIZES_ALL] = {
   TX_4X16,
   TX_16X4,
 #endif  // CONFIG_FLEX_PARTITION
+*/
 };
 
 // Uses simple features on top of DCT coefficients to quickly predict
@@ -5305,7 +5313,7 @@ static void try_tx_block_no_split(
   mbmi->inter_tx_size[index] = tx_size;
   tx_type_rd(cpi, x, tx_size, blk_row, blk_col, 0, block, plane_bsize, &txb_ctx,
              rd_stats, ftxs_mode, ref_best_rd,
-             rd_info_node != NULL ? rd_info_node->rd_info_array : NULL);
+             rd_info_node != NULL ? rd_info_node->rd_info_array : NULL); //sarahparker
   assert(rd_stats->rate < INT_MAX);
 
   if ((RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) >=
@@ -5495,7 +5503,8 @@ static void select_tx_partition_type(
         const int ctx = txfm_partition_context(cur_tx_above + offsetc,
                                                cur_tx_left + offsetr,
                                                mbmi->sb_type, max_tx_size);
-
+//      if ((max_tx_size == TX_8X32 && type == TX_PARTITION_VERT))
+//        printf("debug\n");
         // Try tx size and compute rd cost
         TxCandidateInfo no_split = { INT64_MAX, 0, TX_TYPES };
         try_tx_block_no_split(cpi, x, offsetr, offsetc, cur_block, sub_tx, 0,
@@ -5508,7 +5517,6 @@ static void select_tx_partition_type(
         av1_merge_rd_stats(&partition_rd_stats, &this_rd_stats);
         tmp_rd =
             RDCOST(x->rdmult, partition_rd_stats.rate, partition_rd_stats.dist);
-
         // Terminate early if the rd cost is higher than the best so far
         if (tmp_rd > best_rd) {
           tmp_rd = INT64_MAX;
@@ -5525,8 +5533,9 @@ static void select_tx_partition_type(
       }
     }
 
+    if (max_tx_size == TX_8X32) printf("partition %d rd %ld\n", type, tmp_rd);
     // Update the best partition so far
-    if (tmp_rd <= best_rd) {
+    if (tmp_rd <= best_rd) {// && !(max_tx_size == TX_8X32 && type == TX_PARTITION_VERT)) {
       best_rd = tmp_rd;
       best_partition = type;
       memcpy(best_partition_entropy_ctxs, partition_entropy_ctxs,
@@ -5538,6 +5547,8 @@ static void select_tx_partition_type(
              sizeof(*this_blk_skip) * MAX_TX_PARTITIONS);
     }
   }
+    if (max_tx_size == TX_8X32)
+  printf("`````````````````````````````````````\n");
 
   if (best_rd == INT64_MAX) *is_cost_valid = 0;
 
@@ -6105,6 +6116,7 @@ static const RD_RECORD_IDX_NODE *rd_record_tree[BLOCK_SIZES_ALL] = {
   rd_record_tree_4_1,      // BLOCK_32X8
   rd_record_tree_1_4,      // BLOCK_16X64
   rd_record_tree_4_1,      // BLOCK_64X16
+  /*
 #if CONFIG_FLEX_PARTITION
   // TODO(debargha): Fix these
   NULL,  // BLOCK_4X32
@@ -6114,6 +6126,7 @@ static const RD_RECORD_IDX_NODE *rd_record_tree[BLOCK_SIZES_ALL] = {
   NULL,  // BLOCK_4X64
   NULL,  // BLOCK_64X4
 #endif   // CONFIG_FLEX_PARTITION
+*/
 };
 
 static const int rd_record_tree_size[BLOCK_SIZES_ALL] = {
@@ -6139,6 +6152,7 @@ static const int rd_record_tree_size[BLOCK_SIZES_ALL] = {
   sizeof(rd_record_tree_4_1) / sizeof(RD_RECORD_IDX_NODE),      // BLOCK_32X8
   sizeof(rd_record_tree_1_4) / sizeof(RD_RECORD_IDX_NODE),      // BLOCK_16X64
   sizeof(rd_record_tree_4_1) / sizeof(RD_RECORD_IDX_NODE),      // BLOCK_64X16
+  /*
 #if CONFIG_FLEX_PARTITION
   // TODO(debargha): Fix these
   0,    // BLOCK_4X32
@@ -6148,6 +6162,7 @@ static const int rd_record_tree_size[BLOCK_SIZES_ALL] = {
   0,    // BLOCK_4X64
   0,    // BLOCK_64X4
 #endif  // CONFIG_FLEX_PARTITION
+*/
 };
 
 static INLINE void init_rd_record_tree(TXB_RD_INFO_NODE *tree,
@@ -6365,7 +6380,7 @@ static void model_rd_for_sb_with_fullrdy(
     assert(plane_bsize < BLOCK_SIZES_ALL);
     const int bw = block_size_wide[plane_bsize];
     const int bh = block_size_high[plane_bsize];
-    int64_t sse;
+    int64_t sse = 0;
     int rate;
     int64_t dist;
 
@@ -7938,6 +7953,7 @@ static int8_t estimate_wedge_sign(const AV1_COMP *cpi, const MACROBLOCK *x,
     BLOCK_16X4,     // 32X8
     BLOCK_8X32,     // 16X64
     BLOCK_32X8,     // 64X16
+    /*
 #if CONFIG_FLEX_PARTITION
     BLOCK_INVALID,  // 32X4
     BLOCK_INVALID,  // 4X32
@@ -7946,6 +7962,7 @@ static int8_t estimate_wedge_sign(const AV1_COMP *cpi, const MACROBLOCK *x,
     BLOCK_INVALID,  // 4X64
     BLOCK_INVALID,  // 64X4
 #endif              // CONFIG_FLEX_PARTITION
+*/
   };
   const struct macroblock_plane *const p = &x->plane[0];
   const uint8_t *src = p->src.buf;

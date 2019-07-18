@@ -547,7 +547,7 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
 #if CONFIG_MODE_DEP_TX
     av1_inv_txfm_add_c(dqcoeff, dst, stride, &txfm_param);
 #else
-    av1_inv_txfm_add(dqcoeff, dst, stride, &txfm_param);
+    av1_inv_txfm_add_c(dqcoeff, dst, stride, &txfm_param);
 #endif
   }
 }

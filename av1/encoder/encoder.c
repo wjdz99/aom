@@ -1874,6 +1874,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
                    aom_highbd_dist_wtd_sad64x128_avg_bits8,
                    aom_highbd_8_dist_wtd_sub_pixel_avg_variance64x128)
 
+        /*
 #if CONFIG_FLEX_PARTITION
         HIGHBD_BFP(
             BLOCK_64X8, aom_highbd_sad64x8_bits8, aom_highbd_sad64x8_avg_bits8,
@@ -1917,6 +1918,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
             aom_highbd_sad4x64x4d_bits8, aom_highbd_dist_wtd_sad4x64_avg_bits8,
             aom_highbd_8_dist_wtd_sub_pixel_avg_variance4x64)
 #endif  // CONFIG_FLEX_PARTITION
+*/
 
         HIGHBD_MBFP(BLOCK_128X128, aom_highbd_masked_sad128x128_bits8,
                     aom_highbd_8_masked_sub_pixel_variance128x128)
@@ -1962,6 +1964,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
                     aom_highbd_8_masked_sub_pixel_variance16x4)
         HIGHBD_MBFP(BLOCK_4X16, aom_highbd_masked_sad4x16_bits8,
                     aom_highbd_8_masked_sub_pixel_variance4x16)
+        /*
 #if CONFIG_FLEX_PARTITION
         HIGHBD_MBFP(BLOCK_64X8, aom_highbd_masked_sad64x8_bits8,
                     aom_highbd_8_masked_sub_pixel_variance64x8)
@@ -1976,6 +1979,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
         HIGHBD_MBFP(BLOCK_4X64, aom_highbd_masked_sad4x64_bits8,
                     aom_highbd_8_masked_sub_pixel_variance4x64)
 #endif  // CONFIG_FLEX_PARTITION
+*/
         HIGHBD_OBFP(BLOCK_128X128, aom_highbd_obmc_sad128x128_bits8,
                     aom_highbd_obmc_variance128x128,
                     aom_highbd_obmc_sub_pixel_variance128x128)
@@ -2042,6 +2046,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
         HIGHBD_OBFP(BLOCK_4X16, aom_highbd_obmc_sad4x16_bits8,
                     aom_highbd_obmc_variance4x16,
                     aom_highbd_obmc_sub_pixel_variance4x16)
+        /*
 #if CONFIG_FLEX_PARTITION
         HIGHBD_OBFP(BLOCK_64X8, aom_highbd_obmc_sad64x8_bits8,
                     aom_highbd_obmc_variance64x8,
@@ -2062,6 +2067,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
                     aom_highbd_obmc_variance4x64,
                     aom_highbd_obmc_sub_pixel_variance4x64)
 #endif  // CONFIG_FLEX_PARTITION
+*/
         break;
 
       case AOM_BITS_10:
@@ -2240,6 +2246,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
                    aom_highbd_dist_wtd_sad64x128_avg_bits10,
                    aom_highbd_10_dist_wtd_sub_pixel_avg_variance64x128);
 
+        /*
 #if CONFIG_FLEX_PARTITION
         HIGHBD_BFP(BLOCK_64X8, aom_highbd_sad64x8_bits10,
                    aom_highbd_sad64x8_avg_bits10, aom_highbd_10_variance64x8,
@@ -2289,6 +2296,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
                    aom_highbd_dist_wtd_sad4x64_avg_bits10,
                    aom_highbd_10_dist_wtd_sub_pixel_avg_variance4x64);
 #endif  // CONFIG_FLEX_PARTITION
+*/
 
         HIGHBD_MBFP(BLOCK_128X128, aom_highbd_masked_sad128x128_bits10,
                     aom_highbd_10_masked_sub_pixel_variance128x128)
@@ -2334,6 +2342,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
                     aom_highbd_10_masked_sub_pixel_variance16x4)
         HIGHBD_MBFP(BLOCK_4X16, aom_highbd_masked_sad4x16_bits10,
                     aom_highbd_10_masked_sub_pixel_variance4x16)
+        /*
 #if CONFIG_FLEX_PARTITION
         HIGHBD_MBFP(BLOCK_64X8, aom_highbd_masked_sad64x8_bits10,
                     aom_highbd_10_masked_sub_pixel_variance64x8)
@@ -2348,6 +2357,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
         HIGHBD_MBFP(BLOCK_4X64, aom_highbd_masked_sad4x64_bits10,
                     aom_highbd_10_masked_sub_pixel_variance4x64)
 #endif  // CONFIG_FLEX_PARTITION
+*/
 
         HIGHBD_OBFP(BLOCK_128X128, aom_highbd_obmc_sad128x128_bits10,
                     aom_highbd_10_obmc_variance128x128,
@@ -2421,6 +2431,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
         HIGHBD_OBFP(BLOCK_4X16, aom_highbd_obmc_sad4x16_bits10,
                     aom_highbd_10_obmc_variance4x16,
                     aom_highbd_10_obmc_sub_pixel_variance4x16)
+        /*
 #if CONFIG_FLEX_PARTITION
         HIGHBD_OBFP(BLOCK_64X8, aom_highbd_obmc_sad64x8_bits10,
                     aom_highbd_10_obmc_variance64x8,
@@ -2441,6 +2452,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
                     aom_highbd_10_obmc_variance4x64,
                     aom_highbd_10_obmc_sub_pixel_variance4x64)
 #endif  // CONFIG_FLEX_PARTITION
+*/
         break;
 
       case AOM_BITS_12:
@@ -2619,6 +2631,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
                    aom_highbd_dist_wtd_sad64x128_avg_bits12,
                    aom_highbd_12_dist_wtd_sub_pixel_avg_variance64x128);
 
+        /*
 #if CONFIG_FLEX_PARTITION
         HIGHBD_BFP(BLOCK_64X8, aom_highbd_sad64x8_bits12,
                    aom_highbd_sad64x8_avg_bits12, aom_highbd_12_variance64x8,
@@ -2668,6 +2681,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
                    aom_highbd_dist_wtd_sad4x64_avg_bits12,
                    aom_highbd_12_dist_wtd_sub_pixel_avg_variance4x64);
 #endif  // CONFIG_FLEX_PARTITION
+*/
 
         HIGHBD_MBFP(BLOCK_128X128, aom_highbd_masked_sad128x128_bits12,
                     aom_highbd_12_masked_sub_pixel_variance128x128)
@@ -2713,6 +2727,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
                     aom_highbd_12_masked_sub_pixel_variance16x4)
         HIGHBD_MBFP(BLOCK_4X16, aom_highbd_masked_sad4x16_bits12,
                     aom_highbd_12_masked_sub_pixel_variance4x16)
+        /*
 #if CONFIG_FLEX_PARTITION
         HIGHBD_MBFP(BLOCK_64X8, aom_highbd_masked_sad64x8_bits12,
                     aom_highbd_12_masked_sub_pixel_variance64x8)
@@ -2727,6 +2742,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
         HIGHBD_MBFP(BLOCK_4X64, aom_highbd_masked_sad4x64_bits12,
                     aom_highbd_12_masked_sub_pixel_variance4x64)
 #endif  // CONFIG_FLEX_PARTITION
+*/
 
         HIGHBD_OBFP(BLOCK_128X128, aom_highbd_obmc_sad128x128_bits12,
                     aom_highbd_12_obmc_variance128x128,
@@ -2794,6 +2810,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
         HIGHBD_OBFP(BLOCK_4X16, aom_highbd_obmc_sad4x16_bits12,
                     aom_highbd_12_obmc_variance4x16,
                     aom_highbd_12_obmc_sub_pixel_variance4x16)
+        /*
 #if CONFIG_FLEX_PARTITION
         HIGHBD_OBFP(BLOCK_64X8, aom_highbd_obmc_sad64x8_bits12,
                     aom_highbd_12_obmc_variance64x8,
@@ -2814,6 +2831,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
                     aom_highbd_12_obmc_variance4x64,
                     aom_highbd_12_obmc_sub_pixel_variance4x64)
 #endif  // CONFIG_FLEX_PARTITION
+*/
         break;
 
       default:
@@ -3281,6 +3299,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
       aom_sad64x16x4d, aom_dist_wtd_sad64x16_avg,
       aom_dist_wtd_sub_pixel_avg_variance64x16)
 
+  /*
 #if CONFIG_FLEX_PARTITION
   BFP(BLOCK_4X64, aom_sad4x64, aom_sad4x64_avg, aom_variance4x64,
       aom_sub_pixel_variance4x64, aom_sub_pixel_avg_variance4x64,
@@ -3312,6 +3331,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
       aom_sad64x8x4d, aom_dist_wtd_sad64x8_avg,
       aom_dist_wtd_sub_pixel_avg_variance64x8)
 #endif  // CONFIG_FLEX_PARTITION
+*/
 
   BFP(BLOCK_128X128, aom_sad128x128, aom_sad128x128_avg, aom_variance128x128,
       aom_sub_pixel_variance128x128, aom_sub_pixel_avg_variance128x128,
@@ -3438,6 +3458,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
        aom_obmc_sub_pixel_variance16x64)
   OBFP(BLOCK_64X16, aom_obmc_sad64x16, aom_obmc_variance64x16,
        aom_obmc_sub_pixel_variance64x16)
+  /*
 #if CONFIG_FLEX_PARTITION
   OBFP(BLOCK_4X64, aom_obmc_sad4x64, aom_obmc_variance4x64,
        aom_obmc_sub_pixel_variance4x16)
@@ -3452,6 +3473,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   OBFP(BLOCK_64X8, aom_obmc_sad64x8, aom_obmc_variance64x8,
        aom_obmc_sub_pixel_variance64x8)
 #endif  // CONFIG_FLEX_PARTITION
+*/
 
 #define MBFP(BT, MCSDF, MCSVF)  \
   cpi->fn_ptr[BT].msdf = MCSDF; \
@@ -3480,6 +3502,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   MBFP(BLOCK_32X8, aom_masked_sad32x8, aom_masked_sub_pixel_variance32x8)
   MBFP(BLOCK_16X64, aom_masked_sad16x64, aom_masked_sub_pixel_variance16x64)
   MBFP(BLOCK_64X16, aom_masked_sad64x16, aom_masked_sub_pixel_variance64x16)
+  /*
 #if CONFIG_FLEX_PARTITION
   MBFP(BLOCK_4X64, aom_masked_sad4x64, aom_masked_sub_pixel_variance4x64)
   MBFP(BLOCK_64X4, aom_masked_sad64x4, aom_masked_sub_pixel_variance64x4)
@@ -3488,6 +3511,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   MBFP(BLOCK_8X64, aom_masked_sad8x64, aom_masked_sub_pixel_variance8x64)
   MBFP(BLOCK_64X8, aom_masked_sad64x8, aom_masked_sub_pixel_variance64x8)
 #endif  // CONFIG_FLEX_PARTITION
+*/
 
   highbd_set_var_fns(cpi);
 
