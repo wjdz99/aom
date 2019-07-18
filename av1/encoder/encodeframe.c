@@ -3862,7 +3862,12 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVERAGE_CDF(ctx_left->uni_comp_ref_cdf, ctx_tr->uni_comp_ref_cdf, 2);
   AVERAGE_CDF(ctx_left->comp_ref_cdf, ctx_tr->comp_ref_cdf, 2);
   AVERAGE_CDF(ctx_left->comp_bwdref_cdf, ctx_tr->comp_bwdref_cdf, 2);
+#if CONFIG_NEW_TX_PARTIITON
+  AVERAGE_CDF(ctx_left->txfm_partition_cdf, ctx_tr->txfm_partition_cdf,
+              TX_PARTITION_TYPES);
+#else
   AVERAGE_CDF(ctx_left->txfm_partition_cdf, ctx_tr->txfm_partition_cdf, 2);
+#endif  // CONFIG_NEW_TX_PARTIITON
   AVERAGE_CDF(ctx_left->compound_index_cdf, ctx_tr->compound_index_cdf, 2);
   AVERAGE_CDF(ctx_left->comp_group_idx_cdf, ctx_tr->comp_group_idx_cdf, 2);
   AVERAGE_CDF(ctx_left->skip_mode_cdfs, ctx_tr->skip_mode_cdfs, 2);
@@ -5175,6 +5180,29 @@ static void update_txfm_count(MACROBLOCK *x, MACROBLOCKD *xd,
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
   assert(tx_size > TX_4X4);
+#if CONFIG_NEW_TX_PARTITION
+    TX_SIZE sub_txs[MAX_PARTITIONS] = { 0 };
+  const int n_partitions = get_tx_partition_sizes(mbmi->partition_type[txb_size_index], tx_size, sub_txs);
+  // TODO(sarahparker) This assumes all of the tx sizes in the partition scheme
+  // are the same size. This will need to be adjusted to deal with the case
+  // where they can be different.
+  TX_SIZE this_size = sub_txs[0];
+  assert(plane_tx_size == this_size);
+  if (mbmi->partition_type[txb_size_index] != TX_PARTITION_NONE)
+    ++x->txb_split_count;
+
+#if CONFIG_ENTROPY_STATS
+  ++counts->txfm_partition[ctx][mbmi->partition_type[txb_size_index]];
+#endif
+  if (allow_update_cdf)
+    update_cdf(xd->tile_ctx->txfm_partition_cdf[ctx],
+               mbmi->partition_type[txb_size_index], TX_PARTITION_TYPES);
+  mbmi->tx_size = this_size;
+  txfm_partition_update(xd->above_txfm_context + blk_col,
+                        xd->left_txfm_context + blk_row, this_size, tx_size);
+
+  return;
+#endif  // CONFIG_NEW_TX_PARTITION
 
   if (depth == MAX_VARTX_DEPTH) {
     // Don't add to counts in this case
@@ -5405,8 +5433,8 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 #endif
 
     av1_encode_sb(cpi, x, bsize, mi_row, mi_col, dry_run);
-    av1_tokenize_sb_vartx(cpi, td, t, dry_run, mi_row, mi_col, bsize, rate,
-                          tile_data->allow_update_cdf);
+    av1_tokenize_sb_tx_size(cpi, td, t, dry_run, mi_row, mi_col, bsize, rate,
+                            tile_data->allow_update_cdf);
   }
 
   if (!dry_run) {
