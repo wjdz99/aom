@@ -1323,6 +1323,7 @@ static void read_tx_partition(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
   const int max_blocks_wide = max_block_wide(xd, bsize, 0);
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
   const TX_SIZE txs = sub_tx_size_map[max_txsize_rect_lookup[bsize]];
+  int txw = 0, txh = 0;
   const int tx_w_log2 = tx_size_wide_log2[txs] - MI_SIZE_LOG2;
   const int tx_h_log2 = tx_size_high_log2[txs] - MI_SIZE_LOG2;
   const int bw_log2 = mi_size_wide_log2[bsize];

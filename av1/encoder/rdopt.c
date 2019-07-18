@@ -5098,14 +5098,14 @@ static void tx_type_rd(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
                        int plane_bsize, TXB_CTX *txb_ctx, RD_STATS *rd_stats,
                        FAST_TX_SEARCH_MODE ftxs_mode, int64_t ref_rdcost,
                        TXB_RD_INFO *rd_info_array) {
-#if CONFIG_NEW_TX_PARTITION
-  (void)rd_info_array;
-#else
   const struct macroblock_plane *const p = &x->plane[plane];
   const uint16_t cur_joint_ctx =
       (txb_ctx->dc_sign_ctx << 8) + txb_ctx->txb_skip_ctx;
   const int txk_type_idx =
       av1_get_txk_type_index(plane_bsize, blk_row, blk_col);
+#if CONFIG_NEW_TX_PARTITION
+  (void)rd_info_array;
+#else
   // Look up RD and terminate early in case when we've already processed exactly
   // the same residual with exactly the same entropy context.
   if (rd_info_array != NULL && rd_info_array->valid &&
