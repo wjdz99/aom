@@ -5982,13 +5982,28 @@ void av1_highbd_inv_txfm_add_16x4_sse4_1(const tran_low_t *input, uint8_t *dest,
                                     tx_type, tx_size, eob, bd);
 }
 
+// TODO(yunqing): Reverted to call c functions since the following optimized
+// code caused test vector mismatch.
+// av1_highbd_inv_txfm_add_8x8_sse4_1
+// av1_highbd_inv_txfm_add_4x16_sse4_1
+// av1_highbd_inv_txfm2d_add_universe_sse4_1
+// Need to fix them, so they can be called.
 void av1_highbd_inv_txfm_add_sse4_1(const tran_low_t *input, uint8_t *dest,
                                     int stride, const TxfmParam *txfm_param) {
   assert(av1_ext_tx_used[txfm_param->tx_set_type][txfm_param->tx_type]);
   const TX_SIZE tx_size = txfm_param->tx_size;
   switch (tx_size) {
+    case TX_16X16:
+      av1_highbd_inv_txfm_add_16x16_c(input, dest, stride, txfm_param);
+      break;
+    case TX_8X16:
+      av1_highbd_inv_txfm_add_8x16_c(input, dest, stride, txfm_param);
+      break;
+    case TX_16X8:  ////
+      av1_highbd_inv_txfm_add_16x8_c(input, dest, stride, txfm_param);
+      break;
     case TX_8X8:
-      av1_highbd_inv_txfm_add_8x8_sse4_1(input, dest, stride, txfm_param);
+      av1_highbd_inv_txfm_add_8x8_c(input, dest, stride, txfm_param);
       break;
     case TX_4X8:
       av1_highbd_inv_txfm_add_4x8_sse4_1(input, dest, stride, txfm_param);
@@ -5997,18 +6012,31 @@ void av1_highbd_inv_txfm_add_sse4_1(const tran_low_t *input, uint8_t *dest,
       av1_highbd_inv_txfm_add_8x4_sse4_1(input, dest, stride, txfm_param);
       break;
     case TX_4X4:
+      // this is like av1_short_idct4x4 but has a special case around eob<=1
+      // which is significant (not just an optimization) for the lossless
+      // case.
       av1_highbd_inv_txfm_add_4x4_sse4_1(input, dest, stride, txfm_param);
       break;
     case TX_16X4:
       av1_highbd_inv_txfm_add_16x4_sse4_1(input, dest, stride, txfm_param);
       break;
     case TX_4X16:
-      av1_highbd_inv_txfm_add_4x16_sse4_1(input, dest, stride, txfm_param);
+      av1_highbd_inv_txfm_add_4x16_c(input, dest, stride, txfm_param);
       break;
-    default:
+    case TX_32X32:
+    case TX_16X32:
+    case TX_32X16:
+    case TX_64X64:
+    case TX_32X64:
+    case TX_64X32:
+    case TX_16X64:
+    case TX_64X16:
+    case TX_8X32:
+    case TX_32X8:
       av1_highbd_inv_txfm2d_add_universe_sse4_1(
           input, dest, stride, txfm_param->tx_type, tx_size, txfm_param->eob,
           txfm_param->bd);
       break;
+    default: assert(0 && "Invalid transform size"); break;
   }
 }

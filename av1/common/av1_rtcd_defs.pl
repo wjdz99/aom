@@ -135,16 +135,22 @@ specialize qw/av1_inv_txfm_add ssse3 avx2 neon/;
 
 add_proto qw/void av1_highbd_inv_txfm_add/, "const tran_low_t *input, uint8_t *dest, int stride, const TxfmParam *txfm_param";
 specialize qw/av1_highbd_inv_txfm_add sse4_1 avx2/;
+
+# TODO(yunqing): disabled 8x8 and 4x16 sse4_1 optimizations that caused test vector mismatch.
+add_proto qw/void av1_highbd_inv_txfm_add_16x16/,  "const tran_low_t *input, uint8_t *dest, int stride, const TxfmParam *txfm_param";
+add_proto qw/void av1_highbd_inv_txfm_add_8x16/,  "const tran_low_t *input, uint8_t *dest, int stride, const TxfmParam *txfm_param";
+add_proto qw/void av1_highbd_inv_txfm_add_16x8/,  "const tran_low_t *input, uint8_t *dest, int stride, const TxfmParam *txfm_param";
+
 add_proto qw/void av1_highbd_inv_txfm_add_4x4/,  "const tran_low_t *input, uint8_t *dest, int stride, const TxfmParam *txfm_param";
 specialize qw/av1_highbd_inv_txfm_add_4x4 sse4_1/;
 add_proto qw/void av1_highbd_inv_txfm_add_8x8/,  "const tran_low_t *input, uint8_t *dest, int stride, const TxfmParam *txfm_param";
-specialize qw/av1_highbd_inv_txfm_add_8x8 sse4_1/;
+#specialize qw/av1_highbd_inv_txfm_add_8x8 sse4_1/;
 add_proto qw/void av1_highbd_inv_txfm_add_4x8/,  "const tran_low_t *input, uint8_t *dest, int stride, const TxfmParam *txfm_param";
 specialize qw/av1_highbd_inv_txfm_add_4x8 sse4_1/;
 add_proto qw/void av1_highbd_inv_txfm_add_8x4/,  "const tran_low_t *input, uint8_t *dest, int stride, const TxfmParam *txfm_param";
 specialize qw/av1_highbd_inv_txfm_add_8x4 sse4_1/;
 add_proto qw/void av1_highbd_inv_txfm_add_4x16/,  "const tran_low_t *input, uint8_t *dest, int stride, const TxfmParam *txfm_param";
-specialize qw/av1_highbd_inv_txfm_add_4x16 sse4_1/;
+#specialize qw/av1_highbd_inv_txfm_add_4x16 sse4_1/;
 add_proto qw/void av1_highbd_inv_txfm_add_16x4/,  "const tran_low_t *input, uint8_t *dest, int stride, const TxfmParam *txfm_param";
 specialize qw/av1_highbd_inv_txfm_add_16x4 sse4_1/;
 
