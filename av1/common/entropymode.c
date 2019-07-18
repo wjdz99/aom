@@ -983,13 +983,17 @@ static const aom_cdf_prob default_palette_uv_color_index_cdf
 static const aom_cdf_prob
     default_txfm_partition_cdf[TXFM_PARTITION_CONTEXTS][CDF_SIZE(
         TX_PARTITION_TYPES)] = {
-      { AOM_CDF2(28581) }, { AOM_CDF2(23846) }, { AOM_CDF2(20847) },
-      { AOM_CDF2(24315) }, { AOM_CDF2(18196) }, { AOM_CDF2(12133) },
-      { AOM_CDF2(18791) }, { AOM_CDF2(10887) }, { AOM_CDF2(11005) },
-      { AOM_CDF2(27179) }, { AOM_CDF2(20004) }, { AOM_CDF2(11281) },
-      { AOM_CDF2(26549) }, { AOM_CDF2(19308) }, { AOM_CDF2(14224) },
-      { AOM_CDF2(28015) }, { AOM_CDF2(21546) }, { AOM_CDF2(14400) },
-      { AOM_CDF2(28165) }, { AOM_CDF2(22401) }, { AOM_CDF2(16088) }
+      { AOM_CDF3(28581, 29581) }, { AOM_CDF3(23846, 24846) },
+      { AOM_CDF3(20847, 21847) }, { AOM_CDF3(24315, 25315) },
+      { AOM_CDF3(18196, 19196) }, { AOM_CDF3(12133, 13133) },
+      { AOM_CDF3(18791, 19791) }, { AOM_CDF3(10887, 11887) },
+      { AOM_CDF3(11005, 12005) }, { AOM_CDF3(27179, 28179) },
+      { AOM_CDF3(20004, 21004) }, { AOM_CDF3(11281, 12281) },
+      { AOM_CDF3(26549, 27549) }, { AOM_CDF3(19308, 20308) },
+      { AOM_CDF3(14224, 15224) }, { AOM_CDF3(28015, 29015) },
+      { AOM_CDF3(21546, 22546) }, { AOM_CDF3(14400, 15400) },
+      { AOM_CDF3(28165, 29165) }, { AOM_CDF3(22401, 23401) },
+      { AOM_CDF3(16088, 17088) }
     };
 #else
 static const aom_cdf_prob
