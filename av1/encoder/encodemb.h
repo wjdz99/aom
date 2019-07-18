@@ -77,6 +77,7 @@ static INLINE void av1_set_txb_context(MACROBLOCK *x, int plane, int block,
                                        TX_SIZE tx_size, ENTROPY_CONTEXT *a,
                                        ENTROPY_CONTEXT *l) {
   const uint8_t ctx = x->plane[plane].txb_entropy_ctx[block];
+  //printf("ctx %d\n", ctx);
   memset(a, ctx, tx_size_wide_unit[tx_size] * sizeof(*a));
   memset(l, ctx, tx_size_high_unit[tx_size] * sizeof(*l));
 }
