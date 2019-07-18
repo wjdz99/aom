@@ -3377,6 +3377,26 @@ static int recode_loop_test_global_motion(AV1_COMP *cpi) {
   return recode;
 }
 
+static int big_rate_miss_high_threshold(const AV1_COMP *const cpi) {
+  const RATE_CONTROL *const rc = &cpi->rc;
+  return frame_is_kf_gf_arf(cpi) ? rc->this_frame_target * 3 / 2
+                                 : rc->this_frame_target * 2;
+}
+
+static int big_rate_miss(const AV1_COMP *const cpi) {
+  const RATE_CONTROL *const rc = &cpi->rc;
+  // Ignore for overlay frames
+  if (rc->is_src_frame_alt_ref) {
+    return 0;
+  } else {
+    const int big_miss_low = (rc->this_frame_target / 2);
+    const int big_miss_high = big_rate_miss_high_threshold(cpi);
+
+    return (rc->projected_frame_size > big_miss_high) ||
+           (rc->projected_frame_size < big_miss_low);
+  }
+}
+
 // Function to test for conditions that indicate we should loop
 // back and recode a frame.
 static int recode_loop_test(AV1_COMP *cpi, int high_limit, int low_limit, int q,
@@ -3387,8 +3407,14 @@ static int recode_loop_test(AV1_COMP *cpi, int high_limit, int low_limit, int q,
   int force_recode = 0;
 
   if ((rc->projected_frame_size >= rc->max_frame_bandwidth) ||
-      (cpi->sf.recode_loop == ALLOW_RECODE) ||
+      big_rate_miss(cpi) || (cpi->sf.recode_loop == ALLOW_RECODE) ||
       (frame_is_kfgfarf && (cpi->sf.recode_loop == ALLOW_RECODE_KFARFGF))) {
+    // Force recode for extreme overshoot.
+    if ((rc->projected_frame_size >= rc->max_frame_bandwidth) ||
+        (rc->projected_frame_size >= big_rate_miss_high_threshold(cpi))) {
+      return 1;
+    }
+
     // TODO(agrange) high_limit could be greater than the scale-down threshold.
     if ((rc->projected_frame_size > high_limit && q < maxq) ||
         (rc->projected_frame_size < low_limit && q > minq)) {
@@ -4532,8 +4558,19 @@ static void recode_loop_update_q(
     // Frame is too large
     if (rc->projected_frame_size > rc->this_frame_target) {
       // Special case if the projected size is > the max allowed.
-      if (rc->projected_frame_size >= rc->max_frame_bandwidth)
-        *q_high = rc->worst_quality;
+      const int big_rate_miss_high = big_rate_miss_high_threshold(cpi);
+      if ((*q == *q_high) &&
+          ((rc->projected_frame_size >= rc->max_frame_bandwidth) ||
+           (rc->projected_frame_size >= big_rate_miss_high))) {
+        const int max_rate =
+            AOMMAX(1, AOMMIN(rc->max_frame_bandwidth, big_rate_miss_high));
+        const double q_val_high_current =
+            av1_convert_qindex_to_q(*q_high, cm->seq_params.bit_depth);
+        const double q_val_high_new =
+            q_val_high_current * ((double)rc->projected_frame_size / max_rate);
+        *q_high = av1_find_qindex(q_val_high_new, cm->seq_params.bit_depth,
+                                  rc->best_quality, rc->worst_quality);
+      }
 
       // Raise Qlow as to at least the current value
       *q_low = *q < *q_high ? *q + 1 : *q_high;
@@ -4566,8 +4603,8 @@ static void recode_loop_update_q(
         *q = (*q_high + *q_low) / 2;
       } else if (loop_at_this_size == 2 && frame_is_intra_only(cm)) {
         const int q_mid = (*q_high + *q_low) / 2;
-        const int q_regulated =
-            get_regulated_q_undershoot(cpi, *q_high, top_index, bottom_index);
+        const int q_regulated = get_regulated_q_undershoot(
+            cpi, *q_high, top_index, AOMMIN(*q_low, bottom_index));
         // Get 'q' in-between 'q_mid' and 'q_regulated' for a smooth
         // transition between loop_at_this_size < 2 and loop_at_this_size > 2.
         *q = (q_mid + q_regulated) / 2;
@@ -4580,7 +4617,8 @@ static void recode_loop_update_q(
           *q_low = *q;
         }
       } else {
-        *q = get_regulated_q_undershoot(cpi, *q_high, top_index, bottom_index);
+        *q = get_regulated_q_undershoot(cpi, *q_high, top_index,
+                                        AOMMIN(*q_low, bottom_index));
 
         // Special case reset for qlow for constrained quality.
         // This should only trigger where there is very substantial
@@ -4758,6 +4796,14 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     if (loop) printf("\n Recoding:");
 #endif
   } while (loop);
+
+  if (!frame_is_kf_gf_arf(cpi)) {
+    // Have we been forced to adapt Q outside the expected range by an extreme
+    // rate miss? If so, adjust the active maxQ for the subsequent frames.
+    if (q > rc->active_worst_quality) {
+      rc->active_worst_quality = q;
+    }
+  }
 
   return AOM_CODEC_OK;
 }
