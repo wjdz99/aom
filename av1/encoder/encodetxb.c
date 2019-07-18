@@ -662,6 +662,8 @@ void av1_write_coeffs_mb(const AV1_COMMON *const cm, MACROBLOCK *x, int mi_row,
   int row, col;
   assert(bsize == get_plane_block_size(bsize, xd->plane[0].subsampling_x,
                                        xd->plane[0].subsampling_y));
+  if (mi_row == 4 && mi_col == 56)
+    printf("debug\n");
   const int max_blocks_wide = max_block_wide(xd, bsize, 0);
   const int max_blocks_high = max_block_high(xd, bsize, 0);
   const BLOCK_SIZE max_unit_bsize = BLOCK_64X64;
@@ -1864,6 +1866,8 @@ int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
       av1_get_txb_entropy_context(qcoeff, scan_order, p->eobs[block]);
 
   *rate_cost = accu_rate;
+  if (eob > 0 && qcoeff[scan[eob - 1]] == 0)
+    printf("tx %d blk %d\n", tx_size, mbmi->sb_type);
   return eob;
 }
 

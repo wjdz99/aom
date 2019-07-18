@@ -5154,6 +5154,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   int overshoot_seen = 0;
   int undershoot_seen = 0;
   int low_cr_seen = 0;
+    printf("Frame!!!!!! %d\n", cm->current_frame.frame_number);
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   printf("\n Encoding a frame:");
@@ -5227,6 +5228,9 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     start_timing(cpi, av1_encode_frame_time);
 #endif
     // transform / motion compensation build reconstruction frame
+
+    if (cm->current_frame.frame_number == 5)
+    printf("encode\n");
     av1_encode_frame(cpi);
 #if CONFIG_COLLECT_COMPONENT_TIMING
     end_timing(cpi, av1_encode_frame_time);
