@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ba577ad_10953a3c",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 860,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-07-18T20:06:40Z",
+      "side": 1,
+      "message": "The code below will be removed in a later refactor CL, to avoid some immediate merge conflict.",
+      "range": {
+        "startLine": 860,
+        "startChar": 2,
+        "endLine": 860,
+        "endChar": 9
+      },
+      "revId": "4b6833372a267fb8a6d30aa12e7c15167e46e74f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f82e7a46_d62557d9",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1088,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-07-18T20:06:40Z",
+      "side": 1,
+      "message": "Similarly we will remove the code below in a later CL.",
+      "range": {
+        "startLine": 1088,
+        "startChar": 2,
+        "endLine": 1088,
+        "endChar": 22
+      },
+      "revId": "4b6833372a267fb8a6d30aa12e7c15167e46e74f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
