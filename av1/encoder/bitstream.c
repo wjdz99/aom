@@ -205,6 +205,7 @@ static void write_tx_partition(MACROBLOCKD *xd, const MB_MODE_INFO *mbmi,
   const TX_PARTITION_TYPE partition = mbmi->partition_type[txb_size_index];
 #if CONFIG_NEW_TX_PARTITION_EXT
   const int is_rect = is_rect_tx(max_tx_size);
+// printf("is rect %d, ctx %d, partition %d, max %d\n", is_rect, ctx, partition, max_tx_size);
   aom_write_symbol(w, partition, ec_ctx->txfm_partition_cdf[is_rect][ctx],
                    TX_PARTITION_TYPES);
 #else   // CONFIG_NEW_TX_PARTITION_EXT
@@ -1728,6 +1729,8 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   const int is_inter_tx = is_inter_block(mbmi);
   const int skip = mbmi->skip;
   const int segment_id = mbmi->segment_id;
+//if (mi_row==16 && mi_col == 48 && cm->current_frame.frame_number > 16)
+//  printf("debug\n");
   if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
       !(is_inter_tx && skip) && !xd->lossless[segment_id]) {
     if (is_inter_tx) {  // This implies skip flag is 0.
