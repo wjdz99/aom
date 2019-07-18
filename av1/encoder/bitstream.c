@@ -134,7 +134,6 @@ static void write_drl_idx(FRAME_CONTEXT *ec_ctx, const MB_MODE_INFO *mbmi,
     return;
   }
 }
-
 static void write_inter_compound_mode(MACROBLOCKD *xd, aom_writer *w,
                                       PREDICTION_MODE mode,
                                       const int16_t mode_ctx) {
@@ -143,7 +142,6 @@ static void write_inter_compound_mode(MACROBLOCKD *xd, aom_writer *w,
                    xd->tile_ctx->inter_compound_mode_cdf[mode_ctx],
                    INTER_COMPOUND_MODES);
 }
-
 #if CONFIG_NEW_TX_PARTITION
 static void write_tx_partition(MACROBLOCKD *xd, const MB_MODE_INFO *mbmi,
                                TX_SIZE max_tx_size, int blk_row, int blk_col,
@@ -158,12 +156,13 @@ static void write_tx_partition(MACROBLOCKD *xd, const MB_MODE_INFO *mbmi,
   const int max_blocks_wide = max_block_wide(xd, mbmi->sb_type, 0);
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  const TX_PARTITION_TYPE partition =
-      tx_size != max_tx_size ? TX_PARTITION_SPLIT : TX_PARTITION_NONE;
+  const TX_PARTITION_TYPE partition = mbmi->partition_type[txb_size_index];
+  //printf("%d %d\n",ec_ctx->txfm_partition_cdf[ctx][0], ec_ctx->txfm_partition_cdf[ctx][1]);
   aom_write_symbol(w, partition, ec_ctx->txfm_partition_cdf[ctx],
                    TX_PARTITION_TYPES);
   txfm_partition_update(xd->above_txfm_context + blk_col,
                         xd->left_txfm_context + blk_row, tx_size, max_tx_size);
+  //printf("tx %d ", tx_size);
 }
 #else
 static void write_tx_size_vartx(MACROBLOCKD *xd, const MB_MODE_INFO *mbmi,
@@ -415,6 +414,53 @@ static void pack_txb_tokens(aom_writer *w, AV1_COMMON *cm, MACROBLOCK *const x,
     token_stats->cost += tmp_token_stats.cost;
 #endif
   } else {
+#if CONFIG_NEW_TX_PARTITION
+    TX_SIZE sub_txs[MAX_PARTITIONS] = { 0 };
+    const int index = av1_get_txb_size_index(plane_bsize, blk_row, blk_col);
+    const int n_partitions =
+        get_tx_partition_sizes(mbmi->partition_type[index], tx_size, sub_txs);
+    int cur_partition = 0;
+    int bsw = 0, bsh = 0;
+
+    for (int r = 0; r < tx_size_high_unit[tx_size]; r += bsh) {
+      for (int c = 0; c < tx_size_wide_unit[tx_size]; c += bsw) {
+        const TX_SIZE sub_tx = sub_txs[cur_partition];
+        bsw = tx_size_wide_unit[sub_tx];
+        bsh = tx_size_high_unit[sub_tx];
+        const int sub_step = bsw * bsh;
+        const int offsetr = blk_row + r;
+        const int offsetc = blk_col + c;
+        if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
+    const CB_COEFF_BUFFER *cb_coef_buff = x->cb_coef_buff;
+    const int txb_offset =
+        x->mbmi_ext->cb_offset / (TX_SIZE_W_MIN * TX_SIZE_H_MIN);
+    const tran_low_t *tcoeff_txb =
+        cb_coef_buff->tcoeff[plane] + x->mbmi_ext->cb_offset;
+    const uint16_t *eob_txb = cb_coef_buff->eobs[plane] + txb_offset;
+    const uint8_t *txb_skip_ctx_txb =
+        cb_coef_buff->txb_skip_ctx[plane] + txb_offset;
+    const int *dc_sign_ctx_txb = cb_coef_buff->dc_sign_ctx[plane] + txb_offset;
+    const tran_low_t *tcoeff = BLOCK_OFFSET(tcoeff_txb, block);
+    const uint16_t eob = eob_txb[block];
+
+        TXB_CTX txb_ctx = { txb_skip_ctx_txb[block], dc_sign_ctx_txb[block] };
+        av1_write_coeffs_txb(cm, xd, w, offsetr, offsetc, plane, sub_tx, tcoeff,
+                         eob, &txb_ctx);
+
+      //pack_txb_tokens(w, cm, x, tp, tok_end, xd, mbmi, plane, plane_bsize,
+      //                bit_depth, block, offsetr, offsetc, sub_tx,
+      //                token_stats);
+
+
+
+
+        block += sub_step;
+        cur_partition++;
+      }
+    }
+
+#else
+
     const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
     const int bsw = tx_size_wide_unit[sub_txs];
     const int bsh = tx_size_high_unit[sub_txs];
@@ -433,6 +479,7 @@ static void pack_txb_tokens(aom_writer *w, AV1_COMMON *cm, MACROBLOCK *const x,
         block += step;
       }
     }
+#endif  // CONFIG_NEW_TX_PARTITION
   }
 }
 
@@ -1594,6 +1641,7 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   const int is_inter_tx = is_inter_block(mbmi);
   const int skip = mbmi->skip;
   const int segment_id = mbmi->segment_id;
+  MACROBLOCK *const x = &cpi->td.mb;
   if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
       !(is_inter_tx && skip) && !xd->lossless[segment_id]) {
     if (is_inter_tx) {  // This implies skip flag is 0.
@@ -1605,12 +1653,14 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
       for (int idy = 0; idy < height; idy += txbh) {
         for (int idx = 0; idx < width; idx += txbw) {
 #if CONFIG_NEW_TX_PARTITION
-          write_tx_partition(xd, mbmi, max_tx_size, idy, idx, w);
+          write_tx_partition(xd, mbmi,
+                             max_tx_size, idy, idx, w);
 #else
           write_tx_size_vartx(xd, mbmi, max_tx_size, 0, idy, idx, w);
 #endif  // CONFIG_NEW_TX_PARTITION
         }
       }
+  //printf("encoder %d r %d c %d\n", mbmi->partition_type, mi_row, mi_col);
     } else {
       write_selected_tx_size(xd, w);
       set_txfm_ctxs(mbmi->tx_size, xd->n4_w, xd->n4_h, 0, xd);

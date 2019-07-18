@@ -47,7 +47,7 @@ enum {
 // Note in all the tokenize functions rate if non NULL is incremented
 // with the coefficient token cost only if dry_run = DRY_RUN_COSTCOEFS,
 // otherwise rate is not incremented.
-void av1_tokenize_sb_vartx(const struct AV1_COMP *cpi, struct ThreadData *td,
+void av1_tokenize_sb_tx_size(const struct AV1_COMP *cpi, struct ThreadData *td,
                            TOKENEXTRA **t, RUN_TYPE dry_run, int mi_row,
                            int mi_col, BLOCK_SIZE bsize, int *rate,
                            uint8_t allow_update_cdf);

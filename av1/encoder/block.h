@@ -246,6 +246,10 @@ struct macroblock {
   unsigned int tx_search_count;
 #endif  // CONFIG_SPEED_STATS
 
+#if CONFIG_NEW_TX_PARTITION
+  TX_PARTITION_TYPE partition_type[MAX_MIB_SIZE * MAX_MIB_SIZE];
+#endif  // CONFIG_NEW_TX_PARTITION
+
   // These are set to their default values at the beginning, and then adjusted
   // further in the encoding process.
   BLOCK_SIZE min_partition_size;
@@ -447,6 +451,30 @@ struct macroblock {
 
 static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
   static const char LUT[BLOCK_SIZES_ALL] = {
+#if CONFIG_NEW_TX_PARTITION
+    0,  // BLOCK_4X4
+    1,  // BLOCK_4X8
+    1,  // BLOCK_8X4
+    1,  // BLOCK_8X8
+    1,  // BLOCK_8X16
+    1,  // BLOCK_16X8
+    1,  // BLOCK_16X16
+    1,  // BLOCK_16X32
+    1,  // BLOCK_32X16
+    1,  // BLOCK_32X32
+    1,  // BLOCK_32X64
+    1,  // BLOCK_64X32
+    1,  // BLOCK_64X64
+    0,  // BLOCK_64X128
+    0,  // BLOCK_128X64
+    1,  // BLOCK_128X128
+    1,  // BLOCK_4X16
+    1,  // BLOCK_16X4
+    1,  // BLOCK_8X32
+    1,  // BLOCK_32X8
+    1,  // BLOCK_16X64
+    1,  // BLOCK_64X16
+#else
     0,  // BLOCK_4X4
     1,  // BLOCK_4X8
     1,  // BLOCK_8X4
@@ -469,6 +497,7 @@ static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
     1,  // BLOCK_32X8
     1,  // BLOCK_16X64
     1,  // BLOCK_64X16
+#endif  // CONFIG_NEW_TX_PARTITION
   };
 
   return LUT[bsize];
@@ -513,6 +542,8 @@ static INLINE void set_blk_skip(MACROBLOCK *x, int plane, int blk_idx,
 static INLINE int is_blk_skip(MACROBLOCK *x, int plane, int blk_idx) {
 #ifndef NDEBUG
   // Check if this is initialized
+  if((x->blk_skip[blk_idx] & (1UL << (plane + 4))))
+    printf("debug\n");
   assert(!(x->blk_skip[blk_idx] & (1UL << (plane + 4))));
 
   // The magic number is 0x77, this is to test if there is garbage data

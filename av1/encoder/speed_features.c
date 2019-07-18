@@ -209,7 +209,11 @@ static void set_good_speed_features_framesize_independent(
   sf->simple_motion_search_prune_rect = 1;
   sf->adaptive_txb_search_level = 1;
   sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_SKIP_MV_SEARCH;
+#if CONFIG_NEW_TX_PARTITION
+  sf->model_based_prune_tx_search_level = 0;
+#else
   sf->model_based_prune_tx_search_level = 1;
+#endif  // CONFIG_NEW_TX_PARTITION
   sf->model_based_post_interp_filter_breakout = 1;
 
   // TODO(debargha): Test, tweak and turn on either 1 or 2
@@ -432,7 +436,11 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->ml_prune_4_partition = 1;
   sf->adaptive_txb_search_level = 1;
   sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_SKIP_MV_SEARCH;
+#if CONFIG_NEW_TX_PARTITION
+  sf->model_based_prune_tx_search_level = 0;
+#else
   sf->model_based_prune_tx_search_level = 1;
+#endif  // CONFIG_NEW_TX_PARTITION
   sf->model_based_post_interp_filter_breakout = 1;
 
   // TODO(debargha): Test, tweak and turn on either 1 or 2
@@ -738,7 +746,11 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->adaptive_txb_search_level = 0;
   sf->use_intra_txb_hash = 0;
   sf->use_inter_txb_hash = 1;
+#if CONFIG_NEW_TX_PARTITION
+  sf->use_mb_rd_hash = 0;
+#else
   sf->use_mb_rd_hash = 1;
+#endif  // CONFIG_NEW_TX_PARTITION
   sf->optimize_b_precheck = 0;
   sf->two_loop_comp_search = 1;
   sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_ENABLED;

@@ -2344,7 +2344,6 @@ static void update_picked_ref_frames_mask(MACROBLOCK *const x, int ref_type,
     }
   }
 }
-
 // TODO(jinging,jimbankoski,rbultje): properly skip partition types that are
 // unlikely to be selected depending on previous rate-distortion optimization
 // results, for encoding speed-up.
@@ -2373,7 +2372,6 @@ static bool rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
                      : 0;
   const int *partition_cost =
       pl >= 0 ? x->partition_cost[pl] : x->partition_cost[0];
-
   int do_rectangular_split = cpi->oxcf.enable_rect_partitions;
   int64_t cur_none_rd = 0;
   int64_t split_rd[4] = { 0, 0, 0, 0 };
@@ -2842,6 +2840,9 @@ BEGIN_PARTITION_SEARCH:
     pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc, PARTITION_HORZ,
                   subsize, &pc_tree->horizontal[0], best_remain_rdcost,
                   PICK_MODE_RD);
+//if (mi_row == 24 && mi_col == 64)
+//  printf("debug\n");
+  MB_MODE_INFO *mbmi = xd->mi[0];
     av1_rd_cost_update(x->rdmult, &this_rdc);
 
     if (this_rdc.rate == INT_MAX) {
@@ -2863,7 +2864,7 @@ BEGIN_PARTITION_SEARCH:
       }
       update_state(cpi, tile_data, td, ctx_h, mi_row, mi_col, subsize, 1);
       encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, mi_row, mi_col,
-                        subsize, NULL);
+                        subsize, NULL); //sarahparker 1, 3
 
       if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_h);
 
@@ -2951,7 +2952,6 @@ BEGIN_PARTITION_SEARCH:
                    subsize, 1);
       encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, mi_row, mi_col,
                         subsize, NULL);
-
       if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_none);
 
       av1_rd_stats_subtraction(x->rdmult, &best_rdc, &sum_rdc,
@@ -3498,7 +3498,7 @@ BEGIN_PARTITION_SEARCH:
                 pc_tree, NULL);
     } else {
       encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, DRY_RUN_NORMAL, bsize,
-                pc_tree, NULL);
+                pc_tree, NULL); // sarahparker 2
     }
   }
 
@@ -3862,7 +3862,11 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVERAGE_CDF(ctx_left->uni_comp_ref_cdf, ctx_tr->uni_comp_ref_cdf, 2);
   AVERAGE_CDF(ctx_left->comp_ref_cdf, ctx_tr->comp_ref_cdf, 2);
   AVERAGE_CDF(ctx_left->comp_bwdref_cdf, ctx_tr->comp_bwdref_cdf, 2);
+#if CONFIG_NEW_TX_PARTIITON
+  AVERAGE_CDF(ctx_left->txfm_partition_cdf, ctx_tr->txfm_partition_cdf, TX_PARTITION_TYPES);
+#else
   AVERAGE_CDF(ctx_left->txfm_partition_cdf, ctx_tr->txfm_partition_cdf, 2);
+#endif  // CONFIG_NEW_TX_PARTIITON
   AVERAGE_CDF(ctx_left->compound_index_cdf, ctx_tr->compound_index_cdf, 2);
   AVERAGE_CDF(ctx_left->comp_group_idx_cdf, ctx_tr->comp_group_idx_cdf, 2);
   AVERAGE_CDF(ctx_left->skip_mode_cdfs, ctx_tr->skip_mode_cdfs, 2);
@@ -4224,13 +4228,15 @@ static MV_REFERENCE_FRAME get_frame_type(const AV1_COMP *cpi) {
 
 static TX_MODE select_tx_mode(const AV1_COMP *cpi) {
   if (cpi->common.coded_lossless) return ONLY_4X4;
-  if (cpi->sf.tx_size_search_method == USE_LARGESTALL)
+  if (cpi->sf.tx_size_search_method == USE_LARGESTALL) {
+    printf("largest\n");
     return TX_MODE_LARGEST;
-  else if (cpi->sf.tx_size_search_method == USE_FULL_RD ||
-           cpi->sf.tx_size_search_method == USE_FAST_RD)
+  } else if (cpi->sf.tx_size_search_method == USE_FULL_RD ||
+           cpi->sf.tx_size_search_method == USE_FAST_RD) {
     return TX_MODE_SELECT;
-  else
+  } else {
     return cpi->common.tx_mode;
+  }
 }
 
 void av1_alloc_tile_data(AV1_COMP *cpi) {
@@ -5151,8 +5157,10 @@ void av1_encode_frame(AV1_COMP *cpi) {
       skip_mode_info->skip_mode_flag = 0;
 
     if (!cm->large_scale_tile) {
-      if (cm->tx_mode == TX_MODE_SELECT && cpi->td.mb.txb_split_count == 0)
+      if (cm->tx_mode == TX_MODE_SELECT && cpi->td.mb.txb_split_count == 0) {
+        printf("largest2\n");
         cm->tx_mode = TX_MODE_LARGEST;
+      }
     }
   } else {
     encode_frame_internal(cpi);
@@ -5175,6 +5183,36 @@ static void update_txfm_count(MACROBLOCK *x, MACROBLOCKD *xd,
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
   assert(tx_size > TX_4X4);
+#if CONFIG_NEW_TX_PARTITION
+  TX_SIZE this_size;
+  int txh, txw;
+  switch (mbmi->partition_type[txb_size_index]) {
+    case TX_PARTITION_NONE: this_size = tx_size; break;
+    case TX_PARTITION_SPLIT:
+      ++x->txb_split_count;
+      this_size = sub_tx_size_map[tx_size];
+      break;
+    case TX_PARTITION_HORZ:
+      ++x->txb_split_count;
+      txw = tx_size_wide[tx_size];
+      txh = tx_size_high[tx_size] >> 1;
+      this_size = get_tx_size(txw, txh);
+      break;
+    default: assert(0);
+  }
+  assert(plane_tx_size == this_size);
+
+#if CONFIG_ENTROPY_STATS
+    ++counts->txfm_partition[ctx][mbmi->partition_type[txb_size_index]];
+#endif
+    if (allow_update_cdf)
+      update_cdf(xd->tile_ctx->txfm_partition_cdf[ctx], mbmi->partition_type[txb_size_index], TX_PARTITION_TYPES);
+    mbmi->tx_size = plane_tx_size;
+    txfm_partition_update(xd->above_txfm_context + blk_col,
+                          xd->left_txfm_context + blk_row, plane_tx_size, tx_size);
+
+  return;
+#endif  // CONFIG_NEW_TX_PARTITION
 
   if (depth == MAX_VARTX_DEPTH) {
     // Don't add to counts in this case
@@ -5405,7 +5443,7 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 #endif
 
     av1_encode_sb(cpi, x, bsize, mi_row, mi_col, dry_run);
-    av1_tokenize_sb_vartx(cpi, td, t, dry_run, mi_row, mi_col, bsize, rate,
+    av1_tokenize_sb_tx_size(cpi, td, t, dry_run, mi_row, mi_col, bsize, rate,
                           tile_data->allow_update_cdf);
   }
 
