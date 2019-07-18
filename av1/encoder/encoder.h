@@ -487,7 +487,11 @@ typedef struct FRAME_COUNTS {
   unsigned int intrabc[2];
 
 #if CONFIG_NEW_TX_PARTITION
+#if CONFIG_NEW_TX_PARTITION_EXT
+  unsigned int txfm_partition[2][TXFM_PARTITION_CONTEXTS][TX_PARTITION_TYPES];
+#else  // CONFIG_NEW_TX_PARTITION_EXT
   unsigned int txfm_partition[TXFM_PARTITION_CONTEXTS][TX_PARTITION_TYPES];
+#endif  // CONFIG_NEW_TX_PARTITION_EXT
 #else
   unsigned int txfm_partition[TXFM_PARTITION_CONTEXTS][2];
 #endif  // CONFIG_NEW_TX_PARTITION

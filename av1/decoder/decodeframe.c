@@ -1308,8 +1308,14 @@ static void read_tx_partition(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
   const int ctx = txfm_partition_context(xd->above_txfm_context + blk_col,
                                          xd->left_txfm_context + blk_row,
                                          mbmi->sb_type, max_tx_size);
+#if CONFIG_NEW_TX_PARTITION_EXT
+  const int is_rect = is_rect_tx(max_tx_size);
+  const TX_PARTITION_TYPE partition = aom_read_symbol(
+      r, ec_ctx->txfm_partition_cdf[is_rect][ctx], TX_PARTITION_TYPES, ACCT_STR);
+#else  // CONFIG_NEW_TX_PARTITION_EXT
   const TX_PARTITION_TYPE partition = aom_read_symbol(
       r, ec_ctx->txfm_partition_cdf[ctx], TX_PARTITION_TYPES, ACCT_STR);
+#endif  // CONFIG_NEW_TX_PARTITION_EXT
   TX_SIZE sub_txs[MAX_PARTITIONS] = { 0 };
   const int n_partitions =
       get_tx_partition_sizes(partition, max_tx_size, sub_txs);
