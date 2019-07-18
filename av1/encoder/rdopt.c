@@ -11934,14 +11934,14 @@ static int inter_mode_search_order_independent_skip(
       if ((ref_frame[0] == ALTREF2_FRAME || ref_frame[1] == ALTREF2_FRAME) &&
           (cpi->ref_frame_flags & av1_ref_frame_flag_list[BWDREF_FRAME])) {
         // Check if both ALTREF2_FRAME and BWDREF_FRAME are future references.
-        const int arf2_dist = get_relative_dist(
+        const int arf2_dist = av1_encoder_get_relative_dist(
             order_hint_info,
-            cm->cur_frame->ref_order_hints[ALTREF2_FRAME - LAST_FRAME],
-            current_frame->order_hint);
-        const int bwd_dist = get_relative_dist(
+            cm->cur_frame->ref_display_order_count[ALTREF2_FRAME - LAST_FRAME],
+            current_frame->display_order_count);
+        const int bwd_dist = av1_encoder_get_relative_dist(
             order_hint_info,
-            cm->cur_frame->ref_order_hints[BWDREF_FRAME - LAST_FRAME],
-            current_frame->order_hint);
+            cm->cur_frame->ref_display_order_count[BWDREF_FRAME - LAST_FRAME],
+            current_frame->display_order_count);
         if (arf2_dist > 0 && bwd_dist > 0 && bwd_dist <= arf2_dist) {
           // Drop ALTREF2_FRAME as a reference if BWDREF_FRAME is a closer
           // reference to the current frame than ALTREF2_FRAME
