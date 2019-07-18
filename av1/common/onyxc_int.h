@@ -1262,6 +1262,75 @@ static INLINE TX_SIZE get_tx_size(int width, int height) {
   return TX_4X4;
 }
 
+#if CONFIG_NEW_TX_PARTITION
+static const int new_tx_partition_used[TX_SIZES_ALL][TX_PARTITION_TYPES] = {
+  { 1, 0 },  // 4x4 transform
+  { 1, 1 },  // 8x8 transform
+  { 1, 1 },  // 16x16 transform
+  { 1, 1 },  // 32x32 transform
+  { 1, 1 },  // 64x64 transform
+  { 1, 1 },  // 4x8 transform
+  { 1, 1 },  // 8x4 transform
+  { 1, 1 },  // 8x16 transform
+  { 1, 1 },  // 16x8 transform
+  { 1, 1 },  // 16x32 transform
+  { 1, 1 },  // 32x16 transform
+  { 1, 1 },  // 32x64 transform
+  { 1, 1 },  // 64x32 transform
+  { 1, 1 },  // 4x16 transform
+  { 1, 1 },  // 16x4 transform
+  { 1, 1 },  // 8x32 transform
+  { 1, 1 },  // 32x8 transform
+  { 1, 1 },  // 16x64 transform
+  { 1, 1 },  // 64x16 transform
+};
+
+#define MAX_PARTITIONS 4
+typedef struct {
+  int rows[MAX_PARTITIONS];
+  int cols[MAX_PARTITIONS];
+  int n_partitions;
+} TX_PARTITION_RATIO;
+
+static const TX_PARTITION_RATIO partition_ratio_bits[2][TX_PARTITION_TYPES] = {
+  // Square
+  {
+      { { 0 }, { 0 }, 1 },                    // TX_PARTITION_NONE
+      { { 1, 1, 1, 1 }, { 1, 1, 1, 1 }, 4 },  // TX_PARTITION_SPLIT
+  },
+  // Rectangular
+  {
+      { { 0 }, { 0 }, 1 },        // TX_PARTITION_NONE
+      { { 0, 0 }, { 1, 1 }, 2 },  // TX_PARTITION_SPLIT
+  },
+};
+
+static INLINE int get_tx_partition_sizes(TX_PARTITION_TYPE partition,
+                                  TX_SIZE max_tx_size,
+                                  TX_SIZE sub_txs[MAX_PARTITIONS]) {
+  const int txw = tx_size_wide[max_tx_size];
+  const int txh = tx_size_high[max_tx_size];
+  int sub_txw = 0, sub_txh = 0;
+  const TX_PARTITION_RATIO ratio =
+      partition_ratio_bits[is_rect_tx(max_tx_size)][partition];
+  const int n_partitions = ratio.n_partitions;
+
+  for (int i = 0; i < n_partitions; i++) {
+    if (txw > txh) {
+      // The ratios for rectangular sizes were setup assuming txh > txw,
+      // swap them here if this is not the case.
+      sub_txw = txw >> ratio.cols[i];
+      sub_txh = txh >> ratio.rows[i];
+    } else {
+      sub_txw = txw >> ratio.rows[i];
+      sub_txh = txh >> ratio.cols[i];
+    }
+    sub_txs[i] = get_tx_size(sub_txw, sub_txh);
+  }
+  return n_partitions;
+}
+#endif  // CONFIG_NEW_TX_PARTITION
+
 static INLINE int txfm_partition_context(const TXFM_CONTEXT *const above_ctx,
                                          const TXFM_CONTEXT *const left_ctx,
                                          BLOCK_SIZE bsize, TX_SIZE tx_size) {
