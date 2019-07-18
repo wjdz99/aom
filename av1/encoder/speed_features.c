@@ -273,8 +273,10 @@ static void set_good_speed_features_framesize_independent(
 
     sf->enable_sgr_ep_pruning = 1;
     sf->selective_ref_frame = 3;
+#if !CONFIG_NEW_TX_PARTITION
     sf->inter_tx_size_search_init_depth_rect = 1;
     sf->inter_tx_size_search_init_depth_sqr = 1;
+#endif  // !CONFIG_NEW_TX_PARTITION
 
     sf->cdef_pick_method = CDEF_FAST_SEARCH;
 
@@ -487,8 +489,10 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->gm_erroradv_type = GM_ERRORADV_TR_2;
 
     sf->selective_ref_frame = 3;
+#if !CONFIG_NEW_TX_PARTITION
     sf->inter_tx_size_search_init_depth_rect = 1;
     sf->inter_tx_size_search_init_depth_sqr = 1;
+#endif  // !CONFIG_NEW_TX_PARTITION
     sf->cdef_pick_method = CDEF_FAST_SEARCH;
 
     sf->adaptive_rd_thresh = 1;
