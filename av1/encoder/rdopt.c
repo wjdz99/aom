@@ -5369,7 +5369,71 @@ static void try_tx_block_split(
   *split_rd = tmp_rd;
 }
 
+#if CONFIG_NEW_TX_PARTITION
 // Search for the best tx partition/type for a given luma block.
+static void select_tx_partition_type(
+    const AV1_COMP *cpi, MACROBLOCK *x, int blk_row, int blk_col,
+    int block,  // TX_SIZE max_tx_size, int depth,
+    BLOCK_SIZE plane_bsize, ENTROPY_CONTEXT *ta, ENTROPY_CONTEXT *tl,
+    TXFM_CONTEXT *tx_above, TXFM_CONTEXT *tx_left, RD_STATS *rd_stats,
+    int64_t prev_level_rd, int64_t ref_best_rd, int *is_cost_valid,
+    FAST_TX_SEARCH_MODE ftxs_mode, TXB_RD_INFO_NODE *rd_info_node) {
+  av1_init_rd_stats(rd_stats);
+  if (ref_best_rd < 0) {
+    *is_cost_valid = 0;
+    return;
+  }
+
+  MACROBLOCKD *const xd = &x->e_mbd;
+  const int max_blocks_high = max_block_high(xd, plane_bsize, 0);
+  const int max_blocks_wide = max_block_wide(xd, plane_bsize, 0);
+  if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
+
+  const int bw = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  struct macroblock_plane *const p = &x->plane[0];
+  const TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
+  const int ctx = txfm_partition_context(tx_above + blk_col, tx_left + blk_row,
+                                         mbmi->sb_type, max_tx_size);
+  assert(max_tx_size < TX_SIZES_ALL);
+  TX_SIZE sub_txs[MAX_PARTITIONS] = { 0 };
+
+  // TODO(sarahparker) Add all of the tx search speed features.
+  for (TX_PARTITION_TYPE type = 0; type < TX_PARTITION_TYPES; type++) {
+    if (!new_tx_partition_used[max_tx_size][type]) continue;
+    const int n_partitions = get_tx_partition_sizes(type, max_tx_size, sub_txs);
+    int cur_partition = 0;
+    int bsw = 0, bsh = 0;
+    int blk_idx = 0;
+    for (int r = 0; r < tx_size_high_unit[max_tx_size]; r += bsh) {
+      for (int c = 0; c < tx_size_wide_unit[max_tx_size]; c += bsw, ++blk_idx) {
+        const TX_SIZE sub_tx = sub_txs[cur_partition];
+        ;
+        bsw = tx_size_wide_unit[sub_tx];
+        bsh = tx_size_high_unit[sub_tx];
+        const int sub_step = bsw * bsh;
+        assert(blk_idx < 4);
+        const int offsetr = blk_row + r;
+        const int offsetc = blk_col + c;
+        const int nblks = n_partitions;
+        if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
+        TxCandidateInfo no_split = { INT64_MAX, 0, TX_TYPES };
+        try_tx_block_no_split(cpi, x, offsetr, offsetc, block, sub_tx, 0,
+                              plane_bsize, ta, tl, ctx, rd_stats, ref_best_rd,
+                              ftxs_mode, rd_info_node, &no_split);
+        //    if (!this_cost_valid) return;
+        //    av1_merge_rd_stats(split_rd_stats, &this_rd_stats);
+        //    tmp_rd = RDCOST(x->rdmult, split_rd_stats->rate,
+        //    split_rd_stats->dist); if (no_split_rd < tmp_rd) return;
+        block += sub_step;
+        cur_partition++;
+      }
+    }
+  }
+}
+#endif  // CONFIG_NEW_TX_PARTITION
+
+// Search for the best tx size/type for a given luma block.
 static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
                             int blk_col, int block, TX_SIZE tx_size, int depth,
                             BLOCK_SIZE plane_bsize, ENTROPY_CONTEXT *ta,
@@ -5384,7 +5448,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
     *is_cost_valid = 0;
     return;
   }
-
+  // select_tx_partition_type(plane_bsize);
   MACROBLOCKD *const xd = &x->e_mbd;
   const int max_blocks_high = max_block_high(xd, plane_bsize, 0);
   const int max_blocks_wide = max_block_wide(xd, plane_bsize, 0);
