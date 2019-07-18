@@ -5335,7 +5335,50 @@ static void try_tx_block_split(
   *split_rd = tmp_rd;
 }
 
+#if CONFIG_NEW_TX_PARTITION
 // Search for the best tx partition/type for a given luma block.
+static void select_tx_partition_type(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
+                            int blk_col, int block,
+                            BLOCK_SIZE plane_bsize, ENTROPY_CONTEXT *ta,
+                            ENTROPY_CONTEXT *tl, TXFM_CONTEXT *tx_above,
+                            TXFM_CONTEXT *tx_left, RD_STATS *rd_stats,
+                            int64_t prev_level_rd, int64_t ref_best_rd,
+                            int *is_cost_valid, FAST_TX_SEARCH_MODE ftxs_mode,
+                            TXB_RD_INFO_NODE *rd_info_node) {
+  assert(tx_size < TX_SIZES_ALL);
+  av1_init_rd_stats(rd_stats);
+  if (ref_best_rd < 0) {
+    *is_cost_valid = 0;
+    return;
+  }
+
+  MACROBLOCKD *const xd = &x->e_mbd;
+  const int max_blocks_high = max_block_high(xd, plane_bsize, 0);
+  const int max_blocks_wide = max_block_wide(xd, plane_bsize, 0);
+  if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
+
+  const int bw = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  const int ctx = txfm_partition_context(tx_above + blk_col, tx_left + blk_row,
+                                         mbmi->sb_type, tx_size);
+  struct macroblock_plane *const p = &x->plane[0];
+  const TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
+
+  for (TX_PARTITION_TYPE type = 0; type < TX_PARTITION_TYPES; type++) {
+
+    if (!new_tx_partition_used[max_tx_size][type]) continue;
+
+    //get partition parameters
+    try_tx_block_no_split(cpi, x, blk_row, blk_col, block, tx_size, depth,
+                          plane_bsize, ta, tl, ctx, rd_stats, ref_best_rd,
+                          ftxs_mode, rd_info_node, &no_split);
+
+
+  }
+}
+#endif  // CONFIG_NEW_TX_PARTITION
+
+// Search for the best tx size/type for a given luma block.
 static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
                             int blk_col, int block, TX_SIZE tx_size, int depth,
                             BLOCK_SIZE plane_bsize, ENTROPY_CONTEXT *ta,
