@@ -255,6 +255,9 @@ typedef struct MB_MODE_INFO {
 #if CONFIG_ADAPT_FILTER_INTRA
   ADAPT_FILTER_INTRA_MODE_INFO adapt_filter_intra_mode_info;
 #endif
+#if CONFIG_NEW_TX_PARTITION
+  TX_PARTITION_TYPE partition_type[INTER_TX_SIZE_BUF_LEN];
+#endif  // CONFIG_NEW_TX_PARTITION
   MOTION_MODE motion_mode;
   PARTITION_TYPE partition;
   TX_TYPE txk_type[TXK_TYPE_BUF_LEN];
@@ -899,8 +902,13 @@ static INLINE int av1_get_txk_type_index(BLOCK_SIZE bsize, int blk_row,
                                          int blk_col) {
   assert(bsize < BLOCK_SIZES_ALL);
   TX_SIZE txs = max_txsize_rect_lookup[bsize];
+#if CONFIG_NEW_TX_PARTITION
+  // Get smallest possible sub_tx size
+  txs = smallest_sub_tx_size_map[txs];
+#else
   for (int level = 0; level < MAX_VARTX_DEPTH; ++level)
     txs = sub_tx_size_map[txs];
+#endif
   const int tx_w_log2 = tx_size_wide_log2[txs] - MI_SIZE_LOG2;
   const int tx_h_log2 = tx_size_high_log2[txs] - MI_SIZE_LOG2;
   const int bw_uint_log2 = mi_size_wide_log2[bsize];
