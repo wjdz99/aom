@@ -938,11 +938,15 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
   TX_TYPE tx_type;
   if (xd->lossless[mbmi->segment_id] || txsize_sqr_up_map[tx_size] > TX_32X32) {
     tx_type = DCT_DCT;
+  if (tx_type >= TX_TYPES)
+    printf("debug\n");
   } else {
     if (plane_type == PLANE_TYPE_Y) {
       const int txk_type_idx =
           av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
       tx_type = mbmi->txk_type[txk_type_idx];
+  if (tx_type >= TX_TYPES)
+    printf("debug\n");
     } else if (is_inter_block(mbmi)) {
       // scale back to y plane's coordinate
       blk_row <<= pd->subsampling_y;
@@ -950,12 +954,18 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
       const int txk_type_idx =
           av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
       tx_type = mbmi->txk_type[txk_type_idx];
+  if (tx_type >= TX_TYPES)
+    printf("debug\n");
     } else {
       // In intra mode, uv planes don't share the same prediction mode as y
       // plane, so the tx_type should not be shared
       tx_type = intra_mode_to_tx_type(mbmi, PLANE_TYPE_UV);
+  if (tx_type >= TX_TYPES)
+    printf("debug\n");
     }
   }
+  if (tx_type >= TX_TYPES)
+    printf("debug\n");
   assert(tx_type < TX_TYPES);
   if (!av1_ext_tx_used[tx_set_type][tx_type]) return DCT_DCT;
   return tx_type;
