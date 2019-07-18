@@ -207,8 +207,15 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
                                NULL);
 
   for (i = 0; i < TXFM_PARTITION_CONTEXTS; ++i) {
+#if CONFIG_NEW_TX_PARTITION
+    av1_cost_tokens_from_cdf(x->txfm_partition_cost[0][i],
+                             fc->txfm_partition_cdf[0][i], NULL);
+    av1_cost_tokens_from_cdf(x->txfm_partition_cost[1][i],
+                             fc->txfm_partition_cdf[1][i], NULL);
+#else
     av1_cost_tokens_from_cdf(x->txfm_partition_cost[i],
                              fc->txfm_partition_cdf[i], NULL);
+#endif
   }
 
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
