@@ -1864,6 +1864,8 @@ int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
       av1_get_txb_entropy_context(qcoeff, scan_order, p->eobs[block]);
 
   *rate_cost = accu_rate;
+  if (eob > 0 && qcoeff[scan[eob - 1]] == 0)
+    printf("tx %d blk %d\n", tx_size, mbmi->sb_type);
   return eob;
 }
 
