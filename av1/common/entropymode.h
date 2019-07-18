@@ -119,7 +119,7 @@ typedef struct frame_contexts {
   aom_cdf_prob comp_ref_cdf[REF_CONTEXTS][FWD_REFS - 1][CDF_SIZE(2)];
   aom_cdf_prob comp_bwdref_cdf[REF_CONTEXTS][BWD_REFS - 1][CDF_SIZE(2)];
 #if CONFIG_NEW_TX_PARTITION
-  aom_cdf_prob txfm_partition_cdf[TXFM_PARTITION_CONTEXTS]
+  aom_cdf_prob txfm_partition_cdf[2][TXFM_PARTITION_CONTEXTS]
                                  [CDF_SIZE(TX_PARTITION_TYPES)];
 #else
   aom_cdf_prob txfm_partition_cdf[TXFM_PARTITION_CONTEXTS][CDF_SIZE(2)];

@@ -313,6 +313,38 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, ThreadData *const td,
     *eob_total += eob_data->eob;
     set_cb_buffer_offsets(xd, tx_size, plane);
   } else {
+#if CONFIG_NEW_TX_PARTITION
+    TX_SIZE sub_txs[MAX_PARTITIONS] = { 0 };
+    const int index = av1_get_txb_size_index(plane_bsize, blk_row, blk_col);
+    const int n_partitions =
+        get_tx_partition_sizes(mbmi->partition_type[index], tx_size, sub_txs);
+    int cur_partition = 0;
+    int bsw = 0, bsh = 0;
+
+//  if (is_rect_tx(tx_size) && n_partitions == 4)
+//    printf("max %d tx %d\n", tx_size, sub_txs[0]);
+    for (int row = 0; row < tx_size_high_unit[tx_size]; row += bsh) {
+      for (int col = 0; col < tx_size_wide_unit[tx_size]; col += bsw) {
+        const TX_SIZE sub_tx = sub_txs[cur_partition];
+        bsw = tx_size_wide_unit[sub_tx];
+        bsh = tx_size_high_unit[sub_tx];
+        const int sub_step = bsw * bsh;
+        const int offsetr = blk_row + row;
+        const int offsetc = blk_col + col;
+        if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
+
+        td->read_coeffs_tx_inter_block_visit(cm, xd, r, plane, offsetr, offsetc,
+                                             sub_tx);
+        td->inverse_tx_inter_block_visit(cm, xd, r, plane, offsetr, offsetc,
+                                         sub_tx);
+        eob_info *eob_data = pd->eob_data + xd->txb_offset[plane];
+        *eob_total += eob_data->eob;
+        set_cb_buffer_offsets(xd, sub_tx, plane);
+        block += sub_step;
+        cur_partition++;
+      }
+    }
+#else
     const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
     assert(IMPLIES(tx_size <= TX_4X4, sub_txs == tx_size));
     assert(IMPLIES(tx_size > TX_4X4, sub_txs < tx_size));
@@ -334,6 +366,7 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, ThreadData *const td,
         block += sub_step;
       }
     }
+#endif  // CONFIG_NEW_TX_PARTITION
   }
 }
 
@@ -1265,8 +1298,10 @@ static void read_tx_partition(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
   const int bsize = mbmi->sb_type;
   const int max_blocks_high = max_block_high(xd, bsize, 0);
   const int max_blocks_wide = max_block_wide(xd, bsize, 0);
+  const int is_rect = is_rect_tx(max_tx_size);
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
   const TX_SIZE txs = sub_tx_size_map[max_txsize_rect_lookup[bsize]];
+  int txw = 0, txh = 0;
   const int tx_w_log2 = tx_size_wide_log2[txs] - MI_SIZE_LOG2;
   const int tx_h_log2 = tx_size_high_log2[txs] - MI_SIZE_LOG2;
   const int bw_log2 = mi_size_wide_log2[bsize];
@@ -1276,19 +1311,61 @@ static void read_tx_partition(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
                                          xd->left_txfm_context + blk_row,
                                          mbmi->sb_type, max_tx_size);
   const TX_PARTITION_TYPE partition = aom_read_symbol(
-      r, ec_ctx->txfm_partition_cdf[ctx], TX_PARTITION_TYPES, ACCT_STR);
+      r, ec_ctx->txfm_partition_cdf[is_rect][ctx], is_rect ? TX_PARTITION_TYPES_RECT : TX_PARTITION_TYPES_SQR, ACCT_STR);
+    TX_SIZE sub_txs[MAX_PARTITIONS] = { 0 };
+  // TODO(sarahparker) This assumes all of the tx sizes in the partition scheme
+  // are the same size. This will need to be adjusted to deal with the case
+  // where they can be different.
+  const int n_partitions = get_tx_partition_sizes(partition, max_tx_size, sub_txs);
+  mbmi->tx_size = sub_txs[0];
+//if (is_rect_tx(max_tx_size) && n_partitions == 4)
+//  printf("rect\n");
+  /*
+  switch (partition) {
+    case TX_PARTITION_NONE: mbmi->tx_size = max_tx_size; break;
+    case TX_PARTITION_SPLIT:
+//      mbmi->tx_size = sub_tx_size_map[max_tx_size];
+      txw = tx_size_wide[max_tx_size] >> 1;
+      txh = tx_size_high[max_tx_size] >> 1;
+      mbmi->tx_size = get_tx_size(txw, txh);
+      break;
+#if CONFIG_NEW_TX_PARTITION_EXT
+    case TX_PARTITION_HORZ:
+      txw = tx_size_wide[max_tx_size];
+      txh = tx_size_high[max_tx_size] >> 1;
+      mbmi->tx_size = get_tx_size(txw, txh);
+      break;
+#endif  // CONFIG_NEW_TX_PARTITION_EXT
+    default: assert(0);
+  }
+//if (mbmi->tx_size != sub_txs[0])
+//printf("mbmi %d sub %d\n", mbmi->tx_size, sub_txs[0]);
+  */
+  /*
   switch (partition) {
     case TX_PARTITION_NONE: mbmi->tx_size = max_tx_size; break;
     case TX_PARTITION_SPLIT:
       mbmi->tx_size = sub_tx_size_map[max_tx_size];
       break;
+#if CONFIG_NEW_TX_PARTITION_EXT
+    case TX_PARTITION_HORZ:
+      txw = tx_size_wide[max_tx_size];
+      txh = tx_size_high[max_tx_size] >> 1;
+      mbmi->tx_size = get_tx_size(txw, txh);
+      break;
+#endif  // CONFIG_NEW_TX_PARTITION_EXT
     default: assert(0);
   }
+  */
+  const int index = av1_get_txb_size_index(bsize, blk_row, blk_col);
+  mbmi->partition_type[index] = partition;
   set_inter_tx_size(mbmi, stride_log2, tx_w_log2, tx_h_log2, txs, max_tx_size,
                     mbmi->tx_size, blk_row, blk_col);
   txfm_partition_update(xd->above_txfm_context + blk_col,
                         xd->left_txfm_context + blk_row, mbmi->tx_size,
                         max_tx_size);
+  //if (mbmi->sb_type == BLOCK_64X64)
+  printf("size %d\n", mbmi->sb_type);
 }
 #else
 static void read_tx_size_vartx(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
