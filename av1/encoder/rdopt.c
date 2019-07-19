@@ -4709,6 +4709,8 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int left_ctx = intra_mode_context[L];
   bmode_costs = x->y_mode_costs[above_ctx][left_ctx];
 
+#define EXP2 1  // Gate out filter intra if tx is not split for best so far
+
   mbmi->angle_delta[PLANE_TYPE_Y] = 0;
   if (cpi->sf.intra_angle_estimation) {
     const int src_stride = x->plane[0].src.stride;
@@ -4800,11 +4802,19 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   if (beat_best_rd && av1_filter_intra_allowed_bsize(&cpi->common, bsize)) {
-    if (rd_pick_filter_intra_sby(
-            cpi, x, mi_row, mi_col, rate, rate_tokenonly, distortion, skippable,
-            bsize, bmode_costs[DC_PRED], &best_rd, &best_model_rd, ctx)) {
-      best_mbmi = *mbmi;
+#if EXP2
+    if ((tx_size_wide[best_mbmi.tx_size] != block_size_wide[bsize]) ||
+        (tx_size_high[best_mbmi.tx_size] != block_size_high[bsize])) {
+#endif
+      if (rd_pick_filter_intra_sby(cpi, x, mi_row, mi_col, rate, rate_tokenonly,
+                                   distortion, skippable, bsize,
+                                   bmode_costs[DC_PRED], &best_rd,
+                                   &best_model_rd, ctx)) {
+        best_mbmi = *mbmi;
+      }
+#if EXP2
     }
+#endif
   }
 
   // If previous searches use only the default tx type/no R-D optimization of
@@ -12092,71 +12102,79 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
   }
 
   // Pick filter intra modes.
+#define EXP3 1  // Gate out filter intra if tx is not split
   if (mode == DC_PRED && av1_filter_intra_allowed_bsize(cm, bsize)) {
-    int try_filter_intra = 0;
-    int64_t best_rd_so_far = INT64_MAX;
-    if (rd_stats_y->rate != INT_MAX) {
-      const int tmp_rate =
-          rd_stats_y->rate + x->filter_intra_cost[bsize][0] + mode_cost;
-      best_rd_so_far = RDCOST(x->rdmult, tmp_rate, rd_stats_y->dist);
-      try_filter_intra = (best_rd_so_far / 2) <= search_state->best_rd;
-    } else {
-      try_filter_intra = !search_state->best_mbmode.skip;
-    }
-
-    if (try_filter_intra) {
-      RD_STATS rd_stats_y_fi;
-      int filter_intra_selected_flag = 0;
-      TX_SIZE best_tx_size = mbmi->tx_size;
-      TX_TYPE best_txk_type[TXK_TYPE_BUF_LEN];
-      memcpy(best_txk_type, mbmi->txk_type,
-             sizeof(*best_txk_type) * TXK_TYPE_BUF_LEN);
-      FILTER_INTRA_MODE best_fi_mode = FILTER_DC_PRED;
-      uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
-      memcpy(best_blk_skip, x->blk_skip,
-             sizeof(best_blk_skip[0]) * ctx->num_4x4_blk);
-      mbmi->filter_intra_mode_info.use_filter_intra = 1;
-      for (FILTER_INTRA_MODE fi_mode = FILTER_DC_PRED;
-           fi_mode < FILTER_INTRA_MODES; ++fi_mode) {
-        mbmi->filter_intra_mode_info.filter_intra_mode = fi_mode;
-        super_block_yrd(cpi, x, &rd_stats_y_fi, bsize, search_state->best_rd);
-        if (rd_stats_y_fi.rate == INT_MAX) continue;
-        const int this_rate_tmp =
-            rd_stats_y_fi.rate +
-            intra_mode_info_cost_y(cpi, x, mbmi, bsize, mode_cost);
-        const int64_t this_rd_tmp =
-            RDCOST(x->rdmult, this_rate_tmp, rd_stats_y_fi.dist);
-
-        if (this_rd_tmp != INT64_MAX &&
-            this_rd_tmp / 2 > search_state->best_rd) {
-          break;
-        }
-        if (this_rd_tmp < best_rd_so_far) {
-          best_tx_size = mbmi->tx_size;
-          memcpy(best_txk_type, mbmi->txk_type,
-                 sizeof(*best_txk_type) * TXK_TYPE_BUF_LEN);
-          memcpy(best_blk_skip, x->blk_skip,
-                 sizeof(best_blk_skip[0]) * ctx->num_4x4_blk);
-          best_fi_mode = fi_mode;
-          *rd_stats_y = rd_stats_y_fi;
-          filter_intra_selected_flag = 1;
-          best_rd_so_far = this_rd_tmp;
-        }
-      }
-
-      mbmi->tx_size = best_tx_size;
-      memcpy(mbmi->txk_type, best_txk_type,
-             sizeof(*best_txk_type) * TXK_TYPE_BUF_LEN);
-      memcpy(x->blk_skip, best_blk_skip,
-             sizeof(x->blk_skip[0]) * ctx->num_4x4_blk);
-
-      if (filter_intra_selected_flag) {
-        mbmi->filter_intra_mode_info.use_filter_intra = 1;
-        mbmi->filter_intra_mode_info.filter_intra_mode = best_fi_mode;
+#if EXP3
+    if ((tx_size_wide[mbmi->tx_size] != block_size_wide[bsize]) ||
+        (tx_size_high[mbmi->tx_size] != block_size_high[bsize])) {
+#endif
+      int try_filter_intra = 0;
+      int64_t best_rd_so_far = INT64_MAX;
+      if (rd_stats_y->rate != INT_MAX) {
+        const int tmp_rate =
+            rd_stats_y->rate + x->filter_intra_cost[bsize][0] + mode_cost;
+        best_rd_so_far = RDCOST(x->rdmult, tmp_rate, rd_stats_y->dist);
+        try_filter_intra = (best_rd_so_far / 2) <= search_state->best_rd;
       } else {
-        mbmi->filter_intra_mode_info.use_filter_intra = 0;
+        try_filter_intra = !search_state->best_mbmode.skip;
       }
+
+      if (try_filter_intra) {
+        RD_STATS rd_stats_y_fi;
+        int filter_intra_selected_flag = 0;
+        TX_SIZE best_tx_size = mbmi->tx_size;
+        TX_TYPE best_txk_type[TXK_TYPE_BUF_LEN];
+        memcpy(best_txk_type, mbmi->txk_type,
+               sizeof(*best_txk_type) * TXK_TYPE_BUF_LEN);
+        FILTER_INTRA_MODE best_fi_mode = FILTER_DC_PRED;
+        uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
+        memcpy(best_blk_skip, x->blk_skip,
+               sizeof(best_blk_skip[0]) * ctx->num_4x4_blk);
+        mbmi->filter_intra_mode_info.use_filter_intra = 1;
+        for (FILTER_INTRA_MODE fi_mode = FILTER_DC_PRED;
+             fi_mode < FILTER_INTRA_MODES; ++fi_mode) {
+          mbmi->filter_intra_mode_info.filter_intra_mode = fi_mode;
+          super_block_yrd(cpi, x, &rd_stats_y_fi, bsize, search_state->best_rd);
+          if (rd_stats_y_fi.rate == INT_MAX) continue;
+          const int this_rate_tmp =
+              rd_stats_y_fi.rate +
+              intra_mode_info_cost_y(cpi, x, mbmi, bsize, mode_cost);
+          const int64_t this_rd_tmp =
+              RDCOST(x->rdmult, this_rate_tmp, rd_stats_y_fi.dist);
+
+          if (this_rd_tmp != INT64_MAX &&
+              this_rd_tmp / 2 > search_state->best_rd) {
+            break;
+          }
+          if (this_rd_tmp < best_rd_so_far) {
+            best_tx_size = mbmi->tx_size;
+            memcpy(best_txk_type, mbmi->txk_type,
+                   sizeof(*best_txk_type) * TXK_TYPE_BUF_LEN);
+            memcpy(best_blk_skip, x->blk_skip,
+                   sizeof(best_blk_skip[0]) * ctx->num_4x4_blk);
+            best_fi_mode = fi_mode;
+            *rd_stats_y = rd_stats_y_fi;
+            filter_intra_selected_flag = 1;
+            best_rd_so_far = this_rd_tmp;
+          }
+        }
+
+        mbmi->tx_size = best_tx_size;
+        memcpy(mbmi->txk_type, best_txk_type,
+               sizeof(*best_txk_type) * TXK_TYPE_BUF_LEN);
+        memcpy(x->blk_skip, best_blk_skip,
+               sizeof(x->blk_skip[0]) * ctx->num_4x4_blk);
+
+        if (filter_intra_selected_flag) {
+          mbmi->filter_intra_mode_info.use_filter_intra = 1;
+          mbmi->filter_intra_mode_info.filter_intra_mode = best_fi_mode;
+        } else {
+          mbmi->filter_intra_mode_info.use_filter_intra = 0;
+        }
+      }
+#if EXP3
     }
+#endif
   }
 
   if (rd_stats_y->rate == INT_MAX) return INT64_MAX;
