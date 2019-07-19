@@ -137,6 +137,24 @@
     },
     {
       "key": {
+        "uuid": "d64264fe_256c68f1",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1095,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-19T22:41:06Z",
+      "side": 1,
+      "message": "My thinking is: if someone adds a new update type, they may forget to handle it here (if there was no \u0027assert\u0027).\nBut if an assert triggers, it will be easy to track down this code path, and then that update type can be added as a case here (possibly with no code).",
+      "parentUuid": "e5777ac3_75758fb0",
+      "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "39f699dc_20ee8700",
         "filename": "av1/encoder/encode_strategy.c",
         "patchSetId": 5
@@ -169,6 +187,24 @@
       "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcd66b80_af2cb812",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1100,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-19T22:41:06Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "db30b4dc_829668d1",
+      "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
