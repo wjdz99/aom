@@ -1671,7 +1671,6 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
   assert(bsize < BLOCK_SIZES_ALL);
   const int hbs = mi_size_wide[bsize] / 2;
   const int quarter_step = mi_size_wide[bsize] / 4;
-  int i;
   const PARTITION_TYPE partition = get_partition(cm, mi_row, mi_col, bsize);
   const BLOCK_SIZE subsize = get_partition_subsize(bsize, partition);
 #if CONFIG_RECURSIVE_ABPART
@@ -1773,23 +1772,23 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
       write_modes_b(cpi, tile, w, tok, tok_end, mi_row + hbs, mi_col + hbs);
 #endif  // CONFIG_RECURSIVE_ABPART
       break;
-    case PARTITION_HORZ_4:
-      for (i = 0; i < 4; ++i) {
-        int this_mi_row = mi_row + i * quarter_step;
-        if (i > 0 && this_mi_row >= cm->mi_rows) break;
-
-        write_modes_b(cpi, tile, w, tok, tok_end, this_mi_row, mi_col);
-      }
+    case PARTITION_HORZ_3:
+      write_modes_b(cpi, tile, w, tok, tok_end, mi_row, mi_col);
+      if (mi_row + quarter_step >= cm->mi_rows) break;
+      write_modes_b(cpi, tile, w, tok, tok_end, mi_row + quarter_step, mi_col);
+      if (mi_row + 3 * quarter_step >= cm->mi_rows) break;
+      write_modes_b(cpi, tile, w, tok, tok_end, mi_row + 3 * quarter_step,
+                    mi_col);
       break;
-    case PARTITION_VERT_4:
-      for (i = 0; i < 4; ++i) {
-        int this_mi_col = mi_col + i * quarter_step;
-        if (i > 0 && this_mi_col >= cm->mi_cols) break;
-
-        write_modes_b(cpi, tile, w, tok, tok_end, mi_row, this_mi_col);
-      }
+    case PARTITION_VERT_3:
+      write_modes_b(cpi, tile, w, tok, tok_end, mi_row, mi_col);
+      if (mi_col + quarter_step >= cm->mi_cols) break;
+      write_modes_b(cpi, tile, w, tok, tok_end, mi_row, mi_col + quarter_step);
+      if (mi_col + 3 * quarter_step >= cm->mi_cols) break;
+      write_modes_b(cpi, tile, w, tok, tok_end, mi_row,
+                    mi_col + 3 * quarter_step);
       break;
-    default: assert(0);
+    default: assert(0); break;
   }
 
   // update partition context
