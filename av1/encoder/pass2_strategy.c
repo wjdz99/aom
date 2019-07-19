@@ -1181,6 +1181,15 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
   // Calculate the bits to be allocated to the gf/arf group as a whole
   gf_group_bits = calculate_total_gf_group_bits(cpi, gf_group_err);
+  if (rc->level_imposed_max_bandwidth > 0) {
+    const int max_bits =
+        rc->baseline_gf_interval * rc->level_imposed_max_bandwidth /
+        cpi->framerate;
+    printf("gf_group_bits %d, rc->level_imposed_max_bandwidth %d\n",
+           gf_group_bits,
+           max_bits);
+    gf_group_bits = AOMMIN(gf_group_bits, max_bits);
+  }
 
 #if GROUP_ADAPTIVE_MAXQ
   // Calculate an estimate of the maxq needed for the group.
