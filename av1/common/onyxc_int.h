@@ -804,10 +804,49 @@ static INLINE void set_skip_context(MACROBLOCKD *xd, int mi_row, int mi_col,
     struct macroblockd_plane *const pd = &xd->plane[i];
     // Offset the buffer pointer
     const BLOCK_SIZE bsize = xd->mi[0]->sb_type;
-    if (pd->subsampling_y && (mi_row & 0x01) && (mi_size_high[bsize] == 1))
-      row_offset = mi_row - 1;
-    if (pd->subsampling_x && (mi_col & 0x01) && (mi_size_wide[bsize] == 1))
-      col_offset = mi_col - 1;
+    if (pd->subsampling_y && (mi_row & 0x01)) {
+      if (mi_size_high[bsize] == 1) {
+        // Three possibilities:
+        // - 3rd 16x4 sub-partition when 16x16 block uses HORZ_3 partition, OR
+        // - 2nd 8x4 sub-partition when 8x8 block uses HORZ partition.
+        // - 2nd or 4th 4x4 sub-partition when 8x8 block uses SPLIT partition.
+        assert(mi_size_wide[bsize] == 4 || mi_size_wide[bsize] == 2 ||
+            mi_size_wide[bsize] == 1);
+        // Offset changes for last two cases only.
+        if (mi_size_wide[bsize] == 2 || mi_size_wide[bsize] == 1) {
+          row_offset = mi_row - 1;
+        } else {
+          // TODO(now): Correct or 0 offset?
+          row_offset = mi_row - 2;
+        }
+      } else if (mi_size_high[bsize] == 2) {
+        // 2nd 16x8 sub-partition when 16x16 block uses HORZ_3 partition.
+        assert(mi_size_wide[bsize] == 4);
+        row_offset = mi_row - 1;
+      }
+    }
+
+    if (pd->subsampling_x && (mi_col & 0x01)) {
+      if (mi_size_wide[bsize] == 1) {
+        // Three possibilities:
+        // - 3rd 4x16 sub-partition when 16x16 block uses VERT_3 partition, OR
+        // - 2nd 4x8 sub-partition when 8x8 block uses VERT partition.
+        // - 2nd or 4th 4x4 sub-partition when 8x8 block uses SPLIT partition.
+        assert(mi_size_high[bsize] == 4 || mi_size_high[bsize] == 2 ||
+               mi_size_high[bsize] == 1);
+        // Offset changes for last two cases only.
+        if (mi_size_high[bsize] == 2 || mi_size_high[bsize] == 1) {
+          col_offset = mi_col - 1;
+        } else {
+          // TODO(now): Correct or 0 offset?
+          col_offset = mi_col - 2;
+        }
+      } else if (mi_size_wide[bsize] == 2) {
+        // 2nd 8x16 sub-partition when 16x16 block uses VERT_3 partition.
+        assert(mi_size_high[bsize] == 4);
+        col_offset = mi_col - 1;
+      }
+    }
     int above_idx = col_offset;
     int left_idx = row_offset & MAX_MIB_MASK;
     pd->above_context = &xd->above_context[i][above_idx >> pd->subsampling_x];
@@ -832,6 +871,13 @@ static INLINE void set_plane_n4(MACROBLOCKD *const xd, int bw, int bh,
   }
 }
 
+static INLINE int is_chroma_reference_helper(int mi_row, int mi_col, int bw,
+                                             int bh, int subsampling_x,
+                                             int subsampling_y) {
+  return ((mi_row & 0x01) || !(bh & 0x01) || !subsampling_y) &&
+      ((mi_col & 0x01) || !(bw & 0x01) || !subsampling_x);
+}
+
 static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
                                   int mi_row, int bh, int mi_col, int bw,
                                   int mi_rows, int mi_cols) {
@@ -849,10 +895,17 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
   xd->left_available = (mi_col > tile->mi_col_start);
   xd->chroma_up_available = xd->up_available;
   xd->chroma_left_available = xd->left_available;
-  if (ss_x && bw < mi_size_wide[BLOCK_8X8])
+
+  const int is_2nd_16x16_vert3_subblock =
+      (mi_col & 0x01) && (bw == 2) && (bh == 4);
+  if (ss_x && (bw < mi_size_wide[BLOCK_8X8] || is_2nd_16x16_vert3_subblock)) {
     xd->chroma_left_available = (mi_col - 1) > tile->mi_col_start;
-  if (ss_y && bh < mi_size_high[BLOCK_8X8])
+  }
+  const int is_2nd_16x16_horz3_subblock =
+      (mi_row & 0x01) && (bw == 4) && (bh == 2);
+  if (ss_y && (bh < mi_size_high[BLOCK_8X8] || is_2nd_16x16_horz3_subblock)) {
     xd->chroma_up_available = (mi_row - 1) > tile->mi_row_start;
+  }
   if (xd->up_available) {
     xd->above_mbmi = xd->mi[-xd->mi_stride];
   } else {
@@ -865,15 +918,26 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
     xd->left_mbmi = NULL;
   }
 
-  const int chroma_ref = ((mi_row & 0x01) || !(bh & 0x01) || !ss_y) &&
-                         ((mi_col & 0x01) || !(bw & 0x01) || !ss_x);
+  const int chroma_ref =
+      is_chroma_reference_helper(mi_row, mi_col, bw, bh, ss_x, ss_y);
   if (chroma_ref) {
     // To help calculate the "above" and "left" chroma blocks, note that the
     // current block may cover multiple luma blocks (eg, if partitioned into
     // 4x4 luma blocks).
     // First, find the top-left-most luma block covered by this chroma block
+    // TODO(now): Correct or 0 offset?
+    const int is_3rd_horz3_16x16_partition =
+        (mi_row & 1) && (bw == 4) && (bh == 1);
+    const int base_mi_row_offset =
+        is_3rd_horz3_16x16_partition ? -2 : - (mi_row & ss_y);
+
+    const int is_3rd_vert3_16x16_partition =
+        (mi_col & 1) && (bw == 1) && (bh == 4);
+    const int base_mi_col_offset =
+        is_3rd_vert3_16x16_partition ? -2 : - (mi_col & ss_x);
+
     MB_MODE_INFO **base_mi =
-        &xd->mi[-(mi_row & ss_y) * xd->mi_stride - (mi_col & ss_x)];
+        &xd->mi[base_mi_row_offset * xd->mi_stride + base_mi_col_offset];
 
     // Then, we consider the luma region covered by the left or above 4x4 chroma
     // prediction. We want to point to the chroma reference block in that
@@ -892,10 +956,10 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
   xd->n4_w = bw;
   xd->is_sec_rect = 0;
   if (xd->n4_w < xd->n4_h) {
-    // Only mark is_sec_rect as 1 for the last block.
-    // For PARTITION_VERT_4, it would be (0, 0, 0, 1);
+    // For PARTITION_VERT_3, it would be (0, 1, 1), because 2nd subpartition has
+    // ratio 1:2, so not enough top-right pixels are available.
     // For other partitions, it would be (0, 1).
-    if (!((mi_col + xd->n4_w) & (xd->n4_h - 1))) xd->is_sec_rect = 1;
+    if (mi_col & (xd->n4_h - 1)) xd->is_sec_rect = 1;
   }
 
   if (xd->n4_w > xd->n4_h)
@@ -930,9 +994,8 @@ static INLINE int is_chroma_reference(int mi_row, int mi_col, BLOCK_SIZE bsize,
   assert(bsize < BLOCK_SIZES_ALL);
   const int bw = mi_size_wide[bsize];
   const int bh = mi_size_high[bsize];
-  int ref_pos = ((mi_row & 0x01) || !(bh & 0x01) || !subsampling_y) &&
-                ((mi_col & 0x01) || !(bw & 0x01) || !subsampling_x);
-  return ref_pos;
+  return is_chroma_reference_helper(mi_row, mi_col, bw, bh, subsampling_x,
+      subsampling_y);
 }
 
 static INLINE BLOCK_SIZE scale_chroma_bsize(BLOCK_SIZE bsize, int subsampling_x,
@@ -1002,7 +1065,7 @@ static INLINE void partition_gather_horz_alike(aom_cdf_prob *out,
   out[0] -= cdf_element_prob(in, PARTITION_HORZ_A);
   out[0] -= cdf_element_prob(in, PARTITION_HORZ_B);
   out[0] -= cdf_element_prob(in, PARTITION_VERT_A);
-  if (bsize != BLOCK_128X128) out[0] -= cdf_element_prob(in, PARTITION_HORZ_4);
+  if (bsize != BLOCK_128X128) out[0] -= cdf_element_prob(in, PARTITION_HORZ_3);
   out[0] = AOM_ICDF(out[0]);
   out[1] = AOM_ICDF(CDF_PROB_TOP);
 }
@@ -1017,7 +1080,7 @@ static INLINE void partition_gather_vert_alike(aom_cdf_prob *out,
   out[0] -= cdf_element_prob(in, PARTITION_HORZ_A);
   out[0] -= cdf_element_prob(in, PARTITION_VERT_A);
   out[0] -= cdf_element_prob(in, PARTITION_VERT_B);
-  if (bsize != BLOCK_128X128) out[0] -= cdf_element_prob(in, PARTITION_VERT_4);
+  if (bsize != BLOCK_128X128) out[0] -= cdf_element_prob(in, PARTITION_VERT_3);
   out[0] = AOM_ICDF(out[0]);
   out[1] = AOM_ICDF(CDF_PROB_TOP);
 }
@@ -1028,7 +1091,8 @@ static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
                                                 PARTITION_TYPE partition) {
   if (bsize >= BLOCK_8X8) {
     const int hbs = mi_size_wide[bsize] / 2;
-    BLOCK_SIZE bsize2 = get_partition_subsize(bsize, PARTITION_SPLIT);
+    const int quarter_step = hbs / 2;
+    const BLOCK_SIZE bsize2 = get_partition_subsize(bsize, PARTITION_SPLIT);
     switch (partition) {
       case PARTITION_SPLIT:
         if (bsize != BLOCK_8X8) break;
@@ -1036,10 +1100,26 @@ static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
       case PARTITION_NONE:
       case PARTITION_HORZ:
       case PARTITION_VERT:
-      case PARTITION_HORZ_4:
-      case PARTITION_VERT_4:
         update_partition_context(xd, mi_row, mi_col, subsize, bsize);
         break;
+      case PARTITION_HORZ_3: {
+        const BLOCK_SIZE bsize3 = get_partition_subsize(bsize, PARTITION_HORZ);
+        update_partition_context(xd, mi_row, mi_col, subsize, subsize);
+        update_partition_context(xd, mi_row + quarter_step, mi_col, bsize3,
+                                 bsize3);
+        update_partition_context(xd, mi_row + 3 * quarter_step, mi_col, subsize,
+                                 subsize);
+        break;
+      }
+      case PARTITION_VERT_3: {
+        const BLOCK_SIZE bsize3 = get_partition_subsize(bsize, PARTITION_VERT);
+        update_partition_context(xd, mi_row, mi_col, subsize, subsize);
+        update_partition_context(xd, mi_row, mi_col + quarter_step, bsize3,
+                                 bsize3);
+        update_partition_context(xd, mi_row, mi_col + 3 * quarter_step, subsize,
+                                 subsize);
+        break;
+      }
       case PARTITION_HORZ_A:
         update_partition_context(xd, mi_row, mi_col, bsize2, subsize);
         update_partition_context(xd, mi_row + hbs, mi_col, subsize, subsize);
@@ -1129,8 +1209,8 @@ static INLINE int max_intra_block_height(const MACROBLOCKD *xd,
   return ALIGN_POWER_OF_TWO(max_blocks_high, tx_size_high_log2[tx_size]);
 }
 
-static INLINE void av1_zero_above_context(AV1_COMMON *const cm, const MACROBLOCKD *xd,
-  int mi_col_start, int mi_col_end, const int tile_row) {
+static INLINE void av1_zero_above_context(AV1_COMMON *const cm,
+    const MACROBLOCKD *xd, int mi_col_start, int mi_col_end, int tile_row) {
   const SequenceHeader *const seq_params = &cm->seq_params;
   const int num_planes = av1_num_planes(cm);
   const int width = mi_col_end - mi_col_start;
@@ -1312,10 +1392,10 @@ static INLINE PARTITION_TYPE get_partition(const AV1_COMMON *const cm,
     const MB_MODE_INFO *const mbmi_below = mi[bhigh / 2 * cm->mi_stride];
 
     if (sswide == bwide) {
-      // Smaller height but same width. Is PARTITION_HORZ_4, PARTITION_HORZ or
+      // Smaller height but same width. Is PARTITION_HORZ_3, PARTITION_HORZ or
       // PARTITION_HORZ_B. To distinguish the latter two, check if the lower
       // half was split.
-      if (sshigh * 4 == bhigh) return PARTITION_HORZ_4;
+      if (sshigh * 4 == bhigh) return PARTITION_HORZ_3;
       assert(sshigh * 2 == bhigh);
 
       if (mbmi_below->sb_type == subsize)
@@ -1323,10 +1403,11 @@ static INLINE PARTITION_TYPE get_partition(const AV1_COMMON *const cm,
       else
         return PARTITION_HORZ_B;
     } else if (sshigh == bhigh) {
-      // Smaller width but same height. Is PARTITION_VERT_4, PARTITION_VERT or
+      // Smaller width but same height. Is PARTITION_VERT_3, PARTITION_VERT or
       // PARTITION_VERT_B. To distinguish the latter two, check if the right
       // half was split.
-      if (sswide * 4 == bwide) return PARTITION_VERT_4;
+      // TODO(now): Check logic.
+      if (sswide * 4 == bwide) return PARTITION_VERT_3;
       assert(sswide * 2 == bhigh);
 
       if (mbmi_right->sb_type == subsize)

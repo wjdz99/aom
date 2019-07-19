@@ -796,7 +796,7 @@ static aom_codec_err_t set_encoder_config(
   oxcf->enable_dual_filter = extra_cfg->enable_dual_filter;
   oxcf->enable_rect_partitions = extra_cfg->enable_rect_partitions;
   oxcf->enable_ab_partitions = extra_cfg->enable_ab_partitions;
-  oxcf->enable_1to4_partitions = extra_cfg->enable_1to4_partitions;
+  oxcf->enable_1to3_partitions = extra_cfg->enable_1to4_partitions;
   oxcf->min_partition_size = extra_cfg->min_partition_size;
   oxcf->max_partition_size = extra_cfg->max_partition_size;
   oxcf->enable_intra_edge_filter = extra_cfg->enable_intra_edge_filter;

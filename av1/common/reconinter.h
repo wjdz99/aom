@@ -261,11 +261,25 @@ static INLINE void setup_pred_plane(struct buf_2d *dst, BLOCK_SIZE bsize,
                                     int stride, int mi_row, int mi_col,
                                     const struct scale_factors *scale,
                                     int subsampling_x, int subsampling_y) {
+  const int bw = mi_size_wide[bsize];
+  const int bh = mi_size_high[bsize];
+  // TODO(now): Need to fix, so we don't subtract 1 for 8x16? Or 0 for 3rd one?
   // Offset the buffer pointer
-  if (subsampling_y && (mi_row & 0x01) && (mi_size_high[bsize] == 1))
+  const int is_3rd_horz3_16x16_partition =
+      (mi_row & 1) && (bw == 4) && (bh == 1);
+  if (is_3rd_horz3_16x16_partition) {
+    mi_row -= 2;
+  } else if (subsampling_y && (mi_row & 0x01) && (bh == 1)) {
     mi_row -= 1;
-  if (subsampling_x && (mi_col & 0x01) && (mi_size_wide[bsize] == 1))
+  }
+
+  const int is_3rd_vert3_16x16_partition =
+      (mi_col & 1) && (bw == 1) && (bh == 4);
+  if (is_3rd_vert3_16x16_partition) {
+    mi_col -= 2;
+  } else if (subsampling_x && (mi_col & 0x01) && (bw == 1)) {
     mi_col -= 1;
+  }
 
   const int x = (MI_SIZE * mi_col) >> subsampling_x;
   const int y = (MI_SIZE * mi_row) >> subsampling_y;

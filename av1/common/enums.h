@@ -149,11 +149,15 @@ typedef enum ATTRIBUTE_PACKED {
 //  |       |     |   |   |     |   |   |     |   |   |
 //  +-------+     +---+---+     +---+---+     +---+---+
 //
-//  HORZ_4        VERT_4
-//  +-----+       +-+-+-+
-//  +-----+       | | | |
-//  +-----+       | | | |
-//  +-----+       +-+-+-+
+//  HORZ_3                 VERT_3
+//  +--------------+       +---+------+---+
+//  |              |       |   |      |   |
+//  +--------------+       |   |      |   |
+//  |              |       |   |      |   |
+//  |              |       |   |      |   |
+//  +--------------+       |   |      |   |
+//  |              |       |   |      |   |
+//  +--------------+       +---+------+---+
 enum {
   PARTITION_NONE,
   PARTITION_HORZ,
@@ -163,8 +167,8 @@ enum {
   PARTITION_HORZ_B,  // HORZ split and the bottom partition is split again
   PARTITION_VERT_A,  // VERT split and the left partition is split again
   PARTITION_VERT_B,  // VERT split and the right partition is split again
-  PARTITION_HORZ_4,  // 4:1 horizontal partition
-  PARTITION_VERT_4,  // 4:1 vertical partition
+  PARTITION_HORZ_3,  // 3 horizontal sub-partitions with ratios 4:1, 2:1 and 4:1
+  PARTITION_VERT_3,  // 3 vertical sub-partitions with ratios 4:1, 2:1 and 4:1
   EXT_PARTITION_TYPES,
   PARTITION_TYPES = PARTITION_SPLIT + 1,
   PARTITION_INVALID = 255
