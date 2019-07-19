@@ -135,6 +135,19 @@ TEST_P(LevelTest, TestLevelMonitoringHighBitrate) {
   }
 }
 
+TEST_P(LevelTest, TestTargetLevel0) {
+  // To save run time, we only test speed 4.
+  if (cpu_used_ == 4) {
+    libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                       30, 1, 0, 50);
+    const int target_level = 0;
+    target_level_ = target_level;
+    cfg_.rc_target_bitrate = 4000;
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+    ASSERT_EQ(level_[0], target_level);
+  }
+}
+
 AV1_INSTANTIATE_TEST_CASE(LevelTest,
                           ::testing::Values(::libaom_test::kTwoPassGood),
                           ::testing::ValuesIn(kCpuUsedVectors));
