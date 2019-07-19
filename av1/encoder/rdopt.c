@@ -4709,6 +4709,8 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int left_ctx = intra_mode_context[L];
   bmode_costs = x->y_mode_costs[above_ctx][left_ctx];
 
+#define EXP2 1  // Gate out filter intra if tx is not split for best so far
+
   mbmi->angle_delta[PLANE_TYPE_Y] = 0;
   if (cpi->sf.intra_angle_estimation) {
     const int src_stride = x->plane[0].src.stride;
@@ -4800,11 +4802,19 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   if (beat_best_rd && av1_filter_intra_allowed_bsize(&cpi->common, bsize)) {
-    if (rd_pick_filter_intra_sby(
-            cpi, x, mi_row, mi_col, rate, rate_tokenonly, distortion, skippable,
-            bsize, bmode_costs[DC_PRED], &best_rd, &best_model_rd, ctx)) {
-      best_mbmi = *mbmi;
+#if EXP2
+    if ((tx_size_wide[best_mbmi.tx_size] != block_size_wide[bsize]) ||
+        (tx_size_high[best_mbmi.tx_size] != block_size_high[bsize])) {
+#endif
+      if (rd_pick_filter_intra_sby(cpi, x, mi_row, mi_col, rate, rate_tokenonly,
+                                   distortion, skippable, bsize,
+                                   bmode_costs[DC_PRED], &best_rd,
+                                   &best_model_rd, ctx)) {
+        best_mbmi = *mbmi;
+      }
+#if EXP2
     }
+#endif
   }
 
   // If previous searches use only the default tx type/no R-D optimization of
