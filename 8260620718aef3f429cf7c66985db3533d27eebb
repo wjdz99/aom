@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "16cf96a4_b8fb3534",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-07-19T22:37:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea4df951_5536f03f",
+      "range": {
+        "startLine": 972,
+        "startChar": 36,
+        "endLine": 972,
+        "endChar": 48
+      },
+      "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "284c2c69_646c66a5",
         "filename": "av1/encoder/encode_strategy.c",
         "patchSetId": 5
@@ -60,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "9e92f275_72a4b6f8",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1094,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-07-19T22:37:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9dc8de0_1285c774",
+      "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cce882af_17c4f224",
         "filename": "av1/encoder/encode_strategy.c",
         "patchSetId": 5
@@ -71,6 +113,24 @@
       "writtenOn": "2019-07-19T22:18:06Z",
       "side": 1,
       "message": "assert(0)?",
+      "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5777ac3_75758fb0",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1095,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-07-19T22:37:03Z",
+      "side": 1,
+      "message": "I thought about it, probably we should leave it open.\n\nIn principle, one can add a new update type, with certain reference frame related behavior. It doesn\u0027t have to fail in this case. Like we don\u0027t expect this switch statement to be exhaustive?",
+      "parentUuid": "cce882af_17c4f224",
       "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -135,6 +195,30 @@
     },
     {
       "key": {
+        "uuid": "7d7c3a35_f4bb1b3f",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1258,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-07-19T22:37:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "01405bdb_78a20372",
+      "range": {
+        "startLine": 1257,
+        "startChar": 0,
+        "endLine": 1258,
+        "endChar": 72
+      },
+      "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6af6ffba_344289c0",
         "filename": "av1/encoder/encode_strategy.c",
         "patchSetId": 5
@@ -158,6 +242,30 @@
     },
     {
       "key": {
+        "uuid": "e11e503f_90f18e86",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-07-19T22:37:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6af6ffba_344289c0",
+      "range": {
+        "startLine": 1266,
+        "startChar": 0,
+        "endLine": 1267,
+        "endChar": 71
+      },
+      "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "85bfa9e4_a1282994",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 5
@@ -169,6 +277,30 @@
       "writtenOn": "2019-07-19T22:18:06Z",
       "side": 1,
       "message": "TODO(later): This seems inefficient. (same for stack_pop()). There may be a possibility to use the array in a circular way to avoid this copying.",
+      "range": {
+        "startLine": 1145,
+        "startChar": 0,
+        "endLine": 1145,
+        "endChar": 69
+      },
+      "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48cd83c8_e76c7de3",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-07-19T22:37:03Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "85bfa9e4_a1282994",
       "range": {
         "startLine": 1145,
         "startChar": 0,
