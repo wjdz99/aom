@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "efec1c4b_6f8ff614",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 779,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-07-19T22:13:35Z",
+      "side": 1,
+      "message": "Ack\n\nI will do it in the clean-up CLs for each related function set, so as to avoid rebase conflict.",
+      "parentUuid": "b992741c_a6df3cf5",
+      "revId": "4870ece5793102f9460b84ea5aac5ed696e59f74",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "09e94da5_a6afbbae",
         "filename": "av1/encoder/encode_strategy.c",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "b8cdc8b0_379de0e0",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-07-19T22:13:35Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "09e94da5_a6afbbae",
+      "revId": "4870ece5793102f9460b84ea5aac5ed696e59f74",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d4c4bf9e_382f598a",
         "filename": "av1/encoder/encode_strategy.c",
         "patchSetId": 2
@@ -47,6 +83,30 @@
       "writtenOn": "2019-07-19T22:02:29Z",
       "side": 1,
       "message": "Can you add a comment explaining this special case?",
+      "range": {
+        "startLine": 854,
+        "startChar": 0,
+        "endLine": 855,
+        "endChar": 74
+      },
+      "revId": "4870ece5793102f9460b84ea5aac5ed696e59f74",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3fecc3b_5a0d4295",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 855,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-07-19T22:13:35Z",
+      "side": 1,
+      "message": "I think this logic will be updated in a next CL. Perhaps I can add the comment in the updated version later?",
+      "parentUuid": "d4c4bf9e_382f598a",
       "range": {
         "startLine": 854,
         "startChar": 0,
