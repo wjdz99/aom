@@ -1580,9 +1580,7 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
   const int bw = mi_size_wide[bsize];
   const int hbs = bw >> 1;
   PARTITION_TYPE partition;
-  BLOCK_SIZE subsize;
   const int quarter_step = bw / 4;
-  BLOCK_SIZE bsize2 = get_partition_subsize(bsize, PARTITION_SPLIT);
   const int has_rows = (mi_row + hbs) < cm->mi_rows;
   const int has_cols = (mi_col + hbs) < cm->mi_cols;
 
@@ -1625,7 +1623,7 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
   } else {
     partition = get_partition(cm, mi_row, mi_col, bsize);
   }
-  subsize = get_partition_subsize(bsize, partition);
+  const BLOCK_SIZE subsize = get_partition_subsize(bsize, partition);
   if (subsize == BLOCK_INVALID) {
     aom_internal_error(xd->error_info, AOM_CODEC_CORRUPT_FRAME,
                        "Partition is invalid for block size %dx%d",
@@ -1650,6 +1648,8 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
 #define DEC_PARTITION(db_r, db_c, db_subsize)                        \
   decode_partition(pbi, td, DEC_BLOCK_STX_ARG(db_r), (db_c), reader, \
                    (db_subsize), parse_decode_flag)
+
+  const BLOCK_SIZE bsize2 = get_partition_subsize(bsize, PARTITION_SPLIT);
 
   switch (partition) {
     case PARTITION_NONE: DEC_BLOCK(mi_row, mi_col, subsize); break;
@@ -1705,20 +1705,30 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
       DEC_BLOCK(mi_row + hbs, mi_col + hbs, bsize2);
 #endif  // CONFIG_RECURSIVE_ABPART
       break;
-    case PARTITION_HORZ_4:
-      for (int i = 0; i < 4; ++i) {
-        int this_mi_row = mi_row + i * quarter_step;
-        if (i > 0 && this_mi_row >= cm->mi_rows) break;
-        DEC_BLOCK(this_mi_row, mi_col, subsize);
-      }
+    case PARTITION_HORZ_3: {
+      const BLOCK_SIZE bsize3 = get_partition_subsize(bsize, PARTITION_HORZ);
+      int this_mi_row = mi_row;
+      DEC_BLOCK(this_mi_row, mi_col, subsize);
+      this_mi_row += quarter_step;
+      if (this_mi_row >= cm->mi_rows) break;
+      DEC_BLOCK(this_mi_row, mi_col, bsize3);
+      this_mi_row += 2 * quarter_step;
+      if (this_mi_row >= cm->mi_rows) break;
+      DEC_BLOCK(this_mi_row, mi_col, subsize);
       break;
-    case PARTITION_VERT_4:
-      for (int i = 0; i < 4; ++i) {
-        int this_mi_col = mi_col + i * quarter_step;
-        if (i > 0 && this_mi_col >= cm->mi_cols) break;
-        DEC_BLOCK(mi_row, this_mi_col, subsize);
-      }
+    }
+    case PARTITION_VERT_3: {
+      const BLOCK_SIZE bsize3 = get_partition_subsize(bsize, PARTITION_VERT);
+      int this_mi_col = mi_col;
+      DEC_BLOCK(mi_row, this_mi_col, subsize);
+      this_mi_col += quarter_step;
+      if (this_mi_col >= cm->mi_cols) break;
+      DEC_BLOCK(mi_row, this_mi_col, bsize3);
+      this_mi_col += 2 * quarter_step;
+      if (this_mi_col >= cm->mi_cols) break;
+      DEC_BLOCK(mi_row, this_mi_col, subsize);
       break;
+    }
     default: assert(0 && "Invalid partition type");
   }
 
