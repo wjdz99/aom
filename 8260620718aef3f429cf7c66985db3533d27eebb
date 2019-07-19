@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea4df951_5536f03f",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-19T22:18:06Z",
+      "side": 1,
+      "message": "You can add a \"break;\" after this, to avoid unnecessary search. (same for other two for loops)",
+      "range": {
+        "startLine": 972,
+        "startChar": 36,
+        "endLine": 972,
+        "endChar": 48
+      },
+      "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "284c2c69_646c66a5",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1094,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-19T22:18:06Z",
+      "side": 1,
+      "message": "Add a \"break;\" after.\nAlso, nothing to do here?",
+      "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cce882af_17c4f224",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1095,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-19T22:18:06Z",
+      "side": 1,
+      "message": "assert(0)?",
+      "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39f699dc_20ee8700",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1100,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-19T22:18:06Z",
+      "side": 1,
+      "message": "Rest of the code in this function seems dead code.",
+      "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01405bdb_78a20372",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1258,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-19T22:18:06Z",
+      "side": 1,
+      "message": "This block can be inside previous \u0027if\u0027 (as previous \u0027if\u0027 must be true for this to be true).\nSimilar comment for next if block.",
+      "range": {
+        "startLine": 1257,
+        "startChar": 0,
+        "endLine": 1258,
+        "endChar": 72
+      },
+      "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6af6ffba_344289c0",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-19T22:18:06Z",
+      "side": 1,
+      "message": "same for this block (and \u0027gld\u0027 below)",
+      "range": {
+        "startLine": 1266,
+        "startChar": 0,
+        "endLine": 1267,
+        "endChar": 71
+      },
+      "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85bfa9e4_a1282994",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-07-19T22:18:06Z",
+      "side": 1,
+      "message": "TODO(later): This seems inefficient. (same for stack_pop()). There may be a possibility to use the array in a circular way to avoid this copying.",
+      "range": {
+        "startLine": 1145,
+        "startChar": 0,
+        "endLine": 1145,
+        "endChar": 69
+      },
+      "revId": "8260620718aef3f429cf7c66985db3533d27eebb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
