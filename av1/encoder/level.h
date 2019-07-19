@@ -174,4 +174,15 @@ void av1_decoder_model_process_frame(const struct AV1_COMP *const cpi,
                                      size_t coded_bits,
                                      DECODER_MODEL *const decoder_model);
 
+// Return max bitrate(bps) for given level.
+double av1_get_max_bitrate_for_level(AV1_LEVEL level_index, int tier,
+                                     BITSTREAM_PROFILE profile);
+
+// Get max number of tiles and tile columns for given level.
+void av1_get_max_tiles_for_level(AV1_LEVEL level_index, int *const max_tiles,
+                                 int *const max_tile_cols);
+
+// Return minimum compression ratio for given level.
+double av1_get_min_cr_for_level(AV1_LEVEL level_index, int tier,
+                                int is_still_picture);
 #endif  // AOM_AV1_ENCODER_LEVEL_H_

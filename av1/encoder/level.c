@@ -276,6 +276,18 @@ static double get_max_bitrate(const AV1LevelSpec *const level_spec, int tier,
   return bitrate_basis * bitrate_profile_factor;
 }
 
+double av1_get_max_bitrate_for_level(AV1_LEVEL level_index, int tier,
+                                     BITSTREAM_PROFILE profile) {
+  return get_max_bitrate(&av1_level_defs[level_index], tier, profile);
+}
+
+void av1_get_max_tiles_for_level(AV1_LEVEL level_index, int *const max_tiles,
+                                 int *const max_tile_cols) {
+  const AV1LevelSpec *const level_spec = &av1_level_defs[level_index];
+  *max_tiles = level_spec->max_tiles;
+  *max_tile_cols = level_spec->max_tile_cols;
+}
+
 // We assume time t to be valid if and only if t >= 0.0.
 // So INVALID_TIME can be defined as anything less than 0.
 #define INVALID_TIME (-1.0)
@@ -612,6 +624,13 @@ void av1_decoder_model_process_frame(const AV1_COMP *const cpi,
     decoder_model->current_time =
         removal_time + time_to_decode_frame(cm, decoder_model->decode_rate);
 
+#if 0
+    printf("time to decode %f\n",
+           time_to_decode_frame(cm, decoder_model->decode_rate));
+    printf("time to transmit %f\n",
+           (double)coded_bits / decoder_model->bit_rate);
+#endif
+
     const int cfbi = get_free_buffer(decoder_model);
     if (cfbi < 0) {
       decoder_model->status = DECODE_FRAME_BUF_UNAVAILABLE;
@@ -721,6 +740,13 @@ static double get_min_cr(const AV1LevelSpec *const level_spec, int tier,
   return AOMMAX(min_cr_basis * speed_adj, 0.8);
 }
 
+double av1_get_min_cr_for_level(AV1_LEVEL level_index, int tier,
+                                int is_still_picture) {
+  const AV1LevelSpec *const level_spec = &av1_level_defs[level_index];
+  return get_min_cr(level_spec, tier, is_still_picture,
+                    level_spec->max_decode_rate);
+}
+
 static void get_temporal_parallel_params(int scalability_mode_idc,
                                          int *temporal_parallel_num,
                                          int *temporal_parallel_denom) {
@@ -752,6 +778,7 @@ static TARGET_LEVEL_FAIL_ID check_level_constraints(
   const DECODER_MODEL_STATUS decoder_model_status = decoder_model->status;
   if (decoder_model_status != DECODER_MODEL_OK &&
       decoder_model_status != DECODER_MODEL_DISABLED) {
+    printf("\n decoder mode failed with %d\n", decoder_model_status);
     return DECODER_MODEL_FAIL;
   }
 
@@ -1152,6 +1179,9 @@ aom_codec_err_t av1_get_seq_level_idx(const AV1_COMP *cpi, int *seq_level_idx) {
     for (int level = 0; level < SEQ_LEVELS; ++level) {
       const TARGET_LEVEL_FAIL_ID fail_id = check_level_constraints(
           level_info, level, tier, is_still_picture, profile, 1);
+      if (level == 0 && fail_id != TARGET_LEVEL_OK) {
+        printf("\n fail_id %d\n", fail_id);
+      }
       if (fail_id == TARGET_LEVEL_OK) {
         seq_level_idx[op] = level;
         break;

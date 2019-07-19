@@ -1120,7 +1120,7 @@ struct AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
                                        BufferPool *const pool);
 void av1_remove_compressor(AV1_COMP *cpi);
 
-void av1_change_config(AV1_COMP *cpi, const AV1EncoderConfig *oxcf);
+void av1_change_config(AV1_COMP *cpi, AV1EncoderConfig *oxcf);
 
 // receive a frames worth of data. caller can assume that a copy of this
 // frame is made and not just a copy of the pointer..
