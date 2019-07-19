@@ -276,6 +276,18 @@ static double get_max_bitrate(const AV1LevelSpec *const level_spec, int tier,
   return bitrate_basis * bitrate_profile_factor;
 }
 
+double av1_get_max_bitrate_for_level(AV1_LEVEL level_index, int tier,
+                                     BITSTREAM_PROFILE profile) {
+  return get_max_bitrate(&av1_level_defs[level_index], tier, profile);
+}
+
+void av1_get_max_tiles_for_level(AV1_LEVEL level_index, int *const max_tiles,
+                                 int *const max_tile_cols) {
+  const AV1LevelSpec *const level_spec = &av1_level_defs[level_index];
+  *max_tiles = level_spec->max_tiles;
+  *max_tile_cols = level_spec->max_tile_cols;
+}
+
 // We assume time t to be valid if and only if t >= 0.0.
 // So INVALID_TIME can be defined as anything less than 0.
 #define INVALID_TIME (-1.0)
@@ -563,6 +575,7 @@ void av1_decoder_model_process_frame(const AV1_COMP *const cpi,
     decoder_model->last_bit_arrival_time =
         decoder_model->first_bit_arrival_time +
         (double)decoder_model->coded_bits / decoder_model->bit_rate;
+
     // Smoothing buffer underflows if the last bit arrives after the removal
     // time.
     if (decoder_model->last_bit_arrival_time > removal_time &&
@@ -719,6 +732,13 @@ static double get_min_cr(const AV1LevelSpec *const level_spec, int tier,
   const double speed_adj =
       (double)decoded_sample_rate / level_spec->max_display_rate;
   return AOMMAX(min_cr_basis * speed_adj, 0.8);
+}
+
+double av1_get_min_cr_for_level(AV1_LEVEL level_index, int tier,
+                                int is_still_picture) {
+  const AV1LevelSpec *const level_spec = &av1_level_defs[level_index];
+  return get_min_cr(level_spec, tier, is_still_picture,
+                    level_spec->max_decode_rate);
 }
 
 static void get_temporal_parallel_params(int scalability_mode_idc,
@@ -879,15 +899,6 @@ static TARGET_LEVEL_FAIL_ID check_level_constraints(
   } while (0);
 
   return fail_id;
-}
-
-static INLINE int is_in_operating_point(int operating_point,
-                                        int temporal_layer_id,
-                                        int spatial_layer_id) {
-  if (!operating_point) return 1;
-
-  return ((operating_point >> temporal_layer_id) & 1) &&
-         ((operating_point >> (spatial_layer_id + 8)) & 1);
 }
 
 static void get_tile_stats(const AV1_COMP *const cpi, int *max_tile_size,
