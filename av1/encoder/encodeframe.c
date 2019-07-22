@@ -3561,6 +3561,61 @@ static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int analysis_type,
 }
 #endif  // !CONFIG_REALTIME_ONLY
 
+static void set_delta_q(AV1_COMP *const cpi, MACROBLOCK *x, ThreadData *td,
+                        const TileInfo *tile_info, int mi_row, int mi_col,
+                        int current_qindex) {
+  AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  const DeltaQInfo *const delta_q_info = &cm->delta_q_info;
+  const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
+  const int mib_size = cm->seq_params.mib_size;
+
+  const int qmask = ~(delta_q_info->delta_q_res - 1);
+  current_qindex = clamp(current_qindex, delta_q_info->delta_q_res,
+                         256 - delta_q_info->delta_q_res);
+
+  const int sign_deltaq_index =
+      current_qindex - xd->current_qindex >= 0 ? 1 : -1;
+
+  const int deltaq_deadzone = delta_q_info->delta_q_res / 4;
+  int abs_deltaq_index = abs(current_qindex - xd->current_qindex);
+  abs_deltaq_index = (abs_deltaq_index + deltaq_deadzone) & qmask;
+  current_qindex = xd->current_qindex + sign_deltaq_index * abs_deltaq_index;
+  current_qindex = AOMMAX(current_qindex, MINQ + 1);
+  assert(current_qindex > 0);
+
+  xd->delta_qindex = current_qindex - cm->base_qindex;
+  set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
+  xd->mi[0]->current_qindex = current_qindex;
+  av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
+
+  // keep track of any non-zero delta-q used
+  td->deltaq_used |= (xd->delta_qindex != 0);
+
+  if (cm->delta_q_info.delta_q_present_flag && cpi->oxcf.deltalf_mode) {
+    const int lfmask = ~(delta_q_info->delta_lf_res - 1);
+    const int delta_lf_from_base =
+        ((xd->delta_qindex / 2 + delta_q_info->delta_lf_res / 2) & lfmask);
+
+    // pre-set the delta lf for loop filter. Note that this value is set
+    // before mi is assigned for each block in current superblock
+    for (int j = 0; j < AOMMIN(mib_size, cm->mi_rows - mi_row); j++) {
+      for (int k = 0; k < AOMMIN(mib_size, cm->mi_cols - mi_col); k++) {
+        cm->mi[(mi_row + j) * cm->mi_stride + (mi_col + k)].delta_lf_from_base =
+            (int8_t)clamp(delta_lf_from_base, -MAX_LOOP_FILTER,
+                          MAX_LOOP_FILTER);
+        const int frame_lf_count =
+            av1_num_planes(cm) > 1 ? FRAME_LF_COUNT : FRAME_LF_COUNT - 2;
+        for (int lf_id = 0; lf_id < frame_lf_count; ++lf_id) {
+          cm->mi[(mi_row + j) * cm->mi_stride + (mi_col + k)].delta_lf[lf_id] =
+              (int8_t)clamp(delta_lf_from_base, -MAX_LOOP_FILTER,
+                            MAX_LOOP_FILTER);
+        }
+      }
+    }
+  }
+}
+
 // analysis_type 0: Use mc_dep_cost and intra_cost
 // analysis_type 1: Use count of best inter predictor chosen
 // analysis_type 2: Use cost reduction from intra to inter for best inter
@@ -3651,10 +3706,7 @@ static void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
                           MACROBLOCK *const x, const TileInfo *const tile_info,
                           int mi_row, int mi_col, int num_planes) {
   AV1_COMMON *const cm = &cpi->common;
-  MACROBLOCKD *const xd = &x->e_mbd;
-  const DeltaQInfo *const delta_q_info = &cm->delta_q_info;
   const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
-  const int mib_size = cm->seq_params.mib_size;
 
   // Delta-q modulation based on variance
   av1_setup_src_planes(x, cpi->source, mi_row, mi_col, num_planes, sb_size);
@@ -3682,50 +3734,7 @@ static void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
     }
   }
 
-  const int qmask = ~(delta_q_info->delta_q_res - 1);
-  current_qindex = clamp(current_qindex, delta_q_info->delta_q_res,
-                         256 - delta_q_info->delta_q_res);
-
-  const int sign_deltaq_index =
-      current_qindex - xd->current_qindex >= 0 ? 1 : -1;
-
-  const int deltaq_deadzone = delta_q_info->delta_q_res / 4;
-  int abs_deltaq_index = abs(current_qindex - xd->current_qindex);
-  abs_deltaq_index = (abs_deltaq_index + deltaq_deadzone) & qmask;
-  current_qindex = xd->current_qindex + sign_deltaq_index * abs_deltaq_index;
-  current_qindex = AOMMAX(current_qindex, MINQ + 1);
-  assert(current_qindex > 0);
-
-  xd->delta_qindex = current_qindex - cm->base_qindex;
-  set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
-  xd->mi[0]->current_qindex = current_qindex;
-  av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
-
-  // keep track of any non-zero delta-q used
-  td->deltaq_used |= (xd->delta_qindex != 0);
-
-  if (cm->delta_q_info.delta_q_present_flag && cpi->oxcf.deltalf_mode) {
-    const int lfmask = ~(delta_q_info->delta_lf_res - 1);
-    const int delta_lf_from_base =
-        ((xd->delta_qindex / 2 + delta_q_info->delta_lf_res / 2) & lfmask);
-
-    // pre-set the delta lf for loop filter. Note that this value is set
-    // before mi is assigned for each block in current superblock
-    for (int j = 0; j < AOMMIN(mib_size, cm->mi_rows - mi_row); j++) {
-      for (int k = 0; k < AOMMIN(mib_size, cm->mi_cols - mi_col); k++) {
-        cm->mi[(mi_row + j) * cm->mi_stride + (mi_col + k)].delta_lf_from_base =
-            (int8_t)clamp(delta_lf_from_base, -MAX_LOOP_FILTER,
-                          MAX_LOOP_FILTER);
-        const int frame_lf_count =
-            av1_num_planes(cm) > 1 ? FRAME_LF_COUNT : FRAME_LF_COUNT - 2;
-        for (int lf_id = 0; lf_id < frame_lf_count; ++lf_id) {
-          cm->mi[(mi_row + j) * cm->mi_stride + (mi_col + k)].delta_lf[lf_id] =
-              (int8_t)clamp(delta_lf_from_base, -MAX_LOOP_FILTER,
-                            MAX_LOOP_FILTER);
-        }
-      }
-    }
-  }
+  set_delta_q(cpi, x, td, tile_info, mi_row, mi_col, current_qindex);
 }
 
 #define AVG_CDF_WEIGHT_LEFT 3
