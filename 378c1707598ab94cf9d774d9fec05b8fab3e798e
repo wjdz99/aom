@@ -22,6 +22,29 @@
       "revId": "378c1707598ab94cf9d774d9fec05b8fab3e798e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c79e316_2257c8e7",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2019-07-22T19:50:46Z",
+      "side": 1,
+      "message": "MAX_LENGTH_TPL_FRAME_STATS has been increased by 8 in encoder.h, why an extra REF_FRAMES is added here?\nIf it is a typo, we can simple remove the change in encoder.h",
+      "range": {
+        "startLine": 740,
+        "startChar": 21,
+        "endLine": 740,
+        "endChar": 60
+      },
+      "revId": "378c1707598ab94cf9d774d9fec05b8fab3e798e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
