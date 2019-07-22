@@ -117,6 +117,30 @@
       "revId": "378c1707598ab94cf9d774d9fec05b8fab3e798e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ad034b1_5070636f",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2019-07-22T21:03:56Z",
+      "side": 1,
+      "message": "Sure",
+      "parentUuid": "345c0117_ae5808d9",
+      "range": {
+        "startLine": 740,
+        "startChar": 21,
+        "endLine": 740,
+        "endChar": 60
+      },
+      "revId": "378c1707598ab94cf9d774d9fec05b8fab3e798e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
