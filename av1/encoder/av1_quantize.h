@@ -108,8 +108,8 @@ void av1_init_quantizer(EncQuantDequantParams *const enc_quant_dequant_params,
                         const CommonQuantParams *quant_params,
                         aom_bit_depth_t bit_depth);
 
-void av1_set_quantizer(struct AV1Common *const cm, int min_qmlevel,
-                       int max_qmlevel, int q);
+void av1_set_quantizer(const struct AV1_COMP *cpi, struct AV1Common *const cm,
+                       int min_qmlevel, int max_qmlevel, int q);
 
 int av1_quantizer_to_qindex(int quantizer);
 

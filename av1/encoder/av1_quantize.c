@@ -740,17 +740,26 @@ void av1_frame_init_quantizer(AV1_COMP *cpi) {
   av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
 }
 
-void av1_set_quantizer(AV1_COMMON *const cm, int min_qmlevel, int max_qmlevel,
-                       int q) {
+void av1_set_quantizer(const AV1_COMP *cpi, AV1_COMMON *const cm,
+                       int min_qmlevel, int max_qmlevel, int q) {
   // quantizer has to be reinitialized with av1_init_quantizer() if any
   // delta_q changes.
   CommonQuantParams *quant_params = &cm->quant_params;
   quant_params->base_qindex = AOMMAX(cm->delta_q_info.delta_q_present_flag, q);
+
   quant_params->y_dc_delta_q = 0;
-  quant_params->u_dc_delta_q = 0;
-  quant_params->u_ac_delta_q = 0;
-  quant_params->v_dc_delta_q = 0;
-  quant_params->v_ac_delta_q = 0;
+  if (cpi->oxcf.enable_chroma_deltaq) {
+    quant_params->u_dc_delta_q = 2;
+    quant_params->u_ac_delta_q = 2;
+    quant_params->v_dc_delta_q = 2;
+    quant_params->v_ac_delta_q = 2;
+  } else {
+    quant_params->u_dc_delta_q = 0;
+    quant_params->u_ac_delta_q = 0;
+    quant_params->v_dc_delta_q = 0;
+    quant_params->v_ac_delta_q = 0;
+  }
+
   quant_params->qmatrix_level_y =
       aom_get_qmlevel(quant_params->base_qindex, min_qmlevel, max_qmlevel);
   quant_params->qmatrix_level_u =
