@@ -470,9 +470,7 @@ static void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx) {
 #endif  // MC_FLOW_BSIZE == 64
   av1_tile_init(&xd->tile, cm, 0, 0);
 
-  DECLARE_ALIGNED(32, uint16_t, predictor16[MC_FLOW_NUM_PELS * 3]);
-  DECLARE_ALIGNED(32, uint8_t, predictor8[MC_FLOW_NUM_PELS * 3]);
-  uint8_t *predictor;
+  DECLARE_ALIGNED(32, uint8_t, predictor[MC_FLOW_NUM_PELS * 2]);
   DECLARE_ALIGNED(32, int16_t, src_diff[MC_FLOW_NUM_PELS]);
   DECLARE_ALIGNED(32, tran_low_t, coeff[MC_FLOW_NUM_PELS]);
 
@@ -486,11 +484,6 @@ static void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx) {
       this_frame->y_crop_width, this_frame->y_crop_height);
 
   xd->cur_buf = this_frame;
-
-  if (is_cur_buf_hbd(xd))
-    predictor = CONVERT_TO_BYTEPTR(predictor16);
-  else
-    predictor = predictor8;
 
   // TODO(jingning): remove the duplicate frames.
   for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx)
@@ -733,16 +726,9 @@ static void get_tpl_forward_stats(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
   const int pix_num = bw * bh;
   const TX_SIZE tx_size = max_txsize_lookup[bsize];
 
-  DECLARE_ALIGNED(32, uint16_t, predictor16[MC_FLOW_NUM_PELS * 3]);
-  DECLARE_ALIGNED(32, uint8_t, predictor8[MC_FLOW_NUM_PELS * 3]);
-  uint8_t *predictor;
+  DECLARE_ALIGNED(32, uint8_t, predictor[MC_FLOW_NUM_PELS * 2]);
   DECLARE_ALIGNED(32, int16_t, src_diff[MC_FLOW_NUM_PELS]);
   DECLARE_ALIGNED(32, tran_low_t, coeff[MC_FLOW_NUM_PELS]);
-
-  if (is_cur_buf_hbd(xd))
-    predictor = CONVERT_TO_BYTEPTR(predictor16);
-  else
-    predictor = predictor8;
 
   // Initialize advanced prediction parameters as default values
   struct scale_factors sf;
