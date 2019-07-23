@@ -4351,6 +4351,8 @@ static int rd_pick_palette_intra_sby(
   return rate_overhead;
 }
 
+#define EXP7 1
+
 // Return 1 if an filter intra mode is selected; return 0 otherwise.
 static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
                                     int mi_row, int mi_col, int *rate,
@@ -4358,6 +4360,9 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
                                     int *skippable, BLOCK_SIZE bsize,
                                     int mode_cost, int64_t *best_rd,
                                     int64_t *best_model_rd,
+#if EXP7
+                                    int *eval_fimode,
+#endif
                                     PICK_MODE_CONTEXT *ctx) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
@@ -4375,6 +4380,9 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   for (mode = 0; mode < FILTER_INTRA_MODES; ++mode) {
     int64_t this_rd, this_model_rd;
     RD_STATS tokenonly_rd_stats;
+#if EXP7
+    if (!eval_fimode[mode]) continue;
+#endif
     mbmi->filter_intra_mode_info.filter_intra_mode = mode;
     this_model_rd = intra_model_yrd(cpi, x, bsize, mode_cost, mi_row, mi_col);
     if (*best_model_rd != INT64_MAX &&
@@ -4709,6 +4717,17 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int left_ctx = intra_mode_context[L];
   bmode_costs = x->y_mode_costs[above_ctx][left_ctx];
 
+#if EXP7
+  const FILTER_INTRA_MODE intramode_to_fimode[INTRA_MODES] = {
+    FILTER_DC_PRED,     FILTER_V_PRED,      FILTER_H_PRED,
+    FILTER_INTRA_MODES, FILTER_INTRA_MODES, FILTER_INTRA_MODES,
+    FILTER_D157_PRED,   FILTER_INTRA_MODES, FILTER_INTRA_MODES,
+    FILTER_INTRA_MODES, FILTER_INTRA_MODES, FILTER_INTRA_MODES,
+    FILTER_PAETH_PRED
+  };
+  int eval_fimode[FILTER_INTRA_MODES] = { 1 };
+#endif
+
   mbmi->angle_delta[PLANE_TYPE_Y] = 0;
   if (cpi->sf.intra_angle_estimation) {
     const int src_stride = x->plane[0].src.stride;
@@ -4766,6 +4785,16 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
     if (this_rate_tokenonly == INT_MAX) continue;
 
+#if EXP7
+    if (FILTER_INTRA_MODES != intramode_to_fimode[mbmi->mode]) {
+      if (!((tx_size_wide[mbmi->tx_size] != cols) ||
+            (tx_size_high[mbmi->tx_size] != rows) ||
+            ((rows == 4) || (cols == 4)))) {
+        eval_fimode[intramode_to_fimode[mbmi->mode]] = 0;
+      }
+    }
+#endif
+
     if (!xd->lossless[mbmi->segment_id] &&
         block_signals_txsize(mbmi->sb_type)) {
       // super_block_yrd above includes the cost of the tx_size in the
@@ -4800,9 +4829,13 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   if (beat_best_rd && av1_filter_intra_allowed_bsize(&cpi->common, bsize)) {
-    if (rd_pick_filter_intra_sby(
-            cpi, x, mi_row, mi_col, rate, rate_tokenonly, distortion, skippable,
-            bsize, bmode_costs[DC_PRED], &best_rd, &best_model_rd, ctx)) {
+    if (rd_pick_filter_intra_sby(cpi, x, mi_row, mi_col, rate, rate_tokenonly,
+                                 distortion, skippable, bsize,
+                                 bmode_costs[DC_PRED], &best_rd, &best_model_rd,
+#if EXP7
+                                 eval_fimode,
+#endif
+                                 ctx)) {
       best_mbmi = *mbmi;
     }
   }
