@@ -26,7 +26,7 @@ list(APPEND AOM_SCALE_INTRIN_DSPR2
 # Creates the aom_scale build target and makes libaom depend on it. The libaom
 # target must exist before this function is called.
 function(setup_aom_scale_targets)
-  add_library(aom_scale OBJECT ${AOM_SCALE_SOURCES})
+  add_library(aom_scale ${AOM_SCALE_SOURCES} OBJECT)
   target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_scale>)
 
   if(HAVE_DSPR2)
