@@ -33,7 +33,24 @@ typedef void (*HbdHtFunc)(const int16_t *input, int32_t *output, int stride,
 
 typedef void (*IHbdHtFunc)(const int32_t *coeff, uint16_t *output, int stride,
                            TX_TYPE tx_type, int bd);
-
+static const char *tx_type_name[] = {
+  "DCT_DCT",
+  "ADST_DCT",
+  "DCT_ADST",
+  "ADST_ADST",
+  "FLIPADST_DCT",
+  "DCT_FLIPADST",
+  "FLIPADST_FLIPADST",
+  "ADST_FLIPADST",
+  "FLIPADST_ADST",
+  "IDTX",
+  "V_DCT",
+  "H_DCT",
+  "V_ADST",
+  "H_ADST",
+  "V_FLIPADST",
+  "H_FLIPADST",
+};
 // Test parameter argument list:
 //   <transform reference function,
 //    optimized inverse transform function,
@@ -180,14 +197,15 @@ class AV1HighbdInvTxfm2d
  public:
   virtual void SetUp() { target_func_ = GET_PARAM(0); }
   void RunAV1InvTxfm2dTest(TX_TYPE tx_type, TX_SIZE tx_size, int run_times,
-                           int bit_depth);
+                           int bit_depth, int gt_int16 = 0);
 
  private:
   HighbdInvTxfm2dFunc target_func_;
 };
 
 void AV1HighbdInvTxfm2d::RunAV1InvTxfm2dTest(TX_TYPE tx_type_, TX_SIZE tx_size_,
-                                             int run_times, int bit_depth_) {
+                                             int run_times, int bit_depth_,
+                                             int gt_int16) {
   FwdTxfm2dFunc fwd_func_ = libaom_test::fwd_txfm_func_ls[tx_size_];
   TxfmParam txfm_param;
   const int BLK_WIDTH = 64;
@@ -233,6 +251,9 @@ void AV1HighbdInvTxfm2d::RunAV1InvTxfm2dTest(TX_TYPE tx_type_, TX_SIZE tx_size_,
     for (int i = eob; i < eobmax; i++) {
       inv_input[scan[i]] = 0;
     }
+    if (gt_int16) {
+      inv_input[scan[eob - 1]] = ((int32_t)INT16_MAX * 100 / 141);
+    }
     txfm_param.eob = eob;
     aom_usec_timer ref_timer, test_timer;
 
@@ -261,10 +282,11 @@ void AV1HighbdInvTxfm2d::RunAV1InvTxfm2dTest(TX_TYPE tx_type_, TX_SIZE tx_size_,
     } else {
       for (int r = 0; r < rows; ++r) {
         for (int c = 0; c < cols; ++c) {
+          if (ref_output[r * stride + c] != output[r * stride + c]) printf("");
           ASSERT_EQ(ref_output[r * stride + c], output[r * stride + c])
               << "[" << r << "," << c << "] " << cnt
               << " tx_size: " << static_cast<int>(tx_size_)
-              << " tx_type: " << tx_type_ << " eob " << eob;
+              << " tx_type: " << tx_type_name[tx_type_] << " eob " << eob;
         }
       }
     }
@@ -272,8 +294,9 @@ void AV1HighbdInvTxfm2d::RunAV1InvTxfm2dTest(TX_TYPE tx_type_, TX_SIZE tx_size_,
 }
 
 TEST_P(AV1HighbdInvTxfm2d, match) {
-  int bitdepth_ar[2] = { 10, 12 };
-  for (int k = 0; k < 2; ++k) {
+  int bitdepth_ar[3] = { 8, 10, 12 };
+  for (int k = 0; k < 1; ++k) {
+    printf("match: %d \n", k);
     int bd = bitdepth_ar[k];
     for (int j = 0; j < (int)(TX_SIZES_ALL); ++j) {
       for (int i = 0; i < (int)TX_TYPES; ++i) {
@@ -281,6 +304,26 @@ TEST_P(AV1HighbdInvTxfm2d, match) {
                                            static_cast<TX_TYPE>(i))) {
           RunAV1InvTxfm2dTest(static_cast<TX_TYPE>(i), static_cast<TX_SIZE>(j),
                               1, bd);
+        }
+      }
+    }
+  }
+}
+
+TEST_P(AV1HighbdInvTxfm2d, gt_int16) {
+  int bitdepth_ar[3] = { 8, 10, 12 };
+  static const TX_TYPE types[] = {
+    DCT_DCT, ADST_DCT, FLIPADST_DCT, IDTX, V_DCT, H_DCT, H_ADST, H_FLIPADST
+  };
+  for (int k = 0; k < 3; ++k) {
+    printf("gt_int16: %d \n", k);
+    int bd = bitdepth_ar[k];
+    for (int j = 0; j < (int)(TX_SIZES_ALL); ++j) {
+      const TX_SIZE sz = static_cast<TX_SIZE>(j);
+      for (uint8_t i = 0; i < sizeof(types) / sizeof(TX_TYPE); ++i) {
+        const TX_TYPE tp = types[i];
+        if (libaom_test::IsTxSizeTypeValid(sz, tp)) {
+          RunAV1InvTxfm2dTest(tp, sz, 1, bd, 1);
         }
       }
     }
