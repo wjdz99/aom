@@ -1327,13 +1327,7 @@ static void iidentity8_sse4_1(__m128i *in, __m128i *out, int bit, int do_cols,
   v[7] = _mm_add_epi32(in[7], in[7]);
 
   if (!do_cols) {
-    const int log_range_out = AOMMAX(16, bd + 6);
-    const __m128i clamp_lo_out = _mm_set1_epi32(AOMMAX(
-        -(1 << (log_range_out - 1)), -(1 << (log_range - 1 - out_shift))));
-    const __m128i clamp_hi_out = _mm_set1_epi32(AOMMIN(
-        (1 << (log_range_out - 1)) - 1, (1 << (log_range - 1 - out_shift))));
-
-    shift_sse4_1(v, out, &clamp_lo_out, &clamp_hi_out, out_shift, 8);
+    shift_sse4_1(v, out, &clamp_lo, &clamp_hi, out_shift, 8);
   } else {
     highbd_clamp_epi32_sse4_1(v, out, &clamp_lo, &clamp_hi, 8);
   }
@@ -3251,13 +3245,7 @@ static void iidentity16_sse4_1(__m128i *in, __m128i *out, int bit, int do_cols,
   }
 
   if (!do_cols) {
-    const int log_range_out = AOMMAX(16, bd + 6);
-    const __m128i clamp_lo_out = _mm_set1_epi32(AOMMAX(
-        -(1 << (log_range_out - 1)), -(1 << (log_range - 1 - out_shift))));
-    const __m128i clamp_hi_out = _mm_set1_epi32(AOMMIN(
-        (1 << (log_range_out - 1)) - 1, (1 << (log_range - 1 - out_shift))));
-
-    shift_sse4_1(v, out, &clamp_lo_out, &clamp_hi_out, out_shift, 16);
+    shift_sse4_1(v, out, &clamp_lo, &clamp_hi, out_shift, 16);
   } else {
     highbd_clamp_epi32_sse4_1(v, out, &clamp_lo, &clamp_hi, 16);
   }
@@ -5758,7 +5746,12 @@ static void highbd_inv_txfm2d_add_8x4_sse41(const int32_t *input,
 
   av1_round_shift_rect_array_32_sse4_1(buf1, buf0, txfm_size_col, 0,
                                        NewInvSqrt2);
-  row_txfm(buf0, buf0, av1_inv_cos_bit_row[txw_idx][txh_idx], 0, bd, -shift[0]);
+  row_txfm(buf0, buf0, av1_inv_cos_bit_row[txw_idx][txh_idx], 1, bd, -shift[0]);
+
+  const int log_range = AOMMAX(16, bd + 6);
+  const __m128i clamp_lo = _mm_set1_epi32(-(1 << (log_range - 1)));
+  const __m128i clamp_hi = _mm_set1_epi32((1 << (log_range - 1)) - 1);
+  highbd_clamp_epi32_sse4_1(buf0, buf0, &clamp_lo, &clamp_hi, txfm_size_col);
 
   __m128i *buf1_ptr;
   if (lr_flip) {
@@ -5874,7 +5867,10 @@ static void highbd_inv_txfm2d_add_16x4_sse4_1(const int32_t *input,
                   buf1[4 * j + 1], buf1[4 * j + 2], buf1[4 * j + 3]);
   }
   row_txfm(buf1, buf0, av1_inv_cos_bit_row[txw_idx][txh_idx], 0, bd, -shift[0]);
-
+  const int log_range = AOMMAX(16, bd + 6);
+  const __m128i clamp_lo = _mm_set1_epi32(-(1 << (log_range - 1)));
+  const __m128i clamp_hi = _mm_set1_epi32((1 << (log_range - 1)) - 1);
+  highbd_clamp_epi32_sse4_1(buf0, buf0, &clamp_lo, &clamp_hi, txfm_size_col);
   __m128i *buf1_ptr;
   if (lr_flip) {
     flip_buf_sse2(buf0, buf1, txfm_size_col);
