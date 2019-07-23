@@ -8403,26 +8403,26 @@ static INLINE void fast_dual_interp_filter_rd(
   } else {
     const int bw = block_size_wide[bsize];
     const int bh = block_size_high[bsize];
-    int best_dual_mode = 0;
-    int skip_pred = bw <= 4 ? cpi->default_interp_skip_flags : skip_hor;
-    for (int i = (SWITCHABLE_FILTERS - 1); i >= 1; --i) {
-      if (interpolation_filter_rd(x, cpi, tile_data, bsize, mi_row, mi_col,
-                                  orig_dst, rd, rd_stats_y, rd_stats,
-                                  switchable_rate, dst_bufs, i, switchable_ctx,
-                                  skip_pred)) {
-        best_dual_mode = i;
-      }
-      skip_pred = skip_hor;
-    }
+    uint16_t allowed_interp_mask = 0;
+    DUAL_FILTER_TYPE best_filt_type;
+    // check horizontal modes
+    // set mask for x_filter = REG, y_filter = {REG, SMOOTH, SHARP}
+    allowed_interp_mask = av1_interp_dual_filt_mask[1][0];
+    reset_interp_filter_allowed_mask(&allowed_interp_mask, REG_REG);
+    best_filt_type = find_best_interp_rd_facade(
+        x, cpi, tile_data, bsize, mi_row, mi_col, orig_dst, rd, rd_stats_y,
+        rd_stats, switchable_rate, dst_bufs, switchable_ctx, skip_hor,
+        allowed_interp_mask, bw <= 4);
+
     // From best of horizontal EIGHTTAP_REGULAR modes, check vertical modes
-    skip_pred = bh <= 4 ? cpi->default_interp_skip_flags : skip_ver;
-    for (int i = (best_dual_mode + (SWITCHABLE_FILTERS * 2));
-         i >= (best_dual_mode + SWITCHABLE_FILTERS); i -= SWITCHABLE_FILTERS) {
-      interpolation_filter_rd(
-          x, cpi, tile_data, bsize, mi_row, mi_col, orig_dst, rd, rd_stats_y,
-          rd_stats, switchable_rate, dst_bufs, i, switchable_ctx, skip_pred);
-      skip_pred = skip_ver;
-    }
+    allowed_interp_mask = 0;
+    // set mask for x_filter = {REG, SMOOTH, SHARP}, y_filter = best_filt_type
+    allowed_interp_mask = av1_interp_dual_filt_mask[0][best_filt_type];
+    reset_interp_filter_allowed_mask(&allowed_interp_mask, REG_REG);
+    find_best_interp_rd_facade(x, cpi, tile_data, bsize, mi_row, mi_col,
+                               orig_dst, rd, rd_stats_y, rd_stats,
+                               switchable_rate, dst_bufs, switchable_ctx,
+                               skip_ver, allowed_interp_mask, bh <= 4);
   }
 }
 
@@ -8675,7 +8675,6 @@ static int64_t interpolation_filter_search(
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int need_search =
       av1_is_interp_needed(xd) && av1_is_interp_search_needed(xd);
-  int i;
   const int ref_frame = xd->mi[0]->ref_frame[0];
   RD_STATS rd_stats_luma, rd_stats;
 
@@ -8816,14 +8815,14 @@ static int64_t interpolation_filter_search(
                                  skip_hor, skip_ver);
     } else {
       // Use full interpolation filter search
+      uint16_t allowed_interp_mask = ALLOW_ALL_INTERP_FILT_MASK;
       // REG_REG filter type is evaluated beforehand, so loop is repeated over
       // REG_SMOOTH to SHARP_SHARP for full interpolation filter search
-      for (i = filter_set_size; i > REG_REG; --i) {
-        interpolation_filter_rd(x, cpi, tile_data, bsize, mi_row, mi_col,
-                                orig_dst, rd, &rd_stats_luma, &rd_stats,
-                                switchable_rate, dst_bufs, i, switchable_ctx,
-                                (skip_hor & skip_ver));
-      }
+      reset_interp_filter_allowed_mask(&allowed_interp_mask, REG_REG);
+      find_best_interp_rd_facade(x, cpi, tile_data, bsize, mi_row, mi_col,
+                                 orig_dst, rd, &rd_stats_luma, &rd_stats,
+                                 switchable_rate, dst_bufs, switchable_ctx,
+                                 skip_hor, allowed_interp_mask, 0);
     }
   } else {
     // Evaluate non-dual interp filters
