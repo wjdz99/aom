@@ -196,6 +196,14 @@ enum {
   TX_32X8,            // 32x8 transform
   TX_16X64,           // 16x64 transform
   TX_64X16,           // 64x16 transform
+#if CONFIG_FLEX_PARTITION
+  TX_4X32,            // 4x32 transform
+  TX_32X4,            // 32x4 transform
+  TX_8X64,            // 8x64 transform
+  TX_64X8,            // 64x8 transform
+  TX_4X64,            // 4x64 transform
+  TX_64X4,            // 64x4 transform
+#endif  // CONFIG_FLEX_PARTITION
   TX_SIZES_ALL,       // Includes rectangular transforms
   TX_SIZES = TX_4X8,  // Does NOT include rectangular transforms
   TX_SIZES_LARGEST = TX_64X64,
