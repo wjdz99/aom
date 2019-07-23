@@ -52,11 +52,11 @@ function(setup_aom_ports_targets)
     add_asm_library("aom_ports" "AOM_PORTS_ASM_X86" "aom")
     set(aom_ports_has_symbols 1)
   elseif("${AOM_TARGET_CPU}" MATCHES "arm")
-    add_library(aom_ports OBJECT ${AOM_PORTS_SOURCES_ARM})
+    add_library(aom_ports ${AOM_PORTS_SOURCES_ARM} OBJECT)
     set(aom_ports_has_symbols 1)
     target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_ports>)
   elseif("${AOM_TARGET_CPU}" MATCHES "ppc")
-    add_library(aom_ports OBJECT ${AOM_PORTS_SOURCES_PPC})
+    add_library(aom_ports ${AOM_PORTS_SOURCES_PPC} OBJECT)
     set(aom_ports_has_symbols 1)
     target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_ports>)
   endif()
@@ -64,8 +64,8 @@ function(setup_aom_ports_targets)
   if(aom_ports_has_symbols)
     target_sources(aom_ports PRIVATE ${AOM_PORTS_INCLUDES})
 
-    if("${AOM_TARGET_CPU}" STREQUAL "x86" OR "${AOM_TARGET_CPU}" STREQUAL
-       "x86_64")
+    if("${AOM_TARGET_CPU}" STREQUAL "x86"
+       OR "${AOM_TARGET_CPU}" STREQUAL "x86_64")
       target_sources(aom_ports PRIVATE ${AOM_PORTS_INCLUDES_X86})
     endif()
 
@@ -73,8 +73,8 @@ function(setup_aom_ports_targets)
   else()
     target_sources(aom PRIVATE ${AOM_PORTS_INCLUDES})
 
-    if("${AOM_TARGET_CPU}" STREQUAL "x86" OR "${AOM_TARGET_CPU}" STREQUAL
-       "x86_64")
+    if("${AOM_TARGET_CPU}" STREQUAL "x86"
+       OR "${AOM_TARGET_CPU}" STREQUAL "x86_64")
       target_sources(aom PRIVATE ${AOM_PORTS_INCLUDES_X86})
     endif()
   endif()
