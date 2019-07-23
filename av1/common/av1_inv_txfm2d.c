@@ -347,67 +347,89 @@ static INLINE void inv_txfm2d_add_facade(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_4x8_c(const int32_t *input, uint16_t *output,
-                              int stride, TX_TYPE tx_type, int bd) {
+                              int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   DECLARE_ALIGNED(32, int, txfm_buf[4 * 8 + 8 + 8]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X8, bd);
 }
 
 void av1_inv_txfm2d_add_8x4_c(const int32_t *input, uint16_t *output,
-                              int stride, TX_TYPE tx_type, int bd) {
+                              int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   DECLARE_ALIGNED(32, int, txfm_buf[8 * 4 + 8 + 8]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X4, bd);
 }
 
 void av1_inv_txfm2d_add_8x16_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type, int bd) {
+                               int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   DECLARE_ALIGNED(32, int, txfm_buf[8 * 16 + 16 + 16]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X16, bd);
 }
 
 void av1_inv_txfm2d_add_16x8_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type, int bd) {
+                               int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   DECLARE_ALIGNED(32, int, txfm_buf[16 * 8 + 16 + 16]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X8, bd);
 }
 
 void av1_inv_txfm2d_add_16x32_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   DECLARE_ALIGNED(32, int, txfm_buf[16 * 32 + 32 + 32]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X32, bd);
 }
 
 void av1_inv_txfm2d_add_32x16_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   DECLARE_ALIGNED(32, int, txfm_buf[32 * 16 + 32 + 32]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X16, bd);
 }
 
 void av1_inv_txfm2d_add_4x4_c(const int32_t *input, uint16_t *output,
-                              int stride, TX_TYPE tx_type, int bd) {
+                              int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   DECLARE_ALIGNED(32, int, txfm_buf[4 * 4 + 4 + 4]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X4, bd);
 }
 
 void av1_inv_txfm2d_add_8x8_c(const int32_t *input, uint16_t *output,
-                              int stride, TX_TYPE tx_type, int bd) {
+                              int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   DECLARE_ALIGNED(32, int, txfm_buf[8 * 8 + 8 + 8]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X8, bd);
 }
 
 void av1_inv_txfm2d_add_16x16_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   DECLARE_ALIGNED(32, int, txfm_buf[16 * 16 + 16 + 16]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X16, bd);
 }
 
 void av1_inv_txfm2d_add_32x32_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   DECLARE_ALIGNED(32, int, txfm_buf[32 * 32 + 32 + 32]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X32, bd);
 }
 
 void av1_inv_txfm2d_add_64x64_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   // TODO(urvang): Can the same array be reused, instead of using a new array?
   // Remap 32x32 input into a modified 64x64 by:
   // - Copying over these values in top-left 32x32 locations.
@@ -424,7 +446,9 @@ void av1_inv_txfm2d_add_64x64_c(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_64x32_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   // Remap 32x32 input into a modified 64x32 by:
   // - Copying over these values in top-left 32x32 locations.
   // - Setting the rest of the locations to 0.
@@ -439,7 +463,9 @@ void av1_inv_txfm2d_add_64x32_c(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_32x64_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   // Remap 32x32 input into a modified 32x64 input by:
   // - Copying over these values in top-left 32x32 locations.
   // - Setting the rest of the locations to 0.
@@ -452,7 +478,9 @@ void av1_inv_txfm2d_add_32x64_c(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_16x64_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   // Remap 16x32 input into a modified 16x64 input by:
   // - Copying over these values in top-left 16x32 locations.
   // - Setting the rest of the locations to 0.
@@ -465,7 +493,9 @@ void av1_inv_txfm2d_add_16x64_c(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_64x16_c(const int32_t *input, uint16_t *output,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   // Remap 32x16 input into a modified 64x16 by:
   // - Copying over these values in top-left 32x16 locations.
   // - Setting the rest of the locations to 0.
@@ -480,25 +510,33 @@ void av1_inv_txfm2d_add_64x16_c(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_4x16_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type, int bd) {
+                               int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   DECLARE_ALIGNED(32, int, txfm_buf[4 * 16 + 16 + 16]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X16, bd);
 }
 
 void av1_inv_txfm2d_add_16x4_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type, int bd) {
+                               int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   DECLARE_ALIGNED(32, int, txfm_buf[4 * 16 + 16 + 16]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X4, bd);
 }
 
 void av1_inv_txfm2d_add_8x32_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type, int bd) {
+                               int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   DECLARE_ALIGNED(32, int, txfm_buf[8 * 32 + 32 + 32]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X32, bd);
 }
 
 void av1_inv_txfm2d_add_32x8_c(const int32_t *input, uint16_t *output,
-                               int stride, TX_TYPE tx_type, int bd) {
+                               int stride, const TxfmParam *txfm_param) {
+  int bd = txfm_param->bd;
+  TX_TYPE tx_type = txfm_param->tx_type;
   DECLARE_ALIGNED(32, int, txfm_buf[8 * 32 + 32 + 32]);
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X8, bd);
 }

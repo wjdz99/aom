@@ -116,7 +116,11 @@ class AV1InvTxfm2d : public ::testing::TestWithParam<AV1InvTxfm2dParam> {
         for (int ni = 0; ni < txfm2d_size; ++ni) {
           ref_coeffs_int[ni] = (int32_t)round(ref_coeffs[ni]);
         }
-        inv_txfm_func(ref_coeffs_int, expected, tx_w, tx_type_, bd);
+        TxfmParam txfm_param;
+        txfm_param.bd = bd;
+        txfm_param.tx_type = tx_type_;
+        txfm_param.tx_size = tx_size_;
+        inv_txfm_func(ref_coeffs_int, expected, tx_w, &txfm_param);
       } else {
         // Compare original input vs forward HT + inverse HT.
         for (int ni = 0; ni < txfm2d_size; ++ni) {
@@ -130,7 +134,11 @@ class AV1InvTxfm2d : public ::testing::TestWithParam<AV1InvTxfm2dParam> {
 
       DECLARE_ALIGNED(16, uint16_t, actual[64 * 64]) = { 0 };
       ASSERT_LE(txfm2d_size, NELEMENTS(actual));
-      inv_txfm_func(coeffs, actual, tx_w, tx_type_, bd);
+      TxfmParam txfm_param;
+      txfm_param.bd = bd;
+      txfm_param.tx_type = tx_type_;
+      txfm_param.tx_size = tx_size_;
+      inv_txfm_func(coeffs, actual, tx_w, &txfm_param);
 
       double actual_max_error = 0;
       for (int ni = 0; ni < txfm2d_size; ++ni) {
@@ -299,6 +307,15 @@ void AV1LbdInvTxfm2d::RunAV1InvTxfm2dTest(TxType tx_type, TxSize tx_size,
   ACMRandom rnd(ACMRandom::DeterministicSeed());
   int randTimes = run_times == 1 ? (eobmax + 500) : 1;
 
+  TxfmParam txfm_param;
+  txfm_param.bd = 8;
+  txfm_param.tx_type = tx_type;
+  txfm_param.tx_size = tx_size;
+  TXFM_2D_FLIP_CFG cfg;
+  av1_get_inv_txfm_cfg(tx_type, tx_size, &cfg);
+  av1_gen_inv_stage_range(txfm_param.stage_range_col,
+                          txfm_param.stage_range_row, &cfg, tx_size, bd);
+
   for (int cnt = 0; cnt < randTimes; ++cnt) {
     const int16_t max_in = (1 << (bd)) - 1;
     for (int r = 0; r < BLK_WIDTH; ++r) {
@@ -321,7 +338,7 @@ void AV1LbdInvTxfm2d::RunAV1InvTxfm2dTest(TxType tx_type, TxSize tx_size,
     aom_usec_timer timer;
     aom_usec_timer_start(&timer);
     for (int i = 0; i < run_times; ++i) {
-      ref_func_(inv_input, ref_output, stride, tx_type, bd);
+      ref_func_(inv_input, ref_output, stride, &txfm_param);
     }
     aom_usec_timer_mark(&timer);
     const double time1 = static_cast<double>(aom_usec_timer_elapsed(&timer));

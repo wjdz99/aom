@@ -32,8 +32,25 @@ typedef void (*HbdHtFunc)(const int16_t *input, int32_t *output, int stride,
                           TX_TYPE tx_type, int bd);
 
 typedef void (*IHbdHtFunc)(const int32_t *coeff, uint16_t *output, int stride,
-                           TX_TYPE tx_type, int bd);
-
+                           const TxfmParam *txfm_param);
+static const char *tx_type_name[] = {
+  "DCT_DCT",
+  "ADST_DCT",
+  "DCT_ADST",
+  "ADST_ADST",
+  "FLIPADST_DCT",
+  "DCT_FLIPADST",
+  "FLIPADST_FLIPADST",
+  "ADST_FLIPADST",
+  "FLIPADST_ADST",
+  "IDTX",
+  "V_DCT",
+  "H_DCT",
+  "V_ADST",
+  "H_ADST",
+  "V_FLIPADST",
+  "H_FLIPADST",
+};
 // Test parameter argument list:
 //   <transform reference function,
 //    optimized inverse transform function,
@@ -123,11 +140,12 @@ void AV1HighbdInvHTNxN::RunBitexactCheck() {
       output_ref_[j] = rnd.Rand16() & mask;
       output_[j] = output_ref_[j];
     }
-
+    TxfmParam txfm_param;
+    txfm_param.bd = bit_depth_;
+    txfm_param.tx_type = tx_type_;
     txfm_ref_(input_, coeffs_, stride, tx_type_, bit_depth_);
-    inv_txfm_ref_(coeffs_, output_ref_, stride, tx_type_, bit_depth_);
-    ASM_REGISTER_STATE_CHECK(
-        inv_txfm_(coeffs_, output_, stride, tx_type_, bit_depth_));
+    inv_txfm_ref_(coeffs_, output_ref_, stride, &txfm_param);
+    ASM_REGISTER_STATE_CHECK(inv_txfm_(coeffs_, output_, stride, &txfm_param));
 
     for (int j = 0; j < num_coeffs_; ++j) {
       EXPECT_EQ(output_ref_[j], output_[j])
@@ -180,16 +198,16 @@ class AV1HighbdInvTxfm2d
  public:
   virtual void SetUp() { target_func_ = GET_PARAM(0); }
   void RunAV1InvTxfm2dTest(TX_TYPE tx_type, TX_SIZE tx_size, int run_times,
-                           int bit_depth);
+                           int bit_depth, int gt_int16 = 0);
 
  private:
   HighbdInvTxfm2dFunc target_func_;
 };
 
 void AV1HighbdInvTxfm2d::RunAV1InvTxfm2dTest(TX_TYPE tx_type_, TX_SIZE tx_size_,
-                                             int run_times, int bit_depth_) {
+                                             int run_times, int bit_depth_,
+                                             int gt_int16) {
   FwdTxfm2dFunc fwd_func_ = libaom_test::fwd_txfm_func_ls[tx_size_];
-  TxfmParam txfm_param;
   const int BLK_WIDTH = 64;
   const int BLK_SIZE = BLK_WIDTH * BLK_WIDTH;
   DECLARE_ALIGNED(16, int16_t, input[BLK_SIZE]) = { 0 };
@@ -210,13 +228,6 @@ void AV1HighbdInvTxfm2d::RunAV1InvTxfm2dTest(TX_TYPE tx_type_, TX_SIZE tx_size_,
   ACMRandom rnd(ACMRandom::DeterministicSeed());
   int randTimes = run_times == 1 ? (eobmax) : 1;
 
-  txfm_param.tx_type = tx_type_;
-  txfm_param.tx_size = tx_size_;
-  txfm_param.lossless = 0;
-  txfm_param.bd = bit_depth_;
-  txfm_param.is_hbd = 1;
-  txfm_param.tx_set_type = EXT_TX_SET_ALL16;
-
   for (int cnt = 0; cnt < randTimes; ++cnt) {
     for (int r = 0; r < BLK_WIDTH; ++r) {
       for (int c = 0; c < BLK_WIDTH; ++c) {
@@ -233,8 +244,23 @@ void AV1HighbdInvTxfm2d::RunAV1InvTxfm2dTest(TX_TYPE tx_type_, TX_SIZE tx_size_,
     for (int i = eob; i < eobmax; i++) {
       inv_input[scan[i]] = 0;
     }
-    txfm_param.eob = eob;
+    if (gt_int16) {
+      inv_input[scan[eob - 1]] = ((int32_t)INT16_MAX * 100 / 141);
+    }
     aom_usec_timer ref_timer, test_timer;
+    TxfmParam txfm_param;
+    txfm_param.bd = bit_depth_;
+    txfm_param.tx_type = tx_type_;
+    txfm_param.tx_size = tx_size_;
+    txfm_param.tx_set_type = EXT_TX_SET_ALL16;
+    txfm_param.eob = eob;
+    txfm_param.lossless = 0;
+    txfm_param.is_hbd = 1;
+    TXFM_2D_FLIP_CFG cfg;
+    av1_get_inv_txfm_cfg(tx_type_, tx_size_, &cfg);
+    av1_gen_inv_stage_range(txfm_param.stage_range_col,
+                            txfm_param.stage_range_row, &cfg, tx_size_,
+                            bit_depth_);
 
     aom_usec_timer_start(&ref_timer);
     for (int i = 0; i < run_times; ++i) {
@@ -264,7 +290,8 @@ void AV1HighbdInvTxfm2d::RunAV1InvTxfm2dTest(TX_TYPE tx_type_, TX_SIZE tx_size_,
           ASSERT_EQ(ref_output[r * stride + c], output[r * stride + c])
               << "[" << r << "," << c << "] " << cnt
               << " tx_size: " << static_cast<int>(tx_size_)
-              << " tx_type: " << tx_type_ << " eob " << eob;
+              << " bit_depth_: " << bit_depth_
+              << " tx_type: " << tx_type_name[tx_type_] << " eob " << eob;
         }
       }
     }
@@ -272,8 +299,8 @@ void AV1HighbdInvTxfm2d::RunAV1InvTxfm2dTest(TX_TYPE tx_type_, TX_SIZE tx_size_,
 }
 
 TEST_P(AV1HighbdInvTxfm2d, match) {
-  int bitdepth_ar[2] = { 10, 12 };
-  for (int k = 0; k < 2; ++k) {
+  int bitdepth_ar[3] = { 8, 10, 12 };
+  for (int k = 0; k < 3; ++k) {
     int bd = bitdepth_ar[k];
     for (int j = 0; j < (int)(TX_SIZES_ALL); ++j) {
       for (int i = 0; i < (int)TX_TYPES; ++i) {
@@ -281,6 +308,25 @@ TEST_P(AV1HighbdInvTxfm2d, match) {
                                            static_cast<TX_TYPE>(i))) {
           RunAV1InvTxfm2dTest(static_cast<TX_TYPE>(i), static_cast<TX_SIZE>(j),
                               1, bd);
+        }
+      }
+    }
+  }
+}
+
+TEST_P(AV1HighbdInvTxfm2d, gt_int16) {
+  int bitdepth_ar[3] = { 8, 10, 12 };
+  static const TX_TYPE types[] = {
+    DCT_DCT, ADST_DCT, FLIPADST_DCT, IDTX, V_DCT, H_DCT, H_ADST, H_FLIPADST
+  };
+  for (int k = 0; k < 3; ++k) {
+    int bd = bitdepth_ar[k];
+    for (int j = 0; j < (int)(TX_SIZES_ALL); ++j) {
+      const TX_SIZE sz = static_cast<TX_SIZE>(j);
+      for (uint8_t i = 0; i < sizeof(types) / sizeof(TX_TYPE); ++i) {
+        const TX_TYPE tp = types[i];
+        if (libaom_test::IsTxSizeTypeValid(sz, tp)) {
+          RunAV1InvTxfm2dTest(tp, sz, 1, bd, 1);
         }
       }
     }
@@ -305,13 +351,13 @@ TEST_P(AV1HighbdInvTxfm2d, DISABLED_Speed) {
 
 // TODO(yunqing): disabled sse4_1 and avx2 optimizations that caused test vector
 // mismatch. Will be enabled after the bug fix.
-// #if HAVE_SSE4_1
-// INSTANTIATE_TEST_CASE_P(SSE4_1, AV1HighbdInvTxfm2d,
-//                        ::testing::Values(av1_highbd_inv_txfm_add_sse4_1));
-// #endif
+#if HAVE_SSE4_1
+INSTANTIATE_TEST_CASE_P(SSE4_1, AV1HighbdInvTxfm2d,
+                        ::testing::Values(av1_highbd_inv_txfm_add_sse4_1));
+#endif
 
-// #if HAVE_AVX2
+//#if HAVE_AVX2
 // INSTANTIATE_TEST_CASE_P(AVX2, AV1HighbdInvTxfm2d,
 //                        ::testing::Values(av1_highbd_inv_txfm_add_avx2));
-// #endif
+//#endif
 }  // namespace

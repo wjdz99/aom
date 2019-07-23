@@ -34,6 +34,8 @@ typedef struct txfm_param {
   TxSetType tx_set_type;
   // for inverse transforms only
   int eob;
+  int8_t stage_range_row[12];
+  int8_t stage_range_col[12];
 } TxfmParam;
 
 // Constants:
