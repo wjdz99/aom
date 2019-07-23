@@ -12046,13 +12046,11 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, int mode_index,
   set_default_interp_filters(mbmi, cm->interp_filter);
 }
 
-static int64_t handle_intra_mode(InterModeSearchState *search_state,
-                                 const AV1_COMP *cpi, MACROBLOCK *x,
-                                 BLOCK_SIZE bsize, int mi_row, int mi_col,
-                                 int ref_frame_cost,
-                                 const PICK_MODE_CONTEXT *ctx, int disable_skip,
-                                 RD_STATS *rd_stats, RD_STATS *rd_stats_y,
-                                 RD_STATS *rd_stats_uv) {
+static int64_t handle_intra_mode(
+    InterModeSearchState *search_state, const AV1_COMP *cpi, MACROBLOCK *x,
+    BLOCK_SIZE bsize, int mi_row, int mi_col, int ref_frame_cost,
+    const PICK_MODE_CONTEXT *ctx, int disable_skip, RD_STATS *rd_stats,
+    RD_STATS *rd_stats_y, RD_STATS *rd_stats_uv, int64_t *best_model_rd) {
   const AV1_COMMON *cm = &cpi->common;
   const SPEED_FEATURES *const sf = &cpi->sf;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -12073,6 +12071,12 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
     search_state->skip_intra_modes = 1;
     return INT64_MAX;
   }
+  int64_t this_model_rd =
+      intra_model_yrd(cpi, x, bsize, mode_cost, mi_row, mi_col);
+  if (*best_model_rd != INT64_MAX &&
+      this_model_rd > *best_model_rd + (*best_model_rd >> 1))
+    return INT64_MAX;
+  if (this_model_rd < *best_model_rd) *best_model_rd = this_model_rd;
 
   const int is_directional_mode = av1_is_directional_mode(mode);
   if (is_directional_mode && av1_use_angle_delta(bsize) &&
@@ -12089,11 +12093,10 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
     if (search_state->directional_mode_skip_mask[mode]) return INT64_MAX;
     av1_init_rd_stats(rd_stats_y);
     rd_stats_y->rate = INT_MAX;
-    int64_t model_rd = INT64_MAX;
     int rate_dummy;
     rd_pick_intra_angle_sby(cpi, x, mi_row, mi_col, &rate_dummy, rd_stats_y,
-                            bsize, mode_cost, search_state->best_rd, &model_rd,
-                            0);
+                            bsize, mode_cost, search_state->best_rd,
+                            best_model_rd, 1);
 
   } else {
     av1_init_rd_stats(rd_stats_y);
@@ -12947,6 +12950,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, do_tx_search_time);
 #endif
+  int64_t best_model_rd = INT64_MAX;
   if (do_tx_search_global != 1) {
     inter_modes_info_sort(inter_modes_info, inter_modes_info->rd_idx_pair_arr);
     search_state.best_rd = best_rd_so_far;
@@ -13005,7 +13009,17 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         }
         rd_stats.rdcost = RDCOST(x->rdmult, rd_stats.rate, rd_stats.dist);
       }
+      RD_STATS model_rd_stats;
+      int64_t this_model_rd;
+      av1_init_rd_stats(&model_rd_stats);
+      model_rd_sb_fn[MODELRD_TYPE_MOTION_MODE_RD](
+          cpi, bsize, x, xd, 0, num_planes - 1, mi_row, mi_col,
+          &model_rd_stats.rate, &model_rd_stats.dist, NULL, NULL, NULL, NULL,
+          NULL);
 
+      this_model_rd =
+          RDCOST(x->rdmult, model_rd_stats.rate, model_rd_stats.dist);
+      best_model_rd = AOMMIN(best_model_rd, this_model_rd);
       if (rd_stats.rdcost < search_state.best_rd) {
         search_state.best_rd = rd_stats.rdcost;
         // Note index of best mode so far
@@ -13045,7 +13059,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     RD_STATS intra_rd_stats, intra_rd_stats_y, intra_rd_stats_uv;
     intra_rd_stats.rdcost = handle_intra_mode(
         &search_state, cpi, x, bsize, mi_row, mi_col, intra_ref_frame_cost, ctx,
-        0, &intra_rd_stats, &intra_rd_stats_y, &intra_rd_stats_uv);
+        0, &intra_rd_stats, &intra_rd_stats_y, &intra_rd_stats_uv,
+        &best_model_rd);
     if (intra_rd_stats.rdcost < search_state.best_rd) {
       search_state.best_rd = intra_rd_stats.rdcost;
       // Note index of best mode so far
@@ -13628,6 +13643,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   }
 
   for (int j = 0; j < intra_mode_num; ++j) {
+    int64_t best_model_rd = INT64_MAX;
     const int mode_index = intra_mode_idx_ls[j];
     const MV_REFERENCE_FRAME ref_frame =
         av1_mode_order[mode_index].ref_frame[0];
@@ -13648,7 +13664,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     const int ref_frame_cost = ref_costs_single[ref_frame];
     intra_rd_stats.rdcost = handle_intra_mode(
         &search_state, cpi, x, bsize, mi_row, mi_col, ref_frame_cost, ctx, 0,
-        &intra_rd_stats, &intra_rd_stats_y, &intra_rd_stats_uv);
+        &intra_rd_stats, &intra_rd_stats_y, &intra_rd_stats_uv, &best_model_rd);
     if (intra_rd_stats.rdcost < search_state.best_rd) {
       search_state.best_rd = intra_rd_stats.rdcost;
       // Note index of best mode so far
