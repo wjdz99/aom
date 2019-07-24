@@ -2142,6 +2142,48 @@ static aom_codec_err_t ctrl_set_number_spatial_layers(aom_codec_alg_priv_t *ctx,
   return AOM_CODEC_OK;
 }
 
+static aom_codec_err_t ctrl_set_number_temporal_layers(aom_codec_alg_priv_t *ctx,
+                                                      va_list args) {
+  const int number_temporal_layers = va_arg(args, int);
+  if (number_temporal_layers > MAX_NUM_ENHANCEMENT_LAYERS)
+    return AOM_CODEC_INVALID_PARAM;
+  ctx->cpi->common.number_temporal_layers = number_temporal_layers;
+  return AOM_CODEC_OK;
+}
+
+static aom_codec_err_t ctrl_set_layer_id(aom_codec_alg_priv_t *ctx,
+                                         va_list args) {
+  aom_svc_layer_id_t *const data = va_arg(args, aom_svc_layer_id_t *);
+  ctx->cpi->common.spatial_layer_id = data->spatial_layer_id;
+  ctx->cpi->common.temporal_layer_id = data->temporal_layer_id;
+  return AOM_CODEC_OK;
+}
+
+static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
+                                           va_list args) {
+  AV1_COMP *const cpi = ctx->cpi;
+  aom_svc_params_t *const params = va_arg(args, aom_svc_params_t *);
+  unsigned int sl, tl;
+
+  // Number of temporal layers and number of spatial layers have to be set
+  // properly before calling this control function.
+  for (sl = 0; sl < cpi->common.number_spatial_layers; ++sl) {
+    for (tl = 0; tl < cpi->common.number_temporal_layers; ++tl) {
+      const int layer =
+          LAYER_IDS_TO_IDX(sl, tl, cpi->common.number_temporal_layers);
+      LAYER_CONTEXT *lc = &cpi->svc.layer_context[layer];
+      lc->max_q = params->max_quantizers[layer];
+      lc->min_q = params->min_quantizers[layer];
+      lc->scaling_factor_num = params->scaling_factor_num[sl];
+      lc->scaling_factor_den = params->scaling_factor_den[sl];
+      lc->layer_target_bitrate =  params->layer_target_bitrate[layer];
+      lc->framerate_factor =  params->framerate_factor[tl];
+    }
+  }
+  return AOM_CODEC_OK;
+}
+
+
 static aom_codec_err_t ctrl_set_tune_content(aom_codec_alg_priv_t *ctx,
                                              va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
@@ -2255,7 +2297,6 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AOME_SET_TUNING, ctrl_set_tuning },
   { AOME_SET_CQ_LEVEL, ctrl_set_cq_level },
   { AOME_SET_MAX_INTRA_BITRATE_PCT, ctrl_set_rc_max_intra_bitrate_pct },
-  { AOME_SET_NUMBER_SPATIAL_LAYERS, ctrl_set_number_spatial_layers },
   { AV1E_SET_MAX_INTER_BITRATE_PCT, ctrl_set_rc_max_inter_bitrate_pct },
   { AV1E_SET_GF_CBR_BOOST_PCT, ctrl_set_rc_gf_cbr_boost_pct },
   { AV1E_SET_LOSSLESS, ctrl_set_lossless },
@@ -2346,6 +2387,11 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_TARGET_SEQ_LEVEL_IDX, ctrl_set_target_seq_level_idx },
   { AV1E_SET_TIER_MASK, ctrl_set_tier_mask },
   { AV1E_SET_MIN_CR, ctrl_set_min_cr },
+  { AOME_SET_NUMBER_SPATIAL_LAYERS, ctrl_set_number_spatial_layers },
+  { AOME_SET_NUMBER_TEMPORAL_LAYERS, ctrl_set_number_temporal_layers },
+  { AOME_SET_LAYER_ID, ctrl_set_layer_id },
+  { AOME_SET_SVC_PARAMS, ctrl_set_svc_params },
+
 
   // Getters
   { AOME_GET_LAST_QUANTIZER, ctrl_get_quantizer },
