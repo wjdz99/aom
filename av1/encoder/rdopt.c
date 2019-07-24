@@ -4612,7 +4612,8 @@ static void get_highbd_gradient_hist(const uint8_t *src8, int src_stride,
 
 static void angle_estimation(const uint8_t *src, int src_stride, int rows,
                              int cols, BLOCK_SIZE bsize, int is_hbd,
-                             uint8_t *directional_mode_skip_mask) {
+                             uint8_t *directional_mode_skip_mask,
+                             int adjust_wt) {
   // Check if angle_delta is used
   if (!av1_use_angle_delta(bsize)) return;
 
@@ -4639,7 +4640,8 @@ static void angle_estimation(const uint8_t *src, int src_stride, int rows,
         ++weight;
       }
       const int thresh = 10;
-      if (score * thresh < hist_sum * weight) directional_mode_skip_mask[i] = 1;
+      if (score * thresh < hist_sum * (weight + adjust_wt))
+        directional_mode_skip_mask[i] = 1;
     }
   }
 }
@@ -4714,7 +4716,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     const int src_stride = x->plane[0].src.stride;
     const uint8_t *src = x->plane[0].src.buf;
     angle_estimation(src, src_stride, rows, cols, bsize, is_cur_buf_hbd(xd),
-                     directional_mode_skip_mask);
+                     directional_mode_skip_mask, 0);
   }
   mbmi->filter_intra_mode_info.use_filter_intra = 0;
   pmi->palette_size[0] = 0;
@@ -12073,7 +12075,8 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
       const int rows = block_size_high[bsize];
       const int cols = block_size_wide[bsize];
       angle_estimation(src, src_stride, rows, cols, bsize, is_cur_buf_hbd(xd),
-                       search_state->directional_mode_skip_mask);
+                       search_state->directional_mode_skip_mask,
+                       (sf->intra_angle_estimation > 1));
       search_state->angle_stats_ready = 1;
     }
     if (search_state->directional_mode_skip_mask[mode]) return INT64_MAX;
