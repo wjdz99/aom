@@ -82,6 +82,9 @@ if(CONFIG_AV1_ENCODER)
   set(AOM_DOXYGEN_EXAMPLE_SOURCES ${AOM_DOXYGEN_EXAMPLE_SOURCES}
                                   "${AOM_ROOT}/examples/scalable_encoder.c")
 
+  set(AOM_DOXYGEN_EXAMPLE_SOURCES ${AOM_DOXYGEN_EXAMPLE_SOURCES}
+                                  "${AOM_ROOT}/examples/temporal_svc_encoder.c")
+
   set(AOM_DOXYGEN_EXAMPLE_DESCRIPTIONS ${AOM_DOXYGEN_EXAMPLE_DESCRIPTIONS}
                                        "Scalable encoder loop.")
 
