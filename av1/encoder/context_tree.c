@@ -75,54 +75,73 @@ static void alloc_tree_contexts(AV1_COMMON *cm, PC_TREE *tree, int num_pix,
                                 int is_leaf,
                                 PC_TREE_SHARED_BUFFERS *shared_bufs) {
   alloc_mode_context(cm, num_pix, &tree->none, shared_bufs);
+  alloc_mode_context(cm, num_pix, &tree->cb[0], shared_bufs);
 
   if (is_leaf) return;
 
-  alloc_mode_context(cm, num_pix / 2, &tree->horizontal[0], shared_bufs);
-  alloc_mode_context(cm, num_pix / 2, &tree->vertical[0], shared_bufs);
-
-  alloc_mode_context(cm, num_pix / 2, &tree->horizontal[1], shared_bufs);
-  alloc_mode_context(cm, num_pix / 2, &tree->vertical[1], shared_bufs);
-
-  alloc_mode_context(cm, num_pix / 4, &tree->horizontala[0], shared_bufs);
-  alloc_mode_context(cm, num_pix / 4, &tree->horizontala[1], shared_bufs);
-  alloc_mode_context(cm, num_pix / 2, &tree->horizontala[2], shared_bufs);
-
-  alloc_mode_context(cm, num_pix / 2, &tree->horizontalb[0], shared_bufs);
-  alloc_mode_context(cm, num_pix / 4, &tree->horizontalb[1], shared_bufs);
-  alloc_mode_context(cm, num_pix / 4, &tree->horizontalb[2], shared_bufs);
-
-  alloc_mode_context(cm, num_pix / 4, &tree->verticala[0], shared_bufs);
-  alloc_mode_context(cm, num_pix / 4, &tree->verticala[1], shared_bufs);
-  alloc_mode_context(cm, num_pix / 2, &tree->verticala[2], shared_bufs);
-
-  alloc_mode_context(cm, num_pix / 2, &tree->verticalb[0], shared_bufs);
-  alloc_mode_context(cm, num_pix / 4, &tree->verticalb[1], shared_bufs);
-  alloc_mode_context(cm, num_pix / 4, &tree->verticalb[2], shared_bufs);
-
-  for (int i = 0; i < 4; ++i) {
-    alloc_mode_context(cm, num_pix / 4, &tree->horizontal4[i], shared_bufs);
-    alloc_mode_context(cm, num_pix / 4, &tree->vertical4[i], shared_bufs);
-  }
+  alloc_mode_context(cm, num_pix / 2, &tree->cb[1], shared_bufs);
+  alloc_mode_context(cm, num_pix / 2, &tree->cb[2], shared_bufs);
+  alloc_mode_context(cm, num_pix / 4, &tree->cb[3], shared_bufs);
 }
 
 static void free_tree_contexts(PC_TREE *tree, const int num_planes) {
-  int i;
-  for (i = 0; i < 3; i++) {
-    free_mode_context(&tree->horizontala[i], num_planes);
-    free_mode_context(&tree->horizontalb[i], num_planes);
-    free_mode_context(&tree->verticala[i], num_planes);
-    free_mode_context(&tree->verticalb[i], num_planes);
-  }
-  for (i = 0; i < 4; ++i) {
-    free_mode_context(&tree->horizontal4[i], num_planes);
-    free_mode_context(&tree->vertical4[i], num_planes);
-  }
   free_mode_context(&tree->none, num_planes);
-  free_mode_context(&tree->horizontal[0], num_planes);
-  free_mode_context(&tree->horizontal[1], num_planes);
-  free_mode_context(&tree->vertical[0], num_planes);
-  free_mode_context(&tree->vertical[1], num_planes);
+  for (int i = 0; i < 4; ++i) free_mode_context(&tree->cb[i], num_planes);
+}
+
+static void alloc_pmc_buffer(AV1_COMMON *cm, PICK_MODE_CONTEXT_RDO_BUFFER *pmc,
+                             int num_pix, int level,
+                             PC_TREE_SHARED_BUFFERS *shared_bufs) {
+  alloc_mode_context(cm, num_pix, &pmc->none, shared_bufs);
+
+  alloc_mode_context(cm, num_pix / 2, &pmc->horizontal[0], shared_bufs);
+  alloc_mode_context(cm, num_pix / 2, &pmc->vertical[0], shared_bufs);
+
+  alloc_mode_context(cm, num_pix / 2, &pmc->horizontal[1], shared_bufs);
+  alloc_mode_context(cm, num_pix / 2, &pmc->vertical[1], shared_bufs);
+
+  if (level > 0) {  // Extended partitions are only allowed on 16x16 and up
+    alloc_mode_context(cm, num_pix / 4, &pmc->horizontala[0], shared_bufs);
+    alloc_mode_context(cm, num_pix / 4, &pmc->horizontala[1], shared_bufs);
+    alloc_mode_context(cm, num_pix / 2, &pmc->horizontala[2], shared_bufs);
+
+    alloc_mode_context(cm, num_pix / 2, &pmc->horizontalb[0], shared_bufs);
+    alloc_mode_context(cm, num_pix / 4, &pmc->horizontalb[1], shared_bufs);
+    alloc_mode_context(cm, num_pix / 4, &pmc->horizontalb[2], shared_bufs);
+
+    alloc_mode_context(cm, num_pix / 4, &pmc->verticala[0], shared_bufs);
+    alloc_mode_context(cm, num_pix / 4, &pmc->verticala[1], shared_bufs);
+    alloc_mode_context(cm, num_pix / 2, &pmc->verticala[2], shared_bufs);
+
+    alloc_mode_context(cm, num_pix / 2, &pmc->verticalb[0], shared_bufs);
+    alloc_mode_context(cm, num_pix / 4, &pmc->verticalb[1], shared_bufs);
+    alloc_mode_context(cm, num_pix / 4, &pmc->verticalb[2], shared_bufs);
+
+    if (level < 4) {  // 4-way partition is not allowed on 128x128
+      for (int i = 0; i < 4; ++i) {
+        alloc_mode_context(cm, num_pix / 4, &pmc->horizontal4[i], shared_bufs);
+        alloc_mode_context(cm, num_pix / 4, &pmc->vertical4[i], shared_bufs);
+      }
+    }
+  }
+}
+
+static void free_pmc_buffer(PICK_MODE_CONTEXT_RDO_BUFFER *pmc, int num_planes) {
+  for (int i = 0; i < 3; i++) {
+    free_mode_context(&pmc->horizontala[i], num_planes);
+    free_mode_context(&pmc->horizontalb[i], num_planes);
+    free_mode_context(&pmc->verticala[i], num_planes);
+    free_mode_context(&pmc->verticalb[i], num_planes);
+  }
+  for (int i = 0; i < 4; ++i) {
+    free_mode_context(&pmc->horizontal4[i], num_planes);
+    free_mode_context(&pmc->vertical4[i], num_planes);
+  }
+  free_mode_context(&pmc->none, num_planes);
+  free_mode_context(&pmc->horizontal[0], num_planes);
+  free_mode_context(&pmc->horizontal[1], num_planes);
+  free_mode_context(&pmc->vertical[0], num_planes);
+  free_mode_context(&pmc->vertical[1], num_planes);
 }
 
 // This function sets up a tree of contexts such that at each square
@@ -182,11 +201,18 @@ void av1_setup_pc_tree(AV1_COMMON *cm, ThreadData *td) {
   // Set up the root node for the largest superblock size
   i = MAX_MIB_SIZE_LOG2 - MIN_MIB_SIZE_LOG2;
   td->pc_root[i] = &td->pc_tree[tree_nodes - 1];
-  td->pc_root[i]->none.best_mode_index = 2;
+  td->pc_root[i]->cb[0].best_mode_index = 2;
   // Set up the root nodes for the rest of the possible superblock sizes
   while (--i >= 0) {
     td->pc_root[i] = td->pc_root[i + 1]->split[0];
-    td->pc_root[i]->none.best_mode_index = 2;
+    td->pc_root[i]->cb[0].best_mode_index = 2;
+  }
+
+  for (i = 0; i < 5; i++) {
+    CHECK_MEM_ERROR(cm, td->pick_mode_contexts[i],
+                    aom_calloc(tree_nodes, sizeof(*td->pick_mode_contexts[i])));
+    alloc_pmc_buffer(cm, td->pick_mode_contexts[i], 64 << (2 * i), i,
+                     &shared_bufs);
   }
 }
 
@@ -208,6 +234,9 @@ void av1_free_pc_tree(ThreadData *td, const int num_planes) {
     aom_free(td->pc_tree);
     td->pc_tree = NULL;
   }
+
+  for (int i = 0; i < 5; ++i)
+    free_pmc_buffer(td->pick_mode_contexts[i], num_planes);
 }
 
 void av1_copy_tree_context(PICK_MODE_CONTEXT *dst_ctx,
@@ -231,5 +260,5 @@ void av1_copy_tree_context(PICK_MODE_CONTEXT *dst_ctx,
 
   memcpy(dst_ctx->pred_mv, src_ctx->pred_mv, sizeof(MV) * REF_FRAMES);
 
-  dst_ctx->partition = src_ctx->partition;
+  // dst_ctx->partition = src_ctx->partition;
 }

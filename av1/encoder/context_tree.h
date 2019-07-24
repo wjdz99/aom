@@ -53,21 +53,14 @@ typedef struct {
   // motion vector cache for adaptive motion search control in partition
   // search loop
   MV pred_mv[REF_FRAMES];
-  PARTITION_TYPE partition;
+  // PARTITION_TYPE partition;
 } PICK_MODE_CONTEXT;
 
 typedef struct PC_TREE {
   PARTITION_TYPE partitioning;
   BLOCK_SIZE block_size;
+  PICK_MODE_CONTEXT cb[4];
   PICK_MODE_CONTEXT none;
-  PICK_MODE_CONTEXT horizontal[2];
-  PICK_MODE_CONTEXT vertical[2];
-  PICK_MODE_CONTEXT horizontala[3];
-  PICK_MODE_CONTEXT horizontalb[3];
-  PICK_MODE_CONTEXT verticala[3];
-  PICK_MODE_CONTEXT verticalb[3];
-  PICK_MODE_CONTEXT horizontal4[4];
-  PICK_MODE_CONTEXT vertical4[4];
   struct PC_TREE *split[4];
   int index;
 
@@ -78,6 +71,18 @@ typedef struct PC_TREE {
   int sms_none_valid;
   int sms_rect_valid;
 } PC_TREE;
+
+typedef struct PICK_MODE_CONTEXT_RDO_BUFFER {
+  PICK_MODE_CONTEXT none;
+  PICK_MODE_CONTEXT horizontal[2];
+  PICK_MODE_CONTEXT vertical[2];
+  PICK_MODE_CONTEXT horizontala[3];
+  PICK_MODE_CONTEXT horizontalb[3];
+  PICK_MODE_CONTEXT verticala[3];
+  PICK_MODE_CONTEXT verticalb[3];
+  PICK_MODE_CONTEXT horizontal4[4];
+  PICK_MODE_CONTEXT vertical4[4];
+} PICK_MODE_CONTEXT_RDO_BUFFER;
 
 void av1_setup_pc_tree(struct AV1Common *cm, struct ThreadData *td);
 void av1_free_pc_tree(struct ThreadData *td, const int num_planes);

@@ -602,8 +602,14 @@ typedef struct ThreadData {
   MACROBLOCK mb;
   RD_COUNTS rd_counts;
   FRAME_COUNTS *counts;
+
   PC_TREE *pc_tree;
   PC_TREE *pc_root[MAX_MIB_SIZE_LOG2 - MIN_MIB_SIZE_LOG2 + 1];
+  // Buffers for caching 10-way partition mode decisions used by the recursive
+  // function rd_pick_partition() at splittable square block levels (from
+  // 128x128 to 8x8).
+  PICK_MODE_CONTEXT_RDO_BUFFER *pick_mode_contexts[5];
+
   tran_low_t *tree_coeff_buf[MAX_MB_PLANE];
   tran_low_t *tree_qcoeff_buf[MAX_MB_PLANE];
   tran_low_t *tree_dqcoeff_buf[MAX_MB_PLANE];
