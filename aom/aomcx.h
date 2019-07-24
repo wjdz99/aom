@@ -243,6 +243,20 @@ enum aome_enc_control_id {
    */
   AOME_SET_NUMBER_SPATIAL_LAYERS,
 
+
+   /*!\brief Codec control function to set number of tempporal layers.
+   */
+   AOME_SET_NUMBER_TEMPORAL_LAYERS,
+
+
+   /*!\brief Codec control function to set the layer id.
+   */
+   AOME_SET_LAYER_ID,
+
+   /*!\brief Codec control function to set SVC paramaeters.
+   */
+   AOME_SET_SVC_PARAMS,
+
   /*!\brief Codec control function to set max data rate for Inter frames.
    *
    * This value controls additional clamping on the maximum size of an
@@ -1207,6 +1221,24 @@ typedef enum {
   AOM_TUNE_DAALA_DIST
 } aom_tune_metric;
 
+#define AOM_MAX_LAYERS 16
+#define AOM_MAX_SS_LAYERS 4
+#define AOM_MAX_TS_LAYERS 4
+
+typedef struct aom_svc_layer_id {
+  int spatial_layer_id;
+  int temporal_layer_id;
+} aom_svc_layer_id_t;
+
+typedef struct aom_svc_params {
+  int max_quantizers[AOM_MAX_LAYERS];     /**< Max Q for each layer */
+  int min_quantizers[AOM_MAX_LAYERS];     /**< Min Q for each layer */
+  int scaling_factor_num[AOM_MAX_SS_LAYERS]; /**< Scaling factor-numerator */
+  int scaling_factor_den[AOM_MAX_SS_LAYERS]; /**< Scaling factor-denominator */
+  int layer_target_bitrate[AOM_MAX_LAYERS];
+  int framerate_factor[AOM_MAX_TS_LAYERS];
+} aom_svc_params_t;
+
 /*!\cond */
 /*!\brief Encoder control function parameter type
  *
@@ -1272,6 +1304,15 @@ AOM_CTRL_USE_TYPE(AOME_SET_MAX_INTER_BITRATE_PCT, unsigned int)
 
 AOM_CTRL_USE_TYPE(AOME_SET_NUMBER_SPATIAL_LAYERS, int)
 #define AOME_CTRL_AOME_SET_NUMBER_SPATIAL_LAYERS
+
+AOM_CTRL_USE_TYPE(AOME_SET_NUMBER_TEMPORAL_LAYERS, int)
+#define AOME_CTRL_AOME_SET_NUMBER_TEMPORAL_LAYERS
+
+AOM_CTRL_USE_TYPE(AOME_SET_LAYER_ID, aom_svc_layer_id_t *)
+#define AOME_CTRL_AOME_SET_LAYER_ID
+
+AOM_CTRL_USE_TYPE(AOME_SET_SVC_PARAMS, aom_svc_params_t *)
+#define AOME_CTRL_AOME_SET_SVC_PARAMS
 
 AOM_CTRL_USE_TYPE(AV1E_SET_GF_CBR_BOOST_PCT, unsigned int)
 #define AOM_CTRL_AV1E_SET_GF_CBR_BOOST_PCT
