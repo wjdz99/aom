@@ -914,7 +914,7 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
     // Unfortunately the encoder interface reflects the old refresh_*_frame
     // flags so we have to replicate the old refresh_frame_flags logic here in
     // order to preserve the behaviour of the flag overrides.
-    int ref_frame_map_idx = get_ref_frame_map_idx(cm, LAST3_FRAME);
+    int ref_frame_map_idx = get_ref_frame_map_idx(cm, LAST_FRAME);
     if (ref_frame_map_idx != INVALID_IDX)
       refresh_mask |= cpi->ext_refresh_last_frame << ref_frame_map_idx;
 
@@ -1378,8 +1378,12 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                                force_refresh_all);
 
   if (oxcf->pass == 0 || oxcf->pass == 2) {
-    if (!cpi->ext_refresh_frame_flags_pending)
+    if (!cpi->ext_refresh_frame_flags_pending) {
       av1_get_ref_frames(cpi, frame_update_type, &cpi->ref_buffer_stack);
+    } else if (cpi->svc.apply_external_ref_map) {
+      for(unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++)
+        cm->remapped_ref_idx[i] = cpi->svc.ref_map_idx[i];
+    }
 
     // Work out which reference frame slots may be used.
     frame_params.ref_frame_flags = get_ref_frame_flags(cpi);
