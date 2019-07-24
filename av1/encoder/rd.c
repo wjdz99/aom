@@ -60,6 +60,9 @@ static const int use_intra_ext_tx_for_txsize[EXT_TX_SETS_INTRA]
                                               { 1, 1, 1, 1 },  // unused
                                               { 1, 1, 0, 0 },
                                               { 0, 0, 1, 0 },
+#if CONFIG_VQ4X4
+                                              { 1, 0, 0, 0 },
+#endif
                                             };
 
 static const int use_inter_ext_tx_for_txsize[EXT_TX_SETS_INTER]
@@ -81,6 +84,9 @@ static const int av1_ext_tx_set_idx_to_type[2][AOMMAX(EXT_TX_SETS_INTRA,
       EXT_TX_SET_DTT4_IDTX_1DDCT,
 #endif
       EXT_TX_SET_DTT4_IDTX,
+#if CONFIG_VQ4X4
+      EXT_TX_SET_VQ,
+#endif
   },
   {
       // Inter

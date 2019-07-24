@@ -683,6 +683,9 @@ static INLINE int block_signals_txsize(BLOCK_SIZE bsize) {
 // Number of transform types in each set type
 static const int av1_num_ext_tx_set[EXT_TX_SET_TYPES] = {
   1, 2, 5, 7, 12, 16,
+#if CONFIG_VQ4X4
+  7,  // not used
+#endif
 };
 
 #if CONFIG_MODE_DEP_TX
@@ -702,6 +705,10 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1 },
+#if CONFIG_VQ4X4
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0,
+    0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+#endif
 };
 #elif USE_MDTX_INTRA
 static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
@@ -711,6 +718,9 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 },
+#if CONFIG_VQ4X4
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1 },
+#endif
 };
 #elif USE_MDTX_INTER
 static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
@@ -720,6 +730,9 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+#if CONFIG_VQ4X4
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+#endif
 };
 #endif
 #else
@@ -730,6 +743,9 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+#if CONFIG_VQ4X4
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 },
+#endif
 };
 #endif
 
@@ -756,6 +772,9 @@ static const uint16_t av1_ext_tx_used_flag[EXT_TX_SET_TYPES] = {
   0x0E0F,  // 0000 1110 0000 1111
   0x0FFF,  // 0000 1111 1111 1111
   0xFFFF,  // 1111 1111 1111 1111
+#if CONFIG_VQ4X4
+  0x0E0F,  // 0000 1110 0000 1111
+#endif
 };
 
 static INLINE TxSetType av1_get_ext_tx_set_type(TX_SIZE tx_size, int is_inter,
@@ -767,6 +786,9 @@ static INLINE TxSetType av1_get_ext_tx_set_type(TX_SIZE tx_size, int is_inter,
   if (use_reduced_set)
     return is_inter ? EXT_TX_SET_DCT_IDTX : EXT_TX_SET_DTT4_IDTX;
   const TX_SIZE tx_size_sqr = txsize_sqr_map[tx_size];
+#if CONFIG_VQ4X4
+  if (!is_inter && tx_size_sqr_up == TX_4X4) return EXT_TX_SET_VQ;
+#endif
   if (is_inter) {
     return (tx_size_sqr == TX_16X16 ? EXT_TX_SET_DTT9_IDTX_1DDCT
 #if CONFIG_MODE_DEP_TX && USE_MDTX_INTER
@@ -786,8 +808,18 @@ static INLINE TxSetType av1_get_ext_tx_set_type(TX_SIZE tx_size, int is_inter,
 
 // Maps tx set types to the indices.
 static const int ext_tx_set_index[2][EXT_TX_SET_TYPES] = {
-  { // Intra
-    0, -1, 2, 1, -1, -1 },
+  {
+      // Intra
+      0,
+      -1,
+      2,
+      1,
+      -1,
+      -1,
+#if CONFIG_VQ4X4
+      3,
+#endif
+  },
   { // Inter
     0, 3, -1, -1, 2, 1 },
 };
