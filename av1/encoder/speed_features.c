@@ -318,6 +318,7 @@ static void set_good_speed_features_framesize_independent(
       sf->disable_smooth_interintra = boosted ? 0 : 1;
     sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
     sf->gm_search_type = GM_DISABLE_SEARCH;
+    sf->intra_angle_estimation = 2;
     sf->prune_comp_search_by_single_result = 2;
     sf->prune_motion_mode_level = boosted ? 2 : 3;
     sf->prune_warp_using_wmtype = 1;
@@ -842,6 +843,11 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
     }
     sf->max_exaustive_pct = intrabc_max_mesh_pct[mesh_speed];
   }
+  // If default intra transform type is to be used,
+  // disable angle estimation for chroma
+  if (sf->tx_type_search.fast_intra_tx_type_search ||
+      cpi->oxcf.use_intra_default_tx_only)
+    sf->intra_angle_estimation = 1;
 
   // Slow quant, dct and trellis not worthwhile for first pass
   // so make sure they are always turned off.
