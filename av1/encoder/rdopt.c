@@ -4612,7 +4612,8 @@ static void get_highbd_gradient_hist(const uint8_t *src8, int src_stride,
 
 static void angle_estimation(const uint8_t *src, int src_stride, int rows,
                              int cols, BLOCK_SIZE bsize, int is_hbd,
-                             uint8_t *directional_mode_skip_mask) {
+                             uint8_t *directional_mode_skip_mask,
+                             int chroma_modes) {
   // Check if angle_delta is used
   if (!av1_use_angle_delta(bsize)) return;
 
@@ -4638,9 +4639,10 @@ static void angle_estimation(const uint8_t *src, int src_stride, int rows,
         score += hist[angle_bin + 1];
         ++weight;
       }
+      if (chroma_modes) weight += 2;
       const int thresh = 10;
       if (score * thresh < hist_sum * weight) directional_mode_skip_mask[i] = 1;
-    }
+      }
   }
 }
 
@@ -4714,7 +4716,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     const int src_stride = x->plane[0].src.stride;
     const uint8_t *src = x->plane[0].src.buf;
     angle_estimation(src, src_stride, rows, cols, bsize, is_cur_buf_hbd(xd),
-                     directional_mode_skip_mask);
+                     directional_mode_skip_mask, 0);
   }
   mbmi->filter_intra_mode_info.use_filter_intra = 0;
   pmi->palette_size[0] = 0;
@@ -6350,9 +6352,34 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                        BLOCK_SIZE bsize, TX_SIZE max_tx_size) {
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
+  const struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_U];
   assert(!is_inter_block(mbmi));
   MB_MODE_INFO best_mbmi = *mbmi;
   int64_t best_rd = INT64_MAX, this_rd;
+  uint8_t directional_mode_skip_mask[2][UV_INTRA_MODES] = { { 0 } };
+
+  if (cpi->sf.intra_angle_estimation) {
+    // Obtain chroma specific parameters
+    BLOCK_SIZE uv_bsize =
+        scale_chroma_bsize(bsize, pd->subsampling_x, pd->subsampling_y);
+    uv_bsize =
+        get_plane_block_size(uv_bsize, pd->subsampling_x, pd->subsampling_y);
+    const int rows = block_size_high[uv_bsize];
+    const int cols = block_size_wide[uv_bsize];
+    const int src_stride = x->plane[AOM_PLANE_U].src.stride;
+
+    // angle estimation for U and V
+    for (int plane = AOM_PLANE_U; plane <= AOM_PLANE_V; plane++) {
+      const uint8_t *src = x->plane[plane].src.buf;
+      angle_estimation(src, src_stride, rows, cols, bsize, is_cur_buf_hbd(xd),
+                       directional_mode_skip_mask[plane - 1], 1);
+    }
+    // Set directional_mode_skip_mask as a conjuction of U and V
+    for (int mode_idx = 0; mode_idx < UV_INTRA_MODES; mode_idx++) {
+      directional_mode_skip_mask[0][mode_idx] &=
+          directional_mode_skip_mask[1][mode_idx];
+    }
+  }
 
   for (int mode_idx = 0; mode_idx < UV_INTRA_MODES; ++mode_idx) {
     int this_rate;
@@ -6367,7 +6394,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       continue;
 
     if (!cpi->oxcf.enable_paeth_intra && mode == UV_PAETH_PRED) continue;
-
+    if (is_directional_mode && directional_mode_skip_mask[0][mode]) continue;
     mbmi->uv_mode = mode;
     int cfl_alpha_rate = 0;
     if (mode == UV_CFL_PRED) {
@@ -12073,7 +12100,7 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
       const int rows = block_size_high[bsize];
       const int cols = block_size_wide[bsize];
       angle_estimation(src, src_stride, rows, cols, bsize, is_cur_buf_hbd(xd),
-                       search_state->directional_mode_skip_mask);
+                       search_state->directional_mode_skip_mask, 0);
       search_state->angle_stats_ready = 1;
     }
     if (search_state->directional_mode_skip_mask[mode]) return INT64_MAX;
