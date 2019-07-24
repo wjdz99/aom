@@ -598,6 +598,9 @@ typedef struct SPEED_FEATURES {
   int skip_repeated_newmv;
 
   // Prune intra mode candidates based on source block gradient stats.
+  // 0: no pruning
+  // 1: prune directional modes for luma
+  // 2: prune directional modes for luma and chroma
   int intra_angle_estimation;
 
   // Skip obmc or warped motion mode when neighborhood motion field is
