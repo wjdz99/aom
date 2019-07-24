@@ -4693,7 +4693,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         if (display_frame_id != cm->ref_frame_id[existing_frame_idx] ||
             cm->valid_for_referencing[existing_frame_idx] == 0)
           aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                             "Reference buffer frame ID mismatch");
+                             "HERE : Reference buffer frame ID mismatch");
       }
       lock_buffer_pool(pool);
       assert(frame_to_show->ref_count > 0);
@@ -5044,9 +5044,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
                (1 << frame_id_length));
           // Compare values derived from delta_frame_id_minus_1 and
           // refresh_frame_flags.
-          if (ref_frame_id != cm->ref_frame_id[ref])
+          if (0 && ref_frame_id != cm->ref_frame_id[ref])
             aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                               "Reference buffer frame ID mismatch");
+                               "HERE 2: Reference buffer frame ID mismatch");
         }
       }
 
