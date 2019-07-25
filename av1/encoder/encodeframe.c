@@ -4977,6 +4977,63 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
 #define CHECK_PRECOMPUTED_REF_FRAME_MAP 0
 
+static void update_best_and_nearest_past_frames(AV1_COMP *cpi) {
+#define PRINT_REFS 0
+
+  MV_REFERENCE_FRAME ref_frame;
+  const AV1_COMMON *const cm = &cpi->common;
+  const OrderHintInfo *const order_hint_info = &cm->seq_params.order_hint_info;
+  cpi->nearest_past_ref_frame.distance = INT_MIN;
+  cpi->nearest_past_ref_frame.layer_depth = INT_MAX;
+  cpi->best_quality_past_ref_frame.distance = INT_MAX;
+  cpi->best_quality_past_ref_frame.layer_depth = INT_MAX;
+  // cpi->nearest_future_ref_frame.distance = INT_MAX;
+  // cpi->nearest_future_ref_frame.layer_depth = INT_MAX;
+  // cpi->best_quality_future_ref_frame.distance = INT_MAX;
+  // cpi->best_quality_future_ref_frame.layer_depth = INT_MAX;
+#if PRINT_REFS
+  fprintf(stderr, "\n(%d) ", cm->current_frame.display_order_hint);
+#endif
+  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
+#if PRINT_REFS
+    {
+      if (buf != NULL &&
+          (cpi->ref_frame_flags & av1_ref_frame_flag_list[ref_frame])) {
+        fprintf(stderr, " %d", buf->display_order_hint);
+      } else {
+        fprintf(stderr, " -1");
+      }
+    }
+#endif
+    if (buf != NULL &&
+        (cpi->ref_frame_flags & av1_ref_frame_flag_list[ref_frame])) {
+      int dist = av1_encoder_get_relative_dist(
+          order_hint_info,
+          cm->cur_frame->ref_display_order_hint[ref_frame - LAST_FRAME],
+          cm->current_frame.display_order_hint);
+      if (dist < 0) {
+        if (cpi->nearest_past_ref_frame.distance < dist) {
+          cpi->nearest_past_ref_frame.distance = dist;
+          cpi->nearest_past_ref_frame.layer_depth = buf->layer_depth;
+        }
+        if (cpi->best_quality_past_ref_frame.layer_depth > buf->layer_depth) {
+          cpi->best_quality_past_ref_frame.distance = dist;
+          cpi->best_quality_past_ref_frame.layer_depth = buf->layer_depth;
+        }
+      }
+    }
+  }
+#if PRINT_REFS
+  fprintf(stderr, "\n[%d] [%d %d] [%d %d]\n",
+          cm->current_frame.display_order_hint,
+          cpi->nearest_future_ref_frame.distance,
+          cpi->nearest_future_ref_frame.layer_depth,
+          cpi->best_quality_future_ref_frame.distance,
+          cpi->best_quality_future_ref_frame.layer_depth);
+#endif
+}
+
 void av1_encode_frame(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   CurrentFrame *const current_frame = &cm->current_frame;
@@ -5003,6 +5060,18 @@ void av1_encode_frame(AV1_COMP *cpi) {
   enforce_max_ref_frames(cpi);
   set_rel_frame_dist(cpi);
   av1_setup_frame_sign_bias(cm);
+#if 1
+  update_best_and_nearest_past_frames(cpi);
+  // cpi->ref_frames_to_be_pruned = 0;
+  // MV_REFERENCE_FRAME ref_frame;
+
+  // for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+  //  if (check_ref_frame_to_be_pruned) cpi->ref_frames_to_be_pruned++;
+  //}
+  // if (cpi->ref_frames_to_be_pruned > 2) {
+
+  //}
+#endif
 
 #if CHECK_PRECOMPUTED_REF_FRAME_MAP
   GF_GROUP *gf_group = &cpi->gf_group;

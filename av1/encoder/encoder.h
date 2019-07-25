@@ -733,6 +733,11 @@ typedef struct {
   int gld_stack_size;
 } RefBufferStack;
 
+typedef struct {
+  int layer_depth;
+  int distance;
+} QualityDistance;
+
 typedef struct AV1_COMP {
   QUANTS quants;
   ThreadData td;
@@ -1042,6 +1047,12 @@ typedef struct AV1_COMP {
 
   // Indicates the true relative distance of ref frame w.r.t. current frame
   int8_t ref_relative_dist[INTER_REFS_PER_FRAME];
+
+  QualityDistance best_quality_past_ref_frame;
+  QualityDistance nearest_past_ref_frame;
+  QualityDistance best_quality_future_ref_frame;
+  QualityDistance nearest_future_ref_frame;
+  int ref_frames_to_be_pruned;
 
   double *ssim_rdmult_scaling_factors;
 

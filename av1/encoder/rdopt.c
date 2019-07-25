@@ -11991,6 +11991,7 @@ static int inter_mode_search_order_independent_skip(
     const CurrentFrame *const current_frame = &cm->current_frame;
     if (sf->selective_ref_frame >= 2 ||
         (sf->selective_ref_frame == 1 && comp_pred)) {
+#if 0
       if (ref_frame[0] == LAST3_FRAME || ref_frame[1] == LAST3_FRAME) {
         if (av1_encoder_get_relative_dist(
                 order_hint_info,
@@ -12007,6 +12008,13 @@ static int inter_mode_search_order_independent_skip(
                     ->ref_display_order_hint[GOLDEN_FRAME - LAST_FRAME]) <= 0)
           return 1;
       }
+#else
+      {
+        for (int i = 0; i <= comp_pred; ++i) {
+          if (check_ref_frame_to_be_pruned(cpi, ref_frame[i])) return 1;
+        }
+      }
+#endif
     }
 
     // One-sided compound is used only when all reference frames are one-sided.
@@ -12067,6 +12075,35 @@ static int inter_mode_search_order_independent_skip(
         }
       }
     }
+#if 0
+    const int boosted = frame_is_kf_gf_arf(cpi);
+    const int is_boosted_arf2_bwd_type =
+        boosted || cpi->refresh_bwd_ref_frame || cpi->refresh_alt2_ref_frame;
+    if (!is_boosted_arf2_bwd_type) {
+      if (!((ref_frame[0] == LAST_FRAME || ref_frame[0] == ALTREF_FRAME ||
+             ref_frame[0] == GOLDEN_FRAME) &&
+            (ref_frame[1] == NONE_FRAME || ref_frame[1] == LAST_FRAME ||
+             ref_frame[1] == ALTREF_FRAME || ref_frame[1] == GOLDEN_FRAME))) {
+        for (int i = 0; i <= comp_pred; i++) {
+          int layer_depth_buf = -1;
+          const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame[i]);
+          if (buf != NULL) layer_depth_buf = buf->layer_depth;
+          if (current_frame->layer_depth <= layer_depth_buf) return 1;
+        }
+      }
+    }
+#endif
+#if 0
+    {
+      if ((ref_frame[0] != LAST_FRAME) && !comp_pred) {
+          int layer_depth_buf = -1;
+          const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame[0]);
+          if (buf != NULL) layer_depth_buf = buf->layer_depth;
+          if (current_frame->layer_depth < layer_depth_buf)
+            return 1;
+      }
+    }
+#endif
   }
 
   if (skip_motion_mode) return 2;

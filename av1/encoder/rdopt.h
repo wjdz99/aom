@@ -192,6 +192,27 @@ static INLINE int av1_encoder_get_relative_dist(const OrderHintInfo *oh, int a,
   return (a - b);
 }
 
+static int check_ref_frame_to_be_pruned(const AV1_COMP *cpi,
+                                        const MV_REFERENCE_FRAME ref_frame) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const OrderHintInfo *const order_hint_info = &cm->seq_params.order_hint_info;
+  const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
+  if (buf != NULL) {
+    int dist =
+        av1_encoder_get_relative_dist(order_hint_info, buf->display_order_hint,
+                                      cm->current_frame.display_order_hint);
+    if (dist < 0) {
+      if (buf->layer_depth != cpi->best_quality_past_ref_frame.layer_depth) {
+        if (buf->layer_depth > AOMMAX(cpi->nearest_past_ref_frame.layer_depth,
+                                      cm->current_frame.layer_depth) ||
+            dist < cpi->best_quality_past_ref_frame.distance)
+          return 1;
+      }
+    }
+  }
+  return 0;
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
