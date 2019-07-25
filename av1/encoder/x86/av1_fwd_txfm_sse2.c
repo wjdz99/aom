@@ -2454,6 +2454,114 @@ void av1_lowbd_fwd_txfm2d_8x32_sse2(const int16_t *input, int32_t *output,
   }
 }
 
+#if CONFIG_FLEX_PARTITION
+void av1_lowbd_fwd_txfm2d_4x32_sse2(const int16_t *input, int32_t *output,
+                                    int stride, TX_TYPE tx_type,
+#if CONFIG_MODE_DEP_TX
+                                    PREDICTION_MODE mode,
+#endif
+                                    int bd) {
+#if CONFIG_MODE_DEP_TX
+  (void)mode;
+#endif
+  (void)bd;
+  __m128i buf0[32], buf1[32];
+  const int8_t *shift = av1_fwd_txfm_shift_ls[TX_4X32];
+  const int txw_idx = get_txw_idx(TX_4X32);
+  const int txh_idx = get_txh_idx(TX_4X32);
+  const int cos_bit_col = av1_fwd_cos_bit_col[txw_idx][txh_idx];
+  const int cos_bit_row = av1_fwd_cos_bit_row[txw_idx][txh_idx];
+  const int width = 4;
+  const int height = 32;
+  const transform_1d_sse2 col_txfm = col_txfm8x32_arr[tx_type];
+  const transform_1d_sse2 row_txfm = row_txfm8x4_arr[tx_type];
+  int ud_flip, lr_flip;
+
+  get_flip_cfg(tx_type, &ud_flip, &lr_flip);
+  if (ud_flip) {
+    load_buffer_16bit_to_16bit_w4_flip(input, stride, buf0, height);
+  } else {
+    load_buffer_16bit_to_16bit_w4(input, stride, buf0, height);
+  }
+  round_shift_16bit(buf0, height, shift[0]);
+  col_txfm(buf0, buf0, cos_bit_col);
+  round_shift_16bit(buf0, height, shift[1]);
+  transpose_16bit_4x8(buf0, buf1);
+  transpose_16bit_4x8(buf0 + 8, buf1 + 8);
+  transpose_16bit_4x8(buf0 + 16, buf1 + 16);
+  transpose_16bit_4x8(buf0 + 24, buf1 + 24);
+
+  for (int i = 0; i < 4; i++) {
+    __m128i *buf;
+    if (lr_flip) {
+      buf = buf0;
+      flip_buf_sse2(buf1 + 8 * i, buf, width);
+    } else {
+      buf = buf1 + 8 * i;
+    }
+    row_txfm(buf, buf, cos_bit_row);
+    round_shift_16bit(buf, width, shift[2]);
+    transpose_16bit_8x4(buf, buf);
+    store_buffer_16bit_to_32bit_w4(buf, output + 8 * width * i, width, 8);
+  }
+}
+
+void av1_lowbd_fwd_txfm2d_4x64_sse2(const int16_t *input, int32_t *output,
+                                    int stride, TX_TYPE tx_type,
+#if CONFIG_MODE_DEP_TX
+                                    PREDICTION_MODE mode,
+#endif
+                                    int bd) {
+#if CONFIG_MODE_DEP_TX
+  (void)mode;
+#endif
+  (void)bd;
+  __m128i buf0[64], buf1[64];
+  const int8_t *shift = av1_fwd_txfm_shift_ls[TX_4X64];
+  const int txw_idx = get_txw_idx(TX_4X64);
+  const int txh_idx = get_txh_idx(TX_4X64);
+  const int cos_bit_col = av1_fwd_cos_bit_col[txw_idx][txh_idx];
+  const int cos_bit_row = av1_fwd_cos_bit_row[txw_idx][txh_idx];
+  const int width = 4;
+  const int height = 64;
+  const transform_1d_sse2 col_txfm = col_txfm32x64_arr[tx_type];
+  const transform_1d_sse2 row_txfm = row_txfm8x4_arr[tx_type];
+  int ud_flip, lr_flip;
+
+  get_flip_cfg(tx_type, &ud_flip, &lr_flip);
+  if (ud_flip) {
+    load_buffer_16bit_to_16bit_w4_flip(input, stride, buf0, height);
+  } else {
+    load_buffer_16bit_to_16bit_w4(input, stride, buf0, height);
+  }
+  round_shift_16bit(buf0, height, shift[0]);
+  col_txfm(buf0, buf0, cos_bit_col);
+  round_shift_16bit(buf0, height, shift[1]);
+  transpose_16bit_4x8(buf0, buf1);
+  transpose_16bit_4x8(buf0 + 8, buf1 + 8);
+  transpose_16bit_4x8(buf0 + 16, buf1 + 16);
+  transpose_16bit_4x8(buf0 + 24, buf1 + 24);
+  transpose_16bit_4x8(buf0 + 32, buf1 + 32);
+  transpose_16bit_4x8(buf0 + 40, buf1 + 40);
+  transpose_16bit_4x8(buf0 + 48, buf1 + 48);
+  transpose_16bit_4x8(buf0 + 56, buf1 + 56);
+
+  for (int i = 0; i < 8; i++) {
+    __m128i *buf;
+    if (lr_flip) {
+      buf = buf0;
+      flip_buf_sse2(buf1 + 8 * i, buf, width);
+    } else {
+      buf = buf1 + 8 * i;
+    }
+    row_txfm(buf, buf, cos_bit_row);
+    round_shift_16bit(buf, width, shift[2]);
+    transpose_16bit_8x4(buf, buf);
+    store_buffer_16bit_to_32bit_w4(buf, output + 8 * width * i, width, 8);
+  }
+}
+#endif  // CONFIG_FLEX_PARTITION
+
 void av1_lowbd_fwd_txfm2d_16x4_sse2(const int16_t *input, int32_t *output,
                                     int stride, TX_TYPE tx_type,
 #if CONFIG_MODE_DEP_TX
