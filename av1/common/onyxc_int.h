@@ -136,6 +136,8 @@ typedef struct RefCntBuffer {
   unsigned int display_order_hint;
   unsigned int ref_display_order_hint[INTER_REFS_PER_FRAME];
 
+  int layer_depth;
+
   MV_REF *mvs;
   uint8_t *seg_map;
   struct segmentation seg;
@@ -302,6 +304,7 @@ typedef struct {
 
   unsigned int order_hint;
   unsigned int display_order_hint;
+  int layer_depth;
   unsigned int frame_number;
   SkipModeInfo skip_mode_info;
   int refresh_frame_flags;  // Which ref frames are overwritten by this frame
