@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7964039_7cf3a323",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8493,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-07-25T22:04:10Z",
+      "side": 1,
+      "message": "There was a get_interp_filter_allowed_mask() call here, but it was deleted in a subsequent commit:\n\n  https://aomedia-review.googlesource.com/c/aom/+/91909\n\nI don\u0027t know how to deal with this code...",
+      "revId": "2b42b31ff6b86ac956ead60e196d137f85030d3e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
