@@ -844,6 +844,7 @@ void av1_find_best_ref_mvs(int allow_hp, int_mv *mvlist, int_mv *nearest_mv,
 void av1_setup_frame_buf_refs(AV1_COMMON *cm) {
   cm->cur_frame->order_hint = cm->current_frame.order_hint;
   cm->cur_frame->display_order_hint = cm->current_frame.display_order_hint;
+  cm->cur_frame->layer_depth = cm->current_frame.layer_depth;
 
   MV_REFERENCE_FRAME ref_frame;
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
@@ -852,6 +853,7 @@ void av1_setup_frame_buf_refs(AV1_COMMON *cm) {
       cm->cur_frame->ref_order_hints[ref_frame - LAST_FRAME] = buf->order_hint;
       cm->cur_frame->ref_display_order_hint[ref_frame - LAST_FRAME] =
           buf->display_order_hint;
+      cm->cur_frame->ref_layer_depth[ref_frame - LAST_FRAME] = buf->layer_depth;
     }
   }
 }
