@@ -213,12 +213,12 @@ static int has_top_right(const AV1_COMMON *cm, BLOCK_SIZE bsize, int mi_row,
       }
       const int plane_bw_unit_64 = mi_size_wide[BLOCK_64X64] >> ss_x;
       const int col_off_64 = col_off % plane_bw_unit_64;
-      return col_off_64 + top_right_count_unit < plane_bw_unit_64;
+      return col_off_64 + (top_right_count_unit << 1) < plane_bw_unit_64;
     }
-    return col_off + top_right_count_unit < plane_bw_unit;
+    return col_off + (top_right_count_unit << 1) < plane_bw_unit;
   } else {
     // All top-right pixels are in the block above, which is already available.
-    if (col_off + top_right_count_unit < plane_bw_unit) return 1;
+    if (col_off + (top_right_count_unit << 1) < plane_bw_unit) return 1;
 
     const int bw_in_mi_log2 = mi_size_wide_log2[bsize];
     const int bh_in_mi_log2 = mi_size_high_log2[bsize];
@@ -397,7 +397,7 @@ static int has_bottom_left(const AV1_COMMON *cm, BLOCK_SIZE bsize, int mi_row,
           AOMMIN(mi_size_high[bsize] >> ss_y, plane_bh_unit_64);
       // Check if all bottom-left pixels are in the left 64x* block (which is
       // already coded).
-      return row_off_64 + tx_size_high_unit[txsz] < plane_bh_unit;
+      return row_off_64 + (tx_size_high_unit[txsz] << 1) < plane_bh_unit;
     }
   }
 
@@ -410,7 +410,7 @@ static int has_bottom_left(const AV1_COMMON *cm, BLOCK_SIZE bsize, int mi_row,
     const int bottom_left_count_unit = tx_size_high_unit[txsz];
 
     // All bottom-left pixels are in the left block, which is already available.
-    if (row_off + bottom_left_count_unit < plane_bh_unit) return 1;
+    if (row_off + (bottom_left_count_unit << 1) < plane_bh_unit) return 1;
 
     const int bw_in_mi_log2 = mi_size_wide_log2[bsize];
     const int bh_in_mi_log2 = mi_size_high_log2[bsize];
@@ -428,7 +428,7 @@ static int has_bottom_left(const AV1_COMMON *cm, BLOCK_SIZE bsize, int mi_row,
                                     ss_y;
       const int row_off_in_sb = blk_start_row_off + row_off;
       const int sb_height_unit = sb_mi_size >> ss_y;
-      return row_off_in_sb + bottom_left_count_unit < sb_height_unit;
+      return row_off_in_sb + (bottom_left_count_unit << 1) < sb_height_unit;
     }
 
     // Bottom row of superblock (and not the leftmost column): so bottom-left
