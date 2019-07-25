@@ -12067,6 +12067,23 @@ static int inter_mode_search_order_independent_skip(
         }
       }
     }
+
+#if 1
+    {
+      if (!((ref_frame[0] == LAST_FRAME || ref_frame[0] == ALTREF_FRAME ||
+             ref_frame[0] == GOLDEN_FRAME) &&
+            (ref_frame[1] == NONE_FRAME || ref_frame[1] == LAST_FRAME ||
+             ref_frame[1] == ALTREF_FRAME || ref_frame[1] == GOLDEN_FRAME))) {
+        for (int i = 0; i <= comp_pred; i++) {
+          int layer_depth_buf = -1;
+          const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame[i]);
+          if (buf != NULL) layer_depth_buf = buf->layer_depth;
+          if (current_frame->layer_depth < layer_depth_buf)
+            return 1;
+        }
+      }
+    }
+#endif
   }
 
   if (skip_motion_mode) return 2;
