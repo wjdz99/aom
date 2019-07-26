@@ -333,6 +333,8 @@ static void set_good_speed_features_framesize_independent(
     // TODO(any): Experiment on the dependency of this speed feature with
     // use_intra_txb_hash, use_inter_txb_hash and use_mb_rd_hash speed features
     sf->enable_winner_mode_for_coeff_opt = 1;
+    sf->enable_lower_rounding_offset =
+        (cm->current_frame.frame_type == KEY_FRAME) ? 0 : 1;
   }
 
   if (speed >= 4) {
@@ -794,6 +796,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->disable_wedge_interintra_search = 0;
   sf->perform_coeff_opt = 0;
   sf->enable_winner_mode_for_coeff_opt = 0;
+  sf->enable_lower_rounding_offset = 0;
   sf->prune_comp_type_by_model_rd = 0;
   sf->disable_smooth_intra = 0;
   sf->perform_best_rd_based_gating_for_chroma = 0;

@@ -258,11 +258,13 @@ static INLINE void set_error_per_bit(MACROBLOCK *x, int rdmult) {
 
 // Get the threshold for R-D optimization of coefficients depending upon mode
 // decision/winner mode processing
-static INLINE uint32_t get_rd_opt_coeff_thresh(
-    const uint32_t *const coeff_opt_dist_threshold,
-    int enable_winner_mode_for_coeff_opt, int is_winner_mode) {
-  // Default initialization of threshold
+static INLINE void update_rd_opt_coeff_thresh(
+    MACROBLOCK *const x, const uint32_t *const coeff_opt_dist_threshold,
+    int enable_winner_mode_for_coeff_opt, int enable_lower_rounding_offset,
+    int is_winner_mode) {
+  // Default initialization of threshold and winner mode
   uint32_t coeff_opt_thresh = coeff_opt_dist_threshold[0];
+  x->is_winner_mode = 1;
   // TODO(any): Experiment with coeff_opt_dist_threshold values when
   // enable_winner_mode_for_coeff_opt is ON
   // TODO(any): Skip the winner mode processing for blocks with lower residual
@@ -271,12 +273,14 @@ static INLINE uint32_t get_rd_opt_coeff_thresh(
   if (enable_winner_mode_for_coeff_opt) {
     // Use conservative threshold during mode decision and perform R-D
     // optimization of coeffs always for winner modes
-    if (is_winner_mode)
+    if (is_winner_mode) {
       coeff_opt_thresh = UINT32_MAX;
-    else
+    } else {
       coeff_opt_thresh = coeff_opt_dist_threshold[1];
+      x->is_winner_mode = enable_lower_rounding_offset ? 0 : 1;
+    }
   }
-  return coeff_opt_thresh;
+  x->coeff_opt_dist_threshold = coeff_opt_thresh;
 }
 
 void av1_setup_pred_block(const MACROBLOCKD *xd,

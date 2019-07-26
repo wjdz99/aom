@@ -686,8 +686,8 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
 
   // Default initialization of the threshold for R-D optimization of
   // coefficients for mode decision
-  x->coeff_opt_dist_threshold =
-      get_rd_opt_coeff_thresh(cpi->coeff_opt_dist_threshold, 0, 0);
+  update_rd_opt_coeff_thresh(x, cpi->coeff_opt_dist_threshold, 0,
+                             cpi->sf.enable_lower_rounding_offset, 0);
 
   // Save rdmult before it might be changed, so it can be restored later.
   const int orig_rdmult = x->rdmult;

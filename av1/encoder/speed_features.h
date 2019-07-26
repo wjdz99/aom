@@ -671,6 +671,9 @@ typedef struct SPEED_FEATURES {
   // of quantized coeffs
   int enable_winner_mode_for_coeff_opt;
 
+  // Flag used to control the rounding offset for the modes
+  int enable_lower_rounding_offset;
+
   // Flag used to control the speed of the eob selection in trellis.
   int trellis_eob_fast;
 

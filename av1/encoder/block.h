@@ -414,6 +414,7 @@ struct macroblock {
   // Threshold used to decide the applicability of R-D optimization of
   // quantized coeffs
   uint32_t coeff_opt_dist_threshold;
+  int is_winner_mode;
 
 #if !CONFIG_REALTIME_ONLY
   int quad_tree_idx;
