@@ -411,7 +411,7 @@ void aom_int_pro_row_sse2(int16_t *hbuf, const uint8_t *ref,
                           const int ref_stride, const int height) {
   int idx;
   __m128i zero = _mm_setzero_si128();
-  __m128i src_line = _mm_loadu_si128((const __m128i *)ref);
+  __m128i src_line;
   __m128i s0 = _mm_unpacklo_epi8(src_line, zero);
   __m128i s1 = _mm_unpackhi_epi8(src_line, zero);
   __m128i t0, t1;
