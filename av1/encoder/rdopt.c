@@ -4858,6 +4858,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       try_palette ? x->palette_buffer->best_palette_color_map : NULL;
   const MB_MODE_INFO *above_mi = xd->above_mbmi;
   const MB_MODE_INFO *left_mi = xd->left_mbmi;
+  const MB_MODE_INFO *aboveleft_mi = xd->aboveleft_mbmi;
   const PREDICTION_MODE A = av1_above_block_mode(above_mi);
   const PREDICTION_MODE L = av1_left_block_mode(left_mi);
   const int above_ctx = intra_mode_context[A];
