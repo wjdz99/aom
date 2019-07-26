@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "618554b2_ca222bdc",
+        "filename": "aom_dsp/x86/avg_intrin_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-07-26T17:58:50Z",
+      "side": 1,
+      "message": "\u003e ref is used by initialization of s0 and s1.\n\noops, I scanned too quickly, sorry I missed that.",
+      "parentUuid": "e9025091_36170c86",
+      "revId": "ee58653153dff93087756e2aa78858965281b704",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "810b79f2_9acb2c3e",
         "filename": "aom_dsp/x86/avg_intrin_sse2.c",
         "patchSetId": 3
@@ -84,6 +102,30 @@
     },
     {
       "key": {
+        "uuid": "6fd50818_9cfed77e",
+        "filename": "aom_dsp/x86/avg_intrin_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-07-26T17:58:50Z",
+      "side": 1,
+      "message": "\u003e according to C code, height could only be 16,32,64,128\n\u003e \n\u003e It\u0027s called in av1_int_pro_motion_estimation where height is computed as \n\u003e 4 \u003c\u003c mi_size_high_log2[bsize]\n\u003e https://aomedia.googlesource.com/aom/+/refs/heads/master/av1/encoder/mcomp.c#2171\n\u003e \n\u003e so it\u0027s guaranteed to be \u003e\u003d 16.\n\nyou might want to add an assert for that in the else block at 452.",
+      "parentUuid": "47a92ea9_84a937bb",
+      "range": {
+        "startLine": 418,
+        "startChar": 17,
+        "endLine": 418,
+        "endChar": 23
+      },
+      "revId": "ee58653153dff93087756e2aa78858965281b704",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8344182f_33e15bd7",
         "filename": "aom_dsp/x86/avg_intrin_sse2.c",
         "patchSetId": 3
@@ -113,6 +155,24 @@
       "side": 1,
       "message": "what do you mean \"guaranteed minimum\"?",
       "parentUuid": "8344182f_33e15bd7",
+      "revId": "ee58653153dff93087756e2aa78858965281b704",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f3eeb98_3035a2dc",
+        "filename": "aom_dsp/x86/avg_intrin_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-07-26T17:58:50Z",
+      "side": 1,
+      "message": "\u003e what do you mean \"guaranteed minimum\"?\n\nI meant if height had a set of known values and it would be \u003e 1 (I figured it would be given the function) then the first test of idx \u003c height_1 will always pass.",
+      "parentUuid": "c0feb5b1_5c8cbc0c",
       "revId": "ee58653153dff93087756e2aa78858965281b704",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
