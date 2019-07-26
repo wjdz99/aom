@@ -22,6 +22,30 @@
       "revId": "ba88d013cc26f9f33abefdfbb51f18750dd8beb3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54ac20ad_d607a399",
+        "filename": "av1/encoder/av1_fwd_txfm2d.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2019-07-26T00:41:26Z",
+      "side": 1,
+      "message": "Sum should be -2 I think.\nThe 8x64 transform adds 3.5 bits, plus a 0.5 bit is added due to sqrt2 multiply, to make a total of 4 bits. Since the overall scale should be 2 bits more than unitary, the sum of scales here must be -2. However I am not sure of the {2, -4, 0} distribution for 64x8.\nI will add tests in a separate patch.",
+      "parentUuid": "d26972d7_15923c49",
+      "range": {
+        "startLine": 620,
+        "startChar": 0,
+        "endLine": 621,
+        "endChar": 53
+      },
+      "revId": "ba88d013cc26f9f33abefdfbb51f18750dd8beb3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
