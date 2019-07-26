@@ -872,8 +872,17 @@ static void sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
     const int left_ctx = intra_mode_context[left];
     ++counts->kf_y_mode[above_ctx][left_ctx][y_mode];
 #endif  // CONFIG_ENTROPY_STATS
-    if (allow_update_cdf)
+    if (allow_update_cdf) {
+#if CONFIG_INTRA_ENTROPY
+      (void)above_mi;
+      (void)left_mi;
+      NN_CONFIG_EM *nn_model = &(fc->av1_intra_mode);
+      av1_nn_backprop_em(nn_model, y_mode);
+      av1_nn_update_em(nn_model, nn_model->lr);
+#else
       update_cdf(get_y_mode_cdf(fc, above_mi, left_mi), y_mode, INTRA_MODES);
+#endif  // CONFIG_INTRA_ENTROPY
+    }
   } else {
 #if CONFIG_ENTROPY_STATS
     ++counts->y_mode[size_group_lookup[bsize]][y_mode];

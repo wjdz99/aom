@@ -1981,7 +1981,7 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->palette_uv_color_index_cdf, default_palette_uv_color_index_cdf);
   av1_copy(fc->kf_y_cdf, default_kf_y_mode_cdf);
 #if CONFIG_INTRA_ENTROPY
-  fc->av1_intra_mode.lr = 0.005f;
+  fc->av1_intra_mode.lr = 0.001f;
   fc->av1_intra_mode.counter = 0;
   fc->av1_intra_mode.num_hidden_layers = 1;
   fc->av1_intra_mode.feature = fc->intra_mode_in;

@@ -4859,11 +4859,23 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   const MB_MODE_INFO *above_mi = xd->above_mbmi;
   const MB_MODE_INFO *left_mi = xd->left_mbmi;
   const MB_MODE_INFO *aboveleft_mi = xd->aboveleft_mbmi;
+#if CONFIG_INTRA_ENTROPY
+  float features[54], scores[INTRA_MODES];
+  av1_get_intra_block_feature(features, above_mi, left_mi, aboveleft_mi);
+  av1_nn_predict_em(features, &(xd->tile_ctx->av1_intra_mode), scores);
+  av1_nn_softmax_em(scores, scores, INTRA_MODES);
+  aom_cdf_prob cdf[CDF_SIZE(INTRA_MODES)] = { 0 };
+  av1_pdf2cdf(scores, cdf, INTRA_MODES);
+  int cost[INTRA_MODES];
+  av1_cost_tokens_from_cdf(cost, cdf, NULL);
+  bmode_costs = cost;
+#else
   const PREDICTION_MODE A = av1_above_block_mode(above_mi);
   const PREDICTION_MODE L = av1_left_block_mode(left_mi);
   const int above_ctx = intra_mode_context[A];
   const int left_ctx = intra_mode_context[L];
   bmode_costs = x->y_mode_costs[above_ctx][left_ctx];
+#endif  // CONFIG_INTRA_ENTROPY
 
   mbmi->angle_delta[PLANE_TYPE_Y] = 0;
   if (cpi->sf.intra_angle_estimation) {
