@@ -155,6 +155,7 @@ const ObmcVarianceTest::ParamType sse4_functions[] = {
   TestFuncs(aom_obmc_variance8x32_c, aom_obmc_variance8x32_sse4_1),
   TestFuncs(aom_obmc_variance16x4_c, aom_obmc_variance16x4_sse4_1),
   TestFuncs(aom_obmc_variance4x16_c, aom_obmc_variance4x16_sse4_1),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 #if CONFIG_FLEX_PARTITION
   TestFuncs(aom_obmc_variance64x8_c, aom_obmc_variance64x8_sse4_1),
   TestFuncs(aom_obmc_variance8x64_c, aom_obmc_variance8x64_sse4_1),
@@ -163,6 +164,8 @@ const ObmcVarianceTest::ParamType sse4_functions[] = {
   TestFuncs(aom_obmc_variance64x4_c, aom_obmc_variance64x4_sse4_1),
   TestFuncs(aom_obmc_variance4x64_c, aom_obmc_variance4x64_sse4_1),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 
 INSTANTIATE_TEST_CASE_P(SSE4_1, ObmcVarianceTest,
@@ -194,6 +197,7 @@ const ObmcVarianceTest::ParamType avx2_functions[] = {
   TestFuncs(aom_obmc_variance8x32_c, aom_obmc_variance8x32_avx2),
   TestFuncs(aom_obmc_variance16x4_c, aom_obmc_variance16x4_avx2),
   TestFuncs(aom_obmc_variance4x16_c, aom_obmc_variance4x16_avx2),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 #if CONFIG_FLEX_PARTITION
   TestFuncs(aom_obmc_variance64x8_c, aom_obmc_variance64x8_avx2),
   TestFuncs(aom_obmc_variance8x64_c, aom_obmc_variance8x64_avx2),
@@ -202,6 +206,8 @@ const ObmcVarianceTest::ParamType avx2_functions[] = {
   TestFuncs(aom_obmc_variance64x4_c, aom_obmc_variance64x4_avx2),
   TestFuncs(aom_obmc_variance4x64_c, aom_obmc_variance4x64_avx2),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 
 INSTANTIATE_TEST_CASE_P(AVX2, ObmcVarianceTest,
@@ -404,6 +410,7 @@ ObmcVarianceHBDTest::ParamType sse4_functions_hbd[] = {
             aom_highbd_12_obmc_variance16x4_sse4_1, 12),
   TestFuncs(aom_highbd_12_obmc_variance4x16_c,
             aom_highbd_12_obmc_variance4x16_sse4_1, 12),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 #if CONFIG_FLEX_PARTITION
   TestFuncs(aom_highbd_obmc_variance64x8_c, aom_highbd_obmc_variance64x8_sse4_1,
             8),
@@ -442,6 +449,8 @@ ObmcVarianceHBDTest::ParamType sse4_functions_hbd[] = {
   TestFuncs(aom_highbd_12_obmc_variance4x64_c,
             aom_highbd_12_obmc_variance4x64_sse4_1, 12),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 
 INSTANTIATE_TEST_CASE_P(SSE4_1, ObmcVarianceHBDTest,

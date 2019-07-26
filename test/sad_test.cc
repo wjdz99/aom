@@ -1373,6 +1373,7 @@ const SadMxNParam sse2_tests[] = {
   make_tuple(4, 16, &aom_highbd_sad4x16_sse2, 10),
   make_tuple(16, 4, &aom_highbd_sad16x4_sse2, 12),
   make_tuple(4, 16, &aom_highbd_sad4x16_sse2, 12),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 
 #if CONFIG_FLEX_PARTITION
   make_tuple(64, 8, &aom_sad64x8_sse2, -1),
@@ -1402,6 +1403,8 @@ const SadMxNParam sse2_tests[] = {
   make_tuple(64, 4, &aom_highbd_sad64x4_sse2, 12),
   make_tuple(4, 64, &aom_highbd_sad4x64_sse2, 12),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 INSTANTIATE_TEST_CASE_P(SSE2, SADTest, ::testing::ValuesIn(sse2_tests));
 
@@ -1488,6 +1491,7 @@ const SadMxNAvgParam avg_sse2_tests[] = {
   make_tuple(4, 16, &aom_highbd_sad4x16_avg_sse2, 10),
   make_tuple(16, 4, &aom_highbd_sad16x4_avg_sse2, 12),
   make_tuple(4, 16, &aom_highbd_sad4x16_avg_sse2, 12),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 
 #if CONFIG_FLEX_PARTITION
   make_tuple(64, 8, &aom_sad64x8_avg_sse2, -1),
@@ -1517,6 +1521,8 @@ const SadMxNAvgParam avg_sse2_tests[] = {
   make_tuple(64, 4, &aom_highbd_sad64x4_avg_sse2, 12),
   make_tuple(4, 64, &aom_highbd_sad4x64_avg_sse2, 12),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 INSTANTIATE_TEST_CASE_P(SSE2, SADavgTest, ::testing::ValuesIn(avg_sse2_tests));
 
@@ -1819,6 +1825,7 @@ const SadMxNParam avx2_tests[] = {
   make_tuple(64, 16, &aom_highbd_sad64x16_avx2, 8),
   make_tuple(64, 16, &aom_highbd_sad64x16_avx2, 10),
   make_tuple(64, 16, &aom_highbd_sad64x16_avx2, 12),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
   make_tuple(32, 8, &aom_highbd_sad32x8_avx2, 8),
   make_tuple(32, 8, &aom_highbd_sad32x8_avx2, 10),
   make_tuple(32, 8, &aom_highbd_sad32x8_avx2, 12),
@@ -1842,6 +1849,17 @@ const SadMxNParam avx2_tests[] = {
   make_tuple(32, 4, &aom_highbd_sad32x4_avx2, 10),
   make_tuple(32, 4, &aom_highbd_sad32x4_avx2, 12),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+  make_tuple(16, 64, &aom_highbd_sad16x64_avx2, 8),
+  make_tuple(16, 64, &aom_highbd_sad16x64_avx2, 10),
+  make_tuple(16, 64, &aom_highbd_sad16x64_avx2, 12),
+  make_tuple(32, 8, &aom_highbd_sad32x8_avx2, 8),
+  make_tuple(32, 8, &aom_highbd_sad32x8_avx2, 10),
+  make_tuple(32, 8, &aom_highbd_sad32x8_avx2, 12),
+  make_tuple(16, 4, &aom_highbd_sad16x4_avx2, 8),
+  make_tuple(16, 4, &aom_highbd_sad16x4_avx2, 10),
+  make_tuple(16, 4, &aom_highbd_sad16x4_avx2, 12),
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 INSTANTIATE_TEST_CASE_P(AVX2, SADTest, ::testing::ValuesIn(avx2_tests));
 
@@ -1893,6 +1911,7 @@ const SadMxNAvgParam avg_avx2_tests[] = {
   make_tuple(64, 16, &aom_highbd_sad64x16_avg_avx2, 8),
   make_tuple(64, 16, &aom_highbd_sad64x16_avg_avx2, 10),
   make_tuple(64, 16, &aom_highbd_sad64x16_avg_avx2, 12),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
   make_tuple(32, 8, &aom_highbd_sad32x8_avg_avx2, 8),
   make_tuple(32, 8, &aom_highbd_sad32x8_avg_avx2, 10),
   make_tuple(32, 8, &aom_highbd_sad32x8_avg_avx2, 12),
@@ -1916,6 +1935,17 @@ const SadMxNAvgParam avg_avx2_tests[] = {
   make_tuple(32, 4, &aom_highbd_sad32x4_avg_avx2, 10),
   make_tuple(32, 4, &aom_highbd_sad32x4_avg_avx2, 12),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+  make_tuple(16, 64, &aom_highbd_sad16x64_avg_avx2, 8),
+  make_tuple(16, 64, &aom_highbd_sad16x64_avg_avx2, 10),
+  make_tuple(16, 64, &aom_highbd_sad16x64_avg_avx2, 12),
+  make_tuple(32, 8, &aom_highbd_sad32x8_avg_avx2, 8),
+  make_tuple(32, 8, &aom_highbd_sad32x8_avg_avx2, 10),
+  make_tuple(32, 8, &aom_highbd_sad32x8_avg_avx2, 12),
+  make_tuple(16, 4, &aom_highbd_sad16x4_avg_avx2, 8),
+  make_tuple(16, 4, &aom_highbd_sad16x4_avg_avx2, 10),
+  make_tuple(16, 4, &aom_highbd_sad16x4_avg_avx2, 12),
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 INSTANTIATE_TEST_CASE_P(AVX2, SADavgTest, ::testing::ValuesIn(avg_avx2_tests));
 
@@ -1960,6 +1990,19 @@ const SadMxNx4Param x4d_avx2_tests[] = {
   make_tuple(16, 8, &aom_highbd_sad16x8x4d_avx2, 8),
   make_tuple(16, 8, &aom_highbd_sad16x8x4d_avx2, 10),
   make_tuple(16, 8, &aom_highbd_sad16x8x4d_avx2, 12),
+
+  make_tuple(16, 64, &aom_highbd_sad16x64x4d_avx2, 8),
+  make_tuple(16, 64, &aom_highbd_sad16x64x4d_avx2, 10),
+  make_tuple(16, 64, &aom_highbd_sad16x64x4d_avx2, 12),
+  make_tuple(64, 16, &aom_highbd_sad64x16x4d_avx2, 8),
+  make_tuple(64, 16, &aom_highbd_sad64x16x4d_avx2, 10),
+  make_tuple(64, 16, &aom_highbd_sad64x16x4d_avx2, 12),
+  make_tuple(32, 8, &aom_highbd_sad32x8x4d_avx2, 8),
+  make_tuple(32, 8, &aom_highbd_sad32x8x4d_avx2, 10),
+  make_tuple(32, 8, &aom_highbd_sad32x8x4d_avx2, 12),
+  make_tuple(16, 4, &aom_highbd_sad16x4x4d_avx2, 8),
+  make_tuple(16, 4, &aom_highbd_sad16x4x4d_avx2, 10),
+  make_tuple(16, 4, &aom_highbd_sad16x4x4d_avx2, 12),
 };
 INSTANTIATE_TEST_CASE_P(AVX2, SADx4Test, ::testing::ValuesIn(x4d_avx2_tests));
 #endif  // HAVE_AVX2

@@ -362,6 +362,7 @@ const MaskedSubPixelVarianceParam sub_pel_var_test[] = {
              &aom_masked_sub_pixel_variance16x4_c),
   make_tuple(&aom_masked_sub_pixel_variance4x16_ssse3,
              &aom_masked_sub_pixel_variance4x16_c),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 #if CONFIG_FLEX_PARTITION
   make_tuple(&aom_masked_sub_pixel_variance64x8_ssse3,
              &aom_masked_sub_pixel_variance64x8_c),
@@ -376,6 +377,8 @@ const MaskedSubPixelVarianceParam sub_pel_var_test[] = {
   make_tuple(&aom_masked_sub_pixel_variance4x64_ssse3,
              &aom_masked_sub_pixel_variance4x64_c),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 
 INSTANTIATE_TEST_CASE_P(SSSE3_C_COMPARE, MaskedSubPixelVarianceTest,
@@ -515,6 +518,7 @@ const HighbdMaskedSubPixelVarianceParam hbd_sub_pel_var_test[] = {
              &aom_highbd_12_masked_sub_pixel_variance16x4_c, AOM_BITS_12),
   make_tuple(&aom_highbd_12_masked_sub_pixel_variance4x16_ssse3,
              &aom_highbd_12_masked_sub_pixel_variance4x16_c, AOM_BITS_12),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 #if CONFIG_FLEX_PARTITION
   make_tuple(&aom_highbd_8_masked_sub_pixel_variance64x8_ssse3,
              &aom_highbd_8_masked_sub_pixel_variance64x8_c, AOM_BITS_8),
@@ -553,6 +557,8 @@ const HighbdMaskedSubPixelVarianceParam hbd_sub_pel_var_test[] = {
   make_tuple(&aom_highbd_12_masked_sub_pixel_variance4x64_ssse3,
              &aom_highbd_12_masked_sub_pixel_variance4x64_c, AOM_BITS_12),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 
 INSTANTIATE_TEST_CASE_P(SSSE3_C_COMPARE, HighbdMaskedSubPixelVarianceTest,

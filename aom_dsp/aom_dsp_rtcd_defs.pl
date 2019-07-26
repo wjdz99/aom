@@ -713,6 +713,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_dist_wtd_sad32x8_avg     ssse3/;
   specialize qw/aom_dist_wtd_sad16x64_avg    ssse3/;
   specialize qw/aom_dist_wtd_sad64x16_avg    ssse3/;
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 
   if (aom_config("CONFIG_FLEX_PARTITION") eq "yes") {
     specialize qw/aom_dist_wtd_sad4x32_avg     ssse3/;
@@ -722,6 +723,8 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     specialize qw/aom_dist_wtd_sad4x64_avg     ssse3/;
     specialize qw/aom_dist_wtd_sad64x4_avg     ssse3/;
   }
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 
   add_proto qw/unsigned int/, "aom_sad4xh", "const uint8_t *a, int a_stride, const uint8_t *b, int b_stride, int width, int height";
   add_proto qw/unsigned int/, "aom_sad8xh", "const uint8_t *a, int a_stride, const uint8_t *b, int b_stride, int width, int height";
@@ -746,6 +749,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
       specialize "aom_highbd_sad${w}x${h}", qw/sse2/;
       specialize "aom_highbd_sad${w}x${h}_avg", qw/sse2/;
     }
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
     add_proto qw/unsigned int/, "aom_highbd_dist_wtd_sad${w}x${h}_avg", "const uint8_t *src_ptr, int src_stride, const uint8_t *ref_ptr, int ref_stride, const uint8_t *second_pred, const DIST_WTD_COMP_PARAMS* jcp_param";
   }
   specialize qw/aom_highbd_sad128x128 avx2/;
@@ -762,7 +766,24 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_highbd_sad8x4     sse2/;
   specialize qw/aom_highbd_sad4x8     sse2/;
   specialize qw/aom_highbd_sad4x4     sse2/;
+=======
+    specialize qw/aom_highbd_sad128x128 avx2/;
+    specialize qw/aom_highbd_sad128x64  avx2/;
+    specialize qw/aom_highbd_sad64x128  avx2/;
+    specialize qw/aom_highbd_sad64x64   avx2 sse2/;
+    specialize qw/aom_highbd_sad64x32   avx2 sse2/;
+    specialize qw/aom_highbd_sad32x64   avx2 sse2/;
+    specialize qw/aom_highbd_sad32x32   avx2 sse2/;
+    specialize qw/aom_highbd_sad32x16   avx2 sse2/;
+    specialize qw/aom_highbd_sad16x32   avx2 sse2/;
+    specialize qw/aom_highbd_sad16x16   avx2 sse2/;
+    specialize qw/aom_highbd_sad16x8    avx2 sse2/;
+    specialize qw/aom_highbd_sad8x4     sse2/;
+    specialize qw/aom_highbd_sad4x8     sse2/;
+    specialize qw/aom_highbd_sad4x4     sse2/;
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
   specialize qw/aom_highbd_sad128x128_avg avx2/;
   specialize qw/aom_highbd_sad128x64_avg  avx2/;
   specialize qw/aom_highbd_sad64x128_avg  avx2/;
@@ -777,14 +798,40 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_highbd_sad8x4_avg     sse2/;
   specialize qw/aom_highbd_sad4x8_avg     sse2/;
   specialize qw/aom_highbd_sad4x4_avg     sse2/;
+=======
+    specialize qw/aom_highbd_sad128x128_avg avx2/;
+    specialize qw/aom_highbd_sad128x64_avg  avx2/;
+    specialize qw/aom_highbd_sad64x128_avg  avx2/;
+    specialize qw/aom_highbd_sad64x64_avg   avx2 sse2/;
+    specialize qw/aom_highbd_sad64x32_avg   avx2 sse2/;
+    specialize qw/aom_highbd_sad32x64_avg   avx2 sse2/;
+    specialize qw/aom_highbd_sad32x32_avg   avx2 sse2/;
+    specialize qw/aom_highbd_sad32x16_avg   avx2 sse2/;
+    specialize qw/aom_highbd_sad16x32_avg   avx2 sse2/;
+    specialize qw/aom_highbd_sad16x16_avg   avx2 sse2/;
+    specialize qw/aom_highbd_sad16x8_avg    avx2 sse2/;
+    specialize qw/aom_highbd_sad8x4_avg     sse2/;
+    specialize qw/aom_highbd_sad4x8_avg     sse2/;
+    specialize qw/aom_highbd_sad4x4_avg     sse2/;
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
   specialize qw/aom_highbd_sad4x16       sse2/;
   specialize qw/aom_highbd_sad16x4       avx2 sse2/;
   specialize qw/aom_highbd_sad8x32       sse2/;
   specialize qw/aom_highbd_sad32x8       avx2 sse2/;
   specialize qw/aom_highbd_sad16x64      avx2 sse2/;
   specialize qw/aom_highbd_sad64x16      avx2 sse2/;
+=======
+    specialize qw/aom_highbd_sad4x16        sse2/;
+    specialize qw/aom_highbd_sad16x4        avx2 sse2/;
+    specialize qw/aom_highbd_sad8x32        sse2/;
+    specialize qw/aom_highbd_sad32x8        avx2 sse2/;
+    specialize qw/aom_highbd_sad16x64       avx2 sse2/;
+    specialize qw/aom_highbd_sad64x16       avx2 sse2/;
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
   specialize qw/aom_highbd_sad4x16_avg   sse2/;
   specialize qw/aom_highbd_sad16x4_avg   avx2 sse2/;
   specialize qw/aom_highbd_sad8x32_avg   sse2/;
@@ -807,6 +854,14 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     specialize qw/aom_highbd_sad4x64_avg   sse2/;
     specialize qw/aom_highbd_sad64x4_avg   avx2 sse2/;
   }
+=======
+    specialize qw/aom_highbd_sad4x16_avg    sse2/;
+    specialize qw/aom_highbd_sad16x4_avg    avx2 sse2/;
+    specialize qw/aom_highbd_sad8x32_avg    sse2/;
+    specialize qw/aom_highbd_sad32x8_avg    avx2 sse2/;
+    specialize qw/aom_highbd_sad16x64_avg   avx2 sse2/;
+    specialize qw/aom_highbd_sad64x16_avg   avx2 sse2/;
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 
   #
   # Masked SAD
@@ -914,12 +969,12 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_highbd_sad4x8x4d     sse2/;
   specialize qw/aom_highbd_sad4x4x4d     sse2/;
 
-  specialize qw/aom_highbd_sad4x16x4d  sse2/;
-  specialize qw/aom_highbd_sad16x4x4d  sse2/;
-  specialize qw/aom_highbd_sad8x32x4d  sse2/;
-  specialize qw/aom_highbd_sad32x8x4d  sse2/;
-  specialize qw/aom_highbd_sad16x64x4d sse2/;
-  specialize qw/aom_highbd_sad64x16x4d sse2/;
+  specialize qw/aom_highbd_sad4x16x4d         sse2/;
+  specialize qw/aom_highbd_sad16x4x4d    avx2 sse2/;
+  specialize qw/aom_highbd_sad8x32x4d         sse2/;
+  specialize qw/aom_highbd_sad32x8x4d    avx2 sse2/;
+  specialize qw/aom_highbd_sad16x64x4d   avx2 sse2/;
+  specialize qw/aom_highbd_sad64x16x4d   avx2 sse2/;
 
   if (aom_config("CONFIG_FLEX_PARTITION") eq "yes") {
     specialize qw/aom_highbd_sad4x32x4d  sse2/;
@@ -943,12 +998,10 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_minmax_8x8 sse2/;
 
   add_proto qw/void aom_int_pro_row/, "int16_t *hbuf, const uint8_t *ref, const int ref_stride, const int height";
-  # TODO(kyslov@) bring back SSE2 by extending it to 128 block size
-  #specialize qw/aom_int_pro_row sse2/;
+  specialize qw/aom_int_pro_row sse2/;
 
   add_proto qw/int16_t aom_int_pro_col/, "const uint8_t *ref, const int width";
-  # TODO(kyslov@) bring back SSE2 by extending it to 128 block size
-  #specialize qw/aom_int_pro_col sse2/;
+  specialize qw/aom_int_pro_col sse2/;
 
   add_proto qw/int aom_vector_var/, "const int16_t *ref, const int16_t *src, const int bwl";
   # TODO(kyslov@) bring back SSE2 by extending it to 128 block size
@@ -1157,6 +1210,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_variance16x64 sse2 avx2/;
   specialize qw/aom_variance64x16 sse2 avx2/;
 
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
   if (aom_config("CONFIG_FLEX_PARTITION") eq "yes") {
     specialize qw/aom_variance64x8 avx2/;
     specialize qw/aom_variance64x4 avx2/;
@@ -1168,6 +1222,8 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     specialize qw/aom_variance64x4 sse2/;
   }
 
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
   specialize qw/aom_sub_pixel_variance4x16 sse2 ssse3/;
   specialize qw/aom_sub_pixel_variance16x4 sse2 ssse3/;
   specialize qw/aom_sub_pixel_variance8x32 sse2 ssse3/;

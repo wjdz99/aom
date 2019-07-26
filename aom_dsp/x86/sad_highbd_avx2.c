@@ -246,6 +246,7 @@ unsigned int aom_highbd_sad32x8_avx2(const uint8_t *src, int src_stride,
   return get_sad_from_mm256_epi32(&sad);
 }
 
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 #if CONFIG_FLEX_PARTITION
 unsigned int aom_highbd_sad32x4_avx2(const uint8_t *src, int src_stride,
                                      const uint8_t *ref, int ref_stride) {
@@ -257,6 +258,8 @@ unsigned int aom_highbd_sad32x4_avx2(const uint8_t *src, int src_stride,
 }
 #endif  // CONFIG_FLEX_PARTITION
 
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 unsigned int aom_highbd_sad16x32_avx2(const uint8_t *src, int src_stride,
                                       const uint8_t *ref, int ref_stride) {
   uint32_t sum = aom_highbd_sad16x16_avx2(src, src_stride, ref, ref_stride);
@@ -397,6 +400,7 @@ unsigned int aom_highbd_sad64x16_avx2(const uint8_t *src, int src_stride,
   return get_sad_from_mm256_epi32(&sad);
 }
 
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 #if CONFIG_FLEX_PARTITION
 unsigned int aom_highbd_sad64x8_avx2(const uint8_t *src, int src_stride,
                                      const uint8_t *ref, int ref_stride) {
@@ -433,6 +437,8 @@ unsigned int aom_highbd_sad64x4_avx2(const uint8_t *src, int src_stride,
 }
 #endif  // CONFIG_FLEX_PARTITION
 
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 unsigned int aom_highbd_sad64x64_avx2(const uint8_t *src, int src_stride,
                                       const uint8_t *ref, int ref_stride) {
   uint32_t sum = aom_highbd_sad64x32_avx2(src, src_stride, ref, ref_stride);
@@ -712,6 +718,7 @@ unsigned int aom_highbd_sad32x8_avg_avx2(const uint8_t *src, int src_stride,
   return get_sad_from_mm256_epi32(&sad);
 }
 
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 #if CONFIG_FLEX_PARTITION
 unsigned int aom_highbd_sad32x4_avg_avx2(const uint8_t *src, int src_stride,
                                          const uint8_t *ref, int ref_stride,
@@ -725,6 +732,8 @@ unsigned int aom_highbd_sad32x4_avg_avx2(const uint8_t *src, int src_stride,
 }
 #endif  // CONFIG_FLEX_PARTITION
 
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 unsigned int aom_highbd_sad32x16_avg_avx2(const uint8_t *src, int src_stride,
                                           const uint8_t *ref, int ref_stride,
                                           const uint8_t *second_pred) {
@@ -773,6 +782,7 @@ unsigned int aom_highbd_sad32x64_avg_avx2(const uint8_t *src, int src_stride,
   return sum;
 }
 
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 #if CONFIG_FLEX_PARTITION
 unsigned int aom_highbd_sad64x4_avg_avx2(const uint8_t *src, int src_stride,
                                          const uint8_t *ref, int ref_stride,
@@ -815,6 +825,8 @@ unsigned int aom_highbd_sad64x8_avg_avx2(const uint8_t *src, int src_stride,
 }
 #endif  // CONFIG_FLEX_PARTITION
 
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 unsigned int aom_highbd_sad64x16_avg_avx2(const uint8_t *src, int src_stride,
                                           const uint8_t *ref, int ref_stride,
                                           const uint8_t *second_pred) {

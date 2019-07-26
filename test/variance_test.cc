@@ -1121,6 +1121,7 @@ INSTANTIATE_TEST_CASE_P(
                       VarianceParams(5, 3, &aom_variance32x8_c),
                       VarianceParams(3, 5, &aom_variance8x32_c),
                       VarianceParams(4, 2, &aom_variance16x4_c),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
                       VarianceParams(2, 4, &aom_variance4x16_c)
 #if CONFIG_FLEX_PARTITION
                           ,
@@ -1132,6 +1133,9 @@ INSTANTIATE_TEST_CASE_P(
                       VarianceParams(2, 6, &aom_variance4x64_c)
 #endif  // CONFIG_FLEX_PARTITION
                           ));
+=======
+                      VarianceParams(2, 4, &aom_variance4x16_c)));
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 
 typedef TestParams<SubpixVarMxNFunc> SubpelVarianceParams;
 INSTANTIATE_TEST_CASE_P(
@@ -1159,6 +1163,7 @@ INSTANTIATE_TEST_CASE_P(
         SubpelVarianceParams(5, 3, &aom_sub_pixel_variance32x8_c, 0),
         SubpelVarianceParams(3, 5, &aom_sub_pixel_variance8x32_c, 0),
         SubpelVarianceParams(4, 2, &aom_sub_pixel_variance16x4_c, 0),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
         SubpelVarianceParams(2, 4, &aom_sub_pixel_variance4x16_c, 0)
 #if CONFIG_FLEX_PARTITION
             ,
@@ -1170,6 +1175,9 @@ INSTANTIATE_TEST_CASE_P(
         SubpelVarianceParams(2, 6, &aom_sub_pixel_variance4x64_c)
 #endif  // CONFIG_FLEX_PARTITION
             ));
+=======
+        SubpelVarianceParams(2, 4, &aom_sub_pixel_variance4x16_c, 0)));
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 
 typedef TestParams<SubpixAvgVarMxNFunc> SubpelAvgVarianceParams;
 INSTANTIATE_TEST_CASE_P(
@@ -1197,6 +1205,7 @@ INSTANTIATE_TEST_CASE_P(
         SubpelAvgVarianceParams(5, 3, &aom_sub_pixel_avg_variance32x8_c, 0),
         SubpelAvgVarianceParams(3, 5, &aom_sub_pixel_avg_variance8x32_c, 0),
         SubpelAvgVarianceParams(4, 2, &aom_sub_pixel_avg_variance16x4_c, 0),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
         SubpelAvgVarianceParams(2, 4, &aom_sub_pixel_avg_variance4x16_c, 0)
 #if CONFIG_FLEX_PARTITION
             ,
@@ -1208,6 +1217,9 @@ INSTANTIATE_TEST_CASE_P(
         SubpelAvgVarianceParams(2, 6, &aom_sub_pixel_avg_variance4x64_c)
 #endif  // CONFIG_FLEX_PARTITION
             ));
+=======
+        SubpelAvgVarianceParams(2, 4, &aom_sub_pixel_avg_variance4x16_c, 0)));
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 
 typedef TestParams<DistWtdSubpixAvgVarMxNFunc> DistWtdSubpelAvgVarianceParams;
 INSTANTIATE_TEST_CASE_P(
@@ -1250,6 +1262,7 @@ INSTANTIATE_TEST_CASE_P(
                       DistWtdSubpelAvgVarianceParams(
                           4, 2, &aom_dist_wtd_sub_pixel_avg_variance16x4_c, 0),
                       DistWtdSubpelAvgVarianceParams(
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
                           2, 4, &aom_dist_wtd_sub_pixel_avg_variance4x16_c, 0)
 #if CONFIG_FLEX_PARTITION
                           ,
@@ -1267,6 +1280,10 @@ INSTANTIATE_TEST_CASE_P(
                           2, 6, &aom_dist_wtd_sub_pixel_avg_variance4x64_c, 0)
 #endif  // CONFIG_FLEX_PARTITION
                           ));
+=======
+                          2, 4, &aom_dist_wtd_sub_pixel_avg_variance4x16_c,
+                          0)));
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 
 INSTANTIATE_TEST_CASE_P(
     C, AvxObmcSubpelVarianceTest,
@@ -1294,6 +1311,7 @@ INSTANTIATE_TEST_CASE_P(
         ObmcSubpelVarianceParams(5, 3, &aom_obmc_sub_pixel_variance32x8_c, 0),
         ObmcSubpelVarianceParams(3, 5, &aom_obmc_sub_pixel_variance8x32_c, 0),
         ObmcSubpelVarianceParams(4, 2, &aom_obmc_sub_pixel_variance16x4_c, 0),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
         ObmcSubpelVarianceParams(2, 4, &aom_obmc_sub_pixel_variance4x16_c, 0)
 #if CONFIG_FLEX_PARTITION
             ,
@@ -1305,6 +1323,9 @@ INSTANTIATE_TEST_CASE_P(
         ObmcSubpelVarianceParams(2, 6, &aom_obmc_sub_pixel_variance4x64_c, 0)
 #endif  // CONFIG_FLEX_PARTITION
             ));
+=======
+        ObmcSubpelVarianceParams(2, 4, &aom_obmc_sub_pixel_variance4x16_c, 0)));
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 
 typedef MainTestClass<VarianceMxNFunc> AvxHBDMseTest;
 typedef MainTestClass<VarianceMxNFunc> AvxHBDVarianceTest;
@@ -1409,6 +1430,7 @@ const VarianceParams kArrayHBDVariance_c[] = {
   VarianceParams(3, 5, &aom_highbd_8_variance8x32_c, 8),
   VarianceParams(4, 2, &aom_highbd_8_variance16x4_c, 8),
   VarianceParams(2, 4, &aom_highbd_8_variance4x16_c, 8),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 #if CONFIG_FLEX_PARTITION
   VarianceParams(6, 3, &aom_highbd_12_variance64x8_c, 12),
   VarianceParams(3, 6, &aom_highbd_12_variance8x64_c, 12),
@@ -1429,6 +1451,8 @@ const VarianceParams kArrayHBDVariance_c[] = {
   VarianceParams(6, 2, &aom_highbd_8_variance64x4_c, 8),
   VarianceParams(2, 6, &aom_highbd_8_variance4x64_c, 8),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 INSTANTIATE_TEST_CASE_P(C, AvxHBDVarianceTest,
                         ::testing::ValuesIn(kArrayHBDVariance_c));
@@ -1510,6 +1534,7 @@ const SubpelVarianceParams kArrayHBDSubpelVariance_c[] = {
   SubpelVarianceParams(3, 5, &aom_highbd_12_sub_pixel_variance8x32_c, 12),
   SubpelVarianceParams(4, 2, &aom_highbd_12_sub_pixel_variance16x4_c, 12),
   SubpelVarianceParams(2, 4, &aom_highbd_12_sub_pixel_variance4x16_c, 12),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 #if CONFIG_FLEX_PARTITION
   SubpelVarianceParams(6, 3, &aom_highbd_8_sub_pixel_variance64x8_c, 8),
   SubpelVarianceParams(3, 6, &aom_highbd_8_sub_pixel_variance8x64_c, 8),
@@ -1530,6 +1555,8 @@ const SubpelVarianceParams kArrayHBDSubpelVariance_c[] = {
   SubpelVarianceParams(6, 2, &aom_highbd_12_sub_pixel_variance64x4_c, 12),
   SubpelVarianceParams(2, 6, &aom_highbd_12_sub_pixel_variance4x64_c, 12),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 INSTANTIATE_TEST_CASE_P(C, AvxHBDSubpelVarianceTest,
                         ::testing::ValuesIn(kArrayHBDSubpelVariance_c));
@@ -1641,6 +1668,7 @@ const SubpelAvgVarianceParams kArrayHBDSubpelAvgVariance_c[] = {
                           12),
   SubpelAvgVarianceParams(2, 4, &aom_highbd_12_sub_pixel_avg_variance4x16_c,
                           12),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 #if CONFIG_FLEX_PARTITION
   SubpelAvgVarianceParams(6, 3, &aom_highbd_8_sub_pixel_avg_variance64x8_c, 8),
   SubpelAvgVarianceParams(3, 6, &aom_highbd_8_sub_pixel_avg_variance8x64_c, 8),
@@ -1673,6 +1701,8 @@ const SubpelAvgVarianceParams kArrayHBDSubpelAvgVariance_c[] = {
   SubpelAvgVarianceParams(2, 6, &aom_highbd_12_sub_pixel_avg_variance4x64_c,
                           12),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 INSTANTIATE_TEST_CASE_P(C, AvxHBDSubpelAvgVarianceTest,
                         ::testing::ValuesIn(kArrayHBDSubpelAvgVariance_c));
@@ -1792,6 +1822,7 @@ const ObmcSubpelVarianceParams kArrayHBDObmcSubpelVariance_c[] = {
                            12),
   ObmcSubpelVarianceParams(2, 4, &aom_highbd_12_obmc_sub_pixel_variance4x16_c,
                            12),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 #if CONFIG_FLEX_PARTITION
   ObmcSubpelVarianceParams(6, 3, &aom_highbd_obmc_sub_pixel_variance64x8_c, 8),
   ObmcSubpelVarianceParams(3, 6, &aom_highbd_obmc_sub_pixel_variance8x64_c, 8),
@@ -1824,6 +1855,8 @@ const ObmcSubpelVarianceParams kArrayHBDObmcSubpelVariance_c[] = {
   ObmcSubpelVarianceParams(2, 6, &aom_highbd_12_obmc_sub_pixel_variance4x64_c,
                            12),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 INSTANTIATE_TEST_CASE_P(C, AvxHBDObmcSubpelVarianceTest,
                         ::testing::ValuesIn(kArrayHBDObmcSubpelVariance_c));
@@ -1898,6 +1931,7 @@ INSTANTIATE_TEST_CASE_P(
         SubpelVarianceParams(5, 3, &aom_sub_pixel_variance32x8_sse2, 0),
         SubpelVarianceParams(3, 5, &aom_sub_pixel_variance8x32_sse2, 0),
         SubpelVarianceParams(4, 2, &aom_sub_pixel_variance16x4_sse2, 0),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
         SubpelVarianceParams(2, 4, &aom_sub_pixel_variance4x16_sse2, 0)
 #if CONFIG_FLEX_PARTITION
             ,
@@ -1909,6 +1943,9 @@ INSTANTIATE_TEST_CASE_P(
         SubpelVarianceParams(2, 6, &aom_sub_pixel_variance4x64_sse2)
 #endif  // CONFIG_FLEX_PARTITION
             ));
+=======
+        SubpelVarianceParams(2, 4, &aom_sub_pixel_variance4x16_sse2, 0)));
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 
 INSTANTIATE_TEST_CASE_P(
     SSE2, AvxSubpelAvgVarianceTest,
@@ -1938,6 +1975,7 @@ INSTANTIATE_TEST_CASE_P(
         SubpelAvgVarianceParams(5, 3, &aom_sub_pixel_avg_variance32x8_sse2, 0),
         SubpelAvgVarianceParams(3, 5, &aom_sub_pixel_avg_variance8x32_sse2, 0),
         SubpelAvgVarianceParams(4, 2, &aom_sub_pixel_avg_variance16x4_sse2, 0),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
         SubpelAvgVarianceParams(2, 4, &aom_sub_pixel_avg_variance4x16_sse2, 0)
 #if CONFIG_FLEX_PARTITION
             ,
@@ -1949,6 +1987,10 @@ INSTANTIATE_TEST_CASE_P(
         SubpelAvgVarianceParams(2, 6, &aom_sub_pixel_avg_variance4x64_sse2)
 #endif  // CONFIG_FLEX_PARTITION
             ));
+=======
+        SubpelAvgVarianceParams(2, 4, &aom_sub_pixel_avg_variance4x16_sse2,
+                                0)));
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_CASE_P(
@@ -2049,6 +2091,7 @@ const VarianceParams kArrayHBDVariance_sse2[] = {
   VarianceParams(4, 6, &aom_highbd_8_variance16x64_sse2, 8),
   VarianceParams(5, 3, &aom_highbd_8_variance32x8_sse2, 8),
   VarianceParams(3, 5, &aom_highbd_8_variance8x32_sse2, 8),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 // VarianceParams(4, 2, &aom_highbd_8_variance16x4_sse2, 8),
 // VarianceParams(2, 4, &aom_highbd_8_variance4x16_sse2, 8),
 #if CONFIG_FLEX_PARTITION
@@ -2071,6 +2114,10 @@ const VarianceParams kArrayHBDVariance_sse2[] = {
 // VarianceParams(6, 2, &aom_highbd_8_variance64x4_sse2, 8),
 // VarianceParams(2, 6, &aom_highbd_8_variance4x64_sse2, 8),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+  // VarianceParams(4, 2, &aom_highbd_8_variance16x4_sse2, 8),
+  // VarianceParams(2, 4, &aom_highbd_8_variance4x16_sse2, 8),
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 INSTANTIATE_TEST_CASE_P(SSE2, AvxHBDVarianceTest,
                         ::testing::ValuesIn(kArrayHBDVariance_sse2));
@@ -2095,10 +2142,13 @@ const VarianceParams kArrayHBDVariance_avx2[] = {
   VarianceParams(3, 5, &aom_highbd_10_variance8x32_avx2, 10),
   VarianceParams(3, 4, &aom_highbd_10_variance8x16_avx2, 10),
   VarianceParams(3, 3, &aom_highbd_10_variance8x8_avx2, 10),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 #if CONFIG_FLEX_PARTITION
   VarianceParams(6, 3, &aom_highbd_10_variance64x8_avx2, 10),
   VarianceParams(3, 6, &aom_highbd_10_variance8x64_avx2, 10),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 
 INSTANTIATE_TEST_CASE_P(AVX2, AvxHBDVarianceTest,
@@ -2166,6 +2216,7 @@ const SubpelVarianceParams kArrayHBDSubpelVariance_sse2[] = {
   SubpelVarianceParams(5, 3, &aom_highbd_8_sub_pixel_variance32x8_sse2, 8),
   SubpelVarianceParams(3, 5, &aom_highbd_8_sub_pixel_variance8x32_sse2, 8),
   SubpelVarianceParams(4, 2, &aom_highbd_8_sub_pixel_variance16x4_sse2, 8),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
 // SubpelVarianceParams(2, 4, &aom_highbd_8_sub_pixel_variance4x16_sse2, 8),
 #if CONFIG_FLEX_PARTITION
   SubpelVarianceParams(6, 3, &aom_highbd_12_sub_pixel_variance64x8_sse2, 12),
@@ -2187,6 +2238,9 @@ const SubpelVarianceParams kArrayHBDSubpelVariance_sse2[] = {
   SubpelVarianceParams(6, 2, &aom_highbd_8_sub_pixel_variance64x4_sse2, 8),
 // SubpelVarianceParams(2, 6, &aom_highbd_8_sub_pixel_variance4x64_sse2, 8),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+  // SubpelVarianceParams(2, 4, &aom_highbd_8_sub_pixel_variance4x16_sse2, 8),
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 INSTANTIATE_TEST_CASE_P(SSE2, AvxHBDSubpelVarianceTest,
                         ::testing::ValuesIn(kArrayHBDSubpelVariance_sse2));
@@ -2270,6 +2324,7 @@ const SubpelAvgVarianceParams kArrayHBDSubpelAvgVariance_sse2[] = {
   SubpelAvgVarianceParams(4, 2, &aom_highbd_12_sub_pixel_avg_variance16x4_sse2,
                           12),
   // SubpelAvgVarianceParams(2, 4,
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
   //                         &aom_highbd_12_sub_pixel_avg_variance4x16_sse2,
   //                         12),
   SubpelAvgVarianceParams(6, 4, &aom_highbd_10_sub_pixel_avg_variance64x16_sse2,
@@ -2339,6 +2394,33 @@ const SubpelAvgVarianceParams kArrayHBDSubpelAvgVariance_sse2[] = {
 // SubpelAvgVarianceParams(2, 6,
 //                         &aom_highbd_8_sub_pixel_avg_variance4x64_sse2, 8),
 #endif  // CONFIG_FLEX_PARTITION
+=======
+  // &aom_highbd_12_sub_pixel_avg_variance4x16_sse2, 12),
+  SubpelAvgVarianceParams(6, 4, &aom_highbd_10_sub_pixel_avg_variance64x16_sse2,
+                          10),
+  SubpelAvgVarianceParams(4, 6, &aom_highbd_10_sub_pixel_avg_variance16x64_sse2,
+                          10),
+  SubpelAvgVarianceParams(5, 3, &aom_highbd_10_sub_pixel_avg_variance32x8_sse2,
+                          10),
+  SubpelAvgVarianceParams(3, 5, &aom_highbd_10_sub_pixel_avg_variance8x32_sse2,
+                          10),
+  SubpelAvgVarianceParams(4, 2, &aom_highbd_10_sub_pixel_avg_variance16x4_sse2,
+                          10),
+  // SubpelAvgVarianceParams(2, 4,
+  // &aom_highbd_10_sub_pixel_avg_variance4x16_sse2, 10),
+  SubpelAvgVarianceParams(6, 4, &aom_highbd_8_sub_pixel_avg_variance64x16_sse2,
+                          8),
+  SubpelAvgVarianceParams(4, 6, &aom_highbd_8_sub_pixel_avg_variance16x64_sse2,
+                          8),
+  SubpelAvgVarianceParams(5, 3, &aom_highbd_8_sub_pixel_avg_variance32x8_sse2,
+                          8),
+  SubpelAvgVarianceParams(3, 5, &aom_highbd_8_sub_pixel_avg_variance8x32_sse2,
+                          8),
+  SubpelAvgVarianceParams(4, 2, &aom_highbd_8_sub_pixel_avg_variance16x4_sse2,
+                          8),
+  // SubpelAvgVarianceParams(2, 4,
+  // &aom_highbd_8_sub_pixel_avg_variance4x16_sse2, 8),
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 };
 
 INSTANTIATE_TEST_CASE_P(SSE2, AvxHBDSubpelAvgVarianceTest,
@@ -2371,6 +2453,7 @@ INSTANTIATE_TEST_CASE_P(
         SubpelVarianceParams(5, 3, &aom_sub_pixel_variance32x8_ssse3, 0),
         SubpelVarianceParams(3, 5, &aom_sub_pixel_variance8x32_ssse3, 0),
         SubpelVarianceParams(4, 2, &aom_sub_pixel_variance16x4_ssse3, 0),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
         SubpelVarianceParams(2, 4, &aom_sub_pixel_variance4x16_ssse3, 0)
 #if CONFIG_FLEX_PARTITION
             ,
@@ -2382,6 +2465,9 @@ INSTANTIATE_TEST_CASE_P(
         SubpelVarianceParams(2, 6, &aom_sub_pixel_variance4x64_ssse3, 0)
 #endif  // CONFIG_FLEX_PARTITION
             ));
+=======
+        SubpelVarianceParams(2, 4, &aom_sub_pixel_variance4x16_ssse3, 0)));
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 
 INSTANTIATE_TEST_CASE_P(
     SSSE3, AvxSubpelAvgVarianceTest,
@@ -2420,6 +2506,7 @@ INSTANTIATE_TEST_CASE_P(
         SubpelAvgVarianceParams(5, 3, &aom_sub_pixel_avg_variance32x8_ssse3, 0),
         SubpelAvgVarianceParams(3, 5, &aom_sub_pixel_avg_variance8x32_ssse3, 0),
         SubpelAvgVarianceParams(4, 2, &aom_sub_pixel_avg_variance16x4_ssse3, 0),
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
         SubpelAvgVarianceParams(2, 4, &aom_sub_pixel_avg_variance4x16_ssse3, 0)
 #if CONFIG_FLEX_PARTITION
             ,
@@ -2431,6 +2518,10 @@ INSTANTIATE_TEST_CASE_P(
         SubpelAvgVarianceParams(2, 6, &aom_sub_pixel_avg_variance4x64_ssse3, 0)
 #endif  // CONFIG_FLEX_PARTITION
             ));
+=======
+        SubpelAvgVarianceParams(2, 4, &aom_sub_pixel_avg_variance4x16_ssse3,
+                                0)));
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 
 INSTANTIATE_TEST_CASE_P(
     SSSE3, AvxDistWtdSubpelAvgVarianceTest,
@@ -2479,6 +2570,7 @@ INSTANTIATE_TEST_CASE_P(
         DistWtdSubpelAvgVarianceParams(
             4, 2, &aom_dist_wtd_sub_pixel_avg_variance16x4_ssse3, 0),
         DistWtdSubpelAvgVarianceParams(
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
             2, 4, &aom_dist_wtd_sub_pixel_avg_variance4x16_ssse3, 0)
 #if CONFIG_FLEX_PARTITION
             ,
@@ -2496,6 +2588,9 @@ INSTANTIATE_TEST_CASE_P(
             2, 6, &aom_dist_wtd_sub_pixel_avg_variance4x64_ssse3, 0)
 #endif  // CONFIG_FLEX_PARTITION
             ));
+=======
+            2, 4, &aom_dist_wtd_sub_pixel_avg_variance4x16_ssse3, 0)));
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 #endif  // HAVE_SSSE3
 
 #if HAVE_SSE4_1
@@ -2546,6 +2641,7 @@ INSTANTIATE_TEST_CASE_P(
         ObmcSubpelVarianceParams(4, 2, &aom_obmc_sub_pixel_variance16x4_sse4_1,
                                  0),
         ObmcSubpelVarianceParams(2, 4, &aom_obmc_sub_pixel_variance4x16_sse4_1,
+<<<<<<< HEAD   (a289f0 Augment tx search pruning nn models f/ new txsizes)
                                  0)
 #if CONFIG_FLEX_PARTITION
             ,
@@ -2563,6 +2659,9 @@ INSTANTIATE_TEST_CASE_P(
                                  0)
 #endif  // CONFIG_FLEX_PARTITION
             ));
+=======
+                                 0)));
+>>>>>>> BRANCH (79b924 Revert "Change mask of adaptive_interp_filter_search for con)
 #endif  // HAVE_SSE4_1
 
 #if HAVE_AVX2
