@@ -9559,11 +9559,19 @@ static int64_t motion_mode_rd(
       }
     }
 
-    if (!do_tx_search) {
-      int64_t curr_sse = -1;
-      int est_residue_cost = 0;
-      int64_t est_dist = 0;
-      int64_t est_rd = 0;
+    // If we are not doing transform search or the txfm_search got
+    // early-terminated, then the txfm result is invalid. In this case, no
+    // actual rd_cost is available, so we need to call model_rd_sb_fn to get an
+    // estimate instead.
+    const int txfm_result_invalid =
+        !do_tx_search ||
+        !txfm_search(cpi, tile_data, x, bsize, mi_row, mi_col, rd_stats,
+                     rd_stats_y, rd_stats_uv, rd_stats->rate, ref_best_rd);
+    int64_t curr_sse = -1;
+    int est_residue_cost = 0;
+    int64_t est_dist = 0;
+    int64_t est_rd = 0;
+    if (txfm_result_invalid) {
       if (cpi->sf.inter_mode_rd_model_estimation == 1) {
         curr_sse = get_sse(cpi, x);
         const int has_est_rd = get_est_rate_dist(tile_data, bsize, curr_sse,
@@ -9576,7 +9584,13 @@ static int64_t motion_mode_rd(
             cpi, bsize, x, xd, 0, num_planes - 1, mi_row, mi_col,
             &est_residue_cost, &est_dist, NULL, &curr_sse, NULL, NULL, NULL);
       }
+
       est_rd = RDCOST(x->rdmult, rd_stats->rate + est_residue_cost, est_dist);
+      rd_stats->est_rd = AOMMIN(est_rd, rd_stats->est_rd);
+    }
+
+    // Store the info after txfm_search or model_rd_sb
+    if (!do_tx_search) {
       if (est_rd * 0.80 > *best_est_rd) {
         mbmi->ref_frame[1] = ref_frame_1;
         continue;
@@ -9600,8 +9614,7 @@ static int64_t motion_mode_rd(
                               rd_stats_y, rd_stats_uv, mbmi);
       }
     } else {
-      if (!txfm_search(cpi, tile_data, x, bsize, mi_row, mi_col, rd_stats,
-                       rd_stats_y, rd_stats_uv, rd_stats->rate, ref_best_rd)) {
+      if (txfm_result_invalid) {
         if (rd_stats_y->rate == INT_MAX && mode_index == 0) {
           if (cpi->sf.prune_single_motion_modes_by_simple_trans &&
               !is_comp_pred) {
@@ -12788,14 +12801,21 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int64_t ref_frame_rd[REF_FRAMES] = { INT64_MAX, INT64_MAX, INT64_MAX,
                                        INT64_MAX, INT64_MAX, INT64_MAX,
                                        INT64_MAX, INT64_MAX };
+  int64_t est_ref_frame_rd[REF_FRAMES] = { INT64_MAX, INT64_MAX, INT64_MAX,
+                                           INT64_MAX, INT64_MAX, INT64_MAX,
+                                           INT64_MAX, INT64_MAX };
+  int64_t *const ref_frame_rds[2] = { est_ref_frame_rd, ref_frame_rd };
+  int has_at_least_one_valid_single_ref = 0;
+
   const int skip_ctx = av1_get_skip_context(xd);
+
   for (int midx = 0; midx < MAX_MODES; ++midx) {
     // After we done with single reference modes, find the 2nd best RD
     // for a reference frame. Only search compound modes that have a reference
     // frame at least as good as the 2nd best.
     if (sf->prune_compound_using_single_ref &&
         midx == MAX_SINGLE_REF_MODES + 1) {
-      find_top_ref(ref_frame_rd);
+      find_top_ref(ref_frame_rds[has_at_least_one_valid_single_ref]);
     }
 
     if (inter_mode_compatible_skip(cpi, x, bsize, midx)) continue;
@@ -12814,7 +12834,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     if (sf->prune_compound_using_single_ref && midx > MAX_SINGLE_REF_MODES &&
         comp_pred &&
-        !in_single_ref_cutoff(ref_frame_rd, ref_frame, second_ref_frame)) {
+        !in_single_ref_cutoff(ref_frame_rds[has_at_least_one_valid_single_ref],
+                              ref_frame, second_ref_frame)) {
       continue;
     }
 
@@ -12928,6 +12949,13 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     if (sf->prune_comp_search_by_single_result > 0 &&
         is_inter_singleref_mode(this_mode) && args.single_ref_first_pass) {
       collect_single_states(x, &search_state, mbmi);
+    }
+
+    has_at_least_one_valid_single_ref |=
+        (midx <= MAX_SINGLE_REF_MODES && this_rd < INT64_MAX);
+    if (sf->prune_compound_using_single_ref && midx <= MAX_SINGLE_REF_MODES &&
+        rd_stats.est_rd < est_ref_frame_rd[ref_frame]) {
+      est_ref_frame_rd[ref_frame] = rd_stats.est_rd;
     }
 
     if (this_rd == INT64_MAX) continue;
