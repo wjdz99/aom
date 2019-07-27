@@ -74,6 +74,7 @@ static INLINE void av1_init_rd_stats(RD_STATS *rd_stats) {
   rd_stats->rate = 0;
   rd_stats->dist = 0;
   rd_stats->rdcost = 0;
+  rd_stats->est_rd = INT64_MAX;
   rd_stats->sse = 0;
   rd_stats->skip = 1;
   rd_stats->zero_rate = 0;
@@ -99,6 +100,7 @@ static INLINE void av1_invalid_rd_stats(RD_STATS *rd_stats) {
   rd_stats->rate = INT_MAX;
   rd_stats->dist = INT64_MAX;
   rd_stats->rdcost = INT64_MAX;
+  rd_stats->est_rd = INT64_MAX;
   rd_stats->sse = INT64_MAX;
   rd_stats->skip = 0;
   rd_stats->zero_rate = 0;
