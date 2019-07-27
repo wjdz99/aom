@@ -188,7 +188,9 @@ typedef struct RD_STATS {
   // rate/dist.
   int64_t rdcost;
   int64_t sse;
-  int skip;  // sse should equal to dist when skip == 1
+  int64_t est_rd;  // An estimated rd that can be used by some speed features
+                   // when actual rdcost is not available.
+  int skip;        // sse should equal to dist when skip == 1
   int zero_rate;
 #if CONFIG_RD_DEBUG
   int txb_coeff_cost[MAX_MB_PLANE];
