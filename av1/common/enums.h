@@ -22,6 +22,10 @@
 extern "C" {
 #endif
 
+#if CONFIG_FLEX_PARTITION
+#define RECURSIVE_ABPART 0
+#endif  // CONFIG_FLEX_PARTITION
+
 #undef MAX_SB_SIZE
 
 // Max superblock size
