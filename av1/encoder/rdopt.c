@@ -169,6 +169,11 @@ typedef struct {
   MV_REFERENCE_FRAME ref_frame[2];
 } MODE_DEFINITION;
 
+typedef struct {
+  int mode_idx;
+  int64_t mode_sse;
+} INTRA_MODE_SSE_PAIR;
+
 enum {
   FTXS_NONE = 0,
   FTXS_DCT_AND_1D_DCT_ONLY = 1 << 0,
@@ -4072,7 +4077,7 @@ static int conditional_skipintra(PREDICTION_MODE mode,
 // Model based RD estimation for luma intra blocks.
 static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
                                BLOCK_SIZE bsize, int mode_cost, int mi_row,
-                               int mi_col) {
+                               int mi_col, int64_t *mode_sse) {
   const AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
@@ -4111,6 +4116,7 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       mode_cost += x->filter_intra_cost[mbmi->sb_type][0];
     }
   }
+  if (mode_sse) *mode_sse = temp_sse;
   this_rd =
       RDCOST(x->rdmult, this_rd_stats.rate + mode_cost, this_rd_stats.dist);
   return this_rd;
@@ -4197,7 +4203,7 @@ static void palette_rd_y(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int palette_mode_cost =
       intra_mode_info_cost_y(cpi, x, mbmi, bsize, dc_mode_cost);
   int64_t this_model_rd =
-      intra_model_yrd(cpi, x, bsize, palette_mode_cost, mi_row, mi_col);
+      intra_model_yrd(cpi, x, bsize, palette_mode_cost, mi_row, mi_col, NULL);
   if (*best_model_rd != INT64_MAX &&
       this_model_rd > *best_model_rd + (*best_model_rd >> 1))
     return;
@@ -4351,14 +4357,19 @@ static int rd_pick_palette_intra_sby(
   return rate_overhead;
 }
 
+static uint8_t map_filter_intra_to_intra_modes[FILTER_INTRA_MODES] = {
+  DC_PRED,     // FILTER_DC_PRED,
+  V_PRED,      // FILTER_V_PRED,
+  H_PRED,      // FILTER_H_PRED,
+  D157_PRED,   // FILTER_D157_PRED,
+  PAETH_PRED,  // FILTER_PAETH_PRED,
+};
 // Return 1 if an filter intra mode is selected; return 0 otherwise.
-static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
-                                    int mi_row, int mi_col, int *rate,
-                                    int *rate_tokenonly, int64_t *distortion,
-                                    int *skippable, BLOCK_SIZE bsize,
-                                    int mode_cost, int64_t *best_rd,
-                                    int64_t *best_model_rd,
-                                    PICK_MODE_CONTEXT *ctx) {
+static int rd_pick_filter_intra_sby(
+    const AV1_COMP *const cpi, MACROBLOCK *x, int mi_row, int mi_col, int *rate,
+    int *rate_tokenonly, int64_t *distortion, int *skippable, BLOCK_SIZE bsize,
+    int mode_cost, int64_t *best_rd, int64_t *best_model_rd,
+    PICK_MODE_CONTEXT *ctx, INTRA_MODE_SSE_PAIR *mode_sse_pair) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
   int filter_intra_selected_flag = 0;
@@ -4371,16 +4382,20 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   mbmi->filter_intra_mode_info.use_filter_intra = 1;
   mbmi->mode = DC_PRED;
   mbmi->palette_mode_info.palette_size[0] = 0;
+  int64_t filter_intra_mode_sse;
 
   for (mode = 0; mode < FILTER_INTRA_MODES; ++mode) {
     int64_t this_rd, this_model_rd;
     RD_STATS tokenonly_rd_stats;
     mbmi->filter_intra_mode_info.filter_intra_mode = mode;
-    this_model_rd = intra_model_yrd(cpi, x, bsize, mode_cost, mi_row, mi_col);
+    this_model_rd = intra_model_yrd(cpi, x, bsize, mode_cost, mi_row, mi_col,
+                                    &filter_intra_mode_sse);
     if (*best_model_rd != INT64_MAX &&
         this_model_rd > *best_model_rd + (*best_model_rd >> 1))
       continue;
     if (this_model_rd < *best_model_rd) *best_model_rd = this_model_rd;
+    uint8_t mode_idx = map_filter_intra_to_intra_modes[mode];
+    if (mode_sse_pair[mode_idx].mode_sse < filter_intra_mode_sse) continue;
     super_block_yrd(cpi, x, &tokenonly_rd_stats, bsize, *best_rd);
     if (tokenonly_rd_stats.rate == INT_MAX) continue;
     const int this_rate =
@@ -4431,7 +4446,8 @@ static int64_t calc_rd_given_intra_angle(
   assert(!is_inter_block(mbmi));
   mbmi->angle_delta[PLANE_TYPE_Y] = angle_delta;
   if (!skip_model_rd) {
-    this_model_rd = intra_model_yrd(cpi, x, bsize, mode_cost, mi_row, mi_col);
+    this_model_rd =
+        intra_model_yrd(cpi, x, bsize, mode_cost, mi_row, mi_col, NULL);
     if (*best_model_rd != INT64_MAX &&
         this_model_rd > *best_model_rd + (*best_model_rd >> 1))
       return INT64_MAX;
@@ -4708,6 +4724,11 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int above_ctx = intra_mode_context[A];
   const int left_ctx = intra_mode_context[L];
   bmode_costs = x->y_mode_costs[above_ctx][left_ctx];
+  INTRA_MODE_SSE_PAIR mode_sse_pair[INTRA_MODE_END - INTRA_MODE_START];
+  for (int mod_idx = INTRA_MODE_START; mod_idx < INTRA_MODE_END; mod_idx++) {
+    mode_sse_pair[mod_idx].mode_idx = mod_idx;
+    mode_sse_pair[mod_idx].mode_sse = INT64_MAX;
+  }
 
   mbmi->angle_delta[PLANE_TYPE_Y] = 0;
   if (cpi->sf.intra_angle_estimation) {
@@ -4744,7 +4765,8 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (!cpi->oxcf.enable_paeth_intra && mbmi->mode == PAETH_PRED) continue;
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
     this_model_rd =
-        intra_model_yrd(cpi, x, bsize, bmode_costs[mbmi->mode], mi_row, mi_col);
+        intra_model_yrd(cpi, x, bsize, bmode_costs[mbmi->mode], mi_row, mi_col,
+                        &mode_sse_pair[mbmi->mode].mode_sse);
     if (best_model_rd != INT64_MAX &&
         this_model_rd > best_model_rd + (best_model_rd >> 1))
       continue;
@@ -4800,9 +4822,10 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   if (beat_best_rd && av1_filter_intra_allowed_bsize(&cpi->common, bsize)) {
-    if (rd_pick_filter_intra_sby(
-            cpi, x, mi_row, mi_col, rate, rate_tokenonly, distortion, skippable,
-            bsize, bmode_costs[DC_PRED], &best_rd, &best_model_rd, ctx)) {
+    if (rd_pick_filter_intra_sby(cpi, x, mi_row, mi_col, rate, rate_tokenonly,
+                                 distortion, skippable, bsize,
+                                 bmode_costs[DC_PRED], &best_rd, &best_model_rd,
+                                 ctx, &mode_sse_pair[0])) {
       best_mbmi = *mbmi;
     }
   }
