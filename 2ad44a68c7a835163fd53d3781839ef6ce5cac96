@@ -16,6 +16,24 @@
       "revId": "2ad44a68c7a835163fd53d3781839ef6ce5cac96",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d43e66dc_3e384ad8",
+        "filename": "aom_dsp/x86/avg_intrin_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-07-29T22:34:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef6c58b8_9c677a05",
+      "revId": "2ad44a68c7a835163fd53d3781839ef6ce5cac96",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
