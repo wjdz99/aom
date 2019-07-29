@@ -345,6 +345,7 @@ static void set_good_speed_features_framesize_independent(
     // TODO(any): Experiment on the dependency of this speed feature with
     // use_intra_txb_hash, use_inter_txb_hash and use_mb_rd_hash speed features
     sf->enable_winner_mode_for_coeff_opt = 1;
+    sf->reduce_inter_modes = 2;
   }
 
   if (speed >= 4) {
