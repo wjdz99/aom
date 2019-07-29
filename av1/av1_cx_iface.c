@@ -1837,9 +1837,10 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     // invisible frames get packed with the next visible frame
     while (cx_data_sz - index_size >= ctx->cx_data_sz / 2 &&
            !is_frame_visible &&
-           -1 != av1_get_compressed_data(cpi, &lib_flags, &frame_size, cx_data,
-                                         &dst_time_stamp, &dst_end_time_stamp,
-                                         !img, timestamp_ratio)) {
+           AOM_CODEC_OK ==
+               av1_get_compressed_data(
+                   cpi, &lib_flags, &frame_size, cx_data, &dst_time_stamp,
+                   &dst_end_time_stamp, !img, timestamp_ratio)) {
       cpi->seq_params_locked = 1;
       if (frame_size) {
         if (ctx->pending_cx_data == 0) ctx->pending_cx_data = cx_data;
