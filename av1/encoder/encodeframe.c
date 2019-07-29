@@ -4409,14 +4409,44 @@ static void set_rel_frame_dist(AV1_COMP *cpi) {
   const SPEED_FEATURES *const sf = &cpi->sf;
   const OrderHintInfo *const order_hint_info = &cm->seq_params.order_hint_info;
   MV_REFERENCE_FRAME ref_frame;
+  int dist;
+  int min_past_layer_depth = INT32_MAX;
+  int min_future_layer_depth = INT32_MAX;
+  int min_past_dist = INT32_MAX, min_future_dist = INT32_MAX;
+  int min_layer_depth_past = INT32_MAX, min_layer_depth_future = INT32_MAX;
+  cpi->nearest_past_frame = NONE_FRAME;
+  cpi->nearest_future_frame = NONE_FRAME;
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     cpi->ref_relative_dist[ref_frame - LAST_FRAME] = 0;
-    if (sf->alt_ref_search_fp) {
-      int dist = av1_encoder_get_relative_dist(
+    if (cpi->ref_frame_flags & av1_ref_frame_flag_list[ref_frame]) {
+      const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
+      dist = av1_encoder_get_relative_dist(
           order_hint_info,
           cm->cur_frame->ref_display_order_hint[ref_frame - LAST_FRAME],
           cm->current_frame.display_order_hint);
       cpi->ref_relative_dist[ref_frame - LAST_FRAME] = dist;
+      // Store the nearest ref_frame in the past
+      if (abs(dist) < min_past_dist && dist < 0) {
+        cpi->nearest_past_frame = ref_frame;
+        min_past_dist = abs(dist);
+      }
+      // Store the nearest ref_frame in the future
+      if (dist < min_future_dist && dist > 0) {
+        cpi->nearest_future_frame = ref_frame;
+        min_future_dist = dist;
+      }
+      if (buf != NULL) {
+        // Store the lowest layer depth ref_frame in past
+        if (buf->layer_depth < min_past_layer_depth && dist < 0) {
+          cpi->lowest_past_frame = ref_frame;
+          min_past_layer_depth = buf->layer_depth;
+        }
+        // Store the lowest layer depth ref_frame in future
+        if (buf->layer_depth < min_future_layer_depth && dist > 0) {
+          cpi->lowest_future_frame = ref_frame;
+          min_future_layer_depth = buf->layer_depth;
+        }
+      }
     }
   }
 }
