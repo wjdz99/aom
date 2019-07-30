@@ -68,6 +68,30 @@
       "revId": "d4eebed7caf0e4a8fe0b93217846582072115987",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc1bbc72_31cf79d2",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 10197,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2019-07-30T17:36:21Z",
+      "side": 1,
+      "message": "Once the patch is merged, we are planning to extend the logic in following ways\n1) Limit the references for which the pruning can be done so that the speed feature can be extended for high quality presets (for speed\u003d 1 to 2)\n2) Along with above, we shall experiment for compound prediction and non-new mvs as well (for speed\u003d1 to 4)",
+      "parentUuid": "ab311baa_7772011f",
+      "range": {
+        "startLine": 10196,
+        "startChar": 39,
+        "endLine": 10197,
+        "endChar": 44
+      },
+      "revId": "d4eebed7caf0e4a8fe0b93217846582072115987",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
