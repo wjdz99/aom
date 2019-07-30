@@ -4684,7 +4684,8 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                       int mi_row, int mi_col, int *rate,
                                       int *rate_tokenonly, int64_t *distortion,
                                       int *skippable, BLOCK_SIZE bsize,
-                                      int64_t best_rd, PICK_MODE_CONTEXT *ctx) {
+                                      int64_t best_rd, PICK_MODE_CONTEXT *ctx,
+                                      uint8_t *directional_mode_skip_mask) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   assert(!is_inter_block(mbmi));
@@ -4692,7 +4693,6 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
   int is_directional_mode;
-  uint8_t directional_mode_skip_mask[INTRA_MODES] = { 0 };
   int beat_best_rd = 0;
   const int *bmode_costs;
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
@@ -6347,7 +6347,8 @@ static void init_sbuv_mode(MB_MODE_INFO *const mbmi) {
 static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                        int *rate, int *rate_tokenonly,
                                        int64_t *distortion, int *skippable,
-                                       BLOCK_SIZE bsize, TX_SIZE max_tx_size) {
+                                       BLOCK_SIZE bsize, TX_SIZE max_tx_size,
+                                       uint8_t *directional_mode_skip_mask) {
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
   assert(!is_inter_block(mbmi));
@@ -6359,6 +6360,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     RD_STATS tokenonly_rd_stats;
     UV_PREDICTION_MODE mode = uv_rd_search_mode_order[mode_idx];
     const int is_directional_mode = av1_is_directional_mode(get_uv_mode(mode));
+    if (is_directional_mode && directional_mode_skip_mask[mode]) continue;
     if (!(cpi->sf.intra_uv_mode_mask[txsize_sqr_up_map[max_tx_size]] &
           (1 << mode)))
       continue;
@@ -6436,7 +6438,8 @@ static void choose_intra_uv_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
                                  BLOCK_SIZE bsize, TX_SIZE max_tx_size,
                                  int *rate_uv, int *rate_uv_tokenonly,
                                  int64_t *dist_uv, int *skip_uv,
-                                 UV_PREDICTION_MODE *mode_uv) {
+                                 UV_PREDICTION_MODE *mode_uv,
+                                 uint8_t *directional_mode_skip_mask) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
@@ -6469,7 +6472,7 @@ static void choose_intra_uv_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
     xd->cfl.store_y = 0;
   }
   rd_pick_intra_sbuv_mode(cpi, x, rate_uv, rate_uv_tokenonly, dist_uv, skip_uv,
-                          bsize, max_tx_size);
+                          bsize, max_tx_size, directional_mode_skip_mask);
   *mode_uv = mbmi->uv_mode;
 }
 
@@ -10957,6 +10960,7 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   int y_skip = 0, uv_skip = 0;
   int64_t dist_y = 0, dist_uv = 0;
   TX_SIZE max_uv_tx_size;
+  uint8_t directional_mode_skip_mask[INTRA_MODES] = { 0 };
 
   ctx->rd_stats.skip = 0;
   mbmi->ref_frame[0] = INTRA_FRAME;
@@ -10964,9 +10968,9 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   mbmi->use_intrabc = 0;
   mbmi->mv[0].as_int = 0;
 
-  const int64_t intra_yrd =
-      rd_pick_intra_sby_mode(cpi, x, mi_row, mi_col, &rate_y, &rate_y_tokenonly,
-                             &dist_y, &y_skip, bsize, best_rd, ctx);
+  const int64_t intra_yrd = rd_pick_intra_sby_mode(
+      cpi, x, mi_row, mi_col, &rate_y, &rate_y_tokenonly, &dist_y, &y_skip,
+      bsize, best_rd, ctx, directional_mode_skip_mask);
 
   // Get the threshold for R-D optimization of coefficients for mode
   // decision
@@ -10994,7 +10998,8 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
       init_sbuv_mode(mbmi);
       if (!x->skip_chroma_rd)
         rd_pick_intra_sbuv_mode(cpi, x, &rate_uv, &rate_uv_tokenonly, &dist_uv,
-                                &uv_skip, bsize, max_uv_tx_size);
+                                &uv_skip, bsize, max_uv_tx_size,
+                                directional_mode_skip_mask);
     }
 
     if (y_skip && (uv_skip || x->skip_chroma_rd)) {
@@ -11698,6 +11703,7 @@ static void search_palette_mode(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   const int *const intra_mode_cost = x->mbmode_cost[size_group_lookup[bsize]];
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
+  uint8_t directional_mode_skip_mask[INTRA_MODES] = { 0 };
 
   mbmi->mode = DC_PRED;
   mbmi->uv_mode = UV_DC_PRED;
@@ -11727,7 +11733,7 @@ static void search_palette_mode(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
       choose_intra_uv_mode(cpi, x, bsize, uv_tx, &search_state->rate_uv_intra,
                            &search_state->rate_uv_tokenonly,
                            &search_state->dist_uvs, &search_state->skip_uvs,
-                           &search_state->mode_uv);
+                           &search_state->mode_uv, directional_mode_skip_mask);
       search_state->pmi_uv = *pmi;
       search_state->uv_angle_delta = mbmi->angle_delta[PLANE_TYPE_UV];
     }
@@ -12122,18 +12128,19 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
     return INT64_MAX;
   }
 
+  if (sf->intra_angle_estimation && !search_state->angle_stats_ready) {
+    const int src_stride = x->plane[0].src.stride;
+    const uint8_t *src = x->plane[0].src.buf;
+    const int rows = block_size_high[bsize];
+    const int cols = block_size_wide[bsize];
+    angle_estimation(src, src_stride, rows, cols, bsize, is_cur_buf_hbd(xd),
+                     search_state->directional_mode_skip_mask);
+    search_state->angle_stats_ready = 1;
+  }
+
   const int is_directional_mode = av1_is_directional_mode(mode);
   if (is_directional_mode && av1_use_angle_delta(bsize) &&
       cpi->oxcf.enable_angle_delta) {
-    if (sf->intra_angle_estimation && !search_state->angle_stats_ready) {
-      const int src_stride = x->plane[0].src.stride;
-      const uint8_t *src = x->plane[0].src.buf;
-      const int rows = block_size_high[bsize];
-      const int cols = block_size_wide[bsize];
-      angle_estimation(src, src_stride, rows, cols, bsize, is_cur_buf_hbd(xd),
-                       search_state->directional_mode_skip_mask);
-      search_state->angle_stats_ready = 1;
-    }
     if (search_state->directional_mode_skip_mask[mode]) return INT64_MAX;
     av1_init_rd_stats(rd_stats_y);
     rd_stats_y->rate = INT_MAX;
@@ -12243,7 +12250,8 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
       choose_intra_uv_mode(cpi, x, bsize, uv_tx, &search_state->rate_uv_intra,
                            &search_state->rate_uv_tokenonly,
                            &search_state->dist_uvs, &search_state->skip_uvs,
-                           &search_state->mode_uv);
+                           &search_state->mode_uv,
+                           search_state->directional_mode_skip_mask);
       if (try_palette) search_state->pmi_uv = *pmi;
       search_state->uv_angle_delta = mbmi->angle_delta[PLANE_TYPE_UV];
 
