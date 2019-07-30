@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66c1ac58_b1a387d5",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2019-07-30T19:39:04Z",
+      "side": 1,
+      "message": "It should not happen, right?",
+      "range": {
+        "startLine": 229,
+        "startChar": 9,
+        "endLine": 229,
+        "endChar": 16
+      },
+      "revId": "18938ace1a1e447f7bc0644fdb6202ca4180051e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
