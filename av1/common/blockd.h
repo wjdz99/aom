@@ -31,6 +31,8 @@
 extern "C" {
 #endif
 
+#define CONFIG_INTRA_ENTROPY 1
+
 #define USE_B_QUANT_NO_TRELLIS 1
 
 #define MAX_MB_PLANE 3
