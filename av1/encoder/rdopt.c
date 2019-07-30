@@ -12042,6 +12042,13 @@ static int inter_mode_search_order_independent_skip(
                     ->ref_display_order_hint[BWDREF_FRAME - LAST_FRAME],
                 current_frame->display_order_hint) < 0)
           return 1;
+      if (ref_frame[0] == ALTREF_FRAME || ref_frame[1] == ALTREF_FRAME)
+        if (av1_encoder_get_relative_dist(
+                order_hint_info,
+                cm->cur_frame
+                    ->ref_display_order_hint[ALTREF_FRAME - LAST_FRAME],
+                current_frame->display_order_hint) < 0)
+          return 1;
     }
 
     if (sf->selective_ref_frame >= 4 && comp_pred) {
