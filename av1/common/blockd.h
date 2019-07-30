@@ -282,6 +282,7 @@ typedef struct MB_MODE_INFO {
   int8_t cdef_strength : 4;
 #if CONFIG_INTRA_ENTROPY
   uint64_t gradient_hist[8];
+  int64_t recon_var;  // Variance of reconstructed pixel values.
 #endif  // CONFIG_INTRA_ENTROPY
 } MB_MODE_INFO;
 
@@ -1259,8 +1260,13 @@ static INLINE int av1_pixels_to_mi(int pixels) {
 }
 
 #if CONFIG_INTRA_ENTROPY
+// Calculate histogram of gradient orientations of the reconstructed pixel
+// values in current coding block.
 void av1_get_gradient_hist(const MACROBLOCKD *const xd,
                            MB_MODE_INFO *const mbmi, BLOCK_SIZE bsize);
+// Calculate variance of the reconstructed pixel values in current coding block.
+void av1_get_recon_var(const MACROBLOCKD *const xd,
+                       MB_MODE_INFO *const mbmi, BLOCK_SIZE bsize);
 #endif  // CONFIG_INTRA_ENTROPY
 
 #ifdef __cplusplus
