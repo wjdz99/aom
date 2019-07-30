@@ -22,6 +22,30 @@
       "revId": "d9efde4c4cf1b395046dcf1e83b77d5f143540ac",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e6bc692_bef67bdc",
+        "filename": "aom_dsp/x86/avg_intrin_sse2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-07-30T23:08:56Z",
+      "side": 1,
+      "message": "I think it\u0027s good to make it loadu if it\u0027s not guaranteed to be aligned.",
+      "parentUuid": "38a99c49_6c4fb87a",
+      "range": {
+        "startLine": 464,
+        "startChar": 21,
+        "endLine": 464,
+        "endChar": 35
+      },
+      "revId": "d9efde4c4cf1b395046dcf1e83b77d5f143540ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
