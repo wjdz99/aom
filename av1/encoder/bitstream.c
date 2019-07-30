@@ -1067,6 +1067,16 @@ static void write_intra_prediction_modes(AV1_COMP *cpi, const int mi_row,
     const MB_MODE_INFO *const above_mi = xd->above_mbmi;
     const MB_MODE_INFO *const left_mi = xd->left_mbmi;
     write_intra_y_mode_kf(ec_ctx, mbmi, above_mi, left_mi, mode, w);
+#if 1
+    {
+      FILE *fp = fopen("enc.txt", "a");
+
+      fprintf(fp, "frame %d, mi %d %d, bsize %d, var %ld\n",
+              cm->current_frame.frame_number,
+              mi_row, mi_col, bsize, mbmi->recon_var);
+      fclose(fp);
+    }
+#endif
   } else {
     write_intra_y_mode_nonkf(ec_ctx, bsize, mode, w);
   }
