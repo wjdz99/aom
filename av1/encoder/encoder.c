@@ -8,6 +8,7 @@
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
+#define _DEFAULT_SOURCE
 
 #include <limits.h>
 #include <math.h>
@@ -5124,6 +5125,65 @@ static void set_mb_ssim_rdmult_scaling(AV1_COMP *cpi) {
   (void)xd;
 }
 
+void img_write(const uint8_t *ybuf, int ystride, const uint8_t *ubuf,
+               int ustride, const uint8_t *vbuf, int vstride, int w, int h,
+               FILE *file) {
+  int y;
+  // Y plane
+  for (y = 0; y < h; ++y) {
+    fwrite(ybuf, w, 1, file);
+    ybuf += ystride;
+  }
+
+  // U plane
+  for (y = 0; y < h / 2; ++y) {
+    fwrite(ubuf, w / 2, 1, file);
+    ubuf += ustride;
+  }
+
+  for (y = 0; y < h / 2; ++y) {
+    fwrite(vbuf, w / 2, 1, file);
+    vbuf += vstride;
+  }
+}
+
+static void write_frame(AV1_COMP *cpi, FILE *fptr) {
+  int i = 0;
+  int j = 0;
+  for (i = 0; i < cpi->source->y_height; i++) {
+    for (j = 0; j < cpi->source->y_width; j++) {
+      fprintf(fptr, "%d,",
+              *(cpi->source->y_buffer + i * cpi->source->y_stride + j));
+    }
+  }
+  fprintf(fptr, "\t");
+
+  for (i = 0; i < cpi->source->y_height; i++) {
+    for (j = 0; j < cpi->source->y_width; j++) {
+      fprintf(fptr, "%d,",
+              *(cpi->common.cur_frame->buf.y_buffer +
+                i * cpi->source->y_stride + j));
+    }
+  }
+}
+
+static double image_sad_c(const uint8_t *src, int src_stride,
+                          const uint8_t *ref, int ref_stride, int w, int h) {
+  double accum = 0.0;
+  int i, j;
+
+  for (i = 0; i < h; ++i) {
+    for (j = 0; j < w; ++j) {
+      double img1px = src[i * src_stride + j];
+      double img2px = ref[i * ref_stride + j];
+
+      accum += fabs(img1px - img2px);
+    }
+  }
+
+  return accum / (double)(w * h);
+}
+
 static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
                                      uint8_t *dest) {
   AV1_COMMON *const cm = &cpi->common;
@@ -5421,6 +5481,131 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
   if (frame_is_intra_only(cm) == 0) {
     release_scaled_references(cpi);
+  }
+
+  // Print Vmaf training data
+  {
+    int frame_type = 0;
+
+    RATE_CONTROL *rc = &cpi->rc;
+    const GF_GROUP *const gf_group = &cpi->gf_group;
+    if (current_frame->frame_type == KEY_FRAME) {
+      printf("Key frame, Frame index: %d, Qindex: %d\n",
+             current_frame->frame_number, cm->base_qindex);
+      frame_type = 0;
+    } else if (gf_group->update_type[gf_group->index] == ARF_UPDATE ||
+               gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE) {
+      printf("ARF frame, Frame index: %d, Qindex: %d\n",
+             current_frame->frame_number, cm->base_qindex);
+      frame_type = 1;
+    } else if (rc->is_src_frame_alt_ref) {
+      printf("Overlay frame, Frame index: %d, Qindex: %d\n",
+             current_frame->frame_number, cm->base_qindex);
+      frame_type = 3;
+    } else {
+      printf("Inter frame, Frame index: %d, Qindex: %d\n",
+             current_frame->frame_number, cm->base_qindex);
+      frame_type = 2;
+    }
+
+    {
+      aom_clear_system_state();
+      FILE *fptr = fopen("vmaf.txt", "a");
+
+      // Calculate 64x64 VMAF scores
+      YV12_BUFFER_CONFIG *orig = cpi->source;
+      YV12_BUFFER_CONFIG *last_source = cpi->last_source;
+      YV12_BUFFER_CONFIG *recon = &cpi->common.cur_frame->buf;
+      const int num_blocks_w = orig->y_width / 64;
+      const int num_blocks_h = orig->y_height / 64;
+      int i, j;
+
+      fprintf(fptr, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t", current_frame->frame_number,
+              cm->base_qindex,
+              av1_dc_quant_QTX(cm->base_qindex, 0,
+                               cpi->common.seq_params.bit_depth),
+              (int)(cpi->oxcf.target_bandwidth / 1000), frame_type,
+              cpi->source->y_height, cpi->source->y_width);
+
+      // Write out YUV blocks
+      for (j = 0; j < num_blocks_h; ++j) {
+        for (i = 0; i < num_blocks_w; ++i) {
+          {
+            FILE *fptrs = fopen("./src.yuv", "wb");
+            uint8_t *ybuf = orig->y_buffer + j * orig->y_stride * 64 + i * 64;
+            uint8_t *ubuf = orig->u_buffer + j * orig->uv_stride * 32 + i * 32;
+            uint8_t *vbuf = orig->v_buffer + j * orig->uv_stride * 32 + i * 32;
+            img_write(ybuf, orig->y_stride, ubuf, orig->uv_stride, vbuf,
+                      orig->uv_stride, 64, 64, fptrs);
+            fclose(fptrs);
+          }
+
+          {
+            FILE *fptrr = fopen("./rec.yuv", "wb");
+            uint8_t *ybuf = recon->y_buffer + j * recon->y_stride * 64 + i * 64;
+            uint8_t *ubuf =
+                recon->u_buffer + j * recon->uv_stride * 32 + i * 32;
+            uint8_t *vbuf =
+                recon->v_buffer + j * recon->uv_stride * 32 + i * 32;
+            img_write(ybuf, recon->y_stride, ubuf, recon->uv_stride, vbuf,
+                      recon->uv_stride, 64, 64, fptrr);
+            fclose(fptrr);
+          }
+
+          unsigned int sse;
+          uint8_t *src_buf = orig->y_buffer + j * orig->y_stride * 64 + i * 64;
+          uint8_t *rec_buf =
+              recon->y_buffer + j * recon->y_stride * 64 + i * 64;
+          cpi->fn_ptr[BLOCK_64X64].vf(src_buf, orig->y_stride, rec_buf,
+                                      recon->y_stride, &sse);
+
+          char buf[128];
+          FILE *fp;
+          int line = 0;
+          double psnr = -1.0, ssim = -1.0, vmaf = -1.0, mse;
+          fp = popen(
+              "./vmafossexec yuv420p 64 64 src.yuv rec.yuv vmaf_v0.6.1.pkl",
+              "r");
+
+          while (fgets(buf, 128, fp) != NULL) {
+            line++;
+            if (line == 3) {
+              vmaf = atof(&buf[13]);
+            }
+            if (line == 4) {
+              psnr = atof(&buf[13]);
+            }
+            if (line == 5) {
+              ssim = atof(&buf[13]);
+            }
+          }
+
+          // compute motion score
+          double motion = 0.0;
+          if (frame_type > 1) {
+            assert(last_source);
+            uint8_t *last_buf =
+                last_source->y_buffer + j * last_source->y_stride * 64 + i * 64;
+            motion = image_sad_c(src_buf, orig->y_stride, last_buf,
+                                 last_source->y_stride, 64, 64);
+          }
+
+          // mse = pow(10.0, (20.0 * log10(255.0) - psnr) / 10.0);
+          // fprintf(fptr, "%f\t%f\t%f\t", mse, ssim, vmaf);
+          mse = (double)sse / 64.0 / 64.0;
+          fprintf(fptr, "%f:%f:%f,", mse, vmaf, motion);
+
+          (void)psnr;
+          (void)ssim;
+        }
+      }
+
+      fprintf(fptr, "\t");
+      write_frame(cpi, fptr);
+      fprintf(fptr, "\n");
+      fclose(fptr);
+      aom_clear_system_state();
+    }
   }
 
   // NOTE: Save the new show frame buffer index for --test-code=warn, i.e.,
