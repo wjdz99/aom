@@ -1173,6 +1173,21 @@ static void decode_token_recon_block(AV1Decoder *const pbi,
       av1_get_gradient_hist(xd, mbmi, bsize);
       av1_get_recon_var(xd, mbmi, bsize);
     }
+
+#if 1
+    {
+      FILE *fp = fopen("dec.txt", "a");
+
+      fprintf(fp, "frame %d, mi %d %d, bsize %d, var %ld\n",
+              cm->current_frame.frame_number,
+              mi_row, mi_col, bsize, mbmi->recon_var);
+      for (int i = 0; i < 8; ++i) {
+        fprintf(fp, "%8ld ", mbmi->gradient_hist[i]);
+      }
+      fprintf(fp, "\n");
+      fclose(fp);
+    }
+#endif
 #endif  // CONFIG_INTRA_ENTROPY
   } else {
     td->predict_inter_block_visit(cm, xd, mi_row, mi_col, bsize);
