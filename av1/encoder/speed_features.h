@@ -727,6 +727,10 @@ typedef struct SPEED_FEATURES {
 
   // Use modeled (currently CurvFit model) RDCost for fast non-RD mode
   int use_modeled_non_rd_cost;
+
+  // Skip a number of expensive mode evaluations for blocks with very low
+  // temporal variance.
+  int short_circuit_low_temp_var;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
