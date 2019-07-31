@@ -5554,6 +5554,8 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
         (1 << (cm->seq_params.order_hint_info.order_hint_bits_minus_1 + 1));
   }
 
+  current_frame->layer_depth = cpi->gf_group.layer_depth[cpi->gf_group.index];
+
   if (cpi->oxcf.pass == 1) {
 #if !CONFIG_REALTIME_ONLY
     av1_first_pass(cpi, frame_input->ts_duration);

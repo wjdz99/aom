@@ -10197,16 +10197,28 @@ static bool ref_mv_idx_early_breakout(const AV1_COMP *const cpi, MACROBLOCK *x,
     // TODO(any): Experiment with reduce_inter_modes for compound prediction
     if (sf->reduce_inter_modes >= 2 && !is_comp_pred &&
         have_newmv_in_inter_mode(mbmi->mode)) {
-      if (mbmi->ref_frame[0] != cpi->nearest_past_ref &&
-          mbmi->ref_frame[0] != cpi->nearest_future_ref) {
-        const int has_nearmv = have_nearmv_in_inter_mode(mbmi->mode) ? 1 : 0;
-        if (mbmi_ext->weight[ref_frame_type][ref_mv_idx + has_nearmv] <
-            REF_CAT_LEVEL) {
-          return true;
+      const int boosted = frame_is_kf_gf_arf(cpi);
+      if (boosted) {
+        if (is_ref_frame_eligible_to_be_pruned(cpi, mbmi->ref_frame[0])) {
+          const int has_nearmv = have_nearmv_in_inter_mode(mbmi->mode) ? 1 : 0;
+          if (mbmi_ext->weight[ref_frame_type][ref_mv_idx + has_nearmv] <
+              REF_CAT_LEVEL) {
+            return true;
+          }
+        }
+      } else {
+        if (mbmi->ref_frame[0] != cpi->nearest_past_ref.frame_type &&
+            mbmi->ref_frame[0] != cpi->nearest_future_ref.frame_type) {
+          const int has_nearmv = have_nearmv_in_inter_mode(mbmi->mode) ? 1 : 0;
+          if (mbmi_ext->weight[ref_frame_type][ref_mv_idx + has_nearmv] <
+              REF_CAT_LEVEL) {
+            return true;
+          }
         }
       }
     }
   }
+
   if (sf->prune_single_motion_modes_by_simple_trans && !is_comp_pred &&
       args->single_ref_first_pass == 0) {
     if (args->simple_rd_state[ref_mv_idx].early_skipped) {

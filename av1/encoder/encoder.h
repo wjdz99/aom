@@ -733,6 +733,11 @@ typedef struct {
   int gld_stack_size;
 } RefBufferStack;
 
+typedef struct {
+  int8_t frame_type;
+  int layer_depth;
+} RefFrameInfo;
+
 typedef struct AV1_COMP {
   QUANTS quants;
   ThreadData td;
@@ -1044,8 +1049,11 @@ typedef struct AV1_COMP {
   int8_t ref_relative_dist[INTER_REFS_PER_FRAME];
 
   // Indicate nearest references w.r.t. current frame in past and future
-  int8_t nearest_past_ref;
-  int8_t nearest_future_ref;
+  RefFrameInfo nearest_past_ref;
+  RefFrameInfo nearest_future_ref;
+
+  RefFrameInfo best_quality_past_ref;
+  RefFrameInfo best_quality_future_ref;
 
   double *ssim_rdmult_scaling_factors;
 

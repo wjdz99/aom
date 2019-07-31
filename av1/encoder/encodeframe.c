@@ -4411,25 +4411,47 @@ static void set_rel_frame_dist(AV1_COMP *cpi) {
   MV_REFERENCE_FRAME ref_frame;
   int dist;
   int min_past_dist = INT32_MAX, min_future_dist = INT32_MAX;
-  cpi->nearest_past_ref = NONE_FRAME;
-  cpi->nearest_future_ref = NONE_FRAME;
+  cpi->nearest_past_ref.frame_type = NONE_FRAME;
+  cpi->nearest_past_ref.layer_depth = MAX_ARF_LAYERS + 2;
+  cpi->nearest_future_ref.frame_type = NONE_FRAME;
+  cpi->nearest_future_ref.layer_depth = MAX_ARF_LAYERS + 2;
+  cpi->best_quality_past_ref.frame_type = NONE_FRAME;
+  cpi->best_quality_past_ref.layer_depth = MAX_ARF_LAYERS + 2;
+  cpi->best_quality_future_ref.frame_type = NONE_FRAME;
+  cpi->best_quality_future_ref.layer_depth = MAX_ARF_LAYERS + 2;
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     cpi->ref_relative_dist[ref_frame - LAST_FRAME] = 0;
-    if (cpi->ref_frame_flags & av1_ref_frame_flag_list[ref_frame]) {
+    const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
+    if (buf != NULL &&
+        (cpi->ref_frame_flags & av1_ref_frame_flag_list[ref_frame])) {
       dist = av1_encoder_get_relative_dist(
           order_hint_info,
           cm->cur_frame->ref_display_order_hint[ref_frame - LAST_FRAME],
           cm->current_frame.display_order_hint);
       cpi->ref_relative_dist[ref_frame - LAST_FRAME] = dist;
-      // Get the nearest ref_frame in the past
-      if (abs(dist) < min_past_dist && dist < 0) {
-        cpi->nearest_past_ref = ref_frame;
-        min_past_dist = abs(dist);
+      // Get the nearest and best-quality ref_frame in the past
+      if (dist < 0) {
+        if (abs(dist) < min_past_dist) {
+          cpi->nearest_past_ref.frame_type = ref_frame;
+          cpi->nearest_past_ref.layer_depth = buf->layer_depth;
+          min_past_dist = abs(dist);
+        }
+        if (buf->layer_depth < cpi->best_quality_past_ref.layer_depth) {
+          cpi->best_quality_past_ref.frame_type = ref_frame;
+          cpi->best_quality_past_ref.layer_depth = buf->layer_depth;
+        }
       }
-      // Get the nearest ref_frame in the future
-      if (dist < min_future_dist && dist > 0) {
-        cpi->nearest_future_ref = ref_frame;
-        min_future_dist = dist;
+      // Get the nearest and best-quality ref_frame in the future
+      if (dist > 0) {
+        if (dist < min_future_dist) {
+          cpi->nearest_future_ref.frame_type = ref_frame;
+          cpi->nearest_future_ref.layer_depth = buf->layer_depth;
+          min_future_dist = dist;
+        }
+        if (buf->layer_depth < cpi->best_quality_future_ref.layer_depth) {
+          cpi->best_quality_future_ref.frame_type = ref_frame;
+          cpi->best_quality_future_ref.layer_depth = buf->layer_depth;
+        }
       }
     }
   }
