@@ -34,6 +34,24 @@
       "revId": "7671857bf16c58bc842484ac251b1f8319c7332b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "db7bf83b_2b9cd8fd",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 8522,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-07-31T16:45:06Z",
+      "side": 1,
+      "message": "Satish: You are right. SWITCHABLE_FILTERS + 1 and SMOOTH_SMOOTH have the same value (4). \n\nI am not familiar with this code, so my questions/suggestions may be incorrect. I found that the filter_sets array has size SWITCHABLE_FILTERS * SWITCHABLE_FILTERS (\u003d 9). The DUAL_FILTER_TYPE enum type also has 9 values. I guess DUAL_FILTER_TYPE is the symbolic names of the indexes for the filter_sets array?\n\nThe for loop at lines 8503-8504 effectively iterates over i\u003dSMOOTH_SMOOTH and i\u003dSHARP_SHARP, right?",
+      "parentUuid": "dbe87a41_438b65d4",
+      "revId": "7671857bf16c58bc842484ac251b1f8319c7332b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
