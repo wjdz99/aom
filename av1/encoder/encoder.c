@@ -4717,7 +4717,10 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     // Dummy pack of the bitstream using up to date stats to get an
     // accurate estimate of output frame size to determine if we need
     // to recode.
-    if (cpi->sf.recode_loop >= ALLOW_RECODE_KFARFGF) {
+    const int do_dummy_pack =
+        cpi->sf.recode_loop >= ALLOW_RECODE_KFARFGF ||
+        (allow_recode && cpi->oxcf.min_cr > 0);
+    if (do_dummy_pack) {
       restore_coding_context(cpi);
 
       finalize_encoded_frame(cpi);
