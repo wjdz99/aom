@@ -4109,6 +4109,10 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
         start_timing(cpi, rd_pick_partition_time);
 #endif
         BLOCK_SIZE max_sq_size = x->max_partition_size;
+        const int is_1080p_or_larger = AOMMIN(cm->width, cm->height) >= 1080;
+        if (is_1080p_or_larger) {
+          x->min_partition_size = BLOCK_8X8;
+        }
         BLOCK_SIZE min_sq_size = x->min_partition_size;
 
         if (use_auto_max_partition(cpi, sb_size, mi_row, mi_col)) {
