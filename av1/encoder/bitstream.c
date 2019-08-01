@@ -97,14 +97,19 @@ static void write_intra_y_mode_kf(FRAME_CONTEXT *frame_ctx,
   ++total;*/
   float features[54], scores[INTRA_MODES];
   av1_get_intra_block_feature(features, above_mi, left_mi, aboveleft_mi);
+  /*  FILE *fp = fopen("writer1.txt", "a");
+    fprintf(fp, "wt:");
+    for (int i = 0; i < 16; ++i) {
+      fprintf(fp, "%.10f,", frame_ctx->av1_intra_y_mode.layer[1].weights[i]);
+    }
+    fprintf(fp, "\nf:");
+    fclose(fp);*/
   av1_nn_predict_em(features, &(frame_ctx->av1_intra_y_mode), scores);
   av1_nn_softmax_em(scores, scores, INTRA_MODES);
   // bit_length1 -= logf(scores[mode]);
   aom_cdf_prob cdf[CDF_SIZE(INTRA_MODES)] = { 0 };
   av1_pdf2cdf(scores, cdf, INTRA_MODES);
-  /*FILE *fp = fopen("writer1.txt", "a");
-  fprintf(fp, "f:");
-  for (int i = 0; i < 8; ++i) {
+  /*for (int i = 0; i < 8; ++i) {
     fprintf(fp, "%" PRIu64 ",", mi->gradient_hist[i]);
   }
   fprintf(fp, "||");
@@ -122,9 +127,6 @@ static void write_intra_y_mode_kf(FRAME_CONTEXT *frame_ctx,
 #else
   aom_write_symbol(w, mode, get_y_mode_cdf(frame_ctx, above_mi, left_mi),
                    INTRA_MODES);
-/*  FILE *fp = fopen("writer1.txt", "a");
-  fprintf(fp, "%d\n",mode);
-  fclose(fp);*/
 #endif  // CONFIG_INTRA_ENTROPY
 
   // printf("%f\n",-logf(scores[1]));

@@ -870,13 +870,18 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   float features[54], scores[INTRA_MODES];
   av1_get_intra_block_feature(features, above_mi, left_mi, aboveleft_mi);
   av1_nn_predict_em(features, &(ec_ctx->av1_intra_y_mode), scores);
+  /*  FILE *fp = fopen("reader1.txt", "a");
+    fprintf(fp, "wt:");
+    for (int i = 0; i < 16; ++i) {
+      fprintf(fp, "%.10f,", ec_ctx->av1_intra_y_mode.layer[1].weights[i]);
+    }
+    fprintf(fp, "\nf:");
+    fclose(fp);*/
   av1_nn_softmax_em(scores, scores, INTRA_MODES);
   aom_cdf_prob cdf[CDF_SIZE(INTRA_MODES)] = { 0 };
   av1_pdf2cdf(scores, cdf, INTRA_MODES);
   mbmi->mode = read_intra_mode_nn(r, cdf, &(ec_ctx->av1_intra_y_mode));
-  /*FILE *fp = fopen("reader1.txt", "a");
-  fprintf(fp, "f:");
-  for (int i = 0; i < 8; ++i) {
+  /*for (int i = 0; i < 8; ++i) {
       fprintf(fp, "%" PRIu64 ",", mbmi->gradient_hist[i]);
   }
   fprintf(fp, "||");
@@ -891,9 +896,6 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   fclose(fp);*/
 #else
   mbmi->mode = read_intra_mode(r, get_y_mode_cdf(ec_ctx, above_mi, left_mi));
-/*  FILE *fp = fopen("reader1.txt", "a");
-  fprintf(fp, "%d\n",mbmi->mode);
-  fclose(fp);*/
 #endif  // CONFIG_INTRA_ENTROPY
 
   const int use_angle_delta = av1_use_angle_delta(bsize);

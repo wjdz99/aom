@@ -884,6 +884,13 @@ static void sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
       NN_CONFIG_EM *nn_model = &(fc->av1_intra_y_mode);
       av1_get_intra_block_feature(features, above_mi, left_mi, aboveleft_mi);
       av1_nn_predict_em(features, nn_model, scores);
+      /*FILE *fp = fopen("writer1.txt", "a");
+      fprintf(fp, "wt:");
+      for (int i = 0; i < 16; ++i) {
+        fprintf(fp, "%.10f,", nn_model->layer[1].weights[i]);
+      }
+      fprintf(fp, "\nf:");
+      fclose(fp);*/
       av1_nn_backprop_em(nn_model, y_mode);
       av1_nn_update_em(nn_model, nn_model->lr);
 #else
