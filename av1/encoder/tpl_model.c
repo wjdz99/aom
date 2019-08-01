@@ -16,6 +16,7 @@
 #include "config/aom_dsp_rtcd.h"
 
 #include "aom/aom_codec.h"
+#include "aom_ports/system_state.h"
 
 #include "av1/common/enums.h"
 #include "av1/common/onyxc_int.h"
@@ -934,4 +935,162 @@ void av1_tpl_setup_forward_stats(AV1_COMP *cpi) {
       }
     }
   }
+}
+
+void av1_tpl_hier_rdmult_setup(AV1_COMP *cpi) {
+  const GF_GROUP *const gf_group = &cpi->gf_group;
+  const AV1_COMMON *const cm = &cpi->common;
+
+  assert(IMPLIES(gf_group->size > 0, gf_group->index < gf_group->size));
+  const int tpl_idx = gf_group->index;
+  const TplDepFrame *const tpl_frame = &cpi->tpl_frame[tpl_idx];
+  const TplDepStats *const tpl_stats = tpl_frame->tpl_stats_ptr;
+
+  if (!tpl_frame->is_valid) return;
+  const int tpl_stride = tpl_frame->stride;
+
+  aom_clear_system_state();
+
+  double *sb_scaling_factors;
+  // First pass
+  {
+    const int block_size = cm->seq_params.sb_size;
+    const int num_mi_w = mi_size_wide[block_size];
+    const int num_mi_h = mi_size_high[block_size];
+    const int num_cols = (cm->mi_cols + num_mi_w - 1) / num_mi_w;
+    const int num_rows = (cm->mi_rows + num_mi_h - 1) / num_mi_h;
+    sb_scaling_factors =
+        aom_calloc(num_rows * num_cols, sizeof(*sb_scaling_factors));
+
+    double log_sum = 0.0;
+    int row, col;
+    // Loop through each 'block_size' X 'block_size' block.
+    for (row = 0; row < num_rows; ++row) {
+      for (col = 0; col < num_cols; ++col) {
+        int mi_row, mi_col;
+        double intra_cost = 0.0, mc_dep_cost = 0.0;
+
+        // Loop through each mi block.
+        for (mi_row = row * num_mi_h; mi_row < (row + 1) * num_mi_h; mi_row++) {
+          for (mi_col = col * num_mi_w; mi_col < (col + 1) * num_mi_w;
+               mi_col++) {
+            if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) continue;
+
+            const TplDepStats *this_stats =
+                &tpl_stats[mi_row * tpl_stride + mi_col];
+            intra_cost += (double)this_stats->intra_cost;
+            mc_dep_cost += (double)this_stats->intra_cost + this_stats->mc_flow;
+          }
+        }
+
+        const double rk = intra_cost / mc_dep_cost + 0.1;
+        const int index = row * num_cols + col;
+        sb_scaling_factors[index] = rk;
+        log_sum += log(rk);
+      }
+    }
+    log_sum = exp(log_sum / (double)(num_rows * num_cols));
+
+    for (row = 0; row < num_rows; ++row) {
+      for (col = 0; col < num_cols; ++col) {
+        const int index = row * num_cols + col;
+        sb_scaling_factors[index] /= log_sum;
+        // printf("%f, ", sb_scaling_factors[index]);
+      }
+    }
+  }
+  // printf("\n");
+
+  const int bsize_base = BLOCK_16X16;
+  // Second Pass
+  {
+    const int block_size = bsize_base;
+    const int num_mi_w = mi_size_wide[block_size];
+    const int num_mi_h = mi_size_high[block_size];
+    const int num_cols = (cm->mi_cols + num_mi_w - 1) / num_mi_w;
+    const int num_rows = (cm->mi_rows + num_mi_h - 1) / num_mi_h;
+
+    int row, col;
+    // Loop through each 'block_size' X 'block_size' block.
+    for (row = 0; row < num_rows; ++row) {
+      for (col = 0; col < num_cols; ++col) {
+        int mi_row, mi_col;
+        double intra_cost = 0.0, mc_dep_cost = 0.0;
+
+        // Loop through each mi block.
+        for (mi_row = row * num_mi_h; mi_row < (row + 1) * num_mi_h; mi_row++) {
+          for (mi_col = col * num_mi_w; mi_col < (col + 1) * num_mi_w;
+               mi_col++) {
+            if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) continue;
+
+            const TplDepStats *this_stats =
+                &tpl_stats[mi_row * tpl_stride + mi_col];
+            intra_cost += (double)this_stats->intra_cost;
+            mc_dep_cost += (double)this_stats->intra_cost + this_stats->mc_flow;
+          }
+        }
+
+        const double rk = intra_cost / mc_dep_cost + 1.0;
+        const int index = row * num_cols + col;
+        cpi->tpl_rdmult_scaling_factors[index] = rk;
+      }
+    }
+  }
+
+  // Third Pass
+  {
+    const int bsize = cm->seq_params.sb_size;
+    const int num_mi_w = mi_size_wide[bsize_base];
+    const int num_mi_h = mi_size_high[bsize_base];
+    const int num_cols = (cm->mi_cols + num_mi_w - 1) / num_mi_w;
+    const int num_rows = (cm->mi_rows + num_mi_h - 1) / num_mi_h;
+    const int num_bcols = (mi_size_wide[bsize] + num_mi_w - 1) / num_mi_w;
+    const int num_brows = (mi_size_high[bsize] + num_mi_h - 1) / num_mi_h;
+    int row, col;
+
+    for (int mi_row = 0; mi_row < cm->mi_rows; mi_row += mi_size_high[bsize]) {
+      for (int mi_col = 0; mi_col < cm->mi_cols;
+           mi_col += mi_size_wide[bsize]) {
+        double base_block_count = 0.0;
+        double log_sum = 0.0;
+
+        for (row = mi_row / num_mi_w;
+             row < num_rows && row < mi_row / num_mi_w + num_brows; ++row) {
+          for (col = mi_col / num_mi_h;
+               col < num_cols && col < mi_col / num_mi_h + num_bcols; ++col) {
+            const int index = row * num_cols + col;
+            log_sum += log(cpi->tpl_rdmult_scaling_factors[index]);
+            base_block_count += 1.0;
+          }
+        }
+
+        const int sb_row = mi_row / mi_size_wide[bsize];
+        const int sb_col = mi_col / mi_size_high[bsize];
+        const int num_sb_cols =
+            (cm->mi_cols + mi_size_high[bsize] - 1) / mi_size_high[bsize];
+        const int sb_index = sb_row * num_sb_cols + sb_col;
+        double scale_adj =
+            log(sb_scaling_factors[sb_index]) - log_sum / base_block_count;
+        scale_adj = exp(scale_adj);
+
+        double geom = 0.0;
+        for (row = mi_row / num_mi_w;
+             row < num_rows && row < mi_row / num_mi_w + num_brows; ++row) {
+          for (col = mi_col / num_mi_h;
+               col < num_cols && col < mi_col / num_mi_h + num_bcols; ++col) {
+            const int index = row * num_cols + col;
+            cpi->tpl_rdmult_scaling_factors[index] *= scale_adj;
+            geom += log(cpi->tpl_rdmult_scaling_factors[index]);
+            // printf("%f, ", cpi->tpl_rdmult_scaling_factors[index]);
+          }
+        }
+        // printf("\n");
+        geom = exp(geom / base_block_count);
+        assert(fabs(geom - sb_scaling_factors[sb_index]) < 1e-7);
+      }
+    }
+  }
+
+  aom_clear_system_state();
+  aom_free(sb_scaling_factors);
 }

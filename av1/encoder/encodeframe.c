@@ -209,13 +209,6 @@ static BLOCK_SIZE get_rd_var_based_fixed_partition(AV1_COMP *cpi, MACROBLOCK *x,
 }
 #endif  // !CONFIG_REALTIME_ONLY
 
-static int set_deltaq_rdmult(const AV1_COMP *const cpi, MACROBLOCKD *const xd) {
-  const AV1_COMMON *const cm = &cpi->common;
-
-  return av1_compute_rd_mult(
-      cpi, cm->base_qindex + xd->delta_qindex + cm->y_dc_delta_q);
-}
-
 static void set_ssim_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
                             const BLOCK_SIZE bsize, const int mi_row,
                             const int mi_col, int *const rdmult) {
@@ -233,6 +226,7 @@ static void set_ssim_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   double geom_mean_of_scale = 0.0;
 
   assert(cpi->oxcf.tuning == AOM_TUNE_SSIM);
+  aom_clear_system_state();
 
   for (row = mi_row / num_mi_w;
        row < num_rows && row < mi_row / num_mi_w + num_brows; ++row) {
@@ -245,10 +239,59 @@ static void set_ssim_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   }
   geom_mean_of_scale = exp(geom_mean_of_scale / num_of_mi);
 
-  *rdmult = (int)((double)(*rdmult) * geom_mean_of_scale);
+  *rdmult = (int)((double)(*rdmult) * geom_mean_of_scale + 0.5);
   *rdmult = AOMMAX(*rdmult, 0);
   set_error_per_bit(x, *rdmult);
   aom_clear_system_state();
+}
+
+static int get_hier_tpl_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
+                               const BLOCK_SIZE bsize, const int mi_row,
+                               const int mi_col, int orig_rdmult) {
+  const int bsize_base = BLOCK_16X16;
+
+  const AV1_COMMON *const cm = &cpi->common;
+  assert(IMPLIES(cpi->gf_group.size > 0,
+                 cpi->gf_group.index < cpi->gf_group.size));
+  const int tpl_idx = cpi->gf_group.index;
+  const TplDepFrame *tpl_frame = &cpi->tpl_frame[tpl_idx];
+
+  if (cpi->tpl_model_pass == 1) {
+    assert(cpi->oxcf.enable_tpl_model == 2);
+    return orig_rdmult;
+  }
+  if (tpl_frame->is_valid == 0) return orig_rdmult;
+  if (!is_frame_tpl_eligible((AV1_COMP *)cpi)) return orig_rdmult;
+  if (tpl_idx >= MAX_LAG_BUFFERS) return orig_rdmult;
+
+  const int num_mi_w = mi_size_wide[bsize_base];
+  const int num_mi_h = mi_size_high[bsize_base];
+  const int num_cols = (cm->mi_cols + num_mi_w - 1) / num_mi_w;
+  const int num_rows = (cm->mi_rows + num_mi_h - 1) / num_mi_h;
+  const int num_bcols = (mi_size_wide[bsize] + num_mi_w - 1) / num_mi_w;
+  const int num_brows = (mi_size_high[bsize] + num_mi_h - 1) / num_mi_h;
+  int row, col;
+  double base_block_count = 0.0;
+  double geom_mean_of_scale = 0.0;
+
+  aom_clear_system_state();
+  for (row = mi_row / num_mi_w;
+       row < num_rows && row < mi_row / num_mi_w + num_brows; ++row) {
+    for (col = mi_col / num_mi_h;
+         col < num_cols && col < mi_col / num_mi_h + num_bcols; ++col) {
+      const int index = row * num_cols + col;
+      geom_mean_of_scale += log(cpi->tpl_rdmult_scaling_factors[index]);
+      base_block_count += 1.0;
+    }
+  }
+  geom_mean_of_scale = exp(geom_mean_of_scale / base_block_count);
+
+  int rdmult = (int)((double)orig_rdmult * geom_mean_of_scale + 0.5);
+  rdmult = AOMMAX(rdmult, 0);
+  set_error_per_bit(x, rdmult);
+  aom_clear_system_state();
+
+  return rdmult;
 }
 
 static int set_segment_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
@@ -284,12 +327,7 @@ static void setup_block_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
     }
   }
 
-  const AV1_COMMON *const cm = &cpi->common;
-  if (cm->delta_q_info.delta_q_present_flag) {
-    MACROBLOCKD *const xd = &x->e_mbd;
-    x->rdmult = set_deltaq_rdmult(cpi, xd);
-  }
-
+  x->rdmult = get_hier_tpl_rdmult(cpi, x, bsize, mi_row, mi_col, x->rdmult);
   if (cpi->oxcf.tuning == AOM_TUNE_SSIM) {
     set_ssim_rdmult(cpi, x, bsize, mi_row, mi_col, &x->rdmult);
   }
@@ -3493,79 +3531,6 @@ BEGIN_PARTITION_SEARCH:
 #endif  // !CONFIG_REALTIME_ONLY
 #undef NUM_SIMPLE_MOTION_FEATURES
 
-#if !CONFIG_REALTIME_ONLY
-static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int analysis_type,
-                            int mi_row, int mi_col, int orig_rdmult) {
-  AV1_COMMON *const cm = &cpi->common;
-  assert(IMPLIES(cpi->gf_group.size > 0,
-                 cpi->gf_group.index < cpi->gf_group.size));
-  const int tpl_idx = cpi->gf_group.index;
-  TplDepFrame *tpl_frame = &cpi->tpl_frame[tpl_idx];
-  TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
-  int tpl_stride = tpl_frame->stride;
-  int64_t intra_cost = 0;
-  int64_t mc_dep_cost = 0;
-  int mi_wide = mi_size_wide[bsize];
-  int mi_high = mi_size_high[bsize];
-  int row, col;
-
-  if (tpl_frame->is_valid == 0) return orig_rdmult;
-
-  if (!is_frame_tpl_eligible(cpi)) return orig_rdmult;
-
-  if (cpi->gf_group.index >= MAX_LAG_BUFFERS) return orig_rdmult;
-
-  int64_t mc_count = 0, mc_saved = 0;
-  int mi_count = 0;
-  const int mi_col_sr =
-      av1_coded_to_superres_mi(mi_col, cm->superres_scale_denominator);
-  const int mi_col_end_sr = av1_coded_to_superres_mi(
-      mi_col + mi_wide, cm->superres_scale_denominator);
-  const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
-  for (row = mi_row; row < mi_row + mi_high; ++row) {
-    for (col = mi_col_sr; col < mi_col_end_sr; ++col) {
-      if (row >= cm->mi_rows || col >= mi_cols_sr) continue;
-      TplDepStats *this_stats = &tpl_stats[row * tpl_stride + col];
-      intra_cost += this_stats->intra_cost;
-      mc_dep_cost += this_stats->intra_cost + this_stats->mc_flow;
-      mc_count += this_stats->mc_count;
-      mc_saved += this_stats->mc_saved;
-      mi_count++;
-    }
-  }
-
-  aom_clear_system_state();
-
-  double beta = 1.0;
-  if (analysis_type == 0) {
-    if (mc_dep_cost > 0 && intra_cost > 0) {
-      const double r0 = cpi->rd.r0;
-      const double rk = (double)intra_cost / mc_dep_cost;
-      beta = (r0 / rk);
-    }
-  } else if (analysis_type == 1) {
-    const double mc_count_base = (mi_count * cpi->rd.mc_count_base);
-    beta = (mc_count + 1.0) / (mc_count_base + 1.0);
-    beta = pow(beta, 0.5);
-  } else if (analysis_type == 2) {
-    const double mc_saved_base = (mi_count * cpi->rd.mc_saved_base);
-    beta = (mc_saved + 1.0) / (mc_saved_base + 1.0);
-    beta = pow(beta, 0.5);
-  }
-
-  int rdmult = av1_get_adaptive_rdmult(cpi, beta);
-
-  aom_clear_system_state();
-
-  rdmult = AOMMIN(rdmult, orig_rdmult * 3 / 2);
-  rdmult = AOMMAX(rdmult, orig_rdmult * 1 / 2);
-
-  rdmult = AOMMAX(1, rdmult);
-
-  return rdmult;
-}
-#endif  // !CONFIG_REALTIME_ONLY
-
 static void set_delta_q(AV1_COMP *const cpi, MACROBLOCK *x, ThreadData *td,
                         const TileInfo *tile_info, int mi_row, int mi_col,
                         int current_qindex) {
@@ -3625,122 +3590,17 @@ static void set_delta_q(AV1_COMP *const cpi, MACROBLOCK *x, ThreadData *td,
   }
 }
 
-// analysis_type 0: Use mc_dep_cost and intra_cost
-// analysis_type 1: Use count of best inter predictor chosen
-// analysis_type 2: Use cost reduction from intra to inter for best inter
-//                  predictor chosen
-static int get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
-                                      int analysis_type, int mi_row,
-                                      int mi_col) {
-  AV1_COMMON *const cm = &cpi->common;
-  assert(IMPLIES(cpi->gf_group.size > 0,
-                 cpi->gf_group.index < cpi->gf_group.size));
-  const int tpl_idx = cpi->gf_group.index;
-  TplDepFrame *tpl_frame = &cpi->tpl_frame[tpl_idx];
-  TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
-  int tpl_stride = tpl_frame->stride;
-  int64_t intra_cost = 0;
-  int64_t mc_dep_cost = 0;
-  int mi_wide = mi_size_wide[bsize];
-  int mi_high = mi_size_high[bsize];
-  int row, col;
-
-  if (cpi->tpl_model_pass == 1) {
-    assert(cpi->oxcf.enable_tpl_model == 2);
-    return cm->base_qindex;
+static void set_best_delta_q(AV1_COMP *const cpi, MACROBLOCK *x, ThreadData *td,
+                             const TileInfo *tile_info, int mi_row, int mi_col,
+                             BLOCK_SIZE bsize) {
+  const int orig_rdmult = cpi->rd.RDMULT;
+  int rdmult = get_hier_tpl_rdmult(cpi, x, bsize, mi_row, mi_col, orig_rdmult);
+  if (cpi->oxcf.tuning == AOM_TUNE_SSIM) {
+    set_ssim_rdmult(cpi, x, bsize, mi_row, mi_col, &rdmult);
   }
 
-  if (tpl_frame->is_valid == 0) return cm->base_qindex;
-
-  if (!is_frame_tpl_eligible(cpi)) return cm->base_qindex;
-
-  if (cpi->gf_group.index >= MAX_LAG_BUFFERS) return cm->base_qindex;
-
-  int64_t mc_count = 0, mc_saved = 0;
-  int mi_count = 0;
-  const int mi_col_sr =
-      av1_coded_to_superres_mi(mi_col, cm->superres_scale_denominator);
-  const int mi_col_end_sr = av1_coded_to_superres_mi(
-      mi_col + mi_wide, cm->superres_scale_denominator);
-  const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
-  for (row = mi_row; row < mi_row + mi_high; ++row) {
-    for (col = mi_col_sr; col < mi_col_end_sr; ++col) {
-      if (row >= cm->mi_rows || col >= mi_cols_sr) continue;
-      TplDepStats *this_stats = &tpl_stats[row * tpl_stride + col];
-      intra_cost += this_stats->intra_cost;
-      mc_dep_cost += this_stats->intra_cost + this_stats->mc_flow;
-      mc_count += this_stats->mc_count;
-      mc_saved += this_stats->mc_saved;
-      mi_count++;
-    }
-  }
-
-  aom_clear_system_state();
-
-  int offset = 0;
-  double beta = 1.0;
-  if (analysis_type == 0) {
-    if (mc_dep_cost > 0 && intra_cost > 0) {
-      const double r0 = cpi->rd.r0;
-      const double rk = (double)intra_cost / mc_dep_cost;
-      beta = (r0 / rk);
-      assert(beta > 0.0);
-    }
-  } else if (analysis_type == 1) {
-    const double mc_count_base = (mi_count * cpi->rd.mc_count_base);
-    beta = (mc_count + 1.0) / (mc_count_base + 1.0);
-    beta = pow(beta, 0.5);
-  } else if (analysis_type == 2) {
-    const double mc_saved_base = (mi_count * cpi->rd.mc_saved_base);
-    beta = (mc_saved + 1.0) / (mc_saved_base + 1.0);
-    beta = pow(beta, 0.5);
-  }
-  offset = (7 * av1_get_deltaq_offset(cpi, cm->base_qindex, beta)) / 8;
-  // printf("[%d/%d]: beta %g offset %d\n", pyr_lev_from_top,
-  //        cpi->gf_group.pyramid_height, beta, offset);
-
-  aom_clear_system_state();
-
-  const DeltaQInfo *const delta_q_info = &cm->delta_q_info;
-  offset = AOMMIN(offset, delta_q_info->delta_q_res * 9 - 1);
-  offset = AOMMAX(offset, -delta_q_info->delta_q_res * 9 + 1);
-  int qindex = cm->base_qindex + offset;
-  qindex = AOMMIN(qindex, MAXQ);
-  qindex = AOMMAX(qindex, MINQ);
-
-  return qindex;
-}
-
-static void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
-                          MACROBLOCK *const x, const TileInfo *const tile_info,
-                          int mi_row, int mi_col, int num_planes) {
-  AV1_COMMON *const cm = &cpi->common;
-  const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
-  // Delta-q modulation based on variance
-  av1_setup_src_planes(x, cpi->source, mi_row, mi_col, num_planes, sb_size);
-
-  int current_qindex = cm->base_qindex;
-  if (cpi->oxcf.deltaq_mode == DELTA_Q_PERCEPTUAL) {
-    if (DELTA_Q_PERCEPTUAL_MODULATION == 1) {
-      const int block_wavelet_energy_level =
-          av1_block_wavelet_energy_level(cpi, x, sb_size);
-      x->sb_energy_level = block_wavelet_energy_level;
-      current_qindex = av1_compute_q_from_energy_level_deltaq_mode(
-          cpi, block_wavelet_energy_level);
-    } else {
-      const int block_var_level = av1_log_block_var(cpi, x, sb_size);
-      x->sb_energy_level = block_var_level;
-      current_qindex =
-          av1_compute_q_from_energy_level_deltaq_mode(cpi, block_var_level);
-    }
-  } else if (cpi->oxcf.deltaq_mode == DELTA_Q_OBJECTIVE) {
-    assert(cpi->oxcf.enable_tpl_model);
-    // Setup deltaq based on tpl stats
-    current_qindex =
-        get_q_for_deltaq_objective(cpi, sb_size, 0, mi_row, mi_col);
-  }
-
-  set_delta_q(cpi, x, td, tile_info, mi_row, mi_col, current_qindex);
+  set_delta_q(cpi, x, td, tile_info, mi_row, mi_col,
+              av1_get_qindex_from_rdmult(cpi, rdmult));
 }
 
 #define AVG_CDF_WEIGHT_LEFT 3
@@ -3919,31 +3779,6 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
               CFL_ALPHABET_SIZE);
 }
 
-#if !CONFIG_REALTIME_ONLY
-static void adjust_rdmult_tpl_model(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
-                                    int mi_col) {
-  const BLOCK_SIZE sb_size = cpi->common.seq_params.sb_size;
-  const int orig_rdmult = cpi->rd.RDMULT;
-
-  if (cpi->tpl_model_pass == 1) {
-    assert(cpi->oxcf.enable_tpl_model == 2);
-    x->rdmult = orig_rdmult;
-    return;
-  }
-
-  assert(IMPLIES(cpi->gf_group.size > 0,
-                 cpi->gf_group.index < cpi->gf_group.size));
-  const int gf_group_index = cpi->gf_group.index;
-  if (cpi->oxcf.enable_tpl_model && cpi->oxcf.aq_mode == NO_AQ &&
-      cpi->oxcf.deltaq_mode == NO_DELTA_Q && gf_group_index > 0 &&
-      cpi->gf_group.update_type[gf_group_index] == ARF_UPDATE) {
-    const int dr =
-        get_rdmult_delta(cpi, sb_size, 0, mi_row, mi_col, orig_rdmult);
-    x->rdmult = dr;
-  }
-}
-#endif
-
 static INLINE void reset_thresh_freq_fact(MACROBLOCK *const x) {
   int i, j;
   for (i = 0; i < BLOCK_SIZES_ALL; ++i) {
@@ -4061,8 +3896,9 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
     xd->cur_frame_force_integer_mv = cm->cur_frame_force_integer_mv;
 
     x->sb_energy_level = 0;
-    if (cm->delta_q_info.delta_q_present_flag)
-      setup_delta_q(cpi, td, x, tile_info, mi_row, mi_col, num_planes);
+    if (cm->delta_q_info.delta_q_present_flag) {
+      set_best_delta_q(cpi, x, td, tile_info, mi_row, mi_col, sb_size);
+    }
 
     td->mb.cb_coef_buff = av1_get_cb_coeff_buffer(cpi, mi_row, mi_col);
 
@@ -4096,7 +3932,6 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       int64_t dummy_dist;
       RD_STATS dummy_rdc;
       av1_invalid_rd_stats(&dummy_rdc);
-      adjust_rdmult_tpl_model(cpi, x, mi_row, mi_col);
       if (sf->partition_search_type == FIXED_PARTITION || seg_skip) {
         set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
         const BLOCK_SIZE bsize =

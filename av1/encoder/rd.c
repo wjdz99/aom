@@ -376,54 +376,18 @@ int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {
   return (int)rdmult;
 }
 
-int av1_get_deltaq_offset(const AV1_COMP *cpi, int qindex, double beta) {
-  assert(beta > 0.0);
-  int q = av1_dc_quant_QTX(qindex, 0, cpi->common.seq_params.bit_depth);
-  int newq = (int)rint(q / sqrt(beta));
-  int orig_qindex = qindex;
-  if (newq < q) {
-    do {
-      qindex--;
-      q = av1_dc_quant_QTX(qindex, 0, cpi->common.seq_params.bit_depth);
-    } while (newq < q && qindex > 0);
-  } else {
-    do {
-      qindex++;
-      q = av1_dc_quant_QTX(qindex, 0, cpi->common.seq_params.bit_depth);
-    } while (newq > q && qindex < MAXQ);
-  }
-  return qindex - orig_qindex;
-}
+int av1_get_qindex_from_rdmult(const AV1_COMP *cpi, int target_rdmult) {
+  assert(target_rdmult >= 0);
 
-int av1_get_adaptive_rdmult(const AV1_COMP *cpi, double beta) {
-  assert(beta > 0.0);
-  const AV1_COMMON *cm = &cpi->common;
-  int64_t q =
-      av1_dc_quant_QTX(cm->base_qindex, 0, cpi->common.seq_params.bit_depth);
-  int64_t rdmult = 0;
+  int rdmult;
+  int qindex = MINQ - 1;
 
-  switch (cpi->common.seq_params.bit_depth) {
-    case AOM_BITS_8: rdmult = (int)((88 * q * q / beta) / 24); break;
-    case AOM_BITS_10:
-      rdmult = ROUND_POWER_OF_TWO((int)((88 * q * q / beta) / 24), 4);
-      break;
-    default:
-      assert(cpi->common.seq_params.bit_depth == AOM_BITS_12);
-      rdmult = ROUND_POWER_OF_TWO((int)((88 * q * q / beta) / 24), 8);
-      break;
-  }
+  do {
+    qindex++;
+    rdmult = av1_compute_rd_mult(cpi, qindex);
+  } while (rdmult < target_rdmult && qindex <= MAXQ);
 
-  if (cpi->oxcf.pass == 2 &&
-      (cpi->common.current_frame.frame_type != KEY_FRAME)) {
-    const GF_GROUP *const gf_group = &cpi->gf_group;
-    const FRAME_UPDATE_TYPE frame_type = gf_group->update_type[gf_group->index];
-    const int boost_index = AOMMIN(15, (cpi->rc.gfu_boost / 100));
-
-    rdmult = (rdmult * rd_frame_type_factor[frame_type]) >> 7;
-    rdmult += ((rdmult * rd_boost_factor[boost_index]) >> 7);
-  }
-  if (rdmult < 1) rdmult = 1;
-  return (int)rdmult;
+  return AOMMAX(MINQ, qindex - 1);
 }
 
 static int compute_rd_thresh_factor(int qindex, aom_bit_depth_t bit_depth) {

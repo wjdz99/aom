@@ -295,9 +295,7 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
 void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc,
                           const int num_planes);
 
-int av1_get_adaptive_rdmult(const struct AV1_COMP *cpi, double beta);
-
-int av1_get_deltaq_offset(const struct AV1_COMP *cpi, int qindex, double beta);
+int av1_get_qindex_from_rdmult(const struct AV1_COMP *cpi, int target_rdmult);
 
 #ifdef __cplusplus
 }  // extern "C"
