@@ -157,7 +157,16 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
   if (plane == AOM_PLANE_Y) {
     // only y plane's tx_type is transmitted
-    av1_read_tx_type(cm, xd, blk_row, blk_col, tx_size, r);
+#if CONFIG_VQ4X4
+    const TxSetType tx_set_type = av1_get_ext_tx_set_type(
+        tx_size, is_inter_block(mbmi), cm->reduced_tx_set_used);
+    if (tx_set_type == EXT_TX_SET_VQ) {
+      const int txk_type_idx =
+          av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
+      mbmi->txk_type[txk_type_idx] = DCT_DCT;
+    } else
+#endif
+      av1_read_tx_type(cm, xd, blk_row, blk_col, tx_size, r);
   }
   const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col,
                                           tx_size, cm->reduced_tx_set_used);
@@ -343,20 +352,35 @@ void av1_read_coeffs_txb_facade(const AV1_COMMON *const cm,
   TXB_CTX txb_ctx;
   get_txb_ctx(plane_bsize, tx_size, plane, pd->above_context + col,
               pd->left_context + row, &txb_ctx);
-  const uint8_t cul_level =
-      av1_read_coeffs_txb(cm, xd, r, row, col, plane, &txb_ctx, tx_size);
-  av1_set_contexts(xd, pd, plane, plane_bsize, tx_size, cul_level, col, row);
-
-  if (is_inter_block(mbmi)) {
-    PLANE_TYPE plane_type = get_plane_type(plane);
-    // tx_type will be read out in av1_read_coeffs_txb_facade
-    const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, row, col, tx_size,
-                                            cm->reduced_tx_set_used);
-
+#if CONFIG_VQ4X4
+  const TxSetType tx_set_type = av1_get_ext_tx_set_type(
+      tx_size, is_inter_block(mbmi), cm->reduced_tx_set_used);
+  if (tx_set_type == EXT_TX_SET_VQ) {
+    const uint8_t cul_level =
+        av1_read_coeffs_txb(cm, xd, r, row, col, plane, &txb_ctx, tx_size);
+    av1_set_contexts(xd, pd, plane, plane_bsize, tx_size, cul_level, col, row);
     if (plane == 0)
       update_txk_array(mbmi->txk_type, mbmi->sb_type, row, col, tx_size,
-                       tx_type);
+                       DCT_DCT);
+  } else {
+#endif
+    const uint8_t cul_level =
+        av1_read_coeffs_txb(cm, xd, r, row, col, plane, &txb_ctx, tx_size);
+    av1_set_contexts(xd, pd, plane, plane_bsize, tx_size, cul_level, col, row);
+
+    if (is_inter_block(mbmi)) {
+      PLANE_TYPE plane_type = get_plane_type(plane);
+      // tx_type will be read out in av1_read_coeffs_txb_facade
+      const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, row, col, tx_size,
+                                              cm->reduced_tx_set_used);
+
+      if (plane == 0)
+        update_txk_array(mbmi->txk_type, mbmi->sb_type, row, col, tx_size,
+                         tx_type);
+    }
+#if CONFIG_VQ4X4
   }
+#endif
 
 #if TXCOEFF_TIMER
   aom_usec_timer_mark(&timer);
