@@ -5124,7 +5124,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     // Dummy pack of the bitstream using up to date stats to get an
     // accurate estimate of output frame size to determine if we need
     // to recode.
-    if (cpi->sf.recode_loop >= ALLOW_RECODE_KFARFGF) {
+    if (cpi->sf.recode_loop >= ALLOW_RECODE_KFARFGF && 0) {
       restore_coding_context(cpi);
 
       finalize_encoded_frame(cpi);
