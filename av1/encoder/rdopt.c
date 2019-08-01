@@ -2055,6 +2055,7 @@ static void inverse_transform_block_facade(MACROBLOCKD *xd, int plane,
 
 static int find_tx_size_rd_info(TXB_RD_RECORD *cur_record, const uint32_t hash);
 
+#if !CONFIG_VQ4X4
 static uint32_t get_intra_txb_hash(MACROBLOCK *x, int plane, int blk_row,
                                    int blk_col, BLOCK_SIZE plane_bsize,
                                    TX_SIZE tx_size) {
@@ -2078,6 +2079,7 @@ static uint32_t get_intra_txb_hash(MACROBLOCK *x, int plane, int blk_row,
   const uint32_t hash = av1_get_crc32c_value(crc, hash_data, 2 * txb_w * txb_h);
   return (hash << 5) + tx_size;
 }
+#endif
 
 static INLINE void dist_block_tx_domain(MACROBLOCK *x, int plane, int block,
                                         TX_SIZE tx_size, int64_t *out_dist,
@@ -3023,6 +3025,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   skip_trellis |=
       cpi->optimize_seg_arr[mbmi->segment_id] == NO_TRELLIS_OPT ||
       cpi->optimize_seg_arr[mbmi->segment_id] == FINAL_PASS_TRELLIS_OPT;
+#if !CONFIG_VQ4X4
   if (within_border && cpi->sf.use_intra_txb_hash && frame_is_intra_only(cm) &&
       !is_inter && plane == 0 &&
       tx_size_wide[tx_size] == tx_size_high[tx_size]) {
@@ -3057,6 +3060,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       }
     }
   }
+#endif
 
   int rate_cost = 0;
   // if txk_allowed = TX_TYPES, >1 tx types are allowed, else, if txk_allowed <
@@ -3385,7 +3389,9 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     if (plane == 0) intra_txb_rd_info->tx_type = best_tx_type;
   }
 
+#if !CONFIG_VQ4X4
 RECON_INTRA:
+#endif
   if (!is_inter && best_eob &&
       (blk_row + tx_size_high_unit[tx_size] < mi_size_high[plane_bsize] ||
        blk_col + tx_size_wide_unit[tx_size] < mi_size_wide[plane_bsize])) {
