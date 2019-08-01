@@ -53,7 +53,6 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
                               RefBufferStack *ref_buffer_stack);
 
 void av1_get_ref_frames(AV1_COMP *const cpi,
-                        FRAME_UPDATE_TYPE frame_update_type,
                         RefBufferStack *ref_buffer_stack);
 
 #ifdef __cplusplus
