@@ -16,6 +16,24 @@
       "revId": "614cbe61d0113631b46eb246b88c7a606a094a14",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e3e34f9_c469d62b",
+        "filename": "av1/encoder/arm/neon/quantize_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-08-01T00:06:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb340b81_a6c269f4",
+      "revId": "614cbe61d0113631b46eb246b88c7a606a094a14",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
