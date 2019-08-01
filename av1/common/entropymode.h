@@ -59,7 +59,7 @@ extern "C" {
 #define KF_MODE_CONTEXTS 5
 
 #define INTRA_MODEL 2  // 0: mode+size; 1: hist; 2: hist+mode
-enum { ACTN_NONE, ACTN_RELU, ACTN_SOFTSIGN, ACTN_SIGMOID } UENUM1BYTE(ACTN);
+enum { ACTN_NONE, ACTN_RELU, ACTN_SIGMOID } UENUM1BYTE(ACTN);
 enum { SOFTMAX_CROSS_ENTROPY_LOSS } UENUM1BYTE(LOSS_F);
 struct NN_CONFIG_EM;
 typedef struct NN_CONFIG_EM NN_CONFIG_EM;
@@ -91,6 +91,7 @@ struct NN_CONFIG_EM {
   float feature[EM_MAX_NODES];            // Input feature
   FC_LAYER_EM layer[EM_MAX_HLAYERS + 1];  // The layer array
   int num_logits;                         // Number of output nodes.
+  float output[EM_MAX_NODES];             // Output
   LOSS_F loss;                            // Loss function
 };
 

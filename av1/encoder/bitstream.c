@@ -105,7 +105,6 @@ static void write_intra_y_mode_kf(FRAME_CONTEXT *frame_ctx,
     fprintf(fp, "\nf:");
     fclose(fp);*/
   av1_nn_predict_em(features, &(frame_ctx->av1_intra_y_mode), scores);
-  av1_nn_softmax_em(scores, scores, INTRA_MODES);
   // bit_length1 -= logf(scores[mode]);
   aom_cdf_prob cdf[CDF_SIZE(INTRA_MODES)] = { 0 };
   av1_pdf2cdf(scores, cdf, INTRA_MODES);
