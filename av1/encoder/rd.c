@@ -376,6 +376,20 @@ int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {
   return (int)rdmult;
 }
 
+int av1_get_qindex_from_rdmult(const AV1_COMP *cpi, int target_rdmult) {
+  assert(target_rdmult >= 0);
+
+  int rdmult;
+  int qindex = MINQ - 1;
+
+  do {
+    qindex++;
+    rdmult = av1_compute_rd_mult_based_on_qindex(cpi, qindex);
+  } while (rdmult < target_rdmult && qindex <= MAXQ);
+
+  return AOMMAX(MINQ, qindex - 1);
+}
+
 int av1_get_deltaq_offset(const AV1_COMP *cpi, int qindex, double beta) {
   assert(beta > 0.0);
   int q = av1_dc_quant_QTX(qindex, 0, cpi->common.seq_params.bit_depth);

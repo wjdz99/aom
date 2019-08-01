@@ -299,6 +299,8 @@ int av1_get_adaptive_rdmult(const struct AV1_COMP *cpi, double beta);
 
 int av1_get_deltaq_offset(const struct AV1_COMP *cpi, int qindex, double beta);
 
+int av1_get_qindex_from_rdmult(const struct AV1_COMP *cpi, int target_rdmult);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
