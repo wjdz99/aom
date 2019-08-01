@@ -57,9 +57,6 @@ static float *nn_fc_forward(const float *input, FC_LAYER_EM *layer) {
     case ACTN_NONE: return layer->output;
     case ACTN_RELU: return nn_relu(layer->output, layer);
     case ACTN_SIGMOID: return nn_sigmoid(layer->output, layer);
-    case ACTN_SOFTSIGN:
-      assert(0 && "Softsign has not been supported in NN.");  // TO DO
-      return NULL;
     default:
       assert(0 && "Unknown activation");  // Unknown activation
       return NULL;
@@ -72,21 +69,36 @@ void av1_nn_predict_em(const float *feature, NN_CONFIG_EM *nn_config,
   const int num_layers = nn_config->num_hidden_layers;
   assert(num_layers <= EM_MAX_HLAYERS);
   // Copy the input feature to the buffer
-  memcpy(nn_config->feature, feature,
-         sizeof(*feature) * nn_config->layer[0].num_inputs);
+  av1_copy_array(nn_config->feature, feature, nn_config->layer[0].num_inputs);
 
   // Propagate the layers.
-  for (int i = 0; i < num_layers; ++i) {
+  int num_inputs = nn_config->layer[0].num_inputs;
+  for (int i = 0; i <= num_layers; ++i) {
+    assert(num_inputs == nn_config->layer[i].num_inputs);
     input_nodes = nn_fc_forward(input_nodes, nn_config->layer + i);
-    assert(nn_config->layer[i + 1].num_inputs ==
-           nn_config->layer[i].num_outputs);
+    num_inputs = nn_config->layer[i].num_outputs;
   }
+  (void)num_inputs;
 
   // Final layer
-  input_nodes = nn_fc_forward(input_nodes, nn_config->layer + num_layers);
   assert(nn_config->layer[num_layers].num_outputs == nn_config->num_logits);
+  FC_LAYER_EM *layer = nn_config->layer + num_layers;
+  switch (nn_config->loss) {
+    case SOFTMAX_CROSS_ENTROPY_LOSS:
+      if (nn_config->num_logits == 1) {
+        // sigmoid
+        const float tmp = AOMMIN(AOMMAX(layer->output[0], -10.0f), 10.0f);
+        nn_config->output[0] = 1.0f / (1.0f + expf(-tmp));
+      } else {
+        // softmax
+        av1_nn_softmax_em(layer->output, nn_config->output, layer->num_outputs);
+      }
+      break;
+    default:
+      av1_copy_array(nn_config->output, input_nodes, nn_config->num_logits);
+  }
   // Copy the final layer output
-  memcpy(output, input_nodes, sizeof(*input_nodes) * nn_config->num_logits);
+  av1_copy_array(output, nn_config->output, nn_config->num_logits);
 }
 
 /***************************Backprop for gradient******************************/
@@ -107,17 +119,17 @@ static void nn_sigmoid_back(float *dX_out, FC_LAYER_EM *layer) {
 
 // Backprop for softmax cross entropy loss
 static void nn_softmax_cross_entropy_loss_back(float *dX_out,
-                                               const float *logits,
-                                               const int num_logits,
+                                               const float *output,
+                                               const int num_outputs,
                                                const int label) {
-  if (num_logits == 1) {
+  if (num_outputs == 1) {
     // sigmoid
     assert(label < 2);  // label [0,1]
-    dX_out[0] = 1.0f / (1.0f + expf(-logits[0])) - (float)label;
+    dX_out[0] = output[0] - (float)label;
   } else {
     // softmax
-    assert(num_logits > label);  // label [0,1,... num_logits-1]
-    av1_nn_softmax_em(logits, dX_out, num_logits);
+    assert(num_outputs > label);  // label [0,1,... num_logits-1]
+    av1_copy_array(dX_out, output, num_outputs);
     dX_out[label] -= 1;
   }
 }
@@ -128,13 +140,10 @@ static void nn_fc_backward(const float *X, float *dX_out, FC_LAYER_EM *layer) {
   float dY_fc[EM_MAX_NODES] = { 0 };  // dY for fc
   switch (layer->activation) {
     case ACTN_NONE:  // no activation, dY_fc <-- dY
-      memcpy(dY_fc, layer->dY, sizeof(*(layer->dY)) * layer->num_outputs);
+      av1_copy_array(dY_fc, layer->dY, layer->num_outputs);
       break;
     case ACTN_RELU: nn_relu_back(dY_fc, layer); break;
     case ACTN_SIGMOID: nn_sigmoid_back(dY_fc, layer); break;
-    case ACTN_SOFTSIGN:
-      assert(0 && "Softsign has not been supported in NN.");  // TO DO
-      break;
     default: assert(0 && "Unknown activation");  // Unknown activation
   }
 
@@ -168,9 +177,10 @@ void av1_nn_backprop_em(NN_CONFIG_EM *nn_config, const int label) {
   switch (nn_config->loss) {
     case SOFTMAX_CROSS_ENTROPY_LOSS:
       nn_softmax_cross_entropy_loss_back(nn_config->layer[num_layers].dY,
-                                         nn_config->layer[num_layers].output,
+                                         nn_config->output,
                                          nn_config->num_logits, label);
       break;
+    default: assert(0 && "Unknown loss");  // Unknown loss
   }
 
   // hidden fc layer
@@ -2005,9 +2015,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   fc->av1_intra_y_mode.layer[0].num_outputs = 16;
   fc->av1_intra_y_mode.layer[0].activation = ACTN_RELU;
   fc->av1_intra_y_mode.layer[1].num_inputs = 16;
-  fc->av1_intra_y_mode.layer[1].num_outputs = 13;
+  fc->av1_intra_y_mode.layer[1].num_outputs = INTRA_MODES;
   fc->av1_intra_y_mode.layer[1].activation = ACTN_NONE;
-  fc->av1_intra_y_mode.num_logits = 13;
+  fc->av1_intra_y_mode.num_logits = INTRA_MODES;
   fc->av1_intra_y_mode.loss = SOFTMAX_CROSS_ENTROPY_LOSS;
   av1_copy(fc->av1_intra_y_mode.layer[0].weights, intra_y_mode_layer0_weights);
   av1_copy(fc->av1_intra_y_mode.layer[0].bias, intra_y_mode_layer0_bias);

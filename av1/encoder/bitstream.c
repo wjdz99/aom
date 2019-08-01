@@ -85,7 +85,6 @@ static void write_intra_y_mode_kf(FRAME_CONTEXT *frame_ctx,
   float features[54], scores[INTRA_MODES];
   av1_get_intra_block_feature(features, above_mi, left_mi, aboveleft_mi);
   av1_nn_predict_em(features, &(frame_ctx->av1_intra_y_mode), scores);
-  av1_nn_softmax_em(scores, scores, INTRA_MODES);
   aom_cdf_prob cdf[CDF_SIZE(INTRA_MODES)] = { 0 };
   av1_pdf2cdf(scores, cdf, INTRA_MODES);
   aom_write_symbol_nn(w, mode, cdf, &(frame_ctx->av1_intra_y_mode),
