@@ -596,12 +596,6 @@ static void allocate_gf_group_bits(
 
   // Check if GF group has any internal arfs.
   int has_internal_arfs = 0;
-  for (int i = 0; i < gf_group->size; ++i) {
-    if (gf_group->update_type[i] == INTNL_ARF_UPDATE) {
-      has_internal_arfs = 1;
-      break;
-    }
-  }
 
   // For key frames the frame target rate is already set and it
   // is also the golden frame.
@@ -628,17 +622,66 @@ static void allocate_gf_group_bits(
   // === [frame_index == 1] ===
   if (rc->source_alt_ref_pending) {
     gf_group->bit_allocation[frame_index] = gf_arf_bits;
-
     ++frame_index;
+  }
 
-    // Skip all the internal ARFs right after ARF at the starting segment of
-    // the current GF group.
-    if (has_internal_arfs) {
-      while (gf_group->update_type[frame_index] == INTNL_ARF_UPDATE) {
-        ++frame_index;
-      }
+  const int gf_group_size = gf_group->size;
+  int arf_depth_bits[MAX_ARF_LAYERS + 1] = { 0 };
+  int arf_depth_count[MAX_ARF_LAYERS + 1] = { 0 };
+  int arf_depth_boost[MAX_ARF_LAYERS + 1] = { 0 };
+  int total_arfs = rc->source_alt_ref_pending;
+
+  for (int idx = 0; idx < gf_group_size; ++idx) {
+    if (gf_group->update_type[idx] == ARF_UPDATE ||
+        gf_group->update_type[idx] == INTNL_ARF_UPDATE) {
+      arf_depth_boost[gf_group->layer_depth[idx]] += gf_group->arf_boost[idx];
+      ++arf_depth_count[gf_group->layer_depth[idx]];
+    }
+   }
+
+  for (int idx = 2; idx < MAX_ARF_LAYERS; ++idx) {
+    if (arf_depth_count[idx] != 0)
+      fprintf(stderr, "layer index = %d, arf boost = %d\n",
+          idx, arf_depth_boost[idx] / arf_depth_count[idx]);
+    if (arf_depth_boost[idx] == 0) break;
+    arf_depth_bits[idx] = calculate_boost_bits(
+        rc->baseline_gf_interval - total_arfs - arf_depth_count[idx],
+        arf_depth_boost[idx], total_group_bits);
+
+    total_group_bits -= arf_depth_bits[idx];
+    total_arfs += arf_depth_count[idx];
+  }
+
+  int normal_frames = rc->baseline_gf_interval - total_arfs;
+  int normal_frame_bits;
+
+  if (normal_frames > 1)
+    normal_frame_bits = (int)(total_group_bits / normal_frames);
+  else
+    normal_frame_bits = (int)total_group_bits;
+
+  int target_frame_size = normal_frame_bits;
+  target_frame_size =
+      clamp(target_frame_size, 0, AOMMIN(max_bits, (int)total_group_bits));
+
+  for (int idx = frame_index; idx < gf_group_size; ++idx) {
+    switch (gf_group->update_type[idx]) {
+      case ARF_UPDATE:
+      case INTNL_ARF_UPDATE:
+        gf_group->bit_allocation[idx] =
+            (int)(((int64_t)arf_depth_bits[gf_group->layer_depth[idx]] *
+                gf_group->arf_boost[idx]) /
+                arf_depth_boost[gf_group->layer_depth[idx]]);
+        break;
+      case INTNL_OVERLAY_UPDATE:
+      case OVERLAY_UPDATE:
+        gf_group->bit_allocation[idx] = 0; break;
+      default: gf_group->bit_allocation[idx] = target_frame_size; break;
     }
   }
+  gf_group->bit_allocation[gf_group_size] = 0;
+
+  return;
 
   // Save.
   const int tmp_frame_index = frame_index;
@@ -646,7 +689,7 @@ static void allocate_gf_group_bits(
 
   // Allocate bits to frames other than first frame, which is either a keyframe,
   // overlay frame or golden frame.
-  const int normal_frames = rc->baseline_gf_interval - 1;
+  normal_frames = rc->baseline_gf_interval - 1;
 
   for (int i = 0; i < normal_frames; ++i) {
     FIRSTPASS_STATS frame_stats;
@@ -657,7 +700,7 @@ static void allocate_gf_group_bits(
     const double err_fraction =
         (group_error > 0) ? modified_err / DOUBLE_DIVIDE_CHECK(group_error)
                           : 0.0;
-    const int target_frame_size =
+    target_frame_size =
         clamp((int)((double)total_group_bits * err_fraction), 0,
               AOMMIN(max_bits, (int)total_group_bits));
 
