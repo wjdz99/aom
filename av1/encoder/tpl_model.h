@@ -22,6 +22,8 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
 
 void av1_tpl_setup_forward_stats(AV1_COMP *cpi);
 
+void av1_tpl_hier_rdmult_setup(AV1_COMP *cpi);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
