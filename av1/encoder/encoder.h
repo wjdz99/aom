@@ -1022,6 +1022,8 @@ typedef struct AV1_COMP {
   // whether any no-zero delta_q was actually used
   int deltaq_used;
 
+  // TODO(sdeng): Merge the following two arrays.
+  double *tpl_rdmult_scaling_factors;
   double *ssim_rdmult_scaling_factors;
 
   // Whether writing to bitstream. It allows us to encode one frame multiple

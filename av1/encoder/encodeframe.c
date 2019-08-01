@@ -233,6 +233,7 @@ static void set_ssim_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   double geom_mean_of_scale = 0.0;
 
   assert(cpi->oxcf.tuning == AOM_TUNE_SSIM);
+  aom_clear_system_state();
 
   for (row = mi_row / num_mi_w;
        row < num_rows && row < mi_row / num_mi_w + num_brows; ++row) {
@@ -245,10 +246,58 @@ static void set_ssim_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   }
   geom_mean_of_scale = exp(geom_mean_of_scale / num_of_mi);
 
-  *rdmult = (int)((double)(*rdmult) * geom_mean_of_scale);
+  *rdmult = (int)((double)(*rdmult) * geom_mean_of_scale + 0.5);
   *rdmult = AOMMAX(*rdmult, 0);
   set_error_per_bit(x, *rdmult);
   aom_clear_system_state();
+}
+
+static int get_hier_tpl_rdmult(const AV1_COMP *const cpi,
+                               const BLOCK_SIZE bsize, const int mi_row,
+                               const int mi_col, int orig_rdmult) {
+  const int bsize_base = BLOCK_16X16;
+
+  const AV1_COMMON *const cm = &cpi->common;
+  assert(IMPLIES(cpi->gf_group.size > 0,
+                 cpi->gf_group.index < cpi->gf_group.size));
+  const int tpl_idx = cpi->gf_group.frame_disp_idx[cpi->gf_group.index];
+  const TplDepFrame *tpl_frame = &cpi->tpl_stats[tpl_idx];
+
+  if (cpi->tpl_model_pass == 1) {
+    assert(cpi->oxcf.enable_tpl_model == 2);
+    return orig_rdmult;
+  }
+  if (tpl_frame->is_valid == 0) return orig_rdmult;
+  if (!is_frame_tpl_eligible(cpi)) return orig_rdmult;
+  if (cpi->gf_group.index >= MAX_LAG_BUFFERS) return orig_rdmult;
+
+  const int num_mi_w = mi_size_wide[bsize_base];
+  const int num_mi_h = mi_size_high[bsize_base];
+  const int num_cols = (cm->mi_cols + num_mi_w - 1) / num_mi_w;
+  const int num_rows = (cm->mi_rows + num_mi_h - 1) / num_mi_h;
+  const int num_bcols = (mi_size_wide[bsize] + num_mi_w - 1) / num_mi_w;
+  const int num_brows = (mi_size_high[bsize] + num_mi_h - 1) / num_mi_h;
+  int row, col;
+  double base_block_count = 0.0;
+  double geom_mean_of_scale = 0.0;
+
+  aom_clear_system_state();
+  for (row = mi_row / num_mi_w;
+       row < num_rows && row < mi_row / num_mi_w + num_brows; ++row) {
+    for (col = mi_col / num_mi_h;
+         col < num_cols && col < mi_col / num_mi_h + num_bcols; ++col) {
+      const int index = row * num_cols + col;
+      geom_mean_of_scale += log(cpi->tpl_rdmult_scaling_factors[index]);
+      base_block_count += 1.0;
+    }
+  }
+  geom_mean_of_scale = exp(geom_mean_of_scale / base_block_count);
+
+  int rdmult = (int)((double)orig_rdmult * geom_mean_of_scale + 0.5);
+  rdmult = AOMMAX(rdmult, 0);
+  aom_clear_system_state();
+
+  return rdmult;
 }
 
 static int set_segment_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
@@ -286,8 +335,7 @@ static void setup_block_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
 
   const AV1_COMMON *const cm = &cpi->common;
   if (cm->delta_q_info.delta_q_present_flag) {
-    MACROBLOCKD *const xd = &x->e_mbd;
-    x->rdmult = set_deltaq_rdmult(cpi, xd);
+    x->rdmult = get_hier_tpl_rdmult(cpi, bsize, mi_row, mi_col, x->rdmult);
   }
 
   if (cpi->oxcf.tuning == AOM_TUNE_SSIM) {
@@ -3485,8 +3533,6 @@ BEGIN_PARTITION_SEARCH:
   x->rdmult = orig_rdmult;
   return found_best_partition;
 }
-#endif  // !CONFIG_REALTIME_ONLY
-#undef NUM_SIMPLE_MOTION_FEATURES
 
 #if !CONFIG_REALTIME_ONLY
 static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int analysis_type,
@@ -3615,6 +3661,22 @@ static void set_delta_q(AV1_COMP *const cpi, MACROBLOCK *x, ThreadData *td,
     }
   }
 }
+
+static void set_best_delta_q(AV1_COMP *const cpi, MACROBLOCK *x, ThreadData *td,
+                             const TileInfo *tile_info, int mi_row, int mi_col,
+                             BLOCK_SIZE bsize) {
+  x->rdmult = get_hier_tpl_rdmult(cpi, bsize, mi_row, mi_col, cpi->rd.RDMULT);
+  int rdmult = x->rdmult;
+  if (cpi->oxcf.tuning == AOM_TUNE_SSIM) {
+    set_ssim_rdmult(cpi, x, bsize, mi_row, mi_col, &rdmult);
+  }
+
+  set_delta_q(cpi, x, td, tile_info, mi_row, mi_col,
+              av1_get_qindex_from_rdmult(cpi, rdmult));
+}
+
+#endif  // !CONFIG_REALTIME_ONLY
+#undef NUM_SIMPLE_MOTION_FEATURES
 
 // analysis_type 0: Use mc_dep_cost and intra_cost
 // analysis_type 1: Use count of best inter predictor chosen
@@ -4055,8 +4117,9 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
     xd->cur_frame_force_integer_mv = cm->cur_frame_force_integer_mv;
 
     x->sb_energy_level = 0;
-    if (cm->delta_q_info.delta_q_present_flag)
-      setup_delta_q(cpi, td, x, tile_info, mi_row, mi_col, num_planes);
+    if (cm->delta_q_info.delta_q_present_flag) {
+      set_best_delta_q(cpi, x, td, tile_info, mi_row, mi_col, sb_size);
+    }
 
     td->mb.cb_coef_buff = av1_get_cb_coeff_buffer(cpi, mi_row, mi_col);
 
@@ -4090,7 +4153,6 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       int64_t dummy_dist;
       RD_STATS dummy_rdc;
       av1_invalid_rd_stats(&dummy_rdc);
-      adjust_rdmult_tpl_model(cpi, x, mi_row, mi_col);
       if (sf->partition_search_type == FIXED_PARTITION || seg_skip) {
         set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
         const BLOCK_SIZE bsize =
@@ -4147,6 +4209,7 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
         rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                           max_sq_size, min_sq_size, &dummy_rdc, dummy_rdc,
                           pc_root, NULL);
+
 #if CONFIG_COLLECT_COMPONENT_TIMING
         end_timing(cpi, rd_pick_partition_time);
 #endif
