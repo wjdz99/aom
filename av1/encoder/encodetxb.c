@@ -527,7 +527,12 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   DECLARE_ALIGNED(16, int8_t, coeff_contexts[MAX_TX_SQUARE]);
   av1_txb_init_levels(tcoeff, width, height, levels);
 
-  av1_write_tx_type(cm, xd, blk_row, blk_col, plane, tx_size, w);
+#if CONFIG_VQ4X4
+  const TxSetType tx_set_type = av1_get_ext_tx_set_type(
+      tx_size, is_inter_block(xd->mi[0]), cm->reduced_tx_set_used);
+  if (tx_set_type != EXT_TX_SET_VQ)
+#endif
+    av1_write_tx_type(cm, xd, blk_row, blk_col, plane, tx_size, w);
 
   int eob_extra;
   const int eob_pt = get_eob_pos_token(eob, &eob_extra);

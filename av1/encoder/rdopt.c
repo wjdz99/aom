@@ -3381,44 +3381,33 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   if (tx_set_type == EXT_TX_SET_VQ) {
     // Use an independent search loop for EXT_TX_SET_VQ. The search will be
     // updated to a vector quantization later.
-    for (int idx = 0; idx < TX_TYPES; ++idx) {
-      const TX_TYPE tx_type = (TX_TYPE)txk_map[idx];
-      if (!(allowed_tx_mask & (1 << tx_type))) continue;
+    mbmi->txk_type[txk_type_idx] = DCT_DCT;
+    RD_STATS this_rd_stats;
+    av1_invalid_rd_stats(&this_rd_stats);
+    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+                    DCT_DCT, AV1_XFORM_QUANT_B);
+    rate_cost = av1_cost_coeffs(cm, x, plane, block, tx_size, DCT_DCT, txb_ctx,
+                                use_fast_coef_costing);
+    this_rd_stats.dist = dist_block_px_domain(cpi, x, plane, plane_bsize, block,
+                                              blk_row, blk_col, tx_size);
+    this_rd_stats.sse = block_sse;
+    this_rd_stats.rate = rate_cost;
 
-      if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
-      RD_STATS this_rd_stats;
-      av1_invalid_rd_stats(&this_rd_stats);
-      av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
-                      tx_size, tx_type, AV1_XFORM_QUANT_B);
-      rate_cost = av1_cost_coeffs(cm, x, plane, block, tx_size, tx_type,
-                                  txb_ctx, use_fast_coef_costing);
-      this_rd_stats.dist = dist_block_px_domain(
-          cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size);
-      this_rd_stats.sse = block_sse;
-      this_rd_stats.rate = rate_cost;
+    best_rd = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
 
-      const int64_t rd =
-          RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
+    *best_rd_stats = this_rd_stats;
+    best_txb_ctx = x->plane[plane].txb_entropy_ctx[block];
+    best_eob = x->plane[plane].eobs[block];
 
-      if (rd < best_rd) {
-        best_rd = rd;
-        *best_rd_stats = this_rd_stats;
-        best_tx_type = tx_type;
-        best_txb_ctx = x->plane[plane].txb_entropy_ctx[block];
-        best_eob = x->plane[plane].eobs[block];
-
-        // Swap qcoeff and dqcoeff buffers
-        tran_low_t *const tmp_dqcoeff = best_dqcoeff;
-        best_dqcoeff = pd->dqcoeff;
-        pd->dqcoeff = tmp_dqcoeff;
-      }
-    }
+    // Swap qcoeff and dqcoeff buffers
+    tran_low_t *const tmp_dqcoeff = best_dqcoeff;
+    best_dqcoeff = pd->dqcoeff;
+    pd->dqcoeff = tmp_dqcoeff;
 
     assert(best_rd != INT64_MAX);
 
     // to simplify code structure, always set skip to 0
     best_rd_stats->skip = 0;
-    if (plane == 0) mbmi->txk_type[txk_type_idx] = best_tx_type;
     x->plane[plane].txb_entropy_ctx[block] = best_txb_ctx;
     x->plane[plane].eobs[block] = best_eob;
 
@@ -3428,7 +3417,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
         (blk_row + tx_size_high_unit[tx_size] < mi_size_high[plane_bsize] ||
          blk_col + tx_size_wide_unit[tx_size] < mi_size_wide[plane_bsize])) {
       av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
-                      tx_size, best_tx_type, AV1_XFORM_QUANT_B);
+                      tx_size, DCT_DCT, AV1_XFORM_QUANT_B);
       inverse_transform_block_facade(xd, plane, block, blk_row, blk_col,
                                      x->plane[plane].eobs[block],
                                      cm->reduced_tx_set_used);

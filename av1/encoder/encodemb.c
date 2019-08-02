@@ -275,10 +275,6 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
     av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
                                 pd->dst.stride, p->eobs[block],
                                 cm->reduced_tx_set_used);
-    if (p->eobs[block] == 0 && plane == 0) {
-      update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
-                       DCT_DCT);
-    }
   } else {
 #endif
     if (p->eobs[block]) {
