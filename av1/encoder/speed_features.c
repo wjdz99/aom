@@ -252,6 +252,7 @@ static void set_good_speed_features_framesize_independent(
   sf->use_real_time_ref_set = 0;
 
   if (speed >= 1) {
+    sf->reduce_inter_modes = boosted ? 2 : 3;
     sf->selective_ref_frame = 2;
 
     sf->intra_tx_size_search_init_depth_rect = 1;
@@ -318,7 +319,6 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 3) {
-    sf->reduce_inter_modes = boosted ? 1 : 2;
     sf->tx_size_search_method = boosted ? USE_FULL_RD : USE_LARGESTALL;
     sf->less_rectangular_check_level = 2;
     // adaptive_motion_search breaks encoder multi-thread tests.

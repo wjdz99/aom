@@ -10152,6 +10152,14 @@ static int get_drl_refmv_count(const MACROBLOCK *const x,
   return ref_set;
 }
 
+static INLINE int is_ref_eligible_to_be_pruned(const AV1_COMP *const cpi,
+                                               MV_REFERENCE_FRAME ref_frame) {
+  const SPEED_FEATURES *const sf = &cpi->sf;
+  return (!((cpi->ref_category[ref_frame - LAST_FRAME] == 0) ||
+            (sf->reduce_inter_modes == 2 &&
+             (cpi->ref_category[ref_frame - LAST_FRAME] == 1))));
+}
+
 // Whether this reference motion vector can be skipped, based on initial
 // heuristics.
 static bool ref_mv_idx_early_breakout(const AV1_COMP *const cpi, MACROBLOCK *x,
@@ -10177,8 +10185,9 @@ static bool ref_mv_idx_early_breakout(const AV1_COMP *const cpi, MACROBLOCK *x,
     // TODO(any): Experiment with reduce_inter_modes for compound prediction
     if (sf->reduce_inter_modes >= 2 && !is_comp_pred &&
         have_newmv_in_inter_mode(mbmi->mode)) {
-      if (mbmi->ref_frame[0] != cpi->nearest_past_ref &&
-          mbmi->ref_frame[0] != cpi->nearest_future_ref) {
+      if (!((cpi->ref_category[mbmi->ref_frame[0] - LAST_FRAME] == 0) ||
+            (sf->reduce_inter_modes == 2 &&
+             (cpi->ref_category[mbmi->ref_frame[0] - LAST_FRAME] == 1)))) {
         const int has_nearmv = have_nearmv_in_inter_mode(mbmi->mode) ? 1 : 0;
         if (mbmi_ext->weight[ref_frame_type][ref_mv_idx + has_nearmv] <
             REF_CAT_LEVEL) {
