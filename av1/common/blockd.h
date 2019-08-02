@@ -934,6 +934,19 @@ static INLINE int av1_get_txk_type_index(BLOCK_SIZE bsize, int blk_row,
   return index;
 }
 
+#if CONFIG_VQ4X4
+#define VQ_SHAPES 1
+#define VQ_BLOCK_DEBUG 0
+#define VQ_RD_DEBUG 0
+
+// shapes_4x4[i] = The i-th unit-norm shape codeword * 2^8
+// TODO(kslu): only one codeword is used as a placeholder for now. Search of
+// codewords will be added later.
+static const int32_t shape_4x4[VQ_SHAPES][16] = {
+  { 50, 53, 46, 43, 69, 72, 60, 55, 74, 78, 65, 60, 73, 79, 68, 64 },
+};
+#endif
+
 static INLINE void update_txk_array(TX_TYPE *txk_type, BLOCK_SIZE bsize,
                                     int blk_row, int blk_col, TX_SIZE tx_size,
                                     TX_TYPE tx_type) {

@@ -131,6 +131,69 @@ static AV1_QUANT_FACADE
       { NULL, NULL }
     };
 
+#if CONFIG_VQ4X4
+// gain-shape vector quantization
+void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
+                   BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  const struct macroblock_plane *const p = &x->plane[plane];
+  const int diff_stride = block_size_wide[plane_bsize];
+  // txb_w and txb_h must be 4 for now
+  const int txb_w = tx_size_wide[tx_size];
+  const int txb_h = tx_size_high[tx_size];
+  int64_t best_corr = INT_MIN;
+
+  const int src_offset = blk_row * diff_stride + blk_col;
+  const int16_t *src_diff = &p->src_diff[src_offset << tx_size_wide_log2[0]];
+
+  uint64_t gain_sq =
+      aom_sum_squares_2d_i16(src_diff, diff_stride, txb_w, txb_h);
+  // Due to the sqrt function, this quantity already has quantization error
+  int32_t gain = (int32_t)sqrt(gain_sq);
+
+  if (gain == 0) {
+    best_corr = 0;
+  } else {
+    for (int cw = 0; cw < VQ_SHAPES; ++cw) {
+      int64_t corr = 0;
+      // The best shape codeword is the one having the largest absolute dot
+      // product with the block. Let x and y be unit-norm residue and
+      // codeword, and let gain be the norm of x, then,
+      //   src_diff = gain * x
+      //   shape_4x4 = 2^8 * y
+      //   corr = dot(shape_4x4, src_diff)
+      //        = 2^8 * g * dot(x, y)
+      for (int r = 0; r < txb_h; ++r)
+        for (int c = 0; c < txb_w; ++c)
+          corr += shape_4x4[cw][r * txb_w + c] * src_diff[r * diff_stride + c];
+
+      if (abs(corr) > best_corr) {
+        best_corr = abs(corr);
+      }
+    }
+  }
+
+  update_cw_array(mbmi->gain_sign[plane], mbmi->qgain_idx[plane],
+                  mbmi->shape_idx[plane], plane_bsize, blk_row, blk_col,
+                  best_gain_sign, best_qgain_idx, best_shape_idx);
+
+#if VQ_BLOCK_DEBUG
+  int16_t best_qgain = best_gain_sign ? vq_gain_vals[best_qgain_idx]
+                                      : -vq_gain_vals[best_qgain_idx];
+  fprintf(stderr, "[fwd] Block size %dx%d\nResidue:\n", txb_h, txb_w);
+  for (int r = 0; r < txb_h; ++r) {
+    for (int c = 0; c < txb_w; ++c) {
+      fprintf(stderr, "%d ", src_diff[r * diff_stride + c]);
+    }
+    fprintf(stderr, "\n");
+  }
+  fprintf(stderr, "Gain = %d\n", gain);
+  fprintf(stderr, "SSE: %ld\n", *sse);
+#endif
+}
+#endif
+
 void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
                      int blk_row, int blk_col, BLOCK_SIZE plane_bsize,
                      TX_SIZE tx_size, TX_TYPE tx_type,
@@ -232,10 +295,9 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   TxSetType tx_set_type = av1_get_ext_tx_set_type(tx_size, is_inter_block(mbmi),
                                                   cm->reduced_tx_set_used);
   if (tx_set_type == EXT_TX_SET_VQ) {
-    TX_TYPE tx_type = av1_get_tx_type(pd->plane_type, xd, blk_row, blk_col,
-                                      tx_size, cm->reduced_tx_set_used);
-    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                    tx_type, AV1_XFORM_QUANT_B);
+    av1_vec_quant(x, plane, blk_row, blk_col, plane_bsize, tx_size);
+    p->eobs[block] = 0;
+    p->txb_entropy_ctx[block] = 0;
     av1_set_txb_context(x, plane, block, tx_size, a, l);
   } else {
 #endif  // CONFIG_VQ4X4
@@ -270,11 +332,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 
   if (tx_set_type == EXT_TX_SET_VQ) {
     *(args->skip) = 0;
-    TX_TYPE tx_type = av1_get_tx_type(pd->plane_type, xd, blk_row, blk_col,
-                                      tx_size, cm->reduced_tx_set_used);
-    av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
-                                pd->dst.stride, p->eobs[block],
-                                cm->reduced_tx_set_used);
+    av1_vec_dequant(xd, plane, blk_row, blk_col, dst, pd->dst.stride, tx_size);
   } else {
 #endif
     if (p->eobs[block]) {
@@ -637,8 +695,9 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
                                                   cm->reduced_tx_set_used);
   if (tx_set_type == EXT_TX_SET_VQ) {
     av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
-    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                    tx_type, AV1_XFORM_QUANT_B);
+    av1_vec_quant(x, plane, blk_row, blk_col, plane_bsize, tx_size);
+    *eob = 0;
+    p->txb_entropy_ctx[block] = 0;
   } else {
 #endif  // CONFIG_VQ4X4
     if (plane == 0 && is_blk_skip(x, plane, blk_row * bw + blk_col)) {
@@ -671,13 +730,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   }
 
   if (tx_set_type == EXT_TX_SET_VQ) {
-    av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
-                                dst_stride, *eob, cm->reduced_tx_set_used);
-
-    if (*eob == 0 && plane == 0)
-      update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
-                       DCT_DCT);
-
+    av1_vec_dequant(xd, plane, blk_row, blk_col, dst, dst_stride, tx_size);
     *(args->skip) = 0;
 
     if (plane == AOM_PLANE_Y && xd->cfl.store_y)
