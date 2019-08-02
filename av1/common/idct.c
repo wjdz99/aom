@@ -521,6 +521,55 @@ void av1_inv_txfm_add_c(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
   }
 }
 
+#if CONFIG_VQ4X4
+// Reconstruction of vector quantized block
+void av1_vec_dequant(const MACROBLOCKD *xd, int plane, int blk_row, int blk_col,
+                     uint8_t *dst, int stride, TX_SIZE tx_size) {
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
+  int32_t gain = 4;  // placeholder
+  int codeword = 0;  // placeholder
+  const int txw = tx_size_wide[tx_size];
+  const int txh = tx_size_high[tx_size];
+
+#if VQ_DEBUG
+  fprintf(stderr, "====== \n[inv] Block size %dx%d\nPredicted block:\n", txh,
+          txw);
+  for (int r = 0; r < txh; ++r) {
+    for (int c = 0; c < txw; ++c) {
+      fprintf(stderr, "%d ", dst[r * stride + c]);
+    }
+    fprintf(stderr, "\n");
+  }
+#endif
+
+  if (gain == 0) return;
+  const int32_t *cw = codeword4x4[codeword];
+  for (int i = 0; i < txh; ++i)
+    for (int j = 0; j < txw; ++j)
+      dst[i * stride + j] += (uint8_t)round_shift(cw[i * txw + j] * gain, 8);
+
+#if VQ_DEBUG
+  fprintf(stderr, "Gain = %d\n", gain);
+  fprintf(stderr, "Codeword: %d\n", codeword);
+  fprintf(stderr, "Reconstructed residue:\n");
+  for (int r = 0; r < txh; ++r) {
+    for (int c = 0; c < txw; ++c) {
+      fprintf(stderr, "%d ", round_shift(cw[r * txw + c] * gain, 8));
+    }
+    fprintf(stderr, "\n");
+  }
+  fprintf(stderr, "Reconstructed block:\n");
+  for (int r = 0; r < txh; ++r) {
+    for (int c = 0; c < txw; ++c) {
+      fprintf(stderr, "%d ", dst[r * stride + c]);
+    }
+    fprintf(stderr, "\n");
+  }
+#endif
+}
+#endif  // CONFIG_VQ4X4
+
 void av1_inverse_transform_block(const MACROBLOCKD *xd,
                                  const tran_low_t *dqcoeff, int plane,
                                  TX_TYPE tx_type, TX_SIZE tx_size, uint8_t *dst,
