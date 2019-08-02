@@ -30,7 +30,7 @@ static const char *exec_name;
 
 void usage_exit(void) { exit(EXIT_FAILURE); }
 
-static int mode_to_num_layers[3] = { 1, 2, 3 };
+static int mode_to_num_layers[4] = { 1, 2, 3, 3 };
 
 // For rate control encoding stats.
 struct RateControlMetrics {
@@ -245,9 +245,11 @@ static int set_layer_pattern(int layering_mode, int frame_cnt,
   // Set the referende map buffer idx for the 6 references:
   // LAST_FRAME (0), LAST2_FRAME(1), LAST3_FRAME(2), GOLDEN_FRAME(3),
   // BWDREF_FRAME(4), ALTREF2_FRAME(5), ALTREF_FRAME(6).
+  // There are currently no flags defined to update LAST2/3, so for
+  // now set them to the same slot/ref_idx.
   for (i = 0; i < INTER_REFS_PER_FRAME; i++)
     svc_ref_idx->ref_idx[i] = (i < 3) ? 0 : i - 2;
-  // We only use LAST and GF for prediction in RTC mode.
+  // We only3 use LAST and GF for prediction in RTC mode.
   int layer_flags = AOM_EFLAG_NO_REF_LAST2 | AOM_EFLAG_NO_REF_LAST3 |
                     AOM_EFLAG_NO_REF_ARF | AOM_EFLAG_NO_REF_BWD |
                     AOM_EFLAG_NO_REF_ARF2;
@@ -302,6 +304,35 @@ static int set_layer_pattern(int layering_mode, int frame_cnt,
                        AOM_EFLAG_NO_UPD_ARF | AOM_EFLAG_NO_REF_GF;
         svc_ref_idx->ref_idx[0] = 4;
         svc_ref_idx->ref_idx[4] = 0;
+      }
+      break;
+    case 3:
+      // 3-layer: but middle layer is GF, so 2nd TL2 will only
+      // reference GF (not LAST).
+      //   1    3   5    7
+      //     2        6
+      // 0        4        8
+      if (frame_cnt % 4 == 0) {
+        // Base layer.
+        layer_id->temporal_layer_id = 0;
+        // Update LAST on layer 0, reference LAST.
+        layer_flags |=
+            AOM_EFLAG_NO_UPD_GF | AOM_EFLAG_NO_UPD_ARF | AOM_EFLAG_NO_REF_GF;
+      } else if ((frame_cnt - 1) % 4 == 0) {
+        layer_id->temporal_layer_id = 2;
+        // First top layer: no updates, only reference LAST (TL0).
+        layer_flags |= AOM_EFLAG_NO_UPD_LAST | AOM_EFLAG_NO_UPD_GF |
+                       AOM_EFLAG_NO_UPD_ARF | AOM_EFLAG_NO_REF_GF;
+      } else if ((frame_cnt - 2) % 4 == 0) {
+        layer_id->temporal_layer_id = 1;
+        // Middle layer (TL1): update GF, only reference LAST (TL0).
+        layer_flags |=
+            AOM_EFLAG_NO_UPD_LAST | AOM_EFLAG_NO_UPD_ARF | AOM_EFLAG_NO_REF_GF;
+      } else if ((frame_cnt - 3) % 4 == 0) {
+        layer_id->temporal_layer_id = 2;
+        // Second top layer: no updates, only reference GF.
+        layer_flags |= AOM_EFLAG_NO_UPD_LAST | AOM_EFLAG_NO_UPD_GF |
+                       AOM_EFLAG_NO_UPD_ARF | AOM_EFLAG_NO_REF_LAST;
       }
       break;
     default: assert(0); die("Error: Unsupported temporal layering mode!\n");
