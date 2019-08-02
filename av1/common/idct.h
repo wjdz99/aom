@@ -44,6 +44,21 @@ static INLINE const int32_t *cast_to_int32(const tran_low_t *input) {
   return (const int32_t *)input;
 }
 
+#if CONFIG_VQ4X4
+#define NUM_CODEWORDS 1
+#define VQ_DEBUG 0
+
+// codeword4x4[i] = The i-th unit-norm codeword * 2^8
+// TODO(kslu): only one codeword is used as a placeholder for now. Search of
+// codewords will be added later.
+static const int32_t codeword4x4[NUM_CODEWORDS][16] = {
+  { 50, 53, 46, 43, 69, 72, 60, 55, 74, 78, 65, 60, 73, 79, 68, 64 },
+};
+
+void av1_vec_dequant(const MACROBLOCKD *xd, int plane, int blk_row, int blk_col,
+                     uint8_t *dst, int stride, TX_SIZE tx_size);
+#endif  // CONFIG_VQ4X4
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
