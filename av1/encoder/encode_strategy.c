@@ -913,7 +913,7 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
     // Unfortunately the encoder interface reflects the old refresh_*_frame
     // flags so we have to replicate the old refresh_frame_flags logic here in
     // order to preserve the behaviour of the flag overrides.
-    int ref_frame_map_idx = get_ref_frame_map_idx(cm, LAST3_FRAME);
+    int ref_frame_map_idx = get_ref_frame_map_idx(cm, LAST_FRAME);
     if (ref_frame_map_idx != INVALID_IDX)
       refresh_mask |= cpi->ext_refresh_last_frame << ref_frame_map_idx;
 
@@ -1388,7 +1388,6 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     frame_params.refresh_frame_flags = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, &cpi->ref_buffer_stack);
   }
-
   // The way frame_params->remapped_ref_idx is setup is a placeholder.
   // Currently, reference buffer assignment is done by update_ref_frame_map()
   // which is called by high-level strategy AFTER encoding a frame.  It modifies
