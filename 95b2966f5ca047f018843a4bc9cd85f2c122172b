@@ -22,6 +22,30 @@
       "revId": "95b2966f5ca047f018843a4bc9cd85f2c122172b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "143b7ae8_63e7aae2",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5036,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-08-02T23:02:54Z",
+      "side": 1,
+      "message": "Thanks. The code looks more unified in this way.",
+      "parentUuid": "cfd2df0a_85c0a871",
+      "range": {
+        "startLine": 5034,
+        "startChar": 0,
+        "endLine": 5036,
+        "endChar": 30
+      },
+      "revId": "95b2966f5ca047f018843a4bc9cd85f2c122172b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
