@@ -1047,6 +1047,9 @@ typedef struct AV1_COMP {
   int8_t nearest_past_ref;
   int8_t nearest_future_ref;
 
+  int8_t second_nearest_past_ref;
+  int8_t second_nearest_future_ref;
+
   double *ssim_rdmult_scaling_factors;
 
   // Whether writing to bitstream. It allows us to encode one frame multiple
