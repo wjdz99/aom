@@ -655,8 +655,14 @@ static void write_coeffs_txb_wrap(const AV1_COMMON *cm, MACROBLOCK *x,
   const tran_low_t *tcoeff = BLOCK_OFFSET(tcoeff_txb, block);
   const uint16_t eob = eob_txb[block];
   TXB_CTX txb_ctx = { txb_skip_ctx_txb[block], dc_sign_ctx_txb[block] };
-  av1_write_coeffs_txb(cm, xd, w, blk_row, blk_col, plane, tx_size, tcoeff, eob,
-                       &txb_ctx);
+#if CONFIG_VQ4X4
+  const int is_inter = is_inter_block(xd->mi[0]);
+  const TxSetType tx_set_type =
+      av1_get_ext_tx_set_type(tx_size, is_inter, cm->reduced_tx_set_used);
+  if (tx_set_type != EXT_TX_SET_VQ)
+#endif
+    av1_write_coeffs_txb(cm, xd, w, blk_row, blk_col, plane, tx_size, tcoeff,
+                         eob, &txb_ctx);
 }
 
 void av1_write_coeffs_mb(const AV1_COMMON *const cm, MACROBLOCK *x, int mi_row,
