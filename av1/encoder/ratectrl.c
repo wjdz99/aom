@@ -1098,9 +1098,18 @@ static void get_intra_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
       active_best_quality /= 3;
     }
 
-    // Allow somewhat lower kf minq with small image formats.
-    if ((width * height) <= (352 * 288)) {
-      q_adj_factor -= 0.25;
+    // Allow lower kf minq.
+    if (cpi->oxcf.rc_mode == AOM_Q) {
+      // This change mostly improves SSIM score. PSNR change is small.
+      // Both Q mode and VBR mode show similar results.
+      // Since it makes the key frame size larger, we only allow it in
+      // Q mode for now.
+      // TODO(any): test if this change could work for one pass CBR and VBR.
+      q_adj_factor -= 0.3;
+    } else {
+      if ((width * height) <= (352 * 288)) {
+        q_adj_factor -= 0.25;
+      }
     }
 
     // Make a further adjustment based on the kf zero motion measure.
