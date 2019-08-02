@@ -10177,8 +10177,7 @@ static bool ref_mv_idx_early_breakout(const AV1_COMP *const cpi, MACROBLOCK *x,
     // TODO(any): Experiment with reduce_inter_modes for compound prediction
     if (sf->reduce_inter_modes >= 2 && !is_comp_pred &&
         have_newmv_in_inter_mode(mbmi->mode)) {
-      if (mbmi->ref_frame[0] != cpi->nearest_past_ref &&
-          mbmi->ref_frame[0] != cpi->nearest_future_ref) {
+      if (cpi->ref_category[mbmi->ref_frame[0] - LAST_FRAME] == 0) {
         const int has_nearmv = have_nearmv_in_inter_mode(mbmi->mode) ? 1 : 0;
         if (mbmi_ext->weight[ref_frame_type][ref_mv_idx + has_nearmv] <
             REF_CAT_LEVEL) {

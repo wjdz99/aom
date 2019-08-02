@@ -4404,34 +4404,93 @@ static int get_max_allowed_ref_frames(const AV1_COMP *cpi) {
                 cpi->oxcf.max_reference_frames);
 }
 
+typedef struct {
+  MV_REFERENCE_FRAME frame;
+  int dist;
+} FrameDistance;
+
+static int compare_ref_frame_dist(const void *arg_a, const void *arg_b) {
+  const FrameDistance *info_a = (FrameDistance *)arg_a;
+  const FrameDistance *info_b = (FrameDistance *)arg_b;
+
+  const int sort_idx_diff = abs(info_a->dist) - abs(info_b->dist);
+  return sort_idx_diff;
+}
+
 // Set the relative distance of a reference frame w.r.t. current frame
 static void set_rel_frame_dist(AV1_COMP *cpi) {
   const AV1_COMMON *const cm = &cpi->common;
   const OrderHintInfo *const order_hint_info = &cm->seq_params.order_hint_info;
   MV_REFERENCE_FRAME ref_frame;
-  int min_past_dist = INT32_MAX, min_future_dist = INT32_MAX;
-  cpi->nearest_past_ref = NONE_FRAME;
-  cpi->nearest_future_ref = NONE_FRAME;
+  FrameDistance past_frames[INTER_REFS_PER_FRAME];
+  FrameDistance future_frames[INTER_REFS_PER_FRAME];
+  int num_past_frames = 0, num_future_frames = 0;
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     cpi->ref_relative_dist[ref_frame - LAST_FRAME] = 0;
+    cpi->ref_category[ref_frame - LAST_FRAME] = 0;
+    past_frames[ref_frame - LAST_FRAME].frame = ref_frame;
+    past_frames[ref_frame - LAST_FRAME].dist = INT32_MAX;
+    future_frames[ref_frame - LAST_FRAME].frame = ref_frame;
+    future_frames[ref_frame - LAST_FRAME].dist = INT32_MAX;
     if (cpi->ref_frame_flags & av1_ref_frame_flag_list[ref_frame]) {
       int dist = av1_encoder_get_relative_dist(
           order_hint_info,
           cm->cur_frame->ref_display_order_hint[ref_frame - LAST_FRAME],
           cm->current_frame.display_order_hint);
       cpi->ref_relative_dist[ref_frame - LAST_FRAME] = dist;
-      // Get the nearest ref_frame in the past
-      if (abs(dist) < min_past_dist && dist < 0) {
-        cpi->nearest_past_ref = ref_frame;
-        min_past_dist = abs(dist);
+      // Get the nearest ref frames in the past
+      if (dist < 0) {
+        past_frames[ref_frame - LAST_FRAME].frame = ref_frame;
+        past_frames[ref_frame - LAST_FRAME].dist = dist;
+        num_past_frames++;
       }
-      // Get the nearest ref_frame in the future
-      if (dist < min_future_dist && dist > 0) {
-        cpi->nearest_future_ref = ref_frame;
-        min_future_dist = dist;
+
+      // Get the nearest ref frames in the future
+      if (dist >= 0) {
+        future_frames[ref_frame - LAST_FRAME].frame = ref_frame;
+        future_frames[ref_frame - LAST_FRAME].dist = dist;
+        num_future_frames++;
       }
     }
   }
+  if (num_past_frames > 0)
+    qsort(past_frames, INTER_REFS_PER_FRAME, sizeof(FrameDistance),
+          compare_ref_frame_dist);
+  if (num_future_frames > 0)
+    qsort(future_frames, INTER_REFS_PER_FRAME, sizeof(FrameDistance),
+          compare_ref_frame_dist);
+
+  int max_frames = cpi->sf.reduce_inter_modes == 3 ? 2 : 4;
+  int state = 0;
+  int past_ctr = 0;
+  int future_ctr = 0;
+  while (state < 3) {
+    if ((num_future_frames == 0 && num_past_frames == 0) ||
+        (past_ctr + future_ctr == max_frames))
+      state = 3;
+    if (state == 3) break;
+    if (num_past_frames == 0) state = 2;
+    if (num_future_frames == 0) state = 1;
+
+    if (state == 2) {
+      cpi->ref_category[future_frames[future_ctr].frame - LAST_FRAME] = 1;
+      future_ctr++;
+      num_future_frames--;
+    } else if (state == 1) {
+      cpi->ref_category[past_frames[past_ctr].frame - LAST_FRAME] = 1;
+      past_ctr++;
+      num_past_frames--;
+    } else if (state == 0) {
+      cpi->ref_category[past_frames[past_ctr].frame - LAST_FRAME] = 1;
+      past_ctr++;
+      num_past_frames--;
+      if (past_ctr + future_ctr < max_frames) {
+        cpi->ref_category[future_frames[future_ctr].frame - LAST_FRAME] = 1;
+        future_ctr++;
+        num_future_frames--;
+      }
+    }
+  };
 }
 
 // Enforce the number of references for each arbitrary frame based on user
@@ -5014,6 +5073,19 @@ void av1_encode_frame(AV1_COMP *cpi) {
 
   av1_setup_frame_buf_refs(cm);
   enforce_max_ref_frames(cpi);
+#if 0
+  fprintf(stderr, "\n[%d] ", current_frame->display_order_hint);
+  MV_REFERENCE_FRAME ref_frame;
+  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
+    if (buf != NULL &&
+        (cpi->ref_frame_flags & av1_ref_frame_flag_list[ref_frame])) {
+      fprintf(stderr, "%d ", buf->display_order_hint);
+    } else {
+      fprintf(stderr, "-1 ");
+    }
+  }
+#endif
   set_rel_frame_dist(cpi);
   av1_setup_frame_sign_bias(cm);
 

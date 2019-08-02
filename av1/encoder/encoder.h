@@ -1068,9 +1068,10 @@ typedef struct AV1_COMP {
   // Indicates the true relative distance of ref frame w.r.t. current frame
   int ref_relative_dist[INTER_REFS_PER_FRAME];
 
-  // Indicate nearest references w.r.t. current frame in past and future
-  int8_t nearest_past_ref;
-  int8_t nearest_future_ref;
+  // Indicates the category of ref frame, 0: nearest 1: second-nearest 2: others
+  // Both past and future falls under the same category, example :
+  // Nearest past and nearest future frames have category 0.
+  int ref_category[INTER_REFS_PER_FRAME];
 
   double *ssim_rdmult_scaling_factors;
 
