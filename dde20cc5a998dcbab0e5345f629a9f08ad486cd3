@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "733c2e51_6918fe79",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4868,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-02T22:36:10Z",
+      "side": 1,
+      "message": "special case was described in encode_with_recode_loop(). So, added comment to refer to that.",
+      "parentUuid": "76adaea4_5f10b58a",
+      "range": {
+        "startLine": 4860,
+        "startChar": 0,
+        "endLine": 4868,
+        "endChar": 3
+      },
+      "revId": "dde20cc5a998dcbab0e5345f629a9f08ad486cd3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aab22e05_060ae25c",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "fa143bce_72d8d3c9",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4963,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-02T22:36:10Z",
+      "side": 1,
+      "message": "Thanks, added error message.",
+      "parentUuid": "aab22e05_060ae25c",
+      "range": {
+        "startLine": 4962,
+        "startChar": 0,
+        "endLine": 4963,
+        "endChar": 14
+      },
+      "revId": "dde20cc5a998dcbab0e5345f629a9f08ad486cd3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1c5c2b17_1fe856c5",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2019-08-02T21:42:54Z",
       "side": 1,
       "message": "minor: encodes --\u003e encode.",
+      "range": {
+        "startLine": 5011,
+        "startChar": 11,
+        "endLine": 5011,
+        "endChar": 18
+      },
+      "revId": "dde20cc5a998dcbab0e5345f629a9f08ad486cd3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "209514fd_0126361d",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5011,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-02T22:36:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c5c2b17_1fe856c5",
       "range": {
         "startLine": 5011,
         "startChar": 11,
@@ -91,6 +163,30 @@
       "revId": "dde20cc5a998dcbab0e5345f629a9f08ad486cd3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85b24350_bcb08f8b",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5034,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-08-02T22:36:10Z",
+      "side": 1,
+      "message": "Unfortunately, this value is used deep into the call chain to pick appropriate superres denom.\nSo, it needs to be changed/restored here.\nNote that we also ensure that original value is SUPERRES_AUTO at #5017 to be sure.",
+      "parentUuid": "cd5980fd_9a302660",
+      "range": {
+        "startLine": 5034,
+        "startChar": 2,
+        "endLine": 5034,
+        "endChar": 61
+      },
+      "revId": "dde20cc5a998dcbab0e5345f629a9f08ad486cd3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
