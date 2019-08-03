@@ -136,6 +136,7 @@ static AV1_QUANT_FACADE
 void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
                    BLOCK_SIZE plane_bsize, TX_SIZE tx_size, int64_t *sse) {
   MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
   const struct macroblock_plane *const p = &x->plane[plane];
 
   const int diff_stride = block_size_wide[plane_bsize];
@@ -184,6 +185,9 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
   //     = g^2 + Q(g)^2 - 2 * g * Q(g) * dot(x, y)
   //     = g^2 + Q(g)^2 - corr * (Q(g) / 2^7)
   *sse = gain_sqr + gain * gain - round_shift(best_corr * gain, 7);
+
+  update_cw_array(mbmi->qgain[plane], mbmi->codeword[plane], plane_bsize,
+                  blk_row, blk_col, best_gain, best_cw);
 
 #if VQ_DEBUG
   fprintf(stderr, "====== \n[fwd] Block size %dx%d\nResidue:\n", txb_h, txb_w);
