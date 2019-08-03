@@ -107,6 +107,24 @@ static INLINE void read_coeffs_reverse(aom_reader *r, TX_SIZE tx_size,
   }
 }
 
+#if CONFIG_VQ4X4
+void av1_read_vq_txb(MACROBLOCKD *xd, aom_reader *const r, const int blk_row,
+                     const int blk_col, const int plane,
+                     const TXB_CTX *const txb_ctx, const TX_SIZE tx_size) {
+  // TODO(kslu): use contexts
+  (void)txb_ctx;
+  (void)tx_size;
+  (void)plane;
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
+
+  int gain_sign = aom_read_bit(r, ACCT_STR);
+  int16_t gain_mag = aom_read_literal(r, VQ_GAIN_BITS, ACCT_STR);
+  mbmi->qgain[blk_idx] = gain_sign ? gain_mag : -gain_mag;
+  mbmi->shape_idx[blk_idx] = aom_read_literal(r, VQ_CODEWORD_BITS, ACCT_STR);
+}
+#endif
+
 uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
                             aom_reader *const r, const int blk_row,
                             const int blk_col, const int plane,
@@ -157,16 +175,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
   if (plane == AOM_PLANE_Y) {
     // only y plane's tx_type is transmitted
-#if CONFIG_VQ4X4
-    const TxSetType tx_set_type = av1_get_ext_tx_set_type(
-        tx_size, is_inter_block(mbmi), cm->reduced_tx_set_used);
-    if (tx_set_type == EXT_TX_SET_VQ) {
-      const int txk_type_idx =
-          av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
-      mbmi->txk_type[txk_type_idx] = DCT_DCT;
-    } else
-#endif
-      av1_read_tx_type(cm, xd, blk_row, blk_col, tx_size, r);
+    av1_read_tx_type(cm, xd, blk_row, blk_col, tx_size, r);
   }
   const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col,
                                           tx_size, cm->reduced_tx_set_used);
@@ -355,7 +364,8 @@ void av1_read_coeffs_txb_facade(const AV1_COMMON *const cm,
 #if CONFIG_VQ4X4
   const TxSetType tx_set_type = av1_get_ext_tx_set_type(
       tx_size, is_inter_block(mbmi), cm->reduced_tx_set_used);
-  if (tx_set_type == EXT_TX_SET_VQ) {
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
+    av1_read_vq_txb(xd, r, row, col, plane, &txb_ctx, tx_size);
     av1_set_contexts(xd, pd, plane, plane_bsize, tx_size, 0, col, row);
   } else {
 #endif

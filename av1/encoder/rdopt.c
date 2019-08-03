@@ -2148,7 +2148,7 @@ static INLINE int64_t dist_block_px_domain(const AV1_COMP *cpi, MACROBLOCK *x,
 #if CONFIG_VQ4X4
   TxSetType tx_set_type = av1_get_ext_tx_set_type(
       tx_size, is_inter_block(xd->mi[0]), cpi->common.reduced_tx_set_used);
-  if (tx_set_type == EXT_TX_SET_VQ) {
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
     av1_vec_dequant(xd, plane, blk_row, blk_col, recon, MAX_TX_SIZE, tx_size);
   } else {
 #endif
@@ -3039,8 +3039,12 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       cpi->optimize_seg_arr[mbmi->segment_id] == NO_TRELLIS_OPT ||
       cpi->optimize_seg_arr[mbmi->segment_id] == FINAL_PASS_TRELLIS_OPT;
 #if !CONFIG_VQ4X4
+  // use_intra_txb_has is temporarily disabled in VQ4X4
   const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
   const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
+  skip_trellis |=
+      cpi->optimize_seg_arr[mbmi->segment_id] == NO_TRELLIS_OPT ||
+      cpi->optimize_seg_arr[mbmi->segment_id] == FINAL_PASS_TRELLIS_OPT;
   const int within_border =
       mi_row >= xd->tile.mi_row_start &&
       (mi_row + mi_size_high[plane_bsize] < xd->tile.mi_row_end) &&
@@ -3242,7 +3246,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
 #if CONFIG_VQ4X4
     // By-pass transform coding and use vector quantization instead
-    if (tx_set_type == EXT_TX_SET_VQ) break;
+    if (tx_set_type == EXT_TX_SET_VQ && plane == 0) break;
 #endif
 
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
@@ -3396,15 +3400,15 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   }
 
 #if CONFIG_VQ4X4
-  if (tx_set_type == EXT_TX_SET_VQ) {
-    // Use an independent search loop for EXT_TX_SET_VQ.
-    mbmi->txk_type[txk_type_idx] = DCT_DCT;  // placeholder
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
+    mbmi->txk_type[txk_type_idx] = DCT_DCT;  // not used
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
 
     av1_vec_quant(x, plane, blk_row, blk_col, plane_bsize, tx_size);
 
-    rate_cost = 0;
+    rate_cost = av1_cost_literal(VQ_GAIN_BITS + VQ_CODEWORD_BITS);
+    // rate_cost = av1_cost_literal(1);
     this_rd_stats.dist = dist_block_px_domain(cpi, x, plane, plane_bsize, block,
                                               blk_row, blk_col, tx_size);
     this_rd_stats.sse = block_sse;

@@ -527,12 +527,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   DECLARE_ALIGNED(16, int8_t, coeff_contexts[MAX_TX_SQUARE]);
   av1_txb_init_levels(tcoeff, width, height, levels);
 
-#if CONFIG_VQ4X4
-  const TxSetType tx_set_type = av1_get_ext_tx_set_type(
-      tx_size, is_inter_block(xd->mi[0]), cm->reduced_tx_set_used);
-  if (tx_set_type != EXT_TX_SET_VQ)
-#endif
-    av1_write_tx_type(cm, xd, blk_row, blk_col, plane, tx_size, w);
+  av1_write_tx_type(cm, xd, blk_row, blk_col, plane, tx_size, w);
 
   int eob_extra;
   const int eob_pt = get_eob_pos_token(eob, &eob_extra);
@@ -639,6 +634,28 @@ typedef struct encode_txb_args {
   aom_writer *w;
 } ENCODE_TXB_ARGS;
 
+#if CONFIG_VQ4X4
+void av1_write_vq_txb(const MACROBLOCKD *xd, aom_writer *w, int blk_row,
+                      int blk_col, int plane, TX_SIZE tx_size,
+                      TXB_CTX *txb_ctx) {
+  // TODO(kslu): use contexts
+  (void)txb_ctx;
+  (void)tx_size;
+  (void)plane;
+  const MB_MODE_INFO *mbmi = xd->mi[0];
+  const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
+
+  int16_t gain = mbmi->qgain[blk_idx];
+  int gain_sign = gain > 0;
+  int16_t gain_mag = gain_sign ? gain : -gain;
+  aom_write_bit(w, gain_sign);
+  // TODO(kslu): replace aom_write_literal by aom_write_symbol and introduce
+  // CDF and costs
+  aom_write_literal(w, gain_mag, VQ_GAIN_BITS);
+  aom_write_literal(w, mbmi->shape_idx[blk_idx], VQ_CODEWORD_BITS);
+}
+#endif
+
 static void write_coeffs_txb_wrap(const AV1_COMMON *cm, MACROBLOCK *x,
                                   aom_writer *w, int plane, int block,
                                   int blk_row, int blk_col, TX_SIZE tx_size) {
@@ -659,7 +676,9 @@ static void write_coeffs_txb_wrap(const AV1_COMMON *cm, MACROBLOCK *x,
   const int is_inter = is_inter_block(xd->mi[0]);
   const TxSetType tx_set_type =
       av1_get_ext_tx_set_type(tx_size, is_inter, cm->reduced_tx_set_used);
-  if (tx_set_type != EXT_TX_SET_VQ)
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0)
+    av1_write_vq_txb(xd, w, blk_row, blk_col, plane, tx_size, &txb_ctx);
+  else
 #endif
     av1_write_coeffs_txb(cm, xd, w, blk_row, blk_col, plane, tx_size, tcoeff,
                          eob, &txb_ctx);

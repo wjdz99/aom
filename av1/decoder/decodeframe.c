@@ -231,7 +231,7 @@ static void predict_and_reconstruct_intra_block(
 #if CONFIG_VQ4X4
   TxSetType tx_set_type = av1_get_ext_tx_set_type(tx_size, is_inter_block(mbmi),
                                                   cm->reduced_tx_set_used);
-  if (tx_set_type == EXT_TX_SET_VQ) {
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
     struct macroblockd_plane *const pd = &xd->plane[plane];
     uint8_t *dst =
         &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
@@ -272,7 +272,7 @@ static void inverse_transform_inter_block(const AV1_COMMON *const cm,
 #if CONFIG_VQ4X4
   TxSetType tx_set_type = av1_get_ext_tx_set_type(
       tx_size, is_inter_block(xd->mi[0]), cm->reduced_tx_set_used);
-  if (tx_set_type == EXT_TX_SET_VQ) {
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
     uint8_t *dst =
         &pd->dst
              .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
