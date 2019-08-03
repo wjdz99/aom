@@ -25,6 +25,12 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
                             const TXB_CTX *const txb_ctx,
                             const TX_SIZE tx_size);
 
+#if CONFIG_VQ4X4
+void av1_read_vq_txb(MACROBLOCKD *xd, aom_reader *const r, const int blk_row,
+                     const int blk_col, const int plane,
+                     const TXB_CTX *const txb_ctx, const TX_SIZE tx_size);
+#endif
+
 void av1_read_coeffs_txb_facade(const AV1_COMMON *const cm,
                                 MACROBLOCKD *const xd, aom_reader *const r,
                                 const int plane, const int row, const int col,
