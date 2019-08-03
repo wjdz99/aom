@@ -252,6 +252,10 @@ typedef struct MB_MODE_INFO {
   MOTION_MODE motion_mode;
   PARTITION_TYPE partition;
   TX_TYPE txk_type[TXK_TYPE_BUF_LEN];
+#if CONFIG_VQ4X4
+  int16_t qgain[MAX_MB_PLANE][TXK_TYPE_BUF_LEN];
+  int shape_idx[MAX_MB_PLANE][TXK_TYPE_BUF_LEN];
+#endif
   MV_REFERENCE_FRAME ref_frame[2];
   FILTER_INTRA_MODE_INFO filter_intra_mode_info;
   int8_t skip;
@@ -684,7 +688,7 @@ static INLINE int block_signals_txsize(BLOCK_SIZE bsize) {
 static const int av1_num_ext_tx_set[EXT_TX_SET_TYPES] = {
   1, 2, 5, 7, 12, 16,
 #if CONFIG_VQ4X4
-  1,  // not used
+  0,  // not used
 #endif
 };
 
@@ -706,7 +710,7 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1 },
 #if CONFIG_VQ4X4
-  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 #endif
 };
@@ -719,7 +723,7 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 },
 #if CONFIG_VQ4X4
-  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 #endif
 };
 #elif USE_MDTX_INTER
@@ -731,7 +735,7 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 #if CONFIG_VQ4X4
-  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 #endif
 };
 #endif
@@ -744,7 +748,7 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 #if CONFIG_VQ4X4
-  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 #endif
 };
 #endif
@@ -773,7 +777,7 @@ static const uint16_t av1_ext_tx_used_flag[EXT_TX_SET_TYPES] = {
   0x0FFF,  // 0000 1111 1111 1111
   0xFFFF,  // 1111 1111 1111 1111
 #if CONFIG_VQ4X4
-  0x0E0F,  // 0000 1110 0000 1111
+  0x0000,  // not used
 #endif
 };
 
@@ -935,16 +939,41 @@ static INLINE int av1_get_txk_type_index(BLOCK_SIZE bsize, int blk_row,
 }
 
 #if CONFIG_VQ4X4
-#define VQ_SHAPES 1
+#define VQ_SHAPES 16
 #define VQ_BLOCK_DEBUG 0
 #define VQ_RD_DEBUG 0
+#define VQ_GAIN_BITS 8
+#define VQ_CODEWORD_BITS 4
 
 // shapes_4x4[i] = The i-th unit-norm shape codeword * 2^8
 // TODO(kslu): only one codeword is used as a placeholder for now. Search of
 // codewords will be added later.
 static const int32_t shape_4x4[VQ_SHAPES][16] = {
   { 50, 53, 46, 43, 69, 72, 60, 55, 74, 78, 65, 60, 73, 79, 68, 64 },
+  { 13, 37, 61, 66, 14, 48, 84, 92, 13, 48, 86, 97, 16, 47, 82, 96 },
+  { -5, -12, -14, -8, 5, 7, 12, 22, 36, 66, 89, 92, 54, 98, 124, 119 },
+  { -3, -12, 13, 78, -7, -23, 25, 140, -7, -25, 25, 149, -4, -17, 20, 119 },
+  { 38, 73, 91, 82, 46, 89, 121, 118, 14, 23, 32, 40, -10, -20, -29, -24 },
+  { 19, 59, 23, -22, 36, 108, 43, -39, 41, 134, 60, -43, 30, 117, 60, -32 },
+  { 64, 35, -17, -14, 121, 70, -28, -26, 129, 81, -30, -30, 92, 65, -22, -26 },
+  { 2, 2, -7, -19, 0, 1, -16, -24, -7, -12, 7, 62, -11, -12, 82, 231 },
+  { 21, 63, 141, 190, -1, 1, 16, 50, -8, -17, -29, -30, 0, -1, -5, -8 },
+  { -2, -6, -5, -2, -14, -32, -38, -30, 5, 5, -12, -23, 78, 154, 150, 93 },
+  { -7, -16, -27, -26, 37, 60, 67, 59, 62, 106, 134, 133, -1, -3, 3, 14 },
+  { 164, 160, 57, 4, 71, 60, 17, -3, -13, -17, -9, -4, -13, -13, -6, 0 },
+  { -20, 17, 68, 1, -35, 27, 111, 4, -44, 35, 139, 9, -41, 37, 141, 13 },
+  { -27, -7, 4, 2, -27, -12, 1, 4, 70, 26, -12, -3, 210, 115, -18, -20 },
+  { 73, -24, -7, 11, 122, -37, -11, 17, 145, -45, -11, 22, 128, -46, -9, 22 },
+  { -38, -58, -65, -55, 72, 108, 124, 117, -29, -41, -44, -35, 17, 22, 24, 24 },
 };
+
+static INLINE void update_cw_array(int16_t *gain_arr, int *shape_idx_arr,
+                                   BLOCK_SIZE bsize, int blk_row, int blk_col,
+                                   int32_t gain, int shape_idx) {
+  const int blk_idx = av1_get_txk_type_index(bsize, blk_row, blk_col);
+  gain_arr[blk_idx] = gain;
+  shape_idx_arr[blk_idx] = shape_idx;
+}
 #endif
 
 static INLINE void update_txk_array(TX_TYPE *txk_type, BLOCK_SIZE bsize,
