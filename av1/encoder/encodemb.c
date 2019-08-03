@@ -135,12 +135,16 @@ static AV1_QUANT_FACADE
 // gain-shape vector quantization
 void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
                    BLOCK_SIZE plane_bsize, TX_SIZE tx_size, int64_t *sse) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
   const struct macroblock_plane *const p = &x->plane[plane];
   const int diff_stride = block_size_wide[plane_bsize];
   // txb_w and txb_h must be 4 for now
   const int txb_w = tx_size_wide[tx_size];
   const int txb_h = tx_size_high[tx_size];
-  int64_t best_corr = INT_MIN;
+  int best_cw = 0;
+  int16_t best_qgain = 0;
+  int32_t best_corr = INT_MIN;
 
   const int src_offset = blk_row * diff_stride + blk_col;
   const int16_t *src_diff = &p->src_diff[src_offset << tx_size_wide_log2[0]];
@@ -148,13 +152,14 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
   uint64_t gain_sq =
       aom_sum_squares_2d_i16(src_diff, diff_stride, txb_w, txb_h);
   // Due to the sqrt function, this quantity already has quantization error
-  int32_t gain = (int32_t)sqrt(gain_sq);
+  // Maximum value of gain = sqrt(255^2 * 16) ~= 1020
+  int16_t qgain = (int16_t)sqrt(gain_sq);
 
-  if (gain == 0) {
+  if (qgain == 0) {
     best_corr = 0;
   } else {
     for (int cw = 0; cw < NUM_CODEWORDS; ++cw) {
-      int64_t corr = 0;
+      int32_t corr = 0;
       // The best codeword is the one having the largest absolute dot product
       // with the block. Let x and y be unit-norm residue and codeword, and
       // let gain be the norm of x, then,
@@ -169,6 +174,8 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
 
       if (abs(corr) > best_corr) {
         best_corr = abs(corr);
+        best_cw = cw;
+        best_qgain = corr < 0 ? -qgain : qgain;
       }
     }
   }
@@ -177,7 +184,10 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
   // sse = || g*x - Q(g)*y ||^2
   //     = g^2 + Q(g)^2 - 2 * g * Q(g) * dot(x, y)
   //     = g^2 + Q(g)^2 - corr * (Q(g) / 2^7)
-  *sse = gain_sq + gain * gain - round_shift(best_corr * gain, 7);
+  *sse = gain_sq + qgain * qgain - round_shift(best_corr * qgain, 7);
+
+  update_cw_array(mbmi->qgain[plane], mbmi->codeword[plane], plane_bsize,
+                  blk_row, blk_col, best_qgain, best_cw);
 
 #if VQ_DEBUG
   fprintf(stderr, "====== \n[fwd] Block size %dx%d\nResidue:\n", txb_h, txb_w);
@@ -187,7 +197,9 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
     }
     fprintf(stderr, "\n");
   }
-  fprintf(stderr, "Gain = %d\n", gain);
+  fprintf(stderr, "Gain^2 = %d\n", gain_sq);
+  fprintf(stderr, "Quantized gain = %d\n", qgain);
+  fprintf(stderr, "Best codeword: %d\n", best_cw);
   fprintf(stderr, "SSE: %ld\n", *sse);
 #endif
 }
