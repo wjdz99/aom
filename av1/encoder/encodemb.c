@@ -142,7 +142,9 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
   // txb_w and txb_h must be 4 for now
   const int txb_w = tx_size_wide[tx_size];
   const int txb_h = tx_size_high[tx_size];
-  int64_t best_corr = INT_MIN;
+  int best_shape_idx = 0;
+  int16_t best_qgain = 0;
+  int32_t best_corr = INT_MIN;
 
   const int src_offset = blk_row * diff_stride + blk_col;
   const int16_t *src_diff = &p->src_diff[src_offset << tx_size_wide_log2[0]];
@@ -150,13 +152,14 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
   uint64_t gain_sq =
       aom_sum_squares_2d_i16(src_diff, diff_stride, txb_w, txb_h);
   // Due to the sqrt function, this quantity already has quantization error
-  int32_t gain = (int32_t)sqrt(gain_sq);
+  // Maximum value of gain = sqrt(255^2 * 16) ~= 1020
+  int16_t qgain = (int16_t)sqrt(gain_sq);
 
-  if (gain == 0) {
+  if (qgain == 0) {
     best_corr = 0;
   } else {
     for (int cw = 0; cw < VQ_SHAPES; ++cw) {
-      int64_t corr = 0;
+      int32_t corr = 0;
       // The best shape codeword is the one having the largest absolute dot
       // product with the block. Let x and y be unit-norm residue and
       // codeword, and let gain be the norm of x, then,
@@ -170,9 +173,15 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
 
       if (abs(corr) > best_corr) {
         best_corr = abs(corr);
+        best_shape_idx = cw;
+        best_qgain = corr < 0 ? -qgain : qgain;
       }
     }
   }
+
+  update_cw_array(mbmi->gain_sign[plane], mbmi->qgain_idx[plane],
+                  mbmi->shape_idx[plane], plane_bsize, blk_row, blk_col,
+                  best_gain_sign, best_qgain_idx, best_shape_idx);
 
 #if VQ_BLOCK_DEBUG
   int16_t best_qgain = best_gain_sign ? vq_gain_vals[best_qgain_idx]
@@ -184,7 +193,9 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
     }
     fprintf(stderr, "\n");
   }
-  fprintf(stderr, "Gain = %d\n", gain);
+  fprintf(stderr, "Gain^2 = %d\n", gain_sq);
+  fprintf(stderr, "Quantized gain = %d\n", qgain);
+  fprintf(stderr, "Best shape: %d\n", best_shape_idx);
   fprintf(stderr, "SSE: %ld\n", *sse);
 #endif
 }

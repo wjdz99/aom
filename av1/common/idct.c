@@ -525,12 +525,10 @@ void av1_inv_txfm_add_c(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
 // Reconstruction of vector quantized block
 void av1_vec_dequant(const MACROBLOCKD *xd, int plane, int blk_row, int blk_col,
                      uint8_t *dst, int stride, TX_SIZE tx_size) {
-  (void)xd;
-  (void)plane;
-  (void)blk_row;
-  (void)blk_col;
-  int32_t gain = 4;   // placeholder
-  int shape_idx = 0;  // placeholder
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
+  int16_t gain = mbmi->qgain[plane][blk_idx];
+  int shape_idx = mbmi->shape_idx[plane][blk_idx];
   const int txw = tx_size_wide[tx_size];
   const int txh = tx_size_high[tx_size];
 
@@ -545,10 +543,11 @@ void av1_vec_dequant(const MACROBLOCKD *xd, int plane, int blk_row, int blk_col,
 #endif
 
   if (gain == 0) return;
-  const int32_t *cw = shape_4x4[shape_idx];
+  const int32_t *shape_cw = shape_4x4[shape_idx];
   for (int i = 0; i < txh; ++i)
     for (int j = 0; j < txw; ++j)
-      dst[i * stride + j] += (uint8_t)round_shift(cw[i * txw + j] * gain, 8);
+      dst[i * stride + j] +=
+          (uint8_t)round_shift(shape_cw[i * txw + j] * gain, 8);
 
 #if VQ_BLOCK_DEBUG
   fprintf(stderr, "Gain = %d\n", gain);
@@ -556,7 +555,7 @@ void av1_vec_dequant(const MACROBLOCKD *xd, int plane, int blk_row, int blk_col,
   fprintf(stderr, "Reconstructed residue:\n");
   for (int r = 0; r < txh; ++r) {
     for (int c = 0; c < txw; ++c) {
-      fprintf(stderr, "%d ", round_shift(cw[r * txw + c] * gain, 8));
+      fprintf(stderr, "%d ", round_shift(shape_cw[r * txw + c] * gain, 8));
     }
     fprintf(stderr, "\n");
   }
