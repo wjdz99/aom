@@ -47,6 +47,7 @@ static INLINE const int32_t *cast_to_int32(const tran_low_t *input) {
 #if CONFIG_VQ4X4
 #define NUM_CODEWORDS 16
 #define VQ_DEBUG 0
+#define VQ_BS_DEBUG 0
 // TODO(kslu): refine the entropy coding of gain
 #define VQ_GAIN_BITS 8
 #define VQ_CODEWORD_BITS 4

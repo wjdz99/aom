@@ -644,8 +644,16 @@ void av1_write_vq_txb(const MACROBLOCKD *xd, aom_writer *w, int blk_row,
   const MB_MODE_INFO *mbmi = xd->mi[0];
   const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
 
-  aom_write_literal(w, mbmi->qgain[plane][blk_idx], VQ_GAIN_BITS);
+  int16_t gain = mbmi->qgain[plane][blk_idx];
+  int gain_sign = gain > 0;
+  int16_t gain_mag = gain_sign ? gain : -gain;
+  aom_write_bit(w, gain_sign);
+  aom_write_literal(w, gain_mag, VQ_GAIN_BITS);
   aom_write_literal(w, mbmi->codeword[plane][blk_idx], VQ_CODEWORD_BITS);
+#if VQ_BS_DEBUG
+  fprintf(stderr, "E[%d %d %d]\n", gain_sign, gain_mag,
+          mbmi->codeword[plane][blk_idx]);
+#endif
 }
 #endif
 

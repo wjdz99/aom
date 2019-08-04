@@ -153,7 +153,8 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
   uint64_t gain_sqr =
       aom_sum_squares_2d_i16(src_diff, diff_stride, txb_w, txb_h);
   // Due to the sqrt function, this quantity already has quantization error
-  int32_t gain = (int32_t)sqrt(gain_sqr);
+  // Maximum value of gain = sqrt(255^2 * 16) ~= 1020
+  int16_t gain = (int16_t)sqrt(gain_sqr);
 
   if (gain == 0) {
     best_corr = 0;

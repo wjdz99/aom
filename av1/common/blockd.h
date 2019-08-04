@@ -253,7 +253,7 @@ typedef struct MB_MODE_INFO {
   PARTITION_TYPE partition;
   TX_TYPE txk_type[TXK_TYPE_BUF_LEN];
 #if CONFIG_VQ4X4
-  int32_t qgain[MAX_MB_PLANE][TXK_TYPE_BUF_LEN];
+  int16_t qgain[MAX_MB_PLANE][TXK_TYPE_BUF_LEN];
   int codeword[MAX_MB_PLANE][TXK_TYPE_BUF_LEN];
 #endif
   MV_REFERENCE_FRAME ref_frame[2];
