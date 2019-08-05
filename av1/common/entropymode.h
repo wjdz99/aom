@@ -12,6 +12,7 @@
 #ifndef AOM_AV1_COMMON_ENTROPYMODE_H_
 #define AOM_AV1_COMMON_ENTROPYMODE_H_
 
+#include "aom/aom.h"
 #include "av1/common/entropy.h"
 #include "av1/common/entropymv.h"
 #include "av1/common/filter.h"

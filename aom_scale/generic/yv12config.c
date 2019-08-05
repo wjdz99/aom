@@ -11,6 +11,7 @@
 
 #include <assert.h>
 
+#include "aom/aom.h"
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/mem.h"
 #include "aom_scale/yv12config.h"
