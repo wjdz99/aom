@@ -341,9 +341,9 @@ static int get_ref_frame_flags(const AV1_COMP *const cpi) {
 
   if (last3_is_last || last3_is_alt || last3_is_last2) flags &= ~AOM_LAST3_FLAG;
 
-  if (gld_is_last || gld_is_last2 || gld_is_last3) {
+  if (gld_is_last || (!cpi->sf.use_fast_nonrd_pick_mode &&
+     (gld_is_last2 || gld_is_last3)))
     flags &= ~AOM_GOLD_FLAG;
-  }
 
   if (!cpi->sf.use_fast_nonrd_pick_mode && gld_is_alt) {
     flags &= ~AOM_GOLD_FLAG;
@@ -905,11 +905,18 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
     return 0;
   }
 
-  if (is_frame_droppable(cpi)) return 0;
+  if (!cpi->svc.external_ref_frame_config && is_frame_droppable(cpi)) return 0;
 
   int refresh_mask = 0;
 
   if (cpi->ext_refresh_frame_flags_pending) {
+    if (cpi->svc.external_ref_frame_config) {
+      for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++) {
+        int ref_frame_map_idx = cpi->svc.ref_idx[i];
+        refresh_mask |= cpi->svc.refresh[i] << ref_frame_map_idx;
+      }
+      return refresh_mask;
+    }
     // Unfortunately the encoder interface reflects the old refresh_*_frame
     // flags so we have to replicate the old refresh_frame_flags logic here in
     // order to preserve the behaviour of the flag overrides.
@@ -1373,7 +1380,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   if (oxcf->pass == 0 || oxcf->pass == 2) {
     if (!cpi->ext_refresh_frame_flags_pending) {
       av1_get_ref_frames(cpi, &cpi->ref_buffer_stack);
-    } else if (cpi->svc.apply_external_ref_idx) {
+    } else if (cpi->svc.external_ref_frame_config) {
       for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++)
         cm->remapped_ref_idx[i] = cpi->svc.ref_idx[i];
     }
