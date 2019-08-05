@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78e56024_13c4e67d",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 810,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2019-08-05T09:42:13Z",
+      "side": 0,
+      "message": "How will this affect slide show mode where we disable alt refs for long GF groups? Obviously things will break if we end up trying to code an alt ref with a group length greater than the lag in frames value.\n\nI assume that the alt_ref_pending flag will be set elsewhere.",
+      "range": {
+        "startLine": 810,
+        "startChar": 61,
+        "endLine": 810,
+        "endChar": 0
+      },
+      "revId": "ed8a59a18c59c93ea95ca6c4a4e2c7bed557855a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
