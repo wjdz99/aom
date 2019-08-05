@@ -2408,6 +2408,14 @@ static void realloc_segmentation_maps(AV1_COMP *cpi) {
                   aom_calloc(cm->mi_rows * cm->mi_cols, 1));
 }
 
+static void set_tpl_stats_block_size(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  const int is_4k_or_larger = AOMMIN(cm->width, cm->height) >= 2160;
+
+  // 0: 4x4, 1: 8x8, 2: 16x16
+  cpi->tpl_stats_block_mis_log2 = is_4k_or_larger ? 2 : 0;
+}
+
 void av1_alloc_compound_type_rd_buffers(AV1_COMMON *const cm,
                                         CompoundTypeRdBuffers *const bufs) {
   CHECK_MEM_ERROR(
@@ -2790,13 +2798,14 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
                                sizeof(*cpi->ssim_rdmult_scaling_factors)));
   }
 
+  set_tpl_stats_block_size(cpi);
   for (int frame = 0; frame < MAX_LENGTH_TPL_FRAME_STATS; ++frame) {
     int mi_cols = ALIGN_POWER_OF_TWO(cm->mi_cols, MAX_MIB_SIZE_LOG2);
     int mi_rows = ALIGN_POWER_OF_TWO(cm->mi_rows, MAX_MIB_SIZE_LOG2);
 
     CHECK_MEM_ERROR(
         cm, cpi->tpl_stats_buffer[frame].tpl_stats_ptr,
-        aom_calloc(mi_rows * mi_cols,
+        aom_calloc((mi_rows * mi_cols) >> (2 * cpi->tpl_stats_block_mis_log2),
                    sizeof(*cpi->tpl_stats_buffer[frame].tpl_stats_ptr)));
     cpi->tpl_stats_buffer[frame].is_valid = 0;
     cpi->tpl_stats_buffer[frame].width = mi_cols;
@@ -3648,12 +3657,13 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
     int64_t mc_dep_cost_base = 0;
     int64_t mc_saved_base = 0;
     int64_t mc_count_base = 0;
-    int row, col;
+    const int step = 1 << cpi->tpl_stats_block_mis_log2;
 
     const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
-    for (row = 0; row < cm->mi_rows; ++row) {
-      for (col = 0; col < mi_cols_sr; ++col) {
-        TplDepStats *this_stats = &tpl_stats[row * tpl_stride + col];
+    for (int row = 0; row < cm->mi_rows; row += step) {
+      for (int col = 0; col < mi_cols_sr; col += step) {
+        TplDepStats *this_stats =
+            &tpl_stats[av1_tpl_ptr_pos(cpi, row, col, tpl_stride)];
         intra_cost_base += this_stats->intra_cost;
         mc_dep_cost_base += this_stats->intra_cost + this_stats->mc_flow;
         mc_count_base += this_stats->mc_count;
