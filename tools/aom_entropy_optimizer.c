@@ -376,11 +376,7 @@ int main(int argc, const char **argv) {
 #else
   cts_each_dim[3] = TX_TYPES;
 #endif
-#if CONFIG_VQ4X4
-  int intra_ext_tx_types_each_ctx[EXT_TX_SETS_INTRA] = { 0, 7, 5, 7 };
-#else
   int intra_ext_tx_types_each_ctx[EXT_TX_SETS_INTRA] = { 0, 7, 5 };
-#endif
   optimize_cdf_table_var_modes_4d(
       &fc.intra_ext_tx[0][0][0][0], probsfile, 4, cts_each_dim,
       intra_ext_tx_types_each_ctx,
@@ -400,6 +396,24 @@ int main(int argc, const char **argv) {
       inter_ext_tx_types_each_ctx,
       "static const aom_cdf_prob default_inter_ext_tx_cdf[EXT_TX_SETS_INTER]"
       "[EXT_TX_SIZES][CDF_SIZE(TX_TYPES)]");
+
+#if CONFIG_VQ4X4
+  /* vq4x4 */
+  cts_each_dim[0] = VQ_GAIN_LEVELS;
+  optimize_cdf_table(&fc.vq_gain_symbol[0], probsfile, 1, cts_each_dim,
+                     "static const aom_cdf_prob\n"
+                     "default_vq_gain_cdf[CDF_SIZE(VQ_GAIN_LEVELS)]");
+  cts_each_dim[0] = VQ_SHAPE_SYMBOLS_1;
+  optimize_cdf_table(&fc.vq_shape_sym1[0], probsfile, 1, cts_each_dim,
+                     "static const aom_cdf_prob\n"
+                     "default_vq_shape_sym1_cdf[CDF_SIZE(VQ_SHAPE_SYMBOLS_1)]");
+  cts_each_dim[0] = VQ_SHAPE_SYMBOLS_1;
+  cts_each_dim[1] = VQ_SHAPE_SYMBOLS_2;
+  optimize_cdf_table(&fc.vq_shape_sym2[0][0], probsfile, 2, cts_each_dim,
+                     "static const aom_cdf_prob\n"
+                     "default_vq_shape_sym2_cdf[VQ_SHAPE_SYMBOLS_1]"
+                     "[CDF_SIZE(VQ_SHAPE_SYMBOLS_2)]");
+#endif  // CONFIG_VQ4X4
 
   /* Chroma from Luma */
   cts_each_dim[0] = CFL_JOINT_SIGNS;
