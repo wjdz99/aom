@@ -22,6 +22,11 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
 
 void av1_tpl_setup_forward_stats(AV1_COMP *cpi);
 
+void av1_tpl_setup(AV1_COMP *cpi);
+
+void av1_tpl_setup_sb(AV1_COMP *cpi, MACROBLOCK *const x, BLOCK_SIZE sb_size,
+                      int mi_row, int mi_col);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
