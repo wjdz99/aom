@@ -1047,6 +1047,9 @@ typedef struct AV1_COMP {
   int8_t nearest_past_ref;
   int8_t nearest_future_ref;
 
+  // TODO(sdeng): Merge the following two arrays.
+  double *tpl_rdmult_scaling_factors;
+  double *sb_tpl_rdmult_scaling_factors;
   double *ssim_rdmult_scaling_factors;
 } AV1_COMP;
 
