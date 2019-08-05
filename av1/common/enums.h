@@ -565,36 +565,6 @@ enum {
 #define TXFM_PARTITION_CONTEXTS ((TX_SIZES - TX_8X8) * 6 - 3)
 typedef uint8_t TXFM_CONTEXT;
 
-// An enum for single reference types (and some derived values).
-enum {
-  NONE_FRAME = -1,
-  INTRA_FRAME,
-  LAST_FRAME,
-  LAST2_FRAME,
-  LAST3_FRAME,
-  GOLDEN_FRAME,
-  BWDREF_FRAME,
-  ALTREF2_FRAME,
-  ALTREF_FRAME,
-  REF_FRAMES,
-
-  // Extra/scratch reference frame. It may be:
-  // - used to update the ALTREF2_FRAME ref (see lshift_bwd_ref_frames()), or
-  // - updated from ALTREF2_FRAME ref (see rshift_bwd_ref_frames()).
-  EXTREF_FRAME = REF_FRAMES,
-
-  // Number of inter (non-intra) reference types.
-  INTER_REFS_PER_FRAME = ALTREF_FRAME - LAST_FRAME + 1,
-
-  // Number of forward (aka past) reference types.
-  FWD_REFS = GOLDEN_FRAME - LAST_FRAME + 1,
-
-  // Number of backward (aka future) reference types.
-  BWD_REFS = ALTREF_FRAME - BWDREF_FRAME + 1,
-
-  SINGLE_REFS = FWD_REFS + BWD_REFS,
-};
-
 #define REF_FRAMES_LOG2 3
 
 // REF_FRAMES for the cm->ref_frame_map array, 1 scratch frame for the new
