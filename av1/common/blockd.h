@@ -14,6 +14,7 @@
 
 #include "config/aom_config.h"
 
+#include "aom/aom.h"
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_ports/mem.h"
 #include "aom_scale/yv12config.h"
