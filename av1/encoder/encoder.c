@@ -1177,7 +1177,7 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
   cpi->td.counts = &cpi->counts;
 
   cpi->use_svc = 0;
-  cpi->svc.apply_external_ref_idx = 0;
+  cpi->svc.external_ref_frame_config = 0;
   cm->number_spatial_layers = 1;
   cm->number_temporal_layers = 1;
 
@@ -2574,7 +2574,8 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 
   set_tile_info(cpi);
 
-  cpi->ext_refresh_frame_flags_pending = 0;
+  if (!cpi->svc.external_ref_frame_config)
+    cpi->ext_refresh_frame_flags_pending = 0;
   cpi->ext_refresh_frame_context_pending = 0;
 
   highbd_set_var_fns(cpi);
@@ -6198,7 +6199,8 @@ void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
     cpi->ext_refresh_alt2_ref_frame = (upd & AOM_ALT2_FLAG) != 0;
     cpi->ext_refresh_frame_flags_pending = 1;
   } else {
-    cpi->ext_refresh_frame_flags_pending = 0;
+    if (!cpi->svc.external_ref_frame_config)
+      cpi->ext_refresh_frame_flags_pending = 0;
   }
 
   cpi->ext_use_ref_frame_mvs = cpi->oxcf.allow_ref_frame_mvs &
