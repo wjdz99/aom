@@ -1081,6 +1081,7 @@ typedef struct AV1_COMP {
   int8_t nearest_past_ref;
   int8_t nearest_future_ref;
 
+  double *tpl_rdmult_scaling_factors;
   double *ssim_rdmult_scaling_factors;
 
   int use_svc;
