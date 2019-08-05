@@ -939,12 +939,32 @@ static INLINE int av1_get_txk_type_index(BLOCK_SIZE bsize, int blk_row,
 }
 
 #if CONFIG_VQ4X4
-static INLINE void update_cw_array(int32_t *gain_arr, int *cw_arr,
+static INLINE void update_cw_array(int16_t *gain_arr, int *cw_arr,
                                    BLOCK_SIZE bsize, int blk_row, int blk_col,
                                    int32_t gain, int cw) {
   const int blk_idx = av1_get_txk_type_index(bsize, blk_row, blk_col);
   cw_arr[blk_idx] = cw;
   gain_arr[blk_idx] = gain;
+}
+
+static INLINE void av1_qgain_to_symbols(int16_t qgain, int *gain_sym1,
+                                        int *gain_sym2) {
+  *gain_sym1 = codeword / NUM_GAIN_SYMBOL2;
+  *gain_sym2 = codeword % NUM_GAIN_SYMBOL2;
+}
+
+static INLINE void av1_vq_cw_to_symbols(int codeword, int *cw_sym1,
+                                        int *cw_sym2) {
+  *cw_sym1 = codeword / NUM_CW_SYMBOL2;
+  *cw_sym2 = codeword % NUM_CW_SYMBOL2;
+}
+
+static const int16_t vq_gain_quant_lookup[VQ_MAX_GAIN + 1] = {
+  0, 1, 4
+}
+
+static INLINE int16_t vq_gain_sqrt_quant(uint64_t gain_sqr) {
+  assert(gain_sqr < VQ_MAX_GAIN);
 }
 #endif
 

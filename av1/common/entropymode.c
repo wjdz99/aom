@@ -628,6 +628,40 @@ static const aom_cdf_prob default_use_mdtx_intra_cdf[EXT_TX_SIZES][INTRA_MODES]
 #endif  // USE_MDTX_INTRA
 #endif
 
+#if CONFIG_VQ4X4
+static const aom_cdf_prob default_gain_sym1_cdf[CDF_SIZE(NUM_GAIN_SYMBOL1)] = {
+  AOM_CDF4(8192, 16384, 24576)
+};
+
+static const aom_cdf_prob default_gain_sym2_cdf[NUM_GAIN_SYMBOL1]
+                               [CDF_SIZE(NUM_GAIN_SYMBOL2)] = {
+          { AOM_CDF16(2048, 4096, 6144, 8192, 10240, 12288, 14336, 16384, 18432,
+                      20480, 22528, 24576, 26624, 28672, 30720) },
+          { AOM_CDF16(2048, 4096, 6144, 8192, 10240, 12288, 14336, 16384, 18432,
+                      20480, 22528, 24576, 26624, 28672, 30720) },
+          { AOM_CDF16(2048, 4096, 6144, 8192, 10240, 12288, 14336, 16384, 18432,
+                      20480, 22528, 24576, 26624, 28672, 30720) },
+          { AOM_CDF16(2048, 4096, 6144, 8192, 10240, 12288, 14336, 16384, 18432,
+                      20480, 22528, 24576, 26624, 28672, 30720) },
+};
+
+static const aom_cdf_prob default_vq_codeword_1_cdf[CDF_SIZE(NUM_CW_SYMBOL1)] = {
+  AOM_CDF4(8192, 16384, 24576)
+};
+
+static const aom_cdf_prob default_vq_codeword_2_cdf[NUM_CW_SYMBOL1]
+                               [CDF_SIZE(NUM_CW_SYMBOL2)] = {
+          { AOM_CDF16(2048, 4096, 6144, 8192, 10240, 12288, 14336, 16384, 18432,
+                      20480, 22528, 24576, 26624, 28672, 30720) },
+          { AOM_CDF16(2048, 4096, 6144, 8192, 10240, 12288, 14336, 16384, 18432,
+                      20480, 22528, 24576, 26624, 28672, 30720) },
+          { AOM_CDF16(2048, 4096, 6144, 8192, 10240, 12288, 14336, 16384, 18432,
+                      20480, 22528, 24576, 26624, 28672, 30720) },
+          { AOM_CDF16(2048, 4096, 6144, 8192, 10240, 12288, 14336, 16384, 18432,
+                      20480, 22528, 24576, 26624, 28672, 30720) },
+};
+#endif
+
 static const aom_cdf_prob default_cfl_sign_cdf[CDF_SIZE(CFL_JOINT_SIGNS)] = {
   AOM_CDF8(1418, 2123, 13340, 18405, 26972, 28343, 32294)
 };
@@ -1355,6 +1389,14 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->mdtx_type_intra_cdf, default_mdtx_type_intra_cdf);
   av1_copy(fc->use_mdtx_intra_cdf, default_use_mdtx_intra_cdf);
 #endif
+#endif
+#if CONFIG_VQ4X4
+  av1_copy(fc->vq_gain_sym1_cdf, default_vq_gain_sym1_cdf);
+  for (int i = 0; i < NUM_CW_SYMBOL1; i++)
+    av1_copy(fc->vq_gain_sym2_cdf, default_vq_gain_sym2_cdf);
+  av1_copy(fc->vq_codeword_1_cdf, default_vq_codeword_1_cdf);
+  for (int i = 0; i < NUM_CW_SYMBOL1; i++)
+    av1_copy(fc->vq_codeword_2_cdf, default_vq_codeword_2_cdf);
 #endif
   av1_copy(fc->skip_mode_cdfs, default_skip_mode_cdfs);
   av1_copy(fc->skip_cdfs, default_skip_cdfs);

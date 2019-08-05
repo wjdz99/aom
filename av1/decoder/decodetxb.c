@@ -114,14 +114,24 @@ void av1_read_vq_txb(MACROBLOCKD *xd, aom_reader *const r, const int blk_row,
   // TODO(kslu): use contexts
   (void)txb_ctx;
   (void)tx_size;
+  FRAME_CONTEXT *const ec_ctx = xd->tile_ctx;
   MB_MODE_INFO *mbmi = xd->mi[0];
   const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
 
   int gain_sign = aom_read_bit(r, ACCT_STR);
-  int16_t gain_mag = aom_read_literal(r, VQ_GAIN_BITS, ACCT_STR);
+
+  int gain_sym1 = aom_read_symbol(r, ec_ctx->vq_gain_sym1_cdf,
+                                NUM_GAIN_SYMBOL1, ACCT_STR);
+  int gain_sym2 = aom_read_symbol(r, ec_ctx->vq_gain_sym2_cdf[gain_sym1],
+                                NUM_GAIN_SYMBOL2, ACCT_STR);
+  int gain_mag = vec_dequant_gain(gain_sym1 * NUM_GAIN_SYMBOL2 + gain_sym2);
   mbmi->qgain[plane][blk_idx] = gain_sign ? gain_mag : -gain_mag;
-  mbmi->codeword[plane][blk_idx] =
-      aom_read_literal(r, VQ_CODEWORD_BITS, ACCT_STR);
+
+  int cw_sym1 = aom_read_symbol(r, ec_ctx->vq_codeword_1_cdf,
+                                NUM_CW_SYMBOL1, ACCT_STR);
+  int cw_sym2 = aom_read_symbol(r, ec_ctx->vq_codeword_2_cdf[cw_sym1],
+                                NUM_CW_SYMBOL2, ACCT_STR);
+  mbmi->codeword[plane][blk_idx] = cw_sym1 * NUM_CW_SYMBOL2 + cw_sym2;
 #if VQ_BS_DEBUG
   fprintf(stderr, "D[%d %d %d]\n", gain_sign, gain_mag,
           mbmi->codeword[plane][blk_idx]);

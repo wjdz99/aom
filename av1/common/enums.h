@@ -387,6 +387,10 @@ enum {
 #define EXT_TX_SETS_INTER 4  // Sets of transform selections for INTER
 #if CONFIG_VQ4X4
 #define EXT_TX_SETS_INTRA 4  // Sets of transform selections for INTRA
+#define NUM_CW_SYMBOL1 4
+#define NUM_CW_SYMBOL2 16
+#define NUM_GAIN_SYMBOL1 4
+#define NUM_GAIN_SYMBOL2 16
 #else
 #define EXT_TX_SETS_INTRA 3  // Sets of transform selections for INTRA
 #endif

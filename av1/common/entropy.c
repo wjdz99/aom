@@ -204,6 +204,16 @@ void av1_reset_cdf_symbol_counters(FRAME_CONTEXT *fc) {
   RESET_CDF_COUNTER_STRIDE(fc->inter_ext_tx_cdf[2], 12, CDF_SIZE(TX_TYPES));
   RESET_CDF_COUNTER_STRIDE(fc->inter_ext_tx_cdf[3], 2, CDF_SIZE(TX_TYPES));
 #endif
+#if CONFIG_VQ4X4
+  RESET_CDF_COUNTER_STRIDE(fc->vq_gain_sym1_cdf, 4, CDF_SIZE(NUM_GAIN_SYMBOL1));
+  for (int i = 0; i < NUM_GAIN_SYMBOL1; i++)
+    RESET_CDF_COUNTER_STRIDE(fc->vq_gain_sym2_cdf[i], 16,
+                             CDF_SIZE(NUM_GAIN_SYMBOL2));
+  RESET_CDF_COUNTER_STRIDE(fc->vq_codeword_1_cdf, 4, CDF_SIZE(NUM_CW_SYMBOL1));
+  for (int i = 0; i < NUM_CW_SYMBOL1; i++)
+    RESET_CDF_COUNTER_STRIDE(fc->vq_codeword_2_cdf[i], 16,
+                             CDF_SIZE(NUM_CW_SYMBOL2));
+#endif
   RESET_CDF_COUNTER(fc->cfl_sign_cdf, CFL_JOINT_SIGNS);
   RESET_CDF_COUNTER(fc->cfl_alpha_cdf, CFL_ALPHABET_SIZE);
 }

@@ -187,6 +187,12 @@ typedef struct frame_contexts {
   aom_cdf_prob inter_ext_tx_cdf[EXT_TX_SETS_INTER][EXT_TX_SIZES]
                                [CDF_SIZE(TX_TYPES)];
 #endif
+#if CONFIG_VQ4X4
+  aom_cdf_prob vq_gain_sym1_cdf[CDF_SIZE(NUM_GAIN_SYMBOL1)];
+  aom_cdf_prob vq_gain_sym2_cdf[NUM_GAIN_SYMBOL1][CDF_SIZE(NUM_GAIN_SYMBOL2)];
+  aom_cdf_prob vq_codeword_1_cdf[CDF_SIZE(NUM_CW_SYMBOL1)];
+  aom_cdf_prob vq_codeword_2_cdf[NUM_CW_SYMBOL1][CDF_SIZE(NUM_CW_SYMBOL2)];
+#endif
   aom_cdf_prob cfl_sign_cdf[CDF_SIZE(CFL_JOINT_SIGNS)];
   aom_cdf_prob cfl_alpha_cdf[CFL_ALPHA_CONTEXTS][CDF_SIZE(CFL_ALPHABET_SIZE)];
   int initialized;
