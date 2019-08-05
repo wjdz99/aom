@@ -235,7 +235,7 @@ static void predict_and_reconstruct_intra_block(
     struct macroblockd_plane *const pd = &xd->plane[plane];
     uint8_t *dst =
         &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
-    av1_vec_dequant(xd, plane, row, col, dst, pd->dst.stride, tx_size);
+    av1_vec_dequant_add(xd, plane, row, col, dst, pd->dst.stride, tx_size);
   } else {
 #endif
     if (!mbmi->skip) {
@@ -276,7 +276,8 @@ static void inverse_transform_inter_block(const AV1_COMMON *const cm,
     uint8_t *dst =
         &pd->dst
              .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
-    av1_vec_dequant(xd, plane, blk_row, blk_col, dst, pd->dst.stride, tx_size);
+    av1_vec_dequant_add(xd, plane, blk_row, blk_col, dst, pd->dst.stride,
+                        tx_size);
   } else {
 #endif
     // tx_type will be read out in av1_read_coeffs_txb_facade

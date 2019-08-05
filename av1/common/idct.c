@@ -523,18 +523,22 @@ void av1_inv_txfm_add_c(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
 
 #if CONFIG_VQ4X4
 // Reconstruction of vector quantized block
-void av1_vec_dequant(const MACROBLOCKD *xd, int plane, int blk_row, int blk_col,
-                     uint8_t *dst, int stride, TX_SIZE tx_size) {
+void av1_vec_dequant_add(const MACROBLOCKD *xd, int plane, int blk_row,
+                         int blk_col, uint8_t *dst, int stride,
+                         TX_SIZE tx_size) {
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
-  int16_t gain = mbmi->qgain[plane][blk_idx];
+  int gain_sign = mbmi->gain_sign[plane][blk_idx];
+  int qgain_idx = mbmi->qgain_idx[plane][blk_idx];
   int shape_idx = mbmi->shape_idx[plane][blk_idx];
+  int16_t gain = gain_sign ? vq_gain_vals[qgain_idx] : -vq_gain_vals[qgain_idx];
   const int txw = tx_size_wide[tx_size];
   const int txh = tx_size_high[tx_size];
 
 #if VQ_DEBUG
-  fprintf(stderr, "====== \n[inv] Block size %dx%d\nPredicted block:\n", txh,
-          txw);
+  fprintf(stderr,
+          "====== \n[inv] Block size %dx%d plane %d\nPredicted block:\n", txh,
+          txw, plane);
   for (int r = 0; r < txh; ++r) {
     for (int c = 0; c < txw; ++c) {
       fprintf(stderr, "%d ", dst[r * stride + c]);

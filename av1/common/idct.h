@@ -45,8 +45,9 @@ static INLINE const int32_t *cast_to_int32(const tran_low_t *input) {
 }
 
 #if CONFIG_VQ4X4
-void av1_vec_dequant(const MACROBLOCKD *xd, int plane, int blk_row, int blk_col,
-                     uint8_t *dst, int stride, TX_SIZE tx_size);
+void av1_vec_dequant_add(const MACROBLOCKD *xd, int plane, int blk_row,
+                         int blk_col, uint8_t *dst, int stride,
+                         TX_SIZE tx_size);
 #endif  // CONFIG_VQ4X4
 
 #ifdef __cplusplus
