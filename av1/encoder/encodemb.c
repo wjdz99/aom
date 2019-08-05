@@ -143,7 +143,8 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
   const int txb_w = tx_size_wide[tx_size];
   const int txb_h = tx_size_high[tx_size];
   int best_shape_idx = 0;
-  int16_t best_qgain = 0;
+  int best_gain_sign = 0;
+  int best_qgain_idx = 0;
   int32_t best_corr = INT_MIN;
 
   const int src_offset = blk_row * diff_stride + blk_col;
@@ -153,9 +154,9 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
       aom_sum_squares_2d_i16(src_diff, diff_stride, txb_w, txb_h);
   // Due to the sqrt function, this quantity already has quantization error
   // Maximum value of gain = sqrt(255^2 * 16) ~= 1020
-  int16_t qgain = (int16_t)sqrt(gain_sq);
+  int qgain_idx = vq_gain_sqrt_quant(gain_sq);
 
-  if (qgain == 0) {
+  if (qgain_idx == 0) {
     best_corr = 0;
   } else {
     for (int cw = 0; cw < VQ_SHAPES; ++cw) {
@@ -173,8 +174,9 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
 
       if (abs(corr) > best_corr) {
         best_corr = abs(corr);
+        best_gain_sign = corr > 0;
+        best_qgain_idx = qgain_idx;
         best_shape_idx = cw;
-        best_qgain = corr < 0 ? -qgain : qgain;
       }
     }
   }
@@ -183,10 +185,14 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
   // sse = || g*x - Q(g)*y ||^2
   //     = g^2 + Q(g)^2 - 2 * g * Q(g) * dot(x, y)
   //     = g^2 + Q(g)^2 - corr * (Q(g) / 2^7)
-  *sse = gain_sq + qgain * qgain - round_shift(best_corr * qgain, 7);
+  int16_t best_qgain = best_gain_sign ? vq_gain_vals[best_qgain_idx]
+                                      : -vq_gain_vals[best_qgain_idx];
+  *sse = gain_sq + best_qgain * best_qgain -
+         round_shift(best_corr * best_qgain, 7);
 
-  update_cw_array(mbmi->qgain[plane], mbmi->shape_idx[plane], plane_bsize,
-                  blk_row, blk_col, best_qgain, best_shape_idx);
+  update_cw_array(mbmi->gain_sign[plane], mbmi->qgain_idx[plane],
+                  mbmi->shape_idx[plane], plane_bsize, blk_row, blk_col,
+                  best_gain_sign, best_qgain_idx, best_shape_idx);
 
 #if VQ_DEBUG
   fprintf(stderr, "====== \n[fwd] Block size %dx%d\nResidue:\n", txb_h, txb_w);
@@ -197,7 +203,7 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
     fprintf(stderr, "\n");
   }
   fprintf(stderr, "Gain^2 = %d\n", gain_sq);
-  fprintf(stderr, "Quantized gain = %d\n", qgain);
+  fprintf(stderr, "Quantized gain = %d\n", best_qgain);
   fprintf(stderr, "Best shape: %d\n", best_shape_idx);
   fprintf(stderr, "SSE: %ld\n", *sse);
 #endif
