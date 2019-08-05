@@ -143,7 +143,8 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
   const int txb_w = tx_size_wide[tx_size];
   const int txb_h = tx_size_high[tx_size];
   int best_shape_idx = 0;
-  int16_t best_qgain = 0;
+  int best_gain_sign = 0;
+  int best_qgain_idx = 0;
   int32_t best_corr = INT_MIN;
 
   const int src_offset = blk_row * diff_stride + blk_col;
@@ -153,9 +154,9 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
       aom_sum_squares_2d_i16(src_diff, diff_stride, txb_w, txb_h);
   // Due to the sqrt function, this quantity already has quantization error
   // Maximum value of gain = sqrt(255^2 * 16) ~= 1020
-  int16_t qgain = (int16_t)sqrt(gain_sq);
+  int qgain_idx = vq_gain_sqrt_quant(gain_sq);
 
-  if (qgain == 0) {
+  if (qgain_idx == 0) {
     best_corr = 0;
   } else {
     for (int cw = 0; cw < VQ_SHAPES; ++cw) {
@@ -173,8 +174,9 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
 
       if (abs(corr) > best_corr) {
         best_corr = abs(corr);
+        best_gain_sign = corr > 0;
+        best_qgain_idx = qgain_idx;
         best_shape_idx = cw;
-        best_qgain = corr < 0 ? -qgain : qgain;
       }
     }
   }
@@ -193,8 +195,8 @@ void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
     }
     fprintf(stderr, "\n");
   }
-  fprintf(stderr, "Gain^2 = %d\n", gain_sq);
-  fprintf(stderr, "Quantized gain = %d\n", qgain);
+  fprintf(stderr, "Gain^2 = %ld\n", gain_sq);
+  fprintf(stderr, "Quantized gain = %d\n", best_qgain);
   fprintf(stderr, "Best shape: %d\n", best_shape_idx);
   fprintf(stderr, "SSE: %ld\n", *sse);
 #endif
@@ -339,7 +341,8 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 
   if (tx_set_type == EXT_TX_SET_VQ) {
     *(args->skip) = 0;
-    av1_vec_dequant(xd, plane, blk_row, blk_col, dst, pd->dst.stride, tx_size);
+    av1_vec_dequant_add(xd, plane, blk_row, blk_col, dst, pd->dst.stride,
+                        tx_size);
   } else {
 #endif
     if (p->eobs[block]) {
@@ -526,12 +529,10 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
   uint8_t *dst;
   dst = &pd->dst
              .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
-#if CONFIG_VQ4X4
-  TxSetType tx_set_type = av1_get_ext_tx_set_type(
-      tx_size, is_inter_block(xd->mi[0]), cm->reduced_tx_set_used);
-  if (tx_set_type == EXT_TX_SET_VQ) {
-    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                    DCT_DCT, AV1_XFORM_QUANT_B);
+  av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+                  DCT_DCT, AV1_XFORM_QUANT_B);
+
+  if (p->eobs[block] > 0) {
     txfm_param.bd = xd->bd;
     txfm_param.is_hbd = is_cur_buf_hbd(xd);
     txfm_param.tx_type = DCT_DCT;
@@ -545,30 +546,7 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
       return;
     }
     av1_inv_txfm_add(dqcoeff, dst, pd->dst.stride, &txfm_param);
-  } else {
-#endif
-    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                    DCT_DCT, AV1_XFORM_QUANT_B);
-
-    if (p->eobs[block] > 0) {
-      txfm_param.bd = xd->bd;
-      txfm_param.is_hbd = is_cur_buf_hbd(xd);
-      txfm_param.tx_type = DCT_DCT;
-      txfm_param.tx_size = tx_size;
-      txfm_param.eob = p->eobs[block];
-      txfm_param.lossless = xd->lossless[xd->mi[0]->segment_id];
-      txfm_param.tx_set_type =
-          av1_get_ext_tx_set_type(txfm_param.tx_size, is_inter_block(xd->mi[0]),
-                                  cm->reduced_tx_set_used);
-      if (txfm_param.is_hbd) {
-        av1_highbd_inv_txfm_add(dqcoeff, dst, pd->dst.stride, &txfm_param);
-        return;
-      }
-      av1_inv_txfm_add(dqcoeff, dst, pd->dst.stride, &txfm_param);
-    }
-#if CONFIG_VQ4X4
   }
-#endif
 }
 
 void av1_encode_sby_pass1(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize) {
@@ -737,7 +715,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   }
 
   if (tx_set_type == EXT_TX_SET_VQ) {
-    av1_vec_dequant(xd, plane, blk_row, blk_col, dst, dst_stride, tx_size);
+    av1_vec_dequant_add(xd, plane, blk_row, blk_col, dst, dst_stride, tx_size);
     *(args->skip) = 0;
 
     if (plane == AOM_PLANE_Y && xd->cfl.store_y)
