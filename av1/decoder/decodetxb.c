@@ -115,13 +115,25 @@ void av1_read_vq_txb(MACROBLOCKD *xd, aom_reader *const r, const int blk_row,
   (void)txb_ctx;
   (void)tx_size;
   (void)plane;
+  FRAME_CONTEXT *const ec_ctx = xd->tile_ctx;
   MB_MODE_INFO *mbmi = xd->mi[0];
   const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
 
-  int gain_sign = aom_read_bit(r, ACCT_STR);
-  int16_t gain_mag = aom_read_literal(r, VQ_GAIN_BITS, ACCT_STR);
-  mbmi->qgain[blk_idx] = gain_sign ? gain_mag : -gain_mag;
-  mbmi->shape_idx[blk_idx] = aom_read_literal(r, VQ_CODEWORD_BITS, ACCT_STR);
+  int qgain_idx =
+      aom_read_symbol(r, ec_ctx->vq_gain_cdf, VQ_GAIN_LEVELS, ACCT_STR);
+  mbmi->qgain_idx[blk_idx] = qgain_idx;
+
+  if (qgain_idx == 0) {
+    mbmi->gain_sign[blk_idx] = 1;
+    mbmi->shape_idx[blk_idx] = 0;
+  } else {
+    mbmi->gain_sign[blk_idx] = aom_read_bit(r, ACCT_STR);
+    int shape_sym1 = aom_read_symbol(r, ec_ctx->vq_shape_sym1_cdf,
+                                     VQ_SHAPE_SYMBOLS_1, ACCT_STR);
+    int shape_sym2 = aom_read_symbol(r, ec_ctx->vq_shape_sym2_cdf[shape_sym1],
+                                     VQ_SHAPE_SYMBOLS_2, ACCT_STR);
+    mbmi->shape_idx[blk_idx] = shape_sym1 * VQ_SHAPE_SYMBOLS_2 + shape_sym2;
+  }
 }
 #endif
 
