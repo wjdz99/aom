@@ -30,6 +30,10 @@
 extern "C" {
 #endif
 
+#define USE_TPL_CLASSIC_MODEL \
+  1  // 1: use inter intra rdcost stats
+     // 0; use count or rd saving stats
+
 typedef struct {
   unsigned int sse;
   int sum;
