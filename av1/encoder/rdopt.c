@@ -2079,7 +2079,7 @@ static uint32_t get_intra_txb_hash(MACROBLOCK *x, int plane, int blk_row,
   const uint32_t hash = av1_get_crc32c_value(crc, hash_data, 2 * txb_w * txb_h);
   return (hash << 5) + tx_size;
 }
-#endif
+#endif  // !CONFIG_VQ4X4
 
 static INLINE void dist_block_tx_domain(MACROBLOCK *x, int plane, int block,
                                         TX_SIZE tx_size, int64_t *out_dist,
@@ -2149,7 +2149,8 @@ static INLINE int64_t dist_block_px_domain(const AV1_COMP *cpi, MACROBLOCK *x,
   TxSetType tx_set_type = av1_get_ext_tx_set_type(
       tx_size, is_inter_block(xd->mi[0]), cpi->common.reduced_tx_set_used);
   if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
-    av1_vec_dequant(xd, plane, blk_row, blk_col, recon, MAX_TX_SIZE, tx_size);
+    av1_vec_dequant_add(xd, plane, blk_row, blk_col, recon, MAX_TX_SIZE,
+                        tx_size);
   } else {
 #endif
     TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col, tx_size,
@@ -3042,9 +3043,6 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   // use_intra_txb_has is temporarily disabled in VQ4X4
   const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
   const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
-  skip_trellis |=
-      cpi->optimize_seg_arr[mbmi->segment_id] == NO_TRELLIS_OPT ||
-      cpi->optimize_seg_arr[mbmi->segment_id] == FINAL_PASS_TRELLIS_OPT;
   const int within_border =
       mi_row >= xd->tile.mi_row_start &&
       (mi_row + mi_size_high[plane_bsize] < xd->tile.mi_row_end) &&
@@ -3084,7 +3082,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       }
     }
   }
-#endif
+#endif  // !CONFIG_VQ4X4
 
   int rate_cost = 0;
   // if txk_allowed = TX_TYPES, >1 tx types are allowed, else, if txk_allowed <
@@ -3407,8 +3405,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
     av1_vec_quant(x, plane, blk_row, blk_col, plane_bsize, tx_size);
 
-    rate_cost = av1_cost_literal(VQ_GAIN_BITS + VQ_CODEWORD_BITS);
-    // rate_cost = av1_cost_literal(1);
+    rate_cost = get_vq_cost(x, plane, blk_row, blk_col, plane_bsize, tx_size);
     this_rd_stats.dist = dist_block_px_domain(cpi, x, plane, plane_bsize, block,
                                               blk_row, blk_col, tx_size);
     this_rd_stats.sse = block_sse;
@@ -3428,7 +3425,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
     return best_rd;
   }
-#endif
+#endif  // CONFIG_VQ4X4
 
   assert(best_rd != INT64_MAX);
 
