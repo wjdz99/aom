@@ -154,7 +154,7 @@ static struct av1_extracfg default_extra_cfg = {
   1,                       // enable_auto_alt_ref
   0,                       // enable_auto_bwd_ref
   0,                       // noise_sensitivity
-  CONFIG_SHARP_SETTINGS,   // sharpness
+  6,                       // sharpness
   0,                       // static_thresh
   1,                       // row_mt
   0,                       // tile_columns
@@ -165,7 +165,7 @@ static struct av1_extracfg default_extra_cfg = {
   0,                       // min_gf_interval; 0 -> default decision
   0,                       // max_gf_interval; 0 -> default decision
   4,                       // gf_max_pyr_height
-  AOM_TUNE_PSNR,           // tuning
+  AOM_TUNE_SSIM,           // tuning
   10,                      // cq_level
   0,                       // rc_max_intra_bitrate_pct
   0,                       // rc_max_inter_bitrate_pct
@@ -998,7 +998,7 @@ static aom_codec_err_t ctrl_set_noise_sensitivity(aom_codec_alg_priv_t *ctx,
 static aom_codec_err_t ctrl_set_sharpness(aom_codec_alg_priv_t *ctx,
                                           va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
-  extra_cfg.sharpness = CAST(AOME_SET_SHARPNESS, args);
+  extra_cfg.sharpness = 6;  // CAST(AOME_SET_SHARPNESS, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
@@ -1054,7 +1054,7 @@ static aom_codec_err_t ctrl_set_arnr_strength(aom_codec_alg_priv_t *ctx,
 static aom_codec_err_t ctrl_set_tuning(aom_codec_alg_priv_t *ctx,
                                        va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
-  extra_cfg.tuning = CAST(AOME_SET_TUNING, args);
+  extra_cfg.tuning = AOM_TUNE_SSIM; // CAST(AOME_SET_TUNING, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
