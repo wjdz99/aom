@@ -1361,6 +1361,7 @@ static void set_rc_buffer_sizes(RATE_CONTROL *rc,
            4;                                                               \
   }
 
+#if CONFIG_AV1_HIGHBITDEPTH
 MAKE_BFP_SAD_WRAPPER(aom_highbd_sad128x128)
 MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad128x128_avg)
 MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad128x128x4d)
@@ -1451,6 +1452,7 @@ MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad8x32_avg)
 MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad32x8_avg)
 MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad16x64_avg)
 MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad64x16_avg)
+#endif  // CONFIG_AV1_HIGHBITDEPTH
 
 #define HIGHBD_MBFP(BT, MCSDF, MCSVF) \
   cpi->fn_ptr[BT].msdf = MCSDF;       \
@@ -1481,6 +1483,7 @@ MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad64x16_avg)
            4;                                                            \
   }
 
+#if CONFIG_AV1_HIGHBITDEPTH
 MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad128x128)
 MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad128x64)
 MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad64x128)
@@ -1503,6 +1506,7 @@ MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad8x32)
 MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad32x8)
 MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad16x64)
 MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad64x16)
+#endif
 
 #define HIGHBD_OBFP(BT, OSDF, OVF, OSVF) \
   cpi->fn_ptr[BT].osdf = OSDF;           \
@@ -1526,6 +1530,7 @@ MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad64x16)
     return fnname(ref, ref_stride, wsrc, msk) >> 4;                       \
   }
 
+#if CONFIG_AV1_HIGHBITDEPTH
 MAKE_OBFP_SAD_WRAPPER(aom_highbd_obmc_sad128x128)
 MAKE_OBFP_SAD_WRAPPER(aom_highbd_obmc_sad128x64)
 MAKE_OBFP_SAD_WRAPPER(aom_highbd_obmc_sad64x128)
@@ -2422,6 +2427,7 @@ static void highbd_set_var_fns(AV1_COMP *const cpi) {
     }
   }
 }
+#endif  // CONFIG_AV1_HIGHBITDEPTH
 
 static void realloc_segmentation_maps(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
@@ -2646,7 +2652,9 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     cpi->ext_refresh_frame_flags_pending = 0;
   cpi->ext_refresh_frame_context_pending = 0;
 
+#if CONFIG_AV1_HIGHBITDEPTH
   highbd_set_var_fns(cpi);
+#endif
 
   // Init sequence level coding tools
   // This should not be called after the first key frame.
@@ -3069,7 +3077,9 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
   MBFP(BLOCK_64X16, aom_masked_sad64x16, aom_masked_sub_pixel_variance64x16)
 
+#if CONFIG_AV1_HIGHBITDEPTH
   highbd_set_var_fns(cpi);
+#endif
 
   /* av1_init_quantizer() is first called here. Add check in
    * av1_frame_init_quantizer() so that av1_init_quantizer is only
@@ -3290,8 +3300,16 @@ static void generate_psnr_packet(AV1_COMP *cpi) {
   struct aom_codec_cx_pkt pkt;
   int i;
   PSNR_STATS psnr;
-  aom_calc_highbd_psnr(cpi->source, &cpi->common.cur_frame->buf, &psnr,
-                       cpi->td.mb.e_mbd.bd, cpi->oxcf.input_bit_depth);
+#if CONFIG_AV1_HIGHBITDEPTH
+  // TODO(yaowu): unify these two versions into one.
+  if (cpi->common.seq_params.use_highbitdepth)
+    aom_calc_highbd_psnr(cpi->source, &cpi->common.cur_frame->buf, &psnr,
+                         cpi->td.mb.e_mbd.bd, cpi->oxcf.input_bit_depth);
+  else
+    aom_calc_psnr(cpi->source, &cpi->common.cur_frame->buf, &psnr);
+#else
+  aom_calc_psnr(cpi->source, &cpi->common.cur_frame->buf, &psnr);
+#endif
 
   for (i = 0; i < 4; ++i) {
     pkt.data.psnr.samples[i] = psnr.samples[i];
@@ -4582,11 +4600,15 @@ static void recode_loop_update_q(
     int64_t high_err_target = cpi->ambient_err;
     int64_t low_err_target = cpi->ambient_err >> 1;
 
+#if CONFIG_AV1_HIGHBITDEPTH
     if (cm->seq_params.use_highbitdepth) {
       kf_err = aom_highbd_get_y_sse(cpi->source, &cm->cur_frame->buf);
     } else {
       kf_err = aom_get_y_sse(cpi->source, &cm->cur_frame->buf);
     }
+#else
+    kf_err = aom_get_y_sse(cpi->source, &cm->cur_frame->buf);
+#endif
     // Prevent possible divide by zero error below for perfect KF
     kf_err += !kf_err;
 
@@ -4963,11 +4985,15 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
   // fixed interval. Note the reconstruction error if it is the frame before
   // the force key frame
   if (cpi->rc.next_key_frame_forced && cpi->rc.frames_to_key == 1) {
+#if CONFIG_AV1_HIGHBITDEPTH
     if (seq_params->use_highbitdepth) {
       cpi->ambient_err = aom_highbd_get_y_sse(cpi->source, &cm->cur_frame->buf);
     } else {
       cpi->ambient_err = aom_get_y_sse(cpi->source, &cm->cur_frame->buf);
     }
+#else
+    cpi->ambient_err = aom_get_y_sse(cpi->source, &cm->cur_frame->buf);
+#endif
   }
 
   cm->cur_frame->buf.color_primaries = seq_params->color_primaries;
@@ -5020,9 +5046,13 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
 
   // Compute sse and rate.
   if (sse != NULL) {
+#if CONFIG_AV1_HIGHBITDEPTH
     *sse = (seq_params->use_highbitdepth)
                ? aom_highbd_get_y_sse(cpi->source, &cm->cur_frame->buf)
                : aom_get_y_sse(cpi->source, &cm->cur_frame->buf);
+#else
+    *sse = aom_get_y_sse(cpi->source, &cm->cur_frame->buf);
+#endif
   }
   if (rate != NULL) {
     const int64_t bits = (*size << 3);
@@ -5994,9 +6024,15 @@ static void compute_internal_stats(AV1_COMP *cpi, int frame_bytes) {
       PSNR_STATS psnr;
       double frame_ssim2 = 0.0, weight = 0.0;
       aom_clear_system_state();
+#if CONFIG_AV1_HIGHBITDEPTH
       // TODO(yaowu): unify these two versions into one.
-      aom_calc_highbd_psnr(orig, recon, &psnr, bit_depth, in_bit_depth);
-
+      if (cm->seq_params.use_highbitdepth)
+        aom_calc_highbd_psnr(orig, recon, &psnr, bit_depth, in_bit_depth);
+      else
+        aom_calc_psnr(orig, recon, &psnr);
+#else
+      aom_calc_psnr(orig, recon, &psnr);
+#endif
       adjust_image_stat(psnr.psnr[1], psnr.psnr[2], psnr.psnr[3], psnr.psnr[0],
                         &cpi->psnr);
       cpi->total_sq_error += psnr.sse[0];
