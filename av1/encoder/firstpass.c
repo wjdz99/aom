@@ -162,6 +162,7 @@ static unsigned int get_prediction_error(BLOCK_SIZE bsize,
   return sse;
 }
 
+#if CONFIG_AV1_HIGHBITDEPTH
 static aom_variance_fn_t highbd_get_block_variance_fn(BLOCK_SIZE bsize,
                                                       int bd) {
   switch (bd) {
@@ -201,6 +202,7 @@ static unsigned int highbd_get_prediction_error(BLOCK_SIZE bsize,
   fn(src->buf, src->stride, ref->buf, ref->stride, &sse);
   return sse;
 }
+#endif  // CONFIG_AV1_HIGHBITDEPTH
 
 // Refine the motion search range according to the frame dimension
 // for first pass test.
@@ -231,10 +233,11 @@ static void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
 
   // Override the default variance function to use MSE.
   v_fn_ptr.vf = get_block_variance_fn(bsize);
+#if CONFIG_AV1_HIGHBITDEPTH
   if (is_cur_buf_hbd(xd)) {
     v_fn_ptr.vf = highbd_get_block_variance_fn(bsize, xd->bd);
   }
-
+#endif
   // Center the initial step/diamond search on best mv.
   tmp_err = cpi->diamond_search_sad(x, &cpi->ss_cfg[SS_CFG_SRC], &ref_mv_full,
                                     &tmp_mv, step_param, x->sadperbit16, &num00,
@@ -557,6 +560,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
         struct buf_2d unscaled_last_source_buf_2d;
 
         xd->plane[0].pre[0].buf = lst_yv12->y_buffer + recon_yoffset;
+#if CONFIG_AV1_HIGHBITDEPTH
         if (is_cur_buf_hbd(xd)) {
           motion_error = highbd_get_prediction_error(
               bsize, &x->plane[0].src, &xd->plane[0].pre[0], xd->bd);
@@ -564,6 +568,10 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
           motion_error = get_prediction_error(bsize, &x->plane[0].src,
                                               &xd->plane[0].pre[0]);
         }
+#else
+        motion_error =
+            get_prediction_error(bsize, &x->plane[0].src, &xd->plane[0].pre[0]);
+#endif
 
         // Compute the motion error of the 0,0 motion using the last source
         // frame as the reference. Skip the further motion search on
@@ -572,6 +580,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
             cpi->unscaled_last_source->y_buffer + src_yoffset;
         unscaled_last_source_buf_2d.stride =
             cpi->unscaled_last_source->y_stride;
+#if CONFIG_AV1_HIGHBITDEPTH
         if (is_cur_buf_hbd(xd)) {
           raw_motion_error = highbd_get_prediction_error(
               bsize, &x->plane[0].src, &unscaled_last_source_buf_2d, xd->bd);
@@ -579,7 +588,10 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
           raw_motion_error = get_prediction_error(bsize, &x->plane[0].src,
                                                   &unscaled_last_source_buf_2d);
         }
-
+#else
+        raw_motion_error = get_prediction_error(bsize, &x->plane[0].src,
+                                                &unscaled_last_source_buf_2d);
+#endif
         // TODO(pengchong): Replace the hard-coded threshold
         if (raw_motion_error > 25) {
           // Test last reference frame using the previous best mv as the
@@ -603,6 +615,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
           if ((current_frame->frame_number > 1) && gld_yv12 != NULL) {
             // Assume 0,0 motion with no mv overhead.
             xd->plane[0].pre[0].buf = gld_yv12->y_buffer + recon_yoffset;
+#if CONFIG_AV1_HIGHBITDEPTH
             if (is_cur_buf_hbd(xd)) {
               gf_motion_error = highbd_get_prediction_error(
                   bsize, &x->plane[0].src, &xd->plane[0].pre[0], xd->bd);
@@ -610,7 +623,10 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
               gf_motion_error = get_prediction_error(bsize, &x->plane[0].src,
                                                      &xd->plane[0].pre[0]);
             }
-
+#else
+            gf_motion_error = get_prediction_error(bsize, &x->plane[0].src,
+                                                   &xd->plane[0].pre[0]);
+#endif
             first_pass_motion_search(cpi, x, &kZeroMv, &tmp_mv,
                                      &gf_motion_error);
 
@@ -641,6 +657,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
             xd->plane[0].pre[0].buf = alt_yv12->y_buffer + alt_yv12_yoffset;
             xd->plane[0].pre[0].stride = alt_yv12->y_stride;
             int alt_motion_error;
+#if CONFIG_AV1_HIGHBITDEPTH
             if (is_cur_buf_hbd(xd)) {
               alt_motion_error = highbd_get_prediction_error(
                   bsize, &x->plane[0].src, &xd->plane[0].pre[0], xd->bd);
@@ -648,7 +665,10 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
               alt_motion_error = get_prediction_error(bsize, &x->plane[0].src,
                                                       &xd->plane[0].pre[0]);
             }
-
+#else
+            alt_motion_error = get_prediction_error(bsize, &x->plane[0].src,
+                                                    &xd->plane[0].pre[0]);
+#endif
             first_pass_motion_search(cpi, x, &kZeroMv, &tmp_mv,
                                      &alt_motion_error);
 

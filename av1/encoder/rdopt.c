@@ -962,13 +962,17 @@ static unsigned pixel_dist_visible_only(
     cpi->fn_ptr[tx_bsize].vf(src, src_stride, dst, dst_stride, &sse);
     return sse;
   }
-  const MACROBLOCKD *xd = &x->e_mbd;
 
+#if CONFIG_AV1_HIGHBITDEPTH
+  const MACROBLOCKD *xd = &x->e_mbd;
   if (is_cur_buf_hbd(xd)) {
     uint64_t sse64 = aom_highbd_sse_odd_size(src, src_stride, dst, dst_stride,
                                              visible_cols, visible_rows);
     return (unsigned int)ROUND_POWER_OF_TWO(sse64, (xd->bd - 8) * 2);
   }
+#else
+  (void)x;
+#endif
   sse = aom_sse_odd_size(src, src_stride, dst, dst_stride, visible_cols,
                          visible_rows);
   return sse;
