@@ -648,6 +648,7 @@ int get_vq_cost(MACROBLOCK *x, int plane, int blk_row, int blk_col,
   vq_qgain_idx_to_symbols(qgain_idx, &gain_sym1, &gain_sym2);
   vq_shape_idx_to_symbols(shape_idx, &shape_sym1, &shape_sym2);
 
+  // TODO(kslu): fix VQ cost with tx type search
   int gain_cost = x->vq_gain_sym1_costs[gain_sym1] +
                   x->vq_gain_sym2_costs[gain_sym1][gain_sym2];
   int sign_cost = qgain_idx > 0 ? av1_cost_literal(1) : 0;
@@ -708,15 +709,25 @@ static void write_coeffs_txb_wrap(const AV1_COMMON *cm, MACROBLOCK *x,
   const uint16_t eob = eob_txb[block];
   TXB_CTX txb_ctx = { txb_skip_ctx_txb[block], dc_sign_ctx_txb[block] };
 #if CONFIG_VQ4X4
-  const int is_inter = is_inter_block(xd->mi[0]);
-  const TxSetType tx_set_type =
-      av1_get_ext_tx_set_type(tx_size, is_inter, cm->reduced_tx_set_used);
-  if (tx_set_type == EXT_TX_SET_VQ)
-    av1_write_vq_txb(xd, w, blk_row, blk_col, plane, tx_size, &txb_ctx);
-  else
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  const TxSetType tx_set_type = av1_get_ext_tx_set_type(
+      tx_size, is_inter_block(mbmi), cm->reduced_tx_set_used);
+  if (tx_set_type == EXT_TX_SET_VQ) {
+    const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
+    int use_vq = mbmi->use_vq[plane][blk_idx];
+    aom_write_bit(w, use_vq);
+    if (use_vq)
+      av1_write_vq_txb(xd, w, blk_row, blk_col, plane, tx_size, &txb_ctx);
+    else
+      av1_write_coeffs_txb(cm, xd, w, blk_row, blk_col, plane, tx_size, tcoeff,
+                           eob, &txb_ctx);
+  } else {
 #endif  // CONFIG_VQ4X4
     av1_write_coeffs_txb(cm, xd, w, blk_row, blk_col, plane, tx_size, tcoeff,
                          eob, &txb_ctx);
+#if CONFIG_VQ4X4
+  }
+#endif
 }
 
 void av1_write_coeffs_mb(const AV1_COMMON *const cm, MACROBLOCK *x, int mi_row,
@@ -2233,8 +2244,9 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
 #if CONFIG_VQ4X4
   const TxSetType tx_set_type = av1_get_ext_tx_set_type(
       tx_size, is_inter_block(mbmi), cm->reduced_tx_set_used);
-  if (tx_set_type == EXT_TX_SET_VQ) {
-    const int blk_idx = av1_get_txk_type_index(plane_bsize, blk_row, blk_col);
+  const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
+  int use_vq = mbmi->use_vq[plane][blk_idx];
+  if (tx_set_type == EXT_TX_SET_VQ && use_vq) {
     int gain_sym1, gain_sym2, shape_sym1, shape_sym2;
     vq_qgain_idx_to_symbols(mbmi->qgain_idx[plane][blk_idx], &gain_sym1,
                             &gain_sym2);

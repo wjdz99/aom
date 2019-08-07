@@ -310,7 +310,9 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_VQ4X4
   TxSetType tx_set_type = av1_get_ext_tx_set_type(tx_size, is_inter_block(mbmi),
                                                   cm->reduced_tx_set_used);
-  if (tx_set_type == EXT_TX_SET_VQ) {
+  const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
+  int use_vq = mbmi->use_vq[plane][blk_idx];
+  if (tx_set_type == EXT_TX_SET_VQ && use_vq) {
     int64_t dummy_sse = 0;
     av1_vec_quant(x, plane, blk_row, blk_col, plane_bsize, tx_size, &dummy_sse);
     p->eobs[block] = 0;
@@ -347,7 +349,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_VQ4X4
   }
 
-  if (tx_set_type == EXT_TX_SET_VQ) {
+  if (tx_set_type == EXT_TX_SET_VQ && use_vq) {
     *(args->skip) = 0;
     av1_vec_dequant_add(xd, plane, blk_row, blk_col, dst, pd->dst.stride,
                         tx_size);
@@ -686,7 +688,9 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_VQ4X4
   TxSetType tx_set_type = av1_get_ext_tx_set_type(tx_size, is_inter_block(mbmi),
                                                   cm->reduced_tx_set_used);
-  if (tx_set_type == EXT_TX_SET_VQ) {
+  const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
+  int use_vq = mbmi->use_vq[plane][blk_idx];
+  if (tx_set_type == EXT_TX_SET_VQ && use_vq) {
     av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
     int64_t dummy_sse = 0;
     av1_vec_quant(x, plane, blk_row, blk_col, plane_bsize, tx_size, &dummy_sse);
@@ -723,7 +727,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_VQ4X4
   }
 
-  if (tx_set_type == EXT_TX_SET_VQ) {
+  if (tx_set_type == EXT_TX_SET_VQ && use_vq) {
     av1_vec_dequant_add(xd, plane, blk_row, blk_col, dst, dst_stride, tx_size);
     *(args->skip) = 0;
 

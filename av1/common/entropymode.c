@@ -1391,11 +1391,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif
 #if CONFIG_VQ4X4
   av1_copy(fc->vq_gain_sym1_cdf, default_vq_gain_sym1_cdf);
-  for (int i = 0; i < VQ_SHAPE_SYMBOLS_1; i++)
-    av1_copy(fc->vq_gain_sym2_cdf, default_vq_gain_sym2_cdf);
+  av1_copy(fc->vq_gain_sym2_cdf, default_vq_gain_sym2_cdf);
   av1_copy(fc->vq_shape_sym1_cdf, default_vq_shape_sym1_cdf);
-  for (int i = 0; i < VQ_SHAPE_SYMBOLS_1; i++)
-    av1_copy(fc->vq_shape_sym2_cdf, default_vq_shape_sym2_cdf);
+  av1_copy(fc->vq_shape_sym2_cdf, default_vq_shape_sym2_cdf);
 #endif
   av1_copy(fc->skip_mode_cdfs, default_skip_mode_cdfs);
   av1_copy(fc->skip_cdfs, default_skip_cdfs);
