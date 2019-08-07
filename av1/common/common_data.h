@@ -574,8 +574,8 @@ static const struct {
 };
 /* clang-format on */
 
-static const int intra_mode_context[INTRA_MODES] = {
-  0, 1, 2, 3, 4, 4, 4, 4, 3, 0, 1, 2, 0,
+static const int intra_mode_context[UV_INTRA_MODES] = {
+  0, 1, 2, 3, 4, 4, 4, 4, 3, 0, 1, 2, 0, 5,
 };
 
 // Note: this is also used in unit tests. So whenever one changes the table,

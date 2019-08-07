@@ -50,6 +50,9 @@
 #include "third_party/libyuv/include/libyuv/scale.h"
 #endif
 
+extern int total;  // MC 2019
+extern float bit_length0, bit_length1;
+
 /* Swallow warnings about unused results of fread/fwrite */
 static size_t wrap_fread(void *ptr, size_t size, size_t nmemb, FILE *stream) {
   return fread(ptr, size, nmemb, stream);
@@ -2651,6 +2654,16 @@ int main(int argc, const char **argv_) {
     }
   }
 #endif
+
+  // MC 2019
+  /*FILE *fp = fopen("bit_length.txt", "a");
+  if (fp) {
+    //fprintf(fp, "%f, %f, %d\n", bit_length0, bit_length1, total);
+    fprintf(fp, "%f\n", bit_length1);
+  }
+  printf("%f %f %d %f %f\n", bit_length0, bit_length1, total,
+         bit_length0 / total, bit_length1 / total);  // MC 2019*/
+  // printf("%f,%f\n", bit_length0 / total, bit_length1 / total);  // MC 2019
 
   if (allocated_raw_shift) aom_img_free(&raw_shift);
   aom_img_free(&raw);

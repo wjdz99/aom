@@ -965,7 +965,7 @@ static void sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
   if (allow_update_cdf) {
     const CFL_ALLOWED_TYPE cfl_allowed = is_cfl_allowed(xd);
     update_cdf(fc->uv_mode_cdf[cfl_allowed][y_mode], uv_mode,
-               UV_INTRA_MODES - !cfl_allowed);
+               UV_INTRA_MODES - !cfl_allowed);  // MC 2019 UV
   }
   if (uv_mode == UV_CFL_PRED) {
     const int8_t joint_sign = mbmi->cfl_alpha_signs;

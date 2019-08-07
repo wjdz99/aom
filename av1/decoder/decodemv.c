@@ -130,11 +130,32 @@ static int read_delta_lflevel(const AV1_COMMON *const cm, aom_reader *r,
 
 static UV_PREDICTION_MODE read_intra_mode_uv(FRAME_CONTEXT *ec_ctx,
                                              aom_reader *r,
+#if CONFIG_INTRA_ENTROPY
+                                             const MB_MODE_INFO *above_mi,
+                                             const MB_MODE_INFO *left_mi,
+                                             const MB_MODE_INFO *aboveleft_mi,
                                              CFL_ALLOWED_TYPE cfl_allowed,
+#else
+                                             CFL_ALLOWED_TYPE cfl_allowed,
+#endif  // CONFIG_INTRA_ENTROPY
                                              PREDICTION_MODE y_mode) {
   const UV_PREDICTION_MODE uv_mode =
       aom_read_symbol(r, ec_ctx->uv_mode_cdf[cfl_allowed][y_mode],
                       UV_INTRA_MODES - !cfl_allowed, ACCT_STR);
+
+  UV_PREDICTION_MODE above, left, aboveleft;
+  int64_t above_u_var, left_u_var, al_u_var, above_v_var, left_v_var, al_v_var;
+  const uint64_t *above_hist[2], *left_hist[2], *al_hist[2];
+  av1_block_uv_mode(above_mi, &above, above_hist, &above_u_var, &above_v_var);
+  av1_block_uv_mode(left_mi, &left, left_hist, &left_u_var, &left_v_var);
+  av1_block_uv_mode(aboveleft_mi, &aboveleft, al_hist, &al_u_var, &al_v_var);
+  /*  FILE *fp = fopen("intra_read.csv", "a");
+    if (fp) {
+      fprintf(fp, "%f,%f|%f,%f|%f,%f\n",(float)above_u_var,
+    (float)above_v_var,(float)left_u_var, (float)left_v_var,(float)al_u_var,
+    (float)al_v_var); fclose(fp);
+    }*/
+
   return uv_mode;
 }
 
@@ -887,8 +908,14 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
       is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
                           xd->plane[1].subsampling_y)) {
     xd->cfl.is_chroma_reference = 1;
+#if CONFIG_INTRA_ENTROPY
+    const MB_MODE_INFO *const chm_above_mi = xd->chroma_above_mbmi;
+    const MB_MODE_INFO *const chm_left_mi = xd->chroma_left_mbmi;
+    const MB_MODE_INFO *const chm_aboveleft_mi = xd->chroma_aboveleft_mbmi;
+#endif  // CONFIG_INTRA_ENTROPY
     mbmi->uv_mode =
-        read_intra_mode_uv(ec_ctx, r, is_cfl_allowed(xd), mbmi->mode);
+        read_intra_mode_uv(ec_ctx, r, chm_above_mi, chm_left_mi,
+                           chm_aboveleft_mi, is_cfl_allowed(xd), mbmi->mode);
     if (mbmi->uv_mode == UV_CFL_PRED) {
       mbmi->cfl_alpha_idx = read_cfl_alphas(ec_ctx, r, &mbmi->cfl_alpha_signs);
     }
@@ -1154,8 +1181,14 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
                           xd->plane[1].subsampling_y);
   xd->cfl.is_chroma_reference = has_chroma;
   if (!cm->seq_params.monochrome && has_chroma) {
+#if CONFIG_INTRA_ENTROPY
+    const MB_MODE_INFO *const chm_above_mi = xd->chroma_above_mbmi;
+    const MB_MODE_INFO *const chm_left_mi = xd->chroma_left_mbmi;
+    const MB_MODE_INFO *const chm_aboveleft_mi = xd->chroma_aboveleft_mbmi;
+#endif  // CONFIG_INTRA_ENTROPY
     mbmi->uv_mode =
-        read_intra_mode_uv(ec_ctx, r, is_cfl_allowed(xd), mbmi->mode);
+        read_intra_mode_uv(ec_ctx, r, chm_above_mi, chm_left_mi,
+                           chm_aboveleft_mi, is_cfl_allowed(xd), mbmi->mode);
     if (mbmi->uv_mode == UV_CFL_PRED) {
       mbmi->cfl_alpha_idx =
           read_cfl_alphas(xd->tile_ctx, r, &mbmi->cfl_alpha_signs);

@@ -38,8 +38,27 @@ const uint64_t *av1_block_mode(const MB_MODE_INFO *mi, PREDICTION_MODE *mode,
   } else {
     assert(!is_inter_block(mi) || is_intrabc_block(mi));
     *mode = mi->mode;
-    *recon_var = mi->recon_var;
-    return mi->gradient_hist;
+    *recon_var = mi->y_recon_var;
+    return mi->y_gradient_hist;
+  }
+}
+
+void av1_block_uv_mode(const MB_MODE_INFO *mi, UV_PREDICTION_MODE *mode,
+                       const uint64_t **grad_hist, int64_t *u_recon_var,
+                       int64_t *v_recon_var) {
+  if (!mi) {
+    *mode = 255;
+    *u_recon_var = 0;
+    *v_recon_var = 0;
+    grad_hist[0] = NULL;
+    grad_hist[1] = NULL;
+  } else {
+    assert(!is_inter_block(mi) || is_intrabc_block(mi));
+    *mode = mi->uv_mode;
+    *u_recon_var = mi->u_recon_var;
+    *v_recon_var = mi->v_recon_var;
+    grad_hist[0] = mi->u_gradient_hist;
+    grad_hist[1] = mi->v_gradient_hist;
   }
 }
 
@@ -47,10 +66,10 @@ void av1_get_intra_block_feature(float *features, const MB_MODE_INFO *above_mi,
                                  const MB_MODE_INFO *left_mi,
                                  const MB_MODE_INFO *aboveleft_mi) {
   PREDICTION_MODE above, left, aboveleft;
-  int64_t above_var, left_var, ab_var;
+  int64_t above_var, left_var, al_var;
   const uint64_t *above_hist = av1_block_mode(above_mi, &above, &above_var);
   const uint64_t *left_hist = av1_block_mode(left_mi, &left, &left_var);
-  const uint64_t *al_hist = av1_block_mode(aboveleft_mi, &aboveleft, &ab_var);
+  const uint64_t *al_hist = av1_block_mode(aboveleft_mi, &aboveleft, &al_var);
 
   float hist_total[3] = { 0.f, 0.f, 0.f };
   int pt = 0;
@@ -103,7 +122,7 @@ void av1_get_intra_block_feature(float *features, const MB_MODE_INFO *above_mi,
 #if INTRA_MODEL == 0
   features[pt++] = above_var / 12534.f;
   features[pt++] = left_var / 12534.f;
-  features[pt++] = ab_var / 12534.f;
+  features[pt++] = al_var / 12534.f;
 #endif  // INTRA_MODEL
 #if INTRA_MODEL != 1
   for (int i = 0; i < 5; ++i) {
@@ -129,6 +148,90 @@ void av1_pdf2cdf(const float *pdf, aom_cdf_prob *cdf, int nsymbs) {
     cdf[i] = (aom_cdf_prob)(pre * CDF_PROB_TOP);
   }
 }
+
+void av1_get_intra_uv_block_feature(float *features,
+                                    const MB_MODE_INFO *above_mi,
+                                    const MB_MODE_INFO *left_mi,
+                                    const MB_MODE_INFO *aboveleft_mi) {
+  UV_PREDICTION_MODE above, left, aboveleft;
+  int64_t above_u_var, left_u_var, al_u_var, above_v_var, left_v_var, al_v_var;
+  const uint64_t *above_hist[2], *left_hist[2], *al_hist[2];
+  av1_block_uv_mode(above_mi, &above, above_hist, &above_u_var, &above_v_var);
+  av1_block_uv_mode(left_mi, &left, left_hist, &left_u_var, &left_v_var);
+  av1_block_uv_mode(aboveleft_mi, &aboveleft, al_hist, &al_u_var, &al_v_var);
+
+  float above_hist1[8], left_hist1[8], al_hist1[8];
+  float hist_total[3] = { 0.f, 0.f, 0.f };
+  int pt = 0;
+
+  if (above_hist[0]) {
+    for (int i = 0; i < 8; ++i) {
+      above_hist1[i] = (float)above_hist[0][i] + (float)above_hist[1][i];
+      hist_total[0] += above_hist1[i];
+    }
+  }
+  if (hist_total[0] > 0.1f) {
+    for (int i = 0; i < 8; ++i) {
+      features[pt++] = above_hist1[i] / hist_total[0];
+    }
+  } else {
+    // deal with all 0 case
+    for (int i = 0; i < 8; ++i) {
+      features[pt++] = 0.125f;
+    }
+  }
+
+  if (left_hist[0]) {
+    for (int i = 0; i < 8; ++i) {
+      left_hist1[i] = (float)left_hist[0][i] + (float)left_hist[1][i];
+      hist_total[1] += (float)left_hist1[i];
+    }
+  }
+  if (hist_total[1] > 0.1f) {
+    for (int i = 0; i < 8; ++i) {
+      features[pt++] = left_hist1[i] / hist_total[1];
+    }
+  } else {
+    for (int i = 0; i < 8; ++i) {
+      features[pt++] = 0.125f;
+    }
+  }
+
+  if (al_hist[0]) {
+    for (int i = 0; i < 8; ++i) {
+      al_hist1[i] = (float)al_hist[0][i] + (float)al_hist[1][i];
+      hist_total[2] += (float)al_hist1[i];
+    }
+  }
+  if (hist_total[2] > 0.1f) {
+    for (int i = 0; i < 8; ++i) {
+      features[pt++] = al_hist1[i] / hist_total[2];
+    }
+  } else {
+    for (int i = 0; i < 8; ++i) {
+      features[pt++] = 0.125f;
+    }
+  }
+  features[pt++] = ((float)above_u_var + (float)above_v_var) / 5306.f;
+  features[pt++] = ((float)left_u_var + (float)left_v_var) / 5306.f;
+  features[pt++] = ((float)al_u_var + (float)al_v_var) / 5306.f;
+  for (int i = 0; i < 6; ++i) {
+    features[pt++] = (above < UV_INTRA_MODES && intra_mode_context[above] == i)
+                         ? 1.0f
+                         : 0.0f;
+  }
+  for (int i = 0; i < 6; ++i) {
+    features[pt++] =
+        (left < UV_INTRA_MODES && intra_mode_context[left] == i) ? 1.0f : 0.0f;
+  }
+  for (int i = 0; i < 6; ++i) {
+    features[pt++] =
+        (aboveleft < UV_INTRA_MODES && intra_mode_context[aboveleft] == i)
+            ? 1.0f
+            : 0.0f;
+  }
+}
+
 #endif  // CONFIG_INTRA_ENTROPY
 
 void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
@@ -287,22 +390,41 @@ static void get_highbd_gradient_hist(const uint8_t *dst8, int stride, int rows,
 
 void av1_get_gradient_hist(const MACROBLOCKD *const xd,
                            MB_MODE_INFO *const mbmi, BLOCK_SIZE bsize) {
-  const int dst_stride = xd->plane[0].dst.stride;
-  const uint8_t *dst = xd->plane[0].dst.buf;
+  const int y_stride = xd->plane[0].dst.stride;
+  const uint8_t *y_dst = xd->plane[0].dst.buf;
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
-  const int block_rows =
+  const int y_block_rows =
       xd->mb_to_bottom_edge >= 0 ? rows : (xd->mb_to_bottom_edge >> 3) + rows;
-  const int block_cols =
+  const int y_block_cols =
       xd->mb_to_right_edge >= 0 ? cols : (xd->mb_to_right_edge >> 3) + cols;
 
-  av1_zero(mbmi->gradient_hist);
+  const int u_stride = xd->plane[1].dst.stride;
+  const uint8_t *u_dst = xd->plane[1].dst.buf;
+  const int v_stride = xd->plane[2].dst.stride;
+  const uint8_t *v_dst = xd->plane[2].dst.buf;
+  const int ss_x = xd->plane[1].subsampling_x;
+  const int ss_y = xd->plane[1].subsampling_y;
+  const int uv_block_rows = y_block_rows >> ss_y;
+  const int uv_block_cols = y_block_cols >> ss_x;
+
+  av1_zero(mbmi->y_gradient_hist);
+  av1_zero(mbmi->u_gradient_hist);
+  av1_zero(mbmi->v_gradient_hist);
   if (is_cur_buf_hbd(xd)) {
-    get_highbd_gradient_hist(dst, dst_stride, block_rows, block_cols,
-                             mbmi->gradient_hist);
+    get_highbd_gradient_hist(y_dst, y_stride, y_block_rows, y_block_cols,
+                             mbmi->y_gradient_hist);
+    get_highbd_gradient_hist(u_dst, u_stride, uv_block_rows, uv_block_cols,
+                             mbmi->u_gradient_hist);
+    get_highbd_gradient_hist(v_dst, v_stride, uv_block_rows, uv_block_cols,
+                             mbmi->v_gradient_hist);
   } else {
-    get_gradient_hist(dst, dst_stride, block_rows, block_cols,
-                      mbmi->gradient_hist);
+    get_gradient_hist(y_dst, y_stride, y_block_rows, y_block_cols,
+                      mbmi->y_gradient_hist);
+    get_gradient_hist(u_dst, u_stride, uv_block_rows, uv_block_cols,
+                      mbmi->u_gradient_hist);
+    get_gradient_hist(v_dst, v_stride, uv_block_rows, uv_block_cols,
+                      mbmi->v_gradient_hist);
   }
 }
 
@@ -341,18 +463,35 @@ static int64_t highbd_variance(const uint8_t *dst8, int stride, int w, int h) {
 
 void av1_get_recon_var(const MACROBLOCKD *const xd, MB_MODE_INFO *const mbmi,
                        BLOCK_SIZE bsize) {
-  const int dst_stride = xd->plane[0].dst.stride;
-  const uint8_t *dst = xd->plane[0].dst.buf;
+  const int y_stride = xd->plane[0].dst.stride;
+  const uint8_t *y_dst = xd->plane[0].dst.buf;
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
-  const int block_rows =
+  const int y_block_rows =
       xd->mb_to_bottom_edge >= 0 ? rows : (xd->mb_to_bottom_edge >> 3) + rows;
-  const int block_cols =
+  const int y_block_cols =
       xd->mb_to_right_edge >= 0 ? cols : (xd->mb_to_right_edge >> 3) + cols;
+
+  const int u_stride = xd->plane[1].dst.stride;
+  const uint8_t *u_dst = xd->plane[1].dst.buf;
+  const int v_stride = xd->plane[2].dst.stride;
+  const uint8_t *v_dst = xd->plane[2].dst.buf;
+  const int ss_x = xd->plane[1].subsampling_x;
+  const int ss_y = xd->plane[1].subsampling_y;
+  const int uv_block_rows = y_block_rows >> ss_y;
+  const int uv_block_cols = y_block_cols >> ss_x;
+
   if (is_cur_buf_hbd(xd)) {
-    mbmi->recon_var = highbd_variance(dst, dst_stride, block_cols, block_rows);
+    mbmi->y_recon_var =
+        highbd_variance(y_dst, y_stride, y_block_cols, y_block_rows);
+    mbmi->u_recon_var =
+        highbd_variance(u_dst, u_stride, uv_block_cols, uv_block_rows);
+    mbmi->v_recon_var =
+        highbd_variance(v_dst, v_stride, uv_block_cols, uv_block_rows);
   } else {
-    mbmi->recon_var = variance(dst, dst_stride, block_cols, block_rows);
+    mbmi->y_recon_var = variance(y_dst, y_stride, y_block_cols, y_block_rows);
+    mbmi->u_recon_var = variance(u_dst, u_stride, uv_block_cols, uv_block_rows);
+    mbmi->v_recon_var = variance(v_dst, v_stride, uv_block_cols, uv_block_rows);
   }
 }
 #endif  // CONFIG_INTRA_ENTROPY
