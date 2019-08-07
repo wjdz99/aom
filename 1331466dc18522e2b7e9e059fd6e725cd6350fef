@@ -46,6 +46,30 @@
       "revId": "1331466dc18522e2b7e9e059fd6e725cd6350fef",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9340369_a2308d37",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-08-07T01:56:56Z",
+      "side": 1,
+      "message": "\u003e In definition of CONFIG_LOWBITDEPTH, it says to \"Enables 8-bit optimized pipeline.\" and it\u0027s set to 1 by default. So libaom is built by default to include 8-bit pipeline. I have been wondering what\u0027s the intent of having this flag? Is there a case where libaom is preferred not having 8-bit pipeline?\n\u003e \n\nIt was added mostly for the normative branch to force everything through one code path.\n\n\u003e Also this flag isn\u0027t used much in the code, can we just remove it? In that case, libaom will be built with 8-bit all the time. I assume other applications except WebRTC don\u0027t care about binary size.\n\nI think it would make sense. Yaowu may have proposed it before, check with him to see what he thinks.",
+      "parentUuid": "0340a206_ff7376ca",
+      "range": {
+        "startLine": 7,
+        "startChar": 4,
+        "endLine": 7,
+        "endChar": 27
+      },
+      "revId": "1331466dc18522e2b7e9e059fd6e725cd6350fef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
