@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "44a4f46b_a5dc6b8a",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2019-08-07T16:04:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9045aa09_6e8f4a4c",
+      "range": {
+        "startLine": 578,
+        "startChar": 46,
+        "endLine": 578,
+        "endChar": 53
+      },
+      "revId": "b6541f4d3a974d3754035375fc5da5a489d8dcff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7f9ee0db_701fb849",
         "filename": "apps/aomenc.c",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2019-08-07T01:38:47Z",
       "side": 1,
       "message": "this name is confusing to me.   what about something like force-single-frame-video?",
+      "range": {
+        "startLine": 543,
+        "startChar": 23,
+        "endLine": 543,
+        "endChar": 35
+      },
+      "revId": "b6541f4d3a974d3754035375fc5da5a489d8dcff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc60d5a4_cced89a7",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2019-08-07T16:04:46Z",
+      "side": 1,
+      "message": "done, changed name to force_video_mode",
+      "parentUuid": "7f9ee0db_701fb849",
       "range": {
         "startLine": 543,
         "startChar": 23,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "d89a64f0_71839da0",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1112,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2019-08-07T16:04:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e4029bd_7371a752",
+      "range": {
+        "startLine": 1112,
+        "startChar": 23,
+        "endLine": 1112,
+        "endChar": 44
+      },
+      "revId": "b6541f4d3a974d3754035375fc5da5a489d8dcff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bad5c2e9_060a0420",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 1
@@ -91,6 +163,30 @@
       "revId": "b6541f4d3a974d3754035375fc5da5a489d8dcff",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a24670e9_615a3527",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1032,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2019-08-07T16:04:46Z",
+      "side": 1,
+      "message": "It is a good question, however it is slightly more complicated. i.e. encoder does not know if there is only one frame when it was told the limit of frames is 5 for example. \n\nOne thing that can make sense is for encoder to output every single frame as a separate image file when its operating in still picture mode with many input frames.",
+      "parentUuid": "bad5c2e9_060a0420",
+      "range": {
+        "startLine": 1032,
+        "startChar": 59,
+        "endLine": 1032,
+        "endChar": 64
+      },
+      "revId": "b6541f4d3a974d3754035375fc5da5a489d8dcff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
