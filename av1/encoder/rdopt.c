@@ -3134,9 +3134,13 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 #if CONFIG_DIST_8X8
   if (x->using_dist_8x8) use_transform_domain_distortion = 0;
 #endif
+  int use_transform_domain_distortion_final =
+      (cpi->sf.use_transform_domain_distortion > 0) &&
+      (block_mse_q8 >= cpi->tx_domain_dist_threshold_final) &&
+      txsize_sqr_up_map[tx_size] != TX_64X64;
   int calc_pixel_domain_distortion_final =
       cpi->sf.use_transform_domain_distortion == 1 &&
-      use_transform_domain_distortion && x->rd_model != LOW_TXFM_RD;
+      use_transform_domain_distortion_final && x->rd_model != LOW_TXFM_RD;
   if (calc_pixel_domain_distortion_final &&
       (txk_allowed < TX_TYPES || allowed_tx_mask == 0x0001))
     calc_pixel_domain_distortion_final = use_transform_domain_distortion = 0;
