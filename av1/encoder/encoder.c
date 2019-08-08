@@ -416,19 +416,18 @@ void av1_initialize_enc(void) {
 }
 
 static void dealloc_context_buffers_ext(AV1_COMP *cpi) {
-  if (cpi->mbmi_ext_base) {
-    aom_free(cpi->mbmi_ext_base);
-    cpi->mbmi_ext_base = NULL;
+  if (cpi->mbmi_ext_base_frame) {
+    aom_free(cpi->mbmi_ext_base_frame);
+    cpi->mbmi_ext_base_frame = NULL;
   }
 }
 
 static void alloc_context_buffers_ext(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
   int mi_size = cm->mi_cols * cm->mi_rows;
-
   dealloc_context_buffers_ext(cpi);
-  CHECK_MEM_ERROR(cm, cpi->mbmi_ext_base,
-                  aom_calloc(mi_size, sizeof(*cpi->mbmi_ext_base)));
+  CHECK_MEM_ERROR(cm, cpi->mbmi_ext_base_frame,
+                  aom_calloc(mi_size, sizeof(*cpi->mbmi_ext_base_frame)));
 }
 
 static void reset_film_grain_chroma_params(aom_film_grain_t *pars) {
@@ -531,6 +530,9 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
 
   aom_free(cm->tpl_mvs);
   cm->tpl_mvs = NULL;
+
+  aom_free(cpi->td.mb.mbmi_ext);
+  cpi->td.mb.mbmi_ext = NULL;
 
   av1_free_ref_frame_buffers(cm->buffer_pool);
   av1_free_txb_buf(cpi);
@@ -928,12 +930,12 @@ static void set_tile_info(AV1_COMP *cpi) {
 static void update_frame_size(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
-
+  int mi_size = cm->mi_cols * cm->mi_rows;
   av1_set_mb_mi(cm, cm->width, cm->height);
   av1_init_context_buffers(cm);
   av1_init_macroblockd(cm, xd, NULL);
-  memset(cpi->mbmi_ext_base, 0,
-         cm->mi_rows * cm->mi_cols * sizeof(*cpi->mbmi_ext_base));
+  memset(cpi->mbmi_ext_base_frame, 0,
+         mi_size * sizeof(*cpi->mbmi_ext_base_frame));
   set_tile_info(cpi);
 }
 
@@ -2749,6 +2751,13 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
                   (int32_t *)aom_memalign(
                       16, MAX_SB_SQUARE * sizeof(*cpi->td.mb.mask_buf)));
 
+  {
+    int sb_mi_size = mi_size_wide[cm->seq_params.sb_size] *
+                     mi_size_wide[cm->seq_params.sb_size];
+    CHECK_MEM_ERROR(cm, cpi->td.mb.mbmi_ext,
+                    aom_calloc(sb_mi_size, sizeof(*cpi->td.mb.mbmi_ext)));
+  }
+
   av1_set_speed_features_framesize_independent(cpi, oxcf->speed);
   av1_set_speed_features_framesize_dependent(cpi, oxcf->speed);
 
@@ -3144,6 +3153,7 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       aom_free(thread_data->td->mask_buf);
       aom_free(thread_data->td->counts);
       av1_free_pc_tree(thread_data->td, num_planes);
+      aom_free(thread_data->td->mbmi_ext);
       aom_free(thread_data->td);
     }
   }
