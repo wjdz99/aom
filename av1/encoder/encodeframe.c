@@ -654,6 +654,7 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   if (ctx->rd_mode_is_ready) {
     x->skip = ctx->rd_stats.skip;
     *x->mbmi_ext = ctx->mbmi_ext;
+    copy_mbmi_ext_params_to_mbmi_ext_frame(x);
     return;
   }
 
@@ -764,6 +765,7 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, rd_pick_sb_modes_time);
 #endif
+  copy_mbmi_ext_params_to_mbmi_ext_frame(x);
 }
 
 static void update_inter_mode_stats(FRAME_CONTEXT *fc, FRAME_COUNTS *counts,
@@ -1441,6 +1443,7 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 
   if (!dry_run) {
     x->mbmi_ext->cb_offset = x->cb_offset;
+    x->mbmi_ext_frame->cb_offset = x->cb_offset;
     assert(x->cb_offset <
            (1 << num_pels_log2_lookup[cpi->common.seq_params.sb_size]));
   }
@@ -1522,7 +1525,7 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
       update_stats(&cpi->common, td, mi_row, mi_col);
     }
   }
-
+  copy_mbmi_ext_params_to_mbmi_ext_frame(x);
   x->rdmult = origin_mult;
 }
 
@@ -3910,6 +3913,7 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
   const int mib_size = cm->seq_params.mib_size;
   const int mib_size_log2 = cm->seq_params.mib_size_log2;
   const int sb_row = (mi_row - tile_info->mi_row_start) >> mib_size_log2;
+  int sb_mi_size = av1_get_sb_mi_size(cpi);
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, encode_sb_time);
@@ -3931,6 +3935,7 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
   // Code each SB in the row
   for (int mi_col = tile_info->mi_col_start, sb_col_in_tile = 0;
        mi_col < tile_info->mi_col_end; mi_col += mib_size, sb_col_in_tile++) {
+    memset(x->mbmi_ext, 0, sb_mi_size * sizeof(*x->mbmi_ext));
     (*(cpi->row_mt_sync_read_ptr))(&tile_data->row_mt_sync, sb_row,
                                    sb_col_in_tile);
     if (tile_data->allow_update_cdf && (cpi->row_mt == 1) &&

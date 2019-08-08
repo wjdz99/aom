@@ -93,6 +93,15 @@ typedef struct {
 } MB_MODE_INFO_EXT;
 
 typedef struct {
+  CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE];
+  uint16_t weight[MAX_REF_MV_STACK_SIZE];
+  int_mv global_mvs[REF_FRAMES];
+  int cb_offset;
+  int16_t mode_context;
+  uint8_t ref_mv_count;
+} MB_MODE_INFO_EXT_FRAME;
+
+typedef struct {
   int col_min;
   int col_max;
   int row_min;
@@ -226,6 +235,7 @@ struct macroblock {
 
   MACROBLOCKD e_mbd;
   MB_MODE_INFO_EXT *mbmi_ext;
+  MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame;
   int skip_block;
   int qindex;
 
