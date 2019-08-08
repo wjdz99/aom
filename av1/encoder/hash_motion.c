@@ -20,20 +20,6 @@
 static const int crc_bits = 16;
 static const int block_size_bits = 3;
 
-static void hash_table_clear_all(hash_table *p_hash_table) {
-  if (p_hash_table->p_lookup_table == NULL) {
-    return;
-  }
-  int max_addr = 1 << (crc_bits + block_size_bits);
-  for (int i = 0; i < max_addr; i++) {
-    if (p_hash_table->p_lookup_table[i] != NULL) {
-      aom_vector_destroy(p_hash_table->p_lookup_table[i]);
-      aom_free(p_hash_table->p_lookup_table[i]);
-      p_hash_table->p_lookup_table[i] = NULL;
-    }
-  }
-}
-
 // TODO(youzhou@microsoft.com): is higher than 8 bits screen content supported?
 // If yes, fix this function
 static void get_pixels_in_1D_char_array_by_block_2x2(uint8_t *y_src, int stride,
@@ -113,15 +99,29 @@ void av1_hash_table_init(hash_table *p_hash_table, MACROBLOCK *x) {
   p_hash_table->p_lookup_table = NULL;
 }
 
+void av1_hash_table_clear_all(hash_table *p_hash_table) {
+  if (p_hash_table->p_lookup_table == NULL) {
+    return;
+  }
+  int max_addr = 1 << (crc_bits + block_size_bits);
+  for (int i = 0; i < max_addr; i++) {
+    if (p_hash_table->p_lookup_table[i] != NULL) {
+      aom_vector_destroy(p_hash_table->p_lookup_table[i]);
+      aom_free(p_hash_table->p_lookup_table[i]);
+      p_hash_table->p_lookup_table[i] = NULL;
+    }
+  }
+}
+
 void av1_hash_table_destroy(hash_table *p_hash_table) {
-  hash_table_clear_all(p_hash_table);
+  av1_hash_table_clear_all(p_hash_table);
   aom_free(p_hash_table->p_lookup_table);
   p_hash_table->p_lookup_table = NULL;
 }
 
 void av1_hash_table_create(hash_table *p_hash_table) {
   if (p_hash_table->p_lookup_table != NULL) {
-    hash_table_clear_all(p_hash_table);
+    av1_hash_table_clear_all(p_hash_table);
     return;
   }
   const int max_addr = 1 << (crc_bits + block_size_bits);
