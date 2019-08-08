@@ -645,6 +645,7 @@ typedef struct ThreadData {
   int intrabc_used;
   int deltaq_used;
   FRAME_CONTEXT *tctx;
+  MB_MODE_INFO_EXT *mbmi_ext;
 } ThreadData;
 
 struct EncWorkerData;
@@ -762,7 +763,7 @@ typedef struct AV1_COMP {
   QUANTS quants;
   ThreadData td;
   FRAME_COUNTS counts;
-  MB_MODE_INFO_EXT *mbmi_ext_base;
+  MB_MODE_INFO_EXT_FRAME *mbmi_ext_base_frame;
   CB_COEFF_BUFFER *coeff_buffer_base;
   Dequants dequants;
   AV1_COMMON common;
@@ -1386,8 +1387,25 @@ static INLINE void set_mode_info_offsets(const AV1_COMP *const cpi,
   const int mi_alloc_size_1d = cpi->mi_alloc_size_1d;
   const int mi_alloc_row = (mi_row + mi_alloc_size_1d - 1) / mi_alloc_size_1d;
   const int mi_alloc_col = (mi_col + mi_alloc_size_1d - 1) / mi_alloc_size_1d;
-  x->mbmi_ext =
-      cpi->mbmi_ext_base + (mi_alloc_row * cpi->mi_alloc_cols + mi_alloc_col);
+  x->mbmi_ext_frame = cpi->mbmi_ext_base_frame +
+                      (mi_alloc_row * cpi->mi_alloc_cols + mi_alloc_col);
+}
+
+static INLINE void copy_mbmi_ext_params_to_mbmi_ext_frame(MACROBLOCK *const x) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+  for (int i = 0; i < MAX_REF_MV_STACK_SIZE; i++) {
+    x->mbmi_ext_frame->ref_mv_stack[i].comp_mv =
+        x->mbmi_ext->ref_mv_stack[ref_frame_type][i].comp_mv;
+    x->mbmi_ext_frame->ref_mv_stack[i].this_mv =
+        x->mbmi_ext->ref_mv_stack[ref_frame_type][i].this_mv;
+    x->mbmi_ext_frame->weight[i] = x->mbmi_ext->weight[ref_frame_type][i];
+  }
+  x->mbmi_ext_frame->mode_context = x->mbmi_ext->mode_context[ref_frame_type];
+  x->mbmi_ext_frame->ref_mv_count = x->mbmi_ext->ref_mv_count[ref_frame_type];
+  memcpy(x->mbmi_ext_frame->global_mvs, x->mbmi_ext->global_mvs,
+         sizeof(x->mbmi_ext->global_mvs));
 }
 
 // Check to see if the given partition size is allowed for a specified number
