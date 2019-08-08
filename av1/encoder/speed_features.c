@@ -50,7 +50,7 @@ static uint8_t intrabc_max_mesh_pct[MAX_MESH_SPEED + 1] = { 100, 100, 100,
 // based on block MSE
 // TODO(any): Experiment the threshold logic based on variance metric
 static unsigned int tx_domain_dist_thresholds[MAX_TX_DOMAIN_EVAL_SPEED + 1] = {
-  UINT_MAX, 22026, 22026, 22026, 22026, 0
+  UINT_MAX, 22026, 22026, 1096, 1096, 0
 };
 // Threshold values to be used for disabling coeff RD-optimization
 // based on block MSE
