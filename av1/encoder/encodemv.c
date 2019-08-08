@@ -217,6 +217,44 @@ int_mv av1_get_ref_mv(const MACROBLOCK *x, int ref_idx) {
                                    x->mbmi_ext);
 }
 
+int_mv av1_get_ref_mv_from_stack_bitstream(
+    int ref_idx, const MV_REFERENCE_FRAME *ref_frame, int ref_mv_idx,
+    const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame) {
+  const int8_t ref_frame_type = av1_ref_frame_type(ref_frame);
+  const CANDIDATE_MV *curr_ref_mv_stack = mbmi_ext_frame->ref_mv_stack;
+  int_mv ref_mv;
+  ref_mv.as_int = INVALID_MV;
+
+  if (ref_frame[1] > INTRA_FRAME) {
+    if (ref_idx == 0) {
+      ref_mv = curr_ref_mv_stack[ref_mv_idx].this_mv;
+    } else {
+      assert(ref_idx == 1);
+      ref_mv = curr_ref_mv_stack[ref_mv_idx].comp_mv;
+    }
+  } else {
+    assert(ref_idx == 0);
+    if (ref_mv_idx < mbmi_ext_frame->ref_mv_count) {
+      ref_mv = curr_ref_mv_stack[ref_mv_idx].this_mv;
+    } else {
+      ref_mv = mbmi_ext_frame->global_mvs[ref_frame_type];
+    }
+  }
+  return ref_mv;
+}
+
+int_mv av1_get_ref_mv_bitstream(const MACROBLOCK *x, int ref_idx) {
+  const MACROBLOCKD *xd = &x->e_mbd;
+  const MB_MODE_INFO *mbmi = xd->mi[0];
+  int ref_mv_idx = mbmi->ref_mv_idx;
+  if (mbmi->mode == NEAR_NEWMV || mbmi->mode == NEW_NEARMV) {
+    assert(has_second_ref(mbmi));
+    ref_mv_idx += 1;
+  }
+  return av1_get_ref_mv_from_stack_bitstream(ref_idx, mbmi->ref_frame,
+                                             ref_mv_idx, x->mbmi_ext_frame);
+}
+
 void av1_find_best_ref_mvs_from_stack(int allow_hp,
                                       const MB_MODE_INFO_EXT *mbmi_ext,
                                       MV_REFERENCE_FRAME ref_frame,
