@@ -2150,7 +2150,7 @@ static INLINE int64_t dist_block_px_domain(const AV1_COMP *cpi, MACROBLOCK *x,
       tx_size, is_inter_block(xd->mi[0]), cpi->common.reduced_tx_set_used);
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
-  int use_vq = mbmi->use_vq[plane][blk_idx];
+  int use_vq = mbmi->use_vq[plane_type][blk_idx];
   if (tx_set_type == EXT_TX_SET_VQ && use_vq) {
     av1_vec_dequant_add(xd, plane, blk_row, blk_col, recon, dst_stride,
                         tx_size);
@@ -3391,7 +3391,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
         RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
 
     if (rd < best_rd) {
-      mbmi->use_vq[plane][txk_type_idx] = 1;
+      mbmi->use_vq[get_plane_type(plane)][txk_type_idx] = 1;
       *best_rd_stats = this_rd_stats;
       x->plane[plane].txb_entropy_ctx[block] = 0;  // not used
       x->plane[plane].eobs[block] = 0;             // not used
@@ -3442,7 +3442,8 @@ RECON_INTRA:
     // if the last search tx_type is the best tx_type, we don't need to
     // do this again
 #if CONFIG_VQ4X4
-    if (1) {
+    // When VQ has been searched but not chosen, this reconstruction is needed
+    if (best_tx_type != last_tx_type || tx_set_type == EXT_TX_SET_VQ) {
 #else
     if (best_tx_type != last_tx_type) {
 #endif

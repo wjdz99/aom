@@ -648,7 +648,7 @@ int get_vq_cost(MACROBLOCK *x, int plane, int blk_row, int blk_col,
   vq_qgain_idx_to_symbols(qgain_idx, &gain_sym1, &gain_sym2);
   vq_shape_idx_to_symbols(shape_idx, &shape_sym1, &shape_sym2);
 
-  // TODO(kslu): fix VQ cost with tx type search
+  int use_vq_cost = x->use_vq_costs[get_plane_type(plane)][mbmi->mode][1];
   int gain_cost = x->vq_gain_sym1_costs[gain_sym1] +
                   x->vq_gain_sym2_costs[gain_sym1][gain_sym2];
   int sign_cost = qgain_idx > 0 ? av1_cost_literal(1) : 0;
@@ -656,7 +656,7 @@ int get_vq_cost(MACROBLOCK *x, int plane, int blk_row, int blk_col,
                        ? (x->vq_shape_sym1_costs[shape_sym1] +
                           x->vq_shape_sym2_costs[shape_sym1][shape_sym2])
                        : 0;
-  return sign_cost + gain_cost + shape_cost;
+  return use_vq_cost + sign_cost + gain_cost + shape_cost;
 }
 
 void av1_write_vq_txb(const MACROBLOCKD *xd, aom_writer *w, int blk_row,
@@ -714,8 +714,10 @@ static void write_coeffs_txb_wrap(const AV1_COMMON *cm, MACROBLOCK *x,
       tx_size, is_inter_block(mbmi), cm->reduced_tx_set_used);
   if (tx_set_type == EXT_TX_SET_VQ) {
     const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
-    int use_vq = mbmi->use_vq[plane][blk_idx];
-    aom_write_bit(w, use_vq);
+    PLANE_TYPE plane_type = get_plane_type(plane);
+    int use_vq = mbmi->use_vq[plane_type][blk_idx];
+    aom_write_symbol(w, use_vq,
+                     xd->tile_ctx->use_vq_cdf[plane_type][mbmi->mode], 2);
     if (use_vq)
       av1_write_vq_txb(xd, w, blk_row, blk_col, plane, tx_size, &txb_ctx);
     else
@@ -1925,6 +1927,12 @@ int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
                          levels, iqmatrix);
   }
 
+#if CONFIG_VQ4X4
+  TxSetType tx_set_type =
+      av1_get_ext_tx_set_type(tx_size, is_inter, cm->reduced_tx_set_used);
+  if (tx_set_type == EXT_TX_SET_VQ)
+    accu_rate += x->use_vq_costs[plane_type][mbmi->mode][0];
+#endif
   const int tx_type_cost = get_tx_type_cost(cm, x, xd, plane, tx_size, tx_type);
   if (eob == 0)
     accu_rate += skip_cost;
@@ -2210,6 +2218,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   MACROBLOCKD *const xd = &x->e_mbd;
   struct macroblock_plane *p = &x->plane[plane];
   struct macroblockd_plane *pd = &xd->plane[plane];
+  const PLANE_TYPE plane_type = pd->plane_type;
   MB_MODE_INFO *mbmi = xd->mi[0];
   const int eob = p->eobs[block];
   TXB_CTX txb_ctx;
@@ -2245,31 +2254,38 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   const TxSetType tx_set_type = av1_get_ext_tx_set_type(
       tx_size, is_inter_block(mbmi), cm->reduced_tx_set_used);
   const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
-  int use_vq = mbmi->use_vq[plane][blk_idx];
-  if (tx_set_type == EXT_TX_SET_VQ && use_vq) {
-    int gain_sym1, gain_sym2, shape_sym1, shape_sym2;
-    vq_qgain_idx_to_symbols(mbmi->qgain_idx[plane][blk_idx], &gain_sym1,
-                            &gain_sym2);
-    update_cdf(ec_ctx->vq_gain_sym1_cdf, gain_sym1, VQ_GAIN_SYMBOLS_1);
-    update_cdf(ec_ctx->vq_gain_sym2_cdf[gain_sym1], gain_sym2,
-               VQ_GAIN_SYMBOLS_2);
+  int use_vq = mbmi->use_vq[plane_type][blk_idx];
+  if (tx_set_type == EXT_TX_SET_VQ) {
+    update_cdf(ec_ctx->use_vq_cdf[plane_type][mbmi->mode], use_vq, 2);
 #if CONFIG_ENTROPY_STATS
-    ++td->counts->vq_gain_sym1[gain_sym1];
-    ++td->counts->vq_gain_sym2[gain_sym1][gain_sym2];
+    ++td->counts->use_vq[plane_type][mbmi->mode][use_vq];
 #endif
-    if (mbmi->qgain_idx[plane][blk_idx] > 0) {
-      vq_shape_idx_to_symbols(mbmi->shape_idx[plane][blk_idx], &shape_sym1,
-                              &shape_sym2);
-      update_cdf(ec_ctx->vq_shape_sym1_cdf, shape_sym1, VQ_SHAPE_SYMBOLS_1);
-      update_cdf(ec_ctx->vq_shape_sym2_cdf[shape_sym1], shape_sym2,
-                 VQ_SHAPE_SYMBOLS_2);
+    if (use_vq) {
+      int gain_sym1, gain_sym2, shape_sym1, shape_sym2;
+      vq_qgain_idx_to_symbols(mbmi->qgain_idx[plane][blk_idx], &gain_sym1,
+                              &gain_sym2);
+      update_cdf(ec_ctx->vq_gain_sym1_cdf, gain_sym1, VQ_GAIN_SYMBOLS_1);
+      update_cdf(ec_ctx->vq_gain_sym2_cdf[gain_sym1], gain_sym2,
+                 VQ_GAIN_SYMBOLS_2);
 #if CONFIG_ENTROPY_STATS
-      ++td->counts->vq_shape_sym1[shape_sym1];
-      ++td->counts->vq_shape_sym2[shape_sym1][shape_sym2];
+      ++td->counts->vq_gain_sym1[gain_sym1];
+      ++td->counts->vq_gain_sym2[gain_sym1][gain_sym2];
 #endif
+      if (mbmi->qgain_idx[plane][blk_idx] > 0) {
+        vq_shape_idx_to_symbols(mbmi->shape_idx[plane][blk_idx], &shape_sym1,
+                                &shape_sym2);
+        update_cdf(ec_ctx->vq_shape_sym1_cdf, shape_sym1, VQ_SHAPE_SYMBOLS_1);
+        update_cdf(ec_ctx->vq_shape_sym2_cdf[shape_sym1], shape_sym2,
+                   VQ_SHAPE_SYMBOLS_2);
+#if CONFIG_ENTROPY_STATS
+        ++td->counts->vq_shape_sym1[shape_sym1];
+        ++td->counts->vq_shape_sym2[shape_sym1][shape_sym2];
+#endif
+      }
+      av1_set_contexts(xd, pd, plane, plane_bsize, tx_size, 0, blk_col,
+                       blk_row);
+      return;
     }
-    av1_set_contexts(xd, pd, plane, plane_bsize, tx_size, 0, blk_col, blk_row);
-    return;
   }
 #endif  // CONFIG_VQ4X4
 
@@ -2291,7 +2307,6 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   update_tx_type_count(cpi, cm, xd, blk_row, blk_col, plane, tx_size,
                        td->counts, allow_update_cdf);
 
-  const PLANE_TYPE plane_type = pd->plane_type;
   const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col,
                                           tx_size, cm->reduced_tx_set_used);
   const TX_CLASS tx_class = tx_type_to_class[tx_type];

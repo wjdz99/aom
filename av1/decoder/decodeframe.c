@@ -232,7 +232,7 @@ static void predict_and_reconstruct_intra_block(
   TxSetType tx_set_type = av1_get_ext_tx_set_type(tx_size, is_inter_block(mbmi),
                                                   cm->reduced_tx_set_used);
   const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, row, col);
-  int use_vq = mbmi->use_vq[plane][blk_idx];
+  int use_vq = mbmi->use_vq[plane_type][blk_idx];
   if (tx_set_type == EXT_TX_SET_VQ && use_vq) {
     struct macroblockd_plane *const pd = &xd->plane[plane];
     uint8_t *dst =
@@ -276,7 +276,7 @@ static void inverse_transform_inter_block(const AV1_COMMON *const cm,
   TxSetType tx_set_type = av1_get_ext_tx_set_type(tx_size, is_inter_block(mbmi),
                                                   cm->reduced_tx_set_used);
   const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
-  int use_vq = mbmi->use_vq[plane][blk_idx];
+  int use_vq = mbmi->use_vq[plane_type][blk_idx];
   if (tx_set_type == EXT_TX_SET_VQ && use_vq) {
     uint8_t *dst =
         &pd->dst

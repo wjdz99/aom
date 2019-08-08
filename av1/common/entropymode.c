@@ -629,6 +629,40 @@ static const aom_cdf_prob default_use_mdtx_intra_cdf[EXT_TX_SIZES][INTRA_MODES]
 #endif
 
 #if CONFIG_VQ4X4
+static const aom_cdf_prob default_use_vq_cdf[PLANE_TYPES][INTRA_MODES]
+                                            [CDF_SIZE(2)] = {
+                                              {
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                              },
+                                              {
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                                  { AOM_CDF2(16384) },
+                                              },
+                                            };
+
 static const aom_cdf_prob default_vq_gain_sym1_cdf[CDF_SIZE(
     VQ_GAIN_SYMBOLS_1)] = { AOM_CDF4(8192, 16384, 24576) };
 
@@ -1390,6 +1424,7 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif
 #endif
 #if CONFIG_VQ4X4
+  av1_copy(fc->use_vq_cdf, default_use_vq_cdf);
   av1_copy(fc->vq_gain_sym1_cdf, default_vq_gain_sym1_cdf);
   av1_copy(fc->vq_gain_sym2_cdf, default_vq_gain_sym2_cdf);
   av1_copy(fc->vq_shape_sym1_cdf, default_vq_shape_sym1_cdf);

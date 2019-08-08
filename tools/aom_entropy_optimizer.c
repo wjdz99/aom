@@ -398,6 +398,12 @@ int main(int argc, const char **argv) {
       "[EXT_TX_SIZES][CDF_SIZE(TX_TYPES)]");
 
   /* vq4x4 */
+  cts_each_dim[0] = PLANE_TYPES;
+  cts_each_dim[1] = INTRA_MODES;
+  cts_each_dim[2] = 2;
+  optimize_cdf_table(&fc.use_vq[0][0][0], probsfile, 3, cts_each_dim,
+                     "default_use_vq_cdf[PLANE_TYPES][INTRA_MODES]"
+                     "[CDF_SIZE(2)]");
   cts_each_dim[0] = VQ_GAIN_SYMBOLS_1;
   optimize_cdf_table(&fc.vq_gain_sym1[0], probsfile, 1, cts_each_dim,
                      "default_vq_gain_sym1_cdf[CDF_SIZE(VQ_GAIN_SYMBOLS_1)]");
