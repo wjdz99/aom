@@ -5481,6 +5481,10 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     cpi->common.cur_frame_force_integer_mv = 0;
   }
 
+  if (cpi->oxcf.pass != 1 && av1_use_hash_me(cm)) {
+    av1_hash_table_clear_all(cpi->previous_hash_table);
+  }
+
   // Set default state for segment based loop filter update flags.
   cm->lf.mode_ref_delta_update = 0;
 
@@ -5680,7 +5684,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   av1_rc_postencode_update(cpi, *size);
 
   // Store encoded frame's hash table for is_integer_mv() next time
-  if (oxcf->pass != 1 && cpi->common.allow_screen_content_tools) {
+  // Beware! If we don't update previous_hash_table here we will leak the
+  // items stored in cur_frame's hash_table!
+  if (oxcf->pass != 1 && av1_use_hash_me(cm)) {
     cpi->previous_hash_table = &cm->cur_frame->hash_table;
   }
 

@@ -4891,22 +4891,20 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   cm->current_frame.skip_mode_info.skip_mode_flag =
       check_skip_mode_enabled(cpi);
 
-  {
-    cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read_dummy;
-    cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write_dummy;
-    cpi->row_mt = 0;
+  cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read_dummy;
+  cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write_dummy;
+  cpi->row_mt = 0;
 
-    if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads > 1)) {
-      cpi->row_mt = 1;
-      cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read;
-      cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write;
-      av1_encode_tiles_row_mt(cpi);
-    } else {
-      if (AOMMIN(cpi->oxcf.max_threads, cm->tile_cols * cm->tile_rows) > 1)
-        av1_encode_tiles_mt(cpi);
-      else
-        encode_tiles(cpi);
-    }
+  if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads > 1)) {
+    cpi->row_mt = 1;
+    cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read;
+    cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write;
+    av1_encode_tiles_row_mt(cpi);
+  } else {
+    if (AOMMIN(cpi->oxcf.max_threads, cm->tile_cols * cm->tile_rows) > 1)
+      av1_encode_tiles_mt(cpi);
+    else
+      encode_tiles(cpi);
   }
 
   // If intrabc is allowed but never selected, reset the allow_intrabc flag.
