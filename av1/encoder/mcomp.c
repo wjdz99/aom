@@ -2392,6 +2392,8 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   if (method != NSTEP && rd && var < var_max)
     var = av1_get_mvpred_var(x, &x->best_mv.as_mv, ref_mv, fn_ptr, 1);
 
+  // This block takes care of hash-me. We use it only if it is enabled and we
+  // are in intrabc mode.
   do {
     if (!intra || !av1_use_hash_me(&cpi->common)) break;
 
@@ -2413,6 +2415,7 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
             intra ? &cpi->common.cur_frame->hash_table
                   : av1_get_ref_frame_hash_map(&cpi->common,
                                                x->e_mbd.mi[0]->ref_frame[0]);
+        assert(ref_frame_hash && "Invalid hash_table in hash-me");
 
         av1_get_block_hash_value(what, what_stride, block_width, &hash_value1,
                                  &hash_value2, is_cur_buf_hbd(&x->e_mbd), x);

@@ -3191,9 +3191,6 @@ void av1_remove_compressor(AV1_COMP *cpi) {
 #endif  // CONFIG_INTERNAL_STATS
 
   av1_remove_common(cm);
-  for (i = 0; i < FRAME_BUFFERS; ++i) {
-    av1_hash_table_destroy(&cm->buffer_pool->frame_bufs[i].hash_table);
-  }
 #if CONFIG_HTB_TRELLIS
   if (cpi->sf.use_hash_based_trellis) hbt_destroy();
 #endif  // CONFIG_HTB_TRELLIS
