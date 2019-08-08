@@ -50,8 +50,12 @@ static uint8_t intrabc_max_mesh_pct[MAX_MESH_SPEED + 1] = { 100, 100, 100,
 // based on block MSE
 // TODO(any): Experiment the threshold logic based on variance metric
 static unsigned int tx_domain_dist_thresholds[MAX_TX_DOMAIN_EVAL_SPEED + 1] = {
-  UINT_MAX, 22026, 22026, 22026, 22026, 0
+  UINT_MAX, 22026, 22026, 1096, 1096, 0
 };
+static unsigned int tx_domain_dist_thresholds_final[MAX_TX_DOMAIN_EVAL_SPEED +
+                                                    1] = { UINT_MAX, 22026,
+                                                           22026,    UINT_MAX,
+                                                           UINT_MAX, 0 };
 // Threshold values to be used for disabling coeff RD-optimization
 // based on block MSE
 // TODO(any): Experiment the threshold logic based on variance metric
@@ -386,6 +390,7 @@ static void set_good_speed_features_framesize_independent(
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 4;
     sf->adaptive_txb_search_level = boosted ? 2 : 3;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
+    sf->use_transform_domain_distortion = 2;
   }
 
   if (speed >= 5) {
@@ -943,6 +948,8 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
       comp_type_rd_threshold_div[sf->prune_comp_type_by_comp_avg];
   const int tx_domain_speed = AOMMIN(speed, MAX_TX_DOMAIN_EVAL_SPEED);
   cpi->tx_domain_dist_threshold = tx_domain_dist_thresholds[tx_domain_speed];
+  cpi->tx_domain_dist_threshold_final =
+      tx_domain_dist_thresholds_final[tx_domain_speed];
 
   // assert ensures that coeff_opt_dist_thresholds is accessed correctly
   assert(cpi->sf.perform_coeff_opt >= 0 && cpi->sf.perform_coeff_opt < 5);

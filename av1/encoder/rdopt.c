@@ -3126,7 +3126,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   // TODO(any): Experiment with variance and mean based thresholds
   int use_transform_domain_distortion =
       (cpi->sf.use_transform_domain_distortion > 0) &&
-      (block_mse_q8 >= cpi->tx_domain_dist_threshold) &&
+      (block_mse_q8 >= x->tx_domain_dist_threshold) &&
       // Any 64-pt transforms only preserves half the coefficients.
       // Therefore transform domain distortion is not valid for these
       // transform sizes.
@@ -4736,6 +4736,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   x->coeff_opt_dist_threshold =
       get_rd_opt_coeff_thresh(cpi->coeff_opt_dist_threshold,
                               cpi->sf.enable_winner_mode_for_coeff_opt, 0);
+  x->tx_domain_dist_threshold = cpi->tx_domain_dist_threshold;
 
   MB_MODE_INFO best_mbmi = *mbmi;
   /* Y Search for intra prediction mode */
@@ -4826,6 +4827,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     x->coeff_opt_dist_threshold =
         get_rd_opt_coeff_thresh(cpi->coeff_opt_dist_threshold,
                                 cpi->sf.enable_winner_mode_for_coeff_opt, 1);
+    x->tx_domain_dist_threshold = cpi->tx_domain_dist_threshold_final;
     *mbmi = best_mbmi;
     x->use_default_intra_tx_type = 0;
     intra_block_yrd(cpi, x, bsize, bmode_costs, &best_rd, rate, rate_tokenonly,
@@ -10971,6 +10973,7 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   // decision
   x->coeff_opt_dist_threshold =
       get_rd_opt_coeff_thresh(cpi->coeff_opt_dist_threshold, 0, 0);
+  x->tx_domain_dist_threshold = cpi->tx_domain_dist_threshold;
 
   if (intra_yrd < best_rd) {
     // Only store reconstructed luma when there's chroma RDO. When there's no
@@ -11263,6 +11266,7 @@ static void sf_refine_fast_tx_type_search(
     x->coeff_opt_dist_threshold =
         get_rd_opt_coeff_thresh(cpi->coeff_opt_dist_threshold,
                                 cpi->sf.enable_winner_mode_for_coeff_opt, 1);
+    x->tx_domain_dist_threshold = cpi->tx_domain_dist_threshold_final;
 
     *mbmi = *best_mbmode;
 
@@ -11665,6 +11669,7 @@ static void set_params_rd_pick_inter_mode(
   x->coeff_opt_dist_threshold =
       get_rd_opt_coeff_thresh(cpi->coeff_opt_dist_threshold,
                               cpi->sf.enable_winner_mode_for_coeff_opt, 0);
+  x->tx_domain_dist_threshold = cpi->tx_domain_dist_threshold;
 
   if (cpi->sf.skip_repeat_interpolation_filter_search) {
     x->interp_filter_stats_idx[0] = 0;
@@ -13123,6 +13128,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   // Get the threshold for R-D optimization of coefficients for mode evaluation
   x->coeff_opt_dist_threshold =
       get_rd_opt_coeff_thresh(cpi->coeff_opt_dist_threshold, 0, 0);
+  x->tx_domain_dist_threshold = cpi->tx_domain_dist_threshold;
 
   // Only try palette mode when the best mode so far is an intra mode.
   const int try_palette =
