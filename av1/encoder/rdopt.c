@@ -10163,26 +10163,43 @@ static bool ref_mv_idx_early_breakout(const AV1_COMP *const cpi, MACROBLOCK *x,
   const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
   const int is_comp_pred = has_second_ref(mbmi);
-  if (sf->reduce_inter_modes && ref_mv_idx > 0) {
-    if (mbmi->ref_frame[0] == LAST2_FRAME ||
-        mbmi->ref_frame[0] == LAST3_FRAME ||
-        mbmi->ref_frame[1] == LAST2_FRAME ||
-        mbmi->ref_frame[1] == LAST3_FRAME) {
-      const int has_nearmv = have_nearmv_in_inter_mode(mbmi->mode) ? 1 : 0;
-      if (mbmi_ext->weight[ref_frame_type][ref_mv_idx + has_nearmv] <
-          REF_CAT_LEVEL) {
-        return true;
+  if (sf->reduce_inter_modes) {
+    if (ref_mv_idx > 0) {
+      if (mbmi->ref_frame[0] == LAST2_FRAME ||
+          mbmi->ref_frame[0] == LAST3_FRAME ||
+          mbmi->ref_frame[1] == LAST2_FRAME ||
+          mbmi->ref_frame[1] == LAST3_FRAME) {
+        const int has_nearmv = have_nearmv_in_inter_mode(mbmi->mode) ? 1 : 0;
+        if (mbmi_ext->weight[ref_frame_type][ref_mv_idx + has_nearmv] <
+            REF_CAT_LEVEL) {
+          return true;
+        }
       }
     }
     // TODO(any): Experiment with reduce_inter_modes for compound prediction
     if (sf->reduce_inter_modes >= 2 && !is_comp_pred &&
         have_newmv_in_inter_mode(mbmi->mode)) {
-      if (mbmi->ref_frame[0] != cpi->nearest_past_ref &&
-          mbmi->ref_frame[0] != cpi->nearest_future_ref) {
-        const int has_nearmv = have_nearmv_in_inter_mode(mbmi->mode) ? 1 : 0;
-        if (mbmi_ext->weight[ref_frame_type][ref_mv_idx + has_nearmv] <
-            REF_CAT_LEVEL) {
-          return true;
+      if ((sf->reduce_inter_modes == 2 && ref_mv_idx > 0) ||
+          sf->reduce_inter_modes == 3) {
+        if (ref_mv_idx > 0) {
+          if (cpi->ref_category[mbmi->ref_frame[0] - LAST_FRAME] != 1) {
+            const int has_nearmv =
+                have_nearmv_in_inter_mode(mbmi->mode) ? 1 : 0;
+            if (mbmi_ext->weight[ref_frame_type][ref_mv_idx + has_nearmv] <
+                REF_CAT_LEVEL) {
+              return true;
+            }
+          }
+        } else if (ref_mv_idx == 0) {
+          if (cpi->ref_category[mbmi->ref_frame[0] - LAST_FRAME] != 1 &&
+              cpi->ref_category[mbmi->ref_frame[0] - LAST_FRAME] != 2) {
+            const int has_nearmv =
+                have_nearmv_in_inter_mode(mbmi->mode) ? 1 : 0;
+            if (mbmi_ext->weight[ref_frame_type][ref_mv_idx + has_nearmv] <
+                REF_CAT_LEVEL) {
+              return true;
+            }
+          }
         }
       }
     }

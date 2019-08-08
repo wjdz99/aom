@@ -351,6 +351,7 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 4) {
+    sf->reduce_inter_modes = boosted ? 1 : 3;
     sf->selective_ref_frame = 4;
     sf->use_intra_txb_hash = 0;
     sf->tx_type_search.fast_intra_tx_type_search = 1;
