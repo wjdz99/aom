@@ -192,6 +192,19 @@ static INLINE int av1_encoder_get_relative_dist(const OrderHintInfo *oh, int a,
   return (a - b);
 }
 
+static INLINE int av1_get_sb_mi_size(const AV1_COMP *const cpi) {
+  const AV1_COMMON *const cm = &cpi->common;
+
+  int mi_alloc_size_1d = cpi->mi_alloc_size_1d;
+  int sb_mi_rows = (mi_size_wide[cm->seq_params.sb_size] + mi_alloc_size_1d - 1) /
+       mi_alloc_size_1d;
+  assert(mi_size_wide[cm->seq_params.sb_size] ==
+         mi_size_high[cm->seq_params.sb_size]);
+  int sb_mi_size = sb_mi_rows * sb_mi_rows;
+
+  return sb_mi_size;
+};
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
