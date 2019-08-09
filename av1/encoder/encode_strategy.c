@@ -221,6 +221,7 @@ static void check_show_existing_frame(AV1_COMP *const cpi,
                                       EncodeFrameParams *const frame_params) {
   const GF_GROUP *const gf_group = &cpi->gf_group;
   assert(gf_group->index <= gf_group->size);
+  if (gf_group->index > gf_group->size) printf("ERROR \n");
   (void)gf_group;
   AV1_COMMON *const cm = &cpi->common;
   if (cm->show_existing_frame == 1) {
@@ -1473,6 +1474,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   if (*size > 0) {
     cpi->droppable = is_frame_droppable(cpi);
   }
+
+  if (cpi->use_svc) av1_save_layer_context(cpi);
 
   return AOM_CODEC_OK;
 }
