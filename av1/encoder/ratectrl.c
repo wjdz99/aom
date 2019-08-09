@@ -215,6 +215,24 @@ int av1_rc_clamp_iframe_target_size(const AV1_COMP *const cpi, int target) {
   return target;
 }
 
+// Update the buffer level for higher temporal layers, given the encoded current
+// temporal layer.
+static void update_layer_buffer_level(SVC *svc, int encoded_frame_size) {
+  int i = 0;
+  const int current_temporal_layer = svc->temporal_layer_id;
+  for (i = current_temporal_layer + 1; i < svc->number_temporal_layers; ++i) {
+    const int layer =
+        LAYER_IDS_TO_IDX(svc->spatial_layer_id, i, svc->number_temporal_layers);
+    LAYER_CONTEXT *lc = &svc->layer_context[layer];
+    RATE_CONTROL *lrc = &lc->rc;
+    lrc->bits_off_target +=
+        (int)(lc->target_bandwidth / lc->framerate) - encoded_frame_size;
+    // Clip buffer level to maximum buffer size for the layer.
+    lrc->bits_off_target =
+        AOMMIN(lrc->bits_off_target, lrc->maximum_buffer_size);
+    lrc->buffer_level = lrc->bits_off_target;
+  }
+}
 // Update the buffer level: leaky bucket model.
 static void update_buffer_level(AV1_COMP *cpi, int encoded_frame_size) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -229,6 +247,8 @@ static void update_buffer_level(AV1_COMP *cpi, int encoded_frame_size) {
   // Clip the buffer level to the maximum specified buffer size.
   rc->bits_off_target = AOMMIN(rc->bits_off_target, rc->maximum_buffer_size);
   rc->buffer_level = rc->bits_off_target;
+
+  if (cpi->use_svc) update_layer_buffer_level(&cpi->svc, encoded_frame_size);
 }
 
 int av1_rc_get_default_min_gf_interval(int width, int height,
@@ -378,7 +398,7 @@ static double get_rate_correction_factor(const AV1_COMP *cpi, int width,
     rcf = rc->rate_correction_factors[rf_lvl];
   } else {
     if ((cpi->refresh_alt_ref_frame || cpi->refresh_golden_frame) &&
-        !rc->is_src_frame_alt_ref &&
+        !rc->is_src_frame_alt_ref && !cpi->use_svc &&
         (cpi->oxcf.rc_mode != AOM_CBR || cpi->oxcf.gf_cbr_boost_pct > 20))
       rcf = rc->rate_correction_factors[GF_ARF_STD];
     else
@@ -404,7 +424,7 @@ static void set_rate_correction_factor(AV1_COMP *cpi, double factor, int width,
     rc->rate_correction_factors[rf_lvl] = factor;
   } else {
     if ((cpi->refresh_alt_ref_frame || cpi->refresh_golden_frame) &&
-        !rc->is_src_frame_alt_ref &&
+        !rc->is_src_frame_alt_ref && !cpi->use_svc &&
         (cpi->oxcf.rc_mode != AOM_CBR || cpi->oxcf.gf_cbr_boost_pct > 20))
       rc->rate_correction_factors[GF_ARF_STD] = factor;
     else
@@ -565,7 +585,7 @@ int av1_rc_regulate_q(const AV1_COMP *cpi, int target_bits_per_frame,
 
   // In CBR mode, this makes sure q is between oscillating Qs to prevent
   // resonance.
-  if (cpi->oxcf.rc_mode == AOM_CBR &&
+  if (cpi->oxcf.rc_mode == AOM_CBR && !cpi->use_svc &&
       (cpi->rc.rc_1_frame * cpi->rc.rc_2_frame == -1) &&
       cpi->rc.q_1_frame != cpi->rc.q_2_frame) {
     q = clamp(q, AOMMIN(cpi->rc.q_1_frame, cpi->rc.q_2_frame),
@@ -1654,6 +1674,7 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
       (int)(rc->this_frame_target / resize_rate_factor(cpi, cm->width,
   cm->height));
       */
+  if (cpi->use_svc) av1_save_layer_context(cpi);
 }
 
 void av1_rc_postencode_update_drop_frame(AV1_COMP *cpi) {
@@ -1902,7 +1923,17 @@ int av1_calc_pframe_target_size_one_pass_cbr(
   } else {
     target = rc->avg_frame_bandwidth;
   }
-
+  if (cpi->use_svc) {
+    // Note that for layers, avg_frame_bandwidth is the cumulative
+    // per-frame-bandwidth. For the target size of this frame, use the
+    // layer average frame size (i.e., non-cumulative per-frame-bw).
+    int layer = LAYER_IDS_TO_IDX(cpi->svc.spatial_layer_id,
+                                cpi->svc.temporal_layer_id,
+                                 cpi->svc.number_temporal_layers);
+    const LAYER_CONTEXT *lc = &cpi->svc.layer_context[layer];
+    target = lc->avg_frame_size;
+    min_frame_target = AOMMAX(lc->avg_frame_size >> 4, FRAME_OVERHEAD_BITS);
+  }
   if (diff > 0) {
     // Lower the target bandwidth for this frame.
     const int pct_low = (int)AOMMIN(diff / one_pct_bits, oxcf->under_shoot_pct);
@@ -1951,6 +1982,10 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi,
   AV1_COMMON *const cm = &cpi->common;
   FRAME_UPDATE_TYPE frame_update_type;
   int target;
+  if (cpi->use_svc) {
+    av1_update_temporal_layer_framerate(cpi);
+    av1_restore_layer_context(cpi);
+  }
   if (rc->frames_to_key == 0 || (frame_flags & FRAMEFLAGS_KEY)) {
     frame_params->frame_type = KEY_FRAME;
     rc->this_key_frame_forced =
@@ -1959,6 +1994,8 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi,
     rc->kf_boost = DEFAULT_KF_BOOST_RT;
     rc->source_alt_ref_active = 0;
     frame_update_type = KF_UPDATE;
+    if (cpi->use_svc && cm->current_frame.frame_number > 0)
+      av1_svc_reset_temporal_layers(cpi, 1);
   } else {
     frame_params->frame_type = INTER_FRAME;
     frame_update_type = LF_UPDATE;
