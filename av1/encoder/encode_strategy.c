@@ -1474,5 +1474,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     cpi->droppable = is_frame_droppable(cpi);
   }
 
+  if (cpi->use_svc) av1_save_layer_context(cpi);
+
   return AOM_CODEC_OK;
 }
