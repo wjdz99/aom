@@ -629,25 +629,23 @@ static const aom_cdf_prob default_use_mdtx_intra_cdf[EXT_TX_SIZES][INTRA_MODES]
 #endif
 
 #if CONFIG_VQ4X4
-static const aom_cdf_prob default_vq_gain_sym1_cdf[CDF_SIZE(
-    VQ_GAIN_SYMBOLS_1)] = { AOM_CDF4(8192, 16384, 24576) };
+static const aom_cdf_prob default_use_vq_cdf[INTRA_MODES][CDF_SIZE(2)] = {
+  { AOM_CDF2(26549) }, { AOM_CDF2(26861) }, { AOM_CDF2(27373) },
+  { AOM_CDF2(23433) }, { AOM_CDF2(24482) }, { AOM_CDF2(22880) },
+  { AOM_CDF2(22998) }, { AOM_CDF2(25423) }, { AOM_CDF2(23771) },
+  { AOM_CDF2(27751) }, { AOM_CDF2(26246) }, { AOM_CDF2(25297) },
+  { AOM_CDF2(27105) }
+};
 
-static const aom_cdf_prob
-    default_vq_gain_sym2_cdf[VQ_GAIN_SYMBOLS_1][CDF_SIZE(VQ_GAIN_SYMBOLS_2)] = {
-      { AOM_CDF16(2048, 4096, 6144, 8192, 10240, 12288, 14336, 16384, 18432,
-                  20480, 22528, 24576, 26624, 28672, 30720) },
-      { AOM_CDF16(2048, 4096, 6144, 8192, 10240, 12288, 14336, 16384, 18432,
-                  20480, 22528, 24576, 26624, 28672, 30720) },
-      { AOM_CDF16(2048, 4096, 6144, 8192, 10240, 12288, 14336, 16384, 18432,
-                  20480, 22528, 24576, 26624, 28672, 30720) },
-      { AOM_CDF16(2048, 4096, 6144, 8192, 10240, 12288, 14336, 16384, 18432,
-                  20480, 22528, 24576, 26624, 28672, 30720) },
-    };
+static const aom_cdf_prob default_vq_gain_cdf[CDF_SIZE(VQ_GAIN_LEVELS)] = {
+      AOM_CDF16(139, 1870, 5813, 13838, 21256, 25856, 28345, 29836, 30847,
+                  31567, 32048, 32338, 32541, 32656, 32660)
+};
 
 static const aom_cdf_prob
     default_vq_shape_sym1_cdf[CDF_SIZE(VQ_SHAPE_SYMBOLS_1)] = { AOM_CDF16(
-        2048, 4096, 6144, 8192, 10240, 12288, 14336, 16384, 18432, 20480, 22528,
-        24576, 26624, 28672, 30720) };
+        3222, 7860, 11816, 14621, 16833, 19448, 21331, 22873, 24301, 26083,
+        27979, 29520, 30632, 31744, 32503) };
 
 static const aom_cdf_prob
     default_vq_shape_sym2_cdf[VQ_SHAPE_SYMBOLS_1][CDF_SIZE(
@@ -1416,12 +1414,10 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif
 #endif
 #if CONFIG_VQ4X4
-  av1_copy(fc->vq_gain_sym1_cdf, default_vq_gain_sym1_cdf);
-  for (int i = 0; i < VQ_SHAPE_SYMBOLS_1; i++)
-    av1_copy(fc->vq_gain_sym2_cdf, default_vq_gain_sym2_cdf);
+  av1_copy(fc->use_vq_cdf, default_use_vq_cdf);
+  av1_copy(fc->vq_gain_cdf, default_vq_gain_cdf);
   av1_copy(fc->vq_shape_sym1_cdf, default_vq_shape_sym1_cdf);
-  for (int i = 0; i < VQ_SHAPE_SYMBOLS_1; i++)
-    av1_copy(fc->vq_shape_sym2_cdf, default_vq_shape_sym2_cdf);
+  av1_copy(fc->vq_shape_sym2_cdf, default_vq_shape_sym2_cdf);
 #endif
   av1_copy(fc->skip_mode_cdfs, default_skip_mode_cdfs);
   av1_copy(fc->skip_cdfs, default_skip_cdfs);

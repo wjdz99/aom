@@ -253,6 +253,7 @@ typedef struct MB_MODE_INFO {
   PARTITION_TYPE partition;
   TX_TYPE txk_type[TXK_TYPE_BUF_LEN];
 #if CONFIG_VQ4X4
+  int use_vq[TXK_TYPE_BUF_LEN];
   int gain_sign[TXK_TYPE_BUF_LEN];
   int qgain_idx[TXK_TYPE_BUF_LEN];
   int shape_idx[TXK_TYPE_BUF_LEN];
@@ -689,7 +690,7 @@ static INLINE int block_signals_txsize(BLOCK_SIZE bsize) {
 static const int av1_num_ext_tx_set[EXT_TX_SET_TYPES] = {
   1, 2, 5, 7, 12, 16,
 #if CONFIG_VQ4X4
-  0,  // not used
+  7,
 #endif
 };
 
@@ -711,8 +712,8 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1 },
 #if CONFIG_VQ4X4
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0,
+    0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
 #endif
 };
 #elif USE_MDTX_INTRA
@@ -724,7 +725,7 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 },
 #if CONFIG_VQ4X4
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1 },
 #endif
 };
 #elif USE_MDTX_INTER
@@ -736,7 +737,7 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 #if CONFIG_VQ4X4
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 #endif
 };
 #endif
@@ -749,7 +750,7 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 #if CONFIG_VQ4X4
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 },
 #endif
 };
 #endif
@@ -778,7 +779,7 @@ static const uint16_t av1_ext_tx_used_flag[EXT_TX_SET_TYPES] = {
   0x0FFF,  // 0000 1111 1111 1111
   0xFFFF,  // 1111 1111 1111 1111
 #if CONFIG_VQ4X4
-  0x0000,  // not used
+  0x0E0F,  // 0000 1110 0000 1111
 #endif
 };
 
@@ -942,28 +943,16 @@ static INLINE int av1_get_txk_type_index(BLOCK_SIZE bsize, int blk_row,
 #if CONFIG_VQ4X4
 #define VQ_BLOCK_DEBUG 0
 #define VQ_RD_DEBUG 0
-#define VQ_GAIN_LEVELS 64
-#define VQ_SHAPES 256
 
 // Quantized gain (norm) values of 4x4 blocks
 static const int16_t vq_gain_vals[VQ_GAIN_LEVELS] = {
-  0,   10,  16,  23,  30,  38,  46,  54,  62,  70,  78,  86,  94,
-  102, 110, 117, 125, 133, 141, 149, 157, 165, 173, 181, 189, 197,
-  205, 213, 221, 229, 237, 245, 253, 261, 268, 276, 284, 292, 301,
-  309, 317, 324, 332, 340, 347, 355, 363, 371, 379, 388, 396, 405,
-  415, 423, 431, 439, 447, 453, 467, 485, 512, 551, 609, 729,
+  0, 10, 16, 23, 30, 38, 46, 54, 62, 70, 78, 86, 94, 102, 110, 117,
 };
 
 // Threshold for squared gain values
 static const int32_t vq_gain_sq_thresholds[VQ_GAIN_LEVELS] = {
-  0,      48,     183,    407,    733,    1179,   1757,   2473,
-  3324,   4309,   5425,   6667,   8039,   9530,   11148,  12894,
-  14755,  16741,  18852,  21117,  23534,  26055,  28684,  31432,
-  34310,  37305,  40429,  43724,  47132,  50611,  54195,  57923,
-  61816,  65832,  69967,  74195,  78604,  83205,  87916,  92778,
-  97767,  102780, 107822, 112969, 118161, 123521, 129136, 134821,
-  140787, 147064, 153602, 160461, 167880, 175225, 182117, 189006,
-  196176, 202467, 211645, 226944, 248638, 282665, 337331, 451418,
+  0,    48,   183,  407,  733,  1179, 1757,  2473,
+  3324, 4309, 5425, 6667, 8039, 9530, 11148, 12894,
 };
 
 // shape_4x4[i] = The i-th unit-norm codeword * 2^8
@@ -1256,13 +1245,6 @@ static INLINE void update_cw_array(int *sign_arr, int *qgain_idx_arr,
   sign_arr[blk_idx] = sign;
   qgain_idx_arr[blk_idx] = gain_idx;
   shape_idx_arr[blk_idx] = shape_idx;
-}
-
-static INLINE void vq_qgain_idx_to_symbols(int qgain_idx, int *gain_sym1,
-                                           int *gain_sym2) {
-  assert(qgain_idx >= 0 && qgain_idx < VQ_GAIN_LEVELS);
-  *gain_sym1 = qgain_idx / VQ_GAIN_SYMBOLS_2;
-  *gain_sym2 = qgain_idx % VQ_GAIN_SYMBOLS_2;
 }
 
 static INLINE void vq_shape_idx_to_symbols(int shape_idx, int *shape_sym1,

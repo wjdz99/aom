@@ -2148,7 +2148,28 @@ static INLINE int64_t dist_block_px_domain(const AV1_COMP *cpi, MACROBLOCK *x,
 #if CONFIG_VQ4X4
   TxSetType tx_set_type = av1_get_ext_tx_set_type(
       tx_size, is_inter_block(xd->mi[0]), cpi->common.reduced_tx_set_used);
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  const int blk_idx = av1_get_txk_type_index(plane_bsize, blk_row, blk_col);
+  int use_vq = mbmi->use_vq[blk_idx];
+#if VQ_BLOCK_DEBUG
   if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
+    fprintf(stderr, "[pxdist] plane %d use_vq %d\nSrc:\n", plane, use_vq);
+    for (int r = 0; r < 4; ++r) {
+      for (int c = 0; c < 4; ++c) {
+        fprintf(stderr, "%d ", src[r * src_stride + c]);
+      }
+      fprintf(stderr, "\n");
+    }
+    fprintf(stderr, "Dst\n");
+    for (int r = 0; r < 4; ++r) {
+      for (int c = 0; c < 4; ++c) {
+        fprintf(stderr, "%d ", dst[r * dst_stride + c]);
+      }
+      fprintf(stderr, "\n");
+    }
+  }
+#endif
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0 && use_vq) {
     av1_vec_dequant_add(xd, plane, blk_row, blk_col, recon, MAX_TX_SIZE,
                         tx_size);
   } else {
@@ -2161,8 +2182,8 @@ static INLINE int64_t dist_block_px_domain(const AV1_COMP *cpi, MACROBLOCK *x,
 #if CONFIG_VQ4X4
   }
 #if VQ_BLOCK_DEBUG
-  if (tx_size == TX_4X4) {
-    fprintf(stderr, "[pxdist] plane %d use_vq %d, Recon:\n", plane, use_vq);
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
+    fprintf(stderr, "Recon:\n");
     for (int r = 0; r < 4; ++r) {
       for (int c = 0; c < 4; ++c) {
         fprintf(stderr, "%d ", recon[r * MAX_TX_SIZE + c]);
@@ -3226,9 +3247,9 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 #endif
 
 #if CONFIG_VQ4X4 && VQ_RD_DEBUG
-  fprintf(stderr, "======\nPlane %d tx_size %dx%d blk_row %d blk_col %d\n",
-          plane, tx_size_wide[tx_size], tx_size_high[tx_size], blk_row,
-          blk_col);
+  if (tx_size == TX_4X4)
+    fprintf(stderr, "======\nPlane %d blk_row %d blk_col %d\n", plane, blk_row,
+            blk_col);
 #endif
 
   for (int idx = 0; idx < TX_TYPES; ++idx) {
@@ -3243,10 +3264,9 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 #endif
 
 #if CONFIG_VQ4X4
-    // By-pass transform coding and use vector quantization instead
-    if (tx_set_type == EXT_TX_SET_VQ && plane == 0) break;
+    if (tx_set_type == EXT_TX_SET_VQ && plane == 0)
+      mbmi->use_vq[txk_type_idx] = 0;
 #endif
-
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
@@ -3325,8 +3345,9 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
         RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
 
 #if CONFIG_VQ4X4 && VQ_RD_DEBUG
-    fprintf(stderr, "  RD tx_type %d [%ld, %d, %ld, %ld]\n", tx_type,
-            this_rd_stats.sse, this_rd_stats.rate, this_rd_stats.dist, rd);
+    if (tx_size == TX_4X4)
+      fprintf(stderr, "  RD tx_type %d [%ld, %d, %ld, %ld]\n", tx_type,
+              this_rd_stats.sse, this_rd_stats.rate, this_rd_stats.dist, rd);
 #endif
 
     if (rd < best_rd) {
@@ -3399,31 +3420,36 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
 #if CONFIG_VQ4X4
   if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
-    mbmi->txk_type[txk_type_idx] = DCT_DCT;  // not used
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
 
     av1_vec_quant(x, plane, blk_row, blk_col, plane_bsize, tx_size);
 
     rate_cost = get_vq_cost(x, plane, blk_row, blk_col, plane_bsize, tx_size);
+    // set use_vq to 1 so dist_block_px_domain computes the distortion with VQ
+    mbmi->use_vq[txk_type_idx] = 1;
     this_rd_stats.dist = dist_block_px_domain(cpi, x, plane, plane_bsize, block,
                                               blk_row, blk_col, tx_size);
     this_rd_stats.sse = block_sse;
     this_rd_stats.rate = rate_cost;
 
-    best_rd = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
-
+    const int64_t rd =
+        RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
 #if VQ_RD_DEBUG
-    fprintf(stderr, "  RD vq [%ld, %d, %ld, %ld]\n", this_rd_stats.sse,
-            this_rd_stats.rate, this_rd_stats.dist, best_rd);
+    if (tx_size == TX_4X4)
+      fprintf(stderr, "  RD vq [%ld, %d, %ld, %ld]\n", block_sse, rate_cost,
+              this_rd_stats.dist, rd);
 #endif
 
-    *best_rd_stats = this_rd_stats;
-    assert(best_rd != INT64_MAX);
-    x->plane[plane].txb_entropy_ctx[block] = 0;  // not used
-    x->plane[plane].eobs[block] = 0;             // not used
-
-    return best_rd;
+    if (rd < best_rd) {
+      *best_rd_stats = this_rd_stats;
+      x->plane[plane].txb_entropy_ctx[block] = 0;  // not used
+      x->plane[plane].eobs[block] = 0;             // not used
+      pd->dqcoeff = orig_dqcoeff;
+      return rd;
+    } else {
+      mbmi->use_vq[txk_type_idx] = 0;
+    }
   }
 #endif  // CONFIG_VQ4X4
 
@@ -3467,7 +3493,12 @@ RECON_INTRA:
     // can use it for prediction.
     // if the last search tx_type is the best tx_type, we don't need to
     // do this again
+#if CONFIG_VQ4X4
+    // When VQ has been searched but not chosen, this reconstruction is needed
+    if (best_tx_type != last_tx_type || tx_set_type == EXT_TX_SET_VQ) {
+#else
     if (best_tx_type != last_tx_type) {
+#endif
       if (skip_trellis || (!perform_block_coeff_opt)) {
         av1_xform_quant(
             cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,

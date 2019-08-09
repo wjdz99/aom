@@ -386,11 +386,11 @@ enum {
 #define EXT_TX_SIZES 4       // number of sizes that use extended transforms
 #define EXT_TX_SETS_INTER 4  // Sets of transform selections for INTER
 #if CONFIG_VQ4X4
-#define EXT_TX_SETS_INTRA 4  // Sets of transform selections for INTRA
-#define VQ_GAIN_SYMBOLS_1 4
-#define VQ_GAIN_SYMBOLS_2 16
+#define VQ_GAIN_LEVELS 16
+#define VQ_SHAPES 256
 #define VQ_SHAPE_SYMBOLS_1 16
 #define VQ_SHAPE_SYMBOLS_2 16
+#define EXT_TX_SETS_INTRA 4  // Sets of transform selections for INTRA
 #else
 #define EXT_TX_SETS_INTRA 3  // Sets of transform selections for INTRA
 #endif

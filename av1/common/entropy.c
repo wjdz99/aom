@@ -205,12 +205,10 @@ void av1_reset_cdf_symbol_counters(FRAME_CONTEXT *fc) {
   RESET_CDF_COUNTER_STRIDE(fc->inter_ext_tx_cdf[3], 2, CDF_SIZE(TX_TYPES));
 #endif
 #if CONFIG_VQ4X4
-  RESET_CDF_COUNTER(fc->vq_gain_sym1_cdf, VQ_GAIN_SYMBOLS_1);
-  for (int i = 0; i < VQ_GAIN_SYMBOLS_1; i++)
-    RESET_CDF_COUNTER(fc->vq_gain_sym2_cdf[i], VQ_GAIN_SYMBOLS_2);
+  RESET_CDF_COUNTER(fc->use_vq_cdf, 2);
+  RESET_CDF_COUNTER(fc->vq_gain_cdf, VQ_GAIN_LEVELS);
   RESET_CDF_COUNTER(fc->vq_shape_sym1_cdf, VQ_SHAPE_SYMBOLS_1);
-  for (int i = 0; i < VQ_SHAPE_SYMBOLS_1; i++)
-    RESET_CDF_COUNTER(fc->vq_shape_sym2_cdf[i], VQ_SHAPE_SYMBOLS_2);
+  RESET_CDF_COUNTER(fc->vq_shape_sym2_cdf, VQ_SHAPE_SYMBOLS_2);
 #endif
   RESET_CDF_COUNTER(fc->cfl_sign_cdf, CFL_JOINT_SIGNS);
   RESET_CDF_COUNTER(fc->cfl_alpha_cdf, CFL_ALPHABET_SIZE);

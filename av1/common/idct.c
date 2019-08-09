@@ -529,6 +529,7 @@ void av1_vec_dequant_add(const MACROBLOCKD *xd, int plane, int blk_row,
   (void)plane;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
+  assert(mbmi->use_vq[blk_idx]);
   int gain_sign = mbmi->gain_sign[blk_idx];
   int qgain_idx = mbmi->qgain_idx[blk_idx];
   int shape_idx = mbmi->shape_idx[blk_idx];

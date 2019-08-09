@@ -510,8 +510,8 @@ typedef struct FRAME_COUNTS {
                            [TX_TYPES];
 #endif
 #if CONFIG_VQ4X4
-  unsigned int vq_gain_sym1[VQ_GAIN_SYMBOLS_1];
-  unsigned int vq_gain_sym2[VQ_GAIN_SYMBOLS_1][VQ_GAIN_SYMBOLS_2];
+  unsigned int use_vq[INTRA_MODES][2];
+  unsigned int vq_gain_symbol[VQ_GAIN_LEVELS];
   unsigned int vq_shape_sym1[VQ_SHAPE_SYMBOLS_1];
   unsigned int vq_shape_sym2[VQ_SHAPE_SYMBOLS_1][VQ_SHAPE_SYMBOLS_2];
 #endif

@@ -188,8 +188,8 @@ typedef struct frame_contexts {
                                [CDF_SIZE(TX_TYPES)];
 #endif
 #if CONFIG_VQ4X4
-  aom_cdf_prob vq_gain_sym1_cdf[CDF_SIZE(VQ_GAIN_SYMBOLS_1)];
-  aom_cdf_prob vq_gain_sym2_cdf[VQ_GAIN_SYMBOLS_1][CDF_SIZE(VQ_GAIN_SYMBOLS_2)];
+  aom_cdf_prob use_vq_cdf[INTRA_MODES][CDF_SIZE(2)];
+  aom_cdf_prob vq_gain_cdf[CDF_SIZE(VQ_GAIN_LEVELS)];
   aom_cdf_prob vq_shape_sym1_cdf[CDF_SIZE(VQ_SHAPE_SYMBOLS_1)];
   aom_cdf_prob vq_shape_sym2_cdf[VQ_SHAPE_SYMBOLS_1]
                                 [CDF_SIZE(VQ_SHAPE_SYMBOLS_2)];
