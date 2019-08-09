@@ -306,6 +306,7 @@ static void set_good_speed_features_framesize_independent(
             ? 0
             : (boosted ? 1 : 2);
     sf->intra_cnn_split = (speed == 1);
+    if (!boosted) sf->mv.subpel_iters_per_step = 1;
   }
 
   if (speed >= 2) {
