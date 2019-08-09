@@ -306,6 +306,7 @@ static void set_good_speed_features_framesize_independent(
             ? 0
             : (boosted ? 1 : 2);
     sf->intra_cnn_split = (speed == 1);
+    sf->mv.subpel_iters_per_step = 1;
   }
 
   if (speed >= 2) {
@@ -320,7 +321,6 @@ static void set_good_speed_features_framesize_independent(
 
     sf->adaptive_rd_thresh = 1;
     sf->mv.auto_mv_step_size = 1;
-    sf->mv.subpel_iters_per_step = 1;
     sf->disable_filter_search_var_thresh = 100;
     sf->comp_inter_joint_search_thresh = BLOCK_SIZES_ALL;
 
