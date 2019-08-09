@@ -113,7 +113,7 @@ static void set_good_speed_feature_framesize_dependent(
   const AV1_COMMON *const cm = &cpi->common;
   const int is_720p_or_larger = AOMMIN(cm->width, cm->height) >= 720;
   const int is_480p_or_larger = AOMMIN(cm->width, cm->height) >= 480;
-  const int is_4k_or_larger = AOMMIN(cm->width, cm->height) >= 2160;
+  const int is_4k_or_larger = AOMMIN(cm->width, cm->height) >= 240;
 
   if (is_480p_or_larger) {
     sf->use_square_partition_only_threshold = BLOCK_128X128;
