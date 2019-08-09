@@ -215,6 +215,24 @@ int av1_rc_clamp_iframe_target_size(const AV1_COMP *const cpi, int target) {
   return target;
 }
 
+// Update the buffer level for higher temporal layers, given the encoded current
+// temporal layer.
+static void update_layer_buffer_level(SVC *svc, int encoded_frame_size) {
+  int i = 0;
+  const int current_temporal_layer = svc->temporal_layer_id;
+  for (i = current_temporal_layer + 1; i < svc->number_temporal_layers; ++i) {
+    const int layer =
+        LAYER_IDS_TO_IDX(svc->spatial_layer_id, i, svc->number_temporal_layers);
+    LAYER_CONTEXT *lc = &svc->layer_context[layer];
+    RATE_CONTROL *lrc = &lc->rc;
+    lrc->bits_off_target +=
+        (int)(lc->target_bandwidth / lc->framerate) - encoded_frame_size;
+    // Clip buffer level to maximum buffer size for the layer.
+    lrc->bits_off_target =
+        AOMMIN(lrc->bits_off_target, lrc->maximum_buffer_size);
+    lrc->buffer_level = lrc->bits_off_target;
+  }
+}
 // Update the buffer level: leaky bucket model.
 static void update_buffer_level(AV1_COMP *cpi, int encoded_frame_size) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -229,6 +247,9 @@ static void update_buffer_level(AV1_COMP *cpi, int encoded_frame_size) {
   // Clip the buffer level to the maximum specified buffer size.
   rc->bits_off_target = AOMMIN(rc->bits_off_target, rc->maximum_buffer_size);
   rc->buffer_level = rc->bits_off_target;
+
+  if (cpi->use_svc)
+    update_layer_buffer_level(&cpi->svc, encoded_frame_size);
 }
 
 int av1_rc_get_default_min_gf_interval(int width, int height,

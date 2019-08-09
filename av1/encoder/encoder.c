@@ -2602,6 +2602,9 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
         cm->number_spatial_layers > 1 ? cm->number_spatial_layers - 1 : 0;
     init_seq_coding_tools(&cm->seq_params, cm, oxcf, cpi->use_svc);
   }
+
+  if (cpi->use_svc)
+    av1_update_layer_context_change_config(cpi, oxcf->target_bandwidth);
 }
 
 AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
@@ -5995,6 +5998,11 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
   if (assign_cur_frame_new_fb(cm) == NULL) return AOM_CODEC_ERROR;
 
+  if (cpi->use_svc) {
+    av1_update_temporal_layer_framerate(cpi);
+    av1_restore_layer_context(cpi);
+  }
+
   const int result =
       av1_encode_strategy(cpi, size, dest, frame_flags, time_stamp, time_end,
                           timestamp_ratio, flush);
@@ -6013,6 +6021,8 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       generate_psnr_packet(cpi);
     }
   }
+
+  if (cpi->use_svc) av1_save_layer_context(cpi);
 
   if (cpi->keep_level_stats && oxcf->pass != 1) {
     // Initialize level info. at the beginning of each sequence.

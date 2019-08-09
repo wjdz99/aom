@@ -2162,6 +2162,8 @@ static aom_codec_err_t ctrl_set_layer_id(aom_codec_alg_priv_t *ctx,
   aom_svc_layer_id_t *const data = va_arg(args, aom_svc_layer_id_t *);
   ctx->cpi->common.spatial_layer_id = data->spatial_layer_id;
   ctx->cpi->common.temporal_layer_id = data->temporal_layer_id;
+  ctx->cpi->svc.spatial_layer_id = data->spatial_layer_id;
+  ctx->cpi->svc.temporal_layer_id = data->temporal_layer_id;
   return AOM_CODEC_OK;
 }
 
@@ -2171,6 +2173,8 @@ static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
   aom_svc_params_t *const params = va_arg(args, aom_svc_params_t *);
   cpi->common.number_spatial_layers = params->number_spatial_layers;
   cpi->common.number_temporal_layers = params->number_temporal_layers;
+  cpi->svc.number_spatial_layers = params->number_spatial_layers;
+  cpi->svc.number_temporal_layers = params->number_temporal_layers;
   if (cpi->common.number_spatial_layers > 1 ||
       cpi->common.number_temporal_layers > 1) {
     unsigned int sl, tl;
@@ -2189,6 +2193,9 @@ static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
       }
     }
   }
+  // TODO(marpan): Need to handle dynamic/on the fly changes for these
+  // parameters.
+  av1_init_layer_context(cpi);
   return AOM_CODEC_OK;
 }
 
