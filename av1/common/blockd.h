@@ -253,9 +253,10 @@ typedef struct MB_MODE_INFO {
   PARTITION_TYPE partition;
   TX_TYPE txk_type[TXK_TYPE_BUF_LEN];
 #if CONFIG_VQ4X4
-  int gain_sign[MAX_MB_PLANE][TXK_TYPE_BUF_LEN];
-  int qgain_idx[MAX_MB_PLANE][TXK_TYPE_BUF_LEN];
-  int shape_idx[MAX_MB_PLANE][TXK_TYPE_BUF_LEN];
+  int use_vq[TXK_TYPE_BUF_LEN];
+  int gain_sign[TXK_TYPE_BUF_LEN];
+  int qgain_idx[TXK_TYPE_BUF_LEN];
+  int shape_idx[TXK_TYPE_BUF_LEN];
 #endif
   MV_REFERENCE_FRAME ref_frame[2];
   FILTER_INTRA_MODE_INFO filter_intra_mode_info;
@@ -689,7 +690,7 @@ static INLINE int block_signals_txsize(BLOCK_SIZE bsize) {
 static const int av1_num_ext_tx_set[EXT_TX_SET_TYPES] = {
   1, 2, 5, 7, 12, 16,
 #if CONFIG_VQ4X4
-  0,  // not used
+  7,
 #endif
 };
 
@@ -711,8 +712,8 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1 },
 #if CONFIG_VQ4X4
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0,
+    0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
 #endif
 };
 #elif USE_MDTX_INTRA
@@ -724,7 +725,7 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 },
 #if CONFIG_VQ4X4
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1 },
 #endif
 };
 #elif USE_MDTX_INTER
@@ -736,7 +737,7 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 #if CONFIG_VQ4X4
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 #endif
 };
 #endif
@@ -749,7 +750,7 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 #if CONFIG_VQ4X4
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 },
 #endif
 };
 #endif
@@ -778,7 +779,7 @@ static const uint16_t av1_ext_tx_used_flag[EXT_TX_SET_TYPES] = {
   0x0FFF,  // 0000 1111 1111 1111
   0xFFFF,  // 1111 1111 1111 1111
 #if CONFIG_VQ4X4
-  0x0000,  // not used
+  0x0E0F,  // 0000 1110 0000 1111
 #endif
 };
 

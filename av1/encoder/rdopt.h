@@ -93,8 +93,19 @@ static INLINE int av1_cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x,
   aom_usec_timer_start(&timer);
 #endif
   (void)use_fast_coef_costing;
+#if CONFIG_VQ4X4
+  MACROBLOCKD *const xd = &x->e_mbd;
+  TxSetType tx_set_type = av1_get_ext_tx_set_type(
+      tx_size, is_inter_block(xd->mi[0]), cm->reduced_tx_set_used);
+  int cost =
+      av1_cost_coeffs_txb(cm, x, plane, block, tx_size, tx_type, txb_ctx);
+  // cost to transmit use_vq (=0)
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0)
+    cost += x->use_vq_costs[xd->mi[0]->mode][0];
+#else
   const int cost =
       av1_cost_coeffs_txb(cm, x, plane, block, tx_size, tx_type, txb_ctx);
+#endif
 #if TXCOEFF_COST_TIMER
   AV1_COMMON *tmp_cm = (AV1_COMMON *)&cpi->common;
   aom_usec_timer_mark(&timer);
