@@ -3927,6 +3927,7 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVG_CDF_STRIDE(ctx_left->inter_ext_tx_cdf[3], ctx_tr->inter_ext_tx_cdf[3], 2,
                  CDF_SIZE(TX_TYPES));
 #if CONFIG_VQ4X4
+  AVERAGE_CDF(ctx_left->use_vq_cdf, ctx_tr->use_vq_cdf, 2);
   AVERAGE_CDF(ctx_left->vq_gain_sym1_cdf, ctx_tr->vq_gain_sym1_cdf,
               VQ_GAIN_SYMBOLS_1);
   AVERAGE_CDF(ctx_left->vq_gain_sym2_cdf, ctx_tr->vq_gain_sym2_cdf,

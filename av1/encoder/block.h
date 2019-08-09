@@ -380,6 +380,7 @@ struct macroblock {
                          [TX_TYPES];
 #endif
 #if CONFIG_VQ4X4
+  int use_vq_costs[INTRA_MODES][2];
   int vq_gain_sym1_costs[VQ_GAIN_SYMBOLS_1];
   int vq_gain_sym2_costs[VQ_GAIN_SYMBOLS_1][VQ_GAIN_SYMBOLS_2];
   int vq_shape_sym1_costs[VQ_SHAPE_SYMBOLS_1];

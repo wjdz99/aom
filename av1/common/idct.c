@@ -526,11 +526,13 @@ void av1_inv_txfm_add_c(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
 void av1_vec_dequant_add(const MACROBLOCKD *xd, int plane, int blk_row,
                          int blk_col, uint8_t *dst, int stride,
                          TX_SIZE tx_size) {
+  (void)plane;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
-  int gain_sign = mbmi->gain_sign[plane][blk_idx];
-  int qgain_idx = mbmi->qgain_idx[plane][blk_idx];
-  int shape_idx = mbmi->shape_idx[plane][blk_idx];
+  assert(mbmi->use_vq[blk_idx]);
+  int gain_sign = mbmi->gain_sign[blk_idx];
+  int qgain_idx = mbmi->qgain_idx[blk_idx];
+  int shape_idx = mbmi->shape_idx[blk_idx];
   int16_t gain = gain_sign ? vq_gain_vals[qgain_idx] : -vq_gain_vals[qgain_idx];
   const int txw = tx_size_wide[tx_size];
   const int txh = tx_size_high[tx_size];

@@ -114,28 +114,29 @@ void av1_read_vq_txb(MACROBLOCKD *xd, aom_reader *const r, const int blk_row,
   // TODO(kslu): use contexts
   (void)txb_ctx;
   (void)tx_size;
+  (void)plane;
   FRAME_CONTEXT *const ec_ctx = xd->tile_ctx;
   MB_MODE_INFO *mbmi = xd->mi[0];
   const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
+  mbmi->use_vq[blk_idx] = 1;
 
   int gain_sym1 =
       aom_read_symbol(r, ec_ctx->vq_gain_sym1_cdf, VQ_GAIN_SYMBOLS_1, ACCT_STR);
   int gain_sym2 = aom_read_symbol(r, ec_ctx->vq_gain_sym2_cdf[gain_sym1],
                                   VQ_GAIN_SYMBOLS_2, ACCT_STR);
   int qgain_idx = gain_sym1 * VQ_GAIN_SYMBOLS_2 + gain_sym2;
-  mbmi->qgain_idx[plane][blk_idx] = qgain_idx;
+  mbmi->qgain_idx[blk_idx] = qgain_idx;
 
   if (qgain_idx == 0) {
-    mbmi->gain_sign[plane][blk_idx] = 1;
-    mbmi->shape_idx[plane][blk_idx] = 0;
+    mbmi->gain_sign[blk_idx] = 1;
+    mbmi->shape_idx[blk_idx] = 0;
   } else {
-    mbmi->gain_sign[plane][blk_idx] = aom_read_bit(r, ACCT_STR);
+    mbmi->gain_sign[blk_idx] = aom_read_bit(r, ACCT_STR);
     int shape_sym1 = aom_read_symbol(r, ec_ctx->vq_shape_sym1_cdf,
                                      VQ_SHAPE_SYMBOLS_1, ACCT_STR);
     int shape_sym2 = aom_read_symbol(r, ec_ctx->vq_shape_sym2_cdf[shape_sym1],
                                      VQ_SHAPE_SYMBOLS_2, ACCT_STR);
-    mbmi->shape_idx[plane][blk_idx] =
-        shape_sym1 * VQ_SHAPE_SYMBOLS_2 + shape_sym2;
+    mbmi->shape_idx[blk_idx] = shape_sym1 * VQ_SHAPE_SYMBOLS_2 + shape_sym2;
   }
 }
 #endif
@@ -376,20 +377,23 @@ void av1_read_coeffs_txb_facade(const AV1_COMMON *const cm,
   TXB_CTX txb_ctx;
   get_txb_ctx(plane_bsize, tx_size, plane, pd->above_context + col,
               pd->left_context + row, &txb_ctx);
+  PLANE_TYPE plane_type = get_plane_type(plane);
 #if CONFIG_VQ4X4
   const TxSetType tx_set_type = av1_get_ext_tx_set_type(
       tx_size, is_inter_block(mbmi), cm->reduced_tx_set_used);
-  if (tx_set_type == EXT_TX_SET_VQ) {
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0 &&
+      aom_read_symbol(r, xd->tile_ctx->use_vq_cdf[mbmi->mode], 2, ACCT_STR)) {
     av1_read_vq_txb(xd, r, row, col, plane, &txb_ctx, tx_size);
     av1_set_contexts(xd, pd, plane, plane_bsize, tx_size, 0, col, row);
   } else {
+    const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, row, col);
+    mbmi->use_vq[blk_idx] = 0;
 #endif
     const uint8_t cul_level =
         av1_read_coeffs_txb(cm, xd, r, row, col, plane, &txb_ctx, tx_size);
     av1_set_contexts(xd, pd, plane, plane_bsize, tx_size, cul_level, col, row);
 
     if (is_inter_block(mbmi)) {
-      PLANE_TYPE plane_type = get_plane_type(plane);
       // tx_type will be read out in av1_read_coeffs_txb_facade
       const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, row, col, tx_size,
                                               cm->reduced_tx_set_used);
