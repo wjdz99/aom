@@ -3246,10 +3246,14 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   assert(IMPLIES(txk_allowed < TX_TYPES, allowed_tx_mask == 1 << txk_allowed));
 #endif
 
-#if CONFIG_VQ4X4 && VQ_RD_DEBUG
+#if CONFIG_VQ4X4
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0)
+    mbmi->use_vq[txk_type_idx] = 0;
+#if VQ_RD_DEBUG
   if (tx_size == TX_4X4)
     fprintf(stderr, "======\nPlane %d blk_row %d blk_col %d\n", plane, blk_row,
             blk_col);
+#endif
 #endif
 
   for (int idx = 0; idx < TX_TYPES; ++idx) {
@@ -3263,10 +3267,6 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
 #endif
 
-#if CONFIG_VQ4X4
-    if (tx_set_type == EXT_TX_SET_VQ && plane == 0)
-      mbmi->use_vq[txk_type_idx] = 0;
-#endif
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
@@ -3442,9 +3442,11 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 #endif
 
     if (rd < best_rd) {
+      this_rd_stats.skip = 0;
       *best_rd_stats = this_rd_stats;
-      x->plane[plane].txb_entropy_ctx[block] = 0;  // not used
-      x->plane[plane].eobs[block] = 0;             // not used
+      x->plane[plane].txb_entropy_ctx[block] = 1;
+      // fprintf(stderr, "C[%d, %d]", best_txb_ctx, best_eob);
+      x->plane[plane].eobs[block] = 1;
       pd->dqcoeff = orig_dqcoeff;
       return rd;
     } else {
@@ -3495,7 +3497,8 @@ RECON_INTRA:
     // do this again
 #if CONFIG_VQ4X4
     // When VQ has been searched but not chosen, this reconstruction is needed
-    if (best_tx_type != last_tx_type || tx_set_type == EXT_TX_SET_VQ) {
+    if (best_tx_type != last_tx_type ||
+        (tx_set_type == EXT_TX_SET_VQ && plane == 0)) {
 #else
     if (best_tx_type != last_tx_type) {
 #endif
