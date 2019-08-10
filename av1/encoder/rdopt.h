@@ -100,7 +100,8 @@ static INLINE int av1_cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x,
   int cost =
       av1_cost_coeffs_txb(cm, x, plane, block, tx_size, tx_type, txb_ctx);
   // cost to transmit use_vq (=0)
-  if (tx_set_type == EXT_TX_SET_VQ && plane == 0)
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0 &&
+      x->plane[plane].eobs[block] != 0)
     cost += x->use_vq_costs[xd->mi[0]->mode][0];
 #else
   const int cost =
