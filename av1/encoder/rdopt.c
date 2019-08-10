@@ -3419,7 +3419,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   }
 
 #if CONFIG_VQ4X4
-  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0 && best_eob != 0) {
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
 
@@ -3443,8 +3443,8 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
     if (rd < best_rd) {
       *best_rd_stats = this_rd_stats;
-      x->plane[plane].txb_entropy_ctx[block] = 0;  // not used
-      x->plane[plane].eobs[block] = 0;             // not used
+      x->plane[plane].txb_entropy_ctx[block] = 0;
+      x->plane[plane].eobs[block] = 1;  // not to skip
       pd->dqcoeff = orig_dqcoeff;
       return rd;
     } else {

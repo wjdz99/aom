@@ -511,6 +511,22 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   aom_write_symbol(w, eob == 0,
                    ec_ctx->txb_skip_cdf[txs_ctx][txb_ctx->txb_skip_ctx], 2);
   if (eob == 0) return;
+
+#if CONFIG_VQ4X4
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  const TxSetType tx_set_type = av1_get_ext_tx_set_type(
+      tx_size, is_inter_block(mbmi), cm->reduced_tx_set_used);
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
+    const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
+    int use_vq = mbmi->use_vq[blk_idx];
+    aom_write_symbol(w, use_vq, xd->tile_ctx->use_vq_cdf[mbmi->mode], 2);
+    if (use_vq) {
+      av1_write_vq_txb(xd, w, blk_row, blk_col, plane, tx_size, txb_ctx);
+      return;
+    }
+  }
+#endif  // CONFIG_VQ4X4
+
   const PLANE_TYPE plane_type = get_plane_type(plane);
   const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col,
                                           tx_size, cm->reduced_tx_set_used);
@@ -703,26 +719,8 @@ static void write_coeffs_txb_wrap(const AV1_COMMON *cm, MACROBLOCK *x,
   const tran_low_t *tcoeff = BLOCK_OFFSET(tcoeff_txb, block);
   const uint16_t eob = eob_txb[block];
   TXB_CTX txb_ctx = { txb_skip_ctx_txb[block], dc_sign_ctx_txb[block] };
-#if CONFIG_VQ4X4
-  MB_MODE_INFO *mbmi = xd->mi[0];
-  const TxSetType tx_set_type = av1_get_ext_tx_set_type(
-      tx_size, is_inter_block(mbmi), cm->reduced_tx_set_used);
-  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
-    const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
-    int use_vq = mbmi->use_vq[blk_idx];
-    aom_write_symbol(w, use_vq, xd->tile_ctx->use_vq_cdf[mbmi->mode], 2);
-    if (use_vq)
-      av1_write_vq_txb(xd, w, blk_row, blk_col, plane, tx_size, &txb_ctx);
-    else
-      av1_write_coeffs_txb(cm, xd, w, blk_row, blk_col, plane, tx_size, tcoeff,
-                           eob, &txb_ctx);
-  } else {
-#endif  // CONFIG_VQ4X4
-    av1_write_coeffs_txb(cm, xd, w, blk_row, blk_col, plane, tx_size, tcoeff,
-                         eob, &txb_ctx);
-#if CONFIG_VQ4X4
-  }
-#endif
+  av1_write_coeffs_txb(cm, xd, w, blk_row, blk_col, plane, tx_size, tcoeff, eob,
+                       &txb_ctx);
 }
 
 void av1_write_coeffs_mb(const AV1_COMMON *const cm, MACROBLOCK *x, int mi_row,
