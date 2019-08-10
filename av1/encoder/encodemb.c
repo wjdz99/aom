@@ -306,7 +306,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   int use_vq = mbmi->use_vq[blk_idx];
   if (tx_set_type == EXT_TX_SET_VQ && plane == 0 && use_vq) {
     av1_vec_quant(x, plane, blk_row, blk_col, plane_bsize, tx_size);
-    p->eobs[block] = 0;
+    p->eobs[block] = 1;
     p->txb_entropy_ctx[block] = 0;
     av1_set_txb_context(x, plane, block, tx_size, a, l);
   } else {
@@ -684,7 +684,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   if (tx_set_type == EXT_TX_SET_VQ && plane == 0 && use_vq) {
     av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
     av1_vec_quant(x, plane, blk_row, blk_col, plane_bsize, tx_size);
-    *eob = 0;
+    *eob = 1;
     p->txb_entropy_ctx[block] = 0;
   } else {
 #endif  // CONFIG_VQ4X4

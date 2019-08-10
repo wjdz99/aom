@@ -253,10 +253,10 @@ static void predict_and_reconstruct_intra_block(
         inverse_transform_block(xd, plane, tx_type, tx_size, dst,
                                 pd->dst.stride, cm->reduced_tx_set_used);
       }
-#if CONFIG_VQ4X4
     }
-#endif
+#if CONFIG_VQ4X4
   }
+#endif
   if (plane == AOM_PLANE_Y && store_cfl_required(cm, xd)) {
     cfl_store_tx(xd, row, col, tx_size, mbmi->sb_type);
   }
@@ -271,6 +271,9 @@ static void inverse_transform_inter_block(const AV1_COMMON *const cm,
   PLANE_TYPE plane_type = get_plane_type(plane);
   const struct macroblockd_plane *const pd = &xd->plane[plane];
 
+  uint8_t *dst =
+      &pd->dst
+           .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
 #if CONFIG_VQ4X4
   MB_MODE_INFO *const mbmi = xd->mi[0];
   TxSetType tx_set_type = av1_get_ext_tx_set_type(tx_size, is_inter_block(mbmi),
@@ -278,9 +281,6 @@ static void inverse_transform_inter_block(const AV1_COMMON *const cm,
   const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
   int use_vq = mbmi->use_vq[blk_idx];
   if (tx_set_type == EXT_TX_SET_VQ && plane == 0 && use_vq) {
-    uint8_t *dst =
-        &pd->dst
-             .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
     av1_vec_dequant_add(xd, plane, blk_row, blk_col, dst, pd->dst.stride,
                         tx_size);
   } else {
@@ -289,9 +289,6 @@ static void inverse_transform_inter_block(const AV1_COMMON *const cm,
     const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col,
                                             tx_size, cm->reduced_tx_set_used);
 
-    uint8_t *dst =
-        &pd->dst
-             .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
     inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
                             cm->reduced_tx_set_used);
 #if CONFIG_VQ4X4
