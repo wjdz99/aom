@@ -399,6 +399,11 @@ int main(int argc, const char **argv) {
 
 #if CONFIG_VQ4X4
   /* vq4x4 */
+  cts_each_dim[0] = INTRA_MODES;
+  cts_each_dim[1] = 2;
+  optimize_cdf_table(&fc.use_vq[0][0], probsfile, 2, cts_each_dim,
+                     "static const aom_cdf_prob\n"
+                     "default_use_vq_cdf[INTRA_MODES][CDF_SIZE(2)]");
   cts_each_dim[0] = VQ_GAIN_LEVELS;
   optimize_cdf_table(&fc.vq_gain_symbol[0], probsfile, 1, cts_each_dim,
                      "static const aom_cdf_prob\n"
