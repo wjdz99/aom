@@ -1046,7 +1046,9 @@ struct estimate_block_intra_args {
 
 static void estimate_block_intra(int plane, int block, int row, int col,
                                  BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
-                                 void *arg) {
+                                 void *arg, int64_t prev_level_rd,
+                                 int *is_predict_win) {
+  (void)prev_level_rd;
   struct estimate_block_intra_args *const args = arg;
   AV1_COMP *const cpi = args->cpi;
   AV1_COMMON *const cm = &cpi->common;
@@ -1730,14 +1732,14 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       args.rdc = &this_rdc;
       mi->tx_size = intra_tx_size;
       av1_foreach_transformed_block_in_plane(xd, bsize, 0, estimate_block_intra,
-                                             &args);
+                                             &args, INT64_MAX, NULL);
       // TODO(kyslov@) Need to account for skippable
       if (x->color_sensitivity[0])
-        av1_foreach_transformed_block_in_plane(xd, uv_bsize, 1,
-                                               estimate_block_intra, &args);
+        av1_foreach_transformed_block_in_plane(
+            xd, uv_bsize, 1, estimate_block_intra, &args, INT64_MAX, NULL);
       if (x->color_sensitivity[1])
-        av1_foreach_transformed_block_in_plane(xd, uv_bsize, 2,
-                                               estimate_block_intra, &args);
+        av1_foreach_transformed_block_in_plane(
+            xd, uv_bsize, 2, estimate_block_intra, &args, INT64_MAX, NULL);
 
       int mode_cost = 0;
       if (av1_is_directional_mode(this_mode) && av1_use_angle_delta(bsize)) {

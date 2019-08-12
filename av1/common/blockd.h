@@ -957,10 +957,9 @@ void av1_reset_loop_filter_delta(MACROBLOCKD *xd, int num_planes);
 
 void av1_reset_loop_restoration(MACROBLOCKD *xd, const int num_planes);
 
-typedef void (*foreach_transformed_block_visitor)(int plane, int block,
-                                                  int blk_row, int blk_col,
-                                                  BLOCK_SIZE plane_bsize,
-                                                  TX_SIZE tx_size, void *arg);
+typedef void (*foreach_transformed_block_visitor)(
+    int plane, int block, int blk_row, int blk_col, BLOCK_SIZE plane_bsize,
+    TX_SIZE tx_size, void *arg, int64_t prev_level_rd, int *is_predict_win);
 
 void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
                       int plane, BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
