@@ -256,6 +256,9 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
 #endif
 
 #if CONFIG_VQ4X4
+  for (j = 0; j < INTRA_MODES; j++) {
+    av1_cost_tokens_from_cdf(x->use_vq_costs[j], fc->use_vq_cdf[j], NULL);
+  }
   av1_cost_tokens_from_cdf(x->vq_gain_costs, fc->vq_gain_cdf, NULL);
   av1_cost_tokens_from_cdf(x->vq_shape_sym1_costs, fc->vq_shape_sym1_cdf, NULL);
   for (i = 0; i < VQ_SHAPE_SYMBOLS_1; i++)
