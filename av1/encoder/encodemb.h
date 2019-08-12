@@ -50,7 +50,8 @@ void av1_encode_sb(const struct AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
 
 void av1_foreach_transformed_block_in_plane(
     const MACROBLOCKD *const xd, BLOCK_SIZE bsize, int plane,
-    foreach_transformed_block_visitor visit, void *arg);
+    foreach_transformed_block_visitor visit, void *arg, int64_t prev_level_rd,
+    int *is_predict_win);
 
 void av1_foreach_transformed_block(const MACROBLOCKD *const xd,
                                    BLOCK_SIZE bsize, int mi_row, int mi_col,

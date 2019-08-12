@@ -369,7 +369,8 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
 
 void av1_foreach_transformed_block_in_plane(
     const MACROBLOCKD *const xd, BLOCK_SIZE bsize, int plane,
-    foreach_transformed_block_visitor visit, void *arg) {
+    foreach_transformed_block_visitor visit, void *arg, int64_t prev_level_rd,
+    int *is_predict_win) {
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   // block and transform sizes, in number of 4x4 blocks log 2 ("*_b")
   // 4x4=0, 8x8=2, 16x16=4, 32x32=6, 64x64=8
@@ -406,7 +407,8 @@ void av1_foreach_transformed_block_in_plane(
       const int unit_width = AOMMIN(mu_blocks_wide + c, max_blocks_wide);
       for (blk_row = r; blk_row < unit_height; blk_row += txh_unit) {
         for (blk_col = c; blk_col < unit_width; blk_col += txw_unit) {
-          visit(plane, i, blk_row, blk_col, plane_bsize, tx_size, arg);
+          visit(plane, i, blk_row, blk_col, plane_bsize, tx_size, arg,
+                prev_level_rd, is_predict_win);
           i += step;
         }
       }
@@ -423,7 +425,8 @@ void av1_foreach_transformed_block(const MACROBLOCKD *const xd,
                              xd->plane[plane].subsampling_x,
                              xd->plane[plane].subsampling_y))
       continue;
-    av1_foreach_transformed_block_in_plane(xd, bsize, plane, visit, arg);
+    av1_foreach_transformed_block_in_plane(xd, bsize, plane, visit, arg,
+                                           INT64_MAX, NULL);
   }
 }
 
@@ -434,7 +437,8 @@ typedef struct encode_block_pass1_args {
 
 static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
                                BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
-                               void *arg) {
+                               void *arg, int64_t prev_level_rd,
+                               int *is_predict_win) {
   encode_block_pass1_args *args = (encode_block_pass1_args *)arg;
   AV1_COMMON *cm = args->cm;
   MACROBLOCK *const x = args->x;
@@ -469,8 +473,8 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
 void av1_encode_sby_pass1(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize) {
   encode_block_pass1_args args = { cm, x };
   av1_subtract_plane(x, bsize, 0);
-  av1_foreach_transformed_block_in_plane(&x->e_mbd, bsize, 0,
-                                         encode_block_pass1, &args);
+  av1_foreach_transformed_block_in_plane(
+      &x->e_mbd, bsize, 0, encode_block_pass1, &args, INT64_MAX, NULL);
 }
 
 void av1_encode_sb(const struct AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
@@ -555,10 +559,9 @@ void av1_encode_sb(const struct AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   }
 }
 
-static void encode_block_intra_and_set_context(int plane, int block,
-                                               int blk_row, int blk_col,
-                                               BLOCK_SIZE plane_bsize,
-                                               TX_SIZE tx_size, void *arg) {
+static void encode_block_intra_and_set_context(
+    int plane, int block, int blk_row, int blk_col, BLOCK_SIZE plane_bsize,
+    TX_SIZE tx_size, void *arg, int64_t prev_level_rd, int *is_predict_win) {
   av1_encode_block_intra(plane, block, blk_row, blk_col, plane_bsize, tx_size,
                          arg);
 
@@ -671,6 +674,7 @@ void av1_encode_intra_block_plane(const struct AV1_COMP *cpi, MACROBLOCK *x,
     const struct macroblockd_plane *const pd = &xd->plane[plane];
     av1_get_entropy_contexts(bsize, pd, ta, tl);
   }
-  av1_foreach_transformed_block_in_plane(
-      xd, bsize, plane, encode_block_intra_and_set_context, &arg);
+  av1_foreach_transformed_block_in_plane(xd, bsize, plane,
+                                         encode_block_intra_and_set_context,
+                                         &arg, INT64_MAX, NULL);
 }
