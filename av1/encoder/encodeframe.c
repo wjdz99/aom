@@ -68,7 +68,11 @@
 #include "av1/encoder/tpl_model.h"
 #include "av1/encoder/var_based_part.h"
 #include "av1/encoder/tpl_model.h"
-
+#define EXP1 1
+#define EXP2 0
+#if EXP1
+double thresh[4] = { 1.0, 0.5, 0.7, 0.8 };
+#endif
 static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                               ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
                               int mi_row, int mi_col, BLOCK_SIZE bsize,
@@ -3325,7 +3329,11 @@ BEGIN_PARTITION_SEARCH:
     partition_horz4_allowed = 0;
     partition_vert4_allowed = 0;
   }
-
+#if EXP2
+  if ((pc_tree->partitioning == PARTITION_VERT_B) ||
+      (pc_tree->partitioning == PARTITION_VERT_A))
+    partition_horz4_allowed = 0;
+#endif
   // PARTITION_HORZ_4
   assert(IMPLIES(!cpi->oxcf.enable_rect_partitions, !partition_horz4_allowed));
   if (!terminate_partition_search && partition_horz4_allowed && has_rows &&
@@ -3354,6 +3362,12 @@ BEGIN_PARTITION_SEARCH:
       PICK_MODE_CONTEXT *ctx_this = &pc_tree->horizontal4[i];
 
       ctx_this->rd_mode_is_ready = 0;
+#if EXP1
+      if (sum_rdc.rdcost > (int64_t)(thresh[i] * best_rdc.rdcost)) {
+        av1_invalid_rd_stats(&sum_rdc);
+        break;
+      }
+#endif
       if (!rd_try_subblock(cpi, td, tile_data, tp, (i == 3), this_mi_row,
                            mi_col, subsize, best_rdc, &sum_rdc,
                            PARTITION_HORZ_4, ctx_prev, ctx_this)) {
@@ -3381,7 +3395,15 @@ BEGIN_PARTITION_SEARCH:
 #endif
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
-
+#if EXP2
+  if ((pc_tree->partitioning == PARTITION_HORZ_B) ||
+      (pc_tree->partitioning == PARTITION_HORZ_A))
+    partition_vert4_allowed = 0;
+#endif
+    // PARTITION_VERT_4
+#if EXP1
+  if (pc_tree->partitioning == PARTITION_HORZ_4) partition_vert4_allowed = 0;
+#endif
   // PARTITION_VERT_4
   assert(IMPLIES(!cpi->oxcf.enable_rect_partitions, !partition_vert4_allowed));
   if (!terminate_partition_search && partition_vert4_allowed && has_cols &&
@@ -3410,6 +3432,13 @@ BEGIN_PARTITION_SEARCH:
       PICK_MODE_CONTEXT *ctx_this = &pc_tree->vertical4[i];
 
       ctx_this->rd_mode_is_ready = 0;
+
+#if EXP1
+      if (sum_rdc.rdcost > (int64_t)(thresh[i] * best_rdc.rdcost)) {
+        av1_invalid_rd_stats(&sum_rdc);
+        break;
+      }
+#endif
       if (!rd_try_subblock(cpi, td, tile_data, tp, (i == 3), mi_row,
                            this_mi_col, subsize, best_rdc, &sum_rdc,
                            PARTITION_VERT_4, ctx_prev, ctx_this)) {
