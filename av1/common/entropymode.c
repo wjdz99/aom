@@ -629,10 +629,17 @@ static const aom_cdf_prob default_use_mdtx_intra_cdf[EXT_TX_SIZES][INTRA_MODES]
 #endif
 
 #if CONFIG_VQ4X4
+static const aom_cdf_prob default_use_vq_cdf[INTRA_MODES][CDF_SIZE(2)] = {
+  { AOM_CDF2(26549) }, { AOM_CDF2(26861) }, { AOM_CDF2(27373) },
+  { AOM_CDF2(23433) }, { AOM_CDF2(24482) }, { AOM_CDF2(22880) },
+  { AOM_CDF2(22998) }, { AOM_CDF2(25423) }, { AOM_CDF2(23771) },
+  { AOM_CDF2(27751) }, { AOM_CDF2(26246) }, { AOM_CDF2(25297) },
+  { AOM_CDF2(27105) }
+};
 
 static const aom_cdf_prob default_vq_gain_cdf[CDF_SIZE(VQ_GAIN_LEVELS)] = {
-      AOM_CDF16(139, 1870, 5813, 13838, 21256, 25856, 28345, 29836, 30847,
-                  31567, 32048, 32338, 32541, 32656, 32660)
+  AOM_CDF16(139, 1870, 5813, 13838, 21256, 25856, 28345, 29836, 30847, 31567,
+            32048, 32338, 32541, 32656, 32660)
 };
 
 static const aom_cdf_prob
@@ -1407,6 +1414,7 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif
 #endif
 #if CONFIG_VQ4X4
+  av1_copy(fc->use_vq_cdf, default_use_vq_cdf);
   av1_copy(fc->vq_gain_cdf, default_vq_gain_cdf);
   av1_copy(fc->vq_shape_sym1_cdf, default_vq_shape_sym1_cdf);
   av1_copy(fc->vq_shape_sym2_cdf, default_vq_shape_sym2_cdf);
