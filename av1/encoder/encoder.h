@@ -645,6 +645,7 @@ typedef struct ThreadData {
   int intrabc_used;
   int deltaq_used;
   FRAME_CONTEXT *tctx;
+  MB_MODE_INFO_EXT *mbmi_ext;
 } ThreadData;
 
 struct EncWorkerData;
@@ -762,7 +763,7 @@ typedef struct AV1_COMP {
   QUANTS quants;
   ThreadData td;
   FRAME_COUNTS counts;
-  MB_MODE_INFO_EXT *mbmi_ext_base;
+  MB_MODE_INFO_EXT_FRAME *mbmi_ext_base;
   CB_COEFF_BUFFER *coeff_buffer_base;
   Dequants dequants;
   AV1_COMMON common;
@@ -1387,7 +1388,7 @@ static INLINE void set_mode_info_offsets(const AV1_COMP *const cpi,
   const int mi_alloc_size_1d = cpi->mi_alloc_size_1d;
   const int mi_alloc_row = (mi_row + mi_alloc_size_1d - 1) / mi_alloc_size_1d;
   const int mi_alloc_col = (mi_col + mi_alloc_size_1d - 1) / mi_alloc_size_1d;
-  x->mbmi_ext =
+  x->mbmi_ext_frame =
       cpi->mbmi_ext_base + (mi_alloc_row * cpi->mi_alloc_cols + mi_alloc_col);
 }
 
