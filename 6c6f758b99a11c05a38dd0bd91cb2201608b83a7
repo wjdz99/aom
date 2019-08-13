@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b565d2bd_e1f13bf1",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 2165,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-08-13T19:52:55Z",
+      "side": 1,
+      "message": "is this duplicated in common and svc?",
+      "range": {
+        "startLine": 2165,
+        "startChar": 16,
+        "endLine": 2165,
+        "endChar": 32
+      },
+      "revId": "6c6f758b99a11c05a38dd0bd91cb2201608b83a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cfb9a04_071547f5",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-08-13T19:52:55Z",
+      "side": 1,
+      "message": "this can be declared and initialized in for loop",
+      "range": {
+        "startLine": 221,
+        "startChar": 2,
+        "endLine": 221,
+        "endChar": 12
+      },
+      "revId": "6c6f758b99a11c05a38dd0bd91cb2201608b83a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b030e52f_1b9f67b9",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-08-13T19:52:55Z",
+      "side": 1,
+      "message": "Alliance for Open Media",
+      "range": {
+        "startLine": 2,
+        "startChar": 23,
+        "endLine": 2,
+        "endChar": 47
+      },
+      "revId": "6c6f758b99a11c05a38dd0bd91cb2201608b83a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b301e336_aedba41f",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-08-13T19:52:55Z",
+      "side": 1,
+      "message": "this can be declared in for loop",
+      "range": {
+        "startLine": 29,
+        "startChar": 2,
+        "endLine": 29,
+        "endChar": 12
+      },
+      "revId": "6c6f758b99a11c05a38dd0bd91cb2201608b83a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d625b01c_852e705c",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-08-13T19:52:55Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 85,
+        "startChar": 2,
+        "endLine": 85,
+        "endChar": 13
+      },
+      "revId": "6c6f758b99a11c05a38dd0bd91cb2201608b83a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17e6d721_a6251322",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-08-13T19:52:55Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 211,
+        "startChar": 2,
+        "endLine": 211,
+        "endChar": 13
+      },
+      "revId": "6c6f758b99a11c05a38dd0bd91cb2201608b83a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8619fec4_d878b58d",
+        "filename": "av1/encoder/svc_layercontext.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-08-13T19:52:55Z",
+      "side": 1,
+      "message": "Alliance for Open Media",
+      "range": {
+        "startLine": 2,
+        "startChar": 23,
+        "endLine": 2,
+        "endChar": 39
+      },
+      "revId": "6c6f758b99a11c05a38dd0bd91cb2201608b83a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2dc0c69_38a8d2cb",
+        "filename": "av1/encoder/svc_layercontext.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-08-13T19:52:55Z",
+      "side": 1,
+      "message": "AOM_AV1_ENCODER_SVC_LAYERCONTEXT_H_",
+      "range": {
+        "startLine": 11,
+        "startChar": 8,
+        "endLine": 11,
+        "endChar": 47
+      },
+      "revId": "6c6f758b99a11c05a38dd0bd91cb2201608b83a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4df950cd_69d261c6",
+        "filename": "av1/encoder/svc_layercontext.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-08-13T19:52:55Z",
+      "side": 1,
+      "message": "AOM_AV1_ENCODER_SVC_LAYERCONTEXT_H_",
+      "range": {
+        "startLine": 12,
+        "startChar": 8,
+        "endLine": 12,
+        "endChar": 47
+      },
+      "revId": "6c6f758b99a11c05a38dd0bd91cb2201608b83a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f049b75_d6a60ed9",
+        "filename": "av1/encoder/svc_layercontext.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-08-13T19:52:55Z",
+      "side": 1,
+      "message": "AOM_AV1_ENCODER_SVC_LAYERCONTEXT_H_",
+      "range": {
+        "startLine": 87,
+        "startChar": 11,
+        "endLine": 87,
+        "endChar": 18
+      },
+      "revId": "6c6f758b99a11c05a38dd0bd91cb2201608b83a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "defe6ef6_efd2fd90",
+        "filename": "test/datarate_test.cc",
+        "patchSetId": 18
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-08-13T19:52:55Z",
+      "side": 1,
+      "message": "we should put this in new file svc_datarate_test.cc, like what we did in vp9.",
+      "range": {
+        "startLine": 437,
+        "startChar": 7,
+        "endLine": 437,
+        "endChar": 27
+      },
+      "revId": "6c6f758b99a11c05a38dd0bd91cb2201608b83a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
