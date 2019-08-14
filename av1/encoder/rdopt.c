@@ -4585,7 +4585,7 @@ static void get_gradient_hist(const uint8_t *src, int src_stride, int rows,
         const int quot = dx / dy;
         index = gradient_to_angle_bin[sn][AOMMIN(quot, 6)][AOMMIN(remd, 15)];
       }
-      hist[index] += temp;
+      hist[index] += 1;
     }
     src += src_stride;
   }
@@ -4645,7 +4645,7 @@ static void angle_estimation(const uint8_t *src, int src_stride, int rows,
         score += hist[angle_bin + 1];
         ++weight;
       }
-      const int thresh = 10;
+      const int thresh = 8;
       if (score * thresh < hist_sum * weight) directional_mode_skip_mask[i] = 1;
     }
   }
