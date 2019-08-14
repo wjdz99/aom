@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "efbed7f9_1222f200",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-08-14T20:01:25Z",
+      "side": 1,
+      "message": "HIGHBITDEPTH",
+      "range": {
+        "startLine": 7,
+        "startChar": 35,
+        "endLine": 7,
+        "endChar": 46
+      },
+      "revId": "c3314db9eaf30e2e4bf63f31ac0e8fe3692745f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3a9ce99_92ac86a5",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-08-14T20:01:25Z",
+      "side": 1,
+      "message": "\u0027pipeline\u0027 and maybe \u00278-bit\u0027",
+      "range": {
+        "startLine": 108,
+        "startChar": 40,
+        "endLine": 108,
+        "endChar": 47
+      },
+      "revId": "c3314db9eaf30e2e4bf63f31ac0e8fe3692745f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0376ee7_09cfa063",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-08-14T20:01:25Z",
+      "side": 1,
+      "message": "for compatibility I think we could also add a test for CONFIG_LOWBITDEPTH and use that if FORCE_ wasn\u0027t set. Tom, what do you think? Where would be the best place for the test?",
+      "revId": "c3314db9eaf30e2e4bf63f31ac0e8fe3692745f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
