@@ -1085,6 +1085,56 @@ static INLINE int get_force_skip_low_temp_var(uint8_t *variance_low, int mi_row,
   return force_skip_low_temp_var;
 }
 
+static void model_rd_for_sb_uv(AV1_COMP *cpi, BLOCK_SIZE plane_bsize,
+                               MACROBLOCK *x, MACROBLOCKD *xd,
+                               RD_STATS *this_rdc, unsigned int *var_y,
+                               unsigned int *sse_y, int start_plane,
+                               int stop_plane) {
+  // Note our transform coeffs are 8 times an orthogonal transform.
+  // Hence quantizer step is also 8 times. To get effective quantizer
+  // we need to divide by 8 before sending to modeling function.
+  unsigned int sse;
+  int rate;
+  int64_t dist;
+  int i;
+  uint32_t tot_var = *var_y;
+  uint32_t tot_sse = *sse_y;
+
+  this_rdc->rate = 0;
+  this_rdc->dist = 0;
+
+  for (i = start_plane; i <= stop_plane; ++i) {
+    struct macroblock_plane *const p = &x->plane[i];
+    struct macroblockd_plane *const pd = &xd->plane[i];
+    const uint32_t dc_quant = p->dequant_QTX[0];
+    const uint32_t ac_quant = p->dequant_QTX[1];
+    const BLOCK_SIZE bs = plane_bsize;
+    unsigned int var;
+    if (!x->color_sensitivity[i - 1]) continue;
+
+    var = cpi->fn_ptr[bs].vf(p->src.buf, p->src.stride, pd->dst.buf,
+                             pd->dst.stride, &sse);
+    assert(sse >= var);
+    tot_var += var;
+    tot_sse += sse;
+
+    av1_model_rd_from_var_lapndz(sse - var, num_pels_log2_lookup[bs],
+                                 dc_quant >> 3, &rate, &dist);
+
+    this_rdc->rate += rate >> 1;
+    this_rdc->dist += dist << 3;
+
+    av1_model_rd_from_var_lapndz(var, num_pels_log2_lookup[bs], ac_quant >> 3,
+                                 &rate, &dist);
+
+    this_rdc->rate += rate;
+    this_rdc->dist += dist << 4;
+  }
+
+  *var_y = tot_var;
+  *sse_y = tot_sse;
+}
+
 void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                        MACROBLOCK *x, int mi_row, int mi_col,
                                        RD_STATS *rd_cost, BLOCK_SIZE bsize,
@@ -1485,6 +1535,24 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       x->skip = 1;
       this_rdc.rate = skip_cost;
       this_rdc.dist = sse_y << 4;
+    }
+
+    if (!this_early_term &&
+        (x->color_sensitivity[0] || x->color_sensitivity[1])) {
+      RD_STATS rdc_uv;
+      const BLOCK_SIZE uv_bsize = get_plane_block_size(
+          bsize, xd->plane[1].subsampling_x, xd->plane[1].subsampling_y);
+      if (x->color_sensitivity[0]) {
+        av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
+                                      AOM_PLANE_U, AOM_PLANE_U);
+      }
+      if (x->color_sensitivity[1]) {
+        av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
+                                      AOM_PLANE_V, AOM_PLANE_V);
+      }
+      model_rd_for_sb_uv(cpi, uv_bsize, x, xd, &rdc_uv, &var_y, &sse_y, 1, 2);
+      this_rdc.rate += rdc_uv.rate;
+      this_rdc.dist += rdc_uv.dist;
     }
 
     // TODO(kyslov) account for UV prediction cost
