@@ -4394,7 +4394,8 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
         tokenonly_rd_stats.rate +
         intra_mode_info_cost_y(cpi, x, mbmi, bsize, mode_cost);
     this_rd = RDCOST(x->rdmult, this_rate, tokenonly_rd_stats.dist);
-
+    // printf("bzise : %d row %d col %d Filter_Mode IDX %d , RDCost %lld \n",
+    // bsize, mi_row, mi_col, mode, this_rd);
     if (this_rd < *best_rd) {
       *best_rd = this_rd;
       best_tx_size = mbmi->tx_size;
@@ -4585,7 +4586,7 @@ static void get_gradient_hist(const uint8_t *src, int src_stride, int rows,
         const int quot = dx / dy;
         index = gradient_to_angle_bin[sn][AOMMIN(quot, 6)][AOMMIN(remd, 15)];
       }
-      hist[index] += temp;
+      hist[index] += 1;  // temp;
     }
     src += src_stride;
   }
@@ -4786,6 +4787,8 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         this_rd_stats.rate +
         intra_mode_info_cost_y(cpi, x, mbmi, bsize, bmode_costs[mbmi->mode]);
     this_rd = RDCOST(x->rdmult, this_rate, this_distortion);
+    // printf("bzise : %d row %d col %d Mode IDX %d , RDCost %lld \n", bsize,
+    // mi_row, mi_col, mbmi->mode, this_rd);
     if (this_rd < best_rd) {
       best_mbmi = *mbmi;
       best_rd = this_rd;
