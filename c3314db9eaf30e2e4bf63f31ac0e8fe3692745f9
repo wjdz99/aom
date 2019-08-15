@@ -128,6 +128,24 @@
       "revId": "c3314db9eaf30e2e4bf63f31ac0e8fe3692745f9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bea3960a_1119bca2",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-08-15T17:08:56Z",
+      "side": 1,
+      "message": "\u003e That\u0027ll be in addition to the -DCONFIG_LOWBITDEPTH\u003d1, but I don\u0027t see a problem with that.\n\nActually, this last bit is incorrect-- CONFIG_LOWBITDEPTH is never passed to set_aom_config_var(), so that won\u0027t happen.",
+      "parentUuid": "f00da6c0_321997be",
+      "revId": "c3314db9eaf30e2e4bf63f31ac0e8fe3692745f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
