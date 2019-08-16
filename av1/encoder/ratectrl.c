@@ -1880,7 +1880,8 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi,
     frame_params->frame_type = INTER_FRAME;
     gf_group->update_type[gf_group->index] = LF_UPDATE;
   }
-  if (rc->frames_till_gf_update_due == 0 && cpi->svc.temporal_layer_id == 0) {
+  if (rc->frames_till_gf_update_due == 0 && cpi->svc.temporal_layer_id == 0 &&
+      cpi->svc.spatial_layer_id == 0) {
     if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ)
       av1_cyclic_refresh_set_golden_update(cpi);
     else
