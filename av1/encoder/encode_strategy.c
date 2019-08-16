@@ -887,7 +887,7 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
     if (cpi->svc.external_ref_frame_config) {
       for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++) {
         int ref_frame_map_idx = cpi->svc.ref_idx[i];
-        refresh_mask |= cpi->svc.refresh[i] << ref_frame_map_idx;
+        refresh_mask |= cpi->svc.refresh[ref_frame_map_idx] << ref_frame_map_idx
       }
       return refresh_mask;
     }
@@ -1299,7 +1299,6 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     frame_update_type = get_frame_update_type(cpi);
   }
 #endif
-
   if (frame_params.show_existing_frame &&
       frame_params.frame_type != KEY_FRAME) {
     // Force show-existing frames to be INTER, except forward keyframes
