@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "085db71a_c7ea19c4",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2019-08-16T17:27:11Z",
+      "side": 1,
+      "message": "If we pass in max_bits, gf_group and twopass,\nwe can avoid making this function depends on cpi.",
+      "range": {
+        "startLine": 581,
+        "startChar": 4,
+        "endLine": 581,
+        "endChar": 17
+      },
+      "revId": "9a9dd27f91e0271b595fc766f668854aa884fab7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
