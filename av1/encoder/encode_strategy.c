@@ -1365,6 +1365,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   if (oxcf->pass != 1) {
     update_fb_of_context_type(cpi, &frame_params, cpi->fb_of_context_type);
     set_additional_frame_flags(cm, frame_flags);
+    if (!cpi->use_svc || (cpi->use_svc &&
+        cpi->svc.spatial_layer_id == cpi->svc.number_spatial_layers - 1))
     update_rc_counts(cpi);
   }
 
