@@ -6064,6 +6064,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   aom_bitstream_queue_set_frame_write(cm->current_frame.frame_number * 2 +
                                       cm->show_frame);
 #endif
+  if (cpi->use_svc && cm->number_spatial_layers > 1) {
+    av1_one_pass_cbr_svc_start_layer(cpi);
+  }
 
   // Indicates whether or not to use an adaptive quantize b rather than
   // the traditional version

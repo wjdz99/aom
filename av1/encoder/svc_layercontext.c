@@ -224,3 +224,31 @@ void av1_svc_reset_temporal_layers(AV1_COMP *const cpi, int is_key) {
   av1_update_temporal_layer_framerate(cpi);
   av1_restore_layer_context(cpi);
 }
+
+static void get_layer_resolution(const int width_org, const int height_org,
+                                 const int num, const int den, int *width_out,
+                                 int *height_out) {
+  int w, h;
+  if (width_out == NULL || height_out == NULL || den == 0) return;
+  w = width_org * num / den;
+  h = height_org * num / den;
+  // Make height and width even.
+  w += w % 2;
+  h += h % 2;
+  *width_out = w;
+  *height_out = h;
+}
+
+void av1_one_pass_cbr_svc_start_layer(AV1_COMP *const cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  SVC *const svc = &cpi->svc;
+  LAYER_CONTEXT *lc = NULL;
+  int width = 0, height = 0;
+  lc = &svc->layer_context[svc->spatial_layer_id * svc->number_temporal_layers +
+                           svc->temporal_layer_id];
+  get_layer_resolution(cpi->oxcf.width, cpi->oxcf.height,
+                       lc->scaling_factor_num, lc->scaling_factor_den, &width,
+                       &height);
+  cm->width = width;
+  cm->height = height;
+}
