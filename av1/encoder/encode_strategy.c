@@ -526,11 +526,14 @@ static struct lookahead_entry *choose_frame_source(
   *code_arf = 0;
 
   // Should we encode an alt-ref frame.
-  int arf_src_index = get_arf_src_index(&cpi->gf_group, cpi->oxcf.pass);
-  if (arf_src_index &&
-      is_forced_keyframe_pending(cpi->lookahead, arf_src_index)) {
-    arf_src_index = 0;
-    *flush = 1;
+  int arf_src_index = 0;
+  if (cpi->oxcf.lag_in_frames > 0) {
+    arf_src_index = get_arf_src_index(&cpi->gf_group, cpi->oxcf.pass);
+    if (arf_src_index &&
+        is_forced_keyframe_pending(cpi->lookahead, arf_src_index)) {
+      arf_src_index = 0;
+      *flush = 1;
+    }
   }
 
   if (arf_src_index)
@@ -1142,10 +1145,10 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   memset(&frame_results, 0, sizeof(frame_results));
 
   // TODO(sarahparker) finish bit allocation for one pass pyramid
-  if (oxcf->pass == 0 && oxcf->rc_mode != AOM_Q)
+  if (oxcf->pass == 0 && oxcf->lag_in_frames > 0 && oxcf->rc_mode != AOM_Q)
     cpi->oxcf.gf_max_pyr_height = USE_ALTREF_FOR_ONE_PASS;
 
-  if (oxcf->pass == 0 || oxcf->pass == 2) {
+  if ((oxcf->pass == 0 && oxcf->lag_in_frames > 0) || oxcf->pass == 2) {
     frame_params.show_existing_frame =
         gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE;
     frame_params.show_existing_frame &= allow_show_existing(cpi, *frame_flags);
