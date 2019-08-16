@@ -4699,6 +4699,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
   int is_directional_mode;
+  int valid_modes = INTRA_ALL;
   uint8_t directional_mode_skip_mask[INTRA_MODES] = { 0 };
   int beat_best_rd = 0;
   const int *bmode_costs;
@@ -4736,6 +4737,11 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   x->coeff_opt_dist_threshold =
       get_rd_opt_coeff_thresh(cpi->coeff_opt_dist_threshold,
                               cpi->sf.enable_winner_mode_for_coeff_opt, 0);
+  // Disable intra modes other than DC_PRED for blocks with low variance
+  // Threshold for intra skipping based on source variance
+  const unsigned int skip_intra_var_thresh = 64;
+  if (x->source_variance < skip_intra_var_thresh && bsize >= BLOCK_16X16)
+    valid_modes = INTRA_DC_PAETH_H_V;
 
   MB_MODE_INFO best_mbmi = *mbmi;
   /* Y Search for intra prediction mode */
@@ -4748,6 +4754,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         (mbmi->mode == SMOOTH_PRED || mbmi->mode == SMOOTH_H_PRED ||
          mbmi->mode == SMOOTH_V_PRED))
       continue;
+    if (!((1 << mode_idx) & valid_modes)) continue;
     if (!cpi->oxcf.enable_paeth_intra && mbmi->mode == PAETH_PRED) continue;
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
     this_model_rd =
