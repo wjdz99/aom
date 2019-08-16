@@ -4738,6 +4738,14 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                               cpi->sf.enable_winner_mode_for_coeff_opt, 0);
 
   MB_MODE_INFO best_mbmi = *mbmi;
+
+  if (beat_best_rd && av1_filter_intra_allowed_bsize(&cpi->common, bsize)) {
+    if (rd_pick_filter_intra_sby(
+            cpi, x, mi_row, mi_col, rate, rate_tokenonly, distortion, skippable,
+            bsize, bmode_costs[DC_PRED], &best_rd, &best_model_rd, ctx)) {
+      best_mbmi = *mbmi;
+    }
+  }
   /* Y Search for intra prediction mode */
   for (int mode_idx = INTRA_MODE_START; mode_idx < INTRA_MODE_END; ++mode_idx) {
     RD_STATS this_rd_stats;
@@ -4806,13 +4814,6 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         distortion, skippable, ctx, ctx->blk_skip);
   }
 
-  if (beat_best_rd && av1_filter_intra_allowed_bsize(&cpi->common, bsize)) {
-    if (rd_pick_filter_intra_sby(
-            cpi, x, mi_row, mi_col, rate, rate_tokenonly, distortion, skippable,
-            bsize, bmode_costs[DC_PRED], &best_rd, &best_model_rd, ctx)) {
-      best_mbmi = *mbmi;
-    }
-  }
 
   // If previous searches use only the default tx type/no R-D optimization of
   // quantized coeffs, do an extra search for the best tx type/better R-D
