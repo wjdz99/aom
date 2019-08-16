@@ -453,7 +453,7 @@ static void update_state(const AV1_COMP *const cpi,
           seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
       mi_addr->segment_id =
           map ? get_segment_id(cm, map, bsize, mi_row, mi_col) : 0;
-      reset_tx_size(x, mi_addr, cm->tx_mode);
+      reset_tx_size(x, mi_addr, x->tx_mode);
     }
     // Else for cyclic refresh mode update the segment map, set the segment id
     // and then update the quantizer.
@@ -689,6 +689,8 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   // coefficients for mode decision
   x->coeff_opt_dist_threshold =
       get_rd_opt_coeff_thresh(cpi->coeff_opt_dist_threshold, 0, 0);
+  x->tx_size_search_method = cpi->sf.tx_size_search_method;
+  x->tx_mode = cm->tx_mode;
 
   // Save rdmult before it might be changed, so it can be restored later.
   const int orig_rdmult = x->rdmult;
@@ -5273,7 +5275,7 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 
   if (!dry_run) {
     if (av1_allow_intrabc(cm) && is_intrabc_block(mbmi)) td->intrabc_used = 1;
-    if (cm->tx_mode == TX_MODE_SELECT && !xd->lossless[mbmi->segment_id] &&
+    if (x->tx_mode == TX_MODE_SELECT && !xd->lossless[mbmi->segment_id] &&
         mbmi->sb_type > BLOCK_4X4 && !(is_inter && (mbmi->skip || seg_skip))) {
       if (is_inter) {
         tx_partition_count_update(cm, x, bsize, mi_row, mi_col, td->counts,
@@ -5304,7 +5306,7 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
         if (xd->lossless[mbmi->segment_id]) {
           intra_tx_size = TX_4X4;
         } else {
-          intra_tx_size = tx_size_from_tx_mode(bsize, cm->tx_mode);
+          intra_tx_size = tx_size_from_tx_mode(bsize, x->tx_mode);
         }
       } else {
         intra_tx_size = mbmi->tx_size;
@@ -5319,7 +5321,7 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     }
   }
 
-  if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(mbmi->sb_type) &&
+  if (x->tx_mode == TX_MODE_SELECT && block_signals_txsize(mbmi->sb_type) &&
       is_inter && !(mbmi->skip || seg_skip) &&
       !xd->lossless[mbmi->segment_id]) {
     if (dry_run) tx_partition_set_contexts(cm, xd, bsize, mi_row, mi_col);
@@ -5330,7 +5332,7 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
       if (xd->lossless[mbmi->segment_id]) {
         tx_size = TX_4X4;
       } else {
-        tx_size = tx_size_from_tx_mode(bsize, cm->tx_mode);
+        tx_size = tx_size_from_tx_mode(bsize, x->tx_mode);
       }
     } else {
       tx_size = (bsize > BLOCK_4X4) ? tx_size : TX_4X4;

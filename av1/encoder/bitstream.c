@@ -1507,6 +1507,7 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
                           int mi_col) {
   const AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
+  MACROBLOCK *x = &cpi->td.mb;
   xd->mi = cm->mi_grid_base + (mi_row * cm->mi_stride + mi_col);
   cpi->td.mb.mbmi_ext = cpi->mbmi_ext_base + get_mi_ext_idx(cm, mi_row, mi_col);
 
@@ -1543,7 +1544,7 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   const int is_inter_tx = is_inter_block(mbmi);
   const int skip = mbmi->skip;
   const int segment_id = mbmi->segment_id;
-  if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
+  if (x->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
       !(is_inter_tx && skip) && !xd->lossless[segment_id]) {
     if (is_inter_tx) {  // This implies skip flag is 0.
       const TX_SIZE max_tx_size = get_vartx_max_txsize(xd, bsize, 0);
@@ -2823,6 +2824,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
                                           struct aom_write_bit_buffer *wb) {
   AV1_COMMON *const cm = &cpi->common;
   const SequenceHeader *const seq_params = &cm->seq_params;
+  MACROBLOCK *x = &cpi->td.mb;
   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
   CurrentFrame *const current_frame = &cm->current_frame;
 
@@ -3096,9 +3098,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 
   // Write TX mode
   if (cm->coded_lossless)
-    assert(cm->tx_mode == ONLY_4X4);
+    assert(x->tx_mode == ONLY_4X4);
   else
-    aom_wb_write_bit(wb, cm->tx_mode == TX_MODE_SELECT);
+    aom_wb_write_bit(wb, x->tx_mode == TX_MODE_SELECT);
 
   if (!frame_is_intra_only(cm)) {
     const int use_hybrid_pred =

@@ -1269,7 +1269,7 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     init_mbmi(mi, this_mode, ref_frame, NONE_FRAME, cm);
 
     mi->tx_size = AOMMIN(AOMMIN(max_txsize_lookup[bsize],
-                                tx_mode_to_biggest_tx_size[cm->tx_mode]),
+                                tx_mode_to_biggest_tx_size[x->tx_mode]),
                          TX_16X16);
     memset(mi->inter_tx_size, mi->tx_size, sizeof(mi->inter_tx_size));
     memset(mi->txk_type, DCT_DCT, sizeof(mi->txk_type[0]) * TXK_TYPE_BUF_LEN);

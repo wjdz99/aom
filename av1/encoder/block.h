@@ -426,6 +426,8 @@ struct macroblock {
 #endif
   int thresh_freq_fact[BLOCK_SIZES_ALL][MAX_MODES];
   uint8_t variance_low[105];
+  int tx_size_search_method;
+  TX_MODE tx_mode;
 };
 
 static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
