@@ -689,6 +689,13 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   // coefficients for mode decision
   x->coeff_opt_dist_threshold =
       get_rd_opt_coeff_thresh(cpi->coeff_opt_dist_threshold, 0, 0);
+  if (cpi->sf.enable_winner_mode_for_tx_size_search_method) {
+    x->tx_size_search_method = USE_LARGESTALL;
+    x->tx_mode = TX_MODE_LARGEST;
+  } else {
+    x->tx_size_search_method = cpi->sf.tx_size_search_method;
+    x->tx_mode = cm->tx_mode;
+  }
 
   // Save rdmult before it might be changed, so it can be restored later.
   const int orig_rdmult = x->rdmult;
@@ -4615,6 +4622,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   cm->all_lossless = cm->coded_lossless && !av1_superres_scaled(cm);
 
   cm->tx_mode = select_tx_mode(cpi);
+  x->tx_size_search_method = cpi->sf.tx_size_search_method;
+  x->tx_mode = cm->tx_mode;
 
   // Fix delta q resolution for the moment
   cm->delta_q_info.delta_q_res = 0;
@@ -5022,6 +5031,9 @@ void av1_encode_frame(AV1_COMP *cpi) {
       if (cm->tx_mode == TX_MODE_SELECT && cpi->td.mb.txb_split_count == 0)
         cm->tx_mode = TX_MODE_LARGEST;
     }
+    MACROBLOCK *x = &cpi->td.mb;
+    x->tx_size_search_method = cpi->sf.tx_size_search_method;
+    x->tx_mode = cm->tx_mode;
   } else {
     encode_frame_internal(cpi);
   }
