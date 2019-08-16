@@ -526,6 +526,7 @@ static struct lookahead_entry *choose_frame_source(
   *code_arf = 0;
 
   // Should we encode an alt-ref frame.
+  
   int arf_src_index = get_arf_src_index(&cpi->gf_group, cpi->oxcf.pass);
   if (arf_src_index &&
       is_forced_keyframe_pending(cpi->lookahead, arf_src_index)) {
