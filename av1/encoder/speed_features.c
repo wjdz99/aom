@@ -342,7 +342,8 @@ static void set_good_speed_features_framesize_independent(
 
   if (speed >= 3) {
     sf->reduce_inter_modes = boosted ? 1 : 2;
-    sf->tx_size_search_method = boosted ? USE_FULL_RD : USE_LARGESTALL;
+    sf->tx_size_search_method = USE_FULL_RD;
+    sf->enable_winner_mode_for_tx_size_search_method = 1;
     sf->less_rectangular_check_level = 2;
     // adaptive_motion_search breaks encoder multi-thread tests.
     // The values in x->pred_mv[] differ for single and multi-thread cases.
@@ -855,6 +856,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->disable_wedge_interintra_search = 0;
   sf->perform_coeff_opt = 0;
   sf->enable_winner_mode_for_coeff_opt = 0;
+  sf->enable_winner_mode_for_tx_size_search_method = 0;
   sf->prune_comp_type_by_model_rd = 0;
   sf->disable_smooth_intra = 0;
   sf->perform_best_rd_based_gating_for_chroma = 0;
