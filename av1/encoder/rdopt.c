@@ -4467,6 +4467,33 @@ static int64_t calc_rd_given_intra_angle(
   return this_rd;
 }
 
+static void calc_model_rd_delta_angle(const AV1_COMP *const cpi, MACROBLOCK *x,
+                                      int mi_row, int mi_col, BLOCK_SIZE bsize,
+                                      int mode_cost, int64_t base_model_rd,
+                                      uint8_t *delta_angle_eval) {
+  MB_MODE_INFO *mbmi = x->e_mbd.mi[0];
+  int64_t this_model_rd;
+  int min_index = -1;
+  int64_t min_model_rd_cost = INT64_MAX;
+  for (int angle_delta = -MAX_ANGLE_DELTA; angle_delta <= MAX_ANGLE_DELTA;
+       angle_delta += 1) {
+    mbmi->angle_delta[PLANE_TYPE_Y] = angle_delta;
+    if (angle_delta == 0 && base_model_rd != INT64_MAX) {
+      if (base_model_rd < min_model_rd_cost) min_index = 0;
+      continue;
+    }
+    this_model_rd = intra_model_yrd(cpi, x, bsize, mode_cost, mi_row, mi_col);
+    if (this_model_rd < min_model_rd_cost) {
+      min_model_rd_cost = this_model_rd;
+      min_index = angle_delta;
+    }
+  }
+
+  int bit_pos = 0;
+  const int delta_angle_idx = min_index + MAX_ANGLE_DELTA;
+  *delta_angle_eval = (uint8_t)(1 << delta_angle_idx);
+}
+
 // With given luma directional intra prediction mode, pick the best angle delta
 // Return the RD cost corresponding to the best angle delta.
 static int64_t rd_pick_intra_angle_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
@@ -4474,7 +4501,8 @@ static int64_t rd_pick_intra_angle_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
                                        RD_STATS *rd_stats, BLOCK_SIZE bsize,
                                        int mode_cost, int64_t best_rd,
                                        int64_t *best_model_rd,
-                                       int skip_model_rd_for_zero_deg) {
+                                       int skip_model_rd_for_zero_deg,
+                                       uint8_t delta_angle_eval_mask) {
   MB_MODE_INFO *mbmi = x->e_mbd.mi[0];
   assert(!is_inter_block(mbmi));
 
@@ -4487,17 +4515,20 @@ static int64_t rd_pick_intra_angle_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   for (int i = 0; i < 2 * (MAX_ANGLE_DELTA + 2); ++i) rd_cost[i] = INT64_MAX;
 
   int first_try = 1;
+  int bit_pos = 0;
   for (int angle_delta = 0; angle_delta <= MAX_ANGLE_DELTA; angle_delta += 2) {
     for (int i = 0; i < 2; ++i) {
+      const int delta_angle_idx = (1 - 2 * i) * angle_delta;
       const int64_t best_rd_in =
           (best_rd == INT64_MAX) ? INT64_MAX
                                  : (best_rd + (best_rd >> (first_try ? 3 : 5)));
+      bit_pos = 1 << (delta_angle_idx + 3);
+      if ((bit_pos & delta_angle_eval_mask) == 0) continue;
       const int64_t this_rd = calc_rd_given_intra_angle(
           cpi, x, bsize, mi_row, mi_col, mode_cost, best_rd_in,
           (1 - 2 * i) * angle_delta, MAX_ANGLE_DELTA, rate, rd_stats,
           &best_angle_delta, &best_tx_size, &best_rd, best_model_rd,
-          best_txk_type, best_blk_skip,
-          (skip_model_rd_for_zero_deg & !angle_delta));
+          best_txk_type, best_blk_skip, 1);
       rd_cost[2 * angle_delta + i] = this_rd;
       if (first_try && this_rd == INT64_MAX) return best_rd;
       first_try = 0;
@@ -4512,16 +4543,19 @@ static int64_t rd_pick_intra_angle_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   for (int angle_delta = 1; angle_delta <= MAX_ANGLE_DELTA; angle_delta += 2) {
     for (int i = 0; i < 2; ++i) {
       int skip_search = 0;
-      const int64_t rd_thresh = best_rd + (best_rd >> 5);
-      if (rd_cost[2 * (angle_delta + 1) + i] > rd_thresh &&
-          rd_cost[2 * (angle_delta - 1) + i] > rd_thresh)
-        skip_search = 1;
+      const int delta_angle_idx = (1 - 2 * i) * angle_delta;
+      // const int64_t rd_thresh = best_rd + (best_rd >> 5);
+      // if (rd_cost[2 * (angle_delta + 1) + i] > rd_thresh &&
+      //    rd_cost[2 * (angle_delta - 1) + i] > rd_thresh)
+      //  skip_search = 1;
+      bit_pos = 1 << (delta_angle_idx + 3);
+      if ((bit_pos & delta_angle_eval_mask) == 0) continue;
       if (!skip_search) {
         calc_rd_given_intra_angle(
             cpi, x, bsize, mi_row, mi_col, mode_cost, best_rd,
             (1 - 2 * i) * angle_delta, MAX_ANGLE_DELTA, rate, rd_stats,
             &best_angle_delta, &best_tx_size, &best_rd, best_model_rd,
-            best_txk_type, best_blk_skip, 0);
+            best_txk_type, best_blk_skip, 1);
       }
     }
   }
@@ -4700,6 +4734,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int cols = block_size_wide[bsize];
   int is_directional_mode;
   uint8_t directional_mode_skip_mask[INTRA_MODES] = { 0 };
+  uint8_t delta_angle_eval = 0;
   int beat_best_rd = 0;
   const int *bmode_costs;
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
@@ -4761,9 +4796,12 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (is_directional_mode && av1_use_angle_delta(bsize) &&
         cpi->oxcf.enable_angle_delta) {
       this_rd_stats.rate = INT_MAX;
+      calc_model_rd_delta_angle(cpi, x, mi_row, mi_col, bsize,
+                                bmode_costs[mbmi->mode], this_model_rd,
+                                &delta_angle_eval);
       rd_pick_intra_angle_sby(cpi, x, mi_row, mi_col, &this_rate,
                               &this_rd_stats, bsize, bmode_costs[mbmi->mode],
-                              best_rd, &best_model_rd, 1);
+                              best_rd, &best_model_rd, 1, delta_angle_eval);
     } else {
       super_block_yrd(cpi, x, &this_rd_stats, bsize, best_rd);
     }
@@ -12110,6 +12148,7 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
   const int intra_cost_penalty = av1_get_intra_cost_penalty(
       cm->base_qindex, cm->y_dc_delta_q, cm->seq_params.bit_depth);
   const int skip_ctx = av1_get_skip_context(xd);
+  uint8_t delta_angle_eval = 0;
 
   int known_rate = mode_cost;
   known_rate += ref_frame_cost;
@@ -12138,9 +12177,11 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
     rd_stats_y->rate = INT_MAX;
     int64_t model_rd = INT64_MAX;
     int rate_dummy;
+    calc_model_rd_delta_angle(cpi, x, mi_row, mi_col, bsize, mode_cost,
+                              model_rd, &delta_angle_eval);
     rd_pick_intra_angle_sby(cpi, x, mi_row, mi_col, &rate_dummy, rd_stats_y,
                             bsize, mode_cost, search_state->best_rd, &model_rd,
-                            0);
+                            0, delta_angle_eval);
 
   } else {
     av1_init_rd_stats(rd_stats_y);
