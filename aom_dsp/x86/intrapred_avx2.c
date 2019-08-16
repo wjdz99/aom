@@ -12,6 +12,7 @@
 #include <immintrin.h>
 
 #include "config/aom_dsp_rtcd.h"
+#include "config/av1_rtcd.h"
 #include "aom_dsp/x86/lpf_common_sse2.h"
 
 static INLINE __m256i dc_sum_64(const uint8_t *ref) {
@@ -3393,12 +3394,24 @@ void av1_highbd_dr_prediction_z3_avx2(uint16_t *dst, ptrdiff_t stride, int bw,
       } else {
         switch (bw) {
           case 4:
-            highbd_dr_prediction_z3_4x16_avx2(dst, stride, left, upsample_left,
-                                              dy, bd);
+#if CONFIG_FLEX_PARTITION
+            if (bh > 16)
+              av1_highbd_dr_prediction_z3_c(dst, stride, bw, bh, above, left,
+                                            upsample_left, dx, dy, bd);
+            else
+#endif  // CONFIG_FLEX_PARTITION
+              highbd_dr_prediction_z3_4x16_avx2(dst, stride, left, upsample_left,
+                                                dy, bd);
             break;
           case 8:
-            highbd_dr_prediction_z3_8x32_avx2(dst, stride, left, upsample_left,
-                                              dy, bd);
+#if CONFIG_FLEX_PARTITION
+            if (bh > 32)
+              av1_highbd_dr_prediction_z3_c(dst, stride, bw, bh, above, left,
+                                            upsample_left, dx, dy, bd);
+            else
+#endif  // CONFIG_FLEX_PARTITION
+              highbd_dr_prediction_z3_8x32_avx2(dst, stride, left, upsample_left,
+                                                dy, bd);
             break;
           case 16:
             highbd_dr_prediction_z3_16x64_avx2(dst, stride, left, upsample_left,
@@ -3429,12 +3442,24 @@ void av1_highbd_dr_prediction_z3_avx2(uint16_t *dst, ptrdiff_t stride, int bw,
       } else {
         switch (bh) {
           case 4:
-            highbd_dr_prediction_z3_16x4_avx2(dst, stride, left, upsample_left,
-                                              dy, bd);
+#if CONFIG_FLEX_PARTITION
+            if (bw > 16)
+              av1_highbd_dr_prediction_z3_c(dst, stride, bw, bh, above, left,
+                                            upsample_left, dx, dy, bd);
+            else
+#endif  // CONFIG_FLEX_PARTITION
+              highbd_dr_prediction_z3_16x4_avx2(dst, stride, left, upsample_left,
+                                                dy, bd);
             break;
           case 8:
-            highbd_dr_prediction_z3_32x8_avx2(dst, stride, left, upsample_left,
-                                              dy, bd);
+#if CONFIG_FLEX_PARTITION
+            if (bw > 32)
+              av1_highbd_dr_prediction_z3_c(dst, stride, bw, bh, above, left,
+                                            upsample_left, dx, dy, bd);
+            else
+#endif  // CONFIG_FLEX_PARTITION
+              highbd_dr_prediction_z3_32x8_avx2(dst, stride, left, upsample_left,
+                                                dy, bd);
             break;
           case 16:
             highbd_dr_prediction_z3_64x16_avx2(dst, stride, left, upsample_left,
@@ -4608,6 +4633,21 @@ static void dr_prediction_z3_4x16_avx2(uint8_t *dst, ptrdiff_t stride,
   }
 }
 
+#if CONFIG_FLEX_PARTITION
+static void dr_prediction_z3_4x32_avx2(uint8_t *dst, ptrdiff_t stride,
+                                       const uint8_t *left, int upsample_left,
+                                       int dy) {
+  __m128i dstvec[8], d[32];
+
+  dr_prediction_z1_HxW_internal_avx2(32, 4, dstvec, left, upsample_left, dy);
+  transpose4x16_sse2(dstvec, d);
+  transpose4x16_sse2(dstvec + 4, d + 16);
+  for (int i = 0; i < 32; i++) {
+    *(uint32_t *)(dst + stride * i) = _mm_cvtsi128_si32(d[i]);
+  }
+}
+#endif  // CONFIG_FLEX_PARTITION
+
 static void dr_prediction_z3_16x4_avx2(uint8_t *dst, ptrdiff_t stride,
                                        const uint8_t *left, int upsample_left,
                                        int dy) {
@@ -4833,10 +4873,22 @@ void av1_dr_prediction_z3_avx2(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
       } else {
         switch (bw) {
           case 4:
-            dr_prediction_z3_4x16_avx2(dst, stride, left, upsample_left, dy);
+#if CONFIG_FLEX_PARTITION
+            if (bh > 16)
+              av1_dr_prediction_z3_c(dst, stride, bw, bh, above, left,
+                                     upsample_left, dx, dy);
+            else
+#endif  // CONFIG_FLEX_PARTITION
+              dr_prediction_z3_4x16_avx2(dst, stride, left, upsample_left, dy);
             break;
           case 8:
-            dr_prediction_z3_8x32_avx2(dst, stride, left, upsample_left, dy);
+#if CONFIG_FLEX_PARTITION
+            if (bh > 32)
+              av1_dr_prediction_z3_c(dst, stride, bw, bh, above, left,
+                                     upsample_left, dx, dy);
+            else
+#endif  // CONFIG_FLEX_PARTITION
+              dr_prediction_z3_8x32_avx2(dst, stride, left, upsample_left, dy);
             break;
           case 16:
             dr_prediction_z3_16x64_avx2(dst, stride, left, upsample_left, dy);
@@ -4862,10 +4914,22 @@ void av1_dr_prediction_z3_avx2(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
       } else {
         switch (bh) {
           case 4:
-            dr_prediction_z3_16x4_avx2(dst, stride, left, upsample_left, dy);
+#if CONFIG_FLEX_PARTITION
+            if (bw > 16)
+              av1_dr_prediction_z3_c(dst, stride, bw, bh, above, left,
+                                     upsample_left, dx, dy);
+            else
+#endif  // CONFIG_FLEX_PARTITION
+              dr_prediction_z3_16x4_avx2(dst, stride, left, upsample_left, dy);
             break;
           case 8:
-            dr_prediction_z3_32x8_avx2(dst, stride, left, upsample_left, dy);
+#if CONFIG_FLEX_PARTITION
+            if (bw > 32)
+              av1_dr_prediction_z3_c(dst, stride, bw, bh, above, left,
+                                     upsample_left, dx, dy);
+            else
+#endif  // CONFIG_FLEX_PARTITION
+              dr_prediction_z3_32x8_avx2(dst, stride, left, upsample_left, dy);
             break;
           case 16:
             dr_prediction_z3_64x16_avx2(dst, stride, left, upsample_left, dy);
