@@ -28,6 +28,14 @@ static float *nn_relu(const float *input, FC_LAYER_EM *layer) {
   return layer->output;
 }
 
+static int *qnn_relu(const int *input, QFC_LAYER_EM *layer) {
+  for (int i = 0; i < layer->num_outputs; ++i) {
+    layer->output[i] = AOMMAX(input[i], 0);
+  }
+
+  return layer->output;
+}
+
 // Applies the Sigmoid activation to one fc layer
 // output[i] = 1/(1+exp(input[i]))
 static float *nn_sigmoid(const float *input, FC_LAYER_EM *layer) {
@@ -63,6 +71,31 @@ static float *nn_fc_forward(const float *input, FC_LAYER_EM *layer) {
   }
 }
 
+static int *qnn_fc_forward(const int *input, QFC_LAYER_EM *layer, int scale) {
+  const int *weights = layer->weights;
+  const int *bias = layer->bias;
+  assert(layer->num_outputs < EM_MAX_NODES);
+  // fc
+  for (int node = 0; node < layer->num_outputs; ++node) {
+    int val = bias[node];
+    for (int i = 0; i < layer->num_inputs; ++i) {
+      val += ((weights[i] * input[i]) >> scale);
+    }
+    layer->output[node] = val;
+    weights += layer->num_inputs;
+  }
+
+  // activation
+  switch (layer->activation) {
+    case ACTN_NONE: return layer->output;
+    case ACTN_RELU: return qnn_relu(layer->output, layer);
+    case ACTN_SIGMOID: assert(0 && "Unknown activation");  // TODO
+    default:
+      assert(0 && "Unknown activation");  // Unknown activation
+      return NULL;
+  }
+}
+
 void av1_nn_predict_em(const float *feature, NN_CONFIG_EM *nn_config,
                        float *output) {
   const float *input_nodes = feature;
@@ -82,20 +115,66 @@ void av1_nn_predict_em(const float *feature, NN_CONFIG_EM *nn_config,
 
   // Final layer
   assert(nn_config->layer[num_layers].num_outputs == nn_config->num_logits);
-  FC_LAYER_EM *layer = nn_config->layer + num_layers;
   switch (nn_config->loss) {
     case SOFTMAX_CROSS_ENTROPY_LOSS:
       if (nn_config->num_logits == 1) {
         // sigmoid
-        const float tmp = AOMMIN(AOMMAX(layer->output[0], -10.0f), 10.0f);
+        const float tmp = AOMMIN(AOMMAX(input_nodes[0], -10.0f), 10.0f);
         nn_config->output[0] = 1.0f / (1.0f + expf(-tmp));
       } else {
         // softmax
-        av1_nn_softmax_em(layer->output, nn_config->output, layer->num_outputs);
+        av1_nn_softmax_em(input_nodes, nn_config->output,
+                          nn_config->num_logits);
       }
       break;
     default:
       av1_copy_array(nn_config->output, input_nodes, nn_config->num_logits);
+  }
+  // Copy the final layer output
+  av1_copy_array(output, nn_config->output, nn_config->num_logits);
+}
+
+void av1_qnn_predict_em(const int *feature, QNN_CONFIG_EM *nn_config,
+                        float *output) {
+  const int *input_nodes = feature;
+  const int num_layers = nn_config->num_hidden_layers;
+  assert(num_layers <= EM_MAX_HLAYERS);
+  // Copy the input feature to the buffer
+  av1_copy_array(nn_config->feature, feature, nn_config->layer[0].num_inputs);
+
+  // Propagate the layers.
+  int num_inputs = nn_config->layer[0].num_inputs;
+  for (int i = 0; i <= num_layers; ++i) {
+    assert(num_inputs == nn_config->layer[i].num_inputs);
+    input_nodes =
+        qnn_fc_forward(input_nodes, nn_config->layer + i, nn_config->scale);
+    num_inputs = nn_config->layer[i].num_outputs;
+  }
+  (void)num_inputs;
+
+  // Final layer
+  assert(nn_config->layer[num_layers].num_outputs == nn_config->num_logits);
+  float fscale = nn_config->fscale;
+  switch (nn_config->loss) {
+    case SOFTMAX_CROSS_ENTROPY_LOSS:
+      if (nn_config->num_logits == 1) {
+        // sigmoid
+        float tmp = (float)input_nodes[0] / fscale;
+        tmp = AOMMIN(AOMMAX(tmp, -10.0f), 10.0f);
+        nn_config->output[0] = 1.0f / (1.0f + expf(-tmp));
+      } else {
+        // softmax
+        for (int i = 0; i < nn_config->num_logits; ++i) {
+          nn_config->output[i] = (float)input_nodes[i] / fscale;
+        }
+        av1_nn_softmax_em(nn_config->output, nn_config->output,
+                          nn_config->num_logits);
+      }
+      break;
+    default:
+      for (int i = 0; i < nn_config->num_logits; ++i) {
+        nn_config->output[i] = (float)input_nodes[i] / fscale;
+      }
   }
   // Copy the final layer output
   av1_copy_array(output, nn_config->output, nn_config->num_logits);
@@ -107,6 +186,12 @@ static void nn_relu_back(float *dX_out, FC_LAYER_EM *layer) {
   const float *dY = layer->dY;
   for (int i = 0; i < layer->num_outputs; ++i)
     dX_out[i] = layer->output[i] > 0.0f ? dY[i] : 0.0f;
+}
+
+static void qnn_relu_back(int *dX_out, QFC_LAYER_EM *layer) {
+  const int *dY = layer->dY;
+  for (int i = 0; i < layer->num_outputs; ++i)
+    dX_out[i] = layer->output[i] > 0 ? dY[i] : 0;
 }
 
 // Backprop for sigmoid activation
@@ -131,6 +216,25 @@ static void nn_softmax_cross_entropy_loss_back(float *dX_out,
     assert(num_outputs > label);  // label [0,1,... num_logits-1]
     av1_copy_array(dX_out, output, num_outputs);
     dX_out[label] -= 1;
+  }
+}
+
+static void qnn_softmax_cross_entropy_loss_back(int *dX_out,
+                                                const float *output,
+                                                const int num_outputs,
+                                                const int label, int scale) {
+  float fscale = 1 << scale;
+  if (num_outputs == 1) {
+    // sigmoid
+    assert(label < 2);  // label [0,1]
+    dX_out[0] = (int)(output[0] * fscale) - (label << scale);
+  } else {
+    // softmax
+    assert(num_outputs > label);  // label [0,1,... num_logits-1]
+    for (int i = 0; i < num_outputs; ++i) {
+      dX_out[i] = (int)(output[i] * fscale);
+    }
+    dX_out[label] -= (1 << scale);
   }
 }
 
@@ -170,6 +274,44 @@ static void nn_fc_backward(const float *X, float *dX_out, FC_LAYER_EM *layer) {
   }
 }
 
+static void qnn_fc_backward(const int *X, int *dX_out, QFC_LAYER_EM *layer,
+                            int scale) {
+  // backprop on activation
+  int dY_fc[EM_MAX_NODES] = { 0 };  // dY for fc
+  switch (layer->activation) {
+    case ACTN_NONE:  // no activation, dY_fc <-- dY
+      av1_copy_array(dY_fc, layer->dY, layer->num_outputs);
+      break;
+    case ACTN_RELU: qnn_relu_back(dY_fc, layer); break;
+    case ACTN_SIGMOID: assert(0 && "Unknown activation"); break;  // TODO
+    default: assert(0 && "Unknown activation");  // Unknown activation
+  }
+
+  // backprop on fc
+  // gradient of W, b
+  int *dW = layer->dW;
+  int *db = layer->db;
+  for (int j = 0; j < layer->num_outputs; ++j) {
+    for (int i = 0; i < layer->num_inputs; ++i) {
+      dW[i] += ((dY_fc[j] * X[i]) >> scale);
+    }
+    db[j] += dY_fc[j];
+    dW += layer->num_inputs;
+  }
+
+  // gradient of the input, i.e., the output of last layer
+  if (dX_out) {
+    for (int i = 0; i < layer->num_inputs; ++i) {
+      int *w = layer->weights + i;
+      int val = 0;
+      for (int j = 0; j < layer->num_outputs; ++j) {
+        val += ((dY_fc[j] * w[j * layer->num_inputs]) >> scale);
+      }
+      dX_out[i] = val;
+    }
+  }
+}
+
 void av1_nn_backprop_em(NN_CONFIG_EM *nn_config, const int label) {
   const int num_layers = nn_config->num_hidden_layers;
 
@@ -194,19 +336,61 @@ void av1_nn_backprop_em(NN_CONFIG_EM *nn_config, const int label) {
                  layer_ptr);  // first layer (no dX for feature)
 }
 
-void av1_nn_update_em(NN_CONFIG_EM *nn_config, float mu) {
+void av1_qnn_backprop_em(QNN_CONFIG_EM *nn_config, const int label) {
+  const int num_layers = nn_config->num_hidden_layers;
+  int scale = nn_config->scale;
+
+  // loss layer
+  switch (nn_config->loss) {
+    case SOFTMAX_CROSS_ENTROPY_LOSS:
+      qnn_softmax_cross_entropy_loss_back(nn_config->layer[num_layers].dY,
+                                          nn_config->output,
+                                          nn_config->num_logits, label, scale);
+      break;
+    default: assert(0 && "Unknown loss");  // Unknown loss
+  }
+
+  // hidden fc layer
+  QFC_LAYER_EM *layer_ptr = nn_config->layer + num_layers;
+  for (int i = 0; i < num_layers; ++i) {
+    qnn_fc_backward(layer_ptr[-1].output, layer_ptr[-1].dY, layer_ptr, scale);
+    layer_ptr -= 1;
+  }
+
+  qnn_fc_backward(nn_config->feature, NULL, layer_ptr,
+                  scale);  // first layer (no dX for feature)
+}
+
+void av1_nn_update_em(NN_CONFIG_EM *nn_config, float lr) {
   const int num_layers = nn_config->num_hidden_layers;
 
   // Update the weights
   for (int i = 0; i <= num_layers; ++i) {
     FC_LAYER_EM *layer = nn_config->layer + i;
     for (int j = 0; j < layer->num_inputs * layer->num_outputs; ++j) {
-      layer->weights[j] -= mu * layer->dW[j];
+      layer->weights[j] -= (lr * layer->dW[j]);
       layer->dW[j] = 0.f;
     }
     for (int j = 0; j < layer->num_outputs; ++j) {
-      layer->bias[j] -= mu * layer->db[j];
+      layer->bias[j] -= (lr * layer->db[j]);
       layer->db[j] = 0.f;
+    }
+  }
+}
+
+void av1_qnn_update_em(QNN_CONFIG_EM *nn_config, int inv_lr) {
+  const int num_layers = nn_config->num_hidden_layers;
+
+  // Update the weights
+  for (int i = 0; i <= num_layers; ++i) {
+    QFC_LAYER_EM *layer = nn_config->layer + i;
+    for (int j = 0; j < layer->num_inputs * layer->num_outputs; ++j) {
+      layer->weights[j] -= (layer->dW[j] / inv_lr);
+      layer->dW[j] = 0;
+    }
+    for (int j = 0; j < layer->num_outputs; ++j) {
+      layer->bias[j] -= (layer->db[j] / inv_lr);
+      layer->db[j] = 0;
     }
   }
 }
@@ -221,7 +405,7 @@ void av1_nn_softmax_em(const float *input, float *output, int n) {
   for (int i = 0; i < n; i++) {
     // Clamp to range [-10.0, 0.0] to prevent FE_UNDERFLOW errors.
     const float normalized_input = AOMMAX(input[i] - max_inp, -10.0f);
-    output[i] = (float)exp(normalized_input);
+    output[i] = expf(normalized_input);
     sum_out += output[i];
   }
   for (int i = 0; i < n; i++) output[i] /= sum_out;
@@ -286,11 +470,69 @@ static const aom_cdf_prob
 #if CONFIG_INTRA_ENTROPY
 #if INTRA_MODEL < 0
 float lr = 0.1f;
+int inv_lr = 10;
 #else
 float lr = 0.01f;
 #endif  // INTRA_MODEL
 
 #if INTRA_MODEL == -1
+#if QNN
+static const int intra_y_mode_qlayer0_weights[EM_MAX_NODES * EM_MAX_NODES] = {
+  9,     4,     -73,   433,   489,   586,   383,   433,   172,   297,   264,
+  436,   411,   547,   96,    288,   316,   339,   192,   220,   205,   294,
+  202,   510,   -306,  -274,  9,     186,   -3,    159,   39,    46,    179,
+  92,    15,    202,   -37,   12,    26,    14,    -64,   -153,  -950,  66,
+  1280,  195,   -1027, -1423, -1035, -1378, -295,  270,   1017,  688,   -123,
+  -859,  -1235, -913,  79,    -28,   101,   333,   -76,   -431,  203,   -138,
+  610,   -59,   -398,  -320,  346,   -431,  -256,  -464,  -33,   260,   -369,
+  -180,  -163,  -47,   -127,  153,   -122,  -92,   -454,  -866,  -1298, -723,
+  -114,  605,   1000,  141,   -939,  -1173, -849,  -1223, -1180, -585,  1176,
+  -260,  121,   31,    277,   -213,  -282,  80,    180,   17,    -286,  494,
+  -58,   -239,  -456,  157,   -503,  -470,  -129,  -284,  537,   -288,  -320,
+  -114,  95,    -116,  -46,   -334,  1801,  311,   -1348, -1665, -1713, -1532,
+  -1126, 999,   1275,  475,   -729,  -693,  -766,  -848,  -1216, 272,   -104,
+  -165,  -157,  -491,  -524,  -543,  -269,  22,    142,   108,   -474,  -57,
+  -160,  -74,   435,   -139,  -254,  -193,  -395,  159,   -225,  22,    34,
+  12,    -168,  -7,    -1119, -927,  -749,  991,   1668,  892,   -643,  -1610,
+  -1081, -820,  -699,  453,   1511,  1403,  -765,  -1539, -773,  -442,  -540,
+  401,   1058,  710,   -558,  -1286, -635,  -50,   635,   -215,  -453,  -295,
+  -17,   600,   -210,  -293,  -445,  -111,  591,   -61,   -27,   -92,   411,
+  505,   -1070, -362,  -7,    1745,  610,   -613,  -891,  -1401, -677,  -201,
+  6,     1512,  1296,  -179,  -1380, -1487, -353,  -57,   -212,  935,   349,
+  -696,  -642,  -921,  -112,  -636,  191,   -249,  -155,  -281,  -162,  526,
+  -96,   -160,  -457,  -119,  456,   46,    -54,   89,    228,   358,   -816,
+  -1335, -1371, -839,  738,   1705,  88,    -283,  -817,  -900,  -870,  -903,
+  -9,    1415,  58,    -408,  -478,  -529,  -619,  -861,  -182,  959,   -178,
+  -248,  -99,   412,   510,   -119,  -476,  -185,  -180,  457,   -289,  -386,
+  -346,  -202,  350,   -115,  19,    -172,  180,   214,   334,   -894,  -1297,
+  -1013, -764,  -490,  -3,    1516,  723,   -712,  -1126, -1689, -1824, -1453,
+  -410,  1930,  -78,   -321,  26,    -679,  -619,  -449,  -100,  422,   563,
+  790,   176,   -213,  -207,  -98,   -295,  75,    -40,   48,    26,    -27,
+  315,   19,    132,   -25,   107,   -30,   827,   1962,  -451,  -1134, -1436,
+  -1482, -1332, -731,  509,   1298,  -83,   64,    -247,  -715,  -1293, -868,
+  -30,   190,   -158,  -236,  -363,  -562,  -164,  -361,  346,   -47,   -365,
+  -60,   12,    -55,   461,   -95,   -209,  -132,  -375,  209,   -178,  89,
+  30,    120,   -34,   154,   38,    38,    -397,  72,    24,    2,     -11,
+  239,   122,   191,   -117,  112,   95,    12,    -380,  126,   48,    46,
+  -70,   -60,   -82,   -65,   -106,  193,   -684,  -686,  -77,   108,   -39,
+  115,   109,   -20,   51,    -21,   -110,  186,   -151,  165,   133,   157,
+  138,   17,    -49,   339,   115,   -10,   -495,  -728,  -389,  -545,  153,
+  496,   96,    137,   -188,  -559,  -707,  -605,  -12,   1,     -82,   -91,
+  -326,  -527,  -232,  -329,  -44,   -327,  -29,   -89,   79,    -105,  -104,
+  -242,  -23,   86,    -316,  38,    -236,  13,    -31,   71,    -69,   -74,
+  -52,   -566,  -1050, -619,  -365,  170,   18,    766,   -73,   -445,  -708,
+  -659,  -574,  -116,  6,     536,   -159,  -278,  -357,  -507,  -482,  -116,
+  -218,  340,   268,   289,   481,   7,     -334,  137,   -167,  -152,  -104,
+  -282,  2,     -103,  -263,  9,     13,    11,    -60,   -163,  -896,  -1059,
+  1176,  -882,  -658,  -924,  253,   -1316, -1037, -925,  334,   -835,  -748,
+  -909,  881,   -1496, -148,  -430,  169,   -449,  -180,  -471,  378,   -573,
+  306,   -103,  -659,  4,     -284,  -334,  -646,  -1117, -41,   -187,  -434,
+  -556,  -1070, -626,  -591,  -508,  -616,  -890
+};
+static const int intra_y_mode_qlayer0_bias[EM_MAX_NODES] = {
+  298, 293, 333, -309, -373, -360, -333, -205, -261, -21, -232, -273, -67
+};
+#else
 static const float intra_y_mode_layer0_weights[EM_MAX_NODES * EM_MAX_NODES] = {
   0.00891136f,  0.00448677f,  -0.07158924f, 0.42295805f,  0.47840416f,
   0.57323265f,  0.37488768f,  0.42292890f,  0.16871572f,  0.29100293f,
@@ -408,6 +650,7 @@ static const float intra_y_mode_layer0_bias[EM_MAX_NODES] = {
   -0.35177949f, -0.32528833f, -0.20111403f, -0.25495365f, -0.02075642f,
   -0.22739601f, -0.26749593f, -0.06544726f,
 };
+#endif  // QNN
 #elif INTRA_MODEL == 0
 static const float intra_y_mode_layer0_weights[EM_MAX_NODES * EM_MAX_NODES] = {
   1.30896795f,   2.09412193f,   0.33283857f,   -1.76670516f,  -1.69598281f,
@@ -922,6 +1165,53 @@ static const float intra_y_mode_layer1_bias[EM_MAX_NODES] = {
 #endif  // INTRA_MODEL
 
 #if INTRA_MODEL < 0
+#if QNN
+static const int intra_uv_mode_qlayer0_weights[EM_MAX_NODES * EM_MAX_NODES] = {
+  127,   -40,   374,   -81,   459,   235,   651,   351,   515,   131,   113,
+  798,   65,    195,   -59,   423,   40,    -521,  761,   -896,  -724,  61,
+  -161,  -287,  -131,  252,   -128,  763,   672,   628,   -1472, -453,  17,
+  567,   98,    -536,  -785,  -552,  -709,  84,    -404,  -27,   520,   438,
+  -179,  -472,  -614,  0,     41,    -1094, 1510,  -2371, -1840, -2147, -1052,
+  -2286, -2285, -1172, -1251, -936,  -1294, -950,  -402,  -310,  -438,  -308,
+  -112,  181,   535,   -369,  57,    -611,  -647,  -577,  -770,  -789,  -278,
+  604,   -31,   165,   -822,  -2371, 1427,  -2086, -2058, -2306, -927,  -1102,
+  -2328, -1200, -1385, -759,  -1096, 747,   165,   -781,  -984,  -1078, -1031,
+  -1022, -119,  -467,  362,   79,    -603,  -730,  -797,  -801,  -947,  20,
+  85,    -882,  -1593, -1680, 1939,  -1668, -1674, -1502, -97,   31,    -423,
+  -600,  -402,  -1498, -405,  -467,  -478,  702,   556,   358,   -762,  -612,
+  -224,  -465,  -511,  -903,  351,   783,   811,   -715,  6,     359,   -582,
+  -1652, -1901, -1149, 2023,  42,    -90,   -1513, -1346, -1086, -959,  -1026,
+  -1924, -628,  -478,  -76,   1112,  247,   -413,  -912,  -786,  -269,  -624,
+  -337,  -563,  1224,  766,   -66,   -1093, 19,    149,   -833,  -848,  -2011,
+  -1382, -247,  1981,  -1545, -1750, -1409, -879,  -825,  -971,  -1827, -681,
+  -680,  -825,  -235,  345,   982,   -499,  -750,  -286,  -779,  -688,  -958,
+  -617,  -2,    704,   -208,  -48,   597,   -557,  -1846, -1148, -1550, -129,
+  -1476, 2127,  -1256, -1766, -1069, -1010, -905,  -1892, 279,   -514,  -975,
+  -700,  -404,  54,    -44,   1043,  -571,  761,   -245,  -1026, -544,  -162,
+  219,   320,   -27,   -1195, -294,  -1667, -361,  -172,  -1209, -1587, -1099,
+  1539,  -1103, -97,   -343,  -135,  -1606, 236,   1058,  -208,  -676,  -900,
+  -902,  -1018, -525,  -166,  15,    600,   -374,  -357,  -454,  -559,  -941,
+  14,    191,   -965,  -934,  -1893, 251,   -1789, -1646, -1580, -1203, 1836,
+  -403,  -375,  -572,  -1632, 132,   172,   108,   283,   70,    183,   -210,
+  154,   -118,  243,   194,   -199,  200,   173,   338,   58,    -5,    447,
+  396,   -548,  -817,  161,   -445,  -310,  -286,  203,   65,    737,   456,
+  444,   -1197, -392,  -192,  -147,  -198,  -519,  -441,  -341,  -313,  -280,
+  -148,  8,     -483,  -198,  -377,  -318,  -360,  14,    698,   -3,    -1427,
+  294,   -632,  -1244, -1164, -649,  -41,   -1043, 96,    1028,  -181,  -722,
+  -182,  -224,  -117,  -211,  -358,  -264,  -467,  -112,  -382,  -327,  -285,
+  -151,  -289,  -365,  -198,  -61,   -17,   406,   -45,   661,   -1397, -381,
+  -1177, -605,  -1062, -1008, -158,  122,   -277,  922,   -758,  -213,  -66,
+  488,   -238,  -422,  -447,  255,   -225,  5,     -296,  -53,   287,   -408,
+  -554,  -480,  431,   -73,   17,    -246,  -792,  -907,  -1296, -2191, -1793,
+  -1821, -1320, -1065, -526,  -137,  -398,  1658,  355,   311,   -457,  310,
+  387,   523,   -190,  600,   56,    432,   515,   -335,  399,   468,   480,
+  -255,  58,    -280,  276,   -315,  -175,  220,   -280,  -158,  -64,   240,
+  19,    346,   240,   360,   -320
+};
+static const int intra_uv_mode_qlayer0_bias[EM_MAX_NODES] = {
+  419, 148, 322, -584, -367, -424, -444, -181, -445, 108, -327, -283, 22, 168
+};
+#else
 static const float intra_uv_mode_layer0_weights[EM_MAX_NODES * EM_MAX_NODES] = {
   0.12402871f,  -0.03929875f, 0.36596400f,  -0.07938571f, 0.44878167f,
   0.23021385f,  0.63632131f,  0.34315693f,  0.50308263f,  0.12867078f,
@@ -1016,6 +1306,7 @@ static const float intra_uv_mode_layer0_bias[EM_MAX_NODES] = {
   -0.41459736f, -0.43401498f, -0.17684162f, -0.43496770f, 0.10555134f,
   -0.31986049f, -0.27649805f, 0.02212156f,  0.16451526f,
 };
+#endif  // QNN
 #else
 static const float intra_uv_mode_layer0_weights[EM_MAX_NODES * EM_MAX_NODES] = {
   -0.88319570f,  -0.96808380f, 0.20029698f,  0.61564237f,  0.62172204f,
@@ -2346,10 +2637,30 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->palette_uv_color_index_cdf, default_palette_uv_color_index_cdf);
   av1_copy(fc->kf_y_cdf, default_kf_y_mode_cdf);
 #if CONFIG_INTRA_ENTROPY
-  float arr[20000] = { 0.f };
   // Intra Y mode model
   fc->av1_intra_y_mode.lr = lr;
+  fc->av1_intra_y_mode_q.inv_lr = inv_lr;
+  fc->av1_intra_y_mode_q.scale = 10;
+  fc->av1_intra_y_mode_q.fscale = 1 << 10;
 #if INTRA_MODEL < 0
+#if QNN
+  fc->av1_intra_y_mode_q.num_hidden_layers = 0;
+  fc->av1_intra_y_mode_q.layer[0].num_inputs = 42;
+  fc->av1_intra_y_mode_q.layer[0].num_outputs = INTRA_MODES;
+  fc->av1_intra_y_mode_q.layer[0].activation = ACTN_NONE;
+  fc->av1_intra_y_mode_q.num_logits = INTRA_MODES;
+  fc->av1_intra_y_mode_q.loss = SOFTMAX_CROSS_ENTROPY_LOSS;
+  av1_copy(fc->av1_intra_y_mode_q.layer[0].weights,
+           intra_y_mode_qlayer0_weights);
+  av1_copy(fc->av1_intra_y_mode_q.layer[0].bias, intra_y_mode_qlayer0_bias);
+  av1_zero_array(fc->av1_intra_y_mode_q.feature, EM_MAX_NODES);
+  av1_zero_array(fc->av1_intra_y_mode_q.layer[0].output, EM_MAX_NODES);
+  av1_zero_array(fc->av1_intra_y_mode_q.layer[0].dY, EM_MAX_NODES);
+  av1_zero_array(fc->av1_intra_y_mode_q.layer[0].dW,
+                 EM_MAX_NODES * EM_MAX_NODES);
+  av1_zero_array(fc->av1_intra_y_mode_q.layer[0].db, EM_MAX_NODES);
+#else
+  float arr[20000] = { 0.f };
   fc->av1_intra_y_mode.num_hidden_layers = 0;
   fc->av1_intra_y_mode.layer[0].num_inputs = 42;
   fc->av1_intra_y_mode.layer[0].num_outputs = INTRA_MODES;
@@ -2364,7 +2675,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy_array(fc->av1_intra_y_mode.layer[0].dW, arr,
                  EM_MAX_NODES * EM_MAX_NODES);
   av1_copy_array(fc->av1_intra_y_mode.layer[0].db, arr, EM_MAX_NODES);
+#endif  // QNN
 #else
+  float arr[20000] = { 0.f };
   fc->av1_intra_y_mode.num_hidden_layers = 1;
 #if INTRA_MODEL == 0
   fc->av1_intra_y_mode.layer[0].num_inputs = 42;
@@ -2398,7 +2711,27 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif  // INTRA_MODEL
   // Intra UV mode model
   fc->av1_intra_uv_mode.lr = lr;
+  fc->av1_intra_uv_mode_q.inv_lr = inv_lr;
+  fc->av1_intra_uv_mode_q.scale = 10;
+  fc->av1_intra_uv_mode_q.fscale = 1 << 10;
 #if INTRA_MODEL < 0
+#if QNN
+  fc->av1_intra_uv_mode_q.num_hidden_layers = 0;
+  fc->av1_intra_uv_mode_q.layer[0].num_inputs = 31;
+  fc->av1_intra_uv_mode_q.layer[0].num_outputs = UV_INTRA_MODES;
+  fc->av1_intra_uv_mode_q.layer[0].activation = ACTN_NONE;
+  fc->av1_intra_uv_mode_q.num_logits = UV_INTRA_MODES;
+  fc->av1_intra_uv_mode_q.loss = SOFTMAX_CROSS_ENTROPY_LOSS;
+  av1_copy(fc->av1_intra_uv_mode_q.layer[0].weights,
+           intra_uv_mode_qlayer0_weights);
+  av1_copy(fc->av1_intra_uv_mode_q.layer[0].bias, intra_uv_mode_qlayer0_bias);
+  av1_zero_array(fc->av1_intra_uv_mode_q.feature, EM_MAX_NODES);
+  av1_zero_array(fc->av1_intra_uv_mode_q.layer[0].output, EM_MAX_NODES);
+  av1_zero_array(fc->av1_intra_uv_mode_q.layer[0].dY, EM_MAX_NODES);
+  av1_zero_array(fc->av1_intra_uv_mode_q.layer[0].dW,
+                 EM_MAX_NODES * EM_MAX_NODES);
+  av1_zero_array(fc->av1_intra_uv_mode_q.layer[0].db, EM_MAX_NODES);
+#else
   fc->av1_intra_uv_mode.num_hidden_layers = 0;
   fc->av1_intra_uv_mode.layer[0].num_inputs = 31;
   fc->av1_intra_uv_mode.layer[0].num_outputs = UV_INTRA_MODES;
@@ -2414,6 +2747,7 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy_array(fc->av1_intra_uv_mode.layer[0].dW, arr,
                  EM_MAX_NODES * EM_MAX_NODES);
   av1_copy_array(fc->av1_intra_uv_mode.layer[0].db, arr, EM_MAX_NODES);
+#endif  // QNN
 #else
   fc->av1_intra_uv_mode.num_hidden_layers = 1;
   fc->av1_intra_uv_mode.layer[0].num_inputs = 31;

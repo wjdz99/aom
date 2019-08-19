@@ -51,6 +51,8 @@
 #if CONFIG_INTRA_ENTROPY
 #define aom_read_symbol_nn(r, cdf, nn_model, nsymbs, ACCT_STR_NAME) \
   aom_read_symbol_nn_(r, cdf, nn_model, nsymbs ACCT_STR_ARG(ACCT_STR_NAME))
+#define aom_read_symbol_qnn(r, cdf, nn_model, nsymbs, ACCT_STR_NAME) \
+  aom_read_symbol_qnn_(r, cdf, nn_model, nsymbs ACCT_STR_ARG(ACCT_STR_NAME))
 #endif  // CONFIG_INTRA_ENTROPY
 
 #ifdef __cplusplus
@@ -165,6 +167,18 @@ static INLINE int aom_read_symbol_nn_(aom_reader *r, aom_cdf_prob *cdf,
   if (r->allow_update_cdf) {
     av1_nn_backprop_em(nn_model, ret);
     av1_nn_update_em(nn_model, nn_model->lr);
+  }
+  return ret;
+}
+
+static INLINE int aom_read_symbol_qnn_(aom_reader *r, aom_cdf_prob *cdf,
+                                       QNN_CONFIG_EM *nn_model,
+                                       int nsymbs ACCT_STR_PARAM) {
+  int ret;
+  ret = aom_read_cdf(r, cdf, nsymbs, ACCT_STR_NAME);
+  if (r->allow_update_cdf) {
+    av1_qnn_backprop_em(nn_model, ret);
+    av1_qnn_update_em(nn_model, nn_model->inv_lr);
   }
   return ret;
 }
