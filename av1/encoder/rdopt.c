@@ -4873,7 +4873,17 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   const MB_MODE_INFO *aboveleft_mi = xd->aboveleft_mbmi;
   float features[54], scores[INTRA_MODES];
   av1_get_intra_block_feature(features, above_mi, left_mi, aboveleft_mi);
+#if QNN
+  QNN_CONFIG_EM *nn_model = &(xd->tile_ctx->av1_intra_y_mode_q);
+  int features_int[54];
+  float fscale = nn_model->fscale;
+  for (int i = 0; i < nn_model->layer[0].num_inputs; ++i) {
+    features_int[i] = (int)(features[i] * fscale);
+  }
+  av1_qnn_predict_em(features_int, nn_model, scores);
+#else
   av1_nn_predict_em(features, &(xd->tile_ctx->av1_intra_y_mode), scores);
+#endif  // QNN
   aom_cdf_prob cdf[CDF_SIZE(INTRA_MODES)] = { 0 };
   av1_pdf2cdf(scores, cdf, INTRA_MODES);
   int cost[INTRA_MODES];
@@ -6568,7 +6578,17 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   float features[54], scores[UV_INTRA_MODES];
   av1_get_intra_uv_block_feature(features, mbmi->mode, xd->above_mbmi,
                                  xd->left_mbmi);
+#if QNN
+  QNN_CONFIG_EM *nn_model = &(xd->tile_ctx->av1_intra_uv_mode_q);
+  int features_int[54];
+  float fscale = nn_model->fscale;
+  for (int i = 0; i < nn_model->layer[0].num_inputs; ++i) {
+    features_int[i] = (int)(features[i] * fscale);
+  }
+  av1_qnn_predict_em(features_int, nn_model, scores);
+#else
   av1_nn_predict_em(features, &(xd->tile_ctx->av1_intra_uv_mode), scores);
+#endif  // QNN
   aom_cdf_prob cdf[CDF_SIZE(UV_INTRA_MODES)] = { 0 };
   av1_pdf2cdf(scores, cdf, UV_INTRA_MODES);
   int cost[UV_INTRA_MODES];
