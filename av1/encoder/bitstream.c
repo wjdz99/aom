@@ -83,12 +83,24 @@ static void write_intra_y_mode_kf(FRAME_CONTEXT *frame_ctx,
 
 #if CONFIG_INTRA_ENTROPY
   float features[54], scores[INTRA_MODES];
-  av1_get_intra_block_feature(features, above_mi, left_mi, aboveleft_mi);
-  av1_nn_predict_em(features, &(frame_ctx->av1_intra_y_mode), scores);
   aom_cdf_prob cdf[CDF_SIZE(INTRA_MODES)] = { 0 };
+  av1_get_intra_block_feature(features, above_mi, left_mi, aboveleft_mi);
+#if QNN
+  int features_int[54];
+  float fscale = frame_ctx->av1_intra_y_mode_q.fscale;
+  for (int i = 0; i < frame_ctx->av1_intra_y_mode_q.layer[0].num_inputs; ++i) {
+    features_int[i] = (int)(features[i] * fscale);
+  }
+  av1_qnn_predict_em(features_int, &(frame_ctx->av1_intra_y_mode_q), scores);
+  av1_pdf2cdf(scores, cdf, INTRA_MODES);
+  aom_write_symbol_qnn(w, mode, cdf, &(frame_ctx->av1_intra_y_mode_q),
+                       INTRA_MODES);
+#else
+  av1_nn_predict_em(features, &(frame_ctx->av1_intra_y_mode), scores);
   av1_pdf2cdf(scores, cdf, INTRA_MODES);
   aom_write_symbol_nn(w, mode, cdf, &(frame_ctx->av1_intra_y_mode),
                       INTRA_MODES);
+#endif  // QNN
 #else
   aom_write_symbol(w, mode, get_y_mode_cdf(frame_ctx, above_mi, left_mi),
                    INTRA_MODES);
@@ -1011,12 +1023,24 @@ static void write_intra_uv_mode(FRAME_CONTEXT *frame_ctx,
                                 aom_writer *w) {
 #if CONFIG_INTRA_ENTROPY
   float features[54], scores[UV_INTRA_MODES];
-  av1_get_intra_uv_block_feature(features, y_mode, above_mi, left_mi);
-  av1_nn_predict_em(features, &(frame_ctx->av1_intra_uv_mode), scores);
   aom_cdf_prob cdf[CDF_SIZE(UV_INTRA_MODES)] = { 0 };
+  av1_get_intra_uv_block_feature(features, y_mode, above_mi, left_mi);
+#if QNN
+  int features_int[54];
+  float fscale = frame_ctx->av1_intra_uv_mode_q.fscale;
+  for (int i = 0; i < frame_ctx->av1_intra_uv_mode_q.layer[0].num_inputs; ++i) {
+    features_int[i] = (int)(features[i] * fscale);
+  }
+  av1_qnn_predict_em(features_int, &(frame_ctx->av1_intra_uv_mode_q), scores);
+  av1_pdf2cdf(scores, cdf, UV_INTRA_MODES);
+  aom_write_symbol_qnn(w, uv_mode, cdf, &(frame_ctx->av1_intra_uv_mode_q),
+                       UV_INTRA_MODES);
+#else
+  av1_nn_predict_em(features, &(frame_ctx->av1_intra_uv_mode), scores);
   av1_pdf2cdf(scores, cdf, UV_INTRA_MODES);
   aom_write_symbol_nn(w, uv_mode, cdf, &(frame_ctx->av1_intra_uv_mode),
                       UV_INTRA_MODES);
+#endif  // QNN
 #else
   aom_write_symbol(w, uv_mode, frame_ctx->uv_mode_cdf[cfl_allowed][y_mode],
                    UV_INTRA_MODES - !cfl_allowed);

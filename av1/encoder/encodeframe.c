@@ -885,11 +885,23 @@ static void sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
     if (allow_update_cdf) {
 #if CONFIG_INTRA_ENTROPY
       float features[54], scores[INTRA_MODES];
-      NN_CONFIG_EM *nn_model = &(fc->av1_intra_y_mode);
       av1_get_intra_block_feature(features, above_mi, left_mi, aboveleft_mi);
+#if QNN
+      QNN_CONFIG_EM *nn_model = &(fc->av1_intra_y_mode_q);
+      int features_int[54];
+      float fscale = nn_model->fscale;
+      for (int i = 0; i < nn_model->layer[0].num_inputs; ++i) {
+        features_int[i] = (int)(features[i] * fscale);
+      }
+      av1_qnn_predict_em(features_int, nn_model, scores);
+      av1_qnn_backprop_em(nn_model, y_mode);
+      av1_qnn_update_em(nn_model, nn_model->inv_lr);
+#else
+      NN_CONFIG_EM *nn_model = &(fc->av1_intra_y_mode);
       av1_nn_predict_em(features, nn_model, scores);
       av1_nn_backprop_em(nn_model, y_mode);
       av1_nn_update_em(nn_model, nn_model->lr);
+#endif  // QNN
 #else
       update_cdf(get_y_mode_cdf(fc, above_mi, left_mi), y_mode, INTRA_MODES);
 #endif  // CONFIG_INTRA_ENTROPY
@@ -967,11 +979,23 @@ static void sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
   if (allow_update_cdf) {
 #if CONFIG_INTRA_ENTROPY
     float features[54], scores[UV_INTRA_MODES];
-    NN_CONFIG_EM *nn_model = &(fc->av1_intra_uv_mode);
     av1_get_intra_uv_block_feature(features, y_mode, above_mi, left_mi);
+#if QNN
+    QNN_CONFIG_EM *nn_model = &(fc->av1_intra_y_mode_q);
+    int features_int[54];
+    float fscale = nn_model->fscale;
+    for (int i = 0; i < nn_model->layer[0].num_inputs; ++i) {
+      features_int[i] = (int)(features[i] * fscale);
+    }
+    av1_qnn_predict_em(features_int, nn_model, scores);
+    av1_qnn_backprop_em(nn_model, y_mode);
+    av1_qnn_update_em(nn_model, nn_model->inv_lr);
+#else
+    NN_CONFIG_EM *nn_model = &(fc->av1_intra_uv_mode);
     av1_nn_predict_em(features, nn_model, scores);
     av1_nn_backprop_em(nn_model, uv_mode);
     av1_nn_update_em(nn_model, nn_model->lr);
+#endif  // QNN
 #else
     const CFL_ALLOWED_TYPE cfl_allowed = is_cfl_allowed(xd);
     update_cdf(fc->uv_mode_cdf[cfl_allowed][y_mode], uv_mode,
