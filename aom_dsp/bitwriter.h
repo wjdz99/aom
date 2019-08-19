@@ -96,6 +96,16 @@ static INLINE void aom_write_symbol_nn(aom_writer *w, int symb,
     av1_nn_update_em(nn_model, nn_model->lr);
   }
 }
+
+static INLINE void aom_write_symbol_qnn(aom_writer *w, int symb,
+                                        aom_cdf_prob *cdf,
+                                        QNN_CONFIG_EM *nn_model, int nsymbs) {
+  aom_write_cdf(w, symb, cdf, nsymbs);
+  if (w->allow_update_cdf) {
+    av1_qnn_backprop_em(nn_model, symb);
+    av1_qnn_update_em(nn_model, nn_model->inv_lr);
+  }
+}
 #endif  // CONFIG_INTRA_ENTROPY
 
 #ifdef __cplusplus
