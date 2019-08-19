@@ -205,6 +205,15 @@ static INLINE int av1_get_sb_mi_size(const AV1_COMMON *const cm) {
   return sb_mi_size;
 }
 
+static INLINE void copy_first_four_ref_mv_and_weight(
+    const MACROBLOCKD *xd, MB_MODE_INFO_EXT *const mbmi_ext,
+    MV_REFERENCE_FRAME ref_frame) {
+  memcpy(mbmi_ext->weight[ref_frame], xd->weight[ref_frame],
+         MAX_REF_MV_STACK_SIZE_BY_2 * sizeof(xd->weight[0][0]));
+  memcpy(mbmi_ext->ref_mv_stack[ref_frame], xd->ref_mv_stack[ref_frame],
+         MAX_REF_MV_STACK_SIZE_BY_2 * sizeof(xd->ref_mv_stack[0][0]));
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

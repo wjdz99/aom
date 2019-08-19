@@ -640,9 +640,9 @@ static INLINE void copy_winner_ref_mode_from_mbmi_ext(MACROBLOCK *const x) {
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
   memcpy(x->mbmi_ext_frame->ref_mv_stack,
          x->mbmi_ext->ref_mv_stack[ref_frame_type],
-         sizeof(x->mbmi_ext->ref_mv_stack[MAX_REF_MV_STACK_SIZE]));
+         sizeof(x->mbmi_ext->ref_mv_stack[MAX_REF_MV_STACK_SIZE_BY_2]));
   memcpy(x->mbmi_ext_frame->weight, x->mbmi_ext->weight[ref_frame_type],
-         sizeof(x->mbmi_ext->weight[MAX_REF_MV_STACK_SIZE]));
+         sizeof(x->mbmi_ext->weight[MAX_REF_MV_STACK_SIZE_BY_2]));
   x->mbmi_ext_frame->mode_context = x->mbmi_ext->mode_context[ref_frame_type];
   x->mbmi_ext_frame->ref_mv_count = x->mbmi_ext->ref_mv_count[ref_frame_type];
   memcpy(x->mbmi_ext_frame->global_mvs, x->mbmi_ext->global_mvs,
