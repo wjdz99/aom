@@ -6918,10 +6918,9 @@ static void setup_buffer_ref_mvs_inter(
 
   // Gets an initial list of candidate vectors from neighbours and orders them
   av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
-                   mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
-                   mbmi_ext->global_mvs, mi_row, mi_col,
-                   mbmi_ext->mode_context);
-
+                   xd->ref_mv_stack, xd->weight, NULL, mbmi_ext->global_mvs,
+                   mi_row, mi_col, mbmi_ext->mode_context);
+  copy_first_four_ref_mv_and_weight(xd, mbmi_ext, ref_frame);
   // Further refinement that is encode side only to test the top few candidates
   // in full and choose the best as the center point for subsequent searches.
   // The current implementation doesn't support scaling.
@@ -10797,10 +10796,9 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   MV_REFERENCE_FRAME ref_frame = INTRA_FRAME;
   av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
-                   mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
-                   mbmi_ext->global_mvs, mi_row, mi_col,
-                   mbmi_ext->mode_context);
-
+                   xd->ref_mv_stack, xd->weight, NULL, mbmi_ext->global_mvs,
+                   mi_row, mi_col, mbmi_ext->mode_context);
+  copy_first_four_ref_mv_and_weight(xd, mbmi_ext, ref_frame);
   int_mv nearestmv, nearmv;
   av1_find_best_ref_mvs_from_stack(0, mbmi_ext, ref_frame, &nearestmv, &nearmv,
                                    0);
@@ -11122,9 +11120,9 @@ static void rd_pick_skip_mode(RD_STATS *rd_cost,
     }
     MB_MODE_INFO_EXT *mbmi_ext = x->mbmi_ext;
     av1_find_mv_refs(cm, xd, mbmi, ref_frame_type, mbmi_ext->ref_mv_count,
-                     mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
-                     mbmi_ext->global_mvs, mi_row, mi_col,
-                     mbmi_ext->mode_context);
+                     xd->ref_mv_stack, xd->weight, NULL, mbmi_ext->global_mvs,
+                     mi_row, mi_col, mbmi_ext->mode_context);
+    copy_first_four_ref_mv_and_weight(xd, mbmi_ext, ref_frame_type);
   }
 
   assert(this_mode == NEAREST_NEARESTMV);
@@ -11618,9 +11616,9 @@ static void set_params_rd_pick_inter_mode(
       }
     }
     av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
-                     mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
-                     mbmi_ext->global_mvs, mi_row, mi_col,
-                     mbmi_ext->mode_context);
+                     xd->ref_mv_stack, xd->weight, NULL, mbmi_ext->global_mvs,
+                     mi_row, mi_col, mbmi_ext->mode_context);
+    copy_first_four_ref_mv_and_weight(xd, mbmi_ext, ref_frame);
   }
 
   av1_count_overlappable_neighbors(cm, xd, mi_row, mi_col);
