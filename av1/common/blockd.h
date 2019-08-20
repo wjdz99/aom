@@ -18,6 +18,7 @@
 #include "aom_ports/mem.h"
 #include "aom_scale/yv12config.h"
 
+#include "av1/common/chroma.h"
 #include "av1/common/common_data.h"
 #include "av1/common/quant_common.h"
 #include "av1/common/entropy.h"
@@ -870,12 +871,15 @@ static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
 
 // Implements the get_plane_residual_size() function in the spec (Section
 // 5.11.38. Get plane residual size function).
-static INLINE BLOCK_SIZE get_plane_block_size(BLOCK_SIZE bsize,
+static INLINE BLOCK_SIZE get_plane_block_size(int mi_row, int mi_col,
+                                              BLOCK_SIZE bsize,
                                               int subsampling_x,
                                               int subsampling_y) {
   if (bsize == BLOCK_INVALID) return BLOCK_INVALID;
   assert(subsampling_x >= 0 && subsampling_x < 2);
   assert(subsampling_y >= 0 && subsampling_y < 2);
+  bsize =
+      scale_chroma_bsize(bsize, subsampling_x, subsampling_y, mi_row, mi_col);
   return ss_size_lookup[bsize][subsampling_x][subsampling_y];
 }
 
@@ -1021,10 +1025,11 @@ static INLINE TX_SIZE av1_get_adjusted_tx_size(TX_SIZE tx_size) {
   }
 }
 
-static INLINE TX_SIZE av1_get_max_uv_txsize(BLOCK_SIZE bsize, int subsampling_x,
+static INLINE TX_SIZE av1_get_max_uv_txsize(int mi_row, int mi_col,
+                                            BLOCK_SIZE bsize, int subsampling_x,
                                             int subsampling_y) {
   const BLOCK_SIZE plane_bsize =
-      get_plane_block_size(bsize, subsampling_x, subsampling_y);
+      get_plane_block_size(mi_row, mi_col, bsize, subsampling_x, subsampling_y);
   assert(plane_bsize < BLOCK_SIZES_ALL);
   const TX_SIZE uv_tx = max_txsize_rect_lookup[plane_bsize];
   return av1_get_adjusted_tx_size(uv_tx);
@@ -1034,8 +1039,12 @@ static INLINE TX_SIZE av1_get_tx_size(int plane, const MACROBLOCKD *xd) {
   const MB_MODE_INFO *mbmi = xd->mi[0];
   if (xd->lossless[mbmi->segment_id]) return TX_4X4;
   if (plane == 0) return mbmi->tx_size;
+  const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
+  const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
   const MACROBLOCKD_PLANE *pd = &xd->plane[plane];
-  return av1_get_max_uv_txsize(mbmi->sb_type, pd->subsampling_x,
+  const BLOCK_SIZE bsize = scale_chroma_bsize(
+      mbmi->sb_type, pd->subsampling_x, pd->subsampling_y, mi_row, mi_col);
+  return av1_get_max_uv_txsize(mi_row, mi_col, bsize, pd->subsampling_x,
                                pd->subsampling_y);
 }
 
@@ -1104,9 +1113,24 @@ static INLINE int get_vartx_max_txsize(const MACROBLOCKD *xd, BLOCK_SIZE bsize,
   return av1_get_adjusted_tx_size(max_txsize);  // chroma
 }
 
-static INLINE int is_motion_variation_allowed_bsize(BLOCK_SIZE bsize) {
+static INLINE int is_motion_variation_allowed_bsize(BLOCK_SIZE bsize,
+                                                    int mi_row, int mi_col) {
   assert(bsize < BLOCK_SIZES_ALL);
-  return AOMMIN(block_size_wide[bsize], block_size_high[bsize]) >= 8;
+  if (AOMMIN(block_size_wide[bsize], block_size_high[bsize]) < 8) {
+    return 0;
+  }
+#if CONFIG_3WAY_PARTITIONS
+  if ((mi_row & 0x01) || (mi_col & 0x01)) {
+    assert((block_size_wide[bsize] == 8 && block_size_high[bsize] == 16) ||
+           (block_size_wide[bsize] == 16 && block_size_high[bsize] == 8));
+    return 0;
+  }
+#else
+  assert(!(mi_row & 0x01) && !(mi_col & 0x01));
+  (void)mi_row;
+  (void)mi_col;
+#endif  // CONFIG_3WAY_PARTITIONS
+  return 1;
 }
 
 static INLINE int is_motion_variation_allowed_compound(
@@ -1132,7 +1156,9 @@ motion_mode_allowed(const WarpedMotionParams *gm_params, const MACROBLOCKD *xd,
     const TransformationType gm_type = gm_params[mbmi->ref_frame[0]].wmtype;
     if (is_global_mv_block(mbmi, gm_type)) return SIMPLE_TRANSLATION;
   }
-  if (is_motion_variation_allowed_bsize(mbmi->sb_type) &&
+  const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
+  const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
+  if (is_motion_variation_allowed_bsize(mbmi->sb_type, mi_row, mi_col) &&
       is_inter_mode(mbmi->mode) && mbmi->ref_frame[1] != INTRA_FRAME &&
       is_motion_variation_allowed_compound(mbmi)) {
     if (!check_num_overlappable_neighbors(mbmi)) return SIMPLE_TRANSLATION;
@@ -1185,6 +1211,11 @@ static INLINE void av1_get_block_dimensions(BLOCK_SIZE bsize, int plane,
                                             int *height,
                                             int *rows_within_bounds,
                                             int *cols_within_bounds) {
+  const struct macroblockd_plane *const pd = &xd->plane[plane];
+  const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
+  const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
+  bsize = scale_chroma_bsize(bsize, pd->subsampling_x, pd->subsampling_y,
+                             mi_row, mi_col);
   const int block_height = block_size_high[bsize];
   const int block_width = block_size_wide[bsize];
   const int block_rows = (xd->mb_to_bottom_edge >= 0)
@@ -1193,7 +1224,6 @@ static INLINE void av1_get_block_dimensions(BLOCK_SIZE bsize, int plane,
   const int block_cols = (xd->mb_to_right_edge >= 0)
                              ? block_width
                              : (xd->mb_to_right_edge >> 3) + block_width;
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
   assert(IMPLIES(plane == PLANE_TYPE_Y, pd->subsampling_x == 0));
   assert(IMPLIES(plane == PLANE_TYPE_Y, pd->subsampling_y == 0));
   assert(block_width >= block_cols);
@@ -1278,7 +1308,10 @@ static INLINE CFL_ALLOWED_TYPE is_cfl_allowed(const MACROBLOCKD *xd) {
     // transform size.
     const int ssx = xd->plane[AOM_PLANE_U].subsampling_x;
     const int ssy = xd->plane[AOM_PLANE_U].subsampling_y;
-    const int plane_bsize = get_plane_block_size(bsize, ssx, ssy);
+    const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
+    const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
+    const int plane_bsize =
+        get_plane_block_size(mi_row, mi_col, bsize, ssx, ssy);
     return (CFL_ALLOWED_TYPE)(plane_bsize == BLOCK_4X4);
   }
   // Spec: CfL is available to luma partitions lesser than or equal to 32x32
