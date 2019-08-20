@@ -245,21 +245,25 @@ static int has_top_right(const AV1_COMMON *cm, BLOCK_SIZE bsize, int mi_row,
     const int bw_in_mi_log2 = mi_size_wide_log2[bsize];
     const int bh_in_mi_log2 = mi_size_high_log2[bsize];
     const int sb_mi_size = mi_size_high[cm->seq_params.sb_size];
+#if CONFIG_3WAY_PARTITIONS
+    const int is_2nd_horz3_partition =
+        (partition == PARTITION_HORZ_3) &&
+        (mi_size_wide[bsize] == 2 * mi_size_high[bsize]);
+    const int is_2nd_vert3_partition =
+        (partition == PARTITION_VERT_3) &&
+        (mi_size_high[bsize] == 2 * mi_size_wide[bsize]);
     const int blk_row_in_sb =
-#if CONFIG_3WAY_PARTITIONS
-        (partition == PARTITION_HORZ_3 || partition == PARTITION_VERT_3)
+        is_2nd_horz3_partition
             ? ROUND_POWER_OF_TWO(mi_row & (sb_mi_size - 1), bh_in_mi_log2)
-            :
-#endif  // CONFIG_3WAY_PARTITIONS
-            (mi_row & (sb_mi_size - 1)) >> bh_in_mi_log2;
-
+            : (mi_row & (sb_mi_size - 1)) >> bh_in_mi_log2;
     const int blk_col_in_sb =
-#if CONFIG_3WAY_PARTITIONS
-        (partition == PARTITION_HORZ_3 || partition == PARTITION_VERT_3)
+        is_2nd_vert3_partition
             ? ROUND_POWER_OF_TWO(mi_col & (sb_mi_size - 1), bw_in_mi_log2)
-            :
+            : (mi_col & (sb_mi_size - 1)) >> bw_in_mi_log2;
+#else
+    const int blk_row_in_sb = mi_row & (sb_mi_size - 1)) >> bh_in_mi_log2;
+    const int blk_col_in_sb = (mi_col & (sb_mi_size - 1)) >> bw_in_mi_log2;
 #endif  // CONFIG_3WAY_PARTITIONS
-            (mi_col & (sb_mi_size - 1)) >> bw_in_mi_log2;
 
     // Top row of superblock: so top-right pixels are in the top and/or
     // top-right superblocks, both of which are already available.
@@ -468,21 +472,25 @@ static int has_bottom_left(const AV1_COMMON *cm, BLOCK_SIZE bsize, int mi_row,
     const int bw_in_mi_log2 = mi_size_wide_log2[bsize];
     const int bh_in_mi_log2 = mi_size_high_log2[bsize];
     const int sb_mi_size = mi_size_high[cm->seq_params.sb_size];
+#if CONFIG_3WAY_PARTITIONS
+    const int is_2nd_horz3_partition =
+        (partition == PARTITION_HORZ_3) &&
+        (mi_size_wide[bsize] == 2 * mi_size_high[bsize]);
+    const int is_2nd_vert3_partition =
+        (partition == PARTITION_VERT_3) &&
+        (mi_size_high[bsize] == 2 * mi_size_wide[bsize]);
     const int blk_row_in_sb =
-#if CONFIG_3WAY_PARTITIONS
-        (partition == PARTITION_HORZ_3 || partition == PARTITION_VERT_3)
+        is_2nd_horz3_partition
             ? ROUND_POWER_OF_TWO(mi_row & (sb_mi_size - 1), bh_in_mi_log2)
-            :
-#endif  // CONFIG_3WAY_PARTITIONS
-            (mi_row & (sb_mi_size - 1)) >> bh_in_mi_log2;
-
+            : (mi_row & (sb_mi_size - 1)) >> bh_in_mi_log2;
     const int blk_col_in_sb =
-#if CONFIG_3WAY_PARTITIONS
-        (partition == PARTITION_HORZ_3 || partition == PARTITION_VERT_3)
+        is_2nd_vert3_partition
             ? ROUND_POWER_OF_TWO(mi_col & (sb_mi_size - 1), bw_in_mi_log2)
-            :
+            : (mi_col & (sb_mi_size - 1)) >> bw_in_mi_log2;
+#else
+    const int blk_row_in_sb = mi_row & (sb_mi_size - 1)) >> bh_in_mi_log2;
+    const int blk_col_in_sb = (mi_col & (sb_mi_size - 1)) >> bw_in_mi_log2;
 #endif  // CONFIG_3WAY_PARTITIONS
-            (mi_col & (sb_mi_size - 1)) >> bw_in_mi_log2;
 
     // Leftmost column of superblock: so bottom-left pixels maybe in the left
     // and/or bottom-left superblocks. But only the left superblock is
@@ -2446,8 +2454,10 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
   if (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_CFL_PRED) {
 #if CONFIG_DEBUG
     assert(is_cfl_allowed(xd));
+    const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
+    const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
     const BLOCK_SIZE plane_bsize = get_plane_block_size(
-        mbmi->sb_type, pd->subsampling_x, pd->subsampling_y);
+        mi_row, mi_col, mbmi->sb_type, pd->subsampling_x, pd->subsampling_y);
     (void)plane_bsize;
     assert(plane_bsize < BLOCK_SIZES_ALL);
     if (!xd->lossless[mbmi->segment_id]) {
