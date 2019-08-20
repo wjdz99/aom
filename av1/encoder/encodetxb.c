@@ -660,7 +660,8 @@ void av1_write_coeffs_mb(const AV1_COMMON *const cm, MACROBLOCK *x, int mi_row,
   const int num_planes = av1_num_planes(cm);
   int block[MAX_MB_PLANE] = { 0 };
   int row, col;
-  assert(bsize == get_plane_block_size(bsize, xd->plane[0].subsampling_x,
+  assert(bsize == get_plane_block_size(mi_row, mi_col, bsize,
+                                       xd->plane[0].subsampling_x,
                                        xd->plane[0].subsampling_y));
   const int max_blocks_wide = max_block_wide(xd, bsize, 0);
   const int max_blocks_high = max_block_high(xd, bsize, 0);
@@ -682,10 +683,26 @@ void av1_write_coeffs_mb(const AV1_COMMON *const cm, MACROBLOCK *x, int mi_row,
         const int stepc = tx_size_wide_unit[tx_size];
         const int step = stepr * stepc;
 
-        const int unit_height = ROUND_POWER_OF_TWO(
-            AOMMIN(mu_blocks_high + row, max_blocks_high), pd->subsampling_y);
-        const int unit_width = ROUND_POWER_OF_TWO(
-            AOMMIN(mu_blocks_wide + col, max_blocks_wide), pd->subsampling_x);
+        // Get plane block size, to ensure processing correct number of block
+        // rows and cols. This especially ensures correct processing for HORZ_3
+        // and VERT_3 partition of 16x16 blocks.
+        const BLOCK_SIZE plane_bsize = get_plane_block_size(
+            mi_row, mi_col, bsize, pd->subsampling_x, pd->subsampling_y);
+        const int max_blocks_wide_plane = max_block_wide(xd, plane_bsize, 0);
+        const int max_blocks_high_plane = max_block_high(xd, plane_bsize, 0);
+        int mu_blocks_wide_plane =
+            block_size_wide[max_unit_bsize] >> tx_size_wide_log2[0];
+        int mu_blocks_high_plane =
+            block_size_high[max_unit_bsize] >> tx_size_high_log2[0];
+        mu_blocks_wide_plane =
+            AOMMIN(max_blocks_wide_plane, mu_blocks_wide_plane);
+        mu_blocks_high_plane =
+            AOMMIN(max_blocks_high_plane, mu_blocks_high_plane);
+
+        const int unit_height =
+            AOMMIN(mu_blocks_high_plane + row, max_blocks_high_plane);
+        const int unit_width =
+            AOMMIN(mu_blocks_wide_plane + col, max_blocks_wide_plane);
         for (int blk_row = row >> pd->subsampling_y; blk_row < unit_height;
              blk_row += stepr) {
           for (int blk_col = col >> pd->subsampling_x; blk_col < unit_width;

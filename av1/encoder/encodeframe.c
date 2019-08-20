@@ -308,7 +308,7 @@ static void set_offsets_without_segment_id(const AV1_COMP *const cpi,
 
   set_mode_info_offsets(cpi, x, xd, mi_row, mi_col);
 
-  set_skip_context(xd, mi_row, mi_col, num_planes);
+  set_skip_context(xd, mi_row, mi_col, bsize, num_planes);
   xd->above_txfm_context = cm->above_txfm_context[tile->tile_row] + mi_col;
   xd->left_txfm_context =
       xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
@@ -1596,6 +1596,7 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *xd = &x->e_mbd;
 
+  assert(bsize == ctx->mic.sb_type);
   set_offsets_without_segment_id(cpi, tile, x, mi_row, mi_col, bsize);
   const int origin_mult = x->rdmult;
   setup_block_rdmult(cpi, x, mi_row, mi_col, bsize, NO_AQ, NULL);
@@ -2474,11 +2475,13 @@ static bool rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   int partition_none_allowed = has_rows && has_cols;
   int partition_horz_allowed =
       has_cols && bsize_at_least_8x8 && cpi->oxcf.enable_rect_partitions &&
-      get_plane_block_size(get_partition_subsize(bsize, PARTITION_HORZ), xss,
+      get_plane_block_size(mi_row, mi_col,
+                           get_partition_subsize(bsize, PARTITION_HORZ), xss,
                            yss) != BLOCK_INVALID;
   int partition_vert_allowed =
       has_rows && bsize_at_least_8x8 && cpi->oxcf.enable_rect_partitions &&
-      get_plane_block_size(get_partition_subsize(bsize, PARTITION_VERT), xss,
+      get_plane_block_size(mi_row, mi_col,
+                           get_partition_subsize(bsize, PARTITION_VERT), xss,
                            yss) != BLOCK_INVALID;
 
   (void)*tp_orig;
@@ -2634,11 +2637,13 @@ BEGIN_PARTITION_SEARCH:
     partition_none_allowed = has_rows && has_cols;
     partition_horz_allowed =
         has_cols && bsize_at_least_8x8 && cpi->oxcf.enable_rect_partitions &&
-        get_plane_block_size(get_partition_subsize(bsize, PARTITION_HORZ), xss,
+        get_plane_block_size(mi_row, mi_col,
+                             get_partition_subsize(bsize, PARTITION_HORZ), xss,
                              yss) != BLOCK_INVALID;
     partition_vert_allowed =
         has_rows && bsize_at_least_8x8 && cpi->oxcf.enable_rect_partitions &&
-        get_plane_block_size(get_partition_subsize(bsize, PARTITION_VERT), xss,
+        get_plane_block_size(mi_row, mi_col,
+                             get_partition_subsize(bsize, PARTITION_VERT), xss,
                              yss) != BLOCK_INVALID;
     terminate_partition_search = 0;
   }
@@ -3353,11 +3358,13 @@ BEGIN_PARTITION_SEARCH:
 
   int partition_horz3_allowed =
       partition3_allowed && partition_horz_allowed &&
-      get_plane_block_size(get_partition_subsize(bsize, PARTITION_HORZ_3), xss,
+      get_plane_block_size(mi_row, mi_col,
+                           get_partition_subsize(bsize, PARTITION_HORZ_3), xss,
                            yss) != BLOCK_INVALID;
   int partition_vert3_allowed =
       partition3_allowed && partition_vert_allowed &&
-      get_plane_block_size(get_partition_subsize(bsize, PARTITION_VERT_3), xss,
+      get_plane_block_size(mi_row, mi_col,
+                           get_partition_subsize(bsize, PARTITION_VERT_3), xss,
                            yss) != BLOCK_INVALID;
   if (cpi->sf.prune_ext_partition_types_search_level == 2) {
     partition_horz3_allowed &= (pc_tree->partitioning == PARTITION_HORZ ||
