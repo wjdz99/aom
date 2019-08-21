@@ -205,7 +205,6 @@ if(CONFIG_AV1_ENCODER)
               "${AOM_ROOT}/aom_dsp/x86/fwd_txfm_sse2.c"
               "${AOM_ROOT}/aom_dsp/x86/fwd_txfm_sse2.h"
               "${AOM_ROOT}/aom_dsp/x86/highbd_quantize_intrin_sse2.c"
-              "${AOM_ROOT}/aom_dsp/x86/highbd_subtract_sse2.c"
               "${AOM_ROOT}/aom_dsp/x86/highbd_variance_sse2.c"
               "${AOM_ROOT}/aom_dsp/x86/quantize_sse2.c"
               "${AOM_ROOT}/aom_dsp/x86/adaptive_quantize_sse2.c"
@@ -217,6 +216,7 @@ if(CONFIG_AV1_ENCODER)
     list(REMOVE_ITEM AOM_DSP_ENCODER_INTRIN_SSE2
                      "${AOM_ROOT}/aom_dsp/x86/highbd_adaptive_quantize_sse2.c"
                      "${AOM_ROOT}/aom_dsp/x86/highbd_quantize_intrin_sse2.c"
+                     "${AOM_ROOT}/aom_dsp/x86/highbd_subtract_sse2.c"
                      "${AOM_ROOT}/aom_dsp/x86/highbd_variance_sse2.c")
   endif()
 
