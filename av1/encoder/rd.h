@@ -31,6 +31,12 @@ extern "C" {
   (ROUND_POWER_OF_TWO(((int64_t)(R)) * (RM), AV1_PROB_COST_SHIFT) + \
    ((D) * (1 << RDDIV_BITS)))
 
+#define RDCOST_TX_SIZE(RM, R, D) \
+  (ROUND_POWER_OF_TWO(((int64_t)(R)) * (RM), AV1_PROB_COST_SHIFT) + (D * 11))
+
+#define SATD_BASED_RDCOST(RM, R, D) \
+  ((ROUND_POWER_OF_TWO((unsigned)R * RM, AV1_PROB_COST_SHIFT)) + D)
+
 #define RDCOST_NEG_R(RM, R, D) \
   (((D) * (1 << RDDIV_BITS)) - \
    ROUND_POWER_OF_TWO(((int64_t)(R)) * (RM), AV1_PROB_COST_SHIFT))

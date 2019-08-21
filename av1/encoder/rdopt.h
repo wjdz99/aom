@@ -240,6 +240,9 @@ static INLINE void set_tx_size_search_method(
   }
   x->tx_mode = select_tx_mode(cpi, x->tx_size_search_method);
 }
+int get_tx_type_cost(const AV1_COMMON *cm, const MACROBLOCK *x,
+                     const MACROBLOCKD *xd, int plane, TX_SIZE tx_size,
+                     TX_TYPE tx_type);
 #ifdef __cplusplus
 }  // extern "C"
 #endif
