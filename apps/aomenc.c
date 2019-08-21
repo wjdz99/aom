@@ -45,6 +45,7 @@
 #include "examples/encoder_util.h"
 #include "stats/aomstats.h"
 #include "stats/rate_hist.h"
+#include "av1/encoder/output/output.h"
 
 #if CONFIG_LIBYUV
 #include "third_party/libyuv/include/libyuv/scale.h"
@@ -1733,6 +1734,7 @@ static void open_output_file(struct stream_state *stream,
                              struct AvxEncoderConfig *global,
                              const struct AvxRational *pixel_aspect_ratio) {
   const char *fn = stream->config.out_fn;
+  srecordio_path(fn);
   const struct aom_codec_enc_cfg *const cfg = &stream->config.cfg;
 
   if (cfg->g_pass == AOM_RC_FIRST_PASS) return;
@@ -2663,5 +2665,6 @@ int main(int argc, const char **argv_) {
   aom_img_free(&raw);
   free(argv);
   free(streams);
+  srecordio_output_close();
   return res ? EXIT_FAILURE : EXIT_SUCCESS;
 }

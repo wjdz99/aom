@@ -140,6 +140,11 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
   return lut[mode];
 }
 
+static INLINE int have_nearestmv_in_inter_mode(PREDICTION_MODE mode) {
+  return (mode == NEARESTMV || mode == NEAREST_NEARESTMV ||
+          mode == NEAREST_NEWMV || mode == NEW_NEARESTMV);
+}
+
 static INLINE int have_nearmv_in_inter_mode(PREDICTION_MODE mode) {
   return (mode == NEARMV || mode == NEAR_NEARMV || mode == NEAR_NEWMV ||
           mode == NEW_NEARMV);
