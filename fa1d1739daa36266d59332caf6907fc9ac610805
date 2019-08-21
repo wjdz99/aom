@@ -16,6 +16,24 @@
       "revId": "fa1d1739daa36266d59332caf6907fc9ac610805",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "958a0b81_8092bf23",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 13
+      },
+      "lineNbr": 1297,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-08-21T19:05:13Z",
+      "side": 1,
+      "message": "Fixed in https://aomedia-review.googlesource.com/c/aom/+/94102",
+      "parentUuid": "0a7606b3_1acc6906",
+      "revId": "fa1d1739daa36266d59332caf6907fc9ac610805",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
