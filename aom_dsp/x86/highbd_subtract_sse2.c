@@ -253,6 +253,7 @@ static SubtractWxHFuncType getSubtractFunc(int rows, int cols) {
   return NULL;
 }
 
+#if CONFIG_AV1_HIGHBITDEPTH
 void aom_highbd_subtract_block_sse2(int rows, int cols, int16_t *diff,
                                     ptrdiff_t diff_stride, const uint8_t *src8,
                                     ptrdiff_t src_stride, const uint8_t *pred8,
@@ -265,3 +266,4 @@ void aom_highbd_subtract_block_sse2(int rows, int cols, int16_t *diff,
   func = getSubtractFunc(rows, cols);
   func(diff, diff_stride, src, src_stride, pred, pred_stride);
 }
+#endif
