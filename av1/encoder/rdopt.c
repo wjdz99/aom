@@ -60,6 +60,7 @@
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/tokenize.h"
 #include "av1/encoder/tx_prune_model_weights.h"
+#include "aom_dsp/x86/bitdepth_conversion_avx2.h"
 
 // Set this macro as 1 to collect data about tx size selection.
 #define COLLECT_TX_SIZE_DATA 0
@@ -1955,6 +1956,13 @@ static unsigned pixel_dist(const AV1_COMP *const cpi, const MACROBLOCK *x,
 
   return sse;
 }
+static int get_sad_for_src_diff(const int16_t *diff, const int diff_stride,
+                                int width, int height) {
+  int sum = 0;
+  for (int i = 0; i < height; i++)
+    for (int j = 0; j < width; j++) sum += abs(diff[i * diff_stride + j]);
+  return sum;
+}
 
 // Compute the pixel domain distortion from diff on all visible 4x4s in the
 // transform block.
@@ -1987,6 +1995,52 @@ static INLINE int64_t pixel_diff_dist(const MACROBLOCK *x, int plane,
   diff += ((blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]);
   uint64_t sse =
       aom_sum_squares_2d_i16(diff, diff_stride, visible_cols, visible_rows);
+  if (block_mse_q8 != NULL) {
+    if (visible_cols > 0 && visible_rows > 0)
+      *block_mse_q8 =
+          (unsigned int)((256 * sse) / (visible_cols * visible_rows));
+    else
+      *block_mse_q8 = UINT_MAX;
+  }
+  return sse;
+}
+static INLINE int64_t pixel_diff_dist_hadamard(const MACROBLOCK *x, int plane,
+                                               int blk_row, int blk_col,
+                                               const BLOCK_SIZE plane_bsize,
+                                               const BLOCK_SIZE tx_bsize,
+                                               unsigned int *block_mse_q8,
+                                               TX_SIZE tx_size, int *had_satd) {
+  int visible_rows, visible_cols;
+  const MACROBLOCKD *xd = &x->e_mbd;
+  get_txb_dimensions(xd, plane, plane_bsize, blk_row, blk_col, tx_bsize, NULL,
+                     NULL, &visible_cols, &visible_rows);
+  const int diff_stride = block_size_wide[plane_bsize];
+  const int16_t *diff = x->plane[plane].src_diff;
+#if CONFIG_DIST_8X8
+  int txb_height = block_size_high[tx_bsize];
+  int txb_width = block_size_wide[tx_bsize];
+  if (x->using_dist_8x8 && plane == 0) {
+    const int src_stride = x->plane[plane].src.stride;
+    const int src_idx = (blk_row * src_stride + blk_col)
+                        << tx_size_wide_log2[0];
+    const int diff_idx = (blk_row * diff_stride + blk_col)
+                         << tx_size_wide_log2[0];
+    const uint8_t *src = &x->plane[plane].src.buf[src_idx];
+    return dist_8x8_diff(x, src, src_stride, diff + diff_idx, diff_stride,
+                         txb_width, txb_height, visible_cols, visible_rows,
+                         x->qindex);
+  }
+#endif
+  diff += ((blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]);
+  uint64_t sse =
+      aom_sum_squares_2d_i16(diff, diff_stride, visible_cols, visible_rows);
+  had_satd[0] =
+      get_sad_for_src_diff(diff, diff_stride, visible_cols, visible_rows);
+  DECLARE_ALIGNED(32, tran_low_t, tmp_coeff[16 * 16]);
+  if (tx_size == TX_16X16)
+    aom_hadamard_16x16_using_1d(diff, diff_stride, tmp_coeff, &had_satd[1]);
+  if (tx_size == TX_8X8)
+    aom_hadamard_8x8_using_1d(diff, diff_stride, tmp_coeff, &had_satd[1]);
   if (block_mse_q8 != NULL) {
     if (visible_cols > 0 && visible_rows > 0)
       *block_mse_q8 =
@@ -5143,7 +5197,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
                             TXFM_CONTEXT *tx_left, RD_STATS *rd_stats,
                             int64_t prev_level_rd, int64_t ref_best_rd,
                             int *is_cost_valid, FAST_TX_SEARCH_MODE ftxs_mode,
-                            TXB_RD_INFO_NODE *rd_info_node);
+                            TXB_RD_INFO_NODE *rd_info_node, int eval_split);
 
 static void try_tx_block_split(
     const AV1_COMP *cpi, MACROBLOCK *x, int blk_row, int blk_col, int block,
@@ -5151,7 +5205,7 @@ static void try_tx_block_split(
     ENTROPY_CONTEXT *tl, TXFM_CONTEXT *tx_above, TXFM_CONTEXT *tx_left,
     int txfm_partition_ctx, int64_t no_split_rd, int64_t ref_best_rd,
     FAST_TX_SEARCH_MODE ftxs_mode, TXB_RD_INFO_NODE *rd_info_node,
-    RD_STATS *split_rd_stats, int64_t *split_rd) {
+    RD_STATS *split_rd_stats, int64_t *split_rd, int eval_split) {
   assert(tx_size < TX_SIZES_ALL);
   MACROBLOCKD *const xd = &x->e_mbd;
   const int max_blocks_high = max_block_high(xd, plane_bsize, 0);
@@ -5181,7 +5235,8 @@ static void try_tx_block_split(
           cpi, x, offsetr, offsetc, block, sub_txs, depth + 1, plane_bsize, ta,
           tl, tx_above, tx_left, &this_rd_stats, no_split_rd / nblks,
           ref_best_rd - tmp_rd, &this_cost_valid, ftxs_mode,
-          (rd_info_node != NULL) ? rd_info_node->children[blk_idx] : NULL);
+          (rd_info_node != NULL) ? rd_info_node->children[blk_idx] : NULL,
+          eval_split);
       if (!this_cost_valid) return;
       av1_merge_rd_stats(split_rd_stats, &this_rd_stats);
       tmp_rd = RDCOST(x->rdmult, split_rd_stats->rate, split_rd_stats->dist);
@@ -5193,6 +5248,156 @@ static void try_tx_block_split(
   *split_rd = tmp_rd;
 }
 
+static int had_tx_based_split_decision(MACROBLOCK *x, int blk_row, int blk_col,
+                                       TX_SIZE max_tx_size,
+                                       BLOCK_SIZE plane_bsize, int no_split_ctx,
+                                       int split_ctx) {
+  int non_split_satd, split_satd, best_cand = 0;
+  int eval_split = 1;
+  // if (max_tx_size == TX_32X32) {
+  if (0) {
+    int rdmult_satd = (int)sqrt(x->rdmult);
+    DECLARE_ALIGNED(32, tran_low_t, tmp_coeff[32 * 32]);
+    const int16_t *diff = x->plane[PLANE_TYPE_Y].src_diff;
+    const int diff_stride = block_size_wide[plane_bsize];
+    diff += ((blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]);
+    int p_tx_type_cost[4] = { 0, 0, 0, 0 };
+    int no_split_had_satd[4] = { 0, 0, 0, 0 };
+    int split_had_satd[4] = { 0, 0, 0, 0 };
+    p_tx_type_cost[0] = 0;  // get_idtx_ty_type_cost(cpi, x, max_tx_size);
+    p_tx_type_cost[3] = 0;  // get_hv_ty_type_cost(cpi, x, max_tx_size);
+
+    no_split_had_satd[0] = get_sad_for_src_diff(diff, diff_stride, 32, 32);
+    // Non-split hadamard transform and satd calcluation
+    aom_hadamard_32x32_avx2_tx_size(diff, diff_stride, tmp_coeff);
+    no_split_had_satd[3] = aom_satd(tmp_coeff, 1024);
+    int best = INT32_MAX;
+    int tmp_idtx = RDCOST_TX_SIZE(
+        rdmult_satd,
+        x->txfm_partition_cost[no_split_ctx][0] + p_tx_type_cost[0],
+        no_split_had_satd[0]);
+    int tmp_dct = RDCOST_TX_SIZE(
+        rdmult_satd,
+        x->txfm_partition_cost[no_split_ctx][0] + p_tx_type_cost[3],
+        no_split_had_satd[3]);
+    if (tmp_idtx <= tmp_dct)
+      non_split_satd = tmp_idtx;
+    else
+      non_split_satd = tmp_dct;
+
+    // Split hadamard transform and satd calcluation
+    int best_rd_cost = 0, tmp_rd_cost, best_tx_type_rate = 0, best_satd = 0;
+    best = INT32_MAX;
+    p_tx_type_cost[0] = 0;  // get_idtx_ty_type_cost(cpi, x, TX_16X16);
+    p_tx_type_cost[1] = 0;  // get_horz_ty_type_cost(cpi, x, TX_16X16);
+    p_tx_type_cost[2] = 0;  // get_vert_ty_type_cost(cpi, x, TX_16X16);
+    p_tx_type_cost[3] = 0;  // get_hv_ty_type_cost(cpi, x, TX_16X16);
+    for (int xx = 0; xx < 2; xx++) {
+      for (int yy = 0; yy < 2; yy++) {
+        int stride = (xx * 16 * diff_stride) + (yy * 16);
+        split_had_satd[0] =
+            get_sad_for_src_diff(diff + stride, diff_stride, 16, 16);
+        aom_hadamard_16x16_using_1d(diff + stride, diff_stride, tmp_coeff,
+                                    &split_had_satd[1]);
+        for (int zz = 0; zz < 4; zz++) {
+          int tmp;
+          tmp = RDCOST_TX_SIZE(rdmult_satd, p_tx_type_cost[zz],
+                               split_had_satd[zz]);
+          if (tmp < best) {
+            best_cand = zz;
+            best = tmp;
+            tmp_rd_cost = tmp;
+          }
+        }
+        best_rd_cost += tmp_rd_cost;
+        best_satd += split_had_satd[best_cand];
+        best_tx_type_rate += p_tx_type_cost[best_cand];
+        best = INT32_MAX;
+        split_had_satd[1] = split_had_satd[2] = split_had_satd[3] = 0;
+      }
+    }
+    split_satd = RDCOST_TX_SIZE(
+        rdmult_satd, best_tx_type_rate + x->txfm_partition_cost[split_ctx][1],
+        best_satd);
+
+    if (non_split_satd <= split_satd) {
+      eval_split = 0;
+    }
+  }
+
+  if (max_tx_size == TX_16X16) {
+    int rdmult_satd = (int)sqrt(x->rdmult);
+    DECLARE_ALIGNED(32, tran_low_t, tmp_coeff[16 * 16]);
+    int16_t *diff = x->plane[PLANE_TYPE_Y].src_diff;
+    const int diff_stride = block_size_wide[plane_bsize];
+    diff += ((blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]);
+    int p_tx_type_cost[4] = { 0, 0, 0, 0 };
+    int no_split_had_satd[4] = { 0, 0, 0, 0 };
+    int split_had_satd[4] = { 0, 0, 0, 0 };
+    p_tx_type_cost[0] = 0;  // get_idtx_ty_type_cost(cpi, x, max_tx_size);
+    p_tx_type_cost[1] = 0;  // get_horz_ty_type_cost(cpi, x, max_tx_size);
+    p_tx_type_cost[2] = 0;  // get_vert_ty_type_cost(cpi, x, max_tx_size);
+    p_tx_type_cost[3] = 0;  // get_hv_ty_type_cost(cpi, x, max_tx_size);
+
+    no_split_had_satd[0] = get_sad_for_src_diff(diff, diff_stride, 16, 16);
+    // Non-split hadamard transform and satd calcluation
+    aom_hadamard_16x16_using_1d(diff, diff_stride, tmp_coeff,
+                                &no_split_had_satd[1]);
+    int best = INT32_MAX;
+    for (int zz = 0; zz < 4; zz++) {
+      int tmp;
+      tmp = RDCOST_TX_SIZE(rdmult_satd, p_tx_type_cost[zz],
+                           no_split_had_satd[zz]);
+      if (tmp < best) {
+        best_cand = zz;
+        best = tmp;
+      }
+    }
+    non_split_satd = RDCOST_TX_SIZE(
+        rdmult_satd,
+        x->txfm_partition_cost[no_split_ctx][0] + p_tx_type_cost[best_cand],
+        no_split_had_satd[best_cand]);
+
+    // Split hadamard transform and satd calcluation
+    int best_rd_cost = 0, tmp_rd_cost, best_tx_type_rate = 0, best_satd = 0;
+    best = INT32_MAX;
+    p_tx_type_cost[0] = 0;  // get_idtx_ty_type_cost(cpi, x, TX_8X8);
+    p_tx_type_cost[1] = 0;  // get_horz_ty_type_cost(cpi, x, TX_8X8);
+    p_tx_type_cost[2] = 0;  // get_vert_ty_type_cost(cpi, x, TX_8X8);
+    p_tx_type_cost[3] = 0;  // get_hv_ty_type_cost(cpi, x, TX_8X8);
+    for (int xx = 0; xx < 2; xx++) {
+      for (int yy = 0; yy < 2; yy++) {
+        int stride = (xx * 8 * diff_stride) + (yy * 8);
+        split_had_satd[0] =
+            get_sad_for_src_diff(diff + stride, diff_stride, 8, 8);
+        aom_hadamard_8x8_using_1d(diff + stride, diff_stride, tmp_coeff,
+                                  &split_had_satd[1]);
+        for (int zz = 0; zz < 4; zz++) {
+          int tmp;
+          tmp = RDCOST_TX_SIZE(rdmult_satd, p_tx_type_cost[zz],
+                               split_had_satd[zz]);
+          if (tmp < best) {
+            best_cand = zz;
+            best = tmp;
+            tmp_rd_cost = tmp;
+          }
+        }
+        best_rd_cost += tmp_rd_cost;
+        best_satd += split_had_satd[best_cand];
+        best_tx_type_rate += p_tx_type_cost[best_cand];
+        best = INT32_MAX;
+        split_had_satd[1] = split_had_satd[2] = split_had_satd[3] = 0;
+      }
+    }
+    split_satd = RDCOST_TX_SIZE(
+        rdmult_satd, best_tx_type_rate + x->txfm_partition_cost[split_ctx][1],
+        best_satd);
+    if (non_split_satd <= split_satd) {
+      eval_split = 0;
+    }
+  }
+  return eval_split;
+}
 // Search for the best tx partition/type for a given luma block.
 static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
                             int blk_col, int block, TX_SIZE tx_size, int depth,
@@ -5201,7 +5406,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
                             TXFM_CONTEXT *tx_left, RD_STATS *rd_stats,
                             int64_t prev_level_rd, int64_t ref_best_rd,
                             int *is_cost_valid, FAST_TX_SEARCH_MODE ftxs_mode,
-                            TXB_RD_INFO_NODE *rd_info_node) {
+                            TXB_RD_INFO_NODE *rd_info_node, int eval_split) {
   assert(tx_size < TX_SIZES_ALL);
   av1_init_rd_stats(rd_stats);
   if (ref_best_rd < 0) {
@@ -5213,7 +5418,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   const int max_blocks_high = max_block_high(xd, plane_bsize, 0);
   const int max_blocks_wide = max_block_wide(xd, plane_bsize, 0);
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
-
+  int no_split_ctx = 0;
   const int bw = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int ctx = txfm_partition_context(tx_above + blk_col, tx_left + blk_row,
@@ -5231,6 +5436,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
   // TX no split
   if (try_no_split) {
+    no_split_ctx = ctx;
     try_tx_block_no_split(cpi, x, blk_row, blk_col, block, tx_size, depth,
                           plane_bsize, ta, tl, ctx, rd_stats, ref_best_rd,
                           ftxs_mode, rd_info_node, &no_split);
@@ -5270,10 +5476,20 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   RD_STATS split_rd_stats;
   av1_init_rd_stats(&split_rd_stats);
   if (try_split) {
-    try_tx_block_split(cpi, x, blk_row, blk_col, block, tx_size, depth,
-                       plane_bsize, ta, tl, tx_above, tx_left, ctx, no_split.rd,
-                       AOMMIN(no_split.rd, ref_best_rd), ftxs_mode,
-                       rd_info_node, &split_rd_stats, &split_rd);
+    eval_split = 1;
+    // if (tx_size == TX_32X32 || tx_size == TX_16X16) {
+    if (tx_size == TX_16X16) {
+      int split_ctx =
+          txfm_partition_context(tx_above + blk_col, tx_left + blk_row,
+                                 mbmi->sb_type, sub_tx_size_map[tx_size]);
+      eval_split = had_tx_based_split_decision(
+          x, blk_row, blk_col, tx_size, plane_bsize, no_split_ctx, split_ctx);
+    }
+    if (eval_split)
+      try_tx_block_split(
+          cpi, x, blk_row, blk_col, block, tx_size, depth, plane_bsize, ta, tl,
+          tx_above, tx_left, ctx, no_split.rd, AOMMIN(no_split.rd, ref_best_rd),
+          ftxs_mode, rd_info_node, &split_rd_stats, &split_rd, eval_split);
   }
 
   if (no_split.rd < split_rd) {
@@ -5362,7 +5578,8 @@ static int64_t select_tx_size_and_type(const AV1_COMP *cpi, MACROBLOCK *x,
       select_tx_block(cpi, x, idy, idx, block, max_tx_size, init_depth,
                       plane_bsize, ctxa, ctxl, tx_above, tx_left, &pn_rd_stats,
                       INT64_MAX, best_rd_sofar, &is_cost_valid, ftxs_mode,
-                      rd_info_tree);
+                      rd_info_tree, 0);
+
       if (!is_cost_valid || pn_rd_stats.rate == INT_MAX) {
         av1_invalid_rd_stats(rd_stats);
         return INT64_MAX;

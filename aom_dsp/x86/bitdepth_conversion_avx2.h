@@ -14,7 +14,7 @@
 #include "config/aom_config.h"
 #include "aom/aom_integer.h"
 #include "aom_dsp/aom_dsp_common.h"
-
+#if 0
 static INLINE __m256i load_tran_low(const tran_low_t *a) {
   const __m256i a_low = _mm256_loadu_si256((const __m256i *)a);
   const __m256i a_high = _mm256_loadu_si256((const __m256i *)(a + 8));
@@ -30,3 +30,10 @@ static INLINE void store_tran_low(__m256i a, tran_low_t *b) {
   _mm256_storeu_si256((__m256i *)b, a_1);
   _mm256_storeu_si256((__m256i *)(b + 8), a_2);
 }
+#endif
+void aom_hadamard_32x32_avx2_tx_size(const int16_t *src_diff,
+                                     ptrdiff_t src_stride, tran_low_t *coeff);
+void aom_hadamard_8x8_using_1d(const int16_t *src_diff, ptrdiff_t src_stride,
+                               tran_low_t *coeff, int *had_satd);
+void aom_hadamard_16x16_using_1d(const int16_t *src_diff, ptrdiff_t src_stride,
+                                 tran_low_t *coeff, int *had_satd);

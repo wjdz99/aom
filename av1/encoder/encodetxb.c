@@ -701,9 +701,9 @@ void av1_write_coeffs_mb(const AV1_COMMON *const cm, MACROBLOCK *x, int mi_row,
 }
 
 // TODO(angiebird): use this function whenever it's possible
-static int get_tx_type_cost(const AV1_COMMON *cm, const MACROBLOCK *x,
-                            const MACROBLOCKD *xd, int plane, TX_SIZE tx_size,
-                            TX_TYPE tx_type) {
+int get_tx_type_cost(const AV1_COMMON *cm, const MACROBLOCK *x,
+                     const MACROBLOCKD *xd, int plane, TX_SIZE tx_size,
+                     TX_TYPE tx_type) {
   if (plane > 0) return 0;
 
   const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
