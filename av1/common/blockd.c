@@ -201,47 +201,45 @@ void av1_setup_block_planes(MACROBLOCKD *xd, int ss_x, int ss_y,
 
 #if CONFIG_INTRA_ENTROPY && !USE_SMALL_MODEL
 // Indices are sign, integer, and fractional part of the gradient value
-static const uint8_t gradient_to_angle_bin[2][7][16] = {
+static const uint8_t gradient_to_angle_bin[2][7 * 16] = {
   {
-      { 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0 },
-      { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1 },
-      { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-      { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-      { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-      { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 },
-      { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 },
+      6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
   },
   {
-      { 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4 },
-      { 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3 },
-      { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-      { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-      { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-      { 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2 },
-      { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 },
+      6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+      4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+      3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+      3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
   },
 };
 
-static void get_gradient_hist(const uint8_t *dst, int stride, int rows,
-                              int cols, uint64_t *hist) {
+static INLINE uint8_t get_angle_idx(int dx, int dy) {
+  if (dy == 0) {
+    return 2;
+  } else {
+    const int sn = (dx > 0) ^ (dy > 0);
+    int quot = abs((16 * dx) / dy);
+
+    return gradient_to_angle_bin[sn][AOMMIN(quot, 7 * 16 - 1)];
+  }
+}
+
+void av1_get_gradient_hist_lbd_c(const uint8_t *dst, int stride, int rows,
+                                 int cols, uint64_t *hist) {
   dst += stride;
   for (int r = 1; r < rows; ++r) {
-    for (int c = 1; c < cols; ++c) {
-      int dx = dst[c] - dst[c - 1];
-      int dy = dst[c] - dst[c - stride];
-      int index;
-      const int temp = dx * dx + dy * dy;
-      if (dy == 0) {
-        index = 2;
-      } else {
-        const int sn = (dx > 0) ^ (dy > 0);
-        dx = abs(dx);
-        dy = abs(dy);
-        const int remd = (dx % dy) * 16 / dy;
-        const int quot = dx / dy;
-        index = gradient_to_angle_bin[sn][AOMMIN(quot, 6)][AOMMIN(remd, 15)];
-      }
-      hist[index] += temp;
+    int c;
+    for (c = 1; c < cols; c += 1) {
+      const int dx = dst[c] - dst[c - 1];
+      const int dy = dst[c] - dst[c - stride];
+      const int mag = dx * dx + dy * dy;
+      const uint8_t index = get_angle_idx(dx, dy);
+      hist[index] += mag;
     }
     dst += stride;
   }
@@ -253,21 +251,11 @@ static void get_highbd_gradient_hist(const uint8_t *dst8, int stride, int rows,
   dst += stride;
   for (int r = 1; r < rows; ++r) {
     for (int c = 1; c < cols; ++c) {
-      int dx = dst[c] - dst[c - 1];
-      int dy = dst[c] - dst[c - stride];
-      int index;
-      const int temp = dx * dx + dy * dy;
-      if (dy == 0) {
-        index = 2;
-      } else {
-        const int sn = (dx > 0) ^ (dy > 0);
-        dx = abs(dx);
-        dy = abs(dy);
-        const int remd = (dx % dy) * 16 / dy;
-        const int quot = dx / dy;
-        index = gradient_to_angle_bin[sn][AOMMIN(quot, 6)][AOMMIN(remd, 15)];
-      }
-      hist[index] += temp;
+      const int dx = dst[c] - dst[c - 1];
+      const int dy = dst[c] - dst[c - stride];
+      const int mag = dx * dx + dy * dy;
+      const uint8_t index = get_angle_idx(dx, dy);
+      hist[index] += mag;
     }
     dst += stride;
   }
@@ -289,8 +277,8 @@ void av1_get_gradient_hist(const MACROBLOCKD *const xd,
     get_highbd_gradient_hist(y_dst, y_stride, y_block_rows, y_block_cols,
                              mbmi->y_gradient_hist);
   } else {
-    get_gradient_hist(y_dst, y_stride, y_block_rows, y_block_cols,
-                      mbmi->y_gradient_hist);
+    av1_get_gradient_hist_lbd(y_dst, y_stride, y_block_rows, y_block_cols,
+                              mbmi->y_gradient_hist);
   }
 }
 

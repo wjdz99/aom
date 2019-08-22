@@ -11,36 +11,36 @@
 
 #include "aom_mem/aom_mem.h"
 
+#include "config/aom_config.h"
+
 #include "av1/common/reconinter.h"
 #include "av1/common/scan.h"
 #include "av1/common/onyxc_int.h"
 #include "av1/common/seg_common.h"
 #include "av1/common/txb_common.h"
+#include "config/av1_rtcd.h"
 
 #if CONFIG_INTRA_ENTROPY
 // Applies the ReLu activation to one fc layer
 // output[i] = Max(input[i],0.0f)
-static float *nn_relu(const float *input, FC_LAYER_EM *layer) {
-  for (int i = 0; i < layer->num_outputs; ++i) {
-    layer->output[i] = AOMMAX(input[i], 0.0f);
+static void nn_relu(float *input, int num_outputs) {
+  for (int i = 0; i < num_outputs; ++i) {
+    input[i] = AOMMAX(input[i], 0.0f);
   }
-
-  return layer->output;
 }
 
 // Applies the Sigmoid activation to one fc layer
 // output[i] = 1/(1+exp(input[i]))
-static float *nn_sigmoid(const float *input, FC_LAYER_EM *layer) {
-  for (int i = 0; i < layer->num_outputs; ++i) {
+static void nn_sigmoid(float *input, int num_outputs) {
+  for (int i = 0; i < num_outputs; ++i) {
     const float tmp = AOMMIN(AOMMAX(input[i], -10.0f), 10.0f);
-    layer->output[i] = 1.0f / (1.0f + expf(-tmp));
+    input[i] = 1.0f / (1.0f + expf(-tmp));
   }
-
-  return layer->output;
 }
 
 // Forward prediction in one fc layer, used in function av1_nn_predict_V2
-static float *nn_fc_forward(const float *input, FC_LAYER_EM *layer) {
+void av1_nn_fc_forward_c(const float *input, FC_LAYER_EM *layer,
+                         float *output) {
   const float *weights = layer->weights;
   const float *bias = layer->bias;
   assert(layer->num_outputs < EM_MAX_NODES);
@@ -48,18 +48,17 @@ static float *nn_fc_forward(const float *input, FC_LAYER_EM *layer) {
   for (int node = 0; node < layer->num_outputs; ++node) {
     float val = bias[node];
     for (int i = 0; i < layer->num_inputs; ++i) val += weights[i] * input[i];
-    layer->output[node] = val;
+    output[node] = val;
     weights += layer->num_inputs;
   }
 
   // activation
   switch (layer->activation) {
-    case ACTN_NONE: return layer->output;
-    case ACTN_RELU: return nn_relu(layer->output, layer);
-    case ACTN_SIGMOID: return nn_sigmoid(layer->output, layer);
-    default:
-      assert(0 && "Unknown activation");  // Unknown activation
-      return NULL;
+    case ACTN_NONE:  // Do Nothing;
+      break;
+    case ACTN_RELU: nn_relu(output, layer->num_outputs); break;
+    case ACTN_SIGMOID: nn_sigmoid(output, layer->num_outputs); break;
+    default: assert(0 && "Unknown activation");  // Unknown activation
   }
 }
 
@@ -75,7 +74,9 @@ void av1_nn_predict_em(const float *feature, NN_CONFIG_EM *nn_config,
   int num_inputs = nn_config->layer[0].num_inputs;
   for (int i = 0; i <= num_layers; ++i) {
     assert(num_inputs == nn_config->layer[i].num_inputs);
-    input_nodes = nn_fc_forward(input_nodes, nn_config->layer + i);
+    av1_nn_fc_forward(input_nodes, nn_config->layer + i,
+                      nn_config->layer[i].output);
+    input_nodes = nn_config->layer[i].output;
     num_inputs = nn_config->layer[i].num_outputs;
   }
   (void)num_inputs;
@@ -211,7 +212,7 @@ void av1_nn_update_em(NN_CONFIG_EM *nn_config, float mu) {
   }
 }
 
-void av1_nn_softmax_em(const float *input, float *output, int n) {
+void av1_nn_softmax_em_c(const float *input, float *output, int n) {
   // Softmax function is invariant to adding the same constant
   // to all input values, so we subtract the maximum input to avoid
   // possible overflow.
