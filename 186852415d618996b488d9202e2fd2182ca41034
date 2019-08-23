@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cae7edfe_68f89b77",
+        "filename": "test/acm_random.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-08-23T02:45:43Z",
+      "side": 1,
+      "message": "did this get missed on the libvpx side? I don\u0027t remember make this update. In this case I might prefer a static_cast\u003cuint8_t\u003e() or moving the 0xff outside the conditional",
+      "revId": "186852415d618996b488d9202e2fd2182ca41034",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
