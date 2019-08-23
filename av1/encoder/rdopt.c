@@ -12740,10 +12740,88 @@ static INLINE bool in_single_ref_cutoff(int64_t ref_frame_rd[REF_FRAMES],
          ref_frame_rd[frame2] <= ref_frame_rd[0];
 }
 
+static INLINE void get_res_energies(AV1_COMP *cpi, MACROBLOCK *x,
+                                    const BLOCK_SIZE bsize, uint32_t *esq) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  static const BLOCK_SIZE split_qtr[BLOCK_SIZES_ALL] = {
+    //                            4X4
+    BLOCK_INVALID,
+    // 4X8,        8X4,           8X8
+    BLOCK_INVALID, BLOCK_INVALID, BLOCK_4X4,
+    // 8X16,       16X8,          16X16
+    BLOCK_4X8, BLOCK_8X4, BLOCK_8X8,
+    // 16X32,      32X16,         32X32
+    BLOCK_8X16, BLOCK_16X8, BLOCK_16X16,
+    // 32X64,      64X32,         64X64
+    BLOCK_16X32, BLOCK_32X16, BLOCK_32X32,
+    // 64x128,     128x64,        128x128
+    BLOCK_32X64, BLOCK_64X32, BLOCK_64X64,
+    // 4X16,       16X4,          8X32
+    BLOCK_INVALID, BLOCK_INVALID, BLOCK_4X16,
+    // 32X8,       16X64,         64X16
+    BLOCK_16X4, BLOCK_8X32, BLOCK_32X8
+  };
+  const struct macroblock_plane *const p = &x->plane[0];
+  const uint8_t *src = p->src.buf;
+  int src_stride = p->src.stride;
+  const uint8_t *dst = xd->plane[0].dst.buf;
+  int dst_stride = xd->plane[0].dst.stride;
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+  const int bw_by2 = bw >> 1;
+  const int bh_by2 = bh >> 1;
+
+  const BLOCK_SIZE f_index = split_qtr[bsize];
+  assert(f_index != BLOCK_INVALID);
+
+  // Residual variance computation over the quadrants
+  cpi->fn_ptr[f_index].vf(src, src_stride, dst, dst_stride, &esq[0]);
+  cpi->fn_ptr[f_index].vf(src + bw_by2, src_stride, dst + bw_by2, dst_stride,
+                          &esq[1]);
+  cpi->fn_ptr[f_index].vf(src + bh_by2 * src_stride, src_stride,
+                          dst + bh_by2 * dst_stride, dst_stride, &esq[2]);
+  cpi->fn_ptr[f_index].vf(src + bh_by2 * src_stride + bw_by2, src_stride,
+                          dst + bh_by2 * dst_stride + bw_by2, dst_stride,
+                          &esq[3]);
+}
+
+static INLINE void get_inter_mode_res_energies(
+    AV1_COMP *cpi, MACROBLOCK *x, MB_MODE_INFO *mbmi,
+    struct buf_2d yv12_mb[REF_FRAMES][MAX_MB_PLANE], int mi_row, int mi_col,
+    const BLOCK_SIZE bsize, uint32_t *esq) {
+  AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  const int num_planes = av1_num_planes(cm);
+
+  // Store mbmi into xd after taking backup
+  MB_MODE_INFO mi_bkup = *xd->mi[0];
+  *xd->mi[0] = *mbmi;
+
+  set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+
+  // Select prediction reference frames.
+  for (int i = 0; i < num_planes; i++) {
+    xd->plane[i].pre[0] = yv12_mb[mbmi->ref_frame[0]][i];
+    if (has_second_ref(mbmi))
+      xd->plane[i].pre[1] = yv12_mb[mbmi->ref_frame[1]][i];
+  }
+  if (is_inter_mode(mbmi->mode)) {
+    av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
+                                  av1_num_planes(cm) - 1);
+    if (mbmi->motion_mode == OBMC_CAUSAL)
+      av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
+    get_res_energies(cpi, x, bsize, esq);
+  }
+
+  // Restore mi[0] in xd
+  *xd->mi[0] = mi_bkup;
+}
+
 void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                MACROBLOCK *x, int mi_row, int mi_col,
                                RD_STATS *rd_cost, const BLOCK_SIZE bsize,
-                               PICK_MODE_CONTEXT *ctx, int64_t best_rd_so_far) {
+                               PICK_MODE_CONTEXT *ctx, int64_t best_rd_so_far,
+                               int *skip_inter_modes, int *part_dec) {
   AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   const SPEED_FEATURES *const sf = &cpi->sf;
@@ -12848,6 +12926,12 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     const MV_REFERENCE_FRAME ref_frame = mode_order->ref_frame[0];
     const MV_REFERENCE_FRAME second_ref_frame = mode_order->ref_frame[1];
     const int comp_pred = second_ref_frame > INTRA_FRAME;
+
+    if (NULL != skip_inter_modes) {
+      if ((ref_frame > INTRA_FRAME) && *skip_inter_modes &&
+          (NEWMV != this_mode))
+        continue;
+    }
 
     if (sf->prune_compound_using_single_ref && midx > MAX_SINGLE_REF_MODES &&
         comp_pred &&
@@ -13124,6 +13208,13 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       }
     }
   }
+
+  // Save the best mbmi inter for later use
+  MB_MODE_INFO best_inter_mbmi;
+  if (bsize <= BLOCK_32X32) {
+    best_inter_mbmi = search_state.best_mbmode;
+  }
+
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, do_tx_search_time);
 #endif
@@ -13256,6 +13347,34 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   x->skip |= search_state.best_mode_skippable;
 
   assert(search_state.best_mode_index >= 0);
+
+  // Gate out inter modes for children if intra is clear winner for
+  // all quadrants
+  // TODO(nithya): Enable when palette mode is evaluated
+  if (part_dec && (mbmi->mode < INTRA_MODES) && !try_palette &&
+      ((bsize == BLOCK_32X32) || (bsize == BLOCK_16X16) ||
+       (bsize == BLOCK_8X8))) {
+    // Obtain energies in residual quadrants
+    uint32_t intra_esq[4] = { INT_MAX, INT_MAX, INT_MAX, INT_MAX };
+    uint32_t inter_esq[4] = { INT_MAX, INT_MAX, INT_MAX, INT_MAX };
+    // If intra is the winner, super_block_yrd of the winner mode
+    // would have happened just before and pred is available
+    get_res_energies(cpi, x, bsize, intra_esq);
+    get_inter_mode_res_energies(cpi, x, &best_inter_mbmi, yv12_mb, mi_row,
+                                mi_col, bsize, inter_esq);
+
+    // Gate out inter in those quadrants where intra is the clear winner
+    int scale_factor = 1;
+    if (bsize == BLOCK_32X32) {
+      scale_factor = 1;
+    }
+    for (int k = 0; k < 4; k++) {
+      if (inter_esq[k] < INT_MAX) {
+        if (intra_esq[k] < (scale_factor * inter_esq[k] + (inter_esq[k] >> 3)))
+          part_dec[k] = 1;
+      }
+    }
+  }
 
   store_coding_context(x, ctx, search_state.best_mode_index,
                        search_state.best_pred_diff,
