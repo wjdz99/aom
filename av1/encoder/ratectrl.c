@@ -1427,7 +1427,6 @@ void av1_rc_set_frame_target(AV1_COMP *cpi, int target, int width, int height) {
 static void update_alt_ref_frame_stats(AV1_COMP *cpi) {
   // this frame refreshes means next frames don't unless specified by user
   RATE_CONTROL *const rc = &cpi->rc;
-  rc->frames_since_golden = 0;
 
   // Mark the alt ref as done (setting to 0 means no further alt refs pending).
   rc->source_alt_ref_pending = 0;
@@ -1441,7 +1440,7 @@ static void update_golden_frame_stats(AV1_COMP *cpi) {
   const GF_GROUP *const gf_group = &cpi->gf_group;
 
   // Update the Golden frame usage counts.
-  if (cpi->refresh_golden_frame || rc->is_src_frame_alt_ref) {
+  if (cpi->refresh_golden_frame) {
     rc->frames_since_golden = 0;
 
     // If we are not using alt ref in the up and coming group clear the arf
