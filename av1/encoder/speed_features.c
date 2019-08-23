@@ -179,6 +179,8 @@ static void set_good_speed_feature_framesize_dependent(
       sf->partition_search_breakout_rate_thr = 100;
     }
     sf->rd_auto_partition_min_limit = set_partition_min_limit(cm);
+
+    if (is_480p_or_larger) sf->tx_type_search.prune_tx_type_using_stats = 1;
   }
 
   if (speed >= 3) {
@@ -208,7 +210,7 @@ static void set_good_speed_feature_framesize_dependent(
       sf->partition_search_breakout_dist_thr = (1 << 24);
     }
 
-    if (is_480p_or_larger) sf->tx_type_search.prune_tx_type_using_stats = 1;
+    if (is_480p_or_larger) sf->tx_type_search.prune_tx_type_using_stats = 2;
   }
 }
 
