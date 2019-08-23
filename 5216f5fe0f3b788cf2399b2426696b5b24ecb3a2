@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c820bd66_a1c4d258",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-08-23T18:50:08Z",
+      "side": 1,
+      "message": "Use a better name, e.g. intra_y_mode_learning_rate. Also, it should be const.",
+      "range": {
+        "startLine": 288,
+        "startChar": 0,
+        "endLine": 288,
+        "endChar": 5
+      },
+      "revId": "5216f5fe0f3b788cf2399b2426696b5b24ecb3a2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
