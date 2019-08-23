@@ -371,8 +371,8 @@ static void set_good_speed_features_framesize_independent(
     // features
     sf->enable_winner_mode_for_coeff_opt = 1;
     // TODO(any): Experiment with this speed feature by enabling for key frames
-    sf->enable_winner_mode_for_tx_size_srch =
-        frame_is_intra_only(&cpi->common) ? 0 : 1;
+    sf->enable_winner_mode_for_tx_size_srch = 1;
+    // frame_is_intra_only(&cpi->common) ? 0 : 1;
     sf->reduce_wiener_window_size = is_boosted_arf2_bwd_type ? 0 : 1;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
   }
