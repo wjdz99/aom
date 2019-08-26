@@ -296,15 +296,30 @@ static void diffwtd_mask_d16(uint8_t *mask, int which_inverse, int mask_base,
                              const CONV_BUF_TYPE *src0, int src0_stride,
                              const CONV_BUF_TYPE *src1, int src1_stride, int h,
                              int w, ConvolveParams *conv_params, int bd) {
+#if FIXED_DIFFWTD_WEIGHT
+  (void) src0;
+  (void) src1;
+  (void) src0_stride;
+  (void) src1_stride;
+  (void) conv_params;
+  (void) bd;
+  int i, j;
+  mask_base = DIFFWTD_WEIGHT;
+#else
   int round =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1 + (bd - 8);
   int i, j, m, diff;
+#endif  // FIXED_DIFFWTD_WEIGHT
   for (i = 0; i < h; ++i) {
     for (j = 0; j < w; ++j) {
+#if FIXED_DIFFWTD_WEIGHT
+      mask[i * w + j] = which_inverse ? AOM_BLEND_A64_MAX_ALPHA - mask_base : mask_base;
+#else
       diff = abs(src0[i * src0_stride + j] - src1[i * src1_stride + j]);
       diff = ROUND_POWER_OF_TWO(diff, round);
       m = clamp(mask_base + (diff / DIFF_FACTOR), 0, AOM_BLEND_A64_MAX_ALPHA);
       mask[i * w + j] = which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
+#endif  // FIXED_DIFFWTD_WEIGHT
     }
   }
 }
@@ -329,13 +344,26 @@ void av1_build_compound_diffwtd_mask_d16_c(
 static void diffwtd_mask(uint8_t *mask, int which_inverse, int mask_base,
                          const uint8_t *src0, int src0_stride,
                          const uint8_t *src1, int src1_stride, int h, int w) {
+#if FIXED_DIFFWTD_WEIGHT
+  (void) src0;
+  (void) src1;
+  (void) src0_stride;
+  (void) src1_stride;
+  int i, j;
+  mask_base = DIFFWTD_WEIGHT;
+#else
   int i, j, m, diff;
+#endif  // FIXED_DIFFWTD_WEIGHT
   for (i = 0; i < h; ++i) {
     for (j = 0; j < w; ++j) {
+#if FIXED_DIFFWTD_WEIGHT
+      mask[i * w + j] = which_inverse ? AOM_BLEND_A64_MAX_ALPHA - mask_base : mask_base;
+#else
       diff =
           abs((int)src0[i * src0_stride + j] - (int)src1[i * src1_stride + j]);
       m = clamp(mask_base + (diff / DIFF_FACTOR), 0, AOM_BLEND_A64_MAX_ALPHA);
       mask[i * w + j] = which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
+#endif  // FIXED_DIFFWTD_WEIGHT
     }
   }
 }
