@@ -763,6 +763,8 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   x->coeff_opt_dist_threshold =
       get_rd_opt_coeff_thresh(cpi->coeff_opt_dist_threshold, 0, 0);
   set_tx_size_search_method(cpi, x, 0, 1);
+  x->use_default_inter_tx_type = 0;
+  x->use_default_intra_tx_type = 0;
 
   // Save rdmult before it might be changed, so it can be restored later.
   const int orig_rdmult = x->rdmult;
