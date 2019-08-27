@@ -22,6 +22,30 @@
       "revId": "df69feff202c5aeb66a9bac45fe4d19bf78f8c28",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07b0b0bb_637257da",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2019-08-27T11:21:06Z",
+      "side": 1,
+      "message": "The baseline value provides a sort of minimum so that in cases where both intra and inter are low we don\u0027t end up with a reduced boost. The use of the real intra error helps insure adequate boost at the much harder end of the spectrum on clips like husky where both the inter and intra errors are hugely higher. In this situation we want to base the boost on how much the use of inter improves prediction vs intra.",
+      "parentUuid": "7d56b88d_8a4b66a1",
+      "range": {
+        "startLine": 397,
+        "startChar": 16,
+        "endLine": 397,
+        "endChar": 22
+      },
+      "revId": "df69feff202c5aeb66a9bac45fe4d19bf78f8c28",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
