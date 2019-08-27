@@ -3847,103 +3847,6 @@ static void set_size_independent_vars(AV1_COMP *cpi) {
   cm->switchable_motion_mode = 1;
 }
 
-static int get_gfu_boost_from_r0(double r0, int frames_to_key) {
-  double factor = sqrt((double)frames_to_key);
-  factor = AOMMIN(factor, 10.0);
-  factor = AOMMAX(factor, 4.0);
-  const int boost = (int)rint((200.0 + 10.0 * factor) / r0);
-  return boost;
-}
-
-static int get_kf_boost_from_r0(double r0, int frames_to_key) {
-  double factor = sqrt((double)frames_to_key);
-  factor = AOMMIN(factor, 10.0);
-  factor = AOMMAX(factor, 4.0);
-  const int boost = (int)rint((75.0 + 14.0 * factor) / r0);
-  return boost;
-}
-
-int combine_prior_with_tpl_boost(int prior_boost, int tpl_boost,
-                                 int frames_to_key) {
-  double factor = sqrt((double)frames_to_key);
-  factor = AOMMIN(factor, 12.0);
-  factor = AOMMAX(factor, 4.0);
-  factor -= 4.0;
-  int boost = (int)((factor * prior_boost + (8.0 - factor) * tpl_boost) / 8.0);
-  return boost;
-}
-
-static void process_tpl_stats_frame(AV1_COMP *cpi) {
-  const GF_GROUP *const gf_group = &cpi->gf_group;
-  AV1_COMMON *const cm = &cpi->common;
-
-  assert(IMPLIES(gf_group->size > 0, gf_group->index < gf_group->size));
-
-  const int tpl_idx = gf_group->index;
-  TplDepFrame *tpl_frame = &cpi->tpl_frame[tpl_idx];
-  TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
-
-  if (tpl_frame->is_valid) {
-    int tpl_stride = tpl_frame->stride;
-    int64_t intra_cost_base = 0;
-    int64_t mc_dep_cost_base = 0;
-#if !USE_TPL_CLASSIC_MODEL
-    int64_t mc_saved_base = 0;
-    int64_t mc_count_base = 0;
-#endif  // !USE_TPL_CLASSIC_MODEL
-    const int step = 1 << cpi->tpl_stats_block_mis_log2;
-    const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
-
-    for (int row = 0; row < cm->mi_rows; row += step) {
-      for (int col = 0; col < mi_cols_sr; col += step) {
-        TplDepStats *this_stats =
-            &tpl_stats[av1_tpl_ptr_pos(cpi, row, col, tpl_stride)];
-        intra_cost_base += this_stats->intra_cost;
-        mc_dep_cost_base += this_stats->intra_cost + this_stats->mc_flow;
-#if !USE_TPL_CLASSIC_MODEL
-        mc_count_base += this_stats->mc_count;
-        mc_saved_base += this_stats->mc_saved;
-#endif  // !USE_TPL_CLASSIC_MODEL
-      }
-    }
-
-    if (mc_dep_cost_base == 0) {
-      tpl_frame->is_valid = 0;
-    } else {
-      aom_clear_system_state();
-      cpi->rd.r0 = (double)intra_cost_base / mc_dep_cost_base;
-      if (is_frame_arf_and_tpl_eligible(cpi)) {
-        cpi->rd.arf_r0 = cpi->rd.r0;
-        const int gfu_boost =
-            get_gfu_boost_from_r0(cpi->rd.arf_r0, cpi->rc.frames_to_key);
-        // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
-        //        gfu_boost);
-        cpi->rc.gfu_boost = combine_prior_with_tpl_boost(
-            cpi->rc.gfu_boost, gfu_boost, cpi->rc.frames_to_key);
-      } else if (frame_is_intra_only(cm)) {
-        // TODO(debargha): Turn off q adjustment for kf temporarily to
-        // reduce impact on speed of encoding. Need to investigate how
-        // to mitigate the issue.
-        if (cpi->oxcf.rc_mode == AOM_Q) {
-          const int kf_boost =
-              get_kf_boost_from_r0(cpi->rd.r0, cpi->rc.frames_to_key);
-          // printf("old kf boost %d new kf boost %d [%d]\n", cpi->rc.kf_boost,
-          //        kf_boost, cpi->rc.frames_to_key);
-          cpi->rc.kf_boost = combine_prior_with_tpl_boost(
-              cpi->rc.kf_boost, kf_boost, cpi->rc.frames_to_key);
-        }
-      }
-#if !USE_TPL_CLASSIC_MODEL
-      cpi->rd.mc_count_base =
-          (double)mc_count_base / (cm->mi_rows * cm->mi_cols);
-      cpi->rd.mc_saved_base =
-          (double)mc_saved_base / (cm->mi_rows * cm->mi_cols);
-#endif  // !USE_TPL_CLASSIC_MODEL
-      aom_clear_system_state();
-    }
-  }
-}
-
 static void set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
                                     int *top_index) {
   AV1_COMMON *const cm = &cpi->common;
@@ -3954,8 +3857,7 @@ static void set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
 
   if (cpi->oxcf.enable_tpl_model && cpi->tpl_model_pass == 0 &&
       is_frame_tpl_eligible(cpi)) {
-    process_tpl_stats_frame(cpi);
-    av1_tpl_rdmult_setup(cpi);
+    av1_tpl_rdmult_setup_and_process_tpl_stats_frame(cpi);
   }
 
   // Decide q and q bounds.
