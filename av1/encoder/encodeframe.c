@@ -4808,6 +4808,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                  ref_buf[frame]->y_crop_width == cpi->source->y_crop_width &&
                  ref_buf[frame]->y_crop_height == cpi->source->y_crop_height &&
                  do_gm_search_logic(&cpi->sf, num_refs_using_gm, frame) &&
+                 prune_ref_frames_by_slective_ref_frame(cpi, frame,
+                                                        NONE_FRAME) &&
                  !(cpi->sf.selective_ref_gm && skip_gm_frame(cm, frame))) {
         if (num_frm_corners < 0) {
           // compute interest points using FAST features
