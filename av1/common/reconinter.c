@@ -30,6 +30,88 @@
 #define USE_PRECOMPUTED_WEDGE_MASK 1
 #define USE_PRECOMPUTED_WEDGE_SIGN 1
 
+#if CTX_ADAPT_LOG_WEIGHT
+#define LOG_K_SIZE 1
+const static double log_k[9] = { 0.1004, -0.0234,  0.1004,
+                                 -0.0234, -0.3079, -0.0234,
+                                 0.1004, -0.0234,  0.1004};
+
+double kernel_correlation(const CONV_BUF_TYPE *src, int stride,
+                          int h, int w, int cr, int cc,
+                          const double* kernel, int ws,
+                          ConvolveParams *conv_params) {
+  double crr = 0;
+  const int ks = 2 * ws + 1;
+
+  const int bd = 8;
+  const int offset_bits = bd + 2 * FILTER_BITS - conv_params->round_0;
+  const int round_offset = (1 << (offset_bits - conv_params->round_1)) +
+                           (1 << (offset_bits - conv_params->round_1 - 1));
+  const int round_bits = 2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
+  const uint16_t max = (1 << round_bits);
+  const uint16_t min = round_offset;
+
+  for (int i = -ws; i <= ws; ++i) {
+    for (int j = -ws; j <= ws; ++j) {
+      int r = (cr + i < 0) ? 0 : (cr + i >= h) ? h - 1 : cr + i;
+      int c = (cc + j < 0) ? 0 : (cc + j >= w) ? w - 1 : cc + j;
+
+      double s = (src[r * stride + c] - min) / ((double) max);
+
+      crr += s * kernel[ (i + 1) * ks + (j + 1)];
+    }
+  }
+  return crr;
+}
+
+double kernel_correlation_uint8(const uint8_t *src, int stride,
+                                int h, int w, int cr, int cc,
+                                const double* kernel, int ws) {
+  double crr = 0;
+  const int ks = 2 * ws + 1;
+
+  for (int i = -ws; i <= ws; ++i) {
+    for (int j = -ws; j <= ws; ++j) {
+      int r = (cr + i < 0) ? 0 : (cr + i >= h) ? h - 1 : cr + i;
+      int c = (cc + j < 0) ? 0 : (cc + j >= w) ? w - 1 : cc + j;
+
+      crr += src[r * stride + c] * kernel[(i + ws) * ks + (j + ws)];
+
+    }
+  }
+  return crr;
+}
+
+double* my_correlation(const CONV_BUF_TYPE *src, int stride, int h, int w,
+                       const double *kernel, int ws,
+                       ConvolveParams *conv_params) {
+  double *R = malloc(h * w * sizeof(double));
+  double m;
+
+  for (int i = 0; i < h; ++i) {
+    for (int j = 0; j < w; ++j) {
+      m = kernel_correlation(src, stride, h, w, i, j, kernel, ws, conv_params);
+      R[i * w + j] = m;
+    }
+  }
+  return R;
+}
+
+double* my_correlation_uint8(const uint8_t *src, int stride, int h, int w,
+                             const double *kernel, int ws) {
+  double *R = malloc(h * w * sizeof(double));
+  double m;
+
+  for (int i = 0; i < h; ++i) {
+    for (int j = 0; j < w; ++j) {
+      m = kernel_correlation_uint8(src, stride, h, w, i, j, kernel, ws);
+      R[i * w + j] = m;
+    }
+  }
+  return R;
+}
+#endif
+
 // This function will determine whether or not to create a warped
 // prediction.
 int av1_allow_warp(const MB_MODE_INFO *const mbmi,
@@ -305,23 +387,52 @@ static void diffwtd_mask_d16(uint8_t *mask, int which_inverse, int mask_base,
   (void) bd;
   int i, j;
   mask_base = DIFFWTD_WEIGHT;
-#else
+#endif
+#if CTX_ADAPT_LOG_WEIGHT
+  (void) bd;
+  (void) mask_base;
+  double *R0 = 0, *R1 = 0;
+  int m;
+  const CONV_BUF_TYPE *pred0 = which_inverse ? src1 : src0;
+  const CONV_BUF_TYPE *pred1 = which_inverse ? src0 : src1;
+  int stride0 = which_inverse ? src1_stride : src0_stride;
+  int stride1 = which_inverse ? src0_stride : src1_stride;
+
+  R0 = my_correlation(pred0, stride0, h, w, log_k, LOG_K_SIZE, conv_params);
+  R1 = my_correlation(pred1, stride1, h, w, log_k, LOG_K_SIZE, conv_params);
+#endif  // CTX_ADAPT_LOG_WEIGHT
+
+#if !(FIXED_DIFFWTD_WEIGHT || CTX_ADAPT_LOG_WEIGHT)
   int round =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1 + (bd - 8);
   int i, j, m, diff;
-#endif  // FIXED_DIFFWTD_WEIGHT
+#else
+  int i, j;
+#endif
   for (i = 0; i < h; ++i) {
     for (j = 0; j < w; ++j) {
 #if FIXED_DIFFWTD_WEIGHT
       mask[i * w + j] = which_inverse ? AOM_BLEND_A64_MAX_ALPHA - mask_base : mask_base;
-#else
+#endif
+#if CTX_ADAPT_LOG_WEIGHT
+      double_t edge_diff = fabs(R0[i * w + j]) - fabs(R1[i * w + j]);
+      // double_t edge_diff = fabs(R0[i * w + j] - R1[i * w + j]);
+      if (edge_diff < DIFFLOG_THR) m = LOG_WEIGHT_1;
+      else m = LOG_WEIGHT_0;
+      mask[i * w + j] = which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
+#endif
+#if !(FIXED_DIFFWTD_WEIGHT || CTX_ADAPT_LOG_WEIGHT)
       diff = abs(src0[i * src0_stride + j] - src1[i * src1_stride + j]);
       diff = ROUND_POWER_OF_TWO(diff, round);
       m = clamp(mask_base + (diff / DIFF_FACTOR), 0, AOM_BLEND_A64_MAX_ALPHA);
       mask[i * w + j] = which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
-#endif  // FIXED_DIFFWTD_WEIGHT
+#endif
     }
   }
+#if CTX_ADAPT_LOG_WEIGHT
+  if (R0) free(R0);
+  if (R1) free(R1);
+#endif
 }
 
 void av1_build_compound_diffwtd_mask_d16_c(
@@ -349,23 +460,52 @@ static void diffwtd_mask(uint8_t *mask, int which_inverse, int mask_base,
   (void) src1;
   (void) src0_stride;
   (void) src1_stride;
-  int i, j;
   mask_base = DIFFWTD_WEIGHT;
-#else
+#endif
+#if CTX_ADAPT_LOG_WEIGHT
+  (void) mask_base;
+  double *R0 = 0, *R1 = 0;
+  int m;
+  const uint8_t *pred0 = which_inverse ? src1 : src0;
+  const uint8_t *pred1 = which_inverse ? src0 : src1;
+  int stride0 = which_inverse ? src1_stride : src0_stride;
+  int stride1 = which_inverse ? src0_stride : src1_stride;
+  R0 = my_correlation_uint8(pred0, stride0, h, w, log_k, LOG_K_SIZE);
+  R1 = my_correlation_uint8(pred1, stride1, h, w, log_k, LOG_K_SIZE);
+#endif  // CTX_ADPAT_LOG_WEIGHT
+
+#if !(FIXED_DIFFWTD_WEIGHT || CTX_ADAPT_LOG_WEIGHT)
   int i, j, m, diff;
-#endif  // FIXED_DIFFWTD_WEIGHT
+#else
+  int i, j;
+#endif
+
   for (i = 0; i < h; ++i) {
     for (j = 0; j < w; ++j) {
 #if FIXED_DIFFWTD_WEIGHT
       mask[i * w + j] = which_inverse ? AOM_BLEND_A64_MAX_ALPHA - mask_base : mask_base;
-#else
+#endif
+#if CTX_ADAPT_LOG_WEIGHT
+      // this one works better
+      double_t edge_diff = fabs(R0[i * w + j]) - fabs(R1[i * w + j]);
+      // double_t edge_diff = fabs(R0[i * w + j] - R1[i * w + j]);
+
+      if (edge_diff < DIFFLOG_THR) m = LOG_WEIGHT_1;
+      else m = LOG_WEIGHT_0;
+      mask[i * w + j] = which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
+#endif
+#if !(FIXED_DIFFWTD_WEIGHT || CTX_ADAPT_LOG_WEIGHT)
       diff =
           abs((int)src0[i * src0_stride + j] - (int)src1[i * src1_stride + j]);
       m = clamp(mask_base + (diff / DIFF_FACTOR), 0, AOM_BLEND_A64_MAX_ALPHA);
       mask[i * w + j] = which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
-#endif  // FIXED_DIFFWTD_WEIGHT
+#endif
     }
   }
+#if CTX_ADAPT_LOG_WEIGHT
+  if (R0) free(R0);
+  if (R1) free(R1);
+#endif
 }
 
 void av1_build_compound_diffwtd_mask_c(uint8_t *mask,

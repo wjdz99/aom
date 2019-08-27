@@ -25,8 +25,18 @@ extern "C" {
 #undef MAX_SB_SIZE
 
 #define UPDATE_DIFFWTD_MV 1
-#define FIXED_DIFFWTD_WEIGHT 1
+#define FIXED_DIFFWTD_WEIGHT 0
+#define CTX_ADAPT_LOG_WEIGHT 1
+
+// Mask weights for different modes
+#if FIXED_DIFFWTD_WEIGHT
 #define DIFFWTD_WEIGHT 43
+#endif
+#if CTX_ADAPT_LOG_WEIGHT
+#define LOG_WEIGHT_0 43
+#define LOG_WEIGHT_1 40
+#define DIFFLOG_THR 3
+#endif
 
 // Max superblock size
 #define MAX_SB_SIZE_LOG2 7
