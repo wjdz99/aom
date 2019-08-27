@@ -1049,14 +1049,40 @@ void av1_tpl_setup_forward_stats(AV1_COMP *cpi) {
   }
 }
 
-void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
+static int get_gfu_boost_from_r0(double r0, int frames_to_key) {
+  double factor = sqrt((double)frames_to_key);
+  factor = AOMMIN(factor, 10.0);
+  factor = AOMMAX(factor, 4.0);
+  const int boost = (int)rint((200.0 + 10.0 * factor) / r0);
+  return boost;
+}
+
+static int get_kf_boost_from_r0(double r0, int frames_to_key) {
+  double factor = sqrt((double)frames_to_key);
+  factor = AOMMIN(factor, 10.0);
+  factor = AOMMAX(factor, 4.0);
+  const int boost = (int)rint((75.0 + 14.0 * factor) / r0);
+  return boost;
+}
+
+int combine_prior_with_tpl_boost(int prior_boost, int tpl_boost,
+                                 int frames_to_key) {
+  double factor = sqrt((double)frames_to_key);
+  factor = AOMMIN(factor, 12.0);
+  factor = AOMMAX(factor, 4.0);
+  factor -= 4.0;
+  int boost = (int)((factor * prior_boost + (8.0 - factor) * tpl_boost) / 8.0);
+  return boost;
+}
+
+void av1_tpl_rdmult_setup_and_process_tpl_stats_frame(AV1_COMP *cpi) {
   const AV1_COMMON *const cm = &cpi->common;
   const GF_GROUP *const gf_group = &cpi->gf_group;
   const int tpl_idx = gf_group->index;
 
   assert(IMPLIES(gf_group->size > 0, tpl_idx < gf_group->size));
 
-  const TplDepFrame *const tpl_frame = &cpi->tpl_frame[tpl_idx];
+  TplDepFrame *const tpl_frame = &cpi->tpl_frame[tpl_idx];
   if (!tpl_frame->is_valid) return;
 
   const TplDepStats *const tpl_stats = tpl_frame->tpl_stats_ptr;
@@ -1071,12 +1097,19 @@ void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
   const double c = 1.2;
   const int step = 1 << cpi->tpl_stats_block_mis_log2;
 
+  int64_t intra_cost_base = 0;
+  int64_t mc_dep_cost_base = 0;
+#if !USE_TPL_CLASSIC_MODEL
+  int64_t mc_saved_base = 0;
+  int64_t mc_count_base = 0;
+#endif  // !USE_TPL_CLASSIC_MODEL
+
   aom_clear_system_state();
 
   // Loop through each 'block_size' X 'block_size' block.
   for (int row = 0; row < num_rows; row++) {
     for (int col = 0; col < num_cols; col++) {
-      double intra_cost = 0.0, mc_dep_cost = 0.0;
+      int64_t intra_cost = 0, mc_dep_cost = 0;
       // Loop through each mi block.
       for (int mi_row = row * num_mi_h; mi_row < (row + 1) * num_mi_h;
            mi_row += step) {
@@ -1085,16 +1118,68 @@ void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
           if (mi_row >= cm->mi_rows || mi_col >= mi_cols_sr) continue;
           const TplDepStats *this_stats =
               &tpl_stats[av1_tpl_ptr_pos(cpi, mi_row, mi_col, tpl_stride)];
-          intra_cost += (double)this_stats->intra_cost;
-          mc_dep_cost += (double)this_stats->intra_cost + this_stats->mc_flow;
+          const int64_t this_intra_cost = this_stats->intra_cost;
+          const int64_t this_mc_flow = this_stats->mc_flow;
+
+          intra_cost += this_intra_cost;
+          mc_dep_cost += this_intra_cost + this_mc_flow;
+          intra_cost_base += this_intra_cost;
+          mc_dep_cost_base += this_intra_cost + this_mc_flow;
+#if !USE_TPL_CLASSIC_MODEL
+          mc_count_base += this_stats->mc_count;
+          mc_saved_base += this_stats->mc_saved;
+#endif  // !USE_TPL_CLASSIC_MODEL
         }
       }
-      const double rk = intra_cost / mc_dep_cost;
+      const double rk = (double)intra_cost / (double)mc_dep_cost;
       const int index = row * num_cols + col;
-      cpi->tpl_rdmult_scaling_factors[index] = rk / cpi->rd.r0 + c;
+      cpi->tpl_rdmult_scaling_factors[index] = rk;
     }
   }
   aom_clear_system_state();
+
+  if (mc_dep_cost_base == 0) {
+    tpl_frame->is_valid = 0;
+    return;
+  }
+
+  aom_clear_system_state();
+  cpi->rd.r0 = (double)intra_cost_base / mc_dep_cost_base;
+  if (is_frame_arf_and_tpl_eligible(cpi)) {
+    cpi->rd.arf_r0 = cpi->rd.r0;
+    const int gfu_boost =
+        get_gfu_boost_from_r0(cpi->rd.arf_r0, cpi->rc.frames_to_key);
+    // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
+    //        gfu_boost);
+    cpi->rc.gfu_boost = combine_prior_with_tpl_boost(
+        cpi->rc.gfu_boost, gfu_boost, cpi->rc.frames_to_key);
+  } else if (frame_is_intra_only(cm)) {
+    // TODO(debargha): Turn off q adjustment for kf temporarily to
+    // reduce impact on speed of encoding. Need to investigate how
+    // to mitigate the issue.
+    if (cpi->oxcf.rc_mode == AOM_Q) {
+      const int kf_boost =
+          get_kf_boost_from_r0(cpi->rd.r0, cpi->rc.frames_to_key);
+      // printf("old kf boost %d new kf boost %d [%d]\n", cpi->rc.kf_boost,
+      //        kf_boost, cpi->rc.frames_to_key);
+      cpi->rc.kf_boost = combine_prior_with_tpl_boost(
+          cpi->rc.kf_boost, kf_boost, cpi->rc.frames_to_key);
+    }
+  }
+#if !USE_TPL_CLASSIC_MODEL
+  cpi->rd.mc_count_base = (double)mc_count_base / (cm->mi_rows * cm->mi_cols);
+  cpi->rd.mc_saved_base = (double)mc_saved_base / (cm->mi_rows * cm->mi_cols);
+#endif  // !USE_TPL_CLASSIC_MODEL
+  aom_clear_system_state();
+
+  // Loop through each 'block_size' X 'block_size' block.
+  for (int row = 0; row < num_rows; row++) {
+    for (int col = 0; col < num_cols; col++) {
+      const int index = row * num_cols + col;
+      cpi->tpl_rdmult_scaling_factors[index] /= cpi->rd.r0;
+      cpi->tpl_rdmult_scaling_factors[index] += c;
+    }
+  }
 }
 
 void av1_tpl_rdmult_setup_sb(AV1_COMP *cpi, MACROBLOCK *const x,
