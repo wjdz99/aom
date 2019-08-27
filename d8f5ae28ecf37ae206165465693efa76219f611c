@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "2aaf11e7_4a95ee23",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 44
+      },
+      "lineNbr": 4082,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2019-08-27T21:46:48Z",
+      "side": 1,
+      "message": "existing code, prefer not to change it",
+      "parentUuid": "ad877a61_e7848414",
+      "range": {
+        "startLine": 4082,
+        "startChar": 0,
+        "endLine": 4082,
+        "endChar": 42
+      },
+      "revId": "d8f5ae28ecf37ae206165465693efa76219f611c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c955e2c9_36d4e198",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 44
+      },
+      "lineNbr": 4082,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2019-08-27T21:46:48Z",
+      "side": 1,
+      "message": "prefer not to change existing code",
+      "parentUuid": "7a7e3273_1fb46d5f",
+      "range": {
+        "startLine": 4082,
+        "startChar": 2,
+        "endLine": 4082,
+        "endChar": 42
+      },
+      "revId": "d8f5ae28ecf37ae206165465693efa76219f611c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "275671a3_95296538",
         "filename": "examples/svc_encoder_rtc.c",
         "patchSetId": 44
@@ -68,6 +116,30 @@
       "revId": "d8f5ae28ecf37ae206165465693efa76219f611c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8971af5d_78b6c77b",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 44
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2019-08-27T21:46:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "275671a3_95296538",
+      "range": {
+        "startLine": 156,
+        "startChar": 2,
+        "endLine": 156,
+        "endChar": 22
+      },
+      "revId": "d8f5ae28ecf37ae206165465693efa76219f611c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "d9aa7410_fce7aacf",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 44
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2019-08-27T21:46:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "baaf35b6_39f6f559",
+      "range": {
+        "startLine": 201,
+        "startChar": 0,
+        "endLine": 201,
+        "endChar": 22
+      },
+      "revId": "d8f5ae28ecf37ae206165465693efa76219f611c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4a20838c_e2bd88ee",
         "filename": "examples/svc_encoder_rtc.c",
         "patchSetId": 44
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "08463d0b_cf1cac1d",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 44
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2019-08-27T21:46:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a20838c_e2bd88ee",
+      "range": {
+        "startLine": 393,
+        "startChar": 12,
+        "endLine": 393,
+        "endChar": 20
+      },
+      "revId": "d8f5ae28ecf37ae206165465693efa76219f611c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "614a7c6e_a636c0dd",
         "filename": "examples/svc_encoder_rtc.c",
         "patchSetId": 44
@@ -128,6 +248,30 @@
       "writtenOn": "2019-08-27T19:02:29Z",
       "side": 1,
       "message": "do we loop thru higher spatial layers here since it\u0027s already in the loop of line 607?",
+      "range": {
+        "startLine": 636,
+        "startChar": 0,
+        "endLine": 636,
+        "endChar": 79
+      },
+      "revId": "d8f5ae28ecf37ae206165465693efa76219f611c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a39b427c_f99fa69f",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 44
+      },
+      "lineNbr": 636,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2019-08-27T21:46:48Z",
+      "side": 1,
+      "message": "yes its needed for the write out",
+      "parentUuid": "614a7c6e_a636c0dd",
       "range": {
         "startLine": 636,
         "startChar": 0,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "7411fc05_208dc9ee",
+        "filename": "test/encode_test_driver.h",
+        "patchSetId": 44
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2019-08-27T21:46:48Z",
+      "side": 1,
+      "message": "tried it and it didn\u0027t work (kept getting it to be 1),so i add this function.",
+      "parentUuid": "8a4ac855_8922ab9d",
+      "range": {
+        "startLine": 245,
+        "startChar": 0,
+        "endLine": 245,
+        "endChar": 49
+      },
+      "revId": "d8f5ae28ecf37ae206165465693efa76219f611c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1b7610a8_779e4a77",
         "filename": "test/svc_datarate_test.cc",
         "patchSetId": 44
@@ -174,6 +342,30 @@
       "writtenOn": "2019-08-27T19:02:29Z",
       "side": 1,
       "message": "what\u0027s 4.0 referring to?",
+      "range": {
+        "startLine": 251,
+        "startChar": 0,
+        "endLine": 251,
+        "endChar": 67
+      },
+      "revId": "d8f5ae28ecf37ae206165465693efa76219f611c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05567743_804de8ef",
+        "filename": "test/svc_datarate_test.cc",
+        "patchSetId": 44
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2019-08-27T21:46:48Z",
+      "side": 1,
+      "message": "old comment, removed now. Done",
+      "parentUuid": "1b7610a8_779e4a77",
       "range": {
         "startLine": 251,
         "startChar": 0,
