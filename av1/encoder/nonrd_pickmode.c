@@ -1370,6 +1370,7 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                       comp_modes > 0);
     }
   }
+
   const int large_block = bsize >= BLOCK_32X32;
   const int use_model_yrd_large =
       cpi->oxcf.rc_mode == AOM_CBR && large_block &&
@@ -1402,6 +1403,14 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     if (ref_frame > usable_ref_frame) continue;
     if (skip_ref_find_pred[ref_frame]) continue;
+
+    // Skip non-zero motion for SVC if force_zerom_ref is set.
+    if (frame_mv[this_mode][ref_frame].as_int != 0) {
+      if (ref_frame == LAST_FRAME && cpi->svc.force_zeromv_last)
+        continue;
+      else if (ref_frame == GOLDEN_FRAME && cpi->svc.force_zeromv_gf)
+        continue;
+    }
 
     // If the segment reference frame feature is enabled then do nothing if the
     // current ref frame is not allowed.
