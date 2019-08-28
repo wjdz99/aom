@@ -950,8 +950,18 @@ static int read_mv_component(aom_reader *r, nmv_component *mvcomp,
 
   if (use_subpel) {
     // Fractional part
+#if CONFIG_FLEX_MVRES
+    fr = aom_read_symbol(
+             r, class0 ? mvcomp->class0_fp_cdf[d][0] : mvcomp->fp_cdf[0], 2,
+             ACCT_STR)
+         << 1;
+    fr += aom_read_symbol(
+        r, class0 ? mvcomp->class0_fp_cdf[d][1] : mvcomp->fp_cdf[1], 2,
+        ACCT_STR);
+#else
     fr = aom_read_symbol(r, class0 ? mvcomp->class0_fp_cdf[d] : mvcomp->fp_cdf,
                          MV_FP_SIZE, ACCT_STR);
+#endif  // CONFIG_FLEX_MVRES
 
     // High precision part (if hp is not used, the default value of the hp is 1)
     hp = usehp ? aom_read_symbol(
@@ -1307,7 +1317,9 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
               .as_int;
       break;
     }
-    default: { return 0; }
+    default: {
+      return 0;
+    }
   }
 
   int ret = is_mv_valid(&mv[0].as_mv);
