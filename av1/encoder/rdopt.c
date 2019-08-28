@@ -12990,6 +12990,13 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, handle_intra_mode_time);
 #endif
+
+  // Gate intra mode evaluation if best of inter is skip
+  if ((search_state.best_mbmode.skip) &&
+      (x->source_variance >
+       (unsigned int)(1 << num_pels_log2_lookup[BLOCK_SIZES_ALL])))
+    search_state.skip_intra_modes = 1;
+
   const int intra_ref_frame_cost = ref_costs_single[INTRA_FRAME];
   for (int j = 0; j < intra_mode_num; ++j) {
     if (sf->skip_intra_in_interframe && search_state.skip_intra_modes) break;
