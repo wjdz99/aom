@@ -70,26 +70,21 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
                                              aom_writer *const w, int plane,
                                              FRAME_COUNTS *counts);
 
-static void write_intra_y_mode_kf(FRAME_CONTEXT *frame_ctx,
+static void write_intra_y_mode_kf(MACROBLOCKD *const xd,
+                                  FRAME_CONTEXT *frame_ctx,
                                   const MB_MODE_INFO *mi,
-                                  const MB_MODE_INFO *above_mi,
-                                  const MB_MODE_INFO *left_mi,
-#if CONFIG_INTRA_ENTROPY
-                                  const MB_MODE_INFO *aboveleft_mi,
-#endif  // CONFIG_INTRA_ENTROPY
                                   PREDICTION_MODE mode, aom_writer *w) {
   assert(!is_intrabc_block(mi));
   (void)mi;
 
 #if CONFIG_INTRA_ENTROPY
-  float features[54], scores[INTRA_MODES];
-  av1_get_intra_block_feature(features, above_mi, left_mi, aboveleft_mi);
-  av1_nn_predict_em(features, &(frame_ctx->av1_intra_y_mode), scores);
-  aom_cdf_prob cdf[CDF_SIZE(INTRA_MODES)] = { 0 };
-  av1_pdf2cdf(scores, cdf, INTRA_MODES);
+  aom_cdf_prob cdf[INTRA_MODES];
+  av1_get_if_y_mode_cdf_ml(xd, cdf);
   aom_write_symbol_nn(w, mode, cdf, &(frame_ctx->av1_intra_y_mode),
                       INTRA_MODES);
 #else
+  const MB_MODE_INFO *const above_mi = xd->above_mbmi;
+  const MB_MODE_INFO *const left_mi = xd->left_mbmi;
   aom_write_symbol(w, mode, get_y_mode_cdf(frame_ctx, above_mi, left_mi),
                    INTRA_MODES);
 #endif  // CONFIG_INTRA_ENTROPY
@@ -98,9 +93,12 @@ static void write_intra_y_mode_kf(FRAME_CONTEXT *frame_ctx,
 #if 0
   PREDICTION_MODE above, left, aboveleft;
   int64_t above_var, left_var, al_var;
-  const uint64_t *above_hist = av1_block_mode(above_mi, &above, &above_var);
-  const uint64_t *left_hist = av1_block_mode(left_mi, &left, &left_var);
-  const uint64_t *al_hist = av1_block_mode(aboveleft_mi, &aboveleft, &al_var);
+  const uint64_t *above_hist =
+      av1_block_mode(xd->above_mbmi, &above, &above_var);
+  const uint64_t *left_hist =
+      av1_block_mode(xd->left_mbmi, &left, &left_var);
+  const uint64_t *al_hist =
+      av1_block_mode(xd->aboveleft_mbmi, &aboveleft, &al_var);
   FILE *fp = fopen("intra_data.csv", "a");
   if (fp) {
     fprintf(fp,
@@ -999,25 +997,24 @@ static void write_intra_y_mode_nonkf(FRAME_CONTEXT *frame_ctx, BLOCK_SIZE bsize,
                    INTRA_MODES);
 }
 
-static void write_intra_uv_mode(FRAME_CONTEXT *frame_ctx,
+static void write_intra_uv_mode(const MACROBLOCKD *xd,
+                                FRAME_CONTEXT *frame_ctx,
                                 UV_PREDICTION_MODE uv_mode,
                                 PREDICTION_MODE y_mode,
-#if CONFIG_INTRA_ENTROPY
-                                const MB_MODE_INFO *above_mi,
-                                const MB_MODE_INFO *left_mi,
-#else
-                                CFL_ALLOWED_TYPE cfl_allowed,
-#endif  // CONFIG_INTRA_ENTROPY
+                                CFL_ALLOWED_TYPE cfl_allowed, int is_keyframe,
                                 aom_writer *w) {
 #if CONFIG_INTRA_ENTROPY
-  float features[54], scores[UV_INTRA_MODES];
-  av1_get_intra_uv_block_feature(features, y_mode, above_mi, left_mi);
-  av1_nn_predict_em(features, &(frame_ctx->av1_intra_uv_mode), scores);
-  aom_cdf_prob cdf[CDF_SIZE(UV_INTRA_MODES)] = { 0 };
-  av1_pdf2cdf(scores, cdf, UV_INTRA_MODES);
-  aom_write_symbol_nn(w, uv_mode, cdf, &(frame_ctx->av1_intra_uv_mode),
-                      UV_INTRA_MODES);
+  if (is_keyframe) {
+    aom_cdf_prob cdf[UV_INTRA_MODES];
+    av1_get_uv_mode_cdf_ml(xd, y_mode, cdf);
+    aom_write_symbol_nn(w, uv_mode, cdf, &(frame_ctx->av1_intra_uv_mode),
+                        UV_INTRA_MODES);
+  } else {
+    aom_write_symbol(w, uv_mode, frame_ctx->uv_mode_cdf[cfl_allowed][y_mode],
+                     UV_INTRA_MODES - !cfl_allowed);
+  }
 #else
+  (void)xd;
   aom_write_symbol(w, uv_mode, frame_ctx->uv_mode_cdf[cfl_allowed][y_mode],
                    UV_INTRA_MODES - !cfl_allowed);
 #endif  // CONFIG_INTRA_ENTROPY
@@ -1026,8 +1023,9 @@ static void write_intra_uv_mode(FRAME_CONTEXT *frame_ctx,
 #if 0
   PREDICTION_MODE y_mode1[2];
   int64_t y_var[2];
-  const uint64_t *above_hist = av1_block_mode(above_mi, y_mode1, y_var);
-  const uint64_t *left_hist = av1_block_mode(left_mi, y_mode1 + 1, y_var + 1);
+  const uint64_t *above_hist = av1_block_mode(xd->above_mbmi, y_mode1, y_var);
+  const uint64_t *left_hist = av1_block_mode(xd->left_mbmi, y_mode1 + 1,
+                                             y_var + 1);
   FILE *fp = fopen("intra_data.csv", "a");
   if (fp) {
     fprintf(fp,
@@ -1192,16 +1190,7 @@ static void write_intra_prediction_modes(AV1_COMP *cpi, const int mi_row,
 
   // Y mode.
   if (is_keyframe) {
-    const MB_MODE_INFO *const above_mi = xd->above_mbmi;
-    const MB_MODE_INFO *const left_mi = xd->left_mbmi;
-#if CONFIG_INTRA_ENTROPY
-    const MB_MODE_INFO *const aboveleft_mi = xd->aboveleft_mbmi;
-#endif  // CONFIG_INTRA_ENTROPY
-    write_intra_y_mode_kf(ec_ctx, mbmi, above_mi, left_mi,
-#if CONFIG_INTRA_ENTROPY
-                          aboveleft_mi,
-#endif  // CONFIG_INTRA_ENTROPY
-                          mode, w);
+    write_intra_y_mode_kf(xd, ec_ctx, mbmi, mode, w);
   } else {
     write_intra_y_mode_nonkf(ec_ctx, bsize, mode, w);
   }
@@ -1218,13 +1207,8 @@ static void write_intra_prediction_modes(AV1_COMP *cpi, const int mi_row,
       is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
                           xd->plane[1].subsampling_y)) {
     const UV_PREDICTION_MODE uv_mode = mbmi->uv_mode;
-#if CONFIG_INTRA_ENTROPY
-    const MB_MODE_INFO *const above_mi = xd->above_mbmi;
-    const MB_MODE_INFO *const left_mi = xd->left_mbmi;
-    write_intra_uv_mode(ec_ctx, uv_mode, mode, above_mi, left_mi, w);
-#else
-    write_intra_uv_mode(ec_ctx, uv_mode, mode, is_cfl_allowed(xd), w);
-#endif  // CONFIG_INTRA_ENTROPY
+    write_intra_uv_mode(xd, ec_ctx, uv_mode, mode, is_cfl_allowed(xd),
+                        is_keyframe, w);
     if (uv_mode == UV_CFL_PRED)
       write_cfl_alphas(ec_ctx, mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, w);
     if (use_angle_delta && av1_is_directional_mode(get_uv_mode(uv_mode))) {
