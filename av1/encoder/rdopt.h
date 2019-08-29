@@ -288,6 +288,7 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
     case DEFAULT_EVAL:
       x->use_default_inter_tx_type = 0;
       x->use_default_intra_tx_type = 0;
+      x->use_transform_domain_distortion = sf->use_transform_domain_distortion;
 
       // Get default threshold for R-D optimization of coefficients
       x->coeff_opt_dist_threshold =
@@ -301,6 +302,7 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
            cpi->oxcf.use_intra_default_tx_only);
       x->use_default_inter_tx_type =
           cpi->sf.tx_type_search.fast_inter_tx_type_search;
+      x->use_transform_domain_distortion = 2;
 
       // Get threshold for R-D optimization of coefficients during mode
       // evaluation
@@ -314,6 +316,7 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
     case WINNER_MODE_EVAL:
       x->use_default_inter_tx_type = 0;
       x->use_default_intra_tx_type = 0;
+      x->use_transform_domain_distortion = 0;
 
       // Get threshold for R-D optimization of coefficients for winner mode
       // evaluation
