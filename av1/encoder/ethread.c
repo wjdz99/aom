@@ -412,8 +412,10 @@ static void create_enc_workers(AV1_COMP *cpi, int num_workers) {
       av1_zero(*thread_data->td);
 
       // Set up pc_tree.
-      thread_data->td->pc_tree = NULL;
-      av1_setup_pc_tree(cm, thread_data->td);
+      // thread_data->td->pc_tree = NULL;
+      // av1_setup_pc_tree(cm, thread_data->td);
+      av1_setup_sms_tree(cm, thread_data->td);
+      av1_setup_shared_coeff_buffer(cm, &thread_data->td->shared_coeff_buf);
 
       CHECK_MEM_ERROR(cm, thread_data->td->above_pred_buf,
                       (uint8_t *)aom_memalign(
