@@ -3146,7 +3146,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   // Tranform domain distortion is accurate for higher residuals.
   // TODO(any): Experiment with variance and mean based thresholds
   int use_transform_domain_distortion =
-      (cpi->sf.use_transform_domain_distortion > 0) &&
+      (x->use_transform_domain_distortion > 0) &&
       (block_mse_q8 >= cpi->tx_domain_dist_threshold) &&
       // Any 64-pt transforms only preserves half the coefficients.
       // Therefore transform domain distortion is not valid for these
@@ -3156,7 +3156,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   if (x->using_dist_8x8) use_transform_domain_distortion = 0;
 #endif
   int calc_pixel_domain_distortion_final =
-      cpi->sf.use_transform_domain_distortion == 1 &&
+      x->use_transform_domain_distortion == 1 &&
       use_transform_domain_distortion && x->rd_model != LOW_TXFM_RD;
   if (calc_pixel_domain_distortion_final &&
       (txk_allowed < TX_TYPES || allowed_tx_mask == 0x0001))
@@ -10980,9 +10980,6 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
       rd_pick_intra_sby_mode(cpi, x, mi_row, mi_col, &rate_y, &rate_y_tokenonly,
                              &dist_y, &y_skip, bsize, best_rd, ctx);
 
-  // Initialize default mode evaluation params
-  set_mode_eval_params(cpi, x, DEFAULT_EVAL);
-
   if (intra_yrd < best_rd) {
     // Only store reconstructed luma when there's chroma RDO. When there's no
     // chroma RDO, the reconstructed luma will be stored in encode_superblock().
@@ -11020,6 +11017,9 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   } else {
     rd_cost->rate = INT_MAX;
   }
+
+  // Initialize default mode evaluation params
+  set_mode_eval_params(cpi, x, DEFAULT_EVAL);
 
   if (rd_cost->rate != INT_MAX && rd_cost->rdcost < best_rd)
     best_rd = rd_cost->rdcost;
