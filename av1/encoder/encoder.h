@@ -1069,6 +1069,8 @@ typedef struct AV1_COMP {
 
   int use_svc;
   SVC svc;
+
+  int reduced_kf_bits;
 } AV1_COMP;
 
 typedef struct {

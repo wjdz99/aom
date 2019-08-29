@@ -1085,6 +1085,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
   // Calculate the bits to be allocated to the gf/arf group as a whole
   gf_group_bits = calculate_total_gf_group_bits(cpi, gf_group_err);
+  gf_group_bits += cpi->reduced_kf_bits;
 
 #if GROUP_ADAPTIVE_MAXQ
   // Calculate an estimate of the maxq needed for the group.
@@ -1505,6 +1506,13 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // Work out how many bits to allocate for the key frame itself.
   kf_bits = calculate_boost_bits((rc->frames_to_key - 1), rc->kf_boost,
                                  twopass->kf_group_bits);
+  const int num_gops = rc->frames_to_key / 16;
+  if (num_gops > 0) {
+    kf_bits /= 2;
+    cpi->reduced_kf_bits = kf_bits / num_gops;
+  } else {
+    cpi->reduced_kf_bits = 0;
+  }
   // printf("kf boost = %d kf_bits = %d kf_zeromotion_pct = %d\n", rc->kf_boost,
   //        kf_bits, twopass->kf_zeromotion_pct);
 
