@@ -1003,6 +1003,7 @@ typedef struct AV1_COMP {
   int max_comp_type_rd_threshold_div;
 
   unsigned int tx_domain_dist_threshold;
+  unsigned int tx_domain_dist_threshold_winner;
 
   // Factor to control R-D optimization of coeffs based on block
   // mse.

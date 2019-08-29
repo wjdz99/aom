@@ -304,7 +304,7 @@ static void set_good_speed_features_framesize_independent(
     sf->prune_motion_mode_level = 2;
     sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
     sf->cb_pred_filter_search = 1;
-    sf->use_transform_domain_distortion = boosted ? 1 : 2;
+    sf->use_transform_domain_distortion = 1;
     sf->perform_coeff_opt = boosted ? 1 : 2;
     sf->prune_ref_frame_for_rect_partitions =
         (frame_is_intra_only(&cpi->common) || (cm->allow_screen_content_tools))
@@ -921,6 +921,8 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
       comp_type_rd_threshold_div[sf->prune_comp_type_by_comp_avg];
   const int tx_domain_speed = AOMMIN(speed, MAX_TX_DOMAIN_EVAL_SPEED);
   cpi->tx_domain_dist_threshold = tx_domain_dist_thresholds[tx_domain_speed];
+  cpi->tx_domain_dist_threshold_winner =
+      tx_domain_dist_thresholds[tx_domain_speed];
 
   // assert ensures that coeff_opt_dist_thresholds is accessed correctly
   assert(cpi->sf.perform_coeff_opt >= 0 && cpi->sf.perform_coeff_opt < 5);
