@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fef3d6cd_ffb144a0",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-08-30T17:44:59Z",
+      "side": 1,
+      "message": "Tom: Please check the new location of the if statement carefully because I don\u0027t know cmake that well.\n\nI *guess* this if statement needs to be before line 26, which processes aom_config_defaults.cmake, in order to override the default value of FORCE_HIGHBITDEPTH_DECODING.",
+      "revId": "4d0ed291591b1a860f39a895468688817e16a591",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
