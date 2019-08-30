@@ -39,6 +39,15 @@ typedef struct mv32 {
   int32_t col;
 } MV32;
 
+enum {
+  MV_SUBPEL_NONE = 0,
+#if CONFIG_FLEX_MVRES
+  MV_SUBPEL_HALF_PRECISION = 1,
+#endif  // CONFIG_FLEX_MVRES
+  MV_SUBPEL_QTR_PRECISION = 2,
+  MV_SUBPEL_EIGHTH_PRECISION = 3,
+} SENUM1BYTE(MvSubpelPrecision);
+
 // Bits of precision used for the model
 #define WARPEDMODEL_PREC_BITS 16
 #define WARPEDMODEL_ROW3HOMO_PREC_BITS 16
@@ -175,6 +184,7 @@ static INLINE int convert_to_trans_prec(int allow_hp, int coor) {
   else
     return ROUND_POWER_OF_TWO_SIGNED(coor, WARPEDMODEL_PREC_BITS - 2) * 2;
 }
+
 static INLINE void integer_mv_precision(MV *mv) {
   int mod = (mv->row % 8);
   if (mod != 0) {
@@ -208,9 +218,10 @@ static INLINE void integer_mv_precision(MV *mv) {
 // is_integer is true, the bottom three bits will be zero (so the motion vector
 // represents an integer)
 static INLINE int_mv gm_get_motion_vector(const WarpedMotionParams *gm,
-                                          int allow_hp, BLOCK_SIZE bsize,
-                                          int mi_col, int mi_row,
-                                          int is_integer) {
+                                          MvSubpelPrecision precision,
+                                          BLOCK_SIZE bsize, int mi_col,
+                                          int mi_row, int is_integer) {
+  const int allow_hp = (precision > MV_SUBPEL_QTR_PRECISION);
   int_mv res;
 
   if (gm->wmtype == IDENTITY) {

@@ -830,12 +830,13 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                     mi_col, mode_context);
 }
 
-void av1_find_best_ref_mvs(int allow_hp, int_mv *mvlist, int_mv *nearest_mv,
-                           int_mv *near_mv, int is_integer) {
+void av1_find_best_ref_mvs(MvSubpelPrecision precision, int_mv *mvlist,
+                           int_mv *nearest_mv, int_mv *near_mv,
+                           int is_integer) {
   int i;
   // Make sure all the candidates are properly clamped etc
   for (i = 0; i < MAX_MV_REF_CANDIDATES; ++i) {
-    lower_mv_precision(&mvlist[i].as_mv, allow_hp, is_integer);
+    lower_mv_precision(&mvlist[i].as_mv, precision, is_integer);
   }
   *nearest_mv = mvlist[0];
   *near_mv = mvlist[1];
