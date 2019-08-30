@@ -198,8 +198,6 @@ typedef struct AV1Decoder {
   int max_threads;
   int inv_tile_order;
   int need_resync;   // wait for key/intra-only frame.
-  int hold_ref_buf;  // Boolean: whether we are holding reference buffers in
-                     // common.next_ref_frame_map.
   int reset_decoder_state;
 
   int tile_size_bytes;
