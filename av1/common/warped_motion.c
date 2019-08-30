@@ -511,7 +511,8 @@ static int64_t highbd_warp_error(
     WarpedMotionParams *wm, const uint16_t *const ref, int width, int height,
     int stride, const uint16_t *const dst, int p_col, int p_row, int p_width,
     int p_height, int p_stride, int subsampling_x, int subsampling_y, int bd,
-    int64_t best_error, uint8_t *segment_map, int segment_map_stride) {
+    int64_t best_error, uint8_t *segment_map, int segment_map_stride,
+    int64_t check) {
   int64_t gm_sumerr = 0;
   const int error_bsize_w = AOMMIN(p_width, WARP_ERROR_BLOCK);
   const int error_bsize_h = AOMMIN(p_height, WARP_ERROR_BLOCK);
@@ -536,7 +537,9 @@ static int64_t highbd_warp_error(
       gm_sumerr += av1_calc_highbd_frame_error(tmp, WARP_ERROR_BLOCK,
                                                dst + j + i * p_stride, warp_w,
                                                warp_h, p_stride, bd);
-      if (gm_sumerr > best_error) return gm_sumerr;
+      if (gm_sumerr > best_error) {
+        if (gm_sumerr < check) return INT64_MAX;
+      }
     }
   }
   return gm_sumerr;
@@ -822,7 +825,7 @@ static int64_t warp_error(WarpedMotionParams *wm, const uint8_t *const ref,
                           int p_width, int p_height, int p_stride,
                           int subsampling_x, int subsampling_y,
                           int64_t best_error, uint8_t *segment_map,
-                          int segment_map_stride) {
+                          int segment_map_stride, int64_t check) {
   int64_t gm_sumerr = 0;
   int warp_w, warp_h;
   const int error_bsize_w = AOMMIN(p_width, WARP_ERROR_BLOCK);
@@ -848,7 +851,9 @@ static int64_t warp_error(WarpedMotionParams *wm, const uint8_t *const ref,
       gm_sumerr +=
           av1_calc_frame_error(tmp, WARP_ERROR_BLOCK, dst + j + i * p_stride,
                                warp_w, warp_h, p_stride);
-      if (gm_sumerr > best_error) return gm_sumerr;
+      if (gm_sumerr > best_error) {
+        if (gm_sumerr < check) return INT64_MAX;
+      }
     }
   }
   return gm_sumerr;
@@ -883,18 +888,19 @@ int64_t av1_warp_error(WarpedMotionParams *wm, int use_hbd, int bd,
                        uint8_t *dst, int p_col, int p_row, int p_width,
                        int p_height, int p_stride, int subsampling_x,
                        int subsampling_y, int64_t best_error,
-                       uint8_t *segment_map, int segment_map_stride) {
+                       uint8_t *segment_map, int segment_map_stride,
+                       int64_t check) {
   if (wm->wmtype <= AFFINE)
-    if (!av1_get_shear_params(wm)) return 1;
+    if (!av1_get_shear_params(wm)) return INT64_MAX;
   if (use_hbd)
     return highbd_warp_error(wm, CONVERT_TO_SHORTPTR(ref), width, height,
                              stride, CONVERT_TO_SHORTPTR(dst), p_col, p_row,
                              p_width, p_height, p_stride, subsampling_x,
                              subsampling_y, bd, best_error, segment_map,
-                             segment_map_stride);
+                             segment_map_stride, check);
   return warp_error(wm, ref, width, height, stride, dst, p_col, p_row, p_width,
                     p_height, p_stride, subsampling_x, subsampling_y,
-                    best_error, segment_map, segment_map_stride);
+                    best_error, segment_map, segment_map_stride, check);
 }
 
 void av1_warp_plane(WarpedMotionParams *wm, int use_hbd, int bd,
