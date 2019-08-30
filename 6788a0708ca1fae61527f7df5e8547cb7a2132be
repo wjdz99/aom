@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9cb51d7_32cbb563",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-08-30T17:56:20Z",
+      "side": 0,
+      "message": "Please refer to https://aomedia-review.googlesource.com/c/aom/+/93801 for the history of this help message.",
+      "revId": "6788a0708ca1fae61527f7df5e8547cb7a2132be",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
