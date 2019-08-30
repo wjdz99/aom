@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c62029b5_2306e432",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4587,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-08-30T23:04:48Z",
+      "side": 0,
+      "message": "REF_FRAMES is equal to 8. Here we set cm-\u003ecurrent_frame.refresh_frame_flags to 0xFF. The generate_next_ref_frame_map(pbi) call at line 4605 will set cm-\u003enext_ref_frame_map[ref_index] to cm-\u003ecur_frame (at line 4549) for all ref_index. Therefore, the statement at line 4608:\n\n  *cm-\u003efc \u003d cm-\u003enext_ref_frame_map[existing_frame_idx]-\u003eframe_context;\n\nis equivalent to:\n\n  *cm-\u003efc \u003d cm-\u003ecur_frame-\u003eframe_context;",
+      "revId": "a793f2e4e2be1547cdf213ec93223f9126629b0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
