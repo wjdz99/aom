@@ -89,7 +89,7 @@ FRAME_COUNTS aggregate_fc;
 #define AM_SEGMENT_ID_ACTIVE 0
 
 // Whether to use high precision mv for altref computation.
-#define ALTREF_HIGH_PRECISION_MV 1
+#define ALTREF_HIGH_PRECISION_MV MV_SUBPEL_EIGHTH_PRECISION
 
 // Q threshold for high precision mv. Choose a very high value for now so that
 // HIGH_PRECISION is always chosen.
@@ -314,13 +314,13 @@ static void analyze_hor_freq(const AV1_COMP *cpi, double *energy) {
   }
 }
 
-static void set_high_precision_mv(AV1_COMP *cpi, int allow_high_precision_mv,
+static void set_high_precision_mv(AV1_COMP *cpi, MvSubpelPrecision precision,
                                   int cur_frame_force_integer_mv) {
   MACROBLOCK *const mb = &cpi->td.mb;
   cpi->common.allow_high_precision_mv =
-      allow_high_precision_mv && cur_frame_force_integer_mv == 0;
+      cur_frame_force_integer_mv == 0 ? precision : MV_SUBPEL_NONE;
   const int copy_hp =
-      cpi->common.allow_high_precision_mv && cur_frame_force_integer_mv == 0;
+      cpi->common.allow_high_precision_mv > MV_SUBPEL_QTR_PRECISION;
   int *(*src)[2] = copy_hp ? &mb->nmvcost_hp : &mb->nmvcost;
   mb->mv_cost_stack = *src;
 }
@@ -2864,7 +2864,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   }
 
   av1_reset_segment_features(cm);
-  set_high_precision_mv(cpi, 1, 0);
+  set_high_precision_mv(cpi, MV_SUBPEL_EIGHTH_PRECISION, 0);
 
   set_rc_buffer_sizes(rc, &cpi->oxcf);
 
@@ -4078,8 +4078,11 @@ static void set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
                                 top_index);
 
   if (!frame_is_intra_only(cm)) {
-    set_high_precision_mv(cpi, (*q) < HIGH_PRECISION_MV_QTHRESH,
-                          cpi->common.cur_frame_force_integer_mv);
+    set_high_precision_mv(
+        cpi,
+        ((*q) < HIGH_PRECISION_MV_QTHRESH ? MV_SUBPEL_EIGHTH_PRECISION
+                                          : MV_SUBPEL_QTR_PRECISION),
+        cpi->common.cur_frame_force_integer_mv);
   }
 
   // Configure experimental use of segmentation for enhanced coding of

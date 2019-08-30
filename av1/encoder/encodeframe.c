@@ -4617,7 +4617,10 @@ static void encode_tiles(AV1_COMP *cpi) {
 
 #define GLOBAL_TRANS_TYPES_ENC 3  // highest motion model to search
 static int gm_get_params_cost(const WarpedMotionParams *gm,
-                              const WarpedMotionParams *ref_gm, int allow_hp) {
+                              const WarpedMotionParams *ref_gm,
+                              MvSubpelPrecision precision) {
+  const int precision_reduce =
+      AOMMIN(1, MV_SUBPEL_EIGHTH_PRECISION - precision);
   int params_cost = 0;
   int trans_bits, trans_prec_diff;
   switch (gm->wmtype) {
@@ -4645,10 +4648,10 @@ static int gm_get_params_cost(const WarpedMotionParams *gm,
       AOM_FALLTHROUGH_INTENDED;
     case TRANSLATION:
       trans_bits = (gm->wmtype == TRANSLATION)
-                       ? GM_ABS_TRANS_ONLY_BITS - !allow_hp
+                       ? GM_ABS_TRANS_ONLY_BITS - precision_reduce
                        : GM_ABS_TRANS_BITS;
       trans_prec_diff = (gm->wmtype == TRANSLATION)
-                            ? GM_TRANS_ONLY_PREC_DIFF + !allow_hp
+                            ? GM_TRANS_ONLY_PREC_DIFF + precision_reduce
                             : GM_TRANS_PREC_DIFF;
       params_cost += aom_count_signed_primitive_refsubexpfin(
           (1 << trans_bits) + 1, SUBEXPFIN_K,

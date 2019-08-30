@@ -380,7 +380,7 @@ static void get_cost_surf_min(int *cost_list, int *ir, int *ic, int bits) {
 
 int av1_find_best_sub_pixel_tree_pruned_evenmore(
     MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
-    const MV *ref_mv, int allow_hp, int error_per_bit,
+    const MV *ref_mv, MvSubpelPrecision precision, int error_per_bit,
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
     int *cost_list, int *mvjcost, int *mvcost[2], int *distortion,
     unsigned int *sse1, const uint8_t *second_pred, const uint8_t *mask,
@@ -395,7 +395,7 @@ int av1_find_best_sub_pixel_tree_pruned_evenmore(
   (void)quarteriters;
   (void)eighthiters;
   (void)whichdir;
-  (void)allow_hp;
+  (void)precision;
   (void)forced_stop;
   (void)hstep;
   (void)use_accurate_subpel_search;
@@ -437,7 +437,7 @@ int av1_find_best_sub_pixel_tree_pruned_evenmore(
   tr = br;
   tc = bc;
 
-  if (allow_hp && forced_stop == 0) {
+  if (precision > MV_SUBPEL_QTR_PRECISION && forced_stop == 0) {
     hstep >>= 1;
     FIRST_LEVEL_CHECKS;
     if (eighthiters > 1) {
@@ -453,7 +453,7 @@ int av1_find_best_sub_pixel_tree_pruned_evenmore(
 
 int av1_find_best_sub_pixel_tree_pruned_more(
     MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
-    const MV *ref_mv, int allow_hp, int error_per_bit,
+    const MV *ref_mv, MvSubpelPrecision precision, int error_per_bit,
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
     int *cost_list, int *mvjcost, int *mvcost[2], int *distortion,
     unsigned int *sse1, const uint8_t *second_pred, const uint8_t *mask,
@@ -500,7 +500,7 @@ int av1_find_best_sub_pixel_tree_pruned_more(
     }
   }
 
-  if (allow_hp && forced_stop == 0) {
+  if (precision > MV_SUBPEL_QTR_PRECISION && forced_stop == 0) {
     tr = br;
     tc = bc;
     hstep >>= 1;
@@ -522,7 +522,7 @@ int av1_find_best_sub_pixel_tree_pruned_more(
 
 int av1_find_best_sub_pixel_tree_pruned(
     MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
-    const MV *ref_mv, int allow_hp, int error_per_bit,
+    const MV *ref_mv, MvSubpelPrecision precision, int error_per_bit,
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
     int *cost_list, int *mvjcost, int *mvcost[2], int *distortion,
     unsigned int *sse1, const uint8_t *second_pred, const uint8_t *mask,
@@ -591,7 +591,7 @@ int av1_find_best_sub_pixel_tree_pruned(
     tc = bc;
   }
 
-  if (allow_hp && forced_stop == 0) {
+  if (precision > MV_SUBPEL_QTR_PRECISION && forced_stop == 0) {
     hstep >>= 1;
     FIRST_LEVEL_CHECKS;
     if (eighthiters > 1) {
@@ -710,7 +710,7 @@ static INLINE unsigned int estimate_upsampled_pref_error(
 
 int av1_find_best_sub_pixel_tree(
     MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
-    const MV *ref_mv, int allow_hp, int error_per_bit,
+    const MV *ref_mv, MvSubpelPrecision precision, int error_per_bit,
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
     int *cost_list, int *mvjcost, int *mvcost[2], int *distortion,
     unsigned int *sse1, const uint8_t *second_pred, const uint8_t *mask,
@@ -741,7 +741,7 @@ int av1_find_best_sub_pixel_tree(
 
   set_subpel_mv_search_range(&x->mv_limits, &minc, &maxc, &minr, &maxr, ref_mv);
 
-  if (!allow_hp)
+  if (!(precision > MV_SUBPEL_QTR_PRECISION))
     if (round == 3) round = 2;
 
   bestmv->row *= 8;
@@ -915,7 +915,8 @@ unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
   int best_num_proj_ref = mbmi->num_proj_ref;
   unsigned int bestmse;
   int minc, maxc, minr, maxr;
-  const int start = cm->allow_high_precision_mv ? 0 : 4;
+  const int start =
+      cm->allow_high_precision_mv > MV_SUBPEL_QTR_PRECISION ? 0 : 4;
   int ite;
 
   set_subpel_mv_search_range(&x->mv_limits, &minc, &maxc, &minr, &maxr,
@@ -2567,10 +2568,10 @@ static unsigned int upsampled_setup_obmc_center_error(
 
 int av1_find_best_obmc_sub_pixel_tree_up(
     MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
-    MV *bestmv, const MV *ref_mv, int allow_hp, int error_per_bit,
-    const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
-    int *mvjcost, int *mvcost[2], int *distortion, unsigned int *sse1,
-    int is_second, int use_accurate_subpel_search) {
+    MV *bestmv, const MV *ref_mv, MvSubpelPrecision precision,
+    int error_per_bit, const aom_variance_fn_ptr_t *vfp, int forced_stop,
+    int iters_per_step, int *mvjcost, int *mvcost[2], int *distortion,
+    unsigned int *sse1, int is_second, int use_accurate_subpel_search) {
   const int32_t *wsrc = x->wsrc_buf;
   const int32_t *mask = x->mask_buf;
   const int *const z = wsrc;
@@ -2609,7 +2610,7 @@ int av1_find_best_obmc_sub_pixel_tree_up(
   y_stride = pd->pre[is_second].stride;
   offset = bestmv->row * y_stride + bestmv->col;
 
-  if (!allow_hp)
+  if (!(precision > MV_SUBPEL_QTR_PRECISION))
     if (round == 3) round = 2;
 
   bestmv->row *= 8;
@@ -2999,7 +3000,7 @@ int av1_obmc_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, MV *mvp_full,
 // Return the maximum MV.
 int av1_return_max_sub_pixel_mv(
     MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
-    const MV *ref_mv, int allow_hp, int error_per_bit,
+    const MV *ref_mv, MvSubpelPrecision precision, int error_per_bit,
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
     int *cost_list, int *mvjcost, int *mvcost[2], int *distortion,
     unsigned int *sse1, const uint8_t *second_pred, const uint8_t *mask,
@@ -3022,13 +3023,13 @@ int av1_return_max_sub_pixel_mv(
   besterr = 0;
   // In the sub-pel motion search, if hp is not used, then the last bit of mv
   // has to be 0.
-  lower_mv_precision(bestmv, allow_hp, 0);
+  lower_mv_precision(bestmv, precision > MV_SUBPEL_QTR_PRECISION, 0);
   return besterr;
 }
 // Return the minimum MV.
 int av1_return_min_sub_pixel_mv(
     MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
-    const MV *ref_mv, int allow_hp, int error_per_bit,
+    const MV *ref_mv, MvSubpelPrecision precision, int error_per_bit,
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
     int *cost_list, int *mvjcost, int *mvcost[2], int *distortion,
     unsigned int *sse1, const uint8_t *second_pred, const uint8_t *mask,
@@ -3051,7 +3052,7 @@ int av1_return_min_sub_pixel_mv(
   besterr = 0;
   // In the sub-pel motion search, if hp is not used, then the last bit of mv
   // has to be 0.
-  lower_mv_precision(bestmv, allow_hp, 0);
+  lower_mv_precision(bestmv, precision > MV_SUBPEL_QTR_PRECISION, 0);
   return besterr;
 }
 

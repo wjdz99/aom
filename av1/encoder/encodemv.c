@@ -71,11 +71,12 @@ static void encode_mv_component(aom_writer *w, int comp, nmv_component *mvcomp,
                      mv_class == MV_CLASS_0 ? mvcomp->class0_fp_cdf[d][0]
                                             : mvcomp->fp_cdf[0],
                      2);
-    aom_write_symbol(w, fr & 1,
-                     mv_class == MV_CLASS_0
-                         ? mvcomp->class0_fp_cdf[d][1 + (fr >> 1)]
-                         : mvcomp->fp_cdf[1 + (fr >> 1)],
-                     2);
+    if (precision > MV_SUBPEL_HALF_PRECISION)
+      aom_write_symbol(w, fr & 1,
+                       mv_class == MV_CLASS_0
+                           ? mvcomp->class0_fp_cdf[d][1 + (fr >> 1)]
+                           : mvcomp->fp_cdf[1 + (fr >> 1)],
+                       2);
 #else
     aom_write_symbol(
         w, fr,
@@ -148,9 +149,13 @@ static void build_nmv_component_cost_table(int *mvcost,
 #if CONFIG_FLEX_MVRES
       if (c == MV_CLASS_0) {
         cost += class0_fp_cost[d][0][f >> 1] +
-                class0_fp_cost[d][1 + (f >> 1)][f & 1];
+                (precision > MV_SUBPEL_HALF_PRECISION
+                     ? class0_fp_cost[d][1 + (f >> 1)][f & 1]
+                     : 0);
       } else {
-        cost += fp_cost[0][f >> 1] + fp_cost[1 + (f >> 1)][f & 1];
+        cost += fp_cost[0][f >> 1] + (precision > MV_SUBPEL_HALF_PRECISION
+                                          ? fp_cost[1 + (f >> 1)][f & 1]
+                                          : 0);
       }
 #else
       if (c == MV_CLASS_0) {
@@ -173,12 +178,9 @@ static void build_nmv_component_cost_table(int *mvcost,
 }
 
 void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
-                   nmv_context *mvctx, int usehp) {
+                   nmv_context *mvctx, MvSubpelPrecision precision) {
   const MV diff = { mv->row - ref->row, mv->col - ref->col };
   const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
-  const MvSubpelPrecision precision = cpi->common.cur_frame_force_integer_mv
-                                          ? MV_SUBPEL_NONE
-                                          : MV_SUBPEL_QTR_PRECISION + usehp;
 
   aom_write_symbol(w, j, mvctx->joints_cdf, MV_JOINTS);
   if (mv_joint_vertical(j))
@@ -253,7 +255,7 @@ int_mv av1_get_ref_mv(const MACROBLOCK *x, int ref_idx) {
                                    x->mbmi_ext);
 }
 
-void av1_find_best_ref_mvs_from_stack(int allow_hp,
+void av1_find_best_ref_mvs_from_stack(MvSubpelPrecision precision,
                                       const MB_MODE_INFO_EXT *mbmi_ext,
                                       MV_REFERENCE_FRAME ref_frame,
                                       int_mv *nearest_mv, int_mv *near_mv,
@@ -261,7 +263,7 @@ void av1_find_best_ref_mvs_from_stack(int allow_hp,
   const int ref_idx = 0;
   MV_REFERENCE_FRAME ref_frames[2] = { ref_frame, NONE_FRAME };
   *nearest_mv = av1_get_ref_mv_from_stack(ref_idx, ref_frames, 0, mbmi_ext);
-  lower_mv_precision(&nearest_mv->as_mv, allow_hp, is_integer);
+  lower_mv_precision(&nearest_mv->as_mv, precision, is_integer);
   *near_mv = av1_get_ref_mv_from_stack(ref_idx, ref_frames, 1, mbmi_ext);
-  lower_mv_precision(&near_mv->as_mv, allow_hp, is_integer);
+  lower_mv_precision(&near_mv->as_mv, precision, is_integer);
 }

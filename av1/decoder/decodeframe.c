@@ -4549,7 +4549,9 @@ void av1_read_sequence_header(AV1_COMMON *cm, struct aom_read_bit_buffer *rb,
 static int read_global_motion_params(WarpedMotionParams *params,
                                      const WarpedMotionParams *ref_params,
                                      struct aom_read_bit_buffer *rb,
-                                     int allow_hp) {
+                                     MvSubpelPrecision precision) {
+  const int precision_reduce =
+      AOMMIN(1, MV_SUBPEL_EIGHTH_PRECISION - precision);
   TransformationType type = aom_rb_read_bit(rb);
   if (type != IDENTITY) {
     if (aom_rb_read_bit(rb))
@@ -4592,13 +4594,14 @@ static int read_global_motion_params(WarpedMotionParams *params,
 
   if (type >= TRANSLATION) {
     const int trans_bits = (type == TRANSLATION)
-                               ? GM_ABS_TRANS_ONLY_BITS - !allow_hp
+                               ? GM_ABS_TRANS_ONLY_BITS - precision_reduce
                                : GM_ABS_TRANS_BITS;
     const int trans_dec_factor =
-        (type == TRANSLATION) ? GM_TRANS_ONLY_DECODE_FACTOR * (1 << !allow_hp)
-                              : GM_TRANS_DECODE_FACTOR;
+        (type == TRANSLATION)
+            ? GM_TRANS_ONLY_DECODE_FACTOR * (1 << precision_reduce)
+            : GM_TRANS_DECODE_FACTOR;
     const int trans_prec_diff = (type == TRANSLATION)
-                                    ? GM_TRANS_ONLY_PREC_DIFF + !allow_hp
+                                    ? GM_TRANS_ONLY_PREC_DIFF + precision_reduce
                                     : GM_TRANS_PREC_DIFF;
     params->wmmat[0] = aom_rb_read_signed_primitive_refsubexpfin(
                            rb, (1 << trans_bits) + 1, SUBEXPFIN_K,
@@ -5192,9 +5195,11 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       }
 
       if (cm->cur_frame_force_integer_mv) {
-        cm->allow_high_precision_mv = 0;
+        cm->allow_high_precision_mv = MV_SUBPEL_NONE;
       } else {
-        cm->allow_high_precision_mv = aom_rb_read_bit(rb);
+        cm->allow_high_precision_mv = aom_rb_read_bit(rb)
+                                          ? MV_SUBPEL_EIGHTH_PRECISION
+                                          : MV_SUBPEL_QTR_PRECISION;
       }
       cm->interp_filter = read_frame_interp_filter(rb);
       cm->switchable_motion_mode = aom_rb_read_bit(rb);
