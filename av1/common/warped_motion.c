@@ -885,7 +885,7 @@ int64_t av1_warp_error(WarpedMotionParams *wm, int use_hbd, int bd,
                        int subsampling_y, int64_t best_error,
                        uint8_t *segment_map, int segment_map_stride) {
   if (wm->wmtype <= AFFINE)
-    if (!av1_get_shear_params(wm)) return 1;
+    if (!av1_get_shear_params(wm)) return INT64_MAX;
   if (use_hbd)
     return highbd_warp_error(wm, CONVERT_TO_SHORTPTR(ref), width, height,
                              stride, CONVERT_TO_SHORTPTR(dst), p_col, p_row,
