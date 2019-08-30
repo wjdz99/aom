@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2163c3ff_e194cb06",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-08-30T23:16:16Z",
+      "side": 1,
+      "message": "Done. Thanks for the suggestion. (I also thought about doing this.)",
+      "parentUuid": "9d898a3b_29304571",
+      "range": {
+        "startLine": 9,
+        "startChar": 50,
+        "endLine": 10,
+        "endChar": 54
+      },
+      "revId": "4d0ed291591b1a860f39a895468688817e16a591",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fef3d6cd_ffb144a0",
         "filename": "build/cmake/aom_configure.cmake",
         "patchSetId": 1
@@ -57,6 +81,24 @@
       "revId": "4d0ed291591b1a860f39a895468688817e16a591",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09e022fd_d86a9d7d",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-08-30T23:16:16Z",
+      "side": 1,
+      "message": "Tom: Thank you for your comments. I adopted your first suggestion in https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d2474.\n\nThe reason we do nothing in the case of -DCONFIG_LOWBITDEPTH\u003d1 is that it is equivalent to -DFORCE_HIGHBITDEPTH_DECODING\u003d0, which is the default.",
+      "parentUuid": "1cb003f3_9b8ad68a",
+      "revId": "4d0ed291591b1a860f39a895468688817e16a591",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
