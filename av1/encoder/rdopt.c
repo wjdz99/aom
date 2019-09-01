@@ -10429,8 +10429,6 @@ static int64_t handle_inter_mode(
   int best_disable_skip;
   int best_xskip;
   int64_t newmv_ret_val = INT64_MAX;
-  int_mv backup_mv[2] = { { 0 } };
-  int backup_rate_mv = 0;
   inter_mode_info mode_info[MAX_REF_MV_SEARCH];
 
   int mode_search_mask[1];
@@ -10470,25 +10468,15 @@ static int64_t handle_inter_mode(
     rd_stats->rate += drl_cost;
     mode_info[ref_mv_idx].drl_cost = drl_cost;
 
-    const RD_STATS backup_rd_stats = *rd_stats;
-
     for (int comp_loop_idx = 0; comp_loop_idx <= 0; ++comp_loop_idx) {
       int rs = 0;
       int compmode_interinter_cost = 0;
-
-      if (is_comp_pred && comp_loop_idx == 1) *rd_stats = backup_rd_stats;
 
       int_mv cur_mv[2];
       if (!build_cur_mv(cur_mv, this_mode, cm, x)) {
         continue;
       }
       if (have_newmv_in_inter_mode(this_mode)) {
-        if (comp_loop_idx == 1) {
-          cur_mv[0] = backup_mv[0];
-          cur_mv[1] = backup_mv[1];
-          rate_mv = backup_rate_mv;
-        }
-
 #if CONFIG_COLLECT_COMPONENT_TIMING
         start_timing(cpi, handle_newmv_time);
 #endif
@@ -10498,15 +10486,9 @@ static int64_t handle_inter_mode(
           newmv_ret_val = args->single_newmv_valid[ref_mv_idx][ref0] ? 0 : 1;
           cur_mv[0] = args->single_newmv[ref_mv_idx][ref0];
           rate_mv = args->single_newmv_rate[ref_mv_idx][ref0];
-        } else if (comp_loop_idx == 0) {
+        } else {
           newmv_ret_val = handle_newmv(cpi, x, bsize, cur_mv, mi_row, mi_col,
                                        &rate_mv, args);
-
-          // Store cur_mv and rate_mv so that they can be restored in the next
-          // iteration of the loop
-          backup_mv[0] = cur_mv[0];
-          backup_mv[1] = cur_mv[1];
-          backup_rate_mv = rate_mv;
         }
 #if CONFIG_COLLECT_COMPONENT_TIMING
         end_timing(cpi, handle_newmv_time);
@@ -10611,7 +10593,7 @@ static int64_t handle_inter_mode(
 #endif
       int skip_build_pred = 0;
       if (is_comp_pred) {
-        if (mode_search_mask[comp_loop_idx] == (1 << COMPOUND_AVERAGE)) {
+        if (mode_search_mask[0] == (1 << COMPOUND_AVERAGE)) {
           // Only compound_average
           mbmi->interinter_comp.type = COMPOUND_AVERAGE;
           mbmi->num_proj_ref = 0;
@@ -10621,7 +10603,7 @@ static int64_t handle_inter_mode(
           const int comp_index_ctx = get_comp_index_context(cm, xd);
           compmode_interinter_cost +=
               x->comp_idx_cost[comp_index_ctx][mbmi->compound_idx];
-        } else if (mode_search_mask[comp_loop_idx] == (1 << COMPOUND_DISTWTD)) {
+        } else if (mode_search_mask[0] == (1 << COMPOUND_DISTWTD)) {
           // Only compound_distwtd
           if (!cm->seq_params.order_hint_info.enable_dist_wtd_comp ||
               cpi->sf.use_dist_wtd_comp_flag == DIST_WTD_COMP_DISABLED)
@@ -10649,10 +10631,10 @@ static int64_t handle_inter_mode(
           rd_thresh = get_rd_thresh_from_best_rd(
               ref_best_rd, (1 << comp_type_rd_shift), comp_type_rd_scale);
           compmode_interinter_cost = compound_type_rd(
-              cpi, x, bsize, mi_col, mi_row, cur_mv,
-              mode_search_mask[comp_loop_idx], masked_compound_used, &orig_dst,
-              &tmp_dst, rd_buffers, &rate_mv, &best_rd_compound, rd_stats,
-              ref_best_rd, &is_luma_interp_done, rd_thresh);
+              cpi, x, bsize, mi_col, mi_row, cur_mv, mode_search_mask[0],
+              masked_compound_used, &orig_dst, &tmp_dst, rd_buffers, &rate_mv,
+              &best_rd_compound, rd_stats, ref_best_rd, &is_luma_interp_done,
+              rd_thresh);
           if (ref_best_rd < INT64_MAX &&
               (best_rd_compound >> comp_type_rd_shift) * comp_type_rd_scale >
                   ref_best_rd) {
