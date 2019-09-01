@@ -10433,19 +10433,9 @@ static int64_t handle_inter_mode(
   int backup_rate_mv = 0;
   inter_mode_info mode_info[MAX_REF_MV_SEARCH];
 
-  int mode_search_mask[2];
-  const int do_two_loop_comp_search = 0;
-  if (do_two_loop_comp_search) {
-    // TODO(debargha): Change this to try alternate ways of splitting
-    // modes while doing two pass compound_mode search.
-    mode_search_mask[0] = (1 << COMPOUND_AVERAGE);
-  } else {
-    mode_search_mask[0] = (1 << COMPOUND_AVERAGE) | (1 << COMPOUND_DISTWTD) |
-                          (1 << COMPOUND_WEDGE) | (1 << COMPOUND_DIFFWTD);
-  }
-  mode_search_mask[1] = ((1 << COMPOUND_AVERAGE) | (1 << COMPOUND_DISTWTD) |
-                         (1 << COMPOUND_WEDGE) | (1 << COMPOUND_DIFFWTD)) -
-                        mode_search_mask[0];
+  int mode_search_mask[1];
+  mode_search_mask[0] = (1 << COMPOUND_AVERAGE) | (1 << COMPOUND_DISTWTD) |
+                        (1 << COMPOUND_WEDGE) | (1 << COMPOUND_DIFFWTD);
 
   // First, perform a simple translation search for each of the indices. If
   // an index performs well, it will be fully searched here.
@@ -10482,8 +10472,7 @@ static int64_t handle_inter_mode(
 
     const RD_STATS backup_rd_stats = *rd_stats;
 
-    for (int comp_loop_idx = 0; comp_loop_idx <= do_two_loop_comp_search;
-         ++comp_loop_idx) {
+    for (int comp_loop_idx = 0; comp_loop_idx <= 0; ++comp_loop_idx) {
       int rs = 0;
       int compmode_interinter_cost = 0;
 
@@ -10635,8 +10624,7 @@ static int64_t handle_inter_mode(
         } else if (mode_search_mask[comp_loop_idx] == (1 << COMPOUND_DISTWTD)) {
           // Only compound_distwtd
           if (!cm->seq_params.order_hint_info.enable_dist_wtd_comp ||
-              cpi->sf.use_dist_wtd_comp_flag == DIST_WTD_COMP_DISABLED ||
-              (do_two_loop_comp_search && mbmi->mode == GLOBAL_GLOBALMV))
+              cpi->sf.use_dist_wtd_comp_flag == DIST_WTD_COMP_DISABLED)
             continue;
           mbmi->interinter_comp.type = COMPOUND_DISTWTD;
           mbmi->num_proj_ref = 0;
@@ -10657,8 +10645,7 @@ static int64_t handle_inter_mode(
           int64_t best_rd_compound;
           int64_t rd_thresh;
           const int comp_type_rd_shift = COMP_TYPE_RD_THRESH_SHIFT;
-          const int comp_type_rd_scale =
-              COMP_TYPE_RD_THRESH_SCALE + 2 * do_two_loop_comp_search;
+          const int comp_type_rd_scale = COMP_TYPE_RD_THRESH_SCALE;
           rd_thresh = get_rd_thresh_from_best_rd(
               ref_best_rd, (1 << comp_type_rd_shift), comp_type_rd_scale);
           compmode_interinter_cost = compound_type_rd(
