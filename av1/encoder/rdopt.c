@@ -10434,8 +10434,7 @@ static int64_t handle_inter_mode(
   inter_mode_info mode_info[MAX_REF_MV_SEARCH];
 
   int mode_search_mask[2];
-  const int do_two_loop_comp_search =
-      is_comp_pred && cpi->sf.two_loop_comp_search;
+  const int do_two_loop_comp_search = 0;
   if (do_two_loop_comp_search) {
     // TODO(debargha): Change this to try alternate ways of splitting
     // modes while doing two pass compound_mode search.
