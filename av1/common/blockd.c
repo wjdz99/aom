@@ -44,12 +44,18 @@ INLINE static const uint64_t *fetch_block_info(const MB_MODE_INFO *mi,
   }
 }
 
-INLINE static void add_hist_features(const uint64_t *hist, float **features) {
+INLINE static void add_hist_features(const uint64_t *hist, int add_total,
+                                     float **features) {
   float total = 0.0f;
   if (hist) {
     for (int i = 0; i < 8; ++i) {
       total += (float)hist[i];
     }
+  }
+
+  if (add_total) {
+    (*features)[0] = logf(total + 1.0f);
+    ++*features;
   }
 
   float *feature_pt = *features;
@@ -74,6 +80,31 @@ INLINE static void add_mode_features(PREDICTION_MODE mode, float **features) {
   *features += 5;
 }
 
+
+static void add_onehot(float **features, int num, int n) {
+  float *feature_pt = *features;
+  memset(feature_pt, 0, sizeof(*feature_pt) * num);
+  if (n >= 0 && n < num) feature_pt[n] = 1.0f;
+  *features += num;
+}
+
+#if INTRA_MODEL == -1
+void av1_get_intra_block_feature(float *features, const MB_MODE_INFO *above_mi,
+                                 const MB_MODE_INFO *left_mi,
+                                 const MB_MODE_INFO *aboveleft_mi) {
+  const MB_MODE_INFO *mbmi_list[3] = {above_mi, left_mi, aboveleft_mi};
+  for (int i = 0; i < 3; ++i) {
+    const MB_MODE_INFO *mbmi = mbmi_list[i];
+    const int data_available = mbmi != NULL;
+    *(features++) = data_available;
+    add_onehot(&features, INTRA_MODES, data_available ? mbmi->mode : -1);
+    const float var = data_available ? (float)mbmi->y_recon_var : 0.0f;
+    *(features++) = logf(var + 1.0f);
+    add_hist_features(data_available ? mbmi->y_gradient_hist : NULL, 1,
+        &features);
+  }
+}
+#else
 void av1_get_intra_block_feature(float *features, const MB_MODE_INFO *above_mi,
                                  const MB_MODE_INFO *left_mi,
                                  const MB_MODE_INFO *aboveleft_mi) {
@@ -85,9 +116,9 @@ void av1_get_intra_block_feature(float *features, const MB_MODE_INFO *above_mi,
   const uint64_t *al_hist =
       fetch_block_info(aboveleft_mi, &aboveleft_mode, &al_var);
 
-  add_hist_features(above_hist, &features);
-  add_hist_features(left_hist, &features);
-  add_hist_features(al_hist, &features);
+  add_hist_features(above_hist, 0, &features);
+  add_hist_features(left_hist, 0, &features);
+  add_hist_features(al_hist, 0, &features);
 
 #if INTRA_MODEL <= 0
   *(features++) = above_var / 12534.f;
@@ -101,6 +132,7 @@ void av1_get_intra_block_feature(float *features, const MB_MODE_INFO *above_mi,
   add_mode_features(aboveleft_mode, &features);
 #endif  // INTRA_MODEL
 }
+#endif
 
 void av1_pdf2cdf(float *pdf, aom_cdf_prob *cdf, int nsymbs) {
   float accu = 0.0f;  // AOM_ICDF
@@ -119,8 +151,8 @@ void av1_get_intra_uv_block_feature(float *features, PREDICTION_MODE cur_y_mode,
   const uint64_t *above_hist = fetch_block_info(above_mi, y_mode, y_var);
   const uint64_t *left_hist = fetch_block_info(left_mi, y_mode + 1, y_var + 1);
 
-  add_hist_features(above_hist, &features);
-  add_hist_features(left_hist, &features);
+  add_hist_features(above_hist, 0, &features);
+  add_hist_features(left_hist, 0, &features);
 
   *(features++) = (float)y_var[0] / 12534.f;
   *(features++) = (float)y_var[1] / 12534.f;
@@ -130,7 +162,7 @@ void av1_get_intra_uv_block_feature(float *features, PREDICTION_MODE cur_y_mode,
 }
 
 void av1_get_if_y_mode_cdf_ml(const MACROBLOCKD *xd, aom_cdf_prob *cdf) {
-  float features[54], scores[INTRA_MODES];
+  float features[72], scores[INTRA_MODES];
   av1_get_intra_block_feature(features, xd->above_mbmi, xd->left_mbmi,
                               xd->aboveleft_mbmi);
   av1_nn_predict_em(features, &(xd->tile_ctx->av1_intra_y_mode), scores);
