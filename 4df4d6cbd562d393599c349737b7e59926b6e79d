@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "633f9f69_30fe2226",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-09-03T22:05:22Z",
+      "side": 1,
+      "message": "ENTROPY",
+      "range": {
+        "startLine": 7,
+        "startChar": 19,
+        "endLine": 7,
+        "endChar": 27
+      },
+      "revId": "4df4d6cbd562d393599c349737b7e59926b6e79d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa615fb9_5078352f",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-09-03T22:05:22Z",
+      "side": 1,
+      "message": "Maybe rename this to av1_pdf2icdf instead so it\u0027s clear that we are computing the iCDF not the CDF?",
+      "range": {
+        "startLine": 105,
+        "startChar": 5,
+        "endLine": 105,
+        "endChar": 16
+      },
+      "revId": "4df4d6cbd562d393599c349737b7e59926b6e79d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62276980_b5700f67",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-09-03T22:05:22Z",
+      "side": 1,
+      "message": "What does \"if\" stand for here?",
+      "range": {
+        "startLine": 132,
+        "startChar": 13,
+        "endLine": 132,
+        "endChar": 16
+      },
+      "revId": "4df4d6cbd562d393599c349737b7e59926b6e79d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0b66ab9_c98ea194",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-09-03T22:05:22Z",
+      "side": 1,
+      "message": "Define this with a macro, so we can later automatically align this to multiples of 4/8 for SIMD.",
+      "range": {
+        "startLine": 133,
+        "startChar": 17,
+        "endLine": 133,
+        "endChar": 19
+      },
+      "revId": "4df4d6cbd562d393599c349737b7e59926b6e79d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5b28b89_a240eaf5",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-09-03T22:05:22Z",
+      "side": 1,
+      "message": "Same as above.",
+      "range": {
+        "startLine": 142,
+        "startChar": 17,
+        "endLine": 142,
+        "endChar": 19
+      },
+      "revId": "4df4d6cbd562d393599c349737b7e59926b6e79d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
