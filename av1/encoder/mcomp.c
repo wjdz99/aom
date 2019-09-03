@@ -3026,7 +3026,7 @@ int av1_return_max_sub_pixel_mv(
   besterr = 0;
   // In the sub-pel motion search, if hp is not used, then the last bit of mv
   // has to be 0.
-  lower_mv_precision(bestmv, precision, 0);
+  lower_mv_precision(bestmv, precision);
   return besterr;
 }
 // Return the minimum MV.
@@ -3055,7 +3055,7 @@ int av1_return_min_sub_pixel_mv(
   besterr = 0;
   // In the sub-pel motion search, if hp is not used, then the last bit of mv
   // has to be 0.
-  lower_mv_precision(bestmv, precision, 0);
+  lower_mv_precision(bestmv, precision);
   return besterr;
 }
 
