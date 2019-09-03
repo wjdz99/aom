@@ -302,6 +302,9 @@ typedef struct SPEED_FEATURES {
   // Limit the inter mode tested in the RD loop
   int reduce_inter_modes;
 
+  // Limit the inter mode tested in RD loop based on model_rd
+  int reduce_inter_modes_by_model_rd;
+
   // Do not compute the global motion parameters for a LAST2_FRAME or
   // LAST3_FRAME if the GOLDEN_FRAME is closer and it has a non identity
   // global model.
