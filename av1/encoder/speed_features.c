@@ -383,6 +383,7 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 4) {
+    sf->reduce_inter_modes_by_model_rd = 1;
     sf->selective_ref_frame = 4;
     sf->use_intra_txb_hash = 0;
     sf->tx_type_search.fast_intra_tx_type_search = 1;
@@ -725,6 +726,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->model_based_prune_tx_search_level = 0;
   sf->model_based_post_interp_filter_breakout = 0;
   sf->reduce_inter_modes = 0;
+  sf->reduce_inter_modes_by_model_rd = 0;
   sf->selective_ref_gm = 1;
   sf->adaptive_motion_search = 0;
   sf->adaptive_mode_search = 0;
