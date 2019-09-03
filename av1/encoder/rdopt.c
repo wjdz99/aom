@@ -10380,7 +10380,75 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
       mask_set_bit(&result, i);
     }
   }
+
+#if 1
+  const int is_comp_pred = has_second_ref(mbmi);
+  if (is_comp_pred) return result;
+  if (have_newmv_in_inter_mode(mbmi->mode)) {
+    if (x->best_rd_uni_new_mv > idx_rdcost[best_idx])
+      x->best_rd_uni_new_mv = idx_rdcost[best_idx];
+  } else if (x->best_rd_uni > idx_rdcost[best_idx]) {
+    x->best_rd_uni = idx_rdcost[best_idx];
+  }
+#if 0
+  int result1 = 0;
+  int64_t best_rd_uni_before_processing =
+      AOMMIN(x->best_rd_uni_new_mv, x->best_rd_uni);
+  for (int i = 0; i < ref_set; ++i) {
+    if (mask_check_bit(result, i)) {
+      // Single reference mode
+      if (have_newmv_in_inter_mode(mbmi->mode)) {
+        if (best_rd_uni_before_processing >=
+            (int64_t)((double)idx_rdcost[i] / 1.5)) {
+          mask_set_bit(&result1, i);
+        }
+      } else {
+        if (best_rd_uni_before_processing >=
+            (int64_t)((double)idx_rdcost[i] / 1.25)) {
+          mask_set_bit(&result1, i);
+        }
+      }
+    }
+  }
+  return result1;
+#else
   return result;
+#endif
+#else
+  return result;
+#endif
+}
+
+static int skip_early_new_mv_mode(AV1_COMP *const cpi, MACROBLOCK *x,
+                                  RD_STATS *rd_stats,
+                                  const BUFFER_SET *orig_dst, int is_comp_pred,
+                                  int mi_row, int mi_col, BLOCK_SIZE bsize) {
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  const AV1_COMMON *cm = &cpi->common;
+  mbmi->motion_mode = SIMPLE_TRANSLATION;
+  mbmi->num_proj_ref = 0;
+  if (is_comp_pred) {
+    // Only compound_average
+    mbmi->interinter_comp.type = COMPOUND_AVERAGE;
+    mbmi->comp_group_idx = 0;
+    mbmi->compound_idx = 1;
+  }
+  set_default_interp_filters(mbmi, cm->interp_filter);
+
+  av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
+                                AOM_PLANE_Y, AOM_PLANE_Y);
+  int est_rate;
+  int64_t est_dist;
+  model_rd_sb_fn[MODELRD_CURVFIT](cpi, bsize, x, xd, 0, 0, mi_row, mi_col,
+                                  &est_rate, &est_dist, NULL, NULL, NULL, NULL,
+                                  NULL);
+  int64_t idx_rdcost = RDCOST(x->rdmult, rd_stats->rate + est_rate, est_dist);
+  x->best_rd_2_uni_new_mv =
+      AOMMIN(x->best_rd_2_uni_new_mv, x->best_rd_uni_new_mv);
+  x->best_rd_2_uni_new_mv = AOMMIN(x->best_rd_2_uni_new_mv, idx_rdcost);
+  if (x->best_rd_2_uni_new_mv < (int64_t)((double)idx_rdcost * 0.7)) return 1;
+  return 0;
 }
 
 static int64_t handle_inter_mode(
@@ -10617,6 +10685,16 @@ static int64_t handle_inter_mode(
           mbmi->mode != NEARESTMV && mbmi->mode != NEAREST_NEARESTMV) {
         continue;
       }
+
+#if 1
+      if (!is_comp_pred && have_newmv_in_inter_mode(mbmi->mode)) {
+        if (skip_early_new_mv_mode(cpi, x, rd_stats, &orig_dst, is_comp_pred,
+                                   mi_row, mi_col, bsize)) {
+          restore_dst_buf(xd, orig_dst, num_planes);
+          continue;
+        }
+      }
+#endif
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
       start_timing(cpi, compound_type_rd_time);
@@ -12660,6 +12738,11 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                 ref_costs_single, ref_costs_comp, yv12_mb);
 
   int64_t best_est_rd = INT64_MAX;
+  x->best_rd_uni = INT64_MAX;
+  x->best_rd_comp = INT64_MAX;
+  x->best_rd_uni_new_mv = INT64_MAX;
+  x->best_rd_comp_new_mv = INT64_MAX;
+  x->best_rd_2_uni_new_mv = INT64_MAX;
   const InterModeRdModel *md = &tile_data->inter_mode_rd_models[bsize];
   // If do_tx_search_global is 0, only estimated RD should be computed.
   // If do_tx_search_global is 1, all modes have TX search performed.
