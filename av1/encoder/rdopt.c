@@ -10380,7 +10380,81 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
       mask_set_bit(&result, i);
     }
   }
+
+#if 1
+  const int is_comp_pred = has_second_ref(mbmi);
+  if (is_comp_pred) return result;
+  if (have_newmv_in_inter_mode(mbmi->mode)) {
+    if (x->best_rd_uni_new_mv > idx_rdcost[best_idx])
+      x->best_rd_uni_new_mv = idx_rdcost[best_idx];
+  } else if (x->best_rd_uni > idx_rdcost[best_idx]) {
+    x->best_rd_uni = idx_rdcost[best_idx];
+  }
+  int result1 = 0;
+  int64_t best_rd_uni_before_processing =
+      AOMMIN(x->best_rd_uni_new_mv, x->best_rd_uni);
+  for (int i = 0; i < ref_set; ++i) {
+    if (mask_check_bit(result, i)) {
+      // Single reference mode
+      if (have_newmv_in_inter_mode(mbmi->mode)) {
+        if (best_rd_uni_before_processing >=
+            (int64_t)((double)idx_rdcost[i] / 1.5)) {
+          mask_set_bit(&result1, i);
+        }
+      } else {
+        if (best_rd_uni_before_processing >=
+            (int64_t)((double)idx_rdcost[i] / 1.25)) {
+          mask_set_bit(&result1, i);
+        }
+      }
+    }
+  }
+  return result1;
+#else
   return result;
+#endif
+}
+
+static int skip_early_new_mv_mode(AV1_COMP *const cpi, MACROBLOCK *x,
+                                  RD_STATS *rd_stats, int64_t ref_best_rd,
+                                  int is_comp_pred, int mi_row, int mi_col,
+                                  BLOCK_SIZE bsize) {
+  if (RDCOST(x->rdmult, rd_stats->rate, 0) > ref_best_rd) {
+    return 1;
+  }
+#if 1
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  const AV1_COMMON *cm = &cpi->common;
+  struct macroblockd_plane *p = xd->plane;
+  const BUFFER_SET orig_dst = {
+    { p[0].dst.buf, p[1].dst.buf, p[2].dst.buf },
+    { p[0].dst.stride, p[1].dst.stride, p[2].dst.stride },
+  };
+  mbmi->motion_mode = SIMPLE_TRANSLATION;
+  mbmi->num_proj_ref = 0;
+  if (is_comp_pred) {
+    // Only compound_average
+    mbmi->interinter_comp.type = COMPOUND_AVERAGE;
+    mbmi->comp_group_idx = 0;
+    mbmi->compound_idx = 1;
+  }
+  set_default_interp_filters(mbmi, cm->interp_filter);
+
+  av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst, bsize,
+                                AOM_PLANE_Y, AOM_PLANE_Y);
+  int est_rate;
+  int64_t est_dist;
+  model_rd_sb_fn[MODELRD_CURVFIT](cpi, bsize, x, xd, 0, 0, mi_row, mi_col,
+                                  &est_rate, &est_dist, NULL, NULL, NULL, NULL,
+                                  NULL);
+  int64_t idx_rdcost = RDCOST(x->rdmult, rd_stats->rate + est_rate, est_dist);
+  x->best_rd_2_uni_new_mv =
+      AOMMIN(x->best_rd_2_uni_new_mv, x->best_rd_uni_new_mv);
+  x->best_rd_2_uni_new_mv = AOMMIN(x->best_rd_2_uni_new_mv, idx_rdcost);
+  if (x->best_rd_2_uni_new_mv < (int64_t)((double)idx_rdcost * 0.8)) return 1;
+#endif
+  return 0;
 }
 
 static int64_t handle_inter_mode(
@@ -10519,6 +10593,26 @@ static int64_t handle_inter_mode(
           backup_mv[0] = cur_mv[0];
           backup_mv[1] = cur_mv[1];
           backup_rate_mv = rate_mv;
+#if 1
+          if (!is_comp_pred && newmv_ret_val == 0) {
+            int_mv tmp_cur_mv[2];
+            for (i = 0; i < is_comp_pred + 1; ++i) {
+              tmp_cur_mv[i].as_int = mbmi->mv[i].as_int;
+              mbmi->mv[i].as_int = cur_mv[i].as_int;
+            }
+            const int ref_mv_cost = cost_mv_ref(x, this_mode, mode_ctx);
+            rd_stats->rate += ref_mv_cost;
+            rd_stats->rate += rate_mv;
+            if (skip_early_new_mv_mode(cpi, x, rd_stats, ref_best_rd,
+                                       is_comp_pred, mi_row, mi_col, bsize))
+              continue;
+            rd_stats->rate -= ref_mv_cost;
+            rd_stats->rate -= rate_mv;
+            for (i = 0; i < is_comp_pred + 1; ++i) {
+              mbmi->mv[i].as_int = tmp_cur_mv[i].as_int;
+            }
+          }
+#endif
         }
 #if CONFIG_COLLECT_COMPONENT_TIMING
         end_timing(cpi, handle_newmv_time);
@@ -12660,6 +12754,11 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                 ref_costs_single, ref_costs_comp, yv12_mb);
 
   int64_t best_est_rd = INT64_MAX;
+  x->best_rd_uni = INT64_MAX;
+  x->best_rd_comp = INT64_MAX;
+  x->best_rd_uni_new_mv = INT64_MAX;
+  x->best_rd_comp_new_mv = INT64_MAX;
+  x->best_rd_2_uni_new_mv = INT64_MAX;
   const InterModeRdModel *md = &tile_data->inter_mode_rd_models[bsize];
   // If do_tx_search_global is 0, only estimated RD should be computed.
   // If do_tx_search_global is 1, all modes have TX search performed.
