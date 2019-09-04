@@ -211,6 +211,7 @@ static void set_good_speed_feature_framesize_dependent(
     }
 
     if (is_480p_or_larger) sf->tx_type_search.prune_tx_type_using_stats = 2;
+    if (is_720p_or_larger) sf->inclined_min_partition_size = BLOCK_8X8;
   }
 }
 
@@ -777,6 +778,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->rd_auto_partition_min_limit = BLOCK_4X4;
   sf->default_max_partition_size = BLOCK_LARGEST;
   sf->default_min_partition_size = BLOCK_4X4;
+  sf->inclined_min_partition_size = BLOCK_4X4;
   sf->adjust_partitioning_from_last_frame = 0;
   sf->mode_search_skip_flags = 0;
   sf->disable_filter_search_var_thresh = 0;
