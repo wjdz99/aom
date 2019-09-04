@@ -375,8 +375,7 @@ static void set_good_speed_features_framesize_independent(
     // features
     sf->enable_winner_mode_for_coeff_opt = 1;
     // TODO(any): Experiment with this speed feature by enabling for key frames
-    sf->enable_winner_mode_for_tx_size_srch =
-        frame_is_intra_only(&cpi->common) ? 0 : 1;
+    sf->enable_winner_mode_for_tx_size_srch = 1;
     sf->reduce_wiener_window_size = is_boosted_arf2_bwd_type ? 0 : 1;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
     sf->simple_motion_search_prune_agg = 1;
@@ -385,7 +384,8 @@ static void set_good_speed_features_framesize_independent(
   if (speed >= 4) {
     sf->selective_ref_frame = 4;
     sf->use_intra_txb_hash = 0;
-    sf->tx_type_search.fast_intra_tx_type_search = 1;
+    sf->tx_type_search.fast_intra_tx_type_search =
+        frame_is_intra_only(&cpi->common) ? 0 : 1;
     sf->disable_loop_restoration_chroma =
         (boosted || cm->allow_screen_content_tools) ? 0 : 1;
     sf->reduce_wiener_window_size = !boosted;
