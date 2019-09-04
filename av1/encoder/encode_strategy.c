@@ -14,6 +14,7 @@
 #include "config/aom_config.h"
 #include "config/aom_scale_rtcd.h"
 
+#include "aom_dsp/psnr.h"
 #include "aom/aom_codec.h"
 #include "aom/aom_encoder.h"
 
@@ -688,7 +689,7 @@ static void update_arf_stack(int ref_map_index,
 // Update reference frame stack info.
 void av1_update_ref_frame_map(AV1_COMP *cpi,
                               FRAME_UPDATE_TYPE frame_update_type,
-                              int ref_map_index,
+                              int ref_map_index, int update_psnr, double psnr,
                               RefBufferStack *ref_buffer_stack) {
   AV1_COMMON *const cm = &cpi->common;
   // TODO(jingning): Consider the S-frame same as key frame for the
@@ -697,6 +698,8 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
   if (frame_is_sframe(cm)) frame_update_type = KEY_FRAME;
 
   if (is_frame_droppable(cpi)) return;
+
+  if (update_psnr) ref_buffer_stack->psnr[ref_map_index] = psnr;
 
   switch (frame_update_type) {
     case KEY_FRAME:
@@ -1267,6 +1270,16 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   if (oxcf->pass == 0 || oxcf->pass == 2) {
     if (!cpi->ext_refresh_frame_flags_pending) {
       av1_get_ref_frames(cpi, &cpi->ref_buffer_stack);
+      {
+        FILE *pfile = fopen("get_ref_frames.txt", "a");
+        fprintf(pfile, "order_hint %d, frame_number %d\n",
+                cm->current_frame.order_hint, cm->current_frame.frame_number);
+        for (int idx = LAST_FRAME; idx <= ALTREF_FRAME; ++idx) {
+          fprintf(pfile, " %2d", cm->remapped_ref_idx[idx - LAST_FRAME]);
+        }
+        fprintf(pfile, "\n");
+        fclose(pfile);
+      }
     } else if (cpi->svc.external_ref_frame_config) {
       for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++)
         cm->remapped_ref_idx[i] = cpi->svc.ref_idx[i];
@@ -1343,8 +1356,27 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     if (!cpi->ext_refresh_frame_flags_pending) {
       int ref_map_index =
           av1_get_refresh_ref_frame_map(cm->current_frame.refresh_frame_flags);
+      PSNR_STATS psnr;
+      aom_calc_psnr(cpi->source, &cm->cur_frame->buf, &psnr);
       av1_update_ref_frame_map(cpi, frame_update_type, ref_map_index,
-                               &cpi->ref_buffer_stack);
+                               1, psnr.psnr[0], &cpi->ref_buffer_stack);
+      {
+        FILE *pfile = fopen("update_ref_frames.txt", "a");
+        fprintf(pfile, "order_hint %d, frame_number %d, frame_update_type %d\n",
+                cm->current_frame.order_hint, cm->current_frame.frame_number,
+                frame_update_type);
+        fprintf(pfile, "arf stack %d, last stack %d, golden stack %d, "
+                "ref_map_index %d, psnr %f\n",
+                cpi->ref_buffer_stack.arf_stack_size,
+                cpi->ref_buffer_stack.lst_stack_size,
+                cpi->ref_buffer_stack.gld_stack_size, ref_map_index,
+                psnr.psnr[0]);
+        for (int idx = LAST_FRAME; idx <= ALTREF_FRAME; ++idx) {
+          fprintf(pfile, " %2d", cm->remapped_ref_idx[idx - LAST_FRAME]);
+        }
+        fprintf(pfile, "\n\n");
+        fclose(pfile);
+      }
     }
   }
 

@@ -740,6 +740,8 @@ typedef struct {
   int lst_stack_size;
   int gld_stack[FRAME_BUFFERS];
   int gld_stack_size;
+  int frame_number[FRAME_BUFFERS];
+  double psnr[FRAME_BUFFERS];
 } RefBufferStack;
 
 typedef struct AV1_COMP {

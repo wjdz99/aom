@@ -686,7 +686,7 @@ static void init_gop_frames_for_tpl(
         cpi, &frame_params, frame_update_type, &ref_buffer_stack);
     int refresh_frame_map_index = av1_get_refresh_ref_frame_map(refresh_mask);
     av1_update_ref_frame_map(cpi, frame_update_type, refresh_frame_map_index,
-                             &ref_buffer_stack);
+                             0, 0, &ref_buffer_stack);
 
     for (int i = LAST_FRAME; i <= ALTREF_FRAME; ++i)
       tpl_frame->ref_map_index[i - LAST_FRAME] =
@@ -727,7 +727,7 @@ static void init_gop_frames_for_tpl(
         cpi, &frame_params, frame_update_type, &ref_buffer_stack);
     int refresh_frame_map_index = av1_get_refresh_ref_frame_map(refresh_mask);
     av1_update_ref_frame_map(cpi, frame_update_type, refresh_frame_map_index,
-                             &ref_buffer_stack);
+                             0, 0, &ref_buffer_stack);
 
     for (int i = LAST_FRAME; i <= ALTREF_FRAME; ++i)
       tpl_frame->ref_map_index[i - LAST_FRAME] =
