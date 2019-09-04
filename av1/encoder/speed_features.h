@@ -292,6 +292,9 @@ typedef struct SPEED_FEATURES {
   // Global motion warp error threshold
   GM_ERRORADV_TYPE gm_erroradv_type;
 
+  // Enable adaptive threshold for global motion warp error
+  int enable_adaptive_warp_error_tr;
+
   // Always set to 0. If on it enables 0 cost background transmission
   // (except for the initial transmission of the segmentation). The feature is
   // disabled because the addition of very large block sizes make the
