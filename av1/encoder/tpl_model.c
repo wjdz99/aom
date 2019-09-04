@@ -1089,6 +1089,9 @@ void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
           mc_dep_cost += (double)this_stats->intra_cost + this_stats->mc_flow;
         }
       }
+
+      if (col * num_mi_w >= mi_cols_sr) continue;
+
       const double rk = intra_cost / mc_dep_cost;
       const int index = row * num_cols + col;
       cpi->tpl_rdmult_scaling_factors[index] = rk / cpi->rd.r0 + c;
