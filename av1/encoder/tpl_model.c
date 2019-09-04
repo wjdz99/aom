@@ -1085,7 +1085,7 @@ void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
           if (mi_row >= cm->mi_rows || mi_col >= mi_cols_sr) continue;
           const TplDepStats *this_stats =
               &tpl_stats[av1_tpl_ptr_pos(cpi, mi_row, mi_col, tpl_stride)];
-          intra_cost += (double)this_stats->intra_cost;
+          intra_cost += (double)AOMMAX(this_stats->intra_cost, 1);
           mc_dep_cost += (double)this_stats->intra_cost + this_stats->mc_flow;
         }
       }
