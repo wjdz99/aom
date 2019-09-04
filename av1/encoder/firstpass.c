@@ -70,7 +70,7 @@ static void output_stats(FIRSTPASS_STATS *stats,
     fprintf(fpfile,
             "%12.0lf %12.4lf %12.0lf %12.0lf %12.0lf %12.4lf %12.4lf"
             "%12.4lf %12.4lf %12.4lf %12.4lf %12.4lf %12.4lf %12.4lf %12.4lf"
-            "%12.4lf %12.4lf %12.0lf %12.0lf %12.0lf %12.4lf %12.4lf\n",
+            "%12.4lf %12.4lf %12.4lf %12.0lf %12.0lf %12.4lf %12.4lf\n",
             stats->frame, stats->weight, stats->intra_error, stats->coded_error,
             stats->sr_coded_error, stats->pcnt_inter, stats->pcnt_motion,
             stats->pcnt_second_ref, stats->pcnt_neutral, stats->intra_skip_pct,
