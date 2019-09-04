@@ -413,6 +413,8 @@ typedef struct SPEED_FEATURES {
   BLOCK_SIZE default_min_partition_size;
   BLOCK_SIZE default_max_partition_size;
 
+  BLOCK_SIZE inclined_min_partition_size;
+
   // Whether or not we allow partitions one smaller or one greater than the last
   // frame's partitioning. Only used if use_lastframe_partitioning is set.
   int adjust_partitioning_from_last_frame;
