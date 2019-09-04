@@ -88,9 +88,6 @@ FRAME_COUNTS aggregate_fc;
 #define AM_SEGMENT_ID_INACTIVE 7
 #define AM_SEGMENT_ID_ACTIVE 0
 
-// Whether to use high precision mv for altref computation.
-#define ALTREF_HIGH_PRECISION_MV 1
-
 // Q threshold for high precision mv. Choose a very high value for now so that
 // HIGH_PRECISION is always chosen.
 #define HIGH_PRECISION_MV_QTHRESH 200
@@ -243,6 +240,67 @@ int av1_get_active_map(AV1_COMP *cpi, unsigned char *new_map_16x16, int rows,
   } else {
     return -1;
   }
+}
+
+#define SOBEL_EDGE_THRESH 128
+// Compute edge energy in the frame
+static MvSubpelPrecision determine_frame_mv_precision(
+    const AV1_COMP *cpi, int q) {
+  const YV12_BUFFER_CONFIG *buf = cpi->source;
+  const int bd = cpi->td.mb.e_mbd.bd;
+  const int width = buf->y_crop_width;
+  const int height = buf->y_crop_height;
+  const int stride = buf->y_stride;
+  int num_blks[2] = { 0, 0 };
+  if (buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+    const uint16_t *src16 = (const int16_t *)CONVERT_TO_SHORTPTR(buf->y_buffer);
+    for (int i = 0; i < height; i += 16) {
+      for (int j = 0; j < width; j += 16) {
+        const uint16_t *src = src16 + i * stride + j;
+        int64_t gx = 0, gy = 0, g;
+        for (int y = 0; y < 16; ++y) {
+          for (int x = 0; x < 16; ++x) {
+            gx += abs(src[-stride + 1] - src[-stride - 1] +
+                      src[1] - src[-1] * 2 +
+                      src[stride + 1] - src[stride - 1]);
+            gy += abs(src[stride - 1] - src[-stride - 1] +
+                      src[stride] - src[-stride] * 2 +
+                      src[stride + 1] - src[-stride + 1]);
+          }
+        }
+        g = gx * gx + gy * gy;
+        // Divide by 4^2 and also normalize to bit-depth of 8
+        g = ROUND_POWER_OF_TWO(g, 4 + 2 * (bd - 8));
+        ++num_blks[g > SOBEL_EDGE_THRESH];
+      }
+    }
+  } else {
+    const uint8_t *src8 = buf->y_buffer;
+    for (int i = 0; i < height; i += 16) {
+      for (int j = 0; j < width; j += 16) {
+        const uint8_t *src = src8 + i * stride + j;
+        int64_t gx = 0, gy = 0, g;
+        for (int y = 0; y < 16; ++y) {
+          for (int x = 0; x < 16; ++x) {
+            gx += abs(src[-stride + 1] - src[-stride - 1] +
+                      src[1] - src[-1] * 2 +
+                      src[stride + 1] - src[stride - 1]);
+            gy += abs(src[stride - 1] - src[-stride - 1] +
+                      src[stride] - src[-stride] * 2 +
+                      src[stride + 1] - src[-stride + 1]);
+          }
+        }
+        g = gx * gx + gy * gy;
+        g = ROUND_POWER_OF_TWO(g, 2 * (bd - 8));
+        ++num_blks[g > SOBEL_EDGE_THRESH];
+      }
+    }
+  }
+  double frac_edge_blks = (double)num_blks[1] / (num_blks[0] + num_blks[1]);
+  if (frac_edge_blks * q >= 2)
+    return MV_SUBPEL_EIGHTH_PRECISION;
+  else
+    return MV_SUBPEL_QTR_PRECISION;
 }
 
 // Compute the horizontal frequency components' energy in a frame
@@ -6203,7 +6261,6 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   struct aom_usec_timer cmptimer;
   aom_usec_timer_start(&cmptimer);
 #endif
-  set_high_precision_mv(cpi, ALTREF_HIGH_PRECISION_MV, 0);
 
   // Normal defaults
   cm->refresh_frame_context = oxcf->frame_parallel_decoding_mode
