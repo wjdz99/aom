@@ -16,6 +16,7 @@
 #include "aom_scale/yv12config.h"
 #include "av1/common/mv.h"
 #include "av1/common/warped_motion.h"
+#include "av1/encoder/encoder.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,6 +41,11 @@ typedef struct {
 void av1_convert_model_to_params(const double *params,
                                  WarpedMotionParams *model);
 
+// TODO(sarahparker) These need to be retuned for speed 0 and 1 to
+// maximize gains from segmented error metric
+static const double erroradv_tr[] = { 0.65, 0.60, 0.65 };
+static const double erroradv_prod_tr[] = { 20000, 18000, 16000 };
+
 int av1_is_enough_erroradvantage(double best_erroradvantage, int params_cost,
                                  int erroradv_type);
 
@@ -49,21 +55,23 @@ void av1_compute_feature_segmentation_map(uint8_t *segment_map, int width,
 
 // Returns the error between the result of applying motion 'wm' to the frame
 // described by 'ref' and the frame described by 'dst'.
-int64_t av1_warp_error(WarpedMotionParams *wm, int use_hbd, int bd,
-                       const uint8_t *ref, int width, int height, int stride,
-                       uint8_t *dst, int p_col, int p_row, int p_width,
-                       int p_height, int p_stride, int subsampling_x,
-                       int subsampling_y, int64_t best_error,
+int64_t av1_warp_error(AV1_COMP *cpi, WarpedMotionParams *wm, int use_hbd,
+                       int bd, const uint8_t *ref, int width, int height,
+                       int stride, uint8_t *dst, int p_col, int p_row,
+                       int p_width, int p_height, int p_stride,
+                       int subsampling_x, int subsampling_y, int64_t best_error,
                        uint8_t *segment_map, int segment_map_stride);
 
 // Returns the av1_warp_error between "dst" and the result of applying the
 // motion params that result from fine-tuning "wm" to "ref". Note that "wm" is
 // modified in place.
 int64_t av1_refine_integerized_param(
-    WarpedMotionParams *wm, TransformationType wmtype, int use_hbd, int bd,
-    uint8_t *ref, int r_width, int r_height, int r_stride, uint8_t *dst,
-    int d_width, int d_height, int d_stride, int n_refinements,
-    int64_t best_frame_error, uint8_t *segment_map, int segment_map_stride);
+    AV1_COMP *cpi, WarpedMotionParams *wm, TransformationType wmtype,
+    const WarpedMotionParams *ref_gm, int use_hbd, int bd, uint8_t *ref,
+    int r_width, int r_height, int r_stride, uint8_t *dst, int d_width,
+    int d_height, int d_stride, int n_refinements, int64_t best_frame_error,
+    uint8_t *segment_map, int segment_map_stride, int64_t erroradv_threshold,
+    int64_t erroradv_prod_threshold, int allow_hp);
 
 /*
   Computes "num_motions" candidate global motion parameters between two frames.
@@ -88,6 +96,9 @@ int av1_compute_global_motion(TransformationType type,
                               GlobalMotionEstimationType gm_estimation_type,
                               int *num_inliers_by_motion,
                               MotionModel *params_by_motion, int num_motions);
+
+int gm_get_params_cost(const WarpedMotionParams *gm,
+                       const WarpedMotionParams *ref_gm, int allow_hp);
 #ifdef __cplusplus
 }  // extern "C"
 #endif
