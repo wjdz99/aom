@@ -4942,6 +4942,27 @@ static uint16_t setup_interp_filter_search_mask(AV1_COMP *cpi) {
   return mask;
 }
 
+static BLOCK_SIZE dim_to_size(int dim) {
+  switch (dim) {
+    case 4: return BLOCK_4X4;
+    case 8: return BLOCK_8X8;
+    case 16: return BLOCK_16X16;
+    case 32: return BLOCK_32X32;
+    case 64: return BLOCK_64X64;
+    case 128: return BLOCK_128X128;
+    default: assert(0); return 0;
+  }
+}
+
+static const FIRSTPASS_STATS *read_abs_frame_stats(const TWO_PASS *p, int frm) {
+  assert(frm >= 0);
+  if (frm < 0 || p->stats_in_start + frm > p->stats_in_end) {
+    return NULL;
+  }
+
+  return &p->stats_in_start[frm];
+}
+
 static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
@@ -5022,6 +5043,32 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     }
     av1_set_quantizer(cm, q);
     av1_init_quantizer(cpi);
+
+    MACROBLOCK *const x = &cpi->td.mb;
+    if (cpi->sf.inclined_min_partition_size >
+        x->min_partition_size) {  // BLOCK_4X4) {
+      int q_squared = q * q;
+      const FIRSTPASS_STATS *const this_frame = read_abs_frame_stats(
+          &cpi->twopass, cm->current_frame.display_order_hint);
+      if (this_frame == NULL) return AOM_CODEC_ERROR;
+
+      const int num_mbs = (cpi->oxcf.resize_mode != RESIZE_NONE)
+                              ? cpi->initial_mbs
+                              : cpi->common.MBs;
+      aom_clear_system_state();
+
+      double mb_coded_error = this_frame->coded_error / (double)num_mbs;
+      double mb_intra_error = this_frame->intra_error / (double)num_mbs;
+
+      if (mb_coded_error / (double)q_squared < 0.005 &&
+          mb_intra_error / (double)q_squared < 0.01) {
+        x->min_partition_size =
+            AOMMAX(cpi->sf.inclined_min_partition_size,
+                   dim_to_size(cpi->oxcf.min_partition_size));
+        x->min_partition_size =
+            AOMMIN(x->min_partition_size, cm->seq_params.sb_size);
+      }
+    }
 
     av1_set_variance_partition_thresholds(cpi, q, 0);
 
