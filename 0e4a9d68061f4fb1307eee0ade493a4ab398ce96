@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8464814_e7fc5e62",
+        "filename": "test/test_vectors.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-09-05T16:42:23Z",
+      "side": 1,
+      "message": "Unfortunately clang-format reformatted the entire array.",
+      "revId": "0e4a9d68061f4fb1307eee0ade493a4ab398ce96",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
