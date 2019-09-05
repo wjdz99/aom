@@ -22,6 +22,30 @@
       "revId": "e004eab662f47daf07279f9d951b836ce97d8745",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d630311_af1c773e",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1302,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-09-05T17:49:32Z",
+      "side": 1,
+      "message": "The active_best_quality is essentially scaled according to the current ARF layer depth relative to its base layer. This needs some more thinking to re-design this part largely.\n\nThat\u0027s the reason that I left it mostly unchanged other than the access to the data structure interface.",
+      "parentUuid": "a95047e8_dd016962",
+      "range": {
+        "startLine": 1297,
+        "startChar": 8,
+        "endLine": 1302,
+        "endChar": 9
+      },
+      "revId": "e004eab662f47daf07279f9d951b836ce97d8745",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
