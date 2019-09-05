@@ -878,28 +878,28 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
       if (free_fb_index != INVALID_IDX) {
         refresh_mask = 1 << free_fb_index;
       } else {
-        if (ref_buffer_stack->lst_stack_size >= 2)
-          refresh_mask =
-              1 << ref_buffer_stack
-                       ->lst_stack[ref_buffer_stack->lst_stack_size - 1];
-        else
+        if (ref_buffer_stack->lst_stack_size >= 2) {
+          const int refresh_index = pick_refresh_frame_index(ref_buffer_stack);
+          refresh_mask = 1 << refresh_index;
+        } else {
           assert(0 && "No ref map index found");
+        }
       }
       break;
     case ARF_UPDATE:
       if (free_fb_index != INVALID_IDX) {
         refresh_mask = 1 << free_fb_index;
       } else {
-        if (ref_buffer_stack->gld_stack_size >= 3)
+        if (ref_buffer_stack->gld_stack_size >= 3) {
           refresh_mask =
               1 << ref_buffer_stack
                        ->gld_stack[ref_buffer_stack->gld_stack_size - 1];
-        else if (ref_buffer_stack->lst_stack_size >= 2)
-          refresh_mask =
-              1 << ref_buffer_stack
-                       ->lst_stack[ref_buffer_stack->lst_stack_size - 1];
-        else
+        } else if (ref_buffer_stack->lst_stack_size >= 2) {
+          const int refresh_index = pick_refresh_frame_index(ref_buffer_stack);
+          refresh_mask = 1 << refresh_index;
+        } else {
           assert(0 && "No ref map index found");
+        }
       }
       break;
     case INTNL_ARF_UPDATE:
@@ -907,13 +907,7 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
         refresh_mask = 1 << free_fb_index;
       } else {
         const int refresh_index = pick_refresh_frame_index(ref_buffer_stack);
-        if (refresh_index != -1) {
-          refresh_mask = 1 << refresh_index;
-        } else {
-          refresh_mask =
-              1 << ref_buffer_stack
-                       ->lst_stack[ref_buffer_stack->lst_stack_size - 1];
-        }
+        refresh_mask = 1 << refresh_index;
       }
       break;
     case OVERLAY_UPDATE: break;
