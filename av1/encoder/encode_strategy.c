@@ -667,7 +667,7 @@ static void update_arf_stack(int ref_map_index,
         for (int idx = i; idx < ref_buffer_stack->lst_stack_size - 1; ++idx)
           ref_buffer_stack->lst_stack[idx] =
               ref_buffer_stack->lst_stack[idx + 1];
-        ref_buffer_stack->lst_stack[i] = INVALID_IDX;
+        ref_buffer_stack->lst_stack[ref_buffer_stack->lst_stack_size - 1] = INVALID_IDX;
         --ref_buffer_stack->lst_stack_size;
       }
     }
@@ -679,7 +679,7 @@ static void update_arf_stack(int ref_map_index,
         for (int idx = i; idx < ref_buffer_stack->gld_stack_size - 1; ++idx)
           ref_buffer_stack->gld_stack[idx] =
               ref_buffer_stack->gld_stack[idx + 1];
-        ref_buffer_stack->gld_stack[i] = INVALID_IDX;
+        ref_buffer_stack->gld_stack[ref_buffer_stack->lst_stack_size - 1] = INVALID_IDX;
         --ref_buffer_stack->gld_stack_size;
       }
     }
@@ -790,7 +790,6 @@ static int pick_refresh_frame_index(
       index = idx;
     }
   }
-  printf("index found: %d\n", index);
   return index;
 }
 
@@ -911,9 +910,9 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
         if (refresh_index != -1) {
           refresh_mask = 1 << refresh_index;
         } else {
-        refresh_mask =
-            1 << ref_buffer_stack
-                     ->lst_stack[ref_buffer_stack->lst_stack_size - 1];
+          refresh_mask =
+              1 << ref_buffer_stack
+                       ->lst_stack[ref_buffer_stack->lst_stack_size - 1];
         }
       }
       break;
