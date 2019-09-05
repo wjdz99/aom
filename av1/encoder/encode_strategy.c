@@ -699,7 +699,11 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
 
   if (is_frame_droppable(cpi)) return;
 
-  if (update_psnr) ref_buffer_stack->psnr[ref_map_index] = psnr;
+  if (update_psnr) {
+    ref_buffer_stack->psnr[ref_map_index] = psnr;
+    ref_buffer_stack->frame_number[ref_map_index] =
+        cm->current_frame.frame_number;
+  }
 
   switch (frame_update_type) {
     case KEY_FRAME:
@@ -1283,16 +1287,6 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   if (oxcf->pass == 0 || oxcf->pass == 2) {
     if (!cpi->ext_refresh_frame_flags_pending) {
       av1_get_ref_frames(cpi, &cpi->ref_buffer_stack);
-      {
-        FILE *pfile = fopen("get_ref_frames.txt", "a");
-        fprintf(pfile, "order_hint %d, frame_number %d\n",
-                cm->current_frame.order_hint, cm->current_frame.frame_number);
-        for (int idx = LAST_FRAME; idx <= ALTREF_FRAME; ++idx) {
-          fprintf(pfile, " %2d", cm->remapped_ref_idx[idx - LAST_FRAME]);
-        }
-        fprintf(pfile, "\n");
-        fclose(pfile);
-      }
     } else if (cpi->svc.external_ref_frame_config) {
       for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++)
         cm->remapped_ref_idx[i] = cpi->svc.ref_idx[i];
@@ -1373,6 +1367,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       aom_calc_psnr(cpi->source, &cm->cur_frame->buf, &psnr);
       av1_update_ref_frame_map(cpi, frame_update_type, ref_map_index,
                                1, psnr.psnr[0], &cpi->ref_buffer_stack);
+      /*
       {
         FILE *pfile = fopen("update_ref_frames.txt", "a");
         fprintf(pfile, "order_hint %d, frame_number %d, frame_update_type %d\n",
@@ -1390,6 +1385,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
         fprintf(pfile, "\n\n");
         fclose(pfile);
       }
+      */
     }
   }
 
