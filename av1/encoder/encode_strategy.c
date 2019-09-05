@@ -779,6 +779,21 @@ static int get_free_ref_map_index(const RefBufferStack *ref_buffer_stack) {
   return INVALID_IDX;
 }
 
+static int pick_refresh_frame_index(
+    const RefBufferStack *const ref_buffer_stack) {
+  int index = -1;
+  double min_psnr = 100;
+  for (int i = ref_buffer_stack->lst_stack_size - 1; i >= 0; --i) {
+    const int idx = ref_buffer_stack->lst_stack[i];
+    if (ref_buffer_stack->psnr[idx] < min_psnr) {
+      min_psnr = ref_buffer_stack->psnr[idx];
+      index = idx;
+    }
+  }
+  printf("index found: %d\n", index);
+  return index;
+}
+
 int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
                                 const EncodeFrameParams *const frame_params,
                                 FRAME_UPDATE_TYPE frame_update_type,
@@ -892,9 +907,14 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
       if (free_fb_index != INVALID_IDX) {
         refresh_mask = 1 << free_fb_index;
       } else {
+        const int refresh_index = pick_refresh_frame_index(ref_buffer_stack);
+        if (refresh_index != -1) {
+          refresh_mask = 1 << refresh_index;
+        } else {
         refresh_mask =
             1 << ref_buffer_stack
                      ->lst_stack[ref_buffer_stack->lst_stack_size - 1];
+        }
       }
       break;
     case OVERLAY_UPDATE: break;

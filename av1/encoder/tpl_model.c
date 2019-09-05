@@ -776,12 +776,12 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
     cm->current_frame.frame_type = INTER_FRAME;
   }
 
+  if (cpi->oxcf.enable_tpl_model == 1) {
   init_gop_frames_for_tpl(cpi, frame_params, gf_group,
                           &cpi->tpl_gf_group_frames, frame_input);
 
   init_tpl_stats(cpi);
 
-  if (cpi->oxcf.enable_tpl_model == 1) {
     // Backward propagation from tpl_group_frames to 1.
     for (int frame_idx = cpi->tpl_gf_group_frames - 1;
          frame_idx >= gf_group->index; --frame_idx) {
