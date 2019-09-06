@@ -736,6 +736,12 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   } else {
     x->source_variance =
         av1_get_sby_perpixel_variance(cpi, &x->plane[0].src, bsize);
+    const BLOCK_SIZE plane_bsize = get_plane_block_size(
+        bsize, xd->plane[1].subsampling_x, xd->plane[1].subsampling_y);
+    x->source_u_variance =
+        av1_get_sby_perpixel_variance(cpi, &x->plane[1].src, plane_bsize);
+    x->source_u_variance =
+        av1_get_sby_perpixel_variance(cpi, &x->plane[2].src, plane_bsize);
   }
   if (use_pb_simple_motion_pred_sse(cpi)) {
     const MV ref_mv_full = { .row = 0, .col = 0 };
