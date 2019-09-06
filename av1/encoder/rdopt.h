@@ -242,11 +242,16 @@ static INLINE void set_tx_size_search_method(
     const struct AV1_COMP *cpi, MACROBLOCK *x,
     int enable_winner_mode_for_tx_size_srch, int is_winner_mode) {
   // Populate transform size search method/transform mode appropriately
-  if (enable_winner_mode_for_tx_size_srch && !is_winner_mode) {
-    x->tx_size_search_method = USE_LARGESTALL;
-  } else {
+  if (!enable_winner_mode_for_tx_size_srch) {
     x->tx_size_search_method = cpi->sf.tx_size_search_method;
+    x->tx_mode = select_tx_mode(cpi, x->tx_size_search_method);
+    return;
   }
+
+  if (is_winner_mode)
+    x->tx_size_search_method = USE_FULL_RD;
+  else
+    x->tx_size_search_method = USE_LARGESTALL;
   x->tx_mode = select_tx_mode(cpi, x->tx_size_search_method);
 }
 
