@@ -60,13 +60,13 @@ void av1_init3smotion_compensation(search_site_config *cfg, int stride);
 
 void av1_set_mv_search_range(MvLimits *mv_limits, const MV *mv);
 
-int av1_mv_bit_cost(const MV *mv, const MV *ref, const int *mvjcost,
-                    int *mvcost[2], int weight);
+int av1_mv_bit_cost(const MV *mv, const MV *ref, MvSubpelPrecision precision,
+                    const int *mvjcost, int *mvcost[2], int weight);
 
 // Utility to compute variance + MV rate cost for a given MV
 int av1_get_mvpred_var(const MACROBLOCK *x, const MV *best_mv,
-                       const MV *center_mv, const aom_variance_fn_ptr_t *vfp,
-                       int use_mvcost);
+                       const MV *center_mv, MvSubpelPrecision precision,
+                       const aom_variance_fn_ptr_t *vfp, int use_mvcost);
 int av1_get_mvpred_av_var(const MACROBLOCK *x, const MV *best_mv,
                           const MV *center_mv, const uint8_t *second_pred,
                           const aom_variance_fn_ptr_t *vfp, int use_mvcost);

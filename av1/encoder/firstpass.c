@@ -228,6 +228,7 @@ static void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
   const int sr = get_search_range(cpi);
   step_param += sr;
   further_steps -= sr;
+  // xd->mi[0]->mv_precision = cpi->common.mv_precision;
 
   // Override the default variance function to use MSE.
   v_fn_ptr.vf = get_block_variance_fn(bsize);
@@ -240,7 +241,7 @@ static void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
                                     &tmp_mv, step_param, x->sadperbit16, &num00,
                                     &v_fn_ptr, ref_mv);
   if (tmp_err < INT_MAX)
-    tmp_err = av1_get_mvpred_var(x, &tmp_mv, ref_mv, &v_fn_ptr, 1);
+    tmp_err = av1_get_mvpred_var(x, &tmp_mv, ref_mv, cpi->common.mv_precision, &v_fn_ptr, 1);
   if (tmp_err < INT_MAX - new_mv_mode_penalty) tmp_err += new_mv_mode_penalty;
 
   if (tmp_err < *best_motion_err) {
@@ -262,7 +263,7 @@ static void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
           x, &cpi->ss_cfg[SS_CFG_SRC], &ref_mv_full, &tmp_mv, step_param + n,
           x->sadperbit16, &num00, &v_fn_ptr, ref_mv);
       if (tmp_err < INT_MAX)
-        tmp_err = av1_get_mvpred_var(x, &tmp_mv, ref_mv, &v_fn_ptr, 1);
+        tmp_err = av1_get_mvpred_var(x, &tmp_mv, ref_mv, cpi->common.mv_precision, &v_fn_ptr, 1);
       if (tmp_err < INT_MAX - new_mv_mode_penalty)
         tmp_err += new_mv_mode_penalty;
 
