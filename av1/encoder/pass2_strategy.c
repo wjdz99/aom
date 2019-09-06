@@ -24,6 +24,7 @@
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/firstpass.h"
 #include "av1/encoder/gop_structure.h"
+#include "av1/encoder/pass2_strategy.h"
 #include "av1/encoder/ratectrl.h"
 #include "av1/encoder/use_flat_gop_model_params.h"
 
@@ -270,7 +271,7 @@ static double get_sr_decay_rate(const AV1_COMP *cpi,
 
 // This function gives an estimate of how badly we believe the prediction
 // quality is decaying from frame to frame.
-static double get_zero_motion_factor(const AV1_COMP *cpi,
+double get_zero_motion_factor(const AV1_COMP *cpi,
                                      const FIRSTPASS_STATS *frame) {
   const double zero_motion_pct = frame->pcnt_inter - frame->pcnt_motion;
   double sr_decay = get_sr_decay_rate(cpi, frame);
@@ -279,7 +280,7 @@ static double get_zero_motion_factor(const AV1_COMP *cpi,
 
 #define ZM_POWER_FACTOR 0.75
 
-static double get_prediction_decay_rate(const AV1_COMP *cpi,
+double get_prediction_decay_rate(const AV1_COMP *cpi,
                                         const FIRSTPASS_STATS *next_frame) {
   const double sr_decay_rate = get_sr_decay_rate(cpi, next_frame);
   const double zero_motion_factor =
@@ -412,7 +413,6 @@ static double calc_frame_boost(AV1_COMP *cpi, const FIRSTPASS_STATS *this_frame,
 }
 
 #define GF_MAX_BOOST 90.0
-#define MIN_DECAY_FACTOR 0.01
 
 int av1_calc_arf_boost(AV1_COMP *cpi, int offset, int f_frames, int b_frames) {
   TWO_PASS *const twopass = &cpi->twopass;

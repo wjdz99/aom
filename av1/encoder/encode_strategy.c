@@ -783,9 +783,21 @@ static int get_free_ref_map_index(const RefBufferStack *ref_buffer_stack) {
   return INVALID_IDX;
 }
 
+// Read frame stats at an offset from the current position.
+static const FIRSTPASS_STATS *read_frame_stats(const TWO_PASS *p, int offset) {
+  if ((offset >= 0 && p->stats_in_start + offset >= p->stats_in_end) ||
+      offset < 0) {
+    return NULL;
+  }
+
+  return &p->stats_in_start[offset];
+}
+
 static int pick_refresh_frame_index(
-    const RefBufferStack *const ref_buffer_stack) {
-  int index = -1;
+    const AV1_COMP *const cpi, const RefBufferStack *const ref_buffer_stack) {
+  int index = ref_buffer_stack->lst_stack[ref_buffer_stack->lst_stack_size - 1];
+  /*
+  // Pick the frame with smallest psnr.
   double min_psnr = 100;
   for (int i = ref_buffer_stack->lst_stack_size - 1; i >= 0; --i) {
     const int idx = ref_buffer_stack->lst_stack[i];
@@ -794,6 +806,42 @@ static int pick_refresh_frame_index(
       index = idx;
     }
   }
+  */
+
+  // Pick the frame with smallest decay_accumulator.
+  const TWO_PASS *const twopass = &cpi->twopass;
+  const int frame_number = cpi->common.current_frame.frame_number;
+  double min_decay_accumulator = 1.0;
+  for (int i = ref_buffer_stack->lst_stack_size - 1; i >= 0; --i) {
+    const int idx = ref_buffer_stack->lst_stack[i];
+    const int ref_frame_number = ref_buffer_stack->frame_number[idx];
+    const int is_future_ref_frame = ref_frame_number > frame_number;
+    const int frame_distance = is_future_ref_frame
+                                   ? ref_frame_number - frame_number
+                                   : frame_number - ref_frame_number;
+    double decay_accumulator = 1.0;
+    for (int j = 0; j < frame_distance; ++j) {
+      const int offset = is_future_ref_frame ? j : -j;
+      const FIRSTPASS_STATS *next_frame =
+          read_frame_stats(twopass, frame_number + offset);
+      if (next_frame == NULL) assert(0 && "Invalid frame number");
+      decay_accumulator *= get_prediction_decay_rate(cpi, next_frame);
+      decay_accumulator = decay_accumulator < MIN_DECAY_FACTOR
+                              ? MIN_DECAY_FACTOR
+                              : decay_accumulator;
+    }
+    /*
+    FILE* pfile = fopen("frame_decay.txt", "a");
+    fprintf(pfile, "frame_number %d, ref_frame_number %d, decay %f\n",
+            frame_number, ref_frame_number, decay_accumulator);
+    fclose(pfile);
+    */
+    if (min_decay_accumulator - decay_accumulator > 0.01) {
+      min_decay_accumulator = decay_accumulator;
+      index = idx;
+    }
+  }
+
   return index;
 }
 
@@ -883,7 +931,8 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
         refresh_mask = 1 << free_fb_index;
       } else {
         if (ref_buffer_stack->lst_stack_size >= 2) {
-          const int refresh_index = pick_refresh_frame_index(ref_buffer_stack);
+          const int refresh_index =
+              pick_refresh_frame_index(cpi, ref_buffer_stack);
           refresh_mask = 1 << refresh_index;
         } else {
           assert(0 && "No ref map index found");
@@ -899,7 +948,8 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
               1 << ref_buffer_stack
                        ->gld_stack[ref_buffer_stack->gld_stack_size - 1];
         } else if (ref_buffer_stack->lst_stack_size >= 2) {
-          const int refresh_index = pick_refresh_frame_index(ref_buffer_stack);
+          const int refresh_index =
+              pick_refresh_frame_index(cpi, ref_buffer_stack);
           refresh_mask = 1 << refresh_index;
         } else {
           assert(0 && "No ref map index found");
@@ -910,7 +960,8 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
       if (free_fb_index != INVALID_IDX) {
         refresh_mask = 1 << free_fb_index;
       } else {
-        const int refresh_index = pick_refresh_frame_index(ref_buffer_stack);
+        const int refresh_index =
+            pick_refresh_frame_index(cpi, ref_buffer_stack);
         refresh_mask = 1 << refresh_index;
       }
       break;

@@ -27,6 +27,14 @@ void av1_get_second_pass_params(struct AV1_COMP *cpi,
 
 void av1_twopass_postencode_update(struct AV1_COMP *cpi);
 
+double get_zero_motion_factor(const AV1_COMP *cpi,
+                              const FIRSTPASS_STATS *frame);
+
+double get_prediction_decay_rate(const AV1_COMP *cpi,
+                                 const FIRSTPASS_STATS *next_frame);
+
+#define MIN_DECAY_FACTOR 0.01
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
