@@ -187,6 +187,9 @@ static INLINE int convert_to_trans_prec(MvSubpelPrecision precision, int coor) {
 }
 
 static INLINE void lower_mv_precision(MV *mv, MvSubpelPrecision precision) {
+#if !CONFIG_FLEX_MVRES
+  precision = (MvSubpelPrecision)AOMMAX((int)MV_SUBPEL_QTR_PRECISION, precision);
+#endif  // !CONFIG_FLEX_MVRES
   const int radix = (1 << (MV_SUBPEL_EIGHTH_PRECISION - precision));
   if (radix == 1) return;
   int mod = (mv->row % radix);
