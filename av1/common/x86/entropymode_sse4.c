@@ -109,7 +109,7 @@ static void nn_sigmoid(float *input, int num_outputs) {
 
 // Note: We assume that output is padded to multiples of 4 to make storing
 // easier
-void av1_nn_fc_forward_sse4_1(const float *input, FC_LAYER_EM *layer,
+void av1_nn_fc_forward_sse4_1(FC_LAYER_EM *layer, const float *input,
                               float *output) {
   const float *weights = layer->weights;
   const float *bias = layer->bias;
@@ -148,10 +148,29 @@ void av1_nn_fc_forward_sse4_1(const float *input, FC_LAYER_EM *layer,
 
 // Note: We assume that output is padded to multiples of 4 to make storing
 // easier
+void av1_nn_sparse_forward_sse4_1(FC_INPUT_LAYER_EM *layer, const int *input) {
+  float *output = layer->output;
+  const int output_size = layer->num_outputs;
+
+  const float(*weights)[EM_MAX_WEIGHT_SIZE] = layer->sparse_weights;
+  for (int sparse_idx = 0; sparse_idx < layer->num_sparse_inputs;
+       sparse_idx++) {
+    const float *weight_ptr =
+        weights[sparse_idx] + input[sparse_idx] * output_size;
+    for (int out_idx = 0; out_idx < output_size; out_idx += 4) {
+      __m128 output_reg = _mm_loadu_ps(&output[out_idx]);
+      __m128 weight_reg = _mm_loadu_ps(&weight_ptr[out_idx]);
+      output_reg = _mm_add_ps(output_reg, weight_reg);
+      _mm_storeu_ps(&output[out_idx], output_reg);
+    }
+  }
+}
+
+// Note: We assume that output is padded to multiples of 4 to make storing
+// easier
 void av1_nn_softmax_em_sse4_1(const float *input, float *output, int n) {
   const int rem = n % 4;
   const int whole = n - rem;
-  assert(layer->num_outputs < EM_MAX_NODES);
   const __m128 neg_inf = _mm_set1_ps(-INFINITY);
   const __m128 mask = set_hi_n_floats(4 - rem);
   int node = 0;
