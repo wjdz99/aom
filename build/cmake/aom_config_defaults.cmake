@@ -142,9 +142,9 @@ set_aom_config_var(CONFIG_FLEX_PARTITION 0 NUMBER
                    "AV2 Flexible partition experiment flag")
 set_aom_config_var(CONFIG_RECURSIVE_ABPART 0 NUMBER
                    "AV2 recursive a/b partition experiment flag")
-set_aom_config_var(CONFIG_INTRA_ENTROPY 0 NUMBER
+set_aom_config_var(CONFIG_INTRA_ENTROPY 1 NUMBER
                    "AV2 intra mode entropy coding experiment flag")
-set_aom_config_var(CONFIG_USE_SMALL_MODEL 1 NUMBER
+set_aom_config_var(CONFIG_USE_SMALL_MODEL 0 NUMBER
                    "AV2 intra mode entropy coding experiment flag")
 set_aom_config_var(CONFIG_NEW_TX_PARTITION 0 NUMBER
                    "AV2 new transform partitions experiment flag")
