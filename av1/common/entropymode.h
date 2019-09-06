@@ -15,6 +15,7 @@
 #include "av1/common/entropy.h"
 #include "av1/common/entropymv.h"
 #include "av1/common/filter.h"
+#include "av1/common/nn_em.h"
 #include "av1/common/seg_common.h"
 #include "aom_dsp/aom_filter.h"
 
@@ -58,61 +59,6 @@ extern "C" {
 
 #define KF_MODE_CONTEXTS 5
 
-#if CONFIG_INTRA_ENTROPY
-enum { ACTN_NONE, ACTN_RELU, ACTN_SIGMOID } UENUM1BYTE(ACTN);
-enum { SOFTMAX_CROSS_ENTROPY_LOSS } UENUM1BYTE(LOSS_F);
-
-#if CONFIG_USE_SMALL_MODEL
-#define KF_Y_MODE_FEATURES 26
-#else
-#define KF_Y_MODE_FEATURES 72
-#endif
-#define UV_INTRA_MODE_FEATURES 14
-
-#define EM_MAX_HLAYERS 1
-#define EM_MAX_NODES 128
-
-// Fully-connectedly layer configuration
-typedef struct FC_LAYER_EM {
-  int num_inputs;   // Number of input nodes, i.e. features.
-  int num_outputs;  // Number of output nodes.
-
-  float weights[EM_MAX_NODES * EM_MAX_NODES];  // Weight parameters.
-  float bias[EM_MAX_NODES];                    // Bias parameters.
-  ACTN activation;                             // Activation function.
-
-  float output[EM_MAX_NODES];             // The output array.
-  float dY[EM_MAX_NODES];                 // Gradient of outputs
-  float dW[EM_MAX_NODES * EM_MAX_NODES];  // Gradient of weights.
-  float db[EM_MAX_NODES];                 // Gradient of bias
-} FC_LAYER_EM;
-
-// NN configure structure for entropy mode (EM)
-typedef struct NN_CONFIG_EM {
-  float lr;                               // learning rate
-  int num_hidden_layers;                  // Number of hidden layers, max = 10.
-  float feature[EM_MAX_NODES];            // Input feature
-  FC_LAYER_EM layer[EM_MAX_HLAYERS + 1];  // The layer array
-  int num_logits;                         // Number of output nodes.
-  float output[EM_MAX_NODES];             // Output
-  LOSS_F loss;                            // Loss function
-} NN_CONFIG_EM;
-
-// Calculate prediction based on the given input features and neural net config.
-// Assume there are no more than NN_MAX_NODES_PER_LAYER nodes in each hidden
-// layer.
-void av1_nn_predict_em(const float *features, NN_CONFIG_EM *nn_config,
-                       float *output);
-
-// Back propagation on the given NN model.
-void av1_nn_backprop_em(NN_CONFIG_EM *nn_config, const int label);
-
-// Update the weights via gradient descent.
-// mu: learning rate, usually chosen from 0.01~0.0001.
-void av1_nn_update_em(NN_CONFIG_EM *nn_config, float mu);
-
-#endif  // CONFIG_INTRA_ENTROPY
-
 struct AV1Common;
 
 typedef struct {
@@ -121,6 +67,10 @@ typedef struct {
 } SCAN_ORDER;
 
 typedef struct frame_contexts {
+#if CONFIG_INTRA_ENTROPY
+  NN_CONFIG_EM av1_intra_y_mode;
+  NN_CONFIG_EM av1_intra_uv_mode;
+#endif  // CONFIG_INTRA_ENTROPY
   aom_cdf_prob txb_skip_cdf[TX_SIZES][TXB_SKIP_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob eob_extra_cdf[TX_SIZES][PLANE_TYPES][EOB_COEF_CONTEXTS]
                             [CDF_SIZE(2)];
@@ -213,10 +163,6 @@ typedef struct frame_contexts {
   */
   aom_cdf_prob kf_y_cdf[KF_MODE_CONTEXTS][KF_MODE_CONTEXTS]
                        [CDF_SIZE(INTRA_MODES)];
-#if CONFIG_INTRA_ENTROPY
-  NN_CONFIG_EM av1_intra_y_mode;
-  NN_CONFIG_EM av1_intra_uv_mode;
-#endif  // CONFIG_INTRA_ENTROPY
 
   aom_cdf_prob angle_delta_cdf[DIRECTIONAL_MODES]
                               [CDF_SIZE(2 * MAX_ANGLE_DELTA + 1)];
