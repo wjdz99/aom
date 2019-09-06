@@ -10250,6 +10250,10 @@ static INLINE bool mask_check_bit(int mask, int index) {
   return (mask >> index) & 0x1;
 }
 
+#define MODEL_RD_THRESHOLD_UNI 1.001
+#define MODEL_RD_COST_RATIO(rd_cost, best_rd_cost) \
+  ((1.0 * (rd_cost)) / (best_rd_cost))
+
 // Before performing the full MV search in handle_inter_mode, do a simple
 // translation search and see if we can eliminate any motion vectors.
 // Returns an integer where, if the i-th bit is set, it means that the i-th
@@ -10307,15 +10311,44 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
   // Only include indices that are good and within a % of the best.
-  const double dth = has_second_ref(mbmi) ? 1.05 : 1.001;
+  const double dth = has_second_ref(mbmi) ? 1.05 : MODEL_RD_THRESHOLD_UNI;
   int result = 0;
   for (int i = 0; i < ref_set; ++i) {
     if (mask_check_bit(good_indices, i) &&
-        (1.0 * idx_rdcost[i]) / idx_rdcost[best_idx] < dth) {
+        MODEL_RD_COST_RATIO(idx_rdcost[i], idx_rdcost[best_idx]) < dth) {
       mask_set_bit(&result, i);
     }
   }
   return result;
+}
+
+static int prune_new_mv_using_model_rd(AV1_COMP *const cpi, MACROBLOCK *x,
+                                       RD_STATS *rd_stats,
+                                       const BUFFER_SET *orig_dst,
+                                       int64_t *best_model_rd_new_mv,
+                                       int mi_row, int mi_col,
+                                       BLOCK_SIZE bsize) {
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  const AV1_COMMON *cm = &cpi->common;
+  mbmi->motion_mode = SIMPLE_TRANSLATION;
+  mbmi->num_proj_ref = 0;
+
+  set_default_interp_filters(mbmi, cm->interp_filter);
+  av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
+                                AOM_PLANE_Y, AOM_PLANE_Y);
+  int est_rate;
+  int64_t est_dist;
+  model_rd_sb_fn[MODELRD_CURVFIT](cpi, bsize, x, xd, 0, 0, mi_row, mi_col,
+                                  &est_rate, &est_dist, NULL, NULL, NULL, NULL,
+                                  NULL);
+  int64_t idx_rdcost = RDCOST(x->rdmult, rd_stats->rate + est_rate, est_dist);
+  *best_model_rd_new_mv = AOMMIN(*best_model_rd_new_mv, idx_rdcost);
+
+  // Only include indices that are good and within a % of the best.
+  const double dth = 1.1;
+  if (MODEL_RD_COST_RATIO(idx_rdcost, *best_model_rd_new_mv) > dth) return 1;
+  return 0;
 }
 
 static int64_t handle_inter_mode(
@@ -10324,7 +10357,8 @@ static int64_t handle_inter_mode(
     RD_STATS *rd_stats_uv, int *disable_skip, int mi_row, int mi_col,
     HandleInterModeArgs *args, int64_t ref_best_rd, uint8_t *const tmp_buf,
     const CompoundTypeRdBuffers *rd_buffers, int64_t *best_est_rd,
-    const int do_tx_search, InterModesInfo *inter_modes_info) {
+    const int do_tx_search, InterModesInfo *inter_modes_info,
+    int64_t *best_model_rd_new_mv) {
   const AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &x->e_mbd;
@@ -10501,6 +10535,16 @@ static int64_t handle_inter_mode(
     if (RDCOST(x->rdmult, rd_stats->rate, 0) > ref_best_rd &&
         mbmi->mode != NEARESTMV && mbmi->mode != NEAREST_NEARESTMV) {
       continue;
+    }
+
+    if (cpi->sf.reduce_inter_modes_by_model_rd && !is_comp_pred &&
+        have_newmv_in_inter_mode(mbmi->mode)) {
+      if (prune_new_mv_using_model_rd(cpi, x, rd_stats, &orig_dst,
+                                      best_model_rd_new_mv, mi_row, mi_col,
+                                      bsize)) {
+        restore_dst_buf(xd, orig_dst, num_planes);
+        continue;
+      }
     }
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
@@ -12518,6 +12562,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                 ref_costs_single, ref_costs_comp, yv12_mb);
 
   int64_t best_est_rd = INT64_MAX;
+  int64_t best_model_rd_new_mv = INT64_MAX;
   const InterModeRdModel *md = &tile_data->inter_mode_rd_models[bsize];
   // If do_tx_search_global is 0, only estimated RD should be computed.
   // If do_tx_search_global is 1, all modes have TX search performed.
@@ -12671,7 +12716,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     int64_t this_rd = handle_inter_mode(
         cpi, tile_data, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
         &disable_skip, mi_row, mi_col, &args, ref_best_rd, tmp_buf,
-        &x->comp_rd_buffer, &best_est_rd, do_tx_search, inter_modes_info);
+        &x->comp_rd_buffer, &best_est_rd, do_tx_search, inter_modes_info,
+        &best_model_rd_new_mv);
 
     const int rate2 = rd_stats.rate;
     const int skippable = rd_stats.skip;
@@ -13146,6 +13192,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                    ref_costs_single, ref_costs_comp, yv12_mb);
 
   int64_t best_est_rd = INT64_MAX;
+  int64_t best_model_rd_new_mv = INT64_MAX;
   InterModesInfo *inter_modes_info = x->inter_modes_info;
   inter_modes_info->num = 0;
 
@@ -13305,10 +13352,11 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         if (midx < MAX_SINGLE_REF_MODES) {
           args.simple_rd_state = x->simple_rd_state[midx];
         }
-        this_rd = handle_inter_mode(
-            cpi, tile_data, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
-            &disable_skip, mi_row, mi_col, &args, ref_best_rd, tmp_buf,
-            &x->comp_rd_buffer, &best_est_rd, 0, inter_modes_info);
+        this_rd = handle_inter_mode(cpi, tile_data, x, bsize, &rd_stats,
+                                    &rd_stats_y, &rd_stats_uv, &disable_skip,
+                                    mi_row, mi_col, &args, ref_best_rd, tmp_buf,
+                                    &x->comp_rd_buffer, &best_est_rd, 0,
+                                    inter_modes_info, &best_model_rd_new_mv);
         rate2 = rd_stats.rate;
         skippable = rd_stats.skip;
         distortion2 = rd_stats.dist;
