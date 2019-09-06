@@ -37,9 +37,6 @@ struct yv12_buffer_config;
 struct NN_CONFIG;
 typedef struct NN_CONFIG NN_CONFIG;
 
-struct FC_LAYER_EM;
-typedef struct FC_LAYER_EM FC_LAYER_EM;
-
 struct CNN_CONFIG;
 typedef struct CNN_CONFIG CNN_CONFIG;
 struct CNN_LAYER_CONFIG;
@@ -577,7 +574,7 @@ add_proto qw/cfl_predict_hbd_fn cfl_get_predict_hbd_fn/, "TX_SIZE tx_size";
 specialize qw/cfl_get_predict_hbd_fn ssse3 avx2 neon/;
 
 if (aom_config("CONFIG_INTRA_ENTROPY") eq "yes") {
-add_proto qw/void av1_nn_fc_forward/, "const float *input, FC_LAYER_EM *layer, float *output";
+add_proto qw/void av1_nn_fc_forward/, "FC_LAYER_EM *layer, const float *input, float *output";
 specialize qw/av1_nn_fc_forward sse4_1/;
 
 add_proto qw/void av1_nn_softmax_em/, "const float *input, float *output, int n";
