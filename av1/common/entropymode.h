@@ -207,20 +207,21 @@ typedef struct frame_contexts {
   aom_cdf_prob cnn_restore_cdf[CDF_SIZE(2)];
 #endif  // CONFIG_LOOP_RESTORE_CNN
   aom_cdf_prob y_mode_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(INTRA_MODES)];
-  aom_cdf_prob uv_mode_cdf[CFL_ALLOWED_TYPES][INTRA_MODES]
-                          [CDF_SIZE(UV_INTRA_MODES)];
   aom_cdf_prob partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(EXT_PARTITION_TYPES)];
   aom_cdf_prob switchable_interp_cdf[SWITCHABLE_FILTER_CONTEXTS]
                                     [CDF_SIZE(SWITCHABLE_FILTERS)];
+#if CONFIG_INTRA_ENTROPY
+  NN_CONFIG_EM av1_intra_y_mode;
+  NN_CONFIG_EM av1_intra_uv_mode;
+#else
   /* kf_y_cdf is discarded after use, so does not require persistent storage.
      However, we keep it with the other CDFs in this struct since it needs to
      be copied to each tile to support parallelism just like the others.
   */
   aom_cdf_prob kf_y_cdf[KF_MODE_CONTEXTS][KF_MODE_CONTEXTS]
                        [CDF_SIZE(INTRA_MODES)];
-#if CONFIG_INTRA_ENTROPY
-  NN_CONFIG_EM av1_intra_y_mode;
-  NN_CONFIG_EM av1_intra_uv_mode;
+  aom_cdf_prob uv_mode_cdf[CFL_ALLOWED_TYPES][INTRA_MODES]
+                          [CDF_SIZE(UV_INTRA_MODES)];
 #endif  // CONFIG_INTRA_ENTROPY
 
   aom_cdf_prob angle_delta_cdf[DIRECTIONAL_MODES]
