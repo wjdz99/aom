@@ -4748,6 +4748,16 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   // Set params for mode evaluation
   set_mode_eval_params(cpi, x, MODE_EVAL);
 
+  // Disable modes other than DC if source variance is less
+  int valid_modes = INTRA_ALL;
+  if (xd->up_available && xd->left_available) {
+    const int top_mode = xd->above_mbmi->mode;
+    const int left_mode = xd->left_mbmi->mode;
+    if ((x->source_variance < 64) && ((1 << top_mode) & INTRA_DC_H_V) &&
+        ((1 << left_mode) & INTRA_DC_H_V))
+      valid_modes = INTRA_DC_H_V;
+  }
+
   MB_MODE_INFO best_mbmi = *mbmi;
   /* Y Search for intra prediction mode */
   for (int mode_idx = INTRA_MODE_START; mode_idx < INTRA_MODE_END; ++mode_idx) {
@@ -4760,6 +4770,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
          mbmi->mode == SMOOTH_V_PRED))
       continue;
     if (!cpi->oxcf.enable_paeth_intra && mbmi->mode == PAETH_PRED) continue;
+    if (!((1 << mode_idx) & valid_modes)) continue;
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
     this_model_rd =
         intra_model_yrd(cpi, x, bsize, bmode_costs[mbmi->mode], mi_row, mi_col);
@@ -6336,6 +6347,11 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   assert(!is_inter_block(mbmi));
   MB_MODE_INFO best_mbmi = *mbmi;
   int64_t best_rd = INT64_MAX, this_rd;
+  int valid_modes = UV_INTRA_ALL;
+
+  // Disable modes other than DC if source variance is less
+  if (x->source_u_variance < 64 && x->source_v_variance < 64)
+    valid_modes = UV_INTRA_DC_H_V_CFL;
 
   for (int mode_idx = 0; mode_idx < UV_INTRA_MODES; ++mode_idx) {
     int this_rate;
@@ -6350,7 +6366,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       continue;
 
     if (!cpi->oxcf.enable_paeth_intra && mode == UV_PAETH_PRED) continue;
-
+    if (!((1 << mode_idx) & valid_modes)) continue;
     mbmi->uv_mode = mode;
     int cfl_alpha_rate = 0;
     if (mode == UV_CFL_PRED) {

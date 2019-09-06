@@ -270,6 +270,8 @@ struct macroblock {
 
   unsigned int max_mv_context[REF_FRAMES];
   unsigned int source_variance;
+  unsigned int source_u_variance;
+  unsigned int source_v_variance;
   unsigned int simple_motion_pred_sse;
   unsigned int pred_sse[REF_FRAMES];
   int pred_mv_sad[REF_FRAMES];
