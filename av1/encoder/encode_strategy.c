@@ -701,8 +701,11 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
 
   if (update_psnr) {
     ref_buffer_stack->psnr[ref_map_index] = psnr;
+    // TODO(chengchen): This only works up to 256 frames. Modify 128 to the
+    // corresponding offset 128 * n.
     ref_buffer_stack->frame_number[ref_map_index] =
-        cm->current_frame.frame_number;
+        //cm->current_frame.frame_number;
+        (cm->current_frame.order_hint < 100 && cm->current_frame.frame_number > 100) ? 128 + cm->current_frame.order_hint : cm->current_frame.order_hint;
   }
 
   switch (frame_update_type) {
@@ -796,22 +799,11 @@ static const FIRSTPASS_STATS *read_frame_stats(const TWO_PASS *p, int offset) {
 static int pick_refresh_frame_index(
     const AV1_COMP *const cpi, const RefBufferStack *const ref_buffer_stack) {
   int index = ref_buffer_stack->lst_stack[ref_buffer_stack->lst_stack_size - 1];
-  /*
-  // Pick the frame with smallest psnr.
-  double min_psnr = 100;
-  for (int i = ref_buffer_stack->lst_stack_size - 1; i >= 0; --i) {
-    const int idx = ref_buffer_stack->lst_stack[i];
-    if (ref_buffer_stack->psnr[idx] < min_psnr) {
-      min_psnr = ref_buffer_stack->psnr[idx];
-      index = idx;
-    }
-  }
-  */
-
-  // Pick the frame with smallest decay_accumulator.
+  // Pick the frame with smallest score = psnr * decay_accumulator.
   const TWO_PASS *const twopass = &cpi->twopass;
-  const int frame_number = cpi->common.current_frame.frame_number;
-  double min_decay_accumulator = 1.0;
+  const int frame_number = cpi->common.current_frame.order_hint;
+  double min_score = 100.0;
+  //FILE* pfile = fopen("frame_decay.txt", "a");
   for (int i = ref_buffer_stack->lst_stack_size - 1; i >= 0; --i) {
     const int idx = ref_buffer_stack->lst_stack[i];
     const int ref_frame_number = ref_buffer_stack->frame_number[idx];
@@ -830,17 +822,27 @@ static int pick_refresh_frame_index(
                               ? MIN_DECAY_FACTOR
                               : decay_accumulator;
     }
+    const double score = ref_buffer_stack->psnr[idx] * decay_accumulator;
     /*
-    FILE* pfile = fopen("frame_decay.txt", "a");
-    fprintf(pfile, "frame_number %d, ref_frame_number %d, decay %f\n",
-            frame_number, ref_frame_number, decay_accumulator);
-    fclose(pfile);
+    fprintf(pfile, "frame_number %d, ref_frame_number %d, idx %d, decay %f, "
+            "psnr %f, score %f\n", frame_number, ref_frame_number, idx,
+            decay_accumulator, ref_buffer_stack->psnr[idx], score);
     */
-    if (min_decay_accumulator - decay_accumulator > 0.01) {
-      min_decay_accumulator = decay_accumulator;
+    if (min_score - score > 0.01) {
+      min_score = score;
       index = idx;
     }
   }
+  /*
+  fprintf(pfile, "lst stack:");
+  for (int i = ref_buffer_stack->lst_stack_size - 1; i >= 0; --i) {
+    fprintf(pfile, " %d", ref_buffer_stack->lst_stack[i]);
+  }
+  fprintf(pfile, "\norig idx %d, pick idx %d\n",
+          ref_buffer_stack->lst_stack[ref_buffer_stack->lst_stack_size - 1],
+          index);
+  fclose(pfile);
+  */
 
   return index;
 }
@@ -1349,6 +1351,17 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     frame_params.primary_ref_frame =
         choose_primary_ref_frame(cpi, &frame_params);
     frame_params.order_offset = get_order_offset(&cpi->gf_group, &frame_params);
+
+    if (frame_params.show_existing_frame) {
+      cm->current_frame.order_hint = cm->cur_frame->order_hint;
+      cm->current_frame.display_order_hint = cm->cur_frame->display_order_hint;
+    } else {
+      cm->current_frame.order_hint =
+          cm->current_frame.frame_number + frame_params.order_offset;
+      cm->current_frame.display_order_hint = cm->current_frame.order_hint;
+      cm->current_frame.order_hint %=
+          (1 << (cm->seq_params.order_hint_info.order_hint_bits_minus_1 + 1));
+    }
 
     frame_params.refresh_frame_flags = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, &cpi->ref_buffer_stack);
