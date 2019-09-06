@@ -381,6 +381,7 @@ static void set_good_speed_features_framesize_independent(
     sf->reduce_wiener_window_size = is_boosted_arf2_bwd_type ? 0 : 1;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
     sf->simple_motion_search_prune_agg = 1;
+    sf->skip_intra_in_interframe = 2;
   }
 
   if (speed >= 4) {
@@ -399,7 +400,7 @@ static void set_good_speed_features_framesize_independent(
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
     // TODO(any): Experiment with this speed feature set to 2 for higher quality
     // presets as well
-    sf->skip_intra_in_interframe = 2;
+    // sf->skip_intra_in_interframe = 2;
   }
 
   if (speed >= 5) {
