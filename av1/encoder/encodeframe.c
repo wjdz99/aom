@@ -5111,6 +5111,12 @@ void av1_encode_frame(AV1_COMP *cpi) {
     }
     if (skip_mode_info->skip_mode_flag && rdc->skip_mode_used_flag == 0)
       skip_mode_info->skip_mode_flag = 0;
+    // Reset tx size search method
+    if (cpi->sf.enable_winner_mode_for_tx_size_srch)
+      cpi->td.mb.tx_size_search_method = USE_FULL_RD;
+    else
+      cpi->td.mb.tx_size_search_method = cpi->sf.tx_size_search_method;
+    cpi->td.mb.tx_mode = select_tx_mode(cpi, cpi->td.mb.tx_size_search_method);
 
     if (!cm->large_scale_tile) {
       if (cm->tx_mode == TX_MODE_SELECT && cpi->td.mb.txb_split_count == 0)
