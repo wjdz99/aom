@@ -3684,6 +3684,20 @@ static void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
           get_q_for_deltaq_objective(cpi, sb_size, 0, mi_row, mi_col);
     } else if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
       current_qindex = (rand() % 180) + 60;
+    } else if (cpi->oxcf.deltaq_mode == DELTA_Q_FORCE) {
+      int sb_pic_width  = (cpi->source->y_width + 63) >> 6;
+      int sb_pic_height = (cpi->source->y_height + 63) >> 6;
+      int sb_pic_size = sb_pic_width * sb_pic_height;
+      int sb_row = mi_row >> 4;
+      int sb_col = mi_col >> 4;
+      int sb_idx = cm->current_frame.frame_number * sb_pic_size + sb_row * sb_pic_width + sb_col;
+      if (sb_idx >= cpi->qps_data_size) {
+        printf("    QPS overflow %d >= %d\n", sb_idx, cpi->qps_data_size);
+        current_qindex = 60;
+      } else {
+        current_qindex = cpi->qps[sb_idx];
+        printf("    SB \x1b[34m[%3d,%3d]:\x1b[39m qp=%3d idx=%3d\n", sb_col, sb_row, current_qindex, sb_idx);
+      }
     }
   }
 
@@ -3702,7 +3716,9 @@ static void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
   assert(current_qindex > 0);
 
   xd->delta_qindex = current_qindex - cm->base_qindex;
-  printf("QP %d,%d %d\n", mi_col, mi_row, current_qindex);
+  if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+    printf("QP %d,%d %d\n", mi_col, mi_row, current_qindex);
+  }
   set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
   xd->mi[0]->current_qindex = current_qindex;
   av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
@@ -4083,7 +4099,9 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       td->mb.cb_offset = 0;
       nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                           pc_root);
-      printf("NONRD\n");
+      if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+        printf("NONRD\n");
+      }
     } else {
 #if !CONFIG_REALTIME_ONLY
       int dummy_rate;
@@ -4099,8 +4117,10 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
         set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
         rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                          &dummy_rate, &dummy_dist, &dummy_rdcost, 1, pc_root);
-        printf("    RDC %d,%d %d,%"PRId64",%"PRId64"\n", mi_col, mi_row,
-               dummy_rate, dummy_dist, dummy_rdcost);
+        if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+          printf("    RDC %d,%d %d,%"PRId64",%"PRId64"\n", mi_col, mi_row,
+                 dummy_rate, dummy_dist, dummy_rdcost);
+        }
       } else if (cpi->partition_search_skippable_frame) {
         set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
         const BLOCK_SIZE bsize =
@@ -4108,8 +4128,10 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
         set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
         rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                          &dummy_rate, &dummy_dist, &dummy_rdcost, 1, pc_root);
-        printf("    RDC %d,%d %d,%"PRId64",%"PRId64"\n", mi_col, mi_row,
-               dummy_rate, dummy_dist, dummy_rdcost);
+        if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+          printf("    RDC %d,%d %d,%"PRId64",%"PRId64"\n", mi_col, mi_row,
+                 dummy_rate, dummy_dist, dummy_rdcost);
+        }
       } else {
         reset_partition(pc_root, sb_size);
 
@@ -4139,6 +4161,7 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
           default: assert(0); break;
         }
 
+        /*
         if (use_auto_max_partition(cpi, sb_size, mi_row, mi_col)) {
           float features[FEATURE_SIZE_MAX_MIN_PART_PRED] = { 0.0f };
 
@@ -4146,14 +4169,17 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
           max_sq_size =
               AOMMIN(av1_predict_max_partition(cpi, x, features), max_sq_size);
         }
+        */
 
         min_sq_size = AOMMIN(min_sq_size, max_sq_size);
 
         rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                           max_sq_size, min_sq_size, &dummy_rdc, dummy_rdc,
                           pc_root, NULL);
-        printf("    RDC %d,%d %d,%"PRId64",%"PRId64"\n", mi_col, mi_row,
-               dummy_rdc.rate, dummy_rdc.dist, dummy_rdc.rdcost);
+        if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+          printf("    RDC %d,%d %d,%"PRId64",%"PRId64"\n", mi_col, mi_row,
+                 dummy_rdc.rate, dummy_rdc.dist, dummy_rdc.rdcost);
+        }
 #if CONFIG_COLLECT_COMPONENT_TIMING
         end_timing(cpi, rd_pick_partition_time);
 #endif
@@ -4704,7 +4730,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_OBJECTIVE;
   else if (cpi->oxcf.deltaq_mode == DELTA_Q_PERCEPTUAL)
     cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
-  else if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN)
+  else if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN || cpi->oxcf.deltaq_mode == DELTA_Q_FORCE)
     cm->delta_q_info.delta_q_res = 1;
   // Set delta_q_present_flag before it is used for the first time
   cm->delta_q_info.delta_lf_res = DEFAULT_DELTA_LF_RES;

@@ -1436,16 +1436,21 @@ static void parse_decode_block(AV1Decoder *const pbi, ThreadData *const td,
   }
 #endif
 
+  //if((mi_row & 0xf) == 0 && (mi_col & 0xf) == 0) {
+  //  printf("%d %d: %d\n", mi_col >> 4, mi_row >> 4, xd->current_qindex);
+  //}
   if (cm->delta_q_info.delta_q_present_flag) {
     for (int i = 0; i < MAX_SEGMENTS; i++) {
       const int current_qindex =
           av1_get_qindex(&cm->seg, i, xd->current_qindex);
+
       for (int j = 0; j < num_planes; ++j) {
         const int dc_delta_q =
             j == 0 ? cm->y_dc_delta_q
                    : (j == 1 ? cm->u_dc_delta_q : cm->v_dc_delta_q);
         const int ac_delta_q =
             j == 0 ? 0 : (j == 1 ? cm->u_ac_delta_q : cm->v_ac_delta_q);
+
         xd->plane[j].seg_dequant_QTX[i][0] = av1_dc_quant_QTX(
             current_qindex, dc_delta_q, cm->seq_params.bit_depth);
         xd->plane[j].seg_dequant_QTX[i][1] = av1_ac_quant_QTX(

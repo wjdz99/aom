@@ -212,7 +212,7 @@ static struct av1_extracfg default_extra_cfg = {
   1,                            // enable ab shape partitions
   1,                            // enable 1:4 and 4:1 partitions
   4,                            // min_partition_size
-  128,                          // max_partition_size
+  32,                           // max_partition_size
   1,                            // enable intra edge filter
   1,                            // frame order hint
   1,                            // enable 64-pt transform usage
@@ -736,6 +736,9 @@ static aom_codec_err_t set_encoder_config(
   oxcf->sharpness = extra_cfg->sharpness;
 
   oxcf->two_pass_stats_in = cfg->rc_twopass_stats_in;
+  oxcf->qps           = cfg->qps;
+  oxcf->qps_data_size = cfg->qps_data_size;
+  printf("qps data size B %d\n", oxcf->qps_data_size);
 
   oxcf->color_primaries = extra_cfg->color_primaries;
   oxcf->transfer_characteristics = extra_cfg->transfer_characteristics;

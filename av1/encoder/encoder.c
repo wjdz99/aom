@@ -2739,6 +2739,9 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
     av1_init_second_pass(cpi);
   }
+  cpi->qps           = oxcf->qps;
+  cpi->qps_data_size = oxcf->qps_data_size;
+  printf("qps data size C %d\n", oxcf->qps_data_size);
 #endif
 
   CHECK_MEM_ERROR(
