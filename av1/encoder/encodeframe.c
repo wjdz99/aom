@@ -5029,6 +5029,11 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     cm->delta_q_info.delta_q_present_flag = 0;
   }
 
+  // Set the transform size search method appropriately before bitstream
+  // creation
+  set_tx_size_search_method(cpi, x, cpi->sf.enable_winner_mode_for_tx_size_srch,
+                            1);
+
   if (cpi->sf.tx_type_search.prune_tx_type_using_stats) {
     const FRAME_UPDATE_TYPE update_type = get_frame_update_type(&cpi->gf_group);
 

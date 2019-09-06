@@ -230,7 +230,8 @@ static TX_MODE select_tx_mode(
   if (tx_size_search_method == USE_LARGESTALL)
     return TX_MODE_LARGEST;
   else if (tx_size_search_method == USE_FULL_RD ||
-           tx_size_search_method == USE_FAST_RD)
+           tx_size_search_method == USE_FAST_RD ||
+           tx_size_search_method == USE_WINNER_MODE_TX)
     return TX_MODE_SELECT;
   else
     return cpi->common.tx_mode;
@@ -240,10 +241,13 @@ static INLINE void set_tx_size_search_method(
     const struct AV1_COMP *cpi, MACROBLOCK *x,
     int enable_winner_mode_for_tx_size_srch, int is_winner_mode) {
   // Populate transform size search method/transform mode appropriately
-  if (enable_winner_mode_for_tx_size_srch && !is_winner_mode) {
-    x->tx_size_search_method = USE_LARGESTALL;
-  } else {
-    x->tx_size_search_method = cpi->sf.tx_size_search_method;
+  x->tx_size_search_method = cpi->sf.tx_size_search_method;
+
+  if (enable_winner_mode_for_tx_size_srch) {
+    if (is_winner_mode)
+      x->tx_size_search_method = USE_WINNER_MODE_TX;
+    else
+      x->tx_size_search_method = USE_LARGESTALL;
   }
   x->tx_mode = select_tx_mode(cpi, x->tx_size_search_method);
 }
