@@ -5279,7 +5279,8 @@ static int64_t select_tx_size_and_type(const AV1_COMP *cpi, MACROBLOCK *x,
   // will use more complex search given that the transform partitions have
   // already been decided.
 
-  const int fast_tx_search = x->tx_size_search_method > USE_FULL_RD;
+  const int fast_tx_search = x->tx_size_search_method > USE_FULL_RD &&
+                             x->tx_size_search_method != USE_WINNER_MODE_TX;
   int64_t rd_thresh = ref_best_rd;
   if (fast_tx_search && rd_thresh < INT64_MAX) {
     if (INT64_MAX - rd_thresh > (rd_thresh >> 3)) rd_thresh += (rd_thresh >> 3);
