@@ -977,6 +977,10 @@ static void write_delta_q_params(AV1_COMP *cpi, const int mi_row,
           xd->delta_lf_from_base = mbmi->delta_lf_from_base;
         }
       }
+    } else if (super_block_upper_left) {
+      printf("bsize=%d sb_size=%d skip=%d sb_ul=%d\n", bsize, 
+             cm->seq_params.sb_size, skip, super_block_upper_left);
+      assert(false);
     }
   }
 }
@@ -1696,7 +1700,9 @@ static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
       write_modes_sb(cpi, tile, w, &tok, tok_end, mi_row, mi_col,
                      cm->seq_params.sb_size);
       int total = aom_get_total_bits(w) - start;
-      printf("SB %d,%d %d\n", mi_col, mi_row, total);
+      if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+        printf("SB %d,%d %d\n", mi_col, mi_row, total);
+      }
     }
     assert(tok == cpi->tplist[tile_row][tile_col][sb_row_in_tile].stop);
   }

@@ -12978,15 +12978,16 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
           const int b8_w = block_size_wide[plane_bsize] >> ss_x;
           const int b8_h = block_size_high[plane_bsize] >> ss_y;
 
-
-          printf("PREDICTOR %d,%d %d,%d ", mi_col, mi_row, b8_w, b8_h);
-          for (int ii = 0; ii < b8_h; ii++) {
-            for (int jj = 0; jj < b8_w; jj++) {
-              uint8_t *dst = dst_buf->buf + dst_buf->stride * ii + jj;
-              printf("%02x ", *dst);
+          if (cpi->oxcf.deltaq_mode == DELTA_Q_STAN) {
+            printf("PREDICTOR %d,%d %d,%d ", mi_col, mi_row, b8_w, b8_h);
+            for (int ii = 0; ii < b8_h; ii++) {
+              for (int jj = 0; jj < b8_w; jj++) {
+                uint8_t *dst = dst_buf->buf + dst_buf->stride * ii + jj;
+                printf("%02x ", *dst);
+              }
             }
+            printf("\n");
           }
-          printf("\n");
         }
         if (mbmi->motion_mode == OBMC_CAUSAL)
           av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);

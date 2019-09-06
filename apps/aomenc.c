@@ -144,6 +144,8 @@ static const arg_def_t pass_arg =
     ARG_DEF(NULL, "pass", 1, "Pass to execute (1/2)");
 static const arg_def_t fpf_name =
     ARG_DEF(NULL, "fpf", 1, "First pass statistics file name");
+static const arg_def_t qpf_name =
+    ARG_DEF(NULL, "qpf", 1, "QP file name");
 static const arg_def_t limit =
     ARG_DEF(NULL, "limit", 1, "Stop encoding after n input frames");
 static const arg_def_t skip =
@@ -214,6 +216,7 @@ static const arg_def_t *main_args[] = { &help,
                                         &passes,
                                         &pass_arg,
                                         &fpf_name,
+                                        &qpf_name,
                                         &limit,
                                         &skip,
                                         &good_dl,
@@ -453,7 +456,7 @@ static const arg_def_t min_partition_size =
             "Set min partition size "
             "(4:4x4, 8:8x8, 16:16x16, 32:32x32, 64:64x64, 128:128x128)");
 static const arg_def_t max_partition_size =
-    ARG_DEF(NULL, "max-partition-size", 128,
+    ARG_DEF(NULL, "max-partition-size", 32,
             "Set max partition size "
             "(4:4x4, 8:8x8, 16:16x16, 32:32x32, 64:64x64, 128:128x128)");
 static const arg_def_t enable_dual_filter =
@@ -633,7 +636,7 @@ static const arg_def_t aq_mode = ARG_DEF(
 static const arg_def_t deltaq_mode =
     ARG_DEF(NULL, "deltaq-mode", 1,
             "Delta qindex mode (0: off, 1: deltaq pred efficiency (default), "
-            "2: deltaq perceptual, 3: stan)");
+            "2: deltaq perceptual, 3: stan, 4: force)");
 static const arg_def_t deltalf_mode = ARG_DEF(
     NULL, "delta-lf-mode", 1, "Enable delta-lf-mode (0: off (default), 1: on)");
 static const arg_def_t frame_periodic_boost =
@@ -1044,6 +1047,7 @@ struct stream_config {
   struct aom_codec_enc_cfg cfg;
   const char *out_fn;
   const char *stats_fn;
+  const char *qp_fn;
   stereo_format_t stereo_fmt;
   int arg_ctrls[ARG_CTRL_CNT_MAX][2];
   int arg_ctrl_cnt;
@@ -1420,6 +1424,8 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       }
     } else if (arg_match(&arg, &fpf_name, argi)) {
       config->stats_fn = arg.val;
+    } else if (arg_match(&arg, &qpf_name, argi)) {
+      config->qp_fn = arg.val;
     } else if (arg_match(&arg, &use_webm, argi)) {
 #if CONFIG_WEBM_IO
       config->write_webm = 1;
@@ -1770,6 +1776,38 @@ static void close_output_file(struct stream_state *stream,
   }
 
   fclose(stream->file);
+}
+
+static void setup_qp_read(struct stream_state *stream) {
+  FILE* qp_file = fopen(stream->config.qp_fn, "r");
+  char line[256];
+
+  if (qp_file == NULL)
+    fatal("Could not open QP file\n");
+
+  int lines = 0;
+  while (fgets(line, 256, qp_file))
+    lines ++;
+
+  stream->config.cfg.qps_data_size = lines;
+  printf("qps data size A %d\n", lines);
+  fseek(qp_file, 0, SEEK_SET);
+
+  stream->config.cfg.qps = malloc(lines);
+
+  if (!stream->config.cfg.qps)
+    fatal("Failed to allocate first-pass stats buffer (%lu bytes)",
+          (unsigned int)stream->config.cfg.qps_data_size);
+
+  lines = 0;
+  while (fgets(line, 256, qp_file)) {
+    int qp = 0;
+    sscanf(line, "%d", &qp);
+    stream->config.cfg.qps[lines] = qp;
+    lines ++;
+  }
+
+  fclose(qp_file);
 }
 
 static void setup_pass(struct stream_state *stream,
@@ -2210,6 +2248,8 @@ int main(int argc, const char **argv_) {
 
   /* Handle non-option arguments */
   input.filename = argv[0];
+
+  FOREACH_STREAM(stream, streams) { setup_qp_read(stream); }
 
   if (!input.filename) {
     fprintf(stderr, "No input file specified!\n");
