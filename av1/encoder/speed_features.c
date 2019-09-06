@@ -354,6 +354,7 @@ static void set_good_speed_features_framesize_independent(
 
   if (speed >= 3) {
     sf->less_rectangular_check_level = 2;
+    sf->tx_size_search_level = boosted ? 0 : 2;
     // adaptive_motion_search breaks encoder multi-thread tests.
     // The values in x->pred_mv[] differ for single and multi-thread cases.
     // See aomedia:1778.
