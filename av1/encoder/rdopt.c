@@ -10249,6 +10249,10 @@ static INLINE bool mask_check_bit(int mask, int index) {
   return (mask >> index) & 0x1;
 }
 
+#define MODEL_RD_THRESHOLD_UNI 1.001
+#define MODEL_RD_COST_RATIO(rd_cost, best_rd_cost) \
+  ((1.0 * (rd_cost)) / (best_rd_cost))
+
 // Before performing the full MV search in handle_inter_mode, do a simple
 // translation search and see if we can eliminate any motion vectors.
 // Returns an integer where, if the i-th bit is set, it means that the i-th
@@ -10306,15 +10310,44 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
   // Only include indices that are good and within a % of the best.
-  const double dth = has_second_ref(mbmi) ? 1.05 : 1.001;
+  const double dth = has_second_ref(mbmi) ? 1.05 : MODEL_RD_THRESHOLD_UNI;
   int result = 0;
   for (int i = 0; i < ref_set; ++i) {
     if (mask_check_bit(good_indices, i) &&
-        (1.0 * idx_rdcost[i]) / idx_rdcost[best_idx] < dth) {
+        MODEL_RD_COST_RATIO(idx_rdcost[i], idx_rdcost[best_idx]) < dth) {
       mask_set_bit(&result, i);
     }
   }
   return result;
+}
+
+static int prune_new_mv_using_model_rd(AV1_COMP *const cpi, MACROBLOCK *x,
+                                       RD_STATS *rd_stats,
+                                       const BUFFER_SET *orig_dst,
+                                       int64_t *best_model_rd_new_mv,
+                                       int mi_row, int mi_col,
+                                       BLOCK_SIZE bsize) {
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  const AV1_COMMON *cm = &cpi->common;
+  mbmi->motion_mode = SIMPLE_TRANSLATION;
+  mbmi->num_proj_ref = 0;
+
+  set_default_interp_filters(mbmi, cm->interp_filter);
+  av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
+                                AOM_PLANE_Y, AOM_PLANE_Y);
+  int est_rate;
+  int64_t est_dist;
+  model_rd_sb_fn[MODELRD_CURVFIT](cpi, bsize, x, xd, 0, 0, mi_row, mi_col,
+                                  &est_rate, &est_dist, NULL, NULL, NULL, NULL,
+                                  NULL);
+  int64_t idx_rdcost = RDCOST(x->rdmult, rd_stats->rate + est_rate, est_dist);
+  *best_model_rd_new_mv = AOMMIN(*best_model_rd_new_mv, idx_rdcost);
+
+  // Only include indices that are good and within a % of the best.
+  const double dth = MODEL_RD_THRESHOLD_UNI;
+  if (MODEL_RD_COST_RATIO(idx_rdcost, *best_model_rd_new_mv) > dth) return 1;
+  return 0;
 }
 
 static int64_t handle_inter_mode(
@@ -10363,6 +10396,7 @@ static int64_t handle_inter_mode(
   int best_disable_skip = 0;
   int best_xskip = 0;
   int64_t newmv_ret_val = INT64_MAX;
+  int64_t best_model_rd_new_mv = INT64_MAX;
   inter_mode_info mode_info[MAX_REF_MV_SEARCH];
 
   int mode_search_mask = (1 << COMPOUND_AVERAGE) | (1 << COMPOUND_DISTWTD) |
@@ -10500,6 +10534,16 @@ static int64_t handle_inter_mode(
     if (RDCOST(x->rdmult, rd_stats->rate, 0) > ref_best_rd &&
         mbmi->mode != NEARESTMV && mbmi->mode != NEAREST_NEARESTMV) {
       continue;
+    }
+
+    if (cpi->sf.reduce_inter_modes_by_model_rd && !is_comp_pred &&
+        have_newmv_in_inter_mode(mbmi->mode)) {
+      if (prune_new_mv_using_model_rd(cpi, x, rd_stats, &orig_dst,
+                                      &best_model_rd_new_mv, mi_row, mi_col,
+                                      bsize)) {
+        restore_dst_buf(xd, orig_dst, num_planes);
+        continue;
+      }
     }
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
