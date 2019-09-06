@@ -45,6 +45,7 @@
 #include "av1/encoder/palette.h"
 #include "av1/encoder/segmentation.h"
 #include "av1/encoder/tokenize.h"
+#include "av1/encoder/rdopt.h"
 
 #define ENC_MISMATCH_DEBUG 0
 
@@ -1539,7 +1540,8 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   const int is_inter_tx = is_inter_block(mbmi);
   const int skip = mbmi->skip;
   const int segment_id = mbmi->segment_id;
-  if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
+  MACROBLOCK *const x = &cpi->td.mb;
+  if (x->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
       !(is_inter_tx && skip) && !xd->lossless[segment_id]) {
     if (is_inter_tx) {  // This implies skip flag is 0.
       const TX_SIZE max_tx_size = get_vartx_max_txsize(xd, bsize, 0);
@@ -2820,6 +2822,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   AV1_COMMON *const cm = &cpi->common;
   const SequenceHeader *const seq_params = &cm->seq_params;
   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
+  MACROBLOCK *const x = &cpi->td.mb;
   CurrentFrame *const current_frame = &cm->current_frame;
 
   current_frame->frame_refs_short_signaling = 0;
@@ -3092,9 +3095,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 
   // Write TX mode
   if (cm->coded_lossless)
-    assert(cm->tx_mode == ONLY_4X4);
+    assert(x->tx_mode == ONLY_4X4);
   else
-    aom_wb_write_bit(wb, cm->tx_mode == TX_MODE_SELECT);
+    aom_wb_write_bit(wb, x->tx_mode == TX_MODE_SELECT);
 
   if (!frame_is_intra_only(cm)) {
     const int use_hybrid_pred =
@@ -3771,6 +3774,7 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
   uint8_t *data = dst;
   uint32_t data_size;
   AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCK *const x = &cpi->td.mb;
   uint32_t obu_header_size = 0;
   uint32_t obu_payload_size = 0;
   FrameHeaderInfo fh_info = { NULL, 0, 0 };
@@ -3785,7 +3789,12 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
 #if CONFIG_BITSTREAM_DEBUG
   bitstream_queue_reset_write();
 #endif
-
+  // Initialize tx_size params when winner mode processing enabled
+  if (cpi->sf.enable_winner_mode_for_tx_size_srch)
+    x->tx_size_search_method = USE_FULL_RD;
+  else
+    x->tx_size_search_method = cpi->sf.tx_size_search_method;
+  x->tx_mode = select_tx_mode(cpi, x->tx_size_search_method);
   cpi->frame_header_count = 0;
 
   // The TD is now written outside the frame encode loop
