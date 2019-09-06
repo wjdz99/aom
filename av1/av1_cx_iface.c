@@ -736,6 +736,9 @@ static aom_codec_err_t set_encoder_config(
   oxcf->sharpness = extra_cfg->sharpness;
 
   oxcf->two_pass_stats_in = cfg->rc_twopass_stats_in;
+  oxcf->qps           = cfg->qps;
+  oxcf->qps_data_size = cfg->qps_data_size;
+  printf("qps data size B %d\n", oxcf->qps_data_size);
 
   oxcf->color_primaries = extra_cfg->color_primaries;
   oxcf->transfer_characteristics = extra_cfg->transfer_characteristics;

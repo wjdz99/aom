@@ -728,6 +728,9 @@ typedef struct aom_codec_enc_cfg {
    *
    */
   cfg_options_t cfg;
+
+  uint8_t* qps;
+  uint32_t qps_data_size;
 } aom_codec_enc_cfg_t; /**< alias for struct aom_codec_enc_cfg */
 
 /*!\brief Initialize an encoder instance

@@ -120,6 +120,7 @@ enum {
   DELTA_Q_OBJECTIVE = 1,   // Modulation to improve objective quality
   DELTA_Q_PERCEPTUAL = 2,  // Modulation to improve perceptual quality
   DELTA_Q_STAN = 3,
+  DELTA_Q_FORCE = 4,
   DELTA_Q_MODE_COUNT       // This should always be the last member of the enum
 } UENUM1BYTE(DELTAQ_MODE);
 
@@ -412,6 +413,9 @@ typedef struct AV1EncoderConfig {
   unsigned int tier_mask;
   // min_cr / 100 is the target minimum compression ratio for each frame.
   unsigned int min_cr;
+
+  uint8_t* qps;
+  uint32_t qps_data_size;
 } AV1EncoderConfig;
 
 static INLINE int is_lossless_requested(const AV1EncoderConfig *cfg) {
@@ -840,6 +844,8 @@ typedef struct AV1_COMP {
   int all_one_sided_refs;
 
   uint8_t *segmentation_map;
+  uint8_t *qps;
+  uint64_t qps_data_size;
 
   CYCLIC_REFRESH *cyclic_refresh;
   ActiveMap active_map;
