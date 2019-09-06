@@ -994,15 +994,10 @@ static void write_intra_uv_mode(const MACROBLOCKD *xd, FRAME_CONTEXT *frame_ctx,
                                 CFL_ALLOWED_TYPE cfl_allowed, int is_keyframe,
                                 aom_writer *w) {
 #if CONFIG_INTRA_ENTROPY
-  if (is_keyframe) {
-    aom_cdf_prob cdf[UV_INTRA_MODES];
-    av1_get_uv_mode_cdf_ml(xd, y_mode, cdf);
-    aom_write_symbol_nn(w, uv_mode, cdf, &(frame_ctx->av1_intra_uv_mode),
-                        UV_INTRA_MODES);
-  } else {
-    aom_write_symbol(w, uv_mode, frame_ctx->uv_mode_cdf[cfl_allowed][y_mode],
-                     UV_INTRA_MODES - !cfl_allowed);
-  }
+  aom_cdf_prob cdf[UV_INTRA_MODES];
+  av1_get_uv_mode_cdf_ml(xd, y_mode, cdf);
+  aom_write_symbol_nn(w, uv_mode, cdf, &(frame_ctx->av1_intra_uv_mode),
+                      UV_INTRA_MODES);
 #else
   (void)xd;
   (void)is_keyframe;
