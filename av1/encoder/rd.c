@@ -635,8 +635,19 @@ void av1_initialize_cost_tables(const AV1_COMMON *const cm, MACROBLOCK *x) {
     av1_build_nmv_cost_table(x->nmv_vec_cost, x->nmvcost[MV_SUBPEL_NONE],
                              &cm->fc->nmvc, MV_SUBPEL_NONE);
   } else {
-    av1_build_nmv_cost_table(x->nmv_vec_cost, x->nmvcost[cm->mv_precision],
-                             &cm->fc->nmvc, cm->mv_precision);
+    av1_build_nmv_cost_table(x->nmv_vec_cost, x->nmvcost[MV_SUBPEL_NONE],
+                             &cm->fc->nmvc, MV_SUBPEL_NONE);
+#if CONFIG_FLEX_MVRES
+    av1_build_nmv_cost_table(x->nmv_vec_cost,
+                             x->nmvcost[MV_SUBPEL_HALF_PRECISION],
+                             &cm->fc->nmvc, MV_SUBPEL_HALF_PRECISION);
+#endif  // CONFIG_FLEX_MVRES
+    av1_build_nmv_cost_table(x->nmv_vec_cost,
+                             x->nmvcost[MV_SUBPEL_QTR_PRECISION], &cm->fc->nmvc,
+                             MV_SUBPEL_QTR_PRECISION);
+    av1_build_nmv_cost_table(x->nmv_vec_cost,
+                             x->nmvcost[MV_SUBPEL_EIGHTH_PRECISION],
+                             &cm->fc->nmvc, MV_SUBPEL_EIGHTH_PRECISION);
   }
 }
 
