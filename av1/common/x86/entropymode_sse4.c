@@ -109,7 +109,7 @@ static void nn_sigmoid(float *input, int num_outputs) {
 
 // Note: We assume that output is padded to multiples of 4 to make storing
 // easier
-void av1_nn_fc_forward_sse4_1(const float *input, FC_LAYER_EM *layer,
+void av1_nn_fc_forward_sse4_1(FC_LAYER_EM *layer, const float *input,
                               float *output) {
   const float *weights = layer->weights;
   const float *bias = layer->bias;
@@ -151,7 +151,6 @@ void av1_nn_fc_forward_sse4_1(const float *input, FC_LAYER_EM *layer,
 void av1_nn_softmax_em_sse4_1(const float *input, float *output, int n) {
   const int rem = n % 4;
   const int whole = n - rem;
-  assert(layer->num_outputs < EM_MAX_NODES);
   const __m128 neg_inf = _mm_set1_ps(-INFINITY);
   const __m128 mask = set_hi_n_floats(4 - rem);
   int node = 0;
