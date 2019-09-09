@@ -226,10 +226,18 @@ INSTANTIATE_TEST_CASE_P(ImageBrightnessTests, EdgeDetectBrightnessTest,
                             ::testing::Values(8, 16, 32),
                             // Height
                             ::testing::Values(4, 8, 12, 32),
+#if CONFIG_AV1_HIGHBITDEPTH
                             // High bit depth representation
                             ::testing::Bool(),
                             // Bit depth
-                            ::testing::Values(8, 10, 12)));
+                            ::testing::Values(8, 10, 12)
+#else
+                            // High bit depth representation
+                            ::testing::Values(false),
+                            // Bit depth
+                            ::testing::Values(8)
+#endif
+                                ));
 
 class EdgeDetectImageTest :
     // Parameters are (width, height, high bit depth representation, bit depth).
@@ -349,6 +357,7 @@ TEST(EdgeDetectImageTest, SobelTest) {
   ASSERT_EQ(234, result.x);
   ASSERT_EQ(140, result.y);
 
+#if CONFIG_AV1_HIGHBITDEPTH
   // Verify it works for 8-bit values in a high bit-depth buffer.
   const uint16_t buf8_16[9] = { 241, 147, 7, 90, 184, 103, 28, 186, 2 };
   high_bd = true;
@@ -361,6 +370,7 @@ TEST(EdgeDetectImageTest, SobelTest) {
   result = av1_sobel(CONVERT_TO_BYTEPTR(buf16), stride, 1, 1, high_bd);
   ASSERT_EQ(-2566, result.x);
   ASSERT_EQ(-860, result.y);
+#endif
 }
 
 INSTANTIATE_TEST_CASE_P(EdgeDetectImages, EdgeDetectImageTest,
@@ -369,8 +379,13 @@ INSTANTIATE_TEST_CASE_P(EdgeDetectImages, EdgeDetectImageTest,
                             ::testing::Values(8, 16, 32),
                             // Height
                             ::testing::Values(4, 8, 12, 32),
+#if CONFIG_AV1_HIGHBITDEPTH
                             // High bit depth representation
                             ::testing::Bool(),
                             // Bit depth
-                            ::testing::Values(8, 10, 12)));
+                            ::testing::Values(8, 10, 12)
+#else
+                            ::testing::Values(false), ::testing::Values(8)
+#endif
+                                ));
 }  // namespace
