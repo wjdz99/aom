@@ -42,6 +42,10 @@ enum {
   UV_INTRA_DC_PAETH_H_V_CFL = (1 << UV_DC_PRED) | (1 << UV_PAETH_PRED) |
                               (1 << UV_V_PRED) | (1 << UV_H_PRED) |
                               (1 << UV_CFL_PRED),
+  UV_INTRA_DC_H_V_SMOOTH_CFL = (1 << UV_DC_PRED) | (1 << UV_V_PRED) |
+                               (1 << UV_H_PRED) | (1 << UV_SMOOTH_PRED) |
+                               (1 << UV_SMOOTH_V_PRED) |
+                               (1 << UV_SMOOTH_H_PRED) | (1 << UV_CFL_PRED),
   INTRA_DC = (1 << DC_PRED),
   INTRA_DC_TM = (1 << DC_PRED) | (1 << PAETH_PRED),
   INTRA_DC_H_V = (1 << DC_PRED) | (1 << V_PRED) | (1 << H_PRED),
