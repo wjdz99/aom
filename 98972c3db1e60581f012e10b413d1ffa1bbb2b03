@@ -22,6 +22,30 @@
       "revId": "98972c3db1e60581f012e10b413d1ffa1bbb2b03",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bef78a34_c8157d47",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1460,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-09-09T16:06:58Z",
+      "side": 0,
+      "message": "They are no lonher needed as have been automatically covered by the new gop control flow.",
+      "parentUuid": "99e334f8_84a153ea",
+      "range": {
+        "startLine": 1449,
+        "startChar": 1,
+        "endLine": 1460,
+        "endChar": 18
+      },
+      "revId": "98972c3db1e60581f012e10b413d1ffa1bbb2b03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
