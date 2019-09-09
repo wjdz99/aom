@@ -10857,6 +10857,8 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
                                    mi_row, mi_col);
       xd->cfl.store_y = 0;
     }
+    // Disable chroma RD
+    x->skip_chroma_rd = 1;
     if (num_planes > 1) {
       max_uv_tx_size = av1_get_tx_size(AOM_PLANE_U, xd);
       init_sbuv_mode(mbmi);
@@ -10887,6 +10889,8 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
            sizeof(x->blk_skip[0]) * ctx->num_4x4_blk);
     assert(rd_cost->rate != INT_MAX);
   }
+  // Enable chroma RD
+  x->skip_chroma_rd = 0;
   if (rd_cost->rate == INT_MAX) return;
 
   ctx->mic = *xd->mi[0];
