@@ -4107,13 +4107,20 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
     // Realtime non-rd path.
     if (!(sf->partition_search_type == FIXED_PARTITION || seg_skip) &&
         !cpi->partition_search_skippable_frame &&
-        sf->partition_search_type == VAR_BASED_PARTITION && use_nonrd_mode) {
+        sf->partition_search_type == VAR_BASED_PARTITION) {
       set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col,
                                      sb_size);
       av1_choose_var_based_partitioning(cpi, tile_info, x, mi_row, mi_col);
       td->mb.cb_offset = 0;
-      nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
-                          pc_root);
+      if (use_nonrd_mode) {
+        nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
+                            pc_root);
+      } else {
+        int dummy_rate;
+        int64_t dummy_dist;
+        rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
+                         &dummy_rate, &dummy_dist, 1, pc_root);
+      }
     } else {
 #if !CONFIG_REALTIME_ONLY
       int dummy_rate;
