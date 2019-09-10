@@ -253,7 +253,7 @@ static INLINE void find_predictors(
     AV1_COMP *cpi, MACROBLOCK *x, MV_REFERENCE_FRAME ref_frame,
     int_mv frame_mv[MB_MODE_COUNT][REF_FRAMES], int const_motion[REF_FRAMES],
     int *ref_frame_skip_mask, const int flag_list[4], TileDataEnc *tile_data,
-    int mi_row, int mi_col, struct buf_2d yv12_mb[4][MAX_MB_PLANE],
+    int mi_row, int mi_col, struct buf_2d yv12_mb[8][MAX_MB_PLANE],
     BLOCK_SIZE bsize, int force_skip_low_temp_var, int comp_pred_allowed) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -1230,9 +1230,9 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   MV_REFERENCE_FRAME usable_ref_frame, second_ref_frame;
   int_mv frame_mv[MB_MODE_COUNT][REF_FRAMES];
   uint8_t mode_checked[MB_MODE_COUNT][REF_FRAMES];
-  struct buf_2d yv12_mb[6][MAX_MB_PLANE];
-  static const int flag_list[5] = { 0, AOM_LAST_FLAG, AOM_LAST2_FLAG,
-                                    AOM_LAST3_FLAG, AOM_GOLD_FLAG };
+  struct buf_2d yv12_mb[8][MAX_MB_PLANE];
+  static const int flag_list[8] = { 0, AOM_LAST_FLAG, 0, 0, AOM_GOLD_FLAG, 0,
+                                    0, AOM_ALT_FLAG };
   RD_STATS this_rdc, best_rdc;
   // var_y and sse_y are saved to be used in skipping checking
   unsigned int sse_y = UINT_MAX;
@@ -1249,7 +1249,7 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       ref_costs_comp[REF_FRAMES][REF_FRAMES];
   int use_golden_nonzeromv = 1;
   int force_skip_low_temp_var = 0;
-  int skip_ref_find_pred[5] = { 0 };
+  int skip_ref_find_pred[8] = { 0 };
   unsigned int sse_zeromv_norm = UINT_MAX;
   const unsigned int thresh_skip_golden = 500;
   int64_t best_sse_sofar = INT64_MAX;
@@ -1332,7 +1332,7 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   if (cpi->rc.frames_since_golden == 0 && gf_temporal_ref) {
     usable_ref_frame = LAST_FRAME;
   } else {
-    usable_ref_frame = GOLDEN_FRAME;
+    usable_ref_frame = ALTREF_FRAME;
   }
 
   if (cpi->sf.short_circuit_low_temp_var) {
