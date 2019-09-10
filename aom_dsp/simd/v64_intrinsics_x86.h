@@ -438,7 +438,7 @@ SIMD_INLINE v64 v64_shl_8(v64 a, unsigned int c) {
 }
 
 SIMD_INLINE v64 v64_shr_u8(v64 a, unsigned int c) {
-  return _mm_and_si128(_mm_set1_epi8(0xff >> c),
+  return _mm_and_si128(_mm_set1_epi8((uint8_t)(0xff >> c)),
                        _mm_srl_epi16(a, _mm_cvtsi32_si128(c)));
 }
 
