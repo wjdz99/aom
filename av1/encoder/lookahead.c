@@ -105,6 +105,13 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, YV12_BUFFER_CONFIG *src,
   ctx->sz++;
   buf = pop(ctx, &ctx->write_idx);
 
+  // If buf->img already contains HDR10+ metadata, free it.
+  if (buf->img.hdr10p) {
+    free(buf->img.hdr10p);
+    buf->img.hdr10p = 0;
+    buf->img.hdr10p_size = 0;
+  }
+
   new_dimensions = width != buf->img.y_crop_width ||
                    height != buf->img.y_crop_height ||
                    uv_width != buf->img.uv_crop_width ||
@@ -180,6 +187,14 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, YV12_BUFFER_CONFIG *src,
   buf->ts_start = ts_start;
   buf->ts_end = ts_end;
   buf->flags = flags;
+
+  // If src contains HDR10+ metadata then copy it to buf->img.
+  if (src->hdr10p_size > 0 && src->hdr10p) {
+    buf->img.hdr10p = (uint8_t *)malloc(sizeof(uint8_t) * src->hdr10p_size);
+    memcpy(buf->img.hdr10p, src->hdr10p, src->hdr10p_size);
+    buf->img.hdr10p_size = src->hdr10p_size;
+  }
+
   return 0;
 }
 

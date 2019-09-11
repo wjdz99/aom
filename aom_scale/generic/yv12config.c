@@ -32,6 +32,12 @@ int aom_free_frame_buffer(YV12_BUFFER_CONFIG *ybf) {
     }
     if (ybf->y_buffer_8bit) aom_free(ybf->y_buffer_8bit);
 
+    if (ybf->hdr10p_size > 0 && ybf->hdr10p) {
+      aom_free(ybf->hdr10p);
+      ybf->hdr10p = 0;
+      ybf->hdr10p_size = 0;
+    }
+
     /* buffer_alloc isn't accessed by most functions.  Rather y_buffer,
       u_buffer and v_buffer point to buffer_alloc and are used.  Clear out
       all of this so that a freed pointer isn't inadvertently used */
