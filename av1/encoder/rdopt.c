@@ -10311,7 +10311,8 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
   int result = 0;
   for (int i = 0; i < ref_set; ++i) {
     if (mask_check_bit(good_indices, i) &&
-        (1.0 * idx_rdcost[i]) / idx_rdcost[best_idx] < dth) {
+        (1.0 * idx_rdcost[i]) / idx_rdcost[best_idx] < dth &&
+        (1.0 * idx_rdcost[i]) / ref_best_rd < dth) {
       mask_set_bit(&result, i);
     }
   }
