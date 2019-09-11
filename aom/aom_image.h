@@ -37,6 +37,9 @@ extern "C" {
 /** 0x400 used to signal alpha channel, skipping for backwards compatibility. */
 #define AOM_IMG_FMT_HIGHBITDEPTH 0x800 /**< Image uses 16bit framebuffer. */
 
+typedef struct aom_metadata aom_metadata_t;
+typedef struct aom_metadata_array aom_metadata_array_t;
+
 /*!\brief List of supported image formats */
 typedef enum aom_img_fmt {
   AOM_IMG_FMT_NONE,
@@ -188,8 +191,9 @@ typedef struct aom_image {
   int img_data_owner;      /**< private */
   int self_allocd;         /**< private */
 
-  void *fb_priv; /**< Frame buffer data associated with the image. */
-} aom_image_t;   /**< alias for struct aom_image */
+  void *metadata; /**< Metadata payloads associated with the image. */
+  void *fb_priv;  /**< Frame buffer data associated with the image. */
+} aom_image_t;    /**< alias for struct aom_image */
 
 /**\brief Representation of a rectangle on a surface */
 typedef struct aom_image_rect {
@@ -323,6 +327,28 @@ int aom_img_plane_width(const aom_image_t *img, int plane);
  * \param[in]    plane     Plane index
  */
 int aom_img_plane_height(const aom_image_t *img, int plane);
+
+/*!\brief Add metadata to image.
+ *
+ * Adds metadata to aom_image_t.
+ * Function makes a copy of the provided data parameter.
+ *
+ * \param[in]    img       Image descriptor
+ * \param[in]    type      Metadata type
+ * \param[in]    data      Metadata contents
+ * \param[in]    sz        Metadata contents size
+ */
+int aom_add_metadata_to_img(aom_image_t *img, uint8_t type, uint8_t *data,
+                            size_t sz);
+
+/*!\brief Remove metadata from image.
+ *
+ * Removes all metadata in image metadata list and sets metadata list pointer
+ * to NULL.
+ *
+ * \param[in]    img       Image descriptor
+ */
+int aom_remove_metadata_from_img(aom_image_t *img);
 
 #ifdef __cplusplus
 }  // extern "C"
