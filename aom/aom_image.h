@@ -188,8 +188,10 @@ typedef struct aom_image {
   int img_data_owner;      /**< private */
   int self_allocd;         /**< private */
 
-  void *fb_priv; /**< Frame buffer data associated with the image. */
-} aom_image_t;   /**< alias for struct aom_image */
+  void *fb_priv;    /**< Frame buffer data associated with the image. */
+  uint8_t *hdr10p;  /**< HDR10+ metadata payload associated with the image */
+  int hdr10p_size;  /**< Size of the HDR10+ metadata payload */
+} aom_image_t;      /**< alias for struct aom_image */
 
 /**\brief Representation of a rectangle on a surface */
 typedef struct aom_image_rect {
