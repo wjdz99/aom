@@ -5079,7 +5079,9 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     // accurate estimate of output frame size to determine if we need
     // to recode.
     const int do_dummy_pack =
-        cpi->sf.recode_loop >= ALLOW_RECODE_KFARFGF || cpi->oxcf.min_cr > 0;
+        (cpi->sf.recode_loop >= ALLOW_RECODE_KFARFGF &&
+            cpi->oxcf.rc_mode != AOM_Q) || cpi->oxcf.min_cr > 0 ||
+            rc->is_src_frame_alt_ref;
     if (do_dummy_pack) {
       restore_coding_context(cpi);
 
