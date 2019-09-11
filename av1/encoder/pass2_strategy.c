@@ -702,6 +702,8 @@ static void define_gf_group_pass0(AV1_COMP *cpi,
   rc->constrained_gf_group =
       (rc->baseline_gf_interval >= rc->frames_to_key) ? 1 : 0;
 
+  gf_group->max_layer_depth_allowed = cpi->oxcf.gf_max_pyr_height;
+
   // Set up the structure of this Group-Of-Pictures (same as GF_GROUP)
   av1_gop_setup_structure(cpi, frame_params);
 
