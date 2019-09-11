@@ -3388,6 +3388,36 @@ uint32_t av1_write_sequence_header_obu(AV1_COMP *cpi, uint8_t *const dst) {
   return size;
 }
 
+static uint32_t write_metadata_itut_t35_header_obu(AV1_COMP *cpi,
+                                                   uint8_t *const dst) {
+  size_t coded_obu_size = 0;
+  uint64_t metadata_type = (uint64_t)OBU_METADATA_TYPE_ITUT_T35;
+  if (aom_uleb_encode(metadata_type,
+                      sizeof(metadata_type),
+                      dst,
+                      &coded_obu_size) != 0) {
+    return 0;
+  }
+  struct aom_write_bit_buffer wb = { dst + coded_obu_size, 0 };
+
+  //Writing HDR10+ payload size bytes
+  int i = 0;
+  for (i = 0; i <= cpi->source->hdr10p_size - 255; i += 255)
+    aom_wb_write_unsigned_literal(&wb, 255, 8);
+  aom_wb_write_unsigned_literal(&wb, cpi->source->hdr10p_size - i, 8);
+
+  int byte = 0;
+  while(byte < cpi->source->hdr10p_size)
+  {
+    aom_wb_write_unsigned_literal(&wb, *(cpi->source->hdr10p + byte), 8);
+    ++byte;
+  }
+  add_trailing_bits(&wb);
+
+  uint32_t size = aom_wb_bytes_written(&wb) + (uint32_t)coded_obu_size;
+  return size;
+}
+
 static uint32_t write_frame_header_obu(AV1_COMP *cpi,
                                        struct aom_write_bit_buffer *saved_wb,
                                        uint8_t *const dst,
@@ -3805,6 +3835,24 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
 
     data += obu_header_size + obu_payload_size + length_field_size;
   }
+
+  if(cpi->source != NULL && cpi->source->hdr10p != NULL && cpi->source->hdr10p_size > 0)
+  {
+    obu_header_size = av1_write_obu_header(cpi, OBU_METADATA, 0, data);
+    obu_payload_size = write_metadata_itut_t35_header_obu(cpi, data + obu_header_size);
+    const size_t length_field_size =
+      obu_memmove(obu_header_size, obu_payload_size, data);
+    if (av1_write_uleb_obu_size(obu_header_size, obu_payload_size, data) !=
+      AOM_CODEC_OK) {
+    return AOM_CODEC_ERROR;
+    }
+
+    data += obu_header_size + obu_payload_size + length_field_size;
+    free(cpi->source->hdr10p);
+    cpi->source->hdr10p = NULL;
+    cpi->source->hdr10p_size = 0;
+  }
+
 
   const int write_frame_header =
       (cm->num_tg > 1 || encode_show_existing_frame(cm));
