@@ -137,6 +137,13 @@ typedef enum aom_chroma_sample_position {
   AOM_CSP_RESERVED = 3          /**< Reserved value */
 } aom_chroma_sample_position_t; /**< alias for enum aom_transfer_function */
 
+/*!\brief Metadata payload descriptor. */
+typedef struct aom_metadata {
+  uint8_t type;
+  uint8_t *metadata_buffer;
+  size_t metadata_size;
+} aom_metadata_t;
+
 /**\brief Image Descriptor */
 typedef struct aom_image {
   aom_img_fmt_t fmt;                 /**< Image Format */
@@ -189,7 +196,10 @@ typedef struct aom_image {
   int self_allocd;         /**< private */
 
   void *fb_priv; /**< Frame buffer data associated with the image. */
-} aom_image_t;   /**< alias for struct aom_image */
+
+  aom_metadata_t **metadata; /**< Metadata payloads associated with image. */
+  size_t num_metadata;       /**< Number of metadata payloads. */
+} aom_image_t;               /**< alias for struct aom_image */
 
 /**\brief Representation of a rectangle on a surface */
 typedef struct aom_image_rect {
@@ -323,6 +333,53 @@ int aom_img_plane_width(const aom_image_t *img, int plane);
  * \param[in]    plane     Plane index
  */
 int aom_img_plane_height(const aom_image_t *img, int plane);
+
+/*!\brief Alloc metadata struct.
+ *
+ * Alloc metadata struct and its buffer.
+ *
+ * \param[in]    sz        Buffer size
+ * \param[in]    type      Metadata Type
+ */
+aom_metadata_t *aom_metadata_alloc(size_t sz, uint8_t type);
+
+/*!\brief Free metadata structure.
+ *
+ * Free metadata structure and its buffer.
+ *
+ * \param[in]    metadata  Struct to free
+ */
+void aom_metadata_free(aom_metadata_t *metadata);
+
+/*!\brief Alloc an array of metadata struct.
+ *
+ * Alloc an array of metadata structures, but each aom_metadata_t*
+ * must be allocate with aom_metadata_alloc.
+ *
+ * \param[in]    sz        Array size
+ */
+aom_metadata_t **aom_metadata_array_alloc(size_t sz);
+
+/*!\brief Free metadata array.
+ *
+ * Free metadata array but not its content, each aom_metadata_t*
+ * must be free separately with aom_metadata_free.
+ *
+ * \param[in]    metadata_array  Array to free
+ */
+void aom_metadata_array_free(aom_metadata_t **metadata_array);
+
+/*!\brief Copy metadata struct.
+ *
+ * Copy metadata struct, both metadata structs and their metadata
+ * buffers should be previous initialized.
+ * Return 0 if metadata struct was copied, nonzero otherwise.
+ *
+ * \param[out] dst      Metadata structure destiny
+ * \param[in] src       Metadata structure source
+ *
+ */
+int aom_metadata_copy(aom_metadata_t *dst, aom_metadata_t *src);
 
 #ifdef __cplusplus
 }  // extern "C"
