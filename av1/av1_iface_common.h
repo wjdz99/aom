@@ -133,6 +133,8 @@ static aom_codec_err_t image2yuvconfig(const aom_image_t *img,
   yv12->border = (border < 0) ? 0 : border;
   yv12->subsampling_x = img->x_chroma_shift;
   yv12->subsampling_y = img->y_chroma_shift;
+  yv12->hdr10p = img->hdr10p;
+  yv12->hdr10p_size = img->hdr10p_size;
   return AOM_CODEC_OK;
 }
 
