@@ -32,6 +32,14 @@ int aom_free_frame_buffer(YV12_BUFFER_CONFIG *ybf) {
     }
     if (ybf->y_buffer_8bit) aom_free(ybf->y_buffer_8bit);
 
+    if (ybf->num_metadata > 0 && ybf->metadata) {
+      for (size_t i = 0; i < ybf->num_metadata; i++) {
+        aom_metadata_free(ybf->metadata[i]);
+      }
+      aom_metadata_array_free(ybf->metadata);
+      ybf->num_metadata = 0;
+      ybf->metadata = 0;
+    }
     /* buffer_alloc isn't accessed by most functions.  Rather y_buffer,
       u_buffer and v_buffer point to buffer_alloc and are used.  Clear out
       all of this so that a freed pointer isn't inadvertently used */
