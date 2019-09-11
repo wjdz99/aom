@@ -774,8 +774,8 @@ static void save_coding_context(AV1_COMP *cpi) {
   // intended for use in a re-code loop in av1_compress_frame where the
   // quantizer value is adjusted between loop iterations.
   av1_copy(cc->nmv_vec_cost, cpi->td.mb.nmv_vec_cost);
-  av1_copy(cc->nmv_costs, cpi->nmv_costs);
-  av1_copy(cc->nmv_costs_hp, cpi->nmv_costs_hp);
+  av1_copy(cc->nmv_costs, cpi->td.mb.nmv_costs);
+  av1_copy(cc->nmv_costs_hp, cpi->td.mb.nmv_costs_hp);
 
   cc->fc = *cm->fc;
 }
@@ -787,8 +787,8 @@ static void restore_coding_context(AV1_COMP *cpi) {
   // Restore key state variables to the snapshot state stored in the
   // previous call to av1_save_coding_context.
   av1_copy(cpi->td.mb.nmv_vec_cost, cc->nmv_vec_cost);
-  av1_copy(cpi->nmv_costs, cc->nmv_costs);
-  av1_copy(cpi->nmv_costs_hp, cc->nmv_costs_hp);
+  av1_copy(cpi->td.mb.nmv_costs, cc->nmv_costs);
+  av1_copy(cpi->td.mb.nmv_costs_hp, cc->nmv_costs_hp);
 
   *cm->fc = cc->fc;
 }
@@ -2860,8 +2860,8 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   cpi->last_show_frame_buf = NULL;
   realloc_segmentation_maps(cpi);
 
-  memset(cpi->nmv_costs, 0, sizeof(cpi->nmv_costs));
-  memset(cpi->nmv_costs_hp, 0, sizeof(cpi->nmv_costs_hp));
+  memset(cpi->td.mb.nmv_costs, 0, sizeof(cpi->td.mb.nmv_costs));
+  memset(cpi->td.mb.nmv_costs_hp, 0, sizeof(cpi->td.mb.nmv_costs_hp));
 
   for (i = 0; i < (sizeof(cpi->mbgraph_stats) / sizeof(cpi->mbgraph_stats[0]));
        i++) {
@@ -2915,10 +2915,10 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
   cpi->first_time_stamp_ever = INT64_MAX;
 
-  cpi->td.mb.nmvcost[0] = &cpi->nmv_costs[0][MV_MAX];
-  cpi->td.mb.nmvcost[1] = &cpi->nmv_costs[1][MV_MAX];
-  cpi->td.mb.nmvcost_hp[0] = &cpi->nmv_costs_hp[0][MV_MAX];
-  cpi->td.mb.nmvcost_hp[1] = &cpi->nmv_costs_hp[1][MV_MAX];
+  cpi->td.mb.nmvcost[0] = &cpi->td.mb.nmv_costs[0][MV_MAX];
+  cpi->td.mb.nmvcost[1] = &cpi->td.mb.nmv_costs[1][MV_MAX];
+  cpi->td.mb.nmvcost_hp[0] = &cpi->td.mb.nmv_costs_hp[0][MV_MAX];
+  cpi->td.mb.nmvcost_hp[1] = &cpi->td.mb.nmv_costs_hp[1][MV_MAX];
 
 #ifdef OUTPUT_YUV_SKINMAP
   yuv_skinmap_file = fopen("skinmap.yuv", "ab");
