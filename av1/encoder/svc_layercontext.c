@@ -45,7 +45,7 @@ void av1_init_layer_context(AV1_COMP *const cpi) {
       lrc->decimation_factor = 0;
       lrc->worst_quality = av1_quantizer_to_qindex(lc->max_q);
       lrc->best_quality = av1_quantizer_to_qindex(lc->min_q);
-      for (int i = 0; i < RATE_FACTOR_LEVELS; ++i) {
+      for (int i = 0; i < MAX_ARF_LAYERS + 1; ++i) {
         lrc->rate_correction_factors[i] = 1.0;
       }
       lc->target_bandwidth = lc->layer_target_bitrate;

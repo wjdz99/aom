@@ -39,10 +39,7 @@ extern "C" {
 // The maximum duration of a GF group that is static (e.g. a slide show).
 #define MAX_STATIC_GF_GROUP_LENGTH 250
 
-// Minimum and maximum height for the new pyramid structure.
-// (Old structure supports height = 1, but does NOT support height = 4).
-#define MIN_PYRAMID_LVL 0
-#define MAX_PYRAMID_LVL 4
+#define MAX_ARF_LAYERS 5
 
 #define MIN_GF_INTERVAL 4
 #define MAX_GF_INTERVAL 16
@@ -87,7 +84,14 @@ typedef struct {
   int gfu_boost;
   int kf_boost;
 
-  double rate_correction_factors[RATE_FACTOR_LEVELS];
+  // The number of frames so-far at each layer.
+  int frame_count_pyramid[MAX_ARF_LAYERS + 1];
+  // Rate correction factor at each layer for a group of picture.
+  // Layer 0 stands for key frame, not used.
+  // Layer 1 has 1 frame only. Layer 5 has 8 frames (leaf nodes).
+  double rate_correction_factors_pyramid[MAX_ARF_LAYERS + 1][8];
+  // The average factor for each layer.
+  double rate_correction_factors[MAX_ARF_LAYERS + 1];
 
   int frames_since_golden;
   int frames_till_gf_update_due;

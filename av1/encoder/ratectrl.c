@@ -319,10 +319,16 @@ void av1_rc_init(const AV1EncoderConfig *oxcf, int pass, RATE_CONTROL *rc) {
   rc->tot_q = 0.0;
   rc->avg_q = av1_convert_qindex_to_q(oxcf->worst_allowed_q, oxcf->bit_depth);
 
-  for (i = 0; i < RATE_FACTOR_LEVELS; ++i) {
+  for (i = 0; i < MAX_ARF_LAYERS + 1; ++i) {
     rc->rate_correction_factors[i] = 0.7;
   }
-  rc->rate_correction_factors[KF_STD] = 1.0;
+  rc->rate_correction_factors[0] = 1.0;  // kefy frame
+  for (i = 0; i < MAX_ARF_LAYERS + 1; ++i) {
+    rc->frame_count_pyramid[i] = 0;
+    for (int j = 0; j < 8; ++j) {
+      rc->rate_correction_factors_pyramid[i][j] = 0;
+    }
+  }
   rc->min_gf_interval = oxcf->min_gf_interval;
   rc->max_gf_interval = oxcf->max_gf_interval;
   if (rc->min_gf_interval == 0)
@@ -386,16 +392,50 @@ static RATE_FACTOR_LEVEL get_rate_factor_level(const GF_GROUP *const gf_group) {
   return rate_factor_levels[update_type];
 }
 
+// The number of frames for each layer in the hierarchical structure.
+// index 0 not used, reserved for key frame.
+// layer 1: arfs. layer 5: leaf nodes.
+static int num_frames_in_layers[MAX_ARF_LAYERS + 1] = { 0, 2, 1, 2, 4, 8 };
+
+// Store previous frames' rate_correction_factor at each layer.
+// The average factor is computed and used.
+static void set_rate_factors_in_pyramid(RATE_CONTROL *const rc, int layer_depth,
+                                        double factor) {
+  int frame_count = rc->frame_count_pyramid[layer_depth];
+  if (frame_count >= num_frames_in_layers[layer_depth]) {
+    for (int i = 0; i < frame_count - 1; ++i) {
+      rc->rate_correction_factors_pyramid[layer_depth][i] =
+          rc->rate_correction_factors_pyramid[layer_depth][i + 1];
+    }
+    rc->rate_correction_factors_pyramid[layer_depth][frame_count - 1] = factor;
+  } else {
+    rc->rate_correction_factors_pyramid[layer_depth][frame_count] = factor;
+    ++frame_count;
+    ++rc->frame_count_pyramid[layer_depth];
+  }
+  double avg_rate_correction_factor = 0;
+  for (int i = 0; i < frame_count; ++i) {
+    avg_rate_correction_factor +=
+        rc->rate_correction_factors_pyramid[layer_depth][i];
+  }
+  avg_rate_correction_factor /= frame_count;
+  rc->rate_correction_factors[layer_depth] = avg_rate_correction_factor;
+}
+
 static double get_rate_correction_factor(const AV1_COMP *cpi, int width,
                                          int height) {
   const RATE_CONTROL *const rc = &cpi->rc;
   double rcf;
 
   if (cpi->common.current_frame.frame_type == KEY_FRAME) {
-    rcf = rc->rate_correction_factors[KF_STD];
+    rcf = rc->rate_correction_factors[0];
   } else if (cpi->oxcf.pass == 2) {
-    const RATE_FACTOR_LEVEL rf_lvl = get_rate_factor_level(&cpi->gf_group);
-    rcf = rc->rate_correction_factors[rf_lvl];
+    int layer_depth = cpi->gf_group.layer_depth[cpi->gf_group.index];
+    if (cpi->gf_group.update_type[cpi->gf_group.index] == OVERLAY_UPDATE) {
+      layer_depth = 1;
+    }
+    assert(layer_depth <= MAX_ARF_LAYERS);
+    rcf = rc->rate_correction_factors[layer_depth];
   } else {
     if ((cpi->refresh_alt_ref_frame || cpi->refresh_golden_frame) &&
         !rc->is_src_frame_alt_ref && !cpi->use_svc &&
@@ -418,10 +458,15 @@ static void set_rate_correction_factor(AV1_COMP *cpi, double factor, int width,
   factor = fclamp(factor, MIN_BPB_FACTOR, MAX_BPB_FACTOR);
 
   if (cpi->common.current_frame.frame_type == KEY_FRAME) {
-    rc->rate_correction_factors[KF_STD] = factor;
+    rc->rate_correction_factors[0] = factor;
   } else if (cpi->oxcf.pass == 2) {
-    const RATE_FACTOR_LEVEL rf_lvl = get_rate_factor_level(&cpi->gf_group);
-    rc->rate_correction_factors[rf_lvl] = factor;
+    const GF_GROUP *const gf_group = &cpi->gf_group;
+    if (gf_group->update_type[gf_group->index] != OVERLAY_UPDATE &&
+        gf_group->update_type[gf_group->index] != INTNL_OVERLAY_UPDATE) {
+      const int layer_depth = gf_group->layer_depth[gf_group->index];
+      assert(layer_depth > 0 && layer_depth <= MAX_ARF_LAYERS);
+      set_rate_factors_in_pyramid(rc, layer_depth, factor);
+    }
   } else {
     if ((cpi->refresh_alt_ref_frame || cpi->refresh_golden_frame) &&
         !rc->is_src_frame_alt_ref && !cpi->use_svc &&
