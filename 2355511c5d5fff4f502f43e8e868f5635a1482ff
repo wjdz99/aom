@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "830a2286_ec7e44bd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-09-11T02:08:43Z",
+      "side": 1,
+      "message": "note if the includes were updated to include what they needed, clang-format can handle sorting and removing duplicates:\n\nhttps://aomedia.googlesource.com/aom/+/refs/heads/master/.clang-format#127",
+      "revId": "2355511c5d5fff4f502f43e8e868f5635a1482ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
