@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7b7b02e_beef0a77",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 8
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-09-11T18:24:48Z",
+      "side": 1,
+      "message": "Can it be under CONFIG_INTRA_ENTROPY?",
+      "range": {
+        "startLine": 55,
+        "startChar": 12,
+        "endLine": 55,
+        "endChar": 59
+      },
+      "revId": "d9ef19d3eac92e5a6eb47e461a662125be0b0eea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc40cfcd_a3513a1a",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-09-11T18:24:48Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 120,
+        "startChar": 2,
+        "endLine": 124,
+        "endChar": 18
+      },
+      "revId": "d9ef19d3eac92e5a6eb47e461a662125be0b0eea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17fdefcf_29de2e89",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-09-11T18:24:48Z",
+      "side": 1,
+      "message": "#if CONFIG_INTRA_ENTROPY",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 44
+      },
+      "revId": "d9ef19d3eac92e5a6eb47e461a662125be0b0eea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eaee2167_393cf6f1",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-09-11T18:24:48Z",
+      "side": 1,
+      "message": "#if CONFIG_INTRA_ENTROPY",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 29
+      },
+      "revId": "d9ef19d3eac92e5a6eb47e461a662125be0b0eea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52b3d9ba_b6c75456",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-09-11T18:24:48Z",
+      "side": 1,
+      "message": "#if CONFIG_INTRA_ENTROPY",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 29
+      },
+      "revId": "d9ef19d3eac92e5a6eb47e461a662125be0b0eea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c812722_dc4f91eb",
+        "filename": "av1/common/nn_em.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-09-11T18:24:48Z",
+      "side": 1,
+      "message": "can be const",
+      "range": {
+        "startLine": 63,
+        "startChar": 2,
+        "endLine": 64,
+        "endChar": 46
+      },
+      "revId": "d9ef19d3eac92e5a6eb47e461a662125be0b0eea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
