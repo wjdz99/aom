@@ -268,7 +268,15 @@ void aom_img_flip(aom_image_t *img) {
 void aom_img_free(aom_image_t *img) {
   if (img) {
     if (img->img_data && img->img_data_owner) aom_free(img->img_data);
-
+    /* Delete metadata chunks in this img. */
+    if (img->num_metadata > 0 && img->metadata) {
+      for (size_t i = 0; i < img->num_metadata; i++) {
+        aom_metadata_free(img->metadata[i]);
+      }
+      aom_metadata_array_free(img->metadata);
+      img->num_metadata = 0;
+      img->metadata = 0;
+    }
     if (img->self_allocd) free(img);
   }
 }
@@ -285,4 +293,49 @@ int aom_img_plane_height(const aom_image_t *img, int plane) {
     return (img->d_h + 1) >> img->y_chroma_shift;
   else
     return img->d_h;
+}
+
+aom_metadata_t *aom_metadata_alloc(size_t sz, uint8_t type) {
+  aom_metadata_t *metadata = (aom_metadata_t *)malloc(sizeof(aom_metadata_t));
+  if (!metadata) return NULL;
+  metadata->metadata_buffer = (uint8_t *)calloc(sz, sizeof(uint8_t));
+  if (!metadata->metadata_buffer) {
+    free(metadata);
+    return NULL;
+  }
+  metadata->metadata_size = sz;
+  metadata->type = type;
+  return metadata;
+}
+
+void aom_metadata_free(aom_metadata_t *metadata) {
+  if (metadata) {
+    if (metadata->metadata_buffer) {
+      free(metadata->metadata_buffer);
+    }
+    free(metadata);
+  }
+}
+
+aom_metadata_t **aom_metadata_array_alloc(size_t sz) {
+  aom_metadata_t **metadata_array =
+      (aom_metadata_t **)malloc(sz * sizeof(aom_metadata_t *));
+  if (!metadata_array) return NULL;
+  return metadata_array;
+}
+
+void aom_metadata_array_free(aom_metadata_t **metadata_array) {
+  if (metadata_array) {
+    free(metadata_array);
+  }
+}
+
+int aom_metadata_copy(aom_metadata_t *dst, aom_metadata_t *src) {
+  if (src && dst && src->metadata_buffer && dst->metadata_buffer) {
+    memcpy(dst->metadata_buffer, src->metadata_buffer, src->metadata_size);
+    dst->type = src->type;
+    dst->metadata_size = src->metadata_size;
+    return 0;
+  }
+  return -1;
 }
