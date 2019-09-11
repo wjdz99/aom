@@ -1405,6 +1405,16 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
         }
       }
     }
+    if (new_mv) {
+      const int allow_hp = cm->cur_frame_force_integer_mv
+                               ? MV_SUBPEL_NONE
+                               : cm->allow_high_precision_mv;
+      for (int ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
+        const int_mv ref_mv = av1_get_ref_mv(x, ref);
+        av1_update_mv_stats(&mbmi->mv[ref].as_mv, &ref_mv.as_mv, &fc->nmvc,
+                            allow_hp);
+      }
+    }
   }
 }
 
@@ -4048,6 +4058,16 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
         AOM_FALLTHROUGH_INTENDED;
       case COST_UPD_SB:  // SB level
         av1_fill_mode_rates(cm, x, xd->tile_ctx);
+        // Update MV costs
+        if (cm->cur_frame_force_integer_mv) {
+          av1_build_nmv_cost_table(x->nmv_vec_cost, x->nmvcost,
+                                   &xd->tile_ctx->nmvc, MV_SUBPEL_NONE);
+        } else {
+          av1_build_nmv_cost_table(
+              x->nmv_vec_cost,
+              cm->allow_high_precision_mv ? x->nmvcost_hp : x->nmvcost,
+              &xd->tile_ctx->nmvc, cm->allow_high_precision_mv);
+        }
         break;
       default: assert(0);
     }
