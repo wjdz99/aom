@@ -102,6 +102,8 @@ typedef struct yv12_buffer_config {
   aom_color_range_t color_range;
   int render_width;
   int render_height;
+  aom_metadata_t **metadata;
+  size_t num_metadata;
 
   int corrupted;
   int flags;

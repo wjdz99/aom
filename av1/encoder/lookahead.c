@@ -105,6 +105,16 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, YV12_BUFFER_CONFIG *src,
   ctx->sz++;
   buf = pop(ctx, &ctx->write_idx);
 
+  /* If buf->img already contains metadata, free it. */
+  if (buf->img.num_metadata > 0 && buf->img.metadata) {
+    for (size_t i = 0; i < buf->img.num_metadata; i++) {
+      aom_metadata_free(buf->img.metadata[i]);
+    }
+    aom_metadata_array_free(buf->img.metadata);
+    buf->img.num_metadata = 0;
+    buf->img.metadata = 0;
+  }
+
   new_dimensions = width != buf->img.y_crop_width ||
                    height != buf->img.y_crop_height ||
                    uv_width != buf->img.uv_crop_width ||
@@ -180,6 +190,20 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, YV12_BUFFER_CONFIG *src,
   buf->ts_start = ts_start;
   buf->ts_end = ts_end;
   buf->flags = flags;
+
+  if (src->num_metadata > 0 && src->metadata) {
+    buf->img.metadata = aom_metadata_array_alloc(src->num_metadata);
+    if (buf->img.metadata) {
+      for (size_t i = 0; i < src->num_metadata; i++) {
+        buf->img.metadata[i] = aom_metadata_alloc(
+            src->metadata[i]->metadata_size, src->metadata[i]->type);
+        if (aom_metadata_copy(buf->img.metadata[i], src->metadata[i])) {
+          return 1;
+        }
+      }
+      buf->img.num_metadata = src->num_metadata;
+    }
+  }
   return 0;
 }
 
