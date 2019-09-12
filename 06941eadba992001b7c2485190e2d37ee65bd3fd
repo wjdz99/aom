@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d8293e4_29d36ea7",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-09-12T17:44:23Z",
+      "side": 1,
+      "message": "Nit: add \"of\" after \"number\". Make the same change to line 574.",
+      "range": {
+        "startLine": 552,
+        "startChar": 17,
+        "endLine": 552,
+        "endChar": 23
+      },
+      "revId": "06941eadba992001b7c2485190e2d37ee65bd3fd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6b29d34_985fb619",
+        "filename": "test/level_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-09-12T17:44:23Z",
+      "side": 1,
+      "message": "This test should be level \u003c 24, not level \u003c\u003d 24. The levels 24-30 are reserved. See page 639 of the AV1 spec.\n\nNote: This test is equivalent to the seq_level_idx \u003c SEQ_LEVELS test in the is_valid_seq_level_idx() function. The value of SEQ_LEVELS is 24.",
+      "range": {
+        "startLine": 91,
+        "startChar": 25,
+        "endLine": 91,
+        "endChar": 36
+      },
+      "revId": "06941eadba992001b7c2485190e2d37ee65bd3fd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3828808_c906bf9a",
+        "filename": "test/level_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-09-12T17:44:23Z",
+      "side": 1,
+      "message": "Nit: The \"level \u003e\u003d 0\" test can be omitted, because it is always true by construction (see line 89).",
+      "range": {
+        "startLine": 91,
+        "startChar": 11,
+        "endLine": 91,
+        "endChar": 21
+      },
+      "revId": "06941eadba992001b7c2485190e2d37ee65bd3fd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
