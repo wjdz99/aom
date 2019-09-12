@@ -45,7 +45,7 @@ static const float intra_uv_mode_lr = 0.2f;
 #endif  // CONFIG_USE_SMALL_MODEL
 
 #if CONFIG_USE_SMALL_MODEL
-static const float intra_y_mode_layer0_sparse0_weights[EM_Y_SPARSE_FEAT_SIZE_0 *
+static const float intra_y_mode_input_layer_sparse_0_weights[EM_Y_SPARSE_FEAT_SIZE_0 *
                                                        EM_Y_OUTPUT_SIZE] = {
   0.137246f,  -0.68192f,  -0.449793f, -0.753694f, -0.766231f, -0.747245f,
   -0.645688f, -0.556105f, -0.599176f, -0.322966f, -0.486145f, -0.347526f,
@@ -80,7 +80,7 @@ static const float intra_y_mode_layer0_sparse0_weights[EM_Y_SPARSE_FEAT_SIZE_0 *
   0.0f,       0.0f,
 };
 
-static const float intra_y_mode_layer0_sparse1_weights[EM_Y_SPARSE_FEAT_SIZE_1 *
+static const float intra_y_mode_input_layer_sparse_1_weights[EM_Y_SPARSE_FEAT_SIZE_1 *
                                                        EM_Y_OUTPUT_SIZE] = {
   0.131244f,  -0.444973f, -0.337025f, -0.867933f, -0.937149f, -0.722192f,
   -0.727418f, -0.436252f, -0.7835f,   -0.356551f, -0.682492f, -0.482595f,
@@ -116,14 +116,14 @@ static const float intra_y_mode_layer0_sparse1_weights[EM_Y_SPARSE_FEAT_SIZE_1 *
 };
 
 static const float
-    *const intra_y_mode_layer0_sparse_weights[EM_NUM_Y_SPARSE_FEATURES] = {
-      intra_y_mode_layer0_sparse0_weights, intra_y_mode_layer0_sparse1_weights
+    *const intra_y_mode_input_layer_sparse_weights[EM_NUM_Y_SPARSE_FEATURES] = {
+      intra_y_mode_input_layer_sparse_0_weights, intra_y_mode_input_layer_sparse_1_weights
     };
 
 static const float
-    intra_y_mode_layer0_dense_weights[EM_NUM_Y_DENSE_FEATURES] = {};
+    intra_y_mode_input_layer_dense_weights[EM_NUM_Y_DENSE_FEATURES] = {};
 
-static const float intra_y_mode_layer0_bias[EM_Y_OUTPUT_SIZE] = {
+static const float intra_y_mode_input_layer_bias[EM_Y_OUTPUT_SIZE] = {
   0.727235f,  -0.124064f, -0.226174f, -0.369686f, -0.723211f,
   -0.621841f, -0.690408f, -0.453834f, -0.506766f, 0.095593f,
   -0.590127f, -0.270232f, -1.008363f,
@@ -134,9 +134,9 @@ static const int intra_y_sparse_feat_sizes[EM_NUM_Y_SPARSE_FEATURES] = {
 };
 #else
 static const float
-    *const intra_y_mode_layer0_sparse_weights[EM_NUM_Y_SPARSE_FEATURES] = {};
+    *const intra_y_mode_input_layer_sparse_weights[EM_NUM_Y_SPARSE_FEATURES] = {};
 
-static const float intra_y_mode_layer0_dense_weights[EM_NUM_Y_DENSE_FEATURES *
+static const float intra_y_mode_input_layer_dense_weights[EM_NUM_Y_DENSE_FEATURES *
                                                      EM_Y_OUTPUT_SIZE] = {
   0.049660f,  0.142786f,  -0.004678f, 0.134224f,  0.058202f,  -0.010564f,
   -0.069801f, 0.044887f,  0.142680f,  -0.004624f, 0.033854f,  0.142982f,
@@ -296,7 +296,7 @@ static const float intra_y_mode_layer0_dense_weights[EM_NUM_Y_DENSE_FEATURES *
   0.229959f,  -0.410276f, -0.169249f, -0.593926f, 0.351192f,  -0.214626f,
 };
 
-static const float intra_y_mode_layer0_bias[EM_Y_OUTPUT_SIZE] = {
+static const float intra_y_mode_input_layer_bias[EM_Y_OUTPUT_SIZE] = {
   0.402680f,  0.299231f,  0.291603f,  -0.383439f, -0.325819f,
   -0.284812f, -0.232927f, -0.195319f, -0.268998f, 0.052971f,
   -0.109909f, -0.130525f, 0.105389f,
@@ -306,7 +306,7 @@ static const float intra_y_sparse_feat_sizes[EM_NUM_Y_SPARSE_FEATURES] = {};
 #endif  // CONFIG_USE_SMALL_MODEL
 
 static const float
-    intra_uv_mode_layer0_sparse0_weights[EM_UV_SPARSE_FEAT_SIZE_0 *
+    intra_uv_mode_input_layer_sparse_0_weights[EM_UV_SPARSE_FEAT_SIZE_0 *
                                          EM_UV_OUTPUT_SIZE] = {
       -0.022437f, -1.476337f, -1.079305f, -1.369786f, -0.990266f, -1.856212f,
       -0.650349f, -0.903463f, -1.999366f, 0.01822f,   -0.175065f, -0.512718f,
@@ -344,7 +344,7 @@ static const float
     };
 
 static const float
-    intra_uv_mode_layer0_sparse1_weights[EM_UV_SPARSE_FEAT_SIZE_1 *
+    intra_uv_mode_input_layer_sparse_1_weights[EM_UV_SPARSE_FEAT_SIZE_1 *
                                          EM_UV_OUTPUT_SIZE] = {
       0.250092f,  -0.707907f, -0.507987f, -0.885675f, -0.753767f, -0.743063f,
       -0.908853f, -0.815155f, -0.855914f, -0.225903f, -0.901401f, -1.016057f,
@@ -354,14 +354,14 @@ static const float
     };
 
 static const float
-    *const intra_uv_mode_layer0_sparse_weights[EM_NUM_UV_SPARSE_FEATURES] = {
-      intra_uv_mode_layer0_sparse0_weights, intra_uv_mode_layer0_sparse1_weights
+    *const intra_uv_mode_input_layer_sparse_weights[EM_NUM_UV_SPARSE_FEATURES] = {
+      intra_uv_mode_input_layer_sparse_0_weights, intra_uv_mode_input_layer_sparse_1_weights
     };
 
 static const float
-    *const intra_uv_mode_layer0_dense_weights[EM_UV_DENSE_FEATURES] = {};
+    *const intra_uv_mode_input_layer_dense_weights[EM_UV_DENSE_FEATURES] = {};
 
-static const float intra_uv_mode_layer0_bias[EM_UV_OUTPUT_SIZE] = {
+static const float intra_uv_mode_input_layer_bias[EM_UV_OUTPUT_SIZE] = {
   0.400602f,  -0.710274f, -0.529749f, -0.923791f, -0.788781f,
   -0.761325f, -0.931022f, -0.852190f, -0.878639f, -0.238912f,
   -0.947551f, -0.974834f, -0.667166f, -0.214130f,
