@@ -280,7 +280,7 @@ static void set_good_speed_features_framesize_independent(
   if (speed >= 1) {
     sf->selective_ref_frame = 2;
 
-    sf->intra_tx_size_search_init_depth_rect = 1;
+    sf->intra_tx_size_search_init_depth_rect = 0;
 
     sf->skip_repeat_interpolation_filter_search = 1;
     sf->tx_type_search.skip_tx_search = 1;
@@ -375,8 +375,8 @@ static void set_good_speed_features_framesize_independent(
     // features
     sf->enable_winner_mode_for_coeff_opt = 1;
     // TODO(any): Experiment with this speed feature by enabling for key frames
-    sf->enable_winner_mode_for_tx_size_srch =
-        frame_is_intra_only(&cpi->common) ? 0 : 1;
+    sf->tx_type_search.use_reduced_intra_txset = 0;
+    sf->enable_winner_mode_for_tx_size_srch = 1;
     sf->enable_winner_mode_for_use_tx_domain_dist =
         cm->allow_screen_content_tools ? 0 : 1;
     sf->reduce_wiener_window_size = is_boosted_arf2_bwd_type ? 0 : 1;
