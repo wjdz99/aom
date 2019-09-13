@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "67198b14_8d5faeab",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-09-13T18:32:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d8293e4_29d36ea7",
+      "range": {
+        "startLine": 552,
+        "startChar": 17,
+        "endLine": 552,
+        "endChar": 23
+      },
+      "revId": "06941eadba992001b7c2485190e2d37ee65bd3fd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c6b29d34_985fb619",
         "filename": "test/level_test.cc",
         "patchSetId": 8
@@ -64,6 +88,54 @@
         "startChar": 11,
         "endLine": 91,
         "endChar": 21
+      },
+      "revId": "06941eadba992001b7c2485190e2d37ee65bd3fd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4181a2e7_0571c7dc",
+        "filename": "test/level_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-09-13T18:32:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3828808_c906bf9a",
+      "range": {
+        "startLine": 91,
+        "startChar": 11,
+        "endLine": 91,
+        "endChar": 21
+      },
+      "revId": "06941eadba992001b7c2485190e2d37ee65bd3fd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3bb5bcf7_7682a6b9",
+        "filename": "test/level_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-09-13T18:32:57Z",
+      "side": 1,
+      "message": "24 is not a valid level index, but the libaom encoder is using this value as a level monitor mode, i.e. just passively measure the level of the encoded bitstream.\nhttps://aomedia.googlesource.com/aom/+/refs/heads/master/aom/aomcx.h#521",
+      "parentUuid": "c6b29d34_985fb619",
+      "range": {
+        "startLine": 91,
+        "startChar": 25,
+        "endLine": 91,
+        "endChar": 36
       },
       "revId": "06941eadba992001b7c2485190e2d37ee65bd3fd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
