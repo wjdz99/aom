@@ -418,7 +418,7 @@ static int compute_global_motion_feature_based(
     TransformationType type, unsigned char *frm_buffer, int frm_width,
     int frm_height, int frm_stride, int *frm_corners, int num_frm_corners,
     YV12_BUFFER_CONFIG *ref, int bit_depth, int *num_inliers_by_motion,
-    MotionModel *params_by_motion, int num_motions) {
+    MotionModel *params_by_motion, int num_motions, int max_corners) {
   int i;
   int num_ref_corners;
   int num_correspondences;
@@ -433,7 +433,7 @@ static int compute_global_motion_feature_based(
 
   num_ref_corners =
       av1_fast_corner_detect(ref_buffer, ref->y_width, ref->y_height,
-                             ref->y_stride, ref_corners, MAX_CORNERS);
+                             ref->y_stride, ref_corners, max_corners);
 
   // find correspondences between the two images
   correspondences =
@@ -983,20 +983,18 @@ static int compute_global_motion_disflow_based(
   return 0;
 }
 
-int av1_compute_global_motion(TransformationType type,
-                              unsigned char *frm_buffer, int frm_width,
-                              int frm_height, int frm_stride, int *frm_corners,
-                              int num_frm_corners, YV12_BUFFER_CONFIG *ref,
-                              int bit_depth,
-                              GlobalMotionEstimationType gm_estimation_type,
-                              int *num_inliers_by_motion,
-                              MotionModel *params_by_motion, int num_motions) {
+int av1_compute_global_motion(
+    TransformationType type, unsigned char *frm_buffer, int frm_width,
+    int frm_height, int frm_stride, int *frm_corners, int num_frm_corners,
+    YV12_BUFFER_CONFIG *ref, int bit_depth,
+    GlobalMotionEstimationType gm_estimation_type, int *num_inliers_by_motion,
+    MotionModel *params_by_motion, int num_motions, int max_corners) {
   switch (gm_estimation_type) {
     case GLOBAL_MOTION_FEATURE_BASED:
       return compute_global_motion_feature_based(
           type, frm_buffer, frm_width, frm_height, frm_stride, frm_corners,
           num_frm_corners, ref, bit_depth, num_inliers_by_motion,
-          params_by_motion, num_motions);
+          params_by_motion, num_motions, max_corners);
     case GLOBAL_MOTION_DISFLOW_BASED:
       return compute_global_motion_disflow_based(
           type, frm_buffer, frm_width, frm_height, frm_stride, frm_corners,

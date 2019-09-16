@@ -4624,6 +4624,17 @@ static INLINE int64_t calc_erroradv_threshold(AV1_COMP *cpi,
     return INT64_MAX;
 }
 
+static INLINE int get_max_corners(AV1_COMMON *cm) {
+  if (cm->width <= 360 || cm->height <= 360)
+    return 1500;
+  else if (cm->width <= 480 || cm->height <= 480)
+    return 2000;
+  else if (cm->width <= 720 || cm->height <= 720)
+    return 3000;
+  else
+    return MAX_CORNERS;
+}
+
 static void encode_frame_internal(AV1_COMP *cpi) {
   ThreadData *const td = &cpi->td;
   MACROBLOCK *const x = &td->mb;
@@ -4814,6 +4825,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     // clang-format on
     int num_refs_using_gm = 0;
     int num_frm_corners = -1;
+    int max_corners = MAX_CORNERS;
     int frm_corners[2 * MAX_CORNERS];
     unsigned char *frm_buffer = cpi->source->y_buffer;
     if (cpi->source->flags & YV12_FLAG_HIGHBITDEPTH) {
@@ -4857,9 +4869,10 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                  !(cpi->sf.selective_ref_gm && skip_gm_frame(cm, frame))) {
         if (num_frm_corners < 0) {
           // compute interest points using FAST features
+          max_corners = get_max_corners(cm);
           num_frm_corners = av1_fast_corner_detect(
               frm_buffer, cpi->source->y_width, cpi->source->y_height,
-              cpi->source->y_stride, frm_corners, MAX_CORNERS);
+              cpi->source->y_stride, frm_corners, max_corners);
         }
         TransformationType model;
 
@@ -4890,7 +4903,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
               cpi->source->y_stride, frm_corners, num_frm_corners,
               ref_buf[frame], cpi->common.seq_params.bit_depth,
               gm_estimation_type, inliers_by_motion, params_by_motion,
-              RANSAC_NUM_MOTIONS);
+              RANSAC_NUM_MOTIONS, max_corners);
           int64_t ref_frame_error = 0;
           for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
             if (inliers_by_motion[i] == 0) continue;
