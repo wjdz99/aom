@@ -12830,9 +12830,12 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   // Gate intra mode evaluation if best of inter is skip except when source
   // variance is extremely low
+#if 0
   if ((search_state.best_mbmode.skip) && (sf->skip_intra_in_interframe >= 2) &&
-      (x->source_variance > sf->src_var_thresh_intra_skip))
+      (x->source_variance >
+       sf->src_var_thresh_intra_skip) /*&& (bsize <= BLOCK_8X8)*/)
     search_state.skip_intra_modes = 1;
+#endif
 
   const int intra_ref_frame_cost = ref_costs_single[INTRA_FRAME];
   for (int j = 0; j < intra_mode_num; ++j) {
