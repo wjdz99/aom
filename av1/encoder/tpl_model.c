@@ -240,6 +240,8 @@ static void mode_estimation(
 
   for (rf_idx = 0; rf_idx < INTER_REFS_PER_FRAME; ++rf_idx) {
     if (ref_frame[rf_idx] == NULL) continue;
+    if ((rf_idx == (GOLDEN_FRAME - 1)) && gf_group->index != 0)
+      continue;
 
     int q_ref =
         cpi->tpl_frame[frame_idx].ref_map_index[rf_idx] > 0
