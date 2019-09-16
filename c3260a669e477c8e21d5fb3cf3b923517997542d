@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d876c0f9_100aa763",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-09-16T19:58:21Z",
+      "side": 1,
+      "message": "ARRAYS",
+      "range": {
+        "startLine": 74,
+        "startChar": 23,
+        "endLine": 74,
+        "endChar": 29
+      },
+      "revId": "c3260a669e477c8e21d5fb3cf3b923517997542d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2e17835_0da3f94b",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-09-16T19:58:21Z",
+      "side": 1,
+      "message": "This one doesn\u0027t need to be padded to multiple of 4 as we are operating on each sparse features individually.",
+      "range": {
+        "startLine": 197,
+        "startChar": 29,
+        "endLine": 197,
+        "endChar": 77
+      },
+      "revId": "c3260a669e477c8e21d5fb3cf3b923517997542d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60e62477_8edf0628",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-09-16T19:58:21Z",
+      "side": 1,
+      "message": "Same",
+      "range": {
+        "startLine": 209,
+        "startChar": 30,
+        "endLine": 209,
+        "endChar": 79
+      },
+      "revId": "c3260a669e477c8e21d5fb3cf3b923517997542d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5466703_602aa095",
+        "filename": "av1/common/intra_entropy_models.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-09-16T19:58:21Z",
+      "side": 1,
+      "message": "Doesn\u0027t have to be done now, but we will need to pad arrays with some zero columns later as well",
+      "range": {
+        "startLine": 50,
+        "startChar": 46,
+        "endLine": 50,
+        "endChar": 62
+      },
+      "revId": "c3260a669e477c8e21d5fb3cf3b923517997542d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e29bee4c_d27b1173",
+        "filename": "av1/common/nn_em.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-09-16T19:58:21Z",
+      "side": 1,
+      "message": "Doesn\u0027t matter right now, but this probably shouldn\u0027t be a hard-coded value.",
+      "range": {
+        "startLine": 178,
+        "startChar": 14,
+        "endLine": 178,
+        "endChar": 17
+      },
+      "revId": "c3260a669e477c8e21d5fb3cf3b923517997542d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5085d9a_e4363e27",
+        "filename": "av1/common/nn_em.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-09-16T19:58:21Z",
+      "side": 1,
+      "message": "Same",
+      "range": {
+        "startLine": 226,
+        "startChar": 18,
+        "endLine": 226,
+        "endChar": 21
+      },
+      "revId": "c3260a669e477c8e21d5fb3cf3b923517997542d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
