@@ -10915,6 +10915,17 @@ static int64_t handle_inter_mode(
       end_timing(cpi, compound_type_rd_time);
 #endif
 
+#if CONFIG_FLEX_MVRES
+      // TODO(debargha): Do proper rd based decision for mv_precision
+      if (have_newmv_in_inter_mode(mbmi->mode) && cm->use_flex_mv_precision)
+        mbmi->mv_precision = x->source_variance < 16
+                                ? MV_SUBPEL_HALF_PRECISION
+                                : x->source_variance < 64
+                                    ? MV_SUBPEL_QTR_PRECISION
+                                    : MV_SUBPEL_EIGHTH_PRECISION;
+      else
+        mbmi->mv_precision = cm->mv_precision;
+#endif  // CONFIG_FLEX_MVRES
 #if CONFIG_COLLECT_COMPONENT_TIMING
       start_timing(cpi, interpolation_filter_search_time);
 #endif
