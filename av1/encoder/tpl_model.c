@@ -165,6 +165,10 @@ static void mode_estimation(
   xd->mi[0]->sb_type = bsize;
   xd->mi[0]->motion_mode = SIMPLE_TRANSLATION;
 
+  // Are edges available for intra prediction?
+  xd->up_available = (mi_row > xd->tile.mi_row_start);
+  xd->left_available = (mi_col > xd->tile.mi_col_start);
+
   const int q_cur = gf_group->q_val[frame_idx];
   const int16_t qstep_cur =
       ROUND_POWER_OF_TWO(av1_ac_quant_QTX(q_cur, 0, xd->bd), xd->bd - 8);
@@ -589,6 +593,7 @@ static void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx) {
                              (17 - 2 * AOM_INTERP_EXTEND);
       xd->mb_to_left_edge = -((mi_col * MI_SIZE) * 8);
       xd->mb_to_right_edge = ((cm->mi_cols - mi_width - mi_col) * MI_SIZE) * 8;
+
       mode_estimation(cpi, x, xd, &sf, frame_idx, src_diff, coeff, qcoeff,
                       dqcoeff, 1, mi_row, mi_col, bsize, tx_size, ref_frame,
                       predictor, &recon_error, &sse, &tpl_stats,
