@@ -423,8 +423,7 @@ static AOM_INLINE void set_offsets(const AV1_COMP *const cpi,
   }
 }
 
-static AOM_INLINE void update_filter_type_count(uint8_t allow_update_cdf,
-                                                FRAME_COUNTS *counts,
+static AOM_INLINE void update_filter_type_count(FRAME_COUNTS *counts,
                                                 const MACROBLOCKD *xd,
                                                 const MB_MODE_INFO *mbmi) {
   int dir;
@@ -432,10 +431,17 @@ static AOM_INLINE void update_filter_type_count(uint8_t allow_update_cdf,
     const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
     InterpFilter filter = av1_extract_interp_filter(mbmi->interp_filters, dir);
     ++counts->switchable_interp[ctx][filter];
-    if (allow_update_cdf) {
-      update_cdf(xd->tile_ctx->switchable_interp_cdf[ctx], filter,
-                 SWITCHABLE_FILTERS);
-    }
+  }
+}
+
+static AOM_INLINE void update_filter_type_cdf(const MACROBLOCKD *xd,
+                                              const MB_MODE_INFO *mbmi) {
+  int dir;
+  for (dir = 0; dir < 2; ++dir) {
+    const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
+    InterpFilter filter = av1_extract_interp_filter(mbmi->interp_filters, dir);
+    update_cdf(xd->tile_ctx->switchable_interp_cdf[ctx], filter,
+               SWITCHABLE_FILTERS);
   }
 }
 
@@ -583,7 +589,7 @@ static AOM_INLINE void update_state(const AV1_COMP *const cpi,
     if (cm->interp_filter == SWITCHABLE &&
         mi_addr->motion_mode != WARPED_CAUSAL &&
         !is_nontrans_global_motion(xd, xd->mi[0])) {
-      update_filter_type_count(tile_data->allow_update_cdf, td->counts, xd,
+      update_filter_type_count(/*tile_data->allow_update_cdf,*/ td->counts, xd,
                                mi_addr);
     }
 
@@ -1369,6 +1375,11 @@ static AOM_INLINE void update_stats(const AV1_COMMON *const cm, ThreadData *td,
     }
   }
 
+  if (inter_block && cm->interp_filter == SWITCHABLE &&
+      mbmi->motion_mode != WARPED_CAUSAL &&
+      !is_nontrans_global_motion(xd, mbmi)) {
+    update_filter_type_cdf(xd, mbmi);
+  }
   if (inter_block &&
       !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
     const PREDICTION_MODE mode = mbmi->mode;
