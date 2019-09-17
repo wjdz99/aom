@@ -2835,6 +2835,19 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     av1_update_layer_context_change_config(cpi, oxcf->target_bandwidth);
 }
 
+static void init_frame_info(FRAME_INFO *frame_info, AV1_COMMON *const cm) {
+  frame_info->frame_width = cm->width;
+  frame_info->frame_height = cm->height;
+  frame_info->mi_cols = cm->mi_cols;
+  frame_info->mi_rows = cm->mi_rows;
+  frame_info->mb_cols = cm->mb_cols;
+  frame_info->mb_rows = cm->mb_rows;
+  frame_info->num_mbs = cm->MBs;
+  frame_info->bit_depth = cm->seq_params.bit_depth;
+  frame_info->subsampling_x = cm->seq_params.subsampling_x;
+  frame_info->subsampling_y = cm->seq_params.subsampling_y;
+}
+
 AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
                                 BufferPool *const pool) {
   unsigned int i;
@@ -2878,6 +2891,8 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
   init_config(cpi, oxcf);
   av1_rc_init(&cpi->oxcf, oxcf->pass, &cpi->rc);
+
+  init_frame_info(&cpi->frame_info, cm);
 
   cm->current_frame.frame_number = 0;
   cm->current_frame_id = -1;
@@ -4096,14 +4111,6 @@ static void check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
     cpi->initial_height = cm->height;
     cpi->initial_mbs = cm->MBs;
   }
-
-  FRAME_INFO *frame_info = &cpi->frame_info;
-  frame_info->frame_width = cm->width;
-  frame_info->frame_height = cm->height;
-  frame_info->num_mbs = cm->MBs;
-  frame_info->bit_depth = cm->seq_params.bit_depth;
-  frame_info->subsampling_x = subsampling_x;
-  frame_info->subsampling_y = subsampling_y;
 }
 
 // Returns 1 if the assigned width or height was <= 0.
