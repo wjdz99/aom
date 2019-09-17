@@ -60,7 +60,6 @@ static void add_onehot(float **features, int num, int n) {
   if (n >= 0 && n < num) feature_pt[n] = 1.0f;
   *features += num;
 }
-
 #endif  // !CONFIG_USE_SMALL_MODEL
 
 void av1_get_intra_block_feature(int *sparse_features, float *dense_features,
@@ -159,6 +158,7 @@ void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
     memset(l, has_eob, sizeof(*l) * txs_high);
   }
 }
+
 void av1_reset_skip_context(MACROBLOCKD *xd, int mi_row, int mi_col,
                             BLOCK_SIZE bsize, const int num_planes) {
   int i;

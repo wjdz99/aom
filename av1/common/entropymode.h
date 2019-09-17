@@ -90,11 +90,23 @@ typedef struct {
   float model_name##_output[output_size];
 #endif  // CONFIG_INTRA_ENTROPY
 
+#define EOB_TH 2
+#define EOB_CONTEXTS 4
+
 typedef struct frame_contexts {
   aom_cdf_prob txb_skip_cdf[TX_SIZES][TXB_SKIP_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob eob_extra_cdf[TX_SIZES][PLANE_TYPES][EOB_COEF_CONTEXTS]
                             [CDF_SIZE(2)];
   aom_cdf_prob dc_sign_cdf[PLANE_TYPES][DC_SIGN_CONTEXTS][CDF_SIZE(2)];
+#if CONFIG_ENTROPY_CONTEXTS
+  aom_cdf_prob eob_flag_cdf16[EOB_CONTEXTS][PLANE_TYPES][2][CDF_SIZE(5)];
+  aom_cdf_prob eob_flag_cdf32[EOB_CONTEXTS][PLANE_TYPES][2][CDF_SIZE(6)];
+  aom_cdf_prob eob_flag_cdf64[EOB_CONTEXTS][PLANE_TYPES][2][CDF_SIZE(7)];
+  aom_cdf_prob eob_flag_cdf128[EOB_CONTEXTS][PLANE_TYPES][2][CDF_SIZE(8)];
+  aom_cdf_prob eob_flag_cdf256[EOB_CONTEXTS][PLANE_TYPES][2][CDF_SIZE(9)];
+  aom_cdf_prob eob_flag_cdf512[EOB_CONTEXTS][PLANE_TYPES][2][CDF_SIZE(10)];
+  aom_cdf_prob eob_flag_cdf1024[EOB_CONTEXTS][PLANE_TYPES][2][CDF_SIZE(11)];
+#else
   aom_cdf_prob eob_flag_cdf16[PLANE_TYPES][2][CDF_SIZE(5)];
   aom_cdf_prob eob_flag_cdf32[PLANE_TYPES][2][CDF_SIZE(6)];
   aom_cdf_prob eob_flag_cdf64[PLANE_TYPES][2][CDF_SIZE(7)];
@@ -102,6 +114,7 @@ typedef struct frame_contexts {
   aom_cdf_prob eob_flag_cdf256[PLANE_TYPES][2][CDF_SIZE(9)];
   aom_cdf_prob eob_flag_cdf512[PLANE_TYPES][2][CDF_SIZE(10)];
   aom_cdf_prob eob_flag_cdf1024[PLANE_TYPES][2][CDF_SIZE(11)];
+#endif  // CONFIG_ENTROPY_CONTEXTS
   aom_cdf_prob coeff_base_eob_cdf[TX_SIZES][PLANE_TYPES][SIG_COEF_CONTEXTS_EOB]
                                  [CDF_SIZE(3)];
   aom_cdf_prob coeff_base_cdf[TX_SIZES][PLANE_TYPES][SIG_COEF_CONTEXTS]
@@ -194,6 +207,7 @@ typedef struct frame_contexts {
   MODEL_ARRAYS(intra_y_mode, EM_NUM_Y_SPARSE_FEATURES,
                ALIGN_MULTIPLE_OF_FOUR(EM_NUM_Y_DENSE_FEATURES),
                ALIGN_MULTIPLE_OF_FOUR(EM_Y_OUTPUT_SIZE));
+  NN_CONFIG_EM intra_y_mode;
 
   SPARSE_FEATURE_ARRAYS(
       intra_uv_mode, 0,
@@ -206,7 +220,6 @@ typedef struct frame_contexts {
   MODEL_ARRAYS(intra_uv_mode, EM_NUM_UV_SPARSE_FEATURES, 0,
                ALIGN_MULTIPLE_OF_FOUR(EM_UV_OUTPUT_SIZE));
 
-  NN_CONFIG_EM intra_y_mode;
   NN_CONFIG_EM intra_uv_mode;
 #else
   /* kf_y_cdf is discarded after use, so does not require persistent storage.

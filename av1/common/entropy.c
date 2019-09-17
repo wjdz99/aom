@@ -41,6 +41,17 @@ void av1_default_coef_probs(AV1_COMMON *cm) {
   av1_copy(cm->fc->coeff_base_cdf, av1_default_coeff_base_multi_cdfs[index]);
   av1_copy(cm->fc->coeff_base_eob_cdf,
            av1_default_coeff_base_eob_multi_cdfs[index]);
+#if CONFIG_ENTROPY_CONTEXTS
+  for (int i = 0; i < EOB_CONTEXTS; ++i) {
+    av1_copy(cm->fc->eob_flag_cdf16[i], av1_default_eob_multi16_cdfs[index]);
+    av1_copy(cm->fc->eob_flag_cdf32[i], av1_default_eob_multi32_cdfs[index]);
+    av1_copy(cm->fc->eob_flag_cdf64[i], av1_default_eob_multi64_cdfs[index]);
+    av1_copy(cm->fc->eob_flag_cdf128[i], av1_default_eob_multi128_cdfs[index]);
+    av1_copy(cm->fc->eob_flag_cdf256[i], av1_default_eob_multi256_cdfs[index]);
+    av1_copy(cm->fc->eob_flag_cdf512[i], av1_default_eob_multi512_cdfs[index]);
+    av1_copy(cm->fc->eob_flag_cdf1024[i], av1_default_eob_multi1024_cdfs[index]);
+  }
+#else
   av1_copy(cm->fc->eob_flag_cdf16, av1_default_eob_multi16_cdfs[index]);
   av1_copy(cm->fc->eob_flag_cdf32, av1_default_eob_multi32_cdfs[index]);
   av1_copy(cm->fc->eob_flag_cdf64, av1_default_eob_multi64_cdfs[index]);
@@ -48,6 +59,7 @@ void av1_default_coef_probs(AV1_COMMON *cm) {
   av1_copy(cm->fc->eob_flag_cdf256, av1_default_eob_multi256_cdfs[index]);
   av1_copy(cm->fc->eob_flag_cdf512, av1_default_eob_multi512_cdfs[index]);
   av1_copy(cm->fc->eob_flag_cdf1024, av1_default_eob_multi1024_cdfs[index]);
+#endif  // CONFIG_ENTROPY_CONTEXTS
 }
 
 static void reset_cdf_symbol_counter(aom_cdf_prob *cdf_ptr, int num_cdfs,
