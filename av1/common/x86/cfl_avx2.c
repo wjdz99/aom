@@ -300,6 +300,7 @@ cfl_predict_lbd_fn cfl_get_predict_lbd_fn_avx2(TX_SIZE tx_size) {
   return pred[tx_size % TX_SIZES_ALL];
 }
 
+#if CONFIG_AV1_HIGHBITDEPTH
 static __m256i highbd_max_epi16(int bd) {
   const __m256i neg_one = _mm256_set1_epi16(-1);
   // (1 << bd) - 1 => -(-1 << bd) -1 => -1 - (-1 << bd) => -1 ^ (-1 << bd)
@@ -372,6 +373,7 @@ cfl_predict_hbd_fn cfl_get_predict_hbd_fn_avx2(TX_SIZE tx_size) {
   // function pointer array out of bounds.
   return pred[tx_size % TX_SIZES_ALL];
 }
+#endif  // CONFIG_AV1_HIGHBITDEPTH
 
 // Returns a vector where all the (32-bits) elements are the sum of all the
 // lanes in a.
