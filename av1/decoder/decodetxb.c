@@ -174,6 +174,66 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
   const int eob_multi_size = txsize_log2_minus4[tx_size];
   const int eob_multi_ctx = (tx_class == TX_CLASS_2D) ? 0 : 1;
+
+#if CONFIG_ENTROPY_CONTEXTS
+  const int eob_context = txb_ctx->eob_ctx;
+  switch (eob_multi_size) {
+    case 0:
+      eob_pt =
+          aom_read_symbol(
+              r, ec_ctx->eob_flag_cdf16[eob_context][plane_type][eob_multi_ctx],
+              5, ACCT_STR) +
+          1;
+      break;
+    case 1:
+      eob_pt =
+          aom_read_symbol(
+              r, ec_ctx->eob_flag_cdf32[eob_context][plane_type][eob_multi_ctx],
+              6, ACCT_STR) +
+          1;
+      break;
+    case 2:
+      eob_pt =
+          aom_read_symbol(
+              r, ec_ctx->eob_flag_cdf64[eob_context][plane_type][eob_multi_ctx],
+              7, ACCT_STR) +
+          1;
+      break;
+    case 3:
+      eob_pt =
+          aom_read_symbol(
+              r,
+              ec_ctx->eob_flag_cdf128[eob_context][plane_type][eob_multi_ctx],
+              8, ACCT_STR) +
+          1;
+      break;
+    case 4:
+      eob_pt =
+          aom_read_symbol(
+              r,
+              ec_ctx->eob_flag_cdf256[eob_context][plane_type][eob_multi_ctx],
+              9, ACCT_STR) +
+          1;
+      break;
+    case 5:
+      eob_pt =
+          aom_read_symbol(
+              r,
+              ec_ctx->eob_flag_cdf512[eob_context][plane_type][eob_multi_ctx],
+              10, ACCT_STR) +
+          1;
+      break;
+    case 6:
+    default:
+      eob_pt =
+          aom_read_symbol(
+              r,
+              ec_ctx->eob_flag_cdf1024[eob_context][plane_type][eob_multi_ctx],
+              11, ACCT_STR) +
+          1;
+      break;
+  }
+#else
   switch (eob_multi_size) {
     case 0:
       eob_pt =
@@ -219,6 +279,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
                1;
       break;
   }
+#endif
 
   const int eob_offset_bits = av1_eob_offset_bits[eob_pt];
   if (eob_offset_bits > 0) {
@@ -321,6 +382,10 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   // DC value
   set_dc_sign(&cul_level, dc_val);
 
+#if CONFIG_ENTROPY_CONTEXTS
+  set_eob_ctx(&cul_level, tx_size, *eob);
+#endif  // CONFIG_ENTROPY_CONTEXTS
+
   return cul_level;
 }
 
@@ -342,6 +407,7 @@ void av1_read_coeffs_txb_facade(const AV1_COMMON *const cm,
   const BLOCK_SIZE plane_bsize = get_plane_block_size(
       mi_row, mi_col, bsize, pd->subsampling_x, pd->subsampling_y);
 
+  const int is_inter = is_inter_block(mbmi);
   TXB_CTX txb_ctx;
   get_txb_ctx(plane_bsize, tx_size, plane, pd->above_context + col,
               pd->left_context + row, &txb_ctx);
@@ -349,7 +415,7 @@ void av1_read_coeffs_txb_facade(const AV1_COMMON *const cm,
       av1_read_coeffs_txb(cm, xd, r, row, col, plane, &txb_ctx, tx_size);
   av1_set_contexts(xd, pd, plane, plane_bsize, tx_size, cul_level, col, row);
 
-  if (is_inter_block(mbmi)) {
+  if (is_inter) {
     PLANE_TYPE plane_type = get_plane_type(plane);
     // tx_type will be read out in av1_read_coeffs_txb_facade
     const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, row, col, tx_size,
