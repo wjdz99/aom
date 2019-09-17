@@ -511,6 +511,7 @@ static INLINE void cfl_predict_lbd_neon(const int16_t *pred_buf_q3,
 
 CFL_PREDICT_FN(neon, lbd)
 
+#if CONFIG_AV1_HIGHBITDEPTH
 static INLINE uint16x4_t clamp_s16(int16x4_t a, int16x4_t max) {
   return vreinterpret_u16_s16(vmax_s16(vmin_s16(a, max), vdup_n_s16(0)));
 }
@@ -582,3 +583,4 @@ static INLINE void cfl_predict_hbd_neon(const int16_t *pred_buf_q3,
 }
 
 CFL_PREDICT_FN(neon, hbd)
+#endif  // CONFIG_AV1_HIGHBITDEPTH
