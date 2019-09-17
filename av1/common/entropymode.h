@@ -194,6 +194,7 @@ typedef struct frame_contexts {
   MODEL_ARRAYS(intra_y_mode, EM_NUM_Y_SPARSE_FEATURES,
                ALIGN_MULTIPLE_OF_FOUR(EM_NUM_Y_DENSE_FEATURES),
                ALIGN_MULTIPLE_OF_FOUR(EM_Y_OUTPUT_SIZE));
+  NN_CONFIG_EM intra_y_mode;
 
   SPARSE_FEATURE_ARRAYS(
       intra_uv_mode, 0,
@@ -206,8 +207,17 @@ typedef struct frame_contexts {
   MODEL_ARRAYS(intra_uv_mode, EM_NUM_UV_SPARSE_FEATURES, 0,
                ALIGN_MULTIPLE_OF_FOUR(EM_UV_OUTPUT_SIZE));
 
-  NN_CONFIG_EM intra_y_mode;
   NN_CONFIG_EM intra_uv_mode;
+
+
+  INPUT_LAYER_ARRAYS(eob,
+                     EM_EOB_DENSE_FEATURES *
+                     ALIGN_MULTIPLE_OF_FOUR(EM_EOB_OUTPUT_SIZE),
+                     ALIGN_MULTIPLE_OF_FOUR(EM_EOB_OUTPUT_SIZE));
+  MODEL_ARRAYS(eob, EM_EOB_SPARSE_FEATURES,
+               EM_EOB_DENSE_FEATURES,
+               ALIGN_MULTIPLE_OF_FOUR(EM_EOB_OUTPUT_SIZE));
+  NN_CONFIG_EM eob;
 #else
   /* kf_y_cdf is discarded after use, so does not require persistent storage.
        However, we keep it with the other CDFs in this struct since it needs to
@@ -333,6 +343,8 @@ static INLINE void av1_config_entropy_models(FRAME_CONTEXT *const fc) {
   SETUP_SPARSE_FEATURE_POINTERS(intra_uv_mode, 0);
   SETUP_SPARSE_FEATURE_POINTERS(intra_uv_mode, 1);
   SETUP_MODEL_POINTERS(intra_uv_mode);
+
+  SETUP_MODEL_POINTERS(eob);
 }
 #endif  // CONFIG_INTRA_ENTROPY
 

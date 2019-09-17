@@ -60,7 +60,6 @@ static void add_onehot(float **features, int num, int n) {
   if (n >= 0 && n < num) feature_pt[n] = 1.0f;
   *features += num;
 }
-
 #endif  // !CONFIG_USE_SMALL_MODEL
 
 void av1_get_intra_block_feature(int *sparse_features, float *dense_features,
@@ -129,6 +128,69 @@ void av1_get_uv_mode_cdf_ml(const MACROBLOCKD *xd, PREDICTION_MODE y_mode,
   av1_nn_predict_em(nn_model);
   av1_pdf2icdf(nn_model->output, cdf, UV_INTRA_MODES);
 }
+
+
+void av1_get_eob_feature(const MACROBLOCKD *xd, int eob_multi_size,
+                         int tx_class, int qp, int top_ctx, int left_ctx,
+                         int is_inter, int is_chroma,
+                         int *sparse_features, float *dense_features) {
+  (void)xd;
+  (void)dense_features;
+  (void)sparse_features;
+  (void)eob_multi_size;
+  const int dc_q = av1_dc_quant_QTX(qp, 0, xd->bd) >> (xd->bd - 8);
+  //*(dense_features++) = (float)eob_multi_size;
+  *(dense_features++) = (float)(tx_class > 0);
+  //*(dense_features++) = logf(dc_q / 4.0f + 1.0f);
+  //*(dense_features++) = (float)dc_q / 256.0f;
+  *(dense_features++) = (float)top_ctx;
+  *(dense_features++) = (float)left_ctx;
+  *(dense_features++) = (float)is_inter;
+  *(dense_features++) = (float)is_chroma;
+#if 0
+  int i;
+  for (i = 0; i < eob_multi_size; ++i) {
+    *(dense_features++) = (float)1.0f;
+  }
+  for (; i < 6; ++i) {
+    *(dense_features++) = (float)0.0f;
+  }
+#endif
+}
+
+void av1_get_eob_cdf_ml(const MACROBLOCKD *xd, int eob_multi_size,
+                        int tx_class, int qp, int top_ctx, int left_ctx,
+                        int is_inter, int is_chroma, aom_cdf_prob *cdf) {
+  NN_CONFIG_EM *nn_model = &(xd->tile_ctx->eob);
+  av1_get_eob_feature(xd, eob_multi_size, tx_class, qp, top_ctx, left_ctx,
+                      is_inter, is_chroma, nn_model->sparse_features,
+                      nn_model->dense_features);
+  av1_nn_predict_em(nn_model);
+#if 0
+  const int symbols = eob_multi_size + 5;
+  if (symbols < nn_model->num_logits) {
+    float total = 0.0f;
+    for (int i = 0; i < symbols; ++i) {
+      total += nn_model->output[i];
+    }
+    if (total > 0.001f) {
+      for (int i = 0; i < symbols; ++i) {
+        nn_model->output[i] /= total;
+      }
+    } else {
+      for (int i = 0; i < symbols; ++i) {
+        nn_model->output[i] = 1.0f / symbols;
+      }
+    }
+  }
+#endif
+  av1_pdf2icdf(nn_model->output, cdf, nn_model->num_logits);
+}
+
+int av1_use_eob_ml(int eob_multi_size) {
+  //return 0;
+  return eob_multi_size == 0;
+}
 #endif  // CONFIG_INTRA_ENTROPY
 
 void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
@@ -159,6 +221,65 @@ void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
     memset(l, has_eob, sizeof(*l) * txs_high);
   }
 }
+
+void av1_set_contexts_d(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
+                      int plane, BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
+                      int has_eob, int aoff, int loff, int eob, int dec) {
+  ENTROPY_CONTEXT *const a = pd->above_context + aoff;
+  ENTROPY_CONTEXT *const l = pd->left_context + loff;
+  const int txs_wide = tx_size_wide_unit[tx_size];
+  const int txs_high = tx_size_high_unit[tx_size];
+
+#if 0
+  do {
+    FILE *fp = dec ? fopen("dec.txt", "a") : fopen("enc.txt", "a");
+    if (!fp) break;
+
+    int eob_ctx_a = (a[0] >> EOB_CONTEXT_SHIFT) & 7;
+    int eob_ctx_b = (l[0] >> EOB_CONTEXT_SHIFT) & 7;
+
+    fprintf(fp,
+            "blk %d %d, plane_bsize %d, plane %d, has_eob %d, "
+            "eob_ctx %d %d, eob %d\n",
+            aoff, loff, plane_bsize, plane, has_eob,
+            eob_ctx_a, eob_ctx_b, eob);
+
+    for (int i = 0; i < txs_wide; ++i) {
+      fprintf(fp, "%d ", a[i]);
+    }
+    fprintf(fp, "\n");
+
+    for (int i = 0; i < txs_high; ++i) {
+      fprintf(fp, "%d ", l[i]);
+    }
+    fprintf(fp, "\n");
+
+    fprintf(fp, "\n");
+    fprintf(fp, "\n");
+  } while (0);
+#endif
+
+  // above
+  if (has_eob && xd->mb_to_right_edge < 0) {
+    const int blocks_wide = max_block_wide(xd, plane_bsize, plane);
+    const int above_contexts = AOMMIN(txs_wide, blocks_wide - aoff);
+    memset(a, has_eob, sizeof(*a) * above_contexts);
+    memset(a + above_contexts, 0, sizeof(*a) * (txs_wide - above_contexts));
+  } else {
+    memset(a, has_eob, sizeof(*a) * txs_wide);
+  }
+
+  // left
+  if (has_eob && xd->mb_to_bottom_edge < 0) {
+    const int blocks_high = max_block_high(xd, plane_bsize, plane);
+    const int left_contexts = AOMMIN(txs_high, blocks_high - loff);
+    memset(l, has_eob, sizeof(*l) * left_contexts);
+    memset(l + left_contexts, 0, sizeof(*l) * (txs_high - left_contexts));
+  } else {
+    memset(l, has_eob, sizeof(*l) * txs_high);
+  }
+}
+
 void av1_reset_skip_context(MACROBLOCKD *xd, int mi_row, int mi_col,
                             BLOCK_SIZE bsize, const int num_planes) {
   int i;

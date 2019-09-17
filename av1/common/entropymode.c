@@ -1412,6 +1412,27 @@ static void init_entropy_models(FRAME_CONTEXT *const fc) {
   }
   memcpy(fc->intra_uv_mode_input_layer_bias, intra_uv_mode_input_layer_bias,
          sizeof(intra_uv_mode_input_layer_bias));
+
+  NN_CONFIG_EM *eob = &fc->eob;
+  av1_zero(*eob);
+  eob->lr = single_ref_lr;
+  eob->num_hidden_layers = 0;
+  eob->num_logits = 5;
+  eob->loss = SOFTMAX_CROSS_ENTROPY_LOSS;
+  FC_INPUT_LAYER_EM *const eob_input_layer = &eob->input_layer;
+  eob_input_layer->num_sparse_inputs = EM_EOB_SPARSE_FEATURES;
+  eob_input_layer->num_dense_inputs = EM_EOB_DENSE_FEATURES;
+  memcpy(eob_input_layer->sparse_input_size,
+         eob_sparse_feat_sizes, sizeof(eob_sparse_feat_sizes));
+  eob_input_layer->num_outputs = EM_EOB_OUTPUT_SIZE;
+  eob_input_layer->activation = ACTN_NONE;
+  if (eob_input_layer->num_dense_inputs > 0) {
+    memcpy(fc->eob_input_layer_dense_weights,
+           eob_input_layer_dense_weights,
+           sizeof(eob_input_layer_dense_weights));
+  }
+  memcpy(fc->eob_input_layer_bias, eob_input_layer_bias,
+         sizeof(eob_input_layer_bias));
 }
 #endif  // CONFIG_INTRA_ENTROPY
 

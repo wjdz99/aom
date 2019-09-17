@@ -155,6 +155,26 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
     return 0;
   }
 
+#if 0
+  do {
+    FILE *fp = fopen("dec.txt", "a");
+
+    fprintf(fp, "mi %d %d, block %d %d, plane %d, bsize %d, eob ctx %d %d\n",
+            xd->mb_to_top_edge,
+            xd->mb_to_left_edge,
+            blk_row,
+            blk_col,
+            plane,
+            xd->mi[0]->sb_type,
+            txb_ctx->eob_top_ctx,
+            txb_ctx->eob_left_ctx
+            );
+
+    fprintf(fp, "\n");
+    fclose(fp);
+  } while (0);
+#endif
+
   if (plane == AOM_PLANE_Y) {
     // only y plane's tx_type is transmitted
     av1_read_tx_type(cm, xd, blk_row, blk_col, tx_size, r);
@@ -174,50 +194,63 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
   const int eob_multi_size = txsize_log2_minus4[tx_size];
   const int eob_multi_ctx = (tx_class == TX_CLASS_2D) ? 0 : 1;
-  switch (eob_multi_size) {
-    case 0:
-      eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf16[plane_type][eob_multi_ctx],
-                          5, ACCT_STR) +
-          1;
-      break;
-    case 1:
-      eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf32[plane_type][eob_multi_ctx],
-                          6, ACCT_STR) +
-          1;
-      break;
-    case 2:
-      eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf64[plane_type][eob_multi_ctx],
-                          7, ACCT_STR) +
-          1;
-      break;
-    case 3:
-      eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf128[plane_type][eob_multi_ctx],
-                          8, ACCT_STR) +
-          1;
-      break;
-    case 4:
-      eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf256[plane_type][eob_multi_ctx],
-                          9, ACCT_STR) +
-          1;
-      break;
-    case 5:
-      eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf512[plane_type][eob_multi_ctx],
-                          10, ACCT_STR) +
-          1;
-      break;
-    case 6:
-    default:
-      eob_pt = aom_read_symbol(
-                   r, ec_ctx->eob_flag_cdf1024[plane_type][eob_multi_ctx], 11,
-                   ACCT_STR) +
-               1;
-      break;
+
+
+  if (av1_use_eob_ml(eob_multi_size)) {
+    aom_cdf_prob eob_cdf[11];
+    const int qp = cm->delta_q_info.delta_q_present_flag ? xd->current_qindex :
+        cm->base_qindex;
+    av1_get_eob_cdf_ml(xd, eob_multi_size, tx_class, qp, txb_ctx->eob_top_ctx,
+                       txb_ctx->eob_left_ctx, is_inter_block(mbmi), plane != 0,
+                       eob_cdf);
+    eob_pt = aom_read_symbol_nn(
+        r, eob_cdf, &(ec_ctx->eob), eob_multi_size + 5, ACCT_STR) + 1;
+  } else {
+    switch (eob_multi_size) {
+      case 0:
+        eob_pt =
+            aom_read_symbol(r, ec_ctx->eob_flag_cdf16[plane_type][eob_multi_ctx],
+                            5, ACCT_STR) +
+                            1;
+        break;
+      case 1:
+        eob_pt =
+            aom_read_symbol(r, ec_ctx->eob_flag_cdf32[plane_type][eob_multi_ctx],
+                            6, ACCT_STR) +
+                            1;
+        break;
+      case 2:
+        eob_pt =
+            aom_read_symbol(r, ec_ctx->eob_flag_cdf64[plane_type][eob_multi_ctx],
+                            7, ACCT_STR) +
+                            1;
+        break;
+      case 3:
+        eob_pt =
+            aom_read_symbol(r, ec_ctx->eob_flag_cdf128[plane_type][eob_multi_ctx],
+                            8, ACCT_STR) +
+                            1;
+        break;
+      case 4:
+        eob_pt =
+            aom_read_symbol(r, ec_ctx->eob_flag_cdf256[plane_type][eob_multi_ctx],
+                            9, ACCT_STR) +
+                            1;
+        break;
+      case 5:
+        eob_pt =
+            aom_read_symbol(r, ec_ctx->eob_flag_cdf512[plane_type][eob_multi_ctx],
+                            10, ACCT_STR) +
+                            1;
+        break;
+      case 6:
+      default:
+        eob_pt = aom_read_symbol(
+            r, ec_ctx->eob_flag_cdf1024[plane_type][eob_multi_ctx], 11,
+            ACCT_STR) +
+            1;
+        break;
+    }
   }
 
   const int eob_offset_bits = av1_eob_offset_bits[eob_pt];
@@ -321,6 +354,10 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   // DC value
   set_dc_sign(&cul_level, dc_val);
 
+#if CONFIG_INTRA_ENTROPY
+  set_eob_ctx(&cul_level, tx_size, *eob);
+#endif  // CONFIG_INTRA_ENTROPY
+
   return cul_level;
 }
 
@@ -347,7 +384,13 @@ void av1_read_coeffs_txb_facade(const AV1_COMMON *const cm,
               pd->left_context + row, &txb_ctx);
   const uint8_t cul_level =
       av1_read_coeffs_txb(cm, xd, r, row, col, plane, &txb_ctx, tx_size);
-  av1_set_contexts(xd, pd, plane, plane_bsize, tx_size, cul_level, col, row);
+#if 1
+  eob_info *eob_data = pd->eob_data + xd->txb_offset[plane];
+  av1_set_contexts_d(xd, pd, plane, plane_bsize, tx_size, cul_level, col, row,
+                     eob_data->eob, 1);
+#else
+
+#endif
 
   if (is_inter_block(mbmi)) {
     PLANE_TYPE plane_type = get_plane_type(plane);

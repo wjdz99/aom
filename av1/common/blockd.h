@@ -1111,6 +1111,10 @@ void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
                       int plane, BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
                       int has_eob, int aoff, int loff);
 
+void av1_set_contexts_d(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
+                      int plane, BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
+                      int has_eob, int aoff, int loff, int eob, int dec);
+
 #define MAX_INTERINTRA_SB_SQUARE 32 * 32
 static INLINE int is_interintra_mode(const MB_MODE_INFO *mbmi) {
   return (mbmi->ref_frame[0] > INTRA_FRAME &&
@@ -1401,6 +1405,17 @@ void av1_get_kf_y_mode_cdf_ml(const MACROBLOCKD *xd, aom_cdf_prob *cdf);
 
 void av1_get_uv_mode_cdf_ml(const MACROBLOCKD *xd, PREDICTION_MODE y_mode,
                             aom_cdf_prob *cdf);
+
+void av1_get_eob_feature(const MACROBLOCKD *xd, int eob_multi_size,
+                         int tx_class, int qp, int top_ctx, int left_ctx,
+                         int is_inter, int is_chroma,
+                         int *sparse_features, float *dense_features);
+
+void av1_get_eob_cdf_ml(const MACROBLOCKD *xd, int eob_multi_size,
+                        int tx_class, int qp, int top_ctx, int left_ctx,
+                        int is_inter, int is_chroma, aom_cdf_prob *cdf);
+
+int av1_use_eob_ml(int eob_multi_size);
 #endif  // CONFIG_INTRA_ENTROPY
 
 #ifdef __cplusplus

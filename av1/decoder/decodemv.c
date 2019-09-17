@@ -1107,7 +1107,6 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
           ref_frame[0] = bit3 ? LAST2_FRAME : LAST_FRAME;
         }
       }
-
       ref_frame[1] = NONE_FRAME;
     } else {
       assert(0 && "Invalid prediction mode.");

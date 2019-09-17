@@ -375,5 +375,39 @@ static const float intra_uv_mode_input_layer_bias[EM_UV_OUTPUT_SIZE] = {
 static const int intra_uv_sparse_feat_sizes[EM_NUM_UV_SPARSE_FEATURES] = {
   EM_UV_SPARSE_FEAT_SIZE_0, EM_UV_SPARSE_FEAT_SIZE_1
 };
+
+#define EM_EOB_OUTPUT_SIZE 5
+#define EM_EOB_SPARSE_FEATURES 0
+#define EM_EOB_DENSE_FEATURES 5
+static const float single_ref_lr = 0.001f;
+
+static const float eob_input_layer_dense_weights
+[EM_EOB_DENSE_FEATURES * EM_EOB_OUTPUT_SIZE] = {
+#if 0
+    0.0f,
+#else
+    -1.057937f, -0.254354f, -0.256765f, -0.212304f,
+      0.294793f, -0.404221f, -0.173118f, -0.190419f,
+      0.148424f,  0.751548f, -0.028312f, -0.118234f,
+     -0.110590f, -0.105577f,  0.049517f,  0.300712f,
+     -0.010753f, -0.039455f,  0.177909f, -0.109122f,
+      0.587820f,  0.175096f,  0.186211f,  0.028572f,
+     -0.652988f,
+#endif
+};
+
+static const float eob_input_layer_bias[EM_EOB_OUTPUT_SIZE] = {
+#if 0
+    0.0f,
+#else
+    0.714986f, -1.388235f,  0.087447f, -0.007251f,
+     -0.065337f,
+#endif
+};
+
+static const int eob_sparse_feat_sizes[EM_EOB_SPARSE_FEATURES] = {
+
+};
+
 #endif  // CONFIG_INTRA_ENTROPY
 #endif  // AOM_AV1_COMMON_INTRA_ENTROPY_MODELS_H_
