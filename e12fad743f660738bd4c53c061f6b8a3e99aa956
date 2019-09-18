@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "36970f29_cf41f777",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-09-18T21:41:20Z",
+      "side": 1,
+      "message": "change_configure_and_warn() from build/cmake/util.cmake may cover this",
+      "revId": "e12fad743f660738bd4c53c061f6b8a3e99aa956",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
