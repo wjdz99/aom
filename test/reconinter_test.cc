@@ -233,7 +233,7 @@ TEST_P(BuildCompDiffwtdMaskD16Test, DISABLED_Speed) {
   RunSpeedTest(GET_PARAM(1), DIFFWTD_38_INV);
 }
 
-#if HAVE_SSE4_1
+#if HAVE_SSE4_1 && !CONFIG_CTX_ADAPT_LOG_WEIGHT
 INSTANTIATE_TEST_CASE_P(SSE4_1, BuildCompDiffwtdMaskTest,
                         BuildParams(av1_build_compound_diffwtd_mask_sse4_1));
 
@@ -242,7 +242,7 @@ INSTANTIATE_TEST_CASE_P(
     BuildParams(av1_build_compound_diffwtd_mask_d16_sse4_1));
 #endif
 
-#if HAVE_AVX2
+#if HAVE_AVX2 && !CONFIG_CTX_ADAPT_LOG_WEIGHT
 INSTANTIATE_TEST_CASE_P(AVX2, BuildCompDiffwtdMaskTest,
                         BuildParams(av1_build_compound_diffwtd_mask_avx2));
 
@@ -250,7 +250,7 @@ INSTANTIATE_TEST_CASE_P(AVX2, BuildCompDiffwtdMaskD16Test,
                         BuildParams(av1_build_compound_diffwtd_mask_d16_avx2));
 #endif
 
-#if HAVE_NEON
+#if HAVE_NEON && !CONFIG_CTX_ADAPT_LOG_WEIGHT
 INSTANTIATE_TEST_CASE_P(NEON, BuildCompDiffwtdMaskD16Test,
                         BuildParams(av1_build_compound_diffwtd_mask_d16_neon));
 #endif
