@@ -182,6 +182,7 @@ typedef struct TplDepFrame {
   int height;
   int mi_rows;
   int mi_cols;
+  int frame_display_index;
 } TplDepFrame;
 
 typedef enum {
