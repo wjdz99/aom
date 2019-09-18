@@ -1422,7 +1422,7 @@ static AOM_INLINE void update_stats(const AV1_COMMON *const cm, ThreadData *td,
         }
       }
     }
-    if (new_mv) {
+    if (have_newmv_in_inter_mode(mbmi->mode)) {
       const int allow_hp = cm->cur_frame_force_integer_mv
                                ? MV_SUBPEL_NONE
                                : cm->allow_high_precision_mv;
