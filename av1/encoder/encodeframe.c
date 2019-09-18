@@ -5369,6 +5369,7 @@ static AOM_INLINE void encode_superblock(const AV1_COMP *const cpi,
     xd->cfl.store_y = store_cfl_required(cm, xd);
     mbmi->skip = 1;
     for (int plane = 0; plane < num_planes; ++plane) {
+      x->is_final_encode = !dry_run;
       av1_encode_intra_block_plane(cpi, x, bsize, plane,
                                    cpi->optimize_seg_arr[mbmi->segment_id],
                                    mi_row, mi_col);

@@ -451,6 +451,8 @@ struct macroblock {
   // (normal/winner mode)
   int tx_size_search_method;
   TX_MODE tx_mode;
+
+  int is_final_encode;
 };
 
 static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {

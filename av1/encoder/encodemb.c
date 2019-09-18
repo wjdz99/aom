@@ -592,11 +592,58 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   av1_predict_intra_block_facade(cm, xd, plane, blk_col, blk_row, tx_size);
 
   const int bw = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
-  if (plane == 0 && is_blk_skip(x, plane, blk_row * bw + blk_col)) {
+  if (0 && plane == 0 && is_blk_skip(x, plane, blk_row * bw + blk_col)) {
     *eob = 0;
     p->txb_entropy_ctx[block] = 0;
   } else {
     av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
+
+#if 1
+    do {
+      if (!x->is_final_encode) break;
+
+      if (plane) break;  // luma plane only.
+
+      const TX_SIZE ts = TX_8X8;
+      if (tx_size != ts) break;
+
+      FILE *fp = fopen("intra_data.txt", "a");
+      if (!fp) break;
+
+      const int diff_stride = block_size_wide[plane_bsize];
+      const int src_stride = p->src.stride;
+      const uint8_t *src = &p->src.buf[(blk_row * src_stride + blk_col) * 4];
+      const int16_t *src_diff =
+          &p->src_diff[(blk_row * diff_stride + blk_col) * 4];
+      const int tx_bw = tx_size_wide[tx_size];
+      const int tx_bh = tx_size_high[tx_size];
+
+      // Block info. such as block size, transform size, prediction mode etc.
+      fprintf(fp, "%d,%d,%d,%d,%d,",
+              block_size_wide[plane_bsize],
+              block_size_high[plane_bsize],
+              tx_bw,
+              tx_bh,
+              mbmi->mode);
+
+      // Source pixel values.
+      for (int r = 0; r < tx_bh; ++r) {
+        for (int c = 0; c < tx_bw; ++c) {
+          fprintf(fp, "%d,", src[r * src_stride + c]);
+        }
+      }
+
+      // Residue pixel values.
+      for (int r = 0; r < tx_bh; ++r) {
+        for (int c = 0; c < tx_bw; ++c) {
+          fprintf(fp, "%d,", src_diff[r * diff_stride + c]);
+        }
+      }
+
+      fprintf(fp, "\n");
+      fclose(fp);
+    } while (0);
+#endif
 
     const ENTROPY_CONTEXT *a = &args->ta[blk_col];
     const ENTROPY_CONTEXT *l = &args->tl[blk_row];
