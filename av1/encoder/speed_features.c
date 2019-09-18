@@ -258,6 +258,7 @@ static void set_good_speed_features_framesize_independent(
     sf->selective_ref_frame = 2;
 
     sf->intra_tx_size_search_init_depth_rect = 1;
+    sf->reduce_wiener_window_size = is_boosted_arf2_bwd_type ? 0 : 1;
 
     sf->skip_repeat_interpolation_filter_search = 1;
     sf->tx_type_search.skip_tx_search = 1;
@@ -361,7 +362,7 @@ static void set_good_speed_features_framesize_independent(
         frame_is_intra_only(&cpi->common) ? 0 : 1;
     sf->enable_winner_mode_for_use_tx_domain_dist =
         cm->allow_screen_content_tools ? 0 : 1;
-    sf->reduce_wiener_window_size = is_boosted_arf2_bwd_type ? 0 : 1;
+    sf->reduce_wiener_window_size = !boosted;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
     sf->simple_motion_search_prune_agg = 1;
     sf->disable_sb_level_mv_cost_upd = 1;
@@ -373,7 +374,7 @@ static void set_good_speed_features_framesize_independent(
     sf->tx_type_search.fast_intra_tx_type_search = 1;
     sf->disable_loop_restoration_chroma =
         (boosted || cm->allow_screen_content_tools) ? 0 : 1;
-    sf->reduce_wiener_window_size = !boosted;
+    // sf->reduce_wiener_window_size = !boosted;
     sf->cb_pred_filter_search = 1;
     sf->adaptive_mode_search = 1;
     sf->alt_ref_search_fp = 1;
