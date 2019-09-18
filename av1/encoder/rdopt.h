@@ -240,10 +240,12 @@ static INLINE void set_tx_size_search_method(
     const struct AV1_COMP *cpi, MACROBLOCK *x,
     int enable_winner_mode_for_tx_size_srch, int is_winner_mode) {
   // Populate transform size search method/transform mode appropriately
-  if (enable_winner_mode_for_tx_size_srch && !is_winner_mode) {
-    x->tx_size_search_method = USE_LARGESTALL;
-  } else {
-    x->tx_size_search_method = cpi->sf.tx_size_search_method;
+  x->tx_size_search_method = cpi->tx_size_search_methods[DEFAULT_EVAL];
+  if (enable_winner_mode_for_tx_size_srch) {
+    if (is_winner_mode)
+      x->tx_size_search_method = cpi->tx_size_search_methods[WINNER_MODE_EVAL];
+    else
+      x->tx_size_search_method = cpi->tx_size_search_methods[MODE_EVAL];
   }
   x->tx_mode = select_tx_mode(cpi, x->tx_size_search_method);
 }
@@ -253,14 +255,16 @@ static INLINE void set_tx_domain_dist_type(
     int enable_winner_mode_for_tx_domain_dist, int is_winner_mode) {
   if (!enable_winner_mode_for_tx_domain_dist) {
     x->use_transform_domain_distortion =
-        cpi->sf.use_transform_domain_distortion;
+        cpi->use_transform_domain_distortion[DEFAULT_EVAL];
     return;
   }
 
   if (is_winner_mode)
-    x->use_transform_domain_distortion = 0;
+    x->use_transform_domain_distortion =
+        cpi->use_transform_domain_distortion[WINNER_MODE_EVAL];
   else
-    x->use_transform_domain_distortion = 2;
+    x->use_transform_domain_distortion =
+        cpi->use_transform_domain_distortion[MODE_EVAL];
 }
 
 // Checks the conditions to enable winner mode processing
