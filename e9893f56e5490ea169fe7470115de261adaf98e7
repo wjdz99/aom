@@ -22,6 +22,30 @@
       "revId": "e9893f56e5490ea169fe7470115de261adaf98e7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e00de3ae_c8e8d737",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2850,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-09-18T21:42:38Z",
+      "side": 1,
+      "message": "how about moving it to onyxc_int.h as inline function first?\n\nwe can then decide which function should go to .c file.",
+      "parentUuid": "419a682a_2f110d4b",
+      "range": {
+        "startLine": 2838,
+        "startChar": 0,
+        "endLine": 2850,
+        "endChar": 0
+      },
+      "revId": "e9893f56e5490ea169fe7470115de261adaf98e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
