@@ -30,6 +30,12 @@ if(CONFIG_LOWBITDEPTH)
   set(FORCE_HIGHBITDEPTH_DECODING 1 CACHE NUMBER "${cmake_cmdline_helpstring}")
 endif()
 
+if(FORCE_HIGHBITDEPTH_DECODING AND NOT CONFIG_AV1_HIGHBITDEPTH)
+  message(WARNING "CONFIG_AV1_HIGHBITDEPTH must be set to force high bitdepth \
+    decoding. Enabling CONFIG_AV1_HIGHBITDEPTH")
+  set(CONFIG_AV1_HIGHBITDEPTH 1)
+endif()
+
 # Generate the user config settings.
 list(APPEND aom_build_vars ${AOM_CONFIG_VARS} ${AOM_OPTION_VARS})
 foreach(cache_var ${aom_build_vars})
