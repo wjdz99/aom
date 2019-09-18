@@ -270,7 +270,7 @@ static INLINE uint32_t get_rd_opt_coeff_thresh(
     // Use conservative threshold during mode decision and perform R-D
     // optimization of coeffs always for winner modes
     if (is_winner_mode)
-      coeff_opt_thresh = UINT32_MAX;
+      coeff_opt_thresh = coeff_opt_dist_threshold[2];
     else
       coeff_opt_thresh = coeff_opt_dist_threshold[1];
   }
