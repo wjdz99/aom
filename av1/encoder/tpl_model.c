@@ -547,6 +547,52 @@ static void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx) {
   for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx)
     ref_frame[idx] = cpi->tpl_frame[tpl_frame->ref_map_index[idx]].gf_picture;
 
+  if (cpi->sf.selective_ref_frame >= 2) {
+    int last2_index = cpi->tpl_frame[frame_idx].ref_map_index[LAST2_FRAME - 1];
+    int last3_index = cpi->tpl_frame[frame_idx].ref_map_index[LAST3_FRAME - 1];
+    int golden_index =
+        cpi->tpl_frame[frame_idx].ref_map_index[GOLDEN_FRAME - 1];
+
+    int last2_frame_disp_index =
+        last2_index >= 0 ? gf_group->frame_disp_idx[last2_index] : -1;
+    int last3_frame_disp_index =
+        last3_index >= 0 ? gf_group->frame_disp_idx[last3_index] : -1;
+    int golden_frame_disp_index =
+        golden_index >= 0 ? gf_group->frame_disp_idx[golden_index] : -1;
+
+    if (last3_frame_disp_index < golden_frame_disp_index ||
+        last3_frame_disp_index == -1)
+      ref_frame[LAST3_FRAME - 1] = NULL;
+
+    if (last2_frame_disp_index < golden_frame_disp_index ||
+        last2_frame_disp_index == -1)
+      ref_frame[LAST2_FRAME - 1] = NULL;
+
+    if (cpi->sf.selective_ref_frame >= 3) {
+      int bwd_index = cpi->tpl_frame[frame_idx].ref_map_index[BWDREF_FRAME - 1];
+      int alt2_index =
+          cpi->tpl_frame[frame_idx].ref_map_index[ALTREF2_FRAME - 1];
+
+      int bwd_frame_disp_index =
+          bwd_index >= 0 ? gf_group->frame_disp_idx[bwd_index] : -1;
+      int alt2_frame_disp_index =
+          alt2_index >= 0 ? gf_group->frame_disp_idx[alt2_index] : -1;
+      int cur_frame_disp_index = frame_idx > gf_group->size
+                                     ? cpi->rc.baseline_gf_interval + 1
+                                     : gf_group->frame_disp_idx[frame_idx];
+
+      ref_frame[LAST3_FRAME - 1] = NULL;
+
+      if (alt2_frame_disp_index < cur_frame_disp_index ||
+          alt2_frame_disp_index == -1)
+        ref_frame[ALTREF2_FRAME - 1] = NULL;
+
+      if (bwd_frame_disp_index < cur_frame_disp_index ||
+          bwd_frame_disp_index == -1)
+        ref_frame[BWDREF_FRAME - 1] = NULL;
+    }
+  }
+
   // Make a temporary mbmi for tpl model
   MB_MODE_INFO **backup_mi_grid = xd->mi;
   MB_MODE_INFO mbmi;
