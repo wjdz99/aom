@@ -633,88 +633,30 @@ static int adjust_boost_bits_for_target_level(AV1_COMP *const cpi,
   return bits_assigned;
 }
 
-static void allocate_gf_group_bits(
-    GF_GROUP *gf_group, RATE_CONTROL *const rc, int64_t gf_group_bits,
-    int gf_arf_bits, int max_bits,
-    const EncodeFrameParams *const frame_params) {
-  const int key_frame = (frame_params->frame_type == KEY_FRAME);
-  int64_t total_group_bits = gf_group_bits;
-
-  // For key frames the frame target rate is already set and it
-  // is also the golden frame.
-  // === [frame_index == 0] ===
-  int frame_index = 0;
-  if (!key_frame) {
-    if (rc->source_alt_ref_active)
-      gf_group->bit_allocation[frame_index] = 0;
-    else
-      gf_group->bit_allocation[frame_index] = gf_arf_bits;
-  }
-
-  // Deduct the boost bits for arf (or gf if it is not a key frame)
-  // from the group total.
-  if (rc->source_alt_ref_pending || !key_frame) total_group_bits -= gf_arf_bits;
-
-  frame_index++;
-
-  // Store the bits to spend on the ARF if there is one.
-  // === [frame_index == 1] ===
-  if (rc->source_alt_ref_pending) {
-    gf_group->bit_allocation[frame_index] = gf_arf_bits;
-    ++frame_index;
-  }
-
+static void calculate_gf_group_bits(GF_GROUP *gf_group, int64_t gf_group_bits) {
+  int64_t total_group_boosts = 0;
   const int gf_group_size = gf_group->size;
-  int arf_depth_bits[MAX_ARF_LAYERS + 1] = { 0 };
-  int arf_depth_count[MAX_ARF_LAYERS + 1] = { 0 };
-  int arf_depth_boost[MAX_ARF_LAYERS + 1] = { 0 };
-  int total_arfs = rc->source_alt_ref_pending;
-
-  for (int idx = 0; idx < gf_group_size; ++idx) {
-    if (gf_group->update_type[idx] == ARF_UPDATE ||
-        gf_group->update_type[idx] == INTNL_ARF_UPDATE) {
-      arf_depth_boost[gf_group->layer_depth[idx]] += gf_group->arf_boost[idx];
-      ++arf_depth_count[gf_group->layer_depth[idx]];
-    }
+  // Weights for different layers, empirical values.
+  // Layer 0: key frame / golden frame.
+  // Layer 1: ARF.
+  // Layer 2 - 4: internal ARF.
+  // Layer 5: Leaf node.
+  // Layer 6: Overlay frame.
+  // TODO(chengchen): can we make weights adaptive?
+  double layer_weights[MAX_ARF_LAYERS + 2] = { 0, 8.0, 4.0, 2.0, 1.2, 1.0, 0 };
+  // frame_index is the encoding order of the pyramid structure.
+  // For example, 1 is the ARF, 2 the internal ARF of layer depth of 2.
+  for (int frame_index = 1; frame_index < gf_group_size; ++frame_index) {
+    const int layer_depth = gf_group->layer_depth[frame_index];
+    total_group_boosts += (int64_t)((double)gf_group->arf_boost[frame_index] *
+                                    layer_weights[layer_depth]);
   }
 
-  for (int idx = 2; idx < MAX_ARF_LAYERS; ++idx) {
-    if (arf_depth_boost[idx] == 0) break;
-    arf_depth_bits[idx] = calculate_boost_bits(
-        rc->baseline_gf_interval - total_arfs - arf_depth_count[idx],
-        arf_depth_boost[idx], total_group_bits);
-
-    total_group_bits -= arf_depth_bits[idx];
-    total_arfs += arf_depth_count[idx];
-  }
-
-  int normal_frames = rc->baseline_gf_interval - total_arfs;
-  int normal_frame_bits;
-
-  if (normal_frames > 1)
-    normal_frame_bits = (int)(total_group_bits / normal_frames);
-  else
-    normal_frame_bits = (int)total_group_bits;
-
-  // TODO(jingning): Currently assume even budget distribution for all the
-  // regular frames. Can this be improved?
-  int target_frame_size = normal_frame_bits;
-  target_frame_size =
-      clamp(target_frame_size, 0, AOMMIN(max_bits, (int)total_group_bits));
-
-  for (int idx = frame_index; idx < gf_group_size; ++idx) {
-    switch (gf_group->update_type[idx]) {
-      case ARF_UPDATE:
-      case INTNL_ARF_UPDATE:
-        gf_group->bit_allocation[idx] =
-            (int)(((int64_t)arf_depth_bits[gf_group->layer_depth[idx]] *
-                   gf_group->arf_boost[idx]) /
-                  arf_depth_boost[gf_group->layer_depth[idx]]);
-        break;
-      case INTNL_OVERLAY_UPDATE:
-      case OVERLAY_UPDATE: gf_group->bit_allocation[idx] = 0; break;
-      default: gf_group->bit_allocation[idx] = target_frame_size; break;
-    }
+  for (int frame_index = 1; frame_index < gf_group_size; ++frame_index) {
+    const int layer_depth = gf_group->layer_depth[frame_index];
+    gf_group->bit_allocation[frame_index] =
+        (int)((double)gf_group_bits * (double)gf_group->arf_boost[frame_index] *
+              layer_weights[layer_depth] / total_group_boosts);
   }
 
   // Set the frame following the current GOP to 0 bit allocation. For ARF
@@ -723,6 +665,28 @@ static void allocate_gf_group_bits(
   // Setting this frame to use 0 bit (of out the current GOP budget) will
   // simplify logics in reference frame management.
   gf_group->bit_allocation[gf_group_size] = 0;
+  // 0 represent the first frame of the GOP (either key frame or golden frame).
+  // If it's the key frame, it's already set. If it's a golden frame, its value
+  // is not used. So we just leave it blank.
+  // gf_group->bit_allocation[0] = 0;
+}
+
+// Adjust arf bits. Then recalculate bit allocation for the GOP to satisfy
+// encoder level constraints.
+// Only used when encoder level constraints are defined.
+// Do not affect normal encoding performance.
+static void adjust_gf_group_bits(AV1_COMP *const cpi, int64_t gf_group_bits) {
+  const int gf_arf_bits = cpi->gf_group.bit_allocation[1];
+  adjust_boost_bits_for_target_level(cpi, gf_arf_bits, gf_group_bits, 1);
+  calculate_gf_group_bits(&cpi->gf_group, gf_group_bits);
+}
+
+static void allocate_gf_group_bits(AV1_COMP *const cpi,
+                                   GF_GROUP *gf_group, int64_t gf_group_bits) {
+  calculate_gf_group_bits(gf_group, gf_group_bits);
+
+  // Invoked only when encoder level constraints are enforced.
+  adjust_gf_group_bits(cpi, gf_group_bits);
 }
 
 // Given the maximum allowed height of the pyramid structure, return the fixed
@@ -835,7 +799,6 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
   int flash_detected;
   int64_t gf_group_bits;
-  int gf_arf_bits;
   const int is_intra_only = frame_params->frame_type == KEY_FRAME ||
                             frame_params->frame_type == INTRA_ONLY_FRAME;
   const int arf_active_or_kf = is_intra_only || rc->source_alt_ref_active;
@@ -1196,12 +1159,6 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   }
 #endif
 
-  // Calculate the extra bits to be used for boosted frame(s)
-  gf_arf_bits = calculate_boost_bits(rc->baseline_gf_interval, rc->gfu_boost,
-                                     gf_group_bits);
-  gf_arf_bits =
-      adjust_boost_bits_for_target_level(cpi, gf_arf_bits, gf_group_bits, 1);
-
   // Adjust KF group bits and error remaining.
   twopass->kf_group_error_left -= (int64_t)gf_group_err;
 
@@ -1209,8 +1166,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   av1_gop_setup_structure(cpi, frame_params);
 
   // Allocate bits to each of the frames in the GF group.
-  allocate_gf_group_bits(&cpi->gf_group, rc, gf_group_bits, gf_arf_bits,
-                         frame_max_bits(rc, oxcf), frame_params);
+  allocate_gf_group_bits(cpi, &cpi->gf_group, gf_group_bits);
 
   // Reset the file position.
   reset_fpf_position(twopass, start_pos);
