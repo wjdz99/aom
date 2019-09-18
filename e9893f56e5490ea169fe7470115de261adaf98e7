@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "419a682a_2f110d4b",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2850,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2019-09-18T21:29:32Z",
+      "side": 1,
+      "message": "FRAME_INFO is defined in onyxc_int.h\nIdeally, all functions that access/modify FRAME_INFO should be put in onyxc_int.c\nThere no onyxc_int.c, so I don\u0027t know how should this work.\ninit_frame_info() will be used by encoder and decoder, so it should be put in common/.",
+      "range": {
+        "startLine": 2838,
+        "startChar": 0,
+        "endLine": 2850,
+        "endChar": 0
+      },
+      "revId": "e9893f56e5490ea169fe7470115de261adaf98e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
