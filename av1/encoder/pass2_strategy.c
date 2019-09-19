@@ -808,7 +808,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   const FIRSTPASS_STATS *const start_pos = twopass->stats_in;
   GF_GROUP *gf_group = &cpi->gf_group;
   FRAME_INFO *frame_info = &cpi->frame_info;
-  int i;
+  int this_gop_length;
 
   double boost_score = 0.0;
   double gf_group_err = 0.0;
@@ -899,9 +899,10 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   double avg_raw_err_stdev = 0;
   int non_zero_stdev_count = 0;
 
-  i = 0;
-  while (i < rc->static_scene_max_gf_interval && i < rc->frames_to_key) {
-    ++i;
+  this_gop_length = 0;
+  while (this_gop_length < rc->static_scene_max_gf_interval &&
+         this_gop_length < rc->frames_to_key) {
+    ++this_gop_length;
 
     // Accumulate error score of frames in this gf group.
     mod_frame_err =
@@ -943,7 +944,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
       decay_accumulator = decay_accumulator * loop_decay_rate;
 
       // Monitor for static sections.
-      if ((rc->frames_since_key + i - 1) > 1) {
+      if ((rc->frames_since_key + this_gop_length - 1) > 1) {
         zero_motion_accumulator =
             AOMMIN(zero_motion_accumulator,
                    get_zero_motion_factor(frame_info, &next_frame));
@@ -951,7 +952,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
       // Break clause to detect very still sections after motion. For example,
       // a static image after a fade or other transition.
-      if (detect_transition_to_still(cpi, i, 5, loop_decay_rate,
+      if (detect_transition_to_still(cpi, this_gop_length, 5, loop_decay_rate,
                                      last_loop_decay_rate)) {
         allow_alt_ref = 0;
         break;
@@ -964,17 +965,17 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
                                     this_frame_mv_in_out, GF_MAX_BOOST);
     // If almost totally static, we will not use the the max GF length later,
     // so we can continue for more frames.
-    if ((i >= active_max_gf_interval + 1) &&
+    if ((this_gop_length >= active_max_gf_interval + 1) &&
         !is_almost_static(zero_motion_accumulator,
                           twopass->kf_zeromotion_pct)) {
       break;
     }
 
     // Some conditions to breakout after min interval.
-    if (i >= active_min_gf_interval &&
+    if (this_gop_length >= active_min_gf_interval &&
         // If possible don't break very close to a kf
-        (rc->frames_to_key - i >= rc->min_gf_interval) && (i & 0x01) &&
-        !flash_detected &&
+        (rc->frames_to_key - this_gop_length >= rc->min_gf_interval) &&
+        (this_gop_length & 0x01) && !flash_detected &&
         (mv_ratio_accumulator > mv_ratio_accumulator_thresh ||
          abs_mv_in_out_accumulator > ARF_ABS_ZOOM_THRESH)) {
       break;
@@ -983,7 +984,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   }
 
   // Was the group length constrained by the requirement for a new KF?
-  rc->constrained_gf_group = (i >= rc->frames_to_key) ? 1 : 0;
+  rc->constrained_gf_group = (this_gop_length >= rc->frames_to_key) ? 1 : 0;
 
   const int num_mbs = (cpi->oxcf.resize_mode != RESIZE_NONE) ? cpi->initial_mbs
                                                              : cpi->common.MBs;
@@ -992,19 +993,20 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   const double last_frame_sr_coded_error = next_frame.sr_coded_error;
   const double last_frame_tr_coded_error = next_frame.tr_coded_error;
   double avg_pcnt_third_ref_nolast = avg_pcnt_third_ref;
-  if (i) {
-    avg_sr_coded_error /= i;
-    avg_tr_coded_error /= i;
-    avg_pcnt_second_ref /= i;
-    if (i - 1) {
+  if (this_gop_length) {
+    avg_sr_coded_error /= this_gop_length;
+    avg_tr_coded_error /= this_gop_length;
+    avg_pcnt_second_ref /= this_gop_length;
+    if (this_gop_length - 1) {
       avg_pcnt_third_ref_nolast =
-          (avg_pcnt_third_ref - next_frame.pcnt_third_ref) / (i - 1);
+          (avg_pcnt_third_ref - next_frame.pcnt_third_ref) /
+          (this_gop_length - 1);
     } else {
-      avg_pcnt_third_ref_nolast = avg_pcnt_third_ref / i;
+      avg_pcnt_third_ref_nolast = avg_pcnt_third_ref / this_gop_length;
     }
-    avg_pcnt_third_ref /= i;
-    avg_new_mv_count /= i;
-    avg_wavelet_energy /= i;
+    avg_pcnt_third_ref /= this_gop_length;
+    avg_new_mv_count /= this_gop_length;
+    avg_wavelet_energy /= this_gop_length;
   }
 
   if (non_zero_stdev_count) avg_raw_err_stdev /= non_zero_stdev_count;
@@ -1022,8 +1024,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
   int use_alt_ref =
       !is_almost_static(zero_motion_accumulator, twopass->kf_zeromotion_pct) &&
-      allow_alt_ref && (i < cpi->oxcf.lag_in_frames) &&
-      (i >= rc->min_gf_interval) &&
+      allow_alt_ref && (this_gop_length < cpi->oxcf.lag_in_frames) &&
+      (this_gop_length >= rc->min_gf_interval) &&
       (cpi->oxcf.gf_max_pyr_height > MIN_PYRAMID_LVL);
 
   // TODO(urvang): Improve and use model for VBR, CQ etc as well.
@@ -1051,7 +1053,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
       (float)(last_frame_coded_error / num_mbs),
       (float)(last_frame_sr_coded_error / num_mbs),
       (float)(last_frame_tr_coded_error / num_mbs),
-      (float)i,
+      (float)this_gop_length,
       (float)mv_ratio_accumulator,
       (float)non_zero_stdev_count
     };
@@ -1079,42 +1081,43 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     // 2: next gf group is too short to have arf compared to the current gf
 
     // maximum length of next gf group
-    const int next_gf_len = rc->frames_to_key - i;
+    const int next_gf_len = rc->frames_to_key - this_gop_length;
     const int single_overlay_left =
-        next_gf_len == 0 && i > REDUCE_GF_LENGTH_THRESH;
+        next_gf_len == 0 && this_gop_length > REDUCE_GF_LENGTH_THRESH;
     // the next gf is probably going to have a ARF but it will be shorter than
     // this gf
     const int unbalanced_gf =
-        i > REDUCE_GF_LENGTH_TO_KEY_THRESH &&
+        this_gop_length > REDUCE_GF_LENGTH_TO_KEY_THRESH &&
         next_gf_len + 1 < REDUCE_GF_LENGTH_TO_KEY_THRESH &&
         next_gf_len + 1 >= rc->min_gf_interval;
 
     if (single_overlay_left || unbalanced_gf) {
       const int roll_back = REDUCE_GF_LENGTH_BY;
       // Reduce length only if active_min_gf_interval will be respected later.
-      if (i - roll_back >= active_min_gf_interval + 1) {
+      if (this_gop_length - roll_back >= active_min_gf_interval + 1) {
         alt_offset = -roll_back;
-        i -= roll_back;
+        this_gop_length -= roll_back;
       }
     }
   }
 
   // Should we use the alternate reference frame.
   if (use_alt_ref) {
-    const int forward_frames = (rc->frames_to_key - i >= i - 1)
-                                   ? i - 1
-                                   : AOMMAX(0, rc->frames_to_key - i);
+    const int forward_frames =
+        (rc->frames_to_key - this_gop_length >= this_gop_length - 1)
+            ? this_gop_length - 1
+            : AOMMAX(0, rc->frames_to_key - this_gop_length);
 
     // Calculate the boost for alt ref.
     rc->gfu_boost = av1_calc_arf_boost(twopass, rc, frame_info, alt_offset,
-                                       forward_frames, (i - 1));
+                                       forward_frames, (this_gop_length - 1));
     rc->source_alt_ref_pending = 1;
     gf_group->max_layer_depth_allowed = cpi->oxcf.gf_max_pyr_height;
   } else {
     reset_fpf_position(twopass, start_pos);
     rc->gfu_boost = AOMMIN(
-        MAX_GF_BOOST,
-        av1_calc_arf_boost(twopass, rc, frame_info, alt_offset, (i - 1), 0));
+        MAX_GF_BOOST, av1_calc_arf_boost(twopass, rc, frame_info, alt_offset,
+                                         (this_gop_length - 1), 0));
     rc->source_alt_ref_pending = 0;
     gf_group->max_layer_depth_allowed = 0;
   }
@@ -1123,13 +1126,14 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   // If forward keyframes are enabled, ensure the final gf group obeys the
   // MIN_FWD_KF_INTERVAL.
   if (cpi->oxcf.fwd_kf_enabled &&
-      ((twopass->stats_in - i + rc->frames_to_key) < twopass->stats_in_end)) {
-    if (i == rc->frames_to_key) {
-      rc->baseline_gf_interval = i;
+      ((twopass->stats_in - this_gop_length + rc->frames_to_key) <
+       twopass->stats_in_end)) {
+    if (this_gop_length == rc->frames_to_key) {
+      rc->baseline_gf_interval = this_gop_length;
       // if the last gf group will be smaller than MIN_FWD_KF_INTERVAL
-    } else if ((rc->frames_to_key - i <
+    } else if ((rc->frames_to_key - this_gop_length <
                 AOMMAX(MIN_FWD_KF_INTERVAL, rc->min_gf_interval)) &&
-               (rc->frames_to_key != i)) {
+               (rc->frames_to_key != this_gop_length)) {
       // if possible, merge the last two gf groups
       if (rc->frames_to_key <= active_max_gf_interval) {
         rc->baseline_gf_interval = rc->frames_to_key;
@@ -1139,18 +1143,18 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
         rc->baseline_gf_interval = rc->frames_to_key - MIN_FWD_KF_INTERVAL;
       }
     } else {
-      rc->baseline_gf_interval = i - rc->source_alt_ref_pending;
+      rc->baseline_gf_interval = this_gop_length - rc->source_alt_ref_pending;
     }
   } else {
-    rc->baseline_gf_interval = i - rc->source_alt_ref_pending;
+    rc->baseline_gf_interval = this_gop_length - rc->source_alt_ref_pending;
   }
 
 #define LAST_ALR_BOOST_FACTOR 0.2f
   rc->arf_boost_factor = 1.0;
   if (rc->source_alt_ref_pending && !is_lossless_requested(&cpi->oxcf)) {
     // Reduce the boost of altref in the last gf group
-    if (rc->frames_to_key - i == REDUCE_GF_LENGTH_BY ||
-        rc->frames_to_key - i == 0) {
+    if (rc->frames_to_key - this_gop_length == REDUCE_GF_LENGTH_BY ||
+        rc->frames_to_key - this_gop_length == 0) {
       rc->arf_boost_factor = LAST_ALR_BOOST_FACTOR;
     }
   }
