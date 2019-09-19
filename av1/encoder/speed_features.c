@@ -293,7 +293,6 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_tx_size_search_init_depth_rect = 1;
     sf->inter_tx_size_search_init_depth_sqr = 1;
     sf->cdef_pick_method = CDEF_FAST_SEARCH;
-    sf->cb_pred_filter_search = 0;
     sf->model_based_prune_tx_search_level = 0;
     sf->reduce_inter_modes = boosted ? 1 : 2;
     sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
