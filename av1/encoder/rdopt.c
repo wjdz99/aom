@@ -5224,27 +5224,38 @@ static AOM_INLINE void select_tx_block(
 
   // TX no split
   if (try_no_split) {
+    int64_t rd_thresh;
+    if (cpi->sf.adaptive_txb_search_level) {
+      int select_tx_mul = 1 << (2 + cpi->sf.adaptive_txb_search_level);
+      int select_tx_div = (1 << (2 + cpi->sf.adaptive_txb_search_level)) - 1;
+      rd_thresh =
+          get_rd_thresh_from_best_rd(ref_best_rd, select_tx_mul, select_tx_div);
+    } else {
+      rd_thresh = ref_best_rd;
+    }
+
     try_tx_block_no_split(cpi, x, blk_row, blk_col, block, tx_size, depth,
-                          plane_bsize, ta, tl, ctx, rd_stats, ref_best_rd,
+                          plane_bsize, ta, tl, ctx, rd_stats, rd_thresh,
                           ftxs_mode, rd_info_node, &no_split);
 
-    if (cpi->sf.adaptive_txb_search_level &&
-        (no_split.rd -
-         (no_split.rd >> (1 + cpi->sf.adaptive_txb_search_level))) >
-            ref_best_rd) {
-      *is_cost_valid = 0;
-      return;
+    if (cpi->sf.adaptive_txb_search_level) {
+      if (((no_split.rd -
+            (no_split.rd >> (2 + cpi->sf.adaptive_txb_search_level))) >
+           ref_best_rd) ||
+          (rd_stats->rate == INT_MAX)) {
+        *is_cost_valid = 0;
+        return;
+      }
+      assert(no_split.rd != INT64_MAX);
+      if ((no_split.rd -
+           (no_split.rd >> (2 + cpi->sf.adaptive_txb_search_level))) >
+          prev_level_rd) {
+        try_split = 0;
+      }
     }
 
     if (cpi->sf.txb_split_cap) {
       if (p->eobs[block] == 0) try_split = 0;
-    }
-
-    if (cpi->sf.adaptive_txb_search_level &&
-        (no_split.rd -
-         (no_split.rd >> (2 + cpi->sf.adaptive_txb_search_level))) >
-            prev_level_rd) {
-      try_split = 0;
     }
   }
 
@@ -11923,6 +11934,7 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
   const int intra_cost_penalty = av1_get_intra_cost_penalty(
       cm->base_qindex, cm->y_dc_delta_q, cm->seq_params.bit_depth);
   const int skip_ctx = av1_get_skip_context(xd);
+  int64_t rd_thresh;
 
   int known_rate = mode_cost;
   known_rate += ref_frame_cost;
@@ -11934,6 +11946,13 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
     return INT64_MAX;
   }
 
+  int is_thrsh_enable =
+      mbmi->mode == DC_PRED && av1_filter_intra_allowed_bsize(cm, bsize);
+  if (is_thrsh_enable) {
+    rd_thresh = get_rd_thresh_from_best_rd(search_state->best_rd, 2, 1);
+  } else {
+    rd_thresh = search_state->best_rd;
+  }
   const int is_directional_mode = av1_is_directional_mode(mode);
   if (is_directional_mode && av1_use_angle_delta(bsize) &&
       cpi->oxcf.enable_angle_delta) {
@@ -11952,17 +11971,16 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
     int64_t model_rd = INT64_MAX;
     int rate_dummy;
     rd_pick_intra_angle_sby(cpi, x, mi_row, mi_col, &rate_dummy, rd_stats_y,
-                            bsize, mode_cost, search_state->best_rd, &model_rd,
-                            0);
+                            bsize, mode_cost, rd_thresh, &model_rd, 0);
 
   } else {
     av1_init_rd_stats(rd_stats_y);
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
-    super_block_yrd(cpi, x, rd_stats_y, bsize, search_state->best_rd);
+    super_block_yrd(cpi, x, rd_stats_y, bsize, rd_thresh);
   }
 
   // Pick filter intra modes.
-  if (mode == DC_PRED && av1_filter_intra_allowed_bsize(cm, bsize)) {
+  if (is_thrsh_enable) {
     int try_filter_intra = 0;
     int64_t best_rd_so_far = INT64_MAX;
     if (rd_stats_y->rate != INT_MAX) {
@@ -11988,9 +12006,14 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
       mbmi->filter_intra_mode_info.use_filter_intra = 1;
       for (FILTER_INTRA_MODE fi_mode = FILTER_DC_PRED;
            fi_mode < FILTER_INTRA_MODES; ++fi_mode) {
+        rd_thresh = get_rd_thresh_from_best_rd(search_state->best_rd, 2, 1);
+        rd_thresh =
+            rd_thresh -
+            RDCOST(x->rdmult,
+                   intra_mode_info_cost_y(cpi, x, mbmi, bsize, mode_cost), 0);
         mbmi->filter_intra_mode_info.filter_intra_mode = fi_mode;
-        super_block_yrd(cpi, x, &rd_stats_y_fi, bsize, search_state->best_rd);
-        if (rd_stats_y_fi.rate == INT_MAX) continue;
+        super_block_yrd(cpi, x, &rd_stats_y_fi, bsize, rd_thresh);
+        if (rd_stats_y_fi.rate == INT_MAX) break;
         const int this_rate_tmp =
             rd_stats_y_fi.rate +
             intra_mode_info_cost_y(cpi, x, mbmi, bsize, mode_cost);
