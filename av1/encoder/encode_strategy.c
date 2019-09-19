@@ -1149,7 +1149,6 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   int code_arf = 0;
   struct lookahead_entry *source = NULL;
   struct lookahead_entry *last_source = NULL;
-  FRAME_UPDATE_TYPE frame_update_type = get_frame_update_type(gf_group);
   if (frame_params.show_existing_frame) {
     source = av1_lookahead_pop(cpi->lookahead, flush);
   } else {
@@ -1182,13 +1181,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   if (!frame_params.show_existing_frame)
     *frame_flags = (source->flags & AOM_EFLAG_FORCE_KF) ? FRAMEFLAGS_KEY : 0;
 
-  const int is_overlay = frame_params.show_existing_frame &&
-                         (frame_update_type == OVERLAY_UPDATE ||
-                          frame_update_type == INTNL_OVERLAY_UPDATE);
-  if (frame_params.show_frame || is_overlay) {
-    // Shown frames and arf-overlay frames need frame-rate considering
-    adjust_frame_rate(cpi, source);
-  }
+  // Shown frames and arf-overlay frames need frame-rate considering
+  adjust_frame_rate(cpi, source);
 
   if (frame_params.show_existing_frame) {
     // show_existing_frame implies this frame is shown!
@@ -1210,18 +1204,13 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
 
 #if CONFIG_REALTIME_ONLY
   av1_get_one_pass_rt_params(cpi, &frame_params, *frame_flags);
-  frame_update_type = get_frame_update_type(gf_group);
 #else
-  if (oxcf->pass == 0 && oxcf->mode == REALTIME && oxcf->lag_in_frames == 0) {
+  if (oxcf->pass == 0 && oxcf->mode == REALTIME && oxcf->lag_in_frames == 0)
     av1_get_one_pass_rt_params(cpi, &frame_params, *frame_flags);
-    frame_update_type = get_frame_update_type(gf_group);
-  } else if (oxcf->pass != 1 &&
-             (!frame_params.show_existing_frame || is_overlay)) {
-    // GF_GROUP needs updating for arf overlays as well as non-show-existing
+  else if (oxcf->pass != 1)
     av1_get_second_pass_params(cpi, &frame_params, *frame_flags);
-    frame_update_type = get_frame_update_type(gf_group);
-  }
 #endif
+  FRAME_UPDATE_TYPE frame_update_type = get_frame_update_type(gf_group);
 
   if (frame_params.show_existing_frame &&
       frame_params.frame_type != KEY_FRAME) {
