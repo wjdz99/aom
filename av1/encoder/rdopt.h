@@ -382,6 +382,7 @@ static INLINE int prune_ref_by_selective_ref_frame(
     const unsigned int cur_frame_display_order_hint) {
   const SPEED_FEATURES *const sf = &cpi->sf;
   if (sf->selective_ref_frame) {
+    int is_boosted = frame_is_kf_gf_arf(cpi);
     const AV1_COMMON *const cm = &cpi->common;
     const OrderHintInfo *const order_hint_info =
         &cm->seq_params.order_hint_info;
@@ -420,6 +421,15 @@ static INLINE int prune_ref_by_selective_ref_frame(
           (ref0_dist > 0 && ref1_dist > 0)) {
         return 1;
       }
+    }
+
+    if (sf->selective_ref_frame == 2 && comp_pred && is_boosted) {
+      if (ref_frame[0] == BWDREF_FRAME || ref_frame[1] == BWDREF_FRAME)
+        if (av1_encoder_get_relative_dist(
+                order_hint_info,
+                ref_display_order_hint[BWDREF_FRAME - LAST_FRAME],
+                cur_frame_display_order_hint) < 0)
+          return 1;
     }
 
     if (sf->selective_ref_frame >= 3) {
