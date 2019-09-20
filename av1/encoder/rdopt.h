@@ -354,6 +354,7 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
 static INLINE int prune_ref_by_selective_ref_frame(
     const AV1_COMP *const cpi, const MV_REFERENCE_FRAME *const ref_frame) {
   const SPEED_FEATURES *const sf = &cpi->sf;
+  const int boosted = frame_is_kf_gf_arf(cpi);
   if (sf->selective_ref_frame) {
     const AV1_COMMON *const cm = &cpi->common;
     const OrderHintInfo *const order_hint_info =
@@ -398,7 +399,8 @@ static INLINE int prune_ref_by_selective_ref_frame(
       }
     }
 
-    if (sf->selective_ref_frame >= 3) {
+    if ((sf->selective_ref_frame == 2 && comp_pred && !boosted) ||
+        sf->selective_ref_frame >= 3) {
       if (ref_frame[0] == ALTREF2_FRAME || ref_frame[1] == ALTREF2_FRAME)
         if (av1_encoder_get_relative_dist(
                 order_hint_info,
