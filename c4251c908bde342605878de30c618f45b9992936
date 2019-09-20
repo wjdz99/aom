@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "412b2e52_2c26b133",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-09-20T21:56:38Z",
+      "side": 1,
+      "message": "what happens we extend GOP length to 32 ?",
+      "range": {
+        "startLine": 646,
+        "startChar": 66,
+        "endLine": 646,
+        "endChar": 67
+      },
+      "revId": "c4251c908bde342605878de30c618f45b9992936",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3ff9421_95097feb",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1172,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-09-20T21:56:38Z",
+      "side": 1,
+      "message": "the recent interface changes were meant to limit the scope of data structure.\n\nI would prefer not to directly call through cpi, but through local data structure for gop configuration.",
+      "range": {
+        "startLine": 1172,
+        "startChar": 25,
+        "endLine": 1172,
+        "endChar": 29
+      },
+      "revId": "c4251c908bde342605878de30c618f45b9992936",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09cf2392_71c4b592",
+        "filename": "test/gf_max_pyr_height_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-09-20T21:56:38Z",
+      "side": 1,
+      "message": "why such a big drop?",
+      "range": {
+        "startLine": 24,
+        "startChar": 7,
+        "endLine": 24,
+        "endChar": 12
+      },
+      "revId": "c4251c908bde342605878de30c618f45b9992936",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
