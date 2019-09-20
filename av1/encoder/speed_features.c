@@ -255,7 +255,7 @@ static void set_good_speed_features_framesize_independent(
   sf->use_real_time_ref_set = 0;
 
   if (speed >= 1) {
-    sf->selective_ref_frame = 2;
+    sf->selective_ref_frame = 3;
 
     sf->intra_tx_size_search_init_depth_rect = 1;
 
@@ -303,7 +303,7 @@ static void set_good_speed_features_framesize_independent(
   if (speed >= 2) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_2;
 
-    sf->selective_ref_frame = 3;
+    // sf->selective_ref_frame = 3;
 
     // TODO(chiyotsai@google.com): We can get 10% speed up if we move
     // adaptive_rd_thresh to speed 1. But currently it performs poorly on some
