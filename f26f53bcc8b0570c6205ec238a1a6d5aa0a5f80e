@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dacdd61a_7f913224",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-09-20T19:18:21Z",
+      "side": 1,
+      "message": "Can be const now. Also could we use int instead of double?",
+      "range": {
+        "startLine": 646,
+        "startChar": 2,
+        "endLine": 646,
+        "endChar": 79
+      },
+      "revId": "f26f53bcc8b0570c6205ec238a1a6d5aa0a5f80e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a39fc39_de33e508",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-09-20T19:18:21Z",
+      "side": 1,
+      "message": "Move to line 654?",
+      "range": {
+        "startLine": 668,
+        "startChar": 2,
+        "endLine": 671,
+        "endChar": 37
+      },
+      "revId": "f26f53bcc8b0570c6205ec238a1a6d5aa0a5f80e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
