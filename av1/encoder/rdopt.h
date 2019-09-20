@@ -382,10 +382,17 @@ static INLINE int prune_ref_by_selective_ref_frame(
     const unsigned int cur_frame_display_order_hint) {
   const SPEED_FEATURES *const sf = &cpi->sf;
   if (sf->selective_ref_frame) {
+    int is_boosted = frame_is_kf_gf_arf(cpi);
     const AV1_COMMON *const cm = &cpi->common;
     const OrderHintInfo *const order_hint_info =
         &cm->seq_params.order_hint_info;
     const int comp_pred = ref_frame[1] > INTRA_FRAME;
+
+    // If boosted and compound prediction, exit.
+    if (is_boosted && comp_pred) {
+      return 1;
+    }
+
     if (sf->selective_ref_frame >= 2 ||
         (sf->selective_ref_frame == 1 && comp_pred)) {
       if (ref_frame[0] == LAST3_FRAME || ref_frame[1] == LAST3_FRAME) {
