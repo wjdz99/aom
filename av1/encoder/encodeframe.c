@@ -4420,7 +4420,7 @@ static AOM_INLINE void encode_tiles(AV1_COMP *cpi) {
   }
 }
 
-#define GLOBAL_TRANS_TYPES_ENC 3  // highest motion model to search
+#define GLOBAL_TRANS_TYPES_ENC 2  // highest motion model to search
 static int gm_get_params_cost(const WarpedMotionParams *gm,
                               const WarpedMotionParams *ref_gm, int allow_hp) {
   int params_cost = 0;
@@ -4925,7 +4925,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
                     abs(ref_frame_dist) <= 2 && do_adaptive_gm_estimation
                 ? GLOBAL_MOTION_DISFLOW_BASED
                 : GLOBAL_MOTION_FEATURE_BASED;
-        for (model = ROTZOOM; model < GLOBAL_TRANS_TYPES_ENC; ++model) {
+        for (model = TRANSLATION; model < GLOBAL_TRANS_TYPES_ENC; ++model) {
           int64_t best_warp_error = INT64_MAX;
           // Initially set all params to identity.
           for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
