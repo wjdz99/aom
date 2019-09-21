@@ -286,7 +286,12 @@ int av1_calc_iframe_target_size_one_pass_cbr(const struct AV1_COMP *cpi);
 void av1_get_one_pass_rt_params(struct AV1_COMP *cpi,
                                 struct EncodeFrameParams *const frame_params,
                                 unsigned int frame_flags);
-
+int av1_find_qindex_by_rate_with_correction(int desired_bits_per_mb,
+                                            aom_bit_depth_t bit_depth,
+                                            FRAME_TYPE frame_type,
+                                            double error_per_mb,
+                                            double group_weight_factor,
+                                            int best_qindex, int worst_qindex);
 #ifdef __cplusplus
 }  // extern "C"
 #endif
