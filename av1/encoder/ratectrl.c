@@ -1631,6 +1631,59 @@ static int find_qindex_by_rate(int desired_bits_per_mb,
   return low;
 }
 
+static double calc_correction_factor(double err_per_mb, double err_divisor,
+                                     double pt_low, double pt_high, int q,
+                                     aom_bit_depth_t bit_depth) {
+  const double error_term = err_per_mb / err_divisor;
+
+  // Adjustment based on actual quantizer to power term.
+  const double power_term =
+      AOMMIN(av1_convert_qindex_to_q(q, bit_depth) * 0.01 + pt_low, pt_high);
+
+  // Calculate correction factor.
+  if (power_term < 1.0) assert(error_term >= 0.0);
+
+  return fclamp(pow(error_term, power_term), 0.05, 5.0);
+}
+
+// Similar to find_qindex_by_rate() function in ratectrl.c, but includes
+// calculation of a correction_factor.
+int av1_find_qindex_by_rate_with_correction(int desired_bits_per_mb,
+                                            aom_bit_depth_t bit_depth,
+                                            FRAME_TYPE frame_type,
+                                            double error_per_mb,
+                                            double group_weight_factor,
+                                            int best_qindex, int worst_qindex) {
+  assert(best_qindex <= worst_qindex);
+  int low = best_qindex;
+  int high = worst_qindex;
+  const double err_divisor = 96.0;
+  const double pt_low = 0.70;
+  const double pt_high = 0.90;
+
+  while (low < high) {
+    const int mid = (low + high) >> 1;
+    const double mid_factor = calc_correction_factor(
+        error_per_mb, err_divisor, pt_low, pt_high, mid, bit_depth);
+    const int mid_bits_per_mb = av1_rc_bits_per_mb(
+        frame_type, mid, mid_factor * group_weight_factor, bit_depth);
+    if (mid_bits_per_mb > desired_bits_per_mb) {
+      low = mid + 1;
+    } else {
+      high = mid;
+    }
+  }
+#if CONFIG_DEBUG
+  assert(low == high);
+  const double low_factor = calc_correction_factor(
+      error_per_mb, ERR_DIVISOR, FACTOR_PT_LOW, FACTOR_PT_HIGH, low, bit_depth);
+  const int low_bits_per_mb = av1_rc_bits_per_mb(
+      frame_type, low, low_factor * group_weight_factor, bit_depth);
+  assert(low_bits_per_mb <= desired_bits_per_mb || low == worst_qindex);
+#endif  // CONFIG_DEBUG
+  return low;
+}
+
 int av1_compute_qdelta_by_rate(const RATE_CONTROL *rc, FRAME_TYPE frame_type,
                                int qindex, double rate_target_ratio,
                                aom_bit_depth_t bit_depth) {

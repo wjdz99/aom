@@ -135,25 +135,6 @@ static int frame_max_bits(const RATE_CONTROL *rc,
   return (int)max_bits;
 }
 
-static double calc_correction_factor(double err_per_mb, double err_divisor,
-                                     double pt_low, double pt_high, int q,
-                                     aom_bit_depth_t bit_depth) {
-  const double error_term = err_per_mb / err_divisor;
-
-  // Adjustment based on actual quantizer to power term.
-  const double power_term =
-      AOMMIN(av1_convert_qindex_to_q(q, bit_depth) * 0.01 + pt_low, pt_high);
-
-  // Calculate correction factor.
-  if (power_term < 1.0) assert(error_term >= 0.0);
-
-  return fclamp(pow(error_term, power_term), 0.05, 5.0);
-}
-
-#define ERR_DIVISOR 96.0
-#define FACTOR_PT_LOW 0.70
-#define FACTOR_PT_HIGH 0.90
-
 static void twopass_update_bpm_factor(TWO_PASS *twopass) {
   // Based on recent history adjust expectations of bits per macroblock.
   double last_group_rate_err =
@@ -162,40 +143,6 @@ static void twopass_update_bpm_factor(TWO_PASS *twopass) {
   last_group_rate_err = AOMMAX(0.25, AOMMIN(4.0, last_group_rate_err));
   twopass->bpm_factor *= (3.0 + last_group_rate_err) / 4.0;
   twopass->bpm_factor = AOMMAX(0.25, AOMMIN(4.0, twopass->bpm_factor));
-}
-
-// Similar to find_qindex_by_rate() function in ratectrl.c, but includes
-// calculation of a correction_factor.
-static int find_qindex_by_rate_with_correction(
-    int desired_bits_per_mb, aom_bit_depth_t bit_depth, FRAME_TYPE frame_type,
-    double error_per_mb, double group_weight_factor, int best_qindex,
-    int worst_qindex) {
-  assert(best_qindex <= worst_qindex);
-  int low = best_qindex;
-  int high = worst_qindex;
-
-  while (low < high) {
-    const int mid = (low + high) >> 1;
-    const double mid_factor =
-        calc_correction_factor(error_per_mb, ERR_DIVISOR, FACTOR_PT_LOW,
-                               FACTOR_PT_HIGH, mid, bit_depth);
-    const int mid_bits_per_mb = av1_rc_bits_per_mb(
-        frame_type, mid, mid_factor * group_weight_factor, bit_depth);
-    if (mid_bits_per_mb > desired_bits_per_mb) {
-      low = mid + 1;
-    } else {
-      high = mid;
-    }
-  }
-#if CONFIG_DEBUG
-  assert(low == high);
-  const double low_factor = calc_correction_factor(
-      error_per_mb, ERR_DIVISOR, FACTOR_PT_LOW, FACTOR_PT_HIGH, low, bit_depth);
-  const int low_bits_per_mb = av1_rc_bits_per_mb(
-      frame_type, low, low_factor * group_weight_factor, bit_depth);
-  assert(low_bits_per_mb <= desired_bits_per_mb || low == worst_qindex);
-#endif  // CONFIG_DEBUG
-  return low;
 }
 
 static int get_twopass_worst_quality(AV1_COMP *cpi, const double section_err,
@@ -222,7 +169,7 @@ static int get_twopass_worst_quality(AV1_COMP *cpi, const double section_err,
     twopass_update_bpm_factor(&cpi->twopass);
     // Try and pick a max Q that will be high enough to encode the
     // content at the given rate.
-    int q = find_qindex_by_rate_with_correction(
+    int q = av1_find_qindex_by_rate_with_correction(
         target_norm_bits_per_mb, cpi->common.seq_params.bit_depth, INTER_FRAME,
         av_err_per_mb, group_weight_factor, rc->best_quality,
         rc->worst_quality);
