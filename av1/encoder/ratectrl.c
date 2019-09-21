@@ -1657,8 +1657,8 @@ void av1_rc_set_gf_interval_range(const AV1_COMP *const cpi,
     rc->static_scene_max_gf_interval = FIXED_GF_INTERVAL;
   } else {
     // Set Maximum gf/arf interval
-    rc->max_gf_interval = oxcf->max_gf_interval;
-    rc->min_gf_interval = oxcf->min_gf_interval;
+    if (oxcf->max_gf_interval > 0) rc->max_gf_interval = oxcf->max_gf_interval;
+    if (oxcf->min_gf_interval > 0) rc->min_gf_interval = oxcf->min_gf_interval;
     if (rc->min_gf_interval == 0)
       rc->min_gf_interval = av1_rc_get_default_min_gf_interval(
           oxcf->width, oxcf->height, cpi->framerate);

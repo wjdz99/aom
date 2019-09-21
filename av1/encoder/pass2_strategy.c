@@ -1579,6 +1579,176 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   twopass->modified_error_left -= kf_group_err;
 }
 
+#define DECAY_THRESHOLD 0.93
+#define MOTION_THRESHOLD 0.3
+static void determine_gop_length(AV1_COMP *const cpi) {
+  RATE_CONTROL *const rc = &cpi->rc;
+  FRAME_INFO *frame_info = &cpi->frame_info;
+  TWO_PASS *const twopass = &cpi->twopass;
+  const FIRSTPASS_STATS *const start_pos = twopass->stats_in;
+  AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  int frame_count = 0;
+  double boost_score = 0.0;
+  double accumulate_boost_score = 0.0;
+  double gf_group_err = 0.0;
+  double gf_group_skip_pct = 0.0;
+  double gf_group_inactive_zone_rows = 0.0;
+  double mod_frame_err = 0.0;
+  double mv_ratio_accumulator = 0.0;
+  double this_frame_mv_in_out = 0.0;
+  double mv_in_out_accumulator = 0.0;
+  double abs_mv_in_out_accumulator = 0.0;
+  double decay_accumulator = 1.0;
+  double decay_sum = 0.0;
+  double zero_motion_accumulator = 1.0;
+  double loop_decay_rate = 1.00;
+  double decay_16 = 1.0;
+  double score_16 = 0.0;
+  double decay_24 = 1.0;
+  double score_24 = 0.0;
+
+  // -------------------------------------------------------------------
+  // Method 1: compute the accumulated decay for up to 150 frames.
+  for (int i = 1;
+       i < rc->static_scene_max_gf_interval && i < rc->frames_to_key;
+       ++i, ++frame_count) {
+    if (i % 16 == 0) {
+      decay_16 = 1.0;
+      score_16 = 0;
+    }
+    if (i % 24 == 0) {
+      decay_24 = 1.0;
+      score_24 = 0;
+    }
+    const FIRSTPASS_STATS *this_frame = read_frame_stats(twopass, i);
+    if (this_frame == NULL) break;
+
+    // Accumulate error score of frames in this gf group.
+    mod_frame_err =
+        calculate_modified_err(frame_info, twopass, oxcf, this_frame);
+    gf_group_err += mod_frame_err;
+    gf_group_skip_pct += this_frame->intra_skip_pct;
+    gf_group_inactive_zone_rows += this_frame->inactive_zone_rows;
+
+    // Update the motion related elements to the boost calculation.
+    accumulate_frame_motion_stats(
+        this_frame, &this_frame_mv_in_out, &mv_in_out_accumulator,
+        &abs_mv_in_out_accumulator, &mv_ratio_accumulator);
+    loop_decay_rate = get_prediction_decay_rate(frame_info, this_frame);
+    decay_accumulator = decay_accumulator * loop_decay_rate;
+    decay_sum += loop_decay_rate;
+    const double frame_boost =
+        calc_frame_boost(rc, frame_info, this_frame, this_frame_mv_in_out,
+                         GF_MAX_BOOST);
+    boost_score += loop_decay_rate * frame_boost;
+    accumulate_boost_score += decay_accumulator * frame_boost;
+
+    decay_16 *= loop_decay_rate;
+    score_16 += decay_16 * frame_boost;
+    decay_24 *= loop_decay_rate;
+    score_24 += decay_24 * frame_boost;
+    /*
+    if (i % 16 == 15) {
+      FILE *pfile = fopen("decay.txt", "a");
+      fprintf(pfile, "decay_16 %f, score_16 %f\n", decay_16, score_16);
+      fclose(pfile);
+    }
+    if (i % 24 == 23) {
+      FILE *pfile = fopen("decay.txt", "a");
+      fprintf(pfile, "decay_24 %f, score_24 %f\n", decay_24, score_24);
+      fclose(pfile);
+    }
+    */
+  }
+  assert(frame_count > 0);
+  double avg_decay = decay_sum / frame_count;
+  double avg_boost_score = boost_score / frame_count;
+  /*
+  {
+    FILE *pfile = fopen("decay.txt", "a");
+    fprintf(pfile, "frame_count %d, decay_accumulator %f, avg_decay %f, "
+            "accumulate_boost_score %f, avg_boost_score %f\n",
+            frame_count, decay_accumulator, avg_decay,
+            accumulate_boost_score, avg_boost_score);
+    fclose(pfile);
+  }
+  */
+  // -------------------------------------------------------------------
+
+  // ===================================================================
+  // Method 2: calculate boost values of arfs to determine arf position.
+  reset_fpf_position(twopass, start_pos);
+  int boost_16 = 0;
+  for (int i = 0;
+       i < rc->static_scene_max_gf_interval && i < rc->frames_to_key;
+       i += GF_INTERVAL_16) {
+    if (i == 0) continue;
+    const int this_boost =
+        av1_calc_arf_boost(twopass, rc, frame_info, i, GF_INTERVAL_16 - 1,
+                           GF_INTERVAL_16 - 1);
+    boost_16 += this_boost;
+    /*
+    {
+      FILE *pfile = fopen("decay.txt", "a");
+      fprintf(pfile, "boost_16 %d = %d\n", i, this_boost);
+      fclose(pfile);
+    }
+    */
+  }
+  int boost_24 = 0;
+  for (int i = 0;
+       i < rc->static_scene_max_gf_interval && i < rc->frames_to_key;
+       i += MAX_GF_INTERVAL) {
+    if (i == 0) continue;
+    const int this_boost =
+        av1_calc_arf_boost(twopass, rc, frame_info, i, MAX_GF_INTERVAL - 1,
+                           MAX_GF_INTERVAL - 1);
+    boost_24 += this_boost;
+    /*
+    {
+      FILE *pfile = fopen("decay.txt", "a");
+      fprintf(pfile, "boost_24 %d = %d\n", i, this_boost);
+      fclose(pfile);
+    }
+    */
+  }
+  /*
+  {
+    FILE *pfile = fopen("decay.txt", "a");
+    fprintf(pfile, "boost_16 = %d, boost_24 = %d\n", boost_16, boost_24);
+    fclose(pfile);
+  }
+  */
+  // ===================================================================
+
+  // ###################################################################
+  // Method 3: compute the accumulated motion for up to 150 frames.
+  reset_fpf_position(twopass, start_pos);
+  double accumulate_pcnt_motion = 0.0;
+  for (int i = 1;
+       i < rc->static_scene_max_gf_interval && i < rc->frames_to_key; ++i) {
+    const FIRSTPASS_STATS *this_frame = read_frame_stats(twopass, i);
+    if (this_frame == NULL) break;
+    const double pcnt_motion = this_frame->pcnt_motion;
+    accumulate_pcnt_motion += pcnt_motion;
+  }
+  assert(frame_count > 0);
+  const double avg_pcnt_motion = accumulate_pcnt_motion / frame_count;
+  // ###################################################################
+
+  // Determine gop length based on some criteria
+  if (avg_pcnt_motion < MOTION_THRESHOLD && avg_decay >  DECAY_THRESHOLD) {
+    rc->max_gf_interval = MAX_GF_INTERVAL;
+  } else {
+    rc->max_gf_interval = GF_INTERVAL_16;
+  }
+  /*
+  printf("avg_pcnt_motion %f, avg_decay %f\n",
+         avg_pcnt_motion, avg_decay);
+  printf("\nGOP length: %d\n", rc->max_gf_interval);
+  */
+}
+
 static int is_skippable_frame(const AV1_COMP *cpi) {
   if (cpi->oxcf.pass == 0) return 0;
   // If the current frame does not have non-zero motion vector detected in the
@@ -1731,6 +1901,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     frame_params->frame_type = KEY_FRAME;
     // Define next KF group and assign bits to it.
     find_next_key_frame(cpi, &this_frame);
+    determine_gop_length(cpi);
     this_frame = this_frame_copy;
   } else {
     frame_params->frame_type = INTER_FRAME;

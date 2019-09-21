@@ -46,6 +46,7 @@ extern "C" {
 
 #define MIN_GF_INTERVAL 4
 #define MAX_GF_INTERVAL 24
+#define GF_INTERVAL_16 16
 #define FIXED_GF_INTERVAL 8  // Used in some testing modes only
 
 typedef struct {
