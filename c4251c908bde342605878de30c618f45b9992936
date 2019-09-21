@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "cbbbb1f8_e556164c",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1172,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-09-21T03:09:26Z",
+      "side": 1,
+      "message": "How about to extract it outside this scope, rather treat it as a hard limit at higher level. then only pass in the limit values to adjust the bit allocation.",
+      "parentUuid": "956515c7_5de9b2dd",
+      "range": {
+        "startLine": 1172,
+        "startChar": 25,
+        "endLine": 1172,
+        "endChar": 29
+      },
+      "revId": "c4251c908bde342605878de30c618f45b9992936",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "09cf2392_71c4b592",
         "filename": "test/gf_max_pyr_height_test.cc",
         "patchSetId": 4
@@ -131,6 +155,30 @@
       "side": 1,
       "message": "The calculation of arf boost now changes.\nWhen layer height is 0, the actual arf boost is smaller than before. So the psnr drops.\n\nI assume layer height \u003d 0 is not practical. Is it?",
       "parentUuid": "09cf2392_71c4b592",
+      "range": {
+        "startLine": 24,
+        "startChar": 7,
+        "endLine": 24,
+        "endChar": 12
+      },
+      "revId": "c4251c908bde342605878de30c618f45b9992936",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab6cffc1_9c7cbe6a",
+        "filename": "test/gf_max_pyr_height_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-09-21T03:09:26Z",
+      "side": 1,
+      "message": "It is effectively no delay encoding, which is important for live encoding setting i suppose?\n\nif the layer is 0, that means you won\u0027t use ARF, how would this get changed given the scope of this change is to re-distribute the bits within arf group? GF usually is assigned outside.",
+      "parentUuid": "b0327a3b_771284a5",
       "range": {
         "startLine": 24,
         "startChar": 7,
