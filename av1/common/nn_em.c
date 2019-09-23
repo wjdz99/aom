@@ -288,7 +288,7 @@ void av1_nn_backprop_em(NN_CONFIG_EM *nn_config, const int label) {
 
   // hidden fc layer
   float *prev_Y = nn_config->input_layer.output;
-  for (int layer_idx = num_layers - 1; layer_idx >= 0; layer_idx++) {
+  for (int layer_idx = num_layers - 1; layer_idx >= 0; --layer_idx) {
     if (layer_idx == 0) {
       prev_dY = nn_config->input_layer.dy;
       prev_Y = nn_config->input_layer.dy;
