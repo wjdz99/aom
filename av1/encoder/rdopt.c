@@ -5143,7 +5143,7 @@ static void try_tx_block_split(
       int this_cost_valid = 1;
       select_tx_block(
           cpi, x, offsetr, offsetc, block, sub_txs, depth + 1, plane_bsize, ta,
-          tl, tx_above, tx_left, &this_rd_stats, no_split_rd / nblks,
+          tl, tx_above, tx_left, &this_rd_stats, INT64_MAX,
           ref_best_rd - tmp_rd, &this_cost_valid, ftxs_mode,
           (rd_info_node != NULL) ? rd_info_node->children[blk_idx] : NULL);
       if (!this_cost_valid) return;
@@ -5172,7 +5172,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
     *is_cost_valid = 0;
     return;
   }
-
+  (void)prev_level_rd;
   MACROBLOCKD *const xd = &x->e_mbd;
   const int max_blocks_high = max_block_high(xd, plane_bsize, 0);
   const int max_blocks_wide = max_block_wide(xd, plane_bsize, 0);
@@ -5209,13 +5209,6 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
     if (cpi->sf.txb_split_cap) {
       if (p->eobs[block] == 0) try_split = 0;
-    }
-
-    if (cpi->sf.adaptive_txb_search_level &&
-        (no_split.rd -
-         (no_split.rd >> (2 + cpi->sf.adaptive_txb_search_level))) >
-            prev_level_rd) {
-      try_split = 0;
     }
   }
 
