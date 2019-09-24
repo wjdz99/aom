@@ -8245,13 +8245,78 @@ static INLINE void clamp_mv_in_range(MACROBLOCK *const x, int_mv *mv,
   clamp_mv(&mv->as_mv, minc, maxc, minr, maxr);
 }
 
+#if CONFIG_FLEX_MVRES
+#ifndef NDEBUG
+static int check_mv_precision(const MB_MODE_INFO *const mbmi) {
+  const int is_comp_pred = mbmi->ref_frame[1] > INTRA_FRAME;
+  if (have_newmv_in_inter_mode(mbmi->mode)) {
+    if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
+      for (int i = 0; i < is_comp_pred + 1; ++i) {
+        if ((mbmi->mv[i].as_mv.row &
+             ((1 << (MV_SUBPEL_EIGHTH_PRECISION - mbmi->mv_precision)) - 1)))
+          return 0;
+        if ((mbmi->mv[i].as_mv.col &
+             ((1 << (MV_SUBPEL_EIGHTH_PRECISION - mbmi->mv_precision)) - 1)))
+          return 0;
+      }
+    } else {
+      const int i = (mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEAR_NEWMV);
+      if ((mbmi->mv[i].as_mv.row &
+           ((1 << (MV_SUBPEL_EIGHTH_PRECISION - mbmi->mv_precision)) - 1)))
+        return 0;
+      if ((mbmi->mv[i].as_mv.col &
+           ((1 << (MV_SUBPEL_EIGHTH_PRECISION - mbmi->mv_precision)) - 1)))
+        return 0;
+    }
+  }
+  return 1;
+}
+#endif  // NDEBUG
+
+static MvSubpelPrecision get_mv_precision(MV mv) {
+  if ((mv.row & 1) || (mv.col & 1)) return MV_SUBPEL_EIGHTH_PRECISION;
+  if ((mv.row & 3) || (mv.col & 3)) return MV_SUBPEL_QTR_PRECISION;
+  if ((mv.row & 7) || (mv.col & 7)) return MV_SUBPEL_HALF_PRECISION;
+  return MV_SUBPEL_NONE;
+}
+
+static MvSubpelPrecision get_mbmi_mv_precision(const AV1_COMMON *const cm,
+                                               MB_MODE_INFO *mbmi) {
+  if (have_newmv_in_inter_mode(mbmi->mode) && cm->use_flex_mv_precision) {
+    MvSubpelPrecision precision;
+    if (mbmi->mode == NEWMV) {
+      precision = get_mv_precision(mbmi->mv[0].as_mv);
+    } else if (mbmi->mode == NEW_NEWMV) {
+      precision = AOMMAX(get_mv_precision(mbmi->mv[0].as_mv),
+                         get_mv_precision(mbmi->mv[1].as_mv));
+    } else {
+      const int i = (mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEAR_NEWMV);
+      precision = get_mv_precision(mbmi->mv[i].as_mv);
+    }
+    return (MvSubpelPrecision)AOMMIN(precision, cm->mv_precision);
+  } else {
+    return cm->mv_precision;
+  }
+}
+
+static int get_flex_mv_precision_cost(const AV1_COMMON *const cm,
+                                      MACROBLOCK *const x,
+                                      MvSubpelPrecision mv_precision) {
+  if (cm->mv_precision > MV_SUBPEL_NONE)
+    return x->flex_mv_precision_costs[cm->mv_precision - 1]
+                                     [cm->mv_precision - mv_precision];
+  else
+    return 0;
+}
+#endif  // CONFIG_FLEX_MVRES
+
 static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
                             const BLOCK_SIZE bsize, int_mv *cur_mv,
                             const int mi_row, const int mi_col,
                             int *const rate_mv,
                             HandleInterModeArgs *const args) {
   const MACROBLOCKD *const xd = &x->e_mbd;
-  const MB_MODE_INFO *const mbmi = xd->mi[0];
+  MB_MODE_INFO *const mbmi = xd->mi[0];
   const int is_comp_pred = has_second_ref(mbmi);
   const PREDICTION_MODE this_mode = mbmi->mode;
   const int refs[2] = { mbmi->ref_frame[0],
@@ -8343,6 +8408,12 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
     }
 #endif
   }
+#if CONFIG_FLEX_MVRES
+  const AV1_COMMON *const cm = &cpi->common;
+  mbmi->mv_precision = get_mbmi_mv_precision(cm, mbmi);
+  *rate_mv += get_flex_mv_precision_cost(cm, x, mbmi->mv_precision);
+  assert(check_mv_precision(mbmi));
+#endif  // CONFIG_FLEX_MVRES
 
   return 0;
 }
@@ -9547,35 +9618,6 @@ static int check_identical_obmc_mv_field(const AV1_COMMON *cm, MACROBLOCKD *xd,
   return mv_field_check_ctxt.mv_field_check_result;
 }
 
-#if CONFIG_FLEX_MVRES
-#ifndef NDEBUG
-static int check_mv_precision(const MB_MODE_INFO *const mbmi) {
-  const int is_comp_pred = mbmi->ref_frame[1] > INTRA_FRAME;
-  if (have_newmv_in_inter_mode(mbmi->mode)) {
-    if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
-      for (int i = 0; i < is_comp_pred + 1; ++i) {
-        if ((mbmi->mv[i].as_mv.row &
-             ((1 << (MV_SUBPEL_EIGHTH_PRECISION - mbmi->mv_precision)) - 1)))
-          return 0;
-        if ((mbmi->mv[i].as_mv.col &
-             ((1 << (MV_SUBPEL_EIGHTH_PRECISION - mbmi->mv_precision)) - 1)))
-          return 0;
-      }
-    } else {
-      const int i = (mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEAR_NEWMV);
-      if ((mbmi->mv[i].as_mv.row &
-           ((1 << (MV_SUBPEL_EIGHTH_PRECISION - mbmi->mv_precision)) - 1)))
-        return 0;
-      if ((mbmi->mv[i].as_mv.col &
-           ((1 << (MV_SUBPEL_EIGHTH_PRECISION - mbmi->mv_precision)) - 1)))
-        return 0;
-    }
-  }
-  return 1;
-}
-#endif  // NDEBUG
-#endif  // CONFIG_FLEX_MVRES
-
 // TODO(afergs): Refactor the MBMI references in here - there's four
 // TODO(afergs): Refactor optional args - add them to a struct or remove
 static int64_t motion_mode_rd(
@@ -9752,6 +9794,10 @@ static int64_t motion_mode_rd(
                 av1_mv_bit_cost(&mbmi->mv[0].as_mv, &ref_mv.as_mv,
                                 mbmi->mv_precision, x->nmv_vec_cost,
                                 x->nmvcost[mbmi->mv_precision], MV_COST_WEIGHT);
+#if CONFIG_FLEX_MVRES
+            tmp_rate_mv +=
+                get_flex_mv_precision_cost(cm, x, mbmi->mv_precision);
+#endif  // CONFIG_FLEX_MVRES
 
             if (cpi->sf.adaptive_motion_search)
               x->pred_mv[ref] = mbmi->mv[0].as_mv;
@@ -10697,13 +10743,13 @@ static int64_t handle_inter_mode(
                          (1 << COMPOUND_WEDGE) | (1 << COMPOUND_DIFFWTD)) -
                         mode_search_mask[0];
 
-#if CONFIG_FLEX_MVRES
+#if 0   // CONFIG_FLEX_MVRES
   // TODO(debargha): Do proper rd based decision for mv_precision.
   // Currently use a variance based method to test the bitstream syntax.
   if (have_newmv_in_inter_mode(this_mode) && cm->use_flex_mv_precision) {
-    mbmi->mv_precision = x->source_variance < 16
+    mbmi->mv_precision = x->source_variance < 4
                              ? MV_SUBPEL_HALF_PRECISION
-                             : x->source_variance < 64
+                             : x->source_variance < 16
                                    ? MV_SUBPEL_QTR_PRECISION
                                    : MV_SUBPEL_EIGHTH_PRECISION;
     mbmi->mv_precision = AOMMIN(mbmi->mv_precision, cm->mv_precision);
@@ -10812,10 +10858,19 @@ static int64_t handle_inter_mode(
                   const int compare_cost =
                       mode_info[i].rate_mv + mode_info[i].drl_cost;
                   const int_mv ref_mv = av1_get_ref_mv(x, 0);
+#if CONFIG_FLEX_MVRES
+                  MvSubpelPrecision precision =
+                      get_mv_precision(mode_info[i].mv.as_mv);
+                  this_rate_mv = av1_mv_bit_cost(
+                      &mode_info[i].mv.as_mv, &ref_mv.as_mv, precision,
+                      x->nmv_vec_cost, x->nmvcost[precision], MV_COST_WEIGHT);
+                  this_rate_mv += get_flex_mv_precision_cost(cm, x, precision);
+#else
                   this_rate_mv = av1_mv_bit_cost(
                       &mode_info[i].mv.as_mv, &ref_mv.as_mv, mbmi->mv_precision,
                       x->nmv_vec_cost, x->nmvcost[mbmi->mv_precision],
                       MV_COST_WEIGHT);
+#endif  // CONFIG_FLEX_MVRES
                   const int this_cost = this_rate_mv + drl_cost;
 
                   if (compare_cost < this_cost) {
@@ -10856,6 +10911,10 @@ static int64_t handle_inter_mode(
       for (i = 0; i < is_comp_pred + 1; ++i) {
         mbmi->mv[i].as_int = cur_mv[i].as_int;
       }
+#if CONFIG_FLEX_MVRES
+      mbmi->mv_precision = get_mbmi_mv_precision(cm, mbmi);
+      assert(check_mv_precision(mbmi));
+#endif  // CONFIG_FLEX_MVRES
       const int ref_mv_cost = cost_mv_ref(x, this_mode, mode_ctx);
 #if USE_DISCOUNT_NEWMV_TEST
       // We don't include the cost of the second reference here, because there
@@ -11000,6 +11059,9 @@ static int64_t handle_inter_mode(
                                       0, av1_num_planes(cm) - 1);
       }
 
+#if CONFIG_FLEX_MVRES
+      assert(check_mv_precision(mbmi));
+#endif  // CONFIG_FLEX_MVRES
 #if CONFIG_COLLECT_COMPONENT_TIMING
       start_timing(cpi, motion_mode_rd_time);
 #endif
