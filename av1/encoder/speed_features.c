@@ -330,6 +330,9 @@ static void set_good_speed_features_framesize_independent(
     sf->prune_warp_using_wmtype = 1;
     sf->disable_smooth_intra =
         !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
+    // TODO(any): Experiment with this speed feature by enabling for key frames
+    sf->enable_winner_mode_for_tx_size_srch =
+        frame_is_intra_only(&cpi->common) ? 0 : 1;
   }
 
   if (speed >= 3) {
@@ -356,9 +359,6 @@ static void set_good_speed_features_framesize_independent(
     // TODO(any): Refactor the code related to following winner mode speed
     // features
     sf->enable_winner_mode_for_coeff_opt = 1;
-    // TODO(any): Experiment with this speed feature by enabling for key frames
-    sf->enable_winner_mode_for_tx_size_srch =
-        frame_is_intra_only(&cpi->common) ? 0 : 1;
     sf->enable_winner_mode_for_use_tx_domain_dist =
         cm->allow_screen_content_tools ? 0 : 1;
     sf->reduce_wiener_window_size = is_boosted_arf2_bwd_type ? 0 : 1;
