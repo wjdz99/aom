@@ -14,6 +14,7 @@
 
 #include "config/aom_config.h"
 #include "config/aom_dsp_rtcd.h"
+#include "config/aom_scale_rtcd.h"
 
 #include "aom/aom_codec.h"
 #include "aom_ports/system_state.h"
@@ -674,10 +675,13 @@ static AOM_INLINE void init_gop_frames_for_tpl(
   }
 
   for (int i = 0; i < REF_FRAMES; ++i) {
-    if (frame_params.frame_type == KEY_FRAME)
+    if (frame_params.frame_type == KEY_FRAME) {
       cpi->tpl_frame[-i - 1].gf_picture = NULL;
-    else
+      cpi->tpl_frame[-1 - 1].rec_picture = NULL;
+    } else {
       cpi->tpl_frame[-i - 1].gf_picture = &cm->ref_frame_map[i]->buf;
+      cpi->tpl_frame[-i - 1].rec_picture = &cm->ref_frame_map[i]->buf;
+    }
 
     ref_picture_map[i] = -i - 1;
   }
@@ -714,6 +718,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
       if (buf == NULL) break;
       tpl_frame->gf_picture = &buf->img;
     }
+    tpl_frame->rec_picture = &tpl_frame->rec_picture_buf;
 
     av1_get_ref_frames(cpi, &ref_buffer_stack);
     int refresh_mask = av1_get_refresh_frame_flags(
@@ -752,6 +757,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     if (buf == NULL) break;
 
     tpl_frame->gf_picture = &buf->img;
+    tpl_frame->rec_picture = &tpl_frame->rec_picture_buf;
 
     gf_group->update_type[gf_index] = LF_UPDATE;
     gf_group->q_val[gf_index] = pframe_qindex;
@@ -824,6 +830,9 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
         continue;
 
       mc_flow_dispenser(cpi, frame_idx);
+
+      aom_extend_frame_borders(cpi->tpl_frame[frame_idx].rec_picture,
+                               av1_num_planes(cm));
     }
 
     for (int frame_idx = cpi->tpl_gf_group_frames - 1;
