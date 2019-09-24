@@ -12548,7 +12548,12 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     const MV_REFERENCE_FRAME ref_frame = mode_order->ref_frame[0];
     const MV_REFERENCE_FRAME second_ref_frame = mode_order->ref_frame[1];
     const int comp_pred = second_ref_frame > INTRA_FRAME;
-
+    const int boosted = frame_is_kf_gf_arf(cpi);
+    if (boosted) {
+      if ((this_mode >= SINGLE_INTER_MODE_END) &&
+          (this_mode < COMP_INTER_MODE_END))
+        continue;
+    }
     if (sf->prune_compound_using_single_ref && midx > MAX_SINGLE_REF_MODES &&
         comp_pred &&
         !in_single_ref_cutoff(ref_frame_rd, ref_frame, second_ref_frame)) {
