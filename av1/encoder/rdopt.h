@@ -31,6 +31,7 @@ extern "C" {
 #define INTER_INTRA_RD_THRESH_SHIFT 4
 #define COMP_TYPE_RD_THRESH_SCALE 11
 #define COMP_TYPE_RD_THRESH_SHIFT 4
+#define MAX_WINNER_MODE_COUNT 5
 
 struct TileInfo;
 struct macroblock;
@@ -158,6 +159,15 @@ typedef struct {
   uint16_t x;
   uint16_t y;
 } EdgeInfo;
+
+typedef struct {
+  MB_MODE_INFO mbmi;
+  int64_t best_rd;
+  int64_t distortion;
+  int rate;
+  int rate_tokenonly;
+  int skippable;
+} BestIntraStats;
 
 /** Returns an integer indicating the strength of the edge.
  * 0 means no edge found, 556 is the strength of a solid black/white edge,

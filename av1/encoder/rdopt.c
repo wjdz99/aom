@@ -4738,6 +4738,46 @@ static AOM_INLINE void intra_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 }
 
+static void add_best_intra_mode_stats(BestIntraStats *best_intra_stats,
+                                      MB_MODE_INFO *mbmi, int64_t this_rd,
+                                      int64_t this_dist, int this_rate,
+                                      int this_rate_tokenonly, int skippable,
+                                      int64_t *min_best_rd,
+                                      int *winner_mode_count) {
+  assert(*winner_mode_count >= 0 &&
+         *winner_mode_count <= MAX_WINNER_MODE_COUNT);
+
+  if (!*winner_mode_count) {
+    best_intra_stats[0].mbmi = *mbmi;
+    best_intra_stats[0].best_rd = this_rd;
+    best_intra_stats[0].distortion = this_dist;
+    best_intra_stats[0].rate = this_rate;
+    best_intra_stats[0].rate_tokenonly = this_rate_tokenonly;
+    best_intra_stats[0].skippable = skippable;
+  } else {
+    int mode_idx;
+
+    for (mode_idx = 0; mode_idx < *winner_mode_count; mode_idx++)
+      if (best_intra_stats[mode_idx].best_rd > this_rd) break;
+
+    if (mode_idx == MAX_WINNER_MODE_COUNT)
+      return;
+    else if (mode_idx < MAX_WINNER_MODE_COUNT - 1)
+      memmove(
+          &best_intra_stats[mode_idx + 1], &best_intra_stats[mode_idx],
+          (MAX_WINNER_MODE_COUNT - mode_idx - 1) * sizeof(*best_intra_stats));
+
+    best_intra_stats[mode_idx].mbmi = *mbmi;
+    best_intra_stats[mode_idx].best_rd = this_rd;
+    best_intra_stats[mode_idx].distortion = this_dist;
+    best_intra_stats[mode_idx].rate = this_rate;
+    best_intra_stats[mode_idx].rate_tokenonly = this_rate_tokenonly;
+    best_intra_stats[mode_idx].skippable = skippable;
+  }
+  *winner_mode_count = AOMMIN(*winner_mode_count + 1, MAX_WINNER_MODE_COUNT);
+  *min_best_rd = best_intra_stats[*winner_mode_count - 1].best_rd;
+}
+
 // This function is used only for intra_only frames
 static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                       int mi_row, int mi_col, int *rate,
@@ -4782,6 +4822,10 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   set_mode_eval_params(cpi, x, MODE_EVAL);
 
   MB_MODE_INFO best_mbmi = *mbmi;
+  BestIntraStats best_intra_stats[MAX_WINNER_MODE_COUNT] = { 0 };
+  int winner_mode_count = 0;
+  int64_t min_best_rd = 0;
+  best_intra_stats[0].mbmi = *mbmi;
   /* Y Search for intra prediction mode */
   for (int mode_idx = INTRA_MODE_START; mode_idx < INTRA_MODE_END; ++mode_idx) {
     RD_STATS this_rd_stats;
@@ -4829,24 +4873,36 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         this_rd_stats.rate +
         intra_mode_info_cost_y(cpi, x, mbmi, bsize, bmode_costs[mbmi->mode]);
     this_rd = RDCOST(x->rdmult, this_rate, this_distortion);
-    if (this_rd < best_rd) {
-      best_mbmi = *mbmi;
-      best_rd = this_rd;
-      beat_best_rd = 1;
-      *rate = this_rate;
-      *rate_tokenonly = this_rate_tokenonly;
-      *distortion = this_distortion;
-      *skippable = s;
-      memcpy(ctx->blk_skip, x->blk_skip,
-             sizeof(x->blk_skip[0]) * ctx->num_4x4_blk);
+    if (this_rd < best_rd || this_rd < min_best_rd) {
+      add_best_intra_mode_stats(best_intra_stats, mbmi, this_rd,
+                                this_distortion, this_rate, this_rate_tokenonly,
+                                s, &min_best_rd, &winner_mode_count);
+      if (this_rd < best_rd) {
+        best_mbmi = *mbmi;
+        best_rd = this_rd;
+        beat_best_rd = 1;
+        *rate = this_rate;
+        *rate_tokenonly = this_rate_tokenonly;
+        *distortion = this_distortion;
+        *skippable = s;
+        memcpy(ctx->blk_skip, x->blk_skip,
+               sizeof(x->blk_skip[0]) * ctx->num_4x4_blk);
+      }
     }
   }
+  if (!winner_mode_count) winner_mode_count++;
 
   if (try_palette) {
     rd_pick_palette_intra_sby(
         cpi, x, bsize, mi_row, mi_col, bmode_costs[DC_PRED], &best_mbmi,
         best_palette_color_map, &best_rd, &best_model_rd, rate, rate_tokenonly,
         distortion, skippable, ctx, ctx->blk_skip);
+    best_intra_stats[0].mbmi = best_mbmi;
+    best_intra_stats[0].best_rd = best_rd;
+    best_intra_stats[0].distortion = *distortion;
+    best_intra_stats[0].rate = *rate;
+    best_intra_stats[0].rate_tokenonly = *rate_tokenonly;
+    best_intra_stats[0].skippable = *skippable;
   }
 
   if (beat_best_rd && av1_filter_intra_allowed_bsize(&cpi->common, bsize)) {
@@ -4854,18 +4910,27 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
             cpi, x, mi_row, mi_col, rate, rate_tokenonly, distortion, skippable,
             bsize, bmode_costs[DC_PRED], &best_rd, &best_model_rd, ctx)) {
       best_mbmi = *mbmi;
+      best_intra_stats[0].mbmi = best_mbmi;
+      best_intra_stats[0].best_rd = best_rd;
+      best_intra_stats[0].distortion = *distortion;
+      best_intra_stats[0].rate = *rate;
+      best_intra_stats[0].rate_tokenonly = *rate_tokenonly;
+      best_intra_stats[0].skippable = *skippable;
     }
   }
 
-  // If previous searches use only the default tx type/no R-D optimization of
-  // quantized coeffs, do an extra search for the best tx type/better R-D
-  // optimization of quantized coeffs
-  if (is_winner_mode_processing_enabled(cpi, mbmi, best_mbmi.mode)) {
-    // Set params for winner mode evaluation
-    set_mode_eval_params(cpi, x, WINNER_MODE_EVAL);
-    *mbmi = best_mbmi;
-    intra_block_yrd(cpi, x, bsize, bmode_costs, &best_rd, rate, rate_tokenonly,
-                    distortion, skippable, &best_mbmi, ctx);
+  for (int mode_idx = 0; mode_idx < winner_mode_count; mode_idx++) {
+    // If previous searches use only the default tx type/no R-D optimization of
+    // quantized coeffs, do an extra search for the best tx type/better R-D
+    // optimization of quantized coeffs
+    if (is_winner_mode_processing_enabled(
+            cpi, mbmi, best_intra_stats[mode_idx].mbmi.mode)) {
+      // Set params for winner mode evaluation
+      set_mode_eval_params(cpi, x, WINNER_MODE_EVAL);
+      *mbmi = best_intra_stats[mode_idx].mbmi;
+      intra_block_yrd(cpi, x, bsize, bmode_costs, &best_rd, rate,
+                      rate_tokenonly, distortion, skippable, &best_mbmi, ctx);
+    }
   }
 
   *mbmi = best_mbmi;
