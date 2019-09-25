@@ -35,6 +35,15 @@ extern "C" {
 #define MC_FLOW_BSIZE_1D 16
 #define MC_FLOW_NUM_PELS (MC_FLOW_BSIZE_1D * MC_FLOW_BSIZE_1D)
 #define MAX_MC_FLOW_BLK_IN_SB (MAX_SB_SIZE / MC_FLOW_BSIZE_1D)
+#define MAX_WINNER_MODE_COUNT 9
+typedef struct {
+  MB_MODE_INFO mbmi;
+  int64_t best_rd;
+  int64_t distortion;
+  int rate;
+  int rate_tokenonly;
+  int skippable;
+} BestIntraStats;
 
 typedef struct {
   unsigned int sse;
@@ -243,6 +252,8 @@ struct macroblock {
   MACROBLOCKD e_mbd;
   MB_MODE_INFO_EXT *mbmi_ext;
   MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame;
+  BestIntraStats best_intra_stats[MAX_WINNER_MODE_COUNT];
+  int winner_mode_count;
   int skip_block;
   int qindex;
 
