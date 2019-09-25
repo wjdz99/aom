@@ -497,7 +497,7 @@ void av1_compute_stats_sse4_1(int wiener_win, const uint8_t *dgd,
   }
 }
 
-static INLINE __m128i pair_set_epi16(uint16_t a, uint16_t b) {
+static INLINE __m128i pair_set_epi16(int a, int b) {
   return _mm_set1_epi32((int32_t)(((uint16_t)(a)) | (((uint32_t)(b)) << 16)));
 }
 
@@ -555,7 +555,7 @@ int64_t av1_lowbd_pixel_proj_error_sse4_1(
   } else if (params->r[0] > 0 || params->r[1] > 0) {
     const int xq_active = (params->r[0] > 0) ? xq[0] : xq[1];
     const __m128i xq_coeff =
-        pair_set_epi16(xq_active, -(xq_active << SGRPROJ_RST_BITS));
+        pair_set_epi16(xq_active,  - (xq_active << SGRPROJ_RST_BITS));
     const int32_t *flt = (params->r[0] > 0) ? flt0 : flt1;
     const int flt_stride = (params->r[0] > 0) ? flt0_stride : flt1_stride;
     for (i = 0; i < height; ++i) {
