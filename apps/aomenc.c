@@ -63,7 +63,7 @@ static size_t wrap_fwrite(const void *ptr, size_t size, size_t nmemb,
 #define fwrite wrap_fwrite
 
 static const char *exec_name;
-
+// extern int motion_modes[4] = { 0, 0, 0, 0 };
 static void warn_or_exit_on_errorv(aom_codec_ctx_t *ctx, int fatal,
                                    const char *s, va_list ap) {
   if (ctx->err) {
@@ -2669,7 +2669,8 @@ int main(int argc, const char **argv_) {
     }
   }
 #endif
-
+  // printf("st=%d \t obmc=%d \t wp=%d \t in=%d \n", motion_modes[0],
+  //      motion_modes[1], motion_modes[2], motion_modes[3]);
   if (allocated_raw_shift) aom_img_free(&raw_shift);
   aom_img_free(&raw);
   free(argv);

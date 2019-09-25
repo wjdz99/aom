@@ -404,6 +404,7 @@ static void set_good_speed_features_framesize_independent(
     // TODO(any): Experiment with this speed feature set to 2 for higher quality
     // presets as well
     sf->skip_intra_in_interframe = 2;
+    sf->motion_mode_for_winner_cand = boosted ? 0 : 1;
   }
 
   if (speed >= 5) {
@@ -806,6 +807,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->disable_sb_level_coeff_cost_upd = 0;
   sf->disable_sb_level_mv_cost_upd = 0;
   sf->disable_overlay_frames = 0;
+  sf->motion_mode_for_winner_cand = 0;
 
   for (i = 0; i < TX_SIZES; i++) {
     sf->intra_y_mode_mask[i] = INTRA_ALL;
