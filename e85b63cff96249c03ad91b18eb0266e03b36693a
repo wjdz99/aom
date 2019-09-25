@@ -46,6 +46,30 @@
       "revId": "e85b63cff96249c03ad91b18eb0266e03b36693a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "570e4d78_b52b5ad9",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4216,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-09-25T19:57:23Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "55588464_be969577",
+      "range": {
+        "startLine": 4216,
+        "startChar": 0,
+        "endLine": 4216,
+        "endChar": 79
+      },
+      "revId": "e85b63cff96249c03ad91b18eb0266e03b36693a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
