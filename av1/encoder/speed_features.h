@@ -769,6 +769,9 @@ typedef struct SPEED_FEATURES {
 
   // Use ALTREF frame in non-RD mode decision.
   int use_nonrd_altref_frame;
+
+  // Disable compound modes
+  int disable_compound_modes;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
