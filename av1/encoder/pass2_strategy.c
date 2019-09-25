@@ -361,7 +361,7 @@ static double calc_frame_boost(const RATE_CONTROL *rc,
 #define MIN_DECAY_FACTOR 0.01
 
 int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
-                       FRAME_INFO *frame_info, int offset, int f_frames,
+                       const FRAME_INFO *frame_info, int offset, int f_frames,
                        int b_frames) {
   int i;
   double boost_score = 0.0;
@@ -754,7 +754,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   FIRSTPASS_STATS next_frame;
   const FIRSTPASS_STATS *const start_pos = twopass->stats_in;
   GF_GROUP *gf_group = &cpi->gf_group;
-  FRAME_INFO *frame_info = &cpi->frame_info;
+  const FRAME_INFO *frame_info = &cpi->frame_info;
   int i;
 
   double boost_score = 0.0;
@@ -1309,7 +1309,7 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   RATE_CONTROL *const rc = &cpi->rc;
   TWO_PASS *const twopass = &cpi->twopass;
   GF_GROUP *const gf_group = &cpi->gf_group;
-  FRAME_INFO *const frame_info = &cpi->frame_info;
+  const FRAME_INFO *const frame_info = &cpi->frame_info;
   AV1_COMMON *const cm = &cpi->common;
   CurrentFrame *const current_frame = &cm->current_frame;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
@@ -1761,7 +1761,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
 void av1_init_second_pass(AV1_COMP *cpi) {
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   TWO_PASS *const twopass = &cpi->twopass;
-  FRAME_INFO *const frame_info = &cpi->frame_info;
+  const FRAME_INFO *const frame_info = &cpi->frame_info;
   double frame_rate;
   FIRSTPASS_STATS *stats;
 
