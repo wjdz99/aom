@@ -569,6 +569,7 @@ typedef struct AV1Common {
 #if CONFIG_CNN_RESTORATION
   int use_cnn;
 #endif  // CONFIG_CNN_RESTORATION
+  int only_one_ref_available;
 } AV1_COMMON;
 
 // TODO(hkuang): Don't need to lock the whole pool after implementing atomic
@@ -1594,6 +1595,15 @@ static INLINE MvSubpelPrecision av1_get_mbmi_mv_precision(
   }
 }
 #endif  // CONFIG_FLEX_MVRES
+
+static INLINE int all_ref_frames_the_same(const AV1_COMMON *const cm) {
+  RefCntBuffer *last = get_ref_frame_buf(cm, LAST_FRAME);
+  for (MV_REFERENCE_FRAME ref = LAST_FRAME + 1; ref < REF_FRAMES; ++ref) {
+    RefCntBuffer *this_ref = get_ref_frame_buf(cm, ref);
+    if (this_ref != NULL && this_ref != last) return 0;
+  }
+  return 1;
+}
 
 #ifdef __cplusplus
 }  // extern "C"

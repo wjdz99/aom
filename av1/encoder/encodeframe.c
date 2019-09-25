@@ -1293,7 +1293,7 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
 #endif  // CONFIG_ENTROPY_STATS
             }
           }
-        } else {
+        } else if (!cm->only_one_ref_available) {
           const int bit = (ref0 >= BWDREF_FRAME);
           if (allow_update_cdf)
             update_cdf(av1_get_pred_cdf_single_ref_p1(xd), bit, 2);
@@ -5965,10 +5965,11 @@ void av1_encode_frame(AV1_COMP *cpi) {
 
     /* prediction (compound, single or hybrid) mode selection */
     // NOTE: "is_alt_ref" is true only for OVERLAY/INTNL_OVERLAY frames
-    if (is_alt_ref || frame_is_intra_only(cm))
+    if (is_alt_ref || frame_is_intra_only(cm) || cm->only_one_ref_available) {
       current_frame->reference_mode = SINGLE_REFERENCE;
-    else
+    } else {
       current_frame->reference_mode = REFERENCE_MODE_SELECT;
+    }
 
     cm->interp_filter = SWITCHABLE;
     if (cm->large_scale_tile) cm->interp_filter = EIGHTTAP_REGULAR;
