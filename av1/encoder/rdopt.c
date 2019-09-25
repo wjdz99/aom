@@ -9407,6 +9407,9 @@ static int64_t motion_mode_rd(
         continue;
     }
 
+    if (cpi->sf.disable_warp_causal_motion_mode)
+      if (mode_index == WARPED_CAUSAL) continue;
+
     if (mbmi->motion_mode == SIMPLE_TRANSLATION && !is_interintra_mode) {
       // SIMPLE_TRANSLATION mode: no need to recalculate.
       // The prediction is calculated before motion_mode_rd() is called in
@@ -12611,6 +12614,14 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     const MV_REFERENCE_FRAME ref_frame = mode_order->ref_frame[0];
     const MV_REFERENCE_FRAME second_ref_frame = mode_order->ref_frame[1];
     const int comp_pred = second_ref_frame > INTRA_FRAME;
+    int blk_width = block_size_wide[bsize];
+    int blk_height = block_size_high[bsize];
+    int num_pixels = blk_width * blk_height;
+    if ((sf->disable_compound_modes) && (num_pixels < 4096)) {
+      if ((this_mode >= SINGLE_INTER_MODE_END) &&
+          (this_mode < COMP_INTER_MODE_END))
+        continue;
+    }
 
     if (sf->prune_compound_using_single_ref && midx > MAX_SINGLE_REF_MODES &&
         comp_pred &&
