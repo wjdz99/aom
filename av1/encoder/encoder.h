@@ -1222,6 +1222,20 @@ static INLINE int frame_is_kf_gf_arf(const AV1_COMP *cpi) {
          update_type == GF_UPDATE;
 }
 
+static INLINE int is_golden_frame(const AV1_COMP *cpi) {
+  const GF_GROUP *const gf_group = &cpi->gf_group;
+  const FRAME_UPDATE_TYPE update_type = gf_group->update_type[gf_group->index];
+
+  return update_type == GF_UPDATE;
+}
+
+static INLINE int is_arf_frame(const AV1_COMP *cpi) {
+  const GF_GROUP *const gf_group = &cpi->gf_group;
+  const FRAME_UPDATE_TYPE update_type = gf_group->update_type[gf_group->index];
+
+  return update_type == ARF_UPDATE;
+}
+
 // TODO(huisu@google.com, youzhou@microsoft.com): enable hash-me for HBD.
 static INLINE int av1_use_hash_me(const AV1_COMMON *const cm) {
   return cm->allow_screen_content_tools;
