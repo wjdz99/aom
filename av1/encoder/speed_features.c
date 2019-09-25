@@ -377,8 +377,10 @@ static void set_good_speed_features_framesize_independent(
     // features
     sf->enable_winner_mode_for_coeff_opt = 1;
     // TODO(any): Experiment with this speed feature by enabling for key frames
-    sf->enable_winner_mode_for_tx_size_srch =
-        frame_is_intra_only(&cpi->common) ? 0 : 1;
+    sf->enable_winner_mode_for_tx_size_srch = 1;
+    // TODO(any): Extend multi-winner mode processing support for inter frames
+    sf->enable_multiwinner_mode_process =
+        frame_is_intra_only(&cpi->common) ? 1 : 0;
     sf->enable_winner_mode_for_use_tx_domain_dist =
         cm->allow_screen_content_tools ? 0 : 1;
     sf->reduce_wiener_window_size = is_boosted_arf2_bwd_type ? 0 : 1;
@@ -876,6 +878,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->enable_winner_mode_for_coeff_opt = 0;
   sf->enable_winner_mode_for_tx_size_srch = 0;
   sf->enable_winner_mode_for_use_tx_domain_dist = 0;
+  sf->enable_multiwinner_mode_process = 0;
   sf->prune_comp_type_by_model_rd = 0;
   sf->disable_smooth_intra = 0;
   sf->perform_best_rd_based_gating_for_chroma = 0;

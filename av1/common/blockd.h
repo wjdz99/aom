@@ -268,6 +268,13 @@ typedef struct MB_MODE_INFO {
   int8_t cdef_strength : 4;
 } MB_MODE_INFO;
 
+static INLINE int is_palette_mode(const MB_MODE_INFO *mbmi, int plane) {
+  int is_palette = mbmi->mode == DC_PRED &&
+                   !mbmi->filter_intra_mode_info.use_filter_intra &&
+                   mbmi->palette_mode_info.palette_size[plane != 0] > 0;
+  return is_palette;
+}
+
 static INLINE int is_intrabc_block(const MB_MODE_INFO *mbmi) {
   return mbmi->use_intrabc;
 }
