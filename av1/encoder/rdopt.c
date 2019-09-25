@@ -9407,6 +9407,9 @@ static int64_t motion_mode_rd(
         continue;
     }
 
+    if (cpi->sf.disable_warp_causal_motion_mode)
+      if (mode_index == WARPED_CAUSAL) continue;
+
     if (mbmi->motion_mode == SIMPLE_TRANSLATION && !is_interintra_mode) {
       // SIMPLE_TRANSLATION mode: no need to recalculate.
       // The prediction is calculated before motion_mode_rd() is called in
@@ -12589,6 +12592,13 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                        INT64_MAX, INT64_MAX, INT64_MAX,
                                        INT64_MAX, INT64_MAX };
   const int skip_ctx = av1_get_skip_context(xd);
+
+  int is_exit = 0;
+  int blk_width = block_size_wide[bsize];
+  int blk_height = block_size_high[bsize];
+  int num_pixels = blk_width * blk_height;
+  int64_t best_single_rd[2] = { INT64_MAX, INT64_MAX };
+
   for (int midx = 0; midx < MAX_MODES; ++midx) {
     // After we done with single reference modes, find the 2nd best RD
     // for a reference frame. Only search compound modes that have a reference
@@ -12611,6 +12621,11 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     const MV_REFERENCE_FRAME ref_frame = mode_order->ref_frame[0];
     const MV_REFERENCE_FRAME second_ref_frame = mode_order->ref_frame[1];
     const int comp_pred = second_ref_frame > INTRA_FRAME;
+
+    if (sf->disable_compound_modes) {
+      if (is_inter_compound_mode(this_mode))
+        if (best_single_rd[1] > (int64_t)(best_single_rd[0] * 1.01)) continue;
+    }
 
     if (sf->prune_compound_using_single_ref && midx > MAX_SINGLE_REF_MODES &&
         comp_pred &&
@@ -12748,6 +12763,12 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     if (this_rd < search_state.best_rd || x->skip) {
       assert(IMPLIES(comp_pred,
                      cm->current_frame.reference_mode != SINGLE_REFERENCE));
+      if (is_inter_singleref_mode(this_mode))
+        if (this_rd < best_single_rd[0]) {
+          best_single_rd[1] = best_single_rd[0];
+          best_single_rd[0] = this_rd;
+        }
+
       // Note index of best mode so far
       search_state.best_mode_index = midx;
       search_state.best_pred_sse = x->pred_sse[ref_frame];
@@ -12980,6 +13001,13 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     rd_cost->rdcost = INT64_MAX;
     return;
   }
+  // if (is_exit==1 && is_inter_compound_mode(search_state.best_mbmode.mode))
+  //  printf("fail: \n");
+  // else if ((sf->disable_compound_modes) && (num_pixels < 1024))
+  //{
+  //  if((!is_inter_compound_mode(search_state.best_mbmode.mode)) && is_exit==0)
+  //	  printf("success: \n");
+  //}
 
   assert((cm->interp_filter == SWITCHABLE) ||
          (cm->interp_filter ==
