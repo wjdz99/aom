@@ -32,6 +32,15 @@ extern "C" {
 
 // 1: use classic model 0: use count or saving stats
 #define USE_TPL_CLASSIC_MODEL 0
+#define MAX_WINNER_MODE_COUNT 5
+typedef struct {
+  MB_MODE_INFO mbmi;
+  int64_t best_rd;
+  int64_t distortion;
+  int rate;
+  int rate_tokenonly;
+  int skippable;
+} BestIntraStats;
 
 typedef struct {
   unsigned int sse;
@@ -240,6 +249,8 @@ struct macroblock {
   MACROBLOCKD e_mbd;
   MB_MODE_INFO_EXT *mbmi_ext;
   MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame;
+  BestIntraStats best_intra_stats[MAX_WINNER_MODE_COUNT];
+  int winner_mode_count;
   int skip_block;
   int qindex;
 
