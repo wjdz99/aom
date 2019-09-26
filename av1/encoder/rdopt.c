@@ -5019,6 +5019,7 @@ static AOM_INLINE void get_mean_dev_features(const int16_t *data, int stride,
       // TODO(any): Write a SIMD version. Clear registers.
       aom_get_blk_sse_sum(data_ptr + row * stride + col, stride, subw, subh,
                           &x_sum, &x2_sum);
+      aom_clear_system_state();
       total_x_sum += x_sum;
       total_x2_sum += x2_sum;
 
