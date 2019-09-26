@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50aab213_03377408",
+        "filename": "aom_scale/generic/yv12config.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-09-26T19:20:56Z",
+      "side": 1,
+      "message": "Have you tested this? This memory was not allocated with aom_malloc() or aom_memalign()-- it should not be freed using aom_free().\n\nFurther, I see two possible ways that this pointer is assigned in this patch:\n\n1) malloc() + memcpy() in av1_lookahead_push(): this one would be OK if it were a free() because it matches the malloc().\n\n2) Direct assignment from aom_image_t in image2yuvconfig(): not necessarily OK. How do we know that he aom_image_t hdr10p pointer is pointing at memory that the libary owns and was allocated via one of the aom_mem wrappers?\n\nThis needs a test to ensure we don\u0027t run into issues like crashes because we free() a pointer that points to a constant or static and/or fail asan tests because of ownership issues.",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 28
+      },
+      "revId": "d5eab42891f86027cc3cbb208865544f47f5202a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af80e2fa_dbf7a37a",
+        "filename": "av1/av1_iface_common.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-09-26T19:20:56Z",
+      "side": 1,
+      "message": "Shouldn\u0027t there be a copy of the hdr10p data here as well?",
+      "revId": "d5eab42891f86027cc3cbb208865544f47f5202a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d67950f2_c8e238ef",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-09-26T19:20:56Z",
+      "side": 1,
+      "message": "Should check the alloc did not fail.",
+      "range": {
+        "startLine": 194,
+        "startChar": 4,
+        "endLine": 194,
+        "endChar": 59
+      },
+      "revId": "d5eab42891f86027cc3cbb208865544f47f5202a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
