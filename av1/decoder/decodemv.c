@@ -1580,7 +1580,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       } else {
         assert(mbmi->interinter_comp.type == COMPOUND_DIFFWTD);
         mbmi->interinter_comp.mask_type =
-            aom_read_literal(r, MAX_DIFFWTD_MASK_BITS, ACCT_STR);
+            aom_read_symbol(r, ec_ctx->interinter_mask_type_cdf, 2, ACCT_STR);
       }
     }
   }

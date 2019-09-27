@@ -392,7 +392,7 @@ struct macroblock {
   int cnn_restore_cost[2];
 #endif  // CONFIG_LOOP_RESTORE_CNN
   int intrabc_cost[2];
-
+  int interinter_mask_type_cost[2];
   // Used to store sub partition's choices.
   MV pred_mv[REF_FRAMES];
 
