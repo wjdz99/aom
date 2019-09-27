@@ -6743,7 +6743,8 @@ static INLINE int get_interinter_compound_mask_rate(
                : 0;
   } else {
     assert(compound_type == COMPOUND_DIFFWTD);
-    return av1_cost_literal(1);
+    int ctx = av1_get_interinter_mask_type_context(mbmi);
+    return x->interinter_mask_type_cost[ctx][mbmi->interinter_comp.mask_type];
   }
 }
 
@@ -7921,6 +7922,8 @@ static int64_t pick_interinter_seg(const AV1_COMP *const cpi,
 
     model_rd_sse_fn[MODELRD_TYPE_MASKED_COMPOUND](cpi, x, bsize, 0, sse, N,
                                                   &rate, &dist);
+    int ctx = av1_get_interinter_mask_type_context(mbmi);
+    rate += x->interinter_mask_type_cost[ctx][cur_mask_type];
     const int64_t rd0 = RDCOST(x->rdmult, rate, dist);
 
     if (rd0 < best_rd) {
