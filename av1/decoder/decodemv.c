@@ -1579,8 +1579,9 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
         mbmi->interinter_comp.wedge_sign = (int8_t)aom_read_bit(r, ACCT_STR);
       } else {
         assert(mbmi->interinter_comp.type == COMPOUND_DIFFWTD);
-        mbmi->interinter_comp.mask_type =
-            aom_read_literal(r, MAX_DIFFWTD_MASK_BITS, ACCT_STR);
+        int ctx = av1_get_interinter_mask_type_context(mbmi);
+        mbmi->interinter_comp.mask_type = aom_read_symbol(
+            r, ec_ctx->interinter_mask_type_cdf[ctx], 2, ACCT_STR);
       }
     }
   }
