@@ -3948,7 +3948,7 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
     }
 
     fprintf(stderr, "gf group index = %d, intra_cost = %ld, mc_dep = %ld\n",
-        gf_group->index, intra_cost_base / 10000, mc_dep_cost_base / 10000);
+            gf_group->index, intra_cost_base / 10000, mc_dep_cost_base / 10000);
 
     if (mc_dep_cost_base == 0) {
       tpl_frame->is_valid = 0;

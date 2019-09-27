@@ -167,7 +167,8 @@ static AOM_INLINE void mode_estimation(
     AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd, struct scale_factors *sf,
     int frame_idx, int16_t *src_diff, tran_low_t *coeff, tran_low_t *qcoeff,
     tran_low_t *dqcoeff, int mi_row, int mi_col, BLOCK_SIZE bsize,
-    TX_SIZE tx_size, const YV12_BUFFER_CONFIG *ref_frame[], uint8_t *predictor,
+    TX_SIZE tx_size, const YV12_BUFFER_CONFIG *ref_frame[],
+    const YV12_BUFFER_CONFIG *src_ref_frame[], uint8_t *predictor,
     int64_t *recon_error, int64_t *sse, TplDepStats *tpl_stats) {
   AV1_COMMON *cm = &cpi->common;
   const GF_GROUP *gf_group = &cpi->gf_group;
@@ -186,6 +187,7 @@ static AOM_INLINE void mode_estimation(
   int64_t intra_cost;
   PREDICTION_MODE mode;
   PREDICTION_MODE best_mode = DC_PRED;
+
   int mb_y_offset = mi_row * MI_SIZE * xd->cur_buf->y_stride + mi_col * MI_SIZE;
   uint8_t *src_mb_buffer = xd->cur_buf->y_buffer + mb_y_offset;
   const int src_stride = xd->cur_buf->y_stride;
@@ -259,8 +261,9 @@ static AOM_INLINE void mode_estimation(
 
   for (rf_idx = 0; rf_idx < INTER_REFS_PER_FRAME; ++rf_idx) {
     if (ref_frame[rf_idx] == NULL) continue;
+    if (src_ref_frame[rf_idx] == NULL) continue;
 
-    const YV12_BUFFER_CONFIG *ref_frame_ptr = ref_frame[rf_idx];
+    const YV12_BUFFER_CONFIG *ref_frame_ptr = src_ref_frame[rf_idx];
     int ref_mb_offset =
         mi_row * MI_SIZE * ref_frame_ptr->y_stride + mi_col * MI_SIZE;
     uint8_t *ref_mb = ref_frame_ptr->y_buffer + ref_mb_offset;
@@ -269,8 +272,8 @@ static AOM_INLINE void mode_estimation(
     const int qstep_ref_noise =
         0;  // ((int)qstep_ref * pix_num + 16) / (4 * 8);
 
-    motion_estimation(cpi, x, src_mb_buffer, ref_mb, src_stride, ref_stride, bsize,
-                      mi_row, mi_col);
+    motion_estimation(cpi, x, src_mb_buffer, ref_mb, src_stride, ref_stride,
+                      bsize, mi_row, mi_col);
 
     ConvolveParams conv_params = get_conv_params(0, 0, xd->bd);
     WarpTypesAllowed warp_types;
@@ -283,15 +286,15 @@ static AOM_INLINE void mode_estimation(
 
 #if CONFIG_AV1_HIGHBITDEPTH
     if (is_cur_buf_hbd(xd)) {
-      aom_highbd_subtract_block(bh, bw, src_diff, bw,
-                                src_mb_buffer, src_stride, predictor, bw, xd->bd);
+      aom_highbd_subtract_block(bh, bw, src_diff, bw, src_mb_buffer, src_stride,
+                                predictor, bw, xd->bd);
     } else {
-      aom_subtract_block(bh, bw, src_diff, bw, src_mb_buffer,
-                         src_stride, predictor, bw);
+      aom_subtract_block(bh, bw, src_diff, bw, src_mb_buffer, src_stride,
+                         predictor, bw);
     }
 #else
-    aom_subtract_block(bh, bw, src_diff, bw,
-                       src_mb_buffer, src_stride, predictor, bw);
+    aom_subtract_block(bh, bw, src_diff, bw, src_mb_buffer, src_stride,
+                       predictor, bw);
 #endif
 
     wht_fwd_txfm(src_diff, bw, coeff, tx_size, xd->bd, is_cur_buf_hbd(xd));
@@ -329,11 +332,11 @@ static AOM_INLINE void mode_estimation(
     uint8_t *ref_mb = ref_frame_ptr->y_buffer + ref_mb_offset;
     int ref_stride = ref_frame_ptr->y_stride;
 
-    av1_build_inter_predictor(
-        ref_mb, ref_stride, dst_buffer, dst_buffer_stride,
-        &best_mv.as_mv, sf, bw, bh, &conv_params, kernel, &warp_types,
-        mi_col * MI_SIZE, mi_row * MI_SIZE, 0, 0, MV_PRECISION_Q3,
-        mi_col * MI_SIZE, mi_row * MI_SIZE, xd, 0);
+    av1_build_inter_predictor(ref_mb, ref_stride, dst_buffer, dst_buffer_stride,
+                              &best_mv.as_mv, sf, bw, bh, &conv_params, kernel,
+                              &warp_types, mi_col * MI_SIZE, mi_row * MI_SIZE,
+                              0, 0, MV_PRECISION_Q3, mi_col * MI_SIZE,
+                              mi_row * MI_SIZE, xd, 0);
   } else {
     av1_predict_intra_block(cm, xd, block_size_wide[bsize],
                             block_size_high[bsize], tx_size, best_mode, 0, 0,
@@ -343,20 +346,20 @@ static AOM_INLINE void mode_estimation(
 
 #if CONFIG_AV1_HIGHBITDEPTH
   if (is_cur_buf_hbd(xd)) {
-    aom_highbd_subtract_block(
-        bh, bw, src_diff, bw, src_mb_buffer,
-        src_stride, dst_buffer, dst_buffer_stride, xd->bd);
+    aom_highbd_subtract_block(bh, bw, src_diff, bw, src_mb_buffer, src_stride,
+                              dst_buffer, dst_buffer_stride, xd->bd);
   } else {
-    aom_subtract_block(bh, bw, src_diff, bw, src_mb_buffer,
-                       src_stride, dst_buffer, dst_buffer_stride);
+    aom_subtract_block(bh, bw, src_diff, bw, src_mb_buffer, src_stride,
+                       dst_buffer, dst_buffer_stride);
   }
 #else
-  aom_subtract_block(bh, bw, src_diff, bw, src_mb_buffer,
-                     src_stride, dst_buffer, dst_buffer_stride);
+  aom_subtract_block(bh, bw, src_diff, bw, src_mb_buffer, src_stride,
+                     dst_buffer, dst_buffer_stride);
 #endif
   wht_fwd_txfm(src_diff, bw, coeff, tx_size, xd->bd, is_cur_buf_hbd(xd));
 
   uint16_t eob;
+
   get_quantize_error(x, 0, coeff, qcoeff, dqcoeff, tx_size, &eob, recon_error,
                      sse);
 
@@ -550,6 +553,8 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx) {
   const YV12_BUFFER_CONFIG *this_frame = tpl_frame->gf_picture;
   const YV12_BUFFER_CONFIG *ref_frame[7] = { NULL, NULL, NULL, NULL,
                                              NULL, NULL, NULL };
+  const YV12_BUFFER_CONFIG *src_frame[7] = { NULL, NULL, NULL, NULL,
+                                             NULL, NULL, NULL };
 
   AV1_COMMON *cm = &cpi->common;
   struct scale_factors sf;
@@ -583,8 +588,10 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx) {
   uint8_t *predictor =
       is_cur_buf_hbd(xd) ? CONVERT_TO_BYTEPTR(predictor8) : predictor8;
 
-  for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx)
+  for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
     ref_frame[idx] = cpi->tpl_frame[tpl_frame->ref_map_index[idx]].rec_picture;
+    src_frame[idx] = cpi->tpl_frame[tpl_frame->ref_map_index[idx]].gf_picture;
+  }
 
   // Remove duplicate frames
   for (int idx1 = 0; idx1 < INTER_REFS_PER_FRAME; ++idx1) {
@@ -635,7 +642,7 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx) {
       xd->mb_to_right_edge = ((cm->mi_cols - mi_width - mi_col) * MI_SIZE) * 8;
       mode_estimation(cpi, x, xd, &sf, frame_idx, src_diff, coeff, qcoeff,
                       dqcoeff, mi_row, mi_col, bsize, tx_size, ref_frame,
-                      predictor, &recon_error, &sse, &tpl_stats);
+                      src_frame, predictor, &recon_error, &sse, &tpl_stats);
 
       // Motion flow dependency dispenser.
       double quant_ratio = (double)recon_error / sse;
