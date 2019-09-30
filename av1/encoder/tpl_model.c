@@ -66,6 +66,21 @@ static AOM_INLINE void wht_fwd_txfm(int16_t *src_diff, int bw,
   av1_fwd_txfm(src_diff, coeff, bw, &txfm_param);
 }
 
+static int rate_estimator(tran_low_t *qcoeff, int eob, TX_SIZE tx_size) {
+  const SCAN_ORDER *const scan_order = &av1_default_scan_orders[tx_size];
+
+  assert((1 << num_pels_log2_lookup[txsize_to_bsize[tx_size]]) >= eob);
+
+  int rate_cost = 1;
+
+  for (int idx = 0; idx < eob; ++idx) {
+    int abs_level = abs(qcoeff[scan_order->scan[idx]]);
+    rate_cost += (int)(log(abs_level + 1.0) / log(2.0)) + 1;
+  }
+
+  return rate_cost;
+}
+
 static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
                                   uint8_t *cur_frame_buf,
                                   uint8_t *ref_frame_buf, int stride,
