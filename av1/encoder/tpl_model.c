@@ -567,15 +567,6 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx) {
     ref_frame_display_index[idx] = tpl_ref_frame->frame_display_index;
   }
 
-  // Remove duplicate frames
-  for (int idx1 = 0; idx1 < INTER_REFS_PER_FRAME; ++idx1) {
-    for (int idx2 = idx1 + 1; idx2 < INTER_REFS_PER_FRAME; ++idx2) {
-      if (ref_frame[idx1] == ref_frame[idx2]) {
-        ref_frame[idx2] = NULL;
-      }
-    }
-  }
-
   // Skip motion estimation w.r.t. reference frames which are not
   // considered in RD search, using "selective_ref_frame" speed feature
   for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
@@ -591,6 +582,15 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx) {
        ++idx) {
     const MV_REFERENCE_FRAME ref_frame_to_disable = disable_order[idx];
     ref_frame[ref_frame_to_disable - 1] = NULL;
+  }
+
+  // Remove duplicate frames
+  for (int idx1 = 0; idx1 < INTER_REFS_PER_FRAME; ++idx1) {
+    for (int idx2 = idx1 + 1; idx2 < INTER_REFS_PER_FRAME; ++idx2) {
+      if (ref_frame[idx1] == ref_frame[idx2]) {
+        ref_frame[idx2] = NULL;
+      }
+    }
   }
 
   // Make a temporary mbmi for tpl model
