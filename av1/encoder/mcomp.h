@@ -114,8 +114,9 @@ typedef int(fractional_mv_step_fp)(
     const aom_variance_fn_ptr_t *vfp,
     int forced_stop,  // 0 - full, 1 - qtr only, 2 - half only
     int iters_per_step, int *cost_list, int *mvjcost, int *(*mvcost)[2],
-    int *distortion, unsigned int *sse1, const uint8_t *second_pred,
-    const uint8_t *mask, int mask_stride, int invert_mask, int w, int h,
+    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS], int *distortion,
+    unsigned int *sse1, const uint8_t *second_pred, const uint8_t *mask,
+    int mask_stride, int invert_mask, int w, int h,
     int use_accurate_subpel_search, const int do_reset_fractional_mv);
 
 extern fractional_mv_step_fp av1_find_best_sub_pixel_tree;

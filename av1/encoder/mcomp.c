@@ -103,7 +103,10 @@ int av1_mv_bit_cost(const MV *mv, const MV *ref, const int *mvjcost,
 #define PIXEL_TRANSFORM_ERROR_SCALE 4
 static int mv_err_cost(const MV *mv, const MV *ref,
                        MvSubpelPrecision frame_precision, const int *mvjcost,
-                       int *const (*mvcost)[2], int error_per_bit) {
+                       int *const (*mvcost)[2],
+                       const int (*dummy)[MV_SUBPEL_PRECISIONS],
+                       int error_per_bit) {
+  (void)dummy;
   if (mvcost) {
 #if CONFIG_FLEX_MVRES
     MV ref_ = *ref;
@@ -125,7 +128,7 @@ static int mv_err_cost(const MV *mv, const MV *ref,
 static int mv_flex_err_cost(const MV *mv, const MV *ref,
                             MvSubpelPrecision frame_precision,
                             const int *mvjcost, int *const (*mvcost)[2],
-                            int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
+                            const int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
                             int error_per_bit) {
   if (mvcost) {
     MV ref_ = *ref;
@@ -225,7 +228,7 @@ static INLINE const uint8_t *pre(const uint8_t *buf, int stride, int r, int c) {
   if (c >= minc && c <= maxc && r >= minr && r <= maxr) {                 \
     MV this_mv = { r, c };                                                \
     v = mv_err_cost(&this_mv, ref_mv, precision, mvjcost, mvcost,         \
-                    error_per_bit);                                       \
+                    flex_mv_costs, error_per_bit);                        \
     if (second_pred == NULL) {                                            \
       thismse = vfp->svf(pre(y, y_stride, r, c), y_stride, sp(c), sp(r),  \
                          src_address, src_stride, &sse);                  \
@@ -260,7 +263,7 @@ static INLINE const uint8_t *pre(const uint8_t *buf, int stride, int r, int c) {
         pre(y, y_stride, r, c), y_stride, sp(c), sp(r), second_pred, mask, \
         mask_stride, invert_mask, w, h, &sse, use_accurate_subpel_search); \
     v = mv_err_cost(&this_mv, ref_mv, precision, mvjcost, mvcost,          \
-                    error_per_bit);                                        \
+                    flex_mv_costs, error_per_bit);                         \
     v += thismse;                                                          \
     if (v < besterr) {                                                     \
       besterr = v;                                                         \
@@ -378,7 +381,8 @@ static unsigned int setup_center_error(
     int y_stride, const uint8_t *second_pred, const uint8_t *mask,
     int mask_stride, int invert_mask, int w, int h, int offset,
     MvSubpelPrecision precision, int *mvjcost, int *(*mvcost)[2],
-    unsigned int *sse1, int *distortion) {
+    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS], unsigned int *sse1,
+    int *distortion) {
   unsigned int besterr;
   if (second_pred != NULL) {
     if (is_cur_buf_hbd(xd)) {
@@ -406,8 +410,8 @@ static unsigned int setup_center_error(
     besterr = vfp->vf(y + offset, y_stride, src, src_stride, sse1);
   }
   *distortion = besterr;
-  besterr +=
-      mv_err_cost(bestmv, ref_mv, precision, mvjcost, mvcost, error_per_bit);
+  besterr += mv_err_cost(bestmv, ref_mv, precision, mvjcost, mvcost,
+                         flex_mv_costs, error_per_bit);
   return besterr;
 }
 
@@ -439,15 +443,17 @@ int av1_find_best_sub_pixel_tree_pruned_evenmore(
     MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
     const MV *ref_mv, MvSubpelPrecision precision, int error_per_bit,
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
-    int *cost_list, int *mvjcost, int *(*mvcost)[2], int *distortion,
+    int *cost_list, int *mvjcost, int *(*mvcost)[2],
+    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS], int *distortion,
     unsigned int *sse1, const uint8_t *second_pred, const uint8_t *mask,
     int mask_stride, int invert_mask, int w, int h,
     int use_accurate_subpel_search, const int do_reset_fractional_mv) {
+  (void)flex_mv_costs;
   SETUP_SUBPEL_SEARCH;
   besterr = setup_center_error(
       xd, bestmv, ref_mv, error_per_bit, vfp, src_address, src_stride, y,
       y_stride, second_pred, mask, mask_stride, invert_mask, w, h, offset,
-      precision, mvjcost, mvcost, sse1, distortion);
+      precision, mvjcost, mvcost, flex_mv_costs, sse1, distortion);
   (void)halfiters;
   (void)quarteriters;
   (void)eighthiters;
@@ -511,7 +517,8 @@ int av1_find_best_sub_pixel_tree_pruned_more(
     MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
     const MV *ref_mv, MvSubpelPrecision precision, int error_per_bit,
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
-    int *cost_list, int *mvjcost, int *(*mvcost)[2], int *distortion,
+    int *cost_list, int *mvjcost, int *(*mvcost)[2],
+    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS], int *distortion,
     unsigned int *sse1, const uint8_t *second_pred, const uint8_t *mask,
     int mask_stride, int invert_mask, int w, int h,
     int use_accurate_subpel_search, const int do_reset_fractional_mv) {
@@ -525,7 +532,7 @@ int av1_find_best_sub_pixel_tree_pruned_more(
   besterr = setup_center_error(
       xd, bestmv, ref_mv, error_per_bit, vfp, src_address, src_stride, y,
       y_stride, second_pred, mask, mask_stride, invert_mask, w, h, offset,
-      precision, mvjcost, mvcost, sse1, distortion);
+      precision, mvjcost, mvcost, flex_mv_costs, sse1, distortion);
   if (cost_list && cost_list[0] != INT_MAX && cost_list[1] != INT_MAX &&
       cost_list[2] != INT_MAX && cost_list[3] != INT_MAX &&
       cost_list[4] != INT_MAX && is_cost_list_wellbehaved(cost_list)) {
@@ -579,7 +586,8 @@ int av1_find_best_sub_pixel_tree_pruned(
     MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
     const MV *ref_mv, MvSubpelPrecision precision, int error_per_bit,
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
-    int *cost_list, int *mvjcost, int *(*mvcost)[2], int *distortion,
+    int *cost_list, int *mvjcost, int *(*mvcost)[2],
+    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS], int *distortion,
     unsigned int *sse1, const uint8_t *second_pred, const uint8_t *mask,
     int mask_stride, int invert_mask, int w, int h,
     int use_accurate_subpel_search, const int do_reset_fractional_mv) {
@@ -593,7 +601,7 @@ int av1_find_best_sub_pixel_tree_pruned(
   besterr = setup_center_error(
       xd, bestmv, ref_mv, error_per_bit, vfp, src_address, src_stride, y,
       y_stride, second_pred, mask, mask_stride, invert_mask, w, h, offset,
-      precision, mvjcost, mvcost, sse1, distortion);
+      precision, mvjcost, mvcost, flex_mv_costs, sse1, distortion);
   if (cost_list && cost_list[0] != INT_MAX && cost_list[1] != INT_MAX &&
       cost_list[2] != INT_MAX && cost_list[3] != INT_MAX &&
       cost_list[4] != INT_MAX) {
@@ -734,15 +742,15 @@ static unsigned int upsampled_setup_center_error(
     const int src_stride, const uint8_t *const y, int y_stride,
     const uint8_t *second_pred, const uint8_t *mask, int mask_stride,
     int invert_mask, int w, int h, int offset, MvSubpelPrecision precision,
-    int *mvjcost, int *(*mvcost)[2], unsigned int *sse1, int *distortion,
-    int subpel_search) {
+    int *mvjcost, int *(*mvcost)[2], int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
+    unsigned int *sse1, int *distortion, int subpel_search) {
   unsigned int besterr =
       upsampled_pref_error(xd, cm, mi_row, mi_col, bestmv, vfp, src, src_stride,
                            y + offset, y_stride, 0, 0, second_pred, mask,
                            mask_stride, invert_mask, w, h, sse1, subpel_search);
   *distortion = besterr;
-  besterr +=
-      mv_err_cost(bestmv, ref_mv, precision, mvjcost, mvcost, error_per_bit);
+  besterr += mv_err_cost(bestmv, ref_mv, precision, mvjcost, mvcost,
+                         flex_mv_costs, error_per_bit);
   return besterr;
 }
 
@@ -768,7 +776,8 @@ int av1_find_best_sub_pixel_tree(
     MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
     const MV *ref_mv, MvSubpelPrecision precision, int error_per_bit,
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
-    int *cost_list, int *mvjcost, int *(*mvcost)[2], int *distortion,
+    int *cost_list, int *mvjcost, int *(*mvcost)[2],
+    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS], int *distortion,
     unsigned int *sse1, const uint8_t *second_pred, const uint8_t *mask,
     int mask_stride, int invert_mask, int w, int h,
     int use_accurate_subpel_search, const int do_reset_fractional_mv) {
@@ -806,13 +815,13 @@ int av1_find_best_sub_pixel_tree(
     besterr = upsampled_setup_center_error(
         xd, cm, mi_row, mi_col, bestmv, ref_mv, error_per_bit, vfp, src_address,
         src_stride, y, y_stride, second_pred, mask, mask_stride, invert_mask, w,
-        h, offset, precision, mvjcost, mvcost, sse1, distortion,
+        h, offset, precision, mvjcost, mvcost, flex_mv_costs, sse1, distortion,
         use_accurate_subpel_search);
   else
     besterr = setup_center_error(
         xd, bestmv, ref_mv, error_per_bit, vfp, src_address, src_stride, y,
         y_stride, second_pred, mask, mask_stride, invert_mask, w, h, offset,
-        precision, mvjcost, mvcost, sse1, distortion);
+        precision, mvjcost, mvcost, flex_mv_costs, sse1, distortion);
 
   (void)cost_list;  // to silence compiler warning
 
@@ -846,8 +855,9 @@ int av1_find_best_sub_pixel_tree(
               &sse);
         }
 
-        cost_array[idx] = thismse + mv_err_cost(&this_mv, ref_mv, precision,
-                                                mvjcost, mvcost, error_per_bit);
+        cost_array[idx] =
+            thismse + mv_err_cost(&this_mv, ref_mv, precision, mvjcost, mvcost,
+                                  flex_mv_costs, error_per_bit);
 
         if (cost_array[idx] < besterr) {
           best_idx = idx;
@@ -881,8 +891,9 @@ int av1_find_best_sub_pixel_tree(
             sp(tc), sp(tr), second_pred, mask, mask_stride, invert_mask, &sse);
       }
 
-      cost_array[4] = thismse + mv_err_cost(&this_mv, ref_mv, precision,
-                                            mvjcost, mvcost, error_per_bit);
+      cost_array[4] =
+          thismse + mv_err_cost(&this_mv, ref_mv, precision, mvjcost, mvcost,
+                                flex_mv_costs, error_per_bit);
 
       if (cost_array[4] < besterr) {
         best_idx = 4;
@@ -943,12 +954,19 @@ unsigned int av1_compute_motion_cost(const AV1_COMP *cpi, MACROBLOCK *const x,
   const int_mv ref_mv = av1_get_ref_mv(x, 0);
   unsigned int mse;
   unsigned int sse;
+  int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
+#if CONFIG_FLEX_MVRES
+  flex_mv_costs = x->flex_mv_precision_costs;
+#else
+  flex_mv_costs = NULL;
+#endif  // CONFIG_FLEX_MVRES
 
   av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
                                 AOM_PLANE_Y, AOM_PLANE_Y);
   mse = vfp->vf(dst, dst_stride, src, src_stride, &sse);
-  mse += mv_err_cost(this_mv, &ref_mv.as_mv, mbmi->mv_precision,
-                     x->nmv_vec_cost, x->nmvcost, x->errorperbit);
+  mse +=
+      mv_err_cost(this_mv, &ref_mv.as_mv, mbmi->mv_precision, x->nmv_vec_cost,
+                  x->nmvcost, flex_mv_costs, x->errorperbit);
   return mse;
 }
 
@@ -1079,6 +1097,12 @@ static INLINE void calc_int_cost_list(const MACROBLOCK *x,
   int i;
   unsigned int sse;
   const MV this_mv = { br, bc };
+  const int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
+#if CONFIG_FLEX_MVRES
+  flex_mv_costs = x->flex_mv_precision_costs;
+#else
+  flex_mv_costs = NULL;
+#endif  // CONFIG_FLEX_MVRES
 
   cost_list[0] =
       fn_ptr->vf(what->buf, what->stride, get_buf_from_mv(in_what, &this_mv),
@@ -1087,12 +1111,12 @@ static INLINE void calc_int_cost_list(const MACROBLOCK *x,
   if (check_bounds(&x->mv_limits, br, bc, 1)) {
     for (i = 0; i < 4; i++) {
       const MV neighbor_mv = { br + neighbors[i].row, bc + neighbors[i].col };
-      cost_list[i + 1] =
-          fn_ptr->vf(what->buf, what->stride,
-                     get_buf_from_mv(in_what, &neighbor_mv), in_what->stride,
-                     &sse) +
-          mv_err_cost(&neighbor_mv, &fcenter_mv, mbmi->mv_precision,
-                      x->nmv_vec_cost, x->nmvcost, x->errorperbit);
+      cost_list[i + 1] = fn_ptr->vf(what->buf, what->stride,
+                                    get_buf_from_mv(in_what, &neighbor_mv),
+                                    in_what->stride, &sse) +
+                         mv_err_cost(&neighbor_mv, &fcenter_mv,
+                                     mbmi->mv_precision, x->nmv_vec_cost,
+                                     x->nmvcost, flex_mv_costs, x->errorperbit);
     }
   } else {
     for (i = 0; i < 4; i++) {
@@ -1105,7 +1129,8 @@ static INLINE void calc_int_cost_list(const MACROBLOCK *x,
                        get_buf_from_mv(in_what, &neighbor_mv), in_what->stride,
                        &sse) +
             mv_err_cost(&neighbor_mv, &fcenter_mv, mbmi->mv_precision,
-                        x->nmv_vec_cost, x->nmvcost, x->errorperbit);
+                        x->nmv_vec_cost, x->nmvcost, flex_mv_costs,
+                        x->errorperbit);
     }
   }
 }
@@ -1425,11 +1450,18 @@ int av1_get_mvpred_var(const MACROBLOCK *x, const MV *best_mv,
   const struct buf_2d *const in_what = &xd->plane[0].pre[0];
   const MV mv = { best_mv->row * 8, best_mv->col * 8 };
   unsigned int unused;
+  const int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
+#if CONFIG_FLEX_MVRES
+  flex_mv_costs = x->flex_mv_precision_costs;
+#else
+  flex_mv_costs = NULL;
+#endif  // CONFIG_FLEX_MVRES
   return vfp->vf(what->buf, what->stride, get_buf_from_mv(in_what, best_mv),
                  in_what->stride, &unused) +
-         (use_mvcost ? mv_err_cost(&mv, center_mv, mbmi->mv_precision,
-                                   x->nmv_vec_cost, x->nmvcost, x->errorperbit)
-                     : 0);
+         (use_mvcost
+              ? mv_err_cost(&mv, center_mv, mbmi->mv_precision, x->nmv_vec_cost,
+                            x->nmvcost, flex_mv_costs, x->errorperbit)
+              : 0);
 }
 
 int av1_get_mvpred_av_var(const MACROBLOCK *x, const MV *best_mv,
@@ -1441,12 +1473,19 @@ int av1_get_mvpred_av_var(const MACROBLOCK *x, const MV *best_mv,
   const struct buf_2d *const in_what = &xd->plane[0].pre[0];
   const MV mv = { best_mv->row * 8, best_mv->col * 8 };
   unsigned int unused;
+  const int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
+#if CONFIG_FLEX_MVRES
+  flex_mv_costs = x->flex_mv_precision_costs;
+#else
+  flex_mv_costs = NULL;
+#endif  // CONFIG_FLEX_MVRES
 
   return vfp->svaf(get_buf_from_mv(in_what, best_mv), in_what->stride, 0, 0,
                    what->buf, what->stride, &unused, second_pred) +
-         (use_mvcost ? mv_err_cost(&mv, center_mv, mbmi->mv_precision,
-                                   x->nmv_vec_cost, x->nmvcost, x->errorperbit)
-                     : 0);
+         (use_mvcost
+              ? mv_err_cost(&mv, center_mv, mbmi->mv_precision, x->nmv_vec_cost,
+                            x->nmvcost, flex_mv_costs, x->errorperbit)
+              : 0);
 }
 
 int av1_get_mvpred_mask_var(const MACROBLOCK *x, const MV *best_mv,
@@ -1460,13 +1499,20 @@ int av1_get_mvpred_mask_var(const MACROBLOCK *x, const MV *best_mv,
   const struct buf_2d *const in_what = &xd->plane[0].pre[0];
   const MV mv = { best_mv->row * 8, best_mv->col * 8 };
   unsigned int unused;
+  const int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
+#if CONFIG_FLEX_MVRES
+  flex_mv_costs = x->flex_mv_precision_costs;
+#else
+  flex_mv_costs = NULL;
+#endif  // CONFIG_FLEX_MVRES
 
   return vfp->msvf(what->buf, what->stride, 0, 0,
                    get_buf_from_mv(in_what, best_mv), in_what->stride,
                    second_pred, mask, mask_stride, invert_mask, &unused) +
-         (use_mvcost ? mv_err_cost(&mv, center_mv, mbmi->mv_precision,
-                                   x->nmv_vec_cost, x->nmvcost, x->errorperbit)
-                     : 0);
+         (use_mvcost
+              ? mv_err_cost(&mv, center_mv, mbmi->mv_precision, x->nmv_vec_cost,
+                            x->nmvcost, flex_mv_costs, x->errorperbit)
+              : 0);
 }
 
 int av1_hex_search(MACROBLOCK *x, MV *start_mv, int search_param,
@@ -2565,7 +2611,7 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
                                         y_stride, sp(c), sp(r), w, h, &sse,   \
                                         use_accurate_subpel_search);          \
     v = mv_err_cost(&this_mv, ref_mv, precision, mvjcost, mvcost,             \
-                    error_per_bit);                                           \
+                    flex_mv_costs, error_per_bit);                            \
     if ((v + thismse) < besterr) {                                            \
       besterr = v + thismse;                                                  \
       br = r;                                                                 \
@@ -2582,12 +2628,13 @@ static unsigned int setup_obmc_center_error(
     const aom_variance_fn_ptr_t *vfp, const int32_t *const wsrc,
     const uint8_t *const y, int y_stride, int offset,
     MvSubpelPrecision precision, int *mvjcost, int *(*mvcost)[2],
-    unsigned int *sse1, int *distortion) {
+    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS], unsigned int *sse1,
+    int *distortion) {
   unsigned int besterr;
   besterr = vfp->ovf(y + offset, y_stride, wsrc, mask, sse1);
   *distortion = besterr;
-  besterr +=
-      mv_err_cost(bestmv, ref_mv, precision, mvjcost, mvcost, error_per_bit);
+  besterr += mv_err_cost(bestmv, ref_mv, precision, mvjcost, mvcost,
+                         flex_mv_costs, error_per_bit);
   return besterr;
 }
 
@@ -2621,13 +2668,14 @@ static unsigned int upsampled_setup_obmc_center_error(
     const aom_variance_fn_ptr_t *vfp, const int32_t *const wsrc,
     const uint8_t *const y, int y_stride, int w, int h, int offset,
     MvSubpelPrecision precision, int *mvjcost, int *(*mvcost)[2],
-    unsigned int *sse1, int *distortion, int subpel_search) {
+    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS], unsigned int *sse1,
+    int *distortion, int subpel_search) {
   unsigned int besterr = upsampled_obmc_pref_error(
       xd, cm, mi_row, mi_col, bestmv, mask, vfp, wsrc, y + offset, y_stride, 0,
       0, w, h, sse1, subpel_search);
   *distortion = besterr;
-  besterr +=
-      mv_err_cost(bestmv, ref_mv, precision, mvjcost, mvcost, error_per_bit);
+  besterr += mv_err_cost(bestmv, ref_mv, precision, mvjcost, mvcost,
+                         flex_mv_costs, error_per_bit);
   return besterr;
 }
 
@@ -2637,6 +2685,12 @@ int av1_find_best_obmc_sub_pixel_tree_up(
     int error_per_bit, const aom_variance_fn_ptr_t *vfp, int forced_stop,
     int iters_per_step, int *mvjcost, int *(*mvcost)[2], int *distortion,
     unsigned int *sse1, int is_second, int use_accurate_subpel_search) {
+  int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
+#if CONFIG_FLEX_MVRES
+  flex_mv_costs = x->flex_mv_precision_costs;
+#else
+  flex_mv_costs = NULL;
+#endif  // CONFIG_FLEX_MVRES
   const int32_t *wsrc = x->wsrc_buf;
   const int32_t *mask = x->mask_buf;
   const int *const z = wsrc;
@@ -2683,12 +2737,12 @@ int av1_find_best_obmc_sub_pixel_tree_up(
   if (use_accurate_subpel_search)
     besterr = upsampled_setup_obmc_center_error(
         xd, cm, mi_row, mi_col, mask, bestmv, ref_mv, error_per_bit, vfp, z, y,
-        y_stride, w, h, offset, precision, mvjcost, mvcost, sse1, distortion,
-        use_accurate_subpel_search);
+        y_stride, w, h, offset, precision, mvjcost, mvcost, flex_mv_costs, sse1,
+        distortion, use_accurate_subpel_search);
   else
-    besterr = setup_obmc_center_error(mask, bestmv, ref_mv, error_per_bit, vfp,
-                                      z, y, y_stride, offset, precision,
-                                      mvjcost, mvcost, sse1, distortion);
+    besterr = setup_obmc_center_error(
+        mask, bestmv, ref_mv, error_per_bit, vfp, z, y, y_stride, offset,
+        precision, mvjcost, mvcost, flex_mv_costs, sse1, distortion);
 
   for (iter = 0; iter < round; ++iter) {
     // Check vertical and horizontal sub-pixel positions.
@@ -2707,8 +2761,9 @@ int av1_find_best_obmc_sub_pixel_tree_up(
                               sp(tr), src_address, mask, &sse);
         }
 
-        cost_array[idx] = thismse + mv_err_cost(&this_mv, ref_mv, precision,
-                                                mvjcost, mvcost, error_per_bit);
+        cost_array[idx] =
+            thismse + mv_err_cost(&this_mv, ref_mv, precision, mvjcost, mvcost,
+                                  flex_mv_costs, error_per_bit);
         if (cost_array[idx] < besterr) {
           best_idx = idx;
           besterr = cost_array[idx];
@@ -2739,8 +2794,9 @@ int av1_find_best_obmc_sub_pixel_tree_up(
                             src_address, mask, &sse);
       }
 
-      cost_array[4] = thismse + mv_err_cost(&this_mv, ref_mv, precision,
-                                            mvjcost, mvcost, error_per_bit);
+      cost_array[4] =
+          thismse + mv_err_cost(&this_mv, ref_mv, precision, mvjcost, mvcost,
+                                flex_mv_costs, error_per_bit);
 
       if (cost_array[4] < besterr) {
         best_idx = 4;
@@ -2801,12 +2857,19 @@ static int get_obmc_mvpred_var(const MACROBLOCK *x, const int32_t *wsrc,
   const struct buf_2d *const in_what = &xd->plane[0].pre[is_second];
   const MV mv = { best_mv->row * 8, best_mv->col * 8 };
   unsigned int unused;
+  const int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
+#if CONFIG_FLEX_MVRES
+  flex_mv_costs = x->flex_mv_precision_costs;
+#else
+  flex_mv_costs = NULL;
+#endif  // CONFIG_FLEX_MVRES
 
   return vfp->ovf(get_buf_from_mv(in_what, best_mv), in_what->stride, wsrc,
                   mask, &unused) +
-         (use_mvcost ? mv_err_cost(&mv, center_mv, mbmi->mv_precision,
-                                   x->nmv_vec_cost, x->nmvcost, x->errorperbit)
-                     : 0);
+         (use_mvcost
+              ? mv_err_cost(&mv, center_mv, mbmi->mv_precision, x->nmv_vec_cost,
+                            x->nmvcost, flex_mv_costs, x->errorperbit)
+              : 0);
 }
 
 static int obmc_refining_search_sad(const MACROBLOCK *x, const int32_t *wsrc,
@@ -3047,6 +3110,7 @@ int av1_obmc_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, MV *mvp_full,
   (void)offset;                     \
   (void)mvjcost;                    \
   (void)mvcost;                     \
+  (void)flex_mv_costs;              \
   (void)sse1;                       \
   (void)distortion;                 \
                                     \
@@ -3067,7 +3131,8 @@ int av1_return_max_sub_pixel_mv(
     MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
     const MV *ref_mv, MvSubpelPrecision precision, int error_per_bit,
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
-    int *cost_list, int *mvjcost, int *(*mvcost)[2], int *distortion,
+    int *cost_list, int *mvjcost, int *(*mvcost)[2],
+    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS], int *distortion,
     unsigned int *sse1, const uint8_t *second_pred, const uint8_t *mask,
     int mask_stride, int invert_mask, int w, int h,
     int use_accurate_subpel_search, const int do_reset_fractional_mv) {
@@ -3096,7 +3161,8 @@ int av1_return_min_sub_pixel_mv(
     MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
     const MV *ref_mv, MvSubpelPrecision precision, int error_per_bit,
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
-    int *cost_list, int *mvjcost, int *(*mvcost)[2], int *distortion,
+    int *cost_list, int *mvjcost, int *(*mvcost)[2],
+    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS], int *distortion,
     unsigned int *sse1, const uint8_t *second_pred, const uint8_t *mask,
     int mask_stride, int invert_mask, int w, int h,
     int use_accurate_subpel_search, const int do_reset_fractional_mv) {
@@ -3189,15 +3255,26 @@ void av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
           x, cm, mi_row, mi_col, &ref_mv, mbmi->mv_precision, x->errorperbit,
           &cpi->fn_ptr[bsize], cpi->sf.mv.subpel_force_stop,
           cpi->sf.mv.subpel_iters_per_step, cond_cost_list(cpi, cost_list),
-          x->nmv_vec_cost, x->nmvcost, &not_used, &x->pred_sse[ref], NULL, NULL,
-          0, 0, pw, ph, cpi->sf.use_accurate_subpel_search, 1);
+          x->nmv_vec_cost, x->nmvcost,
+#if CONFIG_FLEX_MVRES
+          x->flex_mv_precision_costs,
+#else
+          NULL,
+#endif  // CONFIG_FLEX_MVRES
+          &not_used, &x->pred_sse[ref], NULL, NULL, 0, 0, pw, ph,
+          cpi->sf.use_accurate_subpel_search, 1);
     } else {
       cpi->find_fractional_mv_step(
           x, cm, mi_row, mi_col, &ref_mv, mbmi->mv_precision, x->errorperbit,
           &cpi->fn_ptr[bsize], cpi->sf.mv.subpel_force_stop,
           cpi->sf.mv.subpel_iters_per_step, cond_cost_list(cpi, cost_list),
-          x->nmv_vec_cost, x->nmvcost, &not_used, &x->pred_sse[ref], NULL, NULL,
-          0, 0, 0, 0, 0, 1);
+          x->nmv_vec_cost, x->nmvcost,
+#if CONFIG_FLEX_MVRES
+          x->flex_mv_precision_costs,
+#else
+          NULL,
+#endif  // CONFIG_FLEX_MVRES
+          &not_used, &x->pred_sse[ref], NULL, NULL, 0, 0, 0, 0, 0, 1);
     }
   } else {
     // Manually convert from units of pixel to 1/8-pixels if we are not doing
