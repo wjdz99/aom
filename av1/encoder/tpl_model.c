@@ -528,6 +528,7 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx) {
   unsigned int ref_frame_display_index[7];
   MV_REFERENCE_FRAME ref[2] = { LAST_FRAME, INTRA_FRAME };
   const int max_allowed_refs = get_max_allowed_ref_frames(cpi);
+  int total_valid_refs = 0;
 
   AV1_COMMON *cm = &cpi->common;
   struct scale_factors sf;
@@ -576,6 +577,10 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx) {
     }
   }
 
+  for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
+    if (ref_frame[idx] != NULL) total_valid_refs++;
+  }
+
   // Skip motion estimation w.r.t. reference frames which are not
   // considered in RD search, using "selective_ref_frame" speed feature
   for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
@@ -587,10 +592,10 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx) {
   }
 
   // Skip reference frames based on user options and speed.
-  for (idx = 0; idx < AOMMIN(4, INTER_REFS_PER_FRAME - max_allowed_refs);
-       ++idx) {
+  for (idx = 0; idx < 4 && total_valid_refs > max_allowed_refs; ++idx) {
     const MV_REFERENCE_FRAME ref_frame_to_disable = disable_order[idx];
     ref_frame[ref_frame_to_disable - 1] = NULL;
+    total_valid_refs--;
   }
 
   // Make a temporary mbmi for tpl model
@@ -825,6 +830,7 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
   EncodeFrameParams this_frame_params = *frame_params;
 
   for (int gf_index = gf_group->index; gf_index < gf_group->size; ++gf_index) {
+    FRAME_UPDATE_TYPE frame_update_type = gf_group->update_type[gf_index];
     av1_configure_buffer_updates(cpi, &this_frame_params,
                                  gf_group->update_type[gf_index], 0);
 
@@ -832,12 +838,17 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
     cpi->refresh_golden_frame = this_frame_params.refresh_golden_frame;
     cpi->refresh_bwd_ref_frame = this_frame_params.refresh_bwd_ref_frame;
     cpi->refresh_alt_ref_frame = this_frame_params.refresh_alt_ref_frame;
+    cm->show_frame = frame_update_type != ARF_UPDATE &&
+                     frame_update_type != INTNL_ARF_UPDATE;
+    cm->current_frame.frame_type =
+        frame_update_type == KF_UPDATE ? KEY_FRAME : INTER_FRAME;
 
     gf_group->q_val[gf_index] =
         av1_rc_pick_q_and_bounds(cpi, &cpi->rc, cm->width, cm->height, gf_index,
                                  &bottom_index, &top_index);
 
     cm->current_frame.frame_type = INTER_FRAME;
+    cm->show_frame = frame_params->show_frame;
   }
 
   init_gop_frames_for_tpl(cpi, frame_params, gf_group,
