@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d987241_0e9ec809",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-09-30T17:18:14Z",
+      "side": 0,
+      "message": "This should be \"(1 \u003c\u003c (GOLDEN_FRAME - 1))\".",
+      "range": {
+        "startLine": 247,
+        "startChar": 41,
+        "endLine": 247,
+        "endChar": 61
+      },
+      "revId": "fd530f86585c4c869e2e53ac66cdcffff24aca5d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
