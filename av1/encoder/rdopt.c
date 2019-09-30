@@ -6136,6 +6136,7 @@ static const int rd_record_tree_size[BLOCK_SIZES_ALL] = {
 #endif  // CONFIG_FLEX_PARTITION
 };
 
+#if !CONFIG_NEW_TX_PARTITION
 static INLINE void init_rd_record_tree(TXB_RD_INFO_NODE *tree,
                                        BLOCK_SIZE bsize) {
   const RD_RECORD_IDX_NODE *rd_record = rd_record_tree[bsize];
@@ -6152,7 +6153,6 @@ static INLINE void init_rd_record_tree(TXB_RD_INFO_NODE *tree,
   }
 }
 
-#if !CONFIG_NEW_TX_PARTITION
 // Go through all TX blocks that could be used in TX size search, compute
 // residual hash values for them and find matching RD info that stores previous
 // RD search results for these TX blocks. The idea is to prevent repeated
