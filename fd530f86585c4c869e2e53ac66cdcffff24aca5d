@@ -22,6 +22,30 @@
       "revId": "fd530f86585c4c869e2e53ac66cdcffff24aca5d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bc69a5f_2d422a0a",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2019-09-30T17:43:21Z",
+      "side": 0,
+      "message": "ok, i\u0027ll take the current fix for now",
+      "parentUuid": "2d987241_0e9ec809",
+      "range": {
+        "startLine": 247,
+        "startChar": 41,
+        "endLine": 247,
+        "endChar": 61
+      },
+      "revId": "fd530f86585c4c869e2e53ac66cdcffff24aca5d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
