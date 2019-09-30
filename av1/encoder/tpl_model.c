@@ -108,6 +108,21 @@ static AOM_INLINE void wht_fwd_txfm(int16_t *src_diff, int bw,
 #endif
 }
 
+static int rate_estimator(tran_low_t *qcoeff, int eob, TX_SIZE tx_size) {
+  const SCAN_ORDER *const scan_order = &av1_default_scan_orders[tx_size];
+
+  assert((1 << num_pels_log2_lookup[txsize_to_bsize[tx_size]]) >= eob);
+
+  int rate_cost = 1;
+
+  for (int idx = 0; idx < eob; ++idx) {
+    int abs_level = abs(qcoeff[scan_order->scan[idx]]);
+    rate_cost += (int)(log(abs_level + 1.0) / log(2.0)) + 1;
+  }
+
+  return rate_cost;
+}
+
 static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
                                   uint8_t *cur_frame_buf,
                                   uint8_t *ref_frame_buf, int stride,
@@ -476,7 +491,8 @@ static AOM_INLINE void tpl_model_update_b(AV1_COMP *cpi, TplDepFrame *tpl_frame,
       int64_t cur_dep_cost =
           tpl_stats_ptr->recrf_dist - tpl_stats_ptr->srcrf_dist;
       int64_t mc_dep_delta =
-          (tpl_stats_ptr->mc_dep_delta * (tpl_stats_ptr->recrf_dist - tpl_stats_ptr->srcrf_dist)) /
+          (tpl_stats_ptr->mc_dep_delta *
+           (tpl_stats_ptr->recrf_dist - tpl_stats_ptr->srcrf_dist)) /
           tpl_stats_ptr->recrf_dist;
 
 #if !USE_TPL_CLASSIC_MODEL
@@ -1201,7 +1217,8 @@ void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
           const TplDepStats *this_stats =
               &tpl_stats[av1_tpl_ptr_pos(cpi, mi_row, mi_col, tpl_stride)];
           intra_cost += (double)this_stats->recrf_dist;
-          mc_dep_cost += (double)this_stats->recrf_dist + this_stats->mc_dep_delta;
+          mc_dep_cost +=
+              (double)this_stats->recrf_dist + this_stats->mc_dep_delta;
         }
       }
       const double rk = intra_cost / mc_dep_cost;
