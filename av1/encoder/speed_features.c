@@ -302,7 +302,7 @@ static void set_good_speed_features_framesize_independent(
 
   if (speed >= 2) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_2;
-
+    sf->gm_search_type = GM_DISABLE_SEARCH;
     sf->selective_ref_frame = 3;
 
     // TODO(chiyotsai@google.com): We can get 10% speed up if we move
@@ -342,7 +342,7 @@ static void set_good_speed_features_framesize_independent(
     sf->use_accurate_subpel_search = USE_2_TAPS;
     if (cpi->oxcf.enable_smooth_interintra)
       sf->disable_smooth_interintra = boosted ? 0 : 1;
-    sf->gm_search_type = GM_DISABLE_SEARCH;
+    // sf->gm_search_type = GM_DISABLE_SEARCH;
     sf->prune_comp_search_by_single_result = 2;
     sf->prune_motion_mode_level = boosted ? 2 : 3;
     // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
