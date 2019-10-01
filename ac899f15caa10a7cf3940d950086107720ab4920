@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c1e4ad2_316c60e2",
+        "filename": "aom/src/aom_encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-10-01T03:12:43Z",
+      "side": 1,
+      "message": "this isn\u0027t quite right, I think you want to just enable the previously enabled exceptions. It might be easiest to disable all of them and then set float_excepts",
+      "revId": "ac899f15caa10a7cf3940d950086107720ab4920",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
