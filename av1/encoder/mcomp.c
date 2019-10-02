@@ -76,10 +76,65 @@ static INLINE int mv_cost(const MV *mv, const int *joint_cost,
          comp_cost[1][mv->col];
 }
 
-int av1_mv_bit_cost(const MV *mv, const MV *ref, const int *mvjcost,
-                    int *mvcost[2],
+int av1_mv_bit_cost_gen(const MV *mv, const MV *ref,
+                        MvSubpelPrecision frame_precision, const int *mvjcost,
+                        int *const (*mvcost)[2],
 #if CONFIG_FLEX_MVRES
-                    int no_flex_mv, MvSubpelPrecision frame_precision,
+                        int use_flex_mv,
+                        int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
+#endif  // CONFIG_FLEX_MVRES
+                        int weight) {
+#if CONFIG_FLEX_MVRES
+  MV ref_ = *ref;
+  lower_mv_precision(&ref_, frame_precision);
+  const MV diff = { mv->row - ref_.row, mv->col - ref_.col };
+  const MvSubpelPrecision precision =
+      use_flex_mv ? get_mv_precision(diff) : frame_precision;
+  int cost = mv_cost(&diff, mvjcost, mvcost[precision]);
+  // The flex mv cost needs to be added only once for compound
+  if (use_flex_mv && frame_precision > MV_SUBPEL_NONE && flex_mv_costs)
+    cost += flex_mv_costs[frame_precision - 1][frame_precision - precision];
+#else
+  const MV diff = { mv->row - ref->row, mv->col - ref->col };
+  int cost = mv_cost(&diff, mvjcost, mvcost[frame_precision]);
+#endif  // CONFIG_FLEX_MVRES
+  return (int)ROUND_POWER_OF_TWO_64((int64_t)cost * weight, 7);
+}
+
+int av1_mv_bit_cost_gen2(const MV *mv, const MV *ref,
+                         MvSubpelPrecision frame_precision, const int *mvjcost,
+                         int *const (*mvcost)[2],
+#if CONFIG_FLEX_MVRES
+                         int use_flex_mv,
+                         int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
+#endif  // CONFIG_FLEX_MVRES
+                         int weight) {
+#if CONFIG_FLEX_MVRES
+  MV ref_[2] = { ref[0], ref[1] };
+  lower_mv_precision(&ref_[0], frame_precision);
+  lower_mv_precision(&ref_[1], frame_precision);
+  const MV diff[2] = { { mv[0].row - ref_[0].row, mv[0].col - ref_[0].col },
+                       { mv[1].row - ref_[1].row, mv[1].col - ref_[1].col } };
+  const MvSubpelPrecision precision =
+      use_flex_mv ? get_mv_precision2(diff[0], diff[1]) : frame_precision;
+  int cost = mv_cost(&diff[0], mvjcost, mvcost[precision]) +
+             mv_cost(&diff[1], mvjcost, mvcost[precision]);
+  // The flex mv cost needs to be added only once for compound
+  if (use_flex_mv && frame_precision > MV_SUBPEL_NONE && flex_mv_costs)
+    cost += flex_mv_costs[frame_precision - 1][frame_precision - precision];
+#else
+  const MV diff[2] = { { mv[0].row - ref[0].row, mv[0].col - ref[0].col },
+                       { mv[1].row - ref[1].row, mv[1].col - ref[1].col } };
+  int cost = mv_cost(&diff[0], mvjcost, mvcost[frame_precision]) +
+             mv_cost(&diff[1], mvjcost, mvcost[frame_precision]);
+#endif  // CONFIG_FLEX_MVRES
+  return (int)ROUND_POWER_OF_TWO_64((int64_t)cost * weight, 7);
+}
+
+int av1_mv_bit_cost(const MV *mv, const MV *ref,
+                    MvSubpelPrecision frame_precision, const int *mvjcost,
+                    int *const (*mvcost)[2],
+#if CONFIG_FLEX_MVRES
                     MvSubpelPrecision precision,
                     int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
 #endif  // CONFIG_FLEX_MVRES
@@ -88,16 +143,15 @@ int av1_mv_bit_cost(const MV *mv, const MV *ref, const int *mvjcost,
   MV ref_ = *ref;
   lower_mv_precision(&ref_, frame_precision);
   const MV diff = { mv->row - ref_.row, mv->col - ref_.col };
+  int cost = mv_cost(&diff, mvjcost, mvcost[precision]);
+  // The flex mv cost needs to be added only once for compound
+  if (frame_precision > MV_SUBPEL_NONE && flex_mv_costs)
+    cost += flex_mv_costs[frame_precision - 1][frame_precision - precision];
 #else
   const MV diff = { mv->row - ref->row, mv->col - ref->col };
+  int cost = mv_cost(&diff, mvjcost, mvcost[frame_precision]);
 #endif  // CONFIG_FLEX_MVRES
-  int cost = ROUND_POWER_OF_TWO(mv_cost(&diff, mvjcost, mvcost) * weight, 7);
-#if CONFIG_FLEX_MVRES
-  // The flex mv cost needs to be added only once for compound
-  if (no_flex_mv == 0 && frame_precision > MV_SUBPEL_NONE)
-    cost += flex_mv_costs[frame_precision - 1][frame_precision - precision];
-#endif  // CONFIG_FLEX_MVRES
-  return cost;
+  return (int)ROUND_POWER_OF_TWO_64((int64_t)cost * weight, 7);
 }
 
 typedef int(mv_err_cost_fn)(const MV *mv, const MV *ref,
@@ -388,12 +442,12 @@ static unsigned int setup_center_error(
     int mask_stride, int invert_mask, int w, int h, int offset,
     MvSubpelPrecision precision, int *mvjcost, int *(*mvcost)[2],
 #if CONFIG_FLEX_MVRES
-    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
+    int use_flex_mv, int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
 #endif  // CONFIG_FLEX_MVRES
     unsigned int *sse1, int *distortion) {
 #if CONFIG_FLEX_MVRES
   mv_err_cost_fn *mv_err_cost =
-      flex_mv_costs ? mv_flex_err_cost : mv_base_err_cost;
+      use_flex_mv ? mv_flex_err_cost : mv_base_err_cost;
 #else
   int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
   flex_mv_costs = NULL;
@@ -461,14 +515,14 @@ int av1_find_best_sub_pixel_tree_pruned_evenmore(
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
     int *cost_list, int *mvjcost, int *(*mvcost)[2],
 #if CONFIG_FLEX_MVRES
-    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
+    int use_flex_mv, int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
 #endif  // CONFIG_FLEX_MVRES
     int *distortion, unsigned int *sse1, const uint8_t *second_pred,
     const uint8_t *mask, int mask_stride, int invert_mask, int w, int h,
     int use_accurate_subpel_search, const int do_reset_fractional_mv) {
 #if CONFIG_FLEX_MVRES
   mv_err_cost_fn *mv_err_cost =
-      flex_mv_costs ? mv_flex_err_cost : mv_base_err_cost;
+      use_flex_mv ? mv_flex_err_cost : mv_base_err_cost;
 #else
   int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
   flex_mv_costs = NULL;
@@ -480,7 +534,7 @@ int av1_find_best_sub_pixel_tree_pruned_evenmore(
                                second_pred, mask, mask_stride, invert_mask, w,
                                h, offset, precision, mvjcost, mvcost,
 #if CONFIG_FLEX_MVRES
-                               flex_mv_costs,
+                               use_flex_mv, flex_mv_costs,
 #endif  // CONFIG_FLEX_MVRES
                                sse1, distortion);
   (void)halfiters;
@@ -548,14 +602,14 @@ int av1_find_best_sub_pixel_tree_pruned_more(
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
     int *cost_list, int *mvjcost, int *(*mvcost)[2],
 #if CONFIG_FLEX_MVRES
-    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
+    int use_flex_mv, int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
 #endif  // CONFIG_FLEX_MVRES
     int *distortion, unsigned int *sse1, const uint8_t *second_pred,
     const uint8_t *mask, int mask_stride, int invert_mask, int w, int h,
     int use_accurate_subpel_search, const int do_reset_fractional_mv) {
 #if CONFIG_FLEX_MVRES
   mv_err_cost_fn *mv_err_cost =
-      flex_mv_costs ? mv_flex_err_cost : mv_base_err_cost;
+      use_flex_mv ? mv_flex_err_cost : mv_base_err_cost;
 #else
   int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
   flex_mv_costs = NULL;
@@ -573,7 +627,7 @@ int av1_find_best_sub_pixel_tree_pruned_more(
                                second_pred, mask, mask_stride, invert_mask, w,
                                h, offset, precision, mvjcost, mvcost,
 #if CONFIG_FLEX_MVRES
-                               flex_mv_costs,
+                               use_flex_mv, flex_mv_costs,
 #endif  // CONFIG_FLEX_MVRES
                                sse1, distortion);
   if (cost_list && cost_list[0] != INT_MAX && cost_list[1] != INT_MAX &&
@@ -631,14 +685,14 @@ int av1_find_best_sub_pixel_tree_pruned(
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
     int *cost_list, int *mvjcost, int *(*mvcost)[2],
 #if CONFIG_FLEX_MVRES
-    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
+    int use_flex_mv, int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
 #endif  // CONFIG_FLEX_MVRES
     int *distortion, unsigned int *sse1, const uint8_t *second_pred,
     const uint8_t *mask, int mask_stride, int invert_mask, int w, int h,
     int use_accurate_subpel_search, const int do_reset_fractional_mv) {
 #if CONFIG_FLEX_MVRES
   mv_err_cost_fn *mv_err_cost =
-      flex_mv_costs ? mv_flex_err_cost : mv_base_err_cost;
+      use_flex_mv ? mv_flex_err_cost : mv_base_err_cost;
 #else
   int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
   flex_mv_costs = NULL;
@@ -656,7 +710,7 @@ int av1_find_best_sub_pixel_tree_pruned(
                                second_pred, mask, mask_stride, invert_mask, w,
                                h, offset, precision, mvjcost, mvcost,
 #if CONFIG_FLEX_MVRES
-                               flex_mv_costs,
+                               use_flex_mv, flex_mv_costs,
 #endif  // CONFIG_FLEX_MVRES
                                sse1, distortion);
   if (cost_list && cost_list[0] != INT_MAX && cost_list[1] != INT_MAX &&
@@ -801,12 +855,12 @@ static unsigned int upsampled_setup_center_error(
     int invert_mask, int w, int h, int offset, MvSubpelPrecision precision,
     int *mvjcost, int *(*mvcost)[2],
 #if CONFIG_FLEX_MVRES
-    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
+    int use_flex_mv, int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
 #endif  // CONFIG_FLEX_MVRES
     unsigned int *sse1, int *distortion, int subpel_search) {
 #if CONFIG_FLEX_MVRES
   mv_err_cost_fn *mv_err_cost =
-      flex_mv_costs ? mv_flex_err_cost : mv_base_err_cost;
+      use_flex_mv ? mv_flex_err_cost : mv_base_err_cost;
 #else
   int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
   flex_mv_costs = NULL;
@@ -846,14 +900,14 @@ int av1_find_best_sub_pixel_tree(
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
     int *cost_list, int *mvjcost, int *(*mvcost)[2],
 #if CONFIG_FLEX_MVRES
-    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
+    int use_flex_mv, int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
 #endif  // CONFIG_FLEX_MVRES
     int *distortion, unsigned int *sse1, const uint8_t *second_pred,
     const uint8_t *mask, int mask_stride, int invert_mask, int w, int h,
     int use_accurate_subpel_search, const int do_reset_fractional_mv) {
 #if CONFIG_FLEX_MVRES
   mv_err_cost_fn *mv_err_cost =
-      flex_mv_costs ? mv_flex_err_cost : mv_base_err_cost;
+      use_flex_mv ? mv_flex_err_cost : mv_base_err_cost;
 #else
   int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
   flex_mv_costs = NULL;
@@ -895,7 +949,7 @@ int av1_find_best_sub_pixel_tree(
         src_stride, y, y_stride, second_pred, mask, mask_stride, invert_mask, w,
         h, offset, precision, mvjcost, mvcost,
 #if CONFIG_FLEX_MVRES
-        flex_mv_costs,
+        use_flex_mv, flex_mv_costs,
 #endif  // CONFIG_FLEX_MVRES
         sse1, distortion, use_accurate_subpel_search);
   else
@@ -904,7 +958,7 @@ int av1_find_best_sub_pixel_tree(
                                  second_pred, mask, mask_stride, invert_mask, w,
                                  h, offset, precision, mvjcost, mvcost,
 #if CONFIG_FLEX_MVRES
-                                 flex_mv_costs,
+                                 use_flex_mv, flex_mv_costs,
 #endif  // CONFIG_FLEX_MVRES
                                  sse1, distortion);
 
@@ -2736,12 +2790,12 @@ static unsigned int setup_obmc_center_error(
     const uint8_t *const y, int y_stride, int offset,
     MvSubpelPrecision precision, int *mvjcost, int *(*mvcost)[2],
 #if CONFIG_FLEX_MVRES
-    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
+    int use_flex_mv, int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
 #endif  // CONFIG_FLEX_MVRES
     unsigned int *sse1, int *distortion) {
 #if CONFIG_FLEX_MVRES
   mv_err_cost_fn *mv_err_cost =
-      flex_mv_costs ? mv_flex_err_cost : mv_base_err_cost;
+      use_flex_mv ? mv_flex_err_cost : mv_base_err_cost;
 #else
   int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
   flex_mv_costs = NULL;
@@ -2786,12 +2840,12 @@ static unsigned int upsampled_setup_obmc_center_error(
     const uint8_t *const y, int y_stride, int w, int h, int offset,
     MvSubpelPrecision precision, int *mvjcost, int *(*mvcost)[2],
 #if CONFIG_FLEX_MVRES
-    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
+    int use_flex_mv, int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
 #endif  // CONFIG_FLEX_MVRES
     unsigned int *sse1, int *distortion, int subpel_search) {
 #if CONFIG_FLEX_MVRES
   mv_err_cost_fn *mv_err_cost =
-      flex_mv_costs ? mv_flex_err_cost : mv_base_err_cost;
+      use_flex_mv ? mv_flex_err_cost : mv_base_err_cost;
 #else
   int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
   flex_mv_costs = NULL;
@@ -2812,13 +2866,13 @@ int av1_find_best_obmc_sub_pixel_tree_up(
     int error_per_bit, const aom_variance_fn_ptr_t *vfp, int forced_stop,
     int iters_per_step, int *mvjcost, int *(*mvcost)[2],
 #if CONFIG_FLEX_MVRES
-    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
+    int use_flex_mv, int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
 #endif  // CONFIG_FLEX_MVRES
     int *distortion, unsigned int *sse1, int is_second,
     int use_accurate_subpel_search) {
 #if CONFIG_FLEX_MVRES
   mv_err_cost_fn *mv_err_cost =
-      flex_mv_costs ? mv_flex_err_cost : mv_base_err_cost;
+      use_flex_mv ? mv_flex_err_cost : mv_base_err_cost;
 #else
   int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
   flex_mv_costs = NULL;
@@ -2870,7 +2924,7 @@ int av1_find_best_obmc_sub_pixel_tree_up(
         xd, cm, mi_row, mi_col, mask, bestmv, ref_mv, error_per_bit, vfp, z, y,
         y_stride, w, h, offset, precision, mvjcost, mvcost,
 #if CONFIG_FLEX_MVRES
-        flex_mv_costs,
+        use_flex_mv, flex_mv_costs,
 #endif  // CONFIG_FLEX_MVRES
         sse1, distortion, use_accurate_subpel_search);
   else
@@ -2878,7 +2932,7 @@ int av1_find_best_obmc_sub_pixel_tree_up(
         setup_obmc_center_error(mask, bestmv, ref_mv, error_per_bit, vfp, z, y,
                                 y_stride, offset, precision, mvjcost, mvcost,
 #if CONFIG_FLEX_MVRES
-                                flex_mv_costs,
+                                use_flex_mv, flex_mv_costs,
 #endif  // CONFIG_FLEX_MVRES
                                 sse1, distortion);
 
@@ -3253,7 +3307,6 @@ int av1_obmc_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, MV *mvp_full,
   (void)offset;                     \
   (void)mvjcost;                    \
   (void)mvcost;                     \
-  (void)flex_mv_costs;              \
   (void)sse1;                       \
   (void)distortion;                 \
                                     \
@@ -3276,14 +3329,14 @@ int av1_return_max_sub_pixel_mv(
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
     int *cost_list, int *mvjcost, int *(*mvcost)[2],
 #if CONFIG_FLEX_MVRES
-    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
+    int use_flex_mv, int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
 #endif  // CONFIG_FLEX_MVRES
     int *distortion, unsigned int *sse1, const uint8_t *second_pred,
     const uint8_t *mask, int mask_stride, int invert_mask, int w, int h,
     int use_accurate_subpel_search, const int do_reset_fractional_mv) {
-#if !CONFIG_FLEX_MVRES
-  int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
-  flex_mv_costs = NULL;
+#if CONFIG_FLEX_MVRES
+  (void)flex_mv_costs;
+  (void)use_flex_mv;
 #endif  // CONFIG_FLEX_MVRES
   COMMON_MV_TEST;
   (void)mask;
@@ -3312,14 +3365,14 @@ int av1_return_min_sub_pixel_mv(
     const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
     int *cost_list, int *mvjcost, int *(*mvcost)[2],
 #if CONFIG_FLEX_MVRES
-    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
+    int use_flex_mv, int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
 #endif  // CONFIG_FLEX_MVRES
     int *distortion, unsigned int *sse1, const uint8_t *second_pred,
     const uint8_t *mask, int mask_stride, int invert_mask, int w, int h,
     int use_accurate_subpel_search, const int do_reset_fractional_mv) {
-#if !CONFIG_FLEX_MVRES
-  int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS];
-  flex_mv_costs = NULL;
+#if CONFIG_FLEX_MVRES
+  (void)flex_mv_costs;
+  (void)use_flex_mv;
 #endif  // CONFIG_FLEX_MVRES
   COMMON_MV_TEST;
   (void)maxr;
@@ -3412,7 +3465,7 @@ void av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
           cpi->sf.mv.subpel_iters_per_step, cond_cost_list(cpi, cost_list),
           x->nmv_vec_cost, x->nmvcost,
 #if CONFIG_FLEX_MVRES
-          NULL,
+          0, NULL,
 #endif  // CONFIG_FLEX_MVRES
           &not_used, &x->pred_sse[ref], NULL, NULL, 0, 0, pw, ph,
           cpi->sf.use_accurate_subpel_search, 1);
@@ -3423,7 +3476,7 @@ void av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
           cpi->sf.mv.subpel_iters_per_step, cond_cost_list(cpi, cost_list),
           x->nmv_vec_cost, x->nmvcost,
 #if CONFIG_FLEX_MVRES
-          NULL,
+          0, NULL,
 #endif  // CONFIG_FLEX_MVRES
           &not_used, &x->pred_sse[ref], NULL, NULL, 0, 0, 0, 0, 0, 1);
     }
