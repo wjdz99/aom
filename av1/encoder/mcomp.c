@@ -76,11 +76,11 @@ static INLINE int mv_cost(const MV *mv, const int *joint_cost,
          comp_cost[1][mv->col];
 }
 
-int av1_mv_bit_cost(const MV *mv, const MV *ref, const int *mvjcost,
-                    int *mvcost[2],
+int av1_mv_bit_cost(const MV *mv, const MV *ref,
+                    MvSubpelPrecision frame_precision, const int *mvjcost,
+                    int *const (*mvcost)[2],
 #if CONFIG_FLEX_MVRES
-                    int no_flex_mv, MvSubpelPrecision frame_precision,
-                    MvSubpelPrecision precision,
+                    int compref, MvSubpelPrecision precision,
                     int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS],
 #endif  // CONFIG_FLEX_MVRES
                     int weight) {
@@ -88,16 +88,15 @@ int av1_mv_bit_cost(const MV *mv, const MV *ref, const int *mvjcost,
   MV ref_ = *ref;
   lower_mv_precision(&ref_, frame_precision);
   const MV diff = { mv->row - ref_.row, mv->col - ref_.col };
+  int cost = mv_cost(&diff, mvjcost, mvcost[precision]);
+  // The flex mv cost needs to be added only once for compound
+  if (compref == 0 && frame_precision > MV_SUBPEL_NONE && flex_mv_costs)
+    cost += flex_mv_costs[frame_precision - 1][frame_precision - precision];
 #else
   const MV diff = { mv->row - ref->row, mv->col - ref->col };
+  int cost = mv_cost(&diff, mvjcost, mvcost[frame_precision]);
 #endif  // CONFIG_FLEX_MVRES
-  int cost = ROUND_POWER_OF_TWO(mv_cost(&diff, mvjcost, mvcost) * weight, 7);
-#if CONFIG_FLEX_MVRES
-  // The flex mv cost needs to be added only once for compound
-  if (no_flex_mv == 0 && frame_precision > MV_SUBPEL_NONE)
-    cost += flex_mv_costs[frame_precision - 1][frame_precision - precision];
-#endif  // CONFIG_FLEX_MVRES
-  return cost;
+  return (int)ROUND_POWER_OF_TWO_64((int64_t)cost * weight, 7);
 }
 
 typedef int(mv_err_cost_fn)(const MV *mv, const MV *ref,
