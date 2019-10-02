@@ -168,7 +168,11 @@ typedef struct TplDepStats {
   int64_t mc_dep_cost;
   int64_t srcrf_dist;
   int64_t recrf_dist;
+  int64_t srcrf_rate;
+  int64_t recrf_rate;
   int64_t mc_dep_delta;
+  int64_t mc_dep_rate;
+  int64_t mc_dep_dist;
   int64_t src_rdcost;
   int64_t rec_rdcost;
   int_mv mv;
@@ -192,6 +196,7 @@ typedef struct TplDepFrame {
   int height;
   int mi_rows;
   int mi_cols;
+  int base_rdmult;
 } TplDepFrame;
 
 typedef enum {
