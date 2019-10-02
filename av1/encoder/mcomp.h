@@ -60,11 +60,11 @@ void av1_init3smotion_compensation(search_site_config *cfg, int stride);
 
 void av1_set_mv_search_range(MvLimits *mv_limits, const MV *mv);
 
-int av1_mv_bit_cost(const MV *mv, const MV *ref, const int *mvjcost,
-                    int *mvcost[2],
+int av1_mv_bit_cost(const MV *mv, const MV *ref,
+                    MvSubpelPrecision frame_precision, const int *mvjcost,
+                    int *const (*mvcost)[2],
 #if CONFIG_FLEX_MVRES
-                    int no_flex_bits, MvSubpelPrecision frame_mv_precision,
-                    MvSubpelPrecision mv_precision,
+                    int compref, MvSubpelPrecision mv_precision,
                     int (*flex_mv_precision_cost)[MV_SUBPEL_PRECISIONS],
 #endif  // CONFIG_FLEX_MVRES
                     int weight);

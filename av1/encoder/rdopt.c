@@ -7187,10 +7187,9 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   for (ref = 0; ref < 2; ++ref) {
     const int_mv curr_ref_mv = av1_get_ref_mv(x, ref);
     *rate_mv += av1_mv_bit_cost(&cur_mv[ref].as_mv, &curr_ref_mv.as_mv,
-                                x->nmv_vec_cost, x->nmvcost[precision],
+                                cm->mv_precision, x->nmv_vec_cost, x->nmvcost,
 #if CONFIG_FLEX_MVRES
-                                ref, cm->mv_precision, precision,
-                                x->flex_mv_precision_costs,
+                                ref, precision, x->flex_mv_precision_costs,
 #endif  // CONFIG_FLEX_MVRES
                                 MV_COST_WEIGHT);
   }
@@ -7558,9 +7557,7 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
               cpi->sf.mv.subpel_iters_per_step, cond_cost_list(cpi, cost_list),
               x->nmv_vec_cost, x->nmvcost,
 #if CONFIG_FLEX_MVRES
-              is_flex_mv_precision_active(cm, mbmi->mode)
-                  ? x->flex_mv_precision_costs
-                  : NULL,
+              use_flex_mv ? x->flex_mv_precision_costs : NULL,
 #endif  // CONFIG_FLEX_MVRES
               &dis, &x->pred_sse[ref], NULL, NULL, 0, 0, pw, ph,
               cpi->sf.use_accurate_subpel_search, 1);
@@ -7628,12 +7625,12 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
 #else
   MvSubpelPrecision precision = cm->mv_precision;
 #endif  // CONFIG_FLEX_MVRES
-  *rate_mv = av1_mv_bit_cost(
-      &x->best_mv.as_mv, &ref_mv, x->nmv_vec_cost, x->nmvcost[precision],
+  *rate_mv = av1_mv_bit_cost(&x->best_mv.as_mv, &ref_mv, cm->mv_precision,
+                             x->nmv_vec_cost, x->nmvcost,
 #if CONFIG_FLEX_MVRES
-      0, cm->mv_precision, precision, x->flex_mv_precision_costs,
+                             0, precision, x->flex_mv_precision_costs,
 #endif  // CONFIG_FLEX_MVRES
-      MV_COST_WEIGHT);
+                             MV_COST_WEIGHT);
 
   if (cpi->sf.adaptive_motion_search && mbmi->motion_mode == SIMPLE_TRANSLATION)
     x->pred_mv[ref] = x->best_mv.as_mv;
@@ -7811,12 +7808,12 @@ static void compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 #else
   MvSubpelPrecision precision = cm->mv_precision;
 #endif  // CONFIG_FLEX_MVRES
-  *rate_mv += av1_mv_bit_cost(
-      this_mv, &ref_mv.as_mv, x->nmv_vec_cost, x->nmvcost[precision],
+  *rate_mv += av1_mv_bit_cost(this_mv, &ref_mv.as_mv, cm->mv_precision,
+                              x->nmv_vec_cost, x->nmvcost,
 #if CONFIG_FLEX_MVRES
-      0, cm->mv_precision, precision, x->flex_mv_precision_costs,
+                              0, precision, x->flex_mv_precision_costs,
 #endif  // CONFIG_FLEX_MVRES
-      MV_COST_WEIGHT);
+                              MV_COST_WEIGHT);
 }
 
 // Wrapper for compound_single_motion_search, for the common case
@@ -8641,10 +8638,10 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
         for (i = 0; i < 2; ++i) {
           const int_mv ref_mv = av1_get_ref_mv(x, i);
           *rate_mv += av1_mv_bit_cost(&cur_mv[i].as_mv, &ref_mv.as_mv,
-                                      x->nmv_vec_cost, x->nmvcost[precision],
+                                      cpi->common.mv_precision, x->nmv_vec_cost,
+                                      x->nmvcost,
 #if CONFIG_FLEX_MVRES
-                                      i, cpi->common.mv_precision, precision,
-                                      x->flex_mv_precision_costs,
+                                      i, precision, x->flex_mv_precision_costs,
 #endif  // CONFIG_FLEX_MVRES
                                       MV_COST_WEIGHT);
         }
@@ -8669,10 +8666,10 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
         MvSubpelPrecision precision = cpi->common.mv_precision;
 #endif  // CONFIG_FLEX_MVRES
         *rate_mv = av1_mv_bit_cost(&cur_mv[1].as_mv, &ref_mv.as_mv,
-                                   x->nmv_vec_cost, x->nmvcost[precision],
+                                   cpi->common.mv_precision, x->nmv_vec_cost,
+                                   x->nmvcost,
 #if CONFIG_FLEX_MVRES
-                                   0, cpi->common.mv_precision, precision,
-                                   x->flex_mv_precision_costs,
+                                   0, precision, x->flex_mv_precision_costs,
 #endif  // CONFIG_FLEX_MVRES
                                    MV_COST_WEIGHT);
       }
@@ -8697,10 +8694,10 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
         MvSubpelPrecision precision = cpi->common.mv_precision;
 #endif  // CONFIG_FLEX_MVRES
         *rate_mv = av1_mv_bit_cost(&cur_mv[0].as_mv, &ref_mv.as_mv,
-                                   x->nmv_vec_cost, x->nmvcost[precision],
+                                   cpi->common.mv_precision, x->nmv_vec_cost,
+                                   x->nmvcost,
 #if CONFIG_FLEX_MVRES
-                                   0, cpi->common.mv_precision, precision,
-                                   x->flex_mv_precision_costs,
+                                   0, precision, x->flex_mv_precision_costs,
 #endif  // CONFIG_FLEX_MVRES
                                    MV_COST_WEIGHT);
       }
@@ -10110,13 +10107,13 @@ static int64_t motion_mode_rd(
 #else
             MvSubpelPrecision precision = cm->mv_precision;
 #endif  // CONFIG_FLEX_MVRES
-            tmp_rate_mv = av1_mv_bit_cost(
-                &mbmi->mv[0].as_mv, &ref_mv.as_mv, x->nmv_vec_cost,
-                x->nmvcost[precision],
+            tmp_rate_mv =
+                av1_mv_bit_cost(&mbmi->mv[0].as_mv, &ref_mv.as_mv,
+                                cm->mv_precision, x->nmv_vec_cost, x->nmvcost,
 #if CONFIG_FLEX_MVRES
-                0, cm->mv_precision, precision, x->flex_mv_precision_costs,
+                                0, precision, x->flex_mv_precision_costs,
 #endif  // CONFIG_FLEX_MVRES
-                MV_COST_WEIGHT);
+                                MV_COST_WEIGHT);
 
             if (cpi->sf.adaptive_motion_search)
               x->pred_mv[ref] = mbmi->mv[0].as_mv;
@@ -11195,14 +11192,13 @@ static int64_t handle_inter_mode(
 #else
                   MvSubpelPrecision precision = cm->mv_precision;
 #endif  // CONFIG_FLEX_MVRES
-                  this_rate_mv =
-                      av1_mv_bit_cost(&mode_info[i].mv.as_mv, &ref_mv.as_mv,
-                                      x->nmv_vec_cost, x->nmvcost[precision],
+                  this_rate_mv = av1_mv_bit_cost(
+                      &mode_info[i].mv.as_mv, &ref_mv.as_mv, cm->mv_precision,
+                      x->nmv_vec_cost, x->nmvcost,
 #if CONFIG_FLEX_MVRES
-                                      0, cm->mv_precision, precision,
-                                      x->flex_mv_precision_costs,
+                      0, precision, x->flex_mv_precision_costs,
 #endif  // CONFIG_FLEX_MVRES
-                                      MV_COST_WEIGHT);
+                      MV_COST_WEIGHT);
                   const int this_cost = this_rate_mv + drl_cost;
 
                   if (compare_cost < this_cost) {
@@ -11598,12 +11594,12 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
                        (int *)&cpi->dv_cost[1][MV_MAX] };
     // TODO(aconverse@google.com): The full motion field defining discount
     // in MV_COST_WEIGHT is too large. Explore other values.
-    const int rate_mv =
-        av1_mv_bit_cost(&dv, &dv_ref.as_mv, cpi->dv_joint_cost, dvcost,
+    const int rate_mv = av1_mv_bit_cost(&dv, &dv_ref.as_mv, cm->mv_precision,
+                                        cpi->dv_joint_cost, &dvcost,
 #if CONFIG_FLEX_MVRES
-                        0, cm->mv_precision, MV_SUBPEL_NONE, NULL,
+                                        0, MV_SUBPEL_NONE, NULL,
 #endif  // CONFIG_FLEX_MVRES
-                        MV_COST_WEIGHT_SUB);
+                                        MV_COST_WEIGHT_SUB);
     const int rate_mode = x->intrabc_cost[1];
     RD_STATS rd_stats_yuv, rd_stats_y, rd_stats_uv;
     if (!txfm_search(cpi, NULL, x, bsize, mi_row, mi_col, &rd_stats_yuv,
