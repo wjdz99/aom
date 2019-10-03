@@ -201,6 +201,21 @@ typedef struct {
 
 #define LAST_NEW_MV_INDEX 6
 static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
+  // intra modes
+  { DC_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { PAETH_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { SMOOTH_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { SMOOTH_V_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { SMOOTH_H_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { H_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { V_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { D135_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { D203_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { D157_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { D67_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { D113_PRED, { INTRA_FRAME, NONE_FRAME } },
+  { D45_PRED, { INTRA_FRAME, NONE_FRAME } },
+
   { NEARESTMV, { LAST_FRAME, NONE_FRAME } },
   { NEARESTMV, { LAST2_FRAME, NONE_FRAME } },
   { NEARESTMV, { LAST3_FRAME, NONE_FRAME } },
@@ -381,20 +396,6 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
   { NEW_NEWMV, { BWDREF_FRAME, ALTREF_FRAME } },
   { GLOBAL_GLOBALMV, { BWDREF_FRAME, ALTREF_FRAME } },
 
-  // intra modes
-  { DC_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { PAETH_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { SMOOTH_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { SMOOTH_V_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { SMOOTH_H_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { H_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { V_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D135_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D203_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D157_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D67_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D113_PRED, { INTRA_FRAME, NONE_FRAME } },
-  { D45_PRED, { INTRA_FRAME, NONE_FRAME } },
 };
 
 static const int16_t intra_to_mode_idx[INTRA_MODE_NUM] = {
@@ -12496,6 +12497,13 @@ static AOM_INLINE void find_top_ref(int64_t ref_frame_rd[REF_FRAMES]) {
   ref_frame_rd[0] = cutoff;
 }
 
+/*
+static INLINE int is_simple_ref_mode(int mode_idx) {
+  return mode_idx > 12 && mode_idx < (12 + MAX_SINGLE_REF_MODES);
+
+}
+*/
+
 // Check if either frame is within the cutoff.
 static INLINE bool in_single_ref_cutoff(int64_t ref_frame_rd[REF_FRAMES],
                                         MV_REFERENCE_FRAME frame1,
@@ -12743,8 +12751,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     args.single_newmv_valid = search_state.single_newmv_valid;
     args.single_comp_cost = real_compmode_cost;
     args.ref_frame_cost = ref_frame_cost;
-    if (midx < MAX_SINGLE_REF_MODES) {
-      args.simple_rd_state = x->simple_rd_state[midx];
+    if (ref_frame != INTRA_FRAME && midx < MAX_SINGLE_REF_MODES) {
+      args.simple_rd_state = x->simple_rd_state[midx - FIRST_SINGLE_REF_MODES];
     }
 
     int64_t this_rd = handle_inter_mode(
@@ -13292,8 +13300,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         if (args.single_ref_first_pass) {
           // clear stats
           for (int k = 0; k < MAX_REF_MV_SEARCH; ++k) {
-            x->simple_rd_state[midx][k].rd_stats.rdcost = INT64_MAX;
-            x->simple_rd_state[midx][k].early_skipped = 0;
+            x->simple_rd_state[midx - FIRST_SINGLE_REF_MODES][k]
+                .rd_stats.rdcost = INT64_MAX;
+            x->simple_rd_state[midx - FIRST_SINGLE_REF_MODES][k].early_skipped =
+                0;
           }
         } else {
           if (motion_mode_skip_mask & (1 << ref_frame)) {
@@ -13405,8 +13415,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         args.single_newmv_valid = search_state.single_newmv_valid;
         args.single_comp_cost = real_compmode_cost;
         args.ref_frame_cost = ref_frame_cost;
-        if (midx < MAX_SINGLE_REF_MODES) {
-          args.simple_rd_state = x->simple_rd_state[midx];
+        if (ref_frame != INTRA_FRAME && midx < MAX_SINGLE_REF_MODES) {
+          args.simple_rd_state =
+              x->simple_rd_state[midx - FIRST_SINGLE_REF_MODES];
         }
         this_rd = handle_inter_mode(
             cpi, tile_data, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
