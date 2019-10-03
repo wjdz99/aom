@@ -1388,7 +1388,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
           assert(mbmi->interinter_comp.type == COMPOUND_DIFFWTD);
           int ctx = av1_get_interinter_mask_type_context(mbmi);
           aom_write_symbol(w, mbmi->interinter_comp.mask_type,
-                           ec_ctx->interinter_mask_type_cdf[ctx], 2);
+                           ec_ctx->interinter_mask_type_cdf[ctx], 4);
         }
       }
     }

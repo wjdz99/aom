@@ -1453,7 +1453,7 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             if (allow_update_cdf) {
               int ctx = av1_get_interinter_mask_type_context(mbmi);
               update_cdf(fc->interinter_mask_type_cdf[ctx],
-                         mbmi->interinter_comp.mask_type, 2);
+                         mbmi->interinter_comp.mask_type, 4);
             }
           }
         }
@@ -4168,7 +4168,7 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   avg_nmv(&ctx_left->ndvc, &ctx_tr->ndvc, wt_left, wt_tr);
   AVERAGE_CDF(ctx_left->intrabc_cdf, ctx_tr->intrabc_cdf, 2);
   AVERAGE_CDF(ctx_left->interinter_mask_type_cdf,
-              ctx_tr->interinter_mask_type_cdf, 2);
+              ctx_tr->interinter_mask_type_cdf, 4);
   AVERAGE_CDF(ctx_left->seg.tree_cdf, ctx_tr->seg.tree_cdf, MAX_SEGMENTS);
   AVERAGE_CDF(ctx_left->seg.pred_cdf, ctx_tr->seg.pred_cdf, 2);
   AVERAGE_CDF(ctx_left->seg.spatial_pred_seg_cdf,

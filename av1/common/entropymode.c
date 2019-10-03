@@ -1105,8 +1105,11 @@ static const aom_cdf_prob
 static const aom_cdf_prob default_intrabc_cdf[CDF_SIZE(2)] = { AOM_CDF2(
     30531) };
 static const aom_cdf_prob
-    default_interinter_mask_type_cdf[DIFFWTD_MASK_CONTEXTS][CDF_SIZE(2)] = {
-      { AOM_CDF2(16384) }, { AOM_CDF2(16384) }, { AOM_CDF2(16384) }
+    default_interinter_mask_type_cdf[DIFFWTD_MASK_CONTEXTS][CDF_SIZE(4)] = {
+      { AOM_CDF4(16384, 16384, 16384) },
+      { AOM_CDF4(16384, 16384, 16384) },
+      { AOM_CDF4(16384, 16384, 16384) },
+      { AOM_CDF4(16384, 16384, 16384) }
     };
 
 static const aom_cdf_prob default_filter_intra_mode_cdf[CDF_SIZE(
