@@ -274,6 +274,10 @@ static void set_good_speed_features_framesize_independent(
 
   if (speed >= 1) {
     sf->selective_ref_frame = 2;
+    sf->prune_ref_frame_for_gm_search = boosted ? 0 : 1;
+    sf->gm_search_type = cpi->rc.is_src_frame_alt_ref
+                             ? GM_DISABLE_SEARCH
+                             : GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
 
     sf->intra_tx_size_search_init_depth_rect = 1;
 
@@ -297,7 +301,6 @@ static void set_good_speed_features_framesize_independent(
     sf->disable_interinter_wedge_newmv_search = boosted ? 0 : 1;
     sf->prune_comp_type_by_comp_avg = 1;
     sf->prune_motion_mode_level = 2;
-    sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
     sf->disable_adaptive_warp_error_thresh = 0;
     sf->tx_domain_dist_level = boosted ? 1 : 2;
     sf->tx_domain_dist_thres_level = 1;
@@ -321,7 +324,6 @@ static void set_good_speed_features_framesize_independent(
 
   if (speed >= 2) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_2;
-    sf->prune_ref_frame_for_gm_search = 1;
 
     sf->selective_ref_frame = 3;
 
