@@ -274,6 +274,7 @@ static void set_good_speed_features_framesize_independent(
 
   if (speed >= 1) {
     sf->selective_ref_frame = 2;
+    sf->prune_ref_frame_for_gm_search = boosted ? 0 : 1;
 
     sf->intra_tx_size_search_init_depth_rect = 1;
 
