@@ -42,29 +42,27 @@ static void subtract_block(const MACROBLOCKD *xd, int rows, int cols,
                            int16_t *diff, ptrdiff_t diff_stride,
                            const uint8_t *src8, ptrdiff_t src_stride,
                            const uint8_t *pred8, ptrdiff_t pred_stride) {
-  if (check_subtract_block_size(rows, cols)) {
-#if CONFIG_AV1_HIGHBITDEPTH
-    if (is_cur_buf_hbd(xd)) {
-      aom_highbd_subtract_block_c(rows, cols, diff, diff_stride, src8,
-                                  src_stride, pred8, pred_stride, xd->bd);
-      return;
-    }
-#endif
-    (void)xd;
-    aom_subtract_block_c(rows, cols, diff, diff_stride, src8, src_stride, pred8,
-                         pred_stride);
-
-    return;
-  }
+  const int use_c = check_subtract_block_size(rows, cols);
 #if CONFIG_AV1_HIGHBITDEPTH
   if (is_cur_buf_hbd(xd)) {
-    aom_highbd_subtract_block(rows, cols, diff, diff_stride, src8, src_stride,
-                              pred8, pred_stride, xd->bd);
+    if (use_c) {
+      aom_highbd_subtract_block_c(rows, cols, diff, diff_stride, src8,
+                                  src_stride, pred8, pred_stride, xd->bd);
+    } else {
+      aom_highbd_subtract_block(rows, cols, diff, diff_stride, src8, src_stride,
+                                pred8, pred_stride, xd->bd);
+    }
     return;
   }
 #endif
-  aom_subtract_block(rows, cols, diff, diff_stride, src8, src_stride, pred8,
-                     pred_stride);
+  (void)xd;
+  if (use_c) {
+    aom_subtract_block_c(rows, cols, diff, diff_stride, src8, src_stride, pred8,
+                         pred_stride);
+  } else {
+    aom_subtract_block(rows, cols, diff, diff_stride, src8, src_stride, pred8,
+                       pred_stride);
+  }
 }
 
 void av1_subtract_txb(MACROBLOCK *x, int plane, BLOCK_SIZE plane_bsize,
