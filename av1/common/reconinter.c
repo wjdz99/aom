@@ -602,6 +602,24 @@ void av1_build_compound_diffwtd_mask_d16_c(
     int src0_stride, const CONV_BUF_TYPE *src1, int src1_stride, int h, int w,
     ConvolveParams *conv_params, int bd) {
   switch (mask_type) {
+#if CONFIG_DIFFWTD_41_43
+    case DIFFWTD_41:
+      diffwtd_mask_d16(mask, 0, 41, src0, src0_stride, src1, src1_stride, h, w,
+                       conv_params, bd);
+      break;
+    case DIFFWTD_41_INV:
+      diffwtd_mask_d16(mask, 1, 41, src0, src0_stride, src1, src1_stride, h, w,
+                       conv_params, bd);
+      break;
+    case DIFFWTD_43:
+      diffwtd_mask_d16(mask, 0, 43, src0, src0_stride, src1, src1_stride, h, w,
+                       conv_params, bd);
+      break;
+    case DIFFWTD_43_INV:
+      diffwtd_mask_d16(mask, 1, 43, src0, src0_stride, src1, src1_stride, h, w,
+                       conv_params, bd);
+      break;
+#else
     case DIFFWTD_38:
       diffwtd_mask_d16(mask, 0, 38, src0, src0_stride, src1, src1_stride, h, w,
                        conv_params, bd);
@@ -610,6 +628,7 @@ void av1_build_compound_diffwtd_mask_d16_c(
       diffwtd_mask_d16(mask, 1, 38, src0, src0_stride, src1, src1_stride, h, w,
                        conv_params, bd);
       break;
+#endif  // CONFIG_DIFFWTD_41_43
     default: assert(0);
   }
 }
@@ -661,12 +680,27 @@ void av1_build_compound_diffwtd_mask_c(uint8_t *mask,
                                        const uint8_t *src1, int src1_stride,
                                        int h, int w) {
   switch (mask_type) {
+#if CONFIG_DIFFWTD_41_43
+    case DIFFWTD_41:
+      diffwtd_mask(mask, 0, 41, src0, src0_stride, src1, src1_stride, h, w);
+      break;
+    case DIFFWTD_41_INV:
+      diffwtd_mask(mask, 1, 41, src0, src0_stride, src1, src1_stride, h, w);
+      break;
+    case DIFFWTD_43:
+      diffwtd_mask(mask, 0, 43, src0, src0_stride, src1, src1_stride, h, w);
+      break;
+    case DIFFWTD_43_INV:
+      diffwtd_mask(mask, 1, 43, src0, src0_stride, src1, src1_stride, h, w);
+      break;
+#else
     case DIFFWTD_38:
       diffwtd_mask(mask, 0, 38, src0, src0_stride, src1, src1_stride, h, w);
       break;
     case DIFFWTD_38_INV:
       diffwtd_mask(mask, 1, 38, src0, src0_stride, src1, src1_stride, h, w);
       break;
+#endif  // CONFIG_DIFFWTD_41_43
     default: assert(0);
   }
 }
@@ -739,6 +773,24 @@ void av1_build_compound_diffwtd_mask_highbd_c(
     int src0_stride, const uint8_t *src1, int src1_stride, int h, int w,
     int bd) {
   switch (mask_type) {
+#if CONFIG_DIFFWTD_41_43
+    case DIFFWTD_41:
+      diffwtd_mask_highbd(mask, 0, 41, CONVERT_TO_SHORTPTR(src0), src0_stride,
+                          CONVERT_TO_SHORTPTR(src1), src1_stride, h, w, bd);
+      break;
+    case DIFFWTD_41_INV:
+      diffwtd_mask_highbd(mask, 1, 41, CONVERT_TO_SHORTPTR(src0), src0_stride,
+                          CONVERT_TO_SHORTPTR(src1), src1_stride, h, w, bd);
+      break;
+    case DIFFWTD_43:
+      diffwtd_mask_highbd(mask, 0, 43, CONVERT_TO_SHORTPTR(src0), src0_stride,
+                          CONVERT_TO_SHORTPTR(src1), src1_stride, h, w, bd);
+      break;
+    case DIFFWTD_43_INV:
+      diffwtd_mask_highbd(mask, 1, 43, CONVERT_TO_SHORTPTR(src0), src0_stride,
+                          CONVERT_TO_SHORTPTR(src1), src1_stride, h, w, bd);
+      break;
+#else
     case DIFFWTD_38:
       diffwtd_mask_highbd(mask, 0, 38, CONVERT_TO_SHORTPTR(src0), src0_stride,
                           CONVERT_TO_SHORTPTR(src1), src1_stride, h, w, bd);
@@ -747,6 +799,7 @@ void av1_build_compound_diffwtd_mask_highbd_c(
       diffwtd_mask_highbd(mask, 1, 38, CONVERT_TO_SHORTPTR(src0), src0_stride,
                           CONVERT_TO_SHORTPTR(src1), src1_stride, h, w, bd);
       break;
+#endif  // CONFIG_DIFFWTD_41_43
     default: assert(0);
   }
 }
@@ -949,7 +1002,7 @@ void av1_make_masked_inter_predictor(
                            can_use_previous);
 
   if (!plane && comp_data->type == COMPOUND_DIFFWTD) {
-#if CONFIG_CTX_ADAPT_LOG_WEIGHT
+#if CONFIG_CTX_ADAPT_LOG_WEIGHT || CONFIG_DIFFWTD_41_43
     av1_build_compound_diffwtd_mask_d16_c(
         comp_data->seg_mask, comp_data->mask_type, org_dst, org_dst_stride,
         tmp_buf16, tmp_buf_stride, h, w, conv_params, xd->bd);
@@ -957,7 +1010,7 @@ void av1_make_masked_inter_predictor(
     av1_build_compound_diffwtd_mask_d16(
         comp_data->seg_mask, comp_data->mask_type, org_dst, org_dst_stride,
         tmp_buf16, tmp_buf_stride, h, w, conv_params, xd->bd);
-#endif  // CONFIG_CTX_ADAPT_LOG_WEIGHT
+#endif  // CONFIG_CTX_ADAPT_LOG_WEIGHT || CONFIG_DIFFWTD_41_43
   }
   build_masked_compound_no_round(dst, dst_stride, org_dst, org_dst_stride,
                                  tmp_buf16, tmp_buf_stride, comp_data,
