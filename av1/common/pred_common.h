@@ -172,6 +172,21 @@ static INLINE int av1_get_skip_context(const MACROBLOCKD *xd) {
   return above_skip + left_skip;
 }
 
+#if CONFIG_DIFFWTD_42
+static INLINE int av1_get_interinter_mask_type_context(
+    const MB_MODE_INFO *const mbmi) {
+  const int refs[2] = { mbmi->ref_frame[0], mbmi->ref_frame[1] };
+  int result = 0;
+  if (refs[0] == GOLDEN_FRAME || refs[0] == ALTREF_FRAME) {
+    result += 1;
+  }
+  if (refs[1] == GOLDEN_FRAME || refs[1] == ALTREF_FRAME) {
+    result += 2;
+  }
+  return result;
+}
+#endif  // CONFIG_DIFFWTD_42
+
 int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir);
 
 // Get a list of palette base colors that are used in the above and left blocks,
