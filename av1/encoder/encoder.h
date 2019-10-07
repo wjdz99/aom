@@ -165,8 +165,6 @@ enum {
 typedef struct TplDepStats {
   int64_t intra_cost;
   int64_t inter_cost;
-  int64_t mc_flow;
-  int64_t mc_dep_cost;
   int64_t srcrf_dist;
   int64_t recrf_dist;
   int64_t srcrf_rate;
@@ -178,7 +176,6 @@ typedef struct TplDepStats {
   int64_t rec_rdcost;
   int_mv mv;
   int ref_frame_index;
-  double quant_ratio;
   int64_t mc_count;
   int64_t mc_saved;
 } TplDepStats;
