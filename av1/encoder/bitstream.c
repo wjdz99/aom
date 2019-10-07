@@ -457,9 +457,9 @@ static void pack_txb_tokens(aom_writer *w, AV1_COMMON *cm, MACROBLOCK *const x,
     const TXB_CTX txb_ctx = {
       entropy_ctx[block] & TXB_SKIP_CTX_MASK,
       (entropy_ctx[block] >> DC_SIGN_CTX_SHIFT) & DC_SIGN_CTX_MASK,
-#if CONFIG_ENTROPY_CONTEXTS
+#if CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
       (entropy_ctx[block] >> EOB_CTX_SHIFT) & EOB_CTX_MASK,
-#endif  // CONFIG_ENTROPY_CONTEXTS
+#endif  // CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
     };
     av1_write_coeffs_txb(cm, xd, w, blk_row, blk_col, plane, tx_size, tcoeff,
                          eob, &txb_ctx);
@@ -496,9 +496,9 @@ static void pack_txb_tokens(aom_writer *w, AV1_COMMON *cm, MACROBLOCK *const x,
         const TXB_CTX txb_ctx = {
           entropy_ctx[block] & TXB_SKIP_CTX_MASK,
           (entropy_ctx[block] >> DC_SIGN_CTX_SHIFT) & DC_SIGN_CTX_MASK,
-#if CONFIG_ENTROPY_CONTEXTS
+#if CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
           (entropy_ctx[block] >> EOB_CTX_SHIFT) & EOB_CTX_MASK,
-#endif  // CONFIG_ENTROPY_CONTEXTS
+#endif  // CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
         };
         av1_write_coeffs_txb(cm, xd, w, offsetr, offsetc, plane, sub_tx, tcoeff,
                              eob, &txb_ctx);
@@ -507,7 +507,6 @@ static void pack_txb_tokens(aom_writer *w, AV1_COMMON *cm, MACROBLOCK *const x,
       }
     }
 #else
-
     const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
     const int bsw = tx_size_wide_unit[sub_txs];
     const int bsh = tx_size_high_unit[sub_txs];

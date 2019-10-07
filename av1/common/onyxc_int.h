@@ -568,6 +568,7 @@ typedef struct AV1Common {
 #if CONFIG_CNN_RESTORATION
   int use_cnn;
 #endif  // CONFIG_CNN_RESTORATION
+  int flag;
 } AV1_COMMON;
 
 // TODO(hkuang): Don't need to lock the whole pool after implementing atomic

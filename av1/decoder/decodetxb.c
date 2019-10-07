@@ -175,6 +175,28 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   const int eob_multi_size = txsize_log2_minus4[tx_size];
   const int eob_multi_ctx = (tx_class == TX_CLASS_2D) ? 0 : 1;
 
+#if CONFIG_INTRA_ENTROPY
+  if (av1_use_eob_ml(eob_multi_size)) {
+    aom_cdf_prob eob_cdf[11];
+    av1_get_eob_cdf_ml(xd, eob_multi_size, tx_class, txb_ctx->eob_ctx,
+                       is_inter_block(mbmi), plane != 0, eob_cdf);
+    NN_CONFIG_EM *nn_model = NULL;
+    switch (eob_multi_size) {
+      case 0: nn_model = &(xd->tile_ctx->eob_s0); break;
+      case 1: nn_model = &(xd->tile_ctx->eob_s1); break;
+      case 2: nn_model = &(xd->tile_ctx->eob_s2); break;
+      case 3: nn_model = &(xd->tile_ctx->eob_s3); break;
+      case 4: nn_model = &(xd->tile_ctx->eob_s4); break;
+      case 5: nn_model = &(xd->tile_ctx->eob_s5); break;
+      case 6: nn_model = &(xd->tile_ctx->eob_s6); break;
+      default: assert(0);
+    }
+    eob_pt = aom_read_symbol_nn(
+        r, eob_cdf, nn_model, eob_multi_size + 5, ACCT_STR) + 1;
+    goto DONE;
+  }
+#endif  // CONFIG_INTRA_ENTROPY
+
 #if CONFIG_ENTROPY_CONTEXTS
   const int eob_context = txb_ctx->eob_ctx;
   switch (eob_multi_size) {
@@ -281,6 +303,8 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 #endif
 
+  DONE: {}
+
   const int eob_offset_bits = av1_eob_offset_bits[eob_pt];
   if (eob_offset_bits > 0) {
     const int eob_ctx = eob_pt - 3;
@@ -382,9 +406,9 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   // DC value
   set_dc_sign(&cul_level, dc_val);
 
-#if CONFIG_ENTROPY_CONTEXTS
+#if CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
   set_eob_ctx(&cul_level, tx_size, *eob);
-#endif  // CONFIG_ENTROPY_CONTEXTS
+#endif  // CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
 
   return cul_level;
 }

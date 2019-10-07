@@ -129,6 +129,45 @@ void av1_get_uv_mode_cdf_ml(const MACROBLOCKD *xd, PREDICTION_MODE y_mode,
   av1_nn_predict_em(nn_model);
   av1_pdf2icdf(nn_model->output, cdf, UV_INTRA_MODES);
 }
+
+void av1_get_eob_feature(int eob_multi_size,
+                         int tx_class, int ctx, int is_inter,
+                         int is_chroma, int *sparse_features,
+                         float *dense_features) {
+  (void)dense_features;
+  (void)sparse_features;
+  (void)eob_multi_size;
+  *(dense_features++) = (float)(tx_class > 0);
+  *(dense_features++) = (float)ctx / 8.0f;
+  *(dense_features++) = (float)is_inter;
+  *(dense_features++) = (float)is_chroma;
+}
+
+void av1_get_eob_cdf_ml(const MACROBLOCKD *xd, int eob_multi_size,
+                        int tx_class, int ctx, int is_inter,
+                        int is_chroma, aom_cdf_prob *cdf) {
+  NN_CONFIG_EM *nn_model = NULL;
+  switch (eob_multi_size) {
+    case 0: nn_model = &(xd->tile_ctx->eob_s0); break;
+    case 1: nn_model = &(xd->tile_ctx->eob_s1); break;
+    case 2: nn_model = &(xd->tile_ctx->eob_s2); break;
+    case 3: nn_model = &(xd->tile_ctx->eob_s3); break;
+    case 4: nn_model = &(xd->tile_ctx->eob_s4); break;
+    case 5: nn_model = &(xd->tile_ctx->eob_s5); break;
+    case 6: nn_model = &(xd->tile_ctx->eob_s6); break;
+    default: assert(0);
+  }
+  av1_get_eob_feature(eob_multi_size, tx_class, ctx, is_inter,
+                      is_chroma, nn_model->sparse_features,
+                      nn_model->dense_features);
+  av1_nn_predict_em(nn_model);
+  av1_pdf2icdf(nn_model->output, cdf, nn_model->num_logits);
+}
+
+int av1_use_eob_ml(int eob_multi_size) {
+  //return 1;
+  return eob_multi_size == 0 || eob_multi_size == 2 || eob_multi_size == 4;
+}
 #endif  // CONFIG_INTRA_ENTROPY
 
 void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,

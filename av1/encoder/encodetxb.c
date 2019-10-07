@@ -164,9 +164,12 @@ void av1_update_eob_context(int cdf_idx, int eob, TX_SIZE tx_size,
 #else
 void av1_update_eob_context(int eob, TX_SIZE tx_size, TX_CLASS tx_class,
                             PLANE_TYPE plane, FRAME_CONTEXT *ec_ctx,
-#if CONFIG_ENTROPY_CONTEXTS
+#if CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
+#if CONFIG_INTRA_ENTROPY
+                            const MACROBLOCKD *const xd,
+#endif  // CONFIG_INTRA_ENTROPY
                             const TXB_CTX *txb_ctx,
-#endif  // CONFIG_ENTROPY_CONTEXTS
+#endif  // CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
                             uint8_t allow_update_cdf) {
 #endif
   int eob_extra;
@@ -175,6 +178,29 @@ void av1_update_eob_context(int eob, TX_SIZE tx_size, TX_CLASS tx_class,
 
   const int eob_multi_size = txsize_log2_minus4[tx_size];
   const int eob_multi_ctx = (tx_class == TX_CLASS_2D) ? 0 : 1;
+
+#if CONFIG_INTRA_ENTROPY
+  if (av1_use_eob_ml(eob_multi_size)) {
+    const MB_MODE_INFO *mbmi = xd->mi[0];
+    NN_CONFIG_EM *nn_model = NULL;
+    switch (eob_multi_size) {
+      case 0: nn_model = &(xd->tile_ctx->eob_s0); break;
+      case 1: nn_model = &(xd->tile_ctx->eob_s1); break;
+      case 2: nn_model = &(xd->tile_ctx->eob_s2); break;
+      case 3: nn_model = &(xd->tile_ctx->eob_s3); break;
+      case 4: nn_model = &(xd->tile_ctx->eob_s4); break;
+      case 5: nn_model = &(xd->tile_ctx->eob_s5); break;
+      case 6: nn_model = &(xd->tile_ctx->eob_s6); break;
+      default: assert(0);
+    }
+    av1_get_eob_feature(eob_multi_size, tx_class, txb_ctx->eob_ctx,
+                        is_inter_block(mbmi), plane != 0,
+                        nn_model->sparse_features, nn_model->dense_features);
+    av1_nn_predict_em(nn_model);
+    av1_nn_backprop_em(nn_model, eob_pt - 1);
+    av1_nn_update_em(nn_model, nn_model->lr);
+  }
+#endif  // CONFIG_INTRA_ENTROPY
 
 #if CONFIG_ENTROPY_CONTEXTS
   switch (eob_multi_size) {
@@ -592,6 +618,66 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   const int eob_multi_size = txsize_log2_minus4[tx_size];
   const int eob_multi_ctx = (tx_class == TX_CLASS_2D) ? 0 : 1;
 
+#if CONFIG_INTRA_ENTROPY
+  if (av1_use_eob_ml(eob_multi_size)) {
+    aom_cdf_prob eob_cdf[11];
+    const MB_MODE_INFO *mbmi = xd->mi[0];
+    av1_get_eob_cdf_ml(xd, eob_multi_size, tx_class, txb_ctx->eob_ctx,
+                       is_inter_block(mbmi), plane != 0, eob_cdf);
+    NN_CONFIG_EM *nn_model = NULL;
+    switch (eob_multi_size) {
+      case 0: nn_model = &(xd->tile_ctx->eob_s0); break;
+      case 1: nn_model = &(xd->tile_ctx->eob_s1); break;
+      case 2: nn_model = &(xd->tile_ctx->eob_s2); break;
+      case 3: nn_model = &(xd->tile_ctx->eob_s3); break;
+      case 4: nn_model = &(xd->tile_ctx->eob_s4); break;
+      case 5: nn_model = &(xd->tile_ctx->eob_s5); break;
+      case 6: nn_model = &(xd->tile_ctx->eob_s6); break;
+      default: assert(0);
+    }
+    aom_write_symbol_nn(w, eob_pt - 1, eob_cdf, nn_model, eob_multi_size + 5);
+    goto DONE;
+  }
+#endif  // CONFIG_INTRA_ENTROPY
+
+#if 0
+  do {
+    if (!cm->flag) break;
+    FILE *fp = fopen("eob_data_v4.txt", "a");
+    if (!fp) break;
+    int seed = 0;
+    for (c = eob - 1; c >= 0; --c) {
+      const int pos = scan[c];
+      const tran_low_t v = tcoeff[pos];
+      const tran_low_t level = abs(v);
+      seed += level;
+    }
+    srand(seed + time(0));
+    seed = rand() % 100;
+    MB_MODE_INFO *const mbmi = xd->mi[0];
+    const int qp = cm->delta_q_info.delta_q_present_flag ? xd->current_qindex :
+          cm->base_qindex;
+    const int dc_q = av1_dc_quant_QTX(qp, 0, xd->bd) >> (xd->bd - 8);
+    fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,",
+            eob_pt,
+            eob,
+            dc_q,
+            eob_multi_size,
+            tx_size,
+            tx_class,
+            tx_type,
+            plane,
+            txb_ctx->eob_ctx,
+            is_inter_block(mbmi),
+            blk_row,
+            blk_col,
+            seed
+            );
+    fprintf(fp, "\n");
+    fclose(fp);
+  } while (0);
+#endif
+
 #if CONFIG_ENTROPY_CONTEXTS
   switch (eob_multi_size) {
     case 0:
@@ -669,6 +755,8 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       break;
   }
 #endif  // CONFIG_ENTROPY_CONTEXTS
+
+  DONE: {}
 
   const int eob_offset_bits = av1_eob_offset_bits[eob_pt];
   if (eob_offset_bits > 0) {
@@ -756,9 +844,9 @@ static void write_coeffs_txb_wrap(const AV1_COMMON *cm, MACROBLOCK *x,
   const TXB_CTX txb_ctx = {
     entropy_ctx[block] & TXB_SKIP_CTX_MASK,
     (entropy_ctx[block] >> DC_SIGN_CTX_SHIFT) & DC_SIGN_CTX_MASK,
-#if CONFIG_ENTROPY_CONTEXTS
+#if CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
     (entropy_ctx[block] >> EOB_CTX_SHIFT) & EOB_CTX_MASK,
-#endif  // CONFIG_ENTROPY_CONTEXTS
+#endif  // CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
   };
   av1_write_coeffs_txb(cm, xd, w, blk_row, blk_col, plane, tx_size, tcoeff, eob,
                        &txb_ctx);
@@ -919,6 +1007,19 @@ static AOM_FORCE_INLINE int warehouse_efficients_txb(
 #else
   const LV_MAP_EOB_COST *eob_costs = &x->eob_costs[eob_multi_size][plane_type];
 #endif  // CONFIG_ENTROPY_CONTEXTS
+#if CONFIG_INTRA_ENTROPY
+  if (av1_use_eob_ml(eob_multi_size)) {
+    LV_MAP_EOB_COST eob_cost_nn;
+    av1_zero(eob_cost_nn);
+    const MB_MODE_INFO *mbmi = xd->mi[0];
+    aom_cdf_prob eob_cdf[11];
+    av1_get_eob_cdf_ml(xd, eob_multi_size, tx_class, txb_ctx->eob_ctx,
+                       is_inter_block(mbmi), plane != 0, eob_cdf);
+    av1_cost_tokens_from_cdf(eob_cost_nn.eob_cost[0], eob_cdf, NULL);
+    av1_cost_tokens_from_cdf(eob_cost_nn.eob_cost[1], eob_cdf, NULL);
+    eob_costs = &eob_cost_nn;
+  }
+#endif  // CONFIG_INTRA_ENTROPY
 
   int cost = coeff_costs->txb_skip_cost[txb_skip_ctx][0];
 
@@ -1873,6 +1974,18 @@ int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
   const LV_MAP_EOB_COST *txb_eob_costs =
       &x->eob_costs[eob_multi_size][plane_type];
 #endif  // CONFIG_ENTROPY_CONTEXTS
+#if CONFIG_INTRA_ENTROPY
+  if (av1_use_eob_ml(eob_multi_size)) {
+    LV_MAP_EOB_COST eob_cost_nn;
+    av1_zero(eob_cost_nn);
+    aom_cdf_prob eob_cdf[11];
+    av1_get_eob_cdf_ml(xd, eob_multi_size, tx_class, txb_ctx->eob_ctx,
+                       is_inter, plane != 0, eob_cdf);
+    av1_cost_tokens_from_cdf(eob_cost_nn.eob_cost[0], eob_cdf, NULL);
+    av1_cost_tokens_from_cdf(eob_cost_nn.eob_cost[1], eob_cdf, NULL);
+    txb_eob_costs = &eob_cost_nn;
+  }
+#endif  // CONFIG_INTRA_ENTROPY
 
   const int rshift =
       (sharpness +
@@ -2027,7 +2140,18 @@ int av1_optimize_txb(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
   const LV_MAP_EOB_COST *txb_eob_costs =
       &x->eob_costs[eob_multi_size][plane_type];
 #endif  // CONFIG_ENTROPY_CONTEXTS
-
+#if CONFIG_INTRA_ENTROPY
+  if (av1_use_eob_ml(eob_multi_size)) {
+    LV_MAP_EOB_COST eob_cost_nn;
+    av1_zero(eob_cost_nn);
+    aom_cdf_prob eob_cdf[11];
+    av1_get_eob_cdf_ml(xd, eob_multi_size, tx_type_to_class[tx_type],
+                       txb_ctx->eob_ctx, is_inter, plane != 0, eob_cdf);
+    av1_cost_tokens_from_cdf(eob_cost_nn.eob_cost[0], eob_cdf, NULL);
+    av1_cost_tokens_from_cdf(eob_cost_nn.eob_cost[1], eob_cdf, NULL);
+    txb_eob_costs = &eob_cost_nn;
+  }
+#endif  // CONFIG_INTRA_ENTROPY
   const int shift = av1_get_tx_scale(tx_size);
   const int64_t rdmult =
       (((int64_t)x->rdmult * plane_rd_mult[is_inter][plane_type]
@@ -2088,11 +2212,11 @@ int av1_get_txb_entropy_context(const tran_low_t *qcoeff,
 
   cul_level = AOMMIN(COEFF_CONTEXT_MASK, cul_level);
   set_dc_sign(&cul_level, qcoeff[0]);
-#if CONFIG_ENTROPY_CONTEXTS
+#if CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
   set_eob_ctx(&cul_level, tx_size, eob);
 #else
   (void)tx_size;
-#endif  // CONFIG_ENTROPY_CONTEXTS
+#endif  // CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
 
   return cul_level;
 }
@@ -2344,9 +2468,12 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
                          td->counts, allow_update_cdf);
 #else
   av1_update_eob_context(eob, tx_size, tx_class, plane_type, ec_ctx,
-#if CONFIG_ENTROPY_CONTEXTS
+#if CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
+#if CONFIG_INTRA_ENTROPY
+                         xd,
+#endif  // CONFIG_INTRA_ENTROPY
                          &txb_ctx,
-#endif  // CONFIG_ENTROPY_CONTEXTS
+#endif  // CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
                          allow_update_cdf);
 #endif
 
@@ -2420,9 +2547,9 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
     entropy_ctx[block] |= dc_sign_ctx << DC_SIGN_CTX_SHIFT;
   }
 
-#if CONFIG_ENTROPY_CONTEXTS
+#if CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
   entropy_ctx[block] |= txb_ctx.eob_ctx << EOB_CTX_SHIFT;
-#endif  // CONFIG_ENTROPY_CONTEXTS
+#endif  // CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
 
   const int cul_level =
       av1_get_txb_entropy_context(tcoeff, scan_order, tx_size, eob);

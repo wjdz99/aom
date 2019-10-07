@@ -1401,6 +1401,15 @@ void av1_get_kf_y_mode_cdf_ml(const MACROBLOCKD *xd, aom_cdf_prob *cdf);
 
 void av1_get_uv_mode_cdf_ml(const MACROBLOCKD *xd, PREDICTION_MODE y_mode,
                             aom_cdf_prob *cdf);
+
+void av1_get_eob_feature(int eob_multi_size,
+                         int tx_class, int ctx, int is_inter,
+                         int is_chroma, int *sparse_features,
+                         float *dense_features);
+
+void av1_get_eob_cdf_ml(const MACROBLOCKD *xd, int eob_multi_size,
+                        int tx_class, int ctx, int is_inter,
+                        int is_chroma, aom_cdf_prob *cdf);
 #endif  // CONFIG_INTRA_ENTROPY
 
 #ifdef __cplusplus

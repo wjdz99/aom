@@ -30,9 +30,9 @@ extern const int8_t *av1_nz_map_ctx_offset[TX_SIZES_ALL];
 typedef struct txb_ctx {
   int txb_skip_ctx;
   int dc_sign_ctx;
-#if CONFIG_ENTROPY_CONTEXTS
+#if CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
   int eob_ctx;
-#endif  // CONFIG_ENTROPY_CONTEXTS
+#endif  // CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
 } TXB_CTX;
 
 static const int base_level_count_to_index[13] = {
@@ -373,7 +373,7 @@ static INLINE void set_dc_sign(int *cul_level, int dc_val) {
     *cul_level += 2 << COEFF_CONTEXT_BITS;
 }
 
-#if CONFIG_ENTROPY_CONTEXTS
+#if CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
 static INLINE void set_eob_ctx(int *cul_level, TX_SIZE tx_size, int eob) {
   assert(*cul_level < (1 << EOB_CONTEXT_SHIFT));
   if (!eob) return;
@@ -382,7 +382,7 @@ static INLINE void set_eob_ctx(int *cul_level, TX_SIZE tx_size, int eob) {
   assert(eob_ctx < (1 << EOB_CONTEXT_BITS));
   *cul_level |= eob_ctx << EOB_CONTEXT_SHIFT;
 }
-#endif  // CONFIG_ENTROPY_CONTEXTS
+#endif  // CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
 
 static INLINE void get_txb_ctx(const BLOCK_SIZE plane_bsize,
                                const TX_SIZE tx_size, const int plane,
@@ -473,7 +473,7 @@ static INLINE void get_txb_ctx(const BLOCK_SIZE plane_bsize,
                                : 7;
     txb_ctx->txb_skip_ctx = ctx_base + ctx_offset;
   }
-#if CONFIG_ENTROPY_CONTEXTS
+#if CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
   int eob_ctx = 0;
   k = 0;
   do {
@@ -488,7 +488,7 @@ static INLINE void get_txb_ctx(const BLOCK_SIZE plane_bsize,
   eob_ctx = ROUND_POWER_OF_TWO(eob_ctx, shift);
   if (eob_ctx > 7) eob_ctx = 7;
   txb_ctx->eob_ctx = eob_ctx;
-#endif  // CONFIG_ENTROPY_CONTEXTS
+#endif  // CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
 #undef MAX_TX_SIZE_UNIT
 }
 

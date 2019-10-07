@@ -28,10 +28,10 @@ extern "C" {
 #define DC_SIGN_CTX_SHIFT 4
 #define DC_SIGN_CTX_MASK 3
 
-#if CONFIG_ENTROPY_CONTEXTS
+#if CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
 #define EOB_CTX_SHIFT 6
 #define EOB_CTX_MASK 7
-#endif  // CONFIG_ENTROPY_CONTEXTS
+#endif  // CONFIG_ENTROPY_CONTEXTS || CONFIG_INTRA_ENTROPY
 
 typedef struct TxbInfo {
   tran_low_t *qcoeff;

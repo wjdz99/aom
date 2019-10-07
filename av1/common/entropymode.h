@@ -88,6 +88,16 @@ typedef struct {
   int model_name##_sparse_features[sparse_input_size];                \
   float model_name##_dense_features[dense_input_size];                \
   float model_name##_output[output_size];
+
+#define EOB_MODEL(model_name, output_size)  \
+  INPUT_LAYER_ARRAYS(model_name,  \
+                     EM_EOB_DENSE_FEATURES *  \
+                     ALIGN_MULTIPLE_OF_FOUR(output_size),  \
+                     ALIGN_MULTIPLE_OF_FOUR(output_size));  \
+  MODEL_ARRAYS(model_name, EM_EOB_SPARSE_FEATURES,  \
+               EM_EOB_DENSE_FEATURES,  \
+               ALIGN_MULTIPLE_OF_FOUR(output_size));  \
+  NN_CONFIG_EM model_name;
 #endif  // CONFIG_INTRA_ENTROPY
 
 #if CONFIG_ENTROPY_CONTEXTS
@@ -208,6 +218,7 @@ typedef struct frame_contexts {
   MODEL_ARRAYS(intra_y_mode, EM_NUM_Y_SPARSE_FEATURES,
                ALIGN_MULTIPLE_OF_FOUR(EM_NUM_Y_DENSE_FEATURES),
                ALIGN_MULTIPLE_OF_FOUR(EM_Y_OUTPUT_SIZE));
+  NN_CONFIG_EM intra_y_mode;
 
   SPARSE_FEATURE_ARRAYS(
       intra_uv_mode, 0,
@@ -219,9 +230,26 @@ typedef struct frame_contexts {
                      ALIGN_MULTIPLE_OF_FOUR(EM_UV_OUTPUT_SIZE));
   MODEL_ARRAYS(intra_uv_mode, EM_NUM_UV_SPARSE_FEATURES, 0,
                ALIGN_MULTIPLE_OF_FOUR(EM_UV_OUTPUT_SIZE));
-
-  NN_CONFIG_EM intra_y_mode;
   NN_CONFIG_EM intra_uv_mode;
+
+#if 0
+  INPUT_LAYER_ARRAYS(eob_s0,
+                     EM_EOB_DENSE_FEATURES *
+                     ALIGN_MULTIPLE_OF_FOUR(EM_EOB_S0_OUTPUT_SIZE),
+                     ALIGN_MULTIPLE_OF_FOUR(EM_EOB_S0_OUTPUT_SIZE));
+  MODEL_ARRAYS(eob_s0, EM_EOB_SPARSE_FEATURES,
+               EM_EOB_DENSE_FEATURES,
+               ALIGN_MULTIPLE_OF_FOUR(EM_EOB_S0_OUTPUT_SIZE));
+  NN_CONFIG_EM eob_s0;
+#endif
+
+  EOB_MODEL(eob_s0, EM_EOB_S0_OUTPUT_SIZE);
+  EOB_MODEL(eob_s1, EM_EOB_S1_OUTPUT_SIZE);
+  EOB_MODEL(eob_s2, EM_EOB_S2_OUTPUT_SIZE);
+  EOB_MODEL(eob_s3, EM_EOB_S3_OUTPUT_SIZE);
+  EOB_MODEL(eob_s4, EM_EOB_S4_OUTPUT_SIZE);
+  EOB_MODEL(eob_s5, EM_EOB_S5_OUTPUT_SIZE);
+  EOB_MODEL(eob_s6, EM_EOB_S6_OUTPUT_SIZE);
 #else
   /* kf_y_cdf is discarded after use, so does not require persistent storage.
        However, we keep it with the other CDFs in this struct since it needs to
@@ -347,6 +375,14 @@ static INLINE void av1_config_entropy_models(FRAME_CONTEXT *const fc) {
   SETUP_SPARSE_FEATURE_POINTERS(intra_uv_mode, 0);
   SETUP_SPARSE_FEATURE_POINTERS(intra_uv_mode, 1);
   SETUP_MODEL_POINTERS(intra_uv_mode);
+
+  SETUP_MODEL_POINTERS(eob_s0);
+  SETUP_MODEL_POINTERS(eob_s1);
+  SETUP_MODEL_POINTERS(eob_s2);
+  SETUP_MODEL_POINTERS(eob_s3);
+  SETUP_MODEL_POINTERS(eob_s4);
+  SETUP_MODEL_POINTERS(eob_s5);
+  SETUP_MODEL_POINTERS(eob_s6);
 }
 #endif  // CONFIG_INTRA_ENTROPY
 

@@ -1346,6 +1346,27 @@ int av1_get_palette_color_index_context(const uint8_t *color_map, int stride,
 #undef MAX_COLOR_CONTEXT_HASH
 
 #if CONFIG_INTRA_ENTROPY
+#define INIT_EOB_MODEL(model, learning_rate, num_output) \
+    { \
+      av1_zero(fc->model); \
+      NN_CONFIG_EM *m = &fc->model; \
+      m->lr = learning_rate; \
+      m->num_hidden_layers = 0; \
+      m->num_logits = num_output; \
+      m->loss = SOFTMAX_CROSS_ENTROPY_LOSS; \
+      FC_INPUT_LAYER_EM *const eob_input_layer = &m->input_layer; \
+      eob_input_layer->num_sparse_inputs = 0; \
+      eob_input_layer->num_dense_inputs = EM_EOB_DENSE_FEATURES; \
+      eob_input_layer->num_outputs = num_output; \
+      eob_input_layer->activation = ACTN_NONE; \
+      memcpy(fc->model##_input_layer_dense_weights, \
+             model##_input_layer_dense_weights, \
+             sizeof(model##_input_layer_dense_weights)); \
+      memcpy(fc->model##_input_layer_bias, model##_input_layer_bias, \
+             sizeof(model##_input_layer_bias)); \
+    }
+
+
 static void init_entropy_models(FRAME_CONTEXT *const fc) {
   // Intra Y mode model.
   NN_CONFIG_EM *const intra_y_mode = &fc->intra_y_mode;
@@ -1412,6 +1433,15 @@ static void init_entropy_models(FRAME_CONTEXT *const fc) {
   }
   memcpy(fc->intra_uv_mode_input_layer_bias, intra_uv_mode_input_layer_bias,
          sizeof(intra_uv_mode_input_layer_bias));
+
+  // EOB model.
+  INIT_EOB_MODEL(eob_s0, 0.01f, EM_EOB_S0_OUTPUT_SIZE);
+  INIT_EOB_MODEL(eob_s1, 0.001f, EM_EOB_S1_OUTPUT_SIZE);
+  INIT_EOB_MODEL(eob_s2, 0.01f, EM_EOB_S2_OUTPUT_SIZE);
+  INIT_EOB_MODEL(eob_s3, 0.001f, EM_EOB_S3_OUTPUT_SIZE);
+  INIT_EOB_MODEL(eob_s4, 0.01f, EM_EOB_S4_OUTPUT_SIZE);
+  INIT_EOB_MODEL(eob_s5, 0.001f, EM_EOB_S5_OUTPUT_SIZE);
+  INIT_EOB_MODEL(eob_s6, 0.001f, EM_EOB_S6_OUTPUT_SIZE);
 }
 #endif  // CONFIG_INTRA_ENTROPY
 

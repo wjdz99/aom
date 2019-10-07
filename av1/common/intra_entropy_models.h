@@ -375,5 +375,101 @@ static const float intra_uv_mode_input_layer_bias[EM_UV_OUTPUT_SIZE] = {
 static const int intra_uv_sparse_feat_sizes[EM_NUM_UV_SPARSE_FEATURES] = {
   EM_UV_SPARSE_FEAT_SIZE_0, EM_UV_SPARSE_FEAT_SIZE_1
 };
+
+#define EM_EOB_SPARSE_FEATURES 0
+#define EM_EOB_DENSE_FEATURES 4
+
+#define EM_EOB_S0_OUTPUT_SIZE 5
+static const float eob_s0_input_layer_dense_weights
+[EM_EOB_DENSE_FEATURES * EM_EOB_S0_OUTPUT_SIZE] = {
+#if 0
+    0.0f,
+#else
+    -1.046286f, -2.607325f, -0.182883f,  0.442389f,
+     -0.432025f, -1.810373f,  0.145537f,  1.120121f,
+     -0.050807f, -1.238154f, -0.085779f,  0.287318f,
+      0.291929f, -0.179022f,  0.174974f,  0.133315f,
+      0.556070f,  2.055276f,  0.025873f, -0.651827f,
+#endif
+};
+static const float eob_s0_input_layer_bias[EM_EOB_S0_OUTPUT_SIZE] = {
+#if 0
+    0.0f,
+#else
+    0.714986f, -1.596328f,  0.018169f, -0.144811f,
+     -0.127671f,
+#endif
+};
+
+#define EM_EOB_S1_OUTPUT_SIZE 6
+static const float eob_s1_input_layer_dense_weights
+[EM_EOB_DENSE_FEATURES * EM_EOB_S1_OUTPUT_SIZE] = {
+    0.0f,
+};
+static const float eob_s1_input_layer_bias[EM_EOB_S1_OUTPUT_SIZE] = {
+    0.0f,
+};
+
+#define EM_EOB_S2_OUTPUT_SIZE 7
+static const float eob_s2_input_layer_dense_weights
+[EM_EOB_DENSE_FEATURES * EM_EOB_S2_OUTPUT_SIZE] = {
+    -1.411862f, -5.238804f, -0.598091f,  1.224099f,
+     -0.283929f, -5.749474f, -0.358895f,  1.219812f,
+     -1.026447f, -4.888517f, -0.673592f,  0.384027f,
+     -0.361197f, -3.870879f, -0.216532f, -0.258965f,
+      0.165991f, -2.094920f, -0.204257f, -0.626701f,
+      0.669526f, -0.325460f,  0.246560f, -0.798568f,
+      0.553856f,  3.848660f,  0.591675f, -1.015075f,
+};
+static const float eob_s2_input_layer_bias[EM_EOB_S2_OUTPUT_SIZE] = {
+    0.739826f, -1.220101f,  0.391562f,  0.647789f,
+      0.846417f,  0.548185f, -0.684786f,
+};
+
+#define EM_EOB_S3_OUTPUT_SIZE 8
+static const float eob_s3_input_layer_dense_weights
+[EM_EOB_DENSE_FEATURES * EM_EOB_S3_OUTPUT_SIZE] = {
+    0.0f,
+};
+static const float eob_s3_input_layer_bias[EM_EOB_S3_OUTPUT_SIZE] = {
+    0.0f,
+};
+
+#define EM_EOB_S4_OUTPUT_SIZE 9
+static const float eob_s4_input_layer_dense_weights
+[EM_EOB_DENSE_FEATURES * EM_EOB_S4_OUTPUT_SIZE] = {
+    -1.406333f,-13.693491f,  0.222084f,  1.056723f,
+      0.525526f,-11.777910f, -0.067159f,  0.597941f,
+     -0.939598f,-12.196438f, -0.262321f,  0.313146f,
+     -0.506760f,-11.715220f, -0.318967f, -0.530345f,
+      0.893677f, -7.891294f, -0.544152f, -0.790401f,
+      0.466625f, -5.806509f, -0.342938f, -1.245872f,
+      0.467442f, -0.981276f, -0.172965f, -1.692535f,
+     -0.173873f,  4.986831f,  0.357975f,  0.128889f,
+     -0.624361f, 11.552547f,  0.971509f, -1.136680f,
+};
+static const float eob_s4_input_layer_bias[EM_EOB_S4_OUTPUT_SIZE] = {
+    0.454090f, -1.026842f,  0.340139f,  0.443148f,
+      0.717275f,  0.647230f,  0.478672f, -0.506978f,
+     -1.543742f
+};
+
+#define EM_EOB_S5_OUTPUT_SIZE 10
+static const float eob_s5_input_layer_dense_weights
+[EM_EOB_DENSE_FEATURES * EM_EOB_S5_OUTPUT_SIZE] = {
+    0.0f,
+};
+static const float eob_s5_input_layer_bias[EM_EOB_S5_OUTPUT_SIZE] = {
+    0.0f,
+};
+
+#define EM_EOB_S6_OUTPUT_SIZE 11
+static const float eob_s6_input_layer_dense_weights
+[EM_EOB_DENSE_FEATURES * EM_EOB_S6_OUTPUT_SIZE] = {
+    0.0f,
+};
+static const float eob_s6_input_layer_bias[EM_EOB_S6_OUTPUT_SIZE] = {
+    0.0f,
+};
 #endif  // CONFIG_INTRA_ENTROPY
 #endif  // AOM_AV1_COMMON_INTRA_ENTROPY_MODELS_H_
