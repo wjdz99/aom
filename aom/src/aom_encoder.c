@@ -22,6 +22,11 @@
 #include <fenv.h>
 #endif
 
+#if CONFIG_FILEOPTIONS
+#include "aom/aom_codec.h"
+extern void init_config(cfg_options_t *pConfig);
+#endif
+
 #include <limits.h>
 #include <string.h>
 #include "aom/internal/aom_codec_internal.h"
@@ -167,10 +172,12 @@ aom_codec_err_t aom_codec_enc_config_default(aom_codec_iface_t *iface,
     }
   }
 
+#if CONFIG_FILEOPTIONS
   /* default values */
   if (cfg) {
-    cfg->cfg.ext_partition = 1;
+    init_config(&cfg->encoder_cfg);
   }
+#endif
 
   return res;
 }
