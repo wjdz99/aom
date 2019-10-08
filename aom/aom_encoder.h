@@ -727,7 +727,7 @@ typedef struct aom_codec_enc_cfg {
   /*!\brief Options defined per config file
    *
    */
-  cfg_options_t cfg;
+  cfg_options_t encoder_cfg;
 } aom_codec_enc_cfg_t; /**< alias for struct aom_codec_enc_cfg */
 
 /*!\brief Initialize an encoder instance
