@@ -160,8 +160,6 @@ static const arg_def_t psnrarg =
     ARG_DEF(NULL, "psnr", 0, "Show PSNR in status line");
 #if CONFIG_FILEOPTIONS
 static const arg_def_t use_cfg = ARG_DEF("c", "cfg", 1, "Config file to use");
-static const arg_def_t ext_partition =
-    ARG_DEF(NULL, "ext-partition", 1, "corresponds to extended partitions");
 #endif
 
 static const struct arg_enum_list test_decode_enum[] = {
@@ -1117,15 +1115,12 @@ static void validate_positive_rational(const char *msg,
 /* Parses global config arguments into the AvxEncoderConfig. Note that
  * argv is modified and overwrites all parsed arguments.
  */
-static void parse_global_config(struct AvxEncoderConfig *global, int argc,
-                                char ***argv) {
+static void parse_global_config(struct AvxEncoderConfig *global, char ***argv) {
   char **argi, **argj;
   struct arg arg;
   const int num_encoder = get_aom_encoder_count();
   char **argv_local = (char **)*argv;
-#if CONFIG_FILEOPTIONS
-  int argc_local = argc;
-#endif
+
   if (num_encoder < 1) die("Error: no valid encoder available\n");
 
   /* Initialize default parameters */
@@ -1136,22 +1131,17 @@ static void parse_global_config(struct AvxEncoderConfig *global, int argc,
   global->csp = AOM_CSP_UNKNOWN;
 
 #if CONFIG_FILEOPTIONS
-  const char *cfg = NULL;
   int cfg_included = 0;
+  init_config(&global->encoder_config);
 #endif
+
   for (argi = argj = argv_local; (*argj = *argi); argi += arg.argv_step) {
     arg.argv_step = 1;
 
 #if CONFIG_FILEOPTIONS
     if (arg_match(&arg, &use_cfg, argi)) {
       if (cfg_included) continue;
-      cfg = arg.val;
-
-      arg_cfg(&argc_local, &argv_local, cfg);
-
-      *argj = *argi = *argv_local;
-      argj = argi = argv_local;
-      *argv = argv_local;
+      parse_cfg(arg.val, &global->encoder_config);
       cfg_included = 1;
       continue;
     }
@@ -1347,6 +1337,11 @@ static struct stream_state *new_stream(struct AvxEncoderConfig *global,
 
     /* Allows removal of the application version from the EBML tags */
     stream->webm_ctx.debug = global->debug;
+
+#if CONFIG_FILEOPTIONS
+    memcpy(&stream->config.cfg.encoder_cfg, &global->encoder_config,
+           sizeof(cfg_options_t));
+#endif
   }
 
   /* Output files must be specified for each stream */
@@ -1571,10 +1566,6 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
     } else if (arg_match(&arg, &tile_height, argi)) {
       config->cfg.tile_height_count =
           arg_parse_list(&arg, config->cfg.tile_heights, MAX_TILE_HEIGHTS);
-#if CONFIG_FILEOPTIONS
-    } else if (arg_match(&arg, &ext_partition, argi)) {
-      config->cfg.cfg.ext_partition = !!arg_parse_uint(&arg) > 0;
-#endif
     } else if (global->usage == AOM_USAGE_REALTIME &&
                arg_match(&arg, &enable_restoration, argi)) {
       if (arg_parse_uint(&arg) == 1) {
@@ -1738,6 +1729,47 @@ static void show_stream_config(struct stream_state *stream,
   SHOW(kf_mode);
   SHOW(kf_min_dist);
   SHOW(kf_max_dist);
+
+#if CONFIG_FILEOPTIONS
+#define SHOW_PARAMS(field)                    \
+  fprintf(stderr, "    %-28s = %d\n", #field, \
+          stream->config.cfg.encoder_cfg.field)
+  SHOW_PARAMS(SuperBlockSize);
+  SHOW_PARAMS(MaxPartitionSize);
+  SHOW_PARAMS(MinPartitionSize);
+  SHOW_PARAMS(DisableABPartitionType);
+  SHOW_PARAMS(DisableRectPartitionType);
+  SHOW_PARAMS(Disable1to4PartitionType);
+  SHOW_PARAMS(DisableFlipIdtx);
+  SHOW_PARAMS(DisableCDEF);
+  SHOW_PARAMS(DisableLR);
+  SHOW_PARAMS(DisableOBMC);
+  SHOW_PARAMS(DisableWarpMotion);
+  SHOW_PARAMS(DisableGlobalMotion);
+  SHOW_PARAMS(DisableDistWtdComp);
+  SHOW_PARAMS(DisableDiffWtdComp);
+  SHOW_PARAMS(DisableInterIntraComp);
+  SHOW_PARAMS(DisableMaskedComp);
+  SHOW_PARAMS(DisableOneSidedComp);
+  SHOW_PARAMS(DisablePalette);
+  SHOW_PARAMS(DisableIBC);
+  SHOW_PARAMS(DisableCFL);
+  SHOW_PARAMS(DisableSmoothIntra);
+  SHOW_PARAMS(DisableFilterIntra);
+  SHOW_PARAMS(DisableDualFilter);
+  SHOW_PARAMS(DisableIntraAngleDelta);
+  SHOW_PARAMS(TxSizeSearchMethod);
+  SHOW_PARAMS(DisableIntraEdgeFilter);
+  SHOW_PARAMS(DisableTx64x64);
+  SHOW_PARAMS(DisableSmoothInterIntra);
+  SHOW_PARAMS(DisableInterInterWedge);
+  SHOW_PARAMS(DisableInterIntraWedge);
+  SHOW_PARAMS(DisablePaethIntra);
+  SHOW_PARAMS(DisableTrellisQuant);
+  SHOW_PARAMS(DisableRefFrameMV);
+  SHOW_PARAMS(ReducedReferenceSet);
+  SHOW_PARAMS(ReducedTxTypeSet);
+#endif
 }
 
 static void open_output_file(struct stream_state *stream,
@@ -1851,7 +1883,7 @@ static void initialize_encoder(struct stream_state *stream,
 #if CONFIG_AV1_DECODER
   if (global->test_decode != TEST_DECODE_OFF) {
     const AvxInterface *decoder = get_aom_decoder_by_name(global->codec->name);
-    aom_codec_dec_cfg_t cfg = { 0, 0, 0, !FORCE_HIGHBITDEPTH_DECODING, { 1 } };
+    aom_codec_dec_cfg_t cfg = { 0, 0, 0, !FORCE_HIGHBITDEPTH_DECODING };
     aom_codec_dec_init(&stream->decoder, decoder->codec_interface(), &cfg, 0);
 
     if (strcmp(global->codec->name, "av1") == 0) {
@@ -2189,7 +2221,7 @@ int main(int argc, const char **argv_) {
    * codec.
    */
   argv = argv_dup(argc - 1, argv_ + 1);
-  parse_global_config(&global, argc, &argv);
+  parse_global_config(&global, &argv);
 
 #if CONFIG_FILEOPTIONS
   if (argc < 2) usage_exit();
