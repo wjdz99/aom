@@ -568,7 +568,10 @@ typedef struct AV1Common {
   int64_t txcoeff_cost_timer;
   int64_t txcoeff_cost_count;
 #endif
+
+#if CONFIG_FILEOPTIONS
   const cfg_options_t *options;
+#endif
   int is_decoding;
 } AV1_COMMON;
 
