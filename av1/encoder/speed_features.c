@@ -483,7 +483,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->use_nonrd_pick_mode = 0;
   sf->use_real_time_ref_set = 0;
   sf->use_fast_nonrd_pick_mode = 0;
-  sf->reuse_inter_pred_nonrd = 0;
+  sf->reuse_inter_pred_nonrd = 1;
   sf->estimate_motion_for_var_based_partition = 1;
   sf->use_comp_ref_nonrd = 1;
   sf->check_intra_pred_nonrd = 1;
