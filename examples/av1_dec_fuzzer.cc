@@ -39,7 +39,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   // Set thread count in the range [1, 64].
   const unsigned int threads = (data[IVF_FILE_HDR_SZ] & 0x3f) + 1;
   aom_codec_dec_cfg_t cfg = {
-    threads, 0, 0, !FORCE_HIGHBITDEPTH_DECODING, { 1 }
+    threads, 0, 0, !FORCE_HIGHBITDEPTH_DECODING
   };
   if (aom_codec_dec_init(&codec, codec_interface, &cfg, 0)) {
     return 0;
