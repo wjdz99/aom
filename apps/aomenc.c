@@ -160,8 +160,6 @@ static const arg_def_t psnrarg =
     ARG_DEF(NULL, "psnr", 0, "Show PSNR in status line");
 #if CONFIG_FILEOPTIONS
 static const arg_def_t use_cfg = ARG_DEF("c", "cfg", 1, "Config file to use");
-static const arg_def_t ext_partition =
-    ARG_DEF(NULL, "ext-partition", 1, "corresponds to extended partitions");
 #endif
 
 static const struct arg_enum_list test_decode_enum[] = {
@@ -1161,15 +1159,12 @@ static void validate_positive_rational(const char *msg,
 /* Parses global config arguments into the AvxEncoderConfig. Note that
  * argv is modified and overwrites all parsed arguments.
  */
-static void parse_global_config(struct AvxEncoderConfig *global, int argc,
-                                char ***argv) {
+static void parse_global_config(struct AvxEncoderConfig *global, char ***argv) {
   char **argi, **argj;
   struct arg arg;
   const int num_encoder = get_aom_encoder_count();
   char **argv_local = (char **)*argv;
-#if CONFIG_FILEOPTIONS
-  int argc_local = argc;
-#endif
+
   if (num_encoder < 1) die("Error: no valid encoder available\n");
 
   /* Initialize default parameters */
@@ -1180,22 +1175,17 @@ static void parse_global_config(struct AvxEncoderConfig *global, int argc,
   global->csp = AOM_CSP_UNKNOWN;
 
 #if CONFIG_FILEOPTIONS
-  const char *cfg = NULL;
   int cfg_included = 0;
+  init_config(&global->encoder_config);
 #endif
+
   for (argi = argj = argv_local; (*argj = *argi); argi += arg.argv_step) {
     arg.argv_step = 1;
 
 #if CONFIG_FILEOPTIONS
     if (arg_match(&arg, &use_cfg, argi)) {
       if (cfg_included) continue;
-      cfg = arg.val;
-
-      arg_cfg(&argc_local, &argv_local, cfg);
-
-      *argj = *argi = *argv_local;
-      argj = argi = argv_local;
-      *argv = argv_local;
+      parse_cfg(arg.val, &global->encoder_config);
       cfg_included = 1;
       continue;
     }
@@ -1391,6 +1381,11 @@ static struct stream_state *new_stream(struct AvxEncoderConfig *global,
 
     /* Allows removal of the application version from the EBML tags */
     stream->webm_ctx.debug = global->debug;
+
+#if CONFIG_FILEOPTIONS
+    memcpy(&stream->config.cfg.encoder_cfg, &global->encoder_config,
+           sizeof(cfg_options_t));
+#endif
   }
 
   /* Output files must be specified for each stream */
@@ -1793,6 +1788,47 @@ static void show_stream_config(struct stream_state *stream,
   SHOW(kf_mode);
   SHOW(kf_min_dist);
   SHOW(kf_max_dist);
+
+#if CONFIG_FILEOPTIONS
+#define SHOW_PARAMS(field)                    \
+  fprintf(stderr, "    %-28s = %d\n", #field, \
+          stream->config.cfg.encoder_cfg.field)
+  SHOW_PARAMS(super_block_size);
+  SHOW_PARAMS(max_partition_size);
+  SHOW_PARAMS(min_partition_size);
+  SHOW_PARAMS(disable_ab_partition_type);
+  SHOW_PARAMS(disable_rect_partition_type);
+  SHOW_PARAMS(disable_1to4_partition_type);
+  SHOW_PARAMS(disable_flip_idtx);
+  SHOW_PARAMS(disable_cdef);
+  SHOW_PARAMS(disable_lr);
+  SHOW_PARAMS(disable_obmc);
+  SHOW_PARAMS(disable_warp_motion);
+  SHOW_PARAMS(disable_global_motion);
+  SHOW_PARAMS(disable_dist_wtd_comp);
+  SHOW_PARAMS(disable_diff_wtd_comp);
+  SHOW_PARAMS(disable_inter_intra_comp);
+  SHOW_PARAMS(disable_masked_comp);
+  SHOW_PARAMS(disable_one_sided_comp);
+  SHOW_PARAMS(disable_palette);
+  SHOW_PARAMS(disable_ibc);
+  SHOW_PARAMS(disable_cfl);
+  SHOW_PARAMS(disable_smooth_intra);
+  SHOW_PARAMS(disable_filter_intra);
+  SHOW_PARAMS(disable_dual_filter);
+  SHOW_PARAMS(disable_intra_angle_delta);
+  SHOW_PARAMS(tx_size_search_method);
+  SHOW_PARAMS(disable_intra_edge_filter);
+  SHOW_PARAMS(disable_tx_64x64);
+  SHOW_PARAMS(disable_smooth_inter_intra);
+  SHOW_PARAMS(disable_inter_inter_wedge);
+  SHOW_PARAMS(disable_inter_intra_wedge);
+  SHOW_PARAMS(disable_paeth_intra);
+  SHOW_PARAMS(disable_trellis_quant);
+  SHOW_PARAMS(disable_ref_frame_mv);
+  SHOW_PARAMS(reduced_reference_set);
+  SHOW_PARAMS(reduced_tx_type_set);
+#endif
 }
 
 static void open_output_file(struct stream_state *stream,
@@ -2244,7 +2280,7 @@ int main(int argc, const char **argv_) {
    * codec.
    */
   argv = argv_dup(argc - 1, argv_ + 1);
-  parse_global_config(&global, argc, &argv);
+  parse_global_config(&global, &argv);
 
 #if CONFIG_FILEOPTIONS
   if (argc < 2) usage_exit();
