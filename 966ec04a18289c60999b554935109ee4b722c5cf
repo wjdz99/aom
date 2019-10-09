@@ -46,6 +46,29 @@
       "revId": "966ec04a18289c60999b554935109ee4b722c5cf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a777883_1e62ad36",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1301,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2019-10-09T21:42:13Z",
+      "side": 0,
+      "message": "Hi Jingning,\n\nWhat I meant is when TEMPORAL_FILTER_KEY_FRAME is off, the encoder will use av1_encode directly, which does not have tpl embedded, therefore it needs the original kf tpl code segment to take care of it.",
+      "range": {
+        "startLine": 1291,
+        "startChar": 0,
+        "endLine": 1301,
+        "endChar": 36
+      },
+      "revId": "966ec04a18289c60999b554935109ee4b722c5cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
