@@ -46,17 +46,20 @@ static double calculate_active_area(const FRAME_INFO *frame_info,
 // Calculate a modified Error used in distributing bits between easier and
 // harder frames.
 #define ACT_AREA_CORRECTION 0.5
+#define VBRBIAS_90 90
 static double calculate_modified_err(const FRAME_INFO *frame_info,
                                      const TWO_PASS *twopass,
                                      const AV1EncoderConfig *oxcf,
-                                     const FIRSTPASS_STATS *this_frame) {
+                                     const FIRSTPASS_STATS *this_frame,
+                                     const int adjust_vbrbias) {
+  const int vbrbias = adjust_vbrbias ? VBRBIAS_90 : oxcf->two_pass_vbrbias;
   const FIRSTPASS_STATS *const stats = &twopass->total_stats;
   const double av_weight = stats->weight / stats->count;
   const double av_err = (stats->coded_error * av_weight) / stats->count;
   double modified_error =
       av_err * pow(this_frame->coded_error * this_frame->weight /
                        DOUBLE_DIVIDE_CHECK(av_err),
-                   oxcf->two_pass_vbrbias / 100.0);
+                   vbrbias / 100.0);
 
   // Correction for active area. Frames with a reduced active area
   // (eg due to formatting bars) have a higher error per mb for the
@@ -891,7 +894,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   }
 
   // Load stats for the current frame.
-  mod_frame_err = calculate_modified_err(frame_info, twopass, oxcf, this_frame);
+  mod_frame_err = calculate_modified_err(frame_info, twopass, oxcf, this_frame,
+                                         cpi->adjust_vbrbias);
 
   // Note the error of the frame at the start of the group. This will be
   // the GF frame error if we code a normal gf.
@@ -938,8 +942,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     ++i;
 
     // Accumulate error score of frames in this gf group.
-    mod_frame_err =
-        calculate_modified_err(frame_info, twopass, oxcf, this_frame);
+    mod_frame_err = calculate_modified_err(frame_info, twopass, oxcf,
+                                           this_frame, cpi->adjust_vbrbias);
     gf_group_err += mod_frame_err;
 #if GROUP_ADAPTIVE_MAXQ
     gf_group_raw_error += this_frame->coded_error;
@@ -1457,8 +1461,8 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   while (twopass->stats_in < twopass->stats_in_end &&
          rc->frames_to_key < cpi->oxcf.key_freq) {
     // Accumulate kf group error.
-    kf_group_err +=
-        calculate_modified_err(frame_info, twopass, oxcf, this_frame);
+    kf_group_err += calculate_modified_err(frame_info, twopass, oxcf,
+                                           this_frame, cpi->adjust_vbrbias);
 
     // Load the next frame's stats.
     last_frame = *this_frame;
@@ -1519,8 +1523,8 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
     // Rescan to get the correct error data for the forced kf group.
     for (i = 0; i < rc->frames_to_key; ++i) {
-      kf_group_err +=
-          calculate_modified_err(frame_info, twopass, oxcf, &tmp_frame);
+      kf_group_err += calculate_modified_err(frame_info, twopass, oxcf,
+                                             &tmp_frame, cpi->adjust_vbrbias);
       input_stats(twopass, &tmp_frame);
     }
     rc->next_key_frame_forced = 1;
@@ -1534,8 +1538,8 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // Special case for the last key frame of the file.
   if (twopass->stats_in >= twopass->stats_in_end) {
     // Accumulate kf group error.
-    kf_group_err +=
-        calculate_modified_err(frame_info, twopass, oxcf, this_frame);
+    kf_group_err += calculate_modified_err(frame_info, twopass, oxcf,
+                                           this_frame, cpi->adjust_vbrbias);
   }
 
   // Calculate the number of bits that should be assigned to the kf group.
@@ -1846,6 +1850,37 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   setup_target_rate(cpi);
 }
 
+// Adjust vbrbias if this case happens: there're multiple (N = 5) frames whose
+// coded_errors are coparable to key frame's error.
+static int adjust_vbrbias(const TWO_PASS *const twopass) {
+  const FIRSTPASS_STATS *this_frame = twopass->stats_in;
+  const int N = 5;
+  double thr = 0.5;
+  double max_frame_err = 0.0;
+  int num_large_err_frames = 0;
+  int i = 0;
+
+  if (!twopass->stats_in_end) return 0;
+
+  while (this_frame < twopass->stats_in_end) {
+    if (this_frame->coded_error > max_frame_err) {
+      max_frame_err = this_frame->coded_error;
+    }
+    ++this_frame;
+    ++i;
+  }
+
+  i = 0;
+  this_frame = twopass->stats_in;
+  while (this_frame < twopass->stats_in_end) {
+    if (this_frame->coded_error > max_frame_err * thr) ++num_large_err_frames;
+    ++this_frame;
+    ++i;
+  }
+
+  return num_large_err_frames >= N;
+}
+
 void av1_init_second_pass(AV1_COMP *cpi) {
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   TWO_PASS *const twopass = &cpi->twopass;
@@ -1862,6 +1897,8 @@ void av1_init_second_pass(AV1_COMP *cpi) {
 
   *stats = *twopass->stats_in_end;
   twopass->total_left_stats = *stats;
+
+  cpi->adjust_vbrbias = adjust_vbrbias(twopass);
 
   frame_rate = 10000000.0 * stats->count / stats->duration;
   // Each frame can have a different duration, as the frame rate in the source
@@ -1888,8 +1925,8 @@ void av1_init_second_pass(AV1_COMP *cpi) {
     twopass->modified_error_max =
         (avg_error * oxcf->two_pass_vbrmax_section) / 100;
     while (s < twopass->stats_in_end) {
-      modified_error_total +=
-          calculate_modified_err(frame_info, twopass, oxcf, s);
+      modified_error_total += calculate_modified_err(frame_info, twopass, oxcf,
+                                                     s, cpi->adjust_vbrbias);
       ++s;
     }
     twopass->modified_error_left = modified_error_total;
