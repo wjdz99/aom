@@ -1099,6 +1099,8 @@ typedef struct AV1_COMP {
 
   int use_svc;
   SVC svc;
+  unsigned int cur_src_alt_ref_order_hint;
+  unsigned int prev_src_alt_ref_order_hint;
 } AV1_COMP;
 
 typedef struct {

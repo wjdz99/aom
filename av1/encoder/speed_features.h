@@ -515,6 +515,9 @@ typedef struct SPEED_FEATURES {
   // prune reference frames during global motion estimation, if the farthest
   // ref_frame in either direction (past/future) yields gm_type as
   // INVALID/TRANSLATION/IDENTITY
+  // 0: implies no pruning
+  // 1: implies prune for non-boosted frames
+  // 2: implies prune all frames
   int prune_ref_frame_for_gm_search;
 
   // Do limited interpolation filter search for dual filters, since best choice
