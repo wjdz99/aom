@@ -1068,9 +1068,188 @@ int av1_find_best_sub_pixel_tree(
 
     if (iters_per_step > 1 && best_idx != -1) {
       if (use_accurate_subpel_search) {
-        SECOND_LEVEL_CHECKS_BEST(1);
+        unsigned int second;
+        int br0 = br;
+        int bc0 = bc;
+        assert(tr == br || tc == bc);
+        if (tr == br && tc != bc) {
+          kc = bc - tc;
+        } else if (tr != br && tc == bc) {
+          kr = br - tr;
+        }
+        MV this_mv = { br0 + kr, bc0 };
+        if (this_mv.col >= minc && this_mv.col <= maxc && this_mv.row >= minr &&
+            this_mv.row <= maxr) {
+          thismse = upsampled_pref_error(
+              xd, cm, mi_row, mi_col, &this_mv, vfp, src_address, src_stride,
+              pre(y, y_stride, this_mv.row, this_mv.col), y_stride,
+              sp(this_mv.col), sp(this_mv.row), second_pred, mask, mask_stride,
+              invert_mask, w, h, &sse, use_accurate_subpel_search);
+          second = mv_err_cost(&this_mv, ref_mv, precision, min_precision,
+                               mvjcost, mvcost, flex_mv_costs, error_per_bit);
+          second += thismse;
+          if (second < besterr) {
+            besterr = second;
+            br = this_mv.row;
+            bc = this_mv.col;
+            *distortion = thismse;
+            *sse1 = sse;
+          }
+        } else {
+          second = INT_MAX;
+        }
+        this_mv.row = br0;
+        this_mv.col = bc0 + kc;
+        if (this_mv.col >= minc && this_mv.col <= maxc && this_mv.row >= minr &&
+            this_mv.row <= maxr) {
+          thismse = upsampled_pref_error(
+              xd, cm, mi_row, mi_col, &this_mv, vfp, src_address, src_stride,
+              pre(y, y_stride, this_mv.row, this_mv.col), y_stride,
+              sp(this_mv.col), sp(this_mv.row), second_pred, mask, mask_stride,
+              invert_mask, w, h, &sse, use_accurate_subpel_search);
+          second = mv_err_cost(&this_mv, ref_mv, precision, min_precision,
+                               mvjcost, mvcost, flex_mv_costs, error_per_bit);
+          second += thismse;
+          if (second < besterr) {
+            besterr = second;
+            br = this_mv.row;
+            bc = this_mv.col;
+            *distortion = thismse;
+            *sse1 = sse;
+          }
+        } else {
+          second = INT_MAX;
+        }
+        if (br0 != br || bc0 != bc) {
+          this_mv.row = br0 + kr;
+          this_mv.col = bc0 + kc;
+          if (this_mv.col >= minc && this_mv.col <= maxc &&
+              this_mv.row >= minr && this_mv.row <= maxr) {
+            thismse = upsampled_pref_error(
+                xd, cm, mi_row, mi_col, &this_mv, vfp, src_address, src_stride,
+                pre(y, y_stride, this_mv.row, this_mv.col), y_stride,
+                sp(this_mv.col), sp(this_mv.row), second_pred, mask,
+                mask_stride, invert_mask, w, h, &sse,
+                use_accurate_subpel_search);
+            second = mv_err_cost(&this_mv, ref_mv, precision, min_precision,
+                                 mvjcost, mvcost, flex_mv_costs, error_per_bit);
+            second += thismse;
+            if (second < besterr) {
+              besterr = second;
+              br = this_mv.row;
+              bc = this_mv.col;
+              *distortion = thismse;
+              *sse1 = sse;
+            }
+          } else {
+            second = INT_MAX;
+          }
+        }
       } else {
-        SECOND_LEVEL_CHECKS_BEST(0);
+        unsigned int second;
+        int br0 = br;
+        int bc0 = bc;
+        assert(tr == br || tc == bc);
+        if (tr == br && tc != bc) {
+          kc = bc - tc;
+        } else if (tr != br && tc == bc) {
+          kr = br - tr;
+        }
+
+        MV this_mv = { br0 + kr, bc0 };
+        if (this_mv.col >= minc && this_mv.col <= maxc && this_mv.row >= minr &&
+            this_mv.row <= maxr) {
+          second = mv_err_cost(&this_mv, ref_mv, precision, min_precision,
+                               mvjcost, mvcost, flex_mv_costs, error_per_bit);
+          if (second_pred == NULL) {
+            thismse = vfp->svf(pre(y, y_stride, this_mv.row, this_mv.col),
+                               y_stride, sp(this_mv.col), sp(this_mv.row),
+                               src_address, src_stride, &sse);
+          } else if (mask) {
+            thismse = vfp->msvf(pre(y, y_stride, this_mv.row, this_mv.col),
+                                y_stride, sp(this_mv.col), sp(this_mv.row),
+                                src_address, src_stride, second_pred, mask,
+                                mask_stride, invert_mask, &sse);
+          } else {
+            thismse = vfp->svaf(pre(y, y_stride, this_mv.row, this_mv.col),
+                                y_stride, sp(this_mv.col), sp(this_mv.row),
+                                src_address, src_stride, &sse, second_pred);
+          }
+          second += thismse;
+          if (second < besterr) {
+            besterr = second;
+            br = this_mv.row;
+            bc = this_mv.col;
+            *distortion = thismse;
+            *sse1 = sse;
+          }
+        } else {
+          second = INT_MAX;
+        }
+        this_mv.row = br0;
+        this_mv.col = bc0 + kc;
+        if (this_mv.col >= minc && this_mv.col <= maxc && this_mv.row >= minr &&
+            this_mv.row <= maxr) {
+          second = mv_err_cost(&this_mv, ref_mv, precision, min_precision,
+                               mvjcost, mvcost, flex_mv_costs, error_per_bit);
+          if (second_pred == NULL) {
+            thismse = vfp->svf(pre(y, y_stride, this_mv.row, this_mv.col),
+                               y_stride, sp(this_mv.col), sp(this_mv.row),
+                               src_address, src_stride, &sse);
+          } else if (mask) {
+            thismse = vfp->msvf(pre(y, y_stride, this_mv.row, this_mv.col),
+                                y_stride, sp(this_mv.col), sp(this_mv.row),
+                                src_address, src_stride, second_pred, mask,
+                                mask_stride, invert_mask, &sse);
+          } else {
+            thismse = vfp->svaf(pre(y, y_stride, this_mv.row, this_mv.col),
+                                y_stride, sp(this_mv.col), sp(this_mv.row),
+                                src_address, src_stride, &sse, second_pred);
+          }
+          second += thismse;
+          if (second < besterr) {
+            besterr = second;
+            br = this_mv.row;
+            bc = this_mv.col;
+            *distortion = thismse;
+            *sse1 = sse;
+          }
+        } else {
+          second = INT_MAX;
+        }
+        if (br0 != br || bc0 != bc) {
+          this_mv.row = br0 + kr;
+          this_mv.col = bc0 + kc;
+          if (this_mv.col >= minc && this_mv.col <= maxc &&
+              this_mv.row >= minr && this_mv.row <= maxr) {
+            second = mv_err_cost(&this_mv, ref_mv, precision, min_precision,
+                                 mvjcost, mvcost, flex_mv_costs, error_per_bit);
+            if (second_pred == NULL) {
+              thismse = vfp->svf(pre(y, y_stride, this_mv.row, this_mv.col),
+                                 y_stride, sp(this_mv.col), sp(this_mv.row),
+                                 src_address, src_stride, &sse);
+            } else if (mask) {
+              thismse = vfp->msvf(pre(y, y_stride, this_mv.row, this_mv.col),
+                                  y_stride, sp(this_mv.col), sp(this_mv.row),
+                                  src_address, src_stride, second_pred, mask,
+                                  mask_stride, invert_mask, &sse);
+            } else {
+              thismse = vfp->svaf(pre(y, y_stride, this_mv.row, this_mv.col),
+                                  y_stride, sp(this_mv.col), sp(this_mv.row),
+                                  src_address, src_stride, &sse, second_pred);
+            }
+            second += thismse;
+            if (second < besterr) {
+              besterr = second;
+              br = this_mv.row;
+              bc = this_mv.col;
+              *distortion = thismse;
+              *sse1 = sse;
+            }
+          } else {
+            second = INT_MAX;
+          }
+        }
       }
     }
 
