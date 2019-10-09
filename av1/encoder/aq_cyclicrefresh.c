@@ -328,8 +328,8 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
   if (frame_is_intra_only(cm) || is_lossless_requested(&cpi->oxcf) ||
       cpi->svc.temporal_layer_id > 0 ||
       rc->avg_frame_qindex[INTER_FRAME] < qp_thresh ||
-      (rc->avg_frame_qindex[INTER_FRAME] > qp_max_thresh &&
-       rc->frames_since_key > 20)) {
+      (cpi->oxcf.speed > 6 && rc->frames_since_key > 20 &&
+       rc->avg_frame_qindex[INTER_FRAME] > qp_max_thresh)) {
     cr->apply_cyclic_refresh = 0;
     return;
   }
