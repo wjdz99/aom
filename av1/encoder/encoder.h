@@ -1100,6 +1100,10 @@ typedef struct AV1_COMP {
 
   int use_svc;
   SVC svc;
+
+  // Whether to adjust the two_pass_vbrbias (default 50), in calculation of
+  // modified frame error.
+  int adjust_vbrbias;
 } AV1_COMP;
 
 typedef struct {
