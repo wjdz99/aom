@@ -121,9 +121,9 @@ specialize qw/aom_dc_left_predictor_8x16 sse2/;
 specialize qw/aom_dc_left_predictor_8x32 sse2/;
 specialize qw/aom_dc_left_predictor_16x4 sse2/;
 specialize qw/aom_dc_left_predictor_16x8 sse2/;
+specialize qw/aom_dc_left_predictor_16x32 sse2/;
 if (aom_config("CONFIG_3WAY_PARTITIONS") eq "") {
   specialize qw/aom_dc_left_predictor_16x16 neon msa sse2/;
-  specialize qw/aom_dc_left_predictor_16x32 sse2/;
 } # CONFIG_3WAY_PARTITIONS
 specialize qw/aom_dc_left_predictor_16x64 sse2/;
 specialize qw/aom_dc_left_predictor_32x8 sse2/;
