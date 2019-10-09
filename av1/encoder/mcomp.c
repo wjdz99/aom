@@ -1160,6 +1160,7 @@ int av1_find_best_sub_pixel_tree(
         } else if (tr != br && tc == bc) {
           kr = br - tr;
         }
+
         MV this_mv = { br0 + kr, bc0 };
         if (this_mv.col >= minc && this_mv.col <= maxc && this_mv.row >= minr &&
             this_mv.row <= maxr) {
