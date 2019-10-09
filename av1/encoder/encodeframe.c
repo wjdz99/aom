@@ -4856,6 +4856,7 @@ static void compute_global_motion_for_ref_frame(
 
 typedef struct {
   int distance;
+  int use_ref_for_pruning;
   MV_REFERENCE_FRAME frame;
 } FrameDistPair;
 
@@ -4865,6 +4866,20 @@ static INLINE void update_valid_ref_frames_for_gm(
     int *num_past_ref_frames, int *num_future_ref_frames) {
   AV1_COMMON *const cm = &cpi->common;
   const OrderHintInfo *const order_hint_info = &cm->seq_params.order_hint_info;
+  // TODO(Remya): Can avoid computing global motion for a frame if
+  // valid_ref_for_pruning == 0
+  int valid_ref_for_pruning = 1;
+  const int is_src_frame_alt_ref = cpi->rc.is_src_frame_alt_ref ? 1 : 0;
+
+  // Decides the eligibility of reference frames to be considered for pruning as
+  // per speed feature 'prune_ref_frame_for_gm_search'. Eligibility criteria is
+  // based on display order hint of a valid farthest reference frame, which
+  // should be in the current or previous ARF interval.
+  const int eligible_ref_frame_order_hint =
+      AOMMIN(cpi->prev_src_alt_ref_order_hint, cpi->cur_src_alt_ref_order_hint);
+  const int is_first_gop = (cpi->prev_src_alt_ref_order_hint == 0 &&
+                            cpi->cur_src_alt_ref_order_hint == 0);
+
   for (int frame = ALTREF_FRAME; frame >= LAST_FRAME; --frame) {
     const MV_REFERENCE_FRAME ref_frame[2] = { frame, NONE_FRAME };
     RefCntBuffer *buf = get_ref_frame_buf(cm, frame);
@@ -4879,6 +4894,13 @@ static INLINE void update_valid_ref_frames_for_gm(
       continue;
     } else {
       ref_buf[frame] = &buf->buf;
+    }
+
+    // Validate ref frame based on eligible_ref_frame_order_hint
+    // This check is not applicable for the first ARF interval
+    if (!is_first_gop && cpi->sf.prune_ref_frame_for_gm_search == 1) {
+      valid_ref_for_pruning =
+          (int)buf->display_order_hint > eligible_ref_frame_order_hint ? 1 : 0;
     }
 
     if (ref_buf[frame]->y_crop_width == cpi->source->y_crop_width &&
@@ -4897,14 +4919,23 @@ static INLINE void update_valid_ref_frames_for_gm(
         past_ref_frame[*num_past_ref_frames].distance =
             abs(relative_frame_dist);
         past_ref_frame[*num_past_ref_frames].frame = frame;
+        if (!valid_ref_for_pruning)
+          past_ref_frame[*num_past_ref_frames].use_ref_for_pruning = 0;
         (*num_past_ref_frames)++;
       } else {
         future_ref_frame[*num_future_ref_frames].distance =
             abs(relative_frame_dist);
         future_ref_frame[*num_future_ref_frames].frame = frame;
+        if (!valid_ref_for_pruning)
+          future_ref_frame[*num_future_ref_frames].use_ref_for_pruning = 0;
         (*num_future_ref_frames)++;
       }
     }
+  }
+  // Update the current and previous source_alt_ref_frame order hint
+  if (is_src_frame_alt_ref) {
+    cpi->prev_src_alt_ref_order_hint = cpi->cur_src_alt_ref_order_hint;
+    cpi->cur_src_alt_ref_order_hint = cm->current_frame.display_order_hint;
   }
 }
 
@@ -5138,14 +5169,14 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
            sizeof(*segment_map) * segment_map_w * segment_map_h);
 
     FrameDistPair future_ref_frame[REF_FRAMES - 1] = {
-      { -1, NONE_FRAME }, { -1, NONE_FRAME }, { -1, NONE_FRAME },
-      { -1, NONE_FRAME }, { -1, NONE_FRAME }, { -1, NONE_FRAME },
-      { -1, NONE_FRAME }
+      { -1, 1, NONE_FRAME }, { -1, 1, NONE_FRAME }, { -1, 1, NONE_FRAME },
+      { -1, 1, NONE_FRAME }, { -1, 1, NONE_FRAME }, { -1, 1, NONE_FRAME },
+      { -1, 1, NONE_FRAME }
     };
     FrameDistPair past_ref_frame[REF_FRAMES - 1] = {
-      { -1, NONE_FRAME }, { -1, NONE_FRAME }, { -1, NONE_FRAME },
-      { -1, NONE_FRAME }, { -1, NONE_FRAME }, { -1, NONE_FRAME },
-      { -1, NONE_FRAME }
+      { -1, 1, NONE_FRAME }, { -1, 1, NONE_FRAME }, { -1, 1, NONE_FRAME },
+      { -1, 1, NONE_FRAME }, { -1, 1, NONE_FRAME }, { -1, 1, NONE_FRAME },
+      { -1, 1, NONE_FRAME }
     };
     int num_past_ref_frames = 0;
     int num_future_ref_frames = 0;
@@ -5169,9 +5200,18 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
       // If farthest ref frame yields INVALID/TRANSLATION/IDENTITY  global
       // motion, skip evaluation of global motion w.r.t to other ref frames in
       // that direction
-      if (cpi->sf.prune_ref_frame_for_gm_search && past_frame == 0 &&
-          cm->global_motion[frame].wmtype != ROTZOOM)
-        break;
+
+      if (cm->global_motion[frame].wmtype != ROTZOOM) {
+        // If prune_ref_frame_for_gm_search == 1, prune the subsequent ref
+        // frames based on the valid farthest ref frame
+        if (cpi->sf.prune_ref_frame_for_gm_search == 1 &&
+            past_ref_frame[past_frame].use_ref_for_pruning == 1)
+          break;
+        // If prune_ref_frame_for_gm_search == 2, prune the subsequent
+        // ref frames based on the farthest ref frame
+        if (cpi->sf.prune_ref_frame_for_gm_search == 2 && past_frame == 0)
+          break;
+      }
     }
 
     // Compute global motion w.r.t. future reference frames
@@ -5184,9 +5224,17 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
       // If farthest ref frame yields INVALID/TRANSLATION/IDENTITY  global
       // motion, skip evaluation of global motion w.r.t to other ref frames in
       // that direction
-      if (cpi->sf.prune_ref_frame_for_gm_search && future_frame == 0 &&
-          cm->global_motion[frame].wmtype != ROTZOOM)
-        break;
+      if (cm->global_motion[frame].wmtype != ROTZOOM) {
+        // If prune_ref_frame_for_gm_search == 1, prune the subsequent ref
+        // frames based on the valid farthest ref frame
+        if (cpi->sf.prune_ref_frame_for_gm_search == 1 &&
+            future_ref_frame[future_frame].use_ref_for_pruning == 1)
+          break;
+        // If prune_ref_frame_for_gm_search == 2, prune the subsequent
+        // ref frames based on the farthest ref frame
+        if (cpi->sf.prune_ref_frame_for_gm_search == 2 && future_frame == 0)
+          break;
+      }
     }
     aom_free(segment_map);
 

@@ -6104,8 +6104,11 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
   cpi->refresh_bwd_ref_frame = frame_params->refresh_bwd_ref_frame;
   cpi->refresh_alt_ref_frame = frame_params->refresh_alt_ref_frame;
 
-  if (current_frame->frame_type == KEY_FRAME && cm->show_frame)
+  if (current_frame->frame_type == KEY_FRAME && cm->show_frame) {
     current_frame->frame_number = 0;
+    cpi->cur_src_alt_ref_order_hint = 0;
+    cpi->prev_src_alt_ref_order_hint = 0;
+  }
 
   if (cm->show_existing_frame) {
     current_frame->order_hint = cm->cur_frame->order_hint;
