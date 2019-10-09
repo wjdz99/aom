@@ -169,11 +169,8 @@ typedef struct TplDepStats {
   int64_t recrf_dist;
   int64_t srcrf_rate;
   int64_t recrf_rate;
-  int64_t mc_dep_delta;
   int64_t mc_dep_rate;
   int64_t mc_dep_dist;
-  int64_t src_rdcost;
-  int64_t rec_rdcost;
   int_mv mv;
   int ref_frame_index;
   int64_t mc_count;
