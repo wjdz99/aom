@@ -59,6 +59,11 @@ void av1_foreach_transformed_block(const MACROBLOCKD *const xd,
 
 void av1_encode_sby_pass1(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize);
 
+#if CONFIG_VQ4X4
+void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
+                   BLOCK_SIZE plane_bsize, TX_SIZE tx_size);
+#endif
+
 void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
                      int blk_row, int blk_col, BLOCK_SIZE plane_bsize,
                      TX_SIZE tx_size, TX_TYPE tx_type,

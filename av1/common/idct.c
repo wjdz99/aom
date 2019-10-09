@@ -521,6 +521,59 @@ void av1_inv_txfm_add_c(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
   }
 }
 
+#if CONFIG_VQ4X4
+// Reconstruction of vector quantized block
+void av1_vec_dequant_add(const MACROBLOCKD *xd, int plane, int blk_row,
+                         int blk_col, uint8_t *dst, int stride,
+                         TX_SIZE tx_size) {
+  (void)plane;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  const int blk_idx = av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
+  int gain_sign = mbmi->gain_sign[blk_idx];
+  int qgain_idx = mbmi->qgain_idx[blk_idx];
+  int shape_idx = mbmi->shape_idx[blk_idx];
+  int16_t gain = gain_sign ? vq_gain_vals[qgain_idx] : -vq_gain_vals[qgain_idx];
+  const int txw = tx_size_wide[tx_size];
+  const int txh = tx_size_high[tx_size];
+
+#if VQ_BLOCK_DEBUG
+  fprintf(stderr, "[inv] Block size %dx%d\nPredicted block:\n", txh, txw);
+  for (int r = 0; r < txh; ++r) {
+    for (int c = 0; c < txw; ++c) {
+      fprintf(stderr, "%d ", dst[r * stride + c]);
+    }
+    fprintf(stderr, "\n");
+  }
+#endif
+
+  if (gain == 0) return;
+  const int32_t *shape_cw = shape_4x4[shape_idx];
+  for (int i = 0; i < txh; ++i)
+    for (int j = 0; j < txw; ++j)
+      dst[i * stride + j] +=
+          (uint8_t)round_shift(shape_cw[i * txw + j] * gain, 8);
+
+#if VQ_BLOCK_DEBUG
+  fprintf(stderr, "Gain = %d\n", gain);
+  fprintf(stderr, "Codeword: %d\n", shape_idx);
+  fprintf(stderr, "Reconstructed residue:\n");
+  for (int r = 0; r < txh; ++r) {
+    for (int c = 0; c < txw; ++c) {
+      fprintf(stderr, "%d ", round_shift(shape_cw[r * txw + c] * gain, 8));
+    }
+    fprintf(stderr, "\n");
+  }
+  fprintf(stderr, "Reconstructed block:\n");
+  for (int r = 0; r < txh; ++r) {
+    for (int c = 0; c < txw; ++c) {
+      fprintf(stderr, "%d ", dst[r * stride + c]);
+    }
+    fprintf(stderr, "\n");
+  }
+#endif
+}
+#endif  // CONFIG_VQ4X4
+
 void av1_inverse_transform_block(const MACROBLOCKD *xd,
                                  const tran_low_t *dqcoeff, int plane,
                                  TX_TYPE tx_type, TX_SIZE tx_size, uint8_t *dst,

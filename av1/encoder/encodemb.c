@@ -133,6 +133,77 @@ static AV1_QUANT_FACADE
       { NULL, NULL }
     };
 
+#if CONFIG_VQ4X4
+// gain-shape vector quantization
+void av1_vec_quant(MACROBLOCK *x, int plane, int blk_row, int blk_col,
+                   BLOCK_SIZE plane_bsize, TX_SIZE tx_size) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  const struct macroblock_plane *const p = &x->plane[plane];
+  const int diff_stride = block_size_wide[plane_bsize];
+  // txb_w and txb_h must be 4 for now
+  const int txb_w = tx_size_wide[tx_size];
+  const int txb_h = tx_size_high[tx_size];
+  int best_shape_idx = 0;
+  int best_gain_sign = 0;
+  int best_qgain_idx = 0;
+  int32_t best_corr = INT_MIN;
+
+  const int src_offset = blk_row * diff_stride + blk_col;
+  const int16_t *src_diff = &p->src_diff[src_offset << tx_size_wide_log2[0]];
+
+  uint64_t gain_sq =
+      aom_sum_squares_2d_i16(src_diff, diff_stride, txb_w, txb_h);
+  // Due to the sqrt function, this quantity already has quantization error
+  // Maximum value of gain = sqrt(255^2 * 16) ~= 1020
+  int qgain_idx = vq_gain_sqrt_quant(gain_sq);
+
+  if (qgain_idx == 0) {
+    best_corr = 0;
+  } else {
+    for (int cw = 0; cw < VQ_SHAPES; ++cw) {
+      int32_t corr = 0;
+      // The best shape codeword is the one having the largest absolute dot
+      // product with the block. Let x and y be unit-norm residue and
+      // codeword, and let gain be the norm of x, then,
+      //   src_diff = gain * x
+      //   shape_4x4 = 2^8 * y
+      //   corr = dot(shape_4x4, src_diff)
+      //        = 2^8 * g * dot(x, y)
+      for (int r = 0; r < txb_h; ++r)
+        for (int c = 0; c < txb_w; ++c)
+          corr += shape_4x4[cw][r * txb_w + c] * src_diff[r * diff_stride + c];
+
+      if (abs(corr) > best_corr) {
+        best_corr = abs(corr);
+        best_gain_sign = corr > 0;
+        best_qgain_idx = qgain_idx;
+        best_shape_idx = cw;
+      }
+    }
+  }
+
+  update_cw_array(mbmi->gain_sign, mbmi->qgain_idx, mbmi->shape_idx,
+                  plane_bsize, blk_row, blk_col, best_gain_sign, best_qgain_idx,
+                  best_shape_idx);
+
+#if VQ_BLOCK_DEBUG
+  int16_t best_qgain = best_gain_sign ? vq_gain_vals[best_qgain_idx]
+                                      : -vq_gain_vals[best_qgain_idx];
+  fprintf(stderr, "[fwd] Block size %dx%d\nResidue:\n", txb_h, txb_w);
+  for (int r = 0; r < txb_h; ++r) {
+    for (int c = 0; c < txb_w; ++c) {
+      fprintf(stderr, "%d ", src_diff[r * diff_stride + c]);
+    }
+    fprintf(stderr, "\n");
+  }
+  fprintf(stderr, "Gain^2 = %ld\n", gain_sq);
+  fprintf(stderr, "Quantized gain = %d\n", best_qgain);
+  fprintf(stderr, "Best shape: %d\n", best_shape_idx);
+#endif
+}
+#endif
+
 void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
                      int blk_row, int blk_col, BLOCK_SIZE plane_bsize,
                      TX_SIZE tx_size, TX_TYPE tx_type,
@@ -230,48 +301,67 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   a = &args->ta[blk_col];
   l = &args->tl[blk_row];
 
-  if (!is_blk_skip(x, plane, blk_row * bw + blk_col) && !mbmi->skip_mode) {
-    TX_TYPE tx_type = av1_get_tx_type(pd->plane_type, xd, blk_row, blk_col,
-                                      tx_size, cm->reduced_tx_set_used);
-    if (args->enable_optimize_b != NO_TRELLIS_OPT) {
-      av1_xform_quant(
-          cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size, tx_type,
-          USE_B_QUANT_NO_TRELLIS &&
-                  (args->enable_optimize_b == FINAL_PASS_TRELLIS_OPT)
-              ? AV1_XFORM_QUANT_B
-              : AV1_XFORM_QUANT_FP);
-      TXB_CTX txb_ctx;
-      get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
-      av1_optimize_b(args->cpi, x, plane, block, tx_size, tx_type, &txb_ctx,
-                     args->cpi->sf.trellis_eob_fast, &dummy_rate_cost);
-    } else {
-      av1_xform_quant(
-          cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size, tx_type,
-          USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP);
-    }
-  } else {
+#if CONFIG_VQ4X4
+  TxSetType tx_set_type = av1_get_ext_tx_set_type(tx_size, is_inter_block(mbmi),
+                                                  cm->reduced_tx_set_used);
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
+    av1_vec_quant(x, plane, blk_row, blk_col, plane_bsize, tx_size);
     p->eobs[block] = 0;
     p->txb_entropy_ctx[block] = 0;
+    av1_set_txb_context(x, plane, block, tx_size, a, l);
+  } else {
+#endif  // CONFIG_VQ4X4
+    if (!is_blk_skip(x, plane, blk_row * bw + blk_col) && !mbmi->skip_mode) {
+      TX_TYPE tx_type = av1_get_tx_type(pd->plane_type, xd, blk_row, blk_col,
+                                        tx_size, cm->reduced_tx_set_used);
+      if (args->enable_optimize_b != NO_TRELLIS_OPT) {
+        av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
+                        tx_size, tx_type,
+                        USE_B_QUANT_NO_TRELLIS && (args->enable_optimize_b ==
+                                                   FINAL_PASS_TRELLIS_OPT)
+                            ? AV1_XFORM_QUANT_B
+                            : AV1_XFORM_QUANT_FP);
+        TXB_CTX txb_ctx;
+        get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
+        av1_optimize_b(args->cpi, x, plane, block, tx_size, tx_type, &txb_ctx,
+                       args->cpi->sf.trellis_eob_fast, &dummy_rate_cost);
+      } else {
+        av1_xform_quant(
+            cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+            tx_type,
+            USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP);
+      }
+    } else {
+      p->eobs[block] = 0;
+      p->txb_entropy_ctx[block] = 0;
+    }
+
+    av1_set_txb_context(x, plane, block, tx_size, a, l);
+#if CONFIG_VQ4X4
   }
 
-  av1_set_txb_context(x, plane, block, tx_size, a, l);
-
-  if (p->eobs[block]) {
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
     *(args->skip) = 0;
+    av1_vec_dequant_add(xd, plane, blk_row, blk_col, dst, pd->dst.stride,
+                        tx_size);
+  } else {
+#endif
+    if (p->eobs[block]) {
+      *(args->skip) = 0;
 
-    TX_TYPE tx_type = av1_get_tx_type(pd->plane_type, xd, blk_row, blk_col,
-                                      tx_size, cm->reduced_tx_set_used);
-    av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
-                                pd->dst.stride, p->eobs[block],
-                                cm->reduced_tx_set_used);
-  }
+      TX_TYPE tx_type = av1_get_tx_type(pd->plane_type, xd, blk_row, blk_col,
+                                        tx_size, cm->reduced_tx_set_used);
+      av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
+                                  pd->dst.stride, p->eobs[block],
+                                  cm->reduced_tx_set_used);
+    }
 
-  // TODO(debargha, jingning): Temporarily disable txk_type check for eob=0
-  // case. It is possible that certain collision in hash index would cause
-  // the assertion failure. To further optimize the rate-distortion
-  // performance, we need to re-visit this part and enable this assert
-  // again.
-  if (p->eobs[block] == 0 && plane == 0) {
+    // TODO(debargha, jingning): Temporarily disable txk_type check for eob=0
+    // case. It is possible that certain collision in hash index would cause
+    // the assertion failure. To further optimize the rate-distortion
+    // performance, we need to re-visit this part and enable this assert
+    // again.
+    if (p->eobs[block] == 0 && plane == 0) {
 #if 0
     if (args->cpi->oxcf.aq_mode == NO_AQ &&
         args->cpi->oxcf.deltaq_mode == NO_DELTA_Q) {
@@ -284,9 +374,12 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
       }
     }
 #endif
-    update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
-                     DCT_DCT);
+      update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
+                       DCT_DCT);
+    }
+#if CONFIG_VQ4X4
   }
+#endif
 
 #if CONFIG_MISMATCH_DEBUG
   if (dry_run == OUTPUT_ENABLED) {
@@ -610,43 +703,64 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   av1_predict_intra_block_facade(cm, xd, plane, blk_col, blk_row, tx_size);
 
   const int bw = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
-  if (plane == 0 && is_blk_skip(x, plane, blk_row * bw + blk_col)) {
+#if CONFIG_VQ4X4
+  TxSetType tx_set_type = av1_get_ext_tx_set_type(tx_size, is_inter_block(mbmi),
+                                                  cm->reduced_tx_set_used);
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
+    av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
+    av1_vec_quant(x, plane, blk_row, blk_col, plane_bsize, tx_size);
     *eob = 0;
     p->txb_entropy_ctx[block] = 0;
   } else {
-    av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
-
-    const ENTROPY_CONTEXT *a = &args->ta[blk_col];
-    const ENTROPY_CONTEXT *l = &args->tl[blk_row];
-    if (args->enable_optimize_b != NO_TRELLIS_OPT) {
-      av1_xform_quant(
-          cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size, tx_type,
-          USE_B_QUANT_NO_TRELLIS &&
-                  (args->enable_optimize_b == FINAL_PASS_TRELLIS_OPT)
-              ? AV1_XFORM_QUANT_B
-              : AV1_XFORM_QUANT_FP);
-      TXB_CTX txb_ctx;
-      get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
-      av1_optimize_b(args->cpi, x, plane, block, tx_size, tx_type, &txb_ctx,
-                     args->cpi->sf.trellis_eob_fast, &dummy_rate_cost);
+#endif  // CONFIG_VQ4X4
+    if (plane == 0 && is_blk_skip(x, plane, blk_row * bw + blk_col)) {
+      *eob = 0;
+      p->txb_entropy_ctx[block] = 0;
     } else {
-      av1_xform_quant(
-          cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size, tx_type,
-          USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP);
+      av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
+
+      const ENTROPY_CONTEXT *a = &args->ta[blk_col];
+      const ENTROPY_CONTEXT *l = &args->tl[blk_row];
+      if (args->enable_optimize_b != NO_TRELLIS_OPT) {
+        av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
+                        tx_size, tx_type,
+                        USE_B_QUANT_NO_TRELLIS && (args->enable_optimize_b ==
+                                                   FINAL_PASS_TRELLIS_OPT)
+                            ? AV1_XFORM_QUANT_B
+                            : AV1_XFORM_QUANT_FP);
+        TXB_CTX txb_ctx;
+        get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
+        av1_optimize_b(args->cpi, x, plane, block, tx_size, tx_type, &txb_ctx,
+                       args->cpi->sf.trellis_eob_fast, &dummy_rate_cost);
+      } else {
+        av1_xform_quant(
+            cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+            tx_type,
+            USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP);
+      }
     }
+#if CONFIG_VQ4X4
   }
 
-  if (*eob) {
-    av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
-                                dst_stride, *eob, cm->reduced_tx_set_used);
-  }
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
+    av1_vec_dequant_add(xd, plane, blk_row, blk_col, dst, dst_stride, tx_size);
+    *(args->skip) = 0;
 
-  // TODO(jingning): Temporarily disable txk_type check for eob=0 case.
-  // It is possible that certain collision in hash index would cause
-  // the assertion failure. To further optimize the rate-distortion
-  // performance, we need to re-visit this part and enable this assert
-  // again.
-  if (*eob == 0 && plane == 0) {
+    if (plane == AOM_PLANE_Y && xd->cfl.store_y)
+      cfl_store_tx(xd, blk_row, blk_col, tx_size, plane_bsize);
+  } else {
+#endif  // CONFIG_VQ4X4
+    if (*eob) {
+      av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
+                                  dst_stride, *eob, cm->reduced_tx_set_used);
+    }
+
+    // TODO(jingning): Temporarily disable txk_type check for eob=0 case.
+    // It is possible that certain collision in hash index would cause
+    // the assertion failure. To further optimize the rate-distortion
+    // performance, we need to re-visit this part and enable this assert
+    // again.
+    if (*eob == 0 && plane == 0) {
 #if 0
     if (args->cpi->oxcf.aq_mode == NO_AQ
         && args->cpi->oxcf.deltaq_mode == NO_DELTA_Q) {
@@ -654,17 +768,20 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
                                                    blk_col)] == DCT_DCT);
     }
 #endif
-    update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
-                     DCT_DCT);
-  }
+      update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
+                       DCT_DCT);
+    }
 
-  // For intra mode, skipped blocks are so rare that transmitting skip=1 is
-  // very expensive.
-  *(args->skip) = 0;
+    // For intra mode, skipped blocks are so rare that transmitting skip=1 is
+    // very expensive.
+    *(args->skip) = 0;
 
-  if (plane == AOM_PLANE_Y && xd->cfl.store_y) {
-    cfl_store_tx(xd, blk_row, blk_col, tx_size, plane_bsize);
+    if (plane == AOM_PLANE_Y && xd->cfl.store_y) {
+      cfl_store_tx(xd, blk_row, blk_col, tx_size, plane_bsize);
+    }
+#if CONFIG_VQ4X4
   }
+#endif
 }
 
 void av1_encode_intra_block_plane(const struct AV1_COMP *cpi, MACROBLOCK *x,

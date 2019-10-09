@@ -228,19 +228,32 @@ static void predict_and_reconstruct_intra_block(
 
   av1_predict_intra_block_facade(cm, xd, plane, col, row, tx_size);
 
-  if (!mbmi->skip) {
+#if CONFIG_VQ4X4
+  TxSetType tx_set_type = av1_get_ext_tx_set_type(tx_size, is_inter_block(mbmi),
+                                                  cm->reduced_tx_set_used);
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
     struct macroblockd_plane *const pd = &xd->plane[plane];
+    uint8_t *dst =
+        &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
+    av1_vec_dequant_add(xd, plane, row, col, dst, pd->dst.stride, tx_size);
+  } else {
+#endif
+    if (!mbmi->skip) {
+      struct macroblockd_plane *const pd = &xd->plane[plane];
 
-    // tx_type will be read out in av1_read_coeffs_txb_facade
-    const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, row, col, tx_size,
-                                            cm->reduced_tx_set_used);
-    eob_info *eob_data = pd->eob_data + xd->txb_offset[plane];
-    if (eob_data->eob) {
-      uint8_t *dst =
-          &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
-      inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
-                              cm->reduced_tx_set_used);
+      // tx_type will be read out in av1_read_coeffs_txb_facade
+      const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, row, col, tx_size,
+                                              cm->reduced_tx_set_used);
+      eob_info *eob_data = pd->eob_data + xd->txb_offset[plane];
+      if (eob_data->eob) {
+        uint8_t *dst =
+            &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
+        inverse_transform_block(xd, plane, tx_type, tx_size, dst,
+                                pd->dst.stride, cm->reduced_tx_set_used);
+      }
+#if CONFIG_VQ4X4
     }
+#endif
   }
   if (plane == AOM_PLANE_Y && store_cfl_required(cm, xd)) {
     cfl_store_tx(xd, row, col, tx_size, mbmi->sb_type);
@@ -256,15 +269,29 @@ static void inverse_transform_inter_block(const AV1_COMMON *const cm,
   PLANE_TYPE plane_type = get_plane_type(plane);
   const struct macroblockd_plane *const pd = &xd->plane[plane];
 
-  // tx_type will be read out in av1_read_coeffs_txb_facade
-  const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col,
-                                          tx_size, cm->reduced_tx_set_used);
+#if CONFIG_VQ4X4
+  TxSetType tx_set_type = av1_get_ext_tx_set_type(
+      tx_size, is_inter_block(xd->mi[0]), cm->reduced_tx_set_used);
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
+    uint8_t *dst =
+        &pd->dst
+             .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
+    av1_vec_dequant_add(xd, plane, blk_row, blk_col, dst, pd->dst.stride,
+                        tx_size);
+  } else {
+#endif
+    // tx_type will be read out in av1_read_coeffs_txb_facade
+    const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col,
+                                            tx_size, cm->reduced_tx_set_used);
 
-  uint8_t *dst =
-      &pd->dst
-           .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
-  inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
-                          cm->reduced_tx_set_used);
+    uint8_t *dst =
+        &pd->dst
+             .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
+    inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
+                            cm->reduced_tx_set_used);
+#if CONFIG_VQ4X4
+  }
+#endif
 #if CONFIG_MISMATCH_DEBUG
   int pixel_c, pixel_r;
   BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
