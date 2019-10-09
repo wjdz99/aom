@@ -392,6 +392,12 @@ struct macroblock {
   int intra_tx_type_costs[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
                          [TX_TYPES];
 #endif
+#if CONFIG_VQ4X4
+  int use_vq_costs[INTRA_MODES][2];
+  int vq_gain_costs[VQ_GAIN_LEVELS];
+  int vq_shape_sym1_costs[VQ_SHAPE_SYMBOLS_1];
+  int vq_shape_sym2_costs[VQ_SHAPE_SYMBOLS_1][VQ_SHAPE_SYMBOLS_2];
+#endif
   int angle_delta_cost[DIRECTIONAL_MODES][2 * MAX_ANGLE_DELTA + 1];
   int switchable_restore_cost[RESTORE_SWITCHABLE_TYPES];
   int wiener_restore_cost[2];

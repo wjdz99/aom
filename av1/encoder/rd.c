@@ -60,6 +60,9 @@ static const int use_intra_ext_tx_for_txsize[EXT_TX_SETS_INTRA]
                                               { 1, 1, 1, 1 },  // unused
                                               { 1, 1, 0, 0 },
                                               { 0, 0, 1, 0 },
+#if CONFIG_VQ4X4
+                                              { 1, 0, 0, 0 },
+#endif
                                             };
 
 static const int use_inter_ext_tx_for_txsize[EXT_TX_SETS_INTER]
@@ -81,6 +84,9 @@ static const int av1_ext_tx_set_idx_to_type[2][AOMMAX(EXT_TX_SETS_INTRA,
       EXT_TX_SET_DTT4_IDTX_1DDCT,
 #endif
       EXT_TX_SET_DTT4_IDTX,
+#if CONFIG_VQ4X4
+      EXT_TX_SET_VQ,
+#endif
   },
   {
       // Inter
@@ -271,6 +277,18 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
   }
 #endif
 #endif
+
+#if CONFIG_VQ4X4
+  for (j = 0; j < INTRA_MODES; j++) {
+    av1_cost_tokens_from_cdf(x->use_vq_costs[j], fc->use_vq_cdf[j], NULL);
+  }
+  av1_cost_tokens_from_cdf(x->vq_gain_costs, fc->vq_gain_cdf, NULL);
+  av1_cost_tokens_from_cdf(x->vq_shape_sym1_costs, fc->vq_shape_sym1_cdf, NULL);
+  for (i = 0; i < VQ_SHAPE_SYMBOLS_1; i++)
+    av1_cost_tokens_from_cdf(x->vq_shape_sym2_costs[i],
+                             fc->vq_shape_sym2_cdf[i], NULL);
+#endif
+
   for (i = 0; i < DIRECTIONAL_MODES; ++i) {
     av1_cost_tokens_from_cdf(x->angle_delta_cost[i], fc->angle_delta_cdf[i],
                              NULL);

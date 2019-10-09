@@ -521,6 +521,12 @@ typedef struct FRAME_COUNTS {
   unsigned int intra_ext_tx[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
                            [TX_TYPES];
 #endif
+#if CONFIG_VQ4X4
+  unsigned int use_vq[INTRA_MODES][2];
+  unsigned int vq_gain_symbol[VQ_GAIN_LEVELS];
+  unsigned int vq_shape_sym1[VQ_SHAPE_SYMBOLS_1];
+  unsigned int vq_shape_sym2[VQ_SHAPE_SYMBOLS_1][VQ_SHAPE_SYMBOLS_2];
+#endif
   unsigned int filter_intra_mode[FILTER_INTRA_MODES];
   unsigned int filter_intra[BLOCK_SIZES_ALL][2];
 #if CONFIG_ADAPT_FILTER_INTRA

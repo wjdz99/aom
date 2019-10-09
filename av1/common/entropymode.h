@@ -252,6 +252,13 @@ typedef struct frame_contexts {
   aom_cdf_prob inter_ext_tx_cdf[EXT_TX_SETS_INTER][EXT_TX_SIZES]
                                [CDF_SIZE(TX_TYPES)];
 #endif  // CONFIG_MODE_DEP_TX
+#if CONFIG_VQ4X4
+  aom_cdf_prob use_vq_cdf[INTRA_MODES][CDF_SIZE(2)];
+  aom_cdf_prob vq_gain_cdf[CDF_SIZE(VQ_GAIN_LEVELS)];
+  aom_cdf_prob vq_shape_sym1_cdf[CDF_SIZE(VQ_SHAPE_SYMBOLS_1)];
+  aom_cdf_prob vq_shape_sym2_cdf[VQ_SHAPE_SYMBOLS_1]
+                                [CDF_SIZE(VQ_SHAPE_SYMBOLS_2)];
+#endif
   aom_cdf_prob cfl_sign_cdf[CDF_SIZE(CFL_JOINT_SIGNS)];
   aom_cdf_prob cfl_alpha_cdf[CFL_ALPHA_CONTEXTS][CDF_SIZE(CFL_ALPHABET_SIZE)];
   int initialized;
@@ -268,6 +275,9 @@ static const int av1_ext_tx_ind[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 5, 6, 4, 0, 0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0 },
   { 3, 4, 5, 8, 6, 7, 9, 10, 11, 0, 1, 2, 0, 0, 0, 0 },
   { 7, 8, 9, 12, 10, 11, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6 },
+#if CONFIG_VQ4X4
+  { 1, 5, 6, 4, 0, 0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0 },
+#endif
 };
 
 #if CONFIG_MODE_DEP_TX
@@ -281,6 +291,9 @@ static const int av1_ext_tx_inv[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 9, 0, 10, 11, 3, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
   { 9, 10, 11, 0, 1, 2, 4, 5, 3, 6, 7, 8, 0, 0, 0, 0 },
   { 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 4, 5, 3, 6, 7, 8 },
+#if CONFIG_VQ4X4
+  { 9, 0, 10, 11, 3, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+#endif
 };
 
 void av1_set_default_ref_deltas(int8_t *ref_deltas);

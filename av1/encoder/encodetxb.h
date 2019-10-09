@@ -55,6 +55,13 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
                           aom_writer *w, int blk_row, int blk_col, int plane,
                           TX_SIZE tx_size, const tran_low_t *tcoeff,
                           uint16_t eob, TXB_CTX *txb_ctx);
+#if CONFIG_VQ4X4
+int get_vq_cost(MACROBLOCK *x, int plane, int blk_row, int blk_col,
+                BLOCK_SIZE plane_bsize, TX_SIZE tx_size);
+void av1_write_vq_txb(const MACROBLOCKD *xd, aom_writer *w, int blk_row,
+                      int blk_col, int plane, TX_SIZE tx_size,
+                      TXB_CTX *txb_ctx);
+#endif
 void av1_write_coeffs_mb(const AV1_COMMON *const cm, MACROBLOCK *x, int mi_row,
                          int mi_col, aom_writer *w, BLOCK_SIZE bsize);
 int av1_get_txb_entropy_context(const tran_low_t *qcoeff,

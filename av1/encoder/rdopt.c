@@ -2049,6 +2049,7 @@ static void inverse_transform_block_facade(MACROBLOCKD *xd, int plane,
 
 static int find_tx_size_rd_info(TXB_RD_RECORD *cur_record, const uint32_t hash);
 
+#if !CONFIG_VQ4X4
 static uint32_t get_intra_txb_hash(MACROBLOCK *x, int plane, int blk_row,
                                    int blk_col, BLOCK_SIZE plane_bsize,
                                    TX_SIZE tx_size) {
@@ -2072,6 +2073,7 @@ static uint32_t get_intra_txb_hash(MACROBLOCK *x, int plane, int blk_row,
   const uint32_t hash = av1_get_crc32c_value(crc, hash_data, 2 * txb_w * txb_h);
   return (hash << 5) + tx_size;
 }
+#endif  // !CONFIG_VQ4X4
 
 static INLINE void dist_block_tx_domain(MACROBLOCK *x, int plane, int block,
                                         TX_SIZE tx_size, int64_t *out_dist,
@@ -2137,12 +2139,54 @@ static INLINE int64_t dist_block_px_domain(const AV1_COMP *cpi, MACROBLOCK *x,
   }
 
   const PLANE_TYPE plane_type = get_plane_type(plane);
-  TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col, tx_size,
-                                    cpi->common.reduced_tx_set_used);
-  av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, recon,
-                              MAX_TX_SIZE, eob,
-                              cpi->common.reduced_tx_set_used);
-
+#if CONFIG_VQ4X4
+  TxSetType tx_set_type = av1_get_ext_tx_set_type(
+      tx_size, is_inter_block(xd->mi[0]), cpi->common.reduced_tx_set_used);
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  const int blk_idx = av1_get_txk_type_index(plane_bsize, blk_row, blk_col);
+  int use_vq = mbmi->use_vq[blk_idx];
+#if VQ_BLOCK_DEBUG
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
+    fprintf(stderr, "[pxdist] plane %d use_vq %d\nSrc:\n", plane, use_vq);
+    for (int r = 0; r < 4; ++r) {
+      for (int c = 0; c < 4; ++c) {
+        fprintf(stderr, "%d ", src[r * src_stride + c]);
+      }
+      fprintf(stderr, "\n");
+    }
+    fprintf(stderr, "Dst\n");
+    for (int r = 0; r < 4; ++r) {
+      for (int c = 0; c < 4; ++c) {
+        fprintf(stderr, "%d ", dst[r * dst_stride + c]);
+      }
+      fprintf(stderr, "\n");
+    }
+  }
+#endif
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0 && use_vq) {
+    av1_vec_dequant_add(xd, plane, blk_row, blk_col, recon, MAX_TX_SIZE,
+                        tx_size);
+  } else {
+#endif
+    TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col, tx_size,
+                                      cpi->common.reduced_tx_set_used);
+    av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, recon,
+                                MAX_TX_SIZE, eob,
+                                cpi->common.reduced_tx_set_used);
+#if CONFIG_VQ4X4
+  }
+#if VQ_BLOCK_DEBUG
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
+    fprintf(stderr, "Recon:\n");
+    for (int r = 0; r < 4; ++r) {
+      for (int c = 0; c < 4; ++c) {
+        fprintf(stderr, "%d ", recon[r * MAX_TX_SIZE + c]);
+      }
+      fprintf(stderr, "\n");
+    }
+  }
+#endif
+#endif
   return 16 * pixel_dist(cpi, x, plane, src, src_stride, recon, MAX_TX_SIZE,
                          blk_row, blk_col, plane_bsize, tx_bsize);
 }
@@ -3007,6 +3051,11 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
   TXB_RD_INFO *intra_txb_rd_info = NULL;
   uint16_t cur_joint_ctx = 0;
+  skip_trellis |=
+      cpi->optimize_seg_arr[mbmi->segment_id] == NO_TRELLIS_OPT ||
+      cpi->optimize_seg_arr[mbmi->segment_id] == FINAL_PASS_TRELLIS_OPT;
+#if !CONFIG_VQ4X4
+  // use_intra_txb_has is temporarily disabled in VQ4X4
   const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
   const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
   const int within_border =
@@ -3014,9 +3063,6 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       (mi_row + mi_size_high[plane_bsize] < xd->tile.mi_row_end) &&
       mi_col >= xd->tile.mi_col_start &&
       (mi_col + mi_size_wide[plane_bsize] < xd->tile.mi_col_end);
-  skip_trellis |=
-      cpi->optimize_seg_arr[mbmi->segment_id] == NO_TRELLIS_OPT ||
-      cpi->optimize_seg_arr[mbmi->segment_id] == FINAL_PASS_TRELLIS_OPT;
   if (within_border && cpi->sf.use_intra_txb_hash && frame_is_intra_only(cm) &&
       !is_inter && plane == 0 &&
       tx_size_wide[tx_size] == tx_size_high[tx_size]) {
@@ -3051,6 +3097,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       }
     }
   }
+#endif  // !CONFIG_VQ4X4
 
   int rate_cost = 0;
   // if txk_allowed = TX_TYPES, >1 tx types are allowed, else, if txk_allowed <
@@ -3193,6 +3240,12 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   assert(IMPLIES(txk_allowed < TX_TYPES, allowed_tx_mask == 1 << txk_allowed));
 #endif
 
+#if CONFIG_VQ4X4 && VQ_RD_DEBUG
+  if (tx_size == TX_4X4)
+    fprintf(stderr, "======\nPlane %d blk_row %d blk_col %d\n", plane, blk_row,
+            blk_col);
+#endif
+
   for (int idx = 0; idx < TX_TYPES; ++idx) {
 #if CONFIG_MODE_DEP_TX
     const TX_TYPE tx_type = idx < 16 ? (TX_TYPE)txk_map[idx] : (TX_TYPE)idx;
@@ -3204,6 +3257,10 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
 #endif
 
+#if CONFIG_VQ4X4
+    if (tx_set_type == EXT_TX_SET_VQ && plane == 0)
+      mbmi->use_vq[txk_type_idx] = 0;
+#endif
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
@@ -3281,6 +3338,12 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     const int64_t rd =
         RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
 
+#if CONFIG_VQ4X4 && VQ_RD_DEBUG
+    if (tx_size == TX_4X4)
+      fprintf(stderr, "  RD tx_type %d [%ld, %d, %ld, %ld]\n", tx_type,
+              this_rd_stats.sse, this_rd_stats.rate, this_rd_stats.dist, rd);
+#endif
+
     if (rd < best_rd) {
       best_rd = rd;
       *best_rd_stats = this_rd_stats;
@@ -3349,6 +3412,41 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     if (cpi->sf.tx_type_search.skip_tx_search && !best_eob) break;
   }
 
+#if CONFIG_VQ4X4
+  if (tx_set_type == EXT_TX_SET_VQ && plane == 0) {
+    RD_STATS this_rd_stats;
+    av1_invalid_rd_stats(&this_rd_stats);
+
+    av1_vec_quant(x, plane, blk_row, blk_col, plane_bsize, tx_size);
+
+    rate_cost = get_vq_cost(x, plane, blk_row, blk_col, plane_bsize, tx_size);
+    // set use_vq to 1 so dist_block_px_domain computes the distortion with VQ
+    mbmi->use_vq[txk_type_idx] = 1;
+    this_rd_stats.dist = dist_block_px_domain(cpi, x, plane, plane_bsize, block,
+                                              blk_row, blk_col, tx_size);
+    this_rd_stats.sse = block_sse;
+    this_rd_stats.rate = rate_cost;
+
+    const int64_t rd =
+        RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
+#if VQ_RD_DEBUG
+    if (tx_size == TX_4X4)
+      fprintf(stderr, "  RD vq [%ld, %d, %ld, %ld]\n", block_sse, rate_cost,
+              this_rd_stats.dist, rd);
+#endif
+
+    if (rd < best_rd) {
+      *best_rd_stats = this_rd_stats;
+      x->plane[plane].txb_entropy_ctx[block] = 0;  // not used
+      x->plane[plane].eobs[block] = 0;             // not used
+      pd->dqcoeff = orig_dqcoeff;
+      return rd;
+    } else {
+      mbmi->use_vq[txk_type_idx] = 0;
+    }
+  }
+#endif  // CONFIG_VQ4X4
+
   assert(best_rd != INT64_MAX);
 
   best_rd_stats->skip = best_eob == 0;
@@ -3379,7 +3477,9 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     if (plane == 0) intra_txb_rd_info->tx_type = best_tx_type;
   }
 
+#if !CONFIG_VQ4X4
 RECON_INTRA:
+#endif
   if (!is_inter && best_eob &&
       (blk_row + tx_size_high_unit[tx_size] < mi_size_high[plane_bsize] ||
        blk_col + tx_size_wide_unit[tx_size] < mi_size_wide[plane_bsize])) {
@@ -3387,7 +3487,12 @@ RECON_INTRA:
     // can use it for prediction.
     // if the last search tx_type is the best tx_type, we don't need to
     // do this again
+#if CONFIG_VQ4X4
+    // When VQ has been searched but not chosen, this reconstruction is needed
+    if (best_tx_type != last_tx_type || tx_set_type == EXT_TX_SET_VQ) {
+#else
     if (best_tx_type != last_tx_type) {
+#endif
       if (skip_trellis || (!perform_block_coeff_opt)) {
         av1_xform_quant(
             cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
