@@ -440,61 +440,25 @@ static int64_t signed_rounded_divide(int64_t dividend, int64_t divisor) {
     return (dividend + divisor / 2) / divisor;
 }
 
-static AOM_INLINE void get_proj_subspace(const uint8_t *src8, int width,
-                                         int height, int src_stride,
-                                         const uint8_t *dat8, int dat_stride,
-                                         int use_highbitdepth, int32_t *flt0,
-                                         int flt0_stride, int32_t *flt1,
-                                         int flt1_stride, int *xq,
-                                         const sgr_params_type *params) {
-  int i, j;
-  int64_t H[2][2] = { { 0, 0 }, { 0, 0 } };
-  int64_t C[2] = { 0, 0 };
+static AOM_INLINE void calc_proj_params_r0_r1_c(
+    const uint8_t *src8, int width, int height, int src_stride,
+    const uint8_t *dat8, int dat_stride, int32_t *flt0, int flt0_stride,
+    int32_t *flt1, int flt1_stride, int64_t H[2][2], int64_t C[2]) {
   const int size = width * height;
-
-  // Default values to be returned if the problem becomes ill-posed
-  xq[0] = 0;
-  xq[1] = 0;
-
-  if (!use_highbitdepth) {
-    const uint8_t *src = src8;
-    const uint8_t *dat = dat8;
-    for (i = 0; i < height; ++i) {
-      for (j = 0; j < width; ++j) {
-        const int32_t u =
-            (int32_t)(dat[i * dat_stride + j] << SGRPROJ_RST_BITS);
-        const int32_t s =
-            (int32_t)(src[i * src_stride + j] << SGRPROJ_RST_BITS) - u;
-        const int32_t f1 =
-            (params->r[0] > 0) ? (int32_t)flt0[i * flt0_stride + j] - u : 0;
-        const int32_t f2 =
-            (params->r[1] > 0) ? (int32_t)flt1[i * flt1_stride + j] - u : 0;
-        H[0][0] += (int64_t)f1 * f1;
-        H[1][1] += (int64_t)f2 * f2;
-        H[0][1] += (int64_t)f1 * f2;
-        C[0] += (int64_t)f1 * s;
-        C[1] += (int64_t)f2 * s;
-      }
-    }
-  } else {
-    const uint16_t *src = CONVERT_TO_SHORTPTR(src8);
-    const uint16_t *dat = CONVERT_TO_SHORTPTR(dat8);
-    for (i = 0; i < height; ++i) {
-      for (j = 0; j < width; ++j) {
-        const int32_t u =
-            (int32_t)(dat[i * dat_stride + j] << SGRPROJ_RST_BITS);
-        const int32_t s =
-            (int32_t)(src[i * src_stride + j] << SGRPROJ_RST_BITS) - u;
-        const int32_t f1 =
-            (params->r[0] > 0) ? (int32_t)flt0[i * flt0_stride + j] - u : 0;
-        const int32_t f2 =
-            (params->r[1] > 0) ? (int32_t)flt1[i * flt1_stride + j] - u : 0;
-        H[0][0] += (int64_t)f1 * f1;
-        H[1][1] += (int64_t)f2 * f2;
-        H[0][1] += (int64_t)f1 * f2;
-        C[0] += (int64_t)f1 * s;
-        C[1] += (int64_t)f2 * s;
-      }
+  const uint8_t *src = src8;
+  const uint8_t *dat = dat8;
+  for (int i = 0; i < height; ++i) {
+    for (int j = 0; j < width; ++j) {
+      const int32_t u = (int32_t)(dat[i * dat_stride + j] << SGRPROJ_RST_BITS);
+      const int32_t s =
+          (int32_t)(src[i * src_stride + j] << SGRPROJ_RST_BITS) - u;
+      const int32_t f1 = (int32_t)flt0[i * flt0_stride + j] - u;
+      const int32_t f2 = (int32_t)flt1[i * flt1_stride + j] - u;
+      H[0][0] += (int64_t)f1 * f1;
+      H[1][1] += (int64_t)f2 * f2;
+      H[0][1] += (int64_t)f1 * f2;
+      C[0] += (int64_t)f1 * s;
+      C[1] += (int64_t)f2 * s;
     }
   }
   H[0][0] /= size;
@@ -503,6 +467,128 @@ static AOM_INLINE void get_proj_subspace(const uint8_t *src8, int width,
   H[1][0] = H[0][1];
   C[0] /= size;
   C[1] /= size;
+}
+
+static AOM_INLINE void calc_proj_params_r0_c(const uint8_t *src8, int width,
+                                             int height, int src_stride,
+                                             const uint8_t *dat8,
+                                             int dat_stride, int32_t *flt0,
+                                             int flt0_stride, int64_t H[2][2],
+                                             int64_t C[2]) {
+  const int size = width * height;
+  const uint8_t *src = src8;
+  const uint8_t *dat = dat8;
+  for (int i = 0; i < height; ++i) {
+    for (int j = 0; j < width; ++j) {
+      const int32_t u = (int32_t)(dat[i * dat_stride + j] << SGRPROJ_RST_BITS);
+      const int32_t s =
+          (int32_t)(src[i * src_stride + j] << SGRPROJ_RST_BITS) - u;
+      const int32_t f1 = (int32_t)flt0[i * flt0_stride + j] - u;
+      H[0][0] += (int64_t)f1 * f1;
+      C[0] += (int64_t)f1 * s;
+    }
+  }
+  H[0][0] /= size;
+  C[0] /= size;
+}
+
+static AOM_INLINE void calc_proj_params_r1_c(const uint8_t *src8, int width,
+                                             int height, int src_stride,
+                                             const uint8_t *dat8,
+                                             int dat_stride, int32_t *flt1,
+                                             int flt1_stride, int64_t H[2][2],
+                                             int64_t C[2]) {
+  const int size = width * height;
+  const uint8_t *src = src8;
+  const uint8_t *dat = dat8;
+  for (int i = 0; i < height; ++i) {
+    for (int j = 0; j < width; ++j) {
+      const int32_t u = (int32_t)(dat[i * dat_stride + j] << SGRPROJ_RST_BITS);
+      const int32_t s =
+          (int32_t)(src[i * src_stride + j] << SGRPROJ_RST_BITS) - u;
+      const int32_t f2 = (int32_t)flt1[i * flt1_stride + j] - u;
+      H[1][1] += (int64_t)f2 * f2;
+      C[1] += (int64_t)f2 * s;
+    }
+  }
+  H[1][1] /= size;
+  C[1] /= size;
+}
+
+// The function calls 3 subfunctions for the following cases :
+// 1) When params->r[0] > 0 and params->r[1] > 0. In this case all elements
+// of C and H need to be computed.
+// 2) When only params->r[0] > 0. In this case only H[0][0] and C[0] are
+// non-zero and need to be computed.
+// 3) When only params->r[1] > 0. In this case only H[1][1] and C[1] are
+// non-zero and need to be computed.
+void av1_calc_proj_params_c(const uint8_t *src8, int width, int height,
+                            int src_stride, const uint8_t *dat8, int dat_stride,
+                            int32_t *flt0, int flt0_stride, int32_t *flt1,
+                            int flt1_stride, int64_t H[2][2], int64_t C[2],
+                            const sgr_params_type *params) {
+  if ((params->r[0] > 0) && (params->r[1] > 0)) {
+    calc_proj_params_r0_r1_c(src8, width, height, src_stride, dat8, dat_stride,
+                             flt0, flt0_stride, flt1, flt1_stride, H, C);
+  } else if (params->r[0] > 0) {
+    calc_proj_params_r0_c(src8, width, height, src_stride, dat8, dat_stride,
+                          flt0, flt0_stride, H, C);
+  } else if (params->r[1] > 0) {
+    calc_proj_params_r1_c(src8, width, height, src_stride, dat8, dat_stride,
+                          flt1, flt1_stride, H, C);
+  }
+}
+
+static AOM_INLINE void get_proj_subspace(
+    const uint8_t *src8, int width, int height, int src_stride,
+    const uint8_t *dat8, int dat_stride, int use_highbitdepth, int32_t *flt0,
+    int flt0_stride, int32_t *flt1, int flt1_stride, int *xq,
+    const sgr_params_type *params, int is_uv) {
+  int64_t H[2][2] = { { 0, 0 }, { 0, 0 } };
+  int64_t C[2] = { 0, 0 };
+
+  // Default values to be returned if the problem becomes ill-posed
+  xq[0] = 0;
+  xq[1] = 0;
+
+  if (!use_highbitdepth) {
+    if (((width & 0x7) == 0) && is_uv == 0) {
+      av1_calc_proj_params(src8, width, height, src_stride, dat8, dat_stride,
+                           flt0, flt0_stride, flt1, flt1_stride, H, C, params);
+    } else {
+      av1_calc_proj_params_c(src8, width, height, src_stride, dat8, dat_stride,
+                             flt0, flt0_stride, flt1, flt1_stride, H, C,
+                             params);
+    }
+  } else {
+    const int size = width * height;
+    const uint16_t *src = CONVERT_TO_SHORTPTR(src8);
+    const uint16_t *dat = CONVERT_TO_SHORTPTR(dat8);
+    for (int i = 0; i < height; ++i) {
+      for (int j = 0; j < width; ++j) {
+        const int32_t u =
+            (int32_t)(dat[i * dat_stride + j] << SGRPROJ_RST_BITS);
+        const int32_t s =
+            (int32_t)(src[i * src_stride + j] << SGRPROJ_RST_BITS) - u;
+        const int32_t f1 =
+            (params->r[0] > 0) ? (int32_t)flt0[i * flt0_stride + j] - u : 0;
+        const int32_t f2 =
+            (params->r[1] > 0) ? (int32_t)flt1[i * flt1_stride + j] - u : 0;
+        H[0][0] += (int64_t)f1 * f1;
+        H[1][1] += (int64_t)f2 * f2;
+        H[0][1] += (int64_t)f1 * f2;
+        C[0] += (int64_t)f1 * s;
+        C[1] += (int64_t)f2 * s;
+      }
+    }
+    H[0][0] /= size;
+    H[0][1] /= size;
+    H[1][1] /= size;
+    H[1][0] = H[0][1];
+    C[0] /= size;
+    C[1] /= size;
+  }
+
   if (params->r[0] == 0) {
     // H matrix is now only the scalar H[1][1]
     // C vector is now only the scalar C[1]
@@ -584,7 +670,7 @@ static AOM_INLINE void compute_sgrproj_err(
     const int dat_stride, const uint8_t *src8, const int src_stride,
     const int use_highbitdepth, const int bit_depth, const int pu_width,
     const int pu_height, const int ep, int32_t *flt0, int32_t *flt1,
-    const int flt_stride, int *exqd, int64_t *err) {
+    const int flt_stride, int *exqd, int64_t *err, int is_uv) {
   int exq[2];
   apply_sgr(ep, dat8, width, height, dat_stride, use_highbitdepth, bit_depth,
             pu_width, pu_height, flt0, flt1, flt_stride);
@@ -592,7 +678,7 @@ static AOM_INLINE void compute_sgrproj_err(
   const sgr_params_type *const params = &av1_sgr_params[ep];
   get_proj_subspace(src8, width, height, src_stride, dat8, dat_stride,
                     use_highbitdepth, flt0, flt_stride, flt1, flt_stride, exq,
-                    params);
+                    params, is_uv);
   aom_clear_system_state();
   encode_xq(exq, exqd, params);
   *err = finer_search_pixel_proj_error(
@@ -614,7 +700,8 @@ static AOM_INLINE void get_best_error(int64_t *besterr, const int64_t err,
 static SgrprojInfo search_selfguided_restoration(
     const uint8_t *dat8, int width, int height, int dat_stride,
     const uint8_t *src8, int src_stride, int use_highbitdepth, int bit_depth,
-    int pu_width, int pu_height, int32_t *rstbuf, int enable_sgr_ep_pruning) {
+    int pu_width, int pu_height, int32_t *rstbuf, int enable_sgr_ep_pruning,
+    int is_uv) {
   int32_t *flt0 = rstbuf;
   int32_t *flt1 = flt0 + RESTORATION_UNITPELS_MAX;
   int ep, idx, bestep = 0;
@@ -630,7 +717,7 @@ static SgrprojInfo search_selfguided_restoration(
       int64_t err;
       compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
                           use_highbitdepth, bit_depth, pu_width, pu_height, ep,
-                          flt0, flt1, flt_stride, exqd, &err);
+                          flt0, flt1, flt_stride, exqd, &err, is_uv);
       get_best_error(&besterr, err, exqd, bestxqd, &bestep, ep);
     }
   } else {
@@ -640,7 +727,7 @@ static SgrprojInfo search_selfguided_restoration(
       int64_t err;
       compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
                           use_highbitdepth, bit_depth, pu_width, pu_height, ep,
-                          flt0, flt1, flt_stride, exqd, &err);
+                          flt0, flt1, flt_stride, exqd, &err, is_uv);
       get_best_error(&besterr, err, exqd, bestxqd, &bestep, ep);
     }
     // evaluate left and right ep of winner in seed ep
@@ -651,7 +738,7 @@ static SgrprojInfo search_selfguided_restoration(
       int64_t err;
       compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
                           use_highbitdepth, bit_depth, pu_width, pu_height, ep,
-                          flt0, flt1, flt_stride, exqd, &err);
+                          flt0, flt1, flt_stride, exqd, &err, is_uv);
       get_best_error(&besterr, err, exqd, bestxqd, &bestep, ep);
     }
     // evaluate last two group
@@ -660,7 +747,7 @@ static SgrprojInfo search_selfguided_restoration(
       int64_t err;
       compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
                           use_highbitdepth, bit_depth, pu_width, pu_height, ep,
-                          flt0, flt1, flt_stride, exqd, &err);
+                          flt0, flt1, flt_stride, exqd, &err, is_uv);
       get_best_error(&besterr, err, exqd, bestxqd, &bestep, ep);
     }
   }
@@ -718,7 +805,7 @@ static AOM_INLINE void search_sgrproj(const RestorationTileLimits *limits,
       dgd_start, limits->h_end - limits->h_start,
       limits->v_end - limits->v_start, rsc->dgd_stride, src_start,
       rsc->src_stride, highbd, bit_depth, procunit_width, procunit_height,
-      tmpbuf, rsc->sf->enable_sgr_ep_pruning);
+      tmpbuf, rsc->sf->enable_sgr_ep_pruning, is_uv);
 
   RestorationUnitInfo rui;
   rui.restoration_type = RESTORE_SGRPROJ;
