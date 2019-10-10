@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d8cd6fd_a07c9517",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-10-10T16:12:30Z",
+      "side": 1,
+      "message": "We\u0027ll need a third member here: something that denotes that metadata is owned by the library. It would behave like img_data_owner:\n\n- zero when the library does NOT own the memory.\n- non-zero when the library owns the memory.\n\nThis is because the library must be explicit on memory ownership. When the encoder is working with metadata the user application controlling the library (most of the time) will own the metadata (one exception would be an application re-encoding aom_image\u0027s output by the library).\n\nWhen the decoder is working with metadata the library will own the memory-- when it encounters a metadata OBU it will need to allocate storage and copy the contents from the input data to the aom_image.",
+      "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0be38e07_a1c8a5ad",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-10-10T16:12:30Z",
+      "side": 1,
+      "message": "contents",
+      "range": {
+        "startLine": 365,
+        "startChar": 35,
+        "endLine": 365,
+        "endChar": 42
+      },
+      "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1f7be1f_61b20cca",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-10-10T16:12:30Z",
+      "side": 1,
+      "message": "freed",
+      "range": {
+        "startLine": 366,
+        "startChar": 11,
+        "endLine": 366,
+        "endChar": 15
+      },
+      "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "710c5550_5d6e66b5",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-10-10T16:12:30Z",
+      "side": 1,
+      "message": "must be previously",
+      "range": {
+        "startLine": 375,
+        "startChar": 11,
+        "endLine": 375,
+        "endChar": 29
+      },
+      "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f62a80c3_ce5b96f5",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-10-10T16:12:30Z",
+      "side": 1,
+      "message": "This should use the alloc_cb when it has been provided:\n\n- when alloc_cb is available, libaom does not own the memory (don\u0027t free it/don\u0027t set ownership flag)\n- when alloc_cb is unavailable, libaom owns the memory (do free it/do set ownership flag)",
+      "range": {
+        "startLine": 300,
+        "startChar": 47,
+        "endLine": 300,
+        "endChar": 53
+      },
+      "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53e75c4f_4f49dfe6",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-10-10T16:12:30Z",
+      "side": 1,
+      "message": "Much of this could be in another helper (since it\u0027ll likely be needed elsewhere anyway): aom_metadata_copy_array() or something like that.",
+      "range": {
+        "startLine": 196,
+        "startChar": 0,
+        "endLine": 203,
+        "endChar": 7
+      },
+      "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
