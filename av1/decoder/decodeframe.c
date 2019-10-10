@@ -342,6 +342,8 @@ static AOM_INLINE void set_offsets(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
   xd->mi = cm->mi_grid_base + get_mi_grid_idx(cm, mi_row, mi_col);
   xd->mi[0] = &cm->mi[get_alloc_mi_idx(cm, mi_row, mi_col)];
+  xd->tx_type_map = &cm->tx_type_map[mi_row * cm->mi_stride + mi_col];
+  xd->tx_type_map_stride = cm->mi_stride;
   // TODO(slavarnway): Generate sb_type based on bwl and bhl, instead of
   // passing bsize from decode_partition().
   xd->mi[0]->sb_type = bsize;
