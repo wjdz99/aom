@@ -1489,7 +1489,7 @@ static void adjust_arnr_filter(AV1_COMP *cpi, int distance, int group_boost,
   *arnr_strength = estimate_strength(cpi, distance, group_boost, sigma);
 }
 
-void av1_temporal_filter(AV1_COMP *cpi, int distance) {
+int av1_temporal_filter(AV1_COMP *cpi, int distance) {
   RATE_CONTROL *const rc = &cpi->rc;
   int frame;
   int frames_to_blur;
@@ -1504,6 +1504,16 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
   int rdmult = 0;
   double sigma = 0;
 
+  // TODO(yunqing): For INTNL_ARF_UPDATE type, the following me initialization
+  // is used somewhere unexpectedly. Move this here to get bit exact result.
+  // Should be resolved later.
+  // Initialize errorperbit, sadperbit16 and sadperbit4.
+  rdmult = av1_compute_rd_mult_based_on_qindex(cpi, ARNR_FILT_QINDEX);
+  set_error_per_bit(&cpi->td.mb, rdmult);
+  av1_initialize_me_consts(cpi, &cpi->td.mb, ARNR_FILT_QINDEX);
+  av1_fill_mv_costs(cpi->common.fc, cpi->common.cur_frame_force_integer_mv,
+                    cpi->common.allow_high_precision_mv, &cpi->td.mb);
+
   // Apply context specific adjustments to the arnr filter parameters.
   if (gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE) {
     // TODO(weitinglin): Currently, we enforce the filtering strength on
@@ -1511,6 +1521,7 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
     // beneficial to use non-zero strength filtering.
     strength = 0;
     frames_to_blur = 1;
+    return 0;
   } else if (distance == -1) {
     // Apply temporal filtering on key frame.
     strength = estimate_strength(cpi, distance, rc->gfu_boost, &sigma);
@@ -1556,14 +1567,9 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
         frames[0]->y_crop_width, frames[0]->y_crop_height);
   }
 
-  // Initialize errorperbit, sadperbit16 and sadperbit4.
-  rdmult = av1_compute_rd_mult_based_on_qindex(cpi, ARNR_FILT_QINDEX);
-  set_error_per_bit(&cpi->td.mb, rdmult);
-  av1_initialize_me_consts(cpi, &cpi->td.mb, ARNR_FILT_QINDEX);
-  av1_fill_mv_costs(cpi->common.fc, cpi->common.cur_frame_force_integer_mv,
-                    cpi->common.allow_high_precision_mv, &cpi->td.mb);
-
   temporal_filter_iterate_c(cpi, frames, frames_to_blur,
                             frames_to_blur_backward, strength, sigma,
                             distance == -1, &sf);
+
+  return 1;
 }
