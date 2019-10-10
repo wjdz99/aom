@@ -12303,6 +12303,9 @@ static int compound_skip_get_candidates(
       candidates = 1;
     if (mode == NEARMV || mode == GLOBALMV) candidates = 1;
   }
+  if (cpi->sf.prune_comp_search_by_single_result >= 4) {
+    candidates = AOMMIN(1, candidates);
+  }
   return candidates;
 }
 
