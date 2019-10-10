@@ -466,12 +466,18 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
 
       aom_clear_system_state();
 
+#if 0
+      set_mode_info_offsets(cpi, x, xd, mb_row, mb_col);
+#else
       const int grid_idx =
           get_mi_grid_idx(cm, mb_row * mb_scale, mb_col * mb_scale);
       const int mi_idx =
           get_alloc_mi_idx(cm, mb_row * mb_scale, mb_col * mb_scale);
       xd->mi = cm->mi_grid_base + grid_idx;
       xd->mi[0] = cm->mi + mi_idx;
+      xd->tx_type_map = cm->tx_type_map + grid_idx;
+      xd->tx_type_map_stride = cm->mi_stride;
+#endif
       xd->plane[0].dst.buf = new_yv12->y_buffer + recon_yoffset;
       xd->plane[1].dst.buf = new_yv12->u_buffer + recon_uvoffset;
       xd->plane[2].dst.buf = new_yv12->v_buffer + recon_uvoffset;

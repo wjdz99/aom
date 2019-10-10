@@ -601,10 +601,17 @@ static void read_filter_intra_mode_info(const AV1_COMMON *const cm,
 void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd, int blk_row,
                       int blk_col, TX_SIZE tx_size, aom_reader *r) {
   MB_MODE_INFO *mbmi = xd->mi[0];
+#if 1
+  uint8_t *tx_type = &xd->tx_type_map[blk_row * xd->tx_type_map_stride + blk_col];
+  *tx_type = DCT_DCT;
+#else
   const int txk_type_idx =
       av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
   TX_TYPE *tx_type = &mbmi->txk_type[txk_type_idx];
   *tx_type = DCT_DCT;
+  uint8_t *tx_type_map = &xd->tx_type_map[blk_row * xd->mi_stride + blk_col];
+  *tx_type_map = DCT_DCT;
+#endif
 
   // No need to read transform type if block is skipped.
   if (mbmi->skip || segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP))
@@ -641,6 +648,7 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd, int blk_row,
           av1_num_ext_tx_set[tx_set_type], ACCT_STR)];
     }
   }
+  //*tx_type_map = *tx_type;
 }
 
 static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,

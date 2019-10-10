@@ -1000,4 +1000,6 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
       sf->inter_mode_rd_model_estimation_adaptive = 0;
     }
   }
+
+  //sf->inter_mode_rd_model_estimation = 0;
 }

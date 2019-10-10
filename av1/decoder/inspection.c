@@ -116,8 +116,19 @@ int ifd_inspect(insp_frame_data *fd, void *decoder, int skip_not_transform) {
 
       if (skip_not_transform && mi->skip) mi->tx_size = -1;
 
+#if 1
+      if (mi->skip) {
+        const int tx_type_row = j - j % tx_size_high_unit[mi->tx_size];
+        const int tx_type_col = i - i % tx_size_wide_unit[mi->tx_size];
+        const int tx_type_map_idx = tx_type_row * cm->mi_stride + tx_type_col;
+        mi->tx_type = cm->tx_type_map[tx_type_map_idx];
+      } else {
+        mi->tx_type = 0;
+      }
+#else
       mi->tx_type =
           (mi->skip ? 0 : mbmi->txk_type[av1_get_txk_type_index(bsize, r, c)]);
+#endif
       if (skip_not_transform &&
           (mi->skip || mbmi->tx_skip[av1_get_txk_type_index(bsize, r, c)]))
         mi->tx_type = -1;
