@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f92a64eb_a2ec8b3e",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-10-11T00:04:49Z",
+      "side": 1,
+      "message": "Can we suppose all metadata payloads are either owned by libaom or not owned? Your assessment makes sense, then I need to make aom_metadata_array_alloc() know this value for setting the metadata_owner even if it doesn\u0027t use the callback, as the one getting the alloc_cb for each metadata payload should be aom_metadata_alloc().",
+      "parentUuid": "4d8cd6fd_a07c9517",
+      "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0be38e07_a1c8a5ad",
         "filename": "aom/aom_image.h",
         "patchSetId": 8
@@ -111,6 +129,30 @@
     },
     {
       "key": {
+        "uuid": "9ef00334_affd08d4",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-10-11T00:04:49Z",
+      "side": 1,
+      "message": "Then an aom_metadata_alloc_helper() should be created following the aom_img_alloc_helper() behavior, and add our alloc_with_cb function definition inside aom_image_internal.h",
+      "parentUuid": "f62a80c3_ce5b96f5",
+      "range": {
+        "startLine": 300,
+        "startChar": 47,
+        "endLine": 300,
+        "endChar": 53
+      },
+      "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "53e75c4f_4f49dfe6",
         "filename": "av1/encoder/lookahead.c",
         "patchSetId": 8
@@ -122,6 +164,30 @@
       "writtenOn": "2019-10-10T16:12:30Z",
       "side": 1,
       "message": "Much of this could be in another helper (since it\u0027ll likely be needed elsewhere anyway): aom_metadata_copy_array() or something like that.",
+      "range": {
+        "startLine": 196,
+        "startChar": 0,
+        "endLine": 203,
+        "endChar": 7
+      },
+      "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a632ceab_58147bfb",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-10-11T00:04:49Z",
+      "side": 1,
+      "message": "got it, good point",
+      "parentUuid": "53e75c4f_4f49dfe6",
       "range": {
         "startLine": 196,
         "startChar": 0,
