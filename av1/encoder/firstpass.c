@@ -333,7 +333,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   struct macroblock_plane *const p = x->plane;
   struct macroblockd_plane *const pd = xd->plane;
   PICK_MODE_CONTEXT *ctx =
-      av1_alloc_pmc(cm, BLOCK_16X16, &cpi->td.shared_coeff_buf);
+      av1_alloc_pmc(cm, BLOCK_16X16, &cpi->td.shared_coeff_buf, 0, 0, 0);
   int i;
 
   int recon_yoffset, src_yoffset, recon_uvoffset;

@@ -409,7 +409,11 @@ static void set_offsets(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
 static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                               int mi_row, int mi_col, aom_reader *r,
-                              PARTITION_TYPE partition, BLOCK_SIZE bsize) {
+                              PARTITION_TYPE partition,
+#if CONFIG_RECURSIVE_ABPART
+                              PARTITION_TYPE parent_partition,
+#endif
+                              BLOCK_SIZE bsize) {
   AV1_COMMON *const cm = &pbi->common;
   const SequenceHeader *const seq_params = &cm->seq_params;
   const int bw = mi_size_wide[bsize];
@@ -422,6 +426,7 @@ static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #endif
   set_offsets(cm, xd, bsize, mi_row, mi_col, bw, bh, x_mis, y_mis);
   xd->mi[0]->partition = partition;
+  xd->mi[0]->parent_partition = parent_partition;
   av1_read_mode_info(pbi, xd, mi_row, mi_col, r, x_mis, y_mis);
   if (bsize >= BLOCK_8X8 &&
       (seq_params->subsampling_x || seq_params->subsampling_y)) {
@@ -1305,9 +1310,17 @@ static TX_SIZE read_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd, int is_inter,
 
 static void parse_decode_block(AV1Decoder *const pbi, ThreadData *const td,
                                int mi_row, int mi_col, aom_reader *r,
-                               PARTITION_TYPE partition, BLOCK_SIZE bsize) {
+                               PARTITION_TYPE partition,
+#if CONFIG_RECURSIVE_ABPART
+                               PARTITION_TYPE parent_partition,
+#endif
+                               BLOCK_SIZE bsize) {
   MACROBLOCKD *const xd = &td->xd;
-  decode_mbmi_block(pbi, xd, mi_row, mi_col, r, partition, bsize);
+  decode_mbmi_block(pbi, xd, mi_row, mi_col, r, partition,
+#if CONFIG_RECURSIVE_ABPART
+                    parent_partition,
+#endif
+                    bsize);
 
   av1_visit_palette(pbi, xd, mi_row, mi_col, r, bsize,
                     av1_decode_palette_tokens);
@@ -1421,9 +1434,16 @@ static void set_offsets_for_pred_and_recon(AV1Decoder *const pbi,
 
 static void decode_block(AV1Decoder *const pbi, ThreadData *const td,
                          int mi_row, int mi_col, aom_reader *r,
-                         PARTITION_TYPE partition, BLOCK_SIZE bsize) {
+                         PARTITION_TYPE partition,
+#if CONFIG_RECURSIVE_ABPART
+                         PARTITION_TYPE parent_partition,
+#endif
+                         BLOCK_SIZE bsize) {
   (void)partition;
-  set_offsets_for_pred_and_recon(pbi, td, mi_row, mi_col, bsize);
+#if CONFIG_RECURSIVE_ABPART
+  (void)parent_partition,
+#endif
+      set_offsets_for_pred_and_recon(pbi, td, mi_row, mi_col, bsize);
   decode_token_recon_block(pbi, td, mi_row, mi_col, r, bsize);
 }
 
@@ -1458,8 +1478,12 @@ static PARTITION_TYPE read_partition(MACROBLOCKD *xd, int mi_row, int mi_col,
 
 // TODO(slavarnway): eliminate bsize and subsize in future commits
 static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
-                             int mi_row, int mi_col, aom_reader *reader,
-                             BLOCK_SIZE bsize, int parse_decode_flag) {
+                             int mi_row, int mi_col,
+#if CONFIG_RECURSIVE_ABPART
+                             PARTITION_TYPE parent_partition,
+#endif
+                             aom_reader *reader, BLOCK_SIZE bsize,
+                             int parse_decode_flag) {
   assert(bsize < BLOCK_SIZES_ALL);
   AV1_COMMON *const cm = &pbi->common;
   MACROBLOCKD *const xd = &td->xd;
@@ -1506,6 +1530,8 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
     partition = (bsize < BLOCK_8X8) ? PARTITION_NONE
                                     : read_partition(xd, mi_row, mi_col, reader,
                                                      has_rows, has_cols, bsize);
+    // printf("DEC [%d %d] b%d p%d pp%d\n", mi_row, mi_col, bsize, partition,
+    // parent_partition);
   } else {
     partition = get_partition(cm, mi_row, mi_col, bsize);
   }
@@ -1527,6 +1553,15 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
   }
 
 #define DEC_BLOCK_STX_ARG
+#if CONFIG_RECURSIVE_ABPART
+#define DEC_BLOCK_EPT_ARG partition, parent_partition,
+#define DEC_BLOCK(db_r, db_c, db_subsize)                                  \
+  block_visit[parse_decode_flag](pbi, td, DEC_BLOCK_STX_ARG(db_r), (db_c), \
+                                 reader, DEC_BLOCK_EPT_ARG(db_subsize))
+#define DEC_PARTITION(db_r, db_c, db_subsize)                           \
+  decode_partition(pbi, td, DEC_BLOCK_STX_ARG(db_r), (db_c), partition, \
+                   reader, (db_subsize), parse_decode_flag)
+#else
 #define DEC_BLOCK_EPT_ARG partition,
 #define DEC_BLOCK(db_r, db_c, db_subsize)                                  \
   block_visit[parse_decode_flag](pbi, td, DEC_BLOCK_STX_ARG(db_r), (db_c), \
@@ -1534,6 +1569,7 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
 #define DEC_PARTITION(db_r, db_c, db_subsize)                        \
   decode_partition(pbi, td, DEC_BLOCK_STX_ARG(db_r), (db_c), reader, \
                    (db_subsize), parse_decode_flag)
+#endif
 
   const BLOCK_SIZE bsize2 = get_partition_subsize(bsize, PARTITION_SPLIT);
 
@@ -2845,8 +2881,11 @@ static void decode_tile_sb_row(AV1Decoder *pbi, ThreadData *const td,
     sync_read(&tile_data->dec_row_mt_sync, sb_row_in_tile, sb_col_in_tile);
 
     // Decoding of the super-block
-    decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
-                     cm->seq_params.sb_size, 0x2);
+    decode_partition(pbi, td, mi_row, mi_col,
+#if CONFIG_RECURSIVE_ABPART
+                     PARTITION_SPLIT,
+#endif
+                     td->bit_reader, cm->seq_params.sb_size, 0x2);
 
     sync_write(&tile_data->dec_row_mt_sync, sb_row_in_tile, sb_col_in_tile,
                sb_cols_in_tile);
@@ -2920,8 +2959,11 @@ static void decode_tile(AV1Decoder *pbi, ThreadData *const td, int tile_row,
       set_cb_buffer(pbi, &td->xd, &td->cb_buffer_base, num_planes, 0, 0);
 
       // Bit-stream parsing and decoding of the superblock
-      decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
-                       cm->seq_params.sb_size, 0x3);
+      decode_partition(pbi, td, mi_row, mi_col,
+#if CONFIG_RECURSIVE_ABPART
+                       PARTITION_SPLIT,
+#endif
+                       td->bit_reader, cm->seq_params.sb_size, 0x3);
 
       if (aom_reader_has_overflowed(td->bit_reader)) {
         aom_merge_corrupted_flag(&td->xd.corrupted, 1);
@@ -3358,8 +3400,11 @@ static void parse_tile_row_mt(AV1Decoder *pbi, ThreadData *const td,
                     mi_col);
 
       // Bit-stream parsing of the superblock
-      decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
-                       cm->seq_params.sb_size, 0x1);
+      decode_partition(pbi, td, mi_row, mi_col,
+#if CONFIG_RECURSIVE_ABPART
+                       PARTITION_SPLIT,
+#endif
+                       td->bit_reader, cm->seq_params.sb_size, 0x1);
 
       if (aom_reader_has_overflowed(td->bit_reader)) {
         aom_merge_corrupted_flag(&td->xd.corrupted, 1);

@@ -261,6 +261,9 @@ typedef struct MB_MODE_INFO {
 #endif  // CONFIG_NEW_TX_PARTITION
   MOTION_MODE motion_mode;
   PARTITION_TYPE partition;
+#if CONFIG_RECURSIVE_ABPART
+  PARTITION_TYPE parent_partition;
+#endif
   TX_TYPE txk_type[TXK_TYPE_BUF_LEN];
   MV_REFERENCE_FRAME ref_frame[2];
   FILTER_INTRA_MODE_INFO filter_intra_mode_info;

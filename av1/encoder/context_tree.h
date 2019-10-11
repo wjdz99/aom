@@ -59,6 +59,11 @@ typedef struct {
   // motion vector cache for adaptive motion search control in partition
   // search loop
   MV pred_mv[REF_FRAMES];
+
+  int mi_row;
+  int mi_col;
+  BLOCK_SIZE bsize;
+  PARTITION_TYPE partition;
 } PICK_MODE_CONTEXT;
 
 typedef struct PC_TREE {
@@ -115,7 +120,7 @@ void av1_free_pc_tree_recursive(PC_TREE *tree, int num_planes, int keep_best,
                                 int keep_none);
 
 PICK_MODE_CONTEXT *av1_alloc_pmc(const AV1_COMMON *cm, BLOCK_SIZE bsize,
-                                 PC_TREE_SHARED_BUFFERS *shared_bufs);
+                                 PC_TREE_SHARED_BUFFERS *shared_bufs, int mi_row, int mi_col, PARTITION_TYPE partition);
 void av1_free_pmc(PICK_MODE_CONTEXT *ctx, int num_planes);
 
 void av1_copy_tree_context(PICK_MODE_CONTEXT *dst_ctx,

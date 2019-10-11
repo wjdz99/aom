@@ -308,10 +308,25 @@ static int has_top_right(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   // The bottom left square of a Vertical A (in the old format) does
   // not have a top right as it is decoded before the right hand
   // rectangle of the partition
+#if CONFIG_RECURSIVE_ABPART
+  if (xd->mi[0]->partition == PARTITION_VERT_A ||
+      xd->mi[0]->parent_partition == PARTITION_VERT_A) {
+    if (xd->n4_w == xd->n4_h) {
+      if (mask_row & bs) has_tr = 0;
+    } else if (xd->n4_w < xd->n4_h) {
+      if (((mask_col + xd->n4_w) % bs) == 0) has_tr = 0;
+    } else {
+      has_tr = 0;
+    }
+  }
+
+  if (xd->mi[0]->parent_partition == PARTITION_VERT_A) has_tr = 0;
+#else
   if (xd->mi[0]->partition == PARTITION_VERT_A) {
     if (xd->n4_w == xd->n4_h)
       if (mask_row & bs) has_tr = 0;
   }
+#endif
 
   return has_tr;
 }

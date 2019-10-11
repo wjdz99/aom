@@ -63,7 +63,8 @@ void av1_free_shared_coeff_buffer(PC_TREE_SHARED_BUFFERS *shared_bufs) {
 }
 
 PICK_MODE_CONTEXT *av1_alloc_pmc(const AV1_COMMON *cm, BLOCK_SIZE bsize,
-                                 PC_TREE_SHARED_BUFFERS *shared_bufs) {
+                                 PC_TREE_SHARED_BUFFERS *shared_bufs, int mi_row,
+                                 int mi_col, PARTITION_TYPE partition) {
   PICK_MODE_CONTEXT *ctx = NULL;
   struct aom_internal_error_info error;
 
@@ -72,6 +73,14 @@ PICK_MODE_CONTEXT *av1_alloc_pmc(const AV1_COMMON *cm, BLOCK_SIZE bsize,
   const int num_planes = av1_num_planes(cm);
   const int num_pix = block_size_wide[bsize] * block_size_high[bsize];
   const int num_blk = num_pix / 16;
+
+  ctx->mi_row = mi_row;
+  ctx->mi_col = mi_col;
+  ctx->partition = partition;
+  ctx->bsize = bsize;
+  /*if (ctx->mi_row < 16 && ctx->mi_col < 16)
+  printf("Alloc: [%d %d] %d %d\n", mi_row, mi_col, bsize, partition);*/
+  //printf("%d\n", num_pels_log2_lookup[ctx->bsize]);
 
   ctx->num_4x4_blk = num_blk;
   AOM_CHECK_MEM_ERROR(&error, ctx->blk_skip,
@@ -100,6 +109,10 @@ PICK_MODE_CONTEXT *av1_alloc_pmc(const AV1_COMMON *cm, BLOCK_SIZE bsize,
 
 void av1_free_pmc(PICK_MODE_CONTEXT *ctx, int num_planes) {
   if (ctx == NULL) return;
+
+/*  if (ctx->mi_row < 16 && ctx->mi_col < 16)
+  printf("Free: [%d %d] %d %d\n", ctx->mi_row, ctx->mi_col, ctx->bsize, ctx->partition);*/
+  //printf("-%d\n", num_pels_log2_lookup[ctx->bsize]);
 
   aom_free(ctx->blk_skip);
   ctx->blk_skip = NULL;
@@ -130,6 +143,8 @@ PC_TREE *av1_alloc_pc_tree_node(BLOCK_SIZE bsize, int is_last) {
   pc_tree->partitioning = PARTITION_NONE;
   pc_tree->block_size = bsize;
   pc_tree->is_last_subblock = is_last;
+
+  // printf("%d\n", num_pels_log2_lookup[pc_tree->block_size]);
 
   pc_tree->none = NULL;
   for (int i = 0; i < 2; ++i) {
@@ -182,6 +197,8 @@ void av1_free_pc_tree_recursive(PC_TREE *pc_tree, int num_planes, int keep_best,
                                 int keep_none) {
   if (pc_tree == NULL) return;
 
+  // if (keep_best == 0 && keep_none == 0)
+  // printf("-%d\n", num_pels_log2_lookup[pc_tree->block_size]);
   const PARTITION_TYPE partition = pc_tree->partitioning;
 
   if (!keep_none && (!keep_best || (partition != PARTITION_NONE)))
@@ -194,34 +211,40 @@ void av1_free_pc_tree_recursive(PC_TREE *pc_tree, int num_planes, int keep_best,
       FREE_PMC_NODE(pc_tree->vertical[i]);
   }
 #if CONFIG_RECURSIVE_ABPART
-  if (!keep_best || (partition != PARTITION_HORZ_A))
+  if (!keep_best || (partition != PARTITION_HORZ_A)) {
     FREE_PMC_NODE(pc_tree->horza_rec);
-  if (!keep_best || (partition != PARTITION_HORZ_B))
+    for (int i = 0; i < 2; ++i) {
+      if (pc_tree->horza_split[i] != NULL) {
+        av1_free_pc_tree_recursive(pc_tree->horza_split[i], num_planes, 0, 0);
+        pc_tree->horza_split[i] = NULL;       
+      }
+    }
+  }
+  if (!keep_best || (partition != PARTITION_HORZ_B)) {
     FREE_PMC_NODE(pc_tree->horzb_rec);
-  if (!keep_best || (partition != PARTITION_VERT_A))
+    for (int i = 0; i < 2; ++i) {
+      if (pc_tree->horzb_split[i] != NULL) {
+        av1_free_pc_tree_recursive(pc_tree->horzb_split[i], num_planes, 0, 0);
+        pc_tree->horzb_split[i] = NULL;       
+      }
+    }
+  }
+  if (!keep_best || (partition != PARTITION_VERT_A)) {
     FREE_PMC_NODE(pc_tree->verta_rec);
-  if (!keep_best || (partition != PARTITION_VERT_B))
+    for (int i = 0; i < 2; ++i) {
+      if(pc_tree->verta_split[i] != NULL) {
+        av1_free_pc_tree_recursive(pc_tree->verta_split[i], num_planes, 0, 0);
+        pc_tree->verta_split[i] = NULL;
+      }
+    }
+  }
+  if (!keep_best || (partition != PARTITION_VERT_B)) {
     FREE_PMC_NODE(pc_tree->vertb_rec);
-  for (int i = 0; i < 2; ++i) {
-    if ((!keep_best || (partition != PARTITION_HORZ_A)) &&
-        pc_tree->horza_split[i] != NULL) {
-      av1_free_pc_tree_recursive(pc_tree->horza_split[i], num_planes, 0, 0);
-      pc_tree->horza_split[i] = NULL;
-    }
-    if ((!keep_best || (partition != PARTITION_HORZ_B)) &&
-        pc_tree->horzb_split[i] != NULL) {
-      av1_free_pc_tree_recursive(pc_tree->horzb_split[i], num_planes, 0, 0);
-      pc_tree->horzb_split[i] = NULL;
-    }
-    if ((!keep_best || (partition != PARTITION_VERT_A)) &&
-        pc_tree->verta_split[i] != NULL) {
-      av1_free_pc_tree_recursive(pc_tree->verta_split[i], num_planes, 0, 0);
-      pc_tree->verta_split[i] = NULL;
-    }
-    if ((!keep_best || (partition != PARTITION_VERT_B)) &&
-        pc_tree->vertb_split[i] != NULL) {
-      av1_free_pc_tree_recursive(pc_tree->vertb_split[i], num_planes, 0, 0);
-      pc_tree->vertb_split[i] = NULL;
+    for (int i = 0; i < 2; ++i) {
+      if (pc_tree->vertb_split[i] != NULL) {
+        av1_free_pc_tree_recursive(pc_tree->vertb_split[i], num_planes, 0, 0);
+        pc_tree->vertb_split[i] = NULL;
+      }
     }
   }
 #else
@@ -256,7 +279,6 @@ void av1_free_pc_tree_recursive(PC_TREE *pc_tree, int num_planes, int keep_best,
     for (int i = 0; i < 4; ++i) {
       if (pc_tree->split[i] != NULL) {
         av1_free_pc_tree_recursive(pc_tree->split[i], num_planes, 0, 0);
-        // if (keep_best) aom_free(pc_tree->split[i]);
         pc_tree->split[i] = NULL;
       }
     }

@@ -2391,9 +2391,14 @@ void av1_predict_intra_block(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   bsize = scale_chroma_bsize(bsize, pd->subsampling_x, pd->subsampling_y,
                              mi_row, mi_col);
 
-  const int have_top_right = has_top_right(
+  int have_top_right = has_top_right(
       cm, bsize, mi_row, mi_col, have_top, right_available, partition, tx_size,
       row_off, col_off, pd->subsampling_x, pd->subsampling_y);
+#if CONFIG_RECURSIVE_ABPART
+  if (mbmi->parent_partition == PARTITION_VERT_A ||
+      mbmi->parent_partition == PARTITION_VERT_B)
+    have_top_right = 0;
+#endif
   const int have_bottom_left = has_bottom_left(
       cm, bsize, mi_row, mi_col, bottom_available, have_left, partition,
       tx_size, row_off, col_off, pd->subsampling_x, pd->subsampling_y);
