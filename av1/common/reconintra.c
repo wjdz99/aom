@@ -214,6 +214,45 @@ static const uint8_t *get_has_tr_table(PARTITION_TYPE partition,
   return ret;
 }
 
+int av1_has_top_right_small(BLOCK_SIZE bsize, int mi_row, int mi_col,
+                            int top_available, int right_available,
+                            PARTITION_TYPE partition, BLOCK_SIZE sb_size) {
+  if (!top_available || !right_available) return 0;
+
+  const int bw_unit = block_size_wide[bsize] >> tx_size_wide_log2[0];
+  const int plane_bw_unit = AOMMAX(bw_unit, 1);
+  const int top_right_count_unit = block_size_wide[bsize];
+
+  // All top-right pixels are in the block above, which is already available.
+  if (top_right_count_unit < plane_bw_unit) return 1;
+
+  const int bw_in_mi_log2 = mi_size_wide_log2[bsize];
+  const int bh_in_mi_log2 = mi_size_high_log2[bsize];
+  const int sb_mi_size = mi_size_high[sb_size];
+  const int blk_row_in_sb = (mi_row & (sb_mi_size - 1)) >> bh_in_mi_log2;
+  const int blk_col_in_sb = (mi_col & (sb_mi_size - 1)) >> bw_in_mi_log2;
+
+  // Top row of superblock: so top-right pixels are in the top and/or
+  // top-right superblocks, both of which are already available.
+  if (blk_row_in_sb == 0) return 1;
+
+  // Rightmost column of superblock (and not the top row): so top-right pixels
+  // fall in the right superblock, which is not available yet.
+  if (((blk_col_in_sb + 1) << bw_in_mi_log2) >= sb_mi_size) {
+    return 0;
+  }
+
+  // General case (neither top row nor rightmost column): check if the
+  // top-right block is coded before the current block.
+  const int this_blk_index =
+      ((blk_row_in_sb + 0) << (MAX_MIB_SIZE_LOG2 - bw_in_mi_log2)) +
+      blk_col_in_sb + 0;
+  const int idx1 = this_blk_index / 8;
+  const int idx2 = this_blk_index % 8;
+  const uint8_t *has_tr_table = get_has_tr_table(partition, bsize);
+  return (has_tr_table[idx1] >> idx2) & 1;
+}
+
 static int has_top_right(const AV1_COMMON *cm, BLOCK_SIZE bsize, int mi_row,
                          int mi_col, int top_available, int right_available,
                          PARTITION_TYPE partition, TX_SIZE txsz, int row_off,
@@ -432,6 +471,50 @@ static const uint8_t *get_has_bl_table(PARTITION_TYPE partition,
   }
   assert(ret);
   return ret;
+}
+
+int av1_has_bottom_left_small(BLOCK_SIZE bsize, int mi_row, int mi_col,
+                              int bottom_available, int left_available,
+                              PARTITION_TYPE partition, BLOCK_SIZE sb_size) {
+  if (!bottom_available || !left_available) return 0;
+
+  const int bh_unit = block_size_high[bsize] >> tx_size_high_log2[0];
+  const int plane_bh_unit = AOMMAX(bh_unit, 1);
+  const int bottom_left_count_unit = mi_size_high[bsize];
+
+  // All bottom-left pixels are in the left block, which is already available.
+  if (bottom_left_count_unit < plane_bh_unit) return 1;
+
+  const int bw_in_mi_log2 = mi_size_wide_log2[bsize];
+  const int bh_in_mi_log2 = mi_size_high_log2[bsize];
+  const int sb_mi_size = mi_size_high[sb_size];
+  const int blk_row_in_sb = (mi_row & (sb_mi_size - 1)) >> bh_in_mi_log2;
+  const int blk_col_in_sb = (mi_col & (sb_mi_size - 1)) >> bw_in_mi_log2;
+
+  // Leftmost column of superblock: so bottom-left pixels maybe in the left
+  // and/or bottom-left superblocks. But only the left superblock is
+  // available, so check if all required pixels fall in that superblock.
+  if (blk_col_in_sb == 0) {
+    const int blk_start_row_off =
+        blk_row_in_sb << (bh_in_mi_log2 + MI_SIZE_LOG2 - tx_size_wide_log2[0]);
+    const int row_off_in_sb = blk_start_row_off;
+    const int sb_height_unit = sb_mi_size;
+    return row_off_in_sb + bottom_left_count_unit < sb_height_unit;
+  }
+
+  // Bottom row of superblock (and not the leftmost column): so bottom-left
+  // pixels fall in the bottom superblock, which is not available yet.
+  if (((blk_row_in_sb + 1) << bh_in_mi_log2) >= sb_mi_size) return 0;
+
+  // General case (neither leftmost column nor bottom row): check if the
+  // bottom-left block is coded before the current block.
+  const int this_blk_index =
+      ((blk_row_in_sb + 0) << (MAX_MIB_SIZE_LOG2 - bw_in_mi_log2)) +
+      blk_col_in_sb + 0;
+  const int idx1 = this_blk_index / 8;
+  const int idx2 = this_blk_index % 8;
+  const uint8_t *has_bl_table = get_has_bl_table(partition, bsize);
+  return (has_bl_table[idx1] >> idx2) & 1;
 }
 
 static int has_bottom_left(const AV1_COMMON *cm, BLOCK_SIZE bsize, int mi_row,

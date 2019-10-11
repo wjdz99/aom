@@ -12,7 +12,9 @@
 #include <assert.h>
 #include <math.h>
 #include <stdbool.h>
+#include <unistd.h>
 
+#include "av1/common/blockd.h"
 #include "config/aom_dsp_rtcd.h"
 #include "config/av1_rtcd.h"
 
@@ -4944,6 +4946,192 @@ static void intra_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 }
 
+#define PADDING_THICK (4)
+#define PADDING_STRIDE (128 + 128)
+
+static INLINE void get_num_available_px(MACROBLOCK *x, BLOCK_SIZE bsize,
+                                        int mi_row, int mi_col,
+                                        BLOCK_SIZE sb_size, int *num_top,
+                                        int *num_right, int *num_left,
+                                        int *num_bottom) {
+  const MACROBLOCKD *xd = &x->e_mbd;
+  const MB_MODE_INFO *const mbmi = xd->mi[0];
+  const struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_Y];
+  assert(!pd->subsampling_y);
+
+  const int pred_wide_px = block_size_wide[bsize];
+  const int pred_high_px = block_size_high[bsize];
+  const int pred_wide_unit = mi_size_wide[bsize];
+  const int pred_high_unit = mi_size_high[bsize];
+
+  const int px_to_r_edge = (xd->mb_to_right_edge >> (3 + pd->subsampling_x));
+  const int px_to_b_edge = (xd->mb_to_bottom_edge >> (3 + pd->subsampling_y));
+
+  const int have_top = xd->up_available;
+  const int have_left = xd->left_available;
+  const int right_available = mi_col + pred_wide_unit < xd->tile.mi_col_end;
+  const int bottom_available =
+      (px_to_b_edge > 0) && (mi_row + pred_high_unit < xd->tile.mi_row_end);
+
+  const int have_top_right =
+      av1_has_top_right_small(bsize, mi_row, mi_col, have_top, right_available,
+                              mbmi->partition, sb_size);
+  const int have_bottom_left =
+      av1_has_bottom_left_small(bsize, mi_row, mi_col, bottom_available,
+                                have_left, mbmi->partition, sb_size);
+
+  *num_top = have_top ? pred_wide_px : 0;
+  *num_right = have_top_right ? AOMMIN(pred_wide_px, px_to_r_edge) : 0;
+  *num_left = have_left ? pred_high_px : 0;
+  *num_bottom = have_bottom_left ? AOMMIN(pred_high_px, px_to_b_edge) : 0;
+}
+
+static INLINE void gather_top_and_left_pxs(BLOCK_SIZE bsize,
+                                           const struct buf_2d *ref_buf,
+                                           int num_top, int num_right,
+                                           int num_left, int num_bottom,
+                                           uint8_t *above_row, int above_stride,
+                                           uint8_t *left_col, int left_stride) {
+  const uint8_t DEFAULT_TOP_VAL = 127;
+  const uint8_t DEFAULT_LEFT_VAL = 129;
+  const uint8_t DEFAULT_TOPLEFT_VAL = 128;
+
+  const uint8_t *ref = ref_buf->buf;
+  const int ref_stride = ref_buf->stride;
+  const uint8_t *above_ref = ref - 3 * ref_stride;
+  const uint8_t *left_ref = ref - 3;
+
+  const int pred_high_px = block_size_high[bsize];
+  const int pred_wide_px = block_size_wide[bsize];
+
+  const int num_pixels_needed = pred_high_px + pred_wide_px;
+
+  // Set left cols
+  if (num_left > 0) {
+    int r = 0;
+    for (; r < pred_high_px + num_bottom; r++) {
+      memcpy(&left_col[r * left_stride], &left_ref[r * ref_stride], 4);
+    }
+    const int last_idx = r;
+    for (; r < num_pixels_needed; r++) {
+      memcpy(&left_col[r * left_stride], &left_ref[(last_idx - 1) * ref_stride],
+             4);
+    }
+  } else if (num_top > 0) {
+    memset(left_col, above_ref[3 * ref_stride], num_pixels_needed * 4);
+  } else {
+    memset(left_col, DEFAULT_LEFT_VAL, num_pixels_needed * 4);
+  }
+
+  // Set above rows
+  if (num_top > 0) {
+    for (int r = 0; r < 4; r++) {
+      memcpy(&above_row[r * above_stride], &above_ref[r * ref_stride], num_top);
+      int c = num_top;
+      if (num_right > 0) {
+        memcpy(&above_row[r * above_stride + pred_wide_px],
+               &above_ref[r * ref_stride + pred_wide_px], num_right);
+        c += num_right;
+      }
+      if (c < num_pixels_needed) {
+        memset(&above_row[r * above_stride + c],
+               above_ref[r * ref_stride + c - 1], num_pixels_needed - c);
+      }
+    }
+  } else if (num_left > 0) {
+    for (int r = 0; r < 4; r++) {
+      memset(&above_row[r * above_stride], left_ref[3], num_pixels_needed);
+    }
+  } else {
+    for (int r = 0; r < 4; r++) {
+      memset(&above_row[r * above_stride], DEFAULT_TOP_VAL, num_pixels_needed);
+    }
+  }
+
+  // Set above left
+  if (num_top > 0 && num_left > 0) {
+    for (int r = 0; r < 4; r++) {
+      memcpy(&above_row[r * above_stride - 4], &above_ref[r * ref_stride - 4],
+             4);
+    }
+  } else if (num_top > 0) {
+    for (int r = 0; r < 4; r++) {
+      memset(&above_row[r * above_stride - 4], above_ref[r * ref_stride], 4);
+    }
+  } else if (num_left > 0) {
+    for (int r = 0; r < 4; r++) {
+      memcpy(&above_row[r * above_stride - 4], left_ref, 4);
+    }
+  } else {
+    for (int r = 0; r < 4; r++) {
+      memset(&above_row[r * above_stride - 4], DEFAULT_TOPLEFT_VAL, 4);
+    }
+  }
+}
+
+static INLINE void print_cnn_data(MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
+                                  int mi_col, BLOCK_SIZE sb_size,
+                                  PREDICTION_MODE p_mode,
+                                  RD_STATS best_rd_stats) {
+  if (best_rd_stats.rdcost == INT64_MAX) {
+    p_mode = -1;
+  }
+
+  const int bsize_wide = block_size_wide[bsize];
+  const int bsize_high = block_size_high[bsize];
+  const int num_pixels_needed = bsize_wide + bsize_high;
+
+  char filename[1024];
+  snprintf(filename, sizeof(filename), "data.csv");
+
+  FILE *f = fopen(filename, "a");
+
+  // Print out best prediction mode and its stats
+  fprintf(f, "%d,%d,%d,%d,%d,%ld,%ld,%ld,", bsize, mi_row, mi_col, p_mode,
+          best_rd_stats.rate, best_rd_stats.dist, best_rd_stats.rdcost,
+          best_rd_stats.sse);
+
+  // Print out the paddings
+  int num_top = 0, num_right = 0, num_left = 0, num_bottom = 0;
+  uint8_t above_row[PADDING_THICK][PADDING_STRIDE + 4],
+      left_col[PADDING_STRIDE][PADDING_THICK];
+  const int above_stride = PADDING_STRIDE + 4;
+  const int left_stride = PADDING_THICK;
+  get_num_available_px(x, bsize, mi_row, mi_col, sb_size, &num_top, &num_right,
+                       &num_left, &num_bottom);
+  gather_top_and_left_pxs(bsize, &x->e_mbd.plane[AOM_PLANE_Y].dst, num_top,
+                          num_right, num_left, num_bottom, &above_row[0][4],
+                          above_stride, &left_col[0][0], left_stride);
+
+  fprintf(f, "%d,%d,%d,%d,", num_top, num_right, num_left, num_bottom);
+  for (int r = 0; r < PADDING_THICK; r++) {
+    for (int c = 0; c < 4 + num_pixels_needed; c++) {
+      fprintf(f, "%d,", above_row[r][c]);
+    }
+  }
+  for (int r = 0; r < num_pixels_needed; r++) {
+    for (int c = 0; c < PADDING_THICK; c++) {
+      fprintf(f, "%d,", left_col[r][c]);
+    }
+  }
+
+  // Print out the target source
+  const struct buf_2d *src_2d = &x->plane[0].src;
+  const uint8_t *src = src_2d->buf;
+  const int stride = src_2d->stride;
+  for (int r = 0; r < bsize_high; r++) {
+    for (int c = 0; c < bsize_wide; c++) {
+      fprintf(f, "%d,", src[r * stride + c]);
+    }
+  }
+  fprintf(f, "\n");
+
+  fclose(f);
+}
+
+#undef PADDING_THICK
+#undef PADDING_STRIDE
+
 // This function is used only for intra_only frames
 static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                       int mi_row, int mi_col, int *rate,
@@ -5088,6 +5276,9 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       best_mbmi = *mbmi;
     }
   }
+
+  print_cnn_data(x, bsize, mi_row, mi_col, cpi->common.seq_params.sb_size,
+                 mbmi->mode, best_rd_stats);
 
 #if CONFIG_ADAPT_FILTER_INTRA
   if (av1_adapt_filter_intra_allowed_bsize(&cpi->common, bsize)) {
