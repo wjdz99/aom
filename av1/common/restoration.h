@@ -196,6 +196,19 @@ typedef struct {
 #endif  // CONFIG_WIENER_NONSEP
 } RestorationUnitInfo;
 
+#if CONFIG_WIENER_NONSEP
+#define WIENERNS_FILT_BITS 7
+#define WIENERNS_WINDOW 3
+#define WIENERNS_ROW_ID 0
+#define WIENERNS_COL_ID 1
+#define WIENERNS_COEFF_ID 2
+#define WIENERNS_BIT_ID 0
+#define WIENERNS_MIN_ID 1
+#define WIENERNS_SUBEXP_K_ID 2
+extern const int wienerns_config[][3];
+extern const int wienerns_coeff_info[WIENERNS_NUM_COEFF][3];
+#endif  // CONFIG_WIENER_NONSEP
+
 // A restoration line buffer needs space for two lines plus a horizontal filter
 // margin of RESTORATION_EXTRA_HORZ on each side.
 #define RESTORATION_LINEBUFFER_WIDTH \

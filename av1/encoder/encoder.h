@@ -533,6 +533,9 @@ typedef struct FRAME_COUNTS {
 #if CONFIG_LOOP_RESTORE_CNN
   unsigned int cnn_restore[2];
 #endif  // CONFIG_LOOP_RESTORE_CNN
+#if CONFIG_WIENER_NONSEP
+  unsigned int wiener_nonsep_restore[2];
+#endif  // CONFIG_WIENER_NONSEP
 #endif  // CONFIG_ENTROPY_STATS
 
   unsigned int switchable_interp[SWITCHABLE_FILTER_CONTEXTS]
@@ -1429,10 +1432,8 @@ aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi);
 
 static INLINE int is_frame_kf_and_tpl_eligible(AV1_COMP *const cpi) {
   AV1_COMMON *cm = &cpi->common;
-  if (cm->current_frame.frame_type == KEY_FRAME && cm->show_frame)
-    return 1;
-  else
-    return 0;
+  return (cm->current_frame.frame_type == KEY_FRAME) && cm->show_frame &&
+         (cpi->rc.frames_to_key > 1);
 }
 
 static INLINE int is_frame_arf_and_tpl_eligible(AV1_COMP *const cpi) {
