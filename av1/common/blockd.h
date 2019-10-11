@@ -41,7 +41,7 @@ extern "C" {
 
 #define MAX_MB_PLANE 3
 
-#define MAX_DIFFWTD_MASK_BITS 1
+#define MAX_DIFFWTD_MASK_BITS 2
 
 #define INTERINTRA_WEDGE_SIGN 0
 

@@ -6960,7 +6960,7 @@ static INLINE int get_interinter_compound_mask_rate(
                : 0;
   } else {
     assert(compound_type == COMPOUND_DIFFWTD);
-    return av1_cost_literal(1);
+    return av1_cost_literal(MAX_DIFFWTD_MASK_BITS);
   }
 }
 
@@ -8148,7 +8148,7 @@ static int64_t pick_interinter_seg(const AV1_COMP *const cpi,
   const int hbd = is_cur_buf_hbd(xd);
   const int bd_round = hbd ? (xd->bd - 8) * 2 : 0;
   DECLARE_ALIGNED(16, uint8_t, seg_mask[2 * MAX_SB_SQUARE]);
-  uint8_t *tmp_mask[2] = { xd->seg_mask, seg_mask, seg_mask, seg_mask };
+  uint8_t *tmp_mask[4] = { xd->seg_mask, seg_mask, seg_mask, seg_mask };
   // try each mask type and its inverse
   for (cur_mask_type = 0; cur_mask_type < DIFFWTD_MASK_TYPES; cur_mask_type++) {
     if (hbd)
