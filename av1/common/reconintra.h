@@ -169,6 +169,15 @@ static INLINE int av1_use_intra_edge_upsample(int bs0, int bs1, int delta,
   if (d == 0 || d >= 40) return 0;
   return type ? (blk_wh <= 8) : (blk_wh <= 16);
 }
+
+int av1_has_top_right_small(BLOCK_SIZE bsize, int mi_row, int mi_col,
+                            int top_available, int right_available,
+                            PARTITION_TYPE partition, BLOCK_SIZE sb_size);
+
+int av1_has_bottom_left_small(BLOCK_SIZE bsize, int mi_row, int mi_col,
+                              int bottom_available, int left_available,
+                              PARTITION_TYPE partition, BLOCK_SIZE sb_size);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
