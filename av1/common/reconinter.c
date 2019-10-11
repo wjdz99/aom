@@ -610,6 +610,13 @@ void av1_build_compound_diffwtd_mask_d16_c(
       diffwtd_mask_d16(mask, 1, 38, src0, src0_stride, src1, src1_stride, h, w,
                        conv_params, bd);
       break;
+    case DIFFWTD_42:
+      diffwtd_mask_d16(mask, 0, 42, src0, src0_stride, src1, src1_stride, h, w,
+                       conv_params, bd);
+      break;
+    case DIFFWTD_42_INV:
+      diffwtd_mask_d16(mask, 1, 42, src0, src0_stride, src1, src1_stride, h, w,
+                       conv_params, bd);
     default: assert(0);
   }
 }
@@ -666,6 +673,12 @@ void av1_build_compound_diffwtd_mask_c(uint8_t *mask,
       break;
     case DIFFWTD_38_INV:
       diffwtd_mask(mask, 1, 38, src0, src0_stride, src1, src1_stride, h, w);
+      break;
+    case DIFFWTD_42:
+      diffwtd_mask(mask, 0, 42, src0, src0_stride, src1, src1_stride, h, w);
+      break;
+    case DIFFWTD_42_INV:
+      diffwtd_mask(mask, 1, 42, src0, src0_stride, src1, src1_stride, h, w);
       break;
     default: assert(0);
   }
@@ -745,6 +758,14 @@ void av1_build_compound_diffwtd_mask_highbd_c(
       break;
     case DIFFWTD_38_INV:
       diffwtd_mask_highbd(mask, 1, 38, CONVERT_TO_SHORTPTR(src0), src0_stride,
+                          CONVERT_TO_SHORTPTR(src1), src1_stride, h, w, bd);
+      break;
+    case DIFFWTD_42:
+      diffwtd_mask_highbd(mask, 0, 42, CONVERT_TO_SHORTPTR(src0), src0_stride,
+                          CONVERT_TO_SHORTPTR(src1), src1_stride, h, w, bd);
+      break;
+    case DIFFWTD_42_INV:
+      diffwtd_mask_highbd(mask, 1, 42, CONVERT_TO_SHORTPTR(src0), src0_stride,
                           CONVERT_TO_SHORTPTR(src1), src1_stride, h, w, bd);
       break;
     default: assert(0);
