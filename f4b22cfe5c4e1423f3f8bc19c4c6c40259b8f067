@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "50b25014_fdd3193f",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-10-11T00:52:00Z",
+      "side": 1,
+      "message": "\u003e Can we suppose all metadata payloads are either owned by libaom or not owned?\n\nYou could make it a rule that the aom_images always own the metadata. It won\u0027t stop people from sometimes assigning pointers to their own local static data within the aom_metadata_t**, but the presence of the helper functions should discourage such shenanigans. That would at least remove the need for the ownership flag.\n\nThe ownership issue can be avoided entirely while removing the potential of bad user behavior, but that would require that users always use aom_metadata_*() functions to add metadata to aom_images. Doing so would require hiding the aom_metadata_t implementation.  \n\nTo require usage of the aom_metadata_*() functions you could use a void* in aom_image instead of aom_metadata_t**. You could also declare aom_metadata_t in aom_image.h while adding a aom_metadata_t* to aom_image, but keep the definition in aom_image.c.\n\nThe last bit are just some suggestions. The first paragraph\u0027s advice can be followed if you prefer.",
+      "parentUuid": "f92a64eb_a2ec8b3e",
+      "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0be38e07_a1c8a5ad",
         "filename": "aom/aom_image.h",
         "patchSetId": 8
@@ -141,6 +159,30 @@
       "side": 1,
       "message": "Then an aom_metadata_alloc_helper() should be created following the aom_img_alloc_helper() behavior, and add our alloc_with_cb function definition inside aom_image_internal.h",
       "parentUuid": "f62a80c3_ce5b96f5",
+      "range": {
+        "startLine": 300,
+        "startChar": 47,
+        "endLine": 300,
+        "endChar": 53
+      },
+      "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47f8238c_cc263496",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-10-11T00:52:00Z",
+      "side": 1,
+      "message": "I think I misunderstood the purpose of alloc_cb. I don\u0027t think it\u0027s necessary for metadata. You can ignore my earlier comment as far as alloc_cb goes. Further discussion of the ownership issue is in the aom_image.h comment.",
+      "parentUuid": "9ef00334_affd08d4",
       "range": {
         "startLine": 300,
         "startChar": 47,
