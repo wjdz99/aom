@@ -371,14 +371,17 @@ static void set_good_speed_features_framesize_independent(
     // TODO(any): Experiment with the early exit mechanism for speeds 0, 1 and 2
     // and clean-up the speed feature
     sf->perform_best_rd_based_gating_for_chroma = 1;
+    sf->use_intra_txb_hash = 0;
     // TODO(any): Experiment on the dependency of this speed feature with
     // use_intra_txb_hash, use_inter_txb_hash and use_mb_rd_hash speed features
     // TODO(any): Refactor the code related to following winner mode speed
     // features
     sf->enable_winner_mode_for_coeff_opt = 1;
     // TODO(any): Experiment with this speed feature by enabling for key frames
-    sf->enable_winner_mode_for_tx_size_srch =
-        frame_is_intra_only(&cpi->common) ? 0 : 1;
+    sf->enable_winner_mode_for_tx_size_srch = 1;
+    // TODO(any): Extend multi-winner mode processing support for inter frames
+    sf->enable_multiwinner_mode_process =
+        frame_is_intra_only(&cpi->common) ? 1 : 0;
     sf->enable_winner_mode_for_use_tx_domain_dist =
         cm->allow_screen_content_tools ? 0 : 1;
     sf->reduce_wiener_window_size = is_boosted_arf2_bwd_type ? 0 : 1;
@@ -389,7 +392,6 @@ static void set_good_speed_features_framesize_independent(
 
   if (speed >= 4) {
     sf->selective_ref_frame = 4;
-    sf->use_intra_txb_hash = 0;
     sf->tx_type_search.fast_intra_tx_type_search = 1;
     sf->disable_loop_restoration_chroma =
         (boosted || cm->allow_screen_content_tools) ? 0 : 1;
@@ -401,10 +403,6 @@ static void set_good_speed_features_framesize_independent(
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 4;
     sf->adaptive_txb_search_level = boosted ? 2 : 3;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
-    sf->enable_winner_mode_for_tx_size_srch = 1;
-    // TODO(any): Extend multi-winner mode processing support for inter frames
-    sf->enable_multiwinner_mode_process =
-        frame_is_intra_only(&cpi->common) ? 1 : 0;
     // TODO(any): Experiment with this speed feature set to 2 for higher quality
     // presets as well
     sf->skip_intra_in_interframe = 2;
