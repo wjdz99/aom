@@ -725,8 +725,8 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->inter_tx_size_search_init_depth_sqr = 0;
   sf->inter_tx_size_search_init_depth_rect = 0;
 #endif  // CONFIG_NEW_TX_PARTITION
-  sf->intra_tx_size_search_init_depth_rect = 0;
-  sf->intra_tx_size_search_init_depth_sqr = 0;
+  sf->intra_tx_size_search_init_depth_rect = 1;
+  sf->intra_tx_size_search_init_depth_sqr = 1;
   sf->tx_size_search_lgr_block = 0;
   sf->model_based_prune_tx_search_level = 0;
   sf->model_based_post_interp_filter_breakout = 0;
