@@ -406,6 +406,7 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
              cm->mi_rows * cm->mi_cols * sizeof(*cr->last_coded_q_map));
       cr->sb_index = 0;
     }
+    cr->last_frame_cr_off = 1;
     return;
   } else {
     const double q =
@@ -461,6 +462,8 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
 
     // Update the segmentation and refresh map.
     cyclic_refresh_update_map(cpi);
+
+    cr->last_frame_cr_off = 0;
   }
 }
 
