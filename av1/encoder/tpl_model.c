@@ -181,8 +181,6 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
   const int_interpfilters kernel =
       av1_broadcast_interp_filter(EIGHTTAP_REGULAR);
 
-  (void)predictor;
-
   int64_t best_intra_cost = INT64_MAX;
   int64_t intra_cost;
   PREDICTION_MODE mode;
@@ -205,8 +203,6 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
   xd->mi[0]->motion_mode = SIMPLE_TRANSLATION;
   xd->up_available = mi_row > 0;
   xd->left_available = mi_col > 0;
-
-  const int qstep_cur_noise = 0;
 
   // Intra prediction search
   xd->mi[0]->ref_frame[0] = INTRA_FRAME;
@@ -240,7 +236,6 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
     }
     wht_fwd_txfm(src_diff, bw, coeff, tx_size, xd->bd, is_cur_buf_hbd(xd));
     intra_cost = aom_satd(coeff, pix_num);
-    intra_cost += qstep_cur_noise;
 
     if (intra_cost < best_intra_cost) {
       best_intra_cost = intra_cost;
@@ -254,9 +249,7 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
   int best_rf_idx = -1;
   int_mv best_mv;
   int64_t inter_cost;
-  int64_t best_inter_cost;
-  int64_t inter_cost_weighted;
-  int64_t best_inter_cost_weighted = INT64_MAX;
+  int64_t best_inter_cost = INT64_MAX;
   int rf_idx;
 
   best_mv.as_int = 0;
@@ -270,8 +263,6 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
         mi_row * MI_SIZE * ref_frame_ptr->y_stride + mi_col * MI_SIZE;
     uint8_t *ref_mb = ref_frame_ptr->y_buffer + ref_mb_offset;
     int ref_stride = ref_frame_ptr->y_stride;
-
-    const int qstep_ref_noise = 0;
 
     motion_estimation(cpi, x, src_mb_buffer, ref_mb, src_stride, ref_stride,
                       bsize, mi_row, mi_col);
@@ -295,27 +286,25 @@ static void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
 
     wht_fwd_txfm(src_diff, bw, coeff, tx_size, xd->bd, is_cur_buf_hbd(xd));
     inter_cost = aom_satd(coeff, pix_num);
-    inter_cost_weighted = inter_cost + qstep_ref_noise;
 
-    if (inter_cost_weighted < best_inter_cost_weighted) {
+    if (inter_cost < best_inter_cost) {
       uint16_t eob;
       best_rf_idx = rf_idx;
-      best_inter_cost_weighted = inter_cost_weighted;
+      best_inter_cost = inter_cost;
       best_mv.as_int = x->best_mv.as_int;
       get_quantize_error(x, 0, coeff, qcoeff, dqcoeff, tx_size, &eob,
                          recon_error, sse);
       int rate_cost = rate_estimator(qcoeff, eob, tx_size);
       tpl_stats->srcrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
 
-      if (best_inter_cost_weighted < best_intra_cost) best_mode = NEWMV;
+      if (best_inter_cost < best_intra_cost) best_mode = NEWMV;
     }
   }
   best_intra_cost = AOMMAX(best_intra_cost, 1);
   if (frame_idx == 0)
     best_inter_cost = 0;
   else
-    best_inter_cost =
-        AOMMIN(best_intra_cost, (int64_t)best_inter_cost_weighted);
+    best_inter_cost = AOMMIN(best_intra_cost, best_inter_cost);
   tpl_stats->inter_cost = best_inter_cost << TPL_DEP_COST_SCALE_LOG2;
   tpl_stats->intra_cost = best_intra_cost << TPL_DEP_COST_SCALE_LOG2;
 
