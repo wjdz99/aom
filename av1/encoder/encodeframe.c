@@ -4325,6 +4325,12 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
 #endif  // CONFIG_FLEX_MVRES
   AVERAGE_CDF(ctx_left->angle_delta_cdf, ctx_tr->angle_delta_cdf,
               2 * MAX_ANGLE_DELTA + 1);
+#if CONFIG_NEW_TX_PARTITION
+  AVERAGE_CDF(ctx_left->tx_size_cdf[0], ctx_tr->tx_size_cdf[0],
+              TX_PARTITION_TYPES_INTRA);
+  AVERAGE_CDF(ctx_left->tx_size_cdf[1], ctx_tr->tx_size_cdf[1],
+              TX_PARTITION_TYPES_INTRA);
+#else
   AVG_CDF_STRIDE(ctx_left->tx_size_cdf[0], ctx_tr->tx_size_cdf[0], MAX_TX_DEPTH,
                  CDF_SIZE(MAX_TX_DEPTH + 1));
   AVERAGE_CDF(ctx_left->tx_size_cdf[1], ctx_tr->tx_size_cdf[1],
@@ -4333,6 +4339,7 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
               MAX_TX_DEPTH + 1);
   AVERAGE_CDF(ctx_left->tx_size_cdf[3], ctx_tr->tx_size_cdf[3],
               MAX_TX_DEPTH + 1);
+#endif  // CONFIG_NEW_TX_PARTITION
   AVERAGE_CDF(ctx_left->delta_q_cdf, ctx_tr->delta_q_cdf, DELTA_Q_PROBS + 1);
   AVERAGE_CDF(ctx_left->delta_lf_cdf, ctx_tr->delta_lf_cdf, DELTA_LF_PROBS + 1);
   for (int i = 0; i < FRAME_LF_COUNT; i++) {
