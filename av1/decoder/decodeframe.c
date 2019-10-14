@@ -1141,6 +1141,7 @@ static void set_inter_tx_size(MB_MODE_INFO *mbmi, int stride_log2,
 static void read_tx_partition(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
                               TX_SIZE max_tx_size, int blk_row, int blk_col,
                               aom_reader *r) {
+  printf("read partition\n");
   const int bsize = mbmi->sb_type;
   const int max_blocks_high = max_block_high(xd, bsize, 0);
   const int max_blocks_wide = max_block_wide(xd, bsize, 0);
@@ -1176,6 +1177,19 @@ static void read_tx_partition(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
   txfm_partition_update(xd->above_txfm_context + blk_col,
                         xd->left_txfm_context + blk_row, mbmi->tx_size,
                         max_tx_size);
+}
+
+static TX_SIZE read_tx_partition_intra(MACROBLOCKD *xd, aom_reader *r, TX_SIZE max_tx_size) {
+
+  const BLOCK_SIZE bsize = xd->mi[0]->sb_type;
+  const int ctx = get_tx_size_context(xd);
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  const int is_rect = is_rect_tx(max_tx_size);
+  const TX_PARTITION_TYPE partition = aom_read_symbol(r, ec_ctx->tx_size_cdf[is_rect][ctx],
+                                    TX_PARTITION_TYPES_INTRA, ACCT_STR);
+  TX_SIZE sub_txs[MAX_TX_PARTITIONS] = { 0 };
+  get_tx_partition_sizes(partition, max_tx_size, sub_txs);
+  return sub_txs[0];
 }
 #else
 static void read_tx_size_vartx(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
@@ -1292,8 +1306,12 @@ static TX_SIZE read_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd, int is_inter,
 
   if (block_signals_txsize(bsize)) {
     if ((!is_inter || allow_select_inter) && tx_mode == TX_MODE_SELECT) {
-      const TX_SIZE coded_tx_size = read_selected_tx_size(xd, r);
-      return coded_tx_size;
+#if CONFIG_NEW_TX_PARTITION
+      const TX_SIZE max_tx_size = max_txsize_rect_lookup[bsize];
+      return read_tx_partition_intra(xd, r, max_tx_size);
+#else
+      return read_selected_tx_size(xd, r);
+#endif  // CONFIG_NEW_TX_PARTITION
     } else {
       return tx_size_from_tx_mode(bsize, tx_mode);
     }
@@ -1316,9 +1334,9 @@ static void parse_decode_block(AV1Decoder *const pbi, ThreadData *const td,
   const int num_planes = av1_num_planes(cm);
   MB_MODE_INFO *mbmi = xd->mi[0];
   int inter_block_tx = is_inter_block(mbmi) || is_intrabc_block(mbmi);
+  const TX_SIZE max_tx_size = max_txsize_rect_lookup[bsize];
   if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
       !mbmi->skip && inter_block_tx && !xd->lossless[mbmi->segment_id]) {
-    const TX_SIZE max_tx_size = max_txsize_rect_lookup[bsize];
     const int bh = tx_size_high_unit[max_tx_size];
     const int bw = tx_size_wide_unit[max_tx_size];
     const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
