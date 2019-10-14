@@ -1177,6 +1177,18 @@ static void read_tx_partition(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
                         xd->left_txfm_context + blk_row, mbmi->tx_size,
                         max_tx_size);
 }
+
+static TX_SIZE read_tx_partition_intra(MACROBLOCKD *xd, aom_reader *r, TX_SIZE max_tx_size) {
+  const BLOCK_SIZE bsize = xd->mi[0]->sb_type;
+  const int ctx = get_tx_size_context(xd);
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  const int is_rect = is_rect_tx(max_tx_size);
+  const TX_PARTITION_TYPE partition = aom_read_symbol(r, ec_ctx->tx_size_cdf[is_rect][ctx],
+                                    TX_PARTITION_TYPES_INTRA, ACCT_STR);
+  TX_SIZE sub_txs[MAX_TX_PARTITIONS] = { 0 };
+  get_tx_partition_sizes(partition, max_tx_size, sub_txs);
+  return sub_txs[0];
+}
 #else
 static void read_tx_size_vartx(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
                                TX_SIZE tx_size, int depth,
@@ -1316,9 +1328,9 @@ static void parse_decode_block(AV1Decoder *const pbi, ThreadData *const td,
   const int num_planes = av1_num_planes(cm);
   MB_MODE_INFO *mbmi = xd->mi[0];
   int inter_block_tx = is_inter_block(mbmi) || is_intrabc_block(mbmi);
+  const TX_SIZE max_tx_size = max_txsize_rect_lookup[bsize];
   if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
       !mbmi->skip && inter_block_tx && !xd->lossless[mbmi->segment_id]) {
-    const TX_SIZE max_tx_size = max_txsize_rect_lookup[bsize];
     const int bh = tx_size_high_unit[max_tx_size];
     const int bw = tx_size_wide_unit[max_tx_size];
     const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
@@ -1336,7 +1348,13 @@ static void parse_decode_block(AV1Decoder *const pbi, ThreadData *const td,
                            idy, idx, r);
 #endif  // CONFIG_NEW_TX_PARTITION
   } else {
+    if (mi_row == 10 && mi_col == 32 && bsize == BLOCK_4X4)
+      printf("debug\n");
+#if CONFIG_NEW_TX_PARTITION
+    mbmi->tx_size = read_tx_partition_intra(xd, r, max_tx_size);
+#else
     mbmi->tx_size = read_tx_size(cm, xd, inter_block_tx, !mbmi->skip, r);
+#endif  // CONFIG_NEW_TX_PARTITION
     if (inter_block_tx)
       memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
     set_txfm_ctxs(mbmi->tx_size, xd->n4_w, xd->n4_h,
