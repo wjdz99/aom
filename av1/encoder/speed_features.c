@@ -376,9 +376,10 @@ static void set_good_speed_features_framesize_independent(
     // TODO(any): Refactor the code related to following winner mode speed
     // features
     sf->enable_winner_mode_for_coeff_opt = 1;
-    // TODO(any): Experiment with this speed feature by enabling for key frames
-    sf->enable_winner_mode_for_tx_size_srch =
-        frame_is_intra_only(&cpi->common) ? 0 : 1;
+    sf->enable_winner_mode_for_tx_size_srch = 1;
+    // TODO(any): Extend multi-winner mode processing support for inter frames
+    sf->enable_multiwinner_mode_process =
+        frame_is_intra_only(&cpi->common) ? 1 : 0;
     sf->enable_winner_mode_for_use_tx_domain_dist =
         cm->allow_screen_content_tools ? 0 : 1;
     sf->reduce_wiener_window_size = is_boosted_arf2_bwd_type ? 0 : 1;
@@ -401,10 +402,6 @@ static void set_good_speed_features_framesize_independent(
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 4;
     sf->adaptive_txb_search_level = boosted ? 2 : 3;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
-    sf->enable_winner_mode_for_tx_size_srch = 1;
-    // TODO(any): Extend multi-winner mode processing support for inter frames
-    sf->enable_multiwinner_mode_process =
-        frame_is_intra_only(&cpi->common) ? 1 : 0;
     // TODO(any): Experiment with this speed feature set to 2 for higher quality
     // presets as well
     sf->skip_intra_in_interframe = 2;
