@@ -6056,6 +6056,10 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     cpi->need_to_clear_prev_hash_table = 1;
   }
 
+  if (!cpi->cyclic_refresh->apply_cyclic_refresh) {
+    cpi->cyclic_refresh->last_frame_cr_off = 1;
+  }
+
   // Clear the one shot update flags for segmentation map and mode/ref loop
   // filter deltas.
   cm->seg.update_map = 0;

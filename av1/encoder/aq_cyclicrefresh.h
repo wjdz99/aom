@@ -65,6 +65,7 @@ struct CYCLIC_REFRESH {
   int qindex_delta[3];
   double weight_segment;
   int apply_cyclic_refresh;
+  int last_frame_cr_off;
 };
 
 struct AV1_COMP;
