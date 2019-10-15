@@ -1536,3 +1536,4 @@ static INLINE char const *get_frame_type_enum(int type) {
 #endif
 
 #endif  // AOM_AV1_ENCODER_ENCODER_H_
+>>>>>>> a4ab221d3334a7dbf6de5c902a68684a435c195d
