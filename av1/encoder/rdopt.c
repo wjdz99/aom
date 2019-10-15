@@ -3093,6 +3093,9 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       (!is_inter && cpi->oxcf.use_intra_dct_only)) {
     txk_allowed = DCT_DCT;
   }
+  int default_num_tx_allowed = 0;
+  for (int i = 0; i < TX_TYPES; i++)
+    if (ext_tx_used_flag & (1 << i)) default_num_tx_allowed++;
   uint16_t allowed_tx_mask = 0;  // 1: allow; 0: skip.
   if (txk_allowed < TX_TYPES) {
     allowed_tx_mask = 1 << txk_allowed;
@@ -3193,10 +3196,16 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   perform_block_coeff_opt = (block_mse_q8 <= x->coeff_opt_dist_threshold);
 
   assert(IMPLIES(txk_allowed < TX_TYPES, allowed_tx_mask == 1 << txk_allowed));
-
+  const int max_tx_count =
+      x->prune_tx_type && is_inter
+          ? AOMMIN((default_num_tx_allowed + 1) >> 1, x->max_tx_count)
+          : TX_TYPES;
+  int tx_count = 0;
   for (int idx = 0; idx < TX_TYPES; ++idx) {
     const TX_TYPE tx_type = (TX_TYPE)txk_map[idx];
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
+    if (tx_count > max_tx_count) break;
+    tx_count++;
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
