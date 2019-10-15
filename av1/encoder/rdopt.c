@@ -3305,6 +3305,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     txk_allowed = DCT_DCT;
   }
   uint16_t allowed_tx_mask = 0;  // 1: allow; 0: skip.
+  int enable_tx_prune = 0;
   if (txk_allowed < TX_TYPES) {
     allowed_tx_mask = 1 << txk_allowed;
     allowed_tx_mask &= ext_tx_used_flag;
@@ -3344,12 +3345,14 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
     // Go through ML model only if num_allowed > 5.
     // !fast_tx_search && txk_end != txk_start && plane == 0
-    if (cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE && is_inter &&
-        num_allowed > 5) {
-      const uint16_t prune = prune_tx_2D(
-          x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
-          cpi->sf.tx_type_search.prune_mode, txk_map, allowed_tx_mask);
+    if (x->prune_mode >= PRUNE_2D_ACCURATE && is_inter) {
+      const uint16_t prune =
+          prune_tx_2D(x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
+                      x->prune_mode, txk_map, allowed_tx_mask);
       allowed_tx_mask &= (~prune);
+      if (tx_set_type == EXT_TX_SET_ALL16 ||
+          tx_set_type == EXT_TX_SET_DTT9_IDTX_1DDCT)
+        enable_tx_prune = 1;
     }
   }
 
@@ -3404,10 +3407,18 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   perform_block_coeff_opt = (block_mse_q8 <= x->coeff_opt_dist_threshold);
 
   assert(IMPLIES(txk_allowed < TX_TYPES, allowed_tx_mask == 1 << txk_allowed));
-
+  const int max_tx_count = x->prune_tx_type && is_inter && enable_tx_prune
+                               ? x->max_tx_count
+                               : TX_TYPES;
+  int num_allowed = 0;
+  for (int tx_idx = 0; tx_idx < TX_TYPES; tx_idx++)
+    if (allowed_tx_mask & (1 << tx_idx)) num_allowed++;
+  int tx_count = 0;
   for (int idx = 0; idx < TX_TYPES; ++idx) {
     const TX_TYPE tx_type = (TX_TYPE)txk_map[idx];
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
+    if (tx_count >= max_tx_count) break;
+    tx_count++;
     if (plane == 0) xd->tx_type_map[tx_type_map_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
@@ -3541,9 +3552,8 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     }
 #endif  // COLLECT_TX_SIZE_DATA
 
-    if (cpi->sf.adaptive_txb_search_level) {
-      if ((best_rd - (best_rd >> cpi->sf.adaptive_txb_search_level)) >
-          ref_best_rd) {
+    if (x->adaptive_txb_search_level) {
+      if ((best_rd - (best_rd >> x->adaptive_txb_search_level)) > ref_best_rd) {
         break;
       }
     }
@@ -5570,9 +5580,8 @@ static AOM_INLINE void select_tx_block(
                           plane_bsize, ta, tl, ctx, rd_stats, ref_best_rd,
                           ftxs_mode, rd_info_node, &no_split);
 
-    if (cpi->sf.adaptive_txb_search_level &&
-        (no_split.rd -
-         (no_split.rd >> (1 + cpi->sf.adaptive_txb_search_level))) >
+    if (x->adaptive_txb_search_level &&
+        (no_split.rd - (no_split.rd >> (1 + x->adaptive_txb_search_level))) >
             ref_best_rd) {
       *is_cost_valid = 0;
       return;
@@ -5582,9 +5591,8 @@ static AOM_INLINE void select_tx_block(
       if (p->eobs[block] == 0) try_split = 0;
     }
 
-    if (cpi->sf.adaptive_txb_search_level &&
-        (no_split.rd -
-         (no_split.rd >> (2 + cpi->sf.adaptive_txb_search_level))) >
+    if (x->adaptive_txb_search_level &&
+        (no_split.rd - (no_split.rd >> (2 + x->adaptive_txb_search_level))) >
             prev_level_rd) {
       try_split = 0;
     }

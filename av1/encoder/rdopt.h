@@ -320,6 +320,10 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
           get_rd_opt_coeff_thresh(cpi->coeff_opt_dist_threshold, 0, 0);
       // Set default transform size search method
       set_tx_size_search_method(cpi, x, 0, 0);
+      x->prune_tx_type = 0;
+      x->max_tx_count = TX_TYPES;
+      x->prune_mode = cpi->sf.tx_type_search.prune_mode;
+      x->adaptive_txb_search_level = cpi->sf.adaptive_txb_search_level;
       break;
     case MODE_EVAL:
       x->use_default_intra_tx_type =
@@ -340,6 +344,10 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
       // Set the transform size search method for mode evaluation
       set_tx_size_search_method(cpi, x, sf->enable_winner_mode_for_tx_size_srch,
                                 0);
+      x->prune_tx_type = 1;
+      x->max_tx_count = 3;
+      x->prune_mode = cpi->sf.tx_type_search.prune_mode;
+      x->adaptive_txb_search_level = 3;
       break;
     case WINNER_MODE_EVAL:
       x->use_default_inter_tx_type = 0;
@@ -357,6 +365,10 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
       // Set the transform size search method for winner mode evaluation
       set_tx_size_search_method(cpi, x, sf->enable_winner_mode_for_tx_size_srch,
                                 1);
+      x->prune_tx_type = 0;
+      x->max_tx_count = TX_TYPES;
+      x->prune_mode = PRUNE_2D_ACCURATE;
+      x->adaptive_txb_search_level = 0;
       break;
     default: assert(0);
   }
