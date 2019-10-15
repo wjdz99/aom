@@ -661,7 +661,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->use_comp_ref_nonrd = 0;
     sf->inter_mode_rd_model_estimation = 2;
     sf->cdef_pick_method = CDEF_PICK_FROM_Q;
-    sf->max_intra_bsize = BLOCK_16X16;
+    sf->max_intra_bsize = BLOCK_32X32;
   }
   if (speed >= 8) {
     sf->use_fast_nonrd_pick_mode = 1;
@@ -813,7 +813,6 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->disable_sb_level_coeff_cost_upd = 0;
   sf->disable_sb_level_mv_cost_upd = 0;
   sf->disable_overlay_frames = 0;
-  sf->skip_interp_filter_search = 0;
 
   for (i = 0; i < TX_SIZES; i++) {
     sf->intra_y_mode_mask[i] = INTRA_ALL;
