@@ -401,6 +401,14 @@ static const MODE_DEFINITION av1_mode_defs[MAX_MODES] = {
 };
 
 static const THR_MODES av1_default_mode_order[MAX_MODES] = {
+  THR_DC,
+  THR_PAETH,
+  THR_SMOOTH,
+  THR_SMOOTH_V,
+  THR_SMOOTH_H,
+  THR_H_PRED,
+  THR_V_PRED,
+
   THR_NEARESTMV,
   THR_NEARESTL2,
   THR_NEARESTL3,
@@ -578,13 +586,6 @@ static const THR_MODES av1_default_mode_order[MAX_MODES] = {
   THR_COMP_NEW_NEWBA,
   THR_COMP_GLOBAL_GLOBALBA,
 
-  THR_DC,
-  THR_PAETH,
-  THR_SMOOTH,
-  THR_SMOOTH_V,
-  THR_SMOOTH_H,
-  THR_H_PRED,
-  THR_V_PRED,
   THR_D135_PRED,
   THR_D203_PRED,
   THR_D157_PRED,
@@ -13004,6 +13005,39 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     }
   }
 
+  // Gate intra mode evaluation if best of inter is skip except when source
+  // variance is extremely low
+  if (sf->skip_intra_in_interframe &&
+      (x->source_variance > sf->src_var_thresh_intra_skip)) {
+    if (inter_cost >= 0 && intra_cost >= 0) {
+      aom_clear_system_state();
+      const NN_CONFIG *nn_config = (AOMMIN(cm->width, cm->height) <= 480)
+                                       ? &av1_intrap_nn_config
+                                       : &av1_intrap_hd_nn_config;
+      float features[6];
+      float scores[2] = { 0.0f };
+      float probs[2] = { 0.0f };
+
+      features[0] = (float)search_state.best_mbmode.skip;
+      features[1] = (float)mi_size_wide_log2[bsize];
+      features[2] = (float)mi_size_high_log2[bsize];
+      features[3] = (float)intra_cost;
+      features[4] = (float)inter_cost;
+      const int ac_q = av1_ac_quant_QTX(x->qindex, 0, xd->bd);
+      const int ac_q_max = av1_ac_quant_QTX(255, 0, xd->bd);
+      features[5] = (float)(ac_q_max / ac_q);
+
+      av1_nn_predict(features, nn_config, 1, scores);
+      aom_clear_system_state();
+      av1_nn_softmax(scores, probs, 2);
+
+      if (probs[1] > 0.8) search_state.skip_intra_modes = 1;
+    } else if ((search_state.best_mbmode.skip) &&
+               (sf->skip_intra_in_interframe >= 2)) {
+      search_state.skip_intra_modes = 1;
+    }
+  }
+
   const int last_single_ref_mode_idx =
       find_last_single_ref_mode_idx(av1_default_mode_order);
   int prune_cpd_using_sr_stats_ready = 0;
@@ -13095,7 +13129,46 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       // Intra modes will be handled in another loop later.
       assert(intra_mode_num < INTRA_MODES);
       intra_mode_idx_ls[intra_mode_num++] = mode_enum;
-      continue;
+
+      const int intra_ref_frame_cost = ref_costs_single[INTRA_FRAME];
+
+      {
+        if (sf->skip_intra_in_interframe && search_state.skip_intra_modes)
+          continue;
+
+        assert(av1_mode_defs[mode_enum].ref_frame[0] == INTRA_FRAME);
+        assert(av1_mode_defs[mode_enum].ref_frame[1] == NONE_FRAME);
+        init_mbmi(mbmi, this_mode, av1_mode_defs[mode_enum].ref_frame, cm);
+        x->skip = 0;
+
+        if (this_mode != DC_PRED) {
+          // Only search the oblique modes if the best so far is
+          // one of the neighboring directional modes
+          if ((sf->mode_search_skip_flags & FLAG_SKIP_INTRA_BESTINTER) &&
+              (this_mode >= D45_PRED && this_mode <= PAETH_PRED)) {
+            if (search_state.best_mode_index >= 0 &&
+                search_state.best_mbmode.ref_frame[0] > INTRA_FRAME)
+              continue;
+          }
+          if (sf->mode_search_skip_flags & FLAG_SKIP_INTRA_DIRMISMATCH) {
+            if (conditional_skipintra(this_mode, search_state.best_intra_mode))
+              continue;
+          }
+        }
+
+        RD_STATS intra_rd_stats, intra_rd_stats_y, intra_rd_stats_uv;
+        intra_rd_stats.rdcost = handle_intra_mode(
+            &search_state, cpi, x, bsize, mi_row, mi_col, intra_ref_frame_cost,
+            ctx, 0, &intra_rd_stats, &intra_rd_stats_y, &intra_rd_stats_uv);
+        if (intra_rd_stats.rdcost < search_state.best_rd) {
+          const int txfm_search_done = 1;
+          update_search_state(&search_state, rd_cost, ctx, &intra_rd_stats,
+                              &intra_rd_stats_y, &intra_rd_stats_uv, mode_enum,
+                              x, txfm_search_done);
+        }
+
+        continue;
+      }
     }
 
     // Select prediction reference frames.
@@ -13273,77 +13346,6 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   start_timing(cpi, handle_intra_mode_time);
 #endif
 
-  // Gate intra mode evaluation if best of inter is skip except when source
-  // variance is extremely low
-  if (sf->skip_intra_in_interframe &&
-      (x->source_variance > sf->src_var_thresh_intra_skip)) {
-    if (inter_cost >= 0 && intra_cost >= 0) {
-      aom_clear_system_state();
-      const NN_CONFIG *nn_config = (AOMMIN(cm->width, cm->height) <= 480)
-                                       ? &av1_intrap_nn_config
-                                       : &av1_intrap_hd_nn_config;
-      float features[6];
-      float scores[2] = { 0.0f };
-      float probs[2] = { 0.0f };
-
-      features[0] = (float)search_state.best_mbmode.skip;
-      features[1] = (float)mi_size_wide_log2[bsize];
-      features[2] = (float)mi_size_high_log2[bsize];
-      features[3] = (float)intra_cost;
-      features[4] = (float)inter_cost;
-      const int ac_q = av1_ac_quant_QTX(x->qindex, 0, xd->bd);
-      const int ac_q_max = av1_ac_quant_QTX(255, 0, xd->bd);
-      features[5] = (float)(ac_q_max / ac_q);
-
-      av1_nn_predict(features, nn_config, 1, scores);
-      aom_clear_system_state();
-      av1_nn_softmax(scores, probs, 2);
-
-      if (probs[1] > 0.8) search_state.skip_intra_modes = 1;
-    } else if ((search_state.best_mbmode.skip) &&
-               (sf->skip_intra_in_interframe >= 2)) {
-      search_state.skip_intra_modes = 1;
-    }
-  }
-
-  const int intra_ref_frame_cost = ref_costs_single[INTRA_FRAME];
-  for (int j = 0; j < intra_mode_num; ++j) {
-    if (sf->skip_intra_in_interframe && search_state.skip_intra_modes) break;
-    const THR_MODES mode_enum = intra_mode_idx_ls[j];
-    const MODE_DEFINITION *mode_def = &av1_mode_defs[mode_enum];
-    const PREDICTION_MODE this_mode = mode_def->mode;
-
-    assert(av1_mode_defs[mode_enum].ref_frame[0] == INTRA_FRAME);
-    assert(av1_mode_defs[mode_enum].ref_frame[1] == NONE_FRAME);
-    init_mbmi(mbmi, this_mode, av1_mode_defs[mode_enum].ref_frame, cm);
-    x->skip = 0;
-
-    if (this_mode != DC_PRED) {
-      // Only search the oblique modes if the best so far is
-      // one of the neighboring directional modes
-      if ((sf->mode_search_skip_flags & FLAG_SKIP_INTRA_BESTINTER) &&
-          (this_mode >= D45_PRED && this_mode <= PAETH_PRED)) {
-        if (search_state.best_mode_index >= 0 &&
-            search_state.best_mbmode.ref_frame[0] > INTRA_FRAME)
-          continue;
-      }
-      if (sf->mode_search_skip_flags & FLAG_SKIP_INTRA_DIRMISMATCH) {
-        if (conditional_skipintra(this_mode, search_state.best_intra_mode))
-          continue;
-      }
-    }
-
-    RD_STATS intra_rd_stats, intra_rd_stats_y, intra_rd_stats_uv;
-    intra_rd_stats.rdcost = handle_intra_mode(
-        &search_state, cpi, x, bsize, mi_row, mi_col, intra_ref_frame_cost, ctx,
-        0, &intra_rd_stats, &intra_rd_stats_y, &intra_rd_stats_uv);
-    if (intra_rd_stats.rdcost < search_state.best_rd) {
-      const int txfm_search_done = 1;
-      update_search_state(&search_state, rd_cost, ctx, &intra_rd_stats,
-                          &intra_rd_stats_y, &intra_rd_stats_uv, mode_enum, x,
-                          txfm_search_done);
-    }
-  }
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, handle_intra_mode_time);
 #endif
