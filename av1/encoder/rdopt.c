@@ -1911,7 +1911,9 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
 
   av1_nn_softmax(scores_2D_raw, scores_2D, 16);
 
-  const int prune_aggr_table[3][2] = { { 4, 1 }, { 6, 3 }, { 9, 6 } };
+  const int prune_aggr_table[4][2] = {
+    { 4, 1 }, { 6, 3 }, { 9, 6 }, { 12, 9 }
+  };
   int pruning_aggressiveness = 0;
   if (tx_set_type == EXT_TX_SET_ALL16) {
     pruning_aggressiveness =
@@ -3344,11 +3346,10 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
     // Go through ML model only if num_allowed > 5.
     // !fast_tx_search && txk_end != txk_start && plane == 0
-    if (cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE && is_inter &&
-        num_allowed > 5) {
-      const uint16_t prune = prune_tx_2D(
-          x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
-          cpi->sf.tx_type_search.prune_mode, txk_map, allowed_tx_mask);
+    if (x->prune_mode >= PRUNE_2D_ACCURATE && is_inter) {
+      const uint16_t prune =
+          prune_tx_2D(x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
+                      x->prune_mode, txk_map, allowed_tx_mask);
       allowed_tx_mask &= (~prune);
     }
   }
