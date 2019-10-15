@@ -1946,7 +1946,7 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
       prune_2D_adaptive_thresholds[tx_size][pruning_aggressiveness];
 
   uint16_t prune_bitmask = 0;
-  for (int i = 0; i < 16; i++) {
+  for (int i = ADST_DCT; i < 16; i++) {
     if (scores_2D[i] < score_thresh && i != max_score_i)
       prune_bitmask |= (1 << tx_type_table_2D[i]);
   }
@@ -3337,7 +3337,8 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
         }
       }
 
-      for (i = 0; i < TX_TYPES; i++) {
+      const int start_idx = is_inter ? ADST_DCT : DCT_DCT;
+      for (i = start_idx; i < TX_TYPES; i++) {
         if (tx_type_probs[i] < thresh && i != max_idx) prune |= (1 << i);
       }
       allowed_tx_mask &= (~prune);
@@ -3350,8 +3351,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
     // Go through ML model only if num_allowed > 5.
     // !fast_tx_search && txk_end != txk_start && plane == 0
-    if (cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE && is_inter &&
-        num_allowed > 5) {
+    if (cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE && is_inter) {
       const uint16_t prune = prune_tx_2D(
           x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
           cpi->sf.tx_type_search.prune_mode, txk_map, allowed_tx_mask);
@@ -3408,12 +3408,30 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   // larger residuals, R-D optimization may not be effective.
   // TODO(any): Experiment with variance and mean based thresholds
   perform_block_coeff_opt = (block_mse_q8 <= x->coeff_opt_dist_threshold);
+  int max_tx_count = TX_TYPES;
+  if (is_inter && x->prune_tx_type && plane == AOM_PLANE_Y) {
+    int tx_idx;
+    // Find DCT_DCT evaluation order
+    for (tx_idx = 0; tx_idx < TX_TYPES; tx_idx++)
+      if (txk_map[tx_idx] == DCT_DCT) break;
+    assert(tx_idx < TX_TYPES);
+    if (tx_idx) {
+      memmove(&txk_map[1], &txk_map[0], tx_idx * sizeof(txk_map[0]));
+      txk_map[0] = DCT_DCT;
+    }
+    int num_allowed = 0;
+    for (tx_idx = 0; tx_idx < TX_TYPES; tx_idx++)
+      if (allowed_tx_mask & (1 << tx_idx)) num_allowed++;
+    max_tx_count = AOMMIN((num_allowed + 1) >> 1, x->max_tx_count);
+  }
 
   assert(IMPLIES(txk_allowed < TX_TYPES, allowed_tx_mask == 1 << txk_allowed));
-
+  int tx_count = 0;
   for (int idx = 0; idx < TX_TYPES; ++idx) {
     const TX_TYPE tx_type = (TX_TYPE)txk_map[idx];
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
+    if (tx_count >= max_tx_count) continue;
+    tx_count++;
     if (plane == 0) xd->tx_type_map[tx_type_map_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
