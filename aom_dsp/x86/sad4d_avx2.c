@@ -14,6 +14,7 @@
 
 #include "aom/aom_integer.h"
 
+
 void aom_sad32x32x4d_avx2(const uint8_t *src, int src_stride,
                           const uint8_t *const ref[4], int ref_stride,
                           uint32_t res[4]) {
