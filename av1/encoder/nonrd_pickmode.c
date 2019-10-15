@@ -1263,6 +1263,50 @@ typedef struct _mode_search_stat {
 } mode_search_stat;
 #endif  // COLLECT_PICK_MODE_STAT
 
+static void compute_intra_yprediction(const AV1_COMMON *cm,
+                                      PREDICTION_MODE mode, BLOCK_SIZE bsize,
+                                      MACROBLOCK *x, MACROBLOCKD *xd) {
+  struct macroblockd_plane *const pd = &xd->plane[0];
+  struct macroblock_plane *const p = &x->plane[0];
+  uint8_t *const src_buf_base = p->src.buf;
+  uint8_t *const dst_buf_base = pd->dst.buf;
+  const int src_stride = p->src.stride;
+  const int dst_stride = pd->dst.stride;
+  // block and transform sizes, in number of 4x4 blocks log 2 ("*_b")
+  // 4x4=0, 8x8=2, 16x16=4, 32x32=6, 64x64=8
+  const TX_SIZE tx_size = max_txsize_lookup[bsize];
+  const int num_4x4_w = mi_size_wide[bsize];
+  const int num_4x4_h = mi_size_high[bsize];
+  int row, col;
+  // If mb_to_right_edge is < 0 we are in a situation in which
+  // the current block size extends into the UMV and we won't
+  // visit the sub blocks that are wholly within the UMV.
+  const int max_blocks_wide =
+      num_4x4_w + (xd->mb_to_right_edge >= 0
+                       ? 0
+                       : xd->mb_to_right_edge >> (5 + pd->subsampling_x));
+  const int max_blocks_high =
+      num_4x4_h + (xd->mb_to_bottom_edge >= 0
+                       ? 0
+                       : xd->mb_to_bottom_edge >> (5 + pd->subsampling_y));
+
+  // Keep track of the row and column of the blocks we use so that we know
+  // if we are in the unrestricted motion border.
+  for (row = 0; row < max_blocks_high; row += (1 << tx_size)) {
+    // Skip visiting the sub blocks that are wholly within the UMV.
+    for (col = 0; col < max_blocks_wide; col += (1 << tx_size)) {
+      p->src.buf = &src_buf_base[4 * (row * (int64_t)src_stride + col)];
+      pd->dst.buf = &dst_buf_base[4 * (row * (int64_t)dst_stride + col)];
+      av1_predict_intra_block(cm, xd, block_size_wide[bsize],
+                              block_size_high[bsize], tx_size, mode, 0, 0,
+                              FILTER_INTRA_MODES, pd->dst.buf, dst_stride,
+                              pd->dst.buf, dst_stride, 0, 0, 0);
+    }
+  }
+  p->src.buf = src_buf_base;
+  pd->dst.buf = dst_buf_base;
+}
+
 void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                        MACROBLOCK *x, int mi_row, int mi_col,
                                        RD_STATS *rd_cost, BLOCK_SIZE bsize,
@@ -1324,7 +1368,7 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       cm->base_qindex, cm->y_dc_delta_q, cm->seq_params.bit_depth);
   const int64_t inter_mode_thresh = RDCOST(x->rdmult, intra_cost_penalty, 0);
   const int perform_intra_pred = cpi->sf.check_intra_pred_nonrd;
-
+  int skip_early_term = 0;
   (void)best_rd_so_far;
 
   init_best_pickmode(&best_pickmode);
@@ -1749,6 +1793,7 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     }
     if (best_early_term && idx > 0) {
       x->skip = 1;
+      skip_early_term = 1;
       break;
     }
   }
@@ -1770,8 +1815,10 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   mi->filter_intra_mode_info.use_filter_intra = 0;
   // TODO(kyslov@) Need to adjust inter_mode_thresh
   if (best_rdc.rdcost == INT64_MAX ||
-      (perform_intra_pred && !x->skip && best_rdc.rdcost > inter_mode_thresh &&
+      (perform_intra_pred && skip_early_term &&
+       best_rdc.rdcost > inter_mode_thresh &&
        bsize <= cpi->sf.max_intra_bsize)) {
+    int64_t this_sse = INT64_MAX;
     struct estimate_block_intra_args args = { cpi, x, DC_PRED, 1, 0 };
     PRED_BUFFER *const best_pred = best_pickmode.best_pred;
     TX_SIZE intra_tx_size =
@@ -1796,6 +1843,9 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
           mode_idx[INTRA_FRAME][mode_offset(this_mode)];
       const int mode_rd_thresh = rd_threshes[mode_index];
 
+      // Only check DC for blocks >= 32X32.
+      if (this_mode > 0 && bsize >= BLOCK_32X32) continue;
+
       if (rd_less_than_thresh(best_rdc.rdcost, mode_rd_thresh,
                               rd_thresh_freq_fact[mode_index])) {
         continue;
@@ -1812,8 +1862,11 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       args.skippable = 1;
       args.rdc = &this_rdc;
       mi->tx_size = intra_tx_size;
-      av1_foreach_transformed_block_in_plane(xd, bsize, 0, estimate_block_intra,
-                                             &args);
+      compute_intra_yprediction(cm, this_mode, bsize, x, xd);
+      model_rd_for_sb_y(cpi, bsize, x, xd, &this_rdc.rate, &this_rdc.dist,
+                        &this_rdc.skip, NULL, &var_y, &sse_y, 0);
+      block_yrd(cpi, x, mi_row, mi_col, &this_rdc, &args.skippable, &this_sse,
+                bsize, mi->tx_size);
       // TODO(kyslov@) Need to account for skippable
       if (x->color_sensitivity[0])
         av1_foreach_transformed_block_in_plane(xd, uv_bsize, 1,
