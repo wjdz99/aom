@@ -1808,6 +1808,29 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     // Define next KF group and assign bits to it.
     find_next_key_frame(cpi, &this_frame);
     this_frame = this_frame_copy;
+    if (cpi->oxcf.pass == 2) {
+      FILE *fpfile;
+      fpfile = fopen("firstpass_stats.txt", "a");
+
+      int i = 0;
+      while (true) {
+        const FIRSTPASS_STATS *stats = read_frame_stats(twopass, i);
+        ++i;
+        if (stats == NULL) break;
+        fprintf(fpfile,
+                "%12.0lf %12.4lf %12.0lf %12.0lf %12.0lf %12.4lf %12.4lf"
+                "%12.4lf %12.4lf %12.4lf %12.4lf %12.4lf %12.4lf %12.4lf %12.4lf"
+                "%12.4lf %12.4lf %12.0lf %12.0lf %12.0lf %12.4lf %12.4lf\n",
+                stats->frame, stats->weight, stats->intra_error, stats->coded_error,
+                stats->sr_coded_error, stats->pcnt_inter, stats->pcnt_motion,
+                stats->pcnt_second_ref, stats->pcnt_neutral, stats->intra_skip_pct,
+                stats->inactive_zone_rows, stats->inactive_zone_cols, stats->MVr,
+                stats->mvr_abs, stats->MVc, stats->mvc_abs, stats->MVrv,
+                stats->MVcv, stats->mv_in_out_count, stats->new_mv_count,
+                stats->count, stats->duration);
+      }
+      fclose(fpfile);
+    }
   } else {
     frame_params->frame_type = INTER_FRAME;
   }
