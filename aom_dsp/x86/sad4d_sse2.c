@@ -131,8 +131,8 @@ AOM_FORCE_INLINE void aom_sadMxNx4d_sse2(int M, int N, const uint8_t *src,
   sum_ref1 = _mm_setzero_si128();
   sum_ref3 = _mm_setzero_si128();
   for (i = 0; i < N; i++) {
-    // load src and all refs
     for (j = 0; j < M; j += 16) {
+    // load src and all refs
       src_reg = _mm_loadu_si128((const __m128i *)(src + j));
       ref0_reg = _mm_loadu_si128((const __m128i *)(ref0 + j));
       ref1_reg = _mm_loadu_si128((const __m128i *)(ref1 + j));
