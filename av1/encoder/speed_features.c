@@ -247,7 +247,7 @@ static void set_good_speed_features_framesize_independent(
   sf->model_based_post_interp_filter_breakout = 1;
 
   // TODO(debargha): Test, tweak and turn on either 1 or 2
-  sf->inter_mode_rd_model_estimation = 1;
+  sf->inter_mode_rd_model_estimation = 0;
   sf->prune_compound_using_single_ref = 1;
 
   sf->prune_mode_search_simple_translation = 1;
