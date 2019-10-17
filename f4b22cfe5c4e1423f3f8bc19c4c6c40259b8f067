@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "88c76fdf_29167e3b",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-10-17T00:52:49Z",
+      "side": 1,
+      "message": "New patch adds helper function for metadata adding and tries to prevent user from accessing to image metadata arrays directly, taking some of your suggestions into account.",
+      "parentUuid": "50b25014_fdd3193f",
+      "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0be38e07_a1c8a5ad",
         "filename": "aom/aom_image.h",
         "patchSetId": 8
@@ -75,6 +93,30 @@
       "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89467a27_254e495e",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-10-17T00:52:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0be38e07_a1c8a5ad",
+      "range": {
+        "startLine": 365,
+        "startChar": 35,
+        "endLine": 365,
+        "endChar": 42
+      },
+      "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -101,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "b60319ee_1d88f630",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-10-17T00:52:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e1f7be1f_61b20cca",
+      "range": {
+        "startLine": 366,
+        "startChar": 11,
+        "endLine": 366,
+        "endChar": 15
+      },
+      "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "710c5550_5d6e66b5",
         "filename": "aom/aom_image.h",
         "patchSetId": 8
@@ -121,6 +187,30 @@
       "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64ed0464_b7180928",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-10-17T00:52:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "710c5550_5d6e66b5",
+      "range": {
+        "startLine": 375,
+        "startChar": 11,
+        "endLine": 375,
+        "endChar": 29
+      },
+      "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -192,6 +282,30 @@
       "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b122f16_392a6c94",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-10-17T00:52:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "47f8238c_cc263496",
+      "range": {
+        "startLine": 300,
+        "startChar": 47,
+        "endLine": 300,
+        "endChar": 53
+      },
+      "revId": "f4b22cfe5c4e1423f3f8bc19c4c6c40259b8f067",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
