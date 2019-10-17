@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bbecac6d_e3c7cacd",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2019-10-17T15:50:07Z",
+      "side": 1,
+      "message": "Code base currently use xx_yy_zz for variables in general, not CamelCase.",
+      "range": {
+        "startLine": 515,
+        "startChar": 15,
+        "endLine": 515,
+        "endChar": 28
+      },
+      "revId": "f281892e12e7342da24c0221695fee1e20b9658a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "881ba7bd_075bab04",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 656,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2019-10-17T15:50:07Z",
+      "side": 1,
+      "message": "Do you use this in the decoder? If not in decoder at all, maybe this structure should be in aom_encoder.h instead?",
+      "range": {
+        "startLine": 656,
+        "startChar": 2,
+        "endLine": 656,
+        "endChar": 16
+      },
+      "revId": "f281892e12e7342da24c0221695fee1e20b9658a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "019840f3_2bd06a25",
+        "filename": "aom/src/aom_encoder.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2019-10-17T15:50:07Z",
+      "side": 1,
+      "message": "this should be outside of the list of system headers, probably below \u003cstrings.h\u003e",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 26
+      },
+      "revId": "f281892e12e7342da24c0221695fee1e20b9658a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31409616_4ad8d4d9",
+        "filename": "apps/aomenc.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2019-10-17T15:50:07Z",
+      "side": 1,
+      "message": "generally header files in same category should be in alphabetic order",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 26
+      },
+      "revId": "f281892e12e7342da24c0221695fee1e20b9658a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f90c0f70_141396df",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2019-10-17T15:50:07Z",
+      "side": 1,
+      "message": "similarly, if there is no usage in decoder, maybe this should be in an encoder-only structure.",
+      "range": {
+        "startLine": 573,
+        "startChar": 2,
+        "endLine": 573,
+        "endChar": 31
+      },
+      "revId": "f281892e12e7342da24c0221695fee1e20b9658a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
