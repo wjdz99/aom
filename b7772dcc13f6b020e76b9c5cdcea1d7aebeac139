@@ -22,6 +22,30 @@
       "revId": "b7772dcc13f6b020e76b9c5cdcea1d7aebeac139",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e79d51e_694bba38",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 12835,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-10-17T17:12:58Z",
+      "side": 1,
+      "message": "I\u0027ve noticed a lot of variables in search_state are not needed when txfm_search_done is false. I\u0027m still cleaning up the variables in search_state, so I will probably do this along with the clean-up patch.",
+      "parentUuid": "e3481b01_ca981dd7",
+      "range": {
+        "startLine": 12835,
+        "startChar": 2,
+        "endLine": 12835,
+        "endChar": 48
+      },
+      "revId": "b7772dcc13f6b020e76b9c5cdcea1d7aebeac139",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
