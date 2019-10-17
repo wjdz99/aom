@@ -494,6 +494,7 @@ typedef struct macroblockd {
 
   uint8_t *tx_type_map;
   int tx_type_map_stride;
+  uint8_t tx_type_map_buf[MAX_MIB_SIZE * MAX_MIB_SIZE];
 
   int up_available;
   int left_available;
