@@ -341,8 +341,15 @@ static AOM_INLINE void set_offsets(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
   xd->mi = cm->mi_grid_base + get_mi_grid_idx(cm, mi_row, mi_col);
   xd->mi[0] = &cm->mi[get_alloc_mi_idx(cm, mi_row, mi_col)];
+#if CONFIG_INSPECTION
   xd->tx_type_map = &cm->tx_type_map[mi_row * cm->mi_stride + mi_col];
   xd->tx_type_map_stride = cm->mi_stride;
+#else
+  xd->tx_type_map =
+      &xd->tx_type_map_buf[(mi_row & MAX_MIB_MASK) * MAX_MIB_SIZE +
+                           (mi_col & MAX_MIB_MASK)];
+  xd->tx_type_map_stride = MAX_MIB_SIZE;
+#endif  // CONFIG_INSPECTION
   // TODO(slavarnway): Generate sb_type based on bwl and bhl, instead of
   // passing bsize from decode_partition().
   xd->mi[0]->sb_type = bsize;
@@ -1507,8 +1514,15 @@ static AOM_INLINE void set_offsets_for_pred_and_recon(AV1Decoder *const pbi,
   const TileInfo *const tile = &xd->tile;
 
   xd->mi = cm->mi_grid_base + offset;
+#if CONFIG_INSPECTION
   xd->tx_type_map = &cm->tx_type_map[mi_row * cm->mi_stride + mi_col];
   xd->tx_type_map_stride = cm->mi_stride;
+#else
+  xd->tx_type_map =
+      &xd->tx_type_map_buf[(mi_row & MAX_MIB_MASK) * MAX_MIB_SIZE +
+                           (mi_col & MAX_MIB_MASK)];
+  xd->tx_type_map_stride = MAX_MIB_SIZE;
+#endif  // CONFIG_INSPECTION
   xd->cfl.mi_row = mi_row;
   xd->cfl.mi_col = mi_col;
 
