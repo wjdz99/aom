@@ -730,7 +730,7 @@ static AOM_INLINE void pick_sb_modes(AV1_COMP *const cpi,
   mbmi->mi_col = mi_col;
 #endif
 
-  xd->tx_type_map = x->tx_type_map;
+  xd->tx_type_map = xd->tx_type_map_buf;
   xd->tx_type_map_stride = mi_size_wide[bsize];
 
   for (i = 0; i < num_planes; ++i) {
