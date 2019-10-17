@@ -940,6 +940,7 @@ typedef struct SingleInterModeState {
 
 typedef struct InterModeSearchState {
   int64_t best_rd;
+  int64_t best_est_rd;
   MB_MODE_INFO best_mbmode;
   int best_rate_y;
   int best_rate_uv;
@@ -11059,9 +11060,11 @@ static int64_t handle_inter_mode(
   x->skip = best_xskip;
   assert(IMPLIES(mbmi->comp_group_idx == 1,
                  mbmi->interinter_comp.type != COMPOUND_AVERAGE));
-  memcpy(x->blk_skip, best_blk_skip,
-         sizeof(best_blk_skip[0]) * xd->n4_h * xd->n4_w);
-  av1_copy_array(xd->tx_type_map, best_tx_type_map, xd->n4_h * xd->n4_w);
+  if (do_tx_search) {
+    memcpy(x->blk_skip, best_blk_skip,
+           sizeof(best_blk_skip[0]) * xd->n4_h * xd->n4_w);
+    av1_copy_array(xd->tx_type_map, best_tx_type_map, xd->n4_h * xd->n4_w);
+  }
 
   rd_stats->rdcost = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
 
@@ -12041,6 +12044,7 @@ static AOM_INLINE void init_inter_mode_search_state(
     InterModeSearchState *search_state, const AV1_COMP *cpi,
     const MACROBLOCK *x, BLOCK_SIZE bsize, int64_t best_rd_so_far) {
   search_state->best_rd = best_rd_so_far;
+  search_state->best_est_rd = best_rd_so_far;
 
   av1_zero(search_state->best_mbmode);
 
@@ -12844,31 +12848,34 @@ static INLINE void update_search_state(
     PICK_MODE_CONTEXT *ctx, const RD_STATS *new_best_rd_stats,
     const RD_STATS *new_best_rd_stats_y, const RD_STATS *new_best_rd_stats_uv,
     THR_MODES new_best_mode, const MACROBLOCK *x, int txfm_search_done) {
-  const MACROBLOCKD *xd = &x->e_mbd;
-  const MB_MODE_INFO *mbmi = xd->mi[0];
-  const int skip_ctx = av1_get_skip_context(xd);
-  const int mode_is_intra =
-      (av1_mode_defs[new_best_mode].mode < INTRA_MODE_END);
-  const int skip = mbmi->skip && !mode_is_intra;
-
-  search_state->best_rd = new_best_rd_stats->rdcost;
-  search_state->best_mode_index = new_best_mode;
   *best_rd_stats_dst = *new_best_rd_stats;
-  search_state->best_mbmode = *mbmi;
-  search_state->best_skip2 = skip;
-  search_state->best_mode_skippable = new_best_rd_stats->skip;
   // When !txfm_search_done, new_best_rd_stats won't provide correct rate_y and
   // rate_uv because txfm_search process is replaced by rd estimation.
   // Therfore, we should avoid updating best_rate_y and best_rate_uv here.
   // These two values will be updated when txfm_search is called.
   if (txfm_search_done) {
+    const MACROBLOCKD *xd = &x->e_mbd;
+    const MB_MODE_INFO *mbmi = xd->mi[0];
+    const int skip_ctx = av1_get_skip_context(xd);
+    const int mode_is_intra =
+        (av1_mode_defs[new_best_mode].mode < INTRA_MODE_END);
+    const int skip = mbmi->skip && !mode_is_intra;
+
+    search_state->best_rd = new_best_rd_stats->rdcost;
+    search_state->best_mode_index = new_best_mode;
+    search_state->best_mbmode = *mbmi;
+    search_state->best_skip2 = skip;
+    search_state->best_mode_skippable = new_best_rd_stats->skip;
     search_state->best_rate_y =
         new_best_rd_stats_y->rate +
         x->skip_cost[skip_ctx][new_best_rd_stats->skip || skip];
     search_state->best_rate_uv = new_best_rd_stats_uv->rate;
+    memcpy(ctx->blk_skip, x->blk_skip,
+           sizeof(x->blk_skip[0]) * ctx->num_4x4_blk);
+    av1_copy_array(ctx->tx_type_map, xd->tx_type_map, ctx->num_4x4_blk);
+  } else {
+    search_state->best_est_rd = new_best_rd_stats->rdcost;
   }
-  memcpy(ctx->blk_skip, x->blk_skip, sizeof(x->blk_skip[0]) * ctx->num_4x4_blk);
-  av1_copy_array(ctx->tx_type_map, xd->tx_type_map, ctx->num_4x4_blk);
 }
 
 // Find the best RD for a reference frame (among single reference modes)
@@ -12929,7 +12936,9 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   };
   for (i = 0; i < REF_FRAMES; ++i) x->pred_sse[i] = INT_MAX;
 
+  RD_STATS est_rd_stats;
   av1_invalid_rd_stats(rd_cost);
+  av1_invalid_rd_stats(&est_rd_stats);
 
   // Ref frames that are selected by square partition blocks.
   int picked_ref_frames_mask = 0;
@@ -13053,6 +13062,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     const int is_single_pred =
         ref_frame > INTRA_FRAME && second_ref_frame == NONE_FRAME;
     const int comp_pred = second_ref_frame > INTRA_FRAME;
+    const int is_intra_pred = ref_frame == INTRA_FRAME;
+    const int mode_does_tx_search = do_tx_search || is_intra_pred;
 
     if (sf->prune_compound_using_single_ref && prune_cpd_using_sr_stats_ready &&
         comp_pred &&
@@ -13078,7 +13089,13 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       }
     }
 
-    if (search_state.best_rd < search_state.mode_threshold[mode_enum]) continue;
+    // TOCO(chiyotsai@google.com): Ideally we would use only best_rd or
+    // best_est_rd based on mode_does_tx_search. But this causes a large slow
+    // down in intramode without much improvement in quality. So now we use both
+    // best_rd and best_est_rd.
+    if (AOMMIN(search_state.best_rd, search_state.best_est_rd) <
+        search_state.mode_threshold[mode_enum])
+      continue;
 
     if (sf->prune_comp_search_by_single_result > 0 && comp_pred) {
       if (compound_skip_by_single_states(cpi, &search_state, this_mode,
@@ -13121,7 +13138,6 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     mbmi->filter_intra_mode_info.use_filter_intra = 0;
     mbmi->ref_mv_idx = 0;
 
-    const int64_t ref_best_rd = search_state.best_rd;
     int disable_skip = 0;
     RD_STATS rd_stats, rd_stats_y, rd_stats_uv;
     av1_init_rd_stats(&rd_stats);
@@ -13138,6 +13154,9 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     if (is_single_pred) {
       args.simple_rd_state = x->simple_rd_state[mode_enum];
     }
+
+    int64_t ref_best_rd =
+        mode_does_tx_search ? search_state.best_rd : search_state.best_est_rd;
 
     int64_t this_rd = handle_inter_mode(
         cpi, tile_data, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
@@ -13162,12 +13181,18 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     }
 
     // Did this mode help, i.e., is it the new best mode
-    if (this_rd < search_state.best_rd || x->skip) {
+    ref_best_rd =
+        mode_does_tx_search ? search_state.best_rd : search_state.best_est_rd;
+
+    if (this_rd < ref_best_rd || x->skip) {
       assert(IMPLIES(comp_pred,
                      cm->current_frame.reference_mode != SINGLE_REFERENCE));
       search_state.best_pred_sse = x->pred_sse[ref_frame];
-      update_search_state(&search_state, rd_cost, ctx, &rd_stats, &rd_stats_y,
-                          &rd_stats_uv, mode_enum, x, do_tx_search);
+      RD_STATS *rd_cost_to_update =
+          mode_does_tx_search ? rd_cost : &est_rd_stats;
+      update_search_state(&search_state, rd_cost_to_update, ctx, &rd_stats,
+                          &rd_stats_y, &rd_stats_uv, mode_enum, x,
+                          do_tx_search);
     }
 
     /* keep record of best compound/single-only prediction */
@@ -13208,8 +13233,6 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif
   if (do_tx_search != 1) {
     inter_modes_info_sort(inter_modes_info, inter_modes_info->rd_idx_pair_arr);
-    search_state.best_rd = best_rd_so_far;
-    search_state.best_mode_index = THR_INVALID;
 
     const int64_t top_est_rd =
         inter_modes_info->num > 0
@@ -13271,7 +13294,6 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, handle_intra_mode_time);
 #endif
-
   // Gate intra mode evaluation if best of inter is skip except when source
   // variance is extremely low
   if (sf->skip_intra_in_interframe &&
@@ -13343,6 +13365,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                           txfm_search_done);
     }
   }
+
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, handle_intra_mode_time);
 #endif
@@ -13365,6 +13388,12 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   if (try_palette) {
     search_palette_mode(cpi, x, mi_row, mi_col, rd_cost, ctx, bsize, mbmi, pmi,
                         ref_costs_single, &search_state);
+  }
+
+  // If we didn't find any valid mode, then rd_cost will be untouched. In this
+  // case, use est_rd_stats as an approximation for skip_mode if we can.
+  if (search_state.best_mode_index == THR_INVALID && !do_tx_search) {
+    *rd_cost = est_rd_stats;
   }
 
   search_state.best_mbmode.skip_mode = 0;
