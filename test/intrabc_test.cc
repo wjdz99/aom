@@ -156,13 +156,12 @@ TEST(IntrabcTest, DvValidation) {
   AV1_COMMON cm;
   memset(&cm, 0, sizeof(cm));
 
-  for (int i = 0; i < static_cast<int>(GTEST_ARRAY_SIZE_(kDvCases)); ++i) {
-    EXPECT_EQ(static_cast<int>(kDvCases[i].valid),
-              av1_is_dv_valid(kDvCases[i].dv, &cm, &xd,
-                              xd.tile.mi_row_start + kDvCases[i].mi_row_offset,
-                              xd.tile.mi_col_start + kDvCases[i].mi_col_offset,
-                              kDvCases[i].bsize, MAX_MIB_SIZE_LOG2))
-        << "DvCases[" << i << "]";
+  for (const DvTestCase &dvCase : kDvCases) {
+    EXPECT_EQ(static_cast<int>(dvCase.valid),
+              av1_is_dv_valid(dvCase.dv, &cm, &xd,
+                              xd.tile.mi_row_start + dvCase.mi_row_offset,
+                              xd.tile.mi_col_start + dvCase.mi_col_offset,
+                              dvCase.bsize, MAX_MIB_SIZE_LOG2));
   }
 }
 }  // namespace
