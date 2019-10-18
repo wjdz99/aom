@@ -193,9 +193,8 @@ TEST_P(DatarateTestRealtime, BasicRateTargetingCBR) {
   BasicRateTargetingCBRTest();
 }
 
-// TODO(jianj): Investigate why this test is slow.
 // Check basic rate targeting for CBR.
-TEST_P(DatarateTestRealtime, DISABLED_BasicRateTargeting444CBR) {
+TEST_P(DatarateTestRealtime, BasicRateTargeting444CBR) {
   BasicRateTargeting444CBRTest();
 }
 
