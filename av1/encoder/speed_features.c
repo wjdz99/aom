@@ -924,11 +924,21 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
       (cpi->twopass.fr_content_type == FC_GRAPHICS_ANIMATION ||
        cpi->oxcf.content == AOM_CONTENT_SCREEN)) {
     for (i = 0; i < MAX_MESH_STEP; ++i) {
-      sf->mesh_patterns[i].range = intrabc_mesh_patterns[mesh_speed][i].range;
-      sf->mesh_patterns[i].interval =
+      sf->intrabc_mesh_patterns[i].range =
+          intrabc_mesh_patterns[mesh_speed][i].range;
+      sf->intrabc_mesh_patterns[i].interval =
           intrabc_mesh_patterns[mesh_speed][i].interval;
     }
-    sf->max_exaustive_pct = intrabc_max_mesh_pct[mesh_speed];
+    sf->intrabc_max_exaustive_pct = intrabc_max_mesh_pct[mesh_speed];
+  } else {
+    /* Default initialization of intraBC mesh pattern array and threshold*/
+    for (i = 0; i < MAX_MESH_STEP; ++i) {
+      sf->intrabc_mesh_patterns[i].range =
+          good_quality_mesh_patterns[mesh_speed][i].range;
+      sf->intrabc_mesh_patterns[i].interval =
+          good_quality_mesh_patterns[mesh_speed][i].interval;
+    }
+    sf->intrabc_max_exaustive_pct = good_quality_max_mesh_pct[mesh_speed];
   }
 
   // Slow quant, dct and trellis not worthwhile for first pass

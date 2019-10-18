@@ -422,11 +422,17 @@ typedef struct SPEED_FEATURES {
   // Threshold for allowing exhaistive motion search.
   int exhaustive_searches_thresh;
 
-  // Maximum number of exhaustive searches for a frame.
+  // Maximum number of exhaustive searches for a frame (except for intraBC).
   int max_exaustive_pct;
 
-  // Pattern to be used for any exhaustive mesh searches.
+  // Maximum number of exhaustive searches for a frame for intraBC.
+  int intrabc_max_exaustive_pct;
+
+  // Pattern to be used for any exhaustive mesh searches (except intraBC).
   MESH_PATTERN mesh_patterns[MAX_MESH_STEP];
+
+  // Pattern to be used for intraBC exhaustive mesh searches.
+  MESH_PATTERN intrabc_mesh_patterns[MAX_MESH_STEP];
 
   // Adaptive prediction mode search
   int adaptive_mode_search;
