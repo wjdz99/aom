@@ -3663,7 +3663,7 @@ static AOM_INLINE void block_rd_txfm(int plane, int block, int blk_row,
       blk_row * (block_size_wide[plane_bsize] >> tx_size_wide_log2[0]) +
       blk_col;
 
-  if (plane == 0)
+  if (plane == 0 && is_inter)
     set_blk_skip(x, plane, blk_idx, x->plane[plane].eobs[block] == 0);
   else
     set_blk_skip(x, plane, blk_idx, 0);
