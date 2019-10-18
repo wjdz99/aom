@@ -3401,7 +3401,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       }
 
       if (!cm->cur_frame_force_integer_mv) {
-#if CONFIG_FLEX_MVRES
+#if 0  // CONFIG_FLEX_MVRES
         aom_wb_write_literal(wb, cm->mv_precision, 2);
         if (cm->mv_precision >= MV_SUBPEL_QTR_PRECISION)
           aom_wb_write_bit(wb, cm->use_flex_mv_precision);

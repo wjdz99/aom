@@ -77,7 +77,7 @@ enum {
 
 typedef struct {
   aom_cdf_prob classes_cdf[CDF_SIZE(MV_CLASSES)];
-#if CONFIG_FLEX_MVRES
+#if 0  // CONFIG_FLEX_MVRES
   aom_cdf_prob class0_fp_cdf[CLASS0_SIZE][3][CDF_SIZE(2)];
   aom_cdf_prob fp_cdf[3][CDF_SIZE(2)];
 #else

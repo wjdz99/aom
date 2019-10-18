@@ -930,7 +930,7 @@ static int read_mv_component(aom_reader *r, nmv_component *mvcomp,
 
   if (precision > MV_SUBPEL_NONE) {
     // Fractional part
-#if CONFIG_FLEX_MVRES
+#if 0  // CONFIG_FLEX_MVRES
     fr = aom_read_symbol(
              r, class0 ? mvcomp->class0_fp_cdf[d][0] : mvcomp->fp_cdf[0], 2,
              ACCT_STR)

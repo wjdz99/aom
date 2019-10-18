@@ -65,7 +65,7 @@ static void update_mv_component_stats(int comp, nmv_component *mvcomp,
   }
   // Fractional bits
   if (precision > MV_SUBPEL_NONE) {
-#if CONFIG_FLEX_MVRES
+#if 0  // CONFIG_FLEX_MVRES
     aom_cdf_prob *fp_cdf = mv_class == MV_CLASS_0 ? mvcomp->class0_fp_cdf[d][0]
                                                   : mvcomp->fp_cdf[0];
     update_cdf(fp_cdf, fr >> 1, 2);
@@ -137,7 +137,7 @@ static void encode_mv_component(aom_writer *w, int comp, nmv_component *mvcomp,
   }
   // Fractional bits
   if (precision > MV_SUBPEL_NONE) {
-#if CONFIG_FLEX_MVRES
+#if 0  // CONFIG_FLEX_MVRES
     aom_write_symbol(w, fr >> 1,
                      mv_class == MV_CLASS_0 ? mvcomp->class0_fp_cdf[d][0]
                                             : mvcomp->fp_cdf[0],
@@ -169,7 +169,7 @@ static void build_nmv_component_cost_table(int *mvcost,
   int i, v;
   int sign_cost[2], class_cost[MV_CLASSES], class0_cost[CLASS0_SIZE];
   int bits_cost[MV_OFFSET_BITS][2];
-#if CONFIG_FLEX_MVRES
+#if 0  // CONFIG_FLEX_MVRES
   int class0_fp_cost[CLASS0_SIZE][3][2], fp_cost[3][2];
 #else
   int class0_fp_cost[CLASS0_SIZE][MV_FP_SIZE], fp_cost[MV_FP_SIZE];
@@ -183,7 +183,7 @@ static void build_nmv_component_cost_table(int *mvcost,
     av1_cost_tokens_from_cdf(bits_cost[i], mvcomp->bits_cdf[i], NULL);
   }
 
-#if CONFIG_FLEX_MVRES
+#if 0  // CONFIG_FLEX_MVRES
   for (i = 0; i < CLASS0_SIZE; ++i) {
     for (int j = 0; j < 3; ++j)
       av1_cost_tokens_from_cdf(class0_fp_cost[i][j],
@@ -217,7 +217,7 @@ static void build_nmv_component_cost_table(int *mvcost,
       for (i = 0; i < b; ++i) cost += bits_cost[i][((d >> i) & 1)];
     }
     if (precision > MV_SUBPEL_NONE) {
-#if CONFIG_FLEX_MVRES
+#if 0  // CONFIG_FLEX_MVRES
       if (c == MV_CLASS_0) {
         cost += class0_fp_cost[d][0][f >> 1];
         if (precision > MV_SUBPEL_HALF_PRECISION)

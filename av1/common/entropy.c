@@ -72,7 +72,7 @@ static void reset_nmv_counter(nmv_context *nmv) {
   RESET_CDF_COUNTER(nmv->joints_cdf, 4);
   for (int i = 0; i < 2; i++) {
     RESET_CDF_COUNTER(nmv->comps[i].classes_cdf, MV_CLASSES);
-#if CONFIG_FLEX_MVRES
+#if 0  // CONFIG_FLEX_MVRES
     RESET_CDF_COUNTER(nmv->comps[i].class0_fp_cdf, 2);
     RESET_CDF_COUNTER(nmv->comps[i].fp_cdf, 2);
 #else

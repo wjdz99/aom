@@ -4195,7 +4195,7 @@ static void avg_nmv(nmv_context *nmv_left, nmv_context *nmv_tr, int wt_left,
   for (int i = 0; i < 2; i++) {
     AVERAGE_CDF(nmv_left->comps[i].classes_cdf, nmv_tr->comps[i].classes_cdf,
                 MV_CLASSES);
-#if CONFIG_FLEX_MVRES
+#if 0  // CONFIG_FLEX_MVRES
     AVERAGE_CDF(nmv_left->comps[i].class0_fp_cdf,
                 nmv_tr->comps[i].class0_fp_cdf, 2);
     AVERAGE_CDF(nmv_left->comps[i].fp_cdf, nmv_tr->comps[i].fp_cdf, 2);
