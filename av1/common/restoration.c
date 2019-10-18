@@ -963,36 +963,20 @@ static void sgrproj_filter_stripe(const RestorationUnitInfo *rui,
 static void apply_wiener_nonsep(const uint8_t *dgd, int width, int height,
                                 int stride, const int16_t *filter, uint8_t *dst,
                                 int dst_stride, int32_t *buf) {
-  for (int i = 0; i < height; ++i) {
-    memcpy(dst + i * dst_stride, dgd + i * stride, sizeof(uint8_t) * width);
-  }
-
   int w = WIENERNS_WINDOW;
-  if ((w << 1) < width && (w << 1) < height) {
-    int num_pixel = WIENERNS_NUM_PIXEL;
-    int crop_width = (width - (w << 1));
-
-    int32_t *tmpbuf = malloc(sizeof(tmpbuf) * height * width);
-    for (int i = w; i < height - w; ++i) {
-      for (int j = w; j < width - w; ++j) {
-        tmpbuf[(i - w) * crop_width + (j - w)] = 0;
-        for (int k = 0; k < num_pixel; ++k) {
-          tmpbuf[(i - w) * crop_width + (j - w)] +=
-              filter[wienerns_config[k][WIENERNS_COEFF_ID]] *
-              (dst[(i + wienerns_config[k][WIENERNS_ROW_ID]) * width +
-                   (j + wienerns_config[k][WIENERNS_COL_ID])] -
-               dst[i * width + j]);
-        }
+  for (int i = w; i < height - w; ++i) {
+    for (int j = w; j < width - w; ++j) {
+      int dgd_id = i * stride + j;
+      int dst_id = i * dst_stride + j;
+      int tmp = dgd[dgd_id] * WIENERNS_FILT_STEP;
+      for (int k = 0; k < WIENERNS_NUM_PIXEL; ++k) {
+        int type = wienerns_config[k][WIENERNS_COEFF_ID];
+        int r = wienerns_config[k][WIENERNS_ROW_ID];
+        int c = wienerns_config[k][WIENERNS_COL_ID];
+        tmp += filter[type] * (dgd[(i + r) * stride + (j + c)] - dgd[dgd_id]);
       }
+      dst[dst_id] = clip_pixel(tmp / WIENERNS_FILT_STEP);
     }
-    // add to dst only after tmpbuf are all done
-    for (int i = w; i < height - w; ++i) {
-      for (int j = w; j < width - w; ++j) {
-        dst[i * width + j] += clip_pixel(
-            tmpbuf[(i - w) * crop_width + (j - w)] / WIENERNS_FILT_STEP);
-      }
-    }
-    free(tmpbuf);
   }
 }
 
