@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47f3582c_a20d2c4c",
+        "filename": "aom_dsp/x86/sad4d_avx2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 13405
+      },
+      "writtenOn": "2019-10-18T01:17:40Z",
+      "side": 1,
+      "message": "Sorry I don\u0027t get the point why we need this AVX2 version? as sad16xNx4d is better handled by SSE2 version. Did I missed something?",
+      "range": {
+        "startLine": 17,
+        "startChar": 5,
+        "endLine": 17,
+        "endChar": 24
+      },
+      "revId": "7c1e77227ac5fc1710368e974a5a243cd5ff3e4c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
