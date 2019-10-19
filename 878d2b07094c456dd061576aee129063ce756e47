@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c14790cf_6620f1c8",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-10-19T00:30:26Z",
+      "side": 1,
+      "message": "Yes, currently was only adding the part to get the metadata into the stream not on getting out of it yet, but your suggestion on the other comment is valuable for adding this.",
+      "parentUuid": "088ea118_d0067bdd",
+      "revId": "878d2b07094c456dd061576aee129063ce756e47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1f00f1af_b65f1d24",
         "filename": "aom/internal/aom_image_internal.h",
         "patchSetId": 17
@@ -30,6 +48,30 @@
       "writtenOn": "2019-10-18T17:21:40Z",
       "side": 1,
       "message": "I think it simplifies usage and testing of metadata if the definition of this struct moves to aom_image.c: it will force users of the library and the library itself to go through the same function to access metadata buffers. \n\nIn other words, when you add the function that allows user to access the metadata buffer(s) stored in the aom_image, even the library would have to use it to access the metadata buffer(s) if you hide the implementation of aom_metadata_array in aom_image.c. That way library and user code to access the metadata works the same way, and there\u0027s only one set of behaviors we need to test and maintain.\n\nNote: to avoid having to write a function that looks like this:\n\nint aom_metadata_get_metadata_from_img(aom_image*, uint8_t* type, uint8_t** buffer, size_t* sz);\n\nYou could move the definition of aom_metadata to aom_image.h and allow it to be used directly. Doing so still hides the implementation of the aom_metadata_array while providing users with a convenience type for working with metadata buffers. Your getter would look like this instead of the monstrosity above that has 3 output pointers:\n\nint aom_get_metadata_from_img(aom_image*, aom_metadata*);",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 2
+      },
+      "revId": "878d2b07094c456dd061576aee129063ce756e47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ced99ba_aafe4df9",
+        "filename": "aom/internal/aom_image_internal.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-10-19T00:30:26Z",
+      "side": 1,
+      "message": "This makes sense for getting metadata back from image, we can just add and extra parameter to the aom_get_metadata_from_img() to know which payload the user wants to get (maybe: int index) and return if it exists or not, so he can loop to get all payloads.",
+      "parentUuid": "1f00f1af_b65f1d24",
       "range": {
         "startLine": 33,
         "startChar": 0,
