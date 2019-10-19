@@ -1,0 +1,256 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4fe54971_f965612b",
+        "filename": "Sample.cfg",
+        "patchSetId": 16
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-10-19T07:35:12Z",
+      "side": 1,
+      "message": "like with c++ comments, shell style comments are a bit more readable with a space after the comment marker:\n\nhttps://google.github.io/styleguide/shell.xml#Comments",
+      "revId": "a70e67a5fd6a9ea978cba7ee34e5b2257579e81e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "269296c9_800646a4",
+        "filename": "Sample.cfg",
+        "patchSetId": 16
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-10-19T07:35:12Z",
+      "side": 1,
+      "message": "1:4 or 1 to 4 would be more readable",
+      "range": {
+        "startLine": 7,
+        "startChar": 49,
+        "endLine": 7,
+        "endChar": 54
+      },
+      "revId": "a70e67a5fd6a9ea978cba7ee34e5b2257579e81e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7441094c_dbd2a4e2",
+        "filename": "Sample.cfg",
+        "patchSetId": 16
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-10-19T07:35:12Z",
+      "side": 1,
+      "message": "intrabc is a more common abbreviation in the code base",
+      "range": {
+        "startLine": 13,
+        "startChar": 8,
+        "endLine": 13,
+        "endChar": 11
+      },
+      "revId": "a70e67a5fd6a9ea978cba7ee34e5b2257579e81e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8cad16c_e9838f13",
+        "filename": "Sample.cfg",
+        "patchSetId": 16
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-10-19T07:35:12Z",
+      "side": 1,
+      "message": "restoration",
+      "range": {
+        "startLine": 35,
+        "startChar": 54,
+        "endLine": 35,
+        "endChar": 66
+      },
+      "revId": "a70e67a5fd6a9ea978cba7ee34e5b2257579e81e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "498d7538_44181750",
+        "filename": "Sample.cfg",
+        "patchSetId": 16
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-10-19T07:35:12Z",
+      "side": 1,
+      "message": "quantization",
+      "range": {
+        "startLine": 36,
+        "startChar": 57,
+        "endLine": 36,
+        "endChar": 69
+      },
+      "revId": "a70e67a5fd6a9ea978cba7ee34e5b2257579e81e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2df4b1d_d98aa23d",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-10-19T07:35:12Z",
+      "side": 1,
+      "message": "this should be bumped",
+      "revId": "a70e67a5fd6a9ea978cba7ee34e5b2257579e81e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16b8ab39_24d3159b",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-10-19T07:35:12Z",
+      "side": 1,
+      "message": "quantization",
+      "revId": "a70e67a5fd6a9ea978cba7ee34e5b2257579e81e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e01165c5_4a381a6c",
+        "filename": "aom/src/aom_encoder.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-10-19T07:35:12Z",
+      "side": 1,
+      "message": "we use lowercase names for variables, \u0027config\u0027 would work here:\n\nhttps://google.github.io/styleguide/cppguide.html#Variable_Names",
+      "range": {
+        "startLine": 30,
+        "startChar": 39,
+        "endLine": 30,
+        "endChar": 46
+      },
+      "revId": "a70e67a5fd6a9ea978cba7ee34e5b2257579e81e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5264ea26_2caa4719",
+        "filename": "aom/src/aom_encoder.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-10-19T07:35:12Z",
+      "side": 1,
+      "message": "OPTIONS_FILE might be a better way to word this",
+      "range": {
+        "startLine": 173,
+        "startChar": 11,
+        "endLine": 173,
+        "endChar": 22
+      },
+      "revId": "a70e67a5fd6a9ea978cba7ee34e5b2257579e81e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e860f8ca_4a189c57",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1349,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-10-19T07:35:12Z",
+      "side": 1,
+      "message": "prefer sizeof(var):\n\nhttps://google.github.io/styleguide/cppguide.html#sizeof",
+      "range": {
+        "startLine": 1349,
+        "startChar": 11,
+        "endLine": 1349,
+        "endChar": 32
+      },
+      "revId": "a70e67a5fd6a9ea978cba7ee34e5b2257579e81e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19cbd37a_e457a97a",
+        "filename": "common/args.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-10-19T07:35:12Z",
+      "side": 1,
+      "message": "these should be named as constants, i.e., kSbSize...:\n\nhttps://google.github.io/styleguide/cppguide.html#Constant_Names",
+      "range": {
+        "startLine": 60,
+        "startChar": 18,
+        "endLine": 60,
+        "endChar": 39
+      },
+      "revId": "a70e67a5fd6a9ea978cba7ee34e5b2257579e81e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e085ca7_a50d9813",
+        "filename": "common/args.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-10-19T07:35:12Z",
+      "side": 1,
+      "message": "add a newline after this line:\n\nhttps://google.github.io/styleguide/cppguide.html#Names_and_Order_of_Includes",
+      "revId": "a70e67a5fd6a9ea978cba7ee34e5b2257579e81e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
