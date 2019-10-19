@@ -3805,71 +3805,6 @@ static void set_mv_search_params(AV1_COMP *cpi) {
   }
 }
 
-static void set_screen_content_options(AV1_COMP *cpi) {
-  AV1_COMMON *cm = &cpi->common;
-
-  if (cm->seq_params.force_screen_content_tools != 2) {
-    cm->allow_screen_content_tools = cm->allow_intrabc =
-        cm->seq_params.force_screen_content_tools;
-    return;
-  }
-
-  if (cpi->oxcf.content == AOM_CONTENT_SCREEN) {
-    cm->allow_screen_content_tools = cm->allow_intrabc = 1;
-    return;
-  }
-
-  // Estimate if the source frame is screen content, based on the portion of
-  // blocks that have few luma colors.
-  const uint8_t *src = cpi->source->y_buffer;
-  assert(src != NULL);
-  const int use_hbd = cpi->source->flags & YV12_FLAG_HIGHBITDEPTH;
-  const int stride = cpi->source->y_stride;
-  const int width = cpi->source->y_width;
-  const int height = cpi->source->y_height;
-  const int bd = cm->seq_params.bit_depth;
-  const int blk_w = 16;
-  const int blk_h = 16;
-  // These threshold values are selected experimentally.
-  const int color_thresh = 4;
-  const unsigned int var_thresh = 0;
-  // Counts of blocks with no more than color_thresh colors.
-  int counts_1 = 0;
-  // Counts of blocks with no more than color_thresh colors and variance larger
-  // than var_thresh.
-  int counts_2 = 0;
-
-  for (int r = 0; r + blk_h <= height; r += blk_h) {
-    for (int c = 0; c + blk_w <= width; c += blk_w) {
-      int count_buf[1 << 12];  // Maximum (1 << 12) color levels.
-      const uint8_t *const this_src = src + r * stride + c;
-      const int n_colors =
-          use_hbd ? av1_count_colors_highbd(this_src, stride, blk_w, blk_h, bd,
-                                            count_buf)
-                  : av1_count_colors(this_src, stride, blk_w, blk_h, count_buf);
-      if (n_colors > 1 && n_colors <= color_thresh) {
-        ++counts_1;
-        struct buf_2d buf;
-        buf.stride = stride;
-        buf.buf = (uint8_t *)this_src;
-        const unsigned int var =
-            use_hbd
-                ? av1_high_get_sby_perpixel_variance(cpi, &buf, BLOCK_16X16, bd)
-                : av1_get_sby_perpixel_variance(cpi, &buf, BLOCK_16X16);
-        if (var > var_thresh) ++counts_2;
-      }
-    }
-  }
-
-  // The threshold values are selected experimentally.
-  cm->allow_screen_content_tools =
-      counts_1 * blk_h * blk_w * 10 > width * height;
-  // IntraBC would force loop filters off, so we use more strict rules that also
-  // requires that the block has high variance.
-  cm->allow_intrabc = cm->allow_screen_content_tools &&
-                      counts_2 * blk_h * blk_w * 12 > width * height;
-}
-
 static void set_size_independent_vars(AV1_COMP *cpi) {
   int i;
   AV1_COMMON *cm = &cpi->common;
@@ -3878,7 +3813,6 @@ static void set_size_independent_vars(AV1_COMP *cpi) {
   }
   cpi->global_motion_search_done = 0;
 
-  if (frame_is_intra_only(cm)) set_screen_content_options(cpi);
   cpi->is_screen_content_type = (cm->allow_screen_content_tools != 0);
 
   av1_set_speed_features_framesize_independent(cpi, cpi->speed);
