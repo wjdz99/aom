@@ -895,7 +895,8 @@ typedef struct AV1_COMP {
   RefBufferStack ref_buffer_stack;
 
   YV12_BUFFER_CONFIG alt_ref_buffer;
-
+  YV12_BUFFER_CONFIG *source_kf_buffer;
+  int kf_temporal_filtered;
 #if CONFIG_INTERNAL_STATS
   unsigned int mode_chosen_counts[MAX_MODES];
 

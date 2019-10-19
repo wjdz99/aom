@@ -899,6 +899,13 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
                               EncodeFrameParams *const frame_params,
                               EncodeFrameResults *const frame_results,
                               int *temporal_filtered) {
+  if (frame_params->frame_type == KEY_FRAME ||
+      frame_params->frame_type == INTRA_ONLY_FRAME) {
+    // Save the pointer to the original source image.
+    cpi->source_kf_buffer = frame_input->source;
+    cpi->kf_temporal_filtered = 0;
+  }
+
   if (frame_params->frame_type != KEY_FRAME ||
       !cpi->oxcf.enable_keyframe_filtering) {
     if (av1_encode(cpi, dest, frame_input, frame_params, frame_results) !=
@@ -929,8 +936,6 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
       oxcf->pass == 2 && frame_params->frame_type == KEY_FRAME &&
       cpi->rc.frames_to_key > NUM_KEY_FRAME_DENOISING && noise_level > 0 &&
       !is_lossless_requested(oxcf) && oxcf->arnr_max_frames > 0;
-  // Save the pointer to the original source image.
-  YV12_BUFFER_CONFIG *source_kf_buffer = frame_input->source;
 
   // Apply filtering to key frame and encode.
   if (apply_filtering) {
@@ -956,6 +961,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
     // Use the filtered frame for encoding.
     frame_input->source = &cpi->alt_ref_buffer;
     *temporal_filtered = 1;
+    cpi->kf_temporal_filtered = 1;
   }
 
   if (oxcf->lag_in_frames > 0 && oxcf->pass != 1 &&
@@ -973,8 +979,8 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
 
   // Set frame_input source to true source for psnr calculation.
   if (oxcf->arnr_max_frames > 0 && *temporal_filtered) {
-    cpi->source = source_kf_buffer;
-    cpi->unscaled_source = source_kf_buffer;
+    cpi->source = cpi->source_kf_buffer;
+    cpi->unscaled_source = cpi->source_kf_buffer;
   }
 
   return AOM_CODEC_OK;
