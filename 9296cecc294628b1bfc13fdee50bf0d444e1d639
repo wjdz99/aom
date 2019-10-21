@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65334e49_81053724",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 1417,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-10-21T18:11:42Z",
+      "side": 0,
+      "message": "I think these \"add_proto\"s are duplicates as well, given the loop \"foreach (@block_sizes) {\" earlier in the file?",
+      "range": {
+        "startLine": 1417,
+        "startChar": 24,
+        "endLine": 1417,
+        "endChar": 55
+      },
+      "revId": "9296cecc294628b1bfc13fdee50bf0d444e1d639",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
