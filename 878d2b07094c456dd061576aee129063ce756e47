@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "75cdb5e4_f15f5218",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-10-21T19:23:41Z",
+      "side": 1,
+      "message": "This should be bumped.",
+      "revId": "878d2b07094c456dd061576aee129063ce756e47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "088ea118_d0067bdd",
         "filename": "aom/aom_image.h",
         "patchSetId": 17
