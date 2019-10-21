@@ -3676,12 +3676,11 @@ static AOM_INLINE void block_rd_txfm(int plane, int block, int blk_row,
 
     // TODO(jingning): temporarily enabled only for luma component
     rd = AOMMIN(rd1, rd2);
-    this_rd_stats.skip &= !x->plane[plane].eobs[block];
   } else {
-    // Signal non-skip for Intra blocks
+    // Skip cost is not considered for Intra blocks
     rd = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
-    this_rd_stats.skip = 0;
   }
+  this_rd_stats.skip &= !x->plane[plane].eobs[block];
 
   av1_merge_rd_stats(&args->rd_stats, &this_rd_stats);
 
