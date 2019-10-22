@@ -407,6 +407,9 @@ struct macroblock {
   int cnn_restore_cost[2];
 #endif  // CONFIG_LOOP_RESTORE_CNN
   int intrabc_cost[2];
+#if CONFIG_DIFFWTD_42
+  int interinter_mask_type_cost[DIFFWTD_MASK_CONTEXTS][2];
+#endif  // CONFIG_DIFFWTD_42
 
   // Used to store sub partition's choices.
   MV pred_mv[REF_FRAMES];

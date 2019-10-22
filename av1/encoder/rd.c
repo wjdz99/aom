@@ -286,6 +286,12 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
 #endif  // CONFIG_LOOP_RESTORE_CNN
   av1_cost_tokens_from_cdf(x->intrabc_cost, fc->intrabc_cdf, NULL);
 
+#if CONFIG_DIFFWTD_42
+  for (i = 0; i < DIFFWTD_MASK_CONTEXTS; ++i) {
+    av1_cost_tokens_from_cdf(x->interinter_mask_type_cost[i],
+                             fc->interinter_mask_type_cdf[i], NULL);
+  }
+#endif  // CONFIG_DIFFWTD_42
   if (!frame_is_intra_only(cm)) {
     for (i = 0; i < COMP_INTER_CONTEXTS; ++i) {
       av1_cost_tokens_from_cdf(x->comp_inter_cost[i], fc->comp_inter_cdf[i],

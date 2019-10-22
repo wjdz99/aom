@@ -215,6 +215,8 @@ void BuildCompDiffwtdMaskTest::RunTest(buildcompdiffwtdmaskd_func test_impl,
   }
 }
 
+#if !CONFIG_DIFFWTD_42
+
 TEST_P(BuildCompDiffwtdMaskTest, match) {
   RunTest(GET_PARAM(1), 0, DIFFWTD_38);
   RunTest(GET_PARAM(1), 0, DIFFWTD_38_INV);
@@ -223,15 +225,19 @@ TEST_P(BuildCompDiffwtdMaskTest, DISABLED_Speed) {
   RunTest(GET_PARAM(1), 1, DIFFWTD_38);
   RunTest(GET_PARAM(1), 1, DIFFWTD_38_INV);
 }
-#endif
+#endif  // !CONFIG_DIFFWTD_42
+#endif  // HAVE_SSE4_1
+
 TEST_P(BuildCompDiffwtdMaskD16Test, CheckOutput) {
   RunCheckOutput(GET_PARAM(1));
 }
 
+#if !CONFIG_DIFFWTD_42
 TEST_P(BuildCompDiffwtdMaskD16Test, DISABLED_Speed) {
   RunSpeedTest(GET_PARAM(1), DIFFWTD_38);
   RunSpeedTest(GET_PARAM(1), DIFFWTD_38_INV);
 }
+#endif  // !CONFIG_DIFFWTD_42
 
 #if HAVE_SSE4_1 && !CONFIG_CTX_ADAPT_LOG_WEIGHT
 INSTANTIATE_TEST_CASE_P(SSE4_1, BuildCompDiffwtdMaskTest,
