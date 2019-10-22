@@ -920,9 +920,13 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
     sf->mesh_patterns[i].interval =
         good_quality_mesh_patterns[mesh_speed][i].interval;
   }
-  if (frame_is_intra_only(cm) && cm->allow_screen_content_tools &&
+  // TODO(any): When content is detected as animation (i.e.,
+  // cpi->twopass.fr_content_type is FC_GRAPHICS_ANIMATION), intraBC tool is not
+  // being enabled. Resurrect FC_GRAPHICS_ANIMATION path or clean-up the
+  // condition below accordingly.
+  if (frame_is_intra_only(cm) &&
       (cpi->twopass.fr_content_type == FC_GRAPHICS_ANIMATION ||
-       cpi->oxcf.content == AOM_CONTENT_SCREEN)) {
+       cm->allow_screen_content_tools)) {
     for (i = 0; i < MAX_MESH_STEP; ++i) {
       sf->mesh_patterns[i].range = intrabc_mesh_patterns[mesh_speed][i].range;
       sf->mesh_patterns[i].interval =
