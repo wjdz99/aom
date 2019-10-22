@@ -865,31 +865,26 @@ void apply_temporal_filter_block(YV12_BUFFER_CONFIG *frame, MACROBLOCKD *mbd,
 }
 #endif  // EXPERIMENT_TEMPORAL_FILTER
 
-static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
-                                              uint8_t *arf_frame_buf,
-                                              uint8_t *frame_ptr_buf,
-                                              int stride, int x_pos, int y_pos,
-                                              MV *blk_mvs, int *blk_bestsme) {
+static int temporal_filter_find_matching_mb_c(
+    AV1_COMP *cpi, uint8_t *arf_frame_buf, uint8_t *frame_ptr_buf, int stride,
+    int x_pos, int y_pos, MV *blk_mvs, int *blk_bestsme, MV *best_ref_mv1,
+    int step_param) {
   MACROBLOCK *const x = &cpi->td.mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   const MV_SPEED_FEATURES *const mv_sf = &cpi->sf.mv;
-  int step_param;
   int sadpb = x->sadperbit16;
   int bestsme = INT_MAX;
   int distortion;
   unsigned int sse;
   int cost_list[5];
   MvLimits tmp_mv_limits = x->mv_limits;
-
-  MV best_ref_mv1 = kZeroMv;
   MV best_ref_mv1_full; /* full-pixel value of best_ref_mv1 */
-
+  MV ref_mv = kZeroMv;
   // Save input state
   struct buf_2d src = x->plane[0].src;
   struct buf_2d pre = xd->plane[0].pre[0];
-
-  best_ref_mv1_full.col = best_ref_mv1.col >> 3;
-  best_ref_mv1_full.row = best_ref_mv1.row >> 3;
+  best_ref_mv1_full.col = best_ref_mv1->col >> 3;
+  best_ref_mv1_full.row = best_ref_mv1->row >> 3;
 
   // Setup frame pointers
   x->plane[0].src.buf = arf_frame_buf;
@@ -897,18 +892,14 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
   xd->plane[0].pre[0].buf = frame_ptr_buf;
   xd->plane[0].pre[0].stride = stride;
 
-  step_param = mv_sf->reduce_first_step_size;
-  step_param = AOMMIN(step_param, MAX_MVSEARCH_STEPS - 2);
-
-  av1_set_mv_search_range(&x->mv_limits, &best_ref_mv1);
+  av1_set_mv_search_range(&x->mv_limits, &ref_mv);
 
   // av1_full_pixel_search() parameters: best_ref_mv1_full is the start mv, and
-  // best_ref_mv1 is for mv rate calculation. The search result is stored in
+  // ref_mv is for mv rate calculation. The search result is stored in
   // x->best_mv.
   av1_full_pixel_search(cpi, x, TF_BLOCK, &best_ref_mv1_full, step_param, NSTEP,
-                        1, sadpb, cond_cost_list(cpi, cost_list), &best_ref_mv1,
-                        0, 0, x_pos, y_pos, 0, &cpi->ss_cfg[SS_CFG_LOOKAHEAD],
-                        0);
+                        1, sadpb, cond_cost_list(cpi, cost_list), &ref_mv, 0, 0,
+                        x_pos, y_pos, 0, &cpi->ss_cfg[SS_CFG_LOOKAHEAD], 0);
   x->mv_limits = tmp_mv_limits;
 
   // Ignore mv costing by sending NULL pointer instead of cost array
@@ -934,12 +925,12 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
     return bestsme;
   }
 
-  // find_fractional_mv_step parameters: best_ref_mv1 is for mv rate cost
+  // find_fractional_mv_step parameters: ref_mv is for mv rate cost
   // calculation. The start full mv and the search result are stored in
   // x->best_mv. mi_row and mi_col are only needed for "av1_is_scaled(sf)=1"
   // case.
   bestsme = cpi->find_fractional_mv_step(
-      x, &cpi->common, 0, 0, &best_ref_mv1, cpi->common.allow_high_precision_mv,
+      x, &cpi->common, 0, 0, &ref_mv, cpi->common.allow_high_precision_mv,
       x->errorperbit, &cpi->fn_ptr[TF_BLOCK], 0, mv_sf->subpel_iters_per_step,
       cond_cost_list(cpi, cost_list), NULL, NULL, &distortion, &sse, NULL, NULL,
       0, 0, BW, BH, USE_8_TAPS, 1);
@@ -948,10 +939,10 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
 
   // DO motion search on 4 16x16 sub_blocks.
   int i, j, k = 0;
-  best_ref_mv1.row = x->e_mbd.mi[0]->mv[0].as_mv.row;
-  best_ref_mv1.col = x->e_mbd.mi[0]->mv[0].as_mv.col;
-  best_ref_mv1_full.col = best_ref_mv1.col >> 3;
-  best_ref_mv1_full.row = best_ref_mv1.row >> 3;
+  best_ref_mv1->row = x->e_mbd.mi[0]->mv[0].as_mv.row;
+  best_ref_mv1->col = x->e_mbd.mi[0]->mv[0].as_mv.col;
+  best_ref_mv1_full.col = best_ref_mv1->col >> 3;
+  best_ref_mv1_full.row = best_ref_mv1->row >> 3;
 
   for (i = 0; i < BH; i += SUB_BH) {
     for (j = 0; j < BW; j += SUB_BW) {
@@ -961,19 +952,19 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
       xd->plane[0].pre[0].buf = frame_ptr_buf + i * stride + j;
       xd->plane[0].pre[0].stride = stride;
 
-      av1_set_mv_search_range(&x->mv_limits, &best_ref_mv1);
+      av1_set_mv_search_range(&x->mv_limits, &ref_mv);
       av1_full_pixel_search(cpi, x, TF_SUB_BLOCK, &best_ref_mv1_full,
                             step_param, NSTEP, 1, sadpb,
-                            cond_cost_list(cpi, cost_list), &best_ref_mv1, 0, 0,
-                            x_pos, y_pos, 0, &cpi->ss_cfg[SS_CFG_LOOKAHEAD], 0);
+                            cond_cost_list(cpi, cost_list), &ref_mv, 0, 0,
+                            x_pos, y_pos, 0, &cpi->ss_cfg[SS_CFG_LOOKAHEAD]);
       x->mv_limits = tmp_mv_limits;
 
       blk_bestsme[k] = cpi->find_fractional_mv_step(
-          x, &cpi->common, 0, 0, &best_ref_mv1,
-          cpi->common.allow_high_precision_mv, x->errorperbit,
-          &cpi->fn_ptr[TF_SUB_BLOCK], 0, mv_sf->subpel_iters_per_step,
-          cond_cost_list(cpi, cost_list), NULL, NULL, &distortion, &sse, NULL,
-          NULL, 0, 0, SUB_BW, SUB_BH, USE_8_TAPS, 1);
+          x, &cpi->common, 0, 0, &ref_mv, cpi->common.allow_high_precision_mv,
+          x->errorperbit, &cpi->fn_ptr[TF_SUB_BLOCK], 0,
+          mv_sf->subpel_iters_per_step, cond_cost_list(cpi, cost_list), NULL,
+          NULL, &distortion, &sse, NULL, NULL, 0, 0, SUB_BW, SUB_BH, USE_8_TAPS,
+          1);
 
       blk_mvs[k] = x->best_mv.as_mv;
       k++;
@@ -987,25 +978,19 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
   return bestsme;
 }
 
-static int get_rows(int h) { return (h + BH - 1) >> BH_LOG2; }
-static int get_cols(int w) { return (w + BW - 1) >> BW_LOG2; }
-
-typedef struct {
-  int64_t sum;
-  int64_t sse;
-} FRAME_DIFF;
-
-static FRAME_DIFF temporal_filter_iterate_c(
-    AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames, int frame_count,
-    int alt_ref_index, int strength, double sigma, int is_key_frame,
-    struct scale_factors *ref_scale_factors) {
+static void temporal_filter_iterate_c(AV1_COMP *cpi,
+                                      YV12_BUFFER_CONFIG **frames,
+                                      int frame_count, int alt_ref_index,
+                                      int strength, double sigma,
+                                      int is_key_frame,
+                                      struct scale_factors *ref_scale_factors) {
   const AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
-  const int mb_cols = get_cols(frames[alt_ref_index]->y_crop_width);
-  const int mb_rows = get_rows(frames[alt_ref_index]->y_crop_height);
   int byte;
   int frame;
   int mb_col, mb_row;
+  int mb_cols = (frames[alt_ref_index]->y_crop_width + BW - 1) >> BW_LOG2;
+  int mb_rows = (frames[alt_ref_index]->y_crop_height + BH - 1) >> BH_LOG2;
   int mb_y_offset = 0;
   int mb_y_src_offset = 0;
   int mb_uv_offset = 0;
@@ -1039,6 +1024,12 @@ static FRAME_DIFF temporal_filter_iterate_c(
     predictor = predictor8;
   }
 
+  const unsigned int dim = AOMMIN(frames[alt_ref_index]->y_crop_width,
+                                  frames[alt_ref_index]->y_crop_height);
+  // Decide search param based on image resolution.
+  int step_param = av1_init_search_range(dim);
+  step_param = AOMMIN(step_param, MAX_MVSEARCH_STEPS - 2);
+
   mbd->block_ref_scale_factors[0] = ref_scale_factors;
   mbd->block_ref_scale_factors[1] = ref_scale_factors;
 
@@ -1050,8 +1041,6 @@ static FRAME_DIFF temporal_filter_iterate_c(
   memset(&mbmi, 0, sizeof(mbmi));
   MB_MODE_INFO *mbmi_ptr = &mbmi;
   mbd->mi = &mbmi_ptr;
-
-  FRAME_DIFF diff = { 0, 0 };
 
   for (mb_row = 0; mb_row < mb_rows; mb_row++) {
     // Source frames are extended to 16 pixels. This is different than
@@ -1073,6 +1062,7 @@ static FRAME_DIFF temporal_filter_iterate_c(
     for (mb_col = 0; mb_col < mb_cols; mb_col++) {
       int j, k;
       int stride;
+      MV best_ref_mv1 = kZeroMv;
 
       memset(accumulator, 0, BLK_PELS * 3 * sizeof(accumulator[0]));
       memset(count, 0, BLK_PELS * 3 * sizeof(count[0]));
@@ -1102,6 +1092,9 @@ static FRAME_DIFF temporal_filter_iterate_c(
         if (frame == alt_ref_index) {
           blk_fw[0] = blk_fw[1] = blk_fw[2] = blk_fw[3] = 2;
           use_32x32 = 1;
+          // Change ref_mv sign for following frames.
+          best_ref_mv1.row *= -1;
+          best_ref_mv1.col *= -1;
         } else {
           int thresh_low = 10000;
           int thresh_high = 20000;
@@ -1139,6 +1132,9 @@ static FRAME_DIFF temporal_filter_iterate_c(
                               ? 2
                               : blk_bestsme[k] < thresh_high ? 1 : 0;
           }
+
+          // Don't use previous frame's mv result if error is large.
+          if (err > 3000) best_ref_mv1 = kZeroMv;
         }
 
         if (blk_fw[0] || blk_fw[1] || blk_fw[2] || blk_fw[3]) {
