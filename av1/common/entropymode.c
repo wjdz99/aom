@@ -1160,6 +1160,16 @@ static const aom_cdf_prob
 static const aom_cdf_prob default_intrabc_cdf[CDF_SIZE(2)] = { AOM_CDF2(
     30531) };
 
+#if CONFIG_DIFFWTD_42
+static const aom_cdf_prob
+    default_interinter_mask_type_cdf[DIFFWTD_MASK_CONTEXTS][CDF_SIZE(2)] = {
+      { AOM_CDF2(32677) },
+      { AOM_CDF2(32677) },
+      { AOM_CDF2(32677) },
+      { AOM_CDF2(32677) },
+    };
+#endif  // CONFIG_DIFFWTD_42
+
 static const aom_cdf_prob default_filter_intra_mode_cdf[CDF_SIZE(
     FILTER_INTRA_MODES)] = { AOM_CDF5(8949, 12776, 17211, 29558) };
 
@@ -1506,6 +1516,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->skip_mode_cdfs, default_skip_mode_cdfs);
   av1_copy(fc->skip_cdfs, default_skip_cdfs);
   av1_copy(fc->intra_inter_cdf, default_intra_inter_cdf);
+#if CONFIG_DIFFWTD_42
+  av1_copy(fc->interinter_mask_type_cdf, default_interinter_mask_type_cdf);
+#endif  // CONFIG_DIFFWTD_42
   for (int i = 0; i < SPATIAL_PREDICTION_PROBS; i++)
     av1_copy(fc->seg.spatial_pred_seg_cdf[i],
              default_spatial_pred_seg_tree_cdf[i]);

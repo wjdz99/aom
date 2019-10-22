@@ -176,6 +176,9 @@ typedef struct frame_contexts {
   nmv_context nmvc;
   nmv_context ndvc;
   aom_cdf_prob intrabc_cdf[CDF_SIZE(2)];
+#if CONFIG_DIFFWTD_42
+  aom_cdf_prob interinter_mask_type_cdf[DIFFWTD_MASK_CONTEXTS][CDF_SIZE(2)];
+#endif  // CONFIG_DIFFWTD_42
   struct segmentation_probs seg;
   aom_cdf_prob filter_intra_cdfs[BLOCK_SIZES_ALL][CDF_SIZE(2)];
   aom_cdf_prob filter_intra_mode_cdf[CDF_SIZE(FILTER_INTRA_MODES)];
