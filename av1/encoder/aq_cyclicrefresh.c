@@ -37,7 +37,10 @@ CYCLIC_REFRESH *av1_cyclic_refresh_alloc(int mi_rows, int mi_cols) {
   }
   assert(MAXQ <= 255);
   memset(cr->last_coded_q_map, MAXQ, last_coded_q_map_size);
-
+  cr->avg_frame_low_motion = 0.0;
+  cr->actual_num_seg1_blocks = 0;
+  cr->actual_num_seg2_blocks = 0;
+  cr->cnt_zeromv = 0;
   return cr;
 }
 
@@ -206,22 +209,31 @@ void av1_cyclic_refresh_update_segment(const AV1_COMP *cpi,
     }
 }
 
-// Update the actual number of blocks that were applied the segment delta q.
-void av1_cyclic_refresh_postencode(AV1_COMP *const cpi) {
-  AV1_COMMON *const cm = &cpi->common;
+// Update the actual number of blocks that were applied the segment delta q,
+// and the amount of low moton.
+void av1_cyclic_refresh_update_sb_postencode(AV1_COMP *const cpi,
+                                             const MB_MODE_INFO *const mi,
+                                             int mi_row, int mi_col,
+                                             BLOCK_SIZE bsize) {
+  const AV1_COMMON *const cm = &cpi->common;
   CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
-  unsigned char *const seg_map = cpi->segmentation_map;
-  cr->actual_num_seg1_blocks = 0;
-  cr->actual_num_seg2_blocks = 0;
-  for (int mi_row = 0; mi_row < cm->mi_rows; mi_row++)
-    for (int mi_col = 0; mi_col < cm->mi_cols; mi_col++) {
-      if (cyclic_refresh_segment_id(seg_map[mi_row * cm->mi_cols + mi_col]) ==
-          CR_SEGMENT_ID_BOOST1)
-        cr->actual_num_seg1_blocks++;
-      else if (cyclic_refresh_segment_id(
-                   seg_map[mi_row * cm->mi_cols + mi_col]) ==
-               CR_SEGMENT_ID_BOOST2)
-        cr->actual_num_seg2_blocks++;
+  const int bw = mi_size_wide[bsize];
+  const int bh = mi_size_high[bsize];
+  const int xmis = AOMMIN(cm->mi_cols - mi_col, bw);
+  const int ymis = AOMMIN(cm->mi_rows - mi_row, bh);
+  int x, y;
+  MV mv = mi->mv[0].as_mv;
+  for (y = 0; y < ymis; y++)
+    for (x = 0; x < xmis; x++) {
+      if (!mi->skip) {
+        if (mi->segment_id == CR_SEGMENT_ID_BOOST1)
+          cr->actual_num_seg1_blocks++;
+        else if (mi->segment_id == CR_SEGMENT_ID_BOOST2)
+          cr->actual_num_seg2_blocks++;
+      }
+      if (mi->ref_frame[0] == LAST_FRAME && abs(mv.row) < 16 &&
+          abs(mv.col) < 16)
+        cr->cnt_zeromv++;
     }
 }
 
@@ -384,7 +396,6 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
                    num4x4bl;
   if (weight_segment_target < 7 * weight_segment / 8)
     weight_segment = weight_segment_target;
-  cr->weight_segment = weight_segment;
 }
 
 // Setup cyclic background refresh: set delta q and segmentation map.
@@ -463,6 +474,13 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
 
     // Update the segmentation and refresh map.
     cyclic_refresh_update_map(cpi);
+    
+    cr->cnt_zeromv = 100 * cr->cnt_zeromv / (cm->mi_rows * cm->mi_cols);
+    cr->avg_frame_low_motion =
+        (3 * cr->avg_frame_low_motion + (double)cr->cnt_zeromv) / 4;
+    cr->cnt_zeromv = 0;
+    cr->actual_num_seg1_blocks = 0;
+    cr->actual_num_seg2_blocks = 0;
   }
 }
 
