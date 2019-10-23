@@ -141,6 +141,30 @@
       "revId": "c7d9f468f3f72677a2daeb865874f1b809ed7263",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2ffb8fb_73f7fe65",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-10-23T22:29:40Z",
+      "side": 1,
+      "message": "Yes. Will have a separate patch. HBD performance probably isn\u0027t monitored closely. But, our nightly/weekly test do have hbd clip testing. It should work.",
+      "parentUuid": "262b6f2e_aeb20dde",
+      "range": {
+        "startLine": 1145,
+        "startChar": 10,
+        "endLine": 1145,
+        "endChar": 49
+      },
+      "revId": "c7d9f468f3f72677a2daeb865874f1b809ed7263",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
