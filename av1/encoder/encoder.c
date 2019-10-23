@@ -5107,6 +5107,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     if (cm->seg.enabled) {
       if (!cm->seg.update_data && cm->prev_frame) {
         segfeatures_copy(&cm->seg, &cm->prev_frame->seg);
+        cm->seg.enabled = cm->prev_frame->seg.enabled;
       } else {
         av1_calculate_segdata(&cm->seg);
       }
