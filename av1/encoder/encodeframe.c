@@ -5728,4 +5728,6 @@ static AOM_INLINE void encode_superblock(const AV1_COMP *const cpi,
       is_cfl_allowed(xd)) {
     cfl_store_block(xd, mbmi->sb_type, mbmi->tx_size);
   }
+  if (cm->seg.enabled && cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ)
+    av1_cyclic_refresh_update_sb_postencode(cpi, mbmi, mi_row, mi_col, bsize);
 }
