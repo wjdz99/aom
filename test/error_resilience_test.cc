@@ -152,13 +152,19 @@ class ErrorResilienceTestLarge
     if ((encode_flags & (AOM_EFLAG_NO_UPD_LAST | AOM_EFLAG_NO_UPD_GF |
                          AOM_EFLAG_NO_UPD_ARF)) ==
         (AOM_EFLAG_NO_UPD_LAST | AOM_EFLAG_NO_UPD_GF | AOM_EFLAG_NO_UPD_ARF)) {
-      ASSERT_TRUE(!!(pkt->data.frame.flags & AOM_FRAME_IS_DROPPABLE));
+      ASSERT_EQ(static_cast<aom_codec_frame_flags_t>(pkt->data.frame.flags &
+                                                     AOM_FRAME_IS_DROPPABLE),
+                AOM_FRAME_IS_DROPPABLE);
     }
     if (encode_flags & AOM_EFLAG_SET_S_FRAME) {
-      ASSERT_TRUE(!!(pkt->data.frame.flags & AOM_FRAME_IS_SWITCH));
+      ASSERT_EQ(static_cast<aom_codec_frame_flags_t>(pkt->data.frame.flags &
+                                                     AOM_FRAME_IS_SWITCH),
+                AOM_FRAME_IS_SWITCH);
     }
     if (encode_flags & AOM_EFLAG_ERROR_RESILIENT) {
-      ASSERT_TRUE(!!(pkt->data.frame.flags & AOM_FRAME_IS_ERROR_RESILIENT));
+      ASSERT_EQ(static_cast<aom_codec_frame_flags_t>(
+                    pkt->data.frame.flags & AOM_FRAME_IS_ERROR_RESILIENT),
+                AOM_FRAME_IS_ERROR_RESILIENT);
     }
   }
 
