@@ -435,11 +435,9 @@ static INLINE void get_txb_ctx(const BLOCK_SIZE plane_bsize,
       //      txb_skip_ctx = 5;
       //    else
       //      txb_skip_ctx = 6;
-      static const uint8_t skip_contexts[5][5] = { { 1, 2, 2, 2, 3 },
-                                                   { 2, 4, 4, 4, 5 },
-                                                   { 2, 4, 4, 4, 5 },
-                                                   { 2, 4, 4, 4, 5 },
-                                                   { 3, 5, 5, 5, 6 } };
+      static const uint8_t skip_contexts[3][3] = { { 1, 2, 3 },
+                                                   { 2, 4, 5 },
+                                                   { 3, 5, 6 } };
       // For top and left, we only care about which of the following three
       // categories they belong to: { 0 }, { 1, 2, 3 }, or { 4, 5, ... }. The
       // spec calculates top and left with the Max() function. We can calculate
@@ -453,14 +451,14 @@ static INLINE void get_txb_ctx(const BLOCK_SIZE plane_bsize,
         top |= a[k];
       } while (++k < txb_w_unit);
       top &= COEFF_CONTEXT_MASK;
-      top = AOMMIN(top, 4);
+      top = AOMMIN(top, 2);
 
       k = 0;
       do {
         left |= l[k];
       } while (++k < txb_h_unit);
       left &= COEFF_CONTEXT_MASK;
-      left = AOMMIN(left, 4);
+      left = AOMMIN(left, 2);
 
       txb_ctx->txb_skip_ctx = skip_contexts[top][left];
     }

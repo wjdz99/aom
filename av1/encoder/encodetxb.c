@@ -2083,10 +2083,10 @@ int av1_get_txb_entropy_context(const tran_low_t *qcoeff,
   if (eob == 0) return 0;
   for (c = 0; c < eob; ++c) {
     cul_level += abs(qcoeff[scan[c]]);
-    if (cul_level > COEFF_CONTEXT_MASK) break;
+    if (cul_level >= 4) break;
   }
 
-  cul_level = AOMMIN(COEFF_CONTEXT_MASK, cul_level);
+  if (cul_level) cul_level = cul_level < 4 ? 1 : 2;
   set_dc_sign(&cul_level, qcoeff[0]);
 #if CONFIG_ENTROPY_CONTEXTS
   set_eob_ctx(&cul_level, tx_size, eob);
