@@ -377,7 +377,10 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
     }
   }
 
-  cul_level = AOMMIN(COEFF_CONTEXT_MASK, cul_level);
+  //cul_level = AOMMIN(COEFF_CONTEXT_MASK, cul_level);
+  if (cul_level) {
+    cul_level = cul_level < 4 ? 1 : 2;
+  }
 
   // DC value
   set_dc_sign(&cul_level, dc_val);
