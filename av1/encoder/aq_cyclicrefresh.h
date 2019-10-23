@@ -65,6 +65,8 @@ struct CYCLIC_REFRESH {
   int qindex_delta[3];
   double weight_segment;
   int apply_cyclic_refresh;
+  int cnt_zeromv;
+  double avg_frame_low_motion;
 };
 
 struct AV1_COMP;
@@ -94,6 +96,11 @@ void av1_cyclic_refresh_update_segment(const struct AV1_COMP *cpi,
                                        int64_t rate, int64_t dist, int skip);
 
 // Update the actual number of blocks that were applied the segment delta q.
+void av1_cyclic_refresh_update_sb_postencode(const struct AV1_COMP *const cpi,
+                                             const MB_MODE_INFO *const mi,
+                                             int mi_row, int mi_col,
+                                             BLOCK_SIZE bsize);
+
 void av1_cyclic_refresh_postencode(struct AV1_COMP *const cpi);
 
 // Set golden frame update interval, for 1 pass CBR mode.
