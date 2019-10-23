@@ -65,7 +65,7 @@
 
 // Set this macro as 1 to collect data about tx size selection.
 #define COLLECT_TX_SIZE_DATA 0
-
+// int motion_modes[4];
 #if COLLECT_TX_SIZE_DATA
 static const char av1_tx_size_data_output_file[] = "tx_size_data.txt";
 #endif
@@ -9382,6 +9382,7 @@ static int64_t motion_mode_rd(
        mode_index <= (int)last_motion_mode_allowed + interintra_allowed;
        mode_index++) {
     if (args->skip_motion_mode && mode_index) continue;
+    if (mode_index > SIMPLE_TRANSLATION) continue;
     if (cpi->sf.prune_single_motion_modes_by_simple_trans &&
         args->single_ref_first_pass && mode_index)
       break;
@@ -13002,6 +13003,15 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                         search_state.best_mode_index, &search_state.best_mbmode,
                         yv12_mb, search_state.best_rate_y,
                         search_state.best_rate_uv, &search_state.best_skip2);
+  //  printf("row=%d \t col=%d \t bsize=%d \n", mi_row, mi_col, bsize);
+  //  printf("%lld \t %d \t %d \t %d \n",
+  //	  search_state.best_rd, search_state.best_mbmode.mode,
+  // search_state.best_mbmode.motion_mode,
+  //	  search_state.best_mbmode.interintra_mode);
+  // int mm_mode = search_state.best_mbmode.motion_mode;
+  // if (search_state.best_mbmode.interintra_mode == 1)
+  //	  mm_mode = 3;
+  //  motion_modes[mm_mode]++;
 
   // Initialize default mode evaluation params
   set_mode_eval_params(cpi, x, DEFAULT_EVAL);
