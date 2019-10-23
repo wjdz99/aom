@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f2e309e5_f7e20a75",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2106,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2019-10-23T17:54:53Z",
+      "side": 1,
+      "message": "Names of argument \u0027max_exaustive_pct\u0027 and structure element \u0027intrabc_max_exaustive_pct\u0027 are taken from \u0027sf-\u003emax_exaustive_pct\u0027 (SPEED_FEATURES) present in parent version.\nWe shall plan to correct all of above.",
+      "parentUuid": "f4cfa992_a45be3fd",
+      "range": {
+        "startLine": 2106,
+        "startChar": 36,
+        "endLine": 2106,
+        "endChar": 54
+      },
+      "revId": "94a21478eaf775909ab8b80965d6aed0e6138bb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9667c46b_73504daf",
         "filename": "av1/encoder/speed_features.c",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2019-10-23T17:38:26Z",
       "side": 1,
       "message": "is this necessary or useful? Maybe just remove: if (av1_allow_intrabc(cm) \u0026\u0026 cpi-\u003eoxcf.enable_intrabc), and always define IBC mesh pattern?",
+      "range": {
+        "startLine": 936,
+        "startChar": 1,
+        "endLine": 942,
+        "endChar": 61
+      },
+      "revId": "94a21478eaf775909ab8b80965d6aed0e6138bb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5bd2382_67f26802",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2019-10-23T17:54:53Z",
+      "side": 1,
+      "message": "We shall plan the clean-up",
+      "parentUuid": "9667c46b_73504daf",
       "range": {
         "startLine": 936,
         "startChar": 1,
