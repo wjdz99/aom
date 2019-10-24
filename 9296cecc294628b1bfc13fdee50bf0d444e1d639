@@ -22,6 +22,30 @@
       "revId": "9296cecc294628b1bfc13fdee50bf0d444e1d639",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2fdfdbdc_c68be068",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 1417,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2019-10-24T10:45:36Z",
+      "side": 0,
+      "message": "Ack",
+      "parentUuid": "65334e49_81053724",
+      "range": {
+        "startLine": 1417,
+        "startChar": 24,
+        "endLine": 1417,
+        "endChar": 55
+      },
+      "revId": "9296cecc294628b1bfc13fdee50bf0d444e1d639",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
