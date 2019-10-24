@@ -386,6 +386,7 @@ static void set_good_speed_features_framesize_independent(
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
     sf->simple_motion_search_prune_agg = 1;
     sf->disable_sb_level_mv_cost_upd = 1;
+    sf->tx_type_search.use_skip_flag_prediction = 2;
   }
 
   if (speed >= 4) {
@@ -409,6 +410,7 @@ static void set_good_speed_features_framesize_independent(
     // TODO(any): Experiment with this speed feature set to 2 for higher quality
     // presets as well
     sf->skip_intra_in_interframe = 2;
+    sf->tx_type_search.use_skip_flag_prediction = 3;
 
     sf->intra_y_mode_mask[TX_64X64] = INTRA_DC_H_V;
     sf->intra_uv_mode_mask[TX_64X64] = UV_INTRA_DC_H_V_CFL;
