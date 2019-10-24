@@ -3994,6 +3994,13 @@ static const TX_SIZE max_predict_sf_tx_size[BLOCK_SIZES_ALL] = {
   TX_8X8,   TX_8X8,   TX_16X16, TX_16X16,
 };
 
+// look-up table for sqrt(number of pixels in block)
+// Rounded off to the nearest integer
+static const int num_pels_sqrt[BLOCK_SIZES_ALL] = { 4,  6,  6,  8,   11, 11,
+                                                    16, 23, 23, 32,  45, 45,
+                                                    64, 91, 91, 128, 8,  8,
+                                                    16, 16, 32, 32 };
+
 // Uses simple features on top of DCT coefficients to quickly predict
 // whether optimal RD decision is to skip encoding the residual.
 // The sse value is stored in dist.
@@ -4011,8 +4018,15 @@ static int predict_skip_flag(MACROBLOCK *x, BLOCK_SIZE bsize, int64_t *dist,
   // smaller than 32) into account.
   const int16_t normalized_dc_q = dc_q >> 3;
   const int64_t mse_thresh = (int64_t)normalized_dc_q * normalized_dc_q / 8;
-  // Predict not to skip when mse is larger than threshold.
-  if (mse > mse_thresh) return 0;
+  // Scale factor to adjust mse to account for block size when comparing against
+  // threshold
+  // TODO(any): Use block size dependent factor when predict_skip_level is 1
+  const int mse_scale = (x->predict_skip_level >= 2) ? num_pels_sqrt[bsize] : 1;
+  // Predict not to skip when scaled mse is larger than threshold.
+  if (mse * mse_scale > mse_thresh) return 0;
+  // Return as skip otherwise for aggressive early skip
+  else if (x->predict_skip_level >= 2)
+    return 1;
 
   const int max_tx_size = max_predict_sf_tx_size[bsize];
   const int tx_h = tx_size_high[max_tx_size];
