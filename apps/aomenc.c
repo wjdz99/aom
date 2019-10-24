@@ -203,9 +203,6 @@ static const arg_def_t input_chroma_subsampling_y = ARG_DEF(
     NULL, "input-chroma-subsampling-y", 1, "chroma subsampling y value.");
 
 static const arg_def_t *main_args[] = { &help,
-#if CONFIG_FILEOPTIONS
-                                        &use_cfg,
-#endif
                                         &debugmode,
                                         &outputfile,
                                         &codecarg,
@@ -2282,11 +2279,7 @@ int main(int argc, const char **argv_) {
   argv = argv_dup(argc - 1, argv_ + 1);
   parse_global_config(&global, &argv);
 
-#if CONFIG_FILEOPTIONS
-  if (argc < 2) usage_exit();
-#else
   if (argc < 3) usage_exit();
-#endif
 
   switch (global.color_type) {
     case I420: input.fmt = AOM_IMG_FMT_I420; break;

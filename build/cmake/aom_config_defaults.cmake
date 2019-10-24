@@ -107,7 +107,6 @@ set_aom_config_var(CONFIG_INTERNAL_STATS 0 NUMBER
 set_aom_config_var(CONFIG_LOWBITDEPTH 1 NUMBER
                    "Enables 8-bit optimized pipeline.")
 set_aom_config_var(CONFIG_MAX_DECODE_PROFILE 2 NUMBER
-                   "Max profile to support decoding.")
 set_aom_config_var(CONFIG_NORMAL_TILE_MODE 0 NUMBER
                    "Only enables normal tile mode.")
 set_aom_config_var(CONFIG_SIZE_LIMIT 0 NUMBER "Limit max decode width/height.")
