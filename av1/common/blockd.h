@@ -47,8 +47,13 @@ extern "C" {
 
 // DIFFWTD_MASK_TYPES should not surpass 1 << MAX_DIFFWTD_MASK_BITS
 enum {
+#if CONFIG_DIFFWTD_42
+  DIFFWTD_42 = 0,
+  DIFFWTD_42_INV,
+#else
   DIFFWTD_38 = 0,
   DIFFWTD_38_INV,
+#endif  // CONFIG_DIFFWTD_42
   DIFFWTD_MASK_TYPES,
 } UENUM1BYTE(DIFFWTD_MASK_TYPE);
 
@@ -579,9 +584,6 @@ typedef struct macroblockd {
 
   WienerInfo wiener_info[MAX_MB_PLANE];
   SgrprojInfo sgrproj_info[MAX_MB_PLANE];
-#if CONFIG_WIENER_NONSEP
-  WienerNonsepInfo wiener_nonsep_info[MAX_MB_PLANE];
-#endif  // CONFIG_WIENER_NONSEP
 
   // block dimension in the unit of mode_info.
   uint8_t n4_w, n4_h;
