@@ -3998,7 +3998,7 @@ static const TX_SIZE max_predict_sf_tx_size[BLOCK_SIZES_ALL] = {
 // whether optimal RD decision is to skip encoding the residual.
 // The sse value is stored in dist.
 static int predict_skip_flag(MACROBLOCK *x, BLOCK_SIZE bsize, int64_t *dist,
-                             int reduced_tx_set) {
+                             int reduced_tx_set, int skip_pred_level) {
   const int bw = block_size_wide[bsize];
   const int bh = block_size_high[bsize];
   const MACROBLOCKD *xd = &x->e_mbd;
@@ -4006,11 +4006,22 @@ static int predict_skip_flag(MACROBLOCK *x, BLOCK_SIZE bsize, int64_t *dist,
 
   *dist = pixel_diff_dist(x, 0, 0, 0, bsize, bsize, NULL);
 
-  const int64_t mse = *dist / bw / bh;
   // Normalized quantizer takes the transform upscaling factor (8 for tx size
   // smaller than 32) into account.
   const int16_t normalized_dc_q = dc_q >> 3;
-  const int64_t mse_thresh = (int64_t)normalized_dc_q * normalized_dc_q / 8;
+  const scale_factor = (skip_pred_level > 1) ? 8 : 8;
+  // TODO(any): Use block size dependent threshold when skip_pred_level is 1
+  const int64_t mse_thresh =
+      (int64_t)normalized_dc_q * normalized_dc_q / scale_factor;
+  if (skip_pred_level > 1) {
+    if (*dist < (mse_thresh * AOMMIN(bw, bh)))
+      return 1;
+    else
+      return 0;
+  }
+
+  const int64_t mse = *dist / bw / bh;
+
   // Predict not to skip when mse is larger than threshold.
   if (mse > mse_thresh) return 0;
 
@@ -4194,7 +4205,8 @@ static AOM_INLINE void super_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
 
   if (cpi->sf.tx_type_search.use_skip_flag_prediction && is_inter &&
       (!xd->lossless[xd->mi[0]->segment_id]) &&
-      predict_skip_flag(x, bs, &dist, cpi->common.reduced_tx_set_used)) {
+      predict_skip_flag(x, bs, &dist, cpi->common.reduced_tx_set_used,
+                        x->predict_skip_level)) {
     // Populate rdstats as per skip decision
     set_skip_flag(x, rd_stats, bs, dist);
     // Save the RD search results into tx_rd_record.
@@ -6210,7 +6222,8 @@ static AOM_INLINE void pick_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   // context and terminate early.
   int64_t dist;
   if (cpi->sf.tx_type_search.use_skip_flag_prediction &&
-      predict_skip_flag(x, bsize, &dist, cm->reduced_tx_set_used)) {
+      predict_skip_flag(x, bsize, &dist, cm->reduced_tx_set_used,
+                        x->predict_skip_level)) {
     set_skip_flag(x, rd_stats, bsize, dist);
     // Save the RD search results into tx_rd_record.
     if (is_mb_rd_hash_enabled)
