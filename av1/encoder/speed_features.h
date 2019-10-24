@@ -175,6 +175,10 @@ typedef struct {
 
   // Use a skip flag prediction model to detect blocks with skip = 1 early
   // and avoid doing full TX type search for such blocks.
+  // 0 : no early skip prediction
+  // 1 : conservative early skip prediction using DCT_DCT
+  // 2 : early skip prediction based on SSE
+  // 3 : aggressive early skip prediction based on SSE
   int use_skip_flag_prediction;
 
   // Threshold used by the ML based method to predict TX block split decisions.
