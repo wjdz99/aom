@@ -47,8 +47,13 @@ extern "C" {
 
 // DIFFWTD_MASK_TYPES should not surpass 1 << MAX_DIFFWTD_MASK_BITS
 enum {
+#if CONFIG_DIFFWTD_42
+  DIFFWTD_42 = 0,
+  DIFFWTD_42_INV,
+#else
   DIFFWTD_38 = 0,
   DIFFWTD_38_INV,
+#endif  // CONFIG_DIFFWTD_42
   DIFFWTD_MASK_TYPES,
 } UENUM1BYTE(DIFFWTD_MASK_TYPE);
 
@@ -449,22 +454,10 @@ typedef struct {
 } WienerInfo;
 
 #if CONFIG_WIENER_NONSEP
-#define WIENERNS_NUM_COEFF 8
-#define WIENERNS_NUM_PIXEL 20
-#define WIENERNS_FILT_BITS 7
-#define WIENERNS_FILT_STEP (1 << WIENERNS_FILT_BITS)
-#define WIENERNS_WINDOW 3
-#define WIENERNS_ROW_ID 0
-#define WIENERNS_COL_ID 1
-#define WIENERNS_COEFF_ID 2
-#define WIENERNS_BIT_ID 0
-#define WIENERNS_MIN_ID 1
-#define WIENERNS_SUBEXP_K_ID 2
+#define WIENER_NONSEP_WIN (16)
 typedef struct {
-  DECLARE_ALIGNED(16, int16_t, nsfilter[WIENERNS_NUM_COEFF]);
+  DECLARE_ALIGNED(16, int16_t, nsfilter[WIENER_NONSEP_WIN]);
 } WienerNonsepInfo;
-extern const int wienerns_config[WIENERNS_NUM_PIXEL][3];
-extern const int wienerns_coeff_info[WIENERNS_NUM_COEFF][3];
 #endif  // CONFIG_WIENER_NONSEP
 
 typedef struct {
@@ -579,9 +572,6 @@ typedef struct macroblockd {
 
   WienerInfo wiener_info[MAX_MB_PLANE];
   SgrprojInfo sgrproj_info[MAX_MB_PLANE];
-#if CONFIG_WIENER_NONSEP
-  WienerNonsepInfo wiener_nonsep_info[MAX_MB_PLANE];
-#endif  // CONFIG_WIENER_NONSEP
 
   // block dimension in the unit of mode_info.
   uint8_t n4_w, n4_h;
