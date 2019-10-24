@@ -465,6 +465,8 @@ struct macroblock {
   int tx_size_search_method;
   TX_MODE tx_mode;
 
+  int predict_skip_level;
+
   // Copy out this SB's TPL block stats.
   int valid_cost_b;
   int64_t inter_cost_b[MAX_MC_FLOW_BLK_IN_SB * MAX_MC_FLOW_BLK_IN_SB];
