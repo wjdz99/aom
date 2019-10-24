@@ -5820,7 +5820,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       !frame_is_intra_only(cm)) {
     if (cpi->common.seq_params.force_integer_mv == 2) {
       // Adaptive mode: see what previous frame encoded did
-      if (cpi->unscaled_last_source != NULL) {
+      if (0 /*cpi->unscaled_last_source != NULL*/) {
         cm->cur_frame_force_integer_mv =
             is_integer_mv(cpi, cpi->source, cpi->unscaled_last_source,
                           cpi->previous_hash_table);
