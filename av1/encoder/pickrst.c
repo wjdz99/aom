@@ -1487,6 +1487,105 @@ static int compute_quantized_wienerns_filter(
   }
 }
 
+typedef struct wiener_node {
+  int lvl;
+  int16_t coeff;
+  int num_child;
+  int cap_child;
+  struct wiener_node **childs;
+} WienerNode;
+
+WienerNode *construct(int l, int c) {
+  WienerNode *res = malloc(sizeof(*res));
+  res->lvl = l;
+  res->coeff = c;
+  res->num_child = 0;
+  res->cap_child = 2;
+  res->childs = malloc(sizeof(*res->childs) * res->cap_child);
+  return res;
+}
+
+static void insert(WienerNode *curr, int16_t *filter, int ins_id, int w) {
+  assert(curr->lvl + 1 == ins_id);
+  if (ins_id == w) {
+    return;
+  }
+  for (int i = 0; i < curr->num_child; ++i) {
+    assert(curr->childs[i] != NULL);
+    if (curr->childs[i]->coeff == filter[ins_id]) {
+      insert(curr->childs[i], filter, ins_id + 1, w);
+      return;
+    }
+  }
+  if (curr->num_child == curr->cap_child) {
+    curr->cap_child = 2 * curr->num_child + 1;
+    WienerNode **new_childs = malloc(sizeof(*new_childs) * curr->cap_child);
+    memcpy(new_childs, curr->childs, sizeof(*new_childs) * curr->num_child);
+    free(curr->childs);
+    curr->childs = new_childs;
+  }
+  curr->childs[curr->num_child] = construct(ins_id, filter[ins_id]);
+  ++curr->num_child;
+  insert(curr->childs[curr->num_child - 1], filter, ins_id + 1, w);
+}
+
+static int search(WienerNode *curr, int16_t *filter, int src_id, int w) {
+  assert(curr->lvl + 1 == src_id);
+  if (src_id == w) {
+    return 1;
+  }
+  for (int i = 0; i < curr->num_child; ++i) {
+    assert(curr->childs[i] != NULL);
+    if (curr->childs[i]->coeff == filter[src_id]) {
+      return search(curr->childs[i], filter, src_id + 1, w);
+    }
+  }
+  return 0;
+}
+
+static void clean(WienerNode **curr) {
+  for (int i = 0; i < (*curr)->num_child; ++i) {
+    clean(&(*curr)->childs[i]);
+  }
+  free((*curr)->childs);
+  free(*curr);
+}
+
+static int64_t finer_tile_search_wienerns(const RestSearchCtxt *rsc,
+                                          const RestorationTileLimits *limits,
+                                          const AV1PixelRect *tile_rect,
+                                          RestorationUnitInfo *rui, int w,
+                                          WienerNode *root, int64_t best_err,
+                                          WienerNonsepInfo *best_filter) {
+  if (search(root, rui->wiener_nonsep_info.nsfilter, 0, w)) {
+    return best_err;
+  }
+  insert(root, rui->wiener_nonsep_info.nsfilter, 0, w);
+  int64_t err = try_restoration_unit(rsc, limits, tile_rect, rui);
+  if (err >= best_err) {
+    return best_err;
+  }
+
+  best_err = err;
+  WienerNonsepInfo curr = rui->wiener_nonsep_info;
+  *best_filter = rui->wiener_nonsep_info;
+  for (int i = 0; i < w; ++i) {
+    if (curr.nsfilter[i] + 1 < wienerns_config[i][WIENERNS_MIN_ID] +
+                                   (1 << wienerns_config[i][WIENERNS_BIT_ID])) {
+      rui->wiener_nonsep_info.nsfilter[i] = curr.nsfilter[i] + 1;
+      best_err = finer_tile_search_wienerns(rsc, limits, tile_rect, rui, w,
+                                            root, best_err, best_filter);
+    }
+    if (curr.nsfilter[i] > wienerns_config[i][WIENERNS_MIN_ID]) {
+      rui->wiener_nonsep_info.nsfilter[i] = curr.nsfilter[i] - 1;
+      best_err = finer_tile_search_wienerns(rsc, limits, tile_rect, rui, w,
+                                            root, best_err, best_filter);
+    }
+    rui->wiener_nonsep_info.nsfilter[i] = curr.nsfilter[i];
+  }
+  return best_err;
+}
+
 static void search_wiener_nonsep(const RestorationTileLimits *limits,
                                  const AV1PixelRect *tile_rect,
                                  int rest_unit_idx, void *priv, int32_t *tmpbuf,
@@ -1496,11 +1595,9 @@ static void search_wiener_nonsep(const RestorationTileLimits *limits,
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
 
-#if CONFIG_WIENER_NONSEP
   const int wienerns_win = (rsc->plane == AOM_PLANE_Y)
                                ? WIENERNS_NUM_COEFF
                                : WIENERNS_NUM_COEFF_CHROMA;
-#endif  // CONFIG_WIENER_NONSEP
 
   const MACROBLOCK *const x = rsc->x;
   const int64_t bits_none = x->wiener_nonsep_restore_cost[0];
@@ -1513,9 +1610,15 @@ static void search_wiener_nonsep(const RestorationTileLimits *limits,
           limits->v_start, limits->v_end, rsc->dgd_stride, rsc->src_stride,
           &rui.wiener_nonsep_info, wienerns_win,
           rsc->cm->seq_params.use_highbitdepth)) {
-    rusi->sse[RESTORE_WIENER_NONSEP] =
-        try_restoration_unit(rsc, limits, tile_rect, &rui);
-    rusi->wiener_nonsep = rui.wiener_nonsep_info;
+    // rusi->sse[RESTORE_WIENER_NONSEP] =
+    //     try_restoration_unit(rsc, limits, tile_rect, &rui);
+    // rusi->wiener_nonsep = rui.wiener_nonsep_info;
+    WienerNode *root_xtrees = construct(-1, 0);
+    rusi->sse[RESTORE_WIENER_NONSEP] = finer_tile_search_wienerns(
+        rsc, limits, tile_rect, &rui, wienerns_win, root_xtrees, INT64_MAX,
+        &rusi->wiener_nonsep);
+    clean(&root_xtrees);
+    assert(rusi->sse[RESTORE_WIENER_NONSEP] != INT64_MAX);
 
     const int64_t bits_wienerns =
         x->wiener_nonsep_restore_cost[1] +
