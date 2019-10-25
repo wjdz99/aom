@@ -4021,6 +4021,7 @@ static void set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
   // Decide q and q bounds.
   *q = av1_rc_pick_q_and_bounds(cpi, &cpi->rc, cm->width, cm->height,
                                 cpi->gf_group.index, bottom_index, top_index);
+  printf("q %d\n", *q);
 
   if (!frame_is_intra_only(cm)) {
     const int use_hp = cpi->common.cur_frame_force_integer_mv
@@ -5781,6 +5782,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       cpi->oxcf.allow_warped_motion && frame_might_allow_warped_motion(cm);
 
   cm->last_frame_type = current_frame->frame_type;
+  const GF_GROUP *const gf_group = &cpi->gf_group;
+  printf("kf %d show %d show exist %d\n", current_frame->frame_type == KEY_FRAME,
+         cm->show_frame, cm->show_existing_frame);
 
   if (encode_show_existing_frame(cm)) {
     finalize_encoded_frame(cpi);

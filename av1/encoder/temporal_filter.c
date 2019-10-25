@@ -1553,23 +1553,32 @@ int av1_temporal_filter(AV1_COMP *cpi, int distance,
   }
 
   if (distance == -1) {
+    printf("FILTER\n, type %d show %d", cpi->common.current_frame.frame_type == KEY_FRAME,
+           cpi->common.show_frame);
     // Apply temporal filtering on key frame.
     strength = estimate_strength(cpi, distance, rc->gfu_boost, &sigma);
     // Number of frames for temporal filtering, could be tuned.
     frames_to_blur = NUM_KEY_FRAME_DENOISING;
+    // Forward keyframe, can't filter  forward because these frames are not in
+    // the buffer yet.
+    if (0 && distance == -2) {
+    frames_to_blur_backward = frames_to_blur - 1;
+    frames_to_blur_forward = 0;
+    start_frame = distance + frames_to_blur_forward;
+    } else {
     frames_to_blur_backward = 0;
     frames_to_blur_forward = frames_to_blur - 1;
     start_frame = distance + frames_to_blur_forward;
+    }
   } else {
     adjust_arnr_filter(cpi, distance, rc->gfu_boost, &frames_to_blur, &strength,
                        &sigma, &frames_to_blur_backward,
                        &frames_to_blur_forward);
     start_frame = distance + frames_to_blur_forward;
-  }
-
-  cpi->common.showable_frame =
+    cpi->common.showable_frame =
       (strength == 0 && frames_to_blur == 1) ||
       (cpi->oxcf.enable_overlay == 0 || cpi->sf.disable_overlay_frames);
+  }
 
   // Setup frame pointers, NULL indicates frame not included in filter.
   for (frame = 0; frame < frames_to_blur; ++frame) {

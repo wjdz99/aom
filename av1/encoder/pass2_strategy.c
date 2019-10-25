@@ -1144,7 +1144,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
                                        forward_frames, (i - 1));
     rc->source_alt_ref_pending = 1;
     gf_group->max_layer_depth_allowed = cpi->oxcf.gf_max_pyr_height;
+    printf("use arf\n");
   } else {
+    printf("dont use arf\n");
     reset_fpf_position(twopass, start_pos);
     rc->gfu_boost = AOMMIN(
         MAX_GF_BOOST,
@@ -1156,7 +1158,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   // Set the interval until the next gf.
   // If forward keyframes are enabled, ensure the final gf group obeys the
   // MIN_FWD_KF_INTERVAL.
-  if (cpi->oxcf.fwd_kf_enabled &&
+  if (cpi->oxcf.fwd_kf_enabled && use_alt_ref &&
       ((twopass->stats_in - i + rc->frames_to_key) < twopass->stats_in_end)) {
     if (i == rc->frames_to_key) {
       rc->baseline_gf_interval = i;
@@ -1178,6 +1180,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   } else {
     rc->baseline_gf_interval = i - rc->source_alt_ref_pending;
   }
+  printf("baseline gf %d\n", rc->baseline_gf_interval);
 
 #define LAST_ALR_BOOST_FACTOR 0.2f
   rc->arf_boost_factor = 1.0;
