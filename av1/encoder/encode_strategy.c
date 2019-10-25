@@ -1111,11 +1111,20 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     cpi->oxcf.gf_max_pyr_height = USE_ALTREF_FOR_ONE_PASS;
 
   if (oxcf->pass == 0 || oxcf->pass == 2) {
-    frame_params.show_existing_frame =
-        ((oxcf->enable_overlay == 0 || cpi->sf.disable_overlay_frames ||
-          cpi->show_existing_alt_ref) &&
-         gf_group->update_type[gf_group->index] == OVERLAY_UPDATE) ||
-        gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE;
+    // If this is a forward keyframe, mark as an overlay frame
+    if (cpi->oxcf.fwd_kf_enabled && (gf_group->index == gf_group->size) &&
+        gf_group->max_layer_depth > 0) {
+      assert(gf_group->update_type[1] == ARF_UPDATE);
+      frame_params.show_existing_frame =
+          ((oxcf->enable_overlay == 0 || cpi->sf.disable_overlay_frames ||
+            cpi->show_existing_alt_ref));
+    } else {
+      frame_params.show_existing_frame =
+          ((oxcf->enable_overlay == 0 || cpi->sf.disable_overlay_frames ||
+            cpi->show_existing_alt_ref) &&
+           gf_group->update_type[gf_group->index] == OVERLAY_UPDATE) ||
+          gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE;
+    }
     frame_params.show_existing_frame &= allow_show_existing(cpi, *frame_flags);
 
     // Reset show_existing_alt_ref decision to 0 after it is used.
