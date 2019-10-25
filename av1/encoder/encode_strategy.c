@@ -663,7 +663,7 @@ static void update_arf_stack(int ref_map_index,
 // Update reference frame stack info.
 void av1_update_ref_frame_map(AV1_COMP *cpi,
                               FRAME_UPDATE_TYPE frame_update_type,
-                              int ref_map_index,
+                              int show_existing_frame, int ref_map_index,
                               RefBufferStack *ref_buffer_stack) {
   AV1_COMMON *const cm = &cpi->common;
   // TODO(jingning): Consider the S-frame same as key frame for the
@@ -675,6 +675,9 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
 
   switch (frame_update_type) {
     case KEY_FRAME:
+      if (show_existing_frame)
+        ref_map_index = stack_pop(ref_buffer_stack->arf_stack,
+                                  &ref_buffer_stack->arf_stack_size);
       stack_reset(ref_buffer_stack->lst_stack,
                   &ref_buffer_stack->lst_stack_size);
       stack_reset(ref_buffer_stack->gld_stack,
@@ -718,7 +721,6 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
       break;
     default: assert(0 && "unknown type");
   }
-
   return;
 }
 
@@ -1268,12 +1270,18 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     frame_params.refresh_frame_flags = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, &cpi->ref_buffer_stack);
 
-    frame_params.existing_fb_idx_to_show =
-        frame_params.show_existing_frame
-            ? (frame_update_type == INTNL_OVERLAY_UPDATE
-                   ? get_ref_frame_map_idx(cm, BWDREF_FRAME)
-                   : get_ref_frame_map_idx(cm, ALTREF_FRAME))
-            : INVALID_IDX;
+    // If this is a forward keyframe, display the frame in the ALTREF buffer
+    if (frame_params.show_existing_frame && frame_update_type == KF_UPDATE) {
+      frame_params.existing_fb_idx_to_show =
+          get_ref_frame_map_idx(cm, ALTREF_FRAME);
+    } else {
+      frame_params.existing_fb_idx_to_show =
+          frame_params.show_existing_frame
+              ? (frame_update_type == INTNL_OVERLAY_UPDATE
+                     ? get_ref_frame_map_idx(cm, BWDREF_FRAME)
+                     : get_ref_frame_map_idx(cm, ALTREF_FRAME))
+              : INVALID_IDX;
+    }
   }
 
   // The way frame_params->remapped_ref_idx is setup is a placeholder.
@@ -1325,8 +1333,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     if (!cpi->ext_refresh_frame_flags_pending) {
       int ref_map_index =
           av1_get_refresh_ref_frame_map(cm->current_frame.refresh_frame_flags);
-      av1_update_ref_frame_map(cpi, frame_update_type, ref_map_index,
-                               &cpi->ref_buffer_stack);
+      av1_update_ref_frame_map(cpi, frame_update_type, cm->show_existing_frame,
+                               ref_map_index, &cpi->ref_buffer_stack);
     }
   }
 
