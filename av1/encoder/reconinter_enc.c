@@ -317,6 +317,12 @@ void av1_build_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
 
   av1_make_inter_predictor(src, src_stride, dst, dst_stride, &inter_pred_params,
                            &subpel_params);
+
+  if (inter_pred_params.conv_params.is_compound) {
+    inter_pred_params.conv_params.do_average = 1;
+    av1_make_inter_predictor(src, src_stride, dst, dst_stride,
+                             &inter_pred_params, &subpel_params);
+  }
 }
 
 static INLINE void build_prediction_by_above_pred(
