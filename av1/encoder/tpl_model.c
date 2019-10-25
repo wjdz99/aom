@@ -803,6 +803,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     int refresh_mask = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, &ref_buffer_stack);
     int refresh_frame_map_index = av1_get_refresh_ref_frame_map(refresh_mask);
+    printf("loc 2\n");
     av1_update_ref_frame_map(cpi, frame_update_type, refresh_frame_map_index,
                              &ref_buffer_stack);
 
@@ -850,6 +851,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     int refresh_mask = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, &ref_buffer_stack);
     int refresh_frame_map_index = av1_get_refresh_ref_frame_map(refresh_mask);
+    printf("loc3\n");
     av1_update_ref_frame_map(cpi, frame_update_type, refresh_frame_map_index,
                              &ref_buffer_stack);
 

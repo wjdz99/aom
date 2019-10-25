@@ -4702,7 +4702,7 @@ static void finalize_encoded_frame(AV1_COMP *const cpi) {
 
     if (frame_to_show == NULL) {
       aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-                         "Buffer does not contain a reconstructed frame");
+                         "enc Buffer does not contain a reconstructed frame");
     }
     assert(frame_to_show->ref_count > 0);
     assign_frame_buffer_p(&cm->cur_frame, frame_to_show);
@@ -5781,6 +5781,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       cpi->oxcf.allow_warped_motion && frame_might_allow_warped_motion(cm);
 
   cm->last_frame_type = current_frame->frame_type;
+  const GF_GROUP *const gf_group = &cpi->gf_group;
+  printf("key %d, show %d, show exist %d, update %d, index %d, showable %d\n", cm->cur_frame->frame_type == KEY_FRAME,
+         cm->show_frame, cm->show_existing_frame, gf_group->update_type[gf_group->index], gf_group->index, cm->showable_frame);
 
   if (encode_show_existing_frame(cm)) {
     finalize_encoded_frame(cpi);

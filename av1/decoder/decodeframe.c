@@ -4702,10 +4702,11 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       }
       // Show an existing frame directly.
       const int existing_frame_idx = aom_rb_read_literal(rb, 3);
+      printf("decode frame idx %d\n", existing_frame_idx);
       RefCntBuffer *const frame_to_show = cm->ref_frame_map[existing_frame_idx];
       if (frame_to_show == NULL) {
         aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-                           "Buffer does not contain a decoded frame");
+                           "dec 1 Buffer does not contain a decoded frame");
       }
       if (seq_params->decoder_model_info_present_flag &&
           cm->timing_info.equal_picture_interval == 0) {
@@ -4745,7 +4746,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       // of showable_frame for the previous frame was equal to 1.
       if (!frame_to_show->showable_frame) {
         aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-                           "Buffer does not contain a showable frame");
+                           "dec 2 Buffer does not contain a showable frame");
       }
       // Section 6.8.2: It is a requirement of bitstream conformance that when
       // show_existing_frame is used to show a previous frame with

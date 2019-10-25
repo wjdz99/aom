@@ -1560,16 +1560,17 @@ int av1_temporal_filter(AV1_COMP *cpi, int distance,
     frames_to_blur_backward = 0;
     frames_to_blur_forward = frames_to_blur - 1;
     start_frame = distance + frames_to_blur_forward;
+    cpi->common.showable_frame = 1;
   } else {
     adjust_arnr_filter(cpi, distance, rc->gfu_boost, &frames_to_blur, &strength,
                        &sigma, &frames_to_blur_backward,
                        &frames_to_blur_forward);
     start_frame = distance + frames_to_blur_forward;
-  }
-
-  cpi->common.showable_frame =
+    cpi->common.showable_frame =
       (strength == 0 && frames_to_blur == 1) ||
       (cpi->oxcf.enable_overlay == 0 || cpi->sf.disable_overlay_frames);
+  }
+
 
   // Setup frame pointers, NULL indicates frame not included in filter.
   for (frame = 0; frame < frames_to_blur; ++frame) {
@@ -1622,6 +1623,7 @@ int av1_temporal_filter(AV1_COMP *cpi, int distance,
     *show_existing_alt_ref = 0;
     if (mean / ac_q_2 < threshold && std < mean * 1.2)
       *show_existing_alt_ref = 1;
+    printf("showable 3\n");
     cpi->common.showable_frame |= *show_existing_alt_ref;
   }
 

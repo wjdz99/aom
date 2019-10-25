@@ -419,6 +419,7 @@ static struct lookahead_entry *setup_arf_frame(
       av1_lookahead_peek(cpi->lookahead, arf_src_index);
 
   if (source != NULL) {
+    printf("showable 1\n");
     cm->showable_frame = 1;
     cpi->alt_ref_source = source;
 
@@ -674,7 +675,11 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
   if (is_frame_droppable(cpi)) return;
 
   switch (frame_update_type) {
-    case KEY_FRAME:
+    case KF_UPDATE:
+      if (cm->show_existing_frame) {
+       ref_map_index = stack_pop(ref_buffer_stack->arf_stack,
+                                &ref_buffer_stack->arf_stack_size);
+      }
       stack_reset(ref_buffer_stack->lst_stack,
                   &ref_buffer_stack->lst_stack_size);
       stack_reset(ref_buffer_stack->gld_stack,
@@ -719,6 +724,22 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
     default: assert(0 && "unknown type");
   }
 
+  printf("arf %d, gf %d, lst %d\n", ref_buffer_stack->arf_stack_size, ref_buffer_stack->gld_stack_size, ref_buffer_stack->lst_stack_size);
+  printf("ARF: ");
+  for (int i = 0; i < ref_buffer_stack->arf_stack_size; i++) {
+    printf("%d ", ref_buffer_stack->arf_stack[i]);
+  }
+  printf("\n");
+  printf("GF: ");
+  for (int i = 0; i < ref_buffer_stack->gld_stack_size; i++) {
+    printf("%d ", ref_buffer_stack->gld_stack[i]);
+  }
+  printf("\n");
+  printf("LST: ");
+  for (int i = 0; i < ref_buffer_stack->lst_stack_size; i++) {
+    printf("%d ", ref_buffer_stack->lst_stack[i]);
+  }
+  printf("\n");
   return;
 }
 
@@ -967,7 +988,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
     av1_configure_buffer_updates(cpi, frame_params, KEY_FRAME, 0);
     av1_set_frame_size(cpi, cm->width, cm->height);
     av1_set_speed_features_framesize_independent(cpi, oxcf->speed);
-    av1_tpl_setup_stats(cpi, frame_params, frame_input);
+    //av1_tpl_setup_stats(cpi, frame_params, frame_input);
   }
 
   if (av1_encode(cpi, dest, frame_input, frame_params, frame_results) !=
@@ -1111,11 +1132,17 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     cpi->oxcf.gf_max_pyr_height = USE_ALTREF_FOR_ONE_PASS;
 
   if (oxcf->pass == 0 || oxcf->pass == 2) {
-    frame_params.show_existing_frame =
-        ((oxcf->enable_overlay == 0 || cpi->sf.disable_overlay_frames ||
-          cpi->show_existing_alt_ref) &&
-         gf_group->update_type[gf_group->index] == OVERLAY_UPDATE) ||
-        gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE;
+    // If this is a forward keyframe, mark as an overlay frame
+    if (cpi->oxcf.fwd_kf_enabled && (gf_group->index == gf_group->size) &&
+        gf_group->max_layer_depth > 0 && cpi->rc.frames_to_key == 0) {
+      frame_params.show_existing_frame = 1;
+    } else {
+      frame_params.show_existing_frame =
+          ((oxcf->enable_overlay == 0 || cpi->sf.disable_overlay_frames ||
+            cpi->show_existing_alt_ref) &&
+           gf_group->update_type[gf_group->index] == OVERLAY_UPDATE) ||
+          gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE;
+    }
     frame_params.show_existing_frame &= allow_show_existing(cpi, *frame_flags);
 
     // Reset show_existing_alt_ref decision to 0 after it is used.
@@ -1268,6 +1295,11 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                    ? get_ref_frame_map_idx(cm, BWDREF_FRAME)
                    : get_ref_frame_map_idx(cm, ALTREF_FRAME))
             : INVALID_IDX;
+    if (frame_params.show_existing_frame && frame_update_type == KF_UPDATE) {
+      frame_params.existing_fb_idx_to_show = get_ref_frame_map_idx(cm, ALTREF_FRAME);
+      printf("SHOW KF IND %d\n", frame_params.existing_fb_idx_to_show);
+    }
+
   }
 
   // The way frame_params->remapped_ref_idx is setup is a placeholder.
@@ -1292,7 +1324,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       if (cpi->gf_group.index == 1 && cpi->oxcf.enable_tpl_model) {
         av1_configure_buffer_updates(cpi, &frame_params, frame_update_type, 0);
         av1_set_frame_size(cpi, cm->width, cm->height);
-        av1_tpl_setup_stats(cpi, &frame_params, &frame_input);
+        //av1_tpl_setup_stats(cpi, &frame_params, &frame_input);
         assert(cpi->num_gf_group_show_frames == 1);
       }
     }

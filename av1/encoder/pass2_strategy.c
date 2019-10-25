@@ -1178,6 +1178,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   } else {
     rc->baseline_gf_interval = i - rc->source_alt_ref_pending;
   }
+  printf("gf interval %d kf interval %d\n", rc->baseline_gf_interval, rc->frames_to_key);
 
 #define LAST_ALR_BOOST_FACTOR 0.2f
   rc->arf_boost_factor = 1.0;

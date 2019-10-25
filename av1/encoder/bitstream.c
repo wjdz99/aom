@@ -2835,6 +2835,15 @@ static AOM_INLINE void write_uncompressed_header_obu(
   if (!seq_params->reduced_still_picture_hdr) {
     if (encode_show_existing_frame(cm)) {
       aom_wb_write_bit(wb, 1);  // show_existing_frame
+      printf("write show %d\n", cpi->existing_fb_idx_to_show);
+      printf("write ref idx %d %d %d %d %d %d %d\n",
+             cm->remapped_ref_idx[LAST_FRAME - LAST_FRAME],
+             cm->remapped_ref_idx[LAST2_FRAME - LAST_FRAME],
+             cm->remapped_ref_idx[LAST3_FRAME - LAST_FRAME],
+             cm->remapped_ref_idx[GOLDEN_FRAME - LAST_FRAME],
+             cm->remapped_ref_idx[BWDREF_FRAME - LAST_FRAME],
+             cm->remapped_ref_idx[ALTREF2_FRAME - LAST_FRAME],
+             cm->remapped_ref_idx[ALTREF_FRAME - LAST_FRAME]);
       aom_wb_write_literal(wb, cpi->existing_fb_idx_to_show, 3);
 
       if (seq_params->decoder_model_info_present_flag &&
