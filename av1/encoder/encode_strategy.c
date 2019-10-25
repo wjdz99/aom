@@ -663,7 +663,7 @@ static void update_arf_stack(int ref_map_index,
 // Update reference frame stack info.
 void av1_update_ref_frame_map(AV1_COMP *cpi,
                               FRAME_UPDATE_TYPE frame_update_type,
-                              int ref_map_index,
+                              int show_existing_frame, int ref_map_index,
                               RefBufferStack *ref_buffer_stack) {
   AV1_COMMON *const cm = &cpi->common;
   // TODO(jingning): Consider the S-frame same as key frame for the
@@ -675,6 +675,9 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
 
   switch (frame_update_type) {
     case KEY_FRAME:
+      if (show_existing_frame)
+        ref_map_index = stack_pop(ref_buffer_stack->arf_stack,
+                                  &ref_buffer_stack->arf_stack_size);
       stack_reset(ref_buffer_stack->lst_stack,
                   &ref_buffer_stack->lst_stack_size);
       stack_reset(ref_buffer_stack->gld_stack,
@@ -718,7 +721,6 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
       break;
     default: assert(0 && "unknown type");
   }
-
   return;
 }
 
@@ -931,6 +933,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
   }
   const int apply_filtering =
       oxcf->pass == 2 && frame_params->frame_type == KEY_FRAME &&
+      frame_params->show_frame &&
       cpi->rc.frames_to_key > NUM_KEY_FRAME_DENOISING && noise_level > 0 &&
       !is_lossless_requested(oxcf) && oxcf->arnr_max_frames > 0;
   // Save the pointer to the original source image.
@@ -1111,11 +1114,17 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     cpi->oxcf.gf_max_pyr_height = USE_ALTREF_FOR_ONE_PASS;
 
   if (oxcf->pass == 0 || oxcf->pass == 2) {
-    frame_params.show_existing_frame =
-        ((oxcf->enable_overlay == 0 || cpi->sf.disable_overlay_frames ||
-          cpi->show_existing_alt_ref) &&
-         gf_group->update_type[gf_group->index] == OVERLAY_UPDATE) ||
-        gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE;
+    // If this is a forward keyframe, mark as a show_existing_frame
+    if (cpi->oxcf.fwd_kf_enabled && (gf_group->index == gf_group->size) &&
+        gf_group->update_type[1] == ARF_UPDATE && cpi->rc.frames_to_key == 0) {
+      frame_params.show_existing_frame = 1;
+    } else {
+      frame_params.show_existing_frame =
+          ((oxcf->enable_overlay == 0 || cpi->sf.disable_overlay_frames ||
+            cpi->show_existing_alt_ref) &&
+           gf_group->update_type[gf_group->index] == OVERLAY_UPDATE) ||
+          gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE;
+    }
     frame_params.show_existing_frame &= allow_show_existing(cpi, *frame_flags);
 
     // Reset show_existing_alt_ref decision to 0 after it is used.
@@ -1262,12 +1271,18 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     frame_params.refresh_frame_flags = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, &cpi->ref_buffer_stack);
 
-    frame_params.existing_fb_idx_to_show =
-        frame_params.show_existing_frame
-            ? (frame_update_type == INTNL_OVERLAY_UPDATE
-                   ? get_ref_frame_map_idx(cm, BWDREF_FRAME)
-                   : get_ref_frame_map_idx(cm, ALTREF_FRAME))
-            : INVALID_IDX;
+    // If this is a forward keyframe, display the frame in the ALTREF buffer
+    if (frame_params.show_existing_frame && frame_update_type == KF_UPDATE) {
+      frame_params.existing_fb_idx_to_show =
+          get_ref_frame_map_idx(cm, ALTREF_FRAME);
+    } else {
+      frame_params.existing_fb_idx_to_show =
+          frame_params.show_existing_frame
+              ? (frame_update_type == INTNL_OVERLAY_UPDATE
+                     ? get_ref_frame_map_idx(cm, BWDREF_FRAME)
+                     : get_ref_frame_map_idx(cm, ALTREF_FRAME))
+              : INVALID_IDX;
+    }
   }
 
   // The way frame_params->remapped_ref_idx is setup is a placeholder.
@@ -1319,8 +1334,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     if (!cpi->ext_refresh_frame_flags_pending) {
       int ref_map_index =
           av1_get_refresh_ref_frame_map(cm->current_frame.refresh_frame_flags);
-      av1_update_ref_frame_map(cpi, frame_update_type, ref_map_index,
-                               &cpi->ref_buffer_stack);
+      av1_update_ref_frame_map(cpi, frame_update_type, cm->show_existing_frame,
+                               ref_map_index, &cpi->ref_buffer_stack);
     }
   }
 
