@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a63106f3_8c9ce80a",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-10-25T08:35:40Z",
+      "side": 1,
+      "message": "technically this one doesn\u0027t need to be bumped as it changes the api, but not abi in this header. in practice this is most commonly used in aggregate with the decoder/encoder versions, so it\u0027s harmless to change it when changing those.",
+      "revId": "2a66e827059dccb37d52df6ea85187373232fca4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
