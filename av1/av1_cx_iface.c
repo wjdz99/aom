@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "common/tools_common.h"
 #include "config/aom_config.h"
 #include "config/aom_version.h"
 
@@ -300,17 +301,6 @@ struct aom_codec_alg_priv {
   // BufferPool that holds all reference frames.
   BufferPool *buffer_pool;
 };
-
-static INLINE int gcd(int64_t a, int b) {
-  int remainder;  // remainder
-  while (b > 0) {
-    remainder = (int)(a % b);
-    a = b;
-    b = remainder;
-  }
-
-  return (int)a;
-}
 
 static INLINE void reduce_ratio(aom_rational64_t *ratio) {
   const int denom = gcd(ratio->num, ratio->den);

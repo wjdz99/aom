@@ -174,6 +174,9 @@ void aom_img_truncate_16_to_8(aom_image_t *dst, const aom_image_t *src);
 // Output in NV12 format.
 void aom_img_write_nv12(const aom_image_t *img, FILE *file);
 
+// Calculate the greatest common divisor between two numbers.
+int gcd(int64_t a, int b);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
