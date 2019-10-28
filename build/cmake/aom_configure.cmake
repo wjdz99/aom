@@ -300,7 +300,8 @@ else()
 
   # TODO(jzern): this could be added as a cxx flags for test/*.cc only, avoiding
   # third_party.
-  add_c_flag_if_supported("-Wshorten-64-to-32")
+  #add_c_flag_if_supported("-Wshorten-64-to-32")
+  add_compiler_flag_if_supported("-Wshorten-64-to-32")
 
   # Add -Wshadow only for C files to avoid massive gtest warning spam.
   add_c_flag_if_supported("-Wshadow")
