@@ -289,10 +289,12 @@ void av1_build_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
                                int p_row, int plane, int ref,
                                mv_precision precision, int x, int y,
                                const MACROBLOCKD *xd, int can_use_previous) {
-  const int is_q4 = precision == MV_PRECISION_Q4;
-  const MV mv_q4 = { is_q4 ? src_mv->row : src_mv->row * 2,
-                     is_q4 ? src_mv->col : src_mv->col * 2 };
+  const MV mv_q4 = {
+    xd->plane[plane].subsampling_y ? src_mv->row : src_mv->row * 2,
+    xd->plane[plane].subsampling_x ? src_mv->col : src_mv->col * 2
+  };
 
+  (void)precision;
   (void)warp_types;
   (void)ref;
   (void)can_use_previous;
