@@ -582,9 +582,9 @@ static int64_t get_est_rd(BLOCK_SIZE bsize, int rdmult, int64_t sse,
 }
 
 #define DATA_BRACKETS 7
-static const int data_num_threshold[DATA_BRACKETS] = {
-  200, 400, 800, 1600, 3200, 6400, INT32_MAX
-};
+static const int data_num_threshold[DATA_BRACKETS] = { 200,      400,  800,
+                                                       1600,     3200, 6400,
+                                                       INT32_MAX };
 
 void av1_inter_mode_data_fit(int rdmult) {
   aom_clear_system_state();
