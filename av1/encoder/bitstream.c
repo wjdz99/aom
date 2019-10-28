@@ -1273,10 +1273,11 @@ static void write_intra_prediction_modes(AV1_COMP *cpi, const int mi_row,
 static void write_mv_precision(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                aom_writer *w) {
   const MB_MODE_INFO *const mbmi = xd->mi[0];
+  assert(av1_get_mbmi_max_mv_precision(cm, mbmi) == mbmi->max_mv_precision);
   assert(av1_get_mbmi_mv_precision(cm, mbmi) == mbmi->mv_precision);
-  assert(mbmi->mv_precision <= cm->mv_precision);
+  assert(mbmi->mv_precision <= mbmi->max_mv_precision);
   const int down_ctx = av1_get_mv_precision_down_context(cm, xd);
-  int down = cm->mv_precision - mbmi->mv_precision;
+  int down = mbmi->max_mv_precision - mbmi->mv_precision;
 #if DISALLOW_ONE_DOWN_FLEX_MVRES == 2
   assert((down & 1) == 0);
   down >>= 1;
@@ -1284,13 +1285,13 @@ static void write_mv_precision(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #elif DISALLOW_ONE_DOWN_FLEX_MVRES == 1
   assert(down != 1);
   down -= (down > 0);
-  int nsymbs = cm->mv_precision;
+  int nsymbs = mbmi->max_mv_precision;
 #else
-  int nsymbs = cm->mv_precision + 1;
+  int nsymbs = mbmi->max_mv_precision + 1;
 #endif  // DISALLOW_ONE_DOWN_FLEX_MVRES
   aom_write_symbol(
       w, down,
-      xd->tile_ctx->flex_mv_precision_cdf[down_ctx][cm->mv_precision -
+      xd->tile_ctx->flex_mv_precision_cdf[down_ctx][mbmi->max_mv_precision -
                                                     MV_SUBPEL_QTR_PRECISION],
       nsymbs);
 }
@@ -1365,17 +1366,23 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       for (ref = 0; ref < 1 + is_compound; ++ref) {
         nmv_context *nmvc = &ec_ctx->nmvc;
         const int_mv ref_mv = av1_get_ref_mv(x, ref);
+        assert(get_mv_precision(mbmi->mv[ref].as_mv, mbmi->max_mv_precision) <=
+               mbmi->max_mv_precision);
         av1_encode_mv(cpi, w, &mbmi->mv[ref].as_mv, &ref_mv.as_mv, nmvc,
                       mbmi->mv_precision);
       }
     } else if (mode == NEAREST_NEWMV || mode == NEAR_NEWMV) {
       nmv_context *nmvc = &ec_ctx->nmvc;
       const int_mv ref_mv = av1_get_ref_mv(x, 1);
+      assert(get_mv_precision(mbmi->mv[1].as_mv, mbmi->max_mv_precision) <=
+             mbmi->max_mv_precision);
       av1_encode_mv(cpi, w, &mbmi->mv[1].as_mv, &ref_mv.as_mv, nmvc,
                     mbmi->mv_precision);
     } else if (mode == NEW_NEARESTMV || mode == NEW_NEARMV) {
       nmv_context *nmvc = &ec_ctx->nmvc;
       const int_mv ref_mv = av1_get_ref_mv(x, 0);
+      assert(get_mv_precision(mbmi->mv[0].as_mv, mbmi->max_mv_precision) <=
+             mbmi->max_mv_precision);
       av1_encode_mv(cpi, w, &mbmi->mv[0].as_mv, &ref_mv.as_mv, nmvc,
                     mbmi->mv_precision);
     }
