@@ -197,6 +197,14 @@ int webm_read_frame(struct WebmInputContext *webm_ctx, uint8_t **buffer,
   return frame.Read(reader, *buffer) ? -1 : 0;
 }
 
+// Euclid's algorithm for the greatest common divisor.
+static int greatest_common_divisor(int a, int b) {
+  if (b == 0) {
+    return a;
+  }
+  return greatest_common_divisor(b, a % b);
+}
+
 int webm_guess_framerate(struct WebmInputContext *webm_ctx,
                          struct AvxInputContext *aom_ctx) {
   uint32_t i = 0;
@@ -213,6 +221,13 @@ int webm_guess_framerate(struct WebmInputContext *webm_ctx,
   aom_ctx->framerate.numerator = (i - 1) * 1000000;
   aom_ctx->framerate.denominator =
       static_cast<int>(webm_ctx->timestamp_ns / 1000);
+  // Fraction might be represented in large numbers, like 49000000/980000
+  // for 50fps. Simplify as much as possible.
+  int gcd = greatest_common_divisor(aom_ctx->framerate.numerator,
+                                    aom_ctx->framerate.denominator);
+  aom_ctx->framerate.numerator /= gcd;
+  aom_ctx->framerate.denominator /= gcd;
+
   delete[] buffer;
   webm_ctx->buffer = NULL;
 
