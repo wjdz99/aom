@@ -832,6 +832,8 @@ static void define_gf_group_pass0(AV1_COMP *cpi,
 
 // Analyse and define a gf/arf group.
 #define MAX_GF_BOOST 5400
+#define CONST_GROUP_WEIGHT_FACTOR 1
+#define DEFAULT_GRP_WEIGHT 1.0
 static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
                             const EncodeFrameParams *const frame_params) {
   AV1_COMMON *const cm = &cpi->common;
@@ -1223,9 +1225,13 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
       rc_factor = AOMMIN(RC_FACTOR_MAX,
                          (double)(100 - rc->rate_error_estimate) / 100.0);
     }
+    double group_weight_factor = twopass->kfgroup_inter_fraction * rc_factor;
+#if CONST_GROUP_WEIGHT_FACTOR
+    group_weight_factor = DEFAULT_GRP_WEIGHT;
+#endif
     tmp_q = get_twopass_worst_quality(
         cpi, group_av_err, (group_av_skip_pct + group_av_inactive_zone),
-        vbr_group_bits_per_frame, twopass->kfgroup_inter_fraction * rc_factor);
+        vbr_group_bits_per_frame, group_weight_factor);
     rc->active_worst_quality = AOMMAX(tmp_q, rc->active_worst_quality >> 1);
   }
 #endif
@@ -1679,7 +1685,6 @@ static int is_skippable_frame(const AV1_COMP *cpi) {
 #if ARF_STATS_OUTPUT
 unsigned int arf_count = 0;
 #endif
-#define DEFAULT_GRP_WEIGHT 1.0
 
 static void process_first_pass_stats(AV1_COMP *cpi,
                                      FIRSTPASS_STATS *this_frame) {
