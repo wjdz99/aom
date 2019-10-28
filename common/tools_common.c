@@ -506,3 +506,14 @@ void aom_img_write_nv12(const aom_image_t *img, FILE *file) {
     vbuf += (stride - w * size);
   }
 }
+
+int gcd(int64_t a, int b) {
+  int remainder;
+  while (b > 0) {
+    remainder = a % b;
+    a = b;
+    b = remainder;
+  }
+
+  return (int)a;
+}
