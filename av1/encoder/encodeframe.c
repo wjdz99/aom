@@ -1777,7 +1777,6 @@ static AOM_INLINE void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
   update_ext_partition_context(xd, mi_row, mi_col, subsize, bsize, partition);
 }
 
-#if !CONFIG_REALTIME_ONLY
 static AOM_INLINE void set_partial_sb_partition(
     const AV1_COMMON *const cm, MB_MODE_INFO *mi, int bh_in, int bw_in,
     int mi_rows_remaining, int mi_cols_remaining, BLOCK_SIZE bsize,
@@ -1835,7 +1834,6 @@ static AOM_INLINE void set_fixed_partitioning(AV1_COMP *cpi,
                              mi_cols_remaining, bsize, mib);
   }
 }
-#endif  // !CONFIG_REALTIME_ONLY
 
 static AOM_INLINE void rd_use_partition(
     AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data, MB_MODE_INFO **mib,
@@ -4257,13 +4255,19 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
       seg_skip = segfeature_active(seg, segment_id, SEG_LVL_SKIP);
     }
 
-    // Realtime non-rd path.
-    if (!(sf->partition_search_type == FIXED_PARTITION || seg_skip) &&
-        !cpi->partition_search_skippable_frame &&
-        sf->partition_search_type == VAR_BASED_PARTITION) {
-      set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col,
-                                     sb_size);
-      av1_choose_var_based_partitioning(cpi, tile_info, x, mi_row, mi_col);
+    // Realtime path.
+    if (cpi->oxcf.mode == REALTIME) {
+      if (sf->partition_search_type == FIXED_PARTITION || seg_skip) {
+        set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
+        const BLOCK_SIZE bsize =
+            seg_skip ? sb_size : sf->always_this_block_size;
+        set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
+      } else if (!cpi->partition_search_skippable_frame &&
+                 sf->partition_search_type == VAR_BASED_PARTITION) {
+        set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col,
+                                       sb_size);
+        av1_choose_var_based_partitioning(cpi, tile_info, x, mi_row, mi_col);
+      }
       td->mb.cb_offset = 0;
       if (use_nonrd_mode) {
         nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
