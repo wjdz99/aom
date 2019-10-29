@@ -22,6 +22,30 @@
       "revId": "9015afb29bc4bd7f3f1e18f83e42b72759871f5e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b0e3579_1cebcddc",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 7539,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-10-29T22:12:28Z",
+      "side": 0,
+      "message": "This applies to sub8x8 block cases. The final decision for cb4x4 was that we don\u0027t use compound mode for any sub8x8 blocks. Hence no need here to consider it for second inter predictor.",
+      "parentUuid": "a8bd5f6a_6f01d3a0",
+      "range": {
+        "startLine": 7539,
+        "startChar": 64,
+        "endLine": 7539,
+        "endChar": 70
+      },
+      "revId": "9015afb29bc4bd7f3f1e18f83e42b72759871f5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
