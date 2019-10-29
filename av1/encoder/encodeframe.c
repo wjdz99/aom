@@ -179,7 +179,6 @@ unsigned int av1_high_get_sby_perpixel_variance(const AV1_COMP *cpi,
   return ROUND_POWER_OF_TWO(var, num_pels_log2_lookup[bs]);
 }
 
-#if !CONFIG_REALTIME_ONLY
 static unsigned int get_sby_perpixel_diff_variance(const AV1_COMP *const cpi,
                                                    const struct buf_2d *ref,
                                                    int mi_row, int mi_col,
@@ -209,7 +208,6 @@ static BLOCK_SIZE get_rd_var_based_fixed_partition(AV1_COMP *cpi, MACROBLOCK *x,
   else
     return BLOCK_8X8;
 }
-#endif  // !CONFIG_REALTIME_ONLY
 
 static int set_deltaq_rdmult(const AV1_COMP *const cpi, MACROBLOCKD *const xd) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -1777,7 +1775,6 @@ static AOM_INLINE void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
   update_ext_partition_context(xd, mi_row, mi_col, subsize, bsize, partition);
 }
 
-#if !CONFIG_REALTIME_ONLY
 static AOM_INLINE void set_partial_sb_partition(
     const AV1_COMMON *const cm, MB_MODE_INFO *mi, int bh_in, int bw_in,
     int mi_rows_remaining, int mi_cols_remaining, BLOCK_SIZE bsize,
@@ -1835,7 +1832,6 @@ static AOM_INLINE void set_fixed_partitioning(AV1_COMP *cpi,
                              mi_cols_remaining, bsize, mib);
   }
 }
-#endif  // !CONFIG_REALTIME_ONLY
 
 static AOM_INLINE void rd_use_partition(
     AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data, MB_MODE_INFO **mib,
@@ -4257,13 +4253,26 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
       seg_skip = segfeature_active(seg, segment_id, SEG_LVL_SKIP);
     }
 
-    // Realtime non-rd path.
-    if (!(sf->partition_search_type == FIXED_PARTITION || seg_skip) &&
-        !cpi->partition_search_skippable_frame &&
-        sf->partition_search_type == VAR_BASED_PARTITION) {
-      set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col,
-                                     sb_size);
-      av1_choose_var_based_partitioning(cpi, tile_info, x, mi_row, mi_col);
+    // Realtime path.
+    if (cpi->oxcf.mode == REALTIME) {
+      if (sf->partition_search_type == FIXED_PARTITION || seg_skip) {
+        set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
+        const BLOCK_SIZE bsize =
+            seg_skip ? sb_size : sf->always_this_block_size;
+        set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
+      } else if (cpi->partition_search_skippable_frame) {
+        set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
+        const BLOCK_SIZE bsize =
+            get_rd_var_based_fixed_partition(cpi, x, mi_row, mi_col);
+        set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
+      } else if (sf->partition_search_type == VAR_BASED_PARTITION) {
+        set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col,
+                                       sb_size);
+        av1_choose_var_based_partitioning(cpi, tile_info, x, mi_row, mi_col);
+      }
+      assert(sf->partition_search_type == FIXED_PARTITION || seg_skip ||
+             cpi->partition_search_skippable_frame ||
+            sf->partition_search_type == VAR_BASED_PARTITION);
       td->mb.cb_offset = 0;
       if (use_nonrd_mode) {
         nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
