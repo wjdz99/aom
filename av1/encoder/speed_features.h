@@ -798,6 +798,9 @@ typedef struct SPEED_FEATURES {
 
   // For nonrd: use block_yrd for rd cost in interpolation filter search.
   int nonrd_use_blockyrd_interp_filter;
+
+  // Prune obmc search using previous frame stats.
+  int prune_obmc_using_stats;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
