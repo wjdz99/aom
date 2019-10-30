@@ -41,7 +41,7 @@ extern "C" {
  * fields to structures
  */
 #define AOM_ENCODER_ABI_VERSION \
-  (6 + AOM_CODEC_ABI_VERSION) /**<\hideinitializer*/
+  (7 + AOM_CODEC_ABI_VERSION) /**<\hideinitializer*/
 
 /*! \brief Encoder capabilities bitfield
  *

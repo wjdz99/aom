@@ -203,6 +203,9 @@ static const arg_def_t input_chroma_subsampling_y = ARG_DEF(
     NULL, "input-chroma-subsampling-y", 1, "chroma subsampling y value.");
 
 static const arg_def_t *main_args[] = { &help,
+#if CONFIG_FILEOPTIONS
+                                        &use_cfg,
+#endif
                                         &debugmode,
                                         &outputfile,
                                         &codecarg,
@@ -1152,6 +1155,16 @@ static void validate_positive_rational(const char *msg,
 
   if (!rat->den) die("Error: %s has zero denominator\n", msg);
 }
+
+#if CONFIG_FILEOPTIONS
+static void init_config(cfg_options_t *config) {
+  memset(config, 0, sizeof(cfg_options_t));
+  config->super_block_size = 0;  // Dynamic
+  config->max_partition_size = 128;
+  config->min_partition_size = 4;
+  config->disable_trellis_quant = 3;
+}
+#endif
 
 /* Parses global config arguments into the AvxEncoderConfig. Note that
  * argv is modified and overwrites all parsed arguments.
@@ -2279,7 +2292,11 @@ int main(int argc, const char **argv_) {
   argv = argv_dup(argc - 1, argv_ + 1);
   parse_global_config(&global, &argv);
 
+#if CONFIG_FILEOPTIONS
+  if (argc < 2) usage_exit();
+#else
   if (argc < 3) usage_exit();
+#endif
 
   switch (global.color_type) {
     case I420: input.fmt = AOM_IMG_FMT_I420; break;

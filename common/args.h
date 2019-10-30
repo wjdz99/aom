@@ -15,6 +15,9 @@
 #include "aom/aom_codec.h"
 #include "aom/aom_encoder.h"
 
+#include "aom/aom_codec.h"
+#include "aom/aom_encoder.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
