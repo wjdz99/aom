@@ -5010,7 +5010,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   cm->allow_intrabc &= (cpi->oxcf.enable_intrabc);
 
   if (cpi->oxcf.pass != 1 && av1_use_hash_me(cm) &&
-      !cpi->sf.use_nonrd_pick_mode) {
+      !cpi->sf.use_nonrd_pick_mode && frame_is_intra_only(cm)) {
     // add to hash table
     const int pic_width = cpi->source->y_crop_width;
     const int pic_height = cpi->source->y_crop_height;
@@ -5043,8 +5043,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
     // block size, for non-intra frames, max_size for hash calculation can be
     // limited to 8x8
     // TODO(any): Adjust max_size based on superblock size for intra frames
-    const int max_size =
-        frame_is_intra_only(cm) ? 128 : FORCE_INT_MV_DECISION_BLOCK_SIZE;
+    const int max_size = 128;
     const int min_size = 4;
     const int min_alloc_size = block_size_wide[cm->mi_alloc_bsize];
     int src_idx = 0;

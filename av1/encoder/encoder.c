@@ -5511,20 +5511,17 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
 static int is_integer_mv(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *cur_picture,
                          const YV12_BUFFER_CONFIG *last_picture,
                          hash_table *last_hash_table) {
+  (void)last_hash_table;
   aom_clear_system_state();
   // check use hash ME
   int k;
-  uint32_t hash_value_1;
-  uint32_t hash_value_2;
 
   const int block_size = FORCE_INT_MV_DECISION_BLOCK_SIZE;
   const double threshold_current = 0.8;
-  const double threshold_average = 0.95;
+  // const double threshold_average = 0.95;
   const int max_history_size = 32;
   int T = 0;  // total block
   int C = 0;  // match with collocated block
-  int S = 0;  // smooth region but not match with collocated block
-  int M = 0;  // match with other block
 
   const int pic_width = cur_picture->y_width;
   const int pic_height = cur_picture->y_height;
@@ -5571,73 +5568,37 @@ static int is_integer_mv(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *cur_picture,
         C++;
         continue;
       }
-
-      if (av1_hash_is_horizontal_perfect(cur_picture, block_size, x_pos,
-                                         y_pos) ||
-          av1_hash_is_vertical_perfect(cur_picture, block_size, x_pos, y_pos)) {
-        S++;
-        continue;
-      }
-
-      av1_get_block_hash_value(
-          cur_picture->y_buffer + y_pos * stride_cur + x_pos, stride_cur,
-          block_size, &hash_value_1, &hash_value_2,
-          (cur_picture->flags & YV12_FLAG_HIGHBITDEPTH), &cpi->td.mb);
-      // Hashing does not work for highbitdepth currently.
-      // TODO(Roger): Make it work for highbitdepth.
-      if (av1_use_hash_me(&cpi->common)) {
-        if (av1_has_exact_match(last_hash_table, hash_value_1, hash_value_2)) {
-          M++;
-        }
-      }
     }
   }
 
   assert(T > 0);
-  double csm_rate = ((double)(C + S + M)) / ((double)(T));
-  double m_rate = ((double)(M)) / ((double)(T));
 
-  cpi->csm_rate_array[cpi->rate_index] = csm_rate;
-  cpi->m_rate_array[cpi->rate_index] = m_rate;
+  double c_rate = ((double)C) / ((double)T);
+
+  cpi->c_rate_array[cpi->rate_index] = c_rate;
 
   cpi->rate_index = (cpi->rate_index + 1) % max_history_size;
   cpi->rate_size++;
   cpi->rate_size = AOMMIN(cpi->rate_size, max_history_size);
 
-  if (csm_rate < threshold_current) {
+  if (c_rate < threshold_current) {
     return 0;
   }
 
-  if (C == T) {
+  if (C >= T) {
     return 1;
   }
 
-  double csm_average = 0.0;
-  double m_average = 0.0;
+  double c_average = 0.0;
 
   for (k = 0; k < cpi->rate_size; k++) {
-    csm_average += cpi->csm_rate_array[k];
-    m_average += cpi->m_rate_array[k];
+    c_average += cpi->c_rate_array[k];
   }
-  csm_average /= cpi->rate_size;
-  m_average /= cpi->rate_size;
+  c_average /= cpi->rate_size;
 
-  if (csm_average < threshold_average) {
-    return 0;
-  }
-
-  if (M > (T - C - S) / 3) {
+  if (c_average > 1.01) {
     return 1;
   }
-
-  if (csm_rate > 0.99 && m_rate > 0.01) {
-    return 1;
-  }
-
-  if (csm_average + m_average > 1.01) {
-    return 1;
-  }
-
   return 0;
 }
 
