@@ -588,6 +588,7 @@ typedef struct macroblockd {
 
   CONV_BUF_TYPE *tmp_conv_dst;
   uint8_t *tmp_obmc_bufs[2];
+  int save_intra_stats;
 } MACROBLOCKD;
 
 static INLINE int is_cur_buf_hbd(const MACROBLOCKD *xd) {

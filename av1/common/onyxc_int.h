@@ -570,6 +570,7 @@ typedef struct AV1Common {
   int64_t txcoeff_cost_count;
 #endif
   int is_decoding;
+  int save_intra_stats;
 } AV1_COMMON;
 
 // TODO(hkuang): Don't need to lock the whole pool after implementing atomic

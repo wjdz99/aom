@@ -1320,6 +1320,89 @@ static void build_intra_predictors_high(
 }
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
+static INLINE void gather_top_and_left_pxs(const struct buf_2d *ref_buf,
+                                           int txhpx, int txwpx, int num_top,
+                                           int num_right, int num_left,
+                                           int num_bottom, uint8_t *above_row,
+                                           int above_stride, uint8_t *left_col,
+                                           int left_stride) {
+  const uint8_t DEFAULT_TOP_VAL = 127;
+  const uint8_t DEFAULT_LEFT_VAL = 129;
+  const uint8_t DEFAULT_TOPLEFT_VAL = 128;
+
+  const uint8_t *ref = ref_buf->buf;
+  const int ref_stride = ref_buf->stride;
+  const uint8_t *above_ref = ref - 3 * ref_stride;
+  const uint8_t *left_ref = ref - 3;
+
+  const int pred_high_px = txhpx;
+  const int pred_wide_px = txwpx;
+
+  const int num_pixels_needed = pred_high_px + pred_wide_px;
+
+  // Set left cols
+  if (num_left > 0) {
+    int r = 0;
+    for (; r < pred_high_px + num_bottom; r++) {
+      memcpy(&left_col[r * left_stride], &left_ref[r * ref_stride], 4);
+    }
+    const int last_idx = r;
+    for (; r < num_pixels_needed; r++) {
+      memcpy(&left_col[r * left_stride], &left_ref[(last_idx - 1) * ref_stride],
+             4);
+    }
+  } else if (num_top > 0) {
+    memset(left_col, above_ref[3 * ref_stride], num_pixels_needed * 4);
+  } else {
+    memset(left_col, DEFAULT_LEFT_VAL, num_pixels_needed * 4);
+  }
+
+  // Set above rows
+  if (num_top > 0) {
+    for (int r = 0; r < 4; r++) {
+      memcpy(&above_row[r * above_stride], &above_ref[r * ref_stride], num_top);
+      int c = num_top;
+      if (num_right > 0) {
+        memcpy(&above_row[r * above_stride + pred_wide_px],
+               &above_ref[r * ref_stride + pred_wide_px], num_right);
+        c += num_right;
+      }
+      if (c < num_pixels_needed) {
+        memset(&above_row[r * above_stride + c],
+               above_ref[r * ref_stride + c - 1], num_pixels_needed - c);
+      }
+    }
+  } else if (num_left > 0) {
+    for (int r = 0; r < 4; r++) {
+      memset(&above_row[r * above_stride], left_ref[3], num_pixels_needed);
+    }
+  } else {
+    for (int r = 0; r < 4; r++) {
+      memset(&above_row[r * above_stride], DEFAULT_TOP_VAL, num_pixels_needed);
+    }
+  }
+
+  // Set above left
+  if (num_top > 0 && num_left > 0) {
+    for (int r = 0; r < 4; r++) {
+      memcpy(&above_row[r * above_stride - 4], &above_ref[r * ref_stride - 4],
+             4);
+    }
+  } else if (num_top > 0) {
+    for (int r = 0; r < 4; r++) {
+      memset(&above_row[r * above_stride - 4], above_ref[r * ref_stride], 4);
+    }
+  } else if (num_left > 0) {
+    for (int r = 0; r < 4; r++) {
+      memcpy(&above_row[r * above_stride - 4], left_ref, 4);
+    }
+  } else {
+    for (int r = 0; r < 4; r++) {
+      memset(&above_row[r * above_stride - 4], DEFAULT_TOPLEFT_VAL, 4);
+    }
+  }
+}
+
 static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
                                    int ref_stride, uint8_t *dst, int dst_stride,
                                    PREDICTION_MODE mode, int angle_delta,
@@ -1343,6 +1426,39 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
   int p_angle = 0;
   const int is_dr_mode = av1_is_directional_mode(mode);
   const int use_filter_intra = filter_intra_mode != FILTER_INTRA_MODES;
+
+  if (xd->save_intra_stats) {
+#define PADDING_THICK (4)
+#define PADDING_STRIDE (128 + 128)
+    uint8_t above_row_t[PADDING_THICK][PADDING_STRIDE + 4],
+        left_col_t[PADDING_STRIDE][PADDING_THICK];
+    const int above_stride = PADDING_STRIDE + 4;
+    const int left_stride = PADDING_THICK;
+    gather_top_and_left_pxs(&xd->plane[AOM_PLANE_Y].dst, txhpx, txwpx, n_top_px,
+                            n_topright_px, n_left_px, n_bottomleft_px,
+                            &above_row_t[0][4], above_stride, &left_col_t[0][0],
+                            left_stride);
+    const int num_pixels_needed = txhpx + txwpx;
+
+    char filename[1024];
+    snprintf(filename, sizeof(filename), "data.csv");
+    FILE *f = fopen(filename, "a");
+
+    fprintf(f, "%d,%d,%d,%d,%d,", num_pixels_needed, n_top_px, n_topright_px,
+            n_left_px, n_bottomleft_px);
+    for (int r = 0; r < PADDING_THICK; r++) {
+      for (int c = 0; c < 4 + num_pixels_needed; c++) {
+        fprintf(f, "%d,", above_row_t[r][c]);
+      }
+    }
+    for (int r = 0; r < num_pixels_needed; r++) {
+      for (int c = 0; c < PADDING_THICK; c++) {
+        fprintf(f, "%d,", left_col_t[r][c]);
+      }
+    }
+#undef PADDING_THICK
+#undef PADDING_STRIDE
+  }
 
   // The default values if ref pixels are not available:
   // 128 127 127 .. 127 127 127 127 127 127
@@ -1651,9 +1767,11 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
     cfl_predict_block(xd, dst, dst_stride, tx_size, plane);
     return;
   }
+  xd->save_intra_stats = (cm->save_intra_stats && plane == AOM_PLANE_Y);
   av1_predict_intra_block(cm, xd, pd->width, pd->height, tx_size, mode,
                           angle_delta, use_palette, filter_intra_mode, dst,
                           dst_stride, dst, dst_stride, blk_col, blk_row, plane);
+  xd->save_intra_stats = 0;
 }
 
 void av1_init_intra_predictors(void) {

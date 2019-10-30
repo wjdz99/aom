@@ -567,7 +567,17 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   uint8_t *dst =
       &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
   int dummy_rate_cost = 0;
+  uint64_t sse = 0, sad = 0;
+  const int save_data = cm->save_intra_stats && plane == AOM_PLANE_Y;
+  FILE *f = NULL;
 
+  if (save_data) {
+    char filename[1024];
+    snprintf(filename, sizeof(filename), "data.csv");
+    f = fopen(filename, "a");
+
+    fprintf(f, "%d,", tx_size);
+  }
   av1_predict_intra_block_facade(cm, xd, plane, blk_col, blk_row, tx_size);
 
   TX_TYPE tx_type = DCT_DCT;
@@ -575,6 +585,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   if (plane == 0 && is_blk_skip(x, plane, blk_row * bw + blk_col)) {
     *eob = 0;
     p->txb_entropy_ctx[block] = 0;
+    av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
   } else {
     av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
 
@@ -598,6 +609,32 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
           cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size, tx_type,
           USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP);
     }
+  }
+  if (save_data) {
+    const int diff_stride = block_size_wide[plane_bsize];
+    int16_t *src_diff =
+        &p->src_diff[(blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]];
+    const int tx1d_width = tx_size_wide[tx_size];
+    const int tx1d_height = tx_size_high[tx_size];
+    for (int row = 0; row < tx1d_height; row++) {
+      for (int col = 0; col < tx1d_width; col++) {
+        const int diff = src_diff[row * diff_stride + col];
+        sad += abs(diff);
+        sse += diff * diff;
+      }
+    }
+
+    const int src_stride = p->src.stride;
+    uint8_t *src =
+        &p->src.buf[(blk_row * src_stride + blk_col) << tx_size_wide_log2[0]];
+    for (int row = 0; row < tx1d_height; row++) {
+      for (int col = 0; col < tx1d_width; col++) {
+        fprintf(f, "%d,", src[row * src_stride + col]);
+      }
+    }
+
+    fprintf(f, "%d,%ld,%ld\n", xd->mi[0]->mode, sad, sse);
+    fclose(f);
   }
 
   if (*eob) {

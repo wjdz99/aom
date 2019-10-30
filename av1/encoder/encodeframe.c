@@ -3563,8 +3563,10 @@ BEGIN_PARTITION_SEARCH:
   if (found_best_partition && pc_tree->index != 3) {
     if (bsize == cm->seq_params.sb_size) {
       x->cb_offset = 0;
+      cpi->common.save_intra_stats = 1;
       encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, OUTPUT_ENABLED, bsize,
                 pc_tree, NULL);
+      cpi->common.save_intra_stats = 0;
     } else {
       encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, DRY_RUN_NORMAL, bsize,
                 pc_tree, NULL);
