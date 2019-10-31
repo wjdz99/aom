@@ -1940,7 +1940,7 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
 
   av1_nn_softmax(scores_2D_raw, scores_2D, 16);
 
-  const int prune_aggr_table[3][2] = { { 4, 1 }, { 6, 3 }, { 9, 6 } };
+  const int prune_aggr_table[4][2] = { { 4, 1 }, { 6, 3 }, { 9, 6 }, { 9, 6 } };
   int pruning_aggressiveness = 0;
   if (tx_set_type == EXT_TX_SET_ALL16) {
     pruning_aggressiveness =
@@ -1966,12 +1966,57 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
       prune_2D_adaptive_thresholds[tx_size][pruning_aggressiveness];
 
   uint16_t prune_bitmask = 0;
-  for (int i = 0; i < 16; i++) {
-    if (scores_2D[i] < score_thresh && i != max_score_i)
-      prune_bitmask |= (1 << tx_type_table_2D[i]);
-  }
 
-  sort_probability(scores_2D, tx_type_table_2D, TX_TYPES);
+  // Enable more pruning based on tx type probability and number of allowed tx
+  // types
+  if (prune_mode == PRUNE_2D_AGGRESSIVE) {
+    // Calculate sum of allowed tx type score and Populate prune bit mask based
+    // on score_thresh and allowed_tx_mask
+    float sum_score = 0.0;
+    for (int i = 0; i < TX_TYPES; i++) {
+      int allow_tx_type = allowed_tx_mask & (1 << tx_type_table_2D[i]);
+      // Set prune mask based on score_thresh and allow_tx_type
+      if ((scores_2D[i] < score_thresh || !allow_tx_type) && i != max_score_i)
+        prune_bitmask |= (1 << tx_type_table_2D[i]);
+      // Accumulate score of allowed tx type
+      else
+        sum_score += scores_2D[i];
+    }
+    // Sort tx type probability of all types
+    sort_probability(scores_2D, tx_type_table_2D, TX_TYPES);
+
+    float temp_score = 0.0;
+    float score_ratio = 0.0;
+    int tx_idx, tx_count = 0;
+    const float inv_sum_score = 100 / sum_score;
+    // Get allowed tx types based on sorted probability score and tx count
+    for (tx_idx = 0; tx_idx < TX_TYPES; tx_idx++) {
+      // Skip the tx type which has more than 30% of cumulative
+      // probability and allowed tx type count is more than 2
+      if (score_ratio > 30.0 && tx_count >= 2) break;
+
+      // Calculate cumulative probability of allowed tx types
+      if (!(prune_bitmask & (1 << tx_type_table_2D[tx_idx]))) {
+        // Calculate cumulative probability
+        temp_score += scores_2D[tx_idx];
+
+        // Calculate percentage of cumulative probability of allowed tx type
+        score_ratio = temp_score * inv_sum_score;
+        tx_count++;
+      }
+    }
+    // Set remaining tx types as pruned
+    for (; tx_idx < TX_TYPES; tx_idx++)
+      prune_bitmask |= (1 << tx_type_table_2D[tx_idx]);
+  } else {
+    // Populate prune bit mask based on score_thresh
+    for (int tx_idx = 0; tx_idx < TX_TYPES; tx_idx++) {
+      if (scores_2D[tx_idx] < score_thresh && tx_idx != max_score_i)
+        prune_bitmask |= (1 << tx_type_table_2D[tx_idx]);
+    }
+    // Sort tx type probability of all types
+    sort_probability(scores_2D, tx_type_table_2D, TX_TYPES);
+  }
   memcpy(txk_map, tx_type_table_2D, sizeof(tx_type_table_2D));
 
   return prune_bitmask;
@@ -3363,13 +3408,13 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     }
     assert(num_allowed > 0);
 
-    // Go through ML model only if num_allowed > 5.
+    int allowed_tx_count = (x->prune_mode == PRUNE_2D_AGGRESSIVE) ? 1 : 5;
     // !fast_tx_search && txk_end != txk_start && plane == 0
-    if (cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE && is_inter &&
-        num_allowed > 5) {
-      const uint16_t prune = prune_tx_2D(
-          x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
-          cpi->sf.tx_type_search.prune_mode, txk_map, allowed_tx_mask);
+    if (x->prune_mode >= PRUNE_2D_ACCURATE && is_inter &&
+        num_allowed > allowed_tx_count) {
+      const uint16_t prune =
+          prune_tx_2D(x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
+                      x->prune_mode, txk_map, allowed_tx_mask);
       allowed_tx_mask &= (~prune);
     }
   }
