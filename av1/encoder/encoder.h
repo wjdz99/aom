@@ -172,6 +172,7 @@ typedef struct TplDepStats {
   int64_t mc_dep_dist;
   int_mv mv;
   int ref_frame_index;
+  PREDICTION_MODE mode;
 #if !USE_TPL_CLASSIC_MODEL
   int64_t mc_count;
   int64_t mc_saved;
