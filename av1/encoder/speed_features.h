@@ -807,6 +807,8 @@ typedef struct SPEED_FEATURES {
 
   // Number of best inter modes to search transform. INT_MAX - search all.
   int num_inter_modes_for_tx_search;
+
+  int motion_mode_for_winner_cand;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
