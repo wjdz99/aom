@@ -24,6 +24,9 @@ extern "C" {
 
 #undef MAX_SB_SIZE
 
+// Experimental tests
+#define USE_DST7_16x16 0 // Use DST-7 for 16-point ADST and FlipADST
+
 // Max superblock size
 #define MAX_SB_SIZE_LOG2 7
 #define MAX_SB_SIZE (1 << MAX_SB_SIZE_LOG2)
