@@ -166,7 +166,8 @@ enum {
 } UENUM1BYTE(TX_TYPE_PRUNE_MODE);
 
 typedef struct {
-  TX_TYPE_PRUNE_MODE prune_mode;
+  int prune_mode_level;
+  int enable_winner_mode_prune_level;
   int fast_intra_tx_type_search;
   int fast_inter_tx_type_search;
 
@@ -186,6 +187,9 @@ typedef struct {
 
   // Prune tx type search using previous frame stats.
   int prune_tx_type_using_stats;
+
+  // Flag used to control the winner mode processing for tx type pruning
+  int enable_winner_mode_tx_type_pruning;
 } TX_TYPE_SEARCH;
 
 enum {

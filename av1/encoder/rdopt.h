@@ -244,6 +244,19 @@ static INLINE void set_tx_size_search_method(
   x->tx_mode = select_tx_mode(cpi, x->tx_size_search_method);
 }
 
+static INLINE void set_tx_type_prune_mode(const struct AV1_COMP *cpi,
+                                          MACROBLOCK *x,
+                                          int enable_winner_mode_prune_level,
+                                          int is_winner_mode) {
+  // Set prune mode appropriately based on mode evaluation type
+  x->prune_mode = cpi->prune_mode_level[DEFAULT_EVAL];
+  if (enable_winner_mode_prune_level) {
+    const MODE_EVAL_TYPE eval_type =
+        is_winner_mode ? WINNER_MODE_EVAL : MODE_EVAL;
+    x->prune_mode = cpi->prune_mode_level[eval_type];
+  }
+}
+
 static INLINE void set_tx_domain_dist_params(
     const struct AV1_COMP *cpi, MACROBLOCK *x,
     int enable_winner_mode_for_tx_domain_dist, int is_winner_mode) {
@@ -313,6 +326,9 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
           get_rd_opt_coeff_thresh(cpi->coeff_opt_dist_threshold, 0, 0);
       // Set default transform size search method
       set_tx_size_search_method(cpi, x, 0, 0);
+      x->prune_tx_type = 0;
+      // Set default transform type prune mode
+      set_tx_type_prune_mode(cpi, x, 0, 0);
       break;
     case MODE_EVAL:
       x->use_default_intra_tx_type =
@@ -334,6 +350,10 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
       // Set the transform size search method for mode evaluation
       set_tx_size_search_method(cpi, x, sf->enable_winner_mode_for_tx_size_srch,
                                 0);
+      x->prune_tx_type = sf->tx_type_search.enable_winner_mode_tx_type_pruning;
+      // Set default transform type prune mode
+      set_tx_type_prune_mode(
+          cpi, x, sf->tx_type_search.enable_winner_mode_prune_level, 0);
       break;
     case WINNER_MODE_EVAL:
       x->use_default_inter_tx_type = 0;
@@ -352,6 +372,10 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
       // Set the transform size search method for winner mode evaluation
       set_tx_size_search_method(cpi, x, sf->enable_winner_mode_for_tx_size_srch,
                                 1);
+      x->prune_tx_type = 0;
+      // Set default transform type prune mode
+      set_tx_type_prune_mode(
+          cpi, x, sf->tx_type_search.enable_winner_mode_prune_level, 1);
       break;
     default: assert(0);
   }

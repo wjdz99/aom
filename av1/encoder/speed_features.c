@@ -105,6 +105,17 @@ static unsigned int predict_skip_levels[3][MODE_EVAL_TYPES] = { { 0, 0, 0 },
                                                                 { 1, 1, 1 },
                                                                 { 1, 2, 1 } };
 
+// Prune mode level to be used for default, mode and winner mode evaluation
+// Index 0: Default mode evaluation, Winner mode processing is not applicable
+// (Eg : IntraBc) Index 1: Mode evaluation. Index 2: Winner mode evaluation.
+// Index 1 and 2 are applicable when enable_winner_mode_prune_level speed
+// feature is ON
+static unsigned int prune_mode_levels[4][MODE_EVAL_TYPES] = {
+  { NO_PRUNE, NO_PRUNE, NO_PRUNE },
+  { PRUNE_2D_ACCURATE, PRUNE_2D_MORE, NO_PRUNE },
+  { PRUNE_2D_FAST, PRUNE_2D_MORE, NO_PRUNE },
+  { PRUNE_2D_MORE, PRUNE_2D_MORE, NO_PRUNE }
+};
 // scaling values to be used for gating wedge/compound segment based on best
 // approximate rd
 static int comp_type_rd_threshold_mul[3] = { 1, 11, 12 };
@@ -338,7 +349,7 @@ static void set_good_speed_features_framesize_independent(
     sf->cb_pred_filter_search = 0;
     sf->model_based_prune_tx_search_level = 0;
     sf->reduce_inter_modes = boosted ? 1 : 2;
-    sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
+    sf->tx_type_search.prune_mode_level = 2;
     sf->prune_comp_type_by_model_rd = boosted ? 0 : 1;
   }
 
@@ -429,6 +440,8 @@ static void set_good_speed_features_framesize_independent(
     // TODO(any): Extend multi-winner mode processing support for inter frames
     sf->enable_multiwinner_mode_process =
         frame_is_intra_only(&cpi->common) ? 1 : 0;
+    sf->tx_type_search.enable_winner_mode_tx_type_pruning = 1;
+    sf->tx_type_search.enable_winner_mode_prune_level = 1;
     // TODO(any): Experiment with this speed feature set to 2 for higher quality
     // presets as well
     sf->skip_intra_in_interframe = 2;
@@ -440,7 +453,7 @@ static void set_good_speed_features_framesize_independent(
     sf->intra_y_mode_mask[TX_16X16] = INTRA_DC_H_V;
     sf->intra_uv_mode_mask[TX_16X16] = UV_INTRA_DC_H_V_CFL;
 
-    sf->tx_type_search.prune_mode = PRUNE_2D_MORE;
+    sf->tx_type_search.prune_mode_level = 3;
 
     // TODO(any): The following features have no impact on quality and speed,
     // and are disabled.
@@ -591,7 +604,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->tx_domain_dist_level = 1;
     sf->use_accurate_subpel_search = USE_2_TAPS;
     sf->adaptive_rd_thresh = 2;
-    sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
+    sf->tx_type_search.prune_mode_level = 2;
     sf->gm_search_type = GM_DISABLE_SEARCH;
     sf->prune_comp_search_by_single_result = 2;
     sf->prune_motion_mode_level = boosted ? 2 : 3;
@@ -658,7 +671,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->partition_search_type = VAR_BASED_PARTITION;
     sf->mode_search_skip_flags |= FLAG_SKIP_INTRA_DIRMISMATCH;
     sf->use_real_time_ref_set = 1;
-    sf->tx_type_search.prune_mode = PRUNE_2D_MORE;
+    sf->tx_type_search.prune_mode_level = 3;
     // Can't use LARGEST TX mode with pre-calculated partition
     // and disabled TX64
     if (!cpi->oxcf.enable_tx64) sf->tx_size_search_level = 1;
@@ -796,7 +809,8 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->adaptive_mode_search = 0;
   sf->alt_ref_search_fp = 0;
   sf->partition_search_type = SEARCH_PARTITION;
-  sf->tx_type_search.prune_mode = PRUNE_2D_ACCURATE;
+  sf->tx_type_search.prune_mode_level = 1;
+  sf->tx_type_search.enable_winner_mode_prune_level = 0;
   sf->tx_type_search.ml_tx_split_thresh = 8500;
   sf->tx_type_search.use_skip_flag_prediction = 1;
   sf->tx_type_search.use_reduced_intra_txset = 0;
@@ -804,6 +818,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->tx_type_search.fast_inter_tx_type_search = 0;
   sf->tx_type_search.skip_tx_search = 0;
   sf->tx_type_search.prune_tx_type_using_stats = 0;
+  sf->tx_type_search.enable_winner_mode_tx_type_pruning = 0;
   sf->selective_ref_frame = 0;
   sf->less_rectangular_check_level = 0;
   sf->use_square_partition_only_threshold = BLOCK_128X128;
@@ -1027,6 +1042,13 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   memcpy(cpi->predict_skip_level,
          predict_skip_levels[cpi->sf.tx_type_search.use_skip_flag_prediction],
          sizeof(cpi->predict_skip_level));
+
+  // assert ensures that prune_mode_level is accessed correctly
+  assert(cpi->sf.tx_type_search.prune_mode_level >= 0 &&
+         cpi->sf.tx_type_search.prune_mode_level < 4);
+  memcpy(cpi->prune_mode_level,
+         prune_mode_levels[cpi->sf.tx_type_search.prune_mode_level],
+         sizeof(cpi->prune_mode_level));
 
   // Override speed feature setting for user config
   if (cpi->oxcf.tx_size_search_method != USE_FULL_RD) {
