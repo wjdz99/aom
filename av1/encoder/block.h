@@ -470,6 +470,8 @@ struct macroblock {
   int64_t inter_cost_b[MAX_MC_FLOW_BLK_IN_SB * MAX_MC_FLOW_BLK_IN_SB];
   int64_t intra_cost_b[MAX_MC_FLOW_BLK_IN_SB * MAX_MC_FLOW_BLK_IN_SB];
   int cost_stride;
+  int best_rate_mv;
+  int best_rd_stats_rate;
 };
 
 // Only consider full SB, MC_FLOW_BSIZE_1D = 16.
