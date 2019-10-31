@@ -1961,12 +1961,32 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
       prune_2D_adaptive_thresholds[tx_size][pruning_aggressiveness];
 
   uint16_t prune_bitmask = 0;
+  float sum_score = 0.0;
   for (int i = 0; i < 16; i++) {
-    if (scores_2D[i] < score_thresh && i != max_score_i)
+    if ((scores_2D[i] < score_thresh ||
+         !(allowed_tx_mask & (1 << tx_type_table_2D[i]))) &&
+        i != max_score_i)
       prune_bitmask |= (1 << tx_type_table_2D[i]);
+    else if (i != max_score_i)
+      sum_score += scores_2D[i];
   }
 
   sort_probability(scores_2D, tx_type_table_2D, TX_TYPES);
+
+  float temp_score = 0.0;
+  float score_ratio = 0.0;
+  int tx_idx;
+  const float inv_sum_score = 100 / sum_score;
+  for (tx_idx = 0; tx_idx < TX_TYPES; tx_idx++) {
+    if ((tx_idx != max_score_i) &&
+        !(prune_bitmask & (1 << tx_type_table_2D[tx_idx]))) {
+      temp_score += scores_2D[tx_idx];
+      score_ratio = temp_score * inv_sum_score;
+      if (score_ratio > 50.0) break;
+    }
+  }
+  for (; tx_idx < TX_TYPES; tx_idx++)
+    if (tx_idx != max_score_i) prune_bitmask |= (1 << tx_type_table_2D[tx_idx]);
   memcpy(txk_map, tx_type_table_2D, sizeof(tx_type_table_2D));
 
   return prune_bitmask;
@@ -3369,7 +3389,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     // Go through ML model only if num_allowed > 5.
     // !fast_tx_search && txk_end != txk_start && plane == 0
     if (cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE && is_inter &&
-        num_allowed > 5) {
+        num_allowed > 1) {
       const uint16_t prune = prune_tx_2D(
           x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
           cpi->sf.tx_type_search.prune_mode, txk_map, allowed_tx_mask);
