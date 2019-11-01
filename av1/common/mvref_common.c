@@ -272,23 +272,45 @@ static int has_top_right(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const int mask_row = mi_row & (sb_mi_size - 1);
   const int mask_col = mi_col & (sb_mi_size - 1);
 
-  // TODO(yuec): check the purpose of this condition
   if (bs > mi_size_wide[BLOCK_64X64]) return 0;
 
-  const int tr_mask_row = mask_row - 1;
-  const int tr_mask_col = mask_col + xd->n4_w;
-  int has_tr;
+  // In a split partition all apart from the bottom right has a top right
+  int has_tr = !((mask_row & bs) && (mask_col & bs));
 
-  if (tr_mask_row < 0) {
-    // Later the tile boundary checker will figure out whether the top-right
-    // block is available.
-    has_tr = 1;
-  } else if (tr_mask_col >= sb_mi_size) {
-    has_tr = 0;
-  } else {
-    const int tr_offset = tr_mask_row * xd->is_mi_coded_stride + tr_mask_col;
+  // bs > 0 and bs is a power of 2
+  assert(bs > 0 && !(bs & (bs - 1)));
 
-    has_tr = xd->is_mi_coded[tr_offset];
+  // For each 4x4 group of blocks, when the bottom right is decoded the blocks
+  // to the right have not been decoded therefore the bottom right does
+  // not have a top right
+  while (bs < sb_mi_size) {
+    if (mask_col & bs) {
+      if ((mask_col & (2 * bs)) && (mask_row & (2 * bs))) {
+        has_tr = 0;
+        break;
+      }
+    } else {
+      break;
+    }
+    bs <<= 1;
+  }
+
+  // The left hand of two vertical rectangles always has a top right (as the
+  // block above will have been decoded)
+  if (xd->n4_w < xd->n4_h)
+    if (!xd->is_sec_rect) has_tr = 1;
+
+  // The bottom of two horizontal rectangles never has a top right (as the block
+  // to the right won't have been decoded)
+  if (xd->n4_w > xd->n4_h)
+    if (xd->is_sec_rect) has_tr = 0;
+
+  // The bottom left square of a Vertical A (in the old format) does
+  // not have a top right as it is decoded before the right hand
+  // rectangle of the partition
+  if (xd->mi[0]->partition == PARTITION_VERT_A) {
+    if (xd->n4_w == xd->n4_h)
+      if (mask_row & bs) has_tr = 0;
   }
 
   return has_tr;
@@ -1485,3 +1507,73 @@ void av1_set_frame_refs(AV1_COMMON *const cm, int *remapped_ref_idx,
     assert(ref_flag_list[i] == 1);
   }
 }
+
+#if CONFIG_FLEX_MVRES
+void av1_get_mv_refs_adj(CANDIDATE_MV ref_mv_stack_orig[MAX_REF_MV_STACK_SIZE],
+                         uint16_t weight_orig[MAX_REF_MV_STACK_SIZE],
+                         uint8_t ref_mv_count_orig, int is_compound,
+                         MvSubpelPrecision precision,
+                         CANDIDATE_MV ref_mv_stack_adj[MAX_REF_MV_STACK_SIZE],
+                         uint16_t weight_adj[MAX_REF_MV_STACK_SIZE],
+                         uint8_t *ref_mv_count_adj) {
+  ref_mv_stack_adj[0] = ref_mv_stack_orig[0];
+  lower_mv_precision(&ref_mv_stack_adj[0].this_mv.as_mv, precision);
+  if (is_compound) {
+    lower_mv_precision(&ref_mv_stack_adj[0].comp_mv.as_mv, precision);
+  }
+  *ref_mv_count_adj = 1;
+  weight_adj[0] = weight_orig[0];
+
+  for (int i = 1; i < ref_mv_count_orig; ++i) {
+    ref_mv_stack_adj[i] = ref_mv_stack_orig[i];
+    lower_mv_precision(&ref_mv_stack_adj[i].this_mv.as_mv, precision);
+    if (is_compound) {
+      lower_mv_precision(&ref_mv_stack_adj[i].comp_mv.as_mv, precision);
+    }
+    weight_adj[i] = weight_orig[i];
+    if (is_compound) {
+      if (ref_mv_stack_adj[i].this_mv.as_int !=
+              ref_mv_stack_adj[*ref_mv_count_adj - 1].this_mv.as_int ||
+          ref_mv_stack_adj[i].comp_mv.as_int !=
+              ref_mv_stack_adj[*ref_mv_count_adj - 1].comp_mv.as_int) {
+        ++(*ref_mv_count_adj);
+      } else {
+        weight_adj[*ref_mv_count_adj - 1] += weight_adj[i];
+      }
+    } else {
+      if (ref_mv_stack_adj[i].this_mv.as_int !=
+          ref_mv_stack_adj[*ref_mv_count_adj - 1].this_mv.as_int) {
+        ++(*ref_mv_count_adj);
+      } else {
+        weight_adj[*ref_mv_count_adj - 1] += weight_adj[i];
+      }
+    }
+  }
+}
+
+int av1_get_ref_mv_idx_adj(
+    CANDIDATE_MV ref_mv_stack_orig[MAX_REF_MV_STACK_SIZE],
+    uint8_t ref_mv_count_orig, int ref_mv_idx_orig, int is_compound,
+    MvSubpelPrecision precision,
+    CANDIDATE_MV ref_mv_stack_adj[MAX_REF_MV_STACK_SIZE],
+    uint8_t ref_mv_count_adj) {
+  (void)ref_mv_count_orig;
+  CANDIDATE_MV ref_mv;
+  assert(ref_mv_idx_orig < ref_mv_count_orig);
+  ref_mv = ref_mv_stack_orig[ref_mv_idx_orig];
+  lower_mv_precision(&ref_mv.this_mv.as_mv, precision);
+  if (is_compound) {
+    lower_mv_precision(&ref_mv.comp_mv.as_mv, precision);
+  }
+  for (int i = 0; i < ref_mv_count_adj; ++i) {
+    if (is_compound) {
+      if (ref_mv_stack_adj[i].this_mv.as_int == ref_mv.this_mv.as_int &&
+          ref_mv_stack_adj[i].comp_mv.as_int == ref_mv.comp_mv.as_int)
+        return i;
+    } else {
+      if (ref_mv_stack_adj[i].this_mv.as_int == ref_mv.this_mv.as_int) return i;
+    }
+  }
+  assert(0);
+}
+#endif  // CONFIG_FLEX_MVRES
