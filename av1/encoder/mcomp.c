@@ -72,8 +72,9 @@ int av1_init_search_range(int size) {
 
 static INLINE int mv_cost(const MV *mv, const int *joint_cost,
                           int *const comp_cost[2]) {
-  return joint_cost[av1_get_mv_joint(mv)] + comp_cost[0][mv->row] +
-         comp_cost[1][mv->col];
+  int res = joint_cost[av1_get_mv_joint(mv)] + comp_cost[0][mv->row] +
+            comp_cost[1][mv->col];
+  return res;
 }
 
 int av1_mv_bit_cost(const MV *mv, const MV *ref, const int *mvjcost,
@@ -1604,6 +1605,10 @@ static int exhuastive_mesh_search(MACROBLOCK *x, MV *ref_mv, MV *best_mv,
       fn_ptr->sdf(what->buf, what->stride,
                   get_buf_from_mv(in_what, &fcenter_mv), in_what->stride) +
       mvsad_err_cost(x, &fcenter_mv, ref_mv, sad_per_bit);
+
+  unsigned int best_sad_tmp = best_sad;
+  int bs = 0;
+
   start_row = AOMMAX(-range, x->mv_limits.row_min - fcenter_mv.row);
   start_col = AOMMAX(-range, x->mv_limits.col_min - fcenter_mv.col);
   end_row = AOMMIN(range, x->mv_limits.row_max - fcenter_mv.row);
@@ -1627,25 +1632,26 @@ static int exhuastive_mesh_search(MACROBLOCK *x, MV *ref_mv, MV *best_mv,
         }
       } else {
         // 4 sads in a single call if we are checking every location
+        DECLARE_ALIGNED(16, unsigned int, sads[4]);
+        DECLARE_ALIGNED(16, unsigned int, sad_err[4]);
+
         if (c + 3 <= end_col) {
-          unsigned int sads[4];
           const uint8_t *addrs[4];
+          unsigned int need_sdx4df = 0;
           for (i = 0; i < 4; ++i) {
             const MV mv = { fcenter_mv.row + r, fcenter_mv.col + c + i };
             addrs[i] = get_buf_from_mv(in_what, &mv);
+            sad_err[i] = mvsad_err_cost(x, &mv, ref_mv, sad_per_bit);
+            if (sad_err[i] < best_sad) need_sdx4df = 1;
           }
-          fn_ptr->sdx4df(what->buf, what->stride, addrs, in_what->stride, sads);
-
-          for (i = 0; i < 4; ++i) {
-            if (sads[i] < best_sad) {
-              const MV mv = { fcenter_mv.row + r, fcenter_mv.col + c + i };
-              const unsigned int sad =
-                  sads[i] + mvsad_err_cost(x, &mv, ref_mv, sad_per_bit);
-              if (sad < best_sad) {
-                best_sad = sad;
-                x->second_best_mv.as_mv = *best_mv;
-                *best_mv = mv;
-              }
+          if (need_sdx4df) {
+            fn_ptr->sdx4df(what->buf, what->stride, addrs, in_what->stride,
+                           sads, sad_err, &best_sad_tmp, &bs);  // vz!!
+            if (best_sad_tmp < best_sad) {
+              const MV mv = { fcenter_mv.row + r, fcenter_mv.col + c + bs };
+              best_sad = best_sad_tmp;
+              x->second_best_mv.as_mv = *best_mv;
+              *best_mv = mv;
             }
           }
         } else {
@@ -1718,6 +1724,8 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
             mvsad_err_cost(x, best_mv, &fcenter_mv, sad_per_bit);
 
   i = 1;
+  unsigned int bestsad_tmp = bestsad;
+  int bs = 0;  // vz!
 
   for (step = 0; step < tot_steps; step++) {
     int all_in = 1, t;
@@ -1733,29 +1741,29 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
     // search point is valid in this loop,  otherwise we check each point
     // for validity..
     if (all_in) {
-      unsigned int sad_array[4];
-
+      DECLARE_ALIGNED(32, unsigned int, sad_array[8]);
+      DECLARE_ALIGNED(32, unsigned int, sad_err[8]);
       for (j = 0; j < cfg->searches_per_step; j += 4) {
         unsigned char const *block_offset[4];
 
-        for (t = 0; t < 4; t++)
+        unsigned int need_sdx4df = 0;
+
+        for (t = 0; t < 4; t++) {
           block_offset[t] = ss[i + t].offset + best_address;
-
-        fn_ptr->sdx4df(what, what_stride, block_offset, in_what_stride,
-                       sad_array);
-
-        for (t = 0; t < 4; t++, i++) {
-          if (sad_array[t] < bestsad) {
-            const MV this_mv = { best_mv->row + ss[i].mv.row,
-                                 best_mv->col + ss[i].mv.col };
-            sad_array[t] +=
-                mvsad_err_cost(x, &this_mv, &fcenter_mv, sad_per_bit);
-            if (sad_array[t] < bestsad) {
-              bestsad = sad_array[t];
-              best_site = i;
-            }
+          const MV this_mv = { best_mv->row + ss[i + t].mv.row,
+                               best_mv->col + ss[i + t].mv.col };
+          sad_err[t] = mvsad_err_cost(x, &this_mv, &fcenter_mv, sad_per_bit);
+          if (sad_err[t] < bestsad) need_sdx4df = 1;
+        }
+        if (need_sdx4df) {  //
+          fn_ptr->sdx4df(what, what_stride, block_offset, in_what_stride,
+                         sad_array, sad_err, &bestsad_tmp, &bs);
+          if (bestsad_tmp < bestsad) {
+            bestsad = bestsad_tmp;
+            best_site = bs + i;
           }
         }
+        i += 4;
       }
     } else {
       for (j = 0; j < cfg->searches_per_step; j++) {
@@ -1954,6 +1962,8 @@ int av1_refining_search_sad(MACROBLOCK *x, MV *ref_mv, int error_per_bit,
       fn_ptr->sdf(what->buf, what->stride, best_address, in_what->stride) +
       mvsad_err_cost(x, ref_mv, &fcenter_mv, error_per_bit);
   int i, j;
+  unsigned int best_sad_tmp = best_sad;
+  int bs = 0;
 
   for (i = 0; i < search_range; i++) {
     int best_site = -1;
@@ -1963,22 +1973,25 @@ int av1_refining_search_sad(MACROBLOCK *x, MV *ref_mv, int error_per_bit,
                        ((ref_mv->col + 1) < x->mv_limits.col_max);
 
     if (all_in) {
-      unsigned int sads[4];
-      const uint8_t *const positions[4] = { best_address - in_what->stride,
-                                            best_address - 1, best_address + 1,
-                                            best_address + in_what->stride };
+      DECLARE_ALIGNED(16, unsigned int, sads[4]);
+      DECLARE_ALIGNED(16, unsigned int, sad_err[4]);
 
-      fn_ptr->sdx4df(what->buf, what->stride, positions, in_what->stride, sads);
-
+      const uint8_t *positions[4] = { best_address - in_what->stride,
+                                      best_address - 1, best_address + 1,
+                                      best_address + in_what->stride };
+      unsigned int need_sdx4df = 0;
       for (j = 0; j < 4; ++j) {
-        if (sads[j] < best_sad) {
-          const MV mv = { ref_mv->row + neighbors[j].row,
-                          ref_mv->col + neighbors[j].col };
-          sads[j] += mvsad_err_cost(x, &mv, &fcenter_mv, error_per_bit);
-          if (sads[j] < best_sad) {
-            best_sad = sads[j];
-            best_site = j;
-          }
+        const MV mv = { ref_mv->row + neighbors[j].row,
+                        ref_mv->col + neighbors[j].col };
+        sad_err[j] = mvsad_err_cost(x, &mv, &fcenter_mv, error_per_bit);
+        if (sad_err[j] < best_sad) need_sdx4df = 1;
+      }
+      if (need_sdx4df) {
+        fn_ptr->sdx4df(what->buf, what->stride, positions, in_what->stride,
+                       sads, sad_err, &best_sad_tmp, &bs);  // vz!
+        if (best_sad_tmp < best_sad) {
+          best_sad = best_sad_tmp;
+          best_site = bs;
         }
       }
     } else {
@@ -2282,7 +2295,14 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
       ref_buf + ref_stride,
     };
 
-    cpi->fn_ptr[bsize].sdx4df(src_buf, src_stride, pos, ref_stride, this_sad);
+    //  int best_sad_tmp, err[4] = { 0, 0, 0, 0 };
+    //  cpi->fn_ptr[bsize].sdx4df(src_buf, src_stride, pos, ref_stride,
+    //  this_sad,
+    //                            err, &best_sad_tmp, &idx);  // vz!
+    for (idx = 0; idx < 4; ++idx) {
+      this_sad[idx] =
+          cpi->fn_ptr[bsize].sdf(src_buf, src_stride, pos[idx], ref_stride);
+    }
   }
 
   for (idx = 0; idx < 4; ++idx) {

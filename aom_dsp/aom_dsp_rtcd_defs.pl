@@ -809,7 +809,8 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   #
   foreach (@block_sizes) {
     ($w, $h) = @$_;
-    add_proto qw/void/, "aom_sad${w}x${h}x4d", "const uint8_t *src_ptr, int src_stride, const uint8_t * const ref_ptr[], int ref_stride, uint32_t *sad_array";
+    add_proto qw/void/, "aom_sad${w}x${h}x4d", "const uint8_t *src_ptr, int src_stride, const uint8_t * ref_ptr[], int ref_stride, uint32_t *sad_array, uint32_t* err, uint32_t* min_value,
+    int32_t* min_pos";
   }
 
   specialize qw/aom_sad128x128x4d avx2          sse2/;
@@ -823,9 +824,9 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_sad32x16x4d   avx2      msa sse2/;
   specialize qw/aom_sad32x8x4d    avx2          sse2/;
   specialize qw/aom_sad16x64x4d   avx2          sse2/;
-  specialize qw/aom_sad16x32x4d   avx2      msa sse2/;
+  specialize qw/aom_sad16x32x4d   avx2       msa sse2/;
   specialize qw/aom_sad16x16x4d   avx2  neon msa sse2/;
-  specialize qw/aom_sad16x8x4d    avx2       msa sse2/;
+  specialize qw/aom_sad16x8x4d    avx2        msa sse2/;
   specialize qw/aom_sad16x4x4d    avx2           sse2/;
 
   specialize qw/aom_sad8x16x4d              msa sse2/;
