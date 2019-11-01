@@ -16,6 +16,16 @@
 
 #include "aom/aom_integer.h"
 
+static INLINE void sadx4d_get_min(uint32_t src[4], uint32_t *min_value,
+                                  int32_t *min_pos) {
+  int t;
+  for (t = 0; t < 4; t++) {
+    if (src[t] < *min_value) {
+      *min_value = src[t];
+      *min_pos = t;
+    }
+  }
+}
 static INLINE unsigned int horizontal_long_add_16x8(const uint16x8_t vec_lo,
                                                     const uint16x8_t vec_hi) {
   const uint32x4_t vec_l_lo =
@@ -81,8 +91,9 @@ static void sad_neon_32(const uint8x16_t vec_src_00,
 }
 
 void aom_sad64x64x4d_neon(const uint8_t *src, int src_stride,
-                          const uint8_t *const ref[4], int ref_stride,
-                          uint32_t *res) {
+                          const uint8_t *ref[4], int ref_stride, uint32_t *res,
+                          uint32_t err[4], uint32_t *min_value,
+                          int32_t *min_pos) {
   int i;
   uint16x8_t vec_sum_ref0_lo = vdupq_n_u16(0);
   uint16x8_t vec_sum_ref0_hi = vdupq_n_u16(0);
@@ -120,15 +131,18 @@ void aom_sad64x64x4d_neon(const uint8_t *src, int src_stride,
     ref3 += ref_stride;
   }
 
-  res[0] = horizontal_long_add_16x8(vec_sum_ref0_lo, vec_sum_ref0_hi);
-  res[1] = horizontal_long_add_16x8(vec_sum_ref1_lo, vec_sum_ref1_hi);
-  res[2] = horizontal_long_add_16x8(vec_sum_ref2_lo, vec_sum_ref2_hi);
-  res[3] = horizontal_long_add_16x8(vec_sum_ref3_lo, vec_sum_ref3_hi);
+  res[0] = horizontal_long_add_16x8(vec_sum_ref0_lo, vec_sum_ref0_hi) + err[0];
+  res[1] = horizontal_long_add_16x8(vec_sum_ref1_lo, vec_sum_ref1_hi) + err[1];
+  res[2] = horizontal_long_add_16x8(vec_sum_ref2_lo, vec_sum_ref2_hi) + err[2];
+  res[3] = horizontal_long_add_16x8(vec_sum_ref3_lo, vec_sum_ref3_hi) + err[3];
+
+  sadx4d_get_min(res, min_value, min_pos);
 }
 
 void aom_sad32x32x4d_neon(const uint8_t *src, int src_stride,
-                          const uint8_t *const ref[4], int ref_stride,
-                          uint32_t *res) {
+                          const uint8_t *ref[4], int ref_stride, uint32_t *res,
+                          uint32_t err[4], uint32_t *min_value,
+                          int32_t *min_pos) {
   int i;
   uint16x8_t vec_sum_ref0_lo = vdupq_n_u16(0);
   uint16x8_t vec_sum_ref0_hi = vdupq_n_u16(0);
@@ -164,15 +178,18 @@ void aom_sad32x32x4d_neon(const uint8_t *src, int src_stride,
     ref3 += ref_stride;
   }
 
-  res[0] = horizontal_long_add_16x8(vec_sum_ref0_lo, vec_sum_ref0_hi);
-  res[1] = horizontal_long_add_16x8(vec_sum_ref1_lo, vec_sum_ref1_hi);
-  res[2] = horizontal_long_add_16x8(vec_sum_ref2_lo, vec_sum_ref2_hi);
-  res[3] = horizontal_long_add_16x8(vec_sum_ref3_lo, vec_sum_ref3_hi);
+  res[0] = horizontal_long_add_16x8(vec_sum_ref0_lo, vec_sum_ref0_hi) + err[0];
+  res[1] = horizontal_long_add_16x8(vec_sum_ref1_lo, vec_sum_ref1_hi) + err[1];
+  res[2] = horizontal_long_add_16x8(vec_sum_ref2_lo, vec_sum_ref2_hi) + err[2];
+  res[3] = horizontal_long_add_16x8(vec_sum_ref3_lo, vec_sum_ref3_hi) + err[3];
+
+  sadx4d_get_min(res, min_value, min_pos);
 }
 
 void aom_sad16x16x4d_neon(const uint8_t *src, int src_stride,
-                          const uint8_t *const ref[4], int ref_stride,
-                          uint32_t *res) {
+                          const uint8_t *ref[4], int ref_stride, uint32_t *res,
+                          uint32_t err[4], uint32_t *min_value,
+                          int32_t *min_pos) {
   int i;
   uint16x8_t vec_sum_ref0_lo = vdupq_n_u16(0);
   uint16x8_t vec_sum_ref0_hi = vdupq_n_u16(0);
@@ -219,8 +236,10 @@ void aom_sad16x16x4d_neon(const uint8_t *src, int src_stride,
     ref3 += ref_stride;
   }
 
-  res[0] = horizontal_long_add_16x8(vec_sum_ref0_lo, vec_sum_ref0_hi);
-  res[1] = horizontal_long_add_16x8(vec_sum_ref1_lo, vec_sum_ref1_hi);
-  res[2] = horizontal_long_add_16x8(vec_sum_ref2_lo, vec_sum_ref2_hi);
-  res[3] = horizontal_long_add_16x8(vec_sum_ref3_lo, vec_sum_ref3_hi);
+  res[0] = horizontal_long_add_16x8(vec_sum_ref0_lo, vec_sum_ref0_hi) + err[0];
+  res[1] = horizontal_long_add_16x8(vec_sum_ref1_lo, vec_sum_ref1_hi) + err[1];
+  res[2] = horizontal_long_add_16x8(vec_sum_ref2_lo, vec_sum_ref2_hi) + err[2];
+  res[3] = horizontal_long_add_16x8(vec_sum_ref3_lo, vec_sum_ref3_hi) + err[3];
+
+  sadx4d_get_min(res, min_value, min_pos);
 }

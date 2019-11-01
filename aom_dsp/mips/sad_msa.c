@@ -13,6 +13,17 @@
 
 #include "aom_dsp/mips/macros_msa.h"
 
+static INLINE void sadx4d_get_min(uint32_t src[4], uint32_t *min_value,
+                                  int32_t *min_pos) {
+  int t;
+  for (t = 0; t < 4; t++) {
+    if (src[t] < *min_value) {
+      *min_value = src[t];
+      *min_pos = t;
+    }
+  }
+}
+
 #define SAD_INSVE_W4(RTYPE, in0, in1, in2, in3, out)       \
   {                                                        \
     out = (RTYPE)__msa_insve_w((v4i32)out, 0, (v4i32)in0); \
@@ -657,39 +668,69 @@ static uint32_t avgsad_64width_msa(const uint8_t *src, int32_t src_stride,
     return sad_64width_msa(src, src_stride, ref, ref_stride, height);         \
   }
 
-#define AOM_SAD_4xHEIGHTx4D_MSA(height)                                   \
-  void aom_sad4x##height##x4d_msa(const uint8_t *src, int32_t src_stride, \
-                                  const uint8_t *const refs[],            \
-                                  int32_t ref_stride, uint32_t *sads) {   \
-    sad_4width_x4d_msa(src, src_stride, refs, ref_stride, height, sads);  \
+#define AOM_SAD_4xHEIGHTx4D_MSA(height)                                    \
+  void aom_sad4x##height##x4d_msa(                                         \
+      const uint8_t *src, int32_t src_stride, const uint8_t *const refs[], \
+      int32_t ref_stride, uint32_t *sads, uint32_t err[4],                 \
+      uint32_t *min_value, int32_t *min_pos) {                             \
+    sad_4width_x4d_msa(src, src_stride, refs, ref_stride, height, sads);   \
+    sads[0] += err[0];                                                     \
+    sads[1] += err[1];                                                     \
+    sads[2] += err[2];                                                     \
+    sads[3] += err[3];                                                     \
+    sadx4d_get_min(sads, min_value, min_pos);                              \
   }
 
-#define AOM_SAD_8xHEIGHTx4D_MSA(height)                                   \
-  void aom_sad8x##height##x4d_msa(const uint8_t *src, int32_t src_stride, \
-                                  const uint8_t *const refs[],            \
-                                  int32_t ref_stride, uint32_t *sads) {   \
-    sad_8width_x4d_msa(src, src_stride, refs, ref_stride, height, sads);  \
+#define AOM_SAD_8xHEIGHTx4D_MSA(height)                                    \
+  void aom_sad8x##height##x4d_msa(                                         \
+      const uint8_t *src, int32_t src_stride, const uint8_t *const refs[], \
+      int32_t ref_stride, uint32_t *sads, uint32_t err[4],                 \
+      uint32_t *min_value, int32_t *min_pos) {                             \
+    sad_8width_x4d_msa(src, src_stride, refs, ref_stride, height, sads);   \
+    sads[0] += err[0];                                                     \
+    sads[1] += err[1];                                                     \
+    sads[2] += err[2];                                                     \
+    sads[3] += err[3];                                                     \
+    sadx4d_get_min(sads, min_value, min_pos);                              \
   }
 
 #define AOM_SAD_16xHEIGHTx4D_MSA(height)                                   \
-  void aom_sad16x##height##x4d_msa(const uint8_t *src, int32_t src_stride, \
-                                   const uint8_t *const refs[],            \
-                                   int32_t ref_stride, uint32_t *sads) {   \
+  void aom_sad16x##height##x4d_msa(                                        \
+      const uint8_t *src, int32_t src_stride, const uint8_t *const refs[], \
+      int32_t ref_stride, uint32_t *sads, uint32_t err[4],                 \
+      uint32_t *min_value, int32_t *min_pos) {                             \
     sad_16width_x4d_msa(src, src_stride, refs, ref_stride, height, sads);  \
+    sads[0] += err[0];                                                     \
+    sads[1] += err[1];                                                     \
+    sads[2] += err[2];                                                     \
+    sads[3] += err[3];                                                     \
+    sadx4d_get_min(sads, min_value, min_pos);                              \
   }
 
 #define AOM_SAD_32xHEIGHTx4D_MSA(height)                                   \
-  void aom_sad32x##height##x4d_msa(const uint8_t *src, int32_t src_stride, \
-                                   const uint8_t *const refs[],            \
-                                   int32_t ref_stride, uint32_t *sads) {   \
+  void aom_sad32x##height##x4d_msa(                                        \
+      const uint8_t *src, int32_t src_stride, const uint8_t *const refs[], \
+      int32_t ref_stride, uint32_t *sads, uint32_t err[4],                 \
+      uint32_t *min_value, int32_t *min_pos) {                             \
     sad_32width_x4d_msa(src, src_stride, refs, ref_stride, height, sads);  \
+    sads[0] += err[0];                                                     \
+    sads[1] += err[1];                                                     \
+    sads[2] += err[2];                                                     \
+    sads[3] += err[3];                                                     \
+    sadx4d_get_min(sads, min_value, min_pos);                              \
   }
 
 #define AOM_SAD_64xHEIGHTx4D_MSA(height)                                   \
-  void aom_sad64x##height##x4d_msa(const uint8_t *src, int32_t src_stride, \
-                                   const uint8_t *const refs[],            \
-                                   int32_t ref_stride, uint32_t *sads) {   \
+  void aom_sad64x##height##x4d_msa(                                        \
+      const uint8_t *src, int32_t src_stride, const uint8_t *const refs[], \
+      int32_t ref_stride, uint32_t *sads, uint32_t err[4],                 \
+      uint32_t *min_value, int32_t *min_pos) {                             \
     sad_64width_x4d_msa(src, src_stride, refs, ref_stride, height, sads);  \
+    sads[0] += err[0];                                                     \
+    sads[1] += err[1];                                                     \
+    sads[2] += err[2];                                                     \
+    sads[3] += err[3];                                                     \
+    sadx4d_get_min(sads, min_value, min_pos);                              \
   }
 
 #define AOM_AVGSAD_4xHEIGHT_MSA(height)                                        \

@@ -35,6 +35,17 @@ static INLINE unsigned int sad(const uint8_t *a, int a_stride, const uint8_t *b,
   return sad;
 }
 
+INLINE void sadx4d_get_min(uint32_t src[4], uint32_t *min_value,
+                           int32_t *min_pos) {
+  int t;
+  for (t = 0; t < 4; t++) {
+    if (src[t] < *min_value) {
+      *min_value = src[t];
+      *min_pos = t;
+    }
+  }
+}
+
 #define sadMxh(m)                                                          \
   unsigned int aom_sad##m##xh_c(const uint8_t *a, int a_stride,            \
                                 const uint8_t *b, int b_stride, int width, \
@@ -66,13 +77,16 @@ static INLINE unsigned int sad(const uint8_t *a, int a_stride, const uint8_t *b,
 // Calculate sad against 4 reference locations and store each in sad_array
 #define sadMxNx4D(m, n)                                                    \
   void aom_sad##m##x##n##x4d_c(const uint8_t *src, int src_stride,         \
-                               const uint8_t *const ref_array[],           \
-                               int ref_stride, uint32_t *sad_array) {      \
+                               const uint8_t *ref_array[], int ref_stride, \
+                               uint32_t *sad_array, uint32_t *err,         \
+                               uint32_t *min_value, int32_t *min_pos) {    \
     int i;                                                                 \
     for (i = 0; i < 4; ++i) {                                              \
       sad_array[i] =                                                       \
           aom_sad##m##x##n##_c(src, src_stride, ref_array[i], ref_stride); \
+      sad_array[i] += err[i];                                              \
     }                                                                      \
+    sadx4d_get_min(sad_array, min_value, min_pos);                         \
   }
 
 // 128x128
@@ -148,14 +162,19 @@ sadMxh(4);
 
 sadMxN(4, 16);
 sadMxNx4D(4, 16);
+
 sadMxN(16, 4);
 sadMxNx4D(16, 4);
+
 sadMxN(8, 32);
 sadMxNx4D(8, 32);
+
 sadMxN(32, 8);
 sadMxNx4D(32, 8);
+
 sadMxN(16, 64);
 sadMxNx4D(16, 64);
+
 sadMxN(64, 16);
 sadMxNx4D(64, 16);
 
