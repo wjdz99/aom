@@ -101,11 +101,6 @@ static AOM_INLINE void model_rd_for_sb_with_dnn(
     int plane_from, int plane_to, int mi_row, int mi_col, int *out_rate_sum,
     int64_t *out_dist_sum, int *skip_txfm_sb, int64_t *skip_sse_sb,
     int *plane_rate, int64_t *plane_sse, int64_t *plane_dist);
-static AOM_INLINE void model_rd_for_sb_with_fullrdy(
-    const AV1_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
-    int plane_from, int plane_to, int mi_row, int mi_col, int *out_rate_sum,
-    int64_t *out_dist_sum, int *skip_txfm_sb, int64_t *skip_sse_sb,
-    int *plane_rate, int64_t *plane_sse, int64_t *plane_dist);
 static AOM_INLINE void model_rd_from_sse(const AV1_COMP *const cpi,
                                          const MACROBLOCK *const x,
                                          BLOCK_SIZE plane_bsize, int plane,
@@ -132,18 +127,17 @@ enum {
   MODELRD_CURVFIT,
   MODELRD_SUFFIT,
   MODELRD_DNN,
-  MODELRD_FULLRDY,
   MODELRD_TYPES
 } UENUM1BYTE(ModelRdType);
 
 static model_rd_for_sb_type model_rd_sb_fn[MODELRD_TYPES] = {
   model_rd_for_sb, model_rd_for_sb_with_curvfit, model_rd_for_sb_with_surffit,
-  model_rd_for_sb_with_dnn, model_rd_for_sb_with_fullrdy
+  model_rd_for_sb_with_dnn
 };
 
 static model_rd_from_sse_type model_rd_sse_fn[MODELRD_TYPES] = {
   model_rd_from_sse, model_rd_with_curvfit, model_rd_with_surffit,
-  model_rd_with_dnn, NULL
+  model_rd_with_dnn
 };
 
 // 0: Legacy model
@@ -6281,67 +6275,6 @@ static AOM_INLINE void pick_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     assert(mb_rd_record != NULL);
     save_tx_rd_info(n4, hash, x, rd_stats, mb_rd_record);
   }
-}
-
-static AOM_INLINE void model_rd_for_sb_with_fullrdy(
-    const AV1_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
-    int plane_from, int plane_to, int mi_row, int mi_col, int *out_rate_sum,
-    int64_t *out_dist_sum, int *skip_txfm_sb, int64_t *skip_sse_sb,
-    int *plane_rate, int64_t *plane_sse, int64_t *plane_dist) {
-  const int ref = xd->mi[0]->ref_frame[0];
-
-  int64_t rate_sum = 0;
-  int64_t dist_sum = 0;
-  int64_t total_sse = 0;
-  assert(bsize < BLOCK_SIZES_ALL);
-
-  for (int plane = plane_from; plane <= plane_to; ++plane) {
-    struct macroblock_plane *const p = &x->plane[plane];
-    struct macroblockd_plane *const pd = &xd->plane[plane];
-    const BLOCK_SIZE plane_bsize =
-        get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
-    assert(plane_bsize < BLOCK_SIZES_ALL);
-    const int bw = block_size_wide[plane_bsize];
-    const int bh = block_size_high[plane_bsize];
-    int64_t sse;
-    int rate;
-    int64_t dist;
-
-    if (x->skip_chroma_rd && plane) continue;
-
-    sse = calculate_sse(xd, p, pd, bw, bh);
-
-    RD_STATS rd_stats;
-    if (plane == 0) {
-      pick_tx_size_type_yrd(cpi, x, &rd_stats, bsize, mi_row, mi_col,
-                            INT64_MAX);
-      if (rd_stats.rate == INT_MAX) {
-        rate = 0;
-        dist = sse << 4;
-      } else {
-        rate = rd_stats.rate;
-        dist = rd_stats.dist;
-      }
-    } else {
-      model_rd_with_curvfit(cpi, x, plane_bsize, plane, sse, bw * bh, &rate,
-                            &dist);
-    }
-
-    if (plane == 0) x->pred_sse[ref] = (unsigned int)AOMMIN(sse, UINT_MAX);
-
-    total_sse += sse;
-    rate_sum += rate;
-    dist_sum += dist;
-
-    if (plane_rate) plane_rate[plane] = rate;
-    if (plane_sse) plane_sse[plane] = sse;
-    if (plane_dist) plane_dist[plane] = dist;
-  }
-
-  if (skip_txfm_sb) *skip_txfm_sb = total_sse == 0;
-  if (skip_sse_sb) *skip_sse_sb = total_sse << 4;
-  *out_rate_sum = (int)rate_sum;
-  *out_dist_sum = dist_sum;
 }
 
 static AOM_INLINE void rd_pick_palette_intra_sbuv(
