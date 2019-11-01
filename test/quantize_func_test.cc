@@ -24,7 +24,7 @@
 #include "test/register_state_check.h"
 #include "test/util.h"
 
-namespace {
+namespace quantize_func_test {
 using libaom_test::ACMRandom;
 
 #define QUAN_PARAM_LIST                                                       \
@@ -542,4 +542,4 @@ INSTANTIATE_TEST_CASE_P(
                    static_cast<TX_SIZE>(TX_32X32), TYPE_B, AOM_BITS_8)));
 
 #endif  // HAVE_AVX && ARCH_X86_64
-}  // namespace
+}  // namespace quantize_func_test
