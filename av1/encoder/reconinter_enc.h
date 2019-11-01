@@ -35,15 +35,9 @@ void av1_build_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
 
 // Detect if the block have sub-pixel level motion vectors
 // per component.
-#define CHECK_SUBPEL 0
 static INLINE int has_subpel_mv_component(const MB_MODE_INFO *const mbmi,
-                                          const MACROBLOCKD *const xd,
                                           int dir) {
-#if CHECK_SUBPEL
-  const BLOCK_SIZE bsize = mbmi->sb_type;
-  int plane;
   int ref = (dir >> 1);
-
   if (dir & 0x01) {
     if (mbmi->mv[ref].as_mv.col & SUBPEL_MASK) return 1;
   } else {
@@ -51,12 +45,6 @@ static INLINE int has_subpel_mv_component(const MB_MODE_INFO *const mbmi,
   }
 
   return 0;
-#else
-  (void)mbmi;
-  (void)xd;
-  (void)dir;
-  return 1;
-#endif
 }
 
 static INLINE int av1_is_interp_search_needed(const MACROBLOCKD *const xd) {
@@ -67,7 +55,7 @@ static INLINE int av1_is_interp_search_needed(const MACROBLOCKD *const xd) {
     int row_col;
     for (row_col = 0; row_col < 2; ++row_col) {
       const int dir = (ref << 1) + row_col;
-      if (has_subpel_mv_component(mi, xd, dir)) {
+      if (has_subpel_mv_component(mi, dir)) {
         return 1;
       }
     }
