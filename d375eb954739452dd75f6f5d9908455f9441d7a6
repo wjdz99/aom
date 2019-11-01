@@ -93,6 +93,53 @@
       "revId": "d375eb954739452dd75f6f5d9908455f9441d7a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "128ceee0_6ad64bf0",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 4025,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-11-01T16:21:34Z",
+      "side": 1,
+      "message": "Hi Nithya, thanks for the reply. I can see what you mean. using *dist instead of mse wouldn\u0027t give bit-exact result, but the impact should be negligible.\nAlso, in original code, *dist is used to terminate this test(if it is too large, skip\u003d0). Here, it is also used to force skip \u003d 1. mse_thresh * AOMMIN(bw, bh) - why multiply by AOMMIN(bw, bh)? Seems risky if bsize is large?",
+      "parentUuid": "cea3376d_f0defb00",
+      "range": {
+        "startLine": 4014,
+        "startChar": 0,
+        "endLine": 4025,
+        "endChar": 33
+      },
+      "revId": "d375eb954739452dd75f6f5d9908455f9441d7a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3472b51d_3489479f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 6225,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-11-01T16:21:34Z",
+      "side": 1,
+      "message": "this is not needed since x is already passed in?",
+      "range": {
+        "startLine": 6225,
+        "startChar": 24,
+        "endLine": 6225,
+        "endChar": 45
+      },
+      "revId": "d375eb954739452dd75f6f5d9908455f9441d7a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
