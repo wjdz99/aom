@@ -15,6 +15,7 @@
 #include <emmintrin.h>
 #include "aom/aom_integer.h"
 #include "aom_dsp/x86/synonyms.h"
+#include "av1/common/av1_txfm.h"
 
 #ifdef __cplusplus
 extern "C" {

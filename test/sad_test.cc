@@ -56,8 +56,9 @@ typedef ::testing::tuple<int, int, DistWtdSadMxNAvgFunc, int>
     DistWtdSadMxNAvgParam;
 
 typedef void (*SadMxNx4Func)(const uint8_t *src_ptr, int src_stride,
-                             const uint8_t *const ref_ptr[], int ref_stride,
-                             uint32_t *sad_array);
+                             const uint8_t *ref_ptr[], int ref_stride,
+                             int32_t *err, uint32_t *min_value,
+                             int32_t *min_pos);
 typedef ::testing::tuple<int, int, SadMxNx4Func, int> SadMxNx4Param;
 
 using libaom_test::ACMRandom;
@@ -89,6 +90,8 @@ class SADTestBase : public ::testing::Test {
         aom_memalign(kDataAlignment, 128 * 128 * sizeof(uint16_t)));
     comp_pred16_test_ = reinterpret_cast<uint16_t *>(
         aom_memalign(kDataAlignment, 128 * 128 * sizeof(uint16_t)));
+    sad_err = reinterpret_cast<int32_t *>(
+        aom_memalign(kDataAlignment, 4 * sizeof(int32_t)));
   }
 
   static void TearDownTestCase() {
@@ -112,6 +115,8 @@ class SADTestBase : public ::testing::Test {
     comp_pred16_ = NULL;
     aom_free(comp_pred16_test_);
     comp_pred16_test_ = NULL;
+    aom_free(sad_err);
+    sad_err = NULL;
   }
 
   virtual void TearDown() { libaom_test::ClearSystemState(); }
@@ -142,6 +147,7 @@ class SADTestBase : public ::testing::Test {
     }
     mask_ = (1 << bit_depth_) - 1;
     source_stride_ = (width_ + 31) & ~31;
+
     reference_stride_ = width_ * 2;
     rnd_.Reset(ACMRandom::DeterministicSeed());
   }
@@ -288,12 +294,28 @@ class SADTestBase : public ::testing::Test {
     }
   }
 
+  void FillConstant32(int32_t *data, int len, int32_t fill_constant) {
+    for (int h = 0; h < len; ++h) {
+      data[h] = fill_constant;
+    }
+  }
+
+  void FillRandom32(int32_t *data, int len) {
+    for (int h = 0; h < len; ++h) {
+      data[h] = rnd_.Rand16();
+    }
+  }
+
   int width_, height_, mask_, bd_;
   aom_bit_depth_t bit_depth_;
   static uint8_t *source_data_;
   static uint8_t *reference_data_;
   static uint8_t *second_pred_;
+  static int32_t *sad_err;
+  int32_t min_pos_offset;
   int source_stride_;
+  uint32_t best_sad;
+  int32_t bestsad_pos;
   bool use_high_bit_depth_;
   static uint8_t *source_data8_;
   static uint8_t *reference_data8_;
@@ -319,23 +341,33 @@ class SADx4Test : public ::testing::WithParamInterface<SadMxNx4Param>,
   SADx4Test() : SADTestBase(GET_PARAM(0), GET_PARAM(1), GET_PARAM(3)) {}
 
  protected:
-  void SADs(unsigned int *results) {
+  void SADs(unsigned int *bestsad, int *best_pos) {
     const uint8_t *references[] = { GetReference(0), GetReference(1),
                                     GetReference(2), GetReference(3) };
-
-    ASM_REGISTER_STATE_CHECK(GET_PARAM(2)(
-        source_data_, source_stride_, references, reference_stride_, results));
+    ASM_REGISTER_STATE_CHECK(GET_PARAM(2)(source_data_, source_stride_,
+                                          references, reference_stride_,
+                                          sad_err, bestsad, best_pos));
   }
 
   void CheckSADs() {
-    unsigned int reference_sad, exp_sad[4];
+    unsigned int reference_sad;
 
-    SADs(exp_sad);
+    SADs(&best_sad, &bestsad_pos);
+    unsigned int reference_min_sad = UINT32_MAX;
+    int reference_min_pos = -1;
     for (int block = 0; block < 4; ++block) {
       reference_sad = ReferenceSAD(block);
-
-      EXPECT_EQ(reference_sad, exp_sad[block]) << "block " << block;
+      reference_sad += sad_err[block];
+      if (reference_sad < reference_min_sad) {
+        reference_min_sad = reference_sad;
+        reference_min_pos = block;
+      }
     }
+    if (reference_min_pos != bestsad_pos) {
+        int err = 1;
+    }
+    EXPECT_EQ(reference_min_sad, best_sad) << "Error: mismatch for min_sad";
+    EXPECT_EQ(reference_min_pos, bestsad_pos) << "Error: mismatch for min_pos";
   }
 };
 
@@ -507,6 +539,7 @@ uint16_t *SADTestBase::reference_data16_ = NULL;
 uint16_t *SADTestBase::second_pred16_ = NULL;
 uint16_t *SADTestBase::comp_pred16_ = NULL;
 uint16_t *SADTestBase::comp_pred16_test_ = NULL;
+int32_t *SADTestBase::sad_err = NULL;
 
 TEST_P(SADTest, MaxRef) {
   FillConstant(source_data_, source_stride_, 0);
@@ -742,6 +775,7 @@ TEST_P(DistWtdSADavgTest, ShortSrc) {
 
 TEST_P(SADx4Test, MaxRef) {
   FillConstant(source_data_, source_stride_, 0);
+  FillConstant32(sad_err, 4, 0x7FFFFFFF);
   FillConstant(GetReference(0), reference_stride_, mask_);
   FillConstant(GetReference(1), reference_stride_, mask_);
   FillConstant(GetReference(2), reference_stride_, mask_);
@@ -751,6 +785,7 @@ TEST_P(SADx4Test, MaxRef) {
 
 TEST_P(SADx4Test, MaxSrc) {
   FillConstant(source_data_, source_stride_, mask_);
+  FillConstant32(sad_err, 4, 0x0);
   FillConstant(GetReference(0), reference_stride_, 0);
   FillConstant(GetReference(1), reference_stride_, 0);
   FillConstant(GetReference(2), reference_stride_, 0);
@@ -762,6 +797,7 @@ TEST_P(SADx4Test, ShortRef) {
   int tmp_stride = reference_stride_;
   reference_stride_ >>= 1;
   FillRandom(source_data_, source_stride_);
+  FillRandom32(sad_err, 4);
   FillRandom(GetReference(0), reference_stride_);
   FillRandom(GetReference(1), reference_stride_);
   FillRandom(GetReference(2), reference_stride_);
@@ -776,6 +812,7 @@ TEST_P(SADx4Test, UnalignedRef) {
   int tmp_stride = reference_stride_;
   reference_stride_ -= 1;
   FillRandom(source_data_, source_stride_);
+  FillRandom32(sad_err, 4);
   FillRandom(GetReference(0), reference_stride_);
   FillRandom(GetReference(1), reference_stride_);
   FillRandom(GetReference(2), reference_stride_);
@@ -790,6 +827,7 @@ TEST_P(SADx4Test, ShortSrc) {
   int test_count = 1000;
   while (test_count > 0) {
     FillRandom(source_data_, source_stride_);
+    FillRandom32(sad_err, 4);
     FillRandom(GetReference(0), reference_stride_);
     FillRandom(GetReference(1), reference_stride_);
     FillRandom(GetReference(2), reference_stride_);
@@ -804,6 +842,7 @@ TEST_P(SADx4Test, SrcAlignedByWidth) {
   uint8_t *tmp_source_data = source_data_;
   source_data_ += width_;
   FillRandom(source_data_, source_stride_);
+  FillRandom32(sad_err, 4);
   FillRandom(GetReference(0), reference_stride_);
   FillRandom(GetReference(1), reference_stride_);
   FillRandom(GetReference(2), reference_stride_);
@@ -1713,6 +1752,7 @@ const SadMxNx4Param x4d_avx2_tests[] = {
   make_tuple(64, 16, &aom_sad64x16x4d_avx2, -1),
   make_tuple(128, 128, &aom_sad128x128x4d_avx2, -1),
   make_tuple(128, 64, &aom_sad128x64x4d_avx2, -1),
+
 #if CONFIG_AV1_HIGHBITDEPTH
   make_tuple(128, 128, &aom_highbd_sad128x128x4d_avx2, 8),
   make_tuple(128, 128, &aom_highbd_sad128x128x4d_avx2, 10),
