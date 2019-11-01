@@ -16,6 +16,43 @@
 
 #include "config/aom_config.h"
 
+static INLINE void get_min_pos32(__m128i src, uint32_t *min_value,
+                                 int32_t *min_pos) {
+  DECLARE_ALIGNED(16, uint16_t, mask[8]) = { 0, 0xffff, 0, 0xffff,
+                                             0, 0xffff, 0, 0xffff };
+  __m128i src_lo, src_hi, minpos;
+  __m128i mask256 = _mm_load_si128((const __m128i *)(mask));
+  int res, src_16_flag;
+  src_16_flag = _mm_test_all_zeros(src, mask256);
+  // src16 is zero if we stay within 16 bits, it is true for >90% cases
+  if (src_16_flag) {
+    src_lo = _mm_or_si128(src, mask256);  // lo with hi masked by 0xffff
+    minpos = _mm_minpos_epu16(src_lo);
+    int res = _mm_cvtsi128_si32(minpos);
+    (*min_value) = (res & 0xffff);
+    (*min_pos) = res >> 17;
+  } else {
+    DECLARE_ALIGNED(16, uint8_t, mask1[16]) = { 0, 1, 4, 5, 8, 9, 12, 13,
+                                                0, 1, 4, 5, 8, 9, 12, 13 };
+    DECLARE_ALIGNED(16, uint8_t, mask2[16]) = { 2, 3, 6, 7, 10, 11, 14, 15,
+                                                2, 3, 6, 7, 10, 11, 14, 15 };
+    __m128i mask0 = _mm_set1_epi32(0x01000100);
+    src_lo = _mm_shuffle_epi8(src, *(__m128i *)mask1);  // lower 16-bits
+    src_hi = _mm_shuffle_epi8(src, *(__m128i *)mask2);  // upper 16-bits
+    minpos = _mm_minpos_epu16(src_hi);                  // upper 16-bits min
+    res = _mm_cvtsi128_si32(minpos);
+    (*min_value) = (res & 0xffff) << 16;
+    __m128i tmp = _mm_shuffle_epi8(minpos, mask0);  // broadcast upper min
+    tmp = _mm_cmpeq_epi16(tmp, src_hi);             // select equal
+    tmp = _mm_xor_si128(tmp, _mm_set1_epi32(0xffffffff));  // invert
+    src_lo = _mm_or_si128(src_lo, tmp);
+    minpos = _mm_minpos_epu16(src_lo);  // lower 16-bits hi and position
+    res = _mm_cvtsi128_si32(minpos);
+    (*min_value) += (res & 0xffff);
+    (*min_pos) = res >> 16;
+  }
+}
+
 // Note: in and out could have the same value
 static INLINE void mm256_transpose_16x16(const __m256i *in, __m256i *out) {
   __m256i tr0_0 = _mm256_unpacklo_epi16(in[0], in[1]);
