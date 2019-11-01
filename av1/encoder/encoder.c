@@ -3874,6 +3874,11 @@ static void set_screen_content_options(AV1_COMP *cpi) {
   // requires that the block has high variance.
   cm->allow_intrabc = cm->allow_screen_content_tools &&
                       counts_2 * blk_h * blk_w * 12 > width * height;
+
+#if 0
+  cm->allow_screen_content_tools = 1;
+  cm->allow_intrabc = 0;
+#endif
 }
 
 static void set_size_independent_vars(AV1_COMP *cpi) {
