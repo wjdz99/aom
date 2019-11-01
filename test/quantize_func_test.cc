@@ -24,7 +24,7 @@
 #include "test/register_state_check.h"
 #include "test/util.h"
 
-namespace {
+namespace quantize_func_test {
 using libaom_test::ACMRandom;
 
 #define QUAN_PARAM_LIST                                                       \
