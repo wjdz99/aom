@@ -34,8 +34,10 @@ typedef void (*aom_copy32xn_fn_t)(const uint8_t *a, int a_stride, uint8_t *b,
                                   int b_stride, int n);
 
 typedef void (*aom_sad_multi_d_fn_t)(const uint8_t *a, int a_stride,
-                                     const uint8_t *const b_array[],
-                                     int b_stride, unsigned int *sad_array);
+                                     const uint8_t *b_array[], int b_stride,
+                                     unsigned int *sad_array,
+                                     unsigned int *err_array,
+                                     uint32_t *min_value, int32_t *min_pos);
 
 typedef unsigned int (*aom_variance_fn_t)(const uint8_t *a, int a_stride,
                                           const uint8_t *b, int b_stride,
