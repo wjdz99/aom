@@ -1445,24 +1445,25 @@ static void set_rc_buffer_sizes(RATE_CONTROL *rc,
   }
 
 #define MAKE_BFP_SAD4D_WRAPPER(fnname)                                        \
-  static void fnname##_bits8(const uint8_t *src_ptr, int source_stride,       \
-                             const uint8_t *const ref_ptr[], int ref_stride,  \
-                             unsigned int *sad_array) {                       \
-    fnname(src_ptr, source_stride, ref_ptr, ref_stride, sad_array);           \
+  static void fnname##_bits8(                                                 \
+      const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr[],    \
+      int ref_stride, int32_t *err, uint32_t *min_value, int32_t *min_pos) { \
+    fnname(src_ptr, source_stride, ref_ptr, ref_stride, err, min_value,       \
+           min_pos);                                                          \
   }                                                                           \
-  static void fnname##_bits10(const uint8_t *src_ptr, int source_stride,      \
-                              const uint8_t *const ref_ptr[], int ref_stride, \
-                              unsigned int *sad_array) {                      \
-    int i;                                                                    \
-    fnname(src_ptr, source_stride, ref_ptr, ref_stride, sad_array);           \
-    for (i = 0; i < 4; i++) sad_array[i] >>= 2;                               \
+  static void fnname##_bits10(                                                \
+      const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr[],    \
+      int ref_stride, int32_t *err, uint32_t *min_value, int32_t *min_pos) { \
+    fnname(src_ptr, source_stride, ref_ptr, ref_stride, err, min_value,       \
+           min_pos);                                                          \
+    (*min_value) >>= 2;                                                       \
   }                                                                           \
-  static void fnname##_bits12(const uint8_t *src_ptr, int source_stride,      \
-                              const uint8_t *const ref_ptr[], int ref_stride, \
-                              unsigned int *sad_array) {                      \
-    int i;                                                                    \
-    fnname(src_ptr, source_stride, ref_ptr, ref_stride, sad_array);           \
-    for (i = 0; i < 4; i++) sad_array[i] >>= 4;                               \
+  static void fnname##_bits12(                                                \
+      const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr[],    \
+      int ref_stride, int32_t *err, uint32_t *min_value, int32_t *min_pos) { \
+    fnname(src_ptr, source_stride, ref_ptr, ref_stride, err, min_value,       \
+           min_pos);                                                          \
+    (*min_value) >>= 4;                                                       \
   }
 
 #define MAKE_BFP_JSADAVG_WRAPPER(fnname)                                    \
