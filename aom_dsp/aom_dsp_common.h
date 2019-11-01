@@ -91,6 +91,19 @@ static INLINE unsigned int negative_to_zero(int value) {
   return value & ~(value >> (sizeof(value) * 8 - 1));
 }
 
+// gets minimal value and its position in the uint32_t *src array of len values
+static INLINE void get_min_value_pos(uint32_t *src, int32_t len,
+                                     uint32_t *min_value, int32_t *min_pos) {
+  int t;
+  *min_value = src[0];
+  *min_pos = 0;
+  for (t = 1; t < len; t++) {
+    if (src[t] < *min_value) {
+      *min_value = src[t];
+      *min_pos = t;
+    }
+  }
+}
 #ifdef __cplusplus
 }  // extern "C"
 #endif
