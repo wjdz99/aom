@@ -181,6 +181,11 @@ static AOM_INLINE void mode_estimation(
 
   // Intra prediction search
   xd->mi[0]->ref_frame[0] = INTRA_FRAME;
+
+  for (int i = 0; i < 16; ++i)
+    dst_buffer[(bw + i) * dst_buffer_stride - 1] =
+        dst_buffer[(bw - 1) * dst_buffer_stride - 1];
+
   for (mode = DC_PRED; mode <= PAETH_PRED; ++mode) {
     uint8_t *src;
     uint8_t *dst;
