@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "7ffb6c84_002ce3d4",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 4025,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2019-11-04T10:27:08Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe changed the metric to mse so as to be consistent with the existing condition, while also keeping the block dimension factor in the threshold comparison when predict_skip_level \u003e\u003d 2. We also made the block size dependent factor as sqrt(block size) for the threshold comparison in the current patch.\n\nRegarding the use of block size dependent factor in the threshold comparsion, our motivation was to use a simpler skip decision based only on mse. However, we observed from the stats collected from the existing function that the early exit as non-skip (return as 0 if mse \u003e mse_thresh) was happening very less number of times for bigger block sizes. For example, for 64x64, the condition (mse \u003e mse_thresh) was hit only 3.7% of the cases, and for 4x4 it was hit for 89% of the cases. Hence if we were to use the opposite condition as is for marking as skip, it would have resulted in aggressive skip decision for larger block sizes. It was also observed that when skip was set as 1 in parent version (after DCT_DCT transform and threshold checks on the coefficients), the bulk of the histogram of the ratio of mse_thresh/mse was directly proportional to the block dimensions. This made us arrive at the block size dependent factor.",
+      "parentUuid": "128ceee0_6ad64bf0",
+      "range": {
+        "startLine": 4014,
+        "startChar": 0,
+        "endLine": 4025,
+        "endChar": 33
+      },
+      "revId": "d375eb954739452dd75f6f5d9908455f9441d7a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3472b51d_3489479f",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 12
@@ -140,6 +164,30 @@
       "revId": "d375eb954739452dd75f6f5d9908455f9441d7a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64477ac4_1482abff",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 6225,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2019-11-04T10:27:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3472b51d_3489479f",
+      "range": {
+        "startLine": 6225,
+        "startChar": 24,
+        "endLine": 6225,
+        "endChar": 45
+      },
+      "revId": "d375eb954739452dd75f6f5d9908455f9441d7a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
