@@ -1,10 +1,11 @@
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
 #include "aom/aom_codec.h"
+#include "av1/encoder/bitstream.h"
 #include "aom/internal/aom_image_internal.h"
 #include "aom_scale/yv12config.h"
 
-TEST(MetadataMemoryHandlingTest, MetadataAllocation) {
+TEST(AomMetadataTest, MetadataAllocation) {
   uint8_t data[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
   aom_metadata_t *metadata =
       aom_img_metadata_alloc(OBU_METADATA_TYPE_ITUT_T35, data, 10);
@@ -12,7 +13,7 @@ TEST(MetadataMemoryHandlingTest, MetadataAllocation) {
   EXPECT_EQ(aom_img_metadata_free(metadata), 0);
 }
 
-TEST(MetadataMemoryHandlingTest, MetadataArrayAllocation) {
+TEST(AomMetadataTest, MetadataArrayAllocation) {
   uint8_t data[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
   aom_metadata_array_t *metadata_array = aom_img_metadata_array_alloc(2);
   ASSERT_NE(metadata_array, nullptr);
@@ -25,7 +26,7 @@ TEST(MetadataMemoryHandlingTest, MetadataArrayAllocation) {
   EXPECT_EQ(aom_img_metadata_array_free(metadata_array), 2u);
 }
 
-TEST(MetadataMemoryHandlingTest, AddMetadataToImage) {
+TEST(AomMetadataTest, AddMetadataToImage) {
   aom_image_t image;
   image.metadata = NULL;
 
@@ -37,7 +38,7 @@ TEST(MetadataMemoryHandlingTest, AddMetadataToImage) {
             -1);
 }
 
-TEST(MetadataMemoryHandlingTest, RemoveMetadataFromImage) {
+TEST(AomMetadataTest, RemoveMetadataFromImage) {
   aom_image_t image;
   image.metadata = NULL;
 
@@ -49,7 +50,7 @@ TEST(MetadataMemoryHandlingTest, RemoveMetadataFromImage) {
   EXPECT_EQ(aom_img_remove_metadata(NULL), 0u);
 }
 
-TEST(MetadataMemoryHandlingTest, CopyMetadataToFrameBUffer) {
+TEST(AomMetadataTest, CopyMetadataToFrameBUffer) {
   YV12_BUFFER_CONFIG yvBuf;
   yvBuf.metadata = NULL;
   uint8_t data[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -79,4 +80,41 @@ TEST(MetadataMemoryHandlingTest, CopyMetadataToFrameBUffer) {
   EXPECT_EQ(status, -1);
   EXPECT_EQ(aom_remove_metadata_from_frame_buffer(NULL), 0u);
   EXPECT_EQ(aom_remove_metadata_from_frame_buffer(&yvBuf), 1u);
+}
+
+TEST(AomMetadataTest, WriteBitstream) {
+  uint8_t data[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+  uint8_t expectedMetadataObu[14] = { 42, 12, 4, 0, 1, 2, 3,
+                                      4,  5,  6, 7, 8, 9, 128 };
+  uint8_t bitstream[50] = { 0 };
+  size_t size = 0;
+  int largest_tile_id = 0;
+  AV1_COMP *cpi = (AV1_COMP *)calloc(1, sizeof(AV1_COMP));
+  cpi->common.current_frame.frame_type = 0;
+  cpi->common.show_existing_frame = 1;
+  cpi->common.show_frame = 1;
+  cpi->source = (YV12_BUFFER_CONFIG *)calloc(1, sizeof(YV12_BUFFER_CONFIG));
+  aom_image_t image;
+  image.metadata = NULL;
+  ASSERT_EQ(aom_img_add_metadata(&image, OBU_METADATA_TYPE_ITUT_T35, data, 10),
+            0);
+  cpi->source->metadata = image.metadata;
+  ASSERT_NE(cpi->source->metadata, nullptr);
+
+  cpi->source->metadata->metadata_array[0] =
+      aom_img_metadata_alloc(OBU_METADATA_TYPE_ITUT_T35, data, 10);
+
+  EXPECT_EQ(av1_pack_bitstream(cpi, bitstream, &size, &largest_tile_id),
+            AOM_CODEC_OK);
+
+  // check metadata OBU is at the expected position in bitstream
+  for (int i = 13; i < 27; ++i) {
+    EXPECT_EQ(bitstream[i], expectedMetadataObu[i - 13]);
+  }
+  // frame header OBU
+  EXPECT_EQ(bitstream[27], 26u);
+
+  EXPECT_EQ(aom_img_metadata_array_free(image.metadata), 1u);
+  free(cpi->source);
+  free(cpi);
 }
