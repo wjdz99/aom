@@ -3770,6 +3770,55 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
   return total_size;
 }
 
+static uint32_t av1_write_metadata_itut_t35_header_obu(aom_metadata_t *metadata,
+                                                       uint8_t *const dst) {
+  size_t coded_obu_size = 0;
+  uint64_t metadata_type = (uint64_t)metadata->type;
+  if (aom_uleb_encode(metadata_type, sizeof(metadata_type), dst,
+                      &coded_obu_size) != 0)
+    return 0;
+  struct aom_write_bit_buffer wb = { dst + coded_obu_size, 0 };
+  for (size_t i = 0; i < metadata->sz; i++)
+    aom_wb_write_unsigned_literal(&wb, metadata->payload[i], 8);
+  add_trailing_bits(&wb);
+  return aom_wb_bytes_written(&wb) + (uint32_t)coded_obu_size;
+}
+
+static uint32_t av1_write_metadata_array(AV1_COMP *const cpi, uint8_t *dst) {
+  if (!cpi || !cpi->source) return 0;
+  aom_metadata_array_t *arr = cpi->source->metadata;
+  if (!arr) return 0;
+  uint32_t total_bytes_written = 0, obu_header_size = 0, obu_payload_size = 0;
+  size_t length_field_size = 0;
+  for (size_t i = 0; i < arr->sz; i++) {
+    aom_metadata_t *currentMetadata = arr->metadata_array[i];
+    if (currentMetadata && currentMetadata->payload) {
+      OBU_METADATA_TYPE type = (OBU_METADATA_TYPE)currentMetadata->type;
+      switch (type) {
+        case OBU_METADATA_TYPE_AOM_RESERVED_0: break;
+        case OBU_METADATA_TYPE_HDR_CLL: break;
+        case OBU_METADATA_TYPE_HDR_MDCV: break;
+        case OBU_METADATA_TYPE_SCALABILITY: break;
+        case OBU_METADATA_TYPE_ITUT_T35:
+          obu_header_size = av1_write_obu_header(cpi, OBU_METADATA, 0, dst);
+          obu_payload_size = av1_write_metadata_itut_t35_header_obu(
+              currentMetadata, dst + obu_header_size);
+          length_field_size =
+              obu_memmove(obu_header_size, obu_payload_size, dst);
+          if (av1_write_uleb_obu_size(obu_header_size, obu_payload_size, dst) ==
+              AOM_CODEC_OK) {
+            dst += obu_header_size + obu_payload_size + length_field_size;
+            total_bytes_written +=
+                obu_header_size + obu_payload_size + length_field_size;
+          }
+          break;
+        case OBU_METADATA_TYPE_TIMECODE: break;
+      }
+    }
+  }
+  return total_bytes_written;
+}
+
 int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
                        int *const largest_tile_id) {
   uint8_t *data = dst;
@@ -3808,6 +3857,12 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
     }
 
     data += obu_header_size + obu_payload_size + length_field_size;
+  }
+
+  // write metadata obu before the frame obu that has show_frame flag set
+  if (cm->show_frame) {
+    uint32_t metadata_size = av1_write_metadata_array(cpi, data);
+    data += metadata_size;
   }
 
   const int write_frame_header =
