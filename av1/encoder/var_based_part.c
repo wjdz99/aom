@@ -628,6 +628,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   const int num_64x64_blocks = is_small_sb ? 1 : 4;
 
   unsigned int y_sad = UINT_MAX;
+  unsigned int y_sad_g = UINT_MAX;
   BLOCK_SIZE bsize = is_small_sb ? BLOCK_64X64 : BLOCK_128X128;
 
   // Ref frame used in partitioning.
@@ -679,8 +680,22 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
     // is!!
     MB_MODE_INFO *mi = xd->mi[0];
     const YV12_BUFFER_CONFIG *yv12 = get_ref_frame_yv12_buf(cm, LAST_FRAME);
-
     assert(yv12 != NULL);
+    const YV12_BUFFER_CONFIG *yv12_g = NULL;
+
+    // For non-SVC GOLDEN is another temporal reference. Check if it should be
+    // used as reference for partitioning.
+    if (!cpi->use_svc && (cpi->ref_frame_flags & AOM_GOLD_FLAG)) {
+      yv12_g = get_ref_frame_yv12_buf(cm, GOLDEN_FRAME);
+      if (yv12_g && yv12_g != yv12) {
+        av1_setup_pre_planes(xd, 0, yv12_g, mi_row, mi_col,
+                             get_ref_scale_factors(cm, GOLDEN_FRAME),
+                             num_planes);
+        y_sad_g = cpi->fn_ptr[bsize].sdf(
+            x->plane[0].src.buf, x->plane[0].src.stride,
+            xd->plane[0].pre[0].buf, xd->plane[0].pre[0].stride);
+      }
+    }
 
     av1_setup_pre_planes(xd, 0, yv12, mi_row, mi_col,
                          get_ref_scale_factors(cm, LAST_FRAME), num_planes);
@@ -702,7 +717,21 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
           xd->plane[0].pre[0].stride);
     }
 
-    x->pred_mv[LAST_FRAME] = mi->mv[0].as_mv;
+    // Pick the ref frame for partitioning, bias to last frame when y_sad_g and
+    // y_sad are close.
+    if (y_sad_g < 0.9 * y_sad) {
+      av1_setup_pre_planes(xd, 0, yv12, mi_row, mi_col,
+                           get_ref_scale_factors(cm, GOLDEN_FRAME), num_planes);
+      mi->ref_frame[0] = GOLDEN_FRAME;
+      mi->mv[0].as_int = 0;
+      y_sad = y_sad_g;
+      ref_frame_partition = GOLDEN_FRAME;
+      x->sb_test_golden_mode = 1;
+    } else {
+      x->pred_mv[LAST_FRAME] = mi->mv[0].as_mv;
+      ref_frame_partition = LAST_FRAME;
+      x->sb_test_golden_mode = 0;
+    }
 
     set_ref_ptrs(cm, xd, mi->ref_frame[0], mi->ref_frame[1]);
     av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL,
