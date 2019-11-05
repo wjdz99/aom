@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1248c0fb_18c1cfe0",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 4049,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-11-05T18:14:52Z",
+      "side": 0,
+      "message": "Hi Nithya, maybe we should discuss this in our meeting this week since it is hard to get it clear here. In original code above. Fwd_txfm is done, and each coeff is compared to q values directly. If they all less than the q threshold, return 1(i.e. skip \u003d 1). The decision is made in frequency domain. Your change is trying to make this skip\u003d1 decision using pixel domain distortion that is the total energy. Without txfm, we don\u0027t know how the energy is distributed among coefficients. If the total energy is less than a pixel domain q threshold(i.e. all energy goes to dc), we can be sure to set skip\u003d1. But, using block size to modify that threshold sounds risky.",
+      "range": {
+        "startLine": 4049,
+        "startChar": 2,
+        "endLine": 4049,
+        "endChar": 10
+      },
+      "revId": "9f26c999c31e1daaa535b36f333416a3afff29a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
