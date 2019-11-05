@@ -80,10 +80,6 @@ INSTANTIATE_TEST_CASE_P(
     NEON_Y, AV1Convolve2DSrTest,
     libaom_test::AV1Convolve2D::BuildParams(av1_convolve_y_sr_neon, 0, 1));
 
-INSTANTIATE_TEST_CASE_P(
-    NEON, AV1Convolve2DSrTest,
-    libaom_test::AV1Convolve2D::BuildParams(av1_convolve_2d_sr_neon, 1, 1));
-
 INSTANTIATE_TEST_CASE_P(NEON_COPY, AV1Convolve2DSrTest,
                         libaom_test::AV1Convolve2D::BuildParams(
                             av1_convolve_2d_copy_sr_neon, 0, 0));
