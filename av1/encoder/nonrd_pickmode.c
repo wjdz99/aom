@@ -1593,11 +1593,14 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     if (const_motion[ref_frame] && this_mode == NEARMV) continue;
 
-    if (ref_frame != LAST_FRAME &&
-        (bsize > BLOCK_64X64 || (bsize > BLOCK_16X16 && this_mode == NEWMV)))
-      continue;
+    // Don't skip testing golden is this is set.
+    if (!x->nonrd_test_golden_mode) {
+      if (ref_frame != LAST_FRAME &&
+          (bsize > BLOCK_64X64 || (bsize > BLOCK_16X16 && this_mode == NEWMV)))
+        continue;
 
-    if (ref_frame != LAST_FRAME && this_mode == NEARMV) continue;
+      if (ref_frame != LAST_FRAME && this_mode == NEARMV) continue;
+    }
 
     // Skip non-zeromv mode search for golden frame if force_skip_low_temp_var
     // is set. If nearestmv for golden frame is 0, zeromv mode will be skipped
