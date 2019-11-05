@@ -808,6 +808,9 @@ typedef struct SPEED_FEATURES {
 
   // Number of best inter modes to search transform. INT_MAX - search all.
   int num_inter_modes_for_tx_search;
+
+  // For nonrd: Reduces golde mode search/testing in nonrd pickmode.
+  int nonrd_reduce_golden_mode_search;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
