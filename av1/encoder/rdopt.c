@@ -60,6 +60,7 @@
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/tokenize.h"
 #include "av1/encoder/tx_prune_model_weights.h"
+#include "av1/encoder/tx_prune_laplacian.h"
 
 // Set this macro as 1 to collect data about tx size selection.
 #define COLLECT_TX_SIZE_DATA 0
@@ -1372,6 +1373,204 @@ static int64_t dist_8x8_diff(const MACROBLOCK *x, const uint8_t *src,
   return d;
 }
 #endif  // CONFIG_DIST_8X8
+
+#if CONFIG_TXPRUNE_LAPLACIAN
+// Get quadratic value x'*L*x and take the mean over all rows or columns
+void get_xlx(const int16_t *diff, int stride, int num_to_average,
+             const int laplacian[][3], int *xlx, int ne, int sc_fac,
+						 int is_col_tx) {
+  *xlx = 0;
+  int src, dst;
+  for (int j = 0; j < num_to_average; j++) {
+    for (int i = 0; i < ne; i++) {
+      // src: laplacian[i][0]
+      // dst: laplacian[i][1]
+      // weight: laplacian[i][2]
+      if (is_col_tx) {
+        src = diff[laplacian[i][0] * stride + j];
+        dst = diff[laplacian[i][1] * stride + j];
+      } else {
+        src = diff[j * stride + laplacian[i][0]];
+        dst = diff[j * stride + laplacian[i][1]];
+      }
+      if (laplacian[i][0] == laplacian[i][1])  // self-loop
+        *xlx += src * src * laplacian[i][2];
+      else  // edge
+        *xlx += (src - dst) * (src - dst) * laplacian[i][2];
+    }
+  }
+  *xlx /= (num_to_average * sc_fac);
+}
+
+static uint16_t prune_laplacian(TX_SIZE tx_size, MACROBLOCK *x) {
+  const struct macroblock_plane *const p = &x->plane[0];
+  const int bw = tx_size_wide[tx_size];
+  const int bh = tx_size_high[tx_size];
+
+  uint8_t prune_v = 0, prune_h = 0;
+  int xlx_d, xlx_a, xlx_f, xlx_i;
+  int sum_xlx_daf = 0, prune_thr_daf = 0, prune_thr_i = 0;
+
+  // prune horizontal
+  if (bw == 4) {
+    get_xlx(p->src_diff, bw, bh, Ld4, &xlx_d, nedges[0][0], sc[0][0], 0);
+    get_xlx(p->src_diff, bw, bh, La4, &xlx_a, nedges[1][0], sc[1][0], 0);
+#if USE_SINU_WEIGHTS
+    // The following quantity is actually (xlx_a - xlx_f)
+    get_xlx(p->src_diff, bw, bh, Laf4, &xlx_f, 2, 1, 0);
+    xlx_f = xlx_a - xlx_f;
+#else
+    get_xlx(p->src_diff, bw, bh, Lf4, &xlx_f, nedges[2][0], sc[2][0], 0);
+#endif
+    get_xlx(p->src_diff, bw, bh, Li4, &xlx_i, nedges[3][0], sc[3][0], 0);
+  } else if (bw == 8) {
+    get_xlx(p->src_diff, bw, bh, Ld8, &xlx_d, nedges[0][1], sc[0][1], 0);
+    get_xlx(p->src_diff, bw, bh, La8, &xlx_a, nedges[1][1], sc[1][1], 0);
+#if USE_SINU_WEIGHTS
+    get_xlx(p->src_diff, bw, bh, Laf8, &xlx_f, 2, 1, 0);
+    xlx_f = xlx_a - xlx_f;
+#else
+    get_xlx(p->src_diff, bw, bh, Lf8, &xlx_f, nedges[2][1], sc[2][1], 0);
+#endif
+    get_xlx(p->src_diff, bw, bh, Li8, &xlx_i, nedges[3][1], sc[3][1], 0);
+  } else if (bw == 16) {
+    get_xlx(p->src_diff, bw, bh, Ld16, &xlx_d, nedges[0][2], sc[0][2], 0);
+    get_xlx(p->src_diff, bw, bh, La16, &xlx_a, nedges[1][2], sc[1][2], 0);
+#if USE_SINU_WEIGHTS
+    get_xlx(p->src_diff, bw, bh, Laf16, &xlx_f, 2, 1, 0);
+    xlx_f = xlx_a - xlx_f;
+#else
+    get_xlx(p->src_diff, bw, bh, Lf16, &xlx_f, nedges[2][2], sc[2][2], 0);
+#endif
+    get_xlx(p->src_diff, bw, bh, Li16, &xlx_i, nedges[3][2], sc[3][2], 0);
+  } else {
+    get_xlx(p->src_diff, bw, bh, Ld32, &xlx_d, nedges[0][3], sc[0][3], 0);
+    get_xlx(p->src_diff, bw, bh, La32, &xlx_a, nedges[1][3], sc[1][3], 0);
+#if USE_SINU_WEIGHTS
+    get_xlx(p->src_diff, bw, bh, Laf32, &xlx_f, 2, 1, 0);
+    xlx_f = xlx_a - xlx_f;
+#else
+    get_xlx(p->src_diff, bw, bh, Lf32, &xlx_f, nedges[2][3], sc[2][3], 0);
+#endif
+    get_xlx(p->src_diff, bw, bh, Li32, &xlx_i, nedges[3][3], sc[3][3], 0);
+  }
+
+  sum_xlx_daf = xlx_d + xlx_a + xlx_f;
+  prune_thr_daf = (int) ((double) sum_xlx_daf * TAU_DAF);
+  prune_thr_i = (int) ((double) (sum_xlx_daf + xlx_i) * TAU_I);
+
+  if (xlx_d != xlx_a || xlx_a != xlx_f || xlx_f != xlx_i) {
+#if PRUNE_ONE_DAF
+    if (xlx_d > xlx_a && xlx_d > xlx_f) prune_h |= 1 << DCT_1D;
+    if (xlx_a > xlx_d && xlx_a > xlx_f) prune_h |= 1 << ADST_1D;
+    if (xlx_f > xlx_d && xlx_f > xlx_a) prune_h |= 1 << FLIPADST_1D;
+#elif PRUNE_ONE_AF
+    prune_h |= 1 << (xlx_a > xlx_f ? ADST_1D : FLIPADST_1D);
+#else
+    if (xlx_d > prune_thr_daf)
+      prune_h |= 1 << DCT_1D;
+    if (xlx_a > prune_thr_daf)
+      prune_h |= 1 << ADST_1D;
+    if (xlx_f > prune_thr_daf)
+      prune_h |= 1 << FLIPADST_1D;
+#endif
+    if (xlx_i > prune_thr_i)
+      prune_h |= 1 << IDTX_1D;
+  }
+
+#if PRINT_XLX
+  fprintf(stderr, "[H %d, %d, %d, %d, %d]", bw, xlx_d, xlx_a, xlx_f, xlx_i);
+  fprintf(stderr, "(%d, %d, %d) ", prune_thr_daf, prune_thr_i, prune_h);
+#endif
+
+  // prune vertical
+  if (bh == 4) {
+    get_xlx(p->src_diff, bw, bw, Ld4, &xlx_d, nedges[0][0], sc[0][0], 1);
+    get_xlx(p->src_diff, bw, bw, La4, &xlx_a, nedges[1][0], sc[1][0], 1);
+#if USE_SINU_WEIGHTS
+    get_xlx(p->src_diff, bw, bw, Laf4, &xlx_f, 2, 1, 1);
+    xlx_f = xlx_a - xlx_f;
+#else
+    get_xlx(p->src_diff, bw, bw, Lf4, &xlx_f, nedges[2][0], sc[2][0], 1);
+#endif
+    get_xlx(p->src_diff, bw, bw, Li4, &xlx_i, nedges[3][0], sc[3][0], 1);
+  } else if (bh == 8) {
+    get_xlx(p->src_diff, bw, bw, Ld8, &xlx_d, nedges[0][1], sc[0][2], 1);
+    get_xlx(p->src_diff, bw, bw, La8, &xlx_a, nedges[1][1], sc[1][2], 1);
+#if USE_SINU_WEIGHTS
+    get_xlx(p->src_diff, bw, bw, Laf8, &xlx_f, 2, 1, 1);
+    xlx_f = xlx_a - xlx_f;
+#else
+    get_xlx(p->src_diff, bw, bw, Lf8, &xlx_f, nedges[2][1], sc[2][2], 1);
+#endif
+    get_xlx(p->src_diff, bw, bw, Li8, &xlx_i, nedges[3][1], sc[3][2], 1);
+  } else if (bh == 16) {
+    get_xlx(p->src_diff, bw, bw, Ld16, &xlx_d, nedges[0][2], sc[0][2], 1);
+    get_xlx(p->src_diff, bw, bw, La16, &xlx_a, nedges[1][2], sc[1][2], 1);
+#if USE_SINU_WEIGHTS
+    get_xlx(p->src_diff, bw, bw, Laf16, &xlx_f, 2, 1, 1);
+    xlx_f = xlx_a - xlx_f;
+#else
+    get_xlx(p->src_diff, bw, bw, Lf16, &xlx_f, nedges[2][2], sc[2][2], 1);
+#endif
+    get_xlx(p->src_diff, bw, bw, Li16, &xlx_i, nedges[3][2], sc[3][2], 1);
+  } else {
+    get_xlx(p->src_diff, bw, bw, Ld32, &xlx_d, nedges[0][3], sc[0][3], 1);
+    get_xlx(p->src_diff, bw, bw, La32, &xlx_a, nedges[1][3], sc[1][3], 1);
+#if USE_SINU_WEIGHTS
+    get_xlx(p->src_diff, bw, bw, Laf32, &xlx_f, 2, 1, 1);
+    xlx_f = xlx_a - xlx_f;
+#else
+    get_xlx(p->src_diff, bw, bw, Lf32, &xlx_f, nedges[2][3], sc[2][3], 1);
+#endif
+    get_xlx(p->src_diff, bw, bw, Li32, &xlx_i, nedges[3][3], sc[3][3], 1);
+  }
+
+  sum_xlx_daf = xlx_d + xlx_a + xlx_f;
+  prune_thr_daf = (int) ((double) sum_xlx_daf * TAU_DAF);
+  prune_thr_i = (int) ((double) (sum_xlx_daf + xlx_i) * TAU_I);
+
+  if (xlx_d != xlx_a || xlx_a != xlx_f || xlx_f != xlx_i) {
+#if PRUNE_ONE_DAF
+    if (xlx_d > xlx_a && xlx_d > xlx_f) prune_v |= 1 << DCT_1D;
+    if (xlx_a > xlx_d && xlx_a > xlx_f) prune_v |= 1 << ADST_1D;
+    if (xlx_f > xlx_d && xlx_f > xlx_a) prune_v |= 1 << FLIPADST_1D;
+#elif PRUNE_ONE_AF
+    prune_v |= 1 << (xlx_a > xlx_f ? ADST_1D : FLIPADST_1D);
+#else
+    if (xlx_d > prune_thr_daf)
+      prune_v |= 1 << DCT_1D;
+    if (xlx_a > prune_thr_daf)
+      prune_v |= 1 << ADST_1D;
+    if (xlx_f > prune_thr_daf)
+      prune_v |= 1 << FLIPADST_1D;
+#endif
+    if (xlx_i > prune_thr_i)
+      prune_v |= 1 << IDTX_1D;
+  }
+
+#if PRINT_XLX
+  fprintf(stderr, "[V %d, %d, %d, %d, %d]", bh, xlx_d, xlx_a, xlx_f, xlx_i);
+  fprintf(stderr, "(%d, %d, %d)\n", prune_thr_daf, prune_thr_i, prune_v);
+#endif
+
+  // 1D to 2D bitmask
+  int tx_type_table_2D[16] = {
+    DCT_DCT,      DCT_ADST,      DCT_FLIPADST,      V_DCT,
+    ADST_DCT,     ADST_ADST,     ADST_FLIPADST,     V_ADST,
+    FLIPADST_DCT, FLIPADST_ADST, FLIPADST_FLIPADST, V_FLIPADST,
+    H_DCT,        H_ADST,        H_FLIPADST,        IDTX
+  };
+  uint16_t prune_bitmask = 0;
+  for (int vtx = DCT_1D; vtx <= IDTX_1D; vtx++) {
+    for (int htx = DCT_1D; htx <= IDTX_1D; htx++) {
+      prune_bitmask |= (((~prune_v) >> vtx) & ((~prune_h) >> htx))
+                       << tx_type_table_2D[vtx * TX_TYPES_1D + htx];
+    }
+  }
+  return prune_bitmask;
+}
+#endif  // CONFIG_TXPRUNE_LAPLACIAN
 
 static void get_energy_distribution_finer(const int16_t *diff, int stride,
                                           int bw, int bh, float *hordist,
@@ -3133,6 +3332,11 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
           prune_tx_2D(x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
                       cpi->sf.tx_type_search.prune_mode, txk_map);
       allowed_tx_mask &= (~prune);
+#if CONFIG_TXPRUNE_LAPLACIAN
+    } else if (cpi->sf.tx_type_search.prune_mode == PRUNE_LAPLACIAN && is_inter) {
+      const uint16_t prune = prune_laplacian(tx_size, x);
+      allowed_tx_mask &= (~prune);
+#endif
     }
   }
 
