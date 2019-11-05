@@ -844,6 +844,9 @@ void av1_convolve_y_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
   }
 }
 
+#if 0
+// TODO(aomedia:2261): This has very strange and difficult to reproduce failures
+// under emulation.
 void av1_convolve_2d_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
                              int dst_stride, int w, int h,
                              const InterpFilterParams *filter_params_x,
@@ -1405,6 +1408,8 @@ void av1_convolve_2d_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
     }
   }
 }
+#endif
+
 void av1_convolve_2d_copy_sr_neon(const uint8_t *src, int src_stride,
                                   uint8_t *dst, int dst_stride, int w, int h,
                                   const InterpFilterParams *filter_params_x,
