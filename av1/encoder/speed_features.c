@@ -736,7 +736,16 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->adaptive_mode_search = 0;
   sf->alt_ref_search_fp = 0;
   sf->partition_search_type = SEARCH_PARTITION;
+#if CONFIG_TXPRUNE_LAPLACIAN
+  // sf->tx_type_search.prune_mode = NO_PRUNE;
+  // sf->tx_type_search.prune_mode = PRUNE_2D_ACCURATE;
+  // sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
+  // sf->tx_type_search.prune_mode = PRUNE_LAPLACIAN;
+  sf->tx_type_search.prune_mode = PRUNE_2D_LAPLACIAN;
+  sf->tx_type_search.use_skip_flag_prediction = 0;
+#else
   sf->tx_type_search.prune_mode = PRUNE_2D_ACCURATE;
+#endif
   sf->tx_type_search.ml_tx_split_thresh = 30;
 #if CONFIG_NEW_TX_PARTITION
   sf->tx_type_search.use_skip_flag_prediction = 0;

@@ -156,12 +156,16 @@ enum {
 } UENUM1BYTE(MODE_SEARCH_SKIP_LOGIC);
 
 enum {
-  NO_PRUNE = 0,
-  // adaptively prunes the least perspective tx types out of all 16
-  // (tuned to provide negligible quality loss)
-  PRUNE_2D_ACCURATE = 1,
+  NO_PRUNE,
+// adaptively prunes the least perspective tx types out of all 16
+// (tuned to provide negligible quality loss)
+#if CONFIG_TXPRUNE_LAPLACIAN
+  PRUNE_LAPLACIAN,
+  PRUNE_2D_LAPLACIAN,
+#endif
+  PRUNE_2D_ACCURATE,
   // similar, but applies much more aggressive pruning to get better speed-up
-  PRUNE_2D_FAST = 2,
+  PRUNE_2D_FAST,
 } UENUM1BYTE(TX_TYPE_PRUNE_MODE);
 
 typedef struct {
