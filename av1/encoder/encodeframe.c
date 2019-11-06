@@ -71,7 +71,6 @@
 static AOM_INLINE void encode_superblock(const AV1_COMP *const cpi,
                                          TileDataEnc *tile_data, ThreadData *td,
                                          TOKENEXTRA **t, RUN_TYPE dry_run,
-                                         int mi_row, int mi_col,
                                          BLOCK_SIZE bsize, int *rate);
 
 // This is used as a reference when computing the source variance for the
@@ -794,8 +793,7 @@ static AOM_INLINE void pick_sb_modes(AV1_COMP *const cpi,
 #if CONFIG_COLLECT_COMPONENT_TIMING
     start_timing(cpi, av1_rd_pick_intra_mode_sb_time);
 #endif
-    av1_rd_pick_intra_mode_sb(cpi, x, mi_row, mi_col, rd_cost, bsize, ctx,
-                              best_rd.rdcost);
+    av1_rd_pick_intra_mode_sb(cpi, x, rd_cost, bsize, ctx, best_rd.rdcost);
 #if CONFIG_COLLECT_COMPONENT_TIMING
     end_timing(cpi, av1_rd_pick_intra_mode_sb_time);
 #endif
@@ -811,12 +809,12 @@ static AOM_INLINE void pick_sb_modes(AV1_COMP *const cpi,
       //               pick_inter_mode_sb_seg_skip
       switch (pick_mode_type) {
         case PICK_MODE_RD:
-          av1_rd_pick_inter_mode_sb(cpi, tile_data, x, mi_row, mi_col, rd_cost,
-                                    bsize, ctx, best_rd.rdcost);
+          av1_rd_pick_inter_mode_sb(cpi, tile_data, x, rd_cost, bsize, ctx,
+                                    best_rd.rdcost);
           break;
         case PICK_MODE_NONRD:
-          av1_nonrd_pick_inter_mode_sb(cpi, tile_data, x, mi_row, mi_col,
-                                       rd_cost, bsize, ctx, best_rd.rdcost);
+          av1_nonrd_pick_inter_mode_sb(cpi, tile_data, x, rd_cost, bsize, ctx,
+                                       best_rd.rdcost);
           break;
         case PICK_MODE_FAST_NONRD:
           av1_fast_nonrd_pick_inter_mode_sb(cpi, tile_data, x, mi_row, mi_col,
@@ -1565,8 +1563,7 @@ static AOM_INLINE void encode_b(const AV1_COMP *const cpi,
            (1 << num_pels_log2_lookup[cpi->common.seq_params.sb_size]));
   }
 
-  encode_superblock(cpi, tile_data, td, tp, dry_run, mi_row, mi_col, bsize,
-                    rate);
+  encode_superblock(cpi, tile_data, td, tp, dry_run, bsize, rate);
 
   if (!dry_run) {
     const AV1_COMMON *const cm = &cpi->common;
@@ -1953,8 +1950,8 @@ static AOM_INLINE void rd_use_partition(
         const PICK_MODE_CONTEXT *const ctx_h = &pc_tree->horizontal[0];
         av1_init_rd_stats(&tmp_rdc);
         update_state(cpi, td, ctx_h, mi_row, mi_col, subsize, 1);
-        encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, mi_row,
-                          mi_col, subsize, NULL);
+        encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, subsize,
+                          NULL);
         pick_sb_modes(cpi, tile_data, x, mi_row + hbs, mi_col, &tmp_rdc,
                       PARTITION_HORZ, subsize, &pc_tree->horizontal[1],
                       invalid_rdc, PICK_MODE_RD);
@@ -1977,8 +1974,8 @@ static AOM_INLINE void rd_use_partition(
         const PICK_MODE_CONTEXT *const ctx_v = &pc_tree->vertical[0];
         av1_init_rd_stats(&tmp_rdc);
         update_state(cpi, td, ctx_v, mi_row, mi_col, subsize, 1);
-        encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, mi_row,
-                          mi_col, subsize, NULL);
+        encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, subsize,
+                          NULL);
         pick_sb_modes(cpi, tile_data, x, mi_row, mi_col + hbs, &tmp_rdc,
                       PARTITION_VERT, subsize,
                       &pc_tree->vertical[bsize > BLOCK_8X8], invalid_rdc,
@@ -2342,8 +2339,7 @@ static int rd_try_subblock(AV1_COMP *const cpi, ThreadData *td,
 
   if (!is_last) {
     update_state(cpi, td, this_ctx, mi_row, mi_col, subsize, 1);
-    encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, mi_row, mi_col,
-                      subsize, NULL);
+    encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, subsize, NULL);
   }
 
   x->rdmult = orig_mult;
@@ -2932,8 +2928,7 @@ BEGIN_PARTITION_SEARCH:
         if (mbmi->uv_mode != UV_CFL_PRED) horz_ctx_is_ready = 1;
       }
       update_state(cpi, td, ctx_h, mi_row, mi_col, subsize, 1);
-      encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, mi_row, mi_col,
-                        subsize, NULL);
+      encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, subsize, NULL);
 
       if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_h);
 
@@ -3018,8 +3013,7 @@ BEGIN_PARTITION_SEARCH:
         if (mbmi->uv_mode != UV_CFL_PRED) vert_ctx_is_ready = 1;
       }
       update_state(cpi, td, &pc_tree->vertical[0], mi_row, mi_col, subsize, 1);
-      encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, mi_row, mi_col,
-                        subsize, NULL);
+      encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, subsize, NULL);
 
       if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_none);
 
@@ -5609,7 +5603,6 @@ static AOM_INLINE void tx_partition_set_contexts(const AV1_COMMON *const cm,
 static AOM_INLINE void encode_superblock(const AV1_COMP *const cpi,
                                          TileDataEnc *tile_data, ThreadData *td,
                                          TOKENEXTRA **t, RUN_TYPE dry_run,
-                                         int mi_row, int mi_col,
                                          BLOCK_SIZE bsize, int *rate) {
   const AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
@@ -5627,6 +5620,9 @@ static AOM_INLINE void encode_superblock(const AV1_COMP *const cpi,
   // Initialize tx_mode and tx_size_search_method
   set_tx_size_search_method(cpi, x, cpi->sf.enable_winner_mode_for_tx_size_srch,
                             1);
+
+  const int mi_row = xd->mi_row;
+  const int mi_col = xd->mi_col;
   if (!is_inter) {
     xd->cfl.is_chroma_reference =
         is_chroma_reference(mi_row, mi_col, bsize, cm->seq_params.subsampling_x,
@@ -5681,7 +5677,7 @@ static AOM_INLINE void encode_superblock(const AV1_COMP *const cpi,
                                   start_plane, av1_num_planes(cm) - 1);
     if (mbmi->motion_mode == OBMC_CAUSAL) {
       assert(cpi->oxcf.enable_obmc == 1);
-      av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
+      av1_build_obmc_inter_predictors_sb(cm, xd);
     }
 
 #if CONFIG_MISMATCH_DEBUG
