@@ -196,6 +196,11 @@ typedef struct {
 #endif  // CONFIG_WIENER_NONSEP
 } RestorationUnitInfo;
 
+#if CONFIG_WIENER_NONSEP
+// #define CLIP_BASE(x) ((x) > 128 ? 128 : ((x) < -128 ? -128 : (x)))
+#define CLIP_BASE(x) (x)
+#endif  // CONFIG_WIENER_NONSEP
+
 // A restoration line buffer needs space for two lines plus a horizontal filter
 // margin of RESTORATION_EXTRA_HORZ on each side.
 #define RESTORATION_LINEBUFFER_WIDTH \
