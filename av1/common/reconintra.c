@@ -2472,6 +2472,12 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_ADAPT_FILTER_INTRA
   const int angle_delta = mbmi->angle_delta[plane != AOM_PLANE_Y] * ANGLE_STEP;
 
+#if 0
+  if (mbmi->use_derived_intra_mode) {
+    printf("\n error \n");
+  }
+#endif
+
   if (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_CFL_PRED) {
 #if CONFIG_DEBUG
     assert(is_cfl_allowed(xd));
