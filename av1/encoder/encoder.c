@@ -3598,6 +3598,42 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       }
 
       fclose(f);
+
+#if 0
+      do {
+        FILE *fp = fopen("kf_mode_count_2.txt", "a");
+        if (!fp) break;
+
+        int i, j, k;
+
+        for (i = 0; i < KF_MODE_CONTEXTS; ++i) {
+          for (j = 0; j < KF_MODE_CONTEXTS; ++j) {
+            for (k = 0; k < 2; ++k) {
+              fprintf(fp, "%d,", cm->is_dr_count[i][j][k]);
+            }
+          }
+        }
+
+        for (i = 0; i < KF_MODE_CONTEXTS; ++i) {
+          for (j = 0; j < KF_MODE_CONTEXTS; ++j) {
+            for (k = 0; k < DIRECTIONAL_MODES; ++k) {
+              fprintf(fp, "%d,", cm->dr_mode_count[i][j][k]);
+            }
+          }
+        }
+
+        for (i = 0; i < KF_MODE_CONTEXTS; ++i) {
+          for (j = 0; j < KF_MODE_CONTEXTS; ++j) {
+            for (k = 0; k < NONE_DIRECTIONAL_MODES; ++k) {
+              fprintf(fp, "%d,", cm->none_dr_mode_count[i][j][k]);
+            }
+          }
+        }
+
+        fprintf(fp, "\n");
+        fclose(fp);
+      } while (0);
+#endif
     }
 #endif  // CONFIG_INTERNAL_STATS
 #if CONFIG_SPEED_STATS

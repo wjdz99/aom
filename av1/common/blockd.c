@@ -492,3 +492,188 @@ void av1_get_recon_var(const MACROBLOCKD *const xd, MB_MODE_INFO *const mbmi,
   }
 }
 #endif  // CONFIG_INTRA_ENTROPY && !CONFIG_USE_SMALL_MODEL
+
+#if CONFIG_DERIVED_INTRA_MODE
+#define BINS 56
+
+static const int angle_to_bin[180] = {
+  0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4,
+  5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10,
+  10, 10, 10, 11, 11, 11, 12, 12, 12, 13, 13, 13, 14, 14, 14, 15,
+  15, 15, 16, 16, 16, 17, 17, 17, 17, 18, 18, 18, 19, 19, 19, 20,
+  20, 20, 21, 21, 21, 22, 22, 22, 23, 23, 23, 24, 24, 24, 24, 25,
+  25, 25, 25, 26, 26, 26, 27, 27, 27, 28, 28, 28, 29, 29, 29, 30,
+  30, 30, 31, 31, 31, 31, 32, 32, 32, 32, 33, 33, 33, 34, 34, 34,
+  35, 35, 35, 36, 36, 36, 37, 37, 37, 38, 38, 38, 38, 39, 39, 39,
+  40, 40, 40, 41, 41, 41, 42, 42, 42, 43, 43, 43, 44, 44, 44, 45,
+  45, 45, 45, 46, 46, 46, 47, 47, 47, 48, 48, 48, 49, 49, 49, 50,
+  50, 50, 51, 51, 51, 52, 52, 52, 52, 53, 53, 53, 53, 54, 54, 54,
+  55, 55, 55, 55,
+};
+
+static float get_gradient_hist(const uint8_t *src, int src_stride, int rows,
+                               int cols, float *hist) {
+  float total = 0.0f;
+  float angle;
+
+  src += src_stride;
+  for (int r = 1; r < rows - 1; ++r) {
+    for (int c = 1; c < cols - 1; ++c) {
+      const uint8_t *above = &src[c - src_stride];
+      const uint8_t *below = &src[c + src_stride];
+      const uint8_t *left = &src[c - 1];
+      const uint8_t *right = &src[c + 1];
+
+      const int dx =
+          (right[-src_stride] + 2 * right[0] + right[src_stride]) -
+          (left[-src_stride] + 2 * left[0] + left[src_stride]);
+      const int dy =
+          (below[-1] + 2 * below[0] + below[1]) -
+          (above[-1] + 2 * above[0] + above[1]);
+      if (dx == 0 && dy == 0) continue;
+      const int temp = (int)round(sqrt(dx * dx + dy * dy));
+      total += temp;
+      if (dx == 0) {
+        angle = 0.0f;
+      } else {
+        angle = atanf(dy * 1.0f / dx);
+      }
+      int int_angle = 90 - (int)roundf(180 * angle / (float)PI);
+      if (int_angle >= 180) int_angle = 0;
+      int_angle = AOMMAX(int_angle, 0);
+      hist[angle_to_bin[int_angle]] += temp;
+    }
+    src += src_stride;
+  }
+
+  return total;
+}
+
+static float get_highbd_gradient_hist(const uint8_t *src8, int src_stride,
+                                      int rows, int cols, float *hist) {
+  float total = 0.0f;
+  float angle;
+  uint16_t *src = CONVERT_TO_SHORTPTR(src8);
+  src += src_stride;
+  for (int r = 1; r < rows - 1; ++r) {
+    for (int c = 1; c < cols - 1; ++c) {
+      const uint16_t *above = &src[c - src_stride];
+      const uint16_t *below = &src[c + src_stride];
+      const uint16_t *left = &src[c - 1];
+      const uint16_t *right = &src[c + 1];
+
+      const int dx =
+          (right[-src_stride] + 2 * right[0] + right[src_stride]) -
+          (left[-src_stride] + 2 * left[0] + left[src_stride]);
+      const int dy =
+          (below[-1] + 2 * below[0] + below[1]) -
+          (above[-1] + 2 * above[0] + above[1]);
+      if (dx == 0 && dy == 0) continue;
+      const int temp = (int)round(sqrt(dx * dx + dy * dy));
+      total += temp;
+      if (dx == 0) {
+        angle = 0.0f;
+      } else {
+        angle = atanf(dy * 1.0f / dx);
+      }
+      int int_angle = 90 - (int)roundf(180 * angle / (float)PI);
+      if (int_angle >= 180) int_angle = 0;
+      int_angle = AOMMAX(int_angle, 0);
+      hist[angle_to_bin[int_angle]] += temp;
+    }
+    src += src_stride;
+  }
+
+  return total;
+}
+
+static void generate_hog(const MACROBLOCKD *xd, float *hist) {
+  const int stride = xd->plane[0].dst.stride;
+  const uint8_t *buf = xd->plane[0].dst.buf;
+  const int bsize = xd->mi[0]->sb_type;
+  const int bh = block_size_high[bsize];
+  const int bw = block_size_wide[bsize];
+  const int rows =
+      (xd->mb_to_bottom_edge >= 0) ? bh : (xd->mb_to_bottom_edge >> 3) + bh;
+  const int cols =
+      (xd->mb_to_right_edge >= 0) ? bw : (xd->mb_to_right_edge >> 3) + bw;
+  const int lines = 4;
+  float total = 0.1f;
+
+  if (is_cur_buf_hbd(xd)) {
+    if (xd->above_mbmi) {
+      total +=
+          get_highbd_gradient_hist(buf - lines * stride, stride, lines, cols,
+                                   hist);
+    }
+    if (xd->left_mbmi) {
+      total +=
+          get_highbd_gradient_hist(buf - lines, stride, rows, lines, hist);
+    }
+  } else {
+    if (xd->above_mbmi) {
+      total +=
+          get_gradient_hist(buf - lines * stride, stride, lines, cols, hist);
+    }
+    if (xd->left_mbmi) {
+      total += get_gradient_hist(buf - lines, stride, rows, lines, hist);
+    }
+  }
+
+  for (int i = 0 ; i < BINS; ++i) hist[i] /= total;
+}
+
+static int derive_intra_mode_from_hog(const MACROBLOCKD *xd) {
+  aom_clear_system_state();
+
+  float hist[BINS] = { 0.0f };
+  generate_hog(xd, hist);
+
+  float max_score = -100.0f;
+  int best_idx = 0;
+  for (int i = 0 ; i < BINS; ++i) {
+    const float this_score = hist[i];
+    if (this_score > max_score) {
+      max_score = this_score;
+      best_idx = i;
+    }
+  }
+
+  aom_clear_system_state();
+
+  return best_idx;
+}
+
+int av1_enable_derived_intra_mode(const MACROBLOCKD *xd, int bsize) {
+  return bsize >= BLOCK_8X8 && (xd->above_mbmi || xd->left_mbmi);
+}
+
+static const int bin_to_angles[BINS] = {
+    0, 3, 6, 9, 14, 17, 20, 23, 26, 29, 32, 36, 39, 42, 45, 48, 51, 54, 58, 61,
+    64, 67, 70, 73, 76, 81, 84, 87, 90, 93, 96, 99, 104, 107, 110, 113, 116,
+    119, 122, 126, 129, 132, 135, 138, 141, 144, 148, 151, 154, 157, 160, 163,
+    166, 171, 174, 177,
+};
+
+static const int bin_to_mode[BINS] = {
+    2, 2, 2, 2, 7, 7, 7, 7, 7, 7, 7, 3, 3, 3, 3, 3,
+    3, 3, 8, 8, 8, 8, 8, 8, 8, 1, 1, 1, 1, 1, 1, 1,
+    5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 6, 6,
+    6, 6, 6, 6, 6, 2, 2, 2,
+};
+#undef BINS
+
+int av1_get_derived_intra_mode(const MACROBLOCKD *xd, int bsize,
+                               int8_t *angle_delta) {
+  if (av1_enable_derived_intra_mode(xd, bsize)) {
+    const int idx = derive_intra_mode_from_hog(xd);
+    int angle = bin_to_angles[idx];
+    if (angle < 36) angle += 180;
+    const int mode = bin_to_mode[idx];
+    *angle_delta = (int8_t)((angle - mode_to_angle_map[mode]) / ANGLE_STEP);
+    assert(*angle_delta >= -9 && *angle_delta <= 9);
+    return mode;
+  }
+  return INTRA_MODES;
+}
+#endif
