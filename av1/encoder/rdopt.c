@@ -8599,13 +8599,13 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
       }
 
       // aomenc2
+      const int_mv ref_mv_1 = av1_get_ref_mv(x, 1);
       if (cpi->sf.comp_inter_joint_search_thresh <= bsize || !valid_mv1) {
         compound_single_motion_search_interinter(cpi, x, bsize, cur_mv, NULL, 0,
                                                  rate_mv, 1);
       } else {
-        const int_mv ref_mv = av1_get_ref_mv(x, 1);
         *rate_mv =
-            av1_mv_bit_cost(&cur_mv[1].as_mv, &ref_mv.as_mv, x->nmv_vec_cost,
+            av1_mv_bit_cost(&cur_mv[1].as_mv, &ref_mv_1.as_mv, x->nmv_vec_cost,
                             x->mv_cost_stack, MV_COST_WEIGHT);
       }
     } else {
@@ -8616,13 +8616,13 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
       }
 
       // aomenc3
+      const int_mv ref_mv_0 = av1_get_ref_mv(x, 0);
       if (cpi->sf.comp_inter_joint_search_thresh <= bsize || !valid_mv0) {
         compound_single_motion_search_interinter(cpi, x, bsize, cur_mv, NULL, 0,
                                                  rate_mv, 0);
       } else {
-        const int_mv ref_mv = av1_get_ref_mv(x, 0);
         *rate_mv =
-            av1_mv_bit_cost(&cur_mv[0].as_mv, &ref_mv.as_mv, x->nmv_vec_cost,
+            av1_mv_bit_cost(&cur_mv[0].as_mv, &ref_mv_0.as_mv, x->nmv_vec_cost,
                             x->mv_cost_stack, MV_COST_WEIGHT);
       }
     }
@@ -10042,6 +10042,33 @@ static int64_t motion_mode_rd(
       if (ret < 0) continue;
     }
 
+    // If we are searching newmv and the mv is the same as refmv, skip the
+    // current mode
+    if (this_mode == NEW_NEWMV) {
+      const int_mv ref_mv_0 = av1_get_ref_mv(x, 0);
+      const int_mv ref_mv_1 = av1_get_ref_mv(x, 1);
+      if (mbmi->mv[0].as_int == ref_mv_0.as_int ||
+          mbmi->mv[1].as_int == ref_mv_1.as_int) {
+        continue;
+      }
+    } else if (this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV) {
+      const int_mv ref_mv_1 = av1_get_ref_mv(x, 1);
+      if (mbmi->mv[1].as_int == ref_mv_1.as_int) {
+        continue;
+      }
+    } else if (this_mode == NEW_NEARESTMV || this_mode == NEW_NEARMV) {
+      const int_mv ref_mv_0 = av1_get_ref_mv(x, 0);
+      if (mbmi->mv[0].as_int == ref_mv_0.as_int) {
+        continue;
+      }
+    } else if (this_mode == NEWMV) {
+      assert(this_mode == NEWMV);
+      const int_mv ref_mv_0 = av1_get_ref_mv(x, 0);
+      if (mbmi->mv[0].as_int == ref_mv_0.as_int) {
+        continue;
+      }
+    }
+
     x->skip = 0;
     rd_stats->dist = 0;
     rd_stats->sse = 0;
@@ -11070,8 +11097,11 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
                   break;
                 } else {
                   // If the cost is less than current best result, make this
-                  // the best and update corresponding variables
-                  if (best_mbmi.ref_mv_idx == i) {
+                  // the best and update corresponding variables unless the
+                  // best_mv is the same as ref_mv. In this case we skip and
+                  // rely on NEAR(EST)MV instead
+                  if (best_mbmi.ref_mv_idx == i &&
+                      mode_info[i].mv.as_int != ref_mv.as_int) {
                     assert(best_rd != INT64_MAX);
                     best_mbmi.ref_mv_idx = ref_mv_idx;
                     motion_mode_cand->rate_mv = this_rate_mv;
