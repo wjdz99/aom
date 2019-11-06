@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e67d5ece_d4ad475f",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1285,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-11-06T18:16:22Z",
+      "side": 1,
+      "message": "There are only 3 cases for show existing, if I\u0027m reading it correctly. So, optionally you can write as:\nif (frame_params.show_existing_frame) {\n  assert( /* update type is one of KF_UPDATE, OVERLAY_UPDATE and INTNL_OVERLAY update */);\n  frame_params.existing_fb_idx_to_show \u003d \n     (frame_update_type \u003d\u003d INTNL_OVERLAY_UPDATE)\n       ? get_ref_frame_map_idx(cm, BWDREF_FRAME)\n       : get_ref_frame_map_idx(cm, ALTREF_FRAME)\n} else {\n  frame_params.existing_fb_idx_to_show \u003d INVALID_IDX;\n}",
+      "range": {
+        "startLine": 1273,
+        "startChar": 1,
+        "endLine": 1285,
+        "endChar": 3
+      },
+      "revId": "b8e710f369cc15d17c457556e612f9f7db4284fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
