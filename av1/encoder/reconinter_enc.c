@@ -316,6 +316,8 @@ static INLINE void build_prediction_by_above_pred(
 
   const BLOCK_SIZE bsize = xd->mi[0]->sb_type;
 
+  InterPredParams inter_pred_params;
+
   for (int j = 0; j < num_planes; ++j) {
     const struct macroblockd_plane *pd = &xd->plane[j];
     int bw = (above_mi_width * MI_SIZE) >> pd->subsampling_x;
@@ -323,8 +325,19 @@ static INLINE void build_prediction_by_above_pred(
                    block_size_high[BLOCK_64X64] >> (pd->subsampling_y + 1));
 
     if (av1_skip_u4x4_pred_in_obmc(bsize, pd, 0)) continue;
-    build_inter_predictors(ctxt->cm, xd, j, &backup_mbmi, 1, bw, bh, mi_x,
-                           mi_y);
+
+    av1_init_inter_params(&inter_pred_params, bw, bh, mi_x, mi_y,
+                          pd->subsampling_x, pd->subsampling_y, xd->bd,
+                          is_cur_buf_hbd(xd), 0, xd->block_ref_scale_factors[0],
+                          backup_mbmi.interp_filters);
+    inter_pred_params.conv_params = get_conv_params(0, 0, xd->bd);
+
+    const struct buf_2d *const pre_buf = &pd->pre[0];
+    const MV mv = backup_mbmi.mv[0].as_mv;
+
+    av1_build_inter_predictor(pre_buf->buf, pre_buf->stride, pd->dst.buf,
+                              pd->dst.stride, &mv, mi_x, mi_y,
+                              &inter_pred_params);
   }
 }
 
