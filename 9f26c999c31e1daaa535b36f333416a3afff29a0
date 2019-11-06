@@ -22,6 +22,30 @@
       "revId": "9f26c999c31e1daaa535b36f333416a3afff29a0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5aca5e16_939ee8d5",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 4049,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2019-11-06T10:21:57Z",
+      "side": 0,
+      "message": "Hi Yunqing,\nSure, we can discuss this during the meeting.",
+      "parentUuid": "1248c0fb_18c1cfe0",
+      "range": {
+        "startLine": 4049,
+        "startChar": 2,
+        "endLine": 4049,
+        "endChar": 10
+      },
+      "revId": "9f26c999c31e1daaa535b36f333416a3afff29a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
