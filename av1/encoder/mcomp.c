@@ -72,9 +72,22 @@ int av1_init_search_range(int size) {
 }
 
 static INLINE int mv_cost(const MV *mv, const int *joint_cost,
-                          int *const comp_cost[2]) {
-  return joint_cost[av1_get_mv_joint(mv)] + comp_cost[0][mv->row] +
-         comp_cost[1][mv->col];
+                          int *const (*mvcost)[2],
+                          MvSubpelPrecision precision) {
+#if CONFIG_COMPANDED_MV
+  MvSubpelPrecision prec0 =
+      AOMMIN(get_companded_mv_precision(mv->row), precision);
+  MvSubpelPrecision prec1 =
+      AOMMIN(get_companded_mv_precision(mv->col), precision);
+  // If precision is not allowed for the integer mv, return a high barrier
+  if (get_mv_component_precision(mv->row) > prec0) return INT_MAX / 2;
+  if (get_mv_component_precision(mv->col) > prec1) return INT_MAX / 2;
+  return joint_cost[av1_get_mv_joint(mv)] + mvcost[prec0][0][mv->row] +
+         mvcost[prec1][1][mv->col];
+#else
+  return joint_cost[av1_get_mv_joint(mv)] + mvcost[precision][0][mv->row] +
+         mvcost[precision][1][mv->col];
+#endif  // CONFIG_COMPANDED_MV
 }
 
 int av1_mv_bit_cost_gen(
@@ -87,11 +100,11 @@ int av1_mv_bit_cost_gen(
     int weight) {
 #if CONFIG_FLEX_MVRES
   MV ref_ = *ref;
-  const MvSubpelPrecision precision =
+  MvSubpelPrecision precision =
       use_flex_mv ? get_mv_precision(*mv, max_precision) : max_precision;
   lower_mv_precision(&ref_, precision);
   const MV diff = { mv->row - ref_.row, mv->col - ref_.col };
-  int cost = mv_cost(&diff, mvjcost, mvcost[precision]);
+  int cost = mv_cost(&diff, mvjcost, mvcost, precision);
   // The flex mv cost needs to be added only once for compound
   if (use_flex_mv && flex_mv_costs) {
     assert(max_precision >= MV_SUBPEL_QTR_PRECISION);
@@ -110,7 +123,7 @@ int av1_mv_bit_cost_gen(
   }
 #else
   const MV diff = { mv->row - ref->row, mv->col - ref->col };
-  int cost = mv_cost(&diff, mvjcost, mvcost[max_precision]);
+  int cost = mv_cost(&diff, mvjcost, mvcost, max_precision);
 #endif  // CONFIG_FLEX_MVRES
   return (int)ROUND_POWER_OF_TWO_64((int64_t)cost * weight, 7);
 }
@@ -132,8 +145,8 @@ int av1_mv_bit_cost_gen2(
   lower_mv_precision(&ref_[1], precision);
   const MV diff[2] = { { mv[0].row - ref_[0].row, mv[0].col - ref_[0].col },
                        { mv[1].row - ref_[1].row, mv[1].col - ref_[1].col } };
-  int cost = mv_cost(&diff[0], mvjcost, mvcost[precision]) +
-             mv_cost(&diff[1], mvjcost, mvcost[precision]);
+  int cost = mv_cost(&diff[0], mvjcost, mvcost, precision) +
+             mv_cost(&diff[1], mvjcost, mvcost, precision);
   // The flex mv cost needs to be added only once for compound
   if (use_flex_mv && flex_mv_costs) {
     assert(max_precision >= MV_SUBPEL_QTR_PRECISION);
@@ -153,8 +166,8 @@ int av1_mv_bit_cost_gen2(
 #else
   const MV diff[2] = { { mv[0].row - ref[0].row, mv[0].col - ref[0].col },
                        { mv[1].row - ref[1].row, mv[1].col - ref[1].col } };
-  int cost = mv_cost(&diff[0], mvjcost, mvcost[max_precision]) +
-             mv_cost(&diff[1], mvjcost, mvcost[max_precision]);
+  int cost = mv_cost(&diff[0], mvjcost, mvcost, max_precision) +
+             mv_cost(&diff[1], mvjcost, mvcost, max_precision);
 #endif  // CONFIG_FLEX_MVRES
   return (int)ROUND_POWER_OF_TWO_64((int64_t)cost * weight, 7);
 }
@@ -171,7 +184,7 @@ int av1_mv_bit_cost(
   MV ref_ = *ref;
   lower_mv_precision(&ref_, precision);
   const MV diff = { mv->row - ref_.row, mv->col - ref_.col };
-  int cost = mv_cost(&diff, mvjcost, mvcost[precision]);
+  int cost = mv_cost(&diff, mvjcost, mvcost, precision);
   // The flex mv cost needs to be added only once for compound
   if (flex_mv_costs) {
     assert(max_precision >= MV_SUBPEL_QTR_PRECISION);
@@ -190,7 +203,7 @@ int av1_mv_bit_cost(
   }
 #else
   const MV diff = { mv->row - ref->row, mv->col - ref->col };
-  int cost = mv_cost(&diff, mvjcost, mvcost[max_precision]);
+  int cost = mv_cost(&diff, mvjcost, mvcost, max_precision);
 #endif  // CONFIG_FLEX_MVRES
   return (int)ROUND_POWER_OF_TWO_64((int64_t)cost * weight, 7);
 }
@@ -219,7 +232,7 @@ static int mv_base_err_cost(
 #else
     const MV diff = { mv->row - ref->row, mv->col - ref->col };
 #endif  // CONFIG_FLEX_MVRES
-    const int cost = mv_cost(&diff, mvjcost, mvcost[max_precision]);
+    const int cost = mv_cost(&diff, mvjcost, mvcost, max_precision);
     return (int)ROUND_POWER_OF_TWO_64((int64_t)cost * error_per_bit,
                                       RDDIV_BITS + AV1_PROB_COST_SHIFT -
                                           RD_EPB_SHIFT +
@@ -243,7 +256,7 @@ static int mv_flex_err_cost(
     lower_mv_precision(&ref_, precision);
     const MV diff = { mv->row - ref_.row, mv->col - ref_.col };
 
-    int cost = mv_cost(&diff, mvjcost, mvcost[precision]);
+    int cost = mv_cost(&diff, mvjcost, mvcost, precision);
     if (max_precision >= MV_SUBPEL_QTR_PRECISION && flex_mv_costs) {
 #if DISALLOW_ONE_DOWN_FLEX_MVRES == 2
       assert(IMPLIES(max_precision > precision,
@@ -271,7 +284,7 @@ static int mvsad_err_cost(const MACROBLOCK *x, const MV *mv, const MV *ref,
                           MvSubpelPrecision precision, int sad_per_bit) {
   const MV diff = { (mv->row - ref->row) * 8, (mv->col - ref->col) * 8 };
   return ROUND_POWER_OF_TWO(
-      (unsigned)mv_cost(&diff, x->nmv_vec_cost, x->nmvcost[precision]) *
+      (unsigned)mv_cost(&diff, x->nmv_vec_cost, x->nmvcost, precision) *
           sad_per_bit,
       AV1_PROB_COST_SHIFT);
 }
