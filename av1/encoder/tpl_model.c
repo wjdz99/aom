@@ -1177,6 +1177,9 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
       mc_flow_synthesizer(cpi, frame_idx);
     }
 
+    int rate_allocation[MAX_STATIC_GF_GROUP_LENGTH] = { 0 };
+    int total_budget = 0;
+    int total_rate_alloc = 0;
     for (int frame_idx = gf_group->index; frame_idx < gf_group->size;
          ++frame_idx) {
       if (gf_group->update_type[frame_idx] == INTNL_OVERLAY_UPDATE ||
@@ -1187,22 +1190,32 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
       int best_qindex = pframe_qindex;
       int64_t best_rdcost = INT64_MAX;
       int best_rate = INT_MAX;
+      int rate;
+      int64_t distortion;
       for (int qindex = pframe_qindex; qindex > 0; --qindex) {
-        int rate;
-        int64_t distortion;
         frame_stats_analyzer(cpi, &rate, &distortion, frame_idx, qindex);
         int64_t rdcost = RDCOST(gf_group->rdmul[frame_idx], rate, distortion);
         if (rdcost < best_rdcost) {
           best_qindex = qindex;
           best_rdcost = rdcost;
           best_rate = rate;
+          gf_group->q_val[frame_idx] = qindex;
         }
       }
+      frame_stats_analyzer(cpi, &rate, &distortion, frame_idx, best_qindex);
+      rate_allocation[frame_idx] = best_rate;
+      total_budget += gf_group->bit_allocation[frame_idx];
+      total_rate_alloc += best_rate;
 
       fprintf(stderr, "frame index = %d, pframe index = %d, best_qindex = %d, best rate = %d\n",
           frame_idx, pframe_qindex, best_qindex, best_rate);
     }
 
+    for (int frame_idx = gf_group->index; frame_idx < gf_group->size;
+         ++frame_idx) {
+      gf_group->bit_allocation[frame_idx] =
+          (total_budget * rate_allocation[frame_idx]) / total_rate_alloc;
+    }
   }
 
   av1_configure_buffer_updates(cpi, &this_frame_params,

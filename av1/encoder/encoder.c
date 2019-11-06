@@ -4028,6 +4028,9 @@ static void set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
   *q = av1_rc_pick_q_and_bounds(cpi, &cpi->rc, cm->width, cm->height,
                                 cpi->gf_group.index, bottom_index, top_index);
 
+  *q = cpi->gf_group.q_val[cpi->gf_group.index];
+  *bottom_index = *top_index = *q;
+
   if (!frame_is_intra_only(cm)) {
     const int use_hp = cpi->common.cur_frame_force_integer_mv
                            ? 0
