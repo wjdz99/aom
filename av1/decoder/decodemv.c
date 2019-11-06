@@ -934,17 +934,20 @@ static int read_mv_component(aom_reader *r, nmv_component *mvcomp,
       aom_read_symbol(r, mvcomp->classes_cdf, MV_CLASSES, ACCT_STR);
   const int class0 = mv_class == MV_CLASS_0;
 
+  mag = mv_class_base(mv_class);
   // Integer part
   if (class0) {
     d = aom_read_symbol(r, mvcomp->class0_cdf, CLASS0_SIZE, ACCT_STR);
-    mag = 0;
   } else {
     const int n = mv_class + CLASS0_BITS - 1;  // number of bits
     d = 0;
     for (int i = 0; i < n; ++i)
       d |= aom_read_symbol(r, mvcomp->bits_cdf[i], 2, ACCT_STR) << i;
-    mag = CLASS0_SIZE << (mv_class + 2);
   }
+  mag += (d << 3) + 1;
+#if CONFIG_COMPANDED_MV
+  precision = AOMMIN(get_companded_mv_precision(mag), precision);
+#endif  // CONFIG_COMPANDED_MV
 
   if (precision > MV_SUBPEL_NONE) {
     // Fractional part
@@ -976,7 +979,7 @@ static int read_mv_component(aom_reader *r, nmv_component *mvcomp,
   }
 
   // Result
-  mag += ((d << 3) | (fr << 1) | hp) + 1;
+  mag += ((fr << 1) | hp);
   return sign ? -mag : mag;
 }
 
