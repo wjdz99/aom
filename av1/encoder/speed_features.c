@@ -671,24 +671,28 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->partition_search_type = VAR_BASED_PARTITION;
     sf->mode_search_skip_flags |= FLAG_SKIP_INTRA_DIRMISMATCH;
     sf->use_real_time_ref_set = 1;
-    // Can't use LARGEST TX mode with pre-calculated partition
-    // and disabled TX64
-    if (!cpi->oxcf.enable_tx64) sf->tx_size_search_level = 1;
+    sf->tx_size_search_level = 1;
     sf->use_nonrd_pick_mode = 1;
     sf->use_comp_ref_nonrd = 0;
     sf->inter_mode_rd_model_estimation = 2;
     sf->cdef_pick_method = CDEF_PICK_FROM_Q;
-    sf->max_intra_bsize = BLOCK_16X16;
+    sf->max_intra_bsize = BLOCK_32X32;
     sf->skip_interp_filter_search = 0;
+    sf->nonrd_merge_partition = 1;
+    sf->use_fast_nonrd_pick_mode = 1;
+    sf->reuse_inter_pred_nonrd = 0;
+    sf->use_nonrd_altref_frame = 1;
   }
   if (speed >= 8) {
-    sf->use_fast_nonrd_pick_mode = 1;
+    sf->nonrd_merge_partition = 0;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
     sf->tx_size_search_level = 1;
     sf->estimate_motion_for_var_based_partition = 0;
     sf->short_circuit_low_temp_var = 3;
     sf->reuse_inter_pred_nonrd = 1;
     sf->max_intra_bsize = BLOCK_32X32;
+    sf->use_nonrd_altref_frame = 0;
+
     // This gives ~2% bdrate improvement but with 5-10% slowdown.
     // sf->nonrd_use_blockyrd_interp_filter = 1;
 
@@ -911,6 +915,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->disable_smooth_intra = 0;
   sf->perform_best_rd_based_gating_for_chroma = 0;
   sf->prune_obmc_prob_thresh = 0;
+  sf->nonrd_merge_partition = 0;
 
   if (oxcf->mode == GOOD)
     set_good_speed_features_framesize_independent(cpi, sf, speed);
