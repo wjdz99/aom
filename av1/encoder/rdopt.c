@@ -8580,6 +8580,8 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
       }
 
       // aomenc1
+      const int_mv ref_mv_0 = av1_get_ref_mv(x, 0);
+      const int_mv ref_mv_1 = av1_get_ref_mv(x, 1);
       if (cpi->sf.comp_inter_joint_search_thresh <= bsize || !valid_mv0 ||
           !valid_mv1) {
         joint_motion_search(cpi, x, bsize, cur_mv, NULL, 0, rate_mv);
@@ -8592,6 +8594,10 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
                               x->mv_cost_stack, MV_COST_WEIGHT);
         }
       }
+      if (cur_mv[0].as_int == ref_mv_0.as_int &&
+          cur_mv[1].as_int == ref_mv_1.as_int) {
+        return INT64_MAX;
+      }
     } else if (this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV) {
       if (valid_mv1) {
         cur_mv[1].as_int = args->single_newmv[ref_mv_idx][refs[1]].as_int;
@@ -8599,14 +8605,17 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
       }
 
       // aomenc2
+      const int_mv ref_mv_1 = av1_get_ref_mv(x, 1);
       if (cpi->sf.comp_inter_joint_search_thresh <= bsize || !valid_mv1) {
         compound_single_motion_search_interinter(cpi, x, bsize, cur_mv, NULL, 0,
                                                  rate_mv, 1);
       } else {
-        const int_mv ref_mv = av1_get_ref_mv(x, 1);
         *rate_mv =
-            av1_mv_bit_cost(&cur_mv[1].as_mv, &ref_mv.as_mv, x->nmv_vec_cost,
+            av1_mv_bit_cost(&cur_mv[1].as_mv, &ref_mv_1.as_mv, x->nmv_vec_cost,
                             x->mv_cost_stack, MV_COST_WEIGHT);
+      }
+      if (cur_mv[1].as_int == ref_mv_1.as_int) {
+        return INT64_MAX;
       }
     } else {
       assert(this_mode == NEW_NEARESTMV || this_mode == NEW_NEARMV);
@@ -8616,25 +8625,35 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
       }
 
       // aomenc3
+      const int_mv ref_mv_0 = av1_get_ref_mv(x, 0);
       if (cpi->sf.comp_inter_joint_search_thresh <= bsize || !valid_mv0) {
         compound_single_motion_search_interinter(cpi, x, bsize, cur_mv, NULL, 0,
                                                  rate_mv, 0);
       } else {
-        const int_mv ref_mv = av1_get_ref_mv(x, 0);
         *rate_mv =
-            av1_mv_bit_cost(&cur_mv[0].as_mv, &ref_mv.as_mv, x->nmv_vec_cost,
+            av1_mv_bit_cost(&cur_mv[0].as_mv, &ref_mv_0.as_mv, x->nmv_vec_cost,
                             x->mv_cost_stack, MV_COST_WEIGHT);
+      }
+      if (cur_mv[0].as_int == ref_mv_0.as_int) {
+        return INT64_MAX;
       }
     }
   } else {
     single_motion_search(cpi, x, bsize, 0, rate_mv);
     if (x->best_mv.as_int == INVALID_MV) return INT64_MAX;
+    const int_mv ref_mv = av1_get_ref_mv(x, 0);
+    const int is_zero_mv = ref_mv.as_int == x->best_mv.as_int;
 
-    args->single_newmv[ref_mv_idx][refs[0]] = x->best_mv;
-    args->single_newmv_rate[ref_mv_idx][refs[0]] = *rate_mv;
-    args->single_newmv_valid[ref_mv_idx][refs[0]] = 1;
+    if (is_zero_mv) {
+      args->single_newmv_valid[ref_mv_idx][refs[0]] = 0;
+      return INT64_MAX;
+    } else {
+      args->single_newmv[ref_mv_idx][refs[0]] = x->best_mv;
+      args->single_newmv_rate[ref_mv_idx][refs[0]] = *rate_mv;
+      args->single_newmv_valid[ref_mv_idx][refs[0]] = 1;
 
-    cur_mv[0].as_int = x->best_mv.as_int;
+      cur_mv[0].as_int = x->best_mv.as_int;
+    }
   }
 
   return 0;
