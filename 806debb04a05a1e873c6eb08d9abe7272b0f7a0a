@@ -1,0 +1,325 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "309ab862_441aef41",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-07T19:02:07Z",
+      "side": 1,
+      "message": "support is implemented.",
+      "range": {
+        "startLine": 344,
+        "startChar": 37,
+        "endLine": 344,
+        "endChar": 58
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35dc7aae_de2c54ef",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3773,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-07T19:02:07Z",
+      "side": 1,
+      "message": "Drop this comment. The function name spells things out adequately.",
+      "range": {
+        "startLine": 3773,
+        "startChar": 0,
+        "endLine": 3773,
+        "endChar": 59
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9cec754b_ce2fda57",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3774,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-07T19:02:07Z",
+      "side": 1,
+      "message": "av1_write_metadata_itut_t35_obu_header() ?",
+      "range": {
+        "startLine": 3774,
+        "startChar": 16,
+        "endLine": 3774,
+        "endChar": 54
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "493db888_fd913bd5",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3777,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-07T19:02:07Z",
+      "side": 1,
+      "message": "const",
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8d5c8da_265eea1a",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3811,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-07T19:02:07Z",
+      "side": 1,
+      "message": "This will break the windows nightly:\n\n11\u003eC:\\src\\_werk\\aom\\av1\\encoder\\bitstream.c(3838,71): warning C4267:  \u0027+\u003d\u0027: conversion from \u0027size_t\u0027 to \u0027uint32_t\u0027, possible loss of data",
+      "range": {
+        "startLine": 3811,
+        "startChar": 0,
+        "endLine": 3811,
+        "endChar": 74
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39808c70_fe0e55cd",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3863,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-07T19:02:07Z",
+      "side": 1,
+      "message": "This should be obu(s) since it\u0027s potentially many OBUs being written.",
+      "range": {
+        "startLine": 3863,
+        "startChar": 41,
+        "endLine": 3863,
+        "endChar": 44
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cc520af_9d002fec",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3865,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-07T19:02:07Z",
+      "side": 1,
+      "message": "could be const; could just be:\n\ndata +\u003d av1_write_metadata_array();",
+      "range": {
+        "startLine": 3865,
+        "startChar": 4,
+        "endLine": 3865,
+        "endChar": 12
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0705a1b_34ed4b58",
+        "filename": "test/aom_metadata_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-07T19:02:07Z",
+      "side": 1,
+      "message": "Let\u0027s name this file \"metadata_test.cc\"",
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a26b20a5_b7bebb18",
+        "filename": "test/aom_metadata_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-07T19:02:07Z",
+      "side": 1,
+      "message": "Drop these Aom prefixes.",
+      "range": {
+        "startLine": 8,
+        "startChar": 5,
+        "endLine": 8,
+        "endChar": 8
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccb6b81e_9dd504bb",
+        "filename": "test/aom_metadata_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-07T19:02:07Z",
+      "side": 1,
+      "message": "This test is failing:\n\n[ RUN      ] AomMetadataTest.WriteBitstream\nAssertion failed: seq_params-\u003emib_size \u003d\u003d mi_size_wide[seq_params-\u003esb_size], file C:\\src\\_werk\\aom\\av1\\encoder\\bitstream.c, line 2615\n\nThis is occurring within the av1_pack_bitstream() call. I\u0027m not sure if that\u0027s a windows only thing-- is this working for you locally? I\u0027m running with these args:\ntest_libaom.exe --gtest_filter\u003d\"*Metadata*\"",
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "405611db_57901d22",
+        "filename": "test/aom_metadata_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-07T19:02:07Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 64
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d54bc3cb_8113076c",
+        "filename": "test/aom_metadata_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-07T19:02:07Z",
+      "side": 1,
+      "message": "Please defer definition of variables until use.",
+      "range": {
+        "startLine": 90,
+        "startChar": 2,
+        "endLine": 90,
+        "endChar": 18
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff978477_472feeb9",
+        "filename": "test/aom_metadata_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-07T19:02:07Z",
+      "side": 1,
+      "message": "This function is not accessible from tests, and as noted earlier is failing due to an assertion triggering. \n\nHere\u0027s the link error introduced in shared library builds:\n73\u003eaom_metadata_test.obj : error LNK2019: unresolved external symbol av1_pack_bitstream referenced in function \"private: virtual void __cdecl AomMetadataTest_WriteBitstream_Test::TestBody(void)\" (?TestBody@AomMetadataTest_WriteBitstream_Test@@EEAAXXZ)\n\nI recommend not doing this and using the EncoderTest support.",
+      "range": {
+        "startLine": 107,
+        "startChar": 12,
+        "endLine": 107,
+        "endChar": 30
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c78022a_ca2f836e",
+        "filename": "test/aom_metadata_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-07T19:02:07Z",
+      "side": 1,
+      "message": "This should be a constant: What\u0027s 27 mean? The code would be more readable with an informative name instead of a magic number.",
+      "range": {
+        "startLine": 111,
+        "startChar": 23,
+        "endLine": 111,
+        "endChar": 25
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a60c507_c0bf0343",
+        "filename": "test/aom_metadata_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-07T19:02:07Z",
+      "side": 1,
+      "message": "This does test the encode and writing of a metadata OBU, so we\u0027re partially there as far as test coverage is concerned, BUT: \n- it\u0027s missing a critical piece: there is no decode of an output TU containing a metadata OBU. \n- This test function is touching the encoder-- it must be wrapped in #if CONFIG_AV1_ENCODER guards.\n\nUsing the EncoderTest machinary get the first bullet point for free, and the second is trivial.",
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
