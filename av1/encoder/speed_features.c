@@ -740,7 +740,8 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   // sf->tx_type_search.prune_mode = NO_PRUNE;
   // sf->tx_type_search.prune_mode = PRUNE_2D_ACCURATE;
   // sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
-  sf->tx_type_search.prune_mode = PRUNE_LAPLACIAN;
+  // sf->tx_type_search.prune_mode = PRUNE_LAPLACIAN;
+  sf->tx_type_search.prune_mode = PRUNE_2D_LAPLACIAN;
   sf->tx_type_search.use_skip_flag_prediction = 0;
 #else
   sf->tx_type_search.prune_mode = PRUNE_2D_ACCURATE;

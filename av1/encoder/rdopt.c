@@ -1457,7 +1457,7 @@ static uint16_t prune_laplacian(MACROBLOCK *x, BLOCK_SIZE bsize,
       prune_h |= 1 << IDTX_1D;
   }
 
-#if PRINT_XLX
+#if DEBUG_PRUNE
   fprintf(stderr, "[H %d, %d, %d, %d, %d]", bw, xlx_d, xlx_a, xlx_f, xlx_i);
   fprintf(stderr, "(%d, %d, %d) ", prune_thr_daf, prune_thr_i, prune_h);
 #endif
@@ -1504,7 +1504,7 @@ static uint16_t prune_laplacian(MACROBLOCK *x, BLOCK_SIZE bsize,
       prune_v |= 1 << IDTX_1D;
   }
 
-#if PRINT_XLX
+#if DEBUG_PRUNE
   fprintf(stderr, "[V %d, %d, %d, %d, %d]", bh, xlx_d, xlx_a, xlx_f, xlx_i);
   fprintf(stderr, "(%d, %d, %d)\n", prune_thr_daf, prune_thr_i, prune_v);
 #endif
@@ -1523,6 +1523,85 @@ static uint16_t prune_laplacian(MACROBLOCK *x, BLOCK_SIZE bsize,
                        << tx_type_table_2D[vtx * TX_TYPES_1D + htx];
     }
   }
+  return prune_bitmask;
+}
+
+// Get quadratic value x'*L*x and take the mean over all rows or columns
+void get_xlx2d(const int16_t *diff, int stride, int bw, const int *lapl,
+               int *xlx, int ne, int sc_fac) {
+  *xlx = 0;
+  int sy, sx, dy, dx, src, dst;
+  for (int i = 0; i < ne; i++) {
+    sy = lapl[i * 3] / bw;
+    sx = lapl[i * 3] % bw;
+    dy = lapl[i * 3 + 1] / bw;
+    dx = lapl[i * 3 + 1] % bw;
+
+    src = diff[sy * stride + sx];
+    dst = diff[dy * stride + dx];
+
+    if (lapl[i * 3] == lapl[i * 3 + 1])  // self-loop
+      *xlx += src * src * lapl[i * 3 + 2];
+    else  // edge
+      *xlx += (src - dst) * (src - dst) * lapl[i * 3 + 2];
+  }
+  *xlx /= sc_fac;
+}
+
+static uint16_t prune_2d_laplacian(MACROBLOCK *x, BLOCK_SIZE bsize,
+                                   TX_SIZE tx_size, int blk_row, int blk_col) {
+  if (tx_size > TX_8X8) return 0;
+  const struct macroblock_plane *const p = &x->plane[0];
+  const int stride = block_size_wide[bsize];
+  const int16_t *diff = p->src_diff + 4 * blk_row * stride + 4 * blk_col;
+  const int bw = tx_size_wide[tx_size];
+
+#if DEBUG_PRUNE
+  fprintf(stderr, "======\nBlock size = %dx%d\n", bw, tx_size_high[tx_size]);
+#if 0
+  for (int i = 0; i < tx_size_high[tx_size]; i++) {
+    fprintf(stderr, "  ");
+    for (int j = 0; j < tx_size_wide[tx_size]; j++) {
+      fprintf(stderr, "  %d", diff[i * stride + j]);
+    }
+    fprintf(stderr, "\n");
+  }
+#endif
+#endif
+
+  int xlx[TX_TYPES];
+  int sum_xlx_daf2d = 0, sum_xlx_daf1d = 0;
+  for (int tx = 0; tx < TX_TYPES; tx++) {
+    get_xlx2d(diff, stride, bw, laplptr[tx_size][tx], &xlx[tx],
+              nedges2d[tx_size][tx], sc2d[tx_size][tx]);
+    if (htx_tab[tx] != IDTX_1D && vtx_tab[tx] != IDTX_1D)
+      sum_xlx_daf2d += xlx[tx];
+    else if (htx_tab[tx] != IDTX_1D || vtx_tab[tx] != IDTX_1D)
+      sum_xlx_daf1d += xlx[tx];
+  }
+
+#if DEBUG_PRUNE
+  fprintf(stderr, "  xLx: [");
+  for (int tx = 0; tx < TX_TYPES; tx++) fprintf(stderr, "  %d", xlx[tx]);
+  fprintf(stderr, "\n");
+#endif
+
+  int prune_thr_daf2d = (int)((double)sum_xlx_daf2d * TAU_DAF2D);
+  int prune_thr_daf1d = (int)((double)sum_xlx_daf1d * TAU_DAF1D);
+
+  uint16_t prune_bitmask = 0;
+  for (int tx = 0; tx < TX_TYPES; tx++) {
+    if (htx_tab[tx] != IDTX_1D && vtx_tab[tx] != IDTX_1D)
+      prune_bitmask |= (xlx[tx] > prune_thr_daf2d) << tx;
+    else if (htx_tab[tx] != IDTX_1D || vtx_tab[tx] != IDTX_1D)
+      prune_bitmask |= (xlx[tx] > prune_thr_daf1d) << tx;
+  }
+
+#if DEBUG_PRUNE
+  fprintf(stderr, "]\n  (%d, %d)\n", prune_thr_daf2d, prune_thr_daf1d);
+  return 0;  // do not prune so all RD costs will be shown
+#endif
+
   return prune_bitmask;
 }
 #endif  // CONFIG_TXPRUNE_LAPLACIAN
@@ -3292,6 +3371,11 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       const uint16_t prune = prune_laplacian(x, plane_bsize, tx_size, blk_row,
                                              blk_col);
       allowed_tx_mask &= (~prune);
+    } else if (cpi->sf.tx_type_search.prune_mode == PRUNE_2D_LAPLACIAN &&
+               is_inter) {
+      const uint16_t prune =
+          prune_2d_laplacian(x, plane_bsize, tx_size, blk_row, blk_col);
+      allowed_tx_mask &= (~prune);
 #endif
     }
   }
@@ -3351,6 +3435,10 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                  allowed_tx_mask == 1 << txk_allowed));
 #else
   assert(IMPLIES(txk_allowed < TX_TYPES, allowed_tx_mask == 1 << txk_allowed));
+#endif
+
+#if CONFIG_TXPRUNE_LAPLACIAN && DEBUG_PRUNE
+  int64_t rdtx[TX_TYPES] = { 0 };
 #endif
 
   for (int idx = 0; idx < TX_TYPES; ++idx) {
@@ -3455,6 +3543,10 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       pd->dqcoeff = tmp_dqcoeff;
     }
 
+#if CONFIG_TXPRUNE_LAPLACIAN && DEBUG_PRUNE
+    rdtx[tx_type] = rd;
+#endif
+
 #if CONFIG_COLLECT_RD_STATS == 1
     if (plane == 0) {
       PrintTransformUnitStats(cpi, x, &this_rd_stats, blk_row, blk_col,
@@ -3508,6 +3600,13 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     // all zero and at the same time, it has better rdcost than doing transform.
     if (cpi->sf.tx_type_search.skip_tx_search && !best_eob) break;
   }
+#if CONFIG_TXPRUNE_LAPLACIAN && DEBUG_PRUNE
+  if (is_inter && tx_size <= TX_8X8) {
+    fprintf(stderr, "  [");
+    for (int tx = 0; tx < TX_TYPES; tx++) fprintf(stderr, "%lld, ", rdtx[tx]);
+    fprintf(stderr, "]\n");
+  }
+#endif
 
   assert(best_rd != INT64_MAX);
 

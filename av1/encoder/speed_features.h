@@ -157,10 +157,11 @@ enum {
 
 enum {
   NO_PRUNE,
-  // adaptively prunes the least perspective tx types out of all 16
-  // (tuned to provide negligible quality loss)
+// adaptively prunes the least perspective tx types out of all 16
+// (tuned to provide negligible quality loss)
 #if CONFIG_TXPRUNE_LAPLACIAN
   PRUNE_LAPLACIAN,
+  PRUNE_2D_LAPLACIAN,
 #endif
   PRUNE_2D_ACCURATE,
   // similar, but applies much more aggressive pruning to get better speed-up
