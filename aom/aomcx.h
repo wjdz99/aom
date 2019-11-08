@@ -1122,7 +1122,7 @@ enum aome_enc_control_id {
    * 1: Update at SB row level in tile
    * 2: Update at tile level
    */
-  AV1E_SET_COEFF_COST_UPD_FREQ,
+  AV1E_SET_COEFF_COST_UPD_FREQ = 130,
 
   /*!\brief Control to set frequency of the cost updates for mode
    * Possible values are:
