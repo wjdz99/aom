@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4454c30b_923efb53",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-11-08T08:17:37Z",
+      "side": 1,
+      "message": "you could add BUG\u003db/142148975 here",
+      "revId": "32c2206b6758ebd56f0a638faf923768e5f3b27f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
