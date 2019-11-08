@@ -1397,6 +1397,24 @@ static void build_smooth_interintra_mask(uint8_t *mask, int stride,
   }
 }
 
+#if CONFIG_ILLUM_MCOMP
+static void combine_interintra_illum_mcomp(BLOCK_SIZE plane_bsize,
+                                           uint8_t *comppred, int compstride,
+                                           const uint8_t *interpred,
+                                           int interstride,
+                                           const uint8_t *intrapred) {
+  int dc = intrapred[0];
+  const int bw = block_size_wide[plane_bsize];
+  const int bh = block_size_high[plane_bsize];
+  for (int i = 0; i < bw; ++i) {
+    for (int j = 0; j < bh; ++j) {
+      comppred[i * compstride + j] =
+          AOMMIN(255, interpred[i * interstride + j] + dc);
+    }
+  }
+}
+#endif  // CONFIG_ILLUM_MCOMP
+
 static void combine_interintra(INTERINTRA_MODE mode,
                                int8_t use_wedge_interintra, int8_t wedge_index,
                                int8_t wedge_sign, BLOCK_SIZE bsize,
@@ -1406,6 +1424,14 @@ static void combine_interintra(INTERINTRA_MODE mode,
                                int intrastride) {
   const int bw = block_size_wide[plane_bsize];
   const int bh = block_size_high[plane_bsize];
+
+#if CONFIG_ILLUM_MCOMP
+  if (mode == II_ILLUM_MCOMP_PRED) {
+    combine_interintra_illum_mcomp(plane_bsize, comppred, compstride, interpred,
+                                   interstride, intrapred);
+    return;
+  }
+#endif  // CONFIG_ILLUM_MCOMP
 
   if (use_wedge_interintra) {
     if (is_interintra_wedge_used(bsize)) {
@@ -1434,6 +1460,7 @@ static void combine_interintra_highbd(
   const int bw = block_size_wide[plane_bsize];
   const int bh = block_size_high[plane_bsize];
 
+  // TODO(elliottk) change this function as well
   if (use_wedge_interintra) {
     if (is_interintra_wedge_used(bsize)) {
       const uint8_t *mask =

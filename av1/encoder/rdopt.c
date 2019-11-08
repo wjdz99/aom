@@ -9715,6 +9715,18 @@ static INLINE bool enable_wedge_interintra_search(MACROBLOCK *const x,
          !cpi->sf.disable_wedge_interintra_search;
 }
 
+static void av1_build_illum_inter_predictor(int dc, const AV1_COMMON *cm,
+                                            MACROBLOCKD *xd, int mi_row,
+                                            int mi_col, const BUFFER_SET *ctx,
+                                            BLOCK_SIZE bsize, int plane_from,
+                                            int plane_to) {
+  for (int plane_idx = plane_from; plane_idx <= plane_to; ++plane_idx) {
+    // Do I really need to replicate this?
+    build_inter_predictors_for_plane(cm, xd, mi_row, mi_col, ctx, bsize,
+                                     plane_idx);
+  }
+}
+
 static int handle_inter_intra_mode(const AV1_COMP *const cpi,
                                    MACROBLOCK *const x, BLOCK_SIZE bsize,
                                    int mi_row, int mi_col, MB_MODE_INFO *mbmi,
@@ -9765,8 +9777,16 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
           continue;
         mbmi->interintra_mode = (INTERINTRA_MODE)j;
         rmode = interintra_mode_cost[mbmi->interintra_mode];
-        av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
-                                                  intrapred, bw);
+        if (mbmi->interintra_mode == II_ILLUM_MCOMP) {
+          av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
+                                                    intrapred, bw);
+          av1_build_illum_inter_predictor(orig_dst[0], cm, xd, mi_row, mi_col,
+                                          NULL, bsize, AOM_PLANE_Y,
+                                          AOM_PLANE_Y);
+        } else {
+          av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
+                                                    intrapred, bw);
+        }
         av1_combine_interintra(xd, bsize, 0, tmp_buf, bw, intrapred, bw);
         model_rd_sb_fn[MODELRD_TYPE_INTERINTRA](
             cpi, bsize, x, xd, 0, 0, mi_row, mi_col, &rate_sum, &dist_sum,

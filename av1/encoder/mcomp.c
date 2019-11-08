@@ -3444,6 +3444,34 @@ int av1_obmc_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, MV *mvp_full,
   }
 }
 
+int av1_illum_obmc_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x,
+                                     MV *mvp_full, int step_param, int sadpb,
+                                     int further_steps, int do_refine,
+                                     const aom_variance_fn_ptr_t *fn_ptr,
+                                     const MV *ref_mv, MV *dst_mv,
+                                     int is_second,
+                                     const search_site_config *cfg) {
+  if (cpi->sf.obmc_full_pixel_search_level == 0) {
+    return obmc_full_pixel_diamond(cpi, x, mvp_full, step_param, sadpb,
+                                   further_steps, do_refine, fn_ptr, ref_mv,
+                                   dst_mv, is_second, cfg);
+  } else {
+    const int32_t *wsrc = x->wsrc_buf;
+    const int32_t *mask = x->mask_buf;
+    const int search_range = 8;
+    *dst_mv = *mvp_full;
+    clamp_mv(dst_mv, x->mv_limits.col_min, x->mv_limits.col_max,
+             x->mv_limits.row_min, x->mv_limits.row_max);
+    int thissme =
+        obmc_refining_search_sad(&cpi->common, x, wsrc, mask, dst_mv, sadpb,
+                                 search_range, fn_ptr, ref_mv, is_second);
+    if (thissme < INT_MAX)
+      thissme = get_obmc_mvpred_var(&cpi->common, x, wsrc, mask, dst_mv, ref_mv,
+                                    fn_ptr, 1, is_second);
+    return thissme;
+  }
+}
+
 // Note(yunqingwang): The following 2 functions are only used in the motion
 // vector unit test, which return extreme motion vectors allowed by the MV
 // limits.
