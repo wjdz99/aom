@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e1c258f_d35c5b49",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-11-08T18:09:48Z",
+      "side": 1,
+      "message": "Nit: remove the hyphen \u0027-\u0027.\n\nNote: That international standard is actually called ITU-T T.35. See, for example,\n\n  https://www.itu.int/ITU-T/recommendations/rec.aspx?rec\u003d4840\u0026lang\u003den\n\nbut the AV1 specification spells it as ITUT T35.",
+      "range": {
+        "startLine": 344,
+        "startChar": 19,
+        "endLine": 344,
+        "endChar": 27
+      },
+      "revId": "878f79c70333faf89ed3b18bdcaec7c72f41acc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0822350f_7bf07bac",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3773,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-11-08T18:09:48Z",
+      "side": 1,
+      "message": "Nit: I suggest renaming this function \"av1_write_itut_t35_metadata_obu\". The \"header\" in the function name is inaccurate.",
+      "range": {
+        "startLine": 3773,
+        "startChar": 16,
+        "endLine": 3773,
+        "endChar": 54
+      },
+      "revId": "878f79c70333faf89ed3b18bdcaec7c72f41acc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4f01003_0df381e7",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3773,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-11-08T18:09:48Z",
+      "side": 1,
+      "message": "Nit: Declare the \u0027metadata\u0027 parameter as const: const aom_metadata_t *metadata",
+      "range": {
+        "startLine": 3773,
+        "startChar": 55,
+        "endLine": 3773,
+        "endChar": 79
+      },
+      "revId": "878f79c70333faf89ed3b18bdcaec7c72f41acc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a59be35_f0b08377",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3784,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-11-08T18:09:48Z",
+      "side": 1,
+      "message": "Optional: Since the bitstream is byte aligned at this point and the remaining encoded data is also byte aligned, we can write to the output buffer directly:\n\n  memcpy(dst + coded_obu_size, metadata-\u003epayload, metadata-\u003esz);\n  // Add trailing bits.\n  dst[coded_obu_size + metadata-\u003epayload] \u003d 0x80;\n  return coded_obu_size + metadata-\u003epayload + 1;",
+      "range": {
+        "startLine": 3780,
+        "startChar": 0,
+        "endLine": 3784,
+        "endChar": 62
+      },
+      "revId": "878f79c70333faf89ed3b18bdcaec7c72f41acc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddfad5af_8134e85e",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3789,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-11-08T18:09:48Z",
+      "side": 1,
+      "message": "We can omit the null pointer check for cpi. We can probably also omit the cpi-\u003esource check.",
+      "range": {
+        "startLine": 3789,
+        "startChar": 6,
+        "endLine": 3789,
+        "endChar": 14
+      },
+      "revId": "878f79c70333faf89ed3b18bdcaec7c72f41acc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7444b4aa_786d0735",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3792,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-11-08T18:09:48Z",
+      "side": 1,
+      "message": "Nit: I suggest declaring only one variable per line:\n\n uint32_t total_bytes_written \u003d 0;\n uint32_t obu_header_size \u003d 0;\n uint32_t obu_payload_size \u003d 0;",
+      "range": {
+        "startLine": 3792,
+        "startChar": 0,
+        "endLine": 3792,
+        "endChar": 78
+      },
+      "revId": "878f79c70333faf89ed3b18bdcaec7c72f41acc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7338063e_2eef125b",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3795,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-11-08T18:09:48Z",
+      "side": 1,
+      "message": "Nit: rename this variable \"current_metadata\" to conform to the naming convention.",
+      "range": {
+        "startLine": 3795,
+        "startChar": 20,
+        "endLine": 3795,
+        "endChar": 35
+      },
+      "revId": "878f79c70333faf89ed3b18bdcaec7c72f41acc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccdb10fe_3abee7ea",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3802,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-11-08T18:09:48Z",
+      "side": 1,
+      "message": "Nit/optional: It may be better to replace these cases with a default case:\n\n        default: break;",
+      "range": {
+        "startLine": 3799,
+        "startChar": 0,
+        "endLine": 3802,
+        "endChar": 50
+      },
+      "revId": "878f79c70333faf89ed3b18bdcaec7c72f41acc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "324438dc_f3c874d1",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3810,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-11-08T18:09:48Z",
+      "side": 1,
+      "message": "Nit: I suggest calling aom_internal_error() if this av1_write_uleb_obu_size() call fails.",
+      "range": {
+        "startLine": 3809,
+        "startChar": 0,
+        "endLine": 3810,
+        "endChar": 29
+      },
+      "revId": "878f79c70333faf89ed3b18bdcaec7c72f41acc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d23c5735_514dfe17",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3864,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-11-08T18:09:48Z",
+      "side": 1,
+      "message": "Nit: the frame obus that have \u003d\u003e the frame obu that has ?\n\nI believe this function outputs only a single frame...\n\nOn the other hand, the av1_write_metadata_array() call may write multiple metadata obus.",
+      "range": {
+        "startLine": 3864,
+        "startChar": 31,
+        "endLine": 3864,
+        "endChar": 55
+      },
+      "revId": "878f79c70333faf89ed3b18bdcaec7c72f41acc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
