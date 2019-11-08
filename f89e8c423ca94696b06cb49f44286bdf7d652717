@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d92c25a3_69cd62e2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-11-08T03:29:58Z",
+      "side": 1,
+      "message": "BUG\u003daomedia:2533 would have served as the description and automatically updated the bug. Some additional text would help when viewing the history.",
+      "revId": "f89e8c423ca94696b06cb49f44286bdf7d652717",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
