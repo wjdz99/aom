@@ -1144,6 +1144,10 @@ static void parse_global_config(struct AvxEncoderConfig *global, char ***argv) {
 
   for (argi = argj = argv_local; (*argj = *argi); argi += arg.argv_step) {
     arg.argv_step = 1;
+<<<<<<< HEAD   (3cf848 update config file support)
+=======
+
+>>>>>>> BRANCH (4d5dbb Rename variable pConfig to config)
     if (arg_match(&arg, &use_cfg, argi)) {
       if (cfg_included) continue;
       parse_cfg(arg.val, &global->encoder_config);
@@ -1341,7 +1345,10 @@ static struct stream_state *new_stream(struct AvxEncoderConfig *global,
 
     /* Allows removal of the application version from the EBML tags */
     stream->webm_ctx.debug = global->debug;
+<<<<<<< HEAD   (3cf848 update config file support)
 
+=======
+>>>>>>> BRANCH (4d5dbb Rename variable pConfig to config)
     memcpy(&stream->config.cfg.encoder_cfg, &global->encoder_config,
            sizeof(stream->config.cfg.encoder_cfg));
   }

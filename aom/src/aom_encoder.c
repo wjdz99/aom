@@ -168,7 +168,10 @@ aom_codec_err_t aom_codec_enc_config_default(aom_codec_iface_t *iface,
       }
     }
   }
+<<<<<<< HEAD   (3cf848 update config file support)
 
+=======
+>>>>>>> BRANCH (4d5dbb Rename variable pConfig to config)
   /* default values */
   if (cfg) {
     memset(&cfg->encoder_cfg, 0, sizeof(cfg->encoder_cfg));
@@ -177,7 +180,10 @@ aom_codec_err_t aom_codec_enc_config_default(aom_codec_iface_t *iface,
     cfg->encoder_cfg.min_partition_size = 4;
     cfg->encoder_cfg.disable_trellis_quant = 3;
   }
+<<<<<<< HEAD   (3cf848 update config file support)
 
+=======
+>>>>>>> BRANCH (4d5dbb Rename variable pConfig to config)
   return res;
 }
 
