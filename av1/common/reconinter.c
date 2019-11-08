@@ -1397,6 +1397,84 @@ static void build_smooth_interintra_mask(uint8_t *mask, int stride,
   }
 }
 
+#if CONFIG_ILLUM_MCOMP
+static void illum_combine_interintra(int8_t use_wedge_interintra,
+                                     int8_t wedge_index, int8_t wedge_sign,
+                                     BLOCK_SIZE bsize, BLOCK_SIZE plane_bsize,
+                                     uint8_t *comppred, int compstride,
+                                     const uint8_t *interpred, int interstride,
+                                     const uint8_t *intrapred,
+                                     int intrastride) {
+  const int bw = block_size_wide[plane_bsize];
+  const int bh = block_size_high[plane_bsize];
+  int dc = intrapred[0];
+
+  if (use_wedge_interintra && is_interintra_wedge_used(bsize)) {
+    // Create a new interpredictor with the DC value added back in.
+    uint8_t *new_interpred = aom_malloc(bw * bh * sizeof(*new_interpred));
+    for (int i = 0; i < bw; ++i) {
+      for (int j = 0; j < bh; ++j) {
+        new_interpred[i * bw + j] =
+            clip_pixel(interpred[i * interstride + j] + dc);
+      }
+    }
+    const uint8_t *mask =
+        av1_get_contiguous_soft_mask(wedge_index, wedge_sign, bsize);
+    const int subw = 2 * mi_size_wide[bsize] == bw;
+    const int subh = 2 * mi_size_high[bsize] == bh;
+    aom_blend_a64_mask(comppred, compstride, intrapred, intrastride,
+                       new_interpred, bw, mask, block_size_wide[bsize], bw, bh,
+                       subw, subh);
+    return;
+  }
+  for (int i = 0; i < bw; ++i) {
+    for (int j = 0; j < bh; ++j) {
+      comppred[i * compstride + j] =
+          clip_pixel(interpred[i * interstride + j] + dc);
+    }
+  }
+}
+
+static void illum_combine_interintra_highbd(
+    int8_t use_wedge_interintra, int8_t wedge_index, int8_t wedge_sign,
+    BLOCK_SIZE bsize, BLOCK_SIZE plane_bsize, uint8_t *comppred8,
+    int compstride, const uint8_t *interpred8, int interstride,
+    const uint8_t *intrapred8, int intrastride, int bd) {
+  const int bw = block_size_wide[plane_bsize];
+  const int bh = block_size_high[plane_bsize];
+  uint16_t *comppred = CONVERT_TO_SHORTPTR(comppred8);
+  uint16_t *interpred = CONVERT_TO_SHORTPTR(interpred8);
+  uint16_t *intrapred = CONVERT_TO_SHORTPTR(intrapred8);
+  int dc = intrapred[0];
+
+  if (use_wedge_interintra && is_interintra_wedge_used(bsize)) {
+    // Create a new interpredictor with the DC value added back in.
+    uint16_t *new_interpred = aom_malloc(bw * bh * sizeof(*new_interpred));
+    for (int i = 0; i < bw; ++i) {
+      for (int j = 0; j < bh; ++j) {
+        new_interpred[i * bw + j] =
+            clip_pixel_highbd(interpred[i * interstride + j] + dc, bd);
+      }
+    }
+    const uint8_t *mask =
+        av1_get_contiguous_soft_mask(wedge_index, wedge_sign, bsize);
+    const int subh = 2 * mi_size_high[bsize] == bh;
+    const int subw = 2 * mi_size_wide[bsize] == bw;
+    aom_highbd_blend_a64_mask(comppred8, compstride, intrapred8, intrastride,
+                              CONVERT_TO_BYTEPTR(new_interpred), bw, mask,
+                              block_size_wide[bsize], bw, bh, subw, subh, bd);
+    return;
+  }
+
+  for (int i = 0; i < bw; ++i) {
+    for (int j = 0; j < bh; ++j) {
+      comppred[i * compstride + j] =
+          clip_pixel_highbd(interpred[i * interstride + j] + dc, bd);
+    }
+  }
+}
+#endif  // CONFIG_ILLUM_MCOMP
+
 static void combine_interintra(INTERINTRA_MODE mode,
                                int8_t use_wedge_interintra, int8_t wedge_index,
                                int8_t wedge_sign, BLOCK_SIZE bsize,
@@ -1404,6 +1482,15 @@ static void combine_interintra(INTERINTRA_MODE mode,
                                int compstride, const uint8_t *interpred,
                                int interstride, const uint8_t *intrapred,
                                int intrastride) {
+#if CONFIG_ILLUM_MCOMP
+  if (mode == II_ILLUM_MCOMP_PRED) {
+    illum_combine_interintra(use_wedge_interintra, wedge_index, wedge_sign,
+                             bsize, plane_bsize, comppred, compstride,
+                             interpred, interstride, intrapred, intrastride);
+    return;
+  }
+#endif  // CONFIG_ILLUM_MCOMP
+
   const int bw = block_size_wide[plane_bsize];
   const int bh = block_size_high[plane_bsize];
 
@@ -1431,6 +1518,16 @@ static void combine_interintra_highbd(
     int8_t wedge_sign, BLOCK_SIZE bsize, BLOCK_SIZE plane_bsize,
     uint8_t *comppred8, int compstride, const uint8_t *interpred8,
     int interstride, const uint8_t *intrapred8, int intrastride, int bd) {
+#if CONFIG_ILLUM_MCOMP
+  if (mode == II_ILLUM_MCOMP_PRED) {
+    illum_combine_interintra_highbd(use_wedge_interintra, wedge_index,
+                                    wedge_sign, bsize, plane_bsize, comppred8,
+                                    compstride, interpred8, interstride,
+                                    intrapred8, intrastride, bd);
+    return;
+  }
+#endif  // CONFIG_ILLUM_MCOMP
+
   const int bw = block_size_wide[plane_bsize];
   const int bh = block_size_high[plane_bsize];
 
