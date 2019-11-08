@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "4c45f735_f3d11a73",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3773,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-08T01:55:04Z",
+      "side": 1,
+      "message": "Got it, this was supposed to be on av1_write_metadata_array() function.",
+      "parentUuid": "35dc7aae_de2c54ef",
+      "range": {
+        "startLine": 3773,
+        "startChar": 0,
+        "endLine": 3773,
+        "endChar": 59
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9cec754b_ce2fda57",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 10
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "c9a55804_162d7cfc",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3774,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-08T01:55:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9cec754b_ce2fda57",
+      "range": {
+        "startLine": 3774,
+        "startChar": 16,
+        "endLine": 3774,
+        "endChar": 54
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "493db888_fd913bd5",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 10
@@ -88,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "ec988f3c_f0bcbedb",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3777,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-08T01:55:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "493db888_fd913bd5",
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f8d5c8da_265eea1a",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 10
@@ -99,6 +165,30 @@
       "writtenOn": "2019-11-07T19:02:07Z",
       "side": 1,
       "message": "This will break the windows nightly:\n\n11\u003eC:\\src\\_werk\\aom\\av1\\encoder\\bitstream.c(3838,71): warning C4267:  \u0027+\u003d\u0027: conversion from \u0027size_t\u0027 to \u0027uint32_t\u0027, possible loss of data",
+      "range": {
+        "startLine": 3811,
+        "startChar": 0,
+        "endLine": 3811,
+        "endChar": 74
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8479616_510b5cf0",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3811,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-08T01:55:04Z",
+      "side": 1,
+      "message": "I see, I casted both uint32_t to size_t though I\u0027m not a fan of how it looks...",
+      "parentUuid": "f8d5c8da_265eea1a",
       "range": {
         "startLine": 3811,
         "startChar": 0,
@@ -134,6 +224,30 @@
     },
     {
       "key": {
+        "uuid": "f5ed3d0e_050c01e5",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3863,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-08T01:55:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "39808c70_fe0e55cd",
+      "range": {
+        "startLine": 3863,
+        "startChar": 41,
+        "endLine": 3863,
+        "endChar": 44
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2cc520af_9d002fec",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 10
@@ -145,6 +259,30 @@
       "writtenOn": "2019-11-07T19:02:07Z",
       "side": 1,
       "message": "could be const; could just be:\n\ndata +\u003d av1_write_metadata_array();",
+      "range": {
+        "startLine": 3865,
+        "startChar": 4,
+        "endLine": 3865,
+        "endChar": 12
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73a0b96c_d0963813",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3865,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-08T01:55:04Z",
+      "side": 1,
+      "message": "Was trying to follow how the sum is made on another functions in the same class for consistency.",
+      "parentUuid": "2cc520af_9d002fec",
       "range": {
         "startLine": 3865,
         "startChar": 4,
@@ -174,6 +312,24 @@
     },
     {
       "key": {
+        "uuid": "d3dfa4a3_64b2d129",
+        "filename": "test/aom_metadata_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-08T01:55:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e0705a1b_34ed4b58",
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a26b20a5_b7bebb18",
         "filename": "test/aom_metadata_test.cc",
         "patchSetId": 10
@@ -197,6 +353,30 @@
     },
     {
       "key": {
+        "uuid": "9d090ca1_c1543ffb",
+        "filename": "test/aom_metadata_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-08T01:55:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a26b20a5_b7bebb18",
+      "range": {
+        "startLine": 8,
+        "startChar": 5,
+        "endLine": 8,
+        "endChar": 8
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ccb6b81e_9dd504bb",
         "filename": "test/aom_metadata_test.cc",
         "patchSetId": 10
@@ -211,6 +391,24 @@
       "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a75ee0f1_0318791c",
+        "filename": "test/aom_metadata_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-08T01:55:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ccb6b81e_9dd504bb",
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -237,6 +435,30 @@
     },
     {
       "key": {
+        "uuid": "a9195cd5_55e79330",
+        "filename": "test/aom_metadata_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-08T01:55:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "405611db_57901d22",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 64
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d54bc3cb_8113076c",
         "filename": "test/aom_metadata_test.cc",
         "patchSetId": 10
@@ -257,6 +479,30 @@
       "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74a4b610_8bc601fc",
+        "filename": "test/aom_metadata_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-08T01:55:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d54bc3cb_8113076c",
+      "range": {
+        "startLine": 90,
+        "startChar": 2,
+        "endLine": 90,
+        "endChar": 18
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -306,6 +552,30 @@
     },
     {
       "key": {
+        "uuid": "95ebd5a9_2fc022b9",
+        "filename": "test/aom_metadata_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-08T01:55:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3c78022a_ca2f836e",
+      "range": {
+        "startLine": 111,
+        "startChar": 23,
+        "endLine": 111,
+        "endChar": 25
+      },
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a60c507_c0bf0343",
         "filename": "test/aom_metadata_test.cc",
         "patchSetId": 10
@@ -317,6 +587,24 @@
       "writtenOn": "2019-11-07T19:02:07Z",
       "side": 1,
       "message": "This does test the encode and writing of a metadata OBU, so we\u0027re partially there as far as test coverage is concerned, BUT: \n- it\u0027s missing a critical piece: there is no decode of an output TU containing a metadata OBU. \n- This test function is touching the encoder-- it must be wrapped in #if CONFIG_AV1_ENCODER guards.\n\nUsing the EncoderTest machinary get the first bullet point for free, and the second is trivial.",
+      "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6dfe35f_964f82ca",
+        "filename": "test/aom_metadata_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-08T01:55:04Z",
+      "side": 1,
+      "message": "I think I got a grasp of how EncoderTest works, I\u0027ll add a test with the same input monochrome test uses.",
+      "parentUuid": "7a60c507_c0bf0343",
       "revId": "806debb04a05a1e873c6eb08d9abe7272b0f7a0a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
