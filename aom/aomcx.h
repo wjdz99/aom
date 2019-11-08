@@ -204,7 +204,7 @@ enum aome_enc_control_id {
    * Return value uses the 0..63 scale as used by the rc_*_quantizer config
    * parameters.
    */
-  AOME_GET_LAST_QUANTIZER_64,
+  AOME_GET_LAST_QUANTIZER_64 = 20,
 
   /*!\brief Codec control function to set the max no of frames to create arf.
    */
@@ -303,7 +303,7 @@ enum aome_enc_control_id {
    *
    * By default, the value is 0, i.e. one single column tile for entire image.
    */
-  AV1E_SET_TILE_COLUMNS,
+  AV1E_SET_TILE_COLUMNS = 32,
 
   /*!\brief Codec control function to set number of tile rows.
    *
@@ -388,7 +388,7 @@ enum aome_enc_control_id {
    * By default, the encoder is allowed to use this feature for appropriate
    * encoding modes.
    */
-  AV1E_SET_FRAME_PERIODIC_BOOST,
+  AV1E_SET_FRAME_PERIODIC_BOOST = 40,
 
   /*!\brief Codec control function to set noise sensitivity.
    *
@@ -493,7 +493,7 @@ enum aome_enc_control_id {
    *
    * By default the value is set as 4.
    */
-  AV1E_SET_MIN_GF_INTERVAL,
+  AV1E_SET_MIN_GF_INTERVAL = 48,
 
   /*!\brief Codec control function to set minimum interval between GF/ARF frames
    *
@@ -553,7 +553,7 @@ enum aome_enc_control_id {
    * bwd-pred frames.
    *
    */
-  AOME_SET_ENABLEAUTOBWDREF,
+  AOME_SET_ENABLEAUTOBWDREF = 56,
 
   /*!\brief Codec control function to encode with CDEF.
    *
@@ -650,7 +650,7 @@ enum aome_enc_control_id {
    *
    * Experiment: AOM_QM
    */
-  AV1E_SET_QM_MAX,
+  AV1E_SET_QM_MAX = 64,
 
   /*!\brief Codec control function to set the min quant matrix flatness.
    *
@@ -745,7 +745,7 @@ enum aome_enc_control_id {
    * value is 1.
    *
    */
-  AV1E_SET_ENABLE_RECT_PARTITIONS,
+  AV1E_SET_ENABLE_RECT_PARTITIONS = 72,
 
   /*!\brief Codec control function to enable/disable AB partitions.
    *
@@ -822,7 +822,7 @@ enum aome_enc_control_id {
    * FLIPADST_ADST, IDTX, V_DCT, H_DCT, V_ADST, H_ADST, V_FLIPADST,
    * H_FLIPADST
    */
-  AV1E_SET_ENABLE_FLIP_IDTX,
+  AV1E_SET_ENABLE_FLIP_IDTX = 80,
 
   /*!\brief Codec control function to set transform block size search method.
    *
@@ -894,7 +894,7 @@ enum aome_enc_control_id {
    * modes. The default value is 1.
    *
    */
-  AV1E_SET_ENABLE_ONESIDED_COMP,
+  AV1E_SET_ENABLE_ONESIDED_COMP = 88,
 
   /*!\brief Codec control function to turn on / off interintra compound
    * for a sequence.
@@ -964,7 +964,7 @@ enum aome_enc_control_id {
    * If AV1E_SET_ENABLE_WARPED_MOTION is 0, then this flag is forced to 0.
    *
    */
-  AV1E_SET_ALLOW_WARPED_MOTION,
+  AV1E_SET_ALLOW_WARPED_MOTION = 96,
 
   /*!\brief Codec control function to turn on / off filter intra usage at
    * sequence level.
@@ -1020,7 +1020,7 @@ enum aome_enc_control_id {
   AV1E_SET_ENABLE_PALETTE,
 
   /*!\brief Codec control function to turn on/off intra block copy mode */
-  AV1E_SET_ENABLE_INTRABC,
+  AV1E_SET_ENABLE_INTRABC = 104,
 
   /*!\brief Codec control function to turn on/off intra angle delta */
   AV1E_SET_ENABLE_ANGLE_DELTA,
@@ -1076,7 +1076,7 @@ enum aome_enc_control_id {
 
   /*!\brief Codec control function to set the path to the film grain parameters
    */
-  AV1E_SET_FILM_GRAIN_TABLE,
+  AV1E_SET_FILM_GRAIN_TABLE = 112,
 
   /*!\brief Sets the noise level */
   AV1E_SET_DENOISE_NOISE_LEVEL,
@@ -1100,7 +1100,7 @@ enum aome_enc_control_id {
   AV1E_SET_INTER_DCT_ONLY,
 
   /*!\brief Control to use default tx type only for intra modes */
-  AV1E_SET_INTRA_DEFAULT_TX_ONLY,
+  AV1E_SET_INTRA_DEFAULT_TX_ONLY = 120,
 
   /*!\brief Control to use adaptive quantize_b */
   AV1E_SET_QUANT_B_ADAPT,
@@ -1138,20 +1138,22 @@ enum aome_enc_control_id {
    * 1: Update at SB row level in tile
    * 2: Update at tile level
    */
-  AV1E_SET_MV_COST_UPD_FREQ,
+  AV1E_SET_MV_COST_UPD_FREQ = 127,
+
+  /* Need a gap in enum values to avoud conflict with 128, 129, 130 */
 
   /*!\brief Control to set bit mask that specifies which tier each of the 32
    * possible operating points conforms to.
    * Bit value 0: Main Tier; 1: High Tier.
    */
-  AV1E_SET_TIER_MASK,
+  AV1E_SET_TIER_MASK = 148,
 
   /*!\brief Control to set minimum compression ratio.
    * Take integer values. If non-zero, encoder will try to keep the compression
    * ratio of each frame to be higher than the given value divided by 100.
    * E.g. 850 means minimum compression ratio of 8.5.
    */
-  AV1E_SET_MIN_CR,
+  AV1E_SET_MIN_CR = 149,
 
   /*!\brief Codec control function to set the layer id.
    */
