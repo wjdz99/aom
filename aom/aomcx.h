@@ -578,6 +578,16 @@ enum aome_enc_control_id {
    */
   AV1E_SET_ENABLE_RESTORATION,
 
+  /*!\brief Codec control function to encode with deblocking Filter.
+   *
+   *                          0 = do not apply deblocking Filter
+   *                          1 = apply deblocking Filter
+   *
+   *  By default, the encoder applies deblocking Filter.
+   *
+   */
+  AV1E_SET_ENABLE_DEBLOCKING,
+
   /*!\brief Codec control function to force video mode
    *
    *                          0 = do not force video mode
@@ -1369,6 +1379,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_CDEF, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_RESTORATION, unsigned int)
 #define AOM_CTRL_AV1E_SET_ENABLE_RESTORATION
+
+AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_DEBLOCKING, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENABLE_DEBLOCKING
 
 AOM_CTRL_USE_TYPE(AV1E_SET_FORCE_VIDEO_MODE, unsigned int)
 #define AOM_CTRL_AV1E_SET_FORCE_VIDEO_MODE

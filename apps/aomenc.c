@@ -435,6 +435,9 @@ static const arg_def_t enable_restoration = ARG_DEF(
     NULL, "enable-restoration", 1,
     "Enable the loop restoration filter (0: false (default in Realtime mode), "
     "1: true (default in Non-realtime mode))");
+static const arg_def_t enable_deblocking =
+    ARG_DEF(NULL, "enable-deblocking", 1,
+            "Enable the deblocking filter (0: false 1: true (default)");
 static const arg_def_t enable_rect_partitions =
     ARG_DEF(NULL, "enable-rect-partitions", 1,
             "Enable rectangular partitions "
@@ -817,6 +820,7 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &lossless,
                                        &enable_cdef,
                                        &enable_restoration,
+                                       &enable_deblocking,
                                        &enable_rect_partitions,
                                        &enable_ab_partitions,
                                        &enable_1to4_partitions,
@@ -923,6 +927,7 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_LOSSLESS,
                                         AV1E_SET_ENABLE_CDEF,
                                         AV1E_SET_ENABLE_RESTORATION,
+                                        AV1E_SET_ENABLE_DEBLOCKING,
                                         AV1E_SET_ENABLE_RECT_PARTITIONS,
                                         AV1E_SET_ENABLE_AB_PARTITIONS,
                                         AV1E_SET_ENABLE_1TO4_PARTITIONS,
@@ -1770,6 +1775,7 @@ static void show_stream_config(struct stream_state *stream,
   SHOW_PARAMS(disable_ref_frame_mv);
   SHOW_PARAMS(reduced_reference_set);
   SHOW_PARAMS(reduced_tx_type_set);
+  SHOW_PARAMS(disable_deblocking);
 }
 
 static void open_output_file(struct stream_state *stream,

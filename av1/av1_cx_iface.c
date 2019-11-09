@@ -54,6 +54,7 @@ struct av1_extracfg {
   unsigned int lossless;
   unsigned int enable_cdef;
   unsigned int enable_restoration;
+  unsigned int enable_deblocking;
   unsigned int force_video_mode;
   unsigned int enable_obmc;
   unsigned int disable_trellis_quant;
@@ -177,6 +178,7 @@ static struct av1_extracfg default_extra_cfg = {
   0,                       // lossless
   !CONFIG_SHARP_SETTINGS,  // enable_cdef
   1,                       // enable_restoration
+  1,                       // enable_deblocking
   1,                       // force_video_mode
   1,                       // enable_obmc
   3,                       // disable_trellis_quant
@@ -628,6 +630,7 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
   extra_cfg->tx_size_search_method = cfg->tx_size_search_method;
   extra_cfg->enable_reduced_reference_set = cfg->reduced_reference_set;
   extra_cfg->reduced_tx_type_set = cfg->reduced_tx_type_set;
+  extra_cfg->enable_deblocking = (cfg->disable_deblocking == 0);
 }
 
 static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
@@ -711,6 +714,7 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   oxcf->enable_cdef = extra_cfg->enable_cdef;
   oxcf->enable_restoration =
       (cfg->g_usage == AOM_USAGE_REALTIME) ? 0 : extra_cfg->enable_restoration;
+  oxcf->enable_deblocking = extra_cfg->enable_deblocking;
   oxcf->force_video_mode = extra_cfg->force_video_mode;
   oxcf->enable_obmc = extra_cfg->enable_obmc;
   oxcf->enable_overlay = extra_cfg->enable_overlay;
@@ -1178,6 +1182,13 @@ static aom_codec_err_t ctrl_set_enable_restoration(aom_codec_alg_priv_t *ctx,
                                                    va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.enable_restoration = CAST(AV1E_SET_ENABLE_RESTORATION, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_enable_deblocking(aom_codec_alg_priv_t *ctx,
+                                                  va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.enable_deblocking = CAST(AV1E_SET_ENABLE_DEBLOCKING, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
@@ -2420,6 +2431,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_LOSSLESS, ctrl_set_lossless },
   { AV1E_SET_ENABLE_CDEF, ctrl_set_enable_cdef },
   { AV1E_SET_ENABLE_RESTORATION, ctrl_set_enable_restoration },
+  { AV1E_SET_ENABLE_DEBLOCKING, ctrl_set_enable_deblocking },
   { AV1E_SET_FORCE_VIDEO_MODE, ctrl_set_force_video_mode },
   { AV1E_SET_ENABLE_OBMC, ctrl_set_enable_obmc },
   { AV1E_SET_DISABLE_TRELLIS_QUANT, ctrl_set_disable_trellis_quant },
@@ -2592,7 +2604,7 @@ static aom_codec_enc_cfg_map_t encoder_usage_cfg_map[] = {
         0,            // tile_height_count
         { 0 },        // tile_widths
         { 0 },        // tile_heights
-        { 0, 128, 128, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        { 0, 128, 128, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
           0, 0,   0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },  // cfg
     } },
   { 1,
@@ -2661,7 +2673,7 @@ static aom_codec_enc_cfg_map_t encoder_usage_cfg_map[] = {
         0,            // tile_height_count
         { 0 },        // tile_widths
         { 0 },        // tile_heights
-        { 0, 128, 128, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        { 0, 128, 128, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
           0, 0,   0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },  // cfg
     } },
 };
