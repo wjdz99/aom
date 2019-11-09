@@ -121,6 +121,7 @@ int parse_cfg(const char *file, cfg_options_t *config) {
     GET_PARAMS(disable_ref_frame_mv);
     GET_PARAMS(reduced_reference_set);
     GET_PARAMS(reduced_tx_type_set);
+    GET_PARAMS(disable_deblocking);
 
     fprintf(stderr, "\nInvalid parameter: %s", left);
     exit(-1);

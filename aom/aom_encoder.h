@@ -359,6 +359,10 @@ typedef struct cfg_options {
    *
    */
   unsigned int reduced_tx_type_set;
+  /*!\brief disable deblocking filter
+   *
+   */
+  unsigned int disable_deblocking;
 } cfg_options_t;
 
 /*!\brief Encoded Frame Flags
