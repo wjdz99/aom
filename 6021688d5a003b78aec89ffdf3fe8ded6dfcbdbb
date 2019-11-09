@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "43e37ab8_52aae37f",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 3777,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-09T00:42:01Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e6e94336_959bf4f7",
+      "range": {
+        "startLine": 3777,
+        "startChar": 2,
+        "endLine": 3777,
+        "endChar": 62
+      },
+      "revId": "6021688d5a003b78aec89ffdf3fe8ded6dfcbdbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "324a502f_3eb531ec",
         "filename": "test/metadata_test.cc",
         "patchSetId": 13
@@ -36,6 +60,24 @@
       "writtenOn": "2019-11-08T23:22:44Z",
       "side": 1,
       "message": "Add an include for aom_image.h (include what you use might be triggered without it).",
+      "revId": "6021688d5a003b78aec89ffdf3fe8ded6dfcbdbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4116d711_e6aabd86",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-09T00:42:01Z",
+      "side": 1,
+      "message": "aom_image.h is already in included aom_codec.h, is there still a need for it in this context?",
+      "parentUuid": "324a502f_3eb531ec",
       "revId": "6021688d5a003b78aec89ffdf3fe8ded6dfcbdbb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "37f6b372_d2da1519",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-09T00:42:01Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2e843898_15e0f609",
+      "range": {
+        "startLine": 8,
+        "startChar": 4,
+        "endLine": 8,
+        "endChar": 22
+      },
+      "revId": "6021688d5a003b78aec89ffdf3fe8ded6dfcbdbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "be6e5963_6ae3e93d",
         "filename": "test/metadata_test.cc",
         "patchSetId": 13
@@ -82,6 +148,24 @@
     },
     {
       "key": {
+        "uuid": "aed3fb94_15f0a798",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-09T00:42:01Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "be6e5963_6ae3e93d",
+      "revId": "6021688d5a003b78aec89ffdf3fe8ded6dfcbdbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c86a82e0_291bd6a6",
         "filename": "test/metadata_test.cc",
         "patchSetId": 13
@@ -93,6 +177,24 @@
       "writtenOn": "2019-11-08T23:22:44Z",
       "side": 1,
       "message": "I think all of these local test data arrays could be const. You might be able to define them at anonymous namespace scope and avoid the repeated definitions.",
+      "revId": "6021688d5a003b78aec89ffdf3fe8ded6dfcbdbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8507ea12_1059985d",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-09T00:42:01Z",
+      "side": 1,
+      "message": "I\u0027ll add them to a namespace, but I can\u0027t make them const yet since I hadn\u0027t defined the metadata functions data parameter as const. When Wan-Teh patch is mixed, where I see he changed them, we can change the test data to be const.\n\nShould I add them to the existing namespace where MetadataEncodeTest is declared, or is it ok to create another namespace above it?",
+      "parentUuid": "c86a82e0_291bd6a6",
       "revId": "6021688d5a003b78aec89ffdf3fe8ded6dfcbdbb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
