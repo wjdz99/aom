@@ -1476,9 +1476,7 @@ if (aom_config("CONFIG_EXT_PARTITIONS") eq "") {
     specialize qw/aom_highbd_12_variance32x16 sse2/;
 
     add_proto qw/unsigned int aom_highbd_12_variance16x32/, "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, unsigned int *sse";
-    if (aom_config("CONFIG_EXT_PARTITIONS") eq "") {
-      specialize qw/aom_highbd_12_variance16x32 sse2/;
-    } # CONFIG_EXT_PARTITIONS
+    specialize qw/aom_highbd_12_variance16x32 sse2/;
 
     add_proto qw/unsigned int aom_highbd_12_variance16x16/, "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, unsigned int *sse";
     specialize qw/aom_highbd_12_variance16x16 sse2/;
@@ -1521,9 +1519,7 @@ if (aom_config("CONFIG_EXT_PARTITIONS") eq "") {
     specialize qw/aom_highbd_10_variance32x16 sse2 avx2/;
 
     add_proto qw/unsigned int aom_highbd_10_variance16x32/, "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, unsigned int *sse";
-    if (aom_config("CONFIG_EXT_PARTITIONS") eq "") {
-      specialize qw/aom_highbd_10_variance16x32 sse2 avx2/;
-    } # CONFIG_EXT_PARTITIONS
+    specialize qw/aom_highbd_10_variance16x32 sse2 avx2/;
 
     add_proto qw/unsigned int aom_highbd_10_variance16x16/, "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, unsigned int *sse";
     specialize qw/aom_highbd_10_variance16x16 sse2 avx2/;
@@ -1586,9 +1582,7 @@ if (aom_config("CONFIG_EXT_PARTITIONS") eq "") {
     specialize qw/aom_highbd_8_variance32x16 sse2/;
 
     add_proto qw/unsigned int aom_highbd_8_variance16x32/, "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, unsigned int *sse";
-    if (aom_config("CONFIG_EXT_PARTITIONS") eq "") {
-      specialize qw/aom_highbd_8_variance16x32 sse2/;
-    } # CONFIG_EXT_PARTITIONS
+    specialize qw/aom_highbd_8_variance16x32 sse2/;
 
     add_proto qw/unsigned int aom_highbd_8_variance16x16/, "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, unsigned int *sse";
     specialize qw/aom_highbd_8_variance16x16 sse2/;
