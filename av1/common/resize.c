@@ -1545,7 +1545,7 @@ static void signed_fill_arr_to_col(int16_t *img, int stride, int len,
 static void signed_down2_multistep(const int16_t *const input, int length,
                                    int16_t *output, int steps, int16_t *otmp,
                                    int bd) {
-  const int16_t filter[SUBPEL_TAPS] = { -1, 0, 19, 46, 46, 19, 0, -1 };
+  const int16_t filter[SUBPEL_TAPS] = { -1, -2, 15, 52, 52, 15, -2, -1 };
   const int filter_len = SUBPEL_TAPS;
 
   assert((length & ((1 << steps) - 1)) == 0);
