@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3db0bdb4_075a7d85",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1717,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2019-11-11T19:19:45Z",
+      "side": 1,
+      "message": "When vbr_bits_off_target \u003c\u003d 0, AOMMIN() here will always return max_delta (\u003c\u003d 0), because the second argument is nonzero.\n\nSubsequently, this_frame_target will always add a nonzero value (-max_delta).\n\nI think that\u0027s not intentional? when vbr_bits_off_target \u003c\u003d 0, this_frame_target shall add a negative value.",
+      "range": {
+        "startLine": 1717,
+        "startChar": 16,
+        "endLine": 1717,
+        "endChar": 22
+      },
+      "revId": "a5c55af84cea171d8a622aae905eb7ee1641cf74",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
