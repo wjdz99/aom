@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bb0fd355_fe6d2778",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 3818,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-11-11T20:13:09Z",
+      "side": 1,
+      "message": "Got it, for the to_string seems you\u0027re right. Maybe AOM_CODEC_INCAPABLE, but it might be interpreted as it will never be implemented. I\u0027ll leave the AOM_CODEC_ERROR hoping the string we return is more explicit.",
+      "parentUuid": "02afbed9_3ffb6014",
+      "range": {
+        "startLine": 3818,
+        "startChar": 0,
+        "endLine": 3818,
+        "endChar": 23
+      },
+      "revId": "7345411ac240220758b919cd9b693133d44d2b92",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7e916e09_c58bd10d",
         "filename": "test/metadata_test.cc",
         "patchSetId": 17
