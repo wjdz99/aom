@@ -193,6 +193,9 @@ typedef struct {
 #endif  // CONFIG_LOOP_RESTORE_CNN
 #if CONFIG_WIENER_NONSEP
   WienerNonsepInfo wiener_nonsep_info;
+  const uint8_t *luma;
+  int luma_stride;
+  int plane;
 #endif  // CONFIG_WIENER_NONSEP
 } RestorationUnitInfo;
 
@@ -259,8 +262,8 @@ static INLINE void set_default_wiener(WienerInfo *wiener_info) {
 
 #if CONFIG_WIENER_NONSEP
 static INLINE void set_default_wiener_nonsep(WienerNonsepInfo *wienerns_info) {
-  for (int i = 0; i < WIENERNS_NUM_COEFF; ++i) {
-    wienerns_info->nsfilter[i] = wienerns_coeff_info[i][WIENERNS_MIN_ID];
+  for (int i = 0; i < WIENERNS_YUV; ++i) {
+    wienerns_info->nsfilter[i] = wienerns_coeff[i][WIENERNS_MIN_ID];
   }
 }
 static INLINE double clip_base(double x) { return x; }
@@ -286,6 +289,11 @@ typedef struct FilterFrameCtxt {
   AV1PixelRect tile_rect;
   int base_qindex;
   FRAME_TYPE frame_type;
+#if CONFIG_WIENER_NONSEP
+  int plane;
+  const uint8_t *luma;
+  int luma_stride;
+#endif  // CONFIG_WIENER_NONSEP
 } FilterFrameCtxt;
 
 typedef struct AV1LrStruct {

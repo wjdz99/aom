@@ -961,20 +961,30 @@ static void sgrproj_filter_stripe(const RestorationUnitInfo *rui,
 
 #if CONFIG_WIENER_NONSEP
 void apply_wiener_nonsep(const uint8_t *dgd, int width, int height, int stride,
-                         const int16_t *filter, uint8_t *dst, int dst_stride) {
+                         const int16_t *filter, uint8_t *dst, int dst_stride,
+                         int plane, const uint8_t *luma, int luma_stride) {
+  int is_uv = (plane != AOM_PLANE_Y);
+  int beg_pixel = is_uv ? WIENERNS_Y_PIXEL : 0;
+  int end_pixel = is_uv ? WIENERNS_YUV_PIXEL : WIENERNS_Y_PIXEL;
+  int beg_feat = is_uv ? WIENERNS_Y : 0;
+
   for (int i = 0; i < height; ++i) {
     for (int j = 0; j < width; ++j) {
       int dgd_id = i * stride + j;
       int dst_id = i * dst_stride + j;
       double tmp = (double)dgd[dgd_id];
-      for (int k = 0; k < WIENERNS_NUM_PIXEL; ++k) {
-        int type = wienerns_config[k][WIENERNS_COEFF_ID];
+      for (int k = beg_pixel; k < end_pixel; ++k) {
+        int pos = wienerns_config[k][WIENERNS_BUF_POS];
         int r = wienerns_config[k][WIENERNS_ROW_ID];
         int c = wienerns_config[k][WIENERNS_COL_ID];
-        tmp +=
-            (double)filter[type] *
-            clip_base((double)dgd[(i + r) * stride + (j + c)] - dgd[dgd_id]) /
-            wienerns_coeff_info[type][WIENERNS_STEP_ID];
+        double diff =
+            (!is_uv || k - beg_pixel < WIENERNS_UV_INTER_PIXEL)
+                ? clip_base((double)dgd[(i + r) * stride + (j + c)] -
+                            dgd[dgd_id])
+                : clip_base((double)luma[(i + r) * luma_stride + (j + c)] -
+                            luma[dgd_id]);
+        tmp += (double)filter[pos + beg_feat] * diff /
+               wienerns_coeff[pos + beg_feat][WIENERNS_STEP_ID];
       }
       dst[dst_id] = clip_pixel((int)round(tmp));
     }
@@ -993,27 +1003,39 @@ static void wiener_nsfilter_stripe(const RestorationUnitInfo *rui,
   for (int j = 0; j < stripe_width; j += procunit_width) {
     int w = AOMMIN(procunit_width, stripe_width - j);
     apply_wiener_nonsep(src + j, w, stripe_height, src_stride,
-                        rui->wiener_nonsep_info.nsfilter, dst + j, dst_stride);
+                        rui->wiener_nonsep_info.nsfilter, dst + j, dst_stride,
+                        rui->plane, rui->luma, rui->luma_stride);
   }
 }
 
 void apply_wiener_nonsep_highbd(const uint8_t *dgd8, int width, int height,
                                 int stride, const int16_t *filter, uint8_t *dst,
-                                int dst_stride, int bit_depth) {
+                                int dst_stride, int plane, const uint8_t *luma8,
+                                int luma_stride, int bit_depth) {
+  int is_uv = (plane != AOM_PLANE_Y);
+  int beg_pixel = is_uv ? WIENERNS_Y_PIXEL : 0;
+  int end_pixel = is_uv ? WIENERNS_YUV_PIXEL : WIENERNS_Y_PIXEL;
+  int beg_feat = is_uv ? WIENERNS_Y : 0;
+
   const uint16_t *dgd = CONVERT_TO_SHORTPTR(dgd8);
+  const uint16_t *luma = CONVERT_TO_SHORTPTR(luma8);
   for (int i = 0; i < height; ++i) {
     for (int j = 0; j < width; ++j) {
       int dgd_id = i * stride + j;
       int dst_id = i * dst_stride + j;
       double tmp = (double)dgd[dgd_id];
-      for (int k = 0; k < WIENERNS_NUM_PIXEL; ++k) {
-        int type = wienerns_config[k][WIENERNS_COEFF_ID];
+      for (int k = beg_pixel; k < end_pixel; ++k) {
+        int pos = wienerns_config[k][WIENERNS_BUF_POS];
         int r = wienerns_config[k][WIENERNS_ROW_ID];
         int c = wienerns_config[k][WIENERNS_COL_ID];
-        tmp +=
-            (double)filter[type] *
-            clip_base((double)dgd[(i + r) * stride + (j + c)] - dgd[dgd_id]) /
-            wienerns_coeff_info[type][WIENERNS_STEP_ID];
+        double diff =
+            (!is_uv || k - beg_pixel < WIENERNS_UV_INTER_PIXEL)
+                ? clip_base((double)dgd[(i + r) * stride + (j + c)] -
+                            dgd[dgd_id])
+                : clip_base((double)luma[(i + r) * luma_stride + (j + c)] -
+                            luma[dgd_id]);
+        tmp += (double)filter[pos + beg_feat] * diff /
+               wienerns_coeff[pos + beg_feat][WIENERNS_STEP_ID];
       }
       const uint16_t out = clip_pixel_highbd((int)round(tmp), bit_depth);
       *CONVERT_TO_SHORTPTR(dst + dst_id) = out;
@@ -1034,7 +1056,8 @@ static void wiener_nsfilter_stripe_highbd(const RestorationUnitInfo *rui,
     int w = AOMMIN(procunit_width, stripe_width - j);
     apply_wiener_nonsep_highbd(src + j, w, stripe_height, src_stride,
                                rui->wiener_nonsep_info.nsfilter, dst + j,
-                               dst_stride, bit_depth);
+                               dst_stride, rui->plane, rui->luma,
+                               rui->luma_stride, bit_depth);
   }
 }
 #endif  // CONFIG_WIENER_NONSEP
@@ -1309,6 +1332,12 @@ static void filter_frame_on_unit(const RestorationTileLimits *limits,
     rsi->unit_info[rest_unit_idx].cnn_info.frame_type = ctxt->frame_type;
   }
 #endif  // CONFIG_LOOP_RESTORE_CNN
+#if CONFIG_WIENER_NONSEP
+  rsi->unit_info[rest_unit_idx].plane = ctxt->plane;
+  int is_uv = (ctxt->plane != AOM_PLANE_Y);
+  rsi->unit_info[rest_unit_idx].luma = is_uv ? ctxt->luma : NULL;
+  rsi->unit_info[rest_unit_idx].luma_stride = is_uv ? ctxt->luma_stride : -1;
+#endif  // CONFIG_WIENER_NONSEP
 
   av1_loop_restoration_filter_unit(
       limits, &rsi->unit_info[rest_unit_idx], &rsi->boundaries, rlbs, tile_rect,
@@ -1396,7 +1425,12 @@ static void foreach_rest_unit_in_planes(AV1LrStruct *lr_ctxt, AV1_COMMON *cm,
     if (cm->rst_info[plane].frame_restoration_type == RESTORE_NONE) {
       continue;
     }
-
+#if CONFIG_WIENER_NONSEP
+    ctxt[plane].plane = plane;
+    int is_uv = (plane != AOM_PLANE_Y);
+    ctxt[plane].luma = is_uv ? ctxt[AOM_PLANE_Y].data8 : NULL;
+    ctxt[plane].luma_stride = is_uv ? ctxt[AOM_PLANE_Y].data_stride : -1;
+#endif  // CONFIG_WIENER_NONSEP
     av1_foreach_rest_unit_in_plane(cm, plane, lr_ctxt->on_rest_unit,
                                    &ctxt[plane], &ctxt[plane].tile_rect,
                                    cm->rst_tmpbuf, cm->rlbs);
