@@ -29,6 +29,10 @@ typedef struct ConvolveParams {
   int use_dist_wtd_comp_avg;
   int fwd_offset;
   int bck_offset;
+  uint16_t *p1;
+  uint16_t *p2;
+  int p1_p2_round;
+  int write;
 } ConvolveParams;
 
 #define ROUND0_BITS 3

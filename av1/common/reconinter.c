@@ -164,7 +164,6 @@ void av1_make_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
                       build_for_obmc, sf, &final_warp_params));
   const int is_intrabc = mi->use_intrabc;
   assert(IMPLIES(is_intrabc, !do_warp));
-
   if (do_warp && xd->cur_frame_force_integer_mv == 0) {
     const struct macroblockd_plane *const pd = &xd->plane[plane];
     const struct buf_2d *const pre_buf = &pd->pre[ref];
@@ -177,6 +176,9 @@ void av1_make_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
                            w, h, conv_params, interp_filters, is_intrabc,
                            xd->bd);
   } else {
+//  if (mi->interinter_comp.type == COMPOUND_AVERAGE)
+//    printf("debug\n");
+    conv_params->write = (plane == 0);
     inter_predictor(src, src_stride, dst, dst_stride, subpel_params, sf, w, h,
                     conv_params, interp_filters, is_intrabc);
   }
@@ -339,14 +341,12 @@ void av1_build_inter_predictors(
       const MV mv = mi->mv[ref].as_mv;
       const WarpTypesAllowed warp_types = { is_global[ref],
                                             mi->motion_mode == WARPED_CAUSAL };
-
       uint8_t *pre;
       SubpelParams subpel_params;
       int src_stride;
       calc_subpel_params_func(
           xd, sf, &mv, plane, pre_x, pre_y, 0, 0, pre_buf, bw, bh, &warp_types,
           ref, calc_subpel_params_func_args, &pre, &subpel_params, &src_stride);
-
       if (ref && is_masked_compound_type(mi->interinter_comp.type)) {
         // masked compound type has its own average mechanism
         conv_params.do_average = 0;
@@ -356,12 +356,40 @@ void av1_build_inter_predictors(
             mi_x >> pd->subsampling_x, mi_y >> pd->subsampling_y, ref, xd,
             cm->allow_warped_motion);
       } else {
+//  if (is_compound && mi->interinter_comp.type == COMPOUND_AVERAGE)
+//    printf("debug\n");
         conv_params.do_average = ref;
+        conv_params.p1 = xd->pred1;
+        conv_params.p2 = xd->pred2;
         av1_make_inter_predictor(
             pre, src_stride, dst, dst_buf->stride, &subpel_params, sf, bw, bh,
             &conv_params, mi->interp_filters, &warp_types,
             mi_x >> pd->subsampling_x, mi_y >> pd->subsampling_y, plane, ref,
             mi, build_for_obmc, xd, cm->allow_warped_motion);
+       xd->pred1_2_bits = conv_params.p1_p2_round;
+          /*
+        if (ref == 0) {
+          for (int i = 0; i < bh; i++) {
+            for (int j = 0; j < bw; j++) {
+              xd->pred1[i * MAX_SB_SIZE + j] = dst[i * dst_buf->stride + j];
+            }
+          }
+          //memcpy(xd->pred1, tmp_dst, MAX_SB_SQUARE * sizeof(*tmp_dst));
+        } else {
+          for (int i = 0; i < bh; i++) {
+            for (int j = 0; j < bw; j++) {
+              xd->pred2[i * MAX_SB_SIZE + j] = dst[i * dst_buf->stride + j];
+            }
+          }
+          // do avg
+          for (int i = 0; i < bh; i++) {
+            for (int j = 0; j < bw; j++) {
+              dst[i * dst_buf->stride + j] = (xd->pred1[i * MAX_SB_SIZE + j] +
+                                              xd->pred2[i * MAX_SB_SIZE + j] + 0.5) / 2;
+            }
+          }
+        }
+          */
       }
     }
   }
@@ -961,6 +989,17 @@ void av1_make_masked_inter_predictor(
                            sf, w, h, conv_params, interp_filters, warp_types,
                            p_col, p_row, plane, ref, mi, 0, xd,
                            can_use_previous);
+  /*
+  CONV_BUF_TYPE *tmp_buf16_2;
+  if (ref == 0) {
+    assert(0);
+    memcpy(xd->pred1, tmp_dst, MAX_SB_SQUARE * sizeof(*tmp_dst));
+    tmp_buf16_2 = (CONV_BUF_TYPE *)xd->pred1;
+  } else {
+    memcpy(xd->pred2, tmp_dst, MAX_SB_SQUARE * sizeof(*tmp_dst));
+    tmp_buf16_2 = (CONV_BUF_TYPE *)xd->pred2;
+  }
+  */
 
   if (!plane && comp_data->type == COMPOUND_DIFFWTD) {
 #if CONFIG_CTX_ADAPT_LOG_WEIGHT || CONFIG_DIFFWTD_42
