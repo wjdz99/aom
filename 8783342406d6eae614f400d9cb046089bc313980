@@ -16,6 +16,24 @@
       "revId": "8783342406d6eae614f400d9cb046089bc313980",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68444961_949c57ae",
+        "filename": "common/ivfdec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-11-11T18:26:08Z",
+      "side": 1,
+      "message": "I also noticed this issue. ivfdec.h is a decoder file. It seems bad for a decoder file to include aom_encoder.h.",
+      "parentUuid": "370fcdc7_e1d0a870",
+      "revId": "8783342406d6eae614f400d9cb046089bc313980",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
