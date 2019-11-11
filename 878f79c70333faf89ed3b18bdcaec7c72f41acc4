@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "01b26631_bb388e38",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-11-11T19:14:52Z",
+      "side": 1,
+      "message": "Thanks for the fix.",
+      "parentUuid": "a3b4460d_3a790bfc",
+      "range": {
+        "startLine": 344,
+        "startChar": 19,
+        "endLine": 344,
+        "endChar": 27
+      },
+      "revId": "878f79c70333faf89ed3b18bdcaec7c72f41acc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0822350f_7bf07bac",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 11
@@ -262,6 +286,30 @@
     },
     {
       "key": {
+        "uuid": "c2efb228_982830e7",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3784,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-11-11T19:14:52Z",
+      "side": 1,
+      "message": "You are right. I meant metadata-\u003esz instead of metadata-\u003epayload in the last two lines. Sorry about the errors!",
+      "parentUuid": "d8dc83b7_5c2c0385",
+      "range": {
+        "startLine": 3780,
+        "startChar": 0,
+        "endLine": 3784,
+        "endChar": 62
+      },
+      "revId": "878f79c70333faf89ed3b18bdcaec7c72f41acc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ddfad5af_8134e85e",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 11
@@ -309,6 +357,30 @@
     },
     {
       "key": {
+        "uuid": "2a6318f4_e2ca0408",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3789,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-11-11T19:14:52Z",
+      "side": 1,
+      "message": "Thanks. av1_write_metadata_array is an internal function, so we can check its callers and verify that they never pass a null \u0027cpi\u0027 argument to av1_write_metadata_array.",
+      "parentUuid": "8e2e4037_355d27d0",
+      "range": {
+        "startLine": 3789,
+        "startChar": 6,
+        "endLine": 3789,
+        "endChar": 14
+      },
+      "revId": "878f79c70333faf89ed3b18bdcaec7c72f41acc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7444b4aa_786d0735",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 11
@@ -344,6 +416,30 @@
       "side": 1,
       "message": "Got it. Didn\u0027t find the preference on the style guide and went for the \"more code on a single line\" like on function parameters, but I do prefer the variable per line declaration.",
       "parentUuid": "7444b4aa_786d0735",
+      "range": {
+        "startLine": 3792,
+        "startChar": 0,
+        "endLine": 3792,
+        "endChar": 78
+      },
+      "revId": "878f79c70333faf89ed3b18bdcaec7c72f41acc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0cd10a97_def83cf6",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3792,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-11-11T19:14:52Z",
+      "side": 1,
+      "message": "Thanks. I also could not find a recommendation of this style in the Style Guide. Perhaps it was recommended in an older version of the Style Guide.",
+      "parentUuid": "e32c3d4b_9a6caf4a",
       "range": {
         "startLine": 3792,
         "startChar": 0,
