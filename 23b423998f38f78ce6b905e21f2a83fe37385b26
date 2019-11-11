@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74b4a2d4_92d74210",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1708,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2019-11-11T16:00:17Z",
+      "side": 1,
+      "message": "const?",
+      "range": {
+        "startLine": 1708,
+        "startChar": 6,
+        "endLine": 1708,
+        "endChar": 18
+      },
+      "revId": "23b423998f38f78ce6b905e21f2a83fe37385b26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
