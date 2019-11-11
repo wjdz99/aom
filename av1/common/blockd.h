@@ -12,6 +12,7 @@
 #ifndef AOM_AV1_COMMON_BLOCKD_H_
 #define AOM_AV1_COMMON_BLOCKD_H_
 
+#include <stdio.h>
 #include "config/aom_config.h"
 
 #include "aom_dsp/aom_dsp_common.h"
@@ -649,6 +650,10 @@ typedef struct macroblockd {
   int cdef_preset[4];
 
   DECLARE_ALIGNED(16, uint8_t, seg_mask[2 * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, uint16_t, pred1[MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, uint16_t, pred2[MAX_SB_SQUARE]);
+  int pred1_2_bits;
+
   uint8_t *mc_buf[2];
   CFL_CTX cfl;
 
@@ -660,6 +665,7 @@ typedef struct macroblockd {
 
   CONV_BUF_TYPE *tmp_conv_dst;
   uint8_t *tmp_obmc_bufs[2];
+  FILE *training_fp;
 } MACROBLOCKD;
 
 static INLINE int is_cur_buf_hbd(const MACROBLOCKD *xd) {

@@ -243,6 +243,7 @@ void av1_convolve_2d_copy_sr_c(const uint8_t *src, int src_stride, uint8_t *dst,
   }
 }
 
+//sarahparker
 void av1_dist_wtd_convolve_2d_c(const uint8_t *src, int src_stride,
                                 uint8_t *dst, int dst_stride, int w, int h,
                                 const InterpFilterParams *filter_params_x,
@@ -259,6 +260,7 @@ void av1_dist_wtd_convolve_2d_c(const uint8_t *src, int src_stride,
   const int bd = 8;
   const int round_bits =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
+  conv_params->p1_p2_round = round_bits;
 
   // horizontal filter
   const uint8_t *src_horiz = src - fo_vert * src_stride;
@@ -290,6 +292,11 @@ void av1_dist_wtd_convolve_2d_c(const uint8_t *src, int src_stride,
       assert(0 <= sum && sum < (1 << (offset_bits + 2)));
       CONV_BUF_TYPE res = ROUND_POWER_OF_TWO(sum, conv_params->round_1);
       if (conv_params->do_average) {
+        if (conv_params->write) {
+          conv_params->p2[y * w + x] = res -
+               (1 << (offset_bits - conv_params->round_1)) +
+               (1 << (offset_bits - conv_params->round_1 - 1));
+        }
         int32_t tmp = dst16[y * dst16_stride + x];
         if (conv_params->use_dist_wtd_comp_avg) {
           tmp = tmp * conv_params->fwd_offset + res * conv_params->bck_offset;
@@ -303,12 +310,18 @@ void av1_dist_wtd_convolve_2d_c(const uint8_t *src, int src_stride,
         dst[y * dst_stride + x] =
             clip_pixel(ROUND_POWER_OF_TWO(tmp, round_bits));
       } else {
+        if (conv_params->write) {
+          conv_params->p1[y * w + x] = res -
+               (1 << (offset_bits - conv_params->round_1)) +
+               (1 << (offset_bits - conv_params->round_1 - 1));
+        }
         dst16[y * dst16_stride + x] = res;
       }
     }
   }
 }
 
+//sarahparker
 void av1_dist_wtd_convolve_y_c(const uint8_t *src, int src_stride, uint8_t *dst,
                                int dst_stride, int w, int h,
                                const InterpFilterParams *filter_params_x,
@@ -325,6 +338,7 @@ void av1_dist_wtd_convolve_y_c(const uint8_t *src, int src_stride, uint8_t *dst,
                            (1 << (offset_bits - conv_params->round_1 - 1));
   const int round_bits =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
+  conv_params->p1_p2_round = round_bits;
   (void)filter_params_x;
   (void)subpel_x_qn;
 
@@ -341,6 +355,7 @@ void av1_dist_wtd_convolve_y_c(const uint8_t *src, int src_stride, uint8_t *dst,
       res = ROUND_POWER_OF_TWO(res, conv_params->round_1) + round_offset;
 
       if (conv_params->do_average) {
+        if (conv_params->write) conv_params->p2[y * w + x] = res - round_offset;
         int32_t tmp = dst16[y * dst16_stride + x];
         if (conv_params->use_dist_wtd_comp_avg) {
           tmp = tmp * conv_params->fwd_offset + res * conv_params->bck_offset;
@@ -353,12 +368,14 @@ void av1_dist_wtd_convolve_y_c(const uint8_t *src, int src_stride, uint8_t *dst,
         dst[y * dst_stride + x] =
             clip_pixel(ROUND_POWER_OF_TWO(tmp, round_bits));
       } else {
+        if (conv_params->write) conv_params->p1[y * w + x] = res - round_offset;
         dst16[y * dst16_stride + x] = res;
       }
     }
   }
 }
 
+//sarahparker
 void av1_dist_wtd_convolve_x_c(const uint8_t *src, int src_stride, uint8_t *dst,
                                int dst_stride, int w, int h,
                                const InterpFilterParams *filter_params_x,
@@ -375,6 +392,7 @@ void av1_dist_wtd_convolve_x_c(const uint8_t *src, int src_stride, uint8_t *dst,
                            (1 << (offset_bits - conv_params->round_1 - 1));
   const int round_bits =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
+  conv_params->p1_p2_round = round_bits;
   (void)filter_params_y;
   (void)subpel_y_qn;
 
@@ -391,6 +409,7 @@ void av1_dist_wtd_convolve_x_c(const uint8_t *src, int src_stride, uint8_t *dst,
       res += round_offset;
 
       if (conv_params->do_average) {
+        if (conv_params->write) conv_params->p2[y * w + x] = res - round_offset;
         int32_t tmp = dst16[y * dst16_stride + x];
         if (conv_params->use_dist_wtd_comp_avg) {
           tmp = tmp * conv_params->fwd_offset + res * conv_params->bck_offset;
@@ -403,12 +422,13 @@ void av1_dist_wtd_convolve_x_c(const uint8_t *src, int src_stride, uint8_t *dst,
         dst[y * dst_stride + x] =
             clip_pixel(ROUND_POWER_OF_TWO(tmp, round_bits));
       } else {
+        if (conv_params->write) conv_params->p1[y * w + x] = res - round_offset;
         dst16[y * dst16_stride + x] = res;
       }
     }
   }
 }
-
+//sarahparker
 void av1_dist_wtd_convolve_2d_copy_c(const uint8_t *src, int src_stride,
                                      uint8_t *dst, int dst_stride, int w, int h,
                                      const InterpFilterParams *filter_params_x,
@@ -420,6 +440,7 @@ void av1_dist_wtd_convolve_2d_copy_c(const uint8_t *src, int src_stride,
   int dst16_stride = conv_params->dst_stride;
   const int bits =
       FILTER_BITS * 2 - conv_params->round_1 - conv_params->round_0;
+  conv_params->p1_p2_round = bits;
   const int bd = 8;
   const int offset_bits = bd + 2 * FILTER_BITS - conv_params->round_0;
   const int round_offset = (1 << (offset_bits - conv_params->round_1)) +
@@ -435,6 +456,7 @@ void av1_dist_wtd_convolve_2d_copy_c(const uint8_t *src, int src_stride,
       res += round_offset;
 
       if (conv_params->do_average) {
+        if (conv_params->write) conv_params->p2[y * w + x] = res - round_offset;
         int32_t tmp = dst16[y * dst16_stride + x];
         if (conv_params->use_dist_wtd_comp_avg) {
           tmp = tmp * conv_params->fwd_offset + res * conv_params->bck_offset;
@@ -446,6 +468,7 @@ void av1_dist_wtd_convolve_2d_copy_c(const uint8_t *src, int src_stride,
         tmp -= round_offset;
         dst[y * dst_stride + x] = clip_pixel(ROUND_POWER_OF_TWO(tmp, bits));
       } else {
+        if (conv_params->write) conv_params->p1[y * w + x] = res - round_offset;
         dst16[y * dst16_stride + x] = res;
       }
     }

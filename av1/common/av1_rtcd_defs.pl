@@ -79,18 +79,18 @@ if ($opts{arch} eq "x86_64") {
 }
 
 add_proto qw/void av1_convolve_horiz_rs/, "const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride, int w, int h, const int16_t *x_filters, int x0_qn, int x_step_qn";
-specialize qw/av1_convolve_horiz_rs sse4_1/;
+#specialize qw/av1_convolve_horiz_rs/;# sse4_1/;
 
 add_proto qw/void av1_highbd_convolve_horiz_rs/, "const uint16_t *src, int src_stride, uint16_t *dst, int dst_stride, int w, int h, const int16_t *x_filters, int x0_qn, int x_step_qn, int bd";
-specialize qw/av1_highbd_convolve_horiz_rs sse4_1/;
+#specialize qw/av1_highbd_convolve_horiz_rs sse4_1/;
 
 add_proto qw/void av1_wiener_convolve_add_src/,       "const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, const ConvolveParams *conv_params";
 
 add_proto qw/void av1_highbd_wiener_convolve_add_src/, "const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, const ConvolveParams *conv_params, int bd";
 
-specialize qw/av1_wiener_convolve_add_src sse2 avx2 neon/;
-specialize qw/av1_highbd_wiener_convolve_add_src ssse3/;
-specialize qw/av1_highbd_wiener_convolve_add_src avx2/;
+#specialize qw/av1_wiener_convolve_add_src sse2 avx2 neon/;
+#specialize qw/av1_highbd_wiener_convolve_add_src ssse3/;
+#specialize qw/av1_highbd_wiener_convolve_add_src avx2/;
 
 
 # directional intra predictor functions
@@ -115,13 +115,13 @@ add_proto qw/void av1_highbd_convolve_copy/, "const uint8_t *src, ptrdiff_t src_
 add_proto qw/void av1_highbd_convolve_avg/, "const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, int bps";
 
 add_proto qw/void av1_highbd_convolve8/, "const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, int bps";
-specialize qw/av1_highbd_convolve8/, "$sse2_x86_64";
+#specialize qw/av1_highbd_convolve8/, "$sse2_x86_64";
 
 add_proto qw/void av1_highbd_convolve8_horiz/, "const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, int bps";
-specialize qw/av1_highbd_convolve8_horiz/, "$sse2_x86_64";
+#specialize qw/av1_highbd_convolve8_horiz/, "$sse2_x86_64";
 
 add_proto qw/void av1_highbd_convolve8_vert/, "const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, int bps";
-specialize qw/av1_highbd_convolve8_vert/, "$sse2_x86_64";
+#specialize qw/av1_highbd_convolve8_vert/, "$sse2_x86_64";
 
 #inv txfm
 add_proto qw/void av1_inv_txfm_add/, "const tran_low_t *dqcoeff, uint8_t *dst, int stride, const TxfmParam *txfm_param";
@@ -514,30 +514,30 @@ add_proto qw/void av1_highbd_dist_wtd_convolve_2d_copy/, "const uint16_t *src, i
   add_proto qw/void av1_convolve_2d_scale/, "const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride, int w, int h, const InterpFilterParams *filter_params_x, const InterpFilterParams *filter_params_y, const int subpel_x_qn, const int x_step_qn, const int subpel_y_qn, const int y_step_qn, ConvolveParams *conv_params";
   add_proto qw/void av1_highbd_convolve_2d_scale/, "const uint16_t *src, int src_stride, uint16_t *dst, int dst_stride, int w, int h, const InterpFilterParams *filter_params_x, const InterpFilterParams *filter_params_y, const int subpel_x_qn, const int x_step_qn, const int subpel_y_qn, const int y_step_qn, ConvolveParams *conv_params, int bd";
 
-  specialize qw/av1_convolve_2d_sr sse2 avx2 neon/;
-  if (aom_config("CONFIG_EXT_PARTITIONS") eq "") {
-    specialize qw/av1_convolve_2d_copy_sr sse2 avx2 neon/;
-  } # CONFIG_EXT_PARTITIONS
-  specialize qw/av1_convolve_x_sr sse2 avx2 neon/;
-  specialize qw/av1_convolve_y_sr sse2 avx2 neon/;
-  specialize qw/av1_convolve_2d_scale sse4_1/;
-  specialize qw/av1_dist_wtd_convolve_2d sse2 ssse3 avx2 neon/;
-  if (aom_config("CONFIG_EXT_PARTITIONS") eq "") {
-    specialize qw/av1_dist_wtd_convolve_2d_copy sse2 avx2 neon/;
-    specialize qw/av1_dist_wtd_convolve_x sse2 avx2 neon/;
-    specialize qw/av1_dist_wtd_convolve_y sse2 avx2 neon/;
-    specialize qw/av1_highbd_convolve_2d_copy_sr sse2 avx2/;
-  } # CONFIG_EXT_PARTITIONS
-  specialize qw/av1_highbd_convolve_2d_sr ssse3 avx2/;
-  specialize qw/av1_highbd_convolve_x_sr ssse3 avx2/;
-  specialize qw/av1_highbd_convolve_y_sr ssse3 avx2/;
-  specialize qw/av1_highbd_convolve_2d_scale sse4_1/;
-  if (aom_config("CONFIG_EXT_PARTITIONS") eq "") {
-    specialize qw/av1_highbd_dist_wtd_convolve_2d sse4_1 avx2/;
-    specialize qw/av1_highbd_dist_wtd_convolve_x sse4_1 avx2/;
-    specialize qw/av1_highbd_dist_wtd_convolve_y sse4_1 avx2/;
-    specialize qw/av1_highbd_dist_wtd_convolve_2d_copy sse4_1 avx2/;
-  } # CONFIG_EXT_PARTITIONS
+	#specialize qw/av1_convolve_2d_sr sse2 avx2 neon/;
+# if (aom_config("CONFIG_EXT_PARTITIONS") eq "") {
+#   specialize qw/av1_convolve_2d_copy_sr sse2 avx2 neon/;
+# } # CONFIG_EXT_PARTITIONS
+# specialize qw/av1_convolve_x_sr sse2 avx2 neon/;
+# specialize qw/av1_convolve_y_sr sse2 avx2 neon/;
+# specialize qw/av1_convolve_2d_scale sse4_1/;
+# specialize qw/av1_dist_wtd_convolve_2d sse2 ssse3 avx2 neon/;
+# if (aom_config("CONFIG_EXT_PARTITIONS") eq "") {
+#   specialize qw/av1_dist_wtd_convolve_2d_copy sse2 avx2 neon/;
+#   specialize qw/av1_dist_wtd_convolve_x sse2 avx2 neon/;
+#   specialize qw/av1_dist_wtd_convolve_y sse2 avx2 neon/;
+#   specialize qw/av1_highbd_convolve_2d_copy_sr sse2 avx2/;
+# } # CONFIG_EXT_PARTITIONS
+# specialize qw/av1_highbd_convolve_2d_sr ssse3 avx2/;
+# specialize qw/av1_highbd_convolve_x_sr ssse3 avx2/;
+# specialize qw/av1_highbd_convolve_y_sr ssse3 avx2/;
+# specialize qw/av1_highbd_convolve_2d_scale sse4_1/;
+# if (aom_config("CONFIG_EXT_PARTITIONS") eq "") {
+#   specialize qw/av1_highbd_dist_wtd_convolve_2d sse4_1 avx2/;
+#   specialize qw/av1_highbd_dist_wtd_convolve_x sse4_1 avx2/;
+#   specialize qw/av1_highbd_dist_wtd_convolve_y sse4_1 avx2/;
+#   specialize qw/av1_highbd_dist_wtd_convolve_2d_copy sse4_1 avx2/;
+# } # CONFIG_EXT_PARTITIONS
 
 # INTRA_EDGE functions
 add_proto qw/void av1_filter_intra_edge/, "uint8_t *p, int sz, int strength";
