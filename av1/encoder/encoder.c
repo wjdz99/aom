@@ -10,6 +10,8 @@
  */
 
 #include <limits.h>
+#include <unistd.h>
+#include <sys/types.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -678,6 +680,11 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
 
   aom_free(cpi->td.mb.inter_modes_info);
   cpi->td.mb.inter_modes_info = NULL;
+  if (cpi->training_fp) {
+    fclose(cpi->training_fp);
+    printf("Training file closed\n");
+    cpi->training_fp = NULL;
+  }
 
   for (int i = 0; i < 2; i++)
     for (int j = 0; j < 2; j++) {
@@ -1272,6 +1279,18 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
 
   cpi->oxcf = *oxcf;
   cpi->framerate = oxcf->init_framerate;
+
+  if (cpi->training_fp) {
+    fclose(cpi->training_fp);
+    printf("Training file closed\n");
+  }
+  // Generate a random filename so we can collect training data in parallel
+  char filename_buf[15];
+  unsigned int seed = (unsigned int)getpid();
+  unsigned int rand_val = lcg_rand16(&seed);
+  sprintf(filename_buf, "train%d.dat", rand_val);
+  cpi->training_fp = fopen(filename_buf, "wb");
+  if (cpi->training_fp != NULL) printf("Training file opened\n");
 
   cm->seq_params.profile = oxcf->profile;
   cm->seq_params.bit_depth = oxcf->bit_depth;
@@ -2877,6 +2896,8 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   RATE_CONTROL *const rc = &cpi->rc;
   MACROBLOCK *const x = &cpi->td.mb;
 
+  cpi->td.mb.e_mbd.training_fp = cpi->training_fp;
+
   if (seq_params->profile != oxcf->profile) seq_params->profile = oxcf->profile;
   seq_params->bit_depth = oxcf->bit_depth;
   seq_params->color_primaries = oxcf->color_primaries;
@@ -3000,7 +3021,8 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   rc->worst_quality = cpi->oxcf.worst_allowed_q;
   rc->best_quality = cpi->oxcf.best_allowed_q;
 
-  cm->interp_filter = oxcf->large_scale_tile ? EIGHTTAP_REGULAR : SWITCHABLE;
+  //cm->interp_filter = oxcf->large_scale_tile ? EIGHTTAP_REGULAR : SWITCHABLE;
+  cm->interp_filter = EIGHTTAP_REGULAR;
   cm->switchable_motion_mode = 1;
 
   if (cpi->oxcf.render_width > 0 && cpi->oxcf.render_height > 0) {
@@ -4080,7 +4102,8 @@ static void set_size_independent_vars(AV1_COMP *cpi) {
 
   av1_set_speed_features_framesize_independent(cpi, cpi->speed);
   av1_set_rd_speed_thresholds(cpi);
-  cm->interp_filter = SWITCHABLE;
+  //cm->interp_filter = SWITCHABLE;
+  cm->interp_filter = EIGHTTAP_REGULAR;
   cm->switchable_motion_mode = 1;
 }
 
@@ -5709,6 +5732,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
   // frame type has been decided outside of this function call
   cm->cur_frame->frame_type = current_frame->frame_type;
+  printf("order %d\n",cm->current_frame.display_order_hint);
 
   cm->large_scale_tile = cpi->oxcf.large_scale_tile;
   cm->single_tile_decoding = cpi->oxcf.single_tile_decoding;

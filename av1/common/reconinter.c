@@ -362,6 +362,29 @@ void av1_build_inter_predictors(
             &conv_params, mi->interp_filters, &warp_types,
             mi_x >> pd->subsampling_x, mi_y >> pd->subsampling_y, plane, ref,
             mi, build_for_obmc, xd, cm->allow_warped_motion);
+          /*
+        if (ref == 0) {
+          for (int i = 0; i < bh; i++) {
+            for (int j = 0; j < bw; j++) {
+              xd->pred1[i * MAX_SB_SIZE + j] = dst[i * dst_buf->stride + j];
+            }
+          }
+          //memcpy(xd->pred1, tmp_dst, MAX_SB_SQUARE * sizeof(*tmp_dst));
+        } else {
+          for (int i = 0; i < bh; i++) {
+            for (int j = 0; j < bw; j++) {
+              xd->pred2[i * MAX_SB_SIZE + j] = dst[i * dst_buf->stride + j];
+            }
+          }
+          // do avg
+          for (int i = 0; i < bh; i++) {
+            for (int j = 0; j < bw; j++) {
+              dst[i * dst_buf->stride + j] = (xd->pred1[i * MAX_SB_SIZE + j] +
+                                              xd->pred2[i * MAX_SB_SIZE + j] + 0.5) / 2;
+            }
+          }
+        }
+          */
       }
     }
   }
@@ -961,6 +984,17 @@ void av1_make_masked_inter_predictor(
                            sf, w, h, conv_params, interp_filters, warp_types,
                            p_col, p_row, plane, ref, mi, 0, xd,
                            can_use_previous);
+  /*
+  CONV_BUF_TYPE *tmp_buf16_2;
+  if (ref == 0) {
+    assert(0);
+    memcpy(xd->pred1, tmp_dst, MAX_SB_SQUARE * sizeof(*tmp_dst));
+    tmp_buf16_2 = (CONV_BUF_TYPE *)xd->pred1;
+  } else {
+    memcpy(xd->pred2, tmp_dst, MAX_SB_SQUARE * sizeof(*tmp_dst));
+    tmp_buf16_2 = (CONV_BUF_TYPE *)xd->pred2;
+  }
+  */
 
   if (!plane && comp_data->type == COMPOUND_DIFFWTD) {
 #if CONFIG_CTX_ADAPT_LOG_WEIGHT || CONFIG_DIFFWTD_42

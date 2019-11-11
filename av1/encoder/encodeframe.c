@@ -6214,6 +6214,135 @@ static void tx_partition_set_contexts(const AV1_COMMON *const cm,
       set_txfm_context(xd, max_tx_size, idy, idx);
 }
 
+static void get_training_data(const AV1_COMP *const cpi,
+                              MACROBLOCK *const x, BLOCK_SIZE bsize,
+                              int plane, int mi_row, int mi_col) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  struct macroblock_plane *const p = &x->plane[plane];
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+  const AV1_COMMON *const cm = &cpi->common;
+  // TODO(sarahparker) replace 0, 0 with mi_row, mi_col
+  const BLOCK_SIZE plane_bsize =
+      get_plane_block_size(0, 0, bsize, pd->subsampling_x, pd->subsampling_y);
+  const uint8_t bw = block_size_wide[plane_bsize];
+  const uint8_t bh = block_size_high[plane_bsize];
+
+  const uint8_t is_compound = has_second_ref(mbmi);
+  if (!is_compound) return;
+  // Do not write for hbd
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) return;
+  RefCntBuffer *buf1 = NULL;
+  RefCntBuffer *buf2 = NULL;
+  buf1 = get_ref_frame_buf(cm, mbmi->ref_frame[0]);
+  if (buf1 == NULL) return;
+  if (is_compound) {
+    buf2 = get_ref_frame_buf(cm, mbmi->ref_frame[1]);
+    if (buf2 == NULL) return;
+    if (buf1->buf.y_width != buf2->buf.y_width) return;
+    if (buf1->buf.y_height != buf2->buf.y_height) return;
+  }
+  //printf("mi row %d mi col %d w %d h %d\n", mi_row, mi_col, buf1->buf.y_width, buf1->buf.y_height);
+  uint8_t *ref_buffer;
+
+  uint8_t *dst8 = pd->dst.buf;
+  const int dst_stride = pd->dst.stride;
+  uint8_t *src8 = p->src.buf;
+  const int src_stride = p->src.stride;
+  int i;
+  FILE *fp = xd->training_fp;
+
+  // write block width and height
+
+  fwrite(&bw, 1, sizeof(bw), fp);
+  fwrite(&bh, 1, sizeof(bh), fp);
+
+  // Cur patch src and dst
+  for (i = 0; i < bh; ++i)
+    fwrite(src8 + i * src_stride, sizeof(*src8), bw, fp);
+  for (i = 0; i < bh; ++i)
+    fwrite(dst8 + i * dst_stride, sizeof(*dst8), bw, fp);
+
+
+  fwrite(&is_compound, 1, sizeof(is_compound), fp);
+  uint8_t prec = (uint8_t)mbmi->mv_precision;
+  fwrite(&prec, 1, sizeof(prec), fp);
+
+  uint64_t cur_order = (uint64_t)cm->current_frame.display_order_hint;
+  fwrite(&cur_order, 1, sizeof(cur_order), fp);
+  ///////////////// REFERENCES /////////////////////
+//if (is_compound) {
+//  const uint8_t compound_type = (uint8_t)mbmi->interinter_comp.type;
+//  fwrite(&compound_type, 1, sizeof(compound_type), fp);
+//}
+  for (int r = 0; r < 1 + is_compound; r++) {
+    YV12_BUFFER_CONFIG *ref_buf = r ? &buf2->buf : &buf1->buf;
+    ref_buffer = ref_buf->y_buffer;
+
+    // Decide how many pixels to write around the block border
+    uint8_t border_width = 4;
+    if (!((mi_row * 4) - border_width > 0 &&
+        (mi_col * 4) - border_width > 0 &&
+        (mi_row * 4) + bh + border_width < ref_buf->y_width &&
+        (mi_col * 4) + bw + border_width < ref_buf->y_height)) border_width = 0;
+
+    // write border width
+    fwrite(&border_width, 1, sizeof(border_width), fp);
+
+    // Get motion vectors
+    int16_t mv_row = mbmi->mv[r].as_mv.row;
+    int16_t mv_col = mbmi->mv[r].as_mv.col;
+
+    // Get integer precision motion vector
+    int mv_row_int = (int)mv_row/(1 << mbmi->mv_precision);
+    int mv_col_int = (int)mv_col/(1 << mbmi->mv_precision);
+//  float mv_row_doub = ((float)mv_row)/(1 << mbmi->mv_precision);
+//  float mv_col_doub = ((float)mv_col)/(1 << mbmi->mv_precision);
+    /////////////////
+//  int_mv mv_int;
+//  mv_int.as_mv.row = mv_row;
+//  mv_int.as_mv.col = mv_col;
+//  lower_mv_precision(&mv_int.as_mv, MV_SUBPEL_NONE);
+//  int mv_row_int2 = (int)mv_int.as_mv.row >> mbmi->mv_precision;
+//  int mv_col_int2 = (int)mv_int.as_mv.col >> mbmi->mv_precision;
+    ////////////////
+    /*
+    printf("mv %d %d, floor %d %d, round %d %d, doub %f %f\n",
+           mv_row, mv_col,
+           mv_row_int, mv_col_int,
+           mv_row_int2, mv_col_int2, mv_row_doub, mv_col_doub);
+           */
+
+    // write mv
+    fwrite(&mv_row, 1, sizeof(mv_row), fp);
+    fwrite(&mv_col, 1, sizeof(mv_col), fp);
+
+    // write reference patches according to mv
+    int ref_row = ((mi_row * 4) + mv_row_int) - border_width;
+    int ref_col = ((mi_col * 4) + mv_col_int) - border_width;
+    int patch_w = bw + (2 * border_width);
+    int patch_h = bh + (2 * border_width);
+    for (i = ref_row; i < ref_row + patch_h; ++i)
+      fwrite(ref_buffer + i * ref_buf->y_stride + ref_col, sizeof(*ref_buffer), patch_w, fp);
+
+    // write reference patches according to (0, 0)
+    ref_row = ((mi_row * 4)) - border_width;
+    ref_col = ((mi_col * 4)) - border_width;
+    patch_w = bw + (2 * border_width);
+    patch_h = bh + (2 * border_width);
+    for (i = ref_row; i < ref_row + patch_h; ++i)
+      fwrite(ref_buffer + i * ref_buf->y_stride + ref_col, sizeof(*ref_buffer), patch_w, fp);
+
+    // write order hints
+    uint64_t ref1_order =
+            (uint64_t)cm->cur_frame->ref_display_order_hint[mbmi->ref_frame[r] - LAST_FRAME];
+    fwrite(&ref1_order, 1, sizeof(ref1_order), fp);
+  }
+  int r1 = cm->cur_frame->ref_display_order_hint[mbmi->ref_frame[0] - LAST_FRAME];
+  int r2 = cm->cur_frame->ref_display_order_hint[mbmi->ref_frame[1] - LAST_FRAME];
+  int cur = cm->current_frame.display_order_hint;
+}
+
 static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                               ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
                               int mi_row, int mi_col, BLOCK_SIZE bsize,
@@ -6308,6 +6437,11 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     (void)num_planes;
 #endif
 
+    if (!dry_run && !x->skip && bsize > BLOCK_16X16
+        && bsize != BLOCK_4X16 && bsize != BLOCK_16X4 &&
+        mbmi->interinter_comp.type == COMPOUND_AVERAGE) {
+      get_training_data(cpi, x, bsize, 0, mi_row, mi_col);
+    }
     av1_encode_sb(cpi, x, bsize, mi_row, mi_col, dry_run);
     av1_tokenize_sb_tx_size(cpi, td, t, dry_run, mi_row, mi_col, bsize, rate,
                             tile_data->allow_update_cdf);
