@@ -140,9 +140,8 @@ set_aom_config_var(CONFIG_LOOP_RESTORE_CNN 0 NUMBER
                    "AV2 CNN in Loop Restoration experiment flag")
 set_aom_config_var(CONFIG_FLEX_PARTITION 0 NUMBER
                    "AV2 Flexible partition experiment flag")
-set_aom_config_var(
-  CONFIG_EXT_PARTITIONS 0 NUMBER
-  "AV2 3way partitions and recursive a/b partition experiment flag")
+set_aom_config_var(CONFIG_RECURSIVE_ABPART 0 NUMBER
+                   "AV2 recursive a/b partition experiment flag")
 set_aom_config_var(CONFIG_INTRA_ENTROPY 0 NUMBER
                    "AV2 intra mode entropy coding experiment flag")
 set_aom_config_var(CONFIG_USE_SMALL_MODEL 1 NUMBER
@@ -151,6 +150,8 @@ set_aom_config_var(CONFIG_NEW_TX_PARTITION 0 NUMBER
                    "AV2 new transform partitions experiment flag")
 set_aom_config_var(CONFIG_NEW_TX_PARTITION_EXT 0 NUMBER
                    "AV2 extended transform partitions experiment flag")
+set_aom_config_var(CONFIG_3WAY_PARTITIONS 0 NUMBER
+                   "AV2 3-way partitions experiment flag")
 set_aom_config_var(CONFIG_FLEX_MVRES 0 NUMBER
                    "AV2 Flexible MV resolution experiment flag")
 set_aom_config_var(CONFIG_CTX_ADAPT_LOG_WEIGHT 0 NUMBER
@@ -174,6 +175,8 @@ set_aom_config_var(CONFIG_COMPANDED_MV 0 NUMBER
 # tensorflow/contrib/makefile/build_all_linux.sh and then providing the correct
 # path to tensorflow root via TENSORFLOW_INCLUDE_DIR.
 set_aom_config_var(CONFIG_TENSORFLOW 0 NUMBER "AV2 TF experiment flag.")
+set_aom_config_var(CONFIG_TENSORFLOW_LITE 0 NUMBER
+   "AV2 TF Lite experiment flag.")
 
 set_aom_config_var(CONFIG_LPF_MASK 0 NUMBER
                    "Enable the use loop filter bitmasks for optimizations.")
