@@ -175,6 +175,30 @@
       "revId": "7345411ac240220758b919cd9b693133d44d2b92",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61126dae_b1fd3ed9",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 17
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-11T20:16:51Z",
+      "side": 1,
+      "message": "This would be fine: the byte-by-byte compare stands out when there\u0027s a library function for that. \n\nI have a super minor concern about potential collisions in real data, but I don\u0027t suspect the expected sequence can happen by accident with any high probability.",
+      "parentUuid": "bdaf5fb6_47bf0a3b",
+      "range": {
+        "startLine": 52,
+        "startChar": 6,
+        "endLine": 57,
+        "endChar": 7
+      },
+      "revId": "7345411ac240220758b919cd9b693133d44d2b92",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
