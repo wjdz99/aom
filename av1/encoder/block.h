@@ -427,6 +427,10 @@ struct macroblock {
   int wiener_nonsep_restore_cost[2];
 #endif  // CONFIG_WIENER_NONSEP
   int intrabc_cost[2];
+#if CONFIG_DERIVED_INTRA_MODE
+  int derived_intra_mode_cost[3][2];
+#endif
+
 
   // Used to store sub partition's choices.
   MV pred_mv[REF_FRAMES];

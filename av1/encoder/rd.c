@@ -292,6 +292,12 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
                            fc->wiener_nonsep_restore_cdf, NULL);
 #endif  // CONFIG_WIENER_NONSEP
   av1_cost_tokens_from_cdf(x->intrabc_cost, fc->intrabc_cdf, NULL);
+#if CONFIG_DERIVED_INTRA_MODE
+  for (i = 0; i < 3; ++i) {
+    av1_cost_tokens_from_cdf(x->derived_intra_mode_cost[i],
+                             fc->derived_intra_mode_cdf[i], NULL);
+  }
+#endif
 
   if (!frame_is_intra_only(cm)) {
     for (i = 0; i < COMP_INTER_CONTEXTS; ++i) {

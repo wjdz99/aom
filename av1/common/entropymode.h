@@ -285,6 +285,9 @@ typedef struct frame_contexts {
   aom_cdf_prob cfl_sign_cdf[CDF_SIZE(CFL_JOINT_SIGNS)];
   aom_cdf_prob cfl_alpha_cdf[CFL_ALPHA_CONTEXTS][CDF_SIZE(CFL_ALPHABET_SIZE)];
   int initialized;
+#if CONFIG_DERIVED_INTRA_MODE
+  aom_cdf_prob derived_intra_mode_cdf[3][CDF_SIZE(2)];
+#endif
 } FRAME_CONTEXT;
 
 #if CONFIG_MODE_DEP_TX

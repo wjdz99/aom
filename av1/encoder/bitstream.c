@@ -77,16 +77,28 @@ static void write_intra_y_mode_kf(MACROBLOCKD *const xd,
   assert(!is_intrabc_block(mi));
   (void)mi;
 
+  int write_y_mode = 1;
+#if CONFIG_DERIVED_INTRA_MODE
+  if (av1_enable_derived_intra_mode(xd, mi->sb_type)) {
+    aom_write_symbol(w, mi->use_derived_intra_mode,
+                     get_derived_intra_mode_cdf(
+                         frame_ctx, xd->above_mbmi, xd->left_mbmi), 2);
+    if (mi->use_derived_intra_mode) write_y_mode = 0;
+  }
+#endif
+
+  if (write_y_mode) {
 #if CONFIG_INTRA_ENTROPY
-  aom_cdf_prob cdf[INTRA_MODES];
-  av1_get_kf_y_mode_cdf_ml(xd, cdf);
-  aom_write_symbol_nn(w, mode, cdf, &(frame_ctx->intra_y_mode), INTRA_MODES);
+    aom_cdf_prob cdf[INTRA_MODES];
+    av1_get_kf_y_mode_cdf_ml(xd, cdf);
+    aom_write_symbol_nn(w, mode, cdf, &(frame_ctx->intra_y_mode), INTRA_MODES);
 #else
-  const MB_MODE_INFO *const above_mi = xd->above_mbmi;
-  const MB_MODE_INFO *const left_mi = xd->left_mbmi;
-  aom_write_symbol(w, mode, get_y_mode_cdf(frame_ctx, above_mi, left_mi),
-                   INTRA_MODES);
+    const MB_MODE_INFO *const above_mi = xd->above_mbmi;
+    const MB_MODE_INFO *const left_mi = xd->left_mbmi;
+    aom_write_symbol(w, mode, get_y_mode_cdf(frame_ctx, above_mi, left_mi),
+                     INTRA_MODES);
 #endif  // CONFIG_INTRA_ENTROPY
+  }
 
   // Write data into file for training data collection
 #if 0
@@ -1251,7 +1263,11 @@ static void write_intra_prediction_modes(AV1_COMP *cpi, const int mi_row,
 
   // Y angle delta.
   const int use_angle_delta = av1_use_angle_delta(bsize);
-  if (use_angle_delta && av1_is_directional_mode(mode)) {
+  if (use_angle_delta &&
+#if CONFIG_DERIVED_INTRA_MODE
+      !mbmi->use_derived_intra_mode &&
+#endif
+      av1_is_directional_mode(mode)) {
     write_angle_delta(w, mbmi->angle_delta[PLANE_TYPE_Y],
                       ec_ctx->angle_delta_cdf[mode - V_PRED]);
   }

@@ -2160,6 +2160,88 @@ static void build_intra_predictors(
   // 129  G   H  ..  S   T   T   T   T   T
   // ..
 
+#if 0
+  int angles[180] = {0};
+  for (int i = 0; i < 8; ++i) {
+    for (int j = -3; j <= 3; ++j) {
+      int a = mode_to_angle_map[i + 1] + j * 3;
+      if (a >= 180) a -= 180;
+      angles[a] = 1;
+    }
+  }
+
+  int total = 0;
+  int table[56];
+  for (int i = 0; i < 180; ++i) {
+    //printf("%d, ", angles[i]);
+    if (angles[i]) {
+      table[total++] = i;
+    }
+  }
+  printf("total %d \n", total);
+  for (int i = 0; i < total; ++i) {
+    printf("%d, ", table[i]);
+  }
+  printf("\n\n");
+#endif
+
+#if 0
+  static const int angles[56] = {
+      0, 3, 6, 9, 14, 17, 20, 23, 26, 29, 32, 36, 39, 42, 45, 48, 51, 54, 58, 61,
+      64, 67, 70, 73, 76, 81, 84, 87, 90, 93, 96, 99, 104, 107, 110, 113, 116,
+      119, 122, 126, 129, 132, 135, 138, 141, 144, 148, 151, 154, 157, 160, 163,
+      166, 171, 174, 177,
+  };
+  int bins[180] = {0};
+  for (int i = 0; i < 180; ++i) {
+    int m = 100;
+    int idx = -1;
+    for (int j = 0; j < 56; ++j) {
+      int this_diff = abs(i - angles[j]);
+      if (this_diff < m) {
+        m = this_diff;
+        idx = j;
+      }
+    }
+    bins[i] = idx;
+  }
+
+  printf("\n\n");
+  for (int i = 0; i < 180; ++i) {
+    printf("%d, ", bins[i]);
+    if (i % 16 == 15) printf("\n");
+  }
+  printf("\n\n");
+#endif
+
+#if 0
+  static const int angles[56] = {
+      0, 3, 6, 9, 14, 17, 20, 23, 26, 29, 32, 36, 39, 42, 45, 48, 51, 54, 58, 61,
+      64, 67, 70, 73, 76, 81, 84, 87, 90, 93, 96, 99, 104, 107, 110, 113, 116,
+      119, 122, 126, 129, 132, 135, 138, 141, 144, 148, 151, 154, 157, 160, 163,
+      166, 171, 174, 177,
+  };
+
+  int bin_to_mode[56] = {0};
+  printf("\n");
+  for (int i = 0; i < 56; ++i) {
+    const int angle = angles[i];
+    for (int j = 0; j < 8; ++j) {
+      for (int k = -3; k <= 3; ++k) {
+        int a = mode_to_angle_map[j + 1] + k * 3;
+        if (a >= 180) a -= 180;
+        if (a == angle) {
+          bin_to_mode[i] = j + 1;
+        }
+      }
+    }
+    printf("%d, ", bin_to_mode[i]);
+    if (i % 16 == 15) printf("\n");
+  }
+  printf("\n");
+#endif
+
+
   if (is_dr_mode) {
     p_angle = mode_to_angle_map[mode] + angle_delta;
     if (p_angle <= 90)

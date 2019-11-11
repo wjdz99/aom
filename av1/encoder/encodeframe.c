@@ -906,6 +906,14 @@ static void sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
   const BLOCK_SIZE bsize = mbmi->sb_type;
 
   if (intraonly) {
+    int update_mode_cdf = allow_update_cdf;
+#if CONFIG_DERIVED_INTRA_MODE
+    if (allow_update_cdf) {
+      update_cdf(get_derived_intra_mode_cdf(fc, above_mi, left_mi),
+                 mbmi->use_derived_intra_mode, 2);
+    }
+    if (mbmi->use_derived_intra_mode) update_mode_cdf = 0;
+#endif
 #if CONFIG_ENTROPY_STATS
     const PREDICTION_MODE above = av1_above_block_mode(above_mi);
     const PREDICTION_MODE left = av1_left_block_mode(left_mi);
@@ -913,7 +921,7 @@ static void sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
     const int left_ctx = intra_mode_context[left];
     ++counts->kf_y_mode[above_ctx][left_ctx][y_mode];
 #endif  // CONFIG_ENTROPY_STATS
-    if (allow_update_cdf) {
+    if (update_mode_cdf) {
 #if CONFIG_INTRA_ENTROPY
       NN_CONFIG_EM *nn_model = &(fc->intra_y_mode);
       av1_get_intra_block_feature(nn_model->sparse_features,
@@ -4661,6 +4669,9 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   avg_nmv(&ctx_left->nmvc, &ctx_tr->nmvc, wt_left, wt_tr);
   avg_nmv(&ctx_left->ndvc, &ctx_tr->ndvc, wt_left, wt_tr);
   AVERAGE_CDF(ctx_left->intrabc_cdf, ctx_tr->intrabc_cdf, 2);
+#if CONFIG_DERIVED_INTRA_MODE
+  AVERAGE_CDF(ctx_left->derived_intra_mode_cdf, ctx_tr->intrabc_cdf, 2);
+#endif
   AVERAGE_CDF(ctx_left->seg.tree_cdf, ctx_tr->seg.tree_cdf, MAX_SEGMENTS);
   AVERAGE_CDF(ctx_left->seg.pred_cdf, ctx_tr->seg.pred_cdf, 2);
   AVERAGE_CDF(ctx_left->seg.spatial_pred_seg_cdf,
@@ -6232,6 +6243,28 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   const int is_inter = is_inter_block(mbmi);
 
   if (!is_inter) {
+#if CONFIG_DERIVED_INTRA_MODE
+    if (mbmi->use_derived_intra_mode) {
+      int8_t derived_angle_delta;
+      const int derived_mode =
+          av1_get_derived_intra_mode(xd, bsize, &derived_angle_delta);
+      if (mbmi->mode != derived_mode ||
+          mbmi->angle_delta[0] != derived_angle_delta) {
+        printf("\nerror encode_superblock %d %d\n",
+               mbmi->mode, mbmi->angle_delta[0]);
+      }
+    }
+#endif
+
+#if 0
+    if (av1_is_directional_mode(mbmi->mode)) {
+      int8_t temp;
+      const int xxx = av1_get_derived_intra_mode(xd, &temp);
+      //printf("derived %d %d, actually %d %d\n",
+        //     xxx, temp, mbmi->mode, mbmi->angle_delta[0]);
+    }
+#endif
+
     xd->cfl.is_chroma_reference =
         is_chroma_reference(mi_row, mi_col, bsize, cm->seq_params.subsampling_x,
                             cm->seq_params.subsampling_y);
