@@ -5733,7 +5733,7 @@ static void set_mb_ssim_rdmult_scaling(AV1_COMP *cpi) {
         }
       }
       var = var / num_of_var;
-      var = 2.0 * var + c2;
+      var = 67.035434 * (1 - exp(-0.0021489 * var)) + 17.492222;
       cpi->ssim_rdmult_scaling_factors[index] = var;
       log_sum += log(var);
     }
