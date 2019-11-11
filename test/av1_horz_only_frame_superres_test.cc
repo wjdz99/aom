@@ -297,8 +297,10 @@ class LowBDConvolveHorizRSTest
 TEST_P(LowBDConvolveHorizRSTest, Correctness) { CorrectnessTest(); }
 TEST_P(LowBDConvolveHorizRSTest, DISABLED_Speed) { SpeedTest(); }
 
+/*
 INSTANTIATE_TEST_CASE_P(SSE4_1, LowBDConvolveHorizRSTest,
                         ::testing::Values(av1_convolve_horiz_rs_sse4_1));
+                        */
 
 typedef void (*HighBDConvolveHorizRsFunc)(const uint16_t *src, int src_stride,
                                           uint16_t *dst, int dst_stride, int w,
@@ -354,9 +356,11 @@ const int kBDs[] = { 8, 10, 12 };
 TEST_P(HighBDConvolveHorizRSTest, Correctness) { CorrectnessTest(); }
 TEST_P(HighBDConvolveHorizRSTest, DISABLED_Speed) { SpeedTest(); }
 
+/*
 INSTANTIATE_TEST_CASE_P(
     SSE4_1, HighBDConvolveHorizRSTest,
     ::testing::Combine(::testing::Values(av1_highbd_convolve_horiz_rs_sse4_1),
                        ::testing::ValuesIn(kBDs)));
+                       */
 
 }  // namespace
