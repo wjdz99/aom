@@ -686,11 +686,11 @@ const int8_t *av1_fwd_txfm_shift_ls[TX_SIZES_ALL] = {
 
 const int8_t av1_fwd_cos_bit_col[MAX_TXWH_IDX /*txw_idx*/]
                                 [MAX_TXWH_IDX /*txh_idx*/] = {
-                                  { 13, 13, 13, 0, 0 },
-                                  { 13, 13, 13, 12, 0 },
                                   { 13, 13, 13, 12, 13 },
-                                  { 0, 13, 13, 12, 13 },
-                                  { 0, 0, 13, 12, 13 }
+                                  { 13, 13, 13, 12, 13 },
+                                  { 13, 13, 13, 12, 13 },
+                                  { 13, 13, 13, 12, 13 },
+                                  { 13, 13, 13, 12, 13 }
                                 };
 
 const int8_t av1_fwd_cos_bit_row[MAX_TXWH_IDX /*txw_idx*/]
