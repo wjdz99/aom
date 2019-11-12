@@ -753,9 +753,10 @@ static AOM_INLINE void pick_sb_modes(AV1_COMP *const cpi,
                               &x->simple_motion_pred_sse, &var);
   }
 
+  int try_filter = 1;
   // If the threshold for disabling wedge search is zero, it means the feature
   // should not be used. Use a value that will always succeed in the check.
-  if (cpi->sf.disable_wedge_search_edge_thresh == 0) {
+  if (!try_filter && cpi->sf.disable_wedge_search_edge_thresh == 0) {
     x->edge_strength = UINT16_MAX;
     x->edge_strength_x = UINT16_MAX;
     x->edge_strength_y = UINT16_MAX;
