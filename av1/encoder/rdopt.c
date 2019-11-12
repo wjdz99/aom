@@ -9019,7 +9019,8 @@ static INLINE void save_comp_rd_search_stat(MACROBLOCK *x,
 
 static INLINE int find_interp_filter_match(
     MB_MODE_INFO *const mbmi, const AV1_COMP *const cpi,
-    const InterpFilter assign_filter, const int need_search,
+    const InterpFilter assign_x_filter, const InterpFilter assign_y_filter,
+    const int need_search,
     INTERPOLATION_FILTER_STATS (*interp_filter_stats)[MAX_INTERP_FILTER_STATS],
     int *interp_filter_stats_idx) {
   int match_found_idx = -1;
@@ -9027,8 +9028,13 @@ static INLINE int find_interp_filter_match(
     match_found_idx = find_interp_filter_in_stats(mbmi, interp_filter_stats,
                                                   interp_filter_stats_idx);
 
-  if (!need_search || match_found_idx == -1)
-    set_default_interp_filters(mbmi, assign_filter);
+  if (!need_search || match_found_idx == -1) {
+    mbmi->interp_filters.as_filters.x_filter =
+        av1_unswitchable_filter(assign_x_filter);
+    mbmi->interp_filters.as_filters.y_filter =
+        av1_unswitchable_filter(assign_y_filter);
+  }
+
   return match_found_idx;
 }
 
@@ -9107,8 +9113,8 @@ static int64_t interpolation_filter_search(
   const InterpFilter assign_filter = cm->interp_filter;
 
   match_found_idx = find_interp_filter_match(
-      mbmi, cpi, assign_filter, need_search, args->interp_filter_stats,
-      args->interp_filter_stats_idx);
+      mbmi, cpi, assign_filter, assign_filter, need_search,
+      args->interp_filter_stats, args->interp_filter_stats_idx);
 
   if (match_found_idx != -1) {
     const int comp_idx = mbmi->compound_idx;
@@ -10930,10 +10936,43 @@ static int64_t handle_inter_mode(
     if (is_comp_pred) {
       // Find matching interp filter or set to default interp filter
       const int need_search = av1_is_interp_needed(xd);
-      const InterpFilter assign_filter = cm->interp_filter;
       int is_luma_interp_done = 0;
-      find_interp_filter_match(mbmi, cpi, assign_filter, need_search,
-                               args->interp_filter_stats,
+      InterpFilter assign_x_filter = cm->interp_filter;
+      InterpFilter assign_y_filter = cm->interp_filter;
+
+      {
+        const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+        const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
+        int left_dis = INT_MAX, above_dis = INT_MAX;
+
+        if (xd->up_available &&
+            above_mbmi->ref_frame[0] == mbmi->ref_frame[0] &&
+            above_mbmi->ref_frame[1] == mbmi->ref_frame[1]) {
+          above_dis = abs(mbmi->mv[0].as_mv.row - above_mbmi->mv[0].as_mv.row) +
+                      abs(mbmi->mv[0].as_mv.col - above_mbmi->mv[0].as_mv.col) +
+                      abs(mbmi->mv[1].as_mv.row - above_mbmi->mv[1].as_mv.row) +
+                      abs(mbmi->mv[1].as_mv.col - above_mbmi->mv[1].as_mv.col);
+        }
+        if (xd->left_available &&
+            left_mbmi->ref_frame[0] == mbmi->ref_frame[0] &&
+            left_mbmi->ref_frame[1] == mbmi->ref_frame[1]) {
+          left_dis = abs(mbmi->mv[0].as_mv.row - left_mbmi->mv[0].as_mv.row) +
+                     abs(mbmi->mv[0].as_mv.col - left_mbmi->mv[0].as_mv.col) +
+                     abs(mbmi->mv[1].as_mv.row - left_mbmi->mv[1].as_mv.row) +
+                     abs(mbmi->mv[1].as_mv.col - left_mbmi->mv[1].as_mv.col);
+        }
+
+        if (above_dis <= left_dis && above_dis < 12) {
+          assign_x_filter = above_mbmi->interp_filters.as_filters.x_filter;
+          assign_y_filter = above_mbmi->interp_filters.as_filters.y_filter;
+        } else if (left_dis < above_dis && left_dis < 12) {
+          assign_x_filter = left_mbmi->interp_filters.as_filters.x_filter;
+          assign_y_filter = left_mbmi->interp_filters.as_filters.y_filter;
+        }
+      }
+
+      find_interp_filter_match(mbmi, cpi, assign_x_filter, assign_y_filter,
+                               need_search, args->interp_filter_stats,
                                args->interp_filter_stats_idx);
 
       int64_t best_rd_compound;
