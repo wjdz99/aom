@@ -230,6 +230,8 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   a = &args->ta[blk_col];
   l = &args->tl[blk_row];
 
+  // if (dry_run == OUTPUT_ENABLED && tx_size == TX_64X64)
+  //   printf("Gotcha\n");
   if (!is_blk_skip(x, plane, blk_row * bw + blk_col) && !mbmi->skip_mode) {
     TX_TYPE tx_type = av1_get_tx_type(pd->plane_type, xd, blk_row, blk_col,
                                       tx_size, cm->reduced_tx_set_used);
