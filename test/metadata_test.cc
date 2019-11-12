@@ -102,7 +102,7 @@ TEST(MetadataTest, MetadataAllocation) {
   aom_metadata_t *metadata = aom_img_metadata_alloc(
       OBU_METADATA_TYPE_ITUT_T35, kExampleData, kExampleDataSize);
   ASSERT_NE(metadata, nullptr);
-  EXPECT_EQ(aom_img_metadata_free(metadata), 0);
+  aom_img_metadata_free(metadata);
 }
 
 TEST(MetadataTest, MetadataArrayAllocation) {
@@ -114,7 +114,7 @@ TEST(MetadataTest, MetadataArrayAllocation) {
   metadata_array->metadata_array[1] = aom_img_metadata_alloc(
       OBU_METADATA_TYPE_ITUT_T35, kExampleData, kExampleDataSize);
 
-  EXPECT_EQ(aom_img_metadata_array_free(metadata_array), 2u);
+  aom_img_metadata_array_free(metadata_array);
 }
 
 TEST(MetadataTest, AddMetadataToImage) {
@@ -124,7 +124,7 @@ TEST(MetadataTest, AddMetadataToImage) {
   ASSERT_EQ(aom_img_add_metadata(&image, OBU_METADATA_TYPE_ITUT_T35,
                                  kExampleData, kExampleDataSize),
             0);
-  EXPECT_EQ(aom_img_metadata_array_free(image.metadata), 1u);
+  aom_img_metadata_array_free(image.metadata);
   EXPECT_EQ(aom_img_add_metadata(NULL, OBU_METADATA_TYPE_ITUT_T35, kExampleData,
                                  kExampleDataSize),
             -1);
@@ -137,8 +137,8 @@ TEST(MetadataTest, RemoveMetadataFromImage) {
   ASSERT_EQ(aom_img_add_metadata(&image, OBU_METADATA_TYPE_ITUT_T35,
                                  kExampleData, kExampleDataSize),
             0);
-  EXPECT_EQ(aom_img_remove_metadata(&image), 1u);
-  EXPECT_EQ(aom_img_remove_metadata(NULL), 0u);
+  aom_img_remove_metadata(&image);
+  aom_img_remove_metadata(NULL);
 }
 
 TEST(MetadataTest, CopyMetadataToFrameBuffer) {
@@ -156,18 +156,18 @@ TEST(MetadataTest, CopyMetadataToFrameBuffer) {
   EXPECT_EQ(status, 0);
   status = aom_copy_metadata_to_frame_buffer(NULL, metadata_array);
   EXPECT_EQ(status, -1);
-  EXPECT_EQ(aom_img_metadata_array_free(metadata_array), 1u);
+  aom_img_metadata_array_free(metadata_array);
 
   // Metadata_array_2
   aom_metadata_array_t *metadata_array_2 = aom_img_metadata_array_alloc(0);
   ASSERT_NE(metadata_array_2, nullptr);
   status = aom_copy_metadata_to_frame_buffer(&yvBuf, metadata_array_2);
   EXPECT_EQ(status, -1);
-  EXPECT_EQ(aom_img_metadata_array_free(metadata_array_2), 0u);
+  aom_img_metadata_array_free(metadata_array_2);
 
   // YV12_BUFFER_CONFIG
   status = aom_copy_metadata_to_frame_buffer(&yvBuf, NULL);
   EXPECT_EQ(status, -1);
-  EXPECT_EQ(aom_remove_metadata_from_frame_buffer(NULL), 0u);
-  EXPECT_EQ(aom_remove_metadata_from_frame_buffer(&yvBuf), 1u);
+  aom_remove_metadata_from_frame_buffer(&yvBuf);
+  aom_remove_metadata_from_frame_buffer(NULL);
 }
