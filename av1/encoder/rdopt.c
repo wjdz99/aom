@@ -9019,7 +9019,8 @@ static INLINE void save_comp_rd_search_stat(MACROBLOCK *x,
 
 static INLINE int find_interp_filter_match(
     MB_MODE_INFO *const mbmi, const AV1_COMP *const cpi,
-    const InterpFilter assign_filter, const int need_search,
+    const InterpFilter assign_x_filter, const InterpFilter assign_y_filter,
+    const int need_search,
     INTERPOLATION_FILTER_STATS (*interp_filter_stats)[MAX_INTERP_FILTER_STATS],
     int *interp_filter_stats_idx) {
   int match_found_idx = -1;
@@ -9027,8 +9028,13 @@ static INLINE int find_interp_filter_match(
     match_found_idx = find_interp_filter_in_stats(mbmi, interp_filter_stats,
                                                   interp_filter_stats_idx);
 
-  if (!need_search || match_found_idx == -1)
-    set_default_interp_filters(mbmi, assign_filter);
+  if (!need_search || match_found_idx == -1) {
+    mbmi->interp_filters.as_filters.x_filter =
+        av1_unswitchable_filter(assign_x_filter);
+    mbmi->interp_filters.as_filters.y_filter =
+        av1_unswitchable_filter(assign_y_filter);
+  }
+
   return match_found_idx;
 }
 
@@ -9107,8 +9113,8 @@ static int64_t interpolation_filter_search(
   const InterpFilter assign_filter = cm->interp_filter;
 
   match_found_idx = find_interp_filter_match(
-      mbmi, cpi, assign_filter, need_search, args->interp_filter_stats,
-      args->interp_filter_stats_idx);
+      mbmi, cpi, assign_filter, assign_filter, need_search,
+      args->interp_filter_stats, args->interp_filter_stats_idx);
 
   if (match_found_idx != -1) {
     const int comp_idx = mbmi->compound_idx;
@@ -10930,10 +10936,44 @@ static int64_t handle_inter_mode(
     if (is_comp_pred) {
       // Find matching interp filter or set to default interp filter
       const int need_search = av1_is_interp_needed(xd);
-      const InterpFilter assign_filter = cm->interp_filter;
       int is_luma_interp_done = 0;
-      find_interp_filter_match(mbmi, cpi, assign_filter, need_search,
-                               args->interp_filter_stats,
+      InterpFilter assign_x_filter = cm->interp_filter;
+      InterpFilter assign_y_filter = cm->interp_filter;
+
+      // By default, we always use EIGHTTAP_REGULAR in compound_type_rd.
+      // Use neighbor blocks' filter result and current block's edge info
+      // to find a better filter type than EIGHTTAP_REGULAR.
+      if (assign_x_filter == SWITCHABLE && assign_y_filter == SWITCHABLE &&
+          xd->up_available && xd->left_available) {
+        const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+        const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
+        const int above_x_filter =
+            above_mbmi->interp_filters.as_filters.x_filter;
+        const int above_y_filter =
+            above_mbmi->interp_filters.as_filters.y_filter;
+        const int left_x_filter = left_mbmi->interp_filters.as_filters.x_filter;
+        const int left_y_filter = left_mbmi->interp_filters.as_filters.y_filter;
+
+        if (left_x_filter == above_x_filter) {
+          if ((left_x_filter == EIGHTTAP_SMOOTH && x->edge_strength_x < 100) ||
+              (left_x_filter == MULTITAP_SHARP && x->edge_strength_x > 50))
+            assign_x_filter = left_x_filter;
+        }
+
+        if (left_y_filter == above_y_filter) {
+          if ((left_y_filter == EIGHTTAP_SMOOTH && x->edge_strength_y < 100) ||
+              (left_y_filter == MULTITAP_SHARP && x->edge_strength_y > 50))
+            assign_y_filter = left_y_filter;
+        }
+
+        //        if(assign_x_filter ==1 || assign_y_filter == 1)
+        //        printf("  (edge: %d; %d; %d;   flt: %d; %d;)  ",
+        //        x->edge_strength, x->edge_strength_x,   x->edge_strength_y,
+        //                assign_x_filter, assign_y_filter);
+      }
+
+      find_interp_filter_match(mbmi, cpi, assign_x_filter, assign_y_filter,
+                               need_search, args->interp_filter_stats,
                                args->interp_filter_stats_idx);
 
       int64_t best_rd_compound;
@@ -14437,8 +14477,8 @@ static EdgeInfo edge_probability(const uint8_t *input, int w, int h,
       int16_t g_y = g.y >> (bd - 8);
       uint16_t magnitude = (uint16_t)sqrt(g_x * g_x + g_y * g_y);
       highest = AOMMAX(highest, magnitude);
-      highest_x = AOMMAX(highest_x, g_x);
-      highest_y = AOMMAX(highest_y, g_y);
+      highest_x = AOMMAX(highest_x, abs(g_x));
+      highest_y = AOMMAX(highest_y, abs(g_y));
     }
   }
   EdgeInfo ei = { .magnitude = highest, .x = highest_x, .y = highest_y };
