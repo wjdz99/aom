@@ -22,6 +22,30 @@
       "revId": "93c91ae0d3ec4cf1bb574dc53ba29367dba1b2d0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc8e3be2_cf5954f3",
+        "filename": "av1/encoder/reconinter_enc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-11-12T05:10:39Z",
+      "side": 1,
+      "message": "Eventually yes, although I am ok to leave build_inter_predictors() as is only in the final encoding stage, and use this function for all the encoding mode decision cases, if that saves some time.",
+      "parentUuid": "2597f6be_ce7be9c4",
+      "range": {
+        "startLine": 303,
+        "startChar": 2,
+        "endLine": 303,
+        "endChar": 16
+      },
+      "revId": "93c91ae0d3ec4cf1bb574dc53ba29367dba1b2d0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
