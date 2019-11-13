@@ -112,6 +112,7 @@ typedef struct InterPredParams {
   const struct scale_factors *scale_factors;
   int bit_depth;
   int use_hbd_buf;
+  INTERINTER_COMPOUND_DATA mask_comp;
   int is_intrabc;
 } InterPredParams;
 
@@ -127,6 +128,9 @@ void av1_init_warp_params(InterPredParams *inter_pred_params,
                           const struct buf_2d *ref_buf,
                           const WarpTypesAllowed *warp_types, int ref,
                           const MACROBLOCKD *xd, const MB_MODE_INFO *mi);
+
+void av1_init_mask_comp(InterPredParams *inter_pred_params,
+                        const INTERINTER_COMPOUND_DATA *mask_comp);
 
 static INLINE int has_scale(int xs, int ys) {
   return xs != SCALE_SUBPEL_SHIFTS || ys != SCALE_SUBPEL_SHIFTS;
