@@ -9834,6 +9834,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       }
       args->inter_intra_mode[mbmi->ref_frame[0]] = best_interintra_mode;
     }
+
     assert(IMPLIES(!cpi->oxcf.enable_smooth_interintra ||
                        cpi->sf.disable_smooth_interintra,
                    best_interintra_mode != II_SMOOTH_PRED));
@@ -9842,7 +9843,6 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       mbmi->interintra_mode = best_interintra_mode;
       av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
                                                 intrapred, bw);
-      av1_combine_interintra(xd, bsize, 0, tmp_buf, bw, intrapred, bw);
     }
 
     RD_STATS rd_stats;
