@@ -458,8 +458,8 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
     cr->qindex_delta[1] = qindex_delta;
 
     // Compute rd-mult for segment BOOST1.
-    const int qindex2 =
-        clamp(cm->base_qindex + cm->y_dc_delta_q + qindex_delta, 0, MAXQ);
+    int qindex2 = clamp(
+        cm->base_qindex + cm->y_dc_delta_q + qindex_delta, 0, MAXQ);
     cr->rdmult = av1_compute_rd_mult(cpi, qindex2);
 
     av1_set_segdata(seg, CR_SEGMENT_ID_BOOST1, SEG_LVL_ALT_Q, qindex_delta);
@@ -472,13 +472,24 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
     cr->qindex_delta[2] = qindex_delta;
     av1_set_segdata(seg, CR_SEGMENT_ID_BOOST2, SEG_LVL_ALT_Q, qindex_delta);
 
+    // Compute rd-mult for segment BOOST2.
+    qindex2 = clamp(
+        cm->base_qindex + cm->y_dc_delta_q + qindex_delta, 0, MAXQ);
+    cr->rdmult2 = av1_compute_rd_mult(cpi, qindex2);
+
     // Update the segmentation and refresh map.
     cyclic_refresh_update_map(cpi);
   }
 }
 
-int av1_cyclic_refresh_get_rdmult(const CYCLIC_REFRESH *cr) {
-  return cr->rdmult;
+int av1_cyclic_refresh_get_rdmult(const CYCLIC_REFRESH *cr, int segment_id,
+                                  BLOCK_SIZE bsize) {
+  if (segment_id == CR_SEGMENT_ID_BOOST2)
+    return cr->rdmult2;
+  else if (bsize >= BLOCK_16X16)
+    return (cr->rdmult + cr->rdmult2) >> 1;
+  else
+    return cr->rdmult;
 }
 
 void av1_cyclic_refresh_reset_resize(AV1_COMP *const cpi) {
