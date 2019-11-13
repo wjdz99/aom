@@ -1417,9 +1417,34 @@ void av1_loop_restoration_copy_planes(AV1LrStruct *loop_rest_ctxt,
   }
 }
 
+#if CONFIG_WIENER_NONSEP
+uint8_t* wienerns_copy_luma(const uint8_t *dgd, int height_y, int width_y, int in_stride,
+                            uint8_t *luma, int height_uv, int width_uv, int border,
+                            int out_stride) {
+  uint8_t *aug_luma = (uint8_t *)malloc(sizeof(uint8_t) * (width_uv + 2*border) * (height_uv + 2*border));
+  memset(aug_luma, 0, sizeof(*aug_luma) * (width_uv + 2*border) * (height_uv + 2*border));
+  luma = aug_luma + border*out_stride + border;
+  av1_resize_plane(dgd, height_y, width_y, in_stride, luma,
+                    height_uv, width_uv, out_stride);
+  return aug_luma;
+}
+#endif  // CONFIG_WIENER_NONSEP
+
 static void foreach_rest_unit_in_planes(AV1LrStruct *lr_ctxt, AV1_COMMON *cm,
                                         int num_planes) {
   FilterFrameCtxt *ctxt = lr_ctxt->ctxt;
+
+#if CONFIG_WIENER_NONSEP
+  const YV12_BUFFER_CONFIG *dgd = &cm->cur_frame->buf;
+  int luma_stride = dgd->crop_widths[1] + 2*WIENERNS_UV_BRD;
+
+  uint8_t *luma = NULL;
+  uint8_t *luma_buf = wienerns_copy_luma(dgd->buffers[AOM_PLANE_Y],
+      dgd->crop_heights[AOM_PLANE_Y], dgd->crop_widths[AOM_PLANE_Y],
+      dgd->strides[AOM_PLANE_Y], luma, dgd->crop_heights[1],
+      dgd->crop_widths[1], WIENERNS_UV_BRD, luma_stride);
+  assert(luma_buf != NULL);
+#endif  // CONFIG_WIENER_NONSEP
 
   for (int plane = 0; plane < num_planes; ++plane) {
     if (cm->rst_info[plane].frame_restoration_type == RESTORE_NONE) {
@@ -1428,13 +1453,16 @@ static void foreach_rest_unit_in_planes(AV1LrStruct *lr_ctxt, AV1_COMMON *cm,
 #if CONFIG_WIENER_NONSEP
     ctxt[plane].plane = plane;
     int is_uv = (plane != AOM_PLANE_Y);
-    ctxt[plane].luma = is_uv ? ctxt[AOM_PLANE_Y].data8 : NULL;
-    ctxt[plane].luma_stride = is_uv ? ctxt[AOM_PLANE_Y].data_stride : -1;
+    ctxt[plane].luma = is_uv ? luma : NULL;
+    ctxt[plane].luma_stride = is_uv ? luma_stride : -1;
 #endif  // CONFIG_WIENER_NONSEP
     av1_foreach_rest_unit_in_plane(cm, plane, lr_ctxt->on_rest_unit,
                                    &ctxt[plane], &ctxt[plane].tile_rect,
                                    cm->rst_tmpbuf, cm->rlbs);
   }
+#if CONFIG_WIENER_NONSEP
+  free(luma_buf);
+#endif  // CONFIG_WIENER_NONSEP  
 }
 
 void av1_loop_restoration_filter_frame(YV12_BUFFER_CONFIG *frame,

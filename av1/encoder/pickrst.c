@@ -166,10 +166,6 @@ static void init_rsc(const YV12_BUFFER_CONFIG *src, const AV1_COMMON *cm,
 
   const YV12_BUFFER_CONFIG *dgd = &cm->cur_frame->buf;
   const int is_uv = plane != AOM_PLANE_Y;
-#if CONFIG_WIENER_NONSEP
-  rsc->luma = is_uv ? src->buffers[AOM_PLANE_Y] : NULL;
-  rsc->luma_stride = is_uv ? dgd->strides[0] : -1;
-#endif  // CONFIG_WIENER_NONSEP
   rsc->plane_width = src->crop_widths[is_uv];
   rsc->plane_height = src->crop_heights[is_uv];
   rsc->src_buffer = src->buffers[plane];
@@ -1766,6 +1762,20 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi) {
   RestSearchCtxt rsc;
   const int plane_start = AOM_PLANE_Y;
   const int plane_end = num_planes > 1 ? AOM_PLANE_V : AOM_PLANE_Y;
+
+#if CONFIG_WIENER_NONSEP
+  const YV12_BUFFER_CONFIG *dgd = &cpi->common.cur_frame->buf;
+  rsc.luma_stride = dgd->crop_widths[1] + 2*WIENERNS_UV_BRD;
+
+  uint8_t *luma = NULL;
+  uint8_t *luma_buf = wienerns_copy_luma(dgd->buffers[AOM_PLANE_Y],
+      dgd->crop_heights[AOM_PLANE_Y], dgd->crop_widths[AOM_PLANE_Y],
+      dgd->strides[AOM_PLANE_Y], luma, dgd->crop_heights[1],
+      dgd->crop_widths[1], WIENERNS_UV_BRD, rsc.luma_stride);
+  rsc.luma = luma;
+  assert(luma_buf != NULL);
+#endif  // CONFIG_WIENER_NONSEP
+
   for (int plane = plane_start; plane <= plane_end; ++plane) {
     init_rsc(src, &cpi->common, &cpi->td.mb, &cpi->sf, plane, rusi,
              &cpi->trial_frame_rst, &rsc);
@@ -1807,6 +1817,10 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi) {
       }
     }
   }
+
+#if CONFIG_WIENER_NONSEP
+  free(luma_buf);
+#endif  // CONFIG_WIENER_NONSEP
 
   aom_free(rusi);
 }
