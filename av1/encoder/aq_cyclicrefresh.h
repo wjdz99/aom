@@ -46,6 +46,7 @@ struct CYCLIC_REFRESH {
   int actual_num_seg2_blocks;
   // RD mult. parameters for segment 1.
   int rdmult;
+  int rdmult2;
   // Cyclic refresh map.
   int8_t *map;
   // Map of the last q a block was coded at.
@@ -107,7 +108,7 @@ void av1_cyclic_refresh_update_parameters(struct AV1_COMP *const cpi);
 // Setup cyclic background refresh: set delta q and segmentation map.
 void av1_cyclic_refresh_setup(struct AV1_COMP *const cpi);
 
-int av1_cyclic_refresh_get_rdmult(const CYCLIC_REFRESH *cr);
+int av1_cyclic_refresh_get_rdmult(const CYCLIC_REFRESH *cr, int segment_id);
 
 void av1_cyclic_refresh_reset_resize(struct AV1_COMP *const cpi);
 
