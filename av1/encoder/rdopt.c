@@ -9770,6 +9770,45 @@ static INLINE bool enable_wedge_interintra_search(MACROBLOCK *const x,
          !cpi->sf.disable_wedge_interintra_search;
 }
 
+static void write_ppm2(const char *name, const MACROBLOCK *x,
+                       const BLOCK_SIZE bsize) {
+  const int width = block_size_wide[bsize];
+  const int height = block_size_high[bsize];
+  const struct buf_2d *ref = &x->plane[0].src;
+  const uint8_t *buf = ref->buf;
+  const int stride = ref->stride;
+
+  FILE *f = fopen(name, "wb");
+  fprintf(f, "P6\n%d %d\n255\n", width, height);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      fwrite(buf + x + y * stride, 1, 1, f);
+      fwrite(buf + x + y * stride, 1, 1, f);
+      fwrite(buf + x + y * stride, 1, 1, f);
+    }
+  }
+  fclose(f);
+}
+
+static void write_ppm(const char *name, const BLOCK_SIZE bsize,
+                      const uint8_t *buf, const int stride) {
+  const int width = block_size_wide[bsize];
+  const int height = block_size_high[bsize];
+
+  FILE *f = fopen(name, "wb");
+  fprintf(f, "P6\n%d %d\n255\n", width, height);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      fwrite(buf + x + y * stride, 1, 1, f);
+      fwrite(buf + x + y * stride, 1, 1, f);
+      fwrite(buf + x + y * stride, 1, 1, f);
+    }
+  }
+  fclose(f);
+}
+
 static int handle_inter_intra_mode(const AV1_COMP *const cpi,
                                    MACROBLOCK *const x, BLOCK_SIZE bsize,
                                    int mi_row, int mi_col, MB_MODE_INFO *mbmi,
@@ -9834,6 +9873,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       }
       args->inter_intra_mode[mbmi->ref_frame[0]] = best_interintra_mode;
     }
+
     assert(IMPLIES(!cpi->oxcf.enable_smooth_interintra ||
                        cpi->sf.disable_smooth_interintra,
                    best_interintra_mode != II_SMOOTH_PRED));
@@ -9842,7 +9882,6 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       mbmi->interintra_mode = best_interintra_mode;
       av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
                                                 intrapred, bw);
-      av1_combine_interintra(xd, bsize, 0, tmp_buf, bw, intrapred, bw);
     }
 
     RD_STATS rd_stats;
