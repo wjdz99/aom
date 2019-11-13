@@ -557,6 +557,9 @@ typedef struct inter_modes_info {
   RD_STATS rd_cost_arr[MAX_INTER_MODES];
   RD_STATS rd_cost_y_arr[MAX_INTER_MODES];
   RD_STATS rd_cost_uv_arr[MAX_INTER_MODES];
+  int skip_motion_mode[MAX_INTER_MODES];
+  int best_rate_mv[MAX_INTER_MODES];
+  int best_rd_stats_rate[MAX_INTER_MODES];
 } InterModesInfo;
 
 // Encoder row synchronization
