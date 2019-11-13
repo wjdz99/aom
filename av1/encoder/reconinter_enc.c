@@ -404,10 +404,6 @@ void av1_build_prediction_by_above_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
   foreach_overlappable_nb_above(cm, xd, mi_col,
                                 max_neighbor_obmc[mi_size_wide_log2[bsize]],
                                 build_obmc_prediction, &ctxt);
-
-  xd->mb_to_left_edge = -((mi_col * MI_SIZE) * 8);
-  xd->mb_to_right_edge = ctxt.mb_to_far_edge;
-  xd->mb_to_bottom_edge -= (this_height - pred_height) * 8;
 }
 
 void av1_build_prediction_by_left_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
@@ -433,10 +429,6 @@ void av1_build_prediction_by_left_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
   foreach_overlappable_nb_left(cm, xd, mi_row,
                                max_neighbor_obmc[mi_size_high_log2[bsize]],
                                build_obmc_prediction, &ctxt);
-
-  xd->mb_to_top_edge = -((mi_row * MI_SIZE) * 8);
-  xd->mb_to_right_edge -= (this_width - pred_width) * 8;
-  xd->mb_to_bottom_edge = ctxt.mb_to_far_edge;
 }
 
 void av1_build_obmc_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
