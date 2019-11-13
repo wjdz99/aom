@@ -9834,6 +9834,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       }
       args->inter_intra_mode[mbmi->ref_frame[0]] = best_interintra_mode;
     }
+
     assert(IMPLIES(!cpi->oxcf.enable_smooth_interintra ||
                        cpi->sf.disable_smooth_interintra,
                    best_interintra_mode != II_SMOOTH_PRED));
