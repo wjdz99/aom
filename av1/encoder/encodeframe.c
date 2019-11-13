@@ -336,7 +336,9 @@ static AOM_INLINE void setup_block_rdmult(const AV1_COMP *const cpi,
     } else if (aq_mode == CYCLIC_REFRESH_AQ) {
       // If segment is boosted, use rdmult for that segment.
       if (cyclic_refresh_segment_id_boosted(mbmi->segment_id))
-        x->rdmult = av1_cyclic_refresh_get_rdmult(cpi->cyclic_refresh);
+        x->rdmult = av1_cyclic_refresh_get_rdmult(cpi->cyclic_refresh,
+                                                  mbmi->segment_id,
+                                                  bsize);
     }
   }
 
