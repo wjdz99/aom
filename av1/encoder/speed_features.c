@@ -395,6 +395,7 @@ static void set_good_speed_features_framesize_independent(
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
     sf->simple_motion_search_prune_agg = 1;
     sf->disable_sb_level_mv_cost_upd = 1;
+    sf->motion_mode_for_winner_cand = is_boosted_arf2_bwd_type ? 0 : 1;
   }
 
   if (speed >= 4) {
@@ -834,6 +835,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->skip_interp_filter_search = 0;
   sf->force_tx_search_off = 0;
   sf->num_inter_modes_for_tx_search = INT_MAX;
+  sf->motion_mode_for_winner_cand = 0;
 
   for (i = 0; i < TX_SIZES; i++) {
     sf->intra_y_mode_mask[i] = INTRA_ALL;
