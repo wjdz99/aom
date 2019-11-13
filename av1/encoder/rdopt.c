@@ -8264,12 +8264,11 @@ static int64_t masked_compound_type_rd(
   return rd;
 }
 
-#define MAX_INTERP_FILTER_STATS 64
+#define MAX_INTERP_FILTER_STATS 64  // 32?
 typedef struct {
   int_interpfilters filters;
   int_mv mv[2];
   int8_t ref_frames[2];
-  COMPOUND_TYPE comp_type;
   int64_t rd;
   unsigned int pred_sse;
 } INTERPOLATION_FILTER_STATS;
@@ -8295,9 +8294,10 @@ typedef struct {
   INTERINTRA_MODE *inter_intra_mode;
   int single_ref_first_pass;
   SimpleRDState *simple_rd_state;
-  // [comp_idx][saved stat_idx]
-  INTERPOLATION_FILTER_STATS interp_filter_stats[2][MAX_INTERP_FILTER_STATS];
-  int interp_filter_stats_idx[2];
+  // 0 to 3 correspond to 4 comp types, 4 is for single ref.
+  INTERPOLATION_FILTER_STATS interp_filter_stats[1 + COMPOUND_TYPES]
+                                                [MAX_INTERP_FILTER_STATS];
+  int interp_filter_stats_idx[1 + COMPOUND_TYPES];
 } HandleInterModeArgs;
 
 /* If the current mode shares the same mv with other modes with higher cost,
@@ -8884,13 +8884,12 @@ static INLINE void find_best_non_dual_interp_filter(
 // check if there is saved result match with this search
 static INLINE int is_interp_filter_match(const INTERPOLATION_FILTER_STATS *st,
                                          MB_MODE_INFO *const mi) {
-  for (int i = 0; i < 2; ++i) {
+  for (int i = 0; i < 1 + has_second_ref(mi); ++i) {
     if ((st->ref_frames[i] != mi->ref_frame[i]) ||
         (st->mv[i].as_int != mi->mv[i].as_int)) {
       return 0;
     }
   }
-  if (has_second_ref(mi) && st->comp_type != mi->interinter_comp.type) return 0;
   return 1;
 }
 
@@ -8944,10 +8943,13 @@ static INLINE int find_interp_filter_in_stats(
     MB_MODE_INFO *const mbmi,
     INTERPOLATION_FILTER_STATS (*interp_filter_stats)[MAX_INTERP_FILTER_STATS],
     int *interp_filter_stats_idx) {
-  const int comp_idx = mbmi->compound_idx;
-  const int offset = interp_filter_stats_idx[comp_idx];
+  // idx = 4(COMPOUND_TYPES) stores single ref result.
+  const int idx =
+      (has_second_ref(mbmi)) ? mbmi->interinter_comp.type : COMPOUND_TYPES;
+  const int offset = interp_filter_stats_idx[idx];
+
   for (int j = 0; j < offset; ++j) {
-    const INTERPOLATION_FILTER_STATS *st = &interp_filter_stats[comp_idx][j];
+    const INTERPOLATION_FILTER_STATS *st = &interp_filter_stats[idx][j];
     if (is_interp_filter_match(st, mbmi)) {
       mbmi->interp_filters = st->filters;
       return j;
@@ -8975,18 +8977,19 @@ static INLINE void save_interp_filter_search_stat(
     MB_MODE_INFO *const mbmi, int64_t rd, unsigned int pred_sse,
     INTERPOLATION_FILTER_STATS (*interp_filter_stats)[MAX_INTERP_FILTER_STATS],
     int *interp_filter_stats_idx) {
-  const int comp_idx = mbmi->compound_idx;
-  const int offset = interp_filter_stats_idx[comp_idx];
+  // idx = 4(COMPOUND_TYPES) stores single ref result.
+  const int idx =
+      (has_second_ref(mbmi)) ? mbmi->interinter_comp.type : COMPOUND_TYPES;
+  const int offset = interp_filter_stats_idx[idx];
   if (offset < MAX_INTERP_FILTER_STATS) {
     INTERPOLATION_FILTER_STATS stat = { mbmi->interp_filters,
                                         { mbmi->mv[0], mbmi->mv[1] },
                                         { mbmi->ref_frame[0],
                                           mbmi->ref_frame[1] },
-                                        mbmi->interinter_comp.type,
                                         rd,
                                         pred_sse };
-    interp_filter_stats[comp_idx][offset] = stat;
-    interp_filter_stats_idx[comp_idx]++;
+    interp_filter_stats[idx][offset] = stat;
+    interp_filter_stats_idx[idx]++;
   }
 }
 
@@ -12891,7 +12894,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                interintra_modes,
                                1,
                                NULL,
-                               { { { { 0 }, { { 0 } }, { 0 }, 0, 0, 0 } } },
+                               { { { { 0 }, { { 0 } }, { 0 }, 0, 0 } } },
                                { 0 } };
   for (i = 0; i < REF_FRAMES; ++i) x->pred_sse[i] = INT_MAX;
 
