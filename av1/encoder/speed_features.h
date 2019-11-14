@@ -809,6 +809,8 @@ typedef struct SPEED_FEATURES {
 
   // For nonrd: Reduces golden mode search/testing in nonrd pickmode.
   int nonrd_reduce_golden_mode_search;
+
+  int motion_mode_for_winner_cand;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
