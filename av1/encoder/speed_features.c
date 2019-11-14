@@ -406,6 +406,7 @@ static void set_good_speed_features_framesize_independent(
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
     sf->simple_motion_search_prune_agg = 1;
     sf->disable_sb_level_mv_cost_upd = 1;
+    sf->motion_mode_for_winner_cand = boosted ? 0 : 1;
     sf->tx_type_search.use_skip_flag_prediction =
         cm->allow_screen_content_tools ? 1 : 2;
   }
@@ -846,6 +847,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->adaptive_overlay_encoding = 1;
   sf->skip_interp_filter_search = 0;
   sf->force_tx_search_off = 0;
+  sf->motion_mode_for_winner_cand = 0;
   sf->num_inter_modes_for_tx_search = INT_MAX;
 
   for (i = 0; i < TX_SIZES; i++) {
