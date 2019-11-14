@@ -1007,7 +1007,6 @@ void av1_convolve_2d_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
       uint16x8_t dd0;
       uint8x8_t d01;
 
-
       d_u8 = dst_u8_ptr;
       v_s = v_src_ptr;
 
