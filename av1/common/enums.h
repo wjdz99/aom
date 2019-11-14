@@ -346,10 +346,10 @@ enum {
 #define MDTX_TYPES_INTRA 4
 #define USE_NST_4X8_8X4 1
 #define USE_NST_8X8 1
+#define MDTX_DEBUG 0
 #else
 #define MDTX_TYPES_INTRA 3
-#endif  // CONFIG_MODE_DEP_TX
-
+#endif
 #endif  // CONFIG_MODE_DEP_TX
 
 enum {

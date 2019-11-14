@@ -1879,7 +1879,7 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_8x8, av1_default_iscan_8x8 },
       { default_scan_8x8, av1_default_iscan_8x8 },
 #if USE_NST_INTRA
-      { mrow_scan_8x8, av1_mrow_iscan_8x8 },
+      { default_scan_8x8, av1_default_iscan_8x8 },
 #endif
 #endif
 #if USE_MDTX_INTER
@@ -2037,7 +2037,7 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_4x8, av1_default_iscan_4x8 },
       { default_scan_4x8, av1_default_iscan_4x8 },
 #if USE_NST_INTRA
-      { mrow_scan_4x8, av1_mrow_iscan_4x8 },
+      { default_scan_4x8, av1_default_iscan_4x8 },
 #endif
 #endif
 #if USE_MDTX_INTER
@@ -2076,7 +2076,7 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_8x4, av1_default_iscan_8x4 },
       { default_scan_8x4, av1_default_iscan_8x4 },
 #if USE_NST_INTRA
-      { mrow_scan_8x4, av1_mrow_iscan_8x4 },
+      { default_scan_8x4, av1_default_iscan_8x4 },
 #endif
 #endif
 #if USE_MDTX_INTER
