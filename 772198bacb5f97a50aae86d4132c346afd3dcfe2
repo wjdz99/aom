@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74f389cc_f11e9871",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 8987,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-11-14T01:15:24Z",
+      "side": 1,
+      "message": "nit: use ++ to make the style more consistent.",
+      "range": {
+        "startLine": 8987,
+        "startChar": 4,
+        "endLine": 8987,
+        "endChar": 33
+      },
+      "revId": "772198bacb5f97a50aae86d4132c346afd3dcfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
