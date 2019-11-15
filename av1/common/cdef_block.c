@@ -39,21 +39,22 @@ DECLARE_ALIGNED(16, const int, cdef_directions[8][2]) = {
 int cdef_find_dir_c(const uint16_t *img, int stride, int32_t *var,
                     int coeff_shift) {
   int i;
-  int32_t cost[8] = { 0 };
-  int partial[8][15] = { { 0 } };
-  int32_t best_cost = 0;
+  uint32_t cost[8] = { 0 };
+  uint16_t partial[8][15] = { { 0 } };
+  uint32_t best_cost = 0;
   int best_dir = 0;
   /* Instead of dividing by n between 2 and 8, we multiply by 3*5*7*8/n.
      The output is then 840 times larger, but we don't care for finding
      the max. */
-  static const int div_table[] = { 0, 840, 420, 280, 210, 168, 140, 120, 105 };
+  static const int div_table[] = { 840, 420, 280, 210, 168, 140, 120, 105 };
   for (i = 0; i < 8; i++) {
     int j;
     for (j = 0; j < 8; j++) {
-      int x;
-      /* We subtract 128 here to reduce the maximum range of the squared
-         partial sums. */
-      x = (img[i * stride + j] >> coeff_shift) - 128;
+      /* |coeff_shift| forces all bitdepths to only use the 8 MSB.
+         coeff_shift = AOMMAX(cm->seq_params.bit_depth - 8, 0); */
+      const uint8_t x = img[i * stride + j] >> coeff_shift;
+      /* Any individual element of |partial[N][]| contains at most 8 * |x| and
+         fits into uint16_t */
       partial[0][i + j] += x;
       partial[1][i + j / 2] += x;
       partial[2][i] += x;
@@ -64,32 +65,37 @@ int cdef_find_dir_c(const uint16_t *img, int stride, int32_t *var,
       partial[7][i / 2 + j] += x;
     }
   }
+  /* |cost[]| holds squared elements of |partial[N][]| and so requires stepping
+     up from uint16_t: (255 * 8)^2 */
   for (i = 0; i < 8; i++) {
     cost[2] += partial[2][i] * partial[2][i];
     cost[6] += partial[6][i] * partial[6][i];
   }
-  cost[2] *= div_table[8];
-  cost[6] *= div_table[8];
+  cost[2] *= div_table[7];
+  cost[6] *= div_table[7];
   for (i = 0; i < 7; i++) {
+    /* The elements using |div_table[0]| only have 1 |x| value each and so will
+       not outrange uint32_t. */
     cost[0] += (partial[0][i] * partial[0][i] +
                 partial[0][14 - i] * partial[0][14 - i]) *
-               div_table[i + 1];
+               div_table[i];
     cost[4] += (partial[4][i] * partial[4][i] +
                 partial[4][14 - i] * partial[4][14 - i]) *
-               div_table[i + 1];
+               div_table[i];
   }
-  cost[0] += partial[0][7] * partial[0][7] * div_table[8];
-  cost[4] += partial[4][7] * partial[4][7] * div_table[8];
+  cost[0] += partial[0][7] * partial[0][7] * div_table[7];
+  cost[4] += partial[4][7] * partial[4][7] * div_table[7];
   for (i = 1; i < 8; i += 2) {
     int j;
     for (j = 0; j < 4 + 1; j++) {
       cost[i] += partial[i][3 + j] * partial[i][3 + j];
     }
-    cost[i] *= div_table[8];
+    cost[i] *= div_table[7];
     for (j = 0; j < 4 - 1; j++) {
+      /* None of these use |div_table[0]| and therefore stay within uint32_t. */
       cost[i] += (partial[i][j] * partial[i][j] +
                   partial[i][10 - j] * partial[i][10 - j]) *
-                 div_table[2 * j + 2];
+                 div_table[2 * j + 1];
     }
   }
   for (i = 0; i < 8; i++) {
