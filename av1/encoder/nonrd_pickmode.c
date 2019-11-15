@@ -1828,7 +1828,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     this_rdc.rate += ref_costs_single[ref_frame];
 
     this_rdc.rdcost = RDCOST(x->rdmult, this_rdc.rate, this_rdc.dist);
-    if (cpi->oxcf.rc_mode == AOM_CBR && cpi->oxcf.speed >= 8) {
+    if (cpi->oxcf.rc_mode == AOM_CBR) {
       newmv_diff_bias(xd, this_mode, &this_rdc, bsize,
                       frame_mv[this_mode][ref_frame].as_mv.row,
                       frame_mv[this_mode][ref_frame].as_mv.col);
