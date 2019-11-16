@@ -556,24 +556,22 @@ static uint32_t read_and_decode_one_tile_list(AV1Decoder *pbi,
 // syntax of itu_t_t35_payload_bytes is not defined in the spec.
 static size_t read_metadata_itut_t35(AV1_COMMON *const cm, const uint8_t *data,
                                      size_t sz) {
-  size_t i = 0;
-  // itu_t_t35_country_code f(8)
-  if (i >= sz) {
-    aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                       "itu_t_t35_country_code is missing");
+  if (sz <= 0) {
+    aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+                       "ITUT T35 metadata is empty");
   }
-  const int itu_t_t35_country_code = data[i];
-  ++i;
-  if (itu_t_t35_country_code == 0xFF) {
-    // itu_t_t35_country_code_extension_byte f(8)
-    if (i >= sz) {
-      aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                         "itu_t_t35_country_code_extension_byte is missing");
-    }
-    ++i;
+  if (!cm->metadata) {
+    cm->metadata = aom_img_metadata_array_alloc(1);
+    cm->metadata->sz = 0;
+  } else {
+    cm->metadata->metadata_array = (aom_metadata_t **)realloc(
+        cm->metadata->metadata_array,
+        (cm->metadata->sz + 1) * sizeof(aom_metadata_t *));
   }
-  // itu_t_t35_payload_bytes
-  return i;
+  cm->metadata->metadata_array[cm->metadata->sz] =
+      aom_img_metadata_alloc(OBU_METADATA_TYPE_ITUT_T35, data, sz - 1);
+  cm->metadata->sz++;
+  return (sz - 1);
 }
 
 static void read_metadata_hdr_cll(struct aom_read_bit_buffer *rb) {

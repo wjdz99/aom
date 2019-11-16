@@ -802,6 +802,18 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
           if (ctx->need_resync) return NULL;
           yuvconfig2image(&ctx->img, sd, frame_worker_data->user_priv);
 
+          if (cm->metadata != NULL) {
+            int array_size = (int)cm->metadata->sz;
+            for (int i = 0; i < array_size; ++i) {
+              aom_img_add_metadata(&ctx->img,
+                                   cm->metadata->metadata_array[i]->type,
+                                   cm->metadata->metadata_array[i]->payload,
+                                   cm->metadata->metadata_array[i]->sz);
+            }
+            aom_img_metadata_array_free(cm->metadata);
+            cm->metadata = NULL;
+          }
+
           if (!pbi->ext_tile_debug && cm->large_scale_tile) {
             *index += 1;  // Advance the iterator to point to the next image
 

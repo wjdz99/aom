@@ -60,6 +60,16 @@ class MetadataEncodeTest
       EXPECT_TRUE(found_metadata);
     }
   }
+
+  virtual void DecompressedFrameHook(const aom_image_t &img,
+                                     aom_codec_pts_t pts) {
+    (void)pts;
+    EXPECT_TRUE(img.metadata != nullptr);
+    EXPECT_EQ(img.metadata->sz, 1u);
+    EXPECT_EQ(memcmp(kExampleData, img.metadata->metadata_array[0]->payload,
+                     kExampleDataSize),
+              0);
+  }
 };
 
 TEST_P(MetadataEncodeTest, TestMetadataEncoding) {
@@ -169,4 +179,20 @@ TEST(MetadataTest, CopyMetadataToFrameBuffer) {
   EXPECT_EQ(status, -1);
   aom_remove_metadata_from_frame_buffer(&yvBuf);
   aom_remove_metadata_from_frame_buffer(NULL);
+}
+
+TEST(MetadataTest, GetMetadataFromImage) {
+  aom_image_t image;
+  image.metadata = NULL;
+
+  ASSERT_EQ(aom_img_add_metadata(&image, OBU_METADATA_TYPE_ITUT_T35,
+                                 kExampleData, kExampleDataSize),
+            0);
+
+  EXPECT_TRUE(aom_img_get_metadata(NULL, 0) == NULL);
+  EXPECT_TRUE(aom_img_get_metadata(&image, 10u) == NULL);
+
+  aom_metadata_t *metadata = aom_img_get_metadata(&image, 0);
+  EXPECT_TRUE(metadata != NULL);
+  aom_img_metadata_array_free(image.metadata);
 }

@@ -351,6 +351,19 @@ int aom_img_plane_height(const aom_image_t *img, int plane);
 int aom_img_add_metadata(aom_image_t *img, uint32_t type, const uint8_t *data,
                          size_t sz);
 
+/*!\brief Return a metadata payload stored within the image metadata array.
+ *
+ * Gets the metadata (aom_metadata_t) at the indicated index in the image
+ * metadata array.
+ *
+ * \param[in] img          Pointer to image descriptor to get metadata from
+ * \param[in] index        Metadata index to get from metadata array
+ *
+ * \return Returns a pointer to a newly allocated copy of the selected metadata,
+ * if img and/or index is invalid, it returns NULL.
+ */
+aom_metadata_t *aom_img_get_metadata(aom_image_t *img, size_t index);
+
 /*!\brief Remove metadata from image.
  *
  * Removes all metadata in image metadata list and sets metadata list pointer
