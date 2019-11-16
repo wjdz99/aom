@@ -426,6 +426,7 @@ static struct lookahead_entry *setup_arf_frame(
     if (arf_src_index == rc->frames_to_key) {
       // Skip temporal filtering and mark as intra_only if we have a fwd_kf
       cpi->no_show_kf = 1;
+      //av1_temporal_filter(cpi, -1 * arf_src_index, show_existing_alt_ref);
     } else {
 #if !CONFIG_REALTIME_ONLY
       if (oxcf->arnr_max_frames > 0) {
@@ -933,7 +934,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
   }
   const int apply_filtering =
       oxcf->pass == 2 && frame_params->frame_type == KEY_FRAME &&
-      frame_params->show_frame &&
+      !frame_params->show_existing_frame && 
       cpi->rc.frames_to_key > NUM_KEY_FRAME_DENOISING && noise_level > 0 &&
       !is_lossless_requested(oxcf) && oxcf->arnr_max_frames > 0;
   // Save the pointer to the original source image.
@@ -958,7 +959,12 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
     av1_frame_init_quantizer(cpi);
     av1_setup_past_independence(cm);
 
-    av1_temporal_filter(cpi, -1, NULL);
+    if (!frame_params->show_frame) {
+    	int arf_src_index = get_arf_src_index(&cpi->gf_group, cpi->oxcf.pass);
+    	av1_temporal_filter(cpi, -1 * arf_src_index, NULL);
+    } else {
+    	av1_temporal_filter(cpi, -1, NULL);
+    }
     aom_extend_frame_borders(&cpi->alt_ref_buffer, num_planes);
     // Use the filtered frame for encoding.
     frame_input->source = &cpi->alt_ref_buffer;
@@ -1113,12 +1119,21 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   if (oxcf->pass == 0 && oxcf->rc_mode != AOM_Q)
     cpi->oxcf.gf_max_pyr_height = USE_ALTREF_FOR_ONE_PASS;
 
+
+
+
   if (oxcf->pass == 0 || oxcf->pass == 2) {
-    frame_params.show_existing_frame =
-        ((oxcf->enable_overlay == 0 || cpi->sf.disable_overlay_frames ||
-          cpi->show_existing_alt_ref) &&
-         gf_group->update_type[gf_group->index] == OVERLAY_UPDATE) ||
-        gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE;
+    // If this is a forward keyframe, mark as a show_existing_frame
+    if (cpi->oxcf.fwd_kf_enabled && (gf_group->index == gf_group->size) &&
+        gf_group->update_type[1] == ARF_UPDATE && cpi->rc.frames_to_key == 0) {
+      frame_params.show_existing_frame = 1;
+    } else {
+      frame_params.show_existing_frame =
+          ((oxcf->enable_overlay == 0 || cpi->sf.disable_overlay_frames ||
+            cpi->show_existing_alt_ref) &&
+           gf_group->update_type[gf_group->index] == OVERLAY_UPDATE) ||
+          gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE;
+    }
     frame_params.show_existing_frame &= allow_show_existing(cpi, *frame_flags);
 
     // Reset show_existing_alt_ref decision to 0 after it is used.
