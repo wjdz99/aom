@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4cb429e0_1821f4b7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 30
+      },
+      "lineNbr": 1979,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-11-18T17:25:20Z",
+      "side": 1,
+      "message": "Originally, this is done after calling prune_tx_2D()\nallowed_tx_mask \u0026\u003d (~prune);\nIn PRUNE_2D_AGGRESSIVE, it is handled here. Could you also modify non PRUNE_2D_AGGRESSIVE case, so this is handled consistently in both case, so they can share code(this loop + sort_probability)?",
+      "range": {
+        "startLine": 1979,
+        "startChar": 42,
+        "endLine": 1979,
+        "endChar": 56
+      },
+      "revId": "b4e003dfc922d061849a100c07198a9a7a589228",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
