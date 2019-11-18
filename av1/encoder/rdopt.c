@@ -4674,13 +4674,15 @@ static int rd_pick_palette_intra_sby(
     // Try the dominant colors directly.
     // TODO(huisu@google.com): Try to avoid duplicate computation in cases
     // where the dominant colors and the k-means results are similar.
-    for (n = AOMMIN(colors, PALETTE_MAX_SIZE); n >= 2; --n) {
-      for (int i = 0; i < n; ++i) centroids[i] = top_colors[i];
-      palette_rd_y(cpi, x, mbmi, bsize, dc_mode_cost, data, centroids, n,
-                   color_cache, n_cache, best_mbmi, best_palette_color_map,
-                   best_rd, best_model_rd, rate, rate_tokenonly, &rate_overhead,
-                   distortion, skippable, beat_best_rd, ctx, best_blk_skip,
-                   tx_type_map);
+    if (frame_is_intra_only(&cpi->common)) {
+      for (n = AOMMIN(colors, PALETTE_MAX_SIZE); n >= 2; --n) {
+        for (int i = 0; i < n; ++i) centroids[i] = top_colors[i];
+        palette_rd_y(cpi, x, mbmi, bsize, dc_mode_cost, data, centroids, n,
+                     color_cache, n_cache, best_mbmi, best_palette_color_map,
+                     best_rd, best_model_rd, rate, rate_tokenonly,
+                     &rate_overhead, distortion, skippable, beat_best_rd, ctx,
+                     best_blk_skip, tx_type_map);
+      }
     }
 
     // K-means clustering.
