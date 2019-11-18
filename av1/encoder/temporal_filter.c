@@ -709,6 +709,8 @@ void av1_temporal_filter_plane_c(uint8_t *frame1, unsigned int stride,
   const double decay = decay_control * exp(1 - sigma);
   const double h = decay * sigma;
   const double beta = 1.0;
+  const int16_t q_fmt = 15;  // using Q1.15
+  int16_t win_s = (int16_t)((1.0f / (float)WINDOW_SIZE) * (1 << q_fmt));
   for (int i = 0, k = 0; i < block_height; i++) {
     for (int j = 0; j < block_width; j++, k++) {
       const int pixel_value = frame2[i * stride2 + j];
@@ -728,7 +730,8 @@ void av1_temporal_filter_plane_c(uint8_t *frame1, unsigned int stride,
           diff_sse += diff * diff;
         }
       }
-      diff_sse /= WINDOW_SIZE;
+      diff_sse *= win_s;
+      diff_sse >>= q_fmt;
 
       double scaled_diff = -diff_sse / (2 * beta * h * h);
       // clamp the value to avoid underflow in exp()
