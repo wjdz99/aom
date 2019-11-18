@@ -463,6 +463,10 @@ static void set_good_speed_features_framesize_independent(
     sf->tx_domain_dist_thres_level = 2;
     sf->simple_motion_search_prune_agg = 2;
   }
+
+  if (speed >= 5) {
+    sf->disable_lr_filter = 1;
+  }
 }
 
 // TODO(kyslov): now this is very similar to
@@ -898,7 +902,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
 
   // Set decoder side speed feature to use less dual sgr modes
   sf->dual_sgr_penalty_level = 0;
-
+  sf->disable_lr_filter = 0;
   sf->inter_mode_rd_model_estimation = 0;
   sf->prune_compound_using_single_ref = 0;
 
@@ -930,6 +934,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
 
   if (!cpi->seq_params_locked) {
     cpi->common.seq_params.enable_dual_filter &= !sf->disable_dual_filter;
+    cpi->common.seq_params.enable_restoration &= !sf->disable_lr_filter;
   }
 
   // sf->partition_search_breakout_dist_thr is set assuming max 64x64
