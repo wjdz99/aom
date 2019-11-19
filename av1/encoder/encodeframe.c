@@ -3243,6 +3243,19 @@ BEGIN_PARTITION_SEARCH:
   horzb_partition_allowed &= cpi->oxcf.enable_ab_partitions;
   verta_partition_allowed &= cpi->oxcf.enable_ab_partitions;
   vertb_partition_allowed &= cpi->oxcf.enable_ab_partitions;
+#if 0
+  int prune_horza_partition = 0;
+  int prune_horzb_partition = 0;
+  int prune_verta_partition = 0;
+  int prune_vertb_partition = 0;
+#endif
+
+  if (cpi->sf.prune_ab_partitions) {
+    horza_partition_allowed &= !(split_rd[0] == 0 || split_rd[1] == 0);
+    horzb_partition_allowed &= !(horz_rd[0] == 0 || split_rd[2] == 0);
+    verta_partition_allowed &= !(split_rd[0] == 0 || split_rd[2] == 0);
+    vertb_partition_allowed &= !(vert_rd[0] == 0 || split_rd[1] == 0);
+  }
 
   // PARTITION_HORZ_A
   if (!terminate_partition_search && partition_horz_allowed &&
