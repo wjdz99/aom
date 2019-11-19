@@ -463,6 +463,7 @@ static void set_good_speed_features_framesize_independent(
     sf->tx_domain_dist_thres_level = 2;
     sf->simple_motion_search_prune_agg = 2;
     sf->skip_repeat_interpolation_filter_search = 2;
+    sf->disable_interinter_wedge = 1;
   }
 
   if (speed >= 5) {
@@ -929,6 +930,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->prune_obmc_prob_thresh = 0;
   sf->disable_obmc = 0;
   sf->nonrd_merge_partition = 0;
+  sf->disable_interinter_wedge = 0;
 
   if (oxcf->mode == GOOD)
     set_good_speed_features_framesize_independent(cpi, sf, speed);
