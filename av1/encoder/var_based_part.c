@@ -598,7 +598,6 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
                                       MACROBLOCK *x, int mi_row, int mi_col) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
-
   int i, j, k, m;
   v128x128 *vt;
   v16x16 *vt2 = NULL;
