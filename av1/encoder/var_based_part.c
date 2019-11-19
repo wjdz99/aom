@@ -577,6 +577,7 @@ static AOM_INLINE void chroma_check(AV1_COMP *cpi, MACROBLOCK *x,
 
   for (i = 1; i <= 2; ++i) {
     unsigned int uv_sad = UINT_MAX;
+    int shift = (cpi->oxcf.speed > 7) ? 2 : 4;
     struct macroblock_plane *p = &x->plane[i];
     struct macroblockd_plane *pd = &xd->plane[i];
     const BLOCK_SIZE bs =
@@ -586,7 +587,7 @@ static AOM_INLINE void chroma_check(AV1_COMP *cpi, MACROBLOCK *x,
       uv_sad = cpi->fn_ptr[bs].sdf(p->src.buf, p->src.stride, pd->dst.buf,
                                    pd->dst.stride);
 
-    x->color_sensitivity[i - 1] = uv_sad > (y_sad >> 2);
+    x->color_sensitivity[i - 1] = uv_sad > (y_sad >> shift);
   }
 }
 
@@ -598,7 +599,6 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
                                       MACROBLOCK *x, int mi_row, int mi_col) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
-
   int i, j, k, m;
   v128x128 *vt;
   v16x16 *vt2 = NULL;
