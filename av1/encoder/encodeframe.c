@@ -2424,11 +2424,13 @@ static bool rd_test_partition3(AV1_COMP *const cpi, ThreadData *td,
                                BLOCK_SIZE bsize, PARTITION_TYPE partition,
                                int mi_row0, int mi_col0, BLOCK_SIZE subsize0,
                                int mi_row1, int mi_col1, BLOCK_SIZE subsize1,
-                               int mi_row2, int mi_col2, BLOCK_SIZE subsize2) {
+                               int mi_row2, int mi_col2, BLOCK_SIZE subsize2,
+                               int64_t rd0, int64_t rd1, int64_t rd2) {
   const MACROBLOCK *const x = &td->mb;
   const MACROBLOCKD *const xd = &x->e_mbd;
   const int pl = partition_plane_context(xd, mi_row, mi_col, bsize);
   RD_STATS sum_rdc;
+  if (rd0 == 0 || rd1 == 0) return false;
   av1_init_rd_stats(&sum_rdc);
   sum_rdc.rate = x->partition_cost[pl][partition];
   sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
@@ -3278,7 +3280,7 @@ BEGIN_PARTITION_SEARCH:
         cpi, td, tile_data, tp, pc_tree, &best_rdc, pc_tree->horizontala,
         ctx_none, mi_row, mi_col, bsize, PARTITION_HORZ_A, mi_row, mi_col,
         bsize2, mi_row, mi_col + mi_step, bsize2, mi_row + mi_step, mi_col,
-        subsize);
+        subsize, split_rd[0], split_rd[1], horz_rd[1]);
 #if CONFIG_COLLECT_PARTITION_STATS
     if (partition_timer_on) {
       aom_usec_timer_mark(&partition_timer);
@@ -3318,7 +3320,7 @@ BEGIN_PARTITION_SEARCH:
         cpi, td, tile_data, tp, pc_tree, &best_rdc, pc_tree->horizontalb,
         ctx_none, mi_row, mi_col, bsize, PARTITION_HORZ_B, mi_row, mi_col,
         subsize, mi_row + mi_step, mi_col, bsize2, mi_row + mi_step,
-        mi_col + mi_step, bsize2);
+        mi_col + mi_step, bsize2, horz_rd[0], split_rd[2], split_rd[3]);
 
 #if CONFIG_COLLECT_PARTITION_STATS
     if (partition_timer_on) {
@@ -3360,7 +3362,7 @@ BEGIN_PARTITION_SEARCH:
         cpi, td, tile_data, tp, pc_tree, &best_rdc, pc_tree->verticala,
         ctx_none, mi_row, mi_col, bsize, PARTITION_VERT_A, mi_row, mi_col,
         bsize2, mi_row + mi_step, mi_col, bsize2, mi_row, mi_col + mi_step,
-        subsize);
+        subsize, split_rd[0], split_rd[2], vert_rd[1]);
 #if CONFIG_COLLECT_PARTITION_STATS
     if (partition_timer_on) {
       aom_usec_timer_mark(&partition_timer);
@@ -3401,7 +3403,7 @@ BEGIN_PARTITION_SEARCH:
         cpi, td, tile_data, tp, pc_tree, &best_rdc, pc_tree->verticalb,
         ctx_none, mi_row, mi_col, bsize, PARTITION_VERT_B, mi_row, mi_col,
         subsize, mi_row, mi_col + mi_step, bsize2, mi_row + mi_step,
-        mi_col + mi_step, bsize2);
+        mi_col + mi_step, bsize2, vert_rd[0], split_rd[1], split_rd[3]);
 #if CONFIG_COLLECT_PARTITION_STATS
     if (partition_timer_on) {
       aom_usec_timer_mark(&partition_timer);
