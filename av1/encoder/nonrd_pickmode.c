@@ -1417,9 +1417,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #if COLLECT_PICK_MODE_STAT
   aom_usec_timer_start(&ms_stat.timer2);
 #endif
-  const int intra_cost_penalty = av1_get_intra_cost_penalty(
+  int intra_cost_penalty = av1_get_intra_cost_penalty(
       cm->base_qindex, cm->y_dc_delta_q, cm->seq_params.bit_depth);
-  const int64_t inter_mode_thresh = RDCOST(x->rdmult, intra_cost_penalty, 0);
+  int64_t inter_mode_thresh = RDCOST(x->rdmult, intra_cost_penalty, 0);
   const int perform_intra_pred = cpi->sf.check_intra_pred_nonrd;
 
   (void)best_rd_so_far;
@@ -1877,7 +1877,18 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   mi->angle_delta[PLANE_TYPE_Y] = 0;
   mi->angle_delta[PLANE_TYPE_UV] = 0;
   mi->filter_intra_mode_info.use_filter_intra = 0;
-  // TODO(kyslov@) Need to adjust inter_mode_thresh
+  // If the best inter mode is large motion or non-LAST ref reduce intra cost
+  // penalty, so intra mode is more likely tested.
+  if (best_pickmode.best_ref_frame != LAST_FRAME || abs(mi->mv[0].as_mv.row) > 128 ||
+      abs(mi->mv[0].as_mv.col) > 128) {
+    intra_cost_penalty = intra_cost_penalty >> 2;
+    inter_mode_thresh = RDCOST(x->rdmult, intra_cost_penalty, 0);
+  }
+  // For big blocks and spatially flat areas with motion, worth checking intra
+  // (since only DC will be checked), even if early_term  is set.
+  // Need to put in spatial variance measure.
+  if (bsize >= BLOCK_32X32 && mi->mv[0].as_int != 0) best_early_term = 0;
+
   if (best_rdc.rdcost == INT64_MAX || (perform_intra_pred && !best_early_term &&
                                        best_rdc.rdcost > inter_mode_thresh &&
                                        bsize <= cpi->sf.max_intra_bsize)) {
