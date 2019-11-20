@@ -1587,8 +1587,12 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
                                 mbmi->mv_precision);
           }
         } else {
+#if CONFIG_NEW_INTER_MODES
+          const int ref = (mbmi->mode == NEAREST_NEWMV);
+#else
           const int ref =
               (mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEAR_NEWMV);
+#endif
           const int_mv ref_mv = av1_get_ref_mv(x, ref);
           av1_update_mv_stats(&mbmi->mv[ref].as_mv, &ref_mv.as_mv, &fc->nmvc,
                               mbmi->mv_precision);
