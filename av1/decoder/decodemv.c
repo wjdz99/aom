@@ -1309,6 +1309,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       assert(is_compound);
       break;
     }
+#if !CONFIG_NEW_INTER_MODES
     case NEAR_NEWMV: {
       nmv_context *const nmvc = &ec_ctx->nmvc;
       mv[0].as_int = near_mv[0].as_int;
@@ -1323,6 +1324,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       mv[1].as_int = near_mv[1].as_int;
       break;
     }
+#endif
     case GLOBAL_GLOBALMV: {
       assert(is_compound);
       mv[0].as_int =
@@ -1541,11 +1543,13 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
   if (is_compound) {
     int ref_mv_idx = mbmi->ref_mv_idx;
+#if !CONFIG_NEW_INTER_MODES
     // Special case: NEAR_NEWMV and NEW_NEARMV modes use
     // 1 + mbmi->ref_mv_idx (like NEARMV) instead of
     // mbmi->ref_mv_idx (like NEWMV)
     if (mbmi->mode == NEAR_NEWMV || mbmi->mode == NEW_NEARMV)
       ref_mv_idx = 1 + mbmi->ref_mv_idx;
+#endif
 
 #if CONFIG_FLEX_MVRES
     if (mbmi->mv_precision < cm->mv_precision && mbmi->mode == NEW_NEWMV) {
