@@ -793,6 +793,10 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   ctx->rd_stats.dist = rd_cost->dist;
   ctx->rd_stats.rdcost = rd_cost->rdcost;
 
+#if CONFIG_NEW_INTER_MODES_TRACE
+  printf("[MBMIMODE] %d\n", x->e_mbd.mi[0]->mode);
+#endif
+
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, rd_pick_sb_modes_time);
 #endif
@@ -1587,8 +1591,12 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
                                 mbmi->mv_precision);
           }
         } else {
+#if CONFIG_NEW_INTER_MODES
+          const int ref = (mbmi->mode == NEAREST_NEWMV);
+#else
           const int ref =
               (mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEAR_NEWMV);
+#endif
           const int_mv ref_mv = av1_get_ref_mv(x, ref);
           av1_update_mv_stats(&mbmi->mv[ref].as_mv, &ref_mv.as_mv, &fc->nmvc,
                               mbmi->mv_precision);

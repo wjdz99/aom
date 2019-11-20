@@ -1403,15 +1403,31 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       for (ref = 0; ref < 1 + is_compound; ++ref) {
         nmv_context *nmvc = &ec_ctx->nmvc;
         const int_mv ref_mv = av1_get_ref_mv(x, ref);
+#if CONFIG_NEW_INTER_MODES_TRAC
+        if (ref_mv.as_int == mbmi->mv[ref].as_int && mode == NEW_NEWMV) {
+          printf("[MBMINEWNEWZERO]\n");
+        }
+        if (ref_mv.as_int == mbmi->mv[ref].as_int && mode == NEWMV) {
+          printf("[MBMINEWZERO]\n");
+        }
+#endif
         av1_encode_mv(cpi, w, &mbmi->mv[ref].as_mv, &ref_mv.as_mv, nmvc,
                       mbmi->mv_precision);
       }
+#if CONFIG_NEW_INTER_MODES
+    } else if (mode == NEAREST_NEWMV) {
+#else
     } else if (mode == NEAREST_NEWMV || mode == NEAR_NEWMV) {
+#endif
       nmv_context *nmvc = &ec_ctx->nmvc;
       const int_mv ref_mv = av1_get_ref_mv(x, 1);
       av1_encode_mv(cpi, w, &mbmi->mv[1].as_mv, &ref_mv.as_mv, nmvc,
                     mbmi->mv_precision);
+#if CONFIG_NEW_INTER_MODES
+    } else if (mode == NEW_NEARESTMV) {
+#else
     } else if (mode == NEW_NEARESTMV || mode == NEW_NEARMV) {
+#endif
       nmv_context *nmvc = &ec_ctx->nmvc;
       const int_mv ref_mv = av1_get_ref_mv(x, 0);
       av1_encode_mv(cpi, w, &mbmi->mv[0].as_mv, &ref_mv.as_mv, nmvc,
