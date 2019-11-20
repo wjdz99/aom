@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "97500f47_90fd9dfc",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-20T18:06:52Z",
+      "side": 1,
+      "message": "2 things:\n\n1) This needs to go into exports_com\n2) I think we need a aom_img_num_metadata(). I think users will want the option of looping on the count instead of waiting for aom_img_get_metadata() to return nullptr. It will also need to be added to exports_com.",
+      "revId": "c9835f323749c44a28137541cc055636b763af70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7ef9cb3a_3c8acb87",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 1
@@ -25,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "7fd006d9_d192e1a6",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 800,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-20T18:06:52Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7ef9cb3a_3c8acb87",
+      "range": {
+        "startLine": 800,
+        "startChar": 0,
+        "endLine": 800,
+        "endChar": 76
+      },
+      "revId": "c9835f323749c44a28137541cc055636b763af70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1e75ebd0_04466dd6",
         "filename": "av1/common/onyxc_int.h",
         "patchSetId": 1
@@ -42,6 +83,87 @@
         "endLine": 151,
         "endChar": 25
       },
+      "revId": "c9835f323749c44a28137541cc055636b763af70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4045606_1f1670e6",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-20T18:06:52Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1e75ebd0_04466dd6",
+      "range": {
+        "startLine": 151,
+        "startChar": 2,
+        "endLine": 151,
+        "endChar": 25
+      },
+      "revId": "c9835f323749c44a28137541cc055636b763af70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b8db8c5a_69ac7d3e",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-20T18:06:52Z",
+      "side": 1,
+      "message": "I believe this will always be metadata produced by the decoder. Putting data output only by the decoder into the AV1_COMMON struct is confusing. Any reason why this can\u0027t be in AV1Decoder?",
+      "range": {
+        "startLine": 573,
+        "startChar": 2,
+        "endLine": 573,
+        "endChar": 22
+      },
+      "revId": "c9835f323749c44a28137541cc055636b763af70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c6c4849_fbcb7951",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-20T18:06:52Z",
+      "side": 1,
+      "message": "Drop this line and comment out pts in above:\n\naom_codec_pts_t /*pts*/",
+      "revId": "c9835f323749c44a28137541cc055636b763af70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "988fab1d_e282086f",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-11-20T18:06:52Z",
+      "side": 1,
+      "message": "A test that adds, reads, and verifies the data from the addition of several metadata blocks would be nice to have. It doesn\u0027t really matter if it\u0027s the same data repeatedly, it\u0027s just important to have a test that exercises that situation.",
       "revId": "c9835f323749c44a28137541cc055636b763af70",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
