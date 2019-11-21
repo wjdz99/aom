@@ -24,7 +24,9 @@ namespace {
 class DatarateTest : public ::libaom_test::EncoderTest {
  public:
   explicit DatarateTest(const ::libaom_test::CodecFactory *codec)
-      : EncoderTest(codec) {}
+      : EncoderTest(codec) {
+    speed_change_test_ = 0;
+  }
 
  protected:
   virtual ~DatarateTest() {}
@@ -61,6 +63,18 @@ class DatarateTest : public ::libaom_test::EncoderTest {
         encoder->Control(AV1E_SET_COEFF_COST_UPD_FREQ, 2);
         encoder->Control(AV1E_SET_MODE_COST_UPD_FREQ, 2);
         encoder->Control(AV1E_SET_MV_COST_UPD_FREQ, 2);
+      }
+    }
+
+    if (speed_change_test_) {
+      if (video->frame() == 0) {
+        encoder->Control(AOME_SET_CPUUSED, 8);
+      }
+      if (video->frame() == 30) {
+        encoder->Control(AOME_SET_CPUUSED, 7);
+      }
+      if (video->frame() == 60) {
+        encoder->Control(AOME_SET_CPUUSED, 6);
       }
     }
 
@@ -134,6 +148,7 @@ class DatarateTest : public ::libaom_test::EncoderTest {
   int denoiser_offon_test_;
   int denoiser_offon_period_;
   unsigned int aq_mode_;
+  int speed_change_test_;
 };
 
 }  // namespace
