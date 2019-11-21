@@ -1883,7 +1883,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     if (best_pickmode.best_ref_frame != LAST_FRAME ||
         abs(mi->mv[0].as_mv.row) > 32 || abs(mi->mv[0].as_mv.col) > 32) {
       intra_cost_penalty = intra_cost_penalty >> 2;
-      inter_mode_thresh = RDCOST(x->rdmult, intra_cost_penalty, 0);
+      inter_mode_thresh = 0;
     }
     // For big blocks worth checking intra (since only DC will be checked),
     // even if best_early_term is set.
@@ -1922,7 +1922,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       if (this_mode > 0 && bsize >= BLOCK_32X32) continue;
 
       if (rd_less_than_thresh(best_rdc.rdcost, mode_rd_thresh,
-                              rd_thresh_freq_fact[mode_index])) {
+                              rd_thresh_freq_fact[mode_index]) &&
+          x->source_variance > 50) {
         continue;
       }
       const BLOCK_SIZE uv_bsize = get_plane_block_size(
