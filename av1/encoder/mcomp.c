@@ -134,19 +134,37 @@ void av1_init3smotion_compensation(search_site_config *cfg, int stride) {
 
   for (len = MAX_FIRST_STEP; len > 0; len /= 2) {
     // Generate offsets for 8 search sites per step.
-    const MV ss_mvs[8] = { { -len, 0 },   { len, 0 },     { 0, -len },
-                           { 0, len },    { -len, -len }, { -len, len },
-                           { len, -len }, { len, len } };
+    int tan_len = AOMMAX((int)(len * 0.41), 1);
+    const MV ss_mvs[12] = {
+        {-len, -tan_len}, {len, tan_len}, {-tan_len, len},
+        {tan_len, -len}, {-len, tan_len}, {len, -tan_len},
+        {tan_len, len}, {-tan_len, -len}, {-len, 0},
+        {len, 0}, {0, -len}, {0, len},
+    };
+
     int i;
-    for (i = 0; i < 8; ++i) {
+    for (i = 0; i < 12; ++i) {
       search_site *const ss = &cfg->ss[ss_count++];
       ss->mv = ss_mvs[i];
       ss->offset = ss->mv.row * stride + ss->mv.col;
     }
   }
 
+//  for (; len > 0; len /= 2) {
+//    // Generate offsets for 8 search sites per step.
+//    const MV ss_mvs[8] = { { -len, 0 },   { len, 0 },     { 0, -len },
+//                           { 0, len },    { -len, -len }, { -len, len },
+//                           { len, -len }, { len, len } };
+//    int i;
+//    for (i = 0; i < 8; ++i) {
+//      search_site *const ss = &cfg->ss[ss_count++];
+//      ss->mv = ss_mvs[i];
+//      ss->offset = ss->mv.row * stride + ss->mv.col;
+//    }
+//  }
+
   cfg->ss_count = ss_count;
-  cfg->searches_per_step = 8;
+  cfg->searches_per_step = 12;
 }
 
 /*
@@ -1733,7 +1751,7 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
     // If all the pixels are within the bounds we don't check whether the
     // search point is valid in this loop,  otherwise we check each point
     // for validity..
-    if (all_in) {
+    if (all_in && 0) {
       unsigned int sad_array[4];
 
       for (j = 0; j < cfg->searches_per_step; j += 4) {
@@ -1825,7 +1843,7 @@ static int full_pixel_diamond(const AV1_COMP *const cpi, MACROBLOCK *x,
                               const MV *ref_mv, const search_site_config *cfg) {
   MV temp_mv;
   int thissme, n, num00 = 0;
-  int bestsme = cpi->diamond_search_sad(x, cfg, mvp_full, &temp_mv, step_param,
+  int bestsme = av1_diamond_search_sad_c(x, cfg, mvp_full, &temp_mv, step_param,
                                         sadpb, &n, fn_ptr, ref_mv);
   if (bestsme < INT_MAX)
     bestsme = av1_get_mvpred_var(x, &temp_mv, ref_mv, fn_ptr, 1);
@@ -1842,7 +1860,7 @@ static int full_pixel_diamond(const AV1_COMP *const cpi, MACROBLOCK *x,
       num00--;
     } else {
       thissme =
-          cpi->diamond_search_sad(x, cfg, mvp_full, &temp_mv, step_param + n,
+          av1_diamond_search_sad_c(x, cfg, mvp_full, &temp_mv, step_param + n,
                                   sadpb, &num00, fn_ptr, ref_mv);
       if (thissme < INT_MAX)
         thissme = av1_get_mvpred_var(x, &temp_mv, ref_mv, fn_ptr, 1);

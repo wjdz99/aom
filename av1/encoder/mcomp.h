@@ -44,7 +44,7 @@ typedef struct search_site {
 } search_site;
 
 typedef struct search_site_config {
-  search_site ss[8 * MAX_MVSEARCH_STEPS + 1];
+  search_site ss[12 * MAX_MVSEARCH_STEPS + 1];
   int ss_count;
   int searches_per_step;
   int stride;
