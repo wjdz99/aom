@@ -1876,8 +1876,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   mi->angle_delta[PLANE_TYPE_UV] = 0;
   mi->filter_intra_mode_info.use_filter_intra = 0;
 
+  uint32_t spatial_var_thresh = 50;
   // Some adjustments to checking intra mode based on source variance.
-  if (x->source_variance < 50) {
+  if (x->source_variance < spatial_var_thresh) {
     // If the best inter mode is large motion or non-LAST ref reduce intra cost
     // penalty, so intra mode is more likely tested.
     if (best_pickmode.best_ref_frame != LAST_FRAME ||
@@ -1922,7 +1923,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       if (this_mode > 0 && bsize >= BLOCK_32X32) continue;
 
       if (rd_less_than_thresh(best_rdc.rdcost, mode_rd_thresh,
-                              rd_thresh_freq_fact[mode_index])) {
+                              rd_thresh_freq_fact[mode_index]) &&
+          (x->source_variance > spatial_var_thresh ||
+           this_mode != DC_PRED)) {
         continue;
       }
       const BLOCK_SIZE uv_bsize = get_plane_block_size(
