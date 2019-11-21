@@ -64,6 +64,18 @@ class DatarateTest : public ::libaom_test::EncoderTest {
       }
     }
 
+    if (speed_change_test_) {
+      if (video->frame() == 0) {
+        encoder->Control(AOME_SET_CPUUSED, 8);
+      }
+      if (video->frame() == 30) {
+        encoder->Control(AOME_SET_CPUUSED, 7);
+      }
+      if (video->frame() == 60) {
+        encoder->Control(AOME_SET_CPUUSED, 6);
+      }
+    }
+
     if (denoiser_offon_test_) {
       ASSERT_GT(denoiser_offon_period_, 0)
           << "denoiser_offon_period_ is not positive.";

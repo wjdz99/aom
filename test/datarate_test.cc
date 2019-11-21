@@ -237,6 +237,52 @@ class DatarateTestRealtime : public DatarateTestLarge {};
 
 class DatarateTestFrameDropRealtime : public DatarateTestFrameDropLarge {};
 
+// Params: aq mode.
+class DatarateTestSpeedChangeRealtime
+    : public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode,
+                                                 unsigned int>,
+      public DatarateTest {
+  DatarateTestSpeedChangeRealtime() : DatarateTest(GET_PARAM(0)) {
+    aq_mode_ = GET_PARAM(1);
+    speed_change_test_ = 1;
+  }
+
+ protected:
+  virtual ~DatarateTestSpeedChangeRealtime() {}
+
+  virtual void SetUp() {
+    InitializeConfig();
+    SetMode(GET_PARAM(1));
+    ResetModel();
+  }
+
+  virtual void ChangingSpeedTest() {
+    cfg_.rc_buf_initial_sz = 500;
+    cfg_.rc_buf_optimal_sz = 500;
+    cfg_.rc_buf_sz = 1000;
+    cfg_.rc_undershoot_pct = 20;
+    cfg_.rc_undershoot_pct = 20;
+    cfg_.rc_dropframe_thresh = 10;
+    cfg_.rc_min_quantizer = 0;
+    cfg_.rc_max_quantizer = 50;
+    cfg_.rc_end_usage = AOM_CBR;
+    cfg_.rc_target_bitrate = 200;
+    cfg_.g_lag_in_frames = 0;
+    cfg_.g_error_resilient = 1;
+    // TODO(marpan): Investigate datarate target failures with a smaller
+    // keyframe interval (128).
+    cfg_.kf_max_dist = 9999;
+    cfg_.rc_dropframe_thresh = 0;
+    ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352,
+                                         288, 30, 1, 0, 100);
+
+    ResetModel();
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+  }
+
+  int speed_change_test_;
+};
+
 // Check basic rate targeting for VBR mode.
 TEST_P(DatarateTestRealtime, BasicRateTargetingVBR) {
   BasicRateTargetingVBRTest();
@@ -260,6 +306,10 @@ TEST_P(DatarateTestFrameDropRealtime, ChangingDropFrameThresh) {
   ChangingDropFrameThreshTest();
 }
 
+TEST_P(DatarateTestSpeedChangeRealtime, ChangingSpeedTest) {
+  ChangingSpeedTest();
+}
+
 AV1_INSTANTIATE_TEST_CASE(DatarateTestLarge,
                           ::testing::Values(::libaom_test::kRealTime),
                           ::testing::Range(5, 7), ::testing::Values(0, 3),
@@ -277,6 +327,10 @@ AV1_INSTANTIATE_TEST_CASE(DatarateTestRealtime,
 AV1_INSTANTIATE_TEST_CASE(DatarateTestFrameDropRealtime,
                           ::testing::Values(::libaom_test::kRealTime),
                           ::testing::Range(7, 9), ::testing::Values(0, 3));
+
+AV1_INSTANTIATE_TEST_CASE(DatarateTestSpeedChangeRealtime,
+                          ::testing::Values(::libaom_test::kRealTime),
+                          ::testing::Values(0, 3));
 
 }  // namespace
 }  // namespace datarate_test
