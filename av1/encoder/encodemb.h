@@ -69,7 +69,7 @@ void av1_setup_qmatrix(const AV1_COMMON *cm, MACROBLOCK *x, int plane,
 void av1_xform_quant(MACROBLOCK *x, int plane, int block, int blk_row,
                      int blk_col, BLOCK_SIZE plane_bsize,
                      AV1_XFORM_QUANT xform_quant_idx, TxfmParam *txfm_param,
-                     QUANT_PARAM *qparam);
+                     QUANT_PARAM *qparam, int optimize_b_following);
 
 int av1_optimize_b(const struct AV1_COMP *cpi, MACROBLOCK *mb, int plane,
                    int block, TX_SIZE tx_size, TX_TYPE tx_type,

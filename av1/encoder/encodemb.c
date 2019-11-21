@@ -128,7 +128,7 @@ static AV1_QUANT_FACADE quant_func_list[AV1_XFORM_QUANT_TYPES] = {
 void av1_xform_quant(MACROBLOCK *x, int plane, int block, int blk_row,
                      int blk_col, BLOCK_SIZE plane_bsize,
                      AV1_XFORM_QUANT xform_quant_idx, TxfmParam *txfm_param,
-                     QUANT_PARAM *qparam) {
+                     QUANT_PARAM *qparam, int optimize_b_following) {
   MACROBLOCKD *const xd = &x->e_mbd;
   const struct macroblock_plane *const p = &x->plane[plane];
   const struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -160,16 +160,13 @@ void av1_xform_quant(MACROBLOCK *x, int plane, int block, int blk_row,
       av1_quantize_skip(n_coeffs, qcoeff, dqcoeff, eob);
     }
   }
-  // NOTE: optimize_b_following is true means av1_optimze_b will be called
-  // When the condition of doing optimize_b is changed,
-  // this flag need update simultaneously
-  const int optimize_b_following =
-      (xform_quant_idx != AV1_XFORM_QUANT_FP) || (txfm_param->lossless);
+  // optimize_b_following is true means av1_optimze_b will be called,
+  // thus cannot update entropy ctx now (performed in optimize_b)
   if (optimize_b_following) {
+    p->txb_entropy_ctx[block] = 0;
+  } else {
     p->txb_entropy_ctx[block] =
         (uint8_t)av1_get_txb_entropy_context(qcoeff, scan_order, *eob);
-  } else {
-    p->txb_entropy_ctx[block] = 0;
   }
   return;
 }
@@ -256,7 +253,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
                                                  FINAL_PASS_TRELLIS_OPT)
                           ? AV1_XFORM_QUANT_B
                           : AV1_XFORM_QUANT_FP,
-                      &txfm_param, &quant_param);
+                      &txfm_param, &quant_param, 1);
       TXB_CTX txb_ctx;
       get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
       av1_optimize_b(args->cpi, x, plane, block, tx_size, tx_type, &txb_ctx,
@@ -265,7 +262,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
       av1_xform_quant(
           x, plane, block, blk_row, blk_col, plane_bsize,
           USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP,
-          &txfm_param, &quant_param);
+          &txfm_param, &quant_param, 0);
     }
   } else {
     p->eobs[block] = 0;
@@ -460,7 +457,7 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
   av1_setup_qmatrix(cm, x, plane, tx_size, DCT_DCT, &quant_param);
 
   av1_xform_quant(x, plane, block, blk_row, blk_col, plane_bsize,
-                  AV1_XFORM_QUANT_B, &txfm_param, &quant_param);
+                  AV1_XFORM_QUANT_B, &txfm_param, &quant_param, 0);
 
   if (p->eobs[block] > 0) {
     txfm_param.eob = p->eobs[block];
@@ -617,7 +614,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
                                                  FINAL_PASS_TRELLIS_OPT)
                           ? AV1_XFORM_QUANT_B
                           : AV1_XFORM_QUANT_FP,
-                      &txfm_param, &quant_param);
+                      &txfm_param, &quant_param, 1);
       TXB_CTX txb_ctx;
       get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
       av1_optimize_b(args->cpi, x, plane, block, tx_size, tx_type, &txb_ctx,
@@ -626,7 +623,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
       av1_xform_quant(
           x, plane, block, blk_row, blk_col, plane_bsize,
           USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP,
-          &txfm_param, &quant_param);
+          &txfm_param, &quant_param, 0);
     }
   }
 

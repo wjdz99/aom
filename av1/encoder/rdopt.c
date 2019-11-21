@@ -3481,13 +3481,13 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       av1_xform_quant(
           x, plane, block, blk_row, blk_col, plane_bsize,
           USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP,
-          &txfm_param, &quant_param);
+          &txfm_param, &quant_param, 0);
       rate_cost =
           av1_cost_coeffs(x, plane, block, tx_size, tx_type, txb_ctx,
                           use_fast_coef_costing, cm->reduced_tx_set_used);
     } else {
       av1_xform_quant(x, plane, block, blk_row, blk_col, plane_bsize,
-                      AV1_XFORM_QUANT_FP, &txfm_param, &quant_param);
+                      AV1_XFORM_QUANT_FP, &txfm_param, &quant_param, 1);
       if (cpi->sf.optimize_b_precheck && best_rd < INT64_MAX &&
           eobs_ptr[block] >= 4) {
         // Calculate distortion quickly in transform domain.
@@ -3667,11 +3667,11 @@ RECON_INTRA:
         av1_xform_quant(
             x, plane, block, blk_row, blk_col, plane_bsize,
             USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP,
-            &txfm_param_intra, &quant_param_intra);
+            &txfm_param_intra, &quant_param_intra, 0);
       } else {
         av1_xform_quant(x, plane, block, blk_row, blk_col, plane_bsize,
                         AV1_XFORM_QUANT_FP, &txfm_param_intra,
-                        &quant_param_intra);
+                        &quant_param_intra, 1);
         av1_optimize_b(cpi, x, plane, block, tx_size, best_tx_type, txb_ctx,
                        cpi->sf.trellis_eob_fast, &rate_cost);
       }
