@@ -173,8 +173,11 @@ static int find_qindex_by_rate_with_correction(
   while (low < high) {
     const int mid = (low + high) >> 1;
     const double mid_factor = calc_correction_factor(error_per_mb, mid);
-    const int mid_bits_per_mb = av1_rc_bits_per_mb(
-        frame_type, mid, mid_factor * group_weight_factor, bit_depth);
+    const double q = av1_convert_qindex_to_q(mid, bit_depth);
+    const int enumerator = 1600000 + ((int)(1600000 * q) >> 12);
+    const int mid_bits_per_mb =
+        (int)((enumerator * mid_factor * group_weight_factor) / q);
+
     if (mid_bits_per_mb > desired_bits_per_mb) {
       low = mid + 1;
     } else {
@@ -1206,7 +1209,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     }
     tmp_q = get_twopass_worst_quality(
         cpi, group_av_err, (group_av_skip_pct + group_av_inactive_zone),
-        vbr_group_bits_per_frame, twopass->kfgroup_inter_fraction * rc_factor);
+        vbr_group_bits_per_frame, rc_factor);
     rc->active_worst_quality = AOMMAX(tmp_q, rc->active_worst_quality >> 1);
   }
 #endif
@@ -1611,16 +1614,6 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   kf_bits = adjust_boost_bits_for_target_level(cpi, kf_bits,
                                                twopass->kf_group_bits, 0);
 
-  // Work out the fraction of the kf group bits reserved for the inter frames
-  // within the group after discounting the bits for the kf itself.
-  if (twopass->kf_group_bits) {
-    twopass->kfgroup_inter_fraction =
-        (double)(twopass->kf_group_bits - kf_bits) /
-        (double)twopass->kf_group_bits;
-  } else {
-    twopass->kfgroup_inter_fraction = 1.0;
-  }
-
   twopass->kf_group_bits -= kf_bits;
 
   // Save the bits to spend on the key frame.
@@ -1656,7 +1649,7 @@ static int is_skippable_frame(const AV1_COMP *cpi) {
           twopass->stats_in->pcnt_inter - twopass->stats_in->pcnt_motion == 1);
 }
 
-#define ARF_STATS_OUTPUT 0
+#define ARF_STATS_OUTPUT 1
 #if ARF_STATS_OUTPUT
 unsigned int arf_count = 0;
 #endif
@@ -1923,7 +1916,7 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
     rc->rate_error_estimate = 0;
   }
 
-#if 0
+#if 1
   {
     AV1_COMMON *cm = &cpi->common;
     FILE *fpfile;
