@@ -932,7 +932,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
                                  frame_input->source->y_stride, EDGE_THRESHOLD);
   }
   const int apply_filtering =
-      oxcf->pass == 2 && frame_params->frame_type == KEY_FRAME &&
+      oxcf->pass != 1 && frame_params->frame_type == KEY_FRAME &&
       !frame_params->show_existing_frame &&
       cpi->rc.frames_to_key > NUM_KEY_FRAME_DENOISING && noise_level > 0 &&
       !is_lossless_requested(oxcf) && oxcf->arnr_max_frames > 0;
@@ -967,6 +967,10 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
     aom_extend_frame_borders(&cpi->alt_ref_buffer, num_planes);
     // Use the filtered frame for encoding.
     frame_input->source = &cpi->alt_ref_buffer;
+    // Copy metadata info to alt-ref buffer.
+    aom_remove_metadata_from_frame_buffer(frame_input->source);
+    aom_copy_metadata_to_frame_buffer(frame_input->source,
+                                      source_kf_buffer->metadata);
     *temporal_filtered = 1;
   }
 
