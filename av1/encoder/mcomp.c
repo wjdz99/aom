@@ -1695,8 +1695,6 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
                              int sad_per_bit, int *num00,
                              const aom_variance_fn_ptr_t *fn_ptr,
                              const MV *center_mv) {
-  int i, j, step;
-
   const MACROBLOCKD *const xd = &x->e_mbd;
   uint8_t *what = x->plane[0].src.buf;
   const int what_stride = x->plane[0].src.stride;
@@ -1716,8 +1714,9 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
   // 0 = initial step (MAX_FIRST_STEP) pel
   // 1 = (MAX_FIRST_STEP/2) pel,
   // 2 = (MAX_FIRST_STEP/4) pel...
-  const search_site *ss = &cfg->ss[search_param * cfg->searches_per_step];
-  const int tot_steps = (cfg->ss_count / cfg->searches_per_step) - search_param;
+//  const search_site *ss = &cfg->ss[search_param * cfg->searches_per_step];
+  int log_radius = MAX_MVSEARCH_STEPS - search_param;
+  int radius = 1 << (log_radius - 1);
 
   const MV fcenter_mv = { center_mv->row >> 3, center_mv->col >> 3 };
   clamp_mv(ref_mv, x->mv_limits.col_min, x->mv_limits.col_max,
@@ -1736,101 +1735,97 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
   bestsad = fn_ptr->sdf(what, what_stride, in_what, in_what_stride) +
             mvsad_err_cost(x, best_mv, &fcenter_mv, sad_per_bit);
 
-  i = 1;
+  int is_off_center = 0;
+  for (; radius > 0; radius >>= 1) {
+    int tan_radius = AOMMAX((int)(0.41 * radius), 1);
+    int num_search_pts = 12;
+    if (radius == 2) num_search_pts = 16;
+    if (radius == 1) num_search_pts = 8;
+    search_site ss[17];
+    const MV ss_mvs[17] = {
+        {0, 0},
+        {-radius, 0}, {radius, 0}, {0, -radius}, {0, radius},
+        {-radius, -tan_radius}, {radius, tan_radius}, {-tan_radius, radius},
+        {tan_radius, -radius}, {-radius, tan_radius}, {radius, -tan_radius},
+        {tan_radius, radius}, {-tan_radius, -radius},
+        {-radius, -radius}, {-radius, radius}, {radius, -radius}, {radius, radius},
+    };
 
-  for (step = 0; step < tot_steps; step++) {
-    int all_in = 1, t;
+    for (int idx = 1; idx <= num_search_pts; ++idx) {
+      ss[idx].mv = ss_mvs[idx];
+      ss[idx].offset =
+          ss[idx].mv.row * cfg->stride + ss[idx].mv.col;
+    }
 
-    // All_in is true if every one of the points we are checking are within
-    // the bounds of the image.
-    all_in &= ((best_mv->row + ss[i].mv.row) > x->mv_limits.row_min);
-    all_in &= ((best_mv->row + ss[i + 1].mv.row) < x->mv_limits.row_max);
-    all_in &= ((best_mv->col + ss[i + 2].mv.col) > x->mv_limits.col_min);
-    all_in &= ((best_mv->col + ss[i + 3].mv.col) < x->mv_limits.col_max);
+    best_site = 0;
+    for (int idx = 1; idx <= num_search_pts; ++idx) {
+      // Trap illegal vectors
+      const MV this_mv = { best_mv->row + ss[idx].mv.row,
+                           best_mv->col + ss[idx].mv.col };
+      if (is_mv_in(&x->mv_limits, &this_mv)) {
+        const uint8_t *const check_here = ss[idx].offset + best_address;
+        unsigned int thissad =
+            fn_ptr->sdf(what, what_stride, check_here, in_what_stride);
 
-    // If all the pixels are within the bounds we don't check whether the
-    // search point is valid in this loop,  otherwise we check each point
-    // for validity..
-    if (all_in && 0) {
-      unsigned int sad_array[4];
-
-      for (j = 0; j < cfg->searches_per_step; j += 4) {
-        unsigned char const *block_offset[4];
-
-        for (t = 0; t < 4; t++)
-          block_offset[t] = ss[i + t].offset + best_address;
-
-        fn_ptr->sdx4df(what, what_stride, block_offset, in_what_stride,
-                       sad_array);
-
-        for (t = 0; t < 4; t++, i++) {
-          if (sad_array[t] < bestsad) {
-            const MV this_mv = { best_mv->row + ss[i].mv.row,
-                                 best_mv->col + ss[i].mv.col };
-            sad_array[t] +=
-                mvsad_err_cost(x, &this_mv, &fcenter_mv, sad_per_bit);
-            if (sad_array[t] < bestsad) {
-              bestsad = sad_array[t];
-              best_site = i;
-            }
-          }
-        }
-      }
-    } else {
-      for (j = 0; j < cfg->searches_per_step; j++) {
-        // Trap illegal vectors
-        const MV this_mv = { best_mv->row + ss[i].mv.row,
-                             best_mv->col + ss[i].mv.col };
-
-        if (is_mv_in(&x->mv_limits, &this_mv)) {
-          const uint8_t *const check_here = ss[i].offset + best_address;
-          unsigned int thissad =
-              fn_ptr->sdf(what, what_stride, check_here, in_what_stride);
-
+        if (thissad < bestsad) {
+          thissad += mvsad_err_cost(x, &this_mv, &fcenter_mv, sad_per_bit);
           if (thissad < bestsad) {
-            thissad += mvsad_err_cost(x, &this_mv, &fcenter_mv, sad_per_bit);
-            if (thissad < bestsad) {
-              bestsad = thissad;
-              best_site = i;
-            }
+            bestsad = thissad;
+            best_site = idx;
           }
         }
-        i++;
       }
     }
-    if (best_site != last_site) {
+
+    if (best_site != 0) {
       x->second_best_mv.as_mv = *best_mv;
       best_mv->row += ss[best_site].mv.row;
       best_mv->col += ss[best_site].mv.col;
       best_address += ss[best_site].offset;
-      last_site = best_site;
-#if defined(NEW_DIAMOND_SEARCH)
-      while (1) {
-        const MV this_mv = { best_mv->row + ss[best_site].mv.row,
-                             best_mv->col + ss[best_site].mv.col };
-        if (is_mv_in(&x->mv_limits, &this_mv)) {
-          const uint8_t *const check_here = ss[best_site].offset + best_address;
-          unsigned int thissad =
-              fn_ptr->sdf(what, what_stride, check_here, in_what_stride);
-          if (thissad < bestsad) {
-            thissad += mvsad_err_cost(x, &this_mv, &fcenter_mv, sad_per_bit);
-            if (thissad < bestsad) {
-              bestsad = thissad;
-              best_mv->row += ss[best_site].mv.row;
-              best_mv->col += ss[best_site].mv.col;
-              best_address += ss[best_site].offset;
-              continue;
-            }
-          }
-        }
-        break;
-      }
-#endif
-    } else if (best_address == in_what) {
+      is_off_center = 1;
+    }
+
+    if (is_off_center == 0) {
       (*num00)++;
     }
   }
+
+  (*num00) = AOMMAX(0, *num00 - 1);
+
   return bestsad;
+
+//  for (step = 0; step < tot_steps; step++) {
+//      for (j = 0; j < cfg->searches_per_step; j++) {
+//        // Trap illegal vectors
+//        const MV this_mv = { best_mv->row + ss[i].mv.row,
+//                             best_mv->col + ss[i].mv.col };
+//
+//        if (is_mv_in(&x->mv_limits, &this_mv)) {
+//          const uint8_t *const check_here = ss[i].offset + best_address;
+//          unsigned int thissad =
+//              fn_ptr->sdf(what, what_stride, check_here, in_what_stride);
+//
+//          if (thissad < bestsad) {
+//            thissad += mvsad_err_cost(x, &this_mv, &fcenter_mv, sad_per_bit);
+//            if (thissad < bestsad) {
+//              bestsad = thissad;
+//              best_site = i;
+//            }
+//          }
+//        }
+//        i++;
+//      }
+//    if (best_site != last_site) {
+//      x->second_best_mv.as_mv = *best_mv;
+//      best_mv->row += ss[best_site].mv.row;
+//      best_mv->col += ss[best_site].mv.col;
+//      best_address += ss[best_site].offset;
+//      last_site = best_site;
+//    } else if (best_address == in_what) {
+//      (*num00)++;
+//    }
+//  }
+//  return bestsad;
 }
 
 /* do_refine: If last step (1-away) of n-step search doesn't pick the center
