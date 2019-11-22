@@ -56,7 +56,7 @@ static uint8_t intrabc_max_mesh_pct[MAX_MESH_SPEED + 1] = { 100, 100, 100,
 // enable_winner_mode_for_use_tx_domain_dist speed feature is ON
 // TODO(any): Experiment the threshold logic based on variance metric
 static unsigned int tx_domain_dist_thresholds[3][MODE_EVAL_TYPES] = {
-  { UINT_MAX, UINT_MAX, UINT_MAX }, { 22026, 22026, 22026 }, { 0, 0, 0 }
+  { UINT_MAX, UINT_MAX, UINT_MAX }, { 22026, 8103, 22026 }, { 0, 0, 0 }
 };
 
 // Transform domain distortion type to be used for default, mode and winner mode
@@ -79,8 +79,8 @@ static unsigned int coeff_opt_dist_thresholds[5][MODE_EVAL_TYPES] = {
   { UINT_MAX, UINT_MAX, UINT_MAX },
   { 442413, 36314, UINT_MAX },
   { 162754, 36314, UINT_MAX },
-  { 22026, 22026, UINT_MAX },
-  { 22026, 22026, UINT_MAX }
+  { 22026, 8103, UINT_MAX },
+  { 22026, 8103, UINT_MAX }
 };
 
 // Transform size to be used for default, mode and winner mode evaluation
@@ -367,7 +367,7 @@ static void set_good_speed_features_framesize_independent(
     sf->prune_comp_type_by_comp_avg = 2;
     // TODO(Sachin): Enable/Enhance this speed feature for speed 2 & 3
     sf->adaptive_interp_filter_search = 1;
-    sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
+    sf->perform_coeff_opt = 3;
 
     sf->prune_warp_using_wmtype = 1;
     sf->disable_smooth_intra =
@@ -422,7 +422,7 @@ static void set_good_speed_features_framesize_independent(
     sf->adaptive_mode_search = 1;
     sf->alt_ref_search_fp = 1;
     sf->skip_sharp_interp_filter_search = 1;
-    sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 4;
+    sf->perform_coeff_opt = 4;
     sf->adaptive_txb_search_level = boosted ? 2 : 3;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
     sf->enable_winner_mode_for_tx_size_srch = 1;
