@@ -912,7 +912,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->prune_compound_using_single_ref = 0;
 
   sf->prune_mode_search_simple_translation = 0;
-  sf->obmc_full_pixel_search_level = 0;
+  sf->obmc_full_pixel_search_level = 1;
   sf->skip_sharp_interp_filter_search = 0;
   sf->prune_comp_type_by_comp_avg = 0;
   sf->disable_interinter_wedge_newmv_search = 0;
