@@ -22,7 +22,7 @@ extern "C" {
 
 // The maximum number of steps in a step search given the largest
 // allowed initial step
-#define MAX_MVSEARCH_STEPS 11
+#define MAX_MVSEARCH_STEPS 10
 // Max full pel mv specified in the unit of full pixel
 // Enable the use of motion vector in range [-1023, 1023].
 #define MAX_FULL_PEL_VAL ((1 << (MAX_MVSEARCH_STEPS - 1)) - 1)
