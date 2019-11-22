@@ -227,6 +227,10 @@ static void set_good_speed_feature_framesize_dependent(
 
     sf->prune_obmc_prob_thresh = 16;
   }
+
+  if (speed >= 5) {
+    if (is_480p_or_larger) sf->tx_type_search.prune_tx_type_using_stats = 3;
+  }
 }
 
 static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
