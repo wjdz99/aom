@@ -3904,8 +3904,12 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
   }
 
   const int delta_q_res = delta_q_info->delta_q_res;
-  current_qindex =
-      clamp(current_qindex, delta_q_res, 256 - delta_q_info->delta_q_res);
+  // Right now aq only works with tpl model. So if tpl is disabled, we leave the
+  // q_index as it is without clamping.
+  if (cpi->oxcf.enable_tpl_model) {
+    current_qindex =
+        clamp(current_qindex, delta_q_res, 256 - delta_q_info->delta_q_res);
+  }
 
   MACROBLOCKD *const xd = &x->e_mbd;
   const int sign_deltaq_index =
