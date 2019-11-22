@@ -370,6 +370,22 @@ int av1_rc_drop_frame(AV1_COMP *cpi) {
   }
 }
 
+static int adjust_q_cbr(const AV1_COMP *cpi, int q) {
+  if (cpi->common.current_frame.frame_type != KEY_FRAME &&
+      (!cpi->oxcf.gf_cbr_boost_pct ||
+       !(cpi->refresh_alt_ref_frame || cpi->refresh_golden_frame))) {
+    // Make sure q is between oscillating Qs to prevent resonance.
+    if (cpi->rc.rc_1_frame * cpi->rc.rc_2_frame == -1 &&
+        cpi->rc.q_1_frame != cpi->rc.q_2_frame) {
+      q = clamp(q, AOMMIN(cpi->rc.q_1_frame, cpi->rc.q_2_frame),
+                AOMMAX(cpi->rc.q_1_frame, cpi->rc.q_2_frame));
+    }
+    // Reduce change if Q has decreased too much from previous frame.
+    if (cpi->rc.q_1_frame - q > 16) q = (q + cpi->rc.q_1_frame) >> 1;
+  }
+  return AOMMAX(AOMMIN(q, cpi->rc.worst_quality), cpi->rc.best_quality);
+}
+
 static const RATE_FACTOR_LEVEL rate_factor_levels[FRAME_UPDATE_TYPES] = {
   KF_STD,        // KF_UPDATE
   INTER_NORMAL,  // LF_UPDATE
@@ -583,14 +599,9 @@ int av1_rc_regulate_q(const AV1_COMP *cpi, int target_bits_per_frame,
       find_closest_qindex_by_rate(target_bits_per_mb, cpi, correction_factor,
                                   active_best_quality, active_worst_quality);
 
-  // In CBR mode, this makes sure q is between oscillating Qs to prevent
-  // resonance.
-  if (cpi->oxcf.rc_mode == AOM_CBR && !cpi->use_svc &&
-      (cpi->rc.rc_1_frame * cpi->rc.rc_2_frame == -1) &&
-      cpi->rc.q_1_frame != cpi->rc.q_2_frame) {
-    q = clamp(q, AOMMIN(cpi->rc.q_1_frame, cpi->rc.q_2_frame),
-              AOMMAX(cpi->rc.q_1_frame, cpi->rc.q_2_frame));
-  }
+  if (cpi->oxcf.rc_mode == AOM_CBR && !cpi->use_svc)
+    return adjust_q_cbr(cpi, q);
+
   return q;
 }
 
@@ -757,6 +768,7 @@ static int rc_pick_q_and_bounds_one_pass_cbr(const AV1_COMP *cpi, int width,
           av1_compute_qdelta(rc, q_val, q_val * q_adj_factor, bit_depth);
     }
   } else if (!rc->is_src_frame_alt_ref && !cpi->use_svc &&
+             cpi->oxcf.gf_cbr_boost_pct &&
              (cpi->refresh_golden_frame || cpi->refresh_alt_ref_frame)) {
     // Use the lower of active_worst_quality and recent
     // average Q as basis for GF/ARF best Q limit unless last frame was
