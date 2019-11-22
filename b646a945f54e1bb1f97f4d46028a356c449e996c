@@ -22,6 +22,30 @@
       "revId": "b646a945f54e1bb1f97f4d46028a356c449e996c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6b663a6_d8e1976a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 944,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-11-22T17:47:09Z",
+      "side": 0,
+      "message": "I\u0027m not too familiar with how delta-q is implemented. But is there a way to de-couple this dependency? If not, we might as well merge the two flags into one.",
+      "parentUuid": "b28f6474_20ffed5e",
+      "range": {
+        "startLine": 944,
+        "startChar": 3,
+        "endLine": 944,
+        "endChar": 31
+      },
+      "revId": "b646a945f54e1bb1f97f4d46028a356c449e996c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
