@@ -137,15 +137,19 @@ void av1_init3smotion_compensation(search_site_config *cfg, int stride) {
   cfg->ss[stage_index][0].offset = 0;
   cfg->stride = stride;
 
-  for (len = MAX_FIRST_STEP; len > 0; len /= 2) {
+  for (int radius = MAX_FIRST_STEP; radius > 0; radius /= 2) {
     // Generate offsets for 8 search sites per step.
-    int tan_len = AOMMAX((int)(len * 0.41), 1);
+    int tan_radius = AOMMAX((int)(0.41 * radius), 1);
+    int num_search_pts = 12;
+    if (radius == 2) num_search_pts = 16;
+    if (radius == 1) num_search_pts = 8;
     const MV ss_mvs[17] = {
         {0, 0},
-        {-len, -tan_len}, {len, tan_len}, {-tan_len, len},
-        {tan_len, -len}, {-len, tan_len}, {len, -tan_len},
-        {tan_len, len}, {-tan_len, -len}, {-len, 0},
-        {len, 0}, {0, -len}, {0, len},
+        {-radius, 0}, {radius, 0}, {0, -radius}, {0, radius},
+        {-radius, -tan_radius}, {radius, tan_radius}, {-tan_radius, radius},
+        {tan_radius, -radius}, {-radius, tan_radius}, {radius, -tan_radius},
+        {tan_radius, radius}, {-tan_radius, -radius},
+        {-radius, -radius}, {-radius, radius}, {radius, -radius}, {radius, radius},
     };
 
     int i;
@@ -154,7 +158,7 @@ void av1_init3smotion_compensation(search_site_config *cfg, int stride) {
       ss->mv = ss_mvs[i];
       ss->offset = ss->mv.row * stride + ss->mv.col;
     }
-    cfg->searches_per_step[stage_index] = 12;
+    cfg->searches_per_step[stage_index] = num_search_pts;
     --stage_index;
   }
 
@@ -1722,8 +1726,8 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
   // 1 = (MAX_FIRST_STEP/2) pel,
   // 2 = (MAX_FIRST_STEP/4) pel...
 //  const search_site *ss = &cfg->ss[search_param * cfg->searches_per_step];
-  int log_radius = MAX_MVSEARCH_STEPS - search_param;
-  int radius = 1 << (log_radius - 1);
+  int log_radius = MAX_MVSEARCH_STEPS - search_param - 1;
+  int radius = 1 << log_radius;
 
   const MV fcenter_mv = { center_mv->row >> 3, center_mv->col >> 3 };
   clamp_mv(ref_mv, x->mv_limits.col_min, x->mv_limits.col_max,
@@ -1748,21 +1752,21 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
     int num_search_pts = 12;
     if (radius == 2) num_search_pts = 16;
     if (radius == 1) num_search_pts = 8;
-    search_site ss[17];
-    const MV ss_mvs[17] = {
-        {0, 0},
-        {-radius, 0}, {radius, 0}, {0, -radius}, {0, radius},
-        {-radius, -tan_radius}, {radius, tan_radius}, {-tan_radius, radius},
-        {tan_radius, -radius}, {-radius, tan_radius}, {radius, -tan_radius},
-        {tan_radius, radius}, {-tan_radius, -radius},
-        {-radius, -radius}, {-radius, radius}, {radius, -radius}, {radius, radius},
-    };
-
-    for (int idx = 1; idx <= num_search_pts; ++idx) {
-      ss[idx].mv = ss_mvs[idx];
-      ss[idx].offset =
-          ss[idx].mv.row * cfg->stride + ss[idx].mv.col;
-    }
+    const search_site *ss = cfg->ss[log_radius];
+//    const MV ss_mvs[17] = {
+//        {0, 0},
+//        {-radius, 0}, {radius, 0}, {0, -radius}, {0, radius},
+//        {-radius, -tan_radius}, {radius, tan_radius}, {-tan_radius, radius},
+//        {tan_radius, -radius}, {-radius, tan_radius}, {radius, -tan_radius},
+//        {tan_radius, radius}, {-tan_radius, -radius},
+//        {-radius, -radius}, {-radius, radius}, {radius, -radius}, {radius, radius},
+//    };
+//
+//    for (int idx = 1; idx <= num_search_pts; ++idx) {
+//      ss[idx].mv = ss_mvs[idx];
+//      ss[idx].offset =
+//          ss[idx].mv.row * cfg->stride + ss[idx].mv.col;
+//    }
 
     best_site = 0;
     for (int idx = 1; idx <= num_search_pts; ++idx) {
@@ -1795,6 +1799,7 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
     if (is_off_center == 0) {
       (*num00)++;
     }
+    --log_radius;
   }
 
   (*num00) = AOMMAX(0, *num00 - 1);
@@ -2873,10 +2878,10 @@ static int obmc_diamond_search_sad(const MACROBLOCK *x,
     const search_site *const ss = cfg->ss[step];
     best_site = 0;
     for (j = 1; j <= cfg->searches_per_step[step]; j++) {
-      const MV mv = { best_mv->row + ss[i].mv.row,
-                      best_mv->col + ss[i].mv.col };
+      const MV mv = { best_mv->row + ss[j].mv.row,
+                      best_mv->col + ss[j].mv.col };
       if (is_mv_in(&x->mv_limits, &mv)) {
-        int sad = fn_ptr->osdf(best_address + ss[i].offset, in_what->stride,
+        int sad = fn_ptr->osdf(best_address + ss[j].offset, in_what->stride,
                                wsrc, mask);
         if (sad < best_sad) {
           sad += mvsad_err_cost(x, &mv, &fcenter_mv, sad_per_bit);
