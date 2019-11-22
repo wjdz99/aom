@@ -105,37 +105,43 @@ static int mvsad_err_cost(const MACROBLOCK *x, const MV *mv, const MV *ref,
 
 void av1_init_dsmotion_compensation(search_site_config *cfg, int stride) {
   int len, ss_count = 1;
+  int stage_index = MAX_MVSEARCH_STEPS - 1;
 
-  cfg->ss[0].mv.col = cfg->ss[0].mv.row = 0;
-  cfg->ss[0].offset = 0;
+  cfg->ss[stage_index][0].mv.col = cfg->ss[stage_index][0].mv.row = 0;
+  cfg->ss[stage_index][0].offset = 0;
   cfg->stride = stride;
 
   for (len = MAX_FIRST_STEP; len > 0; len /= 2) {
     // Generate offsets for 4 search sites per step.
-    const MV ss_mvs[] = { { -len, 0 }, { len, 0 }, { 0, -len }, { 0, len } };
+    const MV ss_mvs[5] = {
+        {0, 0},
+        { -len, 0 }, { len, 0 }, { 0, -len }, { 0, len } };
     int i;
-    for (i = 0; i < 4; ++i) {
-      search_site *const ss = &cfg->ss[ss_count++];
+    for (i = 0; i < 5; ++i) {
+      search_site *const ss = &cfg->ss[stage_index][i];
       ss->mv = ss_mvs[i];
       ss->offset = ss->mv.row * stride + ss->mv.col;
     }
+    cfg->searches_per_step[stage_index] = 4;
+    --stage_index;
   }
 
   cfg->ss_count = ss_count;
-  cfg->searches_per_step = 4;
 }
 
 void av1_init3smotion_compensation(search_site_config *cfg, int stride) {
   int len, ss_count = 1;
+  int stage_index = MAX_MVSEARCH_STEPS - 1;
 
-  cfg->ss[0].mv.col = cfg->ss[0].mv.row = 0;
-  cfg->ss[0].offset = 0;
+  cfg->ss[stage_index][0].mv.col = cfg->ss[stage_index][0].mv.row = 0;
+  cfg->ss[stage_index][0].offset = 0;
   cfg->stride = stride;
 
   for (len = MAX_FIRST_STEP; len > 0; len /= 2) {
     // Generate offsets for 8 search sites per step.
     int tan_len = AOMMAX((int)(len * 0.41), 1);
-    const MV ss_mvs[12] = {
+    const MV ss_mvs[17] = {
+        {0, 0},
         {-len, -tan_len}, {len, tan_len}, {-tan_len, len},
         {tan_len, -len}, {-len, tan_len}, {len, -tan_len},
         {tan_len, len}, {-tan_len, -len}, {-len, 0},
@@ -143,11 +149,13 @@ void av1_init3smotion_compensation(search_site_config *cfg, int stride) {
     };
 
     int i;
-    for (i = 0; i < 12; ++i) {
-      search_site *const ss = &cfg->ss[ss_count++];
+    for (i = 0; i < 17; ++i) {
+      search_site *const ss = &cfg->ss[stage_index][i];
       ss->mv = ss_mvs[i];
       ss->offset = ss->mv.row * stride + ss->mv.col;
     }
+    cfg->searches_per_step[stage_index] = 12;
+    --stage_index;
   }
 
 //  for (; len > 0; len /= 2) {
@@ -164,7 +172,6 @@ void av1_init3smotion_compensation(search_site_config *cfg, int stride) {
 //  }
 
   cfg->ss_count = ss_count;
-  cfg->searches_per_step = 12;
 }
 
 /*
@@ -2840,8 +2847,10 @@ static int obmc_diamond_search_sad(const MACROBLOCK *x,
   // of iterations
   // 0 = initial step (MAX_FIRST_STEP) pel : 1 = (MAX_FIRST_STEP/2) pel, 2 =
   // (MAX_FIRST_STEP/4) pel... etc.
-  const search_site *const ss = &cfg->ss[search_param * cfg->searches_per_step];
-  const int tot_steps = (cfg->ss_count / cfg->searches_per_step) - search_param;
+
+  const int tot_steps =
+      MAX_MVSEARCH_STEPS - 1 - search_param;
+//      (cfg->ss_count / cfg->searches_per_step) - search_param;
   const MV fcenter_mv = { center_mv->row >> 3, center_mv->col >> 3 };
   const uint8_t *best_address, *in_what_ref;
   int best_sad = INT_MAX;
@@ -2860,10 +2869,10 @@ static int obmc_diamond_search_sad(const MACROBLOCK *x,
   best_sad = fn_ptr->osdf(best_address, in_what->stride, wsrc, mask) +
              mvsad_err_cost(x, best_mv, &fcenter_mv, sad_per_bit);
 
-  i = 1;
-
-  for (step = 0; step < tot_steps; step++) {
-    for (j = 0; j < cfg->searches_per_step; j++) {
+  for (step = tot_steps; step >= 0; --step) {
+    const search_site *const ss = cfg->ss[step];
+    best_site = 0;
+    for (j = 1; j <= cfg->searches_per_step[step]; j++) {
       const MV mv = { best_mv->row + ss[i].mv.row,
                       best_mv->col + ss[i].mv.col };
       if (is_mv_in(&x->mv_limits, &mv)) {
@@ -2873,44 +2882,22 @@ static int obmc_diamond_search_sad(const MACROBLOCK *x,
           sad += mvsad_err_cost(x, &mv, &fcenter_mv, sad_per_bit);
           if (sad < best_sad) {
             best_sad = sad;
-            best_site = i;
+            best_site = j;
           }
         }
       }
-
-      i++;
     }
 
-    if (best_site != last_site) {
+    if (best_site != 0) {
       best_mv->row += ss[best_site].mv.row;
       best_mv->col += ss[best_site].mv.col;
       best_address += ss[best_site].offset;
-      last_site = best_site;
-#if defined(NEW_DIAMOND_SEARCH)
-      while (1) {
-        const MV this_mv = { best_mv->row + ss[best_site].mv.row,
-                             best_mv->col + ss[best_site].mv.col };
-        if (is_mv_in(&x->mv_limits, &this_mv)) {
-          int sad = fn_ptr->osdf(best_address + ss[best_site].offset,
-                                 in_what->stride, wsrc, mask);
-          if (sad < best_sad) {
-            sad += mvsad_err_cost(x, &this_mv, &fcenter_mv, sad_per_bit);
-            if (sad < best_sad) {
-              best_sad = sad;
-              best_mv->row += ss[best_site].mv.row;
-              best_mv->col += ss[best_site].mv.col;
-              best_address += ss[best_site].offset;
-              continue;
-            }
-          }
-        }
-        break;
-      }
-#endif
     } else if (best_address == in_what_ref) {
       (*num00)++;
     }
   }
+
+  *num00 = AOMMAX(1, *num00 - 1);
   return best_sad;
 }
 
