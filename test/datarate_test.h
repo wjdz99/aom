@@ -24,8 +24,7 @@ namespace {
 class DatarateTest : public ::libaom_test::EncoderTest {
  public:
   explicit DatarateTest(const ::libaom_test::CodecFactory *codec)
-      : EncoderTest(codec), set_cpu_used_(0), aq_mode_(0),
-        speed_change_test_(false) {}
+      : EncoderTest(codec) {}
 
  protected:
   virtual ~DatarateTest() {}
@@ -45,15 +44,11 @@ class DatarateTest : public ::libaom_test::EncoderTest {
     // Denoiser is off by default.
     denoiser_on_ = 0;
     bits_total_ = 0;
-    denoiser_offon_test_ = 0;
-    denoiser_offon_period_ = -1;
   }
 
   virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
                                   ::libaom_test::Encoder *encoder) {
     if (video->frame() == 0) {
-      encoder->Control(AOME_SET_CPUUSED, set_cpu_used_);
-      encoder->Control(AV1E_SET_AQ_MODE, aq_mode_);
       encoder->Control(AV1E_SET_TILE_COLUMNS, 0);
       if (cfg_.g_usage == AOM_USAGE_REALTIME) {
         encoder->Control(AV1E_SET_DELTAQ_MODE, 0);
@@ -62,30 +57,6 @@ class DatarateTest : public ::libaom_test::EncoderTest {
         encoder->Control(AV1E_SET_COEFF_COST_UPD_FREQ, 2);
         encoder->Control(AV1E_SET_MODE_COST_UPD_FREQ, 2);
         encoder->Control(AV1E_SET_MV_COST_UPD_FREQ, 2);
-      }
-    }
-
-    if (speed_change_test_) {
-      if (video->frame() == 0) {
-        encoder->Control(AOME_SET_CPUUSED, 8);
-      }
-      if (video->frame() == 30) {
-        encoder->Control(AOME_SET_CPUUSED, 7);
-      }
-      if (video->frame() == 60) {
-        encoder->Control(AOME_SET_CPUUSED, 6);
-      }
-      if (video->frame() == 90) {
-        encoder->Control(AOME_SET_CPUUSED, 7);
-      }
-    }
-
-    if (denoiser_offon_test_) {
-      ASSERT_GT(denoiser_offon_period_, 0)
-          << "denoiser_offon_period_ is not positive.";
-      if ((video->frame() + 1) % denoiser_offon_period_ == 0) {
-        // Flip denoiser_on_ periodically
-        denoiser_on_ ^= 1;
       }
     }
 
@@ -142,15 +113,12 @@ class DatarateTest : public ::libaom_test::EncoderTest {
   int64_t bits_total_;
   double duration_;
   double effective_datarate_;
-  int set_cpu_used_;
   int64_t bits_in_buffer_model_;
   aom_codec_pts_t first_drop_;
   int num_drops_;
   int denoiser_on_;
   int denoiser_offon_test_;
   int denoiser_offon_period_;
-  unsigned int aq_mode_;
-  bool speed_change_test_;
 };
 
 }  // namespace

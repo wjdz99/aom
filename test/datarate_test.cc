@@ -23,24 +23,31 @@
 namespace datarate_test {
 namespace {
 
-// Params: test mode, speed, aq mode and index for bitrate array.
+// Params: speed, aq mode and index for bitrate array.
 class DatarateTestLarge
-    : public ::libaom_test::CodecTestWith4Params<libaom_test::TestMode, int,
-                                                 unsigned int, int>,
+    : public ::libaom_test::CodecTestWith3Params<int, unsigned int, int>,
       public DatarateTest {
  public:
-  DatarateTestLarge() : DatarateTest(GET_PARAM(0)) {
-    set_cpu_used_ = GET_PARAM(2);
-    aq_mode_ = GET_PARAM(3);
-  }
+  DatarateTestLarge()
+      : DatarateTest(GET_PARAM(0)), set_cpu_used_(GET_PARAM(1)),
+        aq_mode_(GET_PARAM(2)) {}
 
  protected:
   virtual ~DatarateTestLarge() {}
 
   virtual void SetUp() {
     InitializeConfig();
-    SetMode(GET_PARAM(1));
+    SetMode(::libaom_test::kRealTime);
     ResetModel();
+  }
+
+  virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
+                                  ::libaom_test::Encoder *encoder) {
+    DatarateTest::PreEncodeFrameHook(video, encoder);
+    if (video->frame() == 0) {
+      encoder->Control(AOME_SET_CPUUSED, set_cpu_used_);
+      encoder->Control(AV1E_SET_AQ_MODE, aq_mode_);
+    }
   }
 
   virtual void BasicRateTargetingVBRTest() {
@@ -53,7 +60,7 @@ class DatarateTestLarge
     ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352,
                                          288, 30, 1, 0, 140);
     const int bitrate_array[2] = { 400, 800 };
-    cfg_.rc_target_bitrate = bitrate_array[GET_PARAM(4)];
+    cfg_.rc_target_bitrate = bitrate_array[GET_PARAM(3)];
     ResetModel();
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
     ASSERT_GE(effective_datarate_, cfg_.rc_target_bitrate * 0.7)
@@ -75,7 +82,7 @@ class DatarateTestLarge
     ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352,
                                          288, 30, 1, 0, 140);
     const int bitrate_array[2] = { 150, 550 };
-    cfg_.rc_target_bitrate = bitrate_array[GET_PARAM(4)];
+    cfg_.rc_target_bitrate = bitrate_array[GET_PARAM(3)];
     ResetModel();
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
     ASSERT_GE(effective_datarate_, cfg_.rc_target_bitrate * 0.85)
@@ -85,7 +92,7 @@ class DatarateTestLarge
   }
 
   virtual void BasicRateTargetingAQModeOnOffCBRTest() {
-    if (GET_PARAM(4) > 0) return;
+    if (GET_PARAM(3) > 0) return;
     cfg_.rc_buf_initial_sz = 500;
     cfg_.rc_buf_optimal_sz = 500;
     cfg_.rc_buf_sz = 1000;
@@ -102,7 +109,7 @@ class DatarateTestLarge
     ::libaom_test::I420VideoSource video("pixel_capture_w320h240.yuv", 320, 240,
                                          30, 1, 0, 310);
     const int bitrate_array[1] = { 60 };
-    cfg_.rc_target_bitrate = bitrate_array[GET_PARAM(4)];
+    cfg_.rc_target_bitrate = bitrate_array[GET_PARAM(3)];
     ResetModel();
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
     ASSERT_GE(effective_datarate_, cfg_.rc_target_bitrate * 0.85)
@@ -126,7 +133,7 @@ class DatarateTestLarge
     cfg_.rc_end_usage = AOM_CBR;
 
     const int bitrate_array[2] = { 250, 650 };
-    cfg_.rc_target_bitrate = bitrate_array[GET_PARAM(4)];
+    cfg_.rc_target_bitrate = bitrate_array[GET_PARAM(3)];
     ResetModel();
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
     ASSERT_GE(static_cast<double>(cfg_.rc_target_bitrate),
@@ -137,26 +144,36 @@ class DatarateTestLarge
         << " The datarate for the file missed the target!"
         << cfg_.rc_target_bitrate << " " << effective_datarate_;
   }
+
+  int set_cpu_used_;
+  int aq_mode_;
 };
 
-// Params: test mode, speed, aq mode.
+// Params: speed, aq mode.
 class DatarateTestFrameDropLarge
-    : public ::libaom_test::CodecTestWith3Params<libaom_test::TestMode, int,
-                                                 unsigned int>,
+    : public ::libaom_test::CodecTestWith2Params<int, unsigned int>,
       public DatarateTest {
  public:
-  DatarateTestFrameDropLarge() : DatarateTest(GET_PARAM(0)) {
-    set_cpu_used_ = GET_PARAM(2);
-    aq_mode_ = GET_PARAM(3);
-  }
+  DatarateTestFrameDropLarge()
+      : DatarateTest(GET_PARAM(0)), set_cpu_used_(GET_PARAM(1)),
+        aq_mode_(GET_PARAM(2)) {}
 
  protected:
   virtual ~DatarateTestFrameDropLarge() {}
 
   virtual void SetUp() {
     InitializeConfig();
-    SetMode(GET_PARAM(1));
+    SetMode(::libaom_test::kRealTime);
     ResetModel();
+  }
+
+  virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
+                                  ::libaom_test::Encoder *encoder) {
+    DatarateTest::PreEncodeFrameHook(video, encoder);
+    if (video->frame() == 0) {
+      encoder->Control(AOME_SET_CPUUSED, set_cpu_used_);
+      encoder->Control(AV1E_SET_AQ_MODE, aq_mode_);
+    }
   }
 
   virtual void ChangingDropFrameThreshTest() {
@@ -204,6 +221,9 @@ class DatarateTestFrameDropLarge
       last_num_drops = num_drops_;
     }
   }
+
+  int set_cpu_used_;
+  int aq_mode_;
 };
 
 // Check basic rate targeting for VBR mode.
@@ -239,22 +259,34 @@ class DatarateTestFrameDropRealtime : public DatarateTestFrameDropLarge {};
 
 // Params: aq mode.
 class DatarateTestSpeedChangeRealtime
-    : public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode,
-                                                 unsigned int>,
+    : public ::libaom_test::CodecTestWithParam<unsigned int>,
       public DatarateTest {
  public:
-  DatarateTestSpeedChangeRealtime() : DatarateTest(GET_PARAM(0)) {
-    aq_mode_ = GET_PARAM(1);
-    speed_change_test_ = true;
-  }
+  DatarateTestSpeedChangeRealtime()
+      : DatarateTest(GET_PARAM(0)), aq_mode_(GET_PARAM(1)) {}
 
  protected:
   virtual ~DatarateTestSpeedChangeRealtime() {}
 
   virtual void SetUp() {
     InitializeConfig();
-    SetMode(GET_PARAM(1));
+    SetMode(::libaom_test::kRealTime);
     ResetModel();
+  }
+
+  virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
+                                  ::libaom_test::Encoder *encoder) {
+    DatarateTest::PreEncodeFrameHook(video, encoder);
+    if (video->frame() == 0) {
+      encoder->Control(AV1E_SET_AQ_MODE, aq_mode_);
+      encoder->Control(AOME_SET_CPUUSED, 8);
+    } else if (video->frame() == 30) {
+      encoder->Control(AOME_SET_CPUUSED, 7);
+    } else if (video->frame() == 60) {
+      encoder->Control(AOME_SET_CPUUSED, 6);
+    } else if (video->frame() == 90) {
+      encoder->Control(AOME_SET_CPUUSED, 7);
+    }
   }
 
   virtual void ChangingSpeedTest() {
@@ -263,7 +295,6 @@ class DatarateTestSpeedChangeRealtime
     cfg_.rc_buf_sz = 1000;
     cfg_.rc_undershoot_pct = 20;
     cfg_.rc_undershoot_pct = 20;
-    cfg_.rc_dropframe_thresh = 10;
     cfg_.rc_min_quantizer = 0;
     cfg_.rc_max_quantizer = 50;
     cfg_.rc_end_usage = AOM_CBR;
@@ -284,6 +315,8 @@ class DatarateTestSpeedChangeRealtime
     ASSERT_LE(effective_datarate_, cfg_.rc_target_bitrate * 1.16)
         << " The datarate for the file is greater than target by too much!";
   }
+
+  int aq_mode_;
 };
 
 // Check basic rate targeting for VBR mode.
@@ -313,26 +346,19 @@ TEST_P(DatarateTestSpeedChangeRealtime, ChangingSpeedTest) {
   ChangingSpeedTest();
 }
 
-AV1_INSTANTIATE_TEST_CASE(DatarateTestLarge,
-                          ::testing::Values(::libaom_test::kRealTime),
-                          ::testing::Range(5, 7), ::testing::Values(0, 3),
-                          ::testing::Values(0, 1));
+AV1_INSTANTIATE_TEST_CASE(DatarateTestLarge, ::testing::Range(5, 7),
+                          ::testing::Values(0, 3), ::testing::Values(0, 1));
 
-AV1_INSTANTIATE_TEST_CASE(DatarateTestFrameDropLarge,
-                          ::testing::Values(::libaom_test::kRealTime),
-                          ::testing::Range(5, 7), ::testing::Values(0, 3));
+AV1_INSTANTIATE_TEST_CASE(DatarateTestFrameDropLarge, ::testing::Range(5, 7),
+                          ::testing::Values(0, 3));
 
-AV1_INSTANTIATE_TEST_CASE(DatarateTestRealtime,
-                          ::testing::Values(::libaom_test::kRealTime),
-                          ::testing::Range(7, 9), ::testing::Values(0, 3),
-                          ::testing::Values(0, 1));
+AV1_INSTANTIATE_TEST_CASE(DatarateTestRealtime, ::testing::Range(7, 9),
+                          ::testing::Values(0, 3), ::testing::Values(0, 1));
 
-AV1_INSTANTIATE_TEST_CASE(DatarateTestFrameDropRealtime,
-                          ::testing::Values(::libaom_test::kRealTime),
-                          ::testing::Range(7, 9), ::testing::Values(0, 3));
+AV1_INSTANTIATE_TEST_CASE(DatarateTestFrameDropRealtime, ::testing::Range(7, 9),
+                          ::testing::Values(0, 3));
 
 AV1_INSTANTIATE_TEST_CASE(DatarateTestSpeedChangeRealtime,
-                          ::testing::Values(::libaom_test::kRealTime),
                           ::testing::Values(0, 3));
 
 }  // namespace
