@@ -28,10 +28,9 @@ class DatarateTestSVC
                                                  unsigned int, int>,
       public DatarateTest {
  public:
-  DatarateTestSVC() : DatarateTest(GET_PARAM(0)) {
-    set_cpu_used_ = GET_PARAM(2);
-    aq_mode_ = GET_PARAM(3);
-  }
+  DatarateTestSVC()
+      : DatarateTest(GET_PARAM(0)), set_cpu_used_(GET_PARAM(2)),
+        aq_mode_(GET_PARAM(3)) {}
 
  protected:
   virtual void SetUp() {
@@ -61,6 +60,8 @@ class DatarateTestSVC
                                   ::libaom_test::Encoder *encoder) {
     int spatial_layer_id = 0;
     if (video->frame() == 0) {
+      encoder->Control(AOME_SET_CPUUSED, set_cpu_used_);
+      encoder->Control(AV1E_SET_AQ_MODE, aq_mode_);
       initialize_svc(number_temporal_layers_, number_spatial_layers_,
                      &svc_params_);
       encoder->Control(AV1E_SET_SVC_PARAMS, &svc_params_);
@@ -523,6 +524,8 @@ class DatarateTestSVC
   aom_svc_ref_frame_config_t ref_frame_config_;
   aom_svc_layer_id_t layer_id_;
   double effective_datarate_tl[AOM_MAX_LAYERS];
+  int set_cpu_used_;
+  int aq_mode_;
 };
 
 // Check basic rate targeting for CBR, for 3 temporal layers, 1 spatial.
