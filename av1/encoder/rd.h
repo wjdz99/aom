@@ -314,6 +314,14 @@ static INLINE void reset_hash_records(MACROBLOCK *const x,
   // Reset the state for use_mb_rd_hash
   x->mb_rd_record.num = x->mb_rd_record.index_start = 0;
 }
+// Call this function appropriately to set/reset the hash flags based on
+// winner/normal mode evaluation
+static INLINE void set_hash_flags(MACROBLOCK *const x, int use_intra_txb_hash,
+                                  int use_inter_txb_hash, int use_mb_rd_hash) {
+  x->use_intra_txb_hash = use_intra_txb_hash;
+  x->use_inter_txb_hash = use_inter_txb_hash;
+  x->use_mb_rd_hash = use_mb_rd_hash;
+}
 
 void av1_setup_pred_block(const MACROBLOCKD *xd,
                           struct buf_2d dst[MAX_MB_PLANE],
