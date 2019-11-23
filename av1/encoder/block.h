@@ -457,6 +457,11 @@ struct macroblock {
   // (normal/winner mode)
   unsigned int predict_skip_level;
 
+  /* Populate th hash flags based on speed features*/
+  int use_intra_txb_hash;
+  int use_inter_txb_hash;
+  int use_mb_rd_hash;
+
   // Copy out this SB's TPL block stats.
   int valid_cost_b;
   int64_t inter_cost_b[MAX_MC_FLOW_BLK_IN_SB * MAX_MC_FLOW_BLK_IN_SB];

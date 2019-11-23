@@ -3286,7 +3286,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   skip_trellis |=
       cpi->optimize_seg_arr[mbmi->segment_id] == NO_TRELLIS_OPT ||
       cpi->optimize_seg_arr[mbmi->segment_id] == FINAL_PASS_TRELLIS_OPT;
-  if (within_border && cpi->sf.use_intra_txb_hash && frame_is_intra_only(cm) &&
+  if (within_border && x->use_intra_txb_hash && frame_is_intra_only(cm) &&
       !is_inter && plane == 0 &&
       tx_size_wide[tx_size] == tx_size_high[tx_size]) {
     const uint32_t intra_hash =
@@ -4258,7 +4258,7 @@ static AOM_INLINE void super_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
                             mi_col >= xd->tile.mi_col_start &&
                             (mi_col + mi_size_wide[bs] < xd->tile.mi_col_end);
   const int is_mb_rd_hash_enabled =
-      (within_border && cpi->sf.use_mb_rd_hash && is_inter);
+      (within_border && x->use_mb_rd_hash && is_inter);
   const int n4 = bsize_to_num_blk(bs);
   if (is_mb_rd_hash_enabled) {
     hash = get_block_residue_hash(x, bs);
@@ -6309,7 +6309,7 @@ static AOM_INLINE void pick_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
       (mi_row + mi_size_high[bsize] < xd->tile.mi_row_end) &&
       mi_col >= xd->tile.mi_col_start &&
       (mi_col + mi_size_wide[bsize] < xd->tile.mi_col_end);
-  const int is_mb_rd_hash_enabled = (within_border && cpi->sf.use_mb_rd_hash);
+  const int is_mb_rd_hash_enabled = (within_border && x->use_mb_rd_hash);
   const int n4 = bsize_to_num_blk(bsize);
   if (is_mb_rd_hash_enabled) {
     hash = get_block_residue_hash(x, bsize);
@@ -6341,7 +6341,7 @@ static AOM_INLINE void pick_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   // store and reuse rate and distortion values to speed up TX size search.
   TXB_RD_INFO_NODE matched_rd_info[4 + 16 + 64];
   int found_rd_info = 0;
-  if (ref_best_rd != INT64_MAX && within_border && cpi->sf.use_inter_txb_hash) {
+  if (ref_best_rd != INT64_MAX && within_border && x->use_inter_txb_hash) {
     found_rd_info = find_tx_size_rd_records(x, bsize, matched_rd_info);
   }
 

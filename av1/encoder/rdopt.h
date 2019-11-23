@@ -329,6 +329,10 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
       set_tx_size_search_method(cpi, x, 0, 0);
       // Set default transform type prune
       set_tx_type_prune(sf, x, 0, 0);
+
+      // Enable hash logic for default mode evaluation
+      set_hash_flags(x, cpi->sf.use_intra_txb_hash, cpi->sf.use_inter_txb_hash,
+                     cpi->sf.use_mb_rd_hash);
       break;
     case MODE_EVAL:
       x->use_default_intra_tx_type =
@@ -353,6 +357,11 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
       // Set transform type prune for mode evaluation
       set_tx_type_prune(
           sf, x, sf->tx_type_search.enable_winner_mode_tx_type_pruning, 0);
+
+      // Enable hash logic for normal mode evaluation
+      set_hash_flags(x, cpi->sf.use_intra_txb_hash, cpi->sf.use_inter_txb_hash,
+                     cpi->sf.use_mb_rd_hash);
+
       break;
     case WINNER_MODE_EVAL:
       x->use_default_inter_tx_type = 0;
@@ -375,12 +384,10 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
       set_tx_type_prune(
           sf, x, sf->tx_type_search.enable_winner_mode_tx_type_pruning, 1);
 
-      // Reset hash state for winner mode processing. Winner mode and subsequent
-      // transform/mode evaluations (palette/IntraBC) cann't reuse old data as
-      // the decisions would have been sub-optimal
-      // TODO(any): Move the evaluation of palette/IntraBC modes before winner
-      // mode is processed and clean-up the code below
-      reset_hash_records(x);
+      // Disable hash logic for winner mode evaluation
+      // Reset hash state for winner mode processing. Winner mode cann't reuse
+      // old data as the decisions would have been sub-optimal
+      set_hash_flags(x, 0, 0, 0);
 
       break;
     default: assert(0);
