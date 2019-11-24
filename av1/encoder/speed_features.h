@@ -836,6 +836,13 @@ typedef struct SPEED_FEATURES {
   // 0: speed feature OFF
   // 1 / 2 : Use configured number of winner candidates
   int motion_mode_for_winner_cand;
+
+  // prune palette search
+  // 0: No pruning
+  // 1: Perform 2 way palette search from max colors to min colors (and min
+  // colors to remaining colors) and terminate the search if current number of
+  // palette colors is not the winner.
+  int prune_palette_search_level;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
