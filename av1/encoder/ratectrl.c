@@ -1169,7 +1169,7 @@ static void postprocess_q_and_bounds(const AV1_COMP *cpi, int width, int height,
 
   // Extension to max or min Q if undershoot or overshoot is outside
   // the permitted range.
-  if (cpi->oxcf.rc_mode != AOM_Q) {
+  if (cpi->oxcf.rc_mode != AOM_Q && cpi->oxcf.rc_mode != AOM_VBR) {
     if (frame_is_intra_only(cm) ||
         (!rc->is_src_frame_alt_ref &&
          (cpi->refresh_golden_frame || is_intrl_arf_boost ||
@@ -1206,7 +1206,7 @@ static void postprocess_q_and_bounds(const AV1_COMP *cpi, int width, int height,
   active_worst_quality =
       clamp(active_worst_quality, active_best_quality, rc->worst_quality);
 
-  if (oxcf->rc_mode == AOM_Q ||
+  if (oxcf->rc_mode == AOM_Q || oxcf->rc_mode == AOM_VBR ||
       (frame_is_intra_only(cm) && !rc->this_key_frame_forced &&
        cpi->twopass.kf_zeromotion_pct >= STATIC_KF_GROUP_THRESH &&
        rc->frames_to_key > 1)) {
@@ -1246,8 +1246,9 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
   const RATE_CONTROL *const rc = &cpi->rc;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   const GF_GROUP *gf_group = &cpi->gf_group;
-  const int cq_level = get_active_cq_level(rc, oxcf, frame_is_intra_only(cm),
-                                           cm->superres_scale_denominator);
+  int cq_level = get_active_cq_level(rc, oxcf, frame_is_intra_only(cm),
+                                     cm->superres_scale_denominator);
+  if (oxcf->rc_mode == AOM_VBR) cq_level = rc->active_worst_quality;
   int active_best_quality = 0;
   int active_worst_quality = rc->active_worst_quality;
   int q;
@@ -1301,7 +1302,7 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
           --this_height;
         }
       }
-    } else if (oxcf->rc_mode == AOM_Q) {
+    } else if (oxcf->rc_mode == AOM_Q || oxcf->rc_mode == AOM_VBR) {
       if (!cpi->refresh_alt_ref_frame && !is_intrl_arf_boost) {
         active_best_quality = cq_level;
       } else {
@@ -1340,7 +1341,7 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
       }
     }
   } else {
-    if (oxcf->rc_mode == AOM_Q) {
+    if (oxcf->rc_mode == AOM_Q || oxcf->rc_mode == AOM_VBR) {
       active_best_quality = cq_level;
     } else {
       active_best_quality = inter_minq[active_worst_quality];
