@@ -22,6 +22,30 @@
       "revId": "e003897bd87e7a1e3aa553b1a6737a1ec836dac3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e247dbc2_c3ec150d",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1730,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2019-11-25T23:47:21Z",
+      "side": 1,
+      "message": "Yes, since in each iteration there number of check points is 4x.\n\nPerhaps this can be done after all the motion estimation work is done.",
+      "parentUuid": "3ebd9e23_bbbb3d07",
+      "range": {
+        "startLine": 1730,
+        "startChar": 4,
+        "endLine": 1730,
+        "endChar": 70
+      },
+      "revId": "e003897bd87e7a1e3aa553b1a6737a1ec836dac3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
