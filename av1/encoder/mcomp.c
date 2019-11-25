@@ -1787,8 +1787,8 @@ static int full_pixel_diamond(const AV1_COMP *const cpi, MACROBLOCK *x,
                               const MV *ref_mv, const search_site_config *cfg) {
   MV temp_mv;
   int thissme, n, num00 = 0;
-  int bestsme = cpi->diamond_search_sad(x, cfg, mvp_full, &temp_mv, step_param,
-                                        sadpb, &n, fn_ptr, ref_mv);
+  int bestsme = av1_diamond_search_sad_c(x, cfg, mvp_full, &temp_mv, step_param,
+                                         sadpb, &n, fn_ptr, ref_mv);
   if (bestsme < INT_MAX)
     bestsme = av1_get_mvpred_var(x, &temp_mv, ref_mv, fn_ptr, 1);
   x->best_mv.as_mv = temp_mv;
@@ -1804,8 +1804,8 @@ static int full_pixel_diamond(const AV1_COMP *const cpi, MACROBLOCK *x,
       num00--;
     } else {
       thissme =
-          cpi->diamond_search_sad(x, cfg, mvp_full, &temp_mv, step_param + n,
-                                  sadpb, &num00, fn_ptr, ref_mv);
+          av1_diamond_search_sad_c(x, cfg, mvp_full, &temp_mv, step_param + n,
+                                   sadpb, &num00, fn_ptr, ref_mv);
       if (thissme < INT_MAX)
         thissme = av1_get_mvpred_var(x, &temp_mv, ref_mv, fn_ptr, 1);
 
