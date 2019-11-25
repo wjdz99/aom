@@ -156,6 +156,13 @@ int av1_refining_search_8p_c(const AV1_COMMON *const cm, MACROBLOCK *x,
                              int invert_mask, const MV *center_mv,
                              const uint8_t *second_pred);
 
+int av1_diamond_search_sad_c(const AV1_COMMON *const cm, MACROBLOCK *x,
+                             const search_site_config *cfg, MV *ref_mv,
+                             MV *best_mv, int search_param, int sad_per_bit,
+                             int *num00, const aom_variance_fn_ptr_t *fn_ptr,
+                             const MV *center_mv, uint8_t *second_pred,
+                             uint8_t *mask, int mask_stride, int inv_mask);
+
 int av1_full_pixel_search(const struct AV1_COMP *cpi, MACROBLOCK *x,
                           BLOCK_SIZE bsize, MV *mvp_full, int step_param,
                           int use_var, int method, int run_mesh_search,

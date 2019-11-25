@@ -2173,7 +2173,8 @@ int av1_diamond_search_sad_c(const AV1_COMMON *const cm, MACROBLOCK *x,
                              const search_site_config *cfg, MV *ref_mv,
                              MV *best_mv, int search_param, int sad_per_bit,
                              int *num00, const aom_variance_fn_ptr_t *fn_ptr,
-                             const MV *center_mv) {
+                             const MV *center_mv, uint8_t *second_pred,
+                             uint8_t *mask, int mask_stride, int inv_mask) {
   (void)cm;
   const MACROBLOCKD *const xd = &x->e_mbd;
   const MB_MODE_INFO *mbmi = xd->mi[0];
@@ -2213,8 +2214,18 @@ int av1_diamond_search_sad_c(const AV1_COMMON *const cm, MACROBLOCK *x,
   best_address = in_what;
 
   // Check the starting position
-  bestsad =
-      fn_ptr->sdf(what, what_stride, in_what, in_what_stride) +
+  // TODO(jingning): unify the parameter interface for the following
+  // computation modes.
+  if (mask)
+    bestsad = fn_ptr->msdf(what, what_stride, in_what, in_what_stride,
+                           second_pred, mask, mask_stride, inv_mask);
+  else if (second_pred)
+    bestsad =
+        fn_ptr->sdaf(what, what_stride, in_what, in_what_stride, second_pred);
+  else
+    bestsad = fn_ptr->sdf(what, what_stride, in_what, in_what_stride);
+
+  bestsad +=
       mvsad_err_cost(x, best_mv, &fcenter_mv, max_mv_precision, sad_per_bit);
 
   for (int step = tot_steps; step >= 0; --step) {
@@ -2228,8 +2239,16 @@ int av1_diamond_search_sad_c(const AV1_COMMON *const cm, MACROBLOCK *x,
 
       if (is_mv_in(&x->mv_limits, &this_mv)) {
         const uint8_t *const check_here = ss[idx].offset + best_address;
-        unsigned int thissad =
-            fn_ptr->sdf(what, what_stride, check_here, in_what_stride);
+        unsigned int thissad;
+
+        if (mask)
+          thissad = fn_ptr->msdf(what, what_stride, check_here, in_what_stride,
+                                 second_pred, mask, mask_stride, inv_mask);
+        else if (second_pred)
+          thissad = fn_ptr->sdaf(what, what_stride, check_here, in_what_stride,
+                                 second_pred);
+        else
+          thissad = fn_ptr->sdf(what, what_stride, check_here, in_what_stride);
 
         if (thissad < bestsad) {
           thissad += mvsad_err_cost(x, &this_mv, &fcenter_mv,
@@ -2263,12 +2282,16 @@ static int full_pixel_diamond(const AV1_COMP *const cpi, MACROBLOCK *x,
                               MV *mvp_full, int step_param, int use_var,
                               int sadpb, int further_steps, int *cost_list,
                               const aom_variance_fn_ptr_t *fn_ptr,
-                              const MV *ref_mv, const search_site_config *cfg) {
+                              const MV *ref_mv, const search_site_config *cfg,
+                              uint8_t *second_pred, uint8_t *mask,
+                              int mask_stride, int inv_mask) {
   MV temp_mv;
   int thissme, n, num00 = 0;
-  int bestsme =
-      cpi->diamond_search_sad(&cpi->common, x, cfg, mvp_full, &temp_mv,
-                              step_param, sadpb, &n, fn_ptr, ref_mv);
+
+  int bestsme = av1_diamond_search_sad_c(
+      &cpi->common, x, cfg, mvp_full, &temp_mv, step_param, sadpb, &n, fn_ptr,
+      ref_mv, second_pred, mask, mask_stride, inv_mask);
+
   if (bestsme < INT_MAX)
     bestsme =
         av1_get_mvpred_var(&cpi->common, x, &temp_mv, ref_mv, fn_ptr, use_var);
@@ -2283,9 +2306,9 @@ static int full_pixel_diamond(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (num00) {
       num00--;
     } else {
-      thissme = cpi->diamond_search_sad(&cpi->common, x, cfg, mvp_full,
-                                        &temp_mv, step_param + n, sadpb, &num00,
-                                        fn_ptr, ref_mv);
+      thissme = av1_diamond_search_sad_c(
+          &cpi->common, x, cfg, mvp_full, &temp_mv, step_param + n, sadpb,
+          &num00, fn_ptr, ref_mv, second_pred, mask, mask_stride, inv_mask);
       if (thissme < INT_MAX)
         thissme = av1_get_mvpred_var(&cpi->common, x, &temp_mv, ref_mv, fn_ptr,
                                      use_var);
@@ -2736,9 +2759,10 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
                           cost_list, fn_ptr, 1, ref_mv);
       break;
     case NSTEP:
-      var = full_pixel_diamond(cpi, x, mvp_full, step_param, use_var,
-                               error_per_bit, cfg->ss_count - 1 - step_param,
-                               cost_list, fn_ptr, ref_mv, cfg);
+      var =
+          full_pixel_diamond(cpi, x, mvp_full, step_param, use_var,
+                             error_per_bit, cfg->ss_count - 1 - step_param,
+                             cost_list, fn_ptr, ref_mv, cfg, NULL, NULL, 0, 0);
       break;
     default: assert(0 && "Invalid search method.");
   }
