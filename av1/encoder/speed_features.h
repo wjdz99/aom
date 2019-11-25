@@ -864,6 +864,10 @@ typedef struct SPEED_FEATURES {
 
   // If set forces interpolation filter to EIGHTTAP_REGULAR
   int skip_interp_filter_search;
+
+  // Use hybrid (rd for bsize < 16x16, otherwise nonrd) intra search for intra
+  // only frames.
+  int hybrid_intra_pickmode;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
