@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ebd9e23_bbbb3d07",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1730,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-11-25T23:42:35Z",
+      "side": 1,
+      "message": "Can sdx4df be brought back easily? Otherwise, this would affect the encoder speed.",
+      "range": {
+        "startLine": 1730,
+        "startChar": 4,
+        "endLine": 1730,
+        "endChar": 70
+      },
+      "revId": "e003897bd87e7a1e3aa553b1a6737a1ec836dac3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
