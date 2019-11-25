@@ -839,6 +839,9 @@ typedef struct SPEED_FEATURES {
   // 0: speed feature OFF
   // 1 / 2 : Use configured number of winner candidates
   int motion_mode_for_winner_cand;
+
+  // Use hybrid (non rd + rd) intra search for intra only frames.
+  int hybrid_intra_pickmode;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
