@@ -225,7 +225,8 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
 #if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && USE_NST_INTRA && MDTX_DEBUG
   // debug
   if (txfm_size_col <= 8 && txfm_size_row <= 8 && cfg->nstx_mtx_ptr) {
-    fprintf(stderr, "FWD: input block\n");
+    fprintf(stderr, "FWD: input block, %dx%d, mode %d\n", txfm_size_col,
+            txfm_size_row, (int)cfg->mode);
     for (r = 0; r < txfm_size_row; ++r) {
       for (c = 0; c < txfm_size_col; ++c) {
         fprintf(stderr, "%3d ", input[r * stride + c]);
