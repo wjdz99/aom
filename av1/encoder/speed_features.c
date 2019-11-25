@@ -69,7 +69,8 @@ static unsigned int tx_domain_dist_types[3][MODE_EVAL_TYPES] = { { 0, 2, 0 },
                                                                  { 2, 2, 0 } };
 
 // Indicates number of winner simple translation modes to be used
-static unsigned int num_winner_motion_modes[3] = { 0, 10, 3 };
+static unsigned int num_winner_motion_modes[4] = { 0, 10, 3,
+                                                   MAX_WINNER_MOTION_MODES };
 
 // Threshold values to be used for disabling coeff RD-optimization
 // based on block MSE
@@ -410,7 +411,7 @@ static void set_good_speed_features_framesize_independent(
     sf->disable_sb_level_mv_cost_upd = 1;
     sf->motion_mode_for_winner_cand =
         boosted
-            ? 0
+            ? 3
             : gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE ? 1
                                                                          : 2;
     sf->tx_type_search.use_skip_flag_prediction =
