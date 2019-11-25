@@ -534,6 +534,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->use_nonrd_filter_search = 1;
   sf->nonrd_use_blockyrd_interp_filter = 0;
   sf->nonrd_reduce_golden_mode_search = 0;
+  sf->hybrid_intra_pickmode = 0;
 
   if (speed >= 1) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;
@@ -715,6 +716,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->nonrd_merge_partition = 1;
     sf->use_nonrd_altref_frame = 1;
     sf->mv.subpel_search_method = SUBPEL_TREE;
+    sf->hybrid_intra_pickmode = 1;
   }
   if (speed >= 8) {
     sf->nonrd_merge_partition = 0;
