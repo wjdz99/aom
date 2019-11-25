@@ -410,7 +410,7 @@ static void set_good_speed_features_framesize_independent(
     sf->disable_sb_level_mv_cost_upd = 1;
     sf->motion_mode_for_winner_cand =
         boosted
-            ? 0
+            ? 1
             : gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE ? 1
                                                                          : 2;
     sf->tx_type_search.use_skip_flag_prediction =
