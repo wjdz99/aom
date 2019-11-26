@@ -604,7 +604,6 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
 
   if (speed >= 3) {
     sf->selective_ref_frame = 4;
-    sf->tx_size_search_level = boosted ? 0 : 2;
     sf->less_rectangular_check_level = 2;
     // adaptive_motion_search breaks encoder multi-thread tests.
     // The values in x->pred_mv[] differ for single and multi-thread cases.
@@ -630,7 +629,6 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->use_mb_rd_hash = 0;
     sf->tx_type_search.fast_intra_tx_type_search = 1;
     sf->tx_type_search.fast_inter_tx_type_search = 1;
-    sf->tx_size_search_level = frame_is_intra_only(cm) ? 0 : 2;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED;
     sf->adaptive_mode_search = 1;
     sf->alt_ref_search_fp = 1;
@@ -645,7 +643,6 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->intra_uv_mode_mask[TX_32X32] = UV_INTRA_DC_H_V_CFL;
     sf->intra_y_mode_mask[TX_16X16] = INTRA_DC_H_V;
     sf->intra_uv_mode_mask[TX_16X16] = UV_INTRA_DC_H_V_CFL;
-    sf->tx_size_search_level = 2;
     sf->mv.search_method = BIGDIA;
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
     sf->adaptive_rd_thresh = 4;
@@ -681,7 +678,6 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->mode_search_skip_flags |= FLAG_SKIP_INTRA_DIRMISMATCH;
     sf->use_real_time_ref_set = 1;
     sf->tx_type_search.prune_mode = PRUNE_2D_MORE;
-    sf->tx_size_search_level = 1;
     sf->use_comp_ref_nonrd = 0;
     sf->inter_mode_rd_model_estimation = 2;
     sf->cdef_pick_method = CDEF_PICK_FROM_Q;
@@ -1057,8 +1053,8 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   // Override speed feature setting for user config
   if (cpi->oxcf.tx_size_search_method != USE_FULL_RD) {
     cpi->sf.enable_winner_mode_for_tx_size_srch = 0;
-    cpi->sf.tx_size_search_level = cpi->oxcf.tx_size_search_method;
   }
+
   // assert ensures that tx_size_search_level is accessed correctly
   assert(cpi->sf.tx_size_search_level >= 0 && cpi->sf.tx_size_search_level < 3);
   memcpy(cpi->tx_size_search_methods,
