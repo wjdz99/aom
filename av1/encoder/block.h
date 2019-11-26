@@ -451,6 +451,9 @@ struct macroblock {
   // Used to control the tx size search evaluation for mode processing
   // (normal/winner mode)
   int tx_size_search_method;
+  // This tx_mode is only used internally by the encoder, and is not written to
+  // the bitstream. So the tx_sizes searched are not necessarily consistent with
+  // tx_mode here.
   TX_MODE tx_mode;
 
   // Used to control aggressiveness of skip flag prediction for mode processing

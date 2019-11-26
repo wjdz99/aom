@@ -3899,6 +3899,33 @@ static AOM_INLINE void choose_largest_tx_size(const AV1_COMP *const cpi,
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   mbmi->tx_size = tx_size_from_tx_mode(bs, x->tx_mode);
+
+  // If tx64 is not enabled, we need to go down to the next available size
+  if (!cpi->oxcf.enable_tx64 && mbmi->tx_size == TX_64X64) {
+    static const TX_SIZE tx_size_max_32[TX_SIZES_ALL] = {
+      TX_4X4,    // 4x4 transform
+      TX_8X8,    // 8x8 transform
+      TX_16X16,  // 16x16 transform
+      TX_32X32,  // 32x32 transform
+      TX_32X32,  // 64x64 transform
+      TX_4X8,    // 4x8 transform
+      TX_8X4,    // 8x4 transform
+      TX_8X16,   // 8x16 transform
+      TX_16X8,   // 16x8 transform
+      TX_16X32,  // 16x32 transform
+      TX_32X16,  // 32x16 transform
+      TX_32X32,  // 32x64 transform
+      TX_32X32,  // 64x32 transform
+      TX_4X16,   // 4x16 transform
+      TX_16X4,   // 16x4 transform
+      TX_8X32,   // 8x32 transform
+      TX_32X8,   // 32x8 transform
+      TX_16X32,  // 16x64 transform
+      TX_32X16,  // 64x16 transform
+    };
+    mbmi->tx_size = tx_size_max_32[mbmi->tx_size];
+  }
+
   const int skip_ctx = av1_get_skip_context(xd);
   int s0, s1;
 

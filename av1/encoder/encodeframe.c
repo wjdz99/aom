@@ -5166,8 +5166,6 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   cm->coded_lossless = is_coded_lossless(cm, xd);
   cm->all_lossless = cm->coded_lossless && !av1_superres_scaled(cm);
 
-  cm->tx_mode = get_eval_tx_mode(cpi, DEFAULT_EVAL);
-
   // Fix delta q resolution for the moment
   cm->delta_q_info.delta_q_res = 0;
   if (cpi->oxcf.deltaq_mode == DELTA_Q_OBJECTIVE)
@@ -5349,7 +5347,10 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   }
 
   // Set the transform size appropriately before bitstream creation
-  cm->tx_mode = get_eval_tx_mode(cpi, WINNER_MODE_EVAL);
+  const MODE_EVAL_TYPE eval_type = cpi->sf.enable_winner_mode_for_tx_size_srch
+                                       ? WINNER_MODE_EVAL
+                                       : DEFAULT_EVAL;
+  cm->tx_mode = select_tx_mode(cpi, eval_type);
 
   if (cpi->sf.tx_type_search.prune_tx_type_using_stats) {
     const FRAME_UPDATE_TYPE update_type = get_frame_update_type(&cpi->gf_group);
@@ -5502,6 +5503,9 @@ void av1_encode_frame(AV1_COMP *cpi) {
     if (!cm->large_scale_tile) {
       if (cm->tx_mode == TX_MODE_SELECT && cpi->td.mb.txb_split_count == 0)
         cm->tx_mode = TX_MODE_LARGEST;
+    }
+    if (cm->tx_mode == TX_MODE_LARGEST && cpi->td.mb.txb_split_count > 0) {
+      cm->tx_mode = TX_MODE_SELECT;
     }
   } else {
     encode_frame_internal(cpi);
