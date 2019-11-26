@@ -390,6 +390,7 @@ static void set_good_speed_features_framesize_independent(
     sf->gm_search_type = GM_DISABLE_SEARCH;
     sf->prune_comp_search_by_single_result = boosted ? 4 : 2;
     sf->prune_motion_mode_level = boosted ? 2 : 3;
+    sf->prune_sgr_based_on_wiener = cm->allow_screen_content_tools ? 0 : 1;
     // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
     // it with cpi->sf.disable_wedge_search_var_thresh.
     sf->disable_wedge_interintra_search = 1;
@@ -837,6 +838,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->disable_wedge_search_edge_thresh = 0;
   sf->disable_wedge_search_var_thresh = 0;
   sf->disable_loop_restoration_chroma = 0;
+  sf->prune_sgr_based_on_wiener = 0;
   sf->enable_sgr_ep_pruning = 0;
   sf->reduce_wiener_window_size = 0;
   sf->fast_wedge_sign_estimate = 0;
