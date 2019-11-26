@@ -225,8 +225,9 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
 #if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && USE_NST_INTRA && MDTX_DEBUG
   // debug
   if (txfm_size_col <= 8 && txfm_size_row <= 8 && cfg->nstx_mtx_ptr) {
-    fprintf(stderr, "FWD: input block, %dx%d, mode %d\n", txfm_size_col,
-            txfm_size_row, (int)cfg->mode);
+    fprintf(stderr, "FWD: input block, %dx%d, mode %d, ctx %d, rtx %d\n",
+            txfm_size_col, txfm_size_row, (int)cfg->mode, cfg->txfm_type_col,
+            cfg->txfm_type_row);
     for (r = 0; r < txfm_size_row; ++r) {
       for (c = 0; c < txfm_size_col; ++c) {
         fprintf(stderr, "%3d ", input[r * stride + c]);
@@ -1066,16 +1067,22 @@ void av1_get_fwd_txfm_cfg(TX_TYPE tx_type, TX_SIZE tx_size,
   cfg->cos_bit_row = av1_fwd_cos_bit_row[txw_idx][txh_idx];
   cfg->txfm_type_col = av1_txfm_type_ls[txh_idx][tx_type_1d_col];
   cfg->txfm_type_row = av1_txfm_type_ls[txw_idx][tx_type_1d_row];
-  cfg->stage_num_col = av1_txfm_stage_num_list[cfg->txfm_type_col];
-  cfg->stage_num_row = av1_txfm_stage_num_list[cfg->txfm_type_row];
 #if CONFIG_MODE_DEP_TX
   cfg->mode = mode;
 #if USE_MDTX_INTRA && USE_NST_INTRA
-  if (use_nstx(tx_type, tx_size, mode))
+  if (use_nstx(tx_type, tx_size, mode)) {
     cfg->nstx_mtx_ptr = nstx_arr(tx_size, mode);
-  else
+  } else if (use_nsst(tx_type, tx_size, mode)) {
+    // For secondary transforms, use DCT_DCT as primary transform
+    cfg->nstx_mtx_ptr = nstx_arr(tx_size, mode);
+    cfg->txfm_type_col = av1_txfm_type_ls[txh_idx][DCT_1D];
+    cfg->txfm_type_row = av1_txfm_type_ls[txw_idx][DCT_1D];
+  } else {
     cfg->nstx_mtx_ptr = NULL;
+  }
 #endif
 #endif
+  cfg->stage_num_col = av1_txfm_stage_num_list[cfg->txfm_type_col];
+  cfg->stage_num_row = av1_txfm_stage_num_list[cfg->txfm_type_row];
   set_fwd_txfm_non_scale_range(cfg);
 }
