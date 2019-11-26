@@ -857,6 +857,18 @@ static AOM_INLINE void search_sgrproj(const RestorationTileLimits *limits,
   const int highbd = cm->seq_params.use_highbitdepth;
   const int bit_depth = cm->seq_params.bit_depth;
 
+  const int64_t bits_none = x->sgrproj_restore_cost[0];
+  // Prune evaluation of RESTORE_SGRPROJ if RESTORE_NONE was the winner (no loop
+  // restoration)
+  if (rsc->sf->prune_sgr_based_on_wiener &&
+      rusi->best_rtype[RESTORE_WIENER - 1] == RESTORE_NONE) {
+    rsc->bits += bits_none;
+    rsc->sse += rusi->sse[RESTORE_NONE];
+    rusi->best_rtype[RESTORE_SGRPROJ - 1] = RESTORE_NONE;
+    rusi->sse[RESTORE_SGRPROJ] = INT64_MAX;
+    return;
+  }
+
   uint8_t *dgd_start =
       rsc->dgd_buffer + limits->v_start * rsc->dgd_stride + limits->h_start;
   const uint8_t *src_start =
@@ -868,37 +880,36 @@ static AOM_INLINE void search_sgrproj(const RestorationTileLimits *limits,
   const int procunit_width = RESTORATION_PROC_UNIT_SIZE >> ss_x;
   const int procunit_height = RESTORATION_PROC_UNIT_SIZE >> ss_y;
 
-  rusi->sgrproj = search_selfguided_restoration(
-      dgd_start, limits->h_end - limits->h_start,
-      limits->v_end - limits->v_start, rsc->dgd_stride, src_start,
-      rsc->src_stride, highbd, bit_depth, procunit_width, procunit_height,
-      tmpbuf, rsc->sf->enable_sgr_ep_pruning);
+    rusi->sgrproj = search_selfguided_restoration(
+        dgd_start, limits->h_end - limits->h_start,
+        limits->v_end - limits->v_start, rsc->dgd_stride, src_start,
+        rsc->src_stride, highbd, bit_depth, procunit_width, procunit_height,
+        tmpbuf, rsc->sf->enable_sgr_ep_pruning);
 
-  RestorationUnitInfo rui;
-  rui.restoration_type = RESTORE_SGRPROJ;
-  rui.sgrproj_info = rusi->sgrproj;
+    RestorationUnitInfo rui;
+    rui.restoration_type = RESTORE_SGRPROJ;
+    rui.sgrproj_info = rusi->sgrproj;
 
-  rusi->sse[RESTORE_SGRPROJ] = try_restoration_unit(rsc, limits, tile, &rui);
+    rusi->sse[RESTORE_SGRPROJ] = try_restoration_unit(rsc, limits, tile, &rui);
 
-  const int64_t bits_none = x->sgrproj_restore_cost[0];
-  const int64_t bits_sgr = x->sgrproj_restore_cost[1] +
-                           (count_sgrproj_bits(&rusi->sgrproj, &rsc->sgrproj)
-                            << AV1_PROB_COST_SHIFT);
+    const int64_t bits_sgr = x->sgrproj_restore_cost[1] +
+                             (count_sgrproj_bits(&rusi->sgrproj, &rsc->sgrproj)
+                              << AV1_PROB_COST_SHIFT);
 
-  double cost_none =
-      RDCOST_DBL(x->rdmult, bits_none >> 4, rusi->sse[RESTORE_NONE]);
-  double cost_sgr =
-      RDCOST_DBL(x->rdmult, bits_sgr >> 4, rusi->sse[RESTORE_SGRPROJ]);
-  if (rusi->sgrproj.ep < 10)
-    cost_sgr *= (1 + DUAL_SGR_PENALTY_MULT * rsc->sf->dual_sgr_penalty_level);
+    double cost_none =
+        RDCOST_DBL(x->rdmult, bits_none >> 4, rusi->sse[RESTORE_NONE]);
+    double cost_sgr =
+        RDCOST_DBL(x->rdmult, bits_sgr >> 4, rusi->sse[RESTORE_SGRPROJ]);
+    if (rusi->sgrproj.ep < 10)
+      cost_sgr *= (1 + DUAL_SGR_PENALTY_MULT * rsc->sf->dual_sgr_penalty_level);
 
-  RestorationType rtype =
-      (cost_sgr < cost_none) ? RESTORE_SGRPROJ : RESTORE_NONE;
-  rusi->best_rtype[RESTORE_SGRPROJ - 1] = rtype;
+    RestorationType rtype =
+        (cost_sgr < cost_none) ? RESTORE_SGRPROJ : RESTORE_NONE;
+    rusi->best_rtype[RESTORE_SGRPROJ - 1] = rtype;
 
-  rsc->sse += rusi->sse[rtype];
-  rsc->bits += (cost_sgr < cost_none) ? bits_sgr : bits_none;
-  if (cost_sgr < cost_none) rsc->sgrproj = rusi->sgrproj;
+    rsc->sse += rusi->sse[rtype];
+    rsc->bits += (cost_sgr < cost_none) ? bits_sgr : bits_none;
+    if (cost_sgr < cost_none) rsc->sgrproj = rusi->sgrproj;
 }
 
 void av1_compute_stats_c(int wiener_win, const uint8_t *dgd, const uint8_t *src,
