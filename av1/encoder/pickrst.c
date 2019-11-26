@@ -95,6 +95,9 @@ typedef struct {
   // The sum of squared errors for this rtype.
   int64_t sse[RESTORE_SWITCHABLE_TYPES];
 
+  // Rdcost of each type
+  double rdcost[RESTORE_SWITCHABLE_TYPES];
+
   // The rtype to use for this unit given a frame rtype as
   // index. Indices: WIENER, SGRPROJ, SWITCHABLE.
   RestorationType best_rtype[RESTORE_TYPES - 1];
@@ -856,7 +859,25 @@ static AOM_INLINE void search_sgrproj(const RestorationTileLimits *limits,
   const AV1_COMMON *const cm = rsc->cm;
   const int highbd = cm->seq_params.use_highbitdepth;
   const int bit_depth = cm->seq_params.bit_depth;
+  int prune_sgr_based_on_wiener_cost = 0;
 
+  if (rusi->rdcost[RESTORE_NONE] != 0 && rusi->rdcost[RESTORE_WIENER] != 0) {
+    prune_sgr_based_on_wiener_cost =
+        rusi->rdcost[RESTORE_WIENER] > (1.01 * rusi->rdcost[RESTORE_NONE]);
+  }
+
+  const int64_t bits_none = x->sgrproj_restore_cost[0];
+  // Prune evaluation of RESTORE_SGRPROJ if RESTORE_NONE was the winner (no loop
+  // restoration)
+  if (rsc->sf->prune_sgr_based_on_wiener &&
+      rusi->best_rtype[RESTORE_WIENER - 1] == RESTORE_NONE &&
+      prune_sgr_based_on_wiener_cost) {
+    rsc->bits += bits_none;
+    rsc->sse += rusi->sse[RESTORE_NONE];
+    rusi->best_rtype[RESTORE_SGRPROJ - 1] = RESTORE_NONE;
+    rusi->sse[RESTORE_SGRPROJ] = INT64_MAX;
+    return;
+  }
   uint8_t *dgd_start =
       rsc->dgd_buffer + limits->v_start * rsc->dgd_stride + limits->h_start;
   const uint8_t *src_start =
@@ -880,7 +901,6 @@ static AOM_INLINE void search_sgrproj(const RestorationTileLimits *limits,
 
   rusi->sse[RESTORE_SGRPROJ] = try_restoration_unit(rsc, limits, tile, &rui);
 
-  const int64_t bits_none = x->sgrproj_restore_cost[0];
   const int64_t bits_sgr = x->sgrproj_restore_cost[1] +
                            (count_sgrproj_bits(&rusi->sgrproj, &rsc->sgrproj)
                             << AV1_PROB_COST_SHIFT);
@@ -1507,6 +1527,8 @@ static AOM_INLINE void search_wiener(const RestorationTileLimits *limits,
       RDCOST_DBL(x->rdmult, bits_none >> 4, rusi->sse[RESTORE_NONE]);
   double cost_wiener =
       RDCOST_DBL(x->rdmult, bits_wiener >> 4, rusi->sse[RESTORE_WIENER]);
+  rusi->rdcost[RESTORE_NONE] = cost_none;
+  rusi->rdcost[RESTORE_WIENER] = cost_wiener;
 
   RestorationType rtype =
       (cost_wiener < cost_none) ? RESTORE_WIENER : RESTORE_NONE;
