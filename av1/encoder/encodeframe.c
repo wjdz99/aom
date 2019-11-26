@@ -524,7 +524,7 @@ static AOM_INLINE void update_state(const AV1_COMP *const cpi, ThreadData *td,
           seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
       mi_addr->segment_id =
           map ? get_segment_id(cm, map, bsize, mi_row, mi_col) : 0;
-      reset_tx_size(x, mi_addr, x->tx_mode);
+      reset_tx_size(x, mi_addr, x->tx_mode_search_type);
     }
     // Else for cyclic refresh mode update the segment map, set the segment id
     // and then update the quantizer.
@@ -5165,8 +5165,6 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   cm->coded_lossless = is_coded_lossless(cm, xd);
   cm->all_lossless = cm->coded_lossless && !av1_superres_scaled(cm);
 
-  cm->tx_mode = get_eval_tx_mode(cpi, DEFAULT_EVAL);
-
   // Fix delta q resolution for the moment
   cm->delta_q_info.delta_q_res = 0;
   if (cpi->oxcf.deltaq_mode == DELTA_Q_OBJECTIVE)
@@ -5348,7 +5346,10 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   }
 
   // Set the transform size appropriately before bitstream creation
-  cm->tx_mode = get_eval_tx_mode(cpi, WINNER_MODE_EVAL);
+  const MODE_EVAL_TYPE eval_type = cpi->sf.enable_winner_mode_for_tx_size_srch
+                                       ? WINNER_MODE_EVAL
+                                       : DEFAULT_EVAL;
+  cm->tx_mode = select_tx_mode(cpi, eval_type);
 
   if (cpi->sf.tx_type_search.prune_tx_type_using_stats) {
     const FRAME_UPDATE_TYPE update_type = get_frame_update_type(&cpi->gf_group);
@@ -5501,6 +5502,9 @@ void av1_encode_frame(AV1_COMP *cpi) {
     if (!cm->large_scale_tile) {
       if (cm->tx_mode == TX_MODE_SELECT && cpi->td.mb.txb_split_count == 0)
         cm->tx_mode = TX_MODE_LARGEST;
+    }
+    if (cm->tx_mode == TX_MODE_LARGEST && cpi->td.mb.txb_split_count > 0) {
+      cm->tx_mode = TX_MODE_SELECT;
     }
   } else {
     encode_frame_internal(cpi);
@@ -5759,8 +5763,9 @@ static AOM_INLINE void encode_superblock(const AV1_COMP *const cpi,
 
   if (!dry_run) {
     if (av1_allow_intrabc(cm) && is_intrabc_block(mbmi)) td->intrabc_used = 1;
-    if (x->tx_mode == TX_MODE_SELECT && !xd->lossless[mbmi->segment_id] &&
-        mbmi->sb_type > BLOCK_4X4 && !(is_inter && (mbmi->skip || seg_skip))) {
+    if (x->tx_mode_search_type == TX_MODE_SELECT &&
+        !xd->lossless[mbmi->segment_id] && mbmi->sb_type > BLOCK_4X4 &&
+        !(is_inter && (mbmi->skip || seg_skip))) {
       if (is_inter) {
         tx_partition_count_update(cm, x, bsize, mi_row, mi_col, td->counts,
                                   tile_data->allow_update_cdf);
@@ -5790,7 +5795,7 @@ static AOM_INLINE void encode_superblock(const AV1_COMP *const cpi,
         if (xd->lossless[mbmi->segment_id]) {
           intra_tx_size = TX_4X4;
         } else {
-          intra_tx_size = tx_size_from_tx_mode(bsize, x->tx_mode);
+          intra_tx_size = tx_size_from_tx_mode(bsize, x->tx_mode_search_type);
         }
       } else {
         intra_tx_size = mbmi->tx_size;
@@ -5805,9 +5810,9 @@ static AOM_INLINE void encode_superblock(const AV1_COMP *const cpi,
     }
   }
 
-  if (x->tx_mode == TX_MODE_SELECT && block_signals_txsize(mbmi->sb_type) &&
-      is_inter && !(mbmi->skip || seg_skip) &&
-      !xd->lossless[mbmi->segment_id]) {
+  if (x->tx_mode_search_type == TX_MODE_SELECT &&
+      block_signals_txsize(mbmi->sb_type) && is_inter &&
+      !(mbmi->skip || seg_skip) && !xd->lossless[mbmi->segment_id]) {
     if (dry_run) tx_partition_set_contexts(cm, xd, bsize, mi_row, mi_col);
   } else {
     TX_SIZE tx_size = mbmi->tx_size;
@@ -5816,7 +5821,7 @@ static AOM_INLINE void encode_superblock(const AV1_COMP *const cpi,
       if (xd->lossless[mbmi->segment_id]) {
         tx_size = TX_4X4;
       } else {
-        tx_size = tx_size_from_tx_mode(bsize, x->tx_mode);
+        tx_size = tx_size_from_tx_mode(bsize, x->tx_mode_search_type);
       }
     } else {
       tx_size = (bsize > BLOCK_4X4) ? tx_size : TX_4X4;
