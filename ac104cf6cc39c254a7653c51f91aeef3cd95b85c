@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "288e06a6_6cd2cecb",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1395,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2019-11-26T01:28:01Z",
+      "side": 1,
+      "message": "intra modes for delta frames in nonrd currently use DC,H,V,SMOOTH, so we should use/test SMOOTH here too.",
+      "revId": "ac104cf6cc39c254a7653c51f91aeef3cd95b85c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
