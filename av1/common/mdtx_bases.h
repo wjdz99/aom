@@ -1056,13 +1056,9 @@ static const int32_t *nstx_intra_mtx[4][INTRA_MODES] = {
 static INLINE const int32_t *nstx_arr(TX_SIZE tx_size, PREDICTION_MODE mode) {
   switch (tx_size) {
     case TX_4X4: return nstx_intra_mtx[0][mode];
-#if USE_NST_8X8
     case TX_8X8: return nstx_intra_mtx[1][mode];
-#endif
-#if USE_NST_4X8_8X4
     case TX_4X8: return nstx_intra_mtx[2][mode];
     case TX_8X4: return nstx_intra_mtx[3][mode];
-#endif
     default: assert(0); return NULL;
   }
 }
