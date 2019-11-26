@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef616de0_ea99f752",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4792,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-11-26T17:24:32Z",
+      "side": 1,
+      "message": "Can be const",
+      "range": {
+        "startLine": 4792,
+        "startChar": 4,
+        "endLine": 4792,
+        "endChar": 77
+      },
+      "revId": "ba702cc110886b9c4098a5164c235827971281d0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37439021_44bd4c86",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4795,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-11-26T17:24:32Z",
+      "side": 1,
+      "message": "can be const",
+      "range": {
+        "startLine": 4795,
+        "startChar": 4,
+        "endLine": 4795,
+        "endChar": 7
+      },
+      "revId": "ba702cc110886b9c4098a5164c235827971281d0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9cb8c6a2_7ede7fd9",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4823,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2019-11-26T17:24:32Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 4823,
+        "startChar": 6,
+        "endLine": 4823,
+        "endChar": 9
+      },
+      "revId": "ba702cc110886b9c4098a5164c235827971281d0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
