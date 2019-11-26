@@ -16,6 +16,24 @@
       "revId": "ac104cf6cc39c254a7653c51f91aeef3cd95b85c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27862ae5_fc7922e3",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1395,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2019-11-26T05:34:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "288e06a6_6cd2cecb",
+      "revId": "ac104cf6cc39c254a7653c51f91aeef3cd95b85c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
