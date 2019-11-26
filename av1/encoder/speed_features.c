@@ -349,6 +349,7 @@ static void set_good_speed_features_framesize_independent(
     sf->gm_erroradv_type = GM_ERRORADV_TR_2;
 
     sf->selective_ref_frame = 3;
+    sf->prune_sgr_based_on_wiener = cm->allow_screen_content_tools ? 0 : 1;
 
     // TODO(chiyotsai@google.com): We can get 10% speed up if we move
     // adaptive_rd_thresh to speed 1. But currently it performs poorly on some
@@ -838,6 +839,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->disable_wedge_search_edge_thresh = 0;
   sf->disable_wedge_search_var_thresh = 0;
   sf->disable_loop_restoration_chroma = 0;
+  sf->prune_sgr_based_on_wiener = 0;
   sf->enable_sgr_ep_pruning = 0;
   sf->reduce_wiener_window_size = 0;
   sf->fast_wedge_sign_estimate = 0;
