@@ -1249,12 +1249,35 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
   mbmi->ref_frame[1] = NONE_FRAME;
 
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#if CONFIG_DERIVED_INTRA_MODE
+  if (av1_enable_derived_intra_mode(xd, bsize)) {
+    mbmi->use_derived_intra_mode[0] = aom_read_symbol(
+        r, get_derived_intra_mode_cdf(ec_ctx, xd->above_mbmi, xd->left_mbmi),
+        2, ACCT_STR);
+    //printf("%d\n", mbmi->use_derived_intra_mode[0]);
+  } else {
+    if (mbmi->use_derived_intra_mode[0]) printf("error read_intra_block_mode_info\n");
+  }
+  if (mbmi->use_derived_intra_mode[0]) {
+    mbmi->mode = av1_get_derived_intra_mode(xd, bsize, &mbmi->derived_angle);
+  } else {
+    mbmi->mode =
+        read_intra_mode(r, ec_ctx->y_mode_cdf[size_group_lookup[bsize]]);
+  }
+#else
   mbmi->mode = read_intra_mode(r, ec_ctx->y_mode_cdf[size_group_lookup[bsize]]);
+#endif
 
-  mbmi->angle_delta[PLANE_TYPE_Y] =
-      use_angle_delta && av1_is_directional_mode(mbmi->mode)
-          ? read_angle_delta(r, ec_ctx->angle_delta_cdf[mbmi->mode - V_PRED])
-          : 0;
+  if (use_angle_delta &&
+#if CONFIG_DERIVED_INTRA_MODE
+      !mbmi->use_derived_intra_mode[0] &&
+#endif
+      av1_is_directional_mode(mbmi->mode)) {
+    mbmi->angle_delta[PLANE_TYPE_Y] =
+        read_angle_delta(r, ec_ctx->angle_delta_cdf[mbmi->mode - V_PRED]);
+  } else {
+    mbmi->angle_delta[PLANE_TYPE_Y] = 0;
+  }
   const int has_chroma =
       is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
                           xd->plane[1].subsampling_y);
@@ -1863,4 +1886,22 @@ void av1_read_mode_info(AV1Decoder *const pbi, MACROBLOCKD *xd, int mi_row,
     if (pbi->common.seq_params.order_hint_info.enable_ref_frame_mvs)
       av1_copy_frame_mvs(cm, mi, mi_row, mi_col, x_mis, y_mis);
   }
+
+#if 0
+  do {
+    FILE *fp  = fopen("dec.txt", "a");
+    if (!fp) break;
+
+    MB_MODE_INFO *mbmi = mi;
+
+    fprintf(fp, "mi %d %d, bsize %d, ref %d %d, mode %d %d, derive %d %d\n",
+            mi_row, mi_col, mbmi->sb_type,
+            mbmi->ref_frame[0], mbmi->ref_frame[1],
+            mbmi->mode, mbmi->uv_mode,
+            mbmi->use_derived_intra_mode[0],
+            mbmi->use_derived_intra_mode[1]);
+
+    fclose(fp);
+  } while (0);
+#endif
 }

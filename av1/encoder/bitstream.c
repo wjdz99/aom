@@ -1304,7 +1304,23 @@ static void write_intra_prediction_modes(AV1_COMP *cpi, const int mi_row,
   if (is_keyframe) {
     write_intra_y_mode_kf(xd, ec_ctx, mbmi, mode, w);
   } else {
-    write_intra_y_mode_nonkf(ec_ctx, bsize, mode, w);
+#if CONFIG_DERIVED_INTRA_MODE
+    if (av1_enable_derived_intra_mode(xd, bsize)) {
+      aom_write_symbol(
+          w, mbmi->use_derived_intra_mode[0],
+          get_derived_intra_mode_cdf(ec_ctx, xd->above_mbmi, xd->left_mbmi),
+          2);
+    } else {
+      assert(mbmi->use_derived_intra_mode[0] == 0);
+      if (mbmi->use_derived_intra_mode[0]) {
+        printf("bitstream error\n");
+      }
+    }
+    if (!mbmi->use_derived_intra_mode[0])
+#endif  // CONFIG_DERIVED_INTRA_MODE
+    {
+      write_intra_y_mode_nonkf(ec_ctx, bsize, mode, w);
+    }
   }
 
   // Y angle delta.
@@ -1335,6 +1351,12 @@ static void write_intra_prediction_modes(AV1_COMP *cpi, const int mi_row,
                         ec_ctx->angle_delta_cdf[uv_mode - V_PRED]);
     }
   }
+
+#if 1
+  if (mbmi->mode == DC_PRED && mbmi->use_derived_intra_mode[0]) {
+    printf("\n bitstream error\n");
+  }
+#endif
 
   // Palette.
   if (av1_allow_palette(cm->allow_screen_content_tools, bsize)) {
@@ -1680,6 +1702,24 @@ static void write_mbmi_b(AV1_COMP *cpi, aom_writer *w, int mi_row, int mi_col) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
   MB_MODE_INFO *m = xd->mi[0];
+
+#if 0
+  do {
+    FILE *fp  = fopen("enc.txt", "a");
+    if (!fp) break;
+
+    MB_MODE_INFO *mbmi = m;
+
+    fprintf(fp, "mi %d %d, bsize %d, ref %d %d, mode %d %d, derive %d %d\n",
+            mi_row, mi_col, mbmi->sb_type,
+            mbmi->ref_frame[0], mbmi->ref_frame[1],
+            mbmi->mode, mbmi->uv_mode,
+            mbmi->use_derived_intra_mode[0],
+            mbmi->use_derived_intra_mode[1]);
+
+    fclose(fp);
+  } while (0);
+#endif
 
   if (frame_is_intra_only(cm)) {
     write_mb_modes_kf(cpi, xd, cpi->td.mb.mbmi_ext, mi_row, mi_col, w);

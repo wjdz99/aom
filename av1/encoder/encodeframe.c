@@ -960,7 +960,17 @@ static void sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
     ++counts->y_mode[size_group_lookup[bsize]][y_mode];
 #endif  // CONFIG_ENTROPY_STATS
     if (allow_update_cdf) {
-      update_cdf(fc->y_mode_cdf[size_group_lookup[bsize]], y_mode, INTRA_MODES);
+#if CONFIG_DERIVED_INTRA_MODE
+      if (av1_enable_derived_intra_mode(xd, bsize)) {
+        update_cdf(get_derived_intra_mode_cdf(fc, above_mi, left_mi),
+                   mbmi->use_derived_intra_mode[0], 2);
+      }
+      if (!mbmi->use_derived_intra_mode[0])
+#endif  // CONFIG_DERIVED_INTRA_MODE
+      {
+        update_cdf(fc->y_mode_cdf[size_group_lookup[bsize]], y_mode,
+                   INTRA_MODES);
+      }
     }
   }
 
@@ -6307,10 +6317,20 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
       if (mbmi->use_derived_intra_mode[0]) {
         assert(mbmi->mode == derived_mode &&
                mbmi->derived_angle == derived_angle);
+        if (!(mbmi->mode == derived_mode &&
+            mbmi->derived_angle == derived_angle)) {
+          printf("error y %d %d vs %d %d\n",
+                 mbmi->mode, mbmi->derived_angle,
+                 derived_mode, derived_angle);
+        }
       }
       if (mbmi->use_derived_intra_mode[1]) {
         assert(mbmi->uv_mode == derived_mode &&
                mbmi->derived_angle == derived_angle);
+        if (!(mbmi->uv_mode == derived_mode &&
+            mbmi->derived_angle == derived_angle)) {
+          printf("error uv\n");
+        }
       }
       (void)derived_angle;
       (void)derived_mode;
@@ -6355,7 +6375,6 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   } else {
     int ref;
     const int is_compound = has_second_ref(mbmi);
-
     set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
     for (ref = 0; ref < 1 + is_compound; ++ref) {
       const YV12_BUFFER_CONFIG *cfg =
