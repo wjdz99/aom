@@ -232,8 +232,9 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
   { GLOBALMV, { GOLDEN_FRAME, NONE_FRAME } },
   { GLOBALMV, { ALTREF_FRAME, NONE_FRAME } },
 
-  // TODO(zoeliu): May need to reconsider the order on the modes to check
+// TODO(zoeliu): May need to reconsider the order on the modes to check
 
+#if !CONFIG_NEW_INTER_MODES | CONFIG_NEW_INTER_MODES
   { NEAREST_NEARESTMV, { LAST_FRAME, ALTREF_FRAME } },
   { NEAREST_NEARESTMV, { LAST2_FRAME, ALTREF_FRAME } },
   { NEAREST_NEARESTMV, { LAST3_FRAME, ALTREF_FRAME } },
@@ -251,164 +252,165 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
   { NEAREST_NEARESTMV, { LAST_FRAME, LAST3_FRAME } },
   { NEAREST_NEARESTMV, { LAST_FRAME, GOLDEN_FRAME } },
   { NEAREST_NEARESTMV, { BWDREF_FRAME, ALTREF_FRAME } },
+#endif
 
   { NEAR_NEARMV, { LAST_FRAME, ALTREF_FRAME } },
+#if !CONFIG_NEW_INTER_MODES
   { NEW_NEARESTMV, { LAST_FRAME, ALTREF_FRAME } },
   { NEAREST_NEWMV, { LAST_FRAME, ALTREF_FRAME } },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   { NEW_NEARMV, { LAST_FRAME, ALTREF_FRAME } },
   { NEAR_NEWMV, { LAST_FRAME, ALTREF_FRAME } },
-#endif
   { NEW_NEWMV, { LAST_FRAME, ALTREF_FRAME } },
   { GLOBAL_GLOBALMV, { LAST_FRAME, ALTREF_FRAME } },
 
   { NEAR_NEARMV, { LAST2_FRAME, ALTREF_FRAME } },
+#if !CONFIG_NEW_INTER_MODES
   { NEW_NEARESTMV, { LAST2_FRAME, ALTREF_FRAME } },
   { NEAREST_NEWMV, { LAST2_FRAME, ALTREF_FRAME } },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   { NEW_NEARMV, { LAST2_FRAME, ALTREF_FRAME } },
   { NEAR_NEWMV, { LAST2_FRAME, ALTREF_FRAME } },
-#endif
   { NEW_NEWMV, { LAST2_FRAME, ALTREF_FRAME } },
   { GLOBAL_GLOBALMV, { LAST2_FRAME, ALTREF_FRAME } },
 
   { NEAR_NEARMV, { LAST3_FRAME, ALTREF_FRAME } },
+#if !CONFIG_NEW_INTER_MODES
   { NEW_NEARESTMV, { LAST3_FRAME, ALTREF_FRAME } },
   { NEAREST_NEWMV, { LAST3_FRAME, ALTREF_FRAME } },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   { NEW_NEARMV, { LAST3_FRAME, ALTREF_FRAME } },
   { NEAR_NEWMV, { LAST3_FRAME, ALTREF_FRAME } },
-#endif
   { NEW_NEWMV, { LAST3_FRAME, ALTREF_FRAME } },
   { GLOBAL_GLOBALMV, { LAST3_FRAME, ALTREF_FRAME } },
 
   { NEAR_NEARMV, { GOLDEN_FRAME, ALTREF_FRAME } },
+#if !CONFIG_NEW_INTER_MODES
   { NEW_NEARESTMV, { GOLDEN_FRAME, ALTREF_FRAME } },
   { NEAREST_NEWMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   { NEW_NEARMV, { GOLDEN_FRAME, ALTREF_FRAME } },
   { NEAR_NEWMV, { GOLDEN_FRAME, ALTREF_FRAME } },
-#endif
   { NEW_NEWMV, { GOLDEN_FRAME, ALTREF_FRAME } },
   { GLOBAL_GLOBALMV, { GOLDEN_FRAME, ALTREF_FRAME } },
 
   { NEAR_NEARMV, { LAST_FRAME, BWDREF_FRAME } },
+#if !CONFIG_NEW_INTER_MODES
   { NEW_NEARESTMV, { LAST_FRAME, BWDREF_FRAME } },
   { NEAREST_NEWMV, { LAST_FRAME, BWDREF_FRAME } },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   { NEW_NEARMV, { LAST_FRAME, BWDREF_FRAME } },
   { NEAR_NEWMV, { LAST_FRAME, BWDREF_FRAME } },
-#endif
   { NEW_NEWMV, { LAST_FRAME, BWDREF_FRAME } },
   { GLOBAL_GLOBALMV, { LAST_FRAME, BWDREF_FRAME } },
 
   { NEAR_NEARMV, { LAST2_FRAME, BWDREF_FRAME } },
+#if !CONFIG_NEW_INTER_MODES
   { NEW_NEARESTMV, { LAST2_FRAME, BWDREF_FRAME } },
   { NEAREST_NEWMV, { LAST2_FRAME, BWDREF_FRAME } },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   { NEW_NEARMV, { LAST2_FRAME, BWDREF_FRAME } },
   { NEAR_NEWMV, { LAST2_FRAME, BWDREF_FRAME } },
-#endif
   { NEW_NEWMV, { LAST2_FRAME, BWDREF_FRAME } },
   { GLOBAL_GLOBALMV, { LAST2_FRAME, BWDREF_FRAME } },
 
   { NEAR_NEARMV, { LAST3_FRAME, BWDREF_FRAME } },
+#if !CONFIG_NEW_INTER_MODES
   { NEW_NEARESTMV, { LAST3_FRAME, BWDREF_FRAME } },
   { NEAREST_NEWMV, { LAST3_FRAME, BWDREF_FRAME } },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   { NEW_NEARMV, { LAST3_FRAME, BWDREF_FRAME } },
   { NEAR_NEWMV, { LAST3_FRAME, BWDREF_FRAME } },
-#endif
   { NEW_NEWMV, { LAST3_FRAME, BWDREF_FRAME } },
   { GLOBAL_GLOBALMV, { LAST3_FRAME, BWDREF_FRAME } },
 
   { NEAR_NEARMV, { GOLDEN_FRAME, BWDREF_FRAME } },
+#if !CONFIG_NEW_INTER_MODES
   { NEW_NEARESTMV, { GOLDEN_FRAME, BWDREF_FRAME } },
   { NEAREST_NEWMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   { NEW_NEARMV, { GOLDEN_FRAME, BWDREF_FRAME } },
   { NEAR_NEWMV, { GOLDEN_FRAME, BWDREF_FRAME } },
-#endif
   { NEW_NEWMV, { GOLDEN_FRAME, BWDREF_FRAME } },
   { GLOBAL_GLOBALMV, { GOLDEN_FRAME, BWDREF_FRAME } },
 
   { NEAR_NEARMV, { LAST_FRAME, ALTREF2_FRAME } },
+#if !CONFIG_NEW_INTER_MODES
   { NEW_NEARESTMV, { LAST_FRAME, ALTREF2_FRAME } },
   { NEAREST_NEWMV, { LAST_FRAME, ALTREF2_FRAME } },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   { NEW_NEARMV, { LAST_FRAME, ALTREF2_FRAME } },
   { NEAR_NEWMV, { LAST_FRAME, ALTREF2_FRAME } },
-#endif
   { NEW_NEWMV, { LAST_FRAME, ALTREF2_FRAME } },
   { GLOBAL_GLOBALMV, { LAST_FRAME, ALTREF2_FRAME } },
 
   { NEAR_NEARMV, { LAST2_FRAME, ALTREF2_FRAME } },
+#if !CONFIG_NEW_INTER_MODES
   { NEW_NEARESTMV, { LAST2_FRAME, ALTREF2_FRAME } },
   { NEAREST_NEWMV, { LAST2_FRAME, ALTREF2_FRAME } },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   { NEW_NEARMV, { LAST2_FRAME, ALTREF2_FRAME } },
   { NEAR_NEWMV, { LAST2_FRAME, ALTREF2_FRAME } },
-#endif
   { NEW_NEWMV, { LAST2_FRAME, ALTREF2_FRAME } },
   { GLOBAL_GLOBALMV, { LAST2_FRAME, ALTREF2_FRAME } },
 
   { NEAR_NEARMV, { LAST3_FRAME, ALTREF2_FRAME } },
+#if !CONFIG_NEW_INTER_MODES
   { NEW_NEARESTMV, { LAST3_FRAME, ALTREF2_FRAME } },
   { NEAREST_NEWMV, { LAST3_FRAME, ALTREF2_FRAME } },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   { NEW_NEARMV, { LAST3_FRAME, ALTREF2_FRAME } },
   { NEAR_NEWMV, { LAST3_FRAME, ALTREF2_FRAME } },
-#endif
   { NEW_NEWMV, { LAST3_FRAME, ALTREF2_FRAME } },
   { GLOBAL_GLOBALMV, { LAST3_FRAME, ALTREF2_FRAME } },
 
   { NEAR_NEARMV, { GOLDEN_FRAME, ALTREF2_FRAME } },
+#if !CONFIG_NEW_INTER_MODES
   { NEW_NEARESTMV, { GOLDEN_FRAME, ALTREF2_FRAME } },
   { NEAREST_NEWMV, { GOLDEN_FRAME, ALTREF2_FRAME } },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   { NEW_NEARMV, { GOLDEN_FRAME, ALTREF2_FRAME } },
   { NEAR_NEWMV, { GOLDEN_FRAME, ALTREF2_FRAME } },
-#endif
   { NEW_NEWMV, { GOLDEN_FRAME, ALTREF2_FRAME } },
   { GLOBAL_GLOBALMV, { GOLDEN_FRAME, ALTREF2_FRAME } },
 
   { NEAR_NEARMV, { LAST_FRAME, LAST2_FRAME } },
+#if !CONFIG_NEW_INTER_MODES
   { NEW_NEARESTMV, { LAST_FRAME, LAST2_FRAME } },
   { NEAREST_NEWMV, { LAST_FRAME, LAST2_FRAME } },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   { NEW_NEARMV, { LAST_FRAME, LAST2_FRAME } },
   { NEAR_NEWMV, { LAST_FRAME, LAST2_FRAME } },
-#endif
   { NEW_NEWMV, { LAST_FRAME, LAST2_FRAME } },
   { GLOBAL_GLOBALMV, { LAST_FRAME, LAST2_FRAME } },
 
   { NEAR_NEARMV, { LAST_FRAME, LAST3_FRAME } },
+#if !CONFIG_NEW_INTER_MODES
   { NEW_NEARESTMV, { LAST_FRAME, LAST3_FRAME } },
   { NEAREST_NEWMV, { LAST_FRAME, LAST3_FRAME } },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   { NEW_NEARMV, { LAST_FRAME, LAST3_FRAME } },
   { NEAR_NEWMV, { LAST_FRAME, LAST3_FRAME } },
-#endif
   { NEW_NEWMV, { LAST_FRAME, LAST3_FRAME } },
   { GLOBAL_GLOBALMV, { LAST_FRAME, LAST3_FRAME } },
 
   { NEAR_NEARMV, { LAST_FRAME, GOLDEN_FRAME } },
+#if !CONFIG_NEW_INTER_MODES
   { NEW_NEARESTMV, { LAST_FRAME, GOLDEN_FRAME } },
   { NEAREST_NEWMV, { LAST_FRAME, GOLDEN_FRAME } },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   { NEW_NEARMV, { LAST_FRAME, GOLDEN_FRAME } },
   { NEAR_NEWMV, { LAST_FRAME, GOLDEN_FRAME } },
-#endif
   { NEW_NEWMV, { LAST_FRAME, GOLDEN_FRAME } },
   { GLOBAL_GLOBALMV, { LAST_FRAME, GOLDEN_FRAME } },
 
   { NEAR_NEARMV, { BWDREF_FRAME, ALTREF_FRAME } },
+#if !CONFIG_NEW_INTER_MODES
   { NEW_NEARESTMV, { BWDREF_FRAME, ALTREF_FRAME } },
   { NEAREST_NEWMV, { BWDREF_FRAME, ALTREF_FRAME } },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   { NEW_NEARMV, { BWDREF_FRAME, ALTREF_FRAME } },
   { NEAR_NEWMV, { BWDREF_FRAME, ALTREF_FRAME } },
-#endif
   { NEW_NEWMV, { BWDREF_FRAME, ALTREF_FRAME } },
   { GLOBAL_GLOBALMV, { BWDREF_FRAME, ALTREF_FRAME } },
 
@@ -465,6 +467,7 @@ static const int16_t single_inter_to_mode_idx[SINGLE_INTER_MODE_NUM]
 /* clang-format off */
 static const int16_t comp_inter_to_mode_idx[COMP_INTER_MODE_NUM][REF_FRAMES]
                                      [REF_FRAMES] = {
+#if !CONFIG_NEW_INTER_MODES
   // NEAREST_NEARESTMV,
   {
     { -1, -1, -1, -1, -1, -1, -1, -1, },
@@ -491,6 +494,7 @@ static const int16_t comp_inter_to_mode_idx[COMP_INTER_MODE_NUM][REF_FRAMES]
     { -1, -1, -1, -1, -1, -1, -1, -1, },
     { -1, -1, -1, -1, -1, -1, -1, -1, },
   },
+#endif
   // NEAR_NEARMV,
   {
     { -1, -1, -1, -1, -1, -1, -1, -1, },
@@ -517,6 +521,7 @@ static const int16_t comp_inter_to_mode_idx[COMP_INTER_MODE_NUM][REF_FRAMES]
     { -1, -1, -1, -1, -1, -1, -1, -1, },
     { -1, -1, -1, -1, -1, -1, -1, -1, },
   },
+#if !CONFIG_NEW_INTER_MODES
   // NEAREST_NEWMV,
   {
     { -1, -1, -1, -1, -1, -1, -1, -1, },
@@ -569,7 +574,7 @@ static const int16_t comp_inter_to_mode_idx[COMP_INTER_MODE_NUM][REF_FRAMES]
     { -1, -1, -1, -1, -1, -1, -1, -1, },
     { -1, -1, -1, -1, -1, -1, -1, -1, },
   },
-#if !CONFIG_NEW_INTER_MODES
+#endif
   // NEAR_NEWMV,
   {
     { -1, -1, -1, -1, -1, -1, -1, -1, },
@@ -622,7 +627,6 @@ static const int16_t comp_inter_to_mode_idx[COMP_INTER_MODE_NUM][REF_FRAMES]
     { -1, -1, -1, -1, -1, -1, -1, -1, },
     { -1, -1, -1, -1, -1, -1, -1, -1, },
   },
-#endif
   // GLOBAL_GLOBALMV,
   {
     { -1, -1, -1, -1, -1, -1, -1, -1, },
@@ -8427,7 +8431,7 @@ static int interinter_compound_motion_search(const AV1_COMP *const cpi,
     mbmi->mv[0].as_int = tmp_mv[0].as_int;
     mbmi->mv[1].as_int = tmp_mv[1].as_int;
 #if CONFIG_NEW_INTER_MODES
-  } else if (this_mode >= NEAREST_NEWMV && this_mode <= NEW_NEARESTMV) {
+  } else if (this_mode >= NEAR_NEWMV && this_mode <= NEW_NEARMV) {
 #else
   } else if (this_mode >= NEAREST_NEWMV && this_mode <= NEW_NEARMV) {
 #endif
@@ -8834,7 +8838,7 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
             MV_COST_WEIGHT);
       }
 #if CONFIG_NEW_INTER_MODES
-    } else if (this_mode == NEAREST_NEWMV) {
+    } else if (this_mode == NEAR_NEWMV) {
 #else
     } else if (this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV) {
 #endif
@@ -8859,7 +8863,7 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
       }
     } else {
 #if CONFIG_NEW_INTER_MODES
-      assert(this_mode == NEW_NEARESTMV);
+      assert(this_mode == NEW_NEARMV);
 #else
       assert(this_mode == NEW_NEARESTMV || this_mode == NEW_NEARMV);
 #endif
@@ -11006,10 +11010,18 @@ static bool ref_mv_idx_early_breakout(MACROBLOCK *x,
   const int drl_cost =
       get_drl_cost(mbmi, mbmi_ext, x->drl_mode_cost0, ref_frame_type);
   est_rd_rate += drl_cost;
+// TODO(siroh): Why is there an exception for NEARESTMV?
+#if !CONFIG_NEW_INTER_MODES || CONFIG_NEW_INTER_MODES
   if (RDCOST(x->rdmult, est_rd_rate, 0) > ref_best_rd &&
       mbmi->mode != NEARESTMV && mbmi->mode != NEAREST_NEARESTMV) {
     return true;
   }
+#else
+  if (RDCOST(x->rdmult, est_rd_rate, 0) > ref_best_rd &&
+      mbmi->mode != NEARESTMV && mbmi->mode != NEAR_NEARMV) {
+    return true;
+  }
+#endif
   return false;
 }
 
@@ -11408,11 +11420,18 @@ static int64_t handle_inter_mode(
 #else
       rd_stats->rate += ref_mv_cost;
 #endif
-
+//vRef CONFIG_NEW_INTER_MODES
+#if !CONFIG_NEW_INTER_MODES | CONFIG_NEW_INTER_MODES
       if (RDCOST(x->rdmult, rd_stats->rate, 0) > ref_best_rd &&
           mbmi->mode != NEARESTMV && mbmi->mode != NEAREST_NEARESTMV) {
         continue;
       }
+#else
+      if (RDCOST(x->rdmult, rd_stats->rate, 0) > ref_best_rd &&
+          mbmi->mode != NEARESTMV && mbmi->mode != NEAR_NEARMV) {
+        continue;
+      }
+#endif
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
       start_timing(cpi, compound_type_rd_time);
@@ -11890,6 +11909,7 @@ static void calc_target_weighted_pred(const AV1_COMMON *cm, const MACROBLOCK *x,
                                       int left_stride);
 #endif  // !CONFIG_REALTIME_ONLY
 
+//vRef CONFIG_NEW_INTER_MODES
 static void rd_pick_skip_mode(RD_STATS *rd_cost,
                               InterModeSearchState *search_state,
                               const AV1_COMP *const cpi, MACROBLOCK *const x,
@@ -11914,7 +11934,11 @@ static void rd_pick_skip_mode(RD_STATS *rd_cost,
       LAST_FRAME + skip_mode_info->ref_frame_idx_0;
   const MV_REFERENCE_FRAME second_ref_frame =
       LAST_FRAME + skip_mode_info->ref_frame_idx_1;
+#if !CONFIG_NEW_INTER_MODES | CONFIG_NEW_INTER_MODES
   const PREDICTION_MODE this_mode = NEAREST_NEARESTMV;
+#else
+  const PREDICTION_MODE this_mode = NEAR_NEARMV;
+#endif
   const int mode_index =
       get_prediction_mode_idx(this_mode, ref_frame, second_ref_frame);
 
@@ -11942,8 +11966,11 @@ static void rd_pick_skip_mode(RD_STATS *rd_cost,
                      mbmi_ext->global_mvs, mi_row, mi_col,
                      mbmi_ext->mode_context);
   }
-
+#if !CONFIG_NEW_INTER_MODES | CONFIG_NEW_INTER_MODES
   assert(this_mode == NEAREST_NEARESTMV);
+#else
+  assert(this_mode == NEAR_NEARMV);
+#endif
   if (!build_cur_mv(mbmi->mv, this_mode, cm, x)) {
     return;
   }
@@ -11996,7 +12023,11 @@ static void rd_pick_skip_mode(RD_STATS *rd_cost,
     search_state->best_mbmode = *mbmi;
 
     search_state->best_mbmode.skip_mode = search_state->best_mbmode.skip = 1;
+#if !CONFIG_NEW_INTER_MODES | CONFIG_NEW_INTER_MODES
     search_state->best_mbmode.mode = NEAREST_NEARESTMV;
+#else
+    search_state->best_mbmode.mode = NEAR_NEARMV;
+#endif
     search_state->best_mbmode.ref_frame[0] = mbmi->ref_frame[0];
     search_state->best_mbmode.ref_frame[1] = mbmi->ref_frame[1];
     search_state->best_mbmode.mv[0].as_int = mbmi->mv[0].as_int;

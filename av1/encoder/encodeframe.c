@@ -1588,7 +1588,7 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
           }
         } else {
 #if CONFIG_NEW_INTER_MODES
-          const int ref = (mbmi->mode == NEAREST_NEWMV);
+          const int ref = (mbmi->mode == NEAR_NEWMV);
 #else
           const int ref =
               (mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEAR_NEWMV);
