@@ -171,8 +171,10 @@ set_aom_config_var(CONFIG_COMPANDED_MV 0 NUMBER
                    "AV2 companded MV experiment flag")
 set_aom_config_var(CONFIG_WIENER_NONSEP_CROSS_FILT 0 NUMBER
                    "AV2 nonsep Wiener cross filter experiment flag")
-set_aom_config_var(CONFIG_NEW_INTER_MODES 0 NUMBER
+set_aom_config_var(CONFIG_REMOVE_NEAREST_INTER 0 NUMBER
                    "AV2 inter mode consolidation experiment flag")
+set_aom_config_var(CONFIG_EXTEND_DRL_INDEX 0 NUMBER
+                   "AV2 inter mode extended reference list flag write_drl")
 
 # To include Tensorflow, make sure to build tensorflow locally using
 # tensorflow/contrib/makefile/build_all_linux.sh and then providing the correct
