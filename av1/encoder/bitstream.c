@@ -143,6 +143,7 @@ static void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
   }
 }
 
+#if !CONFIG_EXTEND_DRL_INDEX
 static void write_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
                           const MB_MODE_INFO *mbmi,
                           const MB_MODE_INFO_EXT *mbmi_ext, aom_writer *w) {
@@ -192,6 +193,22 @@ static void write_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
     return;
   }
 }
+#else
+static void write_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
+                          const MB_MODE_INFO *mbmi,
+                          const MB_MODE_INFO_EXT *mbmi_ext, aom_writer *w) {
+  (void)cm;
+  uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+  assert(mbmi->ref_mv_idx < 4);
+  for (int idx = 0; idx < 3; ++idx) {
+    if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
+      uint8_t drl_ctx = av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
+      aom_write_symbol(w, mbmi->ref_mv_idx != idx, ec_ctx->drl_cdf[drl_ctx], 2);
+      if (mbmi->ref_mv_idx == idx) return;
+    }
+  }
+}
+#endif
 
 static void write_inter_compound_mode(MACROBLOCKD *xd, aom_writer *w,
                                       PREDICTION_MODE mode,
@@ -1407,7 +1424,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
                       mbmi->mv_precision);
       }
 #if CONFIG_NEW_INTER_MODES
-    } else if (mode == NEAREST_NEWMV) {
+    } else if (mode == NEAR_NEWMV) {
 #else
     } else if (mode == NEAREST_NEWMV || mode == NEAR_NEWMV) {
 #endif
@@ -1416,7 +1433,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       av1_encode_mv(cpi, w, &mbmi->mv[1].as_mv, &ref_mv.as_mv, nmvc,
                     mbmi->mv_precision);
 #if CONFIG_NEW_INTER_MODES
-    } else if (mode == NEW_NEARESTMV) {
+    } else if (mode == NEW_NEARMV) {
 #else
     } else if (mode == NEW_NEARESTMV || mode == NEW_NEARMV) {
 #endif

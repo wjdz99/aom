@@ -1537,10 +1537,10 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
 #endif  // CONFIG_FLEX_MVRES
       }
 
+#if !CONFIG_EXTEND_DRL_INDEX
       if (have_nearmv_in_inter_mode(mbmi->mode)) {
         uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
         int idx;
-
         for (idx = 1; idx < 3; ++idx) {
           if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
 #if CONFIG_ENTROPY_STATS
@@ -1553,6 +1553,17 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
           }
         }
       }
+#else
+      if (have_nearmv_in_inter_mode(mbmi->mode)) {
+        uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+        int idx;
+        for (idx = 0; idx < 3; ++idx) {
+          if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
+            if (mbmi->ref_mv_idx == idx) break;
+          }
+        }
+      }
+#endif
 
       if (have_newmv_in_inter_mode(mbmi->mode)) {
 #if CONFIG_FLEX_MVRES
@@ -1588,7 +1599,7 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
           }
         } else {
 #if CONFIG_NEW_INTER_MODES
-          const int ref = (mbmi->mode == NEAREST_NEWMV);
+          const int ref = (mbmi->mode == NEAR_NEWMV);
 #else
           const int ref =
               (mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEAR_NEWMV);
