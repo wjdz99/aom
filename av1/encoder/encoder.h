@@ -1360,6 +1360,11 @@ static INLINE int is_altref_enabled(const AV1_COMP *const cpi) {
   return cpi->oxcf.lag_in_frames >= ALT_MIN_LAG && cpi->oxcf.enable_auto_arf;
 }
 
+// Check if statistics analysis mode
+static INLINE int is_analysis_stage(const AV1_COMP *const cpi) {
+  return (cpi->oxcf.pass == 1);
+}
+
 // TODO(zoeliu): To set up cpi->oxcf.enable_auto_brf
 
 static INLINE void set_ref_ptrs(const AV1_COMMON *cm, MACROBLOCKD *xd,

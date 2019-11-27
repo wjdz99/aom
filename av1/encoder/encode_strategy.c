@@ -103,8 +103,7 @@ void av1_configure_buffer_updates(AV1_COMP *const cpi,
     default: assert(0); break;
   }
 
-  if (cpi->ext_refresh_frame_flags_pending &&
-      (cpi->oxcf.pass == 0 || cpi->oxcf.pass == 2)) {
+  if (cpi->ext_refresh_frame_flags_pending && (!is_analysis_stage(cpi))) {
     frame_params->refresh_last_frame = cpi->ext_refresh_last_frame;
     frame_params->refresh_golden_frame = cpi->ext_refresh_golden_frame;
     frame_params->refresh_alt_ref_frame = cpi->ext_refresh_alt_ref_frame;
@@ -970,7 +969,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
     *temporal_filtered = 1;
   }
 
-  if (oxcf->lag_in_frames > 0 && oxcf->pass != 1 &&
+  if (oxcf->lag_in_frames > 0 && !is_analysis_stage(cpi) &&
       frame_params->frame_type == KEY_FRAME && frame_params->show_frame) {
     av1_configure_buffer_updates(cpi, frame_params, KEY_FRAME, 0);
     av1_set_frame_size(cpi, cm->width, cm->height);
@@ -1120,7 +1119,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   if (oxcf->pass == 0 && oxcf->rc_mode != AOM_Q)
     cpi->oxcf.gf_max_pyr_height = USE_ALTREF_FOR_ONE_PASS;
 
-  if (oxcf->pass == 0 || oxcf->pass == 2) {
+  if (!is_analysis_stage(cpi)) {
     frame_params.show_existing_frame =
         ((oxcf->enable_overlay == 0 || cpi->sf.disable_overlay_frames ||
           cpi->show_existing_alt_ref) &&
@@ -1152,7 +1151,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
 
   if (source == NULL) {  // If no source was found, we can't encode a frame.
 #if !CONFIG_REALTIME_ONLY
-    if (flush && oxcf->pass == 1 && !cpi->twopass.first_pass_done) {
+    if (flush && is_analysis_stage(cpi) && !cpi->twopass.first_pass_done) {
       av1_end_first_pass(cpi); /* get last stats packet */
       cpi->twopass.first_pass_done = 1;
     }
@@ -1198,7 +1197,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
 #else
   if (oxcf->pass == 0 && oxcf->mode == REALTIME && oxcf->lag_in_frames == 0)
     av1_get_one_pass_rt_params(cpi, &frame_params, *frame_flags);
-  else if (oxcf->pass != 1)
+  else if (!is_analysis_stage(cpi))
     av1_get_second_pass_params(cpi, &frame_params, *frame_flags);
 #endif
   FRAME_UPDATE_TYPE frame_update_type = get_frame_update_type(gf_group);
@@ -1223,7 +1222,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   // Work out some encoding parameters specific to the pass:
   if (cpi->oxcf.pass == 0 && cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ) {
     av1_cyclic_refresh_update_parameters(cpi);
-  } else if (oxcf->pass == 1) {
+  } else if (is_analysis_stage(cpi)) {
     cpi->td.mb.e_mbd.lossless[0] = is_lossless_requested(&cpi->oxcf);
     const int kf_requested = (cm->current_frame.frame_number == 0 ||
                               (*frame_flags & FRAMEFLAGS_KEY));
@@ -1243,7 +1242,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
 #endif
   }
 
-  if (oxcf->pass == 0 || oxcf->pass == 2) set_ext_overrides(cpi, &frame_params);
+  if (!is_analysis_stage(cpi)) set_ext_overrides(cpi, &frame_params);
 
   // Shown keyframes and S frames refresh all reference buffers
   const int force_refresh_all =
@@ -1254,7 +1253,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   av1_configure_buffer_updates(cpi, &frame_params, frame_update_type,
                                force_refresh_all);
 
-  if (oxcf->pass == 0 || oxcf->pass == 2) {
+  if (!is_analysis_stage(cpi)) {
     if (!cpi->ext_refresh_frame_flags_pending) {
       av1_get_ref_frames(cpi, &cpi->ref_buffer_stack);
     } else if (cpi->svc.external_ref_frame_config) {
@@ -1298,7 +1297,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     cm->min_qmlevel = cpi->oxcf.qm_minlevel;
     cm->max_qmlevel = cpi->oxcf.qm_maxlevel;
 #if !CONFIG_REALTIME_ONLY
-    if (oxcf->lag_in_frames > 0 && oxcf->pass != 1) {
+    if (oxcf->lag_in_frames > 0 && !is_analysis_stage(cpi)) {
       if (cpi->gf_group.index == 1 && cpi->oxcf.enable_tpl_model) {
         av1_configure_buffer_updates(cpi, &frame_params, frame_update_type, 0);
         av1_set_frame_size(cpi, cm->width, cm->height);
@@ -1322,9 +1321,10 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     return AOM_CODEC_ERROR;
   }
 #endif  // CONFIG_REALTIME_ONLY
-  if (oxcf->pass != 1) cpi->num_gf_group_show_frames += frame_params.show_frame;
+  if (!is_analysis_stage(cpi))
+    cpi->num_gf_group_show_frames += frame_params.show_frame;
 
-  if (oxcf->pass == 0 || oxcf->pass == 2) {
+  if (!is_analysis_stage(cpi)) {
     // First pass doesn't modify reference buffer assignment or produce frame
     // flags
     update_frame_flags(cpi, frame_flags);
@@ -1337,7 +1337,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 
 #if !CONFIG_REALTIME_ONLY
-  if (oxcf->pass != 1) {
+  if (!is_analysis_stage(cpi)) {
 #if TXCOEFF_COST_TIMER
     cm->cum_txcoeff_cost_timer += cm->txcoeff_cost_timer;
     fprintf(stderr,
@@ -1350,7 +1350,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 #endif  // !CONFIG_REALTIME_ONLY
 
-  if (oxcf->pass != 1) {
+  if (!is_analysis_stage(cpi)) {
     update_fb_of_context_type(cpi, &frame_params, cpi->fb_of_context_type);
     set_additional_frame_flags(cm, frame_flags);
     update_rc_counts(cpi);
