@@ -3331,6 +3331,180 @@ static void highbd_dr_prediction_z3_64x16_avx2(uint16_t *dst, ptrdiff_t stride,
   }
 }
 
+#if CONFIG_FLEX_PARTITION
+
+static void highbd_dr_prediction_z3_32x4_avx2(uint16_t *dst, ptrdiff_t stride,
+                                              const uint16_t *left,
+                                              int upsample_left, int dy,
+                                              int bd) {
+  __m128i dstvec[32], d[16];
+  if (bd < 12) {
+    highbd_dr_prediction_z1_4xN_internal_avx2(32, dstvec, left, upsample_left,
+                                              dy);
+  } else {
+    highbd_dr_prediction_32bit_z1_4xN_internal_avx2(32, dstvec, left,
+                                                    upsample_left, dy);
+  }
+  highbd_transpose16x4_8x8_sse2(dstvec, d);
+  highbd_transpose16x4_8x8_sse2(dstvec + 16, d + 8);
+
+  _mm_storeu_si128((__m128i *)(dst + 0 * stride), d[0]);
+  _mm_storeu_si128((__m128i *)(dst + 0 * stride + 8), d[1]);
+  _mm_storeu_si128((__m128i *)(dst + 0 * stride + 16), d[8]);
+  _mm_storeu_si128((__m128i *)(dst + 0 * stride + 24), d[9]);
+  _mm_storeu_si128((__m128i *)(dst + 1 * stride), d[2]);
+  _mm_storeu_si128((__m128i *)(dst + 1 * stride + 8), d[3]);
+  _mm_storeu_si128((__m128i *)(dst + 1 * stride + 16), d[10]);
+  _mm_storeu_si128((__m128i *)(dst + 1 * stride + 24), d[11]);
+  _mm_storeu_si128((__m128i *)(dst + 2 * stride), d[4]);
+  _mm_storeu_si128((__m128i *)(dst + 2 * stride + 8), d[5]);
+  _mm_storeu_si128((__m128i *)(dst + 2 * stride + 16), d[12]);
+  _mm_storeu_si128((__m128i *)(dst + 2 * stride + 24), d[13]);
+  _mm_storeu_si128((__m128i *)(dst + 3 * stride), d[6]);
+  _mm_storeu_si128((__m128i *)(dst + 3 * stride + 8), d[7]);
+  _mm_storeu_si128((__m128i *)(dst + 3 * stride + 16), d[14]);
+  _mm_storeu_si128((__m128i *)(dst + 3 * stride + 24), d[15]);
+}
+
+static void highbd_dr_prediction_z3_64x4_avx2(uint16_t *dst, ptrdiff_t stride,
+                                              const uint16_t *left,
+                                              int upsample_left, int dy,
+                                              int bd) {
+  __m128i dstvec[64], d[32];
+  if (bd < 12) {
+    highbd_dr_prediction_z1_4xN_internal_avx2(64, dstvec, left, upsample_left,
+                                              dy);
+  } else {
+    highbd_dr_prediction_32bit_z1_4xN_internal_avx2(64, dstvec, left,
+                                                    upsample_left, dy);
+  }
+  highbd_transpose16x4_8x8_sse2(dstvec, d);
+  highbd_transpose16x4_8x8_sse2(dstvec + 16, d + 8);
+  highbd_transpose16x4_8x8_sse2(dstvec + 32, d + 16);
+  highbd_transpose16x4_8x8_sse2(dstvec + 48, d + 24);
+
+  _mm_storeu_si128((__m128i *)(dst + 0 * stride), d[0]);
+  _mm_storeu_si128((__m128i *)(dst + 0 * stride + 8), d[1]);
+  _mm_storeu_si128((__m128i *)(dst + 0 * stride + 16), d[8]);
+  _mm_storeu_si128((__m128i *)(dst + 0 * stride + 24), d[9]);
+  _mm_storeu_si128((__m128i *)(dst + 0 * stride + 32), d[16]);
+  _mm_storeu_si128((__m128i *)(dst + 0 * stride + 40), d[17]);
+  _mm_storeu_si128((__m128i *)(dst + 0 * stride + 48), d[24]);
+  _mm_storeu_si128((__m128i *)(dst + 0 * stride + 56), d[25]);
+  _mm_storeu_si128((__m128i *)(dst + 1 * stride), d[2]);
+  _mm_storeu_si128((__m128i *)(dst + 1 * stride + 8), d[3]);
+  _mm_storeu_si128((__m128i *)(dst + 1 * stride + 16), d[10]);
+  _mm_storeu_si128((__m128i *)(dst + 1 * stride + 24), d[11]);
+  _mm_storeu_si128((__m128i *)(dst + 1 * stride + 32), d[18]);
+  _mm_storeu_si128((__m128i *)(dst + 1 * stride + 40), d[19]);
+  _mm_storeu_si128((__m128i *)(dst + 1 * stride + 48), d[26]);
+  _mm_storeu_si128((__m128i *)(dst + 1 * stride + 56), d[27]);
+  _mm_storeu_si128((__m128i *)(dst + 2 * stride), d[4]);
+  _mm_storeu_si128((__m128i *)(dst + 2 * stride + 8), d[5]);
+  _mm_storeu_si128((__m128i *)(dst + 2 * stride + 16), d[12]);
+  _mm_storeu_si128((__m128i *)(dst + 2 * stride + 24), d[13]);
+  _mm_storeu_si128((__m128i *)(dst + 2 * stride + 32), d[20]);
+  _mm_storeu_si128((__m128i *)(dst + 2 * stride + 40), d[21]);
+  _mm_storeu_si128((__m128i *)(dst + 2 * stride + 48), d[28]);
+  _mm_storeu_si128((__m128i *)(dst + 2 * stride + 56), d[29]);
+  _mm_storeu_si128((__m128i *)(dst + 3 * stride), d[6]);
+  _mm_storeu_si128((__m128i *)(dst + 3 * stride + 8), d[7]);
+  _mm_storeu_si128((__m128i *)(dst + 3 * stride + 16), d[14]);
+  _mm_storeu_si128((__m128i *)(dst + 3 * stride + 24), d[15]);
+  _mm_storeu_si128((__m128i *)(dst + 3 * stride + 32), d[22]);
+  _mm_storeu_si128((__m128i *)(dst + 3 * stride + 40), d[23]);
+  _mm_storeu_si128((__m128i *)(dst + 3 * stride + 48), d[30]);
+  _mm_storeu_si128((__m128i *)(dst + 3 * stride + 56), d[31]);
+}
+
+static void highbd_dr_prediction_z3_4x32_avx2(uint16_t *dst, ptrdiff_t stride,
+                                              const uint16_t *left,
+                                              int upsample_left, int dy,
+                                              int bd) {
+  __m256i dstvec[8], d[8];
+  if (bd < 12) {
+    highbd_dr_prediction_z1_32xN_internal_avx2(4, dstvec, left, upsample_left,
+                                               dy);
+  } else {
+    highbd_dr_prediction_32bit_z1_32xN_internal_avx2(4, dstvec, left,
+                                                     upsample_left, dy);
+  }
+
+  highbd_transpose8x16_16x8_avx2(dstvec, d);
+
+  for (int i = 0; i < 8; i++) {
+    __m128i temp_lo = _mm256_castsi256_si128(d[i]);
+    __m128i temp_hi = _mm256_extracti128_si256(d[i], 1);
+    _mm_storel_epi64((__m128i *)(dst + i * stride), temp_lo);
+    _mm_storel_epi64((__m128i *)(dst + (i + 16) * stride),
+                     _mm_srli_si128(temp_lo, 8));
+    _mm_storel_epi64((__m128i *)(dst + (i + 8) * stride), temp_hi);
+    _mm_storel_epi64((__m128i *)(dst + (i + 24) * stride),
+                     _mm_srli_si128(temp_hi, 8));
+  }
+}
+
+static void highbd_dr_prediction_z3_64x8_avx2(uint16_t *dst, ptrdiff_t stride,
+                                              const uint16_t *left,
+                                              int upsample_left, int dy,
+                                              int bd) {
+  __m128i dstvec[64], d[64];
+  if (bd < 12) {
+    highbd_dr_prediction_z1_8xN_internal_avx2(64, dstvec, left, upsample_left,
+                                              dy);
+  } else {
+    highbd_dr_prediction_32bit_z1_8xN_internal_avx2(64, dstvec, left,
+                                                    upsample_left, dy);
+  }
+
+  for (int i = 0; i < 64; i += 8) {
+    highbd_transpose8x8_sse2(&dstvec[0 + i], &dstvec[1 + i], &dstvec[2 + i],
+                             &dstvec[3 + i], &dstvec[4 + i], &dstvec[5 + i],
+                             &dstvec[6 + i], &dstvec[7 + i], &d[0 + i],
+                             &d[1 + i], &d[2 + i], &d[3 + i], &d[4 + i],
+                             &d[5 + i], &d[6 + i], &d[7 + i]);
+  }
+  for (int i = 0; i < 8; i++) {
+    _mm_storeu_si128((__m128i *)(dst + i * stride), d[i]);
+    _mm_storeu_si128((__m128i *)(dst + i * stride + 8), d[i + 8]);
+    _mm_storeu_si128((__m128i *)(dst + i * stride + 16), d[i + 16]);
+    _mm_storeu_si128((__m128i *)(dst + i * stride + 24), d[i + 24]);
+    _mm_storeu_si128((__m128i *)(dst + i * stride + 32), d[i + 32]);
+    _mm_storeu_si128((__m128i *)(dst + i * stride + 40), d[i + 40]);
+    _mm_storeu_si128((__m128i *)(dst + i * stride + 48), d[i + 48]);
+    _mm_storeu_si128((__m128i *)(dst + i * stride + 56), d[i + 56]);
+  }
+}
+
+static void highbd_dr_prediction_z3_4x64_avx2(uint16_t *dst, ptrdiff_t stride,
+                                              const uint16_t *left,
+                                              int upsample_left, int dy,
+                                              int bd) {
+  DECLARE_ALIGNED(16, uint16_t, dstT[64 * 4]);
+  if (bd < 12) {
+    highbd_dr_prediction_z1_64xN_avx2(4, dstT, 64, left, upsample_left, dy);
+  } else {
+    highbd_dr_prediction_32bit_z1_64xN_avx2(4, dstT, 64, left, upsample_left,
+                                            dy);
+  }
+  highbd_transpose(dstT, 64, dst, stride, 4, 64);
+}
+
+static void highbd_dr_prediction_z3_8x64_avx2(uint16_t *dst, ptrdiff_t stride,
+                                              const uint16_t *left,
+                                              int upsample_left, int dy,
+                                              int bd) {
+  DECLARE_ALIGNED(16, uint16_t, dstT[64 * 8]);
+  if (bd < 12) {
+    highbd_dr_prediction_z1_64xN_avx2(8, dstT, 64, left, upsample_left, dy);
+  } else {
+    highbd_dr_prediction_32bit_z1_64xN_avx2(8, dstT, 64, left, upsample_left,
+                                            dy);
+  }
+  highbd_transpose(dstT, 64, dst, stride, 8, 64);
+}
+#endif  // CONFIG_FLEX_PARTITION
+
 void av1_highbd_dr_prediction_z3_avx2(uint16_t *dst, ptrdiff_t stride, int bw,
                                       int bh, const uint16_t *above,
                                       const uint16_t *left, int upsample_left,
@@ -3388,9 +3562,12 @@ void av1_highbd_dr_prediction_z3_avx2(uint16_t *dst, ptrdiff_t stride, int bw,
         switch (bw) {
           case 4:
 #if CONFIG_FLEX_PARTITION
-            if (bh > 16)
-              av1_highbd_dr_prediction_z3_c(dst, stride, bw, bh, above, left,
-                                            upsample_left, dx, dy, bd);
+            if (bh == 32)
+              highbd_dr_prediction_z3_4x32_avx2(dst, stride, left,
+                                                upsample_left, dy, bd);
+            else if (bh == 64)
+              highbd_dr_prediction_z3_4x64_avx2(dst, stride, left,
+                                                upsample_left, dy, bd);
             else
 #endif  // CONFIG_FLEX_PARTITION
               highbd_dr_prediction_z3_4x16_avx2(dst, stride, left,
@@ -3398,9 +3575,9 @@ void av1_highbd_dr_prediction_z3_avx2(uint16_t *dst, ptrdiff_t stride, int bw,
             break;
           case 8:
 #if CONFIG_FLEX_PARTITION
-            if (bh > 32)
-              av1_highbd_dr_prediction_z3_c(dst, stride, bw, bh, above, left,
-                                            upsample_left, dx, dy, bd);
+            if (bh == 64)
+              highbd_dr_prediction_z3_8x64_avx2(dst, stride, left,
+                                                upsample_left, dy, bd);
             else
 #endif  // CONFIG_FLEX_PARTITION
               highbd_dr_prediction_z3_8x32_avx2(dst, stride, left,
@@ -3436,9 +3613,12 @@ void av1_highbd_dr_prediction_z3_avx2(uint16_t *dst, ptrdiff_t stride, int bw,
         switch (bh) {
           case 4:
 #if CONFIG_FLEX_PARTITION
-            if (bw > 16)
-              av1_highbd_dr_prediction_z3_c(dst, stride, bw, bh, above, left,
-                                            upsample_left, dx, dy, bd);
+            if (bw == 64)
+              highbd_dr_prediction_z3_64x4_avx2(dst, stride, left,
+                                                upsample_left, dy, bd);
+            else if (bw == 32)
+              highbd_dr_prediction_z3_32x4_avx2(dst, stride, left,
+                                                upsample_left, dy, bd);
             else
 #endif  // CONFIG_FLEX_PARTITION
               highbd_dr_prediction_z3_16x4_avx2(dst, stride, left,
@@ -3446,9 +3626,9 @@ void av1_highbd_dr_prediction_z3_avx2(uint16_t *dst, ptrdiff_t stride, int bw,
             break;
           case 8:
 #if CONFIG_FLEX_PARTITION
-            if (bw > 32)
-              av1_highbd_dr_prediction_z3_c(dst, stride, bw, bh, above, left,
-                                            upsample_left, dx, dy, bd);
+            if (bw == 64)
+              highbd_dr_prediction_z3_64x8_avx2(dst, stride, left,
+                                                upsample_left, dy, bd);
             else
 #endif  // CONFIG_FLEX_PARTITION
               highbd_dr_prediction_z3_32x8_avx2(dst, stride, left,
@@ -4644,6 +4824,111 @@ static void dr_prediction_z3_4x32_avx2(uint8_t *dst, ptrdiff_t stride,
                      _mm256_extracti128_si256(d[i], 1));
   }
 }
+
+static void dr_prediction_z3_8x64_avx2(uint8_t *dst, ptrdiff_t stride,
+                                       const uint8_t *left, int upsample_left,
+                                       int dy) {
+  uint8_t dstT[64 * 8];
+  dr_prediction_z1_64xN_avx2(8, dstT, 64, left, upsample_left, dy);
+  transpose(dstT, 64, dst, stride, 8, 64);
+}
+
+static void dr_prediction_z3_4x64_avx2(uint8_t *dst, ptrdiff_t stride,
+                                       const uint8_t *left, int upsample_left,
+                                       int dy) {
+  uint8_t dstT[64 * 4];
+  dr_prediction_z1_64xN_avx2(4, dstT, 64, left, upsample_left, dy);
+  transpose(dstT, 64, dst, stride, 4, 64);
+}
+
+static void dr_prediction_z3_32x4_avx2(uint8_t *dst, ptrdiff_t stride,
+                                       const uint8_t *left, int upsample_left,
+                                       int dy) {
+  __m128i dstvec[32], d[8];
+
+  dr_prediction_z1_HxW_internal_avx2(4, 32, dstvec, left, upsample_left, dy);
+
+  for (int i = 0; i < 2; i++) {
+    transpose16x4_4x16_sse2(
+        &dstvec[0 + 16 * i], &dstvec[1 + 16 * i], &dstvec[2 + 16 * i],
+        &dstvec[3 + 16 * i], &dstvec[4 + 16 * i], &dstvec[5 + 16 * i],
+        &dstvec[6 + 16 * i], &dstvec[7 + 16 * i], &dstvec[8 + 16 * i],
+        &dstvec[9 + 16 * i], &dstvec[10 + 16 * i], &dstvec[11 + 16 * i],
+        &dstvec[12 + 16 * i], &dstvec[13 + 16 * i], &dstvec[14 + 16 * i],
+        &dstvec[15 + 16 * i], &d[0 + 4 * i], &d[1 + 4 * i], &d[2 + 4 * i],
+        &d[3 + 4 * i]);
+  }
+
+  for (int i = 0; i < 4; i++) {
+    _mm_storeu_si128((__m128i *)(dst + i * stride), d[i]);
+    _mm_storeu_si128((__m128i *)(dst + i * stride + 16), d[i + 4]);
+  }
+}
+
+static void dr_prediction_z3_64x8_avx2(uint8_t *dst, ptrdiff_t stride,
+                                       const uint8_t *left, int upsample_left,
+                                       int dy) {
+  __m128i dstvec[64], d[32];
+
+  dr_prediction_z1_HxW_internal_avx2(8, 64, dstvec, left, upsample_left, dy);
+  transpose16x8_8x16_sse2(
+      &dstvec[0], &dstvec[1], &dstvec[2], &dstvec[3], &dstvec[4], &dstvec[5],
+      &dstvec[6], &dstvec[7], &dstvec[8], &dstvec[9], &dstvec[10], &dstvec[11],
+      &dstvec[12], &dstvec[13], &dstvec[14], &dstvec[15], &d[0], &d[1], &d[2],
+      &d[3], &d[4], &d[5], &d[6], &d[7]);
+  transpose16x8_8x16_sse2(
+      &dstvec[0 + 16], &dstvec[1 + 16], &dstvec[2 + 16], &dstvec[3 + 16],
+      &dstvec[4 + 16], &dstvec[5 + 16], &dstvec[6 + 16], &dstvec[7 + 16],
+      &dstvec[8 + 16], &dstvec[9 + 16], &dstvec[10 + 16], &dstvec[11 + 16],
+      &dstvec[12 + 16], &dstvec[13 + 16], &dstvec[14 + 16], &dstvec[15 + 16],
+      &d[0 + 8], &d[1 + 8], &d[2 + 8], &d[3 + 8], &d[4 + 8], &d[5 + 8],
+      &d[6 + 8], &d[7 + 8]);
+  transpose16x8_8x16_sse2(
+      &dstvec[0 + 32], &dstvec[1 + 32], &dstvec[2 + 32], &dstvec[3 + 32],
+      &dstvec[4 + 32], &dstvec[5 + 32], &dstvec[6 + 32], &dstvec[7 + 32],
+      &dstvec[8 + 32], &dstvec[9 + 32], &dstvec[10 + 32], &dstvec[11 + 32],
+      &dstvec[12 + 32], &dstvec[13 + 32], &dstvec[14 + 32], &dstvec[15 + 32],
+      &d[0 + 16], &d[1 + 16], &d[2 + 16], &d[3 + 16], &d[4 + 16], &d[5 + 16],
+      &d[6 + 16], &d[7 + 16]);
+  transpose16x8_8x16_sse2(
+      &dstvec[0 + 48], &dstvec[1 + 48], &dstvec[2 + 48], &dstvec[3 + 48],
+      &dstvec[4 + 48], &dstvec[5 + 48], &dstvec[6 + 48], &dstvec[7 + 48],
+      &dstvec[8 + 48], &dstvec[9 + 48], &dstvec[10 + 48], &dstvec[11 + 48],
+      &dstvec[12 + 48], &dstvec[13 + 48], &dstvec[14 + 48], &dstvec[15 + 48],
+      &d[0 + 24], &d[1 + 24], &d[2 + 24], &d[3 + 24], &d[4 + 24], &d[5 + 24],
+      &d[6 + 24], &d[7 + 24]);
+  for (int i = 0; i < 8; i++) {
+    _mm_storeu_si128((__m128i *)(dst + i * stride), d[i]);
+    _mm_storeu_si128((__m128i *)(dst + i * stride + 16), d[i + 8]);
+    _mm_storeu_si128((__m128i *)(dst + i * stride + 32), d[i + 16]);
+    _mm_storeu_si128((__m128i *)(dst + i * stride + 48), d[i + 24]);
+  }
+}
+
+static void dr_prediction_z3_64x4_avx2(uint8_t *dst, ptrdiff_t stride,
+                                       const uint8_t *left, int upsample_left,
+                                       int dy) {
+  __m128i dstvec[64], d[16];
+
+  dr_prediction_z1_HxW_internal_avx2(4, 64, dstvec, left, upsample_left, dy);
+  for (int i = 0; i < 4; i++) {
+    transpose16x4_4x16_sse2(
+        &dstvec[0 + 16 * i], &dstvec[1 + 16 * i], &dstvec[2 + 16 * i],
+        &dstvec[3 + 16 * i], &dstvec[4 + 16 * i], &dstvec[5 + 16 * i],
+        &dstvec[6 + 16 * i], &dstvec[7 + 16 * i], &dstvec[8 + 16 * i],
+        &dstvec[9 + 16 * i], &dstvec[10 + 16 * i], &dstvec[11 + 16 * i],
+        &dstvec[12 + 16 * i], &dstvec[13 + 16 * i], &dstvec[14 + 16 * i],
+        &dstvec[15 + 16 * i], &d[0 + 4 * i], &d[1 + 4 * i], &d[2 + 4 * i],
+        &d[3 + 4 * i]);
+  }
+  for (int i = 0; i < 4; i++) {
+    _mm_storeu_si128((__m128i *)(dst + i * stride), d[i]);
+    _mm_storeu_si128((__m128i *)(dst + i * stride + 16), d[i + 4]);
+    _mm_storeu_si128((__m128i *)(dst + i * stride + 32), d[i + 8]);
+    _mm_storeu_si128((__m128i *)(dst + i * stride + 48), d[i + 12]);
+  }
+}
+
 #endif  // CONFIG_FLEX_PARTITION
 
 static void dr_prediction_z3_16x4_avx2(uint8_t *dst, ptrdiff_t stride,
@@ -4873,8 +5158,7 @@ void av1_dr_prediction_z3_avx2(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
           case 4:
 #if CONFIG_FLEX_PARTITION
             if (bh == 64)
-              av1_dr_prediction_z3_c(dst, stride, bw, bh, above, left,
-                                     upsample_left, dx, dy);
+              dr_prediction_z3_4x64_avx2(dst, stride, left, upsample_left, dy);
             else if (bh == 32)
               dr_prediction_z3_4x32_avx2(dst, stride, left, upsample_left, dy);
             else
@@ -4884,8 +5168,7 @@ void av1_dr_prediction_z3_avx2(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
           case 8:
 #if CONFIG_FLEX_PARTITION
             if (bh == 64)
-              av1_dr_prediction_z3_c(dst, stride, bw, bh, above, left,
-                                     upsample_left, dx, dy);
+              dr_prediction_z3_8x64_avx2(dst, stride, left, upsample_left, dy);
             else
 #endif  // CONFIG_FLEX_PARTITION
               dr_prediction_z3_8x32_avx2(dst, stride, left, upsample_left, dy);
@@ -4915,9 +5198,10 @@ void av1_dr_prediction_z3_avx2(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
         switch (bh) {
           case 4:
 #if CONFIG_FLEX_PARTITION
-            if (bw >= 32)
-              av1_dr_prediction_z3_c(dst, stride, bw, bh, above, left,
-                                     upsample_left, dx, dy);
+            if (bw == 64)
+              dr_prediction_z3_64x4_avx2(dst, stride, left, upsample_left, dy);
+            else if (bw == 32)
+              dr_prediction_z3_32x4_avx2(dst, stride, left, upsample_left, dy);
             else
 #endif  // CONFIG_FLEX_PARTITION
               dr_prediction_z3_16x4_avx2(dst, stride, left, upsample_left, dy);
@@ -4925,8 +5209,7 @@ void av1_dr_prediction_z3_avx2(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
           case 8:
 #if CONFIG_FLEX_PARTITION
             if (bw == 64)
-              av1_dr_prediction_z3_c(dst, stride, bw, bh, above, left,
-                                     upsample_left, dx, dy);
+              dr_prediction_z3_64x8_avx2(dst, stride, left, upsample_left, dy);
             else
 #endif  // CONFIG_FLEX_PARTITION
               dr_prediction_z3_32x8_avx2(dst, stride, left, upsample_left, dy);
