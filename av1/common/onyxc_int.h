@@ -578,6 +578,11 @@ typedef struct AV1Common {
 #if CONFIG_MISC_CHANGES
   int only_one_ref_available;
 #endif  // CONFIG_MISC_CHANGES
+#if 1
+  int bf_is_dr_counts[BLOCK_SIZE_GROUPS][2];
+  int bf_dr_mode_counts[BLOCK_SIZE_GROUPS][DIRECTIONAL_MODES];
+  int bf_none_dr_mode_counts[BLOCK_SIZE_GROUPS][NONE_DIRECTIONAL_MODES];
+#endif
 } AV1_COMMON;
 
 // TODO(hkuang): Don't need to lock the whole pool after implementing atomic
@@ -1012,8 +1017,10 @@ static INLINE aom_cdf_prob *get_y_mode_cdf(FRAME_CONTEXT *tile_ctx,
 static INLINE aom_cdf_prob *get_derived_intra_mode_cdf(
     FRAME_CONTEXT *tile_ctx, const MB_MODE_INFO *above_mi,
     const MB_MODE_INFO *left_mi) {
-  const int above = above_mi && above_mi->use_derived_intra_mode[0];
-  const int left = left_mi && left_mi->use_derived_intra_mode[0];
+  const int above = above_mi && !is_inter_block(above_mi) &&
+                    above_mi->use_derived_intra_mode[0];
+  const int left =
+      left_mi && !is_inter_block(left_mi) && left_mi->use_derived_intra_mode[0];
   return tile_ctx->derived_intra_mode_cdf[above + left];
 }
 #endif  // CONFIG_DERIVED_INTRA_MODE
