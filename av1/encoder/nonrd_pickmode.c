@@ -688,7 +688,7 @@ static void model_skip_for_sb_y_large(AV1_COMP *cpi, BLOCK_SIZE bsize,
       for (int i = 1; i <= 2; i++) {
         int j = i - 1;
         skip_uv[j] = 1;
-        if (x->color_sensitivity[j]) {
+        if (x->color_sensitivity[j] || cpi->oxcf.speed < 8) {
           skip_uv[j] = 0;
           struct macroblock_plane *const puv = &x->plane[i];
           struct macroblockd_plane *const puvd = &xd->plane[i];
