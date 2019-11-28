@@ -13619,10 +13619,10 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   set_mode_eval_params(cpi, x, DEFAULT_EVAL);
 
   // Only try palette mode when the best mode so far is an intra mode.
-  const int try_palette =
-      cpi->oxcf.enable_palette &&
-      av1_allow_palette(cm->allow_screen_content_tools, mbmi->sb_type) &&
-      !is_inter_mode(search_state.best_mbmode.mode);
+  const int try_palette = cpi->oxcf.enable_palette &&
+                          av1_allow_palette(cm->allow_screen_content_tools,
+                                            search_state.best_mbmode.sb_type) &&
+                          !is_inter_mode(search_state.best_mbmode.mode);
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
   if (try_palette) {
     search_palette_mode(cpi, x, rd_cost, ctx, bsize, mbmi, pmi,
