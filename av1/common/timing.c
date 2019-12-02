@@ -15,23 +15,78 @@
  * The tables are in Kbps instead of Mbps in the specification.
  * Note that depending on the profile, a multiplier is needed.
  */
+#define UNDEFINED_RATE \
+  (1 << 26)  // Placeholder rate for levels with undefined rate
 
 /* Max Bitrates for levels of Main Tier in kbps. Bitrate in main_kbps [31] */
 /* is a dummy value. The decoder model is not applicable for level 31. */
-static int32_t main_kbps[1 << LEVEL_BITS] = {
-  1500, 3000,  0,     0,     6000,  10000, 0,      0,      12000,  20000,    0,
-  0,    30000, 40000, 60000, 60000, 60000, 100000, 160000, 160000, 0,        0,
-  0,    0,     0,     0,     0,     0,     0,      0,      0,      (1 << 26)
-};
+static int32_t main_kbps[1 << LEVEL_BITS] = { 1500,
+                                              3000,
+                                              0,
+                                              0,
+                                              6000,
+                                              10000,
+                                              0,
+                                              0,
+                                              12000,
+                                              20000,
+                                              0,
+                                              0,
+                                              30000,
+                                              40000,
+                                              60000,
+                                              60000,
+                                              60000,
+                                              100000,
+                                              160000,
+                                              160000,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE };
 
 /* Max Bitrates for levels of High Tier in kbps. Bitrate in high_kbps [31] */
 /* is a dummy value. The decoder model is not applicable for level 31. */
-static int32_t high_kbps[1 << LEVEL_BITS] = {
-  0,      0,      0,      0,      0,      0,      0,      0,
-  30000,  50000,  0,      0,      100000, 160000, 240000, 240000,
-  240000, 480000, 800000, 800000, 0,      0,      0,      0,
-  0,      0,      0,      0,      0,      0,      0,      (1 << 26)
-};
+static int32_t high_kbps[1 << LEVEL_BITS] = { 0,
+                                              0,
+                                              0,
+                                              0,
+                                              0,
+                                              0,
+                                              0,
+                                              0,
+                                              30000,
+                                              50000,
+                                              0,
+                                              0,
+                                              100000,
+                                              160000,
+                                              240000,
+                                              240000,
+                                              240000,
+                                              480000,
+                                              800000,
+                                              800000,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE,
+                                              UNDEFINED_RATE };
 
 /* BitrateProfileFactor */
 static int bitrate_profile_factor[1 << PROFILE_BITS] = {
