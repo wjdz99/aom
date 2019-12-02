@@ -9990,7 +9990,14 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
                        cpi->sf.disable_smooth_interintra,
                    best_interintra_mode != II_SMOOTH_PRED));
     rmode = interintra_mode_cost[best_interintra_mode];
+    // II_ILLUM_MCOMP_PRED and II_SMOOTH_PRED are used as 'end-of-search'
+    // markers. Since the data structures already have their computed
+    // values (if they are picked), only recompute if they are not picked.
+#if CONFIG_ILLUM_MCOMP
+    if (j == 0 || best_interintra_mode != II_ILLUM_MCOMP_PRED) {
+#else
     if (j == 0 || best_interintra_mode != II_SMOOTH_PRED) {
+#endif
       mbmi->interintra_mode = best_interintra_mode;
       av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
                                                 intrapred, bw);
@@ -10029,8 +10036,13 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       if (!cpi->oxcf.enable_smooth_interintra ||
           cpi->sf.disable_smooth_interintra) {
         if (best_interintra_mode == INTERINTRA_MODES) {
+#if CONFIG_ILLUM_MCOMP
+          mbmi->interintra_mode = II_ILLUM_MCOMP_PRED;
+          best_interintra_mode = II_ILLUM_MCOMP_PRED;
+#else
           mbmi->interintra_mode = II_SMOOTH_PRED;
           best_interintra_mode = II_SMOOTH_PRED;
+#endif
           av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
                                                     intrapred, bw);
           best_interintra_rd_wedge =
@@ -10055,7 +10067,11 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
           args->inter_intra_mode[mbmi->ref_frame[0]] = best_interintra_mode;
           mbmi->interintra_mode = best_interintra_mode;
 
+#if CONFIG_ILLUM_MCOMP
+          if (best_interintra_mode != II_ILLUM_MCOMP_PRED) {
+#else
           if (best_interintra_mode != II_SMOOTH_PRED) {
+#endif
             av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0,
                                                       orig_dst, intrapred, bw);
           }
