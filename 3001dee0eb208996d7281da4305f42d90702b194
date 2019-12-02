@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "beec83f0_0f66315a",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5168,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-12-02T23:20:11Z",
+      "side": 0,
+      "message": "This probably couldn\u0027t be removed?",
+      "range": {
+        "startLine": 5168,
+        "startChar": 2,
+        "endLine": 5168,
+        "endChar": 52
+      },
+      "revId": "3001dee0eb208996d7281da4305f42d90702b194",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
