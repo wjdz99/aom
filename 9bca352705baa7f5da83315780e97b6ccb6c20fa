@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b8db3e2_c0ffe676",
+        "filename": "av1/decoder/decoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-02T19:37:19Z",
+      "side": 1,
+      "message": "av1_decoder_remove() in av1/decoder/decoder.c needs to call aom_img_metadata_array_free(pbi-\u003emetadata).",
+      "revId": "9bca352705baa7f5da83315780e97b6ccb6c20fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dcc3d1d_50ad9e5e",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-02T19:37:19Z",
+      "side": 1,
+      "message": "This part seems wrong.\n\n1. If we want to copy the entire metadata OBU, we should pass \u0027sz\u0027, not \u0027sz - 1\u0027, as the third argument to aom_img_metadata_alloc().\n\n2. Ideally we should not copy the trailing bits in the metadata OBU. This requires using a variant of the code at lines 714-723 to find the beginning of the trailing bits, and then copying up to but not including the trailing bits.",
+      "range": {
+        "startLine": 575,
+        "startChar": 0,
+        "endLine": 577,
+        "endChar": 16
+      },
+      "revId": "9bca352705baa7f5da83315780e97b6ccb6c20fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
