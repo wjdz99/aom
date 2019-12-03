@@ -828,8 +828,9 @@ typedef struct SPEED_FEATURES {
   // defined in the MODE_SEARCH_SKIP_HEURISTICS enum
   unsigned int mode_search_skip_flags;
 
-  // For nonrd: Reduces golden mode search/testing in nonrd pickmode.
-  int nonrd_reduce_golden_mode_search;
+  // For nonrd: Reduces inter mode search/testing in nonrd pickmode for
+  // references other than LAST.
+  int nonrd_reduce_nonlast_mode_search;
 
   // This flag controls the use of non-RD mode decision.
   int use_nonrd_pick_mode;
