@@ -207,6 +207,7 @@ static int search_new_mv(AV1_COMP *cpi, MACROBLOCK *x,
   AV1_COMMON *cm = &cpi->common;
   (void)best_sse_sofar;
   if (ref_frame > LAST_FRAME && gf_temporal_ref &&
+      (x->nonrd_reduce_nonlast_mode_search || bsize > BLOCK_16X16) &&
       cpi->oxcf.rc_mode == AOM_CBR) {
     int tmp_sad;
     int dis;
@@ -252,7 +253,7 @@ static int search_new_mv(AV1_COMP *cpi, MACROBLOCK *x,
 static INLINE void find_predictors(
     AV1_COMP *cpi, MACROBLOCK *x, MV_REFERENCE_FRAME ref_frame,
     int_mv frame_mv[MB_MODE_COUNT][REF_FRAMES], int const_motion[REF_FRAMES],
-    int *ref_frame_skip_mask, const int flag_list[4], TileDataEnc *tile_data,
+    int *ref_frame_skip_mask, const int flag_list[8], TileDataEnc *tile_data,
     struct buf_2d yv12_mb[8][MAX_MB_PLANE], BLOCK_SIZE bsize,
     int force_skip_low_temp_var, int comp_pred_allowed) {
   AV1_COMMON *const cm = &cpi->common;
@@ -1399,7 +1400,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int force_skip_low_temp_var = 0;
   int skip_ref_find_pred[8] = { 0 };
   unsigned int sse_zeromv_norm = UINT_MAX;
-  const unsigned int thresh_skip_golden = 500;
+  const unsigned int thresh_skip_golden =
+      (x->nonrd_reduce_nonlast_mode_search) ? 500 : 250;
   int64_t best_sse_sofar = INT64_MAX;
   int gf_temporal_ref = 0;
   const struct segmentation *const seg = &cm->seg;
@@ -1487,7 +1489,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
   if (cpi->sf.short_circuit_low_temp_var &&
-      x->nonrd_reduce_golden_mode_search) {
+      x->nonrd_reduce_nonlast_mode_search) {
     force_skip_low_temp_var =
         get_force_skip_low_temp_var(&x->variance_low[0], mi_row, mi_col, bsize);
     // If force_skip_low_temp_var is set, and for short circuit mode = 1 and 3,
@@ -1592,8 +1594,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     if (const_motion[ref_frame] && this_mode == NEARMV) continue;
 
-    // Skip testing golden if this flag is set.
-    if (x->nonrd_reduce_golden_mode_search) {
+    // Skip testing non-LAST if this flag is set.
+    if (x->nonrd_reduce_nonlast_mode_search) {
       if (ref_frame != LAST_FRAME &&
           (bsize > BLOCK_64X64 || (bsize > BLOCK_16X16 && this_mode == NEWMV)))
         continue;
@@ -1663,10 +1665,14 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                          ? rd_threshes[mode_index] << 1
                          : rd_threshes[mode_index];
 
-    // Increase mode_rd_thresh value for GOLDEN_FRAME for improved encoding
-    // speed
-    if (ref_frame != LAST_FRAME && cpi->rc.frames_since_golden > 4)
-      mode_rd_thresh = mode_rd_thresh << 3;
+    // Increase mode_rd_thresh value for non-LAST for improved encoding
+    // speed.
+    if (ref_frame != LAST_FRAME) {
+      mode_rd_thresh = mode_rd_thresh << 1;
+      // Increase it further for long-term reference.
+      if (ref_frame == GOLDEN_FRAME && cpi->rc.frames_since_golden > 8)
+        mode_rd_thresh = mode_rd_thresh << 1;
+    }
 
     if (rd_less_than_thresh(best_rdc.rdcost, mode_rd_thresh,
                             rd_thresh_freq_fact[mode_index]))
@@ -1729,7 +1735,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif
     if (cpi->sf.use_nonrd_filter_search &&
         ((mi->mv[0].as_mv.row & 0x07) || (mi->mv[0].as_mv.col & 0x07)) &&
-        (ref_frame == LAST_FRAME || !x->nonrd_reduce_golden_mode_search)) {
+        (ref_frame == LAST_FRAME || !x->nonrd_reduce_nonlast_mode_search)) {
       search_filter_ref(cpi, x, &this_rdc, mi_row, mi_col, tmp, bsize,
                         reuse_inter_pred, &this_mode_pred, &var_y, &sse_y,
                         &this_early_term, use_model_yrd_large, &this_sse,
@@ -2015,7 +2021,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                 intra_mode_list[i]);
       }
     } else {
-      for (ref_frame = LAST_FRAME; ref_frame <= GOLDEN_FRAME; ++ref_frame) {
+      for (ref_frame = LAST_FRAME; ref_frame <= usable_ref_frame; ++ref_frame) {
         PREDICTION_MODE this_mode;
         if (best_pickmode.best_ref_frame != ref_frame) continue;
         for (this_mode = NEARESTMV; this_mode <= NEWMV; ++this_mode) {
