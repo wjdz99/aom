@@ -537,7 +537,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->check_intra_pred_nonrd = 1;
   sf->use_nonrd_filter_search = 1;
   sf->nonrd_use_blockyrd_interp_filter = 0;
-  sf->nonrd_reduce_golden_mode_search = 0;
+  sf->nonrd_reduce_nonlast_mode_search = 0;
 
   if (speed >= 1) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;
@@ -711,7 +711,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->skip_interp_filter_search = 0;
     sf->short_circuit_low_temp_var = 0;
     sf->reuse_inter_pred_nonrd = 0;
-    sf->nonrd_reduce_golden_mode_search = 0;
+    sf->nonrd_reduce_nonlast_mode_search = 0;
     sf->nonrd_use_blockyrd_interp_filter = 1;
     sf->nonrd_merge_partition = 1;
     sf->use_nonrd_altref_frame = 1;
@@ -724,7 +724,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->reuse_inter_pred_nonrd = 1;
     sf->nonrd_use_blockyrd_interp_filter = 0;
     sf->use_nonrd_altref_frame = 0;
-    sf->nonrd_reduce_golden_mode_search = 1;
+    sf->nonrd_reduce_nonlast_mode_search = 1;
 
 // TODO(kyslov) Enable when better model is available
 // It gives +5% speedup and 11% overall BDRate degradation
