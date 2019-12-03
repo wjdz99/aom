@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e4c0e74_bc2948b8",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 867,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-12-03T19:29:21Z",
+      "side": 1,
+      "message": "Can this part be removed and only use skip_sgr_eval to make decision? Maybe add an invalid skip_sgr_eval value?",
+      "range": {
+        "startLine": 867,
+        "startChar": 6,
+        "endLine": 867,
+        "endChar": 40
+      },
+      "revId": "fe7421332e0ce32e1ea5be5a2e45fb2c7530b893",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
