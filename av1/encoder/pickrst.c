@@ -1479,7 +1479,7 @@ static AOM_INLINE void search_wiener(const RestorationTileLimits *limits,
     rsc->sse += rusi->sse[RESTORE_NONE];
     rusi->best_rtype[RESTORE_WIENER - 1] = RESTORE_NONE;
     rusi->sse[RESTORE_WIENER] = INT64_MAX;
-    if (rsc->sf->prune_sgr_based_on_wiener) rusi->skip_sgr_eval = 1;
+    if (rsc->sf->prune_sgr_based_on_wiener == 2) rusi->skip_sgr_eval = 1;
     return;
   }
 
@@ -1498,7 +1498,7 @@ static AOM_INLINE void search_wiener(const RestorationTileLimits *limits,
     rsc->sse += rusi->sse[RESTORE_NONE];
     rusi->best_rtype[RESTORE_WIENER - 1] = RESTORE_NONE;
     rusi->sse[RESTORE_WIENER] = INT64_MAX;
-    if (rsc->sf->prune_sgr_based_on_wiener) rusi->skip_sgr_eval = 1;
+    if (rsc->sf->prune_sgr_based_on_wiener == 2) rusi->skip_sgr_eval = 1;
     return;
   }
 
@@ -1529,7 +1529,9 @@ static AOM_INLINE void search_wiener(const RestorationTileLimits *limits,
       (cost_wiener < cost_none) ? RESTORE_WIENER : RESTORE_NONE;
   rusi->best_rtype[RESTORE_WIENER - 1] = rtype;
 
-  if (rsc->sf->prune_sgr_based_on_wiener) {
+  if (rsc->sf->prune_sgr_based_on_wiener == 1) {
+    rusi->skip_sgr_eval = cost_wiener > (1.01 * cost_none);
+  } else if (rsc->sf->prune_sgr_based_on_wiener == 2) {
     rusi->skip_sgr_eval = rusi->best_rtype[RESTORE_WIENER - 1] == RESTORE_NONE;
   }
 
