@@ -35,6 +35,12 @@ extern "C" {
 #define SQRT_PI_BY_2 1.25331413732
 
 void av1_temporal_filter(AV1_COMP *cpi, int distance);
+
+#define EXPERIMENT_TEMPORAL_FILTER 1
+#define WINDOW_LENGTH 2
+#define WINDOW_SIZE 25
+#define SCALE 1000
+
 double estimate_noise(const uint8_t *src, int width, int height, int stride,
                       int edge_thresh);
 double highbd_estimate_noise(const uint8_t *src8, int width, int height,

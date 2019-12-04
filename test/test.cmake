@@ -128,6 +128,7 @@ if(NOT BUILD_SHARED_LIBS)
                 "${AOM_ROOT}/test/segment_binarization_sync.cc"
                 "${AOM_ROOT}/test/superframe_test.cc"
                 "${AOM_ROOT}/test/tile_independence_test.cc"
+                "${AOM_ROOT}/test/temporal_filter_plane_test.cc"
                 "${AOM_ROOT}/test/yuv_temporal_filter_test.cc")
     if(CONFIG_TENSORFLOW)
       list(APPEND AOM_UNIT_TEST_COMMON_SOURCES
