@@ -22,6 +22,30 @@
       "revId": "fe7421332e0ce32e1ea5be5a2e45fb2c7530b893",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9d58ecd_2df41ec3",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 867,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2019-12-04T09:08:14Z",
+      "side": 1,
+      "message": "We have removed the speed feature and used \u0027skip_sgr_eval\u0027 alone to decide pruning.\nSince this flag is being memset to zero at frame level, setting an invalid value might not be required.",
+      "parentUuid": "9e4c0e74_bc2948b8",
+      "range": {
+        "startLine": 867,
+        "startChar": 6,
+        "endLine": 867,
+        "endChar": 40
+      },
+      "revId": "fe7421332e0ce32e1ea5be5a2e45fb2c7530b893",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
