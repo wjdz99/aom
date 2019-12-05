@@ -308,6 +308,10 @@ typedef struct cfg_options {
    *
    */
   unsigned int disable_intra_angle_delta;
+  /*!\brief specify transform size search method
+   * 0:FULLRD,1:FASTRD,2:USELARGEST
+   */
+  unsigned int tx_size_search_method;
   /*!\brief disable intra edge filter
    *
    */

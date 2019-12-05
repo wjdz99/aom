@@ -834,9 +834,13 @@ enum aome_enc_control_id {
    */
   AV1E_SET_ENABLE_FLIP_IDTX = 81,
 
-  /*!\brief enum value 82 is empty.
+  /*!\brief Codec control function to set transform block size search method.
    *
+   * This will set the transform block size search method.
+   * 0: use Full RD search, 1: use Fast RD search, 2: always use largest
+   * allowed transform block size based on partition size.
    */
+  AV1E_SET_TX_SIZE_SEARCH_METHOD = 82,
 
   /*!\brief Codec control function to turn on / off dist-wtd compound mode
    * at sequence level.
@@ -1441,6 +1445,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_ORDER_HINT, int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_TX64, int)
 #define AOM_CTRL_AV1E_SET_ENABLE_TX64
+
+AOM_CTRL_USE_TYPE(AV1E_SET_TX_SIZE_SEARCH_METHOD, int)
+#define AOM_CTRL_AV1E_SET_TXSIZE_SEARCH_METHOD
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_FLIP_IDTX, int)
 #define AOM_CTRL_AV1E_SET_ENABLE_FLIP_IDTX
