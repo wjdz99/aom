@@ -18,6 +18,9 @@ print <<EOF
 #include "aom_dsp/aom_dsp_common.h"
 #include "av1/common/enums.h"
 #include "av1/common/blockd.h"
+/* Encoder forward decls */
+typedef struct macroblock MACROBLOCK;
+typedef struct search_site search_site;
 
 EOF
 }
@@ -480,6 +483,7 @@ if (aom_config("CONFIG_AV1_HIGHBITDEPTH") eq "yes") {
 # Forward transform
 #
 if (aom_config("CONFIG_AV1_ENCODER") eq "yes"){
+
     add_proto qw/void aom_fdct8x8/, "const int16_t *input, tran_low_t *output, int stride";
     specialize qw/aom_fdct8x8 sse2/, "$ssse3_x86_64";
     # High bit depth
@@ -613,6 +617,13 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
 
     add_proto qw/uint64_t aom_sum_squares_i16/, "const int16_t *src, uint32_t N";
     specialize qw/aom_sum_squares_i16 sse2/;
+
+  #
+  # Functon used in av1_diamond_search_sad for mvsad_err_cost  vectorization
+  #
+ add_proto qw/void  diamond_search_all_in_bestsad/, "int i, MACROBLOCK *x, int searches_per_step, const search_site *ss, const MV this_mv, int sad_per_bit, unsigned int *sad_array, unsigned int *bestsad, int *best_site";
+ specialize qw/diamond_search_all_in_bestsad    avx2/;
+
   }
 
   #
