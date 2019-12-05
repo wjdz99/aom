@@ -173,6 +173,8 @@ set_aom_config_var(CONFIG_COMPANDED_MV 0 NUMBER
                    "AV2 companded MV experiment flag")
 set_aom_config_var(CONFIG_WIENER_NONSEP_CROSS_FILT 0 NUMBER
                    "AV2 nonsep Wiener cross filter experiment flag")
+set_aom_config_var(CONFIG_WIENER_SEP_HIPREC 0 NUMBER
+                   "AV2 high-prec separable Wiener filter experiment flag")
 
 # To include Tensorflow, make sure to build tensorflow locally using
 # tensorflow/contrib/makefile/build_all_linux.sh and then providing the correct
