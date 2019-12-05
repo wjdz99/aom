@@ -1868,6 +1868,61 @@ int av1_calc_iframe_target_size_one_pass_cbr(const AV1_COMP *cpi) {
   return av1_rc_clamp_iframe_target_size(cpi, target);
 }
 
+static void set_reference_structure_one_pass_rt(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  // Specify the reference prediction structure, for 1 layer nonrd mode.
+  // Current structue is to use 3 references (LAST, GOLDEN, ALTREF),
+  // where ALT_REF always behind current by lag_alt frames, and GOLDEN is
+  // either updated on LAST with period baseline_gf_interval (fixed slot)
+  // or always behind current by lag_gld (moving slot).
+  int gld_fixed_slot = 0;
+  unsigned int lag_alt = 3;
+  int last_idx = 0;
+  int last_idx_refresh = 0;
+  int gld_idx = 0;
+  int alt_ref_idx = 0;
+  cpi->ext_refresh_frame_flags_pending = 1;
+  cpi->svc.external_ref_frame_config = 1;
+  cpi->ext_ref_frame_flags = 0;
+  cpi->ext_refresh_last_frame = 1;
+  cpi->ext_refresh_golden_frame = 0;
+  cpi->ext_refresh_alt_ref_frame = 0;
+  for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) cpi->svc.ref_idx[i] = 7;
+  for (int i = 0; i < REF_FRAMES; ++i) cpi->svc.refresh[i] = 0;
+  // Always reference LAST, GOLDEN, ALTREF
+  cpi->ext_ref_frame_flags ^= AOM_LAST_FLAG;
+  cpi->ext_ref_frame_flags ^= AOM_GOLD_FLAG;
+  cpi->ext_ref_frame_flags ^= AOM_ALT_FLAG;
+  // Moving index for last: 0 - 5.
+  if (cm->current_frame.frame_number > 1)
+    last_idx = ((cm->current_frame.frame_number - 1) % 6);
+  // Moving index for refresh of last: one ahead for next frame.
+  last_idx_refresh = (cm->current_frame.frame_number % 6);
+  gld_idx = 6;
+  // For golden: fixed index or lag,
+  if (!gld_fixed_slot) {
+    unsigned int lag_gld = 6; // Must be at most 6 for now.
+    // Moving index for gld_ref, lag behind current by gld_interval frames.
+    if (cm->current_frame.frame_number > lag_gld)
+      gld_idx = ((cm->current_frame.frame_number - lag_gld) % 6);
+  }
+  // Moving index for alt_ref, lag behind LAST by lag_alt frames.
+  if (cm->current_frame.frame_number > lag_alt)
+    alt_ref_idx = ((cm->current_frame.frame_number - lag_alt) % 6);
+  cpi->svc.ref_idx[0] = last_idx;          // LAST
+  cpi->svc.ref_idx[1] = last_idx_refresh;  // LAST2 (for refresh of last).
+  cpi->svc.ref_idx[3] = gld_idx;           // GOLDEN
+  cpi->svc.ref_idx[6] = alt_ref_idx;       // ALT_REF
+  // Refresh this slot, which will become LAST on next frame.
+  cpi->svc.refresh[last_idx_refresh] = 1;
+  // Update GOLDEN on period for fixed slot case.
+  if (gld_fixed_slot &&
+      cpi->rc.frames_till_gf_update_due == cpi->rc.baseline_gf_interval) {
+    cpi->ext_refresh_golden_frame = 1;
+    cpi->svc.refresh[gld_idx] = 1;
+  }
+}
+
 #define DEFAULT_KF_BOOST_RT 2300
 #define DEFAULT_GF_BOOST_RT 2000
 
@@ -1878,6 +1933,9 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi,
   AV1_COMMON *const cm = &cpi->common;
   GF_GROUP *const gf_group = &cpi->gf_group;
   int target;
+  // Turn this on to explicitly set the reference structure rather than
+  // relying on internal/default structure.
+  int set_reference_structure = 1;
   if (cpi->use_svc) {
     av1_update_temporal_layer_framerate(cpi);
     av1_restore_layer_context(cpi);
@@ -1952,4 +2010,8 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi,
   }
   av1_rc_set_frame_target(cpi, target, cm->width, cm->height);
   rc->base_frame_target = target;
+  // For 1 layer nonrd allow option to set reference structure.
+  if (set_reference_structure && cpi->sf.use_nonrd_pick_mode &&
+      cm->number_spatial_layers == 1 && cm->number_temporal_layers == 1)
+    set_reference_structure_one_pass_rt(cpi);
 }
