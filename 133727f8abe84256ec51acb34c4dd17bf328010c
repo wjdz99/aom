@@ -119,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "f1e9d0c1_ebb97b5a",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 14975
+      },
+      "writtenOn": "2019-12-05T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "edc8c482_af328030",
+      "range": {
+        "startLine": 560,
+        "startChar": 0,
+        "endLine": 560,
+        "endChar": 6
+      },
+      "revId": "133727f8abe84256ec51acb34c4dd17bf328010c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5e0b7f6_eed1e472",
         "filename": "av1/decoder/decodemv.c",
         "patchSetId": 15
@@ -139,6 +163,30 @@
       "revId": "133727f8abe84256ec51acb34c4dd17bf328010c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1b4022a_6debbf88",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1314,
+      "author": {
+        "id": 14975
+      },
+      "writtenOn": "2019-12-05T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5e0b7f6_eed1e472",
+      "range": {
+        "startLine": 1314,
+        "startChar": 11,
+        "endLine": 1314,
+        "endChar": 33
+      },
+      "revId": "133727f8abe84256ec51acb34c4dd17bf328010c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -165,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "a64186c5_1ac23caf",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1513,
+      "author": {
+        "id": 14975
+      },
+      "writtenOn": "2019-12-05T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b02dbc1_4994ca83",
+      "range": {
+        "startLine": 1513,
+        "startChar": 0,
+        "endLine": 1513,
+        "endChar": 0
+      },
+      "revId": "133727f8abe84256ec51acb34c4dd17bf328010c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9bd2f3d9_db7d581e",
         "filename": "av1/encoder/enc_enums.h",
         "patchSetId": 15
@@ -188,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "adfd3bb5_88f268c9",
+        "filename": "av1/encoder/enc_enums.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 14975
+      },
+      "writtenOn": "2019-12-05T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9bd2f3d9_db7d581e",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 6
+      },
+      "revId": "133727f8abe84256ec51acb34c4dd17bf328010c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c133f637_32b82d8d",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 15
@@ -199,6 +295,30 @@
       "writtenOn": "2019-12-05T07:31:08Z",
       "side": 1,
       "message": "I believe this is because there is code elsewhere that assumes that NEARESTMV is always calculated, so we don\u0027t want to skip it.",
+      "range": {
+        "startLine": 11009,
+        "startChar": 3,
+        "endLine": 11009,
+        "endChar": 58
+      },
+      "revId": "133727f8abe84256ec51acb34c4dd17bf328010c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67a9dcdc_927b67df",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 11009,
+      "author": {
+        "id": 14975
+      },
+      "writtenOn": "2019-12-05T20:37:07Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c133f637_32b82d8d",
       "range": {
         "startLine": 11009,
         "startChar": 3,
@@ -231,6 +351,30 @@
       "revId": "133727f8abe84256ec51acb34c4dd17bf328010c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0efd077f_c56c3373",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 11946,
+      "author": {
+        "id": 14975
+      },
+      "writtenOn": "2019-12-05T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44f90e11_fcc9b3e8",
+      "range": {
+        "startLine": 11946,
+        "startChar": 22,
+        "endLine": 11946,
+        "endChar": 39
+      },
+      "revId": "133727f8abe84256ec51acb34c4dd17bf328010c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
