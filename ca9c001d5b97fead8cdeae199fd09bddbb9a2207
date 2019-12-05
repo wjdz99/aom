@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc036013_4d310684",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 4531,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-12-05T17:27:36Z",
+      "side": 1,
+      "message": "This is called in many places, and it is easy to miss one. It would be nice if we could consolidate its calling at fewer places. This might be a candidate for refactoring.",
+      "range": {
+        "startLine": 4531,
+        "startChar": 12,
+        "endLine": 4531,
+        "endChar": 35
+      },
+      "revId": "ca9c001d5b97fead8cdeae199fd09bddbb9a2207",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
