@@ -19,6 +19,9 @@ print <<EOF
 #include "av1/common/enums.h"
 #include "av1/common/blockd.h"
 
+/* Encoder forward decls */
+struct search_site;
+
 EOF
 }
 forward_decls qw/aom_dsp_forward_decls/;
@@ -613,6 +616,13 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
 
     add_proto qw/uint64_t aom_sum_squares_i16/, "const int16_t *src, uint32_t N";
     specialize qw/aom_sum_squares_i16 sse2/;
+
+  #
+  # Functon used in av1_diamond_search_sad for mvsad_err_cost  vectorization 
+  #
+ add_proto qw/void  diamond_search_all_in_bestsad/, "int i, struct macroblock *x, int searches_per_step, const struct search_site *ss, const MV this_mv, int sad_per_bit, unsigned int *sad_array, unsigned int *bestsad, int *best_site";
+ specialize qw/diamond_search_all_in_bestsad    avx2/;
+
   }
 
   #
