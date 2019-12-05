@@ -1671,6 +1671,23 @@ static int exhuastive_mesh_search(MACROBLOCK *x, MV *ref_mv, MV *best_mv,
   return best_sad;
 }
 
+void diamond_search_all_in_bestsad_c(int i, MACROBLOCK *x,
+                                     int searches_per_step,
+                                     const search_site *ss, const MV this_mv,
+                                     int sad_per_bit, unsigned int *sad_array,
+                                     unsigned int *bestsad, int *best_site) {
+  for (int t = 0; t < searches_per_step; t++) {
+    if (sad_array[t] < *bestsad) {
+      sad_array[t] +=
+          mvsad_err_cost(x, &(ss + i + t)->mv, &this_mv, sad_per_bit);
+      if (sad_array[t] < *bestsad) {
+        *bestsad = sad_array[t];
+        *best_site = i + t;
+      }
+    }
+  }
+}
+
 int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
                              MV *ref_mv, MV *best_mv, int search_param,
                              int sad_per_bit, int *num00,
@@ -1685,7 +1702,7 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
   const int in_what_stride = xd->plane[0].pre[0].stride;
   const uint8_t *best_address;
 
-  unsigned int bestsad = INT_MAX;
+  unsigned int bestsad = UINT_MAX;
   int best_site = 0;
   int last_site = 0;
 
@@ -1718,7 +1735,6 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
             mvsad_err_cost(x, best_mv, &fcenter_mv, sad_per_bit);
 
   i = 1;
-
   for (step = 0; step < tot_steps; step++) {
     int all_in = 1, t;
 
@@ -1733,30 +1749,21 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
     // search point is valid in this loop,  otherwise we check each point
     // for validity..
     if (all_in) {
-      unsigned int sad_array[4];
-
+      unsigned char const *block_offset[4];
+      DECLARE_ALIGNED(32, unsigned int, sad_array[8]);
+      const MV this_mv = { fcenter_mv.row - best_mv->row,
+                           fcenter_mv.col - best_mv->col };
       for (j = 0; j < cfg->searches_per_step; j += 4) {
-        unsigned char const *block_offset[4];
-
-        for (t = 0; t < 4; t++)
-          block_offset[t] = ss[i + t].offset + best_address;
-
-        fn_ptr->sdx4df(what, what_stride, block_offset, in_what_stride,
-                       sad_array);
-
-        for (t = 0; t < 4; t++, i++) {
-          if (sad_array[t] < bestsad) {
-            const MV this_mv = { best_mv->row + ss[i].mv.row,
-                                 best_mv->col + ss[i].mv.col };
-            sad_array[t] +=
-                mvsad_err_cost(x, &this_mv, &fcenter_mv, sad_per_bit);
-            if (sad_array[t] < bestsad) {
-              bestsad = sad_array[t];
-              best_site = i;
-            }
-          }
+        for (t = 0; t < 4; t++) {
+          block_offset[t] = ss[i + t + j].offset + best_address;
         }
+        fn_ptr->sdx4df(what, what_stride, block_offset, in_what_stride,
+                       sad_array + j);
       }
+      diamond_search_all_in_bestsad(i, x, cfg->searches_per_step, ss, this_mv,
+                                    sad_per_bit, sad_array, &bestsad,
+                                    &best_site);
+      i += cfg->searches_per_step;
     } else {
       for (j = 0; j < cfg->searches_per_step; j++) {
         // Trap illegal vectors
