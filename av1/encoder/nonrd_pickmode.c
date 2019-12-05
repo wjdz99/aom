@@ -1481,7 +1481,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       cpi->sf.use_nonrd_altref_frame ? ALTREF_FRAME : GOLDEN_FRAME;
 
   if (cpi->rc.frames_since_golden == 0 && gf_temporal_ref) {
-    usable_ref_frame = LAST_FRAME;
+    skip_ref_find_pred[GOLDEN_FRAME] = 0;
+    if (!cpi->sf.use_nonrd_altref_frame) usable_ref_frame = LAST_FRAME;
   }
 
   const int mi_row = xd->mi_row;
