@@ -1742,61 +1742,41 @@ int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
     --si;
   }
 
-#define UPDATE_COEFF_EOB_CASE(tx_class_literal)                            \
-  case tx_class_literal:                                                   \
-    for (; si >= 0 && nz_num <= max_nz_num && !fast_mode; --si) {          \
-      update_coeff_eob(&accu_rate, &accu_dist, &eob, &nz_num, nz_ci, si,   \
-                       tx_size, tx_class_literal, bwl, height,             \
-                       txb_ctx->dc_sign_ctx, rdmult, shift, dequant, scan, \
-                       txb_eob_costs, txb_costs, tcoeff, qcoeff, dqcoeff,  \
-                       levels, sharpness, iqmatrix);                       \
-    }                                                                      \
-    break;
-  switch (tx_class) {
-    UPDATE_COEFF_EOB_CASE(TX_CLASS_2D);
-    UPDATE_COEFF_EOB_CASE(TX_CLASS_HORIZ);
-    UPDATE_COEFF_EOB_CASE(TX_CLASS_VERT);
-#undef UPDATE_COEFF_EOB_CASE
-    default: assert(false);
+  // check current coeff as eob, or lower by 1
+  for (; si >= 0 && nz_num <= max_nz_num && !fast_mode; --si) {
+    update_coeff_eob(&accu_rate, &accu_dist, &eob, &nz_num, nz_ci, si, tx_size,
+                     tx_class, bwl, height, txb_ctx->dc_sign_ctx, rdmult, shift,
+                     dequant, scan, txb_eob_costs, txb_costs, tcoeff, qcoeff,
+                     dqcoeff, levels, sharpness, iqmatrix);
   }
-
+  // check if we should skip the whole block
   if (si == -1 && nz_num <= max_nz_num) {
     update_skip(&accu_rate, accu_dist, &eob, nz_num, nz_ci, rdmult, skip_cost,
                 non_skip_cost, qcoeff, dqcoeff, sharpness);
   }
 
-#define UPDATE_COEFF_SIMPLE_CASE(tx_class_literal)                             \
-  case tx_class_literal:                                                       \
-    for (; si >= 1; --si) {                                                    \
-      update_coeff_simple(&accu_rate, si, eob, tx_size, tx_class_literal, bwl, \
-                          rdmult, shift, dequant, scan, txb_costs, tcoeff,     \
-                          qcoeff, dqcoeff, levels, iqmatrix);                  \
-    }                                                                          \
-    break;
-  switch (tx_class) {
-    UPDATE_COEFF_SIMPLE_CASE(TX_CLASS_2D);
-    UPDATE_COEFF_SIMPLE_CASE(TX_CLASS_HORIZ);
-    UPDATE_COEFF_SIMPLE_CASE(TX_CLASS_VERT);
-#undef UPDATE_COEFF_SIMPLE_CASE
-    default: assert(false);
-  }
-
-  // DC position
-  if (si == 0) {
-    // no need to update accu_dist because it's not used after this point
-    int64_t dummy_dist = 0;
-    update_coeff_general(&accu_rate, &dummy_dist, si, eob, tx_size, tx_class,
-                         bwl, height, rdmult, shift, txb_ctx->dc_sign_ctx,
-                         dequant, scan, txb_costs, tcoeff, qcoeff, dqcoeff,
-                         levels, iqmatrix);
-  }
-
-  const int tx_type_cost =
-      get_tx_type_cost(x, xd, plane, tx_size, tx_type, cm->reduced_tx_set_used);
-  if (eob == 0)
+  if (eob == 0) {
     accu_rate += skip_cost;
-  else
+  } else {
+    // if not skip, then check if we should lower by 1 for the rest
+    // no need to maintain accu_dist from now on
+    for (; si >= 1; --si) {
+      update_coeff_simple(&accu_rate, si, eob, tx_size, tx_class, bwl, rdmult,
+                          shift, dequant, scan, txb_costs, tcoeff, qcoeff,
+                          dqcoeff, levels, iqmatrix);
+    }
+    // DC position
+    if (si == 0) {
+      int64_t dummy_dist = 0;
+      update_coeff_general(&accu_rate, &dummy_dist, si, eob, tx_size, tx_class,
+                           bwl, height, rdmult, shift, txb_ctx->dc_sign_ctx,
+                           dequant, scan, txb_costs, tcoeff, qcoeff, dqcoeff,
+                           levels, iqmatrix);
+    }
+    const int tx_type_cost = get_tx_type_cost(x, xd, plane, tx_size, tx_type,
+                                              cm->reduced_tx_set_used);
     accu_rate += non_skip_cost + tx_type_cost;
+  }
 
   p->eobs[block] = eob;
   p->txb_entropy_ctx[block] =
