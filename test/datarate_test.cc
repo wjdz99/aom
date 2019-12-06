@@ -38,6 +38,7 @@ class DatarateTestLarge
   virtual ~DatarateTestLarge() {}
 
   virtual void SetUp() {
+    ResetModel();
     InitializeConfig();
     SetMode(GET_PARAM(1));
     ResetModel();
