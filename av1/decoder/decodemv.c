@@ -183,13 +183,12 @@ static void read_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
                          MACROBLOCKD *xd, MB_MODE_INFO *mbmi, aom_reader *r) {
   (void)cm;
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
-  for (int idx = 0; idx < 3; ++idx) {
-    if (xd->ref_mv_count[ref_frame_type] > idx + 1) {
-      uint8_t drl_ctx = av1_drl_ctx(xd->weight[ref_frame_type], idx);
-      int drl_idx = aom_read_symbol(r, ec_ctx->drl_cdf[drl_ctx], 2, ACCT_STR);
-      mbmi->ref_mv_idx = idx + drl_idx;
-      if (!drl_idx) return;
-    }
+  int range = AOMMIN(xd->ref_mv_count[ref_frame_type] - 1, 3);
+  for (int idx = 0; idx < range; ++idx) {
+    uint8_t drl_ctx = av1_drl_ctx(xd->weight[ref_frame_type], idx);
+    int drl_idx = aom_read_symbol(r, ec_ctx->drl_cdf[drl_ctx], 2, ACCT_STR);
+    mbmi->ref_mv_idx = idx + drl_idx;
+    if (!drl_idx) break;
   }
 }
 #else

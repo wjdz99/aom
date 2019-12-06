@@ -150,15 +150,17 @@ static void write_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
   (void)cm;
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
 
+  // Write the DRL index as a sequence of bits encoding a decision tree:
+  // 0 -> 0   10 -> 1   110 -> 2    111 -> 3
+  // Also use the number of reference MVs for a frame type to reduce the
+  // number of bits written if there are less than 4 valid DRL indices.
   assert(mbmi->ref_mv_idx < 4);
-  for (int idx = 0; idx < 3; ++idx) {
-    if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
-      uint8_t drl_ctx = av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
-      aom_write_symbol(w, mbmi->ref_mv_idx != idx, ec_ctx->drl_cdf[drl_ctx], 2);
-      if (mbmi->ref_mv_idx == idx) return;
-    }
+  int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, 3);
+  for (int idx = 0; idx < range; ++idx) {
+    uint8_t drl_ctx = av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
+    aom_write_symbol(w, mbmi->ref_mv_idx != idx, ec_ctx->drl_cdf[drl_ctx], 2);
+    if (mbmi->ref_mv_idx == idx) break;
   }
-  return;
 }
 #else
 static void write_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
