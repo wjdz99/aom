@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99f30317_d24bea0a",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-06T18:31:25Z",
+      "side": 1,
+      "message": "argv is allocated here. It is freed at line 1002, before the return statement at the end of this function, so one way to fix this leak is to add a \"goto\" statement to jump to a suitable location before line 1002. I decided to go for a fix that is more obviously correct.",
+      "revId": "7b3e7e175faaf57a7564828f9551a96605b021fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ce5b3b93_fc90f422",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1002,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-06T18:31:25Z",
+      "side": 1,
+      "message": "Note that this is where the main_loop() function frees argv before it returns.",
+      "revId": "7b3e7e175faaf57a7564828f9551a96605b021fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
