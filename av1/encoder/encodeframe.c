@@ -1314,6 +1314,11 @@ static AOM_INLINE void update_stats(const AV1_COMMON *const cm, ThreadData *td,
           counts->obmc[bsize][mbmi->motion_mode == OBMC_CAUSAL]++;
 #endif
           update_cdf(fc->obmc_cdf[bsize], mbmi->motion_mode == OBMC_CAUSAL, 2);
+
+          // Gather obmc count to update the probability used by a speed
+          // feature.
+          // Note: This is only needed if cpi->sf.prune_obmc_prob_thresh > 0.
+          td->rd_counts.obmc_used[bsize][mbmi->motion_mode == OBMC_CAUSAL]++;
         }
       }
 
@@ -1622,24 +1627,6 @@ static AOM_INLINE void encode_b(const AV1_COMP *const cpi,
 
     if (tile_data->allow_update_cdf) {
       update_stats(&cpi->common, td, mi_row, mi_col);
-    }
-
-    // Gather obmc count to update the probability.
-    if (!cpi->sf.disable_obmc && cpi->sf.prune_obmc_prob_thresh > 0) {
-      const int inter_block = is_inter_block(mbmi);
-      const int seg_ref_active =
-          segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_REF_FRAME);
-      if (!seg_ref_active && inter_block) {
-        const MOTION_MODE motion_allowed =
-            cm->switchable_motion_mode
-                ? motion_mode_allowed(xd->global_motion, xd, mbmi,
-                                      cm->allow_warped_motion)
-                : SIMPLE_TRANSLATION;
-        if (mbmi->ref_frame[1] != INTRA_FRAME &&
-            motion_allowed == OBMC_CAUSAL) {
-          td->rd_counts.obmc_used[bsize][mbmi->motion_mode == OBMC_CAUSAL]++;
-        }
-      }
     }
   }
   // TODO(Ravi/Remya): Move this copy function to a better logical place
