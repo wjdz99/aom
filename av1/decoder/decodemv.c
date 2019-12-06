@@ -207,6 +207,9 @@ static void read_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
     mbmi->ref_mv_idx = idx + drl_idx;
     if (!drl_idx) break;
   }
+  if (have_nearmv_in_inter_mode(mbmi->mode)) {
+    mbmi->ref_mv_idx++;
+  }
 }
 #else
 static void read_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
@@ -1624,7 +1627,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   }
 
   if (is_compound && mbmi->mode != GLOBAL_GLOBALMV) {
+#if CONFIG_NEW_INTER_MODES
+    int ref_mv_idx = mbmi->ref_mv_idx;
+#else
     int ref_mv_idx = mbmi->ref_mv_idx + 1;
+#endif
 #if CONFIG_FLEX_MVRES
     if (mbmi->mv_precision < cm->mv_precision && mbmi->mode == NEW_NEWMV) {
       ref_mv_idx = mbmi->ref_mv_idx_adj + 1;
@@ -1648,8 +1655,13 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     lower_mv_precision(&nearmv[0].as_mv, cm->mv_precision);
     lower_mv_precision(&nearmv[1].as_mv, cm->mv_precision);
   } else if (mbmi->ref_mv_idx > 0 && mbmi->mode == NEARMV) {
+#if CONFIG_NEW_INTER_MODES
+    int_mv cur_mv =
+        xd->ref_mv_stack[mbmi->ref_frame[0]][mbmi->ref_mv_idx].this_mv;
+#else
     int_mv cur_mv =
         xd->ref_mv_stack[mbmi->ref_frame[0]][1 + mbmi->ref_mv_idx].this_mv;
+#endif  // CONFIG_NEW_INTER_MODES
     nearmv[0] = cur_mv;
   }
 
@@ -1659,11 +1671,13 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
   if (is_compound) {
     int ref_mv_idx = mbmi->ref_mv_idx;
+#if !CONFIG_NEW_INTER_MODES
     // Special case: NEAR_NEWMV and NEW_NEARMV modes use
     // 1 + mbmi->ref_mv_idx (like NEARMV) instead of
     // mbmi->ref_mv_idx (like NEWMV)
     if (mbmi->mode == NEAR_NEWMV || mbmi->mode == NEW_NEARMV)
       ref_mv_idx = 1 + mbmi->ref_mv_idx;
+#endif  // !CONFIG_NEW_INTER_MODES
 
 #if CONFIG_FLEX_MVRES
     if (mbmi->mv_precision < cm->mv_precision && mbmi->mode == NEW_NEWMV) {
