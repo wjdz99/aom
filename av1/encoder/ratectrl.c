@@ -331,6 +331,7 @@ void av1_rc_init(const AV1EncoderConfig *oxcf, int pass, RATE_CONTROL *rc) {
     rc->max_gf_interval = av1_rc_get_default_max_gf_interval(
         oxcf->init_framerate, rc->min_gf_interval);
   rc->baseline_gf_interval = (rc->min_gf_interval + rc->max_gf_interval) / 2;
+  rc->active_worst_quality = 255;
 }
 
 int av1_rc_drop_frame(AV1_COMP *cpi) {
