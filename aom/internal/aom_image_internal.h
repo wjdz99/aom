@@ -42,7 +42,8 @@ aom_metadata_array_t *aom_img_metadata_array_alloc(size_t sz);
 
 /*!\brief Free metadata array struct.
  *
- * Free metadata array struct and all metadata structs inside.
+ * Free metadata array struct and all metadata structs inside. Function doesn't
+ * set the pointer value, caller should set it to the desired address or NULL.
  *
  * \param[in]    arr       Metadata array struct pointer
  */
