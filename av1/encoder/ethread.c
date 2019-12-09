@@ -36,6 +36,7 @@ static AOM_INLINE void accumulate_rd_opt(ThreadData *td, ThreadData *td_t) {
   for (int i = 0; i < BLOCK_SIZES_ALL; i++) {
     for (int j = 0; j < 2; j++) {
       td->rd_counts.obmc_used[i][j] += td_t->rd_counts.obmc_used[i][j];
+      td->rd_counts.warped_used[i][j] += td_t->rd_counts.warped_used[i][j];
     }
   }
 }

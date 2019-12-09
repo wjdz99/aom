@@ -10148,6 +10148,11 @@ static int64_t motion_mode_rd(
         mbmi->motion_mode == OBMC_CAUSAL)
       continue;
 
+    // cm->allow_warped_motion is already considered in motion_mode_allowed().
+    const int prune_warped = cpi->warped_probs[update_type][bsize] <
+                             cpi->sf.prune_warped_prob_thresh;
+    if (prune_warped && mbmi->motion_mode == WARPED_CAUSAL) continue;
+
     if (mbmi->motion_mode == SIMPLE_TRANSLATION && !is_interintra_mode) {
       // SIMPLE_TRANSLATION mode: no need to recalculate.
       // The prediction is calculated before motion_mode_rd() is called in

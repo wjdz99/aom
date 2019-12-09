@@ -1640,8 +1640,9 @@ static AOM_INLINE void encode_b(const AV1_COMP *const cpi,
       update_stats(&cpi->common, td, mi_row, mi_col);
     }
 
-    // Gather obmc count to update the probability.
-    if (!cpi->sf.disable_obmc && cpi->sf.prune_obmc_prob_thresh > 0) {
+    // Gather obmc and warped motion count to update the probability.
+    if ((!cpi->sf.disable_obmc && cpi->sf.prune_obmc_prob_thresh > 0) ||
+        (cm->allow_warped_motion && cpi->sf.prune_warped_prob_thresh > 0)) {
       const int inter_block = is_inter_block(mbmi);
       const int seg_ref_active =
           segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_REF_FRAME);
@@ -1651,9 +1652,15 @@ static AOM_INLINE void encode_b(const AV1_COMP *const cpi,
                 ? motion_mode_allowed(xd->global_motion, xd, mbmi,
                                       cm->allow_warped_motion)
                 : SIMPLE_TRANSLATION;
-        if (mbmi->ref_frame[1] != INTRA_FRAME &&
-            motion_allowed >= OBMC_CAUSAL) {
-          td->rd_counts.obmc_used[bsize][mbmi->motion_mode == OBMC_CAUSAL]++;
+
+        if (mbmi->ref_frame[1] != INTRA_FRAME) {
+          if (motion_allowed >= OBMC_CAUSAL) {
+            td->rd_counts.obmc_used[bsize][mbmi->motion_mode == OBMC_CAUSAL]++;
+          }
+          if (motion_allowed == WARPED_CAUSAL) {
+            td->rd_counts
+                .warped_used[bsize][mbmi->motion_mode == WARPED_CAUSAL]++;
+          }
         }
       }
     }
@@ -5090,6 +5097,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   av1_zero(rdc->comp_pred_diff);
   av1_zero(rdc->tx_type_used);
   av1_zero(rdc->obmc_used);
+  av1_zero(rdc->warped_used);
 
   // Reset the flag.
   cpi->intrabc_used = 0;
@@ -5404,6 +5412,20 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
           sum ? 128 * cpi->td.rd_counts.obmc_used[i][1] / sum : 0;
       cpi->obmc_probs[update_type][i] =
           (cpi->obmc_probs[update_type][i] + new_prob) >> 1;
+    }
+  }
+
+  if (cm->allow_warped_motion && cpi->sf.prune_warped_prob_thresh > 0) {
+    const FRAME_UPDATE_TYPE update_type = get_frame_update_type(&cpi->gf_group);
+
+    for (i = 0; i < BLOCK_SIZES_ALL; i++) {
+      int sum = 0;
+      for (int j = 0; j < 2; j++) sum += cpi->td.rd_counts.warped_used[i][j];
+
+      const int new_prob =
+          sum ? 128 * cpi->td.rd_counts.warped_used[i][1] / sum : 0;
+      cpi->warped_probs[update_type][i] =
+          (cpi->warped_probs[update_type][i] + new_prob) >> 1;
     }
   }
 }
