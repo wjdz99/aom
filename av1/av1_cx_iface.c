@@ -1888,6 +1888,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
 
     if (img != NULL) {
       YV12_BUFFER_CONFIG sd;
+      sd.metadata = NULL;
       res = image2yuvconfig(img, &sd);
 
       // Store the original flags in to the frame buffer. Will extract the
@@ -1897,6 +1898,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
         res = update_error_state(ctx, &cpi->common.error);
       }
       ctx->next_frame_flags = 0;
+      aom_remove_metadata_from_frame_buffer(&sd);
     }
 
     unsigned char *cx_data = ctx->cx_data;

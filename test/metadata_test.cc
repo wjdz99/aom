@@ -24,7 +24,8 @@
 
 namespace {
 const size_t kExampleDataSize = 10;
-const uint8_t kExampleData[kExampleDataSize] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+const uint8_t kExampleData[kExampleDataSize] = { 0xB5, 0x01, 0x02, 0x03, 0x04,
+                                                 0x05, 0x06, 0x07, 0x08, 0x09 };
 
 #if CONFIG_AV1_ENCODER
 
@@ -48,28 +49,57 @@ class MetadataEncodeTest
       ASSERT_EQ(aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_ITUT_T35,
                                      kExampleData, kExampleDataSize),
                 0);
+      ASSERT_EQ(aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_ITUT_T35,
+                                     kExampleData, kExampleDataSize),
+                0);
+      ASSERT_EQ(aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_ITUT_T35,
+                                     kExampleData, 0),
+                0);
+      ASSERT_EQ(aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_ITUT_T35,
+                                     NULL, kExampleDataSize),
+                0);
+      ASSERT_EQ(aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_ITUT_T35,
+                                     NULL, 0),
+                0);
     }
   }
 
   virtual void FramePktHook(const aom_codec_cx_pkt_t *pkt) {
     if (pkt->kind == AOM_CODEC_CX_FRAME_PKT) {
       const size_t metadata_obu_size = 14;
-      const uint8_t metadata_obu[metadata_obu_size] = {
-        42, 12, 4, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 128
-      };
+      const uint8_t metadata_obu[metadata_obu_size] = { 0x2A, 0x0C, 0x04, 0xB5,
+                                                        0x01, 0x02, 0x03, 0x04,
+                                                        0x05, 0x06, 0x07, 0x08,
+                                                        0x09, 0x80 };
       const size_t bitstream_size = pkt->data.frame.sz;
       const uint8_t *bitstream =
           static_cast<const uint8_t *>(pkt->data.frame.buf);
-      // look for expected metadata in bitstream
-      bool found_metadata = false;
+      // look for valid metadatas in bitstream
+      size_t valid_metadatas_found = 0;
       for (size_t i = 0; i < bitstream_size; ++i) {
         if (memcmp(bitstream + i, metadata_obu, metadata_obu_size) == 0) {
-          found_metadata = true;
-          break;
+          valid_metadatas_found++;
         }
       }
-      EXPECT_TRUE(found_metadata);
+      ASSERT_EQ(valid_metadatas_found, 2u);
     }
+  }
+
+  virtual void DecompressedFrameHook(const aom_image_t &img,
+                                     aom_codec_pts_t /*pts*/) {
+    ASSERT_TRUE(img.metadata != nullptr);
+
+    EXPECT_EQ(img.metadata->sz, 2u);
+
+    ASSERT_EQ(kExampleDataSize, img.metadata->metadata_array[0]->sz);
+    EXPECT_EQ(memcmp(kExampleData, img.metadata->metadata_array[0]->payload,
+                     kExampleDataSize),
+              0);
+
+    ASSERT_EQ(kExampleDataSize, img.metadata->metadata_array[1]->sz);
+    EXPECT_EQ(memcmp(kExampleData, img.metadata->metadata_array[1]->payload,
+                     kExampleDataSize),
+              0);
   }
 };
 
@@ -180,4 +210,46 @@ TEST(MetadataTest, CopyMetadataToFrameBuffer) {
   EXPECT_EQ(status, -1);
   aom_remove_metadata_from_frame_buffer(&yvBuf);
   aom_remove_metadata_from_frame_buffer(NULL);
+}
+
+TEST(MetadataTest, GetMetadataFromImage) {
+  aom_image_t image;
+  image.metadata = NULL;
+
+  ASSERT_EQ(aom_img_add_metadata(&image, OBU_METADATA_TYPE_ITUT_T35,
+                                 kExampleData, kExampleDataSize),
+            0);
+
+  EXPECT_TRUE(aom_img_get_metadata(NULL, 0) == NULL);
+  EXPECT_TRUE(aom_img_get_metadata(&image, 10u) == NULL);
+
+  aom_metadata_t *metadata = aom_img_get_metadata(&image, 0);
+  EXPECT_TRUE(metadata != NULL);
+  aom_img_metadata_free(metadata);
+  aom_img_metadata_array_free(image.metadata);
+}
+
+TEST(MetadataTest, ReadMetadatasFromImage) {
+  aom_image_t image;
+  image.metadata = NULL;
+
+  ASSERT_EQ(aom_img_add_metadata(&image, OBU_METADATA_TYPE_ITUT_T35,
+                                 kExampleData, kExampleDataSize),
+            0);
+  ASSERT_EQ(aom_img_add_metadata(&image, OBU_METADATA_TYPE_HDR_CLL,
+                                 kExampleData, kExampleDataSize),
+            0);
+  ASSERT_EQ(aom_img_add_metadata(&image, OBU_METADATA_TYPE_HDR_MDCV,
+                                 kExampleData, kExampleDataSize),
+            0);
+
+  size_t number_metadata = aom_img_num_metadata(&image);
+  EXPECT_EQ(number_metadata, 3u);
+  for (size_t i = 0; i < number_metadata; ++i) {
+    aom_metadata_t *metadata = aom_img_get_metadata(&image, i);
+    ASSERT_TRUE(metadata != NULL);
+    EXPECT_EQ(memcmp(kExampleData, metadata->payload, kExampleDataSize), 0);
+    aom_img_metadata_free(metadata);
+  }
+  aom_img_metadata_array_free(image.metadata);
 }

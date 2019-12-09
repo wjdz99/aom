@@ -40,6 +40,19 @@ struct aom_metadata_array {
  */
 aom_metadata_array_t *aom_img_metadata_array_alloc(size_t sz);
 
+/*!\brief Copy metadata to aom_image struct.
+ *
+ * Copies metadata in image.
+ * Image will clear any previous metadata and will reallocate the
+ * metadata array to the new metadata size. Then, it will copy the new metadata
+ * array into it.
+ * Returns 0 on success or -1 on failure.
+ *
+ * \param[in]    img       Image struct pointer
+ * \param[in]    arr       Metadata array struct pointer
+ */
+int aom_copy_metadata_to_image(aom_image_t *img, aom_metadata_array_t *arr);
+
 /*!\brief Free metadata array struct.
  *
  * Free metadata array struct and all metadata structs inside.
