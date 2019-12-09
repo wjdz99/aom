@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "0a3378db_6a67776b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 10047,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-12-09T18:38:50Z",
+      "side": 1,
+      "message": "motion_mode_rd actually gets called for compound mode as well.\nAlthough we don\u0027t search anything mode beyond SIMPLE_TRANSLATION in comp_pred, we still do the transform or collect the statistics for SIMPLE_TRANSLATION.",
+      "parentUuid": "89790dc4_804d9537",
+      "range": {
+        "startLine": 10047,
+        "startChar": 4,
+        "endLine": 10047,
+        "endChar": 31
+      },
+      "revId": "2b7c301e2c8f4ffe38b41335a846229f04d363c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "04280530_06be4b95",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 10
@@ -93,6 +117,30 @@
       "revId": "2b7c301e2c8f4ffe38b41335a846229f04d363c5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67d915aa_8bdf5167",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 10050,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2019-12-09T18:38:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1378e6f2_4f298af0",
+      "range": {
+        "startLine": 10050,
+        "startChar": 48,
+        "endLine": 10050,
+        "endChar": 50
+      },
+      "revId": "2b7c301e2c8f4ffe38b41335a846229f04d363c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
