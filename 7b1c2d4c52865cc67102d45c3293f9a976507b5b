@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8ca614b_0811bd7d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2019-12-09T02:32:58Z",
+      "side": 1,
+      "message": "Enable temporal filtering for keyframes in single pass\n\nCurrent title seems to suggest temporal filtering is enabled in all cases.",
+      "revId": "7b1c2d4c52865cc67102d45c3293f9a976507b5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a959e76e_e14fe449",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2019-12-09T02:32:58Z",
+      "side": 1,
+      "message": "Remove",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 14
+      },
+      "revId": "7b1c2d4c52865cc67102d45c3293f9a976507b5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
