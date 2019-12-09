@@ -194,7 +194,36 @@ static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, aom_reader *r,
   else
     return NEARMV;
 }
-
+#if CONFIG_NEW_INTER_MODES
+static void read_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
+                         MACROBLOCKD *xd, MB_MODE_INFO *mbmi, aom_reader *r) {
+  (void)cm;
+  uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+  mbmi->ref_mv_idx = 0;
+  if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
+    int range = AOMMIN(xd->ref_mv_count[ref_frame_type] - 1, 3);
+    for (int idx = 0; idx < range; ++idx) {
+      uint8_t drl_ctx = av1_drl_ctx(xd->weight[ref_frame_type], idx);
+      int drl_idx = aom_read_symbol(r, ec_ctx->drl_cdf[drl_ctx], 2, ACCT_STR);
+      mbmi->ref_mv_idx = idx + drl_idx;
+      if (!drl_idx) break;
+    }
+  }
+  if (have_nearmv_in_inter_mode(mbmi->mode)) {
+    // Offset the NEARESTMV mode.
+    // TODO(jingning): Unify the two syntax decoding loops after the NEARESTMV
+    // mode is factored in.
+    for (int idx = 1; idx < 3; ++idx) {
+      if (xd->ref_mv_count[ref_frame_type] > idx + 1) {
+        uint8_t drl_ctx = av1_drl_ctx(xd->weight[ref_frame_type], idx);
+        int drl_idx = aom_read_symbol(r, ec_ctx->drl_cdf[drl_ctx], 2, ACCT_STR);
+        mbmi->ref_mv_idx = idx + drl_idx - 1;
+        if (!drl_idx) return;
+      }
+    }
+  }
+}
+#else
 static void read_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
                          MACROBLOCKD *xd, MB_MODE_INFO *mbmi, aom_reader *r) {
   (void)cm;
@@ -240,6 +269,7 @@ static void read_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
     }
   }
 }
+#endif  // CONFIG_NEW_INTER_MODES
 
 static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
                                     MB_MODE_INFO *mbmi, aom_reader *r) {

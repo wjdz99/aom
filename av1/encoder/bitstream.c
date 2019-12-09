@@ -172,6 +172,40 @@ static void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
   }
 }
 
+#if CONFIG_NEW_INTER_MODES
+static void write_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
+                          const MB_MODE_INFO *mbmi,
+                          const MB_MODE_INFO_EXT *mbmi_ext, aom_writer *w) {
+  (void)cm;
+  uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+
+  const int new_mv = mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV;
+  if (new_mv) {
+    int idx;
+    int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, 3);
+    for (int idx = 0; idx < range; ++idx) {
+      uint8_t drl_ctx = av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
+      aom_write_symbol(w, mbmi->ref_mv_idx != idx, ec_ctx->drl_cdf[drl_ctx], 2);
+      if (mbmi->ref_mv_idx == idx) break;
+    }
+    return;
+  }
+  assert(mbmi->ref_mv_idx < 3);
+  if (have_nearmv_in_inter_mode(mbmi->mode)) {
+    int idx;
+    // TODO(jingning): Temporary solution to compensate the NEARESTMV offset.
+    for (idx = 1; idx < 3; ++idx) {
+      if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
+        uint8_t drl_ctx = av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
+        aom_write_symbol(w, mbmi->ref_mv_idx != (idx - 1),
+                         ec_ctx->drl_cdf[drl_ctx], 2);
+        if (mbmi->ref_mv_idx == (idx - 1)) return;
+      }
+    }
+    return;
+  }
+}
+#else
 static void write_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
                           const MB_MODE_INFO *mbmi,
                           const MB_MODE_INFO_EXT *mbmi_ext, aom_writer *w) {
@@ -221,6 +255,7 @@ static void write_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
     return;
   }
 }
+#endif  // CONFIG_NEW_INTER_MODES
 
 static void write_inter_compound_mode(MACROBLOCKD *xd, aom_writer *w,
                                       PREDICTION_MODE mode,
