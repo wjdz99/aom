@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cbbe0142_452c1846",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 767,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-10T23:42:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "18e13ca5_6fa854de",
+      "range": {
+        "startLine": 767,
+        "startChar": 12,
+        "endLine": 767,
+        "endChar": 17
+      },
+      "revId": "af9b4a719149f1173ffbd25dac250bf55ed2c7d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "47d52243_626c19fa",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 1
@@ -82,6 +106,24 @@
       "writtenOn": "2019-12-10T17:35:11Z",
       "side": 1,
       "message": "I think some explicit testing of failure modes would be a good thing to add before landing this. It will reduce the likelihood of a revert if you handle some foreseeable failure modes that will be caused by fuzzing:\n\n- Truncated metadata OBUs\n- Metadata OBUs w/invalid sizes (i.e. more payload than reported meaning the stream is essentially garbage)\n- Invalid T35 payload (kind the same as the previous example, but failing within the contents if there\u0027s a place where it could occur).\n\nYou\u0027ll probably think of a few more cases (or encounter them directly) while writing these kinds of tests. To be clear, I\u0027m not looking for you to work magic and make the decoder recover when it encounters data with the above example characteristics, just that we\u0027re failing gracefully and not leaking memory.",
+      "revId": "af9b4a719149f1173ffbd25dac250bf55ed2c7d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba3339b3_b2f8e26f",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-10T23:42:43Z",
+      "side": 1,
+      "message": "Are these tests are to be done using only the metadata public functions that were added?\n\nSince the syntax of itu_t_t35_payload_bytes are not defined in the spec, the only validation I can think of for T35 integrity is that it contains the country_code bytes at the start, yet this can be any byte as per their spec. All other payload bytes are user specific.\nFor the others, considering we only validate T35 case, even if garbage is added as payload if user specifies larger size than his data, it would be taken as valid as payload bytes are user specific. \n\nThis could be due to nature of T35 or maybe I\u0027m misunderstanding the case and broader tests are needed.",
+      "parentUuid": "1c18a047_d637ea86",
       "revId": "af9b4a719149f1173ffbd25dac250bf55ed2c7d5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
