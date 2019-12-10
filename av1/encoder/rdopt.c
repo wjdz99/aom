@@ -11296,6 +11296,15 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
                                      best_rd_stats.dist);
                     if (best_rd < ref_best_rd) ref_best_rd = best_rd;
                     skip = 1;
+                    const THR_MODES mode_enum = get_prediction_mode_idx(
+                        best_mbmi.mode, best_mbmi.ref_frame[0],
+                        best_mbmi.ref_frame[1]);
+                    // Collect mode stats for multiwinner mode processing
+                    store_winner_mode_stats(
+                        &cpi->common, x, &best_mbmi, &best_rd_stats,
+                        &best_rd_stats_y, &best_rd_stats_uv, mode_enum, NULL,
+                        bsize, best_rd, cpi->sf.enable_multiwinner_mode_process,
+                        do_tx_search);
                     break;
                   }
                 }
@@ -11303,13 +11312,6 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
             }
           }
           if (skip) {
-            const THR_MODES mode_enum = get_prediction_mode_idx(
-                best_mbmi.mode, best_mbmi.ref_frame[0], best_mbmi.ref_frame[1]);
-            // Collect mode stats for multiwinner mode processing
-            store_winner_mode_stats(
-                &cpi->common, x, &best_mbmi, &best_rd_stats, &best_rd_stats_y,
-                &best_rd_stats_uv, mode_enum, NULL, bsize, best_rd,
-                cpi->sf.enable_multiwinner_mode_process, do_tx_search);
             args->modelled_rd[this_mode][ref_mv_idx][refs[0]] =
                 args->modelled_rd[this_mode][i][refs[0]];
             args->simple_rd[this_mode][ref_mv_idx][refs[0]] =
