@@ -311,7 +311,7 @@ static void set_good_speed_features_framesize_independent(
     sf->dual_sgr_penalty_level = 1;
     sf->use_accurate_subpel_search = USE_4_TAPS;
     sf->reuse_inter_intra_mode = 1;
-    sf->prune_comp_search_by_single_result = 1;
+    sf->prune_comp_search_by_single_result = boosted ? 3 : 1;
     sf->skip_repeated_newmv = 1;
     sf->obmc_full_pixel_search_level = 1;
     // TODO(Venkat): Clean-up frame type dependency for
@@ -369,6 +369,7 @@ static void set_good_speed_features_framesize_independent(
     sf->disable_dual_filter = 1;
     sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
     sf->prune_comp_type_by_comp_avg = 2;
+    sf->prune_comp_search_by_single_result = boosted ? 4 : 1;
     // TODO(Sachin): Enable/Enhance this speed feature for speed 2 & 3
     sf->adaptive_interp_filter_search = 1;
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
