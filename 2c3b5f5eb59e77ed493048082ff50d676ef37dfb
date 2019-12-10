@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "910c9cb9_7c81e69b",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2019-12-10T07:55:16Z",
+      "side": 1,
+      "message": "Please put this comment above the definition of the function. Please also mention it modified mbmi-\u003eref_mv_idx.",
+      "range": {
+        "startLine": 200,
+        "startChar": 2,
+        "endLine": 200,
+        "endChar": 59
+      },
+      "revId": "2c3b5f5eb59e77ed493048082ff50d676ef37dfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7fbc1b9_dc729605",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2019-12-10T07:55:16Z",
+      "side": 1,
+      "message": "can this be replaced with MAX_REF_MV_SEARCH?",
+      "range": {
+        "startLine": 222,
+        "startChar": 50,
+        "endLine": 222,
+        "endChar": 51
+      },
+      "revId": "2c3b5f5eb59e77ed493048082ff50d676ef37dfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "425a967c_e276d7a1",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 10688,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2019-12-10T07:55:16Z",
+      "side": 1,
+      "message": "Is \"range\" the differing variable between these two code blocks? Does it make sense to define range conditionally and leave the rest?",
+      "range": {
+        "startLine": 10688,
+        "startChar": 4,
+        "endLine": 10688,
+        "endChar": 70
+      },
+      "revId": "2c3b5f5eb59e77ed493048082ff50d676ef37dfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f76ee7b0_3fb844bd",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 11089,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2019-12-10T07:55:16Z",
+      "side": 1,
+      "message": "Is this the differing line between the two code blocks? If so, can this be the only part that is conditionally set?",
+      "range": {
+        "startLine": 11089,
+        "startChar": 1,
+        "endLine": 11089,
+        "endChar": 47
+      },
+      "revId": "2c3b5f5eb59e77ed493048082ff50d676ef37dfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
