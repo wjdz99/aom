@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "18e13ca5_6fa854de",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 767,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-12-10T17:35:11Z",
+      "side": 1,
+      "message": "I think move_ or transfer_ would be a better prefix given the semantics here, but outside of the naming nit this looks fine.",
+      "range": {
+        "startLine": 767,
+        "startChar": 12,
+        "endLine": 767,
+        "endChar": 17
+      },
+      "revId": "af9b4a719149f1173ffbd25dac250bf55ed2c7d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "47d52243_626c19fa",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 1
@@ -42,6 +65,23 @@
         "endLine": 829,
         "endChar": 57
       },
+      "revId": "af9b4a719149f1173ffbd25dac250bf55ed2c7d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c18a047_d637ea86",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-12-10T17:35:11Z",
+      "side": 1,
+      "message": "I think some explicit testing of failure modes would be a good thing to add before landing this. It will reduce the likelihood of a revert if you handle some foreseeable failure modes that will be caused by fuzzing:\n\n- Truncated metadata OBUs\n- Metadata OBUs w/invalid sizes (i.e. more payload than reported meaning the stream is essentially garbage)\n- Invalid T35 payload (kind the same as the previous example, but failing within the contents if there\u0027s a place where it could occur).\n\nYou\u0027ll probably think of a few more cases (or encounter them directly) while writing these kinds of tests. To be clear, I\u0027m not looking for you to work magic and make the decoder recover when it encounters data with the above example characteristics, just that we\u0027re failing gracefully and not leaking memory.",
       "revId": "af9b4a719149f1173ffbd25dac250bf55ed2c7d5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
