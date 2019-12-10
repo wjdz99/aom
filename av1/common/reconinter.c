@@ -1530,9 +1530,10 @@ static void combine_interintra(INTERINTRA_MODE mode,
                                BLOCK_SIZE plane_bsize, uint8_t *comppred,
                                int compstride, const uint8_t *interpred,
                                int interstride, const uint8_t *intrapred,
-                               int intrastride) {
+                               int intrastride, int plane) {
+  (void)plane;
 #if CONFIG_ILLUM_MCOMP
-  if (mode == II_ILLUM_MCOMP_PRED) {
+  if (mode == II_ILLUM_MCOMP_PRED && plane == 0) {
     illum_combine_interintra(use_wedge_interintra, wedge_index, wedge_sign,
                              bsize, plane_bsize, comppred, compstride,
                              interpred, interstride, intrapred, intrastride);
@@ -1566,9 +1567,11 @@ static void combine_interintra_highbd(
     INTERINTRA_MODE mode, int8_t use_wedge_interintra, int8_t wedge_index,
     int8_t wedge_sign, BLOCK_SIZE bsize, BLOCK_SIZE plane_bsize,
     uint8_t *comppred8, int compstride, const uint8_t *interpred8,
-    int interstride, const uint8_t *intrapred8, int intrastride, int bd) {
+    int interstride, const uint8_t *intrapred8, int intrastride, int bd,
+    int plane) {
+  (void)plane;
 #if CONFIG_ILLUM_MCOMP
-  if (mode == II_ILLUM_MCOMP_PRED) {
+  if (mode == II_ILLUM_MCOMP_PRED && plane == 0) {
     illum_combine_interintra_highbd(use_wedge_interintra, wedge_index,
                                     wedge_sign, bsize, plane_bsize, comppred8,
                                     compstride, interpred8, interstride,
@@ -1644,14 +1647,14 @@ void av1_combine_interintra(MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
         xd->mi[0]->interintra_mode, xd->mi[0]->use_wedge_interintra,
         xd->mi[0]->interintra_wedge_index, INTERINTRA_WEDGE_SIGN, bsize,
         plane_bsize, xd->plane[plane].dst.buf, xd->plane[plane].dst.stride,
-        inter_pred, inter_stride, intra_pred, intra_stride, xd->bd);
+        inter_pred, inter_stride, intra_pred, intra_stride, xd->bd, plane);
     return;
   }
   combine_interintra(
       xd->mi[0]->interintra_mode, xd->mi[0]->use_wedge_interintra,
       xd->mi[0]->interintra_wedge_index, INTERINTRA_WEDGE_SIGN, bsize,
       plane_bsize, xd->plane[plane].dst.buf, xd->plane[plane].dst.stride,
-      inter_pred, inter_stride, intra_pred, intra_stride);
+      inter_pred, inter_stride, intra_pred, intra_stride, plane);
 }
 
 // build interintra_predictors for one plane
