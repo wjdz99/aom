@@ -11282,6 +11282,8 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
 
       if (cpi->sf.skip_repeated_newmv) {
         if (!is_comp_pred && this_mode == NEWMV && ref_mv_idx > 0) {
+          MB_MODE_INFO this_mbmi = best_mbmi;
+          RD_STATS this_rd_stats = best_rd_stats;
           int skip = 0;
           int this_rate_mv = 0;
           for (i = 0; i < ref_mv_idx; ++i) {
@@ -11304,6 +11306,26 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
                     x->mv_cost_stack, MV_COST_WEIGHT);
                 const int this_cost = this_rate_mv + drl_cost;
 
+                // Update stats of mode with current ref_mv_idx required for
+                // winner mode processing
+                this_rd_stats.rate =
+                    best_rd_stats.rate + this_cost - compare_cost;
+                int64_t this_rd =
+                    RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
+                // Collect mode stats for multiwinner mode processing
+                if (best_mbmi.ref_mv_idx == i &&
+                    mode_info[i].mv.as_int != ref_mv.as_int) {
+                  this_mbmi.ref_mv_idx = ref_mv_idx;
+                  const THR_MODES mode_enum = get_prediction_mode_idx(
+                      this_mbmi.mode, this_mbmi.ref_frame[0],
+                      this_mbmi.ref_frame[1]);
+                  store_winner_mode_stats(
+                      &cpi->common, x, &this_mbmi, &this_rd_stats,
+                      &best_rd_stats_y, &best_rd_stats_uv, mode_enum, NULL,
+                      bsize, this_rd, cpi->sf.enable_multiwinner_mode_process,
+                      do_tx_search);
+                }
+
                 if (compare_cost <= this_cost) {
                   skip = 1;
                   break;
@@ -11317,9 +11339,8 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
                     assert(best_rd != INT64_MAX);
                     best_mbmi.ref_mv_idx = ref_mv_idx;
                     motion_mode_cand->rate_mv = this_rate_mv;
-                    best_rd_stats.rate += this_cost - compare_cost;
-                    best_rd = RDCOST(x->rdmult, best_rd_stats.rate,
-                                     best_rd_stats.dist);
+                    best_rd_stats.rate = this_rd_stats.rate;
+                    best_rd = this_rd;
                     if (best_rd < ref_best_rd) ref_best_rd = best_rd;
                     skip = 1;
                     break;
@@ -11329,13 +11350,6 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
             }
           }
           if (skip) {
-            const THR_MODES mode_enum = get_prediction_mode_idx(
-                best_mbmi.mode, best_mbmi.ref_frame[0], best_mbmi.ref_frame[1]);
-            // Collect mode stats for multiwinner mode processing
-            store_winner_mode_stats(
-                &cpi->common, x, &best_mbmi, &best_rd_stats, &best_rd_stats_y,
-                &best_rd_stats_uv, mode_enum, NULL, bsize, best_rd,
-                cpi->sf.enable_multiwinner_mode_process, do_tx_search);
             args->modelled_rd[this_mode][ref_mv_idx][refs[0]] =
                 args->modelled_rd[this_mode][i][refs[0]];
             args->simple_rd[this_mode][ref_mv_idx][refs[0]] =
