@@ -201,14 +201,14 @@ struct lookahead_entry *av1_lookahead_peek(struct lookahead_ctx *ctx,
                                            int index) {
   struct lookahead_entry *buf = NULL;
 
-  if (index >= 0) {
+  if (ctx && index >= 0) {
     // Forward peek
     if (index < ctx->sz) {
       index += ctx->read_idx;
       if (index >= ctx->max_sz) index -= ctx->max_sz;
       buf = ctx->buf + index;
     }
-  } else if (index < 0) {
+  } else if (ctx && index < 0) {
     // Backward peek
     if (-index <= MAX_PRE_FRAMES) {
       index += (int)(ctx->read_idx);
@@ -220,4 +220,7 @@ struct lookahead_entry *av1_lookahead_peek(struct lookahead_ctx *ctx,
   return buf;
 }
 
-unsigned int av1_lookahead_depth(struct lookahead_ctx *ctx) { return ctx->sz; }
+unsigned int av1_lookahead_depth(struct lookahead_ctx *ctx) {
+  assert(ctx != NULL);
+  return ctx->sz;
+}
