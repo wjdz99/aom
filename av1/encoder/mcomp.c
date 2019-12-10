@@ -2877,6 +2877,177 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   return var;
 }
 
+int av1_full_pixel_search_var(const AV1_COMP *cpi, MACROBLOCK *x,
+                              BLOCK_SIZE bsize, MV *mvp_full, int step_param,
+                              int method, int run_mesh_search,
+                              int error_per_bit, int *cost_list,
+                              const MV *ref_mv, int var_max, int rd, int x_pos,
+                              int y_pos, int intra,
+                              const search_site_config *cfg) {
+  const SPEED_FEATURES *const sf = &cpi->sf;
+  const aom_variance_fn_ptr_t *fn_ptr = &cpi->fn_ptr[bsize];
+  int var = 0;
+
+  if (cost_list) {
+    cost_list[0] = INT_MAX;
+    cost_list[1] = INT_MAX;
+    cost_list[2] = INT_MAX;
+    cost_list[3] = INT_MAX;
+    cost_list[4] = INT_MAX;
+  }
+
+  // Keep track of number of searches (this frame in this thread).
+  if (x->m_search_count_ptr != NULL) ++(*x->m_search_count_ptr);
+
+  switch (method) {
+    case FAST_DIAMOND:
+      var = fast_dia_search(cpi, x, mvp_full, step_param, error_per_bit, 0,
+                            cost_list, fn_ptr, 1, ref_mv);
+      break;
+    case FAST_HEX:
+      var = fast_hex_search(cpi, x, mvp_full, step_param, error_per_bit, 0,
+                            cost_list, fn_ptr, 1, ref_mv);
+      break;
+    case HEX:
+      var = av1_hex_search(cpi, x, mvp_full, step_param, error_per_bit, 1,
+                           cost_list, fn_ptr, 1, ref_mv);
+      break;
+    case SQUARE:
+      var = square_search(cpi, x, mvp_full, step_param, error_per_bit, 1,
+                          cost_list, fn_ptr, 1, ref_mv);
+      break;
+    case BIGDIA:
+      var = bigdia_search(cpi, x, mvp_full, step_param, error_per_bit, 1,
+                          cost_list, fn_ptr, 1, ref_mv);
+      break;
+    case NSTEP:
+      var = full_pixel_diamond(cpi, x, mvp_full, step_param, error_per_bit,
+                               MAX_MVSEARCH_STEPS - 1 - step_param, 1,
+                               cost_list, fn_ptr, ref_mv, cfg);
+
+      // Should we allow a follow on exhaustive search?
+      if (is_exhaustive_allowed(cpi, x)) {
+        int exhuastive_thr = sf->exhaustive_searches_thresh;
+        exhuastive_thr >>=
+            10 - (mi_size_wide_log2[bsize] + mi_size_high_log2[bsize]);
+
+        // Threshold variance for an exhaustive full search.
+        if (var > exhuastive_thr) {
+          int var_ex;
+          MV tmp_mv_ex;
+          var_ex =
+              full_pixel_exhaustive(cpi, x, &x->best_mv.as_mv, error_per_bit,
+                                    cost_list, fn_ptr, ref_mv, &tmp_mv_ex);
+
+          if (var_ex < var) {
+            var = var_ex;
+            x->best_mv.as_mv = tmp_mv_ex;
+          }
+        }
+      }
+      break;
+    default: assert(0 && "Invalid search method.");
+  }
+
+  // Should we allow a follow on exhaustive search?
+  if (!run_mesh_search) {
+    if (method == NSTEP) {
+      if (is_exhaustive_allowed(cpi, x)) {
+        int exhuastive_thr = sf->exhaustive_searches_thresh;
+        exhuastive_thr >>=
+            10 - (mi_size_wide_log2[bsize] + mi_size_high_log2[bsize]);
+        // Threshold variance for an exhaustive full search.
+        if (var > exhuastive_thr) run_mesh_search = 1;
+      }
+    }
+  }
+
+  if (run_mesh_search) {
+    int var_ex;
+    MV tmp_mv_ex;
+    var_ex = full_pixel_exhaustive(cpi, x, &x->best_mv.as_mv, error_per_bit,
+                                   cost_list, fn_ptr, ref_mv, &tmp_mv_ex);
+    if (var_ex < var) {
+      var = var_ex;
+      x->best_mv.as_mv = tmp_mv_ex;
+    }
+  }
+
+  if (method != NSTEP && rd && var < var_max)
+    var = av1_get_mvpred_var(&cpi->common, x, &x->best_mv.as_mv, ref_mv, fn_ptr,
+                             1);
+
+  do {
+    if (!intra || !av1_use_hash_me(&cpi->common)) break;
+
+    // already single ME
+    // get block size and original buffer of current block
+    const int block_height = block_size_high[bsize];
+    const int block_width = block_size_wide[bsize];
+    if (block_height == block_width && x_pos >= 0 && y_pos >= 0) {
+      if (block_width == 4 || block_width == 8 || block_width == 16 ||
+          block_width == 32 || block_width == 64 || block_width == 128) {
+        uint8_t *what = x->plane[0].src.buf;
+        const int what_stride = x->plane[0].src.stride;
+        uint32_t hash_value1, hash_value2;
+        MV best_hash_mv;
+        int best_hash_cost = INT_MAX;
+
+        // for the hashMap
+        hash_table *ref_frame_hash =
+            intra ? &cpi->common.cur_frame->hash_table
+                  : av1_get_ref_frame_hash_map(&cpi->common,
+                                               x->e_mbd.mi[0]->ref_frame[0]);
+
+        av1_get_block_hash_value(what, what_stride, block_width, &hash_value1,
+                                 &hash_value2, is_cur_buf_hbd(&x->e_mbd), x);
+
+        const int count = av1_hash_table_count(ref_frame_hash, hash_value1);
+        // for intra, at lest one matching can be found, itself.
+        if (count <= (intra ? 1 : 0)) {
+          break;
+        }
+
+        Iterator iterator =
+            av1_hash_get_first_iterator(ref_frame_hash, hash_value1);
+        for (int i = 0; i < count; i++, aom_iterator_increment(&iterator)) {
+          block_hash ref_block_hash =
+              *(block_hash *)(aom_iterator_get(&iterator));
+          if (hash_value2 == ref_block_hash.hash_value2) {
+            // For intra, make sure the prediction is from valid area.
+            if (intra) {
+              const int mi_col = x_pos / MI_SIZE;
+              const int mi_row = y_pos / MI_SIZE;
+              const MV dv = { 8 * (ref_block_hash.y - y_pos),
+                              8 * (ref_block_hash.x - x_pos) };
+              if (!av1_is_dv_valid(dv, &cpi->common, &x->e_mbd, mi_row, mi_col,
+                                   bsize, cpi->common.seq_params.mib_size_log2))
+                continue;
+            }
+            MV hash_mv;
+            hash_mv.col = ref_block_hash.x - x_pos;
+            hash_mv.row = ref_block_hash.y - y_pos;
+            if (!is_mv_in(&x->mv_limits, &hash_mv)) continue;
+            const int refCost = av1_get_mvpred_var(&cpi->common, x, &hash_mv,
+                                                   ref_mv, fn_ptr, 1);
+            if (refCost < best_hash_cost) {
+              best_hash_cost = refCost;
+              best_hash_mv = hash_mv;
+            }
+          }
+        }
+        if (best_hash_cost < var) {
+          x->second_best_mv = x->best_mv;
+          x->best_mv.as_mv = best_hash_mv;
+          var = best_hash_cost;
+        }
+      }
+    }
+  } while (0);
+
+  return var;
+}
+
 #define CHECK_BETTER(v, r, c)                                              \
   if (c >= minc && c <= maxc && r >= minr && r <= maxr) {                  \
     MV this_mv = { r, c };                                                 \
