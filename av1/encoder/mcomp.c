@@ -1378,6 +1378,62 @@ static INLINE void calc_int_cost_list(const AV1_COMMON *cm, const MACROBLOCK *x,
   }
 }
 
+// Calculate and return a mvcost list around an integer best pel.
+static INLINE void calc_int_cost_list_var(const AV1_COMMON *cm,
+                                          const MACROBLOCK *x,
+                                          const MV *const ref_mv,
+                                          const aom_variance_fn_ptr_t *fn_ptr,
+                                          const MV *best_mv, int *cost_list) {
+  static const MV neighbors[4] = { { 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 } };
+  const struct buf_2d *const what = &x->plane[0].src;
+  const struct buf_2d *const in_what = &x->e_mbd.plane[0].pre[0];
+  const MV fcenter_mv = { ref_mv->row >> 3, ref_mv->col >> 3 };
+  const int br = best_mv->row;
+  const int bc = best_mv->col;
+  int i;
+  unsigned int sse;
+  const MV this_mv = { br, bc };
+  const int(
+      *flex_mv_costs)[MV_SUBPEL_PRECISIONS - DISALLOW_ONE_DOWN_FLEX_MVRES];
+  const MACROBLOCKD *xd = &x->e_mbd;
+  const MB_MODE_INFO *mbmi = xd->mi[0];
+  flex_mv_costs = NULL;
+  mv_err_cost_fn *mv_err_cost = mv_base_err_cost;
+
+  cost_list[0] =
+      fn_ptr->vf(what->buf, what->stride, get_buf_from_mv(in_what, &this_mv),
+                 in_what->stride, &sse) +
+      // TODO fix this, sadpb was replaced with x->errorperibt
+      mvsad_err_cost(x, &this_mv, &fcenter_mv, mbmi->max_mv_precision,
+                     x->errorperbit);
+  if (check_bounds(&x->mv_limits, br, bc, 1)) {
+    for (i = 0; i < 4; i++) {
+      const MV neighbor_mv = { br + neighbors[i].row, bc + neighbors[i].col };
+      cost_list[i + 1] =
+          fn_ptr->vf(what->buf, what->stride,
+                     get_buf_from_mv(in_what, &neighbor_mv), in_what->stride,
+                     &sse) +
+          mv_err_cost(&neighbor_mv, &fcenter_mv, mbmi->max_mv_precision,
+                      MV_SUBPEL_NONE, x->nmv_vec_cost, x->nmvcost,
+                      flex_mv_costs, x->errorperbit);
+    }
+  } else {
+    for (i = 0; i < 4; i++) {
+      const MV neighbor_mv = { br + neighbors[i].row, bc + neighbors[i].col };
+      if (!is_mv_in(&x->mv_limits, &neighbor_mv))
+        cost_list[i + 1] = INT_MAX;
+      else
+        cost_list[i + 1] =
+            fn_ptr->vf(what->buf, what->stride,
+                       get_buf_from_mv(in_what, &neighbor_mv), in_what->stride,
+                       &sse) +
+            mv_err_cost(&neighbor_mv, &fcenter_mv, mbmi->max_mv_precision,
+                        MV_SUBPEL_NONE, x->nmv_vec_cost, x->nmvcost,
+                        flex_mv_costs, x->errorperbit);
+    }
+  }
+}
+
 static INLINE void calc_int_sad_list(const AV1_COMMON *const cm,
                                      const MACROBLOCK *x,
                                      const MV *const ref_mv, int sadpb,
@@ -2147,29 +2203,94 @@ int av1_diamond_search_sad_c(const AV1_COMMON *const cm, MACROBLOCK *x,
       best_mv->col += ss[best_site].mv.col;
       best_address += ss[best_site].offset;
       last_site = best_site;
-#if defined(NEW_DIAMOND_SEARCH)
-      while (1) {
-        const MV this_mv = { best_mv->row + ss[best_site].mv.row,
-                             best_mv->col + ss[best_site].mv.col };
-        if (is_mv_in(&x->mv_limits, &this_mv)) {
-          const uint8_t *const check_here = ss[best_site].offset + best_address;
-          unsigned int thissad =
-              fn_ptr->sdf(what, what_stride, check_here, in_what_stride);
+    } else if (best_address == in_what) {
+      (*num00)++;
+    }
+  }
+  return bestsad;
+}
+
+static int diamond_search_var_c(MACROBLOCK *x, const search_site_config *cfg,
+                                MV *ref_mv, MV *best_mv, int search_param,
+                                int *num00, const aom_variance_fn_ptr_t *fn_ptr,
+                                const MV *center_mv) {
+  int i, j, step;
+  const MACROBLOCKD *const xd = &x->e_mbd;
+  const MB_MODE_INFO *mbmi = xd->mi[0];
+  uint8_t *what = x->plane[0].src.buf;
+  const int what_stride = x->plane[0].src.stride;
+  const uint8_t *in_what;
+  const int in_what_stride = xd->plane[0].pre[0].stride;
+  const uint8_t *best_address;
+
+  unsigned int bestsad = INT_MAX;
+  int best_site = 0;
+  int last_site = 0;
+
+  int ref_row;
+  int ref_col;
+
+  // search_param determines the length of the initial step and hence the number
+  // of iterations.
+  // 0 = initial step (MAX_FIRST_STEP) pel
+  // 1 = (MAX_FIRST_STEP/2) pel,
+  // 2 = (MAX_FIRST_STEP/4) pel...
+  const search_site *ss = &cfg->ss[search_param * cfg->searches_per_step];
+  const int tot_steps = (cfg->ss_count / cfg->searches_per_step) - search_param;
+
+  const MV fcenter_mv = { center_mv->row >> 3, center_mv->col >> 3 };
+  clamp_mv(ref_mv, x->mv_limits.col_min, x->mv_limits.col_max,
+           x->mv_limits.row_min, x->mv_limits.row_max);
+  ref_row = ref_mv->row;
+  ref_col = ref_mv->col;
+  *num00 = 0;
+  best_mv->row = ref_row;
+  best_mv->col = ref_col;
+
+  // Work out the start point for the search
+  in_what = xd->plane[0].pre[0].buf + ref_row * in_what_stride + ref_col;
+  best_address = in_what;
+
+  // Check the starting position
+  bestsad = fn_ptr->sdf(what, what_stride, in_what, in_what_stride) +
+            mvsad_err_cost(x, best_mv, &fcenter_mv, mbmi->max_mv_precision,
+                           // TODO: check that error-per-bit is correct here
+                           x->errorperbit);
+
+  i = 1;
+
+  for (step = 0; step < tot_steps; step++) {
+    int t;
+
+    for (j = 0; j < cfg->searches_per_step; j++) {
+      // Trap illegal vectors
+      const MV this_mv = { best_mv->row + ss[i].mv.row,
+                           best_mv->col + ss[i].mv.col };
+
+      if (is_mv_in(&x->mv_limits, &this_mv)) {
+        const uint8_t *const check_here = ss[i].offset + best_address;
+        unsigned int thissad =
+            fn_ptr->sdf(what, what_stride, check_here, in_what_stride);
+
+        if (thissad < bestsad) {
+          // TODO check if this is right
+          thissad += mvsad_err_cost(x, &this_mv, &fcenter_mv,
+                                    mbmi->max_mv_precision, x->errorperbit);
           if (thissad < bestsad) {
-            thissad += mvsad_err_cost(x, &this_mv, &fcenter_mv,
-                                      mbmi->max_mv_precision, sad_per_bit);
-            if (thissad < bestsad) {
-              bestsad = thissad;
-              best_mv->row += ss[best_site].mv.row;
-              best_mv->col += ss[best_site].mv.col;
-              best_address += ss[best_site].offset;
-              continue;
-            }
+            bestsad = thissad;
+            best_site = i;
           }
         }
-        break;
       }
-#endif
+      i++;
+    }
+
+    if (best_site != last_site) {
+      x->second_best_mv.as_mv = *best_mv;
+      best_mv->row += ss[best_site].mv.row;
+      best_mv->col += ss[best_site].mv.col;
+      best_address += ss[best_site].offset;
+      last_site = best_site;
     } else if (best_address == in_what) {
       (*num00)++;
     }
@@ -2239,6 +2360,126 @@ static int full_pixel_diamond(const AV1_COMP *const cpi, MACROBLOCK *x,
   // Return cost list.
   if (cost_list) {
     calc_int_cost_list(&cpi->common, x, ref_mv, sadpb, fn_ptr,
+                       &x->best_mv.as_mv, cost_list);
+  }
+  return bestsme;
+}
+
+static int refining_search_var(MACROBLOCK *x, MV *ref_mv, int search_range,
+                               const aom_variance_fn_ptr_t *fn_ptr,
+                               const MV *center_mv) {
+  const MACROBLOCKD *const xd = &x->e_mbd;
+  const MB_MODE_INFO *mbmi = xd->mi[0];
+  const MV neighbors[4] = { { -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, 0 } };
+  const struct buf_2d *const what = &x->plane[0].src;
+  const struct buf_2d *const in_what = &xd->plane[0].pre[0];
+  const MV fcenter_mv = { center_mv->row >> 3, center_mv->col >> 3 };
+  const uint8_t *best_address = get_buf_from_mv(in_what, ref_mv);
+  // TODO fix this
+  unsigned int best_sad =
+      fn_ptr->sdf(what->buf, what->stride, best_address, in_what->stride) +
+      mvsad_err_cost(x, ref_mv, &fcenter_mv, mbmi->max_mv_precision,
+                     x->errorperbit);
+  int i, j;
+
+  for (i = 0; i < search_range; i++) {
+    int best_site = -1;
+    for (j = 0; j < 4; ++j) {
+      const MV mv = { ref_mv->row + neighbors[j].row,
+                      ref_mv->col + neighbors[j].col };
+
+      if (is_mv_in(&x->mv_limits, &mv)) {
+        unsigned int sad =
+            fn_ptr->sdf(what->buf, what->stride, get_buf_from_mv(in_what, &mv),
+                        in_what->stride);
+        if (sad < best_sad) {
+          // TODO check if this is accurate
+          sad += mvsad_err_cost(x, &mv, &fcenter_mv, mbmi->max_mv_precision,
+                                x->errorperbit);
+          if (sad < best_sad) {
+            best_sad = sad;
+            best_site = j;
+          }
+        }
+      }
+    }
+
+    if (best_site == -1) {
+      break;
+    } else {
+      x->second_best_mv.as_mv = *ref_mv;
+      ref_mv->row += neighbors[best_site].row;
+      ref_mv->col += neighbors[best_site].col;
+      best_address = get_buf_from_mv(in_what, ref_mv);
+    }
+  }
+
+  return best_sad;
+}
+
+/* do_refine: If last step (1-away) of n-step search doesn't pick the center
+              point as the best match, we will do a final 1-away diamond
+              refining search  */
+static int full_pixel_diamond_var(const AV1_COMP *const cpi, MACROBLOCK *x,
+                                  MV *mvp_full, int step_param,
+                                  int further_steps, int do_refine,
+                                  int *cost_list,
+                                  const aom_variance_fn_ptr_t *fn_ptr,
+                                  const MV *ref_mv,
+                                  const search_site_config *cfg) {
+  MV temp_mv;
+  int thissme, n, num00 = 0;
+  int bestsme = diamond_search_var_c(x, cfg, mvp_full, &temp_mv, step_param, &n,
+                                     fn_ptr, ref_mv);
+
+  if (bestsme < INT_MAX)
+    bestsme = av1_get_mvpred_var(&cpi->common, x, &temp_mv, ref_mv, fn_ptr, 1);
+  x->best_mv.as_mv = temp_mv;
+
+  // If there won't be more n-step search, check to see if refining search is
+  // needed.
+  if (n > further_steps) do_refine = 0;
+
+  while (n < further_steps) {
+    ++n;
+
+    if (num00) {
+      num00--;
+    } else {
+      thissme = diamond_search_var_c(x, cfg, mvp_full, &temp_mv, step_param + n,
+                                     &num00, fn_ptr, ref_mv);
+      if (thissme < INT_MAX)
+        thissme =
+            av1_get_mvpred_var(&cpi->common, x, &temp_mv, ref_mv, fn_ptr, 1);
+
+      // check to see if refining search is needed.
+      if (num00 > further_steps - n) do_refine = 0;
+
+      if (thissme < bestsme) {
+        bestsme = thissme;
+        x->best_mv.as_mv = temp_mv;
+      }
+    }
+  }
+
+  // final 1-away diamond refining search
+  if (do_refine) {
+    const int search_range = 8;
+    MV best_mv = x->best_mv.as_mv;
+    thissme = refining_search_var(x, &best_mv, search_range, fn_ptr, ref_mv);
+    if (thissme < INT_MAX)
+      thissme =
+          av1_get_mvpred_var(&cpi->common, x, &best_mv, ref_mv, fn_ptr, 1);
+    if (thissme < bestsme) {
+      bestsme = thissme;
+      x->best_mv.as_mv = best_mv;
+    }
+  }
+
+  // Return cost list.
+  if (cost_list) {
+    // TODO check that x->errorperbit is correct here, used to be SAD.
+    calc_int_cost_list(&cpi->common, x, ref_mv, x->errorperbit, fn_ptr,
                        &x->best_mv.as_mv, cost_list);
   }
   return bestsme;
@@ -2806,6 +3047,294 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     var = av1_get_mvpred_var(&cpi->common, x, &x->best_mv.as_mv, ref_mv, fn_ptr,
                              1);
 
+  do {
+    if (!intra || !av1_use_hash_me(&cpi->common)) break;
+
+    // already single ME
+    // get block size and original buffer of current block
+    const int block_height = block_size_high[bsize];
+    const int block_width = block_size_wide[bsize];
+    if (block_height == block_width && x_pos >= 0 && y_pos >= 0) {
+      if (block_width == 4 || block_width == 8 || block_width == 16 ||
+          block_width == 32 || block_width == 64 || block_width == 128) {
+        uint8_t *what = x->plane[0].src.buf;
+        const int what_stride = x->plane[0].src.stride;
+        uint32_t hash_value1, hash_value2;
+        MV best_hash_mv;
+        int best_hash_cost = INT_MAX;
+
+        // for the hashMap
+        hash_table *ref_frame_hash =
+            intra ? &cpi->common.cur_frame->hash_table
+                  : av1_get_ref_frame_hash_map(&cpi->common,
+                                               x->e_mbd.mi[0]->ref_frame[0]);
+
+        av1_get_block_hash_value(what, what_stride, block_width, &hash_value1,
+                                 &hash_value2, is_cur_buf_hbd(&x->e_mbd), x);
+
+        const int count = av1_hash_table_count(ref_frame_hash, hash_value1);
+        // for intra, at lest one matching can be found, itself.
+        if (count <= (intra ? 1 : 0)) {
+          break;
+        }
+
+        Iterator iterator =
+            av1_hash_get_first_iterator(ref_frame_hash, hash_value1);
+        for (int i = 0; i < count; i++, aom_iterator_increment(&iterator)) {
+          block_hash ref_block_hash =
+              *(block_hash *)(aom_iterator_get(&iterator));
+          if (hash_value2 == ref_block_hash.hash_value2) {
+            // For intra, make sure the prediction is from valid area.
+            if (intra) {
+              const int mi_col = x_pos / MI_SIZE;
+              const int mi_row = y_pos / MI_SIZE;
+              const MV dv = { 8 * (ref_block_hash.y - y_pos),
+                              8 * (ref_block_hash.x - x_pos) };
+              if (!av1_is_dv_valid(dv, &cpi->common, &x->e_mbd, mi_row, mi_col,
+                                   bsize, cpi->common.seq_params.mib_size_log2))
+                continue;
+            }
+            MV hash_mv;
+            hash_mv.col = ref_block_hash.x - x_pos;
+            hash_mv.row = ref_block_hash.y - y_pos;
+            if (!is_mv_in(&x->mv_limits, &hash_mv)) continue;
+            const int refCost = av1_get_mvpred_var(&cpi->common, x, &hash_mv,
+                                                   ref_mv, fn_ptr, 1);
+            if (refCost < best_hash_cost) {
+              best_hash_cost = refCost;
+              best_hash_mv = hash_mv;
+            }
+          }
+        }
+        if (best_hash_cost < var) {
+          x->second_best_mv = x->best_mv;
+          x->best_mv.as_mv = best_hash_mv;
+          var = best_hash_cost;
+        }
+      }
+    }
+  } while (0);
+
+  return var;
+}
+
+// Exhuastive motion search around a given centre position with a given
+// step size. Variance based.
+static int exhaustive_mesh_search_var(MACROBLOCK *x, MV *ref_mv, MV *best_mv,
+                                      int range, int step,
+                                      const aom_variance_fn_ptr_t *fn_ptr,
+                                      const MV *center_mv) {
+  const MACROBLOCKD *const xd = &x->e_mbd;
+  const MB_MODE_INFO *mbmi = xd->mi[0];
+  const struct buf_2d *const what = &x->plane[0].src;
+  const struct buf_2d *const in_what = &xd->plane[0].pre[0];
+  MV fcenter_mv = { center_mv->row, center_mv->col };
+  unsigned int best_sad = INT_MAX;
+  int r, c, i;
+  int start_col, end_col, start_row, end_row;
+  int col_step = (step > 1) ? step : 4;
+
+  assert(step >= 1);
+  int sad_per_bit = x->errorperbit;  // TODO: not actually SAD
+  clamp_mv(&fcenter_mv, x->mv_limits.col_min, x->mv_limits.col_max,
+           x->mv_limits.row_min, x->mv_limits.row_max);
+  *best_mv = fcenter_mv;
+  best_sad =
+      fn_ptr->sdf(what->buf, what->stride,
+                  get_buf_from_mv(in_what, &fcenter_mv), in_what->stride) +
+      mvsad_err_cost(x, &fcenter_mv, ref_mv, mbmi->max_mv_precision,
+                     sad_per_bit);
+  start_row = AOMMAX(-range, x->mv_limits.row_min - fcenter_mv.row);
+  start_col = AOMMAX(-range, x->mv_limits.col_min - fcenter_mv.col);
+  end_row = AOMMIN(range, x->mv_limits.row_max - fcenter_mv.row);
+  end_col = AOMMIN(range, x->mv_limits.col_max - fcenter_mv.col);
+
+  for (r = start_row; r <= end_row; r += step) {
+    for (c = start_col; c <= end_col; c += col_step) {
+      // Step > 1 means we are not checking every location in this pass.
+      if (step > 1) {
+        const MV mv = { fcenter_mv.row + r, fcenter_mv.col + c };
+        unsigned int sad =
+            fn_ptr->sdf(what->buf, what->stride, get_buf_from_mv(in_what, &mv),
+                        in_what->stride);
+        if (sad < best_sad) {
+          sad += mvsad_err_cost(x, &mv, ref_mv, mbmi->max_mv_precision,
+                                sad_per_bit);
+          if (sad < best_sad) {
+            best_sad = sad;
+            x->second_best_mv.as_mv = *best_mv;
+            *best_mv = mv;
+          }
+        }
+      } else {
+        // 4 sads in a single call if we are checking every location
+        if (c + 3 <= end_col) {
+          unsigned int sads[4];
+          const uint8_t *addrs[4];
+          for (i = 0; i < 4; ++i) {
+            const MV mv = { fcenter_mv.row + r, fcenter_mv.col + c + i };
+            addrs[i] = get_buf_from_mv(in_what, &mv);
+          }
+          fn_ptr->sdx4df(what->buf, what->stride, addrs, in_what->stride, sads);
+
+          for (i = 0; i < 4; ++i) {
+            if (sads[i] < best_sad) {
+              const MV mv = { fcenter_mv.row + r, fcenter_mv.col + c + i };
+              const unsigned int sad =
+                  sads[i] + mvsad_err_cost(x, &mv, ref_mv,
+                                           mbmi->max_mv_precision, sad_per_bit);
+              if (sad < best_sad) {
+                best_sad = sad;
+                x->second_best_mv.as_mv = *best_mv;
+                *best_mv = mv;
+              }
+            }
+          }
+        } else {
+          for (i = 0; i < end_col - c; ++i) {
+            const MV mv = { fcenter_mv.row + r, fcenter_mv.col + c + i };
+            unsigned int sad =
+                fn_ptr->sdf(what->buf, what->stride,
+                            get_buf_from_mv(in_what, &mv), in_what->stride);
+            if (sad < best_sad) {
+              sad += mvsad_err_cost(x, &mv, ref_mv, mbmi->max_mv_precision,
+                                    sad_per_bit);
+              if (sad < best_sad) {
+                best_sad = sad;
+                x->second_best_mv.as_mv = *best_mv;
+                *best_mv = mv;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return best_sad;
+}
+
+// Runs an limited range exhaustive mesh search using a pattern set
+// according to the encode speed profile.
+static int full_pixel_exhaustive_var(const AV1_COMP *const cpi, MACROBLOCK *x,
+                                     const MV *centre_mv_full, int *cost_list,
+                                     const aom_variance_fn_ptr_t *fn_ptr,
+                                     const MV *ref_mv, MV *dst_mv) {
+  const SPEED_FEATURES *const sf = &cpi->sf;
+  MV temp_mv = { centre_mv_full->row, centre_mv_full->col };
+  MV f_ref_mv = { ref_mv->row >> 3, ref_mv->col >> 3 };
+  int bestsme;
+  int i;
+  int interval = sf->mesh_patterns[0].interval;
+  int range = sf->mesh_patterns[0].range;
+  int baseline_interval_divisor;
+
+  // Trap illegal values for interval and range for this function.
+  if ((range < MIN_RANGE) || (range > MAX_RANGE) || (interval < MIN_INTERVAL) ||
+      (interval > range))
+    return INT_MAX;
+
+  baseline_interval_divisor = range / interval;
+
+  // Check size of proposed first range against magnitude of the centre
+  // value used as a starting point.
+  range = AOMMAX(range, (5 * AOMMAX(abs(temp_mv.row), abs(temp_mv.col))) / 4);
+  range = AOMMIN(range, MAX_RANGE);
+  interval = AOMMAX(interval, range / baseline_interval_divisor);
+
+  // initial search
+  bestsme = exhaustive_mesh_search_var(x, &f_ref_mv, &temp_mv, range, interval,
+                                       fn_ptr, &temp_mv);
+
+  if ((interval > MIN_INTERVAL) && (range > MIN_RANGE)) {
+    // Progressive searches with range and step size decreasing each time
+    // till we reach a step size of 1. Then break out.
+    for (i = 1; i < MAX_MESH_STEP; ++i) {
+      // First pass with coarser step and longer range
+      bestsme = exhaustive_mesh_search_var(
+          x, &f_ref_mv, &temp_mv, sf->mesh_patterns[i].range,
+          sf->mesh_patterns[i].interval, fn_ptr, &temp_mv);
+
+      if (sf->mesh_patterns[i].interval == 1) break;
+    }
+  }
+
+  if (bestsme < INT_MAX)
+    bestsme = av1_get_mvpred_var(&cpi->common, x, &temp_mv, ref_mv, fn_ptr, 1);
+  *dst_mv = temp_mv;
+
+  // Return cost list.
+  if (cost_list) {
+    int sadpb = x->errorperbit;  // TODO not actually sad
+    calc_int_cost_list(&cpi->common, x, ref_mv, sadpb, fn_ptr, dst_mv,
+                       cost_list);
+  }
+  return bestsme;
+}
+
+int av1_full_pixel_search_var(const AV1_COMP *cpi, MACROBLOCK *x,
+                              BLOCK_SIZE bsize, MV *mvp_full, int step_param,
+                              int *cost_list, const MV *ref_mv, int x_pos,
+                              int y_pos, int intra,
+                              const search_site_config *cfg) {
+  const SPEED_FEATURES *const sf = &cpi->sf;
+  const aom_variance_fn_ptr_t *fn_ptr = &cpi->fn_ptr[bsize];
+  int var = 0;
+
+  if (cost_list) {
+    cost_list[0] = INT_MAX;
+    cost_list[1] = INT_MAX;
+    cost_list[2] = INT_MAX;
+    cost_list[3] = INT_MAX;
+    cost_list[4] = INT_MAX;
+  }
+
+  // TODO: change to full_pixel_diamond_var
+  var = full_pixel_diamond(cpi, x, mvp_full, step_param, x->errorperbit,
+                           MAX_MVSEARCH_STEPS - 1 - step_param, 1, cost_list,
+                           fn_ptr, ref_mv, cfg);
+
+  // Should we allow a follow on exhaustive search?
+  if (is_exhaustive_allowed(cpi, x)) {
+    int exhuastive_thr = sf->exhaustive_searches_thresh;
+    exhuastive_thr >>=
+        10 - (mi_size_wide_log2[bsize] + mi_size_high_log2[bsize]);
+
+    // Threshold variance for an exhaustive full search.
+    if (var > exhuastive_thr) {
+      int var_ex;
+      MV tmp_mv_ex;
+      var_ex = full_pixel_exhaustive_var(cpi, x, &x->best_mv.as_mv, cost_list,
+                                         fn_ptr, ref_mv, &tmp_mv_ex);
+
+      if (var_ex < var) {
+        var = var_ex;
+        x->best_mv.as_mv = tmp_mv_ex;
+      }
+    }
+  }
+
+  bool run_mesh_search = false;
+  if (is_exhaustive_allowed(cpi, x)) {
+    int exhuastive_thr = sf->exhaustive_searches_thresh;
+    exhuastive_thr >>=
+        10 - (mi_size_wide_log2[bsize] + mi_size_high_log2[bsize]);
+    // Threshold variance for an exhaustive full search.
+    if (var > exhuastive_thr) run_mesh_search = true;
+  }
+
+  if (run_mesh_search) {
+    int var_ex;
+    MV tmp_mv_ex;
+    var_ex = full_pixel_exhaustive_var(cpi, x, &x->best_mv.as_mv, cost_list,
+                                       fn_ptr, ref_mv, &tmp_mv_ex);
+    if (var_ex < var) {
+      var = var_ex;
+      x->best_mv.as_mv = tmp_mv_ex;
+    }
+  }
+
+  // TODO: is this needed?
   do {
     if (!intra || !av1_use_hash_me(&cpi->common)) break;
 
