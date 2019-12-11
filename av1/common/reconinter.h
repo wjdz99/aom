@@ -383,10 +383,11 @@ int av1_allow_warp(const MB_MODE_INFO *const mbmi,
 #ifdef CONFIG_ILLUM_MCOMP
 
 // Compute the DC value for a predictor.
-int illum_mcomp_compute_dc(const uint8_t *pred, int stride, int bw, int bh);
+int illum_mcomp_compute_dc(const uint8_t *pred, int stride, int bw, int bh,
+                           bool have_top, bool have_left);
 
 int illum_mcomp_compute_dc_high(const uint16_t *pred, int stride, int bw,
-                                int bh);
+                                int bh, bool have_top, bool have_left);
 
 // Writes the interpredictor into result, but subtracts out the DC from
 // the interpredictor and adds the DC from the intrapredictor.

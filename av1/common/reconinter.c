@@ -1398,15 +1398,54 @@ static void build_smooth_interintra_mask(uint8_t *mask, int stride,
 }
 
 #if CONFIG_ILLUM_MCOMP
-int illum_mcomp_compute_dc(const uint8_t *pred, int stride, int bw, int bh) {
+int illum_mcomp_compute_dc(const uint8_t *pred, int stride, int bw, int bh,
+                           bool have_top, bool have_left) {
   int sum = 0;
-  for (int i = 0; i < bh; ++i) {
-    for (int j = 0; j < bw; ++j) {
-      sum += pred[i * stride + j];
+  int count = 0;
+  if (have_left) {
+    count += bh;
+    for (int i = 0; i < bh; ++i) {
+      sum += pred[i * stride];
     }
   }
+  if (have_top) {
+    count += bw;
+    for (int j = 0; j < bw; ++j) {
+      sum += pred[j];
+    }
+  }
+  // Do not double-count the top-left pixel.
+  if (have_left && have_top) {
+    count--;
+    sum -= pred[0];
+  }
   // Add "0.5" so we round "half-up" instead of "down".
-  const int count = bw * bh;
+  int expected_dc = (sum + (count >> 1)) / count;
+  return expected_dc;
+}
+
+int illum_mcomp_compute_dc_high(const uint16_t *pred, int stride, int bw,
+                                int bh, bool have_top, bool have_left) {
+  int sum = 0;
+  int count = 0;
+  if (have_left) {
+    count += bh;
+    for (int i = 0; i < bh; ++i) {
+      sum += pred[i * stride];
+    }
+  }
+  if (have_top) {
+    count += bw;
+    for (int j = 0; j < bw; ++j) {
+      sum += pred[j];
+    }
+  }
+  // Do not double-count the top-left pixel.
+  if (have_left && have_top) {
+    count--;
+    sum -= pred[0];
+  }
+  // Add "0.5" so we round "half-up" instead of "down".
   int expected_dc = (sum + (count >> 1)) / count;
   return expected_dc;
 }
@@ -1418,8 +1457,10 @@ void illum_mcomp_subtract_add_dc(int bw, int bh, uint8_t *result,
                                  int resultstride, const uint8_t *interpred,
                                  int interstride, const uint8_t *intrapred,
                                  int intrastride) {
-  int intra_dc = illum_mcomp_compute_dc(intrapred, intrastride, bw, bh);
-  int inter_dc = illum_mcomp_compute_dc(interpred, interstride, bw, bh);
+  int intra_dc =
+      illum_mcomp_compute_dc(intrapred, intrastride, bw, bh, true, true);
+  int inter_dc =
+      illum_mcomp_compute_dc(interpred, interstride, bw, bh, true, true);
   for (int i = 0; i < bh; ++i) {
     for (int j = 0; j < bw; ++j) {
       int16_t r = interpred[i * interstride + j];
@@ -1459,28 +1500,16 @@ static void illum_combine_interintra(int8_t use_wedge_interintra,
                               interstride, intrapred, intrastride);
 }
 
-int illum_mcomp_compute_dc_high(const uint16_t *pred, int stride, int bw,
-                                int bh) {
-  int sum = 0;
-  for (int i = 0; i < bh; ++i) {
-    for (int j = 0; j < bw; ++j) {
-      sum += pred[i * stride + j];
-    }
-  }
-  // Add "0.5" so we round "half-up" instead of "down".
-  const int count = bw * bh;
-  int expected_dc = (sum + (count >> 1)) / count;
-  return expected_dc;
-}
-
 void illum_mcomp_subtract_add_dc_high(int bw, int bh, uint16_t *result,
                                       uint8_t resultstride,
                                       const uint16_t *interpred,
                                       int interstride,
                                       const uint16_t *intrapred,
                                       int intrastride, int bd) {
-  int intra_dc = illum_mcomp_compute_dc_high(intrapred, intrastride, bw, bh);
-  int inter_dc = illum_mcomp_compute_dc_high(interpred, interstride, bw, bh);
+  int intra_dc =
+      illum_mcomp_compute_dc_high(intrapred, intrastride, bw, bh, true, true);
+  int inter_dc =
+      illum_mcomp_compute_dc_high(interpred, interstride, bw, bh, true, true);
 
   for (int i = 0; i < bh; ++i) {
     for (int j = 0; j < bw; ++j) {
