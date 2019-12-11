@@ -961,6 +961,8 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   else if (oxcf->mode == REALTIME)
     set_rt_speed_features_framesize_independent(cpi, sf, speed);
 
+  sf->tpl_sf.reduce_first_step_size = 6;
+
   if (!cpi->seq_params_locked) {
     cpi->common.seq_params.enable_dual_filter &= !sf->disable_dual_filter;
     cpi->common.seq_params.enable_restoration &= !sf->disable_lr_filter;
