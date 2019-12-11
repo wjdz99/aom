@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3c02bb67_6a5a7c90",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1182,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2019-12-11T00:28:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "baaee671_19f74421",
+      "range": {
+        "startLine": 1182,
+        "startChar": 5,
+        "endLine": 1182,
+        "endChar": 19
+      },
+      "revId": "49dbb6735311a2488c505d0446df62197b75f78d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "31931faf_66f02d66",
         "filename": "aom/aomcx.h",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "49dbb6735311a2488c505d0446df62197b75f78d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "904ce53b_ff6b0fb0",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1184,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2019-12-11T00:28:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31931faf_66f02d66",
+      "range": {
+        "startLine": 1184,
+        "startChar": 29,
+        "endLine": 1184,
+        "endChar": 32
+      },
+      "revId": "49dbb6735311a2488c505d0446df62197b75f78d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "af2d7939_063d73d8",
+        "filename": "aom_dsp/vmaf.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2019-12-11T00:28:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f243cb11_c116e893",
+      "range": {
+        "startLine": 2,
+        "startChar": 16,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "49dbb6735311a2488c505d0446df62197b75f78d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2f431750_f776770a",
         "filename": "aom_dsp/vmaf.h",
         "patchSetId": 7
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "59f37518_a1947ff9",
+        "filename": "aom_dsp/vmaf.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2019-12-11T00:28:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2f431750_f776770a",
+      "range": {
+        "startLine": 2,
+        "startChar": 16,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "49dbb6735311a2488c505d0446df62197b75f78d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "522cef3e_402d9047",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 7
@@ -108,6 +204,24 @@
       "revId": "49dbb6735311a2488c505d0446df62197b75f78d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "754bde20_b4f7b0f8",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2019-12-11T00:28:14Z",
+      "side": 1,
+      "message": "I think it might be better to have a default. This is the default location of the VMAF model when installing libvmaf https://github.com/Netflix/vmaf/blob/master/resource/doc/libvmaf.md\nBesides, ffmpeg also uses this default: https://github.com/FFmpeg/FFmpeg/blob/master/libavfilter/vf_libvmaf.c#L75",
+      "parentUuid": "522cef3e_402d9047",
+      "revId": "49dbb6735311a2488c505d0446df62197b75f78d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -131,6 +245,30 @@
       "revId": "49dbb6735311a2488c505d0446df62197b75f78d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "458e38cd_99805e21",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2019-12-11T00:28:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85fec5c0_747cf437",
+      "range": {
+        "startLine": 490,
+        "startChar": 38,
+        "endLine": 490,
+        "endChar": 48
+      },
+      "revId": "49dbb6735311a2488c505d0446df62197b75f78d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
