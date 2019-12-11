@@ -318,6 +318,8 @@ static void set_good_speed_features_framesize_independent(
   sf->rt_sf.use_real_time_ref_set = 0;
 
   if (speed >= 1) {
+    sf->hl_sf.high_precision_mv_usage = LAST_MV_DATA;
+
     sf->gm_sf.disable_adaptive_warp_error_thresh = 0;
     sf->gm_sf.gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
     sf->gm_sf.prune_ref_frame_for_gm_search = boosted ? 0 : 1;
@@ -352,7 +354,6 @@ static void set_good_speed_features_framesize_independent(
     sf->intra_sf.prune_palette_search_level = 1;
 
     sf->tx_sf.adaptive_txb_search_level = 2;
-    sf->tx_sf.inter_tx_size_search_init_depth_rect = 1;
     sf->tx_sf.inter_tx_size_search_init_depth_sqr = 1;
     sf->tx_sf.intra_tx_size_search_init_depth_rect = 1;
     sf->tx_sf.model_based_prune_tx_search_level = 0;
@@ -409,6 +410,7 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 3) {
+    sf->hl_sf.high_precision_mv_usage = CURRENT_Q;
     sf->hl_sf.recode_loop = ALLOW_RECODE_KFARFGF;
 
     sf->gm_sf.gm_search_type = GM_DISABLE_SEARCH;
@@ -829,12 +831,12 @@ static AOM_INLINE void init_hl_sf(HIGH_LEVEL_SPEED_FEATURES *hl_sf) {
   // best quality defaults
   hl_sf->frame_parameter_update = 1;
   hl_sf->recode_loop = ALLOW_RECODE;
-  hl_sf->reduce_high_precision_mv_usage = 0;
   hl_sf->disable_overlay_frames = 0;
   // TODO(yunqing): turn it on for speed 0 if there is gain.
   hl_sf->adaptive_overlay_encoding = 1;
   // Recode loop tolerance %.
   hl_sf->recode_tolerance = 25;
+  hl_sf->high_precision_mv_usage = CURRENT_Q;
 }
 
 static AOM_INLINE void init_tpl_sf(TPL_SPEED_FEATURES *tpl_sf) {
