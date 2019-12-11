@@ -156,6 +156,9 @@ static void set_good_speed_feature_framesize_dependent(
       sf->use_square_partition_only_threshold = BLOCK_64X64;
     } else {
       sf->use_square_partition_only_threshold = BLOCK_32X32;
+      if (speed == 1) {
+        sf->high_precision_mv_usage = LAST_MV_DATA;
+      }
     }
 
     if (!is_720p_or_larger) {
@@ -815,7 +818,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->adaptive_interp_filter_search = 0;
   sf->interp_filter_search_mask = ALLOW_ALL_INTERP_FILT_MASK;
   sf->src_var_thresh_intra_skip = 1;
-  sf->reduce_high_precision_mv_usage = 0;
+  sf->high_precision_mv_usage = CURRENT_Q;
   sf->disable_sb_level_coeff_cost_upd = 0;
   sf->disable_sb_level_mv_cost_upd = 0;
   sf->disable_overlay_frames = 0;
