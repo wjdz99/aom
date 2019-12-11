@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10074720_9f67f675",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T22:58:30Z",
+      "side": 1,
+      "message": "Max: Does the aom_image_t own this aom_metadata_array_t?",
+      "range": {
+        "startLine": 201,
+        "startChar": 0,
+        "endLine": 202,
+        "endChar": 69
+      },
+      "revId": "6b855be182e8b6673f0600e6bbd01151cf55eca7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2be27be_82c340f2",
+        "filename": "aom_scale/yv12config.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T22:58:30Z",
+      "side": 1,
+      "message": "Max: Does the YV12_BUFFER_CONFIG own this aom_metadata_array_t?",
+      "revId": "6b855be182e8b6673f0600e6bbd01151cf55eca7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87fe2540_98899b92",
+        "filename": "av1/av1_iface_common.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T22:58:30Z",
+      "side": 1,
+      "message": "Max: This statement is the reason why I asked about the ownership of img-\u003emetadata and yv12-\u003emetadata.\n\nIf img owns img-\u003emetadata and yv12 owns yv12-\u003emetadata, then this assignment is wrong, because both img and yv12 will think they own the aom_metadata_array_t after this assignment.",
+      "revId": "6b855be182e8b6673f0600e6bbd01151cf55eca7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12fa2367_cd15351e",
+        "filename": "av1/av1_iface_common.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T22:58:30Z",
+      "side": 1,
+      "message": "Max: This statement has the same potential problem as line 77 above.",
+      "revId": "6b855be182e8b6673f0600e6bbd01151cf55eca7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
