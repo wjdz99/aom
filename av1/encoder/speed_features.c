@@ -933,7 +933,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   // so make sure they are always turned off.
   if (is_stat_generation_stage(cpi)) sf->optimize_coefficients = NO_TRELLIS_OPT;
 
-  if (oxcf->pass == 0) {
+  if (has_no_stats_stage(cpi)) {
     sf->recode_loop = DISALLOW_RECODE;
   }
   // FIXME: trellis not very efficient for quantization matrices
