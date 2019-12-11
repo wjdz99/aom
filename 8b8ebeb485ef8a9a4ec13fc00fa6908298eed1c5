@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a61008e_bb6139de",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2019-12-11T01:54:08Z",
+      "side": 1,
+      "message": "Right thing to do. Where should the static variable be located?",
+      "range": {
+        "startLine": 124,
+        "startChar": 2,
+        "endLine": 124,
+        "endChar": 8
+      },
+      "revId": "8b8ebeb485ef8a9a4ec13fc00fa6908298eed1c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
