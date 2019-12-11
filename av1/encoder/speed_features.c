@@ -308,6 +308,10 @@ static void set_good_speed_features_framesize_independent(
   sf->rt_sf.use_real_time_ref_set = 0;
 
   if (speed >= 1) {
+    if (speed == 1) {
+      sf->high_precision_mv_usage = LAST_MV_DATA;
+    }
+
     sf->inter_sf.selective_ref_frame = 2;
 
     sf->prune_ref_frame_for_gm_search = boosted ? 0 : 1;
@@ -974,7 +978,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->prune_sgr_based_on_wiener = 0;
   sf->enable_sgr_ep_pruning = 0;
   sf->reduce_wiener_window_size = 0;
-  sf->reduce_high_precision_mv_usage = 0;
+  sf->high_precision_mv_usage = CURRENT_Q;
   sf->disable_overlay_frames = 0;
   // TODO(yunqing): turn it on for speed 0 if there is gain.
   sf->adaptive_overlay_encoding = 1;
