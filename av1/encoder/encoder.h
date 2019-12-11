@@ -1366,6 +1366,11 @@ static INLINE int is_stat_generation_stage(const AV1_COMP *const cpi) {
   return (cpi->oxcf.pass == 1);
 }
 
+// Check if stage where no statistics are available for consumption
+static INLINE int no_stat_for_consumption_stage(const AV1_COMP *const cpi) {
+  return (cpi->oxcf.pass == 0);
+}
+
 // TODO(zoeliu): To set up cpi->oxcf.enable_auto_brf
 
 static INLINE void set_ref_ptrs(const AV1_COMMON *cm, MACROBLOCKD *xd,

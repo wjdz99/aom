@@ -995,7 +995,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   if (is_stat_generation_stage(cpi)) sf->optimize_coefficients = NO_TRELLIS_OPT;
 
   // No recode or trellis for 1 pass.
-  if (oxcf->pass == 0) sf->recode_loop = DISALLOW_RECODE;
+  if (no_stat_for_consumption_stage(cpi)) sf->recode_loop = DISALLOW_RECODE;
 
   if (sf->mv.subpel_search_method == SUBPEL_TREE) {
     cpi->find_fractional_mv_step = av1_find_best_sub_pixel_tree;

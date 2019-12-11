@@ -2718,7 +2718,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     config_target_level(cpi, cpi->target_seq_level_idx[0], seq_params->tier[0]);
   }
 
-  if ((oxcf->pass == 0) && (oxcf->rc_mode == AOM_Q)) {
+  if ((no_stat_for_consumption_stage(cpi)) && (oxcf->rc_mode == AOM_Q)) {
     rc->baseline_gf_interval = FIXED_GF_INTERVAL;
   } else {
     rc->baseline_gf_interval = (MIN_GF_INTERVAL + MAX_GF_INTERVAL) / 2;
@@ -3754,7 +3754,8 @@ static void scale_references(AV1_COMP *cpi) {
         ++buf->ref_count;
       }
     } else {
-      if (cpi->oxcf.pass != 0) cpi->scaled_ref_buf[ref_frame - 1] = NULL;
+      if (!no_stat_for_consumption_stage(cpi))
+        cpi->scaled_ref_buf[ref_frame - 1] = NULL;
     }
   }
 }
@@ -4478,7 +4479,7 @@ static size_params_type calculate_next_size_params(AV1_COMP *cpi) {
   const AV1EncoderConfig *oxcf = &cpi->oxcf;
   size_params_type rsz = { oxcf->width, oxcf->height, SCALE_NUMERATOR };
   int resize_denom = SCALE_NUMERATOR;
-  if (oxcf->pass == 0 && cpi->use_svc &&
+  if (no_stat_for_consumption_stage(cpi) && cpi->use_svc &&
       cpi->svc.spatial_layer_id < cpi->svc.number_spatial_layers - 1) {
     rsz.resize_width = cpi->common.width;
     rsz.resize_height = cpi->common.height;
@@ -5941,7 +5942,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
   // For 1 pass CBR, check if we are dropping this frame.
   // Never drop on key frame.
-  if (oxcf->pass == 0 && oxcf->rc_mode == AOM_CBR &&
+  if (no_stat_for_consumption_stage(cpi) && oxcf->rc_mode == AOM_CBR &&
       current_frame->frame_type != KEY_FRAME) {
     if (av1_rc_drop_frame(cpi)) {
       av1_rc_postencode_update_drop_frame(cpi);
