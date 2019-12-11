@@ -11230,30 +11230,24 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
       // MV did not perform well in simple translation search. Skip it.
       continue;
     }
-    av1_init_rd_stats(rd_stats);
 
     mbmi->interinter_comp.type = COMPOUND_AVERAGE;
     mbmi->comp_group_idx = 0;
     mbmi->compound_idx = 1;
     if (mbmi->ref_frame[1] == INTRA_FRAME) mbmi->ref_frame[1] = NONE_FRAME;
-
     mbmi->num_proj_ref = 0;
     mbmi->motion_mode = SIMPLE_TRANSLATION;
     mbmi->ref_mv_idx = ref_mv_idx;
 
+    int_mv cur_mv[2];
+    if (!build_cur_mv(cur_mv, this_mode, cm, x)) continue;
+
+    av1_init_rd_stats(rd_stats);
     rd_stats->rate = base_rate;
     const int drl_cost =
         get_drl_cost(mbmi, mbmi_ext, x->drl_mode_cost0, ref_frame_type);
     rd_stats->rate += drl_cost;
     mode_info[ref_mv_idx].drl_cost = drl_cost;
-
-    int rs = 0;
-    int compmode_interinter_cost = 0;
-
-    int_mv cur_mv[2];
-    if (!build_cur_mv(cur_mv, this_mode, cm, x)) {
-      continue;
-    }
 
     if (have_newmv_in_inter_mode(this_mode)) {
 #if CONFIG_COLLECT_COMPONENT_TIMING
@@ -11346,13 +11340,14 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
         }
       }
     }
-    for (i = 0; i < is_comp_pred + 1; ++i) {
-      mbmi->mv[i].as_int = cur_mv[i].as_int;
-    }
 
     if (RDCOST(x->rdmult, rd_stats->rate, 0) > ref_best_rd &&
         mbmi->mode != NEARESTMV && mbmi->mode != NEAREST_NEARESTMV) {
       continue;
+    }
+
+    for (i = 0; i < is_comp_pred + 1; ++i) {
+      mbmi->mv[i].as_int = cur_mv[i].as_int;
     }
 
     if (cpi->sf.prune_ref_mv_idx_search && is_comp_pred) {
@@ -11389,6 +11384,7 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
     int skip_build_pred = 0;
     const int mi_row = xd->mi_row;
     const int mi_col = xd->mi_col;
+    int compmode_interinter_cost = 0;
     if (is_comp_pred) {
       // Find matching interp filter or set to default interp filter
       const int need_search = av1_is_interp_needed(xd);
@@ -11433,6 +11429,7 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
     end_timing(cpi, compound_type_rd_time);
 #endif
 
+    int rs = 0;
 #if CONFIG_COLLECT_COMPONENT_TIMING
     start_timing(cpi, interpolation_filter_search_time);
 #endif
