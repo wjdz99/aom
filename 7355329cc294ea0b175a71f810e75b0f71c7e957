@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89ae2aba_b09d82cb",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 1270,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-12-11T03:00:14Z",
+      "side": 1,
+      "message": "this is an ABI change, the value should be updated and for compatibility it\u0027s best to always add values to the end of an enum so existing values don\u0027t take a different meaning after this change.",
+      "revId": "7355329cc294ea0b175a71f810e75b0f71c7e957",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17d07c0c_02737e67",
+        "filename": "aom_dsp/vmaf.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-12-11T03:00:14Z",
+      "side": 1,
+      "message": "this looks like it can be static. it would be good to document the return values.",
+      "revId": "7355329cc294ea0b175a71f810e75b0f71c7e957",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3930dc31_c994ffa6",
+        "filename": "aom_dsp/vmaf.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-12-11T03:00:14Z",
+      "side": 1,
+      "message": "\u0027/*user_data\u003d*/\u0026frames\u0027 might be a little more common:\n\nhttps://google.github.io/styleguide/cppguide.html#Function_Argument_Comments",
+      "range": {
+        "startLine": 70,
+        "startChar": 6,
+        "endLine": 70,
+        "endChar": 21
+      },
+      "revId": "7355329cc294ea0b175a71f810e75b0f71c7e957",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4698a614_b97c62e7",
+        "filename": "aom_dsp/vmaf.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-12-11T03:00:14Z",
+      "side": 1,
+      "message": "exiting from a library isn\u0027t the best unless this configuration is only meant to be for debug purposes. it doesn\u0027t look that way though. Better to have this return a sentinel like -1 or something out of range for vmaf",
+      "revId": "7355329cc294ea0b175a71f810e75b0f71c7e957",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cea62337_b50d7e41",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-12-11T03:00:14Z",
+      "side": 1,
+      "message": "you might want to add the link to the readme discussing this location with a note about the default location for reference",
+      "revId": "7355329cc294ea0b175a71f810e75b0f71c7e957",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
