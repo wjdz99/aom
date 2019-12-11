@@ -1612,6 +1612,19 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
         uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
         int idx;
 
+#if CONFIG_NEW_INTER_MODES
+        for (idx = 0; idx < 3; ++idx) {
+          if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
+#if CONFIG_ENTROPY_STATS
+            uint8_t drl_ctx =
+                av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
+            ++counts->drl_mode[drl_ctx][mbmi->ref_mv_idx != idx - 1];
+#endif
+
+            if (mbmi->ref_mv_idx == idx - 1) break;
+          }
+        }
+#else
         for (idx = 1; idx < 3; ++idx) {
           if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
 #if CONFIG_ENTROPY_STATS
@@ -1623,6 +1636,7 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             if (mbmi->ref_mv_idx == idx - 1) break;
           }
         }
+#endif  // CONFIG_NEW_INTER_MODES
       }
 
       if (have_newmv_in_inter_mode(mbmi->mode)) {
