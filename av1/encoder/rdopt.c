@@ -10639,7 +10639,11 @@ static INLINE void get_this_mv(int_mv *this_mv, PREDICTION_MODE this_mode,
   } else {
     assert(single_mode == NEARMV || single_mode == NEARESTMV);
     const uint8_t ref_frame_type = av1_ref_frame_type(ref_frame);
+#if CONFIG_NEW_INTER_MODES
+    const int ref_mv_offset = single_mode == NEARESTMV ? 0 : ref_mv_idx;
+#else
     const int ref_mv_offset = single_mode == NEARESTMV ? 0 : ref_mv_idx + 1;
+#endif
     if (ref_mv_offset < mbmi_ext->ref_mv_count[ref_frame_type]) {
       assert(ref_mv_offset >= 0);
       if (ref_idx == 0) {
@@ -10678,22 +10682,26 @@ static INLINE int build_cur_mv(int_mv *cur_mv, PREDICTION_MODE this_mode,
   return ret;
 }
 
+#if CONFIG_NEW_INTER_MODES
 static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
                                const MB_MODE_INFO_EXT *mbmi_ext,
                                const int (*const drl_mode_cost0)[2],
                                int8_t ref_frame_type) {
   int cost = 0;
-#if CONFIG_NEW_INTER_MODES
-  if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
-    int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, 3);
-    for (int idx = 0; idx < range; ++idx) {
-      uint8_t drl_ctx = av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
-      cost += drl_mode_cost0[drl_ctx][mbmi->ref_mv_idx != idx];
-      if (mbmi->ref_mv_idx == idx) return cost;
-    }
-    return cost;
+  int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, 3);
+  for (int idx = 0; idx < range; ++idx) {
+    uint8_t drl_ctx = av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
+    cost += drl_mode_cost0[drl_ctx][mbmi->ref_mv_idx != idx];
+    if (mbmi->ref_mv_idx == idx) return cost;
   }
+  return cost;
+}
 #else
+static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
+                               const MB_MODE_INFO_EXT *mbmi_ext,
+                               const int (*const drl_mode_cost0)[2],
+                               int8_t ref_frame_type) {
+  int cost = 0;
   if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
     for (int idx = 0; idx < 2; ++idx) {
       if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
@@ -10704,8 +10712,6 @@ static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
     }
     return cost;
   }
-#endif  // CONFIG_NEW_INTER_MODES
-
   if (have_nearmv_in_inter_mode(mbmi->mode)) {
     for (int idx = 1; idx < 3; ++idx) {
       if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
@@ -10718,6 +10724,7 @@ static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
   }
   return cost;
 }
+#endif  // CONFIG_NEW_INTER_MODES
 
 // Calculates the cost for compound type mask
 static INLINE void calc_masked_type_cost(MACROBLOCK *x, BLOCK_SIZE bsize,
@@ -11072,7 +11079,16 @@ static INLINE int is_single_newmv_valid(const HandleInterModeArgs *const args,
   }
   return 1;
 }
-
+#if CONFIG_NEW_INTER_MODES
+static int get_drl_refmv_count(const MACROBLOCK *const x,
+                               const MV_REFERENCE_FRAME *ref_frame,
+                               PREDICTION_MODE mode) {
+  MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
+  const int8_t ref_frame_type = av1_ref_frame_type(ref_frame);
+  const int ref_mv_count = mbmi_ext->ref_mv_count[ref_frame_type];
+  return AOMMIN(MAX_REF_MV_SEARCH, ref_mv_count);
+}
+#else
 static int get_drl_refmv_count(const MACROBLOCK *const x,
                                const MV_REFERENCE_FRAME *ref_frame,
                                PREDICTION_MODE mode) {
@@ -11083,14 +11099,11 @@ static int get_drl_refmv_count(const MACROBLOCK *const x,
   const int only_newmv = (mode == NEWMV || mode == NEW_NEWMV);
   const int has_drl =
       (has_nearmv && ref_mv_count > 2) || (only_newmv && ref_mv_count > 1);
-  int ref_set = has_drl ? ref_mv_count - has_nearmv : 1;
-  ref_set = AOMMIN(MAX_REF_MV_SEARCH, ref_set);
-#if CONFIG_NEW_INTER_MODES
-  if (has_nearmv) ref_set = AOMMIN(3, ref_set);
-  assert(IMPLIES(ref_set == 4, only_newmv));
-#endif  // CONFIG_NEW_INTER_MODES
+  const int ref_set =
+      has_drl ? AOMMIN(MAX_REF_MV_SEARCH, ref_mv_count - has_nearmv) : 1;
   return ref_set;
 }
+#endif  // CONFIG_NEW_INTER_MODES
 
 // Whether this reference motion vector can be skipped, based on initial
 // heuristics.
@@ -11107,11 +11120,17 @@ static bool ref_mv_idx_early_breakout(MACROBLOCK *x,
         mbmi->ref_frame[0] == LAST3_FRAME ||
         mbmi->ref_frame[1] == LAST2_FRAME ||
         mbmi->ref_frame[1] == LAST3_FRAME) {
+#if CONFIG_NEW_INTER_MODES
+      if (mbmi_ext->weight[ref_frame_type][ref_mv_idx] < REF_CAT_LEVEL) {
+        return true;
+      }
+#else
       const int has_nearmv = have_nearmv_in_inter_mode(mbmi->mode) ? 1 : 0;
       if (mbmi_ext->weight[ref_frame_type][ref_mv_idx + has_nearmv] <
           REF_CAT_LEVEL) {
         return true;
       }
+#endif
     }
   }
   const int is_comp_pred = has_second_ref(mbmi);
