@@ -127,6 +127,24 @@
       "revId": "af9b4a719149f1173ffbd25dac250bf55ed2c7d5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a144026e_481e2f52",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-12-11T01:21:10Z",
+      "side": 1,
+      "message": "\u003e Are these tests are to be done using only the metadata public functions that were added?\n\nNot necessarily. I\u0027m mainly concerned that we have the same test set that missed the failure modes in the bugs this reland of the patch addresses.\n\n\u003e Since the syntax of itu_t_t35_payload_bytes are not defined in the spec, the only validation I can think of for T35 \n\u003e integrity is that it contains the country_code bytes at the start, yet this can be any byte as per their spec. All \n\u003e other payload bytes are user specific.\n\u003e For the others, considering we only validate T35 case, even if garbage is added as payload if user specifies larger \n\u003e size than his data, it would be taken as valid as payload bytes are user specific. \n\u003e\n\u003e This could be due to nature of T35 or maybe I\u0027m misunderstanding the case and broader tests are needed.\n\nI see your point on the T35 payload case. My main concern is that we\u0027re going to be doing this again in a week once all the longer running tests have another go at the patch.\n\n\u003e \u003e Truncated metadata OBUs\n\u003e \u003e Metadata OBUs w/invalid sizes (i.e. more payload than reported meaning the stream is essentially garbage)\n\nThese could still be tested-- a fuzzer will happily replace an OBU size field with a bogus number that\u0027s larger than the OBU payload. Confirming that such a case is handled gracefully when the fuzzed OBU size is for a metadata OBU seems reasonable. However, I\u0027m not sure of the feasibility of such a test given the current structure of the OBU parsing code.\n\nAnyway, I\u0027m fine with the patch as-is, but I\u0027ll let wtc@ have a look before we land this.",
+      "parentUuid": "ba3339b3_b2f8e26f",
+      "revId": "af9b4a719149f1173ffbd25dac250bf55ed2c7d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
