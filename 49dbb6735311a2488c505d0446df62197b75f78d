@@ -225,6 +225,24 @@
     },
     {
       "key": {
+        "uuid": "b2929a8f_b955d99b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-12-11T02:26:21Z",
+      "side": 1,
+      "message": "\u003e I think it might be better to have a default. This is the default location of the VMAF model when installing libvmaf https://github.com/Netflix/vmaf/blob/master/resource/doc/libvmaf.md\n\u003e Besides, ffmpeg also uses this default: https://github.com/FFmpeg/FFmpeg/blob/master/libavfilter/vf_libvmaf.c#L75\n\nthanks for checking, looks a little fragile with the version coded in the file name, but I\u0027m OK with it either way.",
+      "parentUuid": "754bde20_b4f7b0f8",
+      "revId": "49dbb6735311a2488c505d0446df62197b75f78d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "85fec5c0_747cf437",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 7
