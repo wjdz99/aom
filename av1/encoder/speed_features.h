@@ -214,6 +214,12 @@ enum {
   ADAPT_PRED
 } UENUM1BYTE(MAX_PART_PRED_MODE);
 
+enum {
+  LAST_MV_DATA,
+  CURRENT_Q,
+  QTR_ONLY,
+} UENUM1BYTE(MV_PREC_LOGIC);
+
 typedef struct MV_SPEED_FEATURES {
   // Motion search method (Diamond, NSTEP, Hex, Big Diamond, Square, etc).
   SEARCH_METHODS search_method;
@@ -772,7 +778,11 @@ typedef struct SPEED_FEATURES {
   // 0: maximizes quality and does not reduce mv precision
   // 1: more aggressive reduced usage of high precision MV
   // 2: use only quarter pel motion
-  int reduce_high_precision_mv_usage;
+  // Determine how motion vector precision is chosen. The possibilities are:
+  // LAST_MV_DATA: use the mv data from the last coded frame
+  // CURRENT_Q: use the current q as a threshold
+  // QTR_ONLY: use quarter pel precision only.
+  MV_PREC_LOGIC high_precision_mv_usage;
 
   // Whether to override and disable sb level coeff cost updates, if
   // cpi->oxcf.coeff_cost_upd_freq = COST_UPD_SB (i.e. set at SB level)
