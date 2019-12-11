@@ -224,7 +224,42 @@ static void set_good_speed_features_framesize_independent(
   const int is_boosted_arf2_bwd_type =
       boosted || cpi->refresh_bwd_ref_frame || cpi->refresh_alt2_ref_frame;
 
-  // Speed 0 for all speed features that give neutral coding performance change.
+// Speed 0 for all speed features that give neutral coding performance change.
+#if CONFIG_NEW_INTER_MODES
+  sf->reduce_inter_modes = 0;
+  sf->prune_ext_partition_types_search_level = 0;
+  sf->ml_prune_rect_partition = 0;
+  sf->ml_prune_ab_partition = 0;
+  sf->ml_prune_4_partition = 0;
+  sf->simple_motion_search_prune_rect = 0;
+  sf->use_dist_wtd_comp_flag = 0;
+  sf->adaptive_txb_search_level = 0;
+  sf->model_based_prune_tx_search_level = 0;
+  sf->model_based_post_interp_filter_breakout = 0;
+
+  sf->inter_mode_rd_model_estimation = 0;
+  sf->inter_mode_rd_model_estimation_adaptive = 0;
+  sf->prune_compound_using_single_ref = 0;
+
+  sf->prune_mode_search_simple_translation = 0;
+  sf->two_loop_comp_search = 0;
+  sf->prune_ref_frame_for_rect_partitions = 0;
+  sf->less_rectangular_check_level = 0;
+  sf->gm_search_type = 0;
+  sf->gm_disable_recode = 0;
+  sf->use_fast_interpolation_filter_search = 0;
+  sf->intra_tx_size_search_init_depth_sqr = 0;
+  sf->intra_angle_estimation = 0;
+  sf->tx_type_search.use_reduced_intra_txset = 0;
+  sf->selective_ref_frame = 0;
+  sf->prune_wedge_pred_diff_based = 0;
+  sf->disable_wedge_search_var_thresh = 0;
+  sf->disable_wedge_search_edge_thresh = 0;
+  sf->prune_motion_mode_level = 0;
+  sf->cb_pred_filter_search = 0;
+  sf->use_nonrd_pick_mode = 0;
+  sf->use_real_time_ref_set = 0;
+#else
   sf->reduce_inter_modes = 1;
   sf->prune_ext_partition_types_search_level = 1;
   sf->ml_prune_rect_partition = 1;
@@ -273,7 +308,7 @@ static void set_good_speed_features_framesize_independent(
   sf->cb_pred_filter_search = 0;
   sf->use_nonrd_pick_mode = 0;
   sf->use_real_time_ref_set = 0;
-
+#endif
   if (speed >= 1) {
     sf->selective_ref_frame = 2;
 

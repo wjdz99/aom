@@ -333,7 +333,9 @@ int_mv av1_get_ref_mv(const MACROBLOCK *x, int ref_idx) {
   int ref_mv_idx = mbmi->ref_mv_idx;
   if (mbmi->mode == NEAR_NEWMV || mbmi->mode == NEW_NEARMV) {
     assert(has_second_ref(mbmi));
+#if !CONFIG_NEW_INTER_MODES
     ref_mv_idx += 1;
+#endif
   }
   return av1_get_ref_mv_from_stack(ref_idx, mbmi->ref_frame, ref_mv_idx,
                                    x->mbmi_ext);
