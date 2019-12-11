@@ -419,6 +419,8 @@ static void set_good_speed_features_framesize_independent(
     sf->tx_type_search.use_skip_flag_prediction =
         cm->allow_screen_content_tools ? 1 : 2;
     sf->prune_palette_search_level = 2;
+    sf->enable_multiwinner_mode_process =
+        frame_is_intra_only(&cpi->common) ? 0 : 1;
   }
 
   if (speed >= 4) {
@@ -439,8 +441,7 @@ static void set_good_speed_features_framesize_independent(
     sf->mv.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
     sf->enable_winner_mode_for_tx_size_srch = 1;
     // TODO(any): Extend multi-winner mode processing support for inter frames
-    sf->enable_multiwinner_mode_process =
-        frame_is_intra_only(&cpi->common) ? 1 : 0;
+    sf->enable_multiwinner_mode_process = 1;
     sf->tx_type_search.enable_winner_mode_tx_type_pruning = 1;
     // TODO(any): Experiment with this speed feature set to 2 for higher quality
     // presets as well
