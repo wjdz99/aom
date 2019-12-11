@@ -1,0 +1,296 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d0e7c22_221615e1",
+        "filename": "aom/internal/aom_image_internal.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T23:20:13Z",
+      "side": 1,
+      "message": "I don\u0027t understand this comment. It seems to state the obvious. We should either delete this comment or clarify it.",
+      "range": {
+        "startLine": 45,
+        "startChar": 63,
+        "endLine": 46,
+        "endChar": 78
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f070e2b3_fe9a9b50",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T23:20:13Z",
+      "side": 1,
+      "message": "Nit: What does \"clears it from it\"mean? I don\u0027t know what the first \"it\" and the second \"it\" refer to.",
+      "range": {
+        "startLine": 765,
+        "startChar": 43,
+        "endLine": 765,
+        "endChar": 60
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18706d9e_d88da10b",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T23:20:13Z",
+      "side": 1,
+      "message": "I assume this \"it\" refers to the AV1Decoder?",
+      "range": {
+        "startLine": 765,
+        "startChar": 70,
+        "endLine": 765,
+        "endChar": 72
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c1b93f1_ab7b7888",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T23:20:13Z",
+      "side": 1,
+      "message": "Omit the null pointer check for \u0027img\u0027. Invalid argument checks are important for public functions. For internal functions, we can often assume that the callers pass valid arguments to the functions.\n\nFor example, we can verify that all calls to move_decoder_metadata_to_img() pass a non-null \u0027img\u0027 argument (equal to \u0026ctx-\u003eimg).",
+      "range": {
+        "startLine": 768,
+        "startChar": 19,
+        "endLine": 768,
+        "endChar": 26
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df631cb2_67fb885b",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T23:20:13Z",
+      "side": 1,
+      "message": "Max: To review the changes here, I need to know the answers to the questions I just posted in https://aomedia-review.googlesource.com/c/aom/+/95366.",
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fde6b4b_e08dd049",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T23:20:13Z",
+      "side": 1,
+      "message": "Nit: This line can be omitted because we are about to free \u0027pbi\u0027 (in the next line).",
+      "range": {
+        "startLine": 251,
+        "startChar": 2,
+        "endLine": 251,
+        "endChar": 23
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4585cc5_08ac3d28",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T23:20:13Z",
+      "side": 1,
+      "message": "Note this comment. This means the \"return 0\" statements after the aom_internal_error() calls are not necessary.",
+      "range": {
+        "startLine": 563,
+        "startChar": 61,
+        "endLine": 564,
+        "endChar": 44
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6a1c3bca_3c92443e",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T23:20:13Z",
+      "side": 1,
+      "message": "Nit: test sz \u003d\u003d 0 instead. (sz is a size_t, so it cannot possibly be negative.)",
+      "range": {
+        "startLine": 567,
+        "startChar": 6,
+        "endLine": 567,
+        "endChar": 13
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e136981_afefd278",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T23:20:13Z",
+      "side": 1,
+      "message": "Please declare the \u0027cm\u0027 variable at the beginning of this function, to be shared by all the aom_internal_error calls in this function.",
+      "range": {
+        "startLine": 568,
+        "startChar": 4,
+        "endLine": 568,
+        "endChar": 40
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86cc4dac_38add25b",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T23:20:13Z",
+      "side": 1,
+      "message": "Delete this return statement.",
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe064793_304d9dd9",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T23:20:13Z",
+      "side": 1,
+      "message": "Delete this return statement.",
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39619241_6b1f7c4d",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T23:20:13Z",
+      "side": 1,
+      "message": "Delete this return statement.",
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e714977b_d71e920c",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T23:20:13Z",
+      "side": 1,
+      "message": "Delete this return statement.",
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d96c998_3b3e1e67",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 607,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-11T23:20:13Z",
+      "side": 1,
+      "message": "Nit: We should check for the failure of this aom_img_metadata_alloc call.",
+      "range": {
+        "startLine": 607,
+        "startChar": 57,
+        "endLine": 607,
+        "endChar": 79
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
