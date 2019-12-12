@@ -1560,6 +1560,10 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   // Actual bits spent
   rc->total_actual_bits += rc->projected_frame_size;
   rc->total_target_bits += cm->show_frame ? rc->avg_frame_bandwidth : 0;
+  if (current_frame->order_hint > 0) {
+    rc->this_gop_bits += rc->projected_frame_size;
+    rc->this_gop_target += rc->base_frame_target;
+  }
 
   rc->total_target_vs_actual = rc->total_actual_bits - rc->total_target_bits;
 
