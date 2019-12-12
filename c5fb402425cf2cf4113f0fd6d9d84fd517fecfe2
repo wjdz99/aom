@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "354d6475_b6e6e05c",
+        "filename": "aom/internal/aom_image_internal.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d0e7c22_221615e1",
+      "range": {
+        "startLine": 45,
+        "startChar": 63,
+        "endLine": 46,
+        "endChar": 78
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f070e2b3_fe9a9b50",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 2
@@ -71,6 +95,54 @@
     },
     {
       "key": {
+        "uuid": "a85f5e8b_f0f9d030",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:56Z",
+      "side": 1,
+      "message": "yes",
+      "parentUuid": "18706d9e_d88da10b",
+      "range": {
+        "startLine": 765,
+        "startChar": 70,
+        "endLine": 765,
+        "endChar": 72
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "17aca651_e8f52456",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:56Z",
+      "side": 1,
+      "message": "Clears the metadata from AV1Decoder.\nThe \"leaving it ready for next decoder call\" maybe it\u0027s extra info that is not needed since this is specific to the decoder_get_frame() loop. I\u0027ll take it off.",
+      "parentUuid": "f070e2b3_fe9a9b50",
+      "range": {
+        "startLine": 765,
+        "startChar": 43,
+        "endLine": 765,
+        "endChar": 60
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2c1b93f1_ab7b7888",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 2
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "5342a1ac_a5f3c8b9",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c1b93f1_ab7b7888",
+      "range": {
+        "startLine": 768,
+        "startChar": 19,
+        "endLine": 768,
+        "endChar": 26
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df631cb2_67fb885b",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 2
@@ -108,6 +204,24 @@
       "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f86088c5_bfcf41c6",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:56Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "df631cb2_67fb885b",
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "ef402143_cd5db975",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7fde6b4b_e08dd049",
+      "range": {
+        "startLine": 251,
+        "startChar": 2,
+        "endLine": 251,
+        "endChar": 23
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c4585cc5_08ac3d28",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 2
@@ -145,6 +283,30 @@
       "writtenOn": "2019-12-11T23:20:13Z",
       "side": 1,
       "message": "Note this comment. This means the \"return 0\" statements after the aom_internal_error() calls are not necessary.",
+      "range": {
+        "startLine": 563,
+        "startChar": 61,
+        "endLine": 564,
+        "endChar": 44
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b85afea_86141e3a",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c4585cc5_08ac3d28",
       "range": {
         "startLine": 563,
         "startChar": 61,
@@ -180,6 +342,30 @@
     },
     {
       "key": {
+        "uuid": "faa5374e_904f56a0",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6a1c3bca_3c92443e",
+      "range": {
+        "startLine": 567,
+        "startChar": 6,
+        "endLine": 567,
+        "endChar": 13
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7e136981_afefd278",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 2
@@ -203,6 +389,30 @@
     },
     {
       "key": {
+        "uuid": "db51dbeb_9cdb0c38",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e136981_afefd278",
+      "range": {
+        "startLine": 568,
+        "startChar": 4,
+        "endLine": 568,
+        "endChar": 40
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "86cc4dac_38add25b",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 2
@@ -217,6 +427,24 @@
       "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee80962b_a460fb47",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86cc4dac_38add25b",
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -237,6 +465,24 @@
     },
     {
       "key": {
+        "uuid": "a9230fee_f0eb2dd4",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe064793_304d9dd9",
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "39619241_6b1f7c4d",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 2
@@ -254,6 +500,24 @@
     },
     {
       "key": {
+        "uuid": "4f1c115a_b50b8b5d",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39619241_6b1f7c4d",
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e714977b_d71e920c",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 2
@@ -268,6 +532,24 @@
       "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49551711_51b3e6f1",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e714977b_d71e920c",
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -291,6 +573,30 @@
       "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dadb8cf3_d5da3c89",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 607,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d96c998_3b3e1e67",
+      "range": {
+        "startLine": 607,
+        "startChar": 57,
+        "endLine": 607,
+        "endChar": 79
+      },
+      "revId": "c5fb402425cf2cf4113f0fd6d9d84fd517fecfe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
