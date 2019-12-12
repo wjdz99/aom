@@ -59,7 +59,13 @@ static AOM_INLINE void output_stats(FIRSTPASS_STATS *stats,
   pkt.kind = AOM_CODEC_STATS_PKT;
   pkt.data.twopass_stats.buf = stats;
   pkt.data.twopass_stats.sz = sizeof(FIRSTPASS_STATS);
-  aom_codec_pkt_list_add(pktlist, &pkt);
+  if (pktlist != NULL)
+    aom_codec_pkt_list_add(pktlist, &pkt);
+  else {
+    FILE *fp_statfile = fopen("fpstats.bin", "ab");
+    fwrite(stats, sizeof(FIRSTPASS_STATS), 1, fp_statfile);
+    fclose(fp_statfile);
+  }
 
 // TEMP debug code
 #if OUTPUT_FPF
@@ -333,7 +339,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   const int alt_offset = 16 - (current_frame->frame_number % 16);
   if (alt_offset < 16) {
     const struct lookahead_entry *const alt_buf =
-        av1_lookahead_peek(cpi->lookahead, alt_offset, ENCODE_STAGE);
+        av1_lookahead_peek(cpi->lookahead, alt_offset, cpi->compressor_stage);
     if (alt_buf != NULL) {
       alt_yv12 = &alt_buf->img;
     }

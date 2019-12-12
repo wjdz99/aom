@@ -2831,8 +2831,8 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     av1_update_layer_context_change_config(cpi, oxcf->target_bandwidth);
 }
 
-AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
-                                BufferPool *const pool) {
+AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
+                                int is_lookahead, int lookahead_lag) {
   AV1_COMP *volatile const cpi = aom_memalign(32, sizeof(AV1_COMP));
   AV1_COMMON *volatile const cm = cpi != NULL ? &cpi->common : NULL;
 
@@ -2872,6 +2872,10 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   cpi->common.buffer_pool = pool;
 
   init_config(cpi, oxcf);
+  cpi->is_lookahead = is_lookahead;
+  cpi->lookahead_lag = lookahead_lag;
+  cpi->compressor_stage = is_lookahead ? LOOKAHEAD_STAGE : ENCODE_STAGE;
+
   av1_rc_init(&cpi->oxcf, oxcf->pass, &cpi->rc);
 
   init_frame_info(&cpi->frame_info, cm);

@@ -297,6 +297,10 @@ struct aom_codec_alg_priv {
   unsigned int fixed_kf_cntr;
   // BufferPool that holds all reference frames.
   BufferPool *buffer_pool;
+
+  // lookahead instance variables
+  BufferPool *buffer_pool_la;
+  AV1_COMP *cpi_la;
 };
 
 static INLINE int gcd(int64_t a, int b) {
@@ -367,7 +371,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK_HI(extra_cfg, frame_periodic_boost, 1);
   RANGE_CHECK_HI(cfg, g_usage, 1);
   RANGE_CHECK_HI(cfg, g_threads, MAX_NUM_THREADS);
-  RANGE_CHECK_HI(cfg, g_lag_in_frames, MAX_LAG_BUFFERS);
+  RANGE_CHECK_HI(cfg, g_lag_in_frames, MAX_TOTAL_BUFFERS);
   RANGE_CHECK(cfg, rc_end_usage, AOM_VBR, AOM_Q);
   RANGE_CHECK_HI(cfg, rc_undershoot_pct, 100);
   RANGE_CHECK_HI(cfg, rc_overshoot_pct, 100);
@@ -1722,7 +1726,8 @@ static aom_codec_err_t ctrl_set_min_cr(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t create_context_and_bufferpool(
     AV1_COMP **p_cpi, BufferPool **p_buffer_pool, AV1EncoderConfig *oxcf,
-    struct aom_codec_pkt_list *pkt_list_head) {
+    struct aom_codec_pkt_list *pkt_list_head, int is_lookahead,
+    int lookahead_lag) {
   aom_codec_err_t res = AOM_CODEC_OK;
 
   *p_buffer_pool = (BufferPool *)aom_calloc(1, sizeof(BufferPool));
@@ -1733,7 +1738,8 @@ static aom_codec_err_t create_context_and_bufferpool(
     return AOM_CODEC_MEM_ERROR;
   }
 #endif
-  *p_cpi = av1_create_compressor(oxcf, *p_buffer_pool);
+  *p_cpi =
+      av1_create_compressor(oxcf, *p_buffer_pool, is_lookahead, lookahead_lag);
   if (*p_cpi == NULL)
     res = AOM_CODEC_MEM_ERROR;
   else
@@ -1767,17 +1773,29 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
     res = validate_config(priv, &priv->cfg, &priv->extra_cfg);
 
     if (res == AOM_CODEC_OK) {
+      int lookahead_lag = 0;
       priv->timestamp_ratio.den = priv->cfg.g_timebase.den;
       priv->timestamp_ratio.num =
           (int64_t)priv->cfg.g_timebase.num * TICKS_PER_SEC;
       reduce_ratio(&priv->timestamp_ratio);
 
       set_encoder_config(&priv->oxcf, &priv->cfg, &priv->extra_cfg);
+      if (((int)priv->cfg.g_lag_in_frames - priv->oxcf.lag_in_frames) >= 35 &&
+          priv->oxcf.rc_mode == AOM_Q && priv->oxcf.pass == 0 &&
+          priv->oxcf.mode == GOOD) {
+        lookahead_lag = priv->cfg.g_lag_in_frames - priv->oxcf.lag_in_frames;
+      }
       priv->oxcf.use_highbitdepth =
           (ctx->init_flags & AOM_CODEC_USE_HIGHBITDEPTH) ? 1 : 0;
 
       res = create_context_and_bufferpool(&priv->cpi, &priv->buffer_pool,
-                                          &priv->oxcf, &priv->pkt_list.head);
+                                          &priv->oxcf, &priv->pkt_list.head, 0,
+                                          lookahead_lag);
+      if (res == AOM_CODEC_OK && lookahead_lag) {
+        res =
+            create_context_and_bufferpool(&priv->cpi_la, &priv->buffer_pool_la,
+                                          &priv->oxcf, NULL, 1, lookahead_lag);
+      }
     }
   }
 
@@ -1796,6 +1814,10 @@ static void destroy_context_and_bufferpool(AV1_COMP *cpi,
 static aom_codec_err_t encoder_destroy(aom_codec_alg_priv_t *ctx) {
   free(ctx->cx_data);
   destroy_context_and_bufferpool(ctx->cpi, ctx->buffer_pool);
+  if (ctx->cpi_la) {
+    ctx->cpi_la->lookahead = NULL;
+    destroy_context_and_bufferpool(ctx->cpi_la, ctx->buffer_pool_la);
+  }
   aom_free(ctx);
   return AOM_CODEC_OK;
 }
@@ -1824,8 +1846,18 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   AV1_COMP *const cpi = ctx->cpi;
   const aom_rational64_t *const timestamp_ratio = &ctx->timestamp_ratio;
   volatile aom_codec_pts_t ptsvol = pts;
+  // lookahead variables
+  AV1_COMP *cpi_la = NULL;
+  aom_rational64_t timestamp_ratio_la = *timestamp_ratio;
+
+  if (cpi->lookahead_lag && cpi->oxcf.pass == 0) {
+    cpi_la = ctx->cpi_la;
+  }
 
   if (cpi == NULL) return AOM_CODEC_INVALID_PARAM;
+
+  if (cpi->lookahead_lag && cpi_la == NULL && cpi->oxcf.pass == 0)
+    return AOM_CODEC_INVALID_PARAM;
 
   if (img != NULL) {
     res = validate_img(ctx, img);
@@ -1875,6 +1907,9 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   // all, and then modifying according to the flags. Previous frame's flags are
   // overwritten.
   av1_apply_encoding_flags(cpi, flags);
+  if (cpi_la != NULL) {
+    av1_apply_encoding_flags(cpi_la, flags);
+  }
 
   // Handle fixed keyframe intervals
   if (ctx->cfg.kf_mode == AOM_KF_AUTO &&
@@ -1890,6 +1925,8 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     int64_t dst_time_stamp = timebase_units_to_ticks(timestamp_ratio, ptsvol);
     int64_t dst_end_time_stamp =
         timebase_units_to_ticks(timestamp_ratio, ptsvol + duration);
+    int64_t dst_time_stamp_la = dst_time_stamp;
+    int64_t dst_end_time_stamp_la = dst_end_time_stamp;
 
     // Set up internal flags
     if (ctx->base.init_flags & AOM_CODEC_USE_PSNR) cpi->b_calculate_psnr = 1;
@@ -1907,7 +1944,8 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
             cpi->oxcf.width, cpi->oxcf.height, subsampling_x, subsampling_y,
             use_highbitdepth, cpi->oxcf.lag_in_frames,
             cpi->oxcf.border_in_pixels,
-            (cpi->oxcf.resize_mode || cpi->oxcf.superres_mode));
+            (cpi->oxcf.resize_mode || cpi->oxcf.superres_mode),
+            cpi->lookahead_lag);
       }
       if (!cpi->lookahead)
         aom_internal_error(&cpi->common.error, AOM_CODEC_MEM_ERROR,
@@ -1915,6 +1953,12 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
 
       av1_check_initial_width(cpi, use_highbitdepth, subsampling_x,
                               subsampling_y);
+
+      if (cpi_la != NULL) {
+        cpi_la->lookahead = cpi->lookahead;
+        av1_check_initial_width(cpi_la, use_highbitdepth, subsampling_x,
+                                subsampling_y);
+      }
 
       // Store the original flags in to the frame buffer. Will extract the
       // key frame flag when we actually encode this frame.
@@ -1951,6 +1995,21 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     int is_frame_visible = 0;
     int index_size = 0;
     int has_fwd_keyframe = 0;
+    if (cpi_la != NULL) {
+      int status;
+      status = av1_get_compressed_data(
+          cpi_la, &lib_flags, &frame_size, NULL, &dst_time_stamp_la,
+          &dst_end_time_stamp_la, !img, &timestamp_ratio_la);
+      if (status != -1) {
+        if (status != AOM_CODEC_OK) {
+          aom_internal_error(&cpi_la->common.error, AOM_CODEC_ERROR, NULL);
+        }
+        cpi_la->seq_params_locked = 1;
+      }
+    }
+
+    lib_flags = 0;
+    frame_size = 0;
     // invisible frames get packed with the next visible frame
     while (cx_data_sz - index_size >= ctx->cx_data_sz / 2 &&
            !is_frame_visible) {
