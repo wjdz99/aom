@@ -18,6 +18,45 @@
 extern "C" {
 #endif
 
+#define MAX_MESH_STEP 4
+
+typedef struct MESH_PATTERN {
+  int range;
+  int interval;
+} MESH_PATTERN;
+
+enum {
+  GM_FULL_SEARCH,
+  GM_REDUCED_REF_SEARCH_SKIP_L2_L3,
+  GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2,
+  GM_DISABLE_SEARCH
+} UENUM1BYTE(GM_SEARCH_TYPE);
+
+enum {
+  GM_ERRORADV_TR_0,
+  GM_ERRORADV_TR_1,
+  GM_ERRORADV_TR_2,
+  GM_ERRORADV_TR_TYPES,
+} UENUM1BYTE(GM_ERRORADV_TYPE);
+
+enum {
+  NO_TRELLIS_OPT,          // No trellis optimization
+  FULL_TRELLIS_OPT,        // Trellis optimization in all stages
+  FINAL_PASS_TRELLIS_OPT,  // Trellis optimization in only the final encode pass
+  NO_ESTIMATE_YRD_TRELLIS_OPT  // Disable trellis in estimate_yrd_for_sb
+} UENUM1BYTE(TRELLIS_OPT_TYPE);
+
+enum {
+  FULL_TXFM_RD,
+  LOW_TXFM_RD,
+} UENUM1BYTE(TXFM_RD_MODEL);
+
+enum {
+  DIST_WTD_COMP_ENABLED,
+  DIST_WTD_COMP_SKIP_MV_SEARCH,
+  DIST_WTD_COMP_DISABLED,
+} UENUM1BYTE(DIST_WTD_COMP_FLAG);
+
 enum {
   INTRA_ALL = (1 << DC_PRED) | (1 << V_PRED) | (1 << H_PRED) | (1 << D45_PRED) |
               (1 << D135_PRED) | (1 << D113_PRED) | (1 << D157_PRED) |
@@ -241,6 +280,37 @@ typedef struct MV_SPEED_FEATURES {
 
   // When to stop subpel search.
   SUBPEL_FORCE_STOP subpel_force_stop;
+
+  // If true, sub-pixel search uses the exact convolve function used for final
+  // encoding and decoding; otherwise, it uses bilinear interpolation.
+  SUBPEL_SEARCH_TYPE use_accurate_subpel_search;
+
+  // TODO(jingning): combine the related motion search speed features
+  // This allows us to use motion search at other sizes as a starting
+  // point for this motion search and limits the search range around it.
+  int adaptive_motion_search;
+
+  // Flag for allowing some use of exhaustive searches;
+  int allow_exhaustive_searches;
+
+  // Threshold for allowing exhaistive motion search.
+  int exhaustive_searches_thresh;
+
+  // Maximum number of exhaustive searches for a frame (except for intraBC ME).
+  int max_exhaustive_pct;
+
+  // Maximum number of exhaustive searches in a frame for intraBC ME.
+  int intrabc_max_exhaustive_pct;
+
+  // Pattern to be used for any exhaustive mesh searches (except intraBC ME).
+  MESH_PATTERN mesh_patterns[MAX_MESH_STEP];
+
+  // Pattern to be used for exhaustive mesh searches of intraBC ME.
+  MESH_PATTERN intrabc_mesh_patterns[MAX_MESH_STEP];
+
+  // Use to control hash generation and use of the same
+  // Applicable only for screen contents
+  int disable_hash_me;
 } MV_SPEED_FEATURES;
 
 typedef struct TPL_SPEED_FEATURES {
@@ -336,45 +406,6 @@ typedef struct PARTITION_SPEED_FEATURES {
   BLOCK_SIZE max_intra_bsize;
 } PARTITION_SPEED_FEATURES;
 
-#define MAX_MESH_STEP 4
-
-typedef struct MESH_PATTERN {
-  int range;
-  int interval;
-} MESH_PATTERN;
-
-enum {
-  GM_FULL_SEARCH,
-  GM_REDUCED_REF_SEARCH_SKIP_L2_L3,
-  GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2,
-  GM_DISABLE_SEARCH
-} UENUM1BYTE(GM_SEARCH_TYPE);
-
-enum {
-  GM_ERRORADV_TR_0,
-  GM_ERRORADV_TR_1,
-  GM_ERRORADV_TR_2,
-  GM_ERRORADV_TR_TYPES,
-} UENUM1BYTE(GM_ERRORADV_TYPE);
-
-enum {
-  NO_TRELLIS_OPT,          // No trellis optimization
-  FULL_TRELLIS_OPT,        // Trellis optimization in all stages
-  FINAL_PASS_TRELLIS_OPT,  // Trellis optimization in only the final encode pass
-  NO_ESTIMATE_YRD_TRELLIS_OPT  // Disable trellis in estimate_yrd_for_sb
-} UENUM1BYTE(TRELLIS_OPT_TYPE);
-
-enum {
-  FULL_TXFM_RD,
-  LOW_TXFM_RD,
-} UENUM1BYTE(TXFM_RD_MODEL);
-
-enum {
-  DIST_WTD_COMP_ENABLED,
-  DIST_WTD_COMP_SKIP_MV_SEARCH,
-  DIST_WTD_COMP_DISABLED,
-} UENUM1BYTE(DIST_WTD_COMP_FLAG);
-
 typedef struct SPEED_FEATURES {
   /*
    * Sequence/frame level speed features:
@@ -444,38 +475,7 @@ typedef struct SPEED_FEATURES {
   /*
    * Motion search speed features:
    */
-  MV_SPEED_FEATURES mv;
-
-  // If true, sub-pixel search uses the exact convolve function used for final
-  // encoding and decoding; otherwise, it uses bilinear interpolation.
-  SUBPEL_SEARCH_TYPE use_accurate_subpel_search;
-
-  // TODO(jingning): combine the related motion search speed features
-  // This allows us to use motion search at other sizes as a starting
-  // point for this motion search and limits the search range around it.
-  int adaptive_motion_search;
-
-  // Flag for allowing some use of exhaustive searches;
-  int allow_exhaustive_searches;
-
-  // Threshold for allowing exhaistive motion search.
-  int exhaustive_searches_thresh;
-
-  // Maximum number of exhaustive searches for a frame (except for intraBC ME).
-  int max_exhaustive_pct;
-
-  // Maximum number of exhaustive searches in a frame for intraBC ME.
-  int intrabc_max_exhaustive_pct;
-
-  // Pattern to be used for any exhaustive mesh searches (except intraBC ME).
-  MESH_PATTERN mesh_patterns[MAX_MESH_STEP];
-
-  // Pattern to be used for exhaustive mesh searches of intraBC ME.
-  MESH_PATTERN intrabc_mesh_patterns[MAX_MESH_STEP];
-
-  // Use to control hash generation and use of the same
-  // Applicable only for screen contents
-  int disable_hash_me;
+  MV_SPEED_FEATURES mv_sf;
 
   /*
    * Inter mode search speed features:
