@@ -9498,13 +9498,13 @@ static int64_t interpolation_filter_search(
     const TileDataEnc *tile_data, BLOCK_SIZE bsize,
     const BUFFER_SET *const tmp_dst, const BUFFER_SET *const orig_dst,
     int64_t *const rd, int *const switchable_rate, int *skip_build_pred,
-    HandleInterModeArgs *args, int64_t ref_best_rd) {
+    HandleInterModeArgs *args, int64_t ref_best_rd, int do_tx_search) {
   const AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int need_search =
-      av1_is_interp_needed(xd) && !cpi->sf.skip_interp_filter_search;
+      av1_is_interp_needed(xd) && !cpi->sf.skip_interp_filter_search && do_tx_search;
   const int ref_frame = xd->mi[0]->ref_frame[0];
   RD_STATS rd_stats_luma, rd_stats;
 
@@ -11441,7 +11441,7 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
 #endif
     ret_val = interpolation_filter_search(x, cpi, tile_data, bsize, &tmp_dst,
                                           &orig_dst, &rd, &rs, &skip_build_pred,
-                                          args, ref_best_rd);
+                                          args, ref_best_rd, do_tx_search);
 #if CONFIG_COLLECT_COMPONENT_TIMING
     end_timing(cpi, interpolation_filter_search_time);
 #endif
