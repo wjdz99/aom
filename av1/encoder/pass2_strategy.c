@@ -1767,7 +1767,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
 
       // Do the firstpass stats indicate that this frame is skippable for the
       // partition search?
-      if (cpi->sf.allow_partition_search_skip && cpi->oxcf.pass == 2) {
+      if (cpi->sf.part_sf.allow_partition_search_skip && cpi->oxcf.pass == 2) {
         cpi->partition_search_skippable_frame = is_skippable_frame(cpi);
       }
 
@@ -1859,7 +1859,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
 
   // Do the firstpass stats indicate that this frame is skippable for the
   // partition search?
-  if (cpi->sf.allow_partition_search_skip && cpi->oxcf.pass == 2) {
+  if (cpi->sf.part_sf.allow_partition_search_skip && cpi->oxcf.pass == 2) {
     cpi->partition_search_skippable_frame = is_skippable_frame(cpi);
   }
 
