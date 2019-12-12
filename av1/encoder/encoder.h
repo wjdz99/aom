@@ -1112,6 +1112,10 @@ typedef struct AV1_COMP {
 
   int use_svc;
   SVC svc;
+
+  int lookahead_lag;
+  int is_lookahead;
+  COMPRESSOR_STAGE compressor_stage;
 } AV1_COMP;
 
 typedef struct {
@@ -1160,7 +1164,8 @@ typedef struct {
 void av1_initialize_enc(void);
 
 struct AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
-                                       BufferPool *const pool);
+                                       BufferPool *const pool, int is_lookahead,
+                                       int lookahead_lag);
 void av1_remove_compressor(AV1_COMP *cpi);
 
 void av1_change_config(AV1_COMP *cpi, const AV1EncoderConfig *oxcf);
@@ -1362,7 +1367,7 @@ static INLINE int is_altref_enabled(const AV1_COMP *const cpi) {
 
 // Check if statistics generation stage
 static INLINE int is_stat_generation_stage(const AV1_COMP *const cpi) {
-  return (cpi->oxcf.pass == 1);
+  return (cpi->oxcf.pass == 1 || cpi->is_lookahead);
 }
 // Check if statistics consumption stage
 static INLINE int is_stat_consumption_stage_twopass(const AV1_COMP *const cpi) {
@@ -1376,7 +1381,7 @@ static INLINE int is_stat_consumption_stage(const AV1_COMP *const cpi) {
 
 // Check if the current stage has statistics
 static INLINE int has_no_stats_stage(const AV1_COMP *const cpi) {
-  return (cpi->oxcf.pass == 0);
+  return (cpi->oxcf.pass == 0 && !cpi->is_lookahead);
 }
 
 // TODO(zoeliu): To set up cpi->oxcf.enable_auto_brf
