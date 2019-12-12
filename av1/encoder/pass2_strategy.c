@@ -770,8 +770,8 @@ static INLINE int is_almost_static(double gf_zero_motion, int kf_zero_motion) {
 #define ARF_ABS_ZOOM_THRESH 4.4
 #define GROUP_ADAPTIVE_MAXQ 1
 #if GROUP_ADAPTIVE_MAXQ
-#define RC_FACTOR_MIN 0.75
-#define RC_FACTOR_MAX 1.25
+#define RC_FACTOR_MIN 0.5
+#define RC_FACTOR_MAX 1.5
 #endif  // GROUP_ADAPTIVE_MAXQ
 #define MIN_FWD_KF_INTERVAL 8
 
@@ -823,6 +823,51 @@ static void define_gf_group_pass0(AV1_COMP *cpi,
     }
     gf_group->bit_allocation[cur_index] = target;
   }
+}
+
+static double PID_control_rc_factor(const int64_t this_gop_bits,
+                                    const int64_t last_gop_bits,
+                                    const int64_t this_gop_target,
+                                    const int64_t vbr_bits_off_target,
+                                    const int64_t target_bandwidth) {
+  double rc_factor = 1.0;
+  if (this_gop_bits > 0) {
+    double rate_error = 0;
+    if (last_gop_bits > 0) {
+      // PID controller.
+      const double propotional_factor = 0.3;
+      const double integral_factor = 0.5;
+      // zero for now, but keep it here for flexibility.
+      const double derivative_factor = 0.0;
+      const double proportional_error =
+          (double)(this_gop_target - this_gop_bits) / (double)target_bandwidth;
+      const double integral_error =
+          (double)vbr_bits_off_target / (double)target_bandwidth;
+      const double derivative_error =
+          (double)(this_gop_bits - last_gop_bits) / (double)target_bandwidth;
+      rate_error = fclamp(propotional_factor * proportional_error +
+                              integral_factor * integral_error +
+                              derivative_factor * derivative_error,
+                          -1.0, 1.0);
+    } else {
+      // PI controller for the first GOP.
+      const double propotional_factor = 0.3;
+      const double integral_factor = 0.5;
+      const double proportional_error =
+          (double)(this_gop_target - this_gop_bits) / (double)target_bandwidth;
+      const double integral_error =
+          (double)vbr_bits_off_target / (double)target_bandwidth;
+      rate_error = fclamp(propotional_factor * proportional_error +
+                              integral_factor * integral_error,
+                          -1.0, 1.0);
+    }
+    if (rate_error > 0) {
+      rc_factor = AOMMAX(RC_FACTOR_MIN, (1.0 - rate_error));
+    } else {
+      rc_factor = AOMMIN(RC_FACTOR_MAX, (1.0 - rate_error));
+    }
+  }
+  return rc_factor;
 }
 
 // Analyse and define a gf/arf group.
@@ -1205,25 +1250,19 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
     int tmp_q;
     // rc factor is a weight factor that corrects for local rate control drift.
-    double rc_factor = 1.0;
-    int64_t bits = cpi->oxcf.target_bandwidth;
-
-    if (bits > 0) {
-      int rate_error;
-
-      rate_error = (int)((rc->vbr_bits_off_target * 100) / bits);
-      rate_error = clamp(rate_error, -100, 100);
-      if (rate_error > 0) {
-        rc_factor = AOMMAX(RC_FACTOR_MIN, (double)(100 - rate_error) / 100.0);
-      } else {
-        rc_factor = AOMMIN(RC_FACTOR_MAX, (double)(100 - rate_error) / 100.0);
-      }
-    }
+    const double rc_factor = PID_control_rc_factor(
+        rc->this_gop_bits, rc->last_gop_bits, rc->this_gop_target,
+        rc->vbr_bits_off_target, cpi->oxcf.target_bandwidth);
 
     tmp_q = get_twopass_worst_quality(
         cpi, group_av_err, (group_av_skip_pct + group_av_inactive_zone),
         vbr_group_bits_per_frame, rc_factor);
     rc->active_worst_quality = AOMMAX(tmp_q, rc->active_worst_quality >> 1);
+
+    rc->last_gop_bits = rc->this_gop_bits;
+    // Reset this_gop_bits.
+    rc->this_gop_bits = 0;
+    rc->this_gop_target = 0;
   }
 #endif
 
