@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "13ddde97_d8e8223c",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:30Z",
+      "side": 1,
+      "message": "Yes, this should be owned by aom_image.",
+      "parentUuid": "10074720_9f67f675",
+      "range": {
+        "startLine": 201,
+        "startChar": 0,
+        "endLine": 202,
+        "endChar": 69
+      },
+      "revId": "6b855be182e8b6673f0600e6bbd01151cf55eca7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c2be27be_82c340f2",
         "filename": "aom_scale/yv12config.h",
         "patchSetId": 22
@@ -36,6 +60,24 @@
       "writtenOn": "2019-12-11T22:58:30Z",
       "side": 1,
       "message": "Max: Does the YV12_BUFFER_CONFIG own this aom_metadata_array_t?",
+      "revId": "6b855be182e8b6673f0600e6bbd01151cf55eca7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b26e3ddd_cea15069",
+        "filename": "aom_scale/yv12config.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:30Z",
+      "side": 1,
+      "message": "In current implementation this is only to pass the pointer",
+      "parentUuid": "c2be27be_82c340f2",
       "revId": "6b855be182e8b6673f0600e6bbd01151cf55eca7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "70ff5360_6777510d",
+        "filename": "av1/av1_iface_common.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:30Z",
+      "side": 1,
+      "message": "This could be a memcpy so each object is owners of their own copy of the memory. This line was asked in previous CL for consistency with the line at 137.",
+      "parentUuid": "87fe2540_98899b92",
+      "revId": "6b855be182e8b6673f0600e6bbd01151cf55eca7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "12fa2367_cd15351e",
         "filename": "av1/av1_iface_common.h",
         "patchSetId": 22
@@ -70,6 +130,24 @@
       "writtenOn": "2019-12-11T22:58:30Z",
       "side": 1,
       "message": "Max: This statement has the same potential problem as line 77 above.",
+      "revId": "6b855be182e8b6673f0600e6bbd01151cf55eca7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c45abda8_13ccc4b3",
+        "filename": "av1/av1_iface_common.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-12T00:40:30Z",
+      "side": 1,
+      "message": "Could be a memcpy, same as above, to avoid the issue.",
+      "parentUuid": "12fa2367_cd15351e",
       "revId": "6b855be182e8b6673f0600e6bbd01151cf55eca7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
