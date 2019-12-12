@@ -4989,6 +4989,53 @@ static uint16_t setup_interp_filter_search_mask(AV1_COMP *cpi) {
   return mask;
 }
 
+#define KEY_FRAME_LARGE_UNDER_SHOOT_THRESH 0.5
+#define MAX_ADJUST_RATIO 0.1
+static void recode_key_frame_if_large_undershoot(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  RATE_CONTROL *const rc = &cpi->rc;
+  if (rc->projected_frame_size == 0 ||
+      rc->projected_frame_size >= rc->this_frame_target) {
+    return;
+  }
+  const double undershoot_ratio = 1.0 -
+      (double)rc->projected_frame_size / (double)rc->this_frame_target;
+  if (undershoot_ratio < KEY_FRAME_LARGE_UNDER_SHOOT_THRESH) return;
+
+  // adjust active_worst_quality
+  const double adjust_ratio = AOMMIN(undershoot_ratio, MAX_ADJUST_RATIO);
+  rc->active_worst_quality -= (int)(rc->active_worst_quality * adjust_ratio);
+
+  // Recode key frame
+  int top_index = 0, bottom_index = 0;
+  int q = 0;
+  set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
+  aom_clear_system_state();
+  cpi->source =
+      av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source);
+  if (cpi->unscaled_last_source != NULL) {
+    cpi->last_source = av1_scale_if_required(cm, cpi->unscaled_last_source,
+                                             &cpi->scaled_last_source);
+  }
+  av1_set_quantizer(cm, q);
+  if (cpi->oxcf.deltaq_mode != NO_DELTA_Q) av1_init_quantizer(cpi);
+  av1_set_variance_partition_thresholds(cpi, q, 0);
+  setup_frame(cpi);
+  if (cpi->oxcf.aq_mode == VARIANCE_AQ) {
+    av1_vaq_frame_setup(cpi);
+  } else if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
+    av1_setup_in_frame_q_adj(cpi);
+  } else if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ) {
+    suppress_active_map(cpi);
+    av1_cyclic_refresh_setup(cpi);
+    apply_active_map(cpi);
+  }
+
+  av1_encode_frame(cpi);
+
+  aom_clear_system_state();
+}
+
 static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
@@ -5184,6 +5231,13 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     if (loop) printf("\n Recoding:");
 #endif
   } while (loop);
+
+  // Recode the key frame if the encoded frame size is much smaller than the
+  // target frame size, to resolve undershooting problem.
+  if (cm->current_frame.order_hint == 0 &&
+      (cpi->oxcf.rc_mode == AOM_VBR || cpi->oxcf.rc_mode == AOM_CBR)) {
+    recode_key_frame_if_large_undershoot(cpi);
+  }
 
   // Update some stats from cyclic refresh.
   if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && !frame_is_intra_only(cm))
