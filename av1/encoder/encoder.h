@@ -1100,6 +1100,8 @@ typedef struct AV1_COMP {
   // times without writing to bitstream and thus provides flexibility for
   // experiments, for example, temporal filtering on key frames.
   int pack_bitstream;
+
+  COMPRESSOR_STAGE compressor_stage;
 } AV1_COMP;
 
 typedef struct {
