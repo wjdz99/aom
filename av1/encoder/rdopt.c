@@ -10700,13 +10700,9 @@ static int64_t handle_inter_mode(
 #if CONFIG_FLEX_MVRES
   // TODO(debargha): Do proper rd based decision for mv_precision.
   // Currently use a variance based method to test the bitstream syntax.
-  if (have_newmv_in_inter_mode(this_mode) && cm->use_flex_mv_precision) {
-    mbmi->mv_precision = x->source_variance < 16
-                             ? MV_SUBPEL_HALF_PRECISION
-                             : x->source_variance < 64
-                                   ? MV_SUBPEL_QTR_PRECISION
-                                   : MV_SUBPEL_EIGHTH_PRECISION;
-    mbmi->mv_precision = AOMMIN(mbmi->mv_precision, cm->mv_precision);
+  if (have_newmv_in_inter_mode(this_mode)) {
+    mbmi->mv_precision = AOMMIN(
+        cm->sb_mv_precision[get_sb_idx(cm, mi_row, mi_col)], cm->mv_precision);
   } else {
     mbmi->mv_precision = cm->mv_precision;
   }
