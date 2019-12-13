@@ -2835,7 +2835,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 }
 
 AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
-                                FIRSTPASS_STATS *frame_stats_buf) {
+                                COMPRESSOR_STAGE stage, int num_lap_buffers) {
   AV1_COMP *volatile const cpi = aom_memalign(32, sizeof(AV1_COMP));
   AV1_COMMON *volatile const cm = cpi != NULL ? &cpi->common : NULL;
 
@@ -2875,7 +2875,8 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
   cpi->common.buffer_pool = pool;
 
   init_config(cpi, oxcf);
-  cpi->compressor_stage = ENCODE_STAGE;
+  cpi->lap_enabled = num_lap_buffers > 0;
+  cpi->compressor_stage = stage;
 
   av1_rc_init(&cpi->oxcf, oxcf->pass, &cpi->rc);
 
