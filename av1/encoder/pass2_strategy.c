@@ -802,7 +802,7 @@ static void define_gf_group_pass0(AV1_COMP *cpi,
   const int use_alt_ref =
       is_altref_enabled(cpi) &&
       (rc->baseline_gf_interval < cpi->oxcf.lag_in_frames) &&
-      !(((int)av1_lookahead_depth(cpi->lookahead, ENCODE_STAGE)) <
+      !(((int)av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage)) <
         rc->baseline_gf_interval - 1) &&
       (cpi->oxcf.gf_max_pyr_height > MIN_PYRAMID_LVL) &&
       (rc->baseline_gf_interval > 1);
