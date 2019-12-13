@@ -1571,6 +1571,16 @@ static PARTITION_TYPE read_partition(MACROBLOCKD *xd, int mi_row, int mi_col,
   }
 }
 
+#if CONFIG_FLEX_MVRES
+MvSubpelPrecision read_mv_precision(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                                    aom_reader *r) {
+  const int down = aom_read_symbol(
+      r, xd->tile_ctx->flex_mv_precision_cdf[cm->mv_precision - 1],
+      cm->mv_precision + 1, ACCT_STR);
+  return (MvSubpelPrecision)(cm->mv_precision - down);
+}
+#endif  // CONFIG_FLEX_MVRES
+
 // TODO(slavarnway): eliminate bsize and subsize in future commits
 static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
                              int mi_row, int mi_col, aom_reader *reader,
@@ -1587,6 +1597,15 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
+#if CONFIG_FLEX_MVRES
+  if (bsize == cm->seq_params.sb_size && !frame_is_intra_only(cm)) {
+    if (parse_decode_flag & 1) {
+      cm->sb_mv_precision[get_sb_idx(cm, mi_row, mi_col)] =
+          read_mv_precision(cm, xd, reader);
+    }
+  }
+#endif  // CONFIG_FLEX_MVRES
+
   // parse_decode_flag takes the following values :
   // 01 - do parse only
   // 10 - do decode only
@@ -1596,27 +1615,20 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
                                                      parse_decode_block };
 
   if (parse_decode_flag & 1) {
-#if CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
-    if (!cm->use_cnn) {
-#endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
-      const int num_planes = av1_num_planes(cm);
-      for (int plane = 0; plane < num_planes; ++plane) {
-        int rcol0, rcol1, rrow0, rrow1;
-        if (av1_loop_restoration_corners_in_sb(cm, plane, mi_row, mi_col, bsize,
-                                               &rcol0, &rcol1, &rrow0,
-                                               &rrow1)) {
-          const int rstride = cm->rst_info[plane].horz_units_per_tile;
-          for (int rrow = rrow0; rrow < rrow1; ++rrow) {
-            for (int rcol = rcol0; rcol < rcol1; ++rcol) {
-              const int runit_idx = rcol + rrow * rstride;
-              loop_restoration_read_sb_coeffs(cm, xd, reader, plane, runit_idx);
-            }
+    const int num_planes = av1_num_planes(cm);
+    for (int plane = 0; plane < num_planes; ++plane) {
+      int rcol0, rcol1, rrow0, rrow1;
+      if (av1_loop_restoration_corners_in_sb(cm, plane, mi_row, mi_col, bsize,
+                                             &rcol0, &rcol1, &rrow0, &rrow1)) {
+        const int rstride = cm->rst_info[plane].horz_units_per_tile;
+        for (int rrow = rrow0; rrow < rrow1; ++rrow) {
+          for (int rcol = rcol0; rcol < rcol1; ++rcol) {
+            const int runit_idx = rcol + rrow * rstride;
+            loop_restoration_read_sb_coeffs(cm, xd, reader, plane, runit_idx);
           }
         }
       }
-#if CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
     }
-#endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
 
     partition = (bsize < BLOCK_8X8) ? PARTITION_NONE
                                     : read_partition(xd, mi_row, mi_col, reader,
@@ -5212,13 +5224,10 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 
       if (cm->cur_frame_force_integer_mv) {
         cm->mv_precision = MV_SUBPEL_NONE;
-#if CONFIG_FLEX_MVRES
-        cm->use_flex_mv_precision = 0;
-#endif  // CONFIG_FLEX_MVRES
       } else {
 #if CONFIG_FLEX_MVRES
         cm->mv_precision = (MvSubpelPrecision)aom_rb_read_literal(rb, 2);
-        cm->use_flex_mv_precision = aom_rb_read_bit(rb);
+        // printf("fp: %d\n", cm->mv_precision);
 #else
         cm->mv_precision = aom_rb_read_bit(rb) ? MV_SUBPEL_EIGHTH_PRECISION
                                                : MV_SUBPEL_QTR_PRECISION;

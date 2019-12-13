@@ -136,6 +136,8 @@ typedef struct frame_contexts {
   aom_cdf_prob palette_y_mode_cdf[PALATTE_BSIZE_CTXS][PALETTE_Y_MODE_CONTEXTS]
                                  [CDF_SIZE(2)];
   aom_cdf_prob palette_uv_mode_cdf[PALETTE_UV_MODE_CONTEXTS][CDF_SIZE(2)];
+  aom_cdf_prob flex_mv_precision_cdf[MV_SUBPEL_PRECISIONS - 1]
+                                    [CDF_SIZE(MV_SUBPEL_PRECISIONS)];
   aom_cdf_prob comp_inter_cdf[COMP_INTER_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob single_ref_cdf[REF_CONTEXTS][SINGLE_REFS - 1][CDF_SIZE(2)];
   aom_cdf_prob comp_ref_type_cdf[COMP_REF_TYPE_CONTEXTS][CDF_SIZE(2)];
@@ -213,11 +215,6 @@ typedef struct frame_contexts {
   aom_cdf_prob uv_mode_cdf[CFL_ALLOWED_TYPES][INTRA_MODES]
                           [CDF_SIZE(UV_INTRA_MODES)];
 #endif  // CONFIG_INTRA_ENTROPY
-
-#if CONFIG_FLEX_MVRES
-  aom_cdf_prob flex_mv_precision_cdf[MV_SUBPEL_PRECISIONS - 1]
-                                    [CDF_SIZE(MV_SUBPEL_PRECISIONS)];
-#endif  // CONFIG_FLEX_MVRES
 
   aom_cdf_prob angle_delta_cdf[DIRECTIONAL_MODES]
                               [CDF_SIZE(2 * MAX_ANGLE_DELTA + 1)];
