@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e845c083_0c696303",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-13T17:46:37Z",
+      "side": 1,
+      "message": "I am actually not 100% certain if the new assertions are right. Please see my annotations below.",
+      "revId": "c9fe79b3189756212b051c56a98dc9f593cc9325",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c0916f46_4cc9c517",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-13T17:46:37Z",
+      "side": 1,
+      "message": "The new assertions are intended to match this block of code in av1_qm_init().",
+      "range": {
+        "startLine": 257,
+        "startChar": 0,
+        "endLine": 259,
+        "endChar": 40
+      },
+      "revId": "c9fe79b3189756212b051c56a98dc9f593cc9325",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "af14878c_86a48b54",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-13T17:46:37Z",
+      "side": 1,
+      "message": "I don\u0027t fully understand this block of code. It seems that if t \u003c qm_tx_size, this block of code will set cm-\u003egqmatrix[q][c][t] to the uninitialized cm-\u003egqmatrix[q][c][qm_tx_size] value.",
+      "range": {
+        "startLine": 260,
+        "startChar": 0,
+        "endLine": 262,
+        "endChar": 67
+      },
+      "revId": "c9fe79b3189756212b051c56a98dc9f593cc9325",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
