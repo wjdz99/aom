@@ -34,6 +34,10 @@
 #include "av1/encoder/temporal_filter.h"
 #include "av1/encoder/tpl_model.h"
 
+#if CONFIG_TUNE_VMAF
+#include "av1/encoder/tune_vmaf.h"
+#endif
+
 #define TEMPORAL_FILTER_KEY_FRAME (CONFIG_REALTIME_ONLY ? 0 : 1)
 
 void av1_configure_buffer_updates(AV1_COMP *const cpi,
@@ -900,14 +904,21 @@ void setup_mi(AV1_COMP *const cpi, YV12_BUFFER_CONFIG *src) {
   xd->tx_type_map_stride = cm->mi_stride;
 }
 
-// Apply temporal filtering to key frames and encode the filtered frame.
-// If the current frame is not key frame, this function is identical to
-// av1_encode().
-static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
-                              EncodeFrameInput *const frame_input,
-                              EncodeFrameParams *const frame_params,
-                              EncodeFrameResults *const frame_results,
-                              int *temporal_filtered) {
+// Preprocess and encode the frame. Currently we apply two kinds of filters:
+// 1) For key frames: apply temporal filtering and encode the filtered frame.
+// 2) When running with tune=vmaf_with_preprocessing, apply vmaf_preprocessing()
+// on every frame in the second pass.
+static int preprocess_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
+                                 EncodeFrameInput *const frame_input,
+                                 EncodeFrameParams *const frame_params,
+                                 EncodeFrameResults *const frame_results,
+                                 int *temporal_filtered) {
+#if CONFIG_TUNE_VMAF
+  if (cpi->oxcf.tuning == AOM_TUNE_VMAF_WITH_PREPROCESSING) {
+    vmaf_preprocessing(cpi, frame_input->source);
+  }
+#endif
+
   if (frame_params->frame_type != KEY_FRAME ||
       !cpi->oxcf.enable_keyframe_filtering) {
     if (av1_encode(cpi, dest, frame_input, frame_params, frame_results) !=
@@ -1331,8 +1342,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     return AOM_CODEC_ERROR;
   }
 #else
-  if (denoise_and_encode(cpi, dest, &frame_input, &frame_params, &frame_results,
-                         &code_arf) != AOM_CODEC_OK) {
+  if (preprocess_and_encode(cpi, dest, &frame_input, &frame_params,
+                            &frame_results, &code_arf) != AOM_CODEC_OK) {
     return AOM_CODEC_ERROR;
   }
 #endif  // CONFIG_REALTIME_ONLY
