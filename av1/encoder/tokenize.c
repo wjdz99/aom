@@ -169,7 +169,7 @@ static void tokenize_tx_size(ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
     (void)t;
     TX_SIZE sub_txs[MAX_TX_PARTITIONS] = { 0 };
     const int index = av1_get_txb_size_index(plane_bsize, blk_row, blk_col);
-    get_tx_partition_sizes(mbmi->partition_type[index], tx_size, sub_txs);
+    get_tx_partition_sizes(mbmi->partition_type[index], is_inter_block(mbmi), tx_size, sub_txs);
     int cur_partition = 0;
     int bsw = 0, bsh = 0;
     plane_bsize = get_plane_block_size(blk_row, blk_col, mbmi->sb_type,

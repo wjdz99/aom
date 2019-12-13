@@ -3722,10 +3722,10 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
   int64_t cur_rd = INT64_MAX;
   for (TX_PARTITION_TYPE type = 0; type < TX_PARTITION_TYPES_INTRA; ++type) {
     // Skip any illegal partitions for this block size
-    if (!use_tx_partition(type, max_tx_size)) continue;
+    if (!use_tx_partition(type, is_inter_block(mbmi), max_tx_size)) continue;
     mbmi->partition_type[0] = type;
     TX_SIZE sub_txs[MAX_TX_PARTITIONS] = { 0 };
-    get_tx_partition_sizes(type, max_tx_size, sub_txs);
+    get_tx_partition_sizes(type, is_inter_block(mbmi), max_tx_size, sub_txs);
     TX_SIZE cur_tx_size = sub_txs[0];
     if (!tx_select && cur_tx_size != chosen_tx_size) continue;
 #if CONFIG_DIST_8X8
@@ -5679,7 +5679,7 @@ static void select_tx_partition_type(
   // TODO(sarahparker) Add back all of the tx search speed features.
   for (TX_PARTITION_TYPE type = 0; type < TX_PARTITION_TYPES; ++type) {
     // Skip any illegal partitions for this block size
-    if (!use_tx_partition(type, max_tx_size)) continue;
+    if (!use_tx_partition(type, is_inter_block(mbmi), max_tx_size)) continue;
     RD_STATS partition_rd_stats;
     av1_init_rd_stats(&partition_rd_stats);
     int64_t tmp_rd = 0;
@@ -5700,7 +5700,7 @@ static void select_tx_partition_type(
     }
 
     // Get transform sizes created by this partition type
-    get_tx_partition_sizes(type, max_tx_size, sub_txs);
+    get_tx_partition_sizes(type, is_inter_block(mbmi), max_tx_size, sub_txs);
     int cur_partition = 0;
     int bsw = 0, bsh = 0;
     int blk_idx = 0;
@@ -5779,7 +5779,7 @@ static void select_tx_partition_type(
   // Finalize tx size selection once best partition is found
   int index = av1_get_txb_size_index(plane_bsize, blk_row, blk_col);
   mbmi->partition_type[index] = best_partition;
-  get_tx_partition_sizes(best_partition, max_tx_size, sub_txs);
+  get_tx_partition_sizes(best_partition, is_inter_block(mbmi), max_tx_size, sub_txs);
   int cur_partition = 0;
   int bsw = 0, bsh = 0;
   for (int r = 0; r < tx_size_high_unit[max_tx_size]; r += bsh) {

@@ -321,7 +321,7 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, ThreadData *const td,
 #if CONFIG_NEW_TX_PARTITION
     TX_SIZE sub_txs[MAX_TX_PARTITIONS] = { 0 };
     const int index = av1_get_txb_size_index(plane_bsize, blk_row, blk_col);
-    get_tx_partition_sizes(mbmi->partition_type[index], tx_size, sub_txs);
+    get_tx_partition_sizes(mbmi->partition_type[index], is_inter_block(mbmi), tx_size, sub_txs);
     int cur_partition = 0;
     int bsw = 0, bsh = 0;
     for (int row = 0; row < tx_size_high_unit[tx_size]; row += bsh) {
@@ -1164,7 +1164,7 @@ static void read_tx_partition(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
       aom_read_symbol(r, ec_ctx->txfm_partition_cdf[is_rect][ctx],
                       TX_PARTITION_TYPES, ACCT_STR);
   TX_SIZE sub_txs[MAX_TX_PARTITIONS] = { 0 };
-  get_tx_partition_sizes(partition, max_tx_size, sub_txs);
+  get_tx_partition_sizes(partition, is_inter_block(mbmi), max_tx_size, sub_txs);
   const int index = av1_get_txb_size_index(bsize, blk_row, blk_col);
   mbmi->partition_type[index] = partition;
   int cur_partition = 0;
@@ -1194,7 +1194,7 @@ static TX_SIZE read_tx_partition_intra(MACROBLOCKD *xd, aom_reader *r,
   const TX_PARTITION_TYPE partition = aom_read_symbol(
       r, ec_ctx->tx_size_cdf[is_rect][ctx], TX_PARTITION_TYPES_INTRA, ACCT_STR);
   TX_SIZE sub_txs[MAX_TX_PARTITIONS] = { 0 };
-  get_tx_partition_sizes(partition, max_tx_size, sub_txs);
+  get_tx_partition_sizes(partition, 0, max_tx_size, sub_txs);
   return sub_txs[0];
 }
 #else

@@ -6427,7 +6427,7 @@ static void update_txfm_count(MACROBLOCK *x, MACROBLOCKD *xd,
   (void)depth;
   (void)counts;
   TX_SIZE sub_txs[MAX_TX_PARTITIONS] = { 0 };
-  get_tx_partition_sizes(mbmi->partition_type[txb_size_index], tx_size,
+  get_tx_partition_sizes(mbmi->partition_type[txb_size_index], is_inter_block(mbmi), tx_size,
                          sub_txs);
   if (mbmi->partition_type[txb_size_index] != TX_PARTITION_NONE)
     ++x->txb_split_count;
@@ -6549,7 +6549,7 @@ static void set_txfm_context(MACROBLOCKD *xd, TX_SIZE tx_size, int blk_row,
 #if CONFIG_NEW_TX_PARTITION
     TX_SIZE sub_txs[MAX_TX_PARTITIONS] = { 0 };
     const int index = av1_get_txb_size_index(bsize, blk_row, blk_col);
-    get_tx_partition_sizes(mbmi->partition_type[index], tx_size, sub_txs);
+    get_tx_partition_sizes(mbmi->partition_type[index], is_inter_block(mbmi), tx_size, sub_txs);
     int cur_partition = 0;
     int bsw = 0, bsh = 0;
     for (int r = 0; r < tx_size_high_unit[tx_size]; r += bsh) {
