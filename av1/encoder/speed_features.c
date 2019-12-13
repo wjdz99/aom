@@ -285,7 +285,7 @@ static void set_good_speed_features_framesize_independent(
 
   sf->inter_sf.prune_mode_search_simple_translation = 1;
   sf->inter_sf.prune_ref_frame_for_rect_partitions =
-      (boosted || (cm->allow_screen_content_tools))
+      (boosted || (cpi->is_screen_content_type))
           ? 0
           : (is_boosted_arf2_bwd_type ? 1 : 2);
   sf->part_sf.less_rectangular_check_level = 1;
@@ -326,7 +326,7 @@ static void set_good_speed_features_framesize_independent(
     // simple_motion_search_split in partition search function and set the
     // speed feature accordingly
     sf->part_sf.simple_motion_search_split =
-        cm->allow_screen_content_tools ? 1 : 2;
+        cpi->is_screen_content_type ? 1 : 2;
     sf->part_sf.simple_motion_search_early_term_none = 1;
 
     sf->inter_sf.disable_interinter_wedge_newmv_search = boosted ? 0 : 1;
@@ -338,7 +338,7 @@ static void set_good_speed_features_framesize_independent(
     sf->tx_domain_dist_thres_level = 1;
     sf->perform_coeff_opt = boosted ? 1 : 2;
     sf->inter_sf.prune_ref_frame_for_rect_partitions =
-        (frame_is_intra_only(&cpi->common) || (cm->allow_screen_content_tools))
+        (frame_is_intra_only(&cpi->common) || (cpi->is_screen_content_type))
             ? 0
             : (boosted ? 1 : 2);
     sf->intra_cnn_split = 1;
@@ -359,7 +359,7 @@ static void set_good_speed_features_framesize_independent(
     sf->gm_erroradv_type = GM_ERRORADV_TR_2;
 
     sf->inter_sf.selective_ref_frame = 3;
-    sf->prune_sgr_based_on_wiener = cm->allow_screen_content_tools ? 0 : 1;
+    sf->prune_sgr_based_on_wiener = cpi->is_screen_content_type ? 0 : 1;
 
     // TODO(chiyotsai@google.com): We can get 10% speed up if we move
     // adaptive_rd_thresh to speed 1. But currently it performs poorly on some
@@ -416,9 +416,9 @@ static void set_good_speed_features_framesize_independent(
     sf->enable_winner_mode_for_tx_size_srch =
         frame_is_intra_only(&cpi->common) ? 0 : 1;
     sf->enable_winner_mode_for_use_tx_domain_dist =
-        cm->allow_screen_content_tools ? 0 : 1;
+        cpi->is_screen_content_type ? 0 : 1;
     sf->reduce_wiener_window_size = is_boosted_arf2_bwd_type ? 0 : 1;
-    sf->prune_sgr_based_on_wiener = cm->allow_screen_content_tools ? 0 : 2;
+    sf->prune_sgr_based_on_wiener = cpi->is_screen_content_type ? 0 : 2;
     sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED;
     sf->part_sf.simple_motion_search_prune_agg = 1;
     sf->inter_sf.disable_sb_level_mv_cost_upd = 1;
@@ -428,7 +428,7 @@ static void set_good_speed_features_framesize_independent(
             : gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE ? 1
                                                                          : 2;
     sf->tx_type_search.use_skip_flag_prediction =
-        cm->allow_screen_content_tools ? 1 : 2;
+        cpi->is_screen_content_type ? 1 : 2;
     sf->prune_palette_search_level = 2;
   }
 
@@ -439,7 +439,7 @@ static void set_good_speed_features_framesize_independent(
     sf->use_intra_txb_hash = 0;
     sf->tx_type_search.fast_intra_tx_type_search = 1;
     sf->disable_loop_restoration_chroma =
-        (boosted || cm->allow_screen_content_tools) ? 0 : 1;
+        (boosted || cpi->is_screen_content_type) ? 0 : 1;
     sf->reduce_wiener_window_size = !boosted;
     sf->cb_pred_filter_search = 1;
     sf->inter_sf.adaptive_mode_search = 1;

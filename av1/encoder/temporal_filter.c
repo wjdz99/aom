@@ -1034,9 +1034,9 @@ static FRAME_DIFF temporal_filter_iterate_c(
   const int mb_uv_height = BH >> mbd->plane[1].subsampling_y;
   const int mb_uv_width = BW >> mbd->plane[1].subsampling_x;
 #if EXPERIMENT_TEMPORAL_FILTER
-  const int is_screen_content_type = cm->allow_screen_content_tools != 0;
   const int use_new_temporal_mode = AOMMIN(cm->width, cm->height) >= 480 &&
-                                    !is_screen_content_type && !is_key_frame;
+                                    !cpi->is_screen_content_type &&
+                                    !is_key_frame;
 #else
   (void)sigma;
   const int use_new_temporal_mode = 0;

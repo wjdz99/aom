@@ -1070,6 +1070,8 @@ typedef struct AV1_COMP {
   pthread_mutex_t *row_mt_mutex_;
 #endif
   // Set if screen content is set or relevant tools are enabled
+  // The screen content type detected by encoder used to decide screen content's
+  // tx type and speed features.
   int is_screen_content_type;
 #if CONFIG_COLLECT_PARTITION_STATS == 2
   PartitionStats partition_stats;
@@ -1275,9 +1277,9 @@ static INLINE int frame_is_kf_gf_arf(const AV1_COMP *cpi) {
 }
 
 // TODO(huisu@google.com, youzhou@microsoft.com): enable hash-me for HBD.
+// (yunqing): Only use hash me for true screen content.
 static INLINE int av1_use_hash_me(const AV1_COMP *const cpi) {
-  return (cpi->common.allow_screen_content_tools &&
-          !cpi->sf.mv_sf.disable_hash_me);
+  return (cpi->is_screen_content_type && !cpi->sf.mv_sf.disable_hash_me);
 }
 
 static INLINE hash_table *av1_get_ref_frame_hash_map(

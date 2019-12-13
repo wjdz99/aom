@@ -3838,12 +3838,17 @@ static void set_screen_content_options(AV1_COMP *cpi) {
   }
 
   // The threshold values are selected experimentally.
-  cm->allow_screen_content_tools =
-      counts_1 * blk_h * blk_w * 10 > width * height;
+  // Note(yunqing): Keep is_screen_content_type in encoder side and use it to
+  // decide what tx type to use, as well as speed features.
+  cpi->is_screen_content_type = counts_1 * blk_h * blk_w * 10 > width * height;
+
   // IntraBC would force loop filters off, so we use more strict rules that also
   // requires that the block has high variance.
-  cm->allow_intrabc = cm->allow_screen_content_tools &&
+  cm->allow_intrabc = cpi->is_screen_content_type &&
                       counts_2 * blk_h * blk_w * 12 > width * height;
+
+  // Always allow to use pallete.
+  cm->allow_screen_content_tools = 1;
 }
 
 static void set_size_independent_vars(AV1_COMP *cpi) {
@@ -3855,7 +3860,6 @@ static void set_size_independent_vars(AV1_COMP *cpi) {
   cpi->global_motion_search_done = 0;
 
   if (frame_is_intra_only(cm)) set_screen_content_options(cpi);
-  cpi->is_screen_content_type = (cm->allow_screen_content_tools != 0);
 
   av1_set_speed_features_framesize_independent(cpi, cpi->speed);
   av1_set_rd_speed_thresholds(cpi);
