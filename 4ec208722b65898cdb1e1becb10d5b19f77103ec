@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "94d642c9_834d5c9f",
+        "filename": "aom/internal/aom_image_internal.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-13T23:30:24Z",
+      "side": 1,
+      "message": "Added this function which is the opposite to yv12config::aom_copy_metadata_to_frame_buffer()",
+      "revId": "4ec208722b65898cdb1e1becb10d5b19f77103ec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
