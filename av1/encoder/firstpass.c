@@ -59,7 +59,7 @@ static AOM_INLINE void output_stats(FIRSTPASS_STATS *stats,
   pkt.kind = AOM_CODEC_STATS_PKT;
   pkt.data.twopass_stats.buf = stats;
   pkt.data.twopass_stats.sz = sizeof(FIRSTPASS_STATS);
-  aom_codec_pkt_list_add(pktlist, &pkt);
+  if (pktlist != NULL) aom_codec_pkt_list_add(pktlist, &pkt);
 
 // TEMP debug code
 #if OUTPUT_FPF
@@ -855,7 +855,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
     accumulate_stats(&twopass->total_stats, &fps);
     // Update circular index.
     twopass->frame_stats_next_idx =
-        (twopass->frame_stats_next_idx + 1) % MAX_LAG_BUFFERS;
+        (twopass->frame_stats_next_idx + 1) % MAX_LAP_BUFFERS;
   }
 
   // Copy the previous Last Frame back into gf buffer if the prediction is good
