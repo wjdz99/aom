@@ -4990,7 +4990,7 @@ static INLINE void update_valid_ref_frames_for_gm(
         do_gm_search_logic(&cpi->sf, frame) &&
         !prune_ref_by_selective_ref_frame(
             cpi, ref_frame, cm->cur_frame->ref_display_order_hint,
-            cm->current_frame.display_order_hint) &&
+            cm->current_frame.display_order_hint, 0) &&
         !(cpi->sf.selective_ref_gm && skip_gm_frame(cm, frame))) {
       assert(ref_buf[frame] != NULL);
       int relative_frame_dist = av1_encoder_get_relative_dist(

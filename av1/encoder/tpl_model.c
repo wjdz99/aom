@@ -645,7 +645,7 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
   for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
     ref[0] = idx + 1;
     if (prune_ref_by_selective_ref_frame(cpi, ref, ref_frame_display_index,
-                                         tpl_frame->frame_display_index)) {
+                                         tpl_frame->frame_display_index, 0)) {
       ref_frame[idx] = NULL;
     }
   }

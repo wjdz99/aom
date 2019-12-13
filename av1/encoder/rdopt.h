@@ -382,13 +382,32 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
 static INLINE int prune_ref_by_selective_ref_frame(
     const AV1_COMP *const cpi, const MV_REFERENCE_FRAME *const ref_frame,
     const unsigned int *const ref_display_order_hint,
-    const unsigned int cur_frame_display_order_hint) {
+    const unsigned int cur_frame_display_order_hint, int check) {
   const SPEED_FEATURES *const sf = &cpi->sf;
   if (sf->inter_sf.selective_ref_frame) {
     const AV1_COMMON *const cm = &cpi->common;
     const OrderHintInfo *const order_hint_info =
         &cm->seq_params.order_hint_info;
     const int comp_pred = ref_frame[1] > INTRA_FRAME;
+
+    // Pruning ref frames if its distance from current frame is beyond 2 *
+    // MAX_GF_INTERVAL
+    if (check && comp_pred) {
+      const int max_dist = (int)(2 * MAX_GF_INTERVAL);
+      const int ref_frame0_dist = av1_encoder_get_relative_dist(
+          order_hint_info, ref_display_order_hint[ref_frame[0] - LAST_FRAME],
+          cur_frame_display_order_hint);
+      if (abs(ref_frame0_dist) > max_dist) {
+        return 1;
+      }
+      const int ref_frame1_dist = av1_encoder_get_relative_dist(
+          order_hint_info, ref_display_order_hint[ref_frame[1] - LAST_FRAME],
+          cur_frame_display_order_hint);
+      if (abs(ref_frame1_dist) > max_dist) {
+        return 1;
+      }
+    }
+
     if (sf->inter_sf.selective_ref_frame >= 2 ||
         (sf->inter_sf.selective_ref_frame == 1 && comp_pred)) {
       if (ref_frame[0] == LAST3_FRAME || ref_frame[1] == LAST3_FRAME) {
