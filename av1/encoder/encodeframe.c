@@ -1512,13 +1512,6 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
       }
 
       if (have_newmv_in_inter_mode(mbmi->mode)) {
-#if CONFIG_FLEX_MVRES
-        if (allow_update_cdf && cm->use_flex_mv_precision) {
-          const int down = cm->mv_precision - mbmi->mv_precision;
-          update_cdf(fc->flex_mv_precision_cdf[cm->mv_precision - 1], down,
-                     cm->mv_precision + 1);
-        }
-#endif  // CONFIG_FLEX_MVRES
         if (new_mv) {
           for (int ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
             const int_mv ref_mv = av1_get_ref_mv(x, ref);
@@ -2452,7 +2445,8 @@ static bool rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
                               int mi_row, int mi_col, BLOCK_SIZE bsize,
                               BLOCK_SIZE max_sq_part, BLOCK_SIZE min_sq_part,
                               RD_STATS *rd_cost, RD_STATS best_rdc,
-                              PC_TREE *pc_tree, int64_t *none_rd) {
+                              PC_TREE *pc_tree, int64_t *none_rd,
+                              int spit_encode) {
   const AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   TileInfo *const tile_info = &tile_data->tile_info;
@@ -2847,7 +2841,7 @@ BEGIN_PARTITION_SEARCH:
       if (!rd_pick_partition(cpi, td, tile_data, tp, mi_row + y_idx,
                              mi_col + x_idx, subsize, max_sq_part, min_sq_part,
                              &this_rdc, best_remain_rdcost, pc_tree->split[idx],
-                             p_split_rd)) {
+                             p_split_rd, spit_encode)) {
         av1_invalid_rd_stats(&sum_rdc);
         break;
       }
@@ -3768,8 +3762,10 @@ BEGIN_PARTITION_SEARCH:
   if (found_best_partition && pc_tree->index != 3) {
     if (bsize == cm->seq_params.sb_size) {
       x->cb_offset = 0;
-      encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, OUTPUT_ENABLED, bsize,
-                pc_tree, NULL);
+      if (spit_encode) {
+        encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, OUTPUT_ENABLED, bsize,
+                  pc_tree, NULL);
+      }
     } else {
       encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, DRY_RUN_NORMAL, bsize,
                 pc_tree, NULL);
@@ -4182,11 +4178,6 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   }
   AVERAGE_CDF(ctx_left->switchable_interp_cdf, ctx_tr->switchable_interp_cdf,
               SWITCHABLE_FILTERS);
-#if CONFIG_FLEX_MVRES
-  for (int p = 0; p < MV_SUBPEL_PRECISIONS - 1; ++p)
-    AVERAGE_CDF(ctx_left->flex_mv_precision_cdf[p],
-                ctx_tr->flex_mv_precision_cdf[p], p + 2);
-#endif  // CONFIG_FLEX_MVRES
   AVERAGE_CDF(ctx_left->angle_delta_cdf, ctx_tr->angle_delta_cdf,
               2 * MAX_ANGLE_DELTA + 1);
   AVG_CDF_STRIDE(ctx_left->tx_size_cdf[0], ctx_tr->tx_size_cdf[0], MAX_TX_DEPTH,
@@ -4462,9 +4453,30 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
 
         min_sq_size = AOMMIN(min_sq_size, max_sq_size);
 
+#if CONFIG_FLEX_MVRES
+        int64_t best_rdc = INT64_MAX;
+        MvSubpelPrecision best_prec = MV_SUBPEL_QTR_PRECISION;
+        if (!frame_is_intra_only(cm)) {
+          for (MvSubpelPrecision mv_prec = MV_SUBPEL_NONE;
+               mv_prec <= cm->mv_precision; mv_prec++) {
+            cm->sb_mv_precision[get_sb_idx(cm, mi_row, mi_col)] = mv_prec;
+            av1_invalid_rd_stats(&dummy_rdc);
+            rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
+                              max_sq_size, min_sq_size, &dummy_rdc, dummy_rdc,
+                              pc_root, NULL, 0);
+            if (dummy_rdc.rdcost < best_rdc) {
+              best_rdc = dummy_rdc.rdcost;
+              best_prec = mv_prec;
+            }
+          }
+        }
+
+        cm->sb_mv_precision[get_sb_idx(cm, mi_row, mi_col)] = best_prec;
+        av1_invalid_rd_stats(&dummy_rdc);
+#endif  // CONFIG_FLEX_MVRES
         rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                           max_sq_size, min_sq_size, &dummy_rdc, dummy_rdc,
-                          pc_root, NULL);
+                          pc_root, NULL, 1);
 #if CONFIG_COLLECT_COMPONENT_TIMING
         end_timing(cpi, rd_pick_partition_time);
 #endif
