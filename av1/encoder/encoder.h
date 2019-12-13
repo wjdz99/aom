@@ -1112,6 +1112,8 @@ typedef struct AV1_COMP {
 
   int use_svc;
   SVC svc;
+
+  COMPRESSOR_STAGE compressor_stage;
 } AV1_COMP;
 
 typedef struct {
