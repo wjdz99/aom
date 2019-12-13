@@ -299,6 +299,7 @@ struct aom_codec_alg_priv {
   unsigned int fixed_kf_cntr;
   // BufferPool that holds all reference frames.
   BufferPool *buffer_pool;
+  FIRSTPASS_STATS *frame_stats_buffer;
 };
 
 static INLINE int gcd(int64_t a, int b) {
@@ -1735,7 +1736,8 @@ static aom_codec_err_t ctrl_set_min_cr(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t create_context_and_bufferpool(
     AV1_COMP **p_cpi, BufferPool **p_buffer_pool, AV1EncoderConfig *oxcf,
-    struct aom_codec_pkt_list *pkt_list_head) {
+    struct aom_codec_pkt_list *pkt_list_head,
+    FIRSTPASS_STATS **frame_stats_buf) {
   aom_codec_err_t res = AOM_CODEC_OK;
 
   *p_buffer_pool = (BufferPool *)aom_calloc(1, sizeof(BufferPool));
@@ -1747,11 +1749,14 @@ static aom_codec_err_t create_context_and_bufferpool(
   }
 #endif
   *p_cpi = av1_create_compressor(oxcf, *p_buffer_pool);
+
   if (*p_cpi == NULL)
     res = AOM_CODEC_MEM_ERROR;
-  else
+  else {
     (*p_cpi)->output_pkt_list = pkt_list_head;
-
+    for (int i = 0; i < MAX_LAG_BUFFERS; i++)
+      (*p_cpi)->twopass.frame_stats_arr[i] = &(*frame_stats_buf)[i];
+  }
   return res;
 }
 
@@ -1762,6 +1767,8 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
 
   if (ctx->priv == NULL) {
     aom_codec_alg_priv_t *const priv = aom_calloc(1, sizeof(*priv));
+    priv->frame_stats_buffer =
+        (FIRSTPASS_STATS *)aom_calloc(MAX_LAG_BUFFERS, sizeof(FIRSTPASS_STATS));
     if (priv == NULL) return AOM_CODEC_MEM_ERROR;
 
     ctx->priv = (aom_codec_priv_t *)priv;
@@ -1790,7 +1797,8 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
           (ctx->init_flags & AOM_CODEC_USE_HIGHBITDEPTH) ? 1 : 0;
 
       res = create_context_and_bufferpool(&priv->cpi, &priv->buffer_pool,
-                                          &priv->oxcf, &priv->pkt_list.head);
+                                          &priv->oxcf, &priv->pkt_list.head,
+                                          &priv->frame_stats_buffer);
     }
   }
 
@@ -1809,6 +1817,7 @@ static void destroy_context_and_bufferpool(AV1_COMP *cpi,
 static aom_codec_err_t encoder_destroy(aom_codec_alg_priv_t *ctx) {
   free(ctx->cx_data);
   destroy_context_and_bufferpool(ctx->cpi, ctx->buffer_pool);
+  aom_free(ctx->frame_stats_buffer);
   aom_free(ctx);
   return AOM_CODEC_OK;
 }
