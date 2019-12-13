@@ -1360,16 +1360,6 @@ static void dec_dump_logs(AV1_COMMON *cm, MB_MODE_INFO *const mbmi, int mi_row,
 }
 #endif  // DEC_MISMATCH_DEBUG
 
-#if CONFIG_FLEX_MVRES
-MvSubpelPrecision read_mv_precision(AV1_COMMON *const cm, MACROBLOCKD *const xd,
-                                    aom_reader *r) {
-  const int down = aom_read_symbol(
-      r, xd->tile_ctx->flex_mv_precision_cdf[cm->mv_precision - 1],
-      cm->mv_precision + 1, ACCT_STR);
-  return (MvSubpelPrecision)(cm->mv_precision - down);
-}
-#endif  // CONFIG_FLEX_MVRES
-
 static void read_inter_block_mode_info(AV1Decoder *const pbi,
                                        MACROBLOCKD *const xd,
                                        MB_MODE_INFO *const mbmi, int mi_row,
@@ -1417,8 +1407,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
         read_drl_idx(ec_ctx, xd, mbmi, r);
       }
 #if CONFIG_FLEX_MVRES
-      if (cm->use_flex_mv_precision && have_newmv_in_inter_mode(mbmi->mode)) {
-        mbmi->mv_precision = read_mv_precision(cm, xd, r);
+      if (have_newmv_in_inter_mode(mbmi->mode) && cm->use_flex_mv_precision) {
+        mbmi->mv_precision =
+            cm->sb_mv_precision[get_sb_idx(cm, mi_row, mi_col)];
+      } else {
+        mbmi->mv_precision = cm->mv_precision;
       }
 #endif  // CONFIG_FLEX_MVRES
     }
