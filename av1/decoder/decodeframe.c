@@ -1571,6 +1571,16 @@ static PARTITION_TYPE read_partition(MACROBLOCKD *xd, int mi_row, int mi_col,
   }
 }
 
+#if CONFIG_FLEX_MVRES
+MvSubpelPrecision read_mv_precision(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                                    aom_reader *r) {
+  const int down = aom_read_symbol(
+      r, xd->tile_ctx->flex_mv_precision_cdf[cm->mv_precision - 1],
+      cm->mv_precision + 1, ACCT_STR);
+  return (MvSubpelPrecision)(cm->mv_precision - down);
+}
+#endif  // CONFIG_FLEX_MVRES
+
 // TODO(slavarnway): eliminate bsize and subsize in future commits
 static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
                              int mi_row, int mi_col, aom_reader *reader,
@@ -1586,6 +1596,16 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
   const int has_cols = (mi_col + hbs) < cm->mi_cols;
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
+
+#if CONFIG_FLEX_MVRES
+  if (bsize == cm->seq_params.sb_size && !frame_is_intra_only(cm) &&
+      cm->use_flex_mv_precision) {
+    if (parse_decode_flag & 1) {
+      cm->sb_mv_precision[get_sb_idx(cm, mi_row, mi_col)] =
+          read_mv_precision(cm, xd, reader);
+    }
+  }
+#endif  // CONFIG_FLEX_MVRES
 
   // parse_decode_flag takes the following values :
   // 01 - do parse only
@@ -5214,11 +5234,15 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         cm->mv_precision = MV_SUBPEL_NONE;
 #if CONFIG_FLEX_MVRES
         cm->use_flex_mv_precision = 0;
-#endif  // CONFIG_FLEX_MVRES
+#endif  // CONFIG_FLEX_MVRE
       } else {
 #if CONFIG_FLEX_MVRES
         cm->mv_precision = (MvSubpelPrecision)aom_rb_read_literal(rb, 2);
-        cm->use_flex_mv_precision = aom_rb_read_bit(rb);
+        if (cm->use_flex_mv_precision == MV_SUBPEL_NONE) {
+          cm->use_flex_mv_precision = 0;
+        } else {
+          cm->use_flex_mv_precision = aom_rb_read_bit(rb);
+        }
 #else
         cm->mv_precision = aom_rb_read_bit(rb) ? MV_SUBPEL_EIGHTH_PRECISION
                                                : MV_SUBPEL_QTR_PRECISION;

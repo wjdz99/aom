@@ -312,6 +312,8 @@ typedef struct {
   int frame_refs_short_signaling;
 } CurrentFrame;
 
+#define SB_MV_STRIDE 20
+
 typedef struct AV1Common {
   CurrentFrame current_frame;
   struct aom_internal_error_info error;
@@ -380,6 +382,7 @@ typedef struct AV1Common {
   uint8_t cur_frame_force_integer_mv;  // 0 the default in AOM, 1 only integer
 #if CONFIG_FLEX_MVRES
   uint8_t use_flex_mv_precision;
+  MvSubpelPrecision sb_mv_precision[20*SB_MV_STRIDE];
 #endif  // CONFIG_FLEX_MVRES
 
   uint8_t allow_screen_content_tools;
@@ -1489,6 +1492,16 @@ static INLINE int is_coded_lossless(const AV1_COMMON *cm,
 
 static INLINE int is_valid_seq_level_idx(AV1_LEVEL seq_level_idx) {
   return seq_level_idx < SEQ_LEVELS || seq_level_idx == SEQ_LEVEL_MAX;
+}
+
+static AOM_INLINE int get_sb_idx(const AV1_COMMON *cm, int mi_row, int mi_col) {
+  int mi_in_sb = 0;
+  if (cm->seq_params.sb_size == BLOCK_128X128) {
+    mi_in_sb = 128/4;
+  } else {
+    mi_in_sb = 64/4;
+  }
+  return (mi_row/mi_in_sb) * SB_MV_STRIDE + (mi_col/mi_in_sb);
 }
 
 #ifdef __cplusplus
