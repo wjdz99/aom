@@ -350,15 +350,15 @@ enum {
 #if CONFIG_MODE_DEP_TX
 #define USE_MDTX_INTER 1
 #define USE_MDTX_INTRA 1
-#define USE_NST_INTRA 1
-#define USE_NST_ALL_SIZES 0
-// If USE_NST_ALL_SIZES is 1, apply non-separable transforms on 4x4, 4x8,
-// 8x4, and 8x8 blocks. If it is 0, apply non-separable transforms on 4x4
-// blocks, and DCT_DCT with secondary transforms on 4x8, 8x4, and 8x8 blocks
+
+// If CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX is 1, apply non-separable transforms
+// on 4x4, 4x8, 8x4, and 8x8 blocks. If it is 0, apply non-separable transforms
+// on 4x4 blocks, and DCT_DCT with secondary transforms on 4x8, 8x4, and 8x8
+// blocks
 #define TX_TYPES_NOMDTX 16
 #define MDTX_TYPES_INTER 8
 
-#if USE_NST_INTRA
+#if CONFIG_MODE_DEP_NONSEP_INTRA_TX
 #define MDTX_TYPES_INTRA 4
 #define MDTX_DEBUG 0
 #else
@@ -389,7 +389,7 @@ enum {
   MDTX_INTRA_1,  // MDTX in both horizontal and vertical
   MDTX_INTRA_2,  // MDTX in vertical, DCT in horizontal
   MDTX_INTRA_3,  // DCT in vertical, MDTX in horizontal
-#if USE_NST_INTRA
+#if CONFIG_MODE_DEP_NONSEP_INTRA_TX
   MDTX_INTRA_4,  // non-separable MDTX
 #endif
 #endif
