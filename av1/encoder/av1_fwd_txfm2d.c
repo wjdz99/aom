@@ -109,6 +109,7 @@ static INLINE void fwd_nonsep_txfm2d(const int16_t *input, int32_t *output,
   }
 }
 
+#if !CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
 static INLINE void fwd_nonsep_secondary_txfm2d(int32_t *input, int32_t *buf,
                                                const int32_t *nsst_mtx,
                                                const TX_SIZE tx_size) {
@@ -173,6 +174,7 @@ static INLINE void fwd_nonsep_secondary_txfm2d(int32_t *input, int32_t *buf,
   }
 #endif
 }
+#endif  // !CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
 #endif  // CONFIG_MODE_DEP_TX && USE_MDTX_INTRA &&
         // CONFIG_MODE_DEP_NONSEP_INTRA_TX
 
@@ -181,7 +183,7 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
                                 int32_t *buf, int bd) {
 #if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX
   if (cfg->nstx_mtx_ptr
-#if !USE_NST_ALL_SIZES
+#if !CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
       && cfg->tx_size == TX_4X4
 #endif
   ) {
@@ -280,7 +282,7 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
   }
 
 #if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX && \
-    !USE_NST_ALL_SIZES
+    !CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
 #if MDTX_DEBUG
   if (txfm_size_col <= 8 && txfm_size_row <= 8 && cfg->nstx_mtx_ptr) {
     fprintf(stderr, "FWD: output block\n");
