@@ -293,8 +293,8 @@ static void set_good_speed_features_framesize_independent(
   sf->gm_disable_recode = 1;
   sf->interp_sf.use_fast_interpolation_filter_search = 1;
   sf->intra_tx_size_search_init_depth_sqr = 1;
-  sf->intra_pruning_with_hog = 1;
-  sf->intra_pruning_with_hog_thresh = -1.2f;
+  sf->intra_sf.intra_pruning_with_hog = 1;
+  sf->intra_sf.intra_pruning_with_hog_thresh = -1.2f;
   sf->tx_type_search.use_reduced_intra_txset = 1;
   sf->inter_sf.selective_ref_frame = 1;
   sf->inter_sf.prune_wedge_pred_diff_based = 1;
@@ -341,7 +341,7 @@ static void set_good_speed_features_framesize_independent(
         (frame_is_intra_only(&cpi->common) || (cm->allow_screen_content_tools))
             ? 0
             : (boosted ? 1 : 2);
-    sf->intra_cnn_split = 1;
+    sf->intra_sf.intra_cnn_split = 1;
 
     sf->enable_sgr_ep_pruning = 1;
     sf->inter_tx_size_search_init_depth_rect = 1;
@@ -352,7 +352,7 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.reduce_inter_modes = boosted ? 1 : 2;
     sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
     sf->inter_sf.prune_comp_type_by_model_rd = boosted ? 0 : 1;
-    sf->prune_palette_search_level = 1;
+    sf->intra_sf.prune_palette_search_level = 1;
   }
 
   if (speed >= 2) {
@@ -386,7 +386,7 @@ static void set_good_speed_features_framesize_independent(
     sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
 
     sf->inter_sf.prune_warp_using_wmtype = 1;
-    sf->disable_smooth_intra =
+    sf->intra_sf.disable_smooth_intra =
         !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
   }
 
@@ -429,7 +429,7 @@ static void set_good_speed_features_framesize_independent(
                                                                          : 2;
     sf->tx_type_search.use_skip_flag_prediction =
         cm->allow_screen_content_tools ? 1 : 2;
-    sf->prune_palette_search_level = 2;
+    sf->intra_sf.prune_palette_search_level = 2;
   }
 
   if (speed >= 4) {
@@ -455,14 +455,14 @@ static void set_good_speed_features_framesize_independent(
     sf->tx_type_search.enable_winner_mode_tx_type_pruning = 1;
     // TODO(any): Experiment with this speed feature set to 2 for higher quality
     // presets as well
-    sf->skip_intra_in_interframe = 2;
+    sf->intra_sf.skip_intra_in_interframe = 2;
 
-    sf->intra_y_mode_mask[TX_64X64] = INTRA_DC_H_V;
-    sf->intra_uv_mode_mask[TX_64X64] = UV_INTRA_DC_H_V_CFL;
-    sf->intra_y_mode_mask[TX_32X32] = INTRA_DC_H_V;
-    sf->intra_uv_mode_mask[TX_32X32] = UV_INTRA_DC_H_V_CFL;
-    sf->intra_y_mode_mask[TX_16X16] = INTRA_DC_H_V;
-    sf->intra_uv_mode_mask[TX_16X16] = UV_INTRA_DC_H_V_CFL;
+    sf->intra_sf.intra_y_mode_mask[TX_64X64] = INTRA_DC_H_V;
+    sf->intra_sf.intra_uv_mode_mask[TX_64X64] = UV_INTRA_DC_H_V_CFL;
+    sf->intra_sf.intra_y_mode_mask[TX_32X32] = INTRA_DC_H_V;
+    sf->intra_sf.intra_uv_mode_mask[TX_32X32] = UV_INTRA_DC_H_V_CFL;
+    sf->intra_sf.intra_y_mode_mask[TX_16X16] = INTRA_DC_H_V;
+    sf->intra_sf.intra_uv_mode_mask[TX_16X16] = UV_INTRA_DC_H_V_CFL;
 
     sf->tx_type_search.prune_mode = PRUNE_2D_MORE;
 
@@ -533,8 +533,8 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->gm_disable_recode = 1;
   sf->interp_sf.use_fast_interpolation_filter_search = 1;
   sf->intra_tx_size_search_init_depth_sqr = 1;
-  sf->intra_pruning_with_hog = 1;
-  sf->intra_pruning_with_hog_thresh = -1.2f;
+  sf->intra_sf.intra_pruning_with_hog = 1;
+  sf->intra_sf.intra_pruning_with_hog_thresh = -1.2f;
   sf->tx_type_search.use_reduced_intra_txset = 1;
   sf->inter_sf.selective_ref_frame = 1;
   sf->inter_sf.prune_wedge_pred_diff_based = 1;
@@ -653,12 +653,12 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
 
   if (speed >= 5) {
     sf->recode_loop = ALLOW_RECODE_KFMAXBW;
-    sf->intra_y_mode_mask[TX_64X64] = INTRA_DC_H_V;
-    sf->intra_uv_mode_mask[TX_64X64] = UV_INTRA_DC_H_V_CFL;
-    sf->intra_y_mode_mask[TX_32X32] = INTRA_DC_H_V;
-    sf->intra_uv_mode_mask[TX_32X32] = UV_INTRA_DC_H_V_CFL;
-    sf->intra_y_mode_mask[TX_16X16] = INTRA_DC_H_V;
-    sf->intra_uv_mode_mask[TX_16X16] = UV_INTRA_DC_H_V_CFL;
+    sf->intra_sf.intra_y_mode_mask[TX_64X64] = INTRA_DC_H_V;
+    sf->intra_sf.intra_uv_mode_mask[TX_64X64] = UV_INTRA_DC_H_V_CFL;
+    sf->intra_sf.intra_y_mode_mask[TX_32X32] = INTRA_DC_H_V;
+    sf->intra_sf.intra_uv_mode_mask[TX_32X32] = UV_INTRA_DC_H_V_CFL;
+    sf->intra_sf.intra_y_mode_mask[TX_16X16] = INTRA_DC_H_V;
+    sf->intra_sf.intra_uv_mode_mask[TX_16X16] = UV_INTRA_DC_H_V_CFL;
     sf->tx_size_search_level = 2;
     sf->mv_sf.search_method = BIGDIA;
     sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
@@ -679,8 +679,8 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   if (speed >= 6) {
     sf->optimize_coefficients = NO_TRELLIS_OPT;
     for (int i = 0; i < TX_SIZES; ++i) {
-      sf->intra_y_mode_mask[i] = INTRA_DC;
-      sf->intra_uv_mode_mask[i] = UV_INTRA_DC_CFL;
+      sf->intra_sf.intra_y_mode_mask[i] = INTRA_DC;
+      sf->intra_sf.intra_uv_mode_mask[i] = UV_INTRA_DC_CFL;
     }
     sf->part_sf.partition_search_breakout_rate_thr = 500;
     sf->simple_model_rd_from_var = 1;
@@ -920,16 +920,16 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->prune_sgr_based_on_wiener = 0;
   sf->enable_sgr_ep_pruning = 0;
   sf->reduce_wiener_window_size = 0;
-  sf->skip_intra_in_interframe = 1;
+  sf->intra_sf.skip_intra_in_interframe = 1;
   sf->txb_split_cap = 1;
   sf->adaptive_txb_search_level = 0;
   sf->use_intra_txb_hash = 0;
   sf->use_inter_txb_hash = 1;
   sf->use_mb_rd_hash = 1;
   sf->optimize_b_precheck = 0;
-  sf->intra_pruning_with_hog = 0;
+  sf->intra_sf.intra_pruning_with_hog = 0;
   sf->interp_sf.adaptive_interp_filter_search = 0;
-  sf->src_var_thresh_intra_skip = 1;
+  sf->intra_sf.src_var_thresh_intra_skip = 1;
   sf->reduce_high_precision_mv_usage = 0;
   sf->disable_overlay_frames = 0;
   // TODO(yunqing): turn it on for speed 0 if there is gain.
@@ -938,12 +938,12 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->rt_sf.force_tx_search_off = 0;
   sf->motion_mode_for_winner_cand = 0;
   sf->rt_sf.num_inter_modes_for_tx_search = INT_MAX;
-  sf->prune_palette_search_level = 0;
+  sf->intra_sf.prune_palette_search_level = 0;
   sf->rt_sf.use_simple_rd_model = 0;
 
   for (i = 0; i < TX_SIZES; i++) {
-    sf->intra_y_mode_mask[i] = INTRA_ALL;
-    sf->intra_uv_mode_mask[i] = UV_INTRA_ALL;
+    sf->intra_sf.intra_y_mode_mask[i] = INTRA_ALL;
+    sf->intra_sf.intra_uv_mode_mask[i] = UV_INTRA_ALL;
   }
   sf->lpf_pick = LPF_PICK_FROM_FULL_IMAGE;
   sf->cdef_pick_method = CDEF_FULL_SEARCH;
@@ -970,7 +970,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->part_sf.simple_motion_search_split = 0;
   sf->part_sf.simple_motion_search_prune_rect = 0;
   sf->part_sf.simple_motion_search_early_term_none = 0;
-  sf->intra_cnn_split = 0;
+  sf->intra_sf.intra_cnn_split = 0;
 
   // Set this at the appropriate speed levels
   sf->tx_size_search_level = USE_FULL_RD;
@@ -995,7 +995,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->enable_winner_mode_for_tx_size_srch = 0;
   sf->enable_winner_mode_for_use_tx_domain_dist = 0;
   sf->enable_multiwinner_mode_process = 0;
-  sf->disable_smooth_intra = 0;
+  sf->intra_sf.disable_smooth_intra = 0;
   sf->rt_sf.nonrd_merge_partition = 0;
 
   init_part_sf(&sf->part_sf);
