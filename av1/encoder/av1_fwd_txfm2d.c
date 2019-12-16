@@ -65,7 +65,7 @@ void av1_gen_fwd_stage_range(int8_t *stage_range_col, int8_t *stage_range_row,
   }
 }
 
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && USE_NST_INTRA
+#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX
 static INLINE void fwd_nonsep_txfm2d(const int16_t *input, int32_t *output,
                                      const int stride, int32_t *buf,
                                      const int32_t *nstx_mtx,
@@ -173,12 +173,12 @@ static INLINE void fwd_nonsep_secondary_txfm2d(int32_t *input, int32_t *buf,
   }
 #endif
 }
-#endif  // CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && USE_NST_INTRA
+#endif  // CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX
 
 static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
                                 const int stride, const TXFM_2D_FLIP_CFG *cfg,
                                 int32_t *buf, int bd) {
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && USE_NST_INTRA
+#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX
   if (cfg->nstx_mtx_ptr
 #if !USE_NST_ALL_SIZES
       && cfg->tx_size == TX_4X4
@@ -225,7 +225,7 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
   int32_t *temp_in = output;
   int32_t *temp_out = output + txfm_size_row;
 
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && USE_NST_INTRA && MDTX_DEBUG
+#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX && MDTX_DEBUG
   // debug
   if (txfm_size_col <= 8 && txfm_size_row <= 8 && cfg->nstx_mtx_ptr) {
     fprintf(stderr, "FWD: input block, %dx%d, mode %d, ctx %d, rtx %d\n",
@@ -277,7 +277,7 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
     }
   }
 
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && USE_NST_INTRA && !USE_NST_ALL_SIZES
+#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX && !USE_NST_ALL_SIZES
 #if MDTX_DEBUG
   if (txfm_size_col <= 8 && txfm_size_row <= 8 && cfg->nstx_mtx_ptr) {
     fprintf(stderr, "FWD: output block\n");
@@ -1072,7 +1072,7 @@ void av1_get_fwd_txfm_cfg(TX_TYPE tx_type, TX_SIZE tx_size,
   cfg->txfm_type_row = av1_txfm_type_ls[txw_idx][tx_type_1d_row];
 #if CONFIG_MODE_DEP_TX
   cfg->mode = mode;
-#if USE_MDTX_INTRA && USE_NST_INTRA
+#if USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX
   if (use_nstx(tx_type, tx_size, mode)) {
     cfg->nstx_mtx_ptr = nstx_arr(tx_size, mode);
   } else if (use_nsst(tx_type, tx_size, mode)) {
