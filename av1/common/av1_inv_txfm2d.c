@@ -340,6 +340,7 @@ static INLINE void inv_nonsep_txfm2d_add(const int32_t *input, uint16_t *output,
   }
 }
 
+#if !CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
 // Apply a simplified inverse non-separable transform--inverse secondary
 // transform (inv_nonsep_secondary_txfm2d) for blocks larger than 4x4.
 static INLINE void inv_nonsep_secondary_txfm2d(const int32_t *input,
@@ -410,16 +411,20 @@ static INLINE void inv_nonsep_secondary_txfm2d(const int32_t *input,
   }
 #endif
 }
-#endif  // CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX
+#endif  // !CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
+#endif  // CONFIG_MODE_DEP_TX && USE_MDTX_INTRA &&
+        // CONFIG_MODE_DEP_NONSEP_INTRA_TX
 
 static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
                                     int stride, TXFM_2D_FLIP_CFG *cfg,
                                     int32_t *txfm_buf, TX_SIZE tx_size,
                                     int bd) {
 #if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX
+#if !CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
   DECLARE_ALIGNED(32, int, nsst_buf[8 * 8 + 8 + 8]);
+#endif  // !CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
   if (cfg->nstx_mtx_ptr) {
-#if USE_NST_ALL_SIZES
+#if CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
     // 4x4 non-separable transform
     inv_nonsep_txfm2d_add(input, output, stride, txfm_buf, cfg->nstx_mtx_ptr,
                           cfg->tx_size, bd);
@@ -504,7 +509,8 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
   for (r = 0; r < txfm_size_row; ++r) {
     if (abs(rect_type) == 1) {
       for (c = 0; c < txfm_size_col; ++c) {
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX && !USE_NST_ALL_SIZES
+#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX && \
+    !CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
         // when secondary transforms are used, replace the transform
         // coefficients in the top-left subblock by those after inverse
         // secondary transforms
@@ -530,7 +536,8 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
       txfm_func_row(temp_in, buf_ptr, cos_bit_row, stage_range_row);
     } else {
       for (c = 0; c < txfm_size_col; ++c) {
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX && !USE_NST_ALL_SIZES
+#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX && \
+    !CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
         if (cfg->nstx_mtx_ptr && r < txfm_size_row / 2 && c < txfm_size_col / 2)
           temp_in[c] = nsst_buf[r * txfm_size_col + c];
         else
@@ -572,7 +579,8 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
     }
   }
 
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX && MDTX_DEBUG
+#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX && \
+    MDTX_DEBUG
   if (txfm_size_col <= 8 && txfm_size_row <= 8 && cfg->nstx_mtx_ptr) {
     fprintf(stderr, "INV: output block (with residues added)\n");
     for (r = 0; r < txfm_size_row; ++r) {

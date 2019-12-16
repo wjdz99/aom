@@ -6704,7 +6704,7 @@ static const int32_t *nstx_intra_mtx[4][INTRA_MODES] = {
   { mdt4x4_mode0, mdt4x4_mode1, mdt4x4_mode2, mdt4x4_mode3, mdt4x4_mode4,
     mdt4x4_mode5, mdt4x4_mode6, mdt4x4_mode7, mdt4x4_mode8, mdt4x4_mode9,
     mdt4x4_mode10, mdt4x4_mode11, mdt4x4_mode12 },
-#if USE_NST_ALL_SIZES
+#if CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
   { mdt8x8_mode0, mdt8x8_mode1, mdt8x8_mode2, mdt8x8_mode3, mdt8x8_mode4,
     mdt8x8_mode5, mdt8x8_mode6, mdt8x8_mode7, mdt8x8_mode8, mdt8x8_mode9,
     mdt8x8_mode10, mdt8x8_mode11, mdt8x8_mode12 },

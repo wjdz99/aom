@@ -891,7 +891,7 @@ static INLINE int use_nstx(TX_TYPE tx_type, TX_SIZE tx_size,
   (void)mode;
   if (tx_type != MDTX_INTRA_4) return 0;
   int is_valid_nstx_size = tx_size == TX_4X4;
-#if USE_NST_ALL_SIZES
+#if CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
   is_valid_nstx_size |=
       (tx_size == TX_8X8 || tx_size == TX_4X8 || tx_size == TX_8X4);
 #endif
