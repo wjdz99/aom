@@ -1100,7 +1100,7 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
         intra_dir = mbmi->mode;
 #if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA
       if (tx_set_type == EXT_TX_SET_DTT4_IDTX_1DDCT_MDTX4) {
-#if USE_NST_INTRA
+#if CONFIG_MODE_DEP_NONSEP_INTRA_TX
         int is_mdtx = tx_type >= MDTX_INTRA_1 && tx_type <= MDTX_INTRA_4;
 #else
         int is_mdtx = tx_type >= MDTX_INTRA_1 && tx_type <= MDTX_INTRA_3;

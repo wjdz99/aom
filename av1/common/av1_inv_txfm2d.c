@@ -224,7 +224,7 @@ void av1_get_inv_txfm_cfg(TX_TYPE tx_type, TX_SIZE tx_size,
   }
 #if CONFIG_MODE_DEP_TX
   cfg->mode = mode;
-#if USE_MDTX_INTRA && USE_NST_INTRA
+#if USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX
   if (use_nstx(tx_type, tx_size, mode)) {
     cfg->nstx_mtx_ptr = nstx_arr(tx_size, mode);
   } else if (use_nsst(tx_type, tx_size, mode)) {
@@ -287,7 +287,7 @@ void av1_gen_inv_stage_range(int8_t *stage_range_col, int8_t *stage_range_row,
   }
 }
 
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && USE_NST_INTRA
+#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX
 // Apply ordinary inverse non-separable transform (inv_nonsep_txfm2d)
 // on 4x4 blocks.
 static INLINE void inv_nonsep_txfm2d_add(const int32_t *input, uint16_t *output,
@@ -410,13 +410,14 @@ static INLINE void inv_nonsep_secondary_txfm2d(const int32_t *input,
   }
 #endif
 }
-#endif  // CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && USE_NST_INTRA
+#endif  // CONFIG_MODE_DEP_TX && USE_MDTX_INTRA &&
+        // CONFIG_MODE_DEP_NONSEP_INTRA_TX
 
 static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
                                     int stride, TXFM_2D_FLIP_CFG *cfg,
                                     int32_t *txfm_buf, TX_SIZE tx_size,
                                     int bd) {
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && USE_NST_INTRA
+#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX
   DECLARE_ALIGNED(32, int, nsst_buf[8 * 8 + 8 + 8]);
   if (cfg->nstx_mtx_ptr) {
 #if USE_NST_ALL_SIZES
@@ -479,7 +480,7 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
   int32_t *buf_ptr = buf;
   int c, r;
 
-#if CONFIG_MODE_DEP_TX && MDTX_DEBUG
+#if CONFIG_MODE_DEP_TX && CONFIG_MODE_DEP_NONSEP_INTRA_TX && MDTX_DEBUG
   if (txfm_size_col <= 8 && txfm_size_row <= 8 && cfg->nstx_mtx_ptr) {
 #if 0
     fprintf(stderr, "INV: input block\n");
@@ -504,7 +505,8 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
   for (r = 0; r < txfm_size_row; ++r) {
     if (abs(rect_type) == 1) {
       for (c = 0; c < txfm_size_col; ++c) {
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && USE_NST_INTRA && !USE_NST_ALL_SIZES
+#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX && \
+    !USE_NST_ALL_SIZES
         // when secondary transforms are used, replace the transform
         // coefficients in the top-left subblock by those after inverse
         // secondary transforms
@@ -530,7 +532,8 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
       txfm_func_row(temp_in, buf_ptr, cos_bit_row, stage_range_row);
     } else {
       for (c = 0; c < txfm_size_col; ++c) {
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && USE_NST_INTRA && !USE_NST_ALL_SIZES
+#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX && \
+    !USE_NST_ALL_SIZES
         if (cfg->nstx_mtx_ptr && r < txfm_size_row / 2 && c < txfm_size_col / 2)
           temp_in[c] = nsst_buf[r * txfm_size_col + c];
         else
@@ -572,7 +575,8 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
     }
   }
 
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && USE_NST_INTRA && MDTX_DEBUG
+#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX && \
+    MDTX_DEBUG
   if (txfm_size_col <= 8 && txfm_size_row <= 8 && cfg->nstx_mtx_ptr) {
     fprintf(stderr, "INV: output block (with residues added)\n");
     for (r = 0; r < txfm_size_row; ++r) {
@@ -607,7 +611,7 @@ static INLINE void inv_txfm2d_add_facade(const int32_t *input, uint16_t *output,
 static INLINE void inv_txfm2d_c(const int32_t *input, int16_t *output,
                                 int stride, TXFM_2D_FLIP_CFG *cfg,
                                 int32_t *txfm_buf, TX_SIZE tx_size, int bd) {
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && USE_NST_INTRA
+#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX
   if (cfg->nstx_mtx_ptr) {
     inv_nonsep_txfm2d(input, output, stride, txfm_buf, cfg->nstx_mtx_ptr,
                       cfg->tx_size, bd);
