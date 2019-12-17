@@ -1747,14 +1747,17 @@ static aom_codec_err_t ctrl_set_min_cr(aom_codec_alg_priv_t *ctx,
   return update_extra_cfg(ctx, &extra_cfg);
 }
 static aom_codec_err_t create_frame_stats_buffer(
-    FIRSTPASS_STATS **frame_stats_buffer, STATS_BUFFER_CTX *stats_buf_context) {
+    FIRSTPASS_STATS **frame_stats_buffer, STATS_BUFFER_CTX *stats_buf_context,
+    int num_lap_buffers) {
   aom_codec_err_t res = AOM_CODEC_OK;
+
+  int size = get_stats_buf_size(num_lap_buffers, MAX_LAG_BUFFERS);
   *frame_stats_buffer =
-      (FIRSTPASS_STATS *)aom_calloc(MAX_LAG_BUFFERS, sizeof(FIRSTPASS_STATS));
+      (FIRSTPASS_STATS *)aom_calloc(size, sizeof(FIRSTPASS_STATS));
   stats_buf_context->stats_in_start = *frame_stats_buffer;
   stats_buf_context->stats_in_end = stats_buf_context->stats_in_start;
   stats_buf_context->stats_in_buf_end =
-      stats_buf_context->stats_in_start + MAX_LAG_BUFFERS;
+      stats_buf_context->stats_in_start + size;
   return res;
 }
 
@@ -1790,8 +1793,6 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
 
   if (ctx->priv == NULL) {
     aom_codec_alg_priv_t *const priv = aom_calloc(1, sizeof(*priv));
-    create_frame_stats_buffer(&priv->frame_stats_buffer,
-                              &priv->stats_buf_context);
     if (priv == NULL) return AOM_CODEC_MEM_ERROR;
 
     ctx->priv = (aom_codec_priv_t *)priv;
@@ -1825,6 +1826,10 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
         // Enable look ahead
         *num_lap_buffers = priv->cfg.g_lag_in_frames - priv->oxcf.lag_in_frames;
       }
+
+      create_frame_stats_buffer(&priv->frame_stats_buffer,
+                                &priv->stats_buf_context, *num_lap_buffers);
+
       priv->oxcf.use_highbitdepth =
           (ctx->init_flags & AOM_CODEC_USE_HIGHBITDEPTH) ? 1 : 0;
 
