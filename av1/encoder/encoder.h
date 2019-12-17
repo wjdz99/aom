@@ -1167,7 +1167,8 @@ struct AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
                                        BufferPool *const pool,
                                        FIRSTPASS_STATS *frame_stats_buf,
                                        COMPRESSOR_STAGE stage,
-                                       int num_lap_buffers);
+                                       int num_lap_buffers,
+                                       STATS_BUFFER_CTX *stats_buf_context);
 void av1_remove_compressor(AV1_COMP *cpi);
 
 void av1_change_config(AV1_COMP *cpi, const AV1EncoderConfig *oxcf);
@@ -1381,13 +1382,19 @@ static INLINE int is_stat_consumption_stage_twopass(const AV1_COMP *const cpi) {
 
 // Check if statistics consumption stage
 static INLINE int is_stat_consumption_stage(const AV1_COMP *const cpi) {
-  return (is_stat_consumption_stage_twopass(cpi));
+  return (is_stat_consumption_stage_twopass(cpi) ||
+          (cpi->compressor_stage == ENCODE_STAGE));
 }
 
 // Check if the current stage has statistics
 static INLINE int has_no_stats_stage(const AV1_COMP *const cpi) {
   assert(IMPLIES(!cpi->lap_enabled, cpi->compressor_stage == ENCODE_STAGE));
   return (cpi->oxcf.pass == 0 && !cpi->lap_enabled);
+}
+
+// Get stats buf size
+static INLINE int get_stats_buf_size(int num_lap_buf, int max_lag_buf) {
+  return (num_lap_buf > 0 ? (num_lap_buf + 1) : max_lag_buf);
 }
 
 // TODO(zoeliu): To set up cpi->oxcf.enable_auto_brf
