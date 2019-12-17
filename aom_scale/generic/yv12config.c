@@ -290,9 +290,10 @@ int aom_alloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
 }
 
 void aom_remove_metadata_from_frame_buffer(YV12_BUFFER_CONFIG *ybf) {
-  if (ybf && ybf->metadata) {
+  if (ybf && ybf->metadata && ybf->metadata_owner) {
     aom_img_metadata_array_free(ybf->metadata);
     ybf->metadata = NULL;
+    ybf->metadata_owner = 0;
   }
 }
 
@@ -301,7 +302,7 @@ int aom_copy_metadata_to_frame_buffer(YV12_BUFFER_CONFIG *ybf,
   if (!ybf || !arr || !arr->metadata_array) return -1;
   aom_remove_metadata_from_frame_buffer(ybf);
   ybf->metadata = aom_img_metadata_array_alloc(arr->sz);
-  if (!ybf->metadata) return 0;
+  if (!ybf->metadata) return -1;
   for (size_t i = 0; i < ybf->metadata->sz; i++) {
     ybf->metadata->metadata_array[i] = aom_img_metadata_alloc(
         arr->metadata_array[i]->type, arr->metadata_array[i]->payload,
@@ -309,9 +310,11 @@ int aom_copy_metadata_to_frame_buffer(YV12_BUFFER_CONFIG *ybf,
     if (ybf->metadata->metadata_array[i] == NULL) {
       aom_img_metadata_array_free(ybf->metadata);
       ybf->metadata = NULL;
+      ybf->metadata_owner = 0;
       return -1;
     }
   }
   ybf->metadata->sz = arr->sz;
+  ybf->metadata_owner = 1;
   return 0;
 }

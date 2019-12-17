@@ -366,10 +366,12 @@ int aom_img_add_metadata(aom_image_t *img, uint32_t type, const uint8_t *data,
   }
   img->metadata->metadata_array[img->metadata->sz] = metadata;
   img->metadata->sz++;
+  img->metadata_owner = 1;
   return 0;
 fail:
   aom_img_metadata_array_free(img->metadata);
   img->metadata = NULL;
+  img->metadata_owner = 0;
   return -1;
 }
 
@@ -377,5 +379,23 @@ void aom_img_remove_metadata(aom_image_t *img) {
   if (img && img->metadata) {
     aom_img_metadata_array_free(img->metadata);
     img->metadata = NULL;
+    img->metadata_owner = 0;
   }
+}
+
+aom_metadata_t *aom_img_get_metadata(const aom_image_t *img, size_t index) {
+  if (!img) return NULL;
+  aom_metadata_t *metadata = NULL;
+  aom_metadata_array_t *array = img->metadata;
+  if (array && array->sz > 0 && index < array->sz) {
+    metadata = aom_img_metadata_alloc(array->metadata_array[index]->type,
+                                      array->metadata_array[index]->payload,
+                                      array->metadata_array[index]->sz);
+  }
+  return metadata;
+}
+
+size_t aom_img_num_metadata(const aom_image_t *img) {
+  if (!img || !img->metadata) return 0;
+  return img->metadata->sz;
 }

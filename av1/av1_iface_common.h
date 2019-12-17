@@ -75,6 +75,7 @@ static void yuvconfig2image(aom_image_t *img, const YV12_BUFFER_CONFIG *yv12,
   img->self_allocd = 0;
   img->sz = yv12->frame_size;
   img->metadata = yv12->metadata;
+  img->metadata_owner = 0;
 }
 
 static aom_codec_err_t image2yuvconfig(const aom_image_t *img,
@@ -135,6 +136,7 @@ static aom_codec_err_t image2yuvconfig(const aom_image_t *img,
   yv12->subsampling_x = img->x_chroma_shift;
   yv12->subsampling_y = img->y_chroma_shift;
   yv12->metadata = img->metadata;
+  yv12->metadata_owner = 0;
   return AOM_CODEC_OK;
 }
 

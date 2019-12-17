@@ -152,6 +152,7 @@ static aom_codec_err_t decoder_destroy(aom_codec_alg_priv_t *ctx) {
 
   aom_free(ctx->frame_workers);
   aom_free(ctx->buffer_pool);
+  aom_img_free(&ctx->img);
   aom_free(ctx);
   return AOM_CODEC_OK;
 }
@@ -761,6 +762,21 @@ static aom_image_t *add_grain_if_needed(aom_codec_alg_priv_t *ctx,
   return grain_img;
 }
 
+// Copies and clears the metadata from AV1Decoder.
+static void move_decoder_metadata_to_img(AV1Decoder *pbi, aom_image_t *img) {
+  if (pbi->metadata && img) {
+    size_t array_size = pbi->metadata->sz;
+    for (size_t i = 0; i < array_size; ++i) {
+      aom_img_add_metadata(img, pbi->metadata->metadata_array[i]->type,
+                           pbi->metadata->metadata_array[i]->payload,
+                           pbi->metadata->metadata_array[i]->sz);
+    }
+    img->metadata_owner = 1;
+    aom_img_metadata_array_free(pbi->metadata);
+    pbi->metadata = NULL;
+  }
+}
+
 static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
                                       aom_codec_iter_t *iter) {
   aom_image_t *img = NULL;
@@ -800,12 +816,19 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
           RefCntBuffer *const output_frame_buf = pbi->output_frames[*index];
           ctx->last_show_frame = output_frame_buf;
           if (ctx->need_resync) return NULL;
+
+          aom_remove_metadata_from_frame_buffer(sd);
+          aom_img_remove_metadata(&ctx->img);
           yuvconfig2image(&ctx->img, sd, frame_worker_data->user_priv);
+          move_decoder_metadata_to_img(pbi, &ctx->img);
 
           if (!pbi->ext_tile_debug && cm->large_scale_tile) {
             *index += 1;  // Advance the iterator to point to the next image
 
+            aom_remove_metadata_from_frame_buffer(sd);
+            aom_img_remove_metadata(&ctx->img);
             yuvconfig2image(&ctx->img, &pbi->tile_list_outbuf, NULL);
+            move_decoder_metadata_to_img(pbi, &ctx->img);
             img = &ctx->img;
             return img;
           }

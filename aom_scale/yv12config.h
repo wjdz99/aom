@@ -107,6 +107,7 @@ typedef struct yv12_buffer_config {
   int corrupted;
   int flags;
   aom_metadata_array_t *metadata;
+  int metadata_owner;
 } YV12_BUFFER_CONFIG;
 
 #define YV12_FLAG_HIGHBITDEPTH 8
