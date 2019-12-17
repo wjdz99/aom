@@ -81,7 +81,7 @@ static unsigned int num_winner_motion_modes[3] = { 0, 10, 3 };
 static unsigned int coeff_opt_dist_thresholds[5][MODE_EVAL_TYPES] = {
   { UINT_MAX, UINT_MAX, UINT_MAX },
   { 442413, 36314, UINT_MAX },
-  { 162754, 36314, UINT_MAX },
+  { 162754, 59874, UINT_MAX },
   { 22026, 22026, UINT_MAX },
   { 22026, 22026, UINT_MAX }
 };
@@ -383,11 +383,20 @@ static void set_good_speed_features_framesize_independent(
 
     // TODO(Sachin): Enable/Enhance this speed feature for speed 2 & 3
     sf->adaptive_interp_filter_search = 1;
-    sf->perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
+    sf->perform_coeff_opt = 2;
 
     sf->inter_sf.prune_warp_using_wmtype = 1;
     sf->disable_smooth_intra =
         !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
+    sf->enable_winner_mode_for_coeff_opt =
+        frame_is_intra_only(&cpi->common) ? 0 : 1;
+    // sf->enable_winner_mode_for_tx_size_srch =
+    // frame_is_intra_only(&cpi->common) ? 0 : 1;
+
+    if (frame_is_intra_only(&cpi->common))
+      sf->enable_multiwinner_mode_process = 0;
+    else
+      sf->enable_multiwinner_mode_process = is_boosted_arf2_bwd_type ? 1 : 0;
   }
 
   if (speed >= 3) {
