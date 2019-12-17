@@ -9736,7 +9736,7 @@ static int64_t interpolation_filter_search(
       // Use full interpolation filter search
       // REG_REG filter type is evaluated beforehand, so loop is repeated over
       // REG_SMOOTH to SHARP_SHARP for full interpolation filter search
-      for (i = filter_set_size; i > REG_REG; --i) {
+      for (int i = filter_set_size - 1; i >= REG_REG; --i) {
         interpolation_filter_rd(x, cpi, tile_data, bsize, mi_row, mi_col,
                                 orig_dst, rd, &rd_stats_luma, &rd_stats,
                                 switchable_rate, dst_bufs, i, switchable_ctx,
