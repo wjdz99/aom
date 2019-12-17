@@ -203,6 +203,13 @@ TestTemporal_FilterPlane Temporal_filter_test[] = { TestTemporal_FilterPlane(
 INSTANTIATE_TEST_CASE_P(AVX2, TemporalFilterTest,
                         Combine(ValuesIn(Temporal_filter_test),
                                 Range(64, 65, 4)));
-#endif  // HAVE_AVX2
+#elif HAVE_SSE2
+TestTemporal_FilterPlane Temporal_filter_test[] = { TestTemporal_FilterPlane(
+    &av1_temporal_filter_plane_c, &av1_temporal_filter_plane_sse2) };
+INSTANTIATE_TEST_CASE_P(SSE2, TemporalFilterTest,
+                        Combine(ValuesIn(Temporal_filter_test),
+                                Range(64, 65, 4)));
+#endif
+
 }  // namespace
 #endif
