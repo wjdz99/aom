@@ -1441,8 +1441,18 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             counts->interintra_mode[bsize_group][mbmi->interintra_mode]++;
 #endif  // CONFIG_ENTROPY_STATS
             if (allow_update_cdf) {
-              update_cdf(fc->interintra_mode_cdf[bsize_group],
-                         mbmi->interintra_mode, INTERINTRA_MODES);
+#if CONFIG_DERIVED_INTRA_MODE
+              if (av1_enable_derived_intra_mode(xd, bsize)) {
+                update_cdf(get_derived_intra_mode_cdf(fc, xd->above_mbmi,
+                                                      xd->left_mbmi),
+                           mbmi->use_derived_intra_mode[0], 2);
+              }
+              if (!mbmi->use_derived_intra_mode[0])
+#endif  // CONFIG_DERIVED_INTRA_MODE
+              {
+                update_cdf(fc->interintra_mode_cdf[bsize_group],
+                           mbmi->interintra_mode, INTERINTRA_MODES);
+              }
             }
             if (is_interintra_wedge_used(bsize)) {
 #if CONFIG_ENTROPY_STATS

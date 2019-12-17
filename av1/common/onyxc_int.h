@@ -1012,10 +1012,42 @@ static INLINE aom_cdf_prob *get_y_mode_cdf(FRAME_CONTEXT *tile_ctx,
 static INLINE aom_cdf_prob *get_derived_intra_mode_cdf(
     FRAME_CONTEXT *tile_ctx, const MB_MODE_INFO *above_mi,
     const MB_MODE_INFO *left_mi) {
-  const int above = above_mi && !is_inter_block(above_mi) &&
-                    above_mi->use_derived_intra_mode[0];
-  const int left =
-      left_mi && !is_inter_block(left_mi) && left_mi->use_derived_intra_mode[0];
+#if 1
+    if (above_mi && above_mi->use_derived_intra_mode[0]) {
+      if (above_mi->ref_frame[0] != INTRA_FRAME &&
+          above_mi->ref_frame[1] != INTRA_FRAME) {
+        printf("\n above_mi error 1 mode %d, ref %d %d\n",
+               above_mi->mode, above_mi->ref_frame[0], above_mi->ref_frame[1]);
+      }
+
+      if (is_intrabc_block(above_mi)) {
+        printf("\n above_mi error 2 mode %d, ref %d %d\n",
+               above_mi->mode, above_mi->ref_frame[0], above_mi->ref_frame[1]);
+      }
+    }
+
+    if (left_mi && left_mi->use_derived_intra_mode[0]) {
+      if (left_mi->ref_frame[0] != INTRA_FRAME &&
+          left_mi->ref_frame[1] != INTRA_FRAME) {
+        printf("\n left_mi error 1 mode %d, ref %d %d\n",
+               left_mi->mode, left_mi->ref_frame[0], left_mi->ref_frame[1]);
+      }
+
+      if (is_intrabc_block(left_mi)) {
+        printf("\n left_mi error 2 mode %d, ref %d %d\n",
+               left_mi->mode, left_mi->ref_frame[0], left_mi->ref_frame[1]);
+      }
+    }
+#endif
+
+
+#if 0
+  const int above = above_mi && !is_inter_block(above_mi) && above_mi->use_derived_intra_mode[0];
+  const int left = left_mi && !is_inter_block(left_mi) && left_mi->use_derived_intra_mode[0];
+#else
+  const int above = above_mi && above_mi->use_derived_intra_mode[0];
+  const int left = left_mi && left_mi->use_derived_intra_mode[0];
+#endif
   return tile_ctx->derived_intra_mode_cdf[above + left];
 }
 #endif  // CONFIG_DERIVED_INTRA_MODE
