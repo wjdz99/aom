@@ -308,6 +308,7 @@ struct aom_codec_alg_priv {
   FIRSTPASS_STATS *frame_stats_buffer;
   // Number of stats buffers required for look ahead
   int num_lap_buffers;
+  STATS_BUFFER_CTX stats_buf_context;
 };
 
 static INLINE int gcd(int64_t a, int b) {
@@ -378,7 +379,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK_HI(extra_cfg, frame_periodic_boost, 1);
   RANGE_CHECK_HI(cfg, g_usage, 1);
   RANGE_CHECK_HI(cfg, g_threads, MAX_NUM_THREADS);
-  RANGE_CHECK_HI(cfg, g_lag_in_frames, MAX_LAG_BUFFERS);
+  RANGE_CHECK_HI(cfg, g_lag_in_frames, MAX_TOTAL_BUFFERS);
   RANGE_CHECK(cfg, rc_end_usage, AOM_VBR, AOM_Q);
   RANGE_CHECK_HI(cfg, rc_undershoot_pct, 100);
   RANGE_CHECK_HI(cfg, rc_overshoot_pct, 100);
@@ -1749,7 +1750,8 @@ static aom_codec_err_t ctrl_set_min_cr(aom_codec_alg_priv_t *ctx,
 static aom_codec_err_t create_context_and_bufferpool(
     AV1_COMP **p_cpi, BufferPool **p_buffer_pool, AV1EncoderConfig *oxcf,
     struct aom_codec_pkt_list *pkt_list_head, FIRSTPASS_STATS *frame_stats_buf,
-    COMPRESSOR_STAGE stage, int num_lap_buffers) {
+    COMPRESSOR_STAGE stage, int num_lap_buffers,
+    STATS_BUFFER_CTX *stats_buf_context) {
   aom_codec_err_t res = AOM_CODEC_OK;
 
   *p_buffer_pool = (BufferPool *)aom_calloc(1, sizeof(BufferPool));
@@ -1761,7 +1763,7 @@ static aom_codec_err_t create_context_and_bufferpool(
   }
 #endif
   *p_cpi = av1_create_compressor(oxcf, *p_buffer_pool, frame_stats_buf, stage,
-                                 num_lap_buffers);
+                                 num_lap_buffers, stats_buf_context);
   if (*p_cpi == NULL)
     res = AOM_CODEC_MEM_ERROR;
   else
@@ -1777,8 +1779,6 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
 
   if (ctx->priv == NULL) {
     aom_codec_alg_priv_t *const priv = aom_calloc(1, sizeof(*priv));
-    priv->frame_stats_buffer =
-        (FIRSTPASS_STATS *)aom_calloc(MAX_LAG_BUFFERS, sizeof(FIRSTPASS_STATS));
     if (priv == NULL) return AOM_CODEC_MEM_ERROR;
 
     ctx->priv = (aom_codec_priv_t *)priv;
@@ -1812,18 +1812,30 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
         // Enable look ahead
         *num_lap_buffers = priv->cfg.g_lag_in_frames - priv->oxcf.lag_in_frames;
       }
+
+      int size = get_stats_buf_size(*num_lap_buffers, MAX_LAG_BUFFERS);
+      priv->frame_stats_buffer =
+          (FIRSTPASS_STATS *)aom_calloc(size, sizeof(FIRSTPASS_STATS));
+      priv->stats_buf_context.stats_in_start = &priv->frame_stats_buffer[0];
+      priv->stats_buf_context.stats_in_end =
+          priv->stats_buf_context.stats_in_start;
+      priv->stats_buf_context.stats_in_buf_end =
+          priv->stats_buf_context.stats_in_start + size;
+
       priv->oxcf.use_highbitdepth =
           (ctx->init_flags & AOM_CODEC_USE_HIGHBITDEPTH) ? 1 : 0;
 
       res = create_context_and_bufferpool(
           &priv->cpi, &priv->buffer_pool, &priv->oxcf, &priv->pkt_list.head,
-          priv->frame_stats_buffer, ENCODE_STAGE, *num_lap_buffers);
+          priv->frame_stats_buffer, ENCODE_STAGE, *num_lap_buffers,
+          &priv->stats_buf_context);
 
       // Create another compressor if look ahead is enabled
       if (res == AOM_CODEC_OK && *num_lap_buffers) {
         res = create_context_and_bufferpool(
             &priv->cpi_lap, &priv->buffer_pool_lap, &priv->oxcf, NULL,
-            priv->frame_stats_buffer, LAP_STAGE, *num_lap_buffers);
+            priv->frame_stats_buffer, LAP_STAGE, *num_lap_buffers,
+            &priv->stats_buf_context);
       }
     }
   }
