@@ -154,6 +154,8 @@ static aom_image_t *img_alloc_helper(
   img->stride[AOM_PLANE_Y] = stride_in_bytes;
   img->stride[AOM_PLANE_U] = img->stride[AOM_PLANE_V] = stride_in_bytes >> xcs;
 
+  img->metadata = NULL;
+
   /* Default viewport to entire image. (This aom_img_set_rect call always
    * succeeds.) */
   aom_img_set_rect(img, 0, 0, d_w, d_h, border);
@@ -378,4 +380,21 @@ void aom_img_remove_metadata(aom_image_t *img) {
     aom_img_metadata_array_free(img->metadata);
     img->metadata = NULL;
   }
+}
+
+aom_metadata_t *aom_img_get_metadata(const aom_image_t *img, size_t index) {
+  if (!img) return NULL;
+  aom_metadata_t *metadata = NULL;
+  aom_metadata_array_t *array = img->metadata;
+  if (array && index < array->sz) {
+    metadata = aom_img_metadata_alloc(array->metadata_array[index]->type,
+                                      array->metadata_array[index]->payload,
+                                      array->metadata_array[index]->sz);
+  }
+  return metadata;
+}
+
+size_t aom_img_num_metadata(const aom_image_t *img) {
+  if (!img || !img->metadata) return 0;
+  return img->metadata->sz;
 }

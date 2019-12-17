@@ -2144,6 +2144,8 @@ static float usec_to_fps(uint64_t usec, unsigned int frames) {
 static void test_decode(struct stream_state *stream,
                         enum TestDecodeFatality fatal) {
   aom_image_t enc_img, dec_img;
+  enc_img.metadata = NULL;
+  dec_img.metadata = NULL;
 
   if (stream->mismatch_seen) return;
 
