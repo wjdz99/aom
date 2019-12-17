@@ -92,7 +92,7 @@ static void write_intra_y_mode_kf(MACROBLOCKD *const xd,
     if (av1_enable_derived_intra_mode(xd, mi->sb_type)) {
       aom_write_symbol(
           w, mi->use_derived_intra_mode[0],
-          get_derived_intra_mode_cdf(frame_ctx, xd->above_mbmi, xd->left_mbmi),
+          get_derived_intra_mode_cdf(frame_ctx, xd->above_mbmi, xd->left_mbmi, 0),
           2);
     } else {
       assert(!mbmi->use_derived_intra_mode[0]);
@@ -1334,7 +1334,7 @@ static void write_intra_prediction_modes(AV1_COMP *cpi, const int mi_row,
       if (av1_enable_derived_intra_mode(xd, bsize)) {
         aom_write_symbol(
             w, mbmi->use_derived_intra_mode[0],
-            get_derived_intra_mode_cdf(ec_ctx, xd->above_mbmi, xd->left_mbmi),
+            get_derived_intra_mode_cdf(ec_ctx, xd->above_mbmi, xd->left_mbmi, 0),
             2);
       } else {
         assert(!mbmi->use_derived_intra_mode[0]);
@@ -1532,9 +1532,27 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       const int bsize_group = size_group_lookup[bsize];
       aom_write_symbol(w, interintra, ec_ctx->interintra_cdf[bsize_group], 2);
       if (interintra) {
-        aom_write_symbol(w, mbmi->interintra_mode,
-                         ec_ctx->interintra_mode_cdf[bsize_group],
-                         INTERINTRA_MODES);
+#if 0
+        if (mbmi->use_derived_intra_mode[0]) {
+          printf("\n error\n");
+        }
+#endif
+#if CONFIG_DERIVED_INTRA_MODE
+        if (av1_enable_derived_intra_mode(xd, bsize)) {
+          aom_write_symbol(
+              w, mbmi->use_derived_intra_mode[0],
+              get_derived_intra_mode_cdf(ec_ctx, xd->above_mbmi, xd->left_mbmi, 1),
+              2);
+        } else {
+          assert(!mbmi->use_derived_intra_mode[0]);
+        }
+        if (!mbmi->use_derived_intra_mode[0])
+#endif  // CONFIG_DERIVED_INTRA_MODE
+        {
+          aom_write_symbol(w, mbmi->interintra_mode,
+                           ec_ctx->interintra_mode_cdf[bsize_group],
+                           INTERINTRA_MODES);
+        }
         if (is_interintra_wedge_used(bsize)) {
           aom_write_symbol(w, mbmi->use_wedge_interintra,
                            ec_ctx->wedge_interintra_cdf[bsize], 2);
