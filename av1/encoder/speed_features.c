@@ -322,6 +322,7 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.prune_comp_search_by_single_result = boosted ? 2 : 1;
     sf->inter_sf.skip_repeated_newmv = 1;
     sf->inter_sf.obmc_full_pixel_search_level = 1;
+    sf->inter_sf.fast_interintra_wedge_search = 1;
     // TODO(Venkat): Clean-up frame type dependency for
     // simple_motion_search_split in partition search function and set the
     // speed feature accordingly
@@ -822,6 +823,7 @@ static AOM_INLINE void init_inter_sf(INTER_MODE_SPEED_FEATURES *inter_sf) {
   inter_sf->prune_motion_mode_level = 0;
   inter_sf->prune_warp_using_wmtype = 0;
   inter_sf->disable_wedge_interintra_search = 0;
+  inter_sf->fast_interintra_wedge_search = 0;
   inter_sf->prune_comp_type_by_model_rd = 0;
   inter_sf->perform_best_rd_based_gating_for_chroma = 0;
   inter_sf->prune_obmc_prob_thresh = 0;
