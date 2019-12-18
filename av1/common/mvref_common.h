@@ -329,8 +329,7 @@ static INLINE int av1_is_dv_valid(const MV dv, const AV1_COMMON *cm,
   // pixels outside current tile.
   for (int plane = 1; plane < av1_num_planes(cm); ++plane) {
     const struct macroblockd_plane *const pd = &xd->plane[plane];
-    if (is_chroma_reference(mi_row, mi_col, bsize, pd->subsampling_x,
-                            pd->subsampling_y)) {
+    if (plane && xd->mi[0]->chroma_ref_info.is_chroma_ref) {
       if (bw < 8 && pd->subsampling_x)
         if (src_left_edge < tile_left_edge + 4 * SCALE_PX_TO_MV) return 0;
       if (bh < 8 && pd->subsampling_y)
