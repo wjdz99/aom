@@ -1,0 +1,323 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ccc18c47_eca77806",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "I think we should set img-\u003emetadata_owner to 1 after this line (line 351). In other word, we should set img-\u003emetadata_owner to 1 when we successfully set img-\u003emetadata to a metadata array that we allocated.",
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a32b9863_fd614e14",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "Optional: We should check for realloc() failure. You can do this in a separate CL.\n\nNote: To leaking the original img-\u003emetadata-\u003emetadata_array when realloc() fails, we need to save the return value of realloc() in a local variable first.",
+      "range": {
+        "startLine": 363,
+        "startChar": 0,
+        "endLine": 365,
+        "endChar": 79
+      },
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a937e6ab_f6af6d3d",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "Please see my comment at line 351. I think we should move this line after line 351. We don\u0027t need to set img-\u003emetadata_owner to 1 whenever we add a new element to the metadata array. It is sufficient to set img-\u003emetadata_owner to 1 only once.",
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "099a9a5a_099750e0",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "We need to check if img-\u003emetadata_owner is true before calling aom_img_metadata_array_free().",
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a65f8bf_ed497dc1",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "We need to check if img-\u003emetadata_owner is true before calling aom_img_metadata_array_free().",
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf5c387c_0002f4f9",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "Nit: the array-\u003esz \u003e 0 check can be omitted. If array-\u003esz \u003c\u003d 0, then index \u003c array-\u003esz cannot be true.",
+      "range": {
+        "startLine": 390,
+        "startChar": 12,
+        "endLine": 390,
+        "endChar": 28
+      },
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c50780a4_f26fe8a2",
+        "filename": "aom_scale/generic/yv12config.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "We should set ybf-\u003emetadata_owner to 1 after this line (line 305), because we have just successfully set ybf-\u003emetadata to a metadata array that we allocated.",
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "123f4da3_246bb79b",
+        "filename": "aom_scale/generic/yv12config.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "Move this line after line 305.",
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bea851c_3ea65a17",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 772,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "Nit/optional: This is correct but inefficient. We don\u0027t need to do a deep copy here. We can just move (as opposed to copy) the metadata. (In fact, the function name says \"move\".)",
+      "range": {
+        "startLine": 770,
+        "startChar": 0,
+        "endLine": 772,
+        "endChar": 65
+      },
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "173c4dfa_f2571c29",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 774,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "Delete this line. This is done inside aom_img_add_metadata.",
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2148a4d0_76acbd06",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 822,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "IMPORTANT/optional: Now that I see you remove the metadata from both sd and \u0026ctx-\u003eimg before the yuvconfig2image() call, I think a simpler solution to the metadata ownership problem is to change yuvconfig2image() and image2yuvconfig() to *not* copy metadata. Then we don\u0027t need to add the metadata_owner fields to YV12_BUFFER_CONFIG and aom_image_t, because they always own their metadata fields.",
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42d0b71e_19745e63",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 828,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "This argument should be \u0026pbi-\u003etile_list_outbuf, not sd, right? Note that we pass \u0026pbi-\u003etile_list_outbuf to the yuvconfig2image() call in line 830.",
+      "range": {
+        "startLine": 828,
+        "startChar": 50,
+        "endLine": 828,
+        "endChar": 52
+      },
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "391f03f4_601751ef",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "Nit/optional: We can rewrite these lines as follows:\n\n  int i \u003d (int)sz - 1;\t\n  while (i \u003e\u003d 0 \u0026\u0026 data[i] \u003d\u003d 0) {\n    --i;\n  }\t\n  return i;",
+      "range": {
+        "startLine": 555,
+        "startChar": 0,
+        "endLine": 560,
+        "endChar": 12
+      },
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d838f10_92b58ad4",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "We should also check for itu_t_t35_country_code_extension_byte if itu_t_t35_country_code \u003d\u003d 0xFF.\n\nIt is fine to include the country code in the metadata block, but we should still validate the country code.",
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a99709c_805858d8",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "Nit/optional: The code here is correct but is inefficient. We need to grow metadata-\u003emetadata_array, but we don\u0027t need to do a deep copy of the existing elements in the array.\n\nFor example, the corresponding code in aom_img_add_metadata() does a shallow copy of the existing elements in the array.",
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c7c02a8_b7263d89",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "Nit/optional: Change this to:\n\n   if (get_last_nonzero_byte_index(data + type_length, sz - type_length) \u003c 0) {",
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c140d5b_3538816a",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 991,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-18T20:18:54Z",
+      "side": 1,
+      "message": "Nit/optional: Change this to:\n\n            get_last_nonzero_byte_index(data, payload_size) \u003c 0) {",
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
