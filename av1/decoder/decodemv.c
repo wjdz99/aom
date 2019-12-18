@@ -601,7 +601,7 @@ static void read_palette_colors_uv(MACROBLOCKD *const xd, int bit_depth,
 }
 
 static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
-                                   int mi_row, int mi_col, aom_reader *r) {
+                                   aom_reader *r) {
   const int num_planes = av1_num_planes(cm);
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const BLOCK_SIZE bsize = mbmi->sb_type;
@@ -623,8 +623,7 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     }
   }
   if (num_planes > 1 && mbmi->uv_mode == UV_DC_PRED &&
-      is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
-                          xd->plane[1].subsampling_y)) {
+      mbmi->chroma_ref_info.is_chroma_ref) {
     const int palette_uv_mode_ctx = (pmi->palette_size[0] > 0);
     const int modev = aom_read_symbol(
         r, xd->tile_ctx->palette_uv_mode_cdf[palette_uv_mode_ctx], 2, ACCT_STR);
@@ -971,9 +970,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
   }
 
-  if (!cm->seq_params.monochrome &&
-      is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
-                          xd->plane[1].subsampling_y)) {
+  if (!cm->seq_params.monochrome && mbmi->chroma_ref_info.is_chroma_ref) {
     xd->cfl.is_chroma_reference = 1;
 #if CONFIG_INTRA_ENTROPY
     aom_cdf_prob uv_mode_cdf[UV_INTRA_MODES];
@@ -1008,7 +1005,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   xd->cfl.store_y = store_cfl_required(cm, xd);
 
   if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
-    read_palette_mode_info(cm, xd, mi_row, mi_col, r);
+    read_palette_mode_info(cm, xd, r);
 
   read_filter_intra_mode_info(cm, xd, r);
 #if CONFIG_ADAPT_FILTER_INTRA
@@ -1267,8 +1264,8 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
   }
 }
 
-static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
-                                       const int mi_col, MACROBLOCKD *const xd,
+static void read_intra_block_mode_info(AV1_COMMON *const cm,
+                                       MACROBLOCKD *const xd,
                                        MB_MODE_INFO *const mbmi,
                                        aom_reader *r) {
   const BLOCK_SIZE bsize = mbmi->sb_type;
@@ -1314,11 +1311,8 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
   } else {
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
   }
-  const int has_chroma =
-      is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
-                          xd->plane[1].subsampling_y);
-  xd->cfl.is_chroma_reference = has_chroma;
-  if (!cm->seq_params.monochrome && has_chroma) {
+  xd->cfl.is_chroma_reference = mbmi->chroma_ref_info.is_chroma_ref;
+  if (!cm->seq_params.monochrome && mbmi->chroma_ref_info.is_chroma_ref) {
 #if CONFIG_INTRA_ENTROPY
     aom_cdf_prob uv_mode_cdf[UV_INTRA_MODES];
     av1_get_uv_mode_cdf_ml(xd, mbmi->mode, uv_mode_cdf);
@@ -1354,7 +1348,7 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
   mbmi->palette_mode_info.palette_size[0] = 0;
   mbmi->palette_mode_info.palette_size[1] = 0;
   if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
-    read_palette_mode_info(cm, xd, mi_row, mi_col, r);
+    read_palette_mode_info(cm, xd, r);
 
   read_filter_intra_mode_info(cm, xd, r);
 #if CONFIG_ADAPT_FILTER_INTRA
@@ -1873,9 +1867,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
   }
 
-  xd->cfl.is_chroma_reference =
-      is_chroma_reference(mi_row, mi_col, bsize, cm->seq_params.subsampling_x,
-                          cm->seq_params.subsampling_y);
+  xd->cfl.is_chroma_reference = mbmi->chroma_ref_info.is_chroma_ref;
   xd->cfl.store_y = store_cfl_required(cm, xd);
 
 #if DEC_MISMATCH_DEBUG
@@ -1922,7 +1914,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   if (inter_block)
     read_inter_block_mode_info(pbi, xd, mbmi, mi_row, mi_col, r);
   else
-    read_intra_block_mode_info(cm, mi_row, mi_col, xd, mbmi, r);
+    read_intra_block_mode_info(cm, xd, mbmi, r);
 }
 
 static void intra_copy_frame_mvs(AV1_COMMON *const cm, int mi_row, int mi_col,
