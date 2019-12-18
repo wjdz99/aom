@@ -173,6 +173,30 @@
     },
     {
       "key": {
+        "uuid": "df64e5db_aa8291c1",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 772,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-18T21:41:28Z",
+      "side": 1,
+      "message": "Do you mean just copy the metadata pointer?\nThe deep copy is more for security because I\u0027m not sure the metadata will still be valid/correct when a user wants to actually obtain the img metadata with the API, since pbi metadata is being overwritten every time.",
+      "parentUuid": "1bea851c_3ea65a17",
+      "range": {
+        "startLine": 770,
+        "startChar": 0,
+        "endLine": 772,
+        "endChar": 65
+      },
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "173c4dfa_f2571c29",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 2
@@ -225,6 +249,47 @@
     },
     {
       "key": {
+        "uuid": "6f8aef17_504a455e",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 822,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-18T21:41:28Z",
+      "side": 1,
+      "message": "Right now we only do pointer copy, not deep copy. Do you mean we shouldn\u0027t even copy the pointer? and let move_decoder_metadata_to_img() take care of all metadata handling? \n\n\nIn image2yuvconfig() the pointer copy is necessary due to current encoder implementation. We could do a similar approach on encode of giving the metadata copy responsibility to another function for consistency.",
+      "parentUuid": "c2a565b1_b65234d9",
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e39a88dc_8b10fb1b",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 823,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-18T21:41:28Z",
+      "side": 1,
+      "message": "Inside this function we could call aom_img_remove_metadata(\u0026ctx-\u003eimg).",
+      "range": {
+        "startLine": 823,
+        "startChar": 10,
+        "endLine": 823,
+        "endChar": 38
+      },
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "42d0b71e_19745e63",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 2
@@ -236,6 +301,30 @@
       "writtenOn": "2019-12-18T20:18:54Z",
       "side": 1,
       "message": "This argument should be \u0026pbi-\u003etile_list_outbuf, not sd, right? Note that we pass \u0026pbi-\u003etile_list_outbuf to the yuvconfig2image() call in line 830.",
+      "range": {
+        "startLine": 828,
+        "startChar": 50,
+        "endLine": 828,
+        "endChar": 52
+      },
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37ff70d9_6524046c",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 828,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2019-12-18T21:41:28Z",
+      "side": 1,
+      "message": "Copy paste effect from above...",
+      "parentUuid": "42d0b71e_19745e63",
       "range": {
         "startLine": 828,
         "startChar": 50,
