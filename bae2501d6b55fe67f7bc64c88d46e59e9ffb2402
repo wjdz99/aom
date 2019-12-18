@@ -207,6 +207,24 @@
     },
     {
       "key": {
+        "uuid": "c2a565b1_b65234d9",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 822,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2019-12-18T20:54:21Z",
+      "side": 1,
+      "message": "+1 to this-- it would be nice to avoid having the ownership field because the setup can be error prone. It\u0027s quite easy to forget about checking for proper usage when reviewing future changes.",
+      "parentUuid": "2148a4d0_76acbd06",
+      "revId": "bae2501d6b55fe67f7bc64c88d46e59e9ffb2402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "42d0b71e_19745e63",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 2
