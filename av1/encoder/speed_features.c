@@ -822,6 +822,7 @@ static AOM_INLINE void init_inter_sf(INTER_MODE_SPEED_FEATURES *inter_sf) {
   inter_sf->prune_motion_mode_level = 0;
   inter_sf->prune_warp_using_wmtype = 0;
   inter_sf->disable_wedge_interintra_search = 0;
+  inter_sf->fast_interintra_wedge_search = 0;
   inter_sf->prune_comp_type_by_model_rd = 0;
   inter_sf->perform_best_rd_based_gating_for_chroma = 0;
   inter_sf->prune_obmc_prob_thresh = 0;
