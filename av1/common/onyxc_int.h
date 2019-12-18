@@ -916,28 +916,24 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
   }
 #endif  // CONFIG_INTRA_ENTROPY
 
-  const int chroma_ref =
-      is_chroma_reference_helper(mi_row, mi_col, bw, bh, ss_x, ss_y);
-  if (chroma_ref) {
-    // To help calculate the "above" and "left" chroma blocks, note that the
-    // current block may cover multiple luma blocks (eg, if partitioned into
-    // 4x4 luma blocks).
-    // First, find the top-left-most luma block covered by this chroma block
-    MB_MODE_INFO **base_mi =
-        &xd->mi[-mi_row_offset * xd->mi_stride - mi_col_offset];
+  // To help calculate the "above" and "left" chroma blocks, note that the
+  // current block may cover multiple luma blocks (eg, if partitioned into
+  // 4x4 luma blocks).
+  // First, find the top-left-most luma block covered by this chroma block
+  MB_MODE_INFO **base_mi =
+      &xd->mi[-mi_row_offset * xd->mi_stride - mi_col_offset];
 
-    // Then, we consider the luma region covered by the left or above 4x4 chroma
-    // prediction. We want to point to the chroma reference block in that
-    // region, which is the bottom-right-most mi unit.
-    // This leads to the following offsets:
-    MB_MODE_INFO *chroma_above_mi =
-        xd->chroma_up_available ? base_mi[-xd->mi_stride + ss_x] : NULL;
-    xd->chroma_above_mbmi = chroma_above_mi;
+  // Then, we consider the luma region covered by the left or above 4x4 chroma
+  // prediction. We want to point to the chroma reference block in that
+  // region, which is the bottom-right-most mi unit.
+  // This leads to the following offsets:
+  MB_MODE_INFO *chroma_above_mi =
+      xd->chroma_up_available ? base_mi[-xd->mi_stride + ss_x] : NULL;
+  xd->chroma_above_mbmi = chroma_above_mi;
 
-    MB_MODE_INFO *chroma_left_mi =
-        xd->chroma_left_available ? base_mi[ss_y * xd->mi_stride - 1] : NULL;
-    xd->chroma_left_mbmi = chroma_left_mi;
-  }
+  MB_MODE_INFO *chroma_left_mi =
+      xd->chroma_left_available ? base_mi[ss_y * xd->mi_stride - 1] : NULL;
+  xd->chroma_left_mbmi = chroma_left_mi;
 
   xd->n4_h = bh;
   xd->n4_w = bw;
