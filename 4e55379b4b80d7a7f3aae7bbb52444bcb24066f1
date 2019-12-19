@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8486276b_623eb76b",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1680,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2019-12-19T01:50:41Z",
+      "side": 1,
+      "message": "Please add // CONFIG_NEW_INTER_MODES",
+      "range": {
+        "startLine": 1680,
+        "startChar": 0,
+        "endLine": 1680,
+        "endChar": 6
+      },
+      "revId": "4e55379b4b80d7a7f3aae7bbb52444bcb24066f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
