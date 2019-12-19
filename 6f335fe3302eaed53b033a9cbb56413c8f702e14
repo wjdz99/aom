@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2dd1091c_904761cd",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 10687,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2019-12-19T18:51:19Z",
+      "side": 1,
+      "message": "trailing whitespace",
+      "range": {
+        "startLine": 10687,
+        "startChar": 55,
+        "endLine": 10687,
+        "endChar": 56
+      },
+      "revId": "6f335fe3302eaed53b033a9cbb56413c8f702e14",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
