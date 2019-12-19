@@ -322,6 +322,7 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.prune_comp_search_by_single_result = boosted ? 2 : 1;
     sf->inter_sf.skip_repeated_newmv = 1;
     sf->inter_sf.obmc_full_pixel_search_level = 1;
+    sf->inter_sf.fast_interintra_wedge_search = 1;
     // TODO(Venkat): Clean-up frame type dependency for
     // simple_motion_search_split in partition search function and set the
     // speed feature accordingly
