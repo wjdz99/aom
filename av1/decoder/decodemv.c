@@ -1552,6 +1552,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   const int is_compound = has_second_ref(mbmi);
 
   MV_REFERENCE_FRAME ref_frame = av1_ref_frame_type(mbmi->ref_frame);
+  if (mi_row == 50 && mi_col == 72 && mbmi->sb_type == BLOCK_32X8 && cm->cur_frame->order_hint == 24)
+  printf("decode\n");
   av1_find_mv_refs(cm, xd, mbmi, ref_frame, xd->ref_mv_count, xd->ref_mv_stack,
                    xd->weight, ref_mvs, /*global_mvs=*/NULL, mi_row, mi_col,
                    inter_mode_ctx);
@@ -1590,6 +1592,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                             xd->weight_adj, &xd->ref_mv_count_adj);
       }
 #endif  // CONFIG_FLEX_MVRES
+    //if (mi_row ==48 && mi_col == 40)
+    //  printf("debug\n");
       if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV ||
           have_nearmv_in_inter_mode(mbmi->mode)) {
         read_drl_idx(ec_ctx, cm, xd, mbmi, r);

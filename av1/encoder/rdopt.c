@@ -7716,6 +7716,8 @@ static void setup_buffer_ref_mvs_inter(
   }
 
   // Gets an initial list of candidate vectors from neighbours and orders them
+  if (mi_row == 50 && mi_col == 72 && mbmi->sb_type == BLOCK_32X8 /*&& mbmi->mode == 18*/ && ref_frame == 7 && cm->cur_frame->order_hint == 24)
+    printf("encode2\n");
   av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
                    mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
                    mbmi_ext->global_mvs, mi_row, mi_col,
@@ -11761,6 +11763,8 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
 
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   MV_REFERENCE_FRAME ref_frame = INTRA_FRAME;
+  if (mi_row == 50 && mi_col == 72 && mbmi->sb_type == BLOCK_32X8)
+    printf("encode3\n");
   av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
                    mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
                    mbmi_ext->global_mvs, mi_row, mi_col,
@@ -12095,6 +12099,8 @@ static void rd_pick_skip_mode(RD_STATS *rd_cost,
       return;
     }
     MB_MODE_INFO_EXT *mbmi_ext = x->mbmi_ext;
+  if (mi_row == 50 && mi_col == 72 && mbmi->sb_type == BLOCK_32X8)
+    printf("encode4\n");
     av1_find_mv_refs(cm, xd, mbmi, ref_frame_type, mbmi_ext->ref_mv_count,
                      mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
                      mbmi_ext->global_mvs, mi_row, mi_col,
@@ -12603,6 +12609,8 @@ static void set_params_rd_pick_inter_mode(
         continue;
       }
     }
+  if (mi_row == 50 && mi_col == 72 && mbmi->sb_type == BLOCK_32X8 /*&& mbmi->mode == 18*/ && ref_frame == 7 && cm->cur_frame->order_hint == 24)
+    printf("encode1\n");
     av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
                      mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
                      mbmi_ext->global_mvs, mi_row, mi_col,

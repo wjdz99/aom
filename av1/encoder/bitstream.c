@@ -1462,6 +1462,9 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
         write_mv_precision(cm, xd, w);
       }
 #endif  // CONFIG_FLEX_MVRES
+  //        if (mi_row ==48 && mi_col == 40)
+  //    printf("debug\n");
+
       if (mode == NEWMV || mode == NEW_NEWMV || have_nearmv_in_inter_mode(mode))
         write_drl_idx(ec_ctx, cm, mbmi, mbmi_ext, w);
       else
