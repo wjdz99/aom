@@ -78,12 +78,11 @@ static unsigned int num_winner_motion_modes[3] = { 0, 10, 3 };
 // (Eg : IntraBc) Index 1: Mode evaluation. Index 2: Winner mode evaluation.
 // Index 1 and 2 are applicable when enable_winner_mode_for_coeff_opt speed
 // feature is ON
-static unsigned int coeff_opt_dist_thresholds[5][MODE_EVAL_TYPES] = {
-  { UINT_MAX, UINT_MAX, UINT_MAX },
-  { 442413, 36314, UINT_MAX },
+static unsigned int coeff_opt_dist_thresholds[7][MODE_EVAL_TYPES] = {
+  { UINT_MAX, UINT_MAX, UINT_MAX }, { 59874, 59874, UINT_MAX },
+  { 59874, 59874, UINT_MAX },       { 22026, 22026, UINT_MAX },
+  { 22026, 22026, UINT_MAX },       { 442413, 36314, UINT_MAX },
   { 162754, 36314, UINT_MAX },
-  { 22026, 22026, UINT_MAX },
-  { 22026, 22026, UINT_MAX }
 };
 
 // Transform size to be used for default, mode and winner mode evaluation
@@ -338,7 +337,7 @@ static void set_good_speed_features_framesize_independent(
     sf->gm_sf.disable_adaptive_warp_error_thresh = 0;
     sf->rd_sf.tx_domain_dist_level = boosted ? 1 : 2;
     sf->rd_sf.tx_domain_dist_thres_level = 1;
-    sf->rd_sf.perform_coeff_opt = boosted ? 1 : 2;
+    sf->rd_sf.perform_coeff_opt = frame_is_intra_only(&cpi->common) ? 5 : 1;
     sf->inter_sf.prune_ref_frame_for_rect_partitions =
         (frame_is_intra_only(&cpi->common) || (cm->allow_screen_content_tools))
             ? 0
@@ -386,7 +385,7 @@ static void set_good_speed_features_framesize_independent(
 
     // TODO(Sachin): Enable/Enhance this speed feature for speed 2 & 3
     sf->interp_sf.adaptive_interp_filter_search = 1;
-    sf->rd_sf.perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
+    sf->rd_sf.perform_coeff_opt = frame_is_intra_only(&cpi->common) ? 6 : 1;
 
     sf->inter_sf.prune_warp_using_wmtype = 1;
     sf->intra_sf.disable_smooth_intra =
