@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "32c7856e_af4af24a",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 1618,
+      "author": {
+        "id": 14975
+      },
+      "writtenOn": "2019-12-19T03:41:30Z",
+      "side": 1,
+      "message": "Will do this in another patchset - it would be a pretty large change for something not directly related to this.",
+      "parentUuid": "3f2b2b73_b90be388",
+      "range": {
+        "startLine": 1616,
+        "startChar": 8,
+        "endLine": 1618,
+        "endChar": 17
+      },
+      "revId": "dd210ce57b88a3f52f78783bfcdb0759c61dad14",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a32568c4_0531d8df",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 18
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9bb372ea_48b3f3f8",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 10685,
+      "author": {
+        "id": 14975
+      },
+      "writtenOn": "2019-12-19T03:41:30Z",
+      "side": 1,
+      "message": "Which two cases? For both NEARMV and NEWMV this calculation is the same.  For CONFIG_NEW_INTER_MODES, this is mechanically the same process as before but instead of having an if-statement inside the loop, it\u0027s factored into the loop bounds (which is hopefully easier to read).\n\nThis is pretty similar to write_drl_idx - I\u0027ll add a comment to that effect.",
+      "parentUuid": "a32568c4_0531d8df",
+      "range": {
+        "startLine": 10685,
+        "startChar": 0,
+        "endLine": 10685,
+        "endChar": 56
+      },
+      "revId": "dd210ce57b88a3f52f78783bfcdb0759c61dad14",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ff161f42_f9b93883",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 18
@@ -68,6 +116,30 @@
       "revId": "dd210ce57b88a3f52f78783bfcdb0759c61dad14",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b01d83ed_b03705bb",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 11082,
+      "author": {
+        "id": 14975
+      },
+      "writtenOn": "2019-12-19T03:41:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff161f42_f9b93883",
+      "range": {
+        "startLine": 11082,
+        "startChar": 0,
+        "endLine": 11082,
+        "endChar": 57
+      },
+      "revId": "dd210ce57b88a3f52f78783bfcdb0759c61dad14",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
