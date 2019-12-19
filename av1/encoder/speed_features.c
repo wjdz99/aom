@@ -357,7 +357,6 @@ static void set_good_speed_features_framesize_independent(
 
   if (speed >= 2) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_2;
-
     sf->inter_sf.selective_ref_frame = 3;
     sf->prune_sgr_based_on_wiener = cm->allow_screen_content_tools ? 0 : 1;
 
@@ -398,6 +397,7 @@ static void set_good_speed_features_framesize_independent(
     // sf->adaptive_motion_search = 1;
     sf->recode_loop = ALLOW_RECODE_KFARFGF;
     sf->mv_sf.use_accurate_subpel_search = USE_2_TAPS;
+    sf->mv_sf.search_method = DIAMOND;
     if (cpi->oxcf.enable_smooth_interintra)
       sf->inter_sf.disable_smooth_interintra = boosted ? 0 : 1;
     sf->gm_search_type = GM_DISABLE_SEARCH;
