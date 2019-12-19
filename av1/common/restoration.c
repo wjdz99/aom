@@ -33,7 +33,13 @@
 #define WIENERNS_PREC_BITS_MINUS8 (WIENERNS_PREC_BITS - 8)
 #define AOM_WIENERNS_COEFF(b, m, k) \
   { (b) + WIENERNS_PREC_BITS_MINUS8, (m) * (1 << WIENERNS_PREC_BITS_MINUS8), k }
-const int wienerns_config[WIENERNS_YUV_PIXEL][3] = {
+const int wienerns_y_pixel = WIENERNS_Y_PIXEL;
+const int wienerns_yuv_pixel = WIENERNS_YUV_PIXEL;
+const int wienerns_uv_inter_pixel = WIENERNS_UV_INTER_PIXEL;
+const int wienerns_y = WIENERNS_Y;
+const int wienerns_uv = WIENERNS_UV;
+const int wienerns_yuv = WIENERNS_YUV;
+const int wienerns_config[][3] = {
   { 1, 0, 0 },  { -1, 0, 0 },   { 0, 1, 1 },   { 0, -1, 1 },  { 2, 0, 2 },
   { -2, 0, 2 }, { 0, 2, 3 },    { 0, -2, 3 },  { 1, 1, 4 },   { -1, -1, 4 },
   { -1, 1, 5 }, { 1, -1, 5 },   { 2, 2, 6 },   { -2, -2, 6 }, { -2, 2, 7 },
@@ -50,7 +56,7 @@ const int wienerns_config[WIENERNS_YUV_PIXEL][3] = {
 #endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
 };
 
-const int wienerns_coeff[WIENERNS_YUV][3] = {
+const int wienerns_coeff[][3] = {
   AOM_WIENERNS_COEFF(7, -48, 3), AOM_WIENERNS_COEFF(7, -48, 3),
   AOM_WIENERNS_COEFF(6, -32, 3), AOM_WIENERNS_COEFF(6, -32, 3),
   AOM_WIENERNS_COEFF(6, -48, 3), AOM_WIENERNS_COEFF(6, -48, 3),
@@ -1011,9 +1017,9 @@ void apply_wiener_nonsep(const uint8_t *dgd, int width, int height, int stride,
                          const int16_t *filter, uint8_t *dst, int dst_stride,
                          int plane, const uint8_t *luma, int luma_stride) {
   int is_uv = (plane != AOM_PLANE_Y);
-  int beg_pixel = is_uv ? WIENERNS_Y_PIXEL : 0;
-  int end_pixel = is_uv ? WIENERNS_YUV_PIXEL : WIENERNS_Y_PIXEL;
-  int beg_feat = is_uv ? WIENERNS_Y : 0;
+  int beg_pixel = is_uv ? wienerns_y_pixel : 0;
+  int end_pixel = is_uv ? wienerns_yuv_pixel : wienerns_y_pixel;
+  int beg_feat = is_uv ? wienerns_y : 0;
 
   for (int i = 0; i < height; ++i) {
     for (int j = 0; j < width; ++j) {
@@ -1026,7 +1032,7 @@ void apply_wiener_nonsep(const uint8_t *dgd, int width, int height, int stride,
         int r = wienerns_config[k][WIENERNS_ROW_ID];
         int c = wienerns_config[k][WIENERNS_COL_ID];
         int16_t diff =
-            (!is_uv || k - beg_pixel < WIENERNS_UV_INTER_PIXEL)
+            (!is_uv || k - beg_pixel < wienerns_uv_inter_pixel)
                 ? clip_base((int16_t)dgd[(i + r) * stride + (j + c)] -
                                 (int16_t)dgd[dgd_id],
                             8)
@@ -1063,9 +1069,9 @@ void apply_wiener_nonsep_highbd(const uint8_t *dgd8, int width, int height,
                                 int dst_stride, int plane, const uint8_t *luma8,
                                 int luma_stride, int bit_depth) {
   int is_uv = (plane != AOM_PLANE_Y);
-  int beg_pixel = is_uv ? WIENERNS_Y_PIXEL : 0;
-  int end_pixel = is_uv ? WIENERNS_YUV_PIXEL : WIENERNS_Y_PIXEL;
-  int beg_feat = is_uv ? WIENERNS_Y : 0;
+  int beg_pixel = is_uv ? wienerns_y_pixel : 0;
+  int end_pixel = is_uv ? wienerns_yuv_pixel : wienerns_y_pixel;
+  int beg_feat = is_uv ? wienerns_y : 0;
 
   const uint16_t *dgd = CONVERT_TO_SHORTPTR(dgd8);
   const uint16_t *luma = CONVERT_TO_SHORTPTR(luma8);
@@ -1080,7 +1086,7 @@ void apply_wiener_nonsep_highbd(const uint8_t *dgd8, int width, int height,
         int r = wienerns_config[k][WIENERNS_ROW_ID];
         int c = wienerns_config[k][WIENERNS_COL_ID];
         int16_t diff =
-            (!is_uv || k - beg_pixel < WIENERNS_UV_INTER_PIXEL)
+            (!is_uv || k - beg_pixel < wienerns_uv_inter_pixel)
                 ? clip_base((int16_t)dgd[(i + r) * stride + (j + c)] -
                                 (int16_t)dgd[dgd_id],
                             bit_depth)
