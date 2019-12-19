@@ -367,6 +367,7 @@ static void set_good_speed_features_framesize_independent(
     sf->prune_comp_search_by_single_result = 2;
     sf->prune_motion_mode_level = boosted ? 2 : 3;
     sf->prune_warp_using_wmtype = 1;
+    sf->mv.search_method = DIAMOND;
     // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
     // it with cpi->sf.disable_wedge_search_var_thresh.
     sf->disable_wedge_interintra_search = 1;
