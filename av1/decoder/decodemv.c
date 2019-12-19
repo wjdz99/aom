@@ -1590,6 +1590,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                             xd->weight_adj, &xd->ref_mv_count_adj);
       }
 #endif  // CONFIG_FLEX_MVRES
+    //if (mi_row ==48 && mi_col == 40)
+    //  printf("debug\n");
       if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV ||
           have_nearmv_in_inter_mode(mbmi->mode)) {
         read_drl_idx(ec_ctx, cm, xd, mbmi, r);
