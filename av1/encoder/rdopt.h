@@ -278,6 +278,7 @@ static INLINE int is_winner_mode_processing_enabled(
     const PREDICTION_MODE best_mode) {
   const SPEED_FEATURES *sf = &cpi->sf;
 
+  return 1;
   // TODO(any): Move block independent condition checks to frame level
   if (is_inter_block(mbmi)) {
     if (is_inter_mode(best_mode) &&

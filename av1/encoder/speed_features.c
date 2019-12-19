@@ -355,6 +355,8 @@ static void set_good_speed_features_framesize_independent(
     sf->tx_sf.tx_type_search.prune_mode = PRUNE_2D_FAST;
     sf->inter_sf.prune_comp_type_by_model_rd = boosted ? 0 : 1;
     sf->intra_sf.prune_palette_search_level = 1;
+    sf->winner_mode_sf.enable_multiwinner_mode_process =
+        frame_is_intra_only(&cpi->common) ? 0 : 1;
   }
 
   if (speed >= 2) {
