@@ -71,12 +71,26 @@ void av1_copy_frame_mvs(const AV1_COMMON *const cm,
   }
 }
 
+/*
+typedef union int_mv {
+  uint32_t as_int;
+  MV as_mv;
+} int_mv;
+ * */
+static int_mv get_scaled_mv(const int_mv this_refmv, int this_ref, int r1_dist, int r2_dist) {
+  int_mv scaled_mv;
+  double ratio = this_ref ? (double)r2_dist / r1_dist : (double)r1_dist / r2_dist;
+
+  scaled_mv.as_mv.row = (int16_t)(this_refmv.as_mv.row * ratio + 0.5);
+  scaled_mv.as_mv.col = (int16_t)(this_refmv.as_mv.col * ratio + 0.5);
+}
+
 static void add_ref_mv_candidate(
     const MB_MODE_INFO *const candidate, const MV_REFERENCE_FRAME rf[2],
     uint8_t *refmv_count, uint8_t *ref_match_count, uint8_t *newmv_count,
     CANDIDATE_MV *ref_mv_stack, uint16_t *ref_mv_weight,
     int_mv *gm_mv_candidates, const WarpedMotionParams *gm_params, int col,
-    uint16_t weight) {
+    uint16_t weight, int enable_order_hint, int r1_dist, int r2_dist) {
   if (!is_inter_block(candidate)) return;
   assert(weight % 2 == 0);
   int index, ref;
@@ -105,6 +119,43 @@ static void add_ref_mv_candidate(
         }
         if (have_newmv_in_inter_mode(candidate->mode)) ++*newmv_count;
         ++*ref_match_count;
+      }
+    }
+  } else if (enable_order_hint && ((r1_dist < 0) != (r2_dist < 0))) {
+    // special compound mode
+    for (ref = 0; ref < 2; ++ref) {
+      if (candidate->ref_frame[ref] == rf[ref]) {
+        /////////
+        const int is_gm_block =
+            is_global_mv_block(candidate, gm_params[rf[ref]].wmtype);
+        const int_mv this_refmv = is_gm_block
+                                      ? gm_mv_candidates[ref]
+                                      : get_sub_block_mv(candidate, ref, col);
+        for (index = 0; index < *refmv_count; ++index) {
+          if ((ref == 0 &&
+               ref_mv_stack[index].this_mv.as_int == this_refmv.as_int) ||
+              (ref == 1 &&
+               ref_mv_stack[index].comp_mv.as_int == this_refmv.as_int)) {
+            ref_mv_weight[index] += weight;
+            break;
+          }
+        }
+
+        // Add a new item to the list.
+        if (index == *refmv_count && *refmv_count < MAX_REF_MV_STACK_SIZE) {
+          if (ref == 0) {
+            ref_mv_stack[index].this_mv = this_refmv;
+            ref_mv_stack[index].comp_mv = get_scaled_mv(this_refmv, ref, r1_dist, r2_dist);
+          } else {
+            ref_mv_stack[index].this_mv = get_scaled_mv(this_refmv, ref, r1_dist, r2_dist);
+            ref_mv_stack[index].comp_mv = this_refmv;
+          }
+          ref_mv_weight[index] = weight;
+          ++(*refmv_count);
+        }
+        if (have_newmv_in_inter_mode(candidate->mode)) ++*newmv_count;
+        ++*ref_match_count;
+        ///////
       }
     }
   } else {
@@ -185,7 +236,8 @@ static void scan_row_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     add_ref_mv_candidate(candidate, rf, refmv_count, ref_match_count,
                          newmv_count, ref_mv_stack, ref_mv_weight,
                          gm_mv_candidates, cm->global_motion, col_offset + i,
-                         len * weight);
+                         len * weight,
+                         cm->seq_params.order_hint_info.enable_order_hint);
 
     i += len;
   }
@@ -235,7 +287,8 @@ static void scan_col_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     add_ref_mv_candidate(candidate, rf, refmv_count, ref_match_count,
                          newmv_count, ref_mv_stack, ref_mv_weight,
                          gm_mv_candidates, cm->global_motion, col_offset,
-                         len * weight);
+                         len * weight,
+                         cm->seq_params.order_hint_info.enable_order_hint);
 
     i += len;
   }
@@ -262,7 +315,8 @@ static void scan_blk_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     add_ref_mv_candidate(candidate, rf, refmv_count, ref_match_count,
                          newmv_count, ref_mv_stack, ref_mv_weight,
                          gm_mv_candidates, cm->global_motion, mi_pos.col,
-                         2 * len);
+                         2 * len,
+                         cm->seq_params.order_hint_info.enable_order_hint);
   }  // Analyze a single 8x8 block motion information.
 }
 
