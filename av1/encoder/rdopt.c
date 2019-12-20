@@ -9979,13 +9979,20 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
 #endif  // CONFIG_ILLUM_MCOMP
     if (cpi->sf.reuse_inter_intra_mode == 0 ||
         best_interintra_mode == INTERINTRA_MODES) {
+      static int num_repeat = 0;
+      num_repeat++;
+      if (num_repeat == 8) {
+        printf("Here: %d\n", num_repeat);
+      }
+
       for (j = 0; j < INTERINTRA_MODES; ++j) {
 #if CONFIG_ILLUM_MCOMP
         if (j == II_ILLUM_MCOMP_PRED) {
-          single_motion_search(cpi, x, bsize, mi_row, mi_col, 0, &tmp_rate_mv,
-                               true);
+          // single_motion_search(cpi, x, bsize, mi_row, mi_col, 0,
+          // &tmp_rate_mv,
+          //                     true);
         } else {
-          x->best_mv.as_mv = old_best;
+          // x->best_mv.as_mv = old_best;
         }
 #endif  // CONFIG_ILLUM_MCOMP
         if ((!cpi->oxcf.enable_smooth_intra || cpi->sf.disable_smooth_intra) &&
@@ -10008,8 +10015,8 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       args->inter_intra_mode[mbmi->ref_frame[0]] = best_interintra_mode;
     }
 #if CONFIG_ILLUM_MCOMP
-    if (j != II_ILLUM_MCOMP_PRED) {
-      x->best_mv.as_mv = old_best;
+    if (best_interintra_mode != II_ILLUM_MCOMP_PRED) {
+      // x->best_mv.as_mv = old_best;
     }
 #endif  // CONFIG_ILLUM_MCOMP
     assert(IMPLIES(!cpi->oxcf.enable_smooth_interintra ||
