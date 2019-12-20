@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "221e23a1_057207eb",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-20T22:18:50Z",
+      "side": 1,
+      "message": "IMPORTANT: An alternative design is to have aom_img_get_metadata() return a const pointer to the metadata item inside img:\n\nconst aom_metadata_t *aom_img_get_metadata(const aom_image_t *img, size_t index) {\t\n  if (!img) return NULL;\n  aom_metadata_array_t *array \u003d img-\u003emetadata;\n  if (array \u0026\u0026 index \u003c array-\u003esz) {\n    return array-\u003emetadata_array[index];\n  }\n  return NULL;\n}\n\nand let the caller decide whether it wants to copy the metadata item (by calling aom_img_metadata_alloc).\n\nIn this design, the return const pointer is valid as long as \u0027img\u0027 is valid.",
+      "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "12ef21c6_33c8a12e",
         "filename": "apps/aomenc.c",
         "patchSetId": 5
@@ -209,6 +226,109 @@
         "endLine": 60,
         "endChar": 19
       },
+      "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4741d352_86f66067",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-20T22:18:50Z",
+      "side": 1,
+      "message": "To avoid memory errors, this should read something like:\n\n      if (bitstream_size \u003e\u003d metadata_obu_size) {\n        for (size_t i \u003d 0; i \u003c\u003d bitstream_size - metadata_obu_size; ++i) {\n          if (memcmp(bitstream + i, metadata_obu, metadata_obu_size) \u003d\u003d 0) {\n            valid_metadatas_found++;\n          }\n        }\n      }\n\nThe bitstream_size \u003e\u003d metadata_obu_size check if the outer if statement ensures that bitstream_size - metadata_obu_size is nonnegative.\n\nThe i \u003c\u003d bitstream_size - metadata_obu_size check in the for loop ensures that the memcmp() call does not read beyond the end of the \u0027bitstream\u0027 buffer.",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 7
+      },
+      "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a5f05d7_e1b5527c",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-20T22:18:50Z",
+      "side": 1,
+      "message": "This should be ASSERT_EQ. If img.metadata-\u003esz \u003c 2u, then it is not safe to access img.metadata-\u003emetadata_array[0] and img.metadata-\u003emetadata_array[1].",
+      "range": {
+        "startLine": 92,
+        "startChar": 4,
+        "endLine": 92,
+        "endChar": 13
+      },
+      "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3cb685e_1ac63941",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-20T22:18:50Z",
+      "side": 1,
+      "message": "Nit/optional: It may be better to test 1u (the smallest invalid index) instead of (or in addition to) 10u.",
+      "range": {
+        "startLine": 224,
+        "startChar": 43,
+        "endLine": 224,
+        "endChar": 46
+      },
+      "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40f807bf_95636744",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-20T22:18:50Z",
+      "side": 1,
+      "message": "We should verify \u0027metadata\u0027 contains kExampleData",
+      "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bea07b11_52314bee",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-20T22:18:50Z",
+      "side": 1,
+      "message": "We need to ASSERT_EQ(metadata-\u003esz, kExampleDataSize). Probably also EXPECT_EQ(metadata-\u003etype, ...).",
       "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
