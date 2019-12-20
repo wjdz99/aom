@@ -16,6 +16,202 @@
       "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cb5a249_ef097075",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2148,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-20T18:48:17Z",
+      "side": 1,
+      "message": "Instead of adding these two lines, it is better to change aom_codec_control(..., AV1_GET_NEW_FRAME_IMAGE, ...) (called at lines 2153-2154 below) to set the \u0027metadata\u0027 field of the output image to NULL.\n\nLooking at the relevant code, I believe it is sufficient to change yuvconfig2image() to set img-\u003emetadata to NULL.\n\nNOTE: This means my earlier suggestion of removing the img-\u003emetadata_owner field may be incorrect. In this CL let\u0027s stick with the decision that img-\u003emetadata always owns the metadata array. We can add the img-\u003emetadata_owner field back in a follow-up CL.",
+      "parentUuid": "12ef21c6_33c8a12e",
+      "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86126e4d_be681fe9",
+        "filename": "av1/av1_iface_common.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-20T18:48:17Z",
+      "side": 1,
+      "message": "Let\u0027s add:\n  assert(!yv12-\u003emetadata);\n  img-\u003emetadata \u003d NULL;\n\nPlease see my comment in apps/aomenc.c.\n\nNOTE: If the assertion !yv12-\u003emetadata fails, please let me know and remove the assertion.",
+      "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61016b06_b7cbc9a8",
+        "filename": "av1/av1_iface_common.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-20T18:48:17Z",
+      "side": 1,
+      "message": "I just wanted to confirm that it is necessary to set yv12-\u003emetadata here as a non-owning pointer. It would be good to add a comment that in this usage yv12-\u003emetadata does not own the metadata.",
+      "range": {
+        "startLine": 136,
+        "startChar": 2,
+        "endLine": 136,
+        "endChar": 33
+      },
+      "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "772ad54c_5e029085",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 569,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-20T18:48:17Z",
+      "side": 1,
+      "message": "Please add curly braces around all the aom_internal_error() calls in this function.",
+      "range": {
+        "startLine": 568,
+        "startChar": 0,
+        "endLine": 569,
+        "endChar": 60
+      },
+      "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f142b734_d40a8e62",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-20T18:48:17Z",
+      "side": 1,
+      "message": "Use AOM_CODEC_MEM_ERROR instead. Also at lines 588 and 595.",
+      "range": {
+        "startLine": 582,
+        "startChar": 35,
+        "endLine": 582,
+        "endChar": 58
+      },
+      "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5cc3206_516b7397",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-20T18:48:17Z",
+      "side": 1,
+      "message": "We should save the return value of realloc() in a local variable to avoid leaking the original pbi-\u003emetadata-\u003emetadata_array if realloc() fails:\n\n    aom_metadata_t **metadata_array \u003d\n        (aom_metadata_t **)realloc(pbi-\u003emetadata-\u003emetadata_array,\n                                   (pbi-\u003emetadata-\u003esz + 1) * sizeof(metadata));\n    if (!metadata_array) {\n      aom_internal_error(\u0026cm-\u003eerror, AOM_CODEC_MEM_ERROR,\n                         \"Error allocating metadata\");\n    }\n    pbi-\u003emetadata-\u003emetadata_array \u003d metadata_array;\n    pbi-\u003emetadata-\u003esz++;",
+      "range": {
+        "startLine": 591,
+        "startChar": 0,
+        "endLine": 597,
+        "endChar": 24
+      },
+      "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0950c775_97ba4d4a",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-20T18:48:17Z",
+      "side": 1,
+      "message": "Nit/optional: It would be good to note what the 0xB5 byte stands for. It is a country code, right?",
+      "range": {
+        "startLine": 27,
+        "startChar": 49,
+        "endLine": 27,
+        "endChar": 53
+      },
+      "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "979ab59e_ea7d145c",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-20T18:48:17Z",
+      "side": 1,
+      "message": "This is the same as the previous statement. Did you mean to add this duplicate?\n\nIf this duplicate is intentional, it would be good to add a comment to note why you want to test the same aom_img_add_metadata() call twice.",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 19
+      },
+      "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e05c076_f839b354",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2019-12-20T18:48:17Z",
+      "side": 1,
+      "message": "What is the purpose of adding a metadata item with uninitialized payload?\n\nIf we never fill in the payload for this metadata item, it seems that the uninitialized payload will be passed to the memcmp() call at line 80 in FramePktHook(). If so, that would be a programming error.\n\nNOTE: The current implementation of aom_img_metadata_alloc() initialized the new metadata payload to all zeros in this case because it allocates the metadata payload buffer using calloc():\n\n  if (sz \u003e 0) {\n    metadata-\u003epayload \u003d (uint8_t *)calloc(sz, sizeof(uint8_t));\n\nBut this behavior is not documented:\n\n *   - When sz is \u003e 0 and data is NULL, allocates metadata payload buffer of sz.",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 19
+      },
+      "revId": "a9030c2561e2b611e7ba0ac34275997a10c6f962",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
