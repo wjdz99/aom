@@ -472,6 +472,30 @@ if(ENABLE_EXAMPLES AND CONFIG_AV1_ENCODER AND CONFIG_AV1_DECODER)
   list(APPEND AOM_APP_TARGETS lightfield_bitstream_parsing)
 endif()
 
+if(CONFIG_TENSORFLOW_LITE)
+  # Make sure that the submodule directory is checked out.
+  if(NOT EXISTS "${AOM_ROOT}/third_party/tensorflow/tensorflow")
+    message(
+      FATAL_ERROR
+        "Tensorflow submodule not checked out. Please make sure you are on an experimental branch and run 'git submodule update --init'")
+  endif()
+  # Build the library.
+  add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/libtensorflow-lite.a"
+                     COMMAND "${AOM_ROOT}/third_party/tensorflow_aom/build.sh"
+                             "${AOM_ROOT}/third_party/tensorflow"
+                             "${CMAKE_CURRENT_BINARY_DIR}/libtensorflow-lite.a"
+                     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+  add_custom_target(tensorflowlite_a ALL
+                    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/libtensorflow-lite.a")
+  # Add tensorflow-lite as a dependency on all AOM applications.
+  foreach(aom_app ${AOM_APP_TARGETS})
+    add_dependencies(${aom_app} tensorflowlite_a)
+    target_link_libraries(
+      ${aom_app}
+      PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/libtensorflow-lite.a")
+  endforeach()
+endif()
+
 foreach(aom_app ${AOM_APP_TARGETS})
   target_link_libraries(${aom_app} ${AOM_LIB_LINK_TYPE} aom)
   if(CONFIG_TENSORFLOW)
