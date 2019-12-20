@@ -31,7 +31,7 @@ extern "C" {
 #define INTER_INTRA_RD_THRESH_SHIFT 4
 #define COMP_TYPE_RD_THRESH_SCALE 11
 #define COMP_TYPE_RD_THRESH_SHIFT 4
-#define MAX_WINNER_MOTION_MODES 10
+#define MAX_WINNER_MOTION_MODES 100
 
 struct TileInfo;
 struct macroblock;

@@ -69,7 +69,7 @@ static unsigned int tx_domain_dist_types[3][MODE_EVAL_TYPES] = { { 0, 2, 0 },
                                                                  { 2, 2, 0 } };
 
 // Indicates number of winner simple translation modes to be used
-static unsigned int num_winner_motion_modes[3] = { 0, 10, 3 };
+static unsigned int num_winner_motion_modes[3] = { 0, 5, 3 };
 
 // Threshold values to be used for disabling coeff RD-optimization
 // based on block MSE
