@@ -318,6 +318,8 @@ static void set_good_speed_features_framesize_independent(
   sf->rt_sf.use_real_time_ref_set = 0;
 
   if (speed >= 1) {
+    sf->hl_sf.high_precision_mv_usage = LAST_MV_DATA;
+
     sf->gm_sf.disable_adaptive_warp_error_thresh = 0;
     sf->gm_sf.gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
     sf->gm_sf.prune_ref_frame_for_gm_search = boosted ? 0 : 1;
@@ -408,6 +410,7 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 3) {
+    sf->hl_sf.high_precision_mv_usage = CURRENT_Q;
     sf->hl_sf.recode_loop = ALLOW_RECODE_KFARFGF;
 
     sf->gm_sf.gm_search_type = GM_DISABLE_SEARCH;
