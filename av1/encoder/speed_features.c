@@ -289,7 +289,7 @@ static void set_good_speed_features_framesize_independent(
   sf->inter_sf.disable_wedge_search_edge_thresh = 0;
   sf->inter_sf.disable_wedge_search_var_thresh = 0;
   // TODO(debargha): Test, tweak and turn on either 1 or 2
-  sf->inter_sf.inter_mode_rd_model_estimation = 1;
+  sf->inter_sf.inter_mode_rd_model_estimation = 2;
   sf->inter_sf.model_based_post_interp_filter_breakout = 1;
   sf->inter_sf.prune_compound_using_single_ref = 1;
   sf->inter_sf.prune_mode_search_simple_translation = 1;
@@ -1222,10 +1222,10 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
 
   if (cpi->oxcf.using_dist_8x8) x->min_partition_size = BLOCK_8X8;
 #endif  // CONFIG_DIST_8X8
-  if (cpi->oxcf.row_mt == 1 && (cpi->oxcf.max_threads > 1)) {
-    if (sf->inter_sf.inter_mode_rd_model_estimation == 1) {
-      // Revert to type 2
-      sf->inter_sf.inter_mode_rd_model_estimation = 2;
-    }
-  }
+  // if (cpi->oxcf.row_mt == 1 && (cpi->oxcf.max_threads > 1)) {
+  //  if (sf->inter_sf.inter_mode_rd_model_estimation == 1) {
+  //    // Revert to type 2
+  //    sf->inter_sf.inter_mode_rd_model_estimation = 2;
+  //  }
+  //}
 }
