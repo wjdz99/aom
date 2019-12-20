@@ -192,11 +192,15 @@ static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, aom_reader *r,
   if (is_zeromv) return GLOBALMV;
 
   mode_ctx = (ctx >> REFMV_OFFSET) & REFMV_CTX_MASK;
+#if CONFIG_NEW_INTER_MODES
+  return NEARMV;
+#else
   is_refmv = aom_read_symbol(r, ec_ctx->refmv_cdf[mode_ctx], 2, ACCT_STR) == 0;
   if (is_refmv)
     return NEARESTMV;
   else
     return NEARMV;
+#endif  // CONFIG_NEW_INTER_MODES
 }
 #if CONFIG_NEW_INTER_MODES
 // Read a DRL index from the bitstream and modify mbmi->ref_mv_idx
@@ -206,6 +210,7 @@ static void read_drl_idx(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
                          MB_MODE_INFO *mbmi, aom_reader *r) {
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
   mbmi->ref_mv_idx = 0;
+  assert(!mbmi->skip_mode);
   int range = AOMMIN(xd->ref_mv_count[ref_frame_type] - 1, 3);
   for (int idx = 0; idx < range; ++idx) {
     uint8_t drl_ctx = av1_drl_ctx(xd->weight[ref_frame_type], idx);
@@ -290,8 +295,8 @@ static PREDICTION_MODE read_inter_compound_mode(MACROBLOCKD *xd, aom_reader *r,
   const int mode =
       aom_read_symbol(r, xd->tile_ctx->inter_compound_mode_cdf[ctx],
                       INTER_COMPOUND_MODES, ACCT_STR);
-  assert(is_inter_compound_mode(NEAREST_NEARESTMV + mode));
-  return NEAREST_NEARESTMV + mode;
+  assert(is_inter_compound_mode(COMP_INTER_MODE_START + mode));
+  return COMP_INTER_MODE_START + mode;
 }
 
 int av1_neg_deinterleave(int diff, int ref, int max) {
@@ -1385,10 +1390,12 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, nmvc, precision);
       break;
     }
+#if !CONFIG_NEW_INTER_MODES
     case NEARESTMV: {
       mv[0].as_int = nearest_mv[0].as_int;
       break;
     }
+#endif  // !CONFIG_NEW_INTER_MODES
     case NEARMV: {
       mv[0].as_int = near_mv[0].as_int;
       break;
@@ -1408,18 +1415,21 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       }
       break;
     }
+#if !CONFIG_NEW_INTER_MODES
     case NEAREST_NEARESTMV: {
       assert(is_compound);
       mv[0].as_int = nearest_mv[0].as_int;
       mv[1].as_int = nearest_mv[1].as_int;
       break;
     }
+#endif  // !CONFIG_NEW_INTER_MODES
     case NEAR_NEARMV: {
       assert(is_compound);
       mv[0].as_int = near_mv[0].as_int;
       mv[1].as_int = near_mv[1].as_int;
       break;
     }
+#if !CONFIG_NEW_INTER_MODES
     case NEW_NEARESTMV: {
       nmv_context *const nmvc = &ec_ctx->nmvc;
       read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, nmvc, precision);
@@ -1434,6 +1444,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       assert(is_compound);
       break;
     }
+#endif  // !CONFIG_NEW_INTER_MODES
     case NEAR_NEWMV: {
       nmv_context *const nmvc = &ec_ctx->nmvc;
       mv[0].as_int = near_mv[0].as_int;
