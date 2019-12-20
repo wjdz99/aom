@@ -443,6 +443,11 @@ if(ENABLE_EXAMPLES AND CONFIG_AV1_ENCODER)
                                     $<TARGET_OBJECTS:aom_encoder_app_util>)
   list(APPEND AOM_EXAMPLE_TARGETS lightfield_encoder)
   list(APPEND AOM_APP_TARGETS lightfield_encoder)
+  if(CONFIG_TENSORFLOW_LITE)
+    add_executable(tf_lite_model "${AOM_ROOT}/examples/tf_lite_model.cc"
+    "${AOM_ROOT}/examples/tf_lite_model_data.cc")
+    list(APPEND AOM_EXAMPLE_TARGETS tf_lite_model)
+  endif()
 endif()
 
 if(ENABLE_EXAMPLES AND CONFIG_AV1_DECODER)
@@ -470,6 +475,40 @@ if(ENABLE_EXAMPLES AND CONFIG_AV1_ENCODER AND CONFIG_AV1_DECODER)
                  $<TARGET_OBJECTS:aom_decoder_app_util>)
   list(APPEND AOM_EXAMPLE_TARGETS lightfield_bitstream_parsing)
   list(APPEND AOM_APP_TARGETS lightfield_bitstream_parsing)
+endif()
+
+if(CONFIG_TENSORFLOW_LITE)
+  # Make sure that the submodule directory is checked out.
+  if(NOT EXISTS "${AOM_ROOT}/third_party/tensorflow/tensorflow")
+    message(
+      FATAL_ERROR
+        "Tensorflow submodule not checked out. Please make sure you are on an experimental branch and run 'git submodule update --init'")
+  endif()
+  # Build the library.
+  add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/libtensorflow-lite.a"
+                     COMMAND "${AOM_ROOT}/third_party/tensorflow_aom/build.sh"
+                             "${AOM_ROOT}/third_party/tensorflow"
+                             "${CMAKE_CURRENT_BINARY_DIR}/libtensorflow-lite.a"
+                     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+  add_custom_target(tensorflowlite_a ALL
+                    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/libtensorflow-lite.a")
+  include_directories("${AOM_ROOT}/third_party/tensorflow")
+  include_directories("${AOM_ROOT}/third_party/tensorflow_aom/downloads/flatbuffers/include/")
+  # Add tensorflow-lite as a dependency on all AOM applications.
+  foreach(aom_app ${AOM_APP_TARGETS})
+    add_dependencies(${aom_app} tensorflowlite_a)
+    target_link_libraries(
+      ${aom_app}
+      PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/libtensorflow-lite.a")
+      target_link_libraries(${aom_app} ${AOM_LIB_LINK_TYPE} Threads::Threads)
+  endforeach()
+  foreach(aom_app ${AOM_EXAMPLE_TARGETS})
+    add_dependencies(${aom_app} tensorflowlite_a)
+    target_link_libraries(
+      ${aom_app}
+      PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/libtensorflow-lite.a")
+    target_link_libraries(${aom_app} ${AOM_LIB_LINK_TYPE} Threads::Threads)
+  endforeach()
 endif()
 
 foreach(aom_app ${AOM_APP_TARGETS})
