@@ -1309,11 +1309,12 @@ int av1_get_switchable_rate(const AV1_COMMON *const cm, MACROBLOCK *x,
 void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   int i;
   RD_OPT *const rd = &cpi->rd;
-  SPEED_FEATURES *const sf = &cpi->sf;
 
   // Set baseline threshold values.
   for (i = 0; i < MAX_MODES; ++i) rd->thresh_mult[i] = cpi->oxcf.mode == 0;
 
+#if !CONFIG_NEW_INTER_MODES
+  SPEED_FEATURES *const sf = &cpi->sf;
   if (sf->adaptive_rd_thresh) {
     rd->thresh_mult[THR_NEARESTMV] = 300;
     rd->thresh_mult[THR_NEARESTL2] = 300;
@@ -1331,6 +1332,7 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
     rd->thresh_mult[THR_NEARESTA] = 0;
     rd->thresh_mult[THR_NEARESTG] = 0;
   }
+#endif  // !CONFIG_NEW_INTER_MODES
 
   rd->thresh_mult[THR_NEWMV] += 1000;
   rd->thresh_mult[THR_NEWL2] += 1000;

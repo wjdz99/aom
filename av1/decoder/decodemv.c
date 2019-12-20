@@ -178,7 +178,11 @@ static INTERINTRA_MODE read_interintra_mode(MACROBLOCKD *xd, aom_reader *r,
 static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, aom_reader *r,
                                        int16_t ctx) {
   int16_t mode_ctx = ctx & NEWMV_CTX_MASK;
+#if CONFIG_NEW_INTER_MODES
+  int is_newmv, is_zeromv;
+#else
   int is_newmv, is_zeromv, is_refmv;
+#endif  // CONFIG_NEW_INTER_MODES
   is_newmv = aom_read_symbol(r, ec_ctx->newmv_cdf[mode_ctx], 2, ACCT_STR) == 0;
   if (is_newmv) return NEWMV;
 
@@ -1367,6 +1371,10 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
                             int_mv near_mv[2], int mi_row, int mi_col,
                             int is_compound, MvSubpelPrecision precision,
                             aom_reader *r) {
+#if CONFIG_NEW_INTER_MODES
+  // TODO(siroh): Remove this once nearestmv is gone from the sig. of assign_mv.
+  (void)nearest_mv;  // Prevent an unused var warning.
+#endif               // CONFIG_NEW_INTER_MODES
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   MB_MODE_INFO *mbmi = xd->mi[0];
   BLOCK_SIZE bsize = mbmi->sb_type;
@@ -1575,7 +1583,12 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
   if (mbmi->skip_mode) {
     assert(is_compound);
+#if CONFIG_NEW_INTER_MODES
+    mbmi->mode = NEAR_NEARMV;
+    mbmi->ref_mv_idx = 0;
+#else
     mbmi->mode = NEAREST_NEARESTMV;
+#endif  // CONFIG_NEW_INTER_MODES
     mbmi->max_mv_precision = av1_get_mbmi_max_mv_precision(cm, mbmi);
     mbmi->mv_precision = mbmi->max_mv_precision;
   } else {
@@ -1713,7 +1726,14 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
   }
 
+#if CONFIG_NEW_INTER_MODES
+  if (mbmi->skip_mode) {
+    assert(mbmi->mode == NEAR_NEARMV);
+    assert(mbmi->ref_mv_idx == 0);
+  }
+#else
   if (mbmi->skip_mode) assert(mbmi->mode == NEAREST_NEARESTMV);
+#endif  // CONFIG_NEW_INTER_MODES
 
   int mv_corrupted_flag = !assign_mv(
       cm, xd, mbmi->mode, mbmi->ref_frame, mbmi->mv, ref_mv, nearestmv, nearmv,
