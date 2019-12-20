@@ -278,3 +278,105 @@ void vmaf_preprocessing(const AV1_COMP *const cpi,
   aom_free(best_unsharp_amounts);
   aom_clear_system_state();
 }
+
+void set_mb_vmaf_rdmult_scaling(AV1_COMP *cpi) {
+  AV1_COMMON *cm = &cpi->common;
+  ThreadData *td = &cpi->td;
+  MACROBLOCK *x = &td->mb;
+  MACROBLOCKD *xd = &x->e_mbd;
+  uint8_t *y_buffer = cpi->source->y_buffer;
+  const int y_stride = cpi->source->y_stride;
+  const int block_size = BLOCK_16X16;
+
+  const int num_mi_w = mi_size_wide[block_size];
+  const int num_mi_h = mi_size_high[block_size];
+  const int num_cols = (cm->mi_cols + num_mi_w - 1) / num_mi_w;
+  const int num_rows = (cm->mi_rows + num_mi_h - 1) / num_mi_h;
+  double log_sum = 0.0;
+  int row, col;
+  const int use_hbd = cpi->source->flags & YV12_FLAG_HIGHBITDEPTH;
+
+  // Loop through each 16x16 block.
+  for (row = 0; row < num_rows; ++row) {
+    for (col = 0; col < num_cols; ++col) {
+      int mi_row, mi_col;
+      double var = 0.0, num_of_var = 0.0;
+      const int index = row * num_cols + col;
+
+      // Loop through each 8x8 block.
+      for (mi_row = row * num_mi_h;
+           mi_row < cm->mi_rows && mi_row < (row + 1) * num_mi_h; mi_row += 2) {
+        for (mi_col = col * num_mi_w;
+             mi_col < cm->mi_cols && mi_col < (col + 1) * num_mi_w;
+             mi_col += 2) {
+          struct buf_2d buf;
+          const int row_offset_y = mi_row << 2;
+          const int col_offset_y = mi_col << 2;
+
+          buf.buf = y_buffer + row_offset_y * y_stride + col_offset_y;
+          buf.stride = y_stride;
+
+          if (use_hbd) {
+            var += av1_high_get_sby_perpixel_variance(cpi, &buf, BLOCK_8X8,
+                                                      xd->bd);
+          } else {
+            var += av1_get_sby_perpixel_variance(cpi, &buf, BLOCK_8X8);
+          }
+
+          num_of_var += 1.0;
+        }
+      }
+      var = var / num_of_var;
+
+      // Curve fitting with an exponential model on all 16x16 blocks from the
+      // midres dataset.
+      var = 67.035434 * (1 - exp(-0.0021489 * var)) + 17.492222;
+      cpi->ssim_rdmult_scaling_factors[index] = var;
+      log_sum += log(var);
+    }
+  }
+  log_sum = exp(log_sum / (double)(num_rows * num_cols));
+
+  for (row = 0; row < num_rows; ++row) {
+    for (col = 0; col < num_cols; ++col) {
+      const int index = row * num_cols + col;
+      cpi->ssim_rdmult_scaling_factors[index] /= log_sum;
+    }
+  }
+
+  (void)xd;
+}
+
+void set_vmaf_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
+                     const BLOCK_SIZE bsize, const int mi_row, const int mi_col,
+                     int *const rdmult) {
+  const AV1_COMMON *const cm = &cpi->common;
+
+  const int bsize_base = BLOCK_16X16;
+  const int num_mi_w = mi_size_wide[bsize_base];
+  const int num_mi_h = mi_size_high[bsize_base];
+  const int num_cols = (cm->mi_cols + num_mi_w - 1) / num_mi_w;
+  const int num_rows = (cm->mi_rows + num_mi_h - 1) / num_mi_h;
+  const int num_bcols = (mi_size_wide[bsize] + num_mi_w - 1) / num_mi_w;
+  const int num_brows = (mi_size_high[bsize] + num_mi_h - 1) / num_mi_h;
+  int row, col;
+  double num_of_mi = 0.0;
+  double geom_mean_of_scale = 0.0;
+
+  aom_clear_system_state();
+  for (row = mi_row / num_mi_w;
+       row < num_rows && row < mi_row / num_mi_w + num_brows; ++row) {
+    for (col = mi_col / num_mi_h;
+         col < num_cols && col < mi_col / num_mi_h + num_bcols; ++col) {
+      const int index = row * num_cols + col;
+      geom_mean_of_scale += log(cpi->vmaf_rdmult_scaling_factors[index]);
+      num_of_mi += 1.0;
+    }
+  }
+  geom_mean_of_scale = exp(geom_mean_of_scale / num_of_mi);
+
+  *rdmult = (int)((double)(*rdmult) * geom_mean_of_scale + 0.5);
+  *rdmult = AOMMAX(*rdmult, 0);
+  set_error_per_bit(x, *rdmult);
+  aom_clear_system_state();
+}
