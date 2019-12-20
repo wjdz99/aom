@@ -457,6 +457,21 @@ static void set_good_speed_features_framesize_independent(
     sf->lpf_sf.prune_sgr_based_on_wiener =
         cm->allow_screen_content_tools ? 0 : 2;
     sf->lpf_sf.reduce_wiener_window_size = is_boosted_arf2_bwd_type ? 0 : 1;
+
+    sf->winner_mode_sf.enable_multiwinner_mode_process =
+        frame_is_intra_only(&cpi->common) ? 1 : 0;
+#if 1
+#if 0
+    sf->winner_mode_sf.enable_winner_mode_for_tx_size_srch = 1;
+    sf->winner_mode_sf.enable_multiwinner_mode_process =
+        frame_is_intra_only(&cpi->common) ? 1 : 0;
+#else
+     sf->winner_mode_sf.enable_winner_mode_for_tx_size_srch = 1;
+     sf->winner_mode_sf.enable_multiwinner_mode_process =
+      frame_is_intra_only(&cpi->common) ? 1 : 0;
+      sf->rd_sf.tx_domain_dist_thres_level = frame_is_intra_only(&cpi->common) ? 2 : 1;
+#endif
+#endif
   }
 
   if (speed >= 4) {
