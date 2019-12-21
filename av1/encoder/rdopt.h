@@ -430,7 +430,7 @@ static INLINE int prune_ref_by_selective_ref_frame(
       }
     }
 
-    if (sf->inter_sf.selective_ref_frame >= 3) {
+    if (sf->inter_sf.selective_ref_frame >= 3 && comp_pred) {
       if (ref_frame[0] == ALTREF2_FRAME || ref_frame[1] == ALTREF2_FRAME)
         if (av1_encoder_get_relative_dist(
                 order_hint_info,
