@@ -344,7 +344,7 @@ static void set_good_speed_features_framesize_independent(
             : (boosted ? 1 : 2);
     sf->inter_sf.reduce_inter_modes = boosted ? 1 : 2;
     sf->inter_sf.reuse_inter_intra_mode = 1;
-    sf->inter_sf.selective_ref_frame = 2;
+    sf->inter_sf.selective_ref_frame = 3;
     sf->inter_sf.skip_repeated_newmv = 1;
 
     sf->interp_sf.cb_pred_filter_search = 0;
