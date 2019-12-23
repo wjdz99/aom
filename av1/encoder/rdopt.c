@@ -11199,24 +11199,31 @@ static bool ref_mv_idx_early_breakout(MACROBLOCK *x,
   MB_MODE_INFO *mbmi = xd->mi[0];
   const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+#if CONFIG_NEW_INTER_MODES
   if (sf->reduce_inter_modes && ref_mv_idx > 0) {
     if (mbmi->ref_frame[0] == LAST2_FRAME ||
         mbmi->ref_frame[0] == LAST3_FRAME ||
         mbmi->ref_frame[1] == LAST2_FRAME ||
         mbmi->ref_frame[1] == LAST3_FRAME) {
-#if CONFIG_NEW_INTER_MODES
       if (mbmi_ext->weight[ref_frame_type][ref_mv_idx] < REF_CAT_LEVEL) {
         return true;
       }
+    }
+  }
 #else
+  if (sf->reduce_inter_modes && ref_mv_idx > 0) {
+    if (mbmi->ref_frame[0] == LAST2_FRAME ||
+        mbmi->ref_frame[0] == LAST3_FRAME ||
+        mbmi->ref_frame[1] == LAST2_FRAME ||
+        mbmi->ref_frame[1] == LAST3_FRAME) {
       const int has_nearmv = have_nearmv_in_inter_mode(mbmi->mode) ? 1 : 0;
       if (mbmi_ext->weight[ref_frame_type][ref_mv_idx + has_nearmv] <
           REF_CAT_LEVEL) {
         return true;
       }
-#endif  // CONFIG_NEW_INTER_MODES
     }
   }
+#endif  // CONFIG_NEW_INTER_MODES
   const int is_comp_pred = has_second_ref(mbmi);
   if (sf->prune_single_motion_modes_by_simple_trans && !is_comp_pred &&
       args->single_ref_first_pass == 0) {
