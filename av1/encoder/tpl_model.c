@@ -649,6 +649,33 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
     }
   }
 
+  const OrderHintInfo *const order_hint_info = &cm->seq_params.order_hint_info;
+  int past_ref_frame_count = 0;
+  for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
+    cpi->altref_altref2_bwd.frame_distance_pair[idx].distance = 0;
+    cpi->altref_altref2_bwd.frame_distance_pair[idx].frame = NONE_FRAME;
+    ref[0] = idx + 1;
+    int dist = av1_encoder_get_relative_dist(order_hint_info,
+                                             ref_frame_display_index[idx],
+                                             tpl_frame->frame_display_index);
+    if (dist < 0 && (ref[0] == ALTREF2_FRAME || ref[0] == ALTREF_FRAME ||
+                     ref[0] == BWDREF_FRAME)) {
+      cpi->altref_altref2_bwd.frame_distance_pair[past_ref_frame_count].frame =
+          ref[0];
+      cpi->altref_altref2_bwd.frame_distance_pair[past_ref_frame_count]
+          .distance = abs(dist);
+      past_ref_frame_count++;
+    }
+  }
+
+  cpi->altref_altref2_bwd.total_ref_frame_count = past_ref_frame_count;
+
+  qsort(cpi->altref_altref2_bwd.frame_distance_pair, past_ref_frame_count,
+        sizeof(cpi->altref_altref2_bwd.frame_distance_pair[0]),
+        compare_distance_descending);
+
+  assert(cpi->altref_altref2_bwd.total_ref_frame_count <= 3);
+
   // Skip motion estimation w.r.t. reference frames which are not
   // considered in RD search, using "selective_ref_frame" speed feature
   for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
