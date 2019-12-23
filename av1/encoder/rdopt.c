@@ -9395,6 +9395,7 @@ static INLINE int find_comp_rd_in_stats(const AV1_COMP *const cpi,
                                         const MB_MODE_INFO *const mbmi,
                                         int32_t *comp_rate, int64_t *comp_dist,
                                         int64_t *comp_model_rd) {
+  return 0;
   for (int j = 0; j < x->comp_rd_stats_idx; ++j) {
     if (is_comp_rd_match(cpi, x, &x->comp_rd_stats[j], mbmi, comp_rate,
                          comp_dist, comp_model_rd)) {
