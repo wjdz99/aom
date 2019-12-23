@@ -80,8 +80,8 @@ static unsigned int num_winner_motion_modes[3] = { 0, 10, 3 };
 // feature is ON
 static unsigned int coeff_opt_dist_thresholds[5][MODE_EVAL_TYPES] = {
   { UINT_MAX, UINT_MAX, UINT_MAX },
-  { 442413, 36314, UINT_MAX },
-  { 162754, 36314, UINT_MAX },
+  { 442413, 442413, UINT_MAX },
+  { 162754, 162754, UINT_MAX },
   { 22026, 22026, UINT_MAX },
   { 22026, 22026, UINT_MAX }
 };
@@ -368,6 +368,11 @@ static void set_good_speed_features_framesize_independent(
     sf->lpf_sf.cdef_pick_method = CDEF_FAST_SEARCH;
     sf->lpf_sf.dual_sgr_penalty_level = 1;
     sf->lpf_sf.enable_sgr_ep_pruning = 1;
+
+    sf->winner_mode_sf.enable_winner_mode_for_coeff_opt =
+        frame_is_intra_only(&cpi->common) ? 0 : 1;
+    sf->winner_mode_sf.enable_multiwinner_mode_process =
+        frame_is_intra_only(&cpi->common) ? 0 : 1;
   }
 
   if (speed >= 2) {
