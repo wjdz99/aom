@@ -446,24 +446,32 @@ static INLINE int prune_ref_by_selective_ref_frame(
     }
 
     if (sf->inter_sf.selective_ref_frame >= 4 && comp_pred) {
-      // Check if one of the reference is ALTREF2_FRAME and BWDREF_FRAME is a
-      // valid reference.
-      if ((ref_frame[0] == ALTREF2_FRAME || ref_frame[1] == ALTREF2_FRAME) &&
-          (cpi->ref_frame_flags & av1_ref_frame_flag_list[BWDREF_FRAME])) {
-        // Check if both ALTREF2_FRAME and BWDREF_FRAME are future references.
-        const int arf2_dist = av1_encoder_get_relative_dist(
-            order_hint_info, ref_display_order_hint[ALTREF2_FRAME - LAST_FRAME],
-            cur_frame_display_order_hint);
-        const int bwd_dist = av1_encoder_get_relative_dist(
-            order_hint_info, ref_display_order_hint[BWDREF_FRAME - LAST_FRAME],
-            cur_frame_display_order_hint);
-        if (arf2_dist > 0 && bwd_dist > 0 && bwd_dist <= arf2_dist) {
-          // Drop ALTREF2_FRAME as a reference if BWDREF_FRAME is a closer
-          // reference to the current frame than ALTREF2_FRAME
-          assert(get_ref_frame_buf(cm, ALTREF2_FRAME) != NULL);
-          assert(get_ref_frame_buf(cm, BWDREF_FRAME) != NULL);
-          return 1;
-        }
+#if 0
+		// Check if one of the reference is ALTREF2_FRAME and BWDREF_FRAME is a
+		// valid reference.
+		if ((ref_frame[0] == ALTREF2_FRAME || ref_frame[1] == ALTREF2_FRAME) &&
+			(cpi->ref_frame_flags & av1_ref_frame_flag_list[BWDREF_FRAME])) {
+			// Check if both ALTREF2_FRAME and BWDREF_FRAME are future references.
+			const int arf2_dist = av1_encoder_get_relative_dist(
+				order_hint_info, ref_display_order_hint[ALTREF2_FRAME - LAST_FRAME],
+				cur_frame_display_order_hint);
+			const int bwd_dist = av1_encoder_get_relative_dist(
+				order_hint_info, ref_display_order_hint[BWDREF_FRAME - LAST_FRAME],
+				cur_frame_display_order_hint);
+			if (arf2_dist > 0 && bwd_dist > 0 && bwd_dist <= arf2_dist) {
+				// Drop ALTREF2_FRAME as a reference if BWDREF_FRAME is a closer
+				// reference to the current frame than ALTREF2_FRAME
+				assert(get_ref_frame_buf(cm, ALTREF2_FRAME) != NULL);
+				assert(get_ref_frame_buf(cm, BWDREF_FRAME) != NULL);
+				return 1;
+			}
+		}
+#endif
+      if ((ref_frame[0] ==
+           cpi->future_ref_frames_info.frame_distance_pair[0].frame) ||
+          (ref_frame[1] ==
+           cpi->future_ref_frames_info.frame_distance_pair[0].frame)) {
+        return 1;
       }
     }
   }
