@@ -7266,11 +7266,10 @@ static int cost_mv_ref(const MACROBLOCK *const x, PREDICTION_MODE mode,
     } else {
       mode_cost += x->zeromv_mode_cost[mode_ctx][1];
       mode_ctx = (mode_context >> REFMV_OFFSET) & REFMV_CTX_MASK;
-#if CONFIG_NEW_INTER_MODES
-      mode_cost += x->refmv_mode_cost[mode_ctx][1];
-#else
+#if !CONFIG_NEW_INTER_MODES
+      // We no longer need to write this bit with NEARESTMV gone.
       mode_cost += x->refmv_mode_cost[mode_ctx][mode != NEARESTMV];
-#endif  // CONFIG_NEW_INTER_MODES
+#endif  // !CONFIG_NEW_INTER_MODES
       return mode_cost;
     }
   }
@@ -8598,7 +8597,7 @@ static int interinter_compound_motion_search(const AV1_COMP *const cpi,
     mbmi->mv[0].as_int = tmp_mv[0].as_int;
     mbmi->mv[1].as_int = tmp_mv[1].as_int;
   } else if (mixed_new) {
-    // which = 1 if this_mode == *_NEWMV
+    // which = 1 if this_mode == *MV_NEWMV
     // which = 0 if this_mode == NEW_*MV
     int which = (NEWMV == compound_ref1_mode(this_mode));
     do_masked_motion_search_indexed(cpi, x, cur_mv, compound_data, bsize,
@@ -8814,12 +8813,13 @@ static int skip_repeated_mv(const AV1_COMMON *const cm,
   const int ref_mv_count = mbmi_ext->ref_mv_count[ref_frame_type];
   PREDICTION_MODE compare_mode = MB_MODE_COUNT;
   if (!is_comp_pred) {
-#if !CONFIG_NEW_INTER_MODES
     if (this_mode == NEARMV) {
+#if !CONFIG_NEW_INTER_MODES
       if (ref_mv_count == 0) {
         // NEARMV has the same motion vector as NEARESTMV
         compare_mode = NEARESTMV;
       }
+#endif  // !CONFIG_NEW_INTER_MODES
 
       if (ref_mv_count == 1 &&
           cm->global_motion[ref_frames[0]].wmtype <= TRANSLATION) {
@@ -8827,7 +8827,6 @@ static int skip_repeated_mv(const AV1_COMMON *const cm,
         compare_mode = GLOBALMV;
       }
     }
-#endif  // !CONFIG_NEW_INTER_MODES
     if (this_mode == GLOBALMV) {
 #if !CONFIG_NEW_INTER_MODES
       if (ref_mv_count == 0 &&
@@ -11200,7 +11199,7 @@ static bool ref_mv_idx_early_breakout(MACROBLOCK *x,
   const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
 #if CONFIG_NEW_INTER_MODES
-  if (sf->reduce_inter_modes && ref_mv_idx > 0) {
+  if (sf->reduce_inter_modes) {
     if (mbmi->ref_frame[0] == LAST2_FRAME ||
         mbmi->ref_frame[0] == LAST3_FRAME ||
         mbmi->ref_frame[1] == LAST2_FRAME ||
@@ -11482,9 +11481,13 @@ static int64_t handle_inter_mode(
   // First, perform a simple translation search for each of the indices. If
   // an index performs well, it will be fully searched here.
   const int ref_set = get_drl_refmv_count(x, mbmi->ref_frame, this_mode);
+#if CONFIG_NEW_INTER_MODES
+  int idx_mask = 0xFF;
+#else
   int idx_mask =
       ref_mv_idx_to_search(cpi, x, rd_stats, args, ref_best_rd, mode_info,
                            bsize, mi_row, mi_col, ref_set);
+#endif  // CONFIG_NEW_INTER_MODES
   for (int ref_mv_idx = 0; ref_mv_idx < ref_set; ++ref_mv_idx) {
     mode_info[ref_mv_idx].mv.as_int = INVALID_MV;
     mode_info[ref_mv_idx].rd = INT64_MAX;
