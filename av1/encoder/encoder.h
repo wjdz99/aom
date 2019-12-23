@@ -750,6 +750,16 @@ typedef struct {
   int gld_stack_size;
 } RefBufferStack;
 
+typedef struct {
+  int distance;
+  MV_REFERENCE_FRAME frame;
+} RefFrameDistancePair;
+
+typedef struct {
+  RefFrameDistancePair frame_distance_pair[REF_FRAMES - 1];
+  int total_ref_frame_count;
+} RefFrameInfo;
+
 typedef struct AV1_COMP {
   QUANTS quants;
   ThreadData td;
@@ -1102,6 +1112,11 @@ typedef struct AV1_COMP {
   // Indicate nearest references w.r.t. current frame in past and future
   int8_t nearest_past_ref;
   int8_t nearest_future_ref;
+
+  // Holds the valid past/future ref frames in decreasing order of distance
+  // w.r.t. current frame
+  RefFrameInfo past_ref_frames_info;
+  RefFrameInfo future_ref_frames_info;
 
   // Indicates the number of simple translation winner modes for exhaustive
   // motion mode evaluation

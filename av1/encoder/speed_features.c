@@ -415,6 +415,7 @@ static void set_good_speed_features_framesize_independent(
 
     sf->part_sf.less_rectangular_check_level = 2;
     sf->part_sf.simple_motion_search_prune_agg = 1;
+    sf->inter_sf.selective_ref_frame = 4;
 
     // adaptive_motion_search breaks encoder multi-thread tests.
     // The values in x->pred_mv[] differ for single and multi-thread cases.
@@ -467,7 +468,7 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.adaptive_mode_search = 1;
     sf->inter_sf.alt_ref_search_fp = 1;
     sf->inter_sf.prune_ref_mv_idx_search = 1;
-    sf->inter_sf.selective_ref_frame = 4;
+    // sf->inter_sf.selective_ref_frame = 4;
 
     sf->interp_sf.cb_pred_filter_search = 1;
     sf->interp_sf.skip_sharp_interp_filter_search = 1;
