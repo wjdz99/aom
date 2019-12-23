@@ -6097,8 +6097,10 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   if (!cm->large_scale_tile) {
     cm->cur_frame->frame_context = *cm->fc;
   }
-#define EXT_TILE_DEBUG 0
+#define EXT_TILE_DEBUG 1
 #if EXT_TILE_DEBUG
+  extern void av1_print_frame_contexts(const FRAME_CONTEXT *fc,
+                                       const char *filename);
   if (cm->large_scale_tile && oxcf->pass == 2) {
     char fn[20] = "./fc";
     fn[4] = current_frame->frame_number / 100 + '0';

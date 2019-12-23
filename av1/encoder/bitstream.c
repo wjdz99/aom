@@ -3496,8 +3496,10 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
     data += frame_header_size;
     total_size += frame_header_size;
 
-#define EXT_TILE_DEBUG 0
+#define EXT_TILE_DEBUG 1
 #if EXT_TILE_DEBUG
+    extern void av1_print_uncompressed_frame_header(
+        const uint8_t *data, int size, const char *filename);
     {
       char fn[20] = "./fh";
       fn[4] = cm->current_frame.frame_number / 100 + '0';
