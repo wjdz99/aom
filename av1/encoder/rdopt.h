@@ -383,6 +383,16 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
   }
 }
 
+static INLINE int compare_distance_descending(const void *a, const void *b) {
+  const int diff = ((RefFrameDistancePair *)a)->distance -
+                   ((RefFrameDistancePair *)b)->distance;
+  if (diff < 0)
+    return 1;
+  else if (diff > 0)
+    return -1;
+  return 0;
+}
+
 static INLINE int prune_ref_by_selective_ref_frame(
     const AV1_COMP *const cpi, const MV_REFERENCE_FRAME *const ref_frame,
     const unsigned int *const ref_display_order_hint,
@@ -393,6 +403,39 @@ static INLINE int prune_ref_by_selective_ref_frame(
     const OrderHintInfo *const order_hint_info =
         &cm->seq_params.order_hint_info;
     const int comp_pred = ref_frame[1] > INTRA_FRAME;
+    int num_past_frames = cpi->altref_altref2_bwd.total_ref_frame_count;
+    if (0) {
+      static int cur_frame_num = 0;
+      static int prev_frame_num = 255;
+      cur_frame_num = cur_frame_display_order_hint;
+      if ((prev_frame_num != cur_frame_num)) {
+        printf("\n Cur frame:   %d  ", cur_frame_display_order_hint);
+        printf(" LAST_FRAME[1]:   %d  ",
+               ref_display_order_hint[LAST_FRAME - LAST_FRAME]);
+        printf(" LAST2_FRAME[2]:   %d  ",
+               ref_display_order_hint[LAST2_FRAME - LAST_FRAME]);
+        printf(" LAST3_FRAME[3]:   %d  ",
+               ref_display_order_hint[LAST3_FRAME - LAST_FRAME]);
+        printf(" GOLDEN_FRAME[4]:   %d  ",
+               ref_display_order_hint[GOLDEN_FRAME - LAST_FRAME]);
+        printf(" BWDREF_FRAME[5]:   %d  ",
+               ref_display_order_hint[BWDREF_FRAME - LAST_FRAME]);
+        printf(" ALTREF2_FRAME[6]:   %d  ",
+               ref_display_order_hint[ALTREF2_FRAME - LAST_FRAME]);
+        printf(" ALTREF_FRAME[7]:   %d  ",
+               ref_display_order_hint[ALTREF_FRAME - LAST_FRAME]);
+
+        if (num_past_frames) {
+          printf("\n Past_ref_frames :");
+          for (int j = 0; j < num_past_frames; j++) {
+            printf("   [%d]  ",
+                   cpi->altref_altref2_bwd.frame_distance_pair[j].frame);
+          }
+        }
+        prev_frame_num = cur_frame_display_order_hint;
+      }
+    }
+
     if (sf->inter_sf.selective_ref_frame >= 2 ||
         (sf->inter_sf.selective_ref_frame == 1 && comp_pred)) {
       if (ref_frame[0] == LAST3_FRAME || ref_frame[1] == LAST3_FRAME) {
@@ -431,18 +474,92 @@ static INLINE int prune_ref_by_selective_ref_frame(
     }
 
     if (sf->inter_sf.selective_ref_frame >= 3) {
+#if 1
+      MV_REFERENCE_FRAME frame0, frame1;
+      if (num_past_frames == 1) {
+        frame0 = cpi->altref_altref2_bwd.frame_distance_pair[0].frame;
+        if ((ref_frame[0] == frame0) || (ref_frame[1] == frame0)) {
+          /*printf("\n Cur_frame : %d, Pruned_frame: %d , is_comp: %d ",
+                 cur_frame_display_order_hint, frame0, comp_pred);*/
+          return 1;
+        }
+      } else if (num_past_frames == 2) {
+        frame0 = cpi->altref_altref2_bwd.frame_distance_pair[0].frame;
+        frame1 = cpi->altref_altref2_bwd.frame_distance_pair[1].frame;
+        assert(frame0 == ALTREF2_FRAME || frame0 == BWDREF_FRAME);
+        assert(frame1 == ALTREF2_FRAME || frame1 == BWDREF_FRAME);
+        assert(frame0 != ALTREF_FRAME && frame1 != ALTREF_FRAME);
+        /* if ((ref_frame[0] == frame0) || (ref_frame[1] == frame0)) {
+           printf("\n Cur_frame : %d, Pruned_frame: %d , is_comp: %d  ",
+                  cur_frame_display_order_hint, frame0, comp_pred);
+           return 1;
+         }
+         if ((ref_frame[0] == frame1) || (ref_frame[1] == frame1)) {
+           printf("\n Cur_frame : %d, Pruned_frame: %d , is_comp: %d  ",
+                  cur_frame_display_order_hint, frame1, comp_pred);
+           return 1;
+         }*/
+        if ((ref_frame[0] == frame0) || (ref_frame[0] == frame1) ||
+            (ref_frame[1] == frame0) || (ref_frame[1] == frame1)) {
+          return 1;
+        }
+      } else {
+        assert(num_past_frames == 3);
+        if (comp_pred) {
+          frame0 = cpi->altref_altref2_bwd.frame_distance_pair[0].frame;
+          frame1 = cpi->altref_altref2_bwd.frame_distance_pair[1].frame;
+          /*if ((ref_frame[0] == frame0) || (ref_frame[1] == frame0)) {
+            printf("\n Cur_frame : %d, Pruned_frame: %d , is_comp: %d  ",
+                   cur_frame_display_order_hint, frame0, comp_pred);
+            return 1;
+          }
+          if ((ref_frame[0] == frame1) || (ref_frame[1] == frame1)) {
+            printf("\n Cur_frame : %d, Pruned_frame: %d , is_comp: %d  ",
+                   cur_frame_display_order_hint, frame1, comp_pred);
+            return 1;
+          }*/
+          if ((ref_frame[0] == frame0) || (ref_frame[0] == frame1) ||
+              (ref_frame[1] == frame0) || (ref_frame[1] == frame1))
+            return 1;
+        } else {
+          for (int ii = 0; ii < num_past_frames; ii++) {
+            if (cpi->altref_altref2_bwd.frame_distance_pair[ii].frame ==
+                ALTREF_FRAME)
+              continue;
+            if (ref_frame[0] ==
+                cpi->altref_altref2_bwd.frame_distance_pair[ii].frame) {
+              printf("\n Cur_frame : %d, Pruned_frame: %d , is_comp: %d  ",
+                     cur_frame_display_order_hint, ref_frame[0], comp_pred);
+              return 1;
+            }
+            /*if (ref_frame[1] ==
+                    cpi->altref_altref2_bwd.frame_distance_pair[ii].frame) {
+                    printf("\n Cur_frame : %d, Pruned_frame: %d ",
+            cur_frame_display_order_hint, ref_frame[1]); return 1;
+            }*/
+          }
+        }
+      }
+#else
       if (ref_frame[0] == ALTREF2_FRAME || ref_frame[1] == ALTREF2_FRAME)
         if (av1_encoder_get_relative_dist(
                 order_hint_info,
                 ref_display_order_hint[ALTREF2_FRAME - LAST_FRAME],
-                cur_frame_display_order_hint) < 0)
+                cur_frame_display_order_hint) < 0) {
+          printf("\n Cur_frame : %d, Pruned_frame: %d , is_comp: %d ",
+                 cur_frame_display_order_hint, ALTREF2_FRAME, comp_pred);
           return 1;
+        }
       if (ref_frame[0] == BWDREF_FRAME || ref_frame[1] == BWDREF_FRAME)
         if (av1_encoder_get_relative_dist(
                 order_hint_info,
                 ref_display_order_hint[BWDREF_FRAME - LAST_FRAME],
-                cur_frame_display_order_hint) < 0)
+                cur_frame_display_order_hint) < 0) {
+          printf("\n Cur_frame : %d, Pruned_frame: %d , is_comp: %d ",
+                 cur_frame_display_order_hint, BWDREF_FRAME, comp_pred);
           return 1;
+        }
+#endif
     }
 
     if (sf->inter_sf.selective_ref_frame >= 4 && comp_pred) {

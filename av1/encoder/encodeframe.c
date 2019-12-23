@@ -4707,8 +4707,23 @@ static AOM_INLINE void set_rel_frame_dist(AV1_COMP *cpi) {
   int min_past_dist = INT32_MAX, min_future_dist = INT32_MAX;
   cpi->nearest_past_ref = NONE_FRAME;
   cpi->nearest_future_ref = NONE_FRAME;
+  int past_ref_frame_count = 0;
+  int future_ref_frame_count = 0;
+
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     cpi->ref_relative_dist[ref_frame - LAST_FRAME] = 0;
+    cpi->past_ref_frames_info.frame_distance_pair[ref_frame - LAST_FRAME]
+        .distance = 0;
+    cpi->future_ref_frames_info.frame_distance_pair[ref_frame - LAST_FRAME]
+        .distance = 0;
+    cpi->past_ref_frames_info.frame_distance_pair[ref_frame - LAST_FRAME]
+        .frame = NONE_FRAME;
+    cpi->future_ref_frames_info.frame_distance_pair[ref_frame - LAST_FRAME]
+        .frame = NONE_FRAME;
+    cpi->altref_altref2_bwd.frame_distance_pair[ref_frame - LAST_FRAME]
+        .distance = 0;
+    cpi->altref_altref2_bwd.frame_distance_pair[ref_frame - LAST_FRAME].frame =
+        NONE_FRAME;
     if (cpi->ref_frame_flags & av1_ref_frame_flag_list[ref_frame]) {
       int dist = av1_encoder_get_relative_dist(
           order_hint_info,
@@ -4725,8 +4740,55 @@ static AOM_INLINE void set_rel_frame_dist(AV1_COMP *cpi) {
         cpi->nearest_future_ref = ref_frame;
         min_future_dist = dist;
       }
+#if 1
+      // Populate past_ref_frame_info and future_ref_frame_info
+      if (dist < 0) {
+        cpi->past_ref_frames_info.frame_distance_pair[past_ref_frame_count]
+            .distance = abs(dist);
+        cpi->past_ref_frames_info.frame_distance_pair[past_ref_frame_count]
+            .frame = ref_frame;
+        past_ref_frame_count++;
+      } else if (dist > 0) {
+        cpi->future_ref_frames_info.frame_distance_pair[future_ref_frame_count]
+            .distance = abs(dist);
+        cpi->future_ref_frames_info.frame_distance_pair[future_ref_frame_count]
+            .frame = ref_frame;
+        future_ref_frame_count++;
+      }
+#endif
     }
   }
+#if 1
+  // Sort the ref frames in the descending order of their distance from the
+  // current frame
+  qsort(cpi->past_ref_frames_info.frame_distance_pair, past_ref_frame_count,
+        sizeof(cpi->past_ref_frames_info.frame_distance_pair[0]),
+        compare_distance_descending);
+  qsort(cpi->future_ref_frames_info.frame_distance_pair, future_ref_frame_count,
+        sizeof(cpi->future_ref_frames_info.frame_distance_pair[0]),
+        compare_distance_descending);
+
+  cpi->past_ref_frames_info.total_ref_frame_count = past_ref_frame_count;
+  cpi->future_ref_frames_info.total_ref_frame_count = future_ref_frame_count;
+
+  if (cpi->sf.inter_sf.selective_ref_frame >= 3) {
+    int frame_count = 0;
+    for (int i = 0; i < past_ref_frame_count; i++) {
+      MV_REFERENCE_FRAME past_frame =
+          cpi->past_ref_frames_info.frame_distance_pair[i].frame;
+
+      if ((past_frame == BWDREF_FRAME) || (past_frame == ALTREF_FRAME) ||
+          (past_frame == ALTREF2_FRAME)) {
+        cpi->altref_altref2_bwd.frame_distance_pair[frame_count].distance =
+            cpi->past_ref_frames_info.frame_distance_pair[i].distance;
+        cpi->altref_altref2_bwd.frame_distance_pair[frame_count].frame =
+            cpi->past_ref_frames_info.frame_distance_pair[i].frame;
+        frame_count++;
+      }
+    }
+    cpi->altref_altref2_bwd.total_ref_frame_count = frame_count;
+  }
+#endif
 }
 
 // Enforce the number of references for each arbitrary frame based on user
