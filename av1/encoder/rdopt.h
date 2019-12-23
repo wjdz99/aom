@@ -430,7 +430,40 @@ static INLINE int prune_ref_by_selective_ref_frame(
       }
     }
 
-    if (sf->inter_sf.selective_ref_frame >= 3) {
+    int check_count = cpi->altref_altref2_bwd.total_ref_frame_count;
+    if ((sf->inter_sf.selective_ref_frame >= 3) && check_count) {
+      MV_REFERENCE_FRAME frame0, frame1;
+      if (check_count == 1) {
+        frame0 = cpi->altref_altref2_bwd.frame_distance_pair[0].frame;
+        if ((ref_frame[0] == frame0) || (ref_frame[1] == frame0)) return 1;
+      } else if (check_count == 2) {
+        frame0 = cpi->altref_altref2_bwd.frame_distance_pair[0].frame;
+        frame1 = cpi->altref_altref2_bwd.frame_distance_pair[1].frame;
+        assert(frame0 != ALTREF_FRAME && frame1 != ALTREF_FRAME);
+        if ((ref_frame[0] == frame0) || (ref_frame[0] == frame1) ||
+            (ref_frame[1] == frame0) || (ref_frame[1] == frame1))
+          return 1;
+      } else {
+        assert(check_count == 3);
+        if (comp_pred) {
+          frame0 = cpi->altref_altref2_bwd.frame_distance_pair[0].frame;
+          frame1 = cpi->altref_altref2_bwd.frame_distance_pair[1].frame;
+          if ((ref_frame[0] == frame0) || (ref_frame[0] == frame1) ||
+              (ref_frame[1] == frame0) || (ref_frame[1] == frame1))
+            return 1;
+        } else {
+          for (int ii = 0; ii < check_count; ii++) {
+            if (cpi->altref_altref2_bwd.frame_distance_pair[ii].frame ==
+                ALTREF_FRAME)
+              continue;
+            if (ref_frame[0] ==
+                cpi->altref_altref2_bwd.frame_distance_pair[ii].frame)
+              return 1;
+          }
+        }
+      }
+
+#if 0		
       if (ref_frame[0] == ALTREF2_FRAME || ref_frame[1] == ALTREF2_FRAME)
         if (av1_encoder_get_relative_dist(
                 order_hint_info,
@@ -443,6 +476,7 @@ static INLINE int prune_ref_by_selective_ref_frame(
                 ref_display_order_hint[BWDREF_FRAME - LAST_FRAME],
                 cur_frame_display_order_hint) < 0)
           return 1;
+#endif
     }
 
     if (sf->inter_sf.selective_ref_frame >= 4 && comp_pred) {
