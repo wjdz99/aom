@@ -430,19 +430,25 @@ static INLINE int prune_ref_by_selective_ref_frame(
       }
     }
 
-    if (sf->inter_sf.selective_ref_frame >= 3) {
-      if (ref_frame[0] == ALTREF2_FRAME || ref_frame[1] == ALTREF2_FRAME)
-        if (av1_encoder_get_relative_dist(
-                order_hint_info,
-                ref_display_order_hint[ALTREF2_FRAME - LAST_FRAME],
-                cur_frame_display_order_hint) < 0)
+    if (sf->inter_sf.selective_ref_frame >= 2) {
+      int prune_dist = (int)(2 * MAX_GF_INTERVAL);
+      if (ref_frame[0] == ALTREF2_FRAME || ref_frame[1] == ALTREF2_FRAME) {
+        int dist_arf2 = av1_encoder_get_relative_dist(
+            order_hint_info, ref_display_order_hint[ALTREF2_FRAME - LAST_FRAME],
+            cur_frame_display_order_hint);
+        if ((dist_arf2 < 0) && ((sf->inter_sf.selective_ref_frame >= 3) ||
+                                (comp_pred && (abs(dist_arf2) >= prune_dist))))
           return 1;
-      if (ref_frame[0] == BWDREF_FRAME || ref_frame[1] == BWDREF_FRAME)
-        if (av1_encoder_get_relative_dist(
-                order_hint_info,
-                ref_display_order_hint[BWDREF_FRAME - LAST_FRAME],
-                cur_frame_display_order_hint) < 0)
+      }
+      if (ref_frame[0] == BWDREF_FRAME || ref_frame[1] == BWDREF_FRAME) {
+        int dist_bwd_ref = av1_encoder_get_relative_dist(
+            order_hint_info, ref_display_order_hint[BWDREF_FRAME - LAST_FRAME],
+            cur_frame_display_order_hint);
+        if ((dist_bwd_ref < 0) &&
+            ((sf->inter_sf.selective_ref_frame >= 3) ||
+             (comp_pred && (abs(dist_bwd_ref) >= prune_dist))))
           return 1;
+      }
     }
 
     if (sf->inter_sf.selective_ref_frame >= 4 && comp_pred) {
