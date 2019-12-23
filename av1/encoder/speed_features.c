@@ -78,12 +78,11 @@ static unsigned int num_winner_motion_modes[3] = { 0, 10, 3 };
 // (Eg : IntraBc) Index 1: Mode evaluation. Index 2: Winner mode evaluation.
 // Index 1 and 2 are applicable when enable_winner_mode_for_coeff_opt speed
 // feature is ON
-static unsigned int coeff_opt_dist_thresholds[5][MODE_EVAL_TYPES] = {
-  { UINT_MAX, UINT_MAX, UINT_MAX },
-  { 442413, 36314, UINT_MAX },
+static unsigned int coeff_opt_dist_thresholds[7][MODE_EVAL_TYPES] = {
+  { UINT_MAX, UINT_MAX, UINT_MAX }, { 59874, 59874, UINT_MAX },
+  { 59874, 59874, UINT_MAX },       { 22026, 22026, UINT_MAX },
+  { 22026, 22026, UINT_MAX },       { 442413, 36314, UINT_MAX },
   { 162754, 36314, UINT_MAX },
-  { 22026, 22026, UINT_MAX },
-  { 22026, 22026, UINT_MAX }
 };
 
 // Transform size to be used for default, mode and winner mode evaluation
@@ -368,6 +367,13 @@ static void set_good_speed_features_framesize_independent(
     sf->lpf_sf.cdef_pick_method = CDEF_FAST_SEARCH;
     sf->lpf_sf.dual_sgr_penalty_level = 1;
     sf->lpf_sf.enable_sgr_ep_pruning = 1;
+
+    sf->winner_mode_sf.enable_winner_mode_for_coeff_opt =
+        frame_is_intra_only(&cpi->common) ? 0 : 1;
+    sf->winner_mode_sf.enable_winner_mode_for_tx_size_srch =
+        frame_is_intra_only(&cpi->common) ? 0 : 1;
+    sf->winner_mode_sf.enable_multiwinner_mode_process =
+        frame_is_intra_only(&cpi->common) ? 0 : 1;
   }
 
   if (speed >= 2) {
@@ -402,7 +408,8 @@ static void set_good_speed_features_framesize_independent(
     sf->intra_sf.disable_smooth_intra =
         !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
 
-    sf->rd_sf.perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
+    sf->winner_mode_sf.tx_size_search_level = boosted ? 0 : 2;
+    sf->rd_sf.perform_coeff_opt = frame_is_intra_only(&cpi->common) ? 5 : 1;
 
     sf->lpf_sf.prune_sgr_based_on_wiener =
         cm->allow_screen_content_tools ? 0 : 1;
@@ -1197,7 +1204,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
 
   // assert ensures that coeff_opt_dist_thresholds is accessed correctly
   assert(cpi->sf.rd_sf.perform_coeff_opt >= 0 &&
-         cpi->sf.rd_sf.perform_coeff_opt < 5);
+         cpi->sf.rd_sf.perform_coeff_opt < 7);
   memcpy(cpi->coeff_opt_dist_threshold,
          coeff_opt_dist_thresholds[cpi->sf.rd_sf.perform_coeff_opt],
          sizeof(cpi->coeff_opt_dist_threshold));
