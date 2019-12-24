@@ -1477,6 +1477,21 @@ static AOM_INLINE void search_wiener(const RestorationTileLimits *limits,
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
 
+  const MACROBLOCK *const x = rsc->x;
+  const int64_t bits_none = x->wiener_restore_cost[0];
+
+  if (rsc->sf->lpf_sf.prune_wiener_based_on_none) {
+    if ((float)rusi->src_var / rusi->sse[RESTORE_NONE] / x->qindex > 0.3) {
+      rsc->bits += bits_none;
+      rsc->sse += rusi->sse[RESTORE_NONE];
+      rusi->best_rtype[RESTORE_WIENER - 1] = RESTORE_NONE;
+      rusi->sse[RESTORE_WIENER] = INT64_MAX;
+      if (rsc->sf->lpf_sf.prune_sgr_based_on_wiener == 2)
+        rusi->skip_sgr_eval = 1;
+      return;
+    }
+  }
+
   const int wiener_win =
       (rsc->plane == AOM_PLANE_Y) ? WIENER_WIN : WIENER_WIN_CHROMA;
 
@@ -1507,8 +1522,6 @@ static AOM_INLINE void search_wiener(const RestorationTileLimits *limits,
                     limits->h_start, limits->h_end, limits->v_start,
                     limits->v_end, rsc->dgd_stride, rsc->src_stride, M, H);
 #endif
-  const MACROBLOCK *const x = rsc->x;
-  const int64_t bits_none = x->wiener_restore_cost[0];
 
   if (!wiener_decompose_sep_sym(reduced_wiener_win, M, H, vfilter, hfilter)) {
     rsc->bits += bits_none;
