@@ -105,6 +105,13 @@ static int64_t var_restoration_unit(const RestorationTileLimits *limits,
       limits->v_end - limits->v_start);
 }
 
+static AOM_INLINE int64_t mse_from_sse(const RestorationTileLimits *limits,
+                                       const int64_t sse) {
+  int width = limits->h_end - limits->h_start;
+  int height = limits->v_end - limits->v_start;
+  return (sse / (width * height));
+}
+
 typedef struct {
   // The best coefficients for Wiener or Sgrproj restoration
   WienerInfo wiener;
@@ -135,8 +142,6 @@ typedef struct {
   int plane_width;
   int plane_height;
   RestUnitSearchInfo *rusi;
-  // Mean buffer for variance
-  uint8_t mean_buf[RESTORATION_UNITSIZE_MAX * RESTORATION_UNITSIZE_MAX];
 
   // Speed features
   const SPEED_FEATURES *sf;
@@ -194,20 +199,6 @@ static AOM_INLINE void init_rsc(const YV12_BUFFER_CONFIG *src,
   rsc->tile_rect = av1_whole_frame_rect(cm, is_uv);
   assert(src->crop_widths[is_uv] == dgd->crop_widths[is_uv]);
   assert(src->crop_heights[is_uv] == dgd->crop_heights[is_uv]);
-
-  // Memset the mean buffer
-  if (rsc->cm->seq_params.use_highbitdepth) {
-    uint16_t *hbd_mean = CONVERT_TO_SHORTPTR(rsc->mean_buf);
-    const uint16_t mean = 1 << rsc->cm->seq_params.bit_depth;
-    for (int i = 0; i < RESTORATION_UNITSIZE_MAX * RESTORATION_UNITSIZE_MAX;
-         i++) {
-      hbd_mean[i] = mean;
-    }
-  } else {
-    memset(
-        rsc->mean_buf, 128,
-        sizeof(uint8_t) * RESTORATION_UNITSIZE_MAX * RESTORATION_UNITSIZE_MAX);
-  }
 }
 
 static int64_t try_restoration_unit(const RestSearchCtxt *rsc,
@@ -1477,6 +1468,58 @@ static AOM_INLINE void search_wiener(const RestorationTileLimits *limits,
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
 
+  const MACROBLOCK *const x = rsc->x;
+  const int64_t bits_none = x->wiener_restore_cost[0];
+
+  const int thresh_table[QINDEX_RANGE] = {
+    0,    10,   20,   30,   40,   50,   60,   70,   80,   90,   100,  110,
+    120,  131,  141,  151,  161,  171,  181,  191,  201,  211,  221,  231,
+    241,  251,  261,  271,  281,  291,  301,  311,  321,  331,  341,  351,
+    361,  371,  381,  392,  402,  412,  422,  432,  442,  452,  462,  472,
+    482,  492,  502,  512,  522,  532,  542,  552,  562,  572,  582,  592,
+    602,  612,  622,  632,  643,  653,  663,  673,  683,  693,  703,  713,
+    723,  733,  743,  753,  763,  773,  783,  793,  803,  813,  823,  833,
+    843,  853,  863,  873,  883,  893,  904,  914,  924,  934,  944,  954,
+    964,  974,  984,  994,  1004, 1014, 1024, 1034, 1044, 1054, 1064, 1074,
+    1084, 1094, 1104, 1114, 1124, 1134, 1144, 1155, 1165, 1175, 1185, 1195,
+    1205, 1215, 1225, 1235, 1245, 1255, 1265, 1275, 1285, 1295, 1305, 1315,
+    1325, 1335, 1345, 1355, 1365, 1375, 1385, 1395, 1405, 1416, 1426, 1436,
+    1446, 1456, 1466, 1476, 1486, 1496, 1506, 1516, 1526, 1536, 1546, 1556,
+    1566, 1576, 1586, 1596, 1606, 1616, 1626, 1636, 1646, 1656, 1667, 1677,
+    1687, 1697, 1707, 1717, 1727, 1737, 1747, 1757, 1767, 1777, 1787, 1797,
+    1807, 1817, 1827, 1837, 1847, 1857, 1867, 1877, 1887, 1897, 1907, 1917,
+    1928, 1938, 1948, 1958, 1968, 1978, 1988, 1998, 2008, 2018, 2028, 2038,
+    2048, 2058, 2068, 2078, 2088, 2098, 2108, 2118, 2128, 2138, 2148, 2158,
+    2168, 2179, 2189, 2199, 2209, 2219, 2229, 2239, 2249, 2259, 2269, 2279,
+    2289, 2299, 2309, 2319, 2329, 2339, 2349, 2359, 2369, 2379, 2389, 2399,
+    2409, 2419, 2429, 2440, 2450, 2460, 2470, 2480, 2490, 2500, 2510, 2520,
+    2530, 2540, 2550, 2560
+  };
+  const int scale[3] = { 0, 1, 2 };
+  const int qs =
+      av1_dc_quant_QTX(x->qindex, 0, rsc->cm->seq_params.bit_depth) >> 3;
+  const int64_t thresh = (qs * qs *  // thresh_table[x->qindex] *
+                          scale[rsc->sf->lpf_sf.prune_wiener_based_on_none]) >>
+                         4;
+  if (rsc->sf->lpf_sf.prune_wiener_based_on_none) {
+    // int prune_wiener = rusi->sse[RESTORE_NONE] ? (rusi->src_var * 256 /
+    // rusi->sse[RESTORE_NONE] < thresh) : 1;
+    int64_t mse_none = mse_from_sse(limits, rusi->sse[RESTORE_NONE]);
+    // int prune_wiener = (rusi->src_var < thresh) || (mse_none <= (1 <<
+    // (rsc->cm->seq_params.bit_depth-8)));
+    int prune_wiener = (rusi->src_var < thresh) ||
+                       (mse_none <= (1 << (rsc->cm->seq_params.bit_depth - 8)));
+    if (prune_wiener) {
+      rsc->bits += bits_none;
+      rsc->sse += rusi->sse[RESTORE_NONE];
+      rusi->best_rtype[RESTORE_WIENER - 1] = RESTORE_NONE;
+      rusi->sse[RESTORE_WIENER] = INT64_MAX;
+      if (rsc->sf->lpf_sf.prune_sgr_based_on_wiener == 2)
+        rusi->skip_sgr_eval = 1;
+      return;
+    }
+  }
+
   const int wiener_win =
       (rsc->plane == AOM_PLANE_Y) ? WIENER_WIN : WIENER_WIN_CHROMA;
 
@@ -1507,8 +1550,6 @@ static AOM_INLINE void search_wiener(const RestorationTileLimits *limits,
                     limits->h_start, limits->h_end, limits->v_start,
                     limits->v_end, rsc->dgd_stride, rsc->src_stride, M, H);
 #endif
-  const MACROBLOCK *const x = rsc->x;
-  const int64_t bits_none = x->wiener_restore_cost[0];
 
   if (!wiener_decompose_sep_sym(reduced_wiener_win, M, H, vfilter, hfilter)) {
     rsc->bits += bits_none;
