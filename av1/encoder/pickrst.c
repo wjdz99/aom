@@ -63,6 +63,9 @@ typedef int64_t (*sse_part_extractor_type)(const YV12_BUFFER_CONFIG *a,
                                            const YV12_BUFFER_CONFIG *b,
                                            int hstart, int width, int vstart,
                                            int height);
+typedef int64_t (*var_part_extractor_type)(const YV12_BUFFER_CONFIG *a,
+                                           int hstart, int width, int vstart,
+                                           int height);
 
 #if CONFIG_AV1_HIGHBITDEPTH
 #define NUM_EXTRACTORS (3 * (1 + 1))
@@ -71,10 +74,17 @@ static const sse_part_extractor_type sse_part_extractors[NUM_EXTRACTORS] = {
   aom_get_v_sse_part,        aom_highbd_get_y_sse_part,
   aom_highbd_get_u_sse_part, aom_highbd_get_v_sse_part,
 };
+static const var_part_extractor_type var_part_extractors[NUM_EXTRACTORS] = {
+  aom_get_y_var,        aom_get_u_var,        aom_get_v_var,
+  aom_highbd_get_y_var, aom_highbd_get_u_var, aom_highbd_get_v_var,
+};
 #else
 #define NUM_EXTRACTORS 3
 static const sse_part_extractor_type sse_part_extractors[NUM_EXTRACTORS] = {
   aom_get_y_sse_part, aom_get_u_sse_part, aom_get_v_sse_part
+};
+static const var_part_extractor_type var_part_extractors[NUM_EXTRACTORS] = {
+  aom_get_y_var, aom_get_u_var, aom_get_v_var
 };
 #endif
 
@@ -87,6 +97,14 @@ static int64_t sse_restoration_unit(const RestorationTileLimits *limits,
       limits->v_start, limits->v_end - limits->v_start);
 }
 
+static int64_t var_restoration_unit(const RestorationTileLimits *limits,
+                                    const YV12_BUFFER_CONFIG *src, int plane,
+                                    int highbd) {
+  return var_part_extractors[3 * highbd + plane](
+      src, limits->h_start, limits->h_end - limits->h_start, limits->v_start,
+      limits->v_end - limits->v_start);
+}
+
 typedef struct {
   // The best coefficients for Wiener or Sgrproj restoration
   WienerInfo wiener;
@@ -94,6 +112,9 @@ typedef struct {
 
   // The sum of squared errors for this rtype.
   int64_t sse[RESTORE_SWITCHABLE_TYPES];
+
+  // Temp: variance of source
+  int64_t src_var;
 
   // The rtype to use for this unit given a frame rtype as
   // index. Indices: WIENER, SGRPROJ, SWITCHABLE.
@@ -114,6 +135,8 @@ typedef struct {
   int plane_width;
   int plane_height;
   RestUnitSearchInfo *rusi;
+  // Mean buffer for variance
+  uint8_t mean_buf[RESTORATION_UNITSIZE_MAX * RESTORATION_UNITSIZE_MAX];
 
   // Speed features
   const SPEED_FEATURES *sf;
@@ -171,6 +194,20 @@ static AOM_INLINE void init_rsc(const YV12_BUFFER_CONFIG *src,
   rsc->tile_rect = av1_whole_frame_rect(cm, is_uv);
   assert(src->crop_widths[is_uv] == dgd->crop_widths[is_uv]);
   assert(src->crop_heights[is_uv] == dgd->crop_heights[is_uv]);
+
+  // Memset the mean buffer
+  if (rsc->cm->seq_params.use_highbitdepth) {
+    uint16_t *hbd_mean = CONVERT_TO_SHORTPTR(rsc->mean_buf);
+    const uint16_t mean = 1 << rsc->cm->seq_params.bit_depth;
+    for (int i = 0; i < RESTORATION_UNITSIZE_MAX * RESTORATION_UNITSIZE_MAX;
+         i++) {
+      hbd_mean[i] = mean;
+    }
+  } else {
+    memset(
+        rsc->mean_buf, 128,
+        sizeof(uint8_t) * RESTORATION_UNITSIZE_MAX * RESTORATION_UNITSIZE_MAX);
+  }
 }
 
 static int64_t try_restoration_unit(const RestSearchCtxt *rsc,
@@ -1556,6 +1593,8 @@ static AOM_INLINE void search_norestore(const RestorationTileLimits *limits,
   const int highbd = rsc->cm->seq_params.use_highbitdepth;
   rusi->sse[RESTORE_NONE] = sse_restoration_unit(
       limits, rsc->src, &rsc->cm->cur_frame->buf, rsc->plane, highbd);
+  rusi->src_var = var_restoration_unit(limits, &rsc->cm->cur_frame->buf,
+                                       rsc->plane, highbd);
 
   rsc->sse += rusi->sse[RESTORE_NONE];
 }
