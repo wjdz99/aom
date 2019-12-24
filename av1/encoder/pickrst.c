@@ -63,9 +63,9 @@ typedef int64_t (*sse_part_extractor_type)(const YV12_BUFFER_CONFIG *a,
                                            const YV12_BUFFER_CONFIG *b,
                                            int hstart, int width, int vstart,
                                            int height);
-typedef int64_t (*var_part_extractor_type)(const YV12_BUFFER_CONFIG *a,
-                                           int hstart, int width, int vstart,
-                                           int height);
+typedef uint64_t (*var_part_extractor_type)(const YV12_BUFFER_CONFIG *a,
+                                            int hstart, int width, int vstart,
+                                            int height);
 
 #if CONFIG_AV1_HIGHBITDEPTH
 #define NUM_EXTRACTORS (3 * (1 + 1))
@@ -97,9 +97,9 @@ static int64_t sse_restoration_unit(const RestorationTileLimits *limits,
       limits->v_start, limits->v_end - limits->v_start);
 }
 
-static int64_t var_restoration_unit(const RestorationTileLimits *limits,
-                                    const YV12_BUFFER_CONFIG *src, int plane,
-                                    int highbd) {
+static uint64_t var_restoration_unit(const RestorationTileLimits *limits,
+                                     const YV12_BUFFER_CONFIG *src, int plane,
+                                     int highbd) {
   return var_part_extractors[3 * highbd + plane](
       src, limits->h_start, limits->h_end - limits->h_start, limits->v_start,
       limits->v_end - limits->v_start);
@@ -135,8 +135,6 @@ typedef struct {
   int plane_width;
   int plane_height;
   RestUnitSearchInfo *rusi;
-  // Mean buffer for variance
-  uint8_t mean_buf[RESTORATION_UNITSIZE_MAX * RESTORATION_UNITSIZE_MAX];
 
   // Speed features
   const SPEED_FEATURES *sf;
@@ -194,20 +192,6 @@ static AOM_INLINE void init_rsc(const YV12_BUFFER_CONFIG *src,
   rsc->tile_rect = av1_whole_frame_rect(cm, is_uv);
   assert(src->crop_widths[is_uv] == dgd->crop_widths[is_uv]);
   assert(src->crop_heights[is_uv] == dgd->crop_heights[is_uv]);
-
-  // Memset the mean buffer
-  if (rsc->cm->seq_params.use_highbitdepth) {
-    uint16_t *hbd_mean = CONVERT_TO_SHORTPTR(rsc->mean_buf);
-    const uint16_t mean = 1 << rsc->cm->seq_params.bit_depth;
-    for (int i = 0; i < RESTORATION_UNITSIZE_MAX * RESTORATION_UNITSIZE_MAX;
-         i++) {
-      hbd_mean[i] = mean;
-    }
-  } else {
-    memset(
-        rsc->mean_buf, 128,
-        sizeof(uint8_t) * RESTORATION_UNITSIZE_MAX * RESTORATION_UNITSIZE_MAX);
-  }
 }
 
 static int64_t try_restoration_unit(const RestSearchCtxt *rsc,
@@ -1477,6 +1461,48 @@ static AOM_INLINE void search_wiener(const RestorationTileLimits *limits,
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
 
+  const MACROBLOCK *const x = rsc->x;
+  const int64_t bits_none = x->wiener_restore_cost[0];
+
+  const int thresh_table[QINDEX_RANGE] = {
+	  0,    20,   40,   60,   80,   100,  120,  141,  161,  181,  201,  221,
+	  241,  261,  281,  301,  321,  341,  361,  381,  402,  422,  442,  462,
+	  482,  502,  522,  542,  562,  582,  602,  622,  643,  663,  683,  703,
+	  723,  743,  763,  783,  803,  823,  843,  863,  883,  904,  924,  944,
+	  964,  984,  1004, 1024, 1044, 1064, 1084, 1104, 1124, 1144, 1165, 1185,
+	  1205, 1225, 1245, 1265, 1285, 1305, 1325, 1345, 1365, 1385, 1405, 1426,
+	  1446, 1466, 1486, 1506, 1526, 1546, 1566, 1586, 1606, 1626, 1646, 1667,
+	  1687, 1707, 1727, 1747, 1767, 1787, 1807, 1827, 1847, 1867, 1887, 1907,
+	  1928, 1948, 1968, 1988, 2008, 2028, 2048, 2068, 2088, 2108, 2128, 2148,
+	  2168, 2189, 2209, 2229, 2249, 2269, 2289, 2309, 2329, 2349, 2369, 2389,
+	  2409, 2429, 2450, 2470, 2490, 2510, 2530, 2550, 2570, 2590, 2610, 2630,
+	  2650, 2670, 2691, 2711, 2731, 2751, 2771, 2791, 2811, 2831, 2851, 2871,
+	  2891, 2911, 2931, 2952, 2972, 2992, 3012, 3032, 3052, 3072, 3092, 3112,
+	  3132, 3152, 3172, 3192, 3213, 3233, 3253, 3273, 3293, 3313, 3333, 3353,
+	  3373, 3393, 3413, 3433, 3453, 3474, 3494, 3514, 3534, 3554, 3574, 3594,
+	  3614, 3634, 3654, 3674, 3694, 3715, 3735, 3755, 3775, 3795, 3815, 3835,
+	  3855, 3875, 3895, 3915, 3935, 3955, 3976, 3996, 4016, 4036, 4056, 4076,
+	  4096, 4116, 4136, 4156, 4176, 4196, 4216, 4237, 4257, 4277, 4297, 4317,
+	  4337, 4357, 4377, 4397, 4417, 4437, 4457, 4477, 4498, 4518, 4538, 4558,
+	  4578, 4598, 4618, 4638, 4658, 4678, 4698, 4718, 4739, 4759, 4779, 4799,
+	  4819, 4839, 4859, 4879, 4899, 4919, 4939, 4959, 4979, 5000, 5020, 5040,
+	  5060, 5080, 5100, 5120
+  };
+  const int scale[3] = { 0, 1, 2 };
+  const int thresh = thresh_table[x->qindex] *
+                     scale[rsc->sf->lpf_sf.prune_wiener_based_on_none];
+  if (rsc->sf->lpf_sf.prune_wiener_based_on_none) {
+    if (rusi->src_var * 256 / rusi->sse[RESTORE_NONE] < thresh) {
+      rsc->bits += bits_none;
+      rsc->sse += rusi->sse[RESTORE_NONE];
+      rusi->best_rtype[RESTORE_WIENER - 1] = RESTORE_NONE;
+      rusi->sse[RESTORE_WIENER] = INT64_MAX;
+      if (rsc->sf->lpf_sf.prune_sgr_based_on_wiener == 2)
+        rusi->skip_sgr_eval = 1;
+      return;
+    }
+  }
+
   const int wiener_win =
       (rsc->plane == AOM_PLANE_Y) ? WIENER_WIN : WIENER_WIN_CHROMA;
 
@@ -1507,8 +1533,6 @@ static AOM_INLINE void search_wiener(const RestorationTileLimits *limits,
                     limits->h_start, limits->h_end, limits->v_start,
                     limits->v_end, rsc->dgd_stride, rsc->src_stride, M, H);
 #endif
-  const MACROBLOCK *const x = rsc->x;
-  const int64_t bits_none = x->wiener_restore_cost[0];
 
   if (!wiener_decompose_sep_sym(reduced_wiener_win, M, H, vfilter, hfilter)) {
     rsc->bits += bits_none;
@@ -1593,8 +1617,8 @@ static AOM_INLINE void search_norestore(const RestorationTileLimits *limits,
   const int highbd = rsc->cm->seq_params.use_highbitdepth;
   rusi->sse[RESTORE_NONE] = sse_restoration_unit(
       limits, rsc->src, &rsc->cm->cur_frame->buf, rsc->plane, highbd);
-  rusi->src_var = var_restoration_unit(limits, &rsc->cm->cur_frame->buf,
-                                       rsc->plane, highbd);
+  rusi->src_var = (int64_t)var_restoration_unit(
+      limits, &rsc->cm->cur_frame->buf, rsc->plane, highbd);
 
   rsc->sse += rusi->sse[RESTORE_NONE];
 }
