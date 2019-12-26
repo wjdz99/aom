@@ -834,10 +834,10 @@ static void update_inter_mode_stats(FRAME_CONTEXT *fc, FRAME_COUNTS *counts,
 #endif
       if (allow_update_cdf) update_cdf(fc->zeromv_cdf[mode_ctx], 1, 2);
       mode_ctx = (mode_context >> REFMV_OFFSET) & REFMV_CTX_MASK;
+#if !CONFIG_NEW_INTER_MODES
 #if CONFIG_ENTROPY_STATS
       ++counts->refmv_mode[mode_ctx][mode != NEARESTMV];
 #endif
-#if !CONFIG_NEW_INTER_MODES
       if (allow_update_cdf) {
         update_cdf(fc->refmv_cdf[mode_ctx], mode != NEARESTMV, 2);
       }
@@ -1596,36 +1596,32 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
           }
         } else {
 #endif  // CONFIG_FLEX_MVRES
+#if CONFIG_ENTROPY_STATS
           for (idx = 0; idx < 2; ++idx) {
             if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
-#if CONFIG_ENTROPY_STATS
               uint8_t drl_ctx =
                   av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
               ++counts->drl_mode[drl_ctx][mbmi->ref_mv_idx != idx];
-#endif
               if (mbmi->ref_mv_idx == idx) break;
             }
           }
+#endif  // CONFIG_ENTROPY_STATS
 #if CONFIG_FLEX_MVRES
         }
 #endif  // CONFIG_FLEX_MVRES
       }
 
+#if CONFIG_ENTROPY_STATS
       if (have_nearmv_in_inter_mode(mbmi->mode)) {
         uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
         int idx;
 
 #if CONFIG_NEW_INTER_MODES
-        // TODO(siroh): it seems like this loop does nothing unless
-        // CONFIG_ENTROPY_STATS is set should the whole loop be moved into the
-        // guard?
         for (idx = 0; idx < 3; ++idx) {
           if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
-#if CONFIG_ENTROPY_STATS
             uint8_t drl_ctx =
                 av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
             ++counts->drl_mode[drl_ctx][mbmi->ref_mv_idx != idx - 1];
-#endif  // CONFIG_ENTROPY_STATS
 
             if (mbmi->ref_mv_idx == idx - 1) break;
           }
@@ -1633,17 +1629,16 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
 #else
         for (idx = 1; idx < 3; ++idx) {
           if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
-#if CONFIG_ENTROPY_STATS
             uint8_t drl_ctx =
                 av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
             ++counts->drl_mode[drl_ctx][mbmi->ref_mv_idx != idx - 1];
-#endif  // CONFIG_ENTROPY_STATS
 
             if (mbmi->ref_mv_idx == idx - 1) break;
           }
         }
 #endif  // CONFIG_NEW_INTER_MODES
       }
+#endif  // CONFIG_ENTROPY_STATS
 
       if (have_newmv_in_inter_mode(mbmi->mode)) {
 #if CONFIG_FLEX_MVRES
