@@ -94,6 +94,30 @@
       "revId": "e7120d812f4c605be8be033137bac8638a047211",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f182be1c_b57c8900",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 5952,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2019-12-26T19:50:53Z",
+      "side": 1,
+      "message": "If the vmaf lib is not available and --tune\u003dvmaf was passed in, the program will exit with the error:\n  Option tune\u003dvmaf_with_preprocessing: Invalid value \u0027vmaf_with_preprocessing\u0027",
+      "parentUuid": "56c245f4_9e4deec5",
+      "range": {
+        "startLine": 5952,
+        "startChar": 4,
+        "endLine": 5952,
+        "endChar": 20
+      },
+      "revId": "e7120d812f4c605be8be033137bac8638a047211",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
