@@ -3399,6 +3399,10 @@ uint32_t av1_write_sequence_header_obu(AV1_COMP *cpi, uint8_t *const dst) {
   add_trailing_bits(&wb);
 
   size = aom_wb_bytes_written(&wb);
+
+  // Prevent SequenceHeader change after writting
+  cpi->seq_params_locked = 1;
+
   return size;
 }
 
