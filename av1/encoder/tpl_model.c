@@ -82,12 +82,16 @@ static AOM_INLINE int64_t tpl_get_satd_cost(const MACROBLOCK *x,
   return aom_satd(coeff, pix_num);
 }
 
-static int rate_estimator(const tran_low_t *qcoeff, int eob, TX_SIZE tx_size) {
+static int rate_estimator(const MACROBLOCK *x, const tran_low_t *qcoeff,
+                          int eob, TX_SIZE tx_size) {
   const SCAN_ORDER *const scan_order = &av1_default_scan_orders[tx_size];
 
   assert((1 << num_pels_log2_lookup[txsize_to_bsize[tx_size]]) >= eob);
-
   int rate_cost = 1;
+  TXB_CTX txb_ctx = { 0, 0 };
+  rate_cost = av1_cost_coeffs_txb(x, 0, 0, tx_size, DCT_DCT, &txb_ctx, 0);
+
+  return rate_cost;
 
   for (int idx = 0; idx < eob; ++idx) {
     int abs_level = abs(qcoeff[scan_order->scan[idx]]);
@@ -103,19 +107,18 @@ static AOM_INLINE void txfm_quant_rdcost(
     tran_low_t *qcoeff, tran_low_t *dqcoeff, int bw, int bh, TX_SIZE tx_size,
     int *rate_cost, int64_t *recon_error, int64_t *sse) {
   const MACROBLOCKD *xd = &x->e_mbd;
-  uint16_t eob;
   av1_subtract_block(xd, bh, bw, src_diff, diff_stride, src, src_stride, dst,
                      dst_stride);
   tpl_fwd_txfm(src_diff, diff_stride, coeff, tx_size, xd->bd,
                is_cur_buf_hbd(xd));
 
-  get_quantize_error(x, 0, coeff, qcoeff, dqcoeff, tx_size, &eob, recon_error,
-                     sse);
+  get_quantize_error(x, 0, coeff, qcoeff, dqcoeff, tx_size,
+                     &x->plane[0].eobs[0], recon_error, sse);
 
-  *rate_cost = rate_estimator(qcoeff, eob, tx_size);
+  *rate_cost = rate_estimator(x, qcoeff, x->plane[0].eobs[0], tx_size);
 
   av1_inverse_transform_block(xd, dqcoeff, 0, DCT_DCT, tx_size, dst, dst_stride,
-                              eob, 0);
+                              x->plane[0].eobs[0], 0);
 }
 
 static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
@@ -217,9 +220,15 @@ static AOM_INLINE void mode_estimation(
   DECLARE_ALIGNED(32, tran_low_t, qcoeff[MC_FLOW_NUM_PELS]);
   DECLARE_ALIGNED(32, tran_low_t, dqcoeff[MC_FLOW_NUM_PELS]);
   DECLARE_ALIGNED(32, tran_low_t, best_coeff[MC_FLOW_NUM_PELS]);
+  uint16_t eob;
   uint8_t *predictor =
       is_cur_buf_hbd(xd) ? CONVERT_TO_BYTEPTR(predictor8) : predictor8;
   int64_t recon_error = 1, sse = 1;
+
+  x->plane[0].coeff = coeff;
+  x->plane[0].qcoeff = qcoeff;
+  x->plane[0].eobs = &eob;
+  xd->plane[0].dqcoeff = dqcoeff;
 
   memset(tpl_stats, 0, sizeof(*tpl_stats));
 
@@ -378,11 +387,10 @@ static AOM_INLINE void mode_estimation(
   }
 
   if (best_inter_cost < INT64_MAX) {
-    uint16_t eob;
     get_quantize_error(x, 0, best_coeff, qcoeff, dqcoeff, tx_size, &eob,
                        &recon_error, &sse);
 
-    const int rate_cost = rate_estimator(qcoeff, eob, tx_size);
+    const int rate_cost = rate_estimator(x, qcoeff, eob, tx_size);
     tpl_stats->srcrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
   }
 
@@ -977,6 +985,9 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
   int bottom_index, top_index;
   EncodeFrameParams this_frame_params = *frame_params;
 
+  int64_t rate_cost[MAX_LENGTH_TPL_FRAME_STATS] = { 0 };
+  int64_t total_cost = 0;
+
   cm->current_frame.frame_type = frame_params->frame_type;
   for (int gf_index = gf_group->index; gf_index < gf_group->size; ++gf_index) {
     av1_configure_buffer_updates(cpi, &this_frame_params,
@@ -1003,6 +1014,10 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
 
   init_tpl_stats(cpi);
 
+  ThreadData *td = &cpi->td;
+  MACROBLOCK *x = &td->mb;
+  av1_fill_coeff_costs(x, cm->fc, av1_num_planes(cm));
+
   if (cpi->oxcf.enable_tpl_model == 1) {
     // Backward propagation from tpl_group_frames to 1.
     for (int frame_idx = gf_group->index; frame_idx < cpi->tpl_gf_group_frames;
@@ -1015,6 +1030,18 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
 
       aom_extend_frame_borders(cpi->tpl_frame[frame_idx].rec_picture,
                                av1_num_planes(cm));
+
+      TplDepStats *tpl_stats = cpi->tpl_frame[frame_idx].tpl_stats_ptr;
+      int tpl_stride = cpi->tpl_frame[frame_idx].stride;
+      const int step = 1 << cpi->tpl_stats_block_mis_log2;
+      for (int row = 0; row < cm->mi_rows; row += step) {
+        for (int col = 0; col < cm->mi_cols; col += step) {
+          TplDepStats *this_stats =
+              &tpl_stats[av1_tpl_ptr_pos(cpi, row, col, tpl_stride)];
+          rate_cost[frame_idx] += this_stats->recrf_rate;
+        }
+      }
+      total_cost += rate_cost[frame_idx];
     }
 
     for (int frame_idx = cpi->tpl_gf_group_frames - 1;
@@ -1024,6 +1051,9 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
         continue;
 
       mc_flow_synthesizer(cpi, frame_idx);
+
+      fprintf(stderr, "frame idx = %d, rate cost = %lf\n", frame_idx,
+              (double)rate_cost[frame_idx] / total_cost);
     }
   }
 
