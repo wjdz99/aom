@@ -82,19 +82,13 @@ static AOM_INLINE int64_t tpl_get_satd_cost(const MACROBLOCK *x,
   return aom_satd(coeff, pix_num);
 }
 
-static int rate_estimator(const tran_low_t *qcoeff, int eob, TX_SIZE tx_size) {
-  const SCAN_ORDER *const scan_order = &av1_default_scan_orders[tx_size];
+static int rate_estimator(const MACROBLOCK *x, uint16_t *eob, TX_SIZE tx_size) {
+  (void)eob;
+  assert((1 << num_pels_log2_lookup[txsize_to_bsize[tx_size]]) >= *eob);
+  TXB_CTX txb_ctx = { 0, 0 };
+  int rate_cost = av1_cost_coeffs_txb(x, 0, 0, tx_size, DCT_DCT, &txb_ctx, 0);
 
-  assert((1 << num_pels_log2_lookup[txsize_to_bsize[tx_size]]) >= eob);
-
-  int rate_cost = 1;
-
-  for (int idx = 0; idx < eob; ++idx) {
-    int abs_level = abs(qcoeff[scan_order->scan[idx]]);
-    rate_cost += (int)(log(abs_level + 1.0) / log(2.0)) + 1;
-  }
-
-  return (rate_cost << AV1_PROB_COST_SHIFT);
+  return rate_cost;
 }
 
 static AOM_INLINE void txfm_quant_rdcost(
@@ -103,19 +97,19 @@ static AOM_INLINE void txfm_quant_rdcost(
     tran_low_t *qcoeff, tran_low_t *dqcoeff, int bw, int bh, TX_SIZE tx_size,
     int *rate_cost, int64_t *recon_error, int64_t *sse) {
   const MACROBLOCKD *xd = &x->e_mbd;
-  uint16_t eob;
+  uint16_t *eob = &x->plane[0].eobs[0];
   av1_subtract_block(xd, bh, bw, src_diff, diff_stride, src, src_stride, dst,
                      dst_stride);
   tpl_fwd_txfm(src_diff, diff_stride, coeff, tx_size, xd->bd,
                is_cur_buf_hbd(xd));
 
-  get_quantize_error(x, 0, coeff, qcoeff, dqcoeff, tx_size, &eob, recon_error,
+  get_quantize_error(x, 0, coeff, qcoeff, dqcoeff, tx_size, eob, recon_error,
                      sse);
 
-  *rate_cost = rate_estimator(qcoeff, eob, tx_size);
+  *rate_cost = rate_estimator(x, eob, tx_size);
 
   av1_inverse_transform_block(xd, dqcoeff, 0, DCT_DCT, tx_size, dst, dst_stride,
-                              eob, 0);
+                              *eob, 0);
 }
 
 static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
@@ -217,9 +211,15 @@ static AOM_INLINE void mode_estimation(
   DECLARE_ALIGNED(32, tran_low_t, qcoeff[MC_FLOW_NUM_PELS]);
   DECLARE_ALIGNED(32, tran_low_t, dqcoeff[MC_FLOW_NUM_PELS]);
   DECLARE_ALIGNED(32, tran_low_t, best_coeff[MC_FLOW_NUM_PELS]);
+  uint16_t eob;
   uint8_t *predictor =
       is_cur_buf_hbd(xd) ? CONVERT_TO_BYTEPTR(predictor8) : predictor8;
   int64_t recon_error = 1, sse = 1;
+
+  x->plane[0].coeff = coeff;
+  x->plane[0].qcoeff = qcoeff;
+  x->plane[0].eobs = &eob;
+  xd->plane[0].dqcoeff = dqcoeff;
 
   memset(tpl_stats, 0, sizeof(*tpl_stats));
 
@@ -378,11 +378,10 @@ static AOM_INLINE void mode_estimation(
   }
 
   if (best_inter_cost < INT64_MAX) {
-    uint16_t eob;
     get_quantize_error(x, 0, best_coeff, qcoeff, dqcoeff, tx_size, &eob,
                        &recon_error, &sse);
 
-    const int rate_cost = rate_estimator(qcoeff, eob, tx_size);
+    const int rate_cost = rate_estimator(x, &eob, tx_size);
     tpl_stats->srcrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
   }
 
@@ -1010,6 +1009,10 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
 
   init_tpl_stats(cpi);
 
+  ThreadData *td = &cpi->td;
+  MACROBLOCK *x = &td->mb;
+  av1_fill_coeff_costs(x, cm->fc, av1_num_planes(cm));
+
   if (cpi->oxcf.enable_tpl_model == 1) {
     // Backward propagation from tpl_group_frames to 1.
     for (int frame_idx = gf_group->index; frame_idx < cpi->tpl_gf_group_frames;
@@ -1071,6 +1074,8 @@ static AOM_INLINE void get_tpl_forward_stats(AV1_COMP *cpi, MACROBLOCK *x,
   xd->left_mbmi = NULL;
   xd->mi[0]->sb_type = bsize;
   xd->mi[0]->motion_mode = SIMPLE_TRANSLATION;
+  xd->mi[0]->filter_intra_mode_info.use_filter_intra = 0;
+  xd->mi[0]->segment_id = 0;
   xd->block_ref_scale_factors[0] = &sf;
 
   for (int mi_row = 0; mi_row < cm->mi_rows; mi_row += mi_height) {
