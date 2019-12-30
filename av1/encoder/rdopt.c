@@ -4316,6 +4316,14 @@ static AOM_INLINE void super_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
     return;
   }
 
+  int is_intra_in_inter =
+      !frame_is_intra_only(&cpi->common) && !is_inter_block(xd->mi[0]);
+  int tx_size_search_method = x->tx_size_search_method;
+  int tx_mode_search_type = x->tx_mode_search_type;
+  if (is_intra_in_inter) {
+    x->tx_size_search_method = USE_FULL_RD;
+    x->tx_mode_search_type = TX_MODE_SELECT;
+  }
   if (xd->lossless[xd->mi[0]->segment_id]) {
     choose_smallest_tx_size(cpi, x, rd_stats, ref_best_rd, bs);
   } else if (x->tx_size_search_method == USE_LARGESTALL) {
@@ -4323,6 +4331,8 @@ static AOM_INLINE void super_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   } else {
     choose_tx_size_type_from_rd(cpi, x, rd_stats, ref_best_rd, bs);
   }
+  x->tx_size_search_method = tx_size_search_method;
+  x->tx_mode_search_type = tx_mode_search_type;
 
   // Save the RD search results into tx_rd_record.
   if (is_mb_rd_hash_enabled) {

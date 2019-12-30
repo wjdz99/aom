@@ -402,6 +402,8 @@ static void set_good_speed_features_framesize_independent(
     sf->intra_sf.disable_smooth_intra =
         !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
 
+    sf->winner_mode_sf.tx_size_search_level =
+        frame_is_intra_only(&cpi->common) ? 0 : 2;
     sf->rd_sf.perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
 
     sf->lpf_sf.prune_sgr_based_on_wiener =
