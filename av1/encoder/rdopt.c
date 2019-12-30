@@ -12887,8 +12887,8 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
   }
 
   const int is_directional_mode = av1_is_directional_mode(mode);
-  if (is_directional_mode && av1_use_angle_delta(bsize) &&
-      cpi->oxcf.enable_angle_delta) {
+  if (0) {  // is_directional_mode && av1_use_angle_delta(bsize) &&
+    // cpi->oxcf.enable_angle_delta) {
     if (sf->intra_sf.intra_pruning_with_hog &&
         !search_state->angle_stats_ready) {
       prune_intra_mode_with_hog(x, bsize,
@@ -12911,7 +12911,7 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
   }
 
   // Pick filter intra modes.
-  if (mode == DC_PRED && av1_filter_intra_allowed_bsize(cm, bsize)) {
+  if (0) {  // mode == DC_PRED && av1_filter_intra_allowed_bsize(cm, bsize)) {
     int try_filter_intra = 0;
     int64_t best_rd_so_far = INT64_MAX;
     if (rd_stats_y->rate != INT_MAX) {
