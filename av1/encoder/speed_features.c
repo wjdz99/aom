@@ -92,8 +92,8 @@ static unsigned int coeff_opt_dist_thresholds[5][MODE_EVAL_TYPES] = {
 // Index 1 and 2 are applicable when enable_winner_mode_for_tx_size_srch speed
 // feature is ON
 static TX_SIZE_SEARCH_METHOD tx_size_search_methods[3][MODE_EVAL_TYPES] = {
-  { USE_FULL_RD, USE_LARGESTALL, USE_FULL_RD },
-  { USE_FAST_RD, USE_LARGESTALL, USE_FULL_RD },
+  { USE_FULL_RD, USE_FULL_RD, USE_FULL_RD },
+  { USE_FULL_RD, USE_FULL_RD, USE_FULL_RD },
   { USE_LARGESTALL, USE_LARGESTALL, USE_FULL_RD }
 };
 
@@ -402,7 +402,13 @@ static void set_good_speed_features_framesize_independent(
     sf->intra_sf.disable_smooth_intra =
         !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
 
+    /*sf->winner_mode_sf.tx_size_search_level =
+        frame_is_intra_only(&cpi->common) ? 0 : 2;*/
     sf->rd_sf.perform_coeff_opt = is_boosted_arf2_bwd_type ? 2 : 3;
+    sf->winner_mode_sf.enable_winner_mode_for_tx_size_srch =
+        frame_is_intra_only(&cpi->common) ? 0 : 1;
+    sf->winner_mode_sf.enable_multiwinner_mode_process =
+        frame_is_intra_only(&cpi->common) ? 0 : 1;
 
     sf->lpf_sf.prune_sgr_based_on_wiener =
         cm->allow_screen_content_tools ? 0 : 1;

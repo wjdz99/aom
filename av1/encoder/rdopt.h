@@ -277,6 +277,10 @@ static INLINE int is_winner_mode_processing_enabled(
     const struct AV1_COMP *cpi, MB_MODE_INFO *const mbmi,
     const PREDICTION_MODE best_mode) {
   const SPEED_FEATURES *sf = &cpi->sf;
+  if (cpi->common.current_frame.frame_type == KEY_FRAME)
+    return 0;
+  else
+    return 1;
 
   // TODO(any): Move block independent condition checks to frame level
   if (is_inter_block(mbmi)) {
@@ -321,6 +325,7 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
       set_tx_size_search_method(cpi, x, 0, 0);
       // Set default transform type prune
       set_tx_type_prune(sf, x, 0, 0);
+      x->is_winner = 0;
       break;
     case MODE_EVAL:
       x->use_default_intra_tx_type =
@@ -347,6 +352,7 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
       set_tx_type_prune(
           sf, x, sf->tx_sf.tx_type_search.enable_winner_mode_tx_type_pruning,
           0);
+      x->is_winner = 0;
       break;
     case WINNER_MODE_EVAL:
       x->use_default_inter_tx_type = 0;
@@ -370,6 +376,7 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
       set_tx_type_prune(
           sf, x, sf->tx_sf.tx_type_search.enable_winner_mode_tx_type_pruning,
           1);
+      x->is_winner = 1;
 
       // Reset hash state for winner mode processing. Winner mode and subsequent
       // transform/mode evaluations (palette/IntraBC) cann't reuse old data as

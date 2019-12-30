@@ -4316,6 +4316,14 @@ static AOM_INLINE void super_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
     return;
   }
 
+  int is_intra_in_inter =
+      !frame_is_intra_only(&cpi->common) && !is_inter_block(xd->mi[0]);
+  int tx_size_search_method = x->tx_size_search_method;
+  int tx_mode_search_type = x->tx_mode_search_type;
+  if (!x->is_winner && is_intra_in_inter) {
+    x->tx_size_search_method = USE_LARGESTALL;
+    x->tx_mode_search_type = TX_MODE_LARGEST;
+  }
   if (xd->lossless[xd->mi[0]->segment_id]) {
     choose_smallest_tx_size(cpi, x, rd_stats, ref_best_rd, bs);
   } else if (x->tx_size_search_method == USE_LARGESTALL) {
@@ -4323,6 +4331,8 @@ static AOM_INLINE void super_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   } else {
     choose_tx_size_type_from_rd(cpi, x, rd_stats, ref_best_rd, bs);
   }
+  x->tx_size_search_method = tx_size_search_method;
+  x->tx_mode_search_type = tx_mode_search_type;
 
   // Save the RD search results into tx_rd_record.
   if (is_mb_rd_hash_enabled) {
@@ -4572,6 +4582,7 @@ static void store_winner_mode_stats(const AV1_COMMON *const cm, MACROBLOCK *x,
   // TODO(any): Winner mode processing is currently not applicable for palette
   // mode in Inter frames. Clean-up the following code, once support is added
   if (!frame_is_intra_only(cm) && is_palette_mode) return;
+  if (is_inter_block(mbmi)) return;
 
   const int max_winner_mode_count = frame_is_intra_only(cm)
                                         ? MAX_WINNER_MODE_COUNT_INTRA
@@ -12887,8 +12898,8 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
   }
 
   const int is_directional_mode = av1_is_directional_mode(mode);
-  if (is_directional_mode && av1_use_angle_delta(bsize) &&
-      cpi->oxcf.enable_angle_delta) {
+  if (0) {  // is_directional_mode && av1_use_angle_delta(bsize) &&
+    // cpi->oxcf.enable_angle_delta) {
     if (sf->intra_sf.intra_pruning_with_hog &&
         !search_state->angle_stats_ready) {
       prune_intra_mode_with_hog(x, bsize,
@@ -12911,7 +12922,7 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
   }
 
   // Pick filter intra modes.
-  if (mode == DC_PRED && av1_filter_intra_allowed_bsize(cm, bsize)) {
+  if (0) {  // mode == DC_PRED && av1_filter_intra_allowed_bsize(cm, bsize)) {
     int try_filter_intra = 0;
     int64_t best_rd_so_far = INT64_MAX;
     if (rd_stats_y->rate != INT_MAX) {
