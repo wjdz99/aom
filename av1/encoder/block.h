@@ -36,7 +36,7 @@ extern "C" {
 #define MC_FLOW_NUM_PELS (MC_FLOW_BSIZE_1D * MC_FLOW_BSIZE_1D)
 #define MAX_MC_FLOW_BLK_IN_SB (MAX_SB_SIZE / MC_FLOW_BSIZE_1D)
 #define MAX_WINNER_MODE_COUNT_INTRA 3
-#define MAX_WINNER_MODE_COUNT_INTER 1
+#define MAX_WINNER_MODE_COUNT_INTER 3
 typedef struct {
   MB_MODE_INFO mbmi;
   RD_STATS rd_cost;
@@ -441,6 +441,7 @@ struct macroblock {
   // Threshold used to decide the applicability of R-D optimization of
   // quantized coeffs
   uint32_t coeff_opt_dist_threshold;
+  int is_winner;
 
 #if !CONFIG_REALTIME_ONLY
   int quad_tree_idx;
