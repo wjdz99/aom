@@ -724,12 +724,14 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->reuse_inter_pred_nonrd = 0;
     sf->nonrd_reduce_golden_mode_search = 0;
     sf->nonrd_use_blockyrd_interp_filter = 1;
-    sf->nonrd_merge_partition = 1;
+    sf->nonrd_check_partition_merge = 1;
+    // sf->nonrd_check_partition_split = 1;
     sf->use_nonrd_altref_frame = 1;
     sf->mv_sf.subpel_search_method = SUBPEL_TREE;
   }
   if (speed >= 8) {
-    sf->nonrd_merge_partition = 0;
+    sf->nonrd_check_partition_merge = 0;
+    sf->nonrd_check_partition_split = 0;
     sf->estimate_motion_for_var_based_partition = 0;
     sf->short_circuit_low_temp_var = 1;
     sf->reuse_inter_pred_nonrd = 1;
@@ -996,7 +998,8 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->enable_winner_mode_for_use_tx_domain_dist = 0;
   sf->enable_multiwinner_mode_process = 0;
   sf->disable_smooth_intra = 0;
-  sf->nonrd_merge_partition = 0;
+  sf->nonrd_check_partition_merge = 0;
+  sf->nonrd_check_partition_split = 0;
 
   init_part_sf(&sf->part_sf);
   init_mv_sf(&sf->mv_sf);
