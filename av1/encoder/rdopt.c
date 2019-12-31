@@ -51,6 +51,7 @@
 #include "av1/encoder/hybrid_fwd_txfm.h"
 #include "av1/encoder/mcomp.h"
 #include "av1/encoder/ml.h"
+#include "av1/encoder/model_rd.h"
 #include "av1/encoder/mode_prune_model_weights.h"
 #include "av1/encoder/palette.h"
 #include "av1/encoder/pustats.h"
@@ -58,6 +59,7 @@
 #include "av1/encoder/ratectrl.h"
 #include "av1/encoder/rd.h"
 #include "av1/encoder/rdopt.h"
+#include "av1/encoder/rdopt_utils.h"
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/tokenize.h"
 #include "av1/encoder/tpl_model.h"
@@ -83,54 +85,11 @@ typedef void (*model_rd_from_sse_type)(const AV1_COMP *const cpi,
                                        int64_t sse, int num_samples, int *rate,
                                        int64_t *dist);
 
-static AOM_INLINE void model_rd_for_sb(const AV1_COMP *const cpi,
-                                       BLOCK_SIZE bsize, MACROBLOCK *x,
-                                       MACROBLOCKD *xd, int plane_from,
-                                       int plane_to, int *out_rate_sum,
-                                       int64_t *out_dist_sum, int *skip_txfm_sb,
-                                       int64_t *skip_sse_sb, int *plane_rate,
-                                       int64_t *plane_sse, int64_t *plane_dist);
-static AOM_INLINE void model_rd_for_sb_with_curvfit(
-    const AV1_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
-    int plane_from, int plane_to, int *out_rate_sum, int64_t *out_dist_sum,
-    int *skip_txfm_sb, int64_t *skip_sse_sb, int *plane_rate,
-    int64_t *plane_sse, int64_t *plane_dist);
-static AOM_INLINE void model_rd_for_sb_with_surffit(
-    const AV1_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
-    int plane_from, int plane_to, int *out_rate_sum, int64_t *out_dist_sum,
-    int *skip_txfm_sb, int64_t *skip_sse_sb, int *plane_rate,
-    int64_t *plane_sse, int64_t *plane_dist);
-static AOM_INLINE void model_rd_for_sb_with_dnn(
-    const AV1_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
-    int plane_from, int plane_to, int *out_rate_sum, int64_t *out_dist_sum,
-    int *skip_txfm_sb, int64_t *skip_sse_sb, int *plane_rate,
-    int64_t *plane_sse, int64_t *plane_dist);
 static AOM_INLINE void model_rd_for_sb_with_fullrdy(
     const AV1_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
     int plane_from, int plane_to, int *out_rate_sum, int64_t *out_dist_sum,
     int *skip_txfm_sb, int64_t *skip_sse_sb, int *plane_rate,
     int64_t *plane_sse, int64_t *plane_dist);
-
-static AOM_INLINE void model_rd_from_sse(const AV1_COMP *const cpi,
-                                         const MACROBLOCK *const x,
-                                         BLOCK_SIZE plane_bsize, int plane,
-                                         int64_t sse, int num_samples,
-                                         int *rate, int64_t *dist);
-static AOM_INLINE void model_rd_with_dnn(const AV1_COMP *const cpi,
-                                         const MACROBLOCK *const x,
-                                         BLOCK_SIZE plane_bsize, int plane,
-                                         int64_t sse, int num_samples,
-                                         int *rate, int64_t *dist);
-static AOM_INLINE void model_rd_with_curvfit(const AV1_COMP *const cpi,
-                                             const MACROBLOCK *const x,
-                                             BLOCK_SIZE plane_bsize, int plane,
-                                             int64_t sse, int num_samples,
-                                             int *rate, int64_t *dist);
-static AOM_INLINE void model_rd_with_surffit(const AV1_COMP *const cpi,
-                                             const MACROBLOCK *const x,
-                                             BLOCK_SIZE plane_bsize, int plane,
-                                             int64_t sse, int num_samples,
-                                             int *rate, int64_t *dist);
 
 enum {
   MODELRD_LEGACY,
@@ -141,7 +100,15 @@ enum {
   MODELRD_TYPES
 } UENUM1BYTE(ModelRdType);
 
-static model_rd_for_sb_type model_rd_sb_fn[MODELRD_TYPES] = {
+static int inter_mode_data_block_idx(BLOCK_SIZE bsize) {
+  if (bsize == BLOCK_4X4 || bsize == BLOCK_4X8 || bsize == BLOCK_8X4 ||
+      bsize == BLOCK_4X16 || bsize == BLOCK_16X4) {
+    return -1;
+  }
+  return 1;
+}
+
+model_rd_for_sb_type model_rd_sb_fn[MODELRD_TYPES] = {
   model_rd_for_sb, model_rd_for_sb_with_curvfit, model_rd_for_sb_with_surffit,
   model_rd_for_sb_with_dnn, model_rd_for_sb_with_fullrdy
 };
@@ -615,315 +582,6 @@ static int find_last_single_ref_mode_idx(const THR_MODES *mode_order) {
   return -1;
 }
 
-static const THR_MODES intra_to_mode_idx[INTRA_MODE_NUM] = {
-  THR_DC,         // DC_PRED,
-  THR_V_PRED,     // V_PRED,
-  THR_H_PRED,     // H_PRED,
-  THR_D45_PRED,   // D45_PRED,
-  THR_D135_PRED,  // D135_PRED,
-  THR_D113_PRED,  // D113_PRED,
-  THR_D157_PRED,  // D157_PRED,
-  THR_D203_PRED,  // D203_PRED,
-  THR_D67_PRED,   // D67_PRED,
-  THR_SMOOTH,     // SMOOTH_PRED,
-  THR_SMOOTH_V,   // SMOOTH_V_PRED,
-  THR_SMOOTH_H,   // SMOOTH_H_PRED,
-  THR_PAETH,      // PAETH_PRED,
-};
-
-/* clang-format off */
-static const THR_MODES single_inter_to_mode_idx[SINGLE_INTER_MODE_NUM]
-                                             [REF_FRAMES] = {
-  // NEARESTMV,
-  { THR_INVALID, THR_NEARESTMV, THR_NEARESTL2, THR_NEARESTL3,
-    THR_NEARESTG, THR_NEARESTB, THR_NEARESTA2, THR_NEARESTA, },
-  // NEARMV,
-  { THR_INVALID, THR_NEARMV, THR_NEARL2, THR_NEARL3,
-    THR_NEARG, THR_NEARB, THR_NEARA2, THR_NEARA, },
-  // GLOBALMV,
-  { THR_INVALID, THR_GLOBALMV, THR_GLOBALL2, THR_GLOBALL3,
-    THR_GLOBALG, THR_GLOBALB, THR_GLOBALA2, THR_GLOBALA, },
-  // NEWMV,
-  { THR_INVALID, THR_NEWMV, THR_NEWL2, THR_NEWL3,
-    THR_NEWG, THR_NEWB, THR_NEWA2, THR_NEWA, },
-};
-/* clang-format on */
-
-/* clang-format off */
-static const THR_MODES comp_inter_to_mode_idx[COMP_INTER_MODE_NUM][REF_FRAMES]
-                                     [REF_FRAMES] = {
-  // NEAREST_NEARESTMV,
-  {
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-    { THR_INVALID, THR_INVALID,
-      THR_COMP_NEAREST_NEARESTLL2, THR_COMP_NEAREST_NEARESTLL3,
-      THR_COMP_NEAREST_NEARESTLG, THR_COMP_NEAREST_NEARESTLB,
-      THR_COMP_NEAREST_NEARESTLA2, THR_COMP_NEAREST_NEARESTLA, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEAREST_NEARESTL2B,
-      THR_COMP_NEAREST_NEARESTL2A2, THR_COMP_NEAREST_NEARESTL2A, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEAREST_NEARESTL3B,
-      THR_COMP_NEAREST_NEARESTL3A2, THR_COMP_NEAREST_NEARESTL3A, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEAREST_NEARESTGB,
-      THR_COMP_NEAREST_NEARESTGA2, THR_COMP_NEAREST_NEARESTGA, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEAREST_NEARESTBA, },
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-  },
-  // NEAR_NEARMV,
-  {
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-    { THR_INVALID, THR_INVALID,
-      THR_COMP_NEAR_NEARLL2, THR_COMP_NEAR_NEARLL3,
-      THR_COMP_NEAR_NEARLG, THR_COMP_NEAR_NEARLB,
-      THR_COMP_NEAR_NEARLA2, THR_COMP_NEAR_NEARLA, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEAR_NEARL2B,
-      THR_COMP_NEAR_NEARL2A2, THR_COMP_NEAR_NEARL2A, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEAR_NEARL3B,
-      THR_COMP_NEAR_NEARL3A2, THR_COMP_NEAR_NEARL3A, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEAR_NEARGB,
-      THR_COMP_NEAR_NEARGA2, THR_COMP_NEAR_NEARGA, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEAR_NEARBA, },
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-  },
-  // NEAREST_NEWMV,
-  {
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-    { THR_INVALID, THR_INVALID,
-      THR_COMP_NEAREST_NEWLL2, THR_COMP_NEAREST_NEWLL3,
-      THR_COMP_NEAREST_NEWLG, THR_COMP_NEAREST_NEWLB,
-      THR_COMP_NEAREST_NEWLA2, THR_COMP_NEAREST_NEWLA, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEAREST_NEWL2B,
-      THR_COMP_NEAREST_NEWL2A2, THR_COMP_NEAREST_NEWL2A, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEAREST_NEWL3B,
-      THR_COMP_NEAREST_NEWL3A2, THR_COMP_NEAREST_NEWL3A, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEAREST_NEWGB,
-      THR_COMP_NEAREST_NEWGA2, THR_COMP_NEAREST_NEWGA, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEAREST_NEWBA, },
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-  },
-  // NEW_NEARESTMV,
-  {
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-    { THR_INVALID, THR_INVALID,
-      THR_COMP_NEW_NEARESTLL2, THR_COMP_NEW_NEARESTLL3,
-      THR_COMP_NEW_NEARESTLG, THR_COMP_NEW_NEARESTLB,
-      THR_COMP_NEW_NEARESTLA2, THR_COMP_NEW_NEARESTLA, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEW_NEARESTL2B,
-      THR_COMP_NEW_NEARESTL2A2, THR_COMP_NEW_NEARESTL2A, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEW_NEARESTL3B,
-      THR_COMP_NEW_NEARESTL3A2, THR_COMP_NEW_NEARESTL3A, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEW_NEARESTGB,
-      THR_COMP_NEW_NEARESTGA2, THR_COMP_NEW_NEARESTGA, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEW_NEARESTBA, },
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-  },
-  // NEAR_NEWMV,
-  {
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-    { THR_INVALID, THR_INVALID,
-      THR_COMP_NEAR_NEWLL2, THR_COMP_NEAR_NEWLL3,
-      THR_COMP_NEAR_NEWLG, THR_COMP_NEAR_NEWLB,
-      THR_COMP_NEAR_NEWLA2, THR_COMP_NEAR_NEWLA, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEAR_NEWL2B,
-      THR_COMP_NEAR_NEWL2A2, THR_COMP_NEAR_NEWL2A, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEAR_NEWL3B,
-      THR_COMP_NEAR_NEWL3A2, THR_COMP_NEAR_NEWL3A, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEAR_NEWGB,
-      THR_COMP_NEAR_NEWGA2, THR_COMP_NEAR_NEWGA, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEAR_NEWBA, },
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-  },
-  // NEW_NEARMV,
-  {
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-    { THR_INVALID, THR_INVALID,
-      THR_COMP_NEW_NEARLL2, THR_COMP_NEW_NEARLL3,
-      THR_COMP_NEW_NEARLG, THR_COMP_NEW_NEARLB,
-      THR_COMP_NEW_NEARLA2, THR_COMP_NEW_NEARLA, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEW_NEARL2B,
-      THR_COMP_NEW_NEARL2A2, THR_COMP_NEW_NEARL2A, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEW_NEARL3B,
-      THR_COMP_NEW_NEARL3A2, THR_COMP_NEW_NEARL3A, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEW_NEARGB,
-      THR_COMP_NEW_NEARGA2, THR_COMP_NEW_NEARGA, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEW_NEARBA, },
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-  },
-  // GLOBAL_GLOBALMV,
-  {
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-    { THR_INVALID, THR_INVALID,
-      THR_COMP_GLOBAL_GLOBALLL2, THR_COMP_GLOBAL_GLOBALLL3,
-      THR_COMP_GLOBAL_GLOBALLG, THR_COMP_GLOBAL_GLOBALLB,
-      THR_COMP_GLOBAL_GLOBALLA2, THR_COMP_GLOBAL_GLOBALLA, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_GLOBAL_GLOBALL2B,
-      THR_COMP_GLOBAL_GLOBALL2A2, THR_COMP_GLOBAL_GLOBALL2A, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_GLOBAL_GLOBALL3B,
-      THR_COMP_GLOBAL_GLOBALL3A2, THR_COMP_GLOBAL_GLOBALL3A, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_GLOBAL_GLOBALGB,
-      THR_COMP_GLOBAL_GLOBALGA2, THR_COMP_GLOBAL_GLOBALGA, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_GLOBAL_GLOBALBA, },
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-  },
-  // NEW_NEWMV,
-  {
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-    { THR_INVALID, THR_INVALID,
-      THR_COMP_NEW_NEWLL2, THR_COMP_NEW_NEWLL3,
-      THR_COMP_NEW_NEWLG, THR_COMP_NEW_NEWLB,
-      THR_COMP_NEW_NEWLA2, THR_COMP_NEW_NEWLA, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEW_NEWL2B,
-      THR_COMP_NEW_NEWL2A2, THR_COMP_NEW_NEWL2A, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEW_NEWL3B,
-      THR_COMP_NEW_NEWL3A2, THR_COMP_NEW_NEWL3A, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEW_NEWGB,
-      THR_COMP_NEW_NEWGA2, THR_COMP_NEW_NEWGA, },
-    { THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_COMP_NEW_NEWBA, },
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-    { THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID, THR_INVALID,
-      THR_INVALID, THR_INVALID, THR_INVALID, },
-  },
-};
-/* clang-format on */
-// Calculate rd threshold based on ref best rd and relevant scaling factors
-static INLINE int64_t get_rd_thresh_from_best_rd(int64_t ref_best_rd,
-                                                 int mul_factor,
-                                                 int div_factor) {
-  int64_t rd_thresh = ref_best_rd;
-  if (div_factor != 0) {
-    rd_thresh = ref_best_rd < (div_factor * (INT64_MAX / mul_factor))
-                    ? ((ref_best_rd / div_factor) * mul_factor)
-                    : INT64_MAX;
-  }
-  return rd_thresh;
-}
-
-static THR_MODES get_prediction_mode_idx(PREDICTION_MODE this_mode,
-                                         MV_REFERENCE_FRAME ref_frame,
-                                         MV_REFERENCE_FRAME second_ref_frame) {
-  if (this_mode < INTRA_MODE_END) {
-    assert(ref_frame == INTRA_FRAME);
-    assert(second_ref_frame == NONE_FRAME);
-    return intra_to_mode_idx[this_mode - INTRA_MODE_START];
-  }
-  if (this_mode >= SINGLE_INTER_MODE_START &&
-      this_mode < SINGLE_INTER_MODE_END) {
-    assert((ref_frame > INTRA_FRAME) && (ref_frame <= ALTREF_FRAME));
-    return single_inter_to_mode_idx[this_mode - SINGLE_INTER_MODE_START]
-                                   [ref_frame];
-  }
-  if (this_mode >= COMP_INTER_MODE_START && this_mode < COMP_INTER_MODE_END) {
-    assert((ref_frame > INTRA_FRAME) && (ref_frame <= ALTREF_FRAME));
-    assert((second_ref_frame > INTRA_FRAME) &&
-           (second_ref_frame <= ALTREF_FRAME));
-    return comp_inter_to_mode_idx[this_mode - COMP_INTER_MODE_START][ref_frame]
-                                 [second_ref_frame];
-  }
-  assert(0);
-  return THR_INVALID;
-}
-
 static const PREDICTION_MODE intra_rd_search_mode_order[INTRA_MODES] = {
   DC_PRED,       H_PRED,        V_PRED,    SMOOTH_PRED, PAETH_PRED,
   SMOOTH_V_PRED, SMOOTH_H_PRED, D135_PRED, D203_PRED,   D157_PRED,
@@ -999,14 +657,6 @@ static void alloc_compound_type_rd_buffers_no_check(
       (int16_t *)aom_memalign(32, MAX_SB_SQUARE * sizeof(*bufs->diff10));
   bufs->tmp_best_mask_buf = (uint8_t *)aom_malloc(
       2 * MAX_SB_SQUARE * sizeof(*bufs->tmp_best_mask_buf));
-}
-
-static int inter_mode_data_block_idx(BLOCK_SIZE bsize) {
-  if (bsize == BLOCK_4X4 || bsize == BLOCK_4X8 || bsize == BLOCK_8X4 ||
-      bsize == BLOCK_4X16 || bsize == BLOCK_16X4) {
-    return -1;
-  }
-  return 1;
 }
 
 void av1_inter_mode_data_init(TileDataEnc *tile_data) {
@@ -2014,36 +1664,6 @@ static void prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
   *allowed_tx_mask = allow_bitmask;
 }
 
-static AOM_INLINE void model_rd_from_sse(const AV1_COMP *const cpi,
-                                         const MACROBLOCK *const x,
-                                         BLOCK_SIZE plane_bsize, int plane,
-                                         int64_t sse, int num_samples,
-                                         int *rate, int64_t *dist) {
-  (void)num_samples;
-  const MACROBLOCKD *const xd = &x->e_mbd;
-  const struct macroblock_plane *const p = &x->plane[plane];
-  const int dequant_shift = (is_cur_buf_hbd(xd)) ? xd->bd - 5 : 3;
-
-  // Fast approximate the modelling function.
-  if (cpi->sf.rd_sf.simple_model_rd_from_var) {
-    const int64_t square_error = sse;
-    int quantizer = p->dequant_QTX[1] >> dequant_shift;
-    if (quantizer < 120)
-      *rate = (int)AOMMIN(
-          (square_error * (280 - quantizer)) >> (16 - AV1_PROB_COST_SHIFT),
-          INT_MAX);
-    else
-      *rate = 0;
-    assert(*rate >= 0);
-    *dist = (square_error * quantizer) >> 8;
-  } else {
-    av1_model_rd_from_var_lapndz(sse, num_pels_log2_lookup[plane_bsize],
-                                 p->dequant_QTX[1] >> dequant_shift, rate,
-                                 dist);
-  }
-  *dist <<= 4;
-}
-
 static int64_t get_sse(const AV1_COMP *cpi, const MACROBLOCK *x) {
   const AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
@@ -2065,80 +1685,6 @@ static int64_t get_sse(const AV1_COMP *cpi, const MACROBLOCK *x) {
   }
   total_sse <<= 4;
   return total_sse;
-}
-
-static int64_t calculate_sse(MACROBLOCKD *const xd,
-                             const struct macroblock_plane *p,
-                             struct macroblockd_plane *pd, const int bw,
-                             const int bh) {
-  int64_t sse = 0;
-  const int shift = xd->bd - 8;
-#if CONFIG_AV1_HIGHBITDEPTH
-  if (is_cur_buf_hbd(xd)) {
-    sse = aom_highbd_sse(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride,
-                         bw, bh);
-  } else {
-    sse =
-        aom_sse(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride, bw, bh);
-  }
-#else
-  sse = aom_sse(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride, bw, bh);
-#endif
-  sse = ROUND_POWER_OF_TWO(sse, shift * 2);
-  return sse;
-}
-
-static AOM_INLINE void model_rd_for_sb(
-    const AV1_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
-    int plane_from, int plane_to, int *out_rate_sum, int64_t *out_dist_sum,
-    int *skip_txfm_sb, int64_t *skip_sse_sb, int *plane_rate,
-    int64_t *plane_sse, int64_t *plane_dist) {
-  // Note our transform coeffs are 8 times an orthogonal transform.
-  // Hence quantizer step is also 8 times. To get effective quantizer
-  // we need to divide by 8 before sending to modeling function.
-  int plane;
-  const int ref = xd->mi[0]->ref_frame[0];
-
-  int64_t rate_sum = 0;
-  int64_t dist_sum = 0;
-  int64_t total_sse = 0;
-
-  assert(bsize < BLOCK_SIZES_ALL);
-
-  for (plane = plane_from; plane <= plane_to; ++plane) {
-    struct macroblock_plane *const p = &x->plane[plane];
-    struct macroblockd_plane *const pd = &xd->plane[plane];
-    const BLOCK_SIZE plane_bsize =
-        get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
-    assert(plane_bsize < BLOCK_SIZES_ALL);
-    const int bw = block_size_wide[plane_bsize];
-    const int bh = block_size_high[plane_bsize];
-    int64_t sse;
-    int rate;
-    int64_t dist;
-
-    if (x->skip_chroma_rd && plane) continue;
-
-    sse = calculate_sse(xd, p, pd, bw, bh);
-
-    model_rd_from_sse(cpi, x, plane_bsize, plane, sse, bw * bh, &rate, &dist);
-
-    if (plane == 0) x->pred_sse[ref] = (unsigned int)AOMMIN(sse, UINT_MAX);
-
-    total_sse += sse;
-    rate_sum += rate;
-    dist_sum += dist;
-    if (plane_rate) plane_rate[plane] = rate;
-    if (plane_sse) plane_sse[plane] = sse;
-    if (plane_dist) plane_dist[plane] = dist;
-    assert(rate_sum >= 0);
-  }
-
-  if (skip_txfm_sb) *skip_txfm_sb = total_sse == 0;
-  if (skip_sse_sb) *skip_sse_sb = total_sse << 4;
-  rate_sum = AOMMIN(rate_sum, INT_MAX);
-  *out_rate_sum = (int)rate_sum;
-  *out_dist_sum = dist_sum;
 }
 
 int64_t av1_block_error_c(const tran_low_t *coeff, const tran_low_t *dqcoeff,
@@ -2178,43 +1724,6 @@ int64_t av1_highbd_block_error_c(const tran_low_t *coeff,
   return error;
 }
 #endif
-
-// Get transform block visible dimensions cropped to the MI units.
-static AOM_INLINE void get_txb_dimensions(const MACROBLOCKD *xd, int plane,
-                                          BLOCK_SIZE plane_bsize, int blk_row,
-                                          int blk_col, BLOCK_SIZE tx_bsize,
-                                          int *width, int *height,
-                                          int *visible_width,
-                                          int *visible_height) {
-  assert(tx_bsize <= plane_bsize);
-  const int txb_height = block_size_high[tx_bsize];
-  const int txb_width = block_size_wide[tx_bsize];
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
-
-  // TODO(aconverse@google.com): Investigate using crop_width/height here rather
-  // than the MI size
-  if (xd->mb_to_bottom_edge >= 0) {
-    *visible_height = txb_height;
-  } else {
-    const int block_height = block_size_high[plane_bsize];
-    const int block_rows =
-        (xd->mb_to_bottom_edge >> (3 + pd->subsampling_y)) + block_height;
-    *visible_height =
-        clamp(block_rows - (blk_row << MI_SIZE_LOG2), 0, txb_height);
-  }
-  if (height) *height = txb_height;
-
-  if (xd->mb_to_right_edge >= 0) {
-    *visible_width = txb_width;
-  } else {
-    const int block_width = block_size_wide[plane_bsize];
-    const int block_cols =
-        (xd->mb_to_right_edge >> (3 + pd->subsampling_x)) + block_width;
-    *visible_width =
-        clamp(block_cols - (blk_col << MI_SIZE_LOG2), 0, txb_width);
-  }
-  if (width) *width = txb_width;
-}
 
 // Compute the pixel domain distortion from src and dst on all visible 4x4s in
 // the
@@ -2451,35 +1960,6 @@ static INLINE int64_t dist_block_px_domain(const AV1_COMP *cpi, MACROBLOCK *x,
 
   return 16 * pixel_dist(cpi, x, plane, src, src_stride, recon, MAX_TX_SIZE,
                          blk_row, blk_col, plane_bsize, tx_bsize);
-}
-
-static double get_diff_mean(const uint8_t *src, int src_stride,
-                            const uint8_t *dst, int dst_stride, int w, int h) {
-  double sum = 0.0;
-  for (int j = 0; j < h; ++j) {
-    for (int i = 0; i < w; ++i) {
-      const int diff = src[j * src_stride + i] - dst[j * dst_stride + i];
-      sum += diff;
-    }
-  }
-  assert(w > 0 && h > 0);
-  return sum / (w * h);
-}
-
-static double get_highbd_diff_mean(const uint8_t *src8, int src_stride,
-                                   const uint8_t *dst8, int dst_stride, int w,
-                                   int h) {
-  const uint16_t *src = CONVERT_TO_SHORTPTR(src8);
-  const uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
-  double sum = 0.0;
-  for (int j = 0; j < h; ++j) {
-    for (int i = 0; i < w; ++i) {
-      const int diff = src[j * src_stride + i] - dst[j * dst_stride + i];
-      sum += diff;
-    }
-  }
-  assert(w > 0 && h > 0);
-  return sum / (w * h);
 }
 
 static double get_sse_norm(const int16_t *diff, int stride, int w, int h) {
@@ -2904,343 +2384,6 @@ static AOM_INLINE void PrintPredictionUnitStats(const AV1_COMP *const cpi,
 }
 #endif  // CONFIG_COLLECT_RD_STATS >= 2
 #endif  // CONFIG_COLLECT_RD_STATS
-
-static AOM_INLINE void model_rd_with_dnn(const AV1_COMP *const cpi,
-                                         const MACROBLOCK *const x,
-                                         BLOCK_SIZE plane_bsize, int plane,
-                                         int64_t sse, int num_samples,
-                                         int *rate, int64_t *dist) {
-  const MACROBLOCKD *const xd = &x->e_mbd;
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
-  const struct macroblock_plane *const p = &x->plane[plane];
-  const int log_numpels = num_pels_log2_lookup[plane_bsize];
-
-  const int dequant_shift = (is_cur_buf_hbd(xd)) ? xd->bd - 5 : 3;
-  const int q_step = AOMMAX(p->dequant_QTX[1] >> dequant_shift, 1);
-
-  int bw, bh;
-  get_txb_dimensions(xd, plane, plane_bsize, 0, 0, plane_bsize, NULL, NULL, &bw,
-                     &bh);
-  const int src_stride = p->src.stride;
-  const uint8_t *const src = p->src.buf;
-  const int dst_stride = pd->dst.stride;
-  const uint8_t *const dst = pd->dst.buf;
-  const int16_t *const src_diff = p->src_diff;
-  const int diff_stride = block_size_wide[plane_bsize];
-  const int shift = (xd->bd - 8);
-
-  if (sse == 0) {
-    if (rate) *rate = 0;
-    if (dist) *dist = 0;
-    return;
-  }
-  if (plane) {
-    int model_rate;
-    int64_t model_dist;
-    model_rd_with_curvfit(cpi, x, plane_bsize, plane, sse, num_samples,
-                          &model_rate, &model_dist);
-    if (rate) *rate = model_rate;
-    if (dist) *dist = model_dist;
-    return;
-  }
-
-  aom_clear_system_state();
-  const double sse_norm = (double)sse / num_samples;
-
-  double sse_norm_arr[4];
-  get_2x2_normalized_sses_and_sads(cpi, plane_bsize, src, src_stride, dst,
-                                   dst_stride, src_diff, diff_stride,
-                                   sse_norm_arr, NULL);
-  double mean;
-  if (is_cur_buf_hbd(xd)) {
-    mean = get_highbd_diff_mean(src, src_stride, dst, dst_stride, bw, bh);
-  } else {
-    mean = get_diff_mean(src, src_stride, dst, dst_stride, bw, bh);
-  }
-  if (shift) {
-    for (int k = 0; k < 4; ++k) sse_norm_arr[k] /= (1 << (2 * shift));
-    mean /= (1 << shift);
-  }
-  double sse_norm_sum = 0.0, sse_frac_arr[3];
-  for (int k = 0; k < 4; ++k) sse_norm_sum += sse_norm_arr[k];
-  for (int k = 0; k < 3; ++k)
-    sse_frac_arr[k] =
-        sse_norm_sum > 0.0 ? sse_norm_arr[k] / sse_norm_sum : 0.25;
-  const double q_sqr = (double)(q_step * q_step);
-  const double q_sqr_by_sse_norm = q_sqr / (sse_norm + 1.0);
-  const double mean_sqr_by_sse_norm = mean * mean / (sse_norm + 1.0);
-  float hor_corr, vert_corr;
-  av1_get_horver_correlation_full(src_diff, diff_stride, bw, bh, &hor_corr,
-                                  &vert_corr);
-
-  float features[NUM_FEATURES_PUSTATS];
-  features[0] = (float)hor_corr;
-  features[1] = (float)log_numpels;
-  features[2] = (float)mean_sqr_by_sse_norm;
-  features[3] = (float)q_sqr_by_sse_norm;
-  features[4] = (float)sse_frac_arr[0];
-  features[5] = (float)sse_frac_arr[1];
-  features[6] = (float)sse_frac_arr[2];
-  features[7] = (float)vert_corr;
-
-  float rate_f, dist_by_sse_norm_f;
-  av1_nn_predict(features, &av1_pustats_dist_nnconfig, 1, &dist_by_sse_norm_f);
-  av1_nn_predict(features, &av1_pustats_rate_nnconfig, 1, &rate_f);
-  aom_clear_system_state();
-  const float dist_f = (float)((double)dist_by_sse_norm_f * (1.0 + sse_norm));
-  int rate_i = (int)(AOMMAX(0.0, rate_f * num_samples) + 0.5);
-  int64_t dist_i = (int64_t)(AOMMAX(0.0, dist_f * num_samples) + 0.5);
-
-  // Check if skip is better
-  if (rate_i == 0) {
-    dist_i = sse << 4;
-  } else if (RDCOST(x->rdmult, rate_i, dist_i) >=
-             RDCOST(x->rdmult, 0, sse << 4)) {
-    rate_i = 0;
-    dist_i = sse << 4;
-  }
-
-  if (rate) *rate = rate_i;
-  if (dist) *dist = dist_i;
-  return;
-}
-
-static AOM_INLINE void model_rd_for_sb_with_dnn(
-    const AV1_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
-    int plane_from, int plane_to, int *out_rate_sum, int64_t *out_dist_sum,
-    int *skip_txfm_sb, int64_t *skip_sse_sb, int *plane_rate,
-    int64_t *plane_sse, int64_t *plane_dist) {
-  // Note our transform coeffs are 8 times an orthogonal transform.
-  // Hence quantizer step is also 8 times. To get effective quantizer
-  // we need to divide by 8 before sending to modeling function.
-  const int ref = xd->mi[0]->ref_frame[0];
-
-  int64_t rate_sum = 0;
-  int64_t dist_sum = 0;
-  int64_t total_sse = 0;
-
-  for (int plane = plane_from; plane <= plane_to; ++plane) {
-    struct macroblockd_plane *const pd = &xd->plane[plane];
-    const BLOCK_SIZE plane_bsize =
-        get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
-    int64_t dist, sse;
-    int rate;
-
-    if (x->skip_chroma_rd && plane) continue;
-
-    const struct macroblock_plane *const p = &x->plane[plane];
-    int bw, bh;
-    get_txb_dimensions(xd, plane, plane_bsize, 0, 0, plane_bsize, NULL, NULL,
-                       &bw, &bh);
-    sse = calculate_sse(xd, p, pd, bw, bh);
-
-    model_rd_with_dnn(cpi, x, plane_bsize, plane, sse, bw * bh, &rate, &dist);
-
-    if (plane == 0) x->pred_sse[ref] = (unsigned int)AOMMIN(sse, UINT_MAX);
-
-    total_sse += sse;
-    rate_sum += rate;
-    dist_sum += dist;
-
-    if (plane_rate) plane_rate[plane] = rate;
-    if (plane_sse) plane_sse[plane] = sse;
-    if (plane_dist) plane_dist[plane] = dist;
-  }
-
-  if (skip_txfm_sb) *skip_txfm_sb = rate_sum == 0;
-  if (skip_sse_sb) *skip_sse_sb = total_sse << 4;
-  *out_rate_sum = (int)rate_sum;
-  *out_dist_sum = dist_sum;
-}
-
-// Fits a surface for rate and distortion using as features:
-// log2(sse_norm + 1) and log2(sse_norm/qstep^2)
-static AOM_INLINE void model_rd_with_surffit(const AV1_COMP *const cpi,
-                                             const MACROBLOCK *const x,
-                                             BLOCK_SIZE plane_bsize, int plane,
-                                             int64_t sse, int num_samples,
-                                             int *rate, int64_t *dist) {
-  (void)cpi;
-  (void)plane_bsize;
-  const MACROBLOCKD *const xd = &x->e_mbd;
-  const struct macroblock_plane *const p = &x->plane[plane];
-  const int dequant_shift = (is_cur_buf_hbd(xd)) ? xd->bd - 5 : 3;
-  const int qstep = AOMMAX(p->dequant_QTX[1] >> dequant_shift, 1);
-  if (sse == 0) {
-    if (rate) *rate = 0;
-    if (dist) *dist = 0;
-    return;
-  }
-  aom_clear_system_state();
-  const double sse_norm = (double)sse / num_samples;
-  const double qstepsqr = (double)qstep * qstep;
-  const double xm = log(sse_norm + 1.0) / log(2.0);
-  const double yl = log(sse_norm / qstepsqr) / log(2.0);
-  double rate_f, dist_by_sse_norm_f;
-
-  av1_model_rd_surffit(plane_bsize, sse_norm, xm, yl, &rate_f,
-                       &dist_by_sse_norm_f);
-
-  const double dist_f = dist_by_sse_norm_f * sse_norm;
-  int rate_i = (int)(AOMMAX(0.0, rate_f * num_samples) + 0.5);
-  int64_t dist_i = (int64_t)(AOMMAX(0.0, dist_f * num_samples) + 0.5);
-  aom_clear_system_state();
-
-  // Check if skip is better
-  if (rate_i == 0) {
-    dist_i = sse << 4;
-  } else if (RDCOST(x->rdmult, rate_i, dist_i) >=
-             RDCOST(x->rdmult, 0, sse << 4)) {
-    rate_i = 0;
-    dist_i = sse << 4;
-  }
-
-  if (rate) *rate = rate_i;
-  if (dist) *dist = dist_i;
-}
-
-static AOM_INLINE void model_rd_for_sb_with_surffit(
-    const AV1_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
-    int plane_from, int plane_to, int *out_rate_sum, int64_t *out_dist_sum,
-    int *skip_txfm_sb, int64_t *skip_sse_sb, int *plane_rate,
-    int64_t *plane_sse, int64_t *plane_dist) {
-  // Note our transform coeffs are 8 times an orthogonal transform.
-  // Hence quantizer step is also 8 times. To get effective quantizer
-  // we need to divide by 8 before sending to modeling function.
-  const int ref = xd->mi[0]->ref_frame[0];
-
-  int64_t rate_sum = 0;
-  int64_t dist_sum = 0;
-  int64_t total_sse = 0;
-
-  for (int plane = plane_from; plane <= plane_to; ++plane) {
-    struct macroblockd_plane *const pd = &xd->plane[plane];
-    const BLOCK_SIZE plane_bsize =
-        get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
-    int64_t dist, sse;
-    int rate;
-
-    if (x->skip_chroma_rd && plane) continue;
-
-    int bw, bh;
-    const struct macroblock_plane *const p = &x->plane[plane];
-    get_txb_dimensions(xd, plane, plane_bsize, 0, 0, plane_bsize, NULL, NULL,
-                       &bw, &bh);
-    sse = calculate_sse(xd, p, pd, bw, bh);
-
-    model_rd_with_surffit(cpi, x, plane_bsize, plane, sse, bw * bh, &rate,
-                          &dist);
-
-    if (plane == 0) x->pred_sse[ref] = (unsigned int)AOMMIN(sse, UINT_MAX);
-
-    total_sse += sse;
-    rate_sum += rate;
-    dist_sum += dist;
-
-    if (plane_rate) plane_rate[plane] = rate;
-    if (plane_sse) plane_sse[plane] = sse;
-    if (plane_dist) plane_dist[plane] = dist;
-  }
-
-  if (skip_txfm_sb) *skip_txfm_sb = rate_sum == 0;
-  if (skip_sse_sb) *skip_sse_sb = total_sse << 4;
-  *out_rate_sum = (int)rate_sum;
-  *out_dist_sum = dist_sum;
-}
-
-// Fits a curve for rate and distortion using as feature:
-// log2(sse_norm/qstep^2)
-static AOM_INLINE void model_rd_with_curvfit(const AV1_COMP *const cpi,
-                                             const MACROBLOCK *const x,
-                                             BLOCK_SIZE plane_bsize, int plane,
-                                             int64_t sse, int num_samples,
-                                             int *rate, int64_t *dist) {
-  (void)cpi;
-  (void)plane_bsize;
-  const MACROBLOCKD *const xd = &x->e_mbd;
-  const struct macroblock_plane *const p = &x->plane[plane];
-  const int dequant_shift = (is_cur_buf_hbd(xd)) ? xd->bd - 5 : 3;
-  const int qstep = AOMMAX(p->dequant_QTX[1] >> dequant_shift, 1);
-
-  if (sse == 0) {
-    if (rate) *rate = 0;
-    if (dist) *dist = 0;
-    return;
-  }
-  aom_clear_system_state();
-  const double sse_norm = (double)sse / num_samples;
-  const double qstepsqr = (double)qstep * qstep;
-  const double xqr = log2(sse_norm / qstepsqr);
-  double rate_f, dist_by_sse_norm_f;
-  av1_model_rd_curvfit(plane_bsize, sse_norm, xqr, &rate_f,
-                       &dist_by_sse_norm_f);
-
-  const double dist_f = dist_by_sse_norm_f * sse_norm;
-  int rate_i = (int)(AOMMAX(0.0, rate_f * num_samples) + 0.5);
-  int64_t dist_i = (int64_t)(AOMMAX(0.0, dist_f * num_samples) + 0.5);
-  aom_clear_system_state();
-
-  // Check if skip is better
-  if (rate_i == 0) {
-    dist_i = sse << 4;
-  } else if (RDCOST(x->rdmult, rate_i, dist_i) >=
-             RDCOST(x->rdmult, 0, sse << 4)) {
-    rate_i = 0;
-    dist_i = sse << 4;
-  }
-
-  if (rate) *rate = rate_i;
-  if (dist) *dist = dist_i;
-}
-
-static AOM_INLINE void model_rd_for_sb_with_curvfit(
-    const AV1_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
-    int plane_from, int plane_to, int *out_rate_sum, int64_t *out_dist_sum,
-    int *skip_txfm_sb, int64_t *skip_sse_sb, int *plane_rate,
-    int64_t *plane_sse, int64_t *plane_dist) {
-  // Note our transform coeffs are 8 times an orthogonal transform.
-  // Hence quantizer step is also 8 times. To get effective quantizer
-  // we need to divide by 8 before sending to modeling function.
-  const int ref = xd->mi[0]->ref_frame[0];
-
-  int64_t rate_sum = 0;
-  int64_t dist_sum = 0;
-  int64_t total_sse = 0;
-
-  for (int plane = plane_from; plane <= plane_to; ++plane) {
-    struct macroblockd_plane *const pd = &xd->plane[plane];
-    const BLOCK_SIZE plane_bsize =
-        get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
-    int64_t dist, sse;
-    int rate;
-
-    if (x->skip_chroma_rd && plane) continue;
-
-    int bw, bh;
-    const struct macroblock_plane *const p = &x->plane[plane];
-    get_txb_dimensions(xd, plane, plane_bsize, 0, 0, plane_bsize, NULL, NULL,
-                       &bw, &bh);
-
-    sse = calculate_sse(xd, p, pd, bw, bh);
-    model_rd_with_curvfit(cpi, x, plane_bsize, plane, sse, bw * bh, &rate,
-                          &dist);
-
-    if (plane == 0) x->pred_sse[ref] = (unsigned int)AOMMIN(sse, UINT_MAX);
-
-    total_sse += sse;
-    rate_sum += rate;
-    dist_sum += dist;
-
-    if (plane_rate) plane_rate[plane] = rate;
-    if (plane_sse) plane_sse[plane] = sse;
-    if (plane_dist) plane_dist[plane] = dist;
-  }
-
-  if (skip_txfm_sb) *skip_txfm_sb = rate_sum == 0;
-  if (skip_sse_sb) *skip_sse_sb = total_sse << 4;
-  *out_rate_sum = (int)rate_sum;
-  *out_dist_sum = dist_sum;
-}
 
 static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                                int block, int blk_row, int blk_col,
@@ -3973,11 +3116,6 @@ static AOM_INLINE void choose_smallest_tx_size(const AV1_COMP *const cpi,
   // TODO(any) : Pass this_rd based on skip/non-skip cost
   txfm_rd_in_plane(x, cpi, rd_stats, ref_best_rd, 0, 0, bs, mbmi->tx_size,
                    cpi->sf.rd_sf.use_fast_coef_costing, FTXS_NONE, 0);
-}
-
-static INLINE int bsize_to_num_blk(BLOCK_SIZE bsize) {
-  int num_blk = 1 << (num_pels_log2_lookup[bsize] - 2 * MI_SIZE_LOG2);
-  return num_blk;
 }
 
 static int get_search_init_depth(int mi_width, int mi_height, int is_inter,
