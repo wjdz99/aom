@@ -69,6 +69,18 @@ void av1_convolve_nonsep_dual_highbd(const uint8_t *dgd, int width, int height,
                                      const NonsepFilterConfig *config,
                                      const int16_t *filter, uint8_t *dst,
                                      int dst_stride, int bit_depth);
+void av1_convolve_nonsep_cls(const uint8_t *dgd, int width, int height,
+                             int stride, const NonsepFilterConfig *nsfilter,
+                             const uint8_t *cls, int cls_stride,
+                             const int16_t *filter, int filter_stride,
+                             uint8_t *dst, int dst_stride);
+void av1_convolve_nonsep_cls_highbd(const uint16_t *dgd, int width, int height,
+                                    int stride,
+                                    const NonsepFilterConfig *nsfilter,
+                                    const uint8_t *cls, int cls_stride,
+                                    const int16_t *filter, int filter_stride,
+                                    uint16_t *dst, int dst_stride,
+                                    int bit_depth);
 
 #define ROUND0_BITS 3
 #define COMPOUND_ROUND1_BITS 7
