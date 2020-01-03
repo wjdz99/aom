@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "15b50049_1ec7e455",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2141,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-01-03T22:51:21Z",
+      "side": 1,
+      "message": "clang-format apparently thinks different :-)",
+      "parentUuid": "e77f9b89_fbbc699d",
+      "range": {
+        "startLine": 2140,
+        "startChar": 12,
+        "endLine": 2141,
+        "endChar": 28
+      },
+      "revId": "875c265dd95856fdd4dcfd1c1692fb49afff252f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d207c775_86a99f4a",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "875c265dd95856fdd4dcfd1c1692fb49afff252f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f81198c6_e1d95a9b",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2208,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-01-03T22:51:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d207c775_86a99f4a",
+      "range": {
+        "startLine": 2208,
+        "startChar": 10,
+        "endLine": 2208,
+        "endChar": 28
+      },
+      "revId": "875c265dd95856fdd4dcfd1c1692fb49afff252f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "5ada44c3_3ce7f591",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2212,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-01-03T22:51:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bbf9ec49_56b87ebe",
+      "range": {
+        "startLine": 2212,
+        "startChar": 14,
+        "endLine": 2212,
+        "endChar": 15
+      },
+      "revId": "875c265dd95856fdd4dcfd1c1692fb49afff252f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4cc2792a_a509a59f",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 3
@@ -91,6 +163,30 @@
       "revId": "875c265dd95856fdd4dcfd1c1692fb49afff252f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8f5a15d_b8f848c5",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2213,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-01-03T22:51:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4cc2792a_a509a59f",
+      "range": {
+        "startLine": 2213,
+        "startChar": 0,
+        "endLine": 2213,
+        "endChar": 46
+      },
+      "revId": "875c265dd95856fdd4dcfd1c1692fb49afff252f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "95ca259d_17f7fefe",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2248,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-01-03T22:51:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5787664b_6472084e",
+      "range": {
+        "startLine": 2248,
+        "startChar": 16,
+        "endLine": 2248,
+        "endChar": 17
+      },
+      "revId": "875c265dd95856fdd4dcfd1c1692fb49afff252f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "31b48a90_1f039343",
         "filename": "av1/encoder/speed_features.h",
         "patchSetId": 3
@@ -137,6 +257,30 @@
       "revId": "875c265dd95856fdd4dcfd1c1692fb49afff252f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3460921b_c2ab4235",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-01-03T22:51:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31b48a90_1f039343",
+      "range": {
+        "startLine": 827,
+        "startChar": 6,
+        "endLine": 827,
+        "endChar": 33
+      },
+      "revId": "875c265dd95856fdd4dcfd1c1692fb49afff252f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
