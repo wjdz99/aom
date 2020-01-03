@@ -406,10 +406,11 @@ void av1_init3smotion_compensation(search_site_config *cfg, int stride) {
   int stage_index = 0;
   cfg->stride = stride;
   int radius = 1;
-  for (stage_index = 0; stage_index < 12; ++stage_index) {
+  for (stage_index = 0; stage_index < 15; ++stage_index) {
     int tan_radius = AOMMAX((int)(0.41 * radius), 1);
     int num_search_pts = 12;
     if (radius == 1) num_search_pts = 8;
+
     const MV ss_mvs[13] = {
       { 0, 0 },
       { -radius, 0 },
@@ -434,7 +435,8 @@ void av1_init3smotion_compensation(search_site_config *cfg, int stride) {
     cfg->searches_per_step[stage_index] = num_search_pts;
     cfg->radius[stage_index] = radius;
     ++ss_count;
-    radius = (int)AOMMAX((radius * 1.5 + 0.5), radius + 1);
+    if (stage_index < 12)
+      radius = (int)AOMMAX((radius * 1.5 + 0.5), radius + 1);
   }
   cfg->ss_count = ss_count;
 }
@@ -2231,9 +2233,12 @@ int av1_diamond_search_sad_c(const AV1_COMMON *const cm, MACROBLOCK *x,
   bestsad +=
       mvsad_err_cost(x, best_mv, &fcenter_mv, max_mv_precision, sad_per_bit);
 
+  int next_step_size = tot_steps > 2 ? cfg->radius[tot_steps - 2] : 1;
   for (int step = tot_steps; step >= 0; --step) {
     const search_site *ss = cfg->ss[step];
     best_site = 0;
+    if (step > 0) next_step_size = cfg->radius[step - 1];
+
     int all_in = 1, j;
     // Trap illegal vectors
     all_in &= best_mv->row + ss[1].mv.row >= x->mv_limits.row_min;
@@ -2306,6 +2311,14 @@ int av1_diamond_search_sad_c(const AV1_COMMON *const cm, MACROBLOCK *x,
     }
 
     if (is_off_center == 0) (*num00)++;
+
+    if (best_site == 0) {
+      while (next_step_size == cfg->radius[step] && step > 2) {
+        ++(*num00);
+        --step;
+        next_step_size = cfg->radius[step - 1];
+      }
+    }
   }
 
   return bestsad;
