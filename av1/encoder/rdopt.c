@@ -11482,16 +11482,23 @@ static int64_t handle_inter_mode(
   // First, perform a simple translation search for each of the indices. If
   // an index performs well, it will be fully searched here.
   const int ref_set = get_drl_refmv_count(x, mbmi->ref_frame, this_mode);
+#if !CONFIG_NEW_INTER_MODES
+  // See below for an explanation of this guard.
   int idx_mask =
       ref_mv_idx_to_search(cpi, x, rd_stats, args, ref_best_rd, mode_info,
                            bsize, mi_row, mi_col, ref_set);
+#endif  // !CONFIG_NEW_INTER_MODES
   for (int ref_mv_idx = 0; ref_mv_idx < ref_set; ++ref_mv_idx) {
     mode_info[ref_mv_idx].mv.as_int = INVALID_MV;
     mode_info[ref_mv_idx].rd = INT64_MAX;
+#if !CONFIG_NEW_INTER_MODES
+    // This optimization makes it possible to ignore MV 0.
+    // Because NEARESTMV is gone, this greatly hurts performance.
     if (!mask_check_bit(idx_mask, ref_mv_idx)) {
       // MV did not perform well in simple translation search. Skip it.
       continue;
     }
+#endif  // !CONFIG_NEW_INTER_MODES
     av1_init_rd_stats(rd_stats);
 
     mbmi->interinter_comp.type = COMPOUND_AVERAGE;
