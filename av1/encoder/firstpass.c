@@ -330,8 +330,10 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
       get_ref_frame_yv12_buf(cm, LAST_FRAME);
   const YV12_BUFFER_CONFIG *gld_yv12 = get_ref_frame_yv12_buf(cm, GOLDEN_FRAME);
   const YV12_BUFFER_CONFIG *alt_yv12 = NULL;
-  const int alt_offset = 16 - (current_frame->frame_number % 16);
-  if (alt_offset < 16) {
+  const int max_gf_interval = MAX_GF_INTERVAL;
+  const int alt_offset =
+      max_gf_interval - (current_frame->frame_number % max_gf_interval);
+  if ((alt_offset < max_gf_interval) && cpi->oxcf.lag_in_frames) {
     const struct lookahead_entry *const alt_buf =
         av1_lookahead_peek(cpi->lookahead, alt_offset, cpi->compressor_stage);
     if (alt_buf != NULL) {

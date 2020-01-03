@@ -1170,6 +1170,7 @@ struct AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
                                        FIRSTPASS_STATS *frame_stats_buf,
                                        COMPRESSOR_STAGE stage,
                                        int num_lap_buffers,
+                                       int lap_lag_in_frames,
                                        STATS_BUFFER_CTX *stats_buf_context);
 void av1_remove_compressor(AV1_COMP *cpi);
 
@@ -1398,7 +1399,7 @@ static INLINE int has_no_stats_stage(const AV1_COMP *const cpi) {
 // Function return size of frame stats buffer
 static INLINE int get_stats_buf_size(int num_lap_buffer, int num_lag_buffer) {
   /* if lookahead is enabled return num_lap_buffers else num_lag_buffers */
-  return (num_lap_buffer > 0 ? num_lap_buffer + 1 : num_lag_buffer);
+  return (num_lap_buffer > 0 ? num_lap_buffer : num_lag_buffer);
 }
 
 // TODO(zoeliu): To set up cpi->oxcf.enable_auto_brf
