@@ -466,6 +466,7 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
   double abs_mv_in_out_accumulator = 0.0;
   int arf_boost;
   int flash_detected = 0;
+  int extrapolate_f_boost = 0;
 
   // Search forward from the proposed arf/next gf position.
   for (i = 0; i < f_frames; ++i) {
@@ -495,7 +496,14 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
                                     this_frame_mv_in_out, GF_MAX_BOOST);
   }
 
-  arf_boost = (int)boost_score;
+  if(i != f_frames){
+    extrapolate_f_boost = 1;
+  }
+
+  if(!extrapolate_f_boost)
+    arf_boost = (int)boost_score;
+  else
+    arf_boost = 0;
 
   // Reset for backward looking loop.
   boost_score = 0.0;
@@ -533,6 +541,11 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
                                     this_frame_mv_in_out, GF_MAX_BOOST);
   }
   arf_boost += (int)boost_score;
+
+  // if forward frame stats not available(in case of LAP), then extrapolate the boost by doubling
+  // the backward boost score.
+  if(extrapolate_f_boost)
+    arf_boost *= 2;
 
   if (arf_boost < ((b_frames + f_frames) * 50))
     arf_boost = ((b_frames + f_frames) * 50);
