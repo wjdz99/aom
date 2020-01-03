@@ -302,6 +302,7 @@ static void set_good_speed_features_framesize_independent(
   sf->inter_sf.reduce_inter_modes = 1;
   sf->inter_sf.selective_ref_frame = 1;
   sf->inter_sf.use_dist_wtd_comp_flag = DIST_WTD_COMP_SKIP_MV_SEARCH;
+  sf->inter_sf.use_compound_type = 1;
 
   sf->interp_sf.cb_pred_filter_search = 0;
   sf->interp_sf.use_fast_interpolation_filter_search = 1;
@@ -935,6 +936,7 @@ static AOM_INLINE void init_inter_sf(INTER_MODE_SPEED_FEATURES *inter_sf) {
   inter_sf->disable_interinter_wedge = 0;
   inter_sf->prune_ref_mv_idx_search = 0;
   inter_sf->prune_warped_prob_thresh = 0;
+  inter_sf->use_compound_type = 0;
 }
 
 static AOM_INLINE void init_interp_sf(INTERP_FILTER_SPEED_FEATURES *interp_sf) {

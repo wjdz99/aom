@@ -616,6 +616,11 @@ typedef struct INTER_MODE_SPEED_FEATURES {
   // 0: no breakout
   // 1: use model based rd breakout
   int model_based_post_interp_filter_breakout;
+
+  // Save results of compound type for a block
+  // Check mv and ref_frames before search, if they are very close with previous
+  // saved results, compound type search can be skipped.
+  int use_compound_type;
 } INTER_MODE_SPEED_FEATURES;
 
 typedef struct INTERP_FILTER_SPEED_FEATURES {
