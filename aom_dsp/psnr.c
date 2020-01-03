@@ -121,7 +121,6 @@ static int64_t get_sse(const uint8_t *a, int a_stride, const uint8_t *b,
   return total_sse;
 }
 
-#if CONFIG_AV1_HIGHBITDEPTH
 static int64_t highbd_get_sse_shift(const uint8_t *a8, int a_stride,
                                     const uint8_t *b8, int b_stride, int width,
                                     int height, unsigned int input_shift) {
@@ -174,7 +173,6 @@ static int64_t highbd_get_sse(const uint8_t *a, int a_stride, const uint8_t *b,
   }
   return total_sse;
 }
-#endif  // CONFIG_AV1_HIGHBITDEPTH
 
 int64_t aom_get_y_sse_part(const YV12_BUFFER_CONFIG *a,
                            const YV12_BUFFER_CONFIG *b, int hstart, int width,
@@ -317,7 +315,6 @@ int64_t aom_get_sse_plane(const YV12_BUFFER_CONFIG *a,
 #endif
 }
 
-#if CONFIG_AV1_HIGHBITDEPTH
 void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
                           const YV12_BUFFER_CONFIG *b, PSNR_STATS *psnr,
                           uint32_t bit_depth, uint32_t in_bit_depth) {
@@ -349,39 +346,6 @@ void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
       sse = get_sse(a->buffers[i], a_strides[i], b->buffers[i], b_strides[i], w,
                     h);
     }
-    psnr->sse[1 + i] = sse;
-    psnr->samples[1 + i] = samples;
-    psnr->psnr[1 + i] = aom_sse_to_psnr(samples, peak, (double)sse);
-
-    total_sse += sse;
-    total_samples += samples;
-  }
-
-  psnr->sse[0] = total_sse;
-  psnr->samples[0] = total_samples;
-  psnr->psnr[0] =
-      aom_sse_to_psnr((double)total_samples, peak, (double)total_sse);
-}
-#endif
-
-void aom_calc_psnr(const YV12_BUFFER_CONFIG *a, const YV12_BUFFER_CONFIG *b,
-                   PSNR_STATS *psnr) {
-  static const double peak = 255.0;
-  const int widths[3] = { a->y_crop_width, a->uv_crop_width, a->uv_crop_width };
-  const int heights[3] = { a->y_crop_height, a->uv_crop_height,
-                           a->uv_crop_height };
-  const int a_strides[3] = { a->y_stride, a->uv_stride, a->uv_stride };
-  const int b_strides[3] = { b->y_stride, b->uv_stride, b->uv_stride };
-  int i;
-  uint64_t total_sse = 0;
-  uint32_t total_samples = 0;
-
-  for (i = 0; i < 3; ++i) {
-    const int w = widths[i];
-    const int h = heights[i];
-    const uint32_t samples = w * h;
-    const uint64_t sse =
-        get_sse(a->buffers[i], a_strides[i], b->buffers[i], b_strides[i], w, h);
     psnr->sse[1 + i] = sse;
     psnr->samples[1 + i] = samples;
     psnr->psnr[1 + i] = aom_sse_to_psnr(samples, peak, (double)sse);
