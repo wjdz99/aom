@@ -109,6 +109,14 @@ static INLINE int bsize_to_num_blk(BLOCK_SIZE bsize) {
   return num_blk;
 }
 
+static INLINE void restore_dst_buf(MACROBLOCKD *xd, const BUFFER_SET dst,
+                                   const int num_planes) {
+  for (int i = 0; i < num_planes; i++) {
+    xd->plane[i].dst.buf = dst.plane[i];
+    xd->plane[i].dst.stride = dst.stride[i];
+  }
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
