@@ -316,8 +316,15 @@ static AOM_INLINE void mode_estimation(
     if (xd->left_available) {
       TplDepStats *ref_tpl_stats = &tpl_frame->tpl_stats_ptr[av1_tpl_ptr_pos(
           cpi, mi_row, mi_col - mi_width, tpl_frame->stride)];
+      int_mv ref_mv_full, center_mv_full; /* full-pixel value */
+      ref_mv_full.as_mv.col = (ref_tpl_stats->mv[rf_idx].as_mv.col >> 3);
+      ref_mv_full.as_mv.row = (ref_tpl_stats->mv[rf_idx].as_mv.row >> 3);
+
+      center_mv_full.as_mv.col = (center_mvs[1].as_mv.col >> 3);
+      center_mv_full.as_mv.row = (center_mvs[1].as_mv.row >> 3);
+
       if (ref_tpl_stats->mv[rf_idx].as_int != 0 &&
-          ref_tpl_stats->mv[rf_idx].as_int != center_mvs[1].as_int) {
+          ref_mv_full.as_int != center_mv_full.as_int) {
         center_mvs[refmv_count].as_int = ref_tpl_stats->mv[rf_idx].as_int;
         ++refmv_count;
       }
@@ -326,9 +333,20 @@ static AOM_INLINE void mode_estimation(
     if (xd->up_available && mi_col + mi_width < xd->tile.mi_col_end) {
       TplDepStats *ref_tpl_stats = &tpl_frame->tpl_stats_ptr[av1_tpl_ptr_pos(
           cpi, mi_row - mi_height, mi_col + mi_width, tpl_frame->stride)];
+      int_mv ref_mv_full, center_mv1_full,
+          center_mv2_full; /* full-pixel value */
+      ref_mv_full.as_mv.col = (ref_tpl_stats->mv[rf_idx].as_mv.col >> 3);
+      ref_mv_full.as_mv.row = (ref_tpl_stats->mv[rf_idx].as_mv.row >> 3);
+
+      center_mv1_full.as_mv.col = (center_mvs[1].as_mv.col >> 3);
+      center_mv1_full.as_mv.row = (center_mvs[1].as_mv.row >> 3);
+
+      center_mv2_full.as_mv.col = (center_mvs[2].as_mv.col >> 3);
+      center_mv2_full.as_mv.row = (center_mvs[2].as_mv.row >> 3);
+
       if (ref_tpl_stats->mv[rf_idx].as_int != 0 &&
-          ref_tpl_stats->mv[rf_idx].as_int != center_mvs[1].as_int &&
-          ref_tpl_stats->mv[rf_idx].as_int != center_mvs[2].as_int) {
+          ref_mv_full.as_int != center_mv1_full.as_int &&
+          ref_mv_full.as_int != center_mv2_full.as_int) {
         center_mvs[refmv_count].as_int = ref_tpl_stats->mv[rf_idx].as_int;
         ++refmv_count;
       }
