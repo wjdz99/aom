@@ -317,7 +317,8 @@ static AOM_INLINE void mode_estimation(
       TplDepStats *ref_tpl_stats = &tpl_frame->tpl_stats_ptr[av1_tpl_ptr_pos(
           cpi, mi_row, mi_col - mi_width, tpl_frame->stride)];
       if (ref_tpl_stats->mv[rf_idx].as_int != 0 &&
-          ref_tpl_stats->mv[rf_idx].as_int != center_mvs[1].as_int) {
+          (ref_tpl_stats->mv[rf_idx].as_int >> 3) !=
+              (center_mvs[1].as_int >> 3)) {
         center_mvs[refmv_count].as_int = ref_tpl_stats->mv[rf_idx].as_int;
         ++refmv_count;
       }
@@ -327,8 +328,10 @@ static AOM_INLINE void mode_estimation(
       TplDepStats *ref_tpl_stats = &tpl_frame->tpl_stats_ptr[av1_tpl_ptr_pos(
           cpi, mi_row - mi_height, mi_col + mi_width, tpl_frame->stride)];
       if (ref_tpl_stats->mv[rf_idx].as_int != 0 &&
-          ref_tpl_stats->mv[rf_idx].as_int != center_mvs[1].as_int &&
-          ref_tpl_stats->mv[rf_idx].as_int != center_mvs[2].as_int) {
+          (ref_tpl_stats->mv[rf_idx].as_int >> 3) !=
+              (center_mvs[1].as_int >> 3) &&
+          (ref_tpl_stats->mv[rf_idx].as_int >> 3) !=
+              (center_mvs[2].as_int >> 3)) {
         center_mvs[refmv_count].as_int = ref_tpl_stats->mv[rf_idx].as_int;
         ++refmv_count;
       }
