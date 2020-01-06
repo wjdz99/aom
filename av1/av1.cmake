@@ -101,6 +101,17 @@ if(CONFIG_INTRA_ENTROPY)
               "${AOM_ROOT}/av1/common/nn_em.h" "${AOM_ROOT}/av1/common/nn_em.c")
 endif()
 
+if(CONFIG_TENSORFLOW_LITE)
+  list(
+    APPEND
+      AOM_AV1_COMMON_SOURCES "${AOM_ROOT}/av1/common/cnn_tflite.cc"
+      "${AOM_ROOT}/av1/common/cnn_tflite.h"
+      "${AOM_ROOT}/av1/tflite_models/intra_frame_model/qp32.cc"
+      "${AOM_ROOT}/av1/tflite_models/intra_frame_model/qp32.h"
+      "${AOM_ROOT}/av1/tflite_models/intra_frame_model/qp32_op_registrations.cc"
+      "${AOM_ROOT}/av1/tflite_models/intra_frame_model/qp32_op_registrations.h")
+endif()
+
 list(APPEND AOM_AV1_DECODER_SOURCES
             "${AOM_ROOT}/av1/av1_dx_iface.c"
             "${AOM_ROOT}/av1/decoder/decodeframe.c"
