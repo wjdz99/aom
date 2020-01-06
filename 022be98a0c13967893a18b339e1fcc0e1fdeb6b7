@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d3260a4_626d7401",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3501,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-01-06T21:59:00Z",
+      "side": 1,
+      "message": "May save a couple of lines. These might also exist with cpi-\u003ecommon.seq_params.use_highbitdepth\u003d0, right?",
+      "range": {
+        "startLine": 3500,
+        "startChar": 4,
+        "endLine": 3501,
+        "endChar": 45
+      },
+      "revId": "022be98a0c13967893a18b339e1fcc0e1fdeb6b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
