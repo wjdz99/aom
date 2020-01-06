@@ -11342,7 +11342,6 @@ static INLINE bool mask_check_bit(int mask, int index) {
   return (mask >> index) & 0x1;
 }
 
-#if !CONFIG_NEW_INTER_MODES
 // Before performing the full MV search in handle_inter_mode, do a simple
 // translation search and see if we can eliminate any motion vectors.
 // Returns an integer where, if the i-th bit is set, it means that the i-th
@@ -11359,8 +11358,15 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
   const PREDICTION_MODE this_mode = mbmi->mode;
 
   // Only search indices if they have some chance of being good.
+#if CONFIG_NEW_INTER_MODES
+  int good_indices = 0x1;  // Always allow the zeroth MV to be searched
+  const int start_mv_idx =
+      1;  // Because MV 0 will be returned, don't waste time on it here
+#else
   int good_indices = 0;
-  for (int i = 0; i < ref_set; ++i) {
+  const int start_mv_idx = 0;
+#endif
+  for (int i = start_mv_idx; i < ref_set; ++i) {
     if (ref_mv_idx_early_breakout(x, &cpi->sf, args, ref_best_rd, i)) {
       continue;
     }
@@ -11387,7 +11393,7 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
 #else
   int64_t idx_rdcost[] = { INT64_MAX, INT64_MAX, INT64_MAX };
 #endif  // CONFIG_NEW_INTER_MODES
-  for (int ref_mv_idx = 0; ref_mv_idx < ref_set; ++ref_mv_idx) {
+  for (int ref_mv_idx = start_mv_idx; ref_mv_idx < ref_set; ++ref_mv_idx) {
     // If this index is bad, ignore it.
     if (!mask_check_bit(good_indices, ref_mv_idx)) {
       continue;
@@ -11405,7 +11411,11 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
   }
   // Only include indices that are good and within a % of the best.
   const double dth = has_second_ref(mbmi) ? 1.05 : 1.001;
+#if CONFIG_NEW_INTER_MODES
+  int result = 0x1;  // Always allow the zeroth MV to be searched
+#else
   int result = 0;
+#endif
   for (int i = 0; i < ref_set; ++i) {
     if (mask_check_bit(good_indices, i) &&
         (1.0 * idx_rdcost[i]) / idx_rdcost[best_idx] < dth) {
@@ -11414,7 +11424,6 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
   }
   return result;
 }
-#endif  // !CONFIG_NEW_INTER_MODES
 
 static int64_t handle_inter_mode(
     AV1_COMP *const cpi, TileDataEnc *tile_data, MACROBLOCK *x,
@@ -11484,23 +11493,18 @@ static int64_t handle_inter_mode(
   // First, perform a simple translation search for each of the indices. If
   // an index performs well, it will be fully searched here.
   const int ref_set = get_drl_refmv_count(x, mbmi->ref_frame, this_mode);
-#if !CONFIG_NEW_INTER_MODES
-  // See below for an explanation of this guard.
   int idx_mask =
       ref_mv_idx_to_search(cpi, x, rd_stats, args, ref_best_rd, mode_info,
                            bsize, mi_row, mi_col, ref_set);
-#endif  // !CONFIG_NEW_INTER_MODES
   for (int ref_mv_idx = 0; ref_mv_idx < ref_set; ++ref_mv_idx) {
     mode_info[ref_mv_idx].mv.as_int = INVALID_MV;
     mode_info[ref_mv_idx].rd = INT64_MAX;
-#if !CONFIG_NEW_INTER_MODES
     // This optimization makes it possible to ignore MV 0.
     // Because NEARESTMV is gone, this greatly hurts performance.
     if (!mask_check_bit(idx_mask, ref_mv_idx)) {
       // MV did not perform well in simple translation search. Skip it.
       continue;
     }
-#endif  // !CONFIG_NEW_INTER_MODES
     av1_init_rd_stats(rd_stats);
 
     mbmi->interinter_comp.type = COMPOUND_AVERAGE;
