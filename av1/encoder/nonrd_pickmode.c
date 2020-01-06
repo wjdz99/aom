@@ -1406,7 +1406,6 @@ void av1_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
     args.skippable = 1;
     args.rdc = &this_rdc;
     mi->tx_size = intra_tx_size;
-    init_mbmi(mi, this_mode, INTRA_FRAME, NONE_FRAME, cm);
     av1_foreach_transformed_block_in_plane(xd, bsize, 0, estimate_block_intra,
                                            &args);
     if (args.skippable) {
