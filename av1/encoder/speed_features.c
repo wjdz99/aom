@@ -831,7 +831,6 @@ static AOM_INLINE void init_hl_sf(HIGH_LEVEL_SPEED_FEATURES *hl_sf) {
   hl_sf->recode_loop = ALLOW_RECODE;
   hl_sf->reduce_high_precision_mv_usage = 0;
   hl_sf->disable_overlay_frames = 0;
-  // TODO(yunqing): turn it on for speed 0 if there is gain.
   hl_sf->adaptive_overlay_encoding = 1;
   // Recode loop tolerance %.
   hl_sf->recode_tolerance = 25;
