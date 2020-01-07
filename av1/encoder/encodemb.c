@@ -35,6 +35,10 @@
 #include "av1/encoder/rd.h"
 #include "av1/encoder/rdopt.h"
 
+#if CONFIG_COLLECT_RES
+static const char export_inter_block_file[] = "res_data_inter.bin";
+#endif
+
 // Check if one needs to use c version subtraction.
 static int check_subtract_block_size(int w, int h) { return w < 4 || h < 4; }
 
@@ -622,6 +626,51 @@ void av1_encode_sb(const struct AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
         }
       }
     }
+#if CONFIG_COLLECT_RES
+    if (!dry_run && plane == 0) {  // take y plane only
+      FILE *f = fopen(export_inter_block_file, "wb");
+      const int diff_stride = block_size_wide[plane_bsize];
+      const int rows = block_size_high[plane_bsize];
+      const int cols = block_size_wide[plane_bsize];
+      int r, c;
+      int16_t *const src_diff = x->plane[plane].src_diff;
+      const int mb_mode = plane == 0 ? mbmi->mode : mbmi->uv_mode;
+      int data_ar[11] = { mi_row,
+                          mi_col,
+                          mi_width,
+                          mi_height,
+                          plane,
+                          mb_mode,
+                          cm->base_qindex,
+                          cols,
+                          rows,
+                          tx_size_wide[mbmi->tx_size],
+                          tx_size_high[mbmi->tx_size] };
+      fwrite(&data_ar, sizeof(data_ar), 1, f);
+      // print tx_type
+      for (int blk_row = 0; blk_row < mi_height * 4;
+           blk_row += tx_size_high[mbmi->tx_size]) {
+        for (int blk_col = 0; blk_col < mi_width * 4;
+             blk_col += tx_size_wide[mbmi->tx_size]) {
+          if (!is_blk_skip(x, plane, blk_row * bw + blk_col) &&
+              !mbmi->skip_mode) {
+            const int txk_type_idx =
+                av1_get_txk_type_index(mbmi->sb_type, blk_row, blk_col);
+            fwrite(&mbmi->txk_type[txk_type_idx], sizeof(uint8_t), 1, f);
+          } else {
+            int v = -1;
+            fwrite(&v, sizeof(uint8_t), 1, f);
+          }
+        }
+      }
+      for (r = 0; r < rows; ++r) {
+        for (c = 0; c < cols; ++c) {
+          fwrite(&src_diff[r * diff_stride + c], sizeof(int16_t), 1, f);
+        }
+      }
+      fclose(f);
+    }
+#endif
   }
 }
 
