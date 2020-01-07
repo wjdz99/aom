@@ -22,6 +22,30 @@
       "revId": "84457b4cc03e47afdfe077ac2ae60d412a0863b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8be92d5_edba4025",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2814,
+      "author": {
+        "id": 10122
+      },
+      "writtenOn": "2020-01-07T17:46:24Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nChanges done here are intended.\nWe see that xd and pd are passed as argument to calculate_sse() which expects a non constant xd and pd and hence results in build failure.\nAlso shift is used in code but not defined. As per our understanding it should be (bd-8)",
+      "parentUuid": "560d594f_2f745589",
+      "range": {
+        "startLine": 2803,
+        "startChar": 2,
+        "endLine": 2814,
+        "endChar": 33
+      },
+      "revId": "84457b4cc03e47afdfe077ac2ae60d412a0863b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
