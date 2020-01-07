@@ -626,7 +626,7 @@ static AOM_INLINE void write_mb_interp_filter(AV1_COMP *cpi,
           av1_extract_interp_filter(mbmi->interp_filters, dir);
       aom_write_symbol(w, filter, ec_ctx->switchable_interp_cdf[ctx],
                        SWITCHABLE_FILTERS);
-      ++cm->cur_frame->interp_filter_selected[filter];
+//      ++cm->cur_frame->interp_filter_selected[filter];
       if (cm->seq_params.enable_dual_filter == 0) return;
     }
   }
