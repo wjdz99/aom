@@ -5453,20 +5453,16 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *xd = &x->e_mbd;
-  MB_MODE_INFO **mi = cm->mi_grid_base + get_mi_grid_idx(cm, mi_row, mi_col);
-
-  const TileInfo *const tile_info = &tile_data->tile_info;
   const int num_planes = av1_num_planes(cm);
-  const int ss_x = xd->plane[1].subsampling_x;
-  const int ss_y = xd->plane[1].subsampling_y;
+  const TileInfo *const tile_info = &tile_data->tile_info;
+  MB_MODE_INFO **mi = cm->mi_grid_base + get_mi_grid_idx(cm, mi_row, mi_col);
   const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
 
   setup_delta_q(cpi, td, x, tile_info, mi_row, mi_col, num_planes);
   set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col, sb_size);
   av1_choose_var_based_partitioning(cpi, tile_info, x, mi_row, mi_col);
   td->mb.cb_offset = 0;
-  PC_TREE *pc_root = av1_alloc_pc_tree_node(mi_row, mi_col, sb_size, NULL,
-                                            PARTITION_NONE, 0, 1, ss_x, ss_y);
+  PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size, 1);
   av1_reset_ptree_in_sbi(xd->sbi);
   nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                       pc_root, xd->sbi->ptree_root);
@@ -5593,11 +5589,7 @@ static INLINE void init_encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   }
 
   if (!*pc_root) {
-    const MACROBLOCKD *xd = &x->e_mbd;
-    const int ss_x = xd->plane[1].subsampling_x;
-    const int ss_y = xd->plane[1].subsampling_y;
-    *pc_root = av1_alloc_pc_tree_node(mi_row, mi_col, sb_size, NULL,
-                                      PARTITION_NONE, 0, 1, ss_x, ss_y);
+    *pc_root = av1_alloc_pc_tree_node(sb_size, 1);
   }
 
   x->sb_energy_level = 0;
@@ -5802,6 +5794,8 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
   const TileInfo *const tile_info = &tile_data->tile_info;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
+  const int ss_x = xd->plane[1].subsampling_x;
+  const int ss_y = xd->plane[1].subsampling_y;
   const SPEED_FEATURES *const sf = &cpi->sf;
   const int sb_cols_in_tile = av1_get_sb_cols_in_tile(cm, tile_data->tile_info);
   const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
@@ -5872,12 +5866,99 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
     if (!(sf->partition_search_type == FIXED_PARTITION || seg_skip) &&
         !cpi->partition_search_skippable_frame &&
         sf->partition_search_type == VAR_BASED_PARTITION && use_nonrd_mode) {
+<<<<<<< HEAD
+      set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col,
+                                     sb_size);
+      av1_choose_var_based_partitioning(cpi, tile_info, x, mi_row, mi_col);
+      td->mb.cb_offset = 0;
+      PC_TREE *const pc_root = av1_alloc_pc_tree_node(
+          mi_row, mi_col, sb_size, NULL, PARTITION_NONE, 0, 1, ss_x, ss_y);
+      av1_reset_ptree_in_sbi(xd->sbi);
+      nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
+                          pc_root, xd->sbi->ptree_root);
+      av1_free_pc_tree_recursive(pc_root, num_planes, 0, 0);
+    } else {
+#if !CONFIG_REALTIME_ONLY
+      int dummy_rate;
+      int64_t dummy_dist;
+      RD_STATS dummy_rdc;
+      av1_invalid_rd_stats(&dummy_rdc);
+      adjust_rdmult_tpl_model(cpi, x, mi_row, mi_col);
+      if (sf->partition_search_type == FIXED_PARTITION || seg_skip) {
+        set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
+        const BLOCK_SIZE bsize =
+            seg_skip ? sb_size : sf->always_this_block_size;
+        set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
+        PC_TREE *const pc_root = av1_alloc_pc_tree_node(
+            mi_row, mi_col, sb_size, NULL, PARTITION_NONE, 0, 1, ss_x, ss_y);
+        rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
+                         &dummy_rate, &dummy_dist, 1, pc_root);
+        av1_free_pc_tree_recursive(pc_root, num_planes, 0, 0);
+      } else if (cpi->partition_search_skippable_frame) {
+        set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
+        const BLOCK_SIZE bsize =
+            get_rd_var_based_fixed_partition(cpi, x, mi_row, mi_col);
+        set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
+        PC_TREE *const pc_root = av1_alloc_pc_tree_node(
+            mi_row, mi_col, sb_size, NULL, PARTITION_NONE, 0, 1, ss_x, ss_y);
+        rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
+                         &dummy_rate, &dummy_dist, 1, pc_root);
+        av1_free_pc_tree_recursive(pc_root, num_planes, 0, 0);
+      } else {
+        reset_simple_motion_tree_partition(sms_root, sb_size);
+#if CONFIG_COLLECT_COMPONENT_TIMING
+        start_timing(cpi, rd_pick_partition_time);
+#endif
+        BLOCK_SIZE max_sq_size = BLOCK_128X128;
+        switch (cpi->oxcf.max_partition_size) {
+          case 4: max_sq_size = BLOCK_4X4; break;
+          case 8: max_sq_size = BLOCK_8X8; break;
+          case 16: max_sq_size = BLOCK_16X16; break;
+          case 32: max_sq_size = BLOCK_32X32; break;
+          case 64: max_sq_size = BLOCK_64X64; break;
+          case 128: max_sq_size = BLOCK_128X128; break;
+          default: assert(0); break;
+        }
+        max_sq_size = AOMMIN(max_sq_size, sb_size);
+
+        BLOCK_SIZE min_sq_size = BLOCK_4X4;
+        switch (cpi->oxcf.min_partition_size) {
+          case 4: min_sq_size = BLOCK_4X4; break;
+          case 8: min_sq_size = BLOCK_8X8; break;
+          case 16: min_sq_size = BLOCK_16X16; break;
+          case 32: min_sq_size = BLOCK_32X32; break;
+          case 64: min_sq_size = BLOCK_64X64; break;
+          case 128: min_sq_size = BLOCK_128X128; break;
+          default: assert(0); break;
+        }
+
+        if (use_auto_max_partition(cpi, sb_size, mi_row, mi_col)) {
+          float features[FEATURE_SIZE_MAX_MIN_PART_PRED] = { 0.0f };
+
+          av1_get_max_min_partition_features(cpi, x, mi_row, mi_col, features);
+          max_sq_size =
+              AOMMIN(av1_predict_max_partition(cpi, x, features), max_sq_size);
+        }
+
+        min_sq_size = AOMMIN(min_sq_size, max_sq_size);
+
+        PC_TREE *const pc_root = av1_alloc_pc_tree_node(
+            mi_row, mi_col, sb_size, NULL, PARTITION_NONE, 0, 1, ss_x, ss_y);
+        rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
+                          max_sq_size, min_sq_size, &dummy_rdc, dummy_rdc,
+                          pc_root, sms_root, NULL);
+#if CONFIG_COLLECT_COMPONENT_TIMING
+        end_timing(cpi, rd_pick_partition_time);
+#endif
+      }
+=======
       // Realtime non-rd path
       encode_nonrd_sb(cpi, td, tile_data, tp, mi_row, mi_col);
     } else {
 #if !CONFIG_REALTIME_ONLY
       // Non-realtime rd path
       encode_rd_sb(cpi, td, tile_data, tp, mi_row, mi_col, seg_skip);
+>>>>>>> Prepare for sb level multi-pass encoding
 #endif  // !CONFIG_REALTIME_ONLY
     }
   }
