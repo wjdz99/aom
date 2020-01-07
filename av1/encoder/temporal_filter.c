@@ -42,6 +42,7 @@
 // Only supports 3x3 window for filtering, hence, there are totally 9 non-zero
 // numbers within the 14-element multiplier lookup table. 5 zeros should never
 // be visited.
+
 static const unsigned int index_mult[14] = { 0,     0,     0,     0,     49152,
                                              39322, 32768, 28087, 24576, 21846,
                                              19661, 17874, 0,     15124 };
@@ -51,11 +52,15 @@ static const int64_t highbd_index_mult[14] = {
   2576980378U, 2147483648U, 1840700270U, 1610612736U, 1431655766U,
   1288490189U, 1171354718U, 0U,          991146300U
 };
+// Windows size for YUV filtering.
+static const int YUV_FILTER_WINDOW_SIZE = 3;
 
-static INLINE int mod_index(int sum_dist, int index, int rounding, int strength,
+static INLINE int mod_index(int sum_dist, int index, int strength,
                             int filter_weight) {
   assert(index >= 0 && index <= 13);
   assert(index_mult[index] != 0);
+
+  const int rounding = (1 << strength) >> 1;
 
   int mod = (clamp(sum_dist, 0, UINT16_MAX) * index_mult[index]) >> 16;
   mod += rounding;
@@ -69,10 +74,12 @@ static INLINE int mod_index(int sum_dist, int index, int rounding, int strength,
   return mod;
 }
 
-static INLINE int highbd_mod_index(int64_t sum_dist, int index, int rounding,
-                                   int strength, int filter_weight) {
+static INLINE int highbd_mod_index(int64_t sum_dist, int index, int strength,
+                                   int filter_weight) {
   assert(index >= 0 && index <= 13);
   assert(highbd_index_mult[index] != 0);
+
+  const int rounding = (1 << strength) >> 1;
 
   int mod =
       (int)((AOMMIN(sum_dist, INT32_MAX) * highbd_index_mult[index]) >> 32);
@@ -211,22 +218,6 @@ static void highbd_apply_temporal_filter_self(
   }
 }
 
-static INLINE void calculate_squared_errors(const uint8_t *s, int s_stride,
-                                            const uint8_t *p, int p_stride,
-                                            uint16_t *diff_sse, unsigned int w,
-                                            unsigned int h) {
-  int idx = 0;
-  unsigned int i, j;
-
-  for (i = 0; i < h; i++) {
-    for (j = 0; j < w; j++) {
-      const int16_t diff = s[i * s_stride + j] - p[i * p_stride + j];
-      diff_sse[idx] = diff * diff;
-      idx++;
-    }
-  }
-}
-
 static INLINE int get_filter_weight(unsigned int i, unsigned int j,
                                     unsigned int block_height,
                                     unsigned int block_width, const int *blk_fw,
@@ -250,129 +241,119 @@ static INLINE int get_filter_weight(unsigned int i, unsigned int j,
   return filter_weight;
 }
 
-void av1_apply_temporal_filter_c(
-    const uint8_t *y_frame1, int y_stride, const uint8_t *y_pred,
-    int y_buf_stride, const uint8_t *u_frame1, const uint8_t *v_frame1,
-    int uv_stride, const uint8_t *u_pred, const uint8_t *v_pred,
-    int uv_buf_stride, unsigned int block_width, unsigned int block_height,
-    int ss_x, int ss_y, int strength, const int *blk_fw, int use_32x32,
-    uint32_t *y_accumulator, uint16_t *y_count, uint32_t *u_accumulator,
-    uint16_t *u_count, uint32_t *v_accumulator, uint16_t *v_count) {
-  unsigned int i, j, k, m;
-  int modifier;
-  const int rounding = (1 << strength) >> 1;
-  const unsigned int uv_block_width = block_width >> ss_x;
-  const unsigned int uv_block_height = block_height >> ss_y;
-  DECLARE_ALIGNED(16, uint16_t, y_diff_sse[BLK_PELS]);
-  DECLARE_ALIGNED(16, uint16_t, u_diff_sse[BLK_PELS]);
-  DECLARE_ALIGNED(16, uint16_t, v_diff_sse[BLK_PELS]);
+void av1_apply_temporal_filter_yuv_c(const YV12_BUFFER_CONFIG *ref_frame,
+                                     const MACROBLOCKD *mbd,
+                                     const BLOCK_SIZE block_size,
+                                     const int mb_row, const int mb_col,
+                                     const int strength, const int use_subblock,
+                                     const int *blk_fw, const uint8_t *pred,
+                                     uint32_t *accum, uint16_t *count) {
+  // Block information.
+  const int mb_height = block_size_high[block_size];
+  const int mb_width = block_size_wide[block_size];
+  const int mb_size = mb_height * mb_width;
+  // const int is_high_bitdepth = is_cur_buf_hbd(mbd);
 
-  int idx = 0, idy;
+  uint32_t *square_diff =
+      aom_memalign(16, MAX_MB_PLANE * mb_size * sizeof(uint32_t));
 
-  memset(y_diff_sse, 0, BLK_PELS * sizeof(uint16_t));
-  memset(u_diff_sse, 0, BLK_PELS * sizeof(uint16_t));
-  memset(v_diff_sse, 0, BLK_PELS * sizeof(uint16_t));
+  assert(YUV_FILTER_WINDOW_SIZE % 2 == 0);
+  const int half_window = YUV_FILTER_WINDOW_SIZE >> 1;
 
-  // Calculate diff^2 for each pixel of the block.
-  // TODO(yunqing): the following code needs to be optimized.
-  calculate_squared_errors(y_frame1, y_stride, y_pred, y_buf_stride, y_diff_sse,
-                           block_width, block_height);
-  calculate_squared_errors(u_frame1, uv_stride, u_pred, uv_buf_stride,
-                           u_diff_sse, uv_block_width, uv_block_height);
-  calculate_squared_errors(v_frame1, uv_stride, v_pred, uv_buf_stride,
-                           v_diff_sse, uv_block_width, uv_block_height);
+  // Handle Y-plane, U-plane, V-plane in sequence.
+  for (int plane = 0; plane < MAX_MB_PLANE; ++plane) {
+    const int subsampling_y = mbd->plane[plane].subsampling_y;
+    const int subsampling_x = mbd->plane[plane].subsampling_x;
+    const int h = mb_height >> subsampling_y;
+    const int w = mb_width >> subsampling_x;
 
-  for (i = 0, k = 0, m = 0; i < block_height; i++) {
-    for (j = 0; j < block_width; j++) {
-      const int pixel_value = y_pred[i * y_buf_stride + j];
-      int filter_weight =
-          get_filter_weight(i, j, block_height, block_width, blk_fw, use_32x32);
+    // Locate pixel on reference frame.
+    const int frame_stride =
+        (plane == 0) ? ref_frame->y_stride : ref_frame->uv_stride;
+    const int frame_offset = mb_row * h * frame_stride + mb_col * w;
+    uint8_t *frame;
+    switch (plane) {
+      case 0: frame = ref_frame->y_buffer + frame_offset; break;
+      case 1: frame = ref_frame->u_buffer + frame_offset; break;
+      case 2: frame = ref_frame->v_buffer + frame_offset; break;
+      default: assert(0 && "Number of planes should be at most 3.");
+    }
 
-      // non-local mean approach
-      int y_index = 0;
-
-      const int uv_r = i >> ss_y;
-      const int uv_c = j >> ss_x;
-      modifier = 0;
-
-      for (idy = -1; idy <= 1; ++idy) {
-        for (idx = -1; idx <= 1; ++idx) {
-          const int row = (int)i + idy;
-          const int col = (int)j + idx;
-
-          if (row >= 0 && row < (int)block_height && col >= 0 &&
-              col < (int)block_width) {
-            modifier += y_diff_sse[row * (int)block_width + col];
-            ++y_index;
-          }
-        }
+    // Compute pixel-wise squared difference.
+    for (int i = 0; i < h; ++i) {
+      for (int j = 0; j < w; ++j) {
+        const uint32_t ref_value = frame[i * frame_stride + j];
+        const uint32_t pred_value = pred[mb_size * plane + i * w + j];
+        const uint32_t diff = (ref_value > pred_value) ?
+                              (ref_value - pred_value) :
+                              (pred_value - ref_value);
+        square_diff[mb_size * plane + i * w + j] = diff * diff;
       }
+    }
 
-      assert(y_index > 0);
-
-      modifier += u_diff_sse[uv_r * uv_block_width + uv_c];
-      modifier += v_diff_sse[uv_r * uv_block_width + uv_c];
-
-      y_index += 2;
-
-      modifier =
-          (int)mod_index(modifier, y_index, rounding, strength, filter_weight);
-
-      y_count[k] += modifier;
-      y_accumulator[k] += modifier * pixel_value;
-
-      ++k;
-
-      // Process chroma component
-      if (!(i & ss_y) && !(j & ss_x)) {
-        const int u_pixel_value = u_pred[uv_r * uv_buf_stride + uv_c];
-        const int v_pixel_value = v_pred[uv_r * uv_buf_stride + uv_c];
+    // Perform filtering.
+    for (int i = 0; i < h; ++i) {
+      for (int j = 0; j < w; ++j) {
+        int filter_weight =
+            get_filter_weight(i, j, mb_height, mb_width, blk_fw, !use_subblock);
 
         // non-local mean approach
-        int cr_index = 0;
-        int u_mod = 0, v_mod = 0;
-        int y_diff = 0;
+        int modifier_index = 0;
+        int modifier = 0;
 
-        for (idy = -1; idy <= 1; ++idy) {
-          for (idx = -1; idx <= 1; ++idx) {
-            const int row = uv_r + idy;
-            const int col = uv_c + idx;
-
-            if (row >= 0 && row < (int)uv_block_height && col >= 0 &&
-                col < (int)uv_block_width) {
-              u_mod += u_diff_sse[row * uv_block_width + col];
-              v_mod += v_diff_sse[row * uv_block_width + col];
-              ++cr_index;
+        for (int wi = -half_window; wi <= half_window; ++wi) {
+          for (int wj = -half_window; wj <= half_window; ++wj) {
+            const int y = i + wi;
+            const int x = j + wj;
+            if (y >= 0 && y < h && x >= 0 && x < w) {
+              modifier += square_diff[mb_size * plane + y * w + x];
+              ++modifier_index;
             }
           }
         }
+        assert(modifier_index > 0);
 
-        assert(cr_index > 0);
-
-        for (idy = 0; idy < 1 + ss_y; ++idy) {
-          for (idx = 0; idx < 1 + ss_x; ++idx) {
-            const int row = (uv_r << ss_y) + idy;
-            const int col = (uv_c << ss_x) + idx;
-            y_diff += y_diff_sse[row * (int)block_width + col];
-            ++cr_index;
+        if (plane == 0) {  // Filter Y-plane using both U-plane and V-plane.
+          const int yy = i >> subsampling_y;
+          const int xx = j >> subsampling_x;
+          const int ww = w >> subsampling_x;
+          modifier += square_diff[mb_size * 1 + yy * ww + xx];
+          modifier += square_diff[mb_size * 2 + yy * ww + xx];
+          modifier_index += 2;
+        } else {  // Filter U-plane or V-plane using Y-plane.
+          for (int ii = 0; ii < subsampling_y; ++i) {
+            for (int jj = 0; jj < subsampling_x; ++jj) {
+              const int xx = (i << subsampling_y) + ii;
+              const int yy = (j << subsampling_x) + jj;
+              const int ww = w << subsampling_x;
+              modifier += square_diff[yy * ww + xx];
+            }
           }
+          modifier_index += (1 << (subsampling_x + subsampling_y));
         }
 
-        u_mod += y_diff;
-        v_mod += y_diff;
+        modifier = mod_index(modifier, modifier_index, strength, filter_weight);
 
-        u_mod =
-            (int)mod_index(u_mod, cr_index, rounding, strength, filter_weight);
-        v_mod =
-            (int)mod_index(v_mod, cr_index, rounding, strength, filter_weight);
+        const int pred_value = pred[mb_size * plane + i * w + j];
+        accum[mb_size * plane + i * w + j] += modifier * pred_value;
+        count[mb_size * plane + i * w + j] += modifier;
+      }
+    }
+  }
+}
 
-        u_count[m] += u_mod;
-        u_accumulator[m] += u_mod * u_pixel_value;
-        v_count[m] += v_mod;
-        v_accumulator[m] += v_mod * v_pixel_value;
+static INLINE void calculate_squared_errors(const uint8_t *s, int s_stride,
+                                            const uint8_t *p, int p_stride,
+                                            uint16_t *diff_sse, unsigned int w,
+                                            unsigned int h) {
+  int idx = 0;
+  unsigned int i, j;
 
-        ++m;
-      }  // Complete YUV pixel
+  for (i = 0; i < h; i++) {
+    for (j = 0; j < w; j++) {
+      const int16_t diff = s[i * s_stride + j] - p[i * p_stride + j];
+      diff_sse[idx] = diff * diff;
+      idx++;
     }
   }
 }
@@ -402,7 +383,6 @@ void av1_highbd_apply_temporal_filter_c(
     uint32_t *v_accumulator, uint16_t *v_count) {
   unsigned int i, j, k, m;
   int64_t modifier;
-  const int rounding = (1 << strength) >> 1;
   const unsigned int uv_block_width = block_width >> ss_x;
   const unsigned int uv_block_height = block_height >> ss_y;
   DECLARE_ALIGNED(16, uint32_t, y_diff_sse[BLK_PELS]);
@@ -463,8 +443,8 @@ void av1_highbd_apply_temporal_filter_c(
 
       y_index += 2;
 
-      const int final_y_mod = highbd_mod_index(modifier, y_index, rounding,
-                                               strength, filter_weight);
+      const int final_y_mod =
+          highbd_mod_index(modifier, y_index, strength, filter_weight);
 
       y_count[k] += final_y_mod;
       y_accumulator[k] += final_y_mod * pixel_value;
@@ -509,10 +489,10 @@ void av1_highbd_apply_temporal_filter_c(
         u_mod += y_diff;
         v_mod += y_diff;
 
-        const int final_u_mod = highbd_mod_index(u_mod, cr_index, rounding,
-                                                 strength, filter_weight);
-        const int final_v_mod = highbd_mod_index(v_mod, cr_index, rounding,
-                                                 strength, filter_weight);
+        const int final_u_mod =
+            highbd_mod_index(u_mod, cr_index, strength, filter_weight);
+        const int final_v_mod =
+            highbd_mod_index(v_mod, cr_index, strength, filter_weight);
 
         u_count[m] += final_u_mod;
         u_accumulator[m] += final_u_mod * u_pixel_value;
@@ -744,14 +724,12 @@ void av1_highbd_temporal_filter_plane_c(
   }
 }
 
-void apply_temporal_filter_block(YV12_BUFFER_CONFIG *frame, MACROBLOCKD *mbd,
-                                 int mb_y_src_offset, int mb_uv_src_offset,
-                                 int mb_uv_width, int mb_uv_height,
-                                 int num_planes, uint8_t *predictor,
-                                 int frame_height, int strength, double sigma,
-                                 int *blk_fw, int use_32x32,
-                                 unsigned int *accumulator, uint16_t *count,
-                                 int use_new_temporal_mode) {
+void apply_temporal_filter_block(
+    YV12_BUFFER_CONFIG *frame, MACROBLOCKD *mbd, int mb_y_src_offset,
+    int mb_uv_src_offset, int mb_uv_width, int mb_uv_height, int num_planes,
+    uint8_t *predictor, int frame_height, int strength, double sigma,
+    int *blk_fw, int use_32x32, unsigned int *accumulator, uint16_t *count,
+    int use_new_temporal_mode, int mb_row, int mb_col) {
   const int is_hbd = is_cur_buf_hbd(mbd);
   // High bitdepth
   if (is_hbd) {
@@ -843,15 +821,18 @@ void apply_temporal_filter_block(YV12_BUFFER_CONFIG *frame, MACROBLOCKD *mbd,
                                   blk_fw, use_32x32, accumulator, count);
     } else {
       // Process 3 planes together.
-      av1_apply_temporal_filter(
-          frame->y_buffer + mb_y_src_offset, frame->y_stride, predictor, BW,
-          frame->u_buffer + mb_uv_src_offset,
-          frame->v_buffer + mb_uv_src_offset, frame->uv_stride,
-          predictor + BLK_PELS, predictor + (BLK_PELS << 1), mb_uv_width, BW,
-          BH, mbd->plane[1].subsampling_x, mbd->plane[1].subsampling_y,
-          strength, blk_fw, use_32x32, accumulator, count,
-          accumulator + BLK_PELS, count + BLK_PELS,
-          accumulator + (BLK_PELS << 1), count + (BLK_PELS << 1));
+      av1_apply_temporal_filter_yuv(frame, mbd, TF_BLOCK, mb_row, mb_col,
+                                    strength, !(use_32x32), blk_fw, predictor,
+                                    accumulator, count);
+      // av1_apply_temporal_filter_yuv(
+      //     frame->y_buffer + mb_y_src_offset, frame->y_stride, predictor, BW,
+      //     frame->u_buffer + mb_uv_src_offset,
+      //     frame->v_buffer + mb_uv_src_offset, frame->uv_stride,
+      //     predictor + BLK_PELS, predictor + (BLK_PELS << 1), mb_uv_width, BW,
+      //     BH, mbd->plane[1].subsampling_x, mbd->plane[1].subsampling_y,
+      //     strength, blk_fw, use_32x32, accumulator, count,
+      //     accumulator + BLK_PELS, count + BLK_PELS,
+      //     accumulator + (BLK_PELS << 1), count + (BLK_PELS << 1));
     }
   }
 }
@@ -1180,7 +1161,7 @@ static FRAME_DIFF temporal_filter_iterate_c(
                   f, mbd, mb_y_src_offset, mb_uv_src_offset, mb_uv_width,
                   mb_uv_height, num_planes, predictor, cm->height, strength,
                   sigma, blk_fw, use_32x32, accumulator, count,
-                  use_new_temporal_mode);
+                  use_new_temporal_mode, mb_row, mb_col);
 #else
               const int adj_strength = strength + 2 * (mbd->bd - 8);
               if (num_planes <= 1) {
@@ -1208,7 +1189,7 @@ static FRAME_DIFF temporal_filter_iterate_c(
                   f, mbd, mb_y_src_offset, mb_uv_src_offset, mb_uv_width,
                   mb_uv_height, num_planes, predictor, cm->height, strength,
                   sigma, blk_fw, use_32x32, accumulator, count,
-                  use_new_temporal_mode);
+                  use_new_temporal_mode, mb_row, mb_col);
 #else
               if (num_planes <= 1) {
                 // Single plane case
@@ -1217,16 +1198,19 @@ static FRAME_DIFF temporal_filter_iterate_c(
                     BH, strength, blk_fw, use_32x32, accumulator, count);
               } else {
                 // Process 3 planes together.
-                av1_apply_temporal_filter(
-                    f->y_buffer + mb_y_src_offset, f->y_stride, predictor, BW,
-                    f->u_buffer + mb_uv_src_offset,
-                    f->v_buffer + mb_uv_src_offset, f->uv_stride,
-                    predictor + BLK_PELS, predictor + (BLK_PELS << 1),
-                    mb_uv_width, BW, BH, mbd->plane[1].subsampling_x,
-                    mbd->plane[1].subsampling_y, strength, blk_fw, use_32x32,
-                    accumulator, count, accumulator + BLK_PELS,
-                    count + BLK_PELS, accumulator + (BLK_PELS << 1),
-                    count + (BLK_PELS << 1));
+
+                av1_apply_temporal_filter_yuv(
+                    frame, mbd, TF_BLOCK, mb_row, mb_col, strength,
+                    !(use_32x32), blk_fw, predictor, accumulator, count);
+                // av1_apply_temporal_filter_yuv(
+                //     f->y_buffer + mb_y_src_offset, f->y_stride, predictor,
+                //     BW, f->u_buffer + mb_uv_src_offset, f->v_buffer +
+                //     mb_uv_src_offset, f->uv_stride, predictor + BLK_PELS,
+                //     predictor + (BLK_PELS << 1), mb_uv_width, BW, BH,
+                //     mbd->plane[1].subsampling_x, mbd->plane[1].subsampling_y,
+                //     strength, blk_fw, use_32x32, accumulator, count,
+                //     accumulator + BLK_PELS, count + BLK_PELS, accumulator +
+                //     (BLK_PELS << 1), count + (BLK_PELS << 1));
               }
 #endif  // EXPERIMENT_TEMPORAL_FILTER
             }
