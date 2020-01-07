@@ -2239,15 +2239,11 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
         restore_context(x, &x_ctx, mi_row, mi_col, bsize, 3);
 
         if (none_rdc.rdcost < split_rdc.rdcost) {
-          set_offsets_without_segment_id(cpi, &tile_data->tile_info, x, mi_row,
-                                         mi_col, bsize);
           mib[0]->sb_type = bsize;
           pc_tree->partitioning = PARTITION_NONE;
           encode_b(cpi, tile_data, td, tp, mi_row, mi_col, 0, bsize, partition,
                    &pc_tree->none, NULL);
         } else {
-          set_offsets_without_segment_id(cpi, &tile_data->tile_info, x, mi_row,
-                                         mi_col, bsize);
           mib[0]->sb_type = subsize;
           pc_tree->partitioning = PARTITION_SPLIT;
           for (int i = 0; i < 4; i++) {
@@ -2256,9 +2252,6 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
             if (mi_row + y_idx >= cm->mi_rows || mi_col + x_idx >= cm->mi_cols)
               continue;
 
-            set_offsets_without_segment_id(cpi, &tile_data->tile_info, x,
-                                           mi_row + y_idx, mi_col + x_idx,
-                                           subsize);
             encode_b(cpi, tile_data, td, tp, mi_row + y_idx, mi_col + x_idx, 0,
                      subsize, PARTITION_NONE, &pc_tree->split[i]->none, NULL);
           }
@@ -2348,15 +2341,11 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
         split_rdc.rate += x->partition_cost[pl][PARTITION_SPLIT];
         split_rdc.rdcost = RDCOST(x->rdmult, split_rdc.rate, split_rdc.dist);
         if (none_rdc.rdcost < split_rdc.rdcost) {
-          set_offsets_without_segment_id(cpi, &tile_data->tile_info, x, mi_row,
-                                         mi_col, bsize);
           mib[0]->sb_type = bsize;
           pc_tree->partitioning = PARTITION_NONE;
           encode_b(cpi, tile_data, td, tp, mi_row, mi_col, 0, bsize, partition,
                    &pc_tree->none, NULL);
         } else {
-          set_offsets_without_segment_id(cpi, &tile_data->tile_info, x, mi_row,
-                                         mi_col, bsize);
           mib[0]->sb_type = subsize;
           pc_tree->partitioning = PARTITION_SPLIT;
           for (int i = 0; i < 4; i++) {
@@ -2366,9 +2355,6 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
                 (mi_col + x_idx >= cm->mi_cols))
               continue;
 
-            set_offsets_without_segment_id(cpi, &tile_data->tile_info, x,
-                                           mi_row + y_idx, mi_col + x_idx,
-                                           subsize);
             encode_b(cpi, tile_data, td, tp, mi_row + y_idx, mi_col + x_idx, 0,
                      subsize, PARTITION_NONE, &pc_tree->split[i]->none, NULL);
           }
@@ -4355,6 +4341,7 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   if (sf->part_sf.partition_search_type == VAR_BASED_PARTITION) {
     set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col, sb_size);
     av1_choose_var_based_partitioning(cpi, tile_info, x, mi_row, mi_col);
+    x->cb_offset = 0;
     rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                      &dummy_rate, &dummy_dist, 1, pc_root);
   }
