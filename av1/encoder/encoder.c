@@ -4678,7 +4678,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 }
 
 static void fix_interp_filter(InterpFilter *const interp_filter,
-                              const FRAME_COUNTS *const counts) {
+                              const FRAME_COUNTS *const counts, int *interp_filter_selected) {
   if (*interp_filter == SWITCHABLE) {
     // Check to see if only one of the filters is actually used
     int count[SWITCHABLE_FILTERS] = { 0 };
@@ -4686,6 +4686,7 @@ static void fix_interp_filter(InterpFilter *const interp_filter,
     for (int i = 0; i < SWITCHABLE_FILTERS; ++i) {
       for (int j = 0; j < SWITCHABLE_FILTER_CONTEXTS; ++j)
         count[i] += counts->switchable_interp[j][i];
+      interp_filter_selected[i] = count[i];
       num_filters_used += (count[i] > 0);
     }
     if (num_filters_used == 1) {
@@ -4742,7 +4743,7 @@ static void finalize_encoded_frame(AV1_COMP *const cpi) {
     }
   }
 
-  fix_interp_filter(&cm->interp_filter, cpi->td.counts);
+  fix_interp_filter(&cm->interp_filter, cpi->td.counts, cm->cur_frame->interp_filter_selected);
 }
 
 static int get_regulated_q_overshoot(AV1_COMP *const cpi, int q_low, int q_high,
@@ -4974,30 +4975,52 @@ static uint16_t setup_interp_filter_search_mask(AV1_COMP *cpi) {
   int ref_total[REF_FRAMES] = { 0 };
   uint16_t mask = ALLOW_ALL_INTERP_FILT_MASK;
 
-  if (cpi->common.last_frame_type == KEY_FRAME || cpi->refresh_alt_ref_frame)
+  if (cm->current_frame.frame_type == KEY_FRAME) // || cpi->refresh_alt_ref_frame)
     return mask;
 
+//  printf("\n frame: %d; order_hint: %d; cpi->gf_group.size = %d; \n", cm->current_frame.frame_number, cm->current_frame.display_order_hint, cpi->gf_group.size);
+//  printf(" dist: %d; %d;   \n", cpi->ref_relative_dist[cpi->nearest_past_ref - LAST_FRAME], cpi->ref_relative_dist[cpi->nearest_future_ref - LAST_FRAME]);
+
   for (MV_REFERENCE_FRAME ref = LAST_FRAME; ref <= ALTREF_FRAME; ++ref) {
+//    printf("ref: %d; oh: %d;   ", ref, cm->cur_frame->ref_display_order_hint[ref - LAST_FRAME]);
     for (InterpFilter ifilter = EIGHTTAP_REGULAR; ifilter <= MULTITAP_SHARP;
          ++ifilter) {
       ref_total[ref] += get_interp_filter_selected(cm, ref, ifilter);
+//      printf(" %d; ", get_interp_filter_selected(cm, ref, ifilter));
+    }
+//     printf(" total: %d; \n", ref_total[ref]);
+  }
+
+  int dist_nearest_past_ref = ref_total[cpi->nearest_past_ref] ? abs(cpi->ref_relative_dist[cpi->nearest_past_ref - LAST_FRAME]) : INT_MAX;
+  int dist_nearest_future_ref = ref_total[cpi->nearest_future_ref] ? abs(cpi->ref_relative_dist[cpi->nearest_future_ref - LAST_FRAME]) : INT_MAX;
+  int nearest_ref = INT_MAX;
+  int nearest_dist = AOMMIN(dist_nearest_past_ref, dist_nearest_future_ref);
+
+//  printf(" !!!nearest_dist = %d;   %d;%d;   %d;%d; \n", nearest_dist,cpi->nearest_past_ref, dist_nearest_past_ref, cpi->nearest_future_ref, dist_nearest_future_ref);
+
+  if (dist_nearest_past_ref <= dist_nearest_future_ref) nearest_ref = cpi->nearest_past_ref;
+  else nearest_ref = cpi->nearest_future_ref;
+
+//  printf("nearest_ref: %d; nearest_dist: %d; \n", nearest_ref, nearest_dist);
+
+  int ref_total_total = 0;
+  for (MV_REFERENCE_FRAME ref = LAST_FRAME; ref <= ALTREF_FRAME; ++ref) {
+    if (ref != nearest_ref) {
+      ref_total_total += ref_total[ref];
     }
   }
-  int ref_total_total = (ref_total[LAST2_FRAME] + ref_total[LAST3_FRAME] +
-                         ref_total[GOLDEN_FRAME] + ref_total[BWDREF_FRAME] +
-                         ref_total[ALTREF2_FRAME] + ref_total[ALTREF_FRAME]);
 
   for (InterpFilter ifilter = EIGHTTAP_REGULAR; ifilter <= MULTITAP_SHARP;
        ++ifilter) {
-    int last_score = get_interp_filter_selected(cm, LAST_FRAME, ifilter) * 30;
-    if (ref_total[LAST_FRAME] && last_score <= ref_total[LAST_FRAME]) {
-      int filter_score =
-          get_interp_filter_selected(cm, LAST2_FRAME, ifilter) * 20 +
-          get_interp_filter_selected(cm, LAST3_FRAME, ifilter) * 20 +
-          get_interp_filter_selected(cm, GOLDEN_FRAME, ifilter) * 20 +
-          get_interp_filter_selected(cm, BWDREF_FRAME, ifilter) * 10 +
-          get_interp_filter_selected(cm, ALTREF2_FRAME, ifilter) * 10 +
-          get_interp_filter_selected(cm, ALTREF_FRAME, ifilter) * 10;
+    int last_score = get_interp_filter_selected(cm, nearest_ref, ifilter) * 30;
+    if (ref_total[nearest_ref] && last_score <= ref_total[nearest_ref]) {
+      int filter_score = 0;
+      for (MV_REFERENCE_FRAME ref = LAST_FRAME; ref <= ALTREF_FRAME; ++ref) {
+        if (ref != nearest_ref) {
+          filter_score += get_interp_filter_selected(cm, ref, ifilter) * 10;
+        }
+      }
+
       if (filter_score < ref_total_total) {
         DUAL_FILTER_TYPE filt_type = ifilter + SWITCHABLE_FILTERS * ifilter;
         reset_interp_filter_allowed_mask(&mask, filt_type);
@@ -5005,6 +5028,36 @@ static uint16_t setup_interp_filter_search_mask(AV1_COMP *cpi) {
     }
   }
   return mask;
+}
+
+// Set the relative distance of a reference frame w.r.t. current frame
+static AOM_INLINE void set_rel_frame_dist(AV1_COMP *cpi) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const OrderHintInfo *const order_hint_info = &cm->seq_params.order_hint_info;
+  MV_REFERENCE_FRAME ref_frame;
+  int min_past_dist = INT32_MAX, min_future_dist = INT32_MAX;
+  cpi->nearest_past_ref = NONE_FRAME;
+  cpi->nearest_future_ref = NONE_FRAME;
+  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    cpi->ref_relative_dist[ref_frame - LAST_FRAME] = 0;
+    if (cpi->ref_frame_flags & av1_ref_frame_flag_list[ref_frame]) {
+      int dist = av1_encoder_get_relative_dist(
+          order_hint_info,
+          cm->cur_frame->ref_display_order_hint[ref_frame - LAST_FRAME],
+          cm->current_frame.display_order_hint);
+      cpi->ref_relative_dist[ref_frame - LAST_FRAME] = dist;
+      // Get the nearest ref_frame in the past
+      if (abs(dist) < min_past_dist && dist < 0) {
+        cpi->nearest_past_ref = ref_frame;
+        min_past_dist = abs(dist);
+      }
+      // Get the nearest ref_frame in the future
+      if (dist < min_future_dist && dist > 0) {
+        cpi->nearest_future_ref = ref_frame;
+        min_future_dist = dist;
+      }
+    }
+  }
 }
 
 static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
@@ -5015,6 +5068,10 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   assert(IMPLIES(cpi->oxcf.min_cr > 0, allow_recode));
 
   set_size_independent_vars(cpi);
+
+  av1_setup_frame_buf_refs(cm);
+  set_rel_frame_dist(cpi);
+
   if (is_stat_consumption_stage_twopass(cpi) &&
       cpi->sf.interp_sf.adaptive_interp_filter_search)
     cpi->interp_filter_search_mask = setup_interp_filter_search_mask(cpi);
