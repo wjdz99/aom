@@ -1072,6 +1072,10 @@ static void edge_based_classify(const uint16_t *dgd, int width, int height,
 #define STX64XN_FILTER_COEFFS 10
 #define STXNX64_FILTER_COEFFS 10
 
+// Whether to use superres filter or not
+#define USE_SUPERRES_FILTER_TX64 0
+
+#if USE_SUPERRES_FILTER_TX64
 const int stx64x64_config[STX64X64_FILTER_TAPS][3] = {
   { 1, 0, 0 },    { -1, 0, 0 },   { 0, 1, 1 },   { 0, -1, 1 },  { 2, 0, 2 },
   { -2, 0, 2 },   { 0, 2, 3 },    { 0, -2, 3 },  { 1, 1, 4 },   { -1, -1, 4 },
@@ -1175,6 +1179,7 @@ const int16_t stxnx64_filters[STXNX64_FILTER_COEFFS * NUM_EDGE_CLASSES] = {
   18,  -11, 2,   10,  -16, -20, 6,   8,   4,   5,   0,   0,   -1,  1,  -9,  19,
   -18, 7,   -9,  12,  14,  -14,
 };
+#endif  // USE_SUPERRES_FILTER_TX64
 
 void av1_inv_txfm2d_add_64x64_c(const int32_t *input, uint16_t *output,
                                 int stride, TX_TYPE tx_type,
@@ -1204,6 +1209,7 @@ void av1_inv_txfm2d_add_64x64_c(const int32_t *input, uint16_t *output,
     // Upsample to 64x64.
     DECLARE_ALIGNED(32, int16_t, output_up[64 * 64]);
     av1_signed_up2(output_32x32, 32, 32, 32, output_up, 64, 1, 1, bd);
+#if USE_SUPERRES_FILTER_TX64
     for (int r = 0; r < 64; ++r) {
       for (int c = 0; c < 64; ++c) {
         const tran_low_t residue = (tran_low_t)output_up[64 * r + c];
@@ -1218,6 +1224,15 @@ void av1_inv_txfm2d_add_64x64_c(const int32_t *input, uint16_t *output,
     av1_convolve_nonsep_cls_highbd((const uint16_t *)output_up, 64, 64, 64,
                                    &nsfilter, cls, 64, stx64x64_filters, 16,
                                    output, stride, bd);
+#else
+    for (int r = 0; r < 64; ++r) {
+      for (int c = 0; c < 64; ++c) {
+        const tran_low_t residue = (tran_low_t)output_up[64 * r + c];
+        output[r * stride + c] =
+            highbd_clip_pixel_add(output[r * stride + c], residue, bd);
+      }
+    }
+#endif  // USE_SUPERRES_FILTER_TX64
   }
 }
 
@@ -1257,6 +1272,7 @@ void av1_inv_txfm2d_add_32x64_c(const int32_t *input, uint16_t *output,
     DECLARE_ALIGNED(32, int16_t, output_up[32 * 64]);
     // Upsample to 32x64.
     av1_signed_up2(output_32x32, 32, 32, 32, output_up, 32, 1, 0, bd);
+#if USE_SUPERRES_FILTER_TX64
     for (int r = 0; r < 64; ++r) {
       for (int c = 0; c < 32; ++c) {
         const tran_low_t residue = (tran_low_t)output_up[32 * r + c];
@@ -1271,6 +1287,15 @@ void av1_inv_txfm2d_add_32x64_c(const int32_t *input, uint16_t *output,
     av1_convolve_nonsep_cls_highbd((const uint16_t *)output_up, 32, 64, 32,
                                    &nsfilter, cls, 32, stxnx64_filters, 10,
                                    output, stride, bd);
+#else
+    for (int r = 0; r < 64; ++r) {
+      for (int c = 0; c < 32; ++c) {
+        const tran_low_t residue = (tran_low_t)output_up[32 * r + c];
+        output[r * stride + c] =
+            highbd_clip_pixel_add(output[r * stride + c], residue, bd);
+      }
+    }
+#endif  // USE_SUPERRES_FILTER_TX64
   }
 }
 
@@ -1311,6 +1336,7 @@ void av1_inv_txfm2d_add_64x32_c(const int32_t *input, uint16_t *output,
     DECLARE_ALIGNED(32, int16_t, output_up[64 * 32]);
     // Upsample to 64x32.
     av1_signed_up2(output_32x32, 32, 32, 32, output_up, 64, 0, 1, bd);
+#if USE_SUPERRES_FILTER_TX64
     for (int r = 0; r < 32; ++r) {
       for (int c = 0; c < 64; ++c) {
         const tran_low_t residue = (tran_low_t)output_up[64 * r + c];
@@ -1325,6 +1351,15 @@ void av1_inv_txfm2d_add_64x32_c(const int32_t *input, uint16_t *output,
     av1_convolve_nonsep_cls_highbd((const uint16_t *)output_up, 64, 32, 64,
                                    &nsfilter, cls, 64, stx64xn_filters, 10,
                                    output, stride, bd);
+#else
+    for (int r = 0; r < 32; ++r) {
+      for (int c = 0; c < 64; ++c) {
+        const tran_low_t residue = (tran_low_t)output_up[64 * r + c];
+        output[r * stride + c] =
+            highbd_clip_pixel_add(output[r * stride + c], residue, bd);
+      }
+    }
+#endif  // USE_SUPERRES_FILTER_TX64
   }
 }
 
@@ -1365,6 +1400,7 @@ void av1_inv_txfm2d_add_16x64_c(const int32_t *input, uint16_t *output,
     DECLARE_ALIGNED(32, int16_t, output_up[16 * 64]);
     // Upsample to 16x64.
     av1_signed_up2(output_16x32, 32, 16, 16, output_up, 16, 1, 0, bd);
+#if USE_SUPERRES_FILTER_TX64
     for (int r = 0; r < 64; ++r) {
       for (int c = 0; c < 16; ++c) {
         const tran_low_t residue = (tran_low_t)output_up[16 * r + c];
@@ -1379,6 +1415,15 @@ void av1_inv_txfm2d_add_16x64_c(const int32_t *input, uint16_t *output,
     av1_convolve_nonsep_cls_highbd((const uint16_t *)output_up, 16, 64, 16,
                                    &nsfilter, cls, 16, stxnx64_filters, 10,
                                    output, stride, bd);
+#else
+    for (int r = 0; r < 64; ++r) {
+      for (int c = 0; c < 16; ++c) {
+        const tran_low_t residue = (tran_low_t)output_up[16 * r + c];
+        output[r * stride + c] =
+            highbd_clip_pixel_add(output[r * stride + c], residue, bd);
+      }
+    }
+#endif  // USE_SUPERRES_FILTER_TX64
   }
 }
 
@@ -1419,6 +1464,7 @@ void av1_inv_txfm2d_add_64x16_c(const int32_t *input, uint16_t *output,
     DECLARE_ALIGNED(32, int16_t, output_up[64 * 16]);
     // Upsample to 64x16.
     av1_signed_up2(output_32x16, 16, 32, 32, output_up, 64, 0, 1, bd);
+#if USE_SUPERRES_FILTER_TX64
     for (int r = 0; r < 16; ++r) {
       for (int c = 0; c < 64; ++c) {
         const tran_low_t residue = (tran_low_t)output_up[64 * r + c];
@@ -1433,6 +1479,15 @@ void av1_inv_txfm2d_add_64x16_c(const int32_t *input, uint16_t *output,
     av1_convolve_nonsep_cls_highbd((const uint16_t *)output_up, 64, 16, 64,
                                    &nsfilter, cls, 64, stx64xn_filters, 10,
                                    output, stride, bd);
+#else
+    for (int r = 0; r < 16; ++r) {
+      for (int c = 0; c < 64; ++c) {
+        const tran_low_t residue = (tran_low_t)output_up[64 * r + c];
+        output[r * stride + c] =
+            highbd_clip_pixel_add(output[r * stride + c], residue, bd);
+      }
+    }
+#endif  // USE_SUPERRES_FILTER_TX64
   }
 }
 
