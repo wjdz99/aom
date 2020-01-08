@@ -153,6 +153,9 @@ struct av1_extracfg {
   COST_UPDATE_TYPE mode_cost_upd_freq;
   COST_UPDATE_TYPE mv_cost_upd_freq;
   unsigned int ext_tile_debug;
+  unsigned int max_cll;   // Maximum Content Light Level
+  unsigned int max_fall;  // Maximum Frame Average Light Level
+  uint32_t *mdcv_info;    // SMPTE ST 2086 mastering display color volume
 };
 
 static struct av1_extracfg default_extra_cfg = {
@@ -279,6 +282,9 @@ static struct av1_extracfg default_extra_cfg = {
   COST_UPD_SB,  // mode_cost_upd_freq
   COST_UPD_SB,  // mv_cost_upd_freq
   0,            // ext_tile_debug
+  0,            // default max_cll
+  0,            // default max_fall
+  0,            // default mdcv_info
 };
 
 struct aom_codec_alg_priv {
@@ -366,6 +372,20 @@ static aom_codec_err_t update_error_state(
 static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
                                        const aom_codec_enc_cfg_t *cfg,
                                        const struct av1_extracfg *extra_cfg) {
+  RANGE_CHECK_HI(extra_cfg, max_cll, 65535);
+  RANGE_CHECK_HI(extra_cfg, max_fall, 65535);
+  if (extra_cfg->mdcv_info) {
+    RANGE_CHECK_HI(extra_cfg, mdcv_info[AOM_MDCV_GX], 65535);
+    RANGE_CHECK_HI(extra_cfg, mdcv_info[AOM_MDCV_GY], 65535);
+    RANGE_CHECK_HI(extra_cfg, mdcv_info[AOM_MDCV_BX], 65535);
+    RANGE_CHECK_HI(extra_cfg, mdcv_info[AOM_MDCV_BY], 65535);
+    RANGE_CHECK_HI(extra_cfg, mdcv_info[AOM_MDCV_RX], 65535);
+    RANGE_CHECK_HI(extra_cfg, mdcv_info[AOM_MDCV_RY], 65535);
+    RANGE_CHECK_HI(extra_cfg, mdcv_info[AOM_MDCV_WPX], 65535);
+    RANGE_CHECK_HI(extra_cfg, mdcv_info[AOM_MDCV_WPY], 65535);
+    RANGE_CHECK_HI(extra_cfg, mdcv_info[AOM_MDCV_LMAX], 2147483648);
+    RANGE_CHECK_HI(extra_cfg, mdcv_info[AOM_MDCV_LMIN], 2147483648);
+  }
   RANGE_CHECK(cfg, g_w, 1, 65535);  // 16 bits available
   RANGE_CHECK(cfg, g_h, 1, 65535);  // 16 bits available
   RANGE_CHECK(cfg, g_timebase.den, 1, 1000000000);
@@ -989,6 +1009,15 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   return AOM_CODEC_OK;
 }
 
+static aom_codec_err_t set_hdr_config(struct AV1_COMP *cpi,
+                                      struct av1_extracfg *extra_cfg) {
+  AV1_COMMON *const cm = &cpi->common;
+  cm->max_fall = extra_cfg->max_fall;
+  cm->max_cll = extra_cfg->max_cll;
+  cm->mdcv_info = extra_cfg->mdcv_info;
+  return AOM_CODEC_OK;
+}
+
 static aom_codec_err_t encoder_set_config(aom_codec_alg_priv_t *ctx,
                                           const aom_codec_enc_cfg_t *cfg) {
   aom_codec_err_t res;
@@ -1022,6 +1051,7 @@ static aom_codec_err_t encoder_set_config(aom_codec_alg_priv_t *ctx,
     // On profile change, request a key frame
     force_key |= ctx->cpi->common.seq_params.profile != ctx->oxcf.profile;
     av1_change_config(ctx->cpi, &ctx->oxcf);
+    set_hdr_config(ctx->cpi, &ctx->extra_cfg);
   }
 
   if (force_key) ctx->next_frame_flags |= AOM_EFLAG_FORCE_KF;
@@ -1056,6 +1086,7 @@ static aom_codec_err_t update_extra_cfg(aom_codec_alg_priv_t *ctx,
     ctx->extra_cfg = *extra_cfg;
     set_encoder_config(&ctx->oxcf, &ctx->cfg, &ctx->extra_cfg);
     av1_change_config(ctx->cpi, &ctx->oxcf);
+    set_hdr_config(ctx->cpi, &ctx->extra_cfg);
   }
   return res;
 }
@@ -2558,6 +2589,26 @@ static aom_codec_err_t ctrl_get_seq_level_idx(aom_codec_alg_priv_t *ctx,
   return av1_get_seq_level_idx(ctx->cpi, arg);
 }
 
+static aom_codec_err_t ctrl_set_max_cll(aom_codec_alg_priv_t *ctx,
+                                        va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.max_cll = CAST(AV1E_SET_MAX_CLL, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_max_fall(aom_codec_alg_priv_t *ctx,
+                                         va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.max_fall = CAST(AV1E_SET_MAX_FALL, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_mdcv(aom_codec_alg_priv_t *ctx, va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.mdcv_info = CAST(AV1E_SET_MDCV, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
 static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1_COPY_REFERENCE, ctrl_copy_reference },
   { AOME_USE_REFERENCE, ctrl_use_reference },
@@ -2693,6 +2744,9 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_CHROMA_SUBSAMPLING_X, ctrl_set_chroma_subsampling_x },
   { AV1E_SET_CHROMA_SUBSAMPLING_Y, ctrl_set_chroma_subsampling_y },
   { AV1E_GET_SEQ_LEVEL_IDX, ctrl_get_seq_level_idx },
+  { AV1E_SET_MAX_CLL, ctrl_set_max_cll },
+  { AV1E_SET_MAX_FALL, ctrl_set_max_fall },
+  { AV1E_SET_MDCV, ctrl_set_mdcv },
   { -1, NULL },
 };
 
