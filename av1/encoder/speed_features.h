@@ -499,6 +499,9 @@ typedef struct INTER_MODE_SPEED_FEATURES {
   // flag to skip NEWMV mode in drl if the motion search result is the same
   int skip_repeated_newmv;
 
+  // Skip repeated MVs among NEARESTMV, NEARMV, GLOBALMV
+  int skip_repeated_non_newmv;
+
   // Flag used to control the ref_best_rd based gating for chroma
   int perform_best_rd_based_gating_for_chroma;
 
