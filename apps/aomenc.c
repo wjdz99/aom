@@ -1013,6 +1013,16 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         0 };
 #endif  // CONFIG_AV1_ENCODER
 
+static const arg_def_t set_max_cll = ARG_DEF(
+    NULL, "max-cll", 1, "Emit content light level info as \"cll,fall\" (HDR).");
+
+static const arg_def_t set_mdcv =
+    ARG_DEF(NULL, "master-display", 1,
+            "SMPTE ST 2086 master display color volume info (HDR). "
+            "Format: Gx,Gy,Bx,By,Rx,Ry,WPx,WPy,Lmax,Lmin");
+
+static const arg_def_t *hdr10_args[] = { &set_max_cll, &set_mdcv, NULL };
+
 static const arg_def_t *no_args[] = { NULL };
 
 static void show_help(FILE *fout, int shorthelp) {
@@ -1038,6 +1048,8 @@ static void show_help(FILE *fout, int shorthelp) {
   fprintf(fout, "\nAV1 Specific Options:\n");
   arg_show_usage(fout, av1_args);
 #endif
+  fprintf(fout, "\nHDR10 Options:\n");
+  arg_show_usage(fout, hdr10_args);
   fprintf(fout,
           "\nStream timebase (--timebase):\n"
           "  The desired precision of timestamps in the output, expressed\n"
@@ -1087,6 +1099,8 @@ struct stream_config {
 #if CONFIG_TUNE_VMAF
   const char *vmaf_model_path;
 #endif
+  int maxCLL[2];
+  int mdcv_info[10];
 };
 
 struct stream_state {
@@ -1588,6 +1602,11 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       if (arg_parse_uint(&arg) == 1) {
         warn("non-zero %s option ignored in realtime mode.\n", arg.name);
       }
+    } else if (arg_match(&arg, &set_max_cll, argi)) {
+      arg_parse_list(&arg, config->maxCLL, 2);
+    } else if (arg_match(&arg, &set_mdcv, argi)) {
+      // Allocate memory for 10 elements G, B, R, WP and L
+      arg_parse_list(&arg, config->mdcv_info, 10);
     } else {
       int i, match = 0;
       for (i = 0; ctrl_args[i]; i++) {
@@ -1900,6 +1919,21 @@ static void initialize_encoder(struct stream_state *stream,
   if (stream->config.film_grain_filename) {
     aom_codec_control_(&stream->encoder, AV1E_SET_FILM_GRAIN_TABLE,
                        stream->config.film_grain_filename);
+  }
+  if (stream->config.maxCLL[0]) {
+    aom_codec_control_(&stream->encoder, AV1E_SET_MAX_CLL,
+                       stream->config.maxCLL[0]);
+    ctx_exit_on_error(&stream->encoder, "Failed to set max_cll");
+  }
+  if (stream->config.maxCLL[1]) {
+    aom_codec_control_(&stream->encoder, AV1E_SET_MAX_FALL,
+                       stream->config.maxCLL[1]);
+    ctx_exit_on_error(&stream->encoder, "Failed to set max_fall");
+  }
+  if (stream->config.mdcv_info) {
+    aom_codec_control_(&stream->encoder, AV1E_SET_MDCV,
+                       stream->config.mdcv_info);
+    ctx_exit_on_error(&stream->encoder, "Failed to set mdcv");
   }
 
 #if CONFIG_AV1_DECODER
