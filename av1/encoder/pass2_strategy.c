@@ -456,7 +456,7 @@ static double calc_kf_frame_boost(const RATE_CONTROL *rc,
 #define MIN_DECAY_FACTOR 0.01
 int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
                        FRAME_INFO *frame_info, int offset, int f_frames,
-                       int b_frames) {
+                       int b_frames, int is_lap_enabled) {
   int i;
   double boost_score = 0.0;
   double mv_ratio_accumulator = 0.0;
@@ -466,10 +466,16 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
   double abs_mv_in_out_accumulator = 0.0;
   int arf_boost;
   int flash_detected = 0;
+  int is_extrapolating = 0;
+  const FIRSTPASS_STATS *this_frame = NULL, *last_nonflash_frame = NULL;
 
   // Search forward from the proposed arf/next gf position.
   for (i = 0; i < f_frames; ++i) {
-    const FIRSTPASS_STATS *this_frame = read_frame_stats(twopass, i + offset);
+    this_frame = read_frame_stats(twopass, i + offset);
+    if (this_frame == NULL && is_lap_enabled) {
+      this_frame = last_nonflash_frame;
+      is_extrapolating = 1;
+    }
     if (this_frame == NULL) break;
 
     // Update the motion related elements to the boost calculation.
@@ -479,11 +485,16 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
 
     // We want to discount the flash frame itself and the recovery
     // frame that follows as both will have poor scores.
-    flash_detected = detect_flash(twopass, i + offset) ||
-                     detect_flash(twopass, i + offset + 1);
+    if (!is_extrapolating) {
+      flash_detected = detect_flash(twopass, i + offset) ||
+                       detect_flash(twopass, i + offset + 1);
+    } else {
+      flash_detected = 0;
+    }
 
     // Accumulate the effect of prediction quality decay.
     if (!flash_detected) {
+      last_nonflash_frame = this_frame;
       decay_accumulator *= get_prediction_decay_rate(frame_info, this_frame);
       decay_accumulator = decay_accumulator < MIN_DECAY_FACTOR
                               ? MIN_DECAY_FACTOR
@@ -507,7 +518,7 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
 
   // Search backward towards last gf position.
   for (i = -1; i >= -b_frames; --i) {
-    const FIRSTPASS_STATS *this_frame = read_frame_stats(twopass, i + offset);
+    this_frame = read_frame_stats(twopass, i + offset);
     if (this_frame == NULL) break;
 
     // Update the motion related elements to the boost calculation.
@@ -1142,15 +1153,16 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
                                    : AOMMAX(0, rc->frames_to_key - i);
 
     // Calculate the boost for alt ref.
-    rc->gfu_boost = av1_calc_arf_boost(twopass, rc, frame_info, alt_offset,
-                                       forward_frames, (i - 1));
+    rc->gfu_boost =
+        av1_calc_arf_boost(twopass, rc, frame_info, alt_offset, forward_frames,
+                           (i - 1), cpi->lap_enabled);
     rc->source_alt_ref_pending = 1;
     gf_group->max_layer_depth_allowed = cpi->oxcf.gf_max_pyr_height;
   } else {
     reset_fpf_position(twopass, start_pos);
     rc->gfu_boost = AOMMIN(
-        MAX_GF_BOOST,
-        av1_calc_arf_boost(twopass, rc, frame_info, alt_offset, (i - 1), 0));
+        MAX_GF_BOOST, av1_calc_arf_boost(twopass, rc, frame_info, alt_offset,
+                                         (i - 1), 0, cpi->lap_enabled));
     rc->source_alt_ref_pending = 0;
     gf_group->max_layer_depth_allowed = 0;
   }
