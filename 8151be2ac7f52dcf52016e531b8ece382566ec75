@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30f2d000_18e095aa",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1513,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2020-01-08T13:37:16Z",
+      "side": 1,
+      "message": "Have you tested without this constraint. I appreciate that there is concern with over filtering given that the frame will be shown using show existing. Have you experimented with this not being coded using show existing?",
+      "range": {
+        "startLine": 1513,
+        "startChar": 2,
+        "endLine": 1513,
+        "endChar": 74
+      },
+      "revId": "8151be2ac7f52dcf52016e531b8ece382566ec75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2982189_d57b63ba",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1560,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2020-01-08T13:37:16Z",
+      "side": 1,
+      "message": "Isnt the distance currently always \u003e7 (i.e. 16) unless we are close to a key frame or the end of the sequence?",
+      "range": {
+        "startLine": 1560,
+        "startChar": 6,
+        "endLine": 1560,
+        "endChar": 21
+      },
+      "revId": "8151be2ac7f52dcf52016e531b8ece382566ec75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf81dae5_b78e1201",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1668,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2020-01-08T13:37:16Z",
+      "side": 1,
+      "message": "Have you tuned this threshold? If it was not show existing presumably this would matter less provided that the frame was a good predictor. Have we tried a similar strategy to switch between a normal arf with overlay and show existing for the top level as well ? If it works better here perhaps it might there as well.",
+      "range": {
+        "startLine": 1668,
+        "startChar": 28,
+        "endLine": 1668,
+        "endChar": 37
+      },
+      "revId": "8151be2ac7f52dcf52016e531b8ece382566ec75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
