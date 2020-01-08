@@ -180,6 +180,10 @@ static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
 }
 #endif  // CONFIG_NEW_INTER_MODES
 
+static INLINE int have_drl_index(PREDICTION_MODE mode) {
+  return have_nearmv_in_inter_mode(mode) || have_newmv_in_inter_mode(mode);
+}
+
 static INLINE int is_masked_compound_type(COMPOUND_TYPE type) {
   return (type == COMPOUND_WEDGE || type == COMPOUND_DIFFWTD);
 }
