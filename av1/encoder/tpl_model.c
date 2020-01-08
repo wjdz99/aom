@@ -122,7 +122,7 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
                                   uint8_t *cur_frame_buf,
                                   uint8_t *ref_frame_buf, int stride,
                                   int stride_ref, BLOCK_SIZE bsize, int mi_row,
-                                  int mi_col, MV center_mv) {
+                                  int mi_col, MV center_mv, MV ref_mv) {
   AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MV_SPEED_FEATURES *const mv_sf = &cpi->sf.mv_sf;
@@ -155,7 +155,7 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
   step_param = tpl_sf->reduce_first_step_size;
   step_param = AOMMIN(step_param, MAX_MVSEARCH_STEPS - 2);
 
-  av1_set_mv_search_range(&x->mv_limits, &center_mv);
+  av1_set_mv_search_range(&x->mv_limits, &ref_mv);
 
   search_site_config *ss_cfg = &ss_cfgs[stride_ref % 11];
   if (ss_cfg->stride != stride_ref) {
@@ -163,7 +163,7 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
   }
   av1_full_pixel_search(cpi, x, bsize, &best_ref_mv1_full, step_param, 1,
                         search_method, 0, sadpb, cond_cost_list(cpi, cost_list),
-                        &center_mv, INT_MAX, 0, (MI_SIZE * mi_col),
+                        &ref_mv, INT_MAX, 0, (MI_SIZE * mi_col),
                         (MI_SIZE * mi_row), 0, ss_cfg, 0);
 
   /* restore UMV window */
@@ -172,7 +172,7 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
   const int pw = block_size_wide[bsize];
   const int ph = block_size_high[bsize];
   bestsme = cpi->find_fractional_mv_step(
-      x, cm, mi_row, mi_col, &center_mv, cpi->common.allow_high_precision_mv,
+      x, cm, mi_row, mi_col, &ref_mv, cpi->common.allow_high_precision_mv,
       x->errorperbit, &cpi->fn_ptr[bsize], 0, mv_sf->subpel_iters_per_step,
       cond_cost_list(cpi, cost_list), NULL, NULL, &distortion, &sse, NULL, NULL,
       0, 0, pw, ph, 1, 1);
@@ -325,11 +325,13 @@ static AOM_INLINE void mode_estimation(
     uint32_t bestsme = UINT32_MAX;
 
     int_mv center_mvs[4] = { { 0 } };
+    int_mv ref_mv = center_mvs[0];
     int refmv_count = 1;
 
     if (xd->up_available) {
       TplDepStats *ref_tpl_stats = &tpl_frame->tpl_stats_ptr[av1_tpl_ptr_pos(
           cpi, mi_row - mi_height, mi_col, tpl_frame->stride)];
+      ref_mv = ref_tpl_stats->mv[rf_idx];
       if (!is_duplicate_mv(ref_tpl_stats->mv[rf_idx], center_mvs, refmv_count,
                            cpi->sf.tpl_sf.skip_repeated_mv_level)) {
         center_mvs[refmv_count].as_int = ref_tpl_stats->mv[rf_idx].as_int;
@@ -340,6 +342,7 @@ static AOM_INLINE void mode_estimation(
     if (xd->left_available) {
       TplDepStats *ref_tpl_stats = &tpl_frame->tpl_stats_ptr[av1_tpl_ptr_pos(
           cpi, mi_row, mi_col - mi_width, tpl_frame->stride)];
+      ref_mv = ref_tpl_stats->mv[rf_idx];
       if (!is_duplicate_mv(ref_tpl_stats->mv[rf_idx], center_mvs, refmv_count,
                            cpi->sf.tpl_sf.skip_repeated_mv_level)) {
         center_mvs[refmv_count].as_int = ref_tpl_stats->mv[rf_idx].as_int;
@@ -360,7 +363,7 @@ static AOM_INLINE void mode_estimation(
     for (int idx = 0; idx < refmv_count; ++idx) {
       uint32_t thissme = motion_estimation(
           cpi, x, src_mb_buffer, ref_mb, src_stride, ref_stride, bsize, mi_row,
-          mi_col, center_mvs[idx].as_mv);
+          mi_col, center_mvs[idx].as_mv, ref_mv.as_mv);
 
       if (thissme < bestsme) {
         bestsme = thissme;
@@ -1172,7 +1175,8 @@ static AOM_INLINE void get_tpl_forward_stats(AV1_COMP *cpi, MACROBLOCK *x,
           mi_row * MI_SIZE * ref->y_stride + mi_col * MI_SIZE;
       motion_estimation(cpi, x, src->y_buffer + mb_y_offset,
                         ref->y_buffer + mb_y_offset_ref, src->y_stride,
-                        ref->y_stride, bsize, mi_row, mi_col, center_mv.as_mv);
+                        ref->y_stride, bsize, mi_row, mi_col, center_mv.as_mv,
+                        center_mv.as_mv);
 
       struct buf_2d ref_buf = { NULL, ref->y_buffer, ref->y_width,
                                 ref->y_height, ref->y_stride };
