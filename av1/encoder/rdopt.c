@@ -9862,6 +9862,71 @@ static INLINE void get_this_mv(int_mv *this_mv, PREDICTION_MODE this_mode,
   }
 }
 
+static INLINE int get_this_mv_new(int_mv *this_mv, PREDICTION_MODE this_mode,
+                                  int ref_idx, int ref_mv_idx,
+                                  const MV_REFERENCE_FRAME *ref_frame,
+                                  const MB_MODE_INFO_EXT *mbmi_ext) {
+  const int is_comp_pred = ref_frame[1] > INTRA_FRAME;
+  const PREDICTION_MODE single_mode =
+      get_single_mode(this_mode, ref_idx, is_comp_pred);
+  assert(is_inter_singleref_mode(single_mode));
+  if (single_mode == NEWMV) {
+    this_mv->as_int = INVALID_MV;
+  } else if (single_mode == GLOBALMV) {
+    int is_duplicate_mv = 0;
+    const uint8_t ref_frame_type = av1_ref_frame_type(ref_frame);
+    if (!mbmi_ext->ref_mv_count[ref_frame_type]) is_duplicate_mv = 1;
+
+    for (int mv_idx = 0; mv_idx < mbmi_ext->ref_mv_count[ref_frame_type];
+         mv_idx++) {
+      int_mv mv;
+      if (ref_idx == 0)
+        mv = mbmi_ext->ref_mv_stack[ref_frame_type][mv_idx].this_mv;
+      else
+        mv = mbmi_ext->ref_mv_stack[ref_frame_type][mv_idx].comp_mv;
+      if (mv.as_int == mbmi_ext->global_mvs[ref_frame[ref_idx]].as_int) {
+        is_duplicate_mv = 1;
+        break;
+      }
+    }
+    if (!is_duplicate_mv)
+      *this_mv = mbmi_ext->global_mvs[ref_frame[ref_idx]];
+    else
+      return 0;
+  } else {
+    assert(single_mode == NEARMV || single_mode == NEARESTMV);
+    const uint8_t ref_frame_type = av1_ref_frame_type(ref_frame);
+    const int ref_mv_offset = single_mode == NEARESTMV ? 0 : ref_mv_idx + 1;
+    if (ref_mv_offset < mbmi_ext->ref_mv_count[ref_frame_type]) {
+      assert(ref_mv_offset >= 0);
+      if (ref_idx == 0) {
+        *this_mv =
+            mbmi_ext->ref_mv_stack[ref_frame_type][ref_mv_offset].this_mv;
+      } else {
+        *this_mv =
+            mbmi_ext->ref_mv_stack[ref_frame_type][ref_mv_offset].comp_mv;
+      }
+    } else {
+      const uint8_t ref_frame_type = av1_ref_frame_type(ref_frame);
+      int is_duplicate_mv = 0;
+      if (single_mode == NEARMV) {
+        int_mv mv;
+        if (ref_idx == 0)
+          mv = mbmi_ext->ref_mv_stack[ref_frame_type][0].this_mv;
+        else
+          mv = mbmi_ext->ref_mv_stack[ref_frame_type][0].comp_mv;
+        if (mv.as_int == mbmi_ext->global_mvs[ref_frame[ref_idx]].as_int)
+          is_duplicate_mv = 1;
+      }
+      if (!is_duplicate_mv)
+        *this_mv = mbmi_ext->global_mvs[ref_frame[ref_idx]];
+      else
+        return 0;
+    }
+  }
+  return 1;
+}
+
 // This function update the non-new mv for the current prediction mode
 static INLINE int build_cur_mv(int_mv *cur_mv, PREDICTION_MODE this_mode,
                                const AV1_COMMON *cm, const MACROBLOCK *x) {
@@ -9873,6 +9938,33 @@ static INLINE int build_cur_mv(int_mv *cur_mv, PREDICTION_MODE this_mode,
     int_mv this_mv;
     get_this_mv(&this_mv, this_mode, i, mbmi->ref_mv_idx, mbmi->ref_frame,
                 x->mbmi_ext);
+    const PREDICTION_MODE single_mode =
+        get_single_mode(this_mode, i, is_comp_pred);
+    if (single_mode == NEWMV) {
+      const uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+      cur_mv[i] =
+          (i == 0) ? x->mbmi_ext->ref_mv_stack[ref_frame_type][mbmi->ref_mv_idx]
+                         .this_mv
+                   : x->mbmi_ext->ref_mv_stack[ref_frame_type][mbmi->ref_mv_idx]
+                         .comp_mv;
+    } else {
+      ret &= clamp_and_check_mv(cur_mv + i, this_mv, cm, x);
+    }
+  }
+  return ret;
+}
+
+static INLINE int build_cur_mv_new(int_mv *cur_mv, PREDICTION_MODE this_mode,
+                                   const AV1_COMMON *cm, const MACROBLOCK *x) {
+  const MACROBLOCKD *xd = &x->e_mbd;
+  const MB_MODE_INFO *mbmi = xd->mi[0];
+  const int is_comp_pred = has_second_ref(mbmi);
+  int ret = 1;
+  for (int i = 0; i < is_comp_pred + 1; ++i) {
+    int_mv this_mv;
+    ret = get_this_mv_new(&this_mv, this_mode, i, mbmi->ref_mv_idx,
+                          mbmi->ref_frame, x->mbmi_ext);
+    if (!ret) return 0;
     const PREDICTION_MODE single_mode =
         get_single_mode(this_mode, i, is_comp_pred);
     if (single_mode == NEWMV) {
@@ -10660,7 +10752,7 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
     int compmode_interinter_cost = 0;
 
     int_mv cur_mv[2];
-    if (!build_cur_mv(cur_mv, this_mode, cm, x)) {
+    if (!build_cur_mv_new(cur_mv, this_mode, cm, x)) {
       continue;
     }
 
