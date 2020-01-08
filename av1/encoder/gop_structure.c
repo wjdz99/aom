@@ -29,8 +29,8 @@
 static void set_multi_layer_params(const TWO_PASS *twopass,
                                    GF_GROUP *const gf_group, RATE_CONTROL *rc,
                                    FRAME_INFO *frame_info, int start, int end,
-                                   int *frame_ind, int arf_ind,
-                                   int layer_depth) {
+                                   int *frame_ind, int arf_ind, int layer_depth,
+                                   int is_lap_enabled) {
   const int num_frames_to_process = end - start - 1;
   assert(num_frames_to_process >= 0);
   if (num_frames_to_process == 0) return;
@@ -60,13 +60,13 @@ static void set_multi_layer_params(const TWO_PASS *twopass,
     gf_group->layer_depth[*frame_ind] = layer_depth;
 
     // Get the boost factor for intermediate ARF frames.
-    gf_group->arf_boost[*frame_ind] =
-        av1_calc_arf_boost(twopass, rc, frame_info, m, end - m, m - start);
+    gf_group->arf_boost[*frame_ind] = av1_calc_arf_boost(
+        twopass, rc, frame_info, m, end - m, m - start, is_lap_enabled);
     ++(*frame_ind);
 
     // Frames displayed before this internal ARF.
     set_multi_layer_params(twopass, gf_group, rc, frame_info, start, m,
-                           frame_ind, 1, layer_depth + 1);
+                           frame_ind, 1, layer_depth + 1, is_lap_enabled);
 
     // Overlay for internal ARF.
     gf_group->update_type[*frame_ind] = INTNL_OVERLAY_UPDATE;
@@ -78,7 +78,7 @@ static void set_multi_layer_params(const TWO_PASS *twopass,
 
     // Frames displayed after this internal ARF.
     set_multi_layer_params(twopass, gf_group, rc, frame_info, m, end, frame_ind,
-                           arf_ind, layer_depth + 1);
+                           arf_ind, layer_depth + 1, is_lap_enabled);
   }
 }
 
@@ -115,7 +115,7 @@ static int construct_multi_layer_gf_structure(
 
   // Rest of the frames.
   set_multi_layer_params(twopass, gf_group, rc, frame_info, 0, gf_interval,
-                         &frame_index, 0, use_altref + 1);
+                         &frame_index, 0, use_altref + 1, cpi->lap_enabled);
 
   // The end frame will be Overlay frame for an ARF GOP; otherwise set it to
   // be GF, for consistency, which will be updated in the next GOP.
