@@ -821,7 +821,7 @@ static void update_drl_index_stats(FRAME_CONTEXT *fc, FRAME_COUNTS *counts,
 #if CONFIG_ENTROPY_STATS
     counts->drl_mode[drl_ctx][mbmi->ref_mv_idx != idx]++;
 #endif  // CONFIG_ENTROPY_STATS
-    if (idx == 0) update_cdf(fc->drl_cdf[drl_ctx], mbmi->ref_mv_idx != idx, 2);
+    if (idx == 0 && mbmi->mode == NEARMV) update_cdf(fc->drl_cdf[drl_ctx], mbmi->ref_mv_idx != idx, 2);
     if (mbmi->ref_mv_idx == idx) break;
   }
 }
