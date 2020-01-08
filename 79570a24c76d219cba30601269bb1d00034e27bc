@@ -22,6 +22,30 @@
       "revId": "79570a24c76d219cba30601269bb1d00034e27bc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33a4c4e9_2c7e9fad",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-01-08T17:18:20Z",
+      "side": 1,
+      "message": "My proposed patch is based on a piece of Google internal code. Since this approach is very similar to the original code, I decided to use it. I just wanted to fix the GCC compiler warning.\n\nNOTE: The UnalignedStore32() function in absl/base/internal/unaligned_access.h seems to be derived from the Google internal code I mentioned above. UnalignedStore32() simply calls memcpy(). So an alternative CL would be to simply implement u32_store_unaligned() as:\n\nSIMD_INLINE void u32_store_unaligned(void *p, uint32_t a) {\n  memcpy(p, \u0026a, sizeof a);\n}\n\nBut that would require justifying why memcpy is better or as good as vst1_lane_u32.",
+      "parentUuid": "dc03a9de_060775bc",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 45
+      },
+      "revId": "79570a24c76d219cba30601269bb1d00034e27bc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
