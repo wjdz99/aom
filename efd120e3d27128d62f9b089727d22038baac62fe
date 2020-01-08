@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac332731_3558b2db",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1306,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2020-01-08T22:42:22Z",
+      "side": 1,
+      "message": "Added the value because it\u0027s used for array indexing, to prevent modifications.",
+      "revId": "efd120e3d27128d62f9b089727d22038baac62fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d045ef64_2cca27c8",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2020-01-08T22:42:22Z",
+      "side": 1,
+      "message": "Created the aom_mdcv_info enum to make it clear which specific mdvc values is being set without comments. Biggest motivation was that on an error in this range check, it could tell you specifically which value has the range error. Using a for loop would always show \"mdvc_info[i++]\" as the error value which is not informative for user.",
+      "range": {
+        "startLine": 378,
+        "startChar": 0,
+        "endLine": 387,
+        "endChar": 68
+      },
+      "revId": "efd120e3d27128d62f9b089727d22038baac62fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "930c1c54_f5d3bb19",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2020-01-08T22:42:22Z",
+      "side": 1,
+      "message": "I don\u0027t like the copied mdcvData variable, but encoder-\u003eControl() won\u0027t take a const pointer. Will try to fix this after review.",
+      "revId": "efd120e3d27128d62f9b089727d22038baac62fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
