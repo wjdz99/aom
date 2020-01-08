@@ -212,6 +212,9 @@ static void read_drl_idx(FRAME_CONTEXT *ec_ctx, int16_t mode_ctx,
   mbmi->ref_mv_idx = 0;
   assert(!mbmi->skip_mode);
   int range = AOMMIN(xd->ref_mv_count[ref_frame_type] - 1, 3);
+  if (mbmi->mode == NEWMV) {
+    range = AOMMIN(2, range);
+  }
   for (int idx = 0; idx < range; ++idx) {
     uint8_t drl_ctx =
         av1_drl_ctx(mode_ctx, mbmi->mode, xd->weight[ref_frame_type], idx);
@@ -1638,6 +1641,16 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
         read_drl_idx(ec_ctx, cm, xd, mbmi, r);
 #endif  // CONFIG_NEW_INTER_MODES
       }
+    }
+  }
+
+  if (is_inter_mode(mbmi->mode)) {
+    switch (mbmi->mode) {
+      case NEARMV: printf("NEARMV %d\n", mbmi->ref_mv_idx);
+      case NEWMV: printf("NEWMV %d\n", mbmi->ref_mv_idx);
+#if !CONFIG_NEW_INTER_MODES
+      case NEARESTMV: printf("NEARESTMV %d\n", mbmi->ref_mv_idx);
+#endif  // !CONFIG_NEW_INTER_MODES
     }
   }
 

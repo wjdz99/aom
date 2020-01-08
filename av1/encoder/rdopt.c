@@ -10757,15 +10757,14 @@ static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
                                const MB_MODE_INFO_EXT *mbmi_ext,
                                const int (*const drl_mode_cost0)[2],
                                int8_t ref_frame_type) {
-  const int has_drl = have_nearmv_in_inter_mode(mbmi->mode) ||
-                      have_newmv_in_inter_mode(mbmi->mode);
-  if (!has_drl) {
-    return 0;
-  }
+  assert(is_inter_mode(mbmi->mode));
   int16_t mode_ctx =
       av1_mode_context_analyzer(mbmi_ext->mode_context, mbmi->ref_frame);
   int cost = 0;
   int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, 3);
+  if (mbmi->mode == NEWMV) {
+    range = AOMMIN(2, range);
+  }
   for (int idx = 0; idx < range; ++idx) {
     uint8_t drl_ctx = av1_drl_ctx(mode_ctx, mbmi->mode,
                                   mbmi_ext->weight[ref_frame_type], idx);
@@ -11169,8 +11168,12 @@ static int get_drl_refmv_count(const MACROBLOCK *const x,
   int has_drl =
       have_nearmv_in_inter_mode(mode) || have_newmv_in_inter_mode(mode);
   const int8_t ref_frame_type = av1_ref_frame_type(ref_frame);
-  const int ref_mv_count = mbmi_ext->ref_mv_count[ref_frame_type];
-  return has_drl ? AOMMIN(MAX_REF_MV_SEARCH, ref_mv_count) : 1;
+  int ref_mv_count = mbmi_ext->ref_mv_count[ref_frame_type];
+  ref_mv_count = has_drl ? AOMMIN(MAX_REF_MV_SEARCH, ref_mv_count) : 1;
+  if (have_newmv_in_inter_mode(mode)) {
+    ref_mv_count = AOMMIN(3, ref_mv_count);
+  }
+  return ref_mv_count;
 }
 #else
 static int get_drl_refmv_count(const MACROBLOCK *const x,
@@ -11505,6 +11508,7 @@ static int64_t handle_inter_mode(
     if (!mask_check_bit(idx_mask, ref_mv_idx)) {
       // MV did not perform well in simple translation search. Skip it.
       // continue;
+      // DISABLED FOR TESTING
     }
 #endif  // CONFIG_NEW_INTER_MODES
     av1_init_rd_stats(rd_stats);
@@ -11669,8 +11673,10 @@ static int64_t handle_inter_mode(
 #endif
 
 #if CONFIG_NEW_INTER_MODES
-      if (RDCOST(x->rdmult, rd_stats->rate, 0) > ref_best_rd &&
-          mbmi->mode != NEARMV && mbmi->mode != NEAR_NEARMV) {
+      const int like_nearest =
+          (mbmi->mode == NEARMV || mbmi->mode == NEAR_NEARMV) &&
+          mbmi->ref_mv_idx == 0;
+      if (RDCOST(x->rdmult, rd_stats->rate, 0) > ref_best_rd && !like_nearest) {
         continue;
       }
 #else
@@ -14163,7 +14169,9 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         continue;
       }
     }
-    if (search_state.best_rd < search_state.mode_threshold[midx] && !is_inter_mode(this_mode)) continue;
+    if (search_state.best_rd < search_state.mode_threshold[midx] &&
+        !is_inter_mode(this_mode))
+      continue;
     if (sf->prune_comp_search_by_single_result > 0 && comp_pred) {
       if (compound_skip_by_single_states(cpi, &search_state, this_mode,
                                          ref_frame, second_ref_frame, x))
