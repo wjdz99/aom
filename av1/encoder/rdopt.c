@@ -11504,7 +11504,7 @@ static int64_t handle_inter_mode(
     // Because NEARESTMV is gone, this greatly hurts performance.
     if (!mask_check_bit(idx_mask, ref_mv_idx)) {
       // MV did not perform well in simple translation search. Skip it.
-      continue;
+      // continue;
     }
 #endif  // CONFIG_NEW_INTER_MODES
     av1_init_rd_stats(rd_stats);
@@ -14163,9 +14163,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         continue;
       }
     }
-
-    if (search_state.best_rd < search_state.mode_threshold[midx]) continue;
-
+    if (search_state.best_rd < search_state.mode_threshold[midx] && !is_inter_mode(this_mode)) continue;
     if (sf->prune_comp_search_by_single_result > 0 && comp_pred) {
       if (compound_skip_by_single_states(cpi, &search_state, this_mode,
                                          ref_frame, second_ref_frame, x))
