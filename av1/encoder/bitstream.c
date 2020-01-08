@@ -3402,6 +3402,48 @@ uint32_t av1_write_sequence_header_obu(AV1_COMP *cpi, uint8_t *const dst) {
   return size;
 }
 
+static uint32_t write_metadata_hdr_cll_header_obu(AV1_COMP *cpi,
+                                                  uint8_t *const dst) {
+  size_t coded_obu_type_size = 0;
+  uint64_t metadata_type = (uint64_t)OBU_METADATA_TYPE_HDR_CLL;
+  if (aom_uleb_encode(metadata_type, sizeof(metadata_type), dst,
+                      &coded_obu_type_size) != 0) {
+    return 0;
+  }
+  struct aom_write_bit_buffer wb = { dst + coded_obu_type_size, 0 };
+  aom_wb_write_unsigned_literal(&wb, cpi->common.max_cll, 16);
+  aom_wb_write_unsigned_literal(&wb, cpi->common.max_fall, 16);
+  add_trailing_bits(&wb);
+  uint32_t size = aom_wb_bytes_written(&wb) + (uint32_t)coded_obu_type_size;
+  return size;
+}
+
+static uint32_t write_metadata_hdr_mdcv_header_obu(AV1_COMP *cpi,
+                                                   uint8_t *const dst) {
+  size_t coded_obu_type_size = 0;
+  uint64_t metadata_type = (uint64_t)OBU_METADATA_TYPE_HDR_MDCV;
+  if (aom_uleb_encode(metadata_type, sizeof(metadata_type), dst,
+                      &coded_obu_type_size) != 0) {
+    return 0;
+  }
+  struct aom_write_bit_buffer wb = { dst + coded_obu_type_size, 0 };
+  aom_wb_write_unsigned_literal(&wb, cpi->common.mdcv_info[AOM_MDCV_GX], 16);
+  aom_wb_write_unsigned_literal(&wb, cpi->common.mdcv_info[AOM_MDCV_GY], 16);
+  aom_wb_write_unsigned_literal(&wb, cpi->common.mdcv_info[AOM_MDCV_BX], 16);
+  aom_wb_write_unsigned_literal(&wb, cpi->common.mdcv_info[AOM_MDCV_BY], 16);
+  aom_wb_write_unsigned_literal(&wb, cpi->common.mdcv_info[AOM_MDCV_RX], 16);
+  aom_wb_write_unsigned_literal(&wb, cpi->common.mdcv_info[AOM_MDCV_RY], 16);
+  aom_wb_write_unsigned_literal(&wb, cpi->common.mdcv_info[AOM_MDCV_WPX], 16);
+  aom_wb_write_unsigned_literal(&wb, cpi->common.mdcv_info[AOM_MDCV_WPY], 16);
+  aom_wb_write_unsigned_literal(&wb, cpi->common.mdcv_info[AOM_MDCV_LMAX], 32);
+  aom_wb_write_unsigned_literal(&wb, cpi->common.mdcv_info[AOM_MDCV_LMIN], 32);
+
+  add_trailing_bits(&wb);
+
+  uint32_t size = aom_wb_bytes_written(&wb) + (uint32_t)coded_obu_type_size;
+  return size;
+}
+
 static uint32_t write_frame_header_obu(AV1_COMP *cpi,
                                        struct aom_write_bit_buffer *saved_wb,
                                        uint8_t *const dst,
@@ -3873,6 +3915,45 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
     }
 
     data += obu_header_size + obu_payload_size + length_field_size;
+  }
+
+  // Write HDR10 metadata OBU before KEY_FRAME frame OBU
+  if (cm->current_frame.frame_type == KEY_FRAME) {
+    if (cpi->common.max_cll || cpi->common.max_fall) {
+      obu_header_size = av1_write_obu_header(cpi, OBU_METADATA, 0, data);
+      obu_payload_size =
+          write_metadata_hdr_cll_header_obu(cpi, data + obu_header_size);
+
+      const size_t length_field_size =
+          obu_memmove(obu_header_size, obu_payload_size, data);
+      if (av1_write_uleb_obu_size(obu_header_size, obu_payload_size, data) !=
+          AOM_CODEC_OK) {
+        return AOM_CODEC_ERROR;
+      }
+      data += obu_header_size + obu_payload_size + length_field_size;
+    }
+
+    static bool mdcv_has_info = false;
+    for (int i = 0; !mdcv_has_info && i < 10; ++i) {
+      if (cpi->common.mdcv_info[i] > 0) {
+        mdcv_has_info = true;
+        break;
+      }
+    }
+
+    if (mdcv_has_info) {
+      obu_header_size = av1_write_obu_header(cpi, OBU_METADATA, 0, data);
+      obu_payload_size =
+          write_metadata_hdr_mdcv_header_obu(cpi, data + obu_header_size);
+
+      const size_t length_field_size =
+          obu_memmove(obu_header_size, obu_payload_size, data);
+      if (av1_write_uleb_obu_size(obu_header_size, obu_payload_size, data) !=
+          AOM_CODEC_OK) {
+        return AOM_CODEC_ERROR;
+      }
+      data += obu_header_size + obu_payload_size + length_field_size;
+    }
   }
 
   // write metadata obus before the frame obu that has the show_frame flag set
