@@ -938,14 +938,14 @@ static const aom_cdf_prob default_flex_mv_precision_cdf
 
 #if CONFIG_NEW_INTER_MODES
 static const aom_cdf_prob default_newmv_cdf[NEWMV_MODE_CONTEXTS][CDF_SIZE(
-    2)] = { { AOM_CDF2(18789) }, { AOM_CDF2(19230) }, { AOM_CDF2(19464) },
-            { AOM_CDF2(9445) },  { AOM_CDF2(15773) }, { AOM_CDF2(5513) } };
+    2)] = { { AOM_CDF2(24035) }, { AOM_CDF2(16630) }, { AOM_CDF2(15339) },
+            { AOM_CDF2(8386) },  { AOM_CDF2(12222) }, { AOM_CDF2(4676) } };
 
 static const aom_cdf_prob default_zeromv_cdf[GLOBALMV_MODE_CONTEXTS][CDF_SIZE(
-    2)] = { { AOM_CDF2(6154) }, { AOM_CDF2(2663) } };
+    2)] = { { AOM_CDF2(2175) }, { AOM_CDF2(1054) } };
 
 static const aom_cdf_prob default_drl_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)] = {
-  { AOM_CDF2(15946) }, { AOM_CDF2(24871) }, { AOM_CDF2(16015) },
+  { AOM_CDF2(13104) }, { AOM_CDF2(24560) }, { AOM_CDF2(18945) },
   { AOM_CDF2(23974) }, { AOM_CDF2(24188) }, { AOM_CDF2(17848) },
   { AOM_CDF2(28622) }, { AOM_CDF2(24312) }, { AOM_CDF2(19923) }
 };
