@@ -1189,6 +1189,16 @@ enum aome_enc_control_id {
    * 0 : off, 1 : enable EXT_TILE_DEBUG
    */
   AV1E_ENABLE_EXT_TILE_DEBUG = 154,
+
+  /*!\brief Codec control function to set MaxCLL value */
+  AV1E_SET_MAX_CLL = 155,
+
+  /*!\brief Codec control function to set MaxFALL value */
+  AV1E_SET_MAX_FALL = 156,
+
+  /*!\brief Codec control function to set Mastering Display Color Volume values
+   */
+  AV1E_SET_MDCV = 157,
 };
 
 /*!\brief aom 1-D scaling mode
@@ -1279,6 +1289,20 @@ typedef enum {
   AOM_TUNE_VMAF_WITH_PREPROCESSING,
   AOM_TUNE_VMAF_WITHOUT_PREPROCESSING,
 } aom_tune_metric;
+
+/*!brief Master Display Color Volume values. Index for mdcv_info array. */
+typedef enum {
+  AOM_MDCV_GX = 0,
+  AOM_MDCV_GY = 1,
+  AOM_MDCV_BX = 2,
+  AOM_MDCV_BY = 3,
+  AOM_MDCV_RX = 4,
+  AOM_MDCV_RY = 5,
+  AOM_MDCV_WPX = 6,
+  AOM_MDCV_WPY = 7,
+  AOM_MDCV_LMAX = 8,
+  AOM_MDCV_LMIN = 9
+} aom_mdcv_info;
 
 #define AOM_MAX_LAYERS 32   /**< Max number of layers */
 #define AOM_MAX_SS_LAYERS 4 /**< Max number of spatial layers */
@@ -1674,6 +1698,15 @@ AOM_CTRL_USE_TYPE(AV1E_SET_SVC_PARAMS, aom_svc_params_t *)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_SVC_REF_FRAME_CONFIG, aom_svc_ref_frame_config_t *)
 #define AOME_CTRL_AV1E_SET_SVC_REF_FRAME_CONFIG
+
+AOM_CTRL_USE_TYPE(AV1E_SET_MAX_CLL, unsigned int)
+#define AOM_CTRL_AV1E_SET_MAX_CLL
+
+AOM_CTRL_USE_TYPE(AV1E_SET_MAX_FALL, unsigned int)
+#define AOM_CTRL_AV1E_SET_MAX_FALL
+
+AOM_CTRL_USE_TYPE(AV1E_SET_MDCV, uint32_t *)
+#define AOM_CTRL_AV1E_SET_MDCV
 
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */

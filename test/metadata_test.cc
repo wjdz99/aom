@@ -24,9 +24,16 @@
 
 namespace {
 const size_t kExampleDataSize = 10;
-// 0xB5 stands for the itut t35 metadata country code for the Unites States
+// 0xB5 stands for the itut t35 metadata country code for the United States
 const uint8_t kExampleData[kExampleDataSize] = { 0xB5, 0x01, 0x02, 0x03, 0x04,
                                                  0x05, 0x06, 0x07, 0x08, 0x09 };
+// encoder->Control(AV1E_SET_MDCV, mdcvData) expects non const int pointer
+// (mdcvData), and libaom does not take care to free it due to the way that
+// handles the hdr metadata, we need to declare as array non const in order to
+// avoid leaks.
+int mdcvData[10] = {
+  0xB5, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09
+};
 
 #if CONFIG_AV1_ENCODER
 
@@ -43,7 +50,14 @@ class MetadataEncodeTest
     SetMode(GET_PARAM(1));
   }
 
-  virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video) {
+  virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
+                                  ::libaom_test::Encoder *encoder) {
+    // Add HDR CLL & MDCV metadata
+    if (video->frame() == 0) {
+      encoder->Control(AV1E_SET_MAX_CLL, 61);
+      encoder->Control(AV1E_SET_MAX_FALL, 61);
+      encoder->Control(AV1E_SET_MDCV, mdcvData);
+    }
     aom_image_t *current_frame = video->img();
     if (current_frame) {
       if (current_frame->metadata) aom_img_remove_metadata(current_frame);
@@ -88,6 +102,23 @@ class MetadataEncodeTest
         }
       }
       ASSERT_EQ(valid_metadatas_found, 2u);
+      // Testing for HDR MDCV metadata
+      bool hdr_mdcv_metadata_found = false;
+      const size_t hdr_mdcv_metadata_obu_size = 28;
+      // Precision is bumped to 16 and 32 bits for MDCV metadata and thus
+      // the data will be written with padding bytes.
+      const uint8_t hdr_mdcv_metadata_obu[hdr_mdcv_metadata_obu_size] = {
+        0x2A, 0x1a, 0x02, 0x00, 0xB5, 0x00, 0x01, 0x00, 0x02, 0x00,
+        0x03, 0x00, 0x04, 0x00, 0x05, 0x00, 0x06, 0x00, 0x07, 0x00,
+        0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x09, 0x80
+      };
+      for (size_t i = 0; i < bitstream_size; ++i) {
+        if (memcmp(bitstream + i, hdr_mdcv_metadata_obu,
+                   hdr_mdcv_metadata_obu_size) == 0) {
+          hdr_mdcv_metadata_found = true;
+        }
+      }
+      ASSERT_TRUE(hdr_mdcv_metadata_found);
     }
   }
 

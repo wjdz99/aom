@@ -570,6 +570,9 @@ typedef struct AV1Common {
   int64_t txcoeff_cost_count;
 #endif
   int is_decoding;
+  unsigned int max_cll;   // Maximum Content Light Level
+  unsigned int max_fall;  // Maximum Frame Average Light Level
+  uint32_t *mdcv_info;    // SMPTE ST 2086 mastering display color volume
 } AV1_COMMON;
 
 // TODO(hkuang): Don't need to lock the whole pool after implementing atomic
