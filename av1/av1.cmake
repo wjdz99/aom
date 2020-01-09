@@ -169,6 +169,8 @@ endif()
                      "${AOM_ROOT}/av1/encoder/hybrid_fwd_txfm.h"
                      "${AOM_ROOT}/av1/encoder/level.c"
                      "${AOM_ROOT}/av1/encoder/level.h"
+                     "${AOM_ROOT}/av1/encoder/interp_filter_search.c"
+                     "${AOM_ROOT}/av1/encoder/interp_filter_search.h"
                      "${AOM_ROOT}/av1/encoder/lookahead.c"
                      "${AOM_ROOT}/av1/encoder/lookahead.h"
                      "${AOM_ROOT}/av1/encoder/mcomp.c"
