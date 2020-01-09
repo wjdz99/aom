@@ -506,6 +506,14 @@ static const THR_MODES av1_default_mode_order[MAX_MODES] = {
   THR_D45_PRED,
 };
 
+static model_rd_for_sb_type model_rd_sb_fn[MODELRD_TYPES] = {
+  model_rd_for_sb, model_rd_for_sb_with_curvfit
+};
+
+static model_rd_from_sse_type model_rd_sse_fn[MODELRD_TYPES] = {
+  model_rd_from_sse, model_rd_with_curvfit
+};
+
 static int find_last_single_ref_mode_idx(const THR_MODES *mode_order) {
   uint8_t mode_found[NUM_SINGLE_REF_MODES];
   av1_zero(mode_found);
@@ -6953,14 +6961,6 @@ static AOM_INLINE void single_motion_search(const AV1_COMP *const cpi,
   if (cpi->sf.mv_sf.adaptive_motion_search &&
       mbmi->motion_mode == SIMPLE_TRANSLATION)
     x->pred_mv[ref] = x->best_mv.as_mv;
-}
-
-static INLINE void restore_dst_buf(MACROBLOCKD *xd, const BUFFER_SET dst,
-                                   const int num_planes) {
-  for (int i = 0; i < num_planes; i++) {
-    xd->plane[i].dst.buf = dst.plane[i];
-    xd->plane[i].dst.stride = dst.stride[i];
-  }
 }
 
 static AOM_INLINE void build_second_inter_pred(const AV1_COMP *cpi,
