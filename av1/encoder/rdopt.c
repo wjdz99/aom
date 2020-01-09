@@ -10764,6 +10764,9 @@ static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
       av1_mode_context_analyzer(mbmi_ext->mode_context, mbmi->ref_frame);
   int cost = 0;
   int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, 3);
+  if (have_newmv_in_inter_mode(mbmi->mode)) {
+    range = AOMMIN(2, range);
+  }
   for (int idx = 0; idx < range; ++idx) {
     uint8_t drl_ctx = av1_drl_ctx(mode_ctx, mbmi->mode,
                                   mbmi_ext->weight[ref_frame_type], idx);
@@ -11171,6 +11174,9 @@ static int get_drl_refmv_count(const MACROBLOCK *const x,
   const int8_t ref_frame_type = av1_ref_frame_type(ref_frame);
   int ref_mv_count = mbmi_ext->ref_mv_count[ref_frame_type];
   ref_mv_count = has_drl ? AOMMIN(MAX_REF_MV_SEARCH, ref_mv_count) : 1;
+  if (have_newmv_in_inter_mode(mode)) {
+    ref_mv_count = AOMMIN(3, ref_mv_count);
+  }
   return ref_mv_count;
 }
 #else
@@ -11505,7 +11511,7 @@ static int64_t handle_inter_mode(
     // Because NEARESTMV is gone, this greatly hurts performance.
     if (!mask_check_bit(idx_mask, ref_mv_idx)) {
       // MV did not perform well in simple translation search. Skip it.
-      continue;
+      // continue;
     }
 #endif  // CONFIG_NEW_INTER_MODES
     av1_init_rd_stats(rd_stats);
@@ -14167,7 +14173,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       }
     }
 
-    if (search_state.best_rd < search_state.mode_threshold[midx]) continue;
+    // if (search_state.best_rd < search_state.mode_threshold[midx]) continue;
 
     if (sf->prune_comp_search_by_single_result > 0 && comp_pred) {
       if (compound_skip_by_single_states(cpi, &search_state, this_mode,
@@ -14838,7 +14844,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       }
     }
 
-    if (search_state.best_rd < search_state.mode_threshold[midx]) continue;
+    // if (search_state.best_rd < search_state.mode_threshold[midx]) continue;
 
     if (sf->prune_comp_search_by_single_result > 0 && comp_pred) {
       if (compound_skip_by_single_states(cpi, &search_state, this_mode,
