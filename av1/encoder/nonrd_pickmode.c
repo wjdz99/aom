@@ -522,13 +522,6 @@ static TX_SIZE calculate_tx_size(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
   return AOMMIN(tx_size, TX_16X16);
 }
 
-static const uint8_t b_width_log2_lookup[BLOCK_SIZES] = { 0, 0, 1, 1, 1, 2,
-                                                          2, 2, 3, 3, 3, 4,
-                                                          4, 4, 5, 5 };
-static const uint8_t b_height_log2_lookup[BLOCK_SIZES] = { 0, 1, 0, 1, 2, 1,
-                                                           2, 3, 2, 3, 4, 3,
-                                                           4, 5, 4, 5 };
-
 static void block_variance(const uint8_t *src, int src_stride,
                            const uint8_t *ref, int ref_stride, int w, int h,
                            unsigned int *sse, int *sum, int block_size,

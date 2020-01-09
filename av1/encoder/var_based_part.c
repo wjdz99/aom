@@ -591,6 +591,120 @@ static AOM_INLINE void chroma_check(AV1_COMP *cpi, MACROBLOCK *x,
   }
 }
 
+static void copy_partitioning_helper(AV1_COMP *cpi, MACROBLOCK *x,
+                                     MACROBLOCKD *xd, BLOCK_SIZE bsize,
+                                     int mi_row, int mi_col) {
+  AV1_COMMON *const cm = &cpi->common;
+  BLOCK_SIZE *prev_part = cpi->prev_partition;
+  int start_pos = mi_row * cm->mi_stride + mi_col;
+
+  const int bsl = b_width_log2_lookup[bsize];
+  const int bs = (1 << bsl) >> 2;
+  BLOCK_SIZE subsize;
+  PARTITION_TYPE partition;
+
+  if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
+
+  partition = get_partition(cm, mi_row, mi_col, prev_part[start_pos]);
+  subsize = get_partition_subsize(bsize, partition);
+
+  if (subsize < BLOCK_8X8) {
+    set_block_size(cpi, x, xd, mi_row, mi_col, bsize);
+  } else {
+    switch (partition) {
+      case PARTITION_NONE:
+        set_block_size(cpi, x, xd, mi_row, mi_col, bsize);
+        break;
+      case PARTITION_HORZ:
+        set_block_size(cpi, x, xd, mi_row, mi_col, subsize);
+        set_block_size(cpi, x, xd, mi_row + bs, mi_col, subsize);
+        break;
+      case PARTITION_VERT:
+        set_block_size(cpi, x, xd, mi_row, mi_col, subsize);
+        set_block_size(cpi, x, xd, mi_row, mi_col + bs, subsize);
+        break;
+      default:
+        assert(partition == PARTITION_SPLIT);
+        copy_partitioning_helper(cpi, x, xd, subsize, mi_row, mi_col);
+        copy_partitioning_helper(cpi, x, xd, subsize, mi_row + bs, mi_col);
+        copy_partitioning_helper(cpi, x, xd, subsize, mi_row, mi_col + bs);
+        copy_partitioning_helper(cpi, x, xd, subsize, mi_row + bs, mi_col + bs);
+        break;
+    }
+  }
+}
+
+static int copy_partitioning(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
+                             int mi_row, int mi_col, int segment_id,
+                             int sb_offset) {
+  int svc_copy_allowed = 1;
+  int frames_since_key_thresh = 1;
+
+  if (cpi->rc.frames_since_key > frames_since_key_thresh && svc_copy_allowed &&
+      !av1_resize_scaled(&cpi->common) && segment_id == CR_SEGMENT_ID_BASE &&
+      cpi->prev_segment_id[sb_offset] == CR_SEGMENT_ID_BASE &&
+      cpi->copied_frame_cnt[sb_offset] < cpi->max_copied_frame) {
+    if (cpi->prev_partition != NULL) {
+      copy_partitioning_helper(cpi, x, xd, BLOCK_64X64, mi_row, mi_col);
+      cpi->copied_frame_cnt[sb_offset] += 1;
+      memcpy(x->variance_low, &(cpi->prev_variance_low[sb_offset * 25]),
+             sizeof(x->variance_low));
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+static void update_prev_partition_helper(AV1_COMP *cpi, BLOCK_SIZE bsize,
+                                         int mi_row, int mi_col) {
+  AV1_COMMON *const cm = &cpi->common;
+  BLOCK_SIZE *prev_part = cpi->prev_partition;
+  int start_pos = mi_row * cm->mi_stride + mi_col;
+  const int bsl = b_width_log2_lookup[bsize];
+  const int bs = (1 << bsl) >> 2;
+  BLOCK_SIZE subsize;
+  PARTITION_TYPE partition;
+
+  if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
+
+  partition = get_partition(cm, mi_row, mi_col, bsize);
+  subsize = get_partition_subsize(bsize, partition);
+  if (subsize < BLOCK_8X8) {
+    prev_part[start_pos] = bsize;
+  } else {
+    switch (partition) {
+      case PARTITION_NONE: prev_part[start_pos] = bsize; break;
+      case PARTITION_HORZ:
+        prev_part[start_pos] = subsize;
+        if (mi_row + bs < cm->mi_rows)
+          prev_part[start_pos + bs * cm->mi_stride] = subsize;
+        break;
+      case PARTITION_VERT:
+        prev_part[start_pos] = subsize;
+        if (mi_col + bs < cm->mi_cols) prev_part[start_pos + bs] = subsize;
+        break;
+      default:
+        assert(partition == PARTITION_SPLIT);
+        update_prev_partition_helper(cpi, subsize, mi_row, mi_col);
+        update_prev_partition_helper(cpi, subsize, mi_row + bs, mi_col);
+        update_prev_partition_helper(cpi, subsize, mi_row, mi_col + bs);
+        update_prev_partition_helper(cpi, subsize, mi_row + bs, mi_col + bs);
+        break;
+    }
+  }
+}
+
+static void update_prev_partition(AV1_COMP *cpi, MACROBLOCK *x, int segment_id,
+                                  int mi_row, int mi_col, int sb_offset) {
+  update_prev_partition_helper(cpi, BLOCK_64X64, mi_row, mi_col);
+  cpi->prev_segment_id[sb_offset] = segment_id;
+  memcpy(&(cpi->prev_variance_low[sb_offset * 25]), x->variance_low,
+         sizeof(x->variance_low));
+  // Reset the counter for copy partitioning
+  cpi->copied_frame_cnt[sb_offset] = 0;
+}
+
 // This function chooses partitioning based on the variance between source and
 // reconstructed last, where variance is computed for down-sampled inputs.
 // TODO(kyslov): lot of things. Bring back noise estimation, brush up partition
@@ -646,7 +760,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   int variance4x4downsample[64];
   int segment_id;
   const int num_planes = av1_num_planes(cm);
-
+  int sb_offset = (cm->mi_stride >> 3) * (mi_row >> 3) + (mi_col >> 3);
   segment_id = xd->mi[0]->segment_id;
 
   if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && cm->seg.enabled &&
@@ -758,6 +872,17 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
           }
         }
 #endif
+
+    // If the y_sad is small enough, copy the partition of the superblock in the
+    // last frame to current frame only if the last frame is not a keyframe.
+    // Stop the copy every cpi->max_copied_frame to refresh the partition.
+    // TODO(jianj): tune the threshold.
+    // TODO(jianj): Add SVC support.
+    if (cpi->sf.part_sf.copy_partition && y_sad < cpi->vbp_threshold_copy &&
+        copy_partitioning(cpi, x, xd, mi_row, mi_col, segment_id, sb_offset)) {
+      chroma_check(cpi, x, bsize, y_sad, is_key_frame);
+      return 0;
+    }
   } else {
     d = AV1_VAR_OFFS;
     dp = 0;
@@ -994,6 +1119,10 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
         }
       }
     }
+  }
+
+  if (!frame_is_intra_only(cm) && cpi->sf.part_sf.copy_partition) {
+    update_prev_partition(cpi, x, segment_id, mi_row, mi_col, sb_offset);
   }
 
   if (cpi->sf.rt_sf.short_circuit_low_temp_var && !is_small_sb) {

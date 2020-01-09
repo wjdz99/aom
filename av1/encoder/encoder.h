@@ -1118,6 +1118,20 @@ typedef struct AV1_COMP {
 
   int lap_enabled;
   COMPRESSOR_STAGE compressor_stage;
+
+  // Previous Partition Info
+  BLOCK_SIZE *prev_partition;
+  int8_t *prev_segment_id;
+  // Used to save the status of whether a block has a low variance in
+  // choose_partitioning. 0 for 64x64, 1~2 for 64x32, 3~4 for 32x64, 5~8 for
+  // 32x32, 9~24 for 16x16.
+  // This is for the last frame and is copied to the current frame
+  // when partition copy happens.
+  uint8_t *prev_variance_low;
+  uint8_t *copied_frame_cnt;
+  uint8_t max_copied_frame;
+  // If the last frame is dropped, we don't copy partition.
+  uint8_t last_frame_dropped;
 } AV1_COMP;
 
 typedef struct {
