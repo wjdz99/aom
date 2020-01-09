@@ -814,6 +814,9 @@ static void update_drl_index_stats(FRAME_CONTEXT *fc, FRAME_COUNTS *counts,
 #endif  // !CONFIG_ENTROPY_STATS
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
   int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, 3);
+  if (have_newmv_in_inter_mode(mbmi->mode)) {
+    range = AOMMIN(2, range);
+  }
   for (int idx = 0; idx < range; ++idx) {
     uint8_t drl_ctx = av1_drl_ctx(mode_ctx, mbmi->mode,
                                   mbmi_ext->weight[ref_frame_type], idx);
