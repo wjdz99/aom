@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7153290f_0dd2e091",
+        "filename": "aom_util/aom_thread.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2020-01-09T18:02:12Z",
+      "side": 1,
+      "message": "I think it would be better if this error message was explicit about what\u0027s failing:\n\n_WIN32_WINNT must target Windows Vista / Server 2008 or newer.",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 58
+      },
+      "revId": "7e48669d25a939833f548a66992f5af2a43bbec4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
