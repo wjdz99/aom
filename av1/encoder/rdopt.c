@@ -11174,7 +11174,7 @@ static int get_drl_refmv_count(const MACROBLOCK *const x,
   const int8_t ref_frame_type = av1_ref_frame_type(ref_frame);
   int ref_mv_count = mbmi_ext->ref_mv_count[ref_frame_type];
   ref_mv_count = has_drl ? AOMMIN(MAX_REF_MV_SEARCH, ref_mv_count) : 1;
-  if (have_newmv_in_inter_mode(mode)){
+  if (have_newmv_in_inter_mode(mode)) {
     ref_mv_count = AOMMIN(3, ref_mv_count);
   }
   return ref_mv_count;
@@ -14173,7 +14173,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       }
     }
 
-    //if (search_state.best_rd < search_state.mode_threshold[midx]) continue;
+    // if (search_state.best_rd < search_state.mode_threshold[midx]) continue;
 
     if (sf->prune_comp_search_by_single_result > 0 && comp_pred) {
       if (compound_skip_by_single_states(cpi, &search_state, this_mode,
@@ -14844,7 +14844,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       }
     }
 
-    //if (search_state.best_rd < search_state.mode_threshold[midx]) continue;
+    // if (search_state.best_rd < search_state.mode_threshold[midx]) continue;
 
     if (sf->prune_comp_search_by_single_result > 0 && comp_pred) {
       if (compound_skip_by_single_states(cpi, &search_state, this_mode,
