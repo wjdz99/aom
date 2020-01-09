@@ -247,16 +247,16 @@ static void set_good_speed_features_framesize_independent(
 #endif  // CONFIG_NEW_TX_PARTITION
   sf->model_based_post_interp_filter_breakout = 1;
 
-// TODO(debargha): Test, tweak and turn on either 1 or 2
+  // TODO(debargha): Test, tweak and turn on either 1 or 2
 #if CONFIG_NEW_INTER_MODES
   sf->inter_mode_rd_model_estimation = 0;
 #else
-  sf->inter_mode_rd_model_estimation = 1;
+  sf->inter_mode_rd_model_estimation = 0;
 #endif  // CONFIG_NEW_INTER_MODES
   sf->inter_mode_rd_model_estimation_adaptive = 0;
-  sf->prune_compound_using_single_ref = 1;
+  sf->prune_compound_using_single_ref = 0;
 
-  sf->prune_mode_search_simple_translation = 1;
+  sf->prune_mode_search_simple_translation = 0;
   sf->two_loop_comp_search = 0;
   sf->prune_ref_frame_for_rect_partitions =
       (boosted || (cm->allow_screen_content_tools))
