@@ -20,6 +20,14 @@
 extern "C" {
 #endif
 
+static INLINE void restore_dst_buf(MACROBLOCKD *xd, const BUFFER_SET dst,
+                                   const int num_planes) {
+  for (int i = 0; i < num_planes; i++) {
+    xd->plane[i].dst.buf = dst.plane[i];
+    xd->plane[i].dst.stride = dst.stride[i];
+  }
+}
+
 /* clang-format on */
 // Calculate rd threshold based on ref best rd and relevant scaling factors
 static INLINE int64_t get_rd_thresh_from_best_rd(int64_t ref_best_rd,
@@ -32,39 +40,6 @@ static INLINE int64_t get_rd_thresh_from_best_rd(int64_t ref_best_rd,
                     : INT64_MAX;
   }
   return rd_thresh;
-}
-
-static THR_MODES get_prediction_mode_idx(PREDICTION_MODE this_mode,
-                                         MV_REFERENCE_FRAME ref_frame,
-                                         MV_REFERENCE_FRAME second_ref_frame) {
-  if (this_mode < INTRA_MODE_END) {
-    assert(ref_frame == INTRA_FRAME);
-    assert(second_ref_frame == NONE_FRAME);
-    return intra_to_mode_idx[this_mode - INTRA_MODE_START];
-  }
-  if (this_mode >= SINGLE_INTER_MODE_START &&
-      this_mode < SINGLE_INTER_MODE_END) {
-    assert((ref_frame > INTRA_FRAME) && (ref_frame <= ALTREF_FRAME));
-    return single_inter_to_mode_idx[this_mode - SINGLE_INTER_MODE_START]
-                                   [ref_frame];
-  }
-  if (this_mode >= COMP_INTER_MODE_START && this_mode < COMP_INTER_MODE_END) {
-    assert((ref_frame > INTRA_FRAME) && (ref_frame <= ALTREF_FRAME));
-    assert((second_ref_frame > INTRA_FRAME) &&
-           (second_ref_frame <= ALTREF_FRAME));
-    return comp_inter_to_mode_idx[this_mode - COMP_INTER_MODE_START][ref_frame]
-                                 [second_ref_frame];
-  }
-  assert(0);
-  return THR_INVALID;
-}
-
-static int inter_mode_data_block_idx(BLOCK_SIZE bsize) {
-  if (bsize == BLOCK_4X4 || bsize == BLOCK_4X8 || bsize == BLOCK_8X4 ||
-      bsize == BLOCK_4X16 || bsize == BLOCK_16X4) {
-    return -1;
-  }
-  return 1;
 }
 
 // Get transform block visible dimensions cropped to the MI units.
