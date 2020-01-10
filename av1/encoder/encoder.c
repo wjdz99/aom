@@ -251,6 +251,123 @@ const int default_obmc_probs[FRAME_UPDATE_TYPES][BLOCK_SIZES_ALL] = {
 const int default_warped_probs[FRAME_UPDATE_TYPES] = { 64, 64, 64, 64,
                                                        64, 64, 64 };
 
+const int default_switchable_interp_probs[FRAME_UPDATE_TYPES]
+                                         [SWITCHABLE_FILTER_CONTEXTS]
+                                         [SWITCHABLE_FILTERS] = {
+                                           { { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 } },
+                                           { { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 } },
+                                           { { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 } },
+                                           { { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 } },
+                                           { { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 } },
+                                           { { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 } },
+                                           { { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 },
+                                             { 512, 512, 512 } }
+                                         };
+
 static INLINE void Scale2Ratio(AOM_SCALING mode, int *hr, int *hs) {
   switch (mode) {
     case NORMAL:
@@ -5001,6 +5118,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   if (is_stat_consumption_stage_twopass(cpi) &&
       cpi->sf.interp_sf.adaptive_interp_filter_search)
     cpi->interp_filter_search_mask = setup_interp_filter_search_mask(cpi);
+
   cpi->source->buf_8bit_valid = 0;
 
   av1_setup_frame_size(cpi);
@@ -5041,6 +5159,17 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   if (cpi->sf.inter_sf.prune_warped_prob_thresh > 0 &&
       cm->current_frame.frame_type == KEY_FRAME) {
     av1_copy(cpi->warped_probs, default_warped_probs);
+  }
+
+  if (cpi->sf.interp_sf.adaptive_interp_filter_search == 2 &&
+      cm->current_frame.frame_type == KEY_FRAME) {
+    av1_copy(cpi->switchable_interp_probs, default_switchable_interp_probs);
+
+    int thr[2] = { 15, 10 };
+    for (int f = 0; f < FRAME_UPDATE_TYPES; f++) {
+      int arf_update = f == ARF_UPDATE;
+      cpi->switchable_interp_thresh[f] = thr[arf_update];
+    }
   }
 
   // Loop variables
