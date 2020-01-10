@@ -199,6 +199,7 @@ list(APPEND AOM_AV1_ENCODER_SOURCES
             "${AOM_ROOT}/av1/encoder/nonrd_pickmode.c"
             "${AOM_ROOT}/av1/encoder/rdopt.h"
             "${AOM_ROOT}/av1/encoder/rdopt_data_defs.h"
+            "${AOM_ROOT}/av1/encoder/rdopt_utils.c"
             "${AOM_ROOT}/av1/encoder/rdopt_utils.h"
             "${AOM_ROOT}/av1/encoder/reconinter_enc.c"
             "${AOM_ROOT}/av1/encoder/reconinter_enc.h"
