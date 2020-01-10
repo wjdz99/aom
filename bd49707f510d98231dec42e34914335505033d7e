@@ -16,6 +16,24 @@
       "revId": "bd49707f510d98231dec42e34914335505033d7e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90e858d1_0603cdba",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-10T19:51:26Z",
+      "side": 1,
+      "message": "Okay, I will remove this line. Thanks!",
+      "parentUuid": "df0b24ae_2fafe29a",
+      "revId": "bd49707f510d98231dec42e34914335505033d7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
