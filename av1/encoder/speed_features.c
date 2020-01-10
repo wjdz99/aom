@@ -836,11 +836,11 @@ static AOM_INLINE void init_hl_sf(HIGH_LEVEL_SPEED_FEATURES *hl_sf) {
   // best quality defaults
   hl_sf->frame_parameter_update = 1;
   hl_sf->recode_loop = ALLOW_RECODE;
+  hl_sf->reduce_high_precision_mv_usage = 0;
   hl_sf->disable_overlay_frames = 0;
   hl_sf->adaptive_overlay_encoding = 1;
   // Recode loop tolerance %.
   hl_sf->recode_tolerance = 25;
-  hl_sf->high_precision_mv_usage = CURRENT_Q;
   hl_sf->second_alt_ref_filtering = 1;
 }
 
