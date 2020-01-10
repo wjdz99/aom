@@ -1241,7 +1241,11 @@ static void search_filter_ref(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *this_rdc,
   InterpFilter filters[FILTER_SEARCH_SIZE] = { EIGHTTAP_REGULAR,
                                                EIGHTTAP_SMOOTH };
   int i;
-  for (i = 0; i < FILTER_SEARCH_SIZE; ++i) {
+  const int filter_search_size =
+      x->source_variance > cpi->sf.interp_sf.disable_filter_search_var_thresh
+          ? FILTER_SEARCH_SIZE
+          : 1;
+  for (i = 0; i < filter_search_size; ++i) {
     int64_t cost;
     InterpFilter filter = filters[i];
     mi->interp_filters = av1_broadcast_interp_filter(filter);
