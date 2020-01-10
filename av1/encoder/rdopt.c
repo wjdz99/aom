@@ -2353,6 +2353,10 @@ static AOM_INLINE void PrintPredictionUnitStats(const AV1_COMP *const cpi,
 }
 #endif  // CONFIG_COLLECT_RD_STATS >= 2
 #endif  // CONFIG_COLLECT_RD_STATS
+
+// pruning thresholds for prune_txk_type and prune_txk_type_separ
+static const int prune_factors[5] = { 200, 200, 120, 80, 40 };  // scale 1000
+static const int mul_factors[5] = { 80, 80, 70, 50, 30 };       // scale 100
 // R-D costs are sorted in ascending order.
 static INLINE void sort_rd(int64_t rds[], int txk[], int len) {
   int i, j, k;
@@ -2740,18 +2744,37 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       }
       allowed_tx_mask &= (~prune);
     }
-
     for (i = 0; i < TX_TYPES; i++) {
       if (allowed_tx_mask & (1 << i)) num_allowed++;
     }
     assert(num_allowed > 0);
 
-    int allowed_tx_count = (x->prune_mode == PRUNE_2D_AGGRESSIVE) ? 1 : 5;
-    // !fast_tx_search && txk_end != txk_start && plane == 0
-    if (x->prune_mode >= PRUNE_2D_ACCURATE && is_inter &&
-        num_allowed > allowed_tx_count) {
-      prune_tx_2D(x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
-                  x->prune_mode, txk_map, &allowed_tx_mask);
+    if (num_allowed > 2 && cpi->sf.tx_sf.tx_type_search.prune_tx_type_est_rd) {
+      int pf = prune_factors[x->prune_mode];
+      int mf = mul_factors[x->prune_mode];
+      if (num_allowed <= 7) {
+        const uint16_t prune = prune_txk_type(
+            cpi, x, plane, block, tx_size, blk_row, blk_col, plane_bsize,
+            txk_map, allowed_tx_mask, pf, txb_ctx, cm->reduced_tx_set_used);
+        allowed_tx_mask &= (~prune);
+      } else {
+        const int num_sel = (num_allowed * mf + 50) / 100;
+        const uint16_t prune = prune_txk_type_separ(
+            cpi, x, plane, block, tx_size, blk_row, blk_col, plane_bsize,
+            txk_map, allowed_tx_mask, pf, txb_ctx, cm->reduced_tx_set_used,
+            ref_best_rd, num_sel);
+
+        allowed_tx_mask &= (~prune);
+      }
+    } else {
+      assert(num_allowed > 0);
+      int allowed_tx_count = (x->prune_mode == PRUNE_2D_AGGRESSIVE) ? 1 : 5;
+      // !fast_tx_search && txk_end != txk_start && plane == 0
+      if (x->prune_mode >= PRUNE_2D_ACCURATE && is_inter &&
+          num_allowed > allowed_tx_count) {
+        prune_tx_2D(x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
+                    x->prune_mode, txk_map, &allowed_tx_mask);
+      }
     }
   }
 
