@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0019974_e55171a6",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4015,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-01-10T05:16:10Z",
+      "side": 1,
+      "message": "I assume the current setup is to use the q value to decide 1/8 precision on and off? If that\u0027s the case, this function call seems not quite right, since it will only be called once per frame at the initial q value for frame encoding.\n\nHowever, later on the encoder might run through multiple q values in the recode loop to find the one that meets the frame size budget best. The motion precision however has been set once and only based on the first q value, even if the selected frame q might be a lot smaller than it.\n\nIt seems that line 5126 on the left side is a right place to do so.",
+      "range": {
+        "startLine": 4015,
+        "startChar": 4,
+        "endLine": 4015,
+        "endChar": 48
+      },
+      "revId": "93c449566edb218245f2d98484e2a6ae1c9489cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
