@@ -5017,6 +5017,11 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   int top_index = 0, bottom_index = 0;
   int q = 0, q_low = 0, q_high = 0;
   set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
+  // Set the motion vector precision based on mv stats from the last coded
+  // frame.
+  if (!frame_is_intra_only(cm)) {
+    av1_pick_and_set_high_precision_mv(cpi, q);
+  }
   q_low = bottom_index;
   q_high = top_index;
 
@@ -5123,11 +5128,6 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 #if CONFIG_COLLECT_COMPONENT_TIMING
     start_timing(cpi, av1_encode_frame_time);
 #endif
-    // Set the motion vector precision based on mv stats from the last coded
-    // frame.
-    if (!frame_is_intra_only(cm)) {
-      av1_pick_and_set_high_precision_mv(cpi, q);
-    }
 
     // transform / motion compensation build reconstruction frame
     av1_encode_frame(cpi);
