@@ -10034,6 +10034,11 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
         if ((!cpi->oxcf.enable_smooth_intra || cpi->sf.disable_smooth_intra) &&
             (INTERINTRA_MODE)j == II_SMOOTH_PRED)
           continue;
+#if CONFIG_ILLUM_MCOMP
+        if (j == II_ILLUM_MCOMP_PRED) {
+          continue;
+        }
+#endif  // CONFIG_ILLUM_MCOMP
         mbmi->interintra_mode = (INTERINTRA_MODE)j;
         rmode = interintra_mode_cost[mbmi->interintra_mode];
         av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
@@ -10098,6 +10103,11 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
 
           int j = 0;
           for (j = 0; j < INTERINTRA_MODES; ++j) {
+#if CONFIG_ILLUM_MCOMP
+            if (j == II_ILLUM_MCOMP_PRED) {
+              continue;
+            }
+#endif  // CONFIG_ILLUM_MCOMP
             mbmi->interintra_mode = (INTERINTRA_MODE)j;
             rmode = interintra_mode_cost[mbmi->interintra_mode];
             av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0,
