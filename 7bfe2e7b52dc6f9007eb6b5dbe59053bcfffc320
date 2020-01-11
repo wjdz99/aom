@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e41ff854_d5d16f59",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 861,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-11T00:19:16Z",
+      "side": 1,
+      "message": "If this is not used, we don\u0027t need to pass it in.",
+      "range": {
+        "startLine": 861,
+        "startChar": 2,
+        "endLine": 861,
+        "endChar": 9
+      },
+      "revId": "7bfe2e7b52dc6f9007eb6b5dbe59053bcfffc320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5c26d19_01e280fb",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 877,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-11T00:19:16Z",
+      "side": 1,
+      "message": "Could you add some comment to the lookup table? What does it do and how is it computed?",
+      "range": {
+        "startLine": 877,
+        "startChar": 17,
+        "endLine": 877,
+        "endChar": 24
+      },
+      "revId": "7bfe2e7b52dc6f9007eb6b5dbe59053bcfffc320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c5e46f2_cecbb333",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 880,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-11T00:19:16Z",
+      "side": 1,
+      "message": "This variable is not necessary.\nJust define\nconst int const_term \u003d 1 \u003c\u003c AV1_PROB_COST_SHIFT;",
+      "range": {
+        "startLine": 880,
+        "startChar": 0,
+        "endLine": 880,
+        "endChar": 56
+      },
+      "revId": "7bfe2e7b52dc6f9007eb6b5dbe59053bcfffc320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47165cd0_bd068263",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 896,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-11T00:19:16Z",
+      "side": 1,
+      "message": "nit: this could be moved to line 916, since it is immediately used there.",
+      "range": {
+        "startLine": 895,
+        "startChar": 0,
+        "endLine": 896,
+        "endChar": 35
+      },
+      "revId": "7bfe2e7b52dc6f9007eb6b5dbe59053bcfffc320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e3aa351_23dc3ba3",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 915,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-11T00:19:16Z",
+      "side": 1,
+      "message": "log_e?",
+      "range": {
+        "startLine": 915,
+        "startChar": 41,
+        "endLine": 915,
+        "endChar": 45
+      },
+      "revId": "7bfe2e7b52dc6f9007eb6b5dbe59053bcfffc320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d7e10b8_73b44b89",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 947,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-11T00:19:16Z",
+      "side": 1,
+      "message": "This could be const. Same in the declaration.\nSo is \"adjust_eob\".",
+      "range": {
+        "startLine": 947,
+        "startChar": 41,
+        "endLine": 947,
+        "endChar": 44
+      },
+      "revId": "7bfe2e7b52dc6f9007eb6b5dbe59053bcfffc320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
