@@ -44,6 +44,16 @@ static INLINE const int32_t *cast_to_int32(const tran_low_t *input) {
   return (const int32_t *)input;
 }
 
+#if CONFIG_NEW_TX64X64
+
+// Whether to use superres filter or not
+#define USE_SUPERRES_FILTER_TX64 1
+
+// Max filter extension needed for superres filter
+#define SUPERRES_FILTER_TX64_EXT 3
+
+#endif  // CONFIG_NEW_TX64X64
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
