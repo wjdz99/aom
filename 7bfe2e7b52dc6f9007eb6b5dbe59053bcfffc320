@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2012c28e_c7ae0f1f",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 861,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-01-11T01:13:48Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e41ff854_d5d16f59",
+      "range": {
+        "startLine": 861,
+        "startChar": 2,
+        "endLine": 861,
+        "endChar": 9
+      },
+      "revId": "7bfe2e7b52dc6f9007eb6b5dbe59053bcfffc320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b5c26d19_01e280fb",
         "filename": "av1/encoder/encodetxb.c",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "7bfe2e7b52dc6f9007eb6b5dbe59053bcfffc320",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9350eeee_406f8961",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 877,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-01-11T01:13:48Z",
+      "side": 1,
+      "message": "Added some brief comment, and will include a design doc (currently a draft only) in the commit message.",
+      "parentUuid": "b5c26d19_01e280fb",
+      "range": {
+        "startLine": 877,
+        "startChar": 17,
+        "endLine": 877,
+        "endChar": 24
+      },
+      "revId": "7bfe2e7b52dc6f9007eb6b5dbe59053bcfffc320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "04a7c481_3e79c676",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 880,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-01-11T01:13:48Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9c5e46f2_cecbb333",
+      "range": {
+        "startLine": 880,
+        "startChar": 0,
+        "endLine": 880,
+        "endChar": 56
+      },
+      "revId": "7bfe2e7b52dc6f9007eb6b5dbe59053bcfffc320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "47165cd0_bd068263",
         "filename": "av1/encoder/encodetxb.c",
         "patchSetId": 3
@@ -91,6 +163,30 @@
       "revId": "7bfe2e7b52dc6f9007eb6b5dbe59053bcfffc320",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bb30be4_780f38ae",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 896,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-01-11T01:13:48Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "47165cd0_bd068263",
+      "range": {
+        "startLine": 895,
+        "startChar": 0,
+        "endLine": 896,
+        "endChar": 35
+      },
+      "revId": "7bfe2e7b52dc6f9007eb6b5dbe59053bcfffc320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "13fcdffc_92e3ff9b",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 915,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-01-11T01:13:48Z",
+      "side": 1,
+      "message": "Log(e) was part of the calculation to determine the final cost, it was separated from the const_term because they belong to different coefficients (although in the current implementation both multiplied by eob-1).",
+      "parentUuid": "0e3aa351_23dc3ba3",
+      "range": {
+        "startLine": 915,
+        "startChar": 41,
+        "endLine": 915,
+        "endChar": 45
+      },
+      "revId": "7bfe2e7b52dc6f9007eb6b5dbe59053bcfffc320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d7e10b8_73b44b89",
         "filename": "av1/encoder/encodetxb.c",
         "patchSetId": 3
@@ -137,6 +257,30 @@
       "revId": "7bfe2e7b52dc6f9007eb6b5dbe59053bcfffc320",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ce3f1ac_d9d6a2f7",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 947,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-01-11T01:13:48Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2d7e10b8_73b44b89",
+      "range": {
+        "startLine": 947,
+        "startChar": 41,
+        "endLine": 947,
+        "endChar": 44
+      },
+      "revId": "7bfe2e7b52dc6f9007eb6b5dbe59053bcfffc320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
