@@ -188,6 +188,8 @@ void av1_init3smotion_compensation(search_site_config *cfg, int stride) {
     int num_search_pts = 12;
     if (radius == 1) num_search_pts = 8;
 
+    printf("\n idx: %d; radius: %d; tan_radius: %d; \n",  stage_index,radius, tan_radius);
+
     const MV ss_mvs[13] = {
       { 0, 0 },
       { -radius, 0 },
