@@ -685,10 +685,10 @@ void av1_imdt8(const int32_t *input, int32_t *output, int8_t cos_bit,
 void av1_imdt16(const int32_t *input, int32_t *output, int8_t cos_bit,
                 const int8_t *side_info) {
   (void)cos_bit;
-  (void)side_info;  // This transform is not mode-dependent
   int32_t s[16] = { 0 };
+  const int32_t *mdt = mdt16_arr(side_info[0]);
   for (int i = 0; i < 16; i++)
-    for (int j = 0; j < 16; j++) s[j] += dst7_16[i * 16 + j] * input[i];
+    for (int j = 0; j < 16; j++) s[j] += mdt[i * 16 + j] * input[i];
 
   for (int i = 0; i < 16; i++) output[i] = round_shift(s[i], 11);
 }
