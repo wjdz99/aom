@@ -29,7 +29,7 @@
 #define MAG_SIZE (4)
 #define MAX_NUM_ENHANCEMENT_LAYERS 3
 // The lag between encode stage and the look ahead stage
-#define MIN_LAP_LAG 35
+#define MIN_LAP_LAG 1
 
 struct av1_extracfg {
   int cpu_used;
