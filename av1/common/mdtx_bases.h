@@ -6740,20 +6740,24 @@ static INLINE const int32_t *nstx_arr(TX_SIZE tx_size, PREDICTION_MODE mode) {
 
 // pointers to separable mode-dependent transforms
 static const int32_t *mdt_mtx_arr[2][INTRA_MODES] = {
+  // Size 4
   { mdt4_mode0, mdt4_mode1, mdt4_mode2, mdt4_mode3, mdt4_mode4, mdt4_mode5,
     mdt4_mode6, mdt4_mode7, mdt4_mode8, mdt4_mode9, mdt4_mode10, mdt4_mode11,
     mdt4_mode12 },
+  // Size 8
   { mdt8_mode0, mdt8_mode1, mdt8_mode2, mdt8_mode3, mdt8_mode4, mdt8_mode5,
     mdt8_mode6, mdt8_mode7, mdt8_mode8, mdt8_mode9, mdt8_mode10, mdt8_mode11,
     mdt8_mode12 },
 };
 
-static INLINE const int32_t *mdt_arr(int mode, int tx_size_1d) {
-  if (mode >= INTER_MODE_START && mode < INTER_MODE_END) {
-    return tx_size_1d == 0 ? klt4_inter : klt8_inter;
-  } else {
-    return mdt_mtx_arr[tx_size_1d][mode];
-  }
+static INLINE const int32_t *mdt4_arr(int mode) {
+  if(is_inter_mode(mode)) return klt4_inter;
+  return mdt_mtx_arr[0][mode];
+}
+
+static INLINE const int32_t *mdt8_arr(PREDICTION_MODE mode) {
+  if(is_inter_mode(mode)) return klt8_inter;
+  return mdt_mtx_arr[1][mode];
 }
 
 #ifdef __cplusplus
