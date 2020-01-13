@@ -1774,10 +1774,15 @@ static aom_codec_err_t create_frame_stats_buffer(
     FIRSTPASS_STATS **frame_stats_buffer, STATS_BUFFER_CTX *stats_buf_context,
     int num_lap_buffers) {
   aom_codec_err_t res = AOM_CODEC_OK;
+  int i;
 
   int size = get_stats_buf_size(num_lap_buffers, MAX_LAG_BUFFERS);
   *frame_stats_buffer =
       (FIRSTPASS_STATS *)aom_calloc(size, sizeof(FIRSTPASS_STATS));
+  for (i = 0; i < size; i++) {
+    av1_twopass_zero_stats(frame_stats_buffer[i]);
+  }
+
   if (*frame_stats_buffer == NULL) return AOM_CODEC_MEM_ERROR;
 
   stats_buf_context->stats_in_start = *frame_stats_buffer;
@@ -1845,11 +1850,9 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
       reduce_ratio(&priv->timestamp_ratio);
 
       set_encoder_config(&priv->oxcf, &priv->cfg, &priv->extra_cfg);
-      if (((int)priv->cfg.g_lag_in_frames - LAP_LAG_IN_FRAMES) >= MIN_LAP_LAG &&
-          priv->oxcf.rc_mode == AOM_Q && priv->oxcf.pass == 0 &&
+      if (priv->oxcf.rc_mode == AOM_Q && priv->oxcf.pass == 0 &&
           priv->oxcf.mode == GOOD && priv->oxcf.fwd_kf_enabled == 0) {
-        // Enable look ahead
-        *num_lap_buffers = priv->cfg.g_lag_in_frames - LAP_LAG_IN_FRAMES;
+        *num_lap_buffers = MAX_LAP_BUFFERS;
       }
       priv->oxcf.use_highbitdepth =
           (ctx->init_flags & AOM_CODEC_USE_HIGHBITDEPTH) ? 1 : 0;
@@ -1892,7 +1895,7 @@ static void destroy_context_and_bufferpool(AV1_COMP *cpi,
 static aom_codec_err_t encoder_destroy(aom_codec_alg_priv_t *ctx) {
   free(ctx->cx_data);
   destroy_context_and_bufferpool(ctx->cpi, ctx->buffer_pool);
-  if (ctx->cpi_lap) {
+  if (ctx->cpi_lap != NULL) {
     // As both cpi and cpi_lap have the same lookahead_ctx, it is already freed
     // when destroy is called on cpi. Thus, setting lookahead_ctx to null here,
     // so that it doesn't attempt to free it again.
@@ -1971,6 +1974,21 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
 
   volatile aom_enc_frame_flags_t flags = enc_flags;
 
+  // correct num_lap_buffers
+  if (cpi_lap != NULL && cpi->lap_enabled) {
+    if (((int)ctx->cfg.g_lag_in_frames - LAP_LAG_IN_FRAMES) >= MIN_LAP_LAG) {
+      // Enable look ahead
+      int size;
+      ctx->num_lap_buffers = ctx->cfg.g_lag_in_frames - LAP_LAG_IN_FRAMES;
+      size = get_stats_buf_size(ctx->num_lap_buffers, MAX_LAG_BUFFERS);
+      ctx->stats_buf_context.stats_in_buf_end =
+          ctx->stats_buf_context.stats_in_start + size;
+    } else {
+      ctx->num_lap_buffers = 0;
+      cpi->lap_enabled = 0;
+    }
+  }
+
   // The jmp_buf is valid only for the duration of the function that calls
   // setjmp(). Therefore, this function must reset the 'setjmp' field to 0
   // before it returns.
@@ -1981,7 +1999,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     return res;
   }
   cpi->common.error.setjmp = 1;
-  if (cpi_lap != NULL) {
+  if (cpi_lap != NULL && cpi->lap_enabled) {
     if (setjmp(cpi_lap->common.error.jmp)) {
       cpi_lap->common.error.setjmp = 0;
       res = update_error_state(ctx, &cpi_lap->common.error);
@@ -1995,7 +2013,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   // all, and then modifying according to the flags. Previous frame's flags are
   // overwritten.
   av1_apply_encoding_flags(cpi, flags);
-  if (cpi_lap != NULL) {
+  if (cpi_lap != NULL && cpi->lap_enabled) {
     av1_apply_encoding_flags(cpi_lap, flags);
   }
 
@@ -2026,8 +2044,9 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       subsampling_y = sd.subsampling_y;
 
       if (!cpi->lookahead) {
-        int lag_in_frames = cpi_lap != NULL ? cpi_lap->oxcf.lag_in_frames
-                                            : cpi->oxcf.lag_in_frames;
+        int lag_in_frames = (cpi_lap != NULL && cpi->lap_enabled)
+                                ? cpi_lap->oxcf.lag_in_frames
+                                : cpi->oxcf.lag_in_frames;
         cpi->lookahead = av1_lookahead_init(
             cpi->oxcf.width, cpi->oxcf.height, subsampling_x, subsampling_y,
             use_highbitdepth, lag_in_frames, cpi->oxcf.border_in_pixels,
@@ -2040,7 +2059,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
 
       av1_check_initial_width(cpi, use_highbitdepth, subsampling_x,
                               subsampling_y);
-      if (cpi_lap != NULL) {
+      if (cpi_lap != NULL && cpi->lap_enabled) {
         cpi_lap->lookahead = cpi->lookahead;
         av1_check_initial_width(cpi_lap, use_highbitdepth, subsampling_x,
                                 subsampling_y);
@@ -2083,7 +2102,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     int has_fwd_keyframe = 0;
 
     // Call for LAP stage
-    if (cpi_lap != NULL) {
+    if (cpi_lap != NULL && cpi->lap_enabled) {
       int status;
       aom_rational64_t timestamp_ratio_la = *timestamp_ratio;
       int64_t dst_time_stamp_la = dst_time_stamp;
