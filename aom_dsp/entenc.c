@@ -162,6 +162,8 @@ static void od_ec_encode_q15(od_ec_enc *enc, unsigned fl, unsigned fh, int s,
   l = enc->low;
   r = enc->rng;
   assert(32768U <= r);
+  if (fh > fl)
+    printf("debug\n");
   assert(fh <= fl);
   assert(fl <= 32768U);
   assert(7 - EC_PROB_SHIFT - CDF_SHIFT >= 0);
@@ -224,6 +226,8 @@ void od_ec_encode_cdf_q15(od_ec_enc *enc, int s, const uint16_t *icdf,
   assert(s >= 0);
   assert(s < nsyms);
   assert(icdf[nsyms - 1] == OD_ICDF(CDF_PROB_TOP));
+  if ((s > 0) && (icdf[s - 1] < icdf[s]))
+    printf("debug\n");
   od_ec_encode_q15(enc, s > 0 ? icdf[s - 1] : OD_ICDF(0), icdf[s], s, nsyms);
 }
 

@@ -1378,6 +1378,12 @@ static INLINE int is_mv_valid(const MV *mv) {
          mv->col < MV_UPP;
 }
 
+static int_mv get_scaled_mv(int_mv ref_mv) {
+  // TODO(sarahparker) implement this function to create a new mv
+  // by scaling the ref_mv.
+  return ref_mv;
+}
+
 static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
                             PREDICTION_MODE mode,
                             MV_REFERENCE_FRAME ref_frame[2], int_mv mv[2],
@@ -1481,6 +1487,34 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
               .as_int;
       break;
     }
+#if CONFIG_EXT_COMPOUND
+    case NEAR_SCALEDMV: {
+      mv[0].as_int = near_mv[0].as_int;
+      mv[1] = get_scaled_mv(mv[0]);
+      assert(is_compound);
+      break;
+    }
+    case SCALED_NEARMV: {
+      mv[1].as_int = near_mv[1].as_int;
+      mv[0] = get_scaled_mv(mv[1]);
+      assert(is_compound);
+      break;
+    }
+    case NEW_SCALEDMV: {
+      nmv_context *const nmvc = &ec_ctx->nmvc;
+      read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, nmvc, precision);
+      mv[1] = get_scaled_mv(mv[0]);
+      assert(is_compound);
+      break;
+    }
+    case SCALED_NEWMV: {
+      nmv_context *const nmvc = &ec_ctx->nmvc;
+      read_mv(r, &mv[1].as_mv, &ref_mv[1].as_mv, nmvc, precision);
+      mv[0] = get_scaled_mv(mv[1]);
+      assert(is_compound);
+      break;
+    }
+#endif  // CONFIG_EXT_COMPOUND
     default: { return 0; }
   }
 
@@ -1619,16 +1653,20 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       mbmi->max_mv_precision = av1_get_mbmi_max_mv_precision(cm, mbmi);
       mbmi->mv_precision = mbmi->max_mv_precision;
     } else {
-      if (is_compound)
+      if (is_compound) {
         mbmi->mode = read_inter_compound_mode(xd, r, mode_ctx);
-      else
+        if (mbmi->mode == SCALED_NEARMV)
+          mbmi->mode = NEW_NEWMV;
+      } else {
         mbmi->mode = read_inter_mode(ec_ctx, r, mode_ctx);
+      }
       mbmi->max_mv_precision = av1_get_mbmi_max_mv_precision(cm, mbmi);
       mbmi->mv_precision = mbmi->max_mv_precision;
 #if CONFIG_FLEX_MVRES
       if (is_flex_mv_precision_active(cm, mbmi->mode, mbmi->max_mv_precision)) {
         mbmi->mv_precision = read_mv_precision(cm, xd, r);
       }
+      //sarahparker does ext compound impact this?
       if (mbmi->mv_precision < cm->mv_precision &&
           (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV)) {
         av1_get_mv_refs_adj(xd->ref_mv_stack[ref_frame], xd->weight[ref_frame],
