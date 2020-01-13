@@ -118,6 +118,16 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
     NEWMV,                   // NEW_NEARMV
     GLOBALMV,                // GLOBAL_GLOBALMV
     NEWMV,                   // NEW_NEWMV
+#if CONFIG_SINGLE_MV_COMPOUND
+#if !CONFIG_NEW_INTER_MODES
+    NEARESTMV,               // NEAREST_SCALED
+    NEWMV,                   // SCALED_NEAREST ?? sarahparker
+#endif  // !CONFIG_NEW_INTER_MODES
+    NEARMV,                  // NEAR_SCALED
+    NEWMV,                   // SCALED_NEAR
+    NEWMV,                   // NEW_SCALED
+    NEWMV,                   // SCALED_NEW
+#endif  // CONFIG_SINGLE_MV_COMPOUND
   };
   assert(NELEMENTS(lut) == MB_MODE_COUNT);
   assert(is_inter_compound_mode(mode));
@@ -157,6 +167,16 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
     NEARMV,                  // NEW_NEARMV
     GLOBALMV,                // GLOBAL_GLOBALMV
     NEWMV,                   // NEW_NEWMV
+#if CONFIG_SINGLE_MV_COMPOUND
+#if !CONFIG_NEW_INTER_MODES
+    NEWMV,                   // NEAREST_SCALED
+    NEARESTMV,               // SCALED_NEAREST ?? sarahparker
+#endif  // !CONFIG_NEW_INTER_MODES
+    NEWMV,                   // NEAR_SCALED
+    NEARMV,                  // SCALED_NEAR
+    NEWMV,                   // NEW_SCALED
+    NEWMV,                   // SCALED_NEW
+#endif  // CONFIG_SINGLE_MV_COMPOUND
   };
   assert(NELEMENTS(lut) == MB_MODE_COUNT);
   assert(is_inter_compound_mode(mode));
@@ -164,22 +184,38 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
 }
 
 static INLINE int have_nearmv_in_inter_mode(PREDICTION_MODE mode) {
+#if CONFIG_EXT_COMPOUND
+  return (mode == NEARMV || mode == NEAR_NEARMV || mode == NEAR_NEWMV ||
+          mode == NEW_NEARMV || mode == NEAR_SCALEDMV || mode == SCALED_NEARMV);
+#else
   return (mode == NEARMV || mode == NEAR_NEARMV || mode == NEAR_NEWMV ||
           mode == NEW_NEARMV);
+#endif  // CONFIG_EXT_COMPOUND
 }
 
 #if CONFIG_NEW_INTER_MODES
 static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
+#if CONFIG_EXT_COMPOUND
+  return (mode == NEWMV || mode == NEW_NEWMV || mode == NEAR_NEWMV ||
+          mode == NEW_NEARMV || mode == SCALED_NEWMV || mode == NEW_SCALEDMV);
+#else
   return (mode == NEWMV || mode == NEW_NEWMV || mode == NEAR_NEWMV ||
           mode == NEW_NEARMV);
+#endif  // CONFIG_EXT_COMPOUND
 }
 static INLINE int have_drl_index(PREDICTION_MODE mode) {
   return have_nearmv_in_inter_mode(mode) || have_newmv_in_inter_mode(mode);
 }
 #else
 static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
+#if CONFIG_EXT_COMPOUND
+  return (mode == NEWMV || mode == NEW_NEWMV || mode == NEAREST_NEWMV ||
+          mode == NEW_NEARESTMV || mode == NEAR_NEWMV || mode == NEW_NEARMV ||
+          mode == SCALED_NEWMV || mode == NEW_SCALEDMV);
+#else
   return (mode == NEWMV || mode == NEW_NEWMV || mode == NEAREST_NEWMV ||
           mode == NEW_NEARESTMV || mode == NEAR_NEWMV || mode == NEW_NEARMV);
+#endif  // CONFIG_EXT_COMPOUND
 }
 
 static INLINE int have_drl_index(PREDICTION_MODE mode) {

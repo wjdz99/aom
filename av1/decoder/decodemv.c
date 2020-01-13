@@ -1376,6 +1376,15 @@ static INLINE int is_mv_valid(const MV *mv) {
          mv->col < MV_UPP;
 }
 
+static int_mv get_scaled_mv(AV1_COMMON *cm) {
+  int_mv scaled_mv;
+
+  scaled_mv.as_mv.row = 1;//(int16_t)((double)this_refmv.as_mv.row * ratio);
+  scaled_mv.as_mv.col = 1;//(int16_t)((double)this_refmv.as_mv.col * ratio);
+  lower_mv_precision(&scaled_refmv.as_mv, cm->mv_precision);
+  return scaled_mv;
+}
+
 static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
                             PREDICTION_MODE mode,
                             MV_REFERENCE_FRAME ref_frame[2], int_mv mv[2],
@@ -1477,6 +1486,36 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
           gm_get_motion_vector(&cm->global_motion[ref_frame[1]],
                                cm->mv_precision, bsize, mi_col, mi_row)
               .as_int;
+      break;
+    }
+    case NEAR_SCALEDMV: {
+      nmv_context *const nmvc = &ec_ctx->nmvc;
+      mv[0].as_int = near_mv[0].as_int;
+      mv[1] = get_scaled_mv(cm);
+      //read_mv(r, &mv[1].as_mv, &ref_mv[1].as_mv, nmvc, precision);
+      assert(is_compound);
+      break;
+    }
+    case SCALED_NEARMV: {
+      nmv_context *const nmvc = &ec_ctx->nmvc;
+//      read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, nmvc, precision);
+      mv[1].as_int = near_mv[1].as_int;
+      mv[0] = get_scaled_mv(cm);
+      assert(is_compound);
+      break;
+    }
+    case NEW_SCALEDMV: {
+      nmv_context *const nmvc = &ec_ctx->nmvc;
+      read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, nmvc, precision);
+      mv[1] = get_scaled_mv(cm);
+      assert(is_compound);
+      break;
+    }
+    case SCALED_NEWMV: {
+      nmv_context *const nmvc = &ec_ctx->nmvc;
+      read_mv(r, &mv[1].as_mv, &ref_mv[1].as_mv, nmvc, precision);
+      mv[0] = get_scaled_mv(cm);
+      assert(is_compound);
       break;
     }
     default: { return 0; }
@@ -1627,6 +1666,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       if (is_flex_mv_precision_active(cm, mbmi->mode, mbmi->max_mv_precision)) {
         mbmi->mv_precision = read_mv_precision(cm, xd, r);
       }
+      //sarahparker does ext compound impact this?
       if (mbmi->mv_precision < cm->mv_precision &&
           (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV)) {
         av1_get_mv_refs_adj(xd->ref_mv_stack[ref_frame], xd->weight[ref_frame],
