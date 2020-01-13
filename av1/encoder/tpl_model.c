@@ -198,6 +198,17 @@ static int is_duplicate_mv(int_mv candidate_mv, int_mv *center_mvs,
     if (candidate_mv_full.as_int == center_mv_full.as_int) {
       return 1;
     }
+
+    // TODO(yunqing): will combine this part with the above checking. May also
+    // modify the name of the speed feature.
+    if (skip_repeated_mv_level == 2) {
+      const int mv_diff_thr = 64;
+      if (abs(center_mv_full.as_mv.col - candidate_mv_full.as_mv.col) <
+              mv_diff_thr &&
+          abs(center_mv_full.as_mv.row - candidate_mv_full.as_mv.row) <
+              mv_diff_thr)
+        return 1;
+    }
   }
 
   return 0;
