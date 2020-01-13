@@ -118,6 +118,16 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
     NEWMV,                   // NEW_NEARMV
     GLOBALMV,                // GLOBAL_GLOBALMV
     NEWMV,                   // NEW_NEWMV
+#if CONFIG_SINGLE_MV_COMPOUND
+#if !CONFIG_NEW_INTER_MODES
+    NEARESTMV,               // NEAREST_SCALED
+    NEWMV,                   // SCALED_NEAREST ?? sarahparker
+#endif  // !CONFIG_NEW_INTER_MODES
+    NEARMV,                  // NEAR_SCALED
+    NEWMV,                   // SCALED_NEAR
+    NEWMV,                   // NEW_SCALED
+    NEWMV,                   // SCALED_NEW
+#endif  // CONFIG_SINGLE_MV_COMPOUND
   };
   assert(NELEMENTS(lut) == MB_MODE_COUNT);
   assert(is_inter_compound_mode(mode));
@@ -157,6 +167,16 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
     NEARMV,                  // NEW_NEARMV
     GLOBALMV,                // GLOBAL_GLOBALMV
     NEWMV,                   // NEW_NEWMV
+#if CONFIG_SINGLE_MV_COMPOUND
+#if !CONFIG_NEW_INTER_MODES
+    NEWMV,                   // NEAREST_SCALED
+    NEARESTMV,               // SCALED_NEAREST ?? sarahparker
+#endif  // !CONFIG_NEW_INTER_MODES
+    NEWMV,                   // NEAR_SCALED
+    NEARMV,                  // SCALED_NEAR
+    NEWMV,                   // NEW_SCALED
+    NEWMV,                   // SCALED_NEW
+#endif  // CONFIG_SINGLE_MV_COMPOUND
   };
   assert(NELEMENTS(lut) == MB_MODE_COUNT);
   assert(is_inter_compound_mode(mode));
