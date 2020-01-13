@@ -71,7 +71,7 @@ struct lookahead_ctx *av1_lookahead_init(
     ctx->read_ctxs[ENCODE_STAGE].pop_sz = ctx->max_sz - MAX_PRE_FRAMES;
     ctx->read_ctxs[ENCODE_STAGE].valid = 1;
     if (num_lap_buffers) {
-      ctx->read_ctxs[LAP_STAGE].pop_sz = lag_in_frames;
+      ctx->read_ctxs[LAP_STAGE].pop_sz = lag_in_frames + 1;
       ctx->read_ctxs[LAP_STAGE].valid = 1;
     }
     ctx->buf = calloc(depth, sizeof(*ctx->buf));

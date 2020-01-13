@@ -1770,14 +1770,22 @@ static aom_codec_err_t ctrl_set_min_cr(aom_codec_alg_priv_t *ctx,
   extra_cfg.min_cr = CAST(AV1E_SET_MIN_CR, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
+#if !CONFIG_REALTIME_ONLY
 static aom_codec_err_t create_frame_stats_buffer(
     FIRSTPASS_STATS **frame_stats_buffer, STATS_BUFFER_CTX *stats_buf_context,
     int num_lap_buffers) {
   aom_codec_err_t res = AOM_CODEC_OK;
+  FIRSTPASS_STATS *stats;
+  int i;
 
   int size = get_stats_buf_size(num_lap_buffers, MAX_LAG_BUFFERS);
   *frame_stats_buffer =
       (FIRSTPASS_STATS *)aom_calloc(size, sizeof(FIRSTPASS_STATS));
+  stats = *frame_stats_buffer;
+  for (i = 0; i < size; i++) {
+    av1_twopass_zero_stats(stats + i);
+  }
+
   if (*frame_stats_buffer == NULL) return AOM_CODEC_MEM_ERROR;
 
   stats_buf_context->stats_in_start = *frame_stats_buffer;
@@ -1786,6 +1794,7 @@ static aom_codec_err_t create_frame_stats_buffer(
       stats_buf_context->stats_in_start + size;
   return res;
 }
+#endif
 
 static aom_codec_err_t create_context_and_bufferpool(
     AV1_COMP **p_cpi, BufferPool **p_buffer_pool, AV1EncoderConfig *oxcf,
@@ -1845,19 +1854,21 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
       reduce_ratio(&priv->timestamp_ratio);
 
       set_encoder_config(&priv->oxcf, &priv->cfg, &priv->extra_cfg);
-      if (((int)priv->cfg.g_lag_in_frames - LAP_LAG_IN_FRAMES) >= MIN_LAP_LAG &&
-          priv->oxcf.rc_mode == AOM_Q && priv->oxcf.pass == 0 &&
+      if (priv->oxcf.rc_mode == AOM_Q && priv->oxcf.pass == 0 &&
           priv->oxcf.mode == GOOD && priv->oxcf.fwd_kf_enabled == 0) {
-        // Enable look ahead
-        *num_lap_buffers = priv->cfg.g_lag_in_frames - LAP_LAG_IN_FRAMES;
+        *num_lap_buffers =
+            clamp(priv->cfg.g_lag_in_frames, 1,
+                  AOMMIN(MAX_LAP_BUFFERS, priv->cfg.g_lag_in_frames));
       }
       priv->oxcf.use_highbitdepth =
           (ctx->init_flags & AOM_CODEC_USE_HIGHBITDEPTH) ? 1 : 0;
 
+#if !CONFIG_REALTIME_ONLY
       res =
           create_frame_stats_buffer(&priv->frame_stats_buffer,
                                     &priv->stats_buf_context, *num_lap_buffers);
       if (res != AOM_CODEC_OK) return AOM_CODEC_MEM_ERROR;
+#endif
 
       res = create_context_and_bufferpool(
           &priv->cpi, &priv->buffer_pool, &priv->oxcf, &priv->pkt_list.head,
@@ -1970,6 +1981,26 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   aom_codec_pkt_list_init(&ctx->pkt_list);
 
   volatile aom_enc_frame_flags_t flags = enc_flags;
+
+  // correct num_lap_buffers
+  if (cpi_lap != NULL) {
+    int min_stats_for_gf =
+        2 * cpi->oxcf.max_gf_interval + cpi->oxcf.arnr_max_frames / 2;
+    int min_stats_for_kf = cpi->oxcf.key_freq;
+    int limit = AOMMAX(min_stats_for_gf, min_stats_for_kf);
+    int size = 0;
+
+    ctx->num_lap_buffers = clamp(ctx->num_lap_buffers, 1, limit);
+    if ((int)ctx->cfg.g_lag_in_frames - AOMMIN(limit, MAX_LAP_BUFFERS) >=
+        (LAP_LAG_IN_FRAMES + 1)) {
+      cpi_lap->oxcf.lag_in_frames = LAP_LAG_IN_FRAMES;
+    } else {
+      cpi_lap->oxcf.lag_in_frames = 0;
+    }
+    size = get_stats_buf_size(ctx->num_lap_buffers, MAX_LAG_BUFFERS);
+    ctx->stats_buf_context.stats_in_buf_end =
+        ctx->stats_buf_context.stats_in_start + size;
+  }
 
   // The jmp_buf is valid only for the duration of the function that calls
   // setjmp(). Therefore, this function must reset the 'setjmp' field to 0
