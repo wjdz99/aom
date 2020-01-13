@@ -14684,6 +14684,9 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     const MODE_DEFINITION *mode_order = &av1_mode_order[midx];
     const PREDICTION_MODE this_mode = mode_order->mode;
+#if CONFIG_EXT_COMPOUND
+    if (this_mode > NEW_NEWMV) continue;
+#endif  // CONFIG_EXT_COMPOUND
     const int ret = inter_mode_search_order_independent_skip(
         cpi, x, &mode_skip_mask, &search_state, skip_ref_frame_mask, this_mode,
         mode_order->ref_frame);
@@ -15326,6 +15329,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     const MODE_DEFINITION *mode_order = &av1_mode_order[midx];
     this_mode = mode_order->mode;
+#if CONFIG_EXT_COMPOUND
+    if (this_mode > NEW_NEWMV) continue;
+#endif  // CONFIG_EXT_COMPOUND
     const int ret = inter_mode_search_order_independent_skip(
         cpi, x, &mode_skip_mask, &search_state, skip_ref_frame_mask, this_mode,
         mode_order->ref_frame);
