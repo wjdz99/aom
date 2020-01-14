@@ -435,7 +435,7 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.perform_best_rd_based_gating_for_chroma = 1;
     sf->inter_sf.prune_comp_search_by_single_result = boosted ? 4 : 2;
     sf->inter_sf.prune_motion_mode_level = boosted ? 2 : 3;
-    sf->inter_sf.skip_repeated_ref_mv = 1;
+    sf->inter_sf.skip_repeated_ref_mv = 0;
     if (cpi->oxcf.enable_smooth_interintra)
       sf->inter_sf.disable_smooth_interintra = boosted ? 0 : 1;
     sf->inter_sf.reuse_compound_type_decision = 1;
