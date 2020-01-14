@@ -822,15 +822,12 @@ static INLINE void av1_set_sb_info(AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
 }
 
 static INLINE void set_skip_context(MACROBLOCKD *xd, int mi_row, int mi_col,
-                                    BLOCK_SIZE bsize, int num_planes) {
+                                    int num_planes,
+                                    CHROMA_REF_INFO *chr_ref_info) {
   for (int i = 0; i < num_planes; ++i) {
     struct macroblockd_plane *const pd = &xd->plane[i];
-    int mi_row_offset, mi_col_offset;
-    get_mi_row_col_offsets(mi_row, mi_col, pd->subsampling_x, pd->subsampling_y,
-                           mi_size_wide[bsize], mi_size_high[bsize],
-                           &mi_row_offset, &mi_col_offset);
-    const int row_offset = mi_row - mi_row_offset;
-    const int col_offset = mi_col - mi_col_offset;
+    const int row_offset = i ? chr_ref_info->mi_row_chroma_base : mi_row;
+    const int col_offset = i ? chr_ref_info->mi_col_chroma_base : mi_col;
     assert(row_offset >= 0);
     assert(col_offset >= 0);
     const int above_idx = col_offset;
@@ -879,7 +876,8 @@ static INLINE int is_chroma_reference_helper(int mi_row, int mi_col, int bw,
 
 static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
                                   int mi_row, int bh, int mi_col, int bw,
-                                  int mi_rows, int mi_cols) {
+                                  int mi_rows, int mi_cols,
+                                  const CHROMA_REF_INFO *chr_ref_info) {
   xd->mb_to_top_edge = -((mi_row * MI_SIZE) * 8);
   xd->mb_to_bottom_edge = ((mi_rows - bh - mi_row) * MI_SIZE) * 8;
   xd->mb_to_left_edge = -((mi_col * MI_SIZE) * 8);
@@ -889,11 +887,8 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
   xd->up_available = (mi_row > tile->mi_row_start);
   xd->left_available = (mi_col > tile->mi_col_start);
 
-  const int ss_x = xd->plane[1].subsampling_x;
-  const int ss_y = xd->plane[1].subsampling_y;
-  int mi_row_offset, mi_col_offset;
-  get_mi_row_col_offsets(mi_row, mi_col, ss_x, ss_y, bw, bh, &mi_row_offset,
-                         &mi_col_offset);
+  const int mi_row_offset = mi_row - chr_ref_info->mi_row_chroma_base;
+  const int mi_col_offset = mi_col - chr_ref_info->mi_col_chroma_base;
   xd->chroma_left_available = (mi_col - mi_col_offset) > tile->mi_col_start;
   xd->chroma_up_available = (mi_row - mi_row_offset) > tile->mi_row_start;
 
@@ -927,6 +922,8 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
   // prediction. We want to point to the chroma reference block in that
   // region, which is the bottom-right-most mi unit.
   // This leads to the following offsets:
+  const int ss_x = xd->plane[1].subsampling_x;
+  const int ss_y = xd->plane[1].subsampling_y;
   MB_MODE_INFO *chroma_above_mi =
       xd->chroma_up_available ? base_mi[-xd->mi_stride + ss_x] : NULL;
   xd->chroma_above_mbmi = chroma_above_mi;

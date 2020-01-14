@@ -414,9 +414,29 @@ static INLINE void set_chroma_ref_info(int mi_row, int mi_col, int index,
       } else {
         info->is_chroma_ref = 0;
         info->offset_started = 1;
-        info->mi_row_chroma_base = parent_info->mi_row_chroma_base;
-        info->mi_col_chroma_base = parent_info->mi_col_chroma_base;
-        info->bsize_base = parent_info->bsize_base;
+#if !CONFIG_EXT_PARTITIONS
+        if (parent_partition == PARTITION_HORZ_4 ||
+            parent_partition == PARTITION_VERT_4) {
+          info->mi_row_chroma_base = mi_row;
+          info->mi_col_chroma_base = mi_col;
+
+          PARTITION_TYPE mid_p = parent_partition == PARTITION_HORZ_4
+                                     ? PARTITION_HORZ
+                                     : PARTITION_VERT;
+#if CONFIG_EXT_RECUR_PARTITIONS
+          info->bsize_base = subsize_lookup[mid_p][parent_bsize];
+#else
+          info->bsize_base =
+              subsize_lookup[mid_p][get_sqr_bsize_idx(parent_bsize)];
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
+        } else {
+#endif  // !CONFIG_EXT_PARTITIONS
+          info->mi_row_chroma_base = parent_info->mi_row_chroma_base;
+          info->mi_col_chroma_base = parent_info->mi_col_chroma_base;
+          info->bsize_base = parent_info->bsize_base;
+#if !CONFIG_EXT_PARTITIONS
+        }
+#endif  // !CONFIG_EXT_PARTITIONS
       }
     }
   } else {
