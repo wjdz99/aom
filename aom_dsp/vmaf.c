@@ -112,7 +112,11 @@ void aom_calc_vmaf_multi_frame(
       if (p != NULL && p[5] == '"') {
         char *p2 = strstr(&p[6], "\"");
         *p2 = '\0';
-        vmaf[frame_index++] = atof(&p[6]);
+        const double score = atof(&p[6]);
+        if (score < 0.0 || score > 100.0) {
+          fatal("Failed to compute VMAF scores.");
+        }
+        vmaf[frame_index++] = score;
       }
     }
   }
