@@ -780,12 +780,127 @@ static INLINE int is_almost_static(double gf_zero_motion, int kf_zero_motion) {
 }
 
 #define ARF_ABS_ZOOM_THRESH 4.4
+static INLINE int detect_gf_cut(
+    AV1_COMP *cpi, int i, int flash_detected, double loop_decay_rate,
+    double last_loop_decay_rate, int active_max_gf_interval,
+    int active_min_gf_interval, double zero_motion_accumulator,
+    double mv_ratio_accumulator, double abs_mv_in_out_accumulator) {
+  RATE_CONTROL *const rc = &cpi->rc;
+  TWO_PASS *const twopass = &cpi->twopass;
+  // Motion breakout threshold for loop below depends on image size.
+  const double mv_ratio_accumulator_thresh =
+      (cpi->initial_height + cpi->initial_width) / 4.0;
+
+  if (!flash_detected) {
+    // Break clause to detect very still sections after motion. For example,
+    // a static image after a fade or other transition.
+    if (detect_transition_to_still(cpi, i, 5, loop_decay_rate,
+                                   last_loop_decay_rate)) {
+      return 1;
+    }
+  }
+
+  // If almost totally static, we will not use the the max GF length later,
+  // so we can continue for more frames.
+  if ((i >= active_max_gf_interval + 1) &&
+      !is_almost_static(zero_motion_accumulator, twopass->kf_zeromotion_pct)) {
+    return 1;
+  }
+
+  // Some conditions to breakout after min interval.
+  if (i >= active_min_gf_interval &&
+      // If possible don't break very close to a kf
+      (rc->frames_to_key - i >= rc->min_gf_interval) && (i & 0x01) &&
+      !flash_detected &&
+      (mv_ratio_accumulator > mv_ratio_accumulator_thresh ||
+       abs_mv_in_out_accumulator > ARF_ABS_ZOOM_THRESH)) {
+    return 1;
+  }
+  return 0;
+}
+
 #define GROUP_ADAPTIVE_MAXQ 1
 #if GROUP_ADAPTIVE_MAXQ
 #define RC_FACTOR_MIN 0.75
 #define RC_FACTOR_MAX 1.25
 #endif  // GROUP_ADAPTIVE_MAXQ
 #define MIN_FWD_KF_INTERVAL 8
+static void calculate_gf_length(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
+                                const EncodeFrameParams *const frame_params) {
+  (void)frame_params;
+  (void)this_frame;
+  RATE_CONTROL *const rc = &cpi->rc;
+  AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  TWO_PASS *const twopass = &cpi->twopass;
+  FIRSTPASS_STATS next_frame;
+  const FIRSTPASS_STATS *const start_pos = twopass->stats_in;
+  FRAME_INFO *frame_info = &cpi->frame_info;
+  int i;
+
+  double mv_ratio_accumulator = 0.0;
+  double zero_motion_accumulator = 1.0;
+
+  double this_frame_mv_in_out = 0.0;
+  double mv_in_out_accumulator = 0.0;
+  double abs_mv_in_out_accumulator = 0.0;
+
+  int flash_detected;
+  double loop_decay_rate = 1.00;
+  double last_loop_decay_rate = 1.00;
+
+  aom_clear_system_state();
+  av1_zero(next_frame);
+
+  if (has_no_stats_stage(cpi)) {
+    for (i = 0; i < NUM_GF_INTERVALS; i++) {
+      rc->gf_intervals[i] = MAX_GF_INTERVAL;
+    }
+    rc->intervals_till_gf_calculate_due = NUM_GF_INTERVALS;
+    return;
+  }
+
+  // TODO(urvang): Try logic to vary min and max interval based on q.
+  const int active_min_gf_interval = rc->min_gf_interval;
+  const int active_max_gf_interval =
+      AOMMIN(rc->max_gf_interval, get_fixed_gf_length(oxcf->gf_max_pyr_height));
+
+  i = 0;
+  while (i < rc->static_scene_max_gf_interval && i < rc->frames_to_key) {
+    ++i;
+
+    if (EOF == input_stats(twopass, &next_frame)) break;
+
+    // Update the motion related elements to the boost calculation.
+    accumulate_frame_motion_stats(
+        &next_frame, &this_frame_mv_in_out, &mv_in_out_accumulator,
+        &abs_mv_in_out_accumulator, &mv_ratio_accumulator);
+
+    // Test for the case where there is a brief flash but the prediction
+    // quality back to an earlier frame is then restored.
+    flash_detected = detect_flash(twopass, 0);
+    // Monitor for static sections.
+    if (!flash_detected) {
+      last_loop_decay_rate = loop_decay_rate;
+      loop_decay_rate = get_prediction_decay_rate(frame_info, &next_frame);
+
+      if ((rc->frames_since_key + i - 1) > 1) {
+        zero_motion_accumulator =
+            AOMMIN(zero_motion_accumulator,
+                   get_zero_motion_factor(frame_info, &next_frame));
+      }
+    }
+
+    if (detect_gf_cut(cpi, i, flash_detected, loop_decay_rate,
+                      last_loop_decay_rate, active_max_gf_interval,
+                      active_min_gf_interval, zero_motion_accumulator,
+                      mv_ratio_accumulator, abs_mv_in_out_accumulator)) {
+      break;
+    }
+  }
+  rc->gf_intervals[0] = i;
+  rc->intervals_till_gf_calculate_due = NUM_GF_INTERVALS;
+  twopass->stats_in = start_pos;
+}
 
 static void define_gf_group_pass0(AV1_COMP *cpi,
                                   const EncodeFrameParams *const frame_params) {
@@ -795,8 +910,12 @@ static void define_gf_group_pass0(AV1_COMP *cpi,
 
   if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ)
     av1_cyclic_refresh_set_golden_update(cpi);
-  else
-    rc->baseline_gf_interval = MAX_GF_INTERVAL;
+  else {
+    rc->baseline_gf_interval =
+        rc->gf_intervals[NUM_GF_INTERVALS -
+                         rc->intervals_till_gf_calculate_due];
+    rc->intervals_till_gf_calculate_due--;
+  }
 
   if (rc->baseline_gf_interval > rc->frames_to_key)
     rc->baseline_gf_interval = rc->frames_to_key;
@@ -917,9 +1036,6 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     gf_group_skip_pct -= this_frame->intra_skip_pct;
     gf_group_inactive_zone_rows -= this_frame->inactive_zone_rows;
   }
-  // Motion breakout threshold for loop below depends on image size.
-  const double mv_ratio_accumulator_thresh =
-      (cpi->initial_height + cpi->initial_width) / 4.0;
 
   // TODO(urvang): Try logic to vary min and max interval based on q.
   const int active_min_gf_interval = rc->min_gf_interval;
@@ -940,7 +1056,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   int non_zero_stdev_count = 0;
 
   i = 0;
-  while (i < rc->static_scene_max_gf_interval && i < rc->frames_to_key) {
+  /* while (i < rc->static_scene_max_gf_interval && i < rc->frames_to_key) { */
+  while (i < rc->gf_intervals[NUM_GF_INTERVALS -
+                              rc->intervals_till_gf_calculate_due]) {
     ++i;
 
     // Accumulate error score of frames in this gf group.
@@ -953,7 +1071,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     gf_group_skip_pct += this_frame->intra_skip_pct;
     gf_group_inactive_zone_rows += this_frame->inactive_zone_rows;
 
-    if (EOF == input_stats(twopass, &next_frame)) break;
+    int res = input_stats(twopass, &next_frame);
+    if (res != EOF) assert(0 && "Failed reading pre-determined gf length!");
 
     // Test for the case where there is a brief flash but the prediction
     // quality back to an earlier frame is then restored.
@@ -994,29 +1113,12 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
       if (detect_transition_to_still(cpi, i, 5, loop_decay_rate,
                                      last_loop_decay_rate)) {
         allow_alt_ref = 0;
-        break;
       }
-    }
-
-    // If almost totally static, we will not use the the max GF length later,
-    // so we can continue for more frames.
-    if ((i >= active_max_gf_interval + 1) &&
-        !is_almost_static(zero_motion_accumulator,
-                          twopass->kf_zeromotion_pct)) {
-      break;
-    }
-
-    // Some conditions to breakout after min interval.
-    if (i >= active_min_gf_interval &&
-        // If possible don't break very close to a kf
-        (rc->frames_to_key - i >= rc->min_gf_interval) && (i & 0x01) &&
-        !flash_detected &&
-        (mv_ratio_accumulator > mv_ratio_accumulator_thresh ||
-         abs_mv_in_out_accumulator > ARF_ABS_ZOOM_THRESH)) {
-      break;
     }
     *this_frame = next_frame;
   }
+  /* printf("\nx:%d\n", rc->gf_intervals[0]); */
+  rc->intervals_till_gf_calculate_due--;
 
   // Was the group length constrained by the requirement for a new KF?
   rc->constrained_gf_group = (i >= rc->frames_to_key) ? 1 : 0;
@@ -1427,6 +1529,7 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   // KF is always a GF so clear frames till next gf counter.
   rc->frames_till_gf_update_due = 0;
+  rc->intervals_till_gf_calculate_due = 0;
 
   rc->frames_to_key = 1;
 
@@ -1857,6 +1960,10 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   if (rc->frames_till_gf_update_due == 0) {
     assert(cpi->common.current_frame.frame_number == 0 ||
            gf_group->index == gf_group->size);
+    if (rc->intervals_till_gf_calculate_due == 0) {
+      calculate_gf_length(cpi, &this_frame, frame_params);
+    }
+
     define_gf_group(cpi, &this_frame, frame_params);
     rc->frames_till_gf_update_due = rc->baseline_gf_interval;
     cpi->num_gf_group_show_frames = 0;
@@ -1875,6 +1982,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
       fclose(fpfile);
     }
 #endif
+    /* printf("\n%d\n ", rc->baseline_gf_interval); */
   }
   assert(gf_group->index < gf_group->size);
 
