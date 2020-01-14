@@ -20,6 +20,29 @@
 extern "C" {
 #endif
 
+static AOM_INLINE int get_search_init_depth(int mi_width, int mi_height,
+                                            int is_inter,
+                                            const SPEED_FEATURES *sf,
+                                            int tx_size_search_method) {
+  if (tx_size_search_method == USE_LARGESTALL) return MAX_VARTX_DEPTH;
+
+  if (sf->tx_sf.tx_size_search_lgr_block) {
+    if (mi_width > mi_size_wide[BLOCK_64X64] ||
+        mi_height > mi_size_high[BLOCK_64X64])
+      return MAX_VARTX_DEPTH;
+  }
+
+  if (is_inter) {
+    return (mi_height != mi_width)
+               ? sf->tx_sf.inter_tx_size_search_init_depth_rect
+               : sf->tx_sf.inter_tx_size_search_init_depth_sqr;
+  } else {
+    return (mi_height != mi_width)
+               ? sf->tx_sf.intra_tx_size_search_init_depth_rect
+               : sf->tx_sf.intra_tx_size_search_init_depth_sqr;
+  }
+}
+
 static INLINE void restore_dst_buf(MACROBLOCKD *xd, const BUFFER_SET dst,
                                    const int num_planes) {
   for (int i = 0; i < num_planes; i++) {

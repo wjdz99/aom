@@ -15,10 +15,6 @@
 #include "av1/encoder/rdopt_utils.h"
 #include "av1/encoder/reconinter_enc.h"
 
-static model_rd_for_sb_type model_rd_sb_fn[MODELRD_TYPES] = {
-  model_rd_for_sb, model_rd_for_sb_with_curvfit
-};
-
 // return mv_diff
 static INLINE int is_interp_filter_good_match(
     const INTERPOLATION_FILTER_STATS *st, MB_MODE_INFO *const mi,

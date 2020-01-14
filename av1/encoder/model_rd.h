@@ -249,6 +249,14 @@ static AOM_INLINE void model_rd_for_sb_with_curvfit(
 
 enum { MODELRD_LEGACY, MODELRD_CURVFIT, MODELRD_TYPES } UENUM1BYTE(ModelRdType);
 
+static const model_rd_for_sb_type model_rd_sb_fn[MODELRD_TYPES] = {
+  model_rd_for_sb, model_rd_for_sb_with_curvfit
+};
+
+static const model_rd_from_sse_type model_rd_sse_fn[MODELRD_TYPES] = {
+  model_rd_from_sse, model_rd_with_curvfit
+};
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
