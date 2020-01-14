@@ -786,6 +786,193 @@ static INLINE int is_almost_static(double gf_zero_motion, int kf_zero_motion) {
 #define RC_FACTOR_MAX 1.25
 #endif  // GROUP_ADAPTIVE_MAXQ
 #define MIN_FWD_KF_INTERVAL 8
+static void calculate_gf_length(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
+                                const EncodeFrameParams *const frame_params) {
+  FIRSTPASS_STATS *ori_frame = this_frame;
+  AV1_COMMON *const cm = &cpi->common;
+  RATE_CONTROL *const rc = &cpi->rc;
+  AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  TWO_PASS *const twopass = &cpi->twopass;
+  FIRSTPASS_STATS next_frame;
+  const FIRSTPASS_STATS *const start_pos = twopass->stats_in;
+  GF_GROUP *gf_group = &cpi->gf_group;
+  FRAME_INFO *frame_info = &cpi->frame_info;
+  int i;
+
+  double gf_group_err = 0.0;
+#if GROUP_ADAPTIVE_MAXQ
+  double gf_group_raw_error = 0.0;
+#endif
+  double gf_group_skip_pct = 0.0;
+  double gf_group_inactive_zone_rows = 0.0;
+  double gf_first_frame_err = 0.0;
+  double mod_frame_err = 0.0;
+
+  double mv_ratio_accumulator = 0.0;
+  double decay_accumulator = 1.0;
+  double zero_motion_accumulator = 1.0;
+
+  double loop_decay_rate = 1.00;
+  double last_loop_decay_rate = 1.00;
+
+  double this_frame_mv_in_out = 0.0;
+  double mv_in_out_accumulator = 0.0;
+  double abs_mv_in_out_accumulator = 0.0;
+
+  unsigned int allow_alt_ref = is_altref_enabled(cpi);
+
+  int flash_detected;
+  int64_t gf_group_bits;
+  int gf_arf_bits;
+  const int is_intra_only = frame_params->frame_type == KEY_FRAME ||
+                            frame_params->frame_type == INTRA_ONLY_FRAME;
+  const int arf_active_or_kf = is_intra_only || rc->source_alt_ref_active;
+
+  cpi->internal_altref_allowed = (oxcf->gf_max_pyr_height > 1);
+
+  // Reset the GF group data structures unless this is a key
+  // frame in which case it will already have been done.
+  if (!is_intra_only) {
+    av1_zero(cpi->gf_group);
+  }
+
+  aom_clear_system_state();
+  av1_zero(next_frame);
+
+  if (has_no_stats_stage(cpi)) {
+    for (i = 0; i < NUM_GF_INTERVALS; i++) {
+      rc->gf_intervals[i] = MAX_GF_INTERVAL;
+    }
+    rc->intervals_till_gf_calculate_due = NUM_GF_INTERVALS;
+    return;
+  }
+
+  // Load stats for the current frame.
+  mod_frame_err = calculate_modified_err(frame_info, twopass, oxcf, this_frame);
+
+  // Note the error of the frame at the start of the group. This will be
+  // the GF frame error if we code a normal gf.
+  gf_first_frame_err = mod_frame_err;
+
+  const double first_frame_coded_error = this_frame->coded_error;
+  const double first_frame_sr_coded_error = this_frame->sr_coded_error;
+  const double first_frame_tr_coded_error = this_frame->tr_coded_error;
+
+  // If this is a key frame or the overlay from a previous arf then
+  // the error score / cost of this frame has already been accounted for.
+  if (arf_active_or_kf) {
+    gf_group_err -= gf_first_frame_err;
+#if GROUP_ADAPTIVE_MAXQ
+    gf_group_raw_error -= this_frame->coded_error;
+#endif
+    gf_group_skip_pct -= this_frame->intra_skip_pct;
+    gf_group_inactive_zone_rows -= this_frame->inactive_zone_rows;
+  }
+  // Motion breakout threshold for loop below depends on image size.
+  const double mv_ratio_accumulator_thresh =
+      (cpi->initial_height + cpi->initial_width) / 4.0;
+
+  // TODO(urvang): Try logic to vary min and max interval based on q.
+  const int active_min_gf_interval = rc->min_gf_interval;
+  const int active_max_gf_interval =
+      AOMMIN(rc->max_gf_interval, get_fixed_gf_length(oxcf->gf_max_pyr_height));
+
+  double avg_sr_coded_error = 0;
+  double avg_tr_coded_error = 0;
+
+  double avg_pcnt_second_ref = 0;
+  double avg_pcnt_third_ref = 0;
+
+  double avg_new_mv_count = 0;
+
+  double avg_wavelet_energy = 0;
+
+  double avg_raw_err_stdev = 0;
+  int non_zero_stdev_count = 0;
+
+  i = 0;
+  while (i < rc->static_scene_max_gf_interval && i < rc->frames_to_key) {
+    ++i;
+
+    // Accumulate error score of frames in this gf group.
+    mod_frame_err =
+        calculate_modified_err(frame_info, twopass, oxcf, this_frame);
+    gf_group_err += mod_frame_err;
+#if GROUP_ADAPTIVE_MAXQ
+    gf_group_raw_error += this_frame->coded_error;
+#endif
+    gf_group_skip_pct += this_frame->intra_skip_pct;
+    gf_group_inactive_zone_rows += this_frame->inactive_zone_rows;
+
+    if (EOF == input_stats(twopass, &next_frame)) break;
+
+    // Test for the case where there is a brief flash but the prediction
+    // quality back to an earlier frame is then restored.
+    flash_detected = detect_flash(twopass, 0);
+
+    // Update the motion related elements to the boost calculation.
+    accumulate_frame_motion_stats(
+        &next_frame, &this_frame_mv_in_out, &mv_in_out_accumulator,
+        &abs_mv_in_out_accumulator, &mv_ratio_accumulator);
+    // sum up the metric values of current gf group
+    avg_sr_coded_error += next_frame.sr_coded_error;
+    avg_tr_coded_error += next_frame.tr_coded_error;
+    avg_pcnt_second_ref += next_frame.pcnt_second_ref;
+    avg_pcnt_third_ref += next_frame.pcnt_third_ref;
+    avg_new_mv_count += next_frame.new_mv_count;
+    avg_wavelet_energy += next_frame.frame_avg_wavelet_energy;
+    if (fabs(next_frame.raw_error_stdev) > 0.000001) {
+      non_zero_stdev_count++;
+      avg_raw_err_stdev += next_frame.raw_error_stdev;
+    }
+
+    // Accumulate the effect of prediction quality decay.
+    if (!flash_detected) {
+      last_loop_decay_rate = loop_decay_rate;
+      loop_decay_rate = get_prediction_decay_rate(frame_info, &next_frame);
+
+      decay_accumulator = decay_accumulator * loop_decay_rate;
+
+      // Monitor for static sections.
+      if ((rc->frames_since_key + i - 1) > 1) {
+        zero_motion_accumulator =
+            AOMMIN(zero_motion_accumulator,
+                   get_zero_motion_factor(frame_info, &next_frame));
+      }
+
+      // Break clause to detect very still sections after motion. For example,
+      // a static image after a fade or other transition.
+      if (detect_transition_to_still(cpi, i, 5, loop_decay_rate,
+                                     last_loop_decay_rate)) {
+        allow_alt_ref = 0;
+        break;
+      }
+    }
+
+    // If almost totally static, we will not use the the max GF length later,
+    // so we can continue for more frames.
+    if ((i >= active_max_gf_interval + 1) &&
+        !is_almost_static(zero_motion_accumulator,
+                          twopass->kf_zeromotion_pct)) {
+      break;
+    }
+
+    // Some conditions to breakout after min interval.
+    if (i >= active_min_gf_interval &&
+        // If possible don't break very close to a kf
+        (rc->frames_to_key - i >= rc->min_gf_interval) && (i & 0x01) &&
+        !flash_detected &&
+        (mv_ratio_accumulator > mv_ratio_accumulator_thresh ||
+         abs_mv_in_out_accumulator > ARF_ABS_ZOOM_THRESH)) {
+      break;
+    }
+    *this_frame = next_frame;
+  }
+  rc->gf_intervals[0] = i;
+  rc->intervals_till_gf_calculate_due = NUM_GF_INTERVALS;
+  this_frame = ori_frame;
+  twopass->stats_in = start_pos;
+}
 
 static void define_gf_group_pass0(AV1_COMP *cpi,
                                   const EncodeFrameParams *const frame_params) {
@@ -795,8 +982,12 @@ static void define_gf_group_pass0(AV1_COMP *cpi,
 
   if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ)
     av1_cyclic_refresh_set_golden_update(cpi);
-  else
-    rc->baseline_gf_interval = MAX_GF_INTERVAL;
+  else {
+    rc->baseline_gf_interval =
+        rc->gf_intervals[NUM_GF_INTERVALS -
+                         rc->intervals_till_gf_calculate_due];
+    rc->intervals_till_gf_calculate_due--;
+  }
 
   if (rc->baseline_gf_interval > rc->frames_to_key)
     rc->baseline_gf_interval = rc->frames_to_key;
@@ -940,7 +1131,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   int non_zero_stdev_count = 0;
 
   i = 0;
-  while (i < rc->static_scene_max_gf_interval && i < rc->frames_to_key) {
+  /* while (i < rc->static_scene_max_gf_interval && i < rc->frames_to_key) { */
+  while (i < rc->gf_intervals[NUM_GF_INTERVALS -
+                              rc->intervals_till_gf_calculate_due]) {
     ++i;
 
     // Accumulate error score of frames in this gf group.
@@ -953,7 +1146,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     gf_group_skip_pct += this_frame->intra_skip_pct;
     gf_group_inactive_zone_rows += this_frame->inactive_zone_rows;
 
-    if (EOF == input_stats(twopass, &next_frame)) break;
+    input_stats(twopass, &next_frame);
+    /* if (EOF == input_stats(twopass, &next_frame)) break; */
 
     // Test for the case where there is a brief flash but the prediction
     // quality back to an earlier frame is then restored.
@@ -994,7 +1188,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
       if (detect_transition_to_still(cpi, i, 5, loop_decay_rate,
                                      last_loop_decay_rate)) {
         allow_alt_ref = 0;
-        break;
+        /* break; */
       }
     }
 
@@ -1003,7 +1197,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     if ((i >= active_max_gf_interval + 1) &&
         !is_almost_static(zero_motion_accumulator,
                           twopass->kf_zeromotion_pct)) {
-      break;
+      /* break; */
     }
 
     // Some conditions to breakout after min interval.
@@ -1013,10 +1207,12 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
         !flash_detected &&
         (mv_ratio_accumulator > mv_ratio_accumulator_thresh ||
          abs_mv_in_out_accumulator > ARF_ABS_ZOOM_THRESH)) {
-      break;
+      /* break; */
     }
     *this_frame = next_frame;
   }
+  /* printf("\nx:%d\n", rc->gf_intervals[0]); */
+  rc->intervals_till_gf_calculate_due--;
 
   // Was the group length constrained by the requirement for a new KF?
   rc->constrained_gf_group = (i >= rc->frames_to_key) ? 1 : 0;
@@ -1427,6 +1623,7 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   // KF is always a GF so clear frames till next gf counter.
   rc->frames_till_gf_update_due = 0;
+  rc->intervals_till_gf_calculate_due = 0;
 
   rc->frames_to_key = 1;
 
@@ -1857,6 +2054,10 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   if (rc->frames_till_gf_update_due == 0) {
     assert(cpi->common.current_frame.frame_number == 0 ||
            gf_group->index == gf_group->size);
+    if (rc->intervals_till_gf_calculate_due == 0) {
+      calculate_gf_length(cpi, &this_frame, frame_params);
+    }
+
     define_gf_group(cpi, &this_frame, frame_params);
     rc->frames_till_gf_update_due = rc->baseline_gf_interval;
     cpi->num_gf_group_show_frames = 0;
@@ -1875,6 +2076,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
       fclose(fpfile);
     }
 #endif
+    /* printf("\n%d\n ", rc->baseline_gf_interval); */
   }
   assert(gf_group->index < gf_group->size);
 
