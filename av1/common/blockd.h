@@ -1395,8 +1395,11 @@ static INLINE TX_SIZE av1_get_tx_size(int plane, const MACROBLOCKD *xd) {
   const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
   const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
   const MACROBLOCKD_PLANE *pd = &xd->plane[plane];
-  const BLOCK_SIZE bsize = scale_chroma_bsize(
-      mbmi->sb_type, pd->subsampling_x, pd->subsampling_y, mi_row, mi_col);
+  const BLOCK_SIZE bsize =
+      plane ? mbmi->chroma_ref_info.bsize_base
+            : mbmi->sb_type;  // scale_chroma_bsize(
+                              // mbmi->sb_type, pd->subsampling_x,
+                              // pd->subsampling_y, mi_row, mi_col);
   return av1_get_max_uv_txsize(mi_row, mi_col, bsize, pd->subsampling_x,
                                pd->subsampling_y);
 }
@@ -1566,10 +1569,7 @@ static INLINE void av1_get_block_dimensions(BLOCK_SIZE bsize, int plane,
                                             int *rows_within_bounds,
                                             int *cols_within_bounds) {
   const struct macroblockd_plane *const pd = &xd->plane[plane];
-  const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
-  const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
-  bsize = scale_chroma_bsize(bsize, pd->subsampling_x, pd->subsampling_y,
-                             mi_row, mi_col);
+  bsize = plane ? xd->mi[0]->chroma_ref_info.bsize_base : bsize;
   const int block_height = block_size_high[bsize];
   const int block_width = block_size_wide[bsize];
   const int block_rows = (xd->mb_to_bottom_edge >= 0)
