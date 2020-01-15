@@ -1042,6 +1042,7 @@ typedef struct AV1Common {
 #if CONFIG_LPF_MASK
   int is_decoding;
 #endif  // CONFIG_LPF_MASK
+  int coded_frame_idx;
 } AV1_COMMON;
 
 /*!\cond */

@@ -3908,6 +3908,14 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     if (av1_pack_bitstream(cpi, dest, size, &largest_tile_id) != AOM_CODEC_OK)
       return AOM_CODEC_ERROR;
 
+    fprintf(stderr,
+            "coded frame# = %d, actual frame# = %d, visible = %d, q = %d, "
+            "frame type = %d, frame size = %d, show_existing\n",
+            cm->coded_frame_idx, cm->cur_frame->display_order_hint,
+            cm->show_frame, cm->quant_params.base_qindex,
+            cm->current_frame.frame_type, (int)(*size) << 3);
+    ++cm->coded_frame_idx;
+
     if (seq_params->frame_id_numbers_present_flag &&
         current_frame->frame_type == KEY_FRAME) {
       // Displaying a forward key-frame, so reset the ref buffer IDs
@@ -4077,6 +4085,14 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 #if CONFIG_SUPERRES_IN_RECODE
   }
 #endif  // CONFIG_SUPERRES_IN_RECODE
+
+  fprintf(stderr,
+          "coded frame# = %d, actual frame# = %d, visible = %d, q = %d, "
+          "frame type = %d, frame size = %d\n",
+          cm->coded_frame_idx, cm->cur_frame->display_order_hint,
+          cm->show_frame, cm->quant_params.base_qindex,
+          cm->current_frame.frame_type, (int)(*size) << 3);
+  ++cm->coded_frame_idx;
 
   cpi->seq_params_locked = 1;
 
