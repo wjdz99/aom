@@ -131,7 +131,8 @@ typedef struct frame_contexts {
   aom_cdf_prob newmv_cdf[NEWMV_MODE_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob zeromv_cdf[GLOBALMV_MODE_CONTEXTS][CDF_SIZE(2)];
 #if CONFIG_NEW_INTER_MODES
-  aom_cdf_prob drl0_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)];
+  aom_cdf_prob drl0_single_cdf[DRL0_SINGLE_MODE_CONTEXTS][CDF_SIZE(2)];
+  aom_cdf_prob drl0_compound_cdf[DRL0_COMPOUND_MODE_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob drl1_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob drl2_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)];
 #else

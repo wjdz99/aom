@@ -203,16 +203,21 @@ static INLINE aom_cdf_prob *av1_get_drl_cdf(int16_t mode_ctx,
   assert(ref_idx >= 0);
   assert(ref_idx < MAX_DRL_BITS);
 
-  const int ctx = av1_drl_ctx(ref_mv_weight, ref_idx);
+  const int drl_ctx = av1_drl_ctx(ref_mv_weight, ref_idx);
+  const int refmv_ctx = (mode_ctx >> REFMV_OFFSET) & REFMV_CTX_MASK;
+  const int compound_ctx = mode_ctx;
   switch (ref_idx) {
-    case 0: return ec_ctx->drl0_cdf[ctx];
-    case 1: return ec_ctx->drl1_cdf[ctx];
-    case 2: return ec_ctx->drl2_cdf[ctx];
+    case 0:
+      return is_inter_singleref_mode(mode)
+                 ? ec_ctx->drl0_single_cdf[refmv_ctx]
+                 : ec_ctx->drl0_compound_cdf[compound_ctx];
+    case 1: return ec_ctx->drl1_cdf[drl_ctx];
+    case 2: return ec_ctx->drl2_cdf[drl_ctx];
+    default:
+      assert(false);
+      return NULL;  // this is an error condition but is checked by the second
+                    // assert
   }
-
-  assert(false);
-  return NULL;  // this is an error condition but is checked by the asserts
-                // above
 }
 #endif  // CONFIG_NEW_INTER_MODES
 

@@ -11096,10 +11096,16 @@ static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
   int cost = 0;
   int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, MAX_DRL_BITS);
   for (int idx = 0; idx < range; ++idx) {
-    uint8_t drl_ctx = av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
+    const int drl_ctx = av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
+    const int single_ctx = (mode_ctx >> REFMV_OFFSET) & REFMV_CTX_MASK;
+    const int compound_ctx = mode_ctx;
     switch (idx) {
       case 0:
-        cost += x->drl0_mode_cost[drl_ctx][mbmi->ref_mv_idx != idx];
+        cost +=
+            is_inter_singleref_mode(mbmi->mode)
+                ? x->drl0_single_mode_cost[single_ctx][mbmi->ref_mv_idx != idx]
+                : x->drl0_compound_mode_cost[compound_ctx]
+                                            [mbmi->ref_mv_idx != idx];
         break;
       case 1:
         cost += x->drl1_mode_cost[drl_ctx][mbmi->ref_mv_idx != idx];
@@ -11116,14 +11122,13 @@ static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
 #else
 static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
                                const MB_MODE_INFO_EXT *mbmi_ext,
-                               const int (*const drl_mode_cost0)[2],
-                               int8_t ref_frame_type) {
+                               const MACROBLOCK *x, int8_t ref_frame_type) {
   int cost = 0;
   if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
     for (int idx = 0; idx < 2; ++idx) {
       if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
         uint8_t drl_ctx = av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
-        cost += drl_mode_cost0[drl_ctx][mbmi->ref_mv_idx != idx];
+        cost += x->drl_mode_cost0[drl_ctx][mbmi->ref_mv_idx != idx];
         if (mbmi->ref_mv_idx == idx) return cost;
       }
     }
@@ -11133,7 +11138,7 @@ static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
     for (int idx = 1; idx < 3; ++idx) {
       if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
         uint8_t drl_ctx = av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
-        cost += drl_mode_cost0[drl_ctx][mbmi->ref_mv_idx != (idx - 1)];
+        cost += x->drl_mode_cost0[drl_ctx][mbmi->ref_mv_idx != (idx - 1)];
         if (mbmi->ref_mv_idx == (idx - 1)) return cost;
       }
     }
@@ -11578,12 +11583,7 @@ static bool ref_mv_idx_early_breakout(MACROBLOCK *x,
     return true;
   }
   size_t est_rd_rate = args->ref_frame_cost + args->single_comp_cost;
-#if CONFIG_NEW_INTER_MODES
   const int drl_cost = get_drl_cost(mbmi, mbmi_ext, x, ref_frame_type);
-#else
-  const int drl_cost =
-      get_drl_cost(mbmi, mbmi_ext, x->drl_mode_cost0, ref_frame_type);
-#endif  // CONFIG_NEW_INTER_MODES
   est_rd_rate += drl_cost;
 #if CONFIG_NEW_INTER_MODES
   if (RDCOST(x->rdmult, est_rd_rate, 0) > ref_best_rd) {
@@ -11638,12 +11638,7 @@ static int64_t simple_translation_pred_rd(
   mbmi->ref_mv_idx = ref_mv_idx;
 
   rd_stats->rate += args->ref_frame_cost + args->single_comp_cost;
-#if CONFIG_NEW_INTER_MODES
   const int drl_cost = get_drl_cost(mbmi, mbmi_ext, x, ref_frame_type);
-#else
-  const int drl_cost =
-      get_drl_cost(mbmi, mbmi_ext, x->drl_mode_cost0, ref_frame_type);
-#endif
   rd_stats->rate += drl_cost;
   mode_info[ref_mv_idx].drl_cost = drl_cost;
 
@@ -11869,12 +11864,7 @@ static int64_t handle_inter_mode(
     mbmi->ref_mv_idx = ref_mv_idx;
 
     rd_stats->rate += args->ref_frame_cost + args->single_comp_cost;
-#if CONFIG_NEW_INTER_MODES
     const int drl_cost = get_drl_cost(mbmi, mbmi_ext, x, ref_frame_type);
-#else
-    const int drl_cost =
-        get_drl_cost(mbmi, mbmi_ext, x->drl_mode_cost0, ref_frame_type);
-#endif
     rd_stats->rate += drl_cost;
     mode_info[ref_mv_idx].drl_cost = drl_cost;
 

@@ -339,7 +339,8 @@ struct macroblock {
   int newmv_mode_cost[NEWMV_MODE_CONTEXTS][2];
   int zeromv_mode_cost[GLOBALMV_MODE_CONTEXTS][2];
 #if CONFIG_NEW_INTER_MODES
-  int drl0_mode_cost[DRL_MODE_CONTEXTS][2];
+  int drl0_single_mode_cost[DRL0_SINGLE_MODE_CONTEXTS][2];
+  int drl0_compound_mode_cost[DRL0_COMPOUND_MODE_CONTEXTS][2];
   int drl1_mode_cost[DRL_MODE_CONTEXTS][2];
   int drl2_mode_cost[DRL_MODE_CONTEXTS][2];
 #else

@@ -471,7 +471,8 @@ typedef struct FRAME_COUNTS {
   unsigned int newmv_mode[NEWMV_MODE_CONTEXTS][2];
   unsigned int zeromv_mode[GLOBALMV_MODE_CONTEXTS][2];
 #if CONFIG_NEW_INTER_MODES
-  unsigned int drl0_mode[DRL_MODE_CONTEXTS][2];
+  unsigned int drl0_single_mode[DRL_MODE_CONTEXTS][2];
+  unsigned int drl0_compound_mode[DRL_MODE_CONTEXTS][2];
   unsigned int drl1_mode[DRL_MODE_CONTEXTS][2];
   unsigned int drl2_mode[DRL_MODE_CONTEXTS][2];
 #else
