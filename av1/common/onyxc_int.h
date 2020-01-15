@@ -578,6 +578,7 @@ typedef struct AV1Common {
 #if CONFIG_MISC_CHANGES
   int only_one_ref_available;
 #endif  // CONFIG_MISC_CHANGES
+  int coded_frame_idx;
 } AV1_COMMON;
 
 // TODO(hkuang): Don't need to lock the whole pool after implementing atomic

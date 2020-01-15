@@ -2055,6 +2055,9 @@ static void get_cx_data(struct stream_state *stream,
               fprintf(stderr, "%.3f ", pkt->data.psnr.psnr[i]);
             stream->psnr_totals[i] += pkt->data.psnr.psnr[i];
           }
+          if (global->quiet) {
+            fprintf(stderr, "%.3f\n", pkt->data.psnr.psnr[0]);
+          }
           stream->psnr_count++;
         }
 
