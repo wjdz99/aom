@@ -563,12 +563,9 @@ void av1_encode_sb(const struct AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   assert(bsize < BLOCK_SIZES_ALL);
 
   for (plane = 0; plane < num_planes; ++plane) {
-    const int subsampling_x = xd->plane[plane].subsampling_x;
-    const int subsampling_y = xd->plane[plane].subsampling_y;
     if (plane && !mbmi->chroma_ref_info.is_chroma_ref) continue;
 
-    const BLOCK_SIZE bsizec =
-        scale_chroma_bsize(bsize, subsampling_x, subsampling_y, mi_row, mi_col);
+    const BLOCK_SIZE bsizec = mbmi->chroma_ref_info.bsize_base;
 
     // TODO(jingning): Clean this up.
     const struct macroblockd_plane *const pd = &xd->plane[plane];
