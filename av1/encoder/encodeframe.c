@@ -3127,21 +3127,13 @@ static bool rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   // Override skipping rectangular partition operations for edge blocks
   const int has_rows = (mi_row + mi_step_h < cm->mi_rows);
   const int has_cols = (mi_col + mi_step_w < cm->mi_cols);
-  const int xss = x->e_mbd.plane[1].subsampling_x;
-  const int yss = x->e_mbd.plane[1].subsampling_y;
 
   if (none_rd) *none_rd = 0;
   int partition_none_allowed = has_rows && has_cols;
   int partition_horz_allowed =
-      has_cols && bsize_at_least_8x8 && cpi->oxcf.enable_rect_partitions &&
-      get_plane_block_size(mi_row, mi_col,
-                           get_partition_subsize(bsize, PARTITION_HORZ), xss,
-                           yss) != BLOCK_INVALID;
+      has_cols && bsize_at_least_8x8 && cpi->oxcf.enable_rect_partitions;
   int partition_vert_allowed =
-      has_rows && bsize_at_least_8x8 && cpi->oxcf.enable_rect_partitions &&
-      get_plane_block_size(mi_row, mi_col,
-                           get_partition_subsize(bsize, PARTITION_VERT), xss,
-                           yss) != BLOCK_INVALID;
+      has_rows && bsize_at_least_8x8 && cpi->oxcf.enable_rect_partitions;
 
   (void)*tp_orig;
 
@@ -3305,15 +3297,9 @@ BEGIN_PARTITION_SEARCH:
     do_square_split = bsize_at_least_8x8;
     partition_none_allowed = has_rows && has_cols;
     partition_horz_allowed =
-        has_cols && bsize_at_least_8x8 && cpi->oxcf.enable_rect_partitions &&
-        get_plane_block_size(mi_row, mi_col,
-                             get_partition_subsize(bsize, PARTITION_HORZ), xss,
-                             yss) != BLOCK_INVALID;
+        has_cols && bsize_at_least_8x8 && cpi->oxcf.enable_rect_partitions;
     partition_vert_allowed =
-        has_rows && bsize_at_least_8x8 && cpi->oxcf.enable_rect_partitions &&
-        get_plane_block_size(mi_row, mi_col,
-                             get_partition_subsize(bsize, PARTITION_VERT), xss,
-                             yss) != BLOCK_INVALID;
+        has_rows && bsize_at_least_8x8 && cpi->oxcf.enable_rect_partitions;
     terminate_partition_search = 0;
 #if CONFIG_EXT_RECUR_PARTITIONS
     if (!is_square_block(bsize)) {
@@ -4411,16 +4397,8 @@ BEGIN_PARTITION_SEARCH:
   int partition3_allowed = cpi->oxcf.enable_1to3_partitions &&
                            ext_partition_allowed && bsize != BLOCK_128X128;
 
-  int partition_horz3_allowed =
-      partition3_allowed && partition_horz_allowed &&
-      get_plane_block_size(mi_row, mi_col,
-                           get_partition_subsize(bsize, PARTITION_HORZ_3), xss,
-                           yss) != BLOCK_INVALID;
-  int partition_vert3_allowed =
-      partition3_allowed && partition_vert_allowed &&
-      get_plane_block_size(mi_row, mi_col,
-                           get_partition_subsize(bsize, PARTITION_VERT_3), xss,
-                           yss) != BLOCK_INVALID;
+  int partition_horz3_allowed = partition3_allowed && partition_horz_allowed;
+  int partition_vert3_allowed = partition3_allowed && partition_vert_allowed;
   if (cpi->sf.prune_ext_partition_types_search_level == 2) {
     partition_horz3_allowed &= (pc_tree->partitioning == PARTITION_HORZ ||
 #if !CONFIG_EXT_RECUR_PARTITIONS
@@ -4624,16 +4602,8 @@ BEGIN_PARTITION_SEARCH:
                                  ext_partition_allowed &&
                                  bsize != BLOCK_128X128;
 
-  int partition_horz4_allowed =
-      partition4_allowed && partition_horz_allowed &&
-      get_plane_block_size(mi_row, mi_col,
-                           get_partition_subsize(bsize, PARTITION_HORZ_4), xss,
-                           yss) != BLOCK_INVALID;
-  int partition_vert4_allowed =
-      partition4_allowed && partition_vert_allowed &&
-      get_plane_block_size(mi_row, mi_col,
-                           get_partition_subsize(bsize, PARTITION_VERT_4), xss,
-                           yss) != BLOCK_INVALID;
+  int partition_horz4_allowed = partition4_allowed && partition_horz_allowed;
+  int partition_vert4_allowed = partition4_allowed && partition_vert_allowed;
   if (cpi->sf.prune_ext_partition_types_search_level == 2) {
     partition_horz4_allowed &= (pc_tree->partitioning == PARTITION_HORZ ||
 #if !CONFIG_EXT_RECUR_PARTITIONS
@@ -6908,8 +6878,7 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     mbmi->skip = 1;
     for (int plane = 0; plane < num_planes; ++plane) {
       av1_encode_intra_block_plane(cpi, x, bsize, plane,
-                                   cpi->optimize_seg_arr[mbmi->segment_id],
-                                   mi_row, mi_col);
+                                   cpi->optimize_seg_arr[mbmi->segment_id]);
     }
 
     // If there is at least one lossless segment, force the skip for intra
