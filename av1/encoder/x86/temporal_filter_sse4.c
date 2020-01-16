@@ -17,6 +17,7 @@
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/temporal_filter.h"
 #include "av1/encoder/x86/temporal_filter_constants.h"
+#include "av1/encoder/x86/highbd_temporal_filter_sse4.c"
 
 // Read in 8 pixels from a and b as 8-bit unsigned integers, compute the
 // difference squared, and store as unsigned 16-bit integer to dst.
@@ -927,6 +928,13 @@ void av1_apply_temporal_filter_yuv_sse4_1(
     const int strength, const int use_subblock,
     const int *subblock_filter_weights, const uint8_t *pred, uint32_t *accum,
     uint16_t *count) {
+  if (mbd->bd > 8) {
+    av1_highbd_apply_temporal_filter_yuv_sse4_1(
+        ref_frame, mbd, block_size, mb_row, mb_col, strength, use_subblock,
+        subblock_filter_weights, pred, accum, count);
+    return;
+  }
+
   const int use_whole_blk = !use_subblock;
   const int *blk_fw = subblock_filter_weights;
 

@@ -822,17 +822,16 @@ INSTANTIATE_TEST_CASE_P(
     C, YUVTemporalFilterTest,
     ::testing::Values(
         TemporalFilterWithBd(&av1_apply_temporal_filter_yuv_c, 8),
-        TemporalFilterWithBd(&av1_highbd_apply_temporal_filter_yuv_c, 10),
-        TemporalFilterWithBd(&av1_highbd_apply_temporal_filter_yuv_c, 12)));
+        TemporalFilterWithBd(&av1_apply_temporal_filter_yuv_c, 10),
+        TemporalFilterWithBd(&av1_apply_temporal_filter_yuv_c, 12)));
 
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_CASE_P(
     SSE4_1, YUVTemporalFilterTest,
     ::testing::Values(
         TemporalFilterWithBd(&av1_apply_temporal_filter_yuv_sse4_1, 8),
-        TemporalFilterWithBd(&av1_highbd_apply_temporal_filter_yuv_sse4_1, 10),
-        TemporalFilterWithBd(&av1_highbd_apply_temporal_filter_yuv_sse4_1,
-                             12)));
+        TemporalFilterWithBd(&av1_apply_temporal_filter_yuv_sse4_1, 10),
+        TemporalFilterWithBd(&av1_apply_temporal_filter_yuv_sse4_1, 12)));
 #endif  // HAVE_SSE4_1
 
 }  // namespace
