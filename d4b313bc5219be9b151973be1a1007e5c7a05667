@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc5d260b_ea270146",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-16T00:47:42Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 238,
+        "startChar": 2,
+        "endLine": 238,
+        "endChar": 5
+      },
+      "revId": "d4b313bc5219be9b151973be1a1007e5c7a05667",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "374064f0_1cbaa144",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-16T00:47:42Z",
+      "side": 1,
+      "message": "Please add a comment to describe that the memory stores squared diffs for y, u, v planes, consecutively, and each plane has the same size (mb_pels).",
+      "range": {
+        "startLine": 278,
+        "startChar": 12,
+        "endLine": 278,
+        "endChar": 23
+      },
+      "revId": "d4b313bc5219be9b151973be1a1007e5c7a05667",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c555f5cd_bfef3e49",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-16T00:47:42Z",
+      "side": 1,
+      "message": "Compute squared diffs can be a separate function.\nIt is up to you.",
+      "range": {
+        "startLine": 292,
+        "startChar": 4,
+        "endLine": 292,
+        "endChar": 45
+      },
+      "revId": "d4b313bc5219be9b151973be1a1007e5c7a05667",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ea03a83b_5a96294e",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-16T00:47:42Z",
+      "side": 1,
+      "message": "How about just use \"y\"? And/or add a comment \"row offset of collocated u/v pixel\".\nSame for \"xx\".",
+      "range": {
+        "startLine": 359,
+        "startChar": 22,
+        "endLine": 359,
+        "endChar": 24
+      },
+      "revId": "d4b313bc5219be9b151973be1a1007e5c7a05667",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "329a8d03_5cf31fbb",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-16T00:47:42Z",
+      "side": 1,
+      "message": "Add a comment \"width of the u/v plane\".",
+      "range": {
+        "startLine": 361,
+        "startChar": 22,
+        "endLine": 361,
+        "endChar": 24
+      },
+      "revId": "d4b313bc5219be9b151973be1a1007e5c7a05667",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4311aff1_a8652be3",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-16T00:47:42Z",
+      "side": 1,
+      "message": "Also, comment \"row offset of collocated y pixel\".\nSame fo \"xx\", \"ww\".",
+      "range": {
+        "startLine": 372,
+        "startChar": 24,
+        "endLine": 372,
+        "endChar": 26
+      },
+      "revId": "d4b313bc5219be9b151973be1a1007e5c7a05667",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21bd9759_a637707b",
+        "filename": "av1/encoder/x86/highbd_temporal_filter_sse4.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-16T00:47:42Z",
+      "side": 1,
+      "message": "This could \"const YV12_BUFFER_CONFIG *const ref_frame\" in function definition.\nSame for other structures: mbd, pred, if possible.",
+      "range": {
+        "startLine": 862,
+        "startChar": 30,
+        "endLine": 862,
+        "endChar": 39
+      },
+      "revId": "d4b313bc5219be9b151973be1a1007e5c7a05667",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
