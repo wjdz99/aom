@@ -1131,6 +1131,8 @@ void av1_count_overlappable_neighbors(const AV1_COMMON *cm, MACROBLOCKD *xd,
 
 int av1_skip_u4x4_pred_in_obmc(int mi_row, int mi_col, BLOCK_SIZE bsize,
                                const struct macroblockd_plane *pd, int dir) {
+  (void)mi_row;
+  (void)mi_col;
   assert(is_motion_variation_allowed_bsize(bsize, mi_row, mi_col));
 
   const BLOCK_SIZE bsize_plane =
