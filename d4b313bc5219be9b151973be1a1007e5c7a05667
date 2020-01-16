@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "42a80173_71107e53",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-16T16:45:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc5d260b_ea270146",
+      "range": {
+        "startLine": 238,
+        "startChar": 2,
+        "endLine": 238,
+        "endChar": 5
+      },
+      "revId": "d4b313bc5219be9b151973be1a1007e5c7a05667",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "374064f0_1cbaa144",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 10
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "188c4a15_5ddb5e27",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-16T16:45:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "374064f0_1cbaa144",
+      "range": {
+        "startLine": 278,
+        "startChar": 12,
+        "endLine": 278,
+        "endChar": 23
+      },
+      "revId": "d4b313bc5219be9b151973be1a1007e5c7a05667",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c555f5cd_bfef3e49",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 10
@@ -59,6 +107,30 @@
       "writtenOn": "2020-01-16T00:47:42Z",
       "side": 1,
       "message": "Compute squared diffs can be a separate function.\nIt is up to you.",
+      "range": {
+        "startLine": 292,
+        "startChar": 4,
+        "endLine": 292,
+        "endChar": 45
+      },
+      "revId": "d4b313bc5219be9b151973be1a1007e5c7a05667",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f346cf33_9faa049a",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-16T16:45:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c555f5cd_bfef3e49",
       "range": {
         "startLine": 292,
         "startChar": 4,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "3dfc87cb_fbcda1b6",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-16T16:45:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea03a83b_5a96294e",
+      "range": {
+        "startLine": 359,
+        "startChar": 22,
+        "endLine": 359,
+        "endChar": 24
+      },
+      "revId": "d4b313bc5219be9b151973be1a1007e5c7a05667",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "329a8d03_5cf31fbb",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 10
@@ -114,6 +210,30 @@
       "revId": "d4b313bc5219be9b151973be1a1007e5c7a05667",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af2a9e3e_10d6aee0",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-16T16:45:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "329a8d03_5cf31fbb",
+      "range": {
+        "startLine": 361,
+        "startChar": 22,
+        "endLine": 361,
+        "endChar": 24
+      },
+      "revId": "d4b313bc5219be9b151973be1a1007e5c7a05667",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "fb0efcce_07b0d9a5",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-16T16:45:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4311aff1_a8652be3",
+      "range": {
+        "startLine": 372,
+        "startChar": 24,
+        "endLine": 372,
+        "endChar": 26
+      },
+      "revId": "d4b313bc5219be9b151973be1a1007e5c7a05667",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "21bd9759_a637707b",
         "filename": "av1/encoder/x86/highbd_temporal_filter_sse4.c",
         "patchSetId": 10
@@ -151,6 +295,30 @@
       "writtenOn": "2020-01-16T00:47:42Z",
       "side": 1,
       "message": "This could \"const YV12_BUFFER_CONFIG *const ref_frame\" in function definition.\nSame for other structures: mbd, pred, if possible.",
+      "range": {
+        "startLine": 862,
+        "startChar": 30,
+        "endLine": 862,
+        "endChar": 39
+      },
+      "revId": "d4b313bc5219be9b151973be1a1007e5c7a05667",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ead8cae_7415924e",
+        "filename": "av1/encoder/x86/highbd_temporal_filter_sse4.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-16T16:45:35Z",
+      "side": 1,
+      "message": "I\u0027ve though about this after the offline discussion. However, in this case, I just want to project the memory pointed to by `ref_frame` from modification. As for how `ref_frame` should be used inside this function, it should not be controlled by the API. So, in my opinion, we don\u0027t need to declare a const pointer. But if you insist, I can revise it.",
+      "parentUuid": "21bd9759_a637707b",
       "range": {
         "startLine": 862,
         "startChar": 30,
