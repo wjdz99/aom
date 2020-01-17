@@ -851,7 +851,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
     // local variable 'fps'), and then cpi->output_pkt_list will point to it.
     *this_frame_stats = fps;
     output_stats(this_frame_stats, cpi->output_pkt_list);
-    accumulate_stats(&twopass->total_stats, &fps);
+    if (!cpi->lap_enabled) accumulate_stats(&twopass->total_stats, &fps);
     /*In the case of two pass, first pass uses it as a circular buffer,
      * when LAP is enabled it is used as a linear buffer*/
     twopass->stats_buf_ctx->stats_in_end++;
