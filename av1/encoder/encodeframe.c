@@ -813,7 +813,7 @@ static void update_drl_index_stats(FRAME_CONTEXT *fc, FRAME_COUNTS *counts,
 #endif  // !CONFIG_ENTROPY_STATS
   assert(have_drl_index(mbmi->mode));
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
-  int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, 3);
+  int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, MAX_DRL_BITS);
   for (int idx = 0; idx < range; ++idx) {
     aom_cdf_prob *drl_cdf = av1_get_drl_cdf(
         mode_ctx, fc, mbmi->mode, mbmi_ext->weight[ref_frame_type], idx);
@@ -5071,7 +5071,7 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
 #else
   AVERAGE_CDF(ctx_left->refmv_cdf, ctx_tr->refmv_cdf, 2);
   AVERAGE_CDF(ctx_left->drl_cdf, ctx_tr->drl_cdf, 2);
-#endif  // !CONFIG_NEW_INTER_MODES
+#endif  // CONFIG_NEW_INTER_MODES
   AVERAGE_CDF(ctx_left->inter_compound_mode_cdf,
               ctx_tr->inter_compound_mode_cdf, INTER_COMPOUND_MODES);
   AVERAGE_CDF(ctx_left->compound_type_cdf, ctx_tr->compound_type_cdf,

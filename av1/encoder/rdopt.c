@@ -11094,7 +11094,7 @@ static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
   int16_t mode_ctx =
       av1_mode_context_analyzer(mbmi_ext->mode_context, mbmi->ref_frame);
   int cost = 0;
-  int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, 3);
+  int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, MAX_DRL_BITS);
   for (int idx = 0; idx < range; ++idx) {
     uint8_t drl_ctx = av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
     switch (idx) {
@@ -11578,11 +11578,12 @@ static bool ref_mv_idx_early_breakout(MACROBLOCK *x,
     return true;
   }
   size_t est_rd_rate = args->ref_frame_cost + args->single_comp_cost;
-  #if CONFIG_NEW_INTER_MODES
+#if CONFIG_NEW_INTER_MODES
   const int drl_cost = get_drl_cost(mbmi, mbmi_ext, x, ref_frame_type);
-  #else
-  const int drl_cost = get_drl_cost(mbmi, mbmi_ext, x->drl_mode_cost0, ref_frame_type);
-  #endif
+#else
+  const int drl_cost =
+      get_drl_cost(mbmi, mbmi_ext, x->drl_mode_cost0, ref_frame_type);
+#endif  // CONFIG_NEW_INTER_MODES
   est_rd_rate += drl_cost;
 #if CONFIG_NEW_INTER_MODES
   if (RDCOST(x->rdmult, est_rd_rate, 0) > ref_best_rd) {
