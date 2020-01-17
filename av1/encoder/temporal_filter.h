@@ -43,6 +43,10 @@ extern "C" {
 // This is particually used for function `av1_apply_temporal_filter_yuv_c()`.
 static const int YUV_FILTER_WINDOW_LENGTH = 3;
 
+// Window size for temporal filtering on Y planes.
+// This is particually used for function `av1_apply_temporal_filter_yonly()`.
+static const int YONLY_FILTER_WINDOW_LENGTH = 3;
+
 static INLINE BLOCK_SIZE dims_to_size(int w, int h) {
   if (w != h) return -1;
   switch (w) {
