@@ -897,7 +897,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   }
 
   // Load stats for the current frame.
-  mod_frame_err = calculate_modified_err(frame_info, twopass, oxcf, this_frame);
+  if (!cpi->lap_enabled)
+    mod_frame_err =
+        calculate_modified_err(frame_info, twopass, oxcf, this_frame);
 
   // Note the error of the frame at the start of the group. This will be
   // the GF frame error if we code a normal gf.
@@ -944,8 +946,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     ++i;
 
     // Accumulate error score of frames in this gf group.
-    mod_frame_err =
-        calculate_modified_err(frame_info, twopass, oxcf, this_frame);
+    if (!cpi->lap_enabled)
+      mod_frame_err =
+          calculate_modified_err(frame_info, twopass, oxcf, this_frame);
     gf_group_err += mod_frame_err;
 #if GROUP_ADAPTIVE_MAXQ
     gf_group_raw_error += this_frame->coded_error;
@@ -1458,7 +1461,8 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   twopass->kf_group_error_left = 0;  // Group modified error score.
 
   kf_raw_err = this_frame->intra_error;
-  kf_mod_err = calculate_modified_err(frame_info, twopass, oxcf, this_frame);
+  if (!cpi->lap_enabled)
+    kf_mod_err = calculate_modified_err(frame_info, twopass, oxcf, this_frame);
 
   // Initialize the decay rates for the recent frames to check
   for (j = 0; j < FRAMES_TO_CHECK_DECAY; ++j) recent_loop_decay[j] = 1.0;
@@ -1468,8 +1472,9 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   while (twopass->stats_in < twopass->stats_buf_ctx->stats_in_end &&
          rc->frames_to_key < cpi->oxcf.key_freq) {
     // Accumulate kf group error.
-    kf_group_err +=
-        calculate_modified_err(frame_info, twopass, oxcf, this_frame);
+    if (!cpi->lap_enabled)
+      kf_group_err +=
+          calculate_modified_err(frame_info, twopass, oxcf, this_frame);
 
     // Load the next frame's stats.
     last_frame = *this_frame;
@@ -1531,8 +1536,9 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
     // Rescan to get the correct error data for the forced kf group.
     for (i = 0; i < rc->frames_to_key; ++i) {
-      kf_group_err +=
-          calculate_modified_err(frame_info, twopass, oxcf, &tmp_frame);
+      if (!cpi->lap_enabled)
+        kf_group_err +=
+            calculate_modified_err(frame_info, twopass, oxcf, &tmp_frame);
       input_stats(twopass, &tmp_frame);
     }
     rc->next_key_frame_forced = 1;
@@ -1546,8 +1552,9 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // Special case for the last key frame of the file.
   if (twopass->stats_in >= twopass->stats_buf_ctx->stats_in_end) {
     // Accumulate kf group error.
-    kf_group_err +=
-        calculate_modified_err(frame_info, twopass, oxcf, this_frame);
+    if (!cpi->lap_enabled)
+      kf_group_err +=
+          calculate_modified_err(frame_info, twopass, oxcf, this_frame);
   }
 
   // Calculate the number of bits that should be assigned to the kf group.
@@ -1738,7 +1745,7 @@ static void process_first_pass_stats(AV1_COMP *cpi,
   }
 
   // Update the total stats remaining structure.
-  subtract_stats(&twopass->total_left_stats, this_frame);
+  if (!cpi->lap_enabled) subtract_stats(&twopass->total_left_stats, this_frame);
 
   // Set the frame content type flag.
   if (this_frame->intra_skip_pct >= FC_ANIMATION_THRESH)
@@ -1935,6 +1942,40 @@ void av1_init_second_pass(AV1_COMP *cpi) {
     }
     twopass->modified_error_left = modified_error_total;
   }
+
+  // Reset the vbr bits off target counters
+  cpi->rc.vbr_bits_off_target = 0;
+  cpi->rc.vbr_bits_off_target_fast = 0;
+
+  cpi->rc.rate_error_estimate = 0;
+
+  // Static sequence monitor variables.
+  twopass->kf_zeromotion_pct = 100;
+  twopass->last_kfgroup_zeromotion_pct = 100;
+
+  // Initialize bits per macro_block estimate correction factor.
+  twopass->bpm_factor = 1.0;
+  // Initialize actual and target bits counters for ARF groups so that
+  // at the start we have a neutral bpm adjustment.
+  twopass->rolling_arf_group_target_bits = 1;
+  twopass->rolling_arf_group_actual_bits = 1;
+}
+
+void av1_init_lap(AV1_COMP *cpi) {
+  TWO_PASS *const twopass = &cpi->twopass;
+
+  av1_twopass_zero_stats(&twopass->total_stats);
+  av1_twopass_zero_stats(&twopass->total_left_stats);
+
+  if (!twopass->stats_buf_ctx->stats_in_end) return;
+
+  // This variable monitors how far behind the second ref update is lagging.
+  twopass->sr_update_lag = 1;
+
+  twopass->bits_left = 0;
+  twopass->modified_error_min = 0;
+  twopass->modified_error_max = 0;
+  twopass->modified_error_left = 0.0;
 
   // Reset the vbr bits off target counters
   cpi->rc.vbr_bits_off_target = 0;
