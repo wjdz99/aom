@@ -1790,7 +1790,7 @@ static aom_codec_err_t create_frame_stats_buffer(
 static aom_codec_err_t create_context_and_bufferpool(
     AV1_COMP **p_cpi, BufferPool **p_buffer_pool, AV1EncoderConfig *oxcf,
     struct aom_codec_pkt_list *pkt_list_head, FIRSTPASS_STATS *frame_stats_buf,
-    COMPRESSOR_STAGE stage, int num_lap_buffers,
+    COMPRESSOR_STAGE stage, int num_lap_buffers, int lap_lag_in_frames,
     STATS_BUFFER_CTX *stats_buf_context) {
   aom_codec_err_t res = AOM_CODEC_OK;
 
@@ -1803,7 +1803,8 @@ static aom_codec_err_t create_context_and_bufferpool(
   }
 #endif
   *p_cpi = av1_create_compressor(oxcf, *p_buffer_pool, frame_stats_buf, stage,
-                                 num_lap_buffers, stats_buf_context);
+                                 num_lap_buffers, lap_lag_in_frames,
+                                 stats_buf_context);
   if (*p_cpi == NULL)
     res = AOM_CODEC_MEM_ERROR;
   else
@@ -1838,6 +1839,7 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
 
     if (res == AOM_CODEC_OK) {
       int *num_lap_buffers = &priv->num_lap_buffers;
+      int lap_lag_in_frames = 0;
       *num_lap_buffers = 0;
       priv->timestamp_ratio.den = priv->cfg.g_timebase.den;
       priv->timestamp_ratio.num =
@@ -1845,11 +1847,17 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
       reduce_ratio(&priv->timestamp_ratio);
 
       set_encoder_config(&priv->oxcf, &priv->cfg, &priv->extra_cfg);
-      if (((int)priv->cfg.g_lag_in_frames - LAP_LAG_IN_FRAMES) >= MIN_LAP_LAG &&
-          priv->oxcf.rc_mode == AOM_Q && priv->oxcf.pass == 0 &&
+      if (priv->oxcf.rc_mode == AOM_Q && priv->oxcf.pass == 0 &&
           priv->oxcf.mode == GOOD && priv->oxcf.fwd_kf_enabled == 0) {
         // Enable look ahead
-        *num_lap_buffers = priv->cfg.g_lag_in_frames - LAP_LAG_IN_FRAMES;
+        *num_lap_buffers = priv->cfg.g_lag_in_frames;
+        *num_lap_buffers =
+            clamp(*num_lap_buffers, 1,
+                  AOMMIN(MAX_LAP_BUFFERS, priv->oxcf.key_freq + 16));
+        if ((int)priv->cfg.g_lag_in_frames - (*num_lap_buffers) >=
+            LAP_LAG_IN_FRAMES) {
+          lap_lag_in_frames = LAP_LAG_IN_FRAMES;
+        }
       }
       priv->oxcf.use_highbitdepth =
           (ctx->init_flags & AOM_CODEC_USE_HIGHBITDEPTH) ? 1 : 0;
@@ -1861,7 +1869,7 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
 
       res = create_context_and_bufferpool(
           &priv->cpi, &priv->buffer_pool, &priv->oxcf, &priv->pkt_list.head,
-          priv->frame_stats_buffer, ENCODE_STAGE, *num_lap_buffers,
+          priv->frame_stats_buffer, ENCODE_STAGE, *num_lap_buffers, -1,
           &priv->stats_buf_context);
 
       // Create another compressor if look ahead is enabled
@@ -1869,7 +1877,7 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
         res = create_context_and_bufferpool(
             &priv->cpi_lap, &priv->buffer_pool_lap, &priv->oxcf, NULL,
             priv->frame_stats_buffer, LAP_STAGE, *num_lap_buffers,
-            &priv->stats_buf_context);
+            lap_lag_in_frames, &priv->stats_buf_context);
       }
     }
   }
