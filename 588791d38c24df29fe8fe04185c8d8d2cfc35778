@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aff16c01_2a2586bb",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-20T05:04:47Z",
+      "side": 1,
+      "message": "\"Computes temporal filter weights and accumulators for the current frame.\"",
+      "range": {
+        "startLine": 132,
+        "startChar": 3,
+        "endLine": 132,
+        "endChar": 52
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c6ffb19_3ddbf4b3",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-20T05:04:47Z",
+      "side": 1,
+      "message": "Nit: I prefer to \"pred_idx \u003d i * w + j;\" But it\u0027s up to you.\nBecause in this way we know this is an index for a 2d array.\nWhile \"++pred_idx\" assumes the input array is continuous, which is true in this case.\n\n\nSame below.",
+      "range": {
+        "startLine": 172,
+        "startChar": 8,
+        "endLine": 172,
+        "endChar": 19
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84d2325d_73f26c51",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-20T05:04:47Z",
+      "side": 1,
+      "message": "Here.",
+      "range": {
+        "startLine": 422,
+        "startChar": 10,
+        "endLine": 422,
+        "endChar": 18
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87630a81_9a6790e1",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-20T05:04:47Z",
+      "side": 1,
+      "message": "Could you add a comment: control parameter for non-local means.",
+      "range": {
+        "startLine": 573,
+        "startChar": 2,
+        "endLine": 573,
+        "endChar": 16
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "508b5a34_3b1ac52b",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-20T05:04:47Z",
+      "side": 1,
+      "message": "const int num_ref_pixels \u003d PLANEWISE_FILTER_WINDOW_LENGTH * PLANEWISE_FILTER_WINDOW_LENGTH.\n\nAnd it can be defined out of loops.",
+      "range": {
+        "startLine": 627,
+        "startChar": 14,
+        "endLine": 627,
+        "endChar": 28
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d3be7ec_433ac7a0",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-20T05:04:47Z",
+      "side": 1,
+      "message": "Remove this.",
+      "range": {
+        "startLine": 633,
+        "startChar": 0,
+        "endLine": 633,
+        "endChar": 72
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "874b9c25_c69c2e65",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-20T05:04:47Z",
+      "side": 1,
+      "message": "And this.",
+      "range": {
+        "startLine": 637,
+        "startChar": 0,
+        "endLine": 637,
+        "endChar": 43
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99699f24_c51b83d5",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-20T05:04:47Z",
+      "side": 1,
+      "message": "\"Computes temporal filter weights and accumulators from other frames excluding the current frame.\" could be better?",
+      "range": {
+        "startLine": 650,
+        "startChar": 30,
+        "endLine": 650,
+        "endChar": 63
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
