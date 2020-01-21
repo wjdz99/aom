@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "985a844e_502c9d19",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-21T18:24:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aff16c01_2a2586bb",
+      "range": {
+        "startLine": 132,
+        "startChar": 3,
+        "endLine": 132,
+        "endChar": 52
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0c6ffb19_3ddbf4b3",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2020-01-20T05:04:47Z",
       "side": 1,
       "message": "Nit: I prefer to \"pred_idx \u003d i * w + j;\" But it\u0027s up to you.\nBecause in this way we know this is an index for a 2d array.\nWhile \"++pred_idx\" assumes the input array is continuous, which is true in this case.\n\n\nSame below.",
+      "range": {
+        "startLine": 172,
+        "startChar": 8,
+        "endLine": 172,
+        "endChar": 19
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7dd8c36_17139167",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-21T18:24:12Z",
+      "side": 1,
+      "message": "Not sure if using multiplication in for loop will make it slow? I saw current codes use this way. I myself prefer `i * w +j` as well.",
+      "parentUuid": "0c6ffb19_3ddbf4b3",
       "range": {
         "startLine": 172,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "59820f86_7f201475",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-21T18:24:12Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "84d2325d_73f26c51",
+      "range": {
+        "startLine": 422,
+        "startChar": 10,
+        "endLine": 422,
+        "endChar": 18
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "87630a81_9a6790e1",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 9
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "29807a16_9d437f0a",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-21T18:24:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "87630a81_9a6790e1",
+      "range": {
+        "startLine": 573,
+        "startChar": 2,
+        "endLine": 573,
+        "endChar": 16
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "508b5a34_3b1ac52b",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 9
@@ -105,6 +201,30 @@
       "writtenOn": "2020-01-20T05:04:47Z",
       "side": 1,
       "message": "const int num_ref_pixels \u003d PLANEWISE_FILTER_WINDOW_LENGTH * PLANEWISE_FILTER_WINDOW_LENGTH.\n\nAnd it can be defined out of loops.",
+      "range": {
+        "startLine": 627,
+        "startChar": 14,
+        "endLine": 627,
+        "endChar": 28
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "856a2391_8cdd2200",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-21T18:24:12Z",
+      "side": 1,
+      "message": "This is for future optimization where we may want to skip the duplicate padding.",
+      "parentUuid": "508b5a34_3b1ac52b",
       "range": {
         "startLine": 627,
         "startChar": 14,
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "c08ed097_7b9823ca",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-21T18:24:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d3be7ec_433ac7a0",
+      "range": {
+        "startLine": 633,
+        "startChar": 0,
+        "endLine": 633,
+        "endChar": 72
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "874b9c25_c69c2e65",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 9
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "5e0a48aa_33dfc311",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-21T18:24:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "874b9c25_c69c2e65",
+      "range": {
+        "startLine": 637,
+        "startChar": 0,
+        "endLine": 637,
+        "endChar": 43
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "99699f24_c51b83d5",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 9
@@ -183,6 +351,30 @@
       "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d95ff0a5_99ab295d",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-21T18:24:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99699f24_c51b83d5",
+      "range": {
+        "startLine": 650,
+        "startChar": 30,
+        "endLine": 650,
+        "endChar": 63
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
