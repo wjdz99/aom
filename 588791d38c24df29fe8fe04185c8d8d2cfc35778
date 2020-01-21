@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "e0d4e76f_8db57044",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-21T22:28:15Z",
+      "side": 1,
+      "message": "I think it depends on the compiler. Not sure either.\nWe can leave it as is.",
+      "parentUuid": "d7dd8c36_17139167",
+      "range": {
+        "startLine": 172,
+        "startChar": 8,
+        "endLine": 172,
+        "endChar": 19
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "84d2325d_73f26c51",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 9
@@ -140,6 +164,30 @@
       "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1f93881_e89b0fce",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-21T22:28:15Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "59820f86_7f201475",
+      "range": {
+        "startLine": 422,
+        "startChar": 10,
+        "endLine": 422,
+        "endChar": 18
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -234,6 +282,30 @@
       "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e1d6d26_a7d4e484",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-21T22:28:15Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "856a2391_8cdd2200",
+      "range": {
+        "startLine": 627,
+        "startChar": 14,
+        "endLine": 627,
+        "endChar": 28
+      },
+      "revId": "588791d38c24df29fe8fe04185c8d8d2cfc35778",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
