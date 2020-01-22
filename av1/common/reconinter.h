@@ -225,12 +225,23 @@ typedef void (*CalcSubpelParamsFunc)(
     const void *const args, uint8_t **pre, SubpelParams *subpel_params,
     int *src_stride);
 
+// Data structure for passing around configuration options for building
+// the extended inter-predictor. If NULL, will assume 0 values for everything.
+// All values must be non-negative.
+typedef struct InterPredExt {
+  int border_left;
+  int border_top;
+  int border_right;
+  int border_bottom;
+} InterPredExt;
+
 void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                 int plane, const MB_MODE_INFO *mi,
                                 int build_for_obmc, int bw, int bh, int mi_x,
                                 int mi_y,
                                 CalcSubpelParamsFunc calc_subpel_params_func,
-                                const void *const calc_subpel_params_func_args);
+                                const void *const calc_subpel_params_func_args,
+                                InterPredExt *ext);
 
 // TODO(jkoleszar): yet another mv clamping function :-(
 static INLINE MV clamp_mv_to_umv_border_sb(const MACROBLOCKD *xd,
