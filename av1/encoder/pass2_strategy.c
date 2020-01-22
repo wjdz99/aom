@@ -1141,7 +1141,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   // Set the interval until the next gf.
   // If forward keyframes are enabled, ensure the final gf group obeys the
   // MIN_FWD_KF_INTERVAL.
-  if (cpi->oxcf.fwd_kf_enabled &&
+  if (cpi->oxcf.fwd_kf_enabled && use_alt_ref &&
       ((twopass->stats_in - i + rc->frames_to_key) < twopass->stats_in_end)) {
     if (i == rc->frames_to_key) {
       rc->baseline_gf_interval = i;
@@ -1751,6 +1751,10 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   RATE_CONTROL *const rc = &cpi->rc;
   TWO_PASS *const twopass = &cpi->twopass;
   GF_GROUP *const gf_group = &cpi->gf_group;
+//printf("2cur_frame %d\n",
+//       cpi->common.current_frame.frame_number);
+//if (cpi->common.current_frame.frame_number == 17)
+//  printf("debug\n");
 
   if (cpi->oxcf.pass == 2 && !twopass->stats_in) return;
 
@@ -1791,6 +1795,9 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   } else {
     rc->active_worst_quality = cpi->oxcf.cq_level;
   }
+
+//printf("stats_frame %f cur_frame %d\n",
+//       twopass->stats_in->frame,cpi->common.current_frame.frame_number);
 
   // Keyframe and section processing.
   if (rc->frames_to_key == 0 || (frame_flags & FRAMEFLAGS_KEY)) {

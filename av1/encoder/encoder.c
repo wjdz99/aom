@@ -5742,6 +5742,8 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   if (cpi->oxcf.pass == 2 && cpi->sf.adaptive_interp_filter_search)
     cpi->sf.interp_filter_search_mask = setup_interp_filter_search_mask(cpi);
 
+  printf("is kf %d show %d show_ex %d\n", current_frame->frame_type == KEY_FRAME,
+         cm->show_frame, cm->show_existing_frame);
   if (encode_show_existing_frame(cm)) {
     restore_coding_context(cpi);
 

@@ -803,6 +803,7 @@ static void update_arf_stack(AV1_COMP *cpi, int ref_map_index,
 // Update reference frame stack info.
 void av1_update_ref_frame_map(AV1_COMP *cpi,
                               FRAME_UPDATE_TYPE frame_update_type,
+                              int show_existing_frame,
                               int ref_map_index,
                               RefBufferStack *ref_buffer_stack) {
   AV1_COMMON *const cm = &cpi->common;
@@ -815,6 +816,9 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
 
   switch (frame_update_type) {
     case KEY_FRAME:
+      if (show_existing_frame)
+        ref_map_index = stack_pop(ref_buffer_stack->arf_stack,
+                                  &ref_buffer_stack->arf_stack_size);
       stack_reset(ref_buffer_stack->lst_stack,
                   &ref_buffer_stack->lst_stack_size);
       stack_reset(ref_buffer_stack->gld_stack,
@@ -1056,6 +1060,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
   }
   const int apply_filtering =
       oxcf->pass == 2 && frame_params->frame_type == KEY_FRAME &&
+      frame_params->show_frame &&
       cpi->rc.frames_to_key > NUM_KEY_FRAME_DENOISING && noise_level > 0 &&
       !is_lossless_requested(oxcf) && oxcf->arnr_max_frames > 0;
 
@@ -1231,14 +1236,20 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   memset(&frame_input, 0, sizeof(frame_input));
   memset(&frame_params, 0, sizeof(frame_params));
   memset(&frame_results, 0, sizeof(frame_results));
+  GF_GROUP *gf_group = &cpi->gf_group;
 
   // TODO(sarahparker) finish bit allocation for one pass pyramid
   if (oxcf->pass == 0 && oxcf->rc_mode != AOM_Q)
     cpi->oxcf.gf_max_pyr_height = USE_ALTREF_FOR_ONE_PASS;
 
   if (oxcf->pass == 0 || oxcf->pass == 2) {
+    if (cpi->oxcf.fwd_kf_enabled && (gf_group->index == gf_group->size) &&
+        gf_group->update_type[1] == ARF_UPDATE && cpi->rc.frames_to_key == 0) {
+      frame_params.show_existing_frame = 1;
+    } else {
     check_show_existing_frame(cpi, &frame_params);
     frame_params.show_existing_frame &= allow_show_existing(cpi, *frame_flags);
+    }
   } else {
     frame_params.show_existing_frame = 0;
   }
@@ -1447,7 +1458,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     update_frame_flags(cpi, frame_flags);
     int ref_map_index =
         av1_get_refresh_ref_frame_map(cm->current_frame.refresh_frame_flags);
-    av1_update_ref_frame_map(cpi, frame_update_type, ref_map_index,
+    av1_update_ref_frame_map(cpi, frame_update_type, cm->show_existing_frame,
+                             ref_map_index,
                              &cpi->ref_buffer_stack);
   }
 
