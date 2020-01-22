@@ -156,14 +156,15 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
 
   assert(ss_cfg->stride == stride_ref);
 
-  av1_full_pixel_search(cpi, x, bsize, &best_ref_mv1_full, step_param, 1,
-                        search_method, 0, sadpb, cond_cost_list(cpi, cost_list),
-                        &center_mv, INT_MAX, 0, (MI_SIZE * mi_col),
-                        (MI_SIZE * mi_row), 0, ss_cfg, 0);
+  bestsme = av1_full_pixel_search(
+      cpi, x, bsize, &best_ref_mv1_full, step_param, 1, search_method, 0, sadpb,
+      cond_cost_list(cpi, cost_list), &center_mv, INT_MAX, 0,
+      (MI_SIZE * mi_col), (MI_SIZE * mi_row), 0, ss_cfg, 0);
 
   /* restore UMV window */
   x->mv_limits = tmp_mv_limits;
 
+#if 0
   const int pw = block_size_wide[bsize];
   const int ph = block_size_high[bsize];
   bestsme = cpi->find_fractional_mv_step(
@@ -171,6 +172,7 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
       x->errorperbit, &cpi->fn_ptr[bsize], 0, mv_sf->subpel_iters_per_step,
       cond_cost_list(cpi, cost_list), NULL, NULL, &distortion, &sse, NULL, NULL,
       0, 0, pw, ph, 1, 1);
+#endif
 
   return bestsme;
 }
