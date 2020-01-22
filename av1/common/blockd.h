@@ -318,7 +318,7 @@ typedef struct MB_MODE_INFO {
   uint8_t seg_id_predicted : 1;  // valid only when temporal_update is enabled
   uint8_t skip_mode : 1;
   uint8_t use_intrabc : 1;
-  uint8_t ref_mv_idx : 2;
+  uint8_t ref_mv_idx : 3;
 #if CONFIG_FLEX_MVRES
   uint8_t ref_mv_idx_adj : 2;
 #endif  // CONFIG_FLEX_MVRES
