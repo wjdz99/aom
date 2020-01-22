@@ -38,26 +38,169 @@
 
 // NOTE: All `tf` in this file means `temporal filtering`.
 
-// Builds predictors for blocks in temporal filtering.
+// Motion search supports 1/8 precision for sub-pixel.
+#define GET_MV_SUBPEL(x) ((x) << 3)
+#define GET_MV_RAWPEL(x) ((x) >> 3)
+
+// Does motion search for blocks in temporal filtering. This is the first step
+// for temporal filtering. More specifically, given a current frame to be
+// filtered and another frame as reference, this function searches the reference
+// frame to find out the most alike block as that from the current frame. This
+// found block will be further used for weighted averaging.
+// NOTE: Besides doing motion search for the entire block, this function will
+// also do motion search for each 1/4 sub-block to get more precise prediction.
 // Inputs:
-//   ref_frame: Pointer to the frame for filtering.
-//   mbd: Pointer to the block for filtering.
+//   cpi: Pointer to the composed information of input video.
+//   frame_to_filter: Pointer to the current frame to be filtered.
+//   ref_frame: Pointer to the reference frame.
+//   block_size: Block size used for motion search.
+//   mb_row: Row index of the block in the entire frame.
+//   mb_col: Column index of the block in the entire frame.
+//   ref_mv: Reference motion vector, which is commonly inherited from the
+//           motion search result of previous frame.
+//   subblock_mvs: Pointer to the result motion vectors for 4 sub-block.
+//   subblock_errors: Pointer to the search errors for 4 sub-block.
+// Returns:
+//   Search error of the entire block.
+static int tf_motion_search(AV1_COMP *cpi,
+                            const YV12_BUFFER_CONFIG *frame_to_filter,
+                            const YV12_BUFFER_CONFIG *ref_frame,
+                            const BLOCK_SIZE block_size, const int mb_row,
+                            const int mb_col, MV *ref_mv, MV *subblock_mvs,
+                            int *subblock_errors) {
+  // Block information (ONLY Y-plane is used for motion search).
+  const int mb_height = block_size_high[block_size];
+  const int mb_width = block_size_wide[block_size];
+  const int mb_y = mb_height * mb_row;
+  const int mb_x = mb_width * mb_col;
+  const int y_stride = frame_to_filter->y_stride;
+  assert(y_stride == ref_frame->y_stride);
+  const int y_offset = mb_row * mb_height * y_stride + mb_col * mb_width;
+
+  // Save input state.
+  MACROBLOCK *const mb = &cpi->td.mb;
+  MACROBLOCKD *const mbd = &mb->e_mbd;
+  const struct buf_2d ori_src_buf = mb->plane[0].src;
+  const struct buf_2d ori_pre_buf = mbd->plane[0].pre[0];
+  const MvLimits ori_mv_limits = mb->mv_limits;
+
+  // Parameters used for motion search.
+  const int sadperbit16 = mb->sadperbit16;
+  const search_site_config ss_cfg = cpi->ss_cfg[SS_CFG_LOOKAHEAD];
+  const SEARCH_METHODS full_search_method = NSTEP;
+  const int step_param = av1_init_search_range(
+      AOMMIN(frame_to_filter->y_crop_width, frame_to_filter->y_crop_height));
+  const SUBPEL_SEARCH_TYPE subpel_search_type = USE_8_TAPS;
+  const int allow_high_precision_mv = cpi->common.allow_high_precision_mv;
+  const int subpel_iters_per_step = cpi->sf.mv_sf.subpel_iters_per_step;
+  const int errorperbit = mb->errorperbit;
+  const int force_integer_mv = cpi->common.cur_frame_force_integer_mv;
+
+  // Starting position for motion search.
+  MV start_mv = { GET_MV_RAWPEL(ref_mv->row), GET_MV_RAWPEL(ref_mv->col) };
+  // Baseline position for motion search (used for rate distortion comparison).
+  const MV baseline_mv = kZeroMv;
+
+  // Setup.
+  mb->plane[0].src.buf = frame_to_filter->y_buffer + y_offset;
+  mb->plane[0].src.stride = y_stride;
+  mbd->plane[0].pre[0].buf = ref_frame->y_buffer + y_offset;
+  mbd->plane[0].pre[0].stride = y_stride;
+  av1_set_mv_search_range(&mb->mv_limits, &baseline_mv);
+  // Unused intermediate results for motion search.
+  unsigned int sse;
+  int distortion;
+  int cost_list[5];
+
+  // Do motion search.
+  // NOTE: In `av1_full_pixel_search()` and `find_fractional_mv_step()`, the
+  // searched result will be stored in `mb->best_mv`.
+  int block_error = INT_MAX;
+  av1_full_pixel_search(cpi, mb, block_size, &start_mv, step_param, 1,
+                        full_search_method, 1, sadperbit16,
+                        cond_cost_list(cpi, cost_list), &baseline_mv, 0, 0,
+                        mb_x, mb_y, 0, &ss_cfg, 0);
+  if (force_integer_mv == 1) {  // Only do full search on the entire block.
+    const int mv_row = mb->best_mv.as_mv.row;
+    const int mv_col = mb->best_mv.as_mv.col;
+    mb->best_mv.as_mv.row = GET_MV_SUBPEL(mv_row);
+    mb->best_mv.as_mv.col = GET_MV_SUBPEL(mv_col);
+    const int mv_offset = mv_row * y_stride + mv_col;
+    block_error = cpi->fn_ptr[block_size].vf(
+        ref_frame->y_buffer + y_offset + mv_offset, y_stride,
+        frame_to_filter->y_buffer + y_offset, y_stride, &sse);
+    mb->e_mbd.mi[0]->mv[0] = mb->best_mv;
+  } else {  // Do fractional search on the entire block and all sub-blocks.
+    block_error = cpi->find_fractional_mv_step(
+        mb, &cpi->common, 0, 0, &baseline_mv, allow_high_precision_mv,
+        errorperbit, &cpi->fn_ptr[block_size], 0, subpel_iters_per_step,
+        cond_cost_list(cpi, cost_list), NULL, NULL, &distortion, &sse, NULL,
+        NULL, 0, 0, mb_width, mb_height, subpel_search_type, 1);
+    mb->e_mbd.mi[0]->mv[0] = mb->best_mv;
+    *ref_mv = mb->best_mv.as_mv;
+    // On 4 sub-blocks.
+    const BLOCK_SIZE subblock_size = ss_size_lookup[BLOCK_32X32][1][1];
+    const int subblock_height = block_size_high[subblock_size];
+    const int subblock_width = block_size_wide[subblock_size];
+    start_mv.row = GET_MV_RAWPEL(ref_mv->row);
+    start_mv.col = GET_MV_RAWPEL(ref_mv->col);
+    int subblock_idx = 0;
+    for (int i = 0; i < mb_height; i += subblock_height) {
+      for (int j = 0; j < mb_width; j += subblock_width) {
+        const int offset = i * y_stride + j;
+        mb->plane[0].src.buf = frame_to_filter->y_buffer + y_offset + offset;
+        mbd->plane[0].pre[0].buf = ref_frame->y_buffer + y_offset + offset;
+        av1_set_mv_search_range(&mb->mv_limits, &baseline_mv);
+        av1_full_pixel_search(cpi, mb, subblock_size, &start_mv, step_param, 1,
+                              full_search_method, 1, sadperbit16,
+                              cond_cost_list(cpi, cost_list), &baseline_mv, 0,
+                              0, mb_x, mb_y, 0, &ss_cfg, 0);
+        subblock_errors[subblock_idx] = cpi->find_fractional_mv_step(
+            mb, &cpi->common, 0, 0, &baseline_mv, allow_high_precision_mv,
+            errorperbit, &cpi->fn_ptr[subblock_size], 0, subpel_iters_per_step,
+            cond_cost_list(cpi, cost_list), NULL, NULL, &distortion, &sse, NULL,
+            NULL, 0, 0, subblock_width, subblock_height, subpel_search_type, 1);
+        subblock_mvs[subblock_idx] = mb->best_mv.as_mv;
+        ++subblock_idx;
+      }
+    }
+  }
+
+  // Restore input state.
+  mb->plane[0].src = ori_src_buf;
+  mbd->plane[0].pre[0] = ori_pre_buf;
+  mb->mv_limits = ori_mv_limits;
+
+  return block_error;
+}
+
+// Builds predictors for blocks in temporal filtering. This is the second step
+// for temporal filtering, which is to construct predictions from all reference
+// frames excluding the current frame to be filtered. These predictors are built
+// based on the motion search results, and will be futher used for filtering.
+// Inputs:
+//   ref_frame: Pointer to the reference frame.
+//   mbd: Pointer to the block for filtering. Besides containing the subsampling
+//        information of all planes, this field also gives the searched motion
+//        vector for the entire block, i.e., `mbd->mi[0]->mv[0]`.
 //   block_size: Size of the block.
 //   mb_row: Row index of the block in the entire frame.
 //   mb_col: Column index of the block in the entire frame.
-//   scale: Scaling factor.
 //   num_planes: Number of planes in the frame.
-//   use_subblock: Whether to use four sub-blocks to replace the original block.
-//   subblock_mvs: The motion vectors for each sub-blocks (row-major order).
+//   scale: Scaling factor.
+//   use_subblock: Whether to use 4 sub-blocks to replace the original block.
+//   subblock_mvs: The motion vectors for each sub-block (row-major order).
 //   pred: Pointer to the predictors to build.
 // Returns:
 //   Nothing will be returned. But the content to which `pred` points will be
 //   modified.
-static void tf_build_predictors_mb_c(
-    const YV12_BUFFER_CONFIG *ref_frame, const MACROBLOCKD *mbd,
-    const BLOCK_SIZE block_size, const int mb_row, const int mb_col,
-    const struct scale_factors *scale, const int num_planes,
-    const int use_subblock, const MV *subblock_mvs, uint8_t *pred) {
+static void tf_build_predictors(const YV12_BUFFER_CONFIG *ref_frame,
+                                const MACROBLOCKD *mbd,
+                                const BLOCK_SIZE block_size, const int mb_row,
+                                const int mb_col, const int num_planes,
+                                const struct scale_factors *scale,
+                                const int use_subblock,
+                                const MV *subblock_mvs, uint8_t *pred) {
   assert(num_planes >= 1 && num_planes <= MAX_MB_PLANE);
 
   // Information of the entire block.
@@ -129,10 +272,11 @@ static void tf_build_predictors_mb_c(
   }
 }
 
-// Computes temporal filter weights and accumulators for the reference frame.
-// More concretely, the filter weights for all pixels are the same.
+// Computes temporal filter weights and accumulators for the current frame to be
+// filtered. More concretely, the filter weights for all pixels are the same.
 // Inputs:
-//   mbd: Pointer to the block for filtering.
+//   mbd: Pointer to the block for filtering, which is ONLY used to get
+//        subsampling information of all planes and the bit-depth.
 //   block_size: Size of the block.
 //   num_planes: Number of planes in the frame.
 //   filter_weight: Weight used for filtering.
@@ -246,7 +390,7 @@ static INLINE void compute_square_diff(const uint8_t *ref, const int ref_offset,
 //       number of reference pixels (neighbours) used. From above, the number
 //       of neighbours can be 9+2 (11), 6+2 (8), 4+2 (6), 9+1 (10), 6+1 (7),
 //       4+1 (5), 9+4 (13), 6+4 (10), 4+4 (8).
-// TODO(yjshen): Not sure what index 4 and index 9 are for.
+// TODO(any): Not sure what index 4 and index 9 are for.
 static const uint32_t filter_weight_adjustment_lookup_table_yuv[14] = {
   0, 0, 0, 0, 49152, 39322, 32768, 28087, 24576, 21846, 19661, 17874, 0, 15124
 };
@@ -297,13 +441,14 @@ static INLINE int adjust_filter_weight_yuv(const int filter_weight,
 
 // Applies temporal filter to YUV planes.
 // Inputs:
-//   ref_frame: Pointer to the frame for filtering.
-//   mbd: Pointer to the block for filtering.
+//   ref_frame: Pointer to the reference frame..
+//   mbd: Pointer to the block for filtering, which is ONLY used to get
+//        subsampling information of all YUV planes.
 //   block_size: Size of the block.
 //   mb_row: Row index of the block in the entire frame.
 //   mb_col: Column index of the block in the entire frame.
 //   strength: Strength for filter weight adjustment.
-//   use_subblock: Whether to use four sub-blocks to replace the original block.
+//   use_subblock: Whether to use 4 sub-blocks to replace the original block.
 //   subblock_filter_weights: The filter weights for each sub-block (row-major
 //                            order). If `use_subblock` is set as 0, the first
 //                            weight will be applied to the entire block.
@@ -457,13 +602,14 @@ static INLINE int adjust_filter_weight_yonly(const int filter_weight,
 // function only applies temporal filter to Y-plane. This should be used when
 // the input video frame only has one plane.
 // Inputs:
-//   ref_frame: Pointer to the frame for filtering.
-//   mbd: Pointer to the block for filtering.
+//   ref_frame: Pointer to the reference frame.
+//   mbd: Pointer to the block for filtering, which is ONLY used to get
+//        subsampling information of Y plane.
 //   block_size: Size of the block.
 //   mb_row: Row index of the block in the entire frame.
 //   mb_col: Column index of the block in the entire frame.
 //   strength: Strength for filter weight adjustment.
-//   use_subblock: Whether to use four sub-blocks to replace the original block.
+//   use_subblock: Whether to use 4 sub-blocks to replace the original block.
 //   subblock_filter_weights: The filter weights for each sub-block (row-major
 //                            order). If `use_subblock` is set as 0, the first
 //                            weight will be applied to the entire block.
@@ -549,8 +695,9 @@ void av1_apply_temporal_filter_yonly(const YV12_BUFFER_CONFIG *ref_frame,
 // filter to each plane independently. Besides, the strategy of filter weight
 // adjustment is different from the other two functions.
 // Inputs:
-//   ref_frame: Pointer to the frame for filtering.
-//   mbd: Pointer to the block for filtering.
+//   ref_frame: Pointer to the reference frame.
+//   mbd: Pointer to the block for filtering, which is ONLY used to get
+//        subsampling information of all planes.
 //   block_size: Size of the block.
 //   mb_row: Row index of the block in the entire frame.
 //   mb_col: Column index of the block in the entire frame.
@@ -647,29 +794,29 @@ void av1_apply_temporal_filter_planewise_c(
   aom_free(square_diff);
 }
 
-// Computes temporal filter weights and accumulators from other frames excluding
-// the reference frame.
+// Computes temporal filter weights and accumulators from all reference frames
+// excluding the current frame to be filtered.
 // Inputs:
-//   ref_frame: Pointer to the frame for filtering.
-//   mbd: Pointer to the block for filtering.
+//   ref_frame: Pointer to the reference frame.
+//   mbd: Pointer to the block for filtering, which is ONLY used to get
+//        subsampling information of all planes and the bit-depth.
 //   block_size: Size of the block.
 //   mb_row: Row index of the block in the entire frame.
 //   mb_col: Column index of the block in the entire frame.
 //   num_planes: Number of planes in the frame.
-//   use_new_strategy: Whether to use new temporal filtering strategy. If set as
-//                     1, Plane-wise filtering will be used, otherwise, YUV or
-//                     YONLY filtering will be used (depending on number of
-//                     planes).
+//   use_planewise_strategy: Whether to use plane-wise temporal filtering
+//                           strategy. If set as 0, YUV or YONLY filtering will
+//                           be used (depending on number ofplanes).
 //   strength: Strength for filter weight adjustment. (Used in YUV filtering and
 //             YONLY filtering.)
-//   use_subblock: Whether to use four sub-blocks to replace the original block.
+//   use_subblock: Whether to use 4 sub-blocks to replace the original block.
 //                 (Used in YUV filtering and YONLY filtering.)
 //   subblock_filter_weights: The filter weights for each sub-block (row-major
 //                            order). If `use_subblock` is set as 0, the first
 //                            weight will be applied to the entire block. (Used
 //                            in YUV filtering and YONLY filtering.)
 //   noise_level: Estimated noise level for the current block. (Used in
-//                Plane-wise filtering.)
+//                plane-wise filtering.)
 //   pred: Pointer to the well-built predictors.
 //   accum: Pointer to the pixel-wise accumulator for filtering.
 //   count: Pointer to the pixel-wise counter fot filtering.
@@ -708,120 +855,6 @@ void av1_apply_temporal_filter_others(
       assert(0 && "Only support Y-plane and YUV-plane modes.");
     }
   }
-}
-
-static int temporal_filter_find_matching_mb_c(
-    AV1_COMP *cpi, uint8_t *arf_frame_buf, uint8_t *frame_ptr_buf, int stride,
-    int x_pos, int y_pos, MV *blk_mvs, int *blk_bestsme, MV *best_ref_mv1,
-    int step_param) {
-  MACROBLOCK *const x = &cpi->td.mb;
-  MACROBLOCKD *const xd = &x->e_mbd;
-  const MV_SPEED_FEATURES *const mv_sf = &cpi->sf.mv_sf;
-  int sadpb = x->sadperbit16;
-  int bestsme = INT_MAX;
-  int distortion;
-  unsigned int sse;
-  int cost_list[5];
-  MvLimits tmp_mv_limits = x->mv_limits;
-  MV best_ref_mv1_full; /* full-pixel value of best_ref_mv1 */
-  MV ref_mv = kZeroMv;
-  // Save input state
-  struct buf_2d src = x->plane[0].src;
-  struct buf_2d pre = xd->plane[0].pre[0];
-  best_ref_mv1_full.col = best_ref_mv1->col >> 3;
-  best_ref_mv1_full.row = best_ref_mv1->row >> 3;
-
-  // Setup frame pointers
-  x->plane[0].src.buf = arf_frame_buf;
-  x->plane[0].src.stride = stride;
-  xd->plane[0].pre[0].buf = frame_ptr_buf;
-  xd->plane[0].pre[0].stride = stride;
-
-  av1_set_mv_search_range(&x->mv_limits, &ref_mv);
-
-  // av1_full_pixel_search() parameters: best_ref_mv1_full is the start mv, and
-  // ref_mv is for mv rate calculation. The search result is stored in
-  // x->best_mv.
-  av1_full_pixel_search(cpi, x, TF_BLOCK, &best_ref_mv1_full, step_param, 1,
-                        NSTEP, 1, sadpb, cond_cost_list(cpi, cost_list),
-                        &ref_mv, 0, 0, x_pos, y_pos, 0,
-                        &cpi->ss_cfg[SS_CFG_LOOKAHEAD], 0);
-  x->mv_limits = tmp_mv_limits;
-
-  // Ignore mv costing by sending NULL pointer instead of cost array
-  if (cpi->common.cur_frame_force_integer_mv == 1) {
-    const uint8_t *const src_address = x->plane[0].src.buf;
-    const int src_stride = x->plane[0].src.stride;
-    const uint8_t *const y = xd->plane[0].pre[0].buf;
-    const int y_stride = xd->plane[0].pre[0].stride;
-    const int offset = x->best_mv.as_mv.row * y_stride + x->best_mv.as_mv.col;
-
-    x->best_mv.as_mv.row *= 8;
-    x->best_mv.as_mv.col *= 8;
-
-    bestsme = cpi->fn_ptr[TF_BLOCK].vf(y + offset, y_stride, src_address,
-                                       src_stride, &sse);
-
-    x->e_mbd.mi[0]->mv[0] = x->best_mv;
-
-    // Restore input state
-    x->plane[0].src = src;
-    xd->plane[0].pre[0] = pre;
-
-    return bestsme;
-  }
-
-  // find_fractional_mv_step parameters: ref_mv is for mv rate cost
-  // calculation. The start full mv and the search result are stored in
-  // x->best_mv. mi_row and mi_col are only needed for "av1_is_scaled(sf)=1"
-  // case.
-  bestsme = cpi->find_fractional_mv_step(
-      x, &cpi->common, 0, 0, &ref_mv, cpi->common.allow_high_precision_mv,
-      x->errorperbit, &cpi->fn_ptr[TF_BLOCK], 0, mv_sf->subpel_iters_per_step,
-      cond_cost_list(cpi, cost_list), NULL, NULL, &distortion, &sse, NULL, NULL,
-      0, 0, BW, BH, USE_8_TAPS, 1);
-
-  x->e_mbd.mi[0]->mv[0] = x->best_mv;
-
-  // DO motion search on 4 16x16 sub_blocks.
-  int i, j, k = 0;
-  best_ref_mv1->row = x->e_mbd.mi[0]->mv[0].as_mv.row;
-  best_ref_mv1->col = x->e_mbd.mi[0]->mv[0].as_mv.col;
-  best_ref_mv1_full.col = best_ref_mv1->col >> 3;
-  best_ref_mv1_full.row = best_ref_mv1->row >> 3;
-
-  for (i = 0; i < BH; i += SUB_BH) {
-    for (j = 0; j < BW; j += SUB_BW) {
-      // Setup frame pointers
-      x->plane[0].src.buf = arf_frame_buf + i * stride + j;
-      x->plane[0].src.stride = stride;
-      xd->plane[0].pre[0].buf = frame_ptr_buf + i * stride + j;
-      xd->plane[0].pre[0].stride = stride;
-
-      av1_set_mv_search_range(&x->mv_limits, &ref_mv);
-      av1_full_pixel_search(cpi, x, TF_SUB_BLOCK, &best_ref_mv1_full,
-                            step_param, 1, NSTEP, 1, sadpb,
-                            cond_cost_list(cpi, cost_list), &ref_mv, 0, 0,
-                            x_pos, y_pos, 0, &cpi->ss_cfg[SS_CFG_LOOKAHEAD], 0);
-      x->mv_limits = tmp_mv_limits;
-
-      blk_bestsme[k] = cpi->find_fractional_mv_step(
-          x, &cpi->common, 0, 0, &ref_mv, cpi->common.allow_high_precision_mv,
-          x->errorperbit, &cpi->fn_ptr[TF_SUB_BLOCK], 0,
-          mv_sf->subpel_iters_per_step, cond_cost_list(cpi, cost_list), NULL,
-          NULL, &distortion, &sse, NULL, NULL, 0, 0, SUB_BW, SUB_BH, USE_8_TAPS,
-          1);
-
-      blk_mvs[k] = x->best_mv.as_mv;
-      k++;
-    }
-  }
-
-  // Restore input state
-  x->plane[0].src = src;
-  xd->plane[0].pre[0] = pre;
-
-  return bestsme;
 }
 
 static int get_rows(int h) { return (h + BH - 1) >> BH_LOG2; }
@@ -881,11 +914,6 @@ static FRAME_DIFF temporal_filter_iterate_c(
     predictor = predictor8;
   }
 
-  const unsigned int dim = AOMMIN(frames[alt_ref_index]->y_crop_width,
-                                  frames[alt_ref_index]->y_crop_height);
-  // Decide search param based on image resolution.
-  const int step_param = av1_init_search_range(dim);
-
   mbd->block_ref_scale_factors[0] = ref_scale_factors;
   mbd->block_ref_scale_factors[1] = ref_scale_factors;
 
@@ -931,21 +959,18 @@ static FRAME_DIFF temporal_filter_iterate_c(
           ((mb_cols - 1 - mb_col) * BW) + (17 - 2 * AOM_INTERP_EXTEND);
 
       for (frame = 0; frame < frame_count; frame++) {
-        // MVs for 4 16x16 sub blocks.
-        MV blk_mvs[4];
-        // Filter weights for 4 16x16 sub blocks.
+        if (frames[frame] == NULL) {
+          continue;
+        }
+
+        // Motion vectors and filter weights for 4 sub-blocks.
+        MV blk_mvs[4] = { kZeroMv, kZeroMv, kZeroMv, kZeroMv };
         int blk_fw[4] = { 0, 0, 0, 0 };
         int use_32x32 = 0;
-
-        if (frames[frame] == NULL) continue;
 
         mbd->mi[0]->mv[0].as_mv.row = 0;
         mbd->mi[0]->mv[0].as_mv.col = 0;
         mbd->mi[0]->motion_mode = SIMPLE_TRANSLATION;
-        blk_mvs[0] = kZeroMv;
-        blk_mvs[1] = kZeroMv;
-        blk_mvs[2] = kZeroMv;
-        blk_mvs[3] = kZeroMv;
 
         if (frame == alt_ref_index) {
           const int weight = second_alt_ref ? 4 : 2;
@@ -960,11 +985,9 @@ static FRAME_DIFF temporal_filter_iterate_c(
           int blk_bestsme[4] = { INT_MAX, INT_MAX, INT_MAX, INT_MAX };
 
           // Find best match in this frame by MC
-          int err = temporal_filter_find_matching_mb_c(
-              cpi, frames[alt_ref_index]->y_buffer + mb_y_src_offset,
-              frames[frame]->y_buffer + mb_y_src_offset,
-              frames[frame]->y_stride, mb_col * BW, mb_row * BH, blk_mvs,
-              blk_bestsme, &best_ref_mv1, step_param);
+          int err = tf_motion_search(cpi, frames[alt_ref_index], frames[frame],
+                                     TF_BLOCK, mb_row, mb_col, &best_ref_mv1,
+                                     blk_mvs, blk_bestsme);
 
           int err16 =
               blk_bestsme[0] + blk_bestsme[1] + blk_bestsme[2] + blk_bestsme[3];
@@ -998,9 +1021,9 @@ static FRAME_DIFF temporal_filter_iterate_c(
 
         if (blk_fw[0] || blk_fw[1] || blk_fw[2] || blk_fw[3]) {
           // Construct the predictors
-          tf_build_predictors_mb_c(frames[frame], mbd, TF_BLOCK, mb_row, mb_col,
-                                   ref_scale_factors, num_planes, !(use_32x32),
-                                   blk_mvs, predictor);
+          tf_build_predictors(frames[frame], mbd, TF_BLOCK, mb_row, mb_col,
+                              num_planes, ref_scale_factors, !(use_32x32),
+                              blk_mvs, predictor);
 
           // Apply the filter (YUV)
           if (frame == alt_ref_index) {
