@@ -335,6 +335,9 @@ static void set_offsets_without_segment_id(const AV1_COMP *const cpi,
   x->mv_limits.row_max = (cm->mi_rows - mi_row) * MI_SIZE + AOM_INTERP_EXTEND;
   x->mv_limits.col_max = (cm->mi_cols - mi_col) * MI_SIZE + AOM_INTERP_EXTEND;
 
+  assert(x->mv_limits.row_min <= x->mv_limits.row_max);
+  assert(x->mv_limits.col_min <= x->mv_limits.col_max);
+
   set_plane_n4(xd, mi_row, mi_col, bsize, num_planes);
 
   // Set up distance of MB to edge of frame in 1/8th pel units.

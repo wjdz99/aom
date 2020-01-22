@@ -240,6 +240,18 @@ static INLINE void set_subpel_mv_search_range(const MvLimits *mv_limits,
   *col_max = AOMMIN(MV_UPP - 1, maxc);
   *row_min = AOMMAX(MV_LOW + 1, minr);
   *row_max = AOMMIN(MV_UPP - 1, maxr);
+  if (*row_min > *row_max) {
+    const int tmp = *row_min;
+    *row_min = *row_max;
+    *row_max = tmp;
+  }
+  if (*col_min > *col_max) {
+    const int tmp = *col_min;
+    *col_min = *col_max;
+    *col_max = tmp;
+  }
+  assert(*row_min <= *row_max);
+  assert(*col_min <= *col_max);
 }
 
 #ifdef __cplusplus
