@@ -773,7 +773,7 @@ enum {
 #define REFMV_MODE_CONTEXTS 6
 #endif  // CONFIG_NEW_INTER_MODES
 #define DRL_MODE_CONTEXTS 3
-#define MAX_DRL_BITS 3
+#define MAX_DRL_BITS 7
 
 #define GLOBALMV_OFFSET 3
 #define REFMV_OFFSET 4

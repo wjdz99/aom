@@ -179,6 +179,10 @@ static INLINE int16_t av1_mode_context_analyzer(
 }
 
 static INLINE uint8_t av1_drl_ctx(const uint16_t *ref_mv_weight, int ref_idx) {
+  // If this is the last possible DRL bit, return 1 instead of doing an
+  // undefined read
+  if (ref_idx > MAX_DRL_BITS) return 1;
+
   if (ref_mv_weight[ref_idx] >= REF_CAT_LEVEL &&
       ref_mv_weight[ref_idx + 1] >= REF_CAT_LEVEL)
     return 0;
@@ -210,12 +214,8 @@ static INLINE aom_cdf_prob *av1_get_drl_cdf(int16_t mode_ctx,
   switch (ref_idx) {
     case 0: return ec_ctx->drl0_cdf[ctx];
     case 1: return ec_ctx->drl1_cdf[ctx];
-    case 2: return ec_ctx->drl2_cdf[ctx];
+    default: return ec_ctx->drl2_cdf[ctx];
   }
-
-  assert(false);
-  return NULL;  // this is an error condition but is checked by the asserts
-                // above
 }
 #endif  // CONFIG_NEW_INTER_MODES
 
