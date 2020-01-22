@@ -230,7 +230,9 @@ void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                 int build_for_obmc, int bw, int bh, int mi_x,
                                 int mi_y,
                                 CalcSubpelParamsFunc calc_subpel_params_func,
-                                const void *const calc_subpel_params_func_args);
+                                const void *const calc_subpel_params_func_args,
+                                int border_left, int border_top,
+                                int border_right, int border_bottom);
 
 // TODO(jkoleszar): yet another mv clamping function :-(
 static INLINE MV clamp_mv_to_umv_border_sb(const MACROBLOCKD *xd,
