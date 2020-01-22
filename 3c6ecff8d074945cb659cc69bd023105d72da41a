@@ -1,0 +1,274 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1de181d_966ddc7a",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2020-01-22T16:25:10Z",
+      "side": 1,
+      "message": "Some explanation on what happens in each case might be helpful to users and some clarity on behavior. Something like:\n\nThese flags control how the library treats metadata during encode. \n\nWhile encoding, when metadata is added to an aom_image via aom_img_add_metadata(), the flag passed along with the metadata will determine where the metadata OBU will be placed in the encoded OBU stream. Metadata will be emitted into the output stream within the next temporal unit that satisfies the insertion flag specified.\n\nDuring decode, when the library encounters a metadata OBU, it is always flagged as AOM_MIF_ANY_FRAME and emitted with the next output aom_image.",
+      "revId": "3c6ecff8d074945cb659cc69bd023105d72da41a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6312c785_65e90049",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2020-01-22T16:25:10Z",
+      "side": 1,
+      "message": "aom_metadata_insert_flags?",
+      "range": {
+        "startLine": 155,
+        "startChar": 2,
+        "endLine": 155,
+        "endChar": 10
+      },
+      "revId": "3c6ecff8d074945cb659cc69bd023105d72da41a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f63321b2_dd19c2b6",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2020-01-22T16:25:10Z",
+      "side": 1,
+      "message": "\"Metadata insertion point is controlled by insert_flag.\" ?",
+      "range": {
+        "startLine": 352,
+        "startChar": 12,
+        "endLine": 352,
+        "endChar": 68
+      },
+      "revId": "3c6ecff8d074945cb659cc69bd023105d72da41a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54b2e70e_ea83bf1b",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2020-01-22T16:25:10Z",
+      "side": 1,
+      "message": "aom_metadata_insert_flags?",
+      "range": {
+        "startLine": 411,
+        "startChar": 50,
+        "endLine": 411,
+        "endChar": 58
+      },
+      "revId": "3c6ecff8d074945cb659cc69bd023105d72da41a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a753b78_89e0cd57",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2020-01-22T16:25:10Z",
+      "side": 1,
+      "message": "ditto/aom_metadata_insert_flags?",
+      "range": {
+        "startLine": 292,
+        "startChar": 50,
+        "endLine": 292,
+        "endChar": 58
+      },
+      "revId": "3c6ecff8d074945cb659cc69bd023105d72da41a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "990d9595_7fa4717e",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2020-01-22T16:25:10Z",
+      "side": 1,
+      "message": "ditty/aom_metadata_insert_flags?",
+      "range": {
+        "startLine": 344,
+        "startChar": 36,
+        "endLine": 344,
+        "endChar": 44
+      },
+      "revId": "3c6ecff8d074945cb659cc69bd023105d72da41a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7711663_1b7cfb63",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2020-01-22T16:25:10Z",
+      "side": 1,
+      "message": "I think the decoder should always use AOM_MIF_ANY_FRAME. I don\u0027t think the decoder should have opinions about where the metadata goes-- it should emit it as soon as possible whenever metadata is encountered. Where it ends up is more an encoder side concern.\n\nMaybe I\u0027m missing something here-- is there a case where the decoder needs to hang onto the metadata until it emits a specific frame type? Quickly thinking about it I think an app always wants the metadata asap, but I haven\u0027t thought deeply about it.",
+      "range": {
+        "startLine": 638,
+        "startChar": 22,
+        "endLine": 638,
+        "endChar": 39
+      },
+      "revId": "3c6ecff8d074945cb659cc69bd023105d72da41a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a090ef5_83464548",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2020-01-22T16:25:10Z",
+      "side": 1,
+      "message": "ditto/any frame comment about applies here",
+      "range": {
+        "startLine": 662,
+        "startChar": 22,
+        "endLine": 662,
+        "endChar": 39
+      },
+      "revId": "3c6ecff8d074945cb659cc69bd023105d72da41a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c47b0d73_a9e93929",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2020-01-22T16:25:10Z",
+      "side": 1,
+      "message": "Now that we have a bunch of metadata types in here I think we need to be specific about the buffer names, and try to be consistent in their naming.\n\nSomething like these replacements:\n\ns/kExampleData/kMetadataPayloadT35/\ns/kExampleCllData/kMetadataPayloadCll/\n\nI chose to put the type as a suffix because it makes autocomplete abuse easier for lazy people like myself.",
+      "range": {
+        "startLine": 26,
+        "startChar": 13,
+        "endLine": 26,
+        "endChar": 29
+      },
+      "revId": "3c6ecff8d074945cb659cc69bd023105d72da41a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7aa4724d_bb1a7a56",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2020-01-22T16:25:10Z",
+      "side": 1,
+      "message": "\u0027metadata_obu\u0027 should also move up with the other data buffers and be called something like kMetadataObuT35 (since it contains the OBU header and the T35 payload).",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 8
+      },
+      "revId": "3c6ecff8d074945cb659cc69bd023105d72da41a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4333d8f9_0b5482f7",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2020-01-22T16:25:10Z",
+      "side": 1,
+      "message": "As mentioned above: move up with other constant data buffers, and use kCamelCaseNaming.",
+      "range": {
+        "startLine": 105,
+        "startChar": 20,
+        "endLine": 105,
+        "endChar": 41
+      },
+      "revId": "3c6ecff8d074945cb659cc69bd023105d72da41a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1148e7f3_72992d0e",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2020-01-22T16:25:10Z",
+      "side": 1,
+      "message": "ditto/naming and relocation",
+      "range": {
+        "startLine": 121,
+        "startChar": 20,
+        "endLine": 121,
+        "endChar": 40
+      },
+      "revId": "3c6ecff8d074945cb659cc69bd023105d72da41a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
