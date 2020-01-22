@@ -8263,10 +8263,6 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   // Initialize best mode stats for winner mode processing
   av1_zero(x->winner_mode_stats);
   x->winner_mode_count = 0;
-  store_winner_mode_stats(
-      &cpi->common, x, mbmi, NULL, NULL, NULL, THR_INVALID, NULL, bsize,
-      best_rd_so_far, cpi->sf.winner_mode_sf.enable_multiwinner_mode_process,
-      0);
 
   // Here midx is just an interator index that should not be used by itself
   // except to keep track of the number of modes searched. It should be used
@@ -8496,10 +8492,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     search_state.best_mode_index = THR_INVALID;
     // Initialize best mode stats for winner mode processing
     x->winner_mode_count = 0;
-    store_winner_mode_stats(
-        &cpi->common, x, mbmi, NULL, NULL, NULL, THR_INVALID, NULL, bsize,
-        best_rd_so_far, cpi->sf.winner_mode_sf.enable_multiwinner_mode_process,
-        do_tx_search);
+
     inter_modes_info->num =
         inter_modes_info->num < cpi->sf.rt_sf.num_inter_modes_for_tx_search
             ? inter_modes_info->num

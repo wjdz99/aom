@@ -473,6 +473,8 @@ static void set_good_speed_features_framesize_independent(
         cm->allow_screen_content_tools ? 0 : 2;
     sf->lpf_sf.reduce_wiener_window_size = is_boosted_arf2_bwd_type ? 0 : 1;
     sf->hl_sf.second_alt_ref_filtering = 0;
+    sf->winner_mode_sf.enable_multiwinner_mode_process =
+        frame_is_intra_only(&cpi->common) ? 0 : 1;
   }
 
   if (speed >= 4) {
@@ -512,8 +514,7 @@ static void set_good_speed_features_framesize_independent(
     sf->rd_sf.tx_domain_dist_thres_level = 2;
 
     // TODO(any): Extend multi-winner mode processing support for inter frames
-    sf->winner_mode_sf.enable_multiwinner_mode_process =
-        frame_is_intra_only(&cpi->common) ? 1 : 0;
+    sf->winner_mode_sf.enable_multiwinner_mode_process = 1;
     sf->winner_mode_sf.enable_winner_mode_for_tx_size_srch = 1;
 
     sf->lpf_sf.disable_loop_restoration_chroma =
