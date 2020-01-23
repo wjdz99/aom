@@ -60,43 +60,18 @@ void av1_init3smotion_compensation(search_site_config *cfg, int stride);
 
 void av1_set_mv_search_range(MvLimits *mv_limits, const MV *mv);
 
-int av1_mv_bit_cost_gen(
-    const MV *mv, const MV *ref, MvSubpelPrecision frame_precision,
-    const int *mvjcost, int *const (*mvcost)[2],
-#if CONFIG_FLEX_MVRES
-    int use_flexmv,
-    int (*flex_mv_precision_cost)[MV_SUBPEL_PRECISIONS -
-                                  DISALLOW_ONE_DOWN_FLEX_MVRES],
-#endif  // CONFIG_FLEX_MVRES
-    int weight);
-int av1_mv_bit_cost_gen2(
-    const MV *mv, const MV *ref, MvSubpelPrecision frame_precision,
-    const int *mvjcost, int *const (*mvcost)[2],
-#if CONFIG_FLEX_MVRES
-    int use_flexmv,
-    int (*flex_mv_precision_cost)[MV_SUBPEL_PRECISIONS -
-                                  DISALLOW_ONE_DOWN_FLEX_MVRES],
-#endif  // CONFIG_FLEX_MVRES
-    int weight);
-int av1_mv_bit_cost(const MV *mv, const MV *ref,
-                    MvSubpelPrecision frame_precision, const int *mvjcost,
-                    int *const (*mvcost)[2],
-#if CONFIG_FLEX_MVRES
-                    MvSubpelPrecision precision,
-                    int (*flex_mv_precision_cost)[MV_SUBPEL_PRECISIONS -
-                                                  DISALLOW_ONE_DOWN_FLEX_MVRES],
-#endif  // CONFIG_FLEX_MVRES
-                    int weight);
+int av1_mv_bit_cost(const MV *mv, const MV *ref, MvSubpelPrecision precision,
+                    const int *mvjcost, int *mvcost[2], int weight);
 
 // Utility to compute variance + MV rate cost for a given MV
-int av1_get_mvpred_var(const struct AV1Common *cm, const MACROBLOCK *x,
+int av1_get_mvpred_var(const AV1_COMMON *cm, const MACROBLOCK *x,
                        const MV *best_mv, const MV *center_mv,
                        const aom_variance_fn_ptr_t *vfp, int use_mvcost);
-int av1_get_mvpred_av_var(const struct AV1Common *cm, const MACROBLOCK *x,
+int av1_get_mvpred_av_var(const AV1_COMMON *cm, const MACROBLOCK *x,
                           const MV *best_mv, const MV *center_mv,
                           const uint8_t *second_pred,
                           const aom_variance_fn_ptr_t *vfp, int use_mvcost);
-int av1_get_mvpred_mask_var(const struct AV1Common *cm, const MACROBLOCK *x,
+int av1_get_mvpred_mask_var(const AV1_COMMON *cm, const MACROBLOCK *x,
                             const MV *best_mv, const MV *center_mv,
                             const uint8_t *second_pred, const uint8_t *mask,
                             int mask_stride, int invert_mask,
@@ -107,9 +82,8 @@ struct SPEED_FEATURES;
 
 int av1_init_search_range(int size);
 
-int av1_refining_search_sad(const AV1_COMMON *const cm, struct macroblock *x,
-                            MV *ref_mv, int sad_per_bit, int distance,
-                            const aom_variance_fn_ptr_t *fn_ptr,
+int av1_refining_search_sad(struct macroblock *x, MV *ref_mv, int sad_per_bit,
+                            int distance, const aom_variance_fn_ptr_t *fn_ptr,
                             const MV *center_mv);
 
 unsigned int av1_int_pro_motion_estimation(const struct AV1_COMP *cpi,
@@ -134,12 +108,7 @@ typedef int(fractional_mv_step_fp)(
     const MV *ref_mv, MvSubpelPrecision precision, int error_per_bit,
     const aom_variance_fn_ptr_t *vfp,
     int forced_stop,  // 0 - full, 1 - qtr only, 2 - half only
-    int iters_per_step, int *cost_list, int *mvjcost, int *(*mvcost)[2],
-#if CONFIG_FLEX_MVRES
-    int use_flex_mv,
-    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS - DISALLOW_ONE_DOWN_FLEX_MVRES],
-    MvSubpelPrecision min_precision,
-#endif  // CONFIG_FLEX_MVRES
+    int iters_per_step, int *cost_list, int *mvjcost, int *mvcost[2],
     int *distortion, unsigned int *sse1, const uint8_t *second_pred,
     const uint8_t *mask, int mask_stride, int invert_mask, int w, int h,
     int use_accurate_subpel_search, const int do_reset_fractional_mv);
@@ -157,11 +126,11 @@ typedef int (*av1_full_search_fn_t)(const MACROBLOCK *x, const MV *ref_mv,
                                     const MV *center_mv, MV *best_mv);
 
 typedef int (*av1_diamond_search_fn_t)(
-    const AV1_COMMON *const cm, MACROBLOCK *x, const search_site_config *cfg,
+    const AV1_COMMON *cm, MACROBLOCK *x, const search_site_config *cfg,
     MV *ref_mv, MV *best_mv, int search_param, int sad_per_bit, int *num00,
     const aom_variance_fn_ptr_t *fn_ptr, const MV *center_mv);
 
-int av1_refining_search_8p_c(const AV1_COMMON *const cm, MACROBLOCK *x,
+int av1_refining_search_8p_c(const AV1_COMMON *cm, MACROBLOCK *x,
                              int error_per_bit, int search_range,
                              const aom_variance_fn_ptr_t *fn_ptr,
                              const uint8_t *mask, int mask_stride,
@@ -175,11 +144,6 @@ int av1_full_pixel_search(const struct AV1_COMP *cpi, MACROBLOCK *x,
                           int x_pos, int y_pos, int intra,
                           const search_site_config *cfg);
 
-int av1_full_pixel_search_var(const struct AV1_COMP *cpi, MACROBLOCK *x,
-                              BLOCK_SIZE bsize, MV *mvp_full, int step_param,
-                              int *cost_list, const MV *ref_mv,
-                              const search_site_config *cfg);
-
 int av1_obmc_full_pixel_search(const struct AV1_COMP *cpi, MACROBLOCK *x,
                                MV *mvp_full, int step_param, int sadpb,
                                int further_steps, int do_refine,
@@ -190,14 +154,8 @@ int av1_find_best_obmc_sub_pixel_tree_up(
     MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
     MV *bestmv, const MV *ref_mv, MvSubpelPrecision precision,
     int error_per_bit, const aom_variance_fn_ptr_t *vfp, int forced_stop,
-    int iters_per_step, int *mvjcost, int *(*mvcost)[2],
-#if CONFIG_FLEX_MVRES
-    int use_flex_mv,
-    int (*flex_mv_costs)[MV_SUBPEL_PRECISIONS - DISALLOW_ONE_DOWN_FLEX_MVRES],
-    MvSubpelPrecision min_precision,
-#endif  // CONFIG_FLEX_MVRES
-    int *distortion, unsigned int *sse1, int is_second,
-    int use_accurate_subpel_search);
+    int iters_per_step, int *mvjcost, int *mvcost[2], int *distortion,
+    unsigned int *sse1, int is_second, int use_accurate_subpel_search);
 
 unsigned int av1_compute_motion_cost(const struct AV1_COMP *cpi,
                                      MACROBLOCK *const x, BLOCK_SIZE bsize,
@@ -241,6 +199,11 @@ static INLINE void set_subpel_mv_search_range(const MvLimits *mv_limits,
   *row_min = AOMMAX(MV_LOW + 1, minr);
   *row_max = AOMMIN(MV_UPP - 1, maxr);
 }
+
+int av1_full_pixel_search_var(const struct AV1_COMP *cpi, MACROBLOCK *x,
+                              BLOCK_SIZE bsize, MV *mvp_full, int step_param,
+                              int *cost_list, const MV *ref_mv,
+                              const search_site_config *cfg);
 
 #ifdef __cplusplus
 }  // extern "C"

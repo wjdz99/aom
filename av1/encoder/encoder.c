@@ -61,7 +61,6 @@
 #include "av1/encoder/firstpass.h"
 #include "av1/encoder/grain_test_vectors.h"
 #include "av1/encoder/hash_motion.h"
-#include "av1/encoder/mbgraph.h"
 #include "av1/encoder/pass2_strategy.h"
 #include "av1/encoder/picklpf.h"
 #include "av1/encoder/pickrst.h"
@@ -437,6 +436,15 @@ static void set_mv_precision(AV1_COMP *cpi, MvSubpelPrecision precision,
   x->nmvcost[3][1] = &x->nmv_costs[3][1][MV_MAX];
   cpi->common.mv_precision =
       cur_frame_force_integer_mv ? MV_SUBPEL_NONE : precision;
+
+#if CONFIG_SB_FLEX_MVRES
+  AV1_COMMON *cm = &cpi->common;
+  if (frame_is_intra_only(cm) || cm->mv_precision == MV_SUBPEL_NONE) {
+    cm->use_flex_mv_precision = 0;
+  } else {
+    cm->use_flex_mv_precision = 1;
+  }
+#endif  // CONFIG_SB_FLEX_MVRES
 }
 
 static BLOCK_SIZE select_sb_size(const AV1_COMP *const cpi) {
@@ -802,12 +810,6 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
     // Disable segmentation and individual segment features by default
     av1_disable_segmentation(seg);
     av1_clearall_segfeatures(seg);
-
-#if !CONFIG_REALTIME_ONLY
-    // Scan frames from current to arf frame.
-    // This function re-enables segmentation if appropriate.
-    av1_update_mbgraph_stats(cpi);
-#endif
 
     // If segmentation was enabled set those features needed for the
     // arf itself.
@@ -2988,9 +2990,9 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 
   av1_reset_segment_features(cm);
   set_mv_precision(cpi, MV_SUBPEL_EIGHTH_PRECISION, 0);
-#if CONFIG_FLEX_MVRES
+#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
   cm->use_flex_mv_precision = 0;
-#endif  // CONFIG_FLEX_MVRES
+#endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
 
   set_rc_buffer_sizes(rc, &cpi->oxcf);
 
@@ -3107,13 +3109,6 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   cpi->tile_data = NULL;
   cpi->last_show_frame_buf = NULL;
   realloc_segmentation_maps(cpi);
-
-  for (i = 0; i < (sizeof(cpi->mbgraph_stats) / sizeof(cpi->mbgraph_stats[0]));
-       i++) {
-    CHECK_MEM_ERROR(
-        cm, cpi->mbgraph_stats[i].mb_stats,
-        aom_calloc(cm->MBs * sizeof(*cpi->mbgraph_stats[i].mb_stats), 1));
-  }
 
   cpi->refresh_alt_ref_frame = 0;
 
@@ -3675,11 +3670,6 @@ void av1_remove_compressor(AV1_COMP *cpi) {
 
   dealloc_compressor_data(cpi);
 
-  for (i = 0; i < sizeof(cpi->mbgraph_stats) / sizeof(cpi->mbgraph_stats[0]);
-       ++i) {
-    aom_free(cpi->mbgraph_stats[i].mb_stats);
-  }
-
 #if CONFIG_INTERNAL_STATS
   aom_free(cpi->ssim_vars);
   cpi->ssim_vars = NULL;
@@ -4204,9 +4194,9 @@ static void set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
     assert(IMPLIES(!cm->cur_frame_force_integer_mv,
                    precision >= MV_SUBPEL_QTR_PRECISION));
     set_mv_precision(cpi, precision, cm->cur_frame_force_integer_mv);
-#if CONFIG_FLEX_MVRES
+#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
     cpi->common.use_flex_mv_precision = determine_flex_mv_precision(cpi, *q);
-#endif  // CONFIG_FLEX_MVRES
+#endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
   }
 
   // Configure experimental use of segmentation for enhanced coding of
@@ -4902,7 +4892,7 @@ static void fix_interp_filter(InterpFilter *const interp_filter,
   }
 }
 
-#if CONFIG_FLEX_MVRES
+#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
 static void fix_use_flex_mv_precision(AV1_COMP *const cpi) {
   AV1_COMMON *const cm = &cpi->common;
   if (!cm->use_flex_mv_precision) return;
@@ -4920,7 +4910,7 @@ static void fix_use_flex_mv_precision(AV1_COMP *const cpi) {
   // Turn off use_flex_mv_flag if not used in the frame
   if (reduced_count == 0) cm->use_flex_mv_precision = 0;
 }
-#endif  // CONFIG_FLEX_MVRES
+#endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
 
 static void finalize_encoded_frame(AV1_COMP *const cpi) {
   AV1_COMMON *const cm = &cpi->common;
@@ -4968,9 +4958,9 @@ static void finalize_encoded_frame(AV1_COMP *const cpi) {
   }
 
   fix_interp_filter(&cm->interp_filter, cpi->td.counts);
-#if CONFIG_FLEX_MVRES
+#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
   fix_use_flex_mv_precision(cpi);
-#endif  // CONFIG_FLEX_MVRES
+#endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
 }
 
 static int get_regulated_q_overshoot(AV1_COMP *const cpi, int q_low, int q_high,

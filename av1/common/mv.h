@@ -12,6 +12,8 @@
 #ifndef AOM_AV1_COMMON_MV_H_
 #define AOM_AV1_COMMON_MV_H_
 
+#include <stdlib.h>
+
 #include "av1/common/common.h"
 #include "av1/common/common_data.h"
 #include "aom_dsp/aom_filter.h"
@@ -48,21 +50,6 @@ enum {
   MV_SUBPEL_EIGHTH_PRECISION = 3,
   MV_SUBPEL_PRECISIONS,
 } SENUM1BYTE(MvSubpelPrecision);
-
-// DISALLOW_ONE_DOWN_FLEX_MVRES 0 => allow all possible down precisions
-// DISALLOW_ONE_DOWN_FLEX_MVRES 1 => allow all possible down precisions except 1
-// DISALLOW_ONE_DOWN_FLEX_MVRES 2 => allow only 0 and 2 down precisions
-#if CONFIG_FLEX_MVRES
-#define DISALLOW_ONE_DOWN_FLEX_MVRES 2  // Choose one of the above
-#define MV_PREC_DOWN_CONTEXTS 2
-#else
-#define DISALLOW_ONE_DOWN_FLEX_MVRES 0
-#endif  // CONFIG_FLEX_MVRES
-
-#if CONFIG_COMPANDED_MV
-#define COMPANDED_INTMV_THRESH_QTR 96
-#define COMPANDED_INTMV_THRESH_HALF 256
-#endif  // CONFIG_COMPANDED_MV
 
 // Bits of precision used for the model
 #define WARPEDMODEL_PREC_BITS 16
@@ -358,11 +345,6 @@ get_mv_precision(const MV mv, MvSubpelPrecision max_precision) {
   else
     precision = MV_SUBPEL_NONE;
   assert(precision <= max_precision);
-#if DISALLOW_ONE_DOWN_FLEX_MVRES == 2
-  if ((max_precision - precision) & 1) precision += 1;
-#elif DISALLOW_ONE_DOWN_FLEX_MVRES == 1
-  if (max_precision - precision == 1) precision = max_precision;
-#endif  // DISALLOW_ONE_DOWN_FLEX_MVRES
   return precision;
 }
 

@@ -451,17 +451,6 @@ static void update_global_motion_used(PREDICTION_MODE mode, BLOCK_SIZE bsize,
   }
 }
 
-#if CONFIG_FLEX_MVRES
-static void update_reduced_mv_precision_used(const AV1_COMMON *const cm,
-                                             const MB_MODE_INFO *mbmi,
-                                             RD_COUNTS *rdc) {
-  if (!is_flex_mv_precision_active(cm, mbmi->mode, mbmi->max_mv_precision))
-    return;
-  assert(av1_get_mbmi_mv_precision(cm, mbmi) == mbmi->mv_precision);
-  rdc->reduced_mv_precision_used[mbmi->max_mv_precision - mbmi->mv_precision]++;
-}
-#endif  // CONFIG_FLEX_MVRES
-
 static void reset_tx_size(MACROBLOCK *x, MB_MODE_INFO *mbmi,
                           const TX_MODE tx_mode) {
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -585,9 +574,6 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
       // TODO(sarahparker): global motion stats need to be handled per-tile
       // to be compatible with tile-based threading.
       update_global_motion_used(mi_addr->mode, bsize, mi_addr, rdc);
-#if CONFIG_FLEX_MVRES
-      update_reduced_mv_precision_used(cm, mi_addr, rdc);
-#endif  // CONFIG_FLEX_MVRES
     }
 
     if (cm->interp_filter == SWITCHABLE &&
@@ -1671,32 +1657,16 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
       if (new_mv) {
         uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
 
-#if CONFIG_FLEX_MVRES
-        if (mbmi->mv_precision < cm->mv_precision) {
-          for (int idx = 0; idx < 2; ++idx) {
-            if (mbmi_ext->ref_mv_count_adj > idx + 1) {
 #if CONFIG_ENTROPY_STATS
-              uint8_t drl_ctx = av1_drl_ctx(mbmi_ext->weight_adj, idx);
-              ++counts->drl_mode[drl_ctx][mbmi->ref_mv_idx_adj != idx];
-#endif
-              if (mbmi->ref_mv_idx_adj == idx) break;
-            }
+        for (int idx = 0; idx < 2; ++idx) {
+          if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
+            uint8_t drl_ctx =
+                av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
+            ++counts->drl_mode[drl_ctx][mbmi->ref_mv_idx != idx];
+            if (mbmi->ref_mv_idx == idx) break;
           }
-        } else {
-#endif  // CONFIG_FLEX_MVRES
-#if CONFIG_ENTROPY_STATS
-          for (int idx = 0; idx < 2; ++idx) {
-            if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
-              uint8_t drl_ctx =
-                  av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
-              ++counts->drl_mode[drl_ctx][mbmi->ref_mv_idx != idx];
-              if (mbmi->ref_mv_idx == idx) break;
-            }
-          }
-#endif  // CONFIG_ENTROPY_STATS
-#if CONFIG_FLEX_MVRES
         }
-#endif  // CONFIG_FLEX_MVRES
+#endif  // CONFIG_ENTROPY_STATS
       }
       if (have_nearmv_in_inter_mode(mbmi->mode)) {
         uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
@@ -1715,31 +1685,6 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
 #endif  // CONFIG_ENTROPY_STATS
 
       if (have_newmv_in_inter_mode(mbmi->mode)) {
-#if CONFIG_FLEX_MVRES
-        if (allow_update_cdf && is_flex_mv_precision_active(
-                                    cm, mbmi->mode, mbmi->max_mv_precision)) {
-          const int down_ctx = av1_get_mv_precision_down_context(cm, xd);
-          int down = mbmi->max_mv_precision - mbmi->mv_precision;
-#if DISALLOW_ONE_DOWN_FLEX_MVRES == 2
-          assert((down & 1) == 0);
-          const int nsymbs = 2;
-          down >>= 1;
-#elif DISALLOW_ONE_DOWN_FLEX_MVRES == 1
-          assert(down != 1);
-          const int nsymbs = mbmi->max_mv_precision;
-          down -= (down > 0);
-#else
-          const int nsymbs = mbmi->max_mv_precision + 1;
-#endif  // DISALLOW_ONE_DOWN_FLEX_MVRES
-          update_cdf(
-              fc->flex_mv_precision_cdf[down_ctx][mbmi->max_mv_precision -
-                                                  MV_SUBPEL_QTR_PRECISION],
-              down, nsymbs);
-        }
-        assert(mbmi->mv_precision == av1_get_mbmi_mv_precision(cm, mbmi));
-#else
-        assert(mbmi->mv_precision == cm->mv_precision);
-#endif  // CONFIG_FLEX_MVRES
         if (new_mv) {
           for (int ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
             const int_mv ref_mv = av1_get_ref_mv(x, ref);
@@ -5370,28 +5315,6 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
   AVERAGE_CDF(ctx_left->switchable_interp_cdf, ctx_tr->switchable_interp_cdf,
               SWITCHABLE_FILTERS);
-#if CONFIG_FLEX_MVRES
-  for (int p = MV_SUBPEL_QTR_PRECISION; p < MV_SUBPEL_PRECISIONS; ++p) {
-    for (int j = 0; j < MV_PREC_DOWN_CONTEXTS; ++j) {
-#if DISALLOW_ONE_DOWN_FLEX_MVRES == 2
-      AVG_CDF_STRIDE(
-          ctx_left->flex_mv_precision_cdf[j][p - MV_SUBPEL_QTR_PRECISION],
-          ctx_tr->flex_mv_precision_cdf[j][p - MV_SUBPEL_QTR_PRECISION], 2,
-          CDF_SIZE(2));
-#elif DISALLOW_ONE_DOWN_FLEX_MVRES == 1
-      AVG_CDF_STRIDE(
-          ctx_left->flex_mv_precision_cdf[j][p - MV_SUBPEL_QTR_PRECISION],
-          ctx_tr->flex_mv_precision_cdf[j][p - MV_SUBPEL_QTR_PRECISION], p,
-          CDF_SIZE(MV_SUBPEL_PRECISIONS - 1));
-#else
-      AVG_CDF_STRIDE(
-          ctx_left->flex_mv_precision_cdf[j][p - MV_SUBPEL_QTR_PRECISION],
-          ctx_tr->flex_mv_precision_cdf[j][p - MV_SUBPEL_QTR_PRECISION], p + 1,
-          CDF_SIZE(MV_SUBPEL_PRECISIONS));
-#endif  // DISALLOW_ONE_DOWN_FLEX_MVRES
-    }
-  }
-#endif  // CONFIG_FLEX_MVRES
   AVERAGE_CDF(ctx_left->angle_delta_cdf, ctx_tr->angle_delta_cdf,
               2 * MAX_ANGLE_DELTA + 1);
 #if CONFIG_NEW_TX_PARTITION
@@ -5723,9 +5646,50 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
     const int num_passes = cpi->oxcf.sb_multipass_unit_test ? 2 : 1;
 
     if (num_passes == 1) {
+#if CONFIG_SB_FLEX_MVRES
+      SB_FIRST_PASS_STATS sb_fp_stats;
+      backup_sb_state(&sb_fp_stats, cpi, td, tile_data, mi_row, mi_col);
+
+      int64_t best_rdc = INT64_MAX;
+      MvSubpelPrecision best_prec = MV_SUBPEL_NONE;
+      if (!frame_is_intra_only(cm)) {
+        for (MvSubpelPrecision mv_prec = MV_SUBPEL_NONE;
+             mv_prec <= cm->mv_precision; mv_prec++) {
+          if (!pc_root) {
+            init_encode_rd_sb(cpi, td, tile_data, &pc_root, sms_root,
+                              &dummy_rdc, mi_row, mi_col, 0);
+            reset_mbmi(&cpi->common, mi_row, mi_col);
+            restore_sb_state(&sb_fp_stats, cpi, td, tile_data, mi_row, mi_col);
+          }
+
+          x->e_mbd.sbi->sb_mv_precision = mv_prec;
+
+          rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
+                            max_sq_size, min_sq_size, &dummy_rdc, dummy_rdc,
+                            pc_root, sms_root, NULL, SB_DRY_PASS);
+          pc_root = NULL;
+          if (dummy_rdc.rdcost < best_rdc) {
+            best_rdc = dummy_rdc.rdcost;
+            best_prec = mv_prec;
+          }
+        }
+      }
+
+      if (!pc_root) {
+        init_encode_rd_sb(cpi, td, tile_data, &pc_root, sms_root, &dummy_rdc,
+                          mi_row, mi_col, 0);
+        reset_mbmi(&cpi->common, mi_row, mi_col);
+        restore_sb_state(&sb_fp_stats, cpi, td, tile_data, mi_row, mi_col);
+      }
+
+      // x->e_mbd.sbi->sb_mv_precision = best_prec;
+      x->e_mbd.sbi->sb_mv_precision = best_prec;
+#endif  // CONFIG_SB_FLEX_MVRES
+
       rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                         max_sq_size, min_sq_size, &dummy_rdc, dummy_rdc,
-                        pc_root, sms_root, NULL, SB_SINGLE_PASS);
+                        pc_root, sms_root, NULL, SB_WET_PASS);
+      pc_root = NULL;
     } else {
       // First pass
       SB_FIRST_PASS_STATS sb_fp_stats;
@@ -6519,9 +6483,9 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #endif
   av1_zero(rdc->global_motion_used);
   av1_zero(cpi->gmparams_cost);
-#if CONFIG_FLEX_MVRES
+#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
   av1_zero(rdc->reduced_mv_precision_used);
-#endif  // CONFIG_FLEX_MVRES
+#endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
   if (cpi->common.current_frame.frame_type == INTER_FRAME && cpi->source &&
       cpi->oxcf.enable_global_motion && !cpi->global_motion_search_done) {
     YV12_BUFFER_CONFIG *ref_buf[REF_FRAMES];
