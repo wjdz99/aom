@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "61452408_7daaf692",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-23T22:03:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "379036ba_1214f151",
+      "range": {
+        "startLine": 208,
+        "startChar": 0,
+        "endLine": 208,
+        "endChar": 53
+      },
+      "revId": "7db50447886fa8594564da032f859cec981e01f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5c6d6b4_510a9381",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "1e4d89e9_ba15fee3",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-23T22:03:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5c6d6b4_510a9381",
+      "range": {
+        "startLine": 245,
+        "startChar": 32,
+        "endLine": 245,
+        "endChar": 37
+      },
+      "revId": "7db50447886fa8594564da032f859cec981e01f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a4e43d6_808210ad",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 4
@@ -59,6 +107,30 @@
       "writtenOn": "2020-01-23T21:19:33Z",
       "side": 1,
       "message": "Why use 3? MAX_MB_PLANE seems better.",
+      "range": {
+        "startLine": 557,
+        "startChar": 43,
+        "endLine": 557,
+        "endChar": 44
+      },
+      "revId": "7db50447886fa8594564da032f859cec981e01f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8361acdf_b83f6ae0",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-23T22:03:54Z",
+      "side": 1,
+      "message": "Because the function applies temporal filter to YUV planes according to the function name. If MAX_MB_PLANE increases in the future, some meaningless memory will be allocated.",
+      "parentUuid": "9a4e43d6_808210ad",
       "range": {
         "startLine": 557,
         "startChar": 43,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "d27a2f39_7274ccf0",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-23T22:03:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7bbd691d_f3d0e6b5",
+      "range": {
+        "startLine": 784,
+        "startChar": 34,
+        "endLine": 784,
+        "endChar": 39
+      },
+      "revId": "7db50447886fa8594564da032f859cec981e01f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e1b6a5b3_7be89ac0",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 4
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "cea7d871_d7ddc0e2",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 901,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-23T22:03:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e1b6a5b3_7be89ac0",
+      "range": {
+        "startLine": 901,
+        "startChar": 18,
+        "endLine": 901,
+        "endChar": 27
+      },
+      "revId": "7db50447886fa8594564da032f859cec981e01f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b026092_01c2ee17",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 4
@@ -137,6 +257,30 @@
       "revId": "7db50447886fa8594564da032f859cec981e01f5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "232b9e99_d6ccc98f",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-01-23T22:03:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b026092_01c2ee17",
+      "range": {
+        "startLine": 1047,
+        "startChar": 18,
+        "endLine": 1047,
+        "endChar": 43
+      },
+      "revId": "7db50447886fa8594564da032f859cec981e01f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
