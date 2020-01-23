@@ -1264,6 +1264,16 @@ int av1_estimate_q_constant_quality_two_pass(const AV1_COMP *cpi, int width,
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   const int cq_level = get_active_cq_level(rc, oxcf, frame_is_intra_only(cm),
                                            cm->superres_scale_denominator);
+
+  if (oxcf->use_fixed_qp_offsets) {
+    const int this_q = get_q_using_fixed_offsets(
+        oxcf, gf_group, cq_level, frame_is_intra_only(cm), rc->frames_to_key);
+    if (gf_group->update_type[gf_index] == ARF_UPDATE) {
+      *arf_q = this_q;
+    }
+    return this_q;
+  }
+
   int active_best_quality = 0;
   int active_worst_quality = rc->active_worst_quality;
   int q;
