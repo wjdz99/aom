@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "6a03aa03_12db01d9",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 14975
+      },
+      "writtenOn": "2020-01-23T20:25:41Z",
+      "side": 1,
+      "message": "This is a binary symbol, so the cost table has costs for both the 0 and 1 cases.",
+      "parentUuid": "dc389344_e09019d0",
+      "range": {
+        "startLine": 342,
+        "startChar": 40,
+        "endLine": 342,
+        "endChar": 41
+      },
+      "revId": "bad423fd7bd1a01cc3c217523f67e47968f6ed95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "75ccbd33_7afc91a4",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 7
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "8505bd92_718c9b5e",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 14975
+      },
+      "writtenOn": "2020-01-23T20:25:41Z",
+      "side": 1,
+      "message": "Same as the above, but instead of costs this table contains observed counts.",
+      "parentUuid": "75ccbd33_7afc91a4",
+      "range": {
+        "startLine": 474,
+        "startChar": 44,
+        "endLine": 474,
+        "endChar": 45
+      },
+      "revId": "bad423fd7bd1a01cc3c217523f67e47968f6ed95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df306a9a_df2f3df4",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 7
@@ -91,6 +139,30 @@
       "revId": "bad423fd7bd1a01cc3c217523f67e47968f6ed95",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e060af7f_3cc96653",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 14975
+      },
+      "writtenOn": "2020-01-23T20:25:41Z",
+      "side": 1,
+      "message": "I think a couple of these have crept in, not just in this patch.  I\u0027ll correct these in another patchset so this one can stay focused.",
+      "parentUuid": "df306a9a_df2f3df4",
+      "range": {
+        "startLine": 457,
+        "startChar": 11,
+        "endLine": 457,
+        "endChar": 16
+      },
+      "revId": "bad423fd7bd1a01cc3c217523f67e47968f6ed95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
