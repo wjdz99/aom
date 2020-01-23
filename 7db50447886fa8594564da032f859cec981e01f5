@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "379036ba_1214f151",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-23T21:19:33Z",
+      "side": 1,
+      "message": "It\u0027s better to be more specific, like:\nblock_error is initialized to INT_MAX, only when the the current frame is to-filter frame, block_error remains INT_MAX.",
+      "range": {
+        "startLine": 208,
+        "startChar": 0,
+        "endLine": 208,
+        "endChar": 53
+      },
+      "revId": "7db50447886fa8594564da032f859cec981e01f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5c6d6b4_510a9381",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-23T21:19:33Z",
+      "side": 1,
+      "message": "whether",
+      "range": {
+        "startLine": 245,
+        "startChar": 32,
+        "endLine": 245,
+        "endChar": 37
+      },
+      "revId": "7db50447886fa8594564da032f859cec981e01f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a4e43d6_808210ad",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-23T21:19:33Z",
+      "side": 1,
+      "message": "Why use 3? MAX_MB_PLANE seems better.",
+      "range": {
+        "startLine": 557,
+        "startChar": 43,
+        "endLine": 557,
+        "endChar": 44
+      },
+      "revId": "7db50447886fa8594564da032f859cec981e01f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bbd691d_f3d0e6b5",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-23T21:19:33Z",
+      "side": 1,
+      "message": "noise level of the current frame, estimated with the Y plane.",
+      "range": {
+        "startLine": 784,
+        "startChar": 34,
+        "endLine": 784,
+        "endChar": 39
+      },
+      "revId": "7db50447886fa8594564da032f859cec981e01f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1b6a5b3_7be89ac0",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 901,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-23T21:19:33Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 901,
+        "startChar": 18,
+        "endLine": 901,
+        "endChar": 27
+      },
+      "revId": "7db50447886fa8594564da032f859cec981e01f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b026092_01c2ee17",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-23T21:19:33Z",
+      "side": 1,
+      "message": "ditto.",
+      "range": {
+        "startLine": 1047,
+        "startChar": 18,
+        "endLine": 1047,
+        "endChar": 43
+      },
+      "revId": "7db50447886fa8594564da032f859cec981e01f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
