@@ -872,7 +872,6 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
   unsigned int sse;
   int cost_list[5];
   MvLimits tmp_mv_limits = x->mv_limits;
-  xd->mi[0]->max_mv_precision = MV_SUBPEL_EIGHTH_PRECISION;
 
   MV best_ref_mv1 = kZeroMv;
   MV best_ref_mv1_full; /* full-pixel value of best_ref_mv1 */
@@ -931,13 +930,10 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
   // x->best_mv. mi_row and mi_col are only needed for "av1_is_scaled(sf)=1"
   // case.
   bestsme = cpi->find_fractional_mv_step(
-      x, &cpi->common, 0, 0, &best_ref_mv1, xd->mi[0]->max_mv_precision,
+      x, &cpi->common, 0, 0, &best_ref_mv1, xd->mi[0]->mv_precision,
       x->errorperbit, &cpi->fn_ptr[TF_BLOCK], 0, mv_sf->subpel_iters_per_step,
-      cond_cost_list(cpi, cost_list), NULL, NULL,
-#if CONFIG_FLEX_MVRES
-      0, NULL, MV_SUBPEL_NONE,
-#endif  // CONFIG_FLEX_MVRES
-      &distortion, &sse, NULL, NULL, 0, 0, BW, BH, USE_8_TAPS, 1);
+      cond_cost_list(cpi, cost_list), NULL, NULL, &distortion, &sse, NULL, NULL,
+      0, 0, BW, BH, USE_8_TAPS, 1);
 
   x->e_mbd.mi[0]->mv[0] = x->best_mv;
 
@@ -967,11 +963,8 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
           x, &cpi->common, 0, 0, &best_ref_mv1, MV_SUBPEL_EIGHTH_PRECISION,
           x->errorperbit, &cpi->fn_ptr[TF_SUB_BLOCK], 0,
           mv_sf->subpel_iters_per_step, cond_cost_list(cpi, cost_list), NULL,
-          NULL,
-#if CONFIG_FLEX_MVRES
-          0, NULL, MV_SUBPEL_NONE,
-#endif  // CONFIG_FLEX_MVRES
-          &distortion, &sse, NULL, NULL, 0, 0, SUB_BW, SUB_BH, USE_8_TAPS, 1);
+          NULL, &distortion, &sse, NULL, NULL, 0, 0, SUB_BW, SUB_BH, USE_8_TAPS,
+          1);
 
       blk_mvs[k] = x->best_mv.as_mv;
       k++;

@@ -484,7 +484,6 @@ typedef struct MB_MODE_INFO {
   int current_qindex;
   // Only for INTER blocks
   int_interpfilters interp_filters;
-  MvSubpelPrecision max_mv_precision;
   MvSubpelPrecision mv_precision;
   // TODO(debargha): Consolidate these flags
 #if CONFIG_RD_DEBUG
@@ -570,6 +569,10 @@ typedef struct SB_INFO {
   int mi_row;
   int mi_col;
   PARTITION_TREE *ptree_root;
+
+#if CONFIG_SB_FLEX_MVRES
+  MvSubpelPrecision sb_mv_precision;
+#endif  // CONFIG_SB_FLEX_MVRES
 } SB_INFO;
 
 PARTITION_TREE *av1_alloc_ptree_node(PARTITION_TREE *parent, int index);
@@ -896,11 +899,11 @@ typedef struct macroblockd {
   uint8_t ref_mv_count[MODE_CTX_REF_FRAMES];
   CANDIDATE_MV ref_mv_stack[MODE_CTX_REF_FRAMES][MAX_REF_MV_STACK_SIZE];
   uint16_t weight[MODE_CTX_REF_FRAMES][MAX_REF_MV_STACK_SIZE];
-#if CONFIG_FLEX_MVRES
+#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
   uint8_t ref_mv_count_adj;
   CANDIDATE_MV ref_mv_stack_adj[MAX_REF_MV_STACK_SIZE];
   uint16_t weight_adj[MAX_REF_MV_STACK_SIZE];
-#endif  // CONFIG_FLEX_MVRES
+#endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
   uint8_t is_sec_rect;
 
   // Counts of each reference frame in the above and left neighboring blocks.

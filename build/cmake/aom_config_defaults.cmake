@@ -162,6 +162,8 @@ set_aom_config_var(CONFIG_EXT_COMPOUND 0 NUMBER
                    "AV2 extended compound modes experiment flag")
 set_aom_config_var(CONFIG_FLEX_MVRES 0 NUMBER
                    "AV2 Flexible MV resolution experiment flag")
+set_aom_config_var(CONFIG_SB_FLEX_MVRES 0 NUMBER
+                   "AV2 SB Flexible MV resolution experiment flag")
 set_aom_config_var(CONFIG_CTX_ADAPT_LOG_WEIGHT 0 NUMBER
                    "AV2 Laplace of Gaussian experiment flag")
 set_aom_config_var(CONFIG_MISC_CHANGES 0 NUMBER
