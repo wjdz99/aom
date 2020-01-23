@@ -26,6 +26,10 @@
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/rd.h"
 
+#if CONFIG_TUNE_VMAF
+#include "av1/encoder/tune_vmaf.h"
+#endif
+
 void av1_quantize_skip(intptr_t n_coeffs, tran_low_t *qcoeff_ptr,
                        tran_low_t *dqcoeff_ptr, uint16_t *eob_ptr) {
   memset(qcoeff_ptr, 0, n_coeffs * sizeof(*qcoeff_ptr));
@@ -705,10 +709,17 @@ void av1_frame_init_quantizer(AV1_COMP *cpi) {
   av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
 }
 
-void av1_set_quantizer(AV1_COMMON *cm, int q) {
+void av1_set_quantizer(AV1_COMP *const cpi, int q) {
   // quantizer has to be reinitialized with av1_init_quantizer() if any
   // delta_q changes.
+  AV1_COMMON *const cm = &cpi->common;
   cm->base_qindex = AOMMAX(cm->delta_q_info.delta_q_present_flag, q);
+#if CONFIG_TUNE_VMAF
+  if (cpi->oxcf.tuning == AOM_TUNE_VMAF_WITH_PREPROCESSING ||
+      cpi->oxcf.tuning == AOM_TUNE_VMAF_WITHOUT_PREPROCESSING) {
+    cm->base_qindex = av1_get_vmaf_base_qindex(cpi, cm->base_qindex);
+  }
+#endif
   cm->y_dc_delta_q = 0;
   cm->u_dc_delta_q = 0;
   cm->u_ac_delta_q = 0;

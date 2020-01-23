@@ -20,8 +20,9 @@ void av1_vmaf_preprocessing(const AV1_COMP *cpi, YV12_BUFFER_CONFIG *source,
 
 void av1_set_mb_vmaf_rdmult_scaling(AV1_COMP *cpi);
 
-void av1_set_vmaf_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
-                         const BLOCK_SIZE bsize, const int mi_row,
-                         const int mi_col, int *const rdmult);
+void av1_set_vmaf_rdmult(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
+                         int mi_row, int mi_col, int *rdmult);
+
+int av1_get_vmaf_base_qindex(const AV1_COMP *cpi, int current_qindex);
 
 #endif  // AOM_AV1_ENCODER_TUNE_VMAF_H_
