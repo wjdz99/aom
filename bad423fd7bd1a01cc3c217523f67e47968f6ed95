@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ac35537_63e63d51",
+        "filename": "av1/common/mvref_common.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-01-23T18:28:55Z",
+      "side": 1,
+      "message": "Please make this the default: branch of the switch.",
+      "range": {
+        "startLine": 215,
+        "startChar": 0,
+        "endLine": 219,
+        "endChar": 1
+      },
+      "revId": "bad423fd7bd1a01cc3c217523f67e47968f6ed95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc389344_e09019d0",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-01-23T18:28:55Z",
+      "side": 1,
+      "message": "Can you remind me what the 2 represents here?",
+      "range": {
+        "startLine": 342,
+        "startChar": 40,
+        "endLine": 342,
+        "endChar": 41
+      },
+      "revId": "bad423fd7bd1a01cc3c217523f67e47968f6ed95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75ccbd33_7afc91a4",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-01-23T18:28:55Z",
+      "side": 1,
+      "message": "Same question",
+      "range": {
+        "startLine": 474,
+        "startChar": 44,
+        "endLine": 474,
+        "endChar": 45
+      },
+      "revId": "bad423fd7bd1a01cc3c217523f67e47968f6ed95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df306a9a_df2f3df4",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-01-23T18:28:55Z",
+      "side": 1,
+      "message": "!CONFIG... or CONFIG...?",
+      "range": {
+        "startLine": 457,
+        "startChar": 11,
+        "endLine": 457,
+        "endChar": 16
+      },
+      "revId": "bad423fd7bd1a01cc3c217523f67e47968f6ed95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
