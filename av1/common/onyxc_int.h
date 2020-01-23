@@ -1672,8 +1672,13 @@ static INLINE MvSubpelPrecision av1_get_mbmi_max_mv_precision(
 static INLINE int is_flex_mv_precision_active(
     const AV1_COMMON *const cm, PREDICTION_MODE mode,
     MvSubpelPrecision max_mv_precision) {
+#if CONFIG_SB_FLEX_MVRES
+  return max_mv_precision >= MV_SUBPEL_HALF_PRECISION &&
+         cm->use_flex_mv_precision && have_newmv_in_inter_mode(mode);
+#else
   return max_mv_precision >= MV_SUBPEL_QTR_PRECISION &&
          cm->use_flex_mv_precision && have_newmv_in_inter_mode(mode);
+#endif  // CONFIG_SB_FLEX_MVRES
 }
 
 static INLINE MvSubpelPrecision av1_get_mbmi_mv_precision(

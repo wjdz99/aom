@@ -570,6 +570,10 @@ typedef struct SB_INFO {
   int mi_row;
   int mi_col;
   PARTITION_TREE *ptree_root;
+
+#if CONFIG_SB_FLEX_MVRES
+  MvSubpelPrecision sb_mv_precision;
+#endif  // CONFIG_SB_FLEX_MVRES
 } SB_INFO;
 
 PARTITION_TREE *av1_alloc_ptree_node(PARTITION_TREE *parent, int index);
