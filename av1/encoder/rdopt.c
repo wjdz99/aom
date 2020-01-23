@@ -11584,7 +11584,7 @@ static bool ref_mv_idx_early_breakout(MACROBLOCK *x,
 #else
   const int drl_cost =
       get_drl_cost(mbmi, mbmi_ext, x->drl_mode_cost0, ref_frame_type);
-#endif
+#endif  // CONFIG_NEW_INTER_MODES
   est_rd_rate += drl_cost;
 #if CONFIG_NEW_INTER_MODES
   if (RDCOST(x->rdmult, est_rd_rate, 0) > ref_best_rd) {
@@ -11644,7 +11644,7 @@ static int64_t simple_translation_pred_rd(
 #else
   const int drl_cost =
       get_drl_cost(mbmi, mbmi_ext, x->drl_mode_cost0, ref_frame_type);
-#endif
+#endif  // CONFIG_NEW_INTER_MODES
   rd_stats->rate += drl_cost;
   mode_info[ref_mv_idx].drl_cost = drl_cost;
 
@@ -11715,7 +11715,7 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
 #else
   int good_indices = 0;
   const int start_mv_idx = 0;
-#endif
+#endif  // CONFIG_NEW_INTER_MODES
   for (int i = start_mv_idx; i < ref_set; ++i) {
     if (ref_mv_idx_early_breakout(x, &cpi->sf, args, ref_best_rd, i)) {
       continue;
@@ -11765,7 +11765,7 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
   int result = 0x1;  // Always allow the zeroth MV to be searched
 #else
   int result = 0;
-#endif
+#endif  // CONFIG_NEW_INTER_MODES
   for (int i = start_mv_idx; i < ref_set; ++i) {
     if (mask_check_bit(good_indices, i) &&
         (1.0 * idx_rdcost[i]) / idx_rdcost[best_idx] < dth) {
@@ -11876,7 +11876,7 @@ static int64_t handle_inter_mode(
 #else
     const int drl_cost =
         get_drl_cost(mbmi, mbmi_ext, x->drl_mode_cost0, ref_frame_type);
-#endif
+#endif  // CONFIG_NEW_INTER_MODES
     rd_stats->rate += drl_cost;
     mode_info[ref_mv_idx].drl_cost = drl_cost;
 
