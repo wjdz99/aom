@@ -888,21 +888,10 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
 
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   AV1_COMMON *const cm = &cpi->common;
-  double noise_level;
-  const int use_hbd = frame_input->source->flags & YV12_FLAG_HIGHBITDEPTH;
   const int num_planes = av1_num_planes(cm);
 
-  if (use_hbd) {
-    noise_level = highbd_estimate_noise(
-        frame_input->source->y_buffer, frame_input->source->y_crop_width,
-        frame_input->source->y_crop_height, frame_input->source->y_stride,
-        cm->seq_params.bit_depth, EDGE_THRESHOLD);
-  } else {
-    noise_level = estimate_noise(frame_input->source->y_buffer,
-                                 frame_input->source->y_crop_width,
-                                 frame_input->source->y_crop_height,
-                                 frame_input->source->y_stride, EDGE_THRESHOLD);
-  }
+  double noise_level =
+      av1_estimate_noise(frame_input->source, cm->seq_params.bit_depth);
   const int apply_filtering =
       !is_stat_generation_stage(cpi) && frame_params->frame_type == KEY_FRAME &&
       !frame_params->show_existing_frame &&
