@@ -367,7 +367,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   // Do not use periodic key frames.
   cpi->rc.frames_to_key = INT_MAX;
 
-  av1_set_quantizer(cm, qindex);
+  av1_set_quantizer(cpi, qindex);
 
   av1_setup_block_planes(&x->e_mbd, seq_params->subsampling_x,
                          seq_params->subsampling_y, num_planes);

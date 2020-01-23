@@ -486,3 +486,138 @@ void av1_set_vmaf_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   set_error_per_bit(x, *rdmult);
   aom_clear_system_state();
 }
+
+// TODO(sdeng): replace it with the SIMD version.
+static AOM_INLINE double image_sad_c(const uint8_t *src, int src_stride,
+                                     const uint8_t *ref, int ref_stride, int w,
+                                     int h) {
+  double accum = 0.0;
+  int i, j;
+
+  for (i = 0; i < h; ++i) {
+    for (j = 0; j < w; ++j) {
+      double img1px = src[i * src_stride + j];
+      double img2px = ref[i * ref_stride + j];
+
+      accum += fabs(img1px - img2px);
+    }
+  }
+
+  return accum / (double)(h * w);
+}
+
+static AOM_INLINE double calc_vmaf_motion_score(
+    const AV1_COMP *const cpi, const AV1_COMMON *const cm,
+    const YV12_BUFFER_CONFIG *const cur, const YV12_BUFFER_CONFIG *const last,
+    const YV12_BUFFER_CONFIG *const next, double *dvmaf, double *sse) {
+  const int y_width = cur->y_width;
+  const int y_height = cur->y_height;
+  YV12_BUFFER_CONFIG blurred_cur, blurred_last, blurred_next;
+
+  memset(&blurred_cur, 0, sizeof(blurred_cur));
+  memset(&blurred_last, 0, sizeof(blurred_last));
+  memset(&blurred_next, 0, sizeof(blurred_next));
+
+  aom_alloc_frame_buffer(&blurred_cur, y_width, y_height, 1, 1,
+                         cm->seq_params.use_highbitdepth,
+                         cpi->oxcf.border_in_pixels, cm->byte_alignment);
+  aom_alloc_frame_buffer(&blurred_last, y_width, y_height, 1, 1,
+                         cm->seq_params.use_highbitdepth,
+                         cpi->oxcf.border_in_pixels, cm->byte_alignment);
+  aom_alloc_frame_buffer(&blurred_next, y_width, y_height, 1, 1,
+                         cm->seq_params.use_highbitdepth,
+                         cpi->oxcf.border_in_pixels, cm->byte_alignment);
+
+  gaussian_blur(cpi, cur, &blurred_cur);
+  gaussian_blur(cpi, last, &blurred_last);
+  if (next) gaussian_blur(cpi, next, &blurred_next);
+
+  double motion1, motion2 = 65536.0;
+  motion1 = image_sad_c(blurred_cur.y_buffer, blurred_cur.y_stride,
+                        blurred_last.y_buffer, blurred_last.y_stride, y_width,
+                        y_height);
+  if (next) {
+    motion2 = image_sad_c(blurred_cur.y_buffer, blurred_cur.y_stride,
+                          blurred_next.y_buffer, blurred_next.y_stride, y_width,
+                          y_height);
+  }
+
+  double baseline_vmaf, new_vmaf;
+  aom_calc_vmaf(cpi->oxcf.vmaf_model_path, cur, cur, &baseline_vmaf);
+  aom_calc_vmaf(cpi->oxcf.vmaf_model_path, cur, &blurred_cur, &new_vmaf);
+  *dvmaf = baseline_vmaf - new_vmaf;
+
+  *sse = image_sse_c(cur->y_buffer, cur->y_stride, blurred_cur.y_buffer,
+                     blurred_cur.y_stride, y_width, y_height);
+
+  aom_free_frame_buffer(&blurred_cur);
+  aom_free_frame_buffer(&blurred_last);
+  aom_free_frame_buffer(&blurred_next);
+
+  return AOMMIN(motion1, motion2);
+}
+
+int av1_get_vmaf_base_qindex(const AV1_COMP *const cpi, int current_qindex) {
+  const int use_hbd = cpi->source->flags & YV12_FLAG_HIGHBITDEPTH;
+  if (use_hbd) {
+    printf("Tune for VMAF for high bit depth videos is unsupported yet.\n");
+    exit(0);
+  }
+  const AV1_COMMON *const cm = &cpi->common;
+  if (cm->current_frame.frame_number == 0 || cpi->oxcf.pass == 1) {
+    return current_qindex;
+  }
+  const double approx_sse = cpi->last_frame_ysse;
+  const double sse_threshold =
+      0.01 * cpi->source->y_width * cpi->source->y_height;
+  if (approx_sse < sse_threshold) {
+    return current_qindex;
+  }
+  aom_clear_system_state();
+  const GF_GROUP *gf_group = &cpi->gf_group;
+  YV12_BUFFER_CONFIG *cur_buf = cpi->source;
+  int src_index = 0;
+  if (cm->show_frame == 0) {
+    src_index = gf_group->arf_src_offset[gf_group->index];
+    struct lookahead_entry *cur_entry =
+        av1_lookahead_peek(cpi->lookahead, src_index, cpi->compressor_stage);
+    cur_buf = &cur_entry->img;
+  }
+
+  assert(cur_buf);
+
+  const struct lookahead_entry *last_entry =
+      av1_lookahead_peek(cpi->lookahead, src_index - 1, cpi->compressor_stage);
+  const struct lookahead_entry *next_entry =
+      av1_lookahead_peek(cpi->lookahead, src_index + 1, cpi->compressor_stage);
+  const YV12_BUFFER_CONFIG *next_buf = &next_entry->img;
+  const YV12_BUFFER_CONFIG *last_buf =
+      cm->show_frame ? cpi->last_source : &last_entry->img;
+
+  assert(last_buf);
+
+  double vmaf, sse;
+  const double motion =
+      calc_vmaf_motion_score(cpi, cm, cur_buf, last_buf, next_buf, &vmaf, &sse);
+
+  const double vmaf_threshold = 0.01;
+  if (vmaf < vmaf_threshold) {
+    return current_qindex;
+  }
+
+  // Get dVMAF through a data fitted model.
+  const double dvmaf = 26.11 * (1.0 - exp(-0.06 * motion));
+  const double dsse = dvmaf * sse / vmaf;
+  // printf("%f, %f, %f, %f, %f\n", approx_sse, vmaf, sse, dvmaf, dsse);
+
+  const double beta = approx_sse / (dsse + approx_sse);
+  const int offset = av1_get_deltaq_offset(cpi, current_qindex, beta);
+  int qindex = current_qindex + offset;
+  // printf("%f, %d, %d\n", beta, offset, qindex);
+
+  qindex = AOMMIN(qindex, MAXQ);
+  qindex = AOMMAX(qindex, MINQ);
+
+  aom_clear_system_state();
+  return qindex;
+}
