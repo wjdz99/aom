@@ -470,47 +470,17 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
   int arf_boost;
   int flash_detected = 0;
 
-  // Search forward from the proposed arf/next gf position.
-  for (i = 0; i < f_frames; ++i) {
-    const FIRSTPASS_STATS *this_frame = read_frame_stats(twopass, i + offset);
-    if (this_frame == NULL) break;
-
-    // Update the motion related elements to the boost calculation.
-    accumulate_frame_motion_stats(
-        this_frame, &this_frame_mv_in_out, &mv_in_out_accumulator,
-        &abs_mv_in_out_accumulator, &mv_ratio_accumulator);
-
-    // We want to discount the flash frame itself and the recovery
-    // frame that follows as both will have poor scores.
-    flash_detected = detect_flash(twopass, i + offset) ||
-                     detect_flash(twopass, i + offset + 1);
-
-    // Accumulate the effect of prediction quality decay.
-    if (!flash_detected) {
-      decay_accumulator *= get_prediction_decay_rate(frame_info, this_frame);
-      decay_accumulator = decay_accumulator < MIN_DECAY_FACTOR
-                              ? MIN_DECAY_FACTOR
-                              : decay_accumulator;
-    }
-
-    boost_score += decay_accumulator *
-                   calc_frame_boost(rc, frame_info, this_frame,
-                                    this_frame_mv_in_out, GF_MAX_BOOST);
-  }
-
-  arf_boost = (int)boost_score;
-
-  // Reset for backward looking loop.
-  boost_score = 0.0;
-  mv_ratio_accumulator = 0.0;
-  decay_accumulator = 1.0;
-  this_frame_mv_in_out = 0.0;
-  mv_in_out_accumulator = 0.0;
-  abs_mv_in_out_accumulator = 0.0;
+  int max_frames = b_frames;
+  double avg_backward_boost = 0.0;
+  double avg_forward_boost = 0.0;
+  int is_extrapolating = 0;
+  double extrapolated_frame_boost = 0.0;
+  const FIRSTPASS_STATS *last_nonflash_frame = NULL;
 
   // Search backward towards last gf position.
   for (i = -1; i >= -b_frames; --i) {
     const FIRSTPASS_STATS *this_frame = read_frame_stats(twopass, i + offset);
+    double frame_boost;
     if (this_frame == NULL) break;
 
     // Update the motion related elements to the boost calculation.
@@ -531,11 +501,76 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
                               : decay_accumulator;
     }
 
-    boost_score += decay_accumulator *
-                   calc_frame_boost(rc, frame_info, this_frame,
-                                    this_frame_mv_in_out, GF_MAX_BOOST);
+    frame_boost = calc_frame_boost(rc, frame_info, this_frame,
+                                   this_frame_mv_in_out, GF_MAX_BOOST);
+    avg_backward_boost += frame_boost;
+    boost_score += decay_accumulator * frame_boost;
   }
-  arf_boost += (int)boost_score;
+  avg_backward_boost /= AOMMAX(1, b_frames);
+  arf_boost = (int)boost_score;
+
+  // Reset for forward looking loop.
+  boost_score = 0.0;
+  mv_ratio_accumulator = 0.0;
+  decay_accumulator = 1.0;
+  this_frame_mv_in_out = 0.0;
+  mv_in_out_accumulator = 0.0;
+  abs_mv_in_out_accumulator = 0.0;
+
+  // Search forward from the proposed arf/next gf position.
+  for (i = 0; i < f_frames; ++i) {
+    const FIRSTPASS_STATS *this_frame = read_frame_stats(twopass, i + offset);
+    double frame_boost;
+    if (this_frame == NULL) {
+      this_frame = last_nonflash_frame;
+      if (!is_extrapolating) {
+        is_extrapolating = 1;
+        max_frames = AOMMAX(max_frames, i);
+        avg_forward_boost /= AOMMAX(1, i);
+        extrapolated_frame_boost = (((max_frames - i) * avg_backward_boost) +
+                                    (i * avg_forward_boost)) /
+                                   AOMMAX(1, max_frames);
+      }
+    }
+    if (this_frame == NULL) break;
+
+    if (!is_extrapolating) {
+      // Update the motion related elements to the boost calculation.
+      accumulate_frame_motion_stats(
+          this_frame, &this_frame_mv_in_out, &mv_in_out_accumulator,
+          &abs_mv_in_out_accumulator, &mv_ratio_accumulator);
+
+      // We want to discount the flash frame itself and the recovery
+      // frame that follows as both will have poor scores.
+      flash_detected = detect_flash(twopass, i + offset) ||
+                       detect_flash(twopass, i + offset + 1);
+    } else {
+      flash_detected = 0;
+    }
+
+    // Accumulate the effect of prediction quality decay.
+    if (!flash_detected) {
+      decay_accumulator *= get_prediction_decay_rate(frame_info, this_frame);
+      decay_accumulator = decay_accumulator < MIN_DECAY_FACTOR
+                              ? MIN_DECAY_FACTOR
+                              : decay_accumulator;
+      if (!is_extrapolating) last_nonflash_frame = this_frame;
+    }
+
+    if (!is_extrapolating) {
+      frame_boost = calc_frame_boost(rc, frame_info, this_frame,
+                                     this_frame_mv_in_out, GF_MAX_BOOST);
+      avg_forward_boost += frame_boost;
+      boost_score += decay_accumulator * frame_boost;
+    } else {
+      boost_score += decay_accumulator * extrapolated_frame_boost;
+    }
+  }
+  if (i == 0 && f_frames != 0) {
+    arf_boost += (int)(arf_boost * ((double)f_frames / AOMMAX(1, b_frames)));
+  } else {
+    arf_boost += (int)boost_score;
+  }
 
   if (arf_boost < ((b_frames + f_frames) * 50))
     arf_boost = ((b_frames + f_frames) * 50);
