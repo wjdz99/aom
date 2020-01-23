@@ -484,7 +484,9 @@ typedef struct MB_MODE_INFO {
   int current_qindex;
   // Only for INTER blocks
   int_interpfilters interp_filters;
+#if CONFIG_FLEX_MVRES
   MvSubpelPrecision max_mv_precision;
+#endif  // CONFIG_FLEX_MVRES
   MvSubpelPrecision mv_precision;
   // TODO(debargha): Consolidate these flags
 #if CONFIG_RD_DEBUG
@@ -570,6 +572,10 @@ typedef struct SB_INFO {
   int mi_row;
   int mi_col;
   PARTITION_TREE *ptree_root;
+
+#if CONFIG_SB_FLEX_MVRES
+  MvSubpelPrecision sb_mv_precision;
+#endif  // CONFIG_SB_FLEX_MVRES
 } SB_INFO;
 
 PARTITION_TREE *av1_alloc_ptree_node(PARTITION_TREE *parent, int index);

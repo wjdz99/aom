@@ -1181,7 +1181,7 @@ unsigned int av1_compute_motion_cost(const AV1_COMP *cpi, MACROBLOCK *const x,
   unsigned int sse;
   int(*flex_mv_costs)[MV_SUBPEL_PRECISIONS - DISALLOW_ONE_DOWN_FLEX_MVRES];
   const MB_MODE_INFO *mbmi = xd->mi[0];
-#if CONFIG_FLEX_MVRES
+#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
   const int use_flex_mv =
       is_flex_mv_precision_active(cm, mbmi->mode, mbmi->max_mv_precision);
   const int down_ctx = av1_get_mv_precision_down_context(cm, xd);
@@ -1333,7 +1333,7 @@ static INLINE void calc_int_cost_list(const AV1_COMMON *cm, const MACROBLOCK *x,
       *flex_mv_costs)[MV_SUBPEL_PRECISIONS - DISALLOW_ONE_DOWN_FLEX_MVRES];
   const MACROBLOCKD *xd = &x->e_mbd;
   const MB_MODE_INFO *mbmi = xd->mi[0];
-#if CONFIG_FLEX_MVRES
+#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
   const int use_flex_mv =
       is_flex_mv_precision_active(cm, mbmi->mode, mbmi->max_mv_precision);
   const int down_ctx = av1_get_mv_precision_down_context(cm, xd);
@@ -1703,7 +1703,7 @@ int av1_get_mvpred_var(const AV1_COMMON *cm, const MACROBLOCK *x,
   const int(
       *flex_mv_costs)[MV_SUBPEL_PRECISIONS - DISALLOW_ONE_DOWN_FLEX_MVRES];
   const MB_MODE_INFO *mbmi = xd->mi[0];
-#if CONFIG_FLEX_MVRES
+#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
   const int use_flex_mv =
       is_flex_mv_precision_active(cm, mbmi->mode, mbmi->max_mv_precision);
   const int down_ctx = av1_get_mv_precision_down_context(cm, xd);
@@ -1735,7 +1735,7 @@ int av1_get_mvpred_av_var(const AV1_COMMON *cm, const MACROBLOCK *x,
   const int(
       *flex_mv_costs)[MV_SUBPEL_PRECISIONS - DISALLOW_ONE_DOWN_FLEX_MVRES];
   const MB_MODE_INFO *mbmi = xd->mi[0];
-#if CONFIG_FLEX_MVRES
+#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
   const int use_flex_mv =
       is_flex_mv_precision_active(cm, mbmi->mode, mbmi->max_mv_precision);
   const int down_ctx = av1_get_mv_precision_down_context(cm, xd);
@@ -1769,7 +1769,7 @@ int av1_get_mvpred_mask_var(const AV1_COMMON *cm, const MACROBLOCK *x,
   const int(
       *flex_mv_costs)[MV_SUBPEL_PRECISIONS - DISALLOW_ONE_DOWN_FLEX_MVRES];
   const MB_MODE_INFO *mbmi = xd->mi[0];
-#if CONFIG_FLEX_MVRES
+#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
   const int use_flex_mv =
       is_flex_mv_precision_active(cm, mbmi->mode, mbmi->max_mv_precision);
   const int down_ctx = av1_get_mv_precision_down_context(cm, xd);
@@ -3196,7 +3196,7 @@ static int get_obmc_mvpred_var(const AV1_COMMON *cm, const MACROBLOCK *x,
   unsigned int unused;
   const int(
       *flex_mv_costs)[MV_SUBPEL_PRECISIONS - DISALLOW_ONE_DOWN_FLEX_MVRES];
-#if CONFIG_FLEX_MVRES
+#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
   const int use_flex_mv =
       is_flex_mv_precision_active(cm, mbmi->mode, mbmi->max_mv_precision);
   const int down_ctx = av1_get_mv_precision_down_context(cm, xd);
