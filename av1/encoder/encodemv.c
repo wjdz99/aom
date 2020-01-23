@@ -15,6 +15,7 @@
 #include "av1/common/entropymode.h"
 #include "av1/common/entropymv.h"
 
+#include "av1/common/mv.h"
 #include "av1/encoder/cost.h"
 #include "av1/encoder/encodemv.h"
 
@@ -208,6 +209,14 @@ static void build_nmv_component_cost_table(int *mvcost,
   mvcost[0] = 0;
   for (v = 1; v <= MV_MAX; ++v) {
     int z, c, o, d, e, f, cost = 0;
+#if NDEBUG
+    const int round = MV_SUBPEL_EIGHTH_PRECISION - precision;
+    int v_reduced = (v >> round) << round;
+    if (v != v_reduced) {
+      mvcost[v] = mvcost[-v] = INT_MAX;
+      continue;
+    }
+#endif  // NDEBUG
     z = v - 1;
     c = get_mv_class(z, &o);
     cost += class_cost[c];
@@ -254,17 +263,22 @@ static void build_nmv_component_cost_table(int *mvcost,
 void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
                    nmv_context *mvctx, MvSubpelPrecision precision) {
   MV ref_ = *ref;
+
 #if CONFIG_FLEX_MVRES
   lower_mv_precision(&ref_, precision);
+#endif  // CONFIG_FLEX_MVRES
+
+  const MV diff = { mv->row - ref_.row, mv->col - ref_.col };
+  const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
+  // If the mv_diff is zero, then we should have used near or nearest instead.
+  assert(j != MV_JOINT_ZERO);
+
+#if CONFIG_FLEX_MVRES
   assert((diff.row & ((1 << (MV_SUBPEL_EIGHTH_PRECISION - precision)) - 1)) ==
          0);
   assert((diff.col & ((1 << (MV_SUBPEL_EIGHTH_PRECISION - precision)) - 1)) ==
          0);
 #endif  // CONFIG_FLEX_MVRES
-  const MV diff = { mv->row - ref_.row, mv->col - ref_.col };
-  const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
-  // If the mv_diff is zero, then we should have used near or nearest instead.
-  assert(j != MV_JOINT_ZERO);
 
   aom_write_symbol(w, j, mvctx->joints_cdf, MV_JOINTS);
   if (mv_joint_vertical(j))
