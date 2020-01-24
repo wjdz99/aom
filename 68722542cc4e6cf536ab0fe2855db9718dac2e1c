@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bcf51dd2_4403c626",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 14688,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-01-24T22:44:11Z",
+      "side": 1,
+      "message": "Maybe a comment here, on why the early exit here?",
+      "range": {
+        "startLine": 14688,
+        "startChar": 0,
+        "endLine": 14688,
+        "endChar": 40
+      },
+      "revId": "68722542cc4e6cf536ab0fe2855db9718dac2e1c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
