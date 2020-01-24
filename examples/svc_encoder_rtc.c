@@ -810,6 +810,9 @@ int main(int argc, char **argv) {
         }
       }
 
+      //if (aom_codec_enc_config_set(&codec, &cfg))
+      //  die_codec(&codec, "Failed to initialize encoder");
+
       // Do the layer encode.
       aom_usec_timer_start(&timer);
       if (aom_codec_encode(&codec, frame_avail ? &raw : NULL, pts, 1, flags))

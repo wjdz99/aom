@@ -332,7 +332,7 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
 void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
   // TODO(marpan): Parameters need to be tuned.
   const RATE_CONTROL *const rc = &cpi->rc;
-  const AV1_COMMON *const cm = &cpi->common;
+  AV1_COMMON *const cm = &cpi->common;
   CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
   int num4x4bl = cm->MBs << 4;
   int target_refresh = 0;
@@ -350,6 +350,8 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
     cr->apply_cyclic_refresh = 0;
     return;
   }
+  // Set up segmentation.
+  av1_enable_segmentation(&cm->seg);
   cr->percent_refresh = 10;
   cr->max_qdelta_perc = 60;
   cr->time_for_refresh = 0;
@@ -435,9 +437,7 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
     // av1_convert_qindex_to_q(), av1_ac_quant(), ac_qlookup*[].
     cr->thresh_dist_sb = ((int64_t)(q * q)) << 2;
 
-    // Set up segmentation.
     // Clear down the segment map.
-    av1_enable_segmentation(&cm->seg);
     av1_clearall_segfeatures(seg);
 
     // Note: setting temporal_update has no effect, as the seg-map coding method
