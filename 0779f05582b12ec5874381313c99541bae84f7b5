@@ -16,6 +16,24 @@
       "revId": "0779f05582b12ec5874381313c99541bae84f7b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "371dd56b_59fc6a21",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 14975
+      },
+      "writtenOn": "2020-01-24T22:26:32Z",
+      "side": 1,
+      "message": "We discussed more this morning - I\u0027m changed a few hardcoded constants to use MAX_DRL_BITS in the baseline in this patch:\n\nhttps://aomedia-review.googlesource.com/c/aom/+/103841\n\nI\u0027ll wait for my kickoff run to finish so that I can be sure this doesn\u0027t change the baseline and then I\u0027ll put this new patch up for review.",
+      "parentUuid": "f20f9f5c_c6a9ef88",
+      "revId": "0779f05582b12ec5874381313c99541bae84f7b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
