@@ -20,6 +20,10 @@
 extern "C" {
 #endif
 
+#define MAX_REF_MV_SEARCH 3
+#define INTER_INTRA_RD_THRESH_SCALE 9
+#define INTER_INTRA_RD_THRESH_SHIFT 4
+
 static AOM_INLINE void restore_dst_buf(MACROBLOCKD *xd, const BUFFER_SET dst,
                                        const int num_planes) {
   for (int i = 0; i < num_planes; i++) {
