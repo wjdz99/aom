@@ -1447,6 +1447,20 @@ static int64_t finer_tile_search_wiener(const RestSearchCtxt *rsc,
   return err;
 }
 
+static int is_skip_lru(const AV1_COMMON *const cm, int h_start, int h_end,
+                        int v_start, int v_end) {
+  const int maxr = AOMMIN(cm->mi_rows - v_start, v_end);
+  const int maxc = AOMMIN(cm->mi_cols - h_start, h_end);
+  const int stride = cm->mi_stride;
+  MB_MODE_INFO **mbmi = cm->mi_grid_base + v_start * stride + h_start;
+  for (int r = 0; r < maxr; ++r, mbmi += stride) {
+    for (int c = 0; c < maxc; ++c) {
+      if (!mbmi[c]->skip) return 0;
+    }
+  }
+  return 1;
+}
+
 static AOM_INLINE void search_wiener(const RestorationTileLimits *limits,
                                      const AV1PixelRect *tile_rect,
                                      int rest_unit_idx, void *priv,
@@ -1459,6 +1473,19 @@ static AOM_INLINE void search_wiener(const RestorationTileLimits *limits,
 
   const MACROBLOCK *const x = rsc->x;
   const int64_t bits_none = x->wiener_restore_cost[0];
+
+  // Skip loop restoration if all mbmis are skip
+  if (is_skip_lru(rsc->cm, limits->h_start >> MI_SIZE_LOG2,
+                   limits->h_end >> MI_SIZE_LOG2,
+                   limits->v_start >> MI_SIZE_LOG2,
+                   limits->v_end >> MI_SIZE_LOG2)) {
+    rsc->bits += bits_none;
+    rsc->sse += rusi->sse[RESTORE_NONE];
+    rusi->best_rtype[RESTORE_WIENER - 1] = RESTORE_NONE;
+    rusi->sse[RESTORE_WIENER] = INT64_MAX;
+    rusi->skip_sgr_eval = 1;
+    return;
+  }
 
   // Skip Wiener search for low variance contents
   if (rsc->sf->lpf_sf.prune_wiener_based_on_src_var) {
