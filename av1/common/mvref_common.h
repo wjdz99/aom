@@ -213,11 +213,7 @@ static INLINE aom_cdf_prob *av1_get_drl_cdf(int16_t mode_ctx,
   assert(ref_idx < MAX_DRL_BITS);
 
   const int ctx = av1_drl_ctx(ref_mv_weight, ref_idx);
-  switch (ref_idx) {
-    case 0: return ec_ctx->drl0_cdf[ctx];
-    case 1: return ec_ctx->drl1_cdf[ctx];
-    default: return ec_ctx->drl2_cdf[ctx];
-  }
+  return ec_ctx->drl_cdf[ref_idx][ctx];
 }
 #endif  // CONFIG_NEW_INTER_MODES
 

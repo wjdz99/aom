@@ -11299,17 +11299,7 @@ static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
   int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, MAX_DRL_BITS);
   for (int idx = 0; idx < range; ++idx) {
     uint8_t drl_ctx = av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
-    switch (idx) {
-      case 0:
-        cost += x->drl0_mode_cost[drl_ctx][mbmi->ref_mv_idx != idx];
-        break;
-      case 1:
-        cost += x->drl1_mode_cost[drl_ctx][mbmi->ref_mv_idx != idx];
-        break;
-      default:
-        cost += x->drl2_mode_cost[drl_ctx][mbmi->ref_mv_idx != idx];
-        break;
-    }
+    cost += x->drl_mode_cost[idx][drl_ctx][mbmi->ref_mv_idx != idx];
     if (mbmi->ref_mv_idx == idx) return cost;
   }
   return cost;

@@ -104,9 +104,7 @@ void av1_reset_cdf_symbol_counters(FRAME_CONTEXT *fc) {
   RESET_CDF_COUNTER(fc->newmv_cdf, 2);
   RESET_CDF_COUNTER(fc->zeromv_cdf, 2);
 #if CONFIG_NEW_INTER_MODES
-  RESET_CDF_COUNTER(fc->drl0_cdf, 2);
-  RESET_CDF_COUNTER(fc->drl1_cdf, 2);
-  RESET_CDF_COUNTER(fc->drl2_cdf, 2);
+  RESET_CDF_COUNTER(fc->drl_cdf, 2);
 #else
   RESET_CDF_COUNTER(fc->drl_cdf, 2);
   RESET_CDF_COUNTER(fc->refmv_cdf, 2);
