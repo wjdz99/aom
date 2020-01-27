@@ -17,11 +17,31 @@
 
 namespace {
 
-static const struct GFMaxPyrHeightTestParam {
+static const struct GFPyrHeightTestParam {
+  int gf_min_pyr_height;
   int gf_max_pyr_height;
   double psnr_thresh;
 } kTestParams[] = {
-  { 0, 34.75 }, { 1, 34.75 }, { 2, 35.25 }, { 3, 35.50 }, { 4, 35.50 },
+  // gf_min_pyr_height = 0
+  { 0, 0, 34.75 },
+  { 0, 1, 34.75 },
+  { 0, 2, 35.25 },
+  { 0, 3, 35.50 },
+  { 0, 4, 35.50 },
+  // gf_min_pyr_height = 1
+  { 1, 1, 34.75 },
+  { 1, 2, 35.25 },
+  { 1, 3, 35.50 },
+  { 1, 4, 35.50 },
+  // gf_min_pyr_height = 2
+  { 2, 2, 35.25 },
+  { 2, 3, 35.50 },
+  { 2, 4, 35.50 },
+  // gf_min_pyr_height = 3
+  { 3, 3, 35.50 },
+  { 3, 4, 35.50 },
+  // gf_min_pyr_height = 4
+  { 4, 4, 35.50 },
 };
 
 // Compiler may decide to add some padding to the struct above for alignment,
@@ -29,25 +49,26 @@ static const struct GFMaxPyrHeightTestParam {
 // valgrind to complain that the padding is uninitialized. To avoid that, we
 // provide our own function to print the struct.
 // This also makes '--gtest_list_tests' output more understandable.
-std::ostream &operator<<(std::ostream &os, const GFMaxPyrHeightTestParam &p) {
-  os << "GFMaxPyrHeightTestParam { "
+std::ostream &operator<<(std::ostream &os, const GFPyrHeightTestParam &p) {
+  os << "GFPyrHeightTestParam { "
+     << "gf_min_pyr_height = " << p.gf_min_pyr_height << ", "
      << "gf_max_pyr_height = " << p.gf_max_pyr_height << ", "
      << "psnr_thresh = " << p.psnr_thresh << " }";
   return os;
 }
 
-// Params: encoding mode and GFMaxPyrHeightTestParam object.
-class GFMaxPyrHeightTest
+// Params: encoding mode and GFPyrHeightTestParam object.
+class GFPyrHeightTest
     : public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode,
-                                                 GFMaxPyrHeightTestParam>,
+                                                 GFPyrHeightTestParam>,
       public ::libaom_test::EncoderTest {
  protected:
-  GFMaxPyrHeightTest()
-      : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)) {
+  GFPyrHeightTest() : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)) {
+    gf_min_pyr_height_ = GET_PARAM(2).gf_min_pyr_height;
     gf_max_pyr_height_ = GET_PARAM(2).gf_max_pyr_height;
     psnr_threshold_ = GET_PARAM(2).psnr_thresh;
   }
-  virtual ~GFMaxPyrHeightTest() {}
+  virtual ~GFPyrHeightTest() {}
 
   virtual void SetUp() {
     InitializeConfig();
@@ -81,6 +102,7 @@ class GFMaxPyrHeightTest
         encoder->Control(AOME_SET_ARNR_MAXFRAMES, 7);
         encoder->Control(AOME_SET_ARNR_STRENGTH, 5);
       }
+      encoder->Control(AV1E_SET_GF_MIN_PYRAMID_HEIGHT, gf_min_pyr_height_);
       encoder->Control(AV1E_SET_GF_MAX_PYRAMID_HEIGHT, gf_max_pyr_height_);
     }
   }
@@ -94,22 +116,23 @@ class GFMaxPyrHeightTest
 
   ::libaom_test::TestMode encoding_mode_;
   double psnr_threshold_;
+  int gf_min_pyr_height_;
   int gf_max_pyr_height_;
   int cpu_used_;
   int nframes_;
   double psnr_;
 };
 
-TEST_P(GFMaxPyrHeightTest, EncodeAndVerifyPSNR) {
+TEST_P(GFPyrHeightTest, EncodeAndVerifyPSNR) {
   libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                      cfg_.g_timebase.den, cfg_.g_timebase.num,
                                      0, 32);
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
   EXPECT_GT(GetAveragePsnr(), GetPsnrThreshold())
+      << "GF Min Pyramid Height = " << gf_min_pyr_height_ << ", "
       << "GF Max Pyramid Height = " << gf_max_pyr_height_;
 }
 
-AV1_INSTANTIATE_TEST_CASE(GFMaxPyrHeightTest,
-                          ::testing::Values(::libaom_test::kTwoPassGood),
+AV1_INSTANTIATE_TEST_CASE(GFPyrHeightTest, NONREALTIME_TEST_MODES,
                           ::testing::ValuesIn(kTestParams));
 }  // namespace
