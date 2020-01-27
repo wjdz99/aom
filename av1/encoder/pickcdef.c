@@ -290,10 +290,8 @@ static int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col) {
   const int maxc = AOMMIN(cm->mi_cols - mi_col, MI_SIZE_64X64);
   const int stride = cm->mi_stride;
   MB_MODE_INFO **mbmi = cm->mi_grid_base + mi_row * stride + mi_col;
-  for (int r = 0; r < maxr; ++r, mbmi += stride) {
-    for (int c = 0; c < maxc; ++c) {
-      if (!mbmi[c]->skip) return 0;
-    }
+  if (!av1_is_all_skip(mbmi, maxc, maxr, stride)) {
+    return 0;
   }
   return 1;
 }

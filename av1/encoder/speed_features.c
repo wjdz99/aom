@@ -478,6 +478,7 @@ static void set_good_speed_features_framesize_independent(
         cm->allow_screen_content_tools ? 0 : 2;
     sf->lpf_sf.disable_loop_restoration_chroma =
         (boosted || cm->allow_screen_content_tools) ? 0 : 1;
+    sf->lpf_sf.prune_loop_restoration_for_skip = 1;
     sf->lpf_sf.reduce_wiener_window_size = !boosted;
     sf->lpf_sf.prune_wiener_based_on_src_var = 2;
 
@@ -1049,6 +1050,7 @@ static AOM_INLINE void init_winner_mode_sf(
 }
 
 static AOM_INLINE void init_lpf_sf(LOOP_FILTER_SPEED_FEATURES *lpf_sf) {
+  lpf_sf->prune_loop_restoration_for_skip = 0;
   lpf_sf->disable_loop_restoration_chroma = 0;
   lpf_sf->prune_wiener_based_on_src_var = 0;
   lpf_sf->prune_sgr_based_on_wiener = 0;

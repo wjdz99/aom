@@ -835,6 +835,9 @@ typedef struct LOOP_FILTER_SPEED_FEATURES {
   // Disable loop restoration for Chroma plane
   int disable_loop_restoration_chroma;
 
+  // Prune loop restoration if all blocks are skip
+  int prune_loop_restoration_for_skip;
+
   // Prune RESTORE_WIENER evaluation based on source variance
   // 0 : no pruning
   // 1 : conservative pruning

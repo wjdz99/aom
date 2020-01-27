@@ -1642,6 +1642,16 @@ static INLINE int av1_pixels_to_mi(int pixels) {
   return ALIGN_POWER_OF_TWO(pixels, 3) >> MI_SIZE_LOG2;
 }
 
+static INLINE int av1_is_all_skip(MB_MODE_INFO **mbmi, int maxc, int maxr,
+                                  int stride) {
+  for (int r = 0; r < maxr; ++r, mbmi += stride) {
+    for (int c = 0; c < maxc; ++c) {
+      if (!mbmi[c]->skip) return 0;
+    }
+  }
+  return 1;
+}
+
 #if CONFIG_COLLECT_PARTITION_STATS == 2
 static INLINE void av1_print_partition_stats(PartitionStats *part_stats) {
   FILE *f = fopen("partition_stats.csv", "w");
