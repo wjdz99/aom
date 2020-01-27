@@ -908,7 +908,7 @@ void av1_apply_temporal_filter_planewise_c(
 //   num_planes: Number of planes in the frame.
 //   use_planewise_strategy: Whether to use plane-wise temporal filtering
 //                           strategy. If set as 0, YUV or YONLY filtering will
-//                           be used (depending on number ofplanes).
+//                           be used (depending on number of planes).
 //   strength: Strength for filter weight adjustment. (Used in YUV filtering and
 //             YONLY filtering.)
 //   use_subblock: Whether to use 4 sub-blocks to replace the original block.
@@ -1059,6 +1059,9 @@ typedef struct {
 //   is_key_frame: Whether the to-filter is a key frame.
 //   is_second_arf: Whether the to-filter frame is the second ARF. This field
 //                  is ONLY used for assigning filter weight.
+//   use_planewise_strategy: Whether to use plane-wise temporal filtering
+//                           strategy. If set as 0, YUV or YONLY filtering will
+//                           be used.
 //   block_size: Block size used for temporal filtering.
 //   scale: Scaling factor.
 //   strength: Pre-estimated strength for filter weight adjustment.
@@ -1068,8 +1071,9 @@ typedef struct {
 static FRAME_DIFF tf_do_filtering(
     AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames, const int num_frames,
     const int filter_frame_idx, const int is_key_frame, const int is_second_arf,
-    const BLOCK_SIZE block_size, const struct scale_factors *scale,
-    const int strength, const double noise_level) {
+    const int use_planewise_strategy, const BLOCK_SIZE block_size,
+    const struct scale_factors *scale, const int strength,
+    const double noise_level) {
   // Basic information.
   const YV12_BUFFER_CONFIG *const frame_to_filter = frames[filter_frame_idx];
   const int frame_height = frame_to_filter->y_crop_height;
@@ -1111,10 +1115,6 @@ static FRAME_DIFF tf_do_filtering(
 
   // Do filtering.
   FRAME_DIFF diff = { 0, 0 };
-  const int use_planewise_strategy =
-      TF_ENABLE_PLANEWISE_STRATEGY &&
-      (cpi->common.allow_screen_content_tools == 0) &&
-      AOMMIN(frame_height, frame_width) >= 480;
   // Perform temporal filtering block by block.
   for (int mb_row = 0; mb_row < mb_rows; mb_row++) {
     mb->mv_limits.row_min = get_min_mv(mb_row, mb_height);
@@ -1301,6 +1301,9 @@ static int tf_estimate_strength(const AV1_COMP *cpi, const double noise_level,
 //                               lookahead buffer `cpi->lookahead`.
 //   is_second_arf: Whether the to-filter frame is the second ARF. This field
 //                  will affect the number of frames used for filtering.
+//   use_planewise_strategy: Whether to use plane-wise temporal filtering
+//                           strategy. This field ONLY affects how many frames
+//                           will be used to filter key frame.
 //   frames: Pointer to the frame buffer to setup.
 //   num_frames_for_filtering: Number of frames used for filtering.
 //   filter_frame_idx: Index of the to-filter frame in the setup frame buffer.
@@ -1311,17 +1314,23 @@ static int tf_estimate_strength(const AV1_COMP *cpi, const double noise_level,
 static void tf_setup_filtering_buffer(const AV1_COMP *cpi,
                                       const int filter_frame_lookahead_idx,
                                       const int is_second_arf,
+                                      const int use_planewise_strategy,
                                       YV12_BUFFER_CONFIG **frames,
                                       int *num_frames_for_filtering,
                                       int *filter_frame_idx) {
   int num_frames = 0;          // Number of frames used for filtering.
   int num_frames_before = -1;  // Number of frames before the to-filter frame.
 
+  const int lookahead_depth =
+      av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage);
+
   if (filter_frame_lookahead_idx == -1) {  // Key frame.
-    num_frames = TF_NUM_FILTERING_FRAMES_FOR_KEY_FRAME;
+    num_frames = use_planewise_strategy ? TF_NUM_FILTERING_FRAMES_FOR_KEY_FRAME
+                                        : lookahead_depth + 1;
     num_frames_before = 0;
   } else if (filter_frame_lookahead_idx < -1) {  // Key frame in one-pass mode.
-    num_frames = TF_NUM_FILTERING_FRAMES_FOR_KEY_FRAME;
+    num_frames = use_planewise_strategy ? TF_NUM_FILTERING_FRAMES_FOR_KEY_FRAME
+                                        : lookahead_depth + 1;
     num_frames_before = num_frames - 1;
   } else {
     num_frames = cpi->oxcf.arnr_max_frames;
@@ -1333,8 +1342,6 @@ static void tf_setup_filtering_buffer(const AV1_COMP *cpi,
       num_frames += !(num_frames & 1);
     }
     num_frames_before = AOMMIN(num_frames >> 1, filter_frame_lookahead_idx + 1);
-    const int lookahead_depth =
-        av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage);
     const int num_frames_after =
         AOMMIN((num_frames - 1) >> 1,
                lookahead_depth - filter_frame_lookahead_idx - 1);
@@ -1382,13 +1389,20 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
     return 0;
   }
 
+  // Choose filtering strategy based on frame size and frame type.
+  const int frame_height = cpi->common.height;
+  const int frame_width = cpi->common.width;
+  const int is_key_frame = (filter_frame_lookahead_idx < 0);
+  const int use_planewise_strategy =
+      TF_ENABLE_PLANEWISE_STRATEGY && AOMMIN(frame_height, frame_width) >= 480;
+
   // Setup frame buffer for filtering.
   YV12_BUFFER_CONFIG *frames[MAX_LAG_BUFFERS] = { NULL };
   int num_frames_for_filtering = 0;
   int filter_frame_idx = -1;
   tf_setup_filtering_buffer(cpi, filter_frame_lookahead_idx, is_second_arf,
-                            frames, &num_frames_for_filtering,
-                            &filter_frame_idx);
+                            use_planewise_strategy, frames,
+                            &num_frames_for_filtering, &filter_frame_idx);
 
   // Estimate noise and strength.
   const int bit_depth = cpi->common.seq_params.bit_depth;
@@ -1404,7 +1418,6 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
 
   // Do filtering.
   const BLOCK_SIZE block_size = BLOCK_32X32;
-  const int is_key_frame = (filter_frame_lookahead_idx < 0);
   FRAME_DIFF diff = { 0, 0 };
   if (num_frames_for_filtering > 0 && frames[0] != NULL) {
     // Setup scaling factors. Scaling on each of the arnr frames is not
@@ -1414,9 +1427,10 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
     av1_setup_scale_factors_for_frame(
         &sf, frames[0]->y_crop_width, frames[0]->y_crop_height,
         frames[0]->y_crop_width, frames[0]->y_crop_height);
-    diff = tf_do_filtering(cpi, frames, num_frames_for_filtering,
-                           filter_frame_idx, is_key_frame, is_second_arf,
-                           block_size, &sf, strength, y_noise_level);
+    diff =
+        tf_do_filtering(cpi, frames, num_frames_for_filtering, filter_frame_idx,
+                        is_key_frame, is_second_arf, use_planewise_strategy,
+                        block_size, &sf, strength, y_noise_level);
   }
 
   if (is_key_frame) {  // Key frame should always be filtered.
@@ -1425,8 +1439,6 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
 
   if ((show_existing_arf != NULL && cpi->sf.hl_sf.adaptive_overlay_encoding) ||
       is_second_arf) {
-    const int frame_height = frames[filter_frame_idx]->y_crop_height;
-    const int frame_width = frames[filter_frame_idx]->y_crop_width;
     const int block_height = block_size_high[block_size];
     const int block_width = block_size_wide[block_size];
     const int mb_rows = get_num_blocks(frame_height, block_height);
@@ -1438,7 +1450,7 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
     aom_clear_system_state();
     // TODO(yunqing): This can be combined with TPL q calculation later.
     cpi->rc.base_frame_target = gf_group->bit_allocation[group_idx];
-    av1_set_target_rate(cpi, cpi->common.width, cpi->common.height);
+    av1_set_target_rate(cpi, frame_width, frame_height);
     int top_index = 0;
     int bottom_index = 0;
     const int q = av1_rc_pick_q_and_bounds(cpi, &cpi->rc, cpi->oxcf.width,
