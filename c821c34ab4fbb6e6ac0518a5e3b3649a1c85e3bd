@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a272eb3_29a365c5",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1196,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-01-27T06:30:04Z",
+      "side": 1,
+      "message": "How about refactor this to \"av1_estimate_noise_from_y()\"?\nAlthough this requires more input variables, this function makes it clear that we only estimate the noise on Y plane.\n\nI think for experiments of improving temporal filtering, it is worth trying to use noise level estimated from Y, U, V separately.",
+      "range": {
+        "startLine": 1196,
+        "startChar": 7,
+        "endLine": 1196,
+        "endChar": 25
+      },
+      "revId": "c821c34ab4fbb6e6ac0518a5e3b3649a1c85e3bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
