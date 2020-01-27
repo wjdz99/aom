@@ -455,6 +455,33 @@ static double calc_kf_frame_boost(const RATE_CONTROL *rc,
   return AOMMIN(frame_boost, max_boost * boost_q_correction);
 }
 
+static void average_twopass_stats(FIRSTPASS_STATS *section, int count) {
+  if (count == 0) {
+    return;
+  }
+  section->weight /= count;
+  section->intra_error /= count;
+  section->frame_avg_wavelet_energy /= count;
+  section->coded_error /= count;
+  section->sr_coded_error /= count;
+  section->pcnt_inter /= count;
+  section->pcnt_motion /= count;
+  section->pcnt_second_ref /= count;
+  section->pcnt_neutral /= count;
+  section->intra_skip_pct /= count;
+  section->inactive_zone_rows /= count;
+  section->inactive_zone_cols /= count;
+  section->MVr /= count;
+  section->mvr_abs /= count;
+  section->MVc /= count;
+  section->mvc_abs /= count;
+  section->MVrv /= count;
+  section->MVcv /= count;
+  section->mv_in_out_count /= count;
+  section->new_mv_count /= count;
+  section->duration /= count;
+}
+
 #define GF_MAX_BOOST 90.0
 #define MIN_DECAY_FACTOR 0.01
 int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
@@ -469,10 +496,29 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
   double abs_mv_in_out_accumulator = 0.0;
   int arf_boost;
   int flash_detected = 0;
+  int is_extrapolating = 0;
+  FIRSTPASS_STATS average_stats;
+
+  av1_twopass_zero_stats(&average_stats);
 
   // Search forward from the proposed arf/next gf position.
   for (i = 0; i < f_frames; ++i) {
     const FIRSTPASS_STATS *this_frame = read_frame_stats(twopass, i + offset);
+    if (this_frame == NULL) {
+      if (!is_extrapolating) {
+        const FIRSTPASS_STATS *backward_frame = NULL;
+        int j = AOMMIN(b_frames, f_frames - i);
+
+        while (j > 0 &&
+               (backward_frame = read_frame_stats(twopass, offset - j))) {
+          av1_accumulate_stats(&average_stats, backward_frame);
+          j--;
+        }
+        average_twopass_stats(&average_stats, (int)average_stats.count);
+        is_extrapolating = 1;
+      }
+      if (average_stats.count) this_frame = &average_stats;
+    }
     if (this_frame == NULL) break;
 
     // Update the motion related elements to the boost calculation.
@@ -480,10 +526,14 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
         this_frame, &this_frame_mv_in_out, &mv_in_out_accumulator,
         &abs_mv_in_out_accumulator, &mv_ratio_accumulator);
 
-    // We want to discount the flash frame itself and the recovery
-    // frame that follows as both will have poor scores.
-    flash_detected = detect_flash(twopass, i + offset) ||
-                     detect_flash(twopass, i + offset + 1);
+    if (!is_extrapolating) {
+      // We want to discount the flash frame itself and the recovery
+      // frame that follows as both will have poor scores.
+      flash_detected = detect_flash(twopass, i + offset) ||
+                       detect_flash(twopass, i + offset + 1);
+    } else {
+      flash_detected = 0;
+    }
 
     // Accumulate the effect of prediction quality decay.
     if (!flash_detected) {
@@ -496,6 +546,7 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
     boost_score += decay_accumulator *
                    calc_frame_boost(rc, frame_info, this_frame,
                                     this_frame_mv_in_out, GF_MAX_BOOST);
+    if (!is_extrapolating) av1_accumulate_stats(&average_stats, this_frame);
   }
 
   arf_boost = (int)boost_score;
