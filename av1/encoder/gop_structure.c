@@ -170,8 +170,7 @@ static int get_pyramid_height(const AV1_COMP *const cpi) {
   if (!rc->source_alt_ref_pending) {
     assert(cpi->oxcf.gf_min_pyr_height == MIN_PYRAMID_LVL ||
            !is_altref_enabled(cpi) || rc->baseline_gf_interval <= 1 ||
-           rc->baseline_gf_interval >= cpi->oxcf.lag_in_frames ||
-           cpi->lookahead->sz >= rc->baseline_gf_interval - 1);
+           rc->baseline_gf_interval >= cpi->oxcf.lag_in_frames);
     return MIN_PYRAMID_LVL;
   }
   assert(cpi->oxcf.gf_max_pyr_height > MIN_PYRAMID_LVL);
