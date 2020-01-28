@@ -498,7 +498,7 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
                                     this_frame_mv_in_out, GF_MAX_BOOST);
   }
 
-  arf_boost = (int)boost_score;
+  if (i == f_frames) arf_boost = (int)boost_score;
 
   // Reset for backward looking loop.
   boost_score = 0.0;
@@ -535,7 +535,11 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
                    calc_frame_boost(rc, frame_info, this_frame,
                                     this_frame_mv_in_out, GF_MAX_BOOST);
   }
-  arf_boost += (int)boost_score;
+  if (f_frames && arf_boost == 0) {
+    arf_boost += (int)(2 * boost_score);
+  } else {
+    arf_boost += (int)boost_score;
+  }
 
   if (arf_boost < ((b_frames + f_frames) * 50))
     arf_boost = ((b_frames + f_frames) * 50);
