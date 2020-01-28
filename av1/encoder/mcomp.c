@@ -70,23 +70,23 @@ int av1_init_search_range(int size) {
   return sr;
 }
 
-static INLINE int mv_cost(const MV *mv, const int *joint_cost,
+static INLINE int mv_cost(const SUBPEL_MV *mv, const int *joint_cost,
                           int *const comp_cost[2]) {
   return joint_cost[av1_get_mv_joint(mv)] + comp_cost[0][mv->row] +
          comp_cost[1][mv->col];
 }
 
-int av1_mv_bit_cost(const MV *mv, const MV *ref, const int *mvjcost,
-                    int *mvcost[2], int weight) {
-  const MV diff = { mv->row - ref->row, mv->col - ref->col };
+int av1_mv_bit_cost(const SUBPEL_MV *mv, const SUBPEL_MV *ref,
+                    const int *mvjcost, int *mvcost[2], int weight) {
+  const SUBPEL_MV diff = { mv->row - ref->row, mv->col - ref->col };
   return ROUND_POWER_OF_TWO(mv_cost(&diff, mvjcost, mvcost) * weight, 7);
 }
 
 #define PIXEL_TRANSFORM_ERROR_SCALE 4
-static int mv_err_cost(const MV *mv, const MV *ref, const int *mvjcost,
-                       int *mvcost[2], int error_per_bit) {
+static int mv_err_cost(const SUBPEL_MV *mv, const SUBPEL_MV *ref,
+                       const int *mvjcost, int *mvcost[2], int error_per_bit) {
   if (mvcost) {
-    const MV diff = { mv->row - ref->row, mv->col - ref->col };
+    const SUBPEL_MV diff = { mv->row - ref->row, mv->col - ref->col };
     return (int)ROUND_POWER_OF_TWO_64(
         (int64_t)mv_cost(&diff, mvjcost, mvcost) * error_per_bit,
         RDDIV_BITS + AV1_PROB_COST_SHIFT - RD_EPB_SHIFT +
@@ -95,9 +95,9 @@ static int mv_err_cost(const MV *mv, const MV *ref, const int *mvjcost,
   return 0;
 }
 
-static int mvsad_err_cost(const MACROBLOCK *x, const MV *mv, const MV *ref,
-                          int sad_per_bit) {
-  const MV diff = { (mv->row - ref->row) * 8, (mv->col - ref->col) * 8 };
+static int mvsad_err_cost(const MACROBLOCK *x, const FULLPEL_MV *mv,
+                          const FULLPEL_MV *ref, int sad_per_bit) {
+  const SUBPEL_MV diff = { (mv->row - ref->row) * 8, (mv->col - ref->col) * 8 };
   return ROUND_POWER_OF_TWO(
       (unsigned)mv_cost(&diff, x->nmv_vec_cost, x->mv_cost_stack) * sad_per_bit,
       AV1_PROB_COST_SHIFT);
@@ -1209,7 +1209,7 @@ static INLINE void calc_int_sad_list(const MACROBLOCK *x,
 static int pattern_search(
     MACROBLOCK *x, MV *start_mv, int search_param, int sad_per_bit,
     int do_init_search, int *cost_list, const aom_variance_fn_ptr_t *vfp,
-    int use_mvcost, const MV *center_mv,
+    int use_mvcost, const SUBPEL_MV *center_mv,
     const int num_candidates[MAX_PATTERN_SCALES],
     const MV candidates[MAX_PATTERN_SCALES][MAX_PATTERN_CANDIDATES]) {
   const MACROBLOCKD *const xd = &x->e_mbd;
@@ -1224,7 +1224,7 @@ static int pattern_search(
   int bestsad = INT_MAX;
   int thissad;
   int k = -1;
-  const MV fcenter_mv = { center_mv->row >> 3, center_mv->col >> 3 };
+  const FULLPEL_MV fcenter_mv = { center_mv->row >> 3, center_mv->col >> 3 };
   assert(search_param < MAX_MVSEARCH_STEPS);
   int best_init_s = search_param_to_steps[search_param];
   // adjust ref_mv to make sure it is within MV range

@@ -1170,10 +1170,10 @@ void aom_highbd_comp_mask_pred_c(uint8_t *comp_pred8, const uint8_t *pred8,
 
 void aom_highbd_comp_mask_upsampled_pred(
     MACROBLOCKD *xd, const struct AV1Common *const cm, int mi_row, int mi_col,
-    const MV *const mv, uint8_t *comp_pred8, const uint8_t *pred8, int width,
-    int height, int subpel_x_q3, int subpel_y_q3, const uint8_t *ref8,
-    int ref_stride, const uint8_t *mask, int mask_stride, int invert_mask,
-    int bd, int subpel_search) {
+    const SUBPEL_MV *const mv, uint8_t *comp_pred8, const uint8_t *pred8,
+    int width, int height, int subpel_x_q3, int subpel_y_q3,
+    const uint8_t *ref8, int ref_stride, const uint8_t *mask, int mask_stride,
+    int invert_mask, int bd, int subpel_search) {
   aom_highbd_upsampled_pred(xd, cm, mi_row, mi_col, mv, comp_pred8, width,
                             height, subpel_x_q3, subpel_y_q3, ref8, ref_stride,
                             bd, subpel_search);

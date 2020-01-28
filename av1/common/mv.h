@@ -22,12 +22,22 @@ extern "C" {
 
 #define INVALID_MV 0x80008000
 
-typedef struct mv {
+typedef struct fullpel_mv {
   int16_t row;
   int16_t col;
-} MV;
+} FULLPEL_MV;
 
-static const MV kZeroMv = { 0, 0 };
+typedef struct subpel_mv {
+  int16_t row;
+  int16_t col;
+} SUBPEL_MV;
+
+typedef union mv {
+  FULLPEL_MV as_fullpel_mv;
+  SUBPEL_MV as_subpel_mv;
+} MV; /* facilitates faster equality tests and copies */
+
+static const MV kZeroMv = { { 0, 0 } };
 
 typedef union int_mv {
   uint32_t as_int;
@@ -291,6 +301,12 @@ static INLINE void clamp_mv(MV *mv, int min_col, int max_col, int min_row,
                             int max_row) {
   mv->col = clamp(mv->col, min_col, max_col);
   mv->row = clamp(mv->row, min_row, max_row);
+}
+
+// Converts FULLPEL_MV to SUBPEL_MV
+static INLINE SUBPEL_MV convert_fullpel_to_subpel(FULLPEL_MV fmv) {
+  SUBPEL_MV smv = { fmv.row * 8, fmv.col * 8 };
+  return smv;
 }
 
 #ifdef __cplusplus
