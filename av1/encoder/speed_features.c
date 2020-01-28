@@ -553,6 +553,9 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.disable_onesided_comp = 1;
 
     sf->lpf_sf.disable_lr_filter = 1;
+
+    sf->mv_sf.auto_mv_step_size = boosted ? 1 : 2;
+    sf->mv_sf.reduce_search_range = 1;
   }
 }
 
@@ -915,6 +918,7 @@ static AOM_INLINE void init_mv_sf(MV_SPEED_FEATURES *mv_sf) {
   mv_sf->adaptive_motion_search = 0;
   mv_sf->use_accurate_subpel_search = USE_8_TAPS;
   mv_sf->disable_hash_me = 0;
+  mv_sf->reduce_search_range = 0;
 }
 
 static AOM_INLINE void init_inter_sf(INTER_MODE_SPEED_FEATURES *inter_sf) {
