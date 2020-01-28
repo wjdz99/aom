@@ -459,7 +459,7 @@ static double calc_kf_frame_boost(const RATE_CONTROL *rc,
 #define MIN_DECAY_FACTOR 0.01
 int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
                        FRAME_INFO *frame_info, int offset, int f_frames,
-                       int b_frames) {
+                       int b_frames, int disable_extrapolation) {
   int i;
   double boost_score = 0.0;
   double mv_ratio_accumulator = 0.0;
@@ -498,7 +498,7 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
                                     this_frame_mv_in_out, GF_MAX_BOOST);
   }
 
-  arf_boost = (int)boost_score;
+  if (i == f_frames || disable_extrapolation) arf_boost = (int)boost_score;
 
   // Reset for backward looking loop.
   boost_score = 0.0;
@@ -535,7 +535,11 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
                    calc_frame_boost(rc, frame_info, this_frame,
                                     this_frame_mv_in_out, GF_MAX_BOOST);
   }
-  arf_boost += (int)boost_score;
+  if (f_frames && arf_boost == 0 && !disable_extrapolation) {
+    arf_boost += (int)(2 * boost_score);
+  } else {
+    arf_boost += (int)boost_score;
+  }
 
   if (arf_boost < ((b_frames + f_frames) * 50))
     arf_boost = ((b_frames + f_frames) * 50);
@@ -1145,15 +1149,17 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
                                    : AOMMAX(0, rc->frames_to_key - i);
 
     // Calculate the boost for alt ref.
-    rc->gfu_boost = av1_calc_arf_boost(twopass, rc, frame_info, alt_offset,
-                                       forward_frames, (i - 1));
+    rc->gfu_boost =
+        av1_calc_arf_boost(twopass, rc, frame_info, alt_offset, forward_frames,
+                           (i - 1), cm->current_frame.frame_number != 48);
     rc->source_alt_ref_pending = 1;
     gf_group->max_layer_depth_allowed = cpi->oxcf.gf_max_pyr_height;
   } else {
     reset_fpf_position(twopass, start_pos);
-    rc->gfu_boost = AOMMIN(
-        MAX_GF_BOOST,
-        av1_calc_arf_boost(twopass, rc, frame_info, alt_offset, (i - 1), 0));
+    rc->gfu_boost =
+        AOMMIN(MAX_GF_BOOST,
+               av1_calc_arf_boost(twopass, rc, frame_info, alt_offset, (i - 1),
+                                  0, cm->current_frame.frame_number != 48));
     rc->source_alt_ref_pending = 0;
     gf_group->max_layer_depth_allowed = 0;
   }
