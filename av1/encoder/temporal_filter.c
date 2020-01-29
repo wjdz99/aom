@@ -1495,8 +1495,12 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
   int rdmult = 0;
   double sigma = 0;
 
+    const int is_fwd_kf = 
+	(cpi->oxcf.fwd_kf_enabled && (gf_group->index == gf_group->size) &&
+         gf_group->update_type[1] == ARF_UPDATE && cpi->rc.frames_to_key == 0);
+
   // Apply context specific adjustments to the arnr filter parameters.
-  if (gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE) {
+  if (gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE || is_fwd_kf) {
     // TODO(weitinglin): Currently, we enforce the filtering strength on
     // internal ARFs to be zeros. We should investigate in which case it is more
     // beneficial to use non-zero strength filtering.
@@ -1514,10 +1518,13 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
 
   int which_arf = gf_group->arf_update_idx[gf_group->index];
   // Set the temporal filtering status for the corresponding OVERLAY frame
-  if (strength == 0 && frames_to_blur == 1)
+  if (strength == 0 && frames_to_blur == 1) { 
     cpi->is_arf_filter_off[which_arf] = 1;
-  else
+  } else { 
     cpi->is_arf_filter_off[which_arf] = 0;
+    if (which_arf == 0)
+    printf("turn off\n");
+  } 
 
   cpi->common.showable_frame = cpi->is_arf_filter_off[which_arf];
 
