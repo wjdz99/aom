@@ -549,6 +549,8 @@ static const arg_def_t enable_overlay =
             "Enable coding overlay frames (0: false, 1: true (default))");
 static const arg_def_t disable_refmv_idx = ARG_DEF(
     NULL, "disable-refmv-idx", 1, "Disable refmv_idx other than 0 (0: false (default), 1: true))");
+static const arg_def_t disable_comp_modes = ARG_DEF(
+    NULL, "disable-comp_modes", 1, "Disable compound modes other then VP9 compatible (0: false (default), 1: true))");
 static const arg_def_t enable_palette =
     ARG_DEF(NULL, "enable-palette", 1,
             "Enable palette prediction mode (0: false, 1: true (default))");
@@ -860,6 +862,7 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &enable_obmc,
                                        &enable_overlay,
                                        &disable_refmv_idx,
+                                       &disable_comp_modes,
                                        &enable_palette,
                                        &enable_intrabc,
                                        &enable_angle_delta,
@@ -969,6 +972,7 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_ENABLE_OBMC,
                                         AV1E_SET_ENABLE_OVERLAY,
                                         AV1E_SET_DISABLE_REFMV_IDX,
+                                        AV1E_SET_DISABLE_COMP_MODES,
                                         AV1E_SET_ENABLE_PALETTE,
                                         AV1E_SET_ENABLE_INTRABC,
                                         AV1E_SET_ENABLE_ANGLE_DELTA,

@@ -2352,6 +2352,34 @@ typedef struct motion_mode_best_st_candidate {
   int num_motion_mode_cand;
 } motion_mode_best_st_candidate;
 
+const char* const mode_lookup[] = {
+    "DC_PRED",
+    "V_PRED",
+    "H_PRED",
+    "D45_PRED",
+    "D135_PRED",
+    "D113_PRED",
+    "D157_PRED",
+    "D203_PRED",
+    "D67_PRED",
+    "SMOOTH_PRED",
+    "SMOOTH_V_PRED",
+    "SMOOTH_H_PRED",
+    "PAETH_PRED",
+    "NEARESTMV",
+    "NEARMV",
+    "GLOBALMV",
+    "NEWMV",
+    "NEAREST_NEARESTMV",
+    "NEAR_NEARMV",
+    "NEAREST_NEWMV",
+    "NEW_NEARESTMV",
+    "NEAR_NEWMV",
+    "NEW_NEARMV",
+    "GLOBAL_GLOBALMV",
+    "NEW_NEWMV"
+};
+
 static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
                                  MACROBLOCK *x, BLOCK_SIZE bsize,
                                  RD_STATS *rd_stats, RD_STATS *rd_stats_y,
@@ -2426,13 +2454,27 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
       continue;
     }
 
+    const int mi_row = xd->mi_row;
+    const int mi_col = xd->mi_col;
+
+    // Disable refmv_idx
     if (cpi->oxcf.disable_refmv_idx && ref_mv_idx > 0) {
       bool is_new  = this_mode == NEWMV  || this_mode == NEW_NEWMV;
       bool is_near = this_mode == NEARMV || this_mode == NEAR_NEARMV;
       if ((cpi->oxcf.disable_refmv_idx == 2 && is_new)  ||
           (cpi->oxcf.disable_refmv_idx == 3 && is_near) ||
           cpi->oxcf.disable_refmv_idx == 1) {
-        // STAN
+        continue;
+      }
+    }
+
+    // Disable compound modes
+    if (cpi->oxcf.disable_comp_modes) {
+      if (this_mode == NEAREST_NEWMV ||
+          this_mode == NEW_NEARESTMV ||
+          this_mode == NEAR_NEWMV ||
+          this_mode == NEW_NEARMV) {
+        printf("[%d,%d] Skipping %s\n", mi_col, mi_row, mode_lookup[this_mode]);
         continue;
       }
     }
@@ -2598,8 +2640,6 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
     start_timing(cpi, compound_type_rd_time);
 #endif
     int skip_build_pred = 0;
-    const int mi_row = xd->mi_row;
-    const int mi_col = xd->mi_col;
     if (is_comp_pred) {
       // Find matching interp filter or set to default interp filter
       const int need_search = av1_is_interp_needed(xd);
