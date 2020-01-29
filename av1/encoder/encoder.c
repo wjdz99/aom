@@ -5714,6 +5714,8 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       cpi->oxcf.allow_warped_motion && frame_might_allow_warped_motion(cm);
 
   cm->last_frame_type = current_frame->frame_type;
+  printf("kf %d show %d show ex %d showable %d\n", current_frame->frame_type == KEY_FRAME,
+    cm->show_frame, cm->show_existing_frame, cm->showable_frame);
   if (is_stat_consumption_stage_twopass(cpi) &&
       cpi->sf.adaptive_interp_filter_search)
     cpi->sf.interp_filter_search_mask = setup_interp_filter_search_mask(cpi);
