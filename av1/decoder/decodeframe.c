@@ -4948,6 +4948,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       // show_existing_frame is used to show a previous frame, that the value
       // of showable_frame for the previous frame was equal to 1.
       if (!frame_to_show->showable_frame) {
+        printf("frame type %d\n", frame_to_show->frame_type == KEY_FRAME);
         aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                            "Buffer does not contain a showable frame");
       }
