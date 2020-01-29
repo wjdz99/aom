@@ -1196,6 +1196,13 @@ enum aome_enc_control_id {
    * 0 : off, 1 : on
    */
   AV1E_ENABLE_SB_MULTIPASS_UNIT_TEST = 155,
+
+  /*!\brief Codec control function to disable ML based partition search speed
+   * features.
+   *
+   * 0 : off, 1 : on
+   */
+  AV1E_SET_DISABLE_ML_PARTITION_SPEED_FEATURES = 156,
 };
 
 /*!\brief aom 1-D scaling mode
@@ -1397,6 +1404,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_MTU, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_TIMING_INFO_TYPE, int) /* aom_timing_info_type_t */
 #define AOM_CTRL_AV1E_SET_TIMING_INFO_TYPE
+
+AOM_CTRL_USE_TYPE(AV1E_SET_DISABLE_ML_PARTITION_SPEED_FEATURES, int)
+#define AOM_CTRL_AV1E_SET_DISABLE_ML_PARTITION_SPEED_FEATURES
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_RECT_PARTITIONS, int)
 #define AOM_CTRL_AV1E_SET_ENABLE_RECT_PARTITIONS
