@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "374b7904_541e40e5",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 913,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-01-29T21:38:48Z",
+      "side": 1,
+      "message": "aom_satd_lp to keep name consistent with aom_satd",
+      "range": {
+        "startLine": 913,
+        "startChar": 28,
+        "endLine": 913,
+        "endChar": 39
+      },
+      "revId": "457723ec5a22275024ea36b307267fa438492c67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
