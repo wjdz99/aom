@@ -1799,6 +1799,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   } else {
     rc->active_worst_quality = cpi->oxcf.cq_level;
   }
+   printf("av1_get_second_pass_params frame %f frame_number %d\n",twopass->stats_in->frame,cpi->common.current_frame.frame_number);
 
   // Keyframe and section processing.
   if (rc->frames_to_key == 0 || (frame_flags & FRAMEFLAGS_KEY)) {
