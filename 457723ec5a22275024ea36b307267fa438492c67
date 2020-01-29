@@ -22,6 +22,30 @@
       "revId": "457723ec5a22275024ea36b307267fa438492c67",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "589e9875_d2360100",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 913,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-01-29T21:59:16Z",
+      "side": 1,
+      "message": "I\u0027ll follow up with a different CL",
+      "parentUuid": "374b7904_541e40e5",
+      "range": {
+        "startLine": 913,
+        "startChar": 28,
+        "endLine": 913,
+        "endChar": 39
+      },
+      "revId": "457723ec5a22275024ea36b307267fa438492c67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
