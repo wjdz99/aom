@@ -771,6 +771,15 @@ static void model_rd_for_sb_y(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
   *out_dist_sum = dist;
 }
 
+int av1_satd_lp_c(const int16_t *coeff, int length) {
+  int i;
+  int satd = 0;
+  for (i = 0; i < length; ++i) satd += abs(coeff[i]);
+
+  // satd: 26 bits, dynamic range [-32640 * 1024, 32640 * 1024]
+  return satd;
+}
+
 static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
                       RD_STATS *this_rdc, int *skippable, int64_t *sse,
                       BLOCK_SIZE bsize, TX_SIZE tx_size) {
@@ -806,9 +815,9 @@ static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
       if (c < max_blocks_wide) {
         const SCAN_ORDER *const scan_order = &av1_default_scan_orders[tx_size];
         const int block_offset = BLOCK_OFFSET(block);
-        tran_low_t *const coeff = p->coeff + block_offset;
-        tran_low_t *const qcoeff = p->qcoeff + block_offset;
-        tran_low_t *const dqcoeff = pd->dqcoeff + block_offset;
+        int16_t *const low_coeff = (int16_t *)p->coeff + block_offset;
+        int16_t *const low_qcoeff = (int16_t *)p->qcoeff + block_offset;
+        int16_t *const low_dqcoeff = (int16_t *)pd->dqcoeff + block_offset;
         uint16_t *const eob = &p->eobs[block];
         const int diff_stride = bw;
         const int16_t *src_diff;
@@ -819,25 +828,19 @@ static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
             assert(0);  // Not implemented
             break;
           case TX_32X32:
-            aom_hadamard_32x32(src_diff, diff_stride, coeff);
-            av1_quantize_fp(coeff, 32 * 32, p->zbin_QTX, p->round_fp_QTX,
-                            p->quant_fp_QTX, p->quant_shift_QTX, qcoeff,
-                            dqcoeff, p->dequant_QTX, eob, scan_order->scan,
-                            scan_order->iscan);
+            assert(0);  // Not used
             break;
           case TX_16X16:
-            aom_hadamard_16x16(src_diff, diff_stride, coeff);
-            av1_quantize_fp(coeff, 16 * 16, p->zbin_QTX, p->round_fp_QTX,
-                            p->quant_fp_QTX, p->quant_shift_QTX, qcoeff,
-                            dqcoeff, p->dequant_QTX, eob, scan_order->scan,
-                            scan_order->iscan);
+            aom_hadamard_lp_16x16(src_diff, diff_stride, low_coeff);
+            av1_quantize_lp(low_coeff, 16 * 16, p->round_fp_QTX,
+                            p->quant_fp_QTX, low_qcoeff, low_dqcoeff,
+                            p->dequant_QTX, eob, scan_order->scan);
             break;
           case TX_8X8:
-            aom_hadamard_8x8(src_diff, diff_stride, coeff);
-            av1_quantize_fp(coeff, 8 * 8, p->zbin_QTX, p->round_fp_QTX,
-                            p->quant_fp_QTX, p->quant_shift_QTX, qcoeff,
-                            dqcoeff, p->dequant_QTX, eob, scan_order->scan,
-                            scan_order->iscan);
+            aom_hadamard_lp_8x8(src_diff, diff_stride, low_coeff);
+            av1_quantize_lp(low_coeff, 8 * 8, p->round_fp_QTX, p->quant_fp_QTX,
+                            low_qcoeff, low_dqcoeff, p->dequant_QTX, eob,
+                            scan_order->scan);
             break;
           default: assert(0); break;
         }
@@ -864,18 +867,18 @@ static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
       if (c < max_blocks_wide) {
         int64_t dummy;
         const int block_offset = BLOCK_OFFSET(block);
-        tran_low_t *const coeff = p->coeff + block_offset;
-        tran_low_t *const qcoeff = p->qcoeff + block_offset;
-        tran_low_t *const dqcoeff = pd->dqcoeff + block_offset;
+        int16_t *const low_coeff = (int16_t *)p->coeff + block_offset;
+        int16_t *const low_qcoeff = (int16_t *)p->qcoeff + block_offset;
+        int16_t *const low_dqcoeff = (int16_t *)pd->dqcoeff + block_offset;
         uint16_t *const eob = &p->eobs[block];
 
         if (*eob == 1)
-          this_rdc->rate += (int)abs(qcoeff[0]);
+          this_rdc->rate += (int)abs(low_qcoeff[0]);
         else if (*eob > 1)
-          this_rdc->rate += aom_satd(qcoeff, step << 4);
+          this_rdc->rate += av1_satd_lp(low_qcoeff, step << 4);
 
         this_rdc->dist +=
-            av1_block_error(coeff, dqcoeff, step << 4, &dummy) >> 2;
+            av1_block_error_lp(low_coeff, low_dqcoeff, step << 4) >> 2;
       }
       block += step;
     }
