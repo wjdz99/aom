@@ -195,7 +195,10 @@ static void update_rc_counts(AV1_COMP *cpi) {
 // Get update type of the current frame.
 static INLINE FRAME_UPDATE_TYPE get_frame_update_type(const AV1_COMP *cpi) {
   const GF_GROUP *const gf_group = &cpi->gf_group;
-  if (gf_group->size == 0) {
+    const int is_fwd_kf =
+	(cpi->oxcf.fwd_kf_enabled && (gf_group->index == gf_group->size) &&
+         gf_group->update_type[1] == ARF_UPDATE && cpi->rc.frames_to_key == 0);
+  if (gf_group->size == 0 || is_fwd_kf) {
     // Special case 1: happens at the first frame of a video.
     return KF_UPDATE;
   }
@@ -235,12 +238,15 @@ static void check_show_existing_frame(AV1_COMP *const cpi,
   } else {
     const FRAME_UPDATE_TYPE frame_update_type = get_frame_update_type(cpi);
     const int which_arf = get_arf_update_idx(gf_group);
-    if ((frame_update_type == OVERLAY_UPDATE ||
+    const int is_fwd_kf =
+	(cpi->oxcf.fwd_kf_enabled && (gf_group->index == gf_group->size) &&
+         gf_group->update_type[1] == ARF_UPDATE && cpi->rc.frames_to_key == 0);
+    if (((frame_update_type == OVERLAY_UPDATE ||
          frame_update_type == INTNL_OVERLAY_UPDATE) &&
-        cpi->is_arf_filter_off[which_arf]) {
+        cpi->is_arf_filter_off[which_arf]) || is_fwd_kf) {
       frame_params->show_existing_frame = 1;
       frame_params->existing_fb_idx_to_show =
-          (frame_update_type == OVERLAY_UPDATE)
+          (frame_update_type == OVERLAY_UPDATE || frame_update_type == KEY_FRAME)
               ? get_ref_frame_map_idx(cm, ALTREF_FRAME)
               : get_ref_frame_map_idx(cm, BWDREF_FRAME);
 
@@ -803,6 +809,7 @@ static void update_arf_stack(AV1_COMP *cpi, int ref_map_index,
 // Update reference frame stack info.
 void av1_update_ref_frame_map(AV1_COMP *cpi,
                               FRAME_UPDATE_TYPE frame_update_type,
+			      int show_existing,
                               int ref_map_index,
                               RefBufferStack *ref_buffer_stack) {
   AV1_COMMON *const cm = &cpi->common;
@@ -815,6 +822,9 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
 
   switch (frame_update_type) {
     case KEY_FRAME:
+      if (show_existing)
+        ref_map_index = stack_pop(ref_buffer_stack->arf_stack,
+                                  &ref_buffer_stack->arf_stack_size);
       stack_reset(ref_buffer_stack->lst_stack,
                   &ref_buffer_stack->lst_stack_size);
       stack_reset(ref_buffer_stack->gld_stack,
@@ -1059,6 +1069,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
   }
   const int apply_filtering =
       oxcf->pass != 1 && frame_params->frame_type == KEY_FRAME &&
+      frame_params->show_frame &&
       cpi->rc.frames_to_key > NUM_KEY_FRAME_DENOISING && noise_level > 0 &&
       !is_lossless_requested(oxcf) && oxcf->arnr_max_frames > 0;
 
@@ -1322,7 +1333,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     av1_get_one_pass_rt_params(cpi, &frame_params, *frame_flags);
     frame_update_type = get_frame_update_type(cpi);
   } else if (oxcf->pass != 1 &&
-             (!frame_params.show_existing_frame || is_overlay)) {
+             (!frame_params.show_existing_frame || is_overlay || (frame_params.show_existing_frame && frame_params.frame_type == KEY_FRAME))) {
     // GF_GROUP needs updating for arf overlays as well as non-show-existing
     av1_get_second_pass_params(cpi, &frame_params, *frame_flags);
     frame_update_type = get_frame_update_type(cpi);
@@ -1450,7 +1461,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     update_frame_flags(cpi, frame_flags);
     int ref_map_index =
         av1_get_refresh_ref_frame_map(cm->current_frame.refresh_frame_flags);
-    av1_update_ref_frame_map(cpi, frame_update_type, ref_map_index,
+    av1_update_ref_frame_map(cpi, frame_update_type, cm->show_existing_frame, ref_map_index,
                              &cpi->ref_buffer_stack);
   }
 
