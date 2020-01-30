@@ -266,6 +266,10 @@ if(MSVC)
   if(ENABLE_WERROR)
     add_compiler_flag_if_supported("/WX")
   endif()
+  # C4800 is a level 3 warning in Visual Studio 2015 and earlier. C4800 is off
+  # by default starting in Visual Studio 2019. Use /w34800 to enable C4800 as
+  # a level 3 warning
+  add_compiler_flag_if_supported("/w34800")
 else()
   require_c_flag("-std=c99" YES)
   require_cxx_flag_nomsvc("-std=c++11" YES)
