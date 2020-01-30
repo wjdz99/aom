@@ -99,7 +99,12 @@ void av1_update_mv_stats(const MV *mv, const MV *ref, nmv_context *mvctx,
   const MV diff = { mv->row - ref_.row, mv->col - ref_.col };
   const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
 
+#if CONFIG_NEW_INTER_MODES
+  assert(j != MV_JOINT_ZERO);
+  update_cdf(mvctx->joints_cdf, j - 1, MV_JOINTS - 1);
+#else
   update_cdf(mvctx->joints_cdf, j, MV_JOINTS);
+#endif  // CONFIG_NEW_INTER_MODES
 
   if (mv_joint_vertical(j))
     update_mv_component_stats(diff.row, ref_.row, &mvctx->comps[0], precision);
@@ -266,7 +271,11 @@ void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
   // If the mv_diff is zero, then we should have used near or nearest instead.
   assert(j != MV_JOINT_ZERO);
 
+#if CONFIG_NEW_INTER_MODES
+  aom_write_symbol(w, j - 1, mvctx->joints_cdf, MV_JOINTS - 1);
+#else
   aom_write_symbol(w, j, mvctx->joints_cdf, MV_JOINTS);
+#endif  // CONFIG_NEW_INTER_MODES
   if (mv_joint_vertical(j))
     encode_mv_component(w, diff.row, ref_.row, &mvctx->comps[0], precision);
 
@@ -302,6 +311,21 @@ void av1_encode_dv(aom_writer *w, const MV *mv, const MV *ref,
 }
 
 void av1_build_nmv_cost_table(int *mvjoint, int *mvcost[2],
+                              const nmv_context *ctx,
+                              MvSubpelPrecision precision) {
+#if CONFIG_NEW_INTER_MODES
+  av1_cost_tokens_from_cdf(mvjoint + 1, ctx->joints_cdf, NULL);
+  // Assign an artificial high cost to MV_JOINT_ZERO to facilitate
+  // motion estimation
+  mvjoint[0] = 2 * (mvjoint[1] + mvjoint[2] + mvjoint[3]);
+#else
+  av1_cost_tokens_from_cdf(mvjoint, ctx->joints_cdf, NULL);
+#endif  // CONFIG_NEW_INTER_MODES
+  build_nmv_component_cost_table(mvcost[0], &ctx->comps[0], precision);
+  build_nmv_component_cost_table(mvcost[1], &ctx->comps[1], precision);
+}
+
+void av1_build_ndv_cost_table(int *mvjoint, int *mvcost[2],
                               const nmv_context *ctx,
                               MvSubpelPrecision precision) {
   av1_cost_tokens_from_cdf(mvjoint, ctx->joints_cdf, NULL);
