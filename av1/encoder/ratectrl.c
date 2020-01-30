@@ -1779,7 +1779,7 @@ static void vbr_rate_correction(AV1_COMP *cpi, int *this_frame_target) {
                               ? (int)cpi->twopass.total_stats->count
                               : 0;
   const int frame_window =
-      AOMMIN(16, (int)(stats_count - cpi->common.current_frame.frame_number));
+      AOMMIN(16, stats_count - (int)cpi->common.current_frame.frame_number);
 
   if (frame_window > 0) {
     const int max_delta =
