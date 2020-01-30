@@ -78,12 +78,10 @@ static unsigned int num_winner_motion_modes[3] = { 0, 10, 3 };
 // (Eg : IntraBc) Index 1: Mode evaluation. Index 2: Winner mode evaluation.
 // Index 1 and 2 are applicable when enable_winner_mode_for_coeff_opt speed
 // feature is ON
-static unsigned int coeff_opt_dist_thresholds[5][MODE_EVAL_TYPES] = {
-  { UINT_MAX, UINT_MAX, UINT_MAX },
-  { 442413, 36314, UINT_MAX },
-  { 162754, 36314, UINT_MAX },
-  { 22026, 22026, UINT_MAX },
-  { 22026, 22026, UINT_MAX }
+static unsigned int coeff_opt_dist_thresholds[6][MODE_EVAL_TYPES] = {
+  { UINT_MAX, UINT_MAX, UINT_MAX }, { 442413, 36314, UINT_MAX },
+  { 162754, 36314, UINT_MAX },      { 22026, 22026, UINT_MAX },
+  { 22026, 22026, UINT_MAX },       { 0, 0, UINT_MAX }
 };
 
 // Transform size to be used for default, mode and winner mode evaluation
@@ -551,6 +549,8 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.disable_interinter_wedge = 1;
     sf->inter_sf.disable_obmc = 1;
     sf->inter_sf.disable_onesided_comp = 1;
+
+    sf->rd_sf.perform_coeff_opt = 5;
 
     sf->lpf_sf.disable_lr_filter = 1;
   }
@@ -1224,7 +1224,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
 
   // assert ensures that coeff_opt_dist_thresholds is accessed correctly
   assert(cpi->sf.rd_sf.perform_coeff_opt >= 0 &&
-         cpi->sf.rd_sf.perform_coeff_opt < 5);
+         cpi->sf.rd_sf.perform_coeff_opt < 6);
   memcpy(cpi->coeff_opt_dist_threshold,
          coeff_opt_dist_thresholds[cpi->sf.rd_sf.perform_coeff_opt],
          sizeof(cpi->coeff_opt_dist_threshold));
