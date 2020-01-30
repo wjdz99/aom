@@ -4276,10 +4276,11 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
   if (width != cm->width || height != cm->height) {
     // There has been a change in the encoded frame size
     av1_set_size_literal(cpi, width, height);
+    set_mv_search_params(cpi);
+
     // Recalculate 'all_lossless' in case super-resolution was (un)selected.
     cm->all_lossless = cm->coded_lossless && !av1_superres_scaled(cm);
   }
-  set_mv_search_params(cpi);
 
   if (is_stat_consumption_stage(cpi)) {
     av1_set_target_rate(cpi, cm->width, cm->height);
