@@ -536,4 +536,11 @@ static INLINE void store_s16q_to_tran_low(tran_low_t *buf, const int16x8_t a) {
   vst1q_s32(buf + 4, v1);
 }
 
+static INLINE void store_s16q_to_tran_lp(int16_t *buf, const int16x8_t a) {
+  vst1q_s16(buf, a);
+}
+
+static INLINE int16x8_t load_tran_lp_to_s16q(const int16_t *buf) {
+  return vld1q_s16(buf);
+}
 #endif  // AOM_AV1_COMMON_ARM_MEM_NEON_H_
