@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bfe0ffc3_072e7783",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1380,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-01-30T06:41:24Z",
+      "side": 1,
+      "message": "I would highly recommend to unify the model as resolution independent.\n\nConsider the situation where you have 4 CIF sequences putting together to construct a 4CIF clip By checking the frame dimension, one would set use_planewise_strategy \u003d 1. Yet by design it seems not to recommend to use it.",
+      "range": {
+        "startLine": 1380,
+        "startChar": 6,
+        "endLine": 1380,
+        "endChar": 46
+      },
+      "revId": "434e8042c6ae216f7a2aa71a595fd0b4b05740dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
