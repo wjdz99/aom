@@ -769,7 +769,7 @@ static INLINE int is_partition_valid(BLOCK_SIZE bsize, PARTITION_TYPE p) {
   if (bsize >= BLOCK_SIZES)
     return p == PARTITION_NONE;
   else
-    return subsize_lookup[p][bsize] != BLOCK_INVALID;
+    return subsize_lookup[p][bsize] < BLOCK_SIZES_ALL;
 }
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
 
