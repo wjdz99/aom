@@ -38,8 +38,7 @@ endfunction()
 # Note: the libaom target is always updated because OBJECT libraries have rules
 # that disallow the direct addition of .o files to them as dependencies. Static
 # libraries do not have this limitation.
-function(add_intrinsics_object_library flag opt_name target_to_update sources
-         dependent_target)
+function(add_intrinsics_object_library flag opt_name target_to_update sources)
   if("${${sources}}" STREQUAL "")
     return()
   endif()
@@ -55,7 +54,10 @@ function(add_intrinsics_object_library flag opt_name target_to_update sources
     target_compile_options(${target_name} PUBLIC ${flag})
   endif()
 
-  target_sources(${dependent_target} PRIVATE $<TARGET_OBJECTS:${target_name}>)
+  target_sources(aom PRIVATE $<TARGET_OBJECTS:${target_name}>)
+  if(BUILD_SHARED_LIBS)
+    target_sources(aom_static PRIVATE $<TARGET_OBJECTS:${target_name}>)
+  endif()
 
   # Add the new lib target to the global list of aom library targets.
   list(APPEND AOM_LIB_TARGETS ${target_name})
@@ -115,7 +117,7 @@ endfunction()
 # into $dependent_target. Generates a dummy C file with a dummy function to
 # ensure that all cmake generators can determine the linker language, and that
 # build tools don't complain that an object exposes no symbols.
-function(add_asm_library lib_name asm_sources dependent_target)
+function(add_asm_library lib_name asm_sources)
   if("${${asm_sources}}" STREQUAL "")
     return()
   endif()
@@ -141,6 +143,9 @@ function(add_asm_library lib_name asm_sources dependent_target)
                        WORKING_DIRECTORY "${AOM_CONFIG_DIR}"
                        VERBATIM)
     target_sources(aom PRIVATE "${asm_object}")
+    if(BUILD_SHARED_LIBS)
+      target_sources(aom_static PRIVATE "${asm_object}")
+    endif()
   endforeach()
 
   # The above created a target containing only ASM sources. Cmake needs help
