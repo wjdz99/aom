@@ -190,6 +190,15 @@ add_custom_target(aom_version_check
                           "${AOM_ROOT}/build/cmake/version.cmake"
                   COMMENT "Updating version info if necessary."
                   VERBATIM)
+
+# Create aom_version.h now: It's needed by the install rule.
+execute_process(COMMAND ${CMAKE_COMMAND}
+                          -DAOM_CONFIG_DIR=${AOM_CONFIG_DIR}
+                          -DAOM_ROOT=${AOM_ROOT}
+                          -DGIT_EXECUTABLE=${GIT_EXECUTABLE}
+                          -DPERL_EXECUTABLE=${PERL_EXECUTABLE} -P
+                          "${AOM_ROOT}/build/cmake/version.cmake")
+
 add_dependencies(aom_version aom_version_check)
 
 # TODO(tomfinegan): Move rtcd target setup where it belongs for each rtcd
@@ -727,4 +736,5 @@ foreach(aom_source_var ${aom_source_vars})
 endforeach()
 
 # Generate aom.pc and setup install rule.
+message("aom_version=${aom_version}")
 setup_aom_install_targets()
