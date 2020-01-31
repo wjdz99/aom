@@ -295,7 +295,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
                                 pd->dst.stride, p->eobs[block],
                                 cm->reduced_tx_set_used);
 #if CONFIG_COLLECT_RES
-    if (dry_run == OUTPUT_ENABLED && p->eobs[block] > 1) {
+    if (dry_run == OUTPUT_ENABLED && p->eobs[block] > 3) {
       assert(prd != NULL);
       FILE *output = fopen("res_data_inter.bin", "ab+");
       PREDICTION_MODE mode = x->e_mbd.mi[0]->mode;
