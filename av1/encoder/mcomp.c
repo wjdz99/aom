@@ -29,6 +29,7 @@
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/encodemv.h"
 #include "av1/encoder/mcomp.h"
+#include "av1/encoder/mcomp_th.h"
 #include "av1/encoder/partition_strategy.h"
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/reconinter_enc.h"
@@ -98,9 +99,14 @@ static int mv_err_cost(const MV *mv, const MV *ref, const int *mvjcost,
 static int mvsad_err_cost(const MACROBLOCK *x, const MV *mv, const MV *ref,
                           int sad_per_bit) {
   const MV diff = { (mv->row - ref->row) * 8, (mv->col - ref->col) * 8 };
-  return ROUND_POWER_OF_TWO(
-      (unsigned)mv_cost(&diff, x->nmv_vec_cost, x->mv_cost_stack) * sad_per_bit,
-      AV1_PROB_COST_SHIFT);
+  if (x->disable_mv_cost) {
+    return (abs(diff.row) + abs(diff.col)) * SAD_LAMBDA;
+  } else {
+    return ROUND_POWER_OF_TWO(
+        (unsigned)mv_cost(&diff, x->nmv_vec_cost, x->mv_cost_stack) *
+            sad_per_bit,
+        AV1_PROB_COST_SHIFT);
+  }
 }
 
 void av1_init_dsmotion_compensation(search_site_config *cfg, int stride) {
@@ -1477,8 +1483,14 @@ int av1_get_mvpred_var(const MACROBLOCK *x, const MV *best_mv,
 
   if (!use_var) var = sse;
 
-  return var + mv_err_cost(&mv, center_mv, x->nmv_vec_cost, x->mv_cost_stack,
-                           x->errorperbit);
+  if (x->disable_mv_cost) {
+    const MV abs_diff = { abs(mv.row - center_mv->row) >> 3,
+                          abs(mv.col - center_mv->col) >> 3 };
+    return var + (abs_diff.row + abs_diff.col) * SSE_LAMBDA;
+  } else {
+    return var + mv_err_cost(&mv, center_mv, x->nmv_vec_cost, x->mv_cost_stack,
+                             x->errorperbit);
+  }
 }
 
 int av1_get_mvpred_av_var(const MACROBLOCK *x, const MV *best_mv,
