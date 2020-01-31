@@ -1096,7 +1096,7 @@ static FRAME_DIFF tf_do_filtering(
   const int use_planewise_strategy =
       TF_ENABLE_PLANEWISE_STRATEGY &&
       (cpi->common.allow_screen_content_tools == 0) &&
-      AOMMIN(frame_height, frame_width) >= 480;
+      AOMMIN(frame_height, frame_width) >= 480 && !is_key_frame;
   // Perform temporal filtering block by block.
   for (int mb_row = 0; mb_row < mb_rows; mb_row++) {
     mb->mv_limits.row_min = get_min_mv(mb_row, mb_height);
