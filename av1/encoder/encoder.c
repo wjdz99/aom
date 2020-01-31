@@ -5116,6 +5116,87 @@ static uint16_t setup_interp_filter_search_mask(AV1_COMP *cpi) {
   return mask;
 }
 
+#define STRICT_PSNR_DIFF_THRESH 1.0
+// Encode key frame with/without screen content tools to determine whether
+// screen content tools should be enabled for this key frame group or not.
+// The first encoding is without screen content tools.
+// The second encoding is with screen content tools.
+// We compare the psnr and frame size to make the decision.
+static void screen_content_tools_determination(
+    AV1_COMP *cpi, const int allow_screen_content_tools_orig_decision,
+    const int allow_intrabc_orig_decision,
+    const int is_screen_content_type_orig_decision, const int is_key_frame,
+    const int pass, int *projected_size_pass, PSNR_STATS *psnr) {
+  if (!is_key_frame) return;
+
+  AV1_COMMON *const cm = &cpi->common;
+  projected_size_pass[pass] = cpi->rc.projected_frame_size;
+#if CONFIG_AV1_HIGHBITDEPTH
+  const uint32_t in_bit_depth = cpi->oxcf.input_bit_depth;
+  const uint32_t bit_depth = cpi->td.mb.e_mbd.bd;
+  aom_calc_highbd_psnr(cpi->source, &cpi->common.cur_frame->buf, &psnr[pass],
+                       bit_depth, in_bit_depth);
+#else
+  aom_calc_psnr(cpi->source, &cpi->common.cur_frame->buf, &psnr[pass]);
+#endif
+  if (pass != 1) return;
+
+  const double psnr_diff = psnr[1].psnr[0] - psnr[0].psnr[0];
+  const int is_sc_encoding_much_better = psnr_diff > STRICT_PSNR_DIFF_THRESH;
+  if (is_sc_encoding_much_better) {
+    // Use screen content tools, if we get coding gain.
+    cm->allow_screen_content_tools = 1;
+    cm->allow_intrabc = cpi->intrabc_used;
+    cpi->is_screen_content_type = 1;
+  } else {
+    // Use original screen content decision.
+    cm->allow_screen_content_tools = allow_screen_content_tools_orig_decision;
+    cm->allow_intrabc = allow_intrabc_orig_decision;
+    cpi->is_screen_content_type = is_screen_content_type_orig_decision;
+  }
+}
+
+// Set or save some encoding parameters. In the first two encoding pass,
+// we want to make the encoding process fast. A fixed block partition size,
+// and a large q is used. In the final pass, we restore these params.
+static int set_or_save_encoding_params_for_screen_content(
+    AV1_COMP *cpi, const int passes, const int pass, const int q_quick_run,
+    const int q_orig, const int partition_search_type_orig,
+    const BLOCK_SIZE fixed_partition_block_size_orig) {
+  if (passes != 3) return q_orig;
+
+  AV1_COMMON *const cm = &cpi->common;
+  int q;
+  if (pass == 0) {
+    // In the first pass, encode without screen content tools.
+    // Use a high q, and a fixed block size for fast encoding.
+    cm->allow_screen_content_tools = 0;
+    cm->allow_intrabc = 0;
+    cpi->is_screen_content_type = 0;
+    q = q_quick_run;
+    cpi->sf.part_sf.partition_search_type = FIXED_PARTITION;
+    cpi->sf.part_sf.always_this_block_size = BLOCK_32X32;
+  } else if (pass == 1) {
+    // In the second pass, encode with screen content tools.
+    // Use a high q, and a fixed block size for fast encoding.
+    cm->allow_screen_content_tools = 1;
+    // TODO(chengchen): turn intrabc on could lead to data race issue.
+    // cm->allow_intrabc = 1;
+    cpi->is_screen_content_type = 1;
+    q = q_quick_run;
+    cpi->sf.part_sf.partition_search_type = FIXED_PARTITION;
+    cpi->sf.part_sf.always_this_block_size = BLOCK_32X32;
+    av1_hash_table_create(&cm->cur_frame->hash_table);
+  } else {
+    // In the final pass, encode with the original q, and partiton search type.
+    q = q_orig;
+    cpi->sf.part_sf.partition_search_type = partition_search_type_orig;
+    cpi->sf.part_sf.always_this_block_size = fixed_partition_block_size_orig;
+  }
+
+  return q;
+}
+
 static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
@@ -5179,18 +5260,48 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     }
   }
 
+  // Variables to help determine if we should allow screen content tools.
+  int projected_size_pass[3] = { 0 };
+  PSNR_STATS psnr[3];
+  const int is_key_frame = cm->current_frame.frame_type == KEY_FRAME;
+  const int allow_screen_content_tools_orig_decision =
+      cm->allow_screen_content_tools;
+  const int allow_intrabc_orig_decision = cm->allow_intrabc;
+  const int is_screen_content_type_orig_decision = cpi->is_screen_content_type;
+#if CONFIG_REALTIME_ONLY
+  const int passes_to_determine_screen_content_type = 1;
+#else
+  // Turn off the encoding trial for forward key frame and superres.
+  const int passes_to_determine_screen_content_type =
+      (cpi->sf.rt_sf.use_nonrd_pick_mode || cpi->oxcf.fwd_kf_enabled ||
+       cpi->oxcf.superres_mode != SUPERRES_NONE || cpi->oxcf.mode == REALTIME ||
+       is_screen_content_type_orig_decision || !is_key_frame)
+          ? 1
+          : 3;
+#endif  // CONFIG_REALTIME_ONLY
+  const int q_orig = q;
+  // TODO(chengchen): multiple encoding for the lossless mode is time consuming.
+  // Find a better way to determine whether screen content tools should be used
+  // for lossless coding.
+  const int q_for_screen_content_quick_run =
+      is_lossless_requested(&cpi->oxcf) ? q_orig : AOMMAX(q_orig, 244);
+  const int partition_search_type_orig = cpi->sf.part_sf.partition_search_type;
+  const BLOCK_SIZE fixed_partition_block_size_orig =
+      cpi->sf.part_sf.always_this_block_size;
+
+#if CONFIG_COLLECT_COMPONENT_TIMING
+  printf("\n Encoding a frame:");
+#endif
+
   // Loop variables
+  int loop = 0;
   int loop_count = 0;
   int loop_at_this_size = 0;
-  int loop = 0;
   int overshoot_seen = 0;
   int undershoot_seen = 0;
   int low_cr_seen = 0;
   int last_loop_allow_hp = 0;
 
-#if CONFIG_COLLECT_COMPONENT_TIMING
-  printf("\n Encoding a frame:");
-#endif
   do {
     loop = 0;
     aom_clear_system_state();
@@ -5284,9 +5395,45 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       last_loop_allow_hp = cm->allow_high_precision_mv;
     }
 
-    // transform / motion compensation build reconstruction frame
-    av1_encode_frame(cpi);
+    const int num_passes =
+        (loop_count || !is_stat_consumption_stage_twopass(cpi))
+            ? 1
+            : passes_to_determine_screen_content_type;
+    // If |passes_to_determine_screen_content_type| equals 1, the for loop does
+    // not take effect.
+    // If it is 3, the first two encodes in the for loop is to help determine
+    // whether to use screen content tools, with a high q and fixed partition.
+    // The third pass does the actual encoding.
+    // Then the do while loop controls whether to recode with a different q.
+    for (int pass = 0; pass < num_passes; ++pass) {
+      if (passes_to_determine_screen_content_type > 1 &&
+          num_passes == passes_to_determine_screen_content_type) {
+        q = set_or_save_encoding_params_for_screen_content(
+            cpi, num_passes, pass, q_for_screen_content_quick_run, q_orig,
+            partition_search_type_orig, fixed_partition_block_size_orig);
+#if CONFIG_TUNE_VMAF
+        if (cpi->oxcf.tuning == AOM_TUNE_VMAF_WITH_PREPROCESSING ||
+            cpi->oxcf.tuning == AOM_TUNE_VMAF_WITHOUT_PREPROCESSING ||
+            cpi->oxcf.tuning == AOM_TUNE_VMAF_MAX_GAIN) {
+          av1_set_quantizer(cm, av1_get_vmaf_base_qindex(cpi, q));
+        } else {
+#endif
+          av1_set_quantizer(cm, q);
+#if CONFIG_TUNE_VMAF
+        }
+#endif
+        if (cpi->oxcf.deltaq_mode != NO_DELTA_Q) av1_init_quantizer(cpi);
 
+        av1_set_variance_partition_thresholds(cpi, q, 0);
+      }
+      // transform / motion compensation build reconstruction frame
+      av1_encode_frame(cpi);
+      // Screen content decision
+      screen_content_tools_determination(
+          cpi, allow_screen_content_tools_orig_decision,
+          allow_intrabc_orig_decision, is_screen_content_type_orig_decision,
+          is_key_frame, pass, projected_size_pass, psnr);
+    }
 #if !CONFIG_REALTIME_ONLY
     // Reset the mv_stats in case we are interrupted by an intraframe or an
     // overlay frame.
