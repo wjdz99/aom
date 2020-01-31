@@ -116,10 +116,12 @@ static int tf_motion_search(AV1_COMP *cpi,
   // NOTE: In `av1_full_pixel_search()` and `find_fractional_mv_step()`, the
   // searched result will be stored in `mb->best_mv`.
   int block_error = INT_MAX;
+  mb->mv_cost_type = MV_COST_L1;
   av1_full_pixel_search(cpi, mb, block_size, &start_mv, step_param, 1,
                         full_search_method, 1, sadperbit16,
                         cond_cost_list(cpi, cost_list), &baseline_mv, 0, 0,
                         mb_x, mb_y, 0, &ss_cfg, 0);
+  mb->mv_cost_type = MV_COST_ENTROPY;
   if (force_integer_mv == 1) {  // Only do full search on the entire block.
     const int mv_row = mb->best_mv.as_mv.row;
     const int mv_col = mb->best_mv.as_mv.col;
@@ -151,10 +153,12 @@ static int tf_motion_search(AV1_COMP *cpi,
         mb->plane[0].src.buf = frame_to_filter->y_buffer + y_offset + offset;
         mbd->plane[0].pre[0].buf = ref_frame->y_buffer + y_offset + offset;
         av1_set_mv_search_range(&mb->mv_limits, &baseline_mv);
+        mb->mv_cost_type = MV_COST_L1;
         av1_full_pixel_search(cpi, mb, subblock_size, &start_mv, step_param, 1,
                               full_search_method, 1, sadperbit16,
                               cond_cost_list(cpi, cost_list), &baseline_mv, 0,
                               0, mb_x, mb_y, 0, &ss_cfg, 0);
+        mb->mv_cost_type = MV_COST_ENTROPY;
         subblock_errors[subblock_idx] = cpi->find_fractional_mv_step(
             mb, &cpi->common, 0, 0, &baseline_mv, allow_high_precision_mv,
             errorperbit, &cpi->fn_ptr[subblock_size], 0, subpel_iters_per_step,
