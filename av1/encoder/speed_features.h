@@ -928,6 +928,15 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   int hybrid_intra_pickmode;
 } REAL_TIME_SPEED_FEATURES;
 
+typedef struct SCREEN_CONTENT_TOOL_FEATURES {
+  // Use a loose criteria to determine whether to apply screen content tools
+  // for any video.
+  // This speed feature could add -0.1% to -0.4% gain.
+  // But it adds more rd search and slows down the encoder when the criteria
+  // passes. So we only turn it on for speed 0 for now.
+  int use_loose_criteria;
+} SCREEN_CONTENT_TOOL_FEATURES;
+
 typedef struct SPEED_FEATURES {
   /*
    * Sequence/frame level speed features:
@@ -993,6 +1002,11 @@ typedef struct SPEED_FEATURES {
    * Real-time mode speed features:
    */
   REAL_TIME_SPEED_FEATURES rt_sf;
+
+  /*
+   * Screen content tool speed features:
+   */
+  SCREEN_CONTENT_TOOL_FEATURES sc_sf;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
