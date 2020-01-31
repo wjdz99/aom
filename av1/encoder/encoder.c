@@ -5116,6 +5116,96 @@ static uint16_t setup_interp_filter_search_mask(AV1_COMP *cpi) {
   return mask;
 }
 
+#define STRICT_PSNR_DIFF_THRESH 1.0
+#define LOOSE_PSNR_DIFF_THRESH 0.5
+// Encode key frame with/without screen content tools to determine whether
+// screen content tools should be enabled for this key frame group or not.
+// The first encoding is without screen content tools.
+// The second encoding is with screen content tools.
+// We compare the psnr and frame size to make the decision.
+static void screen_content_tools_determination(
+    AV1_COMP *cpi, const int allow_screen_content_tools_orig_decision,
+    const int allow_intrabc_orig_decision,
+    const int is_screen_content_type_orig_decision, const int is_key_frame,
+    const int pass, int *projected_size_pass, PSNR_STATS *psnr) {
+  if (!is_key_frame) return;
+
+  AV1_COMMON *const cm = &cpi->common;
+  projected_size_pass[pass] = cpi->rc.projected_frame_size;
+#if CONFIG_AV1_HIGHBITDEPTH
+  const uint32_t in_bit_depth = cpi->oxcf.input_bit_depth;
+  const uint32_t bit_depth = cpi->td.mb.e_mbd.bd;
+  aom_calc_highbd_psnr(cpi->source, &cpi->common.cur_frame->buf, &psnr[pass],
+                       bit_depth, in_bit_depth);
+#else
+  aom_calc_psnr(cpi->source, &cpi->common.cur_frame->buf, &psnr[pass]);
+#endif
+  if (pass != 1) return;
+
+  const double psnr_diff = psnr[1].psnr[0] - psnr[0].psnr[0];
+  const int is_sc_encoding_much_better = psnr_diff > STRICT_PSNR_DIFF_THRESH;
+  // 0.1 psnr diff corresponds to 2% rate diff.
+  const int estimate_size_ratio = (int)(20 * psnr_diff + 100);
+  const int is_sc_encoding_possibly_better =
+      cpi->sf.sc_sf.use_loose_criteria &&
+      (((psnr_diff > 0) && (projected_size_pass[1] * 100 <
+                            projected_size_pass[0] * estimate_size_ratio)) ||
+       ((psnr_diff < 0) && (projected_size_pass[1] * estimate_size_ratio <
+                            projected_size_pass[0] * 100)) ||
+       (psnr_diff > LOOSE_PSNR_DIFF_THRESH));
+  if (is_sc_encoding_much_better || is_sc_encoding_possibly_better) {
+    // Use screen content tools, if we get coding gain.
+    cm->allow_screen_content_tools = 1;
+    cm->allow_intrabc = cpi->intrabc_used;
+    cpi->is_screen_content_type = 1;
+  } else {
+    // Use original screen content decision.
+    cm->allow_screen_content_tools = allow_screen_content_tools_orig_decision;
+    cm->allow_intrabc = allow_intrabc_orig_decision;
+    cpi->is_screen_content_type = is_screen_content_type_orig_decision;
+  }
+}
+
+// Set or save some encoding parameters. In the first two encoding pass,
+// we want to make the encoding process fast. A fixed block partition size,
+// and a large q is used. In the final pass, we restore these params.
+static int set_or_save_encoding_params_for_screen_content(
+    AV1_COMP *cpi, const int passes, const int pass, const int q_quick_run,
+    const int q_orig, const int partition_search_type_orig,
+    const BLOCK_SIZE fixed_partition_block_size_orig) {
+  if (passes != 3) return q_orig;
+
+  AV1_COMMON *const cm = &cpi->common;
+  int q;
+  if (pass == 0) {
+    // In the first pass, encode without screen content tools.
+    // Use a high q, and a fixed block size for fast encoding.
+    cm->allow_screen_content_tools = 0;
+    cm->allow_intrabc = 0;
+    cpi->is_screen_content_type = 0;
+    q = q_quick_run;
+    cpi->sf.part_sf.partition_search_type = FIXED_PARTITION;
+    cpi->sf.part_sf.always_this_block_size = BLOCK_32X32;
+  } else if (pass == 1) {
+    // In the second pass, encode with screen content tools.
+    // Use a high q, and a fixed block size for fast encoding.
+    cm->allow_screen_content_tools = 1;
+    cm->allow_intrabc = 1;
+    cpi->is_screen_content_type = 1;
+    q = q_quick_run;
+    cpi->sf.part_sf.partition_search_type = FIXED_PARTITION;
+    cpi->sf.part_sf.always_this_block_size = BLOCK_32X32;
+    av1_hash_table_create(&cm->cur_frame->hash_table);
+  } else {
+    // In the final pass, encode with the original q, and partiton search type.
+    q = q_orig;
+    cpi->sf.part_sf.partition_search_type = partition_search_type_orig;
+    cpi->sf.part_sf.always_this_block_size = fixed_partition_block_size_orig;
+  }
+
+  return q;
+}
+
 static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
@@ -5179,180 +5269,232 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     }
   }
 
-  // Loop variables
-  int loop_count = 0;
-  int loop_at_this_size = 0;
-  int loop = 0;
-  int overshoot_seen = 0;
-  int undershoot_seen = 0;
-  int low_cr_seen = 0;
-  int last_loop_allow_hp = 0;
+  // Variables to help determine if we should allow screen content tools.
+  int projected_size_pass[3] = { 0 };
+  PSNR_STATS psnr[3];
+  const int is_key_frame = cm->current_frame.frame_type == KEY_FRAME;
+  const int allow_screen_content_tools_orig_decision =
+      cm->allow_screen_content_tools;
+  const int allow_intrabc_orig_decision = cm->allow_intrabc;
+  const int is_screen_content_type_orig_decision = cpi->is_screen_content_type;
+#if CONFIG_REALTIME_ONLY
+  const int passes_to_determine_screen_content_type = 1;
+#else
+  // Turn off the encoding trial for forward key frame and superres.
+  const int passes_to_determine_screen_content_type =
+      (cpi->sf.rt_sf.use_nonrd_pick_mode || cpi->oxcf.fwd_kf_enabled ||
+       cpi->oxcf.superres_mode != SUPERRES_NONE ||
+       is_screen_content_type_orig_decision)
+          ? 1
+          : (is_key_frame ? 3 : 1);
+#endif  // CONFIG_REALTIME_ONLY
+  const int q_orig = q;
+  const int q_for_screen_content_quick_run = AOMMAX(q_orig, 244);
+  const int partition_search_type_orig = cpi->sf.part_sf.partition_search_type;
+  const BLOCK_SIZE fixed_partition_block_size_orig =
+      cpi->sf.part_sf.always_this_block_size;
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   printf("\n Encoding a frame:");
 #endif
+
+  // Loop variables
+  int loop = 0;
+  int loop_count = 0;
+  int loop_at_this_size = 0;
+  int overshoot_seen = 0;
+  int undershoot_seen = 0;
+  int low_cr_seen = 0;
+  int last_loop_allow_hp = 0;
   do {
-    loop = 0;
-    aom_clear_system_state();
-
-    // if frame was scaled calculate global_motion_search again if already
-    // done
-    if (loop_count > 0 && cpi->source && cpi->global_motion_search_done) {
-      if (cpi->source->y_crop_width != cm->width ||
-          cpi->source->y_crop_height != cm->height) {
-        cpi->global_motion_search_done = 0;
+    const int num_passes = loop ? 1 : passes_to_determine_screen_content_type;
+    // If |passes_to_determine_screen_content_type| equals 1, the for loop does
+    // not take effect.
+    // If it is 3, the first two encodes in the for loop is to help determine
+    // whether to use screen content tools, with a high q and fixed partition.
+    // The third pass does the actual encoding.
+    // Then the do while loop controls whether to recode with a different q.
+    for (int pass = 0; pass < num_passes; ++pass) {
+      if (passes_to_determine_screen_content_type > 1 &&
+          num_passes == passes_to_determine_screen_content_type) {
+        loop_count = 0;
+        loop_at_this_size = 0;
+        overshoot_seen = 0;
+        undershoot_seen = 0;
+        low_cr_seen = 0;
+        last_loop_allow_hp = 0;
+        q = set_or_save_encoding_params_for_screen_content(
+            cpi, num_passes, pass, q_for_screen_content_quick_run, q_orig,
+            partition_search_type_orig, fixed_partition_block_size_orig);
       }
-    }
-    cpi->source =
-        av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source);
-    if (cpi->unscaled_last_source != NULL) {
-      cpi->last_source = av1_scale_if_required(cm, cpi->unscaled_last_source,
-                                               &cpi->scaled_last_source);
-    }
 
-    if (!frame_is_intra_only(cm)) {
-      if (loop_count > 0) {
-        release_scaled_references(cpi);
+      loop = 0;
+      aom_clear_system_state();
+
+      // if frame was scaled calculate global_motion_search again if already
+      // done
+      if (loop_count > 0 && cpi->source && cpi->global_motion_search_done) {
+        if (cpi->source->y_crop_width != cm->width ||
+            cpi->source->y_crop_height != cm->height) {
+          cpi->global_motion_search_done = 0;
+        }
       }
-      scale_references(cpi);
-    }
+      cpi->source =
+          av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source);
+      if (cpi->unscaled_last_source != NULL) {
+        cpi->last_source = av1_scale_if_required(cm, cpi->unscaled_last_source,
+                                                 &cpi->scaled_last_source);
+      }
+
+      if (!frame_is_intra_only(cm)) {
+        if (loop_count > 0) {
+          release_scaled_references(cpi);
+        }
+        scale_references(cpi);
+      }
 #if CONFIG_TUNE_VMAF
-    if (cpi->oxcf.tuning == AOM_TUNE_VMAF_WITH_PREPROCESSING ||
-        cpi->oxcf.tuning == AOM_TUNE_VMAF_WITHOUT_PREPROCESSING ||
-        cpi->oxcf.tuning == AOM_TUNE_VMAF_MAX_GAIN) {
-      av1_set_quantizer(cm, av1_get_vmaf_base_qindex(cpi, q));
-    } else {
-#endif
-      av1_set_quantizer(cm, q);
-#if CONFIG_TUNE_VMAF
-    }
-#endif
-
-    if (cpi->oxcf.deltaq_mode != NO_DELTA_Q) av1_init_quantizer(cpi);
-
-    av1_set_variance_partition_thresholds(cpi, q, 0);
-
-    // printf("Frame %d/%d: q = %d, frame_type = %d superres_denom = %d\n",
-    //        cm->current_frame.frame_number, cm->show_frame, q,
-    //        cm->current_frame.frame_type, cm->superres_scale_denominator);
-
-    if (loop_count == 0) {
-      setup_frame(cpi);
-    } else if (get_primary_ref_frame_buf(cm) == NULL) {
-      // Base q-index may have changed, so we need to assign proper default coef
-      // probs before every iteration.
-      av1_default_coef_probs(cm);
-      av1_setup_frame_contexts(cm);
-    }
-
-    if (cpi->oxcf.aq_mode == VARIANCE_AQ) {
-      av1_vaq_frame_setup(cpi);
-    } else if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
-      av1_setup_in_frame_q_adj(cpi);
-    } else if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && !allow_recode) {
-      suppress_active_map(cpi);
-      av1_cyclic_refresh_setup(cpi);
-      apply_active_map(cpi);
-    }
-
-    if (cm->seg.enabled) {
-      if (!cm->seg.update_data && cm->prev_frame) {
-        segfeatures_copy(&cm->seg, &cm->prev_frame->seg);
-        cm->seg.enabled = cm->prev_frame->seg.enabled;
+      if (cpi->oxcf.tuning == AOM_TUNE_VMAF_WITH_PREPROCESSING ||
+          cpi->oxcf.tuning == AOM_TUNE_VMAF_WITHOUT_PREPROCESSING ||
+          cpi->oxcf.tuning == AOM_TUNE_VMAF_MAX_GAIN) {
+        av1_set_quantizer(cm, av1_get_vmaf_base_qindex(cpi, q));
       } else {
-        av1_calculate_segdata(&cm->seg);
+#endif
+        av1_set_quantizer(cm, q);
+#if CONFIG_TUNE_VMAF
       }
-    } else {
-      memset(&cm->seg, 0, sizeof(cm->seg));
-    }
-    segfeatures_copy(&cm->cur_frame->seg, &cm->seg);
-    cm->cur_frame->seg.enabled = cm->seg.enabled;
+#endif
+      if (cpi->oxcf.deltaq_mode != NO_DELTA_Q) av1_init_quantizer(cpi);
+
+      av1_set_variance_partition_thresholds(cpi, q, 0);
+
+      // printf("Frame %d/%d: q = %d, frame_type = %d superres_denom = %d\n",
+      //        cm->current_frame.frame_number, cm->show_frame, q,
+      //        cm->current_frame.frame_type, cm->superres_scale_denominator);
+
+      if (loop_count == 0) {
+        setup_frame(cpi);
+      } else if (get_primary_ref_frame_buf(cm) == NULL) {
+        // Base q-index may have changed, so we need to assign proper default
+        // coef probs before every iteration.
+        av1_default_coef_probs(cm);
+        av1_setup_frame_contexts(cm);
+      }
+
+      if (cpi->oxcf.aq_mode == VARIANCE_AQ) {
+        av1_vaq_frame_setup(cpi);
+      } else if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
+        av1_setup_in_frame_q_adj(cpi);
+      } else if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && !allow_recode) {
+        suppress_active_map(cpi);
+        av1_cyclic_refresh_setup(cpi);
+        apply_active_map(cpi);
+      }
+
+      if (cm->seg.enabled) {
+        if (!cm->seg.update_data && cm->prev_frame) {
+          segfeatures_copy(&cm->seg, &cm->prev_frame->seg);
+          cm->seg.enabled = cm->prev_frame->seg.enabled;
+        } else {
+          av1_calculate_segdata(&cm->seg);
+        }
+      } else {
+        memset(&cm->seg, 0, sizeof(cm->seg));
+      }
+      segfeatures_copy(&cm->cur_frame->seg, &cm->seg);
+      cm->cur_frame->seg.enabled = cm->seg.enabled;
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
-    start_timing(cpi, av1_encode_frame_time);
+      start_timing(cpi, av1_encode_frame_time);
 #endif
-    // Set the motion vector precision based on mv stats from the last coded
-    // frame.
-    if (!frame_is_intra_only(cm)) {
-      av1_pick_and_set_high_precision_mv(cpi, q);
+      // Set the motion vector precision based on mv stats from the last coded
+      // frame.
+      if (!frame_is_intra_only(cm)) {
+        av1_pick_and_set_high_precision_mv(cpi, q);
 
-      // If the precision has changed during different iteration of the loop,
-      // then we need to reset the global motion vectors
-      if (loop_count > 0 && cm->allow_high_precision_mv != last_loop_allow_hp) {
-        cpi->global_motion_search_done = 0;
+        // If the precision has changed during different iteration of the loop,
+        // then we need to reset the global motion vectors
+        if (loop_count > 0 &&
+            cm->allow_high_precision_mv != last_loop_allow_hp) {
+          cpi->global_motion_search_done = 0;
+        }
+        last_loop_allow_hp = cm->allow_high_precision_mv;
       }
-      last_loop_allow_hp = cm->allow_high_precision_mv;
-    }
 
-    // transform / motion compensation build reconstruction frame
-    av1_encode_frame(cpi);
+      // transform / motion compensation build reconstruction frame
+      av1_encode_frame(cpi);
 
 #if !CONFIG_REALTIME_ONLY
-    // Reset the mv_stats in case we are interrupted by an intraframe or an
-    // overlay frame.
-    if (cpi->mv_stats.valid) {
-      av1_zero(cpi->mv_stats);
-    }
-    // Gather the mv_stats for the next frame
-    if (cpi->sf.hl_sf.high_precision_mv_usage == LAST_MV_DATA &&
-        av1_frame_allows_smart_mv(cpi)) {
-      av1_collect_mv_stats(cpi, q);
-    }
+      // Reset the mv_stats in case we are interrupted by an intraframe or an
+      // overlay frame.
+      if (cpi->mv_stats.valid) {
+        av1_zero(cpi->mv_stats);
+      }
+      // Gather the mv_stats for the next frame
+      if (cpi->sf.hl_sf.high_precision_mv_usage == LAST_MV_DATA &&
+          av1_frame_allows_smart_mv(cpi)) {
+        av1_collect_mv_stats(cpi, q);
+      }
 #endif  // !CONFIG_REALTIME_ONLY
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
-    end_timing(cpi, av1_encode_frame_time);
+      end_timing(cpi, av1_encode_frame_time);
 #endif
 
-    aom_clear_system_state();
+      aom_clear_system_state();
 
-    // Dummy pack of the bitstream using up to date stats to get an
-    // accurate estimate of output frame size to determine if we need
-    // to recode.
-    const int do_dummy_pack =
-        (cpi->sf.hl_sf.recode_loop >= ALLOW_RECODE_KFARFGF &&
-         cpi->oxcf.rc_mode != AOM_Q) ||
-        cpi->oxcf.min_cr > 0;
-    if (do_dummy_pack) {
-      finalize_encoded_frame(cpi);
-      int largest_tile_id = 0;  // Output from bitstream: unused here
-      if (av1_pack_bitstream(cpi, dest, size, &largest_tile_id) !=
-          AOM_CODEC_OK) {
-        return AOM_CODEC_ERROR;
+      // Dummy pack of the bitstream using up to date stats to get an
+      // accurate estimate of output frame size to determine if we need
+      // to recode.
+      const int do_dummy_pack =
+          (cpi->sf.hl_sf.recode_loop >= ALLOW_RECODE_KFARFGF &&
+           cpi->oxcf.rc_mode != AOM_Q) ||
+          cpi->oxcf.min_cr > 0;
+      if (do_dummy_pack) {
+        finalize_encoded_frame(cpi);
+        int largest_tile_id = 0;  // Output from bitstream: unused here
+        if (av1_pack_bitstream(cpi, dest, size, &largest_tile_id) !=
+            AOM_CODEC_OK) {
+          return AOM_CODEC_ERROR;
+        }
+
+        rc->projected_frame_size = (int)(*size) << 3;
       }
 
-      rc->projected_frame_size = (int)(*size) << 3;
-    }
+      if (allow_recode) {
+        // Update q and decide whether to do a recode loop
+        recode_loop_update_q(cpi, &loop, &q, &q_low, &q_high, top_index,
+                             bottom_index, &undershoot_seen, &overshoot_seen,
+                             &low_cr_seen, loop_at_this_size);
+      }
 
-    if (allow_recode) {
-      // Update q and decide whether to do a recode loop
-      recode_loop_update_q(cpi, &loop, &q, &q_low, &q_high, top_index,
-                           bottom_index, &undershoot_seen, &overshoot_seen,
-                           &low_cr_seen, loop_at_this_size);
-    }
+      // Special case for overlay frame.
+      if (loop && rc->is_src_frame_alt_ref &&
+          rc->projected_frame_size < rc->max_frame_bandwidth) {
+        loop = 0;
+      }
 
-    // Special case for overlay frame.
-    if (loop && rc->is_src_frame_alt_ref &&
-        rc->projected_frame_size < rc->max_frame_bandwidth) {
-      loop = 0;
-    }
+      if (allow_recode && !cpi->sf.gm_sf.gm_disable_recode &&
+          recode_loop_test_global_motion(cpi)) {
+        loop = 1;
+      }
 
-    if (allow_recode && !cpi->sf.gm_sf.gm_disable_recode &&
-        recode_loop_test_global_motion(cpi)) {
-      loop = 1;
-    }
-
-    if (loop) {
-      ++loop_count;
-      ++loop_at_this_size;
+      if (loop) {
+        ++loop_count;
+        ++loop_at_this_size;
 
 #if CONFIG_INTERNAL_STATS
-      ++cpi->tot_recode_hits;
+        ++cpi->tot_recode_hits;
 #endif
-    }
+      }
 #if CONFIG_COLLECT_COMPONENT_TIMING
-    if (loop) printf("\n Recoding:");
+      if (loop) printf("\n Recoding:");
 #endif
+      // Screen content decision
+      screen_content_tools_determination(
+          cpi, allow_screen_content_tools_orig_decision,
+          allow_intrabc_orig_decision, is_screen_content_type_orig_decision,
+          is_key_frame, pass, projected_size_pass, psnr);
+    }
   } while (loop);
 
   // Update some stats from cyclic refresh.
