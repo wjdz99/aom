@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4cf6c021_966d3f2e",
+        "filename": "aom_dsp/fwd_txfm.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-02-01T02:31:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd23e016_da9f77e5",
+      "revId": "fbf0e52295981dde669eaf7e51a3ad863d1a4fe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "add82985_d11dc2ac",
         "filename": "aom_dsp/fwd_txfm.c",
         "patchSetId": 5
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "b10b410d_ab4dff71",
+        "filename": "aom_dsp/fwd_txfm.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-02-01T02:31:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "add82985_d11dc2ac",
+      "revId": "fbf0e52295981dde669eaf7e51a3ad863d1a4fe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4ef3b4c4_026e00f4",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 5
@@ -50,6 +86,24 @@
       "revId": "fbf0e52295981dde669eaf7e51a3ad863d1a4fe4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e9caaac_0c86ec22",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-02-01T02:31:23Z",
+      "side": 1,
+      "message": "They are all related to the bug mentioned in description. The encoder chooses 4x4 transform because the content is very easy and target bitrate is high, which triggers qp to be 0 and lossless flag to be set. Then the tx_size is forced to be 16x16 on this line, which violates the encoder decision.",
+      "parentUuid": "4ef3b4c4_026e00f4",
+      "revId": "fbf0e52295981dde669eaf7e51a3ad863d1a4fe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
