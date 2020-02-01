@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bcf10873_f1b0a609",
+        "filename": "av1/encoder/mv_prec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-02-01T07:55:54Z",
+      "side": 1,
+      "message": "this works, some prefer 1.0f * ... to reduce the casts",
+      "revId": "c60a01d01e5e09d1e84d9cf4addbdca50d196425",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
