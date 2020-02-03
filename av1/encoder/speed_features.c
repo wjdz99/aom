@@ -552,6 +552,8 @@ static void set_good_speed_features_framesize_independent(
 
   if (speed >= 5) {
     sf->part_sf.simple_motion_search_prune_agg = 3;
+    sf->part_sf.disable_ext_part_sub_bsize_32x32 =
+        cm->allow_screen_content_tools ? 0 : 1;
 
     sf->inter_sf.disable_interinter_wedge = 1;
     sf->inter_sf.disable_obmc = 1;
@@ -911,6 +913,7 @@ static AOM_INLINE void init_part_sf(PARTITION_SPEED_FEATURES *part_sf) {
   part_sf->simple_motion_search_prune_rect = 0;
   part_sf->simple_motion_search_early_term_none = 0;
   part_sf->intra_cnn_split = 0;
+  part_sf->disable_ext_part_sub_bsize_32x32 = 0;
 }
 
 static AOM_INLINE void init_mv_sf(MV_SPEED_FEATURES *mv_sf) {
