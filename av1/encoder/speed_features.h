@@ -428,6 +428,9 @@ typedef struct PARTITION_SPEED_FEATURES {
   // Use CNN with luma pixels on source frame on each of the 64x64 subblock to
   // perform split/no_split decision on intra-frames.
   int intra_cnn_split;
+
+  // Disable extended partition search for block size <= 16x16.
+  int disable_ext_part_for_lower_bsize;
 } PARTITION_SPEED_FEATURES;
 
 typedef struct MV_SPEED_FEATURES {

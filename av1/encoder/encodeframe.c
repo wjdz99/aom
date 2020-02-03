@@ -3265,9 +3265,14 @@ BEGIN_PARTITION_SEARCH:
 
   assert(IMPLIES(!cpi->oxcf.enable_rect_partitions, !do_rectangular_split));
 
-  const int ext_partition_allowed =
-      do_rectangular_split && bsize > BLOCK_8X8 && has_rows && has_cols;
-
+  int ext_partition_allowed;
+  if (cpi->sf.part_sf.disable_ext_part_for_lower_bsize) {
+    ext_partition_allowed =
+        do_rectangular_split && bsize > BLOCK_16X16 && has_rows && has_cols;
+  } else {
+    ext_partition_allowed =
+        do_rectangular_split && bsize > BLOCK_8X8 && has_rows && has_cols;
+  }
   // The standard AB partitions are allowed whenever ext-partition-types are
   // allowed
   int horzab_partition_allowed =
