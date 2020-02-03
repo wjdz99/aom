@@ -801,7 +801,7 @@ void av1_apply_temporal_filter_planewise_c(
                            << mbd->plane[0].subsampling_y;
   const int decay_control = frame_height >= 480 ? 4 : 3;
   // Control factor for non-local mean approach.
-  const double r = (double)decay_control * (0.7 + log(noise_level + 0.5));
+  const double r = (double)decay_control * (0.7 + log(noise_level + 1.0));
 
   // Block information.
   const int mb_height = block_size_high[block_size];

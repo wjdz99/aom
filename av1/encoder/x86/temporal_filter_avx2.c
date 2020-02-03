@@ -132,7 +132,7 @@ static void apply_temporal_filter_planewise(
     const unsigned int stride2, const int block_width, const int block_height,
     const double sigma, const int decay_control, unsigned int *accumulator,
     uint16_t *count) {
-  const double h = decay_control * (0.7 + log(sigma + 0.5));
+  const double h = decay_control * (0.7 + log(sigma + 1.0));
   const double beta = 1.0;
 
   uint16_t frame_sse[SSE_STRIDE * BH];
