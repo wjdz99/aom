@@ -165,6 +165,7 @@ enum {
   LPF_PICK_FROM_FULL_IMAGE_NON_DUAL,
   // Try a small portion of the image with different values.
   LPF_PICK_FROM_SUBIMAGE,
+  LPF_PICK_FROM_SUBIMAGE_NON_DUAL,
   // Estimate the level based on quantizer and frame type
   LPF_PICK_FROM_Q,
   // Pick 0 to disable LPF if LPF was enabled last frame

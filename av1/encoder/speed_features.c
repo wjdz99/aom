@@ -483,6 +483,7 @@ static void set_good_speed_features_framesize_independent(
         (boosted || cm->allow_screen_content_tools) ? 0 : 1;
     sf->lpf_sf.reduce_wiener_window_size = !boosted;
     sf->lpf_sf.prune_wiener_based_on_src_var = 2;
+    sf->lpf_sf.lpf_pick = LPF_PICK_FROM_SUBIMAGE_NON_DUAL;
 
     sf->hl_sf.second_alt_ref_filtering = 0;
   }
@@ -557,7 +558,6 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.disable_obmc = 1;
     sf->inter_sf.disable_onesided_comp = 1;
 
-    sf->lpf_sf.lpf_pick = LPF_PICK_FROM_FULL_IMAGE_NON_DUAL;
     sf->lpf_sf.disable_lr_filter = 1;
 
     sf->mv_sf.reduce_search_range = 1;
