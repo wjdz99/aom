@@ -115,9 +115,10 @@ static int tf_motion_search(AV1_COMP *cpi,
   // Do motion search.
   // NOTE: In `av1_full_pixel_search()` and `find_fractional_mv_step()`, the
   // searched result will be stored in `mb->best_mv`.
+  const int run_mesh_search = (ref_mv->row == 0 && ref_mv->col == 0);
   int block_error = INT_MAX;
   av1_full_pixel_search(cpi, mb, block_size, &start_mv, step_param, 1,
-                        full_search_method, 1, sadperbit16,
+                        full_search_method, run_mesh_search, sadperbit16,
                         cond_cost_list(cpi, cost_list), &baseline_mv, 0, 0,
                         mb_x, mb_y, 0, &ss_cfg, 0);
   if (force_integer_mv == 1) {  // Only do full search on the entire block.
@@ -152,7 +153,7 @@ static int tf_motion_search(AV1_COMP *cpi,
         mbd->plane[0].pre[0].buf = ref_frame->y_buffer + y_offset + offset;
         av1_set_mv_search_range(&mb->mv_limits, &baseline_mv);
         av1_full_pixel_search(cpi, mb, subblock_size, &start_mv, step_param, 1,
-                              full_search_method, 1, sadperbit16,
+                              full_search_method, run_mesh_search, sadperbit16,
                               cond_cost_list(cpi, cost_list), &baseline_mv, 0,
                               0, mb_x, mb_y, 0, &ss_cfg, 0);
         subblock_errors[subblock_idx] = cpi->find_fractional_mv_step(
