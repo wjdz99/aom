@@ -1964,10 +1964,12 @@ static int full_pixel_diamond(MACROBLOCK *x, MV *mvp_full, int step_param,
 #define MIN_INTERVAL 1
 // Runs an limited range exhaustive mesh search using a pattern set
 // according to the encode speed profile.
-static int full_pixel_exhaustive(
-    MACROBLOCK *x, const MV *centre_mv_full, int sadpb, int *cost_list,
-    const aom_variance_fn_ptr_t *fn_ptr, const MV *ref_mv, MV *dst_mv,
-    const struct MESH_PATTERN *const mesh_patterns) {
+static int full_pixel_exhaustive(MACROBLOCK *x, const MV *centre_mv_full,
+                                 int sadpb, int *cost_list,
+                                 const aom_variance_fn_ptr_t *fn_ptr,
+                                 const MV *ref_mv, MV *dst_mv,
+                                 const struct MESH_PATTERN *const mesh_patterns,
+                                 int var) {
   MV temp_mv = { centre_mv_full->row, centre_mv_full->col };
   MV f_ref_mv = { ref_mv->row >> 3, ref_mv->col >> 3 };
   int bestsme;
@@ -1995,6 +1997,13 @@ static int full_pixel_exhaustive(
   // initial search
   bestsme = exhuastive_mesh_search(x, &f_ref_mv, &temp_mv, range, interval,
                                    sadpb, fn_ptr, &temp_mv);
+  if (bestsme < INT_MAX)
+    bestsme = av1_get_mvpred_var(x, &temp_mv, ref_mv, fn_ptr, 1);
+
+  if (var < bestsme) {
+    *dst_mv = temp_mv;
+    return bestsme;
+  }
 
   if ((interval > MIN_INTERVAL) && (range > MIN_RANGE)) {
     // Progressive searches with range and step size decreasing each time
@@ -2004,7 +2013,13 @@ static int full_pixel_exhaustive(
       bestsme = exhuastive_mesh_search(
           x, &f_ref_mv, &temp_mv, mesh_patterns[i].range,
           mesh_patterns[i].interval, sadpb, fn_ptr, &temp_mv);
+      if (bestsme < INT_MAX)
+        bestsme = av1_get_mvpred_var(x, &temp_mv, ref_mv, fn_ptr, 1);
 
+      if (var < bestsme) {
+        *dst_mv = temp_mv;
+        return bestsme;
+      }
       if (mesh_patterns[i].interval == 1) break;
     }
   }
@@ -2413,7 +2428,7 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
                                  : sf->mv_sf.mesh_patterns;
     var_ex =
         full_pixel_exhaustive(x, &x->best_mv.as_mv, error_per_bit, cost_list,
-                              fn_ptr, ref_mv, &tmp_mv_ex, mesh_patterns);
+                              fn_ptr, ref_mv, &tmp_mv_ex, mesh_patterns, var);
     if (var_ex < var) {
       var = var_ex;
       x->best_mv.as_mv = tmp_mv_ex;
