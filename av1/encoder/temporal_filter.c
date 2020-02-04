@@ -139,6 +139,7 @@ static int tf_motion_search(AV1_COMP *cpi,
     mb->e_mbd.mi[0]->mv[0] = mb->best_mv;
     *ref_mv = mb->best_mv.as_mv;
     // On 4 sub-blocks.
+#if 0
     const BLOCK_SIZE subblock_size = ss_size_lookup[BLOCK_32X32][1][1];
     const int subblock_height = block_size_high[subblock_size];
     const int subblock_width = block_size_wide[subblock_size];
@@ -164,6 +165,7 @@ static int tf_motion_search(AV1_COMP *cpi,
         ++subblock_idx;
       }
     }
+#endif
   }
 
   // Restore input state.
@@ -218,6 +220,13 @@ static int tf_get_filter_weight(const int block_error,
   const int thresh_low = is_second_arf ? 5000 : 10000;
   const int thresh_high = is_second_arf ? 10000 : 20000;
 
+  const int weight =
+      get_weight_by_thresh(block_error, thresh_low * 4, thresh_high * 4);
+  subblock_filter_weights[0] = subblock_filter_weights[1] =
+      subblock_filter_weights[2] = subblock_filter_weights[3] = weight;
+  return 0;
+
+#if 0
   int min_subblock_error = INT_MAX;
   int max_subblock_error = INT_MIN;
   int sum_subblock_error = 0;
@@ -241,6 +250,7 @@ static int tf_get_filter_weight(const int block_error,
   } else {  // Do split.
     return 1;
   }
+#endif
 }
 
 // Helper function to determine whether a frame is encoded with high bit-depth.
