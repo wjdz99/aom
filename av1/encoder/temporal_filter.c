@@ -62,6 +62,7 @@
 //   subblock_errors: Pointer to the search errors for 4 sub-blocks.
 // Returns:
 //   Search error of the entire block.
+#define USE_32x32 0
 static int tf_motion_search(AV1_COMP *cpi,
                             const YV12_BUFFER_CONFIG *frame_to_filter,
                             const YV12_BUFFER_CONFIG *ref_frame,
@@ -116,10 +117,12 @@ static int tf_motion_search(AV1_COMP *cpi,
   // NOTE: In `av1_full_pixel_search()` and `find_fractional_mv_step()`, the
   // searched result will be stored in `mb->best_mv`.
   int block_error = INT_MAX;
+#if USE_32x32
   av1_full_pixel_search(cpi, mb, block_size, &start_mv, step_param, 1,
                         full_search_method, 1, sadperbit16,
                         cond_cost_list(cpi, cost_list), &baseline_mv, 0, 0,
                         mb_x, mb_y, 0, &ss_cfg, 0);
+#endif
   if (force_integer_mv == 1) {  // Only do full search on the entire block.
     const int mv_row = mb->best_mv.as_mv.row;
     const int mv_col = mb->best_mv.as_mv.col;
@@ -131,6 +134,7 @@ static int tf_motion_search(AV1_COMP *cpi,
         frame_to_filter->y_buffer + y_offset, y_stride, &sse);
     mb->e_mbd.mi[0]->mv[0] = mb->best_mv;
   } else {  // Do fractional search on the entire block and all sub-blocks.
+#if USE_32x32
     block_error = cpi->find_fractional_mv_step(
         mb, &cpi->common, 0, 0, &baseline_mv, allow_high_precision_mv,
         errorperbit, &cpi->fn_ptr[block_size], 0, subpel_iters_per_step,
@@ -138,13 +142,16 @@ static int tf_motion_search(AV1_COMP *cpi,
         NULL, 0, 0, mb_width, mb_height, subpel_search_type, 1);
     mb->e_mbd.mi[0]->mv[0] = mb->best_mv;
     *ref_mv = mb->best_mv.as_mv;
+#endif
     // On 4 sub-blocks.
+#if !USE_32x32
     const BLOCK_SIZE subblock_size = ss_size_lookup[BLOCK_32X32][1][1];
     const int subblock_height = block_size_high[subblock_size];
     const int subblock_width = block_size_wide[subblock_size];
     start_mv.row = GET_MV_RAWPEL(ref_mv->row);
     start_mv.col = GET_MV_RAWPEL(ref_mv->col);
     int subblock_idx = 0;
+    block_error = 0;
     for (int i = 0; i < mb_height; i += subblock_height) {
       for (int j = 0; j < mb_width; j += subblock_width) {
         const int offset = i * y_stride + j;
@@ -161,9 +168,14 @@ static int tf_motion_search(AV1_COMP *cpi,
             cond_cost_list(cpi, cost_list), NULL, NULL, &distortion, &sse, NULL,
             NULL, 0, 0, subblock_width, subblock_height, subpel_search_type, 1);
         subblock_mvs[subblock_idx] = mb->best_mv.as_mv;
+        if (subblock_idx == 0) {
+          *ref_mv = mb->best_mv.as_mv;
+        }
+        block_error += subblock_errors[subblock_idx];
         ++subblock_idx;
       }
     }
+#endif
   }
 
   // Restore input state.
@@ -228,6 +240,7 @@ static int tf_get_filter_weight(const int block_error,
     subblock_filter_weights[i] =
         get_weight_by_thresh(subblock_errors[i], thresh_low, thresh_high);
   }
+  return 1;
 
   if (((block_error * 15 < sum_subblock_error * 16) &&
        max_subblock_error - min_subblock_error < 12000) ||
