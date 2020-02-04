@@ -193,22 +193,17 @@ void av1_vmaf_blk_preprocessing(const AV1_COMP *const cpi,
   const AV1_COMMON *const cm = &cpi->common;
   const int width = source->y_width;
   const int height = source->y_height;
-  YV12_BUFFER_CONFIG source_extended, blurred, sharpened;
+  YV12_BUFFER_CONFIG source_extended, blurred;
   memset(&source_extended, 0, sizeof(source_extended));
   memset(&blurred, 0, sizeof(blurred));
-  memset(&sharpened, 0, sizeof(sharpened));
   aom_alloc_frame_buffer(&source_extended, width, height, 1, 1,
                          cm->seq_params.use_highbitdepth,
                          cpi->oxcf.border_in_pixels, cm->byte_alignment);
   aom_alloc_frame_buffer(&blurred, width, height, 1, 1,
                          cm->seq_params.use_highbitdepth,
                          cpi->oxcf.border_in_pixels, cm->byte_alignment);
-  aom_alloc_frame_buffer(&sharpened, width, height, 1, 1,
-                         cm->seq_params.use_highbitdepth,
-                         cpi->oxcf.border_in_pixels, cm->byte_alignment);
 
   av1_copy_and_extend_frame(source, &source_extended);
-  av1_copy_and_extend_frame(source, &sharpened);
 
   gaussian_blur(cpi, &source_extended, &blurred);
   aom_free_frame_buffer(&source_extended);
@@ -227,6 +222,16 @@ void av1_vmaf_blk_preprocessing(const AV1_COMP *const cpi,
   memset(best_unsharp_amounts, 0,
          sizeof(*best_unsharp_amounts) * num_cols * num_rows);
 
+  YV12_BUFFER_CONFIG source_block, sharpened_block;
+  memset(&source_block, 0, sizeof(source_block));
+  memset(&sharpened_block, 0, sizeof(sharpened_block));
+  aom_alloc_frame_buffer(&source_block, block_w, block_h, 1, 1,
+                         cm->seq_params.use_highbitdepth,
+                         cpi->oxcf.border_in_pixels, cm->byte_alignment);
+  aom_alloc_frame_buffer(&sharpened_block, block_w, block_h, 1, 1,
+                         cm->seq_params.use_highbitdepth,
+                         cpi->oxcf.border_in_pixels, cm->byte_alignment);
+
   for (int row = 0; row < num_rows; ++row) {
     for (int col = 0; col < num_cols; ++col) {
       const int mi_row = row * num_mi_h;
@@ -238,32 +243,40 @@ void av1_vmaf_blk_preprocessing(const AV1_COMP *const cpi,
       const int block_width = AOMMIN(source->y_width - col_offset_y, block_w);
       const int block_height = AOMMIN(source->y_height - row_offset_y, block_h);
 
-      uint8_t *src_buf =
-          source->y_buffer + row_offset_y * source->y_stride + col_offset_y;
-      uint8_t *blurred_buf =
-          blurred.y_buffer + row_offset_y * blurred.y_stride + col_offset_y;
-      uint8_t *dst_buf =
-          sharpened.y_buffer + row_offset_y * sharpened.y_stride + col_offset_y;
-
       const int index = col + row * num_cols;
       const double step_size = 0.1;
       double amount = AOMMAX(best_frame_unsharp_amount - 0.2, step_size);
-      unsharp_rect(src_buf, source->y_stride, blurred_buf, blurred.y_stride,
-                   dst_buf, sharpened.y_stride, block_width, block_height,
-                   amount);
+
+      uint8_t *frame_src_buf =
+          source->y_buffer + row_offset_y * source->y_stride + col_offset_y;
+      uint8_t *frame_blurred_buf =
+          blurred.y_buffer + row_offset_y * blurred.y_stride + col_offset_y;
+      uint8_t *src_buf = source_block.y_buffer;
+      uint8_t *dst_buf = sharpened_block.y_buffer;
+
+      // Copy block from source frame.
+      unsharp_rect(frame_src_buf, source->y_stride, frame_blurred_buf,
+                   blurred.y_stride, src_buf, source_block.y_stride,
+                   block_width, block_height, 0.0);
+      unsharp_rect(src_buf, source_block.y_stride, frame_blurred_buf,
+                   blurred.y_stride, dst_buf, sharpened_block.y_stride,
+                   block_width, block_height, amount);
+
       double best_vmaf;
-      aom_calc_vmaf(cpi->oxcf.vmaf_model_path, source, &sharpened, &best_vmaf);
+      aom_calc_vmaf(cpi->oxcf.vmaf_model_path, &source_block, &sharpened_block,
+                    &best_vmaf);
 
       // Find the best unsharp amount.
       bool exit_loop = false;
       while (!exit_loop && amount < best_frame_unsharp_amount + 0.2) {
         amount += step_size;
-        unsharp_rect(src_buf, source->y_stride, blurred_buf, blurred.y_stride,
-                     dst_buf, sharpened.y_stride, block_width, block_height,
-                     amount);
+        unsharp_rect(src_buf, source_block.y_stride, frame_blurred_buf,
+                     blurred.y_stride, dst_buf, sharpened_block.y_stride,
+                     block_width, block_height, amount);
 
         double new_vmaf;
-        aom_calc_vmaf(cpi->oxcf.vmaf_model_path, source, &sharpened, &new_vmaf);
+        aom_calc_vmaf(cpi->oxcf.vmaf_model_path, &source_block,
+                      &sharpened_block, &new_vmaf);
         if (new_vmaf <= best_vmaf) {
           exit_loop = true;
           amount -= step_size;
@@ -272,9 +285,6 @@ void av1_vmaf_blk_preprocessing(const AV1_COMP *const cpi,
         }
       }
       best_unsharp_amounts[index] = amount;
-      // Reset blurred frame
-      unsharp_rect(src_buf, source->y_stride, blurred_buf, blurred.y_stride,
-                   dst_buf, sharpened.y_stride, block_width, block_height, 0.0);
     }
   }
 
@@ -298,8 +308,9 @@ void av1_vmaf_blk_preprocessing(const AV1_COMP *const cpi,
     }
   }
 
-  aom_free_frame_buffer(&sharpened);
   aom_free_frame_buffer(&blurred);
+  aom_free_frame_buffer(&source_block);
+  aom_free_frame_buffer(&sharpened_block);
   aom_free(best_unsharp_amounts);
   aom_clear_system_state();
 }
