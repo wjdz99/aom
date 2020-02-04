@@ -14,22 +14,22 @@
 
 #include "av1/common/av1_txfm.h"
 
-#if CONFIG_MODE_DEP_TX
+#if CONFIG_MODE_DEP_TX || CONFIG_MODE_DEP_INTRA_TX
 #include "av1/common/mdtx_bases.h"
-#endif
+#endif  // CONFIG_MODE_DEP_TX || CONFIG_MODE_DEP_INTRA_TX
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if CONFIG_MODE_DEP_TX
+#if CONFIG_MODE_DEP_TX || CONFIG_MODE_DEP_INTRA_TX
 void av1_fmdt4(const int32_t *input, int32_t *output, int8_t cos_bit,
                const int8_t *side_info);
 void av1_fmdt8(const int32_t *input, int32_t *output, int8_t cos_bit,
                const int8_t *side_info);
 void av1_fmdt16(const int32_t *input, int32_t *output, int8_t cos_bit,
                 const int8_t *side_info);
-#endif
+#endif  // CONFIG_MODE_DEP_TX || CONFIG_MODE_DEP_INTRA_TX
 void av1_fdct4_new(const int32_t *input, int32_t *output, int8_t cos_bit,
                    const int8_t *stage_range);
 void av1_fdct8_new(const int32_t *input, int32_t *output, int8_t cos_bit,

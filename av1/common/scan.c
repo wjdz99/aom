@@ -1834,16 +1834,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_4x4, av1_mcol_iscan_4x4 },
       { mrow_scan_4x4, av1_mrow_iscan_4x4 },
       { mcol_scan_4x4, av1_mcol_iscan_4x4 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_4x4, av1_default_iscan_4x4 },
       { default_scan_4x4, av1_default_iscan_4x4 },
       { default_scan_4x4, av1_default_iscan_4x4 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_4x4, av1_mrow_iscan_4x4 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_4x4, av1_default_iscan_4x4 },
       { default_scan_4x4, av1_default_iscan_4x4 },
       { default_scan_4x4, av1_default_iscan_4x4 },
@@ -1852,8 +1851,7 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_4x4, av1_default_iscan_4x4 },
       { default_scan_4x4, av1_default_iscan_4x4 },
       { default_scan_4x4, av1_default_iscan_4x4 },
-#endif
-#endif
+#endif  // CONFIG_MODE_DEP_TX
   },
   {
       // TX_8X8
@@ -1873,8 +1871,7 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_8x8, av1_mcol_iscan_8x8 },
       { mrow_scan_8x8, av1_mrow_iscan_8x8 },
       { mcol_scan_8x8, av1_mcol_iscan_8x8 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_8x8, av1_default_iscan_8x8 },
       { default_scan_8x8, av1_default_iscan_8x8 },
       { default_scan_8x8, av1_default_iscan_8x8 },
@@ -1885,8 +1882,8 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_8x8, av1_default_iscan_8x8 },
 #endif  // !CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_8x8, av1_default_iscan_8x8 },
       { default_scan_8x8, av1_default_iscan_8x8 },
       { default_scan_8x8, av1_default_iscan_8x8 },
@@ -1895,8 +1892,7 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_8x8, av1_default_iscan_8x8 },
       { default_scan_8x8, av1_default_iscan_8x8 },
       { default_scan_8x8, av1_default_iscan_8x8 },
-#endif
-#endif
+#endif  // CONFIG_MODE_DEP_TX
   },
   {
       // TX_16X16
@@ -1916,16 +1912,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_16x16, av1_mcol_iscan_16x16 },
       { mrow_scan_16x16, av1_mrow_iscan_16x16 },
       { mcol_scan_16x16, av1_mcol_iscan_16x16 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_16x16, av1_default_iscan_16x16 },
       { default_scan_16x16, av1_default_iscan_16x16 },
       { default_scan_16x16, av1_default_iscan_16x16 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_16x16, av1_mrow_iscan_16x16 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_16x16, av1_default_iscan_16x16 },
       { default_scan_16x16, av1_default_iscan_16x16 },
       { default_scan_16x16, av1_default_iscan_16x16 },
@@ -1934,8 +1929,7 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_16x16, av1_default_iscan_16x16 },
       { default_scan_16x16, av1_default_iscan_16x16 },
       { default_scan_16x16, av1_default_iscan_16x16 },
-#endif
-#endif
+#endif  // CONFIG_MODE_DEP_TX
   },
   {
       // TX_32X32
@@ -1955,16 +1949,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_32x32, av1_mcol_iscan_32x32 },
       { mrow_scan_32x32, av1_mrow_iscan_32x32 },
       { mcol_scan_32x32, av1_mcol_iscan_32x32 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_32x32, av1_mrow_iscan_32x32 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
@@ -1973,7 +1966,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -1996,16 +1988,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_32x32, av1_mcol_iscan_32x32 },
       { mrow_scan_32x32, av1_mrow_iscan_32x32 },
       { mcol_scan_32x32, av1_mcol_iscan_32x32 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_32x32, av1_mrow_iscan_32x32 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
@@ -2014,7 +2005,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2035,8 +2025,7 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_4x8, av1_mcol_iscan_4x8 },
       { mrow_scan_4x8, av1_mrow_iscan_4x8 },
       { mcol_scan_4x8, av1_mcol_iscan_4x8 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_4x8, av1_default_iscan_4x8 },
       { default_scan_4x8, av1_default_iscan_4x8 },
       { default_scan_4x8, av1_default_iscan_4x8 },
@@ -2047,8 +2036,8 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_4x8, av1_default_iscan_4x8 },
 #endif  // !CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_4x8, av1_default_iscan_4x8 },
       { default_scan_4x8, av1_default_iscan_4x8 },
       { default_scan_4x8, av1_default_iscan_4x8 },
@@ -2057,7 +2046,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_4x8, av1_default_iscan_4x8 },
       { default_scan_4x8, av1_default_iscan_4x8 },
       { default_scan_4x8, av1_default_iscan_4x8 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2078,8 +2066,7 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_8x4, av1_mcol_iscan_8x4 },
       { mrow_scan_8x4, av1_mrow_iscan_8x4 },
       { mcol_scan_8x4, av1_mcol_iscan_8x4 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_8x4, av1_default_iscan_8x4 },
       { default_scan_8x4, av1_default_iscan_8x4 },
       { default_scan_8x4, av1_default_iscan_8x4 },
@@ -2090,8 +2077,8 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_8x4, av1_default_iscan_8x4 },
 #endif  // !CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_8x4, av1_default_iscan_8x4 },
       { default_scan_8x4, av1_default_iscan_8x4 },
       { default_scan_8x4, av1_default_iscan_8x4 },
@@ -2100,7 +2087,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_8x4, av1_default_iscan_8x4 },
       { default_scan_8x4, av1_default_iscan_8x4 },
       { default_scan_8x4, av1_default_iscan_8x4 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2121,16 +2107,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_8x16, av1_mcol_iscan_8x16 },
       { mrow_scan_8x16, av1_mrow_iscan_8x16 },
       { mcol_scan_8x16, av1_mcol_iscan_8x16 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_8x16, av1_default_iscan_8x16 },
       { default_scan_8x16, av1_default_iscan_8x16 },
       { default_scan_8x16, av1_default_iscan_8x16 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_8x16, av1_mrow_iscan_8x16 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_8x16, av1_default_iscan_8x16 },
       { default_scan_8x16, av1_default_iscan_8x16 },
       { default_scan_8x16, av1_default_iscan_8x16 },
@@ -2139,7 +2124,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_8x16, av1_default_iscan_8x16 },
       { default_scan_8x16, av1_default_iscan_8x16 },
       { default_scan_8x16, av1_default_iscan_8x16 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2160,16 +2144,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_16x8, av1_mcol_iscan_16x8 },
       { mrow_scan_16x8, av1_mrow_iscan_16x8 },
       { mcol_scan_16x8, av1_mcol_iscan_16x8 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_16x8, av1_default_iscan_16x8 },
       { default_scan_16x8, av1_default_iscan_16x8 },
       { default_scan_16x8, av1_default_iscan_16x8 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_16x8, av1_mrow_iscan_16x8 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_16x8, av1_default_iscan_16x8 },
       { default_scan_16x8, av1_default_iscan_16x8 },
       { default_scan_16x8, av1_default_iscan_16x8 },
@@ -2178,7 +2161,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_16x8, av1_default_iscan_16x8 },
       { default_scan_16x8, av1_default_iscan_16x8 },
       { default_scan_16x8, av1_default_iscan_16x8 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2199,16 +2181,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_16x32, av1_mcol_iscan_16x32 },
       { mrow_scan_16x32, av1_mrow_iscan_16x32 },
       { mcol_scan_16x32, av1_mcol_iscan_16x32 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_16x32, av1_default_iscan_16x32 },
       { default_scan_16x32, av1_default_iscan_16x32 },
       { default_scan_16x32, av1_default_iscan_16x32 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_16x32, av1_mrow_iscan_16x32 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_16x32, av1_default_iscan_16x32 },
       { default_scan_16x32, av1_default_iscan_16x32 },
       { default_scan_16x32, av1_default_iscan_16x32 },
@@ -2217,7 +2198,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_16x32, av1_default_iscan_16x32 },
       { default_scan_16x32, av1_default_iscan_16x32 },
       { default_scan_16x32, av1_default_iscan_16x32 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2238,16 +2218,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_32x16, av1_mcol_iscan_32x16 },
       { mrow_scan_32x16, av1_mrow_iscan_32x16 },
       { mcol_scan_32x16, av1_mcol_iscan_32x16 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_32x16, av1_default_iscan_32x16 },
       { default_scan_32x16, av1_default_iscan_32x16 },
       { default_scan_32x16, av1_default_iscan_32x16 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_32x16, av1_mrow_iscan_32x16 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_32x16, av1_default_iscan_32x16 },
       { default_scan_32x16, av1_default_iscan_32x16 },
       { default_scan_32x16, av1_default_iscan_32x16 },
@@ -2256,7 +2235,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_32x16, av1_default_iscan_32x16 },
       { default_scan_32x16, av1_default_iscan_32x16 },
       { default_scan_32x16, av1_default_iscan_32x16 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2279,16 +2257,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_32x32, av1_mcol_iscan_32x32 },
       { mrow_scan_32x32, av1_mrow_iscan_32x32 },
       { mcol_scan_32x32, av1_mcol_iscan_32x32 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_32x32, av1_mrow_iscan_32x32 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
@@ -2297,7 +2274,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2320,16 +2296,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_32x32, av1_mcol_iscan_32x32 },
       { mrow_scan_32x32, av1_mrow_iscan_32x32 },
       { mcol_scan_32x32, av1_mcol_iscan_32x32 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_32x32, av1_mrow_iscan_32x32 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
@@ -2338,7 +2313,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
       { default_scan_32x32, av1_default_iscan_32x32 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2359,16 +2333,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_4x16, av1_mcol_iscan_4x16 },
       { mrow_scan_4x16, av1_mrow_iscan_4x16 },
       { mcol_scan_4x16, av1_mcol_iscan_4x16 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_4x16, av1_default_iscan_4x16 },
       { default_scan_4x16, av1_default_iscan_4x16 },
       { default_scan_4x16, av1_default_iscan_4x16 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_4x16, av1_mrow_iscan_4x16 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_4x16, av1_default_iscan_4x16 },
       { default_scan_4x16, av1_default_iscan_4x16 },
       { default_scan_4x16, av1_default_iscan_4x16 },
@@ -2377,7 +2350,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_4x16, av1_default_iscan_4x16 },
       { default_scan_4x16, av1_default_iscan_4x16 },
       { default_scan_4x16, av1_default_iscan_4x16 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2398,16 +2370,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_16x4, av1_mcol_iscan_16x4 },
       { mrow_scan_16x4, av1_mrow_iscan_16x4 },
       { mcol_scan_16x4, av1_mcol_iscan_16x4 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_16x4, av1_default_iscan_16x4 },
       { default_scan_16x4, av1_default_iscan_16x4 },
       { default_scan_16x4, av1_default_iscan_16x4 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_16x4, av1_mrow_iscan_16x4 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_16x4, av1_default_iscan_16x4 },
       { default_scan_16x4, av1_default_iscan_16x4 },
       { default_scan_16x4, av1_default_iscan_16x4 },
@@ -2416,7 +2387,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_16x4, av1_default_iscan_16x4 },
       { default_scan_16x4, av1_default_iscan_16x4 },
       { default_scan_16x4, av1_default_iscan_16x4 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2437,16 +2407,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_8x32, av1_mcol_iscan_8x32 },
       { mrow_scan_8x32, av1_mrow_iscan_8x32 },
       { mcol_scan_8x32, av1_mcol_iscan_8x32 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_8x32, av1_default_iscan_8x32 },
       { default_scan_8x32, av1_default_iscan_8x32 },
       { default_scan_8x32, av1_default_iscan_8x32 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_8x32, av1_mrow_iscan_8x32 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_8x32, av1_default_iscan_8x32 },
       { default_scan_8x32, av1_default_iscan_8x32 },
       { default_scan_8x32, av1_default_iscan_8x32 },
@@ -2455,7 +2424,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_8x32, av1_default_iscan_8x32 },
       { default_scan_8x32, av1_default_iscan_8x32 },
       { default_scan_8x32, av1_default_iscan_8x32 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2476,16 +2444,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_32x8, av1_mcol_iscan_32x8 },
       { mrow_scan_32x8, av1_mrow_iscan_32x8 },
       { mcol_scan_32x8, av1_mcol_iscan_32x8 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_32x8, av1_default_iscan_32x8 },
       { default_scan_32x8, av1_default_iscan_32x8 },
       { default_scan_32x8, av1_default_iscan_32x8 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_32x8, av1_mrow_iscan_32x8 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_32x8, av1_default_iscan_32x8 },
       { default_scan_32x8, av1_default_iscan_32x8 },
       { default_scan_32x8, av1_default_iscan_32x8 },
@@ -2494,7 +2461,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_32x8, av1_default_iscan_32x8 },
       { default_scan_32x8, av1_default_iscan_32x8 },
       { default_scan_32x8, av1_default_iscan_32x8 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2517,16 +2483,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_16x32, av1_mcol_iscan_16x32 },
       { mrow_scan_16x32, av1_mrow_iscan_16x32 },
       { mcol_scan_16x32, av1_mcol_iscan_16x32 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_16x32, av1_default_iscan_16x32 },
       { default_scan_16x32, av1_default_iscan_16x32 },
       { default_scan_16x32, av1_default_iscan_16x32 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_16x32, av1_mrow_iscan_16x32 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_16x32, av1_default_iscan_16x32 },
       { default_scan_16x32, av1_default_iscan_16x32 },
       { default_scan_16x32, av1_default_iscan_16x32 },
@@ -2535,7 +2500,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_16x32, av1_default_iscan_16x32 },
       { default_scan_16x32, av1_default_iscan_16x32 },
       { default_scan_16x32, av1_default_iscan_16x32 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2558,16 +2522,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_32x16, av1_mcol_iscan_32x16 },
       { mrow_scan_32x16, av1_mrow_iscan_32x16 },
       { mcol_scan_32x16, av1_mcol_iscan_32x16 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_32x16, av1_default_iscan_32x16 },
       { default_scan_32x16, av1_default_iscan_32x16 },
       { default_scan_32x16, av1_default_iscan_32x16 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_32x16, av1_mrow_iscan_32x16 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_32x16, av1_default_iscan_32x16 },
       { default_scan_32x16, av1_default_iscan_32x16 },
       { default_scan_32x16, av1_default_iscan_32x16 },
@@ -2576,7 +2539,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_32x16, av1_default_iscan_32x16 },
       { default_scan_32x16, av1_default_iscan_32x16 },
       { default_scan_32x16, av1_default_iscan_32x16 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
 #if CONFIG_FLEX_PARTITION
@@ -2598,16 +2560,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_4x32, av1_mcol_iscan_4x32 },
       { mrow_scan_4x32, av1_mrow_iscan_4x32 },
       { mcol_scan_4x32, av1_mcol_iscan_4x32 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_4x32, av1_default_iscan_4x32 },
       { default_scan_4x32, av1_default_iscan_4x32 },
       { default_scan_4x32, av1_default_iscan_4x32 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_4x32, av1_mrow_iscan_4x32 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_4x32, av1_default_iscan_4x32 },
       { default_scan_4x32, av1_default_iscan_4x32 },
       { default_scan_4x32, av1_default_iscan_4x32 },
@@ -2616,7 +2577,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_4x32, av1_default_iscan_4x32 },
       { default_scan_4x32, av1_default_iscan_4x32 },
       { default_scan_4x32, av1_default_iscan_4x32 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2637,16 +2597,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_32x4, av1_mcol_iscan_32x4 },
       { mrow_scan_32x4, av1_mrow_iscan_32x4 },
       { mcol_scan_32x4, av1_mcol_iscan_32x4 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_32x4, av1_default_iscan_32x4 },
       { default_scan_32x4, av1_default_iscan_32x4 },
       { default_scan_32x4, av1_default_iscan_32x4 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_32x4, av1_mrow_iscan_32x4 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_32x4, av1_default_iscan_32x4 },
       { default_scan_32x4, av1_default_iscan_32x4 },
       { default_scan_32x4, av1_default_iscan_32x4 },
@@ -2655,7 +2614,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_32x4, av1_default_iscan_32x4 },
       { default_scan_32x4, av1_default_iscan_32x4 },
       { default_scan_32x4, av1_default_iscan_32x4 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2678,16 +2636,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_8x32, av1_mcol_iscan_8x32 },
       { mrow_scan_8x32, av1_mrow_iscan_8x32 },
       { mcol_scan_8x32, av1_mcol_iscan_8x32 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_8x32, av1_default_iscan_8x32 },
       { default_scan_8x32, av1_default_iscan_8x32 },
       { default_scan_8x32, av1_default_iscan_8x32 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_8x32, av1_mrow_iscan_8x32 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_8x32, av1_default_iscan_8x32 },
       { default_scan_8x32, av1_default_iscan_8x32 },
       { default_scan_8x32, av1_default_iscan_8x32 },
@@ -2696,7 +2653,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_8x32, av1_default_iscan_8x32 },
       { default_scan_8x32, av1_default_iscan_8x32 },
       { default_scan_8x32, av1_default_iscan_8x32 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2719,16 +2675,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_32x8, av1_mcol_iscan_32x8 },
       { mrow_scan_32x8, av1_mrow_iscan_32x8 },
       { mcol_scan_32x8, av1_mcol_iscan_32x8 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_32x8, av1_default_iscan_32x8 },
       { default_scan_32x8, av1_default_iscan_32x8 },
       { default_scan_32x8, av1_default_iscan_32x8 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_32x8, av1_mrow_iscan_32x8 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_32x8, av1_default_iscan_32x8 },
       { default_scan_32x8, av1_default_iscan_32x8 },
       { default_scan_32x8, av1_default_iscan_32x8 },
@@ -2737,7 +2692,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_32x8, av1_default_iscan_32x8 },
       { default_scan_32x8, av1_default_iscan_32x8 },
       { default_scan_32x8, av1_default_iscan_32x8 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2760,16 +2714,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_4x32, av1_mcol_iscan_4x32 },
       { mrow_scan_4x32, av1_mrow_iscan_4x32 },
       { mcol_scan_4x32, av1_mcol_iscan_4x32 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_4x32, av1_default_iscan_4x32 },
       { default_scan_4x32, av1_default_iscan_4x32 },
       { default_scan_4x32, av1_default_iscan_4x32 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_4x32, av1_mrow_iscan_4x32 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_4x32, av1_default_iscan_4x32 },
       { default_scan_4x32, av1_default_iscan_4x32 },
       { default_scan_4x32, av1_default_iscan_4x32 },
@@ -2778,7 +2731,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_4x32, av1_default_iscan_4x32 },
       { default_scan_4x32, av1_default_iscan_4x32 },
       { default_scan_4x32, av1_default_iscan_4x32 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
   {
@@ -2801,16 +2753,15 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_32x4, av1_mcol_iscan_32x4 },
       { mrow_scan_32x4, av1_mrow_iscan_32x4 },
       { mcol_scan_32x4, av1_mcol_iscan_32x4 },
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
       { default_scan_32x4, av1_default_iscan_32x4 },
       { default_scan_32x4, av1_default_iscan_32x4 },
       { default_scan_32x4, av1_default_iscan_32x4 },
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
       { mrow_scan_32x16, av1_mrow_iscan_32x16 },
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
       { default_scan_32x4, av1_default_iscan_32x4 },
       { default_scan_32x4, av1_default_iscan_32x4 },
       { default_scan_32x4, av1_default_iscan_32x4 },
@@ -2819,7 +2770,6 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { default_scan_32x4, av1_default_iscan_32x4 },
       { default_scan_32x4, av1_default_iscan_32x4 },
       { default_scan_32x4, av1_default_iscan_32x4 },
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
   },
 #endif  // CONFIG_FLEX_PARTITION

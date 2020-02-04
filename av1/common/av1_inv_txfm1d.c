@@ -656,7 +656,7 @@ void av1_idct32_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   bf1[31] = clamp_value(bf0[0] - bf0[31], stage_range[stage]);
 }
 
-#if CONFIG_MODE_DEP_TX
+#if CONFIG_MODE_DEP_TX || CONFIG_MODE_DEP_INTRA_TX
 void av1_imdt4(const int32_t *input, int32_t *output, int8_t cos_bit,
                const int8_t *side_info) {
   // The argument side_info is included in a way that the function has the same

@@ -53,11 +53,11 @@ static INLINE TxfmFunc fwd_txfm_type_to_func(int mode, TXFM_TYPE txfm_type) {
     case TXFM_TYPE_ADST8: return av1_fadst8_new;
     case TXFM_TYPE_ADST16: return av1_fadst16_new;
 #endif  // CONFIG_LGT
-#if CONFIG_MODE_DEP_TX
+#if CONFIG_MODE_DEP_TX || CONFIG_MODE_DEP_INTRA_TX
     case TXFM_TYPE_MDTX4: return av1_fmdt4;
     case TXFM_TYPE_MDTX8: return av1_fmdt8;
     case TXFM_TYPE_MDTX16: return av1_fmdt16;
-#endif
+#endif  // CONFIG_MODE_DEP_TX || CONFIG_MODE_DEP_INTRA_TX
     case TXFM_TYPE_IDENTITY4: return av1_fidentity4_c;
     case TXFM_TYPE_IDENTITY8: return av1_fidentity8_c;
     case TXFM_TYPE_IDENTITY16: return av1_fidentity16_c;
@@ -81,7 +81,7 @@ void av1_gen_fwd_stage_range(int8_t *stage_range_col, int8_t *stage_range_row,
   }
 }
 
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX
+#if CONFIG_MODE_DEP_INTRA_TX && CONFIG_MODE_DEP_NONSEP_INTRA_TX
 static INLINE void fwd_nonsep_txfm2d(const int16_t *input, int32_t *output,
                                      const int stride, int32_t *buf,
                                      const int32_t *nstx_mtx,
@@ -191,13 +191,12 @@ static INLINE void fwd_nonsep_secondary_txfm2d(int32_t *input, int32_t *buf,
 #endif
 }
 #endif  // CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
-#endif  // CONFIG_MODE_DEP_TX && USE_MDTX_INTRA &&
-        // CONFIG_MODE_DEP_NONSEP_INTRA_TX
+#endif  // CONFIG_MODE_DEP_INTRA_TX && CONFIG_MODE_DEP_NONSEP_INTRA_TX
 
 static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
                                 const int stride, const TXFM_2D_FLIP_CFG *cfg,
                                 int32_t *buf, int bd) {
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX
+#if CONFIG_MODE_DEP_INTRA_TX && CONFIG_MODE_DEP_NONSEP_INTRA_TX
   if (cfg->nstx_mtx_ptr
 #if CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
       && cfg->tx_size == TX_4X4
@@ -208,8 +207,7 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
                       cfg->tx_size);
     return;
   }
-#endif  // CONFIG_MODE_DEP_TX && USE_MDTX_INTRA &&
-        // CONFIG_MODE_DEP_NONSEP_INTRA_TX
+#endif  // CONFIG_MODE_DEP_INTRA_TX && CONFIG_MODE_DEP_NONSEP_INTRA_TX
   int c, r;
   // Note when assigning txfm_size_col, we use the txfm_size from the
   // row configuration and vice versa. This is intentionally done to
@@ -241,7 +239,7 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
   int32_t *temp_in = output;
   int32_t *temp_out = output + txfm_size_row;
 
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX && \
+#if CONFIG_MODE_DEP_INTRA_TX && CONFIG_MODE_DEP_NONSEP_INTRA_TX && \
     MDTX_DEBUG
   // debug
   if (txfm_size_col <= 8 && txfm_size_row <= 8 && cfg->nstx_mtx_ptr) {
@@ -255,8 +253,8 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
       fprintf(stderr, "\n");
     }
   }
-#endif  // CONFIG_MODE_DEP_TX && USE_MDTX_INTRA &&
-        // CONFIG_MODE_DEP_NONSEP_INTRA_TX && MDTX_DEBUG
+#endif  // CONFIG_MODE_DEP_INTRA_TX && CONFIG_MODE_DEP_NONSEP_INTRA_TX &&
+        // MDTX_DEBUG
 
   // Columns
   for (c = 0; c < txfm_size_col; ++c) {
@@ -295,7 +293,7 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
     }
   }
 
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX && \
+#if CONFIG_MODE_DEP_INTRA_TX && CONFIG_MODE_DEP_NONSEP_INTRA_TX && \
     CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
 #if MDTX_DEBUG
   if (txfm_size_col <= 8 && txfm_size_row <= 8 && cfg->nstx_mtx_ptr) {
@@ -311,8 +309,7 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
   // Apply non-separable secondary transform after separable transforms
   if (cfg->nstx_mtx_ptr)
     fwd_nonsep_secondary_txfm2d(output, buf, cfg->nstx_mtx_ptr, cfg->tx_size);
-#endif  // CONFIG_MODE_DEP_TX && USE_MDTX_INTRA &&
-        // CONFIG_MODE_DEP_NONSEP_INTRA_TX &&
+#endif  // CONFIG_MODE_DEP_INTRA_TX && CONFIG_MODE_DEP_NONSEP_INTRA_TX &&
         // CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX
 }
 
@@ -806,9 +803,9 @@ static const int8_t *fwd_txfm_range_mult2_list[TXFM_TYPES] = {
   fdct32_range_mult2, fdct64_range_mult2,  fadst4_range_mult2,
   fadst8_range_mult2, fadst16_range_mult2, fidtx4_range_mult2,
   fidtx8_range_mult2, fidtx16_range_mult2, fidtx32_range_mult2,
-#if CONFIG_MODE_DEP_TX
+#if CONFIG_MODE_DEP_TX || CONFIG_MODE_DEP_INTRA_TX
   fadst4_range_mult2, fadst8_range_mult2,  fadst16_range_mult2,
-#endif
+#endif  // CONFIG_MODE_DEP_TX || CONFIG_MODE_DEP_INTRA_TX
 };
 
 static INLINE void set_fwd_txfm_non_scale_range(TXFM_2D_FLIP_CFG *cfg) {
@@ -849,7 +846,7 @@ void av1_get_fwd_txfm_cfg(TX_TYPE tx_type, TX_SIZE tx_size,
   cfg->txfm_type_col = av1_txfm_type_ls[txh_idx][tx_type_1d_col];
   cfg->txfm_type_row = av1_txfm_type_ls[txw_idx][tx_type_1d_row];
   cfg->mode = mode;
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX
+#if CONFIG_MODE_DEP_INTRA_TX && CONFIG_MODE_DEP_NONSEP_INTRA_TX
   if (use_nstx(tx_type, tx_size, mode)) {
     cfg->nstx_mtx_ptr = nstx_arr(tx_size, mode);
   } else if (use_nsst(tx_type, tx_size, mode)) {
@@ -860,8 +857,7 @@ void av1_get_fwd_txfm_cfg(TX_TYPE tx_type, TX_SIZE tx_size,
   } else {
     cfg->nstx_mtx_ptr = NULL;
   }
-#endif  // CONFIG_MODE_DEP_TX && USE_MDTX_INTRA &&
-        // CONFIG_MODE_DEP_NONSEP_INTRA_TX
+#endif  // CONFIG_MODE_DEP_INTRA_TX && CONFIG_MODE_DEP_NONSEP_INTRA_TX
   cfg->stage_num_col = av1_txfm_stage_num_list[cfg->txfm_type_col];
   cfg->stage_num_row = av1_txfm_stage_num_list[cfg->txfm_type_row];
   set_fwd_txfm_non_scale_range(cfg);

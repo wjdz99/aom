@@ -144,7 +144,7 @@ enum {
   TXFM_TYPE_IDENTITY8,
   TXFM_TYPE_IDENTITY16,
   TXFM_TYPE_IDENTITY32,
-#if CONFIG_MODE_DEP_TX
+#if CONFIG_MODE_DEP_TX || CONFIG_MODE_DEP_INTRA_TX
   TXFM_TYPE_MDTX4,
   TXFM_TYPE_MDTX8,
   TXFM_TYPE_MDTX16,  // DST type 7
@@ -153,7 +153,7 @@ enum {
   TXFM_TYPE_INVALID,
 } UENUM1BYTE(TXFM_TYPE);
 
-#if CONFIG_MODE_DEP_TX
+#if CONFIG_MODE_DEP_TX || CONFIG_MODE_DEP_INTRA_TX
 static INLINE int idx_flip(const int txw, const int txh, const int idxr,
                            const int idxc, const int ud_flip,
                            const int lr_flip) {
@@ -169,7 +169,7 @@ static INLINE int idx_flip(const int txw, const int txh, const int idxr,
     return idxr * txw + idxc;
   }
 }
-#endif
+#endif  // CONFIG_MODE_DEP_TX || CONFIG_MODE_DEP_INTRA_TX
 
 typedef struct TXFM_2D_FLIP_CFG {
   TX_SIZE tx_size;
@@ -185,10 +185,9 @@ typedef struct TXFM_2D_FLIP_CFG {
   int stage_num_col;
   int stage_num_row;
   PREDICTION_MODE mode;
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTRA && CONFIG_MODE_DEP_NONSEP_INTRA_TX
+#if CONFIG_MODE_DEP_INTRA_TX && CONFIG_MODE_DEP_NONSEP_INTRA_TX
   const int32_t *nstx_mtx_ptr;
-#endif  // CONFIG_MODE_DEP_TX && USE_MDTX_INTRA &&
-        // CONFIG_MODE_DEP_NONSEP_INTRA_TX
+#endif  // CONFIG_MODE_DEP_INTRA_TX && CONFIG_MODE_DEP_NONSEP_INTRA_TX
 } TXFM_2D_FLIP_CFG;
 
 static INLINE void get_flip_cfg(TX_TYPE tx_type, int *ud_flip, int *lr_flip) {
@@ -205,20 +204,18 @@ static INLINE void get_flip_cfg(TX_TYPE tx_type, int *ud_flip, int *lr_flip) {
     case H_DCT:
     case V_ADST:
     case H_ADST:
-#if CONFIG_MODE_DEP_TX
-#if USE_MDTX_INTRA
+#if CONFIG_MODE_DEP_INTRA_TX
     case MDTX_INTRA_1:
     case MDTX_INTRA_2:
     case MDTX_INTRA_3:
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
     case MDTX_INTRA_4:
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif  // USE_MDTX_INTRA
-#if USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_INTRA_TX
+#if CONFIG_MODE_DEP_TX
     case MDTX_INTER_1:
     case MDTX_INTER_2:
     case MDTX_INTER_3:
-#endif  // USE_MDTX_INTER
 #endif  // CONFIG_MODE_DEP_TX
       *ud_flip = 0;
       *lr_flip = 0;
@@ -226,27 +223,27 @@ static INLINE void get_flip_cfg(TX_TYPE tx_type, int *ud_flip, int *lr_flip) {
     case FLIPADST_DCT:
     case FLIPADST_ADST:
     case V_FLIPADST:
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTER
+#if CONFIG_MODE_DEP_TX
     case MDTX_INTER_5:
     case MDTX_INTER_7:
-#endif  // CONFIG_MODE_DEP_TX && USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_TX
       *ud_flip = 1;
       *lr_flip = 0;
       break;
     case DCT_FLIPADST:
     case ADST_FLIPADST:
     case H_FLIPADST:
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTER
+#if CONFIG_MODE_DEP_TX
     case MDTX_INTER_6:
     case MDTX_INTER_8:
-#endif  // CONFIG_MODE_DEP_TX && USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_TX
       *ud_flip = 0;
       *lr_flip = 1;
       break;
     case FLIPADST_FLIPADST:
-#if CONFIG_MODE_DEP_TX && USE_MDTX_INTER
+#if CONFIG_MODE_DEP_TX
     case MDTX_INTER_4:
-#endif  // CONFIG_MODE_DEP_TX && USE_MDTX_INTER
+#endif  // CONFIG_MODE_DEP_TX
       *ud_flip = 1;
       *lr_flip = 1;
       break;
