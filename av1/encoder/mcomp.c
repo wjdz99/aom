@@ -2411,9 +2411,15 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     const MESH_PATTERN *const mesh_patterns =
         use_intrabc_mesh_pattern ? sf->mv_sf.intrabc_mesh_patterns
                                  : sf->mv_sf.mesh_patterns;
+    const int max_mv_diff =
+        AOMMAX(abs(x->best_mv.as_mv.row - (ref_mv->row >> 3)),
+               abs(x->best_mv.as_mv.col - (ref_mv->col >> 3)));
+    int i = 0;
+    while (!use_intrabc_mesh_pattern && max_mv_diff < mesh_patterns[i].range)
+      i++;
     var_ex =
         full_pixel_exhaustive(x, &x->best_mv.as_mv, error_per_bit, cost_list,
-                              fn_ptr, ref_mv, &tmp_mv_ex, mesh_patterns);
+                              fn_ptr, ref_mv, &tmp_mv_ex, &mesh_patterns[i]);
     if (var_ex < var) {
       var = var_ex;
       x->best_mv.as_mv = tmp_mv_ex;
