@@ -978,6 +978,7 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
   if (cpi->oxcf.superres_mode != SUPERRES_NONE) return;
 
   cm->current_frame.frame_type = frame_params->frame_type;
+  cm->show_frame = frame_params->show_frame;
   for (int gf_index = gf_group->index; gf_index < gf_group->size; ++gf_index) {
     av1_configure_buffer_updates(cpi, &this_frame_params,
                                  gf_group->update_type[gf_index], 0);
@@ -992,6 +993,8 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
                                  &bottom_index, &top_index);
 
     cm->current_frame.frame_type = INTER_FRAME;
+    cm->show_frame = gf_group->update_type[gf_index] != ARF_UPDATE &&
+                     gf_group->update_type[gf_index] != INTNL_ARF_UPDATE;
   }
 
   int pframe_qindex;
@@ -1030,6 +1033,7 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
   av1_configure_buffer_updates(cpi, &this_frame_params,
                                gf_group->update_type[gf_group->index], 0);
   cm->current_frame.frame_type = frame_params->frame_type;
+  cm->show_frame = frame_params->show_frame;
 }
 
 static AOM_INLINE void get_tpl_forward_stats(AV1_COMP *cpi, MACROBLOCK *x,
