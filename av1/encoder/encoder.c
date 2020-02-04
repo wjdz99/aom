@@ -6400,7 +6400,7 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
 #if CONFIG_TUNE_VMAF
   if (!is_stat_generation_stage(cpi) &&
       cpi->oxcf.tuning == AOM_TUNE_VMAF_WITH_PREPROCESSING) {
-    const bool use_block_based_methods = false;
+    const bool use_block_based_methods = true;
     if (use_block_based_methods) {
       av1_vmaf_blk_preprocessing(cpi, sd);
     } else {
