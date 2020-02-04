@@ -88,7 +88,7 @@ static int tf_motion_search(AV1_COMP *cpi,
   const int sadperbit16 = mb->sadperbit16;
   const search_site_config ss_cfg = cpi->ss_cfg[SS_CFG_LOOKAHEAD];
   const SEARCH_METHODS full_search_method = NSTEP;
-  const int step_param = av1_init_search_range(
+  int step_param = av1_init_search_range(
       AOMMAX(frame_to_filter->y_crop_width, frame_to_filter->y_crop_height));
   const SUBPEL_SEARCH_TYPE subpel_search_type = USE_8_TAPS;
   const int allow_high_precision_mv = cpi->common.allow_high_precision_mv;
@@ -115,9 +115,16 @@ static int tf_motion_search(AV1_COMP *cpi,
   // Do motion search.
   // NOTE: In `av1_full_pixel_search()` and `find_fractional_mv_step()`, the
   // searched result will be stored in `mb->best_mv`.
+  const int run_mesh_search = 1;  // cpi->sf.mv_sf.limit_exhaustive_search
+                                  // ? (ref_mv->row == 0 && ref_mv->col == 0)
+                                  // : 1;
   int block_error = INT_MAX;
+  // step_param = tpl_sf->reduce_first_step_size;
+  step_param = 6;
+  step_param = AOMMIN(step_param, MAX_MVSEARCH_STEPS - 2);
+
   av1_full_pixel_search(cpi, mb, block_size, &start_mv, step_param, 1,
-                        full_search_method, 1, sadperbit16,
+                        full_search_method, run_mesh_search, sadperbit16,
                         cond_cost_list(cpi, cost_list), &baseline_mv, 0, 0,
                         mb_x, mb_y, 0, &ss_cfg, 0);
   if (force_integer_mv == 1) {  // Only do full search on the entire block.
@@ -152,7 +159,7 @@ static int tf_motion_search(AV1_COMP *cpi,
         mbd->plane[0].pre[0].buf = ref_frame->y_buffer + y_offset + offset;
         av1_set_mv_search_range(&mb->mv_limits, &baseline_mv);
         av1_full_pixel_search(cpi, mb, subblock_size, &start_mv, step_param, 1,
-                              full_search_method, 1, sadperbit16,
+                              full_search_method, run_mesh_search, sadperbit16,
                               cond_cost_list(cpi, cost_list), &baseline_mv, 0,
                               0, mb_x, mb_y, 0, &ss_cfg, 0);
         subblock_errors[subblock_idx] = cpi->find_fractional_mv_step(

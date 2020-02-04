@@ -3093,7 +3093,7 @@ void av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
   // ref_mv is used to code the motion vector. ref_mv_full is the initial point.
   // ref_mv is in units of 1/8 pel whereas ref_mv_full is in units of pel.
   MV ref_mv = { 0, 0 };
-  const int step_param = cpi->mv_step_param;
+  const int step_param = 6;  // cpi->mv_step_param;
   const MvLimits tmp_mv_limits = x->mv_limits;
   const SEARCH_METHODS search_methods = cpi->sf.mv_sf.search_method;
   const int do_mesh_search = 0;
