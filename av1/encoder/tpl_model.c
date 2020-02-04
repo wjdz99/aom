@@ -987,6 +987,9 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
     cpi->refresh_bwd_ref_frame = this_frame_params.refresh_bwd_ref_frame;
     cpi->refresh_alt_ref_frame = this_frame_params.refresh_alt_ref_frame;
 
+    cm->show_frame = gf_group->update_type[gf_index] != ARF_UPDATE &&
+                     gf_group->update_type[gf_index] != INTNL_ARF_UPDATE;
+
     gf_group->q_val[gf_index] =
         av1_rc_pick_q_and_bounds(cpi, &cpi->rc, cm->width, cm->height, gf_index,
                                  &bottom_index, &top_index);
@@ -1030,6 +1033,7 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
   av1_configure_buffer_updates(cpi, &this_frame_params,
                                gf_group->update_type[gf_group->index], 0);
   cm->current_frame.frame_type = frame_params->frame_type;
+  cm->show_frame = frame_params->show_frame;
 }
 
 static AOM_INLINE void get_tpl_forward_stats(AV1_COMP *cpi, MACROBLOCK *x,
