@@ -87,7 +87,7 @@ static int tf_motion_search(AV1_COMP *cpi,
   // Parameters used for motion search.
   const int sadperbit16 = mb->sadperbit16;
   const search_site_config ss_cfg = cpi->ss_cfg[SS_CFG_LOOKAHEAD];
-  const SEARCH_METHODS full_search_method = NSTEP;
+  const SEARCH_METHODS full_search_method = cpi->sf.mv_sf.search_method;
   const int step_param = av1_init_search_range(
       AOMMAX(frame_to_filter->y_crop_width, frame_to_filter->y_crop_height));
   const SUBPEL_SEARCH_TYPE subpel_search_type = USE_8_TAPS;

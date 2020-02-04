@@ -22,6 +22,8 @@
 #define MAX_MESH_SPEED 5  // Max speed setting for mesh motion method
 // Max speed setting for tx domain evaluation
 #define MAX_TX_DOMAIN_EVAL_SPEED 5
+// The step size(interval) decreases till we reach a step size of 1. After that,
+// the search stops.
 static MESH_PATTERN
     good_quality_mesh_patterns[MAX_MESH_SPEED + 1][MAX_MESH_STEP] = {
       { { 64, 8 }, { 28, 4 }, { 15, 1 }, { 7, 1 } },
@@ -29,7 +31,7 @@ static MESH_PATTERN
       { { 64, 8 }, { 14, 2 }, { 7, 1 }, { 7, 1 } },
       { { 64, 16 }, { 24, 8 }, { 12, 4 }, { 7, 1 } },
       { { 64, 16 }, { 24, 8 }, { 12, 4 }, { 7, 1 } },
-      { { 64, 16 }, { 24, 8 }, { 12, 4 }, { 7, 1 } },
+      { { 32, 8 }, { 7, 1 }, { 0, 0 }, { 0, 0 } },
     };
 static unsigned char good_quality_max_mesh_pct[MAX_MESH_SPEED + 1] = { 50, 50,
                                                                        25, 15,
