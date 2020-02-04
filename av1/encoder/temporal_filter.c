@@ -799,9 +799,11 @@ void av1_apply_temporal_filter_planewise_c(
   // Hyper-parameter for filter weight adjustment.
   const int frame_height = frame_to_filter->heights[0]
                            << mbd->plane[0].subsampling_y;
-  const int decay_control = frame_height >= 480 ? 4 : 3;
+  //const int decay_control = frame_height >= 480 ? 4 : 3;
+  const double decay_control = 3.5;
   // Control factor for non-local mean approach.
-  const double r = (double)decay_control * (0.7 + log(noise_level + 1.0));
+  //const double r = (double)decay_control * (0.7 + log(noise_level + 1.0));
+  const double r = (double)decay_control * (0.7 + log(noise_level + 1.5));
 
   // Block information.
   const int mb_height = block_size_high[block_size];
