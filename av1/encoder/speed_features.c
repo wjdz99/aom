@@ -212,14 +212,20 @@ static void set_good_speed_feature_framesize_dependent(
 
   if (speed >= 3) {
     sf->part_sf.ml_early_term_after_part_split_level = 0;
+    const GF_GROUP *const gf_group = &cpi->gf_group;
+    const int boosted = frame_is_boosted(cpi);
 
     if (is_720p_or_larger) {
       sf->part_sf.partition_search_breakout_dist_thr = (1 << 25);
       sf->part_sf.partition_search_breakout_rate_thr = 200;
+      sf->part_sf.use_square_partition_only_threshold =
+          boosted ? BLOCK_64X64 : BLOCK_32X32;
     } else {
       sf->part_sf.max_intra_bsize = BLOCK_32X32;
       sf->part_sf.partition_search_breakout_dist_thr = (1 << 23);
       sf->part_sf.partition_search_breakout_rate_thr = 120;
+      sf->part_sf.use_square_partition_only_threshold =
+          boosted ? BLOCK_32X32 : BLOCK_16X16;
     }
   }
 
