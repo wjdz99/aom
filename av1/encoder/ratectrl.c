@@ -1731,7 +1731,10 @@ void av1_rc_set_gf_interval_range(const AV1_COMP *const cpi,
           cpi->framerate, rc->min_gf_interval);
 
     // Extended max interval for genuinely static scenes like slide shows.
-    rc->static_scene_max_gf_interval = MAX_STATIC_GF_GROUP_LENGTH;
+    if (cpi->lap_enabled)
+      rc->static_scene_max_gf_interval = MAX_GF_INTERVAL;
+    else
+      rc->static_scene_max_gf_interval = MAX_STATIC_GF_GROUP_LENGTH;
 
     if (rc->max_gf_interval > rc->static_scene_max_gf_interval)
       rc->max_gf_interval = rc->static_scene_max_gf_interval;
