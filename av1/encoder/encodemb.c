@@ -304,29 +304,38 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
           is_blk_skip(x, plane, blk_row * bw + blk_col) || mbmi->skip_mode;
       uint8_t height = tx_size_high[tx_size];
       uint8_t width = tx_size_wide[tx_size];
+      int16_t mv_col0 = mbmi->mv[0].as_mv.col;
+      int16_t mv_row0 = mbmi->mv[0].as_mv.row;
+      int16_t mv_col1 = mbmi->mv[1].as_mv.col;
+      int16_t mv_row1 = mbmi->mv[1].as_mv.row;
 
-      // printf("\nBlock(mode=%d, size=(%d,%d), data=\n", mode, height, width);
+      printf("\nBlock(mode=%d, size=(%d,%d), data=\n, mv0=(%d,%d), mv1=(%d,%d)",
+             mode, height, width, mv_row0, mv_col0, mv_row1, mv_col1);
       fwrite(&mode, sizeof(mode), 1, output);
       fwrite(&is_skip, sizeof(is_skip), 1, output);
       fwrite(&height, sizeof(height), 1, output);
       fwrite(&width, sizeof(width), 1, output);
+      fwrite(&mv_col0, sizeof(mv_col0), 1, output);
+      fwrite(&mv_row0, sizeof(mv_row0), 1, output);
+      fwrite(&mv_col1, sizeof(mv_col1), 1, output);
+      fwrite(&mv_row1, sizeof(mv_row1), 1, output);
 
       const int src_stride = p->src.stride;
       const int src_offset = (blk_row * src_stride + blk_col);
       const uint8_t *src = &p->src.buf[src_offset << tx_size_wide_log2[0]];
-      // printf("  [\n");
+      printf("  [\n");
       for (int ii = 0; ii < tx_size_high[tx_size]; ++ii) {
-        // printf("    [");
+        printf("    [");
         for (int jj = 0; jj < tx_size_wide[tx_size]; ++jj) {
           const uint8_t prdval = prd[ii * tx_size_wide[tx_size] + jj];
           const uint8_t srcval = src[ii * src_stride + jj];
           const int16_t res = prdval - srcval;
           fwrite(&res, sizeof(res), 1, output);
-          // printf("%4d, ", res);
+          printf("%4d, ", res);
         }
-        // printf("],\n");
+        printf("],\n");
       }
-      // printf("  ]\n)\n");
+      printf("  ]\n)\n");
 
       fclose(output);
       free(prd);
