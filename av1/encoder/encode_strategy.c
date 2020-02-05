@@ -1081,7 +1081,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   memset(&frame_input, 0, sizeof(frame_input));
   memset(&frame_params, 0, sizeof(frame_params));
   memset(&frame_results, 0, sizeof(frame_results));
-
+  //test commit.
   // TODO(sarahparker) finish bit allocation for one pass pyramid
   if (has_no_stats_stage(cpi) && oxcf->rc_mode != AOM_Q)
     cpi->oxcf.gf_max_pyr_height = USE_ALTREF_FOR_ONE_PASS;
