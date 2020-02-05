@@ -250,7 +250,12 @@ static void predict_and_reconstruct_intra_block(
     }
   }
   if (plane == AOM_PLANE_Y && store_cfl_required(cm, xd)) {
-    cfl_store_tx(xd, row, col, tx_size, mbmi->sb_type);
+    const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
+    const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
+    const int row_offset = mi_row - mbmi->chroma_ref_info.mi_row_chroma_base;
+    const int col_offset = mi_col - mbmi->chroma_ref_info.mi_col_chroma_base;
+
+    cfl_store_tx(xd, row, col, tx_size, row_offset, col_offset);
   }
 }
 
@@ -971,7 +976,12 @@ static void dec_build_obmc_inter_predictors_sb(const AV1_COMMON *cm,
 static void cfl_store_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd) {
   MB_MODE_INFO *mbmi = xd->mi[0];
   if (store_cfl_required(cm, xd)) {
-    cfl_store_block(xd, mbmi->sb_type, mbmi->tx_size);
+    const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
+    const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
+    const int row_offset = mi_row - mbmi->chroma_ref_info.mi_row_chroma_base;
+    const int col_offset = mi_col - mbmi->chroma_ref_info.mi_col_chroma_base;
+
+    cfl_store_block(xd, mbmi->sb_type, mbmi->tx_size, row_offset, col_offset);
   }
 }
 

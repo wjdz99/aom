@@ -3813,7 +3813,14 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
 
   if (plane == AOM_PLANE_Y && xd->cfl.store_y) {
     assert(!is_inter || plane_bsize < BLOCK_8X8);
-    cfl_store_tx(xd, blk_row, blk_col, tx_size, plane_bsize);
+    const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
+    const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
+    const int row_offset =
+        mi_row - xd->mi[0]->chroma_ref_info.mi_row_chroma_base;
+    const int col_offset =
+        mi_col - xd->mi[0]->chroma_ref_info.mi_col_chroma_base;
+
+    cfl_store_tx(xd, blk_row, blk_col, tx_size, row_offset, col_offset);
   }
 
 #if CONFIG_RD_DEBUG

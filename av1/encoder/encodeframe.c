@@ -7522,7 +7522,10 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   }
   if (is_inter_block(mbmi) && !mbmi->chroma_ref_info.is_chroma_ref &&
       is_cfl_allowed(xd)) {
-    cfl_store_block(xd, mbmi->sb_type, mbmi->tx_size);
+    const int row_offset = mi_row - mbmi->chroma_ref_info.mi_row_chroma_base;
+    const int col_offset = mi_col - mbmi->chroma_ref_info.mi_col_chroma_base;
+
+    cfl_store_block(xd, mbmi->sb_type, mbmi->tx_size, row_offset, col_offset);
   }
 
   av1_mark_block_as_coded(xd, mi_row, mi_col, bsize, cm->seq_params.sb_size);
