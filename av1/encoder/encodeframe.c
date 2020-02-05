@@ -3201,10 +3201,8 @@ static bool rd_pick_partition(
   int horz_ctx_is_ready = 0;
   int vert_ctx_is_ready = 0;
   BLOCK_SIZE bsize2 = get_partition_subsize(bsize, PARTITION_SPLIT);
-#endif  // !CONFIG_EXT_RECUR_PARTITIONS
-#if CONFIG_EXT_PARTITIONS
   (void)split_ctx_is_ready;
-#endif  // CONFIG_EXT_PARTITIONS
+#endif  // !CONFIG_EXT_RECUR_PARTITIONS
 
 #if CONFIG_EXT_RECUR_PARTITIONS
   if (sms_tree != NULL)
@@ -4712,7 +4710,7 @@ BEGIN_PARTITION_SEARCH:
   assert(IMPLIES(!cpi->oxcf.enable_rect_partitions, !partition_vert3_allowed));
   if (!terminate_partition_search && partition_vert3_allowed && has_cols &&
 #if CONFIG_EXT_RECUR_PARTITIONS
-      is_partition_valid(bsize, PARTITION_VERT_3 &&
+      is_partition_valid(bsize, PARTITION_VERT_3) &&
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
       (do_rectangular_split || active_v_edge(cpi, mi_row, mi_step_h)) &&
       !is_gt_max_sq_part) {
