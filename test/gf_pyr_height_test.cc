@@ -30,7 +30,7 @@ static const struct GFPyrHeightTestParam {
   { 0, 4, 35.50 },
   // gf_min_pyr_height = 1
   { 1, 1, 34.75 },
-  { 1, 2, 35.25 },
+  { 1, 2, 35.24 },
   { 1, 3, 35.50 },
   { 1, 4, 35.50 },
   // gf_min_pyr_height = 2
