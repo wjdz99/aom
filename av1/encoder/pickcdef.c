@@ -21,11 +21,11 @@
 #include "av1/common/reconinter.h"
 #include "av1/encoder/encoder.h"
 
-#define REDUCED_PRI_STRENGTHS 8
+#define REDUCED_PRI_STRENGTHS 5
 #define REDUCED_TOTAL_STRENGTHS (REDUCED_PRI_STRENGTHS * CDEF_SEC_STRENGTHS)
 #define TOTAL_STRENGTHS (CDEF_PRI_STRENGTHS * CDEF_SEC_STRENGTHS)
 
-static const int priconv[REDUCED_PRI_STRENGTHS] = { 0, 1, 2, 3, 5, 7, 10, 13 };
+static const int priconv[REDUCED_PRI_STRENGTHS] = { 0, 2, 4, 8, 14 };
 
 /* Search for the best strength to add as an option, knowing we
    already selected nb_strengths options. */
