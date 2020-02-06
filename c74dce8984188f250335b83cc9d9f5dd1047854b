@@ -22,6 +22,30 @@
       "revId": "c74dce8984188f250335b83cc9d9f5dd1047854b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61587e53_ad0ffcd6",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1036,
+      "author": {
+        "id": 15075
+      },
+      "writtenOn": "2020-02-06T17:31:39Z",
+      "side": 1,
+      "message": "For every gf_index other than current frame, it would be incorrect to use frame_params-\u003eshow_frame as it only refers to the current frame, hence it is set using frame type. At line #1036 it is set to frame_params-\u003eshow_frame, as it should again be reset to the current frame\u0027s value and that is the value it will be assigned later in av1_encode.",
+      "parentUuid": "c91f3146_194079b0",
+      "range": {
+        "startLine": 1036,
+        "startChar": 0,
+        "endLine": 1036,
+        "endChar": 44
+      },
+      "revId": "c74dce8984188f250335b83cc9d9f5dd1047854b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
