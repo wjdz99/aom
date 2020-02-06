@@ -1976,14 +1976,13 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   mi->angle_delta[PLANE_TYPE_UV] = 0;
   mi->filter_intra_mode_info.use_filter_intra = 0;
 
-  uint32_t spatial_var_thresh = 50;
+  uint32_t spatial_var_thresh = 100;
   int do_early_exit_rdthresh = 1;
   // Some adjustments to checking intra mode based on source variance.
   if (x->source_variance < spatial_var_thresh) {
-    // If the best inter mode is large motion or non-LAST ref reduce intra cost
-    // penalty, so intra mode is more likely tested.
-    if (best_pickmode.best_ref_frame != LAST_FRAME ||
-        abs(mi->mv[0].as_mv.row) > 32 || abs(mi->mv[0].as_mv.col) > 32) {
+    // If the best inter mode is large motion reduce intra cost penalty,
+    // so intra mode is more likely tested.
+    if (abs(mi->mv[0].as_mv.row) > 32 || abs(mi->mv[0].as_mv.col) > 32) {
       intra_cost_penalty = intra_cost_penalty >> 2;
       inter_mode_thresh = RDCOST(x->rdmult, intra_cost_penalty, 0);
       do_early_exit_rdthresh = 0;
