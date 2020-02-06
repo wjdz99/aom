@@ -4119,6 +4119,14 @@ static int get_kf_boost_from_r0(double r0, int frames_to_key) {
   return boost;
 }
 
+static int get_projected_kf_boost(double r0, const int tpl_boost,
+                                  int old_prior_boost, int stats_count) {
+  // Get kf boost value similar to tpl_boost using available stats count
+  int kf_boost_r0 = get_kf_boost_from_r0(r0, stats_count);
+  int projected_kf_boost = ((tpl_boost / kf_boost_r0) * old_prior_boost);
+  return projected_kf_boost;
+}
+
 int combine_prior_with_tpl_boost(int prior_boost, int tpl_boost,
                                  int frames_to_key) {
   double factor = sqrt((double)frames_to_key);
@@ -4178,10 +4186,21 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
         if (cpi->oxcf.rc_mode == AOM_Q) {
           const int kf_boost =
               get_kf_boost_from_r0(cpi->rd.r0, cpi->rc.frames_to_key);
-          // printf("old kf boost %d new kf boost %d [%d]\n", cpi->rc.kf_boost,
-          //        kf_boost, cpi->rc.frames_to_key);
-          cpi->rc.kf_boost = combine_prior_with_tpl_boost(
-              cpi->rc.kf_boost, kf_boost, cpi->rc.frames_to_key);
+          if (cpi->lap_enabled) {
+            // Total number of frame stats on which prior kf boost was
+            // calculated
+            int num_total_stats =
+                ((cpi->twopass.stats_buf_ctx->stats_in_end -
+                  cpi->twopass.stats_buf_ctx->stats_in_start) +
+                 1);  // To include first frame as well
+            const int projected_prior_boost = get_projected_kf_boost(
+                cpi->rd.r0, kf_boost, cpi->rc.kf_boost, num_total_stats);
+            cpi->rc.kf_boost = combine_prior_with_tpl_boost(
+                projected_prior_boost, kf_boost, num_total_stats);
+          } else {
+            cpi->rc.kf_boost = combine_prior_with_tpl_boost(
+                cpi->rc.kf_boost, kf_boost, cpi->rc.frames_to_key);
+          }
         }
       }
       cpi->rd.mc_count_base =

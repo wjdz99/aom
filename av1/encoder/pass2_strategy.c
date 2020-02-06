@@ -1462,7 +1462,7 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   rc->frames_to_key = 1;
 
-  if (cpi->oxcf.pass == 0) {
+  if (has_no_stats_stage(cpi)) {
     rc->this_key_frame_forced =
         current_frame->frame_number != 0 && rc->frames_to_key == 0;
     rc->frames_to_key = cpi->oxcf.key_freq;
@@ -1544,6 +1544,14 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     ++i;
   }
 
+  /*
+   * For lap_enabled only.
+   * Since frames_to_key used in gf_boost currently is max_freq,
+   * allowing same in the case of kf_boost as well,
+   * to maintain consistency in boost calculation.
+   */
+  if (cpi->lap_enabled) rc->frames_to_key = cpi->oxcf.key_freq;
+
   // If there is a max kf interval set by the user we must obey it.
   // We already breakout of the loop above at 2x max.
   // This code centers the extra kf if the actual natural interval
@@ -1561,7 +1569,7 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     // Rescan to get the correct error data for the forced kf group.
     for (i = 0; i < rc->frames_to_key; ++i) {
       kf_group_err += calculate_modified_err(cpi, twopass, oxcf, &tmp_frame);
-      input_stats(twopass, &tmp_frame);
+      if (EOF == input_stats(twopass, &tmp_frame)) break;
     }
     rc->next_key_frame_forced = 1;
   } else if (twopass->stats_in == twopass->stats_buf_ctx->stats_in_end ||
