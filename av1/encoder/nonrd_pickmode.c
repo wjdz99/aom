@@ -1977,6 +1977,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   mi->filter_intra_mode_info.use_filter_intra = 0;
 
   uint32_t spatial_var_thresh = 50;
+  if (cpi->sf.rt_sf.short_circuit_low_temp_var && !force_skip_low_temp_var)
+    spatial_var_thresh = 150;
   int do_early_exit_rdthresh = 1;
   // Some adjustments to checking intra mode based on source variance.
   if (x->source_variance < spatial_var_thresh) {
