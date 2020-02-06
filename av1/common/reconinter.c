@@ -143,6 +143,19 @@ int av1_allow_warp(const MB_MODE_INFO *const mbmi,
   return 0;
 }
 
+#ifndef NDEBUG
+static bool valid_inter_pred_ext(const InterPredExt *ext) {
+  if (ext == NULL) {
+    return true;  // NULL means all zero values.
+  }
+  // Currently, only support up to a 4 pixel border.
+  return ext->border_left >= 0 && ext->border_top >= 0 &&
+         ext->border_right >= 0 && ext->border_bottom >= 0 &&
+         ext->border_left <= 4 && ext->border_top <= 4 &&
+         ext->border_right <= 4 && ext->border_bottom <= 4;
+}
+#endif
+
 void av1_make_inter_predictor(
     const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
     const SubpelParams *subpel_params, const struct scale_factors *sf, int w,
@@ -150,6 +163,7 @@ void av1_make_inter_predictor(
     const WarpTypesAllowed *warp_types, int p_col, int p_row, int plane,
     int ref, const MB_MODE_INFO *mi, int build_for_obmc, const MACROBLOCKD *xd,
     int can_use_previous, const InterPredExt *ext) {
+  assert(valid_inter_pred_ext(ext));
   (void)ext;
   // Make sure the selected motion mode is valid for this configuration
   assert_motion_mode_valid(mi->motion_mode, xd->global_motion, xd, mi,
@@ -288,7 +302,7 @@ static void build_inter_predictors(
     const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
     int build_for_obmc, int bw, int bh, int mi_x, int mi_y,
     CalcSubpelParamsFunc calc_subpel_params_func,
-    const void *const calc_subpel_params_func_args, const InterPredExt *ext) {
+    const void *const calc_subpel_params_func_args) {
   int is_compound = has_second_ref(mi);
   ConvolveParams conv_params = get_conv_params_no_round(
       0, plane, xd->tmp_conv_dst, MAX_SB_SIZE, is_compound, xd->bd);
@@ -354,7 +368,7 @@ static void build_inter_predictors(
           pre, src_stride, dst, dst_buf->stride, &subpel_params, sf, bw, bh,
           &conv_params, mi->interp_filters, &warp_types,
           mi_x >> pd->subsampling_x, mi_y >> pd->subsampling_y, plane, ref, mi,
-          build_for_obmc, xd, cm->allow_warped_motion, ext);
+          build_for_obmc, xd, cm->allow_warped_motion, NULL);
     }
   }
 }
@@ -413,25 +427,11 @@ static bool is_sub8x8_inter(MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
   return true;
 }
 
-#ifndef NDEBUG
-static bool valid_inter_pred_ext(const InterPredExt *ext) {
-  if (ext == NULL) {
-    return true;  // NULL means all zero values.
-  }
-  return ext->border_left >= 0 && ext->border_top >= 0 &&
-         ext->border_right >= 0 && ext->border_bottom >= 0;
-}
-#endif
-
-void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                                int plane, const MB_MODE_INFO *mi,
-                                int build_for_obmc, int bw, int bh, int mi_x,
-                                int mi_y,
-                                CalcSubpelParamsFunc calc_subpel_params_func,
-                                const void *const calc_subpel_params_func_args,
-                                const InterPredExt *ext) {
-  assert(valid_inter_pred_ext(ext));
-  (void)ext;
+void av1_build_inter_predictors(
+    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
+    int build_for_obmc, int bw, int bh, int mi_x, int mi_y,
+    CalcSubpelParamsFunc calc_subpel_params_func,
+    const void *const calc_subpel_params_func_args) {
   if (is_sub8x8_inter(xd, plane, mi, build_for_obmc, bw, bh)) {
     build_inter_predictors_sub8x8(cm, xd, plane, mi, bw, bh, mi_x, mi_y,
                                   calc_subpel_params_func,
@@ -439,7 +439,7 @@ void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
   } else {
     build_inter_predictors(cm, xd, plane, mi, build_for_obmc, bw, bh, mi_x,
                            mi_y, calc_subpel_params_func,
-                           calc_subpel_params_func_args, ext);
+                           calc_subpel_params_func_args);
   }
 }
 
