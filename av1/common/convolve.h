@@ -11,6 +11,8 @@
 
 #ifndef AOM_AV1_COMMON_CONVOLVE_H_
 #define AOM_AV1_COMMON_CONVOLVE_H_
+
+#include <stdbool.h>
 #include "av1/common/filter.h"
 
 #ifdef __cplusplus
@@ -50,6 +52,29 @@ typedef struct NonsepFilterConfig {
   const int (*config)[3];
   int strict_bounds;
 } NonsepFilterConfig;
+
+// Data structure for passing around configuration options for building
+// the extended inter-predictor. If NULL, will assume 0 values for everything.
+// All values must be non-negative.
+typedef struct InterPredExt {
+  int border_left;
+  int border_top;
+  int border_right;
+  int border_bottom;
+} InterPredExt;
+
+// Maximum size of any border for the extended inter-predictor.
+#define MAX_INTER_PRED_BORDER_SIZE 16
+
+// Calculate the new width and height parameters for an interpred extension.
+void av1_inter_pred_ext_w_h(const InterPredExt *ext, int orig_w, int orig_h,
+                            int *new_w, int *new_h);
+
+// Checks if the InterPredExt is valid -- useful for assertions. Only valid
+// for non-negative border regions up to MAX_INTER_PRED_W and MAX_INTER_PRED_H,
+// and not for compound.
+bool av1_valid_inter_pred_ext(const InterPredExt *ext,
+                              ConvolveParams *conv_params);
 
 // Nonseparable convolution
 void av1_convolve_nonsep(const uint8_t *dgd, int width, int height, int stride,
@@ -119,7 +144,8 @@ void av1_convolve_2d_facade(const uint8_t *src, int src_stride, uint8_t *dst,
                             const int subpel_x_qn, int x_step_q4,
                             const int subpel_y_qn, int y_step_q4, int scaled,
                             ConvolveParams *conv_params,
-                            const struct scale_factors *sf, int is_intrabc);
+                            const struct scale_factors *sf, int is_intrabc,
+                            const InterPredExt *ext);
 
 static INLINE ConvolveParams get_conv_params_no_round(int do_average, int plane,
                                                       CONV_BUF_TYPE *dst,

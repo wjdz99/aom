@@ -114,22 +114,22 @@ static INLINE void inter_predictor(const uint8_t *src, int src_stride,
                                    const struct scale_factors *sf, int w, int h,
                                    ConvolveParams *conv_params,
                                    int_interpfilters interp_filters,
-                                   int is_intrabc) {
+                                   int is_intrabc, const InterPredExt *ext) {
   assert(conv_params->do_average == 0 || conv_params->do_average == 1);
   assert(sf);
   const int is_scaled = has_scale(subpel_params->xs, subpel_params->ys);
   assert(IMPLIES(is_intrabc, !is_scaled));
   if (is_scaled) {
-    av1_convolve_2d_facade(src, src_stride, dst, dst_stride, w, h,
-                           interp_filters, subpel_params->subpel_x,
-                           subpel_params->xs, subpel_params->subpel_y,
-                           subpel_params->ys, 1, conv_params, sf, is_intrabc);
+    av1_convolve_2d_facade(
+        src, src_stride, dst, dst_stride, w, h, interp_filters,
+        subpel_params->subpel_x, subpel_params->xs, subpel_params->subpel_y,
+        subpel_params->ys, 1, conv_params, sf, is_intrabc, ext);
   } else {
     SubpelParams sp = *subpel_params;
     revert_scale_extra_bits(&sp);
     av1_convolve_2d_facade(src, src_stride, dst, dst_stride, w, h,
                            interp_filters, sp.subpel_x, sp.xs, sp.subpel_y,
-                           sp.ys, 0, conv_params, sf, is_intrabc);
+                           sp.ys, 0, conv_params, sf, is_intrabc, ext);
   }
 }
 
@@ -201,16 +201,6 @@ static INLINE int is_interintra_wedge_used(BLOCK_SIZE sb_type) {
   return av1_wedge_params_lookup[sb_type].bits > 0;
 }
 
-// Data structure for passing around configuration options for building
-// the extended inter-predictor. If NULL, will assume 0 values for everything.
-// All values must be non-negative.
-typedef struct InterPredExt {
-  int border_left;
-  int border_top;
-  int border_right;
-  int border_bottom;
-} InterPredExt;
-
 void av1_make_inter_predictor(
     const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
     const SubpelParams *subpel_params, const struct scale_factors *sf, int w,
@@ -238,8 +228,7 @@ void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                 int build_for_obmc, int bw, int bh, int mi_x,
                                 int mi_y,
                                 CalcSubpelParamsFunc calc_subpel_params_func,
-                                const void *const calc_subpel_params_func_args,
-                                const InterPredExt *ext);
+                                const void *const calc_subpel_params_func_args);
 
 // TODO(jkoleszar): yet another mv clamping function :-(
 static INLINE MV clamp_mv_to_umv_border_sb(const MACROBLOCKD *xd,
