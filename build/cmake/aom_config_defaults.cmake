@@ -179,6 +179,16 @@ set_aom_config_var(CONFIG_DIFFWTD_42 0 NUMBER
                    "AV2 diffwtd mask experiment flag")
 set_aom_config_var(CONFIG_ILLUM_MCOMP 0 NUMBER
                    "AV2 illumination compensation motion estimation flag")
+
+set_aom_config_var(CONFIG_BORDER_LEFT 0 NUMBER
+                   "Left border")
+set_aom_config_var(CONFIG_BORDER_RIGHT 0 NUMBER
+                   "Right border")
+set_aom_config_var(CONFIG_BORDER_TOP 0 NUMBER
+                   "Top border")
+set_aom_config_var(CONFIG_BORDER_BOTTOM 0 NUMBER
+                   "Bottom border")
+
 set_aom_config_var(CONFIG_COMPANDED_MV 0 NUMBER
                    "AV2 companded MV experiment flag")
 set_aom_config_var(CONFIG_WIENER_NONSEP_CROSS_FILT 0 NUMBER
