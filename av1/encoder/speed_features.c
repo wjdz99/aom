@@ -192,10 +192,15 @@ static void set_allintra_speed_feature_framesize_dependent(
     sf->part_sf.ml_early_term_after_part_split_level = 1;
   }
 
+<<<<<<< HEAD   (de3a75 Set mv_step_param based on previous frame in speed >= 2)
   if (is_720p_or_larger) {
     // TODO(chiyotsai@google.com): make this speed feature adaptive based on
     // current block's vertical texture instead of hardcoded with resolution
     sf->mv_sf.use_downsampled_sad = 1;
+=======
+  if (!is_480p_or_larger) {
+    sf->mv_sf.disable_mv_refining = 1;
+>>>>>>> CHANGE (43248d Refine full-pixel motion search with precise metric)
   }
 
   if (speed >= 1) {
@@ -728,6 +733,7 @@ static void set_good_speed_feature_framesize_dependent(
       sf->tx_sf.tx_type_search.prune_tx_type_using_stats = 2;
     }
 
+<<<<<<< HEAD   (de3a75 Set mv_step_param based on previous frame in speed >= 2)
     sf->inter_sf.disable_interinter_wedge_var_thresh = UINT_MAX;
     sf->inter_sf.prune_obmc_prob_thresh = INT_MAX;
     sf->inter_sf.limit_txfm_eval_per_mode = boosted ? 0 : 2;
@@ -739,6 +745,10 @@ static void set_good_speed_feature_framesize_dependent(
       sf->hl_sf.recode_tolerance = 55;
 
     sf->intra_sf.skip_intra_in_interframe = 4;
+=======
+    sf->inter_sf.prune_obmc_prob_thresh = 16;
+    sf->mv_sf.disable_mv_refining = 1;
+>>>>>>> CHANGE (43248d Refine full-pixel motion search with precise metric)
   }
 
   if (speed >= 5) {
@@ -1671,6 +1681,7 @@ static AOM_INLINE void init_mv_sf(MV_SPEED_FEATURES *mv_sf) {
   mv_sf->obmc_full_pixel_search_level = 0;
   mv_sf->prune_mesh_search = 0;
   mv_sf->reduce_search_range = 0;
+<<<<<<< HEAD   (de3a75 Set mv_step_param based on previous frame in speed >= 2)
   mv_sf->search_method = NSTEP;
   mv_sf->simple_motion_subpel_force_stop = EIGHTH_PEL;
   mv_sf->subpel_force_stop = EIGHTH_PEL;
@@ -1682,6 +1693,9 @@ static AOM_INLINE void init_mv_sf(MV_SPEED_FEATURES *mv_sf) {
   mv_sf->use_downsampled_sad = 0;
   mv_sf->disable_extensive_joint_motion_search = 0;
   mv_sf->disable_second_mv = 0;
+=======
+  mv_sf->disable_mv_refining = 0;
+>>>>>>> CHANGE (43248d Refine full-pixel motion search with precise metric)
 }
 
 static AOM_INLINE void init_inter_sf(INTER_MODE_SPEED_FEATURES *inter_sf) {
