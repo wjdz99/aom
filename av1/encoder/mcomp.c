@@ -56,10 +56,8 @@ static INLINE const uint8_t *get_buf_from_mv(const struct buf_2d *buf,
 }
 
 void av1_set_mv_search_range(MvLimits *mv_limits, const MV *mv) {
-  int col_min =
-      GET_MV_RAWPEL(mv->col) - MAX_FULL_PEL_VAL + (mv->col & 7 ? 1 : 0);
-  int row_min =
-      GET_MV_RAWPEL(mv->row) - MAX_FULL_PEL_VAL + (mv->row & 7 ? 1 : 0);
+  int col_min = GET_MV_RAWPEL(mv->col) - MAX_FULL_PEL_VAL;
+  int row_min = GET_MV_RAWPEL(mv->row) - MAX_FULL_PEL_VAL;
   int col_max = GET_MV_RAWPEL(mv->col) + MAX_FULL_PEL_VAL;
   int row_max = GET_MV_RAWPEL(mv->row) + MAX_FULL_PEL_VAL;
 
