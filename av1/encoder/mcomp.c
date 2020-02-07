@@ -1960,6 +1960,41 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
   return bestsad;
 }
 
+int refining_search_var(MACROBLOCK *x, MV *ref_mv, int search_range,
+                        const aom_variance_fn_ptr_t *fn_ptr,
+                        const MV *center_mv) {
+  const MV neighbors[4] = { { -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, 0 } };
+  int bestsme = av1_get_mvpred_var(x, ref_mv, center_mv, fn_ptr, 1);
+  int i, j;
+
+  for (i = 0; i < search_range; i++) {
+    int best_site = -1;
+    for (j = 0; j < 4; ++j) {
+      const MV mv = { ref_mv->row + neighbors[j].row,
+                      ref_mv->col + neighbors[j].col };
+
+      if (is_mv_in(&x->mv_limits, &mv)) {
+        int thissme = av1_get_mvpred_var(x, &mv, center_mv, fn_ptr, 1);
+
+        if (thissme < bestsme) {
+          bestsme = thissme;
+          best_site = j;
+        }
+      }
+    }
+
+    if (best_site == -1) {
+      break;
+    } else {
+      x->second_best_mv.as_mv = *ref_mv;
+      ref_mv->row += neighbors[best_site].row;
+      ref_mv->col += neighbors[best_site].col;
+    }
+  }
+
+  return bestsme;
+}
+
 /* do_refine: If last step (1-away) of n-step search doesn't pick the center
               point as the best match, we will do a final 1-away diamond
               refining search  */
@@ -1968,7 +2003,7 @@ static int full_pixel_diamond(MACROBLOCK *x, MV *mvp_full, int step_param,
                               const aom_variance_fn_ptr_t *fn_ptr,
                               const MV *ref_mv, const search_site_config *cfg,
                               uint8_t *second_pred, uint8_t *mask,
-                              int mask_stride, int inv_mask) {
+                              int mask_stride, int inv_mask, int do_refine) {
   MV temp_mv;
   int thissme, n, num00 = 0;
   int bestsme = av1_diamond_search_sad_c(x, cfg, mvp_full, &temp_mv, step_param,
@@ -2020,6 +2055,17 @@ static int full_pixel_diamond(MACROBLOCK *x, MV *mvp_full, int step_param,
         bestsme = thissme;
         x->best_mv.as_mv = temp_mv;
       }
+    }
+  }
+
+  // Note(yunqing): final 1-away diamond refining search, using precise metric.
+  if (do_refine) {
+    const int search_range = 8;
+    MV best_mv = x->best_mv.as_mv;
+    thissme = refining_search_var(x, &best_mv, search_range, fn_ptr, ref_mv);
+    if (thissme < bestsme) {
+      bestsme = thissme;
+      x->best_mv.as_mv = best_mv;
     }
   }
 
@@ -2452,9 +2498,9 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
       break;
     case NSTEP:
     case DIAMOND:
-      var =
-          full_pixel_diamond(x, mvp_full, step_param, use_var, error_per_bit,
-                             cost_list, fn_ptr, ref_mv, cfg, NULL, NULL, 0, 0);
+      var = full_pixel_diamond(x, mvp_full, step_param, use_var, error_per_bit,
+                               cost_list, fn_ptr, ref_mv, cfg, NULL, NULL, 0, 0,
+                               !sf->mv_sf.disable_mv_refining);
       break;
     default: assert(0 && "Invalid search method.");
   }
