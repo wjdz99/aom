@@ -56,17 +56,15 @@ static INLINE const uint8_t *get_buf_from_mv(const struct buf_2d *buf,
 }
 
 void av1_set_mv_search_range(MvLimits *mv_limits, const MV *mv) {
-  int col_min =
-      GET_MV_RAWPEL(mv->col) - MAX_FULL_PEL_VAL + (mv->col & 7 ? 1 : 0);
-  int row_min =
-      GET_MV_RAWPEL(mv->row) - MAX_FULL_PEL_VAL + (mv->row & 7 ? 1 : 0);
-  int col_max = GET_MV_RAWPEL(mv->col) + MAX_FULL_PEL_VAL;
-  int row_max = GET_MV_RAWPEL(mv->row) + MAX_FULL_PEL_VAL;
+  int col_min = (mv->col >> 3) - MAX_FULL_PEL_VAL + (mv->col & 7 ? 1 : 0);
+  int row_min = (mv->row >> 3) - MAX_FULL_PEL_VAL + (mv->row & 7 ? 1 : 0);
+  int col_max = (mv->col >> 3) + MAX_FULL_PEL_VAL;
+  int row_max = (mv->row >> 3) + MAX_FULL_PEL_VAL;
 
-  col_min = AOMMAX(col_min, GET_MV_RAWPEL(MV_LOW) + 1);
-  row_min = AOMMAX(row_min, GET_MV_RAWPEL(MV_LOW) + 1);
-  col_max = AOMMIN(col_max, GET_MV_RAWPEL(MV_UPP) - 1);
-  row_max = AOMMIN(row_max, GET_MV_RAWPEL(MV_UPP) - 1);
+  col_min = AOMMAX(col_min, (MV_LOW >> 3) + 1);
+  row_min = AOMMAX(row_min, (MV_LOW >> 3) + 1);
+  col_max = AOMMIN(col_max, (MV_UPP >> 3) - 1);
+  row_max = AOMMIN(row_max, (MV_UPP >> 3) - 1);
 
   // Get intersection of UMV window and valid MV window to reduce # of checks
   // in diamond search.
