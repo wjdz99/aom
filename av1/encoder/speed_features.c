@@ -163,6 +163,10 @@ static void set_good_speed_feature_framesize_dependent(
     sf->part_sf.ml_early_term_after_part_split_level = 1;
   }
 
+  if (!is_480p_or_larger) {
+    sf->mv_sf.disable_mv_refining = 1;
+  }
+
   if (speed >= 1) {
     if (is_720p_or_larger) {
       sf->part_sf.use_square_partition_only_threshold = BLOCK_128X128;
@@ -235,6 +239,7 @@ static void set_good_speed_feature_framesize_dependent(
     }
 
     sf->inter_sf.prune_obmc_prob_thresh = 16;
+    sf->mv_sf.disable_mv_refining = 1;
   }
 
   if (speed >= 5) {
@@ -927,6 +932,7 @@ static AOM_INLINE void init_mv_sf(MV_SPEED_FEATURES *mv_sf) {
   mv_sf->use_accurate_subpel_search = USE_8_TAPS;
   mv_sf->disable_hash_me = 0;
   mv_sf->reduce_search_range = 0;
+  mv_sf->disable_mv_refining = 0;
 }
 
 static AOM_INLINE void init_inter_sf(INTER_MODE_SPEED_FEATURES *inter_sf) {

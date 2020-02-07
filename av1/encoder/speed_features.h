@@ -488,6 +488,9 @@ typedef struct MV_SPEED_FEATURES {
 
   // Reduce single motion search range based on MV result of prior ref_mv_idx.
   int reduce_search_range;
+
+  // Enable/disable MV refining using precise metric.
+  int disable_mv_refining;
 } MV_SPEED_FEATURES;
 
 typedef struct INTER_MODE_SPEED_FEATURES {
