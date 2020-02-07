@@ -1653,7 +1653,6 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   //        kf_bits, twopass->kf_zeromotion_pct);
   kf_bits = adjust_boost_bits_for_target_level(cpi, rc, kf_bits,
                                                twopass->kf_group_bits, 0);
-
   twopass->kf_group_bits -= kf_bits;
 
   // Save the bits to spend on the key frame.
