@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6dff33e3_da064339",
+        "filename": "test/simd_impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-02-08T21:36:15Z",
+      "side": 1,
+      "message": "The last paragraph in this post mentions that Visual C++ team added over 3,000 occurrences of nodiscard to the STL:\n\nhttps://developercommunity.visualstudio.com/content/problem/734611/incorrect-c4834-discarding-return-value-of-functio.html\n\nWe may have hit one of those here.",
+      "revId": "dd2ec7200355c69271194ae329ff42d7259fda28",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
