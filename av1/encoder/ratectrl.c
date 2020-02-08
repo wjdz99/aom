@@ -1196,6 +1196,10 @@ static void get_intra_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
     if (is_stat_consumption_stage_twopass(cpi))
       q_adj_factor += 0.05 - (0.001 * (double)cpi->twopass.kf_zeromotion_pct);
 
+    if (is_stat_consumption_stage(cpi) && cm->allow_screen_content_tools) {
+      q_adj_factor -= 0.25;
+    }
+
     // Convert the adjustment factor to a qindex delta
     // on active_best_quality.
     q_val = av1_convert_qindex_to_q(active_best_quality, bit_depth);
