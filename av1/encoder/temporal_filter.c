@@ -202,9 +202,6 @@ static INLINE int get_weight_by_thresh(const int value, const int low,
 // Inputs:
 //   block_error: Motion search error for the entire block.
 //   subblock_errors: Pointer to the search errors for 4 sub-blocks.
-//   use_planewise_strategy: Whether to use plane-wise filtering strategy. This
-//                           field will affect the filter weight for the
-//                           to-filter frame.
 //   is_second_arf: Whether the to-filter frame is the second ARF. This field
 //                  will affect the filter weight for the to-filter frame.
 //   subblock_filter_weights: Pointer to the assigned filter weight for each
@@ -213,15 +210,15 @@ static INLINE int get_weight_by_thresh(const int value, const int low,
 // Returns: Whether to use 4 sub-blocks to replace the original block.
 static int tf_get_filter_weight(const int block_error,
                                 const int *subblock_errors,
-                                const int use_planewise_strategy,
                                 const int is_second_arf,
                                 int *subblock_filter_weights) {
   // `block_error` is initialized as INT_MAX and will be overwritten after
   // motion search with reference frame, therefore INT_MAX can ONLY be accessed
   // by to-filter frame.
   if (block_error == INT_MAX) {
-    const int weight = use_planewise_strategy ? TF_PLANEWISE_FILTER_WEIGHT_SCALE
-                                              : is_second_arf ? 64 : 32;
+    const int weight = TF_ENABLE_PLANEWISE_STRATEGY
+                           ? TF_PLANEWISE_FILTER_WEIGHT_SCALE
+                           : is_second_arf ? 64 : 32;
     subblock_filter_weights[0] = subblock_filter_weights[1] =
         subblock_filter_weights[2] = subblock_filter_weights[3] = weight;
     return 0;
@@ -922,9 +919,6 @@ void av1_apply_temporal_filter_planewise_c(
 //   mb_row: Row index of the block in the entire frame.
 //   mb_col: Column index of the block in the entire frame.
 //   num_planes: Number of planes in the frame.
-//   use_planewise_strategy: Whether to use plane-wise temporal filtering
-//                           strategy. If set as 0, YUV or YONLY filtering will
-//                           be used (depending on number of planes).
 //   strength: Strength for filter weight adjustment. (Used in YUV filtering and
 //             YONLY filtering)
 //   use_subblock: Whether to use 4 sub-blocks to replace the original block.
@@ -945,20 +939,19 @@ void av1_apply_temporal_filter_planewise_c(
 void av1_apply_temporal_filter_others(
     const YV12_BUFFER_CONFIG *frame_to_filter, const MACROBLOCKD *mbd,
     const BLOCK_SIZE block_size, const int mb_row, const int mb_col,
-    const int num_planes, const int use_planewise_strategy, const int strength,
-    const int use_subblock, const int *subblock_filter_weights,
-    const double *noise_levels, const uint8_t *pred, uint32_t *accum,
-    uint16_t *count) {
+    const int num_planes, const int strength, const int use_subblock,
+    const int *subblock_filter_weights, const double *noise_levels,
+    const uint8_t *pred, uint32_t *accum, uint16_t *count) {
   assert(num_planes >= 1 && num_planes <= MAX_MB_PLANE);
 
-  if (use_planewise_strategy) {  // Commonly used for high-resolution video.
+  if (TF_ENABLE_PLANEWISE_STRATEGY) {
     // TODO(any): avx2 and sse2 version should also support high bit-depth, and
     // they should be changed to consider cross-plane information (see C
     // function) before using.
     av1_apply_temporal_filter_planewise_c(frame_to_filter, mbd, block_size,
                                           mb_row, mb_col, num_planes,
                                           noise_levels, pred, accum, count);
-  } else {  // Commonly used for low-resolution video.
+  } else {
     const int adj_strength = strength + 2 * (mbd->bd - 8);
     if (num_planes == 1) {
       av1_apply_temporal_filter_yonly(
@@ -1125,8 +1118,6 @@ static FRAME_DIFF tf_do_filtering(
 
   // Do filtering.
   FRAME_DIFF diff = { 0, 0 };
-  const int use_planewise_strategy =
-      TF_ENABLE_PLANEWISE_STRATEGY && AOMMIN(frame_height, frame_width) >= 480;
   // Perform temporal filtering block by block.
   for (int mb_row = 0; mb_row < mb_rows; mb_row++) {
     mb->mv_limits.row_min = get_min_mv(mb_row, mb_height);
@@ -1161,9 +1152,9 @@ static FRAME_DIFF tf_do_filtering(
             ref_mv = kZeroMv;
           }
         }
-        int use_subblock = tf_get_filter_weight(
-            block_error, subblock_errors, use_planewise_strategy, is_second_arf,
-            subblock_filter_weights);
+        int use_subblock =
+            tf_get_filter_weight(block_error, subblock_errors, is_second_arf,
+                                 subblock_filter_weights);
         if (subblock_filter_weights[0] || subblock_filter_weights[1] ||
             subblock_filter_weights[2] || subblock_filter_weights[3]) {
           tf_build_predictor(frames[frame], mbd, block_size, mb_row, mb_col,
@@ -1176,8 +1167,8 @@ static FRAME_DIFF tf_do_filtering(
           } else {
             av1_apply_temporal_filter_others(  // Other reference frames.
                 frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
-                use_planewise_strategy, strength, use_subblock,
-                subblock_filter_weights, noise_levels, pred, accum, count);
+                strength, use_subblock, subblock_filter_weights, noise_levels,
+                pred, accum, count);
           }
         }
       }
