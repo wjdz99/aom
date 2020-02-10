@@ -37,4 +37,8 @@ macro(fix_experiment_configs)
     change_config_and_warn(CONFIG_MODE_DEP_NONSEP_INTRA_TX 1
                            CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX)
   endif()
+
+  if(CONFIG_COLLECT_RES)
+    change_config_and_warn(CONFIG_MODE_DEP_INTER_TX 1 CONFIG_COLLECT_RES)
+  endif()
 endmacro()
