@@ -60,6 +60,8 @@ static void set_multi_layer_params(const TWO_PASS *twopass,
     gf_group->frame_disp_idx[*frame_ind] = m;
     gf_group->layer_depth[*frame_ind] = layer_depth;
 
+    fprintf(stderr, "layer depth = %d\n", layer_depth);
+
     // Get the boost factor for intermediate ARF frames.
     gf_group->arf_boost[*frame_ind] =
         av1_calc_arf_boost(twopass, rc, frame_info, m, end - m, m - start);
