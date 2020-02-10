@@ -493,6 +493,9 @@ typedef struct INTER_MODE_SPEED_FEATURES {
   // 2: used with static rd model
   int inter_mode_rd_model_estimation;
 
+  // Bypass transform search based on skip rd
+  int enable_txfm_gate;
+
   // Limit the inter mode tested in the RD loop
   int reduce_inter_modes;
 
