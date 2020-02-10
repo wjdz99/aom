@@ -288,6 +288,7 @@ typedef struct SingleInterModeState {
 
 typedef struct InterModeSearchState {
   int64_t best_rd;
+  int64_t best_skip_rd;
   MB_MODE_INFO best_mbmode;
   int best_rate_y;
   int best_rate_uv;
@@ -1193,15 +1194,49 @@ static INLINE void update_mode_start_end_index(const AV1_COMP *const cpi,
   }
 }
 
+static INLINE int check_txfm_eval(const AV1_COMP *cpi, MACROBLOCK *const x,
+                                  BLOCK_SIZE bsize, int64_t best_skip_rd,
+                                  int64_t sse_cost) {
+  int eval_txfm = 1;
+  int64_t sse_thresh = best_skip_rd;
+  // Obtain normalized Qscale for MAXQ
+  const int max_qs =
+      av1_dc_quant_QTX(MAXQ, 0, cpi->common.seq_params.bit_depth) >> 3;
+  int64_t max_qs_sq = (max_qs * max_qs);
+  // Obtain normalized Qscale for current Qindex
+  const int qs =
+      av1_dc_quant_QTX(x->qindex, 0, cpi->common.seq_params.bit_depth) >> 3;
+  // Derive threshold as ratio of sq(maxQscale) to sq(Qscale)
+  int64_t var_thresh = max_qs_sq / (qs * qs);
+  // Derive scale factor for best skip rd
+  // More weightage to be given to low variance regions and to
+  // high vaiance regions where prediction is poor
+  double scale = 1.0;
+  if (x->source_variance && x->source_variance < var_thresh)
+    scale *= 2.0;
+  else if (!x->source_variance)
+    scale *= 10.0;
+  else if (best_skip_rd > (x->source_variance
+                           << (num_pels_log2_lookup[bsize] + RDDIV_BITS + 1)))
+    scale *= 2.0;
+  // Weigh more for low quantizers
+  if (x->qindex < 128) scale *= 3;
+
+  sse_thresh = (best_skip_rd == INT64_MAX) ? best_skip_rd
+                                           : (int64_t)(best_skip_rd * scale);
+  if (sse_cost > sse_thresh) eval_txfm = 0;
+  return eval_txfm;
+}
+
 // TODO(afergs): Refactor the MBMI references in here - there's four
 // TODO(afergs): Refactor optional args - add them to a struct or remove
 static int64_t motion_mode_rd(
     const AV1_COMP *const cpi, TileDataEnc *tile_data, MACROBLOCK *const x,
     BLOCK_SIZE bsize, RD_STATS *rd_stats, RD_STATS *rd_stats_y,
     RD_STATS *rd_stats_uv, int *disable_skip, HandleInterModeArgs *const args,
-    int64_t ref_best_rd, int *rate_mv, const BUFFER_SET *orig_dst,
-    int64_t *best_est_rd, int do_tx_search, InterModesInfo *inter_modes_info,
-    int eval_motion_mode) {
+    int64_t ref_best_rd, int64_t *ref_skip_rd, int *rate_mv,
+    const BUFFER_SET *orig_dst, int64_t *best_est_rd, int do_tx_search,
+    InterModesInfo *inter_modes_info, int eval_motion_mode) {
   const AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &x->e_mbd;
@@ -1486,20 +1521,35 @@ static int64_t motion_mode_rd(
       }
       mbmi->skip = 0;
     } else {
-      if (!av1_txfm_search(cpi, tile_data, x, bsize, rd_stats, rd_stats_y,
-                           rd_stats_uv, rd_stats->rate, ref_best_rd)) {
-        if (rd_stats_y->rate == INT_MAX && mode_index == 0) {
-          if (cpi->sf.inter_sf.prune_single_motion_modes_by_simple_trans &&
-              !is_comp_pred) {
-            simple_states->early_skipped = 1;
+      int eval_txfm = 1;
+      int64_t sse_cost = INT64_MAX;
+      if (cpi->sf.inter_sf.txfm_gate_level) {
+        int64_t curr_sse = get_sse(cpi, x);
+        sse_cost = RDCOST(x->rdmult, rd_stats->rate, curr_sse);
+        eval_txfm = check_txfm_eval(cpi, x, bsize, *ref_skip_rd, sse_cost);
+      }
+      if (eval_txfm) {
+        if (!av1_txfm_search(cpi, tile_data, x, bsize, rd_stats, rd_stats_y,
+                             rd_stats_uv, rd_stats->rate, ref_best_rd)) {
+          if (rd_stats_y->rate == INT_MAX && mode_index == 0) {
+            if (cpi->sf.inter_sf.prune_single_motion_modes_by_simple_trans &&
+                !is_comp_pred) {
+              simple_states->early_skipped = 1;
+            }
+            return INT64_MAX;
           }
-          return INT64_MAX;
+          continue;
         }
+      } else {
         continue;
       }
 
       const int64_t curr_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
-      ref_best_rd = AOMMIN(ref_best_rd, curr_rd);
+      if (curr_rd < ref_best_rd) {
+        ref_best_rd = curr_rd;
+        *ref_skip_rd = sse_cost;
+      }
+      // ref_best_rd = AOMMIN(ref_best_rd, curr_rd);
       *disable_skip = 0;
       if (cpi->sf.inter_sf.inter_mode_rd_model_estimation == 1) {
         const int skip_ctx = av1_get_skip_context(xd);
@@ -2003,16 +2053,14 @@ typedef struct motion_mode_best_st_candidate {
   int num_motion_mode_cand;
 } motion_mode_best_st_candidate;
 
-static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
-                                 MACROBLOCK *x, BLOCK_SIZE bsize,
-                                 RD_STATS *rd_stats, RD_STATS *rd_stats_y,
-                                 RD_STATS *rd_stats_uv, int *disable_skip,
-                                 HandleInterModeArgs *args, int64_t ref_best_rd,
-                                 uint8_t *const tmp_buf,
-                                 const CompoundTypeRdBuffers *rd_buffers,
-                                 int64_t *best_est_rd, const int do_tx_search,
-                                 InterModesInfo *inter_modes_info,
-                                 motion_mode_candidate *motion_mode_cand) {
+static int64_t handle_inter_mode(
+    AV1_COMP *const cpi, TileDataEnc *tile_data, MACROBLOCK *x,
+    BLOCK_SIZE bsize, RD_STATS *rd_stats, RD_STATS *rd_stats_y,
+    RD_STATS *rd_stats_uv, int *disable_skip, HandleInterModeArgs *args,
+    int64_t ref_best_rd, uint8_t *const tmp_buf,
+    const CompoundTypeRdBuffers *rd_buffers, int64_t *best_est_rd,
+    const int do_tx_search, InterModesInfo *inter_modes_info,
+    motion_mode_candidate *motion_mode_cand, int64_t *skip_rd) {
   const AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &x->e_mbd;
@@ -2330,8 +2378,8 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
     int rate2_nocoeff = rd_stats->rate;
     ret_val = motion_mode_rd(cpi, tile_data, x, bsize, rd_stats, rd_stats_y,
                              rd_stats_uv, disable_skip, args, ref_best_rd,
-                             &rate_mv, &orig_dst, best_est_rd, do_tx_search,
-                             inter_modes_info, 0);
+                             skip_rd, &rate_mv, &orig_dst, best_est_rd,
+                             do_tx_search, inter_modes_info, 0);
 #if CONFIG_COLLECT_COMPONENT_TIMING
     end_timing(cpi, motion_mode_rd_time);
 #endif
@@ -3310,6 +3358,7 @@ static AOM_INLINE void init_inter_mode_search_state(
   init_intra_mode_search_state(&search_state->intra_search_state);
 
   search_state->best_rd = best_rd_so_far;
+  search_state->best_skip_rd = INT64_MAX;
 
   av1_zero(search_state->best_mbmode);
 
@@ -3904,10 +3953,11 @@ static AOM_INLINE void evaluate_motion_mode_for_winner_candidates(
       if (is_comp_pred) xd->plane[i].pre[1] = yv12_mb[mbmi->ref_frame[1]][i];
     }
 
+    int64_t skip_rd = search_state->best_skip_rd;
     int64_t ret_value = motion_mode_rd(
         cpi, tile_data, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
-        &disable_skip, args, search_state->best_rd, &rate_mv, &orig_dst,
-        best_est_rd, do_tx_search, inter_modes_info, 1);
+        &disable_skip, args, search_state->best_rd, &skip_rd, &rate_mv,
+        &orig_dst, best_est_rd, do_tx_search, inter_modes_info, 1);
 
     if (ret_value != INT64_MAX) {
       rd_stats.rdcost = RDCOST(x->rdmult, rd_stats.rate, rd_stats.dist);
@@ -3921,6 +3971,7 @@ static AOM_INLINE void evaluate_motion_mode_for_winner_candidates(
       if (rd_stats.rdcost < search_state->best_rd) {
         update_search_state(search_state, rd_cost, ctx, &rd_stats, &rd_stats_y,
                             &rd_stats_uv, mode_enum, x, do_tx_search);
+        if (do_tx_search) search_state->best_skip_rd = skip_rd;
       }
     }
   }
@@ -4190,10 +4241,12 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       args.simple_rd_state = x->simple_rd_state[mode_enum];
     }
 
+    int64_t skip_rd = search_state.best_skip_rd;
     int64_t this_rd = handle_inter_mode(
         cpi, tile_data, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
         &disable_skip, &args, ref_best_rd, tmp_buf, &x->comp_rd_buffer,
-        &best_est_rd, do_tx_search, inter_modes_info, &motion_mode_cand);
+        &best_est_rd, do_tx_search, inter_modes_info, &motion_mode_cand,
+        &skip_rd);
 
     if (sf->inter_sf.prune_comp_search_by_single_result > 0 &&
         is_inter_singleref_mode(this_mode) && args.single_ref_first_pass) {
@@ -4219,6 +4272,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       search_state.best_pred_sse = x->pred_sse[ref_frame];
       update_search_state(&search_state, rd_cost, ctx, &rd_stats, &rd_stats_y,
                           &rd_stats_uv, mode_enum, x, do_tx_search);
+      if (do_tx_search) search_state.best_skip_rd = skip_rd;
     }
     if (cpi->sf.winner_mode_sf.motion_mode_for_winner_cand) {
       const int num_motion_mode_cand =
@@ -4345,31 +4399,43 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       RD_STATS rd_stats_y;
       RD_STATS rd_stats_uv;
       const int mode_rate = inter_modes_info->mode_rate_arr[data_idx];
-      if (!av1_txfm_search(cpi, tile_data, x, bsize, &rd_stats, &rd_stats_y,
-                           &rd_stats_uv, mode_rate, search_state.best_rd)) {
-        continue;
-      } else if (cpi->sf.inter_sf.inter_mode_rd_model_estimation == 1) {
-        inter_mode_data_push(tile_data, mbmi->sb_type, rd_stats.sse,
-                             rd_stats.dist,
-                             rd_stats_y.rate + rd_stats_uv.rate +
-                                 x->skip_cost[skip_ctx][mbmi->skip]);
+      int eval_txfm = 1;
+      int64_t sse_cost = INT64_MAX;
+      if (cpi->sf.inter_sf.txfm_gate_level) {
+        int64_t curr_sse = inter_modes_info->sse_arr[data_idx];
+        sse_cost = RDCOST(x->rdmult, mode_rate, curr_sse);
+        eval_txfm =
+            check_txfm_eval(cpi, x, bsize, search_state.best_skip_rd, sse_cost);
       }
-      rd_stats.rdcost = RDCOST(x->rdmult, rd_stats.rate, rd_stats.dist);
+      if (eval_txfm) {
+        if (!av1_txfm_search(cpi, tile_data, x, bsize, &rd_stats, &rd_stats_y,
+                             &rd_stats_uv, mode_rate, search_state.best_rd)) {
+          continue;
+        } else if (cpi->sf.inter_sf.inter_mode_rd_model_estimation == 1) {
+          inter_mode_data_push(tile_data, mbmi->sb_type, rd_stats.sse,
+                               rd_stats.dist,
+                               rd_stats_y.rate + rd_stats_uv.rate +
+                                   x->skip_cost[skip_ctx][mbmi->skip]);
+        }
+        rd_stats.rdcost = RDCOST(x->rdmult, rd_stats.rate, rd_stats.dist);
 
-      const THR_MODES mode_enum = get_prediction_mode_idx(
-          mbmi->mode, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+        const THR_MODES mode_enum = get_prediction_mode_idx(
+            mbmi->mode, mbmi->ref_frame[0], mbmi->ref_frame[1]);
 
-      // Collect mode stats for multiwinner mode processing
-      const int txfm_search_done = 1;
-      store_winner_mode_stats(
-          &cpi->common, x, mbmi, &rd_stats, &rd_stats_y, &rd_stats_uv,
-          mode_enum, NULL, bsize, rd_stats.rdcost,
-          cpi->sf.winner_mode_sf.enable_multiwinner_mode_process,
-          txfm_search_done);
+        // Collect mode stats for multiwinner mode processing
+        const int txfm_search_done = 1;
+        store_winner_mode_stats(
+            &cpi->common, x, mbmi, &rd_stats, &rd_stats_y, &rd_stats_uv,
+            mode_enum, NULL, bsize, rd_stats.rdcost,
+            cpi->sf.winner_mode_sf.enable_multiwinner_mode_process,
+            txfm_search_done);
 
-      if (rd_stats.rdcost < search_state.best_rd) {
-        update_search_state(&search_state, rd_cost, ctx, &rd_stats, &rd_stats_y,
-                            &rd_stats_uv, mode_enum, x, txfm_search_done);
+        if (rd_stats.rdcost < search_state.best_rd) {
+          update_search_state(&search_state, rd_cost, ctx, &rd_stats,
+                              &rd_stats_y, &rd_stats_uv, mode_enum, x,
+                              txfm_search_done);
+          search_state.best_skip_rd = sse_cost;
+        }
       }
     }
   }
