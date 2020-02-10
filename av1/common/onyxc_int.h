@@ -695,6 +695,21 @@ static INLINE RefCntBuffer *get_ref_frame_buf(
   return (map_idx != INVALID_IDX) ? cm->ref_frame_map[map_idx] : NULL;
 }
 
+// Given a common struct containing framebuffers and a motion block, find out
+// the quality index of the block's reference frames.
+// If a reference frame doesn't exist, the qindex will be -1.
+static INLINE void get_ref_q(const AV1_COMMON *const cm,
+                             const MB_MODE_INFO *mbmi, uint8_t ref_q[2]) {
+  for (int i = 0; i < 2; i++) ref_q[i] = 0;
+  int num_ref_frames =
+      is_inter_mode(mbmi->mode) + is_inter_compound_mode(mbmi->mode);
+  for (int i = 0; i < num_ref_frames; i++) {
+    RefCntBuffer *buf = get_ref_frame_buf(cm, mbmi->ref_frame[i]);
+    assert(buf != NULL);
+    ref_q[i] = buf->base_qindex;
+  }
+}
+
 // Both const and non-const versions of this function are provided so that it
 // can be used with a const AV1_COMMON if needed.
 static INLINE const struct scale_factors *get_ref_scale_factors_const(

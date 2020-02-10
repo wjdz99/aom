@@ -1898,17 +1898,20 @@ int av1_get_derived_intra_mode(const MACROBLOCKD *xd, int bsize,
                                uint8_t *derived_angle);
 #endif  // CONFIG_DERIVED_INTRA_MODE
 
-#if CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX
+#if CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX || CONFIG_COLLECT_RES
 
 #define MODE_DEP_INTER_TX_MODES 2
 #define MODE_DEP_INTER_TX_MODE_START 64
 
 // Transform mode to be used for mode dependent transforms
-static INLINE int get_mode_dep_txfm_mode(const MB_MODE_INFO *const mbmi) {
+static INLINE int get_mode_dep_txfm_mode(const MB_MODE_INFO *const mbmi,
+                                         const uint8_t ref_q[2]) {
   if (is_intra_mode(mbmi->mode)) return mbmi->mode;
   // Inter modes start from 64.
-  const int is_comp_pred = mbmi->ref_frame[1] > INTRA_FRAME;
+  const int is_comp_pred = is_inter_compound_mode(mbmi->mode);
+  int min_ref_qindex = INT_MAX;
   for (int i = 0; i < is_comp_pred + 1; ++i) {
+    min_ref_qindex = AOMMIN(min_ref_qindex, ref_q[i]);
     if (abs(mbmi->mv[i].as_mv.row) >= 8 || abs(mbmi->mv[i].as_mv.col) >= 8)
       return MODE_DEP_INTER_TX_MODE_START + 1;
   }
@@ -1917,7 +1920,8 @@ static INLINE int get_mode_dep_txfm_mode(const MB_MODE_INFO *const mbmi) {
 
 // whether it is an intra mode from the txfm_mode
 static INLINE int is_intra_mode_dep_txfm_mode(int txfm_mode) {
-  return (txfm_mode >= INTRA_MODE_START && txfm_mode < INTRA_MODE_END);
+  // Intra txfm modes have the same values as mbmi modes
+  return is_intra_mode(txfm_mode);
 }
 
 static INLINE int intra_mode_dep_txfm_mode(int txfm_mode) { return txfm_mode; }
@@ -1927,10 +1931,13 @@ static INLINE int inter_mode_dep_txfm_mode(int txfm_mode) {
 }
 
 #else
-static INLINE int get_mode_dep_txfm_mode(const MB_MODE_INFO *const mbmi) {
+static INLINE int get_mode_dep_txfm_mode(const MB_MODE_INFO *const mbmi,
+                                         const uint8_t ref_q[2]) {
+  (void)ref_q;
   return mbmi->mode;
 }
-#endif  // CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX
+#endif  // CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX ||
+        // CONFIG_COLLECT_RES
 
 #ifdef __cplusplus
 }  // extern "C"

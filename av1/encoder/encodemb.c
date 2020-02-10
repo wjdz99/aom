@@ -176,7 +176,9 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
   txfm_param.bd = xd->bd;
   txfm_param.is_hbd = is_cur_buf_hbd(xd);
-  txfm_param.mode = get_mode_dep_txfm_mode(mbmi);
+  uint8_t ref_q[2];
+  get_ref_q(cm, mbmi, ref_q);
+  txfm_param.mode = get_mode_dep_txfm_mode(mbmi, ref_q);
 
   av1_fwd_txfm(src_diff, coeff, diff_stride, &txfm_param);
 
@@ -251,6 +253,21 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
     p->eobs[block] = 0;
     p->txb_entropy_ctx[block] = 0;
   }
+#if CONFIG_COLLECT_RES
+  uint8_t *prd = NULL;
+  if (dry_run == OUTPUT_ENABLED) {
+    const int dst_stride = pd->dst.stride;
+    // Allocate prediction buffer owned by this function
+    prd =
+        malloc(sizeof(uint8_t) * tx_size_high[tx_size] * tx_size_wide[tx_size]);
+    for (int ii = 0; ii < tx_size_high[tx_size]; ++ii) {
+      for (int jj = 0; jj < tx_size_wide[tx_size]; ++jj) {
+        const uint8_t prdval = dst[ii * dst_stride + jj];
+        prd[ii * tx_size_wide[tx_size] + jj] = prdval;
+      }
+    }
+  }
+#endif  // CONFIG_COLLECT_RES
 
   av1_set_txb_context(x, plane, block, tx_size, a, l);
 
@@ -275,9 +292,71 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
       }
     }
 #endif  // CONFIG_NEW_TX64X64 && GET_NEW_TX64X64_TRAINING_DATA
+    uint8_t ref_q[2];
+    get_ref_q(cm, mbmi, ref_q);
     av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
                                 pd->dst.stride, p->eobs[block],
-                                cm->reduced_tx_set_used);
+                                cm->reduced_tx_set_used, ref_q);
+#if CONFIG_COLLECT_RES
+    if (dry_run == OUTPUT_ENABLED && p->eobs[block] > 3) {
+      assert(prd != NULL);
+      uint8_t ref_q[2];
+      get_ref_q(cm, mbmi, ref_q);
+      FILE *output = fopen("res_data_inter.bin", "ab+");
+      uint8_t protocol_version = 3;
+      PREDICTION_MODE mode = x->e_mbd.mi[0]->mode;
+      uint8_t mdtx_mode = get_mode_dep_txfm_mode(mbmi, ref_q);
+      int qindex = xd->current_qindex;
+      uint8_t is_skip =
+          is_blk_skip(x, plane, blk_row * bw + blk_col) || mbmi->skip_mode;
+      uint8_t height = tx_size_high[tx_size];
+      uint8_t width = tx_size_wide[tx_size];
+      uint8_t ref0_qindex = ref_q[0];
+      uint8_t ref1_qindex = ref_q[1];
+      int16_t mv0_row = mbmi->mv[0].as_mv.row;
+      int16_t mv0_col = mbmi->mv[0].as_mv.col;
+      int16_t mv1_row = mbmi->mv[1].as_mv.row;
+      int16_t mv1_col = mbmi->mv[1].as_mv.col;
+
+      printf(
+          "\nBlock(protocol_version=%d, mode=%d, mdtx_mode=%d, size=(%d,%d), "
+          "ref0_qindex=%d, ref1_qindex=%d, mv0=(%d, %d), mv1=(%d, %d), data=\n",
+          protocol_version, mode, mdtx_mode, height, width, ref0_qindex,
+          ref1_qindex, mv0_row, mv0_col, mv1_row, mv1_col);
+      fwrite(&protocol_version, sizeof(protocol_version), 1, output);
+      fwrite(&mode, sizeof(mode), 1, output);
+      fwrite(&mdtx_mode, sizeof(mdtx_mode), 1, output);
+      fwrite(&is_skip, sizeof(is_skip), 1, output);
+      fwrite(&height, sizeof(height), 1, output);
+      fwrite(&width, sizeof(width), 1, output);
+      fwrite(&ref0_qindex, sizeof(ref0_qindex), 1, output);
+      fwrite(&ref1_qindex, sizeof(ref1_qindex), 1, output);
+      fwrite(&mv0_row, sizeof(mv0_row), 1, output);
+      fwrite(&mv0_col, sizeof(mv0_col), 1, output);
+      fwrite(&mv1_row, sizeof(mv1_row), 1, output);
+      fwrite(&mv1_col, sizeof(mv1_col), 1, output);
+
+      const int src_stride = p->src.stride;
+      const int src_offset = (blk_row * src_stride + blk_col);
+      const uint8_t *src = &p->src.buf[src_offset << tx_size_wide_log2[0]];
+      printf("  [\n");
+      for (int ii = 0; ii < tx_size_high[tx_size]; ++ii) {
+        printf("    [");
+        for (int jj = 0; jj < tx_size_wide[tx_size]; ++jj) {
+          const uint8_t prdval = prd[ii * tx_size_wide[tx_size] + jj];
+          const uint8_t srcval = src[ii * src_stride + jj];
+          const int16_t res = prdval - srcval;
+          fwrite(&res, sizeof(res), 1, output);
+          printf("%4d, ", res);
+        }
+        printf("],\n");
+      }
+      printf("  ]\n)\n");
+      fclose(output);
+    }
+    free(prd);
+#endif  // CONFIG_COLLECT_RES
+
 #if CONFIG_NEW_TX64X64 && GET_NEW_TX64X64_TRAINING_DATA
     if (dry_run == OUTPUT_ENABLED && txsize_sqr_up_map[tx_size] == TX_64X64 &&
         p->eobs[block] > 1) {
@@ -677,8 +756,11 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   }
 
   if (*eob) {
+    uint8_t ref_q[2];
+    get_ref_q(cm, mbmi, ref_q);
     av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
-                                dst_stride, *eob, cm->reduced_tx_set_used);
+                                dst_stride, *eob, cm->reduced_tx_set_used,
+                                ref_q);
   }
 
   // TODO(jingning): Temporarily disable txk_type check for eob=0 case.
