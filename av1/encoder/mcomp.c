@@ -2184,6 +2184,8 @@ int av1_refining_search_8p_c(MACROBLOCK *x, int error_per_bit, int search_range,
 #define MIN_EX_SEARCH_LIMIT 128
 static int is_exhaustive_allowed(const AV1_COMP *const cpi, MACROBLOCK *x,
                                  int max_exhaustive_pct) {
+  return 1;
+
   const SPEED_FEATURES *const sf = &cpi->sf;
   int is_allowed = (sf->mv_sf.exhaustive_searches_thresh < INT_MAX) &&
                    !cpi->rc.is_src_frame_alt_ref;
