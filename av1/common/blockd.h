@@ -1898,7 +1898,7 @@ int av1_get_derived_intra_mode(const MACROBLOCKD *xd, int bsize,
                                uint8_t *derived_angle);
 #endif  // CONFIG_DERIVED_INTRA_MODE
 
-#if CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX
+#if CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX || CONFIG_COLLECT_RES
 
 #define MODE_DEP_INTER_TX_MODES 2
 #define MODE_DEP_INTER_TX_MODE_START 64
@@ -1930,7 +1930,8 @@ static INLINE int inter_mode_dep_txfm_mode(int txfm_mode) {
 static INLINE int get_mode_dep_txfm_mode(const MB_MODE_INFO *const mbmi) {
   return mbmi->mode;
 }
-#endif  // CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX
+#endif  // CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX ||
+        // CONFIG_COLLECT_RES
 
 #ifdef __cplusplus
 }  // extern "C"
