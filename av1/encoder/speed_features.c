@@ -497,6 +497,8 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.adaptive_mode_search = 1;
     sf->inter_sf.alt_ref_search_fp = 1;
     sf->inter_sf.prune_ref_mv_idx_search = 1;
+    sf->inter_sf.enable_txfm_gate =
+        (boosted || cm->allow_screen_content_tools) ? 0 : 1;
 
     sf->inter_sf.disable_smooth_interintra = 1;
 
@@ -971,6 +973,7 @@ static AOM_INLINE void init_inter_sf(INTER_MODE_SPEED_FEATURES *inter_sf) {
   inter_sf->prune_ref_mv_idx_search = 0;
   inter_sf->prune_warped_prob_thresh = 0;
   inter_sf->reuse_compound_type_decision = 0;
+  inter_sf->enable_txfm_gate = 0;
 }
 
 static AOM_INLINE void init_interp_sf(INTERP_FILTER_SPEED_FEATURES *interp_sf) {
