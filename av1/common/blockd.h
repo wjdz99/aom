@@ -1898,7 +1898,7 @@ int av1_get_derived_intra_mode(const MACROBLOCKD *xd, int bsize,
                                uint8_t *derived_angle);
 #endif  // CONFIG_DERIVED_INTRA_MODE
 
-#if CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX
+#if CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX || CONFIG_COLLECT_RES
 
 #define MODE_DEP_INTER_TX_MODES 2
 #define MODE_DEP_INTER_TX_MODE_START 64
