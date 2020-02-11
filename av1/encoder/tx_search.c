@@ -2700,11 +2700,8 @@ static AOM_INLINE void choose_largest_tx_size(const AV1_COMP *const cpi,
   s0 = x->skip_cost[skip_ctx][0];
   s1 = x->skip_cost[skip_ctx][1];
 
-  int64_t skip_rd = INT64_MAX;
-  int64_t this_rd = RDCOST(x->rdmult, s0, 0);
-
-  // Skip RDcost is used only for Inter blocks
-  if (is_inter_block(xd->mi[0])) skip_rd = RDCOST(x->rdmult, s1, 0);
+  const int64_t skip_rd = RDCOST(x->rdmult, s1, 0);
+  const int64_t this_rd = RDCOST(x->rdmult, s0, 0);
 
   av1_txfm_rd_in_plane(x, cpi, rd_stats, ref_best_rd, AOMMIN(this_rd, skip_rd),
                        AOM_PLANE_Y, bs, mbmi->tx_size,
@@ -2841,19 +2838,12 @@ static AOM_INLINE void block_rd_txfm(int plane, int block, int blk_row,
     set_blk_skip(x, plane, blk_idx, 0);
 
   int64_t rd;
-  if (is_inter) {
-    const int64_t rd1 =
-        RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
-    const int64_t rd2 = RDCOST(x->rdmult, 0, this_rd_stats.sse);
+  const int64_t rd1 = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
+  const int64_t rd2 = RDCOST(x->rdmult, 0, this_rd_stats.sse);
 
-    // TODO(jingning): temporarily enabled only for luma component
-    rd = AOMMIN(rd1, rd2);
-    this_rd_stats.skip &= !x->plane[plane].eobs[block];
-  } else {
-    // Signal non-skip for Intra blocks
-    rd = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
-    this_rd_stats.skip = 0;
-  }
+  // TODO(jingning): temporarily enabled only for luma component
+  rd = AOMMIN(rd1, rd2);
+  this_rd_stats.skip &= !x->plane[plane].eobs[block];
 
   av1_merge_rd_stats(&args->rd_stats, &this_rd_stats);
 
@@ -2884,10 +2874,8 @@ int64_t av1_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   s0 = x->skip_cost[skip_ctx][0];
   s1 = x->skip_cost[skip_ctx][1];
 
-  int64_t skip_rd = INT64_MAX;
-  int64_t this_rd = RDCOST(x->rdmult, s0 + r_tx_size * tx_select, 0);
-
-  if (is_inter) skip_rd = RDCOST(x->rdmult, s1, 0);
+  const int64_t skip_rd = RDCOST(x->rdmult, s1, 0);
+  const int64_t this_rd = RDCOST(x->rdmult, s0 + r_tx_size * tx_select, 0);
 
   mbmi->tx_size = tx_size;
   av1_txfm_rd_in_plane(
@@ -2899,15 +2887,14 @@ int64_t av1_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   // same is accounted in the caller functions after rd evaluation of all
   // planes. However the decisions should be done after considering the
   // skip/non-skip header cost
-  if (rd_stats->skip && is_inter) {
+  if (rd_stats->skip) {
     rd = RDCOST(x->rdmult, s1, rd_stats->sse);
   } else {
-    // Intra blocks are always signalled as non-skip
     rd = RDCOST(x->rdmult, rd_stats->rate + s0 + r_tx_size * tx_select,
                 rd_stats->dist);
     rd_stats->rate += r_tx_size * tx_select;
   }
-  if (is_inter && !xd->lossless[xd->mi[0]->segment_id]) {
+  if (!xd->lossless[xd->mi[0]->segment_id]) {
     int64_t temp_skip_rd = RDCOST(x->rdmult, s1, rd_stats->sse);
     if (temp_skip_rd <= rd) {
       rd = temp_skip_rd;

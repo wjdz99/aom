@@ -2605,7 +2605,7 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
       av1_copy_array(ctx->tx_type_map, xd->tx_type_map, ctx->num_4x4_blk);
       xd->cfl.store_y = 0;
     }
-    if (num_planes > 1) {
+    if (num_planes > 1 && !mbmi->skip) {
       max_uv_tx_size = av1_get_tx_size(AOM_PLANE_U, xd);
       init_sbuv_mode(mbmi);
       if (!x->skip_chroma_rd)
@@ -2613,12 +2613,14 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
                                     &dist_uv, &uv_skip, bsize, max_uv_tx_size);
     }
 
-    // Intra block is always coded as non-skip
     rd_cost->rate =
-        rate_y + rate_uv + x->skip_cost[av1_get_skip_context(xd)][0];
+        rate_y + rate_uv + x->skip_cost[av1_get_skip_context(xd)][mbmi->skip];
     rd_cost->dist = dist_y + dist_uv;
     rd_cost->rdcost = RDCOST(x->rdmult, rd_cost->rate, rd_cost->dist);
-    rd_cost->skip = 0;
+    rd_cost->skip = mbmi->skip;
+    ctx->rd_stats.skip = mbmi->skip;
+    memcpy(ctx->blk_skip, x->blk_skip,
+           sizeof(x->blk_skip[0]) * ctx->num_4x4_blk);
   } else {
     rd_cost->rate = INT_MAX;
   }
