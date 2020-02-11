@@ -1162,6 +1162,8 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
     sf->mv_sf.exhaustive_searches_thresh = sf->mv_sf.exhaustive_searches_thresh
                                            << 1;
 
+  if (speed == 3) sf->mv_sf.exhaustive_searches_thresh <<= 1;
+
   for (i = 0; i < MAX_MESH_STEP; ++i) {
     sf->mv_sf.mesh_patterns[i].range =
         good_quality_mesh_patterns[mesh_speed][i].range;
