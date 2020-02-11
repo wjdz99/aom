@@ -1903,6 +1903,7 @@ int64_t av1_handle_intra_mode(IntraModeSearchState *intra_search_state,
   }
 
   // Intra block is always coded as non-skip
+  // TODO(now): This is intra within inter frame. Change this?
   rd_stats->skip = 0;
   rd_stats->dist = rd_stats_y->dist + rd_stats_uv->dist;
   // Add in the cost of the no skip flag.

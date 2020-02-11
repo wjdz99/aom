@@ -710,6 +710,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
     *eob = 0;
     p->txb_entropy_ctx[block] = 0;
   } else {
+    xd->mi[0]->skip = 0;
     av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
 
     const ENTROPY_CONTEXT *a = &args->ta[blk_col];
@@ -779,10 +780,6 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 #endif
     update_txk_array(xd, blk_row, blk_col, tx_size, DCT_DCT);
   }
-
-  // For intra mode, skipped blocks are so rare that transmitting skip=1 is
-  // very expensive.
-  *(args->skip) = 0;
 
   if (plane == AOM_PLANE_Y && xd->cfl.store_y) {
     cfl_store_tx(xd, blk_row, blk_col, tx_size, plane_bsize);
