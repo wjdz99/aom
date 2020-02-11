@@ -376,6 +376,21 @@ static INLINE void boxsum2(int16_t *src, const int src_stride, int16_t *dst16,
       w -= 8;
       count++;
     } while (w > 0);
+#if 1
+    for (int x = 0; x < (2); x++) {
+      for (int y = 0; y < (width + 4); y++) {
+        dst16[y + x * dst_stride] = 0;
+        dst2[y + x * dst_stride] = 0;
+      }
+    }
+
+    for (int x = 2; x < (height + 2); x++) {
+      for (int y = width + 2; y < (width + 5); y++) {
+        dst16[y + x * dst_stride] = 0;
+        dst2[y + x * dst_stride] = 0;
+      }
+    }
+#endif
   }
 
   {
@@ -792,6 +807,21 @@ static INLINE void boxsum1(int16_t *src, const int src_stride, uint16_t *dst1,
       w -= 8;
       count++;
     } while (w > 0);
+#if 1
+    for (int x = 0; x < (2); x++) {
+      for (int y = 0; y < (width + 4); y++) {
+        dst1[y + x * dst_stride] = 0;
+        dst2[y + x * dst_stride] = 0;
+      }
+    }
+
+    for (int x = 2; x < (height + 2); x++) {
+      for (int y = width + 2; y < (width + 5); y++) {
+        dst1[y + x * dst_stride] = 0;
+        dst2[y + x * dst_stride] = 0;
+      }
+    }
+#endif
   }
 
   {
@@ -1319,6 +1349,13 @@ static INLINE void src_convert_u8_to_u16(const uint8_t *src,
       dst_ptr[y + x * dst_stride] = src_ptr[y + x * src_stride];
     }
   }
+#if 1
+  for (int x = height; x < (height + 4); x++) {
+    for (int y = 0; y < width + 2; y++) {
+      dst[y + x * dst_stride] = 0;
+    }
+  }
+#endif
 }
 
 #if CONFIG_AV1_HIGHBITDEPTH
@@ -1360,6 +1397,13 @@ static INLINE void src_convert_hbd_copy(const uint16_t *src, int src_stride,
     memcpy((dst_ptr + x * dst_stride), (src_ptr + x * src_stride),
            sizeof(uint16_t) * width);
   }
+#if 1
+  for (int x = height; x < (height + 4); x++) {
+    for (int y = 0; y < width + 2; y++) {
+      dst[y + x * dst_stride] = 0;
+    }
+  }
+#endif
 }
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
