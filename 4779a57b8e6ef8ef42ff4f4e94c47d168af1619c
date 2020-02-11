@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68e64d28_378219c3",
+        "filename": "av1/common/arm/selfguided_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2020-02-11T18:29:09Z",
+      "side": 1,
+      "message": "loop above this stores to dst2 and dst16. but here we are resetting everything to zero.\nAm I missing something here?",
+      "range": {
+        "startLine": 379,
+        "startChar": 0,
+        "endLine": 393,
+        "endChar": 6
+      },
+      "revId": "4779a57b8e6ef8ef42ff4f4e94c47d168af1619c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7558b37_d07d0cb9",
+        "filename": "av1/common/arm/selfguided_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 824,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2020-02-11T18:29:09Z",
+      "side": 1,
+      "message": "same here.",
+      "range": {
+        "startLine": 810,
+        "startChar": 0,
+        "endLine": 824,
+        "endChar": 6
+      },
+      "revId": "4779a57b8e6ef8ef42ff4f4e94c47d168af1619c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70ad4159_abe29a91",
+        "filename": "av1/common/arm/selfguided_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1358,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2020-02-11T18:29:09Z",
+      "side": 1,
+      "message": "this looks fine as it is only updating 4 rows from x \u003d height",
+      "range": {
+        "startLine": 1352,
+        "startChar": 0,
+        "endLine": 1358,
+        "endChar": 6
+      },
+      "revId": "4779a57b8e6ef8ef42ff4f4e94c47d168af1619c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f006773_2a955c16",
+        "filename": "av1/common/arm/selfguided_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1406,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2020-02-11T18:29:09Z",
+      "side": 1,
+      "message": "looks fine.",
+      "range": {
+        "startLine": 1400,
+        "startChar": 0,
+        "endLine": 1406,
+        "endChar": 6
+      },
+      "revId": "4779a57b8e6ef8ef42ff4f4e94c47d168af1619c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
