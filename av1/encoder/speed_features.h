@@ -481,7 +481,7 @@ typedef struct MV_SPEED_FEATURES {
   int reduce_search_range;
 
   // Prune mesh search.
-  int prune_mesh_search;
+  int prune_mesh_search_thr;
 } MV_SPEED_FEATURES;
 
 typedef struct INTER_MODE_SPEED_FEATURES {
