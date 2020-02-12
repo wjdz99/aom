@@ -2458,26 +2458,26 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   }
 
   // Should we allow a follow on exhaustive search?
-  if (!run_mesh_search && method == NSTEP && use_var) {
+  if (run_mesh_search != -1 && (method == NSTEP || method == DIAMOND) && use_var) {
     int exhuastive_thr = sf->mv_sf.exhaustive_searches_thresh;
     exhuastive_thr >>=
         10 - (mi_size_wide_log2[bsize] + mi_size_high_log2[bsize]);
     // Threshold variance for an exhaustive full search.
-    if (var > exhuastive_thr) run_mesh_search = 1;
+    if (1 || var > exhuastive_thr) run_mesh_search = 1;
   }
 
   // TODO(yunqing): the following is used to reduce mesh search in temporal
   // filtering. Can extend it to intrabc.
-  if (!use_intrabc_mesh_pattern && sf->mv_sf.prune_mesh_search) {
+  if (!use_intrabc_mesh_pattern) { // && sf->mv_sf.prune_mesh_search) {
     const int full_pel_mv_diff =
         AOMMAX(abs(start_mv->row - x->best_mv.as_fullmv.row),
                abs(start_mv->col - x->best_mv.as_fullmv.col));
-    if (full_pel_mv_diff <= 4) {
+    if (full_pel_mv_diff <= 1) {
       run_mesh_search = 0;
     }
   }
 
-  if (run_mesh_search) {
+  if (run_mesh_search == 1) {
     int var_ex;
     FULLPEL_MV tmp_mv_ex;
     // Pick the mesh pattern for exhaustive search based on the toolset (intraBC
