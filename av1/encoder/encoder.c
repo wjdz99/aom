@@ -4145,11 +4145,17 @@ static void set_size_independent_vars(AV1_COMP *cpi) {
   cm->switchable_motion_mode = 1;
 }
 
-static int get_gfu_boost_from_r0(double r0, int frames_to_key) {
-  double factor = sqrt((double)frames_to_key);
+static double get_gfu_boost_projection_factor(int frame_count) {
+  double factor = sqrt((double)frame_count);
   factor = AOMMIN(factor, 10.0);
   factor = AOMMAX(factor, 4.0);
-  const int boost = (int)rint((200.0 + 10.0 * factor) / r0);
+  factor = (200.0 + 10.0 * factor);
+  return factor;
+}
+
+static int get_gfu_boost_from_r0(double r0, int frames_to_key) {
+  double factor = get_gfu_boost_projection_factor(frames_to_key);
+  const int boost = (int)rint(factor / r0);
   return boost;
 }
 
@@ -4165,6 +4171,27 @@ static int get_kf_boost_from_r0(double r0, int frames_to_key) {
   double factor = get_kf_boost_projection_factor(frames_to_key);
   const int boost = (int)rint(factor / r0);
   return boost;
+}
+
+static int get_projected_prior_gfu_boost(AV1_COMP *cpi) {
+  int num_stats_gf_boost =
+      AOMMIN(cpi->rc.baseline_gf_interval * 2,
+             (int)av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage));
+  /*
+   * If num_stats_used_for_gf_boost >= frames_to_key, then
+   * all stats needed for prior boost calculation are available.
+   * Hence projecting the prior boost is not needed in this cases.
+   */
+  if (num_stats_gf_boost >= cpi->rc.frames_to_key) return cpi->rc.gfu_boost;
+
+  // Get the current tpl factor (number of frames = frames_to_key).
+  double tpl_factor = get_gfu_boost_projection_factor(cpi->rc.frames_to_key);
+  // Get the tpl factor when number of frames = num_stats_used_for_kf_boost.
+  double tpl_factor_num_stats =
+      get_gfu_boost_projection_factor(num_stats_gf_boost);
+  int projected_gfu_boost =
+      (int)rint((tpl_factor * cpi->rc.gfu_boost) / tpl_factor_num_stats);
+  return projected_gfu_boost;
 }
 
 static int get_projected_prior_boost(AV1_COMP *cpi) {
@@ -4238,8 +4265,9 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
             get_gfu_boost_from_r0(cpi->rd.arf_r0, cpi->rc.frames_to_key);
         // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
         //        gfu_boost);
+        const int projected_prior_boost = get_projected_prior_gfu_boost(cpi);
         cpi->rc.gfu_boost = combine_prior_with_tpl_boost(
-            cpi->rc.gfu_boost, gfu_boost, cpi->rc.frames_to_key);
+            projected_prior_boost, gfu_boost, cpi->rc.baseline_gf_interval * 2);
       } else if (frame_is_intra_only(cm)) {
         // TODO(debargha): Turn off q adjustment for kf temporarily to
         // reduce impact on speed of encoding. Need to investigate how
