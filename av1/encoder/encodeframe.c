@@ -3271,6 +3271,28 @@ static bool rd_pick_partition(
     return found_best_partition;
   }
 
+#if CONFIG_EXT_RECUR_PARTITIONS && CONFIG_EXT_PARTITIONS
+  PC_TREE *same_block = av1_look_for_searched_block(pc_tree);
+  if (same_block) {
+    if (same_block->rd_cost.rate != INT_MAX) {
+      av1_copy_pc_tree_recursive(cm, pc_tree, same_block, ss_x, ss_y,
+                                 &td->shared_coeff_buf, num_planes);
+      *rd_cost = pc_tree->rd_cost;
+      assert(bsize != cm->seq_params.sb_size);
+      if (bsize == cm->seq_params.sb_size) exit(0);
+
+      if (!pc_tree->is_last_subblock) {
+        encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, DRY_RUN_NORMAL, bsize,
+                  pc_tree, NULL, NULL);
+      }
+      return true;
+    } else {
+      av1_invalid_rd_stats(rd_cost);
+      return false;
+    }
+  }
+#endif  // CONFIG_EXT_RECUR_PARTITIONS && CONFIG_EXT_PARTITIONS
+
   if (frame_is_intra_only(cm) && bsize == BLOCK_64X64) {
     x->quad_tree_idx = 0;
     x->cnn_output_valid = 0;
@@ -5136,6 +5158,8 @@ BEGIN_PARTITION_SEARCH:
   }
 
   *rd_cost = best_rdc;
+  pc_tree->rd_cost = best_rdc;
+  if (!found_best_partition) av1_invalid_rd_stats(&pc_tree->rd_cost);
 
 #if CONFIG_COLLECT_PARTITION_STATS
   if (best_rdc.rate < INT_MAX && best_rdc.dist < INT64_MAX) {
