@@ -143,6 +143,15 @@ int av1_allow_warp(const MB_MODE_INFO *const mbmi,
   return 0;
 }
 
+static void copy_dst_src(uint8_t *dst, int dst_stride, const uint8_t *src,
+                         int src_stride, int w, int h) {
+  for (int j = 0; j < h; ++j) {
+    for (int i = 0; i < w; ++i) {
+      dst[j * dst_stride + i] = src[j * src_stride] + i;
+    }
+  }
+}
+
 void av1_make_inter_predictor(
     const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
     const SubpelParams *subpel_params, const struct scale_factors *sf, int w,
@@ -150,7 +159,16 @@ void av1_make_inter_predictor(
     const WarpTypesAllowed *warp_types, int p_col, int p_row, int plane,
     int ref, const MB_MODE_INFO *mi, int build_for_obmc, const MACROBLOCKD *xd,
     int can_use_previous, const InterPredExt *ext) {
-  (void)ext;
+  assert(ext == NULL);
+
+#define INTER_PRED_BYTES_PER_PIXEL 2
+  DECLARE_ALIGNED(32, uint8_t,
+                  tmp_buf[INTER_PRED_BYTES_PER_PIXEL * MAX_SB_SQUARE]);
+  memset(tmp_buf, 0, INTER_PRED_BYTES_PER_PIXEL * MAX_SB_SQUARE);
+#undef INTER_PRED_BYTES_PER_PIXEL
+  uint8_t *tmp_dst = get_buf_by_bd(xd, tmp_buf);
+  const int tmp_dst_stride = MAX_SB_SIZE;
+
   // Make sure the selected motion mode is valid for this configuration
   assert_motion_mode_valid(mi->motion_mode, xd->global_motion, xd, mi,
                            can_use_previous);
@@ -169,16 +187,17 @@ void av1_make_inter_predictor(
     const struct buf_2d *const pre_buf = &pd->pre[ref];
     av1_warp_plane(&final_warp_params, is_cur_buf_hbd(xd), xd->bd,
                    pre_buf->buf0, pre_buf->width, pre_buf->height,
-                   pre_buf->stride, dst, p_col, p_row, w, h, dst_stride,
+                   pre_buf->stride, tmp_dst, p_col, p_row, w, h, tmp_dst_stride,
                    pd->subsampling_x, pd->subsampling_y, conv_params);
   } else if (is_cur_buf_hbd(xd)) {
-    highbd_inter_predictor(src, src_stride, dst, dst_stride, subpel_params, sf,
-                           w, h, conv_params, interp_filters, is_intrabc,
-                           xd->bd);
+    highbd_inter_predictor(src, src_stride, tmp_dst, tmp_dst_stride,
+                           subpel_params, sf, w, h, conv_params, interp_filters,
+                           is_intrabc, xd->bd);
   } else {
-    inter_predictor(src, src_stride, dst, dst_stride, subpel_params, sf, w, h,
-                    conv_params, interp_filters, is_intrabc);
+    inter_predictor(src, src_stride, tmp_dst, tmp_dst_stride, subpel_params, sf,
+                    w, h, conv_params, interp_filters, is_intrabc);
   }
+  copy_dst_src(dst, dst_stride, tmp_dst, tmp_dst_stride, w, h);
 }
 
 static void build_inter_predictors_sub8x8(
