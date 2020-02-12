@@ -4234,12 +4234,21 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
       cpi->rd.r0 = (double)intra_cost_base / mc_dep_cost_base;
       if (is_frame_arf_and_tpl_eligible(cpi)) {
         cpi->rd.arf_r0 = cpi->rd.r0;
-        const int gfu_boost =
-            get_gfu_boost_from_r0(cpi->rd.arf_r0, cpi->rc.frames_to_key);
-        // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
-        //        gfu_boost);
-        cpi->rc.gfu_boost = combine_prior_with_tpl_boost(
-            cpi->rc.gfu_boost, gfu_boost, cpi->rc.frames_to_key);
+        if (cpi->lap_enabled) {
+          const int gfu_boost =
+              get_gfu_boost_from_r0(cpi->rd.arf_r0, MAX_GF_INTERVAL * 2);
+          // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
+          //        gfu_boost);
+          cpi->rc.gfu_boost = combine_prior_with_tpl_boost(
+              cpi->rc.gfu_boost, gfu_boost, MAX_GF_INTERVAL * 2);
+        } else {
+          const int gfu_boost =
+              get_gfu_boost_from_r0(cpi->rd.arf_r0, cpi->rc.frames_to_key);
+          // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
+          //        gfu_boost);
+          cpi->rc.gfu_boost = combine_prior_with_tpl_boost(
+              cpi->rc.gfu_boost, gfu_boost, cpi->rc.frames_to_key);
+        }
       } else if (frame_is_intra_only(cm)) {
         // TODO(debargha): Turn off q adjustment for kf temporarily to
         // reduce impact on speed of encoding. Need to investigate how
