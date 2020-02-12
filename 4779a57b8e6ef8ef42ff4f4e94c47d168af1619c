@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "4ed41a0a_c5c45fee",
+        "filename": "av1/common/arm/selfguided_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 824,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-02-12T01:20:22Z",
+      "side": 1,
+      "message": "Hi Harish,\n\nAs per my understanding the usage of sum, sum_square buffer starts from (buffer+ 2*stride +2 \n outside usage). Here in first stage the storage starts from 3rd row(leaving 2 rows) on wards and fills width multiple of 8 data in each row. \n\nIn second stage usage of these buffers starts from first row and column wise pixels 2 on wards.\nSo in first stage there are not filling 2 rows but using in second stage and also in second stage column wise usage starts from pixel 2 on wards so initializing 2 pixels extra width.\n\nThanks \u0026 Regards,\nVenkat",
+      "parentUuid": "b7558b37_d07d0cb9",
+      "range": {
+        "startLine": 810,
+        "startChar": 0,
+        "endLine": 824,
+        "endChar": 6
+      },
+      "revId": "4779a57b8e6ef8ef42ff4f4e94c47d168af1619c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "70ad4159_abe29a91",
         "filename": "av1/common/arm/selfguided_neon.c",
         "patchSetId": 2
