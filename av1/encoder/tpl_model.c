@@ -127,7 +127,7 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
   MACROBLOCKD *const xd = &x->e_mbd;
   MV_SPEED_FEATURES *const mv_sf = &cpi->sf.mv_sf;
   TPL_SPEED_FEATURES *tpl_sf = &cpi->sf.tpl_sf;
-  const SEARCH_METHODS search_method = NSTEP;
+  const SEARCH_METHODS search_method = mv_sf->search_method;
   int step_param;
   int sadpb = x->sadperbit16;
   uint32_t bestsme = UINT_MAX;
@@ -154,7 +154,7 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
   assert(ss_cfg->stride == stride_ref);
 
   av1_full_pixel_search(cpi, x, bsize, &start_mv, step_param, 1, search_method,
-                        0, sadpb, cond_cost_list(cpi, cost_list), &center_mv,
+                        -1, sadpb, cond_cost_list(cpi, cost_list), &center_mv,
                         INT_MAX, 0, (MI_SIZE * mi_col), (MI_SIZE * mi_row), 0,
                         ss_cfg, 0);
 
