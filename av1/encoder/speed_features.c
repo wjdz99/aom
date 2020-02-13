@@ -439,6 +439,9 @@ static void set_good_speed_features_framesize_independent(
     sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED;
     sf->mv_sf.use_accurate_subpel_search = USE_2_TAPS;
     sf->mv_sf.search_method = DIAMOND;
+    sf->mv_sf.prune_mesh_search = 2;
+    sf->mv_sf.exhaustive_searches_thresh = INT_MAX;
+
     sf->inter_sf.disable_sb_level_mv_cost_upd = 1;
     // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
     // it with cpi->sf.disable_wedge_search_var_thresh.
@@ -562,7 +565,7 @@ static void set_good_speed_features_framesize_independent(
     sf->lpf_sf.lpf_pick = LPF_PICK_FROM_FULL_IMAGE_NON_DUAL;
     sf->lpf_sf.disable_lr_filter = 1;
 
-    sf->mv_sf.prune_mesh_search = 1;
+    sf->mv_sf.prune_mesh_search = 4;
     sf->mv_sf.reduce_search_range = 1;
   }
 }

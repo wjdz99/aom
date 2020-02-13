@@ -2461,7 +2461,8 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   }
 
   // Should we allow a follow on exhaustive search?
-  if (!run_mesh_search && method == NSTEP) {
+  if (!run_mesh_search && method == NSTEP &&
+      sf->mv_sf.exhaustive_searches_thresh != INT_MAX) {
     int exhuastive_thr = sf->mv_sf.exhaustive_searches_thresh;
     exhuastive_thr >>=
         10 - (mi_size_wide_log2[bsize] + mi_size_high_log2[bsize]);
@@ -2475,7 +2476,7 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     const int full_pel_mv_diff =
         AOMMAX(abs(start_mv->row - x->best_mv.as_fullmv.row),
                abs(start_mv->col - x->best_mv.as_fullmv.col));
-    if (full_pel_mv_diff <= 4) {
+    if (full_pel_mv_diff <= sf->mv_sf.prune_mesh_search) {
       run_mesh_search = 0;
     }
   }
