@@ -2475,7 +2475,7 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     const int full_pel_mv_diff =
         AOMMAX(abs(start_mv->row - x->best_mv.as_fullmv.row),
                abs(start_mv->col - x->best_mv.as_fullmv.col));
-    if (full_pel_mv_diff <= 4) {
+    if (full_pel_mv_diff <= sf->mv_sf.prune_mesh_search) {
       run_mesh_search = 0;
     }
   }
