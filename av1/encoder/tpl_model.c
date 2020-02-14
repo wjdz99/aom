@@ -818,7 +818,7 @@ static void mc_flow_synthesizer(AV1_COMP *cpi, int frame_idx) {
 
 static AOM_INLINE void init_gop_frames_for_tpl(
     AV1_COMP *cpi, const EncodeFrameParams *const init_frame_params,
-    GF_GROUP *gf_group, int *tpl_group_frames,
+    GF_GROUP *gf_group, int gop_eval, int *tpl_group_frames,
     const EncodeFrameInput *const frame_input, int *pframe_qindex) {
   AV1_COMMON *cm = &cpi->common;
   int cur_frame_idx = gf_group->index;
@@ -830,7 +830,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
   int ref_picture_map[REF_FRAMES];
 
   for (int i = 0; i < REF_FRAMES; ++i) {
-    if (frame_params.frame_type == KEY_FRAME) {
+    if (frame_params.frame_type == KEY_FRAME || gop_eval) {
       cpi->tpl_frame[-i - 1].gf_picture = NULL;
       cpi->tpl_frame[-1 - 1].rec_picture = NULL;
       cpi->tpl_frame[-i - 1].frame_display_index = 0;
@@ -848,6 +848,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
 
   int gf_index;
   int use_arf = gf_group->update_type[1] == ARF_UPDATE;
+  int anc_frame_offset = !gop_eval;
   const int gop_length =
       AOMMIN(gf_group->size - 1 + use_arf, MAX_LENGTH_TPL_FRAME_STATS - 1);
   for (gf_index = cur_frame_idx; gf_index <= gop_length; ++gf_index) {
@@ -877,7 +878,8 @@ static AOM_INLINE void init_gop_frames_for_tpl(
                                     ? cpi->rc.baseline_gf_interval
                                     : gf_group->frame_disp_idx[gf_index];
       struct lookahead_entry *buf = av1_lookahead_peek(
-          cpi->lookahead, frame_display_index - 1, cpi->compressor_stage);
+          cpi->lookahead, frame_display_index - anc_frame_offset,
+          cpi->compressor_stage);
       if (buf == NULL) break;
       tpl_frame->gf_picture = &buf->img;
       // frame display index = frame offset within the gf group + start frame of
@@ -890,6 +892,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     av1_get_ref_frames(cpi, &ref_buffer_stack);
     int refresh_mask = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, &ref_buffer_stack);
+
     int refresh_frame_map_index = av1_get_refresh_ref_frame_map(refresh_mask);
     av1_update_ref_frame_map(cpi, frame_update_type,
                              frame_params.show_existing_frame,
@@ -924,7 +927,8 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     frame_params.frame_type = INTER_FRAME;
 
     struct lookahead_entry *buf = av1_lookahead_peek(
-        cpi->lookahead, frame_display_index - 1, cpi->compressor_stage);
+        cpi->lookahead, frame_display_index - anc_frame_offset,
+        cpi->compressor_stage);
 
     if (buf == NULL) break;
 
@@ -976,7 +980,8 @@ static AOM_INLINE void init_tpl_stats(AV1_COMP *cpi) {
   }
 }
 
-void av1_tpl_setup_stats(AV1_COMP *cpi,
+int av1_tpl_setup_stats(AV1_COMP *cpi,
+                         int gop_eval,
                          const EncodeFrameParams *const frame_params,
                          const EncodeFrameInput *const frame_input) {
   AV1_COMMON *cm = &cpi->common;
@@ -984,7 +989,7 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
   int bottom_index, top_index;
   EncodeFrameParams this_frame_params = *frame_params;
 
-  if (cpi->oxcf.superres_mode != SUPERRES_NONE) return;
+  if (cpi->oxcf.superres_mode != SUPERRES_NONE) return 0;
 
   cm->current_frame.frame_type = frame_params->frame_type;
   for (int gf_index = gf_group->index; gf_index < gf_group->size; ++gf_index) {
@@ -1004,7 +1009,7 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
   }
 
   int pframe_qindex;
-  init_gop_frames_for_tpl(cpi, frame_params, gf_group,
+  init_gop_frames_for_tpl(cpi, frame_params, gf_group, gop_eval,
                           &cpi->tpl_gf_group_frames, frame_input,
                           &pframe_qindex);
 
@@ -1036,9 +1041,38 @@ void av1_tpl_setup_stats(AV1_COMP *cpi,
     }
   }
 
+    (void)gop_eval;
+  double beta[2] = { 0.0 };
+    for (int frame_idx = 1; frame_idx <= AOMMIN(cpi->tpl_gf_group_frames - 1, 2); ++frame_idx) {
+        TplDepFrame *tpl_frame = &cpi->tpl_frame[frame_idx];
+        TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+        int tpl_stride = tpl_frame->stride;
+        int64_t intra_cost_base = 0;
+        int64_t mc_dep_cost_base = 0;
+        const int step = 1 << cpi->tpl_stats_block_mis_log2;
+        const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
+
+        for (int row = 0; row < cm->mi_rows; row += step) {
+            for (int col = 0; col < mi_cols_sr; col += step) {
+                TplDepStats *this_stats =
+                        &tpl_stats[av1_tpl_ptr_pos(cpi, row, col, tpl_stride)];
+                int64_t mc_dep_delta =
+                        RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
+                                this_stats->mc_dep_dist);
+                intra_cost_base += (this_stats->recrf_dist << RDDIV_BITS);
+                mc_dep_cost_base += (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+            }
+        }
+        beta[frame_idx - 1] = (double)mc_dep_cost_base / intra_cost_base;
+        fprintf(stderr, "ARF beta0 = %lf\n", beta[frame_idx - 1]);
+    }
+
+
   av1_configure_buffer_updates(cpi, &this_frame_params,
                                gf_group->update_type[gf_group->index], 0);
   cm->current_frame.frame_type = frame_params->frame_type;
+
+  return (beta[0] >= beta[1] + 0.7) && beta[0] > 3.0;
 }
 
 static AOM_INLINE void get_tpl_forward_stats(AV1_COMP *cpi, MACROBLOCK *x,

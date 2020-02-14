@@ -4086,8 +4086,9 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
       cpi->rd.r0 = (double)intra_cost_base / mc_dep_cost_base;
       if (is_frame_arf_and_tpl_eligible(gf_group)) {
         cpi->rd.arf_r0 = cpi->rd.r0;
-        const int gfu_boost =
-            get_gfu_boost_from_r0(cpi->rd.arf_r0, cpi->rc.frames_to_key);
+        const int gfu_boost = (int)(200.0 / cpi->rd.r0);
+        // const int gfu_boost =
+        //     get_gfu_boost_from_r0(cpi->rd.arf_r0, cpi->rc.frames_to_key);
         // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
         //        gfu_boost);
         cpi->rc.gfu_boost = combine_prior_with_tpl_boost(
