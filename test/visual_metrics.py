@@ -1,13 +1,13 @@
-#!/usr/bin/python
+#!/ usr / bin / python
 #
-# Copyright (c) 2016, Alliance for Open Media. All rights reserved
+#Copyright(c) 2016, Alliance for Open Media.All rights reserved
 #
-# This source code is subject to the terms of the BSD 2 Clause License and
-# the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
-# was not distributed with this source code in the LICENSE file, you can
-# obtain it at www.aomedia.org/license/software. If the Alliance for Open
-# Media Patent License 1.0 was not distributed with this source code in the
-# PATENTS file, you can obtain it at www.aomedia.org/license/patent.
+#This source code is subject to the terms of the BSD 2 Clause License and
+#the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
+#was not distributed with this source code in the LICENSE file, you can
+#obtain it at www.aomedia.org / license / software.If the Alliance for Open
+#Media Patent License 1.0 was not distributed with this source code in the
+#PATENTS file, you can obtain it at www.aomedia.org / license / patent.
 #
 
 """Converts video encoding result data from text files to visualization
@@ -55,39 +55,39 @@ def bdsnr2(metric_set1, metric_set2):
 
   try:
 
-    # pchip_interlopate requires keys sorted by x axis. x-axis will
-    # be our metric not the bitrate so sort by metric.
+#pchip_interlopate requires keys sorted by x axis.x - axis will
+#be our metric not the bitrate so sort by metric.
     metric_set1.sort()
     metric_set2.sort()
 
-    # Pull the log of the rate and clamped psnr from metric_sets.
+#Pull the log of the rate and clamped psnr from metric_sets.
     log_rate1 = [math.log(x[0]) for x in metric_set1]
     metric1 = [100.0 if x[1] == float('inf') else x[1] for x in metric_set1]
     log_rate2 = [math.log(x[0]) for x in metric_set2]
     metric2 = [100.0 if x[1] == float('inf') else x[1] for x in metric_set2]
 
-    # Integration interval.  This metric only works on the area that's
-    # overlapping.   Extrapolation of these things is sketchy so we avoid.
+#Integration interval.This metric only works on the area that's
+#overlapping.Extrapolation of these things is sketchy so we avoid.
     min_int = max([min(log_rate1), min(log_rate2)])
     max_int = min([max(log_rate1), max(log_rate2)])
 
-    # No overlap means no sensible metric possible.
+#No overlap means no sensible metric possible.
     if max_int <= min_int:
       return 0.0
 
-    # Use Piecewise Cubic Hermite Interpolating Polynomial interpolation to
-    # create 100 new samples points separated by interval.
+#Use Piecewise Cubic Hermite Interpolating Polynomial interpolation to
+#create 100 new samples points separated by interval.
     lin = np.linspace(min_int, max_int, num=100, retstep=True)
     interval = lin[1]
     samples = lin[0]
     v1 = scipy.interpolate.pchip_interpolate(log_rate1, metric1, samples)
     v2 = scipy.interpolate.pchip_interpolate(log_rate2, metric2, samples)
 
-    # Calculate the integral using the trapezoid method on the samples.
+#Calculate the integral using the trapezoid method on the samples.
     int_v1 = np.trapz(v1, dx=interval)
     int_v2 = np.trapz(v2, dx=interval)
 
-    # Calculate the average improvement.
+#Calculate the average improvement.
     avg_exp_diff = (int_v2 - int_v1) / (max_int - min_int)
 
   except (TypeError, ZeroDivisionError, ValueError, np.RankWarning) as e:
@@ -115,45 +115,45 @@ def bdrate2(metric_set1, metric_set2):
 
   try:
 
-    # pchip_interlopate requires keys sorted by x axis. x-axis will
-    # be our metric not the bitrate so sort by metric.
+#pchip_interlopate requires keys sorted by x axis.x - axis will
+#be our metric not the bitrate so sort by metric.
     metric_set1.sort(key=lambda tup: tup[1])
     metric_set2.sort(key=lambda tup: tup[1])
 
-    # Pull the log of the rate and clamped psnr from metric_sets.
+#Pull the log of the rate and clamped psnr from metric_sets.
     log_rate1 = [math.log(x[0]) for x in metric_set1]
     metric1 = [100.0 if x[1] == float('inf') else x[1] for x in metric_set1]
     log_rate2 = [math.log(x[0]) for x in metric_set2]
     metric2 = [100.0 if x[1] == float('inf') else x[1] for x in metric_set2]
 
-    # Integration interval.  This metric only works on the area that's
-    # overlapping.   Extrapolation of these things is sketchy so we avoid.
+#Integration interval.This metric only works on the area that's
+#overlapping.Extrapolation of these things is sketchy so we avoid.
     min_int = max([min(metric1), min(metric2)])
     max_int = min([max(metric1), max(metric2)])
 
-    # No overlap means no sensible metric possible.
+#No overlap means no sensible metric possible.
     if max_int <= min_int:
       return 0.0
 
-    # Use Piecewise Cubic Hermite Interpolating Polynomial interpolation to
-    # create 100 new samples points separated by interval.
+#Use Piecewise Cubic Hermite Interpolating Polynomial interpolation to
+#create 100 new samples points separated by interval.
     lin = np.linspace(min_int, max_int, num=100, retstep=True)
     interval = lin[1]
     samples = lin[0]
     v1 = scipy.interpolate.pchip_interpolate(metric1, log_rate1, samples)
     v2 = scipy.interpolate.pchip_interpolate(metric2, log_rate2, samples)
 
-    # Calculate the integral using the trapezoid method on the samples.
+#Calculate the integral using the trapezoid method on the samples.
     int_v1 = np.trapz(v1, dx=interval)
     int_v2 = np.trapz(v2, dx=interval)
 
-    # Calculate the average improvement.
+#Calculate the average improvement.
     avg_exp_diff = (int_v2 - int_v1) / (max_int - min_int)
 
   except (TypeError, ZeroDivisionError, ValueError, np.RankWarning) as e:
     return 0
 
-  # Convert to a percentage.
+#Convert to a percentage.
   avg_diff = (math.exp(avg_exp_diff) - 1) * 100
 
   return avg_diff
@@ -176,7 +176,7 @@ def HasMetrics(line):
   """
   The metrics files produced by aomenc are started with a B for headers.
   """
-  # If the first char of the first word on the line is a digit
+#If the first char of the first word on the line is a digit
   if len(line) == 0:
     return False
   if len(line.split()) == 0:
@@ -213,9 +213,9 @@ def FileBetter(file_name_1, file_name_2, metric_column, method):
   much. Also produces a histogram of how much better, by PSNR.
   metric_column is the metric.
   """
-  # Store and parse our two files into lists of unique tuples.
+#Store and parse our two files into lists of unique tuples.
 
-  # Read the two files, parsing out lines starting with bitrate.
+#Read the two files, parsing out lines starting with bitrate.
   metric_set1_sorted = ParseMetricFile(file_name_1, metric_column)
   metric_set2_sorted = ParseMetricFile(file_name_2, metric_column)
 
@@ -234,10 +234,10 @@ def FileBetter(file_name_1, file_name_2, metric_column, method):
       for i in range(len(metric_set2_sorted) - 1):
         s2_bitrate_0, s2_metric_0 = metric_set2_sorted[i]
         s2_bitrate_1, s2_metric_1 = metric_set2_sorted[i + 1]
-        # We have a point on either side of our metric range.
+#We have a point on either side of our metric range.
         if metric > s2_metric_0 and metric <= s2_metric_1:
 
-          # Calculate a slope.
+#Calculate a slope.
           if s2_metric_1 - s2_metric_0 != 0:
             metric_slope = ((s2_bitrate_1 - s2_bitrate_0) /
                             (s2_metric_1 - s2_metric_0))
@@ -249,7 +249,7 @@ def FileBetter(file_name_1, file_name_2, metric_column, method):
 
           if estimated_s2_bitrate == 0:
             continue
-          # Calculate percentage difference as given by base.
+#Calculate percentage difference as given by base.
           if base_is_set_2 == 0:
             bitrate_difference_ratio = ((bitrate - estimated_s2_bitrate) /
                                         bitrate)
@@ -261,7 +261,7 @@ def FileBetter(file_name_1, file_name_2, metric_column, method):
           count += 1
           break
 
-    # Calculate the average improvement between graphs.
+#Calculate the average improvement between graphs.
     if count != 0:
       avg = total_bitrate_difference_ratio / count
 
@@ -270,7 +270,7 @@ def FileBetter(file_name_1, file_name_2, metric_column, method):
 
     return avg
 
-  # Be fair to both graphs by testing all the points in each.
+#Be fair to both graphs by testing all the points in each.
   if method == 'avg':
     avg_improvement = 50 * (
                        GraphBetter(metric_set1_sorted, metric_set2_sorted, 1) -
@@ -329,18 +329,18 @@ def HandleFiles(variables):
   visual_metrics.py template.html "*stt" aom aom_b aom_c > metrics.html
   """
 
-  # The template file is the html file into which we will write the
-  # data from the stats file, formatted correctly for the gviz_api.
+#The template file is the html file into which we will write the
+#data from the stats file, formatted correctly for the gviz_api.
   template_file = open(variables[1], "r")
   page_template = template_file.read()
   template_file.close()
 
-  # This is the path match pattern for finding stats files amongst
-  # all the other files it could be.  eg: *.stt
+#This is the path match pattern for finding stats files amongst
+#all the other files it could be.eg : *.stt
   file_pattern = variables[2]
 
-  # This is the directory with files that we will use to do the comparison
-  # against.
+#This is the directory with files that we will use to do the comparison
+#against.
   baseline_dir = variables[3]
   snrs = ''
   filestable = {}
@@ -349,10 +349,10 @@ def HandleFiles(variables):
   filestable['drate'] = ''
   filestable['avg'] = ''
 
-  # Dirs is directories after the baseline to compare to the base.
+#Dirs is directories after the baseline to compare to the base.
   dirs = variables[4:len(variables)]
 
-  # Find the metric files in the baseline directory.
+#Find the metric files in the baseline directory.
   dir_list = sorted(fnmatch.filter(os.listdir(baseline_dir), file_pattern))
 
   metrics = GetMetrics(baseline_dir + "/" + dir_list[0])
@@ -364,7 +364,7 @@ def HandleFiles(variables):
     for metric in ['avg','dsnr','drate']:
       description = {"file": ("string", "File")}
 
-      # Go through each directory and add a column header to our description.
+#Go through each directory and add a column header to our description.
       countoverall = {}
       sumoverall = {}
 
@@ -373,20 +373,20 @@ def HandleFiles(variables):
         countoverall[directory] = 0
         sumoverall[directory] = 0
 
-      # Data holds the data for the visualization, name given comes from
-      # gviz_api sample code.
+#Data holds the data for the visualization, name given comes from
+#gviz_api sample code.
       data = []
       for filename in dir_list:
         row = {'file': splitext(basename(filename))[0] }
         baseline_file_name = baseline_dir + "/" + filename
 
-        # Read the metric file from each of the directories in our list.
+#Read the metric file from each of the directories in our list.
         for directory in dirs:
           metric_file_name = directory + "/" + filename
 
-          # If there is a metric file in the current directory, open it
-          # and calculate its overall difference between it and the baseline
-          # directory's metric file.
+#If there is a metric file in the current directory, open it
+#and calculate its overall difference between it and the baseline
+#directory's metric file.
           if os.path.isfile(metric_file_name):
             overall = FileBetter(baseline_file_name, metric_file_name,
                                  column, metric)
@@ -397,13 +397,13 @@ def HandleFiles(variables):
 
         data.append(row)
 
-      # Add the overall numbers.
+#Add the overall numbers.
       row = {"file": "OVERALL" }
       for directory in dirs:
         row[directory] = sumoverall[directory] / countoverall[directory]
       data.append(row)
 
-      # write the tables out
+#write the tables out
       data_table = gviz_api.DataTable(description)
       data_table.LoadData(data)
 
@@ -415,8 +415,8 @@ def HandleFiles(variables):
     filestable_dpsnr = filestable['dsnr']
     filestable_drate = filestable['drate']
 
-    # Now we collect all the data for all the graphs.  First the column
-    # headers which will be Datarate and then each directory.
+#Now we collect all the data for all the graphs.First the column
+#headers which will be Datarate and then each directory.
     columns = ("datarate",baseline_dir)
     description = {"datarate":("number", "Datarate")}
     for directory in dirs:
@@ -426,13 +426,13 @@ def HandleFiles(variables):
 
     snrs = snrs + "snrs[" + str(column) + "] = ["
 
-    # Now collect the data for the graphs, file by file.
+#Now collect the data for the graphs, file by file.
     for filename in dir_list:
 
       data = []
 
-      # Collect the file in each directory and store all of its metrics
-      # in the associated gviz metrics table.
+#Collect the file in each directory and store all of its metrics
+#in the associated gviz metrics table.
       all_dirs = dirs + [baseline_dir]
       for directory in all_dirs:
 
@@ -440,8 +440,8 @@ def HandleFiles(variables):
         if not os.path.isfile(metric_file_name):
           continue
 
-        # Read and parse the metrics file storing it to the data we'll
-        # use for the gviz_api.Datatable.
+#Read and parse the metrics file storing it to the data we'll
+#use for the gviz_api.Datatable.
         metrics = ParseMetricFile(metric_file_name, column)
         for bitrate, metric in metrics:
           data.append({"datarate": bitrate, directory: metric})

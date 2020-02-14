@@ -1,24 +1,24 @@
 #
-# Copyright (c) 2017, Alliance for Open Media. All rights reserved
+#Copyright(c) 2017, Alliance for Open Media.All rights reserved
 #
-# This source code is subject to the terms of the BSD 2 Clause License and the
-# Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License was
-# not distributed with this source code in the LICENSE file, you can obtain it
-# at www.aomedia.org/license/software. If the Alliance for Open Media Patent
-# License 1.0 was not distributed with this source code in the PATENTS file, you
-# can obtain it at www.aomedia.org/license/patent.
+#This source code is subject to the terms of the BSD 2 Clause License and the
+#Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License was
+#not distributed with this source code in the LICENSE file, you can obtain it
+#at www.aomedia.org / license / software.If the Alliance for Open Media Patent
+#License 1.0 was not distributed with this source code in the PATENTS file, you
+#can obtain it at www.aomedia.org / license / patent.
 #
 include("${AOM_ROOT}/test/test_data_util.cmake")
 
-# https://github.com/cheshirekow/cmake_format/issues/34
-# cmake-format: off
+#https:  // github.com/cheshirekow/cmake_format/issues/34
+#cmake - format : off
 if (NOT AOM_ROOT OR NOT AOM_CONFIG_DIR OR NOT AOM_TEST_FILE
     OR NOT AOM_TEST_CHECKSUM)
   message(FATAL_ERROR
           "AOM_ROOT, AOM_CONFIG_DIR, AOM_TEST_FILE and AOM_TEST_CHECKSUM must be
           defined.")
 endif ()
-# cmake-format: on
+#cmake - format : on
 
 set(AOM_TEST_DATA_URL "https://storage.googleapis.com/aom-test-data")
 

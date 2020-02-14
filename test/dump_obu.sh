@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/ bin / sh
 ## Copyright (c) 2018, Alliance for Open Media. All rights reserved
 ##
 ## This source code is subject to the terms of the BSD 2 Clause License and
@@ -18,53 +18,50 @@
 readonly dump_obu_test_file="${AOM_TEST_OUTPUT_DIR}/av1_obu_test.ivf"
 
 dump_obu_verify_environment() {
-  if [ ! -e "${YUV_RAW_INPUT}" ]; then
-    elog "The file ${YUV_RAW_INPUT##*/} must exist in LIBAOM_TEST_DATA_PATH."
-    return 1
-  fi
-  if [ "$(dump_obu_available)" = "yes" ]; then
-    if [ -z "$(aom_tool_path dump_obu)" ]; then
-      elog "dump_obu not found in LIBAOM_BIN_PATH, its parent, or child tools/."
-    fi
-  fi
+  if
+    [!-e "${YUV_RAW_INPUT}"];
+  then elog
+      "The file ${YUV_RAW_INPUT##*/} must exist in "
+      "LIBAOM_TEST_DATA_PATH." return 1 fi if["$(dump_obu_available)" = "yes"];
+  then if[-z "$(aom_tool_path dump_obu)"];
+  then elog
+      "dump_obu not found in LIBAOM_BIN_PATH, its parent, or child tools/." fi
+          fi
 }
 
 dump_obu_available() {
-  if [ "$(av1_decode_available)" = "yes" ] && \
-     [ "$(av1_encode_available)" = "yes" ]; then
-    echo yes
-  fi
+  if
+    ["$(av1_decode_available)" = "yes"] && ["$(av1_encode_available)" = "yes"];
+  then echo yes fi
 }
 
 aomenc_available() {
-  if [ -x "$(aom_tool_path aomenc)" ]; then
-    echo yes
-  fi
+  if
+    [-x "$(aom_tool_path aomenc)"];
+  then echo yes fi
 }
 
 encode_test_file() {
-  if [ "$(aomenc_available)" = "yes" ]; then
-    local encoder="$(aom_tool_path aomenc)"
+  if
+    ["$(aomenc_available)" = "yes"];
+  then local encoder = "$(aom_tool_path aomenc)"
 
-    eval "${encoder}" \
-      $(aomenc_encode_test_fast_params) \
-      $(yuv_raw_input) \
-      --ivf \
-      --output=${dump_obu_test_file} \
-      ${devnull}
+      eval "${encoder}" $(aomenc_encode_test_fast_params)
+          $(yuv_raw_input)-- ivf-- output = ${ dump_obu_test_file } $ {
+    devnull
+  }
 
-    if [ ! -e "${dump_obu_test_file}" ]; then
-      elog "dump_obu test input encode failed."
-      return 1
-    fi
-  fi
+  if
+    [!-e "${dump_obu_test_file}"];
+  then elog "dump_obu test input encode failed." return 1 fi fi
 }
 
 dump_obu() {
-  encode_test_file
-  eval $(aom_tool_path dump_obu) "${dump_obu_test_file}" ${devnull}
+  encode_test_file eval $(aom_tool_path dump_obu) "${dump_obu_test_file}" $ {
+    devnull
+  }
 }
 
-dump_obu_tests="dump_obu"
+dump_obu_tests = "dump_obu"
 
-run_tests dump_obu_verify_environment "${dump_obu_tests}"
+    run_tests dump_obu_verify_environment "${dump_obu_tests}"
