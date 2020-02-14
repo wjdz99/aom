@@ -13,6 +13,7 @@
 #define AOM_AV1_ENCODER_MCOMP_H_
 
 #include "av1/common/mv.h"
+#include "av1/common/onyxc_int.h"
 #include "av1/encoder/block.h"
 
 #include "aom_dsp/variance.h"
@@ -106,15 +107,48 @@ int av1_hex_search(MACROBLOCK *x, FULLPEL_MV *start_mv, int search_param,
                    int sad_per_bit, int do_init_search, int *cost_list,
                    const aom_variance_fn_ptr_t *vfp, const MV *ref_mv);
 
-typedef int(fractional_mv_step_fp)(
-    MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
-    const MV *ref_mv, int allow_hp, int error_per_bit,
-    const aom_variance_fn_ptr_t *vfp,
-    int forced_stop,  // 0 - full, 1 - qtr only, 2 - half only
-    int iters_per_step, int *cost_list, int *mvjcost, int *mvcost[2],
-    int *distortion, unsigned int *sse1, const uint8_t *second_pred,
-    const uint8_t *mask, int mask_stride, int invert_mask, int w, int h,
-    int use_accurate_subpel_search, const int do_reset_fractional_mv);
+// This struct holds subpixel motion search parameters that should be constant
+// during the search
+typedef struct {
+  const MV *ref_mv;
+  int allow_hp;
+  int error_per_bit;
+  const aom_variance_fn_ptr_t *vfp;
+  int forced_stop;  // 0 - full, 1 - qtr only, 2 - half only
+  int iters_per_step;
+  const int *cost_list;
+  const int *mvjcost;
+  const int *mvcost[2];
+  const uint8_t *second_pred;
+  const uint8_t *mask;
+  int mask_stride;
+  int invert_mask;
+  int w, h;
+  int use_accurate_subpel_search;
+  int do_reset_fractional_mv;
+  MV_COST_TYPE mv_cost_type;
+} SUBPEL_MOTION_SEARCH_PARAMS;
+
+void av1_make_default_subpel_ms_params(
+    SUBPEL_MOTION_SEARCH_PARAMS *ms_params, const struct AV1_COMP *cpi,
+    const MACROBLOCK *x, BLOCK_SIZE bsize, const MV *ref_mv,
+    const int *cost_list, const uint8_t *second_pred, const uint8_t *mask,
+    int mask_stride, int invert_mask, int do_reset_fractional_mv);
+
+typedef int(fractional_mv_step_fp)(MACROBLOCK *x, const AV1_COMMON *const cm,
+                                   int mi_row, int mi_col,
+                                   const SUBPEL_MOTION_SEARCH_PARAMS *ms_params,
+                                   int *distortion, unsigned int *sse1);
+
+// typedef int(fractional_mv_step_fp)(
+//     MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
+//     const MV *ref_mv, int allow_hp, int error_per_bit,
+//     const aom_variance_fn_ptr_t *vfp,
+//     int forced_stop,  // 0 - full, 1 - qtr only, 2 - half only
+//     int iters_per_step, int *cost_list, int *mvjcost, int *mvcost[2],
+//     int *distortion, unsigned int *sse1, const uint8_t *second_pred,
+//     const uint8_t *mask, int mask_stride, int invert_mask, int w, int h,
+//     int use_accurate_subpel_search, const int do_reset_fractional_mv);
 
 extern fractional_mv_step_fp av1_find_best_sub_pixel_tree;
 extern fractional_mv_step_fp av1_find_best_sub_pixel_tree_pruned;
@@ -154,10 +188,8 @@ int av1_obmc_full_pixel_search(const struct AV1_COMP *cpi, MACROBLOCK *x,
                                const search_site_config *cfg);
 int av1_find_best_obmc_sub_pixel_tree_up(
     MACROBLOCK *x, const AV1_COMMON *const cm, int mi_row, int mi_col,
-    const MV *ref_mv, int allow_hp, int error_per_bit,
-    const aom_variance_fn_ptr_t *vfp, int forced_stop, int iters_per_step,
-    int *mvjcost, int *mvcost[2], int *distortion, unsigned int *sse1, int w,
-    int h, int use_accurate_subpel_search);
+    const SUBPEL_MOTION_SEARCH_PARAMS *ms_params, int *distortion,
+    unsigned int *sse1);
 
 unsigned int av1_compute_motion_cost(const struct AV1_COMP *cpi,
                                      MACROBLOCK *const x, BLOCK_SIZE bsize,

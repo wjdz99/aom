@@ -212,6 +212,8 @@ enum {
   MV_COST_NONE        // Use 0 as as cost irrespective of the current mv
 } UENUM1BYTE(MV_COST_TYPE);
 
+#define CONVERT_TO_CONST_MVCOST(ptr) ((const int *const *)(ptr))
+
 struct inter_modes_info;
 typedef struct macroblock MACROBLOCK;
 struct macroblock {
