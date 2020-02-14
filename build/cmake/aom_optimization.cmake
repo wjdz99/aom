@@ -48,6 +48,10 @@ function(add_intrinsics_object_library flag opt_name target_to_update sources)
   if(MSVC)
     get_msvc_intrinsic_flag(${flag} "flag")
   endif()
+  
+  if(CMAKE_C_COMPILER_ID MATCHES "GNU" AND "${flag}" STREQUAL "-mavx2")
+    set(flag "-mavx2 -mno-avx256-split-unaligned-load -mno-avx256-split-unaligned-store")  
+  endif()
 
   if(flag)
     separate_arguments(flag)
