@@ -2084,6 +2084,9 @@ static int full_pixel_exhaustive(
   // initial search
   bestsme = exhuastive_mesh_search(x, &full_ref_mv, best_mv, range, interval,
                                    sadpb, fn_ptr, best_mv);
+  // Terminate if best_mv is the same as previous non-exhaustive search result.
+  if (best_mv->row == start_mv->row && best_mv->col == start_mv->col)
+    return INT_MAX;
 
   if ((interval > MIN_INTERVAL) && (range > MIN_RANGE)) {
     // Progressive searches with range and step size decreasing each time
@@ -2093,7 +2096,9 @@ static int full_pixel_exhaustive(
       bestsme = exhuastive_mesh_search(
           x, &full_ref_mv, best_mv, mesh_patterns[i].range,
           mesh_patterns[i].interval, sadpb, fn_ptr, best_mv);
-
+      // Terminate if best_mv is the same as previous non-exhaustive result.
+      if (best_mv->row == start_mv->row && best_mv->col == start_mv->col)
+        return INT_MAX;
       if (mesh_patterns[i].interval == 1) break;
     }
   }
