@@ -539,11 +539,13 @@ function(setup_av1_targets)
 
   if(HAVE_AVX2)
     require_compiler_flag_nomsvc("-mavx2" NO)
-    add_intrinsics_object_library("-mavx2" "avx2" "aom_av1_common"
+    add_intrinsics_object_library("-mavx2 -mno-avx256-split-unaligned-load -mno-avx256-split-unaligned-store"
+                                  "avx2" "aom_av1_common"
                                   "AOM_AV1_COMMON_INTRIN_AVX2")
 
     if(CONFIG_AV1_ENCODER)
-      add_intrinsics_object_library("-mavx2" "avx2" "aom_av1_encoder"
+      add_intrinsics_object_library("-mavx2 -mno-avx256-split-unaligned-load -mno-avx256-split-unaligned-store"
+                                    "avx2" "aom_av1_encoder"
                                     "AOM_AV1_ENCODER_INTRIN_AVX2")
     endif()
   endif()

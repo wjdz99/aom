@@ -378,10 +378,12 @@ function(setup_aom_dsp_targets)
   endif()
 
   if(HAVE_AVX2)
-    add_intrinsics_object_library("-mavx2" "avx2" "aom_dsp_common"
+    add_intrinsics_object_library("-mavx2 -mno-avx256-split-unaligned-load -mno-avx256-split-unaligned-store"
+                                  "avx2" "aom_dsp_common"
                                   "AOM_DSP_COMMON_INTRIN_AVX2")
     if(CONFIG_AV1_ENCODER)
-      add_intrinsics_object_library("-mavx2" "avx2" "aom_dsp_encoder"
+      add_intrinsics_object_library("-mavx2 -mno-avx256-split-unaligned-load -mno-avx256-split-unaligned-store"
+                                    "avx2" "aom_dsp_encoder"
                                     "AOM_DSP_ENCODER_INTRIN_AVX2")
     endif()
   endif()
