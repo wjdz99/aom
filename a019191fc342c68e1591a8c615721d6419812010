@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05a02ab0_0e64d626",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-02-14T01:04:04Z",
+      "side": 1,
+      "message": "It\u0027s better to rename this index to \"current_index\" for example.",
+      "range": {
+        "startLine": 785,
+        "startChar": 51,
+        "endLine": 785,
+        "endChar": 52
+      },
+      "revId": "a019191fc342c68e1591a8c615721d6419812010",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb43f7cf_5c4be744",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 833,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-02-14T01:04:04Z",
+      "side": 1,
+      "message": "Could you add some comments for the function?\nSpecifically, the input and output.\nIn this case, not output. But you could say \"rc-\u003egf_intervals\" is modified.",
+      "range": {
+        "startLine": 833,
+        "startChar": 12,
+        "endLine": 833,
+        "endChar": 31
+      },
+      "revId": "a019191fc342c68e1591a8c615721d6419812010",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b91e3b3b_af968e97",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-02-14T01:04:04Z",
+      "side": 1,
+      "message": "Could you add comments for each of new variables?",
+      "range": {
+        "startLine": 100,
+        "startChar": 6,
+        "endLine": 100,
+        "endChar": 37
+      },
+      "revId": "a019191fc342c68e1591a8c615721d6419812010",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "820f99a6_a0f327fa",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-02-14T01:04:04Z",
+      "side": 1,
+      "message": "This one is the index used to retrieve interval from \"gf_intervals\".\nSo it\u0027s better to use \"cur_gf_index\", or add some comments.",
+      "range": {
+        "startLine": 102,
+        "startChar": 6,
+        "endLine": 102,
+        "endChar": 21
+      },
+      "revId": "a019191fc342c68e1591a8c615721d6419812010",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
