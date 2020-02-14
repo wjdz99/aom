@@ -29,7 +29,7 @@ static INLINE BLOCK_SIZE convert_length_to_bsize(int length) {
   }
 }
 
-void av1_tpl_setup_stats(AV1_COMP *cpi,
+int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
                          const EncodeFrameParams *const frame_params,
                          const EncodeFrameInput *const frame_input);
 
