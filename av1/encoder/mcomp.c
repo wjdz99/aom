@@ -2055,10 +2055,12 @@ static int full_pixel_diamond(MACROBLOCK *x, FULLPEL_MV *start_mv,
 #define MIN_INTERVAL 1
 // Runs an limited range exhaustive mesh search using a pattern set
 // according to the encode speed profile.
-static int full_pixel_exhaustive(
-    MACROBLOCK *x, const FULLPEL_MV *start_mv, int sadpb, int *cost_list,
-    const aom_variance_fn_ptr_t *fn_ptr, const MV *ref_mv, FULLPEL_MV *best_mv,
-    const struct MESH_PATTERN *const mesh_patterns) {
+static int full_pixel_exhaustive(MACROBLOCK *x, const FULLPEL_MV *start_mv,
+                                 int sadpb, int *cost_list,
+                                 const aom_variance_fn_ptr_t *fn_ptr,
+                                 const MV *ref_mv, FULLPEL_MV *best_mv,
+                                 const struct MESH_PATTERN *const mesh_patterns,
+                                 int et) {
   FULLPEL_MV full_ref_mv = get_fullmv_from_mv(ref_mv);
   int bestsme;
   int i;
@@ -2084,6 +2086,9 @@ static int full_pixel_exhaustive(
   // initial search
   bestsme = exhuastive_mesh_search(x, &full_ref_mv, best_mv, range, interval,
                                    sadpb, fn_ptr, best_mv);
+  // Terminate if best_mv is the same as previous non-exhaustive search result.
+  if (et && best_mv->row == start_mv->row && best_mv->col == start_mv->col)
+    return INT_MAX;
 
   if ((interval > MIN_INTERVAL) && (range > MIN_RANGE)) {
     // Progressive searches with range and step size decreasing each time
@@ -2093,7 +2098,9 @@ static int full_pixel_exhaustive(
       bestsme = exhuastive_mesh_search(
           x, &full_ref_mv, best_mv, mesh_patterns[i].range,
           mesh_patterns[i].interval, sadpb, fn_ptr, best_mv);
-
+      // Terminate if best_mv is the same as previous non-exhaustive result.
+      if (et && best_mv->row == start_mv->row && best_mv->col == start_mv->col)
+        return INT_MAX;
       if (mesh_patterns[i].interval == 1) break;
     }
   }
@@ -2480,9 +2487,13 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     const MESH_PATTERN *const mesh_patterns =
         use_intrabc_mesh_pattern ? sf->mv_sf.intrabc_mesh_patterns
                                  : sf->mv_sf.mesh_patterns;
+    // Allow to early terminate mesh search.
+    const int et =
+        !use_intrabc_mesh_pattern /*&& sf->mv_sf.prune_mesh_search*/ &&
+        var < 10000;
     var_ex = full_pixel_exhaustive(x, &x->best_mv.as_fullmv, error_per_bit,
                                    cost_list, fn_ptr, ref_mv, &tmp_mv_ex,
-                                   mesh_patterns);
+                                   mesh_patterns, et);
     if (var_ex < var) {
       var = var_ex;
       x->best_mv.as_fullmv = tmp_mv_ex;
