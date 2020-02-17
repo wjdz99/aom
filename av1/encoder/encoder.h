@@ -817,12 +817,9 @@ typedef struct AV1_COMP {
   // For a still frame, this flag is set to 1 to skip partition search.
   int partition_search_skippable_frame;
 
-  double csm_rate_array[32];
-  double m_rate_array[32];
+  double cs_rate_array[32];
   int rate_size;
   int rate_index;
-  hash_table *previous_hash_table;
-  int need_to_clear_prev_hash_table;
   int previous_index;
 
   unsigned int row_mt;
