@@ -2065,6 +2065,124 @@ typedef struct motion_mode_best_st_candidate {
   int num_motion_mode_cand;
 } motion_mode_best_st_candidate;
 
+// Checks if the current reference frame matches with neighbouring block's
+// (top/left) reference frames
+static void ref_match_found(MACROBLOCKD *xd, int rel_mi_row, int rel_mi_col,
+                            uint8_t op_mi_size, int dir, MB_MODE_INFO *nb_mbmi,
+                            void *ref_match_found, const int num_planes) {
+  (void)rel_mi_row;
+  (void)rel_mi_col;
+  (void)op_mi_size;
+  (void)dir;
+  (void)num_planes;
+
+  int match_found = 0;
+  MB_MODE_INFO **cur_mbmi = xd->mi;
+  MV_REFERENCE_FRAME nb_ref_frames[2] = { nb_mbmi->ref_frame[0],
+                                          nb_mbmi->ref_frame[1] };
+  MV_REFERENCE_FRAME cur_ref_frames[2] = { (*cur_mbmi)->ref_frame[0],
+                                           (*cur_mbmi)->ref_frame[1] };
+  int is_nb_comp_pred = (nb_ref_frames[1] > INTRA_FRAME);
+  int is_cur_comp_pred = (cur_ref_frames[1] > INTRA_FRAME);
+
+  if (nb_ref_frames[0] == cur_ref_frames[0] ||
+      (nb_ref_frames[0] == cur_ref_frames[1]) ||
+      (nb_ref_frames[1] == cur_ref_frames[0]))
+    match_found = 1;
+
+  if (is_nb_comp_pred && is_cur_comp_pred) {
+    if (nb_ref_frames[1] == cur_ref_frames[1]) match_found = 1;
+  }
+  if (match_found) *(int *)ref_match_found |= 1;
+}
+
+typedef struct {
+  int64_t best_inter_cost;
+  int64_t inter_cost_per_frame[INTER_REFS_PER_FRAME];
+} PruneInfoFromTpl;
+
+// TODO(Remya): Check if get_tpl_stats_b() can be reused
+static AOM_INLINE void get_tpl_stats_for_pruning(
+    AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row, int mi_col,
+    PruneInfoFromTpl *inter_cost_info_from_tpl) {
+  const GF_GROUP *const gf_group = &cpi->gf_group;
+  AV1_COMMON *const cm = &cpi->common;
+
+  assert(IMPLIES(gf_group->size > 0, gf_group->index < gf_group->size));
+  const int tpl_idx = gf_group->index;
+  TplDepFrame *tpl_frame = &cpi->tpl_frame[tpl_idx];
+  TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+
+  const int mi_wide = mi_size_wide[bsize];
+  const int mi_high = mi_size_high[bsize];
+  if (tpl_frame->is_valid) {
+    int64_t best_inter_cost = INT64_MAX;
+    int tpl_stride = tpl_frame->stride;
+    const int step = 1 << cpi->tpl_stats_block_mis_log2;
+    const int mi_col_sr =
+        coded_to_superres_mi(mi_col, cm->superres_scale_denominator);
+    const int mi_col_end_sr =
+        coded_to_superres_mi(mi_col + mi_wide, cm->superres_scale_denominator);
+    const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
+    // Sums up the inter cost of corresponding ref frames
+    for (int row = mi_row; row < mi_row + mi_high; row += step) {
+      for (int col = mi_col_sr; col < mi_col_end_sr; col += step) {
+        if (row >= cm->mi_rows || col >= mi_cols_sr) continue;
+        TplDepStats *this_stats =
+            &tpl_stats[av1_tpl_ptr_pos(cpi, row, col, tpl_stride)];
+        for (int ref_idx = 0; ref_idx < INTER_REFS_PER_FRAME; ref_idx++) {
+          inter_cost_info_from_tpl->inter_cost_per_frame[ref_idx] +=
+              this_stats->inter_cost_per_ref[ref_idx];
+        }
+      }
+    }
+
+    // Computes the best inter cost (minimum inter_cost)
+    for (int ref_idx = 0; ref_idx < INTER_REFS_PER_FRAME; ref_idx++) {
+      int64_t cur_inter_cost =
+          inter_cost_info_from_tpl->inter_cost_per_frame[ref_idx];
+      // For invalid ref frames, cur_inter_cost = 0 and has to be handled while
+      // calculating the minimum inter_cost
+      if (cur_inter_cost != 0 && (cur_inter_cost < best_inter_cost))
+        best_inter_cost = cur_inter_cost;
+    }
+    inter_cost_info_from_tpl->best_inter_cost = best_inter_cost;
+  }
+}
+
+static AOM_INLINE int prune_ref_mv_indices(
+    PruneInfoFromTpl *inter_cost_info_from_tpl, const int *refs, int ref_mv_idx,
+    const PREDICTION_MODE this_mode) {
+  int64_t cur_inter_cost;
+  int is_globalmv = (this_mode == GLOBALMV) || (this_mode == GLOBAL_GLOBALMV);
+  static const double thresh_to_prune_ref_mv_idx[MAX_REF_MV_SEARCH] = { 1.5,
+                                                                        1.0,
+                                                                        1.0 };
+  int is_single_pred = (refs[1] == INTRA_FRAME);
+
+  // If single prediction, pick the inter_cost of the corresponding
+  // reference frame. If comp_pred, pick the maximum inter_cost among refs[0]
+  // and refs[1]
+  if (is_single_pred) {
+    cur_inter_cost =
+        inter_cost_info_from_tpl->inter_cost_per_frame[refs[0] - 1];
+  } else {
+    int64_t inter_cost_ref0 =
+        inter_cost_info_from_tpl->inter_cost_per_frame[refs[0] - 1];
+    int64_t inter_cost_ref1 =
+        inter_cost_info_from_tpl->inter_cost_per_frame[refs[1] - 1];
+    cur_inter_cost = AOMMAX(inter_cost_ref0, inter_cost_ref1);
+  }
+
+  // If cur_inter_cost > 1.0 * best_inter_cost, prune ref_mv_idx 1 and 2.
+  // If cur_inter_cost > 1.5 * best_inter_cost, prune ref_mv_idx 0.
+  int64_t best_inter_cost = inter_cost_info_from_tpl->best_inter_cost;
+  double threshold = is_globalmv ? 1.0 : thresh_to_prune_ref_mv_idx[ref_mv_idx];
+
+  if ((double)cur_inter_cost > (threshold * best_inter_cost)) return 1;
+  return 0;
+}
+
 static int64_t handle_inter_mode(
     AV1_COMP *const cpi, TileDataEnc *tile_data, MACROBLOCK *x,
     BLOCK_SIZE bsize, RD_STATS *rd_stats, RD_STATS *rd_stats_y,
@@ -2072,7 +2190,8 @@ static int64_t handle_inter_mode(
     int64_t ref_best_rd, uint8_t *const tmp_buf,
     const CompoundTypeRdBuffers *rd_buffers, int64_t *best_est_rd,
     const int do_tx_search, InterModesInfo *inter_modes_info,
-    motion_mode_candidate *motion_mode_cand, int64_t *skip_rd) {
+    motion_mode_candidate *motion_mode_cand, int64_t *skip_rd,
+    PruneInfoFromTpl *inter_cost_info_from_tpl) {
   const AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &x->e_mbd;
@@ -2080,6 +2199,12 @@ static int64_t handle_inter_mode(
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const int is_comp_pred = has_second_ref(mbmi);
   const PREDICTION_MODE this_mode = mbmi->mode;
+
+  const GF_GROUP *const gf_group = &cpi->gf_group;
+  const int tpl_idx = gf_group->index;
+  TplDepFrame *tpl_frame = &cpi->tpl_frame[tpl_idx];
+  int prune_based_on_tpl =
+      cpi->sf.inter_sf.prune_ref_frames_based_on_tpl && tpl_frame->is_valid;
   int i;
   const int refs[2] = { mbmi->ref_frame[0],
                         (mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1]) };
@@ -2135,6 +2260,21 @@ static int64_t handle_inter_mode(
     if (!mask_check_bit(idx_mask, ref_mv_idx)) {
       // MV did not perform well in simple translation search. Skip it.
       continue;
+    }
+    if (prune_based_on_tpl) {
+      // Check if the current ref frame is the winner ref in neighbouring
+      // blocks. If not, prune the mode based on inter cost from tpl.
+      int ref_match_above_or_left[2] = { 0, 0 };
+      foreach_overlappable_nb_above(cm, xd, INT_MAX, ref_match_found,
+                                    &ref_match_above_or_left[0]);
+      foreach_overlappable_nb_left(cm, xd, INT_MAX, ref_match_found,
+                                   &ref_match_above_or_left[1]);
+
+      if (!ref_match_above_or_left[0] && !ref_match_above_or_left[1]) {
+        if (prune_ref_mv_indices(inter_cost_info_from_tpl, refs, ref_mv_idx,
+                                 this_mode))
+          continue;
+      }
     }
     av1_init_rd_stats(rd_stats);
 
@@ -4096,6 +4236,18 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   // Need to tweak the threshold for hdres speed 0 & 1.
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
+
+  // Ref frame pruning based on tpl stats
+  PruneInfoFromTpl inter_cost_info_from_tpl;
+  inter_cost_info_from_tpl.best_inter_cost = 0;
+  memset(inter_cost_info_from_tpl.inter_cost_per_frame, 0,
+         sizeof(inter_cost_info_from_tpl.inter_cost_per_frame));
+#if !CONFIG_REALTIME_ONLY
+  if (cpi->sf.inter_sf.prune_ref_frames_based_on_tpl) {
+    get_tpl_stats_for_pruning(cpi, bsize, mi_row, mi_col,
+                              &inter_cost_info_from_tpl);
+  }
+#endif
   const int do_pruning =
       (AOMMIN(cm->width, cm->height) > 480 && cpi->speed <= 1) ? 0 : 1;
   if (do_pruning && sf->intra_sf.skip_intra_in_interframe) {
@@ -4269,7 +4421,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         cpi, tile_data, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
         &disable_skip, &args, ref_best_rd, tmp_buf, &x->comp_rd_buffer,
         &best_est_rd, do_tx_search, inter_modes_info, &motion_mode_cand,
-        &skip_rd);
+        &skip_rd, &inter_cost_info_from_tpl);
 
     if (sf->inter_sf.prune_comp_search_by_single_result > 0 &&
         is_inter_singleref_mode(this_mode) && args.single_ref_first_pass) {
