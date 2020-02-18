@@ -1633,6 +1633,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
       if (i - roll_back >= active_min_gf_interval + 1) {
         alt_offset = -roll_back;
         i -= roll_back;
+        rc->intervals_till_gf_calculate_due = 0;
       }
     }
   }
@@ -1664,7 +1665,16 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
             twopass, rc, frame_info, alt_offset, (i - 1), 0,
             cpi->lap_enabled ? &rc->num_stats_used_for_gfu_boost : NULL,
             cpi->lap_enabled ? &rc->num_stats_required_for_gfu_boost : NULL));
-  }
+    }
+    // rc->gf_intervals assumes the usage of alt_ref, therefore adding one
+    // overlay frame to the next gf. If no alt_ref is used, should substract 1
+    // frame from the next gf group.
+    // TODO(bohanli): should incorporate the usage of alt_ref into
+    // calculate_gf_length
+    if (rc->source_alt_ref_pending == 0 &&
+        rc->intervals_till_gf_calculate_due > 0) {
+      rc->gf_intervals[rc->cur_gf_index]--;
+    }
 
 #define LAST_ALR_BOOST_FACTOR 0.2f
   rc->arf_boost_factor = 1.0;
