@@ -67,6 +67,11 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
                                struct macroblock *x, struct RD_STATS *rd_cost,
                                BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx,
                                int64_t best_rd_so_far);
+#if !CONFIG_REALTIME_ONLY
+static INLINE int coded_to_superres_mi(int mi_col, int denom) {
+  return (mi_col * denom + SCALE_NUMERATOR / 2) / SCALE_NUMERATOR;
+}
+#endif
 
 void av1_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
                          BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx);
