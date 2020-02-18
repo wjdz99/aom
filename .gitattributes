@@ -18,3 +18,4 @@
 *.inf        -crlf
 /av1/models/intra_frame_model/*.h -diff
 /av1/tflite_models/intra_frame_model/qp*.cc -diff
+/av1/tflite_models/inter_frame_model/qp*.cc -diff
