@@ -577,6 +577,7 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.txfm_rd_gate_level =
         (boosted || cm->allow_screen_content_tools) ? 0 : 2;
     sf->inter_sf.prune_inter_modes_if_skippable = 1;
+    sf->inter_sf.prune_ref_frames_based_on_tpl = boosted ? 0 : 1;
 
     sf->lpf_sf.lpf_pick = LPF_PICK_FROM_FULL_IMAGE_NON_DUAL;
     sf->lpf_sf.disable_lr_filter = 1;
@@ -965,6 +966,7 @@ static AOM_INLINE void init_inter_sf(INTER_MODE_SPEED_FEATURES *inter_sf) {
   inter_sf->reuse_inter_intra_mode = 0;
   inter_sf->disable_sb_level_coeff_cost_upd = 0;
   inter_sf->disable_sb_level_mv_cost_upd = 0;
+  inter_sf->prune_ref_frames_based_on_tpl = 0;
   inter_sf->prune_comp_search_by_single_result = 0;
   inter_sf->skip_repeated_ref_mv = 0;
   inter_sf->skip_repeated_newmv = 0;
