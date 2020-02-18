@@ -14,6 +14,11 @@
 #include "av1/common/cnn_tflite.h"
 #include "av1/common/onyxc_int.h"
 #include "av1/tflite_models/intra_frame_model/op_registrations.h"
+#include "av1/tflite_models/inter_frame_model/qp22.h"
+#include "av1/tflite_models/inter_frame_model/qp32.h"
+#include "av1/tflite_models/inter_frame_model/qp43.h"
+#include "av1/tflite_models/inter_frame_model/qp53.h"
+#include "av1/tflite_models/inter_frame_model/qp63.h"
 #include "av1/tflite_models/intra_frame_model/qp22.h"
 #include "av1/tflite_models/intra_frame_model/qp32.h"
 #include "av1/tflite_models/intra_frame_model/qp43.h"
@@ -23,28 +28,46 @@
 #include "third_party/tensorflow/tensorflow/lite/kernels/kernel_util.h"
 #include "third_party/tensorflow/tensorflow/lite/model.h"
 
-// Returns the TF-lite model based on the qindex.
-static const unsigned char *get_model_from_qindex(int qindex) {
+// Returns the TF-lite model based on whether this is intra/inter frame and
+// the qindex.
+static const unsigned char *get_model_from_qindex(int is_intra, int qindex) {
   if (qindex <= MIN_CNN_Q_INDEX) {
     assert(0);
     return nullptr;
-  } else if (qindex < 108) {
-    return qp22_model_tflite_data;
-  } else if (qindex < 148) {
-    return qp32_model_tflite_data;
-  } else if (qindex < 192) {
-    return qp43_model_tflite_data;
-  } else if (qindex < 232) {
-    return qp53_model_tflite_data;
+  }
+
+  if (is_intra) {
+    if (qindex < 108) {
+      return qp22_model_tflite_data;
+    } else if (qindex < 148) {
+      return qp32_model_tflite_data;
+    } else if (qindex < 192) {
+      return qp43_model_tflite_data;
+    } else if (qindex < 232) {
+      return qp53_model_tflite_data;
+    } else {
+      return qp63_model_tflite_data;
+    }
   } else {
-    return qp63_model_tflite_data;
+    if (qindex < 108) {
+      return inter_qp22_model_tflite_data;
+    } else if (qindex < 148) {
+      return inter_qp32_model_tflite_data;
+    } else if (qindex < 192) {
+      return inter_qp43_model_tflite_data;
+    } else if (qindex < 232) {
+      return inter_qp53_model_tflite_data;
+    } else {
+      return inter_qp63_model_tflite_data;
+    }
   }
 }
 
 // Builds and returns the TFlite interpreter.
 static std::unique_ptr<tflite::Interpreter> get_tflite_interpreter(
-    int qindex, int width, int height, int num_threads) {
-  const unsigned char *const model_tflite_data = get_model_from_qindex(qindex);
+    int is_intra, int qindex, int width, int height, int num_threads) {
+  const unsigned char *const model_tflite_data =
+      get_model_from_qindex(is_intra, qindex);
   auto model = tflite::GetModel(model_tflite_data);
   tflite::MutableOpResolver resolver;
   RegisterSelectedOpsAllQps(&resolver);
@@ -75,12 +98,13 @@ static std::unique_ptr<tflite::Interpreter> get_tflite_interpreter(
   return interpreter;
 }
 
-extern "C" int av1_restore_cnn_img_tflite(int qindex, const uint8_t *dgd,
-                                          int width, int height, int dgd_stride,
+extern "C" int av1_restore_cnn_img_tflite(int is_intra, int qindex,
+                                          const uint8_t *dgd, int width,
+                                          int height, int dgd_stride,
                                           uint8_t *rst, int rst_stride,
                                           int num_threads) {
   std::unique_ptr<tflite::Interpreter> interpreter =
-      get_tflite_interpreter(qindex, width, height, num_threads);
+      get_tflite_interpreter(is_intra, qindex, width, height, num_threads);
 
   // Prepare input.
   const float max_val = 255.0f;
@@ -116,11 +140,14 @@ extern "C" int av1_restore_cnn_img_tflite(int qindex, const uint8_t *dgd,
   return 1;
 }
 
-extern "C" int av1_restore_cnn_img_tflite_highbd(
-    int qindex, const uint16_t *dgd, int width, int height, int dgd_stride,
-    uint16_t *rst, int rst_stride, int num_threads, int bit_depth) {
+extern "C" int av1_restore_cnn_img_tflite_highbd(int is_intra, int qindex,
+                                                 const uint16_t *dgd, int width,
+                                                 int height, int dgd_stride,
+                                                 uint16_t *rst, int rst_stride,
+                                                 int num_threads,
+                                                 int bit_depth) {
   std::unique_ptr<tflite::Interpreter> interpreter =
-      get_tflite_interpreter(qindex, width, height, num_threads);
+      get_tflite_interpreter(is_intra, qindex, width, height, num_threads);
 
   // Prepare input.
   const auto max_val = static_cast<float>((1 << bit_depth) - 1);
@@ -159,6 +186,7 @@ extern "C" int av1_restore_cnn_img_tflite_highbd(
 
 extern "C" void av1_restore_cnn_tflite(const AV1_COMMON *cm, int num_threads) {
   YV12_BUFFER_CONFIG *buf = &cm->cur_frame->buf;
+  const int is_intra = frame_is_intra_only(cm);
   const int plane_from = AOM_PLANE_Y;
   const int plane_to = AOM_PLANE_Y;
   for (int plane = plane_from; plane <= plane_to; ++plane) {
@@ -166,21 +194,21 @@ extern "C" void av1_restore_cnn_tflite(const AV1_COMMON *cm, int num_threads) {
       switch (plane) {
         case AOM_PLANE_Y:
           av1_restore_cnn_img_tflite_highbd(
-              cm->base_qindex, CONVERT_TO_SHORTPTR(buf->y_buffer),
+              is_intra, cm->base_qindex, CONVERT_TO_SHORTPTR(buf->y_buffer),
               buf->y_crop_width, buf->y_crop_height, buf->y_stride,
               CONVERT_TO_SHORTPTR(buf->y_buffer), buf->y_stride, num_threads,
               cm->seq_params.bit_depth);
           break;
         case AOM_PLANE_U:
           av1_restore_cnn_img_tflite_highbd(
-              cm->base_qindex, CONVERT_TO_SHORTPTR(buf->u_buffer),
+              is_intra, cm->base_qindex, CONVERT_TO_SHORTPTR(buf->u_buffer),
               buf->uv_crop_width, buf->uv_crop_height, buf->uv_stride,
               CONVERT_TO_SHORTPTR(buf->u_buffer), buf->uv_stride, num_threads,
               cm->seq_params.bit_depth);
           break;
         case AOM_PLANE_V:
           av1_restore_cnn_img_tflite_highbd(
-              cm->base_qindex, CONVERT_TO_SHORTPTR(buf->v_buffer),
+              is_intra, cm->base_qindex, CONVERT_TO_SHORTPTR(buf->v_buffer),
               buf->uv_crop_width, buf->uv_crop_height, buf->uv_stride,
               CONVERT_TO_SHORTPTR(buf->u_buffer), buf->uv_stride, num_threads,
               cm->seq_params.bit_depth);
@@ -191,19 +219,19 @@ extern "C" void av1_restore_cnn_tflite(const AV1_COMMON *cm, int num_threads) {
       assert(cm->seq_params.bit_depth == 8);
       switch (plane) {
         case AOM_PLANE_Y:
-          av1_restore_cnn_img_tflite(cm->base_qindex, buf->y_buffer,
+          av1_restore_cnn_img_tflite(is_intra, cm->base_qindex, buf->y_buffer,
                                      buf->y_crop_width, buf->y_crop_height,
                                      buf->y_stride, buf->y_buffer,
                                      buf->y_stride, num_threads);
           break;
         case AOM_PLANE_U:
-          av1_restore_cnn_img_tflite(cm->base_qindex, buf->u_buffer,
+          av1_restore_cnn_img_tflite(is_intra, cm->base_qindex, buf->u_buffer,
                                      buf->uv_crop_width, buf->uv_crop_height,
                                      buf->uv_stride, buf->u_buffer,
                                      buf->uv_stride, num_threads);
           break;
         case AOM_PLANE_V:
-          av1_restore_cnn_img_tflite(cm->base_qindex, buf->v_buffer,
+          av1_restore_cnn_img_tflite(is_intra, cm->base_qindex, buf->v_buffer,
                                      buf->uv_crop_width, buf->uv_crop_height,
                                      buf->uv_stride, buf->v_buffer,
                                      buf->uv_stride, num_threads);
