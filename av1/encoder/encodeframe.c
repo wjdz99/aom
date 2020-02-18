@@ -3738,9 +3738,6 @@ BEGIN_PARTITION_SEARCH:
 #undef NUM_SIMPLE_MOTION_FEATURES
 
 #if !CONFIG_REALTIME_ONLY
-static INLINE int coded_to_superres_mi(int mi_col, int denom) {
-  return (mi_col * denom + SCALE_NUMERATOR / 2) / SCALE_NUMERATOR;
-}
 
 static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int analysis_type,
                             int mi_row, int mi_col, int orig_rdmult) {
