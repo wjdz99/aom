@@ -22,6 +22,30 @@
       "revId": "f98d9c368ce9c87fb6ba890aabf2648154f2beb0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46a6d03f_679b6ac1",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 14975
+      },
+      "writtenOn": "2020-02-19T00:57:27Z",
+      "side": 1,
+      "message": "It does need the + because the file will be created on the first pass through this function - it\u0027s not very efficient, but this code is only used for offline training",
+      "parentUuid": "ea9666c5_094d1b8f",
+      "range": {
+        "startLine": 299,
+        "startChar": 49,
+        "endLine": 299,
+        "endChar": 54
+      },
+      "revId": "f98d9c368ce9c87fb6ba890aabf2648154f2beb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
