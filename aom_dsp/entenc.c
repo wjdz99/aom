@@ -162,7 +162,12 @@ static void od_ec_encode_q15(od_ec_enc *enc, unsigned fl, unsigned fh, int s,
   l = enc->low;
   r = enc->rng;
   assert(32768U <= r);
+
+  if (fh > fl)
+    printf("debug\n");
   assert(fh <= fl);
+  if (fl > 32768U)
+    printf("debug\n");
   assert(fl <= 32768U);
   assert(7 - EC_PROB_SHIFT - CDF_SHIFT >= 0);
   const int N = nsyms - 1;

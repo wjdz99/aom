@@ -1485,6 +1485,11 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 
     // If segment skip is not enabled code the mode.
     if (!segfeature_active(seg, segment_id, SEG_LVL_SKIP)) {
+      if (mode > NEW_NEWMV) {
+        printf("ext compound mode enc %d!!!!!!!!!!!!!!!!!\n", mode);
+        printf("enc %d %d, %d %d\n", mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                                   mbmi->mv[1].as_mv.row, mbmi->mv[1].as_mv.col);
+        }
       if (is_inter_compound_mode(mode))
         write_inter_compound_mode(xd, w, mode, mode_ctx);
       else if (is_inter_singleref_mode(mode))
@@ -1499,14 +1504,17 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_SB_FLEX_MVRES
       }
 #endif  // CONFIG_FLEX_MVRES
-      if (have_drl_index(mbmi->mode))
+      if (have_drl_index(mbmi->mode)) {
 #if CONFIG_NEW_INTER_MODES
+//      if (mi_row == 36 && mi_col ==56)
+//        printf("debug\n");
         write_drl_idx(ec_ctx, mode_ctx, mbmi, mbmi_ext, w);
 #else
         write_drl_idx(ec_ctx, cm, mbmi, mbmi_ext, w);
 #endif  // CONFIG_NEW_INTER_MODES
-      else
+      } else {
         assert(mbmi->ref_mv_idx == 0);
+      }
     }
 
     if (mode == NEWMV || mode == NEW_NEWMV) {

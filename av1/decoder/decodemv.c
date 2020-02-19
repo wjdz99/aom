@@ -303,6 +303,8 @@ static PREDICTION_MODE read_inter_compound_mode(MACROBLOCKD *xd, aom_reader *r,
   const int mode =
       aom_read_symbol(r, xd->tile_ctx->inter_compound_mode_cdf[ctx],
                       INTER_COMPOUND_MODES, ACCT_STR);
+//if ((COMP_INTER_MODE_START + mode) > NEW_NEWMV)
+//  printf("ext compound mode %d!!!!!!!!!!!!!!!!!\n", mode);
   assert(is_inter_compound_mode(COMP_INTER_MODE_START + mode));
   return COMP_INTER_MODE_START + mode;
 }
@@ -1538,6 +1540,9 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_COMPOUND
     default: { return 0; }
   }
+    if (mode > NEW_NEWMV)
+      printf("dec %d %d, %d %d\n", mv[0].as_mv.row, mv[0].as_mv.col,
+                                   mv[1].as_mv.row, mv[1].as_mv.col);
 
   int ret = is_mv_valid(&mv[0].as_mv);
   if (is_compound) {
@@ -1629,10 +1634,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   mbmi->palette_mode_info.palette_size[1] = 0;
 
   av1_collect_neighbors_ref_counts(xd);
-
   read_ref_frames(cm, xd, r, mbmi->segment_id, mbmi->ref_frame);
   const int is_compound = has_second_ref(mbmi);
-
   MV_REFERENCE_FRAME ref_frame = av1_ref_frame_type(mbmi->ref_frame);
   av1_find_mv_refs(cm, xd, mbmi, ref_frame, xd->ref_mv_count, xd->ref_mv_stack,
                    xd->weight, ref_mvs, /*global_mvs=*/NULL, inter_mode_ctx);
@@ -1659,6 +1662,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
         mbmi->mode = read_inter_compound_mode(xd, r, mode_ctx);
       else
         mbmi->mode = read_inter_mode(ec_ctx, r, mode_ctx);
+      if (mbmi->mode > NEW_NEWMV)
+        printf("ext compound mode %d!!!!!!!!!!!!!!!!!\n", mbmi->mode);
       set_mbmi_mv_precision(mbmi, cm, xd);
 #if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
       if (is_flex_mv_precision_active(cm, mbmi->mode, mbmi->max_mv_precision)) {
