@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "82d45d61_4ff5b43b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-02-19T04:51:19Z",
+      "side": 1,
+      "message": "Is this a gain or loss?",
+      "range": {
+        "startLine": 31,
+        "startChar": 13,
+        "endLine": 31,
+        "endChar": 18
+      },
+      "revId": "e9ef0b477645ea5a3d22dbdd02874ea7c8ce0f2b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
