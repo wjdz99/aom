@@ -75,14 +75,17 @@ void av1_copy_frame_mvs(const AV1_COMMON *const cm,
 // Scales a motion vector according to the distance between the current frame
 // and each of its references
 static void scale_mv(const int_mv this_refmv, int this_ref, int r1_dist,
-                     int r2_dist, MvSubpelPrecision mv_precision,
+                     int r2_dist, MvSubpelPrecision precision,
                      int_mv *scaled_mv) {
+  assert(r1_dist != 0 && r2_dist != 0);
   const float ratio =
       this_ref ? (float)r1_dist / r2_dist : (float)r2_dist / r1_dist;
   // Value to add before casting to int16_t to round to the nearest
   // integer
-  const float row_round = this_refmv.as_mv.row < 0 ? -0.5 : 0.5;
-  const float col_round = this_refmv.as_mv.col < 0 ? -0.5 : 0.5;
+  const float row_round = (((r1_dist < 0) != (r2_dist < 0)) &&
+      (this_refmv.as_mv.row > 0)) ? -0.5 : 0.5;
+  const float col_round = (((r1_dist < 0) != (r2_dist < 0)) &&
+      (this_refmv.as_mv.col > 0)) ? -0.5 : 0.5;
   scaled_mv->as_mv.row =
       (int16_t)((float)this_refmv.as_mv.row * ratio + row_round);
   scaled_mv->as_mv.col =
@@ -91,7 +94,7 @@ static void scale_mv(const int_mv this_refmv, int this_ref, int r1_dist,
   printf("%d %d, %d %d, %f\n", scaled_mv->as_mv.row, scaled_mv->as_mv.col,
   this_refmv.as_mv.row, this_refmv.as_mv.col, ratio);
   */
-  lower_mv_precision(&scaled_mv->as_mv, mv_precision);
+  lower_mv_precision(&scaled_mv->as_mv, precision);
 }
 
 void av1_get_scaled_mv(const AV1_COMMON *const cm, const int_mv refmv,
@@ -99,14 +102,14 @@ void av1_get_scaled_mv(const AV1_COMMON *const cm, const int_mv refmv,
                        int_mv *scaled_mv) {
   // Scaled mvs are currently only enabled with enable_order_hint
   assert(cm->seq_params.order_hint_info.enable_order_hint);
-  const int cur_frame_index = cm->cur_frame->display_order_hint;
+  const int cur_frame_index = cm->cur_frame->order_hint;
   const RefCntBuffer *const buf_0 = get_ref_frame_buf(cm, rf[0]);
   assert(buf_0 != NULL);
   const RefCntBuffer *const buf_1 = get_ref_frame_buf(cm, rf[1]);
   assert(buf_1 != NULL);
   // Get reference frame display orders
-  const int frame0_index = buf_0->display_order_hint;
-  const int frame1_index = buf_1->display_order_hint;
+  const int frame0_index = buf_0->order_hint;
+  const int frame1_index = buf_1->order_hint;
   // Find the distance in display order between the current frame and each
   // reference
   const int r0_dist = get_relative_dist(&cm->seq_params.order_hint_info,

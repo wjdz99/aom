@@ -1507,14 +1507,14 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_EXT_COMPOUND
     case NEAR_SCALEDMV: {
       mv[0].as_int = near_mv[0].as_int;
-      // mv[1] = get_scaled_mv(mv[0]);
+      printf("near scaled\n");// mv[1] = get_scaled_mv(mv[0]);
       av1_get_scaled_mv(cm, mv[0], 1, mbmi->ref_frame, &mv[1]);
       assert(is_compound);
       break;
     }
     case SCALED_NEARMV: {
       mv[1].as_int = near_mv[1].as_int;
-      // mv[0] = get_scaled_mv(mv[1]);
+      printf("scaled near\n");// mv[1] = get_scaled_mv(mv[0]);
       av1_get_scaled_mv(cm, mv[1], 0, mbmi->ref_frame, &mv[0]);
       assert(is_compound);
       break;
@@ -1522,7 +1522,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
     case NEW_SCALEDMV: {
       nmv_context *const nmvc = &ec_ctx->nmvc;
       read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, nmvc, precision);
-      // mv[1] = get_scaled_mv(mv[0]);
+      printf("new scaled\n");// mv[1] = get_scaled_mv(mv[0]);
       av1_get_scaled_mv(cm, mv[0], 1, mbmi->ref_frame, &mv[1]);
       assert(is_compound);
       break;
@@ -1530,7 +1530,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
     case SCALED_NEWMV: {
       nmv_context *const nmvc = &ec_ctx->nmvc;
       read_mv(r, &mv[1].as_mv, &ref_mv[1].as_mv, nmvc, precision);
-      // mv[0] = get_scaled_mv(mv[1]);
+      printf("scaled new\n");// mv[1] = get_scaled_mv(mv[0]);
       av1_get_scaled_mv(cm, mv[1], 0, mbmi->ref_frame, &mv[0]);
       assert(is_compound);
       break;
@@ -1538,6 +1538,9 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_COMPOUND
     default: { return 0; }
   }
+//  if (mode > NEW_NEWMV)
+//    printf("dec mode %d, %d %d, %d %d\n", mode, mv[0].as_mv.row, mv[0].as_mv.col,
+//                                 mv[1].as_mv.row, mv[1].as_mv.col);
 
   int ret = is_mv_valid(&mv[0].as_mv);
   if (is_compound) {
@@ -1629,17 +1632,14 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   mbmi->palette_mode_info.palette_size[1] = 0;
 
   av1_collect_neighbors_ref_counts(xd);
-
   read_ref_frames(cm, xd, r, mbmi->segment_id, mbmi->ref_frame);
   const int is_compound = has_second_ref(mbmi);
-
   MV_REFERENCE_FRAME ref_frame = av1_ref_frame_type(mbmi->ref_frame);
   av1_find_mv_refs(cm, xd, mbmi, ref_frame, xd->ref_mv_count, xd->ref_mv_stack,
                    xd->weight, ref_mvs, /*global_mvs=*/NULL, inter_mode_ctx);
 
   int mode_ctx = av1_mode_context_analyzer(inter_mode_ctx, mbmi->ref_frame);
   mbmi->ref_mv_idx = 0;
-
   if (mbmi->skip_mode) {
     assert(is_compound);
 #if CONFIG_NEW_INTER_MODES
@@ -1673,8 +1673,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                             xd->weight_adj, &xd->ref_mv_count_adj);
       }
 #endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
-      if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV ||
-          have_nearmv_in_inter_mode(mbmi->mode)) {
+      if (have_drl_index(mbmi->mode)) {
 #if CONFIG_NEW_INTER_MODES
         read_drl_idx(ec_ctx, mode_ctx, xd, mbmi, r);
 #else
@@ -1781,7 +1780,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
     }
   }
-
 #if CONFIG_NEW_INTER_MODES
   if (mbmi->skip_mode) {
     assert(mbmi->mode == NEAR_NEARMV);

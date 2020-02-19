@@ -162,6 +162,7 @@ static void od_ec_encode_q15(od_ec_enc *enc, unsigned fl, unsigned fh, int s,
   l = enc->low;
   r = enc->rng;
   assert(32768U <= r);
+
   assert(fh <= fl);
   assert(fl <= 32768U);
   assert(7 - EC_PROB_SHIFT - CDF_SHIFT >= 0);
@@ -209,7 +210,6 @@ void od_ec_encode_bool_q15(od_ec_enc *enc, int val, unsigned f) {
   enc->nb_symbols++;
 #endif
 }
-
 /*Encodes a symbol given a cumulative distribution function (CDF) table in Q15.
   s: The index of the symbol to encode.
   icdf: 32768 minus the CDF, such that symbol s falls in the range
@@ -221,6 +221,8 @@ void od_ec_encode_bool_q15(od_ec_enc *enc, int val, unsigned f) {
 void od_ec_encode_cdf_q15(od_ec_enc *enc, int s, const uint16_t *icdf,
                           int nsyms) {
   (void)nsyms;
+  if (s < 0)
+    printf("debug\n");
   assert(s >= 0);
   assert(s < nsyms);
   assert(icdf[nsyms - 1] == OD_ICDF(CDF_PROB_TOP));
