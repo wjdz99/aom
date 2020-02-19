@@ -3831,9 +3831,20 @@ static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int analysis_type,
   return rdmult;
 }
 
+static const MV nb_pos[8] = {
+  { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, -1 },
+  { 0, 1 },   { 1, -1 }, { 1, 0 },  { 1, 1 },
+};
+
+static int nb_available(int r, int rows, int c, int cols) {
+  return (r >= 0 && r < rows && c >= 0 && c < cols);
+}
+
 static int get_tpl_stats_b(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
                            int mi_col, int64_t *intra_cost_b,
-                           int64_t *inter_cost_b, int *stride) {
+                           int64_t *inter_cost_b,
+                           int_mv mv_b[][INTER_REFS_PER_FRAME],
+                           int mvd_b[][INTER_REFS_PER_FRAME], int *stride) {
   if (!cpi->oxcf.enable_tpl_model) return 0;
   if (cpi->oxcf.superres_mode != SUPERRES_NONE) return 0;
   if (cpi->common.current_frame.frame_type == KEY_FRAME) return 0;
@@ -3859,6 +3870,7 @@ static int get_tpl_stats_b(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
       coded_to_superres_mi(mi_col, cm->superres_scale_denominator);
   const int mi_col_end_sr =
       coded_to_superres_mi(mi_col + mi_wide, cm->superres_scale_denominator);
+  // mi_cols_sr is mi_cols at superres case.
   const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
 
   // TPL store unit size is not the same as the motion estimation unit size.
@@ -3868,7 +3880,12 @@ static int get_tpl_stats_b(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
   const int step = mi_size_wide[tpl_bsize];
   assert(mi_size_wide[tpl_bsize] == mi_size_high[tpl_bsize]);
 
-  *stride = (mi_col_end_sr - mi_col_sr) / step;
+  const int str = (mi_col_end_sr > mi_cols_sr)
+                      ? (mi_cols_sr - mi_col_sr) / step
+                      : (mi_col_end_sr - mi_col_sr) / step;
+  *stride = str;
+
+  //  printf("\n");
 
   for (int row = mi_row; row < mi_row + mi_high; row += step) {
     for (int col = mi_col_sr; col < mi_col_end_sr; col += step) {
@@ -3877,9 +3894,49 @@ static int get_tpl_stats_b(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
           &tpl_stats[av1_tpl_ptr_pos(cpi, row, col, tpl_stride)];
       inter_cost_b[mi_count] = this_stats->inter_cost;
       intra_cost_b[mi_count] = this_stats->intra_cost;
+      memcpy(mv_b[mi_count], this_stats->mv, sizeof(this_stats->mv));
+
+      //      printf(" %d( %d; %d) ", *stride, mv_b[mi_count][0].as_mv.row,
+      //      mv_b[mi_count][0].as_mv.col);
+
       mi_count++;
     }
   }
+  //  printf("\n");
+
+  // Use above mv array to calculate dissimilarty for each 16x16
+  const int rows = mi_count / str;
+  for (int idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
+    for (int row = 0; row < rows; ++row) {
+      for (int col = 0; col < str; ++col) {
+        if (mv_b[row * str + col][idx].as_int == INVALID_MV) {
+          mvd_b[row * str + col][idx] = INT_MAX;
+          continue;
+        }
+
+        const int mvr = mv_b[row * str + col][idx].as_mv.row;
+        const int mvc = mv_b[row * str + col][idx].as_mv.col;
+        int max_mvrd = -INT_MAX;
+        int max_mvcd = -INT_MAX;
+
+        for (int nb = 0; nb < 8; ++nb) {
+          const int nbr = row + nb_pos[nb].row;
+          const int nbc = col + nb_pos[nb].col;
+          if (!nb_available(nbr, rows, nbc, str)) continue;
+          if (mv_b[nbr * str + nbc][idx].as_int == INVALID_MV) continue;
+
+          const MV nb_mv = mv_b[nbr * str + nbc][idx].as_mv;
+          if (max_mvrd < abs(nb_mv.row - mvr)) max_mvrd = abs(nb_mv.row - mvr);
+          if (max_mvcd < abs(nb_mv.col - mvc)) max_mvcd = abs(nb_mv.col - mvc);
+        }
+        mvd_b[row * str + col][idx] = AOMMAX(abs(max_mvrd), abs(max_mvcd));
+
+        //      if (mvd_b[row * str + col][idx] == INT_MAX)
+        //      printf(" %d;  ", mvd_b[row * str + col][idx]);
+      }
+    }
+  }
+  //  printf("\n\n");
 
   return mi_count;
 }
@@ -4467,7 +4524,7 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
     // No stats for overlay frames. Exclude key frame.
     x->valid_cost_b =
         get_tpl_stats_b(cpi, sb_size, mi_row, mi_col, x->intra_cost_b,
-                        x->inter_cost_b, &x->cost_stride);
+                        x->inter_cost_b, x->mv_b, x->mvd_b, &x->cost_stride);
 
     reset_partition(pc_root, sb_size);
 
@@ -4513,7 +4570,8 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
                         max_sq_size, min_sq_size, &dummy_rdc, dummy_rdc,
                         pc_root, NULL, SB_WET_PASS);
     }
-
+    // Reset to 0 so that it wouldn't be used elsewhere mistakenly.
+    x->valid_cost_b = 0;
 #if CONFIG_COLLECT_COMPONENT_TIMING
     end_timing(cpi, rd_pick_partition_time);
 #endif

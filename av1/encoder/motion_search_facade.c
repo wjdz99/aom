@@ -13,6 +13,7 @@
 #include "av1/encoder/encodemv.h"
 #include "av1/encoder/motion_search_facade.h"
 #include "av1/encoder/reconinter_enc.h"
+#include "av1/encoder/tpl_model.h"
 
 void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
                               BLOCK_SIZE bsize, int ref_idx, int *rate_mv,
@@ -94,13 +95,98 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   const MV ref_mv = av1_get_ref_mv(x, ref_idx).as_mv;
+  //  const search_site_config *ss_cfg = &cpi->ss_cfg[SS_CFG_SRC];
+
+  FULLPEL_MV start_mv;
+  if (mbmi->motion_mode != SIMPLE_TRANSLATION)
+    start_mv = get_fullmv_from_mv(&mbmi->mv[0].as_mv);
+  else
+    start_mv = get_fullmv_from_mv(&ref_mv);
+
+  if (1) {
+    if (x->valid_cost_b) {
+      const BLOCK_SIZE tpl_bsize = convert_length_to_bsize(MC_FLOW_BSIZE_1D);
+      const int tplw = mi_size_wide[tpl_bsize];
+      const int tplh = mi_size_high[tpl_bsize];
+      const int nw = mi_size_wide[bsize] / tplw;
+      const int nh = mi_size_high[bsize] / tplh;
+
+      int mv_row_max = -INT_MAX;
+      int mv_row_min = INT_MAX;
+      int mv_col_max = -INT_MAX;
+      int mv_col_min = INT_MAX;
+      int dissimilarity = INT_MAX;
+      int mvd = INT_MAX;
+
+      if (nw >= 1 && nh >= 1) {
+        const int of_h = mi_row % mi_size_high[cm->seq_params.sb_size];
+        const int of_w = mi_col % mi_size_wide[cm->seq_params.sb_size];
+        const int start = of_h / tplh * x->cost_stride + of_w / tplw;
+        int valid = 1;
+
+        for (int k = 0; k < nh; k++) {
+          for (int l = 0; l < nw; l++) {
+            const int_mv mv =
+                x->mv_b[start + k * x->cost_stride + l][ref - LAST_FRAME];
+            if (mv.as_int == INVALID_MV) {
+              valid = 0;
+              break;
+            }
+
+            if (mv_row_max < mv.as_mv.row) mv_row_max = mv.as_mv.row;
+            if (mv_row_min > mv.as_mv.row) mv_row_min = mv.as_mv.row;
+
+            if (mv_col_max < mv.as_mv.col) mv_col_max = mv.as_mv.col;
+            if (mv_col_min > mv.as_mv.col) mv_col_min = mv.as_mv.col;
+          }
+          if (!valid) {
+            break;
+          }
+        }
+
+        if (valid) {
+          dissimilarity = AOMMAX(abs(mv_row_max - mv_row_min),
+                                 abs(mv_col_max - mv_col_min));
+          const int mvrd =
+              AOMMAX(abs(mv_row_max - GET_MV_SUBPEL(start_mv.row)),
+                     abs(mv_row_min - GET_MV_SUBPEL(start_mv.row)));
+          const int mvcd =
+              AOMMAX(abs(mv_col_max - GET_MV_SUBPEL(start_mv.col)),
+                     abs(mv_col_min - GET_MV_SUBPEL(start_mv.col)));
+          mvd = AOMMAX(mvrd, mvcd);
+        }
+      }
+
+      if (dissimilarity < INT_MAX && mvd < INT_MAX) {
+        const search_site_config *ss_cfg = &cpi->ss_cfg[SS_CFG_SRC];
+        const int sr = GET_MV_RAWPEL(dissimilarity) + GET_MV_RAWPEL(mvd);
+
+        // Max step_param is ss_cfg->ss_count - 1.
+        if (sr < 1) {
+          step_param = ss_cfg->ss_count - 1;
+        } else {
+          while (ss_cfg->radius[ss_cfg->ss_count - step_param - 1] >
+                     (sr << 1) &&
+                 ss_cfg->ss_count - step_param - 1 > 0)
+            step_param++;
+        }
+        //        step_param = AOMMIN(step_param, 6);
+        //        if (mbmi->motion_mode == SIMPLE_TRANSLATION)
+        //                  printf("\nsp: %d;  %d; %d; sum: %d;     %d;
+        //                  mbmi->ref_mv_idx: %d;  \n", step_param,
+        //                         GET_MV_RAWPEL(dissimilarity),
+        //                         GET_MV_RAWPEL(mvd), sr, search_range,
+        //                         mbmi->ref_mv_idx);
+      }
+    }
+  }
 
   // Further reduce the search range.
   if (search_range < INT_MAX) {
     const search_site_config *ss_cfg = &cpi->ss_cfg[SS_CFG_SRC];
-    // MAx step_param is ss_cfg->ss_count.
+    // Max step_param is ss_cfg->ss_count.
     if (search_range < 1) {
-      step_param = ss_cfg->ss_count;
+      step_param = ss_cfg->ss_count - 1;
     } else {
       while (ss_cfg->radius[ss_cfg->ss_count - step_param - 1] >
                  (search_range << 1) &&
@@ -112,12 +198,6 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   // Note: MV limits are modified here. Always restore the original values
   // after full-pixel motion search.
   av1_set_mv_search_range(&x->mv_limits, &ref_mv);
-
-  FULLPEL_MV start_mv;
-  if (mbmi->motion_mode != SIMPLE_TRANSLATION)
-    start_mv = get_fullmv_from_mv(&mbmi->mv[0].as_mv);
-  else
-    start_mv = get_fullmv_from_mv(&ref_mv);
 
   const int sadpb = x->sadperbit16;
   int cost_list[5];
