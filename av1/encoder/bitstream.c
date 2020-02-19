@@ -190,7 +190,7 @@ static void write_drl_idx(FRAME_CONTEXT *ec_ctx, int16_t mode_ctx,
   // 0 -> 0   10 -> 1   110 -> 2    111 -> 3
   // Also use the number of reference MVs for a frame type to reduce the
   // number of bits written if there are less than 4 valid DRL indices.
-  int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, MAX_DRL_BITS);
+  int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, MAX_DRL_BITS); //range too big?
   for (int idx = 0; idx < range; ++idx) {
     aom_cdf_prob *drl_cdf = av1_get_drl_cdf(
         mode_ctx, ec_ctx, mbmi->mode, mbmi_ext->weight[ref_frame_type], idx);
@@ -1482,9 +1482,16 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 
     int16_t mode_ctx =
         av1_mode_context_analyzer(mbmi_ext->mode_context, mbmi->ref_frame);
-
     // If segment skip is not enabled code the mode.
     if (!segfeature_active(seg, segment_id, SEG_LVL_SKIP)) {
+        int_mv tmp_mv;
+      if (mode > NEW_NEWMV) {
+        printf("ext compound mode enc %d!!!!!!!!!!!!!!!!!\n", mode);
+        printf("enc mode %d, %d %d, %d %d\n", mode, mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                                   mbmi->mv[1].as_mv.row, mbmi->mv[1].as_mv.col);
+
+        av1_get_scaled_mv(&cpi->common, mbmi->mv[1], 0, mbmi->ref_frame, &tmp_mv);
+        }
       if (is_inter_compound_mode(mode))
         write_inter_compound_mode(xd, w, mode, mode_ctx);
       else if (is_inter_singleref_mode(mode))
@@ -1499,14 +1506,19 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_SB_FLEX_MVRES
       }
 #endif  // CONFIG_FLEX_MVRES
-      if (have_drl_index(mbmi->mode))
+//if (mi_row==20 && mi_col ==32 && mode == 15)
+//  printf("debug\n");
+      if (have_drl_index(mbmi->mode)) {
 #if CONFIG_NEW_INTER_MODES
+//      if (mi_row == 36 && mi_col ==56)
+//        printf("debug\n");
         write_drl_idx(ec_ctx, mode_ctx, mbmi, mbmi_ext, w);
 #else
         write_drl_idx(ec_ctx, cm, mbmi, mbmi_ext, w);
 #endif  // CONFIG_NEW_INTER_MODES
-      else
+      } else {
         assert(mbmi->ref_mv_idx == 0);
+      }
     }
 
     if (mode == NEWMV || mode == NEW_NEWMV) {

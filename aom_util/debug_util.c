@@ -68,6 +68,8 @@ void bitstream_queue_pop(int *result, aom_cdf_prob *cdf, int *nsymbs) {
 }
 
 void bitstream_queue_push(int result, const aom_cdf_prob *cdf, int nsymbs) {
+  if (queue_w == 329938)
+    printf("here\n");
   if (!skip_w) {
     result_queue[queue_w] = result;
     nsymbs_queue[queue_w] = nsymbs;
