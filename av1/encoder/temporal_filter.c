@@ -114,7 +114,8 @@ static int tf_motion_search(AV1_COMP *cpi,
   unsigned int sse;
   int distortion;
   int cost_list[5];
-
+  //  if (cpi->td.mb.valid_cost_b)
+  //  printf("  %d;  ", cpi->td.mb.valid_cost_b);
   // Do motion search.
   // NOTE: In `av1_full_pixel_search()` and `find_fractional_mv_step()`, the
   // searched result will be stored in `mb->best_mv`.

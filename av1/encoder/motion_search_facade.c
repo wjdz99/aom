@@ -13,6 +13,7 @@
 #include "av1/encoder/encodemv.h"
 #include "av1/encoder/motion_search_facade.h"
 #include "av1/encoder/reconinter_enc.h"
+#include "av1/encoder/tpl_model.h"
 
 void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
                               BLOCK_SIZE bsize, int ref_idx, int *rate_mv,
@@ -94,13 +95,85 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   const MV ref_mv = av1_get_ref_mv(x, ref_idx).as_mv;
+  //  const search_site_config *ss_cfg = &cpi->ss_cfg[SS_CFG_SRC];
+
+  FULLPEL_MV start_mv;
+  if (mbmi->motion_mode != SIMPLE_TRANSLATION)
+    start_mv = get_fullmv_from_mv(&mbmi->mv[0].as_mv);
+  else
+    start_mv = get_fullmv_from_mv(&ref_mv);
+
+  if (1) {
+    if (x->valid_cost_b) {
+      const BLOCK_SIZE tpl_bsize = convert_length_to_bsize(MC_FLOW_BSIZE_1D);
+      const int tplw = mi_size_wide[tpl_bsize];
+      const int tplh = mi_size_high[tpl_bsize];
+      const int nw = mi_size_wide[bsize] / tplw;
+      const int nh = mi_size_high[bsize] / tplh;
+
+      int max_mag = -INT_MAX;
+      int max_mvd = -INT_MAX;
+
+      if (nw >= 1 && nh >= 1) {
+        const int of_h = mi_row % mi_size_high[cm->seq_params.sb_size];
+        const int of_w = mi_col % mi_size_wide[cm->seq_params.sb_size];
+        const int start = of_h / tplh * x->cost_stride + of_w / tplw;
+        int valid = 1;
+
+        for (int k = 0; k < nh; k++) {
+          for (int l = 0; l < nw; l++) {
+            const int_mv mv =
+                x->mv_b[start + k * x->cost_stride + l][ref - LAST_FRAME];
+            if (mv.as_int == INVALID_MV) {
+              valid = 0;
+              break;
+            }
+
+            const int mag =
+                AOMMAX(abs(mv.as_mv.row - GET_MV_SUBPEL(start_mv.row)),
+                       abs(mv.as_mv.col - GET_MV_SUBPEL(start_mv.col)));
+            if (max_mag < mag) max_mag = mag;
+
+            const int mvd =
+                x->mvd_b[start + k * x->cost_stride + l][ref - LAST_FRAME];
+            if (max_mvd < mvd) max_mvd = mvd;
+          }
+          if (!valid) {
+            max_mag = INT_MAX;
+            max_mvd = INT_MAX;
+            break;
+          }
+        }
+      }
+      max_mag = abs(max_mag);
+      max_mvd = abs(max_mvd);
+
+      if (max_mag < INT_MAX && max_mvd < INT_MAX) {
+        const search_site_config *ss_cfg = &cpi->ss_cfg[SS_CFG_SRC];
+        const int sr = GET_MV_RAWPEL(max_mag) + (GET_MV_RAWPEL(max_mvd) >> 2);
+
+        // Max step_param is ss_cfg->ss_count - 1.
+        if (sr < 1) {
+          step_param = ss_cfg->ss_count - 1;
+        } else {
+          while (ss_cfg->radius[ss_cfg->ss_count - step_param - 1] >
+                     (sr << 1) &&
+                 ss_cfg->ss_count - step_param - 1 > 0)
+            step_param++;
+        }
+        //          printf("\nsp: %d;  %d; %d; sum: %d;     %d;\n", step_param,
+        //                 GET_MV_RAWPEL(max_mag), GET_MV_RAWPEL(max_mvd), sr,
+        //                 search_range);
+      }
+    }
+  }
 
   // Further reduce the search range.
   if (search_range < INT_MAX) {
     const search_site_config *ss_cfg = &cpi->ss_cfg[SS_CFG_SRC];
-    // MAx step_param is ss_cfg->ss_count.
+    // Max step_param is ss_cfg->ss_count.
     if (search_range < 1) {
-      step_param = ss_cfg->ss_count;
+      step_param = ss_cfg->ss_count - 1;
     } else {
       while (ss_cfg->radius[ss_cfg->ss_count - step_param - 1] >
                  (search_range << 1) &&
@@ -112,12 +185,6 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   // Note: MV limits are modified here. Always restore the original values
   // after full-pixel motion search.
   av1_set_mv_search_range(&x->mv_limits, &ref_mv);
-
-  FULLPEL_MV start_mv;
-  if (mbmi->motion_mode != SIMPLE_TRANSLATION)
-    start_mv = get_fullmv_from_mv(&mbmi->mv[0].as_mv);
-  else
-    start_mv = get_fullmv_from_mv(&ref_mv);
 
   const int sadpb = x->sadperbit16;
   int cost_list[5];
