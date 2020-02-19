@@ -63,12 +63,15 @@ typedef struct search_site_config {
 } search_site_config;
 
 typedef struct {
-  MV coord;
+  FULLPEL_MV coord;
   int coord_offset;
 } search_neighbors;
 
+// Sets up configs for fullpixel diamond search
 void av1_init_dsmotion_compensation(search_site_config *cfg, int stride);
+// Sets up configs for firstpass motion search
 void av1_init_motion_fpf(search_site_config *cfg, int stride);
+// Sets up configs for all other types of motion search
 void av1_init3smotion_compensation(search_site_config *cfg, int stride);
 
 void av1_set_mv_search_range(FullMvLimits *mv_limits, const MV *mv);
@@ -204,20 +207,6 @@ unsigned int av1_refine_warped_mv(const struct AV1_COMP *cpi,
                                   MACROBLOCK *const x, BLOCK_SIZE bsize,
                                   int *pts0, int *pts_inref0,
                                   int total_samples);
-
-// Performs a motion search in SIMPLE_TRANSLATION mode using reference frame
-// ref. Note that this sets the offset of mbmi, so we will need to reset it
-// after calling this function.
-void av1_simple_motion_search(struct AV1_COMP *const cpi, MACROBLOCK *x,
-                              int mi_row, int mi_col, BLOCK_SIZE bsize, int ref,
-                              FULLPEL_MV start_mv, int num_planes,
-                              int use_subpixel);
-
-// Performs a simple motion search to calculate the sse and var of the residue
-void av1_simple_motion_sse_var(struct AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
-                               int mi_col, BLOCK_SIZE bsize,
-                               const FULLPEL_MV start_mv, int use_subpixel,
-                               unsigned int *sse, unsigned int *var);
 
 static INLINE void av1_set_fractional_mv(int_mv *fractional_best_mv) {
   for (int z = 0; z < 3; z++) {
