@@ -162,9 +162,9 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
     NEWMV,                   // NEW_NEWMV
 #if CONFIG_EXT_COMPOUND
     NEARMV,  // NEAR_SCALED
-    NEWMV,   // SCALED_NEAR
+    MB_MODE_COUNT,   // SCALED_NEAR
     NEWMV,   // NEW_SCALED
-    NEWMV,   // SCALED_NEW
+    MB_MODE_COUNT,   // SCALED_NEW
 #endif       // CONFIG_EXT_COMPOUND
   };
   assert(NELEMENTS(lut) == MB_MODE_COUNT);
@@ -206,9 +206,9 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
     GLOBALMV,                // GLOBAL_GLOBALMV
     NEWMV,                   // NEW_NEWMV
 #if CONFIG_EXT_COMPOUND
-    NEWMV,   // NEAR_SCALED
+    MB_MODE_COUNT,   // NEAR_SCALED
     NEARMV,  // SCALED_NEAR
-    NEWMV,   // NEW_SCALED
+    MB_MODE_COUNT,   // NEW_SCALED
     NEWMV,   // SCALED_NEW
 #endif       // CONFIG_EXT_COMPOUND
   };

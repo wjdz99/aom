@@ -75,7 +75,7 @@ void av1_copy_frame_mvs(const AV1_COMMON *const cm,
 // Scales a motion vector according to the distance between the current frame
 // and each of its references
 static void scale_mv(const int_mv this_refmv, int this_ref, int r1_dist,
-                     int r2_dist, MvSubpelPrecision mv_precision,
+                     int r2_dist, MvSubpelPrecision precision,
                      int_mv *scaled_mv) {
   const float ratio =
       this_ref ? (float)r1_dist / r2_dist : (float)r2_dist / r1_dist;
@@ -91,7 +91,7 @@ static void scale_mv(const int_mv this_refmv, int this_ref, int r1_dist,
   printf("%d %d, %d %d, %f\n", scaled_mv->as_mv.row, scaled_mv->as_mv.col,
   this_refmv.as_mv.row, this_refmv.as_mv.col, ratio);
   */
-  lower_mv_precision(&scaled_mv->as_mv, mv_precision);
+  lower_mv_precision(&scaled_mv->as_mv, precision);
 }
 
 void av1_get_scaled_mv(const AV1_COMMON *const cm, const int_mv refmv,
