@@ -3117,6 +3117,8 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
 
   av1_rc_init(&cpi->oxcf, oxcf->pass, &cpi->rc);
 
+  init_frame_info(&cpi->frame_info, cm);
+
   cm->current_frame.frame_number = 0;
   cm->current_frame_id = -1;
   cpi->seq_params_locked = 0;
@@ -4247,7 +4249,7 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
     } else {
       aom_clear_system_state();
       cpi->rd.r0 = (double)intra_cost_base / mc_dep_cost_base;
-      if (is_frame_arf_and_tpl_eligible(cpi)) {
+      if (is_frame_arf_and_tpl_eligible(gf_group)) {
         cpi->rd.arf_r0 = cpi->rd.r0;
         const int gfu_boost =
             get_gfu_boost_from_r0(cpi->rd.arf_r0, cpi->rc.frames_to_key);
