@@ -920,6 +920,42 @@ void av1_iadst8_new(const int32_t *input, int32_t *output, int8_t cos_bit,
 #if CONFIG_LGT
 void av1_iadst16_lgt_intra(const int32_t *input, int32_t *output,
                            int8_t cos_bit, const int8_t *stage_range) {
+#if CONFIG_FAST_LGT
+  (void)cos_bit;
+  (void)stage_range;
+  int32_t k;
+  int32_t a[5], b[5], c[5], d[5], t;
+  int32_t *bf0;
+  const int32_t  *bf1;
+  const int32_t* iT = lgt_intra_16x16;
+  bf0 = output;
+  bf1 = input;
+  for (k = 0; k < 5; k++) {
+    a[k] = bf1[k] + bf1[(10 - k)];
+    b[k] = bf1[(11 + k)] + bf1[(10 - k)];
+    c[k] = bf1[k] - bf1[(11 + k)];
+    d[k] = bf1[k] + bf1[(11 + k)] - bf1[(10 - k)];
+  }
+
+  t = iT[10] * bf1[5];
+
+  bf0[2] = ROUND_POWER_OF_TWO_SIGNED((iT[2] * d[0] + iT[8] * d[1] + iT[14] * d[2] + iT[11] * d[3] + iT[5] * d[4]), LGT_PREC_BITS);
+  bf0[5] = ROUND_POWER_OF_TWO_SIGNED((iT[5] * d[0] + iT[14] * d[1] + iT[2] * d[2] - iT[8] * d[3] - iT[11] * d[4]), LGT_PREC_BITS);
+  bf0[8] = ROUND_POWER_OF_TWO_SIGNED((iT[8] * d[0] + iT[5] * d[1] - iT[11] * d[2] - iT[2] * d[3] + iT[14] * d[4]), LGT_PREC_BITS);
+  bf0[11] = ROUND_POWER_OF_TWO_SIGNED((iT[11] * d[0] - iT[2] * d[1] - iT[5] * d[2] + iT[14] * d[3] - iT[8] * d[4]), LGT_PREC_BITS);
+  bf0[14] = ROUND_POWER_OF_TWO_SIGNED((iT[14] * d[0] - iT[11] * d[1] + iT[8] * d[2] - iT[5] * d[3] + iT[2] * d[4]), LGT_PREC_BITS);
+  bf0[10] = ROUND_POWER_OF_TWO_SIGNED((iT[10] * (bf1[0] - bf1[2] + bf1[3] - bf1[5] + bf1[6] - bf1[8] + bf1[9] - bf1[11] + bf1[12] - bf1[14] + bf1[15])), LGT_PREC_BITS);
+  bf0[0] = ROUND_POWER_OF_TWO_SIGNED((iT[0] * a[0] + iT[9] * b[0] + iT[2] * a[1] + iT[7] * b[1] + iT[4] * a[2] + iT[5] * b[2] + iT[6] * a[3] + iT[3] * b[3] + iT[8] * a[4] + iT[1] * b[4] + t), LGT_PREC_BITS);
+  bf0[1] = ROUND_POWER_OF_TWO_SIGNED((iT[1] * c[0] - iT[8] * b[0] + iT[5] * c[1] - iT[4] * b[1] + iT[9] * c[2] - iT[0] * b[2] + iT[2] * a[3] + iT[7] * c[3] + iT[6] * a[4] + iT[3] * c[4] + t), LGT_PREC_BITS);
+  bf0[3] = ROUND_POWER_OF_TWO_SIGNED((iT[3] * a[0] + iT[6] * b[0] + iT[0] * c[1] + iT[9] * a[1] + iT[1] * a[2] + iT[8] * c[2] + iT[4] * c[3] - iT[5] * b[3] - iT[2] * a[4] - iT[7] * b[4] - t), LGT_PREC_BITS);
+  bf0[4] = ROUND_POWER_OF_TWO_SIGNED((iT[4] * c[0] - iT[5] * b[0] + iT[6] * c[1] + iT[3] * a[1] + iT[7] * a[2] + iT[2] * b[2] - iT[1] * c[3] + iT[8] * b[3] - iT[9] * c[4] - iT[0] * a[4] - t), LGT_PREC_BITS);
+  bf0[6] = ROUND_POWER_OF_TWO_SIGNED((iT[6] * a[0] + iT[3] * b[0] + iT[9] * c[1] + iT[0] * a[1] - iT[1] * a[2] - iT[8] * b[2] - iT[4] * c[3] - iT[5] * a[3] - iT[2] * c[4] + iT[7] * b[4] + t), LGT_PREC_BITS);
+  bf0[7] = ROUND_POWER_OF_TWO_SIGNED((iT[7] * c[0] - iT[2] * b[0] + iT[8] * a[1] + iT[1] * b[1] - iT[6] * c[2] + iT[3] * b[2] - iT[9] * a[3] - iT[0] * b[3] + iT[5] * c[4] - iT[4] * b[4] + t), LGT_PREC_BITS);
+  bf0[9] = ROUND_POWER_OF_TWO_SIGNED((iT[9] * a[0] + iT[0] * b[0] + iT[2] * c[1] - iT[7] * b[1] - iT[5] * c[2] - iT[4] * a[2] + iT[3] * a[3] + iT[6] * b[3] + iT[8] * c[4] - iT[1] * b[4] - t), LGT_PREC_BITS);
+  bf0[12] = ROUND_POWER_OF_TWO_SIGNED((iT[1] * c[0] + iT[8] * a[0] - iT[5] * a[1] - iT[4] * b[1] - iT[0] * c[2] + iT[9] * b[2] + iT[7] * c[3] - iT[2] * b[3] - iT[6] * c[4] - iT[3] * a[4] + t), LGT_PREC_BITS);
+  bf0[13] = ROUND_POWER_OF_TWO_SIGNED((iT[7] * c[0] + iT[2] * a[0] - iT[8] * c[1] + iT[1] * b[1] + iT[3] * c[2] - iT[6] * b[2] + iT[0] * a[3] + iT[9] * b[3] - iT[5] * a[4] - iT[4] * b[4] + t), LGT_PREC_BITS);
+  bf0[15] = ROUND_POWER_OF_TWO_SIGNED((iT[4] * c[0] + iT[5] * a[0] - iT[3] * c[1] - iT[6] * a[1] + iT[2] * c[2] + iT[7] * a[2] - iT[1] * c[3] - iT[8] * a[3] + iT[0] * c[4] + iT[9] * a[4] - t), LGT_PREC_BITS);
+#else
   (void)cos_bit;
   (void)stage_range;
   for (int32_t i = 0; i < 16; i++) {
@@ -929,10 +965,47 @@ void av1_iadst16_lgt_intra(const int32_t *input, int32_t *output,
     }
     output[i] = ROUND_POWER_OF_TWO_SIGNED(sum, LGT_PREC_BITS);
   }
+#endif
 }
 
 void av1_iadst16_lgt_inter(const int32_t *input, int32_t *output,
                            int8_t cos_bit, const int8_t *stage_range) {
+#if CONFIG_FAST_LGT
+  (void)cos_bit;
+  (void)stage_range;
+  int32_t k;
+  int32_t a[5], b[5], c[5], d[5], t;
+  int32_t *bf0;
+  const int32_t  *bf1;
+  const int32_t* iT = lgt_inter_16x16;
+  bf0 = output;
+  bf1 = input;
+  for (k = 0; k < 5; k++) {
+    a[k] = bf1[k] + bf1[(10 - k)];
+    b[k] = bf1[(11 + k)] + bf1[(10 - k)];
+    c[k] = bf1[k] - bf1[(11 + k)];
+    d[k] = bf1[k] + bf1[(11 + k)] - bf1[(10 - k)];
+  }
+
+  t = iT[10] * bf1[5];
+
+  bf0[2] = ROUND_POWER_OF_TWO_SIGNED((iT[2] * d[0] + iT[8] * d[1] + iT[14] * d[2] + iT[11] * d[3] + iT[5] * d[4]), LGT_PREC_BITS);
+  bf0[5] = ROUND_POWER_OF_TWO_SIGNED((iT[5] * d[0] + iT[14] * d[1] + iT[2] * d[2] - iT[8] * d[3] - iT[11] * d[4]), LGT_PREC_BITS);
+  bf0[8] = ROUND_POWER_OF_TWO_SIGNED((iT[8] * d[0] + iT[5] * d[1] - iT[11] * d[2] - iT[2] * d[3] + iT[14] * d[4]), LGT_PREC_BITS);
+  bf0[11] = ROUND_POWER_OF_TWO_SIGNED((iT[11] * d[0] - iT[2] * d[1] - iT[5] * d[2] + iT[14] * d[3] - iT[8] * d[4]), LGT_PREC_BITS);
+  bf0[14] = ROUND_POWER_OF_TWO_SIGNED((iT[14] * d[0] - iT[11] * d[1] + iT[8] * d[2] - iT[5] * d[3] + iT[2] * d[4]), LGT_PREC_BITS);
+  bf0[10] = ROUND_POWER_OF_TWO_SIGNED((iT[10] * (bf1[0] - bf1[2] + bf1[3] - bf1[5] + bf1[6] - bf1[8] + bf1[9] - bf1[11] + bf1[12] - bf1[14] + bf1[15])), LGT_PREC_BITS);
+  bf0[0] = ROUND_POWER_OF_TWO_SIGNED((iT[0] * a[0] + iT[9] * b[0] + iT[2] * a[1] + iT[7] * b[1] + iT[4] * a[2] + iT[5] * b[2] + iT[6] * a[3] + iT[3] * b[3] + iT[8] * a[4] + iT[1] * b[4] + t), LGT_PREC_BITS);
+  bf0[1] = ROUND_POWER_OF_TWO_SIGNED((iT[1] * c[0] - iT[8] * b[0] + iT[5] * c[1] - iT[4] * b[1] + iT[9] * c[2] - iT[0] * b[2] + iT[2] * a[3] + iT[7] * c[3] + iT[6] * a[4] + iT[3] * c[4] + t), LGT_PREC_BITS);
+  bf0[3] = ROUND_POWER_OF_TWO_SIGNED((iT[3] * a[0] + iT[6] * b[0] + iT[0] * c[1] + iT[9] * a[1] + iT[1] * a[2] + iT[8] * c[2] + iT[4] * c[3] - iT[5] * b[3] - iT[2] * a[4] - iT[7] * b[4] - t), LGT_PREC_BITS);
+  bf0[4] = ROUND_POWER_OF_TWO_SIGNED((iT[4] * c[0] - iT[5] * b[0] + iT[6] * c[1] + iT[3] * a[1] + iT[7] * a[2] + iT[2] * b[2] - iT[1] * c[3] + iT[8] * b[3] - iT[9] * c[4] - iT[0] * a[4] - t), LGT_PREC_BITS);
+  bf0[6] = ROUND_POWER_OF_TWO_SIGNED((iT[6] * a[0] + iT[3] * b[0] + iT[9] * c[1] + iT[0] * a[1] - iT[1] * a[2] - iT[8] * b[2] - iT[4] * c[3] - iT[5] * a[3] - iT[2] * c[4] + iT[7] * b[4] + t), LGT_PREC_BITS);
+  bf0[7] = ROUND_POWER_OF_TWO_SIGNED((iT[7] * c[0] - iT[2] * b[0] + iT[8] * a[1] + iT[1] * b[1] - iT[6] * c[2] + iT[3] * b[2] - iT[9] * a[3] - iT[0] * b[3] + iT[5] * c[4] - iT[4] * b[4] + t), LGT_PREC_BITS);
+  bf0[9] = ROUND_POWER_OF_TWO_SIGNED((iT[9] * a[0] + iT[0] * b[0] + iT[2] * c[1] - iT[7] * b[1] - iT[5] * c[2] - iT[4] * a[2] + iT[3] * a[3] + iT[6] * b[3] + iT[8] * c[4] - iT[1] * b[4] - t), LGT_PREC_BITS);
+  bf0[12] = ROUND_POWER_OF_TWO_SIGNED((iT[1] * c[0] + iT[8] * a[0] - iT[5] * a[1] - iT[4] * b[1] - iT[0] * c[2] + iT[9] * b[2] + iT[7] * c[3] - iT[2] * b[3] - iT[6] * c[4] - iT[3] * a[4] + t), LGT_PREC_BITS);
+  bf0[13] = ROUND_POWER_OF_TWO_SIGNED((iT[7] * c[0] + iT[2] * a[0] - iT[8] * c[1] + iT[1] * b[1] + iT[3] * c[2] - iT[6] * b[2] + iT[0] * a[3] + iT[9] * b[3] - iT[5] * a[4] - iT[4] * b[4] + t), LGT_PREC_BITS);
+  bf0[15] = ROUND_POWER_OF_TWO_SIGNED((iT[4] * c[0] + iT[5] * a[0] - iT[3] * c[1] - iT[6] * a[1] + iT[2] * c[2] + iT[7] * a[2] - iT[1] * c[3] - iT[8] * a[3] + iT[0] * c[4] + iT[9] * a[4] - t), LGT_PREC_BITS);
+#else
   (void)cos_bit;
   (void)stage_range;
   for (int32_t i = 0; i < 16; i++) {
@@ -942,6 +1015,7 @@ void av1_iadst16_lgt_inter(const int32_t *input, int32_t *output,
     }
     output[i] = ROUND_POWER_OF_TWO_SIGNED(sum, LGT_PREC_BITS);
   }
+#endif
 }
 #endif  // CONFIG_LGT
 
