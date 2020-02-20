@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd0356f1_6f49f6b0",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 2
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-02-20T17:35:17Z",
+      "side": 1,
+      "message": "Venkat: You left av1_selfguided_restoration disabled in commit d65a573357a982dc28899e98beaaf02ccbb6052a. Was that intentional or an oversight?",
+      "range": {
+        "startLine": 408,
+        "startChar": 14,
+        "endLine": 408,
+        "endChar": 40
+      },
+      "revId": "27aec962964fc3f7b659d26f86b64d7f603f56df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
