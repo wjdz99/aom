@@ -22,6 +22,30 @@
       "revId": "fc0782568be47e365cf464eeb12c8460dd2f3290",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eac6c13a_966d7939",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-02-21T23:03:28Z",
+      "side": 1,
+      "message": "Yes, that\u0027s one way to interpret this change indeed.\n\nI have some tests on this matter, which show that adding a normal_boost as baseline for all arfs is not a critical factor to the boost calculation. Hence making this unified for all frames.",
+      "parentUuid": "a07ebe2c_2b262fd4",
+      "range": {
+        "startLine": 465,
+        "startChar": 31,
+        "endLine": 465,
+        "endChar": 43
+      },
+      "revId": "fc0782568be47e365cf464eeb12c8460dd2f3290",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
