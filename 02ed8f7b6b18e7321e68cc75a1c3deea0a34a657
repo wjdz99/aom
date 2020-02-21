@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "1664189f_1b260e2f",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2321,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-02-21T23:18:33Z",
+      "side": 1,
+      "message": "Yeah I agree chances are it wouldn\u0027t shrink that much very often. Shouldn\u0027t be a big concern probably.",
+      "parentUuid": "cd5124eb_422612cd",
+      "range": {
+        "startLine": 2321,
+        "startChar": 11,
+        "endLine": 2321,
+        "endChar": 65
+      },
+      "revId": "02ed8f7b6b18e7321e68cc75a1c3deea0a34a657",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "05665a30_7911c40a",
         "filename": "av1/encoder/tpl_model.c",
         "patchSetId": 13
