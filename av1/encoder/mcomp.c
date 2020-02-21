@@ -1863,7 +1863,7 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
 
   // search_param determines the length of the initial step and hence the number
   // of iterations.
-  const int tot_steps = cfg->ss_count - search_param;
+  const int tot_steps = cfg->ss_count - 1 - search_param;
 
   const FULLPEL_MV full_ref_mv = get_fullmv_from_mv(ref_mv);
   clamp_fullmv(start_mv, &x->mv_limits);
@@ -2904,7 +2904,7 @@ static int obmc_diamond_search_sad(
   // 0 = initial step (MAX_FIRST_STEP) pel : 1 = (MAX_FIRST_STEP/2) pel, 2 =
   // (MAX_FIRST_STEP/4) pel... etc.
 
-  const int tot_steps = MAX_MVSEARCH_STEPS - 1 - search_param;
+  const int tot_steps = cfg->ss_count - 1 - search_param;
   const FULLPEL_MV full_ref_mv = get_fullmv_from_mv(ref_mv);
   const uint8_t *best_address, *in_what_ref;
   int best_sad = INT_MAX;
