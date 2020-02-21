@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17fc30d4_62e97850",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 5438,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-02-21T05:12:53Z",
+      "side": 1,
+      "message": "Why leave this for-loop inside the qp search loop?\n\nSince you only conduct key frame search twice and make the decision on whether to use screen content tools thereafter, it should be done prior to the qp search? One step further, shouldn\u0027t this be applicable to the route without recode loop as well?",
+      "range": {
+        "startLine": 5438,
+        "startChar": 4,
+        "endLine": 5438,
+        "endChar": 51
+      },
+      "revId": "78352fb2e08febc8b11c2f55a3b9932ad88dbc51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
