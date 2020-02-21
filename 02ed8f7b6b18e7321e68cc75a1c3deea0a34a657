@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "cd5124eb_422612cd",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2321,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-02-21T23:14:10Z",
+      "side": 1,
+      "message": "Will it happen btw?\n\nI did some quick tests, but didn\u0027t see that it would regress that far for the moment. The test was not quite thorough though.",
+      "parentUuid": "5a1bda85_df3994ab",
+      "range": {
+        "startLine": 2321,
+        "startChar": 11,
+        "endLine": 2321,
+        "endChar": 65
+      },
+      "revId": "02ed8f7b6b18e7321e68cc75a1c3deea0a34a657",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "05665a30_7911c40a",
         "filename": "av1/encoder/tpl_model.c",
         "patchSetId": 13
