@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9886fe87_50380427",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 2326,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-02-21T23:15:33Z",
+      "side": 1,
+      "message": "(possible place to retain the check of rc-\u003eintervals_till_gf_calculation_due)",
+      "range": {
+        "startLine": 2326,
+        "startChar": 4,
+        "endLine": 2326,
+        "endChar": 45
+      },
+      "revId": "61319b07e50a797b70bceee441774cbe8c3a7ec4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
