@@ -533,9 +533,15 @@ static void invert_quant(int16_t *quant, int16_t *shift, int d) {
 static int get_qzbin_factor(int q, aom_bit_depth_t bit_depth) {
   const int quant = av1_dc_quant_QTX(q, 0, bit_depth);
   switch (bit_depth) {
+#if CONFIG_EXTQUANT
+    case AOM_BITS_8: return q == 0 ? 72 : (quant < 148 ? 84 : 80);
+    case AOM_BITS_10: return q == 0 ? 72 : (quant < 592 ? 84 : 80);
+    case AOM_BITS_12: return q == 0 ? 72 : (quant < 2368 ? 84 : 80);
+#else
     case AOM_BITS_8: return q == 0 ? 64 : (quant < 148 ? 84 : 80);
     case AOM_BITS_10: return q == 0 ? 64 : (quant < 592 ? 84 : 80);
     case AOM_BITS_12: return q == 0 ? 64 : (quant < 2368 ? 84 : 80);
+#endif
     default:
       assert(0 && "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
       return -1;
@@ -730,6 +736,9 @@ static const int quantizer_to_qindex[] = {
   104, 108, 112, 116, 120, 124, 128, 132, 136, 140, 144, 148, 152,
   156, 160, 164, 168, 172, 176, 180, 184, 188, 192, 196, 200, 204,
   208, 212, 216, 220, 224, 228, 232, 236, 240, 244, 249, 255,
+#if CONFIG_EXTQUANT
+  259, 263, 267, 271, 275, 279, 283, 287,
+#endif
 };
 
 int av1_quantizer_to_qindex(int quantizer) {
@@ -738,9 +747,15 @@ int av1_quantizer_to_qindex(int quantizer) {
 
 int av1_qindex_to_quantizer(int qindex) {
   int quantizer;
+#if CONFIG_EXTQUANT
+  for (quantizer = 0; quantizer < 72; ++quantizer)
+    if (quantizer_to_qindex[quantizer] >= qindex) return quantizer;
 
+  return 95;
+#else
   for (quantizer = 0; quantizer < 64; ++quantizer)
     if (quantizer_to_qindex[quantizer] >= qindex) return quantizer;
 
   return 63;
+#endif
 }
