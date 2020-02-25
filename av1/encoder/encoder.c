@@ -4165,11 +4165,8 @@ static void set_size_independent_vars(AV1_COMP *cpi) {
   cm->switchable_motion_mode = 1;
 }
 
-#define MAX_GFUBOOST_FACTOR 10.0
-#define MIN_GFUBOOST_FACTOR 4.0
-static double get_gfu_boost_projection_factor(double min_factor,
-                                              double max_factor,
-                                              int frame_count) {
+double av1_get_gfu_boost_projection_factor(double min_factor, double max_factor,
+                                           int frame_count) {
   double factor = sqrt((double)frame_count);
   factor = AOMMIN(factor, max_factor);
   factor = AOMMAX(factor, min_factor);
@@ -4179,8 +4176,8 @@ static double get_gfu_boost_projection_factor(double min_factor,
 
 static int get_gfu_boost_from_r0(double min_factor, double max_factor,
                                  double r0, int frames_to_key) {
-  double factor =
-      get_gfu_boost_projection_factor(min_factor, max_factor, frames_to_key);
+  double factor = av1_get_gfu_boost_projection_factor(min_factor, max_factor,
+                                                      frames_to_key);
   const int boost = (int)rint(factor / r0);
   return boost;
 }
@@ -4197,31 +4194,6 @@ static int get_kf_boost_from_r0(double r0, int frames_to_key) {
   double factor = get_kf_boost_projection_factor(frames_to_key);
   const int boost = (int)rint(factor / r0);
   return boost;
-}
-
-static int get_projected_prior_gfu_boost(AV1_COMP *cpi) {
-  int num_stats_used_for_gfu_boost = cpi->rc.num_stats_used_for_gfu_boost;
-  int frames_to_project = cpi->rc.num_stats_required_for_gfu_boost;
-
-  /*
-   * If frames_to_project is equal to num_stats_used_for_gfu_boost,
-   * it means that gfu_boost was calculated over frames_to_project to
-   * begin with(ie; all stats required were available), hence return
-   * the original boost.
-   */
-  if (num_stats_used_for_gfu_boost >= frames_to_project)
-    return cpi->rc.gfu_boost;
-
-  double min_boost_factor = sqrt(cpi->rc.baseline_gf_interval);
-  // Get the current tpl factor (number of frames = frames_to_project).
-  double tpl_factor = get_gfu_boost_projection_factor(
-      min_boost_factor, MAX_GFUBOOST_FACTOR, frames_to_project);
-  // Get the tpl factor when number of frames = num_stats_used_for_prior_boost.
-  double tpl_factor_num_stats = get_gfu_boost_projection_factor(
-      min_boost_factor, MAX_GFUBOOST_FACTOR, num_stats_used_for_gfu_boost);
-  int projected_gfu_boost =
-      (int)rint((tpl_factor * cpi->rc.gfu_boost) / tpl_factor_num_stats);
-  return projected_gfu_boost;
 }
 
 static int get_projected_prior_boost(AV1_COMP *cpi) {
@@ -4305,11 +4277,10 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
           const int gfu_boost = get_gfu_boost_from_r0(
               min_boost_factor, MAX_GFUBOOST_FACTOR, cpi->rd.arf_r0,
               cpi->rc.num_stats_required_for_gfu_boost);
-          const int prior_boost = get_projected_prior_gfu_boost(cpi);
-          // printf("old boost %d new boost %d\n", prior_boost,
+          // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
           //        gfu_boost);
           cpi->rc.gfu_boost = combine_prior_with_tpl_boost(
-              min_boost_factor, MAX_BOOST_COMBINE_FACTOR, prior_boost,
+              min_boost_factor, MAX_BOOST_COMBINE_FACTOR, cpi->rc.gfu_boost,
               gfu_boost, cpi->rc.num_stats_used_for_gfu_boost);
         } else {
           const int gfu_boost =
