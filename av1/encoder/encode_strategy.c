@@ -901,7 +901,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
       !frame_params->show_existing_frame &&
       cpi->rc.frames_to_key > TF_NUM_FILTERING_FRAMES_FOR_KEY_FRAME &&
       y_noise_level > 0 && !is_lossless_requested(oxcf) &&
-      oxcf->arnr_max_frames > 0;
+      oxcf->arnr_max_frames > 0 && !cpi->no_show_kf;
   // Save the pointer to the original source image.
   YV12_BUFFER_CONFIG *source_kf_buffer = frame_input->source;
 
