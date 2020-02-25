@@ -4174,14 +4174,6 @@ double av1_get_gfu_boost_projection_factor(double min_factor, double max_factor,
   return factor;
 }
 
-static int get_gfu_boost_from_r0(double min_factor, double max_factor,
-                                 double r0, int frames_to_key) {
-  double factor = av1_get_gfu_boost_projection_factor(min_factor, max_factor,
-                                                      frames_to_key);
-  const int boost = (int)rint(factor / r0);
-  return boost;
-}
-
 double av1_get_kf_boost_projection_factor(int frame_count) {
   double factor = sqrt((double)frame_count);
   factor = AOMMIN(factor, 10.0);
@@ -4253,22 +4245,13 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
       cpi->rd.r0 = (double)intra_cost_base / mc_dep_cost_base;
       if (is_frame_arf_and_tpl_eligible(gf_group)) {
         cpi->rd.arf_r0 = cpi->rd.r0;
+        const int gfu_boost = (int)(200.0 / cpi->rd.r0);
         if (cpi->lap_enabled) {
           double min_boost_factor = sqrt(cpi->rc.baseline_gf_interval);
-          const int gfu_boost = get_gfu_boost_from_r0(
-              min_boost_factor, MAX_GFUBOOST_FACTOR, cpi->rd.arf_r0,
-              cpi->rc.num_stats_required_for_gfu_boost);
-          // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
-          //        gfu_boost);
           cpi->rc.gfu_boost = combine_prior_with_tpl_boost(
               min_boost_factor, MAX_BOOST_COMBINE_FACTOR, cpi->rc.gfu_boost,
               gfu_boost, cpi->rc.num_stats_used_for_gfu_boost);
         } else {
-          const int gfu_boost =
-              get_gfu_boost_from_r0(MIN_GFUBOOST_FACTOR, MAX_GFUBOOST_FACTOR,
-                                    cpi->rd.arf_r0, cpi->rc.frames_to_key);
-          // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
-          //        gfu_boost);
           cpi->rc.gfu_boost = combine_prior_with_tpl_boost(
               MIN_BOOST_COMBINE_FACTOR, MAX_BOOST_COMBINE_FACTOR,
               cpi->rc.gfu_boost, gfu_boost, cpi->rc.frames_to_key);
