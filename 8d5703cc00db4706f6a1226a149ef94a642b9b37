@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "37c0c70c_b325bb92",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1165,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-02-25T21:45:45Z",
+      "side": 1,
+      "message": "Ah, my bad. Pls ignore",
+      "parentUuid": "e31f6f5d_3f1d2e6f",
+      "range": {
+        "startLine": 1165,
+        "startChar": 34,
+        "endLine": 1165,
+        "endChar": 35
+      },
+      "revId": "8d5703cc00db4706f6a1226a149ef94a642b9b37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d047b610_e5a103ea",
         "filename": "apps/aomenc.h",
         "patchSetId": 2
@@ -202,6 +226,30 @@
       "side": 1,
       "message": "We do use this convention in our tests.",
       "parentUuid": "9b50256c_a77bec8e",
+      "range": {
+        "startLine": 52,
+        "startChar": 18,
+        "endLine": 52,
+        "endChar": 38
+      },
+      "revId": "8d5703cc00db4706f6a1226a149ef94a642b9b37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffc362a9_b91077a1",
+        "filename": "common/args.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-02-25T21:45:45Z",
+      "side": 1,
+      "message": "Only in tests, yes.\nBut as I said, not a big deal as it\u0027s a cherrypick.",
+      "parentUuid": "837a8f8d_3280e89d",
       "range": {
         "startLine": 52,
         "startChar": 18,
