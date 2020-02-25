@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e31f6f5d_3f1d2e6f",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1165,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-02-25T21:37:21Z",
+      "side": 1,
+      "message": "disable_trellis_quant is not 0 or 1. it has more than two options. 3 is matches with default.",
+      "parentUuid": "57afb6b3_fc87c47e",
+      "range": {
+        "startLine": 1165,
+        "startChar": 34,
+        "endLine": 1165,
+        "endChar": 35
+      },
+      "revId": "8d5703cc00db4706f6a1226a149ef94a642b9b37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d047b610_e5a103ea",
         "filename": "apps/aomenc.h",
         "patchSetId": 2
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "55d2379b_4281921e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 781,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-02-25T21:37:21Z",
+      "side": 1,
+      "message": "not sure if you synced up with the latest code base from master branch. this field is used.",
+      "parentUuid": "3e1a1f7d_243a1fe1",
+      "range": {
+        "startLine": 781,
+        "startChar": 0,
+        "endLine": 781,
+        "endChar": 62
+      },
+      "revId": "8d5703cc00db4706f6a1226a149ef94a642b9b37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b50256c_a77bec8e",
         "filename": "common/args.c",
         "patchSetId": 2
@@ -105,6 +153,30 @@
       "writtenOn": "2020-02-25T20:29:28Z",
       "side": 1,
       "message": "We don\u0027t use \u0027p\u0027 prefix for pointers in our codebase -- should just be \u0027config\u0027 (lowercase)",
+      "range": {
+        "startLine": 56,
+        "startChar": 47,
+        "endLine": 56,
+        "endChar": 54
+      },
+      "revId": "8d5703cc00db4706f6a1226a149ef94a642b9b37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6c58a77_661ce915",
+        "filename": "common/args.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-02-25T21:37:21Z",
+      "side": 1,
+      "message": "this is changed in the latest code in master branch",
+      "parentUuid": "a2cf4b2c_76fad89c",
       "range": {
         "startLine": 56,
         "startChar": 47,
