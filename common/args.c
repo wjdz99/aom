@@ -64,7 +64,7 @@ int parse_cfg(const char *file, cfg_options_t *config) {
 
 #define GET_PARAMS(field)          \
   if (strcmp(left, #field) == 0) { \
-    config->field = atoi(right);  \
+    config->field = atoi(right);   \
     continue;                      \
   }
 
