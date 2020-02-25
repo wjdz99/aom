@@ -1876,7 +1876,7 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
 
       set_encoder_config(&priv->oxcf, &priv->cfg, &priv->extra_cfg);
       if (priv->oxcf.rc_mode == AOM_Q && priv->oxcf.pass == 0 &&
-          priv->oxcf.mode == GOOD && priv->oxcf.fwd_kf_enabled == 0) {
+          priv->oxcf.mode == GOOD) {
         // Enable look ahead
         *num_lap_buffers = priv->cfg.g_lag_in_frames;
         *num_lap_buffers =
@@ -2034,15 +2034,6 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   av1_apply_encoding_flags(cpi, flags);
   if (cpi_lap != NULL) {
     av1_apply_encoding_flags(cpi_lap, flags);
-  }
-
-  // Handle fixed keyframe intervals
-  if (ctx->cfg.kf_mode == AOM_KF_AUTO &&
-      ctx->cfg.kf_min_dist == ctx->cfg.kf_max_dist) {
-    if (++ctx->fixed_kf_cntr > ctx->cfg.kf_min_dist) {
-      flags |= AOM_EFLAG_FORCE_KF;
-      ctx->fixed_kf_cntr = 1;
-    }
   }
 
   if (res == AOM_CODEC_OK) {
