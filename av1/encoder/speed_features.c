@@ -854,6 +854,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.nonrd_check_partition_merge_mode = 1;
     sf->rt_sf.nonrd_check_partition_split = 0;
     sf->rt_sf.hybrid_intra_pickmode = 1;
+    sf->rt_sf.short_circuit_low_temp_var = 0;
   }
 
   if (speed >= 8) {
