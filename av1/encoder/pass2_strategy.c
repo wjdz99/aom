@@ -468,6 +468,29 @@ static double calc_kf_frame_boost(const RATE_CONTROL *rc,
   return AOMMIN(frame_boost, max_boost * boost_q_correction);
 }
 
+static int get_projected_gfu_boost(const RATE_CONTROL *rc, int gfu_boost,
+                                   int frames_to_project,
+                                   int num_stats_used_for_gfu_boost) {
+  /*
+   * If frames_to_project is equal to num_stats_used_for_gfu_boost,
+   * it means that gfu_boost was calculated over frames_to_project to
+   * begin with(ie; all stats required were available), hence return
+   * the original boost.
+   */
+  if (num_stats_used_for_gfu_boost >= frames_to_project) return gfu_boost;
+
+  double min_boost_factor = sqrt(rc->baseline_gf_interval);
+  // Get the current tpl factor (number of frames = frames_to_project).
+  double tpl_factor = av1_get_gfu_boost_projection_factor(
+      min_boost_factor, MAX_GFUBOOST_FACTOR, frames_to_project);
+  // Get the tpl factor when number of frames = num_stats_used_for_prior_boost.
+  double tpl_factor_num_stats = av1_get_gfu_boost_projection_factor(
+      min_boost_factor, MAX_GFUBOOST_FACTOR, num_stats_used_for_gfu_boost);
+  int projected_gfu_boost =
+      (int)rint((tpl_factor * gfu_boost) / tpl_factor_num_stats);
+  return projected_gfu_boost;
+}
+
 #define GF_MAX_BOOST 90.0
 #define MIN_DECAY_FACTOR 0.01
 int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
@@ -552,6 +575,11 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
     if (num_fpstats_used) (*num_fpstats_used)++;
   }
   arf_boost += (int)boost_score;
+
+  if (num_fpstats_used) {
+    arf_boost = get_projected_gfu_boost(rc, arf_boost, f_frames + b_frames,
+                                        *num_fpstats_used);
+  }
 
   if (arf_boost < ((b_frames + f_frames) * 20))
     arf_boost = ((b_frames + f_frames) * 20);
@@ -1137,24 +1165,10 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
   // Should we use the alternate reference frame.
   if (use_alt_ref) {
-    const int forward_frames = (rc->frames_to_key - i >= i - 1)
-                                   ? i - 1
-                                   : AOMMAX(0, rc->frames_to_key - i);
-
-    // Calculate the boost for alt ref.
-    rc->gfu_boost =
-        av1_calc_arf_boost(twopass, rc, frame_info, alt_offset, forward_frames,
-                           (i - 1), &rc->num_stats_used_for_gfu_boost);
-    rc->num_stats_required_for_gfu_boost = (forward_frames + i - 1);
     rc->source_alt_ref_pending = 1;
     gf_group->max_layer_depth_allowed = cpi->oxcf.gf_max_pyr_height;
   } else {
     reset_fpf_position(twopass, start_pos);
-    rc->gfu_boost =
-        AOMMIN(MAX_GF_BOOST,
-               av1_calc_arf_boost(twopass, rc, frame_info, alt_offset, (i - 1),
-                                  0, &rc->num_stats_used_for_gfu_boost));
-    rc->num_stats_required_for_gfu_boost = (i - 1);
     rc->source_alt_ref_pending = 0;
     gf_group->max_layer_depth_allowed = 0;
   }
@@ -1183,6 +1197,28 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     }
   } else {
     rc->baseline_gf_interval = i - rc->source_alt_ref_pending;
+  }
+
+  // calculate arf_boost
+  if (use_alt_ref) {
+    const int forward_frames = (rc->frames_to_key - i >= i - 1)
+                                   ? i - 1
+                                   : AOMMAX(0, rc->frames_to_key - i);
+    const int backward_frames = (i - 1);
+
+    if (cpi->lap_enabled)
+      rc->num_stats_required_for_gfu_boost = (forward_frames + backward_frames);
+    // Calculate the boost for alt ref.
+    rc->gfu_boost = av1_calc_arf_boost(
+        twopass, rc, frame_info, alt_offset, forward_frames, backward_frames,
+        cpi->lap_enabled ? &rc->num_stats_used_for_gfu_boost : NULL);
+  } else {
+    if (cpi->lap_enabled) rc->num_stats_required_for_gfu_boost = (i - 1);
+    rc->gfu_boost = AOMMIN(
+        MAX_GF_BOOST,
+        av1_calc_arf_boost(
+            twopass, rc, frame_info, alt_offset, (i - 1), 0,
+            cpi->lap_enabled ? &rc->num_stats_used_for_gfu_boost : NULL));
   }
 
 #define LAST_ALR_BOOST_FACTOR 0.2f
@@ -1391,6 +1427,25 @@ static int test_candidate_kf(TWO_PASS *twopass,
 #define KF_MAX_FRAME_BOOST 128.0
 #define MIN_KF_BOOST 300          // Minimum boost for non-static KF interval
 #define MIN_STATIC_KF_BOOST 5400  // Minimum boost for static KF interval
+
+static int get_projected_kf_boost(AV1_COMP *cpi) {
+  /*
+   * If num_stats_used_for_kf_boost >= frames_to_key, then
+   * all stats needed for prior boost calculation are available.
+   * Hence projecting the prior boost is not needed in this cases.
+   */
+  if (cpi->rc.num_stats_used_for_kf_boost >= cpi->rc.frames_to_key)
+    return cpi->rc.kf_boost;
+
+  // Get the current tpl factor (number of frames = frames_to_key).
+  double tpl_factor = av1_get_kf_boost_projection_factor(cpi->rc.frames_to_key);
+  // Get the tpl factor when number of frames = num_stats_used_for_kf_boost.
+  double tpl_factor_num_stats =
+      av1_get_kf_boost_projection_factor(cpi->rc.num_stats_used_for_kf_boost);
+  int projected_kf_boost =
+      (int)rint((tpl_factor * cpi->rc.kf_boost) / tpl_factor_num_stats);
+  return projected_kf_boost;
+}
 
 static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   RATE_CONTROL *const rc = &cpi->rc;
@@ -1622,6 +1677,10 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
       start_position, twopass->stats_buf_ctx->stats_in_end, rc->frames_to_key);
 
   rc->kf_boost = (int)boost_score;
+
+  if (cpi->lap_enabled) {
+    rc->kf_boost = get_projected_kf_boost(cpi);
+  }
 
   // Special case for static / slide show content but don't apply
   // if the kf group is very short.
