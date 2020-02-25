@@ -1532,6 +1532,15 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       config->cfg.g_error_resilient = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &lag_in_frames, argi)) {
       config->cfg.g_lag_in_frames = arg_parse_uint(&arg);
+
+      // TODO(all): remove this when we want to support larger lag_in_frames.
+      const unsigned int max_lag_in_frames = 19;
+      if (config->cfg.g_lag_in_frames > max_lag_in_frames) {
+        warn("lag_in_frames is forced to be no larger than %d (input was %d)\n",
+             max_lag_in_frames, config->cfg.g_lag_in_frames);
+        config->cfg.g_lag_in_frames = max_lag_in_frames;
+      }
+
       if (global->usage == AOM_USAGE_REALTIME &&
           config->cfg.rc_end_usage == AOM_CBR &&
           config->cfg.g_lag_in_frames != 0) {
