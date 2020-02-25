@@ -24,6 +24,22 @@ include("${AOM_ROOT}/build/cmake/compiler_flags.cmake")
 include("${AOM_ROOT}/build/cmake/compiler_tests.cmake")
 include("${AOM_ROOT}/build/cmake/util.cmake")
 
+if(DEFINED CONFIG_LOWBITDEPTH)
+  message(WARNING "CONFIG_LOWBITDEPTH has been removed. \
+    Use -DFORCE_HIGHBITDEPTH_DECODING=1 instead of -DCONFIG_LOWBITDEPTH=0 \
+    and -DFORCE_HIGHBITDEPTH_DECODING=0 instead of -DCONFIG_LOWBITDEPTH=1.")
+  if(NOT CONFIG_LOWBITDEPTH)
+    set(FORCE_HIGHBITDEPTH_DECODING
+        1
+        CACHE STRING "${cmake_cmdline_helpstring}" FORCE)
+  endif()
+endif()
+
+if(FORCE_HIGHBITDEPTH_DECODING AND NOT CONFIG_AV1_HIGHBITDEPTH)
+  change_config_and_warn(CONFIG_AV1_HIGHBITDEPTH 1
+                         "FORCE_HIGHBITDEPTH_DECODING")
+endif()
+
 # Generate the user config settings.
 list(APPEND aom_build_vars ${AOM_CONFIG_VARS} ${AOM_OPTION_VARS})
 foreach(cache_var ${aom_build_vars})
@@ -146,12 +162,17 @@ elseif("${AOM_TARGET_CPU}" MATCHES "arm")
       set(AS_EXECUTABLE ${CMAKE_C_COMPILER} -c -mimplicit-it=always)
     endif()
   endif()
-  if(NOT AS_EXECUTABLE)
+  find_program(as_executable_found ${AS_EXECUTABLE})
+  if(NOT as_executable_found)
     message(
       FATAL_ERROR
-        "Unknown assembler for: ${AOM_TARGET_CPU}-${AOM_TARGET_SYSTEM}")
+        "Unable to find assembler and optimizations are enabled."
+        "Searched for ${AS_EXECUTABLE}. Install it, add it to your path, or "
+        "set the assembler directly by adding -DAS_EXECUTABLE=<assembler path> "
+        "to your CMake command line."
+        "To build without optimizations, add -DAOM_TARGET_CPU=generic to your "
+        "cmake command line.")
   endif()
-
   string(STRIP "${AOM_AS_FLAGS}" AOM_AS_FLAGS)
 endif()
 
@@ -259,6 +280,7 @@ else()
   add_compiler_flag_if_supported("-Wimplicit-function-declaration")
   add_compiler_flag_if_supported("-Wlogical-op")
   add_compiler_flag_if_supported("-Wpointer-arith")
+  add_compiler_flag_if_supported("-Wshorten-64-to-32")
   add_compiler_flag_if_supported("-Wsign-compare")
   add_compiler_flag_if_supported("-Wstring-conversion")
   add_compiler_flag_if_supported("-Wtype-limits")
@@ -280,10 +302,6 @@ else()
     add_c_flag_if_supported("-Wstack-usage=100000")
     add_cxx_flag_if_supported("-Wstack-usage=240000")
   endif()
-
-  # TODO(jzern): this could be added as a cxx flags for test/*.cc only, avoiding
-  # third_party.
-  add_c_flag_if_supported("-Wshorten-64-to-32")
 
   # Add -Wshadow only for C files to avoid massive gtest warning spam.
   add_c_flag_if_supported("-Wshadow")
