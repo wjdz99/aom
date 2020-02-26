@@ -165,14 +165,15 @@ static REFERENCE_MODE read_frame_reference_mode(
 static void inverse_transform_block(MACROBLOCKD *xd, int plane,
                                     const TX_TYPE tx_type,
                                     const TX_SIZE tx_size, uint8_t *dst,
-                                    int stride, int reduced_tx_set) {
+                                    int stride, int reduced_tx_set,
+                                    const uint8_t ref_q[2]) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
   tran_low_t *const dqcoeff = pd->dqcoeff_block + xd->cb_offset[plane];
   eob_info *eob_data = pd->eob_data + xd->txb_offset[plane];
   uint16_t scan_line = eob_data->max_scan_line;
   uint16_t eob = eob_data->eob;
   av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst, stride,
-                              eob, reduced_tx_set);
+                              eob, reduced_tx_set, ref_q);
   memset(dqcoeff, 0, (scan_line + 1) * sizeof(dqcoeff[0]));
 }
 
@@ -245,8 +246,10 @@ static void predict_and_reconstruct_intra_block(
     if (eob_data->eob) {
       uint8_t *dst =
           &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
+      uint8_t ref_q[2];
+      get_ref_q(cm, mbmi, ref_q);
       inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
-                              cm->reduced_tx_set_used);
+                              cm->reduced_tx_set_used, ref_q);
     }
   }
   if (plane == AOM_PLANE_Y && store_cfl_required(cm, xd)) {
@@ -270,8 +273,11 @@ static void inverse_transform_inter_block(const AV1_COMMON *const cm,
   uint8_t *dst =
       &pd->dst
            .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  uint8_t ref_q[2];
+  get_ref_q(cm, mbmi, ref_q);
   inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
-                          cm->reduced_tx_set_used);
+                          cm->reduced_tx_set_used, ref_q);
 #if CONFIG_MISMATCH_DEBUG
   int pixel_c, pixel_r;
   BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
