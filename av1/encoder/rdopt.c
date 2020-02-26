@@ -4105,6 +4105,15 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       best_rd_so_far, cpi->sf.winner_mode_sf.enable_multiwinner_mode_process,
       0);
 
+  // Derive threshold scaling factor for prune_inter_modes_if_skippable.
+  float mode_threshold_mul_fact = 1.00;
+  if (sf->inter_sf.prune_inter_modes_if_skippable) {
+    // The scaling factor will be in the range of 1 to 2.5, with higher values
+    // for lower quantizers.
+    float range = 2.5;
+    mode_threshold_mul_fact = (range - ((float)x->qindex / MAXQ) * (range - 1));
+  }
+
   // Here midx is just an iterator index that should not be used by itself
   // except to keep track of the number of modes searched. It should be used
   // with av1_default_mode_order to get the enum that defines the mode, which
@@ -4158,7 +4167,12 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     x->force_skip = 0;
     set_ref_ptrs(cm, xd, ref_frame, second_ref_frame);
 
-    if (search_state.best_rd < search_state.mode_threshold[mode_enum]) continue;
+    // Prune aggressively when best mode is skippable.
+    float mul_fact =
+        search_state.best_mode_skippable ? mode_threshold_mul_fact : 1;
+    if (search_state.best_rd <
+        (int64_t)(search_state.mode_threshold[mode_enum] * mul_fact))
+      continue;
 
     if (sf->inter_sf.prune_comp_search_by_single_result > 0 && comp_pred) {
       if (compound_skip_by_single_states(cpi, &search_state, this_mode,
