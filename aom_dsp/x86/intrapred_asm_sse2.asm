@@ -256,10 +256,10 @@ cglobal dc_top_predictor_16x16, 4, 5, 3, dst, stride, above, left, goffset
   punpcklqdq            m0, m0
   packuswb              m0, m0
 .loop:
-  mova    [dstq          ], m0
-  mova    [dstq+strideq  ], m0
-  mova    [dstq+strideq*2], m0
-  mova    [dstq+stride3q ], m0
+  movu    [dstq          ], m0
+  movu    [dstq+strideq  ], m0
+  movu    [dstq+strideq*2], m0
+  movu    [dstq+stride3q ], m0
   lea                 dstq, [dstq+strideq*4]
   dec              lines4d
   jnz .loop
