@@ -1254,21 +1254,22 @@ static void search_filter_ref(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *this_rdc,
       x->source_variance > cpi->sf.interp_sf.disable_filter_search_var_thresh
           ? FILTER_SEARCH_SIZE
           : 1;
+  const int use_block_yrd =
+      cpi->sf.rt_sf.nonrd_use_blockyrd_interp_filter || filter_search_size == 1;
   for (i = 0; i < filter_search_size; ++i) {
     int64_t cost;
     InterpFilter filter = filters[i];
     mi->interp_filters = av1_broadcast_interp_filter(filter);
     av1_enc_build_inter_predictor_y(xd, mi_row, mi_col);
     if (use_model_yrd_large)
-      model_skip_for_sb_y_large(
-          cpi, bsize, mi_row, mi_col, x, xd, &pf_rate[i], &pf_dist[i],
-          &pf_var[i], &pf_sse[i], this_early_term,
-          !cpi->sf.rt_sf.nonrd_use_blockyrd_interp_filter);
+      model_skip_for_sb_y_large(cpi, bsize, mi_row, mi_col, x, xd, &pf_rate[i],
+                                &pf_dist[i], &pf_var[i], &pf_sse[i],
+                                this_early_term, !use_block_yrd);
     else
       model_rd_for_sb_y(cpi, bsize, x, xd, &pf_rate[i], &pf_dist[i],
                         &skip_txfm[i], NULL, &pf_var[i], &pf_sse[i],
-                        !cpi->sf.rt_sf.nonrd_use_blockyrd_interp_filter);
-    if (cpi->sf.rt_sf.nonrd_use_blockyrd_interp_filter) {
+                        !use_block_yrd);
+    if (use_block_yrd) {
       int64_t this_sse = (int64_t)pf_sse[i];
       block_yrd(cpi, x, mi_row, mi_col, &this_rdc_fil, &is_skippable, &this_sse,
                 bsize, mi->tx_size);

@@ -841,7 +841,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
 
     sf->rt_sf.mode_search_skip_flags |= FLAG_SKIP_INTRA_DIRMISMATCH;
     sf->rt_sf.nonrd_reduce_golden_mode_search = 0;
-    sf->rt_sf.nonrd_use_blockyrd_interp_filter = 1;
+    sf->rt_sf.nonrd_use_blockyrd_interp_filter = 0;
     sf->rt_sf.reuse_inter_pred_nonrd = 0;
     sf->rt_sf.short_circuit_low_temp_var = 0;
     sf->rt_sf.skip_interp_filter_search = 0;
