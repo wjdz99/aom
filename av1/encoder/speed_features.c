@@ -864,6 +864,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.nonrd_check_partition_merge_mode = 0;
     sf->rt_sf.nonrd_check_partition_split = 0;
     sf->rt_sf.use_modeled_non_rd_cost = 0;
+    sf->rt_sf.compute_source_metrics_nonrd = 0;
   }
 }
 
