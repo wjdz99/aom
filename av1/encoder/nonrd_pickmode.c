@@ -1260,24 +1260,12 @@ static void search_filter_ref(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *this_rdc,
     mi->interp_filters = av1_broadcast_interp_filter(filter);
     av1_enc_build_inter_predictor_y(xd, mi_row, mi_col);
     if (use_model_yrd_large)
-      model_skip_for_sb_y_large(
-          cpi, bsize, mi_row, mi_col, x, xd, &pf_rate[i], &pf_dist[i],
-          &pf_var[i], &pf_sse[i], this_early_term,
-          !cpi->sf.rt_sf.nonrd_use_blockyrd_interp_filter);
+      model_skip_for_sb_y_large(cpi, bsize, mi_row, mi_col, x, xd, &pf_rate[i],
+                                &pf_dist[i], &pf_var[i], &pf_sse[i],
+                                this_early_term, 1);
     else
       model_rd_for_sb_y(cpi, bsize, x, xd, &pf_rate[i], &pf_dist[i],
-                        &skip_txfm[i], NULL, &pf_var[i], &pf_sse[i],
-                        !cpi->sf.rt_sf.nonrd_use_blockyrd_interp_filter);
-    if (cpi->sf.rt_sf.nonrd_use_blockyrd_interp_filter) {
-      int64_t this_sse = (int64_t)pf_sse[i];
-      block_yrd(cpi, x, mi_row, mi_col, &this_rdc_fil, &is_skippable, &this_sse,
-                bsize, mi->tx_size);
-      pf_rate[i] = this_rdc_fil.rate;
-      pf_dist[i] = this_rdc_fil.dist;
-      pf_sse_block_yrd[i] = this_sse;
-      skip_txfm[i] = this_rdc_fil.skip;
-      *block_yrd_computed = 1;
-    }
+                        &skip_txfm[i], NULL, &pf_var[i], &pf_sse[i], 1);
     pf_rate[i] += av1_get_switchable_rate(cm, x, xd);
     cost = RDCOST(x->rdmult, pf_rate[i], pf_dist[i]);
     pf_tx_size[i] = mi->tx_size;
