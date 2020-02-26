@@ -922,6 +922,8 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // Use hybrid (rd for bsize < 16x16, otherwise nonrd) intra search for intra
   // only frames.
   int hybrid_intra_pickmode;
+
+  int compute_source_sad;
 } REAL_TIME_SPEED_FEATURES;
 
 typedef struct SPEED_FEATURES {
