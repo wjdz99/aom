@@ -46,6 +46,30 @@
       "revId": "6479a9eff2051190e1dbeb423ad37d8dae73372a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe3b80b1_9e7bbbeb",
+        "filename": ".mailmap",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-02-26T23:16:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e8b7db86_0c1fd937",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 56
+      },
+      "revId": "6479a9eff2051190e1dbeb423ad37d8dae73372a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
