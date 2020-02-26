@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ab3fbf45_230974b3",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1257,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-02-26T19:00:19Z",
+      "side": 1,
+      "message": "No, it doesn\u0027t with the new patch",
+      "parentUuid": "03ce86dc_d0fa67b8",
+      "revId": "e019b8e462bd5037d91a3733611383475d398c74",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8f796bfb_a65c7b11",
         "filename": "av1/encoder/speed_features.c",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "e019b8e462bd5037d91a3733611383475d398c74",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9415dd86_0d8fda42",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 845,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-02-26T19:00:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f796bfb_a65c7b11",
+      "revId": "e019b8e462bd5037d91a3733611383475d398c74",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -56,6 +92,30 @@
       "revId": "e019b8e462bd5037d91a3733611383475d398c74",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "edcd1051_60a67a69",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 860,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-02-26T19:00:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3557933_6ad4c0d8",
+      "range": {
+        "startLine": 860,
+        "startChar": 14,
+        "endLine": 860,
+        "endChar": 46
+      },
+      "revId": "e019b8e462bd5037d91a3733611383475d398c74",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
