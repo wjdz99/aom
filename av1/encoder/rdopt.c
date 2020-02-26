@@ -2389,7 +2389,8 @@ int av1_count_colors_highbd(const uint8_t *src8, int stride, int rows, int cols,
 
 static void inverse_transform_block_facade(MACROBLOCKD *xd, int plane,
                                            int block, int blk_row, int blk_col,
-                                           int eob, int reduced_tx_set) {
+                                           int eob, int reduced_tx_set,
+                                           const uint8_t ref_q[2]) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
   tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   const PLANE_TYPE plane_type = get_plane_type(plane);
@@ -2400,7 +2401,7 @@ static void inverse_transform_block_facade(MACROBLOCKD *xd, int plane,
   uint8_t *dst =
       &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
   av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
-                              dst_stride, eob, reduced_tx_set);
+                              dst_stride, eob, reduced_tx_set, ref_q);
 }
 
 static int find_tx_size_rd_info(TXB_RD_RECORD *cur_record, const uint32_t hash);
@@ -2460,6 +2461,7 @@ static INLINE int64_t dist_block_px_domain(const AV1_COMP *cpi, MACROBLOCK *x,
                                            int block, int blk_row, int blk_col,
                                            TX_SIZE tx_size) {
   MACROBLOCKD *const xd = &x->e_mbd;
+  const AV1_COMMON *cm = &cpi->common;
   const struct macroblock_plane *const p = &x->plane[plane];
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   const uint16_t eob = p->eobs[block];
@@ -2495,9 +2497,12 @@ static INLINE int64_t dist_block_px_domain(const AV1_COMP *cpi, MACROBLOCK *x,
   const PLANE_TYPE plane_type = get_plane_type(plane);
   TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col, tx_size,
                                     cpi->common.reduced_tx_set_used);
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  uint8_t ref_q[2];
+  get_ref_q(cm, mbmi, ref_q);
   av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, recon,
-                              MAX_TX_SIZE, eob,
-                              cpi->common.reduced_tx_set_used);
+                              MAX_TX_SIZE, eob, cpi->common.reduced_tx_set_used,
+                              ref_q);
 
   return 16 * pixel_dist(cpi, x, plane, src, src_stride, recon, MAX_TX_SIZE,
                          blk_row, blk_col, plane_bsize, tx_bsize);
@@ -3762,10 +3767,12 @@ RECON_INTRA:
                        cpi->sf.trellis_eob_fast, &rate_cost);
       }
     }
-
+    MB_MODE_INFO *mbmi = xd->mi[0];
+    uint8_t ref_q[2];
+    get_ref_q(cm, mbmi, ref_q);
     inverse_transform_block_facade(xd, plane, block, blk_row, blk_col,
                                    x->plane[plane].eobs[block],
-                                   cm->reduced_tx_set_used);
+                                   cm->reduced_tx_set_used, ref_q);
 
     // This may happen because of hash collision. The eob stored in the hash
     // table is non-zero, but the real eob is zero. We need to make sure tx_type

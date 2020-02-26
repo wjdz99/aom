@@ -184,7 +184,7 @@ typedef struct TXFM_2D_FLIP_CFG {
   TXFM_TYPE txfm_type_row;
   int stage_num_col;
   int stage_num_row;
-  PREDICTION_MODE mode;
+  int mode;
 #if CONFIG_MODE_DEP_INTRA_TX && CONFIG_MODE_DEP_NONSEP_INTRA_TX
   const int32_t *nstx_mtx_ptr;
 #endif  // CONFIG_MODE_DEP_INTRA_TX &&

@@ -176,7 +176,9 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
   txfm_param.bd = xd->bd;
   txfm_param.is_hbd = is_cur_buf_hbd(xd);
-  txfm_param.mode = get_mode_dep_txfm_mode(mbmi);
+  uint8_t ref_q[2];
+  get_ref_q(cm, mbmi, ref_q);
+  txfm_param.mode = get_mode_dep_txfm_mode(mbmi, ref_q);
 
   av1_fwd_txfm(src_diff, coeff, diff_stride, &txfm_param);
 
@@ -275,9 +277,12 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
       }
     }
 #endif  // CONFIG_NEW_TX64X64 && GET_NEW_TX64X64_TRAINING_DATA
+    uint8_t ref_q[2];
+    get_ref_q(cm, mbmi, ref_q);
     av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
                                 pd->dst.stride, p->eobs[block],
-                                cm->reduced_tx_set_used);
+                                cm->reduced_tx_set_used, ref_q);
+
 #if CONFIG_NEW_TX64X64 && GET_NEW_TX64X64_TRAINING_DATA
     if (dry_run == OUTPUT_ENABLED && txsize_sqr_up_map[tx_size] == TX_64X64 &&
         p->eobs[block] > 1) {
@@ -677,8 +682,11 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   }
 
   if (*eob) {
+    uint8_t ref_q[2];
+    get_ref_q(cm, mbmi, ref_q);
     av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
-                                dst_stride, *eob, cm->reduced_tx_set_used);
+                                dst_stride, *eob, cm->reduced_tx_set_used,
+                                ref_q);
   }
 
   // TODO(jingning): Temporarily disable txk_type check for eob=0 case.
