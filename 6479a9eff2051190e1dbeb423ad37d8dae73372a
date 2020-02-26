@@ -22,6 +22,30 @@
       "revId": "6479a9eff2051190e1dbeb423ad37d8dae73372a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8b7db86_0c1fd937",
+        "filename": ".mailmap",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-02-26T23:12:31Z",
+      "side": 1,
+      "message": "\u003e is this duplicate there?\n\nit covers a difference in proper names, like:\nArild Fuldseth (arilfuld) \u003carilfuld@cisco.com\u003e\n\ntry git shortlog -s -e with and without this change",
+      "parentUuid": "0d67f532_15a77539",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 56
+      },
+      "revId": "6479a9eff2051190e1dbeb423ad37d8dae73372a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
