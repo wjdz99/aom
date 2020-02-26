@@ -226,7 +226,6 @@ static void set_good_speed_features_framesize_independent(
 
   // Speed 0 for all speed features that give neutral coding performance change.
   sf->reduce_inter_modes = 1;
-  sf->prune_ext_partition_types_search_level = 1;
   sf->ml_prune_rect_partition = 1;
 #if CONFIG_EXT_PARTITIONS
   sf->ml_prune_ab_partition = 0;
@@ -247,7 +246,6 @@ static void set_good_speed_features_framesize_independent(
   sf->model_based_post_interp_filter_breakout = 1;
 
   // TODO(debargha): Test, tweak and turn on either 1 or 2
-  sf->inter_mode_rd_model_estimation = 1;
   sf->inter_mode_rd_model_estimation_adaptive = 0;
   sf->prune_compound_using_single_ref = 1;
 
@@ -257,23 +255,24 @@ static void set_good_speed_features_framesize_independent(
       (boosted || (cm->allow_screen_content_tools))
           ? 0
           : (is_boosted_arf2_bwd_type ? 1 : 2);
-  sf->less_rectangular_check_level = 1;
-  sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3;
   sf->gm_disable_recode = 1;
   sf->use_fast_interpolation_filter_search = 1;
   sf->intra_tx_size_search_init_depth_sqr = 1;
   sf->intra_angle_estimation = 1;
-  sf->tx_type_search.use_reduced_intra_txset = 1;
   sf->selective_ref_frame = 1;
-  sf->prune_wedge_pred_diff_based = 1;
   sf->disable_wedge_search_var_thresh = 0;
   sf->disable_wedge_search_edge_thresh = 0;
-  sf->prune_motion_mode_level = 1;
   sf->cb_pred_filter_search = 0;
   sf->use_nonrd_pick_mode = 0;
   sf->use_real_time_ref_set = 0;
 
   if (speed >= 1) {
+    sf->prune_ext_partition_types_search_level = 1;
+    sf->inter_mode_rd_model_estimation = 1;
+    sf->less_rectangular_check_level = 1;
+    sf->tx_type_search.use_reduced_intra_txset = 1;
+    sf->prune_wedge_pred_diff_based = 1;
+
     sf->selective_ref_frame = 2;
 
     sf->intra_tx_size_search_init_depth_rect = 1;
