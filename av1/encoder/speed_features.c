@@ -227,16 +227,6 @@ static void set_good_speed_features_framesize_independent(
   // Speed 0 for all speed features that give neutral coding performance change.
   sf->reduce_inter_modes = 1;
   sf->prune_ext_partition_types_search_level = 1;
-  sf->ml_prune_rect_partition = 1;
-#if CONFIG_EXT_PARTITIONS
-  sf->ml_prune_ab_partition = 0;
-  // This speed feature will need to be re-designed for 3-way partitions.
-  sf->ml_prune_4_partition = 0;
-#else
-  sf->ml_prune_ab_partition = 1;
-  sf->ml_prune_4_partition = 1;
-#endif  // CONFIG_EXT_PARTITIONS
-  sf->simple_motion_search_prune_rect = 1;
   sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_SKIP_MV_SEARCH;
 #if CONFIG_NEW_TX_PARTITION
   sf->adaptive_txb_search_level = 0;
@@ -315,6 +305,17 @@ static void set_good_speed_features_framesize_independent(
     sf->intra_cnn_split = (speed == 1);
 #endif  // CONFIG_EXT_PARTITIONS
     sf->adaptive_overlay_encoding = 1;
+
+    sf->ml_prune_rect_partition = 1;
+#if CONFIG_EXT_PARTITIONS
+    sf->ml_prune_ab_partition = 0;
+    // This speed feature will need to be re-designed for 3-way partitions.
+    sf->ml_prune_4_partition = 0;
+#else
+    sf->ml_prune_ab_partition = 1;
+    sf->ml_prune_4_partition = 1;
+#endif  // CONFIG_EXT_PARTITIONS
+    sf->simple_motion_search_prune_rect = 1;
   }
 
   if (speed >= 2) {
