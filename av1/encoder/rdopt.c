@@ -10398,8 +10398,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       for (j = 0; j < INTERINTRA_MODES; ++j) {
 #if CONFIG_ILLUM_MCOMP
         if (j == II_ILLUM_MCOMP_PRED) {
-          single_motion_search(cpi, x, bsize, mi_row, mi_col, 0, &tmp_rate_mv,
-                               true);
+          single_motion_search(cpi, x, bsize, 0, &tmp_rate_mv, true);
           av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
                                         AOM_PLANE_Y, AOM_PLANE_Y);
         } else if (j == II_ILLUM_MCOMP_PRED + 1) {
@@ -10572,8 +10571,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
           for (j = 0; j < INTERINTRA_MODES; ++j) {
 #if CONFIG_ILLUM_MCOMP
             if (j == II_ILLUM_MCOMP_PRED) {
-              single_motion_search(cpi, x, bsize, mi_row, mi_col, 0,
-                                   &tmp_rate_mv, true);
+              single_motion_search(cpi, x, bsize, 0, &tmp_rate_mv, true);
               av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
                                             AOM_PLANE_Y, AOM_PLANE_Y);
             } else if (j == II_ILLUM_MCOMP_PRED + 1) {
