@@ -125,17 +125,16 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
                                   int mi_col, MV center_mv) {
   AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
-  MV_SPEED_FEATURES *const mv_sf = &cpi->sf.mv_sf;
   TPL_SPEED_FEATURES *tpl_sf = &cpi->sf.tpl_sf;
-  const SEARCH_METHODS search_method = mv_sf->search_method;
   int step_param;
-  int sadpb = x->sadperbit16;
   uint32_t bestsme = UINT_MAX;
   int distortion;
   uint32_t sse;
   int cost_list[5];
   const FullMvLimits tmp_mv_limits = x->mv_limits;
   FULLPEL_MV start_mv = get_fullmv_from_mv(&center_mv);
+  (void)mi_row;
+  (void)mi_col;
 
   // Setup frame pointers
   x->plane[0].src.buf = cur_frame_buf;
@@ -153,9 +152,12 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
 
   assert(ss_cfg->stride == stride_ref);
 
-  av1_full_pixel_search(cpi, x, bsize, start_mv, step_param, search_method, 0,
-                        sadpb, cond_cost_list(cpi, cost_list), &center_mv,
-                        (MI_SIZE * mi_col), (MI_SIZE * mi_row), 0, ss_cfg, 0);
+  FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
+  av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize, &center_mv,
+                                     ss_cfg);
+
+  av1_full_pixel_search(cpi, x, start_mv, &full_ms_params, step_param,
+                        cond_cost_list(cpi, cost_list));
 
   /* restore UMV window */
   x->mv_limits = tmp_mv_limits;

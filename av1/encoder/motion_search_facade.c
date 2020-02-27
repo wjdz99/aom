@@ -14,6 +14,7 @@
 #include "av1/common/reconinter.h"
 
 #include "av1/encoder/encodemv.h"
+#include "av1/encoder/encoder.h"
 #include "av1/encoder/motion_search_facade.h"
 #include "av1/encoder/partition_strategy.h"
 #include "av1/encoder/reconinter_enc.h"
@@ -123,20 +124,23 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   else
     start_mv = get_fullmv_from_mv(&ref_mv);
 
-  const int sadpb = x->sadperbit16;
   int cost_list[5];
   x->best_mv.as_int = x->second_best_mv.as_int = INVALID_MV;
+
+  const search_site_config *src_search_sites = &cpi->ss_cfg[SS_CFG_SRC];
+  FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
+  av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize, &ref_mv,
+                                     src_search_sites);
+
   switch (mbmi->motion_mode) {
     case SIMPLE_TRANSLATION:
-      bestsme = av1_full_pixel_search(
-          cpi, x, bsize, start_mv, step_param, cpi->sf.mv_sf.search_method, 0,
-          sadpb, cond_cost_list(cpi, cost_list), &ref_mv, (MI_SIZE * mi_col),
-          (MI_SIZE * mi_row), 0, &cpi->ss_cfg[SS_CFG_SRC], 0);
+      bestsme =
+          av1_full_pixel_search(cpi, x, start_mv, &full_ms_params, step_param,
+                                cond_cost_list(cpi, cost_list));
       break;
     case OBMC_CAUSAL:
-      bestsme = av1_obmc_full_pixel_search(
-          cpi, x, start_mv, step_param, sadpb, &cpi->fn_ptr[bsize], &ref_mv,
-          &(x->best_mv.as_fullmv), &cpi->ss_cfg[SS_CFG_SRC]);
+      bestsme = av1_obmc_full_pixel_search(x, start_mv, &full_ms_params,
+                                           step_param, &(x->best_mv.as_fullmv));
       break;
     default: assert(0 && "Invalid motion mode!\n");
   }
@@ -646,9 +650,7 @@ void av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
   const MV ref_mv = kZeroMv;
   const int step_param = cpi->mv_step_param;
   const FullMvLimits tmp_mv_limits = x->mv_limits;
-  const SEARCH_METHODS search_methods = cpi->sf.mv_sf.search_method;
-  const int do_mesh_search = 0;
-  const int sadpb = x->sadperbit16;
+  const search_site_config *src_search_sites = &cpi->ss_cfg[SS_CFG_SRC];
   int cost_list[5];
   const int ref_idx = 0;
   int var;
@@ -662,12 +664,16 @@ void av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
                          num_planes);
   }
 
+  FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
+  av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize, &ref_mv,
+                                     src_search_sites);
+
   // This overwrites the mv_limits so we will need to restore it later.
   av1_set_mv_search_range(&x->mv_limits, &ref_mv);
-  var = av1_full_pixel_search(
-      cpi, x, bsize, start_mv, step_param, search_methods, do_mesh_search,
-      sadpb, cond_cost_list(cpi, cost_list), &ref_mv, mi_col * MI_SIZE,
-      mi_row * MI_SIZE, 0, &cpi->ss_cfg[SS_CFG_SRC], 0);
+
+  var = av1_full_pixel_search(cpi, x, start_mv, &full_ms_params, step_param,
+                              cond_cost_list(cpi, cost_list));
+
   // Restore
   x->mv_limits = tmp_mv_limits;
 

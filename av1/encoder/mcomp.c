@@ -64,6 +64,7 @@ void av1_make_default_subpel_ms_params(
   // Mvcost params
   ms_params->mv_cost_params.ref_mv = ref_mv;
   ms_params->mv_cost_params.error_per_bit = x->errorperbit;
+  ms_params->mv_cost_params.sad_per_bit = x->sadperbit16;
   ms_params->mv_cost_params.mvjcost = x->nmv_vec_cost;
   ms_params->mv_cost_params.mvcost[0] = x->mv_cost_stack[0];
   ms_params->mv_cost_params.mvcost[1] = x->mv_cost_stack[1];
@@ -79,6 +80,42 @@ void av1_make_default_subpel_ms_params(
   ms_params->var_params.invert_mask = invert_mask;
   ms_params->var_params.w = block_size_wide[bsize];
   ms_params->var_params.h = block_size_high[bsize];
+}
+
+void av1_make_default_fullpel_ms_params(
+    FULLPEL_MOTION_SEARCH_PARAMS *ms_params, const struct AV1_COMP *cpi,
+    const MACROBLOCK *x, BLOCK_SIZE bsize, const MV *ref_mv,
+    const search_site_config *search_sites) {
+  // High level params
+  ms_params->bsize = bsize;
+  ms_params->vfp = &cpi->fn_ptr[bsize];
+
+  ms_params->second_pred = NULL;
+  ms_params->mask = NULL;
+  ms_params->mask_stride = 0;
+  ms_params->inv_mask = 0;
+
+  ms_params->search_method = cpi->sf.mv_sf.search_method;
+  ms_params->search_sites = search_sites;
+
+  ms_params->mesh_patterns[0] = cpi->sf.mv_sf.mesh_patterns;
+  ms_params->mesh_patterns[1] = cpi->sf.mv_sf.intrabc_mesh_patterns;
+  ms_params->force_mesh_thresh = cpi->sf.mv_sf.exhaustive_searches_thresh;
+  ms_params->prune_mesh_search = cpi->sf.mv_sf.prune_mesh_search;
+  ms_params->run_mesh_search = 0;
+
+  ms_params->is_intra_mode = 0;
+
+  ms_params->fast_obmc_search = cpi->sf.mv_sf.obmc_full_pixel_search_level;
+
+  // Mvcost params
+  ms_params->mv_cost_params.ref_mv = ref_mv;
+  ms_params->mv_cost_params.error_per_bit = x->errorperbit;
+  ms_params->mv_cost_params.sad_per_bit = x->sadperbit16;
+  ms_params->mv_cost_params.mvjcost = x->nmv_vec_cost;
+  ms_params->mv_cost_params.mvcost[0] = x->mv_cost_stack[0];
+  ms_params->mv_cost_params.mvcost[1] = x->mv_cost_stack[1];
+  ms_params->mv_cost_params.mv_cost_type = x->mv_cost_type;
 }
 
 static INLINE int get_offset_from_mv(const FULLPEL_MV *mv, int stride) {
@@ -1343,14 +1380,22 @@ int av1_refining_search_8p_c(MACROBLOCK *x, int error_per_bit, int search_range,
   return best_sad;
 }
 
-int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
-                          const FULLPEL_MV start_mv, int step_param, int method,
-                          int run_mesh_search, int error_per_bit,
-                          int *cost_list, const MV *ref_mv, int x_pos,
-                          int y_pos, int intra, const search_site_config *cfg,
-                          int use_intrabc_mesh_pattern) {
-  const SPEED_FEATURES *const sf = &cpi->sf;
-  const aom_variance_fn_ptr_t *fn_ptr = &cpi->fn_ptr[bsize];
+int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x,
+                          const FULLPEL_MV start_mv,
+                          const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
+                          const int step_param, int *cost_list) {
+  const BLOCK_SIZE bsize = ms_params->bsize;
+
+  const SEARCH_METHODS search_method = ms_params->search_method;
+  const search_site_config *search_sites = ms_params->search_sites;
+
+  const int is_intra_mode = ms_params->is_intra_mode;
+  int run_mesh_search = ms_params->run_mesh_search;
+
+  const MV *ref_mv = ms_params->mv_cost_params.ref_mv;
+  const int sad_per_bit = ms_params->mv_cost_params.sad_per_bit;
+
+  const aom_variance_fn_ptr_t *fn_ptr = ms_params->vfp;
   int var = 0;
 
   if (cost_list) {
@@ -1361,39 +1406,38 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     cost_list[4] = INT_MAX;
   }
 
-  switch (method) {
+  switch (search_method) {
     case FAST_DIAMOND:
-      var = fast_dia_search(x, start_mv, step_param, error_per_bit, 0,
-                            cost_list, fn_ptr, ref_mv);
+      var = fast_dia_search(x, start_mv, step_param, sad_per_bit, 0, cost_list,
+                            fn_ptr, ref_mv);
       break;
     case FAST_HEX:
-      var = fast_hex_search(x, start_mv, step_param, error_per_bit, 0,
-                            cost_list, fn_ptr, ref_mv);
+      var = fast_hex_search(x, start_mv, step_param, sad_per_bit, 0, cost_list,
+                            fn_ptr, ref_mv);
       break;
     case HEX:
-      var = hex_search(x, start_mv, step_param, error_per_bit, 1, cost_list,
+      var = hex_search(x, start_mv, step_param, sad_per_bit, 1, cost_list,
                        fn_ptr, ref_mv);
       break;
     case SQUARE:
-      var = square_search(x, start_mv, step_param, error_per_bit, 1, cost_list,
+      var = square_search(x, start_mv, step_param, sad_per_bit, 1, cost_list,
                           fn_ptr, ref_mv);
       break;
     case BIGDIA:
-      var = bigdia_search(x, start_mv, step_param, error_per_bit, 1, cost_list,
+      var = bigdia_search(x, start_mv, step_param, sad_per_bit, 1, cost_list,
                           fn_ptr, ref_mv);
       break;
     case NSTEP:
     case DIAMOND:
-      var =
-          full_pixel_diamond(x, start_mv, step_param, error_per_bit, cost_list,
-                             fn_ptr, ref_mv, cfg, NULL, NULL, 0, 0);
+      var = full_pixel_diamond(x, start_mv, step_param, sad_per_bit, cost_list,
+                               fn_ptr, ref_mv, search_sites, NULL, NULL, 0, 0);
       break;
     default: assert(0 && "Invalid search method.");
   }
 
   // Should we allow a follow on exhaustive search?
-  if (!run_mesh_search && method == NSTEP) {
-    int exhuastive_thr = sf->mv_sf.exhaustive_searches_thresh;
+  if (!run_mesh_search && search_method == NSTEP) {
+    int exhuastive_thr = ms_params->force_mesh_thresh;
     exhuastive_thr >>=
         10 - (mi_size_wide_log2[bsize] + mi_size_high_log2[bsize]);
     // Threshold variance for an exhaustive full search.
@@ -1402,7 +1446,7 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
 
   // TODO(yunqing): the following is used to reduce mesh search in temporal
   // filtering. Can extend it to intrabc.
-  if (!use_intrabc_mesh_pattern && sf->mv_sf.prune_mesh_search) {
+  if (!is_intra_mode && ms_params->prune_mesh_search) {
     const int full_pel_mv_diff =
         AOMMAX(abs(start_mv.row - x->best_mv.as_fullmv.row),
                abs(start_mv.col - x->best_mv.as_fullmv.col));
@@ -1417,10 +1461,9 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     // Pick the mesh pattern for exhaustive search based on the toolset (intraBC
     // or non-intraBC)
     const MESH_PATTERN *const mesh_patterns =
-        use_intrabc_mesh_pattern ? sf->mv_sf.intrabc_mesh_patterns
-                                 : sf->mv_sf.mesh_patterns;
+        ms_params->mesh_patterns[is_intra_mode];
     var_ex =
-        full_pixel_exhaustive(x, x->best_mv.as_fullmv, error_per_bit, cost_list,
+        full_pixel_exhaustive(x, x->best_mv.as_fullmv, sad_per_bit, cost_list,
                               fn_ptr, ref_mv, &tmp_mv_ex, mesh_patterns);
     if (var_ex < var) {
       var = var_ex;
@@ -1430,12 +1473,14 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
 
   // Use hash-me for intrablock copy
   do {
-    if (!intra || !av1_use_hash_me(cpi)) break;
+    if (!is_intra_mode || !av1_use_hash_me(cpi)) break;
 
     // already single ME
     // get block size and original buffer of current block
     const int block_height = block_size_high[bsize];
     const int block_width = block_size_wide[bsize];
+    const int x_pos = x->e_mbd.mi_col * MI_SIZE;
+    const int y_pos = x->e_mbd.mi_row * MI_SIZE;
     if (block_height == block_width && x_pos >= 0 && y_pos >= 0) {
       if (block_width == 4 || block_width == 8 || block_width == 16 ||
           block_width == 32 || block_width == 64 || block_width == 128) {
@@ -1453,7 +1498,7 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
 
         const int count = av1_hash_table_count(ref_frame_hash, hash_value1);
         // for intra, at lest one matching can be found, itself.
-        if (count <= (intra ? 1 : 0)) {
+        if (count <= (is_intra_mode ? 1 : 0)) {
           break;
         }
 
@@ -1464,7 +1509,7 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
               *(block_hash *)(aom_iterator_get(&iterator));
           if (hash_value2 == ref_block_hash.hash_value2) {
             // For intra, make sure the prediction is from valid area.
-            if (intra) {
+            if (is_intra_mode) {
               const int mi_col = x_pos / MI_SIZE;
               const int mi_row = y_pos / MI_SIZE;
               const MV dv = { 8 * (ref_block_hash.y - y_pos),
@@ -1619,13 +1664,11 @@ static int obmc_diamond_search_sad(
   return best_sad;
 }
 
-static int obmc_full_pixel_diamond(const AV1_COMP *cpi, MACROBLOCK *x,
-                                   const FULLPEL_MV start_mv, int step_param,
-                                   int sadpb, int do_refine,
+static int obmc_full_pixel_diamond(MACROBLOCK *x, const FULLPEL_MV start_mv,
+                                   int step_param, int sadpb, int do_refine,
                                    const aom_variance_fn_ptr_t *fn_ptr,
                                    const MV *ref_mv, FULLPEL_MV *best_mv,
                                    const search_site_config *cfg) {
-  (void)cpi;  // to silence compiler warning
   const int32_t *wsrc = x->wsrc_buf;
   const int32_t *mask = x->mask_buf;
   FULLPEL_MV tmp_mv;
@@ -1679,16 +1722,20 @@ static int obmc_full_pixel_diamond(const AV1_COMP *cpi, MACROBLOCK *x,
   return bestsme;
 }
 
-int av1_obmc_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x,
-                               const FULLPEL_MV start_mv, int step_param,
-                               int sadpb, const aom_variance_fn_ptr_t *fn_ptr,
-                               const MV *ref_mv, FULLPEL_MV *best_mv,
-                               const search_site_config *cfg) {
-  if (cpi->sf.inter_sf.obmc_full_pixel_search_level == 0) {
+int av1_obmc_full_pixel_search(MACROBLOCK *x, const FULLPEL_MV start_mv,
+                               const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
+                               const int step_param, FULLPEL_MV *best_mv) {
+  const aom_variance_fn_ptr_t *fn_ptr = ms_params->vfp;
+  const int sadpb = ms_params->mv_cost_params.sad_per_bit;
+  const MV *ref_mv = ms_params->mv_cost_params.ref_mv;
+
+  if (!ms_params->fast_obmc_search) {
+    const search_site_config *search_sites = ms_params->search_sites;
+
     const int do_refine = 1;
     const int bestsme =
-        obmc_full_pixel_diamond(cpi, x, start_mv, step_param, sadpb, do_refine,
-                                fn_ptr, ref_mv, best_mv, cfg);
+        obmc_full_pixel_diamond(x, start_mv, step_param, sadpb, do_refine,
+                                fn_ptr, ref_mv, best_mv, search_sites);
     return bestsme;
   } else {
     const int32_t *wsrc = x->wsrc_buf;
