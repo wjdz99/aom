@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26c28a63_8f5af833",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2324,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-02-28T01:31:20Z",
+      "side": 1,
+      "message": "For lines 2324-2339, I think it might be better to change the condition check to:\n\nif (max_gop_length \u003e 16) {\n  if (rc-\u003egf_intervals[rc-\u003ecur_gf_index] - 1 \u003e 16) {\n  } else {\n  }\n}\n\nIt\u0027s up to you.",
+      "range": {
+        "startLine": 2324,
+        "startChar": 4,
+        "endLine": 2324,
+        "endChar": 54
+      },
+      "revId": "20aff3ae469350777e07776385223108b1b7e215",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5db4fb41_1b8df03d",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2336,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-02-28T01:31:20Z",
+      "side": 1,
+      "message": "How about capitalizing the first word of each sentence and adding period at the end?",
+      "range": {
+        "startLine": 2335,
+        "startChar": 9,
+        "endLine": 2336,
+        "endChar": 45
+      },
+      "revId": "20aff3ae469350777e07776385223108b1b7e215",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69ed69e3_b019eeb2",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-02-28T01:31:20Z",
+      "side": 1,
+      "message": "Is 15 large enough? Could it happen that each gop is 8, then 15 * 8 only covers 120 frames?",
+      "range": {
+        "startLine": 51,
+        "startChar": 29,
+        "endLine": 51,
+        "endChar": 31
+      },
+      "revId": "20aff3ae469350777e07776385223108b1b7e215",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
