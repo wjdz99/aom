@@ -327,6 +327,29 @@ static AOM_INLINE int bsize_to_num_blk(BLOCK_SIZE bsize) {
   return num_blk;
 }
 
+static INLINE int check_txfm_eval(MACROBLOCK *const x, BLOCK_SIZE bsize,
+                                  int64_t best_skip_rd, int64_t skip_rd,
+                                  int level, int rdy) {
+  int eval_txfm = 1;
+  // Derive aggressiveness factor for gating the transform search
+  // Lower value indicates more aggressiveness. Be more conservative (high
+  // value) for (i) low quantizers (ii) regions where prediction is poor
+  const int scale[3] = { INT_MAX, 3, 2 };
+  const int qpscale = rdy ? 6 : 2;
+  int aggr_factor =
+      AOMMAX((1 + rdy),
+             ((MAXQ - x->qindex) * qpscale + QINDEX_RANGE / 2) >> QINDEX_BITS);
+  if (best_skip_rd >
+      (x->source_variance << (num_pels_log2_lookup[bsize] + RDDIV_BITS)))
+    aggr_factor *= scale[level];
+
+  int64_t rd_thresh = (best_skip_rd == INT64_MAX)
+                          ? best_skip_rd
+                          : (int64_t)(best_skip_rd * aggr_factor);
+  if (skip_rd > rd_thresh) eval_txfm = 0;
+  return eval_txfm;
+}
+
 static TX_MODE select_tx_mode(
     const AV1_COMP *cpi, const TX_SIZE_SEARCH_METHOD tx_size_search_method) {
   if (cpi->common.coded_lossless) return ONLY_4X4;

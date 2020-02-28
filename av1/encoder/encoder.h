@@ -550,6 +550,7 @@ typedef struct inter_modes_info {
   MB_MODE_INFO mbmi_arr[MAX_INTER_MODES];
   int mode_rate_arr[MAX_INTER_MODES];
   int64_t sse_arr[MAX_INTER_MODES];
+  int64_t sse_y_arr[MAX_INTER_MODES];
   int64_t est_rd_arr[MAX_INTER_MODES];
   RdIdxPair rd_idx_pair_arr[MAX_INTER_MODES];
   RD_STATS rd_cost_arr[MAX_INTER_MODES];
