@@ -16,6 +16,24 @@
       "revId": "29bb3a0e1baa2ff4f384c004fc4af279ecab5bdd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9a8bad3_a2349bab",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-02-29T20:37:07Z",
+      "side": 1,
+      "message": "ok.\nI have been doing \u0027cherry-pick -c\u0027",
+      "parentUuid": "9cb8afe2_a2e99ba3",
+      "revId": "29bb3a0e1baa2ff4f384c004fc4af279ecab5bdd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
