@@ -1490,6 +1490,10 @@ static AOM_INLINE void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   write_mbmi_b(cpi, w);
 
   for (int plane = 0; plane < AOMMIN(2, av1_num_planes(cm)); ++plane) {
+    if (plane && !xd->is_chroma_ref) {
+      assert(mbmi->palette_mode_info.palette_size[plane] == 0);
+      break;
+    }
     const uint8_t palette_size_plane =
         mbmi->palette_mode_info.palette_size[plane];
     assert(!mbmi->skip_mode || !palette_size_plane);
