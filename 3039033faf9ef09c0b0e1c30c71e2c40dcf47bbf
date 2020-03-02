@@ -22,6 +22,30 @@
       "revId": "3039033faf9ef09c0b0e1c30c71e2c40dcf47bbf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f59f9847_69bc96db",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1433,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2020-03-02T23:06:41Z",
+      "side": 0,
+      "message": "Change I37226d7cd9f2b0f959b77eb107f6255d67ed4023 made search_pattern always return var instead of sad, so we do not need to recalculate the variance here.",
+      "parentUuid": "17d1cb12_73b062a6",
+      "range": {
+        "startLine": 1432,
+        "startChar": 1,
+        "endLine": 1433,
+        "endChar": 71
+      },
+      "revId": "3039033faf9ef09c0b0e1c30c71e2c40dcf47bbf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
