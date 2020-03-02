@@ -50,6 +50,8 @@ extern "C" {
 
 #define MAX_NUM_GF_INTERVALS 15
 
+#define MAX_ARF_LAYERS 6
+
 typedef struct {
   int resize_width;
   int resize_height;
@@ -171,6 +173,7 @@ typedef struct {
   // Q index used for ALT frame
   int arf_q;
   int active_worst_quality;
+  int active_best_quality[MAX_ARF_LAYERS + 1];
   int base_layer_qp;
 
   // Total number of stats used only for kf_boost calculation.
