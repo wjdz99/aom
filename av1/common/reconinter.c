@@ -575,7 +575,9 @@ void av1_build_inter_predictors(
     const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
     int build_for_obmc, int bw, int bh, int mi_x, int mi_y,
     CalcSubpelParamsFunc calc_subpel_params_func,
-    const void *const calc_subpel_params_func_args) {
+    const void *const calc_subpel_params_func_args,
+    const InterPredExt *ext) {
+  (void) ext;
   if (is_sub8x8_inter(xd, plane, mi, build_for_obmc)) {
     build_inter_predictors_sub8x8(cm, xd, plane, mi, bw, bh, mi_x, mi_y,
                                   calc_subpel_params_func,
