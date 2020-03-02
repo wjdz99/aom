@@ -359,6 +359,7 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.reuse_inter_intra_mode = 1;
     sf->inter_sf.selective_ref_frame = 2;
     sf->inter_sf.skip_repeated_newmv = 1;
+    sf->inter_sf.skip_repeated_full_newmv = 1;
 
     sf->interp_sf.cb_pred_filter_search = 0;
     sf->interp_sf.use_interp_filter = 1;
@@ -961,6 +962,7 @@ static AOM_INLINE void init_inter_sf(INTER_MODE_SPEED_FEATURES *inter_sf) {
   inter_sf->prune_comp_search_by_single_result = 0;
   inter_sf->skip_repeated_ref_mv = 0;
   inter_sf->skip_repeated_newmv = 0;
+  inter_sf->skip_repeated_full_newmv = 0;
   inter_sf->prune_single_motion_modes_by_simple_trans = 0;
   inter_sf->inter_mode_rd_model_estimation = 0;
   inter_sf->prune_compound_using_single_ref = 0;
