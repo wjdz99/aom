@@ -1939,15 +1939,27 @@ int av1_get_derived_intra_mode(const MACROBLOCKD *xd, int bsize,
 
 #if CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX
 
+#if CONFIG_LGT
+#define MODE_DEP_INTER_TX_MODES 1
+#else
 #define MODE_DEP_INTER_TX_MODES 2
+#endif  // CONFIG_LGT
 #define MODE_DEP_INTER_TX_MODE_START 64
 
 // Transform mode to be used for mode dependent transforms
+#if CONFIG_LGT
+static INLINE int get_mode_dep_txfm_mode(const MB_MODE_INFO *const mbmi) {
+  if (is_intra_mode(mbmi->mode)) return mbmi->mode;
+  // Inter modes start from 64.
+  return MODE_DEP_INTER_TX_MODE_START;
+}
+#else
 static INLINE int get_mode_dep_txfm_mode(const MB_MODE_INFO *const mbmi) {
   if (is_intra_mode(mbmi->mode)) return mbmi->mode;
   // Inter modes start from 64.
   return MODE_DEP_INTER_TX_MODE_START + is_inter_compound_mode(mbmi->mode);
 }
+#endif  // CONFIG_LGT
 
 // whether it is an intra mode from the txfm_mode
 static INLINE int is_intra_mode_dep_txfm_mode(int txfm_mode) {
