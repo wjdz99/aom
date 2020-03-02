@@ -1188,6 +1188,77 @@ static void av1_make_masked_inter_predictor(
                            p_row, plane, ref, mi, 0, xd, can_use_previous,
                            ext);
 
+  // If diffwtd and on first iteration through the planes, generate the mask.
+  if (!plane && comp_data->type == COMPOUND_DIFFWTD) {
+    build_compound_diffwtd_mask_d16(comp_data, org_dst, org_dst_stride,
+                                    tmp_buf16, tmp_buf_stride, w, h,
+                                    conv_params, xd->bd, ext);
+  }
+
+  // Generate the compound mask.
+  assert(av1_valid_inter_pred_ext(ext));
+  const int border_left = (ext == NULL) ? 0 : ext->border_left;
+  const int border_top = (ext == NULL) ? 0 : ext->border_top;
+  const int border_right = (ext == NULL) ? 0 : ext->border_right;
+  const int border_bottom = (ext == NULL) ? 0 : ext->border_bottom;
+  pre -= (pre_stride * border_top + border_left);
+  p_row -= border_top;
+  p_col -= border_left;
+  // Build the top row of the extension in 8x8 blocks (including corners).
+  build_compound_8x8(dst, dst_stride, org_dst, org_dst_stride, tmp_buf16,
+                     tmp_buf_stride, comp_data, mi->sb_type,
+                     border_left + border_right + w, border_top, w, h,
+                     conv_params, xd);
+
+  dst += dst_stride * border_top;
+  org_dst += org_dst_stride * border_top;
+  tmp_buf16 += tmp_buf_stride * border_top;
+  p_row += border_top;
+
+  // Build the left edge (not including corners).
+  build_compound_8x8(dst, dst_stride, org_dst, org_dst_stride, tmp_buf16,
+                     tmp_buf_stride, comp_data, mi->sb_type,
+                     border_left, h, w, h, conv_params, xd);
+  dst += border_left;
+  org_dst += border_left;
+  tmp_buf16 += border_left;
+  p_col += border_left;
+
+  // Build the original compound area.
+  build_compound_aux(dst, dst_stride, org_dst, org_dst_stride, tmp_buf16,
+                     tmp_buf_stride, comp_data, mi->sb_type,
+                     w, h, w, h, conv_params, xd);
+  dst += w;
+  org_dst += w;
+  tmp_buf16 += w;
+  p_col += w;
+
+  // Build the right edge (not including corners).
+  build_compound_8x8(dst, dst_stride, org_dst, org_dst_stride, tmp_buf16,
+                     tmp_buf_stride, comp_data, mi->sb_type,
+                     border_right, h, w, h, conv_params, xd);
+  dst += (h * dst_stride) - w - border_left;
+  org_dst += (h * org_dst_stride) - w - border_left;
+  tmp_buf16 += (h * tmp_dst_stride) - w - border_left;
+  p_col -= (w + border_left);
+  p_row += h;
+
+  // Build the bottom row of the extension in 8x8 blocks (including corners).
+  build_compound_8x8(dst, dst_stride, org_dst, org_dst_stride, tmp_buf16,
+                     tmp_buf_stride, comp_data, mi->sb_type,
+                     border_left + border_right + w, border_bottom, w, h,
+                     conv_params, xd);
+}
+
+static void build_compound_aux(
+    uint8_t *dst, int dst_stride, uint8_t *org_dst, int org_dst_stride,
+    CONV_BUF_TYPE *tmp_buf16, int tmp_buf_stride, int w, int h,
+    int orig_w, int orig_h, ConvolveParams *conv_params, MACOBLOCKD *xd) {
+
+}
+
+
+
   if (!plane && comp_data->type == COMPOUND_DIFFWTD) {
 #if CONFIG_CTX_ADAPT_LOG_WEIGHT || CONFIG_DIFFWTD_42
     av1_build_compound_diffwtd_mask_d16_c(
