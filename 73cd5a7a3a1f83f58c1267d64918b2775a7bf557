@@ -46,6 +46,30 @@
       "revId": "73cd5a7a3a1f83f58c1267d64918b2775a7bf557",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40572ba7_7ac7e750",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1500,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-03T20:20:34Z",
+      "side": 1,
+      "message": "Right, so let me put it this way: does the assert at line 1494 ever trigger?\nIf not, would it be sufficient to just add an assert like this?\nassert(IMPLIES(plane \u0026\u0026 !xd-\u003eis_chroma_ref, mbmi-\u003epalette_mode_info.palette_size[plane] \u003d\u003d 0));",
+      "parentUuid": "75e6f97f_b9cb54c6",
+      "range": {
+        "startLine": 1500,
+        "startChar": 0,
+        "endLine": 1500,
+        "endChar": 33
+      },
+      "revId": "73cd5a7a3a1f83f58c1267d64918b2775a7bf557",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
