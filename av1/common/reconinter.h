@@ -108,7 +108,10 @@ static INLINE void revert_scale_extra_bits(SubpelParams *sp) {
 
 // Data structure for passing around configuration options for building
 // the extended inter-predictor. If NULL, will assume 0 values for everything.
-// Border value must be one of 0, 8, 16.
+// Border value must be a multiple of 8 and between 0 and MAX_INTER_PRED_BORDER
+// (inclusive on both ends).
+#define MAX_INTER_PRED_BORDER 16
+
 typedef struct InterPredExt {
   int border_left;
   int border_top;
@@ -117,9 +120,8 @@ typedef struct InterPredExt {
 } InterPredExt;
 
 // Checks if the InterPredExt is valid -- useful for assertions. NULL means
-// 0 values for all borders. Borders cannot extend beyond the top or left-most
-// border of the image.
-bool av1_valid_inter_pred_ext(const InterPredExt *ext, int p_col, int p_row);
+// 0 values for all borders.
+bool av1_valid_inter_pred_ext(const InterPredExt *ext);
 
 static INLINE void inter_predictor(
     const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
@@ -409,24 +411,11 @@ int av1_allow_warp(const MB_MODE_INFO *const mbmi,
 #ifdef CONFIG_ILLUM_MCOMP
 
 // Compute the DC value for a predictor.
-int illum_mcomp_compute_dc(const uint8_t *pred, int stride, int bw, int bh);
+int illum_mcomp_compute_dc_lowbd(const uint8_t *pred, int stride, int bw,
+                                 int bh);
 
-int illum_mcomp_compute_dc_high(const uint16_t *pred, int stride, int bw,
-                                int bh);
-
-// Writes the interpredictor into result, but subtracts out the DC from
-// the interpredictor and adds the DC from the intrapredictor.
-void illum_mcomp_subtract_add_dc(int bw, int bh, uint8_t *result,
-                                 int resultstride, const uint8_t *interpred,
-                                 int interstride, const uint8_t *intrapred,
-                                 int intrastride);
-
-void illum_mcomp_subtract_add_dc_high(int bw, int bh, uint16_t *result,
-                                      uint8_t resultstride,
-                                      const uint16_t *interpred,
-                                      int interstride,
-                                      const uint16_t *intrapred,
-                                      int intrastride, int bd);
+int illum_mcomp_compute_dc_highbd(const uint16_t *pred, int stride, int bw,
+                                  int bh);
 
 #endif  // CONFIG_ILLUM_MCOMP
 

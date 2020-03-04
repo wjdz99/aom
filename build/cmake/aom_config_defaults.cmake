@@ -104,8 +104,9 @@ set_aom_config_var(CONFIG_FILEOPTIONS 1 NUMBER
 set_aom_config_var(CONFIG_INSPECTION 0 NUMBER "Enables bitstream inspection.")
 set_aom_config_var(CONFIG_INTERNAL_STATS 0 NUMBER
                    "Enables internal encoder stats.")
-set_aom_config_var(CONFIG_LOWBITDEPTH 1 NUMBER
-                   "Enables 8-bit optimized pipeline.")
+set_aom_config_var(FORCE_HIGHBITDEPTH_DECODING 0 NUMBER
+                   "Force high bitdepth decoding pipeline on 8-bit input.")
+mark_as_advanced(FORCE_HIGHBITDEPTH_DECODING)
 set_aom_config_var(CONFIG_MAX_DECODE_PROFILE 2 NUMBER
                    "Max profile to support decoding.")
 set_aom_config_var(CONFIG_NORMAL_TILE_MODE 0 NUMBER
@@ -139,6 +140,7 @@ set_aom_config_var(CONFIG_MODE_DEP_NONSEP_INTRA_TX 0 NUMBER
 set_aom_config_var(CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX 0 NUMBER
                    "AV2 experiment flag for sec mode-dep intra tx.")
 set_aom_config_var(CONFIG_DST7_16X16 0 NUMBER "AV2 DST7 16x16 experiment flag.")
+set_aom_config_var(CONFIG_DST7_32x32 0 NUMBER "AV2 DST7 32x32 experiment flag.")
 set_aom_config_var(CONFIG_LGT 0 NUMBER "AV2 LGT experiment flag.")
 set_aom_config_var(CONFIG_CNN_RESTORATION 0 NUMBER
                    "AV2 CNN Restoration experiment flag")

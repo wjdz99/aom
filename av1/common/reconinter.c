@@ -152,20 +152,15 @@ static void av1_make_inter_predictor_aux(
     int build_for_obmc, const MACROBLOCKD *xd, int can_use_previous);
 
 static bool valid_border(int border) {
-  return border == 0 || border == 8 || border == 16;
+  return border % 8 == 0 && border >= 0 && border <= MAX_INTER_PRED_BORDER;
 }
 
-bool av1_valid_inter_pred_ext(const InterPredExt *ext, int p_col, int p_row) {
+bool av1_valid_inter_pred_ext(const InterPredExt *ext) {
   if (ext == NULL) {
     return true;  // NULL means no extension.
   }
   return valid_border(ext->border_left) && valid_border(ext->border_top) &&
-         valid_border(ext->border_bottom) && valid_border(ext->border_right) &&
-         // Warp motion cannot handle negative values for p-row and p-col --
-         // it performs shift operations on the these values, which need to
-         // be shifted by the border region -- left shift of negative values
-         // is undefined.
-         p_col >= ext->border_left && p_row >= ext->border_top;
+         valid_border(ext->border_bottom) && valid_border(ext->border_right);
 }
 
 // Makes the interpredictor for the region by dividing it up into 8x8 blocks
@@ -253,7 +248,7 @@ void av1_make_inter_predictor(
     const WarpTypesAllowed *warp_types, int p_col, int p_row, int plane,
     int ref, const MB_MODE_INFO *mi, int build_for_obmc, const MACROBLOCKD *xd,
     int can_use_previous, const InterPredExt *ext) {
-  assert(av1_valid_inter_pred_ext(ext, p_col, p_row));
+  assert(av1_valid_inter_pred_ext(ext));
   const int border_left = (ext == NULL) ? 0 : ext->border_left;
   const int border_top = (ext == NULL) ? 0 : ext->border_top;
   const int border_right = (ext == NULL) ? 0 : ext->border_right;
@@ -398,7 +393,13 @@ static void build_inter_predictors_sub8x8(
     int col = col_start;
     for (int x = 0; x < b8_w; x += b4_w) {
       MB_MODE_INFO *this_mbmi = xd->mi[row * xd->mi_stride + col];
+#if CONFIG_EXT_PARTITIONS
+      // TODO(yuec): enabling compound prediction in none sub8x8 mbs in the
+      // group
+      bool is_compound = 0;
+#else
       bool is_compound = has_second_ref(this_mbmi);
+#endif  // CONFIG_EXT_PARTITIONS
       const int tmp_dst_stride = 8;
       assert(bw < 8 || bh < 8);
       ConvolveParams conv_params = get_conv_params_no_round(
@@ -538,28 +539,14 @@ static void build_inter_predictors(
 //  3. If sub-sampled, none of the previous blocks around the sub-sample
 //     are intrabc or inter-blocks
 static bool is_sub8x8_inter(MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
-                            int build_for_obmc, int bw, int bh) {
+                            int build_for_obmc) {
   const int is_intrabc = is_intrabc_block(mi);
   if (is_intrabc || build_for_obmc) {
     return false;
   }
 
-  struct macroblockd_plane *const pd = &xd->plane[plane];
   const BLOCK_SIZE bsize = mi->sb_type;
-  const bool ss_x = pd->subsampling_x;
-  const bool ss_y = pd->subsampling_y;
-  int sub8x8_inter = (block_size_wide[bsize] < 8 && ss_x) ||
-                     (block_size_high[bsize] < 8 && ss_y);
-
-#if CONFIG_EXT_PARTITIONS
-  if (sub8x8_inter && bw == 8 && bh == 8) {
-    // 3rd sub-block of a 16x16 VERT3 or HORZ3 partition.
-    sub8x8_inter = 0;
-  }
-#else
-  (void)bw;
-  (void)bh;
-#endif  // CONFIG_EXT_PARTITIONS
+  int sub8x8_inter = plane && (bsize != mi->chroma_ref_info.bsize_base);
 
   if (!sub8x8_inter) {
     return false;
@@ -589,7 +576,7 @@ void av1_build_inter_predictors(
     int build_for_obmc, int bw, int bh, int mi_x, int mi_y,
     CalcSubpelParamsFunc calc_subpel_params_func,
     const void *const calc_subpel_params_func_args) {
-  if (is_sub8x8_inter(xd, plane, mi, build_for_obmc, bw, bh)) {
+  if (is_sub8x8_inter(xd, plane, mi, build_for_obmc)) {
     build_inter_predictors_sub8x8(cm, xd, plane, mi, bw, bh, mi_x, mi_y,
                                   calc_subpel_params_func,
                                   calc_subpel_params_func_args);
@@ -1628,129 +1615,217 @@ static void build_smooth_interintra_mask(uint8_t *mask, int stride,
 }
 
 #if CONFIG_ILLUM_MCOMP
-int illum_mcomp_compute_dc(const uint8_t *pred, int stride, int bw, int bh) {
-  int sum = 0;
-  for (int i = 0; i < bh; ++i) {
-    for (int j = 0; j < bw; ++j) {
-      sum += pred[i * stride + j];
+
+#define ILLUM_MCOMMP_PREC_BITS 8
+#define ILLUM_MCOMMP_PREC (1 << ILLUM_MCOMMP_PREC_BITS)
+
+static void illum_mcomp_linear_model_lowbd(const uint8_t *inter_pred,
+                                           int inter_stride,
+                                           const uint8_t *intra_pred,
+                                           int intra_stride, int bw, int bh,
+                                           int border, int bd, int *alpha,
+                                           int *beta) {
+  assert(bd == 8);
+  if (border == 0) {
+    *alpha = (1 << ILLUM_MCOMMP_PREC_BITS);
+    *beta = 0;
+    return;
+  }
+  int64_t n = 0;
+  int64_t sx2 = 0;
+  int64_t sx = 0;
+  int64_t sxy = 0;
+  int64_t sy = 0;
+  for (int i = -border; i < 0; ++i) {
+    for (int j = -border; j < bw; ++j) {
+      const int x = inter_pred[i * inter_stride + j];
+      const int y = intra_pred[i * intra_stride + j];
+      sx += x;
+      sy += y;
+      sx2 += x * x;
+      sxy += x * y;
+      n++;
     }
   }
-  // Add "0.5" so we round "half-up" instead of "down".
-  const int count = bw * bh;
-  int expected_dc = (sum + (count >> 1)) / count;
-  return expected_dc;
-}
-
-// Copies the inter predictor into the result, but subtracts out the
-// DC from the inter predictor and adds in the DC from the intra predictor.
-// Note that "result" must already be allocated.
-void illum_mcomp_subtract_add_dc(int bw, int bh, uint8_t *result,
-                                 int resultstride, const uint8_t *interpred,
-                                 int interstride, const uint8_t *intrapred,
-                                 int intrastride) {
-  int intra_dc = illum_mcomp_compute_dc(intrapred, intrastride, bw, bh);
-  int inter_dc = illum_mcomp_compute_dc(interpred, interstride, bw, bh);
   for (int i = 0; i < bh; ++i) {
-    for (int j = 0; j < bw; ++j) {
-      int16_t r = interpred[i * interstride + j];
-      r += intra_dc;
-      r -= inter_dc;
-      result[i * resultstride + j] = clip_pixel(r);
+    for (int j = -border; j < 0; ++j) {
+      const int x = inter_pred[i * inter_stride + j];
+      const int y = intra_pred[i * intra_stride + j];
+      sx += x;
+      sy += y;
+      sx2 += x * x;
+      sxy += x * y;
+      n++;
     }
   }
+  const int64_t Pa = n * sxy - sx * sy;
+  const int64_t Pb = -sx * sxy + sx2 * sy;
+  const int64_t D = sx2 * n - sx * sx;
+
+  const int64_t a = ((Pa << ILLUM_MCOMMP_PREC_BITS) + D / 2) / D;
+  const int64_t b = ((Pb << ILLUM_MCOMMP_PREC_BITS) + D / 2) / D;
+  // Clamp to reasonable range
+  *alpha = (int)clamp64(a, ILLUM_MCOMMP_PREC / 4, ILLUM_MCOMMP_PREC * 4);
+  *beta = (int)clamp64(b, -(1 << (bd - 2)) * ILLUM_MCOMMP_PREC,
+                       (1 << (bd - 2)) * ILLUM_MCOMMP_PREC);
 }
 
-static void illum_combine_interintra(int8_t use_wedge_interintra,
-                                     int8_t wedge_index, int8_t wedge_sign,
-                                     BLOCK_SIZE bsize, BLOCK_SIZE plane_bsize,
-                                     uint8_t *comppred, int compstride,
-                                     const uint8_t *interpred, int interstride,
-                                     const uint8_t *intrapred,
-                                     int intrastride) {
+static void illum_mcomp_linear_model_highbd(const uint16_t *inter_pred,
+                                            int inter_stride,
+                                            const uint16_t *intra_pred,
+                                            int intra_stride, int bw, int bh,
+                                            int border, int bd, int *alpha,
+                                            int *beta) {
+  if (border == 0) {
+    *alpha = (1 << ILLUM_MCOMMP_PREC_BITS);
+    *beta = 0;
+    return;
+  }
+  int64_t n = 0;
+  int64_t sx2 = 0;
+  int64_t sx = 0;
+  int64_t sxy = 0;
+  int64_t sy = 0;
+  for (int i = -border; i < 0; ++i) {
+    for (int j = -border; j < bw; ++j) {
+      const int x = inter_pred[i * inter_stride + j];
+      const int y = intra_pred[i * intra_stride + j];
+      sx += x;
+      sy += y;
+      sx2 += x * x;
+      sxy += x * y;
+      n++;
+    }
+  }
+  for (int i = 0; i < bh; ++i) {
+    for (int j = -border; j < 0; ++j) {
+      const int x = inter_pred[i * inter_stride + j];
+      const int y = intra_pred[i * intra_stride + j];
+      sx += x;
+      sy += y;
+      sx2 += x * x;
+      sxy += x * y;
+      n++;
+    }
+  }
+  const int64_t Pa = n * sxy - sx * sy;
+  const int64_t Pb = -sx * sxy + sx2 * sy;
+  const int64_t D = sx2 * n - sx * sx;
+
+  const int64_t a = ((Pa << ILLUM_MCOMMP_PREC_BITS) + D / 2) / D;
+  const int64_t b = ((Pb << ILLUM_MCOMMP_PREC_BITS) + D / 2) / D;
+  // Clamp to reasonable range
+  *alpha = (int)clamp64(a, ILLUM_MCOMMP_PREC / 4, ILLUM_MCOMMP_PREC * 4);
+  *beta = (int)clamp64(b, -(1 << (bd - 2)) * ILLUM_MCOMMP_PREC,
+                       (1 << (bd - 2)) * ILLUM_MCOMMP_PREC);
+}
+
+// Defines a function that can be used to obtain the DC of a block for the
+// type.
+#define ILLUM_MCOMP_COMPUTE_DC(INT_TYPE, suffix)                        \
+  int illum_mcomp_compute_dc_##suffix(const INT_TYPE *pred, int stride, \
+                                      int bw, int bh) {                 \
+    int sum = 0;                                                        \
+    for (int i = 0; i < bh; ++i) {                                      \
+      for (int j = 0; j < bw; ++j) {                                    \
+        sum += pred[i * stride + j];                                    \
+      }                                                                 \
+    }                                                                   \
+    /* Add "0.5" so we round "half-up" instead of "down". */            \
+    const int count = bw * bh;                                          \
+    int expected_dc = (sum + (count >> 1)) / count;                     \
+    return expected_dc;                                                 \
+  }
+
+ILLUM_MCOMP_COMPUTE_DC(uint8_t, lowbd);
+ILLUM_MCOMP_COMPUTE_DC(uint16_t, highbd);
+
+static void illum_combine_interintra(
+    int8_t use_wedge_interintra, int8_t wedge_index, int8_t wedge_sign,
+    BLOCK_SIZE bsize, BLOCK_SIZE plane_bsize, uint8_t *comp_pred,
+    int comp_stride, const uint8_t *inter_pred, int inter_stride,
+    const uint8_t *intra_pred, int intra_stride) {
   const int bw = block_size_wide[plane_bsize];
   const int bh = block_size_high[plane_bsize];
 
-  if (use_wedge_interintra && is_interintra_wedge_used(bsize)) {
-    // Create a new interpredictor with the DC value added back in.
-    uint8_t *new_interpred = aom_memalign(64, bw * bh * sizeof(*new_interpred));
-    illum_mcomp_subtract_add_dc(bw, bh, new_interpred, bw, interpred,
-                                interstride, intrapred, intrastride);
+  // Compute the linearly projected predictor.
+  uint8_t *projected = comp_pred;
+  int projected_stride = comp_stride;
+  const bool wedge_case =
+      use_wedge_interintra && is_interintra_wedge_used(bsize);
+
+  if (wedge_case) {
+    projected = aom_memalign(64, bw * bh * sizeof(*projected));
+    projected_stride = bw;
+  }
+
+  int alpha, beta;
+  illum_mcomp_linear_model_lowbd(inter_pred, inter_stride, intra_pred,
+                                 intra_stride, bw, bh, 0, 8, &alpha, &beta);
+  for (int i = 0; i < bh; ++i) {
+    for (int j = 0; j < bw; ++j) {
+      int32_t r = inter_pred[i * inter_stride + j];
+      r *= alpha;
+      r += beta;
+      projected[i * projected_stride + j] = clip_pixel_highbd(r, 8);
+    }
+  }
+
+  // If this is a wedge case, blend the intra-predictor.
+  if (wedge_case) {
     const uint8_t *mask =
         av1_get_contiguous_soft_mask(wedge_index, wedge_sign, bsize);
     const int subw = 2 * mi_size_wide[bsize] == bw;
     const int subh = 2 * mi_size_high[bsize] == bh;
-    aom_blend_a64_mask(comppred, compstride, intrapred, intrastride,
-                       new_interpred, bw, mask, block_size_wide[bsize], bw, bh,
-                       subw, subh);
-    aom_free(new_interpred);
-    return;
-  }
-  illum_mcomp_subtract_add_dc(bw, bh, comppred, compstride, interpred,
-                              interstride, intrapred, intrastride);
-}
-
-int illum_mcomp_compute_dc_high(const uint16_t *pred, int stride, int bw,
-                                int bh) {
-  int sum = 0;
-  for (int i = 0; i < bh; ++i) {
-    for (int j = 0; j < bw; ++j) {
-      sum += pred[i * stride + j];
-    }
-  }
-  // Add "0.5" so we round "half-up" instead of "down".
-  const int count = bw * bh;
-  int expected_dc = (sum + (count >> 1)) / count;
-  return expected_dc;
-}
-
-void illum_mcomp_subtract_add_dc_high(int bw, int bh, uint16_t *result,
-                                      uint8_t resultstride,
-                                      const uint16_t *interpred,
-                                      int interstride,
-                                      const uint16_t *intrapred,
-                                      int intrastride, int bd) {
-  int intra_dc = illum_mcomp_compute_dc_high(intrapred, intrastride, bw, bh);
-  int inter_dc = illum_mcomp_compute_dc_high(interpred, interstride, bw, bh);
-
-  for (int i = 0; i < bh; ++i) {
-    for (int j = 0; j < bw; ++j) {
-      int32_t r = interpred[i * interstride + j];
-      r += intra_dc;
-      r -= inter_dc;
-      result[i * resultstride + j] = clip_pixel_highbd(r, bd);
-    }
+    aom_blend_a64_mask(comp_pred, comp_stride, intra_pred, intra_stride,
+                       projected, projected_stride, mask,
+                       block_size_wide[bsize], bw, bh, subw, subh);
+    aom_free(projected);
   }
 }
 
 static void illum_combine_interintra_highbd(
     int8_t use_wedge_interintra, int8_t wedge_index, int8_t wedge_sign,
-    BLOCK_SIZE bsize, BLOCK_SIZE plane_bsize, uint8_t *comppred8,
-    int compstride, const uint8_t *interpred8, int interstride,
-    const uint8_t *intrapred8, int intrastride, int bd) {
+    BLOCK_SIZE bsize, BLOCK_SIZE plane_bsize, uint8_t *comp_pred8,
+    int comp_stride, const uint8_t *inter_pred8, int inter_stride,
+    const uint8_t *intra_pred8, int intra_stride, int bd) {
   const int bw = block_size_wide[plane_bsize];
   const int bh = block_size_high[plane_bsize];
-  uint16_t *comppred = CONVERT_TO_SHORTPTR(comppred8);
-  uint16_t *interpred = CONVERT_TO_SHORTPTR(interpred8);
-  uint16_t *intrapred = CONVERT_TO_SHORTPTR(intrapred8);
 
-  if (use_wedge_interintra && is_interintra_wedge_used(bsize)) {
-    // Create a new interpredictor with the DC value added back in.
-    uint16_t *new_interpred =
-        aom_memalign(64, bw * bh * sizeof(*new_interpred));
-    illum_mcomp_subtract_add_dc_high(bw, bh, new_interpred, bw, interpred,
-                                     interstride, intrapred, intrastride, bh);
+  uint16_t *projected = CONVERT_TO_SHORTPTR(comp_pred8);
+  int projected_stride = comp_stride;
+  const bool wedge_case =
+      use_wedge_interintra && is_interintra_wedge_used(bsize);
+  uint16_t *inter_pred = CONVERT_TO_SHORTPTR(inter_pred8);
+  uint16_t *intra_pred = CONVERT_TO_SHORTPTR(intra_pred8);
+
+  if (wedge_case) {
+    projected = aom_memalign(64, bw * bh * sizeof(*projected));
+    projected_stride = bw;
+  }
+  int alpha, beta;
+  illum_mcomp_linear_model_highbd(inter_pred, inter_stride, intra_pred,
+                                  intra_stride, bw, bh, 0, bd, &alpha, &beta);
+  for (int i = 0; i < bh; ++i) {
+    for (int j = 0; j < bw; ++j) {
+      int32_t r = inter_pred[i * inter_stride + j];
+      r *= alpha;
+      r += beta;
+      projected[i * projected_stride + j] = clip_pixel_highbd(r, 8);
+    }
+  }
+
+  if (wedge_case) {
     const uint8_t *mask =
         av1_get_contiguous_soft_mask(wedge_index, wedge_sign, bsize);
     const int subh = 2 * mi_size_high[bsize] == bh;
     const int subw = 2 * mi_size_wide[bsize] == bw;
-    aom_highbd_blend_a64_mask(comppred8, compstride, intrapred8, intrastride,
-                              CONVERT_TO_BYTEPTR(new_interpred), bw, mask,
-                              block_size_wide[bsize], bw, bh, subw, subh, bd);
-    aom_free(new_interpred);
-    return;
+    aom_highbd_blend_a64_mask(comp_pred8, comp_stride, intra_pred8,
+                              intra_stride, CONVERT_TO_BYTEPTR(projected),
+                              projected_stride, mask, block_size_wide[bsize],
+                              bw, bh, subw, subh, bd);
+    aom_free(projected);
   }
-  illum_mcomp_subtract_add_dc_high(bw, bh, comppred, compstride, interpred,
-                                   interstride, intrapred, intrastride, bd);
 }
 #endif  // CONFIG_ILLUM_MCOMP
 

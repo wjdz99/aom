@@ -453,19 +453,12 @@ static BLOCK_SIZE select_sb_size(const AV1_COMP *const cpi) {
 
   if (cpi->oxcf.superblock_size == AOM_SUPERBLOCK_SIZE_64X64)
     return BLOCK_64X64;
-#if CONFIG_FILEOPTIONS
-  if (cm->options && cm->options->ext_partition)
-#endif
-    if (cpi->oxcf.superblock_size == AOM_SUPERBLOCK_SIZE_128X128)
-      return BLOCK_128X128;
+  if (cpi->oxcf.superblock_size == AOM_SUPERBLOCK_SIZE_128X128)
+    return BLOCK_128X128;
 
   assert(cpi->oxcf.superblock_size == AOM_SUPERBLOCK_SIZE_DYNAMIC);
 
-// TODO(any): Possibly could improve this with a heuristic.
-#if CONFIG_FILEOPTIONS
-  if (cm->options && !cm->options->ext_partition) return BLOCK_64X64;
-#endif
-
+  // TODO(any): Possibly could improve this with a heuristic.
   // When superres / resize is on, 'cm->width / height' can change between
   // calls, so we don't apply this heuristic there.
   // Things break if superblock size changes between the first pass and second
@@ -2953,7 +2946,6 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   update_film_grain_parameters(cpi, oxcf);
 
   cpi->oxcf = *oxcf;
-  cpi->common.options = oxcf->cfg;
   x->e_mbd.bd = (int)seq_params->bit_depth;
   x->e_mbd.global_motion = cm->global_motion;
 
@@ -4165,15 +4157,24 @@ static void set_size_independent_vars(AV1_COMP *cpi) {
   cm->switchable_motion_mode = 1;
 }
 
-static int get_gfu_boost_from_r0(double r0, int frames_to_key) {
-  double factor = sqrt((double)frames_to_key);
-  factor = AOMMIN(factor, 10.0);
-  factor = AOMMAX(factor, 4.0);
-  const int boost = (int)rint((200.0 + 10.0 * factor) / r0);
+double av1_get_gfu_boost_projection_factor(double min_factor, double max_factor,
+                                           int frame_count) {
+  double factor = sqrt((double)frame_count);
+  factor = AOMMIN(factor, max_factor);
+  factor = AOMMAX(factor, min_factor);
+  factor = (200.0 + 10.0 * factor);
+  return factor;
+}
+
+static int get_gfu_boost_from_r0(double min_factor, double max_factor,
+                                 double r0, int frames_to_key) {
+  double factor = av1_get_gfu_boost_projection_factor(min_factor, max_factor,
+                                                      frames_to_key);
+  const int boost = (int)rint(factor / r0);
   return boost;
 }
 
-static double get_kf_boost_projection_factor(int frame_count) {
+double av1_get_kf_boost_projection_factor(int frame_count) {
   double factor = sqrt((double)frame_count);
   factor = AOMMIN(factor, 10.0);
   factor = AOMMAX(factor, 4.0);
@@ -4182,37 +4183,23 @@ static double get_kf_boost_projection_factor(int frame_count) {
 }
 
 static int get_kf_boost_from_r0(double r0, int frames_to_key) {
-  double factor = get_kf_boost_projection_factor(frames_to_key);
+  double factor = av1_get_kf_boost_projection_factor(frames_to_key);
   const int boost = (int)rint(factor / r0);
   return boost;
 }
 
-static int get_projected_prior_boost(AV1_COMP *cpi) {
-  /*
-   * If num_stats_used_for_kf_boost >= frames_to_key, then
-   * all stats needed for prior boost calculation are available.
-   * Hence projecting the prior boost is not needed in this cases.
-   */
-  if (cpi->rc.num_stats_used_for_kf_boost >= cpi->rc.frames_to_key)
-    return cpi->rc.kf_boost;
-
-  // Get the current tpl factor (number of frames = frames_to_key).
-  double tpl_factor = get_kf_boost_projection_factor(cpi->rc.frames_to_key);
-  // Get the tpl factor when number of frames = num_stats_used_for_kf_boost.
-  double tpl_factor_num_stats =
-      get_kf_boost_projection_factor(cpi->rc.num_stats_used_for_kf_boost);
-  int projected_kf_boost =
-      (int)rint((tpl_factor * cpi->rc.kf_boost) / tpl_factor_num_stats);
-  return projected_kf_boost;
-}
-
-int combine_prior_with_tpl_boost(int prior_boost, int tpl_boost,
+#define MIN_BOOST_COMBINE_FACTOR 4.0
+#define MAX_BOOST_COMBINE_FACTOR 12.0
+int combine_prior_with_tpl_boost(double min_factor, double max_factor,
+                                 int prior_boost, int tpl_boost,
                                  int frames_to_key) {
   double factor = sqrt((double)frames_to_key);
-  factor = AOMMIN(factor, 12.0);
-  factor = AOMMAX(factor, 4.0);
-  factor -= 4.0;
-  int boost = (int)((factor * prior_boost + (8.0 - factor) * tpl_boost) / 8.0);
+  double range = max_factor - min_factor;
+  factor = AOMMIN(factor, max_factor);
+  factor = AOMMAX(factor, min_factor);
+  factor -= min_factor;
+  int boost =
+      (int)((factor * prior_boost + (range - factor) * tpl_boost) / range);
   return boost;
 }
 
@@ -4258,12 +4245,26 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
       cpi->rd.r0 = (double)intra_cost_base / mc_dep_cost_base;
       if (is_frame_arf_and_tpl_eligible(gf_group)) {
         cpi->rd.arf_r0 = cpi->rd.r0;
-        const int gfu_boost =
-            get_gfu_boost_from_r0(cpi->rd.arf_r0, cpi->rc.frames_to_key);
-        // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
-        //        gfu_boost);
-        cpi->rc.gfu_boost = combine_prior_with_tpl_boost(
-            cpi->rc.gfu_boost, gfu_boost, cpi->rc.frames_to_key);
+        if (cpi->lap_enabled) {
+          double min_boost_factor = sqrt(cpi->rc.baseline_gf_interval);
+          const int gfu_boost = get_gfu_boost_from_r0(
+              min_boost_factor, MAX_GFUBOOST_FACTOR, cpi->rd.arf_r0,
+              cpi->rc.num_stats_required_for_gfu_boost);
+          // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
+          //        gfu_boost);
+          cpi->rc.gfu_boost = combine_prior_with_tpl_boost(
+              min_boost_factor, MAX_BOOST_COMBINE_FACTOR, cpi->rc.gfu_boost,
+              gfu_boost, cpi->rc.num_stats_used_for_gfu_boost);
+        } else {
+          const int gfu_boost =
+              get_gfu_boost_from_r0(MIN_GFUBOOST_FACTOR, MAX_GFUBOOST_FACTOR,
+                                    cpi->rd.arf_r0, cpi->rc.frames_to_key);
+          // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
+          //        gfu_boost);
+          cpi->rc.gfu_boost = combine_prior_with_tpl_boost(
+              MIN_BOOST_COMBINE_FACTOR, MAX_BOOST_COMBINE_FACTOR,
+              cpi->rc.gfu_boost, gfu_boost, cpi->rc.frames_to_key);
+        }
       } else if (frame_is_intra_only(cm)) {
         // TODO(debargha): Turn off q adjustment for kf temporarily to
         // reduce impact on speed of encoding. Need to investigate how
@@ -4272,12 +4273,13 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
           const int kf_boost =
               get_kf_boost_from_r0(cpi->rd.r0, cpi->rc.frames_to_key);
           if (cpi->lap_enabled) {
-            const int projected_prior_boost = get_projected_prior_boost(cpi);
             cpi->rc.kf_boost = combine_prior_with_tpl_boost(
-                projected_prior_boost, kf_boost,
+                MIN_BOOST_COMBINE_FACTOR, MAX_BOOST_COMBINE_FACTOR,
+                cpi->rc.kf_boost, kf_boost,
                 cpi->rc.num_stats_used_for_kf_boost);
           } else {
             cpi->rc.kf_boost = combine_prior_with_tpl_boost(
+                MIN_BOOST_COMBINE_FACTOR, MAX_BOOST_COMBINE_FACTOR,
                 cpi->rc.kf_boost, kf_boost, cpi->rc.frames_to_key);
           }
         }

@@ -3558,9 +3558,10 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   for (int idx = 0; idx < TX_TYPES; ++idx) {
 #if CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX
     const TX_TYPE tx_type = idx < 16 ? (TX_TYPE)txk_map[idx] : (TX_TYPE)idx;
-    if ((tx_type <= H_FLIPADST && !(allowed_tx_mask & (1 << tx_type))) ||
-        (tx_type > H_FLIPADST && !av1_ext_tx_used[tx_set_type][tx_type]))
-      continue;
+    int is_mdt = tx_type > H_FLIPADST;
+    if (!is_mdt && !(allowed_tx_mask & (1 << tx_type))) continue;
+    if (is_mdt && !av1_ext_tx_used[tx_set_type][tx_type]) continue;
+    if (tx_type != DCT_DCT && xd->lossless[mbmi->segment_id]) continue;
 #else
     const TX_TYPE tx_type = (TX_TYPE)txk_map[idx];
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
@@ -10406,8 +10407,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       for (j = 0; j < INTERINTRA_MODES; ++j) {
 #if CONFIG_ILLUM_MCOMP
         if (j == II_ILLUM_MCOMP_PRED) {
-          single_motion_search(cpi, x, bsize, mi_row, mi_col, 0, &tmp_rate_mv,
-                               true);
+          single_motion_search(cpi, x, bsize, 0, &tmp_rate_mv, true);
           av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
                                         AOM_PLANE_Y, AOM_PLANE_Y);
         } else if (j == II_ILLUM_MCOMP_PRED + 1) {
@@ -10580,8 +10580,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
           for (j = 0; j < INTERINTRA_MODES; ++j) {
 #if CONFIG_ILLUM_MCOMP
             if (j == II_ILLUM_MCOMP_PRED) {
-              single_motion_search(cpi, x, bsize, mi_row, mi_col, 0,
-                                   &tmp_rate_mv, true);
+              single_motion_search(cpi, x, bsize, 0, &tmp_rate_mv, true);
               av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
                                             AOM_PLANE_Y, AOM_PLANE_Y);
             } else if (j == II_ILLUM_MCOMP_PRED + 1) {
