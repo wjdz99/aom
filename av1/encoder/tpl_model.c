@@ -383,6 +383,10 @@ static AOM_INLINE void mode_estimation(
     if (inter_cost < best_inter_cost) {
       memcpy(best_coeff, coeff, sizeof(best_coeff));
       best_rf_idx = rf_idx;
+
+      if (rf_idx == 0)
+        tpl_stats->pred_error[rf_idx] = inter_cost;
+
       best_inter_cost = inter_cost;
       best_mv.as_int = x->best_mv.as_int;
       if (best_inter_cost < best_intra_cost) {
@@ -392,6 +396,9 @@ static AOM_INLINE void mode_estimation(
       }
     }
   }
+
+  if (best_rf_idx >= 0)
+    tpl_stats->pred_error[best_rf_idx] = best_inter_cost - tpl_stats->pred_error[0];
 
   if (best_inter_cost < INT64_MAX) {
     uint16_t eob;
@@ -658,6 +665,7 @@ static AOM_INLINE void tpl_model_store(AV1_COMP *cpi,
       tpl_ptr->srcrf_rate = srcrf_rate;
       tpl_ptr->recrf_rate = recrf_rate;
       memcpy(tpl_ptr->mv, src_stats->mv, sizeof(tpl_ptr->mv));
+      memcpy(tpl_ptr->pred_error, src_stats->pred_error, sizeof(tpl_ptr->pred_error));
       tpl_ptr->ref_frame_index = src_stats->ref_frame_index;
       ++tpl_ptr;
     }
@@ -726,13 +734,13 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
 
   // Skip motion estimation w.r.t. reference frames which are not
   // considered in RD search, using "selective_ref_frame" speed feature
-  for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
-    ref[0] = idx + 1;
-    if (prune_ref_by_selective_ref_frame(cpi, ref, ref_frame_display_index,
-                                         tpl_frame->frame_display_index)) {
-      ref_frame[idx] = NULL;
-    }
-  }
+//  for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
+//    ref[0] = idx + 1;
+//    if (prune_ref_by_selective_ref_frame(cpi, ref, ref_frame_display_index,
+//                                         tpl_frame->frame_display_index)) {
+//      ref_frame[idx] = NULL;
+//    }
+//  }
 
   // Make a temporary mbmi for tpl model
   MB_MODE_INFO mbmi;
