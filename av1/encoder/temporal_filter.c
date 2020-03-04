@@ -667,8 +667,7 @@ void av1_temporal_filter_plane_c(uint8_t *frame1, unsigned int stride,
   (void)strength;
   (void)blk_fw;
   (void)use_32x32;
-  const double decay = decay_control * exp(1 - sigma);
-  const double h = decay * sigma;
+  const double h = (double)decay_control * (0.7 + log(sigma + 1.0));
   const double beta = 1.0;
   for (int i = 0, k = 0; i < block_height; i++) {
     for (int j = 0; j < block_width; j++, k++) {
@@ -713,8 +712,7 @@ void av1_highbd_temporal_filter_plane_c(
   (void)use_32x32;
   uint16_t *frame1 = CONVERT_TO_SHORTPTR(frame1_8bit);
   uint16_t *frame2 = CONVERT_TO_SHORTPTR(frame2_8bit);
-  const double decay = decay_control * exp(1 - sigma);
-  const double h = decay * sigma;
+  const double h = (double)decay_control * (0.7 + log(sigma + 1.0));
   const double beta = 1.0;
   for (int i = 0, k = 0; i < block_height; i++) {
     for (int j = 0; j < block_width; j++, k++) {
@@ -765,9 +763,9 @@ void apply_temporal_filter_block(YV12_BUFFER_CONFIG *frame, MACROBLOCKD *mbd,
       int decay_control;
       // The decay is obtained empirically, subject to better tuning.
       if (frame_height >= 720) {
-        decay_control = 7;
+        decay_control = 4;
       } else if (frame_height >= 480) {
-        decay_control = 5;
+        decay_control = 3;
       } else {
         decay_control = 3;
       }
@@ -817,9 +815,9 @@ void apply_temporal_filter_block(YV12_BUFFER_CONFIG *frame, MACROBLOCKD *mbd,
     int decay_control;
     // The decay is obtained empirically, subject to better tuning.
     if (frame_height >= 720) {
-      decay_control = 7;
+      decay_control = 4;
     } else if (frame_height >= 480) {
-      decay_control = 5;
+      decay_control = 3;
     } else {
       decay_control = 3;
     }
@@ -1038,9 +1036,7 @@ static FRAME_DIFF temporal_filter_iterate_c(
   const int mb_uv_height = BH >> mbd->plane[1].subsampling_y;
   const int mb_uv_width = BW >> mbd->plane[1].subsampling_x;
 #if EXPERIMENT_TEMPORAL_FILTER
-  const int is_screen_content_type = cm->allow_screen_content_tools != 0;
-  const int use_new_temporal_mode = AOMMIN(cm->width, cm->height) >= 480 &&
-                                    !is_screen_content_type && !is_key_frame;
+  const int use_new_temporal_mode = AOMMIN(cm->width, cm->height) >= 480;
 #else
   (void)sigma;
   const int use_new_temporal_mode = 0;
