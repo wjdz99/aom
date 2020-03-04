@@ -991,7 +991,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
   }
   const int apply_filtering =
       !is_stat_generation_stage(cpi) && frame_params->frame_type == KEY_FRAME &&
-      frame_params->show_frame &&
+      !frame_params->show_existing_frame &&
       cpi->rc.frames_to_key > NUM_KEY_FRAME_DENOISING && noise_level > 0 &&
       !is_lossless_requested(oxcf) && oxcf->arnr_max_frames > 0;
 
@@ -1017,7 +1017,12 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
     const int num_planes = av1_num_planes(cm);
     aom_yv12_copy_frame(frame_input->source, &cpi->source_kf_buffer,
                         num_planes);
-    av1_temporal_filter(cpi, -1, NULL);
+    if (!frame_params->show_frame) {
+      int arf_src_index = get_arf_src_index(cpi);
+      av1_temporal_filter(cpi, -1 * arf_src_index, NULL);
+    } else {
+      av1_temporal_filter(cpi, -1, NULL);
+    }
     aom_extend_frame_borders(&cpi->alt_ref_buffer, num_planes);
     // Use the filtered frame for encoding.
     frame_input->source = &cpi->alt_ref_buffer;
@@ -1178,10 +1183,12 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 
   if (!is_stat_generation_stage(cpi)) {
+    const int is_fwd_kf = is_show_existing_fwd_kf(cpi);
     frame_params.show_existing_frame =
         ((oxcf->enable_overlay == 0 || cpi->show_existing_alt_ref) &&
          gf_group->update_type[gf_group->index] == OVERLAY_UPDATE) ||
-        gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE;
+        gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE ||
+        is_fwd_kf;
     frame_params.show_existing_frame &= allow_show_existing(cpi, *frame_flags);
 
     // Reset show_existing_alt_ref decision to 0 after it is used.

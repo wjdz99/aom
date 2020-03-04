@@ -374,7 +374,6 @@ typedef struct AV1EncoderConfig {
   unsigned int full_still_picture_hdr;
   int enable_dual_filter;
   unsigned int motion_vector_unit_test;
-  const cfg_options_t *cfg;
   unsigned int sb_multipass_unit_test;
   int disable_ml_partition_speed_features;
   int enable_rect_partitions;
@@ -447,6 +446,9 @@ typedef struct AV1EncoderConfig {
   double fixed_qp_offsets[FIXED_QP_OFFSET_COUNT];
   // min_cr / 100 is the target minimum compression ratio for each frame.
   unsigned int min_cr;
+#if CONFIG_FILEOPTIONS
+  const cfg_options_t *encoder_cfg;
+#endif
 } AV1EncoderConfig;
 
 static INLINE int is_lossless_requested(const AV1EncoderConfig *cfg) {
@@ -1536,6 +1538,12 @@ static INLINE int get_max_allowed_ref_frames(const AV1_COMP *cpi) {
 // the obu_has_size_field bit is set, and the buffer contains the obu_size
 // field.
 aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi);
+
+#define MAX_GFUBOOST_FACTOR 10.0
+#define MIN_GFUBOOST_FACTOR 4.0
+double av1_get_gfu_boost_projection_factor(double min_factor, double max_factor,
+                                           int frame_count);
+double av1_get_kf_boost_projection_factor(int frame_count);
 
 #define ENABLE_KF_TPL 1
 #define MAX_PYR_LEVEL_FROMTOP_DELTAQ 0
