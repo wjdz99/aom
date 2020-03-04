@@ -450,6 +450,78 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
   }
 }
 
+// Set temporal variance low flag for superblock 64x64.
+// Only first 25 in the array are used in this case.
+static AOM_INLINE void set_low_temp_var_flag_small_sb(
+    AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd, v128x128 *vt,
+    int64_t thresholds[], MV_REFERENCE_FRAME ref_frame_partition, int mi_col,
+    int mi_row) {
+  int i, j;
+  AV1_COMMON *const cm = &cpi->common;
+  const int mv_thr = cm->width > 640 ? 8 : 4;
+  // Check temporal variance for bsize >= 16x16, if LAST_FRAME was selected and
+  // int_pro mv is small. If the temporal variance is small set the flag
+  // variance_low for the block. The variance threshold can be adjusted, the
+  // higher the more aggressive.
+  if (ref_frame_partition == LAST_FRAME &&
+      (cpi->sf.rt_sf.short_circuit_low_temp_var == 1 ||
+       (cpi->sf.rt_sf.estimate_motion_for_var_based_partition &&
+        xd->mi[0]->mv[0].as_mv.col < mv_thr &&
+        xd->mi[0]->mv[0].as_mv.col > -mv_thr &&
+        xd->mi[0]->mv[0].as_mv.row < mv_thr &&
+        xd->mi[0]->mv[0].as_mv.row > -mv_thr))) {
+    if (xd->mi[0]->sb_type == BLOCK_64X64) {
+      if ((vt->part_variances).none.variance < (thresholds[0] >> 1))
+        x->variance_low[0] = 1;
+    } else if (xd->mi[0]->sb_type == BLOCK_64X32) {
+      for (i = 0; i < 2; i++) {
+        if (vt->part_variances.horz[i].variance < (thresholds[0] >> 2))
+          x->variance_low[i + 1] = 1;
+      }
+    } else if (xd->mi[0]->sb_type == BLOCK_32X64) {
+      for (i = 0; i < 2; i++) {
+        if (vt->part_variances.vert[i].variance < (thresholds[0] >> 2))
+          x->variance_low[i + 3] = 1;
+      }
+    } else {
+      for (i = 0; i < 4; i++) {
+        const int idx[4][2] = { { 0, 0 }, { 0, 4 }, { 4, 0 }, { 4, 4 } };
+        const int idx_str =
+            cm->mi_stride * (mi_row + idx[i][0]) + mi_col + idx[i][1];
+        MB_MODE_INFO **this_mi = cm->mi_grid_base + idx_str;
+
+        if (cm->mi_cols <= mi_col + idx[i][1] ||
+            cm->mi_rows <= mi_row + idx[i][0])
+          continue;
+
+        if (*this_mi == NULL) continue;
+
+        if ((*this_mi)->sb_type == BLOCK_32X32) {
+          int64_t threshold_32x32 =
+              (cpi->sf.rt_sf.short_circuit_low_temp_var == 1 ||
+               cpi->sf.rt_sf.short_circuit_low_temp_var == 3)
+                  ? ((5 * thresholds[1]) >> 3)
+                  : (thresholds[1] >> 1);
+          if (vt->split[i].part_variances.none.variance < threshold_32x32)
+            x->variance_low[i + 5] = 1;
+        } else if (cpi->sf.rt_sf.short_circuit_low_temp_var >= 2) {
+          // For 32x16 and 16x32 blocks, the flag is set on each 16x16 block
+          // inside.
+          if ((*this_mi)->sb_type == BLOCK_16X16 ||
+              (*this_mi)->sb_type == BLOCK_32X16 ||
+              (*this_mi)->sb_type == BLOCK_16X32) {
+            for (j = 0; j < 4; j++) {
+              if (vt->split[i].split[j].part_variances.none.variance <
+                  (thresholds[2] >> 8))
+                x->variance_low[(i << 2) + j + 9] = 1;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 static AOM_INLINE void set_low_temp_var_flag(
     AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd, v128x128 *vt,
     int64_t thresholds[], MV_REFERENCE_FRAME ref_frame_partition, int mi_col,
@@ -1006,9 +1078,13 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
     }
   }
 
-  if (cpi->sf.rt_sf.short_circuit_low_temp_var && !is_small_sb) {
-    set_low_temp_var_flag(cpi, x, xd, vt, thresholds, ref_frame_partition,
-                          mi_col, mi_row);
+  if (cpi->sf.rt_sf.short_circuit_low_temp_var) {
+    if (!is_small_sb)
+      set_low_temp_var_flag(cpi, x, xd, vt, thresholds, ref_frame_partition,
+                            mi_col, mi_row);
+    else
+      set_low_temp_var_flag_small_sb(cpi, x, xd, vt, thresholds,
+                                     ref_frame_partition, mi_col, mi_row);
   }
   chroma_check(cpi, x, bsize, y_sad, is_key_frame);
 
