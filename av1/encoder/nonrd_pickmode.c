@@ -1166,6 +1166,57 @@ static INLINE void update_thresh_freq_fact(AV1_COMP *cpi, MACROBLOCK *x,
   }
 }
 
+static INLINE int get_force_skip_low_temp_var_small_sb(uint8_t *variance_low,
+                                                       int mi_row, int mi_col,
+                                                       BLOCK_SIZE bsize) {
+  // Relative indices of 16x16 block inside the superblock.
+  const int i = (mi_row & 0xF) >> 2;
+  const int j = (mi_col & 0xF) >> 2;
+  int force_skip_low_temp_var = 0;
+  static const int pos_shift_16x16[4][4] = { { 9, 10, 13, 14 },
+                                             { 11, 12, 15, 16 },
+                                             { 17, 18, 21, 22 },
+                                             { 19, 20, 23, 24 } };
+
+  // Set force_skip_low_temp_var based on the block size and block offset.
+  switch (bsize) {
+    case BLOCK_64X64: force_skip_low_temp_var = variance_low[0]; break;
+    case BLOCK_64X32:
+      if (!(mi_col & 0x7) && !(mi_row & 0x7)) {
+        force_skip_low_temp_var = variance_low[1];
+      } else if (!(mi_col & 0x7) && (mi_row & 0x7)) {
+        force_skip_low_temp_var = variance_low[2];
+      }
+      break;
+    case BLOCK_32X64:
+      if (!(mi_col & 0x7) && !(mi_row & 0x7)) {
+        force_skip_low_temp_var = variance_low[3];
+      } else if ((mi_col & 0x7) && !(mi_row & 0x7)) {
+        force_skip_low_temp_var = variance_low[4];
+      }
+      break;
+    case BLOCK_32X32:
+      if (!(mi_col & 0x7) && !(mi_row & 0x7)) {
+        force_skip_low_temp_var = variance_low[5];
+      } else if ((mi_col & 0x7) && !(mi_row & 0x7)) {
+        force_skip_low_temp_var = variance_low[6];
+      } else if (!(mi_col & 0x7) && (mi_row & 0x7)) {
+        force_skip_low_temp_var = variance_low[7];
+      } else if ((mi_col & 0x7) && (mi_row & 0x7)) {
+        force_skip_low_temp_var = variance_low[8];
+      }
+      break;
+    case BLOCK_32X16:
+    case BLOCK_16X32:
+    case BLOCK_16X16:
+      force_skip_low_temp_var = variance_low[pos_shift_16x16[i][j]];
+      break;
+    default: break;
+  }
+
+  return force_skip_low_temp_var;
+}
+
 static INLINE int get_force_skip_low_temp_var(uint8_t *variance_low, int mi_row,
                                               int mi_col, BLOCK_SIZE bsize) {
   int force_skip_low_temp_var = 0;
@@ -1562,11 +1613,15 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
   const int is_small_sb = (cm->seq_params.sb_size == BLOCK_64X64);
-  if (!is_small_sb && cpi->sf.rt_sf.short_circuit_low_temp_var &&
+  if (cpi->sf.rt_sf.short_circuit_low_temp_var &&
       x->nonrd_prune_ref_frame_search) {
-    force_skip_low_temp_var =
-        get_force_skip_low_temp_var(&x->variance_low[0], mi_row, mi_col, bsize);
-    // If force_skip_low_temp_var is set, skip non-LAST references.
+    if (is_small_sb)
+      force_skip_low_temp_var = get_force_skip_low_temp_var_small_sb(
+          &x->variance_low[0], mi_row, mi_col, bsize);
+    else
+      force_skip_low_temp_var = get_force_skip_low_temp_var(
+          &x->variance_low[0], mi_row, mi_col, bsize);
+    // If force_skip_low_temp_var is set, skip golden reference.
     if (force_skip_low_temp_var) {
       usable_ref_frame = LAST_FRAME;
     }
