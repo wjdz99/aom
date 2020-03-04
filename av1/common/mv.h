@@ -24,6 +24,15 @@ extern "C" {
 #define GET_MV_RAWPEL(x) (((x) + 3 + ((x) >= 0)) >> 3)
 #define GET_MV_SUBPEL(x) ((x)*8)
 
+#define CHECK_MV_EQUAL(x, y) (((int_mv)(x)).as_int == ((int_mv)(y)).as_int)
+#define CHECK_MV_VALID(x) (((int_mv)(x)).as_int != INVALID_MV)
+#define CHECK_MV_PTR_VALID(x) ((x) && ((int_mv *)(x))->as_int != INVALID_MV)
+
+#define MARK_MV_INVALID(x)                  \
+  do {                                      \
+    (((int_mv *)(x))->as_int = INVALID_MV); \
+  } while (0);
+
 // The motion vector in units of full pixel
 typedef struct fullpel_mv {
   int16_t row;
