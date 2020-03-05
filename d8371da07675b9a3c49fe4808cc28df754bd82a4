@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "330e2826_cf5d3a21",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1194,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-03-05T19:23:12Z",
+      "side": 1,
+      "message": "remove this assert, or set the x/y for this case (and cases below 32x32/16x16)?",
+      "revId": "d8371da07675b9a3c49fe4808cc28df754bd82a4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1945dcdf_8cc5846a",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1552,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-03-05T19:23:12Z",
+      "side": 1,
+      "message": "fix comment (remove ..and 3...)",
+      "revId": "d8371da07675b9a3c49fe4808cc28df754bd82a4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a148549_3dcead53",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-03-05T19:23:12Z",
+      "side": 1,
+      "message": "25?",
+      "revId": "d8371da07675b9a3c49fe4808cc28df754bd82a4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
