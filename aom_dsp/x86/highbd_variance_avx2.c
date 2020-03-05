@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Alliance for Open Media. All rights reserved
+ * Copyright (c) 2020, Alliance for Open Media. All rights reserved
  *
  * This source code is subject to the terms of the BSD 2 Clause License and
  * the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
@@ -13,10 +13,235 @@
 #include <immintrin.h>  // AVX2
 
 #include "config/aom_dsp_rtcd.h"
+#include "aom_dsp/aom_filter.h"
 
 typedef void (*high_variance_fn_t)(const uint16_t *src, int src_stride,
                                    const uint16_t *ref, int ref_stride,
                                    uint32_t *sse, int *sum);
+
+void aom_highbd_var_filter_block2d_bil_first_pass_avx2(
+    const uint8_t *src_ptr8, uint16_t *output_ptr,
+    unsigned int src_pixels_per_line, int pixel_step,
+    unsigned int output_height, unsigned int output_width,
+    const uint8_t *filter) {
+  const __m256i filter1 = _mm256_set1_epi16((uint16_t)filter[0]);
+  const __m256i filter2 = _mm256_set1_epi16((uint16_t)filter[1]);
+  const uint32_t bitshift = (uint32_t)0x40;
+  unsigned int i, j;
+  uint16_t *src_ptr = CONVERT_TO_SHORTPTR(src_ptr8);
+
+  __m256i rbias = _mm256_set1_epi32(bitshift);
+  switch (output_width) {
+    case 8:
+      for (i = 0; i < output_height; i += 2) {
+        __m128i src00 = _mm_loadu_si128((__m128i const *)src_ptr);
+        src_ptr += pixel_step;
+        __m128i src01 = _mm_loadu_si128((__m128i const *)src_ptr);
+        src_ptr += 8 - pixel_step;
+        src_ptr += src_pixels_per_line - output_width;
+
+        __m128i src02 = _mm_loadu_si128((__m128i const *)src_ptr);
+        src_ptr += pixel_step;
+        __m128i src03 = _mm_loadu_si128((__m128i const *)src_ptr);
+        src_ptr += 8 - pixel_step;
+        src_ptr += src_pixels_per_line - output_width;
+        __m256i src = _mm256_insertf128_si256(filter1, src00, 0);
+        __m256i src1 = _mm256_insertf128_si256(src, src02, 1);
+        src = _mm256_insertf128_si256(filter1, src01, 0);
+        __m256i src2 = _mm256_insertf128_si256(src, src03, 1);
+
+        __m256i opointer = _mm256_mullo_epi16(src1, filter1);
+        __m256i opointer1 = _mm256_mulhi_epu16(src1, filter1);
+        __m256i opointer2 = _mm256_mullo_epi16(src2, filter2);
+        __m256i opointer3 = _mm256_mulhi_epu16(src2, filter2);
+
+        __m256i opointer4 = _mm256_unpacklo_epi16(opointer, opointer1);
+        __m256i opointer5 = _mm256_unpackhi_epi16(opointer, opointer1);
+        __m256i opointer6 = _mm256_unpacklo_epi16(opointer2, opointer3);
+        __m256i opointer7 = _mm256_unpackhi_epi16(opointer2, opointer3);
+
+        __m256i sum1 = _mm256_add_epi32(opointer4, opointer6);
+        __m256i sum2 = _mm256_add_epi32(opointer5, opointer7);
+
+        opointer1 = _mm256_add_epi32(sum1, rbias);
+        opointer2 = _mm256_add_epi32(sum2, rbias);
+
+        opointer3 = _mm256_srli_epi32(opointer1, 7);
+        opointer4 = _mm256_srli_epi32(opointer2, 7);
+
+        opointer = _mm256_packus_epi32(opointer3, opointer4);
+
+        _mm256_storeu_si256((__m256i *)output_ptr, opointer);
+        output_ptr += 16;
+      }
+      break;
+    case 16:
+      for (i = 0; i < output_height; ++i) {
+        __m256i src1 = _mm256_loadu_si256((__m128i const *)src_ptr);
+        src_ptr += pixel_step;
+        __m256i src2 = _mm256_loadu_si256((__m128i const *)src_ptr);
+        src_ptr += 16 - pixel_step;
+        src_ptr += src_pixels_per_line - output_width;
+
+        __m256i opointer = _mm256_mullo_epi16(src1, filter1);
+        __m256i opointer1 = _mm256_mulhi_epu16(src1, filter1);
+        __m256i opointer2 = _mm256_mullo_epi16(src2, filter2);
+        __m256i opointer3 = _mm256_mulhi_epu16(src2, filter2);
+
+        __m256i opointer4 = _mm256_unpacklo_epi16(opointer, opointer1);
+        __m256i opointer5 = _mm256_unpackhi_epi16(opointer, opointer1);
+        __m256i opointer6 = _mm256_unpacklo_epi16(opointer2, opointer3);
+        __m256i opointer7 = _mm256_unpackhi_epi16(opointer2, opointer3);
+
+        __m256i sum1 = _mm256_add_epi32(opointer4, opointer6);
+        __m256i sum2 = _mm256_add_epi32(opointer5, opointer7);
+        opointer1 = _mm256_add_epi32(sum1, rbias);
+        opointer2 = _mm256_add_epi32(sum2, rbias);
+
+        opointer3 = _mm256_srli_epi32(opointer1, 7);
+        opointer4 = _mm256_srli_epi32(opointer2, 7);
+        opointer = _mm256_packus_epi32(opointer3, opointer4);
+
+        _mm256_storeu_si256((__m256i *)output_ptr, opointer);
+        output_ptr += 16;
+      }
+      break;
+    case 32:
+      for (i = 0; i < output_height * 2; ++i) {
+        __m256i src1 = _mm256_loadu_si256((__m128i const *)src_ptr);
+        src_ptr += pixel_step;
+        __m256i src2 = _mm256_loadu_si256((__m128i const *)src_ptr);
+        src_ptr += 16 - pixel_step;
+        if (i % 2 == 1) src_ptr += src_pixels_per_line - output_width;
+
+        __m256i opointer = _mm256_mullo_epi16(src1, filter1);
+        __m256i opointer1 = _mm256_mulhi_epu16(src1, filter1);
+        __m256i opointer2 = _mm256_mullo_epi16(src2, filter2);
+        __m256i opointer3 = _mm256_mulhi_epu16(src2, filter2);
+
+        __m256i opointer4 = _mm256_unpacklo_epi16(opointer, opointer1);
+        __m256i opointer5 = _mm256_unpackhi_epi16(opointer, opointer1);
+        __m256i opointer6 = _mm256_unpacklo_epi16(opointer2, opointer3);
+        __m256i opointer7 = _mm256_unpackhi_epi16(opointer2, opointer3);
+
+        __m256i sum1 = _mm256_add_epi32(opointer4, opointer6);
+        __m256i sum2 = _mm256_add_epi32(opointer5, opointer7);
+        opointer1 = _mm256_add_epi32(sum1, rbias);
+        opointer2 = _mm256_add_epi32(sum2, rbias);
+
+        opointer3 = _mm256_srli_epi32(opointer1, 7);
+        opointer4 = _mm256_srli_epi32(opointer2, 7);
+        opointer = _mm256_packus_epi32(opointer3, opointer4);
+
+        _mm256_storeu_si256((__m256i *)output_ptr, opointer);
+        output_ptr += 16;
+      }
+      break;
+    case 64:
+      for (i = 0; i < output_height * 4; ++i) {
+        __m256i src1 = _mm256_loadu_si256((__m128i const *)src_ptr);
+        src_ptr += pixel_step;
+        __m256i src2 = _mm256_loadu_si256((__m128i const *)src_ptr);
+        src_ptr += 16 - pixel_step;
+        if (i % 4 == 3) src_ptr += src_pixels_per_line - output_width;
+
+        __m256i opointer = _mm256_mullo_epi16(src1, filter1);
+        __m256i opointer1 = _mm256_mulhi_epu16(src1, filter1);
+        __m256i opointer2 = _mm256_mullo_epi16(src2, filter2);
+        __m256i opointer3 = _mm256_mulhi_epu16(src2, filter2);
+
+        __m256i opointer4 = _mm256_unpacklo_epi16(opointer, opointer1);
+        __m256i opointer5 = _mm256_unpackhi_epi16(opointer, opointer1);
+        __m256i opointer6 = _mm256_unpacklo_epi16(opointer2, opointer3);
+        __m256i opointer7 = _mm256_unpackhi_epi16(opointer2, opointer3);
+
+        __m256i sum1 = _mm256_add_epi32(opointer4, opointer6);
+        __m256i sum2 = _mm256_add_epi32(opointer5, opointer7);
+
+        opointer1 = _mm256_add_epi32(sum1, rbias);
+        opointer2 = _mm256_add_epi32(sum2, rbias);
+
+        opointer3 = _mm256_srli_epi32(opointer1, 7);
+        opointer4 = _mm256_srli_epi32(opointer2, 7);
+
+        opointer = _mm256_packus_epi32(opointer3, opointer4);
+
+        _mm256_storeu_si256((__m256i *)output_ptr, opointer);
+        output_ptr += 16;
+      }
+      break;
+
+    case 128:
+      for (i = 0; i < output_height * 8; ++i) {
+        __m256i src1 = _mm256_loadu_si256((__m128i const *)src_ptr);
+        src_ptr += pixel_step;
+        __m256i src2 = _mm256_loadu_si256((__m128i const *)src_ptr);
+        src_ptr += 16 - pixel_step;
+        if (i % 8 == 7) src_ptr += src_pixels_per_line - output_width;
+
+        __m256i opointer = _mm256_mullo_epi16(src1, filter1);
+        __m256i opointer1 = _mm256_mulhi_epu16(src1, filter1);
+        __m256i opointer2 = _mm256_mullo_epi16(src2, filter2);
+        __m256i opointer3 = _mm256_mulhi_epu16(src2, filter2);
+
+        __m256i opointer4 = _mm256_unpacklo_epi16(opointer, opointer1);
+        __m256i opointer5 = _mm256_unpackhi_epi16(opointer, opointer1);
+        __m256i opointer6 = _mm256_unpacklo_epi16(opointer2, opointer3);
+        __m256i opointer7 = _mm256_unpackhi_epi16(opointer2, opointer3);
+
+        __m256i sum1 = _mm256_add_epi32(opointer4, opointer6);
+        __m256i sum2 = _mm256_add_epi32(opointer5, opointer7);
+
+        opointer1 = _mm256_add_epi32(sum1, rbias);
+        opointer2 = _mm256_add_epi32(sum2, rbias);
+
+        opointer3 = _mm256_srli_epi32(opointer1, 7);
+        opointer4 = _mm256_srli_epi32(opointer2, 7);
+
+        opointer = _mm256_packus_epi32(opointer3, opointer4);
+
+        _mm256_storeu_si256((__m256i *)output_ptr, opointer);
+        output_ptr += 16;
+      }
+      break;
+
+    default:
+      for (i = 0; i < output_height; ++i) {
+        for (j = 0; j < output_width; ++j) {
+          output_ptr[j] =
+              ROUND_POWER_OF_TWO((int)src_ptr[0] * filter[0] +
+                                     (int)src_ptr[pixel_step] * filter[1],
+                                 FILTER_BITS);
+
+          ++src_ptr;
+        }
+
+        // Next row...
+        src_ptr += src_pixels_per_line - output_width;
+        output_ptr += output_width;
+      }
+  }
+}
+
+void aom_highbd_var_filter_block2d_bil_second_pass_avx2(
+    const uint16_t *src_ptr, uint16_t *output_ptr,
+    unsigned int src_pixels_per_line, unsigned int pixel_step,
+    unsigned int output_height, unsigned int output_width,
+    const uint8_t *filter) {
+  unsigned int i, j;
+
+  for (i = 0; i < output_height; ++i) {
+    for (j = 0; j < output_width; ++j) {
+      output_ptr[j] = ROUND_POWER_OF_TWO(
+          (int)src_ptr[0] * filter[0] + (int)src_ptr[pixel_step] * filter[1],
+          FILTER_BITS);
+      ++src_ptr;
+    }
+
+    src_ptr += src_pixels_per_line - output_width;
+    output_ptr += output_width;
+  }
+}
 
 void aom_highbd_calc8x8var_avx2(const uint16_t *src, int src_stride,
                                 const uint16_t *ref, int ref_stride,
@@ -118,8 +343,8 @@ static void highbd_10_variance_avx2(const uint16_t *src, int src_stride,
     return (var >= 0) ? (uint32_t)var : 0;                                 \
   }
 
-VAR_FN(128, 128, 16, 14);
-VAR_FN(128, 64, 16, 13);
+VAR_FN(128, 128, 16, 14)
+VAR_FN(128, 64, 16, 13)
 VAR_FN(64, 128, 16, 13);
 VAR_FN(64, 64, 16, 12);
 VAR_FN(64, 32, 16, 11);
@@ -138,3 +363,39 @@ VAR_FN(16, 64, 16, 10);
 VAR_FN(64, 16, 16, 10);
 
 #undef VAR_FN
+
+#define HIGHBD_SUBPIX_VAR(W, H)                                              \
+  uint32_t aom_highbd_10_sub_pixel_variance##W##x##H##_avx2(                 \
+      const uint8_t *src, int src_stride, int xoffset, int yoffset,          \
+      const uint8_t *dst, int dst_stride, uint32_t *sse) {                   \
+    uint16_t fdata3[(H + 1) * W];                                            \
+    uint16_t temp2[H * W];                                                   \
+                                                                             \
+    aom_highbd_var_filter_block2d_bil_first_pass_avx2(                       \
+        src, fdata3, src_stride, 1, H + 1, W, bilinear_filters_2t[xoffset]); \
+    aom_highbd_var_filter_block2d_bil_second_pass_avx2(                      \
+        fdata3, temp2, W, W, H, W, bilinear_filters_2t[yoffset]);            \
+                                                                             \
+    return aom_highbd_10_variance##W##x##H##_avx2(CONVERT_TO_BYTEPTR(temp2), \
+                                                  W, dst, dst_stride, sse);  \
+  }
+
+HIGHBD_SUBPIX_VAR(128, 128)
+HIGHBD_SUBPIX_VAR(128, 64)
+HIGHBD_SUBPIX_VAR(64, 128)
+HIGHBD_SUBPIX_VAR(64, 64)
+HIGHBD_SUBPIX_VAR(64, 32)
+HIGHBD_SUBPIX_VAR(32, 64)
+HIGHBD_SUBPIX_VAR(32, 32)
+HIGHBD_SUBPIX_VAR(32, 16)
+HIGHBD_SUBPIX_VAR(16, 32)
+HIGHBD_SUBPIX_VAR(16, 16)
+HIGHBD_SUBPIX_VAR(16, 8)
+HIGHBD_SUBPIX_VAR(8, 16)
+HIGHBD_SUBPIX_VAR(8, 8)
+HIGHBD_SUBPIX_VAR(16, 4)
+HIGHBD_SUBPIX_VAR(8, 32)
+HIGHBD_SUBPIX_VAR(32, 8)
+HIGHBD_SUBPIX_VAR(16, 64)
+HIGHBD_SUBPIX_VAR(64, 16)
+#undef HIGHBD_SUBPIX_VAR
