@@ -121,7 +121,8 @@ typedef struct InterPredExt {
 
 // Checks if the InterPredExt is valid -- useful for assertions. NULL means
 // 0 values for all borders.
-bool av1_valid_inter_pred_ext(const InterPredExt *ext);
+bool av1_valid_inter_pred_ext(const InterPredExt *ext, bool is_intrabc,
+                              bool is_compound);
 
 static INLINE void inter_predictor(
     const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
@@ -234,12 +235,16 @@ typedef void (*CalcSubpelParamsFunc)(
     const void *const args, uint8_t **pre, SubpelParams *subpel_params,
     int *src_stride);
 
+// Build the inter predictor and save it in the destination buffer. If
+// InterPredExt is non-null, will also build a border region around the
+// destination. Note that dst should point to *the start of the border*.
 void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                 int plane, const MB_MODE_INFO *mi,
                                 int build_for_obmc, int bw, int bh, int mi_x,
                                 int mi_y,
                                 CalcSubpelParamsFunc calc_subpel_params_func,
                                 const void *const calc_subpel_params_func_args,
+                                uint8_t *dst, int dst_stride,
                                 const InterPredExt *ext);
 
 // TODO(jkoleszar): yet another mv clamping function :-(

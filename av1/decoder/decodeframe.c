@@ -719,6 +719,8 @@ static void dec_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
   const DecCalcSubpelFuncArgs args = { mi, mi_x, mi_y, build_for_obmc };
   av1_build_inter_predictors(cm, xd, plane, mi, build_for_obmc, bw, bh, mi_x,
                              mi_y, dec_calc_subpel_params_and_extend, &args,
+                             xd->plane[plane].dst.buf,
+                             xd->plane[plane].dst.stride,
                              NULL);
 }
 
