@@ -1696,36 +1696,19 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
             NEWMV)  {
           continue;
         }
-
-        // Disable this drop out case if the ref frame segment level feature is
-        // enabled for this segment. This is to prevent the possibility that we
-        // end up unable to pick any mode.
-        if (!segfeature_active(seg, mi->segment_id, SEG_LVL_REF_FRAME)) {
-          if (sf->reference_masking &&
-              !(frame_mv[this_mode][ref_frame].as_int == 0 &&
-                ref_frame == LAST_FRAME)) {
-            if (usable_ref_frame < ALTREF_FRAME) {
-              if (!force_skip_low_temp_var && usable_ref_frame > LAST_FRAME) {
-                i = (ref_frame == LAST_FRAME) ? GOLDEN_FRAME : LAST_FRAME;
-                if ((cpi->ref_frame_flags & flag_list[i]))
-                  if (x->pred_mv_sad[ref_frame] > (x->pred_mv_sad[i] << 1))
-                    ref_frame_skip_mask |= (1 << ref_frame);
-              }
-            } else if (!cpi->rc.is_src_frame_alt_ref &&
-                       !(frame_mv[this_mode][ref_frame].as_int == 0 &&
-                         ref_frame == ALTREF_FRAME)) {
-              int ref1 = (ref_frame == GOLDEN_FRAME) ? LAST_FRAME :
-       GOLDEN_FRAME; int ref2 = (ref_frame == ALTREF_FRAME) ? LAST_FRAME :
-       ALTREF_FRAME; if (((cpi->ref_frame_flags & flag_list[ref1]) &&
-                (x->pred_mv_sad[ref_frame] > (x->pred_mv_sad[ref1] << 1))) ||
-                  ((cpi->ref_frame_flags & flag_list[ref2]) &&
-                   (x->pred_mv_sad[ref_frame] > (x->pred_mv_sad[ref2] << 1))))
-                ref_frame_skip_mask |= (1 << ref_frame);
-            }
-          }
-          if (ref_frame_skip_mask & (1 << ref_frame)) continue;
-        }
 #endif
+
+    // Disable this drop out case if the ref frame segment level feature is
+    // enabled for this segment. This is to prevent the possibility that we
+    // end up unable to pick any mode.
+    if (!segfeature_active(seg, mi->segment_id, SEG_LVL_REF_FRAME)) {
+      // Check for skipping GOLDEN and ALTREF.
+      if (cpi->sf.rt_sf.nonrd_prune_ref_frame_search && ref_frame != LAST_FRAME) {
+        if (x->pred_mv_sad[ref_frame] > (x->pred_mv_sad[LAST_FRAME] << 1))
+          ref_frame_skip_mask |= (1 << ref_frame);
+       }
+       if (ref_frame_skip_mask & (1 << ref_frame)) continue;
+    }
 
     // Select prediction reference frames.
     for (int i = 0; i < MAX_MB_PLANE; i++) {
