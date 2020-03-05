@@ -77,6 +77,23 @@
     },
     {
       "key": {
+        "uuid": "52fd2261_977bea3d",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-03-05T18:56:28Z",
+      "side": 1,
+      "message": "const?",
+      "revId": "d6d450de67accae49b3fd2d5a46694488c30da05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "42fff0b1_90370406",
         "filename": "av1/encoder/var_based_part.c",
         "patchSetId": 5
@@ -88,6 +105,23 @@
       "writtenOn": "2020-03-05T18:28:13Z",
       "side": 1,
       "message": "should we remove here (and below): cpi-\u003esf.rt_sf.short_circuit_low_temp_var \u003d\u003d 3 case, since right now feature is either off or on (0 or 1).",
+      "revId": "d6d450de67accae49b3fd2d5a46694488c30da05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d39cba79_0fa06bc7",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-03-05T18:56:28Z",
+      "side": 1,
+      "message": "const?",
       "revId": "d6d450de67accae49b3fd2d5a46694488c30da05",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
