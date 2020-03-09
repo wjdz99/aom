@@ -18,10 +18,18 @@
 #include "av1/common/onyxc_int.h"
 #include "av1/common/convolve.h"
 #include "av1/common/warped_motion.h"
+#include "av1/common/reconinter.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+void enc_calc_subpel_params(
+    MACROBLOCKD *xd, const struct scale_factors *const sf, const MV *const mv,
+    int plane, int pre_x, int pre_y, int x, int y, struct buf_2d *const pre_buf,
+    int bw, int bh, const WarpTypesAllowed *const warp_types, int ref,
+    const void *const args, uint8_t **pre, SubpelParams *subpel_params,
+    int *src_stride);
 
 void av1_enc_build_inter_predictor(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                    int mi_row, int mi_col,

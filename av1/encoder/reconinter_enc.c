@@ -28,7 +28,7 @@
 #include "av1/common/obmc.h"
 #include "av1/encoder/reconinter_enc.h"
 
-static INLINE void enc_calc_subpel_params(
+void enc_calc_subpel_params(
     MACROBLOCKD *xd, const struct scale_factors *const sf, const MV *const mv,
     int plane, int pre_x, int pre_y, int x, int y, struct buf_2d *const pre_buf,
     int bw, int bh, const WarpTypesAllowed *const warp_types, int ref,
