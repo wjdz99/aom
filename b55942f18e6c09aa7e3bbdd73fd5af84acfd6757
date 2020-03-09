@@ -125,6 +125,24 @@
     },
     {
       "key": {
+        "uuid": "48375633_9f63c9ee",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-03-09T21:04:19Z",
+      "side": 1,
+      "message": "I put them under one function, but kept two paths for different block sizes. I personally think it\u0027s clearer that way, since offsets are all different. mv_thr is the same for two paths, so we won\u0027t miss it if we want to change it.",
+      "parentUuid": "e0ceddfc_d3132783",
+      "revId": "b55942f18e6c09aa7e3bbdd73fd5af84acfd6757",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d243d09f_444611c4",
         "filename": "av1/encoder/var_based_part.c",
         "patchSetId": 8
