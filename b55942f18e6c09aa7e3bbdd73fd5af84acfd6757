@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa485cab_b25830e4",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-03-09T17:30:35Z",
+      "side": 1,
+      "message": "prefer to move this into the function, since its only used there.",
+      "revId": "b55942f18e6c09aa7e3bbdd73fd5af84acfd6757",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ba748a0_b8083185",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1214,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-03-09T17:30:35Z",
+      "side": 1,
+      "message": "this (.. \u0026\u0026 ..) for 32x16/16x32 is not done in get_force_skip_low_temp_var(), is it needed here?",
+      "revId": "b55942f18e6c09aa7e3bbdd73fd5af84acfd6757",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05811523_89d867d6",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-03-09T17:30:35Z",
+      "side": 1,
+      "message": "there is duplicate code with set_low_temp_var_flag() below, it is better to have one function for setting this flag?",
+      "revId": "b55942f18e6c09aa7e3bbdd73fd5af84acfd6757",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
