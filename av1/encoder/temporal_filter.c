@@ -15,7 +15,7 @@
 #include "config/aom_config.h"
 
 #include "av1/common/alloccommon.h"
-#include "av1/common/onyxc_int.h"
+#include "av1/common/av1_common_int.h"
 #include "av1/common/quant_common.h"
 #include "av1/common/reconinter.h"
 #include "av1/common/odintrin.h"

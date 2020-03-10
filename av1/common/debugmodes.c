@@ -13,7 +13,7 @@
 
 #include "av1/common/blockd.h"
 #include "av1/common/enums.h"
-#include "av1/common/onyxc_int.h"
+#include "av1/common/av1_common_int.h"
 
 static void log_frame_info(AV1_COMMON *cm, const char *str, FILE *f) {
   fprintf(f, "%s", str);

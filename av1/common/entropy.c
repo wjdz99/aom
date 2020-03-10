@@ -16,7 +16,7 @@
 #include "av1/common/blockd.h"
 #include "av1/common/entropy.h"
 #include "av1/common/entropymode.h"
-#include "av1/common/onyxc_int.h"
+#include "av1/common/av1_common_int.h"
 #include "av1/common/scan.h"
 #include "av1/common/token_cdfs.h"
 #include "av1/common/txb_common.h"

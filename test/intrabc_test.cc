@@ -17,7 +17,7 @@
 #include "av1/common/enums.h"
 #include "av1/common/mv.h"
 #include "av1/common/mvref_common.h"
-#include "av1/common/onyxc_int.h"
+#include "av1/common/av1_common_int.h"
 #include "av1/common/tile_common.h"
 
 namespace {

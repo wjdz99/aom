@@ -22,7 +22,7 @@
 #include "av1/common/alloccommon.h"
 #include "av1/common/entropymode.h"
 #include "av1/common/thread_common.h"
-#include "av1/common/onyxc_int.h"
+#include "av1/common/av1_common_int.h"
 #include "av1/common/resize.h"
 #include "av1/common/timing.h"
 #include "av1/common/blockd.h"

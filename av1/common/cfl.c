@@ -11,7 +11,7 @@
 
 #include "av1/common/cfl.h"
 #include "av1/common/common_data.h"
-#include "av1/common/onyxc_int.h"
+#include "av1/common/av1_common_int.h"
 
 #include "config/av1_rtcd.h"
 

@@ -18,7 +18,7 @@
 #include "av1/common/blockd.h"
 #include "av1/common/entropymode.h"
 #include "av1/common/entropymv.h"
-#include "av1/common/onyxc_int.h"
+#include "av1/common/av1_common_int.h"
 
 int av1_get_MBs(int width, int height) {
   const int aligned_width = ALIGN_POWER_OF_TWO(width, 3);
