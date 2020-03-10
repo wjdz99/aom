@@ -1232,6 +1232,15 @@ static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
 #endif
 }
 
+static void correct_frames_to_key(AV1_COMP *cpi) {
+  int lookahead_size =
+      (int)av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage) + 1;
+  if (lookahead_size <
+      av1_lookahead_pop_sz(cpi->lookahead, cpi->compressor_stage)) {
+    cpi->rc.frames_to_key = AOMMIN(cpi->rc.frames_to_key, lookahead_size);
+  }
+}
+
 static void define_gf_group_pass0(AV1_COMP *cpi,
                                   const EncodeFrameParams *const frame_params) {
   RATE_CONTROL *const rc = &cpi->rc;
@@ -1245,6 +1254,9 @@ static void define_gf_group_pass0(AV1_COMP *cpi,
     rc->intervals_till_gf_calculate_due--;
     rc->cur_gf_index++;
   }
+
+  // correct frames_to_key when lookahead queue is flushing
+  correct_frames_to_key(cpi);
 
   if (rc->baseline_gf_interval > rc->frames_to_key)
     rc->baseline_gf_interval = rc->frames_to_key;
@@ -1343,6 +1355,11 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   if (has_no_stats_stage(cpi)) {
     define_gf_group_pass0(cpi, frame_params);
     return;
+  }
+
+  // correct frames_to_key when lookahead queue is emptying
+  if (cpi->lap_enabled) {
+    correct_frames_to_key(cpi);
   }
 
   // Load stats for the current frame.
@@ -1901,7 +1918,8 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   if (has_no_stats_stage(cpi)) {
     rc->this_key_frame_forced =
         current_frame->frame_number != 0 && rc->frames_to_key == 0;
-    rc->frames_to_key = cpi->oxcf.key_freq;
+    rc->frames_to_key = AOMMAX(1, cpi->oxcf.key_freq);
+    correct_frames_to_key(cpi);
     rc->kf_boost = DEFAULT_KF_BOOST;
     rc->source_alt_ref_active = 0;
     gf_group->update_type[0] = KF_UPDATE;
@@ -1991,7 +2009,10 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
    * When lap_enabled forcing frames_to_key as key_freq,
    * since all frame stats are not available.
    */
-  if (cpi->lap_enabled) rc->frames_to_key = cpi->oxcf.key_freq;
+  if (cpi->lap_enabled) {
+    rc->frames_to_key = AOMMAX(1, cpi->oxcf.key_freq);
+    correct_frames_to_key(cpi);
+  }
 
   // If there is a max kf interval set by the user we must obey it.
   // We already breakout of the loop above at 2x max.
