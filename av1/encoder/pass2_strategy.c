@@ -1243,6 +1243,13 @@ static void define_gf_group_pass0(AV1_COMP *cpi,
     rc->cur_gf_index++;
   }
 
+  // correct frames_to_key when lookahead queue is flushing
+  if (av1_lookahead_is_flush(cpi->lookahead, cpi->compressor_stage)) {
+    rc->frames_to_key =
+        AOMMIN(rc->frames_to_key,
+               (int)av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage));
+  }
+
   if (rc->baseline_gf_interval > rc->frames_to_key)
     rc->baseline_gf_interval = rc->frames_to_key;
 
@@ -1340,6 +1347,14 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   if (has_no_stats_stage(cpi)) {
     define_gf_group_pass0(cpi, frame_params);
     return;
+  }
+
+  // correct frames_to_key when lookahead queue is flushing
+  if (cpi->lap_enabled &&
+      av1_lookahead_is_flush(cpi->lookahead, cpi->compressor_stage)) {
+    rc->frames_to_key =
+        AOMMIN(rc->frames_to_key,
+               (int)av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage));
   }
 
   // Load stats for the current frame.
@@ -1894,7 +1909,11 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   if (has_no_stats_stage(cpi)) {
     rc->this_key_frame_forced =
         current_frame->frame_number != 0 && rc->frames_to_key == 0;
-    rc->frames_to_key = cpi->oxcf.key_freq;
+    rc->frames_to_key = AOMMIN(
+        av1_lookahead_is_flush(cpi->lookahead, cpi->compressor_stage)
+            ? (int)av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage)
+            : cpi->oxcf.key_freq,
+        cpi->oxcf.key_freq);
     rc->kf_boost = DEFAULT_KF_BOOST;
     rc->source_alt_ref_active = 0;
     gf_group->update_type[0] = KF_UPDATE;
@@ -1984,7 +2003,12 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
    * When lap_enabled forcing frames_to_key as key_freq,
    * since all frame stats are not available.
    */
-  if (cpi->lap_enabled) rc->frames_to_key = cpi->oxcf.key_freq;
+  if (cpi->lap_enabled)
+    rc->frames_to_key = AOMMIN(
+        av1_lookahead_is_flush(cpi->lookahead, cpi->compressor_stage)
+            ? (int)av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage)
+            : cpi->oxcf.key_freq,
+        cpi->oxcf.key_freq);
 
   // If there is a max kf interval set by the user we must obey it.
   // We already breakout of the loop above at 2x max.
