@@ -22,9 +22,6 @@ extern "C" {
 #define BH 32
 #define BW 32
 
-// Block size used in temporal filtering.
-#define TF_BLOCK_SIZE BLOCK_32X32
-
 // Threshold for passing down searched motion vector from previous frame to the
 // next frame in the temporal sequence.
 #define TF_PASS_DOWN_MV_THRESHOLD 16
