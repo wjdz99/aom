@@ -789,13 +789,11 @@ static void define_gf_group_pass0(AV1_COMP *cpi,
   GF_GROUP *const gf_group = &cpi->gf_group;
   int target;
 
-  // If this is last GF group of the video, correct frames_to_key if needed.
-  const int lookahead_size =
-      (int)av1_lookahead_depth(cpi->lookahead, ENCODE_STAGE);
-  if (cpi->oxcf.lag_in_frames > 0 && cpi->lookahead != NULL &&
-      lookahead_size + 1 < cpi->oxcf.lag_in_frames) {
-    // This must be the last GF group in the video.
-    rc->frames_to_key = AOMMIN(rc->frames_to_key, lookahead_size + 1);
+  // correct frames_to_key when lookahead queue is flushing
+  if (av1_lookahead_is_flush(cpi->lookahead, cpi->compressor_stage)) {
+    rc->frames_to_key = AOMMIN(
+        rc->frames_to_key,
+        (int)av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage) + 1);
   }
 
   if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ)
@@ -947,6 +945,14 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   if (has_no_stats_stage(cpi)) {
     define_gf_group_pass0(cpi, frame_params);
     return;
+  }
+
+  // correct frames_to_key when lookahead queue is flushing
+  if (cpi->lap_enabled &&
+      av1_lookahead_is_flush(cpi->lookahead, cpi->compressor_stage)) {
+    rc->frames_to_key = AOMMIN(
+        rc->frames_to_key,
+        (int)av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage) + 1);
   }
 
   // Load stats for the current frame.
@@ -1488,6 +1494,11 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     rc->this_key_frame_forced =
         current_frame->frame_number != 0 && rc->frames_to_key == 0;
     rc->frames_to_key = AOMMAX(1, cpi->oxcf.key_freq);
+    if (av1_lookahead_is_flush(cpi->lookahead, cpi->compressor_stage)) {
+      rc->frames_to_key = AOMMIN(
+          rc->frames_to_key,
+          (int)av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage) + 1);
+    }
     rc->kf_boost = DEFAULT_KF_BOOST;
     rc->source_alt_ref_active = 0;
     gf_group->update_type[0] = KF_UPDATE;
@@ -1577,7 +1588,14 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
    * When lap_enabled forcing frames_to_key as key_freq,
    * since all frame stats are not available.
    */
-  if (cpi->lap_enabled) rc->frames_to_key = AOMMAX(1, cpi->oxcf.key_freq);
+  if (cpi->lap_enabled) {
+    rc->frames_to_key = AOMMAX(1, cpi->oxcf.key_freq);
+    if (av1_lookahead_is_flush(cpi->lookahead, cpi->compressor_stage)) {
+      rc->frames_to_key = AOMMIN(
+          rc->frames_to_key,
+          (int)av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage) + 1);
+    }
+  }
 
   // If there is a max kf interval set by the user we must obey it.
   // We already breakout of the loop above at 2x max.
