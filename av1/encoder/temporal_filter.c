@@ -209,6 +209,7 @@ static INLINE int get_weight_by_thresh(const int value, const int low,
 // TODO(any): Many magic numbers are used in this function. They may be tuned
 // to improve the performance.
 // Inputs:
+//   block_size: Block size used for temporal filtering.
 //   block_error: Motion search error for the entire block.
 //   subblock_errors: Pointer to the search errors for 4 sub-blocks.
 //   use_planewise_strategy: Whether to use plane-wise filtering strategy. This
@@ -220,7 +221,8 @@ static INLINE int get_weight_by_thresh(const int value, const int low,
 //                            sub-block. If not using sub-blocks, the first
 //                            element will be used for the entire block.
 // Returns: Whether to use 4 sub-blocks to replace the original block.
-static int tf_get_filter_weight(const int block_error,
+static int tf_get_filter_weight(const BLOCK_SIZE block_size,
+                                const int block_error,
                                 const int *subblock_errors,
                                 const int use_planewise_strategy,
                                 const int is_second_arf,
@@ -236,8 +238,9 @@ static int tf_get_filter_weight(const int block_error,
     return 0;
   }
 
-  const int thresh_low = is_second_arf ? 5000 : 10000;
-  const int thresh_high = is_second_arf ? 10000 : 20000;
+  const double scale = pow(block_size_high[block_size] / 32.0, 2);
+  const int thresh_low = (int)((is_second_arf ? 5000 : 10000) * scale);
+  const int thresh_high = (int)((is_second_arf ? 10000 : 20000) * scale);
 
   int min_subblock_error = INT_MAX;
   int max_subblock_error = INT_MIN;
@@ -250,10 +253,12 @@ static int tf_get_filter_weight(const int block_error,
         get_weight_by_thresh(subblock_errors[i], thresh_low, thresh_high);
   }
 
+  const int thresh_1 = (int)(12000 * scale);
+  const int thresh_2 = (int)(6000 * scale);
   if (((block_error * 15 < sum_subblock_error * 16) &&
-       max_subblock_error - min_subblock_error < 12000) ||
+       max_subblock_error - min_subblock_error < thresh_1) ||
       ((block_error * 14 < sum_subblock_error * 16) &&
-       max_subblock_error - min_subblock_error < 6000)) {  // No split.
+       max_subblock_error - min_subblock_error < thresh_2)) {  // No split.
     const int weight =
         get_weight_by_thresh(block_error, thresh_low * 4, thresh_high * 4);
     subblock_filter_weights[0] = subblock_filter_weights[1] =
@@ -796,9 +801,9 @@ void av1_apply_temporal_filter_others(
                                             mb_row, mb_col, num_planes,
                                             noise_levels, pred, accum, count);
     } else {
-      av1_apply_temporal_filter_planewise(frame_to_filter, mbd, block_size,
-                                          mb_row, mb_col, num_planes,
-                                          noise_levels, pred, accum, count);
+      av1_apply_temporal_filter_planewise_c(frame_to_filter, mbd, block_size,
+                                            mb_row, mb_col, num_planes,
+                                            noise_levels, pred, accum, count);
     }
   } else {  // Commonly used for low-resolution video.
     if (subblock_filter_weights[0] == 0 && subblock_filter_weights[1] == 0 &&
@@ -807,10 +812,10 @@ void av1_apply_temporal_filter_others(
     }
     const int adj_strength = strength + 2 * (mbd->bd - 8);
     if (num_planes == 3 && TF_YUV_FILTER_WEIGHT_SCALE == 3) {
-      av1_apply_temporal_filter_yuv(frame_to_filter, mbd, block_size, mb_row,
-                                    mb_col, num_planes, adj_strength,
-                                    use_subblock, subblock_filter_weights, pred,
-                                    accum, count);
+      av1_apply_temporal_filter_yuv_c(frame_to_filter, mbd, block_size, mb_row,
+                                      mb_col, num_planes, adj_strength,
+                                      use_subblock, subblock_filter_weights,
+                                      pred, accum, count);
     } else {
       // TODO(any): sse4 version should be changed to align with C function
       // before using.
@@ -994,8 +999,8 @@ static FRAME_DIFF tf_do_filtering(
 
         // Build predictor.
         int use_subblock = tf_get_filter_weight(
-            block_error, subblock_errors, use_planewise_strategy, is_second_arf,
-            subblock_filter_weights);
+            block_size, block_error, subblock_errors, use_planewise_strategy,
+            is_second_arf, subblock_filter_weights);
         tf_build_predictor(frames[frame], mbd, block_size, mb_row, mb_col,
                            num_planes, scale, use_subblock, subblock_mvs, pred);
 
