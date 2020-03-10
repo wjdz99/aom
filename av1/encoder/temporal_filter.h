@@ -22,9 +22,6 @@ extern "C" {
 #define BH 32
 #define BW 32
 
-// Block size used in temporal filtering.
-#define TF_BLOCK_SIZE BLOCK_32X32
-
 // Window size for temporal filtering.
 #define TF_WINDOW_LENGTH 5
 // A scale factor used in temporal filtering to raise the filter weight from

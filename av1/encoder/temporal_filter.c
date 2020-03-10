@@ -773,7 +773,7 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
           // only supports 32x32 block size, 5x5 filtering window, 8-bit
           // encoding, and the case when the video is not with `YUV 4:2:2`
           // format.
-          if (TF_BLOCK_SIZE == BLOCK_32X32 && TF_WINDOW_LENGTH == 5 &&
+          if (block_size == BLOCK_32X32 && TF_WINDOW_LENGTH == 5 &&
               !is_frame_high_bitdepth(frame_to_filter) && !is_yuv422_format) {
             av1_apply_temporal_filter(frame_to_filter, mbd, block_size, mb_row,
                                       mb_col, num_planes, noise_levels,
@@ -993,6 +993,9 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
 
   // Do filtering.
   const int is_key_frame = (filter_frame_lookahead_idx < 0);
+  const int min_frame_size = AOMMIN(cpi->common.width, cpi->common.height);
+  const BLOCK_SIZE block_size =
+      min_frame_size >= 720 ? BLOCK_64X64 : BLOCK_32X32;
   FRAME_DIFF diff = { 0, 0 };
   if (num_frames_for_filtering > 0 && frames[0] != NULL) {
     // Setup scaling factors. Scaling on each of the arnr frames is not
@@ -1004,7 +1007,7 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
         frames[0]->y_crop_width, frames[0]->y_crop_height);
     diff =
         tf_do_filtering(cpi, frames, num_frames_for_filtering, filter_frame_idx,
-                        is_key_frame, TF_BLOCK_SIZE, &sf, noise_levels);
+                        is_key_frame, block_size, &sf, noise_levels);
   }
 
   if (is_key_frame) {  // Key frame should always be filtered.
@@ -1015,8 +1018,8 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
       is_second_arf) {
     const int frame_height = frames[filter_frame_idx]->y_crop_height;
     const int frame_width = frames[filter_frame_idx]->y_crop_width;
-    const int block_height = block_size_high[TF_BLOCK_SIZE];
-    const int block_width = block_size_wide[TF_BLOCK_SIZE];
+    const int block_height = block_size_high[block_size];
+    const int block_width = block_size_wide[block_size];
     const int mb_rows = get_num_blocks(frame_height, block_height);
     const int mb_cols = get_num_blocks(frame_width, block_width);
     const int num_mbs = AOMMAX(1, mb_rows * mb_cols);
