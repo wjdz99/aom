@@ -3495,6 +3495,9 @@ static int inter_mode_search_order_independent_skip(
     return 1;
   }
 
+  const int ref_type = av1_ref_frame_type(ref_frame);
+  if ((cpi->prune_ref_frame_mask >> ref_type) & 1) return 1;
+
   // This is only used in motion vector unit test.
   if (cpi->oxcf.motion_vector_unit_test && ref_frame[0] == INTRA_FRAME)
     return 1;
@@ -3520,7 +3523,6 @@ static int inter_mode_search_order_independent_skip(
 
   int skip_motion_mode = 0;
   if (mbmi->partition != PARTITION_NONE && mbmi->partition != PARTITION_SPLIT) {
-    const int ref_type = av1_ref_frame_type(ref_frame);
     int skip_ref = skip_ref_frame_mask & (1 << ref_type);
     if (ref_type <= ALTREF_FRAME && skip_ref) {
       // Since the compound ref modes depends on the motion estimation result of
