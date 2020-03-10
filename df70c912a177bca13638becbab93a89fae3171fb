@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e42cffa_a9126ffe",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-03-10T19:14:23Z",
+      "side": 1,
+      "message": "does this have any effect on speed or bdrate for speed 7/8 on rtc_derf?",
+      "revId": "df70c912a177bca13638becbab93a89fae3171fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
