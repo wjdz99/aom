@@ -16,14 +16,18 @@
 extern "C" {
 #endif
 
-// TODO(any): These two variables are only used in avx2, sse2, sse4
-// implementations, where the block size is still hard coded. This should be
-// fixed to align with the c implementation.
+// TODO(any): These two variables are only used in avx2/sse2 implementations,
+// where the block size is still hard coded. This should be fixed to align with
+// the C implementation.
 #define BH 32
 #define BW 32
 
-// Block size used in temporal filtering.
-#define TF_BLOCK_SIZE BLOCK_32X32
+// Block sizes for temporal filtering. Larger block size is applicable to videos
+// that are with high resolution and small noise.
+#define TF_BASE_BLOCK_SIZE BLOCK_32X32
+#define TF_LARGER_BLOCK_SIZE BLOCK_64X64
+// Motion search error is decayed when using larger block size.
+#define TF_LARGER_BLOCK_SIZE_DECAY 0.9
 
 // Window size for temporal filtering.
 #define TF_WINDOW_LENGTH 5
