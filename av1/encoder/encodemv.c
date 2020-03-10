@@ -378,6 +378,16 @@ int_mv av1_get_ref_mv(const MACROBLOCK *x, int ref_idx) {
                                    x->mbmi_ext);
 }
 
+#if CONFIG_NEW_INTER_MODES
+void av1_find_best_ref_mv_from_stack(MvSubpelPrecision precision,
+                                     const MB_MODE_INFO_EXT *mbmi_ext,
+                                     MV_REFERENCE_FRAME ref_frame, int_mv *mv) {
+  const int ref_idx = 0;
+  MV_REFERENCE_FRAME ref_frames[2] = { ref_frame, NONE_FRAME };
+  *mv = av1_get_ref_mv_from_stack(ref_idx, ref_frames, 0, mbmi_ext);
+  lower_mv_precision(&mv->as_mv, precision);
+}
+#else
 void av1_find_best_ref_mvs_from_stack(MvSubpelPrecision precision,
                                       const MB_MODE_INFO_EXT *mbmi_ext,
                                       MV_REFERENCE_FRAME ref_frame,
@@ -393,3 +403,4 @@ void av1_find_best_ref_mvs_from_stack(MvSubpelPrecision precision,
 #endif  // CONFIG_NEW_INTER_MODES
   lower_mv_precision(&near_mv->as_mv, precision);
 }
+#endif  // CONFIG_NEW_INTER_MODES
