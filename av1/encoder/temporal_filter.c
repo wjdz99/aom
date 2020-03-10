@@ -217,6 +217,12 @@ static void tf_motion_search(AV1_COMP *cpi,
   // Make partition decision.
   tf_determine_block_partition(block_mv, block_mse, subblock_mvs,
                                subblock_mses);
+  // Scale down the search error when using TF_LARGER_BLOCK_SIZE.
+  if (block_size == TF_LARGER_BLOCK_SIZE) {
+    for (int i = 0; i < 4; ++i) {
+      subblock_mses[i] = (int)(subblock_mses[i] * TF_LARGER_BLOCK_SIZE_DECAY);
+    }
+  }
 
   // Do not pass down the reference motion vector if error is too large.
   const int thresh = (min_frame_size >= 720) ? 12 : 3;
@@ -792,7 +798,7 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
           // only supports 32x32 block size, 5x5 filtering window, 8-bit
           // encoding, and the case when the video is not with `YUV 4:2:2`
           // format.
-          if (TF_BLOCK_SIZE == BLOCK_32X32 && TF_WINDOW_LENGTH == 5 &&
+          if (block_size == BLOCK_32X32 && TF_WINDOW_LENGTH == 5 &&
               !is_frame_high_bitdepth(frame_to_filter) && !is_yuv422_format) {
             av1_apply_temporal_filter(frame_to_filter, mbd, block_size, mb_row,
                                       mb_col, num_planes, noise_levels,
@@ -1046,6 +1052,16 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
         (cpi->oxcf.enable_overlay == 0 || cpi->sf.hl_sf.disable_overlay_frames);
   }
 
+  // Get filtering block size.
+  BLOCK_SIZE block_size = TF_BASE_BLOCK_SIZE;
+  // Adaptively change block size based on frame size and noise level.
+  const int frame_size = AOMMIN(cpi->common.width, cpi->common.height);
+  if (frame_size >= 720 && noise_levels[0] < 1.0) {
+    block_size = TF_LARGER_BLOCK_SIZE;
+  } else if (frame_size >= 360 && frame_size < 720 && noise_levels[0] < 0.5) {
+    block_size = TF_LARGER_BLOCK_SIZE;
+  }
+
   // Do filtering.
   const int is_key_frame = (filter_frame_lookahead_idx < 0);
   // Setup scaling factors. Scaling on each of the arnr frames is not
@@ -1057,7 +1073,7 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
       frames[0]->y_crop_width, frames[0]->y_crop_height);
   const FRAME_DIFF diff =
       tf_do_filtering(cpi, frames, num_frames_for_filtering, filter_frame_idx,
-                      is_key_frame, TF_BLOCK_SIZE, &sf, noise_levels);
+                      is_key_frame, block_size, &sf, noise_levels);
 
   if (is_key_frame) {  // Key frame should always be filtered.
     return 1;
@@ -1065,12 +1081,10 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
 
   if ((show_existing_arf != NULL && cpi->sf.hl_sf.adaptive_overlay_encoding) ||
       is_second_arf) {
-    const int frame_height = frames[filter_frame_idx]->y_crop_height;
-    const int frame_width = frames[filter_frame_idx]->y_crop_width;
-    const int block_height = block_size_high[TF_BLOCK_SIZE];
-    const int block_width = block_size_wide[TF_BLOCK_SIZE];
-    const int mb_rows = get_num_blocks(frame_height, block_height);
-    const int mb_cols = get_num_blocks(frame_width, block_width);
+    const int block_height = block_size_high[block_size];
+    const int block_width = block_size_wide[block_size];
+    const int mb_rows = get_num_blocks(cpi->common.height, block_height);
+    const int mb_cols = get_num_blocks(cpi->common.width, block_width);
     const int num_mbs = AOMMAX(1, mb_rows * mb_cols);
     const float mean = (float)diff.sum / num_mbs;
     const float std = (float)sqrt((float)diff.sse / num_mbs - mean * mean);
