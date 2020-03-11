@@ -4154,9 +4154,7 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
         cpi->rd.arf_r0 = cpi->rd.r0;
         if (cpi->lap_enabled) {
           double min_boost_factor = sqrt(cpi->rc.baseline_gf_interval);
-          const int gfu_boost = get_gfu_boost_from_r0(
-              min_boost_factor, MAX_GFUBOOST_FACTOR, cpi->rd.arf_r0,
-              cpi->rc.num_stats_required_for_gfu_boost);
+          const int gfu_boost = (int)(200.0 / cpi->rd.r0);
           const int prior_boost = get_projected_prior_gfu_boost(cpi);
           // printf("old boost %d new boost %d\n", prior_boost,
           //        gfu_boost);
