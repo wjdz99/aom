@@ -780,8 +780,6 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd, int blk_row,
 
 static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,
                            nmv_context *ctx, MvSubpelPrecision precision);
-static INLINE void read_dv(aom_reader *r, MV *mv, const MV *ref,
-                           nmv_context *ctx, MvSubpelPrecision precision);
 
 static INLINE int is_mv_valid(const MV *mv);
 
@@ -789,7 +787,7 @@ static INLINE int assign_dv(AV1_COMMON *cm, MACROBLOCKD *xd, int_mv *mv,
                             const int_mv *ref_mv, int mi_row, int mi_col,
                             BLOCK_SIZE bsize, aom_reader *r) {
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  read_dv(r, &mv->as_mv, &ref_mv->as_mv, &ec_ctx->ndvc, MV_SUBPEL_NONE);
+  read_mv(r, &mv->as_mv, &ref_mv->as_mv, &ec_ctx->ndvc, MV_SUBPEL_NONE);
   // DV should not have sub-pel.
   assert((mv->as_mv.col & 7) == 0);
   assert((mv->as_mv.row & 7) == 0);
@@ -1087,31 +1085,6 @@ static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,
                            nmv_context *ctx, MvSubpelPrecision precision) {
   MV diff = kZeroMv;
   const MV_JOINT_TYPE joint_type =
-      (MV_JOINT_TYPE)aom_read_symbol(
-          r, ctx->joints_cdf, MV_JOINTS - CONFIG_NEW_INTER_MODES, ACCT_STR) +
-      CONFIG_NEW_INTER_MODES;
-
-  if (mv_joint_vertical(joint_type))
-    diff.row = read_mv_component(r, ref->row, &ctx->comps[0], precision);
-
-  if (mv_joint_horizontal(joint_type))
-    diff.col = read_mv_component(r, ref->col, &ctx->comps[1], precision);
-
-#if CONFIG_FLEX_MVRES
-  MV ref_ = *ref;
-  lower_mv_precision(&ref_, precision);
-  mv->row = ref_.row + diff.row;
-  mv->col = ref_.col + diff.col;
-#else
-  mv->row = ref->row + diff.row;
-  mv->col = ref->col + diff.col;
-#endif  // CONFIG_FLEX_MVRES
-}
-
-static INLINE void read_dv(aom_reader *r, MV *mv, const MV *ref,
-                           nmv_context *ctx, MvSubpelPrecision precision) {
-  MV diff = kZeroMv;
-  const MV_JOINT_TYPE joint_type =
       (MV_JOINT_TYPE)aom_read_symbol(r, ctx->joints_cdf, MV_JOINTS, ACCT_STR);
 
   if (mv_joint_vertical(joint_type))
@@ -1401,14 +1374,6 @@ static INLINE int is_mv_valid(const MV *mv) {
          mv->col < MV_UPP;
 }
 
-#if CONFIG_EXT_COMPOUND
-static int_mv get_scaled_mv(int_mv ref_mv) {
-  // TODO(sarahparker) implement this function to create a new mv
-  // by scaling the ref_mv.
-  return ref_mv;
-}
-#endif  // CONFIG_EXT_COMPOUND
-
 static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
                             PREDICTION_MODE mode,
                             MV_REFERENCE_FRAME ref_frame[2], int_mv mv[2],
@@ -1515,27 +1480,27 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_EXT_COMPOUND
     case NEAR_SCALEDMV: {
       mv[0].as_int = near_mv[0].as_int;
-      mv[1] = get_scaled_mv(mv[0]);
+      av1_get_scaled_mv(cm, mv[0], 1, mbmi->ref_frame, &mv[1]);
       assert(is_compound);
       break;
     }
     case SCALED_NEARMV: {
       mv[1].as_int = near_mv[1].as_int;
-      mv[0] = get_scaled_mv(mv[1]);
+      av1_get_scaled_mv(cm, mv[1], 0, mbmi->ref_frame, &mv[0]);
       assert(is_compound);
       break;
     }
     case NEW_SCALEDMV: {
       nmv_context *const nmvc = &ec_ctx->nmvc;
       read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, nmvc, precision);
-      mv[1] = get_scaled_mv(mv[0]);
+      av1_get_scaled_mv(cm, mv[0], 1, mbmi->ref_frame, &mv[1]);
       assert(is_compound);
       break;
     }
     case SCALED_NEWMV: {
       nmv_context *const nmvc = &ec_ctx->nmvc;
       read_mv(r, &mv[1].as_mv, &ref_mv[1].as_mv, nmvc, precision);
-      mv[0] = get_scaled_mv(mv[1]);
+      av1_get_scaled_mv(cm, mv[1], 0, mbmi->ref_frame, &mv[0]);
       assert(is_compound);
       break;
     }
@@ -1677,8 +1642,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                             xd->weight_adj, &xd->ref_mv_count_adj);
       }
 #endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
-      if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV ||
-          have_nearmv_in_inter_mode(mbmi->mode)) {
+      if (have_drl_index(mbmi->mode)) {
 #if CONFIG_NEW_INTER_MODES
         read_drl_idx(ec_ctx, mode_ctx, xd, mbmi, r);
 #else
