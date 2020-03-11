@@ -22,6 +22,30 @@
       "revId": "d0f7359ea41fc7e689d3410a74980c1f761b4e1d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c31e69d7_6e39aa1c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2020-03-11T00:26:01Z",
+      "side": 1,
+      "message": "The sse computed inside model_rd_sb_fn and compound type rd are scaled as per the bit-depth. Since the skip computed using sse_y will be compared against the skip rd computed from compound type rd, similar scaling is applied here for consistency. For inter_mode_rd_model_estimation \u003d 2, the sse_y is obtained from model_rd_sb_fn where similar scaling is already present.",
+      "parentUuid": "60aaf840_f838e75e",
+      "range": {
+        "startLine": 631,
+        "startChar": 34,
+        "endLine": 631,
+        "endChar": 75
+      },
+      "revId": "d0f7359ea41fc7e689d3410a74980c1f761b4e1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
