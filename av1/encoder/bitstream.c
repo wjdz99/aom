@@ -1499,13 +1499,13 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_SB_FLEX_MVRES
       }
 #endif  // CONFIG_FLEX_MVRES
-      if (have_drl_index(mbmi->mode))
+      if (have_drl_index(mbmi->mode)) 
 #if CONFIG_NEW_INTER_MODES
         write_drl_idx(ec_ctx, mode_ctx, mbmi, mbmi_ext, w);
 #else
         write_drl_idx(ec_ctx, cm, mbmi, mbmi_ext, w);
 #endif  // CONFIG_NEW_INTER_MODES
-      else
+      else 
         assert(mbmi->ref_mv_idx == 0);
     }
 
