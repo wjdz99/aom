@@ -1588,7 +1588,6 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     rc->gfu_boost =
         av1_calc_arf_boost(twopass, rc, frame_info, alt_offset, forward_frames,
                            (i - 1), &rc->num_stats_used_for_gfu_boost);
-    rc->num_stats_required_for_gfu_boost = (forward_frames + i - 1);
     rc->source_alt_ref_pending = 1;
     gf_group->max_layer_depth_allowed = cpi->oxcf.gf_max_pyr_height;
   } else {
@@ -1597,7 +1596,6 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
         AOMMIN(MAX_GF_BOOST,
                av1_calc_arf_boost(twopass, rc, frame_info, alt_offset, (i - 1),
                                   0, &rc->num_stats_used_for_gfu_boost));
-    rc->num_stats_required_for_gfu_boost = (i - 1);
     rc->source_alt_ref_pending = 0;
     gf_group->max_layer_depth_allowed = 0;
   }
