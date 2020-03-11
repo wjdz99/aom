@@ -2988,7 +2988,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
   cpi->lap_enabled = num_lap_buffers > 0;
   cpi->compressor_stage = stage;
   if (cpi->compressor_stage == LAP_STAGE) {
-    cpi->oxcf.lag_in_frames = lap_lag_in_frames;
+    cpi->oxcf.lag_in_frames = clamp(lap_lag_in_frames, 0, MAX_LAG_BUFFERS);
   }
 
   av1_rc_init(&cpi->oxcf, oxcf->pass, &cpi->rc);
