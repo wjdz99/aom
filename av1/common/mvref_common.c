@@ -840,7 +840,20 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                     mv_ref_list ? mv_ref_list[ref_frame] : NULL, gm_mv, mi_row,
                     mi_col, mode_context);
 }
-
+#if CONFIG_NEW_INTER_MODES
+void av1_find_best_ref_mvs(MvSubpelPrecision precision, int_mv *mvlist,
+                           int_mv *ref_mv) {
+  // Make sure all the candidates are properly clamped etc
+  for (int i = 0; i < MAX_MV_REF_CANDIDATES; ++i) {
+    lower_mv_precision(&mvlist[i].as_mv, precision);
+  }
+  for (int i = 0; i < MAX_MV_REF_CANDIDATES; ++i) {
+    *ref_mv = mvlist[0];
+    if (ref_mv->as_int != INVALID_MV && ref_mv->as_int != 0) return;
+  }
+  ref_mv = 0;
+}
+#else
 void av1_find_best_ref_mvs(MvSubpelPrecision precision, int_mv *mvlist,
                            int_mv *nearest_mv, int_mv *near_mv) {
   int i;
@@ -849,12 +862,9 @@ void av1_find_best_ref_mvs(MvSubpelPrecision precision, int_mv *mvlist,
     lower_mv_precision(&mvlist[i].as_mv, precision);
   }
   *nearest_mv = mvlist[0];
-#if CONFIG_NEW_INTER_MODES
-  *near_mv = mvlist[0];
-#else
   *near_mv = mvlist[1];
-#endif  // CONFIG_NEW_INTER_MODES
 }
+#endif
 
 void av1_setup_frame_buf_refs(AV1_COMMON *cm) {
   cm->cur_frame->order_hint = cm->current_frame.order_hint;
