@@ -100,8 +100,7 @@ void av1_update_mv_stats(const MV *mv, const MV *ref, nmv_context *mvctx,
   const MV diff = { mv->row - ref_.row, mv->col - ref_.col };
   const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
 
-  update_cdf(mvctx->joints_cdf, j - CONFIG_NEW_INTER_MODES,
-             MV_JOINTS - CONFIG_NEW_INTER_MODES);
+  update_cdf(mvctx->joints_cdf, j, MV_JOINTS);
 
   if (mv_joint_vertical(j))
     update_mv_component_stats(diff.row, ref_.row, &mvctx->comps[0], precision);
@@ -278,7 +277,7 @@ void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
 #if !CONFIG_NEW_INTER_MODES && !CONFIG_FLEX_MVRES
   // If the mv_diff is zero, then we should have used near or nearest instead.
   assert(j != MV_JOINT_ZERO);
-#endif  // !CONFIG_NEW_INTER_MODES
+#endif
 
 #if CONFIG_FLEX_MVRES
   assert((diff.row & ((1 << (MV_SUBPEL_EIGHTH_PRECISION - precision)) - 1)) ==
@@ -287,8 +286,7 @@ void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
          0);
 #endif  // CONFIG_FLEX_MVRES
 
-  aom_write_symbol(w, j - CONFIG_NEW_INTER_MODES, mvctx->joints_cdf,
-                   MV_JOINTS - CONFIG_NEW_INTER_MODES);
+  aom_write_symbol(w, j, mvctx->joints_cdf, MV_JOINTS);
   if (mv_joint_vertical(j))
     encode_mv_component(w, diff.row, ref_.row, &mvctx->comps[0], precision);
 
@@ -324,19 +322,6 @@ void av1_encode_dv(aom_writer *w, const MV *mv, const MV *ref,
 }
 
 void av1_build_nmv_cost_table(int *mvjoint, int *mvcost[2],
-                              const nmv_context *ctx,
-                              MvSubpelPrecision precision) {
-#if CONFIG_NEW_INTER_MODES
-  av1_cost_tokens_from_cdf(mvjoint + 1, ctx->joints_cdf, NULL);
-  mvjoint[MV_JOINT_ZERO] = mvjoint[MV_JOINT_HZVNZ];
-#else
-  av1_cost_tokens_from_cdf(mvjoint, ctx->joints_cdf, NULL);
-#endif  // CONFIG_NEW_INTER_MODES
-  build_nmv_component_cost_table(mvcost[0], &ctx->comps[0], precision);
-  build_nmv_component_cost_table(mvcost[1], &ctx->comps[1], precision);
-}
-
-void av1_build_dmv_cost_table(int *mvjoint, int *mvcost[2],
                               const nmv_context *ctx,
                               MvSubpelPrecision precision) {
   av1_cost_tokens_from_cdf(mvjoint, ctx->joints_cdf, NULL);

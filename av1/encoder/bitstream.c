@@ -1482,9 +1482,16 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 
     int16_t mode_ctx =
         av1_mode_context_analyzer(mbmi_ext->mode_context, mbmi->ref_frame);
-
     // If segment skip is not enabled code the mode.
     if (!segfeature_active(seg, segment_id, SEG_LVL_SKIP)) {
+//      int_mv tmp_mv;
+//    if (mode > NEW_NEWMV) {
+//      printf("ext compound mode enc %d!!!!!!!!!!!!!!!!!\n", mode);
+//      printf("enc mode %d, %d %d, %d %d\n", mode, mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+//                                 mbmi->mv[1].as_mv.row, mbmi->mv[1].as_mv.col);
+
+//      av1_get_scaled_mv(&cpi->common, mbmi->mv[1], 0, mbmi->ref_frame, &tmp_mv);
+//      }
       if (is_inter_compound_mode(mode))
         write_inter_compound_mode(xd, w, mode, mode_ctx);
       else if (is_inter_singleref_mode(mode))
@@ -1499,14 +1506,15 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_SB_FLEX_MVRES
       }
 #endif  // CONFIG_FLEX_MVRES
-      if (have_drl_index(mbmi->mode))
+      if (have_drl_index(mbmi->mode)) {
 #if CONFIG_NEW_INTER_MODES
         write_drl_idx(ec_ctx, mode_ctx, mbmi, mbmi_ext, w);
 #else
         write_drl_idx(ec_ctx, cm, mbmi, mbmi_ext, w);
 #endif  // CONFIG_NEW_INTER_MODES
-      else
+      } else {
         assert(mbmi->ref_mv_idx == 0);
+      }
     }
 
     if (mode == NEWMV || mode == NEW_NEWMV) {
@@ -1521,6 +1529,8 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     } else if (mode == NEAR_NEWMV || mode == SCALED_NEWMV) {
       nmv_context *nmvc = &ec_ctx->nmvc;
       const int_mv ref_mv = av1_get_ref_mv(x, 1);
+      if (is_compound && mi_row==26 && mi_col ==34 && mode == SCALED_NEWMV)
+        printf("debug\n");
       av1_encode_mv(cpi, w, &mbmi->mv[1].as_mv, &ref_mv.as_mv, nmvc,
                     mbmi->mv_precision);
     } else if (mode == NEW_NEARMV || mode == NEW_SCALEDMV) {
