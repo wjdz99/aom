@@ -309,8 +309,16 @@ static void set_good_speed_features_framesize_independent(
     sf->dual_sgr_penalty_level = 1;
     sf->use_accurate_subpel_search = USE_4_TAPS;
     sf->reuse_inter_intra_mode = 1;
+#if CONFIG_EXT_COMPOUND
+    sf->prune_comp_search_by_single_result = 0;
+#else
     sf->prune_comp_search_by_single_result = 1;
+#endif  // CONFIG_EXT_COMPOUND
+#if CONFIG_EXT_COMPOUND
+    sf->skip_repeated_newmv = 0;
+#else
     sf->skip_repeated_newmv = 1;
+#endif  // CONFIG_EXT_COMPOUND
     sf->obmc_full_pixel_search_level = 1;
     sf->simple_motion_search_split = 1;
     sf->simple_motion_search_early_term_none = 1;
@@ -383,7 +391,11 @@ static void set_good_speed_features_framesize_independent(
       sf->disable_smooth_interintra = boosted ? 0 : 1;
     sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
     sf->gm_search_type = GM_DISABLE_SEARCH;
+#if CONFIG_EXT_COMPOUND
+    sf->prune_comp_search_by_single_result = 0;
+#else
     sf->prune_comp_search_by_single_result = 2;
+#endif  // CONFIG_EXT_COMPOUND
     sf->prune_motion_mode_level = boosted ? 2 : 3;
     sf->prune_warp_using_wmtype = 1;
     // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
@@ -564,8 +576,16 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->dual_sgr_penalty_level = 1;
     sf->use_accurate_subpel_search = USE_4_TAPS;
     sf->reuse_inter_intra_mode = 1;
+#if CONFIG_EXT_COMPOUND
+    sf->prune_comp_search_by_single_result = 0;
+#else
     sf->prune_comp_search_by_single_result = 1;
+#endif  // CONFIG_EXT_COMPOUND
+#if CONFIG_EXT_COMPOUND
+    sf->skip_repeated_newmv = 0;
+#else
     sf->skip_repeated_newmv = 1;
+#endif  // CONFIG_EXT_COMPOUND
     sf->obmc_full_pixel_search_level = 1;
     // TODO(jianj): Following speed feature will be further explored to
     // identify the appropriate tradeoff between encoder performance and its
@@ -624,7 +644,11 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->adaptive_rd_thresh = 2;
     sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
     sf->gm_search_type = GM_DISABLE_SEARCH;
+#if CONFIG_EXT_COMPOUND
+    sf->prune_comp_search_by_single_result = 0;
+#else
     sf->prune_comp_search_by_single_result = 2;
+#endif  // CONFIG_EXT_COMPOUND
     sf->prune_motion_mode_level = boosted ? 2 : 3;
     sf->prune_warp_using_wmtype = 1;
     // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
