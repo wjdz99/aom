@@ -46,6 +46,30 @@
       "revId": "d0f7359ea41fc7e689d3410a74980c1f761b4e1d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35b5a02e_6cf2b939",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-03-11T02:56:28Z",
+      "side": 1,
+      "message": "If so, could we move ROUND_POWER_OF_TWO() part out of this function and do it when it is actually compared with skip rd? Also, better to add a comment to state the reason there?",
+      "parentUuid": "c31e69d7_6e39aa1c",
+      "range": {
+        "startLine": 631,
+        "startChar": 34,
+        "endLine": 631,
+        "endChar": 75
+      },
+      "revId": "d0f7359ea41fc7e689d3410a74980c1f761b4e1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
