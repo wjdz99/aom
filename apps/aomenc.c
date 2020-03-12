@@ -36,7 +36,7 @@
 #include "common/ivfenc.h"
 #include "common/tools_common.h"
 #include "common/warnings.h"
-
+#include "av1/encoder/save_data.h"
 #if CONFIG_WEBM_IO
 #include "common/webmenc.h"
 #endif
@@ -2279,6 +2279,8 @@ int main(int argc, const char **argv_) {
   int res = 0;
   int profile_updated = 0;
 
+  open_output("foo.bin");
+
   memset(&input, 0, sizeof(input));
   exec_name = argv_[0];
 
@@ -2776,6 +2778,7 @@ int main(int argc, const char **argv_) {
 
   if (allocated_raw_shift) aom_img_free(&raw_shift);
   aom_img_free(&raw);
+  close_output();
   free(argv);
   free(streams);
   return res ? EXIT_FAILURE : EXIT_SUCCESS;
