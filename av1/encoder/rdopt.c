@@ -1480,6 +1480,7 @@ static int64_t motion_mode_rd(
         // Scale luma SSE as per bit depth so as to be consistent with
         // model_rd_sb_fn and compound type rd
         sse_y = ROUND_POWER_OF_TWO(sse_y, (xd->bd - 8) * 2);
+        sse_y <<= 4;
         const int has_est_rd = get_est_rate_dist(tile_data, bsize, curr_sse,
                                                  &est_residue_cost, &est_dist);
         (void)has_est_rd;
@@ -1489,7 +1490,7 @@ static int64_t motion_mode_rd(
         model_rd_sb_fn[MODELRD_TYPE_MOTION_MODE_RD](
             cpi, bsize, x, xd, 0, num_planes - 1, &est_residue_cost, &est_dist,
             NULL, &curr_sse, NULL, NULL, NULL);
-        sse_y = x->pred_sse[xd->mi[0]->ref_frame[0]];
+        sse_y = x->pred_sse[xd->mi[0]->ref_frame[0]] << 4;
       }
       est_rd = RDCOST(x->rdmult, rd_stats->rate + est_residue_cost, est_dist);
       if (est_rd * 0.80 > *best_est_rd) {
@@ -1530,6 +1531,7 @@ static int64_t motion_mode_rd(
         // Scale luma SSE as per bit depth so as to be consistent with
         // model_rd_sb_fn and compound type rd
         sse_y = ROUND_POWER_OF_TWO(sse_y, (xd->bd - 8) * 2);
+        sse_y <<= 4;
         skip_rd = RDCOST(x->rdmult, rd_stats->rate, curr_sse);
         skip_rdy = RDCOST(x->rdmult, rd_stats->rate, sse_y);
         int eval_txfm = check_txfm_eval(x, bsize, ref_skip_rd[0], skip_rd,
