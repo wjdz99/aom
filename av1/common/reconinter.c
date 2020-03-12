@@ -259,7 +259,8 @@ void av1_make_inter_predictor(
     const WarpTypesAllowed *warp_types, int p_col, int p_row, int plane,
     int ref, const MB_MODE_INFO *mi, int build_for_obmc, const MACROBLOCKD *xd,
     int can_use_previous, const InterPredExt *ext) {
-  assert(av1_valid_inter_pred_ext(ext, is_intrabc_block(mi)));
+  assert(av1_valid_inter_pred_ext(ext, is_intrabc_block(mi),
+                                  has_second_ref(mi)));
   const int border_left = (ext == NULL) ? 0 : ext->border_left;
   const int border_top = (ext == NULL) ? 0 : ext->border_top;
   const int border_right = (ext == NULL) ? 0 : ext->border_right;

@@ -34,6 +34,7 @@
 #include "av1/encoder/hybrid_fwd_txfm.h"
 #include "av1/encoder/rd.h"
 #include "av1/encoder/rdopt.h"
+#include "av1/encoder/save_data.h"
 
 // Check if one needs to use c version subtraction.
 static int check_subtract_block_size(int w, int h) { return w < 4 || h < 4; }
@@ -278,6 +279,9 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
     av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
                                 pd->dst.stride, p->eobs[block],
                                 cm->reduced_tx_set_used);
+    if (dry_run == OUTPUT_ENABLED) {
+      process_block_eobs(p->eobs[block]);
+    }
 #if CONFIG_NEW_TX64X64 && GET_NEW_TX64X64_TRAINING_DATA
     if (dry_run == OUTPUT_ENABLED && txsize_sqr_up_map[tx_size] == TX_64X64 &&
         p->eobs[block] > 1) {

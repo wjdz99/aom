@@ -68,6 +68,7 @@
 #include "av1/encoder/tpl_model.h"
 #include "av1/encoder/var_based_part.h"
 #include "av1/encoder/tpl_model.h"
+#include "av1/encoder/save_data.h"
 
 // This is used as a reference when computing the source variance for the
 //  purposes of activity masking.
@@ -7436,56 +7437,6 @@ static void tx_partition_set_contexts(const AV1_COMMON *const cm,
       set_txfm_context(xd, max_tx_size, idy, idx);
 }
 
-
-static void write_ppm(
-    const char *name, const uint8_t *buf, const int stride, int width,
-    int height) {
-  FILE *f = fopen(name, "wb");
-  fprintf(f, "P6\n%d %d\n255\n", width, height);
-
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      fwrite(buf + x + y * stride, 1, 1, f);
-      fwrite(buf + x + y * stride, 1, 1, f);
-      fwrite(buf + x + y * stride, 1, 1, f);
-    }
-  }
-}
-
-static int ITER = 0;
-
-static void output_source(MACROBLOCK *const x) {
-  char fname[80];
-  sprintf(fname, "%d_source.ppm", ITER);
-  MACROBLOCKD *const xd = &x->e_mbd;
-  const int mi_x = xd->mi_col * MI_SIZE;
-  const int mi_y = xd->mi_row * MI_SIZE;
-  const struct buf_2d *ref = &x->plane[0].src;
-  int stride = ref->stride;
-  write_ppm(fname, ref->buf0 + mi_y * stride + mi_x, ref->stride, 16, 16);
-  sprintf(fname, "%d_orig_%d_%d.ppm", ITER, mi_x, mi_y);
-  write_ppm(fname, ref->buf0, ref->stride, 352, 288);
-}
-
-static void output_inter_predictors(
-    const AV1_COMP *const cpi, MACROBLOCK *const x) {
-  char fname[80];
-  sprintf(fname, "%d_interpred.ppm", ITER);
-  (void)cpi;
-  //DECLARE_ALIGNED(32, uint8_t, dst[128 * 128]);
-  //const AV1_COMMON *const cm = &cpi->common;
-  MACROBLOCKD *const xd = &x->e_mbd;
-  //const int mi_x = xd->mi_col * MI_SIZE;
-  //const int mi_y = xd->mi_row * MI_SIZE;
-  //InterPredExt ext = { .border_top = 8, .border_left = 8,
-  //                     .border_right = 0, .border_bottom = 0 };
-  //av1_build_inter_predictors(cm, xd, 0, xd->mi[0], false, 16, 16,
-  //                           mi_x, mi_y, enc_calc_subpel_params, NULL,
-  //                           dst, 128, &ext);
-  write_ppm(fname, xd->plane[0].dst.buf, xd->plane[0].dst.stride,
-            16, 16); //dst + 128 * 4 + 4, 128, 20, 20);
-}
-
 static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                               ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
                               BLOCK_SIZE bsize, int *rate) {
@@ -7570,16 +7521,9 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
                                   av1_num_planes(cm) - 1);
 
-    if (dry_run == OUTPUT_ENABLED && !is_compound &&
-        !is_intrabc_block(mbmi) && bsize == BLOCK_16X16) {
-      output_source(x);
-      output_inter_predictors(cpi, x);
-      ++ITER;
+    if (dry_run == OUTPUT_ENABLED && !x->skip) {
+      process_block(cpi, x, bsize);
     }
-
-
-
-
 
     if (mbmi->motion_mode == OBMC_CAUSAL) {
       assert(cpi->oxcf.enable_obmc == 1);
