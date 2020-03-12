@@ -366,7 +366,7 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   int_mv this_refmv;
   get_mv_projection(&this_refmv.as_mv, prev_frame_mvs->mfmv0.as_mv,
                     cur_offset_0, prev_frame_mvs->ref_frame_offset);
-  lower_mv_precision(&this_refmv.as_mv, cm->mv_precision);
+  lower_mv_precision(&this_refmv.as_mv, cm->fr_mv_precision);
 
   if (rf[1] == NONE_FRAME) {
     if (blk_row == 0 && blk_col == 0) {
@@ -394,7 +394,7 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     int_mv comp_refmv;
     get_mv_projection(&comp_refmv.as_mv, prev_frame_mvs->mfmv0.as_mv,
                       cur_offset_1, prev_frame_mvs->ref_frame_offset);
-    lower_mv_precision(&comp_refmv.as_mv, cm->mv_precision);
+    lower_mv_precision(&comp_refmv.as_mv, cm->fr_mv_precision);
 
     if (blk_row == 0 && blk_col == 0) {
       if (abs(this_refmv.as_mv.row - gm_mv_candidates[0].as_mv.row) >= 16 ||
@@ -821,17 +821,20 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
   } else {
     if (ref_frame < REF_FRAMES) {
-      gm_mv[0] = gm_get_motion_vector(&cm->global_motion[ref_frame],
-                                      cm->mv_precision, bsize, mi_col, mi_row);
+      gm_mv[0] =
+          gm_get_motion_vector(&cm->global_motion[ref_frame],
+                               cm->fr_mv_precision, bsize, mi_col, mi_row);
       gm_mv[1].as_int = 0;
       if (global_mvs != NULL) global_mvs[ref_frame] = gm_mv[0];
     } else {
       MV_REFERENCE_FRAME rf[2];
       av1_set_ref_frame(rf, ref_frame);
-      gm_mv[0] = gm_get_motion_vector(&cm->global_motion[rf[0]],
-                                      cm->mv_precision, bsize, mi_col, mi_row);
-      gm_mv[1] = gm_get_motion_vector(&cm->global_motion[rf[1]],
-                                      cm->mv_precision, bsize, mi_col, mi_row);
+      gm_mv[0] =
+          gm_get_motion_vector(&cm->global_motion[rf[0]], cm->fr_mv_precision,
+                               bsize, mi_col, mi_row);
+      gm_mv[1] =
+          gm_get_motion_vector(&cm->global_motion[rf[1]], cm->fr_mv_precision,
+                               bsize, mi_col, mi_row);
     }
   }
 
