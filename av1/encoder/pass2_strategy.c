@@ -1458,7 +1458,9 @@ static int get_projected_kf_boost(AV1_COMP *cpi) {
 }
 
 static int define_kf_interval(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
-                              double *kf_group_err) {
+                              double *kf_group_err,
+                              int *num_stats_used_for_kf_boost,
+                              int scenecut_check_for_gf_interval) {
   TWO_PASS *const twopass = &cpi->twopass;
   RATE_CONTROL *const rc = &cpi->rc;
   FRAME_INFO *const frame_info = &cpi->frame_info;
@@ -1471,6 +1473,23 @@ static int define_kf_interval(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   int scenecut_detected = 0;
   double decay_accumulator = 1.0;
   int num_frames_to_check = oxcf->key_freq;
+  const int lap_delay = cpi->lookahead->max_sz;
+  int run_scenecut_loop = 1;
+
+  if (scenecut_check_for_gf_interval &&
+      (!cpi->lap_enabled || lap_delay < MAX_LAP_BUFFERS))
+    return rc->frames_to_key;
+
+  if (scenecut_check_for_gf_interval && cpi->lap_enabled) {
+    // Check frames from 0 till 16, since frames_to_key starts from 1
+    num_frames_to_check = MAX_GF_INTERVAL + 1;
+  }
+
+  /*
+   *  Even for lag < 35 in LAP, need to calculate kf_group_err and
+   *  num_stats_used_for_kf_boost appropriately
+   */
+  if (cpi->lap_enabled && lap_delay < MAX_LAP_BUFFERS) run_scenecut_loop = 0;
 
   // Initialize the decay rates for the recent frames to check
   for (j = 0; j < FRAMES_TO_CHECK_DECAY; ++j) recent_loop_decay[j] = 1.0;
@@ -1478,7 +1497,7 @@ static int define_kf_interval(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   while (twopass->stats_in < twopass->stats_buf_ctx->stats_in_end &&
          frames_to_key < num_frames_to_check) {
     // Accumulate total number of stats available till next key frame
-    rc->num_stats_used_for_kf_boost++;
+    *num_stats_used_for_kf_boost = *num_stats_used_for_kf_boost + 1;
 
     // Accumulate kf group error.
     *kf_group_err +=
@@ -1489,7 +1508,7 @@ static int define_kf_interval(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     input_stats(twopass, this_frame);
 
     // Provided that we are not at the end of the file...
-    if (cpi->oxcf.auto_key &&
+    if (run_scenecut_loop && cpi->oxcf.auto_key &&
         twopass->stats_in < twopass->stats_buf_ctx->stats_in_end) {
       double loop_decay_rate;
 
@@ -1533,7 +1552,10 @@ static int define_kf_interval(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   }
 
   if (cpi->lap_enabled && !scenecut_detected) {
-    frames_to_key = oxcf->key_freq;
+    if (scenecut_check_for_gf_interval)
+      frames_to_key = rc->frames_to_key;
+    else
+      frames_to_key = oxcf->key_freq;
   }
 
   return frames_to_key;
@@ -1594,12 +1616,8 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   kf_raw_err = this_frame->intra_error;
   kf_mod_err = calculate_modified_err(frame_info, twopass, oxcf, this_frame);
 
-  rc->frames_to_key = define_kf_interval(cpi, this_frame, &kf_group_err);
-  /*
-   * When lap_enabled forcing frames_to_key as key_freq,
-   * since all frame stats are not available.
-   */
-  if (cpi->lap_enabled) rc->frames_to_key = AOMMAX(1, cpi->oxcf.key_freq);
+  rc->frames_to_key = define_kf_interval(cpi, this_frame, &kf_group_err,
+                                         &rc->num_stats_used_for_kf_boost, 0);
 
   // If there is a max kf interval set by the user we must obey it.
   // We already breakout of the loop above at 2x max.
@@ -1926,6 +1944,10 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   if (rc->frames_till_gf_update_due == 0) {
     assert(cpi->common.current_frame.frame_number == 0 ||
            gf_group->index == gf_group->size);
+    double kf_group_err = 0.0;
+    int num_stats_used_for_kf_boost = 0;
+    rc->frames_to_key = define_kf_interval(cpi, &this_frame, &kf_group_err,
+                                           &num_stats_used_for_kf_boost, 1);
     define_gf_group(cpi, &this_frame, frame_params);
     rc->frames_till_gf_update_due = rc->baseline_gf_interval;
     cpi->num_gf_group_show_frames = 0;
