@@ -199,6 +199,9 @@ static INLINE int is_full_sb(AV1_COMMON *const cm, int mi_row, int mi_col,
          (mi_col + sb_mi_wide) <= cm->mi_cols;
 }
 
+// Do not use this criteria for screen content videos.
+// Since screen content videos could often find good predictors and the largest
+// block size is likely to be used.
 static INLINE int use_auto_max_partition(AV1_COMP *const cpi,
                                          BLOCK_SIZE sb_size, int mi_row,
                                          int mi_col) {

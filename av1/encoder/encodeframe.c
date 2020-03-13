@@ -2839,9 +2839,10 @@ BEGIN_PARTITION_SEARCH:
 
   // PARTITION_NONE
   if (is_le_min_sq_part && has_rows && has_cols) partition_none_allowed = 1;
+  assert(terminate_partition_search == 0);
   int64_t part_none_rd = INT64_MAX;
-  if (!terminate_partition_search && partition_none_allowed &&
-      !is_gt_max_sq_part) {
+  if ((cpi->is_screen_content_type && bsize == cm->seq_params.sb_size) ||
+      (partition_none_allowed && !is_gt_max_sq_part)) {
     int pt_cost = 0;
     if (bsize_at_least_8x8) {
       pt_cost = partition_cost[PARTITION_NONE] < INT_MAX
