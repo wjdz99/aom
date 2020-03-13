@@ -162,6 +162,9 @@ void av1_reset_cdf_symbol_counters(FRAME_CONTEXT *fc) {
   RESET_CDF_COUNTER(fc->adapt_filter_intra_mode_cdf,
                     USED_ADAPT_FILTER_INTRA_MODES);
 #endif  // CONFIG_ADAPT_FILTER_INTRA
+#if CONFIG_SHARED_WIENER_PARAMS
+  RESET_CDF_COUNTER(fc->switchable_shared_cdf, 2);
+#endif
   RESET_CDF_COUNTER(fc->switchable_restore_cdf, RESTORE_SWITCHABLE_TYPES);
   RESET_CDF_COUNTER(fc->wiener_restore_cdf, 2);
   RESET_CDF_COUNTER(fc->sgrproj_restore_cdf, 2);

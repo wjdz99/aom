@@ -690,6 +690,14 @@ int main(int argc, const char **argv) {
                      "static const aom_cdf_prob default_switchable_restore_cdf"
                      "[CDF_SIZE(RESTORE_SWITCHABLE_TYPES)]");
 
+#if CONFIG_SHARED_WIENER_PARAMS
+  cts_each_dim[0] = 2;
+  optimize_cdf_table(&fc.switchable_shared_restore[0], probsfile, 1,
+                     cts_each_dim,
+                     "static const aom_cdf_prob default_switchable_shared_cdf"
+                     "[CDF_SIZE(RESTORE_SWITCHABLE_TYPES)]");
+#endif  // CONFIG_SHARED_WIENER_PARAMS
+
   cts_each_dim[0] = 2;
   optimize_cdf_table(&fc.wiener_restore[0], probsfile, 1, cts_each_dim,
                      "static const aom_cdf_prob default_wiener_restore_cdf"
