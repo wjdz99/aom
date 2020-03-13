@@ -308,6 +308,10 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
   }
   av1_cost_tokens_from_cdf(x->switchable_restore_cost,
                            fc->switchable_restore_cdf, NULL);
+#if CONFIG_SHARED_WIENER_PARAMS
+  av1_cost_tokens_from_cdf(x->switchable_shared_cost, fc->switchable_shared_cdf,
+                           NULL);
+#endif  // CONFIG_SHARED_WIENER_PARAMS
   av1_cost_tokens_from_cdf(x->wiener_restore_cost, fc->wiener_restore_cdf,
                            NULL);
   av1_cost_tokens_from_cdf(x->sgrproj_restore_cost, fc->sgrproj_restore_cdf,

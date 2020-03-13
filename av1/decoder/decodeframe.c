@@ -2114,6 +2114,13 @@ static void loop_restoration_read_sb_coeffs(const AV1_COMMON *const cm,
 #if CONFIG_WIENER_NONSEP
   WienerNonsepInfo *wiener_nonsep_info = xd->wiener_nonsep_info + plane;
 #endif  // CONFIG_WIENER_NONSEP
+#if CONFIG_SHARED_WIENER_PARAMS
+  if (rsi->frame_restoration_type == RESTORE_SWITCHABLE) {
+    int use_shared_wiener =
+        aom_read_symbol(r, xd->tile_ctx->switchable_shared_cdf, 2, ACCT_STR);
+    if (use_shared_wiener) rui->restoration_type = RESTORE_WIENER_SHARED;
+  }
+#endif  // CONFIG_SHARED_WIENER_PARAMS
 
   if (rsi->frame_restoration_type == RESTORE_SWITCHABLE) {
     rui->restoration_type =

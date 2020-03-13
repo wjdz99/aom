@@ -191,6 +191,11 @@ typedef struct frame_contexts {
   aom_cdf_prob
       adapt_filter_intra_mode_cdf[CDF_SIZE(USED_ADAPT_FILTER_INTRA_MODES)];
 #endif  // CONFIG_ADAPT_FILTER_INTRA
+#if CONFIG_SHARED_WIENER_PARAMS
+  // This is used to signal when a wiener filter should be used with the last
+  // observed weights
+  aom_cdf_prob switchable_shared_cdf[CDF_SIZE(2)];
+#endif  // CONFIG_SHARED_WIENER_PARAMS
   aom_cdf_prob switchable_restore_cdf[CDF_SIZE(RESTORE_SWITCHABLE_TYPES)];
   aom_cdf_prob wiener_restore_cdf[CDF_SIZE(2)];
   aom_cdf_prob sgrproj_restore_cdf[CDF_SIZE(2)];
