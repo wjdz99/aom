@@ -1457,6 +1457,88 @@ static int get_projected_kf_boost(AV1_COMP *cpi) {
   return projected_kf_boost;
 }
 
+static int define_kf_interval(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
+                              double *kf_group_err) {
+  TWO_PASS *const twopass = &cpi->twopass;
+  RATE_CONTROL *const rc = &cpi->rc;
+  FRAME_INFO *const frame_info = &cpi->frame_info;
+  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  double recent_loop_decay[FRAMES_TO_CHECK_DECAY];
+  FIRSTPASS_STATS last_frame;
+  int i = 0, j;
+  int frames_to_key = 1;
+  int frames_since_key = rc->frames_since_key + 1;
+  int scenecut_detected = 0;
+  double decay_accumulator = 1.0;
+  int num_frames_to_check = oxcf->key_freq;
+
+  // Initialize the decay rates for the recent frames to check
+  for (j = 0; j < FRAMES_TO_CHECK_DECAY; ++j) recent_loop_decay[j] = 1.0;
+
+  while (twopass->stats_in < twopass->stats_buf_ctx->stats_in_end &&
+         frames_to_key < num_frames_to_check) {
+    // Accumulate total number of stats available till next key frame
+    rc->num_stats_used_for_kf_boost++;
+
+    // Accumulate kf group error.
+    *kf_group_err +=
+        calculate_modified_err(frame_info, twopass, oxcf, this_frame);
+
+    // Load the next frame's stats.
+    last_frame = *this_frame;
+    input_stats(twopass, this_frame);
+
+    // Provided that we are not at the end of the file...
+    if (cpi->oxcf.auto_key &&
+        twopass->stats_in < twopass->stats_buf_ctx->stats_in_end) {
+      double loop_decay_rate;
+
+      // Check for a scene cut.
+      if (test_candidate_kf(twopass, &last_frame, this_frame, twopass->stats_in,
+                            frames_since_key)) {
+        scenecut_detected = 1;
+        break;
+      }
+
+      // How fast is the prediction quality decaying?
+      loop_decay_rate =
+          get_prediction_decay_rate(frame_info, twopass->stats_in);
+
+      // We want to know something about the recent past... rather than
+      // as used elsewhere where we are concerned with decay in prediction
+      // quality since the last GF or KF.
+      recent_loop_decay[i % FRAMES_TO_CHECK_DECAY] = loop_decay_rate;
+      decay_accumulator = 1.0;
+      for (j = 0; j < FRAMES_TO_CHECK_DECAY; ++j)
+        decay_accumulator *= recent_loop_decay[j];
+      // Special check for transition or high motion followed by a
+      // static scene.
+      if (detect_transition_to_still(cpi, i, cpi->oxcf.key_freq - i,
+                                     loop_decay_rate, decay_accumulator)) {
+        scenecut_detected = 1;
+        break;
+      }
+
+      // Step on to the next frame.
+      ++frames_to_key;
+      ++frames_since_key;
+      // If we don't have a real key frame within the next two
+      // key_freq intervals then break out of the loop.
+      if (frames_to_key >= 2 * cpi->oxcf.key_freq) break;
+    } else {
+      ++frames_to_key;
+      ++frames_since_key;
+    }
+    ++i;
+  }
+
+  if (cpi->lap_enabled && !scenecut_detected) {
+    frames_to_key = oxcf->key_freq;
+  }
+
+  return frames_to_key;
+}
+
 static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   RATE_CONTROL *const rc = &cpi->rc;
   TWO_PASS *const twopass = &cpi->twopass;
@@ -1467,7 +1549,6 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   const FIRSTPASS_STATS first_frame = *this_frame;
   FIRSTPASS_STATS next_frame;
-  FIRSTPASS_STATS last_frame;
   av1_zero(next_frame);
 
   rc->frames_since_key = 0;
@@ -1493,16 +1574,14 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     gf_group->update_type[0] = KF_UPDATE;
     return;
   }
-  int i, j;
+  int i;
   const FIRSTPASS_STATS *const start_position = twopass->stats_in;
   int kf_bits = 0;
-  double decay_accumulator = 1.0;
   double zero_motion_accumulator = 1.0;
   double boost_score = 0.0;
   double kf_raw_err = 0.0;
   double kf_mod_err = 0.0;
   double kf_group_err = 0.0;
-  double recent_loop_decay[FRAMES_TO_CHECK_DECAY];
   double sr_accumulator = 0.0;
 
   rc->num_stats_used_for_kf_boost = 1;
@@ -1515,64 +1594,7 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   kf_raw_err = this_frame->intra_error;
   kf_mod_err = calculate_modified_err(frame_info, twopass, oxcf, this_frame);
 
-  // Initialize the decay rates for the recent frames to check
-  for (j = 0; j < FRAMES_TO_CHECK_DECAY; ++j) recent_loop_decay[j] = 1.0;
-
-  // Find the next keyframe.
-  i = 0;
-  while (twopass->stats_in < twopass->stats_buf_ctx->stats_in_end &&
-         rc->frames_to_key < cpi->oxcf.key_freq) {
-    // Accumulate total number of stats available till next key frame
-    rc->num_stats_used_for_kf_boost++;
-
-    // Accumulate kf group error.
-    kf_group_err +=
-        calculate_modified_err(frame_info, twopass, oxcf, this_frame);
-
-    // Load the next frame's stats.
-    last_frame = *this_frame;
-    input_stats(twopass, this_frame);
-
-    // Provided that we are not at the end of the file...
-    if (cpi->oxcf.auto_key &&
-        twopass->stats_in < twopass->stats_buf_ctx->stats_in_end) {
-      double loop_decay_rate;
-
-      // Check for a scene cut.
-      if (test_candidate_kf(twopass, &last_frame, this_frame, twopass->stats_in,
-                            rc->frames_to_key))
-        break;
-
-      // How fast is the prediction quality decaying?
-      loop_decay_rate =
-          get_prediction_decay_rate(frame_info, twopass->stats_in);
-
-      // We want to know something about the recent past... rather than
-      // as used elsewhere where we are concerned with decay in prediction
-      // quality since the last GF or KF.
-      recent_loop_decay[i % FRAMES_TO_CHECK_DECAY] = loop_decay_rate;
-      decay_accumulator = 1.0;
-      for (j = 0; j < FRAMES_TO_CHECK_DECAY; ++j)
-        decay_accumulator *= recent_loop_decay[j];
-
-      // Special check for transition or high motion followed by a
-      // static scene.
-      if (detect_transition_to_still(cpi, i, cpi->oxcf.key_freq - i,
-                                     loop_decay_rate, decay_accumulator))
-        break;
-
-      // Step on to the next frame.
-      ++rc->frames_to_key;
-
-      // If we don't have a real key frame within the next two
-      // key_freq intervals then break out of the loop.
-      if (rc->frames_to_key >= 2 * cpi->oxcf.key_freq) break;
-    } else {
-      ++rc->frames_to_key;
-    }
-    ++i;
-  }
-
+  rc->frames_to_key = define_kf_interval(cpi, this_frame, &kf_group_err);
   /*
    * When lap_enabled forcing frames_to_key as key_freq,
    * since all frame stats are not available.
