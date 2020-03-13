@@ -1414,27 +1414,29 @@ static int64_t motion_mode_rd(
 
     // If we are searching newmv and the mv is the same as refmv, skip the
     // current mode
-    if (this_mode == NEW_NEWMV) {
-      const int_mv ref_mv_0 = av1_get_ref_mv(x, 0);
-      const int_mv ref_mv_1 = av1_get_ref_mv(x, 1);
-      if (mbmi->mv[0].as_int == ref_mv_0.as_int ||
-          mbmi->mv[1].as_int == ref_mv_1.as_int) {
-        continue;
-      }
-    } else if (this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV) {
-      const int_mv ref_mv_1 = av1_get_ref_mv(x, 1);
-      if (mbmi->mv[1].as_int == ref_mv_1.as_int) {
-        continue;
-      }
-    } else if (this_mode == NEW_NEARESTMV || this_mode == NEW_NEARMV) {
-      const int_mv ref_mv_0 = av1_get_ref_mv(x, 0);
-      if (mbmi->mv[0].as_int == ref_mv_0.as_int) {
-        continue;
-      }
-    } else if (this_mode == NEWMV) {
-      const int_mv ref_mv_0 = av1_get_ref_mv(x, 0);
-      if (mbmi->mv[0].as_int == ref_mv_0.as_int) {
-        continue;
+    if (ref_best_rd != INT64_MAX) {
+      if (this_mode == NEW_NEWMV) {
+        const int_mv ref_mv_0 = av1_get_ref_mv(x, 0);
+        const int_mv ref_mv_1 = av1_get_ref_mv(x, 1);
+        if (mbmi->mv[0].as_int == ref_mv_0.as_int ||
+            mbmi->mv[1].as_int == ref_mv_1.as_int) {
+          continue;
+        }
+      } else if (this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV) {
+        const int_mv ref_mv_1 = av1_get_ref_mv(x, 1);
+        if (mbmi->mv[1].as_int == ref_mv_1.as_int) {
+          continue;
+        }
+      } else if (this_mode == NEW_NEARESTMV || this_mode == NEW_NEARMV) {
+        const int_mv ref_mv_0 = av1_get_ref_mv(x, 0);
+        if (mbmi->mv[0].as_int == ref_mv_0.as_int) {
+          continue;
+        }
+      } else if (this_mode == NEWMV) {
+        const int_mv ref_mv_0 = av1_get_ref_mv(x, 0);
+        if (mbmi->mv[0].as_int == ref_mv_0.as_int) {
+          continue;
+        }
       }
     }
 
@@ -2230,7 +2232,8 @@ static int64_t handle_inter_mode(
   const int tpl_idx = gf_group->index;
   TplDepFrame *tpl_frame = &cpi->tpl_frame[tpl_idx];
   int prune_modes_based_on_tpl =
-      cpi->sf.inter_sf.prune_inter_modes_based_on_tpl && tpl_frame->is_valid;
+      cpi->sf.inter_sf.prune_inter_modes_based_on_tpl && tpl_frame->is_valid &&
+      (ref_best_rd != INT64_MAX);
   int i;
   const int refs[2] = { mbmi->ref_frame[0],
                         (mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1]) };
@@ -2358,7 +2361,8 @@ static int64_t handle_inter_mode(
       rd_stats->rate += rate_mv;
 
       if (cpi->sf.inter_sf.skip_repeated_newmv) {
-        if (!is_comp_pred && this_mode == NEWMV && ref_mv_idx > 0) {
+        if (!is_comp_pred && this_mode == NEWMV && ref_mv_idx > 0 &&
+            ref_best_rd != INT64_MAX) {
           int skip = 0;
           int this_rate_mv = 0;
           for (i = 0; i < ref_mv_idx; ++i) {
