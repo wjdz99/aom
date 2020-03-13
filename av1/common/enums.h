@@ -879,6 +879,11 @@ typedef int8_t MV_REFERENCE_FRAME;
 
 enum {
   RESTORE_NONE,
+#if CONFIG_SHARED_WIENER_PARAMS
+  // TODO(siroh): Move this after RESTORE_SWITCHABLE, if possible, to avoid
+  // messing with the symbol read/write with nsymb=RESTORE_SWITCHABLE
+  RESTORE_WIENER_SHARED,
+#endif  // CONFIG_SHARED_WIENER_PARAMS
   RESTORE_WIENER,
   RESTORE_SGRPROJ,
 #if CONFIG_LOOP_RESTORE_CNN

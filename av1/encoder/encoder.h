@@ -565,6 +565,9 @@ typedef struct FRAME_COUNTS {
   unsigned int adapt_filter_intra[BLOCK_SIZES_ALL][2];
 #endif  // CONFIG_ADAPT_FILTER_INTRA
   unsigned int switchable_restore[RESTORE_SWITCHABLE_TYPES];
+#if CONFIG_SHARED_WIENER_PARAMS
+  unsigned int switchable_shared_restore[2];
+#endif  // CONFIG_SHARED_WIENER_PARAMS
   unsigned int wiener_restore[2];
   unsigned int sgrproj_restore[2];
 #if CONFIG_LOOP_RESTORE_CNN

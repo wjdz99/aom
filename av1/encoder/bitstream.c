@@ -2501,8 +2501,18 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
 #endif  // CONFIG_WIENER_NONSEP
 
   RestorationType unit_rtype = rui->restoration_type;
+#if CONFIG_SHARED_WIENER_PARAMS
+  if (frame_rtype == RESTORE_SWITCHABLE)
+    aom_write_symbol(w, unit_rtype == RESTORE_WIENER_SHARED,
+                     xd->tile_ctx->switchable_shared_cdf, 2);
 
-  if (frame_rtype == RESTORE_SWITCHABLE) {
+  int write_filter_params =
+      frame_rtype == RESTORE_SWITCHABLE && unit_rtype != RESTORE_WIENER_SHARED;
+#else
+  int write_filter_params = frame_rtype == RESTORE_SWITCHABLE;
+#endif  // CONFIG_SHARED_WIENER_PARAMS
+
+  if (write_filter_params) {
     aom_write_symbol(w, unit_rtype, xd->tile_ctx->switchable_restore_cdf,
                      RESTORE_SWITCHABLE_TYPES);
 #if CONFIG_ENTROPY_STATS
