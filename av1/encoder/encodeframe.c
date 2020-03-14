@@ -2743,7 +2743,7 @@ static bool rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   save_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
 
   const int try_intra_cnn_split =
-      //!cpi->is_screen_content_type &&
+      !cpi->is_screen_content_type &&
       frame_is_intra_only(cm) && cpi->sf.part_sf.intra_cnn_split &&
       cm->seq_params.sb_size >= BLOCK_64X64 && bsize <= BLOCK_64X64 &&
       bsize >= BLOCK_8X8 && mi_row + mi_size_high[bsize] <= cm->mi_rows &&
@@ -2759,7 +2759,7 @@ static bool rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   // Use simple_motion_search to prune partitions. This must be done prior to
   // PARTITION_SPLIT to propagate the initial mvs to a smaller blocksize.
   const int try_split_only =
-      //!cpi->is_screen_content_type &&
+      !cpi->is_screen_content_type &&
       cpi->sf.part_sf.simple_motion_search_split && do_square_split &&
       bsize >= BLOCK_8X8 && mi_row + mi_size_high[bsize] <= cm->mi_rows &&
       mi_col + mi_size_wide[bsize] <= cm->mi_cols && !frame_is_intra_only(cm) &&
@@ -2773,6 +2773,7 @@ static bool rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   }
 
   const int try_prune_rect =
+      !cpi->is_screen_content_type &&
       cpi->sf.part_sf.simple_motion_search_prune_rect &&
       !frame_is_intra_only(cm) && do_rectangular_split &&
       (do_square_split || partition_none_allowed ||
@@ -2799,6 +2800,7 @@ static bool rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   assert(min_partition_size <= max_partition_size);
   const int is_le_min_sq_part = blksize <= min_partition_size;
   const int is_gt_max_sq_part = blksize > max_partition_size;
+  /*
   if (is_gt_max_sq_part) {
     // If current block size is larger than max, only allow split.
     partition_none_allowed = 0;
@@ -2815,6 +2817,7 @@ static bool rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
     if (has_rows && has_cols) do_square_split = 0;
     partition_none_allowed = !do_square_split;
   }
+  */
 
 BEGIN_PARTITION_SEARCH:
   if (x->must_find_valid_partition) {
