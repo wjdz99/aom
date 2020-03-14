@@ -5427,6 +5427,40 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 #if !CONFIG_REALTIME_ONLY
   // Determine whether to use screen content tools using two fast encoding.
   determine_sc_tools_with_encoding(cpi, q);
+  if (cpi->is_screen_content_type) {
+    cpi->sf.part_sf.partition_search_type = SEARCH_PARTITION;
+    cpi->sf.part_sf.less_rectangular_check_level = 0;
+    cpi->sf.part_sf.use_square_partition_only_threshold = BLOCK_128X128;
+    cpi->sf.part_sf.auto_max_partition_based_on_simple_motion = NOT_IN_USE;
+    cpi->sf.part_sf.auto_min_partition_based_on_simple_motion = 0;
+    cpi->sf.part_sf.default_max_partition_size = BLOCK_LARGEST;
+    cpi->sf.part_sf.default_min_partition_size = BLOCK_4X4;
+    cpi->sf.part_sf.adjust_partitioning_from_last_frame = 0;
+    cpi->sf.part_sf.allow_partition_search_skip = 0;
+    cpi->sf.part_sf.max_intra_bsize = BLOCK_LARGEST;
+    // This setting only takes effect when partition_search_type is set
+    // to FIXED_PARTITION.
+    cpi->sf.part_sf.always_this_block_size = BLOCK_16X16;
+    // Recode loop tolerance %.
+    cpi->sf.part_sf.partition_search_breakout_dist_thr = 0;
+    cpi->sf.part_sf.partition_search_breakout_rate_thr = 0;
+    cpi->sf.part_sf.prune_ext_partition_types_search_level = 0;
+    cpi->sf.part_sf.ml_prune_rect_partition = 0;
+    cpi->sf.part_sf.ml_prune_ab_partition = 0;
+    cpi->sf.part_sf.ml_prune_4_partition = 0;
+    cpi->sf.part_sf.ml_early_term_after_part_split_level = 0;
+    for (int i = 0; i < PARTITION_BLOCK_SIZES; ++i) {
+      cpi->sf.part_sf.ml_partition_search_breakout_thresh[i] =
+          -1;  // -1 means not enabled.
+    }
+    cpi->sf.part_sf.simple_motion_search_prune_agg = 0;
+    cpi->sf.part_sf.simple_motion_search_split = 0;
+    cpi->sf.part_sf.simple_motion_search_prune_rect = 0;
+    cpi->sf.part_sf.simple_motion_search_early_term_none = 0;
+    cpi->sf.part_sf.intra_cnn_split = 0;
+    cpi->sf.part_sf.ext_partition_eval_thresh = BLOCK_8X8;
+    cpi->sf.part_sf.prune_4_partition_using_split_info = 0;
+  }
 #endif  // CONFIG_REALTIME_ONLY
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
