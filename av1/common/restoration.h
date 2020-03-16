@@ -17,6 +17,9 @@
 
 #include "av1/common/blockd.h"
 #include "av1/common/enums.h"
+#if CONFIG_SHARED_LOOP_RESTORATION
+#include "third_party/vector/vector.h"
+#endif  // CONFIG_SHARED_LOOP_RESTORATION
 
 #ifdef __cplusplus
 extern "C" {
@@ -249,6 +252,19 @@ typedef struct {
   int s[2];  // sgr parameters for r[0] and r[1], based on GenSgrprojVtable()
 } sgr_params_type;
 
+#if CONFIG_SHARED_LOOP_RESTORATION
+// This struct contains information about aggregate wiener statistics.
+// M and H are accumulators, inertia is the number of accumulated
+// restoration units, and group_id is a counter that is incremented when a
+// new group is created.
+typedef struct WienerStatistics {
+  int64_t M[WIENER_WIN2];
+  int64_t H[WIENER_WIN2 * WIENER_WIN2];
+  int inertia;
+  int group_id;
+} WienerStatistics;
+#endif  // CONFIG_SHARED_LOOP_RESTORATION
+
 typedef struct {
   RestorationType restoration_type;
   WienerInfo wiener_info;
@@ -352,6 +368,9 @@ typedef void (*rest_unit_visitor_t)(const RestorationTileLimits *limits,
                                     const AV1PixelRect *tile_rect,
                                     int rest_unit_idx, void *priv,
                                     int32_t *tmpbuf,
+#if CONFIG_SHARED_LOOP_RESTORATION
+                                    Vector *stats,
+#endif  // CONFIG_SHARED_LOOP_RESTORATION
                                     RestorationLineBuffers *rlbs);
 
 typedef struct FilterFrameCtxt {
@@ -436,6 +455,9 @@ void av1_foreach_rest_unit_in_plane(const struct AV1Common *cm, int plane,
                                     rest_unit_visitor_t on_rest_unit,
                                     void *priv, AV1PixelRect *tile_rect,
                                     int32_t *tmpbuf,
+#if CONFIG_SHARED_LOOP_RESTORATION
+                                    Vector *wiener_stats,
+#endif
                                     RestorationLineBuffers *rlbs);
 
 // Return 1 iff the block at mi_row, mi_col with size bsize is a
@@ -465,9 +487,12 @@ void av1_foreach_rest_unit_in_row(
     RestorationTileLimits *limits, const AV1PixelRect *tile_rect,
     rest_unit_visitor_t on_rest_unit, int row_number, int unit_size,
     int unit_idx0, int hunits_per_tile, int vunits_per_tile, int plane,
-    void *priv, int32_t *tmpbuf, RestorationLineBuffers *rlbs,
-    sync_read_fn_t on_sync_read, sync_write_fn_t on_sync_write,
-    struct AV1LrSyncData *const lr_sync);
+    void *priv, int32_t *tmpbuf,
+#if CONFIG_SHARED_LOOP_RESTORATION
+    Vector *stats,
+#endif  // CONFIG_SHARED_LOOP_RESTORATION
+    RestorationLineBuffers *rlbs, sync_read_fn_t on_sync_read,
+    sync_write_fn_t on_sync_write, struct AV1LrSyncData *const lr_sync);
 AV1PixelRect av1_whole_frame_rect(const struct AV1Common *cm, int is_uv);
 int av1_lr_count_units_in_tile(int unit_size, int tile_size);
 void av1_lr_sync_read_dummy(void *const lr_sync, int r, int c, int plane);
