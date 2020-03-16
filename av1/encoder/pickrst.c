@@ -89,6 +89,9 @@ typedef struct {
   // The best coefficients for Wiener or Sgrproj restoration
   WienerInfo wiener;
   SgrprojInfo sgrproj;
+#if CONFIG_SHARED_LOOP_RESTORATION
+  int64_t shared_wiener_group;
+#endif
 #if CONFIG_WIENER_NONSEP
   WienerNonsepInfo wiener_nonsep;
 #endif  // CONFIG_WIENER_NONSEP
@@ -686,8 +689,14 @@ static int count_sgrproj_bits(SgrprojInfo *sgrproj_info,
 static void search_sgrproj(const RestorationTileLimits *limits,
                            const AV1PixelRect *tile, int rest_unit_idx,
                            void *priv, int32_t *tmpbuf,
+#if CONFIG_SHARED_LOOP_RESTORATION
+                           Vector *stats,
+#endif  // CONFIG_SHARED_LOOP_RESTORATION
                            RestorationLineBuffers *rlbs) {
   (void)rlbs;
+#if CONFIG_SHARED_LOOP_RESTORATION
+  (void)stats;
+#endif  // CONFIG_SHARED_LOOP_RESTORATION
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
 
@@ -695,8 +704,7 @@ static void search_sgrproj(const RestorationTileLimits *limits,
   const AV1_COMMON *const cm = rsc->cm;
   const int highbd = cm->seq_params.use_highbitdepth;
   const int bit_depth = cm->seq_params.bit_depth;
-
-  uint8_t *dgd_start =
+  s uint8_t *dgd_start =
       rsc->dgd_buffer + limits->v_start * rsc->dgd_stride + limits->h_start;
   const uint8_t *src_start =
       rsc->src_buffer + limits->v_start * rsc->src_stride + limits->h_start;
@@ -1252,9 +1260,112 @@ static int64_t finer_tile_search_wiener(const RestSearchCtxt *rsc,
   return err;
 }
 
+#if CONFIG_SHARED_LOOP_RESTORATION
+static void search_wiener_pass_2(const RestorationTileLimits *limits,
+                                 const AV1PixelRect *tile_rect,
+                                 int rest_unit_idx, void *priv, int32_t *tmpbuf,
+                                 Vector *wiener_stats_accumulators,
+                                 RestorationLineBuffers *rlbs) {
+  (void)tmpbuf;
+  (void)rlbs;
+
+  RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
+  RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
+  const MACROBLOCK *const x = rsc->x;
+  const int64_t bits_none = x->wiener_restore_cost[0];
+
+  // Use the group information that was computed in the first pass
+  int wiener_group = rusi->shared_wiener_group;
+  WienerStatistics *wiener_acc =
+      aom_vector_get(wiener_stats_accumulators, wiener_group);
+
+  const int wiener_win =
+      (rsc->plane == AOM_PLANE_Y) ? WIENER_WIN : WIENER_WIN_CHROMA;
+  int reduced_wiener_win = wiener_win;
+  if (rsc->sf->reduce_wiener_window_size) {
+    reduced_wiener_win =
+        (rsc->plane == AOM_PLANE_Y) ? WIENER_WIN_REDUCED : WIENER_WIN_CHROMA;
+  }
+
+  int32_t vfilter[WIENER_WIN], hfilter[WIENER_WIN];
+
+  if (wiener_acc->inertia > 1) {
+    // Average the statistics stored in the shared groups vector.
+    int64_t M[WIENER_WIN2];
+    int64_t H[WIENER_WIN2 * WIENER_WIN2];
+    for (int i = 0; i < WIENER_WIN2; i++) {
+      M[i] = wiener_acc->M[i] / wiener_acc->inertia;
+    }
+    for (int i = 0; i < WIENER_WIN2 * WIENER_WIN2; i++) {
+      H[i] = wiener_acc->H[i] / wiener_acc->inertia;
+    }
+    printf("Pass 2: Collapsed gid %d with inertia %d\n", wiener_acc->group_id,
+           wiener_acc->inertia);
+    wiener_acc->inertia = 1;
+  }
+
+  // Compute the filter for the associated statistics
+  wiener_decompose_sep_sym(reduced_wiener_win, wiener_acc->M, wiener_acc->H,
+                           vfilter, hfilter);
+
+  // Compute the SSE with this filter
+  RestorationUnitInfo shared_rui;
+  memset(&shared_rui, 0, sizeof(shared_rui));
+  shared_rui.restoration_type = RESTORE_WIENER;
+  finalize_sym_filter(reduced_wiener_win, vfilter,
+                      shared_rui.wiener_info.vfilter);
+  finalize_sym_filter(reduced_wiener_win, hfilter,
+                      shared_rui.wiener_info.hfilter);
+
+  int64_t shared_sse =
+      try_restoration_unit(rsc, limits, tile_rect, &shared_rui);
+  int64_t bits_shared_wiener = x->wiener_restore_cost[1];
+
+  const int64_t bits_wiener =
+      x->wiener_restore_cost[1] +
+      (count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener)
+       << AV1_PROB_COST_SHIFT);
+
+  double cost_normal =
+      RDCOST_DBL(x->rdmult, bits_wiener >> 4, rusi->sse[RESTORE_WIENER]);
+  double cost_shared =
+      RDCOST_DBL(x->rdmult, bits_shared_wiener >> 4, shared_sse);
+  double cost_none =
+      RDCOST_DBL(x->rdmult, bits_none >> 4, rusi->sse[RESTORE_NONE]);
+  printf(
+      "Pass 2: sse(shared, wiener, none) = sse(%d, %d, %d), rdcost(shared, "
+      "wiener, none) = rdcost(%f, %f, %f)\n",
+      shared_sse, rusi->sse[RESTORE_WIENER], rusi->sse[RESTORE_NONE],
+      cost_shared, cost_normal, cost_none);
+  if (cost_shared < cost_normal) {
+    rusi->sse[RESTORE_WIENER] = shared_sse;
+    rusi->wiener = shared_rui.wiener_info;
+    RestorationType best_rtype =
+        cost_shared < cost_none ? RESTORE_WIENER : RESTORE_NONE;
+    rusi->best_rtype[RESTORE_WIENER - 1] = best_rtype;
+    if (best_rtype == RESTORE_WIENER)
+      printf("Pass 2: Selected shared wiener!\n");
+  }
+}
+
+static bool check_overflow(int64_t a, int64_t b) {
+  bool overflow;
+  if (a ^ b < 0)
+    overflow = 0;
+  else if (a > 0)
+    overflow = (b > LONG_MAX - a);
+  else
+    overflow = (b < LONG_MIN - a);
+  return overflow;
+}
+#endif  // CONFIG_SHARED_LOOP_RESTORATION
+
 static void search_wiener(const RestorationTileLimits *limits,
                           const AV1PixelRect *tile_rect, int rest_unit_idx,
                           void *priv, int32_t *tmpbuf,
+#if CONFIG_SHARED_LOOP_RESTORATION
+                          Vector *wiener_stats_accumulators,
+#endif  // CONFIG_SHARED_LOOP_RESTORATION
                           RestorationLineBuffers *rlbs) {
   (void)tmpbuf;
   (void)rlbs;
@@ -1289,6 +1400,8 @@ static void search_wiener(const RestorationTileLimits *limits,
   const MACROBLOCK *const x = rsc->x;
   const int64_t bits_none = x->wiener_restore_cost[0];
 
+  // TODO(anyone): This function can't actually return 0.  Is this testing for
+  // factorization failures?
   if (!wiener_decompose_sep_sym(reduced_wiener_win, M, H, vfilter, hfilter)) {
     rsc->bits += bits_none;
     rsc->sse += rusi->sse[RESTORE_NONE];
@@ -1296,6 +1409,52 @@ static void search_wiener(const RestorationTileLimits *limits,
     rusi->sse[RESTORE_WIENER] = INT64_MAX;
     return;
   }
+
+  WienerStatistics *wiener_acc = aom_vector_back(wiener_stats_accumulators);
+#if CONFIG_SHARED_LOOP_RESTORATION
+  int64_t acc_M[WIENER_WIN2];
+  int64_t acc_H[WIENER_WIN2 * WIENER_WIN2];
+  int64_t shared_M[WIENER_WIN2];
+  int64_t shared_H[WIENER_WIN2 * WIENER_WIN2];
+  int32_t shared_vfilter[WIENER_WIN], shared_hfilter[WIENER_WIN];
+
+  // Average the statistics
+  for (int i = 0; i < WIENER_WIN2; i++) {
+    assert(!check_overflow(M[i], wiener_acc->M[i]));
+    acc_M[i] = M[i] + wiener_acc->M[i];
+    shared_M[i] = acc_M[i] / (wiener_acc->inertia + 1);
+  }
+  for (int i = 0; i < WIENER_WIN2 * WIENER_WIN2; i++) {
+    assert(!check_overflow(H[i], wiener_acc->H[i]));
+    acc_H[i] = H[i] + wiener_acc->H[i];
+    shared_H[i] = acc_H[i] / (wiener_acc->inertia + 1);
+  }
+
+  // Compute the filter for the associated statistics
+  wiener_decompose_sep_sym(reduced_wiener_win, shared_M, shared_H,
+                           shared_vfilter, shared_hfilter);
+  // Compute the SSE with this filter
+  RestorationUnitInfo shared_rui;
+  memset(&shared_rui, 0, sizeof(shared_rui));
+  shared_rui.restoration_type = RESTORE_WIENER;
+  finalize_sym_filter(reduced_wiener_win, shared_vfilter,
+                      shared_rui.wiener_info.vfilter);
+  finalize_sym_filter(reduced_wiener_win, shared_hfilter,
+                      shared_rui.wiener_info.hfilter);
+
+  int64_t shared_sse =
+      try_restoration_unit(rsc, limits, tile_rect, &shared_rui);
+
+  int64_t bits_shared_wiener =
+      x->wiener_restore_cost[1] +
+      (count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener)
+       << AV1_PROB_COST_SHIFT);
+  bits_shared_wiener =
+      wiener_acc->inertia == 0 ? bits_shared_wiener : bits_none;
+
+  double cost_shared =
+      RDCOST_DBL(x->rdmult, bits_shared_wiener >> 4, shared_sse);
+#endif  // CONFIG_SHARED_LOOP_RESTORATION
 
   RestorationUnitInfo rui;
   memset(&rui, 0, sizeof(rui));
@@ -1337,6 +1496,31 @@ static void search_wiener(const RestorationTileLimits *limits,
       RDCOST_DBL(x->rdmult, bits_none >> 4, rusi->sse[RESTORE_NONE]);
   double cost_wiener =
       RDCOST_DBL(x->rdmult, bits_wiener >> 4, rusi->sse[RESTORE_WIENER]);
+#if CONFIG_SHARED_LOOP_RESTORATION
+  printf(
+      "Pass 1: I/G %zu/%zu, rdcost(shared, wiener, none) = (%f, %f, %f), "
+      "sse(shared, wiener, none) = (%d, %d, %d)\n",
+      wiener_acc->inertia, wiener_acc->group_id, cost_shared, cost_wiener,
+      cost_none, shared_sse, rusi->sse[RESTORE_WIENER],
+      rusi->sse[RESTORE_NONE]);
+  rusi->shared_wiener_group = wiener_acc->group_id;
+  if (cost_shared <= cost_wiener) {
+    memcpy(wiener_acc->H, acc_H, sizeof(acc_H));
+    memcpy(wiener_acc->M, acc_M, sizeof(acc_M));
+    wiener_acc->inertia++;
+    rusi->sse[RESTORE_WIENER] = shared_sse;
+    printf("Pass 1: Continuing stats block\n");
+  } else {
+    WienerStatistics new_stats_group;
+    memcpy(new_stats_group.H, H, sizeof(H));
+    memcpy(new_stats_group.M, M, sizeof(M));
+    new_stats_group.inertia = 1;
+    new_stats_group.group_id = wiener_acc->group_id + 1;
+    rusi->shared_wiener_group++;
+    aom_vector_push_back(wiener_stats_accumulators, &new_stats_group);
+    printf("Pass 1: Resetting stats block\n");
+  }
+#endif  // CONFIG_SHARED_LOOP_RESTORATION
 
   RestorationType rtype =
       (cost_wiener < cost_none) ? RESTORE_WIENER : RESTORE_NONE;
@@ -1350,10 +1534,16 @@ static void search_wiener(const RestorationTileLimits *limits,
 static void search_norestore(const RestorationTileLimits *limits,
                              const AV1PixelRect *tile_rect, int rest_unit_idx,
                              void *priv, int32_t *tmpbuf,
+#if CONFIG_SHARED_LOOP_RESTORATION
+                             Vector *stats,
+#endif  // CONFIG_SHARED_LOOP_RESTORATION
                              RestorationLineBuffers *rlbs) {
   (void)tile_rect;
   (void)tmpbuf;
   (void)rlbs;
+#if CONFIG_SHARED_LOOP_RESTORATION
+  (void)stats;
+#endif  // CONFIG_SHARED_LOOP_RESTORATION
 
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
@@ -1640,11 +1830,17 @@ static void search_wiener_nonsep(const RestorationTileLimits *limits,
 static void search_switchable(const RestorationTileLimits *limits,
                               const AV1PixelRect *tile_rect, int rest_unit_idx,
                               void *priv, int32_t *tmpbuf,
+#if CONFIG_SHARED_LOOP_RESTORATION
+                              Vector *stats,
+#endif  // CONFIG_SHARED_LOOP_RESTORATION
                               RestorationLineBuffers *rlbs) {
   (void)limits;
   (void)tile_rect;
   (void)tmpbuf;
   (void)rlbs;
+#if CONFIG_SHARED_LOOP_RESTORATION
+  (void)stats;
+#endif  // CONFIG_SHARED_LOOP_RESTORATION
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
 
@@ -1744,9 +1940,27 @@ static double search_rest_type(RestSearchCtxt *rsc, RestorationType rtype) {
 
   reset_rsc(rsc);
   rsc_on_tile(rsc);
+#if CONFIG_SHARED_LOOP_RESTORATION
+  Vector wiener_stats;
+  WienerStatistics initial_group;
+  aom_vector_setup(&wiener_stats, 1, sizeof(WienerStatistics));
+  memset(&initial_group, 0, sizeof(initial_group));
+  aom_vector_push_back(&wiener_stats, &initial_group);
 
   av1_foreach_rest_unit_in_plane(rsc->cm, rsc->plane, funs[rtype], rsc,
+                                 &rsc->tile_rect, rsc->cm->rst_tmpbuf,
+                                 &wiener_stats, NULL);
+  if (rtype == RESTORE_WIENER) {
+    av1_foreach_rest_unit_in_plane(rsc->cm, rsc->plane, search_wiener_pass_2,
+                                   rsc, &rsc->tile_rect, rsc->cm->rst_tmpbuf,
+                                   &wiener_stats, NULL);
+  }
+  aom_vector_free_space(&wiener_stats);
+#else
+  av1_foreach_rest_unit_in_plane(rsc->cm, rsc->plane, funs[rtype], rsc,
                                  &rsc->tile_rect, rsc->cm->rst_tmpbuf, NULL);
+#endif  // CONFIG_SHARED_LOOP_RESTORATION
+
   return RDCOST_DBL(rsc->x->rdmult, rsc->bits >> 4, rsc->sse);
 }
 
