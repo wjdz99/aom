@@ -22,6 +22,30 @@
       "revId": "2696d6c115afdfc1327dad578fbaeaae08cd7569",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebcbb0f2_57ba58f6",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1417,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2020-03-17T04:16:05Z",
+      "side": 1,
+      "message": "While debugging the reported bug we found that along with the speed feature introduced by us there are few more cases which were leading to x-\u003emust_find_valid_partition \u003d 1 (repeated partition evaluation). Hence we tried fixing all these issues with ref_best_rd !\u003d INT64_MAX check (so that at least one mode is evaluated).",
+      "parentUuid": "447dab2a_999a89bc",
+      "range": {
+        "startLine": 1417,
+        "startChar": 3,
+        "endLine": 1417,
+        "endChar": 35
+      },
+      "revId": "2696d6c115afdfc1327dad578fbaeaae08cd7569",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
