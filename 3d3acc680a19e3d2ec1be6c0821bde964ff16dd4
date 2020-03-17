@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f5e0339_522475c3",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4905,
+      "author": {
+        "id": 14975
+      },
+      "writtenOn": "2020-03-17T17:57:49Z",
+      "side": 1,
+      "message": "Should this be under a guard?",
+      "range": {
+        "startLine": 4901,
+        "startChar": 2,
+        "endLine": 4905,
+        "endChar": 73
+      },
+      "revId": "3d3acc680a19e3d2ec1be6c0821bde964ff16dd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
