@@ -24,6 +24,11 @@ extern "C" {
 
 #define INVALID_MV 0x80008000
 
+// TODO(debargha, any): Make drl adjustment for flexible mvres work
+// with CONFIG_NEW_INTER_MODES. For now turn it off when
+// CONFIG_NEW_INTER_MODES is on.
+#define ADJUST_DRL_FLEX_MVRES (!CONFIG_NEW_INTER_MODES)
+
 typedef struct mv {
   int16_t row;
   int16_t col;

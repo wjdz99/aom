@@ -4902,10 +4902,10 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   assert(IMPLIES(is_lossless_requested(&cpi->oxcf),
                  cm->coded_lossless && cm->all_lossless));
 
-  const int use_loopfilter = !cm->coded_lossless && !cm->large_scale_tile;
-  const int use_cdef = cm->seq_params.enable_cdef && !cm->coded_lossless &&
+  const int use_loopfilter = 0 && !cm->coded_lossless && !cm->large_scale_tile;
+  const int use_cdef = 0 && cm->seq_params.enable_cdef && !cm->coded_lossless &&
                        !cm->large_scale_tile;
-  const int use_restoration = cm->seq_params.enable_restoration &&
+  const int use_restoration = 0 && cm->seq_params.enable_restoration &&
                               !cm->all_lossless && !cm->large_scale_tile;
 
   struct loopfilter *lf = &cm->lf;
