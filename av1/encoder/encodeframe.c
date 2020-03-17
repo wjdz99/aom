@@ -893,15 +893,33 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
 
 #if CONFIG_NEW_INTER_MODES
 static void update_drl_index_stats(FRAME_CONTEXT *fc, FRAME_COUNTS *counts,
+                                   const AV1_COMMON *cm,
                                    const MB_MODE_INFO *mbmi,
                                    const MB_MODE_INFO_EXT *mbmi_ext,
                                    int16_t mode_ctx, uint8_t allow_update_cdf) {
+  (void)cm;
 #if !CONFIG_ENTROPY_STATS
   (void)counts;
 #endif  // !CONFIG_ENTROPY_STATS
   assert(have_drl_index(mbmi->mode));
-  assert(mbmi->ref_mv_idx < MAX_DRL_BITS + 1);
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+  if (mbmi->mv_precision < cm->mv_precision) {
+    /*
+    assert(mbmi->ref_mv_idx_adj < mbmi_ext->ref_mv_count_adj);
+    assert(mbmi->ref_mv_idx_adj < MAX_DRL_BITS + 1);
+    int range_adj = AOMMIN(mbmi_ext->ref_mv_count_adj - 1, MAX_DRL_BITS);
+    for (int idx = 0; idx < range_adj; ++idx) {
+      aom_cdf_prob *drl_cdf = av1_get_drl_cdf(
+          mode_ctx, fc, mbmi->mode, mbmi_ext->weight_adj, idx);
+      if (allow_update_cdf) update_cdf(drl_cdf, mbmi->ref_mv_idx_adj != idx, 2);
+      if (mbmi->ref_mv_idx_adj == idx) break;
+    }
+    */
+    return;
+  }
+#endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+  assert(mbmi->ref_mv_idx < MAX_DRL_BITS + 1);
   int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, MAX_DRL_BITS);
   for (int idx = 0; idx < range; ++idx) {
     aom_cdf_prob *drl_cdf = av1_get_drl_cdf(
@@ -1704,7 +1722,7 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
 
 #if CONFIG_NEW_INTER_MODES
       if (have_drl_index(mbmi->mode)) {
-        update_drl_index_stats(fc, counts, mbmi, mbmi_ext, mode_ctx,
+        update_drl_index_stats(fc, counts, cm, mbmi, mbmi_ext, mode_ctx,
                                allow_update_cdf);
       }
       if (have_newmv_in_inter_mode(mbmi->mode)) {
@@ -1749,7 +1767,7 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
         }
       }
 #else
-#if CONFIG_ENTROPY_STATS
+#if 0  // CONFIG_ENTROPY_STATS
       if (new_mv) {
         uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
 
