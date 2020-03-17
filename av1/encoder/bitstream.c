@@ -179,17 +179,33 @@ static void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
 }
 
 #if CONFIG_NEW_INTER_MODES
-static void write_drl_idx(FRAME_CONTEXT *ec_ctx, int16_t mode_ctx,
-                          const MB_MODE_INFO *mbmi,
+static void write_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
+                          int16_t mode_ctx, const MB_MODE_INFO *mbmi,
                           const MB_MODE_INFO_EXT *mbmi_ext, aom_writer *w) {
+  (void)cm;
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
   assert(!mbmi->skip_mode);
-  assert(mbmi->ref_mv_idx < mbmi_ext->ref_mv_count[ref_frame_type]);
-  assert(mbmi->ref_mv_idx < MAX_DRL_BITS + 1);
   // Write the DRL index as a sequence of bits encoding a decision tree:
   // 0 -> 0   10 -> 1   110 -> 2    111 -> 3
   // Also use the number of reference MVs for a frame type to reduce the
   // number of bits written if there are less than 4 valid DRL indices.
+#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+  if (mbmi->mv_precision < mbmi->max_mv_precision &&
+      (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV)) {
+    assert(mbmi->ref_mv_idx_adj < mbmi_ext->ref_mv_count_adj);
+    assert(mbmi->ref_mv_idx_adj < MAX_DRL_BITS + 1);
+    int range_adj = AOMMIN(mbmi_ext->ref_mv_count_adj - 1, MAX_DRL_BITS);
+    for (int idx = 0; idx < range_adj; ++idx) {
+      aom_cdf_prob *drl_cdf = av1_get_drl_cdf(mode_ctx, ec_ctx, mbmi->mode,
+                                              mbmi_ext->weight_adj, idx);
+      aom_write_symbol(w, mbmi->ref_mv_idx_adj != idx, drl_cdf, 2);
+      if (mbmi->ref_mv_idx_adj == idx) break;
+    }
+    return;
+  }
+#endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+  assert(mbmi->ref_mv_idx < mbmi_ext->ref_mv_count[ref_frame_type]);
+  assert(mbmi->ref_mv_idx < MAX_DRL_BITS + 1);
   int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, MAX_DRL_BITS);
   for (int idx = 0; idx < range; ++idx) {
     aom_cdf_prob *drl_cdf = av1_get_drl_cdf(
@@ -211,7 +227,7 @@ static void write_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
   if (new_mv) {
     int idx;
 #if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
-    if (mbmi->mv_precision < cm->mv_precision) {
+    if (mbmi->mv_precision < mbmi->max_mv_precision) {
       for (idx = 0; idx < MAX_DRL_BITS; ++idx) {
         if (mbmi_ext->ref_mv_count_adj > idx + 1) {
           uint8_t drl_ctx = av1_drl_ctx(mbmi_ext->weight_adj, idx);
@@ -1483,6 +1499,9 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     int16_t mode_ctx =
         av1_mode_context_analyzer(mbmi_ext->mode_context, mbmi->ref_frame);
 
+    if (cm->cur_frame->order_hint == 1 && mi_row == 32 && mi_col == 40) {
+      printf("Enc Debug\n");
+    }
     // If segment skip is not enabled code the mode.
     if (!segfeature_active(seg, segment_id, SEG_LVL_SKIP)) {
       if (is_inter_compound_mode(mode))
@@ -1501,7 +1520,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_FLEX_MVRES
       if (have_drl_index(mbmi->mode))
 #if CONFIG_NEW_INTER_MODES
-        write_drl_idx(ec_ctx, mode_ctx, mbmi, mbmi_ext, w);
+        write_drl_idx(ec_ctx, cm, mode_ctx, mbmi, mbmi_ext, w);
 #else
         write_drl_idx(ec_ctx, cm, mbmi, mbmi_ext, w);
 #endif  // CONFIG_NEW_INTER_MODES
