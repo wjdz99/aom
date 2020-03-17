@@ -3353,6 +3353,21 @@ BEGIN_PARTITION_SEARCH:
   verta_partition_allowed &= cpi->oxcf.enable_ab_partitions;
   vertb_partition_allowed &= cpi->oxcf.enable_ab_partitions;
 
+  int num_win_thresh = 3 * (2 * (MAXQ - x->qindex) / MAXQ);
+  if (cpi->sf.part_sf.prune_ab_partition_using_split_info &&
+      horza_partition_allowed) {
+    int num_win = 0;
+    bool horz_win = (rect_part_win_info == NULL)
+                        ? (pc_tree->partitioning == PARTITION_HORZ)
+                        : rect_part_win_info->horz_win;
+    num_win += (horz_win) ? 1 : 0;
+    num_win += (pc_tree->split[0]->partitioning == PARTITION_NONE) ? 1 : 0;
+    num_win += (pc_tree->split[1]->partitioning == PARTITION_NONE) ? 1 : 0;
+    if (num_win < num_win_thresh) {
+      horza_partition_allowed = 0;
+    }
+  }
+
   // PARTITION_HORZ_A
   if (!terminate_partition_search && partition_horz_allowed &&
       horza_partition_allowed && !is_gt_max_sq_part) {
@@ -3399,6 +3414,21 @@ BEGIN_PARTITION_SEARCH:
 #endif
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
+
+  if (cpi->sf.part_sf.prune_ab_partition_using_split_info &&
+      horzb_partition_allowed) {
+    int num_win = 0;
+    bool horz_win = (rect_part_win_info == NULL)
+                        ? (pc_tree->partitioning == PARTITION_HORZ)
+                        : rect_part_win_info->horz_win;
+    num_win += (horz_win) ? 1 : 0;
+    num_win += (pc_tree->split[2]->partitioning == PARTITION_NONE) ? 1 : 0;
+    num_win += (pc_tree->split[3]->partitioning == PARTITION_NONE) ? 1 : 0;
+    if (num_win < num_win_thresh) {
+      horzb_partition_allowed = 0;
+    }
+  }
+
   // PARTITION_HORZ_B
   if (!terminate_partition_search && partition_horz_allowed &&
       horzb_partition_allowed && !is_gt_max_sq_part) {
@@ -3439,6 +3469,18 @@ BEGIN_PARTITION_SEARCH:
     }
 #endif
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
+  }
+  if (cpi->sf.part_sf.prune_ab_partition_using_split_info &&
+      verta_partition_allowed) {
+    bool vert_win = (rect_part_win_info == NULL)
+                        ? (pc_tree->partitioning == PARTITION_VERT)
+                        : rect_part_win_info->vert_win;
+    int num_win = (vert_win) ? 1 : 0;
+    num_win += (pc_tree->split[0]->partitioning == PARTITION_NONE) ? 1 : 0;
+    num_win += (pc_tree->split[2]->partitioning == PARTITION_NONE) ? 1 : 0;
+    if (num_win < num_win_thresh) {
+      verta_partition_allowed = 0;
+    }
   }
 
   // PARTITION_VERT_A
@@ -3481,6 +3523,20 @@ BEGIN_PARTITION_SEARCH:
 #endif
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
+
+  if (cpi->sf.part_sf.prune_ab_partition_using_split_info &&
+      vertb_partition_allowed) {
+    bool vert_win = (rect_part_win_info == NULL)
+                        ? (pc_tree->partitioning == PARTITION_VERT)
+                        : rect_part_win_info->vert_win;
+    int num_win = (vert_win) ? 1 : 0;
+    num_win += (pc_tree->split[1]->partitioning == PARTITION_NONE) ? 1 : 0;
+    num_win += (pc_tree->split[3]->partitioning == PARTITION_NONE) ? 1 : 0;
+    if (num_win < num_win_thresh) {
+      vertb_partition_allowed = 0;
+    }
+  }
+
   // PARTITION_VERT_B
   if (!terminate_partition_search && partition_vert_allowed &&
       vertb_partition_allowed && !is_gt_max_sq_part) {
@@ -3564,6 +3620,7 @@ BEGIN_PARTITION_SEARCH:
     partition_vert4_allowed = 0;
   }
 
+  num_win_thresh = 3 * (MAXQ - x->qindex) / MAXQ + 1;
   if (cpi->sf.part_sf.prune_4_partition_using_split_info &&
       (partition_horz4_allowed || partition_vert4_allowed)) {
     // Count of child blocks in which HORZ or VERT partition has won
@@ -3576,7 +3633,6 @@ BEGIN_PARTITION_SEARCH:
     // Prune HORZ4/VERT4 partitions based on number of HORZ/VERT winners of
     // split partiitons.
     // Conservative pruning for high quantizers
-    const int num_win_thresh = 3 * (MAXQ - x->qindex) / MAXQ + 1;
     if (num_child_horz_win < num_win_thresh) {
       partition_horz4_allowed = 0;
     }
