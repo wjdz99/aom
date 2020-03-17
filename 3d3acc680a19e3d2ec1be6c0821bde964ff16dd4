@@ -22,6 +22,30 @@
       "revId": "3d3acc680a19e3d2ec1be6c0821bde964ff16dd4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "646b50b6_14dc7bf1",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4905,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2020-03-17T18:32:38Z",
+      "side": 1,
+      "message": "Deb, could you confirm if the filters are supposed to be disabled?",
+      "parentUuid": "1f5e0339_522475c3",
+      "range": {
+        "startLine": 4901,
+        "startChar": 2,
+        "endLine": 4905,
+        "endChar": 73
+      },
+      "revId": "3d3acc680a19e3d2ec1be6c0821bde964ff16dd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
