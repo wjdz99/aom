@@ -4325,7 +4325,8 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
     set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
   } else if (sf->part_sf.partition_search_type == VAR_BASED_PARTITION) {
     set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col, sb_size);
-    av1_choose_var_based_partitioning(cpi, tile_info, x, mi_row, mi_col);
+    av1_choose_var_based_partitioning(cpi, tile_info, tile_data, x, mi_row,
+                                      mi_col);
   }
   assert(sf->part_sf.partition_search_type == FIXED_PARTITION || seg_skip ||
          cpi->partition_search_skippable_frame ||
@@ -4573,7 +4574,8 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
 
   if (sf->part_sf.partition_search_type == VAR_BASED_PARTITION) {
     set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col, sb_size);
-    av1_choose_var_based_partitioning(cpi, tile_info, x, mi_row, mi_col);
+    av1_choose_var_based_partitioning(cpi, tile_info, tile_data, x, mi_row,
+                                      mi_col);
     rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                      &dummy_rate, &dummy_dist, 1, pc_root);
   }
@@ -4830,10 +4832,19 @@ void av1_alloc_tile_data(AV1_COMP *cpi) {
   const int tile_cols = cm->tile_cols;
   const int tile_rows = cm->tile_rows;
 
+  if (cpi->vt64x64 != NULL) aom_free(cpi->vt64x64);
   if (cpi->tile_data != NULL) aom_free(cpi->tile_data);
   CHECK_MEM_ERROR(
       cm, cpi->tile_data,
       aom_memalign(32, tile_cols * tile_rows * sizeof(*cpi->tile_data)));
+
+  if (cpi->sf.part_sf.partition_search_type == VAR_BASED_PARTITION) {
+    const int num_64x64_blocks =
+        (cm->seq_params.sb_size == BLOCK_64X64) ? 1 : 4;
+    CHECK_MEM_ERROR(cm, cpi->vt64x64,
+                    aom_malloc(tile_cols * tile_rows * sizeof(*cpi->vt64x64) *
+                               num_64x64_blocks));
+  }
   cpi->allocated_tiles = tile_cols * tile_rows;
 }
 
@@ -4853,6 +4864,12 @@ void av1_init_tile_data(AV1_COMP *cpi) {
       TileDataEnc *const tile_data =
           &cpi->tile_data[tile_row * tile_cols + tile_col];
       TileInfo *const tile_info = &tile_data->tile_info;
+      if (cpi->sf.part_sf.partition_search_type == VAR_BASED_PARTITION) {
+        const int num_64x64_blocks =
+            (cm->seq_params.sb_size == BLOCK_64X64) ? 1 : 4;
+        tile_data->vt64x64 =
+            cpi->vt64x64 + (tile_row * tile_cols + tile_col) * num_64x64_blocks;
+      }
       av1_tile_init(tile_info, cm, tile_row, tile_col);
 
       cpi->tile_tok[tile_row][tile_col] = pre_tok + tile_tok;
@@ -5682,6 +5699,13 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write_dummy;
   cpi->row_mt = 0;
 
+  // if (cpi->sf.part_sf.partition_search_type == VAR_BASED_PARTITION) {
+  //   const int num_64x64_blocks =
+  //       (cm->seq_params.sb_size == BLOCK_64X64) ? 1 : 4;
+  //   CHECK_MEM_ERROR(cm, x->vt64x64,
+  //                   aom_malloc(sizeof(*x->vt64x64) * num_64x64_blocks));
+  // }
+
   if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads > 1)) {
     cpi->row_mt = 1;
     cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read;
@@ -5694,6 +5718,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
       encode_tiles(cpi);
   }
 
+  // if (x->vt64x64) aom_free(x->vt64x64);
   // If intrabc is allowed but never selected, reset the allow_intrabc flag.
   if (cm->allow_intrabc && !cpi->intrabc_used) cm->allow_intrabc = 0;
   if (cm->allow_intrabc) cm->delta_q_info.delta_lf_present_flag = 0;

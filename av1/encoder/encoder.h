@@ -575,6 +575,55 @@ typedef struct AV1RowMTInfo {
   int num_threads_working;
 } AV1RowMTInfo;
 
+typedef struct {
+  // TODO(kyslov): consider changing to 64bit
+
+  // This struct is used for computing variance in choose_partitioning(), where
+  // the max number of samples within a superblock is 32x32 (with 4x4 avg).
+  // With 8bit bitdepth, uint32_t is enough for sum_square_error (2^8 * 2^8 * 32
+  // * 32 = 2^26). For high bitdepth we need to consider changing this to 64 bit
+  uint32_t sum_square_error;
+  int32_t sum_error;
+  int log2_count;
+  int variance;
+} VPartVar;
+
+typedef struct {
+  VPartVar none;
+  VPartVar horz[2];
+  VPartVar vert[2];
+} VPVariance;
+
+typedef struct {
+  VPVariance part_variances;
+  VPartVar split[4];
+} VP4x4;
+
+typedef struct {
+  VPVariance part_variances;
+  VP4x4 split[4];
+} VP8x8;
+
+typedef struct {
+  VPVariance part_variances;
+  VP8x8 split[4];
+} VP16x16;
+
+typedef struct {
+  VPVariance part_variances;
+  VP16x16 split[4];
+} VP32x32;
+
+typedef struct {
+  VPVariance part_variances;
+  VP32x32 split[4];
+} VP64x64;
+
+typedef struct {
+  VPVariance part_variances;
+  VP64x64 *split;
+} VP128x128;
+
 // TODO(jingning) All spatially adaptive variables should go to TileDataEnc.
 typedef struct TileDataEnc {
   TileInfo tile_info;
@@ -585,6 +634,7 @@ typedef struct TileDataEnc {
   InterModeRdModel inter_mode_rd_models[BLOCK_SIZES_ALL];
   AV1RowMTSync row_mt_sync;
   AV1RowMTInfo row_mt_info;
+  VP64x64 *vt64x64;
 } TileDataEnc;
 
 typedef struct {
@@ -979,6 +1029,7 @@ typedef struct AV1_COMP {
   search_site_config ss_cfg[SS_CFG_TOTAL];
 
   TileDataEnc *tile_data;
+  VP64x64 *vt64x64;
   int allocated_tiles;  // Keep track of memory allocated for tiles.
 
   TOKENEXTRA *tile_tok[MAX_TILE_ROWS][MAX_TILE_COLS];
