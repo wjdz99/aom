@@ -34,57 +34,8 @@
 extern const uint8_t AV1_VAR_OFFS[];
 
 typedef struct {
-  // TODO(kyslov): consider changing to 64bit
-
-  // This struct is used for computing variance in choose_partitioning(), where
-  // the max number of samples within a superblock is 32x32 (with 4x4 avg).
-  // With 8bit bitdepth, uint32_t is enough for sum_square_error (2^8 * 2^8 * 32
-  // * 32 = 2^26). For high bitdepth we need to consider changing this to 64 bit
-  uint32_t sum_square_error;
-  int32_t sum_error;
-  int log2_count;
-  int variance;
-} var;
-
-typedef struct {
-  var none;
-  var horz[2];
-  var vert[2];
-} partition_variance;
-
-typedef struct {
-  partition_variance part_variances;
-  var split[4];
-} v4x4;
-
-typedef struct {
-  partition_variance part_variances;
-  v4x4 split[4];
-} v8x8;
-
-typedef struct {
-  partition_variance part_variances;
-  v8x8 split[4];
-} v16x16;
-
-typedef struct {
-  partition_variance part_variances;
-  v16x16 split[4];
-} v32x32;
-
-typedef struct {
-  partition_variance part_variances;
-  v32x32 split[4];
-} v64x64;
-
-typedef struct {
-  partition_variance part_variances;
-  v64x64 *split;
-} v128x128;
-
-typedef struct {
   partition_variance *part_variances;
-  var *split[4];
+  vp_var *split[4];
 } variance_node;
 
 static AOM_INLINE void tree_to_node(void *data, BLOCK_SIZE bsize,
@@ -138,13 +89,13 @@ static AOM_INLINE void tree_to_node(void *data, BLOCK_SIZE bsize,
 }
 
 // Set variance values given sum square error, sum error, count.
-static AOM_INLINE void fill_variance(uint32_t s2, int32_t s, int c, var *v) {
+static AOM_INLINE void fill_variance(uint32_t s2, int32_t s, int c, vp_var *v) {
   v->sum_square_error = s2;
   v->sum_error = s;
   v->log2_count = c;
 }
 
-static AOM_INLINE void get_variance(var *v) {
+static AOM_INLINE void get_variance(vp_var *v) {
   v->variance =
       (int)(256 * (v->sum_square_error -
                    (uint32_t)(((int64_t)v->sum_error * v->sum_error) >>
@@ -152,7 +103,8 @@ static AOM_INLINE void get_variance(var *v) {
             v->log2_count);
 }
 
-static AOM_INLINE void sum_2_variances(const var *a, const var *b, var *r) {
+static AOM_INLINE void sum_2_variances(const vp_var *a, const vp_var *b,
+                                       vp_var *r) {
   assert(a->log2_count == b->log2_count);
   fill_variance(a->sum_square_error + b->sum_square_error,
                 a->sum_error + b->sum_error, a->log2_count + 1, r);
@@ -642,14 +594,13 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   unsigned int y_sad = UINT_MAX;
   unsigned int y_sad_g = UINT_MAX;
   BLOCK_SIZE bsize = is_small_sb ? BLOCK_64X64 : BLOCK_128X128;
-  v64x64 *vt64x64 = NULL;
 
   // Ref frame used in partitioning.
   MV_REFERENCE_FRAME ref_frame_partition = LAST_FRAME;
 
-  CHECK_MEM_ERROR(cm, vt64x64, aom_malloc(sizeof(*vt64x64) * num_64x64_blocks));
   CHECK_MEM_ERROR(cm, vt, aom_malloc(sizeof(*vt)));
-  vt->split = vt64x64;
+
+  vt->split = x->vt64x64;
 
   int64_t thresholds[5] = { cpi->vbp_thresholds[0], cpi->vbp_thresholds[1],
                             cpi->vbp_thresholds[2], cpi->vbp_thresholds[3],
@@ -1015,7 +966,6 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   }
   chroma_check(cpi, x, bsize, y_sad, is_key_frame);
 
-  if (vt64x64) aom_free(vt64x64);
   if (vt2) aom_free(vt2);
   if (vt) aom_free(vt);
   return 0;

@@ -5682,6 +5682,13 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   cpi->row_mt_sync_write_ptr = av1_row_mt_sync_write_dummy;
   cpi->row_mt = 0;
 
+  if (cpi->sf.part_sf.partition_search_type == VAR_BASED_PARTITION) {
+    const int num_64x64_blocks =
+        (cm->seq_params.sb_size == BLOCK_64X64) ? 1 : 4;
+    CHECK_MEM_ERROR(cm, x->vt64x64,
+                    aom_malloc(sizeof(*x->vt64x64) * num_64x64_blocks));
+  }
+
   if (cpi->oxcf.row_mt && (cpi->oxcf.max_threads > 1)) {
     cpi->row_mt = 1;
     cpi->row_mt_sync_read_ptr = av1_row_mt_sync_read;
@@ -5694,6 +5701,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
       encode_tiles(cpi);
   }
 
+  if (x->vt64x64) aom_free(x->vt64x64);
   // If intrabc is allowed but never selected, reset the allow_intrabc flag.
   if (cm->allow_intrabc && !cpi->intrabc_used) cm->allow_intrabc = 0;
   if (cm->allow_intrabc) cm->delta_q_info.delta_lf_present_flag = 0;

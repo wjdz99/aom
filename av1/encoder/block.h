@@ -212,6 +212,55 @@ enum {
   MV_COST_NONE        // Use 0 as as cost irrespective of the current mv
 } UENUM1BYTE(MV_COST_TYPE);
 
+typedef struct {
+  // TODO(kyslov): consider changing to 64bit
+
+  // This struct is used for computing variance in choose_partitioning(), where
+  // the max number of samples within a superblock is 32x32 (with 4x4 avg).
+  // With 8bit bitdepth, uint32_t is enough for sum_square_error (2^8 * 2^8 * 32
+  // * 32 = 2^26). For high bitdepth we need to consider changing this to 64 bit
+  uint32_t sum_square_error;
+  int32_t sum_error;
+  int log2_count;
+  int variance;
+} vp_var;
+
+typedef struct {
+  vp_var none;
+  vp_var horz[2];
+  vp_var vert[2];
+} partition_variance;
+
+typedef struct {
+  partition_variance part_variances;
+  vp_var split[4];
+} v4x4;
+
+typedef struct {
+  partition_variance part_variances;
+  v4x4 split[4];
+} v8x8;
+
+typedef struct {
+  partition_variance part_variances;
+  v8x8 split[4];
+} v16x16;
+
+typedef struct {
+  partition_variance part_variances;
+  v16x16 split[4];
+} v32x32;
+
+typedef struct {
+  partition_variance part_variances;
+  v32x32 split[4];
+} v64x64;
+
+typedef struct {
+  partition_variance part_variances;
+  v64x64 *split;
+} v128x128;
+
 struct inter_modes_info;
 typedef struct macroblock MACROBLOCK;
 struct macroblock {
@@ -457,6 +506,7 @@ struct macroblock {
   // the visual quality at the boundary of moving color objects.
   uint8_t color_sensitivity[2];
   int nonrd_prune_ref_frame_search;
+  v64x64 *vt64x64;
 
   // Used to control the tx size search evaluation for mode processing
   // (normal/winner mode)
