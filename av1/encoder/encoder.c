@@ -797,6 +797,11 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
 
   dealloc_context_buffers_ext(cpi);
 
+  if (cpi->vt64x64) {
+    aom_free(cpi->vt64x64);
+    cpi->vt64x64 = NULL;
+  }
+
   aom_free(cpi->tile_data);
   cpi->tile_data = NULL;
 
