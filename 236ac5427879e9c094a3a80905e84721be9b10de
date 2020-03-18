@@ -94,6 +94,30 @@
       "revId": "236ac5427879e9c094a3a80905e84721be9b10de",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71aa5dfd_af7c2120",
+        "filename": "av1/encoder/encodemv.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-03-18T00:22:17Z",
+      "side": 0,
+      "message": "The mv checking added in above CL makes sense, and it is better that we ensure that for all situations. Anyway, x-\u003emust_find_valid_partition\u003d1 is probably caused by many places of mode pruning, and only changing this place wouldn\u0027t eliminate it. So, I think we should restore this assertion.",
+      "parentUuid": "9fc20b01_ccaf69cd",
+      "range": {
+        "startLine": 180,
+        "startChar": 2,
+        "endLine": 181,
+        "endChar": 29
+      },
+      "revId": "236ac5427879e9c094a3a80905e84721be9b10de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
