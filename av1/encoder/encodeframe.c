@@ -4491,7 +4491,7 @@ static void init_ref_frame_space(AV1_COMP *cpi, ThreadData *td, int mi_row,
   const int frame_idx = cpi->gf_group.index;
   TplDepFrame *tpl_frame = &cpi->tpl_frame[frame_idx];
 
-  memset(x->search_ref_frame, 0, sizeof(x->search_ref_frame));
+  av1_zero(x->search_ref_frame);
 
   if (tpl_frame->is_valid == 0) return;
   if (!is_frame_tpl_eligible(cpi)) return;
@@ -4503,18 +4503,15 @@ static void init_ref_frame_space(AV1_COMP *cpi, ThreadData *td, int mi_row,
   const int tpl_stride = tpl_frame->stride;
   int64_t inter_cost[INTER_REFS_PER_FRAME] = { 0 };
   const int step = 1 << cpi->tpl_stats_block_mis_log2;
-
   const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
   const int mi_row_end = AOMMIN(mi_size_high[sb_size] + mi_row, cm->mi_rows);
   const int mi_col_end = AOMMIN(mi_size_wide[sb_size] + mi_col, cm->mi_cols);
 
   for (int row = mi_row; row < mi_row_end; row += step) {
     for (int col = mi_col; col < mi_col_end; col += step) {
-      TplDepStats *this_stats =
+      const TplDepStats *this_stats =
           &tpl_stats[av1_tpl_ptr_pos(cpi, row, col, tpl_stride)];
-      int64_t tpl_pred_error[INTER_REFS_PER_FRAME];
-      memset(tpl_pred_error, 0, sizeof(tpl_pred_error));
-
+      int64_t tpl_pred_error[INTER_REFS_PER_FRAME] = { 0 };
       // Find the winner ref frame idx for the current block
       int64_t best_inter_cost = this_stats->pred_error[0];
       int best_rf_idx = 0;
@@ -4537,8 +4534,7 @@ static void init_ref_frame_space(AV1_COMP *cpi, ThreadData *td, int mi_row,
     }
   }
 
-  int rank_index[INTER_REFS_PER_FRAME - 1] = { 0 };
-
+  int rank_index[INTER_REFS_PER_FRAME - 1];
   for (int idx = 0; idx < INTER_REFS_PER_FRAME - 1; ++idx) {
     rank_index[idx] = idx + 1;
     for (int i = idx; i > 0; --i) {
@@ -4555,16 +4551,18 @@ static void init_ref_frame_space(AV1_COMP *cpi, ThreadData *td, int mi_row,
   x->search_ref_frame[LAST_FRAME] = 1;
 
   int cutoff_ref = 0;
-
   for (int idx = 0; idx < INTER_REFS_PER_FRAME - 1; ++idx) {
     x->search_ref_frame[rank_index[idx] + LAST_FRAME] = 1;
     if (idx > 2 && !is_overlay) {
-      // If the predictive coding gains are smaller than the previous more
-      // relevant frame over certain amount, discard this frame.
-      if (llabs(inter_cost[rank_index[idx]]) <
-              llabs(inter_cost[rank_index[idx - 1]]) / 8 ||
-          inter_cost[rank_index[idx]] == 0)
-        cutoff_ref = 1;
+      if (!cutoff_ref) {
+        // If the predictive coding gains are smaller than the previous more
+        // relevant frame over certain amount, discard this frame and all the
+        // frames afterwards.
+        if (llabs(inter_cost[rank_index[idx]]) <
+            llabs(inter_cost[rank_index[idx - 1]]) / 8 ||
+            inter_cost[rank_index[idx]] == 0)
+          cutoff_ref = 1;
+      }
 
       if (cutoff_ref) x->search_ref_frame[rank_index[idx] + LAST_FRAME] = 0;
     }
