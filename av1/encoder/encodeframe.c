@@ -4499,6 +4499,12 @@ static void init_ref_frame_space(AV1_COMP *cpi, ThreadData *td, int mi_row,
   if (cpi->oxcf.superres_mode != SUPERRES_NONE) return;
   if (cpi->oxcf.aq_mode != NO_AQ) return;
 
+  const int is_overlay = cpi->gf_group.update_type[frame_idx] == OVERLAY_UPDATE;
+  if (is_overlay) {
+    memset(x->search_ref_frame, 1, sizeof(x->search_ref_frame));
+    return;
+  }
+
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   const int tpl_stride = tpl_frame->stride;
   int64_t inter_cost[INTER_REFS_PER_FRAME] = { 0 };
@@ -4525,11 +4531,11 @@ static void init_ref_frame_space(AV1_COMP *cpi, ThreadData *td, int mi_row,
       // Populate tpl_pred_error of
       // 1. LAST_FRAME
       // 2. best_ref w.r.t. LAST_FRAME.
-      tpl_pred_error[LAST_FRAME - 1] = this_stats->pred_error[LAST_FRAME - 1];
       tpl_pred_error[best_rf_idx] =
-          this_stats->pred_error[best_rf_idx] - tpl_pred_error[LAST_FRAME - 1];
+          this_stats->pred_error[best_rf_idx] -
+          this_stats->pred_error[LAST_FRAME - 1];
 
-      for (int rf_idx = 0; rf_idx < INTER_REFS_PER_FRAME; ++rf_idx)
+      for (int rf_idx = 1; rf_idx < INTER_REFS_PER_FRAME; ++rf_idx)
         inter_cost[rf_idx] += tpl_pred_error[rf_idx];
     }
   }
@@ -4546,14 +4552,13 @@ static void init_ref_frame_space(AV1_COMP *cpi, ThreadData *td, int mi_row,
     }
   }
 
-  const int is_overlay = cpi->gf_group.update_type[frame_idx] == OVERLAY_UPDATE;
   x->search_ref_frame[INTRA_FRAME] = 1;
   x->search_ref_frame[LAST_FRAME] = 1;
 
   int cutoff_ref = 0;
   for (int idx = 0; idx < INTER_REFS_PER_FRAME - 1; ++idx) {
     x->search_ref_frame[rank_index[idx] + LAST_FRAME] = 1;
-    if (idx > 2 && !is_overlay) {
+    if (idx > 2) {
       if (!cutoff_ref) {
         // If the predictive coding gains are smaller than the previous more
         // relevant frame over certain amount, discard this frame and all the
