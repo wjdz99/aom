@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7227baad_c2c44cbc",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 856,
+      "author": {
+        "id": 14975
+      },
+      "writtenOn": "2020-03-19T00:04:50Z",
+      "side": 1,
+      "message": "Maybe use .as_int with both for clarity?",
+      "range": {
+        "startLine": 855,
+        "startChar": 35,
+        "endLine": 856,
+        "endChar": 63
+      },
+      "revId": "0ea5d9c3cd7523bfc1e40d6e099472fe53ba23cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
