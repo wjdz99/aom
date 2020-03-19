@@ -4105,22 +4105,15 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
       cpi->rd.r0 = (double)intra_cost_base / mc_dep_cost_base;
       if (is_frame_arf_and_tpl_eligible(gf_group)) {
         cpi->rd.arf_r0 = cpi->rd.r0;
-        if (cpi->lap_enabled) {
-          double min_boost_factor = sqrt(cpi->rc.baseline_gf_interval);
-          const int gfu_boost = get_gfu_boost_from_r0_lap(
-              min_boost_factor, MAX_GFUBOOST_FACTOR, cpi->rd.arf_r0,
-              cpi->rc.num_stats_required_for_gfu_boost);
-          // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
-          //        gfu_boost);
-          cpi->rc.gfu_boost = combine_prior_with_tpl_boost(
-              min_boost_factor, MAX_BOOST_COMBINE_FACTOR, cpi->rc.gfu_boost,
-              gfu_boost, cpi->rc.num_stats_used_for_gfu_boost);
-        } else {
-          const int gfu_boost = (int)(200.0 / cpi->rd.r0);
-          cpi->rc.gfu_boost = combine_prior_with_tpl_boost(
-              MIN_BOOST_COMBINE_FACTOR, MAX_BOOST_COMBINE_FACTOR,
-              cpi->rc.gfu_boost, gfu_boost, cpi->rc.frames_to_key);
-        }
+        double min_boost_factor = sqrt(cpi->rc.baseline_gf_interval);
+        const int gfu_boost = get_gfu_boost_from_r0_lap(
+            min_boost_factor, MAX_GFUBOOST_FACTOR, cpi->rd.arf_r0,
+            cpi->rc.num_stats_required_for_gfu_boost);
+        // printf("old boost %d new boost %d\n", cpi->rc.gfu_boost,
+        //        gfu_boost);
+        cpi->rc.gfu_boost = combine_prior_with_tpl_boost(
+            min_boost_factor, MAX_BOOST_COMBINE_FACTOR, cpi->rc.gfu_boost,
+            gfu_boost, cpi->rc.num_stats_used_for_gfu_boost);
       } else if (frame_is_intra_only(cm)) {
         // TODO(debargha): Turn off q adjustment for kf temporarily to
         // reduce impact on speed of encoding. Need to investigate how

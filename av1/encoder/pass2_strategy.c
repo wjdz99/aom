@@ -1677,10 +1677,10 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
                                    : AOMMAX(0, rc->frames_to_key - i);
 
     // Calculate the boost for alt ref.
-    rc->gfu_boost = av1_calc_arf_boost(
-        twopass, rc, frame_info, alt_offset, forward_frames, (i - 1),
-        cpi->lap_enabled ? &rc->num_stats_used_for_gfu_boost : NULL,
-        cpi->lap_enabled ? &rc->num_stats_required_for_gfu_boost : NULL);
+    rc->gfu_boost =
+        av1_calc_arf_boost(twopass, rc, frame_info, alt_offset, forward_frames,
+                           (i - 1), &rc->num_stats_used_for_gfu_boost,
+                           &rc->num_stats_required_for_gfu_boost);
   } else {
     reset_fpf_position(twopass, start_pos);
     rc->source_alt_ref_pending = 0;
@@ -1688,12 +1688,11 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     set_baseline_gf_interval(cpi, i, active_max_gf_interval, use_alt_ref,
                              is_final_pass);
 
-    rc->gfu_boost = AOMMIN(
-        MAX_GF_BOOST,
-        av1_calc_arf_boost(
-            twopass, rc, frame_info, alt_offset, (i - 1), 0,
-            cpi->lap_enabled ? &rc->num_stats_used_for_gfu_boost : NULL,
-            cpi->lap_enabled ? &rc->num_stats_required_for_gfu_boost : NULL));
+    rc->gfu_boost =
+        AOMMIN(MAX_GF_BOOST,
+               av1_calc_arf_boost(twopass, rc, frame_info, alt_offset, (i - 1),
+                                  0, &rc->num_stats_used_for_gfu_boost,
+                                  &rc->num_stats_required_for_gfu_boost));
   }
 
   // rc->gf_intervals assumes the usage of alt_ref, therefore adding one overlay
