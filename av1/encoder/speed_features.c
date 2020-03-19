@@ -252,7 +252,11 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
   (void)is_720p_or_larger;  // Not used so far
 
   if (!is_360p_or_larger) {
-    if (speed >= 8) sf->rt_sf.use_nonrd_filter_search = 0;
+    if (speed >= 8) {
+      sf->rt_sf.use_nonrd_filter_search = 0;
+      sf->rt_sf.use_modeled_non_rd_cost = 1;
+      sf->rt_sf.source_metrics_sb_nonrd = 1;
+    }
   }
   if (is_360p_or_larger) {
     if (speed >= 7) {
