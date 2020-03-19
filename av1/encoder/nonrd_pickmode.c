@@ -1675,8 +1675,11 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
          sizeof(xd->tx_type_map[0]) * ctx->num_4x4_blk);
   av1_zero(x->blk_skip);
 
-  if (cpi->sf.rt_sf.use_modeled_non_rd_cost && cm->base_qindex > 140 &&
-      bsize < BLOCK_32X32 && x->source_variance > 100 &&
+  // TODO(marpan): Look into reducing these conditions. For now constrain
+  // it to avoid significant bdrate loss.
+  if (cpi->sf.rt_sf.use_modeled_non_rd_cost && cm->base_qindex > 120 &&
+      x->source_variance > 100 && (bsize <= BLOCK_16X16 ||
+      (bsize <= BLOCK_32X32 && force_skip_low_temp_var)) &&
       !cyclic_refresh_segment_id_boosted(xd->mi[0]->segment_id) &&
       x->content_state_sb != kLowVarHighSumdiff &&
       x->content_state_sb != kHighSad)
