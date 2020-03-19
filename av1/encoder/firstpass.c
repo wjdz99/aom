@@ -336,7 +336,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
 #if CONFIG_SB_FLEX_MVRES
   assert(!cm->use_sb_mv_precision == 0);
 #elif CONFIG_FLEX_MVRES
-  assert(!cm->use_pb_mv_precision == 0);
+  assert(cm->use_pb_mv_precision == 0);
 #endif  // CONFIG_FLEX_MVRES
 
   const YV12_BUFFER_CONFIG *const lst_yv12 =
