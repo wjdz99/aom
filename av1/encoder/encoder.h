@@ -1296,6 +1296,19 @@ void av1_alloc_compound_type_rd_buffers(AV1_COMMON *const cm,
                                         CompoundTypeRdBuffers *const bufs);
 void av1_release_compound_type_rd_buffers(CompoundTypeRdBuffers *const bufs);
 
+// Set screen content options.
+// This function estimate whether to use screen content tools, by counting
+// the portion of blocks that have few luma colors.
+// Modifies:
+//   cpi->commom.allow_screen_content_tools
+//   cpi->common.allow_intrabc
+//   cpi->is_screen_content_type
+// However, the estimation is not accurate and may misclassify videos.
+// A finer approach that determines whether to use screen content tools
+// is employed later. See determine_sc_tools_with_encoding().
+void av1_set_screen_content_options(const struct AV1_COMP *cpi,
+                                    FeatureFlags *features);
+
 // TODO(jingning): Move these functions as primitive members for the new cpi
 // class.
 static INLINE void stack_push(int *stack, int *stack_size, int item) {

@@ -864,6 +864,11 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
       &cpi->td.pc_root[MAX_MIB_SIZE_LOG2 - MIN_MIB_SIZE_LOG2]->none;
   MV last_mv = kZeroMv;
   const int qindex = find_fp_qindex(seq_params->bit_depth);
+  // Detect if the key frame is screen content type.
+  if (frame_is_intra_only(cm)) {
+    FeatureFlags *const features = &cm->features;
+    av1_set_screen_content_options(cpi, features);
+  }
   // First pass coding proceeds in raster scan order with unit size of 16x16.
   const BLOCK_SIZE fp_block_size = BLOCK_16X16;
   const int fp_block_size_width = block_size_high[fp_block_size];
