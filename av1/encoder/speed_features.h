@@ -571,6 +571,10 @@ typedef struct INTER_MODE_SPEED_FEATURES {
   // the single reference modes, it is one of the two best performers.
   int prune_compound_using_single_ref;
 
+  // Prune compound modes, which has higher rd ratio of equivalent
+  // single modes with respect to best rd or best modelled rd
+  int prune_compound_using_single_rd;
+
   // Based on previous ref_mv_idx search result, prune the following search.
   int prune_ref_mv_idx_search;
 

@@ -332,6 +332,7 @@ typedef struct InterModeSearchState {
   int dist_order_refs[REF_FRAMES];
   int64_t mode_threshold[MAX_MODES];
   int64_t best_intra_rd;
+  int64_t best_single_modelled_rd;
   unsigned int best_pred_sse;
   int64_t best_pred_diff[REFERENCE_MODES];
   // Save a set of single_newmv for each checked ref_mv.
@@ -3553,6 +3554,7 @@ static AOM_INLINE void init_inter_mode_search_state(
   init_intra_mode_search_state(&search_state->intra_search_state);
 
   search_state->best_rd = best_rd_so_far;
+  search_state->best_single_modelled_rd = INT64_MAX;
   search_state->best_skip_rd[0] = INT64_MAX;
   search_state->best_skip_rd[1] = INT64_MAX;
 
@@ -3837,6 +3839,25 @@ static AOM_INLINE void collect_single_states(MACROBLOCK *x,
   search_state->single_state_modelled_cnt[dir][mode_offset]++;
 }
 
+// get best single model rd from search state
+static AOM_INLINE int64_t
+get_best_single_modelled_rd(InterModeSearchState *search_state) {
+  int i, dir, mode;
+  int64_t best_modelled_rd = INT64_MAX;
+
+  for (dir = 0; dir < 2; ++dir) {
+    SingleInterModeState(*state)[FWD_REFS] =
+        search_state->single_state_modelled[dir];
+    for (mode = 0; mode < SINGLE_INTER_MODE_NUM; ++mode) {
+      for (i = 0; i < search_state->single_state_modelled_cnt[dir][mode]; ++i) {
+        if (state[mode][i].rd < best_modelled_rd)
+          best_modelled_rd = state[mode][i].rd;
+      }
+    }
+  }
+  return best_modelled_rd;
+}
+
 static AOM_INLINE void analyze_single_states(
     const AV1_COMP *cpi, InterModeSearchState *search_state) {
   const int prune_level = cpi->sf.inter_sf.prune_comp_search_by_single_result;
@@ -4021,6 +4042,84 @@ static int compound_skip_by_single_states(
     }
     if (!match) return 1;
   }
+
+  return 0;
+}
+
+// calculate and check rd ratio is higher than given threshold
+static INLINE int check_single_rd_ratio(int64_t const *rd,
+                                        int64_t const best_rd,
+                                        const float rd_ratio_thres) {
+  if (rd[0] == INT64_MAX || rd[1] == INT64_MAX) return 0;
+
+  aom_clear_system_state();
+  float rd_ratio = 0.0;
+  rd_ratio += (float)rd[0] / best_rd;
+  rd_ratio += (float)rd[1] / best_rd;
+
+  if (rd_ratio > rd_ratio_thres) return 1;
+
+  return 0;
+}
+
+// retrive single mode modelled rd for given mode and ref frame from single
+// state
+static INLINE void get_single_rd_from_single_state(
+    const SingleInterModeState single_state[][SINGLE_INTER_MODE_NUM][FWD_REFS],
+    const int single_state_cnt[][SINGLE_INTER_MODE_NUM], int64_t *this_rd,
+    MV_REFERENCE_FRAME const *refs, int const *mode_dir,
+    int const *mode_offset) {
+  for (int dir = 0; dir < 2; dir++) {
+    const SingleInterModeState *state =
+        single_state[mode_dir[dir]][mode_offset[dir]];
+    const int state_cnt = single_state_cnt[mode_dir[dir]][mode_offset[dir]];
+    for (int idx = 0; idx < state_cnt; idx++) {
+      if (state[idx].ref_frame == refs[dir]) {
+        this_rd[dir] = state[idx].rd;
+        return;
+      }
+    }
+  }
+}
+
+// skip compound mode evaluation based on single rd as compared to best rd
+static int compound_skip_by_single_rd(
+    const InterModeSearchState *search_state, const PREDICTION_MODE this_mode,
+    const MV_REFERENCE_FRAME ref_frame,
+    const MV_REFERENCE_FRAME second_ref_frame) {
+  // exclude pruning of significant compound modes
+  if (this_mode == NEAREST_NEARESTMV || this_mode == NEAR_NEARMV ||
+      this_mode == NEW_NEWMV || this_mode == GLOBAL_GLOBALMV)
+    return 0;
+
+  const MV_REFERENCE_FRAME refs[2] = { ref_frame, second_ref_frame };
+  const int mode[2] = { compound_ref0_mode(this_mode),
+                        compound_ref1_mode(this_mode) };
+  const int mode_offset[2] = { INTER_OFFSET(mode[0]), INTER_OFFSET(mode[1]) };
+  const int mode_dir[2] = { refs[0] <= GOLDEN_FRAME ? 0 : 1,
+                            refs[1] <= GOLDEN_FRAME ? 0 : 1 };
+  int64_t this_rd[2] = { INT64_MAX, INT64_MAX };
+  const float rd_ratio_thres = 2.1;
+
+  // get single rd for this mode and ref
+  if (search_state->best_rd != INT64_MAX)
+    get_single_rd_from_single_state(search_state->single_state,
+                                    search_state->single_state_cnt, this_rd,
+                                    refs, mode_dir, mode_offset);
+
+  if (check_single_rd_ratio(this_rd, search_state->best_rd, rd_ratio_thres))
+    return 1;
+
+  // get single modelled rd for this mode and ref
+  this_rd[0] = this_rd[1] = INT64_MAX;
+  if (search_state->best_single_modelled_rd != INT64_MAX)
+    get_single_rd_from_single_state(search_state->single_state_modelled,
+                                    search_state->single_state_modelled_cnt,
+                                    this_rd, refs, mode_dir, mode_offset);
+
+  if (check_single_rd_ratio(this_rd, search_state->best_single_modelled_rd,
+                            rd_ratio_thres))
+    return 1;
 
   return 0;
 }
@@ -4226,9 +4325,11 @@ static int skip_inter_mode(AV1_COMP *cpi, MACROBLOCK *x, const BLOCK_SIZE bsize,
 
   // We've reached the first compound prediction mode, get stats from the
   // single reference predictors to help with pruning
-  if (sf->inter_sf.prune_comp_search_by_single_result > 0 && comp_pred &&
-      args->reach_first_comp_mode == 0) {
-    analyze_single_states(cpi, args->search_state);
+  if (comp_pred && args->reach_first_comp_mode == 0) {
+    if (sf->inter_sf.prune_comp_search_by_single_result > 0)
+      analyze_single_states(cpi, args->search_state);
+    if (sf->inter_sf.prune_compound_using_single_rd > 0)
+      get_best_single_modelled_rd(args->search_state);
     args->reach_first_comp_mode = 1;
   }
 
@@ -4247,6 +4348,14 @@ static int skip_inter_mode(AV1_COMP *cpi, MACROBLOCK *x, const BLOCK_SIZE bsize,
   if (sf->inter_sf.prune_comp_search_by_single_result > 0 && comp_pred) {
     if (compound_skip_by_single_states(cpi, args->search_state, this_mode,
                                        ref_frame, second_ref_frame, x))
+      return 1;
+  }
+
+  // Skip this compound mode based on simple rd and model rd of single
+  // prediction modes
+  if (sf->inter_sf.prune_compound_using_single_rd && comp_pred) {
+    if (compound_skip_by_single_rd(args->search_state, this_mode, ref_frame,
+                                   second_ref_frame))
       return 1;
   }
 
