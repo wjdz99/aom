@@ -930,7 +930,7 @@ static int get_q_using_fixed_offsets(const AV1EncoderConfig *const oxcf,
       av1_compute_qdelta(rc, q_val_orig, q_val_target, bit_depth);
   //return AOMMAX(cq_level + delta_qindex, 0);
   int q = AOMMAX(cq_level + delta_qindex, 0);
-  if (is_screen_content_type) q = (int)((double)q * 0.75);
+  if (is_screen_content_type) q = (int)((double)q * 0.5);
   /*
   if (update_type == KF_UPDATE) {
     printf("q_val_orig %.2f, q_val_target %.2f, delta_qindex %d, offset %.2f, cq_level %d, offset_idx %d\n",
