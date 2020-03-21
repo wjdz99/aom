@@ -896,7 +896,8 @@ static int get_q_using_fixed_offsets(const AV1EncoderConfig *const oxcf,
                                      const RATE_CONTROL *const rc,
                                      const GF_GROUP *const gf_group,
                                      int gf_index, int cq_level,
-                                     int bit_depth) {
+                                     int bit_depth,
+                                     int is_screen_content_type) {
   assert(oxcf->use_fixed_qp_offsets);
   assert(oxcf->rc_mode == AOM_Q);
   const FRAME_UPDATE_TYPE update_type = gf_group->update_type[gf_index];
@@ -927,7 +928,17 @@ static int get_q_using_fixed_offsets(const AV1EncoderConfig *const oxcf,
       AOMMAX(q_val_orig - oxcf->fixed_qp_offsets[offset_idx], 0.0);
   const int delta_qindex =
       av1_compute_qdelta(rc, q_val_orig, q_val_target, bit_depth);
-  return AOMMAX(cq_level + delta_qindex, 0);
+  //return AOMMAX(cq_level + delta_qindex, 0);
+  int q = AOMMAX(cq_level + delta_qindex, 0);
+  if (is_screen_content_type) q = (int)((double)q * 0.75);
+  /*
+  if (update_type == KF_UPDATE) {
+    printf("q_val_orig %.2f, q_val_target %.2f, delta_qindex %d, offset %.2f, cq_level %d, offset_idx %d\n",
+           q_val_orig, q_val_target, delta_qindex, oxcf->fixed_qp_offsets[offset_idx], cq_level, offset_idx);
+    printf("final q %d\n", q);
+  }
+  */
+  return q;
 }
 
 static int rc_pick_q_and_bounds_one_pass_vbr(const AV1_COMP *cpi, int width,
@@ -943,7 +954,8 @@ static int rc_pick_q_and_bounds_one_pass_vbr(const AV1_COMP *cpi, int width,
 
   if (oxcf->use_fixed_qp_offsets) {
     return get_q_using_fixed_offsets(oxcf, rc, &cpi->gf_group,
-                                     cpi->gf_group.index, cq_level, bit_depth);
+                                     cpi->gf_group.index, cq_level, bit_depth,
+                                     cpi->is_screen_content_type);
   }
 
   int active_best_quality;
@@ -1198,6 +1210,11 @@ static void get_intra_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
     if ((width * height) <= (352 * 288)) {
       q_adj_factor -= 0.25;
     }
+    /*
+    printf("allow_screen_content_tools %d, allow_intrabc %d, integer mv %d\n",
+           cm->allow_screen_content_tools, cm->allow_intrabc,
+           cm->cur_frame_force_integer_mv);
+    */
 
     // Make a further adjustment based on the kf zero motion measure.
     if (is_stat_consumption_stage_twopass(cpi))
@@ -1394,7 +1411,8 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
 
   if (oxcf->use_fixed_qp_offsets) {
     return get_q_using_fixed_offsets(oxcf, rc, gf_group, gf_group->index,
-                                     cq_level, bit_depth);
+                                     cq_level, bit_depth,
+                                     cpi->is_screen_content_type);
   }
 
   int active_best_quality = 0;
