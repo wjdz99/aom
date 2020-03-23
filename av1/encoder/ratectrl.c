@@ -931,7 +931,7 @@ static int get_q_using_fixed_offsets(const AV1EncoderConfig *const oxcf,
   //return AOMMAX(cq_level + delta_qindex, 0);
   int q = AOMMAX(cq_level + delta_qindex, 0);
   if (update_type == KF_UPDATE && is_screen_content_type) {
-    q = (int)((double)q * 0.75);
+    q = (int)((double)q * 0.5);
   }
   /*
   if (update_type == KF_UPDATE) {
