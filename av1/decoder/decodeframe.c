@@ -4924,8 +4924,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
           }
           // If no corresponding buffer exists, allocate a new buffer with all
           // pixels set to neutral grey.
-          // TODO(https://crbug.com/aomedia/2420): The spec seems to say we
-          // just need to set pbi->valid_for_referencing[ref_idx] to 0.
           int buf_idx = get_free_fb(cm);
           if (buf_idx == INVALID_IDX) {
             aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
@@ -4945,8 +4943,10 @@ static int read_uncompressed_header(AV1Decoder *pbi,
                                "Failed to allocate frame buffer");
           }
           unlock_buffer_pool(pool);
+          // For non_intra_only frame, when error_resilient_mode = 1, setting
+          // the missing buffer as neutral grey and valid for referencing.
           set_planes_to_neutral_grey(seq_params, &buf->buf, 0);
-
+          pbi->valid_for_referencing[ref_idx] = 1;
           cm->ref_frame_map[ref_idx] = buf;
           buf->order_hint = order_hint;
         }
