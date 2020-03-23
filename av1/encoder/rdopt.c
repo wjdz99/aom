@@ -2141,7 +2141,7 @@ static AOM_INLINE void get_block_level_tpl_stats(
       coded_to_superres_mi(mi_col + mi_wide, cm->superres_scale_denominator);
   const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
 
-  for (int row = mi_row; row < AOMMIN(mi_row + mi_high, cm->mi_rows);
+  for (int row = mi_row; row < AOMMIN(mi_row + mi_high, cm->mi_params.mi_rows);
        row += step) {
     for (int col = mi_col_sr; col < AOMMIN(mi_col_end_sr, mi_cols_sr);
          col += step) {
@@ -2281,8 +2281,16 @@ static int64_t handle_inter_mode(
   int ref_match_found_in_above_nb = 0;
   int ref_match_found_in_left_nb = 0;
   if (prune_modes_based_on_tpl) {
+<<<<<<< HEAD
     ref_match_found_in_above_nb = find_ref_match_in_above_nbs(cm->mi_cols, xd);
     ref_match_found_in_left_nb = find_ref_match_in_left_nbs(cm->mi_rows, xd);
+=======
+    const int total_mi_cols = cm->mi_params.mi_cols;
+    ref_match_found_in_above_nb =
+        find_ref_match_in_above_nbs(total_mi_cols, xd);
+    const int total_mi_rows = cm->mi_params.mi_rows;
+    ref_match_found_in_left_nb = find_ref_match_in_left_nbs(total_mi_rows, xd);
+>>>>>>> 48cbb5f3b... Refactor CommonModeInfoParams from AV1_COMMON
   }
 
   // First, perform a simple translation search for each of the indices. If
