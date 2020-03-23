@@ -1153,41 +1153,42 @@ static void set_tile_info(AV1_COMP *cpi) {
 
   // configure tile columns
   if (cpi->oxcf.tile_width_count == 0 || cpi->oxcf.tile_height_count == 0) {
-    cm->uniform_tile_spacing_flag = 1;
-    cm->log2_tile_cols = AOMMAX(cpi->oxcf.tile_columns, cm->min_log2_tile_cols);
-    cm->log2_tile_cols = AOMMIN(cm->log2_tile_cols, cm->max_log2_tile_cols);
+    cm->tiles.uniform_spacing = 1;
+    cm->tiles.log2_cols =
+        AOMMAX(cpi->oxcf.tile_columns, cm->tiles.min_log2_cols);
+    cm->tiles.log2_cols = AOMMIN(cm->tiles.log2_cols, cm->tiles.max_log2_cols);
   } else {
     int mi_cols = ALIGN_POWER_OF_TWO(cm->mi_cols, cm->seq_params.mib_size_log2);
     int sb_cols = mi_cols >> cm->seq_params.mib_size_log2;
     int size_sb, j = 0;
-    cm->uniform_tile_spacing_flag = 0;
+    cm->tiles.uniform_spacing = 0;
     for (i = 0, start_sb = 0; start_sb < sb_cols && i < MAX_TILE_COLS; i++) {
-      cm->tile_col_start_sb[i] = start_sb;
+      cm->tiles.col_start_sb[i] = start_sb;
       size_sb = cpi->oxcf.tile_widths[j++];
       if (j >= cpi->oxcf.tile_width_count) j = 0;
-      start_sb += AOMMIN(size_sb, cm->max_tile_width_sb);
+      start_sb += AOMMIN(size_sb, cm->tiles.max_width_sb);
     }
-    cm->tile_cols = i;
-    cm->tile_col_start_sb[i] = sb_cols;
+    cm->tiles.cols = i;
+    cm->tiles.col_start_sb[i] = sb_cols;
   }
   av1_calculate_tile_cols(cm);
 
   // configure tile rows
-  if (cm->uniform_tile_spacing_flag) {
-    cm->log2_tile_rows = AOMMAX(cpi->oxcf.tile_rows, cm->min_log2_tile_rows);
-    cm->log2_tile_rows = AOMMIN(cm->log2_tile_rows, cm->max_log2_tile_rows);
+  if (cm->tiles.uniform_spacing) {
+    cm->tiles.log2_rows = AOMMAX(cpi->oxcf.tile_rows, cm->tiles.min_log2_rows);
+    cm->tiles.log2_rows = AOMMIN(cm->tiles.log2_rows, cm->tiles.max_log2_rows);
   } else {
     int mi_rows = ALIGN_POWER_OF_TWO(cm->mi_rows, cm->seq_params.mib_size_log2);
     int sb_rows = mi_rows >> cm->seq_params.mib_size_log2;
     int size_sb, j = 0;
     for (i = 0, start_sb = 0; start_sb < sb_rows && i < MAX_TILE_ROWS; i++) {
-      cm->tile_row_start_sb[i] = start_sb;
+      cm->tiles.row_start_sb[i] = start_sb;
       size_sb = cpi->oxcf.tile_heights[j++];
       if (j >= cpi->oxcf.tile_height_count) j = 0;
-      start_sb += AOMMIN(size_sb, cm->max_tile_height_sb);
+      start_sb += AOMMIN(size_sb, cm->tiles.max_height_sb);
     }
-    cm->tile_rows = i;
-    cm->tile_row_start_sb[i] = sb_rows;
+    cm->tiles.rows = i;
+    cm->tiles.row_start_sb[i] = sb_rows;
   }
   av1_calculate_tile_rows(cm);
 }
@@ -4330,9 +4331,9 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
   // Allocate above context buffers
   if (cm->num_allocated_above_context_planes < av1_num_planes(cm) ||
       cm->num_allocated_above_context_mi_col < cm->mi_cols ||
-      cm->num_allocated_above_contexts < cm->tile_rows) {
+      cm->num_allocated_above_contexts < cm->tiles.rows) {
     av1_free_above_context_buffers(cm, cm->num_allocated_above_contexts);
-    if (av1_alloc_above_context_buffers(cm, cm->tile_rows))
+    if (av1_alloc_above_context_buffers(cm, cm->tiles.rows))
       aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                          "Failed to allocate context buffers");
   }
@@ -4788,12 +4789,12 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
                  cm->features.coded_lossless && cm->features.all_lossless));
 
   const int use_loopfilter =
-      !cm->features.coded_lossless && !cm->large_scale_tile;
+      !cm->features.coded_lossless && !cm->tiles.large_scale;
   const int use_cdef = cm->seq_params.enable_cdef &&
-                       !cm->features.coded_lossless && !cm->large_scale_tile;
+                       !cm->features.coded_lossless && !cm->tiles.large_scale;
   const int use_restoration = cm->seq_params.enable_restoration &&
                               !cm->features.all_lossless &&
-                              !cm->large_scale_tile;
+                              !cm->tiles.large_scale;
 
   struct loopfilter *lf = &cm->lf;
 
@@ -4888,9 +4889,9 @@ static void finalize_encoded_frame(AV1_COMP *const cpi) {
   }
 
   // Initialise all tiles' contexts from the global frame context
-  for (int tile_col = 0; tile_col < cm->tile_cols; tile_col++) {
-    for (int tile_row = 0; tile_row < cm->tile_rows; tile_row++) {
-      const int tile_idx = tile_row * cm->tile_cols + tile_col;
+  for (int tile_col = 0; tile_col < cm->tiles.cols; tile_col++) {
+    for (int tile_row = 0; tile_row < cm->tiles.rows; tile_row++) {
+      const int tile_idx = tile_row * cm->tiles.cols + tile_col;
       cpi->tile_data[tile_idx].tctx = *cm->fc;
     }
   }
@@ -6192,14 +6193,14 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   // frame type has been decided outside of this function call
   cm->cur_frame->frame_type = current_frame->frame_type;
 
-  cm->large_scale_tile = cpi->oxcf.large_scale_tile;
-  cm->single_tile_decoding = cpi->oxcf.single_tile_decoding;
+  cm->tiles.large_scale = cpi->oxcf.large_scale_tile;
+  cm->tiles.single_tile_decoding = cpi->oxcf.single_tile_decoding;
 
   features->allow_ref_frame_mvs &= frame_might_allow_ref_frame_mvs(cm);
   // features->allow_ref_frame_mvs needs to be written into the frame header
-  // while cm->large_scale_tile is 1, therefore, "cm->large_scale_tile=1" case
+  // while cm->tiles.large_scale is 1, therefore, "cm->tiles.large_scale=1" case
   // is separated from frame_might_allow_ref_frame_mvs().
-  features->allow_ref_frame_mvs &= !cm->large_scale_tile;
+  features->allow_ref_frame_mvs &= !cm->tiles.large_scale;
 
   features->allow_warped_motion =
       cpi->oxcf.allow_warped_motion && frame_might_allow_warped_motion(cm);
@@ -6431,13 +6432,13 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     *cm->fc = cpi->tile_data[largest_tile_id].tctx;
     av1_reset_cdf_symbol_counters(cm->fc);
   }
-  if (!cm->large_scale_tile) {
+  if (!cm->tiles.large_scale) {
     cm->cur_frame->frame_context = *cm->fc;
   }
 
   if (cpi->oxcf.ext_tile_debug) {
     // (yunqing) This test ensures the correctness of large scale tile coding.
-    if (cm->large_scale_tile && is_stat_consumption_stage(cpi)) {
+    if (cm->tiles.large_scale && is_stat_consumption_stage(cpi)) {
       char fn[20] = "./fc";
       fn[4] = current_frame->frame_number / 100 + '0';
       fn[5] = (current_frame->frame_number % 100) / 10 + '0';

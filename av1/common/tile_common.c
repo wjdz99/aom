@@ -34,14 +34,14 @@ void av1_get_tile_limits(AV1_COMMON *const cm) {
   int sb_rows = mi_rows >> cm->seq_params.mib_size_log2;
 
   int sb_size_log2 = cm->seq_params.mib_size_log2 + MI_SIZE_LOG2;
-  cm->max_tile_width_sb = MAX_TILE_WIDTH >> sb_size_log2;
+  cm->tiles.max_width_sb = MAX_TILE_WIDTH >> sb_size_log2;
   int max_tile_area_sb = MAX_TILE_AREA >> (2 * sb_size_log2);
 
-  cm->min_log2_tile_cols = tile_log2(cm->max_tile_width_sb, sb_cols);
-  cm->max_log2_tile_cols = tile_log2(1, AOMMIN(sb_cols, MAX_TILE_COLS));
-  cm->max_log2_tile_rows = tile_log2(1, AOMMIN(sb_rows, MAX_TILE_ROWS));
-  cm->min_log2_tiles = tile_log2(max_tile_area_sb, sb_cols * sb_rows);
-  cm->min_log2_tiles = AOMMAX(cm->min_log2_tiles, cm->min_log2_tile_cols);
+  cm->tiles.min_log2_cols = tile_log2(cm->tiles.max_width_sb, sb_cols);
+  cm->tiles.max_log2_cols = tile_log2(1, AOMMIN(sb_cols, MAX_TILE_COLS));
+  cm->tiles.max_log2_rows = tile_log2(1, AOMMIN(sb_rows, MAX_TILE_ROWS));
+  cm->tiles.min_log2 = tile_log2(max_tile_area_sb, sb_cols * sb_rows);
+  cm->tiles.min_log2 = AOMMAX(cm->tiles.min_log2, cm->tiles.min_log2_cols);
 }
 
 void av1_calculate_tile_cols(AV1_COMMON *const cm) {
@@ -53,46 +53,47 @@ void av1_calculate_tile_cols(AV1_COMMON *const cm) {
 
   // This will be overridden if there is at least two columns of tiles
   // (otherwise there is no inner tile width)
-  cm->min_inner_tile_width = -1;
+  cm->tiles.min_inner_width = -1;
 
-  if (cm->uniform_tile_spacing_flag) {
+  if (cm->tiles.uniform_spacing) {
     int start_sb;
-    int size_sb = ALIGN_POWER_OF_TWO(sb_cols, cm->log2_tile_cols);
-    size_sb >>= cm->log2_tile_cols;
+    int size_sb = ALIGN_POWER_OF_TWO(sb_cols, cm->tiles.log2_cols);
+    size_sb >>= cm->tiles.log2_cols;
     assert(size_sb > 0);
     for (i = 0, start_sb = 0; start_sb < sb_cols; i++) {
-      cm->tile_col_start_sb[i] = start_sb;
+      cm->tiles.col_start_sb[i] = start_sb;
       start_sb += size_sb;
     }
-    cm->tile_cols = i;
-    cm->tile_col_start_sb[i] = sb_cols;
-    cm->min_log2_tile_rows = AOMMAX(cm->min_log2_tiles - cm->log2_tile_cols, 0);
-    cm->max_tile_height_sb = sb_rows >> cm->min_log2_tile_rows;
+    cm->tiles.cols = i;
+    cm->tiles.col_start_sb[i] = sb_cols;
+    cm->tiles.min_log2_rows =
+        AOMMAX(cm->tiles.min_log2 - cm->tiles.log2_cols, 0);
+    cm->tiles.max_height_sb = sb_rows >> cm->tiles.min_log2_rows;
 
-    cm->tile_width = size_sb << cm->seq_params.mib_size_log2;
-    cm->tile_width = AOMMIN(cm->tile_width, cm->mi_cols);
-    if (cm->tile_cols > 1) {
-      cm->min_inner_tile_width = cm->tile_width;
+    cm->tiles.width = size_sb << cm->seq_params.mib_size_log2;
+    cm->tiles.width = AOMMIN(cm->tiles.width, cm->mi_cols);
+    if (cm->tiles.cols > 1) {
+      cm->tiles.min_inner_width = cm->tiles.width;
     }
   } else {
     int max_tile_area_sb = (sb_rows * sb_cols);
     int widest_tile_sb = 1;
     int narrowest_inner_tile_sb = 65536;
-    cm->log2_tile_cols = tile_log2(1, cm->tile_cols);
-    for (i = 0; i < cm->tile_cols; i++) {
-      int size_sb = cm->tile_col_start_sb[i + 1] - cm->tile_col_start_sb[i];
+    cm->tiles.log2_cols = tile_log2(1, cm->tiles.cols);
+    for (i = 0; i < cm->tiles.cols; i++) {
+      int size_sb = cm->tiles.col_start_sb[i + 1] - cm->tiles.col_start_sb[i];
       widest_tile_sb = AOMMAX(widest_tile_sb, size_sb);
       // ignore the rightmost tile in frame for determining the narrowest
-      if (i < cm->tile_cols - 1)
+      if (i < cm->tiles.cols - 1)
         narrowest_inner_tile_sb = AOMMIN(narrowest_inner_tile_sb, size_sb);
     }
-    if (cm->min_log2_tiles) {
-      max_tile_area_sb >>= (cm->min_log2_tiles + 1);
+    if (cm->tiles.min_log2) {
+      max_tile_area_sb >>= (cm->tiles.min_log2 + 1);
     }
-    cm->max_tile_height_sb = AOMMAX(max_tile_area_sb / widest_tile_sb, 1);
-    if (cm->tile_cols > 1) {
-      cm->min_inner_tile_width = narrowest_inner_tile_sb
-                                 << cm->seq_params.mib_size_log2;
+    cm->tiles.max_height_sb = AOMMAX(max_tile_area_sb / widest_tile_sb, 1);
+    if (cm->tiles.cols > 1) {
+      cm->tiles.min_inner_width = narrowest_inner_tile_sb
+                                  << cm->seq_params.mib_size_log2;
     }
   }
 }
@@ -102,28 +103,29 @@ void av1_calculate_tile_rows(AV1_COMMON *const cm) {
   int sb_rows = mi_rows >> cm->seq_params.mib_size_log2;
   int start_sb, size_sb, i;
 
-  if (cm->uniform_tile_spacing_flag) {
-    size_sb = ALIGN_POWER_OF_TWO(sb_rows, cm->log2_tile_rows);
-    size_sb >>= cm->log2_tile_rows;
+  if (cm->tiles.uniform_spacing) {
+    size_sb = ALIGN_POWER_OF_TWO(sb_rows, cm->tiles.log2_rows);
+    size_sb >>= cm->tiles.log2_rows;
     assert(size_sb > 0);
     for (i = 0, start_sb = 0; start_sb < sb_rows; i++) {
-      cm->tile_row_start_sb[i] = start_sb;
+      cm->tiles.row_start_sb[i] = start_sb;
       start_sb += size_sb;
     }
-    cm->tile_rows = i;
-    cm->tile_row_start_sb[i] = sb_rows;
+    cm->tiles.rows = i;
+    cm->tiles.row_start_sb[i] = sb_rows;
 
-    cm->tile_height = size_sb << cm->seq_params.mib_size_log2;
-    cm->tile_height = AOMMIN(cm->tile_height, cm->mi_rows);
+    cm->tiles.height = size_sb << cm->seq_params.mib_size_log2;
+    cm->tiles.height = AOMMIN(cm->tiles.height, cm->mi_rows);
   } else {
-    cm->log2_tile_rows = tile_log2(1, cm->tile_rows);
+    cm->tiles.log2_rows = tile_log2(1, cm->tiles.rows);
   }
 }
 
 void av1_tile_set_row(TileInfo *tile, const AV1_COMMON *cm, int row) {
-  assert(row < cm->tile_rows);
-  int mi_row_start = cm->tile_row_start_sb[row] << cm->seq_params.mib_size_log2;
-  int mi_row_end = cm->tile_row_start_sb[row + 1]
+  assert(row < cm->tiles.rows);
+  int mi_row_start = cm->tiles.row_start_sb[row]
+                     << cm->seq_params.mib_size_log2;
+  int mi_row_end = cm->tiles.row_start_sb[row + 1]
                    << cm->seq_params.mib_size_log2;
   tile->tile_row = row;
   tile->mi_row_start = mi_row_start;
@@ -132,9 +134,10 @@ void av1_tile_set_row(TileInfo *tile, const AV1_COMMON *cm, int row) {
 }
 
 void av1_tile_set_col(TileInfo *tile, const AV1_COMMON *cm, int col) {
-  assert(col < cm->tile_cols);
-  int mi_col_start = cm->tile_col_start_sb[col] << cm->seq_params.mib_size_log2;
-  int mi_col_end = cm->tile_col_start_sb[col + 1]
+  assert(col < cm->tiles.cols);
+  int mi_col_start = cm->tiles.col_start_sb[col]
+                     << cm->seq_params.mib_size_log2;
+  int mi_col_end = cm->tiles.col_start_sb[col + 1]
                    << cm->seq_params.mib_size_log2;
   tile->tile_col = col;
   tile->mi_col_start = mi_col_start;
@@ -198,21 +201,21 @@ AV1PixelRect av1_get_tile_rect(const TileInfo *tile_info, const AV1_COMMON *cm,
 }
 
 void av1_get_uniform_tile_size(const AV1_COMMON *cm, int *w, int *h) {
-  if (cm->uniform_tile_spacing_flag) {
-    *w = cm->tile_width;
-    *h = cm->tile_height;
+  if (cm->tiles.uniform_spacing) {
+    *w = cm->tiles.width;
+    *h = cm->tiles.height;
   } else {
-    for (int i = 0; i < cm->tile_cols; ++i) {
+    for (int i = 0; i < cm->tiles.cols; ++i) {
       const int tile_width_sb =
-          cm->tile_col_start_sb[i + 1] - cm->tile_col_start_sb[i];
+          cm->tiles.col_start_sb[i + 1] - cm->tiles.col_start_sb[i];
       const int tile_w = tile_width_sb * cm->seq_params.mib_size;
       assert(i == 0 || tile_w == *w);  // ensure all tiles have same dimension
       *w = tile_w;
     }
 
-    for (int i = 0; i < cm->tile_rows; ++i) {
+    for (int i = 0; i < cm->tiles.rows; ++i) {
       const int tile_height_sb =
-          cm->tile_row_start_sb[i + 1] - cm->tile_row_start_sb[i];
+          cm->tiles.row_start_sb[i + 1] - cm->tiles.row_start_sb[i];
       const int tile_h = tile_height_sb * cm->seq_params.mib_size;
       assert(i == 0 || tile_h == *h);  // ensure all tiles have same dimension
       *h = tile_h;
@@ -222,8 +225,8 @@ void av1_get_uniform_tile_size(const AV1_COMMON *cm, int *w, int *h) {
 
 int av1_is_min_tile_width_satisfied(const AV1_COMMON *cm) {
   // Disable check if there is a single tile col in the frame
-  if (cm->tile_cols == 1) return 1;
+  if (cm->tiles.cols == 1) return 1;
 
-  return ((cm->min_inner_tile_width << MI_SIZE_LOG2) >=
+  return ((cm->tiles.min_inner_width << MI_SIZE_LOG2) >=
           (64 << av1_superres_scaled(cm)));
 }
