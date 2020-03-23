@@ -140,6 +140,7 @@ static INLINE void set_offsets_for_motion_search(const AV1_COMP *const cpi,
                                                  int mi_row, int mi_col,
                                                  BLOCK_SIZE bsize) {
   const AV1_COMMON *const cm = &cpi->common;
+  const CommonModeInfoParams *const mi_params = &cm->mi_params;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *const xd = &x->e_mbd;
   const int mi_width = mi_size_wide[bsize];
@@ -153,8 +154,8 @@ static INLINE void set_offsets_for_motion_search(const AV1_COMP *const cpi,
 
   // Set up limit values for MV components.
   // Mv beyond the range do not produce new/different prediction block.
-  av1_set_mv_limits(cm, &x->mv_limits, mi_row, mi_col, mi_height, mi_width,
-                    cpi->oxcf.border_in_pixels);
+  av1_set_mv_limits(mi_params, &x->mv_limits, mi_row, mi_col, mi_height,
+                    mi_width, cpi->oxcf.border_in_pixels);
 
   set_plane_n4(xd, mi_width, mi_height, num_planes);
 
@@ -165,10 +166,10 @@ static INLINE void set_offsets_for_motion_search(const AV1_COMP *const cpi,
   assert(!(mi_col & (mi_width - 1)) && !(mi_row & (mi_height - 1)));
   xd->mb_to_top_edge = -GET_MV_SUBPEL(mi_row * MI_SIZE);
   xd->mb_to_bottom_edge =
-      GET_MV_SUBPEL((cm->mi_rows - mi_height - mi_row) * MI_SIZE);
+      GET_MV_SUBPEL((mi_params->mi_rows - mi_height - mi_row) * MI_SIZE);
   xd->mb_to_left_edge = -GET_MV_SUBPEL(mi_col * MI_SIZE);
   xd->mb_to_right_edge =
-      GET_MV_SUBPEL((cm->mi_cols - mi_width - mi_col) * MI_SIZE);
+      GET_MV_SUBPEL((mi_params->mi_cols - mi_width - mi_col) * MI_SIZE);
 
   // Set up source buffers.
   av1_setup_src_planes(x, cpi->source, mi_row, mi_col, num_planes, bsize);
@@ -195,8 +196,8 @@ static INLINE int is_full_sb(AV1_COMMON *const cm, int mi_row, int mi_col,
   const int sb_mi_wide = mi_size_wide[sb_size];
   const int sb_mi_high = mi_size_high[sb_size];
 
-  return (mi_row + sb_mi_high) <= cm->mi_rows &&
-         (mi_col + sb_mi_wide) <= cm->mi_cols;
+  return (mi_row + sb_mi_high) <= cm->mi_params.mi_rows &&
+         (mi_col + sb_mi_wide) <= cm->mi_params.mi_cols;
 }
 
 // Do not use this criteria for screen content videos.

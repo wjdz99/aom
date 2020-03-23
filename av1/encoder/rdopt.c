@@ -2144,7 +2144,7 @@ static AOM_INLINE void get_block_level_tpl_stats(
 
     for (int row = mi_row; row < mi_row + mi_high; row += step) {
       for (int col = mi_col_sr; col < mi_col_end_sr; col += step) {
-        if (row >= cm->mi_rows || col >= mi_cols_sr) continue;
+        if (row >= cm->mi_params.mi_rows || col >= mi_cols_sr) continue;
         TplDepStats *this_stats =
             &tpl_stats[av1_tpl_ptr_pos(cpi, row, col, tpl_stride)];
 
@@ -2281,10 +2281,10 @@ static int64_t handle_inter_mode(
   int ref_match_found_in_above_nb = 0;
   int ref_match_found_in_left_nb = 0;
   if (prune_modes_based_on_tpl) {
-    const int total_mi_cols = cm->mi_cols;
+    const int total_mi_cols = cm->mi_params.mi_cols;
     ref_match_found_in_above_nb =
         find_ref_match_in_above_nbs(total_mi_cols, xd);
-    const int total_mi_rows = cm->mi_rows;
+    const int total_mi_rows = cm->mi_params.mi_rows;
     ref_match_found_in_left_nb = find_ref_match_in_left_nbs(total_mi_rows, xd);
   }
 
