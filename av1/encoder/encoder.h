@@ -779,7 +779,7 @@ typedef struct AV1_COMP {
   QUANTS quants;
   ThreadData td;
   FRAME_COUNTS counts;
-  MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame_base;
+  MB_MODE_INFO_EXT_WINNER *mbmi_ext_frame_base;
   CB_COEFF_BUFFER *coeff_buffer_base;
   Dequants dequants;
   AV1_COMMON common;

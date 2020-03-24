@@ -97,7 +97,7 @@ static AOM_INLINE void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
 
 static AOM_INLINE void write_drl_idx(
     FRAME_CONTEXT *ec_ctx, const MB_MODE_INFO *mbmi,
-    const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame, aom_writer *w) {
+    const MB_MODE_INFO_EXT_WINNER *mbmi_ext_frame, aom_writer *w) {
   assert(mbmi->ref_mv_idx < 3);
 
   const int new_mv = mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV;
@@ -1034,7 +1034,7 @@ static INLINE int16_t mode_context_analyzer(
 
 static INLINE int_mv get_ref_mv_from_stack(
     int ref_idx, const MV_REFERENCE_FRAME *ref_frame, int ref_mv_idx,
-    const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame) {
+    const MB_MODE_INFO_EXT_WINNER *mbmi_ext_frame) {
   const int8_t ref_frame_type = av1_ref_frame_type(ref_frame);
   const CANDIDATE_MV *curr_ref_mv_stack = mbmi_ext_frame->ref_mv_stack;
 
@@ -1070,7 +1070,7 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
   const struct segmentation *const seg = &cm->seg;
   struct segmentation_probs *const segp = &ec_ctx->seg;
   const MB_MODE_INFO *const mbmi = xd->mi[0];
-  const MB_MODE_INFO_EXT_FRAME *const mbmi_ext_frame = x->mbmi_ext_frame;
+  const MB_MODE_INFO_EXT_WINNER *const mbmi_ext_frame = x->mbmi_ext_frame;
   const PREDICTION_MODE mode = mbmi->mode;
   const int segment_id = mbmi->segment_id;
   const BLOCK_SIZE bsize = mbmi->sb_type;
@@ -1219,7 +1219,7 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
 }
 
 static AOM_INLINE void write_intrabc_info(
-    MACROBLOCKD *xd, const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame,
+    MACROBLOCKD *xd, const MB_MODE_INFO_EXT_WINNER *mbmi_ext_frame,
     aom_writer *w) {
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   int use_intrabc = is_intrabc_block(mbmi);
@@ -1236,7 +1236,7 @@ static AOM_INLINE void write_intrabc_info(
 
 static AOM_INLINE void write_mb_modes_kf(
     AV1_COMP *cpi, MACROBLOCKD *xd,
-    const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame, aom_writer *w) {
+    const MB_MODE_INFO_EXT_WINNER *mbmi_ext_frame, aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   const struct segmentation *const seg = &cm->seg;
@@ -1304,7 +1304,7 @@ static AOM_INLINE void enc_dump_logs(AV1_COMP *cpi, int mi_row, int mi_col) {
   AV1_COMMON *const cm = &cpi->common;
   const MB_MODE_INFO *const mbmi = *(
       cm->mi_params.mi_grid_base + (mi_row * cm->mi_params.mi_stride + mi_col));
-  const MB_MODE_INFO_EXT_FRAME *const mbmi_ext_frame_base =
+  const MB_MODE_INFO_EXT_WINNER *const mbmi_ext_frame_base =
       cpi->mbmi_ext_frame_base + get_mi_ext_idx(&cm->mi_params, mi_row, mi_col);
   if (is_inter_block(mbmi)) {
 #define FRAME_TO_CHECK 11
