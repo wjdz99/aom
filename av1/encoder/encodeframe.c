@@ -1048,7 +1048,7 @@ static AOM_INLINE void sum_intra_stats(const AV1_COMMON *const cm,
 #endif
     update_cdf(fc->cfl_sign_cdf, joint_sign, CFL_JOINT_SIGNS);
     if (CFL_SIGN_U(joint_sign) != CFL_SIGN_ZERO) {
-      aom_cdf_prob *cdf_u = fc->cfl_alpha_cdf[CFL_CONTEXT_U(joint_sign)];
+      aom_prob *cdf_u = fc->cfl_alpha_cdf[CFL_CONTEXT_U(joint_sign)];
 
 #if CONFIG_ENTROPY_STATS
       ++counts->cfl_alpha[CFL_CONTEXT_U(joint_sign)][CFL_IDX_U(idx)];
@@ -1056,7 +1056,7 @@ static AOM_INLINE void sum_intra_stats(const AV1_COMMON *const cm,
       update_cdf(cdf_u, CFL_IDX_U(idx), CFL_ALPHABET_SIZE);
     }
     if (CFL_SIGN_V(joint_sign) != CFL_SIGN_ZERO) {
-      aom_cdf_prob *cdf_v = fc->cfl_alpha_cdf[CFL_CONTEXT_V(joint_sign)];
+      aom_prob *cdf_v = fc->cfl_alpha_cdf[CFL_CONTEXT_V(joint_sign)];
 
 #if CONFIG_ENTROPY_STATS
       ++counts->cfl_alpha[CFL_CONTEXT_V(joint_sign)][CFL_IDX_V(idx)];
@@ -2711,18 +2711,18 @@ static bool rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   // way as in read_partition (see decodeframe.c)
   if (!(has_rows && has_cols)) {
     assert(bsize_at_least_8x8 && pl >= 0);
-    const aom_cdf_prob *partition_cdf = cm->fc->partition_cdf[pl];
+    const aom_prob *partition_cdf = cm->fc->partition_cdf[pl];
     const int max_cost = av1_cost_symbol(0);
     for (int i = 0; i < PARTITION_TYPES; ++i) tmp_partition_cost[i] = max_cost;
     if (has_cols) {
       // At the bottom, the two possibilities are HORZ and SPLIT
-      aom_cdf_prob bot_cdf[2];
+      aom_prob bot_cdf[2];
       partition_gather_vert_alike(bot_cdf, partition_cdf, bsize);
       static const int bot_inv_map[2] = { PARTITION_HORZ, PARTITION_SPLIT };
       av1_cost_tokens_from_cdf(tmp_partition_cost, bot_cdf, bot_inv_map);
     } else if (has_rows) {
       // At the right, the two possibilities are VERT and SPLIT
-      aom_cdf_prob rhs_cdf[2];
+      aom_prob rhs_cdf[2];
       partition_gather_horz_alike(rhs_cdf, partition_cdf, bsize);
       static const int rhs_inv_map[2] = { PARTITION_VERT, PARTITION_SPLIT };
       av1_cost_tokens_from_cdf(tmp_partition_cost, rhs_cdf, rhs_inv_map);
@@ -4131,17 +4131,17 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
 #define AVG_CDF_WEIGHT_LEFT 3
 #define AVG_CDF_WEIGHT_TOP_RIGHT 1
 
-static AOM_INLINE void avg_cdf_symbol(aom_cdf_prob *cdf_ptr_left,
-                                      aom_cdf_prob *cdf_ptr_tr, int num_cdfs,
+static AOM_INLINE void avg_cdf_symbol(aom_prob *cdf_ptr_left,
+                                      aom_prob *cdf_ptr_tr, int num_cdfs,
                                       int cdf_stride, int nsymbs, int wt_left,
                                       int wt_tr) {
   for (int i = 0; i < num_cdfs; i++) {
     for (int j = 0; j <= nsymbs; j++) {
       cdf_ptr_left[i * cdf_stride + j] =
-          (aom_cdf_prob)(((int)cdf_ptr_left[i * cdf_stride + j] * wt_left +
-                          (int)cdf_ptr_tr[i * cdf_stride + j] * wt_tr +
-                          ((wt_left + wt_tr) / 2)) /
-                         (wt_left + wt_tr));
+          (aom_prob)(((int)cdf_ptr_left[i * cdf_stride + j] * wt_left +
+                      (int)cdf_ptr_tr[i * cdf_stride + j] * wt_tr +
+                      ((wt_left + wt_tr) / 2)) /
+                     (wt_left + wt_tr));
       assert(cdf_ptr_left[i * cdf_stride + j] >= 0 &&
              cdf_ptr_left[i * cdf_stride + j] < CDF_PROB_TOP);
     }
@@ -4153,9 +4153,9 @@ static AOM_INLINE void avg_cdf_symbol(aom_cdf_prob *cdf_ptr_left,
 
 #define AVG_CDF_STRIDE(cname_left, cname_tr, nsymbs, cdf_stride)           \
   do {                                                                     \
-    aom_cdf_prob *cdf_ptr_left = (aom_cdf_prob *)cname_left;               \
-    aom_cdf_prob *cdf_ptr_tr = (aom_cdf_prob *)cname_tr;                   \
-    int array_size = (int)sizeof(cname_left) / sizeof(aom_cdf_prob);       \
+    aom_prob *cdf_ptr_left = (aom_prob *)cname_left;                       \
+    aom_prob *cdf_ptr_tr = (aom_prob *)cname_tr;                           \
+    int array_size = (int)sizeof(cname_left) / sizeof(aom_prob);           \
     int num_cdfs = array_size / cdf_stride;                                \
     avg_cdf_symbol(cdf_ptr_left, cdf_ptr_tr, num_cdfs, cdf_stride, nsymbs, \
                    wt_left, wt_tr);                                        \

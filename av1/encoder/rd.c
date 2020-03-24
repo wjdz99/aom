@@ -158,13 +158,13 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
     if (CFL_SIGN_U(joint_sign) == CFL_SIGN_ZERO) {
       memset(cost_u, 0, CFL_ALPHABET_SIZE * sizeof(*cost_u));
     } else {
-      const aom_cdf_prob *cdf_u = fc->cfl_alpha_cdf[CFL_CONTEXT_U(joint_sign)];
+      const aom_prob *cdf_u = fc->cfl_alpha_cdf[CFL_CONTEXT_U(joint_sign)];
       av1_cost_tokens_from_cdf(cost_u, cdf_u, NULL);
     }
     if (CFL_SIGN_V(joint_sign) == CFL_SIGN_ZERO) {
       memset(cost_v, 0, CFL_ALPHABET_SIZE * sizeof(*cost_v));
     } else {
-      const aom_cdf_prob *cdf_v = fc->cfl_alpha_cdf[CFL_CONTEXT_V(joint_sign)];
+      const aom_prob *cdf_v = fc->cfl_alpha_cdf[CFL_CONTEXT_V(joint_sign)];
       av1_cost_tokens_from_cdf(cost_v, cdf_v, NULL);
     }
     for (int u = 0; u < CFL_ALPHABET_SIZE; u++)
@@ -479,7 +479,7 @@ void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc,
       LV_MAP_EOB_COST *pcost = &x->eob_costs[eob_multi_size][plane];
 
       for (int ctx = 0; ctx < 2; ++ctx) {
-        aom_cdf_prob *pcdf;
+        aom_prob *pcdf;
         switch (eob_multi_size) {
           case 0: pcdf = fc->eob_flag_cdf16[plane][ctx]; break;
           case 1: pcdf = fc->eob_flag_cdf32[plane][ctx]; break;

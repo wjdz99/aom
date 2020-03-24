@@ -951,9 +951,9 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
     if (mi_row & (xd->n4_w - 1)) xd->is_sec_rect = 1;
 }
 
-static INLINE aom_cdf_prob *get_y_mode_cdf(FRAME_CONTEXT *tile_ctx,
-                                           const MB_MODE_INFO *above_mi,
-                                           const MB_MODE_INFO *left_mi) {
+static INLINE aom_prob *get_y_mode_cdf(FRAME_CONTEXT *tile_ctx,
+                                       const MB_MODE_INFO *above_mi,
+                                       const MB_MODE_INFO *left_mi) {
   const PREDICTION_MODE above = av1_above_block_mode(above_mi);
   const PREDICTION_MODE left = av1_left_block_mode(left_mi);
   const int above_ctx = intra_mode_context[above];
@@ -984,14 +984,13 @@ static INLINE int is_chroma_reference(int mi_row, int mi_col, BLOCK_SIZE bsize,
   return ref_pos;
 }
 
-static INLINE aom_cdf_prob cdf_element_prob(const aom_cdf_prob *cdf,
-                                            size_t element) {
+static INLINE aom_prob cdf_element_prob(const aom_prob *cdf, size_t element) {
   assert(cdf != NULL);
   return (element > 0 ? cdf[element - 1] : CDF_PROB_TOP) - cdf[element];
 }
 
-static INLINE void partition_gather_horz_alike(aom_cdf_prob *out,
-                                               const aom_cdf_prob *const in,
+static INLINE void partition_gather_horz_alike(aom_prob *out,
+                                               const aom_prob *const in,
                                                BLOCK_SIZE bsize) {
   (void)bsize;
   out[0] = CDF_PROB_TOP;
@@ -1005,8 +1004,8 @@ static INLINE void partition_gather_horz_alike(aom_cdf_prob *out,
   out[1] = AOM_ICDF(CDF_PROB_TOP);
 }
 
-static INLINE void partition_gather_vert_alike(aom_cdf_prob *out,
-                                               const aom_cdf_prob *const in,
+static INLINE void partition_gather_vert_alike(aom_prob *out,
+                                               const aom_prob *const in,
                                                BLOCK_SIZE bsize) {
   (void)bsize;
   out[0] = CDF_PROB_TOP;

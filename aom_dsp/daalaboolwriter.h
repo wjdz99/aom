@@ -39,7 +39,7 @@ int aom_daala_stop_encode(daala_writer *w);
 static INLINE void aom_daala_write(daala_writer *w, int bit, int prob) {
   int p = (0x7FFFFF - (prob << 15) + prob) >> 8;
 #if CONFIG_BITSTREAM_DEBUG
-  aom_cdf_prob cdf[2] = { (aom_cdf_prob)p, 32767 };
+  aom_prob cdf[2] = { (aom_prob)p, 32767 };
   /*int queue_r = 0;
   int frame_idx_r = 0;
   int queue_w = bitstream_queue_get_write();
@@ -55,7 +55,7 @@ static INLINE void aom_daala_write(daala_writer *w, int bit, int prob) {
 }
 
 static INLINE void daala_write_symbol(daala_writer *w, int symb,
-                                      const aom_cdf_prob *cdf, int nsymbs) {
+                                      const aom_prob *cdf, int nsymbs) {
 #if CONFIG_BITSTREAM_DEBUG
   /*int queue_r = 0;
   int frame_idx_r = 0;

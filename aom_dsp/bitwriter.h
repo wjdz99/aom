@@ -71,12 +71,12 @@ static INLINE void aom_write_literal(aom_writer *w, int data, int bits) {
   for (bit = bits - 1; bit >= 0; bit--) aom_write_bit(w, 1 & (data >> bit));
 }
 
-static INLINE void aom_write_cdf(aom_writer *w, int symb,
-                                 const aom_cdf_prob *cdf, int nsymbs) {
+static INLINE void aom_write_cdf(aom_writer *w, int symb, const aom_prob *cdf,
+                                 int nsymbs) {
   daala_write_symbol(w, symb, cdf, nsymbs);
 }
 
-static INLINE void aom_write_symbol(aom_writer *w, int symb, aom_cdf_prob *cdf,
+static INLINE void aom_write_symbol(aom_writer *w, int symb, aom_prob *cdf,
                                     int nsymbs) {
   aom_write_cdf(w, symb, cdf, nsymbs);
   if (w->allow_update_cdf) update_cdf(cdf, symb, nsymbs);

@@ -76,18 +76,18 @@ enum {
 #define MV_LOW (-(1 << MV_IN_USE_BITS))
 
 typedef struct {
-  aom_cdf_prob classes_cdf[CDF_SIZE(MV_CLASSES)];
-  aom_cdf_prob class0_fp_cdf[CLASS0_SIZE][CDF_SIZE(MV_FP_SIZE)];
-  aom_cdf_prob fp_cdf[CDF_SIZE(MV_FP_SIZE)];
-  aom_cdf_prob sign_cdf[CDF_SIZE(2)];
-  aom_cdf_prob class0_hp_cdf[CDF_SIZE(2)];
-  aom_cdf_prob hp_cdf[CDF_SIZE(2)];
-  aom_cdf_prob class0_cdf[CDF_SIZE(CLASS0_SIZE)];
-  aom_cdf_prob bits_cdf[MV_OFFSET_BITS][CDF_SIZE(2)];
+  aom_prob classes_cdf[CDF_SIZE(MV_CLASSES)];
+  aom_prob class0_fp_cdf[CLASS0_SIZE][CDF_SIZE(MV_FP_SIZE)];
+  aom_prob fp_cdf[CDF_SIZE(MV_FP_SIZE)];
+  aom_prob sign_cdf[CDF_SIZE(2)];
+  aom_prob class0_hp_cdf[CDF_SIZE(2)];
+  aom_prob hp_cdf[CDF_SIZE(2)];
+  aom_prob class0_cdf[CDF_SIZE(CLASS0_SIZE)];
+  aom_prob bits_cdf[MV_OFFSET_BITS][CDF_SIZE(2)];
 } nmv_component;
 
 typedef struct {
-  aom_cdf_prob joints_cdf[CDF_SIZE(MV_JOINTS)];
+  aom_prob joints_cdf[CDF_SIZE(MV_JOINTS)];
   nmv_component comps[2];
 } nmv_context;
 
