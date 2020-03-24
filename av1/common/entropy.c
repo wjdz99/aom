@@ -50,9 +50,8 @@ void av1_default_coef_probs(AV1_COMMON *cm) {
   av1_copy(cm->fc->eob_flag_cdf1024, av1_default_eob_multi1024_cdfs[index]);
 }
 
-static AOM_INLINE void reset_cdf_symbol_counter(aom_cdf_prob *cdf_ptr,
-                                                int num_cdfs, int cdf_stride,
-                                                int nsymbs) {
+static AOM_INLINE void reset_cdf_symbol_counter(aom_prob *cdf_ptr, int num_cdfs,
+                                                int cdf_stride, int nsymbs) {
   for (int i = 0; i < num_cdfs; i++) {
     cdf_ptr[i * cdf_stride + nsymbs] = 0;
   }
@@ -63,8 +62,8 @@ static AOM_INLINE void reset_cdf_symbol_counter(aom_cdf_prob *cdf_ptr,
 
 #define RESET_CDF_COUNTER_STRIDE(cname, nsymbs, cdf_stride)          \
   do {                                                               \
-    aom_cdf_prob *cdf_ptr = (aom_cdf_prob *)cname;                   \
-    int array_size = (int)sizeof(cname) / sizeof(aom_cdf_prob);      \
+    aom_prob *cdf_ptr = (aom_prob *)cname;                           \
+    int array_size = (int)sizeof(cname) / sizeof(aom_prob);          \
     int num_cdfs = array_size / cdf_stride;                          \
     reset_cdf_symbol_counter(cdf_ptr, num_cdfs, cdf_stride, nsymbs); \
   } while (0)
