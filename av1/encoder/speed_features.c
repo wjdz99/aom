@@ -1273,6 +1273,7 @@ void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
   const int is_720p_or_larger = AOMMIN(cm->width, cm->height) >= 720;
   if (is_720p_or_larger && cpi->oxcf.mode == GOOD && speed == 0) {
     if (cm->base_qindex <= 80) {
+      // sf->rd_sf.optimize_coefficients = NO_TRELLIS_OPT;
       sf->part_sf.simple_motion_search_split =
           cm->allow_screen_content_tools ? 1 : 2;
       sf->tx_sf.inter_tx_size_search_init_depth_rect = 1;
