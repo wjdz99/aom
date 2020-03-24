@@ -21,7 +21,7 @@
 
 #if !CONFIG_REALTIME_ONLY
 static AOM_INLINE int_mv get_ref_mv_for_mv_stats(
-    const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame,
+    const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT_WINNER *mbmi_ext_frame,
     int ref_idx) {
   int ref_mv_idx = mbmi->ref_mv_idx;
   if (mbmi->mode == NEAR_NEWMV || mbmi->mode == NEW_NEARMV) {
@@ -183,7 +183,7 @@ static AOM_INLINE void collect_mv_stats_b(MV_STATS *mv_stats,
   }
 
   const MB_MODE_INFO *mbmi = cm->mi_grid_base[mi_row * cm->mi_stride + mi_col];
-  const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame =
+  const MB_MODE_INFO_EXT_WINNER *mbmi_ext_frame =
       cpi->mbmi_ext_frame_base + get_mi_ext_idx(cm, mi_row, mi_col);
 
   if (!is_inter_block(mbmi)) {
