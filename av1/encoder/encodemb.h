@@ -34,7 +34,8 @@ struct encode_b_args {
   int8_t *skip;
   ENTROPY_CONTEXT *ta;
   ENTROPY_CONTEXT *tl;
-  int8_t enable_optimize_b;
+  RUN_TYPE dry_run;
+  TRELLIS_OPT_TYPE enable_optimize_b;
 };
 
 enum {
@@ -126,9 +127,20 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
                             BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg);
 
 void av1_encode_intra_block_plane(const struct AV1_COMP *cpi, MACROBLOCK *x,
-                                  BLOCK_SIZE bsize, int plane,
-                                  int enable_optimize_b);
+                                  BLOCK_SIZE bsize, int plane, RUN_TYPE dry_run,
+                                  TRELLIS_OPT_TYPE enable_optimize_b);
 
+static INLINE int to_use_trellis(TRELLIS_OPT_TYPE optimize_b,
+                                 RUN_TYPE dry_run) {
+  return (optimize_b != NO_TRELLIS_OPT) &&
+         !(optimize_b == FINAL_PASS_TRELLIS_OPT && dry_run != OUTPUT_ENABLED);
+}
+
+static INLINE int to_skip_trellis(TRELLIS_OPT_TYPE optimize_b, RUN_TYPE dry_run,
+                                  int is_est) {
+  const int use_trellis = to_use_trellis(optimize_b, dry_run);
+  return !use_trellis || (is_est && optimize_b == NO_ESTIMATE_YRD_TRELLIS_OPT);
+}
 #ifdef __cplusplus
 }  // extern "C"
 #endif
