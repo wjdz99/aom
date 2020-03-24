@@ -3387,7 +3387,7 @@ BEGIN_PARTITION_SEARCH:
   if (cpi->sf.part_sf.prune_ab_partition_using_split_info &&
       horza_partition_allowed) {
     horza_partition_allowed &= evaluate_ab_partition_based_on_split(
-        pc_tree, PARTITION_HORZ, rect_part_win_info, x->qindex, 0, 1);
+        pc_tree, PARTITION_HORZ, rect_part_win_info, xd->current_qindex, 0, 1);
   }
 
   // PARTITION_HORZ_A
@@ -3440,7 +3440,7 @@ BEGIN_PARTITION_SEARCH:
   if (cpi->sf.part_sf.prune_ab_partition_using_split_info &&
       horzb_partition_allowed) {
     horzb_partition_allowed &= evaluate_ab_partition_based_on_split(
-        pc_tree, PARTITION_HORZ, rect_part_win_info, x->qindex, 2, 3);
+        pc_tree, PARTITION_HORZ, rect_part_win_info, xd->current_qindex, 2, 3);
   }
 
   // PARTITION_HORZ_B
@@ -3488,7 +3488,7 @@ BEGIN_PARTITION_SEARCH:
   if (cpi->sf.part_sf.prune_ab_partition_using_split_info &&
       verta_partition_allowed) {
     verta_partition_allowed &= evaluate_ab_partition_based_on_split(
-        pc_tree, PARTITION_VERT, rect_part_win_info, x->qindex, 0, 2);
+        pc_tree, PARTITION_VERT, rect_part_win_info, xd->current_qindex, 0, 2);
   }
 
   // PARTITION_VERT_A
@@ -3535,7 +3535,7 @@ BEGIN_PARTITION_SEARCH:
   if (cpi->sf.part_sf.prune_ab_partition_using_split_info &&
       vertb_partition_allowed) {
     vertb_partition_allowed &= evaluate_ab_partition_based_on_split(
-        pc_tree, PARTITION_VERT, rect_part_win_info, x->qindex, 1, 3);
+        pc_tree, PARTITION_VERT, rect_part_win_info, xd->current_qindex, 1, 3);
   }
 
   // PARTITION_VERT_B
@@ -3633,7 +3633,8 @@ BEGIN_PARTITION_SEARCH:
     // Prune HORZ4/VERT4 partitions based on number of HORZ/VERT winners of
     // split partiitons.
     // Conservative pruning for high quantizers
-    const int num_win_thresh = AOMMIN(3 * (MAXQ - x->qindex) / MAXQ + 1, 3);
+    const int num_win_thresh =
+        AOMMIN(3 * (MAXQ - xd->current_qindex) / MAXQ + 1, 3);
     if (num_child_horz_win < num_win_thresh) {
       partition_horz4_allowed = 0;
     }

@@ -721,7 +721,7 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
            sizeof(cm->giqmatrix[qmlevel][2]));
   }
   x->skip_block = segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP);
-  x->qindex = qindex;
+  xd->current_qindex = qindex;
 
   set_error_per_bit(x, rdmult);
 

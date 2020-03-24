@@ -245,7 +245,6 @@ struct macroblock {
                                            MAX_WINNER_MODE_COUNT_INTER)];
   int winner_mode_count;
   int skip_block;
-  int qindex;
 
   // The equivalent error at the current rdmult of one whole bit (not one
   // bitcost unit).
