@@ -34,7 +34,8 @@ struct encode_b_args {
   int8_t *skip;
   ENTROPY_CONTEXT *ta;
   ENTROPY_CONTEXT *tl;
-  int8_t enable_optimize_b;
+  RUN_TYPE dry_run;
+  TRELLIS_OPT_TYPE enable_optimize_b;
 };
 
 enum {
@@ -65,8 +66,9 @@ void av1_encode_sby_pass1(struct AV1_COMP *cpi, MACROBLOCK *x,
 
 void av1_setup_xform(const AV1_COMMON *cm, MACROBLOCK *x, TX_SIZE tx_size,
                      TX_TYPE tx_type, TxfmParam *txfm_param);
-void av1_setup_quant(TX_SIZE tx_size, int use_optimize_b, int xform_quant_idx,
-                     int use_quant_b_adapt, QUANT_PARAM *qparam);
+void av1_setup_quant(TX_SIZE tx_size, int use_optimize_b,
+                     int xform_quant_idx, int use_quant_b_adapt,
+                     QUANT_PARAM *qparam);
 void av1_setup_qmatrix(const AV1_COMMON *cm, MACROBLOCK *x, int plane,
                        TX_SIZE tx_size, TX_TYPE tx_type, QUANT_PARAM *qparam);
 
@@ -126,9 +128,14 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
                             BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg);
 
 void av1_encode_intra_block_plane(const struct AV1_COMP *cpi, MACROBLOCK *x,
-                                  BLOCK_SIZE bsize, int plane,
-                                  int enable_optimize_b);
+                                  BLOCK_SIZE bsize, int plane, RUN_TYPE dry_run,
+                                  TRELLIS_OPT_TYPE enable_optimize_b);
 
+static INLINE int to_use_trellis(TRELLIS_OPT_TYPE optimize_b,
+                                 RUN_TYPE dry_run) {
+  return (optimize_b != NO_TRELLIS_OPT) &&
+         !(optimize_b == FINAL_PASS_TRELLIS_OPT && dry_run != OUTPUT_ENABLED);
+}
 #ifdef __cplusplus
 }  // extern "C"
 #endif

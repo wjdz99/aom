@@ -2116,9 +2116,7 @@ static void search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       (mi_row + mi_size_high[plane_bsize] < xd->tile.mi_row_end) &&
       mi_col >= xd->tile.mi_col_start &&
       (mi_col + mi_size_wide[plane_bsize] < xd->tile.mi_col_end);
-  skip_trellis |=
-      cpi->optimize_seg_arr[mbmi->segment_id] == NO_TRELLIS_OPT ||
-      cpi->optimize_seg_arr[mbmi->segment_id] == FINAL_PASS_TRELLIS_OPT;
+
   if (is_intra_hash_match(cpi, x, plane, blk_row, blk_col, plane_bsize, tx_size,
                           txb_ctx, &intra_txb_rd_info, within_border,
                           tx_type_map_idx, &cur_joint_ctx)) {

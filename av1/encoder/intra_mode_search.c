@@ -1215,6 +1215,7 @@ static AOM_INLINE void choose_intra_uv_mode(
   if (xd->cfl.store_y) {
     // Restore reconstructed luma values.
     av1_encode_intra_block_plane(cpi, x, mbmi->sb_type, AOM_PLANE_Y,
+                                 DRY_RUN_NORMAL,
                                  cpi->optimize_seg_arr[mbmi->segment_id]);
     xd->cfl.store_y = 0;
   }
