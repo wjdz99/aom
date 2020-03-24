@@ -357,6 +357,12 @@ void av1_setup_qmatrix(const AV1_COMMON *cm, MACROBLOCK *x, int plane,
   qparam->iqmatrix = iqmatrix;
 }
 
+static int override_trellis_off(int qindex, BLOCK_SIZE plane_bsize) {
+  return
+      qindex <= 80 &&
+      (mi_size_wide[plane_bsize] <= 32 || mi_size_high[plane_bsize] <= 32);
+}
+
 static void encode_block(int plane, int block, int blk_row, int blk_col,
                          BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg,
                          RUN_TYPE dry_run) {
@@ -386,7 +392,11 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
                               cm->reduced_tx_set_used);
     TxfmParam txfm_param;
     QUANT_PARAM quant_param;
-    int use_trellis = (args->enable_optimize_b != NO_TRELLIS_OPT);
+    int use_trellis = (args->enable_optimize_b != NO_TRELLIS_OPT) && 0;
+
+    if (use_trellis && override_trellis_off(mbmi->current_qindex, plane_bsize))
+      use_trellis = 0;
+
     int quant_idx;
     if (use_trellis && args->enable_optimize_b != FINAL_PASS_TRELLIS_OPT) {
       quant_idx = AV1_XFORM_QUANT_FP;
@@ -718,7 +728,12 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
                               cm->reduced_tx_set_used);
     TxfmParam txfm_param;
     QUANT_PARAM quant_param;
-    int use_trellis = args->enable_optimize_b != NO_TRELLIS_OPT;
+    int use_trellis = args->enable_optimize_b != NO_TRELLIS_OPT && 0;
+
+    const MB_MODE_INFO *mbmi = xd->mi[0];
+    if (use_trellis && override_trellis_off(mbmi->current_qindex, plane_bsize))
+      use_trellis = 0;
+
     int quant_idx;
     if (use_trellis && args->enable_optimize_b != FINAL_PASS_TRELLIS_OPT)
       quant_idx = AV1_XFORM_QUANT_FP;

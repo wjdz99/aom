@@ -73,7 +73,7 @@
 
 // Mode_threshold multiplication factor table for prune_inter_modes_if_skippable
 // The values are kept in Q12 format and equation used to derive is
-// (2.5 - ((float)x->qindex / MAXQ) * 1.5)
+// (2.5 - ((float)xd->current_qindex / MAXQ) * 1.5)
 #define MODE_THRESH_QBITS 12
 static const int mode_threshold_mul_factor[QINDEX_RANGE] = {
   10240, 10216, 10192, 10168, 10144, 10120, 10095, 10071, 10047, 10023, 9999,
@@ -4357,7 +4357,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int mode_thresh_mul_fact = (1 << MODE_THRESH_QBITS);
   if (sf->inter_sf.prune_inter_modes_if_skippable) {
     // Higher multiplication factor values for lower quantizers.
-    mode_thresh_mul_fact = mode_threshold_mul_factor[x->qindex];
+    mode_thresh_mul_fact = mode_threshold_mul_factor[xd->current_qindex];
   }
 
   // Here midx is just an iterator index that should not be used by itself
@@ -4708,7 +4708,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       features[2] = (float)mi_size_high_log2[bsize];
       features[3] = (float)intra_cost;
       features[4] = (float)inter_cost;
-      const int ac_q = av1_ac_quant_QTX(x->qindex, 0, xd->bd);
+      const int ac_q = av1_ac_quant_QTX(xd->current_qindex, 0, xd->bd);
       const int ac_q_max = av1_ac_quant_QTX(255, 0, xd->bd);
       features[5] = (float)(ac_q_max / ac_q);
 

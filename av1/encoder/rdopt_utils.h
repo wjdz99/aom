@@ -338,8 +338,10 @@ static INLINE int check_txfm_eval(MACROBLOCK *const x, BLOCK_SIZE bsize,
   const int qslope = 2 * (!is_luma_only);
   int aggr_factor = 1;
   if (!is_luma_only) {
-    aggr_factor = AOMMAX(
-        1, ((MAXQ - x->qindex) * qslope + QINDEX_RANGE / 2) >> QINDEX_BITS);
+    const MACROBLOCKD *xd = &x->e_mbd;
+    aggr_factor =
+        AOMMAX(1, ((MAXQ - xd->current_qindex) * qslope + QINDEX_RANGE / 2) >>
+                      QINDEX_BITS);
   }
   if (best_skip_rd >
       (x->source_variance << (num_pels_log2_lookup[bsize] + RDDIV_BITS)))
