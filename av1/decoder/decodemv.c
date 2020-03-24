@@ -32,7 +32,7 @@
 
 #define DEC_MISMATCH_DEBUG 0
 
-static PREDICTION_MODE read_intra_mode(aom_reader *r, aom_cdf_prob *cdf) {
+static PREDICTION_MODE read_intra_mode(aom_reader *r, aom_prob *cdf) {
   return (PREDICTION_MODE)aom_read_symbol(r, cdf, INTRA_MODES, ACCT_STR);
 }
 
@@ -96,7 +96,7 @@ static int read_delta_qindex(AV1_COMMON *cm, const MACROBLOCKD *xd,
   return reduced_delta_qindex;
 }
 static int read_delta_lflevel(const AV1_COMMON *const cm, aom_reader *r,
-                              aom_cdf_prob *const cdf,
+                              aom_prob *const cdf,
                               const MB_MODE_INFO *const mbmi, int mi_col,
                               int mi_row) {
   int reduced_delta_lflevel = 0;
@@ -137,12 +137,12 @@ static uint8_t read_cfl_alphas(FRAME_CONTEXT *const ec_ctx, aom_reader *r,
   uint8_t idx = 0;
   // Magnitudes are only coded for nonzero values
   if (CFL_SIGN_U(joint_sign) != CFL_SIGN_ZERO) {
-    aom_cdf_prob *cdf_u = ec_ctx->cfl_alpha_cdf[CFL_CONTEXT_U(joint_sign)];
+    aom_prob *cdf_u = ec_ctx->cfl_alpha_cdf[CFL_CONTEXT_U(joint_sign)];
     idx = (uint8_t)aom_read_symbol(r, cdf_u, CFL_ALPHABET_SIZE, "cfl:alpha_u")
           << CFL_ALPHABET_SIZE_LOG2;
   }
   if (CFL_SIGN_V(joint_sign) != CFL_SIGN_ZERO) {
-    aom_cdf_prob *cdf_v = ec_ctx->cfl_alpha_cdf[CFL_CONTEXT_V(joint_sign)];
+    aom_prob *cdf_v = ec_ctx->cfl_alpha_cdf[CFL_CONTEXT_V(joint_sign)];
     idx += (uint8_t)aom_read_symbol(r, cdf_v, CFL_ALPHABET_SIZE, "cfl:alpha_v");
   }
   *signs_out = joint_sign;
@@ -269,7 +269,7 @@ static int read_segment_id(AV1_COMMON *const cm, const MACROBLOCKD *const xd,
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   struct segmentation *const seg = &cm->seg;
   struct segmentation_probs *const segp = &ec_ctx->seg;
-  aom_cdf_prob *pred_cdf = segp->spatial_pred_seg_cdf[cdf_num];
+  aom_prob *pred_cdf = segp->spatial_pred_seg_cdf[cdf_num];
   const int coded_id = aom_read_symbol(r, pred_cdf, MAX_SEGMENTS, ACCT_STR);
   const int segment_id =
       av1_neg_deinterleave(coded_id, pred, seg->last_active_segid + 1);
@@ -384,7 +384,7 @@ static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     const int ctx = av1_get_pred_context_seg_id(xd);
     FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
     struct segmentation_probs *const segp = &ec_ctx->seg;
-    aom_cdf_prob *pred_cdf = segp->pred_cdf[ctx];
+    aom_prob *pred_cdf = segp->pred_cdf[ctx];
     mbmi->seg_id_predicted = aom_read_symbol(r, pred_cdf, 2, ACCT_STR);
     if (mbmi->seg_id_predicted) {
       segment_id = get_predicted_segment_id(cm, mi_offset, x_mis, y_mis);
@@ -579,7 +579,7 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 }
 
-static int read_angle_delta(aom_reader *r, aom_cdf_prob *cdf) {
+static int read_angle_delta(aom_reader *r, aom_prob *cdf) {
   const int sym = aom_read_symbol(r, cdf, 2 * MAX_ANGLE_DELTA + 1, ACCT_STR);
   return sym - MAX_ANGLE_DELTA;
 }

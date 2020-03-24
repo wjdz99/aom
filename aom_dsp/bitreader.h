@@ -117,7 +117,7 @@ static INLINE int aom_read_(aom_reader *r, int prob ACCT_STR_PARAM) {
   {
     int i;
     int ref_bit, ref_nsymbs;
-    aom_cdf_prob ref_cdf[16];
+    aom_prob ref_cdf[16];
     const int queue_r = bitstream_queue_get_read();
     const int frame_idx = aom_bitstream_queue_get_frame_read();
     bitstream_queue_pop(&ref_bit, ref_cdf, &ref_nsymbs);
@@ -128,7 +128,7 @@ static INLINE int aom_read_(aom_reader *r, int prob ACCT_STR_PARAM) {
               frame_idx, 2, ref_nsymbs, queue_r);
       assert(0);
     }
-    if ((ref_nsymbs != 2) || (ref_cdf[0] != (aom_cdf_prob)p) ||
+    if ((ref_nsymbs != 2) || (ref_cdf[0] != (aom_prob)p) ||
         (ref_cdf[1] != 32767)) {
       fprintf(stderr,
               "\n *** [bit] cdf error, frame_idx_r %d cdf {%d, %d} ref_cdf {%d",
@@ -173,7 +173,7 @@ static INLINE int aom_read_literal_(aom_reader *r, int bits ACCT_STR_PARAM) {
   return literal;
 }
 
-static INLINE int aom_read_cdf_(aom_reader *r, const aom_cdf_prob *cdf,
+static INLINE int aom_read_cdf_(aom_reader *r, const aom_prob *cdf,
                                 int nsymbs ACCT_STR_PARAM) {
   int symb;
   assert(cdf != NULL);
@@ -184,7 +184,7 @@ static INLINE int aom_read_cdf_(aom_reader *r, const aom_cdf_prob *cdf,
     int i;
     int cdf_error = 0;
     int ref_symb, ref_nsymbs;
-    aom_cdf_prob ref_cdf[16];
+    aom_prob ref_cdf[16];
     const int queue_r = bitstream_queue_get_read();
     const int frame_idx = aom_bitstream_queue_get_frame_read();
     bitstream_queue_pop(&ref_symb, ref_cdf, &ref_nsymbs);
@@ -225,7 +225,7 @@ static INLINE int aom_read_cdf_(aom_reader *r, const aom_cdf_prob *cdf,
   return symb;
 }
 
-static INLINE int aom_read_symbol_(aom_reader *r, aom_cdf_prob *cdf,
+static INLINE int aom_read_symbol_(aom_reader *r, aom_prob *cdf,
                                    int nsymbs ACCT_STR_PARAM) {
   int ret;
   ret = aom_read_cdf(r, cdf, nsymbs, ACCT_STR_NAME);

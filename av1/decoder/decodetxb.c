@@ -72,7 +72,7 @@ static INLINE void read_coeffs_reverse_2d(aom_reader *r, TX_SIZE tx_size,
     int level = aom_read_symbol(r, base_cdf[coeff_ctx], nsymbs, ACCT_STR);
     if (level > NUM_BASE_LEVELS) {
       const int br_ctx = get_br_ctx_2d(levels, pos, bwl);
-      aom_cdf_prob *cdf = br_cdf[br_ctx];
+      aom_prob *cdf = br_cdf[br_ctx];
       for (int idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
         const int k = aom_read_symbol(r, cdf, BR_CDF_SIZE, ACCT_STR);
         level += k;
@@ -96,7 +96,7 @@ static INLINE void read_coeffs_reverse(aom_reader *r, TX_SIZE tx_size,
     int level = aom_read_symbol(r, base_cdf[coeff_ctx], nsymbs, ACCT_STR);
     if (level > NUM_BASE_LEVELS) {
       const int br_ctx = get_br_ctx(levels, pos, bwl, tx_class);
-      aom_cdf_prob *cdf = br_cdf[br_ctx];
+      aom_prob *cdf = br_cdf[br_ctx];
       for (int idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
         const int k = aom_read_symbol(r, cdf, BR_CDF_SIZE, ACCT_STR);
         level += k;
@@ -250,8 +250,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
     const int pos = scan[c];
     const int coeff_ctx = get_lower_levels_ctx_eob(bwl, height, c);
     const int nsymbs = 3;
-    aom_cdf_prob *cdf =
-        ec_ctx->coeff_base_eob_cdf[txs_ctx][plane_type][coeff_ctx];
+    aom_prob *cdf = ec_ctx->coeff_base_eob_cdf[txs_ctx][plane_type][coeff_ctx];
     int level = aom_read_symbol(r, cdf, nsymbs, ACCT_STR) + 1;
     if (level > NUM_BASE_LEVELS) {
       const int br_ctx = get_br_ctx_eob(pos, bwl, tx_class);

@@ -156,8 +156,8 @@ static INLINE int get_comp_group_idx_context(const MACROBLOCKD *xd) {
   return AOMMIN(5, above_ctx + left_ctx);
 }
 
-static INLINE aom_cdf_prob *av1_get_pred_cdf_seg_id(
-    struct segmentation_probs *segp, const MACROBLOCKD *xd) {
+static INLINE aom_prob *av1_get_pred_cdf_seg_id(struct segmentation_probs *segp,
+                                                const MACROBLOCKD *xd) {
   return segp->pred_cdf[av1_get_pred_context_seg_id(xd)];
 }
 
@@ -204,11 +204,11 @@ int av1_get_intra_inter_context(const MACROBLOCKD *xd);
 
 int av1_get_reference_mode_context(const MACROBLOCKD *xd);
 
-static INLINE aom_cdf_prob *av1_get_reference_mode_cdf(const MACROBLOCKD *xd) {
+static INLINE aom_prob *av1_get_reference_mode_cdf(const MACROBLOCKD *xd) {
   return xd->tile_ctx->comp_inter_cdf[av1_get_reference_mode_context(xd)];
 }
 
-static INLINE aom_cdf_prob *av1_get_skip_cdf(const MACROBLOCKD *xd) {
+static INLINE aom_prob *av1_get_skip_cdf(const MACROBLOCKD *xd) {
   return xd->tile_ctx->skip_cdfs[av1_get_skip_context(xd)];
 }
 
@@ -222,25 +222,23 @@ int av1_get_pred_context_uni_comp_ref_p1(const MACROBLOCKD *xd);
 
 int av1_get_pred_context_uni_comp_ref_p2(const MACROBLOCKD *xd);
 
-static INLINE aom_cdf_prob *av1_get_comp_reference_type_cdf(
-    const MACROBLOCKD *xd) {
+static INLINE aom_prob *av1_get_comp_reference_type_cdf(const MACROBLOCKD *xd) {
   const int pred_context = av1_get_comp_reference_type_context(xd);
   return xd->tile_ctx->comp_ref_type_cdf[pred_context];
 }
 
-static INLINE aom_cdf_prob *av1_get_pred_cdf_uni_comp_ref_p(
-    const MACROBLOCKD *xd) {
+static INLINE aom_prob *av1_get_pred_cdf_uni_comp_ref_p(const MACROBLOCKD *xd) {
   const int pred_context = av1_get_pred_context_uni_comp_ref_p(xd);
   return xd->tile_ctx->uni_comp_ref_cdf[pred_context][0];
 }
 
-static INLINE aom_cdf_prob *av1_get_pred_cdf_uni_comp_ref_p1(
+static INLINE aom_prob *av1_get_pred_cdf_uni_comp_ref_p1(
     const MACROBLOCKD *xd) {
   const int pred_context = av1_get_pred_context_uni_comp_ref_p1(xd);
   return xd->tile_ctx->uni_comp_ref_cdf[pred_context][1];
 }
 
-static INLINE aom_cdf_prob *av1_get_pred_cdf_uni_comp_ref_p2(
+static INLINE aom_prob *av1_get_pred_cdf_uni_comp_ref_p2(
     const MACROBLOCKD *xd) {
   const int pred_context = av1_get_pred_context_uni_comp_ref_p2(xd);
   return xd->tile_ctx->uni_comp_ref_cdf[pred_context][2];
@@ -258,31 +256,27 @@ int av1_get_pred_context_comp_bwdref_p(const MACROBLOCKD *xd);
 
 int av1_get_pred_context_comp_bwdref_p1(const MACROBLOCKD *xd);
 
-static INLINE aom_cdf_prob *av1_get_pred_cdf_comp_ref_p(const MACROBLOCKD *xd) {
+static INLINE aom_prob *av1_get_pred_cdf_comp_ref_p(const MACROBLOCKD *xd) {
   const int pred_context = av1_get_pred_context_comp_ref_p(xd);
   return xd->tile_ctx->comp_ref_cdf[pred_context][0];
 }
 
-static INLINE aom_cdf_prob *av1_get_pred_cdf_comp_ref_p1(
-    const MACROBLOCKD *xd) {
+static INLINE aom_prob *av1_get_pred_cdf_comp_ref_p1(const MACROBLOCKD *xd) {
   const int pred_context = av1_get_pred_context_comp_ref_p1(xd);
   return xd->tile_ctx->comp_ref_cdf[pred_context][1];
 }
 
-static INLINE aom_cdf_prob *av1_get_pred_cdf_comp_ref_p2(
-    const MACROBLOCKD *xd) {
+static INLINE aom_prob *av1_get_pred_cdf_comp_ref_p2(const MACROBLOCKD *xd) {
   const int pred_context = av1_get_pred_context_comp_ref_p2(xd);
   return xd->tile_ctx->comp_ref_cdf[pred_context][2];
 }
 
-static INLINE aom_cdf_prob *av1_get_pred_cdf_comp_bwdref_p(
-    const MACROBLOCKD *xd) {
+static INLINE aom_prob *av1_get_pred_cdf_comp_bwdref_p(const MACROBLOCKD *xd) {
   const int pred_context = av1_get_pred_context_comp_bwdref_p(xd);
   return xd->tile_ctx->comp_bwdref_cdf[pred_context][0];
 }
 
-static INLINE aom_cdf_prob *av1_get_pred_cdf_comp_bwdref_p1(
-    const MACROBLOCKD *xd) {
+static INLINE aom_prob *av1_get_pred_cdf_comp_bwdref_p1(const MACROBLOCKD *xd) {
   const int pred_context = av1_get_pred_context_comp_bwdref_p1(xd);
   return xd->tile_ctx->comp_bwdref_cdf[pred_context][1];
 }
@@ -301,33 +295,27 @@ int av1_get_pred_context_single_ref_p5(const MACROBLOCKD *xd);
 
 int av1_get_pred_context_single_ref_p6(const MACROBLOCKD *xd);
 
-static INLINE aom_cdf_prob *av1_get_pred_cdf_single_ref_p1(
-    const MACROBLOCKD *xd) {
+static INLINE aom_prob *av1_get_pred_cdf_single_ref_p1(const MACROBLOCKD *xd) {
   return xd->tile_ctx
       ->single_ref_cdf[av1_get_pred_context_single_ref_p1(xd)][0];
 }
-static INLINE aom_cdf_prob *av1_get_pred_cdf_single_ref_p2(
-    const MACROBLOCKD *xd) {
+static INLINE aom_prob *av1_get_pred_cdf_single_ref_p2(const MACROBLOCKD *xd) {
   return xd->tile_ctx
       ->single_ref_cdf[av1_get_pred_context_single_ref_p2(xd)][1];
 }
-static INLINE aom_cdf_prob *av1_get_pred_cdf_single_ref_p3(
-    const MACROBLOCKD *xd) {
+static INLINE aom_prob *av1_get_pred_cdf_single_ref_p3(const MACROBLOCKD *xd) {
   return xd->tile_ctx
       ->single_ref_cdf[av1_get_pred_context_single_ref_p3(xd)][2];
 }
-static INLINE aom_cdf_prob *av1_get_pred_cdf_single_ref_p4(
-    const MACROBLOCKD *xd) {
+static INLINE aom_prob *av1_get_pred_cdf_single_ref_p4(const MACROBLOCKD *xd) {
   return xd->tile_ctx
       ->single_ref_cdf[av1_get_pred_context_single_ref_p4(xd)][3];
 }
-static INLINE aom_cdf_prob *av1_get_pred_cdf_single_ref_p5(
-    const MACROBLOCKD *xd) {
+static INLINE aom_prob *av1_get_pred_cdf_single_ref_p5(const MACROBLOCKD *xd) {
   return xd->tile_ctx
       ->single_ref_cdf[av1_get_pred_context_single_ref_p5(xd)][4];
 }
-static INLINE aom_cdf_prob *av1_get_pred_cdf_single_ref_p6(
-    const MACROBLOCKD *xd) {
+static INLINE aom_prob *av1_get_pred_cdf_single_ref_p6(const MACROBLOCKD *xd) {
   return xd->tile_ctx
       ->single_ref_cdf[av1_get_pred_context_single_ref_p6(xd)][5];
 }

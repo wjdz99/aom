@@ -53,10 +53,10 @@ struct segmentation {
 };
 
 struct segmentation_probs {
-  aom_cdf_prob tree_cdf[CDF_SIZE(MAX_SEGMENTS)];
-  aom_cdf_prob pred_cdf[SEG_TEMPORAL_PRED_CTXS][CDF_SIZE(2)];
-  aom_cdf_prob spatial_pred_seg_cdf[SPATIAL_PREDICTION_PROBS]
-                                   [CDF_SIZE(MAX_SEGMENTS)];
+  aom_prob tree_cdf[CDF_SIZE(MAX_SEGMENTS)];
+  aom_prob pred_cdf[SEG_TEMPORAL_PRED_CTXS][CDF_SIZE(2)];
+  aom_prob spatial_pred_seg_cdf[SPATIAL_PREDICTION_PROBS]
+                               [CDF_SIZE(MAX_SEGMENTS)];
 };
 
 static INLINE int segfeature_active(const struct segmentation *seg,

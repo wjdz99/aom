@@ -63,7 +63,7 @@ int aom_stop_encode(aom_writer *w);
 static INLINE void aom_write(aom_writer *w, int bit, int probability) {
   int p = (0x7FFFFF - (probability << 15) + probability) >> 8;
 #if CONFIG_BITSTREAM_DEBUG
-  aom_cdf_prob cdf[2] = { (aom_cdf_prob)p, 32767 };
+  aom_prob cdf[2] = { (aom_prob)p, 32767 };
   /*int queue_r = 0;
   int frame_idx_r = 0;
   int queue_w = bitstream_queue_get_write();
@@ -88,8 +88,8 @@ static INLINE void aom_write_literal(aom_writer *w, int data, int bits) {
   for (bit = bits - 1; bit >= 0; bit--) aom_write_bit(w, 1 & (data >> bit));
 }
 
-static INLINE void aom_write_cdf(aom_writer *w, int symb,
-                                 const aom_cdf_prob *cdf, int nsymbs) {
+static INLINE void aom_write_cdf(aom_writer *w, int symb, const aom_prob *cdf,
+                                 int nsymbs) {
 #if CONFIG_BITSTREAM_DEBUG
   /*int queue_r = 0;
   int frame_idx_r = 0;
@@ -105,7 +105,7 @@ static INLINE void aom_write_cdf(aom_writer *w, int symb,
   od_ec_encode_cdf_q15(&w->ec, symb, cdf, nsymbs);
 }
 
-static INLINE void aom_write_symbol(aom_writer *w, int symb, aom_cdf_prob *cdf,
+static INLINE void aom_write_symbol(aom_writer *w, int symb, aom_prob *cdf,
                                     int nsymbs) {
   aom_write_cdf(w, symb, cdf, nsymbs);
   if (w->allow_update_cdf) update_cdf(cdf, symb, nsymbs);

@@ -1519,20 +1519,20 @@ static PARTITION_TYPE read_partition(MACROBLOCKD *xd, int mi_row, int mi_col,
   if (!has_rows && !has_cols) return PARTITION_SPLIT;
 
   assert(ctx >= 0);
-  aom_cdf_prob *partition_cdf = ec_ctx->partition_cdf[ctx];
+  aom_prob *partition_cdf = ec_ctx->partition_cdf[ctx];
   if (has_rows && has_cols) {
     return (PARTITION_TYPE)aom_read_symbol(
         r, partition_cdf, partition_cdf_length(bsize), ACCT_STR);
   } else if (!has_rows && has_cols) {
     assert(bsize > BLOCK_8X8);
-    aom_cdf_prob cdf[2];
+    aom_prob cdf[2];
     partition_gather_vert_alike(cdf, partition_cdf, bsize);
     assert(cdf[1] == AOM_ICDF(CDF_PROB_TOP));
     return aom_read_cdf(r, cdf, 2, ACCT_STR) ? PARTITION_SPLIT : PARTITION_HORZ;
   } else {
     assert(has_rows && !has_cols);
     assert(bsize > BLOCK_8X8);
-    aom_cdf_prob cdf[2];
+    aom_prob cdf[2];
     partition_gather_horz_alike(cdf, partition_cdf, bsize);
     assert(cdf[1] == AOM_ICDF(CDF_PROB_TOP));
     return aom_read_cdf(r, cdf, 2, ACCT_STR) ? PARTITION_SPLIT : PARTITION_VERT;

@@ -34,7 +34,7 @@ int aom_bitstream_queue_get_frame_read(void) { return frame_idx_r; }
 #define QUEUE_MAX_SIZE 2000000
 static int result_queue[QUEUE_MAX_SIZE];
 static int nsymbs_queue[QUEUE_MAX_SIZE];
-static aom_cdf_prob cdf_queue[QUEUE_MAX_SIZE][16];
+static aom_prob cdf_queue[QUEUE_MAX_SIZE][16];
 
 static int queue_r = 0;
 static int queue_w = 0;
@@ -54,7 +54,7 @@ int bitstream_queue_get_write(void) { return queue_w; }
 
 int bitstream_queue_get_read(void) { return queue_r; }
 
-void bitstream_queue_pop(int *result, aom_cdf_prob *cdf, int *nsymbs) {
+void bitstream_queue_pop(int *result, aom_prob *cdf, int *nsymbs) {
   if (!skip_r) {
     if (queue_w == queue_r) {
       printf("buffer underflow queue_w %d queue_r %d\n", queue_w, queue_r);
@@ -67,7 +67,7 @@ void bitstream_queue_pop(int *result, aom_cdf_prob *cdf, int *nsymbs) {
   }
 }
 
-void bitstream_queue_push(int result, const aom_cdf_prob *cdf, int nsymbs) {
+void bitstream_queue_push(int result, const aom_prob *cdf, int nsymbs) {
   if (!skip_w) {
     result_queue[queue_w] = result;
     nsymbs_queue[queue_w] = nsymbs;

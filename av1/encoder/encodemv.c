@@ -47,14 +47,14 @@ static void update_mv_component_stats(int comp, nmv_component *mvcomp,
   }
   // Fractional bits
   if (precision > MV_SUBPEL_NONE) {
-    aom_cdf_prob *fp_cdf =
+    aom_prob *fp_cdf =
         mv_class == MV_CLASS_0 ? mvcomp->class0_fp_cdf[d] : mvcomp->fp_cdf;
     update_cdf(fp_cdf, fr, MV_FP_SIZE);
   }
 
   // High precision bit
   if (precision > MV_SUBPEL_LOW_PRECISION) {
-    aom_cdf_prob *hp_cdf =
+    aom_prob *hp_cdf =
         mv_class == MV_CLASS_0 ? mvcomp->class0_hp_cdf : mvcomp->hp_cdf;
     update_cdf(hp_cdf, hp, 2);
   }

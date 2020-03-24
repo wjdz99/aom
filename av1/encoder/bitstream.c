@@ -468,7 +468,7 @@ static AOM_INLINE void write_segment_id(
 
   const int coded_id =
       av1_neg_interleave(mbmi->segment_id, pred, seg->last_active_segid + 1);
-  aom_cdf_prob *pred_cdf = segp->spatial_pred_seg_cdf[cdf_num];
+  aom_prob *pred_cdf = segp->spatial_pred_seg_cdf[cdf_num];
   aom_write_symbol(w, coded_id, pred_cdf, MAX_SEGMENTS);
   set_spatial_segment_id(&cm->mi_params, cm->cur_frame->seg_map, mbmi->sb_type,
                          mi_row, mi_col, mbmi->segment_id);
@@ -598,7 +598,7 @@ static AOM_INLINE void write_filter_intra_mode_info(
 }
 
 static AOM_INLINE void write_angle_delta(aom_writer *w, int angle_delta,
-                                         aom_cdf_prob *cdf) {
+                                         aom_prob *cdf) {
   aom_write_symbol(w, angle_delta + MAX_ANGLE_DELTA, cdf,
                    2 * MAX_ANGLE_DELTA + 1);
 }
@@ -851,11 +851,11 @@ static AOM_INLINE void write_cfl_alphas(FRAME_CONTEXT *const ec_ctx,
   aom_write_symbol(w, joint_sign, ec_ctx->cfl_sign_cdf, CFL_JOINT_SIGNS);
   // Magnitudes are only signaled for nonzero codes.
   if (CFL_SIGN_U(joint_sign) != CFL_SIGN_ZERO) {
-    aom_cdf_prob *cdf_u = ec_ctx->cfl_alpha_cdf[CFL_CONTEXT_U(joint_sign)];
+    aom_prob *cdf_u = ec_ctx->cfl_alpha_cdf[CFL_CONTEXT_U(joint_sign)];
     aom_write_symbol(w, CFL_IDX_U(idx), cdf_u, CFL_ALPHABET_SIZE);
   }
   if (CFL_SIGN_V(joint_sign) != CFL_SIGN_ZERO) {
-    aom_cdf_prob *cdf_v = ec_ctx->cfl_alpha_cdf[CFL_CONTEXT_V(joint_sign)];
+    aom_prob *cdf_v = ec_ctx->cfl_alpha_cdf[CFL_CONTEXT_V(joint_sign)];
     aom_write_symbol(w, CFL_IDX_V(idx), cdf_v, CFL_ALPHABET_SIZE);
   }
 }
@@ -910,7 +910,7 @@ static AOM_INLINE void write_inter_segment_id(
     }
     if (seg->temporal_update) {
       const int pred_flag = mbmi->seg_id_predicted;
-      aom_cdf_prob *pred_cdf = av1_get_pred_cdf_seg_id(segp, xd);
+      aom_prob *pred_cdf = av1_get_pred_cdf_seg_id(segp, xd);
       aom_write_symbol(w, pred_flag, pred_cdf, 2);
       if (!pred_flag) {
         write_segment_id(cpi, mbmi, w, seg, segp, 0);
@@ -1564,14 +1564,14 @@ static AOM_INLINE void write_partition(const AV1_COMMON *const cm,
   } else if (!has_rows && has_cols) {
     assert(p == PARTITION_SPLIT || p == PARTITION_HORZ);
     assert(bsize > BLOCK_8X8);
-    aom_cdf_prob cdf[2];
+    aom_prob cdf[2];
     partition_gather_vert_alike(cdf, ec_ctx->partition_cdf[ctx], bsize);
     aom_write_cdf(w, p == PARTITION_SPLIT, cdf, 2);
   } else {
     assert(has_rows && !has_cols);
     assert(p == PARTITION_SPLIT || p == PARTITION_VERT);
     assert(bsize > BLOCK_8X8);
-    aom_cdf_prob cdf[2];
+    aom_prob cdf[2];
     partition_gather_horz_alike(cdf, ec_ctx->partition_cdf[ctx], bsize);
     aom_write_cdf(w, p == PARTITION_SPLIT, cdf, 2);
   }

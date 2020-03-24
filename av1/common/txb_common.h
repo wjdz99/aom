@@ -295,8 +295,8 @@ static AOM_FORCE_INLINE int get_nz_map_ctx_from_stats(
   return 0;
 }
 
-typedef aom_cdf_prob (*base_cdf_arr)[CDF_SIZE(4)];
-typedef aom_cdf_prob (*br_cdf_arr)[CDF_SIZE(BR_CDF_SIZE)];
+typedef aom_prob (*base_cdf_arr)[CDF_SIZE(4)];
+typedef aom_prob (*br_cdf_arr)[CDF_SIZE(BR_CDF_SIZE)];
 
 static INLINE int get_lower_levels_ctx_eob(int bwl, int height, int scan_idx) {
   if (scan_idx == 0) return 0;
