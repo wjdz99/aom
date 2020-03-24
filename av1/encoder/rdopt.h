@@ -221,6 +221,38 @@ static INLINE int prune_ref_by_selective_ref_frame(
 
   return 0;
 }
+
+// This function will copy the winner reference mode information from
+// MB_MODE_INFO_EXT to MB_MODE_INFO_EXT_WINNER.
+static INLINE void copy_mbmi_ext_to_mbmi_ext_winner(
+    MB_MODE_INFO_EXT_WINNER *mbmi_ext_winner, MB_MODE_INFO_EXT *mbmi_ext,
+    uint8_t ref_frame_type) {
+  memcpy(mbmi_ext_winner->ref_mv_stack, mbmi_ext->ref_mv_stack[ref_frame_type],
+         sizeof(mbmi_ext->ref_mv_stack[USABLE_REF_MV_STACK_SIZE]));
+  memcpy(mbmi_ext_winner->weight, mbmi_ext->weight[ref_frame_type],
+         sizeof(mbmi_ext->weight[USABLE_REF_MV_STACK_SIZE]));
+  mbmi_ext_winner->mode_context = mbmi_ext->mode_context[ref_frame_type];
+  mbmi_ext_winner->ref_mv_count = mbmi_ext->ref_mv_count[ref_frame_type];
+  memcpy(mbmi_ext_winner->global_mvs, mbmi_ext->global_mvs,
+         sizeof(mbmi_ext->global_mvs));
+}
+
+// This function will copy the winner reference mode information from
+// MB_MODE_INFO_EXT_WINNER to MB_MODE_INFO_EXT.
+static INLINE void copy_mbmi_ext_winner_to_mbmi_ext(
+    MB_MODE_INFO_EXT *mbmi_ext,
+    const MB_MODE_INFO_EXT_WINNER *const mbmi_ext_winner,
+    uint8_t ref_frame_type) {
+  memcpy(mbmi_ext->ref_mv_stack[ref_frame_type], mbmi_ext_winner->ref_mv_stack,
+         sizeof(mbmi_ext->ref_mv_stack[USABLE_REF_MV_STACK_SIZE]));
+  memcpy(mbmi_ext->weight[ref_frame_type], mbmi_ext_winner->weight,
+         sizeof(mbmi_ext->weight[USABLE_REF_MV_STACK_SIZE]));
+  mbmi_ext->mode_context[ref_frame_type] = mbmi_ext_winner->mode_context;
+  mbmi_ext->ref_mv_count[ref_frame_type] = mbmi_ext_winner->ref_mv_count;
+  memcpy(mbmi_ext->global_mvs, mbmi_ext_winner->global_mvs,
+         sizeof(mbmi_ext->global_mvs));
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

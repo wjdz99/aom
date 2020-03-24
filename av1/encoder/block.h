@@ -119,7 +119,7 @@ typedef struct {
   int cb_offset;
   int16_t mode_context;
   uint8_t ref_mv_count;
-} MB_MODE_INFO_EXT_FRAME;
+} MB_MODE_INFO_EXT_WINNER;
 
 typedef struct {
   uint8_t best_palette_color_map[MAX_PALETTE_SQUARE];
@@ -246,7 +246,7 @@ struct macroblock {
 
   MACROBLOCKD e_mbd;
   MB_MODE_INFO_EXT *mbmi_ext;
-  MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame;
+  MB_MODE_INFO_EXT_WINNER *mbmi_ext_frame;
   // Array of mode stats for winner mode processing
   WinnerModeStats winner_mode_stats[AOMMAX(MAX_WINNER_MODE_COUNT_INTRA,
                                            MAX_WINNER_MODE_COUNT_INTER)];
