@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "40810e32_f397d5d2",
+        "filename": "aom_dsp/bitreader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-24T22:43:03Z",
+      "side": 1,
+      "message": "I believe this code can be removed.",
+      "parentUuid": "663aa42d_64086dd0",
+      "revId": "d345a0b8810d8058fda8acb92f0831af9a205622",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bfbe6697_591f652f",
         "filename": "aom_dsp/bitreader.h",
         "patchSetId": 3
@@ -87,6 +105,24 @@
     },
     {
       "key": {
+        "uuid": "0cafe51c_3a381575",
+        "filename": "aom_dsp/bitwriter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-24T22:43:03Z",
+      "side": 1,
+      "message": "I can comment on this:\nIn short: we need to keep the commented code.\n\nDetail:\n\"CONFIG_BITSTREAM_DEBUG\" is actually a tool used for finding mismatch between encoder/decoder at the bit reader/writer level -- e.g. it will flag an error in \"aom_read\" or \"aom_read_cdf\" if CDF used to code a symbol is different on encoder and decoder sides.\n\nThe debugging process then involves, uncommenting this code and modifying \u0027frame_idx_r\u0027 and \"queue_r\" to the position where mismatch was reported, and putting a breakpoint to figure out which symbol is being written at that point (and compare with what decoder has at that point etc).\n\nWe should probably publish a doc on how to use this tool, as it is very useful.",
+      "parentUuid": "929a1271_1f742528",
+      "revId": "d345a0b8810d8058fda8acb92f0831af9a205622",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cca05359_f69f2cfc",
         "filename": "aom_dsp/bitwriter.h",
         "patchSetId": 3
@@ -98,6 +134,24 @@
       "writtenOn": "2020-03-24T22:18:06Z",
       "side": 1,
       "message": "Tim wrote:\n\nSame comment about commented-out code.",
+      "revId": "d345a0b8810d8058fda8acb92f0831af9a205622",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59299aa8_7242eb4f",
+        "filename": "aom_dsp/bitwriter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-24T22:43:03Z",
+      "side": 1,
+      "message": "Again, we need to keep this code. (This is the counterpart to aom_read_cdf)",
+      "parentUuid": "cca05359_f69f2cfc",
       "revId": "d345a0b8810d8058fda8acb92f0831af9a205622",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
