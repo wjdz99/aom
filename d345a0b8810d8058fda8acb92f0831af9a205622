@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "663aa42d_64086dd0",
+        "filename": "aom_dsp/bitreader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-03-24T22:18:06Z",
+      "side": 1,
+      "message": "Tim wrote:\n\nDo we need to keep this commented-out code? I know it was copied from the original file, so if you want to defer cleaning it up to a separate change, that is completely fine. I think if we do want to keep it, it should be controlled by a named pre-processor #define instead of being commented out (unlike now, where it is controlled by one in addition to be commented out).",
+      "revId": "d345a0b8810d8058fda8acb92f0831af9a205622",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfbe6697_591f652f",
+        "filename": "aom_dsp/bitreader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-03-24T22:18:06Z",
+      "side": 1,
+      "message": "Tim wrote:\n\nThis test is not equivalent to the code in daala_read_symbol(). In that code, if nsymbs !\u003d ref_nsymbs, then cdf_error was set to zero, and the \"cdf error\" message would not be printed. It seems like these two should be equivalent. That is, again, a pre-existing issue, so I am okay with that not being addressed in this patch.\n\nNote: The code in daala_read_symbol() that Tim referred to was copied to the aom_read_cdf_() function, starting from line 191.",
+      "revId": "d345a0b8810d8058fda8acb92f0831af9a205622",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44642d89_2faaf498",
+        "filename": "aom_dsp/bitreader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-03-24T22:18:06Z",
+      "side": 1,
+      "message": "Tim wrote:\n\nI do not believe that 32767 is correct here. Please see the corresponding comment below in bitwriter.h.",
+      "revId": "d345a0b8810d8058fda8acb92f0831af9a205622",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a57aef0a_43a3c225",
+        "filename": "aom_dsp/bitwriter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-03-24T22:18:06Z",
+      "side": 1,
+      "message": "Tim wrote:\n\nI do not believe that 32767 is correct here. The actual CDFs used by od_ec_encode_cdf_q15() all end in 0, not 32767 (since they are actually \"inverse CDFs\", as denoted by the icdf name for the parameter in entenc.c). You can see this in the various AOM_CDF\u003cn\u003e macros defined in prob.h, which all end in AOM_ICDF(CDF_PROB_TOP), i.e., 0 (plus one extra 0 to store the count of how often a CDF is used).\n\nI think this error is harmless, since it is not used by the actual encoder, but only used by the corresponding check in the reader, which also checks for the wrong value. It does get printed out, though, which will be confusing to anyone who actually understands how the entropy\ncoder works, and it breaks the equivalence between aom_write()/aom_write_cdf() and aom_read_()/aom_read_cdf_(). In theory, you should be able to use the CDF version (with an appropriately constructed CDF) to read a symbol written by the boolean (non-CDF) writer, and vice versa, but that will trigger errors in the bitstream debugger as-is.\n\nAgain, this is a pre-existing issue, so I am fine with not addressing it in this patch.\n\nSince all of the issues I have pointed out were pre-existing, I am okay with this patch landing as-is if that is what you want to do.",
+      "revId": "d345a0b8810d8058fda8acb92f0831af9a205622",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "929a1271_1f742528",
+        "filename": "aom_dsp/bitwriter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-03-24T22:18:06Z",
+      "side": 1,
+      "message": "Tim wrote:\n\nSame comment about commented-out code.",
+      "revId": "d345a0b8810d8058fda8acb92f0831af9a205622",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cca05359_f69f2cfc",
+        "filename": "aom_dsp/bitwriter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-03-24T22:18:06Z",
+      "side": 1,
+      "message": "Tim wrote:\n\nSame comment about commented-out code.",
+      "revId": "d345a0b8810d8058fda8acb92f0831af9a205622",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
