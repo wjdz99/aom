@@ -1156,7 +1156,7 @@ static INLINE void av1_get_block_dimensions(BLOCK_SIZE bsize, int plane,
 }
 
 /* clang-format off */
-typedef aom_cdf_prob (*MapCdf)[PALETTE_COLOR_INDEX_CONTEXTS]
+typedef aom_prob (*MapCdf)[PALETTE_COLOR_INDEX_CONTEXTS]
                               [CDF_SIZE(PALETTE_COLORS)];
 typedef const int (*ColorCost)[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
                               [PALETTE_COLORS];

@@ -21,7 +21,7 @@ extern "C" {
 #endif
 
 typedef struct {
-  aom_cdf_prob *color_map_cdf;
+  aom_prob *color_map_cdf;
   uint8_t token;
 } TOKENEXTRA;
 

@@ -26,12 +26,12 @@ const uint16_t av1_prob_cost[128] = {
   23,  20,  18,  15,  12,  9,   6,   3,
 };
 
-void av1_cost_tokens_from_cdf(int *costs, const aom_cdf_prob *cdf,
+void av1_cost_tokens_from_cdf(int *costs, const aom_prob *cdf,
                               const int *inv_map) {
   int i;
-  aom_cdf_prob prev_cdf = 0;
+  aom_prob prev_cdf = 0;
   for (i = 0;; ++i) {
-    aom_cdf_prob p15 = AOM_ICDF(cdf[i]) - prev_cdf;
+    aom_prob p15 = AOM_ICDF(cdf[i]) - prev_cdf;
     p15 = (p15 < EC_MIN_PROB) ? EC_MIN_PROB : p15;
     prev_cdf = AOM_ICDF(cdf[i]);
 

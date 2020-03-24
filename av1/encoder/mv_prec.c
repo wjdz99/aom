@@ -45,10 +45,10 @@ static AOM_INLINE int_mv get_ref_mv_for_mv_stats(
              : mbmi_ext_frame->global_mvs[ref_frame_type];
 }
 
-static AOM_INLINE int get_symbol_cost(const aom_cdf_prob *cdf, int symbol) {
-  const aom_cdf_prob cur_cdf = AOM_ICDF(cdf[symbol]);
-  const aom_cdf_prob prev_cdf = symbol ? AOM_ICDF(cdf[symbol - 1]) : 0;
-  const aom_cdf_prob p15 = AOMMAX(cur_cdf - prev_cdf, EC_MIN_PROB);
+static AOM_INLINE int get_symbol_cost(const aom_prob *cdf, int symbol) {
+  const aom_prob cur_cdf = AOM_ICDF(cdf[symbol]);
+  const aom_prob prev_cdf = symbol ? AOM_ICDF(cdf[symbol - 1]) : 0;
+  const aom_prob p15 = AOMMAX(cur_cdf - prev_cdf, EC_MIN_PROB);
 
   return av1_cost_symbol(p15);
 }
@@ -74,14 +74,14 @@ static AOM_INLINE int keep_one_comp_stat(MV_STATS *mv_stats, int comp_val,
   nmv_context *nmvc = &ec_ctx->nmvc;
   nmv_component *mvcomp_ctx = nmvc->comps;
   nmv_component *cur_mvcomp_ctx = &mvcomp_ctx[comp_idx];
-  aom_cdf_prob *sign_cdf = cur_mvcomp_ctx->sign_cdf;
-  aom_cdf_prob *class_cdf = cur_mvcomp_ctx->classes_cdf;
-  aom_cdf_prob *class0_cdf = cur_mvcomp_ctx->class0_cdf;
-  aom_cdf_prob(*bits_cdf)[3] = cur_mvcomp_ctx->bits_cdf;
-  aom_cdf_prob *frac_part_cdf = mv_class
-                                    ? (cur_mvcomp_ctx->fp_cdf)
-                                    : (cur_mvcomp_ctx->class0_fp_cdf[int_part]);
-  aom_cdf_prob *high_part_cdf =
+  aom_prob *sign_cdf = cur_mvcomp_ctx->sign_cdf;
+  aom_prob *class_cdf = cur_mvcomp_ctx->classes_cdf;
+  aom_prob *class0_cdf = cur_mvcomp_ctx->class0_cdf;
+  aom_prob(*bits_cdf)[3] = cur_mvcomp_ctx->bits_cdf;
+  aom_prob *frac_part_cdf = mv_class
+                                ? (cur_mvcomp_ctx->fp_cdf)
+                                : (cur_mvcomp_ctx->class0_fp_cdf[int_part]);
+  aom_prob *high_part_cdf =
       mv_class ? (cur_mvcomp_ctx->hp_cdf) : (cur_mvcomp_ctx->class0_hp_cdf);
 
   const int sign_rate = get_symbol_cost(sign_cdf, sign);
@@ -127,7 +127,7 @@ static AOM_INLINE void keep_one_mv_stat(MV_STATS *mv_stats, const MV *ref_mv,
   const MACROBLOCKD *const xd = &x->e_mbd;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   nmv_context *nmvc = &ec_ctx->nmvc;
-  aom_cdf_prob *joint_cdf = nmvc->joints_cdf;
+  aom_prob *joint_cdf = nmvc->joints_cdf;
   const int use_hp = cpi->common.features.allow_high_precision_mv;
 
   const MV diff = { cur_mv->row - ref_mv->row, cur_mv->col - ref_mv->col };
