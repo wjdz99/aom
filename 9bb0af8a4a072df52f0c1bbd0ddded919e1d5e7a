@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26b46a27_463b00df",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-25T19:47:13Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 389,
+        "startChar": 4,
+        "endLine": 389,
+        "endChar": 7
+      },
+      "revId": "9bb0af8a4a072df52f0c1bbd0ddded919e1d5e7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efe7205e_7c852b65",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 717,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-25T19:47:13Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 717,
+        "startChar": 4,
+        "endLine": 717,
+        "endChar": 7
+      },
+      "revId": "9bb0af8a4a072df52f0c1bbd0ddded919e1d5e7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f5c520d_577b9cbc",
+        "filename": "av1/encoder/encodemb.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-25T19:47:13Z",
+      "side": 1,
+      "message": "I\u0027d suggest removing \"to_\" prefix. \nAlso, add \"av1_\" prefix as it\u0027s declared in header file.",
+      "range": {
+        "startLine": 133,
+        "startChar": 18,
+        "endLine": 133,
+        "endChar": 32
+      },
+      "revId": "9bb0af8a4a072df52f0c1bbd0ddded919e1d5e7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a34df14c_70e55751",
+        "filename": "av1/encoder/encodemb.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-25T19:47:13Z",
+      "side": 1,
+      "message": "This is hard to read. How about:\nif (optimize_b \u003d\u003d NO_TRELLIS_OPT) return false;\nif (optimize_b \u003d\u003d FINAL_PASS_TRELLIS_OPT \u0026\u0026 dry_run !\u003d OUTPUT_ENABLED)  return false;\nreturn true;",
+      "range": {
+        "startLine": 135,
+        "startChar": 2,
+        "endLine": 137,
+        "endChar": 1
+      },
+      "revId": "9bb0af8a4a072df52f0c1bbd0ddded919e1d5e7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29fe2fd3_0ebd9ae2",
+        "filename": "av1/encoder/encodemb.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-25T19:47:13Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 139,
+        "startChar": 18,
+        "endLine": 139,
+        "endChar": 33
+      },
+      "revId": "9bb0af8a4a072df52f0c1bbd0ddded919e1d5e7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d16cdff4_d83a5923",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1276,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-25T19:47:13Z",
+      "side": 1,
+      "message": "Remove",
+      "range": {
+        "startLine": 1276,
+        "startChar": 0,
+        "endLine": 1276,
+        "endChar": 58
+      },
+      "revId": "9bb0af8a4a072df52f0c1bbd0ddded919e1d5e7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09ea3585_8d7233c1",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2698,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-25T19:47:13Z",
+      "side": 1,
+      "message": "Remove and experiment with this in separate patch",
+      "range": {
+        "startLine": 2697,
+        "startChar": 1,
+        "endLine": 2698,
+        "endChar": 74
+      },
+      "revId": "9bb0af8a4a072df52f0c1bbd0ddded919e1d5e7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8943380_270f40d5",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2717,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-25T19:47:13Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 2715,
+        "startChar": 0,
+        "endLine": 2717,
+        "endChar": 74
+      },
+      "revId": "9bb0af8a4a072df52f0c1bbd0ddded919e1d5e7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2cf6e53_c1c73281",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2751,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-25T19:47:13Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 2749,
+        "startChar": 0,
+        "endLine": 2751,
+        "endChar": 74
+      },
+      "revId": "9bb0af8a4a072df52f0c1bbd0ddded919e1d5e7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
