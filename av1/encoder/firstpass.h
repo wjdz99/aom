@@ -99,6 +99,56 @@ typedef struct {
   double raw_error_stdev;
 } FIRSTPASS_STATS;
 
+// This structure contains several key parameters to be accumulate for this
+// frame.
+typedef struct {
+  // Intra prediction error.
+  int64_t intra_error;
+  // Average wavelet energy computed using Discrete Wavelet Transform (DWT).
+  int64_t frame_avg_wavelet_energy;
+  // Best of intra pred error and inter pred error using last frame as ref.
+  int64_t coded_error;
+  // Best of intra pred error and inter pred error using golden frame as ref.
+  int64_t sr_coded_error;
+  // Best of intra pred error and inter pred error using altref frame as ref.
+  int64_t tr_coded_error;
+  // Count of motion vector.
+  int mv_count;
+  // Count of blocks that pick inter prediction (inter pred error is smaller
+  // than intra pred error).
+  int inter_count;
+  // Count of blocks that pick second ref (golden frame).
+  int second_ref_count;
+  // Count of blocks that pick third ref (altref frame).
+  int third_ref_count;
+  // Count of blocks where the inter and intra are very close and very low.
+  double neutral_count;
+  // Count of blocks where intra error is very small.
+  int intra_skip_count;
+  // Start row.
+  int image_data_start_row;
+  // Count of unique non-zero motion vectors.
+  int new_mv_count;
+  // Sum of inward motion vectors.
+  int sum_in_vectors;
+  // Sum of motion vector row.
+  int sum_mvr;
+  // Sum of motion vector column.
+  int sum_mvc;
+  // Sum of absolute value of motion vector row.
+  int sum_mvr_abs;
+  // Sum of absolute value of motion vector column.
+  int sum_mvc_abs;
+  // Sum of the square of motion vector row.
+  int64_t sum_mvrs;
+  // Sum of the square of motion vector column.
+  int64_t sum_mvcs;
+  // A factor calculated using intra pred error.
+  double intra_factor;
+  // A factor that measures brightness.
+  double brightness_factor;
+} FRAME_STATS;
+
 #define FC_ANIMATION_THRESH 0.15
 enum {
   FC_NORMAL = 0,
