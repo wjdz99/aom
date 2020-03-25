@@ -4198,6 +4198,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES,
     INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES
   };
+  // Initialize args for handle_inter_mode
   HandleInterModeArgs args = { { NULL },
                                { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE },
                                { NULL },
@@ -4216,6 +4217,10 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                NULL,
                                { { { 0 }, { { 0 } }, { 0 }, 0, 0, 0, 0 } },
                                0 };
+  // Initializes state for motion_mode_for_winner_cand speed feature, which 
+  // does the search with only SIMPLE_TRANSLATION, and saves the top 
+  // candidates. After the initial search, it will try other motion modes with
+  // the saved candidates. 
   // Indicates the appropriate number of simple translation winner modes for
   // exhaustive motion mode evaluation
   const int max_winner_motion_mode_cand =
@@ -4297,6 +4302,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   // Obtain the relevant tpl stats for pruning inter modes
   PruneInfoFromTpl inter_cost_info_from_tpl;
 #if !CONFIG_REALTIME_ONLY
+  // Compute stats to decide if inter modes can be skipped based on TPL model
   if (cpi->sf.inter_sf.prune_inter_modes_based_on_tpl) {
     // x->search_ref_frame[id] = 1 => no pruning in
     // prune_ref_by_selective_ref_frame()
@@ -4320,6 +4326,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif
   const int do_pruning =
       (AOMMIN(cm->width, cm->height) > 480 && cpi->speed <= 1) ? 0 : 1;
+  // Compute features to use in an ML model to decide if the intra modes can 
+  // be skipped  
   if (do_pruning && sf->intra_sf.skip_intra_in_interframe) {
     // Only consider full SB.
     int len = tpl_blocks_in_sb(cm->seq_params.sb_size);
@@ -4364,6 +4372,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     mode_thresh_mul_fact = mode_threshold_mul_factor[x->qindex];
   }
 
+  // Iterate over all mode/reference pairs and pick the best based on RD. 
   // Here midx is just an iterator index that should not be used by itself
   // except to keep track of the number of modes searched. It should be used
   // with av1_default_mode_order to get the enum that defines the mode, which
@@ -4372,6 +4381,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   for (THR_MODES midx = THR_MODE_START; midx < THR_MODE_END; ++midx) {
     // Get the actual prediction mode we are trying in this iteration
     const THR_MODES mode_enum = av1_default_mode_order[midx];
+    // Mode and reference pair in the form of: 
+    // { NEARESTMV, { LAST_FRAME, NONE_FRAME } },
     const MODE_DEFINITION *mode_def = &av1_mode_defs[mode_enum];
     const PREDICTION_MODE this_mode = mode_def->mode;
     const MV_REFERENCE_FRAME *ref_frames = mode_def->ref_frame;
@@ -4391,6 +4402,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       prune_cpd_using_sr_stats_ready = 1;
     }
 
+    // Check if this mode should be skipped because it is incompatible with the
+    // current frame
     if (inter_mode_compatible_skip(cpi, x, bsize, this_mode, ref_frames))
       continue;
     const int ret = inter_mode_search_order_independent_skip(
@@ -4488,6 +4501,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     int64_t skip_rd[2] = { search_state.best_skip_rd[0],
                            search_state.best_skip_rd[1] };
+    // Compute RD for this mode
     int64_t this_rd = handle_inter_mode(
         cpi, tile_data, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
         &disable_skip, &args, ref_best_rd, tmp_buf, &x->comp_rd_buffer,
@@ -4521,6 +4535,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       if (do_tx_search) search_state.best_skip_rd[0] = skip_rd[0];
       search_state.best_skip_rd[1] = skip_rd[1];
     }
+    // Add this mode to motion mode candidate list for motion mode search
+    // is using motion_mode_for_winner_cand speed feature
     if (cpi->sf.winner_mode_sf.motion_mode_for_winner_cand) {
       const int num_motion_mode_cand =
           best_motion_mode_cands.num_motion_mode_cand;
