@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "50bd7c26_b2ff90bb",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-25T22:57:14Z",
+      "side": 1,
+      "message": "Thanks removed.\nI\u0027ll also write a separate patch to document more details about the struct members here.",
+      "parentUuid": "c4799240_faeea0d9",
+      "range": {
+        "startLine": 374,
+        "startChar": 5,
+        "endLine": 376,
+        "endChar": 25
+      },
+      "revId": "cd3a1c2f082654d953d14f03d2f3c89a2b3485af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "79a7d87d_d4f307eb",
         "filename": "av1/common/av1_common_int.h",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "cd3a1c2f082654d953d14f03d2f3c89a2b3485af",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "389abe50_313dfe47",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-25T22:57:14Z",
+      "side": 1,
+      "message": "Move just after \u0027mi\u0027 as it corresponds to the size allocated for \u0027mi\u0027.",
+      "parentUuid": "79a7d87d_d4f307eb",
+      "range": {
+        "startLine": 377,
+        "startChar": 6,
+        "endLine": 377,
+        "endChar": 20
+      },
+      "revId": "cd3a1c2f082654d953d14f03d2f3c89a2b3485af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
