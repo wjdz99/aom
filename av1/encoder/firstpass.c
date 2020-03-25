@@ -295,6 +295,120 @@ static double raw_motion_error_stdev(int *raw_motion_err_list,
   return raw_err_stdev;
 }
 
+// Updates the first pass stats of this frame.
+// Input:
+//   cpi: the encoder setting. Only a few params in it will be used.
+//   stats: stats accumulated for this frame.
+//   raw_err_stdev: the statndard deviation for the motion error of all the
+//                  inter blocks of the (0,0) motion using the last source
+//                  frame as the reference.
+//   frame_number: current frame number.
+//   ts_duration: TODO(any): document 'ts_duration'.
+// Updates:
+//   twopass->total_stats: the accumulated stats.
+//   twopass->stats_buf_ctx->stats_in_end: the pointer to the current stats,
+//                                         update its value and its position
+//                                         in the buffer.
+static void update_firstpass_stats(
+    AV1_COMP *cpi, const FRAME_STATS *const stats, const double raw_err_stdev,
+    const int frame_number, const int64_t ts_duration, TWO_PASS *twopass) {
+  AV1_COMMON *const cm = &cpi->common;
+  const CommonModeInfoParams *const mi_params = &cm->mi_params;
+  FIRSTPASS_STATS *this_frame_stats = twopass->stats_buf_ctx->stats_in_end;
+  FIRSTPASS_STATS fps;
+  // The minimum error here insures some bit allocation to frames even
+  // in static regions. The allocation per MB declines for larger formats
+  // where the typical "real" energy per MB also falls.
+  // Initial estimate here uses sqrt(mbs) to define the min_err, where the
+  // number of mbs is proportional to the image area.
+  const int num_mbs = (cpi->oxcf.resize_mode != RESIZE_NONE) ? cpi->initial_mbs
+                                                             : mi_params->MBs;
+  const double min_err = 200 * sqrt(num_mbs);
+
+  fps.weight = stats->intra_factor * stats->brightness_factor;
+  fps.frame = frame_number;
+  fps.coded_error = (double)(stats->coded_error >> 8) + min_err;
+  fps.sr_coded_error = (double)(stats->sr_coded_error >> 8) + min_err;
+  fps.tr_coded_error = (double)(stats->tr_coded_error >> 8) + min_err;
+  fps.intra_error = (double)(stats->intra_error >> 8) + min_err;
+  fps.frame_avg_wavelet_energy = (double)stats->frame_avg_wavelet_energy;
+  fps.count = 1.0;
+  fps.pcnt_inter = (double)stats->inter_count / num_mbs;
+  fps.pcnt_second_ref = (double)stats->second_ref_count / num_mbs;
+  fps.pcnt_third_ref = (double)stats->third_ref_count / num_mbs;
+  fps.pcnt_neutral = (double)stats->neutral_count / num_mbs;
+  fps.intra_skip_pct = (double)stats->intra_skip_count / num_mbs;
+  fps.inactive_zone_rows = (double)stats->image_data_start_row;
+  fps.inactive_zone_cols = (double)0;  // TODO(paulwilkins): fix
+  fps.raw_error_stdev = raw_err_stdev;
+
+  if (stats->mv_count > 0) {
+    fps.MVr = (double)stats->sum_mvr / stats->mv_count;
+    fps.mvr_abs = (double)stats->sum_mvr_abs / stats->mv_count;
+    fps.MVc = (double)stats->sum_mvc / stats->mv_count;
+    fps.mvc_abs = (double)stats->sum_mvc_abs / stats->mv_count;
+    fps.MVrv = ((double)stats->sum_mvrs -
+                ((double)stats->sum_mvr * stats->sum_mvr / stats->mv_count)) /
+               stats->mv_count;
+    fps.MVcv = ((double)stats->sum_mvcs -
+                ((double)stats->sum_mvc * stats->sum_mvc / stats->mv_count)) /
+               stats->mv_count;
+    fps.mv_in_out_count = (double)stats->sum_in_vectors / (stats->mv_count * 2);
+    fps.new_mv_count = stats->new_mv_count;
+    fps.pcnt_motion = (double)stats->mv_count / num_mbs;
+  } else {
+    fps.MVr = 0.0;
+    fps.mvr_abs = 0.0;
+    fps.MVc = 0.0;
+    fps.mvc_abs = 0.0;
+    fps.MVrv = 0.0;
+    fps.MVcv = 0.0;
+    fps.mv_in_out_count = 0.0;
+    fps.new_mv_count = 0.0;
+    fps.pcnt_motion = 0.0;
+  }
+
+  // TODO(paulwilkins):  Handle the case when duration is set to 0, or
+  // something less than the full time between subsequent values of
+  // cpi->source_time_stamp.
+  fps.duration = (double)ts_duration;
+
+  // We will store the stats inside the persistent twopass struct (and NOT the
+  // local variable 'fps'), and then cpi->output_pkt_list will point to it.
+  *this_frame_stats = fps;
+  output_stats(this_frame_stats, cpi->output_pkt_list);
+  if (twopass->total_stats != NULL) {
+    accumulate_stats(twopass->total_stats, &fps);
+  }
+  /*In the case of two pass, first pass uses it as a circular buffer,
+   * when LAP is enabled it is used as a linear buffer*/
+  twopass->stats_buf_ctx->stats_in_end++;
+  if ((cpi->oxcf.pass == 1) && (twopass->stats_buf_ctx->stats_in_end >=
+                                twopass->stats_buf_ctx->stats_in_buf_end)) {
+    twopass->stats_buf_ctx->stats_in_end =
+        twopass->stats_buf_ctx->stats_in_start;
+  }
+}
+
+static void print_reconstruction_frame(
+    const YV12_BUFFER_CONFIG *const last_frame, int frame_number,
+    int do_print) {
+  if (!do_print) return;
+
+  char filename[512];
+  FILE *recon_file;
+  snprintf(filename, sizeof(filename), "enc%04d.yuv", frame_number);
+
+  if (frame_number == 0) {
+    recon_file = fopen(filename, "wb");
+  } else {
+    recon_file = fopen(filename, "ab");
+  }
+
+  fwrite(last_frame->buffer_alloc, last_frame->frame_size, 1, recon_file);
+  fclose(recon_file);
+}
+
 #define UL_INTRA_THRESH 50
 #define INVALID_ROW -1
 #define FIRST_PASS_ALT_REF_DISTANCE 16
@@ -315,28 +429,13 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   int i;
 
   int recon_yoffset, src_yoffset, recon_uvoffset;
-  int64_t intra_error = 0;
-  int64_t frame_avg_wavelet_energy = 0;
-  int64_t coded_error = 0;
-  int64_t sr_coded_error = 0;
-  int64_t tr_coded_error = 0;
-
-  int sum_mvr = 0, sum_mvc = 0;
-  int sum_mvr_abs = 0, sum_mvc_abs = 0;
-  int64_t sum_mvrs = 0, sum_mvcs = 0;
-  int mvcount = 0;
-  int intercount = 0;
-  int second_ref_count = 0;
-  int third_ref_count = 0;
   const int intrapenalty = INTRA_MODE_PENALTY;
-  double neutral_count;
-  int intra_skip_count = 0;
-  int image_data_start_row = INVALID_ROW;
-  int new_mv_count = 0;
-  int sum_in_vectors = 0;
   MV lastmv = kZeroMv;
   TWO_PASS *twopass = &cpi->twopass;
   int recon_y_stride, src_y_stride, recon_uv_stride, uv_mb_height;
+
+  FRAME_STATS stats = { 0 };
+  stats.image_data_start_row = INVALID_ROW;
 
   const YV12_BUFFER_CONFIG *const last_frame =
       get_ref_frame_yv12_buf(cm, LAST_FRAME);
@@ -355,8 +454,6 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
     }
   }
   YV12_BUFFER_CONFIG *const this_frame = &cm->cur_frame->buf;
-  double intra_factor;
-  double brightness_factor;
   const int qindex = find_fp_qindex(seq_params->bit_depth);
   // First pass coding processes in raster scan with unit size of 16x16.
   const BLOCK_SIZE fp_block_size = BLOCK_16X16;
@@ -380,9 +477,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   xd->mi[0] = mi_params->mi;
   x->e_mbd.mi[0]->sb_type = fp_block_size;
 
-  intra_factor = 0.0;
-  brightness_factor = 0.0;
-  neutral_count = 0.0;
+  stats.neutral_count = 0.0;
 
   // Do not use periodic key frames.
   cpi->rc.frames_to_key = INT_MAX;
@@ -485,9 +580,9 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
       this_intra_error = aom_get_mb_ss(x->plane[0].src_diff);
 
       if (this_intra_error < UL_INTRA_THRESH) {
-        ++intra_skip_count;
-      } else if ((mb_col > 0) && (image_data_start_row == INVALID_ROW)) {
-        image_data_start_row = mb_row;
+        ++stats.intra_skip_count;
+      } else if ((mb_col > 0) && (stats.image_data_start_row == INVALID_ROW)) {
+        stats.image_data_start_row = mb_row;
       }
 
       if (seq_params->use_highbitdepth) {
@@ -506,18 +601,18 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
       aom_clear_system_state();
       log_intra = log(this_intra_error + 1.0);
       if (log_intra < 10.0)
-        intra_factor += 1.0 + ((10.0 - log_intra) * 0.05);
+        stats.intra_factor += 1.0 + ((10.0 - log_intra) * 0.05);
       else
-        intra_factor += 1.0;
+        stats.intra_factor += 1.0;
 
       if (seq_params->use_highbitdepth)
         level_sample = CONVERT_TO_SHORTPTR(x->plane[0].src.buf)[0];
       else
         level_sample = x->plane[0].src.buf[0];
       if ((level_sample < DARK_THRESH) && (log_intra < 9.0))
-        brightness_factor += 1.0 + (0.01 * (DARK_THRESH - level_sample));
+        stats.brightness_factor += 1.0 + (0.01 * (DARK_THRESH - level_sample));
       else
-        brightness_factor += 1.0;
+        stats.brightness_factor += 1.0;
 
       // Intrapenalty below deals with situations where the intra and inter
       // error scores are very low (e.g. a plain black frame).
@@ -529,14 +624,14 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
       this_intra_error += intrapenalty;
 
       // Accumulate the intra error.
-      intra_error += (int64_t)this_intra_error;
+      stats.intra_error += (int64_t)this_intra_error;
 
       const int hbd = is_cur_buf_hbd(xd);
       const int stride = x->plane[0].src.stride;
       uint8_t *buf = x->plane[0].src.buf;
       for (int r8 = 0; r8 < 2; ++r8) {
         for (int c8 = 0; c8 < 2; ++c8) {
-          frame_avg_wavelet_energy += av1_haar_ac_sad_8x8_uint8_input(
+          stats.frame_avg_wavelet_energy += av1_haar_ac_sad_8x8_uint8_input(
               buf + c8 * 8 + r8 * 8 * stride, stride, hbd);
         }
       }
@@ -626,7 +721,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
 
             if (gf_motion_error < motion_error &&
                 gf_motion_error < this_intra_error)
-              ++second_ref_count;
+              ++stats.second_ref_count;
 
             // Reset to last frame as reference buffer.
             xd->plane[0].pre[0].buf = last_frame->y_buffer + recon_yoffset;
@@ -638,12 +733,12 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
             // (just as will be done for) accumulation of "coded_error" for
             // the last frame.
             if (gf_motion_error < this_intra_error)
-              sr_coded_error += gf_motion_error;
+              stats.sr_coded_error += gf_motion_error;
             else
-              sr_coded_error += this_intra_error;
+              stats.sr_coded_error += this_intra_error;
           } else {
             gf_motion_error = motion_error;
-            sr_coded_error += motion_error;
+            stats.sr_coded_error += motion_error;
           }
 
           // Motion search in 3rd reference frame.
@@ -670,7 +765,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
             if (alt_motion_error < motion_error &&
                 alt_motion_error < gf_motion_error &&
                 alt_motion_error < this_intra_error)
-              ++third_ref_count;
+              ++stats.third_ref_count;
 
             // Reset to last frame as reference buffer.
             xd->plane[0].pre[0].buf = last_frame->y_buffer + recon_yoffset;
@@ -680,13 +775,13 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
             // best of the motion predicted score and the intra coded error
             // (just as will be done for) accumulation of "coded_error" for
             // the last frame.
-            tr_coded_error += AOMMIN(alt_motion_error, this_intra_error);
+            stats.tr_coded_error += AOMMIN(alt_motion_error, this_intra_error);
           } else {
-            tr_coded_error += motion_error;
+            stats.tr_coded_error += motion_error;
           }
         } else {
-          sr_coded_error += motion_error;
-          tr_coded_error += motion_error;
+          stats.sr_coded_error += motion_error;
+          stats.tr_coded_error += motion_error;
         }
 
         // Start by assuming that intra mode is best.
@@ -701,14 +796,15 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
           // cropped clips with black bars at the sides or top and bottom.
           if (((this_intra_error - intrapenalty) * 9 <= motion_error * 10) &&
               (this_intra_error < (2 * intrapenalty))) {
-            neutral_count += 1.0;
+            stats.neutral_count += 1.0;
             // Also track cases where the intra is not much worse than the inter
             // and use this in limiting the GF/arf group length.
           } else if ((this_intra_error > NCOUNT_INTRA_THRESH) &&
                      (this_intra_error <
                       (NCOUNT_INTRA_FACTOR * motion_error))) {
-            neutral_count += (double)motion_error /
-                             DOUBLE_DIVIDE_CHECK((double)this_intra_error);
+            stats.neutral_count +=
+                (double)motion_error /
+                DOUBLE_DIVIDE_CHECK((double)this_intra_error);
           }
 
           MV best_mv = get_mv_from_fullmv(&mv);
@@ -722,56 +818,55 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
                                         mb_col * mb_scale, NULL, bsize,
                                         AOM_PLANE_Y, AOM_PLANE_Y);
           av1_encode_sby_pass1(cpi, x, bsize);
-          sum_mvr += best_mv.row;
-          sum_mvr_abs += abs(best_mv.row);
-          sum_mvc += best_mv.col;
-          sum_mvc_abs += abs(best_mv.col);
-          sum_mvrs += best_mv.row * best_mv.row;
-          sum_mvcs += best_mv.col * best_mv.col;
-          ++intercount;
+          stats.sum_mvr += best_mv.row;
+          stats.sum_mvr_abs += abs(best_mv.row);
+          stats.sum_mvc += best_mv.col;
+          stats.sum_mvc_abs += abs(best_mv.col);
+          stats.sum_mvrs += best_mv.row * best_mv.row;
+          stats.sum_mvcs += best_mv.col * best_mv.col;
+          ++stats.inter_count;
 
           best_ref_mv = best_mv;
 
           if (!is_zero_mv(&best_mv)) {
-            ++mvcount;
-
+            ++stats.mv_count;
             // Non-zero vector, was it different from the last non zero vector?
-            if (!is_equal_mv(&best_mv, &lastmv)) ++new_mv_count;
+            if (!is_equal_mv(&best_mv, &lastmv)) ++stats.new_mv_count;
             lastmv = best_mv;
 
             // Does the row vector point inwards or outwards?
             if (mb_row < mi_params->mb_rows / 2) {
               if (mv.row > 0)
-                --sum_in_vectors;
+                --stats.sum_in_vectors;
               else if (mv.row < 0)
-                ++sum_in_vectors;
+                ++stats.sum_in_vectors;
             } else if (mb_row > mi_params->mb_rows / 2) {
               if (mv.row > 0)
-                ++sum_in_vectors;
+                ++stats.sum_in_vectors;
               else if (mv.row < 0)
-                --sum_in_vectors;
+                --stats.sum_in_vectors;
             }
 
             // Does the col vector point inwards or outwards?
             if (mb_col < mi_params->mb_cols / 2) {
               if (mv.col > 0)
-                --sum_in_vectors;
+                --stats.sum_in_vectors;
               else if (mv.col < 0)
-                ++sum_in_vectors;
+                ++stats.sum_in_vectors;
             } else if (mb_col > mi_params->mb_cols / 2) {
               if (mv.col > 0)
-                ++sum_in_vectors;
+                ++stats.sum_in_vectors;
               else if (mv.col < 0)
-                --sum_in_vectors;
+                --stats.sum_in_vectors;
             }
           }
         }
         raw_motion_err_list[raw_motion_err_counts++] = raw_motion_error;
       } else {
-        sr_coded_error += (int64_t)this_intra_error;
-        tr_coded_error += (int64_t)this_intra_error;
+        stats.sr_coded_error += (int64_t)this_intra_error;
+        stats.tr_coded_error += (int64_t)this_intra_error;
       }
-      coded_error += (int64_t)this_intra_error;
+      stats.coded_error += (int64_t)this_intra_error;
 
       // Adjust to the next column of MBs.
       x->plane[0].src.buf += fp_block_size_width;
@@ -799,93 +894,24 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
 
   // Clamp the image start to rows/2. This number of rows is discarded top
   // and bottom as dead data so rows / 2 means the frame is blank.
-  if ((image_data_start_row > mi_params->mb_rows / 2) ||
-      (image_data_start_row == INVALID_ROW)) {
-    image_data_start_row = mi_params->mb_rows / 2;
+  if ((stats.image_data_start_row > mi_params->mb_rows / 2) ||
+      (stats.image_data_start_row == INVALID_ROW)) {
+    stats.image_data_start_row = mi_params->mb_rows / 2;
   }
   // Exclude any image dead zone
-  if (image_data_start_row > 0) {
-    intra_skip_count = AOMMAX(
-        0, intra_skip_count - (image_data_start_row * mi_params->mb_cols * 2));
+  if (stats.image_data_start_row > 0) {
+    stats.intra_skip_count =
+        AOMMAX(0, stats.intra_skip_count -
+                      (stats.image_data_start_row * mi_params->mb_cols * 2));
   }
 
+  const int num_mbs = (cpi->oxcf.resize_mode != RESIZE_NONE) ? cpi->initial_mbs
+                                                             : mi_params->MBs;
+  stats.intra_factor = stats.intra_factor / (double)num_mbs;
+  stats.brightness_factor = stats.brightness_factor / (double)num_mbs;
   FIRSTPASS_STATS *this_frame_stats = twopass->stats_buf_ctx->stats_in_end;
-  {
-    FIRSTPASS_STATS fps;
-    // The minimum error here insures some bit allocation to frames even
-    // in static regions. The allocation per MB declines for larger formats
-    // where the typical "real" energy per MB also falls.
-    // Initial estimate here uses sqrt(mbs) to define the min_err, where the
-    // number of mbs is proportional to the image area.
-    const int num_mbs = (cpi->oxcf.resize_mode != RESIZE_NONE)
-                            ? cpi->initial_mbs
-                            : mi_params->MBs;
-    const double min_err = 200 * sqrt(num_mbs);
-
-    intra_factor = intra_factor / (double)num_mbs;
-    brightness_factor = brightness_factor / (double)num_mbs;
-    fps.weight = intra_factor * brightness_factor;
-
-    fps.frame = current_frame->frame_number;
-    fps.coded_error = (double)(coded_error >> 8) + min_err;
-    fps.sr_coded_error = (double)(sr_coded_error >> 8) + min_err;
-    fps.tr_coded_error = (double)(tr_coded_error >> 8) + min_err;
-    fps.intra_error = (double)(intra_error >> 8) + min_err;
-    fps.frame_avg_wavelet_energy = (double)frame_avg_wavelet_energy;
-    fps.count = 1.0;
-    fps.pcnt_inter = (double)intercount / num_mbs;
-    fps.pcnt_second_ref = (double)second_ref_count / num_mbs;
-    fps.pcnt_third_ref = (double)third_ref_count / num_mbs;
-    fps.pcnt_neutral = (double)neutral_count / num_mbs;
-    fps.intra_skip_pct = (double)intra_skip_count / num_mbs;
-    fps.inactive_zone_rows = (double)image_data_start_row;
-    fps.inactive_zone_cols = (double)0;  // TODO(paulwilkins): fix
-    fps.raw_error_stdev = raw_err_stdev;
-
-    if (mvcount > 0) {
-      fps.MVr = (double)sum_mvr / mvcount;
-      fps.mvr_abs = (double)sum_mvr_abs / mvcount;
-      fps.MVc = (double)sum_mvc / mvcount;
-      fps.mvc_abs = (double)sum_mvc_abs / mvcount;
-      fps.MVrv =
-          ((double)sum_mvrs - ((double)sum_mvr * sum_mvr / mvcount)) / mvcount;
-      fps.MVcv =
-          ((double)sum_mvcs - ((double)sum_mvc * sum_mvc / mvcount)) / mvcount;
-      fps.mv_in_out_count = (double)sum_in_vectors / (mvcount * 2);
-      fps.new_mv_count = new_mv_count;
-      fps.pcnt_motion = (double)mvcount / num_mbs;
-    } else {
-      fps.MVr = 0.0;
-      fps.mvr_abs = 0.0;
-      fps.MVc = 0.0;
-      fps.mvc_abs = 0.0;
-      fps.MVrv = 0.0;
-      fps.MVcv = 0.0;
-      fps.mv_in_out_count = 0.0;
-      fps.new_mv_count = 0.0;
-      fps.pcnt_motion = 0.0;
-    }
-
-    // TODO(paulwilkins):  Handle the case when duration is set to 0, or
-    // something less than the full time between subsequent values of
-    // cpi->source_time_stamp.
-    fps.duration = (double)ts_duration;
-
-    // We will store the stats inside the persistent twopass struct (and NOT the
-    // local variable 'fps'), and then cpi->output_pkt_list will point to it.
-    *this_frame_stats = fps;
-    output_stats(this_frame_stats, cpi->output_pkt_list);
-    if (twopass->total_stats != NULL)
-      accumulate_stats(twopass->total_stats, &fps);
-    /*In the case of two pass, first pass uses it as a circular buffer,
-     * when LAP is enabled it is used as a linear buffer*/
-    twopass->stats_buf_ctx->stats_in_end++;
-    if ((cpi->oxcf.pass == 1) && (twopass->stats_buf_ctx->stats_in_end >=
-                                  twopass->stats_buf_ctx->stats_in_buf_end)) {
-      twopass->stats_buf_ctx->stats_in_end =
-          twopass->stats_buf_ctx->stats_in_start;
-    }
-  }
+  update_firstpass_stats(cpi, &stats, raw_err_stdev,
+                         current_frame->frame_number, ts_duration, twopass);
 
   // Copy the previous Last Frame back into gf buffer if the prediction is good
   // enough... but also don't allow it to lag too far.
@@ -919,22 +945,8 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
         cm->ref_frame_map[get_ref_frame_map_idx(cm, LAST_FRAME)]);
   }
 
-  // Use this to see what the first pass reconstruction looks like.
-  if (0) {
-    char filename[512];
-    FILE *recon_file;
-    snprintf(filename, sizeof(filename), "enc%04d.yuv",
-             (int)current_frame->frame_number);
-
-    if (current_frame->frame_number == 0)
-      recon_file = fopen(filename, "wb");
-    else
-      recon_file = fopen(filename, "ab");
-
-    (void)fwrite(last_frame->buffer_alloc, last_frame->frame_size, 1,
-                 recon_file);
-    fclose(recon_file);
-  }
+  print_reconstruction_frame(last_frame, current_frame->frame_number,
+                             /*do_print=*/0);
 
   ++current_frame->frame_number;
 }
