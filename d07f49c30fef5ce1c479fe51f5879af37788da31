@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df6c3c63_be1f9ca5",
+        "filename": "aom_dsp/bitreader.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-03-26T02:25:05Z",
+      "side": 0,
+      "message": "Angie: Urvang and I are wondering if the commented-out code here can be removed. Please see the discussion in https://aomedia-review.googlesource.com/c/aom/+/107441/4#message-d5b3945e555fcb057f731476eaba7a0c980fc978",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 3
+      },
+      "revId": "d07f49c30fef5ce1c479fe51f5879af37788da31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
