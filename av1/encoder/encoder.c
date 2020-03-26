@@ -3215,22 +3215,24 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
     cpi->tpl_stats_buffer[frame].mi_cols = mi_params->mi_cols;
   }
 
-  for (int frame = 0; frame < MAX_LAG_BUFFERS; ++frame) {
-    CHECK_MEM_ERROR(
-        cm, cpi->tpl_stats_pool[frame],
-        aom_calloc(cpi->tpl_stats_buffer[frame].width *
-                       cpi->tpl_stats_buffer[frame].height,
-                   sizeof(*cpi->tpl_stats_buffer[frame].tpl_stats_ptr)));
-    if (aom_alloc_frame_buffer(&cpi->tpl_rec_pool[frame], cm->width, cm->height,
-                               cm->seq_params.subsampling_x,
-                               cm->seq_params.subsampling_y,
-                               cm->seq_params.use_highbitdepth,
-                               AOM_ENC_NO_SCALE_BORDER, cm->byte_alignment))
-      aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
-                         "Failed to allocate frame buffer");
-  }
+  if (!is_stat_generation_stage(cpi)) {
+    for (int frame = 0; frame < MAX_LAG_BUFFERS; ++frame) {
+      CHECK_MEM_ERROR(
+          cm, cpi->tpl_stats_pool[frame],
+          aom_calloc(cpi->tpl_stats_buffer[frame].width *
+                         cpi->tpl_stats_buffer[frame].height,
+                     sizeof(*cpi->tpl_stats_buffer[frame].tpl_stats_ptr)));
+      if (aom_alloc_frame_buffer(&cpi->tpl_rec_pool[frame], cm->width,
+                                 cm->height, cm->seq_params.subsampling_x,
+                                 cm->seq_params.subsampling_y,
+                                 cm->seq_params.use_highbitdepth,
+                                 AOM_ENC_NO_SCALE_BORDER, cm->byte_alignment))
+        aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                           "Failed to allocate frame buffer");
+    }
 
-  cpi->tpl_frame = &cpi->tpl_stats_buffer[REF_FRAMES + 1];
+    cpi->tpl_frame = &cpi->tpl_stats_buffer[REF_FRAMES + 1];
+  }
 
 #if CONFIG_COLLECT_PARTITION_STATS == 2
   av1_zero(cpi->partition_stats);
