@@ -781,7 +781,8 @@ static AOM_FORCE_INLINE int warehouse_efficients_txb(
 
   cost += get_eob_cost(eob, eob_costs, coeff_costs, tx_class);
 
-  av1_get_nz_map_contexts(levels, scan, eob, tx_size, tx_class, coeff_contexts);
+  av1_get_nz_map_contexts_c(levels, scan, eob, tx_size, tx_class,
+                            coeff_contexts);
 
   const int(*lps_cost)[COEFF_BASE_RANGE + 1 + COEFF_BASE_RANGE + 1] =
       coeff_costs->lps_cost;
