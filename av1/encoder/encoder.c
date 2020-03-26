@@ -656,10 +656,6 @@ static void enc_set_mb_mi(CommonModeInfoParams *mi_params, int width,
 
   mi_params->mi_alloc_bsize = is_4k_or_larger ? BLOCK_8X8 : BLOCK_4X4;
   const int mi_alloc_size_1d = mi_size_wide[mi_params->mi_alloc_bsize];
-  mi_params->mi_alloc_rows =
-      (mi_params->mi_rows + mi_alloc_size_1d - 1) / mi_alloc_size_1d;
-  mi_params->mi_alloc_cols =
-      (mi_params->mi_cols + mi_alloc_size_1d - 1) / mi_alloc_size_1d;
   mi_params->mi_alloc_stride =
       (mi_params->mi_stride + mi_alloc_size_1d - 1) / mi_alloc_size_1d;
 
@@ -674,45 +670,17 @@ static void enc_set_mb_mi(CommonModeInfoParams *mi_params, int width,
 static void enc_setup_mi(CommonModeInfoParams *mi_params) {
   const int mi_grid_size =
       mi_params->mi_stride * calc_mi_size(mi_params->mi_rows);
-  memset(mi_params->mi, 0, mi_params->mi_alloc_size * sizeof(*mi_params->mi));
+  memset(mi_params->mi_alloc, 0,
+         mi_params->mi_alloc_size * sizeof(*mi_params->mi_alloc));
   memset(mi_params->mi_grid_base, 0,
          mi_grid_size * sizeof(*mi_params->mi_grid_base));
   memset(mi_params->tx_type_map, 0,
          mi_grid_size * sizeof(*mi_params->tx_type_map));
 }
 
-static int enc_alloc_mi(CommonModeInfoParams *mi_params) {
-  const int mi_grid_size =
-      mi_params->mi_stride * calc_mi_size(mi_params->mi_rows);
-  const int alloc_size_1d = mi_size_wide[mi_params->mi_alloc_bsize];
-  const int alloc_mi_size = mi_params->mi_alloc_stride *
-                            (calc_mi_size(mi_params->mi_rows) / alloc_size_1d);
-
-  if (mi_params->mi_alloc_size < alloc_mi_size ||
-      mi_params->mi_grid_size < mi_grid_size) {
-    mi_params->free_mi(mi_params);
-
-    mi_params->mi = aom_calloc(alloc_mi_size, sizeof(*mi_params->mi));
-    if (!mi_params->mi) return 1;
-    mi_params->mi_alloc_size = alloc_mi_size;
-
-    mi_params->mi_grid_base =
-        (MB_MODE_INFO **)aom_calloc(mi_grid_size, sizeof(MB_MODE_INFO *));
-    if (!mi_params->mi_grid_base) return 1;
-    mi_params->mi_grid_size = mi_grid_size;
-
-    mi_params->tx_type_map =
-        aom_calloc(calc_mi_size(mi_params->mi_rows) * mi_params->mi_stride,
-                   sizeof(*mi_params->tx_type_map));
-    if (!mi_params->tx_type_map) return 1;
-  }
-
-  return 0;
-}
-
 static void enc_free_mi(CommonModeInfoParams *mi_params) {
-  aom_free(mi_params->mi);
-  mi_params->mi = NULL;
+  aom_free(mi_params->mi_alloc);
+  mi_params->mi_alloc = NULL;
   aom_free(mi_params->mi_grid_base);
   mi_params->mi_grid_base = NULL;
   mi_params->mi_alloc_size = 0;
@@ -734,20 +702,28 @@ static void dealloc_context_buffers_ext(AV1_COMP *cpi) {
   if (cpi->mbmi_ext_frame_base) {
     aom_free(cpi->mbmi_ext_frame_base);
     cpi->mbmi_ext_frame_base = NULL;
+    cpi->mbmi_ext_alloc_size = 0;
   }
 }
 
 static void alloc_context_buffers_ext(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
-  const int new_ext_mi_size =
-      cm->mi_params.mi_alloc_rows * cm->mi_params.mi_alloc_cols;
+  const CommonModeInfoParams *const mi_params = &cm->mi_params;
 
-  if (new_ext_mi_size > cpi->mi_ext_alloc_size) {
+  const int mi_alloc_size_1d = mi_size_wide[mi_params->mi_alloc_bsize];
+  const int mi_alloc_rows =
+      (mi_params->mi_rows + mi_alloc_size_1d - 1) / mi_alloc_size_1d;
+  const int mi_alloc_cols =
+      (mi_params->mi_cols + mi_alloc_size_1d - 1) / mi_alloc_size_1d;
+  const int new_ext_mi_size = mi_alloc_rows * mi_alloc_cols;
+
+  if (new_ext_mi_size > cpi->mbmi_ext_alloc_size) {
     dealloc_context_buffers_ext(cpi);
     CHECK_MEM_ERROR(
         cm, cpi->mbmi_ext_frame_base,
         aom_calloc(new_ext_mi_size, sizeof(*cpi->mbmi_ext_frame_base)));
-    cpi->mi_ext_alloc_size = new_ext_mi_size;
+    cpi->mbmi_ext_alloc_size = new_ext_mi_size;
+    cpi->mbmi_ext_stride = mi_alloc_cols;
   }
 }
 
@@ -1231,11 +1207,7 @@ static void update_frame_size(AV1_COMP *cpi) {
 
   av1_init_macroblockd(cm, xd, NULL);
 
-  const int ext_mi_size =
-      cm->mi_params.mi_alloc_rows * cm->mi_params.mi_alloc_cols;
   alloc_context_buffers_ext(cpi);
-  memset(cpi->mbmi_ext_frame_base, 0,
-         ext_mi_size * sizeof(*cpi->mbmi_ext_frame_base));
   set_tile_info(cpi);
 }
 
@@ -2994,7 +2966,6 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
   cm->error.setjmp = 1;
 
   CommonModeInfoParams *const mi_params = &cm->mi_params;
-  mi_params->alloc_mi = enc_alloc_mi;
   mi_params->free_mi = enc_free_mi;
   mi_params->setup_mi = enc_setup_mi;
   mi_params->set_mb_mi = enc_set_mb_mi;
