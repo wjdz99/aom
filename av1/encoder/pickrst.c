@@ -1386,16 +1386,19 @@ static void search_wiener(const RestorationTileLimits *limits,
     cost_wiener = cost_shared;
     rusi->sse[RESTORE_WIENER] = shared_sse;
     rusi->is_shared = 1;
-    memcpy(&rusi->wiener, &previous_rui->wiener_info, sizeof(rusi->wiener));
+    rusi->wiener = previous_rui->wiener_info;
   } else {
     rusi->is_shared = 0;
-    memcpy(&previous_rui->wiener_info, &rui.wiener_info,
-           sizeof(previous_rui->wiener_info));
   }
 #endif  // CONFIG_EXT_LOOP_RESTORATION
   RestorationType rtype =
       (cost_wiener < cost_none) ? RESTORE_WIENER : RESTORE_NONE;
   rusi->best_rtype[RESTORE_WIENER - 1] = rtype;
+#if CONFIG_EXT_LOOP_RESTORATION
+  if (!rusi->is_shared && rtype == RESTORE_WIENER) {
+    previous_rui->wiener_info = rui.wiener_info;
+  }
+#endif  // CONFIG_EXT_LOOP_RESTORATION
 
   rsc->sse += rusi->sse[rtype];
   rsc->bits += (cost_wiener < cost_none) ? bits_wiener : bits_none;
