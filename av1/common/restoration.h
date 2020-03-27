@@ -272,6 +272,17 @@ typedef struct {
 #endif  // CONFIG_WIENER_NONSEP
 } RestorationUnitInfo;
 
+#if CONFIG_EXT_LOOP_RESTORATION
+typedef struct {
+  int64_t M[WIENER_WIN2];
+  int64_t H[WIENER_WIN2 * WIENER_WIN2];
+  // This field contains the number of accumulated wiener statistics.
+  // We divide both the M and H matrices by this to get the aggregated stats.
+  int total_acc;
+  bool is_collapsed;
+} WienerAccumulator;
+#endif  // CONFIG_EXT_LOOP_RESTORATION
+
 // A restoration line buffer needs space for two lines plus a horizontal filter
 // margin of RESTORATION_EXTRA_HORZ on each side.
 #define RESTORATION_LINEBUFFER_WIDTH \

@@ -98,6 +98,7 @@ typedef struct {
 
 #if CONFIG_EXT_LOOP_RESTORATION
   bool is_shared;
+  int shared_wiener_group;
 #endif  // CONFIG_EXT_LOOP_RESTORATION
 
   // The rtype to use for this unit given a frame rtype as
@@ -133,6 +134,12 @@ typedef struct {
   // tile in the frame.
   SgrprojInfo sgrproj;
   WienerInfo wiener;
+#if CONFIG_EXT_LOOP_RESTORATION
+  // Each shared wiener group has one accumulator.
+  // In the second pass over all RUs, these accumulators will be normalized and
+  // used to recompute the wiener groups.
+  Vector wiener_accumulators;
+#endif
 #if CONFIG_WIENER_NONSEP
   WienerNonsepInfo wiener_nonsep;
   const uint8_t *luma;
@@ -154,6 +161,9 @@ static void rsc_on_tile(void *priv) {
 static void reset_rsc(RestSearchCtxt *rsc) {
   rsc->sse = 0;
   rsc->bits = 0;
+#if CONFIG_EXT_LOOP_RESTORATION
+  aom_vector_clear(&rsc->wiener_accumulators);
+#endif  // CONFIG_EXT_LOOP_RESTORATION
 }
 
 static void init_rsc(const YV12_BUFFER_CONFIG *src, const AV1_COMMON *cm,
@@ -177,9 +187,18 @@ static void init_rsc(const YV12_BUFFER_CONFIG *src, const AV1_COMMON *cm,
   rsc->dgd_buffer = dgd->buffers[plane];
   rsc->dgd_stride = dgd->strides[is_uv];
   rsc->tile_rect = av1_whole_frame_rect(cm, is_uv);
+#if CONFIG_EXT_LOOP_RESTORATION
+  aom_vector_setup(&rsc->wiener_accumulators, 1, sizeof(WienerAccumulator));
+#endif  // CONFIG_EXT_LOOP_RESTORATION
   assert(src->crop_widths[is_uv] == dgd->crop_widths[is_uv]);
   assert(src->crop_heights[is_uv] == dgd->crop_heights[is_uv]);
 }
+
+#if CONFIG_EXT_LOOP_RESTORATION
+static void cleanup_rsc(RestSearchCtxt *rsc) {
+  aom_vector_destroy(&rsc->wiener_accumulators);
+}
+#endif  // CONFIG_EXT_LOOP_RESTORATION
 
 static int64_t try_restoration_unit(const RestSearchCtxt *rsc,
                                     const RestorationTileLimits *limits,
@@ -1271,6 +1290,68 @@ static int64_t finer_tile_search_wiener(const RestSearchCtxt *rsc,
   return err;
 }
 
+#if CONFIG_EXT_LOOP_RESTORATION
+// Create a new WienerAccumulator, initialize it, and push it into the vector.
+static WienerAccumulator *create_wiener_accumulator(Vector *accs) {
+  WienerAccumulator acc;
+  memset(&acc, 0, sizeof(WienerAccumulator));
+  aom_vector_push_back(accs, &acc);
+  return aom_vector_back(accs);
+}
+
+// Given a vector of WienerAccumulators, accumulate statistics into the last
+// accumulator.
+static void accumulate_wiener_statistics(Vector *stats, int64_t *M,
+                                         int64_t *H) {
+  if (stats->size == 0) create_wiener_accumulator(stats);
+  WienerAccumulator *acc = aom_vector_back(stats);
+  for (int i = 0; i < WIENER_WIN; i++) acc->M[i] += M[i];
+  for (int i = 0; i < WIENER_WIN * WIENER_WIN; i++) acc->H[i] += H[i];
+  acc->total_acc++;
+}
+
+// Collapse an accumulator by dividing by total_acc
+static void collapse_wiener_statistics(WienerAccumulator *acc) {
+  assert(acc->total_acc > 0);
+  if (acc->is_collapsed) return;
+  for (int i = 0; i < WIENER_WIN; i++) acc->M[i] /= acc->total_acc;
+  for (int i = 0; i < WIENER_WIN * WIENER_WIN; i++) acc->H[i] /= acc->total_acc;
+  acc->is_collapsed = true;
+}
+
+static void search_wiener_pass2(const RestorationTileLimits *limits,
+                                const AV1PixelRect *tile_rect,
+                                int rest_unit_idx, void *priv, int32_t *tmpbuf,
+                                RestorationUnitInfo *previous_rui,
+                                RestorationLineBuffers *rlbs) {
+  RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
+  RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
+  if (rusi->best_rtype == RESTORE_NONE) return;
+
+  WienerAccumulator *acc =
+      aom_vector_get(&rsc->wiener_accumulators, rusi->shared_wiener_group);
+  collapse_wiener_statistics(acc);
+  if (acc->total_acc == 1) return;
+
+  const int wiener_win =
+      (rsc->plane == AOM_PLANE_Y) ? WIENER_WIN : WIENER_WIN_CHROMA;
+  int reduced_wiener_win = wiener_win;
+  if (rsc->sf->reduce_wiener_window_size) {
+    reduced_wiener_win =
+        (rsc->plane == AOM_PLANE_Y) ? WIENER_WIN_REDUCED : WIENER_WIN_CHROMA;
+  }
+  RestorationUnitInfo rui;
+  int32_t vfilter[WIENER_WIN], hfilter[WIENER_WIN];
+
+  wiener_decompose_sep_sym(reduced_wiener_win, acc->M, acc->H, vfilter,
+                           hfilter);
+  finalize_sym_filter(reduced_wiener_win, vfilter, rui.wiener_info.vfilter);
+  finalize_sym_filter(reduced_wiener_win, hfilter, rui.wiener_info.hfilter);
+
+  rusi->wiener = rui.wiener_info;
+}
+#endif  // CONFIG_EXT_LOOP_RESTORATION
+
 static void search_wiener(const RestorationTileLimits *limits,
                           const AV1PixelRect *tile_rect, int rest_unit_idx,
                           void *priv, int32_t *tmpbuf,
@@ -1397,6 +1478,13 @@ static void search_wiener(const RestorationTileLimits *limits,
 #if CONFIG_EXT_LOOP_RESTORATION
   if (!rusi->is_shared && rtype == RESTORE_WIENER) {
     previous_rui->wiener_info = rui.wiener_info;
+    create_wiener_accumulator(&rsc->wiener_accumulators);
+    accumulate_wiener_statistics(&rsc->wiener_accumulators, M, H);
+  } else if (rusi->is_shared && rtype == RESTORE_WIENER) {
+    accumulate_wiener_statistics(&rsc->wiener_accumulators, M, H);
+    rusi->shared_wiener_group = rsc->wiener_accumulators.size - 1;
+  } else if (rtype == RESTORE_NONE) {
+    create_wiener_accumulator(&rsc->wiener_accumulators);
   }
 #endif  // CONFIG_EXT_LOOP_RESTORATION
 
@@ -1830,6 +1918,13 @@ static double search_rest_type(RestSearchCtxt *rsc, RestorationType rtype) {
 
   av1_foreach_rest_unit_in_plane(rsc->cm, rsc->plane, funs[rtype], rsc,
                                  &rsc->tile_rect, rsc->cm->rst_tmpbuf, NULL);
+#if CONFIG_EXT_LOOP_RESTORATION
+  if (rtype == RESTORE_WIENER) {
+    av1_foreach_rest_unit_in_plane(rsc->cm, rsc->plane, search_wiener_pass2,
+                                   rsc, &rsc->tile_rect, rsc->cm->rst_tmpbuf,
+                                   NULL);
+  }
+#endif  // CONFIG_EXT_LOOP_RESTORATION
   return RDCOST_DBL(rsc->x->rdmult, rsc->bits >> 4, rsc->sse);
 }
 
@@ -1919,6 +2014,9 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi) {
         copy_unit_info(best_rtype, &rusi[u], &cm->rst_info[plane].unit_info[u]);
       }
     }
+#if CONFIG_EXT_LOOP_RESTORATION
+    cleanup_rsc(&rsc);
+#endif  // CONFIG_EXT_LOOP_RESTORATION
   }
 
 #if CONFIG_WIENER_NONSEP && CONFIG_WIENER_NONSEP_CROSS_FILT
