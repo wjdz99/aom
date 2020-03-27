@@ -84,8 +84,10 @@ typedef struct PC_TREE {
   int sms_rect_valid;
 } PC_TREE;
 
-void av1_setup_pc_tree(struct AV1Common *cm, struct ThreadData *td);
-void av1_free_pc_tree(struct ThreadData *td, const int num_planes);
+void av1_setup_pc_tree(struct AV1Common *cm, struct ThreadData *td,
+                       int stat_generation_stage);
+void av1_free_pc_tree(struct ThreadData *td, const int num_planes,
+                      int stat_generation_stage);
 void av1_copy_tree_context(PICK_MODE_CONTEXT *dst_ctx,
                            PICK_MODE_CONTEXT *src_ctx);
 
