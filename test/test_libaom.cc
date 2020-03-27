@@ -45,7 +45,7 @@ static void append_negative_gtest_filter(const char *str) {
   ::testing::FLAGS_gtest_filter = filter;
 }
 #endif  // ARCH_X86 || ARCH_X86_64
-
+// tstcmt
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
 
