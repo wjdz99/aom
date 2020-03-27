@@ -4376,8 +4376,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   int64_t best_est_rd = INT64_MAX;
   const InterModeRdModel *md = &tile_data->inter_mode_rd_models[bsize];
-  // If do_tx_search is 0, only estimated RD should be computed.  // If
-  // do_tx_search is 1, all modes have TX search performed.
+  // If do_tx_search is 0, only estimated RD should be computed.  
+  // If do_tx_search is 1, all modes have TX search performed.
   const int do_tx_search =
       !((cpi->sf.inter_sf.inter_mode_rd_model_estimation == 1 && md->ready) ||
         (cpi->sf.inter_sf.inter_mode_rd_model_estimation == 2 &&
