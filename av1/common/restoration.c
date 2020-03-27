@@ -1703,8 +1703,8 @@ void av1_foreach_rest_unit_in_plane(const struct AV1Common *cm, int plane,
   const RestorationInfo *rsi = &cm->rst_info[plane];
 
 #if CONFIG_EXT_LOOP_RESTORATION
-  SharedParams param_buf;
-  memset(&param_buf, 0, sizeof(SharedParams));
+  RestorationUnitInfo param_buf;
+  memset(&param_buf, 0, sizeof(RestorationUnitInfo));
   foreach_rest_unit_in_tile(tile_rect, LR_TILE_ROW, LR_TILE_COL, LR_TILE_COLS,
                             rsi->horz_units_per_tile, rsi->vert_units_per_tile,
                             rsi->units_per_tile, rsi->restoration_unit_size,
@@ -1785,8 +1785,8 @@ int av1_loop_restoration_corners_in_sb(const struct AV1Common *cm, int plane,
   *rrow0 = (mi_rel_row0 * mi_to_num_y + rnd_y) / denom_y;
 
   // rel_col1/rel_row1 is the equivalent calculation, but for the superblock
-  // below-right. If we're at the bottom or right of the tile, this restoration
-  // unit might not exist, in which case we'll clamp accordingly.
+  // below-right. If we're at the bottom or right of the tile, this
+  // restoration unit might not exist, in which case we'll clamp accordingly.
   *rcol1 = AOMMIN((mi_rel_col1 * mi_to_num_x + rnd_x) / denom_x, horz_units);
   *rrow1 = AOMMIN((mi_rel_row1 * mi_to_num_y + rnd_y) / denom_y, vert_units);
 
@@ -1828,7 +1828,8 @@ static void save_deblock_boundary_lines(
   // crop border. In this case, we do want to use deblocked pixels from below
   // the stripe (hence why we ended up in this function), but instead of
   // fetching 2 "below" rows we need to fetch one and duplicate it.
-  // This is equivalent to clamping the sample locations against the crop border
+  // This is equivalent to clamping the sample locations against the crop
+  // border
   const int lines_to_save =
       AOMMIN(RESTORATION_CTX_VERT, frame->crop_heights[is_uv] - row);
   assert(lines_to_save == 1 || lines_to_save == 2);
