@@ -34,6 +34,24 @@
       "revId": "e9a58bbe06681d0a14784d0720c1117a6cb7e9b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c05a2f2b_0f90aaa8",
+        "filename": "aom_dsp/simd/v256_intrinsics.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-03-28T22:45:43Z",
+      "side": 1,
+      "message": "There are four xxx_sum() functions in this file. The other three xxx_sum() functions all return the typedef target of their input parameter type. So it seems that v256_ssd_s16_sum() should also return the typedef target of c_ssd256_internal_s16, which is uint64_t.\n\nI am not familiar with the functions in this file, so I am just speculating by pattern matching.",
+      "parentUuid": "b147c17b_75ac8bd8",
+      "revId": "e9a58bbe06681d0a14784d0720c1117a6cb7e9b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
