@@ -46,7 +46,7 @@ int ifd_inspect(insp_frame_data *fd, void *decoder, int skip_not_transform) {
   fd->frame_number = cm->current_frame.frame_number;
   fd->show_frame = cm->show_frame;
   fd->frame_type = cm->current_frame.frame_type;
-  fd->base_qindex = cm->base_qindex;
+  fd->base_qindex = quant_params->base_qindex;
   // Set width and height of the first tile until generic support can be added
   TileInfo tile_info;
   av1_tile_set_row(&tile_info, cm, 0);
@@ -62,9 +62,9 @@ int ifd_inspect(insp_frame_data *fd, void *decoder, int skip_not_transform) {
   int i, j;
   for (i = 0; i < MAX_SEGMENTS; i++) {
     for (j = 0; j < 2; j++) {
-      fd->y_dequant[i][j] = cm->y_dequant_QTX[i][j];
-      fd->u_dequant[i][j] = cm->u_dequant_QTX[i][j];
-      fd->v_dequant[i][j] = cm->v_dequant_QTX[i][j];
+      fd->y_dequant[i][j] = cm->quant_params.y_dequant_QTX[i][j];
+      fd->u_dequant[i][j] = cm->quant_params.u_dequant_QTX[i][j];
+      fd->v_dequant[i][j] = cm->quant_params.v_dequant_QTX[i][j];
     }
   }
   for (j = 0; j < mi_params->mi_rows; j++) {
