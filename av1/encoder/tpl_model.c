@@ -756,6 +756,10 @@ static AOM_INLINE void init_mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
   TplDepFrame *tpl_frame = &tpl_data->tpl_frame[frame_idx];
   const YV12_BUFFER_CONFIG *this_frame = tpl_frame->gf_picture;
   const YV12_BUFFER_CONFIG *ref_frames_ordered[INTER_REFS_PER_FRAME];
+  MV_REFERENCE_FRAME ref[2] = { LAST_FRAME, INTRA_FRAME };
+  uint32_t ref_frame_display_indices[INTER_REFS_PER_FRAME];
+  int is_frame_eligible_for_ref_pruning =
+      !is_frame_tpl_eligible(&cpi->gf_group, frame_idx);
   int ref_frame_flags;
   AV1_COMMON *cm = &cpi->common;
   int rdmult, idx;
@@ -774,10 +778,11 @@ static AOM_INLINE void init_mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
   xd->cur_buf = this_frame;
 
   for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
-    tpl_data->ref_frame[idx] =
-        tpl_data->tpl_frame[tpl_frame->ref_map_index[idx]].rec_picture;
-    tpl_data->src_ref_frame[idx] =
-        tpl_data->tpl_frame[tpl_frame->ref_map_index[idx]].gf_picture;
+    TplDepFrame *tpl_ref_frame =
+        &tpl_data->tpl_frame[tpl_frame->ref_map_index[idx]];
+    tpl_data->ref_frame[idx] = tpl_ref_frame->rec_picture;
+    tpl_data->src_ref_frame[idx] = tpl_ref_frame->gf_picture;
+    ref_frame_display_indices[idx] = tpl_ref_frame->frame_display_index;
   }
 
   // Store the reference frames based on priority order
@@ -796,6 +801,18 @@ static AOM_INLINE void init_mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
   for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
     if ((ref_frame_flags & (1 << idx)) == 0) {
       tpl_data->ref_frame[idx] = NULL;
+    }
+  }
+
+  // Skip motion estimation w.r.t. reference frames which are not
+  // considered in RD search, using "selective_ref_frame" speed feature
+  if (is_frame_eligible_for_ref_pruning) {
+    for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
+      ref[0] = idx + 1;
+      if (prune_ref_by_selective_ref_frame(cpi, NULL, ref,
+                                           ref_frame_display_indices)) {
+        tpl_data->ref_frame[idx] = NULL;
+      }
     }
   }
 
@@ -920,9 +937,12 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     if (frame_params.frame_type == KEY_FRAME || gop_eval) {
       tpl_data->tpl_frame[-i - 1].gf_picture = NULL;
       tpl_data->tpl_frame[-1 - 1].rec_picture = NULL;
+      tpl_data->tpl_frame[-i - 1].frame_display_index = 0;
     } else {
       tpl_data->tpl_frame[-i - 1].gf_picture = &cm->ref_frame_map[i]->buf;
       tpl_data->tpl_frame[-i - 1].rec_picture = &cm->ref_frame_map[i]->buf;
+      tpl_data->tpl_frame[-i - 1].frame_display_index =
+          cm->ref_frame_map[i]->display_order_hint;
     }
 
     ref_picture_map[i] = -i - 1;
@@ -940,6 +960,10 @@ static AOM_INLINE void init_gop_frames_for_tpl(
   for (gf_index = cur_frame_idx; gf_index <= gop_length; ++gf_index) {
     TplDepFrame *tpl_frame = &tpl_data->tpl_frame[gf_index];
     FRAME_UPDATE_TYPE frame_update_type = gf_group->update_type[gf_index];
+    int frame_display_index = gf_index == gf_group->size
+                                  ? cpi->rc.baseline_gf_interval
+                                  : gf_group->cur_frame_idx[gf_index] +
+                                        gf_group->arf_src_offset[gf_index];
 
     frame_params.show_frame = frame_update_type != ARF_UPDATE &&
                               frame_update_type != INTNL_ARF_UPDATE;
@@ -955,16 +979,17 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     if (gf_index == cur_frame_idx) {
       tpl_frame->gf_picture = frame_input->source;
     } else {
-      int frame_display_index = gf_index == gf_group->size
-                                    ? cpi->rc.baseline_gf_interval
-                                    : gf_group->cur_frame_idx[gf_index] +
-                                          gf_group->arf_src_offset[gf_index];
       struct lookahead_entry *buf = av1_lookahead_peek(
           cpi->lookahead, frame_display_index - anc_frame_offset,
           cpi->compressor_stage);
       if (buf == NULL) break;
       tpl_frame->gf_picture = &buf->img;
     }
+    // frame display index = frame offset within the gf group + start frame of
+    // the gf group
+    tpl_frame->frame_display_index = frame_display_index +
+                                     cpi->common.current_frame.frame_number -
+                                     anc_frame_offset;
 
     if (frame_update_type != OVERLAY_UPDATE &&
         frame_update_type != INTNL_OVERLAY_UPDATE) {
@@ -1018,6 +1043,12 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     tpl_frame->gf_picture = &buf->img;
     tpl_frame->rec_picture = &tpl_data->tpl_rec_pool[process_frame_count];
     tpl_frame->tpl_stats_ptr = tpl_data->tpl_stats_pool[process_frame_count];
+    // frame display index = frame offset within the gf group + start frame of
+    // the gf group
+    tpl_frame->frame_display_index = frame_display_index +
+                                     cpi->common.current_frame.frame_number -
+                                     anc_frame_offset;
+
     ++process_frame_count;
 
     gf_group->update_type[gf_index] = LF_UPDATE;
@@ -1239,7 +1270,7 @@ void av1_tpl_rdmult_setup_sb(AV1_COMP *cpi, MACROBLOCK *const x,
   TplDepFrame *tpl_frame = &cpi->tpl_data.tpl_frame[tpl_idx];
 
   if (tpl_frame->is_valid == 0) return;
-  if (!is_frame_tpl_eligible(gf_group)) return;
+  if (!is_frame_tpl_eligible(gf_group, gf_group->index)) return;
   if (tpl_idx >= MAX_TPL_FRAME_IDX) return;
   if (cpi->superres_mode != AOM_SUPERRES_NONE) return;
   if (cpi->oxcf.q_cfg.aq_mode != NO_AQ) return;
