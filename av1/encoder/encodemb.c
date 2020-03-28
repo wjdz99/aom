@@ -347,12 +347,13 @@ void av1_setup_qmatrix(const AV1_COMMON *cm, MACROBLOCK *x, int plane,
   const TX_SIZE qm_tx_size = av1_get_adjusted_tx_size(tx_size);
   // Use a flat matrix (i.e. no weighting) for 1D and Identity transforms
   const qm_val_t *qmatrix =
-      IS_2D_TRANSFORM(tx_type) ? pd->seg_qmatrix[seg_id][qm_tx_size]
-                               : cm->gqmatrix[NUM_QM_LEVELS - 1][0][qm_tx_size];
+      IS_2D_TRANSFORM(tx_type)
+          ? pd->seg_qmatrix[seg_id][qm_tx_size]
+          : cm->quant_params.gqmatrix[NUM_QM_LEVELS - 1][0][qm_tx_size];
   const qm_val_t *iqmatrix =
       IS_2D_TRANSFORM(tx_type)
           ? pd->seg_iqmatrix[seg_id][qm_tx_size]
-          : cm->giqmatrix[NUM_QM_LEVELS - 1][0][qm_tx_size];
+          : cm->quant_params.giqmatrix[NUM_QM_LEVELS - 1][0][qm_tx_size];
   qparam->qmatrix = qmatrix;
   qparam->iqmatrix = iqmatrix;
 }
@@ -413,7 +414,8 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
                      args->cpi->sf.rd_sf.trellis_eob_fast, &dummy_rate_cost);
     }
     if (!quant_param.use_optimize_b && do_dropout) {
-      av1_dropout_qcoeff(x, plane, block, tx_size, tx_type, cm->base_qindex);
+      av1_dropout_qcoeff(x, plane, block, tx_size, tx_type,
+                         cm->quant_params.base_qindex);
     }
   } else {
     p->eobs[block] = 0;
@@ -753,7 +755,8 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
                      args->cpi->sf.rd_sf.trellis_eob_fast, &dummy_rate_cost);
     }
     if (do_dropout) {
-      av1_dropout_qcoeff(x, plane, block, tx_size, tx_type, cm->base_qindex);
+      av1_dropout_qcoeff(x, plane, block, tx_size, tx_type,
+                         cm->quant_params.base_qindex);
     }
   }
 

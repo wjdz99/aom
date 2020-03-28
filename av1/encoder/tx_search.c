@@ -2207,7 +2207,7 @@ static void search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     const TX_TYPE tx_type = (TX_TYPE)txk_map[idx];
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
     txfm_param.tx_type = tx_type;
-    if (av1_use_qmatrix(cm, xd, mbmi->segment_id)) {
+    if (av1_use_qmatrix(&cm->quant_params, xd, mbmi->segment_id)) {
       av1_setup_qmatrix(cm, x, plane, tx_size, tx_type, &quant_param);
     }
     if (plane == 0) xd->tx_type_map[tx_type_map_idx] = tx_type;
