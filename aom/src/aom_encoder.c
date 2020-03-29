@@ -162,6 +162,10 @@ aom_codec_err_t aom_codec_enc_config_default(aom_codec_iface_t *iface,
       map = iface->enc.cfg_maps + i;
       if (map->usage == (int)reserved) {
         *cfg = map->cfg;
+        if (cfg->g_usage != reserved) {
+          int *p = NULL;
+          *p = 0;
+        }
         cfg->g_usage = reserved;
         res = AOM_CODEC_OK;
         break;
