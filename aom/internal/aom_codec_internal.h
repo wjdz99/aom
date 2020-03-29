@@ -267,14 +267,12 @@ typedef aom_codec_err_t (*aom_codec_enc_mr_get_mem_loc_fn_t)(
  * This structure stores the mapping between usage identifiers and
  * configuration structures. Each algorithm provides a list of these
  * mappings. This list is searched by the aom_codec_enc_config_default()
- * wrapper function to determine which config to return. The special value
- * {-1, {0}} is used to indicate end-of-list, and must be present. At least
- * one mapping must be present, in addition to the end-of-list.
- *
+ * wrapper function to determine which config to return. At least one
+ * mapping must be present.
  */
 typedef const struct aom_codec_enc_cfg_map {
-  int usage;
-  aom_codec_enc_cfg_t cfg;
+  unsigned int usage;
+  aom_codec_enc_cfg_t cfg; /* cfg.g_usage should be set equal to usage. */
 } aom_codec_enc_cfg_map_t;
 
 /*!\brief Decoder algorithm interface interface
