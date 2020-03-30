@@ -211,17 +211,7 @@ static INLINE void copy_128(const uint8_t *src, uint8_t *dst) {
 }
 
 void av1_convolve_2d_copy_sr_avx2(const uint8_t *src, int src_stride,
-                                  uint8_t *dst, int dst_stride, int w, int h,
-                                  const InterpFilterParams *filter_params_x,
-                                  const InterpFilterParams *filter_params_y,
-                                  const int subpel_x_qn, const int subpel_y_qn,
-                                  ConvolveParams *conv_params) {
-  (void)filter_params_x;
-  (void)filter_params_y;
-  (void)subpel_x_qn;
-  (void)subpel_y_qn;
-  (void)conv_params;
-
+                                  uint8_t *dst, int dst_stride, int w, int h) {
   if (w >= 16) {
     assert(!(dst_stride % 16));
   }
