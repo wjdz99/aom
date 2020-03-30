@@ -601,11 +601,11 @@ static void av1_make_inter_predictor_aux(
                    pre_buf->stride, dst, p_col, p_row, w, h, dst_stride,
                    pd->subsampling_x, pd->subsampling_y, conv_params);
   } else if (is_cur_buf_hbd(xd)) {
-    highbd_inter_predictor(src, src_stride, dst, dst_stride, subpel_params, sf,
-                           w, h, orig_w, orig_h, conv_params, interp_filters,
+    highbd_inter_predictor(src, src_stride, dst, dst_stride, subpel_params, w,
+                           h, orig_w, orig_h, conv_params, interp_filters,
                            is_intrabc, xd->bd);
   } else {
-    inter_predictor(src, src_stride, dst, dst_stride, subpel_params, sf, w, h,
+    inter_predictor(src, src_stride, dst, dst_stride, subpel_params, w, h,
                     orig_w, orig_h, conv_params, interp_filters, is_intrabc);
   }
 }
