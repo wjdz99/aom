@@ -394,7 +394,6 @@ static struct lookahead_entry *setup_arf_frame(
 
   if (source != NULL) {
     cm->showable_frame = 1;
-    cpi->alt_ref_source = source;
 
     // When arf_src_index == rc->frames_to_key, it indicates a fwd_kf
     if (arf_src_index == rc->frames_to_key) {
@@ -483,7 +482,6 @@ static struct lookahead_entry *choose_frame_source(
     frame_params->show_frame = 1;
 
     // Check to see if the frame should be encoded as an arf overlay.
-    if (cpi->alt_ref_source == source) cpi->alt_ref_source = NULL;
   }
   return source;
 }
