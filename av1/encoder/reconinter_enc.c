@@ -450,8 +450,8 @@ static void build_wedge_inter_predictor_from_buf(
                                dst, dst_buf->stride, NULL, 0, NULL, 0, w, h,
                                xd->bd);
     } else {
-      aom_convolve_copy(ext_dst0, ext_dst_stride0, dst, dst_buf->stride, NULL,
-                        0, NULL, 0, w, h);
+      av1_convolve_2d_copy_sr(ext_dst0, ext_dst_stride0, dst, dst_buf->stride,
+                              w, h);
     }
   }
 }
