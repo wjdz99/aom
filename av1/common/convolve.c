@@ -177,7 +177,6 @@ void av1_convolve_y_sr_c(const uint8_t *src, int src_stride, uint8_t *dst,
                          const InterpFilterParams *filter_params_y,
                          const int subpel_x_qn, const int subpel_y_qn,
                          ConvolveParams *conv_params) {
-  const int fo_vert = filter_params_y->taps / 2 - 1;
   (void)filter_params_x;
   (void)subpel_x_qn;
   (void)conv_params;
@@ -185,7 +184,7 @@ void av1_convolve_y_sr_c(const uint8_t *src, int src_stride, uint8_t *dst,
   assert(conv_params->round_0 <= FILTER_BITS);
   assert(((conv_params->round_0 + conv_params->round_1) <= (FILTER_BITS + 1)) ||
          ((conv_params->round_0 + conv_params->round_1) == (2 * FILTER_BITS)));
-
+  const int fo_vert = filter_params_y->taps / 2 - 1;
   // vertical filter
   const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
       filter_params_y, subpel_y_qn & SUBPEL_MASK);
@@ -582,13 +581,74 @@ static void convolve_2d_for_intrabc(const uint8_t *src, int src_stride,
   }
 }
 
+static void convolve_2d_facade_compound(const uint8_t *src, int src_stride, uint8_t *dst,
+                                        int dst_stride, int w, int h,
+                                        const InterpFilterParams *filter_params_x,
+                                        const InterpFilterParams *filter_params_y,
+                                        const int subpel_x_qn, const int subpel_y_qn,
+                                        ConvolveParams *conv_params) {
+  const bool need_x = subpel_x_qn != 0;
+  const bool need_y = subpel_y_qn != 0;
+  switch ((need_y << 1) + need_x) {
+    case 0:  // No x or y
+      av1_dist_wtd_convolve_2d_copy(src, src_stride, dst, dst_stride, w, h,
+                                    filter_params_x, filter_params_y,
+                                    subpel_x_qn, subpel_y_qn, conv_params);
+      break;
+    case 1:  // Just x
+      av1_dist_wtd_convolve_x(src, src_stride, dst, dst_stride, w, h,
+                              filter_params_x, filter_params_y,
+                              subpel_x_qn, subpel_y_qn, conv_params);
+      break;
+    case 2:  // Just y
+      av1_dist_wtd_convolve_y(src, src_stride, dst, dst_stride, w, h,
+                              filter_params_x, filter_params_y,
+                              subpel_x_qn, subpel_y_qn, conv_params);
+    default:  // Both x and y
+      assert(need_y && need_x);
+      av1_dist_wtd_convolve_2d(src, src_stride, dst, dst_stride, w, h,
+                               filter_params_x, filter_params_y,
+                               subpel_x_qn, subpel_y_qn, conv_params);
+  }
+}
+
+static void convolve_2d_facade_single(const uint8_t *src, int src_stride, uint8_t *dst,
+                                      int dst_stride, int w, int h,
+                                      const InterpFilterParams *filter_params_x,
+                                      const InterpFilterParams *filter_params_y,
+                                      const int subpel_x_qn, const int subpel_y_qn,
+                                      ConvolveParams *conv_params) {
+  const bool need_x = subpel_x_qn != 0;
+  const bool need_y = subpel_y_qn != 0;
+  switch ((need_y << 1) + need_x) {
+    case 0:  // No x or y
+      av1_convolve_2d_copy_sr(src, src_stride, dst, dst_stride, w, h,
+                              filter_params_x, filter_params_y,
+                              subpel_x_qn, subpel_y_qn, conv_params);
+      break;
+    case 1:  // Just x
+      av1_convolve_x_sr(src, src_stride, dst, dst_stride, w, h,
+                        filter_params_x, filter_params_y,
+                        subpel_x_qn, subpel_y_qn, conv_params);
+      break;
+    case 2:  // Just y
+      av1_convolve_y_sr(src, src_stride, dst, dst_stride, w, h,
+                        filter_params_x, filter_params_y,
+                        subpel_x_qn, subpel_y_qn, conv_params);
+    default:  // Both x and y
+      assert(need_y && need_x);
+      av1_convolve_2d_sr(src, src_stride, dst, dst_stride, w, h,
+                         filter_params_x, filter_params_y,
+                         subpel_x_qn, subpel_y_qn, conv_params);
+  }
+}
+
 void av1_convolve_2d_facade(const uint8_t *src, int src_stride, uint8_t *dst,
                             int dst_stride, int w, int h, int orig_w,
                             int orig_h, int_interpfilters interp_filters,
                             const int subpel_x_qn, int x_step_q4,
                             const int subpel_y_qn, int y_step_q4, int scaled,
-                            ConvolveParams *conv_params,
-                            const struct scale_factors *sf, int is_intrabc) {
+                            ConvolveParams *conv_params, int is_intrabc) {
   assert(IMPLIES(is_intrabc, !scaled));
   (void)x_step_q4;
   (void)y_step_q4;
@@ -623,8 +683,14 @@ void av1_convolve_2d_facade(const uint8_t *src, int src_stride, uint8_t *dst,
     convolve_2d_scale_wrapper(src, src_stride, dst, dst_stride, w, h,
                               filter_params_x, filter_params_y, subpel_x_qn,
                               x_step_q4, subpel_y_qn, y_step_q4, conv_params);
+    return;
+  }
+  if (conv_params->is_compound) {
+    convolve_2d_facade_compound(
+        src, src_stride, dst, dst_stride, w, h, filter_params_x,
+        filter_params_y, subpel_x_qn, subpel_y_qn, conv_params);
   } else {
-    sf->convolve[subpel_x_qn != 0][subpel_y_qn != 0][conv_params->is_compound](
+    convolve_2d_facade_single(
         src, src_stride, dst, dst_stride, w, h, filter_params_x,
         filter_params_y, subpel_x_qn, subpel_y_qn, conv_params);
   }
@@ -641,7 +707,6 @@ void av1_highbd_convolve_2d_copy_sr_c(
   (void)subpel_y_qn;
   (void)conv_params;
   (void)bd;
-
   for (int y = 0; y < h; ++y) {
     memmove(dst + y * dst_stride, src + y * src_stride, w * sizeof(src[0]));
   }
@@ -1077,12 +1142,77 @@ static void highbd_convolve_2d_for_intrabc(const uint16_t *src, int src_stride,
   }
 }
 
+static void highbd_convolve_2d_facade_compound(
+    const uint16_t *src, int src_stride, uint16_t *dst, int dst_stride,
+    const int w, const int h,
+    const InterpFilterParams *filter_params_x,
+    const InterpFilterParams *filter_params_y,
+    const int subpel_x_qn, const int subpel_y_qn,
+    ConvolveParams *conv_params, int bd) {
+   const bool need_x = subpel_x_qn != 0;
+   const bool need_y = subpel_y_qn != 0;
+   switch ((need_y << 1) + need_x) {
+     case 0:  // No x or y
+       av1_highbd_dist_wtd_convolve_2d_copy(src, src_stride, dst, dst_stride,
+                                            w, h, filter_params_x, filter_params_y,
+                                            subpel_x_qn, subpel_y_qn, conv_params, bd);
+       break;
+     case 1:  // Just x
+       av1_highbd_dist_wtd_convolve_x(src, src_stride, dst, dst_stride, w, h,
+                                      filter_params_x, filter_params_y, subpel_x_qn,
+                                      subpel_y_qn, conv_params, bd);
+       break;
+     case 2:  // Just y
+       av1_highbd_dist_wtd_convolve_y(src, src_stride, dst, dst_stride, w, h,
+                                      filter_params_x, filter_params_y, subpel_x_qn,
+                                      subpel_y_qn, conv_params, bd);
+       break;
+     default:  // Both x and y
+       assert(need_x && need_y);
+       av1_highbd_dist_wtd_convolve_2d(src, src_stride, dst, dst_stride, w, h,
+                                       filter_params_x, filter_params_y, subpel_x_qn,
+                                       subpel_y_qn, conv_params, bd);
+   }
+}
+
+static void highbd_convolve_2d_facade_single(
+    const uint16_t *src, int src_stride, uint16_t *dst, int dst_stride,
+    const int w, const int h,
+    const InterpFilterParams *filter_params_x,
+    const InterpFilterParams *filter_params_y,
+    const int subpel_x_qn, const int subpel_y_qn,
+    ConvolveParams *conv_params, int bd) {
+  const bool need_x = subpel_x_qn != 0;
+  const bool need_y = subpel_y_qn != 0;
+  switch ((need_y << 1) + need_x) {
+    case 0:  // No x or y
+      av1_highbd_convolve_2d_copy_sr(src, src_stride, dst, dst_stride,
+                                     w, h, filter_params_x, filter_params_y,
+                                     subpel_x_qn, subpel_y_qn, conv_params, bd);
+      break;
+    case 1:  // Just x
+      av1_highbd_convolve_x_sr(src, src_stride, dst, dst_stride, w, h,
+                               filter_params_x, filter_params_y, subpel_x_qn,
+                               subpel_y_qn, conv_params, bd);
+      break;
+    case 2:  // Just y
+      av1_highbd_convolve_y_sr(src, src_stride, dst, dst_stride, w, h,
+                               filter_params_x, filter_params_y, subpel_x_qn,
+                               subpel_y_qn, conv_params, bd);
+      break;
+    default:  // Both x and y
+      assert(need_x && need_y);
+      av1_highbd_convolve_2d_sr(src, src_stride, dst, dst_stride, w, h,
+                                filter_params_x, filter_params_y, subpel_x_qn,
+                                subpel_y_qn, conv_params, bd);
+  }
+}
+
 void av1_highbd_convolve_2d_facade(
     const uint8_t *src8, int src_stride, uint8_t *dst8, int dst_stride, int w,
     int h, int orig_w, int orig_h, int_interpfilters interp_filters,
     const int subpel_x_qn, int x_step_q4, const int subpel_y_qn, int y_step_q4,
-    int scaled, ConvolveParams *conv_params, const struct scale_factors *sf,
-    int is_intrabc, int bd) {
+    int scaled, ConvolveParams *conv_params, int is_intrabc, int bd) {
   assert(IMPLIES(is_intrabc, !scaled));
   (void)x_step_q4;
   (void)y_step_q4;
@@ -1122,13 +1252,17 @@ void av1_highbd_convolve_2d_facade(
                                  filter_params_x, filter_params_y, subpel_x_qn,
                                  x_step_q4, subpel_y_qn, y_step_q4, conv_params,
                                  bd);
+    return;
+  }
+  uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
+  if (conv_params->is_compound) {
+    highbd_convolve_2d_facade_compound(src, src_stride, dst, dst_stride, w, h,
+                                       filter_params_x, filter_params_y,
+                                       subpel_x_qn, subpel_y_qn, conv_params, bd);
   } else {
-    uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
-
-    sf->highbd_convolve[subpel_x_qn != 0][subpel_y_qn !=
-                                          0][conv_params->is_compound](
-        src, src_stride, dst, dst_stride, w, h, filter_params_x,
-        filter_params_y, subpel_x_qn, subpel_y_qn, conv_params, bd);
+    highbd_convolve_2d_facade_single(src, src_stride, dst, dst_stride, w, h,
+                                     filter_params_x, filter_params_y,
+                                     subpel_x_qn, subpel_y_qn, conv_params, bd);
   }
 }
 
