@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19848756_9ffc2e61",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 4196,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2020-03-30T19:51:30Z",
+      "side": 1,
+      "message": "It is more readable to use int instead of int* here, but we can do it in a later Cl.",
+      "range": {
+        "startLine": 4195,
+        "startChar": 0,
+        "endLine": 4196,
+        "endChar": 22
+      },
+      "revId": "b998e957ff1be276561a1966daa695ff41861d88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
