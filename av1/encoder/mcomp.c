@@ -2525,7 +2525,7 @@ static INLINE int check_repeated_mv_and_update(int_mv *last_mv_search_list,
 
 int av1_find_best_sub_pixel_tree_pruned_evenmore(
     MACROBLOCKD *xd, const AV1_COMMON *const cm,
-    const SUBPEL_MOTION_SEARCH_PARAMS *ms_params, MV start_mv, MV *bestmv,
+    const SUBPEL_MOTION_SEARCH_PARAMS *ms_params, const MV start_mv, MV *bestmv,
     int *distortion, unsigned int *sse1, int_mv *last_mv_search_list) {
   (void)cm;
   const int allow_hp = ms_params->allow_hp;
@@ -2601,7 +2601,7 @@ int av1_find_best_sub_pixel_tree_pruned_evenmore(
 
 int av1_find_best_sub_pixel_tree_pruned_more(
     MACROBLOCKD *xd, const AV1_COMMON *const cm,
-    const SUBPEL_MOTION_SEARCH_PARAMS *ms_params, MV start_mv, MV *bestmv,
+    const SUBPEL_MOTION_SEARCH_PARAMS *ms_params, const MV start_mv, MV *bestmv,
     int *distortion, unsigned int *sse1, int_mv *last_mv_search_list) {
   (void)cm;
   const int allow_hp = ms_params->allow_hp;
@@ -2678,7 +2678,7 @@ int av1_find_best_sub_pixel_tree_pruned_more(
 
 int av1_find_best_sub_pixel_tree_pruned(
     MACROBLOCKD *xd, const AV1_COMMON *const cm,
-    const SUBPEL_MOTION_SEARCH_PARAMS *ms_params, MV start_mv, MV *bestmv,
+    const SUBPEL_MOTION_SEARCH_PARAMS *ms_params, const MV start_mv, MV *bestmv,
     int *distortion, unsigned int *sse1, int_mv *last_mv_search_list) {
   (void)cm;
   const int allow_hp = ms_params->allow_hp;
