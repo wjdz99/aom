@@ -4118,8 +4118,8 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
 
     for (int row = 0; row < cm->mi_params.mi_rows; row += step) {
       for (int col = 0; col < mi_cols_sr; col += step) {
-        TplDepStats *this_stats =
-            &tpl_stats[av1_tpl_ptr_pos(cpi, row, col, tpl_stride)];
+        TplDepStats *this_stats = &tpl_stats[av1_tpl_ptr_pos(
+            cpi->tpl_data.tpl_stats_block_mis_log2, row, col, tpl_stride)];
         int64_t mc_dep_delta =
             RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
                    this_stats->mc_dep_dist);
