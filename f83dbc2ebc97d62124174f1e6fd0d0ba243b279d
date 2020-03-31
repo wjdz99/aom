@@ -46,6 +46,30 @@
       "revId": "f83dbc2ebc97d62124174f1e6fd0d0ba243b279d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c9cb4d4_e14dfc00",
+        "filename": "av1/common/quant_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2020-03-31T20:18:13Z",
+      "side": 1,
+      "message": "Patch#2 fixes the building warnings as suggested.",
+      "parentUuid": "260ad465_675d3551",
+      "range": {
+        "startLine": 52,
+        "startChar": 47,
+        "endLine": 52,
+        "endChar": 52
+      },
+      "revId": "f83dbc2ebc97d62124174f1e6fd0d0ba243b279d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
