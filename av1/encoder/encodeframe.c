@@ -3900,6 +3900,7 @@ static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int analysis_type,
   TplParams *const tpl_data = &cpi->tpl_data;
   TplDepFrame *tpl_frame = &tpl_data->tpl_frame[tpl_idx];
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+  const uint8_t block_mis_log2 = tpl_data->tpl_stats_block_mis_log2;
   int tpl_stride = tpl_frame->stride;
   int64_t intra_cost = 0;
   int64_t mc_dep_cost = 0;
@@ -3921,12 +3922,12 @@ static int get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int analysis_type,
   const int mi_col_end_sr =
       coded_to_superres_mi(mi_col + mi_wide, cm->superres_scale_denominator);
   const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
-  const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
+  const int step = 1 << block_mis_log2;
   for (int row = mi_row; row < mi_row + mi_high; row += step) {
     for (int col = mi_col_sr; col < mi_col_end_sr; col += step) {
       if (row >= cm->mi_params.mi_rows || col >= mi_cols_sr) continue;
       TplDepStats *this_stats =
-          &tpl_stats[av1_tpl_ptr_pos(cpi, row, col, tpl_stride)];
+          &tpl_stats[av1_tpl_ptr_pos(row, col, tpl_stride, block_mis_log2)];
       int64_t mc_dep_delta =
           RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
                  this_stats->mc_dep_dist);
@@ -3987,7 +3988,8 @@ static int get_tpl_stats_b(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
 
   AV1_COMMON *const cm = &cpi->common;
   const int gf_group_index = cpi->gf_group.index;
-  TplDepFrame *tpl_frame = &cpi->tpl_data.tpl_frame[gf_group_index];
+  TplParams *const tpl_data = &cpi->tpl_data;
+  TplDepFrame *tpl_frame = &tpl_data->tpl_frame[gf_group_index];
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   int tpl_stride = tpl_frame->stride;
   const int mi_wide = mi_size_wide[bsize];
@@ -4015,8 +4017,8 @@ static int get_tpl_stats_b(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
   for (int row = mi_row; row < mi_row + mi_high; row += step) {
     for (int col = mi_col_sr; col < mi_col_end_sr; col += step) {
       if (row >= cm->mi_params.mi_rows || col >= mi_cols_sr) continue;
-      TplDepStats *this_stats =
-          &tpl_stats[av1_tpl_ptr_pos(cpi, row, col, tpl_stride)];
+      TplDepStats *this_stats = &tpl_stats[av1_tpl_ptr_pos(
+          row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
       inter_cost_b[mi_count] = this_stats->inter_cost;
       intra_cost_b[mi_count] = this_stats->intra_cost;
       mi_count++;
@@ -4039,6 +4041,7 @@ static int get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   TplParams *const tpl_data = &cpi->tpl_data;
   TplDepFrame *tpl_frame = &tpl_data->tpl_frame[tpl_idx];
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+  const uint8_t block_mis_log2 = tpl_data->tpl_stats_block_mis_log2;
   int tpl_stride = tpl_frame->stride;
   int64_t intra_cost = 0;
   int64_t mc_dep_cost = 0;
@@ -4061,12 +4064,12 @@ static int get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   const int mi_col_end_sr =
       coded_to_superres_mi(mi_col + mi_wide, cm->superres_scale_denominator);
   const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
-  const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
+  const int step = 1 << block_mis_log2;
   for (int row = mi_row; row < mi_row + mi_high; row += step) {
     for (int col = mi_col_sr; col < mi_col_end_sr; col += step) {
       if (row >= cm->mi_params.mi_rows || col >= mi_cols_sr) continue;
       TplDepStats *this_stats =
-          &tpl_stats[av1_tpl_ptr_pos(cpi, row, col, tpl_stride)];
+          &tpl_stats[av1_tpl_ptr_pos(row, col, tpl_stride, block_mis_log2)];
       int64_t mc_dep_delta =
           RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
                  this_stats->mc_dep_dist);
@@ -4568,6 +4571,7 @@ static void init_ref_frame_space(AV1_COMP *cpi, ThreadData *td, int mi_row,
   const int frame_idx = cpi->gf_group.index;
   TplParams *const tpl_data = &cpi->tpl_data;
   TplDepFrame *tpl_frame = &tpl_data->tpl_frame[frame_idx];
+  const uint8_t block_mis_log2 = tpl_data->tpl_stats_block_mis_log2;
 
   av1_zero(x->search_ref_frame);
 
@@ -4586,7 +4590,7 @@ static void init_ref_frame_space(AV1_COMP *cpi, ThreadData *td, int mi_row,
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   const int tpl_stride = tpl_frame->stride;
   int64_t inter_cost[INTER_REFS_PER_FRAME] = { 0 };
-  const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
+  const int step = 1 << block_mis_log2;
   const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
   const int mi_row_end =
       AOMMIN(mi_size_high[sb_size] + mi_row, mi_params->mi_rows);
@@ -4596,7 +4600,7 @@ static void init_ref_frame_space(AV1_COMP *cpi, ThreadData *td, int mi_row,
   for (int row = mi_row; row < mi_row_end; row += step) {
     for (int col = mi_col; col < mi_col_end; col += step) {
       const TplDepStats *this_stats =
-          &tpl_stats[av1_tpl_ptr_pos(cpi, row, col, tpl_stride)];
+          &tpl_stats[av1_tpl_ptr_pos(row, col, tpl_stride, block_mis_log2)];
       int64_t tpl_pred_error[INTER_REFS_PER_FRAME] = { 0 };
       // Find the winner ref frame idx for the current block
       int64_t best_inter_cost = this_stats->pred_error[0];
