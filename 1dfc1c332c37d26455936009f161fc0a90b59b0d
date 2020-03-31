@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4c3f1b6_d23d78d3",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3566,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-31T21:36:49Z",
+      "side": 1,
+      "message": "Will rd_stats-\u003erate always be 0 after this statement?\nIf not, what other rate can be there?\nAnd If yes, maybe this can be simplified to:\nrd_stats_y-\u003erate \u003d 0;\nrd_stats_uv-\u003erate \u003d 0;\nrd_stats-\u003erate \u003d skip_flag_cost[1];",
+      "range": {
+        "startLine": 3566,
+        "startChar": 4,
+        "endLine": 3566,
+        "endChar": 59
+      },
+      "revId": "1dfc1c332c37d26455936009f161fc0a90b59b0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
