@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2c39add_6d321f87",
+        "filename": "av1/common/quant_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-03-31T15:42:24Z",
+      "side": 1,
+      "message": "Thanks Yaowu for fixing MSVC!\n\nBut I think tools like clang-tidy will actually warn the other way (saying \"declaration should not have const\" for this part).\nSo, could you change the definitions to be same as declarations instead?",
+      "range": {
+        "startLine": 52,
+        "startChar": 47,
+        "endLine": 52,
+        "endChar": 52
+      },
+      "revId": "f83dbc2ebc97d62124174f1e6fd0d0ba243b279d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
