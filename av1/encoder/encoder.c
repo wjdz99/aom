@@ -4216,7 +4216,7 @@ static void set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
     configure_static_seg_features(cpi);
 }
 
-static void init_motion_estimation(AV1_COMP *cpi) {
+static void init_motion_estimation(AV1_COMP *cpi, int fpf_y_stride) {
   AV1_COMMON *const cm = &cpi->common;
   const int y_stride = cpi->scaled_source.y_stride;
   const int y_stride_src =
@@ -4241,7 +4241,7 @@ static void init_motion_estimation(AV1_COMP *cpi) {
     av1_init3smotion_compensation(&cpi->ss_cfg[SS_CFG_SRC], y_stride);
     av1_init3smotion_compensation(&cpi->ss_cfg[SS_CFG_LOOKAHEAD], y_stride_src);
   }
-  av1_init_motion_fpf(&cpi->ss_cfg[SS_CFG_FPF], y_stride);
+  av1_init_motion_fpf(&cpi->ss_cfg[SS_CFG_FPF], fpf_y_stride);
 }
 
 #define COUPLED_CHROMA_FROM_LUMA_RESTORATION 0
@@ -4293,11 +4293,15 @@ void av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
     av1_set_speed_features_framesize_independent(cpi, cpi->oxcf.speed);
     av1_set_speed_features_framesize_dependent(cpi, cpi->oxcf.speed);
 
-    alloc_altref_frame_buffer(cpi);
+    if (!is_stat_generation_stage(cpi)) {
+      alloc_altref_frame_buffer(cpi);
+      alloc_util_frame_buffers(cpi);
+    }
     init_ref_frame_bufs(cpi);
-    alloc_util_frame_buffers(cpi);
 
-    init_motion_estimation(cpi);  // TODO(agrange) This can be removed.
+    init_motion_estimation(
+        cpi,
+        cpi->scaled_source.y_stride);  // TODO(agrange) This can be removed.
 
     cpi->initial_width = cm->width;
     cpi->initial_height = cm->height;
@@ -4384,8 +4388,8 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
     cm->rst_info[i].frame_restoration_type = RESTORE_NONE;
 
   av1_alloc_restoration_buffers(cm);
-  alloc_util_frame_buffers(cpi);
-  init_motion_estimation(cpi);
+  if (!is_stat_generation_stage(cpi)) alloc_util_frame_buffers(cpi);
+  init_motion_estimation(cpi, cm->cur_frame->buf.y_stride);
 
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
