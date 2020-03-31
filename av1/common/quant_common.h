@@ -49,7 +49,7 @@ int av1_get_qindex(const struct segmentation *seg, int segment_id,
 
 // Returns true if we should use quantization matrix.
 bool av1_use_qmatrix(const struct CommonQuantParams *quant_params,
-                     const struct macroblockd *xd, int segment_id);
+                     const struct macroblockd *const xd, int segment_id);
 
 // Reduce the large number of quantizers to a smaller number of levels for which
 // different matrices may be defined
@@ -68,13 +68,15 @@ const qm_val_t *av1_qmatrix(const struct CommonQuantParams *quant_params,
                             int qmlevel, int plane, TX_SIZE tx_size);
 
 // Get either local / global dequant matrix as appropriate.
-const qm_val_t *av1_get_iqmatrix(const struct CommonQuantParams *quant_params,
-                                 const struct macroblockd *xd, int plane,
-                                 TX_SIZE tx_size, TX_TYPE tx_type);
+const qm_val_t *av1_get_iqmatrix(
+    const struct CommonQuantParams *const quant_params,
+    const struct macroblockd *const xd, int plane, TX_SIZE tx_size,
+    TX_TYPE tx_type);
 // Get either local / global quant matrix as appropriate.
-const qm_val_t *av1_get_qmatrix(const struct CommonQuantParams *quant_params,
-                                const struct macroblockd *xd, int plane,
-                                TX_SIZE tx_size, TX_TYPE tx_type);
+const qm_val_t *av1_get_qmatrix(
+    const struct CommonQuantParams *const quant_params,
+    const struct macroblockd *const xd, int plane, TX_SIZE tx_size,
+    TX_TYPE tx_type);
 
 #ifdef __cplusplus
 }  // extern "C"
