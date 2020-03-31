@@ -3571,10 +3571,6 @@ int av1_txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     rd_stats_y->rate = 0;
     rd_stats_uv->rate = 0;
     mbmi->skip = 1;
-    if (rd_stats->skip) {
-      const int64_t tmprd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
-      if (tmprd > ref_best_rd) return 0;
-    }
   } else {
     rd_stats->rate += skip_flag_cost[0];
     mbmi->skip = 0;
