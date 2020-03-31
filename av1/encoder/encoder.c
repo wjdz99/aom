@@ -4280,9 +4280,11 @@ void av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
     av1_set_speed_features_framesize_independent(cpi, cpi->oxcf.speed);
     av1_set_speed_features_framesize_dependent(cpi, cpi->oxcf.speed);
 
-    alloc_altref_frame_buffer(cpi);
+    if (!is_stat_generation_stage(cpi)) {
+      alloc_altref_frame_buffer(cpi);
+      alloc_util_frame_buffers(cpi);
+    }
     init_ref_frame_bufs(cpi);
-    alloc_util_frame_buffers(cpi);
 
     init_motion_estimation(cpi);  // TODO(agrange) This can be removed.
 
@@ -4367,7 +4369,7 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
     cm->rst_info[i].frame_restoration_type = RESTORE_NONE;
 
   av1_alloc_restoration_buffers(cm);
-  alloc_util_frame_buffers(cpi);
+  if (!is_stat_generation_stage(cpi)) alloc_util_frame_buffers(cpi);
   init_motion_estimation(cpi);
 
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
