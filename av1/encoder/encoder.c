@@ -2678,7 +2678,7 @@ static void set_tpl_stats_block_size(AV1_COMP *cpi) {
   const int is_720p_or_larger = AOMMIN(cm->width, cm->height) >= 720;
 
   // 0: 4x4, 1: 8x8, 2: 16x16
-  cpi->tpl_stats_block_mis_log2 = is_720p_or_larger ? 2 : 1;
+  cpi->tpl_data.tpl_stats_block_mis_log2 = is_720p_or_larger ? 2 : 1;
 }
 
 void av1_alloc_compound_type_rd_buffers(AV1_COMMON *const cm,
@@ -2949,6 +2949,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 static INLINE void setup_tpl_buffers(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
   CommonModeInfoParams *const mi_params = &cm->mi_params;
+  TPLInfoParams *tpl_data = &cpi->tpl_data;
 
   set_tpl_stats_block_size(cpi);
   for (int frame = 0; frame < MAX_LENGTH_TPL_FRAME_STATS; ++frame) {
@@ -2957,24 +2958,25 @@ static INLINE void setup_tpl_buffers(AV1_COMP *cpi) {
     const int mi_rows =
         ALIGN_POWER_OF_TWO(mi_params->mi_rows, MAX_MIB_SIZE_LOG2);
 
-    cpi->tpl_stats_buffer[frame].is_valid = 0;
-    cpi->tpl_stats_buffer[frame].width =
-        mi_cols >> cpi->tpl_stats_block_mis_log2;
-    cpi->tpl_stats_buffer[frame].height =
-        mi_rows >> cpi->tpl_stats_block_mis_log2;
-    cpi->tpl_stats_buffer[frame].stride = cpi->tpl_stats_buffer[frame].width;
-    cpi->tpl_stats_buffer[frame].mi_rows = mi_params->mi_rows;
-    cpi->tpl_stats_buffer[frame].mi_cols = mi_params->mi_cols;
+    tpl_data->tpl_stats_buffer[frame].is_valid = 0;
+    tpl_data->tpl_stats_buffer[frame].width =
+        mi_cols >> tpl_data->tpl_stats_block_mis_log2;
+    tpl_data->tpl_stats_buffer[frame].height =
+        mi_rows >> tpl_data->tpl_stats_block_mis_log2;
+    tpl_data->tpl_stats_buffer[frame].stride =
+        tpl_data->tpl_stats_buffer[frame].width;
+    tpl_data->tpl_stats_buffer[frame].mi_rows = mi_params->mi_rows;
+    tpl_data->tpl_stats_buffer[frame].mi_cols = mi_params->mi_cols;
   }
 
   for (int frame = 0; frame < MAX_LAG_BUFFERS; ++frame) {
     CHECK_MEM_ERROR(
-        cm, cpi->tpl_stats_pool[frame],
-        aom_calloc(cpi->tpl_stats_buffer[frame].width *
-                       cpi->tpl_stats_buffer[frame].height,
-                   sizeof(*cpi->tpl_stats_buffer[frame].tpl_stats_ptr)));
+        cm, tpl_data->tpl_stats_pool[frame],
+        aom_calloc(tpl_data->tpl_stats_buffer[frame].width *
+                       tpl_data->tpl_stats_buffer[frame].height,
+                   sizeof(*tpl_data->tpl_stats_buffer[frame].tpl_stats_ptr)));
     if (aom_alloc_frame_buffer(
-            &cpi->tpl_rec_pool[frame], cm->width, cm->height,
+            &tpl_data->tpl_rec_pool[frame], cm->width, cm->height,
             cm->seq_params.subsampling_x, cm->seq_params.subsampling_y,
             cm->seq_params.use_highbitdepth, AOM_ENC_NO_SCALE_BORDER,
             cm->features.byte_alignment))
@@ -2982,7 +2984,7 @@ static INLINE void setup_tpl_buffers(AV1_COMP *cpi) {
                          "Failed to allocate frame buffer");
   }
 
-  cpi->tpl_frame = &cpi->tpl_stats_buffer[REF_FRAMES + 1];
+  tpl_data->tpl_frame = &tpl_data->tpl_stats_buffer[REF_FRAMES + 1];
 }
 
 static INLINE void init_frame_info(FRAME_INFO *frame_info,
@@ -3567,8 +3569,8 @@ void av1_remove_compressor(AV1_COMP *cpi) {
   }
 
   for (int frame = 0; frame < MAX_LAG_BUFFERS; ++frame) {
-    aom_free(cpi->tpl_stats_pool[frame]);
-    aom_free_frame_buffer(&cpi->tpl_rec_pool[frame]);
+    aom_free(cpi->tpl_data.tpl_stats_pool[frame]);
+    aom_free_frame_buffer(&cpi->tpl_data.tpl_rec_pool[frame]);
   }
 
   for (t = cpi->num_workers - 1; t >= 0; --t) {
@@ -4100,7 +4102,7 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
   assert(IMPLIES(gf_group->size > 0, gf_group->index < gf_group->size));
 
   const int tpl_idx = gf_group->index;
-  TplDepFrame *tpl_frame = &cpi->tpl_frame[tpl_idx];
+  TplDepFrame *tpl_frame = &cpi->tpl_data.tpl_frame[tpl_idx];
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
 
   if (tpl_frame->is_valid) {
@@ -4111,7 +4113,7 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
     int64_t mc_saved_base = 0;
     int64_t mc_count_base = 0;
 #endif  // !USE_TPL_CLASSIC_MODEL
-    const int step = 1 << cpi->tpl_stats_block_mis_log2;
+    const int step = 1 << cpi->tpl_data.tpl_stats_block_mis_log2;
     const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
 
     for (int row = 0; row < cm->mi_params.mi_rows; row += step) {
