@@ -2131,14 +2131,14 @@ static AOM_INLINE void get_block_level_tpl_stats(
 
   assert(IMPLIES(gf_group->size > 0, gf_group->index < gf_group->size));
   const int tpl_idx = gf_group->index;
-  const TplDepFrame *tpl_frame = &cpi->tpl_frame[tpl_idx];
+  const TplDepFrame *tpl_frame = &cpi->tpl_data.tpl_frame[tpl_idx];
   if (!tpl_frame->is_valid) return;
 
   const TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   const int mi_wide = mi_size_wide[bsize];
   const int mi_high = mi_size_high[bsize];
   const int tpl_stride = tpl_frame->stride;
-  const int step = 1 << cpi->tpl_stats_block_mis_log2;
+  const int step = 1 << cpi->tpl_data.tpl_stats_block_mis_log2;
   const int mi_col_sr =
       coded_to_superres_mi(mi_col, cm->superres_scale_denominator);
   const int mi_col_end_sr =
@@ -2241,7 +2241,7 @@ static int64_t handle_inter_mode(
 
   const GF_GROUP *const gf_group = &cpi->gf_group;
   const int tpl_idx = gf_group->index;
-  TplDepFrame *tpl_frame = &cpi->tpl_frame[tpl_idx];
+  TplDepFrame *tpl_frame = &cpi->tpl_data.tpl_frame[tpl_idx];
   const int prune_modes_based_on_tpl =
       cpi->sf.inter_sf.prune_inter_modes_based_on_tpl && tpl_frame->is_valid;
   int i;
