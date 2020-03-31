@@ -3270,9 +3270,9 @@ static int remux_tiles(const CommonTileParams *const tiles, uint8_t *dst,
 
 uint32_t av1_write_obu_header(AV1_COMP *const cpi, OBU_TYPE obu_type,
                               int obu_extension, uint8_t *const dst) {
-  if (cpi->keep_level_stats &&
+  if (cpi->level_params.keep_level_stats &&
       (obu_type == OBU_FRAME || obu_type == OBU_FRAME_HEADER))
-    ++cpi->frame_header_count;
+    ++cpi->level_params.frame_header_count;
 
   struct aom_write_bit_buffer wb = { dst, 0 };
   uint32_t size = 0;
@@ -3849,7 +3849,7 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
   bitstream_queue_reset_write();
 #endif
 
-  cpi->frame_header_count = 0;
+  cpi->level_params.frame_header_count = 0;
 
   // The TD is now written outside the frame encode loop
 

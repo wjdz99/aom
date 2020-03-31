@@ -688,7 +688,8 @@ void av1_decoder_model_process_frame(const AV1_COMP *const cpi,
 
 void av1_init_level_info(AV1_COMP *cpi) {
   for (int op_index = 0; op_index < MAX_NUM_OPERATING_POINTS; ++op_index) {
-    AV1LevelInfo *const this_level_info = cpi->level_info[op_index];
+    AV1LevelInfo *const this_level_info =
+        cpi->level_params.level_info[op_index];
     if (!this_level_info) continue;
     memset(this_level_info, 0, sizeof(*this_level_info));
     AV1LevelSpec *const level_spec = &this_level_info->level_spec;
@@ -1046,6 +1047,8 @@ static void scan_past_frames(const FrameWindowBuffer *const buffer,
 void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
                            int64_t ts_end) {
   AV1_COMMON *const cm = &cpi->common;
+  AV1LevelParams *level_params = &cpi->level_params;
+
   const int upscaled_width = cm->superres_upscaled_width;
   const int width = cm->width;
   const int height = cm->height;
@@ -1053,7 +1056,7 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
   const int tile_rows = cm->tiles.rows;
   const int tiles = tile_cols * tile_rows;
   const int luma_pic_size = upscaled_width * height;
-  const int frame_header_count = cpi->frame_header_count;
+  const int frame_header_count = level_params->frame_header_count;
   const int show_frame = cm->show_frame;
   const int show_existing_frame = cm->show_existing_frame;
 
@@ -1082,11 +1085,11 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
   for (int i = 0; i < seq_params->operating_points_cnt_minus_1 + 1; ++i) {
     if (!is_in_operating_point(seq_params->operating_point_idc[i],
                                temporal_layer_id, spatial_layer_id) ||
-        !((cpi->keep_level_stats >> i) & 1)) {
+        !((level_params->keep_level_stats >> i) & 1)) {
       continue;
     }
 
-    AV1LevelInfo *const level_info = cpi->level_info[i];
+    AV1LevelInfo *const level_info = level_params->level_info[i];
     assert(level_info != NULL);
     AV1LevelStats *const level_stats = &level_info->level_stats;
 
@@ -1136,7 +1139,7 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
     }
 
     // Check whether target level is met.
-    const AV1_LEVEL target_level = cpi->target_seq_level_idx[i];
+    const AV1_LEVEL target_level = level_params->target_seq_level_idx[i];
     if (target_level < SEQ_LEVELS) {
       assert(is_valid_seq_level_idx(target_level));
       const int tier = seq_params->tier[i];
@@ -1160,9 +1163,9 @@ aom_codec_err_t av1_get_seq_level_idx(const AV1_COMP *cpi, int *seq_level_idx) {
   const BITSTREAM_PROFILE profile = seq_params->profile;
   for (int op = 0; op < seq_params->operating_points_cnt_minus_1 + 1; ++op) {
     seq_level_idx[op] = (int)SEQ_LEVEL_MAX;
-    if (!((cpi->keep_level_stats >> op) & 1)) continue;
+    if (!((cpi->level_params.keep_level_stats >> op) & 1)) continue;
     const int tier = seq_params->tier[op];
-    const AV1LevelInfo *const level_info = cpi->level_info[op];
+    const AV1LevelInfo *const level_info = cpi->level_params.level_info[op];
     assert(level_info != NULL);
     for (int level = 0; level < SEQ_LEVELS; ++level) {
       if (!is_valid_seq_level_idx(level)) continue;
