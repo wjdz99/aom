@@ -52,14 +52,15 @@ enum {
 // DISALLOW_ONE_DOWN_FLEX_MVRES 0 => allow all possible down precisions
 // DISALLOW_ONE_DOWN_FLEX_MVRES 1 => allow all possible down precisions except 1
 // DISALLOW_ONE_DOWN_FLEX_MVRES 2 => allow only 0 and 2 down precisions
-#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+#if CONFIG_FLEX_MVRES
 #define DISALLOW_ONE_DOWN_FLEX_MVRES 2  // Choose one of the above
 #define MV_PREC_DOWN_CONTEXTS 2
 #else
 #define DISALLOW_ONE_DOWN_FLEX_MVRES 0
-#endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+#endif  // CONFIG_FLEX_MVRES
 #define FLEX_MV_COSTS_SIZE \
   ((MV_SUBPEL_PRECISIONS) - (DISALLOW_ONE_DOWN_FLEX_MVRES))
+#define ENABLE_SB_RES 0
 
 #if CONFIG_COMPANDED_MV
 #define COMPANDED_INTMV_THRESH_QTR 96
