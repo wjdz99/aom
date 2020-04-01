@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a142fc2_3925b815",
+        "filename": "README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-04-01T00:30:24Z",
+      "side": 1,
+      "message": "you went from \u0027:\u0027 in the first to \u0027.\u0027 in the last 3.",
+      "range": {
+        "startLine": 228,
+        "startChar": 64,
+        "endLine": 228,
+        "endChar": 65
+      },
+      "revId": "bb4ff0cc6c213aa6f625cf93ccb68f8f57074996",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
