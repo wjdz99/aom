@@ -356,13 +356,13 @@ static MvSubpelPrecision determine_frame_mv_precision(const AV1_COMP *cpi,
   return MV_SUBPEL_QTR_PRECISION;
 }
 
-#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+#if CONFIG_FLEX_MVRES
 #define FLEX_MV_PRECISION_QTHRESH 256  // Reduce to turn off at low quality
 static int determine_flex_mv_precision(const AV1_COMP *cpi, int q) {
   return (cpi->common.fr_mv_precision >= MV_SUBPEL_QTR_PRECISION &&
           !is_stat_generation_stage(cpi) && q <= FLEX_MV_PRECISION_QTHRESH);
 }
-#endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+#endif  // CONFIG_FLEX_MVRES
 
 // Compute the horizontal frequency components' energy in a frame
 // by calculuating the 16x4 Horizontal DCT. This is to be used to
@@ -438,14 +438,14 @@ static void set_mv_precision(AV1_COMP *cpi, MvSubpelPrecision precision,
   cpi->common.fr_mv_precision =
       cur_frame_force_integer_mv ? MV_SUBPEL_NONE : precision;
 
-#if CONFIG_SB_FLEX_MVRES
+#if CONFIG_FLEX_MVRES
   AV1_COMMON *cm = &cpi->common;
   if (frame_is_intra_only(cm) || cm->fr_mv_precision == MV_SUBPEL_NONE) {
     cm->use_sb_mv_precision = 0;
   } else {
     cm->use_sb_mv_precision = 1;
   }
-#endif  // CONFIG_SB_FLEX_MVRES
+#endif  // CONFIG_FLEX_MVRES
 }
 
 static BLOCK_SIZE select_sb_size(const AV1_COMP *const cpi) {
@@ -2988,9 +2988,10 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 
   av1_reset_segment_features(cm);
   set_mv_precision(cpi, MV_SUBPEL_EIGHTH_PRECISION, 0);
-#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+#if CONFIG_FLEX_MVRES
+  cm->use_sb_mv_precision = ENABLE_SB_RES;
   cm->use_pb_mv_precision = 0;
-#endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+#endif  // CONFIG_FLEX_MVRES
 
   set_rc_buffer_sizes(rc, &cpi->oxcf);
 
@@ -4322,9 +4323,10 @@ static void set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
     assert(IMPLIES(!cm->cur_frame_force_integer_mv,
                    precision >= MV_SUBPEL_QTR_PRECISION));
     set_mv_precision(cpi, precision, cm->cur_frame_force_integer_mv);
-#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+#if CONFIG_FLEX_MVRES
+    cpi->common.use_sb_mv_precision = ENABLE_SB_RES;
     cpi->common.use_pb_mv_precision = determine_flex_mv_precision(cpi, *q);
-#endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+#endif  // CONFIG_FLEX_MVRES
   }
 
   // Configure experimental use of segmentation for enhanced coding of
@@ -5025,7 +5027,7 @@ static void fix_interp_filter(InterpFilter *const interp_filter,
   }
 }
 
-#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+#if CONFIG_FLEX_MVRES
 static void fix_use_flex_mv_precision(AV1_COMP *const cpi) {
   AV1_COMMON *const cm = &cpi->common;
   if (!cm->use_pb_mv_precision) return;
@@ -5043,7 +5045,7 @@ static void fix_use_flex_mv_precision(AV1_COMP *const cpi) {
   // Turn off use_flex_mv_flag if not used in the frame
   if (reduced_count == 0) cm->use_pb_mv_precision = 0;
 }
-#endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+#endif  // CONFIG_FLEX_MVRES
 
 static void finalize_encoded_frame(AV1_COMP *const cpi) {
   AV1_COMMON *const cm = &cpi->common;
@@ -5091,9 +5093,9 @@ static void finalize_encoded_frame(AV1_COMP *const cpi) {
   }
 
   fix_interp_filter(&cm->interp_filter, cpi->td.counts);
-#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+#if CONFIG_FLEX_MVRES
   fix_use_flex_mv_precision(cpi);
-#endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+#endif  // CONFIG_FLEX_MVRES
 }
 
 static int get_regulated_q_overshoot(AV1_COMP *const cpi, int q_low, int q_high,
