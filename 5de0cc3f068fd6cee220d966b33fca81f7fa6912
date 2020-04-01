@@ -22,6 +22,30 @@
       "revId": "5de0cc3f068fd6cee220d966b33fca81f7fa6912",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a6246db_0570ff8a",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-01T00:28:46Z",
+      "side": 1,
+      "message": "Done. I mean this example assumes the build host is a Windows x64 machine.",
+      "parentUuid": "2f8bc4fa_74e3ccf4",
+      "range": {
+        "startLine": 222,
+        "startChar": 6,
+        "endLine": 222,
+        "endChar": 12
+      },
+      "revId": "5de0cc3f068fd6cee220d966b33fca81f7fa6912",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
