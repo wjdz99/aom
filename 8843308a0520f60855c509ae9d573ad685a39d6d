@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a147f2a_da9b0ce9",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3195,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-01T22:25:36Z",
+      "side": 1,
+      "message": "const ?",
+      "range": {
+        "startLine": 3195,
+        "startChar": 50,
+        "endLine": 3195,
+        "endChar": 60
+      },
+      "revId": "8843308a0520f60855c509ae9d573ad685a39d6d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73c597e9_cbd7cf95",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3203,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-01T22:25:36Z",
+      "side": 1,
+      "message": "const?",
+      "range": {
+        "startLine": 3203,
+        "startChar": 2,
+        "endLine": 3203,
+        "endChar": 13
+      },
+      "revId": "8843308a0520f60855c509ae9d573ad685a39d6d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c431ff8_d1c2c8a4",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3216,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-01T22:25:36Z",
+      "side": 1,
+      "message": "can be simplified to:\nreturn (((model_rd * factor) \u003e\u003e 3) \u003e ref_best_rd);",
+      "range": {
+        "startLine": 3213,
+        "startChar": 0,
+        "endLine": 3216,
+        "endChar": 11
+      },
+      "revId": "8843308a0520f60855c509ae9d573ad685a39d6d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efd00548_995c34c1",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3296,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-01T22:25:36Z",
+      "side": 1,
+      "message": "Unrelated to this patch, but should this result still be saved in the \u0027mb_rd_record\u0027?",
+      "revId": "8843308a0520f60855c509ae9d573ad685a39d6d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
