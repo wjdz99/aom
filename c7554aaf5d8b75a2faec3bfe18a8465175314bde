@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0e7444eb_c5434a5e",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4369,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-01T23:31:00Z",
+      "side": 0,
+      "message": "That\u0027s correct. This check is a general array index validation. This function has only one caller, so we can verify that caller always passes a valid array index.\n\nIn any case, I like your solution much better.",
+      "parentUuid": "b82d5dc1_4cfe44d5",
+      "range": {
+        "startLine": 4369,
+        "startChar": 0,
+        "endLine": 4369,
+        "endChar": 42
+      },
+      "revId": "c7554aaf5d8b75a2faec3bfe18a8465175314bde",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "db7e2b63_2146af91",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "d215d23e_becedaf9",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2456,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-01T23:31:00Z",
+      "side": 0,
+      "message": "This one is harder to verify. I have verified up to this point:\n  if cm-\u003enumber_spatial_layers and cm-\u003enumber_temporal_layers are both \u003c\u003d their respective maximum, then this condition never occurs.\n\nIt seems that cm-\u003enumber_temporal_layers is initialized to 1 and there is no control to change it. cm-\u003enumber_spatial_layers is initialized to 1, and the control that sets number_spatial_layers makes sure it is \u003c\u003d MAX_NUM_ENHANCEMENT_LAYERS, which seems like an older maximum. (The correct maximum should be MAX_NUM_SPATIAL_LAYERS, I think.)\n\nIn any case, I believe this is correct. It\u0027s just that the verification is more complex and I am less sure I didn\u0027t make a mistake.",
+      "parentUuid": "db7e2b63_2146af91",
+      "range": {
+        "startLine": 2456,
+        "startChar": 0,
+        "endLine": 2456,
+        "endChar": 40
+      },
+      "revId": "c7554aaf5d8b75a2faec3bfe18a8465175314bde",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0c30ee90_30350069",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2020-04-01T17:14:35Z",
       "side": 0,
       "message": "I believe this was a no-op.\nAt least, it shouldn\u0027t belong here.",
+      "range": {
+        "startLine": 2474,
+        "startChar": 0,
+        "endLine": 2475,
+        "endChar": 44
+      },
+      "revId": "c7554aaf5d8b75a2faec3bfe18a8465175314bde",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a14ab056_e4bf429d",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2475,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-01T23:31:00Z",
+      "side": 0,
+      "message": "This one I don\u0027t know. If you are not sure, it is best to keep it.",
+      "parentUuid": "0c30ee90_30350069",
       "range": {
         "startLine": 2474,
         "startChar": 0,
