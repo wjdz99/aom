@@ -860,7 +860,7 @@ static AOM_INLINE void dec_build_inter_predictors_sby(const AV1_COMMON *cm,
     BUFFER_SET ctx = { { xd->plane[0].dst.buf, NULL, NULL },
                                { xd->plane[0].dst.stride, 0, 0 } };
     av1_build_interintra_predictors_sbp(cm, xd, xd->plane[0].dst.buf,
-                                        xd->plane[0].dst.stride, &ctx, 0, bsize);
+                                       xd->plane[0].dst.stride, &ctx, 0, bsize);
   }
 }
 
