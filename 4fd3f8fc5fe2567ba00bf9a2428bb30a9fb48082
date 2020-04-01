@@ -16,6 +16,24 @@
       "revId": "4fd3f8fc5fe2567ba00bf9a2428bb30a9fb48082",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "349aab3f_682b8ad0",
+        "filename": "README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-01T21:46:52Z",
+      "side": 1,
+      "message": "I got these command lines from the CMake documentation for its Visual Studio 2017 and 2019 generators:\n\nhttps://cmake.org/cmake/help/latest/generator/Visual%20Studio%2015%202017.html\nhttps://cmake.org/cmake/help/latest/generator/Visual%20Studio%2016%202019.html\n\nBrowsing the cmake.org website, I found that the -A option first showed up in CMake 3.13. Since this README.md file only requires CMake 3.5, this could be problematic. However, if one uses the cmake bundled with Visual Studio, then this works.",
+      "parentUuid": "c4d2878c_421f7fca",
+      "revId": "4fd3f8fc5fe2567ba00bf9a2428bb30a9fb48082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
