@@ -2069,9 +2069,7 @@ static AOM_INLINE void rd_use_partition(
         RDCOST(x->rdmult, last_part_rdc.rate, last_part_rdc.dist);
   }
 
-  if ((cpi->sf.part_sf.partition_search_type == SEARCH_PARTITION ||
-       (cpi->sf.part_sf.partition_search_type == VAR_BASED_PARTITION &&
-        cpi->sf.part_sf.adjust_var_based_rd_partitioning == 2)) &&
+  if (cpi->sf.part_sf.partition_search_type == SEARCH_PARTITION &&
       partition != PARTITION_SPLIT && bsize > BLOCK_8X8 &&
       (mi_row + bs < mi_params->mi_rows ||
        mi_row + hbs == mi_params->mi_rows) &&
