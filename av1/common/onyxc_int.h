@@ -391,10 +391,8 @@ typedef struct AV1Common {
   uint8_t disable_cdf_update;
   MvSubpelPrecision fr_mv_precision;
   uint8_t cur_frame_force_integer_mv;  // 0 the default in AOM, 1 only integer
-#if CONFIG_SB_FLEX_MVRES
+#if CONFIG_FLEX_MVRES
   uint8_t use_sb_mv_precision;
-#endif  // CONFIG_SB_FLEX_MVRES
-#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
   uint8_t use_pb_mv_precision;
 #endif  // CONFIG_FLEX_MVRES
 
@@ -1685,7 +1683,7 @@ static INLINE int is_valid_seq_level_idx(AV1_LEVEL seq_level_idx) {
   return seq_level_idx < SEQ_LEVELS || seq_level_idx == SEQ_LEVEL_MAX;
 }
 
-#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+#if CONFIG_FLEX_MVRES
 static INLINE MvSubpelPrecision av1_get_mbmi_max_mv_precision(
     const AV1_COMMON *const cm, const MB_MODE_INFO *mbmi) {
   (void)mbmi;
@@ -1724,7 +1722,7 @@ static INLINE MvSubpelPrecision av1_get_mbmi_mv_precision(
     return mbmi->max_mv_precision;
   }
 }
-#endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+#endif  // CONFIG_FLEX_MVRES
 
 #if CONFIG_MISC_CHANGES
 static INLINE int all_ref_frames_the_same(const AV1_COMMON *const cm) {
