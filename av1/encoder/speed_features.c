@@ -571,8 +571,6 @@ static void set_good_speed_features_framesize_independent(
 
   if (speed >= 5) {
     sf->part_sf.simple_motion_search_prune_agg = 3;
-    sf->part_sf.ext_partition_eval_thresh =
-        allow_screen_content_tools ? BLOCK_8X8 : BLOCK_16X16;
 
     sf->inter_sf.prune_inter_modes_based_on_tpl = boosted ? 0 : 3;
     sf->inter_sf.disable_interinter_wedge = 1;
@@ -1275,6 +1273,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
 void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
   AV1_COMMON *const cm = &cpi->common;
   SPEED_FEATURES *const sf = &cpi->sf;
+  const int boosted = frame_is_boosted(cpi);
   const int is_720p_or_larger = AOMMIN(cm->width, cm->height) >= 720;
   if (is_720p_or_larger && cpi->oxcf.mode == GOOD && speed == 0) {
     if (cm->quant_params.base_qindex <= 80) {
@@ -1288,5 +1287,16 @@ void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
       sf->tx_sf.inter_tx_size_search_init_depth_sqr = 1;
       sf->tx_sf.intra_tx_size_search_init_depth_rect = 1;
     }
+  }
+
+  if (speed >= 3 && cm->quant_params.base_qindex <= 80) {
+    sf->part_sf.ext_partition_eval_thresh =
+        (cm->features.allow_screen_content_tools || boosted) ? BLOCK_8X8
+                                                             : BLOCK_128X128;
+  }
+
+  if (speed >= 5) {
+    sf->part_sf.ext_partition_eval_thresh =
+        cm->features.allow_screen_content_tools ? BLOCK_8X8 : BLOCK_16X16;
   }
 }
