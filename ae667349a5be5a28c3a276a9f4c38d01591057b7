@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43988fb3_8438f982",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-01T19:22:42Z",
+      "side": 1,
+      "message": "For the arrays in this struct, could you document what arr_name[i] or arr_name[i][j] corresponds to for each one?",
+      "range": {
+        "startLine": 189,
+        "startChar": 0,
+        "endLine": 189,
+        "endChar": 26
+      },
+      "revId": "ae667349a5be5a28c3a276a9f4c38d01591057b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "047d167f_cf497a94",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-01T19:22:42Z",
+      "side": 1,
+      "message": "can just pass \u0027cpi-\u003etpl_data.tpl_stats_block_mis_log2\u0027 directly.\n\nAlso, check functions that call this function: maybe they can also use a sub-sturcture of \u0027cpi\u0027 as argument, instead of using \u0027cpi\u0027 argument.",
+      "range": {
+        "startLine": 505,
+        "startChar": 30,
+        "endLine": 505,
+        "endChar": 33
+      },
+      "revId": "ae667349a5be5a28c3a276a9f4c38d01591057b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cd2b5ed_f96db916",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-01T19:22:42Z",
+      "side": 1,
+      "message": "Can use \u0027cpi-\u003etpl_data.tpl_stats_block_mis_log2\u0027 argument instead\n(this and maybe other functions too?)",
+      "range": {
+        "startLine": 540,
+        "startChar": 52,
+        "endLine": 540,
+        "endChar": 55
+      },
+      "revId": "ae667349a5be5a28c3a276a9f4c38d01591057b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
