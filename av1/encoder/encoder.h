@@ -150,8 +150,7 @@ enum {
 } UENUM1BYTE(SS_CFG_OFFSET);
 
 // TODO(jingning): This needs to be cleaned up next.
-#define TPL_MAX_LENGTH (70)
-#define MAX_LENGTH_TPL_FRAME_STATS (TPL_MAX_LENGTH + REF_FRAMES + 1)
+#define MAX_LENGTH_TPL_FRAME_STATS (MAX_TOTAL_BUFFERS + REF_FRAMES + 1)
 
 typedef struct TplDepStats {
   int64_t intra_cost;
@@ -165,10 +164,8 @@ typedef struct TplDepStats {
   int_mv mv[INTER_REFS_PER_FRAME];
   int ref_frame_index;
   int64_t pred_error[INTER_REFS_PER_FRAME];
-#if !USE_TPL_CLASSIC_MODEL
   int64_t mc_count;
   int64_t mc_saved;
-#endif  // !USE_TPL_CLASSIC_MODEL
 } TplDepStats;
 
 typedef struct TplDepFrame {

@@ -223,6 +223,8 @@ typedef struct {
 // Note: All syntax elements of sequence_header_obu that need to be
 // bit-identical across multiple sequence headers must be part of this struct,
 // so that consistency is checked by are_seq_headers_consistent() function.
+// One exception is the last member 'op_params' that is ignored by
+// are_seq_headers_consistent() function.
 typedef struct SequenceHeader {
   int num_bits_width;
   int num_bits_height;
@@ -261,15 +263,6 @@ typedef struct SequenceHeader {
   uint8_t enable_restoration;          // To turn on/off loop restoration
   BITSTREAM_PROFILE profile;
 
-  // Operating point info.
-  int operating_points_cnt_minus_1;
-  int operating_point_idc[MAX_NUM_OPERATING_POINTS];
-  uint8_t display_model_info_present_flag;
-  uint8_t decoder_model_info_present_flag;
-  AV1_LEVEL seq_level_idx[MAX_NUM_OPERATING_POINTS];
-  uint8_t tier[MAX_NUM_OPERATING_POINTS];  // seq_tier in the spec. One bit: 0
-                                           // or 1.
-
   // Color config.
   aom_bit_depth_t bit_depth;  // AOM_BITS_8 in profile 0 or 1,
                               // AOM_BITS_10 or AOM_BITS_12 in profile 2 or 3.
@@ -284,6 +277,22 @@ typedef struct SequenceHeader {
   aom_chroma_sample_position_t chroma_sample_position;
   uint8_t separate_uv_delta_q;
   uint8_t film_grain_params_present;
+
+  // Operating point info.
+  int operating_points_cnt_minus_1;
+  int operating_point_idc[MAX_NUM_OPERATING_POINTS];
+  int timing_info_present;
+  aom_timing_info_t timing_info;
+  uint8_t decoder_model_info_present_flag;
+  aom_dec_model_info_t decoder_model_info;
+  uint8_t display_model_info_present_flag;
+  AV1_LEVEL seq_level_idx[MAX_NUM_OPERATING_POINTS];
+  uint8_t tier[MAX_NUM_OPERATING_POINTS];  // seq_tier in spec. One bit: 0 or 1.
+
+  // IMPORTANT: the op_params member must be at the end of the struct so that
+  // are_seq_headers_consistent() can be implemented with a memcmp() call.
+  // TODO(urvang): We probably don't need the +1 here.
+  aom_dec_model_op_parameters_t op_params[MAX_NUM_OPERATING_POINTS + 1];
 } SequenceHeader;
 
 typedef struct {
@@ -331,24 +340,46 @@ typedef struct {
 
 // Struct containing params related to tiles.
 typedef struct CommonTileParams {
-  int cols;
-  int rows;
-  int max_width_sb;
-  int max_height_sb;
-  int min_log2_cols;
-  int max_log2_cols;
-  int max_log2_rows;
-  int min_log2_rows;
-  int min_log2;
+  int cols;           // number of tile columns that frame is divided into
+  int rows;           // number of tile rows that frame is divided into
+  int max_width_sb;   // maximum tile width in superblock units.
+  int max_height_sb;  // maximum tile height in superblock units.
+  // Min width of non-rightmost tile in MI units. Only valid if cols > 1.
+  int min_inner_width;
+
+  // If true, tiles are uniformly spaced with power-of-two number of rows and
+  // columns.
+  // If false, tiles have explicitly configured widths and heights.
   int uniform_spacing;
-  int log2_cols;                        // only valid for uniform tiles
-  int log2_rows;                        // only valid for uniform tiles
-  int col_start_sb[MAX_TILE_COLS + 1];  // valid for 0 <= i <= tile_cols
-  int row_start_sb[MAX_TILE_ROWS + 1];  // valid for 0 <= i <= tile_rows
-  int width;                            // Width in MI units
-  int height;                           // Height in MI units
-  int min_inner_width;                  // min width of non-rightmost tile
+
+  // Following members are only valid when uniform_spacing == 1
+  int log2_cols;  // log2 of 'cols'.
+  int log2_rows;  // log2 of 'rows'.
+  int width;      // tile width in MI units
+  int height;     // tile height in MI units
+  // End of members that are only valid when uniform_spacing == 1
+
+  // Min num of tile columns possible based on 'max_width_sb' and frame width.
+  int min_log2_cols;
+  // Min num of tile rows possible based on 'max_height_sb' and frame height.
+  int min_log2_rows;
+  // Min num of tile columns possible based on frame width.
+  int max_log2_cols;
+  // Max num of tile columns possible based on frame width.
+  int max_log2_rows;
+  // log2 of min number of tiles (same as min_log2_cols + min_log2_rows).
+  int min_log2;
+  // col_start_sb[i] is the start position of tile column i in superblock units.
+  // valid for 0 <= i <= cols
+  int col_start_sb[MAX_TILE_COLS + 1];
+  // row_start_sb[i] is the start position of tile row i in superblock units.
+  // valid for 0 <= i <= rows
+  int row_start_sb[MAX_TILE_ROWS + 1];
+  // If true, we are using large scale tile mode.
   unsigned int large_scale;
+  // Only relevant when large_scale == 1.
+  // If true, the independent decoding of a single tile or a section of a frame
+  // is allowed.
   unsigned int single_tile_decoding;
 } CommonTileParams;
 
@@ -520,12 +551,16 @@ typedef struct AV1Common {
   // Note: The numerator is fixed to be SCALE_NUMERATOR.
   uint8_t superres_scale_denominator;
 
-  int timing_info_present;
-  aom_timing_info_t timing_info;
-  int buffer_removal_time_present;
-  aom_dec_model_info_t buffer_model;
-  aom_dec_model_op_parameters_t op_params[MAX_NUM_OPERATING_POINTS + 1];
-  aom_op_timing_info_t op_frame_timing[MAX_NUM_OPERATING_POINTS + 1];
+  // If true, buffer removal times are present.
+  bool buffer_removal_time_present;
+  // buffer_removal_times[op_num] specifies the frame removal time in units of
+  // DecCT clock ticks counted from the removal time of the last random access
+  // point for operating point op_num.
+  // TODO(urvang): We probably don't need the +1 here.
+  uint32_t buffer_removal_times[MAX_NUM_OPERATING_POINTS + 1];
+  // Presentation time of the frame in clock ticks DispCT counted from the
+  // removal time of the last random access point for the operating point that
+  // is being decoded.
   uint32_t frame_presentation_time;
 
   // Buffer where previous frame is stored.
