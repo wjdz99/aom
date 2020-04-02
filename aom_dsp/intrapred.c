@@ -362,6 +362,7 @@ void aom_dc_predictor_64x32_c(uint8_t *dst, ptrdiff_t stride,
 }
 
 #if CONFIG_FLEX_PARTITION
+syntax_error;
 void aom_dc_predictor_4x32_c(uint8_t *dst, ptrdiff_t stride,
                              const uint8_t *above, const uint8_t *left) {
   dc_predictor_rect(dst, stride, 4, 32, above, left, 2, DC_MULTIPLIER_1X8);

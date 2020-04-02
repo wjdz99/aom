@@ -1535,6 +1535,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       }
 #if CONFIG_NEW_INTER_MODES
 #if CONFIG_EXT_COMPOUND
+      syntax_error;
     } else if (mode == NEAR_NEWMV || mode == SCALED_NEWMV) {
       nmv_context *nmvc = &ec_ctx->nmvc;
       const int_mv ref_mv = av1_get_ref_mv(x, 1);
