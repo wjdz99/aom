@@ -345,7 +345,8 @@ static void set_good_speed_features_framesize_independent(
 
     sf->mv_sf.exhaustive_searches_thresh <<= 1;
     sf->mv_sf.obmc_full_pixel_search_level = 1;
-    sf->mv_sf.use_accurate_subpel_search = USE_4_TAPS;
+    // sf->mv_sf.use_accurate_subpel_search = USE_4_TAPS;
+    sf->mv_sf.use_accurate_subpel_search = USE_4_TAPS_SHARP;
 
     sf->inter_sf.disable_interinter_wedge_newmv_search = boosted ? 0 : 1;
     sf->inter_sf.prune_comp_search_by_single_result = boosted ? 2 : 1;
