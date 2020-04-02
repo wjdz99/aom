@@ -140,6 +140,30 @@
       "revId": "c7554aaf5d8b75a2faec3bfe18a8465175314bde",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5464d7c_9020db87",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2475,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-02T02:31:42Z",
+      "side": 0,
+      "message": "I verified by running aomenc with \"--timing-info\u003dmodel\" that this array is always all-zero at this point.\nSo, this was indeed a no-op.",
+      "parentUuid": "a14ab056_e4bf429d",
+      "range": {
+        "startLine": 2474,
+        "startChar": 0,
+        "endLine": 2475,
+        "endChar": 44
+      },
+      "revId": "c7554aaf5d8b75a2faec3bfe18a8465175314bde",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
