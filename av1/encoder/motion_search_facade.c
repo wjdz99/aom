@@ -213,23 +213,86 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
     switch (mbmi->motion_mode) {
       case SIMPLE_TRANSLATION:
         if (cpi->sf.mv_sf.use_accurate_subpel_search) {
+          int which = 0;
+          MV subpel_start_mvs[2];
+          subpel_start_mvs[0] = subpel_start_mv;
+
           const int try_second = second_best_mv.as_int != INVALID_MV &&
                                  second_best_mv.as_int != x->best_mv.as_int;
-          const int best_mv_var = cpi->find_fractional_mv_step(
+          int best_mv_var = cpi->find_fractional_mv_step(
               xd, cm, &ms_params, subpel_start_mv, &x->best_mv.as_mv, &dis,
               &x->pred_sse[ref], fractional_ms_list);
 
           if (try_second) {
             MV this_best_mv;
             subpel_start_mv = get_mv_from_fullmv(&second_best_mv.as_fullmv);
+            subpel_start_mvs[1] = subpel_start_mv;
+
             if (av1_is_subpelmv_in_range(&ms_params.mv_limits,
                                          subpel_start_mv)) {
               const int this_var = cpi->find_fractional_mv_step(
                   xd, cm, &ms_params, subpel_start_mv, &this_best_mv, &dis,
                   &x->pred_sse[ref], fractional_ms_list);
-              if (this_var < best_mv_var) x->best_mv.as_mv = this_best_mv;
+              if (this_var < best_mv_var) {
+                x->best_mv.as_mv = this_best_mv;
+                best_mv_var = this_var;
+                which = 1;
+              }
             }
           }
+
+          //          USE_4_TAPS
+          //          USE_4_TAPS_SMOOTH,
+          //          USE_4_TAPS_SHARP,
+
+          MV smooth_best_mv;
+          int smooth_var;
+          {
+            ms_params.var_params.subpel_search_type = USE_4_TAPS_SMOOTH;
+            subpel_start_mv = subpel_start_mvs[which];
+
+            if (av1_is_subpelmv_in_range(&ms_params.mv_limits,
+                                         subpel_start_mv)) {
+              smooth_var = cpi->find_fractional_mv_step(
+                  xd, cm, &ms_params, subpel_start_mv, &smooth_best_mv, &dis,
+                  &x->pred_sse[ref], NULL);
+            }
+          }
+
+          MV sharp_best_mv;
+          int sharp_var;
+          {
+            ms_params.var_params.subpel_search_type = USE_4_TAPS_SHARP;
+
+            subpel_start_mv = subpel_start_mvs[which];
+
+            if (av1_is_subpelmv_in_range(&ms_params.mv_limits,
+                                         subpel_start_mv)) {
+              sharp_var = cpi->find_fractional_mv_step(
+                  xd, cm, &ms_params, subpel_start_mv, &sharp_best_mv, &dis,
+                  &x->pred_sse[ref], NULL);
+            }
+          }
+
+          if (smooth_var < sharp_var && smooth_var * 11 < best_mv_var * 10) {
+            //            printf("\n orig: %d, %d; %d; smooth: %d, %d;   %d; ",
+            //                   x->best_mv.as_mv.row, x->best_mv.as_mv.col,
+            //                   best_mv_var, smooth_best_mv.row,
+            //                   smooth_best_mv.col,smooth_var);
+
+            x->best_mv.as_mv = smooth_best_mv;
+            best_mv_var = smooth_var;
+          } else if (sharp_var < smooth_var &&
+                     sharp_var * 11 < best_mv_var * 10) {
+            //            printf("\n orig: %d, %d; %d; sharp: %d, %d;   %d; ",
+            //                   x->best_mv.as_mv.row, x->best_mv.as_mv.col,
+            //                   best_mv_var, sharp_best_mv.row,
+            //                   sharp_best_mv.col,sharp_var);
+
+            x->best_mv.as_mv = sharp_best_mv;
+            best_mv_var = sharp_var;
+          }
+
         } else {
           cpi->find_fractional_mv_step(xd, cm, &ms_params, subpel_start_mv,
                                        &x->best_mv.as_mv, &dis,

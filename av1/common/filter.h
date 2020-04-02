@@ -43,7 +43,10 @@ enum {
   USE_2_TAPS_ORIG = 0,  // This is used in temporal filtering.
   USE_2_TAPS,
   USE_4_TAPS,
+  USE_4_TAPS_SMOOTH,
+  USE_4_TAPS_SHARP,
   USE_8_TAPS,
+  USE_8_TAPS_SHARP,
 } UENUM1BYTE(SUBPEL_SEARCH_TYPE);
 
 enum {
@@ -201,6 +204,18 @@ DECLARE_ALIGNED(256, static const InterpKernel,
   { 0, 0, 4, 36, 62, 26, 0, 0 },  { 0, 0, 2, 34, 62, 30, 0, 0 }
 };
 
+DECLARE_ALIGNED(256, static const InterpKernel,
+                av1_sub_pel_filters_4sharp[SUBPEL_SHIFTS]) = {
+  { 0, 0, 0, 128, 0, 0, 0, 0 },      { 0, 0, -6, 126, 8, 0, 0, 0 },
+  { 0, 0, -8, 124, 16, -4, 0, 0 },   { 0, 0, -12, 120, 26, -6, 0, 0 },
+  { 0, 0, -16, 116, 38, -10, 0, 0 }, { 0, 0, -16, 108, 48, -12, 0, 0 },
+  { 0, 0, -18, 100, 60, -14, 0, 0 }, { 0, 0, -18, 90, 70, -14, 0, 0 },
+  { 0, 0, -16, 80, 80, -16, 0, 0 },  { 0, 0, -14, 70, 90, -18, 0, 0 },
+  { 0, 0, -14, 60, 100, -18, 0, 0 }, { 0, 0, -12, 48, 108, -16, 0, 0 },
+  { 0, 0, -10, 38, 116, -16, 0, 0 }, { 0, 0, -6, 26, 120, -12, 0, 0 },
+  { 0, 0, -4, 16, 124, -8, 0, 0 },   { 0, 0, 0, 8, 126, -6, 0, 0 }
+};
+
 static const uint16_t
     av1_interp_dual_filt_mask[INTERP_PRED_TYPE_ALL - 2][SWITCHABLE_FILTERS] = {
       { (1 << REG_REG) | (1 << SMOOTH_REG) | (1 << SHARP_REG),
@@ -217,8 +232,8 @@ static const InterpFilterParams av1_interp_4tap[SWITCHABLE_FILTERS + 1] = {
     EIGHTTAP_REGULAR },
   { (const int16_t *)av1_sub_pel_filters_4smooth, SUBPEL_TAPS, SUBPEL_SHIFTS,
     EIGHTTAP_SMOOTH },
-  { (const int16_t *)av1_sub_pel_filters_4, SUBPEL_TAPS, SUBPEL_SHIFTS,
-    EIGHTTAP_REGULAR },
+  { (const int16_t *)av1_sub_pel_filters_4sharp, SUBPEL_TAPS, SUBPEL_SHIFTS,
+    MULTITAP_SHARP },
   { (const int16_t *)av1_bilinear_filters, SUBPEL_TAPS, SUBPEL_SHIFTS,
     BILINEAR },
 };
@@ -251,7 +266,17 @@ static INLINE const InterpFilterParams *av1_get_filter(int subpel_search) {
   switch (subpel_search) {
     case USE_2_TAPS: return &av1_interp_4tap[BILINEAR];
     case USE_4_TAPS: return &av1_interp_4tap[EIGHTTAP_REGULAR];
+
+    ///////////////////
+    case USE_4_TAPS_SMOOTH: return &av1_interp_4tap[EIGHTTAP_SMOOTH];
+    case USE_4_TAPS_SHARP: return &av1_interp_4tap[MULTITAP_SHARP];
+
     case USE_8_TAPS: return &av1_interp_filter_params_list[EIGHTTAP_REGULAR];
+
+    //////////////////
+    case USE_8_TAPS_SHARP:
+      return &av1_interp_filter_params_list[MULTITAP_SHARP];
+
     default: assert(0); return NULL;
   }
 }
