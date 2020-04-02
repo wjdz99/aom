@@ -50,6 +50,7 @@ typedef struct SVC {
   int number_temporal_layers;
   int external_ref_frame_config;
   int non_reference_frame;
+  int reference[INTER_REFS_PER_FRAME];
   int ref_idx[INTER_REFS_PER_FRAME];
   int refresh[REF_FRAMES];
   double base_framerate;
