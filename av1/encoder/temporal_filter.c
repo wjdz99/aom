@@ -92,7 +92,7 @@ static int tf_motion_search(AV1_COMP *cpi,
   const SEARCH_METHODS full_search_method = NSTEP;
   const int step_param = av1_init_search_range(
       AOMMAX(frame_to_filter->y_crop_width, frame_to_filter->y_crop_height));
-  const SUBPEL_SEARCH_TYPE subpel_search_type = USE_8_TAPS;
+  const SUBPEL_SEARCH_TYPE subpel_search_type = USE_8_TAPS_SHARP;
   const int force_integer_mv = cpi->common.features.cur_frame_force_integer_mv;
   const MV_COST_TYPE mv_cost_type =
       min_frame_size >= 720
