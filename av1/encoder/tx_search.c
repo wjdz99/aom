@@ -3087,6 +3087,10 @@ static int inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   return is_cost_valid;
 }
 
+// Search for the best transform size and type for current inter-predicted
+// coding block. The obtained transform selection will be saved in xd->mi[0],
+// the corresponding RD stats will be saved in rd_stats. The returned value is
+// the corresponding RD cost.
 static int64_t select_tx_size_and_type(const AV1_COMP *cpi, MACROBLOCK *x,
                                        RD_STATS *rd_stats, BLOCK_SIZE bsize,
                                        int64_t ref_best_rd,
@@ -3094,20 +3098,12 @@ static int64_t select_tx_size_and_type(const AV1_COMP *cpi, MACROBLOCK *x,
   MACROBLOCKD *const xd = &x->e_mbd;
   assert(is_inter_block(xd->mi[0]));
   assert(bsize < BLOCK_SIZES_ALL);
-
-  // TODO(debargha): enable this as a speed feature where the
-  // select_inter_block_yrd() function above will use a simplified search
-  // such as not using full optimize, but the inter_block_yrd() function
-  // will use more complex search given that the transform partitions have
-  // already been decided.
-
   const int fast_tx_search = x->tx_size_search_method > USE_FULL_RD;
   int64_t rd_thresh = ref_best_rd;
   if (fast_tx_search && rd_thresh < INT64_MAX) {
     if (INT64_MAX - rd_thresh > (rd_thresh >> 3)) rd_thresh += (rd_thresh >> 3);
   }
   assert(rd_thresh > 0);
-
   const FAST_TX_SEARCH_MODE ftxs_mode =
       fast_tx_search ? FTXS_DCT_AND_1D_DCT_ONLY : FTXS_NONE;
   const struct macroblockd_plane *const pd = &xd->plane[0];
@@ -3123,28 +3119,29 @@ static int64_t select_tx_size_and_type(const AV1_COMP *cpi, MACROBLOCK *x,
   av1_get_entropy_contexts(bsize, pd, ctxa, ctxl);
   memcpy(tx_above, xd->above_txfm_context, sizeof(TXFM_CONTEXT) * mi_width);
   memcpy(tx_left, xd->left_txfm_context, sizeof(TXFM_CONTEXT) * mi_height);
-
-  const int skip_ctx = av1_get_skip_context(xd);
-  const int s0 = x->skip_cost[skip_ctx][0];
-  const int s1 = x->skip_cost[skip_ctx][1];
   const int init_depth = get_search_init_depth(mi_width, mi_height, 1, &cpi->sf,
                                                x->tx_size_search_method);
   const TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
   const int bh = tx_size_high_unit[max_tx_size];
   const int bw = tx_size_wide_unit[max_tx_size];
   const int step = bw * bh;
+  const int skip_ctx = av1_get_skip_context(xd);
+  const int s0 = x->skip_cost[skip_ctx][0];
+  const int s1 = x->skip_cost[skip_ctx][1];
   int64_t skip_rd = RDCOST(x->rdmult, s1, 0);
-  int64_t this_rd = RDCOST(x->rdmult, s0, 0);
+  int64_t no_skip_rd = RDCOST(x->rdmult, s0, 0);
   int block = 0;
 
   av1_init_rd_stats(rd_stats);
   for (int idy = 0; idy < mi_height; idy += bh) {
     for (int idx = 0; idx < mi_width; idx += bw) {
       const int64_t best_rd_sofar =
-          (rd_thresh == INT64_MAX) ? INT64_MAX
-                                   : (rd_thresh - (AOMMIN(skip_rd, this_rd)));
+          (rd_thresh == INT64_MAX)
+              ? INT64_MAX
+              : (rd_thresh - (AOMMIN(skip_rd, no_skip_rd)));
       int is_cost_valid = 1;
       RD_STATS pn_rd_stats;
+      // Search for the best transform block size and type for the sub-block.
       select_tx_block(cpi, x, idy, idx, block, max_tx_size, init_depth,
                       plane_bsize, ctxa, ctxl, tx_above, tx_left, &pn_rd_stats,
                       INT64_MAX, best_rd_sofar, &is_cost_valid, ftxs_mode,
@@ -3155,19 +3152,19 @@ static int64_t select_tx_size_and_type(const AV1_COMP *cpi, MACROBLOCK *x,
       }
       av1_merge_rd_stats(rd_stats, &pn_rd_stats);
       skip_rd = RDCOST(x->rdmult, s1, rd_stats->sse);
-      this_rd = RDCOST(x->rdmult, rd_stats->rate + s0, rd_stats->dist);
+      no_skip_rd = RDCOST(x->rdmult, rd_stats->rate + s0, rd_stats->dist);
       block += step;
       if (rd_info_tree != NULL) rd_info_tree += 1;
     }
   }
 
-  if (skip_rd <= this_rd) {
+  if (rd_stats->rate == INT_MAX) return INT64_MAX;
+
+  if (skip_rd <= no_skip_rd) {
     rd_stats->skip = 1;
   } else {
     rd_stats->skip = 0;
   }
-
-  if (rd_stats->rate == INT_MAX) return INT64_MAX;
 
   // If fast_tx_search is true, only DCT and 1D DCT were tested in
   // select_inter_block_yrd() above. Do a better search for tx type with
@@ -3177,16 +3174,16 @@ static int64_t select_tx_size_and_type(const AV1_COMP *cpi, MACROBLOCK *x,
       return INT64_MAX;
   }
 
-  int64_t rd;
+  int64_t final_rd;
   if (rd_stats->skip) {
-    rd = RDCOST(x->rdmult, s1, rd_stats->sse);
+    final_rd = RDCOST(x->rdmult, s1, rd_stats->sse);
   } else {
-    rd = RDCOST(x->rdmult, rd_stats->rate + s0, rd_stats->dist);
+    final_rd = RDCOST(x->rdmult, rd_stats->rate + s0, rd_stats->dist);
     if (!xd->lossless[xd->mi[0]->segment_id])
-      rd = AOMMIN(rd, RDCOST(x->rdmult, s1, rd_stats->sse));
+      final_rd = AOMMIN(final_rd, RDCOST(x->rdmult, s1, rd_stats->sse));
   }
 
-  return rd;
+  return final_rd;
 }
 
 // Return 1 to terminate transform search early. The decision is made based on
