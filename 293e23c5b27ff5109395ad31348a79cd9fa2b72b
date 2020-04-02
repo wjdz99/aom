@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "762d1448_2a6ffa7b",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 908,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-02T18:58:19Z",
+      "side": 1,
+      "message": "Could you pass \u0027cm\u0027 and \u0027tile_info\u0027 directly, in place of \u0027cpi\u0027?",
+      "range": {
+        "startLine": 908,
+        "startChar": 27,
+        "endLine": 908,
+        "endChar": 52
+      },
+      "revId": "293e23c5b27ff5109395ad31348a79cd9fa2b72b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fab09a2_3799c03f",
+        "filename": "av1/encoder/level.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-02T18:58:19Z",
+      "side": 1,
+      "message": "Clang-tidy (and Google C++ style guide) recommend not having the 2nd const for these args -- for functions declared in header files.\nSo, use \"const SequenceHeader *seq_params\" etc\n(and also match that in the function definition in .c file)",
+      "range": {
+        "startLine": 186,
+        "startChar": 38,
+        "endLine": 186,
+        "endChar": 65
+      },
+      "revId": "293e23c5b27ff5109395ad31348a79cd9fa2b72b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
