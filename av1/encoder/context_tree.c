@@ -138,7 +138,9 @@ static AOM_INLINE void free_tree_contexts(PC_TREE *tree, const int num_planes) {
 void av1_setup_pc_tree(AV1_COMP *const cpi, ThreadData *td) {
   AV1_COMMON *const cm = &cpi->common;
   int i, j, stat_generation_stage = is_stat_generation_stage(cpi);
-  const int tree_nodes_inc = 1024;
+  const int mib_size_log2 = cm->seq_params.mib_size_log2;
+  const int is_sb_size_128 = mib_size_log2 - MIN_MIB_SIZE_LOG2;
+  const int tree_nodes_inc = is_sb_size_128 ? 1024 : 0;
   const int tree_nodes =
       stat_generation_stage ? 1 : (tree_nodes_inc + 256 + 64 + 16 + 4 + 1);
   int pc_tree_index = 0;
@@ -166,7 +168,7 @@ void av1_setup_pc_tree(AV1_COMP *const cpi, ThreadData *td) {
   }
 
   if (!stat_generation_stage) {
-    const int leaf_factor = 4;
+    const int leaf_factor = is_sb_size_128 ? 4 : 1;
     const int leaf_nodes = 256 * leaf_factor;
 
     // Sets up all the leaf nodes in the tree.
@@ -200,27 +202,20 @@ void av1_setup_pc_tree(AV1_COMP *const cpi, ThreadData *td) {
   }
 
   // Set up the root node for the largest superblock size
-  i = MAX_MIB_SIZE_LOG2 - MIN_MIB_SIZE_LOG2;
-  td->pc_root[i] = &td->pc_tree[tree_nodes - 1];
+  td->pc_root[0] = &td->pc_tree[tree_nodes - 1];
 #if CONFIG_INTERNAL_STATS
-  td->pc_root[i]->none.best_mode_index = THR_INVALID;
+  td->pc_root[0]->none.best_mode_index = THR_INVALID;
 #endif  // CONFIG_INTERNAL_STATS
-  if (!stat_generation_stage) {
-    // Set up the root nodes for the rest of the possible superblock sizes
-    while (--i >= 0) {
-      td->pc_root[i] = td->pc_root[i + 1]->split[0];
-#if CONFIG_INTERNAL_STATS
-      td->pc_root[i]->none.best_mode_index = THR_INVALID;
-#endif  // CONFIG_INTERNAL_STATS
-    }
-  }
 }
 
-void av1_free_pc_tree(const AV1_COMP *const cpi, ThreadData *td,
+void av1_free_pc_tree(AV1_COMP *const cpi, ThreadData *td,
                       const int num_planes) {
   int stat_generation_stage = is_stat_generation_stage(cpi);
   if (td->pc_tree != NULL) {
-    const int tree_nodes_inc = 1024;
+    AV1_COMMON *const cm = &cpi->common;
+    const int mib_size_log2 = cm->seq_params.mib_size_log2;
+    const int is_sb_size_128 = mib_size_log2 - MIN_MIB_SIZE_LOG2;
+    const int tree_nodes_inc = is_sb_size_128 ? 1024 : 0;
     const int tree_nodes =
         stat_generation_stage ? 1 : (tree_nodes_inc + 256 + 64 + 16 + 4 + 1);
     for (int i = 0; i < tree_nodes; ++i) {
