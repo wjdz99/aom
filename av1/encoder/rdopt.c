@@ -7649,6 +7649,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   // This function should only ever be called for compound modes
   assert(has_second_ref(mbmi));
 #if CONFIG_FLEX_MVRES
+  syntax_error;
   lower_mv_precision(&cur_mv[0].as_mv, mbmi->max_mv_precision);
   lower_mv_precision(&cur_mv[1].as_mv, mbmi->max_mv_precision);
 #endif  // CONFIG_FLEX_MVRES

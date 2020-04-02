@@ -127,6 +127,7 @@ static void set_good_speed_feature_framesize_dependent(
       sf->auto_max_partition_based_on_simple_motion = RELAXED_PRED;
   } else {
 #if CONFIG_EXT_PARTITIONS
+    syntax_error;
     sf->use_square_partition_only_threshold = BLOCK_128X128;
 #else
     sf->use_square_partition_only_threshold = BLOCK_64X64;

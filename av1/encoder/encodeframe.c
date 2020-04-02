@@ -1974,6 +1974,7 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
     const int has_cols = (mi_col + hbs_w) < cm->mi_cols;
 
 #if CONFIG_EXT_RECUR_PARTITIONS
+    syntax_error;
     if (is_square_block(bsize)) {
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
       if (has_rows && has_cols) {
