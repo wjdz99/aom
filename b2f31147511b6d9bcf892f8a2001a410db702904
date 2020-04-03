@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "584e3e9c_8ac4828e",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-04-03T03:43:02Z",
+      "side": 1,
+      "message": "Do you plan to remove these parameters?",
+      "range": {
+        "startLine": 263,
+        "startChar": 2,
+        "endLine": 266,
+        "endChar": 65
+      },
+      "revId": "b2f31147511b6d9bcf892f8a2001a410db702904",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
