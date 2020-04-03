@@ -431,6 +431,7 @@ static INLINE void find_best_non_dual_interp_filter(
   int8_t i;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
+  const FrameProbInfo *const frame_probs = &cpi->frame_probs;
 
   uint16_t interp_filter_search_mask = cpi->interp_filter_search_mask;
 
@@ -439,11 +440,12 @@ static INLINE void find_best_non_dual_interp_filter(
     const int ctx0 = av1_get_pred_context_switchable_interp(xd, 0);
     const int ctx1 = av1_get_pred_context_switchable_interp(xd, 1);
     const int *switchable_interp_p0 =
-        cpi->switchable_interp_probs[update_type][ctx0];
+        frame_probs->switchable_interp_probs[update_type][ctx0];
     const int *switchable_interp_p1 =
-        cpi->switchable_interp_probs[update_type][ctx1];
+        frame_probs->switchable_interp_probs[update_type][ctx1];
 
-    const int thresh = cpi->switchable_interp_thresh[update_type];
+    const int thresh =
+        (update_type == KF_UPDATE || INTNL_OVERLAY_UPDATE) ? 0 : 8;
     for (i = 0; i < SWITCHABLE_FILTERS; i++) {
       // For non-dual case, the 2 dir's prob should be identical.
       assert(switchable_interp_p0[i] == switchable_interp_p1[i]);
