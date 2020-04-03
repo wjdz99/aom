@@ -416,15 +416,6 @@ static void accumulate_next_frame_stats(
           AOMMIN(gf_stats->zero_motion_accumulator,
                  get_zero_motion_factor(frame_info, stats));
     }
-
-    // Break clause to detect very still sections after motion. For example,
-    // a static image after a fade or other transition.
-    if (can_disable_arf &&
-        detect_transition_to_still(twopass, min_gf_interval, cur_idx, 5,
-                                   gf_stats->loop_decay_rate,
-                                   gf_stats->last_loop_decay_rate)) {
-      gf_stats->allow_alt_ref = 0;
-    }
   }
 }
 
@@ -1540,8 +1531,6 @@ static void init_gf_stats(GF_GROUP_STATS *gf_stats) {
   gf_stats->avg_wavelet_energy = 0.0;
   gf_stats->avg_raw_err_stdev = 0.0;
   gf_stats->non_zero_stdev_count = 0;
-
-  gf_stats->allow_alt_ref = 0;
 }
 
 // Analyse and define a gf/arf group.
@@ -1590,7 +1579,6 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   init_gf_stats(&gf_stats);
   GF_FRAME_STATS first_frame_stats, last_frame_stats;
 
-  gf_stats.allow_alt_ref = is_altref_enabled(cpi);
   const int can_disable_arf = (oxcf->gf_min_pyr_height == MIN_PYRAMID_LVL);
 
   // Load stats for the current frame.
@@ -1682,8 +1670,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   if (can_disable_arf) {
     use_alt_ref = !is_almost_static(gf_stats.zero_motion_accumulator,
                                     twopass->kf_zeromotion_pct) &&
-                  gf_stats.allow_alt_ref && (i < cpi->oxcf.lag_in_frames) &&
-                  (i >= MIN_GF_INTERVAL) &&
+                  rc->use_arf_in_this_kf_group &&
+                  (i < cpi->oxcf.lag_in_frames) && (i >= MIN_GF_INTERVAL) &&
                   (cpi->oxcf.gf_max_pyr_height > MIN_PYRAMID_LVL);
 
     // TODO(urvang): Improve and use model for VBR, CQ etc as well.
@@ -1701,8 +1689,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     }
   } else {
     assert(cpi->oxcf.gf_max_pyr_height > MIN_PYRAMID_LVL);
-    use_alt_ref =
-        gf_stats.allow_alt_ref && (i < cpi->oxcf.lag_in_frames) && (i > 2);
+    use_alt_ref = rc->use_arf_in_this_kf_group &&
+                  (i < cpi->oxcf.lag_in_frames) && (i > 2);
   }
 
 #define REDUCE_GF_LENGTH_THRESH 4
@@ -2130,6 +2118,10 @@ static int define_kf_interval(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
                                      cpi->oxcf.key_freq - i, loop_decay_rate,
                                      decay_accumulator)) {
         scenecut_detected = 1;
+        // In the case of transition followed by a static scene, the key frame
+        // could be a good predictor for the following frames, therefore we
+        // do not use an arf.
+        rc->use_arf_in_this_kf_group = 0;
         break;
       }
 
@@ -2169,6 +2161,8 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   av1_zero(next_frame);
 
   rc->frames_since_key = 0;
+  // Use arfs if possible.
+  rc->use_arf_in_this_kf_group = is_altref_enabled(cpi);
 
   // Reset the GF group data structures.
   av1_zero(*gf_group);
