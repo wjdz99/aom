@@ -9416,6 +9416,11 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
     }
 #endif
   }
+
+  // If we are searching newmv and the mv is the same as refmv, skip the
+  // current mv
+  if (!av1_check_newmv_joint_nonzero(&cpi->common, x)) return INT64_MAX;
+
   return 0;
 }
 
@@ -12238,7 +12243,6 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
                       best_rd = RDCOST(x->rdmult, best_rd_stats.rate,
                                        best_rd_stats.dist);
                       if (best_rd < ref_best_rd) ref_best_rd = best_rd;
-                      skip = 1;
                       break;
                     }
                   }
