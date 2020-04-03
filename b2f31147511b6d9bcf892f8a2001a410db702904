@@ -70,6 +70,30 @@
       "revId": "b2f31147511b6d9bcf892f8a2001a410db702904",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "663c74d3_0078e8c7",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-04-03T22:25:13Z",
+      "side": 1,
+      "message": "Actually, sub-block is used in both YUV and plane-wise strategies. The only difference is that `subblock_filter_weights` in this function is not used in plane-wise strategy.",
+      "parentUuid": "f8eaf453_1383788c",
+      "range": {
+        "startLine": 263,
+        "startChar": 2,
+        "endLine": 266,
+        "endChar": 65
+      },
+      "revId": "b2f31147511b6d9bcf892f8a2001a410db702904",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
