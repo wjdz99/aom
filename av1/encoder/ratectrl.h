@@ -123,6 +123,10 @@ typedef struct {
   int is_src_frame_alt_ref;
   int sframe_due;
 
+  int reset_high_source_sad;
+  int high_source_sad;
+  uint64_t avg_source_sad;
+
   int avg_frame_bandwidth;  // Average frame size target for clip
   int min_frame_bandwidth;  // Minimum allocation used for any frame
   int max_frame_bandwidth;  // Maximum burst rate allowed for a frame.
@@ -316,6 +320,8 @@ int av1_calc_iframe_target_size_one_pass_cbr(const struct AV1_COMP *cpi);
 void av1_get_one_pass_rt_params(struct AV1_COMP *cpi,
                                 struct EncodeFrameParams *const frame_params,
                                 unsigned int frame_flags);
+
+int av1_encodedframe_overshoot(struct AV1_COMP *cpi, int *q);
 
 #ifdef __cplusplus
 }  // extern "C"
