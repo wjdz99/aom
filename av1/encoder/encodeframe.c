@@ -4424,7 +4424,7 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
       cpi->svc.number_spatial_layers == 1 &&
       cm->current_frame.frame_type != KEY_FRAME) {
     int shift = cpi->source->y_stride * (mi_row << 2) + (mi_col << 2);
-    source_content_sb(cpi, x, shift);
+    if (x->content_state_sb == kInvalid) source_content_sb(cpi, x, shift);
   }
   if (sf->part_sf.partition_search_type == FIXED_PARTITION || seg_skip) {
     set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
