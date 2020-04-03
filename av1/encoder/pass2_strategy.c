@@ -423,7 +423,7 @@ static void accumulate_next_frame_stats(
         detect_transition_to_still(twopass, min_gf_interval, cur_idx, 5,
                                    gf_stats->loop_decay_rate,
                                    gf_stats->last_loop_decay_rate)) {
-      gf_stats->allow_alt_ref = 0;
+      //gf_stats->allow_alt_ref = 0;
     }
   }
 }
