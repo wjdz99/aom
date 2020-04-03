@@ -809,6 +809,18 @@ static INLINE char const *get_component_name(int index) {
 // The maximum number of internal ARFs except ALTREF_FRAME
 #define MAX_INTERNAL_ARFS (REF_FRAMES - BWDREF_FRAME - 1)
 
+typedef struct GMInfo {
+  // Cost for signalling each global motion model.
+  int gmtype_cost[TRANS_TYPES];
+
+  // Cost for signalling a particular global motion model for each reference
+  // frame.
+  int gmparams_cost[REF_FRAMES];
+
+  // Flag to indicate if global motion search needs to be rerun.
+  bool global_motion_search_done;
+} GMInfo;
+
 typedef struct {
   int arf_stack[FRAME_BUFFERS];
   int arf_stack_size;
@@ -937,8 +949,7 @@ typedef struct AV1_COMP {
 
   CODING_CONTEXT coding_context;
 
-  int gmtype_cost[TRANS_TYPES];
-  int gmparams_cost[REF_FRAMES];
+  GMInfo gm_info;
 
   int64_t last_time_stamp_seen;
   int64_t last_end_time_stamp_seen;
@@ -1081,7 +1092,6 @@ typedef struct AV1_COMP {
   AVxWorker *workers;
   struct EncWorkerData *tile_thr_data;
   int existing_fb_idx_to_show;
-  int global_motion_search_done;
   int internal_altref_allowed;
   // A flag to indicate if intrabc is ever used in current frame.
   int intrabc_used;

@@ -3803,18 +3803,18 @@ void aom_write_one_yuv_frame(AV1_COMMON *cm, YV12_BUFFER_CONFIG *s) {
 #endif  // OUTPUT_YUV_REC
 
 #define GM_RECODE_LOOP_NUM4X4_FACTOR 192
-static int recode_loop_test_global_motion(AV1_COMP *cpi) {
+static int recode_loop_test_global_motion(AV1_COMMON *const cm,
+                                          const RD_COUNTS *const rdc,
+                                          GMInfo *const gm_info) {
   int i;
   int recode = 0;
-  RD_COUNTS *const rdc = &cpi->td.rd_counts;
-  AV1_COMMON *const cm = &cpi->common;
   for (i = LAST_FRAME; i <= ALTREF_FRAME; ++i) {
     if (cm->global_motion[i].wmtype != IDENTITY &&
         rdc->global_motion_used[i] * GM_RECODE_LOOP_NUM4X4_FACTOR <
-            cpi->gmparams_cost[i]) {
+            gm_info->gmparams_cost[i]) {
       cm->global_motion[i] = default_warp_params;
       assert(cm->global_motion[i].wmtype == IDENTITY);
-      cpi->gmparams_cost[i] = 0;
+      gm_info->gmparams_cost[i] = 0;
       recode = 1;
       // TODO(sarahparker): The earlier condition for recoding here was:
       // "recode |= (rdc->global_motion_used[i] > 0);". Can we bring something
@@ -4039,7 +4039,7 @@ static void set_size_independent_vars(AV1_COMP *cpi) {
   for (i = LAST_FRAME; i <= ALTREF_FRAME; ++i) {
     cm->global_motion[i] = default_warp_params;
   }
-  cpi->global_motion_search_done = 0;
+  cpi->gm_info.global_motion_search_done = 0;
 
   if (frame_is_intra_only(cm)) set_screen_content_options(cpi, features);
   cpi->is_screen_content_type = (features->allow_screen_content_tools != 0);
@@ -5352,6 +5352,7 @@ static void determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
 static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
+  GMInfo *const gm_info = &cpi->gm_info;
   const int allow_recode = (cpi->sf.hl_sf.recode_loop != DISALLOW_RECODE);
   // Must allow recode if minimum compression ratio is set.
   assert(IMPLIES(cpi->oxcf.min_cr > 0, allow_recode));
@@ -5451,10 +5452,10 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 
     // if frame was scaled calculate global_motion_search again if already
     // done
-    if (loop_count > 0 && cpi->source && cpi->global_motion_search_done) {
+    if (loop_count > 0 && cpi->source && gm_info->global_motion_search_done) {
       if (cpi->source->y_crop_width != cm->width ||
           cpi->source->y_crop_height != cm->height) {
-        cpi->global_motion_search_done = 0;
+        gm_info->global_motion_search_done = 0;
       }
     }
     cpi->source =
@@ -5535,7 +5536,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       // then we need to reset the global motion vectors
       if (loop_count > 0 &&
           cm->features.allow_high_precision_mv != last_loop_allow_hp) {
-        cpi->global_motion_search_done = 0;
+        gm_info->global_motion_search_done = 0;
       }
       last_loop_allow_hp = cm->features.allow_high_precision_mv;
     }
@@ -5593,7 +5594,8 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     }
 
     if (allow_recode && !cpi->sf.gm_sf.gm_disable_recode &&
-        recode_loop_test_global_motion(cpi)) {
+        recode_loop_test_global_motion(&cpi->common, &cpi->td.rd_counts,
+                                       gm_info)) {
       loop = 1;
     }
 
