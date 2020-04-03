@@ -2011,6 +2011,176 @@ static void set_reference_structure_one_pass_rt(AV1_COMP *cpi, int gf_update) {
 #define DEFAULT_KF_BOOST_RT 2300
 #define DEFAULT_GF_BOOST_RT 2000
 
+// Compute average source sad (temporal sad: between current source and
+// previous source) over a subset of superblocks. Use this is detect big changes
+// in content and allow rate control to react.
+// This function also handles special case of lag_in_frames, to measure content
+// level in #future frames set by the lag_in_frames.
+static void av1_scene_detection_onepass(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  RATE_CONTROL *const rc = &cpi->rc;
+  YV12_BUFFER_CONFIG const *unscaled_src = cpi->unscaled_source;
+  YV12_BUFFER_CONFIG const *unscaled_last_src = cpi->unscaled_last_source;
+  uint8_t *src_y;
+  int src_ystride;
+  int src_width;
+  int src_height;
+  uint8_t *last_src_y;
+  int last_src_ystride;
+  int last_src_width;
+  int last_src_height;
+  if (cpi->unscaled_source == NULL || cpi->unscaled_last_source == NULL) return;
+  src_y = unscaled_src->y_buffer;
+  src_ystride = unscaled_src->y_stride;
+  src_width = unscaled_src->y_width;
+  src_height = unscaled_src->y_height;
+  last_src_y = unscaled_last_src->y_buffer;
+  last_src_ystride = unscaled_last_src->y_stride;
+  last_src_width = unscaled_last_src->y_width;
+  last_src_height = unscaled_last_src->y_height;
+  rc->high_source_sad = 0;
+  rc->high_num_blocks_with_motion = 0;
+
+  if (src_width == last_src_width && src_height == last_src_height) {
+    YV12_BUFFER_CONFIG *frames[MAX_LAG_BUFFERS] = { NULL };
+    int num_mi_cols = cm->mi_params.mi_cols;
+    int num_mi_rows = cm->mi_params.mi_rows;
+    int start_frame = 0;
+    int frames_to_buffer = 1;
+    int num_zero_temp_sad = 0;
+    uint64_t avg_sad_current = 0;
+    uint32_t min_thresh = 10000;
+    float thresh = 8.0f;
+    if (cpi->oxcf.content != AOM_CONTENT_SCREEN) min_thresh = 65000;
+    if (cpi->oxcf.rc_mode == AOM_VBR) thresh = 2.1f;
+
+    if (cpi->oxcf.lag_in_frames > 0) {
+      frames_to_buffer = (cm->current_frame.frame_number == 1)
+                             ? (int)av1_lookahead_depth(cpi->lookahead,
+                                                        cpi->compressor_stage) -
+                                   1
+                             : 2;
+      start_frame =
+          (int)av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage) - 1;
+      for (int frame = 0; frame < frames_to_buffer; ++frame) {
+        const int lagframe_idx = start_frame - frame;
+        if (lagframe_idx >= 0) {
+          struct lookahead_entry *buf = av1_lookahead_peek(
+              cpi->lookahead, lagframe_idx, cpi->compressor_stage);
+          frames[frame] = &buf->img;
+        }
+      }
+      // The avg_sad for this current frame is the value of frame#1
+      // (first future frame) from previous frame.
+      avg_sad_current = rc->avg_source_sad[1];
+      if (avg_sad_current >
+              AOMMAX(min_thresh,
+                     (unsigned int)(rc->avg_source_sad[0] * thresh)) &&
+          cm->current_frame.frame_number >
+              (unsigned int)cpi->oxcf.lag_in_frames)
+        rc->high_source_sad = 1;
+      else
+        rc->high_source_sad = 0;
+
+      // Update recursive average for current frame.
+      if (avg_sad_current > 0)
+        rc->avg_source_sad[0] =
+            (3 * rc->avg_source_sad[0] + avg_sad_current) >> 2;
+      // Shift back data, starting at frame#1.
+      for (int frame = 1; frame < cpi->oxcf.lag_in_frames - 1; ++frame)
+        rc->avg_source_sad[frame] = rc->avg_source_sad[frame + 1];
+    }
+    for (int frame = 0; frame < frames_to_buffer; ++frame) {
+      if (cpi->oxcf.lag_in_frames == 0 ||
+          (frames[frame] != NULL && frames[frame + 1] != NULL &&
+           frames[frame]->y_width == frames[frame + 1]->y_width &&
+           frames[frame]->y_height == frames[frame + 1]->y_height)) {
+        int sbi_row, sbi_col;
+        const int lagframe_idx =
+            (cpi->oxcf.lag_in_frames == 0) ? 0 : start_frame - frame + 1;
+        const BLOCK_SIZE bsize = BLOCK_64X64;
+        // Loop over sub-sample of frame, compute average sad over 64x64 blocks.
+        uint64_t avg_sad = 0;
+        uint64_t tmp_sad = 0;
+        int num_samples = 0;
+        int sb_cols = (num_mi_cols + cm->seq_params.mib_size - 1) /
+                      cm->seq_params.mib_size;
+        int sb_rows = (num_mi_rows + cm->seq_params.mib_size - 1) /
+                      cm->seq_params.mib_size;
+
+        if (cpi->oxcf.lag_in_frames > 0) {
+          src_y = frames[frame]->y_buffer;
+          src_ystride = frames[frame]->y_stride;
+          last_src_y = frames[frame + 1]->y_buffer;
+          last_src_ystride = frames[frame + 1]->y_stride;
+        }
+        num_zero_temp_sad = 0;
+        for (sbi_row = 0; sbi_row < sb_rows; ++sbi_row) {
+          for (sbi_col = 0; sbi_col < sb_cols; ++sbi_col) {
+            // Checker-board pattern, ignore boundary.
+            if (((sbi_row > 0 && sbi_col > 0) &&
+                 (sbi_row < sb_rows - 1 && sbi_col < sb_cols - 1) &&
+                 ((sbi_row % 2 == 0 && sbi_col % 2 == 0) ||
+                  (sbi_row % 2 != 0 && sbi_col % 2 != 0)))) {
+              tmp_sad = cpi->fn_ptr[bsize].sdf(src_y, src_ystride, last_src_y,
+                                               last_src_ystride);
+              avg_sad += tmp_sad;
+              num_samples++;
+              if (tmp_sad == 0) num_zero_temp_sad++;
+            }
+            src_y += 64;
+            last_src_y += 64;
+          }
+          src_y += (src_ystride << 6) - (sb_cols << 6);
+          last_src_y += (last_src_ystride << 6) - (sb_cols << 6);
+        }
+        if (num_samples > 0) avg_sad = avg_sad / num_samples;
+        // Set high_source_sad flag if we detect very high increase in avg_sad
+        // between current and previous frame value(s). Use minimum threshold
+        // for cases where there is small change from content that is completely
+        // static.
+        if (lagframe_idx == 0) {
+          if (avg_sad >
+                  AOMMAX(min_thresh,
+                         (unsigned int)(rc->avg_source_sad[0] * thresh)) &&
+              rc->frames_since_key > 1 + cpi->svc.number_spatial_layers &&
+              num_zero_temp_sad < 3 * (num_samples >> 2))
+            rc->high_source_sad = 1;
+          else
+            rc->high_source_sad = 0;
+
+          if (avg_sad > 0 || cpi->oxcf.rc_mode == AOM_CBR)
+            rc->avg_source_sad[0] = (3 * rc->avg_source_sad[0] + avg_sad) >> 2;
+        } else {
+          rc->avg_source_sad[lagframe_idx] = avg_sad;
+        }
+        if (num_zero_temp_sad < (3 * num_samples >> 2))
+          rc->high_num_blocks_with_motion = 1;
+      }
+    }
+    // For CBR non-screen content mode, check if we should reset the rate
+    // control. Reset is done if high_source_sad is detected and the rate
+    // control is at very low QP with rate correction factor at min level.
+    if (cpi->oxcf.rc_mode == AOM_CBR &&
+        cpi->oxcf.content != AOM_CONTENT_SCREEN && !cpi->use_svc) {
+      if (rc->high_source_sad && rc->last_q[INTER_FRAME] == rc->best_quality &&
+          rc->avg_frame_qindex[INTER_FRAME] < (rc->best_quality << 1) &&
+          rc->rate_correction_factors[INTER_NORMAL] == MIN_BPB_FACTOR) {
+        rc->rate_correction_factors[INTER_NORMAL] = 0.5;
+        rc->avg_frame_qindex[INTER_FRAME] = rc->worst_quality;
+        rc->buffer_level = rc->optimal_buffer_level;
+        rc->bits_off_target = rc->optimal_buffer_level;
+        rc->reset_high_source_sad = 1;
+      }
+      if (cm->current_frame.frame_type != KEY_FRAME &&
+          rc->reset_high_source_sad)
+        rc->this_frame_target = rc->avg_frame_bandwidth;
+    }
+
+    rc->count_last_scene_change++;
+  }
+}
+
 void av1_get_one_pass_rt_params(AV1_COMP *cpi,
                                 EncodeFrameParams *const frame_params,
                                 unsigned int frame_flags) {
@@ -2107,4 +2277,8 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi,
       cm->number_spatial_layers == 1 && cm->number_temporal_layers == 1)
     set_reference_structure_one_pass_rt(cpi, gf_update);
   cm->current_frame.frame_type = frame_params->frame_type;
+
+  if (cm->show_frame && cpi->oxcf.mode == REALTIME &&
+      cpi->oxcf.content == AOM_CONTENT_SCREEN)
+    av1_scene_detection_onepass(cpi);
 }

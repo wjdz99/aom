@@ -19,6 +19,7 @@
 
 #include "av1/common/av1_common_int.h"
 #include "av1/common/blockd.h"
+#include "av1/encoder/lookahead.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -122,6 +123,12 @@ typedef struct {
   int source_alt_ref_active;
   int is_src_frame_alt_ref;
   int sframe_due;
+
+  int reset_high_source_sad;
+  int high_source_sad;
+  int high_num_blocks_with_motion;
+  int count_last_scene_change;
+  uint64_t avg_source_sad[MAX_LAG_BUFFERS];
 
   int avg_frame_bandwidth;  // Average frame size target for clip
   int min_frame_bandwidth;  // Minimum allocation used for any frame
