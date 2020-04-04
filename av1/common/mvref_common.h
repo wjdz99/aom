@@ -21,6 +21,11 @@ extern "C" {
 // Whether to use drl adjustment for flexible mvres.
 #define ADJUST_DRL_FLEX_MVRES 1
 
+// Whether to disable joint zero
+#define DISABLE_NEW_INTER_MODES_JOINT_ZERO 1
+#define NO_NEW_INTER_MODES_JOINT_ZERO \
+  (DISABLE_NEW_INTER_MODES_JOINT_ZERO & CONFIG_NEW_INTER_MODES)
+
 #define MVREF_ROW_COLS 3
 
 // Set the upper limit of the motion vector component magnitude.
