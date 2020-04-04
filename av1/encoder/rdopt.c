@@ -12227,7 +12227,7 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
                 if (mode_info[i].mv.as_int != INVALID_MV) {
                   const int compare_cost =
                       mode_info[i].rate_mv + mode_info[i].drl_cost;
-                  const int_mv ref_mv = av1_get_ref_mv(x, 0);
+                  int_mv ref_mv = av1_get_ref_mv(x, 0);
                   this_rate_mv = av1_mv_bit_cost_gen(
                       &mode_info[i].mv.as_mv, &ref_mv.as_mv, max_mv_precision,
                       x->nmv_vec_cost, x->nmvcost,
@@ -12242,11 +12242,37 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
                     break;
                   } else {
                     // If the cost is less than current best result, make this
-                    // the best and update corresponding variables unless the
-                    // best_mv is the same as ref_mv. In this case we skip and
-                    // rely on NEAR(EST)MV instead
+                    // cur_mv[0].as_intthe best and update corresponding
+                    // variables unless the best_mv is the same as ref_mv. In
+                    // this case we skip and rely on NEAR(EST)MV instead
+#if CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+                    MvSubpelPrecision this_precision = max_mv_precision;
+                    if (is_pb_mv_precision_active(cm, this_mode,
+                                                  max_mv_precision)) {
+                      this_precision = av1_get_mbmi_mv_precision(cm, mbmi);
+                      lower_mv_precision(&ref_mv.as_mv, this_precision);
+                    }
+#endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
                     if (best_mbmi.ref_mv_idx == i &&
                         mode_info[i].mv.as_int != ref_mv.as_int) {
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
+                      MB_MODE_INFO backup_mbmi = *mbmi;
+                      *mbmi = best_mbmi;
+                      mbmi->ref_mv_idx = ref_mv_idx;
+                      if (av1_check_newmv_joint_nonzero(cm, x)) {
+                        assert(best_rd != INT64_MAX);
+                        best_mbmi.ref_mv_idx = ref_mv_idx;
+                        best_rd_stats.rate += this_cost - compare_cost;
+                        best_rd = RDCOST(x->rdmult, best_rd_stats.rate,
+                                         best_rd_stats.dist);
+                        if (best_rd < ref_best_rd) ref_best_rd = best_rd;
+                        skip = 1;
+                        assert(av1_check_newmv_joint_nonzero(cm, x));
+                        break;
+                      } else {
+                        *mbmi = backup_mbmi;
+                      }
+#else
                       assert(best_rd != INT64_MAX);
                       best_mbmi.ref_mv_idx = ref_mv_idx;
                       best_rd_stats.rate += this_cost - compare_cost;
@@ -12255,6 +12281,7 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
                       if (best_rd < ref_best_rd) ref_best_rd = best_rd;
                       skip = 1;
                       break;
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
                     }
                   }
                 }
@@ -12278,6 +12305,9 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
       for (i = 0; i < is_comp_pred + 1; ++i) {
         mbmi->mv[i].as_int = cur_mv[i].as_int;
       }
+#if 0   // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
+      if (!av1_check_newmv_joint_nonzero(cm, x)) continue;
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
       const int ref_mv_cost = cost_mv_ref(x, this_mode, mode_ctx);
 #if USE_DISCOUNT_NEWMV_TEST
       // We don't include the cost of the second reference here, because there
@@ -12316,6 +12346,9 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
 #if CONFIG_COLLECT_COMPONENT_TIMING
       start_timing(cpi, compound_type_rd_time);
 #endif
+#if 0   // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
+      assert(av1_check_newmv_joint_nonzero(cm, x));
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
       int skip_build_pred = 0;
       if (is_comp_pred) {
         if (mode_search_mask[comp_loop_idx] == (1 << COMPOUND_AVERAGE)) {
@@ -12362,6 +12395,12 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
               masked_compound_used, &orig_dst, &tmp_dst, rd_buffers, &rate_mv,
               &best_rd_compound, rd_stats, ref_best_rd, &is_luma_interp_done,
               rd_thresh);
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
+          if (!av1_check_newmv_joint_nonzero(cm, x)) {
+            restore_dst_buf(xd, orig_dst, num_planes);
+            continue;
+          }
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
           if (ref_best_rd < INT64_MAX &&
               (best_rd_compound >> comp_type_rd_shift) * comp_type_rd_scale >
                   ref_best_rd) {
@@ -12391,6 +12430,10 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
 #if CONFIG_COLLECT_COMPONENT_TIMING
       start_timing(cpi, interpolation_filter_search_time);
 #endif
+
+#if 0   // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
+      assert(av1_check_newmv_joint_nonzero(cm, x));
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
 
       ret_val = interpolation_filter_search(
           x, cpi, tile_data, bsize, &tmp_dst, &orig_dst, args->single_filter,
@@ -12438,10 +12481,17 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
       start_timing(cpi, motion_mode_rd_time);
 #endif
 
+#if 0   // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
+      assert(av1_check_newmv_joint_nonzero(cm, x));
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
       ret_val = motion_mode_rd(cpi, tile_data, x, bsize, rd_stats, rd_stats_y,
                                rd_stats_uv, disable_skip, args, ref_best_rd,
                                refs, &rate_mv, &orig_dst, best_est_rd,
                                do_tx_search, inter_modes_info);
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
+      assert(
+          IMPLIES(!av1_check_newmv_joint_nonzero(cm, x), ret_val == INT64_MAX));
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
       end_timing(cpi, motion_mode_rd_time);
@@ -12467,6 +12517,9 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
         if (tmp_rd < ref_best_rd) {
           ref_best_rd = tmp_rd;
         }
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
+        assert(av1_check_newmv_joint_nonzero(cm, x));
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
       }
       restore_dst_buf(xd, orig_dst, num_planes);
     }
@@ -12486,7 +12539,9 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
   memcpy(x->blk_skip, best_blk_skip,
          sizeof(best_blk_skip[0]) * xd->n4_h * xd->n4_w);
 
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
   assert(av1_check_newmv_joint_nonzero(cm, x));
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
   return RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
 }
 
@@ -15104,7 +15159,9 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   // macroblock modes
   *mbmi = search_state.best_mbmode;
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
   assert(av1_check_newmv_joint_nonzero(cm, x));
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
 
 #if CONFIG_COMPANDED_MV
   assert(check_mbmi_mv_companding(x, mbmi));
@@ -15135,7 +15192,9 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // ADJUST_DRL_FLEX_MVRES
   assert(check_mv_precision(mbmi));
 #endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
   assert(av1_check_newmv_joint_nonzero(cm, x));
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
 
   x->skip |= search_state.best_skip2;
 
