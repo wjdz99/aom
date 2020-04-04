@@ -12199,6 +12199,10 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
           rd_stats->rate += rate_mv;
         }
 
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
+        if (!av1_check_newmv_joint_nonzero(cm, x)) continue;
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
+
         if (cpi->sf.skip_repeated_newmv) {
           if (!is_comp_pred && this_mode == NEWMV && ref_mv_idx > 0) {
 #if CONFIG_SB_FLEX_MVRES
@@ -12278,6 +12282,9 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
       for (i = 0; i < is_comp_pred + 1; ++i) {
         mbmi->mv[i].as_int = cur_mv[i].as_int;
       }
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
+      if (!av1_check_newmv_joint_nonzero(cm, x)) continue;
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
       const int ref_mv_cost = cost_mv_ref(x, this_mode, mode_ctx);
 #if USE_DISCOUNT_NEWMV_TEST
       // We don't include the cost of the second reference here, because there
@@ -12316,6 +12323,9 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
 #if CONFIG_COLLECT_COMPONENT_TIMING
       start_timing(cpi, compound_type_rd_time);
 #endif
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
+      assert(av1_check_newmv_joint_nonzero(cm, x));
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
       int skip_build_pred = 0;
       if (is_comp_pred) {
         if (mode_search_mask[comp_loop_idx] == (1 << COMPOUND_AVERAGE)) {
@@ -12362,6 +12372,12 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
               masked_compound_used, &orig_dst, &tmp_dst, rd_buffers, &rate_mv,
               &best_rd_compound, rd_stats, ref_best_rd, &is_luma_interp_done,
               rd_thresh);
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
+          if (!av1_check_newmv_joint_nonzero(cm, x)) {
+            restore_dst_buf(xd, orig_dst, num_planes);
+            continue;
+          }
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
           if (ref_best_rd < INT64_MAX &&
               (best_rd_compound >> comp_type_rd_shift) * comp_type_rd_scale >
                   ref_best_rd) {
@@ -12391,6 +12407,10 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
 #if CONFIG_COLLECT_COMPONENT_TIMING
       start_timing(cpi, interpolation_filter_search_time);
 #endif
+
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
+      assert(av1_check_newmv_joint_nonzero(cm, x));
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
 
       ret_val = interpolation_filter_search(
           x, cpi, tile_data, bsize, &tmp_dst, &orig_dst, args->single_filter,
@@ -12438,10 +12458,17 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
       start_timing(cpi, motion_mode_rd_time);
 #endif
 
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
+      assert(av1_check_newmv_joint_nonzero(cm, x));
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
       ret_val = motion_mode_rd(cpi, tile_data, x, bsize, rd_stats, rd_stats_y,
                                rd_stats_uv, disable_skip, args, ref_best_rd,
                                refs, &rate_mv, &orig_dst, best_est_rd,
                                do_tx_search, inter_modes_info);
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
+      assert(
+          IMPLIES(!av1_check_newmv_joint_nonzero(cm, x), ret_val == INT64_MAX));
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
       end_timing(cpi, motion_mode_rd_time);
@@ -12486,7 +12513,9 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
   memcpy(x->blk_skip, best_blk_skip,
          sizeof(best_blk_skip[0]) * xd->n4_h * xd->n4_w);
 
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
   assert(av1_check_newmv_joint_nonzero(cm, x));
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
   return RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
 }
 
@@ -15104,7 +15133,9 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   // macroblock modes
   *mbmi = search_state.best_mbmode;
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
   assert(av1_check_newmv_joint_nonzero(cm, x));
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
 
 #if CONFIG_COMPANDED_MV
   assert(check_mbmi_mv_companding(x, mbmi));
@@ -15135,7 +15166,9 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // ADJUST_DRL_FLEX_MVRES
   assert(check_mv_precision(mbmi));
 #endif  // CONFIG_FLEX_MVRES && !CONFIG_SB_FLEX_MVRES
+#if CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
   assert(av1_check_newmv_joint_nonzero(cm, x));
+#endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
 
   x->skip |= search_state.best_skip2;
 
