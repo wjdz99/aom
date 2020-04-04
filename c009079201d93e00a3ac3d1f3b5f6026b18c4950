@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1deb33b1_8f529da9",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3806,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-04T01:08:11Z",
+      "side": 1,
+      "message": "Pass \u0027cm-\u003eglobal_motion\u0027 directly?",
+      "range": {
+        "startLine": 3806,
+        "startChar": 60,
+        "endLine": 3806,
+        "endChar": 62
+      },
+      "revId": "c009079201d93e00a3ac3d1f3b5f6026b18c4950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f11f3fc_e5b4fedb",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-04T01:08:11Z",
+      "side": 1,
+      "message": "No need for \"GMInfo\" here.\n\ntypedef struct {\n...\n} GlobalMotionInfo;\nis enough.",
+      "range": {
+        "startLine": 812,
+        "startChar": 15,
+        "endLine": 812,
+        "endChar": 21
+      },
+      "revId": "c009079201d93e00a3ac3d1f3b5f6026b18c4950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a35121fa_63abffe4",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 815,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-04T01:08:11Z",
+      "side": 1,
+      "message": "You could optionally remove the \u0027gm\u0027 or \u0027global_motion\u0027 prefixes in the members, as the struct itself makes that clear.",
+      "range": {
+        "startLine": 815,
+        "startChar": 6,
+        "endLine": 815,
+        "endChar": 8
+      },
+      "revId": "c009079201d93e00a3ac3d1f3b5f6026b18c4950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c30faa63_86ed2c00",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 824,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-04T01:08:11Z",
+      "side": 1,
+      "message": "Pls use full words for the struct name: \"GlobalMotionInfo\".\n(OK to use short form for the variable name at line#955 etc)",
+      "revId": "c009079201d93e00a3ac3d1f3b5f6026b18c4950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
