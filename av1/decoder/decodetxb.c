@@ -148,7 +148,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   if (all_zero) {
     *max_scan_line = 0;
     if (plane == 0) {
-      xd->tx_type_map[blk_row * xd->tx_type_map_stride + blk_col] = DCT_DCT;
+      xd->tx_type_map[blk_row * xd->mi_stride + blk_col] = DCT_DCT;
     }
     return 0;
   }
@@ -360,10 +360,9 @@ void av1_read_coeffs_txb_facade(const AV1_COMMON *const cm,
       if (txw == tx_size_wide_unit[TX_64X64] ||
           txh == tx_size_high_unit[TX_64X64]) {
         const int tx_unit = tx_size_wide_unit[TX_16X16];
-        const int stride = xd->tx_type_map_stride;
         for (int idy = 0; idy < txh; idy += tx_unit) {
           for (int idx = 0; idx < txw; idx += tx_unit) {
-            xd->tx_type_map[(row + idy) * stride + col + idx] = tx_type;
+            xd->tx_type_map[(row + idy) * xd->mi_stride + col + idx] = tx_type;
           }
         }
       }

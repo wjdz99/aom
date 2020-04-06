@@ -2103,8 +2103,7 @@ static void search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   DECLARE_ALIGNED(32, tran_low_t, this_dqcoeff[MAX_SB_SQUARE]);
   tran_low_t *orig_dqcoeff = pd->dqcoeff;
   tran_low_t *best_dqcoeff = this_dqcoeff;
-  const int tx_type_map_idx =
-      plane ? 0 : blk_row * xd->tx_type_map_stride + blk_col;
+  const int tx_type_map_idx = plane ? 0 : blk_row * xd->mi_stride + blk_col;
   int perform_block_coeff_opt = 0;
   av1_invalid_rd_stats(best_rd_stats);
 
@@ -2404,7 +2403,7 @@ static AOM_INLINE void tx_type_rd(const AV1_COMP *cpi, MACROBLOCK *x,
       (txb_ctx->dc_sign_ctx << 8) + txb_ctx->txb_skip_ctx;
   MACROBLOCKD *xd = &x->e_mbd;
   assert(is_inter_block(xd->mi[0]));
-  const int tx_type_map_idx = blk_row * xd->tx_type_map_stride + blk_col;
+  const int tx_type_map_idx = blk_row * xd->mi_stride + blk_col;
   // Look up RD and terminate early in case when we've already processed exactly
   // the same residue with exactly the same entropy context.
   if (rd_info_array != NULL && rd_info_array->valid &&
@@ -2493,8 +2492,7 @@ static AOM_INLINE void try_tx_block_no_split(
 
   no_split->rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
   no_split->txb_entropy_ctx = p->txb_entropy_ctx[block];
-  no_split->tx_type =
-      xd->tx_type_map[blk_row * xd->tx_type_map_stride + blk_col];
+  no_split->tx_type = xd->tx_type_map[blk_row * xd->mi_stride + blk_col];
 }
 
 static AOM_INLINE void try_tx_block_split(
@@ -3497,7 +3495,7 @@ int av1_txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   } else {
     av1_super_block_yrd(cpi, x, rd_stats_y, bsize, rd_thresh);
     memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
-    for (int i = 0; i < xd->n4_h * xd->n4_w; ++i)
+    for (int i = 0; i < xd->height * xd->width; ++i)
       set_blk_skip(x, 0, i, rd_stats_y->skip);
   }
 

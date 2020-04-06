@@ -1475,7 +1475,6 @@ static AOM_INLINE void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   cpi->td.mb.mbmi_ext_frame =
       cpi->mbmi_ext_frame_base + get_mi_ext_idx(cpi, mi_row, mi_col);
   xd->tx_type_map = mi_params->tx_type_map + grid_idx;
-  xd->tx_type_map_stride = mi_params->mi_stride;
 
   const MB_MODE_INFO *mbmi = xd->mi[0];
   const BLOCK_SIZE bsize = mbmi->sb_type;
@@ -1528,10 +1527,11 @@ static AOM_INLINE void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
       }
     } else {
       write_selected_tx_size(xd, w);
-      set_txfm_ctxs(mbmi->tx_size, xd->n4_w, xd->n4_h, 0, xd);
+      set_txfm_ctxs(mbmi->tx_size, xd->width, xd->height, 0, xd);
     }
   } else {
-    set_txfm_ctxs(mbmi->tx_size, xd->n4_w, xd->n4_h, skip && is_inter_tx, xd);
+    set_txfm_ctxs(mbmi->tx_size, xd->width, xd->height, skip && is_inter_tx,
+                  xd);
   }
 
   if (!mbmi->skip) {
