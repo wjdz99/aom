@@ -5620,6 +5620,12 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     if (loop) printf("\n Recoding:");
 #endif
   } while (loop);
+  if (cpi->gf_group.update_type[cpi->gf_group.index] != OVERLAY_UPDATE) {
+    const int qp = av1_qindex_to_quantizer(q);
+    FILE *pfile = fopen("stat_libaom.txt", "a");
+    fprintf(pfile, "order_hint %d, qp %d\n", cm->current_frame.order_hint, qp);
+    fclose(pfile);
+  }
 
   // Update some stats from cyclic refresh.
   if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && !frame_is_intra_only(cm))
