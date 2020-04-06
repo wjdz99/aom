@@ -859,6 +859,15 @@ typedef struct {
   int subsampling_y;
 } FRAME_INFO;
 
+typedef struct {
+  // Start time stamp of the previous frame
+  int64_t last_start_seen;
+  // End time stamp of the previous frame
+  int64_t last_end_seen;
+  // Start time stamp of the first frame
+  int64_t first_ever;
+} TimeStamps;
+
 typedef struct AV1_COMP {
   QUANTS quants;
   ThreadData td;
@@ -940,9 +949,8 @@ typedef struct AV1_COMP {
   int gmtype_cost[TRANS_TYPES];
   int gmparams_cost[REF_FRAMES];
 
-  int64_t last_time_stamp_seen;
-  int64_t last_end_time_stamp_seen;
-  int64_t first_time_stamp_ever;
+  // Frame time stamps
+  TimeStamps time_stamps;
 
   RATE_CONTROL rc;
   double framerate;
