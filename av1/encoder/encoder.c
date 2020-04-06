@@ -673,6 +673,37 @@ static void enc_set_mb_mi(CommonModeInfoParams *mi_params, int width,
 #endif
 }
 
+static void lap_set_mb_mi(CommonModeInfoParams *mi_params, int width,
+                          int height) {
+  // Ensure that the decoded width and height are both multiples of
+  // 8 luma pixels (note: this may only be a multiple of 4 chroma pixels if
+  // subsampling is used).
+  // This simplifies the implementation of various experiments,
+  // eg. cdef, which operates on units of 8x8 luma pixels.
+  const int aligned_width = ALIGN_POWER_OF_TWO(width, 3);
+  const int aligned_height = ALIGN_POWER_OF_TWO(height, 3);
+
+  mi_params->mi_cols = aligned_width >> MI_SIZE_LOG2;
+  mi_params->mi_rows = aligned_height >> MI_SIZE_LOG2;
+  mi_params->mi_stride = calc_mi_size(mi_params->mi_cols);
+
+  mi_params->mb_cols = (mi_params->mi_cols + 2) >> 2;
+  mi_params->mb_rows = (mi_params->mi_rows + 2) >> 2;
+  mi_params->MBs = mi_params->mb_rows * mi_params->mb_cols;
+
+  mi_params->mi_alloc_bsize = BLOCK_16X16;
+  const int mi_alloc_size_1d = mi_size_wide[mi_params->mi_alloc_bsize];
+  mi_params->mi_alloc_stride =
+      (mi_params->mi_stride + mi_alloc_size_1d - 1) / mi_alloc_size_1d;
+
+  assert(mi_size_wide[mi_params->mi_alloc_bsize] ==
+         mi_size_high[mi_params->mi_alloc_bsize]);
+
+#if CONFIG_LPF_MASK
+  av1_alloc_loop_filter_mask(mi_params);
+#endif
+}
+
 static void enc_setup_mi(CommonModeInfoParams *mi_params) {
   const int mi_grid_size =
       mi_params->mi_stride * calc_mi_size(mi_params->mi_rows);
@@ -3056,6 +3087,10 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
 
   cpi->lap_enabled = num_lap_buffers > 0;
   cpi->compressor_stage = stage;
+  if (is_stat_generation_stage(cpi)) {
+    mi_params->set_mb_mi = lap_set_mb_mi;
+    mi_params->mi_alloc_bsize = BLOCK_16X16;
+  }
   init_config(cpi, oxcf);
   if (cpi->compressor_stage == LAP_STAGE) {
     cpi->oxcf.lag_in_frames = lap_lag_in_frames;
