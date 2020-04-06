@@ -499,10 +499,9 @@ static AOM_INLINE void reset_tx_size(MACROBLOCK *x, MB_MODE_INFO *mbmi,
   if (is_inter_block(mbmi)) {
     memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
   }
-  const int stride = xd->tx_type_map_stride;
   const int bw = mi_size_wide[mbmi->sb_type];
   for (int row = 0; row < mi_size_high[mbmi->sb_type]; ++row) {
-    memset(xd->tx_type_map + row * stride, DCT_DCT,
+    memset(xd->tx_type_map + row * xd->mi_stride, DCT_DCT,
            bw * sizeof(xd->tx_type_map[0]));
   }
   av1_zero(x->blk_skip);
@@ -557,7 +556,6 @@ static AOM_INLINE void update_state(const AV1_COMP *const cpi, ThreadData *td,
   x->force_skip = ctx->rd_stats.skip;
 
   xd->tx_type_map = ctx->tx_type_map;
-  xd->tx_type_map_stride = mi_size_wide[bsize];
   // If not dry_run, copy the transform type data into the frame level buffer.
   // Encoder will fetch tx types when writing bitstream.
   if (!dry_run) {
@@ -566,10 +564,9 @@ static AOM_INLINE void update_state(const AV1_COMP *const cpi, ThreadData *td,
     const int mi_stride = mi_params->mi_stride;
     for (int blk_row = 0; blk_row < bh; ++blk_row) {
       av1_copy_array(tx_type_map + blk_row * mi_stride,
-                     xd->tx_type_map + blk_row * xd->tx_type_map_stride, bw);
+                     xd->tx_type_map + blk_row * xd->mi_stride, bw);
     }
     xd->tx_type_map = tx_type_map;
-    xd->tx_type_map_stride = mi_stride;
   }
 
   // If segmentation in use
@@ -767,7 +764,6 @@ static AOM_INLINE void pick_sb_modes(AV1_COMP *const cpi,
 #endif
 
   xd->tx_type_map = x->tx_type_map;
-  xd->tx_type_map_stride = mi_size_wide[bsize];
 
   for (i = 0; i < num_planes; ++i) {
     p[i].coeff = ctx->coeff[i];
@@ -6435,7 +6431,7 @@ static AOM_INLINE void encode_superblock(const AV1_COMP *const cpi,
       tx_size = (bsize > BLOCK_4X4) ? tx_size : TX_4X4;
     }
     mbmi->tx_size = tx_size;
-    set_txfm_ctxs(tx_size, xd->n4_w, xd->n4_h,
+    set_txfm_ctxs(tx_size, xd->width, xd->height,
                   (mbmi->skip || seg_skip) && is_inter_block(mbmi), xd);
   }
 
