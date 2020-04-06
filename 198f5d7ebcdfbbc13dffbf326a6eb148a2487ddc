@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1c959c2_4f77018a",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-06T18:26:11Z",
+      "side": 1,
+      "message": "Create a local var for \u0027\u0026cpi-\u003etime_stamps\u0027 as it\u0027s used a number of times in the rest of this function.\n(My rule of thumb is to create a local variable if used say 4 or more times)",
+      "range": {
+        "startLine": 323,
+        "startChar": 0,
+        "endLine": 323,
+        "endChar": 0
+      },
+      "revId": "198f5d7ebcdfbbc13dffbf326a6eb148a2487ddc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
