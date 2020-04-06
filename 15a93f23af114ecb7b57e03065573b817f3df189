@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "0480a98b_13543590",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-06T22:30:54Z",
+      "side": 1,
+      "message": "CBR mode: increase quantization parameter for scene change detected to avoid excessive overshoot.",
+      "revId": "15a93f23af114ecb7b57e03065573b817f3df189",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91b0dad9_541e7dee",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5514,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-06T22:30:54Z",
+      "side": 1,
+      "message": "i think you also add here (since some speed features may depend on Q)\nav1_set_speed_features_qindex_dependent(cpi, cpi-\u003eoxcf.speed);\nif (cpi-\u003eoxcf.deltaq_mode !\u003d NO_DELTA_Q) av1_init_quantizer(cpi);",
+      "revId": "15a93f23af114ecb7b57e03065573b817f3df189",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b21daf9b_f736a1c7",
         "filename": "av1/encoder/ratectrl.c",
         "patchSetId": 2
@@ -115,6 +149,23 @@
       "writtenOn": "2020-04-06T22:14:45Z",
       "side": 1,
       "message": "remove comment \"force a re-encode\"",
+      "revId": "15a93f23af114ecb7b57e03065573b817f3df189",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6969d349_745488d9",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2317,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-06T22:30:54Z",
+      "side": 1,
+      "message": "to be conservative for now (since worst_quality may be set to 255 which would be bad quality) maybe do:\n*q \u003d(3 * cpi-\u003erc.worst_quality + *q) / 4;",
       "revId": "15a93f23af114ecb7b57e03065573b817f3df189",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
