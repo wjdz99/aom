@@ -1115,20 +1115,109 @@ static int diamond_search_sad(FULLPEL_MV start_mv,
   return bestsad;
 }
 
+// Compares and updates the best and second best mvs.
+// This function looks at two independent lists of best mvs: (second_)best_mv
+// and tmp_(second_)mv with their costs in the bestsmes. We compares the four
+// candidate mvs and store the top 2 mvs in best_mv and second_best_mv
+static INLINE void update_bestmvs(FULLPEL_MV *bestmv, FULLPEL_MV *second_bestmv,
+                                  int *bestsme, int *second_bestsme,
+                                  const FULLPEL_MV tmp_bestmv,
+                                  const FULLPEL_MV tmp_second_bestmv,
+                                  int tmp_bestsme, int tmp_second_bestsme) {
+  if (!second_bestsme || !second_bestmv) {
+    if (*bestsme > tmp_bestsme) {
+      *bestsme = tmp_bestsme;
+      *bestmv = tmp_bestmv;
+    }
+    return;
+  }
+
+  assert(*bestsme > 0 && *second_bestsme > 0 && tmp_bestsme > 0 &&
+         tmp_second_bestsme > 0);
+  assert(*bestsme <= *second_bestsme);
+  assert(tmp_bestsme <= tmp_second_bestsme);
+  assert(IMPLIES(CHECK_MV_EQUAL(*bestmv, *second_bestmv),
+                 *bestsme == INT_MAX || *second_bestsme == INT_MAX));
+  assert(IMPLIES(CHECK_MV_EQUAL(tmp_bestmv, tmp_second_bestmv),
+                 tmp_bestsme == INT_MAX || tmp_second_bestsme == INT_MAX));
+
+  const FULLPEL_MV mv_list_1[2] = { *bestmv, *second_bestmv };
+  const FULLPEL_MV mv_list_2[2] = { tmp_bestmv, tmp_second_bestmv };
+  const int cost_list_1[2] = { *bestsme, *second_bestsme };
+  const int cost_list_2[2] = { tmp_bestsme, tmp_second_bestsme };
+
+  const FULLPEL_MV *mv_1 = mv_list_1;
+  const FULLPEL_MV *mv_2 = mv_list_2;
+  const int *cost_1 = cost_list_1;
+  const int *cost_2 = cost_list_2;
+
+  FULLPEL_MV bestmv_buf[2];
+  int bestsme_buf[2];
+
+  for (int idx = 0; idx < 2; idx++) {
+    if (*cost_1 <= *cost_2) {
+      bestmv_buf[idx] = *mv_1;
+      bestsme_buf[idx] = *cost_1;
+
+      mv_1++;
+      cost_1++;
+
+      if (CHECK_MV_EQUAL(bestmv_buf[idx], *mv_2)) {
+        // We need to advance list 2 as well if there is a duplicate
+        mv_2++;
+        cost_2++;
+      }
+    } else {
+      bestmv_buf[idx] = *mv_2;
+      bestsme_buf[idx] = *cost_2;
+
+      mv_2++;
+      cost_2++;
+    }
+  }
+
+  *bestmv = bestmv_buf[0];
+  *bestsme = bestsme_buf[0];
+  *second_bestmv = bestmv_buf[1];
+  *second_bestsme = bestsme_buf[1];
+
+  assert(!CHECK_MV_EQUAL(*bestmv, *second_bestmv));
+}
+
+#define SWAP_PTR(x, y)                \
+  do {                                \
+    assert(sizeof(*x) == sizeof(*y)); \
+    uint8_t tmp[sizeof(*x)];          \
+    memcpy(tmp, x, sizeof(*x));       \
+    memcpy(x, y, sizeof(*x));         \
+    memcpy(y, tmp, sizeof(*x));       \
+  } while (0);
+
 /* do_refine: If last step (1-away) of n-step search doesn't pick the center
               point as the best match, we will do a final 1-away diamond
               refining search  */
 static int full_pixel_diamond(const FULLPEL_MV start_mv,
                               const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
                               const int step_param, int *cost_list,
-                              FULLPEL_MV *best_mv, FULLPEL_MV *second_best_mv) {
+                              FULLPEL_MV *best_mv, FULLPEL_MV *second_best_mv,
+                              int *second_bestsme) {
   const search_site_config *cfg = ms_params->search_sites;
-  int thissme, n, num00 = 0;
+  int n, num00 = 0;
   int bestsme = diamond_search_sad(start_mv, ms_params, step_param, &n, best_mv,
                                    second_best_mv);
+  *second_bestsme = INT_MAX;
 
   if (bestsme < INT_MAX) {
     bestsme = get_mvpred_compound_var_cost(ms_params, best_mv);
+    *second_bestsme =
+        CHECK_MV_PTR_VALID(second_best_mv)
+            ? get_mvpred_compound_var_cost(ms_params, second_best_mv)
+            : INT_MAX;
+
+    if (second_best_mv && bestsme > *second_bestsme) {
+      SWAP_PTR(&bestsme, second_bestsme);
+      SWAP_PTR(best_mv, second_best_mv);
+    }
   }
 
   // If there won't be more n-step search, check to see if refining search is
@@ -1142,18 +1231,29 @@ static int full_pixel_diamond(const FULLPEL_MV start_mv,
     } else {
       // TODO(chiyotsai@google.com): There is another bug here where the second
       // best mv gets incorrectly overwritten. Fix it later.
-      FULLPEL_MV tmp_best_mv;
+      FULLPEL_MV tmp_best_mv, tmp_second_best_mv;
+      MARK_MV_INVALID(&tmp_second_best_mv);
+      FULLPEL_MV *tmp_second_best_mv_ptr =
+          second_best_mv ? &tmp_second_best_mv : NULL;
+      int thissme = INT_MAX, second_thissme = INT_MAX;
+
       thissme = diamond_search_sad(start_mv, ms_params, step_param + n, &num00,
-                                   &tmp_best_mv, second_best_mv);
+                                   &tmp_best_mv, tmp_second_best_mv_ptr);
 
       if (thissme < INT_MAX) {
         thissme = get_mvpred_compound_var_cost(ms_params, &tmp_best_mv);
+        second_thissme = CHECK_MV_PTR_VALID(tmp_second_best_mv_ptr)
+                             ? get_mvpred_compound_var_cost(
+                                   ms_params, tmp_second_best_mv_ptr)
+                             : INT_MAX;
+        if (tmp_second_best_mv_ptr && thissme > second_thissme) {
+          SWAP_PTR(&thissme, &second_thissme);
+          SWAP_PTR(&tmp_best_mv, tmp_second_best_mv_ptr);
+        }
       }
 
-      if (thissme < bestsme) {
-        bestsme = thissme;
-        *best_mv = tmp_best_mv;
-      }
+      update_bestmvs(best_mv, second_best_mv, &bestsme, second_bestsme,
+                     tmp_best_mv, tmp_second_best_mv, thissme, second_thissme);
     }
   }
 
@@ -1270,18 +1370,22 @@ static int full_pixel_exhaustive(const FULLPEL_MV start_mv,
                                  const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
                                  const struct MESH_PATTERN *const mesh_patterns,
                                  int *cost_list, FULLPEL_MV *best_mv,
-                                 FULLPEL_MV *second_best_mv) {
+                                 FULLPEL_MV *second_best_mv,
+                                 int *second_bestsme) {
   const int kMinRange = 7;
   const int kMaxRange = 256;
   const int kMinInterval = 1;
 
   int bestsme;
-  int i;
   int interval = mesh_patterns[0].interval;
   int range = mesh_patterns[0].range;
   int baseline_interval_divisor;
 
   *best_mv = start_mv;
+  *second_bestsme = INT_MAX;
+  if (second_bestsme) {
+    MARK_MV_INVALID(second_bestsme);
+  }
 
   // Trap illegal values for interval and range for this function.
   if ((range < kMinRange) || (range > kMaxRange) || (interval < kMinInterval) ||
@@ -1303,7 +1407,7 @@ static int full_pixel_exhaustive(const FULLPEL_MV start_mv,
   if ((interval > kMinInterval) && (range > kMinRange)) {
     // Progressive searches with range and step size decreasing each time
     // till we reach a step size of 1. Then break out.
-    for (i = 1; i < MAX_MESH_STEP; ++i) {
+    for (int i = 1; i < MAX_MESH_STEP; ++i) {
       // First pass with coarser step and longer range
       bestsme = exhaustive_mesh_search(
           *best_mv, ms_params, mesh_patterns[i].range,
@@ -1315,6 +1419,14 @@ static int full_pixel_exhaustive(const FULLPEL_MV start_mv,
 
   if (bestsme < INT_MAX) {
     bestsme = get_mvpred_var_cost(ms_params, best_mv);
+    *second_bestsme = CHECK_MV_PTR_VALID(second_best_mv)
+                          ? get_mvpred_var_cost(ms_params, second_best_mv)
+                          : INT_MAX;
+
+    if (second_bestsme && *second_bestsme < bestsme) {
+      SWAP_PTR(&bestsme, second_bestsme);
+      SWAP_PTR(best_mv, second_best_mv);
+    }
   }
 
   // Return cost list.
@@ -1413,7 +1525,8 @@ int av1_full_pixel_search(const FULLPEL_MV start_mv,
   const int is_intra_mode = ms_params->is_intra_mode;
   int run_mesh_search = ms_params->run_mesh_search;
 
-  int var = 0;
+  int var = 0, second_bestvar = INT_MAX;
+
   MARK_MV_INVALID(best_mv);
   if (second_best_mv) {
     MARK_MV_INVALID(second_best_mv);
@@ -1454,7 +1567,7 @@ int av1_full_pixel_search(const FULLPEL_MV start_mv,
     case NSTEP:
     case DIAMOND:
       var = full_pixel_diamond(start_mv, ms_params, step_param, cost_list,
-                               best_mv, second_best_mv);
+                               best_mv, second_best_mv, &second_bestvar);
       break;
     default: assert(0 && "Invalid search method.");
   }
@@ -1479,22 +1592,24 @@ int av1_full_pixel_search(const FULLPEL_MV start_mv,
   }
 
   if (run_mesh_search) {
-    int var_ex;
-    FULLPEL_MV tmp_mv_ex;
+    int mesh_bestvar = INT_MAX, mesh_second_bestvar = INT_MAX;
+    FULLPEL_MV mesh_best_mv, mesh_second_best_mv;
+    MARK_MV_INVALID(&mesh_best_mv);
+    MARK_MV_INVALID(&mesh_second_best_mv);
+    FULLPEL_MV *mesh_second_best_mv_ptr =
+        second_best_mv ? &mesh_second_best_mv : NULL;
+
     // Pick the mesh pattern for exhaustive search based on the toolset (intraBC
     // or non-intraBC)
-    // TODO(chiyotsai@google.com):  There is a bug here where the second best mv
-    // gets overwritten without actually comparing the rdcost.
     const MESH_PATTERN *const mesh_patterns =
         ms_params->mesh_patterns[is_intra_mode];
     // TODO(chiyotsai@google.com): the second best mv is not set correctly by
     // full_pixel_exhaustive, which can incorrectly override it.
-    var_ex = full_pixel_exhaustive(*best_mv, ms_params, mesh_patterns,
-                                   cost_list, &tmp_mv_ex, second_best_mv);
-    if (var_ex < var) {
-      var = var_ex;
-      *best_mv = tmp_mv_ex;
-    }
+    mesh_bestvar = full_pixel_exhaustive(
+        *best_mv, ms_params, mesh_patterns, cost_list, &mesh_best_mv,
+        mesh_second_best_mv_ptr, &mesh_second_bestvar);
+    update_bestmvs(best_mv, second_best_mv, &var, &second_bestvar, mesh_best_mv,
+                   mesh_second_best_mv, mesh_bestvar, mesh_second_bestvar);
   }
 
   return var;

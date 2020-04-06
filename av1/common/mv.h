@@ -28,7 +28,10 @@ extern "C" {
   do {                                     \
     ((int_mv *)(mv))->as_int = INVALID_MV; \
   } while (0);
+
 #define CHECK_MV_EQUAL(x, y) (((x).row == (y).row) && ((x).col == (y).col))
+#define CHECK_MV_VALID(x) (((int_mv)(x)).as_int != INVALID_MV)
+#define CHECK_MV_PTR_VALID(x) ((x) && CHECK_MV_VALID(*(x)))
 
 // The motion vector in units of full pixel
 typedef struct fullpel_mv {
