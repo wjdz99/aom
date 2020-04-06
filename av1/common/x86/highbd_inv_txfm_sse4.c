@@ -1477,8 +1477,8 @@ static void idct8x8_low1_sse4_1(__m128i *in, __m128i *out, int bit, int do_cols,
   out[7] = x;
 }
 
-static void idct8x8_new_sse4_1(__m128i *in, __m128i *out, int bit, int do_cols,
-                               int bd, int out_shift) {
+static void idct8x8_sse4_1(__m128i *in, __m128i *out, int bit, int do_cols,
+                           int bd, int out_shift) {
   const int32_t *cospi = cospi_arr(bit);
   const __m128i cospi56 = _mm_set1_epi32(cospi[56]);
   const __m128i cospim8 = _mm_set1_epi32(-cospi[8]);
@@ -1678,8 +1678,8 @@ static void iadst8x8_low1_sse4_1(__m128i *in, __m128i *out, int bit,
   }
 }
 
-static void iadst8x8_new_sse4_1(__m128i *in, __m128i *out, int bit, int do_cols,
-                                int bd, int out_shift) {
+static void iadst8x8_sse4_1(__m128i *in, __m128i *out, int bit, int do_cols,
+                            int bd, int out_shift) {
   const int32_t *cospi = cospi_arr(bit);
   const __m128i cospi4 = _mm_set1_epi32(cospi[4]);
   const __m128i cospi60 = _mm_set1_epi32(cospi[60]);
@@ -5173,8 +5173,8 @@ static const transform_1d_sse4_1
           { iadst4x4_sse4_1, NULL, NULL, NULL },
           { iidentity4_sse4_1, iidentity4_sse4_1, iidentity4_sse4_1, NULL },
       },
-      { { idct8x8_low1_sse4_1, idct8x8_new_sse4_1, NULL, NULL },
-        { iadst8x8_low1_sse4_1, iadst8x8_new_sse4_1, NULL, NULL },
+      { { idct8x8_low1_sse4_1, idct8x8_sse4_1, NULL, NULL },
+        { iadst8x8_low1_sse4_1, iadst8x8_sse4_1, NULL, NULL },
         { iidentity8_sse4_1, iidentity8_sse4_1, NULL, NULL } },
       {
           { idct16x16_low1_sse4_1, idct16x16_low8_sse4_1, idct16x16_sse4_1,
