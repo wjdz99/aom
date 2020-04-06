@@ -761,6 +761,147 @@ void av1_apply_temporal_filter_planewise_c(
   aom_free(square_diff);
 }
 
+// Applies temporal filter with plane-wise strategy.
+// The strategy of filter weight adjustment is different from the function
+// `av1_apply_temporal_filter_yuv_c()`.
+// Inputs:
+//   frame_to_filter: Pointer to the frame to be filtered, which is used as
+//                    reference to compute squared differece from the predictor.
+//   mbd: Pointer to the block for filtering, which is ONLY used to get
+//        subsampling information of all planes.
+//   block_size: Size of the block.
+//   mb_row: Row index of the block in the entire frame.
+//   mb_col: Column index of the block in the entire frame.
+//   num_planes: Number of planes in the frame.
+//   noise_levels: Pointer to the noise levels of the to-filter frame, estimated
+//                 with each plane (in Y, U, V order).
+//   use_subblock: Whether to use 4 sub-blocks to replace the original block.
+//   block_mse: Motion search error (MSE) for the entire block.
+//   subblock_mses: Pointer to the search errors (MSE) for 4 sub-blocks.
+//   q: Quantization factor.
+//   pred: Pointer to the well-built predictors.
+//   accum: Pointer to the pixel-wise accumulator for filtering.
+//   count: Pointer to the pixel-wise counter fot filtering.
+// Returns:
+//   Nothing will be returned. But the content to which `accum` and `pred`
+//   point will be modified.
+void av1_apply_temporal_filter_planewise_new(
+    const YV12_BUFFER_CONFIG *frame_to_filter, const MACROBLOCKD *mbd,
+    const BLOCK_SIZE block_size, const int mb_row, const int mb_col,
+    const int num_planes, const double *noise_levels, const int use_subblock,
+    const int block_mse, const int *subblock_mses, const int q,
+    const uint8_t *pred, uint32_t *accum, uint16_t *count) {
+  assert(num_planes >= 1 && num_planes <= MAX_MB_PLANE);
+
+  // Block information.
+  const int mb_height = block_size_high[block_size];
+  const int mb_width = block_size_wide[block_size];
+  const int mb_pels = mb_height * mb_width;
+  const int is_high_bitdepth = is_frame_high_bitdepth(frame_to_filter);
+  const uint16_t *pred16 = CONVERT_TO_SHORTPTR(pred);
+
+  // Allocate memory for pixel-wise squared differences for all planes. They,
+  // regardless of the subsampling, are assigned with memory of size `mb_pels`.
+  uint32_t *square_diff =
+      aom_memalign(16, num_planes * mb_pels * sizeof(uint32_t));
+  memset(square_diff, 0, num_planes * mb_pels * sizeof(square_diff[0]));
+
+  int plane_offset = 0;
+  for (int plane = 0; plane < num_planes; ++plane) {
+    // Locate pixel on reference frame.
+    const int plane_h = mb_height >> mbd->plane[plane].subsampling_y;
+    const int plane_w = mb_width >> mbd->plane[plane].subsampling_x;
+    const int frame_stride = frame_to_filter->strides[plane == 0 ? 0 : 1];
+    const int frame_offset = mb_row * plane_h * frame_stride + mb_col * plane_w;
+    const uint8_t *ref = frame_to_filter->buffers[plane];
+    compute_square_diff(ref, frame_offset, frame_stride, pred, plane_offset,
+                        plane_w, plane_h, plane_w, is_high_bitdepth,
+                        square_diff + plane_offset);
+    plane_offset += mb_pels;
+  }
+
+  // Get window size for pixel-wise filtering.
+  assert(TF_PLANEWISE_FILTER_WINDOW_LENGTH % 2 == 1);
+  const int half_window = TF_PLANEWISE_FILTER_WINDOW_LENGTH >> 1;
+
+  // Hyper-parameter for filter weight adjustment.
+  const int frame_height = frame_to_filter->heights[0]
+                           << mbd->plane[0].subsampling_y;
+  const int decay_control = frame_height >= 720 ? 4 : 3;
+
+  // Handle planes in sequence.
+  plane_offset = 0;
+  for (int plane = 0; plane < num_planes; ++plane) {
+    const int subsampling_y = mbd->plane[plane].subsampling_y;
+    const int subsampling_x = mbd->plane[plane].subsampling_x;
+    const int h = mb_height >> subsampling_y;  // Plane height.
+    const int w = mb_width >> subsampling_x;   // Plane width.
+
+    // Perform filtering.
+    int pred_idx = 0;
+    for (int i = 0; i < h; ++i) {
+      for (int j = 0; j < w; ++j) {
+        // non-local mean approach
+        uint64_t sum_square_diff = 0;
+        int num_ref_pixels = 0;
+
+        for (int wi = -half_window; wi <= half_window; ++wi) {
+          for (int wj = -half_window; wj <= half_window; ++wj) {
+            const int y = CLIP(i + wi, 0, h - 1);  // Y-coord on current plane.
+            const int x = CLIP(j + wj, 0, w - 1);  // X-coord on current plane.
+            sum_square_diff += square_diff[plane_offset + y * w + x];
+            ++num_ref_pixels;
+          }
+        }
+
+        // Filter U-plane and V-plane using Y-plane. This is because motion
+        // search is only done on Y-plane, so the information from Y-plane will
+        // be more accurate.
+        if (plane != 0) {
+          const int ss_y_shift = subsampling_y - mbd->plane[0].subsampling_y;
+          const int ss_x_shift = subsampling_x - mbd->plane[0].subsampling_x;
+          for (int ii = 0; ii < (1 << ss_y_shift); ++ii) {
+            for (int jj = 0; jj < (1 << ss_x_shift); ++jj) {
+              const int yy = (i << ss_y_shift) + ii;  // Y-coord on Y-plane.
+              const int xx = (j << ss_x_shift) + jj;  // X-coord on Y-plane.
+              const int ww = w << ss_x_shift;         // Width of Y-plane.
+              sum_square_diff += square_diff[yy * ww + xx];
+              ++num_ref_pixels;
+            }
+          }
+        }
+
+        const double window_error = (double)(sum_square_diff) / num_ref_pixels;
+        const int subblock_idx = (i >= h / 2) * 2 + (j >= w / 2);
+        const double block_error =
+            (double)(use_subblock ? block_mse : subblock_mses[subblock_idx]);
+
+        // Control factor for non-local mean approach.
+        const double r =
+            (double)decay_control * (0.7 + log(noise_levels[plane] + 1.0));
+        const double q_factor = AOMMIN((double)(q * q) / 256.0, 1);
+
+        // Scale down the difference for high bit depth input.
+        if (mbd->bd > 8) sum_square_diff >>= (mbd->bd - 8) * (mbd->bd - 8);
+        const double scaled_diff = AOMMAX(
+            -(window_error + block_error / 10) / q_factor / (2 * r * r), -15.0);
+        const int adjusted_weight =
+            (int)(exp(scaled_diff) * TF_PLANEWISE_FILTER_WEIGHT_SCALE);
+
+        const int idx = plane_offset + pred_idx;  // Index with plane shift.
+        const int pred_value = is_high_bitdepth ? pred16[idx] : pred[idx];
+        accum[idx] += adjusted_weight * pred_value;
+        count[idx] += adjusted_weight;
+
+        ++pred_idx;
+      }
+    }
+    plane_offset += mb_pels;
+  }
+
+  aom_free(square_diff);
+}
+
 // Computes temporal filter weights and accumulators from all reference frames
 // excluding the current frame to be filtered.
 // Inputs:
@@ -783,6 +924,9 @@ void av1_apply_temporal_filter_planewise_c(
 //   noise_levels: Pointer to the noise levels of the to-filter frame, estimated
 //                 with each plane (in Y, U, V order). (Used in plane-wise
 //                 strategy)
+//   block_mse: Motion search error (MSE) for the entire block.
+//   subblock_mses: Pointer to the search errors (MSE) for 4 sub-blocks.
+//   q: Quantization factor.
 //   pred: Pointer to the well-built predictors.
 //   accum: Pointer to the pixel-wise accumulator for filtering.
 //   count: Pointer to the pixel-wise counter fot filtering.
@@ -794,12 +938,17 @@ void av1_apply_temporal_filter_others(
     const BLOCK_SIZE block_size, const int mb_row, const int mb_col,
     const int num_planes, const int use_planewise_strategy, const int strength,
     const int use_subblock, const int *subblock_filter_weights,
-    const double *noise_levels, const uint8_t *pred, uint32_t *accum,
-    uint16_t *count) {
+    const double *noise_levels, const int block_mse, const int *subblock_mses,
+    const int q, const uint8_t *pred, uint32_t *accum, uint16_t *count) {
   assert(num_planes >= 1 && num_planes <= MAX_MB_PLANE);
 
   if (use_planewise_strategy) {  // Commonly used for high-resolution video.
     // TODO(any): avx2 and sse2 version should also support high bit-depth.
+    av1_apply_temporal_filter_planewise_new(
+        frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
+        noise_levels, use_subblock, block_mse, subblock_mses, q, pred, accum,
+        count);
+    return;
     if (is_frame_high_bitdepth(frame_to_filter)) {
       av1_apply_temporal_filter_planewise_c(frame_to_filter, mbd, block_size,
                                             mb_row, mb_col, num_planes,
@@ -962,7 +1111,7 @@ static FRAME_DIFF tf_do_filtering(
   // Do filtering.
   FRAME_DIFF diff = { 0, 0 };
   const int use_planewise_strategy =
-      TF_ENABLE_PLANEWISE_STRATEGY && AOMMIN(frame_height, frame_width) >= 480;
+      TF_ENABLE_PLANEWISE_STRATEGY || AOMMIN(frame_height, frame_width) >= 480;
   // Perform temporal filtering block by block.
   for (int mb_row = 0; mb_row < mb_rows; mb_row++) {
     av1_set_mv_row_limits(&cpi->common.mi_params, &mb->mv_limits,
@@ -1015,10 +1164,17 @@ static FRAME_DIFF tf_do_filtering(
                                          subblock_filter_weights[0], pred,
                                          accum, count);
         } else {  // Other reference frames.
+          const FRAME_TYPE frame_type =
+              (cpi->common.current_frame.frame_number > 1) ? INTER_FRAME
+                                                           : KEY_FRAME;
+          const int q =
+              (int)av1_convert_qindex_to_q(cpi->rc.avg_frame_qindex[frame_type],
+                                           cpi->common.seq_params.bit_depth);
           av1_apply_temporal_filter_others(
               frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
               use_planewise_strategy, strength, use_subblock,
-              subblock_filter_weights, noise_levels, pred, accum, count);
+              subblock_filter_weights, noise_levels, block_mse, subblock_mses,
+              q, pred, accum, count);
         }
       }
 
