@@ -303,6 +303,8 @@ struct aom_codec_alg_priv {
   BufferPool *buffer_pool_lap;
   AV1_COMP *cpi_lap;
   FIRSTPASS_STATS *frame_stats_buffer;
+  FIRSTPASS_STATS *total_stats_lap;
+  FIRSTPASS_STATS *total_stats_left_lap;
   // Number of stats buffers required for look ahead
   int num_lap_buffers;
   STATS_BUFFER_CTX stats_buf_context;
@@ -1835,6 +1837,23 @@ static aom_codec_err_t create_frame_stats_buffer(
   return res;
 }
 
+static aom_codec_err_t create_total_stats_buffer_lap(
+    FIRSTPASS_STATS **total_stats_lap, FIRSTPASS_STATS **total_stats_left_lap,
+    STATS_BUFFER_CTX *stats_buf_context) {
+  aom_codec_err_t res = AOM_CODEC_OK;
+
+  *total_stats_lap = (FIRSTPASS_STATS *)aom_calloc(1, sizeof(FIRSTPASS_STATS));
+  if (*total_stats_lap == NULL) return AOM_CODEC_MEM_ERROR;
+
+  *total_stats_left_lap =
+      (FIRSTPASS_STATS *)aom_calloc(1, sizeof(FIRSTPASS_STATS));
+  if (*total_stats_left_lap == NULL) return AOM_CODEC_MEM_ERROR;
+
+  stats_buf_context->total_stats = *total_stats_lap;
+  stats_buf_context->total_left_stats = *total_stats_left_lap;
+  return res;
+}
+
 static aom_codec_err_t create_context_and_bufferpool(
     AV1_COMP **p_cpi, BufferPool **p_buffer_pool, AV1EncoderConfig *oxcf,
     struct aom_codec_pkt_list *pkt_list_head, FIRSTPASS_STATS *frame_stats_buf,
@@ -1916,6 +1935,11 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
                                     &priv->stats_buf_context, *num_lap_buffers);
       if (res != AOM_CODEC_OK) return AOM_CODEC_MEM_ERROR;
 
+      res = create_total_stats_buffer_lap(&priv->total_stats_lap,
+                                          &priv->total_stats_left_lap,
+                                          &priv->stats_buf_context);
+      if (res != AOM_CODEC_OK) return AOM_CODEC_MEM_ERROR;
+
       res = create_context_and_bufferpool(
           &priv->cpi, &priv->buffer_pool, &priv->oxcf, &priv->pkt_list.head,
           priv->frame_stats_buffer, ENCODE_STAGE, *num_lap_buffers, -1,
@@ -1947,8 +1971,16 @@ static void destroy_context_and_bufferpool(AV1_COMP *cpi,
   aom_free(buffer_pool);
 }
 
+static void destroy_total_stats_buffer_lap(
+    FIRSTPASS_STATS *total_stats_lap, FIRSTPASS_STATS *total_left_stats_lap) {
+  aom_free(total_stats_lap);
+  aom_free(total_left_stats_lap);
+}
+
 static aom_codec_err_t encoder_destroy(aom_codec_alg_priv_t *ctx) {
   free(ctx->cx_data);
+  destroy_total_stats_buffer_lap(ctx->total_stats_lap,
+                                 ctx->total_stats_left_lap);
   destroy_context_and_bufferpool(ctx->cpi, ctx->buffer_pool);
   if (ctx->cpi_lap) {
     // As both cpi and cpi_lap have the same lookahead_ctx, it is already freed
