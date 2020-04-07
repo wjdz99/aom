@@ -3338,23 +3338,6 @@ int av1_get_mvpred_sse(const MACROBLOCK *x, const FULLPEL_MV *best_mv,
                            x->errorperbit, mv_cost_type);
 }
 
-int av1_get_mvpred_var(const MACROBLOCK *x, const FULLPEL_MV *best_mv,
-                       const MV *ref_mv, const aom_variance_fn_ptr_t *vfp) {
-  const MACROBLOCKD *const xd = &x->e_mbd;
-  const struct buf_2d *const what = &x->plane[0].src;
-  const struct buf_2d *const in_what = &xd->plane[0].pre[0];
-  const MV mv = get_mv_from_fullmv(best_mv);
-  const MV_COST_TYPE mv_cost_type = x->mv_cost_type;
-  unsigned int sse, var;
-
-  var = vfp->vf(what->buf, what->stride, get_buf_from_fullmv(in_what, best_mv),
-                in_what->stride, &sse);
-
-  return var + mv_err_cost(&mv, ref_mv, x->nmv_vec_cost,
-                           CONVERT_TO_CONST_MVCOST(x->mv_cost_stack),
-                           x->errorperbit, mv_cost_type);
-}
-
 static INLINE int get_mvpred_av_var(const MV_COST_PARAMS *mv_cost_params,
                                     const FULLPEL_MV best_mv,
                                     const uint8_t *second_pred,
