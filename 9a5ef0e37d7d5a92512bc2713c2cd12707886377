@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "acd730f9_0488f210",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1115,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-07T22:51:54Z",
+      "side": 1,
+      "message": "Any reason for moving this up?\nCould you add a comment in code / commit message?",
+      "range": {
+        "startLine": 1115,
+        "startChar": 0,
+        "endLine": 1115,
+        "endChar": 46
+      },
+      "revId": "9a5ef0e37d7d5a92512bc2713c2cd12707886377",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3b58fbb_5e106953",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1300,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-07T22:51:54Z",
+      "side": 1,
+      "message": "estimates",
+      "range": {
+        "startLine": 1300,
+        "startChar": 17,
+        "endLine": 1300,
+        "endChar": 25
+      },
+      "revId": "9a5ef0e37d7d5a92512bc2713c2cd12707886377",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "766d27b3_5012add4",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1305,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-07T22:51:54Z",
+      "side": 1,
+      "message": "This is not actually set in the function, right?\n(I\u0027m not sure why not though)",
+      "range": {
+        "startLine": 1305,
+        "startChar": 5,
+        "endLine": 1305,
+        "endChar": 32
+      },
+      "revId": "9a5ef0e37d7d5a92512bc2713c2cd12707886377",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0816cf94_4366b50f",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1307,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-07T22:51:54Z",
+      "side": 1,
+      "message": "\"finer\" --\u003e \"slower but more accurate\"?",
+      "range": {
+        "startLine": 1307,
+        "startChar": 5,
+        "endLine": 1307,
+        "endChar": 10
+      },
+      "revId": "9a5ef0e37d7d5a92512bc2713c2cd12707886377",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfba1a59_4b62757f",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2492,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-07T22:51:54Z",
+      "side": 1,
+      "message": "This statement is outside the \u0027if\u0027 here, but inside the \u0027if\u0027 in firstpass.c\nIs there a reason? If not, better to be consistent.",
+      "revId": "9a5ef0e37d7d5a92512bc2713c2cd12707886377",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
