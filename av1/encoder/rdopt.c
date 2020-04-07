@@ -10005,6 +10005,11 @@ static INLINE int find_interp_filter_match(MACROBLOCK *const x,
 static INLINE void calc_interp_skip_pred_flag(MACROBLOCK *const x,
                                               const AV1_COMP *const cpi,
                                               int *skip_hor, int *skip_ver) {
+/////////////////////////////////////////
+    *skip_hor = 0;
+    *skip_ver = 0;
+    return;
+////////////////////////////////////////
   const AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
