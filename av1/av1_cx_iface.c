@@ -1832,6 +1832,10 @@ static aom_codec_err_t create_frame_stats_buffer(
   stats_buf_context->stats_in_end = stats_buf_context->stats_in_start;
   stats_buf_context->stats_in_buf_end =
       stats_buf_context->stats_in_start + size;
+  stats_buf_context->total_stats = aom_calloc(1, sizeof(FIRSTPASS_STATS));
+  stats_buf_context->total_left_stats = aom_calloc(1, sizeof(FIRSTPASS_STATS));
+  av1_twopass_zero_stats(stats_buf_context->total_stats);
+  av1_twopass_zero_stats(stats_buf_context->total_left_stats);
   return res;
 }
 
