@@ -3138,6 +3138,11 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
 
   cpi->twopass.stats_buf_ctx = stats_buf_context;
   cpi->twopass.stats_in = cpi->twopass.stats_buf_ctx->stats_in_start;
+  if (cpi->lap_enabled && cpi->oxcf.rc_mode == AOM_VBR) {
+    cpi->twopass.total_left_stats =
+        cpi->twopass.stats_buf_ctx->total_left_stats;
+    cpi->twopass.total_stats = cpi->twopass.stats_buf_ctx->total_stats;
+  }
 
 #if !CONFIG_REALTIME_ONLY
   if (is_stat_generation_stage(cpi)) {
@@ -3650,9 +3655,13 @@ void av1_remove_compressor(AV1_COMP *cpi) {
 #endif  // CONFIG_HTB_TRELLIS
   av1_free_ref_frame_buffers(cm->buffer_pool);
 
-  aom_free(cpi->twopass.total_stats);
-  aom_free(cpi->twopass.total_left_stats);
-
+  if (cpi->lap_enabled) {
+    cpi->twopass.total_stats = NULL;
+    cpi->twopass.total_left_stats = NULL;
+  } else {
+    aom_free(cpi->twopass.total_stats);
+    aom_free(cpi->twopass.total_left_stats);
+  }
   aom_free(cpi);
 
 #ifdef OUTPUT_YUV_SKINMAP
