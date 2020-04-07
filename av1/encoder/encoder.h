@@ -428,6 +428,8 @@ typedef struct AV1EncoderConfig {
   int use_intra_dct_only;
   int use_inter_dct_only;
   int use_intra_default_tx_only;
+  // Indicates whether or not to use an adaptive quantize b rather than
+  // the traditional version
   int quant_b_adapt;
   COST_UPDATE_TYPE coeff_cost_upd_freq;
   COST_UPDATE_TYPE mode_cost_upd_freq;
@@ -884,14 +886,13 @@ typedef struct {
 } FRAME_INFO;
 
 typedef struct AV1_COMP {
-  QUANTS quants;
+  QuantDequantInfo quant_dequant_info;
   ThreadData td;
   FRAME_COUNTS counts;
   MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame_base;
   int mbmi_ext_alloc_size;
   int mbmi_ext_stride;
   CB_COEFF_BUFFER *coeff_buffer_base;
-  Dequants dequants;
   AV1_COMMON common;
   AV1EncoderConfig oxcf;
   struct lookahead_ctx *lookahead;
@@ -1226,9 +1227,6 @@ typedef struct AV1_COMP {
   // Frame type of the last frame. May be used in some heuristics for speeding
   // up the encoding.
   FRAME_TYPE last_frame_type;
-  int min_qmlevel;
-  int max_qmlevel;
-  int use_quant_b_adapt;
   int num_tg;
 } AV1_COMP;
 
