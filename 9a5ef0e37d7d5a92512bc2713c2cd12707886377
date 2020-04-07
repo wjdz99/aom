@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f6f5f63f_701dcee4",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1115,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-04-07T23:41:20Z",
+      "side": 1,
+      "message": "It is moved here since she input frame source has to be set before calling the function \"av1_get_second_pass_param\" to determine \"allow_screen_content_tools\".\n\nDone.",
+      "parentUuid": "acd730f9_0488f210",
+      "range": {
+        "startLine": 1115,
+        "startChar": 0,
+        "endLine": 1115,
+        "endChar": 46
+      },
+      "revId": "9a5ef0e37d7d5a92512bc2713c2cd12707886377",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f3b58fbb_5e106953",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "9a5ef0e37d7d5a92512bc2713c2cd12707886377",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9b902a9_2637353e",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1300,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-04-07T23:41:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3b58fbb_5e106953",
+      "range": {
+        "startLine": 1300,
+        "startChar": 17,
+        "endLine": 1300,
+        "endChar": 25
+      },
+      "revId": "9a5ef0e37d7d5a92512bc2713c2cd12707886377",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "eb98339e_004fe53e",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1305,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-04-07T23:41:20Z",
+      "side": 1,
+      "message": "You\u0027re right. Removed.",
+      "parentUuid": "766d27b3_5012add4",
+      "range": {
+        "startLine": 1305,
+        "startChar": 5,
+        "endLine": 1305,
+        "endChar": 32
+      },
+      "revId": "9a5ef0e37d7d5a92512bc2713c2cd12707886377",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0816cf94_4366b50f",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 2
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "c8906ba7_371c9f28",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1307,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-04-07T23:41:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0816cf94_4366b50f",
+      "range": {
+        "startLine": 1307,
+        "startChar": 5,
+        "endLine": 1307,
+        "endChar": 10
+      },
+      "revId": "9a5ef0e37d7d5a92512bc2713c2cd12707886377",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dfba1a59_4b62757f",
         "filename": "av1/encoder/pass2_strategy.c",
         "patchSetId": 2
@@ -108,6 +204,24 @@
       "revId": "9a5ef0e37d7d5a92512bc2713c2cd12707886377",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "495d2b29_7bba7f05",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2492,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-04-07T23:41:20Z",
+      "side": 1,
+      "message": "They should be consistent. Done.",
+      "parentUuid": "dfba1a59_4b62757f",
+      "revId": "9a5ef0e37d7d5a92512bc2713c2cd12707886377",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
