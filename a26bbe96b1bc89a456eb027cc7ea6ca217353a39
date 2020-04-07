@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "83a3605e_b004dab6",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-07T22:30:43Z",
+      "side": 1,
+      "message": "I have seen such expressions used to get a boolean value.\nBut Clang-tidy also seems to suggest using \"((xd-\u003emi_row \u0026 index_mask) !\u003d 0)\" instead, so I\u0027m going with that.",
+      "parentUuid": "1cb1d2e2_d225da5e",
+      "range": {
+        "startLine": 62,
+        "startChar": 34,
+        "endLine": 62,
+        "endChar": 36
+      },
+      "revId": "a26bbe96b1bc89a456eb027cc7ea6ca217353a39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5199670_b18045b3",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "a26bbe96b1bc89a456eb027cc7ea6ca217353a39",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4b65c44_694575e4",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 881,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-07T22:30:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5199670_b18045b3",
+      "range": {
+        "startLine": 881,
+        "startChar": 34,
+        "endLine": 881,
+        "endChar": 36
+      },
+      "revId": "a26bbe96b1bc89a456eb027cc7ea6ca217353a39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
