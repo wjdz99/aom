@@ -2411,6 +2411,8 @@ static void process_first_pass_stats(AV1_COMP *cpi,
 
   if (cpi->oxcf.rc_mode != AOM_Q && current_frame->frame_number == 0 &&
       cpi->twopass.total_stats && cpi->twopass.total_left_stats) {
+    if (cpi->lap_enabled && cpi->oxcf.rc_mode == AOM_VBR)
+      *cpi->twopass.total_left_stats = *cpi->twopass.total_stats;
     const int frames_left =
         (int)(twopass->total_stats->count - current_frame->frame_number);
 
@@ -2719,8 +2721,20 @@ void av1_init_second_pass(AV1_COMP *cpi) {
 void av1_init_single_pass_lap(AV1_COMP *cpi) {
   TWO_PASS *const twopass = &cpi->twopass;
 
-  twopass->total_stats = NULL;
-  twopass->total_left_stats = NULL;
+  if (cpi->oxcf.rc_mode == AOM_Q) {
+    twopass->total_stats = NULL;
+    twopass->total_left_stats = NULL;
+  } else {
+    cpi->twopass.stats_buf_ctx->total_left_stats =
+        aom_calloc(1, sizeof(FIRSTPASS_STATS));
+    cpi->twopass.stats_buf_ctx->total_stats =
+        aom_calloc(1, sizeof(FIRSTPASS_STATS));
+    av1_twopass_zero_stats(cpi->twopass.stats_buf_ctx->total_left_stats);
+    av1_twopass_zero_stats(cpi->twopass.stats_buf_ctx->total_stats);
+    cpi->twopass.total_left_stats =
+        cpi->twopass.stats_buf_ctx->total_left_stats;
+    cpi->twopass.total_stats = cpi->twopass.stats_buf_ctx->total_stats;
+  }
 
   if (!twopass->stats_buf_ctx->stats_in_end) return;
 

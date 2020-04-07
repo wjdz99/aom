@@ -1947,8 +1947,14 @@ static void destroy_context_and_bufferpool(AV1_COMP *cpi,
   aom_free(buffer_pool);
 }
 
+static void destroy_stats_buf_context(STATS_BUFFER_CTX *stats_buf_context) {
+  aom_free(stats_buf_context->total_left_stats);
+  aom_free(stats_buf_context->total_stats);
+}
+
 static aom_codec_err_t encoder_destroy(aom_codec_alg_priv_t *ctx) {
   free(ctx->cx_data);
+  destroy_stats_buf_context(&ctx->stats_buf_context);
   destroy_context_and_bufferpool(ctx->cpi, ctx->buffer_pool);
   if (ctx->cpi_lap) {
     // As both cpi and cpi_lap have the same lookahead_ctx, it is already freed
