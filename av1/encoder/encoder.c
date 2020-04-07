@@ -3650,9 +3650,13 @@ void av1_remove_compressor(AV1_COMP *cpi) {
 #endif  // CONFIG_HTB_TRELLIS
   av1_free_ref_frame_buffers(cm->buffer_pool);
 
-  aom_free(cpi->twopass.total_stats);
-  aom_free(cpi->twopass.total_left_stats);
-
+  if (cpi->lap_enabled) {
+    cpi->twopass.total_stats = NULL;
+    cpi->twopass.total_left_stats = NULL;
+  } else {
+    aom_free(cpi->twopass.total_stats);
+    aom_free(cpi->twopass.total_left_stats);
+  }
   aom_free(cpi);
 
 #ifdef OUTPUT_YUV_SKINMAP

@@ -140,6 +140,10 @@ void av1_init_first_pass(AV1_COMP *cpi) {
   if (!cpi->lap_enabled) {
     cpi->twopass.total_stats = aom_calloc(1, sizeof(FIRSTPASS_STATS));
     av1_twopass_zero_stats(cpi->twopass.total_stats);
+  } else if (cpi->lap_enabled && cpi->oxcf.rc_mode == AOM_VBR) {
+    cpi->twopass.total_left_stats =
+        cpi->twopass.stats_buf_ctx->total_left_stats;
+    cpi->twopass.total_stats = cpi->twopass.stats_buf_ctx->total_stats;
   }
 }
 
