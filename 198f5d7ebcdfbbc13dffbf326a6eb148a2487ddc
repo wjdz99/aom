@@ -22,6 +22,30 @@
       "revId": "198f5d7ebcdfbbc13dffbf326a6eb148a2487ddc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1326886c_89e0ef5b",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2020-04-07T13:21:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e1c959c2_4f77018a",
+      "range": {
+        "startLine": 323,
+        "startChar": 0,
+        "endLine": 323,
+        "endChar": 0
+      },
+      "revId": "198f5d7ebcdfbbc13dffbf326a6eb148a2487ddc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
