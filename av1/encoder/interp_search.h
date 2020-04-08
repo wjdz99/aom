@@ -34,6 +34,14 @@ typedef struct {
 } INTERPOLATION_FILTER_STATS;
 
 typedef struct {
+  // Stores the default value of skip flag depending on chroma format
+  // Set as 1 for monochrome and 3 for other color formats
+  int default_interp_skip_flags;
+  // Filter mask to allow certain interp_filter type.
+  uint16_t interp_filter_search_mask;
+} InterpSearchFlags;
+
+typedef struct {
   // OBMC secondary prediction buffers and respective strides
   uint8_t *above_pred_buf[MAX_MB_PLANE];
   int above_pred_stride[MAX_MB_PLANE];
