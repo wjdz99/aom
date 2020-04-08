@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cfaa400_e212d95f",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-04-08T00:23:56Z",
+      "side": 1,
+      "message": "Could move the check before line 153.",
+      "revId": "0a0e9f83c9189bfa3e80bb553e3b2844f6b0b97b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "561f5be2_4205452d",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-04-08T00:23:56Z",
+      "side": 1,
+      "message": "Does this mean if one of the candidate mvs is invalid, then we won\u0027t use any other candidates? Or maybe they should be all valid or invalid for all candidates?",
+      "range": {
+        "startLine": 180,
+        "startChar": 18,
+        "endLine": 180,
+        "endChar": 19
+      },
+      "revId": "0a0e9f83c9189bfa3e80bb553e3b2844f6b0b97b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
