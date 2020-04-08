@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b72f5ff4_7459db7c",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-04-08T04:44:47Z",
+      "side": 0,
+      "message": "Here the number of lookahead frames used to determine whether it is static scene is hard coded as 5, which is too small.\nTherefore the detect_transition_to_still could be a false positive.\nSo it is removed.",
+      "range": {
+        "startLine": 423,
+        "startChar": 8,
+        "endLine": 423,
+        "endChar": 71
+      },
+      "revId": "b1d9a1811b729c684db64c289073c4ee07383793",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa4136ef_c1ccd7a0",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 993,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-04-08T04:44:47Z",
+      "side": 0,
+      "message": "Here we still keep the detection to determine whether we do a gf cut.\nIt could be modified in the future.",
+      "range": {
+        "startLine": 992,
+        "startChar": 8,
+        "endLine": 993,
+        "endChar": 69
+      },
+      "revId": "b1d9a1811b729c684db64c289073c4ee07383793",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c43e6ac_9137c356",
+        "filename": "av1/encoder/pass2_strategy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-04-08T04:44:47Z",
+      "side": 0,
+      "message": "This variable is now removed and replaced by \"use_arf_in_this_kf_group\".",
+      "range": {
+        "startLine": 47,
+        "startChar": 15,
+        "endLine": 47,
+        "endChar": 28
+      },
+      "revId": "b1d9a1811b729c684db64c289073c4ee07383793",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
