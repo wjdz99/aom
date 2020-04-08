@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "fdf2f7a8_3a40fb3c",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2020-04-08T00:27:23Z",
+      "side": 1,
+      "message": "This is the same as GET_MV_RAWPEL.",
+      "range": {
+        "startLine": 24,
+        "startChar": 1,
+        "endLine": 24,
+        "endChar": 55
+      },
+      "revId": "0a0e9f83c9189bfa3e80bb553e3b2844f6b0b97b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91190f14_e8f4081f",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2020-04-08T00:27:23Z",
+      "side": 1,
+      "message": "Replace with MAX_MC_FLOW_BLK_IN_SB * MAX_MC_FLOW_BLK_IN_SB to avoid hard-coded values.",
+      "range": {
+        "startLine": 126,
+        "startChar": 17,
+        "endLine": 126,
+        "endChar": 19
+      },
+      "revId": "0a0e9f83c9189bfa3e80bb553e3b2844f6b0b97b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1cfaa400_e212d95f",
         "filename": "av1/encoder/motion_search_facade.c",
         "patchSetId": 15
@@ -13,6 +59,29 @@
       "writtenOn": "2020-04-08T00:23:56Z",
       "side": 1,
       "message": "Could move the check before line 153.",
+      "revId": "0a0e9f83c9189bfa3e80bb553e3b2844f6b0b97b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5db46fb5_2453f7b2",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2020-04-08T00:27:23Z",
+      "side": 1,
+      "message": "Although unlikely, this could be inefficient all the mvs are distinct. We can optimize this later in a later CL..",
+      "range": {
+        "startLine": 162,
+        "startChar": 0,
+        "endLine": 169,
+        "endChar": 13
+      },
       "revId": "0a0e9f83c9189bfa3e80bb553e3b2844f6b0b97b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -35,6 +104,52 @@
         "startChar": 18,
         "endLine": 180,
         "endChar": 19
+      },
+      "revId": "0a0e9f83c9189bfa3e80bb553e3b2844f6b0b97b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46b9f1e4_5f655267",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2020-04-08T00:27:23Z",
+      "side": 1,
+      "message": "Maybe we could do AOMMIN(cnt, 2) to make it clear that we are testing at most 2 items.",
+      "range": {
+        "startLine": 219,
+        "startChar": 26,
+        "endLine": 219,
+        "endChar": 29
+      },
+      "revId": "0a0e9f83c9189bfa3e80bb553e3b2844f6b0b97b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "075ca4f7_1482c059",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2020-04-08T00:27:23Z",
+      "side": 1,
+      "message": "Add an assert that this is true for m \u003d\u003d 0 to silent the static analyzer.",
+      "range": {
+        "startLine": 229,
+        "startChar": 7,
+        "endLine": 229,
+        "endChar": 36
       },
       "revId": "0a0e9f83c9189bfa3e80bb553e3b2844f6b0b97b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
