@@ -931,6 +931,42 @@ static int get_q_using_fixed_offsets(const AV1EncoderConfig *const oxcf,
       AOMMAX(q_val_orig - oxcf->fixed_qp_offsets[offset_idx], 0.0);
   const int delta_qindex =
       av1_compute_qdelta(rc, q_val_orig, q_val_target, bit_depth);
+  {
+    int q = cq_level + delta_qindex;
+    int qp = av1_qindex_to_quantizer(q);
+    const int orig_qp = av1_qindex_to_quantizer(cq_level);
+    if (orig_qp == 20) {
+      const int svt_qp[] = { 5, 6, 12, 16, 18, 20 };
+      qp = svt_qp[offset_idx];
+      q = av1_quantizer_to_qindex(qp);
+      return q;
+    }
+    if (orig_qp == 32) {
+      const int svt_qp[] = { 10, 14, 24, 29, 31, 32 };
+      qp = svt_qp[offset_idx];
+      q = av1_quantizer_to_qindex(qp);
+      return q;
+    }
+    if (orig_qp == 43) {
+      const int svt_qp[] = { 19, 28, 36, 40, 42, 43 };
+      qp = svt_qp[offset_idx];
+      q = av1_quantizer_to_qindex(qp);
+      return q;
+    }
+    if (orig_qp == 55) {
+      const int svt_qp[] = { 31, 41, 48, 52, 54, 55 };
+      qp = svt_qp[offset_idx];
+      q = av1_quantizer_to_qindex(qp);
+      return q;
+    }
+    if (orig_qp == 63) {
+      const int svt_qp[] = { 45, 51, 58, 61, 63, 63 };
+      qp = svt_qp[offset_idx];
+      q = av1_quantizer_to_qindex(qp);
+      return q;
+    }
+  }
+
   return AOMMAX(cq_level + delta_qindex, 0);
 }
 
