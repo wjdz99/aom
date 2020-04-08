@@ -2023,6 +2023,7 @@ static int test_candidate_kf(TWO_PASS *twopass,
 #define KF_MIN_FRAME_BOOST 80.0
 #define KF_MAX_FRAME_BOOST 128.0
 #define MIN_KF_BOOST 600  // Minimum boost for non-static KF interval
+#define SCREEN_MIN_KF_BOOST 600
 #define MAX_KF_BOOST 3200
 #define MIN_STATIC_KF_BOOST 5400  // Minimum boost for static KF interval
 
@@ -2346,7 +2347,10 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   } else {
     // Apply various clamps for min and max boost
     rc->kf_boost = AOMMAX(rc->kf_boost, (rc->frames_to_key * 3));
-    rc->kf_boost = AOMMAX(rc->kf_boost, MIN_KF_BOOST);
+    if (cpi->oxcf.content == AOM_CONTENT_SCREEN)
+      rc->kf_boost = AOMMAX(rc->kf_boost, SCREEN_MIN_KF_BOOST);
+    else
+      rc->kf_boost = AOMMAX(rc->kf_boost, MIN_KF_BOOST);
 #ifdef STRICT_RC
     rc->kf_boost = AOMMIN(rc->kf_boost, MAX_KF_BOOST);
 #endif
