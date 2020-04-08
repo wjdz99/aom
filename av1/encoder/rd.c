@@ -343,7 +343,13 @@ static const int rd_frame_type_factor[FRAME_UPDATE_TYPES] = { 128, 144, 128,
 int av1_compute_rd_mult_based_on_qindex(const AV1_COMP *cpi, int qindex) {
   const int q = av1_dc_quant_QTX(qindex, 0, cpi->common.seq_params.bit_depth);
   int rdmult = q * q;
+
+  // Experiment with rd mult
+  // if (cpi->oxcf.content == AOM_CONTENT_SCREEN)
+  //    rdmult = (rdmult * 3);
+  // else
   rdmult = rdmult * 3 + (rdmult * 2 / 3);
+
   switch (cpi->common.seq_params.bit_depth) {
     case AOM_BITS_8: break;
     case AOM_BITS_10: rdmult = ROUND_POWER_OF_TWO(rdmult, 4); break;
