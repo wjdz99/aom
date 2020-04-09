@@ -4045,8 +4045,8 @@ static INLINE void match_ref_frame(const MB_MODE_INFO *const mbmi,
 
 // Prune compound mode using ref frames of neighbor blocks.
 static INLINE int compound_skip_using_neighbor_refs(
-    MACROBLOCKD *const xd, const PREDICTION_MODE this_mode,
-    const MV_REFERENCE_FRAME *ref_frames) {
+    MACROBLOCKD *const xd, const SPEED_FEATURES *const sf,
+    const PREDICTION_MODE this_mode, const MV_REFERENCE_FRAME *ref_frames) {
   // Exclude non-extended compound modes from pruning
   if (this_mode == NEAREST_NEARESTMV || this_mode == NEAR_NEARMV ||
       this_mode == NEW_NEWMV || this_mode == GLOBAL_GLOBALMV)
@@ -4062,7 +4062,10 @@ static INLINE int compound_skip_using_neighbor_refs(
   if (xd->up_available)
     match_ref_frame(xd->above_mbmi, ref_frames, is_ref_match);
 
-  return !(is_ref_match[0] && is_ref_match[1]);
+  const int sum = is_ref_match[0] + is_ref_match[1];
+
+  if (sum >= sf->inter_sf.prune_compound_using_neighbors) return 0;
+  return 1;
 }
 
 static int compare_int64(const void *a, const void *b) {
@@ -4314,8 +4317,9 @@ static int skip_inter_mode(AV1_COMP *cpi, MACROBLOCK *x, const BLOCK_SIZE bsize,
     return 1;
   }
 
-  if (sf->inter_sf.prune_compound_using_neighbors && comp_pred) {
-    if (compound_skip_using_neighbor_refs(xd, this_mode, ref_frames)) return 1;
+  if (sf->inter_sf.prune_compound_using_neighbors > 0 && comp_pred) {
+    if (compound_skip_using_neighbor_refs(xd, sf, this_mode, ref_frames))
+      return 1;
   }
 
   return 0;
