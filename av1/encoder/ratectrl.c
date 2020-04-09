@@ -2019,12 +2019,14 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi,
   RATE_CONTROL *const rc = &cpi->rc;
   AV1_COMMON *const cm = &cpi->common;
   GF_GROUP *const gf_group = &cpi->gf_group;
+  ResizeParams *const resize_params = &cpi->resize_params;
   int gf_update = 0;
   int target;
   const int resize_pending =
-      (cpi->resize_pending_width && cpi->resize_pending_height &&
-       (cm->width != cpi->resize_pending_width ||
-        cm->height != cpi->resize_pending_height));
+      (resize_params->resize_pending_width &&
+       resize_params->resize_pending_height &&
+       (cm->width != resize_params->resize_pending_width ||
+        cm->height != resize_params->resize_pending_height));
   // Turn this on to explicitly set the reference structure rather than
   // relying on internal/default structure.
   const int set_reference_structure = 1;
