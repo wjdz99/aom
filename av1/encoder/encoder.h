@@ -669,6 +669,20 @@ typedef struct {
   VP64x64 *split;
 } VP128x128;
 
+typedef struct {
+  // VAR_BASED_PARTITION thresholds
+  // 0 - vbp_threshold_128x128;
+  // 1 - vbp_threshold_64x64;
+  // 2 - vbp_threshold_32x32;
+  // 3 - vbp_threshold_16x16;
+  // 4 - vbp_threshold_8x8;
+  int64_t vbp_thresholds[5];
+
+  // Minmax variance threshold for 8x8 sub blocks of a 16x16 block. If actual
+  // minmax > vbp_threshold_minmax, the 16x16 is forced to split.
+  int64_t vbp_threshold_minmax;
+} VarBasedPartitionInfo;
+
 // TODO(jingning) All spatially adaptive variables should go to TileDataEnc.
 typedef struct TileDataEnc {
   TileInfo tile_info;
@@ -1198,12 +1212,7 @@ typedef struct AV1_COMP {
   // VARIANCE_AQ segment map refresh
   int vaq_refresh;
 
-  // VAR_BASED_PARTITION thresholds
-  // 0 - threshold_128x128; 1 - threshold_64x64;
-  // 2 - threshold_32x32; 3 - threshold_16x16;
-  // 4 - vbp_threshold_8x8;
-  int64_t vbp_thresholds[5];
-  int64_t vbp_threshold_minmax;
+  VarBasedPartitionInfo vbp_info;
 
   // Probabilities for pruning of various AV1 tools.
   FrameProbInfo frame_probs;
