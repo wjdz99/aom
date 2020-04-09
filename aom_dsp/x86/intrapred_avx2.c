@@ -2010,7 +2010,7 @@ static void highbd_dr_prediction_32bit_z2_Nx4_avx2(
     int base_x = (-y * dx) >> frac_bits_x;
     int base_shift = 0;
     if (base_x < (min_base_x - 1)) {
-      base_shift = (min_base_x - base_x - 1) >> upsample_above;
+      base_shift = (min_base_x - base_x) >> upsample_above;
     }
     int base_min_diff =
         (min_base_x - base_x + upsample_above) >> upsample_above;
@@ -2136,7 +2136,7 @@ static void highbd_dr_prediction_z2_Nx4_avx2(
     int base_x = (-y * dx) >> frac_bits_x;
     int base_shift = 0;
     if (base_x < (min_base_x - 1)) {
-      base_shift = (min_base_x - base_x - 1) >> upsample_above;
+      base_shift = (min_base_x - base_x) >> upsample_above;
     }
     int base_min_diff =
         (min_base_x - base_x + upsample_above) >> upsample_above;
@@ -2258,7 +2258,7 @@ static void highbd_dr_prediction_32bit_z2_Nx8_avx2(
     int base_x = (-y * dx) >> frac_bits_x;
     int base_shift = 0;
     if (base_x < (min_base_x - 1)) {
-      base_shift = (min_base_x - base_x - 1) >> upsample_above;
+      base_shift = (min_base_x - base_x) >> upsample_above;
     }
     int base_min_diff =
         (min_base_x - base_x + upsample_above) >> upsample_above;
@@ -2408,7 +2408,7 @@ static void highbd_dr_prediction_z2_Nx8_avx2(
     int base_x = (-y * dx) >> frac_bits_x;
     int base_shift = 0;
     if (base_x < (min_base_x - 1)) {
-      base_shift = (min_base_x - base_x - 1) >> upsample_above;
+      base_shift = (min_base_x - base_x) >> upsample_above;
     }
     int base_min_diff =
         (min_base_x - base_x + upsample_above) >> upsample_above;
