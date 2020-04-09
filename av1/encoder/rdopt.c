@@ -4682,6 +4682,10 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     if (this_rd == INT64_MAX) continue;
 
+    if (comp_pred && cpi->is_screen_content_type) {
+      this_rd = (this_rd * 5) >> 2;
+    }
+
     if (mbmi->skip) {
       rd_stats_y.rate = 0;
       rd_stats_uv.rate = 0;
