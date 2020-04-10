@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a2dbeb3_9f6e680f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-04-10T19:01:07Z",
+      "side": 1,
+      "message": "it\u0027s always been undefined for signed, unsigned works if you wanted to cast the value back and forth",
+      "revId": "9db5b8d451cd7219af2dc2976ddf5d485a1edfdd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
