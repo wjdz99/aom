@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <float.h>
 
+#include "av1/encoder/rd.h"
 #include "config/aom_config.h"
 #include "config/aom_dsp_rtcd.h"
 #include "config/aom_scale_rtcd.h"
@@ -737,8 +738,9 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
   // Get rd multiplier set up.
   rdmult = (int)av1_compute_rd_mult(cpi, base_qindex);
   if (rdmult < 1) rdmult = 1;
-  set_error_per_bit(x, rdmult);
-  av1_initialize_me_consts(cpi, x, base_qindex);
+  MvCostInfo *mv_cost_info = &x->mv_cost_info;
+  av1_set_error_per_bit(mv_cost_info, rdmult);
+  av1_set_sad_per_bit(cpi, mv_cost_info, base_qindex);
 
   tpl_frame->is_valid = 1;
 
