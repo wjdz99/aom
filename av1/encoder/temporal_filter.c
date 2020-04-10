@@ -79,7 +79,6 @@ static int tf_motion_search(AV1_COMP *cpi,
   MACROBLOCKD *const mbd = &mb->e_mbd;
   const struct buf_2d ori_src_buf = mb->plane[0].src;
   const struct buf_2d ori_pre_buf = mbd->plane[0].pre[0];
-  const MV_COST_TYPE ori_mv_cost_type = mb->mv_cost_type;
 
   // Parameters used for motion search.
   FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
@@ -117,19 +116,17 @@ static int tf_motion_search(AV1_COMP *cpi,
   // searched result will be stored in `mb->best_mv`.
   int_mv best_mv;
   int block_mse = INT_MAX;
-  mb->mv_cost_type = mv_cost_type;
 
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, mb, block_size,
                                      &baseline_mv, &ss_cfg);
   full_ms_params.run_mesh_search = 1;
   full_ms_params.search_method = full_search_method;
+  full_ms_params.mv_cost_params.mv_cost_type = mv_cost_type;
+
   av1_full_pixel_search(start_mv, &full_ms_params, step_param,
                         cond_cost_list(cpi, cost_list), &best_mv.as_fullmv,
                         NULL);
 
-  // Since we are merely refining the result from full pixel search, we don't
-  // need regularization for subpel search
-  mb->mv_cost_type = MV_COST_NONE;
   if (force_integer_mv == 1) {  // Only do full search on the entire block.
     const int mv_row = best_mv.as_mv.row;
     const int mv_col = best_mv.as_mv.col;
@@ -146,6 +143,10 @@ static int tf_motion_search(AV1_COMP *cpi,
                                       &baseline_mv, cost_list);
     ms_params.forced_stop = EIGHTH_PEL;
     ms_params.var_params.subpel_search_type = subpel_search_type;
+    // Since we are merely refining the result from full pixel search, we don't
+    // need regularization for subpel search
+    ms_params.mv_cost_params.mv_cost_type = MV_COST_NONE;
+
     MV subpel_start_mv = get_mv_from_fullmv(&best_mv.as_fullmv);
     error = cpi->mv_search_params.find_fractional_mv_step(
         &mb->e_mbd, &cpi->common, &ms_params, subpel_start_mv, &best_mv.as_mv,
@@ -166,23 +167,25 @@ static int tf_motion_search(AV1_COMP *cpi,
         const int offset = i * y_stride + j;
         mb->plane[0].src.buf = frame_to_filter->y_buffer + y_offset + offset;
         mbd->plane[0].pre[0].buf = ref_frame->y_buffer + y_offset + offset;
-        mb->mv_cost_type = mv_cost_type;
 
         av1_make_default_fullpel_ms_params(
             &full_ms_params, cpi, mb, subblock_size, &baseline_mv, &ss_cfg);
         full_ms_params.run_mesh_search = 1;
         full_ms_params.search_method = full_search_method;
+        full_ms_params.mv_cost_params.mv_cost_type = mv_cost_type;
+
         av1_full_pixel_search(start_mv, &full_ms_params, step_param,
                               cond_cost_list(cpi, cost_list),
                               &best_mv.as_fullmv, NULL);
 
-        // Since we are merely refining the result from full pixel search, we
-        // don't need regularization for subpel search
-        mb->mv_cost_type = MV_COST_NONE;
         av1_make_default_subpel_ms_params(&ms_params, cpi, mb, subblock_size,
                                           &baseline_mv, cost_list);
         ms_params.forced_stop = EIGHTH_PEL;
         ms_params.var_params.subpel_search_type = subpel_search_type;
+        // Since we are merely refining the result from full pixel search, we
+        // don't need regularization for subpel search
+        ms_params.mv_cost_params.mv_cost_type = MV_COST_NONE;
+
         subpel_start_mv = get_mv_from_fullmv(&best_mv.as_fullmv);
         error = cpi->mv_search_params.find_fractional_mv_step(
             &mb->e_mbd, &cpi->common, &ms_params, subpel_start_mv,
@@ -197,7 +200,6 @@ static int tf_motion_search(AV1_COMP *cpi,
   // Restore input state.
   mb->plane[0].src = ori_src_buf;
   mbd->plane[0].pre[0] = ori_pre_buf;
-  mb->mv_cost_type = ori_mv_cost_type;
 
   return block_mse;
 }
@@ -1219,13 +1221,14 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
 
   // TODO(yunqing): For INTNL_ARF_UPDATE type, the following me initialization
   // is used somewhere unexpectedly. Should be resolved later.
-  // Initialize errorperbit, sadperbit16 and sadperbit4.
+  // Initialize errorperbit and sadperbit
   const int rdmult = av1_compute_rd_mult_based_on_qindex(cpi, TF_QINDEX);
-  set_error_per_bit(&cpi->td.mb, rdmult);
-  av1_initialize_me_consts(cpi, &cpi->td.mb, TF_QINDEX);
+  MvCostInfo *mv_cost_info = &cpi->td.mb.mv_cost_info;
+  av1_set_error_per_bit(mv_cost_info, rdmult);
+  av1_set_sad_per_bit(cpi, mv_cost_info, TF_QINDEX);
   av1_fill_mv_costs(cpi->common.fc,
                     cpi->common.features.cur_frame_force_integer_mv,
-                    cpi->common.features.allow_high_precision_mv, &cpi->td.mb);
+                    cpi->common.features.allow_high_precision_mv, mv_cost_info);
 
   // TODO(weitinglin): Currently, we enforce the filtering strength on internal
   // ARFs to be zeros. We should investigate in which case it is more beneficial
