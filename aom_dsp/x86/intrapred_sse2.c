@@ -10,7 +10,7 @@
  */
 
 #include <emmintrin.h>
-
+#include "aom_dsp/x86/intrapred_x86.h"
 #include "config/aom_dsp_rtcd.h"
 
 static INLINE void dc_store_4xh(uint32_t dc, int height, uint8_t *dst,
@@ -73,25 +73,6 @@ static INLINE __m128i dc_sum_8(const uint8_t *ref) {
   __m128i x = _mm_loadl_epi64((__m128i const *)ref);
   const __m128i zero = _mm_setzero_si128();
   return _mm_sad_epu8(x, zero);
-}
-
-static INLINE __m128i dc_sum_16(const uint8_t *ref) {
-  __m128i x = _mm_load_si128((__m128i const *)ref);
-  const __m128i zero = _mm_setzero_si128();
-  x = _mm_sad_epu8(x, zero);
-  const __m128i high = _mm_unpackhi_epi64(x, x);
-  return _mm_add_epi16(x, high);
-}
-
-static INLINE __m128i dc_sum_32(const uint8_t *ref) {
-  __m128i x0 = _mm_load_si128((__m128i const *)ref);
-  __m128i x1 = _mm_load_si128((__m128i const *)(ref + 16));
-  const __m128i zero = _mm_setzero_si128();
-  x0 = _mm_sad_epu8(x0, zero);
-  x1 = _mm_sad_epu8(x1, zero);
-  x0 = _mm_add_epi16(x0, x1);
-  const __m128i high = _mm_unpackhi_epi64(x0, x0);
-  return _mm_add_epi16(x0, high);
 }
 
 static INLINE __m128i dc_sum_64(const uint8_t *ref) {

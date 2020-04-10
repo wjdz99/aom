@@ -12,6 +12,7 @@
 #include <immintrin.h>
 
 #include "config/aom_dsp_rtcd.h"
+#include "aom_dsp/x86/intrapred_x86.h"
 #include "aom_dsp/x86/lpf_common_sse2.h"
 
 static INLINE __m256i dc_sum_64(const uint8_t *ref) {
@@ -419,32 +420,10 @@ void aom_h_predictor_32x32_avx2(uint8_t *dst, ptrdiff_t stride,
 
 // -----------------------------------------------------------------------------
 // Rectangle
-
-// TODO(luoyi) The following two functions are shared with intrapred_sse2.c.
-// Use a header file, intrapred_common_x86.h
-static INLINE __m128i dc_sum_16_sse2(const uint8_t *ref) {
-  __m128i x = _mm_load_si128((__m128i const *)ref);
-  const __m128i zero = _mm_setzero_si128();
-  x = _mm_sad_epu8(x, zero);
-  const __m128i high = _mm_unpackhi_epi64(x, x);
-  return _mm_add_epi16(x, high);
-}
-
-static INLINE __m128i dc_sum_32_sse2(const uint8_t *ref) {
-  __m128i x0 = _mm_load_si128((__m128i const *)ref);
-  __m128i x1 = _mm_load_si128((__m128i const *)(ref + 16));
-  const __m128i zero = _mm_setzero_si128();
-  x0 = _mm_sad_epu8(x0, zero);
-  x1 = _mm_sad_epu8(x1, zero);
-  x0 = _mm_add_epi16(x0, x1);
-  const __m128i high = _mm_unpackhi_epi64(x0, x0);
-  return _mm_add_epi16(x0, high);
-}
-
 void aom_dc_predictor_32x16_avx2(uint8_t *dst, ptrdiff_t stride,
                                  const uint8_t *above, const uint8_t *left) {
-  const __m128i top_sum = dc_sum_32_sse2(above);
-  __m128i left_sum = dc_sum_16_sse2(left);
+  const __m128i top_sum = dc_sum_32(above);
+  __m128i left_sum = dc_sum_16(left);
   left_sum = _mm_add_epi16(top_sum, left_sum);
   uint16_t sum = _mm_cvtsi128_si32(left_sum);
   sum += 24;
@@ -492,7 +471,7 @@ void aom_dc_predictor_64x32_avx2(uint8_t *dst, ptrdiff_t stride,
 void aom_dc_predictor_64x16_avx2(uint8_t *dst, ptrdiff_t stride,
                                  const uint8_t *above, const uint8_t *left) {
   const __m256i sum_above = dc_sum_64(above);
-  __m256i sum_left = _mm256_castsi128_si256(dc_sum_16_sse2(left));
+  __m256i sum_left = _mm256_castsi128_si256(dc_sum_16(left));
   sum_left = _mm256_add_epi16(sum_left, sum_above);
   uint16_t sum = _mm_cvtsi128_si32(_mm256_castsi256_si128(sum_left));
   sum += 40;
@@ -574,7 +553,7 @@ void aom_dc_top_predictor_64x16_avx2(uint8_t *dst, ptrdiff_t stride,
 void aom_dc_left_predictor_32x16_avx2(uint8_t *dst, ptrdiff_t stride,
                                       const uint8_t *above,
                                       const uint8_t *left) {
-  __m128i sum = dc_sum_16_sse2(left);
+  __m128i sum = dc_sum_16(left);
   (void)above;
 
   const __m128i eight = _mm_set1_epi16(8);
@@ -631,7 +610,7 @@ void aom_dc_left_predictor_64x32_avx2(uint8_t *dst, ptrdiff_t stride,
 void aom_dc_left_predictor_64x16_avx2(uint8_t *dst, ptrdiff_t stride,
                                       const uint8_t *above,
                                       const uint8_t *left) {
-  __m128i sum = dc_sum_16_sse2(left);
+  __m128i sum = dc_sum_16(left);
   (void)above;
 
   const __m128i eight = _mm_set1_epi16(8);
