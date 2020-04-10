@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "464d7b05_00ed664e",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 5516,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-10T20:13:16Z",
+      "side": 1,
+      "message": "better to keep the order the same as above (5493): put av1_set_variance_partition_thresholds(cpi, q, 0) after \nif (cpi-\u003eoxcf.deltaq_mode !\u003d NO_DELTA_Q) av1_init_quantizer(cpi);",
+      "revId": "49f346882392f42c8fa25e4f1946662d732c37ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dc80482_22556e62",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2048,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-10T20:13:16Z",
+      "side": 1,
+      "message": "remove extra lines",
+      "revId": "49f346882392f42c8fa25e4f1946662d732c37ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d8e74a1_377e9984",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2050,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-10T20:13:16Z",
+      "side": 1,
+      "message": "remove extra line",
+      "revId": "49f346882392f42c8fa25e4f1946662d732c37ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7348b74d_0c8b006e",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2051,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-10T20:13:16Z",
+      "side": 1,
+      "message": "for low resolns (say 320x180) there are only 3 64x64 along rows, so in that case it may better to sample all 64x64 blocks, instead of checkerboad. May. be good to add flag to do full sampling or checkerboard, Keep checkerboard for larger resolns \u003e\u003d vga?",
+      "revId": "49f346882392f42c8fa25e4f1946662d732c37ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c18f047a_8bff6884",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2057,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-10T20:13:16Z",
+      "side": 1,
+      "message": "cm-\u003eseq_params.mib_size should be based on bsize 64?",
+      "revId": "49f346882392f42c8fa25e4f1946662d732c37ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d716ba7_23240101",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2086,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-10T20:13:16Z",
+      "side": 1,
+      "message": "remove extra line",
+      "revId": "49f346882392f42c8fa25e4f1946662d732c37ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43b454a7_150761fc",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2203,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-10T20:13:16Z",
+      "side": 1,
+      "message": "update/remove comment: the frame is not encoded....",
+      "revId": "49f346882392f42c8fa25e4f1946662d732c37ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bc6f122_14f0a24b",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2215,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-10T20:13:16Z",
+      "side": 1,
+      "message": "remove TODO/comment",
+      "revId": "49f346882392f42c8fa25e4f1946662d732c37ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55decb9a_32177c31",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2227,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-10T20:13:16Z",
+      "side": 1,
+      "message": "remove extra line",
+      "revId": "49f346882392f42c8fa25e4f1946662d732c37ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "108ebb92_073f118d",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2254,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-10T20:13:16Z",
+      "side": 1,
+      "message": "remove extra line",
+      "revId": "49f346882392f42c8fa25e4f1946662d732c37ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0eb2b61_8ae6d445",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-10T20:13:16Z",
+      "side": 1,
+      "message": "i think we only use/need to high_source_sad for this patch, so can remove the others?",
+      "revId": "49f346882392f42c8fa25e4f1946662d732c37ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
