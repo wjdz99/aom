@@ -737,8 +737,9 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
   // Get rd multiplier set up.
   rdmult = (int)av1_compute_rd_mult(cpi, base_qindex);
   if (rdmult < 1) rdmult = 1;
-  set_error_per_bit(x, rdmult);
-  av1_initialize_me_consts(cpi, x, base_qindex);
+  MvCostInfo *mv_cost_info = &x->mv_cost_info;
+  set_error_per_bit(mv_cost_info, rdmult);
+  av1_initialize_me_consts(cpi, mv_cost_info, base_qindex);
 
   tpl_frame->is_valid = 1;
 

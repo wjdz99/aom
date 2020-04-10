@@ -729,9 +729,10 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
   x->skip_block = segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP);
   x->qindex = qindex;
 
-  set_error_per_bit(x, rdmult);
+  MvCostInfo *mv_cost_info = &x->mv_cost_info;
+  set_error_per_bit(mv_cost_info, rdmult);
 
-  av1_initialize_me_consts(cpi, x, qindex);
+  av1_initialize_me_consts(cpi, mv_cost_info, qindex);
 }
 
 void av1_frame_init_quantizer(AV1_COMP *cpi) {
