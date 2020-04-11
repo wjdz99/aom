@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5736fc5e_5f4eafb7",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4431,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-11T02:19:37Z",
+      "side": 1,
+      "message": "Good catch! This bug was introduced last week in:\nhttps://aomedia-review.googlesource.com/c/aom/+/108402\n\nThe source_content_sb is used in block_yrd selection, so without it would cause regression.\n\nWe should add separate CL to make sure cpi-\u003esvc.number_spatial_layers \u003d 1 as default (cm-\u003enumber_spatial_layers is correctly set to 1 as default, which is what i should have used).",
+      "revId": "f1e2e20aa4803e99cdd3ee5d895af5e2239adb90",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
