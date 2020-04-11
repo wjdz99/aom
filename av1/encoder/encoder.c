@@ -3495,6 +3495,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
 void av1_remove_compressor(AV1_COMP *cpi) {
   AV1_COMMON *cm;
   TplParams *const tpl_data = &cpi->tpl_data;
+  AV1EncRowMT *enc_row_mt = &cpi->enc_row_mt;
   int t;
 
   if (!cpi) return;
@@ -3639,12 +3640,12 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     }
   }
 #if CONFIG_MULTITHREAD
-  if (cpi->row_mt_mutex_ != NULL) {
-    pthread_mutex_destroy(cpi->row_mt_mutex_);
-    aom_free(cpi->row_mt_mutex_);
+  if (enc_row_mt->mutex_ != NULL) {
+    pthread_mutex_destroy(enc_row_mt->mutex_);
+    aom_free(enc_row_mt->mutex_);
   }
 #endif
-  av1_row_mt_mem_dealloc(cpi);
+  av1_row_mt_mem_dealloc(enc_row_mt, cpi->oxcf.cdf_update_mode);
   aom_free(cpi->tile_thr_data);
   aom_free(cpi->workers);
 
