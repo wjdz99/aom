@@ -15,56 +15,58 @@
 #include "av1/encoder/ethread.h"
 #include "av1/encoder/av1_multi_thread.h"
 
-void av1_row_mt_mem_alloc(AV1_COMP *cpi, int max_sb_rows) {
+void av1_row_mt_mem_alloc(AV1_COMP *const cpi, int max_sb_rows) {
   struct AV1Common *cm = &cpi->common;
-  MultiThreadHandle *multi_thread_ctxt = &cpi->multi_thread_ctxt;
-  int tile_row, tile_col;
+  AV1EncRowMT *const enc_row_mt = &cpi->enc_row_mt;
   const int tile_cols = cm->tiles.cols;
   const int tile_rows = cm->tiles.rows;
+  int tile_col, tile_row;
 
-  multi_thread_ctxt->allocated_tile_cols = tile_cols;
-  multi_thread_ctxt->allocated_tile_rows = tile_rows;
-  multi_thread_ctxt->allocated_sb_rows = max_sb_rows;
+  CHECK_MEM_ERROR(
+      cm, enc_row_mt->sync_data,
+      aom_memalign(32, tile_cols * tile_rows * sizeof(*enc_row_mt->sync_data)));
 
   // Allocate memory for row based multi-threading
-  for (tile_row = 0; tile_row < multi_thread_ctxt->allocated_tile_rows;
-       tile_row++) {
-    for (tile_col = 0; tile_col < multi_thread_ctxt->allocated_tile_cols;
-         tile_col++) {
-      TileDataEnc *this_tile =
-          &cpi->tile_data[tile_row * multi_thread_ctxt->allocated_tile_cols +
-                          tile_col];
-      av1_row_mt_sync_mem_alloc(&this_tile->row_mt_sync, cm, max_sb_rows);
-      if (cpi->oxcf.cdf_update_mode)
-        CHECK_MEM_ERROR(
-            cm, this_tile->row_ctx,
-            (FRAME_CONTEXT *)aom_memalign(
-                16,
-                AOMMAX(1, (av1_get_sb_cols_in_tile(cm, this_tile->tile_info) -
-                           1)) *
-                    sizeof(*this_tile->row_ctx)));
+  for (tile_row = 0; tile_row < tile_rows; tile_row++) {
+    for (tile_col = 0; tile_col < tile_cols; tile_col++) {
+      int tile_index = tile_row * tile_cols + tile_col;
+      TileInfo tile_info = cpi->tile_data[tile_index].tile_info;
+      SyncData *const sync_data = &enc_row_mt->sync_data[tile_index];
+
+      av1_row_mt_sync_mem_alloc(sync_data, cm, max_sb_rows);
+
+      if (cpi->oxcf.cdf_update_mode) {
+        const int sb_cols_in_tile = av1_get_sb_cols_in_tile(cm, tile_info);
+        const int num_row_ctx = AOMMAX(1, (sb_cols_in_tile - 1));
+        CHECK_MEM_ERROR(cm, sync_data->row_ctx,
+                        (FRAME_CONTEXT *)aom_memalign(
+                            16, num_row_ctx * sizeof(*sync_data->row_ctx)));
+      }
     }
   }
+  enc_row_mt->allocated_tile_cols = tile_cols;
+  enc_row_mt->allocated_tile_rows = tile_rows;
+  enc_row_mt->allocated_sb_rows = max_sb_rows;
 }
 
-void av1_row_mt_mem_dealloc(AV1_COMP *cpi) {
-  MultiThreadHandle *multi_thread_ctxt = &cpi->multi_thread_ctxt;
-  int tile_col;
-  int tile_row;
+void av1_row_mt_mem_dealloc(AV1EncRowMT *const enc_row_mt,
+                            uint8_t cdf_update_mode) {
+  const int tile_cols = enc_row_mt->allocated_tile_cols;
+  const int tile_rows = enc_row_mt->allocated_tile_rows;
+  int tile_col, tile_row;
 
-  // Free row based multi-threading sync memory
-  for (tile_row = 0; tile_row < multi_thread_ctxt->allocated_tile_rows;
-       tile_row++) {
-    for (tile_col = 0; tile_col < multi_thread_ctxt->allocated_tile_cols;
-         tile_col++) {
-      TileDataEnc *this_tile =
-          &cpi->tile_data[tile_row * multi_thread_ctxt->allocated_tile_cols +
-                          tile_col];
-      av1_row_mt_sync_mem_dealloc(&this_tile->row_mt_sync);
-      if (cpi->oxcf.cdf_update_mode) aom_free(this_tile->row_ctx);
+  // Free row based multi-threading sync_data memory
+  for (tile_row = 0; tile_row < tile_rows; tile_row++) {
+    for (tile_col = 0; tile_col < tile_cols; tile_col++) {
+      SyncData *const sync_data =
+          &enc_row_mt->sync_data[tile_row * tile_cols + tile_col];
+
+      av1_row_mt_sync_mem_dealloc(sync_data, cdf_update_mode);
     }
   }
-  multi_thread_ctxt->allocated_sb_rows = 0;
-  multi_thread_ctxt->allocated_tile_cols = 0;
-  multi_thread_ctxt->allocated_tile_rows = 0;
+  aom_free(enc_row_mt->sync_data);
+
+  enc_row_mt->allocated_sb_rows = 0;
+  enc_row_mt->allocated_tile_cols = 0;
+  enc_row_mt->allocated_tile_rows = 0;
 }

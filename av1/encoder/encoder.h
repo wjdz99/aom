@@ -604,7 +604,7 @@ typedef struct inter_modes_info {
 } InterModesInfo;
 
 // Encoder row synchronization
-typedef struct AV1RowMTSyncData {
+typedef struct {
 #if CONFIG_MULTITHREAD
   pthread_mutex_t *mutex_;
   pthread_cond_t *cond_;
@@ -613,12 +613,10 @@ typedef struct AV1RowMTSyncData {
   int *cur_col;
   int sync_range;
   int rows;
-} AV1RowMTSync;
-
-typedef struct AV1RowMTInfo {
+  FRAME_CONTEXT *row_ctx;
   int current_mi_row;
   int num_threads_working;
-} AV1RowMTInfo;
+} SyncData;
 
 typedef struct {
   // TODO(kyslov): consider changing to 64bit
@@ -687,13 +685,10 @@ typedef struct {
 // TODO(jingning) All spatially adaptive variables should go to TileDataEnc.
 typedef struct TileDataEnc {
   TileInfo tile_info;
-  CFL_CTX cfl;
+  // CFL_CTX cfl;
   DECLARE_ALIGNED(16, FRAME_CONTEXT, tctx);
-  FRAME_CONTEXT *row_ctx;
   uint8_t allow_update_cdf;
   InterModeRdModel inter_mode_rd_models[BLOCK_SIZES_ALL];
-  AV1RowMTSync row_mt_sync;
-  AV1RowMTInfo row_mt_info;
 } TileDataEnc;
 
 typedef struct {
@@ -701,13 +696,6 @@ typedef struct {
   TOKENEXTRA *stop;
   unsigned int count;
 } TOKENLIST;
-
-typedef struct MultiThreadHandle {
-  int allocated_tile_rows;
-  int allocated_tile_cols;
-  int allocated_sb_rows;
-  int thread_id_to_tile_id[MAX_NUM_THREADS];  // Mapping of threads to tiles
-} MultiThreadHandle;
 
 typedef struct RD_COUNTS {
   int64_t comp_pred_diff[REFERENCE_MODES];
@@ -748,6 +736,19 @@ typedef struct ThreadData {
 } ThreadData;
 
 struct EncWorkerData;
+
+typedef struct {
+  int allocated_tile_rows;
+  int allocated_tile_cols;
+  int allocated_sb_rows;
+  int thread_id_to_tile_id[MAX_NUM_THREADS];  // Mapping of threads to tiles
+  void (*sync_read_ptr)(SyncData *const, int, int, int);
+  void (*sync_write_ptr)(SyncData *const, int, int, int, int);
+#if CONFIG_MULTITHREAD
+  pthread_mutex_t *mutex_;
+#endif
+  SyncData *sync_data;
+} AV1EncRowMT;
 
 typedef struct ActiveMap {
   int enabled;
@@ -1273,12 +1274,7 @@ typedef struct AV1_COMP {
   // Flags related to interpolation filter search.
   InterpSearchFlags interp_search_flags;
 
-  MultiThreadHandle multi_thread_ctxt;
-  void (*row_mt_sync_read_ptr)(AV1RowMTSync *const, int, int);
-  void (*row_mt_sync_write_ptr)(AV1RowMTSync *const, int, int, const int);
-#if CONFIG_MULTITHREAD
-  pthread_mutex_t *row_mt_mutex_;
-#endif
+  AV1EncRowMT enc_row_mt;
   // Set if screen content is set or relevant tools are enabled
   int is_screen_content_type;
 #if CONFIG_COLLECT_PARTITION_STATS == 2
