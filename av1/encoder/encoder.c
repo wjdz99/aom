@@ -3639,9 +3639,9 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     }
   }
 #if CONFIG_MULTITHREAD
-  if (cpi->row_mt_mutex_ != NULL) {
-    pthread_mutex_destroy(cpi->row_mt_mutex_);
-    aom_free(cpi->row_mt_mutex_);
+  if (cpi->enc_row_mt.row_mt_mutex_ != NULL) {
+    pthread_mutex_destroy(cpi->enc_row_mt.row_mt_mutex_);
+    aom_free(cpi->enc_row_mt.row_mt_mutex_);
   }
 #endif
   av1_row_mt_mem_dealloc(cpi);
