@@ -14,8 +14,9 @@
 
 #include "av1/encoder/encoder.h"
 
-void av1_row_mt_mem_alloc(AV1_COMP *cpi, int max_sb_rows);
+void av1_row_mt_mem_alloc(AV1_COMP *const cpi, int max_sb_rows);
 
-void av1_row_mt_mem_dealloc(AV1_COMP *cpi);
+void av1_row_mt_mem_dealloc(AV1EncRowMT *const enc_row_mt,
+                            uint8_t cdf_update_mode);
 
 #endif  // AV1_ENCODER_AV1_MULTI_THREAD_H
