@@ -18,7 +18,7 @@ extern "C" {
 
 struct AV1_COMP;
 struct ThreadData;
-struct AV1RowMTSyncData;
+struct AV1EncRowMTSync;
 
 typedef struct EncWorkerData {
   struct AV1_COMP *cpi;
@@ -27,19 +27,19 @@ typedef struct EncWorkerData {
   int thread_id;
 } EncWorkerData;
 
-void av1_row_mt_sync_read(AV1RowMTSync *const row_mt_sync, int r, int c);
-void av1_row_mt_sync_write(AV1RowMTSync *const row_mt_sync, int r, int c,
+void av1_row_mt_sync_read(AV1EncRowMTSync *const sync, int r, int c);
+void av1_row_mt_sync_write(AV1EncRowMTSync *const sync, int r, int c,
                            const int cols);
 
-void av1_row_mt_sync_read_dummy(struct AV1RowMTSyncData *const row_mt_sync,
-                                int r, int c);
-void av1_row_mt_sync_write_dummy(struct AV1RowMTSyncData *const row_mt_sync,
-                                 int r, int c, const int cols);
+void av1_row_mt_sync_read_dummy(AV1EncRowMTSync *const sync, int r, int c);
+void av1_row_mt_sync_write_dummy(AV1EncRowMTSync *const sync, int r, int c,
+                                 const int cols);
 
-void av1_row_mt_sync_mem_dealloc(AV1RowMTSync *row_mt_sync);
 // Allocate memory for row based multi-threading synchronization.
-void av1_row_mt_sync_mem_alloc(AV1RowMTSync *row_mt_sync, struct AV1Common *cm,
-                               int rows);
+void av1_row_mt_sync_mem_alloc(AV1EncRowMTSync *const enc_row_mt_sync,
+                               struct AV1Common *const cm, int rows);
+// De-allocate memory for row based multi-threading synchronization.
+void av1_row_mt_sync_mem_dealloc(AV1EncRowMTSync *const enc_row_mt_sync);
 
 void av1_encode_tiles_mt(struct AV1_COMP *cpi);
 void av1_encode_tiles_row_mt(struct AV1_COMP *cpi);

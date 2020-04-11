@@ -4910,7 +4910,7 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
   // Code each SB in the row
   for (int mi_col = tile_info->mi_col_start, sb_col_in_tile = 0;
        mi_col < tile_info->mi_col_end; mi_col += mib_size, sb_col_in_tile++) {
-    (*(cpi->row_mt_sync_read_ptr))(&tile_data->row_mt_sync, sb_row,
+    (*(cpi->row_mt_sync_read_ptr))(&tile_data->enc_row_mt_sync, sb_row,
                                    sb_col_in_tile);
     if (tile_data->allow_update_cdf && (cpi->row_mt == 1) &&
         (tile_info->mi_row_start != mi_row)) {
@@ -4969,7 +4969,7 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
         memcpy(x->row_ctx + sb_col_in_tile - 1, xd->tile_ctx,
                sizeof(*xd->tile_ctx));
     }
-    (*(cpi->row_mt_sync_write_ptr))(&tile_data->row_mt_sync, sb_row,
+    (*(cpi->row_mt_sync_write_ptr))(&tile_data->enc_row_mt_sync, sb_row,
                                     sb_col_in_tile, sb_cols_in_tile);
   }
 #if CONFIG_COLLECT_COMPONENT_TIMING
