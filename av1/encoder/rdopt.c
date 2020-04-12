@@ -2779,12 +2779,14 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
                                   av1_num_planes(cm) - 1);
 
-    int *dvcost[2] = { (int *)&cpi->dv_cost[0][MV_MAX],
-                       (int *)&cpi->dv_cost[1][MV_MAX] };
+    const IntraBCMVCosts *const intrabc_mv_costs = &cpi->intrabc_mv_costs;
+    int *dvcost[2] = { (int *)&intrabc_mv_costs->dv_cost[0][MV_MAX],
+                       (int *)&intrabc_mv_costs->dv_cost[1][MV_MAX] };
     // TODO(aconverse@google.com): The full motion field defining discount
     // in MV_COST_WEIGHT is too large. Explore other values.
-    const int rate_mv = av1_mv_bit_cost(&dv, &dv_ref.as_mv, cpi->dv_joint_cost,
-                                        dvcost, MV_COST_WEIGHT_SUB);
+    const int rate_mv =
+        av1_mv_bit_cost(&dv, &dv_ref.as_mv, intrabc_mv_costs->dv_joint_cost,
+                        dvcost, MV_COST_WEIGHT_SUB);
     const int rate_mode = x->intrabc_cost[1];
     RD_STATS rd_stats_yuv, rd_stats_y, rd_stats_uv;
     if (!av1_txfm_search(cpi, x, bsize, &rd_stats_yuv, &rd_stats_y,

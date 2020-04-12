@@ -82,6 +82,20 @@ typedef struct RD_OPT {
   double mc_saved_base, mc_count_base;
 } RD_OPT;
 
+typedef struct {
+  // Cost of transmitting the actual motion vector.
+  // dv_cost[0][i] is the cost of motion vector with horizontal component
+  // (mv_row) equal to i - MV_MAX.
+  // dv_cost[1][i] is the cost of motion vector with vertical component
+  // (mv_col) equal to i - MV_MAX.
+  int dv_cost[2][MV_VALS];
+
+  // dv_joint_cost[i] is the cost of transmitting joint mv(MV_JOINT_TYPE) of
+  // type i.
+  // TODO(huisu@google.com): we can update dv_joint_cost per SB.
+  int dv_joint_cost[MV_JOINTS];
+} IntraBCMVCosts;
+
 static INLINE void av1_init_rd_stats(RD_STATS *rd_stats) {
 #if CONFIG_RD_DEBUG
   int plane;
