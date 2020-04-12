@@ -507,7 +507,7 @@ void av1_apply_temporal_filter_c(
   // Hyper-parameter for filter weight adjustment.
   const int frame_height = frame_to_filter->heights[0]
                            << mbd->plane[0].subsampling_y;
-  const int decay_control = frame_height >= 720 ? 4 : 3;
+  // const double decay_control = frame_height >= 720 ? 32.0 : 18.0;
 
   // Handle planes in sequence.
   plane_offset = 0;
@@ -553,24 +553,23 @@ void av1_apply_temporal_filter_c(
 
         // Scale down the difference for high bit depth input.
         if (mbd->bd > 8) sum_square_diff >>= (mbd->bd - 8) * (mbd->bd - 8);
-        const double window_error = (double)(sum_square_diff) / num_ref_pixels;
+        const double window_error = (double)sum_square_diff / num_ref_pixels;
         const int subblock_idx = (i >= h / 2) * 2 + (j >= w / 2);
         const double block_error = (double)subblock_mses[subblock_idx];
+        const double combined_error = (window_error * 5 + block_error) / 6;
 
-        // Control factor for non-local mean approach.
-        const double r =
-            (double)decay_control * (0.7 + log(noise_levels[plane] + 1.0));
-        const double q = AOMMIN((double)(q_factor * q_factor) / 256.0, 1);
+        // Decay factor for non-local mean approach.
+        const double n_decay = 0.5 + log(2 * noise_levels[plane] + 5);
+        const double q_decay = AOMMIN(pow((double)q_factor / 20, 2), 1);
 
         // Compute filter weight.
-        const double scaled_diff =
-            AOMMAX(-(window_error + block_error / 10) / (2 * r * r * q), -15.0);
-        const int adjusted_weight = (int)(exp(scaled_diff) * TF_WEIGHT_SCALE);
+        const double scaled_error = (combined_error / 20) / (n_decay * q_decay);
+        const int weight = (int)(exp(-scaled_error) * TF_WEIGHT_SCALE);
 
         const int idx = plane_offset + pred_idx;  // Index with plane shift.
         const int pred_value = is_high_bitdepth ? pred16[idx] : pred[idx];
-        accum[idx] += adjusted_weight * pred_value;
-        count[idx] += adjusted_weight;
+        accum[idx] += weight * pred_value;
+        count[idx] += weight;
 
         ++pred_idx;
       }
@@ -757,7 +756,7 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
           // function before using.
           if (!is_frame_high_bitdepth(frame_to_filter) &&
               TF_BLOCK_SIZE == BLOCK_32X32 && TF_WINDOW_LENGTH == 5) {
-            av1_apply_temporal_filter(
+            av1_apply_temporal_filter_c(
                 frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
                 noise_levels, subblock_mses, q_factor, pred, accum, count);
           } else {
