@@ -2784,6 +2784,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   RATE_CONTROL *const rc = &cpi->rc;
   MACROBLOCK *const x = &cpi->td.mb;
   AV1LevelParams *const level_params = &cpi->level_params;
+  InitialDimensions *const initial_dimensions = &cpi->initial_dimensions;
 
   if (seq_params->profile != oxcf->profile) seq_params->profile = oxcf->profile;
   seq_params->bit_depth = oxcf->bit_depth;
@@ -2934,14 +2935,15 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
       seq_params->tier[i] = (oxcf->tier_mask >> i) & 1;
   }
 
-  if (cpi->initial_width || sb_size != seq_params->sb_size) {
-    if (cm->width > cpi->initial_width || cm->height > cpi->initial_height ||
+  if (initial_dimensions->width || sb_size != seq_params->sb_size) {
+    if (cm->width > initial_dimensions->width ||
+        cm->height > initial_dimensions->height ||
         seq_params->sb_size != sb_size) {
       av1_free_context_buffers(cm);
       av1_free_pc_tree(cpi, &cpi->td, num_planes, (BLOCK_SIZE)sb_size);
       alloc_compressor_data(cpi);
       realloc_segmentation_maps(cpi);
-      cpi->initial_width = cpi->initial_height = 0;
+      initial_dimensions->width = initial_dimensions->height = 0;
     }
   }
   update_frame_size(cpi);
@@ -4311,8 +4313,10 @@ void av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
                              int subsampling_x, int subsampling_y) {
   AV1_COMMON *const cm = &cpi->common;
   SequenceHeader *const seq_params = &cm->seq_params;
+  InitialDimensions *const initial_dimensions = &cpi->initial_dimensions;
 
-  if (!cpi->initial_width || seq_params->use_highbitdepth != use_highbitdepth ||
+  if (!initial_dimensions->width ||
+      seq_params->use_highbitdepth != use_highbitdepth ||
       seq_params->subsampling_x != subsampling_x ||
       seq_params->subsampling_y != subsampling_y) {
     seq_params->subsampling_x = subsampling_x;
@@ -4330,8 +4334,8 @@ void av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
 
     init_motion_estimation(cpi);  // TODO(agrange) This can be removed.
 
-    cpi->initial_width = cm->width;
-    cpi->initial_height = cm->height;
+    initial_dimensions->width = cm->width;
+    initial_dimensions->height = cm->height;
     cpi->initial_mbs = cm->mi_params.MBs;
   }
 }
@@ -4339,6 +4343,7 @@ void av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
 // Returns 1 if the assigned width or height was <= 0.
 int av1_set_size_literal(AV1_COMP *cpi, int width, int height) {
   AV1_COMMON *cm = &cpi->common;
+  InitialDimensions *const initial_dimensions = &cpi->initial_dimensions;
   const int num_planes = av1_num_planes(cm);
   av1_check_initial_width(cpi, cm->seq_params.use_highbitdepth,
                           cm->seq_params.subsampling_x,
@@ -4349,13 +4354,14 @@ int av1_set_size_literal(AV1_COMP *cpi, int width, int height) {
   cm->width = width;
   cm->height = height;
 
-  if (cpi->initial_width && cpi->initial_height &&
-      (cm->width > cpi->initial_width || cm->height > cpi->initial_height)) {
+  if (initial_dimensions->width && initial_dimensions->height &&
+      (cm->width > initial_dimensions->width ||
+       cm->height > initial_dimensions->height)) {
     av1_free_context_buffers(cm);
     av1_free_pc_tree(cpi, &cpi->td, num_planes, cm->seq_params.sb_size);
     alloc_compressor_data(cpi);
     realloc_segmentation_maps(cpi);
-    cpi->initial_width = cpi->initial_height = 0;
+    initial_dimensions->width = initial_dimensions->height = 0;
   }
   update_frame_size(cpi);
 
