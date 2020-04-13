@@ -804,6 +804,7 @@ static void update_film_grain_parameters(struct AV1_COMP *cpi,
 
 static void dealloc_compressor_data(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
+  TokenInfo *token_info = &cpi->token_info;
   const int num_planes = av1_num_planes(cm);
 
   dealloc_context_buffers_ext(&cpi->mbmi_ext_info);
@@ -878,11 +879,11 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
   aom_free_frame_buffer(&cpi->alt_ref_buffer);
   av1_lookahead_destroy(cpi->lookahead);
 
-  aom_free(cpi->tile_tok[0][0]);
-  cpi->tile_tok[0][0] = 0;
+  aom_free(token_info->tile_tok[0][0]);
+  token_info->tile_tok[0][0] = 0;
 
-  aom_free(cpi->tplist[0][0]);
-  cpi->tplist[0][0] = NULL;
+  aom_free(token_info->tplist[0][0]);
+  token_info->tplist[0][0] = NULL;
 
   av1_free_pc_tree(cpi, &cpi->td, num_planes, cm->seq_params.sb_size);
 
@@ -1108,6 +1109,7 @@ static void alloc_util_frame_buffers(AV1_COMP *cpi) {
 
 static void alloc_compressor_data(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
+  TokenInfo *token_info = &cpi->token_info;
   const int num_planes = av1_num_planes(cm);
 
   if (av1_alloc_context_buffers(cm, cm->width, cm->height)) {
@@ -1125,19 +1127,19 @@ static void alloc_compressor_data(AV1_COMP *cpi) {
     alloc_context_buffers_ext(cm, &cpi->mbmi_ext_info);
   }
 
-  aom_free(cpi->tile_tok[0][0]);
-  aom_free(cpi->tplist[0][0]);
+  aom_free(token_info->tile_tok[0][0]);
+  aom_free(token_info->tplist[0][0]);
 
   if (!is_stat_generation_stage(cpi)) {
     unsigned int tokens =
         get_token_alloc(cm->mi_params.mb_rows, cm->mi_params.mb_cols,
                         MAX_SB_SIZE_LOG2, num_planes);
-    CHECK_MEM_ERROR(cm, cpi->tile_tok[0][0],
-                    aom_calloc(tokens, sizeof(*cpi->tile_tok[0][0])));
+    CHECK_MEM_ERROR(cm, token_info->tile_tok[0][0],
+                    aom_calloc(tokens, sizeof(*token_info->tile_tok[0][0])));
 
-    CHECK_MEM_ERROR(cm, cpi->tplist[0][0],
+    CHECK_MEM_ERROR(cm, token_info->tplist[0][0],
                     aom_calloc(sb_rows * MAX_TILE_ROWS * MAX_TILE_COLS,
-                               sizeof(*cpi->tplist[0][0])));
+                               sizeof(*token_info->tplist[0][0])));
   }
 
   av1_setup_pc_tree(cpi, &cpi->td);

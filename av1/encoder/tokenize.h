@@ -23,7 +23,23 @@ extern "C" {
 typedef struct {
   aom_cdf_prob *color_map_cdf;
   uint8_t token;
-} TOKENEXTRA;
+} TokenExtra;
+
+typedef struct {
+  TokenExtra *start;
+  TokenExtra *stop;
+  unsigned int count;
+} TokenList;
+
+typedef struct {
+  // tile_tok[i][j] is a pointer to the buffer storing palette related
+  // information of the ith tile row , jth tile column.
+  TokenExtra *tile_tok[MAX_TILE_ROWS][MAX_TILE_COLS];
+  // tplist[i][j][k] stores the start, stop pointer of tile_tok[i][j] for the
+  // kth superblock row in a tile, where i denotes the tile row and j denotes
+  // the tile column.
+  TokenList *tplist[MAX_TILE_ROWS][MAX_TILE_COLS];
+} TokenInfo;
 
 struct AV1_COMP;
 struct ThreadData;
@@ -54,7 +70,7 @@ int av1_cost_color_map(const MACROBLOCK *const x, int plane, BLOCK_SIZE bsize,
                        TX_SIZE tx_size, COLOR_MAP_TYPE type);
 
 void av1_tokenize_color_map(const MACROBLOCK *const x, int plane,
-                            TOKENEXTRA **t, BLOCK_SIZE bsize, TX_SIZE tx_size,
+                            TokenExtra **t, BLOCK_SIZE bsize, TX_SIZE tx_size,
                             COLOR_MAP_TYPE type, int allow_update_cdf,
                             struct FRAME_COUNTS *counts);
 
