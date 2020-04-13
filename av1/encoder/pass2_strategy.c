@@ -704,6 +704,11 @@ static int64_t calculate_total_gf_group_bits(AV1_COMP *cpi,
   const int max_bits = frame_max_bits(rc, &cpi->oxcf);
   int64_t total_group_bits;
 
+  if (cpi->lap_enabled && cpi->oxcf.rc_mode == AOM_VBR) {
+    total_group_bits = rc->avg_frame_bandwidth * rc->baseline_gf_interval;
+    return total_group_bits;
+  }
+
   // Calculate the bits to be allocated to the group as a whole.
   if ((twopass->kf_group_bits > 0) && (twopass->kf_group_error_left > 0)) {
     total_group_bits = (int64_t)(twopass->kf_group_bits *
@@ -2263,7 +2268,8 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   }
 
   // Calculate the number of bits that should be assigned to the kf group.
-  if (twopass->bits_left > 0 && twopass->modified_error_left > 0.0) {
+  if ((twopass->bits_left > 0 && twopass->modified_error_left > 0.0) ||
+      (cpi->lap_enabled && cpi->oxcf.rc_mode == AOM_VBR)) {
     // Maximum number of bits for a single normal frame (not key frame).
     const int max_bits = frame_max_bits(rc, &cpi->oxcf);
 
@@ -2272,9 +2278,13 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
     // Default allocation based on bits left and relative
     // complexity of the section.
-    twopass->kf_group_bits = (int64_t)(
-        twopass->bits_left * (kf_group_err / twopass->modified_error_left));
-
+    if (cpi->lap_enabled) {
+      twopass->kf_group_bits =
+          (int64_t)(rc->frames_to_key * rc->avg_frame_bandwidth);
+    } else {
+      twopass->kf_group_bits = (int64_t)(
+          twopass->bits_left * (kf_group_err / twopass->modified_error_left));
+    }
     // Clip based on maximum per frame rate defined by the user.
     max_grp_bits = (int64_t)max_bits * (int64_t)rc->frames_to_key;
     if (twopass->kf_group_bits > max_grp_bits)
@@ -2408,6 +2418,7 @@ static void process_first_pass_stats(AV1_COMP *cpi,
   CurrentFrame *const current_frame = &cm->current_frame;
   RATE_CONTROL *const rc = &cpi->rc;
   TWO_PASS *const twopass = &cpi->twopass;
+  int section_target_bandwidth;
 
   if (cpi->oxcf.rc_mode != AOM_Q && current_frame->frame_number == 0 &&
       cpi->twopass.stats_buf_ctx->total_stats &&
@@ -2422,12 +2433,14 @@ static void process_first_pass_stats(AV1_COMP *cpi,
     }
     const int frames_left = (int)(twopass->stats_buf_ctx->total_stats->count -
                                   current_frame->frame_number);
-
     // Special case code for first frame.
-    const int section_target_bandwidth =
-        (int)(twopass->bits_left / frames_left);
+    if (cpi->lap_enabled)
+      section_target_bandwidth = (int)rc->avg_frame_bandwidth;
+    else
+      section_target_bandwidth = (int)(twopass->bits_left / frames_left);
     const double section_length =
         twopass->stats_buf_ctx->total_left_stats->count;
+
     const double section_error =
         twopass->stats_buf_ctx->total_left_stats->coded_error / section_length;
     const double section_intra_skip =
