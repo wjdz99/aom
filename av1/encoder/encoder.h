@@ -696,12 +696,6 @@ typedef struct TileDataEnc {
   AV1RowMTInfo row_mt_info;
 } TileDataEnc;
 
-typedef struct {
-  TOKENEXTRA *start;
-  TOKENEXTRA *stop;
-  unsigned int count;
-} TOKENLIST;
-
 typedef struct MultiThreadHandle {
   int allocated_tile_rows;
   int allocated_tile_cols;
@@ -1243,8 +1237,8 @@ typedef struct AV1_COMP {
   TileDataEnc *tile_data;
   int allocated_tiles;  // Keep track of memory allocated for tiles.
 
-  TOKENEXTRA *tile_tok[MAX_TILE_ROWS][MAX_TILE_COLS];
-  TOKENLIST *tplist[MAX_TILE_ROWS][MAX_TILE_COLS];
+  // Structure to store the palette token related information.
+  TokenInfo token_info;
 
   // Sequence parameters have been transmitted already and locked
   // or not. Once locked av1_change_config cannot change the seq
@@ -1589,7 +1583,7 @@ static INLINE unsigned int allocated_tokens(TileInfo tile, int sb_size_log2,
 }
 
 static INLINE void get_start_tok(AV1_COMP *cpi, int tile_row, int tile_col,
-                                 int mi_row, TOKENEXTRA **tok, int sb_size_log2,
+                                 int mi_row, TokenExtra **tok, int sb_size_log2,
                                  int num_planes) {
   AV1_COMMON *const cm = &cpi->common;
   const int tile_cols = cm->tiles.cols;
@@ -1600,7 +1594,7 @@ static INLINE void get_start_tok(AV1_COMP *cpi, int tile_row, int tile_col,
       (tile_info->mi_col_end - tile_info->mi_col_start + 2) >> 2;
   const int tile_mb_row = (mi_row - tile_info->mi_row_start + 2) >> 2;
 
-  *tok = cpi->tile_tok[tile_row][tile_col] +
+  *tok = cpi->token_info.tile_tok[tile_row][tile_col] +
          get_token_alloc(tile_mb_row, tile_mb_cols, sb_size_log2, num_planes);
 }
 
