@@ -593,9 +593,12 @@ static void set_good_speed_features_framesize_independent(
 
     sf->mv_sf.prune_mesh_search = 1;
     sf->mv_sf.reduce_search_range = 1;
+
+    sf->tpl_sf.skip_alike_starting_mv = 3;
   }
 
   if (speed >= 6) {
+    sf->tpl_sf.skip_alike_starting_mv = 4;
   }
 }
 

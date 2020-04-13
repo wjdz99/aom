@@ -173,7 +173,7 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
 static int is_alike_mv(int_mv candidate_mv, int_mv *center_mvs,
                        int center_mvs_count, int skip_alike_starting_mv) {
   // MV difference threshold is in 1/8 precision.
-  const int mv_diff_thr[3] = { 1, (8 << 3), (16 << 3) };
+  const int mv_diff_thr[5] = { 1, (8 << 3), (16 << 3), (32 << 3), INT_MAX };
   int thr = mv_diff_thr[skip_alike_starting_mv];
   int i;
 
