@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "67804e5b_69005fdd",
+        "filename": "aom_dsp/variance.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-04-14T21:25:42Z",
+      "side": 1,
+      "message": "As Yaowu mentioned, we probably want to remove dependencies on av1 from the aom_dsp directory. Ideally aom_dsp is self-contained and only av1/av2/etc. point into it.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 39
+      },
+      "revId": "190183a45437477a7633e9849d36990f3f5dab31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fbfa7426_cd829268",
         "filename": "aom_dsp/variance.c",
         "patchSetId": 2
