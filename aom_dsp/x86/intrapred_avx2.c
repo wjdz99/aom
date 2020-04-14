@@ -10,9 +10,8 @@
  */
 
 #include <immintrin.h>
-
-#include "config/aom_dsp_rtcd.h"
 #include "aom_dsp/x86/intrapred_x86.h"
+#include "config/aom_dsp_rtcd.h"
 #include "aom_dsp/x86/lpf_common_sse2.h"
 
 static INLINE __m256i dc_sum_64(const uint8_t *ref) {
@@ -420,6 +419,7 @@ void aom_h_predictor_32x32_avx2(uint8_t *dst, ptrdiff_t stride,
 
 // -----------------------------------------------------------------------------
 // Rectangle
+
 void aom_dc_predictor_32x16_avx2(uint8_t *dst, ptrdiff_t stride,
                                  const uint8_t *above, const uint8_t *left) {
   const __m128i top_sum = dc_sum_32_sse2(above);
@@ -1989,7 +1989,7 @@ static void highbd_dr_prediction_32bit_z2_Nx4_avx2(
     int base_x = (-y * dx) >> frac_bits_x;
     int base_shift = 0;
     if (base_x < (min_base_x - 1)) {
-      base_shift = (min_base_x - base_x) >> upsample_above;
+      base_shift = (min_base_x - base_x - 1) >> upsample_above;
     }
     int base_min_diff =
         (min_base_x - base_x + upsample_above) >> upsample_above;
@@ -2115,7 +2115,7 @@ static void highbd_dr_prediction_z2_Nx4_avx2(
     int base_x = (-y * dx) >> frac_bits_x;
     int base_shift = 0;
     if (base_x < (min_base_x - 1)) {
-      base_shift = (min_base_x - base_x) >> upsample_above;
+      base_shift = (min_base_x - base_x - 1) >> upsample_above;
     }
     int base_min_diff =
         (min_base_x - base_x + upsample_above) >> upsample_above;
@@ -2237,7 +2237,7 @@ static void highbd_dr_prediction_32bit_z2_Nx8_avx2(
     int base_x = (-y * dx) >> frac_bits_x;
     int base_shift = 0;
     if (base_x < (min_base_x - 1)) {
-      base_shift = (min_base_x - base_x) >> upsample_above;
+      base_shift = (min_base_x - base_x - 1) >> upsample_above;
     }
     int base_min_diff =
         (min_base_x - base_x + upsample_above) >> upsample_above;
@@ -2387,7 +2387,7 @@ static void highbd_dr_prediction_z2_Nx8_avx2(
     int base_x = (-y * dx) >> frac_bits_x;
     int base_shift = 0;
     if (base_x < (min_base_x - 1)) {
-      base_shift = (min_base_x - base_x) >> upsample_above;
+      base_shift = (min_base_x - base_x - 1) >> upsample_above;
     }
     int base_min_diff =
         (min_base_x - base_x + upsample_above) >> upsample_above;
@@ -2847,6 +2847,10 @@ static void highbd_dr_prediction_z2_HxW_avx2(
     dst += stride;
   }
 }
+
+// {Krishna Malladi] Disavowing following function as the implementation of
+// base_x calculation is not exact as that of C-code. The default cases below
+// have been adjusted for base_x calculations exactly like C-code.
 
 // Directional prediction, zone 2: 90 < angle < 180
 void av1_highbd_dr_prediction_z2_avx2(uint16_t *dst, ptrdiff_t stride, int bw,
