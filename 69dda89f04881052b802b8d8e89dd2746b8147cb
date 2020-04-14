@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "825fe54c_ac33f57c",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-04-14T04:23:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16e1f63f_d9ca8eb6",
+      "range": {
+        "startLine": 647,
+        "startChar": 0,
+        "endLine": 647,
+        "endChar": 35
+      },
+      "revId": "69dda89f04881052b802b8d8e89dd2746b8147cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eb199704_b4803bf3",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 3
@@ -132,6 +156,30 @@
       "side": 1,
       "message": "Ack",
       "parentUuid": "96c32bf9_d98fad5e",
+      "range": {
+        "startLine": 750,
+        "startChar": 64,
+        "endLine": 750,
+        "endChar": 69
+      },
+      "revId": "69dda89f04881052b802b8d8e89dd2746b8147cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca0f9427_456fe52a",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 750,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-04-14T04:23:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49349bc4_80d2a522",
       "range": {
         "startLine": 750,
         "startChar": 64,
@@ -227,6 +275,30 @@
       "side": 1,
       "message": "Well, let\u0027s keep it safe. Do not change it for now.",
       "parentUuid": "91fe49b3_1bba30fb",
+      "range": {
+        "startLine": 1031,
+        "startChar": 10,
+        "endLine": 1033,
+        "endChar": 71
+      },
+      "revId": "69dda89f04881052b802b8d8e89dd2746b8147cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81d2c4ff_0ce24cb6",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1033,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-04-14T04:23:38Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e5fb3bf5_40143847",
       "range": {
         "startLine": 1031,
         "startChar": 10,
