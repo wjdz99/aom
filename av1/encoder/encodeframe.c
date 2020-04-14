@@ -2925,6 +2925,9 @@ BEGIN_PARTITION_SEARCH:
   unsigned int pb_simple_motion_pred_sse = UINT_MAX;
   (void)pb_simple_motion_pred_sse;
 
+  const int is_target = cm->current_frame.order_hint == 16 && mi_row == 144
+      && mi_col == 184 && bsize == BLOCK_16X16;
+
   // PARTITION_NONE
   if (is_le_min_sq_part && has_rows && has_cols) partition_none_allowed = 1;
   assert(terminate_partition_search == 0);
@@ -3035,13 +3038,18 @@ BEGIN_PARTITION_SEARCH:
 
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
+  if (is_target) {
+    printf("=== partition none, block size %d, rdc %ld, mv (%d, %d) ===\n",
+           bsize, this_rdc.rdcost, xd->mi[0]->mv->as_mv.col,
+           xd->mi[0]->mv->as_mv.row);
+  }
 
   // store estimated motion vector
   if (cpi->sf.mv_sf.adaptive_motion_search) store_pred_mv(x, ctx_none);
 
   // PARTITION_SPLIT
   int64_t part_split_rd = INT64_MAX;
-  if ((!terminate_partition_search && do_square_split) || is_gt_max_sq_part) {
+  if (!is_target && ((!terminate_partition_search && do_square_split) || is_gt_max_sq_part)) {
     av1_init_rd_stats(&sum_rdc);
     subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
     sum_rdc.rate = partition_cost[PARTITION_SPLIT];
@@ -3133,6 +3141,11 @@ BEGIN_PARTITION_SEARCH:
 
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }  // if (do_split)
+  if (is_target) {
+    printf("=== partition split, block size %d, rdc %ld, mv (%d, %d) ===\n",
+           bsize, this_rdc.rdcost, xd->mi[0]->mv->as_mv.col,
+           xd->mi[0]->mv->as_mv.row);
+  }
 
   if (cpi->sf.part_sf.ml_early_term_after_part_split_level &&
       !frame_is_intra_only(cm) && !terminate_partition_search &&
@@ -3154,7 +3167,7 @@ BEGIN_PARTITION_SEARCH:
 
   // PARTITION_HORZ
   assert(IMPLIES(!cpi->oxcf.enable_rect_partitions, !partition_horz_allowed));
-  if (!terminate_partition_search && partition_horz_allowed && !prune_horz &&
+  if (!is_target && !terminate_partition_search && partition_horz_allowed && !prune_horz &&
       (do_rectangular_split || active_h_edge(cpi, mi_row, mi_step)) &&
       !is_gt_max_sq_part) {
     av1_init_rd_stats(&sum_rdc);
@@ -3244,7 +3257,7 @@ BEGIN_PARTITION_SEARCH:
 
   // PARTITION_VERT
   assert(IMPLIES(!cpi->oxcf.enable_rect_partitions, !partition_vert_allowed));
-  if (!terminate_partition_search && partition_vert_allowed && !prune_vert &&
+  if (!is_target && !terminate_partition_search && partition_vert_allowed && !prune_vert &&
       (do_rectangular_split || active_v_edge(cpi, mi_col, mi_step)) &&
       !is_gt_max_sq_part) {
     av1_init_rd_stats(&sum_rdc);
@@ -3358,9 +3371,9 @@ BEGIN_PARTITION_SEARCH:
   // The standard AB partitions are allowed whenever ext-partition-types are
   // allowed
   int horzab_partition_allowed =
-      ext_partition_allowed & cpi->oxcf.enable_ab_partitions;
+      ext_partition_allowed & cpi->oxcf.enable_ab_partitions & !is_target;
   int vertab_partition_allowed =
-      ext_partition_allowed & cpi->oxcf.enable_ab_partitions;
+      ext_partition_allowed & cpi->oxcf.enable_ab_partitions & !is_target;
 
   if (cpi->sf.part_sf.prune_ext_partition_types_search_level) {
     if (cpi->sf.part_sf.prune_ext_partition_types_search_level == 1) {

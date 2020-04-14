@@ -2226,7 +2226,7 @@ static int64_t handle_inter_mode(
     const CompoundTypeRdBuffers *rd_buffers, int64_t *best_est_rd,
     const int do_tx_search, InterModesInfo *inter_modes_info,
     motion_mode_candidate *motion_mode_cand, int64_t *skip_rd,
-    PruneInfoFromTpl *inter_cost_info_from_tpl) {
+    PruneInfoFromTpl *inter_cost_info_from_tpl, const int is_target) {
   const AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &x->e_mbd;
@@ -2359,6 +2359,14 @@ static int64_t handle_inter_mode(
       } else {
         newmv_ret_val =
             handle_newmv(cpi, x, bsize, cur_mv, &rate_mv, args, mode_info);
+        if (is_target) {
+          printf("!! handle_newmv. bsize %d, this_mode %d, ref_mv_idx %d, "
+                 " cur_mv[0] (%d, %d), cur_mv[1] (%d, %d), ret_val %ld !!\n",
+                 bsize, this_mode, ref_mv_idx,
+                 cur_mv[0].as_mv.col, cur_mv[0].as_mv.row,
+                 cur_mv[1].as_mv.col, cur_mv[1].as_mv.row,
+                 newmv_ret_val);
+        }
       }
 #if CONFIG_COLLECT_COMPONENT_TIMING
       end_timing(cpi, handle_newmv_time);
@@ -4609,6 +4617,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                               intra_mode_idx_ls,
                               &intra_mode_num,
                               0 };
+  const int is_target = cm->current_frame.order_hint == 16 && mi_row == 144
+      && mi_col == 184 && bsize == BLOCK_16X16;
 
   // Here midx is just an iterator index that should not be used by itself
   // except to keep track of the number of modes searched. It should be used
@@ -4635,6 +4645,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     // Apply speed features to decide if this inter mode can be skipped
     if (skip_inter_mode(cpi, x, bsize, ref_frame_rd, midx, &sf_args)) continue;
+    if (is_target && this_mode != NEWMV) continue;
 
     // Select prediction reference frames.
     for (i = 0; i < num_planes; i++) {
@@ -4677,7 +4688,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         cpi, tile_data, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
         &disable_skip, &args, ref_best_rd, tmp_buf, &x->comp_rd_buffer,
         &best_est_rd, do_tx_search, inter_modes_info, &motion_mode_cand,
-        skip_rd, &inter_cost_info_from_tpl);
+        skip_rd, &inter_cost_info_from_tpl, is_target);
 
     if (sf->inter_sf.prune_comp_search_by_single_result > 0 &&
         is_inter_singleref_mode(this_mode) && args.single_ref_first_pass) {
@@ -4719,6 +4730,16 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       record_best_compound(cm->current_frame.reference_mode, &rd_stats,
                            comp_pred, x->rdmult, &search_state, compmode_cost);
     }
+    if (is_target) {
+      printf("=== mode %d, ref (%d, %d), mv (%d, %d), this rd %ld ===\n",
+             this_mode, ref_frame, second_ref_frame, xd->mi[0]->mv->as_mv.col,
+             xd->mi[0]->mv->as_mv.row, this_rd);
+    }
+  }
+  if (is_target) {
+    printf("=== partition none, block size %d, mode %d, best_rd %ld, mv (%d, %d) ===\n",
+           bsize, xd->mi[0]->mode, search_state.best_rd, xd->mi[0]->mv->as_mv.col,
+           xd->mi[0]->mv->as_mv.row);
   }
 
   if (cpi->sf.winner_mode_sf.motion_mode_for_winner_cand) {
