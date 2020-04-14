@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "56a38c25_2c2d8fb4",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2040,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-04-14T20:33:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd03ba0e_3f9759e3",
+      "revId": "a6145c65dad414ccce9ead12df81707db6993579",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "70deafdf_ef7cfffa",
         "filename": "av1/encoder/ratectrl.c",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "e2449f1e_5b08c4c3",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2048,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-04-14T20:33:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70deafdf_ef7cfffa",
+      "revId": "a6145c65dad414ccce9ead12df81707db6993579",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "af749e29_c722d515",
         "filename": "av1/encoder/ratectrl.c",
         "patchSetId": 6
@@ -47,6 +83,24 @@
       "writtenOn": "2020-04-13T23:29:42Z",
       "side": 1,
       "message": "this cm-\u003eseq_params.mib_size will vary based on resolution, but here you want it fixed corresponding to bsize \u003d BLOCK_64X64?",
+      "revId": "a6145c65dad414ccce9ead12df81707db6993579",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c50ebfc6_0eab15e0",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2055,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-04-14T20:33:16Z",
+      "side": 1,
+      "message": "num_mi_cols also vary based on resolution so I think it\u0027s ok?",
+      "parentUuid": "af749e29_c722d515",
       "revId": "a6145c65dad414ccce9ead12df81707db6993579",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "f2dc334e_6d15b9ec",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2058,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-04-14T20:33:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17b0988a_5b84184b",
+      "revId": "a6145c65dad414ccce9ead12df81707db6993579",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "07dfb14a_4ec3bbb1",
         "filename": "av1/encoder/ratectrl.c",
         "patchSetId": 6
@@ -84,6 +156,24 @@
       "revId": "a6145c65dad414ccce9ead12df81707db6993579",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79263ff9_c48413d1",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2092,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-04-14T20:33:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07dfb14a_4ec3bbb1",
+      "revId": "a6145c65dad414ccce9ead12df81707db6993579",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "26ce9989_749750b9",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2211,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-04-14T20:33:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19017a23_880f74c9",
+      "revId": "a6145c65dad414ccce9ead12df81707db6993579",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d955147f_ad82271b",
         "filename": "av1/encoder/ratectrl.h",
         "patchSetId": 6
@@ -118,6 +226,24 @@
       "revId": "a6145c65dad414ccce9ead12df81707db6993579",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e184fa8_2b678578",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-04-14T20:33:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d955147f_ad82271b",
+      "revId": "a6145c65dad414ccce9ead12df81707db6993579",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
