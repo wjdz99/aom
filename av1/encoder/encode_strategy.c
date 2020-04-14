@@ -99,9 +99,11 @@ void av1_configure_buffer_updates(AV1_COMP *const cpi,
 
   if (ext_flags->refresh_frame_flags_pending &&
       (!is_stat_generation_stage(cpi))) {
-    frame_params->refresh_golden_frame = ext_flags->refresh_golden_frame;
-    frame_params->refresh_alt_ref_frame = ext_flags->refresh_alt_ref_frame;
-    frame_params->refresh_bwd_ref_frame = ext_flags->refresh_bwd_ref_frame;
+    frame_params->refresh_golden_frame = ext_flags->refresh_frame.golden_frame;
+    frame_params->refresh_alt_ref_frame =
+        ext_flags->refresh_frame.alt_ref_frame;
+    frame_params->refresh_bwd_ref_frame =
+        ext_flags->refresh_frame.bwd_ref_frame;
   }
 
   if (force_refresh_all) {
@@ -137,17 +139,17 @@ static INLINE void update_keyframe_counters(AV1_COMP *cpi) {
   }
 }
 
-static INLINE int is_frame_droppable(const SVC *const svc,
-                                     const ExternalFlags *const ext_flags) {
+static INLINE int is_frame_droppable(
+    const SVC *const svc, const ExtRefreshFrameFlags *const refresh_frame,
+    const bool refresh_frame_flags_pending) {
   // Droppable frame is only used by external refresh flags. VoD setting won't
   // trigger its use case.
   if (svc->external_ref_frame_config)
     return svc->non_reference_frame;
-  else if (ext_flags->refresh_frame_flags_pending)
-    return !(ext_flags->refresh_alt_ref_frame ||
-             ext_flags->refresh_alt2_ref_frame ||
-             ext_flags->refresh_bwd_ref_frame ||
-             ext_flags->refresh_golden_frame || ext_flags->refresh_last_frame);
+  else if (refresh_frame_flags_pending)
+    return !(refresh_frame->alt_ref_frame || refresh_frame->alt2_ref_frame ||
+             refresh_frame->bwd_ref_frame || refresh_frame->golden_frame ||
+             refresh_frame->last_frame);
   else
     return 0;
 }
@@ -158,7 +160,8 @@ static INLINE void update_frames_till_gf_update(AV1_COMP *cpi) {
   // We should fix the cpi->common.show_frame flag
   // instead of checking the other condition to update the counter properly.
   if (cpi->common.show_frame ||
-      is_frame_droppable(&cpi->svc, &cpi->ext_flags)) {
+      is_frame_droppable(&cpi->svc, &cpi->ext_flags.refresh_frame,
+                         cpi->ext_flags.refresh_frame_flags_pending)) {
     // Decrement count down till next gf
     if (cpi->rc.frames_till_gf_update_due > 0)
       cpi->rc.frames_till_gf_update_due--;
@@ -640,7 +643,9 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
   // expressed than converting the frame update type.
   if (frame_is_sframe(cm)) frame_update_type = KEY_FRAME;
 
-  if (is_frame_droppable(&cpi->svc, &cpi->ext_flags)) return;
+  if (is_frame_droppable(&cpi->svc, &cpi->ext_flags.refresh_frame,
+                         cpi->ext_flags.refresh_frame_flags_pending))
+    return;
 
   switch (frame_update_type) {
     case KEY_FRAME:
@@ -727,7 +732,9 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
                                 FRAME_UPDATE_TYPE frame_update_type,
                                 const RefBufferStack *const ref_buffer_stack) {
   const AV1_COMMON *const cm = &cpi->common;
-  const ExternalFlags *const ext_flags = &cpi->ext_flags;
+  const ExtRefreshFrameFlags *const refresh_frame =
+      &cpi->ext_flags.refresh_frame;
+
   const SVC *const svc = &cpi->svc;
   // Switch frames and shown key-frames overwrite all reference slots
   if ((frame_params->frame_type == KEY_FRAME && frame_params->show_frame) ||
@@ -742,11 +749,13 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
     return 0;
   }
 
-  if (is_frame_droppable(svc, ext_flags)) return 0;
+  if (is_frame_droppable(svc, refresh_frame,
+                         cpi->ext_flags.refresh_frame_flags_pending))
+    return 0;
 
   int refresh_mask = 0;
 
-  if (ext_flags->refresh_frame_flags_pending) {
+  if (cpi->ext_flags.refresh_frame_flags_pending) {
     if (svc->external_ref_frame_config) {
       for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++) {
         int ref_frame_map_idx = svc->ref_idx[i];
@@ -759,28 +768,28 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
     // order to preserve the behaviour of the flag overrides.
     int ref_frame_map_idx = get_ref_frame_map_idx(cm, LAST_FRAME);
     if (ref_frame_map_idx != INVALID_IDX)
-      refresh_mask |= ext_flags->refresh_last_frame << ref_frame_map_idx;
+      refresh_mask |= refresh_frame->last_frame << ref_frame_map_idx;
 
     ref_frame_map_idx = get_ref_frame_map_idx(cm, EXTREF_FRAME);
     if (ref_frame_map_idx != INVALID_IDX)
-      refresh_mask |= ext_flags->refresh_bwd_ref_frame << ref_frame_map_idx;
+      refresh_mask |= refresh_frame->bwd_ref_frame << ref_frame_map_idx;
 
     ref_frame_map_idx = get_ref_frame_map_idx(cm, ALTREF2_FRAME);
     if (ref_frame_map_idx != INVALID_IDX)
-      refresh_mask |= ext_flags->refresh_alt2_ref_frame << ref_frame_map_idx;
+      refresh_mask |= refresh_frame->alt2_ref_frame << ref_frame_map_idx;
 
     if (frame_update_type == OVERLAY_UPDATE) {
       ref_frame_map_idx = get_ref_frame_map_idx(cm, ALTREF_FRAME);
       if (ref_frame_map_idx != INVALID_IDX)
-        refresh_mask |= ext_flags->refresh_golden_frame << ref_frame_map_idx;
+        refresh_mask |= refresh_frame->golden_frame << ref_frame_map_idx;
     } else {
       ref_frame_map_idx = get_ref_frame_map_idx(cm, GOLDEN_FRAME);
       if (ref_frame_map_idx != INVALID_IDX)
-        refresh_mask |= ext_flags->refresh_golden_frame << ref_frame_map_idx;
+        refresh_mask |= refresh_frame->golden_frame << ref_frame_map_idx;
 
       ref_frame_map_idx = get_ref_frame_map_idx(cm, ALTREF_FRAME);
       if (ref_frame_map_idx != INVALID_IDX)
-        refresh_mask |= ext_flags->refresh_alt_ref_frame << ref_frame_map_idx;
+        refresh_mask |= refresh_frame->alt_ref_frame << ref_frame_map_idx;
     }
     return refresh_mask;
   }
@@ -1324,7 +1333,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
 
   // Leave a signal for a higher level caller about if this frame is droppable
   if (*size > 0) {
-    cpi->droppable = is_frame_droppable(&cpi->svc, ext_flags);
+    cpi->droppable = is_frame_droppable(&cpi->svc, &ext_flags->refresh_frame,
+                                        ext_flags->refresh_frame_flags_pending);
   }
 
   if (cpi->use_svc) av1_save_layer_context(cpi);

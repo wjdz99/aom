@@ -966,17 +966,22 @@ typedef struct {
 } WinnerModeParams;
 
 typedef struct {
+  // Flags set by external interface to determine which reference buffers are
+  // refreshed by this frame. When set, the encoder will update the particular
+  // reference frame buffer with the contents of the current frame.
+  bool last_frame;
+  bool golden_frame;
+  bool bwd_ref_frame;
+  bool alt2_ref_frame;
+  bool alt_ref_frame;
+} ExtRefreshFrameFlags;
+
+typedef struct {
   // Bit mask to disable certain reference frame types.
   int ref_frame_flags;
 
-  // Flags to determine which reference buffers are refreshed by this frame.
-  // When set, the encoder will update the particular reference frame buffer
-  // with the contents of the current frame.
-  bool refresh_last_frame;
-  bool refresh_golden_frame;
-  bool refresh_bwd_ref_frame;
-  bool refresh_alt2_ref_frame;
-  bool refresh_alt_ref_frame;
+  // Frame refresh flags set by the external interface.
+  ExtRefreshFrameFlags refresh_frame;
 
   // Flag to indicate that updation of refresh frame flags from external
   // interface is pending.
