@@ -105,7 +105,7 @@ specialize qw/av1_wiener_convolve_add_src sse2 avx2 neon/;
 add_proto qw/void av1_dr_prediction_z1/, "uint8_t *dst, ptrdiff_t stride, int bw, int bh, const uint8_t *above, const uint8_t *left, int upsample_above, int dx, int dy";
 specialize qw/av1_dr_prediction_z1 avx2/;
 add_proto qw/void av1_dr_prediction_z2/, "uint8_t *dst, ptrdiff_t stride, int bw, int bh, const uint8_t *above, const uint8_t *left, int upsample_above, int upsample_left, int dx, int dy";
-specialize qw/av1_dr_prediction_z2 avx2/;
+#specialize qw/av1_dr_prediction_z2 avx2/;
 add_proto qw/void av1_dr_prediction_z3/, "uint8_t *dst, ptrdiff_t stride, int bw, int bh, const uint8_t *above, const uint8_t *left, int upsample_left, int dx, int dy";
 specialize qw/av1_dr_prediction_z3 avx2/;
 
@@ -183,7 +183,7 @@ if (aom_config("CONFIG_AV1_HIGHBITDEPTH") eq "yes") {
   add_proto qw/void av1_highbd_dr_prediction_z1/, "uint16_t *dst, ptrdiff_t stride, int bw, int bh, const uint16_t *above, const uint16_t *left, int upsample_above, int dx, int dy, int bd";
   specialize qw/av1_highbd_dr_prediction_z1 avx2/;
   add_proto qw/void av1_highbd_dr_prediction_z2/, "uint16_t *dst, ptrdiff_t stride, int bw, int bh, const uint16_t *above, const uint16_t *left, int upsample_above, int upsample_left, int dx, int dy, int bd";
-  specialize qw/av1_highbd_dr_prediction_z2 avx2/;
+#  specialize qw/av1_highbd_dr_prediction_z2 avx2/;
   add_proto qw/void av1_highbd_dr_prediction_z3/, "uint16_t *dst, ptrdiff_t stride, int bw, int bh, const uint16_t *above, const uint16_t *left, int upsample_left, int dx, int dy, int bd";
   specialize qw/av1_highbd_dr_prediction_z3 avx2/;
 }
@@ -289,7 +289,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   }
 
   if (aom_config("CONFIG_REALTIME_ONLY") ne "yes") {
-    add_proto qw/void av1_apply_temporal_filter_planewise/, "const struct yv12_buffer_config *ref_frame, const struct macroblockd *mbd, const BLOCK_SIZE block_size, const int mb_row, const int mb_col, const int num_planes, const double *noise_levels, const int use_subblock, const int block_mse, const int *subblock_mses, const int q_factor, const uint8_t *pred, uint32_t *accum, uint16_t *count";
+    add_proto qw/void av1_apply_temporal_filter_planewise/, "const struct yv12_buffer_config *ref_frame, const struct macroblockd *mbd, const BLOCK_SIZE block_size, const int mb_row, const int mb_col, const int num_planes, const double *noise_levels, const uint8_t *pred, uint32_t *accum, uint16_t *count";
     specialize qw/av1_apply_temporal_filter_planewise sse2 avx2/;
   }
   add_proto qw/void av1_quantize_b/, "const tran_low_t *coeff_ptr, intptr_t n_coeffs, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan, const qm_val_t * qm_ptr, const qm_val_t * iqm_ptr, int log_scale";
