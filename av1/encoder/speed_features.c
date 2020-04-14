@@ -596,6 +596,7 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 6) {
+    sf->tpl_sf.subpel_force_stop = QUARTER_PEL;
   }
 }
 
@@ -890,6 +891,7 @@ static AOM_INLINE void init_tpl_sf(TPL_SPEED_FEATURES *tpl_sf) {
   tpl_sf->prune_intra_modes = 0;
   tpl_sf->reduce_first_step_size = 0;
   tpl_sf->skip_alike_starting_mv = 0;
+  tpl_sf->subpel_force_stop = EIGHTH_PEL;
 }
 
 static AOM_INLINE void init_gm_sf(GLOBAL_MOTION_SPEED_FEATURES *gm_sf) {

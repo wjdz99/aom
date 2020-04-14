@@ -298,6 +298,9 @@ typedef struct TPL_SPEED_FEATURES {
   // full-pixel center MVs. If set to 2, motion estimation is skipped if the
   // difference between center MVs is less than the threshold.
   int skip_alike_starting_mv;
+
+  // When to stop subpel search.
+  SUBPEL_FORCE_STOP subpel_force_stop;
 } TPL_SPEED_FEATURES;
 
 typedef struct GLOBAL_MOTION_SPEED_FEATURES {
