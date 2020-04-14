@@ -1989,7 +1989,7 @@ static void highbd_dr_prediction_32bit_z2_Nx4_avx2(
     int base_x = (-y * dx) >> frac_bits_x;
     int base_shift = 0;
     if (base_x < (min_base_x - 1)) {
-      base_shift = (min_base_x - base_x) >> upsample_above;
+      base_shift = (min_base_x - base_x - 1) >> upsample_above;
     }
     int base_min_diff =
         (min_base_x - base_x + upsample_above) >> upsample_above;
@@ -2115,7 +2115,7 @@ static void highbd_dr_prediction_z2_Nx4_avx2(
     int base_x = (-y * dx) >> frac_bits_x;
     int base_shift = 0;
     if (base_x < (min_base_x - 1)) {
-      base_shift = (min_base_x - base_x) >> upsample_above;
+      base_shift = (min_base_x - base_x - 1) >> upsample_above;
     }
     int base_min_diff =
         (min_base_x - base_x + upsample_above) >> upsample_above;
@@ -2237,7 +2237,7 @@ static void highbd_dr_prediction_32bit_z2_Nx8_avx2(
     int base_x = (-y * dx) >> frac_bits_x;
     int base_shift = 0;
     if (base_x < (min_base_x - 1)) {
-      base_shift = (min_base_x - base_x) >> upsample_above;
+      base_shift = (min_base_x - base_x - 1) >> upsample_above;
     }
     int base_min_diff =
         (min_base_x - base_x + upsample_above) >> upsample_above;
@@ -2387,7 +2387,7 @@ static void highbd_dr_prediction_z2_Nx8_avx2(
     int base_x = (-y * dx) >> frac_bits_x;
     int base_shift = 0;
     if (base_x < (min_base_x - 1)) {
-      base_shift = (min_base_x - base_x) >> upsample_above;
+      base_shift = (min_base_x - base_x - 1) >> upsample_above;
     }
     int base_min_diff =
         (min_base_x - base_x + upsample_above) >> upsample_above;
@@ -2847,6 +2847,10 @@ static void highbd_dr_prediction_z2_HxW_avx2(
     dst += stride;
   }
 }
+
+// {Krishna Malladi] Disavowing following function as the implementation of
+// base_x calculation is not exact as that of C-code. The default cases below
+// have been adjusted for base_x calculations exactly like C-code.
 
 // Directional prediction, zone 2: 90 < angle < 180
 void av1_highbd_dr_prediction_z2_avx2(uint16_t *dst, ptrdiff_t stride, int bw,
