@@ -1086,7 +1086,9 @@ typedef struct AV1_COMP {
   AV1_COMMON common;
   AV1EncoderConfig oxcf;
   struct lookahead_ctx *lookahead;
-  int no_show_kf;
+
+  // When set, this flag indicates that the current frame is a forward keyframe.
+  bool no_show_kf;
 
   TRELLIS_OPT_TYPE optimize_seg_arr[MAX_SEGMENTS];
 
@@ -1101,12 +1103,13 @@ typedef struct AV1_COMP {
   TplParams tpl_data;
 
   // For a still frame, this flag is set to 1 to skip partition search.
-  int partition_search_skippable_frame;
+  bool partition_search_skippable_frame;
 
   // Variables related to forcing integer mv decisions for the current frame.
   ForceIntegerMVInfo force_intpel_info;
 
-  unsigned int row_mt;
+  // This flag is set to 1 if row-based multi-threading is enabled.
+  bool row_mt;
   RefCntBuffer *scaled_ref_buf[INTER_REFS_PER_FRAME];
 
   RefCntBuffer *last_show_frame_buf;  // last show frame buffer
@@ -1164,7 +1167,9 @@ typedef struct AV1_COMP {
   // Parameters for motion vector search process.
   MotionVectorSearchParams mv_search_params;
 
-  int all_one_sided_refs;
+  // When set, indicates that all reference frames are forward references,
+  // i.e., all the reference frames are output before the current frame.
+  bool all_one_sided_refs;
 
   // Segmentation related information for current frame.
   EncSegmentationInfo enc_seg;
@@ -1192,7 +1197,7 @@ typedef struct AV1_COMP {
   YV12_BUFFER_CONFIG alt_ref_buffer;
 
   // Tell if OVERLAY frame shows existing alt_ref frame.
-  int show_existing_alt_ref;
+  bool show_existing_alt_ref;
 
 #if CONFIG_INTERNAL_STATS
   unsigned int mode_chosen_counts[MAX_MODES];
@@ -1222,12 +1227,17 @@ typedef struct AV1_COMP {
   Ssimv *ssim_vars;
   Metrics metrics;
 #endif
-  int b_calculate_psnr;
+
+  // When set calculates PSNR of each frame.
+  bool b_calculate_psnr;
+
 #if CONFIG_SPEED_STATS
   unsigned int tx_search_count;
 #endif  // CONFIG_SPEED_STATS
 
-  int droppable;
+  // When set indicates that the frame is droppable, i.e., this frame
+  // does not update any reference buffers.
+  bool droppable;
 
   FRAME_INFO frame_info;
 
@@ -1249,10 +1259,10 @@ typedef struct AV1_COMP {
   // Sequence parameters have been transmitted already and locked
   // or not. Once locked av1_change_config cannot change the seq
   // parameters.
-  int seq_params_locked;
+  bool seq_params_locked;
 
-  // VARIANCE_AQ segment map refresh
-  int vaq_refresh;
+  // VARIANCE_AQ segment map refresh.
+  bool vaq_refresh;
 
   // Thresholds for variance based partitioning.
   VarBasedPartitionInfo vbp_info;
@@ -1265,9 +1275,13 @@ typedef struct AV1_COMP {
   AVxWorker *workers;
   struct EncWorkerData *tile_thr_data;
   int existing_fb_idx_to_show;
-  int internal_altref_allowed;
+
+  // When set indicates that internal ARF's are enabled.
+  bool internal_altref_allowed;
+
   // A flag to indicate if intrabc is ever used in current frame.
-  int intrabc_used;
+  bool intrabc_used;
+
   int dv_cost[2][MV_VALS];
   // TODO(huisu@google.com): we can update dv_joint_cost per SB.
   int dv_joint_cost[MV_JOINTS];
@@ -1293,8 +1307,10 @@ typedef struct AV1_COMP {
 #if CONFIG_MULTITHREAD
   pthread_mutex_t *row_mt_mutex_;
 #endif
-  // Set if screen content is set or relevant tools are enabled
-  int is_screen_content_type;
+
+  // Set if screen content is set or relevant tools are enabled.
+  bool is_screen_content_type;
+
 #if CONFIG_COLLECT_PARTITION_STATS == 2
   PartitionStats partition_stats;
 #endif
@@ -1310,8 +1326,8 @@ typedef struct AV1_COMP {
   // Parameters for AV1 bitstream levels.
   AV1LevelParams level_params;
 
-  // whether any no-zero delta_q was actually used
-  int deltaq_used;
+  // Whether any no-zero delta_q was actually used.
+  bool deltaq_used;
 
   // Indicates the true relative distance of ref frame w.r.t. current frame
   int ref_relative_dist[INTER_REFS_PER_FRAME];
@@ -1332,10 +1348,12 @@ typedef struct AV1_COMP {
   double last_frame_unsharp_amount;
 #endif
 
-  int use_svc;
+  // Indicates whether to use SVC.
+  bool use_svc;
   SVC svc;
 
-  int lap_enabled;
+  // Flag indicating whether look ahead processing (LAP) is enabled.
+  bool lap_enabled;
   COMPRESSOR_STAGE compressor_stage;
 
   // Some motion vector stats from the last encoded frame to help us decide what

@@ -372,7 +372,7 @@ static int get_arf_src_index(GF_GROUP *gf_group, int pass) {
 // the correct post-filter buffer can be used.
 static struct lookahead_entry *setup_arf_frame(
     AV1_COMP *const cpi, const int arf_src_index, int *code_arf,
-    EncodeFrameParams *const frame_params, int *show_existing_alt_ref) {
+    EncodeFrameParams *const frame_params, bool *show_existing_alt_ref) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
 #if !CONFIG_REALTIME_ONLY
@@ -443,7 +443,7 @@ int is_forced_keyframe_pending(struct lookahead_ctx *lookahead,
 static struct lookahead_entry *choose_frame_source(
     AV1_COMP *const cpi, int *const code_arf, int *const flush,
     struct lookahead_entry **last_source, EncodeFrameParams *const frame_params,
-    int *show_existing_alt_ref) {
+    bool *show_existing_alt_ref) {
   AV1_COMMON *const cm = &cpi->common;
   struct lookahead_entry *source = NULL;
   *code_arf = 0;
@@ -1095,7 +1095,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     source = av1_lookahead_pop(cpi->lookahead, flush, cpi->compressor_stage);
     frame_params.show_frame = 1;
   } else {
-    int show_existing_alt_ref = 0;
+    bool show_existing_alt_ref = 0;
     source = choose_frame_source(cpi, &code_arf, &flush, &last_source,
                                  &frame_params, &show_existing_alt_ref);
     if (gf_group->update_type[gf_group->index] == ARF_UPDATE)

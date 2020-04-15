@@ -863,7 +863,7 @@ static INLINE int av1_raster_order_to_block_index(TX_SIZE tx_size,
 static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
                                           const MACROBLOCKD *xd,
                                           TX_SIZE tx_size,
-                                          int is_screen_content_type) {
+                                          bool is_screen_content_type) {
   const MB_MODE_INFO *const mbmi = xd->mi[0];
 
   if (is_inter_block(mbmi) || plane_type != PLANE_TYPE_Y ||

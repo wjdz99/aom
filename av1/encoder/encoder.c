@@ -5238,7 +5238,7 @@ static uint16_t setup_interp_filter_search_mask(AV1_COMP *cpi) {
 static void screen_content_tools_determination(
     AV1_COMP *cpi, const int allow_screen_content_tools_orig_decision,
     const int allow_intrabc_orig_decision,
-    const int is_screen_content_type_orig_decision, const int pass,
+    const bool is_screen_content_type_orig_decision, const int pass,
     int *projected_size_pass, PSNR_STATS *psnr) {
   AV1_COMMON *const cm = &cpi->common;
   FeatureFlags *const features = &cm->features;
@@ -5307,7 +5307,7 @@ static void determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
   const int allow_screen_content_tools_orig_decision =
       cm->features.allow_screen_content_tools;
   const int allow_intrabc_orig_decision = cm->features.allow_intrabc;
-  const int is_screen_content_type_orig_decision = cpi->is_screen_content_type;
+  const bool is_screen_content_type_orig_decision = cpi->is_screen_content_type;
   // Turn off the encoding trial for forward key frame and superres.
   if (cpi->sf.rt_sf.use_nonrd_pick_mode || cpi->oxcf.fwd_kf_enabled ||
       cpi->superres_mode != SUPERRES_NONE || cpi->oxcf.mode == REALTIME ||
