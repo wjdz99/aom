@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae399983_10a96c54",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-15T22:36:48Z",
+      "side": 1,
+      "message": "Typo: Fig \u003d\u003e Fix",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 3
+      },
+      "revId": "9e7604e6a8d91fbb898f25cfa915c1be983faef7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbb3a0d3_49b6e2cd",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 810,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-15T22:36:48Z",
+      "side": 1,
+      "message": "Please add this description from the commit message as a comment here:\n\navx2/sse2 function only supports square block size. However, under\n`YUV 4:2:2` format, subsampling_x does not equal to subsampling_y. In\nthis case, avx2/sse2 function will fail. C version is used instead.\n\nYou can shorten it a little.",
+      "revId": "9e7604e6a8d91fbb898f25cfa915c1be983faef7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
