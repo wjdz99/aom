@@ -220,7 +220,7 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
 
         int thissme = av1_full_pixel_search(
             smv, &full_ms_params, step_param, cond_cost_list(cpi, cost_list),
-            &this_best_mv, &this_second_best_mv);
+            &this_best_mv, &this_second_best_mv, cpi->is_screen_content_type);
 
         if (thissme < bestsme) {
           bestsme = thissme;
@@ -791,9 +791,9 @@ int_mv av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize, &ref_mv,
                                      src_search_sites);
 
-  var = av1_full_pixel_search(start_mv, &full_ms_params, step_param,
-                              cond_cost_list(cpi, cost_list),
-                              &best_mv.as_fullmv, NULL);
+  var = av1_full_pixel_search(
+      start_mv, &full_ms_params, step_param, cond_cost_list(cpi, cost_list),
+      &best_mv.as_fullmv, NULL, cpi->is_screen_content_type);
 
   const int use_subpel_search =
       var < INT_MAX && !cpi->common.features.cur_frame_force_integer_mv &&

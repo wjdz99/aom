@@ -2751,7 +2751,8 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     int_mv best_mv, best_hash_mv;
 
     int bestsme = av1_full_pixel_search(start_mv, &fullms_params, step_param,
-                                        NULL, &best_mv.as_fullmv, NULL);
+                                        NULL, &best_mv.as_fullmv, NULL,
+                                        /*tune_scree_content=*/0);
     const int hashsme = av1_intrabc_hash_search(
         cpi, xd, &fullms_params, intrabc_hash_info, &best_hash_mv.as_fullmv);
     if (hashsme < bestsme) {

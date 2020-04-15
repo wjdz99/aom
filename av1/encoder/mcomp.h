@@ -216,7 +216,8 @@ int av1_refining_search_8p_c(const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
 int av1_full_pixel_search(const FULLPEL_MV start_mv,
                           const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
                           const int step_param, int *cost_list,
-                          FULLPEL_MV *best_mv, FULLPEL_MV *second_best_mv);
+                          FULLPEL_MV *best_mv, FULLPEL_MV *second_best_mv,
+                          const int tune_screen_content);
 
 int av1_intrabc_hash_search(const struct AV1_COMP *cpi, const MACROBLOCKD *xd,
                             const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,

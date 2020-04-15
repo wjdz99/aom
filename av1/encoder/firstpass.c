@@ -240,7 +240,8 @@ static AOM_INLINE void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
 
   FULLPEL_MV this_best_mv;
   tmp_err = av1_full_pixel_search(start_mv, &ms_params, step_param, NULL,
-                                  &this_best_mv, NULL);
+                                  &this_best_mv, NULL,
+                                  /*tune_screen_content=*/0);
 
   if (tmp_err < INT_MAX) {
     tmp_err = av1_get_mvpred_sse(x, &this_best_mv, ref_mv, &v_fn_ptr) +

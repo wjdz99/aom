@@ -154,7 +154,7 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
 
   av1_full_pixel_search(start_mv, &full_ms_params, step_param,
                         cond_cost_list(cpi, cost_list), &best_mv->as_fullmv,
-                        NULL);
+                        NULL, /*tune_screen_content=*/0);
 
   SUBPEL_MOTION_SEARCH_PARAMS ms_params;
   av1_make_default_subpel_ms_params(&ms_params, cpi, x, bsize, &center_mv,

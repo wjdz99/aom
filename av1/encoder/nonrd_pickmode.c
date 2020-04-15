@@ -161,7 +161,7 @@ static int combined_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
 
   av1_full_pixel_search(start_mv, &full_ms_params, step_param,
                         cond_cost_list(cpi, cost_list), &tmp_mv->as_fullmv,
-                        NULL);
+                        NULL, /*tune_screen_content=*/0);
 
   // calculate the bit cost on motion vector
   MV mvp_full = get_mv_from_fullmv(&tmp_mv->as_fullmv);

@@ -125,7 +125,7 @@ static int tf_motion_search(AV1_COMP *cpi,
   full_ms_params.search_method = full_search_method;
   av1_full_pixel_search(start_mv, &full_ms_params, step_param,
                         cond_cost_list(cpi, cost_list), &best_mv.as_fullmv,
-                        NULL);
+                        NULL, /*tune_screen_content=*/0);
 
   // Since we are merely refining the result from full pixel search, we don't
   // need regularization for subpel search
@@ -174,7 +174,8 @@ static int tf_motion_search(AV1_COMP *cpi,
         full_ms_params.search_method = full_search_method;
         av1_full_pixel_search(start_mv, &full_ms_params, step_param,
                               cond_cost_list(cpi, cost_list),
-                              &best_mv.as_fullmv, NULL);
+                              &best_mv.as_fullmv, NULL,
+                              /*tune_screen_content=*/0);
 
         // Since we are merely refining the result from full pixel search, we
         // don't need regularization for subpel search
