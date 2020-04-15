@@ -47,10 +47,12 @@ static int get_aq_c_strength(int q_index, aom_bit_depth_t bit_depth) {
 
 static bool is_frame_aq_enabled(const AV1_COMP *const cpi) {
   const AV1_COMMON *const cm = &cpi->common;
+  const FrameRefreshFlags *const frame_refresh_flags =
+      &cpi->frame_refresh_flags;
 
   return frame_is_intra_only(cm) || cm->features.error_resilient_mode ||
-         cpi->refresh_alt_ref_frame ||
-         (cpi->refresh_golden_frame && !cpi->rc.is_src_frame_alt_ref);
+         frame_refresh_flags->alt_ref_frame ||
+         (frame_refresh_flags->golden_frame && !cpi->rc.is_src_frame_alt_ref);
 }
 
 // Segmentation only makes sense if the target bits per SB is above a threshold.
