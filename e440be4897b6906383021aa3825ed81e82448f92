@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b930cf84_dff54661",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-04-15T04:50:07Z",
+      "side": 1,
+      "message": "Yes, we always use sub-blocks to build prediction. This is for easier implementation.\n\nHowever, the motion vectors and searched errors stored in `subblock_mvs` and `subblock_mses` do not always correspond to the 4 sub-blocks. Actually, if we decide not to split the entire block, these values are all assigned to be the same as that of the entire block. See Line 248-258. This is also explained in Line 49-57.",
+      "parentUuid": "c99869ea_dc858c0e",
+      "range": {
+        "startLine": 319,
+        "startChar": 14,
+        "endLine": 319,
+        "endChar": 31
+      },
+      "revId": "e440be4897b6906383021aa3825ed81e82448f92",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d93d7462_d81241d5",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2020-04-14T22:47:30Z",
       "side": 1,
       "message": "Why do we need these conditions?",
+      "range": {
+        "startLine": 759,
+        "startChar": 14,
+        "endLine": 759,
+        "endChar": 67
+      },
+      "revId": "e440be4897b6906383021aa3825ed81e82448f92",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d77afe6d_b7cd3ab4",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 759,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-04-15T04:50:07Z",
+      "side": 1,
+      "message": "Since the avx2 and sse2 version are still hard-coded with block size 32x32 and filtering window 5x5. I don\u0027t know how to optimize avx2 and sse2 operators. So, if we use different block or filtering window size in the future, we can use the c version as the alternative.",
+      "parentUuid": "d93d7462_d81241d5",
       "range": {
         "startLine": 759,
         "startChar": 14,
