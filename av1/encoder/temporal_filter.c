@@ -810,7 +810,9 @@ void av1_apply_temporal_filter_others(
   if (TF_ENABLE_PLANEWISE_STRATEGY) {
     // TODO(any): avx2 and sse2 version should be changed to align with C
     // function before using.
-    if (is_frame_high_bitdepth(frame_to_filter) || block_size != BLOCK_32X32) {
+    if (is_frame_high_bitdepth(frame_to_filter) || block_size != BLOCK_32X32 ||
+        mbd->plane[1].subsampling_x != mbd->plane[1].subsampling_y ||
+        mbd->plane[2].subsampling_x != mbd->plane[2].subsampling_y) {
       av1_apply_temporal_filter_planewise_c(
           frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
           noise_levels, use_subblock, block_mse, subblock_mses, q_factor, pred,
