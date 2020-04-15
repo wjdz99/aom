@@ -11,6 +11,7 @@
 
 #include <assert.h>
 #include <immintrin.h>
+#include "aom_dsp/aom_simd.h"
 #include "aom_dsp/x86/synonyms_avx2.h"
 #include "aom_ports/system_state.h"
 
@@ -30,9 +31,11 @@ INLINE static void horver_correlation_4x4(const int16_t *diff, int stride,
   //                      [ i j k l ]
   //                      [ m n o p ]
 
-  const __m256i pixels = _mm256_set_epi64x(
-      *(uint64_t *)&diff[0 * stride], *(uint64_t *)&diff[1 * stride],
-      *(uint64_t *)&diff[2 * stride], *(uint64_t *)&diff[3 * stride]);
+  const __m256i pixels =
+      _mm256_set_epi64x(u64_load_unaligned(&diff[0 * stride]),
+                        u64_load_unaligned(&diff[1 * stride]),
+                        u64_load_unaligned(&diff[2 * stride]),
+                        u64_load_unaligned(&diff[3 * stride]));
   // pixels = [d c b a h g f e] [l k j i p o n m] as i16
 
   const __m256i slli = _mm256_slli_epi64(pixels, 16);

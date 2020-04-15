@@ -16,6 +16,7 @@
 #include "config/aom_dsp_rtcd.h"
 #include "config/av1_rtcd.h"
 
+#include "aom_dsp/aom_simd.h"
 #include "aom_dsp/blend.h"
 #include "aom_dsp/x86/synonyms.h"
 
@@ -41,8 +42,8 @@ unsigned int aom_get_mb_ss_sse2(const int16_t *src) {
 }
 
 static INLINE __m128i load4x2_sse2(const uint8_t *const p, const int stride) {
-  const __m128i p0 = _mm_cvtsi32_si128(*(const uint32_t *)(p + 0 * stride));
-  const __m128i p1 = _mm_cvtsi32_si128(*(const uint32_t *)(p + 1 * stride));
+  const __m128i p0 = _mm_cvtsi32_si128(u32_load_unaligned(p + 0 * stride));
+  const __m128i p1 = _mm_cvtsi32_si128(u32_load_unaligned(p + 1 * stride));
   return _mm_unpacklo_epi8(_mm_unpacklo_epi32(p0, p1), _mm_setzero_si128());
 }
 

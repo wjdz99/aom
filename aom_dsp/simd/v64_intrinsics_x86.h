@@ -19,6 +19,7 @@
 #if defined(__SSE4_1__)
 #include <smmintrin.h>
 #endif
+#include <string.h>
 
 typedef __m128i v64;
 
@@ -58,12 +59,20 @@ SIMD_INLINE uint64_t v64_u64(v64 x) {
   return (uint64_t)v64_low_u32(x) | ((uint64_t)v64_high_u32(x) << 32);
 }
 
+SIMD_INLINE uint16_t u16_load_unaligned(const void *p) {
+  uint16_t a;
+  memcpy(&a, p, sizeof(a));
+  return a;
+}
+
 SIMD_INLINE uint32_t u32_load_aligned(const void *p) {
   return *((uint32_t *)p);
 }
 
 SIMD_INLINE uint32_t u32_load_unaligned(const void *p) {
-  return *((uint32_t *)p);
+  uint32_t a;
+  memcpy(&a, p, sizeof(a));
+  return a;
 }
 
 SIMD_INLINE void u32_store_aligned(void *p, uint32_t a) {
@@ -72,6 +81,12 @@ SIMD_INLINE void u32_store_aligned(void *p, uint32_t a) {
 
 SIMD_INLINE void u32_store_unaligned(void *p, uint32_t a) {
   *((uint32_t *)p) = a;
+}
+
+SIMD_INLINE uint64_t u64_load_unaligned(const void *p) {
+  uint64_t a;
+  memcpy(&a, p, sizeof(a));
+  return a;
 }
 
 SIMD_INLINE v64 v64_load_aligned(const void *p) {

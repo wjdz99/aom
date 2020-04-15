@@ -17,6 +17,7 @@
 #include "config/aom_config.h"
 
 #include "aom/aom_integer.h"
+#include "aom_dsp/aom_simd.h"
 
 static INLINE __m128i loadh_epi64(const void *const src, const __m128i s) {
   return _mm_castps_si128(
@@ -25,10 +26,10 @@ static INLINE __m128i loadh_epi64(const void *const src, const __m128i s) {
 
 static INLINE __m128i load_8bit_4x4_to_1_reg_sse2(const void *const src,
                                                   const int byte_stride) {
-  return _mm_setr_epi32(*(const int32_t *)((int8_t *)src + 0 * byte_stride),
-                        *(const int32_t *)((int8_t *)src + 1 * byte_stride),
-                        *(const int32_t *)((int8_t *)src + 2 * byte_stride),
-                        *(const int32_t *)((int8_t *)src + 3 * byte_stride));
+  return _mm_setr_epi32(u32_load_unaligned((int8_t *)src + 0 * byte_stride),
+                        u32_load_unaligned((int8_t *)src + 1 * byte_stride),
+                        u32_load_unaligned((int8_t *)src + 2 * byte_stride),
+                        u32_load_unaligned((int8_t *)src + 3 * byte_stride));
 }
 
 static INLINE __m128i load_8bit_8x2_to_1_reg_sse2(const void *const src,
