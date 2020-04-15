@@ -204,11 +204,16 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   int_mv second_best_mv;
   best_mv->as_int = second_best_mv.as_int = INVALID_MV;
 
+  // Allow more mesh searches for screen content type on the ARF.
+  const int tune_screen_content =
+      cpi->is_screen_content_type &&
+      cpi->gf_group.update_type[cpi->gf_group.index] == ARF_UPDATE &&
+      cpi->oxcf.speed <= 2;
   const search_site_config *src_search_sites =
       &mv_search_params->ss_cfg[SS_CFG_SRC];
   FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize, &ref_mv,
-                                     src_search_sites);
+                                     src_search_sites, tune_screen_content);
 
   switch (mbmi->motion_mode) {
     case SIMPLE_TRANSLATION: {
@@ -451,7 +456,8 @@ void av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     // Make motion search params
     FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
     av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize,
-                                       &ref_mv[id].as_mv, NULL);
+                                       &ref_mv[id].as_mv, NULL,
+                                       /*tune_screen_content=*/0);
     av1_set_ms_compound_refs(&full_ms_params.ms_buffers, second_pred, mask,
                              mask_stride, id);
 
@@ -574,7 +580,8 @@ void av1_compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   // Make motion search params
   FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize,
-                                     &ref_mv.as_mv, NULL);
+                                     &ref_mv.as_mv, NULL,
+                                     /*tune_screen_content=*/0);
   av1_set_ms_compound_refs(&full_ms_params.ms_buffers, second_pred, mask,
                            mask_stride, ref_idx);
 
@@ -787,9 +794,14 @@ int_mv av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
                          num_planes);
   }
 
+  // Allow more mesh searches for screen content type on the ARF.
+  const int tune_screen_content =
+      cpi->is_screen_content_type &&
+      cpi->gf_group.update_type[cpi->gf_group.index] == ARF_UPDATE &&
+      cpi->oxcf.speed <= 2;
   FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize, &ref_mv,
-                                     src_search_sites);
+                                     src_search_sites, tune_screen_content);
 
   var = av1_full_pixel_search(start_mv, &full_ms_params, step_param,
                               cond_cost_list(cpi, cost_list),
