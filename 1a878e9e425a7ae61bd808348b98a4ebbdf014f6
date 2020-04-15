@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49db6ace_f4ef780d",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 4
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-04-15T22:36:47Z",
+      "side": 1,
+      "message": "specialize qw/av1_highbd_dr_prediction_z2 /;\ninstead of comment out the line?",
+      "range": {
+        "startLine": 186,
+        "startChar": 4,
+        "endLine": 186,
+        "endChar": 52
+      },
+      "revId": "1a878e9e425a7ae61bd808348b98a4ebbdf014f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
