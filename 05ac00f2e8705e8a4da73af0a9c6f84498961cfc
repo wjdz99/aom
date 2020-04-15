@@ -34,6 +34,24 @@
       "revId": "05ac00f2e8705e8a4da73af0a9c6f84498961cfc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c42ede2_a62f5cb4",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 815,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-15T21:54:59Z",
+      "side": 1,
+      "message": "What I meant is that mbd-\u003eplane[1] and mbd-\u003eplane[2] may be uninitialized if num_planes is 1. This is the case in aom/test/temporal_filter_planewise_test.cc:\n\n    const int num_planes \u003d 1;\n    ...\n\n    MACROBLOCKD *mbd \u003d (MACROBLOCKD *)malloc(sizeof(MACROBLOCKD));\n    mbd-\u003eplane[0].subsampling_y \u003d 0;\n    mbd-\u003eplane[0].subsampling_x \u003d 0;\n    mbd-\u003ebd \u003d 8;\n\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\nNote: It seems that in non-test code we initialize the subsampling_x and subsampling_y fields of all three planes, regardless of num_planes:\n\naom/av1/common/blockd.c:\n\nvoid av1_setup_block_planes(MACROBLOCKD *xd, int ss_x, int ss_y,\n                            const int num_planes) {\n  int i;\n\n  for (i \u003d 0; i \u003c num_planes; i++) {\n    xd-\u003eplane[i].plane_type \u003d get_plane_type(i);\n    xd-\u003eplane[i].subsampling_x \u003d i ? ss_x : 0;\n    xd-\u003eplane[i].subsampling_y \u003d i ? ss_y : 0;\n  }\n  for (i \u003d num_planes; i \u003c MAX_MB_PLANE; i++) {\n    xd-\u003eplane[i].subsampling_x \u003d 1;\n    xd-\u003eplane[i].subsampling_y \u003d 1;\n  }\n}\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n\nIn any case, adding \"num_planes \u003e 1 \u0026\u0026\" to your original fix should be quite robust. Your new fix has the downside that we calculate is_yuv422_format even when it is not needed.",
+      "parentUuid": "fe0f91a7_9c2d919a",
+      "revId": "05ac00f2e8705e8a4da73af0a9c6f84498961cfc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
