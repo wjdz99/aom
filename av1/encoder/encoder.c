@@ -931,7 +931,7 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
 
     // Clear down the segment features.
     av1_clearall_segfeatures(seg);
-  } else if (cpi->refresh_alt_ref_frame) {
+  } else if (cpi->refresh_frame.alt_ref_frame) {
     // If this is an alt ref frame
     // Clear down the global segmentation map
     memset(cpi->enc_seg.map, 0, cm->mi_params.mi_rows * cm->mi_params.mi_cols);
@@ -2785,6 +2785,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   RATE_CONTROL *const rc = &cpi->rc;
   MACROBLOCK *const x = &cpi->td.mb;
   AV1LevelParams *const level_params = &cpi->level_params;
+  RefreshFrameFlagsInfo *const refresh_frame_flags = &cpi->refresh_frame;
 
   if (seq_params->profile != oxcf->profile) seq_params->profile = oxcf->profile;
   seq_params->bit_depth = oxcf->bit_depth;
@@ -2862,8 +2863,8 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     rc->baseline_gf_interval = (MIN_GF_INTERVAL + MAX_GF_INTERVAL) / 2;
   }
 
-  cpi->refresh_golden_frame = 0;
-  cpi->refresh_bwd_ref_frame = 0;
+  refresh_frame_flags->golden_frame = false;
+  refresh_frame_flags->bwd_ref_frame = false;
 
   cm->features.refresh_frame_context = (oxcf->frame_parallel_decoding_mode)
                                            ? REFRESH_FRAME_CONTEXT_DISABLED
@@ -3094,7 +3095,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
   cpi->last_show_frame_buf = NULL;
   realloc_segmentation_maps(cpi);
 
-  cpi->refresh_alt_ref_frame = 0;
+  cpi->refresh_frame.alt_ref_frame = false;
 
   cpi->b_calculate_psnr = CONFIG_INTERNAL_STATS;
 #if CONFIG_INTERNAL_STATS
@@ -5200,7 +5201,7 @@ static uint16_t setup_interp_filter_search_mask(AV1_COMP *cpi) {
   int ref_total[REF_FRAMES] = { 0 };
   uint16_t mask = ALLOW_ALL_INTERP_FILT_MASK;
 
-  if (cpi->last_frame_type == KEY_FRAME || cpi->refresh_alt_ref_frame)
+  if (cpi->last_frame_type == KEY_FRAME || cpi->refresh_frame.alt_ref_frame)
     return mask;
 
   for (MV_REFERENCE_FRAME ref = LAST_FRAME; ref <= ALTREF_FRAME; ++ref) {
@@ -6029,8 +6030,8 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
       current_frame->frame_number, cpi->gf_group.index,
       cpi->gf_group.update_type[cpi->gf_group.index], current_frame->order_hint,
       cm->show_frame, cm->show_existing_frame, cpi->rc.source_alt_ref_active,
-      cpi->refresh_alt_ref_frame, recon_buf->y_stride, recon_buf->uv_stride,
-      cm->width, cm->height);
+      cpi->refresh_frame.alt_ref_frame, recon_buf->y_stride,
+      recon_buf->uv_stride, cm->width, cm->height);
 #if 0
   int ref_frame;
   printf("get_ref_frame_map_idx: [");
@@ -6580,9 +6581,8 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
   memcpy(cm->remapped_ref_idx, frame_params->remapped_ref_idx,
          REF_FRAMES * sizeof(*cm->remapped_ref_idx));
 
-  cpi->refresh_golden_frame = frame_params->refresh_golden_frame;
-  cpi->refresh_bwd_ref_frame = frame_params->refresh_bwd_ref_frame;
-  cpi->refresh_alt_ref_frame = frame_params->refresh_alt_ref_frame;
+  memcpy(&cpi->refresh_frame, &frame_params->refresh_frame,
+         sizeof(RefreshFrameFlagsInfo));
 
   if (current_frame->frame_type == KEY_FRAME && cm->show_frame)
     current_frame->frame_number = 0;

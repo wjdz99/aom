@@ -917,6 +917,12 @@ typedef struct {
 } MotionVectorSearchParams;
 
 typedef struct {
+  bool golden_frame;
+  bool bwd_ref_frame;
+  bool alt_ref_frame;
+} RefreshFrameFlagsInfo;
+
+typedef struct {
   // When resize is triggered externally, the desired dimensions are stored in
   // this struct until used in the next frame to be coded. These values are
   // effective only for one frame and are reset after they are used.
@@ -1116,15 +1122,15 @@ typedef struct AV1_COMP {
 
   RefCntBuffer *last_show_frame_buf;  // last show frame buffer
 
-  // refresh_*_frame are boolean flags. If 'refresh_xyz_frame' is true, then
-  // after the current frame is encoded, the XYZ reference frame gets refreshed
-  // (updated) to be the current frame.
-  //
-  // Note: Usually at most one of these refresh flags is true at a time.
-  // But a key-frame is special, for which all the flags are true at once.
-  int refresh_golden_frame;
-  int refresh_bwd_ref_frame;
-  int refresh_alt_ref_frame;
+  // Refresh frame flags for:
+  //   a) Golden frame
+  //   b) Bwd-ref frame
+  //   c) Alt_ref frame
+  // If the refresh flag is true for a particular reference frame, after the
+  // current frame is encoded, the reference frame gets refreshed (updated) to
+  // be the current frame. Note: Usually at most one flag will be set to true at
+  // a time. But, for key-frames, all flags are set to true at once.
+  RefreshFrameFlagsInfo refresh_frame;
 
   // For each type of reference frame, this contains the index of a reference
   // frame buffer for a reference frame of the same type.  We use this to
@@ -1383,10 +1389,8 @@ struct EncodeFrameParams {
   // Reference buffer assignment for this frame.
   int remapped_ref_idx[REF_FRAMES];
 
-  // Flags which determine which reference buffers are refreshed by this frame
-  int refresh_golden_frame;
-  int refresh_bwd_ref_frame;
-  int refresh_alt_ref_frame;
+  // Flags which determine which reference buffers are refreshed by this frame.
+  RefreshFrameFlagsInfo refresh_frame;
 
   // Speed level to use for this frame: Bigger number means faster.
   int speed;
