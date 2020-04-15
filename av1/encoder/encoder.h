@@ -917,6 +917,15 @@ typedef struct {
 } MotionVectorSearchParams;
 
 typedef struct {
+  // Indicates the true relative distance of ref frame w.r.t. the current frame.
+  int ref_relative_dist[INTER_REFS_PER_FRAME];
+
+  // Indicate the nearest references w.r.t. current frame in past and future.
+  int8_t nearest_past_ref;
+  int8_t nearest_future_ref;
+} RefFrameDistanceInfo;
+
+typedef struct {
   // When resize is triggered externally, the desired dimensions are stored in
   // this struct until used in the next frame to be coded. These values are
   // effective only for one frame and are reset after they are used.
@@ -1313,12 +1322,8 @@ typedef struct AV1_COMP {
   // whether any no-zero delta_q was actually used
   int deltaq_used;
 
-  // Indicates the true relative distance of ref frame w.r.t. current frame
-  int ref_relative_dist[INTER_REFS_PER_FRAME];
-
-  // Indicate nearest references w.r.t. current frame in past and future
-  int8_t nearest_past_ref;
-  int8_t nearest_future_ref;
+  // Refrence frame distance related variables.
+  RefFrameDistanceInfo ref_frame_dist_info;
 
   // TODO(sdeng): consider merge the following arrays.
   double *tpl_rdmult_scaling_factors;
