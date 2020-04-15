@@ -1054,7 +1054,7 @@ static INLINE void clamp_mv_in_range(MACROBLOCK *const x, int_mv *mv,
 static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
                             const BLOCK_SIZE bsize, int_mv *cur_mv,
                             int *const rate_mv, HandleInterModeArgs *const args,
-                            inter_mode_info *mode_info) {
+                            inter_mode_info *mode_info, const int is_target) {
   const MACROBLOCKD *const xd = &x->e_mbd;
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   const int is_comp_pred = has_second_ref(mbmi);
@@ -2358,7 +2358,7 @@ static int64_t handle_inter_mode(
         rate_mv = args->single_newmv_rate[ref_mv_idx][ref0];
       } else {
         newmv_ret_val =
-            handle_newmv(cpi, x, bsize, cur_mv, &rate_mv, args, mode_info);
+            handle_newmv(cpi, x, bsize, cur_mv, &rate_mv, args, mode_info, is_target);
         if (is_target) {
           printf("!! handle_newmv. bsize %d, this_mode %d, ref_mv_idx %d, "
                  " cur_mv[0] (%d, %d), cur_mv[1] (%d, %d), ret_val %ld !!\n",

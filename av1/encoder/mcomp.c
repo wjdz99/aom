@@ -1295,6 +1295,9 @@ static int full_pixel_exhaustive(const FULLPEL_MV start_mv,
   range = AOMMAX(range, (5 * AOMMAX(abs(best_mv->row), abs(best_mv->col))) / 4);
   range = AOMMIN(range, kMaxRange);
   interval = AOMMAX(interval, range / baseline_interval_divisor);
+  if (true/* || (start_mv.row == 205 && start_mv.col == -15)*/) {
+    interval = AOMMIN(interval, 4);
+  }
 
   // initial search
   bestsme = exhaustive_mesh_search(*best_mv, ms_params, range, interval,
