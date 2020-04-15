@@ -16,6 +16,24 @@
       "revId": "1b9821ad066ea2fe7a5d0dc7bd1b0b6a02dd03f4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e9030ab_bcfea4aa",
+        "filename": "aom_dsp/simd/v64_intrinsics_x86.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-04-15T20:31:09Z",
+      "side": 1,
+      "message": "\u003e James: There are two design decisions that I\u0027d like to run by you.\n\u003e \n\u003e 1. Whether we should add both signed and unsigned versions of these load_unaligned functions.\n\u003e \n\u003e I propose that we only add the unsigned versions of the load_unaligned functions. In my testing, the compiler seems to perform the unsigned-to-signed conversion without warnings.\n\u003e \n\nit\u0027s possible we could get them with additional warnings, but this should be fine for now\n\n\u003e 2. In which header file should we declare these load_unaligned functions.\n\u003e \n\u003e I was originally planning to declare these functions in either aom_mem/aom_mem.h or a new header in aom_mem/. But when I searched for existing load_unaligned functions, I found this u32_load_unaligned function already defined in the various \n\u003e aom_dsp/simd/v64_intrinsics_*.h headers. So I added u16_load_unaligned and u64_load_unaligned to here.\n\u003e \n\u003e The aom_dsp/simd/v64_intrinsics_*.h headers are not included directly. They are included indirectly via aom_dsp/aom_simd.h. It may not be obvious to people that they would find load_unaligned functions in aom_dsp/aom_simd.h, but it is somewhat reasonable because we often do unaligned loads in SIMD code.\n\u003e \n\u003e What do you think?\n\nmem_sse2.h could work since the simd calls are universally used. libvpx varies a bit, sometimes using load/store_unaligned_\u003ctype\u003e or loadu/storeu to mimic x86 intrinsics",
+      "parentUuid": "8cc805cb_5f301eea",
+      "revId": "1b9821ad066ea2fe7a5d0dc7bd1b0b6a02dd03f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
