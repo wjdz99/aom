@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "e3fde46a_9113a892",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1307,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2020-04-16T17:30:11Z",
+      "side": 1,
+      "message": "It might be worth doing this for the Animation class type detected in two pass as well as per the threshold for the more exhaustive search. I have a specific clip I can use to test this out next week.  If it shows gains too I can submit a supplementary patch.",
+      "range": {
+        "startLine": 1307,
+        "startChar": 2,
+        "endLine": 1307,
+        "endChar": 39
+      },
+      "revId": "3c6c7a9d50f2122d03d14e2b6f81092457cec0d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebe4ce84_4ad4494d",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1476,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2020-04-16T17:30:11Z",
+      "side": 1,
+      "message": ":) If there is a spelling mistake in the code that needs fixing it was probably my fault. ua vs au certainly looks like my dyslexia at work so well caught (or should I say cuaght)",
+      "range": {
+        "startLine": 1476,
+        "startChar": 11,
+        "endLine": 1476,
+        "endChar": 13
+      },
+      "revId": "3c6c7a9d50f2122d03d14e2b6f81092457cec0d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0e40ea70_a242c3dc",
         "filename": "av1/encoder/mcomp.h",
         "patchSetId": 3
