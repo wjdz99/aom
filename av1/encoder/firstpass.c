@@ -109,8 +109,7 @@ void av1_twopass_zero_stats(FIRSTPASS_STATS *section) {
   section->duration = 1.0;
 }
 
-static AOM_INLINE void accumulate_stats(FIRSTPASS_STATS *section,
-                                        const FIRSTPASS_STATS *frame) {
+void accumulate_stats(FIRSTPASS_STATS *section, const FIRSTPASS_STATS *frame) {
   section->frame += frame->frame;
   section->weight += frame->weight;
   section->intra_error += frame->intra_error;
