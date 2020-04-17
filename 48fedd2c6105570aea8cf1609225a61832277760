@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55555b9e_960e3fff",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-17T00:08:56Z",
+      "side": 1,
+      "message": "\u0027raw_best_sad\u0027 also?",
+      "revId": "48fedd2c6105570aea8cf1609225a61832277760",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbf2d6bc_280b3ac7",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-17T00:08:56Z",
+      "side": 1,
+      "message": "You should pass a const pointer to avoid a copy",
+      "range": {
+        "startLine": 597,
+        "startChar": 59,
+        "endLine": 597,
+        "endChar": 78
+      },
+      "revId": "48fedd2c6105570aea8cf1609225a61832277760",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
