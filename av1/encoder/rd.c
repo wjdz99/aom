@@ -99,7 +99,7 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
   }
 
   for (i = 0; i < SKIP_CONTEXTS; ++i) {
-    av1_cost_tokens_from_cdf(x->skip_cost[i], fc->skip_cdfs[i], NULL);
+    av1_cost_tokens_from_cdf(x->skip_txfm_cost[i], fc->skip_txfm_cdfs[i], NULL);
   }
 
   for (i = 0; i < KF_MODE_CONTEXTS; ++i)
