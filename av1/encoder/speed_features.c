@@ -605,6 +605,8 @@ static void set_good_speed_features_framesize_independent(
 
   if (speed >= 6) {
     sf->mv_sf.simple_motion_subpel_force_stop = FULL_PEL;
+
+    sf->tpl_sf.prune_starting_mv = 3;
     sf->tpl_sf.subpel_force_stop = FULL_PEL;
   }
 }
@@ -898,6 +900,7 @@ static AOM_INLINE void init_hl_sf(HIGH_LEVEL_SPEED_FEATURES *hl_sf) {
 
 static AOM_INLINE void init_tpl_sf(TPL_SPEED_FEATURES *tpl_sf) {
   tpl_sf->prune_intra_modes = 0;
+  tpl_sf->prune_starting_mv = 0;
   tpl_sf->reduce_first_step_size = 0;
   tpl_sf->skip_alike_starting_mv = 0;
   tpl_sf->subpel_force_stop = EIGHTH_PEL;
