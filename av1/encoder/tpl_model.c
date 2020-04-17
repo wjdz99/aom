@@ -170,7 +170,21 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
   return bestsme;
 }
 
-static int is_alike_mv(int_mv candidate_mv, int_mv *center_mvs,
+typedef struct {
+  int_mv mv;
+  unsigned int sad;
+} center_mv_t;
+
+static int compare_sad(const void *a, const void *b) {
+  const int diff = ((center_mv_t *)a)->sad - ((center_mv_t *)b)->sad;
+  if (diff < 0)
+    return -1;
+  else if (diff > 0)
+    return 1;
+  return 0;
+}
+
+static int is_alike_mv(int_mv candidate_mv, center_mv_t *center_mvs,
                        int center_mvs_count, int skip_alike_starting_mv) {
   // MV difference threshold is in 1/8 precision.
   const int mv_diff_thr[3] = { 1, (8 << 3), (16 << 3) };
@@ -178,8 +192,8 @@ static int is_alike_mv(int_mv candidate_mv, int_mv *center_mvs,
   int i;
 
   for (i = 0; i < center_mvs_count; i++) {
-    if (abs(center_mvs[i].as_mv.col - candidate_mv.as_mv.col) < thr &&
-        abs(center_mvs[i].as_mv.row - candidate_mv.as_mv.row) < thr)
+    if (abs(center_mvs[i].mv.as_mv.col - candidate_mv.as_mv.col) < thr &&
+        abs(center_mvs[i].mv.as_mv.row - candidate_mv.as_mv.row) < thr)
       return 1;
   }
 
@@ -312,7 +326,10 @@ static AOM_INLINE void mode_estimation(
     int_mv best_rfidx_mv = { 0 };
     uint32_t bestsme = UINT32_MAX;
 
-    int_mv center_mvs[4] = { { 0 } };
+    center_mv_t center_mvs[4] = { { { 0 }, INT_MAX },
+                                  { { 0 }, INT_MAX },
+                                  { { 0 }, INT_MAX },
+                                  { { 0 }, INT_MAX } };
     int refmv_count = 1;
 
     if (xd->up_available) {
@@ -320,7 +337,7 @@ static AOM_INLINE void mode_estimation(
           mi_row - mi_height, mi_col, tpl_frame->stride, block_mis_log2)];
       if (!is_alike_mv(ref_tpl_stats->mv[rf_idx], center_mvs, refmv_count,
                        cpi->sf.tpl_sf.skip_alike_starting_mv)) {
-        center_mvs[refmv_count].as_int = ref_tpl_stats->mv[rf_idx].as_int;
+        center_mvs[refmv_count].mv.as_int = ref_tpl_stats->mv[rf_idx].as_int;
         ++refmv_count;
       }
     }
@@ -330,7 +347,7 @@ static AOM_INLINE void mode_estimation(
           mi_row, mi_col - mi_width, tpl_frame->stride, block_mis_log2)];
       if (!is_alike_mv(ref_tpl_stats->mv[rf_idx], center_mvs, refmv_count,
                        cpi->sf.tpl_sf.skip_alike_starting_mv)) {
-        center_mvs[refmv_count].as_int = ref_tpl_stats->mv[rf_idx].as_int;
+        center_mvs[refmv_count].mv.as_int = ref_tpl_stats->mv[rf_idx].as_int;
         ++refmv_count;
       }
     }
@@ -341,16 +358,40 @@ static AOM_INLINE void mode_estimation(
           block_mis_log2)];
       if (!is_alike_mv(ref_tpl_stats->mv[rf_idx], center_mvs, refmv_count,
                        cpi->sf.tpl_sf.skip_alike_starting_mv)) {
-        center_mvs[refmv_count].as_int = ref_tpl_stats->mv[rf_idx].as_int;
+        center_mvs[refmv_count].mv.as_int = ref_tpl_stats->mv[rf_idx].as_int;
         ++refmv_count;
+      }
+    }
+
+    // Get each center mv's sad.
+    //    printf("\n");
+    for (int idx = 0; idx < refmv_count; ++idx) {
+      FULLPEL_MV mv = get_fullmv_from_mv(&center_mvs[idx].mv.as_mv);
+      clamp_fullmv(&mv, &x->mv_limits);
+      center_mvs[idx].sad = cpi->fn_ptr[bsize].sdf(
+          src_mb_buffer, src_stride, &ref_mb[mv.row * ref_stride + mv.col],
+          ref_stride);
+
+      //      printf(" %d(%d,%d); ", center_mvs[idx].sad,
+      //      center_mvs[idx].mv.as_mv.row, center_mvs[idx].mv.as_mv.col);
+    }
+
+    // Rank center_mv using sad.
+    if (refmv_count > 1) {
+      qsort(center_mvs, refmv_count, sizeof(center_mvs[0]), compare_sad);
+
+      //    printf("   ranked: ");
+      for (int idx = 0; idx < refmv_count; ++idx) {
+        //      printf(" %d(%d,%d); ", center_mvs[idx].sad,
+        //      center_mvs[idx].mv.as_mv.row, center_mvs[idx].mv.as_mv.col);
       }
     }
 
     for (int idx = 0; idx < refmv_count; ++idx) {
       int_mv this_mv;
-      uint32_t thissme =
-          motion_estimation(cpi, x, src_mb_buffer, ref_mb, src_stride,
-                            ref_stride, bsize, center_mvs[idx].as_mv, &this_mv);
+      uint32_t thissme = motion_estimation(cpi, x, src_mb_buffer, ref_mb,
+                                           src_stride, ref_stride, bsize,
+                                           center_mvs[idx].mv.as_mv, &this_mv);
 
       if (thissme < bestsme) {
         bestsme = thissme;
