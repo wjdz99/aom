@@ -22,6 +22,30 @@
       "revId": "2b9717ce86ddc22b93bdfe4307b846c47d780a23",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49611c30_847f0c5b",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 15195
+      },
+      "writtenOn": "2020-04-17T02:02:46Z",
+      "side": 1,
+      "message": "The performance drops a lot (e.g., 0 means no filtering). I haven\u0027t see the visual results. Remote desktop will automatically blur the image. And I do not have movies. For the videos I have, I think it\u0027s hard to spot the visual difference.",
+      "parentUuid": "89b862bd_91e3fdb5",
+      "range": {
+        "startLine": 568,
+        "startChar": 24,
+        "endLine": 568,
+        "endChar": 39
+      },
+      "revId": "2b9717ce86ddc22b93bdfe4307b846c47d780a23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
