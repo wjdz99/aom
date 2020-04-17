@@ -1029,6 +1029,22 @@ typedef struct {
 } WinnerModeParams;
 
 typedef struct {
+  // Stores the scaling factors for rdmult when tuning for VMAF.
+  // rdmult_scaling_factors[row * num_cols + col] stores the scaling factors for
+  // 64x64 block at (row, col).
+  double *rdmult_scaling_factors;
+
+  // Stores the luma sse of the last frame.
+  double last_frame_ysse;
+
+  // Stores the VMAF of the last frame.
+  double last_frame_vmaf;
+
+  // Stores the filter strength of the last frame.
+  double last_frame_unsharp_amount;
+} TuneVMAFInfo;
+
+typedef struct {
   // Flags set by external interface to determine which reference buffers are
   // refreshed by this frame. When set, the encoder will update the particular
   // reference frame buffer with the contents of the current frame.
@@ -1378,10 +1394,8 @@ typedef struct AV1_COMP {
   double *ssim_rdmult_scaling_factors;
 
 #if CONFIG_TUNE_VMAF
-  double *vmaf_rdmult_scaling_factors;
-  double last_frame_ysse;
-  double last_frame_vmaf;
-  double last_frame_unsharp_amount;
+  // Parameters for VMAF tuning.
+  TuneVMAFInfo vmaf_info;
 #endif
 
   int use_svc;
