@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca912599_6bf125fe",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-04-17T00:10:03Z",
+      "side": 1,
+      "message": "Can you move this line above #include \"aom_dsp/x86/intrapred_x86.h\"? The header files are written in order.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 32
+      },
+      "revId": "518cc0349463b49ac24ae3d5e9b373564cd791cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f007597a_27495903",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-04-17T00:10:03Z",
+      "side": 1,
+      "message": "remove this blank line.",
+      "range": {
+        "startLine": 422,
+        "startChar": 0,
+        "endLine": 422,
+        "endChar": 0
+      },
+      "revId": "518cc0349463b49ac24ae3d5e9b373564cd791cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15f3110e_820579e1",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2854,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-04-17T00:10:03Z",
+      "side": 1,
+      "message": "please move this comment to the location where you disable the avx2 function in av1/common/av1_rtcd_defs.pl ?\nChange it to a TODO. Style:  TODO(yourname)",
+      "range": {
+        "startLine": 2851,
+        "startChar": 0,
+        "endLine": 2854,
+        "endChar": 0
+      },
+      "revId": "518cc0349463b49ac24ae3d5e9b373564cd791cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
