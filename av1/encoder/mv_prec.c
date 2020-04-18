@@ -368,7 +368,7 @@ static AOM_INLINE void collect_mv_stats_sb(MV_STATS *mv_stats,
       collect_mv_stats_b(mv_stats, cpi, mi_row + hbs, mi_col + hbs);
       break;
 #endif
-#if CONFIG_EXT_PARTITIONS
+#if CONFIG_EXT_RECUR_PARTITIONS
     case PARTITION_HORZ_3: {
       collect_mv_stats_b(mv_stats, cpi, mi_row, mi_col);
       collect_mv_stats_b(mv_stats, cpi, mi_row + qbs, mi_col);
