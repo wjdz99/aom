@@ -68,6 +68,12 @@ class TestParam {
   int bd_;
 };
 
+std::ostream &operator<<(std::ostream &os, const TestParam &test_arg) {
+  return os << "TestParam { width:" << test_arg.Block().Width()
+            << " height:" << test_arg.Block().Height()
+            << " bd:" << test_arg.BitDepth() << " }";
+}
+
 // Generate the list of all block widths / heights that need to be tested,
 // includes chroma and luma sizes, for the given bit-depths.
 std::vector<TestParam> GetTestParams(std::initializer_list<int> bit_depths) {
@@ -141,6 +147,7 @@ class AV1ConvolveTest : public ::testing::TestWithParam<TestParam> {
     ParamIterator<T> iter(param);
     while (iter.HasNext()) {
       TestConvolve(iter.Next());
+      ClearMemory();
     }
   }
 
