@@ -22,21 +22,6 @@
 #define AOM_INLINE inline
 #endif
 
-#if defined(AOM_EMULATE_INTTYPES)
-typedef signed char int8_t;
-typedef signed short int16_t;
-typedef signed int int32_t;
-
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned int uint32_t;
-
-#ifndef _UINTPTR_T_DEFINED
-typedef size_t uintptr_t;
-#endif
-
-#else
-
 /* Most platforms have the C99 standard integer types. */
 
 #if defined(__cplusplus)
@@ -49,15 +34,7 @@ typedef size_t uintptr_t;
 #endif  // __cplusplus
 
 #include <stdint.h>
-
-#endif
-
-/* VS2010 defines stdint.h, but not inttypes.h */
-#if defined(_MSC_VER) && _MSC_VER < 1800
-#define PRId64 "I64d"
-#else
 #include <inttypes.h>
-#endif
 
 #if !defined(INT8_MAX)
 #define INT8_MAX 127
