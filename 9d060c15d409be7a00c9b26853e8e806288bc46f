@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eedcb967_a2c8d63c",
+        "filename": "test/av1_convolve_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-20T22:26:48Z",
+      "side": 1,
+      "message": "Nit: add \"on 32-bit x86 binaries\" or something like that, to make it clear valgrind has no problem with x86_64 binaries.",
+      "range": {
+        "startLine": 34,
+        "startChar": 47,
+        "endLine": 34,
+        "endChar": 61
+      },
+      "revId": "9d060c15d409be7a00c9b26853e8e806288bc46f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1fb90da3_e9cb2a25",
+        "filename": "test/av1_convolve_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-20T22:26:48Z",
+      "side": 1,
+      "message": "Nit: remove this \u0027const\u0027. It\u0027s not necessary.",
+      "range": {
+        "startLine": 70,
+        "startChar": 2,
+        "endLine": 70,
+        "endChar": 7
+      },
+      "revId": "9d060c15d409be7a00c9b26853e8e806288bc46f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b340988_99e5f137",
+        "filename": "test/av1_convolve_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-20T22:26:48Z",
+      "side": 1,
+      "message": "Nit: It seems that the _X, _Y, _COPY, _2D suffix in the first argument (\"prefix\") to INSTANTIATE_TEST_SUITE_P() is redundant, because the test suite name contains the same info.\n\nFor example, C_X, SSSE3_X, and AVX2_X are only used with the test suite names that contain \"X\".\n\nThe only potential exception is the test suite names that contain \"2DCopy\". But those test suites are only instantiated with Foo_COPY, so it seems that there is still no risk of confusion is we instantiate those test suites with just Foo.",
+      "range": {
+        "startLine": 416,
+        "startChar": 25,
+        "endLine": 416,
+        "endChar": 28
+      },
+      "revId": "9d060c15d409be7a00c9b26853e8e806288bc46f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
