@@ -18,6 +18,7 @@
 #include "config/av1_rtcd.h"
 
 #include "aom_ports/aom_timer.h"
+#include "aom_ports/mem.h"
 #include "av1/common/av1_inv_txfm1d_cfg.h"
 #include "av1/common/scan.h"
 #include "test/acm_random.h"

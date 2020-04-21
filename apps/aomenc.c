@@ -31,6 +31,7 @@
 #include "aom/aomcx.h"
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_ports/aom_timer.h"
+#include "aom_ports/mem.h"
 #include "aom_ports/mem_ops.h"
 #include "common/args.h"
 #include "common/ivfenc.h"
