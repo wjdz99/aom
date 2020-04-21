@@ -923,11 +923,17 @@ typedef struct {
   // motion for the ith reference frame.
   int params_cost[REF_FRAMES];
 
-  // Flag to indicate if global motion search needs to be rerun.
+  // When set to 1, this flag indicates that global motion search does not need
+  // to be rerun for the current frame.
   bool search_done;
 } GlobalMotionInfo;
 
 typedef struct {
+  // Tracks the frame dimensions (width and height) using which:
+  //  a) Frame buffers (like altref and util frame buffers) were allocated
+  //  b) ME related initializations were done
+  // This structure is helpful to reallocate / reinitialize the above when there
+  // is a change in frame dimensions.
   int width;
   int height;
 } InitialDimensions;
@@ -1043,8 +1049,8 @@ typedef struct {
   bool alt2_ref_frame;
   bool alt_ref_frame;
 
-  // Flag to indicate that update of refresh frame flags from external interface
-  // is pending.
+  // When set to 1, update_pending indicates that update of refresh frame flags
+  // from external interface is pending.
   bool update_pending;
 } ExtRefreshFrameFlagsInfo;
 
@@ -1055,23 +1061,27 @@ typedef struct {
   // Frame refresh flags set by the external interface.
   ExtRefreshFrameFlagsInfo refresh_frame;
 
-  // Flag to enable the updation of frame contexts at the end of a frame decode.
+  // When set to 0, refresh_frame_context disables the update of frame contexts
+  // at the end of a frame decode.
   bool refresh_frame_context;
 
-  // Flag to indicate that updation of refresh_frame_context from external
-  // interface is pending.
+  // When set to 1, refresh_frame_context_pending indicates that update of
+  // cm->features.refresh_frame_context from external interface is pending.
   bool refresh_frame_context_pending;
 
-  // Flag to enable temporal MV prediction.
+  // When set to 1, use_ref_frame_mvs enables temporal MV prediction.
   bool use_ref_frame_mvs;
 
-  // Flag to code the frame as error-resilient.
+  // When set to 1, use_error_resilient enables the current frame to be coded as
+  // error-resilient.
   bool use_error_resilient;
 
-  // Flag to code the frame as s-frame.
+  // When set to 1, use_s_frame enables the current frame to be coded as
+  // s-frame.
   bool use_s_frame;
 
-  // Flag to set the frame's primary_ref_frame to PRIMARY_REF_NONE.
+  // When use_primary_ref_none is set to 1, the frame's primary_ref_frame is set
+  // to PRIMARY_REF_NONE.
   bool use_primary_ref_none;
 } ExternalFlags;
 
@@ -1365,11 +1375,7 @@ typedef struct AV1_COMP {
   // Stores the frame parameters during encoder initialization.
   FRAME_INFO frame_info;
 
-  // Tracks the frame dimensions(width and height) using which:
-  //  a) Frame buffers(like altref and util frame buffers) were allocated
-  //  b) ME related initializations were done
-  // This structure is helpful to reallocate / reinitialize above when there is
-  // a change in frame dimensions.
+  // Structure to store the dimensions of current frame.
   InitialDimensions initial_dimensions;
 
   // Number of MBs in the full-size frame; to be used to
