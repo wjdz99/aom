@@ -209,6 +209,10 @@ typedef struct TplParams {
 
   // Pointer to tpl_stats_buffer.
   TplDepFrame *tpl_frame;
+  struct scale_factors sf;
+  int frame_idx;
+  const YV12_BUFFER_CONFIG *src_ref_frame[INTER_REFS_PER_FRAME];
+  const YV12_BUFFER_CONFIG *ref_frame[INTER_REFS_PER_FRAME];
 } TplParams;
 
 typedef enum {
