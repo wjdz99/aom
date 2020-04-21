@@ -164,6 +164,19 @@ unsigned int aom_sad64x64_neon(const uint8_t *src, int src_stride,
   return horizontal_long_add_16x8(vec_accum_lo, vec_accum_hi);
 }
 
+unsigned int aom_sad128x128_neon(const uint8_t *src, int src_stride,
+                                 const uint8_t *ref, int ref_stride) {
+  unsigned int sum = 0;
+  for (int i = 0; i < 2; i++) {
+    for (int j = 0; j < 2; j++) {
+      const uint8_t *src_64 = src + i * 64 + j * 64 * src_stride;
+      const uint8_t *ref_64 = ref + i * 64 + j * 64 * ref_stride;
+      sum += aom_sad64x64_neon(src_64, src_stride, ref_64, ref_stride);
+    }
+  }
+  return sum;
+}
+
 unsigned int aom_sad32x32_neon(const uint8_t *src, int src_stride,
                                const uint8_t *ref, int ref_stride) {
   int i;
