@@ -22,6 +22,30 @@
       "revId": "c9eaa3f5bec3f5bd65b0bdd28a7df8b10b843183",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5bed0d4_5b42472e",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 963,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-04-22T00:38:02Z",
+      "side": 1,
+      "message": "Yes, it\u0027s a struct.\nI will apply camel case in future refactor cls.",
+      "parentUuid": "a98b2e9b_4636bcdd",
+      "range": {
+        "startLine": 963,
+        "startChar": 2,
+        "endLine": 963,
+        "endChar": 20
+      },
+      "revId": "c9eaa3f5bec3f5bd65b0bdd28a7df8b10b843183",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
