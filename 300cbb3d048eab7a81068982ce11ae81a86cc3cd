@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53d29f88_e7942123",
+        "filename": "aom_dsp/arm/sad_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2020-04-22T14:26:26Z",
+      "side": 1,
+      "message": "Is this needed?  Assuming I read the code correctly, then a uint16 should be large enough for each lane of each row.",
+      "range": {
+        "startLine": 210,
+        "startChar": 0,
+        "endLine": 217,
+        "endChar": 34
+      },
+      "revId": "300cbb3d048eab7a81068982ce11ae81a86cc3cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00ed9342_d2a7bc8d",
+        "filename": "aom_dsp/arm/sad_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2020-04-22T14:26:26Z",
+      "side": 1,
+      "message": "You should be able to do this:\n\ntmp \u003d vadd_u16(vec_accum_lo, vec_accum_hi);\nvec_accum_32lo \u003d vaddw_u16(vec_accum_32lo, vget_low_u16(tmp));\nvec_accum_32hi \u003d vaddw_u16(vec_accum_32hi, vget_high_u16(tmp));",
+      "range": {
+        "startLine": 235,
+        "startChar": 0,
+        "endLine": 239,
+        "endChar": 55
+      },
+      "revId": "300cbb3d048eab7a81068982ce11ae81a86cc3cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
