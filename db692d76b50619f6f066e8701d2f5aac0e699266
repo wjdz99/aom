@@ -52,6 +52,24 @@
       "revId": "db692d76b50619f6f066e8701d2f5aac0e699266",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "824550cd_3ba7edbe",
+        "filename": "aom_dsp/arm/sad_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2020-04-22T14:31:25Z",
+      "side": 1,
+      "message": "You could always use objdump:\n\naarch64-linux-gnu-objdump -S -r -D objfile",
+      "parentUuid": "726b06b0_20f6fd14",
+      "revId": "db692d76b50619f6f066e8701d2f5aac0e699266",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
