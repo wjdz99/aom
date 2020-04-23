@@ -859,7 +859,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   MACROBLOCKD *const xd = &x->e_mbd;
   PICK_MODE_CONTEXT *ctx =
       av1_alloc_pmc(cm, BLOCK_16X16, &cpi->td.shared_coeff_buf);
-  MV last_mv = kZeroMv;
+  MV tile_last_mv = kZeroMv;
   const int qindex = find_fp_qindex(seq_params->bit_depth);
   // Detect if the key frame is screen content type.
   if (frame_is_intra_only(cm)) {
@@ -950,6 +950,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
 
   for (int mb_row = 0; mb_row < mi_params->mb_rows; ++mb_row) {
     MV best_ref_mv = kZeroMv;
+    MV last_mv = tile_last_mv;
 
     // Reset above block coeffs.
     xd->up_available = (mb_row != 0);
@@ -978,6 +979,9 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
             recon_yoffset, recon_uvoffset, src_yoffset, alt_ref_frame_yoffset,
             fp_block_size, this_intra_error, raw_motion_err_counts,
             raw_motion_err_list, &best_ref_mv, &last_mv, &stats);
+        if (mb_col == 0) {
+          tile_last_mv = last_mv;
+        }
         stats.coded_error += this_inter_error;
         ++raw_motion_err_counts;
       } else {
