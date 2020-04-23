@@ -60,6 +60,7 @@
 extern "C" {
 #endif
 
+#define TEST_CORPUS_COMPLEXITY 0
 // Number of frames required to test for scene cut detection
 #define SCENE_CUT_KEY_TEST_INTERVAL 16
 
@@ -157,7 +158,7 @@ enum {
 // tpl_data->tpl_frame starts after REF_FRAMES + 1
 #define MAX_LENGTH_TPL_FRAME_STATS (MAX_TPL_FRAME_IDX + REF_FRAMES + 1)
 #define MAX_TPL_EXTEND (MAX_LAG_BUFFERS - MAX_GF_INTERVAL)
-
+#define MAX_VBR_CORPUS_COMPLEXITY 10000
 typedef struct TplDepStats {
   int64_t intra_cost;
   int64_t inter_cost;
@@ -307,6 +308,7 @@ typedef struct AV1EncoderConfig {
   int qm_v;
   int qm_minlevel;
   int qm_maxlevel;
+  int vbr_corpus_complexity_lap;  // 0 indicates corpus complexity vbr mode is disabled
   unsigned int num_tile_groups;
   unsigned int mtu;
 
