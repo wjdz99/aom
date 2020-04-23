@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "34086cef_96f16689",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-23T16:12:08Z",
+      "side": 1,
+      "message": "Please ignore this suggestion. This CL moves this comment block from common/tools_common.h.",
+      "parentUuid": "d4be59ca_a285087d",
+      "revId": "15e1944a5f4e260d37fa405f748a84c9b07ed950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7de87cea_6103c7df",
         "filename": "aom/aom_codec.h",
         "patchSetId": 4
@@ -30,6 +48,30 @@
       "writtenOn": "2020-04-23T13:45:15Z",
       "side": 1,
       "message": "Nit: \"See the documentation of aom/aom_codec.h for more details.\" seems self-referencing because this comment is in aom/aom_codec.h.",
+      "range": {
+        "startLine": 25,
+        "startChar": 54,
+        "endLine": 26,
+        "endChar": 36
+      },
+      "revId": "15e1944a5f4e260d37fa405f748a84c9b07ed950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a534b83_eb6beecc",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-23T16:12:08Z",
+      "side": 1,
+      "message": "Now I know why. This comment was in common/tools_common.h before.",
+      "parentUuid": "7de87cea_6103c7df",
       "range": {
         "startLine": 25,
         "startChar": 54,
