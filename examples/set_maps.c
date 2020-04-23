@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
   aom_codec_ctx_t codec;
   aom_codec_enc_cfg_t cfg;
   int frame_count = 0;
-  const int limit = 15;
+  const int limit = 10;
   aom_image_t raw;
   aom_codec_err_t res;
   AvxVideoInfo info;
@@ -184,7 +184,7 @@ int main(int argc, char **argv) {
 
     if (frame_count == 5) {
       set_active_map(&cfg, &codec);
-    } else if (frame_count == 11) {
+    } else if (frame_count == 9) {
       unset_active_map(&cfg, &codec);
     }
 
