@@ -664,6 +664,12 @@ enum {
   SCALABILITY_SS = 14
 } UENUM1BYTE(SCALABILITY_STRUCTURES);
 
+enum {
+  DISABLE_SCENECUT,   // For LAP, lag_in_frames < 19
+  ENABLE_SCENECUT_1,  // For LAP, lag_in_frames >=19 and < 33
+  ENABLE_SCENECUT_2   // For twopass and LAP - lag_in_frames >=33
+} UENUM1BYTE(SCENECUT_STAGE);
+
 #define SUPERRES_SCALE_BITS 3
 #define SUPERRES_SCALE_DENOMINATOR_MIN (SCALE_NUMERATOR + 1)
 
