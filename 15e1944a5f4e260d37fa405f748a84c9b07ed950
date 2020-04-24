@@ -84,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "b99ddd73_a46f7432",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-24T14:33:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a534b83_eb6beecc",
+      "range": {
+        "startLine": 25,
+        "startChar": 54,
+        "endLine": 26,
+        "endChar": 36
+      },
+      "revId": "15e1944a5f4e260d37fa405f748a84c9b07ed950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "99612a3c_051065eb",
         "filename": "aom/aom_codec.h",
         "patchSetId": 4
@@ -183,6 +207,24 @@
       "side": 1,
       "message": "I get a clang warning / compile error (using clang7, same as Jenkins) if I do not move this here, saying that system headers should not be placed before other headers.",
       "parentUuid": "634e3e7a_f73d4d7f",
+      "revId": "15e1944a5f4e260d37fa405f748a84c9b07ed950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce5aaebe_24908616",
+        "filename": "common/tools_common.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-24T14:33:19Z",
+      "side": 1,
+      "message": "I assume you meant this coding style warning (from cpplint.py) on patch set 2:\n\nCode Style Warnings (non-blocking):\n\n   common/tools_common.c:14:  Found C system header after other header. Should be: -.h, c system, c++ system, other.  [build/include_order] [4]\n\nNote that it warned about common/tools_common.c, not common/tools_common.h. So we should move the #include \u003cstdio.h\u003e back to the original location.\n\nAs for the warning on common/tools_common.c, I suspect cpplint.py fails to treat tools_common.c (a C file) as the implementation file of tools_common.h. I suggest we ignore this cpplint.py warning (it does not block CL submission) and follow the Style Guide\u0027s recommendation.\n\nI can file a bug report on cpplint.py to treat either foo.cc or foo.c as the implementation file of foo.h.",
+      "parentUuid": "0c5a9ae3_1e5b628d",
       "revId": "15e1944a5f4e260d37fa405f748a84c9b07ed950",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
