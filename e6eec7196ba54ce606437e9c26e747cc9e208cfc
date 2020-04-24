@@ -22,6 +22,30 @@
       "revId": "e6eec7196ba54ce606437e9c26e747cc9e208cfc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd2753c8_7db4d34e",
+        "filename": "common/tools_common.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-04-24T17:47:26Z",
+      "side": 1,
+      "message": "Weird, when I move it back up now, there is no lint error.",
+      "parentUuid": "9748c4b9_efc10c98",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 43
+      },
+      "revId": "e6eec7196ba54ce606437e9c26e747cc9e208cfc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
