@@ -16,6 +16,24 @@
       "revId": "d4a49aaecbb52dd689cf5a49441eb4d202c7ab6d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6bbfe3f3_c48a8d99",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-24T18:31:37Z",
+      "side": 1,
+      "message": "That\u0027s a great idea. vpx_codec_dec_config_default doesn\u0027t seem to exist. I only found vpx_codec_enc_config_default.",
+      "parentUuid": "e6ce91d3_7c4522a3",
+      "revId": "d4a49aaecbb52dd689cf5a49441eb4d202c7ab6d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
