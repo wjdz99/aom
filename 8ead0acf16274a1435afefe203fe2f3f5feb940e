@@ -22,6 +22,30 @@
       "revId": "8ead0acf16274a1435afefe203fe2f3f5feb940e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59dc94e1_485e6d02",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 636,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-04-24T17:58:11Z",
+      "side": 1,
+      "message": "A number of members of this struct are same as others in \u0027cm\u0027 right now. (e.g. \u0027bd\u0027).\nThis is mainly because some functions only have access to \u0027xd\u0027 (and not \u0027cm\u0027).",
+      "parentUuid": "4972111f_5327d657",
+      "range": {
+        "startLine": 635,
+        "startChar": 0,
+        "endLine": 636,
+        "endChar": 33
+      },
+      "revId": "8ead0acf16274a1435afefe203fe2f3f5feb940e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
