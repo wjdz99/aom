@@ -130,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "25a8f699_490e39ee",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-04-24T03:28:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "91712f64_a264c3d5",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 44
+      },
+      "revId": "15e1944a5f4e260d37fa405f748a84c9b07ed950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "634e3e7a_f73d4d7f",
         "filename": "common/tools_common.h",
         "patchSetId": 4
@@ -141,6 +165,24 @@
       "writtenOn": "2020-04-23T13:45:15Z",
       "side": 1,
       "message": "Did clang-format move this here? The original location conforms to the Style Guide.",
+      "revId": "15e1944a5f4e260d37fa405f748a84c9b07ed950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c5a9ae3_1e5b628d",
+        "filename": "common/tools_common.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-04-24T03:28:34Z",
+      "side": 1,
+      "message": "I get a clang warning / compile error (using clang7, same as Jenkins) if I do not move this here, saying that system headers should not be placed before other headers.",
+      "parentUuid": "634e3e7a_f73d4d7f",
       "revId": "15e1944a5f4e260d37fa405f748a84c9b07ed950",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
