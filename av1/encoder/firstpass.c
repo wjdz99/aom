@@ -850,6 +850,7 @@ static void print_reconstruction_frame(
 
 #define FIRST_PASS_ALT_REF_DISTANCE 16
 void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
+  printf("here\n");
   MACROBLOCK *const x = &cpi->td.mb;
   AV1_COMMON *const cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;

@@ -296,6 +296,7 @@ void av1_gop_setup_structure(AV1_COMP *cpi,
   TWO_PASS *const twopass = &cpi->twopass;
   FRAME_INFO *const frame_info = &cpi->frame_info;
   const int key_frame = (frame_params->frame_type == KEY_FRAME);
+  printf("GOP STRUCTURE\n");
   const FRAME_UPDATE_TYPE first_frame_update_type =
       key_frame ? KF_UPDATE
                 : rc->source_alt_ref_active ? OVERLAY_UPDATE : GF_UPDATE;

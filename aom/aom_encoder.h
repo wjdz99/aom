@@ -879,6 +879,11 @@ typedef struct aom_codec_enc_cfg {
    */
   int tile_heights[MAX_TILE_HEIGHTS];
 
+  /*!\brief Option to enable coding overlay frames 
+   *
+   */
+  int enable_overlay;
+
   /*!\brief Whether encoder should use fixed QP offsets.
    *
    * If a value of 1 is provided, encoder will use fixed QP offsets for frames
@@ -914,6 +919,7 @@ typedef struct aom_codec_enc_cfg {
    * - This option is only relevant for --end-usage=q.
    */
   int fixed_qp_offsets[FIXED_QP_OFFSET_COUNT];
+
 
   /*!\brief Options defined per config file
    *

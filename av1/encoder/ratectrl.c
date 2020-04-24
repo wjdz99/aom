@@ -1558,6 +1558,7 @@ static void update_alt_ref_frame_stats(AV1_COMP *cpi) {
   // Mark the alt ref as done (setting to 0 means no further alt refs pending).
   rc->source_alt_ref_pending = 0;
 
+  printf("SOURCE ALT REF ACTIVE\n");
   // Set the alternate reference frame active flag
   rc->source_alt_ref_active = 1;
 }
@@ -1662,7 +1663,7 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   rc->total_target_vs_actual = rc->total_actual_bits - rc->total_target_bits;
 
   if (is_altref_enabled(cpi) && refresh_frame_flags->alt_ref_frame &&
-      (current_frame->frame_type != KEY_FRAME))
+      (current_frame->frame_type != KEY_FRAME && !frame_is_sframe(cm)))
     // Update the alternate reference frame stats as appropriate.
     update_alt_ref_frame_stats(cpi);
   else

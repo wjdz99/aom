@@ -3483,7 +3483,10 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
           if (skip) continue;
         }
       }
-      assert(get_ref_frame_yv12_buf(cm, ref_frame) != NULL);
+      
+      if (cm->current_frame.frame_number == 11)
+        printf("check\n");
+      assert(get_ref_frame_yv12_buf(cm, ref_frame) != NULL); // Failing here
       setup_buffer_ref_mvs_inter(cpi, x, ref_frame, bsize, yv12_mb);
     }
     // Store the best pred_mv_sad across all past frames

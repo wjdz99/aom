@@ -135,6 +135,8 @@ class ErrorResilienceTestLarge
     if (s_nframes_ > 0 &&
         (cfg_.g_pass == AOM_RC_LAST_PASS || cfg_.g_pass == AOM_RC_ONE_PASS)) {
       for (unsigned int i = 0; i < s_nframes_; ++i) {
+        if (video->frame() == 0) encoder->Control(AV1E_SET_MAX_GF_INTERVAL, 10);
+        if (video->frame() == 0) encoder->Control(AV1E_SET_ENABLE_TPL_MODEL, 0);
         if (s_frames_[i] == video->frame()) {
           std::cout << "             Encoding S frame: " << s_frames_[i]
                     << "\n";
@@ -435,14 +437,17 @@ TEST_P(ErrorResilienceTestLarge, SFrameTest) {
   // show_existing_frame. This issue still needs to be addressed.
   // Set an arbitrary S-frame
   unsigned int num_s_frames = 1;
-  unsigned int s_frame_list[] = { 6 };
+//unsigned int s_frame_list[] = { 6 };
+  unsigned int s_frame_list[] = { 4 };
   SetSFrames(num_s_frames, s_frame_list);
   // Ensure that any invisible frames before the S frame are dropped
   SetInvisibleErrorFrames(num_s_frames, s_frame_list);
 
   // Set a few frames before the S frame that are lost (not decoded)
-  unsigned int num_error_frames = 4;
-  unsigned int error_frame_list[] = { 2, 3, 4, 5 };
+//unsigned int num_error_frames = 4;
+//unsigned int error_frame_list[] = { 2, 3, 4, 5 };
+  unsigned int num_error_frames = 0;
+  unsigned int error_frame_list[] = { 6 };
   SetErrorFrames(num_error_frames, error_frame_list);
 
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));

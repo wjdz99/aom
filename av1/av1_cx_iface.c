@@ -773,6 +773,7 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   oxcf->force_video_mode = extra_cfg->force_video_mode;
   oxcf->enable_obmc = extra_cfg->enable_obmc;
   oxcf->enable_overlay = extra_cfg->enable_overlay;
+  oxcf->enable_overlay = cfg->enable_overlay;
   oxcf->enable_palette = extra_cfg->enable_palette;
   oxcf->enable_intrabc = extra_cfg->enable_intrabc;
   oxcf->enable_angle_delta = extra_cfg->enable_angle_delta;
@@ -2842,6 +2843,7 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       0,                       // tile_height_count
       { 0 },                   // tile_widths
       { 0 },                   // tile_heights
+      1,                       // enable_overlay
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
       { 0, 128, 128, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -2912,6 +2914,7 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       0,                       // tile_height_count
       { 0 },                   // tile_widths
       { 0 },                   // tile_heights
+      1,                       // enable_overlay
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
       { 0, 128, 128, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

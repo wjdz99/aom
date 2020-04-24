@@ -1602,6 +1602,8 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
             FIXED_QP_OFFSET_COUNT, fixed_qp_offset_count);
       }
       config->cfg.use_fixed_qp_offsets = 1;
+    } else if (arg_match(&arg, &enable_overlay, argi)) {
+      config->cfg.enable_overlay = arg_parse_uint(&arg);
     } else if (global->usage == AOM_USAGE_REALTIME &&
                arg_match(&arg, &enable_restoration, argi)) {
       if (arg_parse_uint(&arg) == 1) {

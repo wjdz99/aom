@@ -1222,6 +1222,7 @@ static void update_frame_size(AV1_COMP *cpi) {
 static void init_buffer_indices(ForceIntegerMVInfo *const force_intpel_info,
                                 int *const remapped_ref_idx) {
   int fb_idx;
+  printf("init\n");
   for (fb_idx = 0; fb_idx < REF_FRAMES; ++fb_idx)
     remapped_ref_idx[fb_idx] = fb_idx;
   force_intpel_info->rate_index = 0;
@@ -6276,6 +6277,17 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
   cpi->last_frame_type = current_frame->frame_type;
 
+  GF_GROUP *gf_group = &cpi->gf_group;
+  if (frame_is_sframe(cm)) {
+   RATE_CONTROL *const rc = &cpi->rc;
+    // S frame will wipe out any previously encoded altref so we cannot place 
+    // an overlay frame 
+    gf_group->update_type[gf_group->size] = GF_UPDATE; 
+    rc->source_alt_ref_active = 0;
+  }
+  printf("ord %d, show %d type %d is_sfrm %d\n", current_frame->frame_number, cm->show_frame, 
+         gf_group->update_type[gf_group->index] == OVERLAY_UPDATE, frame_is_sframe(cm));
+  
   if (encode_show_existing_frame(cm)) {
     finalize_encoded_frame(cpi);
     // Build the bitstream

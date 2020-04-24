@@ -839,6 +839,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     AV1_COMP *cpi, const EncodeFrameParams *const init_frame_params,
     GF_GROUP *gf_group, int gop_eval, int *tpl_group_frames,
     const EncodeFrameInput *const frame_input, int *pframe_qindex) {
+printf("here\n");
   AV1_COMMON *cm = &cpi->common;
   int cur_frame_idx = gf_group->index;
   *pframe_qindex = 0;
@@ -925,9 +926,10 @@ static AOM_INLINE void init_gop_frames_for_tpl(
                              frame_params.show_existing_frame,
                              refresh_frame_map_index, &ref_buffer_stack);
 
-    for (int i = LAST_FRAME; i <= ALTREF_FRAME; ++i)
+    for (int i = LAST_FRAME; i <= ALTREF_FRAME; ++i) {
       tpl_frame->ref_map_index[i - LAST_FRAME] =
           ref_picture_map[cm->remapped_ref_idx[i - LAST_FRAME]];
+    }
 
     if (refresh_mask) ref_picture_map[refresh_frame_map_index] = gf_index;
 

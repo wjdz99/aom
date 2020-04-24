@@ -630,6 +630,9 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
                               int show_existing_frame, int ref_map_index,
                               RefBufferStack *ref_buffer_stack) {
   AV1_COMMON *const cm = &cpi->common;
+  CurrentFrame *const current_frame = &cm->current_frame;
+  if (current_frame->frame_number == 11)
+    printf("here\n");
   // TODO(jingning): Consider the S-frame same as key frame for the
   // reference frame tracking purpose. The logic might be better
   // expressed than converting the frame update type.
@@ -685,6 +688,19 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
       break;
     default: assert(0 && "unknown type");
   }
+/*
+  CurrentFrame *const current_frame = &cm->current_frame;
+  printf("frm %d  | GOLDEN STACK sz %d, ", current_frame->frame_number, ref_buffer_stack->gld_stack_size);
+  for (int i = 0; i < ref_buffer_stack->gld_stack_size; i++) 
+    printf("%d ", ref_buffer_stack->gld_stack[i]);
+  printf("   |   ARF STACK sz %d, ", ref_buffer_stack->arf_stack_size);
+  for (int i = 0; i < ref_buffer_stack->arf_stack_size; i++) 
+    printf("%d ", ref_buffer_stack->arf_stack[i]);
+  printf("  |    LST STACK sz %d, ", ref_buffer_stack->lst_stack_size);
+  for (int i = 0; i < ref_buffer_stack->lst_stack_size; i++) 
+    printf("%d ", ref_buffer_stack->lst_stack[i]);
+  printf("\n");
+*/
   return;
 }
 
@@ -1039,6 +1055,9 @@ void av1_get_ref_frames(AV1_COMP *const cpi, RefBufferStack *ref_buffer_stack) {
     else
       remapped_ref_idx[idx] = ref_buffer_stack->gld_stack[0];
   }
+  CurrentFrame *const current_frame = &cm->current_frame;
+  for (int i = 0; i < REF_FRAMES; ++i) printf("%d ", remapped_ref_idx[i]);
+  printf(", frame %d\n", current_frame->frame_number);
 }
 
 int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
