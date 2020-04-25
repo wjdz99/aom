@@ -31,11 +31,19 @@ extern "C" {
 /*!\name Algorithm interface for AV1
  *
  * This interface provides the capability to encode raw AV1 streams.
- * @{
+ *@{
+ */
+
+/*!\brief A single instance of the AV1 encoder.
+ *\deprecated This access mechanism is provided for backwards compatibility;
+ * prefer aom_codec_av1_cx(void).
  */
 extern aom_codec_iface_t aom_codec_av1_cx_algo;
+
+/*!\brief The interface to the AV1 encoder.
+ */
 extern aom_codec_iface_t *aom_codec_av1_cx(void);
-/*!@} - end algorithm interface member group*/
+/*!@} - end algorithm interface member group */
 
 /*
  * Algorithm Flags
@@ -1695,9 +1703,10 @@ AOM_CTRL_USE_TYPE(AV1E_ENABLE_SB_MULTIPASS_UNIT_TEST, unsigned int)
 #define AOM_CTRL_AV1E_ENABLE_SB_MULTIPASS_UNIT_TEST
 
 /*!\endcond */
-/*! @} - end defgroup aom_encoder */
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
 #endif  // AOM_AOM_AOMCX_H_
+
+/*! @} - end defgroup aom_encoder */
