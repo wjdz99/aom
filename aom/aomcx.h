@@ -33,8 +33,7 @@ extern "C" {
  * This interface provides the capability to encode raw AV1 streams.
  * @{
  */
-extern aom_codec_iface_t aom_codec_av1_cx_algo;
-extern aom_codec_iface_t *aom_codec_av1_cx(void);
+extern aom_codec_iface_t *aom_codec_av1_cx();
 /*!@} - end algorithm interface member group*/
 
 /*
