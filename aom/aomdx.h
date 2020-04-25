@@ -31,11 +31,16 @@ extern "C" {
 /*!\name Algorithm interface for AV1
  *
  * This interface provides the capability to decode AV1 streams.
- * @{
+ */
+
+/*!\brief A single instance of the AV1 decoder.
+ *\deprecated This access mechanism is provided for backwards compatibility;
+ * prefer aom_codec_av1_dx().
  */
 extern aom_codec_iface_t aom_codec_av1_dx_algo;
-extern aom_codec_iface_t *aom_codec_av1_dx(void);
-/*!@} - end algorithm interface member group*/
+/*!\brief The interface to the AV1 decoder.
+ */
+extern aom_codec_iface_t *aom_codec_av1_dx();
 
 /** Data structure that stores bit accounting for debug
  */
