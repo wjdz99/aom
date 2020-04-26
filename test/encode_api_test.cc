@@ -11,9 +11,10 @@
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
+#include <cstdlib>
+
 #include "config/aom_config.h"
 
-#include "test/util.h"
 #include "aom/aomcx.h"
 #include "aom/aom_encoder.h"
 
