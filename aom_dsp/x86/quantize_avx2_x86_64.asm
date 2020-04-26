@@ -459,6 +459,6 @@ DEFINE_ARGS coeff, ncoeff, zbin, round, quant, shift, \
   RET
 %endmacro
 
-INIT_XMM avx
+INIT_XMM avx2
 QUANTIZE_FN b, 9
 QUANTIZE_FN b_32x32, 9

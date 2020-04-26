@@ -250,8 +250,8 @@ if(CONFIG_AV1_ENCODER)
               "${AOM_ROOT}/aom_dsp/x86/blk_sse_sum_avx2.c"
               "${AOM_ROOT}/aom_dsp/x86/sum_squares_avx2.c")
 
-  list(APPEND AOM_DSP_ENCODER_AVX_ASM_X86_64
-              "${AOM_ROOT}/aom_dsp/x86/quantize_avx_x86_64.asm")
+  list(APPEND AOM_DSP_ENCODER_AVX2_ASM_X86_64
+              "${AOM_ROOT}/aom_dsp/x86/quantize_avx2_x86_64.asm")
 
   list(APPEND AOM_DSP_ENCODER_INTRIN_SSSE3
               "${AOM_ROOT}/aom_dsp/x86/masked_sad_intrin_ssse3.h"
@@ -375,18 +375,17 @@ function(setup_aom_dsp_targets)
     endif()
   endif()
 
-  if(HAVE_AVX AND "${AOM_TARGET_CPU}" STREQUAL "x86_64")
-    if(CONFIG_AV1_ENCODER)
-      add_asm_library("aom_dsp_encoder_avx" "AOM_DSP_ENCODER_AVX_ASM_X86_64")
-    endif()
-  endif()
-
   if(HAVE_AVX2)
     add_intrinsics_object_library("-mavx2" "avx2" "aom_dsp_common"
                                   "AOM_DSP_COMMON_INTRIN_AVX2")
     if(CONFIG_AV1_ENCODER)
       add_intrinsics_object_library("-mavx2" "avx2" "aom_dsp_encoder"
                                     "AOM_DSP_ENCODER_INTRIN_AVX2")
+
+      if("${AOM_TARGET_CPU}" STREQUAL "x86_64")
+        add_asm_library("aom_dsp_encoder_avx2"
+                        "AOM_DSP_ENCODER_AVX2_ASM_X86_64")
+      endif()
     endif()
   endif()
 

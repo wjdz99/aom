@@ -400,6 +400,12 @@ const QuantizeParam kQParamArrayAvx2[] = {
              &aom_highbd_quantize_b_32x32_adaptive_avx2,
              static_cast<TX_SIZE>(TX_32X32), TYPE_B, AOM_BITS_12),
 #endif
+#if ARCH_X86_64
+  make_tuple(&aom_quantize_b_c, &aom_quantize_b_avx2,
+             static_cast<TX_SIZE>(TX_16X16), TYPE_B, AOM_BITS_8),
+  make_tuple(&aom_quantize_b_32x32_c, &aom_quantize_b_32x32_avx2,
+             static_cast<TX_SIZE>(TX_32X32), TYPE_B, AOM_BITS_8),
+#endif  // ARCH_X86_64
   make_tuple(&aom_quantize_b_adaptive_c, &aom_quantize_b_adaptive_avx2,
              static_cast<TX_SIZE>(TX_16X16), TYPE_B, AOM_BITS_8),
   make_tuple(&aom_quantize_b_adaptive_c, &aom_quantize_b_adaptive_avx2,
@@ -543,15 +549,4 @@ INSTANTIATE_TEST_SUITE_P(
                    static_cast<TX_SIZE>(TX_64X64), TYPE_B, AOM_BITS_8)));
 
 #endif  // HAVE_SSSE3 && ARCH_X86_64
-
-#if HAVE_AVX && ARCH_X86_64
-INSTANTIATE_TEST_SUITE_P(
-    AVX, QuantizeTest,
-    ::testing::Values(
-        make_tuple(&aom_quantize_b_c, &aom_quantize_b_avx,
-                   static_cast<TX_SIZE>(TX_16X16), TYPE_B, AOM_BITS_8),
-        make_tuple(&aom_quantize_b_32x32_c, &aom_quantize_b_32x32_avx,
-                   static_cast<TX_SIZE>(TX_32X32), TYPE_B, AOM_BITS_8)));
-
-#endif  // HAVE_AVX && ARCH_X86_64
 }  // namespace
