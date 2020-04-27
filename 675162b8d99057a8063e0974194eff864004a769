@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5550f44_0e174f16",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-04-27T22:17:17Z",
+      "side": 0,
+      "message": "If AOM_DISABLE_CTRL_TYPECHECKS is set, then aom_codec_control(ctx, ctrl_id, ...) is macro expanded to aom_codec_control_(ctx, ctrl_id, ...)\n\nIf AOM_DISABLE_CTRL_TYPECHECKS is not set, aom_codec_control(ctx, ctrl_id, ...) is macro expanded to aom_codec_control_ctrl_id(ctx, ...). Since this is a macro expansion, that means you cannot refer to the ctrl_id through a variable -- you have to directly code the name.\n\nNote that FFMPEG disables typechecks because their framework passes the control codes around via a variable.",
+      "revId": "675162b8d99057a8063e0974194eff864004a769",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3928a307_d4fda62f",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1357,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-04-27T22:17:17Z",
+      "side": 0,
+      "message": "I believe this autogenerates a function:\n\naom_codec_control_AOME_SET_CPUUSED(aom_codec_ctx *ctx, int val) {\n  return aom_codec_control_(ctx, AOME_SET_CPUUSED, val);\n}",
+      "range": {
+        "startLine": 1357,
+        "startChar": 0,
+        "endLine": 1357,
+        "endChar": 40
+      },
+      "revId": "675162b8d99057a8063e0974194eff864004a769",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
