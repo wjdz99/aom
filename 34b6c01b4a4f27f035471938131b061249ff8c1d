@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43e5996c_53d971e5",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-27T16:41:06Z",
+      "side": 1,
+      "message": "Nit: Delete this \"void\".",
+      "range": {
+        "startLine": 39,
+        "startChar": 27,
+        "endLine": 39,
+        "endChar": 31
+      },
+      "revId": "34b6c01b4a4f27f035471938131b061249ff8c1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d191b341_6457226e",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1712,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-27T16:41:06Z",
+      "side": 1,
+      "message": "Nit: Move this to the inside of \"#endif  // AOM_AOM_AOMCX_H_\" ? Alternatively, move the beginning block (currently at lines 14-18) to the outside of \"#ifndef AOM_AOM_AOMCX_H_\".\n\nNote: I am not familiar with doxygen, so I don\u0027t know whether it is usually inside or outside the header include guard macro. If either is fine, I think it looks nicer to be inside the header include guard macro. This also applies to the doxygen directives for \"defgroup aom_decoder\" in aomdx.h.",
+      "revId": "34b6c01b4a4f27f035471938131b061249ff8c1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3f62707_ce17e93b",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-27T16:41:06Z",
+      "side": 1,
+      "message": "Nit: Delete this \"void\"",
+      "range": {
+        "startLine": 39,
+        "startChar": 27,
+        "endLine": 39,
+        "endChar": 31
+      },
+      "revId": "34b6c01b4a4f27f035471938131b061249ff8c1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a463d1c_8fddf9f9",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2922,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-27T16:41:06Z",
+      "side": 1,
+      "message": "Nit: Delete \"are\" (a duplicate)",
+      "range": {
+        "startLine": 2922,
+        "startChar": 36,
+        "endLine": 2922,
+        "endChar": 39
+      },
+      "revId": "34b6c01b4a4f27f035471938131b061249ff8c1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
