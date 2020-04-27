@@ -22,6 +22,30 @@
       "revId": "64fd59e0cc01e217f02d310a4a6303337e7c402e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "126d9c93_45150e5c",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1067,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2020-04-27T16:57:11Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nPlease note that we have not added this condition in this patch. This condition was earlier present in the function \u0027mc_flow_dispenser()\u0027. \n\nWe have the following observations on the necessity of the condition below:\n\n1. If ARF is present in the GF group\n   (a) The frame for which \u0027frame_idx \u003d\u003d gf_group-\u003esize\u0027 would be a frame of type \n       \u0027OVERLAY_UPDATE\u0027. The condition just above this condition is sufficient. \n        Hence, the condition \u0027frame_idx \u003d\u003d gf_group-\u003esize\u0027 is not required. \n2. If ARF is not present in the GF group\n   (a) The condition \u0027frame_idx \u003d\u003d gf_group-\u003esize\u0027 arises in the current code.\n   (b) Thus, we expected that the encoded bit-streams do not match with and \n       without this condition for auto-alt-ref \u003d 0 case. However, the \n       bit-streams were matching.\n   (c) The reason for the match : Tpl based quantizer(qp) and RD multiplier \n       (rd mult) adjustment were being disabled for golden frames.\n   (d) The function \u0027av1_tpl_setup_stats\u0027 is called when \n       \u0027cpi-\u003egf_group.index \u003d\u003d 1\u0027. This would be incorrect for gf groups without \n        ARF as the golden frame (cpi-\u003egf_group.index \u003d\u003d 0) is already coded.  \n   (e) As per our understanding, the correct condition to call \n       \u0027av1_tpl_setup_stats\u0027 would be \u0027is_frame_arf_and_tpl_eligible()\u0027. \n       - Doing this change would enable tpl based qp/rd_mult adjustment for golden \n         frames. Also, some redundant calls to ‘av1_tpl_setup_stats’ would be \n         removed (For example, the first frame after a key frame would have \n         \u0027cpi-\u003egf_group.index \u003d\u003d 1\u0027 but would be a frame of type LF_UPDATE for \n          which tpl based qp/rd_mult adjustment is disabled). \n   (f) Please note this change requires that the \n       \u0027assert(cpi-\u003enum_gf_group_show_frames \u003d\u003d 1)\u0027 be removed.\n   (g) Also, we noticed some inconsistency related to setting of the \n       \u0027mv_step_param\u0027 (in the function \u0027set_mv_search_params()\u0027). \n       ‘mv_step_param’ would be set to twice the max mv magnitude found in the\n       previous frame during tpl motion estimation. But, it would be set based \n       on max resolution in the encoding stage for the golden frame (as \n       max_mv_magnitude is set to -1 during tpl). This inconsistency needs \n       to be addressed.\n    (h) If (e), (f) and (g) are addressed we understand that the condition \n        ‘(gf_group-\u003esize \u003d\u003d frame_idx)’ can be removed.",
+      "parentUuid": "ac08c125_c6cb986d",
+      "range": {
+        "startLine": 1067,
+        "startChar": 7,
+        "endLine": 1067,
+        "endChar": 36
+      },
+      "revId": "64fd59e0cc01e217f02d310a4a6303337e7c402e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
