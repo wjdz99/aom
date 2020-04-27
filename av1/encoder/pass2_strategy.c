@@ -934,8 +934,9 @@ static INLINE int detect_gf_cut(AV1_COMP *cpi, int frame_index, int cur_start,
   // If almost totally static, we will not use the the max GF length later,
   // so we can continue for more frames.
   if (((frame_index - cur_start) >= active_max_gf_interval + 1) &&
-      !is_almost_static(gf_stats->zero_motion_accumulator,
-                        twopass->kf_zeromotion_pct)) {
+      (cpi->lap_enabled ? 1
+                        : (!is_almost_static(gf_stats->zero_motion_accumulator,
+                                             twopass->kf_zeromotion_pct)))) {
     return 1;
   }
   return 0;
@@ -1605,11 +1606,14 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
   int use_alt_ref;
   if (can_disable_arf) {
-    use_alt_ref = !is_almost_static(gf_stats.zero_motion_accumulator,
-                                    twopass->kf_zeromotion_pct) &&
-                  gf_stats.allow_alt_ref && (i < cpi->oxcf.lag_in_frames) &&
-                  (i >= MIN_GF_INTERVAL) &&
-                  (cpi->oxcf.gf_max_pyr_height > MIN_PYRAMID_LVL);
+    use_alt_ref =
+        (cpi->lap_enabled
+             ? 1
+             : (!is_almost_static(gf_stats.zero_motion_accumulator,
+                                  twopass->kf_zeromotion_pct) &&
+                gf_stats.allow_alt_ref && (i < cpi->oxcf.lag_in_frames))) &&
+        (i >= MIN_GF_INTERVAL) &&
+        (cpi->oxcf.gf_max_pyr_height > MIN_PYRAMID_LVL);
 
     // TODO(urvang): Improve and use model for VBR, CQ etc as well.
     if (use_alt_ref && cpi->oxcf.rc_mode == AOM_Q &&
@@ -1955,7 +1959,6 @@ static int test_candidate_kf(TWO_PASS *twopass,
     } else {
       is_viable_kf = 0;
     }
-
     // Reset the file position
     reset_fpf_position(twopass, start_pos);
   }
