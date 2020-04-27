@@ -5577,7 +5577,7 @@ typedef struct {
 static INLINE void update_valid_ref_frames_for_gm(
     AV1_COMP *cpi, YV12_BUFFER_CONFIG *ref_buf[REF_FRAMES],
     FrameDistPair *past_ref_frame, FrameDistPair *future_ref_frame,
-    int *num_past_ref_frames, int *num_future_ref_frames) {
+    uint8_t *num_past_ref_frames, uint8_t *num_future_ref_frames) {
   AV1_COMMON *const cm = &cpi->common;
   const OrderHintInfo *const order_hint_info = &cm->seq_params.order_hint_info;
   for (int frame = ALTREF_FRAME; frame >= LAST_FRAME; --frame) {
@@ -5982,43 +5982,34 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
     alloc_global_motion_data(params_by_motion, &segment_map, segment_map_w,
                              segment_map_h);
 
-    FrameDistPair future_ref_frame[REF_FRAMES - 1] = {
-      { -1, NONE_FRAME }, { -1, NONE_FRAME }, { -1, NONE_FRAME },
-      { -1, NONE_FRAME }, { -1, NONE_FRAME }, { -1, NONE_FRAME },
-      { -1, NONE_FRAME }
-    };
-    FrameDistPair past_ref_frame[REF_FRAMES - 1] = {
-      { -1, NONE_FRAME }, { -1, NONE_FRAME }, { -1, NONE_FRAME },
-      { -1, NONE_FRAME }, { -1, NONE_FRAME }, { -1, NONE_FRAME },
-      { -1, NONE_FRAME }
-    };
-    int num_past_ref_frames = 0;
-    int num_future_ref_frames = 0;
+    FrameDistPair reference_frames[MAX_DIRECTIONS][REF_FRAMES - 1];
+    memset(reference_frames, -1,
+           sizeof(FrameDistPair) * MAX_DIRECTIONS * (REF_FRAMES - 1));
+
+    uint8_t num_ref_frames[MAX_DIRECTIONS];
+    av1_zero(num_ref_frames);
+
     // Populate ref_buf for valid ref frames in global motion
-    update_valid_ref_frames_for_gm(cpi, ref_buf, past_ref_frame,
-                                   future_ref_frame, &num_past_ref_frames,
-                                   &num_future_ref_frames);
+    update_valid_ref_frames_for_gm(cpi, ref_buf, reference_frames[0],
+                                   reference_frames[1], &num_ref_frames[0],
+                                   &num_ref_frames[1]);
 
     // Sort the ref frames in the ascending order of their distance from the
     // current frame
-    qsort(past_ref_frame, num_past_ref_frames, sizeof(past_ref_frame[0]),
+    qsort(reference_frames[0], num_ref_frames[0], sizeof(FrameDistPair),
           compare_distance);
-    qsort(future_ref_frame, num_future_ref_frames, sizeof(future_ref_frame[0]),
+    qsort(reference_frames[1], num_ref_frames[1], sizeof(FrameDistPair),
           compare_distance);
 
-    // Compute global motion w.r.t. past reference frames
-    if (num_past_ref_frames > 0)
-      compute_global_motion_for_references(
-          cpi, ref_buf, past_ref_frame, num_past_ref_frames, &num_frm_corners,
-          frm_corners, frm_buffer, params_by_motion, segment_map, segment_map_w,
-          segment_map_h);
-
-    // Compute global motion w.r.t. future reference frames
-    if (num_future_ref_frames > 0)
-      compute_global_motion_for_references(
-          cpi, ref_buf, future_ref_frame, num_future_ref_frames,
-          &num_frm_corners, frm_corners, frm_buffer, params_by_motion,
-          segment_map, segment_map_w, segment_map_h);
+    // Compute global motion w.r.t. past reference frames and future reference
+    // frames
+    for (int dir = 0; dir < MAX_DIRECTIONS; dir++) {
+      if (num_ref_frames[dir] > 0)
+        compute_global_motion_for_references(
+            cpi, ref_buf, reference_frames[dir], num_ref_frames[dir],
+            &num_frm_corners, frm_corners, frm_buffer, params_by_motion,
+            segment_map, segment_map_w, segment_map_h);
+    }
 
     dealloc_global_motion_data(params_by_motion, segment_map);
 
