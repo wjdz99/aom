@@ -449,9 +449,6 @@ aom_codec_caps_t aom_codec_get_caps(aom_codec_iface_t *iface);
  * transparently, but will return #AOM_CODEC_ERROR if the request could not
  * be dispatched.
  *
- * Note that this function should not be used directly. Call the
- * #aom_codec_control wrapper macro instead.
- *
  * \param[in]     ctx              Pointer to this instance's context
  * \param[in]     ctrl_id          Algorithm specific control identifier
  *
@@ -462,85 +459,7 @@ aom_codec_caps_t aom_codec_get_caps(aom_codec_iface_t *iface);
  * \retval #AOM_CODEC_INVALID_PARAM
  *     The data was not valid.
  */
-aom_codec_err_t aom_codec_control_(aom_codec_ctx_t *ctx, int ctrl_id, ...);
-#if defined(AOM_DISABLE_CTRL_TYPECHECKS) && AOM_DISABLE_CTRL_TYPECHECKS
-#define aom_codec_control(ctx, id, data) aom_codec_control_(ctx, id, data)
-#define AOM_CTRL_USE_TYPE(id, typ)
-#define AOM_CTRL_USE_TYPE_DEPRECATED(id, typ)
-#define AOM_CTRL_VOID(id, typ)
-
-#else
-/*!\brief aom_codec_control wrapper macro
- *
- * This macro allows for type safe conversions across the variadic parameter
- * to aom_codec_control_().
- *
- * \internal
- * It works by dispatching the call to the control function through a wrapper
- * function named with the id parameter.
- */
-#define aom_codec_control(ctx, id, data) \
-  aom_codec_control_##id(ctx, id, data) /**<\hideinitializer*/
-
-/*!\brief aom_codec_control type definition macro
- *
- * This macro allows for type safe conversions across the variadic parameter
- * to aom_codec_control_(). It defines the type of the argument for a given
- * control identifier.
- *
- * \internal
- * It defines a static function with
- * the correctly typed arguments as a wrapper to the type-unsafe internal
- * function.
- */
-#define AOM_CTRL_USE_TYPE(id, typ)                                           \
-  static aom_codec_err_t aom_codec_control_##id(aom_codec_ctx_t *, int, typ) \
-      AOM_UNUSED;                                                            \
-                                                                             \
-  static aom_codec_err_t aom_codec_control_##id(aom_codec_ctx_t *ctx,        \
-                                                int ctrl_id, typ data) {     \
-    return aom_codec_control_(ctx, ctrl_id, data);                           \
-  } /**<\hideinitializer*/
-
-/*!\brief aom_codec_control deprecated type definition macro
- *
- * Like #AOM_CTRL_USE_TYPE, but indicates that the specified control is
- * deprecated and should not be used. Consult the documentation for your
- * codec for more information.
- *
- * \internal
- * It defines a static function with the correctly typed arguments as a
- * wrapper to the type-unsafe internal function.
- */
-#define AOM_CTRL_USE_TYPE_DEPRECATED(id, typ)                            \
-  AOM_DECLSPEC_DEPRECATED static aom_codec_err_t aom_codec_control_##id( \
-      aom_codec_ctx_t *, int, typ) AOM_DEPRECATED AOM_UNUSED;            \
-                                                                         \
-  AOM_DECLSPEC_DEPRECATED static aom_codec_err_t aom_codec_control_##id( \
-      aom_codec_ctx_t *ctx, int ctrl_id, typ data) {                     \
-    return aom_codec_control_(ctx, ctrl_id, data);                       \
-  } /**<\hideinitializer*/
-
-/*!\brief aom_codec_control void type definition macro
- *
- * This macro allows for type safe conversions across the variadic parameter
- * to aom_codec_control_(). It indicates that a given control identifier takes
- * no argument.
- *
- * \internal
- * It defines a static function without a data argument as a wrapper to the
- * type-unsafe internal function.
- */
-#define AOM_CTRL_VOID(id)                                               \
-  static aom_codec_err_t aom_codec_control_##id(aom_codec_ctx_t *, int) \
-      AOM_UNUSED;                                                       \
-                                                                        \
-  static aom_codec_err_t aom_codec_control_##id(aom_codec_ctx_t *ctx,   \
-                                                int ctrl_id) {          \
-    return aom_codec_control_(ctx, ctrl_id);                            \
-  } /**<\hideinitializer*/
-
-#endif
+aom_codec_err_t aom_codec_control(aom_codec_ctx_t *ctx, int ctrl_id, ...);
 
 /*!\brief OBU types. */
 typedef enum ATTRIBUTE_PACKED {
