@@ -1102,6 +1102,11 @@ static aom_codec_err_t update_extra_cfg(aom_codec_alg_priv_t *ctx,
   return res;
 }
 
+aom_codec_err_t aom_codec_control_set_cpuused(aom_codec_context_t *ctx,
+                                              int cpu_used) {
+  return aom_codec_control(ctx, AOME_SET_CPUUSED, cpu_used);
+}
+
 static aom_codec_err_t ctrl_set_cpuused(aom_codec_alg_priv_t *ctx,
                                         va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
