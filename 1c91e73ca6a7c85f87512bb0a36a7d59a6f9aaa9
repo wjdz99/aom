@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f401807_aa7e61ad",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-27T18:50:21Z",
+      "side": 0,
+      "message": "Since aom_codec_dec_init() and aom_codec_enc_init() are macros, \"wrapper functions\" would be technically incorrect. I decided to just omit this.",
+      "range": {
+        "startLine": 72,
+        "startChar": 54,
+        "endLine": 72,
+        "endChar": 70
+      },
+      "revId": "1c91e73ca6a7c85f87512bb0a36a7d59a6f9aaa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
