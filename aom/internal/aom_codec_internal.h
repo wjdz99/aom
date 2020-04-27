@@ -260,9 +260,6 @@ typedef aom_fixed_buf_t *(*aom_codec_get_global_headers_fn_t)(
 typedef aom_image_t *(*aom_codec_get_preview_frame_fn_t)(
     aom_codec_alg_priv_t *ctx);
 
-typedef aom_codec_err_t (*aom_codec_enc_mr_get_mem_loc_fn_t)(
-    const aom_codec_enc_cfg_t *cfg, void **mem_loc);
-
 /*!\brief Decoder algorithm interface interface
  *
  * All decoders \ref MUST expose a variable of this type.
@@ -294,8 +291,6 @@ struct aom_codec_iface {
         get_glob_hdrs; /**< \copydoc ::aom_codec_get_global_headers_fn_t */
     aom_codec_get_preview_frame_fn_t
         get_preview; /**< \copydoc ::aom_codec_get_preview_frame_fn_t */
-    aom_codec_enc_mr_get_mem_loc_fn_t
-        mr_get_mem_loc; /**< \copydoc ::aom_codec_enc_mr_get_mem_loc_fn_t */
   } enc;
 };
 

@@ -2946,7 +2946,6 @@ CODEC_INTERFACE(aom_codec_av1_cx) = {
       encoder_get_cxdata,          // aom_codec_get_cx_data_fn_t
       encoder_set_config,          // aom_codec_enc_config_set_fn_t
       encoder_get_global_headers,  // aom_codec_get_global_headers_fn_t
-      encoder_get_preview,         // aom_codec_get_preview_frame_fn_t
-      NULL                         // aom_codec_enc_mr_get_mem_loc_fn_t
+      encoder_get_preview          // aom_codec_get_preview_frame_fn_t
   }
 };
