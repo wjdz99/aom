@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2090bda9_8f664d1e",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-04-27T01:29:35Z",
+      "side": 1,
+      "message": "FYI these are macros -- the link to aom_codec_ctx is provided so it\u0027s possible to discover the definitions of these by traversing there",
+      "range": {
+        "startLine": 250,
+        "startChar": 7,
+        "endLine": 250,
+        "endChar": 45
+      },
+      "revId": "d865b652c075c244828fe3e5151b9b2e07ebe140",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
