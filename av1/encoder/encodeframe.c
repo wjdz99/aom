@@ -5736,6 +5736,30 @@ static AOM_INLINE void setup_prune_ref_frame_mask(AV1_COMP *cpi) {
 
 #define CHECK_PRECOMPUTED_REF_FRAME_MAP 0
 
+static AOM_INLINE uint8_t *alloc_global_motion_data(
+    MotionModel *params_by_motion, int segment_map_w, int segment_map_h) {
+  for (int m = 0; m < RANSAC_NUM_MOTIONS; m++) {
+    av1_zero(params_by_motion[m]);
+    params_by_motion[m].inliers =
+        aom_malloc(sizeof(*(params_by_motion[m].inliers)) * 2 * MAX_CORNERS);
+  }
+
+  uint8_t *segment_map =
+      aom_malloc(sizeof(*segment_map) * segment_map_w * segment_map_h);
+  av1_zero_array(segment_map, segment_map_w * segment_map_h);
+
+  return segment_map;
+}
+
+static AOM_INLINE void dealloc_global_motion_data(MotionModel *params_by_motion,
+                                                  uint8_t *segment_map) {
+  aom_free(segment_map);
+
+  for (int m = 0; m < RANSAC_NUM_MOTIONS; m++) {
+    aom_free(params_by_motion[m].inliers);
+  }
+}
+
 static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   ThreadData *const td = &cpi->td;
   MACROBLOCK *const x = &td->mb;
@@ -5937,11 +5961,6 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
       cpi->oxcf.enable_global_motion && !gm_info->search_done) {
     YV12_BUFFER_CONFIG *ref_buf[REF_FRAMES];
     MotionModel params_by_motion[RANSAC_NUM_MOTIONS];
-    for (int m = 0; m < RANSAC_NUM_MOTIONS; m++) {
-      memset(&params_by_motion[m], 0, sizeof(params_by_motion[m]));
-      params_by_motion[m].inliers =
-          aom_malloc(sizeof(*(params_by_motion[m].inliers)) * 2 * MAX_CORNERS);
-    }
 
     int num_frm_corners = -1;
     int frm_corners[2 * MAX_CORNERS];
@@ -5957,10 +5976,10 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
     const int segment_map_h =
         (cpi->source->y_height + WARP_ERROR_BLOCK) >> WARP_ERROR_BLOCK_LOG;
 
-    uint8_t *segment_map =
-        aom_malloc(sizeof(*segment_map) * segment_map_w * segment_map_h);
-    memset(segment_map, 0,
-           sizeof(*segment_map) * segment_map_w * segment_map_h);
+    // Allocates and initializes memory for segment_map and
+    // params_by_motion.inliers.
+    uint8_t *segment_map = alloc_global_motion_data(
+        params_by_motion, segment_map_w, segment_map_h);
 
     FrameDistPair future_ref_frame[REF_FRAMES - 1] = {
       { -1, NONE_FRAME }, { -1, NONE_FRAME }, { -1, NONE_FRAME },
@@ -6000,12 +6019,9 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
           &num_frm_corners, frm_corners, frm_buffer, params_by_motion,
           segment_map, segment_map_w, segment_map_h);
 
-    aom_free(segment_map);
+    dealloc_global_motion_data(params_by_motion, segment_map);
 
     gm_info->search_done = 1;
-    for (int m = 0; m < RANSAC_NUM_MOTIONS; m++) {
-      aom_free(params_by_motion[m].inliers);
-    }
   }
   memcpy(cm->cur_frame->global_motion, cm->global_motion,
          REF_FRAMES * sizeof(WarpedMotionParams));
