@@ -22,6 +22,30 @@
       "revId": "4158cc905519e04fe8d0561b92fbfc5d464371ee",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5aae9eca_44bfae7d",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-27T15:00:02Z",
+      "side": 1,
+      "message": "Done. That comment was intended to suggest that any new decoder-specific members should be collected into a member named \"dec\". Since it was not clear, I have removed it.\n\nNote: The AV1 decoder in av1_dx_iface.c extended this struct using the second way described at line 302 (\"Alternatively, this structure can be made ...\"). Therefore, we can add new decoder-specific members to the aom_codec_alg_priv structure in av1_dx_iface.c instead.",
+      "parentUuid": "2fbbf36f_e5804ae5",
+      "range": {
+        "startLine": 309,
+        "startChar": 2,
+        "endLine": 311,
+        "endChar": 11
+      },
+      "revId": "4158cc905519e04fe8d0561b92fbfc5d464371ee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
