@@ -1950,7 +1950,9 @@ static int test_candidate_kf(TWO_PASS *twopass,
       this_frame->pcnt_inter - this_frame->pcnt_neutral;
   const double second_ref_usage_thresh =
       get_second_ref_usage_thresh(frame_count_so_far);
+  return is_viable_kf;
 
+  /*
   // Does the frame satisfy the primary criteria of a key frame?
   // See above for an explanation of the test criteria.
   // If so, then examine how well it predicts subsequent frames.
@@ -2023,7 +2025,7 @@ static int test_candidate_kf(TWO_PASS *twopass,
     }
   }
 
-  return is_viable_kf;
+  return is_viable_kf; */
 }
 
 #define FRAMES_TO_CHECK_DECAY 8
