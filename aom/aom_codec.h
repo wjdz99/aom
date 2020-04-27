@@ -459,13 +459,7 @@ aom_codec_caps_t aom_codec_get_caps(aom_codec_iface_t *iface);
  *     The data was not valid.
  */
 aom_codec_err_t aom_codec_control_(aom_codec_ctx_t *ctx, int ctrl_id, ...);
-#if defined(AOM_DISABLE_CTRL_TYPECHECKS) && AOM_DISABLE_CTRL_TYPECHECKS
-#define aom_codec_control(ctx, id, data) aom_codec_control_(ctx, id, data)
-#define AOM_CTRL_USE_TYPE(id, typ)
-#define AOM_CTRL_USE_TYPE_DEPRECATED(id, typ)
-#define AOM_CTRL_VOID(id, typ)
 
-#else
 /*!\brief aom_codec_control wrapper macro
  *
  * This macro allows for type safe conversions across the variadic parameter
@@ -535,8 +529,6 @@ aom_codec_err_t aom_codec_control_(aom_codec_ctx_t *ctx, int ctrl_id, ...);
                                                 int ctrl_id) {          \
     return aom_codec_control_(ctx, ctrl_id);                            \
   } /**<\hideinitializer*/
-
-#endif
 
 /*!\brief OBU types. */
 typedef enum ATTRIBUTE_PACKED {
