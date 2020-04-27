@@ -1874,6 +1874,8 @@ static int test_candidate_kf(TWO_PASS *twopass,
   int num_future_frames = 0;
   FIRSTPASS_STATS curr_frame;
 
+  return 0;
+  /*
   if (scenecut_mode == ENABLE_SCENECUT_MODE_1) {
     curr_frame = *this_frame;
     const FIRSTPASS_STATS *const start_position = twopass->stats_in;
@@ -1959,7 +1961,7 @@ static int test_candidate_kf(TWO_PASS *twopass,
     // Reset the file position
     reset_fpf_position(twopass, start_pos);
   }
-  return is_viable_kf;
+  return is_viable_kf; */
 }
 
 #define FRAMES_TO_CHECK_DECAY 8
