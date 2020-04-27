@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be889eb2_77aa0938",
+        "filename": "aom/aom_decoder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-27T17:52:28Z",
+      "side": 1,
+      "message": "AOM_DECODER_ABI_VERSION should be left unchanged because this CL does not modify the decoder part of the ABI.",
+      "revId": "18d556a72b8eafcef0bc262a16d68f5f52327aef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c03ad40f_13a4bba9",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-27T17:52:28Z",
+      "side": 1,
+      "message": "I somehow missed this comment when I updated the comments that mentioned the nonexistent function aom_codec_init():\nhttps://aomedia-review.googlesource.com/c/aom/+/109961\n\nI can take care of this separately, because libvpx also needs a similar change.",
+      "range": {
+        "startLine": 71,
+        "startChar": 29,
+        "endLine": 71,
+        "endChar": 70
+      },
+      "revId": "18d556a72b8eafcef0bc262a16d68f5f52327aef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
