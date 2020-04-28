@@ -524,7 +524,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
     set_ref_ptrs(cm, xd, mi->ref_frame[0], mi->ref_frame[1]);
     av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL,
                                   cm->seq_params.sb_size, AOM_PLANE_Y,
-                                  AOM_PLANE_Y);
+                                  AOM_PLANE_Y, NULL);
 
     d = xd->plane[0].dst.buf;
     dp = xd->plane[0].dst.stride;

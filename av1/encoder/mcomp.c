@@ -1209,7 +1209,7 @@ unsigned int av1_compute_motion_cost(const AV1_COMP *cpi, MACROBLOCK *const x,
   const MV_COST_TYPE mv_cost_type = x->mv_cost_type;
 
   av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
-                                AOM_PLANE_Y, AOM_PLANE_Y);
+                                AOM_PLANE_Y, AOM_PLANE_Y, NULL);
   mse = vfp->vf(dst, dst_stride, src, src_stride, &sse);
   mse += mv_err_cost(this_mv, ref_mv.as_mv, max_precision, min_precision,
                      x->nmv_vec_cost, x->nmvcost, flex_mv_costs, x->errorperbit,
@@ -3438,7 +3438,7 @@ void av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
 
   // Get a copy of the prediction output
   av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
-                                AOM_PLANE_Y, AOM_PLANE_Y);
+                                AOM_PLANE_Y, AOM_PLANE_Y, NULL);
 
   aom_clear_system_state();
 

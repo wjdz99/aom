@@ -7018,7 +7018,7 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     assert(av1_check_newmv_joint_nonzero(cm, x));
 #endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
     av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
-                                  av1_num_planes(cm) - 1);
+                                  av1_num_planes(cm) - 1, NULL);
     if (mbmi->motion_mode == OBMC_CAUSAL) {
       assert(cpi->oxcf.enable_obmc == 1);
       av1_build_obmc_inter_predictors_sb(cm, xd);
