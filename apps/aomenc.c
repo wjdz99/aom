@@ -106,6 +106,9 @@ static int read_frame(struct AvxInputContext *input_ctx, aom_image_t *img) {
     shortread = read_yuv_frame(input_ctx, img);
   }
 
+  img->planes[1] = img->planes[2] = NULL;
+  img->stride[1] = img->stride[2] = 0;
+
   return !shortread;
 }
 
