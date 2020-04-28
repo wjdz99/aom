@@ -3194,6 +3194,9 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
               AOM_BUFFER_SIZE_FOR_BLOCK_HASH *
               sizeof(*cpi->td.mb.intrabc_hash_info.hash_value_buffer[0][0])));
 
+  cpi->td.firstpass_ctx =
+      av1_alloc_pmc(cm, BLOCK_16X16, &cpi->td.shared_coeff_buf);
+
   cpi->td.mb.intrabc_hash_info.g_crc_initialized = 0;
 
   CHECK_MEM_ERROR(cm, cpi->td.mb.mask_buf,

@@ -179,7 +179,7 @@ typedef struct {
   int extend_minq_fast;
 } TWO_PASS;
 
-// This structure contains several key parameters to be accumulate for this
+// This structure contains several key parameters to be accumulated for this
 // frame.
 typedef struct {
   // Intra prediction error.
@@ -229,17 +229,22 @@ typedef struct {
   double brightness_factor;
 } FRAME_STATS;
 
-// This structure contains first pass data
+// This structure contains first pass data.
 typedef struct {
+  // A buffer to store FRAME_STATS for each MACROBLOCK.
   FRAME_STATS *mb_stats;
+  // A buffer to store raw_motion_err for each MACROBLOCK.
   int *raw_motion_err_list;
 } FirstPassData;
 
 struct AV1_COMP;
 struct EncodeFrameParams;
 struct AV1EncoderConfig;
+struct TileDataEnc;
 
 void av1_rc_get_first_pass_params(struct AV1_COMP *cpi);
+void av1_first_pass_row(struct AV1_COMP *cpi, struct ThreadData *td,
+                        struct TileDataEnc *tile_data, int mb_row);
 void av1_first_pass(struct AV1_COMP *cpi, const int64_t ts_duration);
 void av1_end_first_pass(struct AV1_COMP *cpi);
 

@@ -1538,7 +1538,7 @@ typedef struct AV1_COMP {
   // (when we are recoding to try multiple options for example).
   aom_superres_mode superres_mode;
 
-  // First pass data
+  // First pass data.
   FirstPassData firstpass_data;
 } AV1_COMP;
 
