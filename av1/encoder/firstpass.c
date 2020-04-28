@@ -693,7 +693,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
           xd->mi[0]->ref_frame[1] = NONE_FRAME;
           av1_enc_build_inter_predictor(cm, xd, mb_row * mb_scale,
                                         mb_col * mb_scale, NULL, bsize,
-                                        AOM_PLANE_Y, AOM_PLANE_Y);
+                                        AOM_PLANE_Y, AOM_PLANE_Y, NULL);
           av1_encode_sby_pass1(cm, x, bsize);
           sum_mvr += mv.row;
           sum_mvr_abs += abs(mv.row);

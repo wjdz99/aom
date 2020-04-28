@@ -76,7 +76,7 @@ static unsigned int do_16x16_motion_iteration(AV1_COMP *cpi, const MV *ref_mv,
   xd->mi[0]->ref_frame[1] = NONE_FRAME;
 
   av1_enc_build_inter_predictor(&cpi->common, xd, mb_row, mb_col, NULL,
-                                BLOCK_16X16, AOM_PLANE_Y, AOM_PLANE_Y);
+                                BLOCK_16X16, AOM_PLANE_Y, AOM_PLANE_Y, NULL);
 
   /* restore UMV window */
   x->mv_limits = tmp_mv_limits;

@@ -121,7 +121,8 @@ typedef struct InterPredExt {
 
 // Checks if the InterPredExt is valid -- useful for assertions. NULL means
 // 0 values for all borders.
-bool av1_valid_inter_pred_ext(const InterPredExt *ext);
+bool av1_valid_inter_pred_ext(const InterPredExt *ext, bool intra_bc,
+                              bool is_compound);
 
 static INLINE void inter_predictor(const uint8_t *src, int src_stride,
                                    uint8_t *dst, int dst_stride,
@@ -228,13 +229,6 @@ void av1_make_inter_predictor(
     int ref, const MB_MODE_INFO *mi, int build_for_obmc, const MACROBLOCKD *xd,
     int can_use_previous, const InterPredExt *ext);
 
-void av1_make_masked_inter_predictor(
-    const uint8_t *pre, int pre_stride, uint8_t *dst, int dst_stride,
-    const SubpelParams *subpel_params, const struct scale_factors *sf, int w,
-    int h, ConvolveParams *conv_params, int_interpfilters interp_filters,
-    int plane, const WarpTypesAllowed *warp_types, int p_col, int p_row,
-    int ref, MACROBLOCKD *xd, int can_use_previous);
-
 typedef void (*CalcSubpelParamsFunc)(
     MACROBLOCKD *xd, const struct scale_factors *const sf, const MV *const mv,
     int plane, int pre_x, int pre_y, int x, int y, struct buf_2d *const pre_buf,
@@ -247,7 +241,9 @@ void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                 int build_for_obmc, int bw, int bh, int mi_x,
                                 int mi_y,
                                 CalcSubpelParamsFunc calc_subpel_params_func,
-                                const void *const calc_subpel_params_func_args);
+                                const void *const calc_subpel_params_func_args,
+                                uint8_t *dst, int dst_stride,
+                                const InterPredExt *ext);
 
 #if CONFIG_EXT_COMPOUND
 int av1_compute_subpel_gradients(const AV1_COMMON *cm, MACROBLOCKD *xd,

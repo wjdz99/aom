@@ -719,8 +719,20 @@ static void dec_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                        int build_for_obmc, int bw, int bh,
                                        int mi_x, int mi_y) {
   const DecCalcSubpelFuncArgs args = { mi, mi_x, mi_y, build_for_obmc };
+  InterPredExt *ext = NULL;
+#if CONFIG_ILLUM_MCOMP
+  InterPredExt border = {
+    .border_top = 8, .border_left = 8, .border_bottom = 0, .border_right = 0
+  };
+  if (is_interintra_pred(xd->mi[0]) &&
+      xd->mi[0]->interintra_mode == II_ILLUM_MCOMP_PRED) {
+    ext = &border;
+  }
+#endif  // CONFIG_ILLUM_MCOMP
   av1_build_inter_predictors(cm, xd, plane, mi, build_for_obmc, bw, bh, mi_x,
-                             mi_y, dec_calc_subpel_params_and_extend, &args);
+                             mi_y, dec_calc_subpel_params_and_extend, &args,
+                             xd->plane[plane].dst.buf,
+                             xd->plane[plane].dst.stride, ext);
 }
 
 static void dec_build_inter_predictors_for_planes(const AV1_COMMON *cm,
