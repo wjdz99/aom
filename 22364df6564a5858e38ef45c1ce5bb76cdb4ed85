@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e1c6c44b_94420a5a",
+        "filename": "aom/exports_com",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-28T16:21:57Z",
+      "side": 1,
+      "message": "Yes. We can only remove aom_codec_control_ in a major version upgrade, such as libaom 2.0.0.",
+      "parentUuid": "0be40dad_1d519624",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 22
+      },
+      "revId": "22364df6564a5858e38ef45c1ce5bb76cdb4ed85",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eb6275e2_d6a955e4",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2020-04-27T22:17:17Z",
       "side": 1,
       "message": "If we do decide to keep type checking functions around, I think manually specifying them would be clearer.",
+      "range": {
+        "startLine": 1105,
+        "startChar": 0,
+        "endLine": 1105,
+        "endChar": 46
+      },
+      "revId": "22364df6564a5858e38ef45c1ce5bb76cdb4ed85",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e82f89f_07bfbf7d",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1105,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-04-28T16:21:57Z",
+      "side": 1,
+      "message": "I agree.\n\nThis CL needs to show which header file (in particular, whether it is a public or internal header file) declares the aom_codec_control_set_cpuused() function.",
+      "parentUuid": "eb6275e2_d6a955e4",
       "range": {
         "startLine": 1105,
         "startChar": 0,
