@@ -1422,7 +1422,7 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                              ? av1_broadcast_interp_filter(EIGHTTAP_REGULAR)
                              : av1_broadcast_interp_filter(filter_ref);
     av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
-                                  AOM_PLANE_Y, AOM_PLANE_Y);
+                                  AOM_PLANE_Y, AOM_PLANE_Y, NULL);
     if (cpi->sf.use_modeled_non_rd_cost) {
       model_rd_for_sb_y(cpi, bsize, x, xd, &this_rdc.rate, &this_rdc.dist,
                         &this_rdc.skip, NULL, &var_y, &sse_y);

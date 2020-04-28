@@ -80,22 +80,26 @@ static INLINE void enc_calc_subpel_params(
 static void enc_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                        int plane, const MB_MODE_INFO *mi,
                                        int build_for_obmc, int bw, int bh,
-                                       int mi_x, int mi_y) {
+                                       int mi_x, int mi_y,
+                                       const InterPredExt *ext) {
   av1_build_inter_predictors(cm, xd, plane, mi, build_for_obmc, bw, bh, mi_x,
-                             mi_y, enc_calc_subpel_params, NULL);
+                             mi_y, enc_calc_subpel_params, NULL,
+                             xd->plane[plane].dst.buf,
+                             xd->plane[plane].dst.stride, ext);
 }
 
 static void build_inter_predictors_for_plane(const AV1_COMMON *cm,
                                              MACROBLOCKD *xd, int mi_row,
                                              int mi_col, const BUFFER_SET *ctx,
-                                             BLOCK_SIZE bsize, int plane_idx) {
+                                             BLOCK_SIZE bsize, int plane_idx,
+                                             const InterPredExt *ext) {
   const struct macroblockd_plane *pd = &xd->plane[plane_idx];
   if (plane_idx && !xd->mi[0]->chroma_ref_info.is_chroma_ref) return;
 
   const int mi_x = mi_col * MI_SIZE;
   const int mi_y = mi_row * MI_SIZE;
   enc_build_inter_predictors(cm, xd, plane_idx, xd->mi[0], 0, pd->width,
-                             pd->height, mi_x, mi_y);
+                             pd->height, mi_x, mi_y, ext);
 
   if (is_interintra_pred(xd->mi[0])) {
     BUFFER_SET default_ctx = { { NULL, NULL, NULL }, { 0, 0, 0 } };
@@ -113,10 +117,11 @@ static void build_inter_predictors_for_plane(const AV1_COMMON *cm,
 void av1_enc_build_inter_predictor(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                    int mi_row, int mi_col,
                                    const BUFFER_SET *ctx, BLOCK_SIZE bsize,
-                                   int plane_from, int plane_to) {
+                                   int plane_from, int plane_to,
+                                   const InterPredExt *ext) {
   for (int plane_idx = plane_from; plane_idx <= plane_to; ++plane_idx) {
     build_inter_predictors_for_plane(cm, xd, mi_row, mi_col, ctx, bsize,
-                                     plane_idx);
+                                     plane_idx, ext);
   }
 }
 
@@ -177,7 +182,7 @@ static INLINE void build_prediction_by_above_pred(
 
     if (av1_skip_u4x4_pred_in_obmc(mi_row, mi_col, bsize, pd, 0)) continue;
     enc_build_inter_predictors(ctxt->cm, xd, j, &backup_mbmi, 1, bw, bh, mi_x,
-                               mi_y);
+                               mi_y, NULL);
   }
 }
 
@@ -232,7 +237,7 @@ static INLINE void build_prediction_by_left_pred(
 
     if (av1_skip_u4x4_pred_in_obmc(mi_row, mi_col, bsize, pd, 1)) continue;
     enc_build_inter_predictors(ctxt->cm, xd, j, &backup_mbmi, 1, bw, bh, mi_x,
-                               mi_y);
+                               mi_y, NULL);
   }
 }
 
