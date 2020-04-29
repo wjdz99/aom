@@ -148,14 +148,14 @@ void process_tile_list(const TILE_LIST_INFO *tiles, int num_tiles,
     size_t frame_size = frame_sizes[image_idx];
     const unsigned char *frame = frames[image_idx];
 
-    aom_codec_control_(codec, AV1_SET_DECODE_TILE_ROW, tr);
-    aom_codec_control_(codec, AV1_SET_DECODE_TILE_COL, tc);
+    aom_codec_control(codec, AV1_SET_DECODE_TILE_ROW, tr);
+    aom_codec_control(codec, AV1_SET_DECODE_TILE_COL, tc);
 
     aom_codec_err_t aom_status =
         aom_codec_decode(codec, frame, frame_size, NULL);
     if (aom_status) die_codec(codec, "Failed to decode tile.");
 
-    aom_codec_control_(codec, AV1D_GET_TILE_DATA, &tile_data);
+    aom_codec_control(codec, AV1D_GET_TILE_DATA, &tile_data);
 
     // Copy over tile info.
     //  uint8_t anchor_frame_idx;
@@ -227,7 +227,7 @@ int main(int argc, char **argv) {
     die_codec(&codec, "Failed to initialize decoder.");
 
   // Decode anchor frames.
-  aom_codec_control_(&codec, AV1_SET_TILE_MODE, 0);
+  aom_codec_control(&codec, AV1_SET_TILE_MODE, 0);
 
   printf("Reading %d reference images.\n", num_references);
   for (i = 0; i < num_references; ++i) {
@@ -247,8 +247,8 @@ int main(int argc, char **argv) {
   }
 
   // Decode camera frames.
-  aom_codec_control_(&codec, AV1_SET_TILE_MODE, 1);
-  aom_codec_control_(&codec, AV1D_EXT_TILE_DEBUG, 1);
+  aom_codec_control(&codec, AV1_SET_TILE_MODE, 1);
+  aom_codec_control(&codec, AV1D_EXT_TILE_DEBUG, 1);
 
   FILE *infile = aom_video_reader_get_file(reader);
   // Record the offset of the first camera image.
@@ -290,14 +290,14 @@ int main(int argc, char **argv) {
 
     // Need to decode frame header to get camera frame header info. So, here
     // decoding 1 tile is enough.
-    aom_codec_control_(&codec, AV1_SET_DECODE_TILE_ROW, 0);
-    aom_codec_control_(&codec, AV1_SET_DECODE_TILE_COL, 0);
+    aom_codec_control(&codec, AV1_SET_DECODE_TILE_ROW, 0);
+    aom_codec_control(&codec, AV1_SET_DECODE_TILE_COL, 0);
 
     aom_codec_err_t aom_status =
         aom_codec_decode(&codec, frame, frame_size, NULL);
     if (aom_status) die_codec(&codec, "Failed to decode tile.");
 
-    aom_codec_control_(&codec, AV1D_GET_FRAME_HEADER_INFO, &frame_header_info);
+    aom_codec_control(&codec, AV1D_GET_FRAME_HEADER_INFO, &frame_header_info);
 
     size_t obu_size_offset =
         (uint8_t *)frame_header_info.coded_tile_data - frame;
