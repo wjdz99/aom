@@ -253,6 +253,9 @@ if(CONFIG_AV1_ENCODER)
   list(APPEND AOM_DSP_ENCODER_AVX_ASM_X86_64
               "${AOM_ROOT}/aom_dsp/x86/quantize_avx_x86_64.asm")
 
+  list(APPEND AOM_DSP_ENCODER_INTRIN_AVX
+              "${AOM_ROOT}/aom_dsp/x86/aom_quantize_avx.c")
+
   list(APPEND AOM_DSP_ENCODER_INTRIN_SSSE3
               "${AOM_ROOT}/aom_dsp/x86/masked_sad_intrin_ssse3.h"
               "${AOM_ROOT}/aom_dsp/x86/masked_sad_intrin_ssse3.c"
@@ -378,6 +381,13 @@ function(setup_aom_dsp_targets)
   if(HAVE_AVX AND "${AOM_TARGET_CPU}" STREQUAL "x86_64")
     if(CONFIG_AV1_ENCODER)
       add_asm_library("aom_dsp_encoder_avx" "AOM_DSP_ENCODER_AVX_ASM_X86_64")
+    endif()
+  endif()
+
+  if(HAVE_AVX)
+    if (CONFIG_AV1_ENCODER)
+      add_intrinsics_object_library("-mavx" "avx" "aom_dsp_encoder"
+                                    "AOM_DSP_ENCODER_INTRIN_AVX")
     endif()
   endif()
 

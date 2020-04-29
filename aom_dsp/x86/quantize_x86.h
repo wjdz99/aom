@@ -95,7 +95,7 @@ static INLINE void calculate_dqcoeff_and_store_log_scale(__m128i qcoeff,
 
 // Scan 16 values for eob reference in scan_ptr. Use masks (-1) from comparing
 // to zbin to add 1 to the index in 'scan'.
-static INLINE __m128i scan_for_eob(__m128i *coeff0, __m128i *coeff1,
+INLINE __m128i scan_for_eob(__m128i *coeff0, __m128i *coeff1,
                                    const __m128i zbin_mask0,
                                    const __m128i zbin_mask1,
                                    const int16_t *scan_ptr, const int index,
