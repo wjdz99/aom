@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1768a662_ba06463e",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-04-29T18:51:19Z",
+      "side": 1,
+      "message": "remove \"const\" if it is \"pass by value\".",
+      "range": {
+        "startLine": 808,
+        "startChar": 63,
+        "endLine": 808,
+        "endChar": 77
+      },
+      "revId": "be46ea7bcd550834021a333e23eaeed7d8d19cde",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
