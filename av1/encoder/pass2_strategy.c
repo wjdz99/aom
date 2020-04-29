@@ -2366,6 +2366,7 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   boost_score = get_kf_boost_score(cpi, kf_raw_err, &zero_motion_accumulator,
                                    &sr_accumulator, 0);
   reset_fpf_position(twopass, start_position);
+
   // Store the zero motion percentage
   twopass->kf_zeromotion_pct = (int)(zero_motion_accumulator * 100.0);
 
@@ -2393,9 +2394,20 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
       (rc->frames_to_key > 8)) {
     rc->kf_boost = AOMMAX(rc->kf_boost, MIN_STATIC_KF_BOOST);
   } else {
+    int frames = AOMMIN((rc->frames_to_key - 1), rc->max_gf_interval);
+    int kf_min_boost = AOMMIN(
+        MAX_KF_BOOST,
+        av1_calc_arf_boost(
+            twopass, rc, frame_info, 0, frames, 0,
+            cpi->lap_enabled ? &rc->num_stats_used_for_gfu_boost : NULL,
+            cpi->lap_enabled ? &rc->num_stats_required_for_gfu_boost : NULL) *
+            3 / 2);
+
+    kf_min_boost = AOMMAX(kf_min_boost, MIN_KF_BOOST);
+
     // Apply various clamps for min and max boost
     rc->kf_boost = AOMMAX(rc->kf_boost, (rc->frames_to_key * 3));
-    rc->kf_boost = AOMMAX(rc->kf_boost, MIN_KF_BOOST);
+    rc->kf_boost = AOMMAX(rc->kf_boost, kf_min_boost);
 #ifdef STRICT_RC
     rc->kf_boost = AOMMIN(rc->kf_boost, MAX_KF_BOOST);
 #endif
@@ -2871,7 +2883,7 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
             (double)twopass->rolling_arf_group_actual_bits /
                 (double)twopass->rolling_arf_group_target_bits,
             twopass->bpm_factor,
-            av1_convert_qindex_to_q(quant_params->base_qindex,
+            av1_convert_qindex_to_q(cpi->common.quant_params.base_qindex,
                                     cm->seq_params.bit_depth),
             av1_convert_qindex_to_q(rc->active_worst_quality,
                                     cm->seq_params.bit_depth));
