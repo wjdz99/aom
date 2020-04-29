@@ -865,6 +865,11 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
     cpi->td.vt64x64 = NULL;
   }
 
+  if (cpi->td.firstpass_ctx) {
+    av1_free_pmc(cpi->td.firstpass_ctx, av1_num_planes(cm));
+    cpi->td.firstpass_ctx = NULL;
+  }
+
   av1_free_ref_frame_buffers(cm->buffer_pool);
   av1_free_txb_buf(cpi);
   av1_free_context_buffers(cm);
@@ -1125,6 +1130,8 @@ static void alloc_compressor_data(AV1_COMP *cpi) {
 
   av1_setup_shared_coeff_buffer(&cpi->common, &cpi->td.shared_coeff_buf);
   av1_setup_sms_tree(cpi, &cpi->td);
+  cpi->td.firstpass_ctx =
+      av1_alloc_pmc(cm, BLOCK_16X16, &cpi->td.shared_coeff_buf);
 }
 
 void av1_new_framerate(AV1_COMP *cpi, double framerate) {
@@ -2927,6 +2934,10 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
       av1_free_context_buffers(cm);
       av1_free_shared_coeff_buffer(&cpi->td.shared_coeff_buf);
       av1_free_sms_tree(&cpi->td);
+      if (cpi->td.firstpass_ctx) {
+        av1_free_pmc(cpi->td.firstpass_ctx, av1_num_planes(cm));
+        cpi->td.firstpass_ctx = NULL;
+      }
       alloc_compressor_data(cpi);
       realloc_segmentation_maps(cpi);
       initial_dimensions->width = initial_dimensions->height = 0;
@@ -4346,6 +4357,10 @@ int av1_set_size_literal(AV1_COMP *cpi, int width, int height) {
     av1_free_context_buffers(cm);
     av1_free_shared_coeff_buffer(&cpi->td.shared_coeff_buf);
     av1_free_sms_tree(&cpi->td);
+    if (cpi->td.firstpass_ctx) {
+      av1_free_pmc(cpi->td.firstpass_ctx, av1_num_planes(cm));
+      cpi->td.firstpass_ctx = NULL;
+    }
     alloc_compressor_data(cpi);
     realloc_segmentation_maps(cpi);
     initial_dimensions->width = initial_dimensions->height = 0;
