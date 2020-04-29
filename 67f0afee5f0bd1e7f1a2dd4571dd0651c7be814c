@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e1c836a_36e29b4b",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-29T15:54:25Z",
+      "side": 1,
+      "message": "can we move !is_key_frame out of the function, see comment below",
+      "revId": "67f0afee5f0bd1e7f1a2dd4571dd0651c7be814c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22336cd6_0c279aac",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 871,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-04-29T15:54:25Z",
+      "side": 1,
+      "message": "is this function only needed for (!is_key_frame), so can it be moved to line 874?",
+      "revId": "67f0afee5f0bd1e7f1a2dd4571dd0651c7be814c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
