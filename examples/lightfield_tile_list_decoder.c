@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
   }
 
   // Decode anchor frames.
-  aom_codec_control_(&codec, AV1_SET_TILE_MODE, 0);
+  aom_codec_control(&codec, AV1_SET_TILE_MODE, 0);
   for (i = 0; i < num_references; ++i) {
     aom_video_reader_read_frame(reader);
     frame = aom_video_reader_get_frame(reader, &frame_size);
@@ -185,11 +185,11 @@ int main(int argc, char **argv) {
   }
 
   // Decode the lightfield.
-  aom_codec_control_(&codec, AV1_SET_TILE_MODE, 1);
+  aom_codec_control(&codec, AV1_SET_TILE_MODE, 1);
 
   // Set external references.
   av1_ext_ref_frame_t set_ext_ref = { &reference_images[0], num_references };
-  aom_codec_control_(&codec, AV1D_SET_EXT_REF_PTR, &set_ext_ref);
+  aom_codec_control(&codec, AV1D_SET_EXT_REF_PTR, &set_ext_ref);
   // Must decode the camera frame header first.
   aom_video_reader_read_frame(reader);
   frame = aom_video_reader_get_frame(reader, &frame_size);

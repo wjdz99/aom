@@ -1907,14 +1907,10 @@ static void initialize_encoder(struct stream_state *stream,
                      flags);
   ctx_exit_on_error(&stream->encoder, "Failed to initialize encoder");
 
-  /* Note that we bypass the aom_codec_control wrapper macro because
-   * we're being clever to store the control IDs in an array. Real
-   * applications will want to make use of the enumerations directly
-   */
   for (i = 0; i < stream->config.arg_ctrl_cnt; i++) {
     int ctrl = stream->config.arg_ctrls[i][0];
     int value = stream->config.arg_ctrls[i][1];
-    if (aom_codec_control_(&stream->encoder, ctrl, value))
+    if (aom_codec_control(&stream->encoder, ctrl, value))
       fprintf(stderr, "Error: Tried to set control %d = %d\n", ctrl, value);
 
     ctx_exit_on_error(&stream->encoder, "Failed to control codec");
@@ -1922,14 +1918,14 @@ static void initialize_encoder(struct stream_state *stream,
 
 #if CONFIG_TUNE_VMAF
   if (stream->config.vmaf_model_path) {
-    aom_codec_control_(&stream->encoder, AV1E_SET_VMAF_MODEL_PATH,
-                       stream->config.vmaf_model_path);
+    aom_codec_control(&stream->encoder, AV1E_SET_VMAF_MODEL_PATH,
+                      stream->config.vmaf_model_path);
   }
 #endif
 
   if (stream->config.film_grain_filename) {
-    aom_codec_control_(&stream->encoder, AV1E_SET_FILM_GRAIN_TABLE,
-                       stream->config.film_grain_filename);
+    aom_codec_control(&stream->encoder, AV1E_SET_FILM_GRAIN_TABLE,
+                      stream->config.film_grain_filename);
   }
 
 #if CONFIG_AV1_DECODER

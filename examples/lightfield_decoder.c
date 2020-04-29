@@ -95,10 +95,10 @@ void decode_tile(aom_codec_ctx_t *codec, const unsigned char *frame,
                  aom_image_t *reference_images, aom_image_t *output,
                  int *tile_idx, unsigned int *output_bit_depth,
                  aom_image_t **img_ptr, int output_format) {
-  aom_codec_control_(codec, AV1_SET_TILE_MODE, 1);
-  aom_codec_control_(codec, AV1D_EXT_TILE_DEBUG, 1);
-  aom_codec_control_(codec, AV1_SET_DECODE_TILE_ROW, tr);
-  aom_codec_control_(codec, AV1_SET_DECODE_TILE_COL, tc);
+  aom_codec_control(codec, AV1_SET_TILE_MODE, 1);
+  aom_codec_control(codec, AV1D_EXT_TILE_DEBUG, 1);
+  aom_codec_control(codec, AV1_SET_DECODE_TILE_ROW, tr);
+  aom_codec_control(codec, AV1_SET_DECODE_TILE_COL, tc);
 
   av1_ref_frame_t ref;
   ref.idx = 0;
@@ -203,7 +203,7 @@ int main(int argc, char **argv) {
   }
 
   // Decode anchor frames.
-  aom_codec_control_(&codec, AV1_SET_TILE_MODE, 0);
+  aom_codec_control(&codec, AV1_SET_TILE_MODE, 0);
   for (i = 0; i < num_references; ++i) {
     aom_video_reader_read_frame(reader);
     frame = aom_video_reader_get_frame(reader, &frame_size);
