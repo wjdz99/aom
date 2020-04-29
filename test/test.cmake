@@ -253,6 +253,10 @@ if(NOT BUILD_SHARED_LIBS)
     list(APPEND AOM_UNIT_TEST_ENCODER_SOURCES "${AOM_ROOT}/test/hash_test.cc")
   endif()
 
+  if(HAVE_NEON)
+    list(APPEND AOM_UNIT_TEST_ENCODER_SOURCES "${AOM_ROOT}/test/av1_highbd_iht_test.cc")
+  endif()
+
 endif()
 
 if(ENABLE_TESTS)
