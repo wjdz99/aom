@@ -1,5 +1,11 @@
 text aom_codec_build_config
-text aom_codec_control_
+text aom_codec_control
+text aom_codec_control_set_int
+text aom_codec_control_get_int
+text aom_codec_control_set_uint
+text aom_codec_control_get_uint
+text aom_codec_control_set_ptr
+text aom_codec_control_get_ptr
 text aom_codec_destroy
 text aom_codec_err_to_string
 text aom_codec_error
