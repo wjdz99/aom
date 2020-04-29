@@ -20,6 +20,8 @@
 #include "config/aom_version.h"
 
 #include "aom/aom_integer.h"
+#include "aom/aomcx.h"
+#include "aom/aomdx.h"
 #include "aom/internal/aom_codec_internal.h"
 
 #define SAVE_STATUS(ctx, var) (ctx ? (ctx->err = var) : var)
@@ -89,7 +91,246 @@ aom_codec_caps_t aom_codec_get_caps(aom_codec_iface_t *iface) {
   return (iface) ? iface->caps : 0;
 }
 
-aom_codec_err_t aom_codec_control_(aom_codec_ctx_t *ctx, int ctrl_id, ...) {
+aom_codec_err_t aom_codec_control_set_int(aom_codec_ctx_t *ctx, int ctrl_id,
+                                          int val) {
+  switch (ctrl_id) {
+    case AOME_SET_CPUUSED:
+    case AOME_SET_NUMBER_SPATIAL_LAYERS:
+    case AOME_SET_TUNING:
+    case AOM_SET_DBG_COLOR_B_MODES:
+    case AOM_SET_DBG_COLOR_MB_MODES:
+    case AOM_SET_DBG_COLOR_REF_FRAME:
+    case AOM_SET_DBG_DISPLAY_MV:
+    case AV1D_SET_OPERATING_POINT:
+    case AV1D_SET_OUTPUT_ALL_LAYERS:
+    case AV1D_SET_SKIP_FILM_GRAIN:
+    case AV1E_SET_ALLOW_REF_FRAME_MVS:
+    case AV1E_SET_ALLOW_WARPED_MOTION:
+    case AV1E_SET_CHROMA_SAMPLE_POSITION:
+    case AV1E_SET_COLOR_PRIMARIES:
+    case AV1E_SET_COLOR_RANGE:
+    case AV1E_SET_DENOISE_NOISE_LEVEL:
+    case AV1E_SET_ENABLE_1TO4_PARTITIONS:
+    case AV1E_SET_ENABLE_AB_PARTITIONS:
+    case AV1E_SET_ENABLE_ANGLE_DELTA:
+    case AV1E_SET_ENABLE_CFL_INTRA:
+    case AV1E_SET_ENABLE_CHROMA_DELTAQ:
+    case AV1E_SET_ENABLE_DIFF_WTD_COMP:
+    case AV1E_SET_ENABLE_DIST_WTD_COMP:
+    case AV1E_SET_ENABLE_DUAL_FILTER:
+    case AV1E_SET_ENABLE_FILTER_INTRA:
+    case AV1E_SET_ENABLE_FLIP_IDTX:
+    case AV1E_SET_ENABLE_GLOBAL_MOTION:
+    case AV1E_SET_ENABLE_INTERINTER_WEDGE:
+    case AV1E_SET_ENABLE_INTERINTRA_COMP:
+    case AV1E_SET_ENABLE_INTERINTRA_WEDGE:
+    case AV1E_SET_ENABLE_INTRABC:
+    case AV1E_SET_ENABLE_INTRA_EDGE_FILTER:
+    case AV1E_SET_ENABLE_MASKED_COMP:
+    case AV1E_SET_ENABLE_ONESIDED_COMP:
+    case AV1E_SET_ENABLE_ORDER_HINT:
+    case AV1E_SET_ENABLE_OVERLAY:
+    case AV1E_SET_ENABLE_PAETH_INTRA:
+    case AV1E_SET_ENABLE_PALETTE:
+    case AV1E_SET_ENABLE_RECT_PARTITIONS:
+    case AV1E_SET_ENABLE_REF_FRAME_MVS:
+    case AV1E_SET_ENABLE_SMOOTH_INTERINTRA:
+    case AV1E_SET_ENABLE_SMOOTH_INTRA:
+    case AV1E_SET_ENABLE_SUPERRES:
+    case AV1E_SET_ENABLE_TX64:
+    case AV1E_SET_ENABLE_WARPED_MOTION:
+    case AV1E_SET_ERROR_RESILIENT_MODE:
+    case AV1E_SET_FILM_GRAIN_TEST_VECTOR:
+    case AV1E_SET_INTER_DCT_ONLY:
+    case AV1E_SET_INTRA_DCT_ONLY:
+    case AV1E_SET_INTRA_DEFAULT_TX_ONLY:
+    case AV1E_SET_MATRIX_COEFFICIENTS:
+    case AV1E_SET_MAX_PARTITION_SIZE:
+    case AV1E_SET_MAX_REFERENCE_FRAMES:
+    case AV1E_SET_MIN_PARTITION_SIZE:
+    case AV1E_SET_QUANT_B_ADAPT:
+    case AV1E_SET_REDUCED_REFERENCE_SET:
+    case AV1E_SET_REDUCED_TX_TYPE_SET:
+    case AV1E_SET_S_FRAME_MODE:
+    case AV1E_SET_TARGET_SEQ_LEVEL_IDX:
+    case AV1E_SET_TIMING_INFO_TYPE:
+    case AV1E_SET_TRANSFER_CHARACTERISTICS:
+    case AV1E_SET_TUNE_CONTENT:
+    case AV1_SET_DECODE_TILE_COL:
+    case AV1_SET_DECODE_TILE_ROW: return aom_codec_control(ctx, ctrl_id, val);
+    default:
+      if (ctx == NULL) {
+        return AOM_CODEC_INVALID_PARAM;
+      }
+      ctx->err = AOM_CODEC_INVALID_PARAM;
+      return ctx->err;
+  }
+}
+
+aom_codec_err_t aom_codec_control_get_int(aom_codec_ctx_t *ctx, int ctrl_id,
+                                          int *val) {
+  switch (ctrl_id) {
+    case AOMD_GET_FRAME_CORRUPTED:
+    case AOMD_GET_LAST_REF_UPDATES:
+    case AOMD_GET_LAST_REF_USED:
+    case AOMD_GET_LAST_QUANTIZER:
+    case AOME_GET_LAST_QUANTIZER:
+    case AOME_GET_LAST_QUANTIZER_64:
+    case AV1D_GET_DISPLAY_SIZE:
+    case AV1D_GET_FRAME_SIZE:
+    case AV1E_GET_SEQ_LEVEL_IDX: return aom_codec_control(ctx, ctrl_id, val);
+    default:
+      if (ctx == NULL) {
+        return AOM_CODEC_INVALID_PARAM;
+      }
+      ctx->err = AOM_CODEC_INVALID_PARAM;
+      return ctx->err;
+  }
+}
+
+aom_codec_err_t aom_codec_control_set_uint(aom_codec_ctx_t *ctx, int ctrl_id,
+                                           unsigned int val) {
+  switch (ctrl_id) {
+    case AOME_SET_ARNR_MAXFRAMES:
+    case AOME_SET_ARNR_STRENGTH:
+    case AOME_SET_CQ_LEVEL:
+    case AOME_SET_ENABLEAUTOALTREF:
+    case AOME_SET_ENABLEAUTOBWDREF:
+    case AOME_SET_MAX_INTRA_BITRATE_PCT:
+    case AOME_SET_SHARPNESS:
+    case AOME_SET_SPATIAL_LAYER_ID:
+    case AOME_SET_STATIC_THRESHOLD:
+    case AV1D_SET_IS_ANNEXB:
+    case AV1D_SET_ROW_MT:
+    case AV1E_SET_AQ_MODE:
+    case AV1E_SET_CDF_UPDATE_MODE:
+    case AV1E_SET_CHROMA_SUBSAMPLING_X:
+    case AV1E_SET_CHROMA_SUBSAMPLING_Y:
+    case AV1E_SET_COEFF_COST_UPD_FREQ:
+    case AV1E_SET_DELTALF_MODE:
+    case AV1E_SET_DELTAQ_MODE:
+    case AV1E_SET_DENOISE_BLOCK_SIZE:
+    case AV1E_SET_DISABLE_TRELLIS_QUANT:
+    case AV1E_SET_ENABLE_CDEF:
+    case AV1E_SET_ENABLE_DIST_8X8:
+    case AV1E_SET_ENABLE_KEYFRAME_FILTERING:
+    case AV1E_SET_ENABLE_OBMC:
+    case AV1E_SET_ENABLE_QM:
+    case AV1E_SET_ENABLE_RESTORATION:
+    case AV1E_SET_ENABLE_TPL_MODEL:
+    case AV1E_SET_FORCE_VIDEO_MODE:
+    case AV1E_SET_FRAME_PARALLEL_DECODING:
+    case AV1E_SET_FRAME_PERIODIC_BOOST:
+    case AV1E_SET_GF_CBR_BOOST_PCT:
+    case AV1E_SET_GF_MAX_PYRAMID_HEIGHT:
+    case AV1E_SET_GF_MIN_PYRAMID_HEIGHT:
+    case AV1E_SET_LOSSLESS:
+    case AV1E_SET_MAX_GF_INTERVAL:
+    case AV1E_SET_MAX_INTER_BITRATE_PCT:
+    case AV1E_SET_MIN_CR:
+    case AV1E_SET_MIN_GF_INTERVAL:
+    case AV1E_SET_MODE_COST_UPD_FREQ:
+    case AV1E_SET_MTU:
+    case AV1E_SET_MV_COST_UPD_FREQ:
+    case AV1E_SET_NOISE_SENSITIVITY:
+    case AV1E_SET_NUM_TG:
+    case AV1E_SET_QM_MAX:
+    case AV1E_SET_QM_MIN:
+    case AV1E_SET_QM_U:
+    case AV1E_SET_QM_V:
+    case AV1E_SET_QM_Y:
+    case AV1E_SET_ROW_MT:
+    case AV1E_SET_SINGLE_TILE_DECODING:
+    case AV1E_SET_SUPERBLOCK_SIZE:
+    case AV1E_SET_TIER_MASK:
+    case AV1E_SET_TILE_COLUMNS:
+    case AV1E_SET_TILE_ROWS:
+    case AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP:
+    case AV1_SET_TILE_MODE: return aom_codec_control(ctx, ctrl_id, val);
+    default:
+      if (ctx == NULL) {
+        return AOM_CODEC_INVALID_PARAM;
+      }
+      ctx->err = AOM_CODEC_INVALID_PARAM;
+      return ctx->err;
+  }
+}
+
+aom_codec_err_t aom_codec_control_get_uint(aom_codec_ctx_t *ctx, int ctrl_id,
+                                           unsigned int *val) {
+  switch (ctrl_id) {
+    case AV1D_GET_BIT_DEPTH:
+    case AV1D_GET_TILE_COUNT:
+    case AV1D_GET_TILE_SIZE: return aom_codec_control(ctx, ctrl_id, val);
+    default:
+      if (ctx == NULL) {
+        return AOM_CODEC_INVALID_PARAM;
+      }
+      ctx->err = AOM_CODEC_INVALID_PARAM;
+      return ctx->err;
+  }
+}
+
+aom_codec_err_t aom_codec_control_set_ptr(aom_codec_ctx_t *ctx, int ctrl_id,
+                                          void *val, size_t size) {
+  size_t expected_size;
+  switch (ctrl_id) {
+    case AOM_SET_POSTPROC: expected_size = sizeof(aom_postproc_cfg_t); break;
+    case AOME_SET_ACTIVEMAP: expected_size = sizeof(aom_active_map_t); break;
+    case AOME_SET_ROI_MAP: expected_size = sizeof(aom_roi_map_t); break;
+    case AOME_SET_SCALEMODE: expected_size = sizeof(aom_scaling_mode_t); break;
+    case AV1D_SET_EXT_REF_PTR:
+      expected_size = sizeof(av1_ext_ref_frame_t);
+      break;
+    case AV1E_SET_RENDER_SIZE: expected_size = sizeof(int32_t[2]); break;
+    case AV1E_SET_SVC_LAYER_ID:
+      expected_size = sizeof(aom_svc_layer_id_t);
+      break;
+    case AV1E_SET_SVC_PARAMS: expected_size = sizeof(aom_svc_params_t); break;
+    case AV1E_SET_SVC_REF_FRAME_CONFIG:
+      expected_size = sizeof(aom_svc_ref_frame_config_t);
+      break;
+    case AV1_SET_INSPECTION_CALLBACK:
+      expected_size = sizeof(aom_inspect_init);
+      break;
+    case AV1_SET_REFERENCE: expected_size = sizeof(av1_ref_frame_t);
+    default: expected_size = 0;
+  }
+  if (expected_size != 0 && expected_size == size) {
+    return aom_codec_control(ctx, ctrl_id, val);
+  }
+  if (ctx == NULL) {
+    return AOM_CODEC_INVALID_PARAM;
+  }
+  ctx->err = AOM_CODEC_INVALID_PARAM;
+  return ctx->err;
+}
+
+aom_codec_err_t aom_codec_control_get_ptr(aom_codec_ctx_t *ctx, int ctrl_id,
+                                          void *val, size_t size) {
+  size_t expected_size;
+  switch (ctrl_id) {
+    case AV1D_GET_FRAME_HEADER_INFO:
+      expected_size = sizeof(aom_tile_data);
+      break;
+    case AV1D_GET_IMG_FORMAT: expected_size = sizeof(aom_img_fmt_t); break;
+    case AV1D_GET_TILE_DATA: expected_size = sizeof(aom_tile_data); break;
+    case AV1_GET_ACCOUNTING: expected_size = sizeof(Accounting *); break;
+    case AV1_GET_NEW_FRAME_IMAGE: expected_size = sizeof(aom_image_t); break;
+    case AV1_GET_REFERENCE: expected_size = sizeof(av1_ref_frame_t); break;
+    default: expected_size = 0;
+  }
+  if (expected_size != 0 && expected_size == size) {
+    return aom_codec_control(ctx, ctrl_id, val);
+  }
+  if (ctx == NULL) {
+    return AOM_CODEC_INVALID_PARAM;
+  }
+  ctx->err = AOM_CODEC_INVALID_PARAM;
+  return ctx->err;
+}
+
+aom_codec_err_t aom_codec_control(aom_codec_ctx_t *ctx, int ctrl_id, ...) {
   aom_codec_err_t res;
 
   if (!ctx || !ctrl_id)
