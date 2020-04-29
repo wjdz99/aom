@@ -4229,6 +4229,85 @@ static INLINE void lowbd_inv_txfm2d_add_universe_neon(
   }
 }
 
+static INLINE void lowbd_inv_txfm2d_add_8x16_neon(const int32_t *input,
+                                                  uint8_t *output, int stride,
+                                                  TX_TYPE tx_type, int eob) {
+  lowbd_inv_txfm2d_add_universe_neon(input, output, stride, tx_type, TX_8X16,
+                                     eob);
+}
+
+static INLINE void lowbd_inv_txfm2d_add_16x8_neon(const int32_t *input,
+                                                  uint8_t *output, int stride,
+                                                  TX_TYPE tx_type, int eob) {
+  lowbd_inv_txfm2d_add_universe_neon(input, output, stride, tx_type, TX_16X8,
+                                     eob);
+}
+
+static INLINE void lowbd_inv_txfm2d_add_16x32_neon(const int32_t *input,
+                                                   uint8_t *output, int stride,
+                                                   TX_TYPE tx_type, int eob) {
+  lowbd_inv_txfm2d_add_universe_neon(input, output, stride, tx_type, TX_16X32,
+                                     eob);
+}
+static INLINE void lowbd_inv_txfm2d_add_32x16_neon(const int32_t *input,
+                                                   uint8_t *output, int stride,
+                                                   TX_TYPE tx_type, int eob) {
+  lowbd_inv_txfm2d_add_universe_neon(input, output, stride, tx_type, TX_32X16,
+                                     eob);
+}
+static INLINE void lowbd_inv_txfm2d_add_8x8_neon(const int32_t *input,
+                                                 uint8_t *output, int stride,
+                                                 TX_TYPE tx_type, int eob) {
+  lowbd_inv_txfm2d_add_universe_neon(input, output, stride, tx_type, TX_8X8,
+                                     eob);
+}
+static INLINE void lowbd_inv_txfm2d_add_32x32_neon(const int32_t *input,
+                                                   uint8_t *output, int stride,
+                                                   TX_TYPE tx_type, int eob) {
+  lowbd_inv_txfm2d_add_universe_neon(input, output, stride, tx_type, TX_32X32,
+                                     eob);
+}
+
+static INLINE void lowbd_inv_txfm2d_add_64x64_neon(const int32_t *input,
+                                                   uint8_t *output, int stride,
+                                                   TX_TYPE tx_type, int eob) {
+  lowbd_inv_txfm2d_add_universe_neon(input, output, stride, tx_type, TX_64X64,
+                                     eob);
+}
+static INLINE void lowbd_inv_txfm2d_add_32x64_neon(const int32_t *input,
+                                                   uint8_t *output, int stride,
+                                                   TX_TYPE tx_type, int eob) {
+  lowbd_inv_txfm2d_add_universe_neon(input, output, stride, tx_type, TX_32X64,
+                                     eob);
+}
+static INLINE void lowbd_inv_txfm2d_add_64x32_neon(const int32_t *input,
+                                                   uint8_t *output, int stride,
+                                                   TX_TYPE tx_type, int eob) {
+  lowbd_inv_txfm2d_add_universe_neon(input, output, stride, tx_type, TX_64X32,
+                                     eob);
+}
+
+static INLINE void lowbd_inv_txfm2d_add_64x16_neon(const int32_t *input,
+                                                   uint8_t *output, int stride,
+                                                   TX_TYPE tx_type, int eob) {
+  lowbd_inv_txfm2d_add_universe_neon(input, output, stride, tx_type, TX_64X16,
+                                     eob);
+}
+
+static INLINE void lowbd_inv_txfm2d_add_16x64_neon(const int32_t *input,
+                                                   uint8_t *output, int stride,
+                                                   TX_TYPE tx_type, int eob) {
+  lowbd_inv_txfm2d_add_universe_neon(input, output, stride, tx_type, TX_16X64,
+                                     eob);
+}
+
+static INLINE void lowbd_inv_txfm2d_add_16x16_neon(const int32_t *input,
+                                                   uint8_t *output, int stride,
+                                                   TX_TYPE tx_type, int eob) {
+  lowbd_inv_txfm2d_add_universe_neon(input, output, stride, tx_type, TX_16X16,
+                                     eob);
+}
+
 void av1_lowbd_inv_txfm2d_add_neon(const int32_t *input, uint8_t *output,
                                    int stride, TX_TYPE tx_type, TX_SIZE tx_size,
                                    int eob) {
@@ -4251,6 +4330,54 @@ void av1_lowbd_inv_txfm2d_add_neon(const int32_t *input, uint8_t *output,
 
     case TX_16X4:
       lowbd_inv_txfm2d_add_16x4_neon(input, output, stride, tx_type, eob);
+      break;
+
+    case TX_8X16:
+      lowbd_inv_txfm2d_add_8x16_neon(input, output, stride, tx_type, eob);
+      break;
+
+    case TX_16X8:
+      lowbd_inv_txfm2d_add_16x8_neon(input, output, stride, tx_type, eob);
+      break;
+
+    case TX_16X32:
+      lowbd_inv_txfm2d_add_16x32_neon(input, output, stride, tx_type, eob);
+      break;
+
+    case TX_32X16:
+      lowbd_inv_txfm2d_add_32x16_neon(input, output, stride, tx_type, eob);
+      break;
+
+    case TX_8X8:
+      lowbd_inv_txfm2d_add_8x8_neon(input, output, stride, tx_type, eob);
+      break;
+
+    case TX_16X16:
+      lowbd_inv_txfm2d_add_16x16_neon(input, output, stride, tx_type, eob);
+      break;
+
+    case TX_32X32:
+      lowbd_inv_txfm2d_add_32x32_neon(input, output, stride, tx_type, eob);
+      break;
+
+    case TX_64X64:
+      lowbd_inv_txfm2d_add_64x64_neon(input, output, stride, tx_type, eob);
+      break;
+
+    case TX_32X64:
+      lowbd_inv_txfm2d_add_32x64_neon(input, output, stride, tx_type, eob);
+      break;
+
+    case TX_64X32:
+      lowbd_inv_txfm2d_add_64x32_neon(input, output, stride, tx_type, eob);
+      break;
+
+    case TX_16X64:
+      lowbd_inv_txfm2d_add_16x64_neon(input, output, stride, tx_type, eob);
+      break;
+
+    case TX_64X16:
+      lowbd_inv_txfm2d_add_64x16_neon(input, output, stride, tx_type, eob);
       break;
 
     default:
