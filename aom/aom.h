@@ -78,31 +78,6 @@ typedef struct av1_ref_frame {
   aom_image_t img;      /**< img structure to populate (output) */
 } av1_ref_frame_t;
 
-/*!\cond */
-/*!\brief aom decoder control function parameter type
- *
- * defines the data type for each of AOM decoder control function requires
- */
-AOM_CTRL_USE_TYPE(AOM_SET_DBG_COLOR_REF_FRAME, int)
-#define AOM_CTRL_AOM_SET_DBG_COLOR_REF_FRAME
-AOM_CTRL_USE_TYPE(AOM_SET_DBG_COLOR_MB_MODES, int)
-#define AOM_CTRL_AOM_SET_DBG_COLOR_MB_MODES
-AOM_CTRL_USE_TYPE(AOM_SET_DBG_COLOR_B_MODES, int)
-#define AOM_CTRL_AOM_SET_DBG_COLOR_B_MODES
-AOM_CTRL_USE_TYPE(AOM_SET_DBG_DISPLAY_MV, int)
-#define AOM_CTRL_AOM_SET_DBG_DISPLAY_MV
-AOM_CTRL_USE_TYPE(AV1_GET_REFERENCE, av1_ref_frame_t *)
-#define AOM_CTRL_AV1_GET_REFERENCE
-AOM_CTRL_USE_TYPE(AV1_SET_REFERENCE, av1_ref_frame_t *)
-#define AOM_CTRL_AV1_SET_REFERENCE
-AOM_CTRL_USE_TYPE(AV1_COPY_REFERENCE, av1_ref_frame_t *)
-#define AOM_CTRL_AV1_COPY_REFERENCE
-AOM_CTRL_USE_TYPE(AV1_GET_NEW_FRAME_IMAGE, aom_image_t *)
-#define AOM_CTRL_AV1_GET_NEW_FRAME_IMAGE
-AOM_CTRL_USE_TYPE(AV1_COPY_NEW_FRAME_IMAGE, aom_image_t *)
-#define AOM_CTRL_AV1_COPY_NEW_FRAME_IMAGE
-
-/*!\endcond */
 /*! @} - end defgroup aom */
 
 #ifdef __cplusplus
