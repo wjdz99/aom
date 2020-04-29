@@ -865,6 +865,11 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
     cpi->td.vt64x64 = NULL;
   }
 
+  if (cpi->td.firstpass_ctx) {
+    av1_free_pmc(cpi->td.firstpass_ctx, av1_num_planes(cm));
+    cpi->td.firstpass_ctx = NULL;
+  }
+
   av1_free_ref_frame_buffers(cm->buffer_pool);
   av1_free_txb_buf(cpi);
   av1_free_context_buffers(cm);
@@ -3188,6 +3193,9 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
           (uint32_t *)aom_malloc(
               AOM_BUFFER_SIZE_FOR_BLOCK_HASH *
               sizeof(*cpi->td.mb.intrabc_hash_info.hash_value_buffer[0][0])));
+
+  cpi->td.firstpass_ctx =
+      av1_alloc_pmc(cm, BLOCK_16X16, &cpi->td.shared_coeff_buf);
 
   cpi->td.mb.intrabc_hash_info.g_crc_initialized = 0;
 
