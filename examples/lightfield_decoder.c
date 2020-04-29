@@ -95,16 +95,16 @@ void decode_tile(aom_codec_ctx_t *codec, const unsigned char *frame,
                  aom_image_t *reference_images, aom_image_t *output,
                  int *tile_idx, unsigned int *output_bit_depth,
                  aom_image_t **img_ptr, int output_format) {
-  aom_codec_control_(codec, AV1_SET_TILE_MODE, 1);
-  aom_codec_control_(codec, AV1D_EXT_TILE_DEBUG, 1);
-  aom_codec_control_(codec, AV1_SET_DECODE_TILE_ROW, tr);
-  aom_codec_control_(codec, AV1_SET_DECODE_TILE_COL, tc);
+  aom_codec_control_set_int(codec, AV1_SET_TILE_MODE, 1);
+  aom_codec_control_set_int(codec, AV1D_EXT_TILE_DEBUG, 1);
+  aom_codec_control_set_int(codec, AV1_SET_DECODE_TILE_ROW, tr);
+  aom_codec_control_set_int(codec, AV1_SET_DECODE_TILE_COL, tc);
 
   av1_ref_frame_t ref;
   ref.idx = 0;
   ref.use_external_ref = 1;
   ref.img = reference_images[ref_idx];
-  if (aom_codec_control(codec, AV1_SET_REFERENCE, &ref)) {
+  if (aom_codec_control_set_ptr(codec, AV1_SET_REFERENCE, &ref, sizeof(ref))) {
     die_codec(codec, "Failed to set reference frame.");
   }
 
@@ -126,7 +126,8 @@ void decode_tile(aom_codec_ctx_t *codec, const unsigned char *frame,
   if (output_format != YUV1D) {
     // read out the tile size.
     unsigned int tile_size = 0;
-    if (aom_codec_control(codec, AV1D_GET_TILE_SIZE, &tile_size))
+    if (aom_codec_control_get_ptr(codec, AV1D_GET_TILE_SIZE, &tile_size,
+                                  sizeof(tile_size)))
       die_codec(codec, "Failed to get the tile size");
     const unsigned int tile_width = tile_size >> 16;
     const unsigned int tile_height = tile_size & 65535;
@@ -198,12 +199,12 @@ int main(int argc, char **argv) {
   if (aom_codec_dec_init(&codec, decoder, NULL, 0))
     die_codec(&codec, "Failed to initialize decoder.");
 
-  if (aom_codec_control(&codec, AV1D_SET_IS_ANNEXB, info->is_annexb)) {
+  if (aom_codec_control_set_uint(&codec, AV1D_SET_IS_ANNEXB, info->is_annexb)) {
     die("Failed to set annex b status");
   }
 
   // Decode anchor frames.
-  aom_codec_control_(&codec, AV1_SET_TILE_MODE, 0);
+  aom_codec_control_set_int(&codec, AV1_SET_TILE_MODE, 0);
   for (i = 0; i < num_references; ++i) {
     aom_video_reader_read_frame(reader);
     frame = aom_video_reader_get_frame(reader, &frame_size);
@@ -211,11 +212,13 @@ int main(int argc, char **argv) {
       die_codec(&codec, "Failed to decode frame.");
 
     if (i == 0) {
-      if (aom_codec_control(&codec, AV1D_GET_IMG_FORMAT, &ref_fmt))
+      if (aom_codec_control_get_ptr(&codec, AV1D_GET_IMG_FORMAT, &ref_fmt,
+                                    sizeof(ref_fmt)))
         die_codec(&codec, "Failed to get the image format");
 
       int frame_res[2];
-      if (aom_codec_control(&codec, AV1D_GET_FRAME_SIZE, frame_res))
+      if (aom_codec_control_get_ptr(&codec, AV1D_GET_FRAME_SIZE, frame_res,
+                                    sizeof(frame_res)))
         die_codec(&codec, "Failed to get the image frame size");
 
       // Allocate memory to store decoded references. Allocate memory with the
