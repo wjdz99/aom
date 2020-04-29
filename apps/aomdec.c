@@ -679,25 +679,27 @@ static int main_loop(int argc, const char **argv_) {
 
   if (!quiet) fprintf(stderr, "%s\n", decoder.name);
 
-  if (aom_codec_control(&decoder, AV1D_SET_IS_ANNEXB, is_annexb)) {
+  if (aom_codec_control_set_uint(&decoder, AV1D_SET_IS_ANNEXB, is_annexb)) {
     fprintf(stderr, "Failed to set is_annexb: %s\n", aom_codec_error(&decoder));
     goto fail;
   }
 
-  if (aom_codec_control(&decoder, AV1D_SET_OPERATING_POINT, operating_point)) {
+  if (aom_codec_control_set_int(&decoder, AV1D_SET_OPERATING_POINT,
+                                operating_point)) {
     fprintf(stderr, "Failed to set operating_point: %s\n",
             aom_codec_error(&decoder));
     goto fail;
   }
 
-  if (aom_codec_control(&decoder, AV1D_SET_OUTPUT_ALL_LAYERS,
-                        output_all_layers)) {
+  if (aom_codec_control_set_int(&decoder, AV1D_SET_OUTPUT_ALL_LAYERS,
+                                output_all_layers)) {
     fprintf(stderr, "Failed to set output_all_layers: %s\n",
             aom_codec_error(&decoder));
     goto fail;
   }
 
-  if (aom_codec_control(&decoder, AV1D_SET_SKIP_FILM_GRAIN, skip_film_grain)) {
+  if (aom_codec_control_set_int(&decoder, AV1D_SET_SKIP_FILM_GRAIN,
+                                skip_film_grain)) {
     fprintf(stderr, "Failed to set skip_film_grain: %s\n",
             aom_codec_error(&decoder));
     goto fail;
@@ -753,7 +755,8 @@ static int main_loop(int argc, const char **argv_) {
 
         if (framestats_file) {
           int qp;
-          if (aom_codec_control(&decoder, AOMD_GET_LAST_QUANTIZER, &qp)) {
+          if (aom_codec_control_get_int(&decoder, AOMD_GET_LAST_QUANTIZER,
+                                        &qp)) {
             warn("Failed AOMD_GET_LAST_QUANTIZER: %s",
                  aom_codec_error(&decoder));
             if (!keep_going) goto fail;
@@ -787,7 +790,8 @@ static int main_loop(int argc, const char **argv_) {
       ++frame_out;
       got_data = 1;
 
-      if (aom_codec_control(&decoder, AOMD_GET_FRAME_CORRUPTED, &corrupted)) {
+      if (aom_codec_control_get_int(&decoder, AOMD_GET_FRAME_CORRUPTED,
+                                    &corrupted)) {
         warn("Failed AOM_GET_FRAME_CORRUPTED: %s", aom_codec_error(&decoder));
         if (!keep_going) goto fail;
       }
