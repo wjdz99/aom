@@ -39,6 +39,13 @@ typedef struct {
   int num_inliers;
 } MotionModel;
 
+// The structure holds a valid reference frame type and its temporal distance
+// from the source frame.
+typedef struct {
+  int distance;
+  MV_REFERENCE_FRAME frame;
+} FrameDistPair;
+
 void av1_convert_model_to_params(const double *params,
                                  WarpedMotionParams *model);
 
@@ -73,29 +80,7 @@ int64_t av1_refine_integerized_param(
     int64_t best_frame_error, uint8_t *segment_map, int segment_map_stride,
     int64_t erroradv_threshold);
 
-/*
-  Computes "num_motions" candidate global motion parameters between two frames.
-  The array "params_by_motion" should be length 8 * "num_motions". The ordering
-  of each set of parameters is best described  by the homography:
-
-        [x'     (m2 m3 m0   [x
-    z .  y'  =   m4 m5 m1 *  y
-         1]      m6 m7 1)    1]
-
-  where m{i} represents the ith value in any given set of parameters.
-
-  "num_inliers" should be length "num_motions", and will be populated with the
-  number of inlier feature points for each motion. Params for which the
-  num_inliers entry is 0 should be ignored by the caller.
-*/
-int av1_compute_global_motion(TransformationType type,
-                              unsigned char *src_buffer, int src_width,
-                              int src_height, int src_stride, int *src_corners,
-                              int num_src_corners, YV12_BUFFER_CONFIG *ref,
-                              int bit_depth,
-                              GlobalMotionEstimationType gm_estimation_type,
-                              int *num_inliers_by_motion,
-                              MotionModel *params_by_motion, int num_motions);
+void av1_compute_global_motion(struct AV1_COMP *cpi);
 #ifdef __cplusplus
 }  // extern "C"
 #endif
