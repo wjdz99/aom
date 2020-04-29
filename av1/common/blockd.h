@@ -39,7 +39,6 @@ extern "C" {
 
 #define INTERINTRA_WEDGE_SIGN 0
 
-// DIFFWTD_MASK_TYPES should not surpass 1 << MAX_DIFFWTD_MASK_BITS
 enum {
   DIFFWTD_38 = 0,
   DIFFWTD_38_INV,
@@ -49,7 +48,6 @@ enum {
 enum {
   KEY_FRAME = 0,
   INTER_FRAME = 1,
-  INTRA_ONLY_FRAME = 2,  // replaces intra-only
   S_FRAME = 3,
   FRAME_TYPES,
 } UENUM1BYTE(FRAME_TYPE);
@@ -76,31 +74,32 @@ static INLINE int is_inter_compound_mode(PREDICTION_MODE mode) {
 
 static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
   static const PREDICTION_MODE lut[] = {
-    DC_PRED,        // DC_PRED
-    V_PRED,         // V_PRED
-    H_PRED,         // H_PRED
-    D45_PRED,       // D45_PRED
-    D135_PRED,      // D135_PRED
-    D113_PRED,      // D113_PRED
-    D157_PRED,      // D157_PRED
-    D203_PRED,      // D203_PRED
-    D67_PRED,       // D67_PRED
+    DC_PRED,       
+    V_PRED,         // 
+    H_PRED,         // 
+    D45_PRED,       //
+    D135_PRED,      // 
+    D113_PRED,      // 
+    D157_PRED,      // 
+    D203_PRED,      // 
+    D67_PRED,       // 
     SMOOTH_PRED,    // SMOOTH_PRED
-    SMOOTH_V_PRED,  // SMOOTH_V_PRED
-    SMOOTH_H_PRED,  // SMOOTH_H_PRED
-    PAETH_PRED,     // PAETH_PRED
-    NEARESTMV,      // NEARESTMV
-    NEARMV,         // NEARMV
-    GLOBALMV,       // GLOBALMV
-    NEWMV,          // NEWMV
-    NEARESTMV,      // NEAREST_NEARESTMV
-    NEARMV,         // NEAR_NEARMV
-    NEARESTMV,      // NEAREST_NEWMV
-    NEWMV,          // NEW_NEARESTMV
-    NEARMV,         // NEAR_NEWMV
-    NEWMV,          // NEW_NEARMV
-    GLOBALMV,       // GLOBAL_GLOBALMV
-    NEWMV,          // NEW_NEWMV
+    SMOOTH_V_PRED,  // 
+    SMOOTH_H_PRED,  // 
+    PAETH_PRED,     // 
+    NEARESTMV,      // 
+    NEARMV,         // 
+    GLOBALMV,       // 
+    NEWMV,          // 
+    
+    NEARESTMV,      // 
+    NEARMV,         // 
+    NEARESTMV,      //
+    NEWMV,          // 
+    NEARMV,         // 
+    NEWMV,          // 
+    GLOBALMV,       //
+    NEWMV,          // 
   };
   assert(NELEMENTS(lut) == MB_MODE_COUNT);
   assert(is_inter_compound_mode(mode) || is_inter_singleref_mode(mode));
@@ -143,7 +142,7 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
 static INLINE int have_nearmv_in_inter_mode(PREDICTION_MODE mode) {
   return (mode == NEARMV || mode == NEAR_NEARMV || mode == NEAR_NEWMV ||
           mode == NEW_NEARMV);
-}
+
 
 static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
   return (mode == NEWMV || mode == NEW_NEWMV || mode == NEAREST_NEWMV ||
@@ -154,7 +153,6 @@ static INLINE int is_masked_compound_type(COMPOUND_TYPE type) {
   return (type == COMPOUND_WEDGE || type == COMPOUND_DIFFWTD);
 }
 
-/* For keyframes, intra block modes are predicted by the (already decoded)
    modes for the Y blocks to the left and above us; for interframes, there
    is a single probability table. */
 
@@ -218,7 +216,6 @@ typedef struct MB_MODE_INFO {
   INTERINTER_COMPOUND_DATA interinter_comp;
   WarpedMotionParams wm_params;
   int_mv mv[2];
-  // q index for the current coding block.
   int current_qindex;
   // Only for INTER blocks
   int_interpfilters interp_filters;
@@ -642,15 +639,7 @@ typedef struct macroblockd {
   int qindex[MAX_SEGMENTS];
   // lossless[s] is true if segment 's' is coded losslessly.
   int lossless[MAX_SEGMENTS];
-  // Q index for the coding blocks in this superblock will be stored in
-  // mbmi->current_qindex. Now, when cm->delta_q_info.delta_q_present_flag is
-  // true, mbmi->current_qindex is computed by taking 'current_base_qindex' as
-  // the base, and adding any transmitted delta qindex on top of it.
-  // Precisely, this is the latest qindex used by the first coding block of a
-  // non-skip superblock in the current tile; OR
-  // same as cm->quant_params.base_qindex (if not explicitly set yet).
-  // Note: This is 'CurrentQIndex' in the AV1 spec.
-  int current_base_qindex;
+  int current_qindex;
 
   // Same as cm->features.cur_frame_force_integer_mv.
   int cur_frame_force_integer_mv;
