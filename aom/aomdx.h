@@ -150,7 +150,7 @@ enum aom_dec_control_id {
      parameter */
   AV1D_GET_IMG_FORMAT,
 
-  /** control function to get the size of the tile, unsigned int parameter */
+  /** control function to get the size of the tile, unsigned int* parameter */
   AV1D_GET_TILE_SIZE,
 
   /** control function to get the tile count in a tile list, int* parameter */
@@ -210,7 +210,7 @@ enum aom_dec_control_id {
   AV1_SET_TILE_MODE,
   /** control function to get the frame header information of an encoded frame
    * in the bitstream. This provides a way to access a frame's header data.
-   * unsigned int parameter
+   * unsigned int* parameter
    */
   AV1D_GET_FRAME_HEADER_INFO,
   /** control function to get the start address and size of a tile in the coded
@@ -224,18 +224,18 @@ enum aom_dec_control_id {
    */
   AV1D_SET_EXT_REF_PTR,
   /** control function to enable the ext-tile software debug and testing code in
-   * the decoder. unsigned int parameter
+   * the decoder. int parameter
    */
   AV1D_EXT_TILE_DEBUG,
 
   /** control function to enable the row based multi-threading of decoding. A
    * value that is equal to 1 indicates that row based multi-threading is
-   * enabled. unsigned int parameter
+   * enabled. int parameter
    */
   AV1D_SET_ROW_MT,
 
   /** control function to indicate whether bitstream is in Annex-B format.
-     unsigned int parameter */
+      int parameter */
   AV1D_SET_IS_ANNEXB,
 
   /** control function to indicate which operating point to use. A scalable
@@ -300,10 +300,10 @@ AOM_CTRL_USE_TYPE(AV1_SET_TILE_MODE, unsigned int)
 AOM_CTRL_USE_TYPE(AV1D_GET_FRAME_HEADER_INFO, aom_tile_data *)
 AOM_CTRL_USE_TYPE(AV1D_GET_TILE_DATA, aom_tile_data *)
 AOM_CTRL_USE_TYPE(AV1D_SET_EXT_REF_PTR, av1_ext_ref_frame_t *)
-AOM_CTRL_USE_TYPE(AV1D_EXT_TILE_DEBUG, unsigned int)
-AOM_CTRL_USE_TYPE(AV1D_SET_ROW_MT, unsigned int)
+AOM_CTRL_USE_TYPE(AV1D_EXT_TILE_DEBUG, int)
+AOM_CTRL_USE_TYPE(AV1D_SET_ROW_MT, int)
 AOM_CTRL_USE_TYPE(AV1D_SET_SKIP_FILM_GRAIN, int)
-AOM_CTRL_USE_TYPE(AV1D_SET_IS_ANNEXB, unsigned int)
+AOM_CTRL_USE_TYPE(AV1D_SET_IS_ANNEXB, int)
 AOM_CTRL_USE_TYPE(AV1D_SET_OPERATING_POINT, int)
 AOM_CTRL_USE_TYPE(AV1D_SET_OUTPUT_ALL_LAYERS, int)
 AOM_CTRL_USE_TYPE(AV1_SET_INSPECTION_CALLBACK, aom_inspect_init *)
