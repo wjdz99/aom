@@ -30,16 +30,16 @@
 
 struct av1_extracfg {
   int cpu_used;
-  unsigned int enable_auto_alt_ref;
-  unsigned int enable_auto_bwd_ref;
-  unsigned int noise_sensitivity;
+  int enable_auto_alt_ref;
+  int enable_auto_bwd_ref;
+  int noise_sensitivity;
   unsigned int sharpness;
   unsigned int static_thresh;
-  unsigned int row_mt;
+  int row_mt;
   unsigned int tile_columns;  // log2 number of tile columns
   unsigned int tile_rows;     // log2 number of tile rows
-  unsigned int enable_tpl_model;
-  unsigned int enable_keyframe_filtering;
+  int enable_tpl_model;
+  int enable_keyframe_filtering;
   unsigned int arnr_max_frames;
   unsigned int arnr_strength;
   unsigned int min_gf_interval;
@@ -52,13 +52,13 @@ struct av1_extracfg {
   unsigned int rc_max_intra_bitrate_pct;
   unsigned int rc_max_inter_bitrate_pct;
   unsigned int gf_cbr_boost_pct;
-  unsigned int lossless;
-  unsigned int enable_cdef;
-  unsigned int enable_restoration;
-  unsigned int force_video_mode;
-  unsigned int enable_obmc;
-  unsigned int disable_trellis_quant;
-  unsigned int enable_qm;
+  int lossless;
+  int enable_cdef;
+  int enable_restoration;
+  int force_video_mode;
+  int enable_obmc;
+  int disable_trellis_quant;
+  int enable_qm;
   unsigned int qm_y;
   unsigned int qm_u;
   unsigned int qm_v;
@@ -68,7 +68,7 @@ struct av1_extracfg {
   unsigned int mtu_size;
 
   aom_timing_info_type_t timing_info_type;
-  unsigned int frame_parallel_decoding_mode;
+  int frame_parallel_decoding_mode;
   int enable_dual_filter;
   unsigned int enable_chroma_deltaq;
   AQ_MODE aq_mode;
