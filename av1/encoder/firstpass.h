@@ -252,6 +252,8 @@ struct AV1EncoderConfig;
 struct TileDataEnc;
 
 void av1_rc_get_first_pass_params(struct AV1_COMP *cpi);
+void av1_first_pass_tile(struct AV1_COMP *cpi, struct ThreadData *td,
+                         struct TileDataEnc *tile_data);
 void av1_first_pass_row(struct AV1_COMP *cpi, struct ThreadData *td,
                         struct TileDataEnc *tile_data, int mb_row);
 void av1_first_pass(struct AV1_COMP *cpi, const int64_t ts_duration);
