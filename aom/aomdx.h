@@ -114,55 +114,60 @@ typedef struct av1_ext_ref_frame {
  * This set of macros define the control functions available for the AOM
  * decoder interface.
  *
- * \sa #aom_codec_control
+ * \sa #aom_codec_control(aom_codec_ctx_t *ctx, int ctrl_id, ...)
  */
 enum aom_dec_control_id {
   /** control function to get info on which reference frames were updated
-   *  by the last decode
+   *  by the last decode, int* parameter
    */
   AOMD_GET_LAST_REF_UPDATES = AOM_DECODER_CTRL_ID_START,
 
-  /** check if the indicated frame is corrupted */
+  /** check if the indicated frame is corrupted, int* parameter */
   AOMD_GET_FRAME_CORRUPTED,
 
   /** control function to get info on which reference frames were used
-   *  by the last decode
+   *  by the last decode, int* parameter
    */
   AOMD_GET_LAST_REF_USED,
 
   /** control function to get the dimensions that the current frame is decoded
    * at. This may be different to the intended display size for the frame as
-   * specified in the wrapper or frame header (see AV1D_GET_DISPLAY_SIZE). */
+   * specified in the wrapper or frame header (see AV1D_GET_DISPLAY_SIZE).
+   * int* parameter */
   AV1D_GET_FRAME_SIZE,
 
   /** control function to get the current frame's intended display dimensions
    * (as specified in the wrapper or frame header). This may be different to
-   * the decoded dimensions of this frame (see AV1D_GET_FRAME_SIZE). */
+   * the decoded dimensions of this frame (see AV1D_GET_FRAME_SIZE). int*
+   * parameter */
   AV1D_GET_DISPLAY_SIZE,
 
-  /** control function to get the bit depth of the stream. */
+  /** control function to get the bit depth of the stream, unsigned int*
+     parameter */
   AV1D_GET_BIT_DEPTH,
 
-  /** control function to get the image format of the stream. */
+  /** control function to get the image format of the stream, aom_img_fmt_t*
+     parameter */
   AV1D_GET_IMG_FORMAT,
 
-  /** control function to get the size of the tile. */
+  /** control function to get the size of the tile, unsigned int parameter */
   AV1D_GET_TILE_SIZE,
 
-  /** control function to get the tile count in a tile list. */
+  /** control function to get the tile count in a tile list, int* parameter */
   AV1D_GET_TILE_COUNT,
 
   /** control function to set the byte alignment of the planes in the reference
    * buffers. Valid values are power of 2, from 32 to 1024. A value of 0 sets
    * legacy alignment. I.e. Y plane is aligned to 32 bytes, U plane directly
-   * follows Y plane, and V plane directly follows U plane. Default value is 0.
+   * follows Y plane, and V plane directly follows U plane. Default value is 0;
+   * int parameter.
    */
   AV1_SET_BYTE_ALIGNMENT,
 
   /** control function to invert the decoding order to from right to left. The
    * function is used in a test to confirm the decoding independence of tile
    * columns. The function may be used in application where this order
-   * of decoding is desired.
+   * of decoding is desired. int parameter
    *
    * TODO(yaowu): Rework the unit test that uses this control, and in a future
    *              release, this test-only control shall be removed.
@@ -172,7 +177,7 @@ enum aom_dec_control_id {
   /** control function to set the skip loop filter flag. Valid values are
    * integers. The decoder will skip the loop filter when its value is set to
    * nonzero. If the loop filter is skipped the decoder may accumulate decode
-   * artifacts. The default value is 0.
+   * artifacts. The default value is 0; int parameter.
    */
   AV1_SET_SKIP_LOOP_FILTER,
 
@@ -180,12 +185,12 @@ enum aom_dec_control_id {
    * compiled without --enable-accounting, this returns AOM_CODEC_INCAPABLE.
    * If called before a frame has been decoded, this returns AOM_CODEC_ERROR.
    * The caller should ensure that AOM_CODEC_OK is returned before attempting
-   * to dereference the Accounting pointer.
+   * to dereference the Accounting pointer. Accounting** parameter
    */
   AV1_GET_ACCOUNTING,
 
   /** control function to get last decoded frame quantizer. Returned value uses
-   * internal quantizer scale defined by the codec.
+   * internal quantizer scale defined by the codec. int* parameter
    */
   AOMD_GET_LAST_QUANTIZER,
 
@@ -193,47 +198,51 @@ enum aom_dec_control_id {
    * greater and equal to zero indicates only the specific row/column is
    * decoded. A value that is -1 indicates the whole row/column is decoded.
    * A special case is both values are -1 that means the whole frame is
-   * decoded.
+   * decoded. int parameter
    */
   AV1_SET_DECODE_TILE_ROW,
   AV1_SET_DECODE_TILE_COL,
   /** control function to set the tile coding mode. A value that is equal to
    *  zero indicates the tiles are coded in normal tile mode. A value that is
-   *  1 indicates the tiles are coded in large-scale tile mode.
+   *  1 indicates the tiles are coded in large-scale tile mode. unsigned int
+   * parameter
    */
   AV1_SET_TILE_MODE,
   /** control function to get the frame header information of an encoded frame
    * in the bitstream. This provides a way to access a frame's header data.
+   * unsigned int parameter
    */
   AV1D_GET_FRAME_HEADER_INFO,
   /** control function to get the start address and size of a tile in the coded
    * bitstream. This provides a way to access a specific tile's bitstream data.
+   * aom_tile_data* parameter
    */
   AV1D_GET_TILE_DATA,
   /** control function to set the external references' pointers in the decoder.
    *  This is used while decoding the tile list OBU in large-scale tile coding
-   *  mode.
+   *  mode. av1_ext_ref_frame_t* parameter
    */
   AV1D_SET_EXT_REF_PTR,
   /** control function to enable the ext-tile software debug and testing code in
-   * the decoder.
+   * the decoder. unsigned int parameter
    */
   AV1D_EXT_TILE_DEBUG,
 
   /** control function to enable the row based multi-threading of decoding. A
    * value that is equal to 1 indicates that row based multi-threading is
-   * enabled.
+   * enabled. unsigned int parameter
    */
   AV1D_SET_ROW_MT,
 
-  /** control function to indicate whether bitstream is in Annex-B format. */
+  /** control function to indicate whether bitstream is in Annex-B format.
+     unsigned int parameter */
   AV1D_SET_IS_ANNEXB,
 
   /** control function to indicate which operating point to use. A scalable
    *  stream may define multiple operating points, each of which defines a
    *  set of temporal and spatial layers to be processed. The operating point
    *  index may take a value between 0 and operating_points_cnt_minus_1 (which
-   *  is at most 31).
+   *  is at most 31). int parameter
    */
   AV1D_SET_OPERATING_POINT,
 
@@ -245,24 +254,24 @@ enum aom_dec_control_id {
    *  For video playback, only the highest-quality version (within the
    *  selected operating point) is needed, but for some use cases it is useful
    *  to have access to multiple versions of a frame when they are available.
+   * int parameter
    */
   AV1D_SET_OUTPUT_ALL_LAYERS,
 
   /** control function to set an aom_inspect_cb callback that is invoked each
    * time a frame is decoded.  When compiled without --enable-inspection, this
-   * returns AOM_CODEC_INCAPABLE.
+   * returns AOM_CODEC_INCAPABLE. aom_inspect_init* parameter
    */
   AV1_SET_INSPECTION_CALLBACK,
 
   /** control function to set the skip film grain flag. Valid values are
    * integers. The decoder will skip the film grain when its value is set to
-   * nonzero. The default value is 0.
+   * nonzero. The default value is 0. int parameter
    */
   AV1D_SET_SKIP_FILM_GRAIN,
 
   AOM_DECODER_CTRL_ID_MAX,
 };
-
 /*!\cond */
 /*!\brief AOM decoder control function parameter type
  *
