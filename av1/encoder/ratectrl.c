@@ -1785,10 +1785,12 @@ void av1_rc_set_gf_interval_range(const AV1_COMP *const cpi,
      * The no.of.stats available in the case of LAP is limited,
      * hence setting to max_gf_interval.
      */
-    if (cpi->lap_enabled)
+    if (cpi->lap_enabled) {
+      rc->max_gf_interval = MAX_GF_LENGTH_LAP;
       rc->static_scene_max_gf_interval = rc->max_gf_interval + 1;
-    else
+    } else {
       rc->static_scene_max_gf_interval = MAX_STATIC_GF_GROUP_LENGTH;
+    }
 
     if (rc->max_gf_interval > rc->static_scene_max_gf_interval)
       rc->max_gf_interval = rc->static_scene_max_gf_interval;
