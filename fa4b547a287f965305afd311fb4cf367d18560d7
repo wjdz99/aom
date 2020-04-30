@@ -22,6 +22,30 @@
       "revId": "fa4b547a287f965305afd311fb4cf367d18560d7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98225b20_3f54ecf8",
+        "filename": "aom_dsp/x86/aom_quantize_avx.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-04-30T06:37:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d4d8a8d5_0df5211b",
+      "range": {
+        "startLine": 229,
+        "startChar": 10,
+        "endLine": 229,
+        "endChar": 24
+      },
+      "revId": "fa4b547a287f965305afd311fb4cf367d18560d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
