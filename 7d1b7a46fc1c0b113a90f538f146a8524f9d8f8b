@@ -70,6 +70,30 @@
       "revId": "7d1b7a46fc1c0b113a90f538f146a8524f9d8f8b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8bdb7a48_84c265c8",
+        "filename": "aom_dsp/x86/aom_quantize_avx.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2020-04-30T00:10:03Z",
+      "side": 1,
+      "message": "Hmm maybe I\u0027m wrong about this. I thought av1 changed this, but there are still lots of CONFIG_AV1_HIGHBITDEPTH checks. Apologies if I\u0027m sending you down the wrong path.",
+      "parentUuid": "c141768d_180c9f59",
+      "range": {
+        "startLine": 60,
+        "startChar": 4,
+        "endLine": 60,
+        "endChar": 27
+      },
+      "revId": "7d1b7a46fc1c0b113a90f538f146a8524f9d8f8b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
