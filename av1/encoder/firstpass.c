@@ -860,6 +860,15 @@ static void free_firstpass_data(FirstPassData *firstpass_data) {
 }
 
 #define FIRST_PASS_ALT_REF_DISTANCE 16
+static void first_pass_tile(AV1_COMP *cpi, ThreadData *td,
+                            TileDataEnc *tile_data) {
+  TileInfo *tile = &tile_data->tile_info;
+  for (int mi_row = tile->mi_row_start; mi_row < tile->mi_row_end;
+       mi_row += FP_MIB_SIZE) {
+    av1_first_pass_row(cpi, td, tile_data, mi_row >> FP_MIB_SIZE_LOG2);
+  }
+}
+
 void av1_first_pass_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
                         int mb_row) {
   MACROBLOCK *const x = &td->mb;
@@ -1009,12 +1018,13 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   FRAME_STATS *mb_stats = cpi->firstpass_data.mb_stats;
 
   // Tiling is ignored in the first pass.
-  TileDataEnc tile_data;
-  TileInfo *tile = &tile_data.tile_info;
-  av1_tile_init(tile, cm, 0, 0);
-  tile_data.firstpass_top_mv = kZeroMv;
-  tile->mi_col_end = mi_params->mi_cols;
-  tile->mi_row_end = mi_params->mi_rows;
+  const int tile_cols = cm->tiles.cols;
+  const int tile_rows = cm->tiles.rows;
+  if (cpi->allocated_tiles < tile_cols * tile_rows) {
+    av1_alloc_tile_data(cpi);
+  }
+
+  av1_init_tile_data(cpi);
 
   const YV12_BUFFER_CONFIG *const last_frame =
       get_ref_frame_yv12_buf(cm, LAST_FRAME);
@@ -1056,9 +1066,12 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   av1_init_mv_probs(cm);
   av1_initialize_rd_consts(cpi);
 
-  for (int mi_row = tile->mi_row_start; mi_row < tile->mi_row_end;
-       mi_row += FP_MIB_SIZE) {
-    av1_first_pass_row(cpi, &cpi->td, &tile_data, mi_row >> FP_MIB_SIZE_LOG2);
+  for (int tile_row = 0; tile_row < tile_rows; ++tile_row) {
+    for (int tile_col = 0; tile_col < tile_cols; ++tile_col) {
+      TileDataEnc *const tile_data =
+          &cpi->tile_data[tile_row * tile_cols + tile_col];
+      first_pass_tile(cpi, &cpi->td, tile_data);
+    }
   }
 
   FRAME_STATS stats =
