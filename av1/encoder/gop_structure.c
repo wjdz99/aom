@@ -285,7 +285,7 @@ static void set_gop_ref_frame_map(GF_GROUP *const gf_group) {
 void av1_gop_setup_structure(AV1_COMP *cpi,
                              const EncodeFrameParams *const frame_params) {
   RATE_CONTROL *const rc = &cpi->rc;
-  assert(rc->baseline_gf_interval > 0);
+  assert(rc->baseline_gf_interval >= 0);
   GF_GROUP *const gf_group = &cpi->gf_group;
   TWO_PASS *const twopass = &cpi->twopass;
   FRAME_INFO *const frame_info = &cpi->frame_info;
