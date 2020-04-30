@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a437223_94881c42",
+        "filename": "aom_dsp/x86/aom_quantize_avx.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-04-30T19:34:39Z",
+      "side": 1,
+      "message": "the sizes of these don\u0027t vary like in libvpx which I think was the reason for the high bitdepth checks",
+      "range": {
+        "startLine": 163,
+        "startChar": 30,
+        "endLine": 163,
+        "endChar": 40
+      },
+      "revId": "2f73c0775bbdc66f9492a5ad121756a772c413dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
