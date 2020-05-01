@@ -114,7 +114,7 @@ typedef struct av1_ext_ref_frame {
  * This set of macros define the control functions available for the AOM
  * decoder interface.
  *
- * \sa #aom_codec_control
+ * \sa #aom_codec_control(aom_codec_ctx_t *ctx, int ctrl_id, ...)
  */
 enum aom_dec_control_id {
   /*!\brief Codec control function to get info on which reference frames were
