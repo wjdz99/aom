@@ -22,6 +22,30 @@
       "revId": "b6982b54c6571040466db2c6ccbc58dc1f6dcaa6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66f2bce9_578d83a2",
+        "filename": "aom_dsp/x86/quantize_avx_x86_64.asm",
+        "patchSetId": 10
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-05-01T22:03:52Z",
+      "side": 0,
+      "message": "I didnt even look at this piece of code.. it\u0027s far beyond my knowledge currently... I figured that out by printing out m128i vectors",
+      "parentUuid": "5198c2de_1de3f87c",
+      "range": {
+        "startLine": 266,
+        "startChar": 1,
+        "endLine": 272,
+        "endChar": 40
+      },
+      "revId": "b6982b54c6571040466db2c6ccbc58dc1f6dcaa6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }

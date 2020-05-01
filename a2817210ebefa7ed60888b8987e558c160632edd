@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "4d588bff_bd351d2f",
+        "filename": "aom_dsp/x86/aom_quantize_avx.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-05-01T22:03:52Z",
+      "side": 1,
+      "message": "The scan order is decided by txfm size. VP9 doesn\u0027t have rectangular txfm size. so for quantize_32x32 it\u0027ll always use vp9_default_iscan_32x32, which has 32x32 entries. However in av1, txfm 32x16 or 16x32 might be used, and it only has 32x16 entries. That\u0027s why scan_for_eob will reach illegal memories.\n\nIt can be backported for consistency (and easier to understand). But for code correctness, there is no need.",
+      "parentUuid": "6e6ad62e_7663e63b",
+      "range": {
+        "startLine": 19,
+        "startChar": 19,
+        "endLine": 19,
+        "endChar": 46
+      },
+      "revId": "a2817210ebefa7ed60888b8987e558c160632edd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "481985ea_95d62059",
         "filename": "aom_dsp/x86/aom_quantize_avx.c",
         "patchSetId": 10
@@ -59,6 +83,30 @@
       "writtenOn": "2020-05-01T03:09:47Z",
       "side": 1,
       "message": "It seems a little weird to pass log_scale by reference, and a quick code search suggests it\u0027s not necessary.",
+      "range": {
+        "startLine": 212,
+        "startChar": 64,
+        "endLine": 212,
+        "endChar": 73
+      },
+      "revId": "a2817210ebefa7ed60888b8987e558c160632edd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e8ad7f4_65a201c6",
+        "filename": "aom_dsp/x86/aom_quantize_avx.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-05-01T22:03:52Z",
+      "side": 1,
+      "message": "definition here\nhttps://osscs.corp.google.com/libaom/aom/+/master:aom_dsp/x86/quantize_x86.h;l\u003d49?q\u003dcalculate_qcoeff_log_scale\u0026ss\u003dlibaom\n\nso a pointer has to be passed there.",
+      "parentUuid": "481985ea_95d62059",
       "range": {
         "startLine": 212,
         "startChar": 64,
