@@ -2201,6 +2201,73 @@ static AOM_INLINE int prune_modes_based_on_tpl_stats(
   return 0;
 }
 
+// High level function to select all of the parameters for a compuond mode. 
+// The main search functionality is done in the call to av1_compound_type_rd().
+// Returns 1 if this mode is worse than one already seen. 
+static int process_compound_inter_mode(AV1_COMP *const cpi, MACROBLOCK *x,
+                                       HandleInterModeArgs *args, 
+                                       int64_t ref_best_rd, int_mv *cur_mv,
+                                       BLOCK_SIZE bsize, int *skip_build_pred,
+                                       int *compmode_interinter_cost, 
+                                       const CompoundTypeRdBuffers *rd_buffers,
+                                       const BUFFER_SET *orig_dst, 
+                                       const BUFFER_SET *tmp_dst, int *rate_mv, 
+                                       RD_STATS *rd_stats, int64_t *skip_rd) {
+
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  const AV1_COMMON *cm = &cpi->common;
+  const int masked_compound_used = is_any_masked_compound_used(bsize) &&
+                                   cm->seq_params.enable_masked_compound;
+  int mode_search_mask = (1 << COMPOUND_AVERAGE) | (1 << COMPOUND_DISTWTD) |
+                         (1 << COMPOUND_WEDGE) | (1 << COMPOUND_DIFFWTD);
+
+  const int num_planes = av1_num_planes(cm);
+  const int mi_row = xd->mi_row;
+  const int mi_col = xd->mi_col;
+  // Find matching interp filter or set to default interp filter
+  const int need_search = av1_is_interp_needed(xd);
+  const InterpFilter assign_filter = cm->features.interp_filter;
+  int is_luma_interp_done = 0;
+  av1_find_interp_filter_match(mbmi, cpi, assign_filter, need_search,
+                               args->interp_filter_stats,
+                               args->interp_filter_stats_idx);
+
+  int64_t best_rd_compound;
+  int64_t rd_thresh;
+  const int comp_type_rd_shift = COMP_TYPE_RD_THRESH_SHIFT;
+  const int comp_type_rd_scale = COMP_TYPE_RD_THRESH_SCALE;
+  rd_thresh = get_rd_thresh_from_best_rd(
+      ref_best_rd, (1 << comp_type_rd_shift), comp_type_rd_scale);
+  // Select compound type and any parameters related to that type
+  // (for example, the mask parameters if it is a masked mode) and compute
+  // the RD
+  *compmode_interinter_cost = av1_compound_type_rd(
+      cpi, x, bsize, cur_mv, mode_search_mask, masked_compound_used,
+      orig_dst, tmp_dst, rd_buffers, rate_mv, &best_rd_compound,
+      rd_stats, ref_best_rd, skip_rd[1], &is_luma_interp_done, rd_thresh);
+  if (ref_best_rd < INT64_MAX &&
+      (best_rd_compound >> comp_type_rd_shift) * comp_type_rd_scale >
+          ref_best_rd) {
+    restore_dst_buf(xd, *orig_dst, num_planes);
+    return 1;
+  }
+  // No need to call av1_enc_build_inter_predictor for luma if
+  // COMPOUND_AVERAGE is selected because it is the first
+  // candidate in av1_compound_type_rd, and the following
+  // compound types searching uses tmp_dst buffer
+
+  if (mbmi->interinter_comp.type == COMPOUND_AVERAGE &&
+      is_luma_interp_done) {
+    if (num_planes > 1) {
+      av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst,
+                                    bsize, AOM_PLANE_U, num_planes - 1);
+    }
+    *skip_build_pred = 1;
+  }
+  return 0;
+}
+
 static int64_t handle_inter_mode(
     AV1_COMP *const cpi, TileDataEnc *tile_data, MACROBLOCK *x,
     BLOCK_SIZE bsize, RD_STATS *rd_stats, RD_STATS *rd_stats_y,
@@ -2465,44 +2532,19 @@ static int64_t handle_inter_mode(
     int skip_build_pred = 0;
     const int mi_row = xd->mi_row;
     const int mi_col = xd->mi_col;
+
+    // Handle a compound predictor, continue if it is determined this 
+    // cannot be the best compound mode
     if (is_comp_pred) {
-      // Find matching interp filter or set to default interp filter
-      const int need_search = av1_is_interp_needed(xd);
-      const InterpFilter assign_filter = cm->features.interp_filter;
-      int is_luma_interp_done = 0;
-      av1_find_interp_filter_match(mbmi, cpi, assign_filter, need_search,
-                                   args->interp_filter_stats,
-                                   args->interp_filter_stats_idx);
-
-      int64_t best_rd_compound;
-      int64_t rd_thresh;
-      const int comp_type_rd_shift = COMP_TYPE_RD_THRESH_SHIFT;
-      const int comp_type_rd_scale = COMP_TYPE_RD_THRESH_SCALE;
-      rd_thresh = get_rd_thresh_from_best_rd(
-          ref_best_rd, (1 << comp_type_rd_shift), comp_type_rd_scale);
-      compmode_interinter_cost = av1_compound_type_rd(
-          cpi, x, bsize, cur_mv, mode_search_mask, masked_compound_used,
-          &orig_dst, &tmp_dst, rd_buffers, &rate_mv, &best_rd_compound,
-          rd_stats, ref_best_rd, skip_rd[1], &is_luma_interp_done, rd_thresh);
-      if (ref_best_rd < INT64_MAX &&
-          (best_rd_compound >> comp_type_rd_shift) * comp_type_rd_scale >
-              ref_best_rd) {
-        restore_dst_buf(xd, orig_dst, num_planes);
-        continue;
-      }
-      // No need to call av1_enc_build_inter_predictor for luma if
-      // COMPOUND_AVERAGE is selected because it is the first
-      // candidate in av1_compound_type_rd, and the following
-      // compound types searching uses tmp_dst buffer
-
-      if (mbmi->interinter_comp.type == COMPOUND_AVERAGE &&
-          is_luma_interp_done) {
-        if (num_planes > 1) {
-          av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst,
-                                        bsize, AOM_PLANE_U, num_planes - 1);
-        }
-        skip_build_pred = 1;
-      }
+      const int not_best_mode = 
+        process_compound_inter_mode(cpi, x, args, ref_best_rd, cur_mv,
+                                       bsize, &skip_build_pred,
+                                       &compmode_interinter_cost, 
+                                       rd_buffers,
+                                       &orig_dst, 
+                                       &tmp_dst, &rate_mv, 
+                                       rd_stats, skip_rd);
+      if (not_best_mode) continue;
     }
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
