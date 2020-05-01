@@ -1,0 +1,176 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "23ab73da_b3bb4044",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-01T16:50:39Z",
+      "side": 1,
+      "message": "It seems that this should be either:\n\n    quality improves as speed decreases\n\nor\n\n    quality improves as run-time increases",
+      "range": {
+        "startLine": 197,
+        "startChar": 5,
+        "endLine": 197,
+        "endChar": 43
+      },
+      "revId": "b6982b54c6571040466db2c6ccbc58dc1f6dcaa6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eaae7ee0_12b92195",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-01T16:50:39Z",
+      "side": 1,
+      "message": "Nit/optional: add \"coding mode\" after \"lossless\"",
+      "revId": "b6982b54c6571040466db2c6ccbc58dc1f6dcaa6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a246d8c_39582b40",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-01T16:50:39Z",
+      "side": 1,
+      "message": "Typo: Code \u003d\u003e Codec",
+      "range": {
+        "startLine": 326,
+        "startChar": 12,
+        "endLine": 326,
+        "endChar": 16
+      },
+      "revId": "b6982b54c6571040466db2c6ccbc58dc1f6dcaa6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbef1ed3_37b2fded",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-01T16:50:39Z",
+      "side": 1,
+      "message": "Nit/optional: this line is a little confusing. It probably should read:\n\n    - 13..21 \u003d For future use\n\nNot sure if Doxygen allows this format.",
+      "range": {
+        "startLine": 488,
+        "startChar": 1,
+        "endLine": 488,
+        "endChar": 44
+      },
+      "revId": "b6982b54c6571040466db2c6ccbc58dc1f6dcaa6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c70a8ecb_25dae8d6",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-01T16:50:39Z",
+      "side": 1,
+      "message": "Optional: UNKNOWN \u003d\u003e AOM_CSP_UNKNOWN",
+      "range": {
+        "startLine": 543,
+        "startChar": 5,
+        "endLine": 543,
+        "endChar": 12
+      },
+      "revId": "b6982b54c6571040466db2c6ccbc58dc1f6dcaa6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9308876_7c3ce323",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1083,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-01T16:50:39Z",
+      "side": 1,
+      "message": "Optional: I was surprised to see that single tile coding is on by default. I found that this is technically correct but incomplete. The actual single_tile_decoding boolean is defined as:\n\n  oxcf-\u003elarge_scale_tile \u003d cfg-\u003elarge_scale_tile;\n  oxcf-\u003esingle_tile_decoding \u003d\n      (oxcf-\u003elarge_scale_tile) ? extra_cfg-\u003esingle_tile_decoding : 0;\n\nSo we may want to update the comment at line 1079 to reflect this.\n\nNote: I noticed this complication because the default value of extra_cfg-\u003esingle_tile_decoding has this comment:\n\n  AOM_SUPERBLOCK_SIZE_DYNAMIC,  // superblock_size\n  1,                            // this depends on large_scale_tile.  \u003c\u003d\u003d THIS FIELD\n  0,                            // error_resilient_mode off by default.",
+      "revId": "b6982b54c6571040466db2c6ccbc58dc1f6dcaa6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fd2fe13_be0d432b",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1107,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-01T16:50:39Z",
+      "side": 1,
+      "message": "Nit: ranges \u003d\u003e \"values\" or \"range\" ?",
+      "range": {
+        "startLine": 1107,
+        "startChar": 9,
+        "endLine": 1107,
+        "endChar": 15
+      },
+      "revId": "b6982b54c6571040466db2c6ccbc58dc1f6dcaa6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cb37365_c93e2888",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1107,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-01T16:50:39Z",
+      "side": 1,
+      "message": "Typo: 1..15 \u003d\u003e 1..16\n\nDetail:\n\nWhen this value is nonzero, we subtract 1 from this value and use it to index an array of 16 elements:\n\nstatic aom_film_grain_t film_grain_test_vectors[16] \u003d {\n  ...\n};\n\n  if (oxcf-\u003efilm_grain_test_vector) {\n    cm-\u003eseq_params.film_grain_params_present \u003d 1;\n    if (cm-\u003ecurrent_frame.frame_type \u003d\u003d KEY_FRAME) {\n      memcpy(\u0026cm-\u003efilm_grain_params,\n             film_grain_test_vectors + oxcf-\u003efilm_grain_test_vector - 1,\n             sizeof(cm-\u003efilm_grain_params));",
+      "range": {
+        "startLine": 1107,
+        "startChar": 38,
+        "endLine": 1107,
+        "endChar": 43
+      },
+      "revId": "b6982b54c6571040466db2c6ccbc58dc1f6dcaa6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}

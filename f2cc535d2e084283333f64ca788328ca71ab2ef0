@@ -108,6 +108,75 @@
     },
     {
       "key": {
+        "uuid": "86339c2e_36e4122f",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1027,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-01T16:50:39Z",
+      "side": 1,
+      "message": "Is it worth preserving these in the new comment? (I don\u0027t know if \"smooth\" is understood to cover smooth, smooth_h, and smooth_v.)",
+      "range": {
+        "startLine": 1027,
+        "startChar": 42,
+        "endLine": 1027,
+        "endChar": 71
+      },
+      "revId": "f2cc535d2e084283333f64ca788328ca71ab2ef0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09efcea7_52fd9a29",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1045,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-01T16:50:39Z",
+      "side": 1,
+      "message": "Optional: It may be helpful to preserve \"chroma-from-luma\" in the new comment.",
+      "range": {
+        "startLine": 1045,
+        "startChar": 42,
+        "endLine": 1045,
+        "endChar": 58
+      },
+      "revId": "f2cc535d2e084283333f64ca788328ca71ab2ef0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc524063_09c1e190",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1111,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-01T16:50:39Z",
+      "side": 1,
+      "message": "Did you mean to remove the word \"extreme\"? I didn\u0027t inspect the motion vector unit test, but since the enum names MAX_EXTREME_MV and MIN_EXTREME_MV contain the word \"EXTREME\", the removed word seems important.",
+      "range": {
+        "startLine": 1111,
+        "startChar": 49,
+        "endLine": 1111,
+        "endChar": 56
+      },
+      "revId": "f2cc535d2e084283333f64ca788328ca71ab2ef0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8e726620_532eafea",
         "filename": "aom/aomcx.h",
         "patchSetId": 2
