@@ -169,6 +169,9 @@ typedef const struct aom_codec_ctrl_fn_map {
   aom_codec_control_fn_t fn;
 } aom_codec_ctrl_fn_map_t;
 
+static const aom_codec_ctrl_fn_map_t CTRL_MAP_END = { .ctrl_id = 0,
+                                                      .fn = NULL };
+
 /*!\brief decode data function pointer prototype
  *
  * Processes a buffer of coded data. This function is called by the generic
