@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7bde6595_99a2100e",
+        "filename": "aom_dsp/x86/aom_quantize_avx.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-05-01T00:36:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "57e6adac_cb761b13",
+      "revId": "c51141cc6b92913d97f5ce653c4b8fbd4b4fc63d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "acb697ca_b166ebe7",
         "filename": "aom_dsp/x86/aom_quantize_avx.c",
         "patchSetId": 8
@@ -33,6 +51,24 @@
       "revId": "c51141cc6b92913d97f5ce653c4b8fbd4b4fc63d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7a7e670_dfef20a8",
+        "filename": "aom_dsp/x86/aom_quantize_avx.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-05-01T00:36:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "acb697ca_b166ebe7",
+      "revId": "c51141cc6b92913d97f5ce653c4b8fbd4b4fc63d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
