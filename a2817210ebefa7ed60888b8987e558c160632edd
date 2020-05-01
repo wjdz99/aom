@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f31f6b4_3308457e",
+        "filename": "aom_dsp/x86/aom_quantize_avx.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2020-05-01T03:09:47Z",
+      "side": 1,
+      "message": "I think this file can be named \u0027quantize_avx.c\u0027 because there should not be any naming conflicts (drop the aom_ prefix)",
+      "range": {
+        "startLine": 2,
+        "startChar": 3,
+        "endLine": 2,
+        "endChar": 67
+      },
+      "revId": "a2817210ebefa7ed60888b8987e558c160632edd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e6ad62e_7663e63b",
+        "filename": "aom_dsp/x86/aom_quantize_avx.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2020-05-01T03:09:47Z",
+      "side": 1,
+      "message": "As a followup, the ssse3 version could use the same attention. The sse2 version can be used as a base with the ssse3 and avx functions building on top of it.\n\nAside from dropping skip_block, quantize_b looks to be identical between vp9 and av1. I wonder if your range fix should be backported to vp9 for the 32x32 block. I always had trouble getting those to to match up with the C perfectly but I think I ended up convincing myself those particular values wouldn\u0027t come up in normal bitstreams.",
+      "range": {
+        "startLine": 19,
+        "startChar": 19,
+        "endLine": 19,
+        "endChar": 46
+      },
+      "revId": "a2817210ebefa7ed60888b8987e558c160632edd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "481985ea_95d62059",
+        "filename": "aom_dsp/x86/aom_quantize_avx.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2020-05-01T03:09:47Z",
+      "side": 1,
+      "message": "It seems a little weird to pass log_scale by reference, and a quick code search suggests it\u0027s not necessary.",
+      "range": {
+        "startLine": 212,
+        "startChar": 64,
+        "endLine": 212,
+        "endChar": 73
+      },
+      "revId": "a2817210ebefa7ed60888b8987e558c160632edd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
