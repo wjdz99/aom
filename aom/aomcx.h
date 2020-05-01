@@ -156,7 +156,7 @@ extern aom_codec_iface_t *aom_codec_av1_cx(void);
  * This set of macros define the control functions available for AVx
  * encoder interface.
  *
- * \sa #aom_codec_control
+ * \sa #aom_codec_control(aom_codec_ctx_t *ctx, int ctrl_id, ...)
  */
 enum aome_enc_control_id {
   /*!\brief Codec control function to set which reference frame encoder can use,
