@@ -307,16 +307,6 @@ struct aom_codec_priv {
   } enc;
 };
 
-#undef AOM_CTRL_USE_TYPE
-#define AOM_CTRL_USE_TYPE(id, typ) \
-  static AOM_INLINE typ id##__value(va_list args) { return va_arg(args, typ); }
-
-#undef AOM_CTRL_USE_TYPE_DEPRECATED
-#define AOM_CTRL_USE_TYPE_DEPRECATED(id, typ) \
-  static AOM_INLINE typ id##__value(va_list args) { return va_arg(args, typ); }
-
-#define CAST(id, arg) id##__value(arg)
-
 /* Internal Utility Functions
  *
  * The following functions are intended to be used inside algorithms as
