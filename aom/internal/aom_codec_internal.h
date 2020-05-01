@@ -157,17 +157,23 @@ typedef aom_codec_err_t (*aom_codec_control_fn_t)(aom_codec_alg_priv_t *ctx,
  *
  * This structure stores the mapping between control identifiers and
  * implementing functions. Each algorithm provides a list of these
- * mappings. This list is searched by the aom_codec_control() wrapper
+ * mappings. This list is searched by the aom_codec_control()
  * function to determine which function to invoke. The special
- * value {0, NULL} is used to indicate end-of-list, and must be
- * present. The special value {0, <non-null>} can be used as a catch-all
- * mapping. This implies that ctrl_id values chosen by the algorithm
+ * value defined by CTRL_MAP_END is used to indicate end-of-list, and must be
+ * present. It can be tested with the macro AT_CTRL_MAP_END, which takes
+ * a pointer to the aom_codec_ctrl_fn_map_t. Note that ctrl_id values
  * \ref MUST be non-zero.
  */
 typedef const struct aom_codec_ctrl_fn_map {
   int ctrl_id;
   aom_codec_control_fn_t fn;
 } aom_codec_ctrl_fn_map_t;
+
+#define CTRL_MAP_END \
+  { 0, NULL }
+// Macro to check if the parameter (of type aom_codec_ctrl_fn_map_t*)
+// points to the sentinel value, meaning we are at the end of the mapping.
+#define AT_CTRL_MAP_END(e) (((e)->ctrl_id == 0 && (e)->fn == NULL))
 
 /*!\brief decode data function pointer prototype
  *
