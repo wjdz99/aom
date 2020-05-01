@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26a2bf07_6e3a98c6",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-01T21:19:58Z",
+      "side": 1,
+      "message": "Optional: We can also define CTRL_MAP_END as { -1, NULL } (as in the original code), and change this comment to say \"positive\" instead of \"non-zero\".\n\nMore important, I don\u0027t understand how a catch-all mapping can be useful. Maybe we should remove that feature.",
+      "range": {
+        "startLine": 167,
+        "startChar": 12,
+        "endLine": 168,
+        "endChar": 25
+      },
+      "revId": "defe893ca261fe232d939ae7028f7f7fb583062c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a7cbd5c_a6a8fb31",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-01T21:19:58Z",
+      "side": 1,
+      "message": "This macro does not need to have the function-like form. Also, we should not need to use line continuation. Does this work?\n\n#define CTRL_MAP_END { 0, NULL }",
+      "range": {
+        "startLine": 175,
+        "startChar": 0,
+        "endLine": 176,
+        "endChar": 13
+      },
+      "revId": "defe893ca261fe232d939ae7028f7f7fb583062c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d9d88c2_48279835",
+        "filename": "aom/src/aom_codec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-01T21:19:58Z",
+      "side": 1,
+      "message": "Delete this? I don\u0027t see \u0027bool\u0027, \u0027true\u0027 or \u0027false\u0027 used in this file.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 20
+      },
+      "revId": "defe893ca261fe232d939ae7028f7f7fb583062c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
