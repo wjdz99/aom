@@ -2358,6 +2358,28 @@ static int process_compound_inter_mode(
   return 0;
 }
 
+// Update the modeleed rd model for inter prediction. If the rd is
+// above a threshold and we already have a previous reference with a
+// valid rd, this will return 1 to indicate skipping the rest of this mode
+// search.
+static int update_modelled_rd(HandleInterModeArgs *args, MACROBLOCKD *xd,
+                              int num_planes, const BUFFER_SET *orig_dst,
+                              int64_t ref_best_rd, int is_comp_pred,
+                              PREDICTION_MODE this_mode, int64_t rd,
+                              int ref_mv_idx, const int *refs) {
+  if (is_comp_pred) {
+    const int mode0 = compound_ref0_mode(this_mode);
+    const int mode1 = compound_ref1_mode(this_mode);
+    const int64_t mrd = AOMMIN(args->modelled_rd[mode0][ref_mv_idx][refs[0]],
+                               args->modelled_rd[mode1][ref_mv_idx][refs[1]]);
+    if ((rd >> 3) * 6 > mrd && ref_best_rd < INT64_MAX) {
+      restore_dst_buf(xd, *orig_dst, num_planes);
+      return 1;
+    }
+  }
+  return 0;
+}
+
 static int64_t handle_inter_mode(
     AV1_COMP *const cpi, TileDataEnc *tile_data, MACROBLOCK *x,
     BLOCK_SIZE bsize, RD_STATS *rd_stats, RD_STATS *rd_stats_y,
@@ -2592,19 +2614,13 @@ static int64_t handle_inter_mode(
       continue;
     }
 
-    if (args->modelled_rd != NULL) {
-      if (is_comp_pred) {
-        const int mode0 = compound_ref0_mode(this_mode);
-        const int mode1 = compound_ref1_mode(this_mode);
-        const int64_t mrd =
-            AOMMIN(args->modelled_rd[mode0][ref_mv_idx][refs[0]],
-                   args->modelled_rd[mode1][ref_mv_idx][refs[1]]);
-        if ((rd >> 3) * 6 > mrd && ref_best_rd < INT64_MAX) {
-          restore_dst_buf(xd, orig_dst, num_planes);
-          continue;
-        }
-      }
-    }
+    // Update modelled rd if enabled and stop search if the update function
+    // indicates rd is above a threshold.
+    if (args->modelled_rd != NULL &&
+        update_modelled_rd(args, xd, num_planes, &orig_dst, ref_best_rd,
+                           is_comp_pred, this_mode, rd, ref_mv_idx, refs))
+      continue;
+
     rd_stats->rate += compmode_interinter_cost;
     if (skip_build_pred != 1) {
       av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst, bsize, 0,
