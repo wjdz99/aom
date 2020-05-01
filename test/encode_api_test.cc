@@ -71,4 +71,16 @@ TEST(EncodeAPI, InvalidParams) {
   }
 }
 
+#if CONFIG_AV1_ENCODER
+TEST(EncodeAPI, InvalidControlId) {
+  aom_codec_iface_t *iface = aom_codec_av1_cx();
+  aom_codec_ctx_t enc;
+  aom_codec_enc_cfg_t cfg;
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_config_default(iface, &cfg, 0));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_init(&enc, iface, &cfg, 0));
+  EXPECT_EQ(AOM_CODEC_ERROR, aom_codec_control_(&enc, -1, 0));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_destroy(&enc));
+}
+#endif
+
 }  // namespace
