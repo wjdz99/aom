@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "09fe17fc_0e04e77f",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1491,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-01T22:12:55Z",
+      "side": 0,
+      "message": "AV1E_SET_ENABLE_DIST_8X8 was removed in https://aomedia-review.googlesource.com/c/aom/+/110521. I am surprised that the code still compiles.",
+      "range": {
+        "startLine": 1490,
+        "startChar": 0,
+        "endLine": 1491,
+        "endChar": 41
+      },
+      "revId": "f9f274aadbd9c9a2d39cbba2df2c35a64e9333a4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
