@@ -398,6 +398,25 @@ static int adjust_q_cbr(const AV1_COMP *cpi, int q, int active_worst_quality) {
       q = clamp(q, AOMMIN(rc->q_1_frame, rc->q_2_frame),
                 AOMMAX(rc->q_1_frame, rc->q_2_frame));
     }
+    // Adjust Q base on source content change from scene detection.
+    if (cpi->sf.rt_sf.check_scene_detection && rc->prev_avg_source_sad > 0 &&
+        rc->frames_since_key > 10) {
+      const int bit_depth = cm->seq_params.bit_depth;
+      double delta =
+          (double)rc->avg_source_sad / (double)rc->prev_avg_source_sad - 1.0;
+      double q_adj_factor = 1.0 + 0.4 * tanh(8.0 * delta);
+      double q_val = av1_convert_qindex_to_q(active_worst_quality, bit_depth);
+      // Push Q downwards if content change is decreasing and buffer level
+      // is stable (at least half optimal level), so not overshooting.
+      if (delta < 0.0 && rc->buffer_level > (rc->optimal_buffer_level >> 1))
+        q += av1_compute_qdelta(rc, q_val, q_val * q_adj_factor, bit_depth);
+      // Reduce decrease in Q from previous frame if content change is increasing
+      // and buffer is below max (so not undershooting).
+      else if (rc->q_1_frame - q > 0 && delta > 0.05 &&
+               rc->buffer_level < AOMMIN(rc->maximum_buffer_size,
+                                         rc->optimal_buffer_level << 1))
+        q = (q + rc->q_1_frame) >> 1;
+    }
     // Limit the decrease in Q from previous frame.
     if (rc->q_1_frame - q > max_delta) q = rc->q_1_frame - max_delta;
   }
@@ -2063,6 +2082,7 @@ static void av1_scene_detection_onepass(AV1_COMP *cpi) {
   last_src_width = unscaled_last_src->y_width;
   last_src_height = unscaled_last_src->y_height;
   rc->high_source_sad = 0;
+  rc->prev_avg_source_sad = rc->avg_source_sad;
   if (src_width == last_src_width && src_height == last_src_height) {
     const int num_mi_cols = cm->mi_params.mi_cols;
     const int num_mi_rows = cm->mi_params.mi_rows;
