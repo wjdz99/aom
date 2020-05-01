@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e521101e_17ae5d18",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 629,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-05-01T22:24:12Z",
+      "side": 1,
+      "message": "We typically use pointer arguments in the codebase: \"uint8_t *txb_skip\"",
+      "range": {
+        "startLine": 629,
+        "startChar": 40,
+        "endLine": 629,
+        "endChar": 50
+      },
+      "revId": "bb8fb3f770e02ebb2030befe7d5553a10092a313",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
