@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5e10d3f_934e2604",
+        "filename": "aom/aom.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-01T19:13:00Z",
+      "side": 1,
+      "message": "[Just a comment. No change requested.] I doubt we will spend the effort to migrate codec control ids in libaom 3.0.0. We can live with this and use other means to prevent control id conflicts in the overlapped range.\n\nFor example, aom/aomcx.h has this comment:\n\n  /* NOTE: enums 126-139 unused */\n  /* NOTE: Need a gap in enum values to avoud conflict with 128, 129, 130 */\n\nIt would be helpful to add placeholder enumerators to make it harder to define an encoder control id in that range accidentally:\n\n  AV1E_CONTROL_ID_DO_NOT_USE_128__ \u003d 128,  // Used by aom/aom.h\n  AV1E_CONTROL_ID_DO_NOT_USE_129__ \u003d 129,  // Used by aom/aom.h\n  AV1E_CONTROL_ID_DO_NOT_USE_130__ \u003d 130,  // Used by aom/aom.h",
+      "range": {
+        "startLine": 47,
+        "startChar": 69,
+        "endLine": 49,
+        "endChar": 44
+      },
+      "revId": "6da7e76a157c00bd83a9569c3e2d107121dc1da4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
