@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "8108f376_443424f9",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-02T18:23:36Z",
+      "side": 0,
+      "message": "Just for future reference: This macro is used only once in libvpx:\n\nVPX_CTRL_USE_TYPE_DEPRECATED(VP8E_SET_ARNR_TYPE, unsigned int)\n#define VPX_CTRL_VP8E_SET_ARNR_TYPE",
+      "revId": "f9f274aadbd9c9a2d39cbba2df2c35a64e9333a4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "effdb07d_d57baec7",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-02T18:23:36Z",
+      "side": 0,
+      "message": "This macro is not used in libvpx.",
+      "revId": "f9f274aadbd9c9a2d39cbba2df2c35a64e9333a4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "09fe17fc_0e04e77f",
         "filename": "aom/aomcx.h",
         "patchSetId": 7
@@ -22,6 +56,29 @@
       "revId": "f9f274aadbd9c9a2d39cbba2df2c35a64e9333a4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3748c4a7_1f46dfb2",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-02T18:23:36Z",
+      "side": 0,
+      "message": "Optional: The redefined AOM_CTRL_USE_TYPE macro and the CAST macro seem worth keeping, because they ensure that the same type is used in the type-safe function and va_arg() call.\n\nIt is strange that the CAST macro is only used in av1_cx_iface.c, not in av1_dx_iface.c.",
+      "range": {
+        "startLine": 310,
+        "startChar": 0,
+        "endLine": 318,
+        "endChar": 38
+      },
+      "revId": "f9f274aadbd9c9a2d39cbba2df2c35a64e9333a4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }

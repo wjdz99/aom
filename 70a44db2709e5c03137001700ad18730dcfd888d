@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5440258d_920e5191",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-02T18:23:36Z",
+      "side": 1,
+      "message": "It would be good to document that AOM_DISABLE_CTRL_TYPECHECKS is no longer checked, and advise the libaom clients that currently define AOM_DISABLE_CTRL_TYPECHECKS on what they should do when they upgrade to libaom 2.0.0. (It is harmless for them to keep defining AOM_DISABLE_CTRL_TYPECHECKS until they no longer need to support libaom pre-2.0.0.",
+      "revId": "70a44db2709e5c03137001700ad18730dcfd888d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee469224_fdfcb219",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-02T18:23:36Z",
+      "side": 1,
+      "message": "Nit/optional: Should we change this to \"Algorithm Control\" or \"Codec Control\"? \"Control Algorithm\" does not seem right in this context.",
+      "range": {
+        "startLine": 454,
+        "startChar": 10,
+        "endLine": 454,
+        "endChar": 27
+      },
+      "revId": "70a44db2709e5c03137001700ad18730dcfd888d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42f0161e_5fe3ee6b",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-02T18:23:36Z",
+      "side": 1,
+      "message": "Control Algorithms \u003d\u003e Codec Control\n\nI assume this should match line 441.",
+      "range": {
+        "startLine": 494,
+        "startChar": 10,
+        "endLine": 494,
+        "endChar": 28
+      },
+      "revId": "70a44db2709e5c03137001700ad18730dcfd888d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45d9f398_9fbc4de1",
+        "filename": "examples/lossless_encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-02T18:23:36Z",
+      "side": 1,
+      "message": "Nit: aom_codec_control \u003d\u003e AOM_CODEC_CONTROL_TYPECHECKED ?",
+      "range": {
+        "startLine": 115,
+        "startChar": 6,
+        "endLine": 115,
+        "endChar": 23
+      },
+      "revId": "70a44db2709e5c03137001700ad18730dcfd888d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
