@@ -96,6 +96,47 @@
     },
     {
       "key": {
+        "uuid": "c29f249e_0d0af03c",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-02T18:41:23Z",
+      "side": 1,
+      "message": "I looked into this. clang-format does not require (), but it does insert the line continuation backslash. I consider this a quirk of clang-format. I suggest we remove ():\n\n  #define CTRL_MAP_END \\\n    { 0, NULL }",
+      "parentUuid": "21a778bb_a0471f05",
+      "range": {
+        "startLine": 175,
+        "startChar": 0,
+        "endLine": 176,
+        "endChar": 13
+      },
+      "revId": "defe893ca261fe232d939ae7028f7f7fb583062c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7410aa5f_b57f15aa",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-02T18:41:23Z",
+      "side": 1,
+      "message": "[Just a comment. No change requested.] ctrl_maps has two problems:\n\n1. It requires aom_codec_control() to search in ctrl_maps (currently a linear search).\n2. It is hard to detect duplicate entries in ctrl_maps.\n\nIf we replace ctrl_maps with a \u0027control\u0027 function pointer, then the \u0027control\u0027 function can be implemented with a switch statement, which automatically detect control id conflicts between aom.h and aomcx.h or between aom.h and aomdx.h. (However, it cannot detect control id conflicts between aomcx.h and aomdx.h because AV1 decoder and encoder are implemented as separate aom_codec_iface objects.)\n\nAs an interim solution to problem #2, we can add code, possibly conditionally compiled in debug mode only, to aom_codec_dec_init_ver and aom_codec_enc_init_ver to search in ctrl_maps for duplicate entries.",
+      "revId": "defe893ca261fe232d939ae7028f7f7fb583062c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6d9d88c2_48279835",
         "filename": "aom/src/aom_codec.c",
         "patchSetId": 2
