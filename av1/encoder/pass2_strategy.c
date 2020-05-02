@@ -1943,13 +1943,33 @@ static int test_candidate_kf(TWO_PASS *twopass,
                              const FIRSTPASS_STATS *last_frame,
                              const FIRSTPASS_STATS *this_frame,
                              const FIRSTPASS_STATS *next_frame,
-                             int frame_count_so_far, enum aom_rc_mode rc_mode) {
+                             int frame_count_so_far, enum aom_rc_mode rc_mode,
+                             int scenecut_mode) {
   int is_viable_kf = 0;
   double pcnt_intra = 1.0 - this_frame->pcnt_inter;
   double modified_pcnt_inter =
       this_frame->pcnt_inter - this_frame->pcnt_neutral;
   const double second_ref_usage_thresh =
       get_second_ref_usage_thresh(frame_count_so_far);
+  int total_frames_to_test = SCENE_CUT_KEY_TEST_INTERVAL;
+  int count_for_tolerable_prediction = 3;
+  int num_future_frames = 0;
+  FIRSTPASS_STATS curr_frame;
+
+  if (scenecut_mode == ENABLE_SCENECUT_MODE_1) {
+    curr_frame = *this_frame;
+    const FIRSTPASS_STATS *const start_position = twopass->stats_in;
+    for (num_future_frames = 0; num_future_frames < SCENE_CUT_KEY_TEST_INTERVAL;
+         num_future_frames++)
+      if (EOF == input_stats(twopass, &curr_frame)) break;
+    reset_fpf_position(twopass, start_position);
+    if (num_future_frames < 3) {
+      return 0;
+    } else {
+      total_frames_to_test = 3;
+      count_for_tolerable_prediction = 1;
+    }
+  }
 
   // Does the frame satisfy the primary criteria of a key frame?
   // See above for an explanation of the test criteria.
@@ -1974,13 +1994,15 @@ static int test_candidate_kf(TWO_PASS *twopass,
           II_IMPROVEMENT_THRESHOLD))))) {
     int i;
     const FIRSTPASS_STATS *start_pos = twopass->stats_in;
-    FIRSTPASS_STATS local_next_frame = *next_frame;
     double boost_score = 0.0;
     double old_boost_score = 0.0;
     double decay_accumulator = 1.0;
 
     // Examine how well the key frame predicts subsequent frames.
-    for (i = 0; i < SCENE_CUT_KEY_TEST_INTERVAL; ++i) {
+    for (i = 0; i < total_frames_to_test; ++i) {
+      // Get the next frame details
+      FIRSTPASS_STATS local_next_frame;
+      if (EOF == input_stats(twopass, &local_next_frame)) break;
       double next_iiratio = (BOOST_FACTOR * local_next_frame.intra_error /
                              DOUBLE_DIVIDE_CHECK(local_next_frame.coded_error));
 
@@ -2006,14 +2028,11 @@ static int test_candidate_kf(TWO_PASS *twopass,
       }
 
       old_boost_score = boost_score;
-
-      // Get the next frame details
-      if (EOF == input_stats(twopass, &local_next_frame)) break;
     }
 
     // If there is tolerable prediction for at least the next 3 frames then
     // break out else discard this potential key frame and move on
-    if (boost_score > 30.0 && (i > 3)) {
+    if (boost_score > 30.0 && (i > count_for_tolerable_prediction)) {
       is_viable_kf = 1;
     } else {
       // Reset the file position
@@ -2108,13 +2127,14 @@ static int define_kf_interval(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     input_stats(twopass, this_frame);
 
     // Provided that we are not at the end of the file...
-    if (cpi->rc.enable_scenecut_detection && cpi->oxcf.auto_key &&
+    if ((cpi->rc.enable_scenecut_detection > 0) && cpi->oxcf.auto_key &&
         twopass->stats_in < twopass->stats_buf_ctx->stats_in_end) {
       double loop_decay_rate;
 
       // Check for a scene cut.
       if (test_candidate_kf(twopass, &last_frame, this_frame, twopass->stats_in,
-                            frames_since_key, oxcf->rc_mode)) {
+                            frames_since_key, oxcf->rc_mode,
+                            cpi->rc.enable_scenecut_detection)) {
         scenecut_detected = 1;
         break;
       }
