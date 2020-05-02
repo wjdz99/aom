@@ -352,7 +352,7 @@ void av1_setup_pred_block(const MACROBLOCKD *xd,
 int av1_get_intra_cost_penalty(int qindex, int qdelta,
                                aom_bit_depth_t bit_depth);
 
-void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
+void av1_fill_mode_rates(AV1_COMMON *const cm, ModeEntropyCosts *mode_costs,
                          FRAME_CONTEXT *fc);
 
 void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc,

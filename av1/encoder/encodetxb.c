@@ -706,7 +706,8 @@ static int get_tx_type_cost(const MACROBLOCK *x, const MACROBLOCKD *xd,
         get_ext_tx_set(tx_size, is_inter, reduced_tx_set_used);
     if (is_inter) {
       if (ext_tx_set > 0)
-        return x->inter_tx_type_costs[ext_tx_set][square_tx_size][tx_type];
+        return x->mode_costs
+            .inter_tx_type_costs[ext_tx_set][square_tx_size][tx_type];
     } else {
       if (ext_tx_set > 0) {
         PREDICTION_MODE intra_dir;
@@ -715,8 +716,8 @@ static int get_tx_type_cost(const MACROBLOCK *x, const MACROBLOCKD *xd,
                                              .filter_intra_mode];
         else
           intra_dir = mbmi->mode;
-        return x->intra_tx_type_costs[ext_tx_set][square_tx_size][intra_dir]
-                                     [tx_type];
+        return x->mode_costs.intra_tx_type_costs[ext_tx_set][square_tx_size]
+                                                [intra_dir][tx_type];
       }
     }
   }

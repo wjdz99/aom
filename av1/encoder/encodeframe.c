@@ -1916,6 +1916,7 @@ static AOM_INLINE void rd_use_partition(
   TileInfo *const tile_info = &tile_data->tile_info;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
+  const ModeEntropyCosts *mode_costs = &x->mode_costs;
   const int bs = mi_size_wide[bsize];
   const int hbs = bs / 2;
   const int pl = (bsize >= BLOCK_8X8)
@@ -1990,7 +1991,7 @@ static AOM_INLINE void rd_use_partition(
                     PARTITION_NONE, bsize, ctx_none, invalid_rdc, PICK_MODE_RD);
 
       if (none_rdc.rate < INT_MAX) {
-        none_rdc.rate += x->partition_cost[pl][PARTITION_NONE];
+        none_rdc.rate += mode_costs->partition_cost[pl][PARTITION_NONE];
         none_rdc.rdcost = RDCOST(x->rdmult, none_rdc.rate, none_rdc.dist);
       }
 
@@ -2108,7 +2109,7 @@ static AOM_INLINE void rd_use_partition(
   }
 
   if (last_part_rdc.rate < INT_MAX) {
-    last_part_rdc.rate += x->partition_cost[pl][partition];
+    last_part_rdc.rate += mode_costs->partition_cost[pl][partition];
     last_part_rdc.rdcost =
         RDCOST(x->rdmult, last_part_rdc.rate, last_part_rdc.dist);
   }
@@ -2159,10 +2160,10 @@ static AOM_INLINE void rd_use_partition(
         encode_sb(cpi, td, tile_data, tp, mi_row + y_idx, mi_col + x_idx,
                   OUTPUT_ENABLED, split_subsize, pc_tree->split[i], NULL);
 
-      chosen_rdc.rate += x->partition_cost[pl][PARTITION_NONE];
+      chosen_rdc.rate += mode_costs->partition_cost[pl][PARTITION_NONE];
     }
     if (chosen_rdc.rate < INT_MAX) {
-      chosen_rdc.rate += x->partition_cost[pl][PARTITION_SPLIT];
+      chosen_rdc.rate += mode_costs->partition_cost[pl][PARTITION_SPLIT];
       chosen_rdc.rdcost = RDCOST(x->rdmult, chosen_rdc.rate, chosen_rdc.dist);
     }
   }
@@ -2241,6 +2242,7 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
   TileInfo *const tile_info = &tile_data->tile_info;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
+  const ModeEntropyCosts *mode_costs = &x->mode_costs;
   // Only square blocks from 8x8 to 128x128 are supported
   assert(bsize >= BLOCK_8X8 && bsize <= BLOCK_128X128);
   const int bs = mi_size_wide[bsize];
@@ -2286,7 +2288,7 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
         pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &none_rdc,
                       PARTITION_NONE, bsize, pc_tree->none, invalid_rd,
                       PICK_MODE_NONRD);
-        none_rdc.rate += x->partition_cost[pl][PARTITION_NONE];
+        none_rdc.rate += mode_costs->partition_cost[pl][PARTITION_NONE];
         none_rdc.rdcost = RDCOST(x->rdmult, none_rdc.rate, none_rdc.dist);
         restore_context(x, &x_ctx, mi_row, mi_col, bsize, 3);
 
@@ -2311,7 +2313,7 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
           encode_b(cpi, tile_data, td, tp, mi_row + y_idx, mi_col + x_idx, 1,
                    subsize, PARTITION_NONE, pc_tree->split[i]->none, NULL);
         }
-        split_rdc.rate += x->partition_cost[pl][PARTITION_SPLIT];
+        split_rdc.rate += mode_costs->partition_cost[pl][PARTITION_SPLIT];
         split_rdc.rdcost = RDCOST(x->rdmult, split_rdc.rate, split_rdc.dist);
         restore_context(x, &x_ctx, mi_row, mi_col, bsize, 3);
 
@@ -2402,7 +2404,7 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
         pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &none_rdc,
                       PARTITION_NONE, bsize, pc_tree->none, invalid_rd,
                       PICK_MODE_NONRD);
-        none_rdc.rate += x->partition_cost[pl][PARTITION_NONE];
+        none_rdc.rate += mode_costs->partition_cost[pl][PARTITION_NONE];
         none_rdc.rdcost = RDCOST(x->rdmult, none_rdc.rate, none_rdc.dist);
         restore_context(x, &x_ctx, mi_row, mi_col, bsize, 3);
         if (cpi->sf.rt_sf.nonrd_check_partition_merge_mode != 2 ||
@@ -2434,7 +2436,7 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
                      subsize, PARTITION_NONE, pc_tree->split[i]->none, NULL);
           }
           restore_context(x, &x_ctx, mi_row, mi_col, bsize, 3);
-          split_rdc.rate += x->partition_cost[pl][PARTITION_SPLIT];
+          split_rdc.rate += mode_costs->partition_cost[pl][PARTITION_SPLIT];
           split_rdc.rdcost = RDCOST(x->rdmult, split_rdc.rate, split_rdc.dist);
         }
         if (none_rdc.rdcost < split_rdc.rdcost) {
@@ -2625,7 +2627,7 @@ static bool rd_test_partition3(AV1_COMP *const cpi, ThreadData *td,
   const int pl = partition_plane_context(xd, mi_row, mi_col, bsize);
   RD_STATS sum_rdc;
   av1_init_rd_stats(&sum_rdc);
-  sum_rdc.rate = x->partition_cost[pl][partition];
+  sum_rdc.rate = x->mode_costs.partition_cost[pl][partition];
   sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
   if (!rd_try_subblock(cpi, td, tile_data, tp, 0, mi_row0, mi_col0, subsize0,
                        *best_rdc, &sum_rdc, partition, ctx, ctxs[0]))
@@ -2776,7 +2778,8 @@ static bool rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   const int pl = bsize_at_least_8x8
                      ? partition_plane_context(xd, mi_row, mi_col, bsize)
                      : 0;
-  const int *partition_cost = x->partition_cost[pl];
+  const ModeEntropyCosts *mode_costs = &x->mode_costs;
+  const int *partition_cost = mode_costs->partition_cost[pl];
 
   int do_rectangular_split = cpi->oxcf.enable_rect_partitions;
   int64_t cur_none_rd = 0;
@@ -5042,7 +5045,7 @@ static AOM_INLINE void set_cost_upd_freq(AV1_COMP *cpi, ThreadData *td,
       if (mi_col != tile_info->mi_col_start) break;
       AOM_FALLTHROUGH_INTENDED;
     case COST_UPD_SB:  // SB level
-      av1_fill_mode_rates(cm, x, xd->tile_ctx);
+      av1_fill_mode_rates(cm, &x->mode_costs, xd->tile_ctx);
       break;
     default: assert(0);
   }

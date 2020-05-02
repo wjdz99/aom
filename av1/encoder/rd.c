@@ -84,68 +84,72 @@ static const int av1_ext_tx_set_idx_to_type[2][AOMMAX(EXT_TX_SETS_INTRA,
   },
 };
 
-void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
+void av1_fill_mode_rates(AV1_COMMON *const cm, ModeEntropyCosts *mode_costs,
                          FRAME_CONTEXT *fc) {
   int i, j;
 
   for (i = 0; i < PARTITION_CONTEXTS; ++i)
-    av1_cost_tokens_from_cdf(x->partition_cost[i], fc->partition_cdf[i], NULL);
+    av1_cost_tokens_from_cdf(mode_costs->partition_cost[i],
+                             fc->partition_cdf[i], NULL);
 
   if (cm->current_frame.skip_mode_info.skip_mode_flag) {
     for (i = 0; i < SKIP_MODE_CONTEXTS; ++i) {
-      av1_cost_tokens_from_cdf(x->skip_mode_cost[i], fc->skip_mode_cdfs[i],
-                               NULL);
+      av1_cost_tokens_from_cdf(mode_costs->skip_mode_cost[i],
+                               fc->skip_mode_cdfs[i], NULL);
     }
   }
 
   for (i = 0; i < SKIP_CONTEXTS; ++i) {
-    av1_cost_tokens_from_cdf(x->skip_txfm_cost[i], fc->skip_txfm_cdfs[i], NULL);
+    av1_cost_tokens_from_cdf(mode_costs->skip_txfm_cost[i],
+                             fc->skip_txfm_cdfs[i], NULL);
   }
 
   for (i = 0; i < KF_MODE_CONTEXTS; ++i)
     for (j = 0; j < KF_MODE_CONTEXTS; ++j)
-      av1_cost_tokens_from_cdf(x->y_mode_costs[i][j], fc->kf_y_cdf[i][j], NULL);
+      av1_cost_tokens_from_cdf(mode_costs->y_mode_costs[i][j],
+                               fc->kf_y_cdf[i][j], NULL);
 
   for (i = 0; i < BLOCK_SIZE_GROUPS; ++i)
-    av1_cost_tokens_from_cdf(x->mbmode_cost[i], fc->y_mode_cdf[i], NULL);
+    av1_cost_tokens_from_cdf(mode_costs->mbmode_cost[i], fc->y_mode_cdf[i],
+                             NULL);
   for (i = 0; i < CFL_ALLOWED_TYPES; ++i)
     for (j = 0; j < INTRA_MODES; ++j)
-      av1_cost_tokens_from_cdf(x->intra_uv_mode_cost[i][j],
+      av1_cost_tokens_from_cdf(mode_costs->intra_uv_mode_cost[i][j],
                                fc->uv_mode_cdf[i][j], NULL);
 
-  av1_cost_tokens_from_cdf(x->filter_intra_mode_cost, fc->filter_intra_mode_cdf,
-                           NULL);
+  av1_cost_tokens_from_cdf(mode_costs->filter_intra_mode_cost,
+                           fc->filter_intra_mode_cdf, NULL);
   for (i = 0; i < BLOCK_SIZES_ALL; ++i) {
     if (av1_filter_intra_allowed_bsize(cm, i))
-      av1_cost_tokens_from_cdf(x->filter_intra_cost[i],
+      av1_cost_tokens_from_cdf(mode_costs->filter_intra_cost[i],
                                fc->filter_intra_cdfs[i], NULL);
   }
 
   for (i = 0; i < SWITCHABLE_FILTER_CONTEXTS; ++i)
-    av1_cost_tokens_from_cdf(x->switchable_interp_costs[i],
+    av1_cost_tokens_from_cdf(mode_costs->switchable_interp_costs[i],
                              fc->switchable_interp_cdf[i], NULL);
 
   for (i = 0; i < PALATTE_BSIZE_CTXS; ++i) {
-    av1_cost_tokens_from_cdf(x->palette_y_size_cost[i],
+    av1_cost_tokens_from_cdf(mode_costs->palette_y_size_cost[i],
                              fc->palette_y_size_cdf[i], NULL);
-    av1_cost_tokens_from_cdf(x->palette_uv_size_cost[i],
+    av1_cost_tokens_from_cdf(mode_costs->palette_uv_size_cost[i],
                              fc->palette_uv_size_cdf[i], NULL);
     for (j = 0; j < PALETTE_Y_MODE_CONTEXTS; ++j) {
-      av1_cost_tokens_from_cdf(x->palette_y_mode_cost[i][j],
+      av1_cost_tokens_from_cdf(mode_costs->palette_y_mode_cost[i][j],
                                fc->palette_y_mode_cdf[i][j], NULL);
     }
   }
 
   for (i = 0; i < PALETTE_UV_MODE_CONTEXTS; ++i) {
-    av1_cost_tokens_from_cdf(x->palette_uv_mode_cost[i],
+    av1_cost_tokens_from_cdf(mode_costs->palette_uv_mode_cost[i],
                              fc->palette_uv_mode_cdf[i], NULL);
   }
 
   for (i = 0; i < PALETTE_SIZES; ++i) {
     for (j = 0; j < PALETTE_COLOR_INDEX_CONTEXTS; ++j) {
-      av1_cost_tokens_from_cdf(x->palette_y_color_cost[i][j],
+      av1_cost_tokens_from_cdf(mode_costs->palette_y_color_cost[i][j],
                                fc->palette_y_color_index_cdf[i][j], NULL);
-      av1_cost_tokens_from_cdf(x->palette_uv_color_cost[i][j],
+      av1_cost_tokens_from_cdf(mode_costs->palette_uv_color_cost[i][j],
                                fc->palette_uv_color_index_cdf[i][j], NULL);
     }
   }
@@ -153,8 +157,8 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
   int sign_cost[CFL_JOINT_SIGNS];
   av1_cost_tokens_from_cdf(sign_cost, fc->cfl_sign_cdf, NULL);
   for (int joint_sign = 0; joint_sign < CFL_JOINT_SIGNS; joint_sign++) {
-    int *cost_u = x->cfl_cost[joint_sign][CFL_PRED_U];
-    int *cost_v = x->cfl_cost[joint_sign][CFL_PRED_V];
+    int *cost_u = mode_costs->cfl_cost[joint_sign][CFL_PRED_U];
+    int *cost_v = mode_costs->cfl_cost[joint_sign][CFL_PRED_V];
     if (CFL_SIGN_U(joint_sign) == CFL_SIGN_ZERO) {
       memset(cost_u, 0, CFL_ALPHABET_SIZE * sizeof(*cost_u));
     } else {
@@ -173,11 +177,11 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
 
   for (i = 0; i < MAX_TX_CATS; ++i)
     for (j = 0; j < TX_SIZE_CONTEXTS; ++j)
-      av1_cost_tokens_from_cdf(x->tx_size_cost[i][j], fc->tx_size_cdf[i][j],
-                               NULL);
+      av1_cost_tokens_from_cdf(mode_costs->tx_size_cost[i][j],
+                               fc->tx_size_cdf[i][j], NULL);
 
   for (i = 0; i < TXFM_PARTITION_CONTEXTS; ++i) {
-    av1_cost_tokens_from_cdf(x->txfm_partition_cost[i],
+    av1_cost_tokens_from_cdf(mode_costs->txfm_partition_cost[i],
                              fc->txfm_partition_cdf[i], NULL);
   }
 
@@ -186,7 +190,7 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
     for (s = 1; s < EXT_TX_SETS_INTER; ++s) {
       if (use_inter_ext_tx_for_txsize[s][i]) {
         av1_cost_tokens_from_cdf(
-            x->inter_tx_type_costs[s][i], fc->inter_ext_tx_cdf[s][i],
+            mode_costs->inter_tx_type_costs[s][i], fc->inter_ext_tx_cdf[s][i],
             av1_ext_tx_inv[av1_ext_tx_set_idx_to_type[1][s]]);
       }
     }
@@ -194,118 +198,124 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
       if (use_intra_ext_tx_for_txsize[s][i]) {
         for (j = 0; j < INTRA_MODES; ++j) {
           av1_cost_tokens_from_cdf(
-              x->intra_tx_type_costs[s][i][j], fc->intra_ext_tx_cdf[s][i][j],
+              mode_costs->intra_tx_type_costs[s][i][j],
+              fc->intra_ext_tx_cdf[s][i][j],
               av1_ext_tx_inv[av1_ext_tx_set_idx_to_type[0][s]]);
         }
       }
     }
   }
   for (i = 0; i < DIRECTIONAL_MODES; ++i) {
-    av1_cost_tokens_from_cdf(x->angle_delta_cost[i], fc->angle_delta_cdf[i],
-                             NULL);
+    av1_cost_tokens_from_cdf(mode_costs->angle_delta_cost[i],
+                             fc->angle_delta_cdf[i], NULL);
   }
-  av1_cost_tokens_from_cdf(x->switchable_restore_cost,
+  av1_cost_tokens_from_cdf(mode_costs->switchable_restore_cost,
                            fc->switchable_restore_cdf, NULL);
-  av1_cost_tokens_from_cdf(x->wiener_restore_cost, fc->wiener_restore_cdf,
-                           NULL);
-  av1_cost_tokens_from_cdf(x->sgrproj_restore_cost, fc->sgrproj_restore_cdf,
-                           NULL);
-  av1_cost_tokens_from_cdf(x->intrabc_cost, fc->intrabc_cdf, NULL);
+  av1_cost_tokens_from_cdf(mode_costs->wiener_restore_cost,
+                           fc->wiener_restore_cdf, NULL);
+  av1_cost_tokens_from_cdf(mode_costs->sgrproj_restore_cost,
+                           fc->sgrproj_restore_cdf, NULL);
+  av1_cost_tokens_from_cdf(mode_costs->intrabc_cost, fc->intrabc_cdf, NULL);
 
   if (!frame_is_intra_only(cm)) {
     for (i = 0; i < COMP_INTER_CONTEXTS; ++i) {
-      av1_cost_tokens_from_cdf(x->comp_inter_cost[i], fc->comp_inter_cdf[i],
-                               NULL);
+      av1_cost_tokens_from_cdf(mode_costs->comp_inter_cost[i],
+                               fc->comp_inter_cdf[i], NULL);
     }
 
     for (i = 0; i < REF_CONTEXTS; ++i) {
       for (j = 0; j < SINGLE_REFS - 1; ++j) {
-        av1_cost_tokens_from_cdf(x->single_ref_cost[i][j],
+        av1_cost_tokens_from_cdf(mode_costs->single_ref_cost[i][j],
                                  fc->single_ref_cdf[i][j], NULL);
       }
     }
 
     for (i = 0; i < COMP_REF_TYPE_CONTEXTS; ++i) {
-      av1_cost_tokens_from_cdf(x->comp_ref_type_cost[i],
+      av1_cost_tokens_from_cdf(mode_costs->comp_ref_type_cost[i],
                                fc->comp_ref_type_cdf[i], NULL);
     }
 
     for (i = 0; i < UNI_COMP_REF_CONTEXTS; ++i) {
       for (j = 0; j < UNIDIR_COMP_REFS - 1; ++j) {
-        av1_cost_tokens_from_cdf(x->uni_comp_ref_cost[i][j],
+        av1_cost_tokens_from_cdf(mode_costs->uni_comp_ref_cost[i][j],
                                  fc->uni_comp_ref_cdf[i][j], NULL);
       }
     }
 
     for (i = 0; i < REF_CONTEXTS; ++i) {
       for (j = 0; j < FWD_REFS - 1; ++j) {
-        av1_cost_tokens_from_cdf(x->comp_ref_cost[i][j], fc->comp_ref_cdf[i][j],
-                                 NULL);
+        av1_cost_tokens_from_cdf(mode_costs->comp_ref_cost[i][j],
+                                 fc->comp_ref_cdf[i][j], NULL);
       }
     }
 
     for (i = 0; i < REF_CONTEXTS; ++i) {
       for (j = 0; j < BWD_REFS - 1; ++j) {
-        av1_cost_tokens_from_cdf(x->comp_bwdref_cost[i][j],
+        av1_cost_tokens_from_cdf(mode_costs->comp_bwdref_cost[i][j],
                                  fc->comp_bwdref_cdf[i][j], NULL);
       }
     }
 
     for (i = 0; i < INTRA_INTER_CONTEXTS; ++i) {
-      av1_cost_tokens_from_cdf(x->intra_inter_cost[i], fc->intra_inter_cdf[i],
-                               NULL);
+      av1_cost_tokens_from_cdf(mode_costs->intra_inter_cost[i],
+                               fc->intra_inter_cdf[i], NULL);
     }
 
     for (i = 0; i < NEWMV_MODE_CONTEXTS; ++i) {
-      av1_cost_tokens_from_cdf(x->newmv_mode_cost[i], fc->newmv_cdf[i], NULL);
+      av1_cost_tokens_from_cdf(mode_costs->newmv_mode_cost[i], fc->newmv_cdf[i],
+                               NULL);
     }
 
     for (i = 0; i < GLOBALMV_MODE_CONTEXTS; ++i) {
-      av1_cost_tokens_from_cdf(x->zeromv_mode_cost[i], fc->zeromv_cdf[i], NULL);
+      av1_cost_tokens_from_cdf(mode_costs->zeromv_mode_cost[i],
+                               fc->zeromv_cdf[i], NULL);
     }
 
     for (i = 0; i < REFMV_MODE_CONTEXTS; ++i) {
-      av1_cost_tokens_from_cdf(x->refmv_mode_cost[i], fc->refmv_cdf[i], NULL);
+      av1_cost_tokens_from_cdf(mode_costs->refmv_mode_cost[i], fc->refmv_cdf[i],
+                               NULL);
     }
 
     for (i = 0; i < DRL_MODE_CONTEXTS; ++i) {
-      av1_cost_tokens_from_cdf(x->drl_mode_cost0[i], fc->drl_cdf[i], NULL);
+      av1_cost_tokens_from_cdf(mode_costs->drl_mode_cost0[i], fc->drl_cdf[i],
+                               NULL);
     }
     for (i = 0; i < INTER_MODE_CONTEXTS; ++i)
-      av1_cost_tokens_from_cdf(x->inter_compound_mode_cost[i],
+      av1_cost_tokens_from_cdf(mode_costs->inter_compound_mode_cost[i],
                                fc->inter_compound_mode_cdf[i], NULL);
     for (i = 0; i < BLOCK_SIZES_ALL; ++i)
-      av1_cost_tokens_from_cdf(x->compound_type_cost[i],
+      av1_cost_tokens_from_cdf(mode_costs->compound_type_cost[i],
                                fc->compound_type_cdf[i], NULL);
     for (i = 0; i < BLOCK_SIZES_ALL; ++i) {
       if (av1_is_wedge_used(i)) {
-        av1_cost_tokens_from_cdf(x->wedge_idx_cost[i], fc->wedge_idx_cdf[i],
-                                 NULL);
+        av1_cost_tokens_from_cdf(mode_costs->wedge_idx_cost[i],
+                                 fc->wedge_idx_cdf[i], NULL);
       }
     }
     for (i = 0; i < BLOCK_SIZE_GROUPS; ++i) {
-      av1_cost_tokens_from_cdf(x->interintra_cost[i], fc->interintra_cdf[i],
-                               NULL);
-      av1_cost_tokens_from_cdf(x->interintra_mode_cost[i],
+      av1_cost_tokens_from_cdf(mode_costs->interintra_cost[i],
+                               fc->interintra_cdf[i], NULL);
+      av1_cost_tokens_from_cdf(mode_costs->interintra_mode_cost[i],
                                fc->interintra_mode_cdf[i], NULL);
     }
     for (i = 0; i < BLOCK_SIZES_ALL; ++i) {
-      av1_cost_tokens_from_cdf(x->wedge_interintra_cost[i],
+      av1_cost_tokens_from_cdf(mode_costs->wedge_interintra_cost[i],
                                fc->wedge_interintra_cdf[i], NULL);
     }
     for (i = BLOCK_8X8; i < BLOCK_SIZES_ALL; i++) {
-      av1_cost_tokens_from_cdf(x->motion_mode_cost[i], fc->motion_mode_cdf[i],
-                               NULL);
+      av1_cost_tokens_from_cdf(mode_costs->motion_mode_cost[i],
+                               fc->motion_mode_cdf[i], NULL);
     }
     for (i = BLOCK_8X8; i < BLOCK_SIZES_ALL; i++) {
-      av1_cost_tokens_from_cdf(x->motion_mode_cost1[i], fc->obmc_cdf[i], NULL);
+      av1_cost_tokens_from_cdf(mode_costs->motion_mode_cost1[i],
+                               fc->obmc_cdf[i], NULL);
     }
     for (i = 0; i < COMP_INDEX_CONTEXTS; ++i) {
-      av1_cost_tokens_from_cdf(x->comp_idx_cost[i], fc->compound_index_cdf[i],
-                               NULL);
+      av1_cost_tokens_from_cdf(mode_costs->comp_idx_cost[i],
+                               fc->compound_index_cdf[i], NULL);
     }
     for (i = 0; i < COMP_GROUP_IDX_CONTEXTS; ++i) {
-      av1_cost_tokens_from_cdf(x->comp_group_idx_cost[i],
+      av1_cost_tokens_from_cdf(mode_costs->comp_group_idx_cost[i],
                                fc->comp_group_idx_cdf[i], NULL);
     }
   }
@@ -1086,7 +1096,7 @@ int av1_get_switchable_rate(const MACROBLOCK *x, const MACROBLOCKD *xd,
       const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
       const InterpFilter filter =
           av1_extract_interp_filter(mbmi->interp_filters, dir);
-      inter_filter_cost += x->switchable_interp_costs[ctx][filter];
+      inter_filter_cost += x->mode_costs.switchable_interp_costs[ctx][filter];
     }
     return SWITCHABLE_INTERP_RATE_FACTOR * inter_filter_cost;
   } else {
