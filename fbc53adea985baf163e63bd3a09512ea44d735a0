@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04a28650_56035f4e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-04T18:03:23Z",
+      "side": 1,
+      "message": "The original code returns AOM_CODEC_ERROR in this case:\n\n    aom_codec_ctrl_fn_map_t *entry;\n\n    res \u003d AOM_CODEC_ERROR;\n\n    for (entry \u003d ctx-\u003eiface-\u003ectrl_maps; entry \u0026\u0026 entry-\u003efn; entry++) {\n      if (!entry-\u003ectrl_id || entry-\u003ectrl_id \u003d\u003d ctrl_id) {\n        va_list ap;\n\n        va_start(ap, ctrl_id);\n        res \u003d entry-\u003efn((aom_codec_alg_priv_t *)ctx-\u003epriv, ap);\n        va_end(ap);\n        break;\n      }\n    }\n\nThe null pointer exception is avoided by the entry-\u003efn check in the for loop\u0027s control condition.",
+      "range": {
+        "startLine": 11,
+        "startChar": 22,
+        "endLine": 12,
+        "endChar": 9
+      },
+      "revId": "fbc53adea985baf163e63bd3a09512ea44d735a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2e46e41_66f45033",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-04T18:03:23Z",
+      "side": 1,
+      "message": "Delete \"()\".",
+      "range": {
+        "startLine": 162,
+        "startChar": 32,
+        "endLine": 162,
+        "endChar": 34
+      },
+      "revId": "fbc53adea985baf163e63bd3a09512ea44d735a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf514598_afe82d70",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-04T18:03:23Z",
+      "side": 1,
+      "message": "Nit: It would be good to make it clear that \"the aom_codec_ctrl_fn_map_t*\" is referring to the parameter \u0027e\u0027.",
+      "range": {
+        "startLine": 173,
+        "startChar": 21,
+        "endLine": 173,
+        "endChar": 49
+      },
+      "revId": "fbc53adea985baf163e63bd3a09512ea44d735a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "806b88f3_11052862",
+        "filename": "aom/src/aom_codec.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-04T18:03:23Z",
+      "side": 1,
+      "message": "Nit/optional: Use AOM_CODEC_ERROR here for consistency?",
+      "range": {
+        "startLine": 73,
+        "startChar": 11,
+        "endLine": 73,
+        "endChar": 19
+      },
+      "revId": "fbc53adea985baf163e63bd3a09512ea44d735a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f734bb3_684f6c53",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2787,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-04T18:03:23Z",
+      "side": 1,
+      "message": "Nit/optional: This comment could be omitted because you chose a self-explanatory name for the macro.",
+      "range": {
+        "startLine": 2787,
+        "startChar": 17,
+        "endLine": 2787,
+        "endChar": 57
+      },
+      "revId": "fbc53adea985baf163e63bd3a09512ea44d735a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10cf3598_128541dd",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1376,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-04T18:03:23Z",
+      "side": 1,
+      "message": "Nit/optional: This comment could be omitted.",
+      "revId": "fbc53adea985baf163e63bd3a09512ea44d735a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9da3dde5_7d2dd9da",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-04T18:03:23Z",
+      "side": 1,
+      "message": "Would be good to test ctrl_id\u003d0 also.",
+      "revId": "fbc53adea985baf163e63bd3a09512ea44d735a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
