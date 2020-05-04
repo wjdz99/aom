@@ -2795,6 +2795,10 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   AV1LevelParams *const level_params = &cpi->level_params;
   InitialDimensions *const initial_dimensions = &cpi->initial_dimensions;
   RefreshFrameFlagsInfo *const refresh_frame_flags = &cpi->refresh_frame;
+  int lap_lag_in_frames = -1;
+  if (cpi->lap_enabled && cpi->compressor_stage == LAP_STAGE) {
+    lap_lag_in_frames = cpi->oxcf.lag_in_frames;
+  }
 
   if (seq_params->profile != oxcf->profile) seq_params->profile = oxcf->profile;
   seq_params->bit_depth = oxcf->bit_depth;
@@ -2985,6 +2989,10 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 
   if (cpi->use_svc)
     av1_update_layer_context_change_config(cpi, oxcf->target_bandwidth);
+
+  if (lap_lag_in_frames != -1) {
+    cpi->oxcf.lag_in_frames = lap_lag_in_frames;
+  }
 }
 
 static INLINE void setup_tpl_buffers(AV1_COMMON *const cm,
