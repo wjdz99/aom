@@ -175,6 +175,30 @@
       "revId": "70a44db2709e5c03137001700ad18730dcfd888d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c4334fc_8b232046",
+        "filename": "examples/lossless_encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-05-04T20:27:04Z",
+      "side": 1,
+      "message": "Sorry for not addressing this in the previous patch. Done.",
+      "parentUuid": "69f77539_9114d17c",
+      "range": {
+        "startLine": 115,
+        "startChar": 6,
+        "endLine": 115,
+        "endChar": 23
+      },
+      "revId": "70a44db2709e5c03137001700ad18730dcfd888d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
