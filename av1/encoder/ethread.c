@@ -9,9 +9,12 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include "av1/common/warped_motion.h"
+
 #include "av1/encoder/encodeframe.h"
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/ethread.h"
+#include "av1/encoder/global_motion.h"
 #include "av1/encoder/rdopt.h"
 #include "aom_dsp/aom_dsp_common.h"
 #include "av1/encoder/tpl_model.h"
@@ -462,6 +465,12 @@ static AOM_INLINE void create_enc_workers(AV1_COMP *cpi, int num_workers) {
       if (enc_row_mt->mutex_) pthread_mutex_init(enc_row_mt->mutex_, NULL);
     }
   }
+  AV1GlobalMotionSync *gm_sync = &mt_info->gm_sync;
+  if (gm_sync->mutex_ == NULL) {
+    CHECK_MEM_ERROR(cm, gm_sync->mutex_,
+                    aom_malloc(sizeof(*(gm_sync->mutex_))));
+    if (gm_sync->mutex_) pthread_mutex_init(gm_sync->mutex_, NULL);
+  }
 #endif
 
   for (int i = num_workers - 1; i >= 0; i--) {
@@ -834,4 +843,209 @@ void av1_tpl_row_mt_sync_write_dummy(
   (void)c;
   (void)cols;
   return;
+}
+
+// Checks if a job is available in the current direction. If a job is available,
+// frame_idx will be populated and returns 1, else returns 0.
+static AOM_INLINE int get_next_gm_job(AV1_COMP *cpi, int *frame_idx,
+                                      int cur_dir) {
+  GlobalMotionInfo *gm_info = &cpi->gm_info;
+  JobInfo *job_info = &cpi->mt_info.gm_sync.job_info;
+
+  int total_refs = gm_info->num_ref_frames[cur_dir];
+  int8_t cur_frame_to_process = job_info->next_frame_to_process[cur_dir];
+
+  if (cur_frame_to_process < total_refs && !job_info->early_exit[cur_dir]) {
+    *frame_idx = gm_info->reference_frames[cur_dir][cur_frame_to_process].frame;
+    job_info->next_frame_to_process[cur_dir] += 1;
+    return 1;
+  }
+  return 0;
+}
+
+// Switches the current direction and calls the function get_next_gm_job() if
+// the speed feature 'prune_ref_frame_for_gm_search' is not set.
+static AOM_INLINE void switch_direction(AV1_COMP *cpi, int *frame_idx,
+                                        int *cur_dir) {
+  if (cpi->sf.gm_sf.prune_ref_frame_for_gm_search) return;
+  // Switch the direction and get next job
+  *cur_dir = !(*cur_dir);
+  get_next_gm_job(cpi, frame_idx, *(cur_dir));
+}
+
+// Initializes inliers, num_inliers and segment_map.
+static AOM_INLINE void init_gm_thread_data(
+    const GlobalMotionInfo *gm_info, GlobalMotionThreadData *thread_data) {
+  for (int m = 0; m < RANSAC_NUM_MOTIONS; m++) {
+    MotionModel motion_params = thread_data->params_by_motion[m];
+    av1_zero(motion_params.params);
+    motion_params.num_inliers = 0;
+  }
+
+  av1_zero_array(thread_data->segment_map,
+                 gm_info->segment_map_w * gm_info->segment_map_h);
+}
+
+// Each worker calls gm_mt_worker_hook() to get a job and finally computes
+// global motion.
+static int gm_mt_worker_hook(void *arg1, void *unused) {
+  (void)unused;
+
+  EncWorkerData *thread_data = (EncWorkerData *)arg1;
+  AV1_COMP *cpi = thread_data->cpi;
+  GlobalMotionInfo *gm_info = &cpi->gm_info;
+  JobInfo *job_info = &cpi->mt_info.gm_sync.job_info;
+  int thread_id = thread_data->thread_id;
+  GlobalMotionThreadData *gm_thread_data =
+      &cpi->mt_info.gm_sync.thread_data[thread_id];
+  int cur_dir = job_info->thread_id_to_dir[thread_id];
+#if CONFIG_MULTITHREAD
+  pthread_mutex_t *gm_mt_mutex_ = cpi->mt_info.gm_sync.mutex_;
+#endif
+
+  while (1) {
+    int ref_frame_idx = -1;
+
+#if CONFIG_MULTITHREAD
+    pthread_mutex_lock(gm_mt_mutex_);
+#endif
+
+    if (!get_next_gm_job(cpi, &ref_frame_idx, cur_dir)) {
+      // No jobs are available for the current direction. Switch
+      // to other direction and get the next job if available.
+      switch_direction(cpi, &ref_frame_idx, &cur_dir);
+    }
+
+#if CONFIG_MULTITHREAD
+    pthread_mutex_unlock(gm_mt_mutex_);
+#endif
+
+    if (ref_frame_idx == -1) break;
+
+    // Compute global motion for the given ref_frame_idx.
+    init_gm_thread_data(gm_info, gm_thread_data);
+
+    av1_compute_gm_for_valid_ref_frames(
+        cpi, gm_info->ref_buf, ref_frame_idx, gm_info->num_src_corners,
+        gm_info->src_corners, gm_info->src_buffer,
+        gm_thread_data->params_by_motion, gm_thread_data->segment_map,
+        gm_info->segment_map_w, gm_info->segment_map_h);
+
+#if CONFIG_MULTITHREAD
+    pthread_mutex_lock(gm_mt_mutex_);
+#endif
+
+    // Speed feature based early exit condition.
+    if (cpi->sf.gm_sf.prune_ref_frame_for_gm_search &&
+        gm_info->reference_frames[cur_dir][ref_frame_idx].distance != 0 &&
+        cpi->common.global_motion[ref_frame_idx].wmtype != ROTZOOM)
+      job_info->early_exit[cur_dir] = 1;
+
+#if CONFIG_MULTITHREAD
+    pthread_mutex_unlock(gm_mt_mutex_);
+#endif
+  }
+  return 1;
+}
+
+// Each worker is prepared by assigning the hook function and individual thread
+// data.
+static AOM_INLINE void prepare_gm_workers(AV1_COMP *cpi, AVxWorkerHook hook,
+                                          int num_workers) {
+  MultiThreadInfo *mt_info = &cpi->mt_info;
+  for (int i = num_workers - 1; i >= 0; i--) {
+    AVxWorker *worker = &mt_info->workers[i];
+    EncWorkerData *thread_data = &mt_info->tile_thr_data[i];
+
+    worker->hook = hook;
+    worker->data1 = thread_data;
+    worker->data2 = NULL;
+  }
+}
+
+// Assigns available threads to past/future direction.
+static AOM_INLINE void assign_thread_to_dir(int8_t *thread_id_to_dir,
+                                            int num_workers) {
+  int8_t frame_dir_idx = 0;
+
+  for (int i = 0; i < num_workers; i++) {
+    thread_id_to_dir[i] = frame_dir_idx++;
+    if (frame_dir_idx == MAX_DIRECTIONS) frame_dir_idx = 0;
+  }
+}
+
+// Computes num_workers for global motion multi-threading.
+static AOM_INLINE int compute_gm_workers(const AV1_COMP *cpi) {
+  int total_refs =
+      cpi->gm_info.num_ref_frames[0] + cpi->gm_info.num_ref_frames[1];
+  int max_allowed_workers = cpi->mt_info.num_workers;
+  return (AOMMIN(total_refs, cpi->sf.gm_sf.prune_ref_frame_for_gm_search
+                                 ? AOMMIN(2, max_allowed_workers)
+                                 : max_allowed_workers));
+}
+
+// Frees the memory allocated for each worker in global motion multi-threading.
+void av1_gm_dealloc(AV1GlobalMotionSync *gm_sync_data) {
+  if (gm_sync_data->thread_data != NULL) {
+    for (int j = 0; j < gm_sync_data->allocated_workers; j++) {
+      aom_free(gm_sync_data->thread_data[j].segment_map);
+
+      for (int m = 0; m < RANSAC_NUM_MOTIONS; m++) {
+        aom_free(gm_sync_data->thread_data[j].params_by_motion[m].inliers);
+      }
+    }
+    aom_free(gm_sync_data->thread_data);
+  }
+}
+
+// Allocates each worker seperate memory for inliers and segment_map.
+static AOM_INLINE void gm_alloc(AV1_COMP *cpi, int num_workers) {
+  AV1_COMMON *cm = &cpi->common;
+  AV1GlobalMotionSync *gm_sync = &cpi->mt_info.gm_sync;
+  GlobalMotionInfo *gm_info = &cpi->gm_info;
+
+  gm_sync->allocated_workers = num_workers;
+  gm_sync->allocated_width = cpi->source->y_width;
+  gm_sync->allocated_height = cpi->source->y_height;
+
+  CHECK_MEM_ERROR(cm, gm_sync->thread_data,
+                  aom_malloc(sizeof(*gm_sync->thread_data) * num_workers));
+
+  for (int i = 0; i < num_workers; i++) {
+    CHECK_MEM_ERROR(
+        cm, gm_sync->thread_data[i].segment_map,
+        aom_malloc(sizeof(*gm_sync->thread_data[i].segment_map) *
+                   gm_info->segment_map_w * gm_info->segment_map_h));
+
+    for (int m = 0; m < RANSAC_NUM_MOTIONS; m++) {
+      CHECK_MEM_ERROR(
+          cm, gm_sync->thread_data[i].params_by_motion[m].inliers,
+          aom_malloc(
+              sizeof(*gm_sync->thread_data[i].params_by_motion[m].inliers) * 2 *
+              MAX_CORNERS));
+    }
+  }
+}
+
+// Implements multi-threading for gloabl motion.
+void av1_global_motion_estimation_mt(AV1_COMP *cpi) {
+  AV1GlobalMotionSync *gm_sync = &cpi->mt_info.gm_sync;
+  JobInfo *job_info = &gm_sync->job_info;
+
+  // Initialize JobInfo.
+  av1_zero(*job_info);
+
+  int num_workers = compute_gm_workers(cpi);
+
+  if (num_workers > gm_sync->allocated_workers ||
+      cpi->source->y_width != gm_sync->allocated_width ||
+      cpi->source->y_height != gm_sync->allocated_height) {
+    av1_gm_dealloc(gm_sync);
+    gm_alloc(cpi, num_workers);
+  }
+
+  assign_thread_to_dir(job_info->thread_id_to_dir, num_workers);
+  prepare_gm_workers(cpi, gm_mt_worker_hook, num_workers);
+  launch_enc_workers(&cpi->mt_info, num_workers);
+  sync_enc_workers(&cpi->mt_info, &cpi->common, num_workers);
 }
