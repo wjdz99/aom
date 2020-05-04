@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6f21ed15_1e62d2df",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4185,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2020-05-04T22:20:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6a41ebc9_80b24091",
+      "range": {
+        "startLine": 4184,
+        "startChar": 3,
+        "endLine": 4185,
+        "endChar": 47
+      },
+      "revId": "e578bf5769212d8f4030f59bc28c1d52234b8bae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc626ca1_ba00efb5",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "ccee2402_25528524",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4186,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2020-05-04T22:20:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc626ca1_ba00efb5",
+      "range": {
+        "startLine": 4186,
+        "startChar": 12,
+        "endLine": 4186,
+        "endChar": 38
+      },
+      "revId": "e578bf5769212d8f4030f59bc28c1d52234b8bae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e4b450ee_c0df4665",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2020-03-27T22:23:08Z",
       "side": 1,
       "message": "Optional suggestion:\nOnly \u0027cm\u0027 and \u0027sf\u0027 are used from \u0027cpi\u0027 I think. Maybe better to pass the two directly.",
+      "range": {
+        "startLine": 4187,
+        "startChar": 14,
+        "endLine": 4187,
+        "endChar": 17
+      },
+      "revId": "e578bf5769212d8f4030f59bc28c1d52234b8bae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0359616c_0d984bec",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4187,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2020-05-04T22:20:11Z",
+      "side": 1,
+      "message": "I think av1_txfm_search uses the whole cpi struct",
+      "parentUuid": "e4b450ee_c0df4665",
       "range": {
         "startLine": 4187,
         "startChar": 14,
