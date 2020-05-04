@@ -3509,6 +3509,7 @@ void av1_remove_compressor(AV1_COMP *cpi) {
   MultiThreadInfo *const mt_info = &cpi->mt_info;
 #if CONFIG_MULTITHREAD
   pthread_mutex_t *const enc_row_mt_mutex_ = mt_info->enc_row_mt.mutex_;
+  pthread_mutex_t *const gm_mt_mutex_ = mt_info->gm_sync.mutex_;
 #endif
   int t;
 
@@ -3654,6 +3655,10 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     pthread_mutex_destroy(enc_row_mt_mutex_);
     aom_free(enc_row_mt_mutex_);
   }
+  if (gm_mt_mutex_ != NULL) {
+    pthread_mutex_destroy(gm_mt_mutex_);
+    aom_free(gm_mt_mutex_);
+  }
 #endif
   av1_row_mt_mem_dealloc(cpi);
   aom_free(mt_info->tile_thr_data);
@@ -3663,6 +3668,8 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     av1_loop_filter_dealloc(&mt_info->lf_row_sync);
     av1_loop_restoration_dealloc(&mt_info->lr_row_sync, mt_info->num_workers);
   }
+
+  if (mt_info->gm_sync.allocated_workers > 1) av1_gm_dealloc(&mt_info->gm_sync);
 
   dealloc_compressor_data(cpi);
 
