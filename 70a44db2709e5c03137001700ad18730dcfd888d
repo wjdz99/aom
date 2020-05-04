@@ -151,6 +151,30 @@
       "revId": "70a44db2709e5c03137001700ad18730dcfd888d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69f77539_9114d17c",
+        "filename": "examples/lossless_encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-05-04T17:25:14Z",
+      "side": 1,
+      "message": "I moved this question to patch set 10.",
+      "parentUuid": "45d9f398_9fbc4de1",
+      "range": {
+        "startLine": 115,
+        "startChar": 6,
+        "endLine": 115,
+        "endChar": 23
+      },
+      "revId": "70a44db2709e5c03137001700ad18730dcfd888d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
