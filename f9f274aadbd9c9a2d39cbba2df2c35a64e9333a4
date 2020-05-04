@@ -79,6 +79,30 @@
       "revId": "f9f274aadbd9c9a2d39cbba2df2c35a64e9333a4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f4f3fda_f4ad7f5f",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-05-04T02:19:16Z",
+      "side": 0,
+      "message": "We can keep the CAST but the implementation is confusing -- undeffing a previous macro and then redefining it means you have to keep track of header order to understand what it\u0027s doing.\n\nWould you be okay if AOM_CTRL_USE_TYPE also declared \"typedef #id_type type\" and then this is used by cast?",
+      "parentUuid": "3748c4a7_1f46dfb2",
+      "range": {
+        "startLine": 310,
+        "startChar": 0,
+        "endLine": 318,
+        "endChar": 38
+      },
+      "revId": "f9f274aadbd9c9a2d39cbba2df2c35a64e9333a4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
