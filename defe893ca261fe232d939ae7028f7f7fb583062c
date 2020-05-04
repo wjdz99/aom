@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "7c42276e_f403e6bb",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-05-04T02:07:46Z",
+      "side": 1,
+      "message": "Weird, it compiles now. Maybe I was doing something wrong. I prefer it without the () as well, so it\u0027s updated now.",
+      "parentUuid": "c29f249e_0d0af03c",
+      "range": {
+        "startLine": 175,
+        "startChar": 0,
+        "endLine": 176,
+        "endChar": 13
+      },
+      "revId": "defe893ca261fe232d939ae7028f7f7fb583062c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7410aa5f_b57f15aa",
         "filename": "aom/internal/aom_codec_internal.h",
         "patchSetId": 2
