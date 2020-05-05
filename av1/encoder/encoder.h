@@ -1880,6 +1880,8 @@ static INLINE int *cond_cost_list(const struct AV1_COMP *cpi, int *cost_list) {
 double av1_get_compression_ratio(const AV1_COMMON *const cm,
                                  size_t encoded_frame_size);
 
+void av1_set_tile_info(AV1_COMP *cpi);
+
 void av1_new_framerate(AV1_COMP *cpi, double framerate);
 
 void av1_setup_frame_size(AV1_COMP *cpi);

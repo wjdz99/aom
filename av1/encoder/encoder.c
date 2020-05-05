@@ -1141,7 +1141,7 @@ double av1_get_compression_ratio(const AV1_COMMON *const cm,
   return uncompressed_frame_size / (double)encoded_frame_size;
 }
 
-static void set_tile_info(AV1_COMP *cpi) {
+void av1_set_tile_info(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   const SequenceHeader *const seq_params = &cm->seq_params;
@@ -1209,7 +1209,7 @@ static void update_frame_size(AV1_COMP *cpi) {
 
   if (!is_stat_generation_stage(cpi))
     alloc_context_buffers_ext(cm, &cpi->mbmi_ext_info);
-  set_tile_info(cpi);
+  av1_set_tile_info(cpi);
 }
 
 static void init_buffer_indices(ForceIntegerMVInfo *const force_intpel_info,
@@ -2960,7 +2960,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 
   rc->is_src_frame_alt_ref = 0;
 
-  set_tile_info(cpi);
+  av1_set_tile_info(cpi);
 
   if (!cpi->svc.external_ref_frame_config)
     cpi->ext_flags.refresh_frame.update_pending = 0;
