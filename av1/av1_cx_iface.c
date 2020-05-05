@@ -2010,6 +2010,18 @@ static aom_codec_frame_flags_t get_frame_pkt_flags(const AV1_COMP *cpi,
   return flags;
 }
 
+static void set_tile_info_lap(AV1_COMP *cpi, AV1_COMP *cpi_lap) {
+  cpi_lap->oxcf.tile_columns = cpi->oxcf.tile_columns;
+  cpi_lap->oxcf.tile_rows = cpi->oxcf.tile_rows;
+  cpi_lap->oxcf.tile_height_count = cpi->oxcf.tile_height_count;
+  cpi_lap->oxcf.tile_width_count = cpi->oxcf.tile_width_count;
+  memcpy(cpi_lap->oxcf.tile_heights, cpi->oxcf.tile_heights,
+         sizeof(cpi->oxcf.tile_heights));
+  memcpy(cpi_lap->oxcf.tile_widths, cpi->oxcf.tile_widths,
+         sizeof(cpi->oxcf.tile_widths));
+  av1_set_tile_info(cpi_lap);
+}
+
 // TODO(Mufaddal): Check feasibility of abstracting functions related to LAP
 // into a separate function.
 static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
@@ -2138,6 +2150,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
         cpi_lap->lookahead = cpi->lookahead;
         av1_check_initial_width(cpi_lap, use_highbitdepth, subsampling_x,
                                 subsampling_y);
+        set_tile_info_lap(cpi, cpi_lap);
       }
 
       // Store the original flags in to the frame buffer. Will extract the
