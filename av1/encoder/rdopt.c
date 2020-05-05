@@ -2253,8 +2253,15 @@ static int skip_repeated_newmv(
           // the best and update corresponding variables unless the
           // best_mv is the same as ref_mv. In this case we skip and
           // rely on NEAR(EST)MV instead
+          // TODO(any): Currently we have three different cached mvs:
+          //  - single_newmv stores the best mv from single_motion_search
+          //  - mode_info[i].mv stores the best mv from rdopt
+          //  - best_mbmi->mv is either the best mv from rdopt or is predicted
+          //    by the statement below.
+          // We could try to consolidate the use of the three mvs to improve our
+          // pruning.
           if (best_mbmi->ref_mv_idx == i &&
-              mode_info[i].mv.as_int != ref_mv.as_int) {
+              best_mbmi->mv[0].as_int != ref_mv.as_int) {
             assert(*best_rd != INT64_MAX);
             best_mbmi->ref_mv_idx = ref_mv_idx;
             motion_mode_cand->rate_mv = this_rate_mv;
