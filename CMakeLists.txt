@@ -32,6 +32,12 @@ if("${AOM_ROOT}" STREQUAL "${AOM_CONFIG_DIR}")
                 "And re-run CMake from the aom_build directory.")
 endif()
 
+set(SO_VERSION_MAJOR 2)
+set(SO_VERSION_MINOR 0)
+set(SO_VERSION_PATCH 0)
+
+set(SO_VERSION ${SO_VERSION_MAJOR}.${SO_VERSION_MINOR}.${SO_VERSION_PATCH})
+
 include("${AOM_ROOT}/build/cmake/aom_configure.cmake")
 include("${AOM_ROOT}/aom_dsp/aom_dsp.cmake")
 include("${AOM_ROOT}/aom_mem/aom_mem.cmake")
@@ -242,7 +248,7 @@ if(BUILD_SHARED_LIBS)
 
     # Note: CMake docs claim it's only necessary to set one of these, but that's
     # not true for at least some CMake releases (3.13.4, for example).
-    set_target_properties(aom PROPERTIES SOVERSION ${aom_version_triple})
+    set_target_properties(aom PROPERTIES SOVERSION ${SO_VERSION})
     set_target_properties(aom PROPERTIES VERSION ${aom_version_triple})
   endif()
 endif()
