@@ -22,6 +22,30 @@
       "revId": "3268f994ddc0156105be2334e0d3cc340a998c34",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d1146440_bdd88c26",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1304,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-05-05T18:30:54Z",
+      "side": 0,
+      "message": "I think we did - to drive overall (this_rdc) skip decision",
+      "parentUuid": "69c3e535_81f7358b",
+      "range": {
+        "startLine": 1304,
+        "startChar": 6,
+        "endLine": 1304,
+        "endChar": 15
+      },
+      "revId": "3268f994ddc0156105be2334e0d3cc340a998c34",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
