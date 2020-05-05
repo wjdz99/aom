@@ -3078,7 +3078,8 @@ static AOM_INLINE void refine_winner_mode_tx(
     const AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost, BLOCK_SIZE bsize,
     PICK_MODE_CONTEXT *ctx, THR_MODES *best_mode_index,
     MB_MODE_INFO *best_mbmode, struct buf_2d yv12_mb[REF_FRAMES][MAX_MB_PLANE],
-    int best_rate_y, int best_rate_uv, int *best_skip2, int winner_mode_count) {
+    int best_rate_y, int best_rate_uv, int *best_skip2, int winner_mode_count,
+    int64_t *best_rd_so_far) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
@@ -3194,6 +3195,7 @@ static AOM_INLINE void refine_winner_mode_tx(
       }
     }
   }
+  *best_rd_so_far = best_rd;
 }
 
 typedef struct {
@@ -4964,7 +4966,8 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   refine_winner_mode_tx(
       cpi, x, rd_cost, bsize, ctx, &search_state.best_mode_index,
       &search_state.best_mbmode, yv12_mb, search_state.best_rate_y,
-      search_state.best_rate_uv, &search_state.best_skip2, winner_mode_count);
+      search_state.best_rate_uv, &search_state.best_skip2, winner_mode_count,
+      &search_state.best_rd);
 
   // Initialize default mode evaluation params
   set_mode_eval_params(cpi, x, DEFAULT_EVAL);
