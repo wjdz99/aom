@@ -28,6 +28,8 @@
 extern "C" {
 #endif
 
+//#define CONFIG_DERIVED_MV 1
+
 #define BLOCK_SIZE_GROUPS 4
 
 #define TX_SIZE_CONTEXTS 3
@@ -326,6 +328,9 @@ typedef struct frame_contexts {
   aom_cdf_prob derived_intra_mode_cdf[2][3][CDF_SIZE(2)];
   aom_cdf_prob uv_derived_intra_mode_cdf[2][CDF_SIZE(2)];
 #endif  // CONFIG_DERIVED_INTRA_MODE
+#if CONFIG_DERIVED_MV
+  aom_cdf_prob pick_derived_mv_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)];
+#endif  // CONFIG_DERIVED_MV
   int initialized;
 } FRAME_CONTEXT;
 

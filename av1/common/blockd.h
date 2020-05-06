@@ -635,6 +635,7 @@ typedef struct MB_MODE_INFO {
   INTERINTER_COMPOUND_DATA interinter_comp;
   WarpedMotionParams wm_params;
   int_mv mv[2];
+  int_mv dervied_mv;
   int current_qindex;
   // Only for INTER blocks
   int_interpfilters interp_filters;
@@ -719,6 +720,11 @@ typedef struct MB_MODE_INFO {
   uint8_t use_derived_intra_mode[2];
   uint8_t derived_angle;
 #endif  // CONFIG_DERIVED_INTRA_MODE
+#if CONFIG_DERIVED_MV
+  int derived_mv_allowed;
+  int pick_derived_mv;
+  MV derived_mv;
+#endif  // CONFIG_DERIVED_MV
 } MB_MODE_INFO;
 
 typedef struct PARTITION_TREE {

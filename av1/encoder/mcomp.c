@@ -1024,6 +1024,8 @@ int av1_find_best_sub_pixel_tree(
   const uint8_t *const y = xd->plane[0].pre[0].buf;
   const MV_COST_TYPE mv_cost_type = x->mv_cost_type;
 
+  //printf("w %d h %d\n", w, h);
+
   int br = bestmv->row * 8;
   int bc = bestmv->col * 8;
   int hstep = 4;
@@ -3431,6 +3433,9 @@ void av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
   mbmi->ref_frame[1] = NONE_FRAME;
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   mbmi->mode = NEWMV;
+#if CONFIG_DERIVED_MV
+  mbmi->derived_mv_allowed = 0;
+#endif  // CONFIG_DERIVED_MV
   set_default_mbmi_mv_precision(cm, mbmi, xd->sbi);
   mbmi->interp_filters = av1_broadcast_interp_filter(EIGHTTAP_REGULAR);
 

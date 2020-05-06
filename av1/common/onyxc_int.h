@@ -613,6 +613,11 @@ typedef struct AV1Common {
 #if CONFIG_EXT_IBC_MODES
   int ext_IBC_config;
 #endif  // CONFIG_EXT_IBC_MODES
+#if 1
+  int stats[16][2];
+  int stats2[16][2];
+  int stats3[16][2];
+#endif
 } AV1_COMMON;
 
 // TODO(hkuang): Don't need to lock the whole pool after implementing atomic

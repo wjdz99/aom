@@ -416,50 +416,6 @@ static void set_offsets(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                        num_planes, &xd->mi[0]->chroma_ref_info);
 }
 
-static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
-                              int mi_row, int mi_col, aom_reader *r,
-                              PARTITION_TYPE partition, BLOCK_SIZE bsize,
-                              PARTITION_TREE *parent, int index) {
-  assert(bsize < BLOCK_SIZES_ALL);
-  AV1_COMMON *const cm = &pbi->common;
-  const SequenceHeader *const seq_params = &cm->seq_params;
-  const int bw = mi_size_wide[bsize];
-  const int bh = mi_size_high[bsize];
-  const int x_mis = AOMMIN(bw, cm->mi_cols - mi_col);
-  const int y_mis = AOMMIN(bh, cm->mi_rows - mi_row);
-
-#if CONFIG_ACCOUNTING
-  aom_accounting_set_context(&pbi->accounting, mi_col, mi_row);
-#endif
-  set_offsets(cm, xd, bsize, mi_row, mi_col, bw, bh, x_mis, y_mis, parent,
-              index);
-  xd->mi[0]->partition = partition;
-
-  // Check the bitstream is conformant: if there is subsampling on the
-  // chroma planes, subsize must subsample to a valid block size.
-  const struct macroblockd_plane *const pd_u = &xd->plane[1];
-  const BLOCK_SIZE chroma_bsize_base = xd->mi[0]->chroma_ref_info.bsize_base;
-  assert(chroma_bsize_base < BLOCK_SIZES_ALL);
-  if (get_plane_block_size(chroma_bsize_base, pd_u->subsampling_x,
-                           pd_u->subsampling_y) == BLOCK_INVALID) {
-    aom_internal_error(xd->error_info, AOM_CODEC_CORRUPT_FRAME,
-                       "Block size %dx%d invalid with this subsampling mode",
-                       block_size_wide[chroma_bsize_base],
-                       block_size_high[chroma_bsize_base]);
-  }
-
-  av1_read_mode_info(pbi, xd, mi_row, mi_col, r, x_mis, y_mis);
-  if (bsize >= BLOCK_8X8 &&
-      (seq_params->subsampling_x || seq_params->subsampling_y)) {
-    const BLOCK_SIZE uv_subsize =
-        ss_size_lookup[bsize][seq_params->subsampling_x]
-                      [seq_params->subsampling_y];
-    if (uv_subsize == BLOCK_INVALID)
-      aom_internal_error(xd->error_info, AOM_CODEC_CORRUPT_FRAME,
-                         "Invalid block size.");
-  }
-}
-
 typedef struct PadBlock {
   int x0;
   int x1;
@@ -690,14 +646,7 @@ static INLINE void dec_calc_subpel_params(
   }
 }
 
-typedef struct {
-  const MB_MODE_INFO *mi;
-  int mi_x;
-  int mi_y;
-  int build_for_obmc;
-} DecCalcSubpelFuncArgs;
-
-static void dec_calc_subpel_params_and_extend(
+void dec_calc_subpel_params_and_extend(
     MACROBLOCKD *xd, const struct scale_factors *const sf, const MV *const mv,
     int plane, int pre_x, int pre_y, int x, int y, struct buf_2d *const pre_buf,
     int bw, int bh, const WarpTypesAllowed *const warp_types, int ref,
@@ -729,6 +678,51 @@ static void dec_calc_subpel_params_and_extend(
   extend_mc_border(sf, pre_buf, scaled_mv, block, subpel_x_mv, subpel_y_mv,
                    do_warp, is_intrabc_block(args->mi), highbd, xd->mc_buf[ref],
                    pre, src_stride);
+}
+
+static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
+                              int mi_row, int mi_col, aom_reader *r,
+                              PARTITION_TYPE partition, BLOCK_SIZE bsize,
+                              PARTITION_TREE *parent, int index) {
+  assert(bsize < BLOCK_SIZES_ALL);
+  AV1_COMMON *const cm = &pbi->common;
+  const SequenceHeader *const seq_params = &cm->seq_params;
+  const int bw = mi_size_wide[bsize];
+  const int bh = mi_size_high[bsize];
+  const int x_mis = AOMMIN(bw, cm->mi_cols - mi_col);
+  const int y_mis = AOMMIN(bh, cm->mi_rows - mi_row);
+
+#if CONFIG_ACCOUNTING
+  aom_accounting_set_context(&pbi->accounting, mi_col, mi_row);
+#endif
+  set_offsets(cm, xd, bsize, mi_row, mi_col, bw, bh, x_mis, y_mis, parent,
+              index);
+  xd->mi[0]->partition = partition;
+
+  // Check the bitstream is conformant: if there is subsampling on the
+  // chroma planes, subsize must subsample to a valid block size.
+  const struct macroblockd_plane *const pd_u = &xd->plane[1];
+  const BLOCK_SIZE chroma_bsize_base = xd->mi[0]->chroma_ref_info.bsize_base;
+  assert(chroma_bsize_base < BLOCK_SIZES_ALL);
+  if (get_plane_block_size(chroma_bsize_base, pd_u->subsampling_x,
+                           pd_u->subsampling_y) == BLOCK_INVALID) {
+    aom_internal_error(xd->error_info, AOM_CODEC_CORRUPT_FRAME,
+                       "Block size %dx%d invalid with this subsampling mode",
+                       block_size_wide[chroma_bsize_base],
+                       block_size_high[chroma_bsize_base]);
+  }
+
+  av1_read_mode_info(pbi, xd, mi_row, mi_col, r, x_mis, y_mis);
+
+  if (bsize >= BLOCK_8X8 &&
+      (seq_params->subsampling_x || seq_params->subsampling_y)) {
+    const BLOCK_SIZE uv_subsize =
+        ss_size_lookup[bsize][seq_params->subsampling_x]
+                      [seq_params->subsampling_y];
+    if (uv_subsize == BLOCK_INVALID)
+      aom_internal_error(xd->error_info, AOM_CODEC_CORRUPT_FRAME,
+                         "Invalid block size.");
+  }
 }
 
 static void dec_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
@@ -991,10 +985,54 @@ static void predict_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                            &mbmi->chroma_ref_info);
     }
   }
+
+#if 0
+  if (mbmi->use_derived_mv && mbmi->pick_derived_mv) {
+    const int mi_x = mi_col * MI_SIZE;
+    const int mi_y = mi_row * MI_SIZE;
+    const DecCalcSubpelFuncArgs args_top = {
+        mbmi, mi_x, mi_y - DERIVED_MV_IDX_REF_LINES, 0
+    };
+    const DecCalcSubpelFuncArgs args_left = {
+        mbmi, mi_x - DERIVED_MV_IDX_REF_LINES, mi_y, 0
+    };
+    mbmi->derived_mv_idx = get_derived_ref_mv_idx(
+        cm, xd, mbmi, dec_calc_subpel_params_and_extend, &args_top, &args_left,
+        &mbmi->derived_mv);
+    if (mbmi->ref_mv_idx != DERIVED_MV_DUMMY_IDX) {
+      printf("decoder error %d\n", mbmi->ref_mv_idx);
+    }
+  }
+#endif
+
   dec_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
+
   if (mbmi->motion_mode == OBMC_CAUSAL) {
     dec_build_obmc_inter_predictors_sb(cm, xd);
   }
+
+#if 0
+  //printf("%d %d\n", cm->width, cm->height);
+  int flag = 1;
+  //flag = mi_row == 12 && mi_col == 16 && bsize == BLOCK_32X16 &&
+    //  av1_use_derived_mv_idx(xd, mbmi);
+  if (flag) {
+    MV_REFERENCE_FRAME ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+    FILE *fp = fopen("dec.txt", "a");
+    fprintf(fp, "mi %d %d, bsize %d %d, ref_frame_type %d, derived %d, "
+            "mv %d %d\n",
+            mi_row, mi_col,
+            block_size_wide[bsize], block_size_high[bsize],
+            ref_frame_type, av1_use_derived_mv_idx(xd, mbmi),
+            mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col);
+    if (av1_derived_mv_allowed(xd, mbmi)) {
+      fprintf(fp, "idx %d, mv %d %d\n",
+              mbmi->derived_mv_idx, mbmi->derived_mv.row, mbmi->derived_mv.col);
+    }
+    fclose(fp);
+  }
+#endif
+
 #if CONFIG_MISMATCH_DEBUG
   for (int plane = 0; plane < num_planes; ++plane) {
     const struct macroblockd_plane *pd = &xd->plane[plane];
@@ -1445,6 +1483,49 @@ static void parse_decode_block(AV1Decoder *const pbi, ThreadData *const td,
   decode_token_recon_block(pbi, td, mi_row, mi_col, r, bsize);
 
   av1_mark_block_as_coded(xd, mi_row, mi_col, bsize, cm->seq_params.sb_size);
+
+#if 0
+    int flag = 1;
+    //flag = flag && cm->current_frame.order_hint == 4 &&
+      //  mi_row == 32 && mi_col == 1 && bsize == BLOCK_4X16;
+    if (flag) {
+      MB_MODE_INFO *mbmi = xd->mi[0];
+      MV_REFERENCE_FRAME ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+      FILE *fp = fopen("dec.txt", "a");
+      fprintf(fp, "frame %d, mi %d %d, bsize %d %d, ref_frame %d %d, "
+              "mode %d, mv_idx %d, refined %d %d, mv %d %d\n",
+              cm->current_frame.order_hint,
+              mi_row, mi_col,
+              block_size_wide[bsize], block_size_high[bsize],
+              mbmi->ref_frame[0], mbmi->ref_frame[1],
+              mbmi->mode, mbmi->ref_mv_idx,
+              mbmi->derived_mv_allowed, mbmi->pick_derived_mv,
+              mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col);
+      if (mbmi->derived_mv_allowed && mbmi->pick_derived_mv) {
+        fprintf(fp, "refined mv %d %d\n",
+                mbmi->derived_mv.row, mbmi->derived_mv.col);
+      }
+
+      {
+        struct macroblockd_plane *const pd = &xd->plane[0];
+        const struct buf_2d *dst_buf = &pd->dst;
+        const uint8_t *dst = dst_buf->buf;
+        const int stride = dst_buf->stride;
+        const int bw = block_size_wide[bsize];
+        const int bh = block_size_high[bsize];
+        const uint8_t *src = pd->dst.buf;
+        for (int r = 0; r < bh; ++r) {
+          for (int c = 0; c < bw; ++c) {
+            fprintf(fp, "%3d ", src[r * stride + c]);
+          }
+          fprintf(fp, "\n");
+        }
+        fprintf(fp, "\n");
+      }
+
+      fclose(fp);
+    }
+#endif
 }
 
 static void set_offsets_for_pred_and_recon(AV1Decoder *const pbi,
@@ -5895,4 +5976,30 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
   if (!cm->large_scale_tile) {
     cm->cur_frame->frame_context = *cm->fc;
   }
+
+#if 0
+  printf("\n");
+  for (int i = 2; i <= 10; ++i) {
+    int a = cm->stats[i][0], b = cm->stats[i][1];
+    double r = 0.0;
+    if (a + b) r = 1.0 * b / (a + b);
+    int a2 = cm->stats2[i][0], b2 = cm->stats2[i][1];
+    double r2 = 0.0;
+    if (a2 + b2) r2 = 1.0 * b2 / (a2 + b2);
+    int a3 = cm->stats3[i][0], b3 = cm->stats3[i][1];
+    double r3 = 0.0;
+    if (a3 + b3) r3 = 1.0 * b3 / (a3 + b3);
+    printf("%d, %4.2f (%4.2f), %4.2f\n", i, r, r3, r2);
+  }
+#endif
+
+#if 0
+  printf("\n");
+  for (int i = 2; i < 7; ++i) {
+    int val = cm->fc->pick_derived_mv_cdf[i - 2][0];
+    printf("%d %4.2f\n",
+           i, (val) * 1.0 / 32768);
+  }
+  printf("\n");
+#endif
 }

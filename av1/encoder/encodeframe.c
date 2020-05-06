@@ -830,6 +830,9 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   mbmi->use_derived_intra_mode[0] = 0;
   mbmi->use_derived_intra_mode[1] = 0;
 #endif  // CONFIG_DERIVED_INTRA_MODE
+#if CONFIG_DERIVED_MV
+  mbmi->derived_mv_allowed = 0;
+#endif  // CONFIG_DERIVED_MV
 
   // Find best coding mode & reconstruct the MB so it is available
   // as a predictor for MBs that follow in the SB
@@ -908,6 +911,9 @@ static void update_drl_index_stats(FRAME_CONTEXT *fc, FRAME_COUNTS *counts,
 #if !CONFIG_ENTROPY_STATS
   (void)counts;
 #endif  // !CONFIG_ENTROPY_STATS
+#if CONFIG_DERIVED_MV
+  if (mbmi->derived_mv_allowed && mbmi->pick_derived_mv) return;
+#endif  // CONFIG_DERIVED_MV
   assert(have_drl_index(mbmi->mode));
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
 #if CONFIG_FLEX_MVRES && ADJUST_DRL_FLEX_MVRES
@@ -1575,6 +1581,12 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             }
           }
         }
+
+#if CONFIG_DERIVED_MV
+        if (mbmi->derived_mv_allowed) {
+          update_cdf(fc->pick_derived_mv_cdf[bsize], mbmi->pick_derived_mv, 2);
+        }
+#endif  // CONFIG_DERIVED_MV
 
         if (cm->seq_params.enable_interintra_compound &&
             is_interintra_allowed(mbmi)) {
@@ -5328,6 +5340,9 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVERAGE_CDF(ctx_left->uv_derived_intra_mode_cdf,
               ctx_tr->uv_derived_intra_mode_cdf, 2);
 #endif  // CONFIG_DERIVED_INTRA_MODE
+#if CONFIG_DERIVED_MV
+  AVERAGE_CDF(ctx_left->pick_derived_mv_cdf, ctx_tr->pick_derived_mv_cdf, 2);
+#endif  // CONFIG_DERIVED_MV
   AVERAGE_CDF(ctx_left->seg.tree_cdf, ctx_tr->seg.tree_cdf, MAX_SEGMENTS);
   AVERAGE_CDF(ctx_left->seg.pred_cdf, ctx_tr->seg.pred_cdf, 2);
   AVERAGE_CDF(ctx_left->seg.spatial_pred_seg_cdf,
@@ -7237,6 +7252,55 @@ static void tx_partition_set_contexts(const AV1_COMMON *const cm,
       set_txfm_context(xd, max_tx_size, idy, idx);
 }
 
+static INLINE void enc_calc_subpel_params(
+    MACROBLOCKD *xd, const struct scale_factors *const sf, const MV *const mv,
+    int plane, int pre_x, int pre_y, int x, int y, struct buf_2d *const pre_buf,
+    int bw, int bh, const WarpTypesAllowed *const warp_types, int ref,
+    const void *const args, uint8_t **pre, SubpelParams *subpel_params,
+    int *src_stride) {
+  (void)warp_types;
+  (void)ref;
+  (void)args;
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+  const int is_scaled = av1_is_scaled(sf);
+  if (is_scaled) {
+    int ssx = pd->subsampling_x;
+    int ssy = pd->subsampling_y;
+    int orig_pos_y = (pre_y + y) << SUBPEL_BITS;
+    orig_pos_y += mv->row * (1 << (1 - ssy));
+    int orig_pos_x = (pre_x + x) << SUBPEL_BITS;
+    orig_pos_x += mv->col * (1 << (1 - ssx));
+    int pos_y = sf->scale_value_y(orig_pos_y, sf);
+    int pos_x = sf->scale_value_x(orig_pos_x, sf);
+    pos_x += SCALE_EXTRA_OFF;
+    pos_y += SCALE_EXTRA_OFF;
+
+    const int top = -AOM_LEFT_TOP_MARGIN_SCALED(ssy);
+    const int left = -AOM_LEFT_TOP_MARGIN_SCALED(ssx);
+    const int bottom = (pre_buf->height + AOM_INTERP_EXTEND)
+                       << SCALE_SUBPEL_BITS;
+    const int right = (pre_buf->width + AOM_INTERP_EXTEND) << SCALE_SUBPEL_BITS;
+    pos_y = clamp(pos_y, top, bottom);
+    pos_x = clamp(pos_x, left, right);
+
+    *pre = pre_buf->buf0 + (pos_y >> SCALE_SUBPEL_BITS) * pre_buf->stride +
+           (pos_x >> SCALE_SUBPEL_BITS);
+    subpel_params->subpel_x = pos_x & SCALE_SUBPEL_MASK;
+    subpel_params->subpel_y = pos_y & SCALE_SUBPEL_MASK;
+    subpel_params->xs = sf->x_step_q4;
+    subpel_params->ys = sf->y_step_q4;
+  } else {
+    const MV mv_q4 = clamp_mv_to_umv_border_sb(
+        xd, mv, bw, bh, pd->subsampling_x, pd->subsampling_y);
+    subpel_params->xs = subpel_params->ys = SCALE_SUBPEL_SHIFTS;
+    subpel_params->subpel_x = (mv_q4.col & SUBPEL_MASK) << SCALE_EXTRA_BITS;
+    subpel_params->subpel_y = (mv_q4.row & SUBPEL_MASK) << SCALE_EXTRA_BITS;
+    *pre = pre_buf->buf + (y + (mv_q4.row >> SUBPEL_BITS)) * pre_buf->stride +
+           (x + (mv_q4.col >> SUBPEL_BITS));
+  }
+  *src_stride = pre_buf->stride;
+}
+
 static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                               ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
                               BLOCK_SIZE bsize, int *rate) {
@@ -7346,8 +7410,36 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     }
 #endif  // CONFIG_EXT_IBC_MODES
 
+#if CONFIG_DERIVED_MV
+    assert(mbmi->derived_mv_allowed == av1_derived_mv_allowed(cm, xd, mbmi));
+    if (mbmi->derived_mv_allowed && mbmi->pick_derived_mv) {
+      const MV derived_mv = av1_refine_mv(cm, xd, mbmi, xd->plane[0].dst.buf,
+                        xd->plane[0].dst.stride);
+      // In rare cases the derived_mv may have changed and is different from
+      // the values obtained during RDO.
+      if (mbmi->mv[0].as_mv.row != derived_mv.row ||
+          mbmi->mv[0].as_mv.col != derived_mv.col) {
+        mbmi->mv[0].as_mv = derived_mv;
+        // Do not use warped motion because the warped motion coefficients may
+        // have become invalid due to the MV change.
+        if (mbmi->motion_mode == WARPED_CAUSAL) {
+          mbmi->motion_mode = SIMPLE_TRANSLATION;
+        }
+        // Update the frame MV buffers.
+        if (!dry_run && cm->seq_params.order_hint_info.enable_ref_frame_mvs) {
+          const int bw = mi_size_wide[bsize];
+          const int bh = mi_size_high[bsize];
+          const int x_mis = AOMMIN(bw, cm->mi_cols - mi_col);
+          const int y_mis = AOMMIN(bh, cm->mi_rows - mi_row);
+          av1_copy_frame_mvs(cm, mbmi, mi_row, mi_col, x_mis, y_mis);
+        }
+      }
+    }
+#endif  // CONFIG_DERIVED_MV
+
     av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
                                   av1_num_planes(cm) - 1);
+
     if (mbmi->motion_mode == OBMC_CAUSAL) {
       assert(cpi->oxcf.enable_obmc == 1);
       av1_build_obmc_inter_predictors_sb(cm, xd);
@@ -7375,6 +7467,50 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     av1_tokenize_sb_tx_size(cpi, td, t, dry_run, mi_row, mi_col, bsize, rate,
                             tile_data->allow_update_cdf);
   }
+
+#if 0
+    int flag = !dry_run;
+    //flag = flag && !dry_run && cm->current_frame.order_hint == 4 &&
+      //  mi_row == 32 && mi_col == 1 && bsize == BLOCK_4X16;
+      //  av1_use_derived_mv_idx(xd, mbmi);
+    if (flag) {
+      MB_MODE_INFO *mbmi = xd->mi[0];
+      MV_REFERENCE_FRAME ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+      FILE *fp = fopen("enc.txt", "a");
+      fprintf(fp, "frame %d, mi %d %d, bsize %d %d, ref_frame %d %d, "
+              "mode %d, mv_idx %d, refined %d %d, mv %d %d\n",
+              cm->current_frame.order_hint,
+              mi_row, mi_col,
+              block_size_wide[bsize], block_size_high[bsize],
+              mbmi->ref_frame[0], mbmi->ref_frame[1],
+              mbmi->mode, mbmi->ref_mv_idx,
+              mbmi->derived_mv_allowed, mbmi->pick_derived_mv,
+              mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col);
+      if (mbmi->derived_mv_allowed && mbmi->pick_derived_mv) {
+        fprintf(fp, "refined mv %d %d\n",
+                mbmi->derived_mv.row, mbmi->derived_mv.col);
+      }
+
+      {
+        struct macroblockd_plane *const pd = &xd->plane[0];
+        const struct buf_2d *dst_buf = &pd->dst;
+        const uint8_t *dst = dst_buf->buf;
+        const int stride = dst_buf->stride;
+        const int bw = block_size_wide[bsize];
+        const int bh = block_size_high[bsize];
+        const uint8_t *src = pd->dst.buf;
+        for (int r = 0; r < bh; ++r) {
+          for (int c = 0; c < bw; ++c) {
+            fprintf(fp, "%3d ", src[r * stride + c]);
+          }
+          fprintf(fp, "\n");
+        }
+        fprintf(fp, "\n");
+      }
+
+      fclose(fp);
+    }
+#endif
 
 #if CONFIG_INTRA_ENTROPY && !CONFIG_USE_SMALL_MODEL
   if (frame_is_intra_only(cm)) {

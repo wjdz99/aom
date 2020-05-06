@@ -124,6 +124,13 @@ void av1_enc_build_inter_predictor(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                    int mi_row, int mi_col,
                                    const BUFFER_SET *ctx, BLOCK_SIZE bsize,
                                    int plane_from, int plane_to) {
+#if 0
+    MB_MODE_INFO *mi = xd->mi[0];
+    if (av1_derived_mv_allowed(cm, xd, mi) != mi->derived_mv_allowed) {
+      printf("av1_enc_build_inter_predictor error %d vs %d\n",
+             av1_derived_mv_allowed(cm, xd, mi), mi->derived_mv_allowed);
+    }
+#endif
   for (int plane_idx = plane_from; plane_idx <= plane_to; ++plane_idx) {
     build_inter_predictors_for_plane(cm, xd, mi_row, mi_col, ctx, bsize,
                                      plane_idx);
@@ -178,6 +185,16 @@ static INLINE void build_prediction_by_above_pred(
   const BLOCK_SIZE bsize = xd->mi[0]->sb_type;
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_row;
+
+#if 0
+      mv = xd->ref_mv_stack[ref_frame_type][mi->derived_mv_idx].this_mv.as_mv;
+      if (mv.row != mi->derived_mv.row || mv.col != mi->derived_mv.col)
+        printf("mark %d %d vs %d %d\n",
+               mv.row, mv.col,
+               mi->derived_mv.row, mi->derived_mv.col);
+#endif
+
+      //printf("mark\n");
 
   for (int j = 0; j < num_planes; ++j) {
     const struct macroblockd_plane *pd = &xd->plane[j];

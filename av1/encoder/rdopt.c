@@ -72,6 +72,55 @@
 static const char av1_tx_size_data_output_file[] = "tx_size_data.txt";
 #endif
 
+static INLINE void enc_calc_subpel_params(
+    MACROBLOCKD *xd, const struct scale_factors *const sf, const MV *const mv,
+    int plane, int pre_x, int pre_y, int x, int y, struct buf_2d *const pre_buf,
+    int bw, int bh, const WarpTypesAllowed *const warp_types, int ref,
+    const void *const args, uint8_t **pre, SubpelParams *subpel_params,
+    int *src_stride) {
+  (void)warp_types;
+  (void)ref;
+  (void)args;
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+  const int is_scaled = av1_is_scaled(sf);
+  if (is_scaled) {
+    int ssx = pd->subsampling_x;
+    int ssy = pd->subsampling_y;
+    int orig_pos_y = (pre_y + y) << SUBPEL_BITS;
+    orig_pos_y += mv->row * (1 << (1 - ssy));
+    int orig_pos_x = (pre_x + x) << SUBPEL_BITS;
+    orig_pos_x += mv->col * (1 << (1 - ssx));
+    int pos_y = sf->scale_value_y(orig_pos_y, sf);
+    int pos_x = sf->scale_value_x(orig_pos_x, sf);
+    pos_x += SCALE_EXTRA_OFF;
+    pos_y += SCALE_EXTRA_OFF;
+
+    const int top = -AOM_LEFT_TOP_MARGIN_SCALED(ssy);
+    const int left = -AOM_LEFT_TOP_MARGIN_SCALED(ssx);
+    const int bottom = (pre_buf->height + AOM_INTERP_EXTEND)
+                       << SCALE_SUBPEL_BITS;
+    const int right = (pre_buf->width + AOM_INTERP_EXTEND) << SCALE_SUBPEL_BITS;
+    pos_y = clamp(pos_y, top, bottom);
+    pos_x = clamp(pos_x, left, right);
+
+    *pre = pre_buf->buf0 + (pos_y >> SCALE_SUBPEL_BITS) * pre_buf->stride +
+           (pos_x >> SCALE_SUBPEL_BITS);
+    subpel_params->subpel_x = pos_x & SCALE_SUBPEL_MASK;
+    subpel_params->subpel_y = pos_y & SCALE_SUBPEL_MASK;
+    subpel_params->xs = sf->x_step_q4;
+    subpel_params->ys = sf->y_step_q4;
+  } else {
+    const MV mv_q4 = clamp_mv_to_umv_border_sb(
+        xd, mv, bw, bh, pd->subsampling_x, pd->subsampling_y);
+    subpel_params->xs = subpel_params->ys = SCALE_SUBPEL_SHIFTS;
+    subpel_params->subpel_x = (mv_q4.col & SUBPEL_MASK) << SCALE_EXTRA_BITS;
+    subpel_params->subpel_y = (mv_q4.row & SUBPEL_MASK) << SCALE_EXTRA_BITS;
+    *pre = pre_buf->buf + (y + (mv_q4.row >> SUBPEL_BITS)) * pre_buf->stride +
+           (x + (mv_q4.col >> SUBPEL_BITS));
+  }
+  *src_stride = pre_buf->stride;
+}
+
 typedef void (*model_rd_for_sb_type)(
     const AV1_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
     int plane_from, int plane_to, int mi_row, int mi_col, int *out_rate_sum,
@@ -12283,6 +12332,7 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
   assert(ref_set > 0);
   int idx_mask = ref_mv_idx_to_search(cpi, x, rd_stats, args, ref_best_rd,
                                       mode_info, bsize, ref_set);
+
   for (int ref_mv_idx = 0; ref_mv_idx < ref_set; ++ref_mv_idx) {
     mode_info[ref_mv_idx].mv.as_int = INVALID_MV;
     mode_info[ref_mv_idx].rd = INT64_MAX;
@@ -12292,6 +12342,7 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
       // MV did not perform well in simple translation search. Skip it.
       continue;
     }
+
     av1_init_rd_stats(rd_stats);
 
     mbmi->interinter_comp.type = COMPOUND_AVERAGE;
@@ -12305,6 +12356,10 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
     mbmi->num_proj_ref = 0;
     mbmi->motion_mode = SIMPLE_TRANSLATION;
     mbmi->ref_mv_idx = ref_mv_idx;
+
+#if CONFIG_DERIVED_MV
+    mbmi->derived_mv_allowed = mbmi->pick_derived_mv = 0;
+#endif  // CONFIG_DERIVED_MV
 
     rd_stats->rate += args->ref_frame_cost + args->single_comp_cost;
 #if CONFIG_NEW_INTER_MODES
@@ -12490,6 +12545,49 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
 #else
       rd_stats->rate += ref_mv_cost;
 #endif
+
+#if CONFIG_DERIVED_MV
+      mbmi->derived_mv_allowed = av1_derived_mv_allowed(cm, xd, mbmi);
+      if (mbmi->derived_mv_allowed && mbmi->ref_mv_idx == 0) {
+        mbmi->derived_mv = av1_refine_mv(cm, xd, mbmi, orig_dst.plane[0],
+                                         orig_dst.stride[0]);
+        const MV orig_mv = mbmi->mv[0].as_mv;
+        RD_STATS tmp_rd_stats, tmp_rd_stats_y, tmp_rd_stats_uv;
+        av1_enc_build_inter_predictor(cm, xd, xd->mi_row, xd->mi_col, &orig_dst,
+                                      bsize, 0, av1_num_planes(cm) - 1);
+        int rd_valid =
+            txfm_search(cpi, tile_data, x, bsize, &tmp_rd_stats, &tmp_rd_stats_y,
+                        &tmp_rd_stats_uv, x->pick_derived_mv_cost[bsize][0],
+                        INT64_MAX);
+        const int64_t no_refine_rd =
+            rd_valid ? RDCOST(x->rdmult, tmp_rd_stats.rate, tmp_rd_stats.dist) :
+                INT64_MAX;
+
+        mbmi->mv[0].as_mv = mbmi->derived_mv;
+        av1_enc_build_inter_predictor(cm, xd, xd->mi_row, xd->mi_col, &orig_dst,
+                                      bsize, 0, av1_num_planes(cm) - 1);
+        rd_valid =
+            txfm_search(cpi, tile_data, x, bsize, &tmp_rd_stats, &tmp_rd_stats_y,
+                        &tmp_rd_stats_uv, x->pick_derived_mv_cost[bsize][1],
+                        INT64_MAX);
+        const int64_t refine_rd =
+            rd_valid ? RDCOST(x->rdmult, tmp_rd_stats.rate, tmp_rd_stats.dist) :
+                INT64_MAX;
+        if (refine_rd < no_refine_rd) {
+          mbmi->pick_derived_mv = 1;
+          mbmi->mv[0].as_mv = mbmi->derived_mv;
+        } else {
+          mbmi->pick_derived_mv = 0;
+          mbmi->mv[0].as_mv = orig_mv;
+        }
+      } else {
+        mbmi->pick_derived_mv = 0;
+      }
+      if (mbmi->derived_mv_allowed) {
+        rd_stats->rate += x->pick_derived_mv_cost[bsize][mbmi->pick_derived_mv];
+        if (mbmi->pick_derived_mv) rd_stats->rate -= drl_cost;
+      }
+#endif  // CONFIG_DERIVED_MV
 
 #if CONFIG_NEW_INTER_MODES
       const int like_nearest =
@@ -13066,6 +13164,9 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
       // mbmi->is_ibcplus = (ibcMode != ROTATION_0) ? 0x1 : 0x0;
       // mbmi->ibcplus_mode = mbmi->is_ibcplus ? (ibcMode-MIRROR_90) : 0x0;
 #endif  // CONFIG_EXT_IBC_MODES
+#if CONFIG_DERIVED_MV
+      mbmi->derived_mv_allowed = 0;
+#endif  // CONFIG_DERIVED_MV
 
       x->skip = 0;
 
@@ -13340,6 +13441,9 @@ static void rd_pick_skip_mode(RD_STATS *rd_cost,
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   mbmi->ref_mv_idx = 0;
   mbmi->skip_mode = mbmi->skip = 1;
+#if CONFIG_DERIVED_MV
+  mbmi->derived_mv_allowed = 0;
+#endif  // CONFIG_DERIVED_MV
 
   set_default_interp_filters(mbmi, cm->interp_filter);
 
@@ -14367,6 +14471,10 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, int mode_index,
   mbmi->interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
   set_default_interp_filters(mbmi, cm->interp_filter);
   set_default_mbmi_mv_precision(cm, mbmi, xd->sbi);
+#if CONFIG_DERIVED_MV
+  mbmi->derived_mv_allowed = 0;
+  mbmi->pick_derived_mv = 0;
+#endif  // CONFIG_DERIVED_MV
 }
 
 static int64_t handle_intra_mode(InterModeSearchState *search_state,
@@ -15169,6 +15277,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                        INT64_MAX, INT64_MAX, INT64_MAX,
                                        INT64_MAX, INT64_MAX };
   const int skip_ctx = av1_get_skip_context(xd);
+
   for (int midx = 0; midx < MAX_MODES; ++midx) {
     // After we done with single reference modes, find the 2nd best RD
     // for a reference frame. Only search compound modes that have a reference
@@ -15446,7 +15555,6 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
           if (is_comp_pred)
             xd->plane[i].pre[1] = yv12_mb[mbmi->ref_frame[1]][i];
         }
-
         av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
                                       av1_num_planes(cm) - 1);
         if (mbmi->motion_mode == OBMC_CAUSAL)

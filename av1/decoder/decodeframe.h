@@ -17,6 +17,7 @@ extern "C" {
 #endif
 
 #include "aom_dsp/bitreader.h"
+#include "av1/common/reconinter.h"
 
 struct AV1Decoder;
 struct aom_read_bit_buffer;
@@ -79,6 +80,20 @@ struct aom_read_bit_buffer *av1_init_read_bit_buffer(
 void av1_free_mc_tmp_buf(struct ThreadData *thread_data);
 
 void av1_set_single_tile_decoding_mode(AV1_COMMON *const cm);
+
+typedef struct {
+  const MB_MODE_INFO *mi;
+  int mi_x;
+  int mi_y;
+  int build_for_obmc;
+} DecCalcSubpelFuncArgs;
+
+void dec_calc_subpel_params_and_extend(
+    MACROBLOCKD *xd, const struct scale_factors *const sf, const MV *const mv,
+    int plane, int pre_x, int pre_y, int x, int y, struct buf_2d *const pre_buf,
+    int bw, int bh, const WarpTypesAllowed *const warp_types, int ref,
+    const void *const void_args, uint8_t **pre, SubpelParams *subpel_params,
+    int *src_stride);
 
 #ifdef __cplusplus
 }  // extern "C"
