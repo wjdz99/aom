@@ -254,6 +254,9 @@ reference. The following utilities are included:
   file(APPEND "${AOM_DOXYFILE}"
        "PROJECT_LOGO = ${AOM_CONFIG_DIR}/${aom_logo}\n")
 
+  # Add image path.
+  file(APPEND "${AOM_DOXYFILE}" "IMAGE_PATH += ${AOM_ROOT}/doc\n")
+
   # Add the doxygen generation rule.
   add_custom_target(docs ALL
                     COMMAND "${DOXYGEN_EXECUTABLE}" "${AOM_DOXYFILE}"
