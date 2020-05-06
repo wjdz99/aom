@@ -43,6 +43,20 @@ void av1_accumulate_frame_counts(struct FRAME_COUNTS *acc_counts,
 
 void av1_row_mt_mem_dealloc(AV1_COMP *cpi);
 
+void av1_tpl_row_mt_sync_read_dummy(AV1TplRowMultiThreadSync *const tpl_mt_sync,
+                                    int r, int c);
+void av1_tpl_row_mt_sync_write_dummy(
+    AV1TplRowMultiThreadSync *const tpl_mt_sync, int r, int c, int cols);
+
+void av1_tpl_row_mt_sync_read(AV1TplRowMultiThreadSync *const tpl_mt_sync,
+                              int r, int c);
+void av1_tpl_row_mt_sync_write(AV1TplRowMultiThreadSync *const tpl_mt_sync,
+                               int r, int c, int cols);
+
+void av1_mc_flow_dispenser_mt(struct AV1_COMP *cpi);
+
+int av1_compute_num_enc_workers(struct AV1_COMP *cpi);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
