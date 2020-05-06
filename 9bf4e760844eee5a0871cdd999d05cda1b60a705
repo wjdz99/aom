@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "149e595e_a9e97508",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 32
+      },
+      "lineNbr": 1109,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-05-06T16:29:38Z",
+      "side": 1,
+      "message": "remove space",
+      "range": {
+        "startLine": 1109,
+        "startChar": 52,
+        "endLine": 1109,
+        "endChar": 60
+      },
+      "revId": "9bf4e760844eee5a0871cdd999d05cda1b60a705",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d68913fe_f23494f2",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 32
+      },
+      "lineNbr": 1409,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-05-06T16:29:38Z",
+      "side": 1,
+      "message": "Should not remove avx2 here?",
+      "range": {
+        "startLine": 1406,
+        "startChar": 4,
+        "endLine": 1409,
+        "endChar": 50
+      },
+      "revId": "9bf4e760844eee5a0871cdd999d05cda1b60a705",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95172299_6504d26c",
+        "filename": "aom_dsp/x86/highbd_variance_avx2.c",
+        "patchSetId": 32
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-05-06T16:29:38Z",
+      "side": 1,
+      "message": "move const before non const",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 43
+      },
+      "revId": "9bf4e760844eee5a0871cdd999d05cda1b60a705",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "912307ed_5363e4df",
+        "filename": "aom_dsp/x86/highbd_variance_avx2.c",
+        "patchSetId": 32
+      },
+      "lineNbr": 1859,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-05-06T16:29:38Z",
+      "side": 1,
+      "message": "For this macros, add semicolon to use same style as existing code.",
+      "range": {
+        "startLine": 1859,
+        "startChar": 0,
+        "endLine": 1859,
+        "endChar": 27
+      },
+      "revId": "9bf4e760844eee5a0871cdd999d05cda1b60a705",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "284a23d4_a92425cc",
+        "filename": "test/variance_test.cc",
+        "patchSetId": 32
+      },
+      "lineNbr": 1078,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-05-06T16:29:38Z",
+      "side": 1,
+      "message": "please double check if this SpeedTest() still works.",
+      "range": {
+        "startLine": 1078,
+        "startChar": 48,
+        "endLine": 1078,
+        "endChar": 59
+      },
+      "revId": "9bf4e760844eee5a0871cdd999d05cda1b60a705",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "335aa948_f8f52925",
+        "filename": "test/variance_test.cc",
+        "patchSetId": 32
+      },
+      "lineNbr": 1735,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-05-06T16:29:38Z",
+      "side": 1,
+      "message": "Is this needed? please explain",
+      "range": {
+        "startLine": 1711,
+        "startChar": 0,
+        "endLine": 1735,
+        "endChar": 2
+      },
+      "revId": "9bf4e760844eee5a0871cdd999d05cda1b60a705",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd87ac22_c8e67ff5",
+        "filename": "test/variance_test.cc",
+        "patchSetId": 32
+      },
+      "lineNbr": 2315,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-05-06T16:29:38Z",
+      "side": 1,
+      "message": "no low bit depth change in this change. no need to have these.",
+      "range": {
+        "startLine": 2305,
+        "startChar": 0,
+        "endLine": 2315,
+        "endChar": 0
+      },
+      "revId": "9bf4e760844eee5a0871cdd999d05cda1b60a705",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b19c8ac4_1f1f3862",
+        "filename": "test/variance_test.cc",
+        "patchSetId": 32
+      },
+      "lineNbr": 2356,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-05-06T16:29:38Z",
+      "side": 1,
+      "message": "wrong change?",
+      "range": {
+        "startLine": 2356,
+        "startChar": 56,
+        "endLine": 2356,
+        "endChar": 61
+      },
+      "revId": "9bf4e760844eee5a0871cdd999d05cda1b60a705",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
