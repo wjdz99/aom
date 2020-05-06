@@ -449,6 +449,7 @@ static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   }
 
   av1_read_mode_info(pbi, xd, mi_row, mi_col, r, x_mis, y_mis);
+
   if (bsize >= BLOCK_8X8 &&
       (seq_params->subsampling_x || seq_params->subsampling_y)) {
     const BLOCK_SIZE uv_subsize =
@@ -991,10 +992,12 @@ static void predict_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                            &mbmi->chroma_ref_info);
     }
   }
+
   dec_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
   if (mbmi->motion_mode == OBMC_CAUSAL) {
     dec_build_obmc_inter_predictors_sb(cm, xd);
   }
+
 #if CONFIG_MISMATCH_DEBUG
   for (int plane = 0; plane < num_planes; ++plane) {
     const struct macroblockd_plane *pd = &xd->plane[plane];
