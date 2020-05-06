@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d56cf742_3bebde4b",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-05-06T18:10:19Z",
+      "side": 1,
+      "message": "maybe add a note with a link to the docs on how update these as part of a release.",
+      "revId": "fb7ac0394df08776cba303c191d3679fbc3d3959",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f2fbc3e_79c860f9",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-05-06T18:10:19Z",
+      "side": 1,
+      "message": "I think it might be worth changing this comment and adding an explanation about what files and symlinks will be created to avoid confusion over VERSION/SO_FILE_VERSION",
+      "revId": "fb7ac0394df08776cba303c191d3679fbc3d3959",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
