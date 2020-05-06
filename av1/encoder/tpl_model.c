@@ -25,6 +25,7 @@
 #include "av1/common/reconintra.h"
 
 #include "av1/encoder/encoder.h"
+#include "av1/encoder/ethread.h"
 #include "av1/encoder/encode_strategy.h"
 #include "av1/encoder/hybrid_fwd_txfm.h"
 #include "av1/encoder/rd.h"
@@ -790,15 +791,15 @@ static AOM_INLINE void init_mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
 
 // This function stores the motion estimation dependencies of all the blocks in
 // a row
-static AOM_INLINE void mc_flow_dispenser_row(AV1_COMP *cpi, MACROBLOCK *x,
-                                             int mi_row, const BLOCK_SIZE bsize,
-                                             const TX_SIZE tx_size) {
-  AV1_COMMON *const cm = &cpi->common;
-  MultiThreadInfo *const mt_info = &cpi->mt_info;
+void av1_mc_flow_dispenser_row(void *cpi, MACROBLOCK *x, int mi_row,
+                               const BLOCK_SIZE bsize, const TX_SIZE tx_size) {
+  AV1_COMP *cpi_ptr = (AV1_COMP *)cpi;
+  AV1_COMMON *const cm = &cpi_ptr->common;
+  MultiThreadInfo *const mt_info = &cpi_ptr->mt_info;
   AV1TplRowMultiThreadInfo *const tpl_row_mt = &mt_info->tpl_row_mt;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   const int mi_width = mi_size_wide[bsize];
-  TplParams *const tpl_data = &cpi->tpl_data;
+  TplParams *const tpl_data = &cpi_ptr->tpl_data;
   TplDepFrame *tpl_frame = &tpl_data->tpl_frame[tpl_data->frame_idx];
   MACROBLOCKD *xd = &x->e_mbd;
   const int mb_cols_in_tile = mi_params->mb_cols;
@@ -811,11 +812,11 @@ static AOM_INLINE void mc_flow_dispenser_row(AV1_COMP *cpi, MACROBLOCK *x,
 
     // Motion estimation column boundary
     av1_set_mv_col_limits(mi_params, &x->mv_limits, mi_col, mi_width,
-                          cpi->oxcf.border_in_pixels);
+                          cpi_ptr->oxcf.border_in_pixels);
     xd->mb_to_left_edge = -GET_MV_SUBPEL(mi_col * MI_SIZE);
     xd->mb_to_right_edge =
         GET_MV_SUBPEL(mi_params->mi_cols - mi_width - mi_col);
-    mode_estimation(cpi, x, mi_row, mi_col, bsize, tx_size, &tpl_stats);
+    mode_estimation(cpi_ptr, x, mi_row, mi_col, bsize, tx_size, &tpl_stats);
 
     // Motion flow dependency dispenser.
     tpl_model_store(tpl_frame->tpl_stats_ptr, mi_row, mi_col, bsize,
@@ -842,7 +843,7 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi) {
     xd->mb_to_top_edge = -GET_MV_SUBPEL(mi_row * MI_SIZE);
     xd->mb_to_bottom_edge =
         GET_MV_SUBPEL((mi_params->mi_rows - mi_height - mi_row) * MI_SIZE);
-    mc_flow_dispenser_row(cpi, x, mi_row, bsize, tx_size);
+    av1_mc_flow_dispenser_row((void *)cpi, x, mi_row, bsize, tx_size);
   }
 }
 
@@ -1092,7 +1093,13 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
 
     if (gf_group->size == frame_idx) continue;
     init_mc_flow_dispenser(cpi, frame_idx, pframe_qindex);
-    mc_flow_dispenser(cpi);
+    if (av1_compute_num_enc_workers(cpi) > 1) {
+      tpl_row_mt->sync_read_ptr = av1_tpl_row_mt_sync_read;
+      tpl_row_mt->sync_write_ptr = av1_tpl_row_mt_sync_write;
+      av1_mc_flow_dispenser_mt(cpi);
+    } else {
+      mc_flow_dispenser(cpi);
+    }
 
     aom_extend_frame_borders(tpl_data->tpl_frame[frame_idx].rec_picture,
                              av1_num_planes(cm));
