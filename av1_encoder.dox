@@ -9,6 +9,9 @@
     - \ref in_loop_filter
     - \ref rate_control
 
+  Encode a frame
+    - To encode a frame, call \ref av1_get_compressed_data().
+
   <b>[SAMPLE CONTEXT ONLY - copied from AV1 overview paper]:</b>
 
   In this paper, we present the core coding tools in AV1 that contribute to
