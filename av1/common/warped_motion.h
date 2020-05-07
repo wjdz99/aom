@@ -177,4 +177,10 @@ int av1_find_projection(int np, int *pts1, int *pts2, BLOCK_SIZE bsize, int mvy,
                         int mi_col);
 
 int av1_get_shear_params(WarpedMotionParams *wm);
+
+#if CONFIG_EXT_WARP
+int av1_is_affine_shear_allowed(int16_t alpha, int16_t beta, int16_t gamma,
+                                int16_t delta);
+#endif  // CONFIG_EXT_WARP
+
 #endif  // AOM_AV1_COMMON_WARPED_MOTION_H_
