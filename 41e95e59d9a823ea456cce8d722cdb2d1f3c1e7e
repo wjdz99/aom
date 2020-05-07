@@ -16,6 +16,24 @@
       "revId": "41e95e59d9a823ea456cce8d722cdb2d1f3c1e7e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e588cb34_77dab72c",
+        "filename": "aom/src/aom_decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-05-07T23:40:41Z",
+      "side": 1,
+      "message": "\u003e It would be good to add a test to test/decoder_api_test.cc, to make it concrete what is the problematic call sequence.\n\u003e \n\u003e I expect that only an initialized \u0027ctx\u0027 should be passed to aom_codec_error_detail(). So if aom_codec_dec_init() fails, I would not call aom_codec_error_detail().\n\u003e \n\nRight, this is where we get into negative api testing. The calls are there and you may receive bad input. If that\u0027s from one of our calls then we should protect against it if we can.\n\n\u003e Another way to view this is: if it is correct to call aom_codec_error_detail() on the \u0027ctx\u0027, then we should also need to call aom_codec_destroy() on the \u0027ctx\u0027.\n\nit\u0027s not valid, but can be done as the example in libvpx shows.",
+      "parentUuid": "c5f87c65_f17ed890",
+      "revId": "41e95e59d9a823ea456cce8d722cdb2d1f3c1e7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
