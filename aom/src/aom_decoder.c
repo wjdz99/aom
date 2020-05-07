@@ -28,6 +28,8 @@ aom_codec_err_t aom_codec_dec_init_ver(aom_codec_ctx_t *ctx,
                                        aom_codec_flags_t flags, int ver) {
   aom_codec_err_t res;
 
+  if (ctx) memset(ctx, 0, sizeof(*ctx));
+
   if (ver != AOM_DECODER_ABI_VERSION)
     res = AOM_CODEC_ABI_MISMATCH;
   else if (!ctx || !iface)
@@ -37,7 +39,6 @@ aom_codec_err_t aom_codec_dec_init_ver(aom_codec_ctx_t *ctx,
   else if (!(iface->caps & AOM_CODEC_CAP_DECODER))
     res = AOM_CODEC_INCAPABLE;
   else {
-    memset(ctx, 0, sizeof(*ctx));
     ctx->iface = iface;
     ctx->name = iface->name;
     ctx->priv = NULL;
