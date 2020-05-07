@@ -1481,3 +1481,16 @@ HIGHBD_OBMC_SUBPIX_VAR(16, 64)
 HIGHBD_OBMC_VAR(64, 16)
 HIGHBD_OBMC_SUBPIX_VAR(64, 16)
 #endif  // CONFIG_AV1_HIGHBITDEPTH
+
+uint64_t aom_mse_wxh_16bit_c(uint8_t *dst, int dstride, uint16_t *src,
+                                     int sstride, int w, int h) {
+  uint64_t sum = 0;
+  int i, j;
+  for (i = 0; i < h; i++) {
+    for (j = 0; j < w; j++) {
+      int e = (uint16_t)dst[i * dstride + j] - src[i * sstride + j];
+      sum += e * e;
+    }
+  }
+  return sum;
+}
