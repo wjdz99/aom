@@ -12130,6 +12130,23 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
   MB_MODE_INFO *mbmi = xd->mi[0];
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const int is_comp_pred = has_second_ref(mbmi);
+#if CONFIG_EXT_WARP
+  if (mbmi->mode == GLOBAL_GLOBALMV) {
+    int is_global_globalmv_allowed = 1;
+    for (int ref = 0; ref < 2; ++ref) {
+      const WarpedMotionParams *warp_params =
+          &xd->global_motion[mbmi->ref_frame[ref]];
+      if (warp_params->wmtype <= TRANSLATION) continue;
+      if (!av1_is_affine_shear_allowed(warp_params->alpha, warp_params->beta,
+                                       warp_params->gamma,
+                                       warp_params->delta)) {
+        int bsize_warp = av1_get_new_warp_bsize(warp_params->wmmat);
+        if (bsize_warp == 8) is_global_globalmv_allowed = 0;
+      }
+    }
+    if (!is_global_globalmv_allowed) return INT64_MAX;
+  }
+#endif  // CONFIG_EXT_WARP
   const PREDICTION_MODE this_mode = mbmi->mode;
   int i;
   int refs[2] = { mbmi->ref_frame[0],
