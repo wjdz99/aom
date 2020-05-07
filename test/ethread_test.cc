@@ -16,9 +16,165 @@
 #include "test/encode_test_driver.h"
 #include "test/md5_helper.h"
 #include "test/util.h"
+#include "test/y4m_video_source.h"
 #include "test/yuv_video_source.h"
+#include "av1/encoder/firstpass.h"
 
 namespace {
+const size_t kFirstPassStatsSz = sizeof(FIRSTPASS_STATS);
+class AVxFirstPassEncoderThreadTest
+    : public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode, int>,
+      public ::libaom_test::EncoderTest {
+ protected:
+  AVxFirstPassEncoderThreadTest()
+      : EncoderTest(GET_PARAM(0)), encoder_initialized_(false), tiles_(0),
+        encoding_mode_(GET_PARAM(1)), set_cpu_used_(GET_PARAM(2)) {
+    init_flags_ = AOM_CODEC_USE_PSNR;
+
+    row_mt_ = 1;
+    first_pass_only_ = 1;
+    firstpass_stats_.buf = NULL;
+    firstpass_stats_.sz = 0;
+  }
+  virtual ~AVxFirstPassEncoderThreadTest() { free(firstpass_stats_.buf); }
+
+  virtual void SetUp() {
+    InitializeConfig();
+    SetMode(encoding_mode_);
+
+    cfg_.g_lag_in_frames = 25;
+    cfg_.rc_end_usage = AOM_VBR;
+    cfg_.rc_2pass_vbr_minsection_pct = 5;
+    cfg_.rc_2pass_vbr_maxsection_pct = 2000;
+    cfg_.rc_max_quantizer = 56;
+    cfg_.rc_min_quantizer = 0;
+  }
+
+  virtual void BeginPassHook(unsigned int /*pass*/) {
+    encoder_initialized_ = false;
+    abort_ = false;
+  }
+
+  virtual void EndPassHook() {
+    // For first pass stats test, only run first pass encoder.
+    if (first_pass_only_ && cfg_.g_pass == AOM_RC_FIRST_PASS)
+      abort_ |= first_pass_only_;
+  }
+
+  virtual void PreEncodeFrameHook(::libaom_test::VideoSource * /*video*/,
+                                  ::libaom_test::Encoder *encoder) {
+    if (!encoder_initialized_) {
+      // Encode in 2-pass mode.
+      encoder->Control(AV1E_SET_ROW_MT, row_mt_);
+      encoder->Control(AV1E_SET_TILE_COLUMNS, tiles_);
+      encoder->Control(AOME_SET_CPUUSED, set_cpu_used_);
+      encoder->Control(AOME_SET_ENABLEAUTOALTREF, 1);
+      encoder->Control(AOME_SET_ARNR_MAXFRAMES, 7);
+      encoder->Control(AOME_SET_ARNR_STRENGTH, 5);
+      encoder->Control(AV1E_SET_FRAME_PARALLEL_DECODING, 0);
+
+      encoder_initialized_ = true;
+    }
+  }
+
+  virtual void StatsPktHook(const aom_codec_cx_pkt_t *pkt) {
+    const uint8_t *const pkt_buf =
+        reinterpret_cast<uint8_t *>(pkt->data.twopass_stats.buf);
+    const size_t pkt_size = pkt->data.twopass_stats.sz;
+
+    // First pass stats size equals sizeof(FIRSTPASS_STATS)
+    EXPECT_EQ(pkt_size, kFirstPassStatsSz)
+        << "Error: First pass stats size doesn't equal kFirstPassStatsSz";
+
+    firstpass_stats_.buf =
+        realloc(firstpass_stats_.buf, firstpass_stats_.sz + pkt_size);
+    memcpy((uint8_t *)firstpass_stats_.buf + firstpass_stats_.sz, pkt_buf,
+           pkt_size);
+    firstpass_stats_.sz += pkt_size;
+  }
+
+  bool encoder_initialized_;
+  int tiles_;
+  ::libaom_test::TestMode encoding_mode_;
+  int set_cpu_used_;
+  int row_mt_;
+  int first_pass_only_;
+  aom_fixed_buf_t firstpass_stats_;
+};
+
+static void compare_fp_stats_md5(aom_fixed_buf_t *fp_stats) {
+  // fp_stats consists of 2 set of first pass encoding stats. These 2 set of
+  // stats are compared to check if the stats match.
+  uint8_t *stats1 = reinterpret_cast<uint8_t *>(fp_stats->buf);
+  uint8_t *stats2 = stats1 + fp_stats->sz / 2;
+  ::libaom_test::MD5 md5_row_mt_0, md5_row_mt_1;
+
+  md5_row_mt_0.Add(stats1, fp_stats->sz / 2);
+  const char *md5_row_mt_0_str = md5_row_mt_0.Get();
+
+  md5_row_mt_1.Add(stats2, fp_stats->sz / 2);
+  const char *md5_row_mt_1_str = md5_row_mt_1.Get();
+
+  // Check md5 match.
+  ASSERT_STREQ(md5_row_mt_0_str, md5_row_mt_1_str)
+      << "MD5 checksums don't match";
+
+  // Reset firstpass_stats_ to 0.
+  memset((uint8_t *)fp_stats->buf, 0, fp_stats->sz);
+  fp_stats->sz = 0;
+}
+
+TEST_P(AVxFirstPassEncoderThreadTest, FirstPassStatsTest) {
+  ::libaom_test::Y4mVideoSource video("niklas_1280_720_30.y4m", 0, 60);
+
+  first_pass_only_ = true;
+  cfg_.rc_target_bitrate = 1000;
+
+  // Test row_mt_mode: 0 vs 1 at single thread case(threads = 1, tiles_ = 0)
+  tiles_ = 0;
+  cfg_.g_threads = 1;
+
+  row_mt_ = 0;
+  init_flags_ = AOM_CODEC_USE_PSNR;
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+
+  row_mt_ = 1;
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+
+  // Compare to check if using or not using row-mt are bit exact.
+  ASSERT_NO_FATAL_FAILURE(compare_fp_stats_md5(&firstpass_stats_));
+
+  // Test single thread vs multiple threads
+  row_mt_ = 1;
+  tiles_ = 0;
+
+  cfg_.g_threads = 1;
+  init_flags_ = AOM_CODEC_USE_PSNR;
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+
+  cfg_.g_threads = 4;
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+
+  // Compare to check if single-thread and multi-thread stats are bit exact.
+  ASSERT_NO_FATAL_FAILURE(compare_fp_stats_md5(&firstpass_stats_));
+
+  // Bit exact test in row_mt mode.
+  // When row_mt_mode_=1 and using >1 threads, the encoder generates bit exact
+  // result.
+  row_mt_ = 1;
+  tiles_ = 2;
+
+  cfg_.g_threads = 2;
+  init_flags_ = AOM_CODEC_USE_PSNR;
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+
+  cfg_.g_threads = 8;
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+
+  // Compare to check if stats match with row-mt=0/1.
+  compare_fp_stats_md5(&firstpass_stats_);
+}
+
 class AVxEncoderThreadTest
     : public ::libaom_test::CodecTestWith5Params<libaom_test::TestMode, int,
                                                  int, int, int>,
@@ -228,6 +384,11 @@ TEST_P(AVxEncoderThreadTestLarge, EncoderResultTest) {
   decoder_->Control(AV1_SET_TILE_MODE, 0);
   DoTest();
 }
+
+// first pass stats test
+AV1_INSTANTIATE_TEST_CASE(AVxFirstPassEncoderThreadTest,
+                          ::testing::Values(::libaom_test::kTwoPassGood),
+                          ::testing::Range(0, 4));
 
 // For AV1, only test speed 0 to 3.
 // Here test cpu_used 2 and 3
