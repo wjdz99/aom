@@ -5417,8 +5417,57 @@ static void determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
 }
 #endif  // CONFIG_REALTIME_ONLY
 
-static void encode_without_recode(AV1_COMP *cpi, int q) {
+static void variance_partition_alloc(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
+  const int num_64x64_blocks =
+      (cm->seq_params.sb_size == BLOCK_64X64) ? 1 : 4;
+  if (cpi->td.vt64x64) {
+    if (num_64x64_blocks != cpi->td.num_64x64_blocks) {
+      aom_free(cpi->td.vt64x64);
+      cpi->td.vt64x64 = NULL;
+    }
+  }
+  if (!cpi->td.vt64x64) {
+    CHECK_MEM_ERROR(cm, cpi->td.vt64x64,
+                    aom_malloc(sizeof(*cpi->td.vt64x64) * num_64x64_blocks));
+    cpi->td.num_64x64_blocks = num_64x64_blocks;
+  }
+}
+
+static void copy_frame_prob_info(AV1_COMP *cpi) {
+  FrameProbInfo *const frame_probs = &cpi->frame_probs;
+  if (cpi->sf.tx_sf.tx_type_search.prune_tx_type_using_stats) {
+    av1_copy(frame_probs->tx_type_probs, default_tx_type_probs);
+  }
+  if (!cpi->sf.inter_sf.disable_obmc &&
+      cpi->sf.inter_sf.prune_obmc_prob_thresh > 0) {
+    av1_copy(frame_probs->obmc_probs, default_obmc_probs);
+  }
+  if (cpi->sf.inter_sf.prune_warped_prob_thresh > 0) {
+    av1_copy(frame_probs->warped_probs, default_warped_probs);
+  }
+  if (cpi->sf.interp_sf.adaptive_interp_filter_search == 2) {
+    av1_copy(frame_probs->switchable_interp_probs,
+             default_switchable_interp_probs);
+  }
+}
+
+static int encode_without_recode(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  int top_index = 0, bottom_index = 0, q = 0;
+
+  set_size_independent_vars(cpi);
+  av1_setup_frame_size(cpi);
+  set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
+
+  if (cpi->sf.part_sf.partition_search_type == VAR_BASED_PARTITION)
+    variance_partition_alloc(cpi);
+
+  if (cm->current_frame.frame_type == KEY_FRAME) copy_frame_prob_info(cpi);
+
+#if CONFIG_COLLECT_COMPONENT_TIMING
+  printf("\n Encoding a frame:");
+#endif
 
   aom_clear_system_state();
 
@@ -5492,6 +5541,8 @@ static void encode_without_recode(AV1_COMP *cpi, int q) {
 #if CONFIG_INTERNAL_STATS
   ++cpi->tot_recode_hits;
 #endif
+
+  return AOM_CODEC_OK;
 }
 
 static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
@@ -5527,57 +5578,18 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
   q_low = bottom_index;
   q_high = top_index;
-  if (cpi->sf.part_sf.partition_search_type == VAR_BASED_PARTITION) {
-    const int num_64x64_blocks =
-        (cm->seq_params.sb_size == BLOCK_64X64) ? 1 : 4;
-    if (cpi->td.vt64x64) {
-      if (num_64x64_blocks != cpi->td.num_64x64_blocks) {
-        aom_free(cpi->td.vt64x64);
-        cpi->td.vt64x64 = NULL;
-      }
-    }
-    if (!cpi->td.vt64x64) {
-      CHECK_MEM_ERROR(cm, cpi->td.vt64x64,
-                      aom_malloc(sizeof(*cpi->td.vt64x64) * num_64x64_blocks));
-      cpi->td.num_64x64_blocks = num_64x64_blocks;
-    }
-  }
+  
+  if (cpi->sf.part_sf.partition_search_type == VAR_BASED_PARTITION)
+    variance_partition_alloc(cpi);
 
-  if (cm->current_frame.frame_type == KEY_FRAME) {
-    FrameProbInfo *const frame_probs = &cpi->frame_probs;
-
-    if (cpi->sf.tx_sf.tx_type_search.prune_tx_type_using_stats) {
-      av1_copy(frame_probs->tx_type_probs, default_tx_type_probs);
-    }
-
-    if (!cpi->sf.inter_sf.disable_obmc &&
-        cpi->sf.inter_sf.prune_obmc_prob_thresh > 0) {
-      av1_copy(frame_probs->obmc_probs, default_obmc_probs);
-    }
-
-    if (cpi->sf.inter_sf.prune_warped_prob_thresh > 0) {
-      av1_copy(frame_probs->warped_probs, default_warped_probs);
-    }
-
-    if (cpi->sf.interp_sf.adaptive_interp_filter_search == 2) {
-      av1_copy(frame_probs->switchable_interp_probs,
-               default_switchable_interp_probs);
-    }
-  }
+  if (cm->current_frame.frame_type == KEY_FRAME) copy_frame_prob_info(cpi);
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   printf("\n Encoding a frame:");
 #endif
 
-  if (cpi->sf.hl_sf.recode_loop == DISALLOW_RECODE) {
-    encode_without_recode(cpi, q);
-    return AOM_CODEC_OK;
-  }
-
-#if !CONFIG_REALTIME_ONLY
   // Determine whether to use screen content tools using two fast encoding.
   determine_sc_tools_with_encoding(cpi, q);
-#endif  // CONFIG_REALTIME_ONLY
 
   // Loop variables
   int loop = 0;
@@ -5764,7 +5776,14 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, encode_with_recode_loop_time);
 #endif
-  int err = encode_with_recode_loop(cpi, size, dest);
+  int err;
+#if CONFIG_REALTIME_ONLY
+  err = encode_without_recode(cpi);
+#endif
+  if (cpi->sf.hl_sf.recode_loop == DISALLOW_RECODE)
+    err = encode_without_recode(cpi);
+  else
+    err = encode_with_recode_loop(cpi, size, dest);
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, encode_with_recode_loop_time);
 #endif
