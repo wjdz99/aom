@@ -805,6 +805,9 @@ typedef struct {
   // Number of workers created for encoder multi-threading.
   int num_workers;
 
+  int num_enc_workers;
+  int num_fp_workers;
+
   // Synchronization object used to launch job in the worker thread.
   AVxWorker *workers;
 
