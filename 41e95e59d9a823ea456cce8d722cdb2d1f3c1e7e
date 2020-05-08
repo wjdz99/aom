@@ -70,6 +70,24 @@
       "revId": "41e95e59d9a823ea456cce8d722cdb2d1f3c1e7e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6521bcf8_4146b8fa",
+        "filename": "aom/src/aom_decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-05-08T00:04:58Z",
+      "side": 1,
+      "message": "Done. I\u0027ll add a negative test for the detail function in another cl.",
+      "parentUuid": "a5d3c617_5593928f",
+      "revId": "41e95e59d9a823ea456cce8d722cdb2d1f3c1e7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
