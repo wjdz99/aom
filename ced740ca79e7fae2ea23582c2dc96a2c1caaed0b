@@ -22,6 +22,30 @@
       "revId": "ced740ca79e7fae2ea23582c2dc96a2c1caaed0b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "45ec8f99_8cee75b4",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1293,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-05-08T22:52:30Z",
+      "side": 1,
+      "message": "Yes, something related to simple motion search. I will track that later.",
+      "parentUuid": "5eecffd4_09887499",
+      "range": {
+        "startLine": 1293,
+        "startChar": 20,
+        "endLine": 1293,
+        "endChar": 23
+      },
+      "revId": "ced740ca79e7fae2ea23582c2dc96a2c1caaed0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
