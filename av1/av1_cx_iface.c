@@ -24,6 +24,7 @@
 #include "av1/av1_iface_common.h"
 #include "av1/encoder/bitstream.h"
 #include "av1/encoder/encoder.h"
+#include "av1/encoder/ethread.h"
 #include "av1/encoder/firstpass.h"
 
 #define MAG_SIZE (4)
@@ -2175,6 +2176,10 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     int is_frame_visible = 0;
     int index_size = 0;
     int has_fwd_keyframe = 0;
+
+    const int num_workers = av1_compute_num_enc_workers(cpi);
+    if ((num_workers > 1) && (cpi->mt_info.num_workers == 0))
+      av1_create_workers(cpi, num_workers);
 
     // Call for LAP stage
     if (cpi_lap != NULL) {

@@ -511,12 +511,6 @@ static AOM_INLINE void create_enc_workers(AV1_COMP *cpi, int num_workers) {
   MultiThreadInfo *const mt_info = &cpi->mt_info;
   int sb_mi_size = av1_get_sb_mi_size(cm);
 
-  CHECK_MEM_ERROR(cm, mt_info->workers,
-                  aom_malloc(num_workers * sizeof(*mt_info->workers)));
-
-  CHECK_MEM_ERROR(cm, mt_info->tile_thr_data,
-                  aom_calloc(num_workers, sizeof(*mt_info->tile_thr_data)));
-
 #if CONFIG_MULTITHREAD
   if (cpi->oxcf.row_mt == 1) {
     AV1EncRowMultiThreadInfo *enc_row_mt = &mt_info->enc_row_mt;
@@ -619,7 +613,7 @@ static AOM_INLINE void create_enc_workers(AV1_COMP *cpi, int num_workers) {
   }
 }
 
-static AOM_INLINE void create_workers(AV1_COMP *cpi, int num_workers) {
+void av1_create_workers(AV1_COMP *cpi, int num_workers) {
   AV1_COMMON *const cm = &cpi->common;
   MultiThreadInfo *const mt_info = &cpi->mt_info;
 
@@ -1075,7 +1069,7 @@ void av1_fp_encode_tiles_row_mt(AV1_COMP *cpi) {
 
   // Only run once to create threads and allocate thread data.
   if (mt_info->num_workers == 0) {
-    create_workers(cpi, num_workers);
+    av1_create_workers(cpi, num_workers);
     fp_create_enc_workers(cpi, num_workers);
   } else {
     num_workers = AOMMIN(num_workers, mt_info->num_workers);
