@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12a938eb_9477141e",
+        "filename": "av1/encoder/partition_strategy.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-05-08T19:08:19Z",
+      "side": 1,
+      "message": "Some compilers (I think Visual studio) will complain about second const for the pointers.\nSo, change to:\n\"const AV1_COMP *cpi, const MACROBLOCK *x\" etc.\n\nAlso, make sure signature matches in .h and .c",
+      "range": {
+        "startLine": 162,
+        "startChar": 49,
+        "endLine": 162,
+        "endChar": 54
+      },
+      "revId": "927012c4c76cd18993f390c5f1af3c6feba6051c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
