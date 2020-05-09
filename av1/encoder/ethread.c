@@ -1195,13 +1195,15 @@ static int gm_mt_worker_hook(void *arg1, void *unused) {
     pthread_mutex_lock(gm_mt_mutex_);
 #endif
 
+    int cur_ref_frame_count = job_info->next_frame_to_process[cur_dir] - 1;
+
     // If global motion w.r.t. current ref frame is
     // INVALID/TRANSLATION/IDENTITY, skip the evaluation of global motion w.r.t
     // the remaining ref frames in that direction. The below exit is disabled
     // when ref frame distance w.r.t. current frame is zero. E.g.:
     // source_alt_ref_frame w.r.t. ARF frames.
     if (cpi->sf.gm_sf.prune_ref_frame_for_gm_search &&
-        gm_info->reference_frames[cur_dir][ref_frame_idx].distance != 0 &&
+        gm_info->reference_frames[cur_dir][cur_ref_frame_count].distance != 0 &&
         cpi->common.global_motion[ref_frame_idx].wmtype != ROTZOOM)
       job_info->early_exit[cur_dir] = 1;
 
