@@ -34,7 +34,7 @@ class AVxFirstPassEncoderThreadTest
     init_flags_ = AOM_CODEC_USE_PSNR;
 
     row_mt_ = 1;
-    first_pass_only_ = 1;
+    first_pass_only_ = true;
     firstpass_stats_.buf = NULL;
     firstpass_stats_.sz = 0;
   }
@@ -106,7 +106,7 @@ class AVxFirstPassEncoderThreadTest
   int tile_rows_;
   int tile_cols_;
   int row_mt_;
-  int first_pass_only_;
+  bool first_pass_only_;
   aom_fixed_buf_t firstpass_stats_;
 };
 
