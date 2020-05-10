@@ -1814,9 +1814,60 @@ static void show_stream_config(struct stream_state *stream,
   SHOW_PARAMS(reduced_tx_type_set);
 }
 
+#if CONFIG_WEBM_IO
+// Simplistic mechanism to extract encoder settings, without having
+// to re-invoke the entire flag-parsing logic. It copies the arguments
+// as-is from argv, but skips the binary name, any arguments that match the
+// input filename, and the output flags "-o" and "--output" (and the following
+// argument for those flags).
+static char *extract_encoder_settings(const char **argv, int argc,
+                                      const char *input_fname) {
+  size_t total_size = 0;
+  for (int i = 1; i < argc; ++i) {
+    if (strcmp(argv[i], input_fname) == 0) {
+      continue;
+    }
+    if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "--output") == 0) {
+      ++i;
+      continue;
+    }
+    total_size += strlen(argv[i]) + 1;
+  }
+  if (total_size == 0) {
+    return NULL;
+  }
+  // For simplicity, allocate one more byte to account for the final
+  // null character that will be written by sprintf.
+  char *result = malloc(total_size + 1);
+  if (result == NULL) {
+    fprintf(stderr,
+            "Warning: out of memory, cannot extract encoder settings\n");
+    return NULL;
+  }
+  char *cur = result;
+  for (int i = 1; i < argc; ++i) {
+    if (strcmp(argv[i], input_fname) == 0) {
+      continue;
+    }
+    if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "--output") == 0) {
+      ++i;
+      continue;
+    }
+    // Note that we may write one more byte than needed here, on the
+    // last entry.
+    cur += sprintf(cur, "%s ", argv[i]);
+  }
+  // Replace last space with the null character.
+  --cur;
+  *cur = '\0';
+  return result;
+}
+#endif  // CONFIG_WEBM_IO
+
 static void open_output_file(struct stream_state *stream,
                              struct AvxEncoderConfig *global,
-                             const struct AvxRational *pixel_aspect_ratio) {
+                             const struct AvxRational *pixel_aspect_ratio,
+                             const char *encoder_settings) {
   const char *fn = stream->config.out_fn;
   const struct aom_codec_enc_cfg *const cfg = &stream->config.cfg;
 
@@ -1835,12 +1886,13 @@ static void open_output_file(struct stream_state *stream,
     if (write_webm_file_header(&stream->webm_ctx, &stream->encoder, cfg,
                                stream->config.stereo_fmt,
                                get_fourcc_by_aom_encoder(global->codec),
-                               pixel_aspect_ratio) != 0) {
+                               pixel_aspect_ratio, encoder_settings) != 0) {
       fatal("WebM writer initialization failed.");
     }
   }
 #else
   (void)pixel_aspect_ratio;
+  (void)encoder_settings;
 #endif
 
   if (!stream->config.write_webm && stream->config.write_ivf) {
@@ -2534,7 +2586,16 @@ int main(int argc, const char **argv_) {
     FOREACH_STREAM(stream, streams) { setup_pass(stream, &global, pass); }
     FOREACH_STREAM(stream, streams) { initialize_encoder(stream, &global); }
     FOREACH_STREAM(stream, streams) {
-      open_output_file(stream, &global, &input.pixel_aspect_ratio);
+      char *encoder_settings = NULL;
+#if CONFIG_WEBM_IO
+      if (stream->config.write_webm) {
+        encoder_settings =
+            extract_encoder_settings(argv_, argc, input.filename);
+      }
+#endif
+      open_output_file(stream, &global, &input.pixel_aspect_ratio,
+                       encoder_settings);
+      free(encoder_settings);
     }
 
     if (strcmp(get_short_name_by_aom_encoder(global.codec), "av1") == 0) {
