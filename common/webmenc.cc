@@ -33,7 +33,8 @@ static int write_webm_file_header_aux(
     struct WebmOutputContext *webm_ctx, aom_codec_ctx_t *encoder_ctx,
     const aom_codec_enc_cfg_t *cfg, stereo_format_t stereo_fmt,
     unsigned int fourcc, const struct AvxRational *par,
-    mkvmuxer::MkvWriter *const writer, mkvmuxer::Segment *const segment) {
+    const char *encoder_settings, mkvmuxer::MkvWriter *const writer,
+    mkvmuxer::Segment *const segment) {
   bool ok = segment->Init(writer);
   if (!ok) {
     fprintf(stderr, "webmenc> mkvmuxer Init failed.\n");
@@ -113,6 +114,21 @@ static int write_webm_file_header_aux(
     video_track->set_display_height(cfg->g_h);
   }
 
+  if (encoder_settings != NULL) {
+    mkvmuxer::Tag *tag = segment->AddTag();
+    if (tag == NULL) {
+      fprintf(stderr,
+              "webmenc> Unable to allocate memory for encoder settings tag.\n");
+      return -1;
+    }
+    ok = tag->add_simple_tag("ENCODER_SETTINGS", encoder_settings);
+    if (!ok) {
+      fprintf(stderr,
+              "webmenc> Unable to allocate memory for encoder settings tag.\n");
+      return -1;
+    }
+  }
+
   if (webm_ctx->debug) {
     video_track->set_uid(kDebugTrackUid);
   }
@@ -123,7 +139,8 @@ int write_webm_file_header(struct WebmOutputContext *webm_ctx,
                            aom_codec_ctx_t *encoder_ctx,
                            const aom_codec_enc_cfg_t *cfg,
                            stereo_format_t stereo_fmt, unsigned int fourcc,
-                           const struct AvxRational *par) {
+                           const struct AvxRational *par,
+                           const char *encoder_settings) {
   mkvmuxer::MkvWriter *const writer =
       new (std::nothrow) mkvmuxer::MkvWriter(webm_ctx->stream);
   mkvmuxer::Segment *const segment = new (std::nothrow) mkvmuxer::Segment();
@@ -134,8 +151,9 @@ int write_webm_file_header(struct WebmOutputContext *webm_ctx,
     return -1;
   }
 
-  int result = write_webm_file_header_aux(
-      webm_ctx, encoder_ctx, cfg, stereo_fmt, fourcc, par, writer, segment);
+  int result =
+      write_webm_file_header_aux(webm_ctx, encoder_ctx, cfg, stereo_fmt, fourcc,
+                                 par, encoder_settings, writer, segment);
 
   if (result != 0) {
     delete segment;
