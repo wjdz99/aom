@@ -19,7 +19,7 @@
 #include "config/aom_config.h"
 
 #if CONFIG_OS_SUPPORT
-#if HAVE_UNISTD_H
+#if HAVE_UNISTD
 #include <unistd.h>  // NOLINT
 #elif !defined(STDOUT_FILENO)
 #define STDOUT_FILENO 1

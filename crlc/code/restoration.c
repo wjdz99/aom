@@ -17,14 +17,9 @@
 #include "config/aom_scale_rtcd.h"
 
 #include "aom_mem/aom_mem.h"
-#include "av1/common/convolve.h"
 #if CONFIG_LOOP_RESTORE_CNN
 #include "av1/common/cnn.h"
-#if CONFIG_TENSORFLOW_LITE
-#include "av1/common/cnn_tflite.h"
-#else
 #include "av1/common/cnn_wrapper.h"
-#endif  // CONFIG_TENSORFLOW_LITE
 #endif  // CONFIG_LOOP_RESTORE_CNN
 #include "av1/common/onyxc_int.h"
 #include "av1/common/resize.h"
@@ -33,57 +28,6 @@
 #include "aom_mem/aom_mem.h"
 
 #include "aom_ports/mem.h"
-
-#if CONFIG_WIENER_NONSEP
-#define WIENERNS_PREC_BITS_MINUS8 (WIENERNS_PREC_BITS - 8)
-#define AOM_WIENERNS_COEFF(b, m, k) \
-  { (b) + WIENERNS_PREC_BITS_MINUS8, (m) * (1 << WIENERNS_PREC_BITS_MINUS8), k }
-
-const int wienerns_prec_bits = WIENERNS_PREC_BITS;
-const int wienerns_y_pixel = WIENERNS_Y_PIXEL;
-const int wienerns_yuv_pixel = WIENERNS_YUV_PIXEL;
-const int wienerns_uv_inter_pixel = WIENERNS_UV_INTER_PIXEL;
-const int wienerns_uv_pixel = WIENERNS_UV_PIXEL;
-const int wienerns_y = WIENERNS_Y;
-const int wienerns_uv = WIENERNS_UV;
-const int wienerns_yuv = WIENERNS_YUV;
-
-const int wienerns_config_y[][3] = {
-  { 1, 0, 0 },  { -1, 0, 0 },   { 0, 1, 1 },   { 0, -1, 1 },  { 2, 0, 2 },
-  { -2, 0, 2 }, { 0, 2, 3 },    { 0, -2, 3 },  { 1, 1, 4 },   { -1, -1, 4 },
-  { -1, 1, 5 }, { 1, -1, 5 },   { 2, 2, 6 },   { -2, -2, 6 }, { -2, 2, 7 },
-  { 2, -2, 7 }, { 3, 0, 8 },    { -3, 0, 8 },  { 0, 3, 9 },   { 0, -3, 9 },
-  { 3, 3, 10 }, { -3, -3, 10 }, { 3, -3, 11 }, { -3, 3, 11 },
-};
-
-const int wienerns_config_uv[][3] = {
-  { 1, 0, 0 }, { -1, 0, 0 },  { 0, 1, 1 },  { 0, -1, 1 },
-  { 2, 0, 2 }, { -2, 0, 2 },  { 0, 2, 3 },  { 0, -2, 3 },
-  { 1, 1, 4 }, { -1, -1, 4 }, { -1, 1, 5 }, { 1, -1, 5 },
-
-#if CONFIG_WIENER_NONSEP_CROSS_FILT
-  { 1, 0, 6 }, { -1, 0, 6 },  { 0, 1, 6 },  { 0, -1, 6 },
-  { 2, 0, 7 }, { -2, 0, 7 },  { 0, 2, 7 },  { 0, -2, 7 },
-#endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
-};
-
-const int wienerns_coeff_y[][3] = {
-  AOM_WIENERNS_COEFF(7, -48, 3), AOM_WIENERNS_COEFF(7, -48, 3),
-  AOM_WIENERNS_COEFF(6, -32, 3), AOM_WIENERNS_COEFF(6, -32, 3),
-  AOM_WIENERNS_COEFF(6, -48, 3), AOM_WIENERNS_COEFF(6, -48, 3),
-  AOM_WIENERNS_COEFF(5, -12, 3), AOM_WIENERNS_COEFF(5, -12, 3),
-  AOM_WIENERNS_COEFF(5, -14, 3), AOM_WIENERNS_COEFF(5, -14, 3),
-  AOM_WIENERNS_COEFF(4, -8, 3),  AOM_WIENERNS_COEFF(4, -8, 3),
-};
-const int wienerns_coeff_uv[][3] = {
-  AOM_WIENERNS_COEFF(7, -28, 3), AOM_WIENERNS_COEFF(7, -28, 3),
-  AOM_WIENERNS_COEFF(6, -40, 3), AOM_WIENERNS_COEFF(6, -40, 3),
-  AOM_WIENERNS_COEFF(7, -64, 3), AOM_WIENERNS_COEFF(7, -64, 3),
-#if CONFIG_WIENER_NONSEP_CROSS_FILT
-  AOM_WIENERNS_COEFF(6, -32, 3), AOM_WIENERNS_COEFF(6, -32, 3),
-#endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
-};
-#endif  // CONFIG_WIENER_NONSEP
 
 // The 's' values are calculated based on original 'r' and 'e' values in the
 // spec using GenSgrprojVtable().
@@ -119,14 +63,14 @@ AV1PixelRect av1_whole_frame_rect(const AV1_COMMON *cm, int is_uv) {
 // restoration unit can extend to up to 150% its normal width or height. The
 // max with 1 is to deal with tiles that are smaller than half of a restoration
 // unit.
+
 int av1_lr_count_units_in_tile(int unit_size, int tile_size) {
   return AOMMAX((tile_size + (unit_size >> 1)) / unit_size, 1);
 }
-
 #if CRLC_LF
-// In CRLC ,rounding up
+//In CRLC ,rounding up
 int av1_CRLC_count_units_in_tile(int unit_size, int tile_size) {
-  return AOMMAX((tile_size - 1) / unit_size + 1, 1);
+  return AOMMAX((tile_size -1) / unit_size+1, 1);
 }
 #endif
 
@@ -149,8 +93,10 @@ void av1_alloc_restoration_struct(AV1_COMMON *cm, RestorationInfo *rsi,
   // max with 1 is to deal with tiles that are smaller than half of a
   // restoration unit.
   const int unit_size = rsi->restoration_unit_size;
+
   const int hpertile = av1_lr_count_units_in_tile(unit_size, max_tile_w);
   const int vpertile = av1_lr_count_units_in_tile(unit_size, max_tile_h);
+
 
   rsi->units_per_tile = hpertile * vpertile;
   rsi->horz_units_per_tile = hpertile;
@@ -164,14 +110,13 @@ void av1_alloc_restoration_struct(AV1_COMMON *cm, RestorationInfo *rsi,
                   (RestorationUnitInfo *)aom_memalign(
                       16, sizeof(*rsi->unit_info) * nunits));
 }
-
 void av1_free_restoration_struct(RestorationInfo *rst_info) {
   aom_free(rst_info->unit_info);
   rst_info->unit_info = NULL;
 }
-
 #if CRLC_LF
-void av1_alloc_CRLC_struct(AV1_COMMON *cm, CRLCInfo *ci, int is_uv) {
+void av1_alloc_CRLC_struct(AV1_COMMON *cm, CRLCInfo *ci,
+                                  int is_uv) {
   // We need to allocate enough space for restoration units to cover the
   // largest tile. Without CONFIG_MAX_TILE, this is always the tile at the
   // top-left and we can use av1_get_tile_rect(). With CONFIG_MAX_TILE, we have
@@ -189,108 +134,30 @@ void av1_alloc_CRLC_struct(AV1_COMMON *cm, CRLCInfo *ci, int is_uv) {
   // max with 1 is to deal with tiles that are smaller than half of a
   // restoration unit.
   const int unit_size = ci->crlc_unit_size;
-  // printf("size:%d\n", unit_size);
 
   const int hpertile = av1_CRLC_count_units_in_tile(unit_size, max_tile_w);
   const int vpertile = av1_CRLC_count_units_in_tile(unit_size, max_tile_h);
 
-  //  printf("uv:%d,Size:%d,H:%d,V:%d\n",is_uv, unit_size, hpertile, vpertile);
   ci->units_per_tile = hpertile * vpertile;
   ci->horz_units_per_tile = hpertile;
   ci->vert_units_per_tile = vpertile;
 
   const int ntiles = 1;
   const int nunits = ntiles * ci->units_per_tile;
-  // printf("uv:%d,Size:%d,H:%d,V:%d\n",is_uv, unit_size, hpertile, vpertile);
+
   aom_free(ci->unit_info);
-  CHECK_MEM_ERROR(
-      cm, ci->unit_info,
-      (CRLCUnitInfo *)aom_memalign(16, sizeof(*ci->unit_info) * nunits));
+  CHECK_MEM_ERROR(cm, ci->unit_info,
+                  (CRLCUnitInfo *)aom_memalign(
+                      16, sizeof(*ci->unit_info) * nunits));
 }
 void av1_free_CRLC_struct(CRLCInfo *crlc_info) {
   aom_free(crlc_info->unit_info);
   crlc_info->unit_info = NULL;
 }
 
-int av1_CRLC_corners_in_sb(const struct AV1Common *cm, int plane, int mi_row,
-                           int mi_col, BLOCK_SIZE bsize, int *rcol0, int *rcol1,
-                           int *rrow0, int *rrow1) {
-  assert(rcol0 && rcol1 && rrow0 && rrow1);
-
-  if (bsize != cm->seq_params.sb_size) return 0;
-
-  if (cm->use_cnn == 0) return 0;
-
-  assert(!cm->all_lossless);
-
-  const int is_uv = plane > 0;
-
-  const AV1PixelRect tile_rect = av1_whole_frame_rect(cm, is_uv);
-  const int tile_w = tile_rect.right - tile_rect.left;
-  const int tile_h = tile_rect.bottom - tile_rect.top;
-
-  const int mi_top = 0;
-  const int mi_left = 0;
-
-  // Compute the mi-unit corners of the superblock relative to the top-left of
-  // the tile
-  const int mi_rel_row0 = mi_row - mi_top;
-  const int mi_rel_col0 = mi_col - mi_left;
-  const int mi_rel_row1 = mi_rel_row0 + mi_size_high[bsize];
-  const int mi_rel_col1 = mi_rel_col0 + mi_size_wide[bsize];
-
-  // const RestorationInfo *rsi = &cm->rst_info[plane];
-  // const int size = rsi->restoration_unit_size;
-
-  const CRLCInfo *ci = &cm->crlc_info[plane];
-  const int size = ci->crlc_unit_size;
-
-  // Calculate the number of restoration units in this tile (which might be
-  // strictly less than rsi->horz_units_per_tile and rsi->vert_units_per_tile)
-  const int horz_units = av1_CRLC_count_units_in_tile(size, tile_w);
-  const int vert_units = av1_CRLC_count_units_in_tile(size, tile_h);
-
-  // The size of an MI-unit on this plane of the image
-  const int ss_x = is_uv && cm->seq_params.subsampling_x;
-  const int ss_y = is_uv && cm->seq_params.subsampling_y;
-  const int mi_size_x = MI_SIZE >> ss_x;
-  const int mi_size_y = MI_SIZE >> ss_y;
-
-  // Write m for the relative mi column or row, D for the superres denominator
-  // and N for the superres numerator. If u is the upscaled pixel offset then
-  // we can write the downscaled pixel offset in two ways as:
-  //
-  //   MI_SIZE * m = N / D u
-  //
-  // from which we get u = D * MI_SIZE * m / N
-  const int mi_to_num_x = av1_superres_scaled(cm)
-                              ? mi_size_x * cm->superres_scale_denominator
-                              : mi_size_x;
-  const int mi_to_num_y = mi_size_y;
-  const int denom_x = av1_superres_scaled(cm) ? size * SCALE_NUMERATOR : size;
-  const int denom_y = size;
-
-  const int rnd_x = denom_x - 1;
-  const int rnd_y = denom_y - 1;
-
-  // rcol0/rrow0 should be the first column/row of restoration units (relative
-  // to the top-left of the tile) that doesn't start left/below of
-  // mi_col/mi_row. For this calculation, we need to round up the division (if
-  // the sb starts at runit column 10.1, the first matching runit has column
-  // index 11)
-  *rcol0 = (mi_rel_col0 * mi_to_num_x + rnd_x) / denom_x;
-  *rrow0 = (mi_rel_row0 * mi_to_num_y + rnd_y) / denom_y;
-
-  // rel_col1/rel_row1 is the equivalent calculation, but for the superblock
-  // below-right. If we're at the bottom or right of the tile, this restoration
-  // unit might not exist, in which case we'll clamp accordingly.
-  *rcol1 = AOMMIN((mi_rel_col1 * mi_to_num_x + rnd_x) / denom_x, horz_units);
-  *rrow1 = AOMMIN((mi_rel_row1 * mi_to_num_y + rnd_y) / denom_y, vert_units);
-
-  return *rcol0 < *rcol1 && *rrow0 < *rrow1;
-}
-
 #endif
+
+
 
 #if 0
 // Pair of values for each sgrproj parameter:
@@ -623,23 +490,15 @@ static void wiener_filter_stripe(const RestorationUnitInfo *rui,
   (void)tmpbuf;
   (void)bit_depth;
   assert(bit_depth == 8);
-  const ConvolveParams conv_params =
-      get_conv_params_wiener(8, WIENER_FILT_PREC_BITS);
+  const ConvolveParams conv_params = get_conv_params_wiener(8);
 
   for (int j = 0; j < stripe_width; j += procunit_width) {
     int w = AOMMIN(procunit_width, (stripe_width - j + 15) & ~15);
     const uint8_t *src_p = src + j;
     uint8_t *dst_p = dst + j;
-#if CONFIG_WIENER_SEP_HIPREC
-    if (conv_params.filter_bits > FILTER_BITS)
-      av1_wiener_hp_convolve_add_src(
-          src_p, src_stride, dst_p, dst_stride, rui->wiener_info.hfilter, 16,
-          rui->wiener_info.vfilter, 16, w, stripe_height, &conv_params);
-    else
-#endif  // CONFIG_WIENER_SEP_HIPREC
-      av1_wiener_convolve_add_src(
-          src_p, src_stride, dst_p, dst_stride, rui->wiener_info.hfilter, 16,
-          rui->wiener_info.vfilter, 16, w, stripe_height, &conv_params);
+    av1_wiener_convolve_add_src(
+        src_p, src_stride, dst_p, dst_stride, rui->wiener_info.hfilter, 16,
+        rui->wiener_info.vfilter, 16, w, stripe_height, &conv_params);
   }
 }
 
@@ -1111,6 +970,7 @@ void av1_apply_selfguided_restoration_c(const uint8_t *dat8, int width,
   const sgr_params_type *const params = &av1_sgr_params[eps];
   int xq[2];
   av1_decode_xq(xqd, xq, params);
+  printf("xq_0:%d,xq_1:%d", xq[0], xq[1]);
   for (int i = 0; i < height; ++i) {
     for (int j = 0; j < width; ++j) {
       const int k = i * width + j;
@@ -1152,143 +1012,7 @@ static void sgrproj_filter_stripe(const RestorationUnitInfo *rui,
   }
 }
 
-#if CONFIG_WIENER_NONSEP
-void apply_wiener_nonsep(const uint8_t *dgd, int width, int height, int stride,
-                         const int16_t *filter, uint8_t *dst, int dst_stride,
-                         int plane, const uint8_t *luma, int luma_stride) {
-  int is_uv = (plane != AOM_PLANE_Y);
-  NonsepFilterConfig nsfilter = {
-    wienerns_prec_bits,
-    is_uv ? wienerns_uv_inter_pixel : wienerns_y_pixel,
-    is_uv ? wienerns_uv_pixel - wienerns_uv_inter_pixel : 0,
-    is_uv ? wienerns_config_uv : wienerns_config_y,
-    0,
-  };
-  const int16_t *filter_ = is_uv ? filter + wienerns_y : filter;
-  if (!is_uv || wienerns_uv_pixel == wienerns_uv_inter_pixel) {
-    av1_convolve_nonsep(dgd, width, height, stride, &nsfilter, filter_, dst,
-                        dst_stride);
-  } else {
-    av1_convolve_nonsep_dual(dgd, width, height, stride, luma, luma_stride,
-                             &nsfilter, filter_, dst, dst_stride);
-  }
-  return;
-}
-
-static void wiener_nsfilter_stripe(const RestorationUnitInfo *rui,
-                                   int stripe_width, int stripe_height,
-                                   int procunit_width, const uint8_t *src,
-                                   int src_stride, uint8_t *dst, int dst_stride,
-                                   int32_t *tmpbuf, int bit_depth) {
-  (void)tmpbuf;
-  (void)bit_depth;
-  assert(bit_depth == 8);
-
-  for (int j = 0; j < stripe_width; j += procunit_width) {
-    int w = AOMMIN(procunit_width, stripe_width - j);
-    apply_wiener_nonsep(src + j, w, stripe_height, src_stride,
-                        rui->wiener_nonsep_info.nsfilter, dst + j, dst_stride,
-                        rui->plane, rui->luma, rui->luma_stride);
-  }
-}
-
-void apply_wiener_nonsep_highbd(const uint8_t *dgd8, int width, int height,
-                                int stride, const int16_t *filter,
-                                uint8_t *dst8, int dst_stride, int plane,
-                                const uint8_t *luma8, int luma_stride,
-                                int bit_depth) {
-  int is_uv = (plane != AOM_PLANE_Y);
-  NonsepFilterConfig nsfilter = {
-    wienerns_prec_bits,
-    is_uv ? wienerns_uv_inter_pixel : wienerns_y_pixel,
-    is_uv ? wienerns_uv_pixel - wienerns_uv_inter_pixel : 0,
-    is_uv ? wienerns_config_uv : wienerns_config_y,
-    0,
-  };
-  const int16_t *filter_ = is_uv ? filter + wienerns_y : filter;
-  if (!is_uv || wienerns_uv_pixel == wienerns_uv_inter_pixel) {
-    av1_convolve_nonsep_highbd(dgd8, width, height, stride, &nsfilter, filter_,
-                               dst8, dst_stride, bit_depth);
-  } else {
-    av1_convolve_nonsep_dual_highbd(dgd8, width, height, stride, luma8,
-                                    luma_stride, &nsfilter, filter_, dst8,
-                                    dst_stride, bit_depth);
-  }
-  return;
-}
-
-static void wiener_nsfilter_stripe_highbd(const RestorationUnitInfo *rui,
-                                          int stripe_width, int stripe_height,
-                                          int procunit_width,
-                                          const uint8_t *src, int src_stride,
-                                          uint8_t *dst, int dst_stride,
-                                          int32_t *tmpbuf, int bit_depth) {
-  (void)tmpbuf;
-  (void)bit_depth;
-
-  for (int j = 0; j < stripe_width; j += procunit_width) {
-    int w = AOMMIN(procunit_width, stripe_width - j);
-    apply_wiener_nonsep_highbd(src + j, w, stripe_height, src_stride,
-                               rui->wiener_nonsep_info.nsfilter, dst + j,
-                               dst_stride, rui->plane, rui->luma,
-                               rui->luma_stride, bit_depth);
-  }
-}
-
-#if CONFIG_WIENER_NONSEP_CROSS_FILT
-uint8_t *wienerns_copy_luma(const uint8_t *dgd, int height_y, int width_y,
-                            int in_stride, uint8_t **luma, int height_uv,
-                            int width_uv, int border, int out_stride) {
-  uint8_t *aug_luma = (uint8_t *)malloc(
-      sizeof(uint8_t) * (width_uv + 2 * border) * (height_uv + 2 * border));
-  memset(
-      aug_luma, 0,
-      sizeof(*aug_luma) * (width_uv + 2 * border) * (height_uv + 2 * border));
-  *luma = aug_luma + border * out_stride + border;
-  av1_resize_plane(dgd, height_y, width_y, in_stride, *luma, height_uv,
-                   width_uv, out_stride);
-  return aug_luma;
-}
-#endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
-
-#endif  // CONFIG_WIENER_NONSEP
-
 #if CONFIG_LOOP_RESTORE_CNN
-#if CONFIG_TENSORFLOW_LITE
-static void cnn_filter_stripe(const RestorationUnitInfo *rui, int stripe_width,
-                              int stripe_height, int procunit_width,
-                              const uint8_t *src, int src_stride, uint8_t *dst,
-                              int dst_stride, int32_t *tmpbuf, int bit_depth) {
-  (void)bit_depth;
-  assert(bit_depth == 8);
-
-  (void)tmpbuf;  // Unused.
-  for (int j = 0; j < stripe_width; j += procunit_width) {
-    int w = AOMMIN(procunit_width, stripe_width - j);
-    av1_restore_cnn_img_tflite(rui->cnn_info.base_qindex, src + j, w,
-                               stripe_height, src_stride, dst + j, dst_stride,
-                               1 /* num_threads */);
-  }
-}
-
-static void cnn_filter_stripe_highbd(const RestorationUnitInfo *rui,
-                                     int stripe_width, int stripe_height,
-                                     int procunit_width, const uint8_t *src,
-                                     int src_stride, uint8_t *dst,
-                                     int dst_stride, int32_t *tmpbuf,
-                                     int bit_depth) {
-  (void)tmpbuf;  // Unused.
-  for (int j = 0; j < stripe_width; j += procunit_width) {
-    int w = AOMMIN(procunit_width, stripe_width - j);
-    av1_restore_cnn_img_tflite_highbd(
-        rui->cnn_info.base_qindex, (const uint16_t *)(src + j), w,
-        stripe_height, src_stride, (uint16_t *)(dst + j), dst_stride,
-        1 /* num_threads */, bit_depth);
-  }
-}
-
-#else
-
 static void restore_cnn_img(const uint8_t *dgd, int width, int height,
                             int stride, const CNN_CONFIG *cnn_config,
                             const CNN_THREAD_DATA *thread_data, float *output,
@@ -1394,7 +1118,6 @@ static void cnn_filter_stripe_highbd(const RestorationUnitInfo *rui,
                            bit_depth);
   }
 }
-#endif  // CONFIG_TENSORFLOW_LITE
 #endif  // CONFIG_LOOP_RESTORE_CNN
 
 static void wiener_filter_stripe_highbd(const RestorationUnitInfo *rui,
@@ -1404,25 +1127,16 @@ static void wiener_filter_stripe_highbd(const RestorationUnitInfo *rui,
                                         int dst_stride, int32_t *tmpbuf,
                                         int bit_depth) {
   (void)tmpbuf;
-  const ConvolveParams conv_params =
-      get_conv_params_wiener(bit_depth, WIENER_FILT_PREC_BITS);
+  const ConvolveParams conv_params = get_conv_params_wiener(bit_depth);
 
   for (int j = 0; j < stripe_width; j += procunit_width) {
     int w = AOMMIN(procunit_width, (stripe_width - j + 15) & ~15);
     const uint8_t *src8_p = src8 + j;
     uint8_t *dst8_p = dst8 + j;
-#if CONFIG_WIENER_SEP_HIPREC
-    if (conv_params.filter_bits > FILTER_BITS)
-      av1_highbd_wiener_hp_convolve_add_src(
-          src8_p, src_stride, dst8_p, dst_stride, rui->wiener_info.hfilter, 16,
-          rui->wiener_info.vfilter, 16, w, stripe_height, &conv_params,
-          bit_depth);
-    else
-#endif  // CONFIG_WIENER_SEP_HIPREC
-      av1_highbd_wiener_convolve_add_src(
-          src8_p, src_stride, dst8_p, dst_stride, rui->wiener_info.hfilter, 16,
-          rui->wiener_info.vfilter, 16, w, stripe_height, &conv_params,
-          bit_depth);
+    av1_highbd_wiener_convolve_add_src(src8_p, src_stride, dst8_p, dst_stride,
+                                       rui->wiener_info.hfilter, 16,
+                                       rui->wiener_info.vfilter, 16, w,
+                                       stripe_height, &conv_params, bit_depth);
   }
 }
 
@@ -1446,16 +1160,7 @@ typedef void (*stripe_filter_fun)(const RestorationUnitInfo *rui,
                                   int src_stride, uint8_t *dst, int dst_stride,
                                   int32_t *tmpbuf, int bit_depth);
 
-#if CONFIG_LOOP_RESTORE_CNN && CONFIG_WIENER_NONSEP
-#define NUM_STRIPE_FILTERS 8
-
-static const stripe_filter_fun stripe_filters[NUM_STRIPE_FILTERS] = {
-  wiener_filter_stripe,        sgrproj_filter_stripe,
-  cnn_filter_stripe,           wiener_nsfilter_stripe,
-  wiener_filter_stripe_highbd, sgrproj_filter_stripe_highbd,
-  cnn_filter_stripe_highbd,    wiener_nsfilter_stripe_highbd
-};  // CONFIG_LOOP_RESTORE_CNN && CONFIG_WIENER_NONSEP
-#elif CONFIG_LOOP_RESTORE_CNN
+#if CONFIG_LOOP_RESTORE_CNN
 #define NUM_STRIPE_FILTERS 6
 
 static const stripe_filter_fun stripe_filters[NUM_STRIPE_FILTERS] = {
@@ -1465,15 +1170,7 @@ static const stripe_filter_fun stripe_filters[NUM_STRIPE_FILTERS] = {
   wiener_filter_stripe_highbd,
   sgrproj_filter_stripe_highbd,
   cnn_filter_stripe_highbd
-};  // CONFIG_LOOP_RESTORE_CNN && !CONFIG_WIENER_NONSEP
-#elif CONFIG_WIENER_NONSEP
-#define NUM_STRIPE_FILTERS 6
-
-static const stripe_filter_fun stripe_filters[NUM_STRIPE_FILTERS] = {
-  wiener_filter_stripe,         sgrproj_filter_stripe,
-  wiener_nsfilter_stripe,       wiener_filter_stripe_highbd,
-  sgrproj_filter_stripe_highbd, wiener_nsfilter_stripe_highbd
-};  // !CONFIG_LOOP_RESTORE_CNN && CONFIG_WIENER_NONSEP
+};
 #else
 #define NUM_STRIPE_FILTERS 4
 
@@ -1481,7 +1178,7 @@ static const stripe_filter_fun stripe_filters[NUM_STRIPE_FILTERS] = {
   wiener_filter_stripe, sgrproj_filter_stripe, wiener_filter_stripe_highbd,
   sgrproj_filter_stripe_highbd
 };
-#endif
+#endif  // CONFIG_LOOP_RESTORE_CNN
 
 // Filter one restoration unit
 void av1_loop_restoration_filter_unit(
@@ -1557,9 +1254,6 @@ void av1_loop_restoration_filter_unit(
 static void filter_frame_on_unit(const RestorationTileLimits *limits,
                                  const AV1PixelRect *tile_rect,
                                  int rest_unit_idx, void *priv, int32_t *tmpbuf,
-#if CONFIG_EXT_LOOP_RESTORATION
-                                 RestorationUnitInfo *shared_params,
-#endif  // CONFIG_EXT_LOOP_RESTORATION
                                  RestorationLineBuffers *rlbs) {
   FilterFrameCtxt *ctxt = (FilterFrameCtxt *)priv;
   const RestorationInfo *rsi = ctxt->rsi;
@@ -1571,12 +1265,6 @@ static void filter_frame_on_unit(const RestorationTileLimits *limits,
     rsi->unit_info[rest_unit_idx].cnn_info.frame_type = ctxt->frame_type;
   }
 #endif  // CONFIG_LOOP_RESTORE_CNN
-#if CONFIG_WIENER_NONSEP
-  rsi->unit_info[rest_unit_idx].plane = ctxt->plane;
-  int is_uv = (ctxt->plane != AOM_PLANE_Y);
-  rsi->unit_info[rest_unit_idx].luma = is_uv ? ctxt->luma : NULL;
-  rsi->unit_info[rest_unit_idx].luma_stride = is_uv ? ctxt->luma_stride : -1;
-#endif  // CONFIG_WIENER_NONSEP
 
   av1_loop_restoration_filter_unit(
       limits, &rsi->unit_info[rest_unit_idx], &rsi->boundaries, rlbs, tile_rect,
@@ -1660,41 +1348,15 @@ static void foreach_rest_unit_in_planes(AV1LrStruct *lr_ctxt, AV1_COMMON *cm,
                                         int num_planes) {
   FilterFrameCtxt *ctxt = lr_ctxt->ctxt;
 
-#if CONFIG_WIENER_NONSEP
-  const YV12_BUFFER_CONFIG *dgd = &cm->cur_frame->buf;
-  int luma_stride = dgd->crop_widths[1] + 2 * WIENERNS_UV_BRD;
-
-  uint8_t *luma = NULL;
-#if CONFIG_WIENER_NONSEP_CROSS_FILT
-  uint8_t *luma_buf = wienerns_copy_luma(
-      dgd->buffers[AOM_PLANE_Y], dgd->crop_heights[AOM_PLANE_Y],
-      dgd->crop_widths[AOM_PLANE_Y], dgd->strides[AOM_PLANE_Y], &luma,
-      dgd->crop_heights[1], dgd->crop_widths[1], WIENERNS_UV_BRD, luma_stride);
-  assert(luma_buf != NULL);
-#endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
-
-#endif  // CONFIG_WIENER_NONSEP
-
   for (int plane = 0; plane < num_planes; ++plane) {
     if (cm->rst_info[plane].frame_restoration_type == RESTORE_NONE) {
       continue;
     }
 
-#if CONFIG_WIENER_NONSEP
-    ctxt[plane].plane = plane;
-    int is_uv = (plane != AOM_PLANE_Y);
-    ctxt[plane].luma = is_uv ? luma : NULL;
-    ctxt[plane].luma_stride = is_uv ? luma_stride : -1;
-#endif  // CONFIG_WIENER_NONSEP
-
     av1_foreach_rest_unit_in_plane(cm, plane, lr_ctxt->on_rest_unit,
                                    &ctxt[plane], &ctxt[plane].tile_rect,
                                    cm->rst_tmpbuf, cm->rlbs);
   }
-
-#if CONFIG_WIENER_NONSEP && CONFIG_WIENER_NONSEP_CROSS_FILT
-  free(luma_buf);
-#endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
 }
 
 void av1_loop_restoration_filter_frame(YV12_BUFFER_CONFIG *frame,
@@ -1717,12 +1379,9 @@ void av1_foreach_rest_unit_in_row(
     RestorationTileLimits *limits, const AV1PixelRect *tile_rect,
     rest_unit_visitor_t on_rest_unit, int row_number, int unit_size,
     int unit_idx0, int hunits_per_tile, int vunits_per_tile, int plane,
-    void *priv, int32_t *tmpbuf,
-#if CONFIG_EXT_LOOP_RESTORATION
-    RestorationUnitInfo *previous_rui,
-#endif  // CONFIG_EXT_LOOP_RESTORATION
-    RestorationLineBuffers *rlbs, sync_read_fn_t on_sync_read,
-    sync_write_fn_t on_sync_write, struct AV1LrSyncData *const lr_sync) {
+    void *priv, int32_t *tmpbuf, RestorationLineBuffers *rlbs,
+    sync_read_fn_t on_sync_read, sync_write_fn_t on_sync_write,
+    struct AV1LrSyncData *const lr_sync) {
   const int tile_w = tile_rect->right - tile_rect->left;
   const int ext_size = unit_size * 3 / 2;
   int x0 = 0, j = 0;
@@ -1745,11 +1404,8 @@ void av1_foreach_rest_unit_in_row(
     if ((row_number + 1) < vunits_per_tile)
       // bottom-right sync
       on_sync_read(lr_sync, row_number + 2, j, plane);
-#if CONFIG_EXT_LOOP_RESTORATION
-    on_rest_unit(limits, tile_rect, unit_idx, priv, tmpbuf, previous_rui, rlbs);
-#else
+
     on_rest_unit(limits, tile_rect, unit_idx, priv, tmpbuf, rlbs);
-#endif  // CONFIG_EXT_LOOP_RESTORATION
 
     on_sync_write(lr_sync, row_number, j, hunits_per_tile, plane);
 
@@ -1774,17 +1430,11 @@ void av1_lr_sync_write_dummy(void *const lr_sync, int r, int c,
   (void)plane;
 }
 
-static void foreach_rest_unit_in_tile(const AV1PixelRect *tile_rect,
-                                      int tile_row, int tile_col, int tile_cols,
-                                      int hunits_per_tile, int vunits_per_tile,
-                                      int units_per_tile, int unit_size,
-                                      int ss_y, int plane,
-                                      rest_unit_visitor_t on_rest_unit,
-                                      void *priv, int32_t *tmpbuf,
-#if CONFIG_EXT_LOOP_RESTORATION
-                                      RestorationUnitInfo *previous_rui,
-#endif  // CONFIG_EXT_LOOP_RESTORATION
-                                      RestorationLineBuffers *rlbs) {
+static void foreach_rest_unit_in_tile(
+    const AV1PixelRect *tile_rect, int tile_row, int tile_col, int tile_cols,
+    int hunits_per_tile, int vunits_per_tile, int units_per_tile, int unit_size,
+    int ss_y, int plane, rest_unit_visitor_t on_rest_unit, void *priv,
+    int32_t *tmpbuf, RestorationLineBuffers *rlbs) {
   const int tile_h = tile_rect->bottom - tile_rect->top;
   const int ext_size = unit_size * 3 / 2;
 
@@ -1804,17 +1454,11 @@ static void foreach_rest_unit_in_tile(const AV1PixelRect *tile_rect,
     const int voffset = RESTORATION_UNIT_OFFSET >> ss_y;
     limits.v_start = AOMMAX(tile_rect->top, limits.v_start - voffset);
     if (limits.v_end < tile_rect->bottom) limits.v_end -= voffset;
-#if CONFIG_EXT_LOOP_RESTORATION
-    av1_foreach_rest_unit_in_row(
-        &limits, tile_rect, on_rest_unit, i, unit_size, unit_idx0,
-        hunits_per_tile, vunits_per_tile, plane, priv, tmpbuf, previous_rui,
-        rlbs, av1_lr_sync_read_dummy, av1_lr_sync_write_dummy, NULL);
-#else
+
     av1_foreach_rest_unit_in_row(
         &limits, tile_rect, on_rest_unit, i, unit_size, unit_idx0,
         hunits_per_tile, vunits_per_tile, plane, priv, tmpbuf, rlbs,
         av1_lr_sync_read_dummy, av1_lr_sync_write_dummy, NULL);
-#endif  // CONFIG_EXT_LOOP_RESTORATION
 
     y0 += h;
     ++i;
@@ -1831,20 +1475,10 @@ void av1_foreach_rest_unit_in_plane(const struct AV1Common *cm, int plane,
 
   const RestorationInfo *rsi = &cm->rst_info[plane];
 
-#if CONFIG_EXT_LOOP_RESTORATION
-  SharedParams param_buf;
-  memset(&param_buf, 0, sizeof(SharedParams));
-  foreach_rest_unit_in_tile(tile_rect, LR_TILE_ROW, LR_TILE_COL, LR_TILE_COLS,
-                            rsi->horz_units_per_tile, rsi->vert_units_per_tile,
-                            rsi->units_per_tile, rsi->restoration_unit_size,
-                            ss_y, plane, on_rest_unit, priv, tmpbuf, &param_buf,
-                            rlbs);
-#else
   foreach_rest_unit_in_tile(tile_rect, LR_TILE_ROW, LR_TILE_COL, LR_TILE_COLS,
                             rsi->horz_units_per_tile, rsi->vert_units_per_tile,
                             rsi->units_per_tile, rsi->restoration_unit_size,
                             ss_y, plane, on_rest_unit, priv, tmpbuf, rlbs);
-#endif  // CONFIG_EXT_LOOP_RESTORATION
 }
 
 int av1_loop_restoration_corners_in_sb(const struct AV1Common *cm, int plane,
@@ -1854,6 +1488,7 @@ int av1_loop_restoration_corners_in_sb(const struct AV1Common *cm, int plane,
   assert(rcol0 && rcol1 && rrow0 && rrow1);
 
   if (bsize != cm->seq_params.sb_size) return 0;
+
   if (cm->rst_info[plane].frame_restoration_type == RESTORE_NONE) return 0;
 
   assert(!cm->all_lossless);
@@ -1921,6 +1556,87 @@ int av1_loop_restoration_corners_in_sb(const struct AV1Common *cm, int plane,
 
   return *rcol0 < *rcol1 && *rrow0 < *rrow1;
 }
+
+
+#if   CRLC_LF
+int av1_CRLC_corners_in_sb(const struct AV1Common *cm, int plane,
+                                       int mi_row, int mi_col, BLOCK_SIZE bsize,
+                                       int *rcol0, int *rcol1, int *rrow0,
+                                       int *rrow1) {
+  assert(rcol0 && rcol1 && rrow0 && rrow1);
+
+  if (bsize != cm->seq_params.sb_size) return 0;
+
+  if (cm->use_cnn==0)
+    return 0;
+
+  assert(!cm->all_lossless);
+
+  const int is_uv = plane > 0;
+
+  const AV1PixelRect tile_rect = av1_whole_frame_rect(cm, is_uv);
+  const int tile_w = tile_rect.right - tile_rect.left;
+  const int tile_h = tile_rect.bottom - tile_rect.top;
+
+  const int mi_top = 0;
+  const int mi_left = 0;
+
+  // Compute the mi-unit corners of the superblock relative to the top-left of
+  // the tile
+  const int mi_rel_row0 = mi_row - mi_top;
+  const int mi_rel_col0 = mi_col - mi_left;
+  const int mi_rel_row1 = mi_rel_row0 + mi_size_high[bsize];
+  const int mi_rel_col1 = mi_rel_col0 + mi_size_wide[bsize];
+
+  const RestorationInfo *rsi = &cm->rst_info[plane];
+  const int size = rsi->restoration_unit_size;
+
+  // Calculate the number of restoration units in this tile (which might be
+  // strictly less than rsi->horz_units_per_tile and rsi->vert_units_per_tile)
+  const int horz_units = av1_CRLC_count_units_in_tile(size, tile_w);
+  const int vert_units = av1_CRLC_count_units_in_tile(size, tile_h);
+
+  // The size of an MI-unit on this plane of the image
+  const int ss_x = is_uv && cm->seq_params.subsampling_x;
+  const int ss_y = is_uv && cm->seq_params.subsampling_y;
+  const int mi_size_x = MI_SIZE >> ss_x;
+  const int mi_size_y = MI_SIZE >> ss_y;
+
+  // Write m for the relative mi column or row, D for the superres denominator
+  // and N for the superres numerator. If u is the upscaled pixel offset then
+  // we can write the downscaled pixel offset in two ways as:
+  //
+  //   MI_SIZE * m = N / D u
+  //
+  // from which we get u = D * MI_SIZE * m / N
+  const int mi_to_num_x = av1_superres_scaled(cm)
+                              ? mi_size_x * cm->superres_scale_denominator
+                              : mi_size_x;
+  const int mi_to_num_y = mi_size_y;
+  const int denom_x = av1_superres_scaled(cm) ? size * SCALE_NUMERATOR : size;
+  const int denom_y = size;
+
+  const int rnd_x = denom_x - 1;
+  const int rnd_y = denom_y - 1;
+
+  // rcol0/rrow0 should be the first column/row of restoration units (relative
+  // to the top-left of the tile) that doesn't start left/below of
+  // mi_col/mi_row. For this calculation, we need to round up the division (if
+  // the sb starts at runit column 10.1, the first matching runit has column
+  // index 11)
+  *rcol0 = (mi_rel_col0 * mi_to_num_x + rnd_x) / denom_x;
+  *rrow0 = (mi_rel_row0 * mi_to_num_y + rnd_y) / denom_y;
+
+  // rel_col1/rel_row1 is the equivalent calculation, but for the superblock
+  // below-right. If we're at the bottom or right of the tile, this restoration
+  // unit might not exist, in which case we'll clamp accordingly.
+  *rcol1 = AOMMIN((mi_rel_col1 * mi_to_num_x + rnd_x) / denom_x, horz_units);
+  *rrow1 = AOMMIN((mi_rel_row1 * mi_to_num_y + rnd_y) / denom_y, vert_units);
+
+  return *rcol0 < *rcol1 && *rrow0 < *rrow1;
+}
+#endif
+
 
 // Extend to left and right
 static void extend_lines(uint8_t *buf, int width, int height, int stride,

@@ -164,7 +164,6 @@ typedef struct RefCntBuffer {
   int8_t mode_deltas[MAX_MODE_LF_DELTAS];
 
   FRAME_CONTEXT frame_context;
-  int base_qindex;
 } RefCntBuffer;
 
 typedef struct BufferPool {
@@ -294,19 +293,6 @@ typedef struct SequenceHeader {
 } SequenceHeader;
 
 typedef struct {
-  int frame_width;
-  int frame_height;
-  int mi_rows;
-  int mi_cols;
-  int mb_rows;
-  int mb_cols;
-  int num_mbs;
-  aom_bit_depth_t bit_depth;
-  int subsampling_x;
-  int subsampling_y;
-} FRAME_INFO;
-
-typedef struct {
   int skip_mode_allowed;
   int skip_mode_flag;
   int ref_frame_idx_0;
@@ -389,11 +375,10 @@ typedef struct AV1Common {
   int show_existing_frame;
 
   uint8_t disable_cdf_update;
-  MvSubpelPrecision fr_mv_precision;
+  MvSubpelPrecision mv_precision;
   uint8_t cur_frame_force_integer_mv;  // 0 the default in AOM, 1 only integer
 #if CONFIG_FLEX_MVRES
-  uint8_t use_sb_mv_precision;
-  uint8_t use_pb_mv_precision;
+  uint8_t use_flex_mv_precision;
 #endif  // CONFIG_FLEX_MVRES
 
   uint8_t allow_screen_content_tools;
@@ -424,15 +409,9 @@ typedef struct AV1Common {
   // The dequantizers below are true dequantizers used only in the
   // dequantization process.  They have the same coefficient
   // shift/scale as TX.
-#if CONFIG_EXTQUANT
-  int32_t y_dequant_QTX[MAX_SEGMENTS][2];
-  int32_t u_dequant_QTX[MAX_SEGMENTS][2];
-  int32_t v_dequant_QTX[MAX_SEGMENTS][2];
-#else
   int16_t y_dequant_QTX[MAX_SEGMENTS][2];
   int16_t u_dequant_QTX[MAX_SEGMENTS][2];
   int16_t v_dequant_QTX[MAX_SEGMENTS][2];
-#endif
 
   // Global quant matrix tables
   const qm_val_t *giqmatrix[NUM_QM_LEVELS][3][TX_SIZES_ALL];
@@ -462,7 +441,7 @@ typedef struct AV1Common {
   MB_MODE_INFO *prev_mi; /* 'mi' from last frame */
 
   // Separate mi functions between encoder and decoder.
-  int (*alloc_mi)(struct AV1Common *cm, int mi_size, int sbmi_size);
+  int (*alloc_mi)(struct AV1Common *cm, int mi_size);
   void (*free_mi)(struct AV1Common *cm);
   void (*setup_mi)(struct AV1Common *cm);
 
@@ -470,12 +449,6 @@ typedef struct AV1Common {
   // area will be NULL.
   MB_MODE_INFO **mi_grid_base;
   MB_MODE_INFO **prev_mi_grid_base;
-
-  // Grid of pointers to SB_INFO structs.
-  SB_INFO *sbi_grid_base;
-  int sbi_alloc_size;
-  int sbi_stride;
-  int sb_rows, sb_cols;
 
   // Whether to use previous frames' motion vectors for prediction.
   int allow_ref_frame_mvs;
@@ -590,19 +563,16 @@ typedef struct AV1Common {
   int64_t txcoeff_cost_timer;
   int64_t txcoeff_cost_count;
 #endif
+  const cfg_options_t *options;
   int is_decoding;
 #if CONFIG_CNN_RESTORATION
   int use_cnn;
 #endif  // CONFIG_CNN_RESTORATION
-#if CONFIG_MISC_CHANGES
-  int only_one_ref_available;
-#endif  // CONFIG_MISC_CHANGES
 
-  #if CRLC_LF
+#if CRLC_LF
   int use_cnn;
   CRLCInfo crlc_info[MAX_MB_PLANE];
 #endif
-
 } AV1_COMMON;
 
 // TODO(hkuang): Don't need to lock the whole pool after implementing atomic
@@ -832,33 +802,49 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
   cfl_init(&xd->cfl, &cm->seq_params);
 }
 
-static INLINE SB_INFO *av1_get_sb_info(AV1_COMMON *cm, int mi_row, int mi_col) {
-  const int sb_row = mi_row >> cm->seq_params.mib_size_log2;
-  const int sb_col = mi_col >> cm->seq_params.mib_size_log2;
-  return cm->sbi_grid_base + sb_row * cm->sbi_stride + sb_col;
-}
-
-static INLINE void av1_set_sb_info(AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
-                                   int mi_col) {
-  xd->sbi = av1_get_sb_info(cm, mi_row, mi_col);
-
-  xd->sbi->mi_row = mi_row;
-  xd->sbi->mi_col = mi_col;
-
-  xd->sbi->sb_mv_precision = cm->fr_mv_precision;
-}
-
 static INLINE void set_skip_context(MACROBLOCKD *xd, int mi_row, int mi_col,
-                                    int num_planes,
-                                    const CHROMA_REF_INFO *chr_ref_info) {
-  for (int i = 0; i < num_planes; ++i) {
+                                    BLOCK_SIZE bsize, int num_planes) {
+  int i;
+  int row_offset = mi_row;
+  int col_offset = mi_col;
+  for (i = 0; i < num_planes; ++i) {
     struct macroblockd_plane *const pd = &xd->plane[i];
-    const int row_offset = i ? chr_ref_info->mi_row_chroma_base : mi_row;
-    const int col_offset = i ? chr_ref_info->mi_col_chroma_base : mi_col;
+    // Offset the buffer pointer
+    // TODO(urvang): Refactor the spread-out logic for offsetting into a common
+    // function.
+#if CONFIG_3WAY_PARTITIONS
+    if (pd->subsampling_y && (mi_row & 0x01)) {
+      if (mi_size_wide[bsize] == 4 && mi_size_high[bsize] == 1) {
+        // Special case: 3rd horizontal sub-block of a 16x16 horz3 partition.
+        row_offset = mi_row - 3;
+      } else if (mi_size_high[bsize] == 1) {
+        row_offset = mi_row - 1;
+      } else if (mi_size_wide[bsize] == 4 && mi_size_high[bsize] == 2) {
+        // Special case: 2rd horizontal sub-block of a 16x16 horz3 partition.
+        row_offset = mi_row - 1;
+      }
+    }
+    if (pd->subsampling_x && (mi_col & 0x01)) {
+      if (mi_size_wide[bsize] == 1 && mi_size_high[bsize] == 4) {
+        // Special case: 3rd vertical sub-block of a 16x16 vert3 partition.
+        col_offset = mi_col - 3;
+      } else if (mi_size_wide[bsize] == 1) {
+        col_offset = mi_col - 1;
+      } else if (mi_size_wide[bsize] == 2 && mi_size_high[bsize] == 4) {
+        // Special case: 2nd vertical sub-block of a 16x16 vert3 partition.
+        col_offset = mi_col - 1;
+      }
+    }
+#else
+    if (pd->subsampling_y && (mi_row & 0x01) && (mi_size_high[bsize] == 1))
+      row_offset = mi_row - 1;
+    if (pd->subsampling_x && (mi_col & 0x01) && (mi_size_wide[bsize] == 1))
+      col_offset = mi_col - 1;
+#endif  // CONFIG_3WAY_PARTITIONS
     assert(row_offset >= 0);
     assert(col_offset >= 0);
-    const int above_idx = col_offset;
-    const int left_idx = row_offset & MAX_MIB_MASK;
+    int above_idx = col_offset;
+    int left_idx = row_offset & MAX_MIB_MASK;
     assert(IMPLIES(pd->subsampling_x, above_idx % 2 == 0));
     assert(IMPLIES(pd->subsampling_y, left_idx % 2 == 0));
     pd->above_context = &xd->above_context[i][above_idx >> pd->subsampling_x];
@@ -871,12 +857,12 @@ static INLINE int calc_mi_size(int len) {
   return ALIGN_POWER_OF_TWO(len, MAX_MIB_SIZE_LOG2);
 }
 
-static INLINE void set_plane_n4(MACROBLOCKD *const xd, BLOCK_SIZE bsize,
-                                int num_planes,
-                                const CHROMA_REF_INFO *chr_ref_info) {
+static INLINE void set_plane_n4(MACROBLOCKD *const xd, int mi_row, int mi_col,
+                                BLOCK_SIZE bsize, int num_planes) {
   for (int i = 0; i < num_planes; i++) {
     struct macroblockd_plane *const pd = &xd->plane[i];
-    bsize = i > 0 ? chr_ref_info->bsize_base : bsize;
+    bsize = scale_chroma_bsize(bsize, pd->subsampling_x, pd->subsampling_y,
+                               mi_row, mi_col);
     pd->width = block_size_wide[bsize] >> pd->subsampling_x;
     pd->height = block_size_high[bsize] >> pd->subsampling_y;
     assert(pd->width >= 4);
@@ -887,7 +873,7 @@ static INLINE void set_plane_n4(MACROBLOCKD *const xd, BLOCK_SIZE bsize,
 static INLINE int is_chroma_reference_helper(int mi_row, int mi_col, int bw,
                                              int bh, int subsampling_x,
                                              int subsampling_y) {
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_3WAY_PARTITIONS
   const int is_2nd_16x16_horz3_subpartition =
       (mi_row & 0x01) && (bw == 4) && (bh == 2) && subsampling_y;
   const int is_2nd_16x16_vert3_subpartition =
@@ -895,7 +881,7 @@ static INLINE int is_chroma_reference_helper(int mi_row, int mi_col, int bw,
   if (is_2nd_16x16_horz3_subpartition || is_2nd_16x16_vert3_subpartition) {
     return 0;
   }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_3WAY_PARTITIONS
 
   return ((mi_row & 0x01) || !(bh & 0x01) || !subsampling_y) &&
          ((mi_col & 0x01) || !(bw & 0x01) || !subsampling_x);
@@ -903,24 +889,51 @@ static INLINE int is_chroma_reference_helper(int mi_row, int mi_col, int bw,
 
 static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
                                   int mi_row, int bh, int mi_col, int bw,
-                                  int mi_rows, int mi_cols,
-                                  const CHROMA_REF_INFO *chr_ref_info) {
+                                  int mi_rows, int mi_cols) {
   xd->mb_to_top_edge = -((mi_row * MI_SIZE) * 8);
   xd->mb_to_bottom_edge = ((mi_rows - bh - mi_row) * MI_SIZE) * 8;
   xd->mb_to_left_edge = -((mi_col * MI_SIZE) * 8);
   xd->mb_to_right_edge = ((mi_cols - bw - mi_col) * MI_SIZE) * 8;
 
-  xd->mi_row = mi_row;
-  xd->mi_col = mi_col;
-
   // Are edges available for intra prediction?
   xd->up_available = (mi_row > tile->mi_row_start);
-  xd->left_available = (mi_col > tile->mi_col_start);
 
-  const int mi_row_offset = mi_row - chr_ref_info->mi_row_chroma_base;
-  const int mi_col_offset = mi_col - chr_ref_info->mi_col_chroma_base;
-  xd->chroma_left_available = (mi_col - mi_col_offset) > tile->mi_col_start;
-  xd->chroma_up_available = (mi_row - mi_row_offset) > tile->mi_row_start;
+  const int ss_x = xd->plane[1].subsampling_x;
+  const int ss_y = xd->plane[1].subsampling_y;
+
+  xd->left_available = (mi_col > tile->mi_col_start);
+  xd->chroma_up_available = xd->up_available;
+  xd->chroma_left_available = xd->left_available;
+
+#if CONFIG_3WAY_PARTITIONS
+  if (ss_x && (mi_col & 0x01)) {
+    if (bw == 1 && bh == 4) {
+      // Special case: 3rd vertical sub-block of a 16x16 vert3 partition.
+      xd->chroma_left_available = (mi_col - 3) > tile->mi_col_start;
+    } else if (bw == 1) {
+      xd->chroma_left_available = (mi_col - 1) > tile->mi_col_start;
+    } else if (bw == 2 && bh == 4) {
+      // Special case: 2nd vertical sub-block of a 16x16 vert3 partition.
+      xd->chroma_left_available = (mi_col - 1) > tile->mi_col_start;
+    }
+  }
+  if (ss_y && (mi_row & 0x01)) {
+    if (bw == 4 && bh == 1) {
+      // Special case: 3rd horizontal sub-block of a 16x16 horz3 partition.
+      xd->chroma_up_available = (mi_row - 3) > tile->mi_row_start;
+    } else if (bh == 1) {
+      xd->chroma_up_available = (mi_row - 1) > tile->mi_row_start;
+    } else if (bw == 4 && bh == 2) {
+      // Special case: 2rd horizontal sub-block of a 16x16 horz3 partition.
+      xd->chroma_up_available = (mi_row - 1) > tile->mi_row_start;
+    }
+  }
+#else
+  if (ss_x && bw < mi_size_wide[BLOCK_8X8])
+    xd->chroma_left_available = (mi_col - 1) > tile->mi_col_start;
+  if (ss_y && bh < mi_size_high[BLOCK_8X8])
+    xd->chroma_up_available = (mi_row - 1) > tile->mi_row_start;
+#endif  // CONFIG_3WAY_PARTITIONS
 
   if (xd->up_available) {
     xd->above_mbmi = xd->mi[-xd->mi_stride];
@@ -941,15 +954,24 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
   }
 #endif  // CONFIG_INTRA_ENTROPY
 
-  if (chr_ref_info->is_chroma_ref) {
+  const int chroma_ref =
+      is_chroma_reference_helper(mi_row, mi_col, bw, bh, ss_x, ss_y);
+  if (chroma_ref) {
     // To help calculate the "above" and "left" chroma blocks, note that the
     // current block may cover multiple luma blocks (eg, if partitioned into
     // 4x4 luma blocks).
     // First, find the top-left-most luma block covered by this chroma block
+#if CONFIG_3WAY_PARTITIONS
+    const int row_offset = (bw == 4 && bh == 1) ? 3 : 1;
+    const int col_offset = (bw == 1 && bh == 4) ? 3 : 1;
+#else
+    const int row_offset = 1;
+    const int col_offset = 1;
+#endif  // CONFIG_3WAY_PARTITIONS
+    const int row_offset_chroma = row_offset * (mi_row & ss_y);
+    const int col_offset_chroma = col_offset * (mi_col & ss_x);
     MB_MODE_INFO **base_mi =
-        &xd->mi[-mi_row_offset * xd->mi_stride - mi_col_offset];
-    const int ss_x = xd->plane[1].subsampling_x;
-    const int ss_y = xd->plane[1].subsampling_y;
+        &xd->mi[-row_offset_chroma * xd->mi_stride - col_offset_chroma];
 
     // Then, we consider the luma region covered by the left or above 4x4 chroma
     // prediction. We want to point to the chroma reference block in that
@@ -968,7 +990,7 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
   xd->n4_w = bw;
   xd->is_sec_rect = 0;
   if (xd->n4_w < xd->n4_h) {
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_3WAY_PARTITIONS
     // For PARTITION_VERT_3, it would be (0, 1, 1), because 2nd subpartition has
     // ratio 1:2, so not enough top-right pixels are available.
     // For other partitions, it would be (0, 1).
@@ -978,49 +1000,14 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
     // For PARTITION_VERT_4, it would be (0, 0, 0, 1);
     // For other partitions, it would be (0, 1).
     if (!((mi_col + xd->n4_w) & (xd->n4_h - 1))) xd->is_sec_rect = 1;
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_3WAY_PARTITIONS
   }
 
   if (xd->n4_w > xd->n4_h)
     if (mi_row & (xd->n4_w - 1)) xd->is_sec_rect = 1;
 }
 
-static INLINE int av1_is_directional_mode(PREDICTION_MODE mode) {
-  return mode >= V_PRED && mode <= D67_PRED;
-}
-
 #if !CONFIG_INTRA_ENTROPY
-#if CONFIG_DERIVED_INTRA_MODE
-static INLINE aom_cdf_prob *get_kf_is_dr_mode_cdf(FRAME_CONTEXT *tile_ctx,
-                                                  const MB_MODE_INFO *above_mi,
-                                                  const MB_MODE_INFO *left_mi) {
-  const PREDICTION_MODE above = av1_above_block_mode(above_mi);
-  const PREDICTION_MODE left = av1_left_block_mode(left_mi);
-  const int above_ctx = intra_mode_context[above];
-  const int left_ctx = intra_mode_context[left];
-  return tile_ctx->kf_is_dr_mode_cdf[above_ctx][left_ctx];
-}
-
-static INLINE aom_cdf_prob *get_kf_dr_mode_cdf(FRAME_CONTEXT *tile_ctx,
-                                               const MB_MODE_INFO *above_mi,
-                                               const MB_MODE_INFO *left_mi) {
-  const PREDICTION_MODE above = av1_above_block_mode(above_mi);
-  const PREDICTION_MODE left = av1_left_block_mode(left_mi);
-  const int above_ctx = intra_mode_context[above];
-  const int left_ctx = intra_mode_context[left];
-  return tile_ctx->kf_dr_mode_cdf[above_ctx][left_ctx];
-}
-
-static INLINE aom_cdf_prob *get_kf_none_dr_mode_cdf(
-    FRAME_CONTEXT *tile_ctx, const MB_MODE_INFO *above_mi,
-    const MB_MODE_INFO *left_mi) {
-  const PREDICTION_MODE above = av1_above_block_mode(above_mi);
-  const PREDICTION_MODE left = av1_left_block_mode(left_mi);
-  const int above_ctx = intra_mode_context[above];
-  const int left_ctx = intra_mode_context[left];
-  return tile_ctx->kf_none_dr_mode_cdf[above_ctx][left_ctx];
-}
-#else
 static INLINE aom_cdf_prob *get_y_mode_cdf(FRAME_CONTEXT *tile_ctx,
                                            const MB_MODE_INFO *above_mi,
                                            const MB_MODE_INFO *left_mi) {
@@ -1030,18 +1017,20 @@ static INLINE aom_cdf_prob *get_y_mode_cdf(FRAME_CONTEXT *tile_ctx,
   const int left_ctx = intra_mode_context[left];
   return tile_ctx->kf_y_cdf[above_ctx][left_ctx];
 }
-#endif  // CONFIG_DERIVED_INTRA_MODE
 #endif  // !CONFIG_INTRA_ENTROPY
 
-#if CONFIG_DERIVED_INTRA_MODE
-static INLINE aom_cdf_prob *get_derived_intra_mode_cdf(
-    FRAME_CONTEXT *tile_ctx, const MB_MODE_INFO *above_mi,
-    const MB_MODE_INFO *left_mi, int is_interintra) {
-  const int above = above_mi && above_mi->use_derived_intra_mode[0];
-  const int left = left_mi && left_mi->use_derived_intra_mode[0];
-  return tile_ctx->derived_intra_mode_cdf[is_interintra][above + left];
+static INLINE void update_partition_context(MACROBLOCKD *xd, int mi_row,
+                                            int mi_col, BLOCK_SIZE subsize,
+                                            BLOCK_SIZE bsize) {
+  PARTITION_CONTEXT *const above_ctx = xd->above_seg_context + mi_col;
+  PARTITION_CONTEXT *const left_ctx =
+      xd->left_seg_context + (mi_row & MAX_MIB_MASK);
+
+  const int bw = mi_size_wide[bsize];
+  const int bh = mi_size_high[bsize];
+  memset(above_ctx, partition_context_lookup[subsize].above, bw);
+  memset(left_ctx, partition_context_lookup[subsize].left, bh);
 }
-#endif  // CONFIG_DERIVED_INTRA_MODE
 
 static INLINE int is_chroma_reference(int mi_row, int mi_col, BLOCK_SIZE bsize,
                                       int subsampling_x, int subsampling_y) {
@@ -1065,14 +1054,14 @@ static INLINE void partition_gather_horz_alike(aom_cdf_prob *out,
   out[0] = CDF_PROB_TOP;
   out[0] -= cdf_element_prob(in, PARTITION_HORZ);
   out[0] -= cdf_element_prob(in, PARTITION_SPLIT);
-#if CONFIG_EXT_RECUR_PARTITIONS
-  if (bsize != BLOCK_128X128) out[0] -= cdf_element_prob(in, PARTITION_HORZ_3);
-#else
   out[0] -= cdf_element_prob(in, PARTITION_HORZ_A);
   out[0] -= cdf_element_prob(in, PARTITION_HORZ_B);
   out[0] -= cdf_element_prob(in, PARTITION_VERT_A);
+#if CONFIG_3WAY_PARTITIONS
+  if (bsize != BLOCK_128X128) out[0] -= cdf_element_prob(in, PARTITION_HORZ_3);
+#else
   if (bsize != BLOCK_128X128) out[0] -= cdf_element_prob(in, PARTITION_HORZ_4);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_3WAY_PARTITIONS
   out[0] = AOM_ICDF(out[0]);
   out[1] = AOM_ICDF(CDF_PROB_TOP);
 }
@@ -1084,43 +1073,28 @@ static INLINE void partition_gather_vert_alike(aom_cdf_prob *out,
   out[0] = CDF_PROB_TOP;
   out[0] -= cdf_element_prob(in, PARTITION_VERT);
   out[0] -= cdf_element_prob(in, PARTITION_SPLIT);
-#if CONFIG_EXT_RECUR_PARTITIONS
-  if (bsize != BLOCK_128X128) out[0] -= cdf_element_prob(in, PARTITION_VERT_3);
-#else
   out[0] -= cdf_element_prob(in, PARTITION_HORZ_A);
   out[0] -= cdf_element_prob(in, PARTITION_VERT_A);
   out[0] -= cdf_element_prob(in, PARTITION_VERT_B);
+#if CONFIG_3WAY_PARTITIONS
+  if (bsize != BLOCK_128X128) out[0] -= cdf_element_prob(in, PARTITION_VERT_3);
+#else
   if (bsize != BLOCK_128X128) out[0] -= cdf_element_prob(in, PARTITION_VERT_4);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_3WAY_PARTITIONS
   out[0] = AOM_ICDF(out[0]);
   out[1] = AOM_ICDF(CDF_PROB_TOP);
-}
-
-static INLINE void update_partition_context(MACROBLOCKD *xd, int mi_row,
-                                            int mi_col, BLOCK_SIZE subsize,
-                                            BLOCK_SIZE bsize) {
-  assert(bsize < BLOCK_SIZES_ALL);
-  PARTITION_CONTEXT *const above_ctx = xd->above_seg_context + mi_col;
-  PARTITION_CONTEXT *const left_ctx =
-      xd->left_seg_context + (mi_row & MAX_MIB_MASK);
-
-  const int bw = mi_size_wide[bsize];
-  const int bh = mi_size_high[bsize];
-  memset(above_ctx, partition_context_lookup[subsize].above, bw);
-  memset(left_ctx, partition_context_lookup[subsize].left, bh);
 }
 
 static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
                                                 int mi_col, BLOCK_SIZE subsize,
                                                 BLOCK_SIZE bsize,
                                                 PARTITION_TYPE partition) {
-  if (is_partition_point(bsize)) {
+  if (bsize >= BLOCK_8X8) {
     const int hbs = mi_size_wide[bsize] / 2;
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_3WAY_PARTITIONS
     const int quarter_step = hbs / 2;
-#else
+#endif  // CONFIG_3WAY_PARTITIONS
     const BLOCK_SIZE bsize2 = get_partition_subsize(bsize, PARTITION_SPLIT);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
     switch (partition) {
       case PARTITION_SPLIT:
         if (bsize != BLOCK_8X8) break;
@@ -1130,7 +1104,7 @@ static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
       case PARTITION_VERT:
         update_partition_context(xd, mi_row, mi_col, subsize, bsize);
         break;
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_3WAY_PARTITIONS
       case PARTITION_HORZ_3: {
         const BLOCK_SIZE bsize3 = get_partition_subsize(bsize, PARTITION_HORZ);
         update_partition_context(xd, mi_row, mi_col, subsize, subsize);
@@ -1150,6 +1124,11 @@ static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
         break;
       }
 #else
+      case PARTITION_HORZ_4:
+      case PARTITION_VERT_4:
+        update_partition_context(xd, mi_row, mi_col, subsize, bsize);
+        break;
+#endif  // CONFIG_3WAY_PARTITIONS
       case PARTITION_HORZ_A:
         update_partition_context(xd, mi_row, mi_col, bsize2, subsize);
         update_partition_context(xd, mi_row + hbs, mi_col, subsize, subsize);
@@ -1166,11 +1145,6 @@ static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
         update_partition_context(xd, mi_row, mi_col, subsize, subsize);
         update_partition_context(xd, mi_row, mi_col + hbs, bsize2, subsize);
         break;
-      case PARTITION_HORZ_4:
-      case PARTITION_VERT_4:
-        update_partition_context(xd, mi_row, mi_col, subsize, bsize);
-        break;
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
       default: assert(0 && "Invalid partition type");
     }
   }
@@ -1181,67 +1155,26 @@ static INLINE int partition_plane_context(const MACROBLOCKD *xd, int mi_row,
   const PARTITION_CONTEXT *above_ctx = xd->above_seg_context + mi_col;
   const PARTITION_CONTEXT *left_ctx =
       xd->left_seg_context + (mi_row & MAX_MIB_MASK);
-#if CONFIG_EXT_RECUR_PARTITIONS
-  if (is_square_block(bsize)) {
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
-    // Minimum partition point is 8x8. Offset the bsl accordingly.
-    const int bsl = mi_size_wide_log2[bsize] - mi_size_wide_log2[BLOCK_8X8];
-    int above = (*above_ctx >> bsl) & 1, left = (*left_ctx >> bsl) & 1;
+  // Minimum partition point is 8x8. Offset the bsl accordingly.
+  const int bsl = mi_size_wide_log2[bsize] - mi_size_wide_log2[BLOCK_8X8];
+  int above = (*above_ctx >> bsl) & 1, left = (*left_ctx >> bsl) & 1;
 
-    assert(mi_size_wide_log2[bsize] == mi_size_high_log2[bsize]);
-    assert(bsl >= 0);
+  assert(mi_size_wide_log2[bsize] == mi_size_high_log2[bsize]);
+  assert(bsl >= 0);
 
-    return (left * 2 + above) + bsl * PARTITION_PLOFFSET;
-#if CONFIG_EXT_RECUR_PARTITIONS
-  } else {
-    const int bsl_w = mi_size_wide_log2[bsize] - mi_size_wide_log2[BLOCK_8X8];
-    const int bsl_h = mi_size_high_log2[bsize] - mi_size_high_log2[BLOCK_8X8];
-
-    const int above = (*above_ctx >> AOMMAX(bsl_w, 0)) & 1;
-    const int left = (*left_ctx >> AOMMAX(bsl_h, 0)) & 1;
-
-    return (left * 2 + above) +
-           AOMMIN(bsl_w + 1, bsl_h + 1) * PARTITION_PLOFFSET;
-  }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+  return (left * 2 + above) + bsl * PARTITION_PLOFFSET;
 }
 
 // Return the number of elements in the partition CDF when
 // partitioning the (square) block with luma block size of bsize.
 static INLINE int partition_cdf_length(BLOCK_SIZE bsize) {
-#if CONFIG_EXT_RECUR_PARTITIONS
-  if (bsize <= BLOCK_8X8 || bsize == BLOCK_128X128) return PARTITION_TYPES;
-#else   // CONFIG_EXT_RECUR_PARTITIONS
   if (bsize <= BLOCK_8X8)
     return PARTITION_TYPES;
   else if (bsize == BLOCK_128X128)
     return EXT_PARTITION_TYPES - 2;
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
   else
     return EXT_PARTITION_TYPES;
 }
-
-#if CONFIG_EXT_RECUR_PARTITIONS
-static INLINE int partition_rec_cdf_length(BLOCK_SIZE bsize) {
-  assert(block_size_wide[bsize] != block_size_high[bsize]);
-
-  switch (bsize) {
-    case BLOCK_4X8:
-    case BLOCK_8X4: return (PARTITION_LONG_SIDE_REC + 1);
-    case BLOCK_64X128:
-    case BLOCK_128X64: return (PARTITION_MULTI_WAY_REC + 1);
-    case BLOCK_8X16:
-    case BLOCK_16X8:
-    case BLOCK_16X32:
-    case BLOCK_32X16:
-    case BLOCK_32X64:
-    case BLOCK_64X32: return PARTITION_TYPES_REC;
-    default:
-      assert(0 && "Invalid splittable rectangular bsize");
-      return PARTITION_INVALID_REC;
-  }
-}
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
 
 static INLINE int max_block_wide(const MACROBLOCKD *xd, BLOCK_SIZE bsize,
                                  int plane) {
@@ -1392,13 +1325,6 @@ static INLINE TX_SIZE get_tx_size(int width, int height) {
         case 16: return TX_16X32; break;
         case 32: return TX_32X64; break;
       }
-#if CONFIG_FLEX_PARTITION
-    } else if ((4 * width) < height) {
-      switch (width) {
-        case 4: return (height == 32) ? TX_4X32 : TX_4X64; break;
-        case 8: return TX_8X64; break;
-      }
-#endif
     } else {
       switch (width) {
         case 4: return TX_4X16; break;
@@ -1414,13 +1340,6 @@ static INLINE TX_SIZE get_tx_size(int width, int height) {
         case 16: return TX_32X16; break;
         case 32: return TX_64X32; break;
       }
-#if CONFIG_FLEX_PARTITION
-    } else if ((4 * height) < width) {
-      switch (height) {
-        case 4: return (width == 32) ? TX_32X4 : TX_64X4; break;
-        case 8: return TX_64X8; break;
-      }
-#endif
     } else {
       switch (height) {
         case 4: return TX_16X4; break;
@@ -1432,116 +1351,6 @@ static INLINE TX_SIZE get_tx_size(int width, int height) {
   assert(0);
   return TX_4X4;
 }
-
-#if CONFIG_NEW_TX_PARTITION
-#if CONFIG_FLEX_PARTITION
-static const int new_tx_partition_used[TX_SIZES_ALL][TX_PARTITION_TYPES] = {
-  { 1, 0, 0, 0, 0, 0 },  // 4x4 transform
-  { 1, 1, 1, 1, 0, 0 },  // 8x8 transform
-  { 1, 1, 1, 1, 1, 1 },  // 16x16 transform
-  { 1, 1, 1, 1, 1, 1 },  // 32x32 transform
-  { 1, 1, 1, 1, 1, 1 },  // 64x64 transform
-  { 1, 0, 1, 0, 0, 0 },  // 4x8 transform
-  { 1, 0, 0, 1, 0, 0 },  // 8x4 transform
-  { 1, 1, 1, 1, 1, 0 },  // 8x16 transform
-  { 1, 1, 1, 1, 0, 1 },  // 16x8 transform
-  { 1, 1, 1, 1, 1, 1 },  // 16x32 transform
-  { 1, 1, 1, 1, 1, 1 },  // 32x16 transform
-  { 1, 1, 1, 1, 1, 1 },  // 32x64 transform
-  { 1, 1, 1, 1, 1, 1 },  // 64x32 transform
-  { 1, 0, 1, 0, 1, 0 },  // 4x16 transform
-  { 1, 0, 0, 1, 0, 1 },  // 16x4 transform
-  { 1, 1, 1, 1, 1, 0 },  // 8x32 transform
-  { 1, 1, 1, 1, 0, 1 },  // 32x8 transform
-  { 1, 1, 1, 1, 1, 1 },  // 16x64 transform
-  { 1, 1, 1, 1, 1, 1 },  // 64x16 transform
-  { 1, 0, 1, 0, 1, 0 },  // 4x32 transform
-  { 1, 0, 0, 1, 0, 1 },  // 32x4 transform
-  { 1, 1, 1, 1, 1, 0 },  // 8x64 transform
-  { 1, 1, 1, 1, 0, 1 },  // 64x8 transform
-  { 1, 0, 1, 0, 1, 0 },  // 4x64 transform
-  { 1, 0, 0, 1, 0, 1 },  // 64x4 transform
-};
-#else
-static const int new_tx_partition_used[TX_SIZES_ALL][TX_PARTITION_TYPES] = {
-  { 1, 0, 0, 0, 0, 0 },  // 4x4 transform
-  { 1, 1, 1, 1, 0, 0 },  // 8x8 transform
-  { 1, 1, 1, 1, 1, 1 },  // 16x16 transform
-  { 1, 1, 1, 1, 1, 1 },  // 32x32 transform
-  { 1, 1, 1, 1, 1, 1 },  // 64x64 transform
-  { 1, 0, 1, 0, 0, 0 },  // 4x8 transform
-  { 1, 0, 0, 1, 0, 0 },  // 8x4 transform
-  { 1, 1, 1, 1, 1, 0 },  // 8x16 transform
-  { 1, 1, 1, 1, 0, 1 },  // 16x8 transform
-  { 1, 1, 1, 1, 1, 0 },  // 16x32 transform
-  { 1, 1, 1, 1, 0, 1 },  // 32x16 transform
-  { 1, 1, 1, 1, 1, 0 },  // 32x64 transform
-  { 1, 1, 1, 1, 0, 1 },  // 64x32 transform
-  { 1, 0, 1, 0, 1, 0 },  // 4x16 transform
-  { 1, 0, 0, 1, 0, 1 },  // 16x4 transform
-  { 1, 1, 1, 0, 1, 0 },  // 8x32 transform
-  { 1, 1, 0, 1, 0, 1 },  // 32x8 transform
-  { 1, 1, 1, 0, 1, 0 },  // 16x64 transform
-  { 1, 1, 0, 1, 0, 1 },  // 64x16 transform
-};
-#endif  // CONFIG_FLEX_PARTITION
-
-#define MAX_TX_PARTITIONS 4
-typedef struct {
-  int rows[MAX_TX_PARTITIONS];
-  int cols[MAX_TX_PARTITIONS];
-  int n_partitions;
-} TX_PARTITION_BIT_SHIFT;
-
-// Defines the number of bits to use to divide a block's dimensions
-// to create the tx sizes in each partition.
-// Keep square and rectangular separate for now, but we can potentially
-// merge them in the future.
-static const TX_PARTITION_BIT_SHIFT
-    partition_shift_bits[2][TX_PARTITION_TYPES] = {
-      // Square
-      {
-          { { 0 }, { 0 }, 1 },                    // TX_PARTITION_NONE
-          { { 1, 1, 1, 1 }, { 1, 1, 1, 1 }, 4 },  // TX_PARTITION_SPLIT
-          { { 1, 1 }, { 0, 0 }, 2 },              // TX_PARTITION_HORZ
-          { { 0, 0 }, { 1, 1 }, 2 },              // TX_PARTITION_VERT
-          { { 2, 2, 2, 2 }, { 0, 0, 0, 0 }, 4 },  // TX_PARTITION_HORZ4
-          { { 0, 0, 0, 0 }, { 2, 2, 2, 2 }, 4 },  // TX_PARTITION_VERT4
-      },
-      // Rectangular
-      {
-          { { 0 }, { 0 }, 1 },                    // TX_PARTITION_NONE
-          { { 1, 1, 1, 1 }, { 1, 1, 1, 1 }, 4 },  // TX_PARTITION_SPLIT
-          { { 1, 1 }, { 0, 0 }, 2 },              // TX_PARTITION_HORZ
-          { { 0, 0 }, { 1, 1 }, 2 },              // TX_PARTITION_VERT
-          { { 2, 2, 2, 2 }, { 0, 0, 0, 0 }, 4 },  // TX_PARTITION_HORZ4
-          { { 0, 0, 0, 0 }, { 2, 2, 2, 2 }, 4 },  // TX_PARTITION_VERT4
-
-      },
-    };
-
-static INLINE int get_tx_partition_sizes(TX_PARTITION_TYPE partition,
-                                         TX_SIZE max_tx_size,
-                                         TX_SIZE sub_txs[MAX_TX_PARTITIONS]) {
-  const int txw = tx_size_wide[max_tx_size];
-  const int txh = tx_size_high[max_tx_size];
-  int sub_txw = 0, sub_txh = 0;
-  const TX_PARTITION_BIT_SHIFT subtx_shift =
-      partition_shift_bits[is_rect_tx(max_tx_size)][partition];
-  const int n_partitions = subtx_shift.n_partitions;
-  for (int i = 0; i < n_partitions; i++) {
-    sub_txw = txw >> subtx_shift.cols[i];
-    sub_txh = txh >> subtx_shift.rows[i];
-    sub_txs[i] = get_tx_size(sub_txw, sub_txh);
-  }
-  return n_partitions;
-}
-
-static INLINE int use_tx_partition(TX_PARTITION_TYPE partition,
-                                   TX_SIZE max_tx_size) {
-  return new_tx_partition_used[max_tx_size][partition];
-}
-#endif  // CONFIG_NEW_TX_PARTITION
 
 static INLINE int txfm_partition_context(const TXFM_CONTEXT *const above_ctx,
                                          const TXFM_CONTEXT *const left_ctx,
@@ -1597,37 +1406,35 @@ static INLINE PARTITION_TYPE get_partition(const AV1_COMMON *const cm,
       // PARTITION_HORZ or PARTITION_HORZ_B. To distinguish the latter two,
       // check if the lower half was split.
       if (sshigh * 4 == bhigh) {
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_3WAY_PARTITIONS
         return PARTITION_HORZ_3;
 #else
         return PARTITION_HORZ_4;
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_3WAY_PARTITIONS
       }
       assert(sshigh * 2 == bhigh);
 
-      if (mbmi_below->sb_type == subsize) return PARTITION_HORZ;
-#if !CONFIG_EXT_RECUR_PARTITIONS
+      if (mbmi_below->sb_type == subsize)
+        return PARTITION_HORZ;
       else
         return PARTITION_HORZ_B;
-#endif  // !CONFIG_EXT_RECUR_PARTITIONS
     } else if (sshigh == bhigh) {
       // Smaller width but same height. Is PARTITION_VERT_3 / PARTITION_VERT_4,
       // PARTITION_VERT or PARTITION_VERT_B. To distinguish the latter two,
       // check if the right half was split.
       if (sswide * 4 == bwide) {
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_3WAY_PARTITIONS
         return PARTITION_VERT_3;
 #else
         return PARTITION_VERT_4;
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_3WAY_PARTITIONS
       }
       assert(sswide * 2 == bhigh);
 
-      if (mbmi_right->sb_type == subsize) return PARTITION_VERT;
-#if !CONFIG_EXT_RECUR_PARTITIONS
+      if (mbmi_right->sb_type == subsize)
+        return PARTITION_VERT;
       else
         return PARTITION_VERT_B;
-#endif  // !CONFIG_EXT_RECUR_PARTITIONS
     } else {
       // Smaller width and smaller height. Might be PARTITION_SPLIT or could be
       // PARTITION_HORZ_A or PARTITION_VERT_A. If subsize isn't halved in both
@@ -1636,17 +1443,11 @@ static INLINE PARTITION_TYPE get_partition(const AV1_COMMON *const cm,
       // PARTITION_VERT_A, the right block will have height bhigh; with
       // PARTITION_HORZ_A, the lower block with have width bwide. Otherwise
       // it's PARTITION_SPLIT.
-#if CONFIG_EXT_RECUR_PARTITIONS
-      if (sswide * 2 != bwide || sshigh * 2 != bhigh) {
-        if (mi_size_wide[mbmi_below->sb_type] < bwide &&
-            mi_size_high[mbmi_right->sb_type] < bhigh)
-          return PARTITION_SPLIT;
-      }
-#else
       if (sswide * 2 != bwide || sshigh * 2 != bhigh) return PARTITION_SPLIT;
+
       if (mi_size_wide[mbmi_below->sb_type] == bwide) return PARTITION_HORZ_A;
       if (mi_size_high[mbmi_right->sb_type] == bhigh) return PARTITION_VERT_A;
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+
       return PARTITION_SPLIT;
     }
   }
@@ -1690,93 +1491,6 @@ static INLINE int is_coded_lossless(const AV1_COMMON *cm,
 
 static INLINE int is_valid_seq_level_idx(AV1_LEVEL seq_level_idx) {
   return seq_level_idx < SEQ_LEVELS || seq_level_idx == SEQ_LEVEL_MAX;
-}
-
-static INLINE MvSubpelPrecision av1_get_mbmi_max_mv_precision(
-    const AV1_COMMON *const cm, const SB_INFO *sbi, const MB_MODE_INFO *mbmi) {
-  (void)mbmi;
-  // TODO(debargha): Change this to have a default max precision
-  // different from cm->fr_mv_precision for every mode.
-#if CONFIG_FLEX_MVRES
-  MvSubpelPrecision precision =
-      cm->use_sb_mv_precision ? sbi->sb_mv_precision : cm->fr_mv_precision;
-#else
-  (void)cm;
-  MvSubpelPrecision precision = sbi->sb_mv_precision;
-#endif
-
-  return precision;
-}
-
-// Sets the pb_mv_precision and max_mv_precision to sb_mv_precision or other
-// default values if needed
-static INLINE void set_default_mbmi_mv_precision(const AV1_COMMON *cm,
-                                                 MB_MODE_INFO *mbmi,
-                                                 const SB_INFO *sbi) {
-  mbmi->max_mv_precision = av1_get_mbmi_max_mv_precision(cm, sbi, mbmi);
-  mbmi->pb_mv_precision = mbmi->max_mv_precision;
-}
-
-#if CONFIG_FLEX_MVRES
-static INLINE int is_pb_mv_precision_active(
-    const AV1_COMMON *const cm, PREDICTION_MODE mode,
-    MvSubpelPrecision max_mv_precision) {
-  return max_mv_precision >= MV_SUBPEL_QTR_PRECISION &&
-         cm->use_pb_mv_precision && have_newmv_in_inter_mode(mode);
-}
-
-static INLINE MvSubpelPrecision av1_get_mbmi_mv_precision(
-    const AV1_COMMON *const cm, const MB_MODE_INFO *mbmi) {
-  if (is_pb_mv_precision_active(cm, mbmi->mode, mbmi->max_mv_precision)) {
-    MvSubpelPrecision precision;
-    if (mbmi->mode == NEWMV) {
-      precision = get_mv_precision(mbmi->mv[0].as_mv, mbmi->max_mv_precision);
-    } else if (mbmi->mode == NEW_NEWMV) {
-      precision = get_mv_precision2(mbmi->mv[0].as_mv, mbmi->mv[1].as_mv,
-                                    mbmi->max_mv_precision);
-    } else {
-#if CONFIG_NEW_INTER_MODES
-      const int i = (mbmi->mode == NEAR_NEWMV);
-#else
-      const int i = (mbmi->mode == NEAREST_NEWMV || mbmi->mode == NEAR_NEWMV);
-#endif  // CONFIG_NEW_INTER_MODES
-      precision = get_mv_precision(mbmi->mv[i].as_mv, mbmi->max_mv_precision);
-    }
-    return (MvSubpelPrecision)AOMMIN(precision, mbmi->max_mv_precision);
-  } else {
-    return mbmi->max_mv_precision;
-  }
-}
-#endif  // CONFIG_FLEX_MVRES
-
-#if CONFIG_MISC_CHANGES
-static INLINE int all_ref_frames_the_same(const AV1_COMMON *const cm) {
-  RefCntBuffer *last = get_ref_frame_buf(cm, LAST_FRAME);
-  for (MV_REFERENCE_FRAME ref = LAST_FRAME + 1; ref < REF_FRAMES; ++ref) {
-    RefCntBuffer *this_ref = get_ref_frame_buf(cm, ref);
-    if (this_ref != NULL && this_ref != last) return 0;
-  }
-  return 1;
-}
-#endif  // CONFIG_MISC_CHANGES
-
-static INLINE int get_mi_grid_idx(const AV1_COMMON *cm, int mi_row,
-                                  int mi_col) {
-  return mi_row * cm->mi_stride + mi_col;
-}
-
-static INLINE void init_frame_info(FRAME_INFO *frame_info,
-                                   AV1_COMMON *const cm) {
-  frame_info->frame_width = cm->width;
-  frame_info->frame_height = cm->height;
-  frame_info->mi_cols = cm->mi_cols;
-  frame_info->mi_rows = cm->mi_rows;
-  frame_info->mb_cols = cm->mb_cols;
-  frame_info->mb_rows = cm->mb_rows;
-  frame_info->num_mbs = cm->MBs;
-  frame_info->bit_depth = cm->seq_params.bit_depth;
-  frame_info->subsampling_x = cm->seq_params.subsampling_x;
-  frame_info->subsampling_y = cm->seq_params.subsampling_y;
 }
 
 #ifdef __cplusplus

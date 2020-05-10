@@ -80,11 +80,6 @@ void av1_set_mb_mi(AV1_COMMON *cm, int width, int height) {
   cm->mb_rows = (cm->mi_rows + 2) >> 2;
   cm->MBs = cm->mb_rows * cm->mb_cols;
 
-  const int mib_size_log2 = cm->seq_params.mib_size_log2;
-  cm->sb_cols = ALIGN_POWER_OF_TWO(cm->mi_cols, mib_size_log2) >> mib_size_log2;
-  cm->sb_rows = ALIGN_POWER_OF_TWO(cm->mi_rows, mib_size_log2) >> mib_size_log2;
-  cm->sbi_stride = cm->mi_stride >> cm->seq_params.mib_size_log2;
-
 #if CONFIG_LPF_MASK
   alloc_loop_filter_mask(cm);
 #endif
@@ -190,7 +185,8 @@ void av1_free_restoration_buffers(AV1_COMMON *cm) {
 
   aom_free_frame_buffer(&cm->rst_frame);
 }
-#if CRLC_LF
+
+#if  CRLC_LF
 void av1_alloc_CRLC_buffers(AV1_COMMON *cm) {
   const int num_planes = av1_num_planes(cm);
   for (int p = 0; p < num_planes; ++p)
@@ -202,117 +198,117 @@ void av1_free_CRLC_buffers(AV1_COMMON *cm) {
 }
 #endif
 
+  void av1_free_above_context_buffers(AV1_COMMON * cm,
+                                      int num_free_above_contexts) {
+    int i;
+    const int num_planes = cm->num_allocated_above_context_planes;
 
-void av1_free_above_context_buffers(AV1_COMMON *cm,
-                                    int num_free_above_contexts) {
-  int i;
-  const int num_planes = cm->num_allocated_above_context_planes;
+    for (int tile_row = 0; tile_row < num_free_above_contexts; tile_row++) {
+      for (i = 0; i < num_planes; i++) {
+        aom_free(cm->above_context[i][tile_row]);
+        cm->above_context[i][tile_row] = NULL;
+      }
+      aom_free(cm->above_seg_context[tile_row]);
+      cm->above_seg_context[tile_row] = NULL;
 
-  for (int tile_row = 0; tile_row < num_free_above_contexts; tile_row++) {
-    for (i = 0; i < num_planes; i++) {
-      aom_free(cm->above_context[i][tile_row]);
-      cm->above_context[i][tile_row] = NULL;
+      aom_free(cm->above_txfm_context[tile_row]);
+      cm->above_txfm_context[tile_row] = NULL;
     }
-    aom_free(cm->above_seg_context[tile_row]);
-    cm->above_seg_context[tile_row] = NULL;
+    for (i = 0; i < num_planes; i++) {
+      aom_free(cm->above_context[i]);
+      cm->above_context[i] = NULL;
+    }
+    aom_free(cm->above_seg_context);
+    cm->above_seg_context = NULL;
 
-    aom_free(cm->above_txfm_context[tile_row]);
-    cm->above_txfm_context[tile_row] = NULL;
+    aom_free(cm->above_txfm_context);
+    cm->above_txfm_context = NULL;
+
+    cm->num_allocated_above_contexts = 0;
+    cm->num_allocated_above_context_mi_col = 0;
+    cm->num_allocated_above_context_planes = 0;
   }
-  for (i = 0; i < num_planes; i++) {
-    aom_free(cm->above_context[i]);
-    cm->above_context[i] = NULL;
-  }
-  aom_free(cm->above_seg_context);
-  cm->above_seg_context = NULL;
 
-  aom_free(cm->above_txfm_context);
-  cm->above_txfm_context = NULL;
+  void av1_free_context_buffers(AV1_COMMON * cm) {
+    cm->free_mi(cm);
 
-  cm->num_allocated_above_contexts = 0;
-  cm->num_allocated_above_context_mi_col = 0;
-  cm->num_allocated_above_context_planes = 0;
-}
-
-void av1_free_context_buffers(AV1_COMMON *cm) {
-  cm->free_mi(cm);
-
-  av1_free_above_context_buffers(cm, cm->num_allocated_above_contexts);
+    av1_free_above_context_buffers(cm, cm->num_allocated_above_contexts);
 
 #if CONFIG_LPF_MASK
-  free_loop_filter_mask(cm);
+    free_loop_filter_mask(cm);
 #endif
-}
-
-int av1_alloc_above_context_buffers(AV1_COMMON *cm,
-                                    int num_alloc_above_contexts) {
-  const int num_planes = av1_num_planes(cm);
-  int plane_idx;
-  const int aligned_mi_cols =
-      ALIGN_POWER_OF_TWO(cm->mi_cols, MAX_MIB_SIZE_LOG2);
-
-  // Allocate above context buffers
-  cm->num_allocated_above_contexts = num_alloc_above_contexts;
-  cm->num_allocated_above_context_mi_col = aligned_mi_cols;
-  cm->num_allocated_above_context_planes = num_planes;
-  for (plane_idx = 0; plane_idx < num_planes; plane_idx++) {
-    cm->above_context[plane_idx] = (ENTROPY_CONTEXT **)aom_calloc(
-        num_alloc_above_contexts, sizeof(cm->above_context[0]));
-    if (!cm->above_context[plane_idx]) return 1;
   }
 
-  cm->above_seg_context = (PARTITION_CONTEXT **)aom_calloc(
-      num_alloc_above_contexts, sizeof(cm->above_seg_context));
-  if (!cm->above_seg_context) return 1;
+  int av1_alloc_above_context_buffers(AV1_COMMON * cm,
+                                      int num_alloc_above_contexts) {
+    const int num_planes = av1_num_planes(cm);
+    int plane_idx;
+    const int aligned_mi_cols =
+        ALIGN_POWER_OF_TWO(cm->mi_cols, MAX_MIB_SIZE_LOG2);
 
-  cm->above_txfm_context = (TXFM_CONTEXT **)aom_calloc(
-      num_alloc_above_contexts, sizeof(cm->above_txfm_context));
-  if (!cm->above_txfm_context) return 1;
-
-  for (int tile_row = 0; tile_row < num_alloc_above_contexts; tile_row++) {
+    // Allocate above context buffers
+    cm->num_allocated_above_contexts = num_alloc_above_contexts;
+    cm->num_allocated_above_context_mi_col = aligned_mi_cols;
+    cm->num_allocated_above_context_planes = num_planes;
     for (plane_idx = 0; plane_idx < num_planes; plane_idx++) {
-      cm->above_context[plane_idx][tile_row] = (ENTROPY_CONTEXT *)aom_calloc(
-          aligned_mi_cols, sizeof(*cm->above_context[0][tile_row]));
-      if (!cm->above_context[plane_idx][tile_row]) return 1;
+      cm->above_context[plane_idx] = (ENTROPY_CONTEXT **)aom_calloc(
+          num_alloc_above_contexts, sizeof(cm->above_context[0]));
+      if (!cm->above_context[plane_idx]) return 1;
     }
 
-    cm->above_seg_context[tile_row] = (PARTITION_CONTEXT *)aom_calloc(
-        aligned_mi_cols, sizeof(*cm->above_seg_context[tile_row]));
-    if (!cm->above_seg_context[tile_row]) return 1;
+    cm->above_seg_context = (PARTITION_CONTEXT **)aom_calloc(
+        num_alloc_above_contexts, sizeof(cm->above_seg_context));
+    if (!cm->above_seg_context) return 1;
 
-    cm->above_txfm_context[tile_row] = (TXFM_CONTEXT *)aom_calloc(
-        aligned_mi_cols, sizeof(*cm->above_txfm_context[tile_row]));
-    if (!cm->above_txfm_context[tile_row]) return 1;
+    cm->above_txfm_context = (TXFM_CONTEXT **)aom_calloc(
+        num_alloc_above_contexts, sizeof(cm->above_txfm_context));
+    if (!cm->above_txfm_context) return 1;
+
+    for (int tile_row = 0; tile_row < num_alloc_above_contexts; tile_row++) {
+      for (plane_idx = 0; plane_idx < num_planes; plane_idx++) {
+        cm->above_context[plane_idx][tile_row] = (ENTROPY_CONTEXT *)aom_calloc(
+            aligned_mi_cols, sizeof(*cm->above_context[0][tile_row]));
+        if (!cm->above_context[plane_idx][tile_row]) return 1;
+      }
+
+      cm->above_seg_context[tile_row] = (PARTITION_CONTEXT *)aom_calloc(
+          aligned_mi_cols, sizeof(*cm->above_seg_context[tile_row]));
+      if (!cm->above_seg_context[tile_row]) return 1;
+
+      cm->above_txfm_context[tile_row] = (TXFM_CONTEXT *)aom_calloc(
+          aligned_mi_cols, sizeof(*cm->above_txfm_context[tile_row]));
+      if (!cm->above_txfm_context[tile_row]) return 1;
+    }
+
+    return 0;
   }
 
-  return 0;
-}
+  int av1_alloc_context_buffers(AV1_COMMON * cm, int width, int height) {
+    int new_mi_size;
 
-int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
-  av1_set_mb_mi(cm, width, height);
-  const int new_mi_size = cm->mi_stride * calc_mi_size(cm->mi_rows);
-  const int sbi_size = cm->sbi_stride * calc_mi_size(cm->sb_rows);
-  if (cm->mi_alloc_size < new_mi_size) {
-    cm->free_mi(cm);
-    if (cm->alloc_mi(cm, new_mi_size, sbi_size)) goto fail;
+    av1_set_mb_mi(cm, width, height);
+    new_mi_size = cm->mi_stride * calc_mi_size(cm->mi_rows);
+    if (cm->mi_alloc_size < new_mi_size) {
+      cm->free_mi(cm);
+      if (cm->alloc_mi(cm, new_mi_size)) goto fail;
+    }
+
+    return 0;
+
+  fail:
+    // clear the mi_* values to force a realloc on resync
+    av1_set_mb_mi(cm, 0, 0);
+    av1_free_context_buffers(cm);
+    return 1;
   }
 
-  return 0;
+  void av1_remove_common(AV1_COMMON * cm) {
+    av1_free_context_buffers(cm);
 
-fail:
-  // clear the mi_* values to force a realloc on resync
-  av1_set_mb_mi(cm, 0, 0);
-  av1_free_context_buffers(cm);
-  return 1;
-}
+    aom_free(cm->fc);
+    cm->fc = NULL;
+    aom_free(cm->default_frame_context);
+    cm->default_frame_context = NULL;
+  }
 
-void av1_remove_common(AV1_COMMON *cm) {
-  av1_free_context_buffers(cm);
-
-  aom_free(cm->fc);
-  cm->fc = NULL;
-  aom_free(cm->default_frame_context);
-  cm->default_frame_context = NULL;
-}
-
-void av1_init_context_buffers(AV1_COMMON *cm) { cm->setup_mi(cm); }
+  void av1_init_context_buffers(AV1_COMMON * cm) { cm->setup_mi(cm); }

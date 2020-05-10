@@ -122,31 +122,23 @@ extern "C" {
 // If WIENER_WIN_CHROMA == WIENER_WIN - 2, that implies 5x5 filters are used for
 // chroma. To use 7x7 for chroma set WIENER_WIN_CHROMA to WIENER_WIN.
 #define WIENER_WIN_CHROMA (WIENER_WIN - 2)
-#define WIENER_HALFWIN_CHROMA (WIENER_HALFWIN - 1)
 #define WIENER_WIN_REDUCED (WIENER_WIN - 2)
 #define WIENER_WIN2_CHROMA ((WIENER_WIN_CHROMA) * (WIENER_WIN_CHROMA))
 
-#if CONFIG_WIENER_SEP_HIPREC
-#define WIENER_FILT_PREC_BITS (FILTER_BITS + 1)
-#else
-#define WIENER_FILT_PREC_BITS (FILTER_BITS)
-#endif  // CONFIG_WIENER_SEP_HIPREC
-
+#define WIENER_FILT_PREC_BITS 7
 #define WIENER_FILT_STEP (1 << WIENER_FILT_PREC_BITS)
 
 // Central values for the taps
-#define WIENER_FILT_TAP0_MIDV (3 * (1 << (WIENER_FILT_PREC_BITS - FILTER_BITS)))
-#define WIENER_FILT_TAP1_MIDV \
-  (-7 * (1 << (WIENER_FILT_PREC_BITS - FILTER_BITS)))
-#define WIENER_FILT_TAP2_MIDV \
-  (15 * (1 << (WIENER_FILT_PREC_BITS - FILTER_BITS)))
+#define WIENER_FILT_TAP0_MIDV (3)
+#define WIENER_FILT_TAP1_MIDV (-7)
+#define WIENER_FILT_TAP2_MIDV (15)
 #define WIENER_FILT_TAP3_MIDV                                              \
   (WIENER_FILT_STEP - 2 * (WIENER_FILT_TAP0_MIDV + WIENER_FILT_TAP1_MIDV + \
                            WIENER_FILT_TAP2_MIDV))
 
-#define WIENER_FILT_TAP0_BITS (4 + (WIENER_FILT_PREC_BITS - FILTER_BITS))
-#define WIENER_FILT_TAP1_BITS (5 + (WIENER_FILT_PREC_BITS - FILTER_BITS))
-#define WIENER_FILT_TAP2_BITS (6 + (WIENER_FILT_PREC_BITS - FILTER_BITS))
+#define WIENER_FILT_TAP0_BITS 4
+#define WIENER_FILT_TAP1_BITS 5
+#define WIENER_FILT_TAP2_BITS 6
 
 #define WIENER_FILT_BITS \
   ((WIENER_FILT_TAP0_BITS + WIENER_FILT_TAP1_BITS + WIENER_FILT_TAP2_BITS) * 2)
@@ -165,60 +157,9 @@ extern "C" {
 #define WIENER_FILT_TAP2_MAXV \
   (WIENER_FILT_TAP2_MIDV - 1 + (1 << WIENER_FILT_TAP2_BITS) / 2)
 
-#define WIENER_FILT_TAP0_SUBEXP_K (1 + (WIENER_FILT_PREC_BITS - FILTER_BITS))
-#define WIENER_FILT_TAP1_SUBEXP_K (2 + (WIENER_FILT_PREC_BITS - FILTER_BITS))
-#define WIENER_FILT_TAP2_SUBEXP_K (3 + (WIENER_FILT_PREC_BITS - FILTER_BITS))
-
-#if CONFIG_WIENER_NONSEP
-#define WIENERNS_PREC_BITS 8
-#define WIENERNS_Y 12        // Number of luma coefficients in all
-#define WIENERNS_Y_PIXEL 24  // Number of pixels used for filtering luma
-
-#if CONFIG_WIENER_NONSEP_CROSS_FILT
-#define WIENERNS_UV_BRD 2  // Max offset for luma used for chorma
-#define WIENERNS_UV 8      // Number of chroma coefficients in all
-#define WIENERNS_UV_INTER_PIXEL \
-  12  // Number of pixels used for filtering from chroma only
-#define WIENERNS_UV_PIXEL \
-  20  // Number of pixels used for filtering from chroma and luma
-#else
-#define WIENERNS_UV_BRD 0  // Max offset for luma used for chorma
-#define WIENERNS_UV 6      // Number of chroma coefficients in all
-#define WIENERNS_UV_INTER_PIXEL \
-  12  // Number of pixels used for filtering from chroma only
-#define WIENERNS_UV_PIXEL (WIENERNS_UV_INTER_PIXEL)
-#endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
-
-#if WIENERNS_Y >= WIENERNS_UV
-#define WIENERNS_MAX (WIENERNS_Y)
-#else
-#define WIENERNS_MAX (WIENERNS_UV)
-#endif
-
-#define WIENERNS_YUV (WIENERNS_Y + WIENERNS_UV)
-#define WIENERNS_YUV_PIXEL (WIENERNS_Y_PIXEL + WIENERNS_UV_PIXEL)
-
-#define WIENERNS_ROW_ID 0
-#define WIENERNS_COL_ID 1
-#define WIENERNS_BUF_POS 2
-
-#define WIENERNS_BIT_ID 0
-#define WIENERNS_MIN_ID 1
-#define WIENERNS_SUBEXP_K_ID 2
-#define WIENERNS_STEP_ID 3
-extern const int wienerns_prec_bits;
-extern const int wienerns_y_pixel;
-extern const int wienerns_yuv_pixel;
-extern const int wienerns_uv_inter_pixel;
-extern const int wienerns_uv_pixel;
-extern const int wienerns_y;
-extern const int wienerns_uv;
-extern const int wienerns_yuv;
-extern const int wienerns_config_y[][3];
-extern const int wienerns_config_uv[][3];
-extern const int wienerns_coeff_y[][3];
-extern const int wienerns_coeff_uv[][3];
-#endif  // CONFIG_WIENER_NONSEP
+#define WIENER_FILT_TAP0_SUBEXP_K 1
+#define WIENER_FILT_TAP1_SUBEXP_K 2
+#define WIENER_FILT_TAP2_SUBEXP_K 3
 
 // Max of SGRPROJ_TMPBUF_SIZE, DOMAINTXFMRF_TMPBUF_SIZE, WIENER_TMPBUF_SIZE
 #define RESTORATION_TMPBUF_SIZE (SGRPROJ_TMPBUF_SIZE)
@@ -230,27 +171,13 @@ extern const int wienerns_coeff_uv[][3];
 #if SUBPEL_TAPS != WIENER_WIN + 1
 #error "Wiener filter currently only works if SUBPEL_TAPS == WIENER_WIN + 1"
 #endif
-
-#if CONFIG_WIENER_SEP_HIPREC
-#if WIENER_FILT_PREC_BITS < 7
-#error "Wiener filter currently only works if WIENER_FILT_PREC_BITS >= 7"
-#endif
-#else
 #if WIENER_FILT_PREC_BITS != 7
 #error "Wiener filter currently only works if WIENER_FILT_PREC_BITS == 7"
 #endif
-#endif  // CONFIG_WIENER_SEP_HIPREC
 
 #define LR_TILE_ROW 0
 #define LR_TILE_COL 0
 #define LR_TILE_COLS 1
-
-#if CONFIG_EXT_LOOP_RESTORATION
-typedef struct {
-  int64_t vfilter[WIENER_WIN2];
-  int64_t hfilter[WIENER_WIN2];
-} SharedParams;
-#endif  // CONFIG_EXT_LOOP_RESTORATION
 
 typedef struct {
   int r[2];  // radii
@@ -264,13 +191,19 @@ typedef struct {
 #if CONFIG_LOOP_RESTORE_CNN
   CNNInfo cnn_info;
 #endif  // CONFIG_LOOP_RESTORE_CNN
-#if CONFIG_WIENER_NONSEP
-  WienerNonsepInfo wiener_nonsep_info;
-  const uint8_t *luma;
-  int luma_stride;
-  int plane;
-#endif  // CONFIG_WIENER_NONSEP
+
+  //#if  CRLC_LF
+  // CRLCUnitInfo crlc_unitinfo;
+  //#endif
 } RestorationUnitInfo;
+
+//#if  CRLC_LF
+// typedef struct {
+//  int ep;
+//  int xqd[2];
+//}CRLCUnitInfo;
+//
+//#endif
 
 // A restoration line buffer needs space for two lines plus a horizontal filter
 // margin of RESTORATION_EXTRA_HORZ on each side.
@@ -322,7 +255,7 @@ typedef struct {
   int units_per_tile;
   int vert_units_per_tile, horz_units_per_tile;
 
-  CRLCUnitInfo *unit_info;
+ CRLCUnitInfo *unit_info;
   //  int CRLC_xqd[2];
 } CRLCInfo;
 #endif
@@ -331,7 +264,6 @@ static INLINE void set_default_sgrproj(SgrprojInfo *sgrproj_info) {
   sgrproj_info->xqd[0] = (SGRPROJ_PRJ_MIN0 + SGRPROJ_PRJ_MAX0) / 2;
   sgrproj_info->xqd[1] = (SGRPROJ_PRJ_MIN1 + SGRPROJ_PRJ_MAX1) / 2;
 }
-
 #if CRLC_LF
 static INLINE void set_default_crlc(CRLCUnitInfo *cui) {
   cui->xqd[0] = 16 / 2;
@@ -351,67 +283,6 @@ static INLINE void set_default_wiener(WienerInfo *wiener_info) {
   wiener_info->vfilter[6] = wiener_info->hfilter[6] = WIENER_FILT_TAP0_MIDV;
 }
 
-#if CONFIG_EXT_LOOP_RESTORATION
-static INLINE int check_wiener_eq(int chroma, const WienerInfo *info,
-                                  const WienerInfo *ref) {
-  if (!chroma) {
-    if (!memcmp(info->vfilter, ref->vfilter,
-                WIENER_HALFWIN * sizeof(info->vfilter[0])) &&
-        !memcmp(info->hfilter, ref->hfilter,
-                WIENER_HALFWIN * sizeof(info->hfilter[0])))
-      return 1;
-  } else {
-    if (!memcmp(&info->vfilter[1], &ref->vfilter[1],
-                WIENER_HALFWIN_CHROMA * sizeof(info->vfilter[1])) &&
-        !memcmp(&info->hfilter[1], &ref->hfilter[1],
-                WIENER_HALFWIN_CHROMA * sizeof(info->hfilter[1])))
-      return 1;
-  }
-  return 0;
-}
-
-static INLINE int check_sgrproj_eq(const SgrprojInfo *info,
-                                   const SgrprojInfo *ref) {
-  if (!memcmp(info, ref, sizeof(*info))) return 1;
-  return 0;
-}
-#endif  // CONFIG_EXT_LOOP_RESTORATION
-
-#if CONFIG_WIENER_NONSEP
-static INLINE void set_default_wiener_nonsep(WienerNonsepInfo *wienerns_info) {
-  for (int i = 0; i < wienerns_y; ++i) {
-    wienerns_info->nsfilter[i] = wienerns_coeff_y[i][WIENERNS_MIN_ID];
-  }
-  for (int i = wienerns_y; i < wienerns_yuv; ++i) {
-    wienerns_info->nsfilter[i] =
-        wienerns_coeff_uv[i - wienerns_y][WIENERNS_MIN_ID];
-  }
-}
-
-#if CONFIG_EXT_LOOP_RESTORATION
-static INLINE int check_wienerns_eq(int chroma, const WienerNonsepInfo *info,
-                                    const WienerNonsepInfo *ref) {
-  if (!chroma) {
-    if (!memcmp(info->nsfilter, ref->nsfilter,
-                wienerns_y * sizeof(*info->nsfilter)))
-      return 1;
-  } else {
-    if (!memcmp(&info->nsfilter[wienerns_y], &ref->nsfilter[wienerns_y],
-                wienerns_uv * sizeof(*info->nsfilter)))
-      return 1;
-  }
-  return 0;
-}
-#endif  // CONFIG_EXT_LOOP_RESTORATION
-
-#if CONFIG_WIENER_NONSEP_CROSS_FILT
-uint8_t *wienerns_copy_luma(const uint8_t *dgd, int height_y, int width_y,
-                            int in_stride, uint8_t **luma, int height_uv,
-                            int width_uv, int border, int out_stride);
-#endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
-
-#endif  // CONFIG_WIENER_NONSEP
-
 typedef struct {
   int h_start, h_end, v_start, v_end;
 } RestorationTileLimits;
@@ -420,9 +291,6 @@ typedef void (*rest_unit_visitor_t)(const RestorationTileLimits *limits,
                                     const AV1PixelRect *tile_rect,
                                     int rest_unit_idx, void *priv,
                                     int32_t *tmpbuf,
-#if CONFIG_EXT_LOOP_RESTORATION
-                                    RestorationUnitInfo *previous_rui,
-#endif  // CONFIG_EXT_LOOP_RESTORATION
                                     RestorationLineBuffers *rlbs);
 
 typedef struct FilterFrameCtxt {
@@ -435,11 +303,6 @@ typedef struct FilterFrameCtxt {
   AV1PixelRect tile_rect;
   int base_qindex;
   FRAME_TYPE frame_type;
-#if CONFIG_WIENER_NONSEP
-  int plane;
-  const uint8_t *luma;
-  int luma_stride;
-#endif  // CONFIG_WIENER_NONSEP
 } FilterFrameCtxt;
 
 typedef struct AV1LrStruct {
@@ -458,14 +321,14 @@ void av1_alloc_restoration_struct(struct AV1Common *cm, RestorationInfo *rsi,
                                   int is_uv);
 void av1_free_restoration_struct(RestorationInfo *rst_info);
 
-void av1_extend_frame(uint8_t *data, int width, int height, int stride,
-                      int border_horz, int border_vert, int highbd);
-void av1_decode_xq(const int *xqd, int *xq, const sgr_params_type *params);
-
 #if CRLC_LF
 void av1_alloc_CRLC_struct(struct AV1Common *cm, CRLCInfo *ci, int is_uv);
 void av1_free_CRLC_struct(CRLCInfo *crlc_info);
 #endif
+
+void av1_extend_frame(uint8_t *data, int width, int height, int stride,
+                      int border_horz, int border_vert, int highbd);
+void av1_decode_xq(const int *xqd, int *xq, const sgr_params_type *params);
 
 // Filter a single loop restoration unit.
 //
@@ -527,6 +390,13 @@ int av1_loop_restoration_corners_in_sb(const struct AV1Common *cm, int plane,
                                        int mi_row, int mi_col, BLOCK_SIZE bsize,
                                        int *rcol0, int *rcol1, int *rrow0,
                                        int *rrow1);
+#if   CRLC_LF
+int av1_CRLC_corners_in_sb(const struct AV1Common *cm, int plane,
+                                       int mi_row, int mi_col, BLOCK_SIZE bsize,
+                                       int *rcol0, int *rcol1, int *rrow0,
+                                       int *rrow1);
+#endif
+
 
 void av1_loop_restoration_save_boundary_lines(const YV12_BUFFER_CONFIG *frame,
                                               struct AV1Common *cm,
@@ -541,12 +411,9 @@ void av1_foreach_rest_unit_in_row(
     RestorationTileLimits *limits, const AV1PixelRect *tile_rect,
     rest_unit_visitor_t on_rest_unit, int row_number, int unit_size,
     int unit_idx0, int hunits_per_tile, int vunits_per_tile, int plane,
-    void *priv, int32_t *tmpbuf,
-#if CONFIG_EXT_LOOP_RESTORATION
-    RestorationUnitInfo *previous_rui,
-#endif  // CONFIG_EXT_LOOP_RESTORATION
-    RestorationLineBuffers *rlbs, sync_read_fn_t on_sync_read,
-    sync_write_fn_t on_sync_write, struct AV1LrSyncData *const lr_sync);
+    void *priv, int32_t *tmpbuf, RestorationLineBuffers *rlbs,
+    sync_read_fn_t on_sync_read, sync_write_fn_t on_sync_write,
+    struct AV1LrSyncData *const lr_sync);
 AV1PixelRect av1_whole_frame_rect(const struct AV1Common *cm, int is_uv);
 int av1_lr_count_units_in_tile(int unit_size, int tile_size);
 void av1_lr_sync_read_dummy(void *const lr_sync, int r, int c, int plane);
