@@ -63,7 +63,7 @@ enum MkvId {
   kMkvTracks = 0x1654AE6B,
   kMkvTrackEntry = 0xAE,
   kMkvTrackNumber = 0xD7,
-  kMkvTrackUID = 0x73C5,
+  kMkvTrackUID = 0x63C5,
   kMkvTrackType = 0x83,
   kMkvFlagEnabled = 0xB9,
   kMkvFlagDefault = 0x88,
