@@ -120,6 +120,21 @@ int write_webm_file_header(struct WebmOutputContext *webm_ctx,
     video_track->set_display_height(cfg->g_h);
   }
 
+  if (encoder_settings != NULL) {
+    mkvmuxer::Tag *tag = segment->AddTag();
+    if (tag == NULL) {
+      fprintf(stderr,
+              "webmenc> Unable to allocate memory for encoder settings tag.\n");
+      return -1;
+    }
+    ok = tag->add_simple_tag("ENCODER_SETTINGS", encoder_settings);
+    if (!ok) {
+      fprintf(stderr,
+              "webmenc> Unable to allocate memory for encoder settings tag.\n");
+      return -1;
+    }
+  }
+
   if (webm_ctx->debug) {
     video_track->set_uid(kDebugTrackUid);
   }
