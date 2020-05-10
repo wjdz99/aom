@@ -31,7 +31,8 @@ int write_webm_file_header(struct WebmOutputContext *webm_ctx,
                            aom_codec_ctx_t *encoder_ctx,
                            const aom_codec_enc_cfg_t *cfg,
                            stereo_format_t stereo_fmt, unsigned int fourcc,
-                           const struct AvxRational *par) {
+                           const struct AvxRational *par,
+                           const char *encoder_settings) {
   std::unique_ptr<mkvmuxer::MkvWriter> writer(
       new (std::nothrow) mkvmuxer::MkvWriter(webm_ctx->stream));
   std::unique_ptr<mkvmuxer::Segment> segment(new (std::nothrow)
@@ -118,6 +119,21 @@ int write_webm_file_header(struct WebmOutputContext *webm_ctx,
         ((cfg->g_w * par->numerator * 1.0) / par->denominator) + .5);
     video_track->set_display_width(display_width);
     video_track->set_display_height(cfg->g_h);
+  }
+
+  if (encoder_settings != NULL) {
+    mkvmuxer::Tag *tag = segment->AddTag();
+    if (tag == NULL) {
+      fprintf(stderr,
+              "webmenc> Unable to allocate memory for encoder settings tag.\n");
+      return -1;
+    }
+    ok = tag->add_simple_tag("ENCODER_SETTINGS", encoder_settings);
+    if (!ok) {
+      fprintf(stderr,
+              "webmenc> Unable to allocate memory for encoder settings tag.\n");
+      return -1;
+    }
   }
 
   if (webm_ctx->debug) {
