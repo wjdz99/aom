@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 
+#include <new>
 #include <string>
 
 #include "common/av1_config.h"
@@ -25,18 +26,14 @@ const uint64_t kDebugTrackUid = 0xDEADBEEF;
 const int kVideoTrackNumber = 1;
 }  // namespace
 
-int write_webm_file_header(struct WebmOutputContext *webm_ctx,
-                           aom_codec_ctx_t *encoder_ctx,
-                           const aom_codec_enc_cfg_t *cfg,
-                           stereo_format_t stereo_fmt, unsigned int fourcc,
-                           const struct AvxRational *par) {
-  mkvmuxer::MkvWriter *const writer = new mkvmuxer::MkvWriter(webm_ctx->stream);
-  mkvmuxer::Segment *const segment = new mkvmuxer::Segment();
-  if (!writer || !segment) {
-    fprintf(stderr, "webmenc> mkvmuxer objects alloc failed, out of memory?\n");
-    return -1;
-  }
-
+// Helper function that does all the heavy-lifting of writing the
+// webm-header. Relies on write_wemb_file_header() to do memory
+// cleanup if an error occurs.
+static int write_webm_file_header_aux(
+    struct WebmOutputContext *webm_ctx, aom_codec_ctx_t *encoder_ctx,
+    const aom_codec_enc_cfg_t *cfg, stereo_format_t stereo_fmt,
+    unsigned int fourcc, const struct AvxRational *par,
+    mkvmuxer::MkvWriter *const writer, mkvmuxer::Segment *const segment) {
   bool ok = segment->Init(writer);
   if (!ok) {
     fprintf(stderr, "webmenc> mkvmuxer Init failed.\n");
@@ -119,10 +116,34 @@ int write_webm_file_header(struct WebmOutputContext *webm_ctx,
   if (webm_ctx->debug) {
     video_track->set_uid(kDebugTrackUid);
   }
+  return 0;
+}
 
+int write_webm_file_header(struct WebmOutputContext *webm_ctx,
+                           aom_codec_ctx_t *encoder_ctx,
+                           const aom_codec_enc_cfg_t *cfg,
+                           stereo_format_t stereo_fmt, unsigned int fourcc,
+                           const struct AvxRational *par) {
+  mkvmuxer::MkvWriter *const writer =
+      new (std::nothrow) mkvmuxer::MkvWriter(webm_ctx->stream);
+  mkvmuxer::Segment *const segment = new (std::nothrow) mkvmuxer::Segment();
+  if (writer == nullptr || segment == nullptr) {
+    fprintf(stderr, "webmenc> mkvmuxer objects alloc failed, out of memory?\n");
+    delete segment;
+    delete writer;
+    return -1;
+  }
+
+  int result = write_webm_file_header_aux(
+      webm_ctx, encoder_ctx, cfg, stereo_fmt, fourcc, par, writer, segment);
+
+  if (result != 0) {
+    delete segment;
+    delete writer;
+    return result;
+  }
   webm_ctx->writer = writer;
   webm_ctx->segment = segment;
-
   return 0;
 }
 
