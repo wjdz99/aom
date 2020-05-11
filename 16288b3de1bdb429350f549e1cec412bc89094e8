@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b9f728a_c53dd671",
+        "filename": "common/webmenc.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-05-11T21:02:31Z",
+      "side": 1,
+      "message": "a unique_ptr is an option as this should be built using c++11 I think",
+      "revId": "16288b3de1bdb429350f549e1cec412bc89094e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ddd3510_ca00cf24",
+        "filename": "common/webmenc.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-05-11T21:02:31Z",
+      "side": 1,
+      "message": "this could be const",
+      "revId": "16288b3de1bdb429350f549e1cec412bc89094e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
