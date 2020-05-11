@@ -889,13 +889,14 @@ static void build_inter_predictors(
     if (use_optflow_prec) {
       // Compute subpel params with refined mv
       calc_subpel_params_func(xd, sf, &(mv_refined[ref].as_mv), plane, pre_x,
-                              pre_y, 0, 0, pre_buf, bw, bh, &warp_types, ref,
+                              pre_y, 0, 0, pre_buf, bw, bh, &warp_types, ref, 1,
                               calc_subpel_params_func_args, &pre,
                               &subpel_params, &src_stride);
     } else {
       calc_subpel_params_func(
           xd, sf, &mv, plane, pre_x, pre_y, 0, 0, pre_buf, bw, bh, &warp_types,
-          ref, calc_subpel_params_func_args, &pre, &subpel_params, &src_stride);
+          ref, 0, calc_subpel_params_func_args, &pre, &subpel_params,
+          &src_stride);
     }
 #else
     calc_subpel_params_func(xd, sf, &mv, plane, pre_x, pre_y, 0, 0, pre_buf, bw,
