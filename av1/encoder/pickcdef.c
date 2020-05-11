@@ -12,6 +12,7 @@
 #include <math.h>
 #include <string.h>
 
+#include "config/aom_dsp_rtcd.h"
 #include "config/aom_scale_rtcd.h"
 
 #include "aom/aom_integer.h"
@@ -219,20 +220,6 @@ static void copy_sb16_16(uint16_t *dst, int dstride, const void *src,
       dst[r * dstride + c] = (uint16_t)base[r * sstride + c];
 }
 
-static INLINE uint64_t mse_wxh_16bit_highbd(uint16_t *dst, int dstride,
-                                            uint16_t *src, int sstride, int w,
-                                            int h) {
-  uint64_t sum = 0;
-  int i, j;
-  for (i = 0; i < h; i++) {
-    for (j = 0; j < w; j++) {
-      int e = dst[i * dstride + j] - src[i * sstride + j];
-      sum += e * e;
-    }
-  }
-  return sum;
-}
-
 static INLINE uint64_t mse_wxh_16bit(uint8_t *dst, int dstride, uint16_t *src,
                                      int sstride, int w, int h) {
   uint64_t sum = 0;
@@ -273,7 +260,7 @@ static uint64_t compute_cdef_dist_highbd(void *dst, int dstride, uint16_t *src,
   for (bi = 0; bi < cdef_count; bi++) {
     by = dlist[bi].by;
     bx = dlist[bi].bx;
-    sum += mse_wxh_16bit_highbd(
+    sum += aom_mse_wxh_16bit_highbd(
         &dst_buff[(by << height_log2) * dstride + (bx << width_log2)], dstride,
         &src[bi << (height_log2 + width_log2)], src_stride, width, height);
   }
