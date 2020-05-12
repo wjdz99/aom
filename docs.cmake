@@ -27,7 +27,7 @@ set(AOM_DOXYGEN_SOURCES "${AOM_ROOT}/aom/aom.h" "${AOM_ROOT}/aom/aom_codec.h"
                         "${AOM_ROOT}/aom/aom_image.h"
                         "${AOM_ROOT}/aom/aom_integer.h"
                         "${AOM_ROOT}/keywords.dox" "${AOM_ROOT}/mainpage.dox"
-                        "${AOM_ROOT}/usage.dox")
+                        "${AOM_ROOT}/usage.dox" "${AOM_ROOT}/README.md")
 
 if(CONFIG_AV1_DECODER)
   set(AOM_DOXYGEN_EXAMPLE_SOURCES ${AOM_DOXYGEN_EXAMPLE_SOURCES}
