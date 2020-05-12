@@ -20,14 +20,18 @@ set(AOM_DOXYGEN_CONFIG_TEMPLATE "libs.doxy_template")
 set(AOM_DOXYGEN_OUTPUT_DIR "${AOM_CONFIG_DIR}/dox")
 set(AOM_DOXYGEN_SECTIONS "av1")
 
-set(AOM_DOXYGEN_SOURCES "${AOM_ROOT}/aom/aom.h" "${AOM_ROOT}/aom/aom_codec.h"
-                        "${AOM_ROOT}/aom/aom_decoder.h"
-                        "${AOM_ROOT}/aom/aom_encoder.h"
-                        "${AOM_ROOT}/aom/aom_frame_buffer.h"
-                        "${AOM_ROOT}/aom/aom_image.h"
-                        "${AOM_ROOT}/aom/aom_integer.h"
-                        "${AOM_ROOT}/keywords.dox" "${AOM_ROOT}/mainpage.dox"
-                        "${AOM_ROOT}/usage.dox")
+set(AOM_DOXYGEN_SOURCES
+    "${AOM_ROOT}/aom/aom.h"
+    "${AOM_ROOT}/aom/aom_codec.h"
+    "${AOM_ROOT}/aom/aom_decoder.h"
+    "${AOM_ROOT}/aom/aom_encoder.h"
+    "${AOM_ROOT}/aom/aom_frame_buffer.h"
+    "${AOM_ROOT}/aom/aom_image.h"
+    "${AOM_ROOT}/aom/aom_integer.h"
+    "${AOM_ROOT}/keywords.dox"
+    "${AOM_ROOT}/mainpage.dox"
+    "${AOM_ROOT}/usage.dox"
+    "${AOM_ROOT}/README.md")
 
 if(CONFIG_AV1_DECODER)
   set(AOM_DOXYGEN_EXAMPLE_SOURCES ${AOM_DOXYGEN_EXAMPLE_SOURCES}
@@ -241,6 +245,12 @@ reference. The following utilities are included:
   # Add $samples_dox to the doxygen inputs.
   get_filename_component(samples_dox ${samples_dox} NAME)
   set(AOM_DOXYGEN_SOURCES ${AOM_DOXYGEN_SOURCES} ${samples_dox})
+
+  # There are issues to show Markdown file for old Doxygen version. Here, only
+  # enable Markdown support for 1.8.16 or newer.
+  if(${DOXYGEN_VERSION_VALUE} GREATER_EQUAL 1008016)
+    set(AOM_DOXYGEN_SECTIONS ${AOM_DOXYGEN_SECTIONS} "av1_md_support")
+  endif()
 
   # Generate libaom's doxyfile.
   file(WRITE "${AOM_DOXYFILE}" "##\n## GENERATED FILE. DO NOT EDIT\n##\n")
