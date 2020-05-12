@@ -335,7 +335,7 @@ static void set_good_speed_features_framesize_independent(
   if (speed >= 1) {
     sf->gm_sf.disable_adaptive_warp_error_thresh = 0;
     sf->gm_sf.gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
-    sf->gm_sf.prune_ref_frame_for_gm_search = boosted ? 0 : 1;
+    // sf->gm_sf.prune_ref_frame_for_gm_search = boosted ? 0 : 1;
 
     sf->part_sf.intra_cnn_split = 1;
     sf->part_sf.simple_motion_search_early_term_none = 1;
