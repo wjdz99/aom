@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da9470fe_14ebcb48",
+        "filename": "av1/encoder/encode_strategy.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2020-05-12T16:53:24Z",
+      "side": 1,
+      "message": "It may be that if the detail in the description goes as far as naming called functions things will get hard to maintain. Not so much at this level but deeper down where things get more complex.",
+      "range": {
+        "startLine": 30,
+        "startChar": 30,
+        "endLine": 30,
+        "endChar": 57
+      },
+      "revId": "aeed5f7247d15e86a800e77fe673d3ad79fc611a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
