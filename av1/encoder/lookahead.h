@@ -9,6 +9,9 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+/*!\file
+ * \brief Define look ahead buffer operations.
+ */
 #ifndef AOM_AV1_ENCODER_LOOKAHEAD_H_
 #define AOM_AV1_ENCODER_LOOKAHEAD_H_
 

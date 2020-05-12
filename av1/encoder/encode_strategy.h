@@ -9,6 +9,9 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+/*!\file
+ * \brief Define encoder functions.
+ */
 #ifndef AOM_AV1_ENCODER_ENCODE_STRATEGY_H_
 #define AOM_AV1_ENCODER_ENCODE_STRATEGY_H_
 
@@ -26,7 +29,7 @@ extern "C" {
 /*!\brief Implement high-level encode strategy
  * \ingroup high_level_algo
  * This function will implement high-level encode strategy, choosing frame type,
- * frame placement, etc.  It populates an EncodeFrameParams struct with the
+ * frame placement, etc. It populates an EncodeFrameParams struct with the
  * results of these decisions and then calls av1_encode().
  *
  * \param[in]    cpi         Top-level encoder structure
