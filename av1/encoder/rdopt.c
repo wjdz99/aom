@@ -2277,6 +2277,7 @@ static int skip_repeated_newmv(
   int skip = 0;
   int this_rate_mv = 0;
   int i;
+  int rate_diff = 0;
   for (i = 0; i < ref_mv_idx; ++i) {
     // Check if the motion search result same as previous results
     if (cur_mv[0].as_int == args->single_newmv[i][refs[0]].as_int &&
@@ -2285,6 +2286,7 @@ static int skip_repeated_newmv(
       // mode will be the best mode
       if (mode_info[i].rd == INT64_MAX) {
         skip = 1;
+        rate_diff = 0;
         break;
       }
       // Compare the cost difference including drl cost and mv cost
@@ -2295,6 +2297,7 @@ static int skip_repeated_newmv(
             &mode_info[i].mv.as_mv, &ref_mv.as_mv, x->mv_costs.nmv_joint_cost,
             x->mv_costs.mv_cost_stack, MV_COST_WEIGHT);
         const int this_cost = this_rate_mv + drl_cost;
+        rate_diff = this_cost - compare_cost;
 
         if (compare_cost <= this_cost) {
           // Skip this mode if it is more expensive as the previous result
@@ -2310,17 +2313,30 @@ static int skip_repeated_newmv(
               best_mbmi->mv[0].as_int != ref_mv.as_int) {
             assert(*best_rd != INT64_MAX);
             assert(best_mbmi->mv[0].as_int == mode_info[i].mv.as_int);
+            // Update best_mbmi
             best_mbmi->ref_mv_idx = ref_mv_idx;
             motion_mode_cand->rate_mv = this_rate_mv;
-            best_rd_stats->rate += this_cost - compare_cost;
+            best_rd_stats->rate += rate_diff;
             *best_rd =
                 RDCOST(x->rdmult, best_rd_stats->rate, best_rd_stats->dist);
+
+            // Collect mode stats for multiwinner mode processing
+            const THR_MODES mode_enum = get_prediction_mode_idx(
+                best_mbmi->mode, best_mbmi->ref_frame[0],
+                best_mbmi->ref_frame[1]);
+            store_winner_mode_stats(
+                &cpi->common, x, best_mbmi, best_rd_stats, best_rd_stats_y,
+                best_rd_stats_uv, mode_enum, NULL, bsize, *best_rd,
+                cpi->sf.winner_mode_sf.enable_multiwinner_mode_process,
+                do_tx_search);
+
             // We also need to update mode_info here because we are setting
             // (ref_)best_rd here. So we will not be able to search the same
             // mode again with the current configuration.
             mode_info[ref_mv_idx].mv.as_int = best_mbmi->mv[0].as_int;
             mode_info[ref_mv_idx].rate_mv = this_rate_mv;
             mode_info[ref_mv_idx].rd = *best_rd;
+
             if (*best_rd < *ref_best_rd) *ref_best_rd = *best_rd;
             break;
           }
@@ -2328,18 +2344,14 @@ static int skip_repeated_newmv(
       }
     }
   }
+
+  const int64_t rd_diff = RDCOST(x->rdmult, rate_diff, 0);
+  args->modelled_rd[this_mode][ref_mv_idx][refs[0]] =
+      args->modelled_rd[this_mode][i][refs[0]] + rd_diff;
+  args->simple_rd[this_mode][ref_mv_idx][refs[0]] =
+      args->simple_rd[this_mode][i][refs[0]] + rd_diff;
+
   if (skip) {
-    const THR_MODES mode_enum = get_prediction_mode_idx(
-        best_mbmi->mode, best_mbmi->ref_frame[0], best_mbmi->ref_frame[1]);
-    // Collect mode stats for multiwinner mode processing
-    store_winner_mode_stats(
-        &cpi->common, x, best_mbmi, best_rd_stats, best_rd_stats_y,
-        best_rd_stats_uv, mode_enum, NULL, bsize, *best_rd,
-        cpi->sf.winner_mode_sf.enable_multiwinner_mode_process, do_tx_search);
-    args->modelled_rd[this_mode][ref_mv_idx][refs[0]] =
-        args->modelled_rd[this_mode][i][refs[0]];
-    args->simple_rd[this_mode][ref_mv_idx][refs[0]] =
-        args->simple_rd[this_mode][i][refs[0]];
     mode_info[ref_mv_idx].rd = mode_info[i].rd;
     mode_info[ref_mv_idx].rate_mv = this_rate_mv;
     mode_info[ref_mv_idx].mv.as_int = mode_info[i].mv.as_int;
@@ -2347,6 +2359,7 @@ static int skip_repeated_newmv(
     restore_dst_buf(xd, orig_dst, num_planes);
     return 1;
   }
+
   return 0;
 }
 
