@@ -63,6 +63,9 @@
 #include "av1/encoder/rd.h"
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/reconinter_enc.h"
+#if CONFIG_SEGMENT_BASED_PARTITIONING
+#include "av1/encoder/segment_patch.h"
+#endif  // CONFIG_SEGMENT_BASED_PARTITIONING
 #include "av1/encoder/segmentation.h"
 #include "av1/encoder/tokenize.h"
 #include "av1/encoder/tpl_model.h"
@@ -3037,6 +3040,118 @@ static void update_picked_ref_frames_mask(MACROBLOCK *const x, int ref_type,
   }
 }
 
+#if CONFIG_SEGMENT_BASED_PARTITIONING
+
+// Amend mask with values {0,1} to one with values {0,64}.
+static void extend_binary_mask_range(uint8_t *const mask, int w, int h) {
+  for (int r = 0; r < h; ++r) {
+    for (int c = 0; c < w; ++c) {
+      const int idx = r * w + c;
+      if (mask[idx] == 1) mask[idx] = 64;
+    }
+  }
+}
+
+#define BLUR_KERNEL 7  // Box blur kernel size
+#define BLUR_HALF_KERNEL ((BLUR_KERNEL - 1) / 2)
+#define BLUR_BORDER BLUR_HALF_KERNEL  // Padding needed in each direction.
+// Applies box blur on 'mask' using an averaging filter with kernel size
+// BLUR_KERNEL and stride 1. The blurred image is returned in 'mask' itself.
+static void apply_box_blur(uint8_t *const mask, int w, int h) {
+  // Pad as needed in each of the 4 directions.
+  const int padded_w = (w + BLUR_BORDER * 2);
+  const int padded_h = (h + BLUR_BORDER * 2);
+  uint8_t *const input_mem =
+      aom_malloc(padded_w * padded_h * sizeof(*input_mem));
+  uint8_t *const input = input_mem + padded_w * BLUR_BORDER;
+  for (int r = 0; r < h; ++r) {
+    const uint8_t *const src = mask + r * w;
+    uint8_t *const dst = input + r * padded_w + BLUR_BORDER;
+    memcpy(dst, src, w * sizeof(*mask));
+    for (int c = -BLUR_BORDER; c < 0; ++c) {
+      dst[c] = dst[0];
+    }
+    for (int c = w; c < w + BLUR_BORDER; ++c) {
+      dst[c] = dst[w - 1];
+    }
+  }
+  for (int r = -BLUR_BORDER; r < 0; ++r) {
+    memcpy(&input[r * padded_w], input, padded_w * sizeof(*input));
+  }
+  for (int r = h; r < h + BLUR_BORDER; ++r) {
+    memcpy(&input[r * padded_w], &input[(h - 1) * padded_w],
+           padded_w * sizeof(*input));
+  }
+
+  // 1D filter in horizontal direction.
+  double *const temp_mem = aom_malloc(w * padded_h * sizeof(*temp_mem));
+  double *const temp = temp_mem + w * BLUR_BORDER;
+  for (int r = -BLUR_BORDER; r < h + BLUR_BORDER; ++r) {
+    const uint8_t *const src = input + r * padded_w + BLUR_BORDER;
+    double *const dst = temp + r * w;
+    // Simple average computation for 0th column.
+    double sum = 0;
+    for (int c = -BLUR_HALF_KERNEL; c <= BLUR_HALF_KERNEL; ++c) {
+      sum += src[c];
+    }
+    dst[0] = sum / BLUR_KERNEL;
+    // Intelligent average computation for rest of the columns.
+    for (int c = 1; c < w; ++c) {
+      sum -= src[c - BLUR_HALF_KERNEL - 1];
+      sum += src[c + BLUR_HALF_KERNEL];
+      dst[c] = sum / BLUR_KERNEL;
+    }
+  }
+  aom_free(input_mem);
+
+  // 1D filter in vertical direction.
+  for (int c = 0; c < w; ++c) {
+    const double *const src = temp + c;
+    uint8_t *const dst = mask + c;
+    // Simple average computation for 0th row.
+    double sum = 0;
+    for (int r = -BLUR_HALF_KERNEL; r <= BLUR_HALF_KERNEL; ++r) {
+      sum += src[r * w];
+    }
+    dst[0] = (uint8_t)round(sum / BLUR_KERNEL);
+    // Intelligent average computation for rest of the rows.
+    for (int r = 1; r < h; ++r) {
+      sum -= src[(r - BLUR_HALF_KERNEL - 1) * w];
+      sum += src[(r + BLUR_HALF_KERNEL) * w];
+      dst[r * w] = (uint8_t)round(sum / BLUR_KERNEL);
+    }
+  }
+  aom_free(temp_mem);
+}
+#undef BLUR_KERNEL
+#undef BLUR_HALF_KERNEL
+#undef BLUR_BORDER
+
+#define DUMP_SEGMENT_MASKS 0
+
+#if DUMP_SEGMENT_MASKS
+
+// Can be viewed as follows:
+// ffplay -f rawvideo -pixel_format gray -video_size wxh -i <filename>
+static void dump_raw_y_plane(const uint8_t *y, int width, int height,
+                             int stride, const char *filename) {
+  FILE *f_out = fopen(filename, "wb");
+  if (f_out == NULL) {
+    fprintf(stderr, "Unable to open file %s to write.\n", filename);
+    return;
+  }
+
+  for (int r = 0; r < height; ++r) {
+    fwrite(&y[r * stride], sizeof(*y), width, f_out);
+  }
+
+  fclose(f_out);
+}
+
+#endif  // DUMP_SEGMENT_MASKS
+
+#endif  // CONFIG_SEGMENT_BASED_PARTITIONING
+
 // TODO(jinging,jimbankoski,rbultje): properly skip partition types that are
 // unlikely to be selected depending on previous rate-distortion optimization
 // results, for encoding speed-up.
@@ -3503,6 +3618,56 @@ BEGIN_PARTITION_SEARCH:
 
   // store estimated motion vector
   if (cpi->sf.adaptive_motion_search) store_pred_mv(x, ctx_none);
+
+#if CONFIG_SEGMENT_BASED_PARTITIONING
+  // PARTITION_SEGMENT
+  const BLOCK_SIZE superblock_size = cm->seq_params.sb_size;
+  const int superblock_width = block_size_wide[superblock_size];
+  const int superblock_height = block_size_high[superblock_size];
+  const bool seg_based_partition_allowed = (bsize == superblock_size);
+  if (seg_based_partition_allowed) {
+#if DUMP_SEGMENT_MASKS
+    dump_raw_y_plane(x->plane[0].src.buf, superblock_width, superblock_height,
+                     x->plane[0].src.stride, "/tmp/1.source.yuv");
+#endif  // DUMP_SEGMENT_MASKS
+
+    // Get segment mask from helper library.
+    Av1SegmentParams params;
+    av1_get_default_segment_params(&params);
+    params.k = 5000;  // TODO(urvang): Temporary hack to get 2 components.
+    uint8_t *seg_mask = aom_malloc(superblock_width * superblock_height);
+    int num_components = -1;
+    av1_get_segments(x->plane[0].src.buf, superblock_width, superblock_height,
+                     x->plane[0].src.stride, &params, seg_mask,
+                     &num_components);
+
+    if (num_components >= 2) {
+      // TODO(urvang): Convert more than 2 components to 2 components.
+      if (num_components == 2) {
+        // Convert binary mask with values {0, 1} to one with values {0, 64}.
+        extend_binary_mask_range(seg_mask, superblock_width, superblock_height);
+#if DUMP_SEGMENT_MASKS
+        dump_raw_y_plane(seg_mask, superblock_width, superblock_height,
+                         superblock_width, "/tmp/2.binary_mask.yuv");
+#endif  // DUMP_SEGMENT_MASKS
+
+        // Get a smooth mask from the binary mask.
+        apply_box_blur(seg_mask, superblock_width, superblock_height);
+#if DUMP_SEGMENT_MASKS
+        dump_raw_y_plane(seg_mask, superblock_width, superblock_height,
+                         superblock_width, "/tmp/3.smooth_mask.yuv");
+#endif  // DUMP_SEGMENT_MASKS
+
+        // TODO(urvang): Use masked predictor functions to get prediction.
+
+        // TODO(urvang): Usual tx size/type search and compute rdcost. And
+        // update best partition and best rdcost if appropriate.
+      }
+    }
+    aom_free(seg_mask);
+    restore_context(cm, x, &x_ctx, mi_row, mi_col, bsize, num_planes);
+  }
+#endif  // CONFIG_SEGMENT_BASED_PARTITIONING
 
   // PARTITION_SPLIT
   int64_t part_split_rd = INT64_MAX;
