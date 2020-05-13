@@ -1585,6 +1585,9 @@ static void estimate_intra_mode(
     perform_intra_pred = 0;
   }
 
+  if (cpi->sf.rt_sf.skip_intra_pred_if_tx_skip && best_rdc->skip_txfm)
+    perform_intra_pred = 0;
+
   if (!(best_rdc->rdcost == INT64_MAX ||
         (perform_intra_pred && !best_early_term &&
          best_rdc->rdcost > inter_mode_thresh &&
