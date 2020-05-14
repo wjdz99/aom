@@ -1644,6 +1644,7 @@ void av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
 /*!\endcond */
 
 /*!\brief Obtain the raw frame data
+ *
  * \ingroup high_level_algo
  * This function receives the raw frame data from input.
  *
@@ -1664,6 +1665,7 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
                           int64_t end_time_stamp);
 
 /*!\brief Encode a frame
+ *
  * \ingroup high_level_algo
  * \callgraph
  * This function encodes the raw frame data, and outputs the frame bit stream
@@ -1688,6 +1690,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
                             const aom_rational64_t *timebase);
 
 /*!\brief Run 1-pass/2-pass encoding
+ *
  * \ingroup high_level_algo
  */
 int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,

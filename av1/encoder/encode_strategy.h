@@ -27,6 +27,7 @@ extern "C" {
 #include "av1/encoder/firstpass.h"
 
 /*!\brief Implement high-level encode strategy
+ *
  * \ingroup high_level_algo
  * This function will implement high-level encode strategy, choosing frame type,
  * frame placement, etc. It populates an EncodeFrameParams struct with the
