@@ -49,4 +49,8 @@ macro(fix_experiment_configs)
     change_config_and_warn(CONFIG_MODE_DEP_NONSEP_INTRA_TX 1
                            CONFIG_MODE_DEP_NONSEP_SEC_INTRA_TX)
   endif()
+
+  if(CONFIG_OPTFLOW_REFINEMENT)
+    change_config_and_warn(CONFIG_EXT_COMPOUND 1 CONFIG_OPTFLOW_REFINEMENT)
+  endif()
 endmacro()
