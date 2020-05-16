@@ -1493,3 +1493,17 @@ uint64_t aom_mse_wxh_16bit_c(uint8_t *dst, int dstride, uint16_t *src,
   }
   return sum;
 }
+
+#if CONFIG_AV1_HIGHBITDEPTH
+uint64_t aom_mse_wxh_16bit_highbd_c(uint16_t *dst, int dstride, uint16_t *src,
+                                    int sstride, int w, int h) {
+  uint64_t sum = 0;
+  for (int i = 0; i < h; i++) {
+    for (int j = 0; j < w; j++) {
+      int e = dst[i * dstride + j] - src[i * sstride + j];
+      sum += e * e;
+    }
+  }
+  return sum;
+}
+#endif  // CONFIG_AV1_HIGHBITDEPTH
