@@ -9382,9 +9382,11 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
                                 MV_COST_WEIGHT);
       }
 #if CONFIG_EXT_COMPOUND
-      if (this_mode == SCALED_NEWMV)
+      if (this_mode == SCALED_NEWMV) {
         av1_get_scaled_mv(&cpi->common, cur_mv[1], 0, mbmi->ref_frame,
                           &cur_mv[0]);
+        clamp_mv_in_range(x, &cur_mv[0], 0);
+      }
 #endif  // CONFIG_EXT_COMPOUND
     } else {
 #if CONFIG_NEW_INTER_MODES
@@ -9419,6 +9421,7 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
       if (this_mode == NEW_SCALEDMV)
         av1_get_scaled_mv(&cpi->common, cur_mv[0], 1, mbmi->ref_frame,
                           &cur_mv[1]);
+        clamp_mv_in_range(x, &cur_mv[1], 1);
 #endif  // CONFIG_EXT_COMPOUND
     }
   } else {
