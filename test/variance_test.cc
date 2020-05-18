@@ -1181,6 +1181,7 @@ typedef SubpelVarianceTest<SubpixAvgVarMxNFunc> AvxSubpelAvgVarianceTest;
 typedef SubpelVarianceTest<DistWtdSubpixAvgVarMxNFunc>
     AvxDistWtdSubpelAvgVarianceTest;
 typedef ObmcVarianceTest<ObmcSubpelVarFunc> AvxObmcSubpelVarianceTest;
+typedef TestParams<MseWxH16bitFunc> MseWxHParams;
 
 TEST_P(AvxSseTest, RefSse) { RefTestSse(); }
 TEST_P(AvxSseTest, MaxSse) { MaxTestSse(); }
@@ -1795,6 +1796,13 @@ INSTANTIATE_TEST_SUITE_P(C, AvxHBDObmcSubpelVarianceTest,
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
 #if HAVE_SSE2
+INSTANTIATE_TEST_SUITE_P(
+    SSE2, AvxMseWxHTest,
+    ::testing::Values(MseWxHParams(3, 3, &aom_mse_wxh_16bit_sse2, 8),
+                      MseWxHParams(3, 2, &aom_mse_wxh_16bit_sse2, 8),
+                      MseWxHParams(2, 3, &aom_mse_wxh_16bit_sse2, 8),
+                      MseWxHParams(2, 2, &aom_mse_wxh_16bit_sse2, 8)));
+
 INSTANTIATE_TEST_SUITE_P(SSE2, SumOfSquaresTest,
                          ::testing::Values(aom_get_mb_ss_sse2));
 
@@ -2380,7 +2388,6 @@ INSTANTIATE_TEST_SUITE_P(
 
 #if HAVE_AVX2
 
-typedef TestParams<MseWxH16bitFunc> MseWxHParams;
 INSTANTIATE_TEST_SUITE_P(
     AVX2, AvxMseWxHTest,
     ::testing::Values(MseWxHParams(3, 3, &aom_mse_wxh_16bit_avx2, 8),
