@@ -2206,6 +2206,93 @@ static AOM_INLINE void rd_use_partition(
   x->rdmult = orig_rdmult;
 }
 
+static AOM_INLINE void pick_sb_modes_nonrd(AV1_COMP *const cpi,
+                                          TileDataEnc *tile_data,
+                                          MACROBLOCK *const x, int mi_row,
+                                          int mi_col, RD_STATS *rd_cost,
+                                          BLOCK_SIZE bsize,
+                                          PICK_MODE_CONTEXT *ctx,
+                                          RD_STATS best_rd) {
+
+  set_offsets(cpi, &tile_data->tile_info, x, mi_row, mi_col, bsize);
+  AV1_COMMON *const cm = &cpi->common;
+  const int num_planes = av1_num_planes(cm);
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi;
+  struct macroblock_plane *const p = x->plane;
+  const AQ_MODE aq_mode = cpi->oxcf.aq_mode;
+  TxfmSearchInfo *txfm_info = &x->txfm_search_info;
+  int i;
+
+#if CONFIG_COLLECT_COMPONENT_TIMING
+  start_timing(cpi, rd_pick_sb_modes_time);
+#endif
+
+  aom_clear_system_state();
+
+  mbmi = xd->mi[0];
+
+  // Sets up the tx_type_map buffer in MACROBLOCKD.
+  xd->tx_type_map = txfm_info->tx_type_map_;
+  xd->tx_type_map_stride = mi_size_wide[bsize];
+
+  for (i = 0; i < num_planes; ++i) {
+    p[i].coeff = ctx->coeff[i];
+    p[i].qcoeff = ctx->qcoeff[i];
+    p[i].dqcoeff = ctx->dqcoeff[i];
+    p[i].eobs = ctx->eobs[i];
+    p[i].txb_entropy_ctx = ctx->txb_entropy_ctx[i];
+  }
+
+  if (is_cur_buf_hbd(xd)) {
+    x->source_variance = av1_high_get_sby_perpixel_variance(
+        cpi, &x->plane[0].src, bsize, xd->bd);
+  } else {
+    x->source_variance =
+        av1_get_sby_perpixel_variance(cpi, &x->plane[0].src, bsize);
+  }
+
+  // Save rdmult before it might be changed, so it can be restored later.
+  const int orig_rdmult = x->rdmult;
+  setup_block_rdmult(cpi, x, mi_row, mi_col, bsize, aq_mode, mbmi);
+
+  // Find best coding mode & reconstruct the MB so it is available
+  // as a predictor for MBs that follow in the SB
+  if (frame_is_intra_only(cm)) {
+#if CONFIG_COLLECT_COMPONENT_TIMING
+    start_timing(cpi, av1_rd_pick_intra_mode_sb_time);
+#endif
+    hybrid_intra_mode_search(cpi, x, rd_cost, bsize, ctx);
+#if CONFIG_COLLECT_COMPONENT_TIMING
+    end_timing(cpi, av1_rd_pick_intra_mode_sb_time);
+#endif
+  } else {
+#if CONFIG_COLLECT_COMPONENT_TIMING
+    start_timing(cpi, av1_rd_pick_inter_mode_sb_time);
+#endif
+    if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
+       // TODO(kyslov): add av1_nonrd_pick_inter_mode_sb_seg_skip
+      av1_rd_pick_inter_mode_sb_seg_skip(cpi, tile_data, x, mi_row, mi_col,
+                                         rd_cost, bsize, ctx, best_rd.rdcost);
+    } else {
+      av1_nonrd_pick_inter_mode_sb(cpi, tile_data, x, rd_cost, bsize, ctx,
+                                   best_rd.rdcost);
+    }
+#if CONFIG_COLLECT_COMPONENT_TIMING
+    end_timing(cpi, av1_rd_pick_inter_mode_sb_time);
+#endif
+  }
+
+  x->rdmult = orig_rdmult;
+  ctx->rd_stats.rate = rd_cost->rate;
+  ctx->rd_stats.dist = rd_cost->dist;
+  ctx->rd_stats.rdcost = rd_cost->rdcost;
+
+#if CONFIG_COLLECT_COMPONENT_TIMING
+  end_timing(cpi, rd_pick_sb_modes_time);
+#endif
+}
+
 static int is_leaf_split_partition(AV1_COMMON *cm, int mi_row, int mi_col,
                                    BLOCK_SIZE bsize) {
   const int bs = mi_size_wide[bsize];
@@ -2289,6 +2376,9 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
   xd->left_txfm_context =
       xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
 
+  // Initialize default mode evaluation params
+  set_mode_eval_params(cpi, x, DEFAULT_EVAL);
+
   switch (partition) {
     case PARTITION_NONE:
       pc_tree->none = av1_alloc_pmc(cm, bsize, &td->shared_coeff_buf);
@@ -2302,9 +2392,8 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
 
         save_context(x, &x_ctx, mi_row, mi_col, bsize, 3);
         subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
-        pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &none_rdc,
-                      PARTITION_NONE, bsize, pc_tree->none, invalid_rd,
-                      PICK_MODE_NONRD);
+        pick_sb_modes_nonrd(cpi, tile_data, x, mi_row, mi_col, &none_rdc,
+                            bsize, pc_tree->none, invalid_rd);
         none_rdc.rate += mode_costs->partition_cost[pl][PARTITION_NONE];
         none_rdc.rdcost = RDCOST(x->rdmult, none_rdc.rate, none_rdc.dist);
         restore_context(x, &x_ctx, mi_row, mi_col, bsize, 3);
@@ -2321,9 +2410,9 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
           xd->left_txfm_context =
               xd->left_txfm_context_buffer + ((mi_row + y_idx) & MAX_MIB_MASK);
           pc_tree->split[i]->partitioning = PARTITION_NONE;
-          pick_sb_modes(cpi, tile_data, x, mi_row + y_idx, mi_col + x_idx,
-                        &block_rdc, PARTITION_NONE, subsize,
-                        pc_tree->split[i]->none, invalid_rd, PICK_MODE_NONRD);
+          pick_sb_modes_nonrd(cpi, tile_data, x, mi_row + y_idx, mi_col + x_idx,
+                              &block_rdc, subsize, pc_tree->split[i]->none,
+                              invalid_rd);
           split_rdc.rate += block_rdc.rate;
           split_rdc.dist += block_rdc.dist;
 
@@ -2355,9 +2444,8 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
         }
 
       } else {
-        pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &dummy_cost,
-                      PARTITION_NONE, bsize, pc_tree->none, invalid_rd,
-                      PICK_MODE_NONRD);
+        pick_sb_modes_nonrd(cpi, tile_data, x, mi_row, mi_col, &dummy_cost,
+                            bsize, pc_tree->none, invalid_rd);
         encode_b(cpi, tile_data, td, tp, mi_row, mi_col, 0, bsize, partition,
                  pc_tree->none, NULL);
       }
@@ -2367,15 +2455,13 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
         pc_tree->vertical[i] =
             av1_alloc_pmc(cm, subsize, &td->shared_coeff_buf);
       }
-      pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &dummy_cost,
-                    PARTITION_VERT, subsize, pc_tree->vertical[0], invalid_rd,
-                    PICK_MODE_NONRD);
+      pick_sb_modes_nonrd(cpi, tile_data, x, mi_row, mi_col, &dummy_cost,
+                          subsize, pc_tree->vertical[0], invalid_rd);
       encode_b(cpi, tile_data, td, tp, mi_row, mi_col, 0, subsize,
                PARTITION_VERT, pc_tree->vertical[0], NULL);
       if (mi_col + hbs < mi_params->mi_cols && bsize > BLOCK_8X8) {
-        pick_sb_modes(cpi, tile_data, x, mi_row, mi_col + hbs, &dummy_cost,
-                      PARTITION_VERT, subsize, pc_tree->vertical[1], invalid_rd,
-                      PICK_MODE_NONRD);
+        pick_sb_modes_nonrd(cpi, tile_data, x, mi_row, mi_col + hbs, &dummy_cost,
+                            subsize, pc_tree->vertical[1], invalid_rd);
         encode_b(cpi, tile_data, td, tp, mi_row, mi_col + hbs, 0, subsize,
                  PARTITION_VERT, pc_tree->vertical[1], NULL);
       }
@@ -2385,16 +2471,14 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
         pc_tree->horizontal[i] =
             av1_alloc_pmc(cm, subsize, &td->shared_coeff_buf);
       }
-      pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &dummy_cost,
-                    PARTITION_HORZ, subsize, pc_tree->horizontal[0], invalid_rd,
-                    PICK_MODE_NONRD);
+      pick_sb_modes_nonrd(cpi, tile_data, x, mi_row, mi_col, &dummy_cost,
+                          subsize, pc_tree->horizontal[0], invalid_rd);
       encode_b(cpi, tile_data, td, tp, mi_row, mi_col, 0, subsize,
                PARTITION_HORZ, pc_tree->horizontal[0], NULL);
 
       if (mi_row + hbs < mi_params->mi_rows && bsize > BLOCK_8X8) {
-        pick_sb_modes(cpi, tile_data, x, mi_row + hbs, mi_col, &dummy_cost,
-                      PARTITION_HORZ, subsize, pc_tree->horizontal[1],
-                      invalid_rd, PICK_MODE_NONRD);
+        pick_sb_modes_nonrd(cpi, tile_data, x, mi_row + hbs, mi_col, &dummy_cost,
+                            subsize, pc_tree->horizontal[1], invalid_rd);
         encode_b(cpi, tile_data, td, tp, mi_row + hbs, mi_col, 0, subsize,
                  PARTITION_HORZ, pc_tree->horizontal[1], NULL);
       }
@@ -2418,9 +2502,8 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
             xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
         pc_tree->partitioning = PARTITION_NONE;
         pc_tree->none = av1_alloc_pmc(cm, bsize, &td->shared_coeff_buf);
-        pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &none_rdc,
-                      PARTITION_NONE, bsize, pc_tree->none, invalid_rd,
-                      PICK_MODE_NONRD);
+        pick_sb_modes_nonrd(cpi, tile_data, x, mi_row, mi_col, &none_rdc,
+                            bsize, pc_tree->none, invalid_rd);
         none_rdc.rate += mode_costs->partition_cost[pl][PARTITION_NONE];
         none_rdc.rdcost = RDCOST(x->rdmult, none_rdc.rate, none_rdc.dist);
         restore_context(x, &x_ctx, mi_row, mi_col, bsize, 3);
@@ -2443,9 +2526,9 @@ static AOM_INLINE void nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
               pc_tree->split[i]->none =
                   av1_alloc_pmc(cm, subsize, &td->shared_coeff_buf);
             pc_tree->split[i]->partitioning = PARTITION_NONE;
-            pick_sb_modes(cpi, tile_data, x, mi_row + y_idx, mi_col + x_idx,
-                          &block_rdc, PARTITION_NONE, subsize,
-                          pc_tree->split[i]->none, invalid_rd, PICK_MODE_NONRD);
+            pick_sb_modes_nonrd(cpi, tile_data, x, mi_row + y_idx, mi_col + x_idx,
+                                &block_rdc, subsize, pc_tree->split[i]->none,
+                                invalid_rd);
             split_rdc.rate += block_rdc.rate;
             split_rdc.dist += block_rdc.dist;
 
