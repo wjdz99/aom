@@ -1115,7 +1115,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
 
   enc_row_mt->sync_read_ptr = av1_row_mt_sync_read_dummy;
   enc_row_mt->sync_write_ptr = av1_row_mt_sync_write_dummy;
-  mt_info->row_mt_enabled = 0;
+  mt_info->row_mt_enabled = (cpi->oxcf.row_mt && (cpi->oxcf.max_threads > 1));
 
   if (mt_info->row_mt_enabled && (mt_info->num_workers > 1)) {
     enc_row_mt->sync_read_ptr = av1_row_mt_sync_read;
