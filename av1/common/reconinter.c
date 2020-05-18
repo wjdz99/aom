@@ -2183,6 +2183,7 @@ static void illum_combine_interintra(
       int32_t r = inter_pred[i * inter_stride + j];
       r *= alpha;
       r += beta;
+      r >>= ILLUM_MCOMMP_PREC_BITS;
       projected[i * projected_stride + j] = clip_pixel_highbd(r, 8);
     }
   }
@@ -2227,7 +2228,8 @@ static void illum_combine_interintra_highbd(
       int32_t r = inter_pred[i * inter_stride + j];
       r *= alpha;
       r += beta;
-      projected[i * projected_stride + j] = clip_pixel_highbd(r, 8);
+      r >>= ILLUM_MCOMMP_PREC_BITS;
+      projected[i * projected_stride + j] = clip_pixel_highbd(r, bd);
     }
   }
 
