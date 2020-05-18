@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9f3a984_f0909376",
+        "filename": "tools/convexhull_framework/src/CalcQtyWithHdrTools.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 18232
+      },
+      "writtenOn": "2020-05-18T22:03:32Z",
+      "side": 1,
+      "message": "hi Ryan, we need to remove line 66, right? if tool itself has issue, we shall ask for a fix.",
+      "revId": "12cc76c05b0ae5b6cd2a64206f8a3cc50f13f1a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
