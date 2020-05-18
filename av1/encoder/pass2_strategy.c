@@ -37,7 +37,7 @@ static void init_gf_stats(GF_GROUP_STATS *gf_stats);
 
 // Calculate an active area of the image that discounts formatting
 // bars and partially discounts other 0 energy areas.
-#define MIN_ACTIVE_AREA 0.5
+#define MIN_ACTIVE_AREA 0.50
 #define MAX_ACTIVE_AREA 1.0
 static double calculate_active_area(const FRAME_INFO *frame_info,
                                     const FIRSTPASS_STATS *this_frame) {
