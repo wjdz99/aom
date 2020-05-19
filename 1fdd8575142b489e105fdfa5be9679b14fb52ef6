@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3d12986_4c4f6ed4",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-05-19T22:22:54Z",
+      "side": 1,
+      "message": "i think these two should not be set here",
+      "revId": "1fdd8575142b489e105fdfa5be9679b14fb52ef6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a68d93e3_9846113f",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-05-19T22:22:54Z",
+      "side": 1,
+      "message": "sometimes you use SVC_#_FRAMEA for refresh, but sometimes not?",
+      "revId": "1fdd8575142b489e105fdfa5be9679b14fb52ef6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6785d760_66ca9ee5",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-05-19T22:22:54Z",
+      "side": 1,
+      "message": "same here: sometimes you use SVC_#_FRAME for ref_idx and sometimes not?",
+      "revId": "1fdd8575142b489e105fdfa5be9679b14fb52ef6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
