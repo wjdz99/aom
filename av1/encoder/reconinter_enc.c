@@ -88,10 +88,27 @@ static void enc_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                        int plane, const MB_MODE_INFO *mi,
                                        int build_for_obmc, int bw, int bh,
                                        int mi_x, int mi_y) {
+  // const InterPredExt border = { .border_left = 8, .border_top = 8,
+  // .border_right = 0, .border_bottom = 0 };
+  const InterPredExt *ext = NULL;
+  // if (av1_valid_inter_pred_ext(&border, mi->use_intrabc,
+  // has_second_ref(xd->mi[0]))) {
+  //  ext = &border;
+  //}
+  assert(!is_cur_buf_hbd(xd));
+  uint8_t *orig_dst = aom_memalign(64, (bw + 8) * (bh + 8) * sizeof(*orig_dst));
+  const int dst_stride = bw;
+  uint8_t *dst = orig_dst + 8 + 8 * dst_stride;
+
   av1_build_inter_predictors(cm, xd, plane, mi, build_for_obmc, bw, bh, mi_x,
-                             mi_y, enc_calc_subpel_params, NULL,
-                             xd->plane[plane].dst.buf,
-                             xd->plane[plane].dst.stride, NULL);
+                             mi_y, enc_calc_subpel_params, NULL, dst,
+                             dst_stride, ext);
+
+  for (int j = 0; j < bh; ++j) {
+    memcpy(dst + j * dst_stride,
+           xd->plane[plane].dst.buf + j * xd->plane[plane].dst.stride, bw);
+  }
+  aom_free(orig_dst);
 }
 
 static void build_inter_predictors_for_plane(const AV1_COMMON *cm,
