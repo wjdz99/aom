@@ -2099,6 +2099,14 @@ const VarianceParams kArrayHBDVariance_sse2[] = {
 INSTANTIATE_TEST_SUITE_P(SSE2, AvxHBDVarianceTest,
                          ::testing::ValuesIn(kArrayHBDVariance_sse2));
 
+INSTANTIATE_TEST_SUITE_P(
+    SSE2, MseHBDWxHTest,
+    ::testing::Values(MseHBDWxHParams(3, 3, &aom_mse_wxh_16bit_highbd_sse2, 10),
+                      MseHBDWxHParams(3, 2, &aom_mse_wxh_16bit_highbd_sse2, 10),
+                      MseHBDWxHParams(2, 3, &aom_mse_wxh_16bit_highbd_sse2, 10),
+                      MseHBDWxHParams(2, 2, &aom_mse_wxh_16bit_highbd_sse2,
+                                      10)));
+
 #if HAVE_AVX2
 
 INSTANTIATE_TEST_SUITE_P(
