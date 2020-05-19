@@ -44,7 +44,11 @@ TEST(EncodeAPI, InvalidParams) {
             aom_codec_enc_config_default(NULL, &cfg, 0));
   EXPECT_TRUE(aom_codec_error(NULL) != NULL);
 
+<<<<<<< HEAD   (60dd0f Remove surprises from aom_codec_control)
   for (aom_codec_iface_t *iface : kCodecs) {
+=======
+  for (const aom_codec_iface_t *iface : kCodecs) {
+>>>>>>> BRANCH (bb35ba Release v2.0.0 Applejack)
     SCOPED_TRACE(aom_codec_iface_name(iface));
     EXPECT_EQ(AOM_CODEC_INVALID_PARAM,
               aom_codec_enc_init(NULL, iface, NULL, 0));

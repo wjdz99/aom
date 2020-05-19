@@ -38,7 +38,11 @@ TEST(DecodeAPI, InvalidParams) {
   EXPECT_EQ(AOM_CODEC_INVALID_PARAM, aom_codec_destroy(NULL));
   EXPECT_TRUE(aom_codec_error(NULL) != NULL);
 
+<<<<<<< HEAD   (60dd0f Remove surprises from aom_codec_control)
   for (aom_codec_iface_t *iface : kCodecs) {
+=======
+  for (const aom_codec_iface_t *iface : kCodecs) {
+>>>>>>> BRANCH (bb35ba Release v2.0.0 Applejack)
     EXPECT_EQ(AOM_CODEC_INVALID_PARAM,
               aom_codec_dec_init(NULL, iface, NULL, 0));
 

@@ -308,6 +308,22 @@ struct aom_codec_priv {
 };
 
 #define CAST(id, arg) va_arg((arg), aom_codec_control_type_##id)
+<<<<<<< HEAD   (60dd0f Remove surprises from aom_codec_control)
+=======
+
+/* CODEC_INTERFACE convenience macro
+ *
+ * By convention, each codec interface is a struct with extern linkage, where
+ * the symbol is suffixed with _algo. A getter function is also defined to
+ * return a pointer to the struct, since in some cases it's easier to work
+ * with text symbols than data symbols (see issue #169). This function has
+ * the same name as the struct, less the _algo suffix. The CODEC_INTERFACE
+ * macro is provided to define this getter function automatically.
+ */
+#define CODEC_INTERFACE(id)                          \
+  aom_codec_iface_t *id(void) { return &id##_algo; } \
+  aom_codec_iface_t id##_algo
+>>>>>>> BRANCH (bb35ba Release v2.0.0 Applejack)
 
 /* Internal Utility Functions
  *

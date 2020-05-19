@@ -35,6 +35,22 @@
 
 #include <stdint.h>
 #include <inttypes.h>
+<<<<<<< HEAD   (60dd0f Remove surprises from aom_codec_control)
+=======
+#endif
+
+#if !defined(INT8_MAX)
+#define INT8_MAX 127
+#endif
+
+#if !defined(INT32_MAX)
+#define INT32_MAX 2147483647
+#endif
+
+#if !defined(INT32_MIN)
+#define INT32_MIN (-2147483647 - 1)
+#endif
+>>>>>>> BRANCH (bb35ba Release v2.0.0 Applejack)
 
 #if defined(__cplusplus)
 extern "C" {

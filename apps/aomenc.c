@@ -1935,7 +1935,11 @@ static void initialize_encoder(struct stream_state *stream,
     aom_codec_dec_cfg_t cfg = { 0, 0, 0, !FORCE_HIGHBITDEPTH_DECODING };
     aom_codec_dec_init(&stream->decoder, decoder, &cfg, 0);
 
+<<<<<<< HEAD   (60dd0f Remove surprises from aom_codec_control)
     if (strcmp(get_short_name_by_aom_encoder(global->codec), "av1") == 0) {
+=======
+    if (strcmp(global->codec->name, "av1") == 0) {
+>>>>>>> BRANCH (bb35ba Release v2.0.0 Applejack)
       AOM_CODEC_CONTROL_TYPECHECKED(&stream->decoder, AV1_SET_TILE_MODE,
                                     stream->config.cfg.large_scale_tile);
       ctx_exit_on_error(&stream->decoder, "Failed to set decode_tile_mode");

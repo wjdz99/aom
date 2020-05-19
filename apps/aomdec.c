@@ -671,7 +671,12 @@ static int main_loop(int argc, const char **argv_) {
   if (!interface) interface = get_aom_decoder_by_index(0);
 
   dec_flags = 0;
+<<<<<<< HEAD   (60dd0f Remove surprises from aom_codec_control)
   if (aom_codec_dec_init(&decoder, interface, &cfg, dec_flags)) {
+=======
+  if (aom_codec_dec_init(&decoder, interface->codec_interface(), &cfg,
+                         dec_flags)) {
+>>>>>>> BRANCH (bb35ba Release v2.0.0 Applejack)
     fprintf(stderr, "Failed to initialize decoder: %s\n",
             aom_codec_error(&decoder));
     goto fail2;

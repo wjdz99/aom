@@ -32,6 +32,26 @@ if(NOT EMSCRIPTEN)
   endif()
 endif()
 
+<<<<<<< HEAD   (60dd0f Remove surprises from aom_codec_control)
+=======
+set(AOM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
+set(AOM_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+
+if("${AOM_ROOT}" STREQUAL "${AOM_CONFIG_DIR}")
+  message(
+    FATAL_ERROR "Building from within the aom source tree is not supported.\n"
+                "Hint: Run these commands\n"
+                "$ rm -rf CMakeCache.txt CMakeFiles\n"
+                "$ mkdir -p ../aom_build\n" "$ cd ../aom_build\n"
+                "And re-run CMake from the aom_build directory.")
+endif()
+
+# Updating version info.
+# https://www.gnu.org/software/libtool/manual/libtool.html#Updating-version-info
+set(SO_VERSION 2)
+set(SO_FILE_VERSION 2.0.0)
+
+>>>>>>> BRANCH (bb35ba Release v2.0.0 Applejack)
 include("${AOM_ROOT}/build/cmake/aom_configure.cmake")
 include("${AOM_ROOT}/aom_dsp/aom_dsp.cmake")
 include("${AOM_ROOT}/aom_mem/aom_mem.cmake")
@@ -240,10 +260,14 @@ if(BUILD_SHARED_LIBS)
       string(SUBSTRING "${aom_version_triple}" 0 ${dash_pos} aom_version_triple)
     endif()
 
-    # Note: CMake docs claim it's only necessary to set one of these, but that's
-    # not true for at least some CMake releases (3.13.4, for example).
-    set_target_properties(aom PROPERTIES SOVERSION ${aom_version_triple})
-    set_target_properties(aom PROPERTIES VERSION ${aom_version_triple})
+    # cmake-format: off
+    # VERSION is embedded in the .so file name.
+    # libaom.so -> libaom.so.SOVERSION
+    # libaom.so.SOVERSION -> libaom.so.VERSION
+    # libaom.so.VERSION
+    # cmake-format: on
+    set_target_properties(aom PROPERTIES SOVERSION ${SO_VERSION})
+    set_target_properties(aom PROPERTIES VERSION ${SO_FILE_VERSION})
   endif()
 endif()
 
@@ -615,7 +639,6 @@ endif()
 if(BUILD_SHARED_LIBS)
   include("${AOM_ROOT}/build/cmake/exports.cmake")
   setup_exports_target()
-  set_target_properties(aom PROPERTIES SOVERSION 0)
 endif()
 
 # Handle user supplied compile and link flags last to ensure they're obeyed.
