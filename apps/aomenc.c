@@ -2538,7 +2538,11 @@ int main(int argc, const char **argv_) {
     FOREACH_STREAM(stream, streams) {
       char *encoder_settings = NULL;
 #if CONFIG_WEBM_IO
-      if (stream->config.write_webm) {
+      // The test framework expects the WebM container to be unchanged,
+      // regardless of build, if --debug is passed in. As such, do not write
+      // out the encoder settings in this case, as different builds may
+      // have different encoder settings listed in the WebM container.
+      if (stream->config.write_webm && !global->debug) {
         encoder_settings = extract_encoder_settings(
             aom_codec_version_str(), argv_, argc, input.filename);
         if (encoder_settings == NULL) {
