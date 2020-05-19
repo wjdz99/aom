@@ -1133,7 +1133,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_mse_wxh_16bit   avx2/;
 
   add_proto qw/uint64_t/, "aom_mse_wxh_16bit_highbd", "uint16_t *dst, int dstride,uint16_t *src, int sstride, int w, int h";
-  specialize qw/aom_mse_wxh_16bit_highbd   avx2/;
+  specialize qw/aom_mse_wxh_16bit_highbd   sse2 avx2/;
 
   foreach (@block_sizes) {
     ($w, $h) = @$_;
