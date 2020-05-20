@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f8793efe_f07212c3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-05-20T18:55:37Z",
+      "side": 1,
+      "message": "it should be using ivf now to avoid all this.",
+      "revId": "1ade176e80137869c0d75dbd0e88da2ad09707d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ea0848cd_78853e9b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-05-20T18:55:37Z",
+      "side": 1,
+      "message": "do you want to add the original bug for reference?",
+      "revId": "1ade176e80137869c0d75dbd0e88da2ad09707d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "caa7207d_d3cd5687",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2541,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-05-20T18:55:37Z",
+      "side": 1,
+      "message": "This is correct, but I was thinking \u0027The test framework\u0027 could be generalized to \u0027test frameworks may compare outputs from different versions...\u0027. line 1370 was the first need for this flag.",
+      "revId": "1ade176e80137869c0d75dbd0e88da2ad09707d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
