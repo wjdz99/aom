@@ -39,6 +39,48 @@
       "revId": "02944b322dd783bc5cf60d194141a67c0a8a1ea5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32fe68d0_86278607",
+        "filename": "doc/AlgorithmDescription.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-05-20T19:07:34Z",
+      "side": 1,
+      "message": "Has corrected in patch set 4",
+      "parentUuid": "0527ce0c_d01e6ee5",
+      "range": {
+        "startLine": 241,
+        "startChar": 456,
+        "endLine": 241,
+        "endChar": 459
+      },
+      "revId": "02944b322dd783bc5cf60d194141a67c0a8a1ea5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0cc7d9f_0b92460a",
+        "filename": "doc/AlgorithmDescription.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-05-20T19:07:34Z",
+      "side": 1,
+      "message": "Has corrected it in the patch set 4. And please be noted that the tables still have long lines, if it is break down to 80 characters, the formattign of table in MarkDown seems broken",
+      "parentUuid": "abba6ef1_aa8abe16",
+      "revId": "02944b322dd783bc5cf60d194141a67c0a8a1ea5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
