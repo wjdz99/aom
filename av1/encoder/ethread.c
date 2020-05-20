@@ -918,7 +918,7 @@ static AOM_INLINE int compute_max_sb_rows(AV1_COMP *cpi) {
 
 #if !CONFIG_REALTIME_ONLY
 // Computes the number of workers for firstpass stage (row/tile multi-threading)
-static AOM_INLINE int fp_compute_num_enc_workers(AV1_COMP *cpi) {
+int av1_fp_compute_num_enc_workers(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
   const int tile_cols = cm->tiles.cols;
   const int tile_rows = cm->tiles.rows;
@@ -1056,7 +1056,7 @@ void av1_fp_encode_tiles_row_mt(AV1_COMP *cpi) {
   // threads to the theoretical limit in row-mt does not have much impact on
   // post-processing multi-threading stage. Need to revisit this when
   // post-processing time starts shooting up.
-  num_workers = fp_compute_num_enc_workers(cpi);
+  num_workers = av1_fp_compute_num_enc_workers(cpi);
 
   if (enc_row_mt->allocated_tile_cols != tile_cols ||
       enc_row_mt->allocated_tile_rows != tile_rows ||
