@@ -3789,6 +3789,8 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE curr_mode,
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
   mbmi->ref_mv_idx = 0;
   mbmi->mode = curr_mode;
+  mbmi->angle_delta[PLANE_TYPE_Y] = 0;
+  mbmi->angle_delta[PLANE_TYPE_UV] = 0;
   mbmi->uv_mode = UV_DC_PRED;
   mbmi->ref_frame[0] = ref_frames[0];
   mbmi->ref_frame[1] = ref_frames[1];
@@ -4682,11 +4684,6 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       xd->plane[i].pre[0] = yv12_mb[ref_frame][i];
       if (comp_pred) xd->plane[i].pre[1] = yv12_mb[second_ref_frame][i];
     }
-
-    mbmi->angle_delta[PLANE_TYPE_Y] = 0;
-    mbmi->angle_delta[PLANE_TYPE_UV] = 0;
-    mbmi->filter_intra_mode_info.use_filter_intra = 0;
-    mbmi->ref_mv_idx = 0;
 
     const int64_t ref_best_rd = search_state.best_rd;
     int disable_skip = 0;
