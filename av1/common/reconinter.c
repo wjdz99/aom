@@ -984,6 +984,18 @@ static void build_inter_predictors(
                               pre_y, 0, 0, pre_buf, bw, bh, &warp_types, ref, 1,
                               calc_subpel_params_func_args, &pre,
                               &subpel_params, &src_stride);
+      conv_params.do_average = ref;
+      av1_make_inter_predictor(
+          pre, src_stride, dst, dst_buf->stride, &subpel_params, sf, bw, bh,
+          &conv_params, mi->interp_filters, &warp_types,
+          mi_x >> pd->subsampling_x, mi_y >> pd->subsampling_y, plane, ref, mi,
+          build_for_obmc, xd, cm->allow_warped_motion, NULL);
+      make_inter_pred_8x8(pre, src_stride, dst, dst_buf->stride, &subpel_params, sf,
+                      bw, bh, bw, bh,
+                      &conv_params, mi->interp_filters, &warp_types, 
+                      mi_x >> pd->subsampling_x, mi_y >> pd->subsampling_y,
+                      plane, ref, mi, build_for_obmc, xd, cm->allow_warped_motion);
+      return;
     } else {
       calc_subpel_params_func(xd, sf, &mv, plane, pre_x, pre_y, 0, 0, pre_buf,
                               bw, bh, &warp_types, ref, 0,
