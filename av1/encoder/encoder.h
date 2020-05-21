@@ -1600,6 +1600,27 @@ static INLINE int is_frame_tpl_eligible(AV1_COMP *const cpi) {
 #endif  // ENABLE_KF_TPL
 }
 
+#if CONFIG_COLLECT_FRAME_INFO
+static INLINE void print_frame_info(AV1_COMMON *const cm,
+                                    int is_show_existing_frame,
+                                    int is_overlay_update, int frame_size) {
+  FILE *f = fopen("frame_info_qindices.csv", "a");
+  if (!f) {
+    return;
+  }
+  fprintf(f,
+          "coded_frame# = %d, actual_frame# = %d, visible = %d, q = %d, "
+          "frame_type = %d, is_show_existing_frame = %d, "
+          "is_overlay_update = %d, frame_size = %d\n",
+          cm->coded_frame_idx, cm->cur_frame->display_order_hint,
+          cm->show_frame, cm->cur_frame->base_qindex,
+          cm->current_frame.frame_type, is_show_existing_frame,
+          is_overlay_update, frame_size);
+  ++cm->coded_frame_idx;
+  fclose(f);
+}
+#endif
+
 #if CONFIG_COLLECT_PARTITION_STATS == 2
 static INLINE void av1_print_partition_stats(PartitionStats *part_stats) {
   FILE *f = fopen("partition_stats.csv", "w");

@@ -5748,6 +5748,10 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     if (av1_pack_bitstream(cpi, dest, size, &largest_tile_id) != AOM_CODEC_OK)
       return AOM_CODEC_ERROR;
 
+#if CONFIG_COLLECT_FRAME_INFO
+    print_frame_info(cm, 1, 0, (int)(*size) << 3);
+#endif
+
     if (seq_params->frame_id_numbers_present_flag &&
         current_frame->frame_type == KEY_FRAME) {
       // Displaying a forward key-frame, so reset the ref buffer IDs
@@ -5990,6 +5994,18 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     return AOM_CODEC_ERROR;
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, av1_pack_bitstream_final_time);
+#endif
+
+#if CONFIG_COLLECT_FRAME_INFO
+
+  int is_overlay_update = 0;
+  const GF_GROUP *gf_group = &cpi->gf_group;
+  if (gf_group->update_type[gf_group->index] == OVERLAY_UPDATE ||
+      gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE) {
+    is_overlay_update = 1;
+  }
+
+  print_frame_info(cm, 0, is_overlay_update, (int)(*size) << 3);
 #endif
 
   cpi->seq_params_locked = 1;
