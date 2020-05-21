@@ -301,6 +301,31 @@ int av1_compute_subpel_gradients(const AV1_COMMON *cm, MACROBLOCKD *xd,
   return r_dist;
 }
 
+void opfl_mv_refinement_8x8_lowbd(const uint8_t *p0, int pstride0,
+                                  const uint8_t *p1, int pstride1,
+                                  const int16_t *gx0, const int16_t *gy0,
+                                  const int16_t *gx1, const int16_t *gy1,
+                                  int gstride, int bw, int bh, int d0, int d1,
+                                  int max_prec_bits, int *vx0, int *vy0,
+                                  int *vx1, int *vy1) {
+  assert(bw % 8 == 0 && bh % 8 == 0);
+  int n_blocks = 0;
+  for (int i = 0; i < bh; bh += 8) {
+    for (int j = 0; j < bw; bw += 8) {
+      av1_opfl_mv_refinement_lowbd(p0 + (i * pstride0 + j), pstride0,
+                                   p1 + (i * pstride0 + j), pstride1,
+                                   gx0 + (i * pstride0 + j), gy0 + (i * pstride0 + j)
+                                   gx1 + (i * pstride0 + j), gy1 + (i * pstride0 + j),
+                                  gstride, 8, 8, d0, d1,
+                                  max_prec_bits, 
+                                  vx0 + n_blocks, vy0 + n_blocks,
+                                  vx1 + n_blocks, vy1 + n_blocks);
+      n_blocks++;
+    }
+  }
+
+}
+
 #define OPFL_REFINE_MV_PREC_BITS 6  // 6 refers to 1/64th pel precision
 
 // Optical flow based mv refinement computation function:
@@ -405,6 +430,8 @@ void av1_opfl_mv_refinement_highbd(const uint16_t *p0, int pstride0,
   *vy1 = clamp(*vy1, -max_value, max_value);
 }
 
+#define USE_OF_8X8 0
+
 // Refine MV using optical flow. The final output MV will be in 1/16
 // precision.
 int av1_get_optflow_based_mv(const AV1_COMMON *cm, MACROBLOCKD *xd,
@@ -413,7 +440,10 @@ int av1_get_optflow_based_mv(const AV1_COMMON *cm, MACROBLOCKD *xd,
                              int build_for_obmc,
                              CalcSubpelParamsFunc calc_subpel_params_func,
                              const void *const calc_subpel_params_func_args) {
-  int vx0 = 0, vy0 = 0, vx1 = 0, vy1 = 0;
+  int vx0[16] = { 0 }; 
+  int vx1[16] = { 0 }; 
+  int vy0[16] = { 0 }; 
+  int vy1[16] = { 0 }; 
   const int prec = mbmi->pb_mv_precision;
   const int target_prec = prec + 1;
   int out_prec = 0;
@@ -437,6 +467,7 @@ int av1_get_optflow_based_mv(const AV1_COMMON *cm, MACROBLOCKD *xd,
   int16_t *gy0 = g0 + (MAX_SB_SIZE * MAX_SB_SIZE);
   int16_t *gx1 = g1;
   int16_t *gy1 = g1 + (MAX_SB_SIZE * MAX_SB_SIZE);
+  int n_blocks = 1;
 
   if (is_cur_buf_hbd(xd)) {
     // TODO(sarahparker) implement hbd version
@@ -461,9 +492,15 @@ int av1_get_optflow_based_mv(const AV1_COMMON *cm, MACROBLOCKD *xd,
       // Reverse sign of d0 to indicate to opfl function that it is before
       // current frame
       d0 *= -1;
+#if USE_OF_8X8
+      n_blocks = opfl_mv_refinement_8x8_lowbd(dst0, bw, dst1, bw, gx0, gy0, gx1, gy1, bw,
+                                   bw, bh, d0, d1, target_prec, vx0, vy0,
+                                   vx1, vy1);
+#else
       av1_opfl_mv_refinement_lowbd(dst0, bw, dst1, bw, gx0, gy0, gx1, gy1, bw,
-                                   bw, bh, d0, d1, target_prec, &vx0, &vy0,
-                                   &vx1, &vy1);
+                                   bw, bh, d0, d1, target_prec, vx0, vy0,
+                                   vx1, vy1);
+#endif
 
       // P1 before current frame and P0 is after current frame
     } else {
@@ -471,34 +508,48 @@ int av1_get_optflow_based_mv(const AV1_COMMON *cm, MACROBLOCKD *xd,
       // Reverse sign of d1 to indicate to opfl function that it is before
       // current frame
       d1 *= -1;
+#if USE_OF_8X8
+      n_blocks = opfl_mv_refinement_8x8_lowbd(dst1, bw, dst0, bw, gx1, gy1, gx0, gy0, bw,
+                                   bw, bh, d1, d0, target_prec, vx1, vy1,
+                                   vx0, vy0);
+#else
       av1_opfl_mv_refinement_lowbd(dst1, bw, dst0, bw, gx1, gy1, gx0, gy0, bw,
-                                   bw, bh, d1, d0, target_prec, &vx1, &vy1,
-                                   &vx0, &vy0);
+                                   bw, bh, d1, d0, target_prec, vx1, vy1,
+                                   vx0, vy0);
+#endif 
     }
   }
 
-  // Only update precision if any of the offsets is nonzero
-  if (vx0 == 0 && vy0 == 0 && vx1 == 0 && vy1 == 0) goto exit_refinement;
-
-  out_prec = target_prec;
-  // Compute offset sign
-  const int vy0_sign = (vy0 < 0) ? -1 : 1;
-  const int vy1_sign = (vy1 < 0) ? -1 : 1;
-  const int vx0_sign = (vx0 < 0) ? -1 : 1;
-  const int vx1_sign = (vx1 < 0) ? -1 : 1;
-  // Used to convert the offset to 1/16th pel
-  const int prec_factor = 1 << (SUBPEL_BITS - out_prec);
-  const int round_factor = 1 << (OPFL_REFINE_MV_PREC_BITS - out_prec - 1);
-  // Compute final offset
-  const int vy0_prec = vy0_sign * (abs(vy0) >= round_factor) * prec_factor;
-  const int vy1_prec = vy1_sign * (abs(vy1) >= round_factor) * prec_factor;
-  const int vx0_prec = vx0_sign * (abs(vx0) >= round_factor) * prec_factor;
-  const int vx1_prec = vx1_sign * (abs(vx1) >= round_factor) * prec_factor;
-  // Add offset to output MV
-  mv_refined[0].as_mv.row += vy0_prec;
-  mv_refined[0].as_mv.col += vx0_prec;
-  mv_refined[1].as_mv.row += vy1_prec;
-  mv_refined[1].as_mv.col += vx1_prec;
+  for (int i = 0; i < n_blocks; i++) {
+    int vx0_block = vx0[i];
+    int vy0_block = vy0[i];
+    int vx1_block = vx1[i];
+    int vy1_block = vy1[i];
+    // Only update precision if any of the offsets is nonzero
+    if (vx0_block == 0 && vy0_block == 0 
+        && vx1_block == 0 && vy1_block == 0) continue;
+  
+    out_prec = target_prec;
+    // Compute offset sign
+    const int vy0_block_sign = (vy0_block < 0) ? -1 : 1;
+    const int vy1_block_sign = (vy1_block < 0) ? -1 : 1;
+    const int vx0_block_sign = (vx0_block < 0) ? -1 : 1;
+    const int vx1_block_sign = (vx1_block < 0) ? -1 : 1;
+    // Used to convert the offset to 1/16th pel
+    const int prec_factor = 1 << (SUBPEL_BITS - out_prec);
+    const int round_factor = 1 << (OPFL_REFINE_MV_PREC_BITS - out_prec - 1);
+    // Compute final offset
+    const int vy0_block_prec = vy0_block_sign * (abs(vy0_block) >= round_factor) * prec_factor;
+    const int vy1_block_prec = vy1_block_sign * (abs(vy1_block) >= round_factor) * prec_factor;
+    const int vx0_block_prec = vx0_block_sign * (abs(vx0_block) >= round_factor) * prec_factor;
+    const int vx1_block_prec = vx1_block_sign * (abs(vx1_block) >= round_factor) * prec_factor;
+    // TODO(sarahparker) make mv_refined a list
+    // Add offset to output MV
+    mv_refined[0].as_mv.row += vy0_block_prec;
+    mv_refined[0].as_mv.col += vx0_block_prec;
+    mv_refined[1].as_mv.row += vy1_block_prec;
+    mv_refined[1].as_mv.col += vx1_block_prec;
+  }
 
 exit_refinement:
   aom_free(g0);
@@ -984,6 +1035,18 @@ static void build_inter_predictors(
                               pre_y, 0, 0, pre_buf, bw, bh, &warp_types, ref, 1,
                               calc_subpel_params_func_args, &pre,
                               &subpel_params, &src_stride);
+      conv_params.do_average = ref;
+      av1_make_inter_predictor(
+          pre, src_stride, dst, dst_buf->stride, &subpel_params, sf, bw, bh,
+          &conv_params, mi->interp_filters, &warp_types,
+          mi_x >> pd->subsampling_x, mi_y >> pd->subsampling_y, plane, ref, mi,
+          build_for_obmc, xd, cm->allow_warped_motion, NULL);
+      make_inter_pred_8x8(pre, src_stride, dst, dst_buf->stride, &subpel_params, sf,
+                      bw, bh, bw, bh,
+                      &conv_params, mi->interp_filters, &warp_types, 
+                      mi_x >> pd->subsampling_x, mi_y >> pd->subsampling_y,
+                      plane, ref, mi, build_for_obmc, xd, cm->allow_warped_motion);
+      return;
     } else {
       calc_subpel_params_func(xd, sf, &mv, plane, pre_x, pre_y, 0, 0, pre_buf,
                               bw, bh, &warp_types, ref, 0,
