@@ -1139,7 +1139,11 @@ void av1_fast_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   struct buf_2d orig_dst = pd->dst;
 
   const int intra_cost_penalty = av1_get_intra_cost_penalty(
-      cm->base_qindex, cm->y_dc_delta_q, cm->seq_params.bit_depth);
+      cm->base_qindex, cm->y_dc_delta_q,
+#if CONFIG_DELTA_DCQUANT
+      cm->seq_params.base_dc_delta_q,
+#endif  // CONFIG_DELTA_DCQUANT
+      cm->seq_params.bit_depth);
   const int64_t inter_mode_thresh = RDCOST(x->rdmult, intra_cost_penalty, 0);
   const int perform_intra_pred = cpi->sf.check_intra_pred_nonrd;
 
