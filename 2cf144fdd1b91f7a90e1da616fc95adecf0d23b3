@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddbc92ba_d784f36d",
+        "filename": "tools/convexhull_framework/readme.txt",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-05-22T01:01:07Z",
+      "side": 1,
+      "message": "it would be good to try to keep the line length down to 80 characters to make review easier. converting the text to markdown would be a bit more consistent too, that or at least renaming it to README",
+      "revId": "2cf144fdd1b91f7a90e1da616fc95adecf0d23b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfc8e5fe_cbe1b165",
+        "filename": "tools/convexhull_framework/readme.txt",
+        "patchSetId": 12
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-05-22T01:01:07Z",
+      "side": 1,
+      "message": "executables\n\nI didn\u0027t read through this, but as a first pass it would be good to run a spell check over it.",
+      "range": {
+        "startLine": 9,
+        "startChar": 43,
+        "endLine": 9,
+        "endChar": 53
+      },
+      "revId": "2cf144fdd1b91f7a90e1da616fc95adecf0d23b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf2ecbaa_d164af60",
+        "filename": "tools/convexhull_framework/src/CalcQtyWithFfmpeg.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-05-22T01:01:07Z",
+      "side": 1,
+      "message": "there\u0027s a mix of python code in this tree and as it wasn\u0027t very commonly developed the group never took a stance on style or implementation details (we probably should if more is going to appear), so I won\u0027t get too involved in the details. minimally though can you run pylint against the code and keep to 80 characters? I think that is consistent with the rest of the code base.",
+      "revId": "2cf144fdd1b91f7a90e1da616fc95adecf0d23b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
