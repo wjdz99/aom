@@ -2832,6 +2832,9 @@ typedef struct {
   int has_rows;
   int has_cols;
 
+  // Size of current partition.
+  BLOCK_SIZE bsize;
+
   // Size of current sub-partition.
   BLOCK_SIZE subsize;
 
@@ -2914,6 +2917,7 @@ static void init_partition_search_state_params(
   blk_params->subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
   blk_params->split_bsize2 = blk_params->subsize;
   blk_params->bsize_at_least_8x8 = (bsize >= BLOCK_8X8);
+  blk_params->bsize = bsize;
 
   // Check if the partition corresponds to edge block.
   blk_params->has_rows = (blk_params->mi_row_edge < mi_params->mi_rows);
@@ -2992,6 +2996,65 @@ static void init_partition_search_state_params(
   part_search_state->found_best_partition = false;
 }
 
+// Override partition cost buffer for the edge blocks.
+static void set_partition_cost_for_edge_blks(
+    AV1_COMMON const *cm, PartitionSearchState *part_search_state,
+    PartitionBlkParams blk_params) {
+  if (!(blk_params.has_rows && blk_params.has_cols)) {
+    assert(blk_params.bsize_at_least_8x8 && part_search_state->pl_ctx_idx >= 0);
+    const aom_cdf_prob *partition_cdf =
+        cm->fc->partition_cdf[part_search_state->pl_ctx_idx];
+    const int max_cost = av1_cost_symbol(0);
+    for (int i = 0; i < PARTITION_TYPES; ++i)
+      part_search_state->tmp_partition_cost[i] = max_cost;
+    if (blk_params.has_cols) {
+      // At the bottom, the two possibilities are HORZ and SPLIT.
+      aom_cdf_prob bot_cdf[2];
+      partition_gather_vert_alike(bot_cdf, partition_cdf, blk_params.bsize);
+      static const int bot_inv_map[2] = { PARTITION_HORZ, PARTITION_SPLIT };
+      av1_cost_tokens_from_cdf(part_search_state->tmp_partition_cost, bot_cdf,
+                               bot_inv_map);
+    } else if (blk_params.has_rows) {
+      // At the right, the two possibilities are VERT and SPLIT.
+      aom_cdf_prob rhs_cdf[2];
+      partition_gather_horz_alike(rhs_cdf, partition_cdf, blk_params.bsize);
+      static const int rhs_inv_map[2] = { PARTITION_VERT, PARTITION_SPLIT };
+      av1_cost_tokens_from_cdf(part_search_state->tmp_partition_cost, rhs_cdf,
+                               rhs_inv_map);
+    } else {
+      // At the bottom right, we always split.
+      part_search_state->tmp_partition_cost[PARTITION_SPLIT] = 0;
+    }
+    part_search_state->partition_cost = part_search_state->tmp_partition_cost;
+  }
+}
+
+static void set_partitions_for_must_find(
+    AV1_COMP *const cpi, PartitionSearchState *part_search_state,
+    PartitionBlkParams blk_params) {
+  part_search_state->do_square_split =
+      blk_params.bsize_at_least_8x8 &&
+      (blk_params.width > blk_params.min_partition_size_1d);
+  part_search_state->partition_none_allowed =
+      blk_params.has_rows && blk_params.has_cols &&
+      (blk_params.width >= blk_params.min_partition_size_1d);
+  part_search_state->partition_horz_allowed =
+      blk_params.has_cols && blk_params.bsize_at_least_8x8 &&
+      cpi->oxcf.enable_rect_partitions &&
+      (blk_params.width > blk_params.min_partition_size_1d) &&
+      get_plane_block_size(
+          get_partition_subsize(blk_params.bsize, PARTITION_HORZ),
+          part_search_state->ss_x, part_search_state->ss_y) != BLOCK_INVALID;
+  part_search_state->partition_vert_allowed =
+      blk_params.has_rows && blk_params.bsize_at_least_8x8 &&
+      cpi->oxcf.enable_rect_partitions &&
+      (blk_params.width > blk_params.min_partition_size_1d) &&
+      get_plane_block_size(
+          get_partition_subsize(blk_params.bsize, PARTITION_VERT),
+          part_search_state->ss_x, part_search_state->ss_y) != BLOCK_INVALID;
+  part_search_state->terminate_partition_search = 0;
+}
+
 // Searches for the best partition pattern for a block based on the
 // rate-distortion cost, and returns a bool value to indicate whether a valid
 // partition pattern is found. The partition can recursively go down to
@@ -3066,34 +3129,7 @@ static bool rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
 
   // Override partition costs at the edges of the frame in the same
   // way as in read_partition (see decodeframe.c).
-  if (!(blk_params.has_rows && blk_params.has_cols)) {
-    assert(blk_params.bsize_at_least_8x8 && part_search_state.pl_ctx_idx >= 0);
-    const aom_cdf_prob *partition_cdf =
-        cm->fc->partition_cdf[part_search_state.pl_ctx_idx];
-    const int max_cost = av1_cost_symbol(0);
-    for (int i = 0; i < PARTITION_TYPES; ++i)
-      part_search_state.tmp_partition_cost[i] = max_cost;
-    if (blk_params.has_cols) {
-      // At the bottom, the two possibilities are HORZ and SPLIT.
-      aom_cdf_prob bot_cdf[2];
-      partition_gather_vert_alike(bot_cdf, partition_cdf, bsize);
-      static const int bot_inv_map[2] = { PARTITION_HORZ, PARTITION_SPLIT };
-      av1_cost_tokens_from_cdf(part_search_state.tmp_partition_cost, bot_cdf,
-                               bot_inv_map);
-    } else if (blk_params.has_rows) {
-      // At the right, the two possibilities are VERT and SPLIT.
-      aom_cdf_prob rhs_cdf[2];
-      partition_gather_horz_alike(rhs_cdf, partition_cdf, bsize);
-      static const int rhs_inv_map[2] = { PARTITION_VERT, PARTITION_SPLIT };
-      av1_cost_tokens_from_cdf(part_search_state.tmp_partition_cost, rhs_cdf,
-                               rhs_inv_map);
-    } else {
-      // At the bottom right, we always split.
-      part_search_state.tmp_partition_cost[PARTITION_SPLIT] = 0;
-    }
-
-    part_search_state.partition_cost = part_search_state.tmp_partition_cost;
-  }
+  set_partition_cost_for_edge_blks(cm, &part_search_state, blk_params);
 
   // Disable rectangular partitions for inner blocks when the current block is
   // forced to only use square partitions.
@@ -3160,29 +3196,8 @@ BEGIN_PARTITION_SEARCH:
   // a valid one under the cost limit after pruning, reset the limitations on
   // partition types.
   if (x->must_find_valid_partition) {
-    part_search_state.do_square_split =
-        blk_params.bsize_at_least_8x8 &&
-        (blk_params.width > blk_params.min_partition_size_1d);
-    part_search_state.partition_none_allowed =
-        blk_params.has_rows && blk_params.has_cols &&
-        (blk_params.width >= blk_params.min_partition_size_1d);
-    part_search_state.partition_horz_allowed =
-        blk_params.has_cols && blk_params.bsize_at_least_8x8 &&
-        cpi->oxcf.enable_rect_partitions &&
-        (blk_params.width > blk_params.min_partition_size_1d) &&
-        get_plane_block_size(get_partition_subsize(bsize, PARTITION_HORZ),
-                             part_search_state.ss_x,
-                             part_search_state.ss_y) != BLOCK_INVALID;
-    part_search_state.partition_vert_allowed =
-        blk_params.has_rows && blk_params.bsize_at_least_8x8 &&
-        cpi->oxcf.enable_rect_partitions &&
-        (blk_params.width > blk_params.min_partition_size_1d) &&
-        get_plane_block_size(get_partition_subsize(bsize, PARTITION_VERT),
-                             part_search_state.ss_x,
-                             part_search_state.ss_y) != BLOCK_INVALID;
-    part_search_state.terminate_partition_search = 0;
+    set_partitions_for_must_find(cpi, &part_search_state, blk_params);
   }
-
   // Partition block source pixel variance.
   unsigned int pb_source_variance = UINT_MAX;
 
