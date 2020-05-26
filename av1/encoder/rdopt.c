@@ -2447,12 +2447,43 @@ static int prune_ref_mv_idx_search(int ref_mv_idx, int best_ref_mv_idx,
 }
 
 /*
-   Do the RD search for a given inter mode and compute all information relevant
-   to the input mode. It will compute the best MV,
-   compound parameters (if the mode is a compound mode) and interpolation filter
-   parameters.
    Output: RD cost for the mode being searched.
 */
+/*!\brief AV1 inter mode RD computation
+ *
+ * \ingroup inter_mode_search 
+ * Do the RD search for a given inter mode and compute all information relevant
+ * to the input mode. It will compute the best MV,
+ * compound parameters (if the mode is a compound mode) and interpolation filter
+ * parameters.
+ *
+ * \param[in]    cpi               Top-level encoder structure
+ * \param[in]    tile_data         Pointer to struct holding adaptive
+                                   data/contexts/models for the tile during
+                                   encoding
+ * \param[in]    x                 Pointer to structure holding all the data for
+                                   the current macroblock
+ * \param[in]    bsize             Current block size
+ * \param[in]    rd_stats          *Struct to keep track of the RD information
+ * \param[in]    rd_stats_y        *Struct to keep track of the RD information
+ * \param[in]    rd_stats_uv       *Struct to keep track of the RD information
+ * \param[in]    disable_skip_txfm
+ * \param[in]    args
+ * \param[in]    ref_best_rd 
+ * \param[in]    tmp_buf
+ * \param[in]    rd_buffers 
+ * \param[in]    best_est_rd
+ * \param[in]    do_tx_search 
+ * \param[in]    inter_modes_info
+ * \param[in]    motion_mode_cand 
+ * \param[in]    skip_rd
+ * \param[in]    inter_cost_info_from_tpl
+ *
+ * \return Nothing is returned. Instead, the MB_MODE_INFO struct inside x
+ * is modified to store information about the best mode computed 
+ * in this function. The rd_cost struct is also updated with the RD stats
+ * corresponding to the best mode found.
+ */
 static int64_t handle_inter_mode(
     AV1_COMP *const cpi, TileDataEnc *tile_data, MACROBLOCK *x,
     BLOCK_SIZE bsize, RD_STATS *rd_stats, RD_STATS *rd_stats_y,
