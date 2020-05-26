@@ -352,6 +352,36 @@ typedef struct {
   INTERINTER_COMPOUND_DATA interinter_comp;
 } COMP_RD_STATS;
 
+/*! \brief Struct for buffers used by av1_compound_type_rd() function.
+ *
+ * For sizes and alignment of these arrays, refer to
+ * alloc_compound_type_rd_buffers() function.
+ */
+typedef struct {
+  /*!
+  * Buffer for prediction from ref 0 in a compound mode.
+  */
+  uint8_t *pred0;
+  /*!
+  * Buffer for prediction from ref 1 in a compound mode.
+  */
+  uint8_t *pred1;
+  /*!
+  * Buffer for the residual of the prediction from ref 1 in a compound mode.
+  * This is computed as src - pred1.
+  */
+  int16_t *residual1;
+  /*!
+  * Buffer for the difference between pred0 and pred1.
+  * This is computed as pred1 - pred0.
+  */
+  int16_t *diff10;             // pred1 - pred0
+  /*!
+  * Buffer to hold the best segmentation mask for a masked compound prediction.
+  */
+  uint8_t *tmp_best_mask_buf;
+} CompoundTypeRdBuffers;
+
 /*! \brief Contains buffers used to speed up rdopt for obmc.
  *
  * See the comments for calc_target_weighted_pred for details.
