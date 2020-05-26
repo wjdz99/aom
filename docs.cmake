@@ -102,6 +102,7 @@ if(CONFIG_AV1_ENCODER)
                           "${AOM_ROOT}/doc/dev_guide/av1_encoder.dox")
   set(AOM_DOXYGEN_SOURCES ${AOM_DOXYGEN_SOURCES}
                           "${AOM_ROOT}/av1/encoder/rdopt.h"
+                          "${AOM_ROOT}/av1/encoder/rdopt.c"
                           "${AOM_ROOT}/av1/encoder/firstpass.h"
                           "${AOM_ROOT}/av1/encoder/encoder.h"
                           "${AOM_ROOT}/av1/encoder/encoder.c"
