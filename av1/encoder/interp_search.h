@@ -34,28 +34,83 @@ typedef struct {
 } INTERPOLATION_FILTER_STATS;
 
 typedef struct {
-  // OBMC secondary prediction buffers and respective strides
+  /*!
+  * Buffer for the above predictor in OBMC
+  */
   uint8_t *above_pred_buf[MAX_MB_PLANE];
+  /*!
+  * Stride for the above predictor in OBMC
+  */
   int above_pred_stride[MAX_MB_PLANE];
+  /*!
+  * Buffer for the left predictor in OBMC
+  */
   uint8_t *left_pred_buf[MAX_MB_PLANE];
+  /*!
+  * Stride for the left predictor in OBMC
+  */
   int left_pred_stride[MAX_MB_PLANE];
+  /*!
+  * Pointer to the first array in a 2D array which holds 
+  * single reference mode motion vectors to be used as a starting 
+  * point in the mv search for compound modes. Each array is length REF_FRAMES, 
+  * meaning there is a slot for a single reference motion vector for 
+  * each possible reference frame. The 2D array consists of N of these arrays, where
+  * N is the length of the reference mv stack computed for the single reference case 
+  * for that particular reference frame.
+  */
   int_mv (*single_newmv)[REF_FRAMES];
-  // Pointer to array of motion vectors to use for each ref and their rates
-  // Should point to first of 2 arrays in 2D array
+  /*!
+  * Pointer to the first array of a 2D array with the same setup as single_newmv array above. 
+  * This is a 2D array to hold the rate corresponding to each of the single 
+  * reference mode motion vectors held in single_newmv. 
+  */
   int (*single_newmv_rate)[REF_FRAMES];
+  /*!
+  * Pointer to the first array of a 2D array with the same setup as single_newmv array above. 
+  * This is a 2D array to hold a 0 or 1
+  * validity value corresponding to each of the single reference mode motion 
+  * vectors held in single_newmv. 
+  */
   int (*single_newmv_valid)[REF_FRAMES];
-  // Pointer to array of predicted rate-distortion
-  // Should point to first of 2 arrays in 2D array
+  /*!
+  * Pointer to the first array in a 3D array of predicted rate-distortion. 
+  * The dimensions of this structure are: 
+  * (number of possible inter modes) X 
+  * (number of reference MVs) X 
+  * (number of reference frames).
+  */
   int64_t (*modelled_rd)[MAX_REF_MV_SEARCH][REF_FRAMES];
+  /*!
+  * Holds an estimated cost for the current reference frame. This is used
+  * to compute an rd estimate.
+  */
   int ref_frame_cost;
+  //sarahparker similar to above, ask angie
   int single_comp_cost;
   int64_t (*simple_rd)[MAX_REF_MV_SEARCH][REF_FRAMES];
   int skip_motion_mode;
   INTERINTRA_MODE *inter_intra_mode;
+  /*!
+  */
+  //sarahparker can this be deleted????? It is never set?  
   int single_ref_first_pass;
+  /*!
+  * A pointer to the first element in an array of SimpleRDState structs. 
+  * Here, a the resulting state of the SIMPLE_TRANSLATION motion mode 
+  * search is saved for each mode. This information will later be used 
+  * in a speed feature to prune the search for other possible motion mode types. 
+  */
   SimpleRDState *simple_rd_state;
-  // [comp_idx][saved stat_idx]
+  /*!
+  * Array of saved interpolation filter stats collected to avoid repeating 
+  * an interpolation filter search when the mv and ref_frame are the same 
+  * as a previous search. 
+  */
   INTERPOLATION_FILTER_STATS interp_filter_stats[MAX_INTERP_FILTER_STATS];
+  /*!
+  * Index of the last set of saved stats in the interp_filter_stats array.
+  */
   int interp_filter_stats_idx;
 } HandleInterModeArgs;
 
