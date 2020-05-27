@@ -412,7 +412,7 @@ static AOM_INLINE void simple_motion_search_prune_part_features(
   // Split subblocks
   if (features_to_get & FEATURE_SMS_SPLIT_FLAG) {
     const BLOCK_SIZE subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
-    for (int r_idx = 0; r_idx < 4; r_idx++) {
+    for (int r_idx = 0; r_idx < NUM_SUBPARTS_SPLIT_PART; r_idx++) {
       const int sub_mi_col = mi_col + (r_idx & 1) * w_mi / 2;
       const int sub_mi_row = mi_row + (r_idx >> 1) * h_mi / 2;
       SIMPLE_MOTION_DATA_TREE *sub_tree = sms_tree->split[r_idx];
@@ -431,7 +431,7 @@ static AOM_INLINE void simple_motion_search_prune_part_features(
   if (!sms_tree->sms_rect_valid && features_to_get & FEATURE_SMS_RECT_FLAG) {
     // Horz subblock
     BLOCK_SIZE subsize = get_partition_subsize(bsize, PARTITION_HORZ);
-    for (int r_idx = 0; r_idx < 2; r_idx++) {
+    for (int r_idx = 0; r_idx < NUM_SUBPARTS_RECT_PART; r_idx++) {
       const int sub_mi_col = mi_col + 0;
       const int sub_mi_row = mi_row + r_idx * h_mi / 2;
 
@@ -443,7 +443,7 @@ static AOM_INLINE void simple_motion_search_prune_part_features(
 
     // Vert subblock
     subsize = get_partition_subsize(bsize, PARTITION_VERT);
-    for (int r_idx = 0; r_idx < 2; r_idx++) {
+    for (int r_idx = 0; r_idx < NUM_SUBPARTS_RECT_PART; r_idx++) {
       const int sub_mi_col = mi_col + r_idx * w_mi / 2;
       const int sub_mi_row = mi_row + 0;
 
@@ -466,7 +466,7 @@ static AOM_INLINE void simple_motion_search_prune_part_features(
   }
 
   if (features_to_get & FEATURE_SMS_SPLIT_FLAG) {
-    for (int sub_idx = 0; sub_idx < 4; sub_idx++) {
+    for (int sub_idx = 0; sub_idx < NUM_SUBPARTS_SPLIT_PART; sub_idx++) {
       SIMPLE_MOTION_DATA_TREE *sub_tree = sms_tree->split[sub_idx];
       features[f_idx++] = logf(1.0f + sub_tree->sms_none_feat[0]);
       features[f_idx++] = logf(1.0f + sub_tree->sms_none_feat[1]);
@@ -793,7 +793,7 @@ static AOM_INLINE void get_min_bsize(const SIMPLE_MOTION_DATA_TREE *sms_tree,
   if (part_type == PARTITION_INVALID) return;
 
   if (part_type == PARTITION_SPLIT) {
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < NUM_SUBPARTS_SPLIT_PART; ++i) {
       get_min_bsize(sms_tree->split[i], min_bw, min_bh);
     }
   } else {
@@ -873,7 +873,7 @@ void av1_ml_early_term_after_split(AV1_COMP *const cpi, MACROBLOCK *const x,
   add_rd_feature(part_none_rd, best_rd, features, &f_idx);
   add_rd_feature(part_split_rd, best_rd, features, &f_idx);
 
-  for (int i = 0; i < 4; ++i) {
+  for (int i = 0; i < NUM_SUBPARTS_SPLIT_PART; ++i) {
     add_rd_feature(split_block_rd[i], best_rd, features, &f_idx);
     int min_bw = MAX_SB_SIZE_LOG2;
     int min_bh = MAX_SB_SIZE_LOG2;
@@ -950,7 +950,7 @@ void av1_ml_prune_rect_partition(const AV1_COMP *const cpi,
   for (int i = 0; i < 5; i++) features[i] = 1.0f;
   if (none_rd > 0 && none_rd < 1000000000)
     features[0] = (float)none_rd / (float)best_rd;
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < NUM_SUBPARTS_SPLIT_PART; i++) {
     if (split_rd[i] > 0 && split_rd[i] < 1000000000)
       features[1 + i] = (float)split_rd[i] / (float)best_rd;
   }
@@ -967,12 +967,12 @@ void av1_ml_prune_rect_partition(const AV1_COMP *const cpi,
   }
   whole_block_variance = AOMMAX(whole_block_variance, 1);
 
-  int split_variance[4];
+  int split_variance[NUM_SUBPARTS_SPLIT_PART];
   const BLOCK_SIZE subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
   struct buf_2d buf;
   buf.stride = x->plane[0].src.stride;
   const int bw = block_size_wide[bsize];
-  for (int i = 0; i < 4; ++i) {
+  for (int i = 0; i < NUM_SUBPARTS_SPLIT_PART; ++i) {
     const int x_idx = (i & 1) * bw / 2;
     const int y_idx = (i >> 1) * bw / 2;
     buf.buf = x->plane[0].src.buf + x_idx + y_idx * buf.stride;
@@ -984,7 +984,7 @@ void av1_ml_prune_rect_partition(const AV1_COMP *const cpi,
     }
   }
 
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < NUM_SUBPARTS_SPLIT_PART; i++)
     features[5 + i] = (float)split_variance[i] / (float)whole_block_variance;
 
   // 2. Do the prediction and prune 0-2 partitions based on their probabilities
@@ -1031,17 +1031,17 @@ void av1_ml_prune_ab_partition(BLOCK_SIZE bsize, int part_ctx, int var_ctx,
   const int rdcost = (int)AOMMIN(INT_MAX, best_rd);
   int sub_block_rdcost[8] = { 0 };
   int rd_index = 0;
-  for (int i = 0; i < 2; ++i) {
+  for (int i = 0; i < NUM_SUBPARTS_RECT_PART; ++i) {
     if (horz_rd[i] > 0 && horz_rd[i] < 1000000000)
       sub_block_rdcost[rd_index] = (int)horz_rd[i];
     ++rd_index;
   }
-  for (int i = 0; i < 2; ++i) {
+  for (int i = 0; i < NUM_SUBPARTS_RECT_PART; ++i) {
     if (vert_rd[i] > 0 && vert_rd[i] < 1000000000)
       sub_block_rdcost[rd_index] = (int)vert_rd[i];
     ++rd_index;
   }
-  for (int i = 0; i < 4; ++i) {
+  for (int i = 0; i < NUM_SUBPARTS_SPLIT_PART; ++i) {
     if (split_rd[i] > 0 && split_rd[i] < 1000000000)
       sub_block_rdcost[rd_index] = (int)split_rd[i];
     ++rd_index;
@@ -1119,17 +1119,17 @@ void av1_ml_prune_4_partition(const AV1_COMP *const cpi, MACROBLOCK *const x,
   const int rdcost = (int)AOMMIN(INT_MAX, best_rd);
   int sub_block_rdcost[8] = { 0 };
   int rd_index = 0;
-  for (int i = 0; i < 2; ++i) {
+  for (int i = 0; i < NUM_SUBPARTS_RECT_PART; ++i) {
     if (horz_rd[i] > 0 && horz_rd[i] < 1000000000)
       sub_block_rdcost[rd_index] = (int)horz_rd[i];
     ++rd_index;
   }
-  for (int i = 0; i < 2; ++i) {
+  for (int i = 0; i < NUM_SUBPARTS_RECT_PART; ++i) {
     if (vert_rd[i] > 0 && vert_rd[i] < 1000000000)
       sub_block_rdcost[rd_index] = (int)vert_rd[i];
     ++rd_index;
   }
-  for (int i = 0; i < 4; ++i) {
+  for (int i = 0; i < NUM_SUBPARTS_SPLIT_PART; ++i) {
     if (split_rd[i] > 0 && split_rd[i] < 1000000000)
       sub_block_rdcost[rd_index] = (int)split_rd[i];
     ++rd_index;
@@ -1158,7 +1158,7 @@ void av1_ml_prune_4_partition(const AV1_COMP *const cpi, MACROBLOCK *const x,
     horz_4_src.stride = src_stride;
     vert_4_src.stride = src_stride;
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < NUM_SUBPARTS_4_PART; ++i) {
       horz_4_src.buf = src + i * block_size_high[horz_4_bs] * src_stride;
       vert_4_src.buf = src + i * block_size_wide[vert_4_bs];
 
@@ -1179,14 +1179,14 @@ void av1_ml_prune_4_partition(const AV1_COMP *const cpi, MACROBLOCK *const x,
   const float denom = (float)(pb_source_variance + 1);
   const float low_b = 0.1f;
   const float high_b = 10.0f;
-  for (int i = 0; i < 4; ++i) {
+  for (int i = 0; i < NUM_SUBPARTS_4_PART; ++i) {
     // Ratio between the 4:1 sub-block variance and the whole-block variance.
     float var_ratio = (float)(horz_4_source_var[i] + 1) / denom;
     if (var_ratio < low_b) var_ratio = low_b;
     if (var_ratio > high_b) var_ratio = high_b;
     features[feature_index++] = var_ratio;
   }
-  for (int i = 0; i < 4; ++i) {
+  for (int i = 0; i < NUM_SUBPARTS_4_PART; ++i) {
     // Ratio between the 1:4 sub-block RD and the whole-block RD.
     float var_ratio = (float)(vert_4_source_var[i] + 1) / denom;
     if (var_ratio < low_b) var_ratio = low_b;
@@ -1438,7 +1438,6 @@ void av1_prune_ab_partitions(
       ext_partition_allowed & cpi->oxcf.enable_ab_partitions;
   int vertab_partition_allowed =
       ext_partition_allowed & cpi->oxcf.enable_ab_partitions;
-
   // Pruning: pruning out AB partitions on one main direction based on the
   // current best partition and source variance.
   if (cpi->sf.part_sf.prune_ext_partition_types_search_level) {
