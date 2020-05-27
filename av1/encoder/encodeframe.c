@@ -2934,7 +2934,7 @@ static void init_partition_search_state_params(
       mode_costs->partition_cost[part_search_state->pl_ctx_idx];
 
   // Initialize HORZ and VERT win flags as true for all split partitions.
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < NUM_SUBPARTS_SPLIT_PART; i++) {
     part_search_state->split_part_rect_win[i].horz_win = true;
     part_search_state->split_part_rect_win[i].vert_win = true;
   }
@@ -2944,7 +2944,8 @@ static void init_partition_search_state_params(
 
   // Initialize RD costs for partition types to 0.
   part_search_state->none_rd = 0;
-  for (int i = 0; i < 4; i++) part_search_state->split_rd[i] = 0;
+  for (int i = 0; i < NUM_SUBPARTS_SPLIT_PART; i++)
+    part_search_state->split_rd[i] = 0;
   for (int i = 0; i < 2; i++) {
     part_search_state->horz_rd[i] = 0;
     part_search_state->vert_rd[i] = 0;
@@ -3339,7 +3340,7 @@ BEGIN_PARTITION_SEARCH:
   BLOCK_SIZE subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
   if ((!part_search_state.terminate_partition_search &&
        part_search_state.do_square_split)) {
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < NUM_SUBPARTS_SPLIT_PART; ++i) {
       if (pc_tree->split[i] == NULL)
         pc_tree->split[i] = av1_alloc_pc_tree_node(subsize);
       pc_tree->split[i]->index = i;
@@ -3359,7 +3360,8 @@ BEGIN_PARTITION_SEARCH:
     }
 #endif
     // Recursive partition search on 4 sub-blocks.
-    for (idx = 0; idx < 4 && part_search_state.sum_rdc.rdcost < best_rdc.rdcost;
+    for (idx = 0; idx < NUM_SUBPARTS_SPLIT_PART &&
+                  part_search_state.sum_rdc.rdcost < best_rdc.rdcost;
          ++idx) {
       const int x_idx = (idx & 1) * blk_params.mi_step;
       const int y_idx = (idx >> 1) * blk_params.mi_step;
@@ -3415,7 +3417,7 @@ BEGIN_PARTITION_SEARCH:
       partition_timer_on = 0;
     }
 #endif
-    const int reached_last_index = (idx == 4);
+    const int reached_last_index = (idx == NUM_SUBPARTS_SPLIT_PART);
 
     // Calculate the total cost and update the best partition.
     part_split_rd = part_search_state.sum_rdc.rdcost;
@@ -3483,7 +3485,7 @@ BEGIN_PARTITION_SEARCH:
        active_h_edge(cpi, mi_row, blk_params.mi_step))) {
     av1_init_rd_stats(&part_search_state.sum_rdc);
     subsize = get_partition_subsize(bsize, PARTITION_HORZ);
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < NUM_SUBPARTS_RECT_PART; ++i) {
       if (pc_tree->horizontal[i] == NULL) {
         pc_tree->horizontal[i] =
             av1_alloc_pmc(cm, subsize, &td->shared_coeff_buf);
@@ -3586,7 +3588,7 @@ BEGIN_PARTITION_SEARCH:
        active_v_edge(cpi, mi_col, blk_params.mi_step))) {
     av1_init_rd_stats(&part_search_state.sum_rdc);
     subsize = get_partition_subsize(bsize, PARTITION_VERT);
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < NUM_SUBPARTS_RECT_PART; ++i) {
       if (pc_tree->vertical[i] == NULL) {
         pc_tree->vertical[i] =
             av1_alloc_pmc(cm, subsize, &td->shared_coeff_buf);
@@ -3987,7 +3989,7 @@ BEGIN_PARTITION_SEARCH:
       (partition_horz4_allowed || partition_vert4_allowed)) {
     // Count of child blocks in which HORZ or VERT partition has won
     int num_child_horz_win = 0, num_child_vert_win = 0;
-    for (int idx = 0; idx < 4; idx++) {
+    for (int idx = 0; idx < NUM_SUBPARTS_SPLIT_PART; idx++) {
       num_child_horz_win +=
           (part_search_state.split_part_rect_win[idx].horz_win) ? 1 : 0;
       num_child_vert_win +=
@@ -4013,7 +4015,7 @@ BEGIN_PARTITION_SEARCH:
       (part_search_state.do_rectangular_split ||
        active_h_edge(cpi, mi_row, blk_params.mi_step))) {
     av1_init_rd_stats(&part_search_state.sum_rdc);
-    const int quarter_step = mi_size_high[bsize] / 4;
+    const int quarter_step = mi_size_high[bsize] / NUM_SUBPARTS_4_PART;
 
     subsize = get_partition_subsize(bsize, PARTITION_HORZ_4);
     part_search_state.sum_rdc.rate =
@@ -4021,7 +4023,7 @@ BEGIN_PARTITION_SEARCH:
     part_search_state.sum_rdc.rdcost =
         RDCOST(x->rdmult, part_search_state.sum_rdc.rate, 0);
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < NUM_SUBPARTS_4_PART; ++i) {
       pc_tree->horizontal4[i] =
           av1_alloc_pmc(cm, subsize, &td->shared_coeff_buf);
     }
@@ -4033,7 +4035,7 @@ BEGIN_PARTITION_SEARCH:
       partition_timer_on = 1;
     }
 #endif
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < NUM_SUBPARTS_4_PART; ++i) {
       const int this_mi_row = mi_row + i * quarter_step;
 
       if (i > 0 && this_mi_row >= mi_params->mi_rows) break;
@@ -4041,10 +4043,10 @@ BEGIN_PARTITION_SEARCH:
       PICK_MODE_CONTEXT *ctx_this = pc_tree->horizontal4[i];
 
       ctx_this->rd_mode_is_ready = 0;
-      if (!rd_try_subblock(cpi, td, tile_data, tp, (i == 3), this_mi_row,
-                           mi_col, subsize, best_rdc,
-                           &part_search_state.sum_rdc, PARTITION_HORZ_4,
-                           ctx_this)) {
+      if (!rd_try_subblock(cpi, td, tile_data, tp,
+                           (i == NUM_SUBPARTS_4_PART - 1), this_mi_row, mi_col,
+                           subsize, best_rdc, &part_search_state.sum_rdc,
+                           PARTITION_HORZ_4, ctx_this)) {
         av1_invalid_rd_stats(&part_search_state.sum_rdc);
         break;
       }
@@ -4076,7 +4078,7 @@ BEGIN_PARTITION_SEARCH:
       (part_search_state.do_rectangular_split ||
        active_v_edge(cpi, mi_row, blk_params.mi_step))) {
     av1_init_rd_stats(&part_search_state.sum_rdc);
-    const int quarter_step = mi_size_wide[bsize] / 4;
+    const int quarter_step = mi_size_wide[bsize] / NUM_SUBPARTS_4_PART;
 
     subsize = get_partition_subsize(bsize, PARTITION_VERT_4);
     part_search_state.sum_rdc.rate =
@@ -4084,7 +4086,7 @@ BEGIN_PARTITION_SEARCH:
     part_search_state.sum_rdc.rdcost =
         RDCOST(x->rdmult, part_search_state.sum_rdc.rate, 0);
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < NUM_SUBPARTS_4_PART; ++i)
       pc_tree->vertical4[i] = av1_alloc_pmc(cm, subsize, &td->shared_coeff_buf);
 
 #if CONFIG_COLLECT_PARTITION_STATS
@@ -4094,7 +4096,7 @@ BEGIN_PARTITION_SEARCH:
       partition_timer_on = 1;
     }
 #endif
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < NUM_SUBPARTS_4_PART; ++i) {
       const int this_mi_col = mi_col + i * quarter_step;
 
       if (i > 0 && this_mi_col >= mi_params->mi_cols) break;
@@ -4102,10 +4104,10 @@ BEGIN_PARTITION_SEARCH:
       PICK_MODE_CONTEXT *ctx_this = pc_tree->vertical4[i];
 
       ctx_this->rd_mode_is_ready = 0;
-      if (!rd_try_subblock(cpi, td, tile_data, tp, (i == 3), mi_row,
-                           this_mi_col, subsize, best_rdc,
-                           &part_search_state.sum_rdc, PARTITION_VERT_4,
-                           ctx_this)) {
+      if (!rd_try_subblock(cpi, td, tile_data, tp,
+                           (i == NUM_SUBPARTS_4_PART - 1), mi_row, this_mi_col,
+                           subsize, best_rdc, &part_search_state.sum_rdc,
+                           PARTITION_VERT_4, ctx_this)) {
         av1_invalid_rd_stats(&part_search_state.sum_rdc);
         break;
       }

@@ -33,6 +33,11 @@
 #define FEATURE_SMS_SPLIT_MODEL_FLAG \
   (FEATURE_SMS_NONE_FLAG | FEATURE_SMS_SPLIT_FLAG)
 
+#define NUM_SUBPARTS_RECT_PART 2
+#define NUM_SUBPARTS_SPLIT_PART 4
+#define NUM_SUBPARTS_AB_PART 2
+#define NUM_SUBPARTS_4_PART 4
+
 // Structure to keep win flags for HORZ and VERT partition evaluations.
 typedef struct {
   bool horz_win;
