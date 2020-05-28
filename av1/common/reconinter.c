@@ -143,7 +143,7 @@ int av1_allow_warp(const MB_MODE_INFO *const mbmi,
   return 0;
 }
 
-#if CONFIG_EXT_COMPOUND
+#if CONFIG_OPTFLOW_REFINEMENT
 int av1_compute_subpel_gradients(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                  int plane, const MB_MODE_INFO *mi,
                                  int build_for_obmc, int bw, int bh, int mi_x,
@@ -507,7 +507,7 @@ exit_refinement:
   aom_free(dst1);
   return out_prec;
 }
-#endif  // CONFIG_EXT_COMPOUND
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 
 static void av1_make_inter_predictor_aux(
     const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
@@ -952,19 +952,20 @@ static void build_inter_predictors(
   const int pre_x = (mi_x + MI_SIZE * col_start) >> ss_x;
   const int pre_y = (mi_y + MI_SIZE * row_start) >> ss_y;
 
-#if CONFIG_EXT_COMPOUND
+#if CONFIG_OPTFLOW_REFINEMENT
   int_mv mv_refined[2];
   // Initialize refined mv
   mv_refined[0].as_mv = mi->mv[0].as_mv;
   mv_refined[1].as_mv = mi->mv[1].as_mv;
-  const int use_optflow_prec = (mi->mode > NEW_NEWMV) && is_compound &&
-                               CONFIG_OPTFLOW_REFINEMENT && plane == 0;
+  const int use_optflow_prec = mi->interinter_comp.use_optflow && 
+                               (mi->mode > NEW_NEWMV) && is_compound &&
+                               plane == 0;
   if (use_optflow_prec) {
     av1_get_optflow_based_mv(cm, xd, mi, mv_refined, bw, bh, mi_x, mi_y,
                              build_for_obmc, calc_subpel_params_func,
                              calc_subpel_params_func_args);
   }
-#endif  // CONFIG_EXT_COMPOUND
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 
   for (int ref = 0; ref < 1 + is_compound; ++ref) {
     const struct scale_factors *const sf =
@@ -977,7 +978,8 @@ static void build_inter_predictors(
     uint8_t *pre;
     SubpelParams subpel_params;
     int src_stride;
-#if CONFIG_EXT_COMPOUND
+#if CONFIG_EXT_COMPOUND 
+#if CONFIG_OPTFLOW_REFINEMENT
     if (use_optflow_prec) {
       // Compute subpel params with refined mv
       calc_subpel_params_func(xd, sf, &(mv_refined[ref].as_mv), plane, pre_x,
@@ -985,16 +987,19 @@ static void build_inter_predictors(
                               calc_subpel_params_func_args, &pre,
                               &subpel_params, &src_stride);
     } else {
+#endif  // CONFIG_OPTFLOW_REFINEMENT
       calc_subpel_params_func(xd, sf, &mv, plane, pre_x, pre_y, 0, 0, pre_buf,
                               bw, bh, &warp_types, ref, 0,
                               calc_subpel_params_func_args, &pre,
                               &subpel_params, &src_stride);
+#if CONFIG_OPTFLOW_REFINEMENT
     }
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 #else
     calc_subpel_params_func(xd, sf, &mv, plane, pre_x, pre_y, 0, 0, pre_buf, bw,
                             bh, &warp_types, ref, calc_subpel_params_func_args,
                             &pre, &subpel_params, &src_stride);
-#endif  // CONFIG_EXT_COMPOUND
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 
     if (ref && is_masked_compound_type(mi->interinter_comp.type)) {
       // masked compound type has its own average mechanism

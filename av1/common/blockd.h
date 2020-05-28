@@ -317,6 +317,9 @@ typedef struct {
   int8_t wedge_sign;
   DIFFWTD_MASK_TYPE mask_type;
   COMPOUND_TYPE type;
+#if CONFIG_OPTFLOW_REFINEMENT
+  uint8_t use_optflow;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 } INTERINTER_COMPOUND_DATA;
 
 #define INTER_TX_SIZE_BUF_LEN 16
