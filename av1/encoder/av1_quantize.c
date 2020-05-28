@@ -615,8 +615,16 @@ static void invert_quant(int16_t *quant, int16_t *shift, int d) {
   *shift = 1 << (16 - l);
 }
 
-static int get_qzbin_factor(int q, aom_bit_depth_t bit_depth) {
-  const int quant = av1_dc_quant_QTX(q, 0, bit_depth);
+static int get_qzbin_factor(int q,
+#if CONFIG_DELTA_DCQUANT
+                            int base_dc_delta_q,
+#endif  // CONFIG_DELTA_DCQUANT
+                            aom_bit_depth_t bit_depth) {
+  const int quant = av1_dc_quant_QTX(q, 0,
+#if CONFIG_DELTA_DCQUANT
+                                     base_dc_delta_q,
+#endif  // CONFIG_DELTA_DCQUANT
+                                     bit_depth);
   switch (bit_depth) {
     case AOM_BITS_8: return q == 0 ? 64 : (quant < 148 ? 84 : 80);
     case AOM_BITS_10: return q == 0 ? 64 : (quant < 592 ? 84 : 80);
@@ -629,18 +637,29 @@ static int get_qzbin_factor(int q, aom_bit_depth_t bit_depth) {
 
 void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
                          int u_dc_delta_q, int u_ac_delta_q, int v_dc_delta_q,
-                         int v_ac_delta_q, QUANTS *const quants,
-                         Dequants *const deq) {
+                         int v_ac_delta_q,
+#if CONFIG_DELTA_DCQUANT
+                         int base_dc_delta_q,
+#endif  // CONFIG_DELTA_DCQUANT
+                         QUANTS *const quants, Dequants *const deq) {
   int i, q, quant_QTX;
 
   for (q = 0; q < QINDEX_RANGE; q++) {
-    const int qzbin_factor = get_qzbin_factor(q, bit_depth);
+    const int qzbin_factor = get_qzbin_factor(q,
+#if CONFIG_DELTA_DCQUANT
+                                              base_dc_delta_q,
+#endif  // CONFIG_DELTA_DCQUANT
+                                              bit_depth);
     const int qrounding_factor = q == 0 ? 64 : 48;
 
     for (i = 0; i < 2; ++i) {
       int qrounding_factor_fp = 64;
       // y quantizer with TX scale
-      quant_QTX = i == 0 ? av1_dc_quant_QTX(q, y_dc_delta_q, bit_depth)
+      quant_QTX = i == 0 ? av1_dc_quant_QTX(q, y_dc_delta_q,
+#if CONFIG_DELTA_DCQUANT
+                                            base_dc_delta_q,
+#endif  // CONFIG_DELTA_DCQUANT
+                                            bit_depth)
                          : av1_ac_quant_QTX(q, 0, bit_depth);
       invert_quant(&quants->y_quant[q][i], &quants->y_quant_shift[q][i],
                    quant_QTX);
@@ -651,7 +670,11 @@ void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
       deq->y_dequant_QTX[q][i] = quant_QTX;
 
       // u quantizer with TX scale
-      quant_QTX = i == 0 ? av1_dc_quant_QTX(q, u_dc_delta_q, bit_depth)
+      quant_QTX = i == 0 ? av1_dc_quant_QTX(q, u_dc_delta_q,
+#if CONFIG_DELTA_DCQUANT
+                                            base_dc_delta_q,
+#endif  // CONFIG_DELTA_DCQUANT
+                                            bit_depth)
                          : av1_ac_quant_QTX(q, u_ac_delta_q, bit_depth);
       invert_quant(&quants->u_quant[q][i], &quants->u_quant_shift[q][i],
                    quant_QTX);
@@ -662,7 +685,11 @@ void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
       deq->u_dequant_QTX[q][i] = quant_QTX;
 
       // v quantizer with TX scale
-      quant_QTX = i == 0 ? av1_dc_quant_QTX(q, v_dc_delta_q, bit_depth)
+      quant_QTX = i == 0 ? av1_dc_quant_QTX(q, v_dc_delta_q,
+#if CONFIG_DELTA_DCQUANT
+                                            base_dc_delta_q,
+#endif  // CONFIG_DELTA_DCQUANT
+                                            bit_depth)
                          : av1_ac_quant_QTX(q, v_ac_delta_q, bit_depth);
       invert_quant(&quants->v_quant[q][i], &quants->v_quant_shift[q][i],
                    quant_QTX);
@@ -706,7 +733,11 @@ void av1_init_quantizer(AV1_COMP *cpi) {
   Dequants *const dequants = &cpi->dequants;
   av1_build_quantizer(cm->seq_params.bit_depth, cm->y_dc_delta_q,
                       cm->u_dc_delta_q, cm->u_ac_delta_q, cm->v_dc_delta_q,
-                      cm->v_ac_delta_q, quants, dequants);
+                      cm->v_ac_delta_q,
+#if CONFIG_DELTA_DCQUANT
+                      cm->seq_params.base_dc_delta_q,
+#endif  // CONFIG_DELTA_DCQUANT
+                      quants, dequants);
 }
 
 void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,

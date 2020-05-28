@@ -17,6 +17,7 @@
 #include "av1/common/blockd.h"
 
 /* clang-format off */
+#if !CONFIG_DELTA_DCQUANT
 #if CONFIG_EXTQUANT
 static const int32_t dc_qlookup_QTX[QINDEX_RANGE] = {
   4,    8,    8,    9,    10,   11,   12,   12,   13,   14,   15,   16,   17,
@@ -176,6 +177,7 @@ static const int16_t dc_qlookup_12_QTX[QINDEX_RANGE] = {
   19718, 20521, 21387,
 };
 #endif
+#endif  // !CONFIG_DELTA_DCQUANT
 
 #if CONFIG_EXTQUANT
 static const int32_t ac_qlookup_QTX[QINDEX_RANGE] = {
@@ -367,6 +369,25 @@ static const int16_t ac_qlookup_12_QTX[QINDEX_RANGE] = {
 // addition, the minimum allowable quantizer is 4; smaller values will
 // underflow to 0 in the actual quantization routines.
 
+#if CONFIG_DELTA_DCQUANT
+#if CONFIG_EXTQUANT
+int32_t av1_dc_quant_QTX(int qindex, int delta, int base_dc_delta_q,
+                         aom_bit_depth_t bit_depth) {
+#else
+int16_t av1_dc_quant_QTX(int qindex, int delta, int base_dc_delta_q,
+                         aom_bit_depth_t bit_depth) {
+#endif
+  const int q_clamped = clamp(qindex - base_dc_delta_q + delta, 0, MAXQ);
+  switch (bit_depth) {
+    case AOM_BITS_8: return ac_qlookup_QTX[q_clamped];
+    case AOM_BITS_10: return ac_qlookup_10_QTX[q_clamped];
+    case AOM_BITS_12: return ac_qlookup_12_QTX[q_clamped];
+    default:
+      assert(0 && "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
+      return -1;
+  }
+}
+#else
 #if CONFIG_EXTQUANT
 int32_t av1_dc_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth) {
 #else
@@ -382,6 +403,7 @@ int16_t av1_dc_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth) {
       return -1;
   }
 }
+#endif  // CONFIG_DELTA_DCQUANT
 
 #if CONFIG_EXTQUANT
 int32_t av1_ac_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth) {
