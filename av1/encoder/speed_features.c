@@ -1301,6 +1301,9 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
       // Revert to type 2
       sf->inter_sf.inter_mode_rd_model_estimation = 2;
     }
+    // Disable the speed feature to achieve better parallelism when more than 2
+    // threads are available.
+    if (cpi->oxcf.max_threads > 2) sf->gm_sf.prune_ref_frame_for_gm_search = 0;
   }
 }
 
