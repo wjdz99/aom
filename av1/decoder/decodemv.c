@@ -322,6 +322,10 @@ static PREDICTION_MODE read_inter_compound_mode(MACROBLOCKD *xd, aom_reader *r,
       aom_read_symbol(r, xd->tile_ctx->inter_compound_mode_cdf[ctx],
                       INTER_COMPOUND_MODES, ACCT_STR);
   assert(is_inter_compound_mode(COMP_INTER_MODE_START + mode));
+#if CONFIG_OPTFLOW_REFINEMENT
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  mbmi->use_optflow = aom_read_bit(r, ACCT_STR);
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   return COMP_INTER_MODE_START + mode;
 }
 

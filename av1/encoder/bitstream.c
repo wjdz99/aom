@@ -273,6 +273,10 @@ static void write_inter_compound_mode(MACROBLOCKD *xd, aom_writer *w,
   aom_write_symbol(w, INTER_COMPOUND_OFFSET(mode),
                    xd->tile_ctx->inter_compound_mode_cdf[mode_ctx],
                    INTER_COMPOUND_MODES);
+#if CONFIG_OPTFLOW_REFINEMENT
+  const MB_MODE_INFO *const mbmi = xd->mi[0];
+  aom_write_bit(w, mbmi->use_optflow);
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 }
 
 #if CONFIG_NEW_TX_PARTITION

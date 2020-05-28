@@ -14974,10 +14974,21 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       args.simple_rd_state = x->simple_rd_state[midx];
     }
 
+#if CONFIG_OPFL_REFINEMENT
+    if (is_inter_compound_mode(this_mode)) {
+
+    }  else {
     int64_t this_rd = handle_inter_mode(
         cpi, tile_data, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
         &disable_skip, &args, ref_best_rd, tmp_buf, &x->comp_rd_buffer,
         &best_est_rd, do_tx_search, inter_modes_info);
+    }
+#else
+    int64_t this_rd = handle_inter_mode(
+        cpi, tile_data, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
+        &disable_skip, &args, ref_best_rd, tmp_buf, &x->comp_rd_buffer,
+        &best_est_rd, do_tx_search, inter_modes_info);
+#endif  // CONFIG_OPFL+REFINEMENT
 
     const int rate2 = rd_stats.rate;
     const int skippable = rd_stats.skip;
