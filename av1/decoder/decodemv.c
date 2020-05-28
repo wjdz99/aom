@@ -1734,6 +1734,12 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     av1_find_best_ref_mvs(cm->fr_mv_precision, ref_mvs[mbmi->ref_frame[0]],
                           &nearestmv[0], &nearmv[0]);
   }
+#if CONFIG_OPTFLOW_REFINEMENT
+  if (is_compound && mbmi->mode > NEW_NEWMV)
+    mbmi->use_optflow = aom_read_bit(r, ACCT_STR);
+  else 
+    mbmi->use_optflow = 0;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 
   if (is_compound && mbmi->mode != GLOBAL_GLOBALMV) {
 #if CONFIG_NEW_INTER_MODES

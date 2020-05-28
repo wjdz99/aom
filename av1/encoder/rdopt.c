@@ -11499,7 +11499,13 @@ static INLINE void calc_masked_type_cost(MACROBLOCK *x, BLOCK_SIZE bsize,
   MB_MODE_INFO *mbmi = xd->mi[0];
   const PREDICTION_MODE this_mode = mbmi->mode;
   // masked type not signalled with the EXT_COMPOUND modes
-  if (this_mode > NEW_NEWMV) return;
+  if (this_mode > NEW_NEWMV) {
+#if CONFIG_OPTFLOW_REFINEMENT
+    masked_type_cost[COMPOUND_AVERAGE] +=
+#else
+  return;
+#endif
+  }
 #endif  // CONFIG_EXT_COMPOUND
   // Account for group index cost when wedge and/or diffwtd prediction are
   // enabled
@@ -11625,6 +11631,9 @@ static int compound_type_rd(
   int rs2;
   int_mv best_mv[2];
   int best_tmp_rate_mv = *rate_mv;
+#if CONFIG_OPTFLOW_REFINEMENT
+  int try_optflow = this_mode > NEW_NEWMV;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   BEST_COMP_TYPE_STATS best_type_stats;
   // Initializing BEST_COMP_TYPE_STATS
   best_type_stats.best_compound_data.type = COMPOUND_AVERAGE;
@@ -11687,7 +11696,11 @@ static int compound_type_rd(
   // are to be searched. In this case, first estimate between the two
   // modes and then call estimate_yrd_for_sb() only for the better of
   // the two.
+#if CONFIG_OPTFLOW_REFINEMENT
+  if (try_average_and_distwtd_comp && !try_optflow) {
+#else
   if (try_average_and_distwtd_comp) {
+#endif  // CONFIG_OPTFLOW_REFINEMENT
     int est_rate[2];
     int64_t est_dist[2], est_rd[2];
     COMPOUND_TYPE best_type;
@@ -11749,6 +11762,11 @@ static int compound_type_rd(
     tmp_rate_mv = *rate_mv;
     best_rd_cur = INT64_MAX;
 
+#if CONFIG_OPTFLOW_REFINEMENT
+    try_optflow &= cur_type == COMPOUND_AVERAGE;
+    for (int i = 0; i < 1 + try_optflow; i++) {
+      mbmi->____ = i;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
     // Case COMPOUND_AVERAGE and COMPOUND_DISTWTD
     if (cur_type < COMPOUND_WEDGE) {
       update_mbmi_for_compound_type(mbmi, cur_type);
@@ -11808,6 +11826,9 @@ static int compound_type_rd(
             best_type_stats.comp_best_model_rd, &comp_model_rd_cur);
       }
     }
+#if CONFIG_OPTFLOW_REFINEMENT
+    } // try optflow
+#endif  // CONFIG_OPTFLOW_REFINEMENT
     // Update stats for best compound type
     if (best_rd_cur < *rd) {
       update_best_info(mbmi, rd, &best_type_stats, best_rd_cur,
@@ -14974,10 +14995,21 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       args.simple_rd_state = x->simple_rd_state[midx];
     }
 
+#if CONFIG_OPFL_REFINEMENT
+    if (is_inter_compound_mode(this_mode)) {
+
+    }  else {
     int64_t this_rd = handle_inter_mode(
         cpi, tile_data, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
         &disable_skip, &args, ref_best_rd, tmp_buf, &x->comp_rd_buffer,
         &best_est_rd, do_tx_search, inter_modes_info);
+    }
+#else
+    int64_t this_rd = handle_inter_mode(
+        cpi, tile_data, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
+        &disable_skip, &args, ref_best_rd, tmp_buf, &x->comp_rd_buffer,
+        &best_est_rd, do_tx_search, inter_modes_info);
+#endif  // CONFIG_OPFL+REFINEMENT
 
     const int rate2 = rd_stats.rate;
     const int skippable = rd_stats.skip;

@@ -1526,6 +1526,10 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       else
         assert(mbmi->ref_mv_idx == 0);
     }
+#if CONFIG_OPTFLOW_REFINEMENT
+  if (is_compound && mbmi->mode > NEW_NEWMV)
+    aom_write_bit(w, mbmi->use_optflow);
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 
     if (mode == NEWMV || mode == NEW_NEWMV) {
       for (ref = 0; ref < 1 + is_compound; ++ref) {

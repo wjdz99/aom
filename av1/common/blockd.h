@@ -317,6 +317,9 @@ typedef struct {
   int8_t wedge_sign;
   DIFFWTD_MASK_TYPE mask_type;
   COMPOUND_TYPE type;
+#if CONFIG_OPTFLOW_REFINE
+  uint8_t use_optflow;
+#endif  // CONFIG_OPTFLOW_REFINE
 } INTERINTER_COMPOUND_DATA;
 
 #define INTER_TX_SIZE_BUF_LEN 16
@@ -665,6 +668,9 @@ typedef struct MB_MODE_INFO {
 #if CONFIG_NEW_TX_PARTITION
   TX_PARTITION_TYPE partition_type[INTER_TX_SIZE_BUF_LEN];
 #endif  // CONFIG_NEW_TX_PARTITION
+#if CONFIG_OPTFLOW_REFINEMENT
+  int use_optflow;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   MOTION_MODE motion_mode;
   PARTITION_TYPE partition;
   TX_TYPE txk_type[TXK_TYPE_BUF_LEN];
