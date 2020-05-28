@@ -38,11 +38,24 @@ extern "C" {
 
 struct AV1Common;
 
+<<<<<<< HEAD   (92612d remove CONFIG_EXTQUANT_72 experiment)
 #if CONFIG_EXTQUANT
 int32_t av1_dc_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth);
+=======
+#if CONFIG_EXTQUANT_72 || CONFIG_EXTQUANT_64
+int32_t av1_dc_quant_QTX(int qindex, int delta,
+#if CONFIG_DELTA_DCQUANT
+                         int base_dc_delta_q,
+#endif  // CONFIG_DELTA_DCQUANT
+                         aom_bit_depth_t bit_depth);
+>>>>>>> BRANCH (4d50fe Add an experiment to send a base delta_q for dc)
 int32_t av1_ac_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth);
 #else
-int16_t av1_dc_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth);
+int16_t av1_dc_quant_QTX(int qindex, int delta,
+#if CONFIG_DELTA_DCQUANT
+                         int base_dc_delta_q,
+#endif  // CONFIG_DELTA_DCQUANT
+                         aom_bit_depth_t bit_depth);
 int16_t av1_ac_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth);
 #endif
 

@@ -17,7 +17,38 @@
 #include "av1/common/blockd.h"
 
 /* clang-format off */
+<<<<<<< HEAD   (92612d remove CONFIG_EXTQUANT_72 experiment)
 #if CONFIG_EXTQUANT
+=======
+#if !CONFIG_DELTA_DCQUANT
+#if CONFIG_EXTQUANT_72
+static const int32_t dc_qlookup_QTX[QINDEX_RANGE] = {
+  4,    8,    8,    9,    10,   11,   12,   12,   13,   14,   15,   16,   17,
+  18,   19,   19,   20,   21,   22,   23,   24,   25,   26,   26,   27,   28,
+  29,   30,   31,   32,   32,   33,   34,   35,   36,   37,   38,   38,   39,
+  40,   41,   42,   43,   43,   44,   45,   46,   47,   48,   48,   49,   50,
+  51,   52,   53,   53,   54,   55,   56,   57,   57,   58,   59,   60,   61,
+  62,   62,   63,   64,   65,   66,   66,   67,   68,   69,   70,   70,   71,
+  72,   73,   74,   74,   75,   76,   77,   78,   78,   79,   80,   81,   81,
+  82,   83,   84,   85,   85,   87,   88,   90,   92,   93,   95,   96,   98,
+  99,   101,  102,  104,  105,  107,  108,  110,  111,  113,  114,  116,  117,
+  118,  120,  121,  123,  125,  127,  129,  131,  134,  136,  138,  140,  142,
+  144,  146,  148,  150,  152,  154,  156,  158,  161,  164,  166,  169,  172,
+  174,  177,  180,  182,  185,  187,  190,  192,  195,  199,  202,  205,  208,
+  211,  214,  217,  220,  223,  226,  230,  233,  237,  240,  243,  247,  250,
+  253,  257,  261,  265,  269,  272,  276,  280,  284,  288,  292,  296,  300,
+  304,  309,  313,  317,  322,  326,  330,  335,  340,  344,  349,  354,  359,
+  364,  369,  374,  379,  384,  389,  395,  400,  406,  411,  417,  423,  429,
+  435,  441,  447,  454,  461,  467,  475,  482,  489,  497,  505,  513,  522,
+  530,  539,  549,  559,  569,  579,  590,  602,  614,  626,  640,  654,  668,
+  684,  700,  717,  736,  755,  775,  796,  819,  843,  869,  896,  925,  955,
+  988,  1022, 1058, 1098, 1139, 1184, 1232, 1282, 1336, 1389, 1445, 1503, 1563,
+  1625, 1690, 1758, 1828, 1902, 1978, 2057, 2139, 2225, 2314, 2406, 2502, 2602,
+  2706, 2815, 2927, 3044, 3166, 3293, 3425, 3562, 3704, 3852, 4006, 4167, 4333,
+  4507, 4687,
+};
+#elif CONFIG_EXTQUANT_64
+>>>>>>> BRANCH (4d50fe Add an experiment to send a base delta_q for dc)
 static const int32_t dc_qlookup_QTX[QINDEX_RANGE] = {
   4,    8,    8,    9,    10,   11,   12,   12,   13,   14,   15,   16,   17,
   18,   19,   19,   20,   21,   22,   23,   24,   25,   26,   26,   27,   28,
@@ -176,6 +207,7 @@ static const int16_t dc_qlookup_12_QTX[QINDEX_RANGE] = {
   19718, 20521, 21387,
 };
 #endif
+#endif  // !CONFIG_DELTA_DCQUANT
 
 #if CONFIG_EXTQUANT
 static const int32_t ac_qlookup_QTX[QINDEX_RANGE] = {
@@ -367,7 +399,30 @@ static const int16_t ac_qlookup_12_QTX[QINDEX_RANGE] = {
 // addition, the minimum allowable quantizer is 4; smaller values will
 // underflow to 0 in the actual quantization routines.
 
+<<<<<<< HEAD   (92612d remove CONFIG_EXTQUANT_72 experiment)
 #if CONFIG_EXTQUANT
+=======
+#if CONFIG_DELTA_DCQUANT
+#if CONFIG_EXTQUANT_72 || CONFIG_EXTQUANT_64
+int32_t av1_dc_quant_QTX(int qindex, int delta, int base_dc_delta_q,
+                         aom_bit_depth_t bit_depth) {
+#else
+int16_t av1_dc_quant_QTX(int qindex, int delta, int base_dc_delta_q,
+                         aom_bit_depth_t bit_depth) {
+#endif
+  const int q_clamped = clamp(qindex - base_dc_delta_q + delta, 0, MAXQ);
+  switch (bit_depth) {
+    case AOM_BITS_8: return ac_qlookup_QTX[q_clamped];
+    case AOM_BITS_10: return ac_qlookup_10_QTX[q_clamped];
+    case AOM_BITS_12: return ac_qlookup_12_QTX[q_clamped];
+    default:
+      assert(0 && "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
+      return -1;
+  }
+}
+#else
+#if CONFIG_EXTQUANT_72 || CONFIG_EXTQUANT_64
+>>>>>>> BRANCH (4d50fe Add an experiment to send a base delta_q for dc)
 int32_t av1_dc_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth) {
 #else
 int16_t av1_dc_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth) {
@@ -382,6 +437,7 @@ int16_t av1_dc_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth) {
       return -1;
   }
 }
+#endif  // CONFIG_DELTA_DCQUANT
 
 #if CONFIG_EXTQUANT
 int32_t av1_ac_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth) {
