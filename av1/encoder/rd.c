@@ -511,8 +511,10 @@ int av1_compute_rd_mult_based_on_qindex(const AV1_COMP *cpi, int qindex) {
                                  cpi->common.seq_params.base_dc_delta_q,
 #endif  // CONFIG_DELTA_DCQUANT
                                  cpi->common.seq_params.bit_depth);
-  int rdmult = q * q;
-  rdmult = rdmult * 3 + (rdmult * 2 / 3);
+  int rdmult = q * q * 3 + (q * q * 2 / 3);
+  // const int q = av1_ac_quant_QTX(qindex, 0, cpi->common.seq_params.bit_depth);
+  // int rdmult = q * q * 3 - (q * q * 1 / 3);
+  // printf("rdmult ac: %d (%d), rdmult dc: %d (%d)\n", rdmult, q, rdmultdc, qdc);
   switch (cpi->common.seq_params.bit_depth) {
     case AOM_BITS_8: break;
     case AOM_BITS_10: rdmult = ROUND_POWER_OF_TWO(rdmult, 4); break;
@@ -545,6 +547,7 @@ int av1_get_deltaq_offset(const AV1_COMP *cpi, int qindex, double beta) {
                            cpi->common.seq_params.base_dc_delta_q,
 #endif  // CONFIG_DELTA_DCQUANT
                            cpi->common.seq_params.bit_depth);
+  // int q = av1_ac_quant_QTX(qindex, 0, cpi->common.seq_params.bit_depth);
   int newq = (int)rint(q / sqrt(beta));
   int orig_qindex = qindex;
   if (newq < q) {
@@ -555,6 +558,7 @@ int av1_get_deltaq_offset(const AV1_COMP *cpi, int qindex, double beta) {
                            cpi->common.seq_params.base_dc_delta_q,
 #endif  // CONFIG_DELTA_DCQUANT
                            cpi->common.seq_params.bit_depth);
+      // q = av1_ac_quant_QTX(qindex, 0, cpi->common.seq_params.bit_depth);
     } while (newq < q && qindex > 0);
   } else {
     do {
@@ -564,6 +568,7 @@ int av1_get_deltaq_offset(const AV1_COMP *cpi, int qindex, double beta) {
                            cpi->common.seq_params.base_dc_delta_q,
 #endif  // CONFIG_DELTA_DCQUANT
                            cpi->common.seq_params.bit_depth);
+      // q = av1_ac_quant_QTX(qindex, 0, cpi->common.seq_params.bit_depth);
     } while (newq > q && qindex < MAXQ);
   }
   return qindex - orig_qindex;
@@ -574,12 +579,13 @@ int av1_get_adaptive_rdmult(const AV1_COMP *cpi, double beta) {
   const AV1_COMMON *cm = &cpi->common;
   int64_t q = av1_dc_quant_QTX(cm->base_qindex, 0,
 #if CONFIG_DELTA_DCQUANT
-                               cpi->common.seq_params.base_dc_delta_q,
+                               cm->seq_params.base_dc_delta_q,
 #endif  // CONFIG_DELTA_DCQUANT
-                               cpi->common.seq_params.bit_depth);
+                               cm->seq_params.bit_depth);
+  // int64_t q = av1_ac_quant_QTX(cm->base_qindex, 0, cm->seq_params.bit_depth);
   int64_t rdmult = 0;
 
-  switch (cpi->common.seq_params.bit_depth) {
+  switch (cm->seq_params.bit_depth) {
     case AOM_BITS_8: rdmult = (int)((88 * q * q / beta) / 24); break;
     case AOM_BITS_10:
       rdmult = ROUND_POWER_OF_TWO((int)((88 * q * q / beta) / 24), 4);
@@ -591,7 +597,7 @@ int av1_get_adaptive_rdmult(const AV1_COMP *cpi, double beta) {
   }
 
   if (is_stat_consumption_stage(cpi) &&
-      (cpi->common.current_frame.frame_type != KEY_FRAME)) {
+      (cm->current_frame.frame_type != KEY_FRAME)) {
     const GF_GROUP *const gf_group = &cpi->gf_group;
     const FRAME_UPDATE_TYPE frame_type = gf_group->update_type[gf_group->index];
     const int boost_index = AOMMIN(15, (cpi->rc.gfu_boost / 100));
@@ -615,24 +621,24 @@ static int compute_rd_thresh_factor(int qindex,
 #if CONFIG_DELTA_DCQUANT
                            base_dc_delta_q,
 #endif  // CONFIG_DELTA_DCQUANT
-                           AOM_BITS_8) /
-          4.0;
+                           AOM_BITS_8) / 4.0;
+      // q = av1_ac_quant_QTX(qindex, 0, AOM_BITS_8) / 4.0;
       break;
     case AOM_BITS_10:
       q = av1_dc_quant_QTX(qindex, 0,
 #if CONFIG_DELTA_DCQUANT
                            base_dc_delta_q,
 #endif  // CONFIG_DELTA_DCQUANT
-                           AOM_BITS_10) /
-          16.0;
+                           AOM_BITS_10) / 16.0;
+      // q = av1_ac_quant_QTX(qindex, 0, AOM_BITS_10) / 16.0;
       break;
     case AOM_BITS_12:
       q = av1_dc_quant_QTX(qindex, 0,
 #if CONFIG_DELTA_DCQUANT
                            base_dc_delta_q,
 #endif  // CONFIG_DELTA_DCQUANT
-                           AOM_BITS_12) /
-          64.0;
+                           AOM_BITS_12) / 64.0;
+      // q = av1_ac_quant_QTX(qindex, 0, AOM_BITS_12) / 64.0;
       break;
     default:
       assert(0 && "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
