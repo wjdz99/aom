@@ -3049,6 +3049,35 @@ static void reset_part_limitations(AV1_COMP *const cpi,
   part_search_state->terminate_partition_search = 0;
 }
 
+// Rectangular partitions evaluation at index level.
+static void rd_pick_partition2(AV1_COMP *const cpi, TileDataEnc *tile_data,
+                               MACROBLOCK *x,
+                               PICK_MODE_CONTEXT *cur_partition_ctx,
+                               PartitionSearchState *part_search_state,
+                               RD_STATS *best_rdc, const int idx, int mi_row,
+                               int mi_col, int bsize,
+                               PARTITION_TYPE partition_type) {
+  // RD Cost remained for further processing.
+  RD_STATS best_remain_rdcost;
+  av1_rd_stats_subtraction(x->rdmult, best_rdc, &part_search_state->sum_rdc,
+                           &best_remain_rdcost);
+
+  pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &part_search_state->this_rdc,
+                PARTITION_HORZ, bsize, cur_partition_ctx, best_remain_rdcost,
+                PICK_MODE_RD);
+  av1_rd_cost_update(x->rdmult, &part_search_state->this_rdc);
+
+  if (part_search_state->this_rdc.rate == INT_MAX) {
+    part_search_state->sum_rdc.rdcost = INT64_MAX;
+  } else {
+    part_search_state->sum_rdc.rate += part_search_state->this_rdc.rate;
+    part_search_state->sum_rdc.dist += part_search_state->this_rdc.dist;
+    av1_rd_cost_update(x->rdmult, &part_search_state->sum_rdc);
+  }
+  part_search_state->rect_part_rd[partition_type - 1][idx] =
+      part_search_state->this_rdc.rdcost;
+}
+
 // Searches for the best partition pattern for a block based on the
 // rate-distortion cost, and returns a bool value to indicate whether a valid
 // partition pattern is found. The partition can recursively go down to
@@ -3497,29 +3526,17 @@ BEGIN_PARTITION_SEARCH:
         part_search_state.partition_cost[PARTITION_HORZ];
     part_search_state.sum_rdc.rdcost =
         RDCOST(x->rdmult, part_search_state.sum_rdc.rate, 0);
-    RD_STATS best_remain_rdcost;
-    av1_rd_stats_subtraction(x->rdmult, &best_rdc, &part_search_state.sum_rdc,
-                             &best_remain_rdcost);
 #if CONFIG_COLLECT_PARTITION_STATS
-    if (best_remain_rdcost >= 0) {
+    if (part_search_state.sum_rdc >= 0) {
       partition_attempts[PARTITION_HORZ] += 1;
       aom_usec_timer_start(&partition_timer);
       partition_timer_on = 1;
     }
 #endif
-    pick_sb_modes(cpi, tile_data, x, mi_row, mi_col,
-                  &part_search_state.this_rdc, PARTITION_HORZ, subsize,
-                  pc_tree->horizontal[0], best_remain_rdcost, PICK_MODE_RD);
-    av1_rd_cost_update(x->rdmult, &part_search_state.this_rdc);
-
-    if (part_search_state.this_rdc.rate == INT_MAX) {
-      part_search_state.sum_rdc.rdcost = INT64_MAX;
-    } else {
-      part_search_state.sum_rdc.rate += part_search_state.this_rdc.rate;
-      part_search_state.sum_rdc.dist += part_search_state.this_rdc.dist;
-      av1_rd_cost_update(x->rdmult, &part_search_state.sum_rdc);
-    }
-    part_search_state.rect_part_rd[0][0] = part_search_state.this_rdc.rdcost;
+    // First sub-partition evaluation in horizontal partition type.
+    rd_pick_partition2(cpi, tile_data, x, pc_tree->horizontal[0],
+                       &part_search_state, &best_rdc, 0, mi_row, mi_col,
+                       subsize, PARTITION_HORZ);
 
     if (part_search_state.sum_rdc.rdcost < best_rdc.rdcost &&
         blk_params.has_rows) {
@@ -3533,23 +3550,11 @@ BEGIN_PARTITION_SEARCH:
       }
       update_state(cpi, td, ctx_h, mi_row, mi_col, subsize, 1);
       encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, subsize, NULL);
-
-      av1_rd_stats_subtraction(x->rdmult, &best_rdc, &part_search_state.sum_rdc,
-                               &best_remain_rdcost);
-
-      pick_sb_modes(cpi, tile_data, x, blk_params.mi_row_edge, mi_col,
-                    &part_search_state.this_rdc, PARTITION_HORZ, subsize,
-                    pc_tree->horizontal[1], best_remain_rdcost, PICK_MODE_RD);
-      av1_rd_cost_update(x->rdmult, &part_search_state.this_rdc);
-      part_search_state.rect_part_rd[0][1] = part_search_state.this_rdc.rdcost;
-
-      if (part_search_state.this_rdc.rate == INT_MAX) {
-        part_search_state.sum_rdc.rdcost = INT64_MAX;
-      } else {
-        part_search_state.sum_rdc.rate += part_search_state.this_rdc.rate;
-        part_search_state.sum_rdc.dist += part_search_state.this_rdc.dist;
-        av1_rd_cost_update(x->rdmult, &part_search_state.sum_rdc);
-      }
+      // Second sub-partition evaluation in horizontal partition type.
+      rd_pick_partition2(cpi, tile_data, x, pc_tree->horizontal[1],
+                         &part_search_state, &best_rdc, 1,
+                         blk_params.mi_row_edge, mi_col, subsize,
+                         PARTITION_HORZ);
     }
 #if CONFIG_COLLECT_PARTITION_STATS
     if (partition_timer_on) {
@@ -3601,29 +3606,17 @@ BEGIN_PARTITION_SEARCH:
         part_search_state.partition_cost[PARTITION_VERT];
     part_search_state.sum_rdc.rdcost =
         RDCOST(x->rdmult, part_search_state.sum_rdc.rate, 0);
-    RD_STATS best_remain_rdcost;
-    av1_rd_stats_subtraction(x->rdmult, &best_rdc, &part_search_state.sum_rdc,
-                             &best_remain_rdcost);
 #if CONFIG_COLLECT_PARTITION_STATS
-    if (best_remain_rdcost >= 0) {
+    if (art_search_state.sum_rdc >= 0) {
       partition_attempts[PARTITION_VERT] += 1;
       aom_usec_timer_start(&partition_timer);
       partition_timer_on = 1;
     }
 #endif
-    pick_sb_modes(cpi, tile_data, x, mi_row, mi_col,
-                  &part_search_state.this_rdc, PARTITION_VERT, subsize,
-                  pc_tree->vertical[0], best_remain_rdcost, PICK_MODE_RD);
-    av1_rd_cost_update(x->rdmult, &part_search_state.this_rdc);
-
-    if (part_search_state.this_rdc.rate == INT_MAX) {
-      part_search_state.sum_rdc.rdcost = INT64_MAX;
-    } else {
-      part_search_state.sum_rdc.rate += part_search_state.this_rdc.rate;
-      part_search_state.sum_rdc.dist += part_search_state.this_rdc.dist;
-      av1_rd_cost_update(x->rdmult, &part_search_state.sum_rdc);
-    }
-    part_search_state.rect_part_rd[1][0] = part_search_state.this_rdc.rdcost;
+    // First sub-partition evaluation in vertical partition type.
+    rd_pick_partition2(cpi, tile_data, x, pc_tree->vertical[0],
+                       &part_search_state, &best_rdc, 0, mi_row, mi_col,
+                       subsize, PARTITION_VERT);
     if (part_search_state.sum_rdc.rdcost < best_rdc.rdcost &&
         blk_params.has_cols) {
       const MB_MODE_INFO *const mbmi = &pc_tree->vertical[0]->mic;
@@ -3635,22 +3628,10 @@ BEGIN_PARTITION_SEARCH:
       }
       update_state(cpi, td, pc_tree->vertical[0], mi_row, mi_col, subsize, 1);
       encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, subsize, NULL);
-
-      av1_rd_stats_subtraction(x->rdmult, &best_rdc, &part_search_state.sum_rdc,
-                               &best_remain_rdcost);
-      pick_sb_modes(cpi, tile_data, x, mi_row, blk_params.mi_col_edge,
-                    &part_search_state.this_rdc, PARTITION_VERT, subsize,
-                    pc_tree->vertical[1], best_remain_rdcost, PICK_MODE_RD);
-      av1_rd_cost_update(x->rdmult, &part_search_state.this_rdc);
-      part_search_state.rect_part_rd[1][1] = part_search_state.this_rdc.rdcost;
-
-      if (part_search_state.this_rdc.rate == INT_MAX) {
-        part_search_state.sum_rdc.rdcost = INT64_MAX;
-      } else {
-        part_search_state.sum_rdc.rate += part_search_state.this_rdc.rate;
-        part_search_state.sum_rdc.dist += part_search_state.this_rdc.dist;
-        av1_rd_cost_update(x->rdmult, &part_search_state.sum_rdc);
-      }
+      // Second sub-partition evaluation in vertical partition type.
+      rd_pick_partition2(cpi, tile_data, x, pc_tree->vertical[1],
+                         &part_search_state, &best_rdc, 1, mi_row,
+                         blk_params.mi_col_edge, subsize, PARTITION_VERT);
     }
 #if CONFIG_COLLECT_PARTITION_STATS
     if (partition_timer_on) {
