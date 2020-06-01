@@ -2859,8 +2859,10 @@ typedef struct {
   // RD costs for different partition types.
   int64_t none_rd;
   int64_t split_rd[4];
-  int64_t horz_rd[2];
-  int64_t vert_rd[2];
+  // RD costs corresponds to rectangular partitions.
+  // rect_part_rd[0]: Horizontal partition RD cost.
+  // rect_part_rd[1]: Vertical partition RD cost.
+  int64_t rect_part_rd[2][NUM_SUBPARTS_RECT_PART];
 
   // Flags indicating if the corresponding partition was winner or not.
   // Used to bypass similar blocks during AB partition evaluation.
@@ -2947,8 +2949,8 @@ static void init_partition_search_state_params(
   for (int i = 0; i < NUM_SUBPARTS_SPLIT_PART; i++)
     part_search_state->split_rd[i] = 0;
   for (int i = 0; i < 2; i++) {
-    part_search_state->horz_rd[i] = 0;
-    part_search_state->vert_rd[i] = 0;
+    part_search_state->rect_part_rd[i][0] = 0;
+    part_search_state->rect_part_rd[i][1] = 0;
   }
 
   // Initialize SPLIT, HORZ and VERT partitions to be not ready.
@@ -3517,7 +3519,7 @@ BEGIN_PARTITION_SEARCH:
       part_search_state.sum_rdc.dist += part_search_state.this_rdc.dist;
       av1_rd_cost_update(x->rdmult, &part_search_state.sum_rdc);
     }
-    part_search_state.horz_rd[0] = part_search_state.this_rdc.rdcost;
+    part_search_state.rect_part_rd[0][0] = part_search_state.this_rdc.rdcost;
 
     if (part_search_state.sum_rdc.rdcost < best_rdc.rdcost &&
         blk_params.has_rows) {
@@ -3539,7 +3541,7 @@ BEGIN_PARTITION_SEARCH:
                     &part_search_state.this_rdc, PARTITION_HORZ, subsize,
                     pc_tree->horizontal[1], best_remain_rdcost, PICK_MODE_RD);
       av1_rd_cost_update(x->rdmult, &part_search_state.this_rdc);
-      part_search_state.horz_rd[1] = part_search_state.this_rdc.rdcost;
+      part_search_state.rect_part_rd[0][1] = part_search_state.this_rdc.rdcost;
 
       if (part_search_state.this_rdc.rate == INT_MAX) {
         part_search_state.sum_rdc.rdcost = INT64_MAX;
@@ -3621,7 +3623,7 @@ BEGIN_PARTITION_SEARCH:
       part_search_state.sum_rdc.dist += part_search_state.this_rdc.dist;
       av1_rd_cost_update(x->rdmult, &part_search_state.sum_rdc);
     }
-    part_search_state.vert_rd[0] = part_search_state.this_rdc.rdcost;
+    part_search_state.rect_part_rd[1][0] = part_search_state.this_rdc.rdcost;
     if (part_search_state.sum_rdc.rdcost < best_rdc.rdcost &&
         blk_params.has_cols) {
       const MB_MODE_INFO *const mbmi = &pc_tree->vertical[0]->mic;
@@ -3640,7 +3642,7 @@ BEGIN_PARTITION_SEARCH:
                     &part_search_state.this_rdc, PARTITION_VERT, subsize,
                     pc_tree->vertical[1], best_remain_rdcost, PICK_MODE_RD);
       av1_rd_cost_update(x->rdmult, &part_search_state.this_rdc);
-      part_search_state.vert_rd[1] = part_search_state.this_rdc.rdcost;
+      part_search_state.rect_part_rd[1][1] = part_search_state.this_rdc.rdcost;
 
       if (part_search_state.this_rdc.rate == INT_MAX) {
         part_search_state.sum_rdc.rdcost = INT64_MAX;
@@ -3711,9 +3713,9 @@ BEGIN_PARTITION_SEARCH:
 
   // Prune AB partitions
   av1_prune_ab_partitions(cpi, x, pc_tree, bsize, pb_source_variance,
-                          best_rdc.rdcost, part_search_state.horz_rd,
-                          part_search_state.vert_rd, part_search_state.split_rd,
-                          rect_part_win_info, ext_partition_allowed,
+                          best_rdc.rdcost, part_search_state.rect_part_rd,
+                          part_search_state.split_rd, rect_part_win_info,
+                          ext_partition_allowed,
                           part_search_state.partition_horz_allowed,
                           part_search_state.partition_vert_allowed,
                           &horza_partition_allowed, &horzb_partition_allowed,
@@ -3971,11 +3973,11 @@ BEGIN_PARTITION_SEARCH:
   if (cpi->sf.part_sf.ml_prune_4_partition && partition4_allowed &&
       part_search_state.partition_horz_allowed &&
       part_search_state.partition_vert_allowed) {
-    av1_ml_prune_4_partition(
-        cpi, x, bsize, pc_tree->partitioning, best_rdc.rdcost,
-        part_search_state.horz_rd, part_search_state.vert_rd,
-        part_search_state.split_rd, &partition_horz4_allowed,
-        &partition_vert4_allowed, pb_source_variance, mi_row, mi_col);
+    av1_ml_prune_4_partition(cpi, x, bsize, pc_tree->partitioning,
+                             best_rdc.rdcost, part_search_state.rect_part_rd,
+                             part_search_state.split_rd,
+                             &partition_horz4_allowed, &partition_vert4_allowed,
+                             pb_source_variance, mi_row, mi_col);
   }
 
   if (blk_params.width < (blk_params.min_partition_size_1d << 2)) {
