@@ -33,10 +33,12 @@
 #define FEATURE_SMS_SPLIT_MODEL_FLAG \
   (FEATURE_SMS_NONE_FLAG | FEATURE_SMS_SPLIT_FLAG)
 
+// Rectangular parition types
+typedef enum { HORZ = 0, VERT, NUM_RECT_PARTS } RECT_PART_TYPES;
+
 // Structure to keep win flags for HORZ and VERT partition evaluations.
 typedef struct {
-  bool horz_win;
-  bool vert_win;
+  int rect_part_win[NUM_RECT_PARTS];
 } RD_RECT_PART_WIN_INFO;
 
 void av1_intra_mode_cnn_partition(const AV1_COMMON *const cm, MACROBLOCK *x,
@@ -106,8 +108,7 @@ void av1_ml_early_term_after_split(AV1_COMP *const cpi, MACROBLOCK *const x,
 void av1_ml_prune_rect_partition(const AV1_COMP *const cpi,
                                  const MACROBLOCK *const x, BLOCK_SIZE bsize,
                                  int64_t best_rd, int64_t none_rd,
-                                 int64_t *split_rd, int *const dst_prune_horz,
-                                 int *const dst_prune_vert);
+                                 int64_t *split_rd, int *const dst_prune_rect);
 
 // Use a ML model to predict if horz_a, horz_b, vert_a, and vert_b should be
 // considered.
@@ -140,9 +141,8 @@ int av1_ml_predict_breakout(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
 void av1_prune_partitions_before_search(
     AV1_COMP *const cpi, MACROBLOCK *const x, int mi_row, int mi_col,
     BLOCK_SIZE bsize, SIMPLE_MOTION_DATA_TREE *const sms_tree,
-    int *partition_none_allowed, int *partition_horz_allowed,
-    int *partition_vert_allowed, int *do_rectangular_split,
-    int *do_square_split, int *prune_horz, int *prune_vert);
+    int *partition_none_allowed, int *partition_rect_allowed,
+    int *do_rectangular_split, int *do_square_split, int *prune_rect_part);
 
 // Prune out partitions that lead to coding block sizes outside the min and max
 // bsizes set by the encoder. Max and min square partition levels are defined as
@@ -150,10 +150,12 @@ void av1_prune_partitions_before_search(
 // reach. To implement this: only PARTITION_NONE is allowed if the current node
 // equals max_partition_size, only PARTITION_SPLIT is allowed if the current
 // node exceeds max_partition_size.
-void av1_prune_partitions_by_max_min_bsize(
-    SuperBlockEnc *sb_enc, BLOCK_SIZE bsize, int is_not_edge_block,
-    int *partition_none_allowed, int *partition_horz_allowed,
-    int *partition_vert_allowed, int *do_square_split);
+void av1_prune_partitions_by_max_min_bsize(SuperBlockEnc *sb_enc,
+                                           BLOCK_SIZE bsize,
+                                           int is_not_edge_block,
+                                           int *partition_none_allowed,
+                                           int *partition_rect_allowed,
+                                           int *do_square_split);
 
 // Prune out AB partitions based on rd decisions made from testing the
 // basic partitions.
