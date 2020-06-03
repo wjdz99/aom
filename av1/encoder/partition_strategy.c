@@ -910,8 +910,8 @@ void av1_ml_early_term_after_split(AV1_COMP *const cpi, MACROBLOCK *const x,
 void av1_ml_prune_rect_partition(const AV1_COMP *const cpi,
                                  const MACROBLOCK *const x, BLOCK_SIZE bsize,
                                  int64_t best_rd, int64_t none_rd,
-                                 int64_t *split_rd, int *const dst_prune_horz,
-                                 int *const dst_prune_vert) {
+                                 int64_t *split_rd,
+                                 int *const dst_prune_rect_part) {
   if (bsize < BLOCK_8X8 || best_rd >= 1000000000) return;
   best_rd = AOMMAX(best_rd, 1);
   const NN_CONFIG *nn_config = NULL;
@@ -996,8 +996,8 @@ void av1_ml_prune_rect_partition(const AV1_COMP *const cpi,
 
   // probs[0] is the probability of the fact that both rectangular partitions
   // are worse than current best_rd
-  if (probs[1] <= cur_thresh) (*dst_prune_horz) = 1;
-  if (probs[2] <= cur_thresh) (*dst_prune_vert) = 1;
+  if (probs[1] <= cur_thresh) (dst_prune_rect_part[HORZ]) = 1;
+  if (probs[2] <= cur_thresh) (dst_prune_rect_part[VERT]) = 1;
 }
 
 // Use a ML model to predict if horz_a, horz_b, vert_a, and vert_b should be
@@ -1293,12 +1293,14 @@ int av1_ml_predict_breakout(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
 void av1_prune_partitions_before_search(
     AV1_COMP *const cpi, MACROBLOCK *const x, int mi_row, int mi_col,
     BLOCK_SIZE bsize, SIMPLE_MOTION_DATA_TREE *const sms_tree,
-    int *partition_none_allowed, int *partition_horz_allowed,
-    int *partition_vert_allowed, int *do_rectangular_split,
-    int *do_square_split, int *prune_horz, int *prune_vert) {
+    int *partition_none_allowed, int *partition_rect_allowed,
+    int *do_rectangular_split, int *do_square_split, int *prune_rect_part) {
   const AV1_COMMON *const cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
-
+  int *partition_horz_allowed = &partition_rect_allowed[HORZ];
+  int *partition_vert_allowed = &partition_rect_allowed[VERT];
+  int *prune_horz = &prune_rect_part[HORZ];
+  int *prune_vert = &prune_rect_part[VERT];
   // A CNN-based speed feature pruning out either split or all non-split
   // partition in INTRA frame coding.
   const int try_intra_cnn_split =
@@ -1359,10 +1361,12 @@ static AOM_INLINE int is_bsize_square(BLOCK_SIZE bsize) {
 }
 #endif  // NDEBUG
 
-void av1_prune_partitions_by_max_min_bsize(
-    SuperBlockEnc *sb_enc, BLOCK_SIZE bsize, int is_not_edge_block,
-    int *partition_none_allowed, int *partition_horz_allowed,
-    int *partition_vert_allowed, int *do_square_split) {
+void av1_prune_partitions_by_max_min_bsize(SuperBlockEnc *sb_enc,
+                                           BLOCK_SIZE bsize,
+                                           int is_not_edge_block,
+                                           int *partition_none_allowed,
+                                           int *partition_rect_allowed,
+                                           int *do_square_split) {
   assert(is_bsize_square(sb_enc->max_partition_size));
   assert(is_bsize_square(sb_enc->min_partition_size));
   assert(sb_enc->min_partition_size <= sb_enc->max_partition_size);
@@ -1373,6 +1377,8 @@ void av1_prune_partitions_by_max_min_bsize(
   assert(min_partition_size_1d <= max_partition_size_1d);
   const int is_le_min_sq_part = bsize_1d <= min_partition_size_1d;
   const int is_gt_max_sq_part = bsize_1d > max_partition_size_1d;
+  int *partition_horz_allowed = &partition_rect_allowed[HORZ];
+  int *partition_vert_allowed = &partition_rect_allowed[VERT];
   if (is_gt_max_sq_part) {
     // If current block size is larger than max, only allow split.
     *partition_none_allowed = 0;
@@ -1401,11 +1407,11 @@ int evaluate_ab_partition_based_on_split(
   // Threshold for number of winners
   // Conservative pruning for high quantizers
   const int num_win_thresh = AOMMIN(3 * (2 * (MAXQ - qindex) / MAXQ), 3);
-  bool sub_part_win = (rect_part_win_info == NULL)
-                          ? (pc_tree->partitioning == rect_part)
-                          : (rect_part == PARTITION_HORZ)
-                                ? rect_part_win_info->horz_win
-                                : rect_part_win_info->vert_win;
+  int sub_part_win = (rect_part_win_info == NULL)
+                         ? (pc_tree->partitioning == rect_part)
+                         : (rect_part == PARTITION_HORZ)
+                               ? rect_part_win_info->rect_part_win[HORZ]
+                               : rect_part_win_info->rect_part_win[VERT];
   num_win += (sub_part_win) ? 1 : 0;
   if (pc_tree->split[split_idx1]) {
     num_win +=
