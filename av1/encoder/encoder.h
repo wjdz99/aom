@@ -1048,6 +1048,10 @@ typedef struct {
   // frame. src_corners[i] holds the x co-ordinate and src_corners[i+1] holds
   // the y co-ordinate of the ith corner point detected.
   int src_corners[2 * MAX_CORNERS];
+
+  // Input from a motion sensor on an Android device used to construct the
+  // global motion vector.
+  av1_android_motion_input_t android_motion_input;
 } GlobalMotionInfo;
 
 typedef struct {
