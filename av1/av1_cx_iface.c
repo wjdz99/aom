@@ -2690,6 +2690,16 @@ static aom_codec_err_t ctrl_get_seq_level_idx(aom_codec_alg_priv_t *ctx,
                                arg);
 }
 
+static aom_codec_err_t ctrl_set_android_motion_input(aom_codec_alg_priv_t *ctx,
+                                                     va_list args) {
+  GlobalMotionInfo *const gm_info = &ctx->cpi->gm_info;
+  av1_android_motion_input_t *const input
+    = va_arg(args, av1_android_motion_input_t *);
+  if (input == NULL) return AOM_CODEC_INVALID_PARAM;
+  gm_info->android_motion_input.data = input->data;
+  return AOM_CODEC_OK;
+}
+
 static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1_COPY_REFERENCE, ctrl_copy_reference },
   { AOME_USE_REFERENCE, ctrl_use_reference },
@@ -2813,6 +2823,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_SVC_REF_FRAME_CONFIG, ctrl_set_svc_ref_frame_config },
   { AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP, ctrl_set_vbr_corpus_complexity_lap },
   { AV1E_ENABLE_SB_MULTIPASS_UNIT_TEST, ctrl_enable_sb_multipass_unit_test },
+  { AV1E_SET_ANDROID_MOTION_INPUT, ctrl_set_android_motion_input },
 
   // Getters
   { AOME_GET_LAST_QUANTIZER, ctrl_get_quantizer },

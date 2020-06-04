@@ -1269,6 +1269,9 @@ enum aome_enc_control_id {
    * single pass vbr based on LAP, unsigned int parameter
    */
   AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP = 157,
+
+  /*!\brief Control to set the motion sensor data from an Android device */
+  AV1E_SET_ANDROID_MOTION_INPUT = 158,
 };
 
 /*!\brief aom 1-D scaling mode
@@ -1393,6 +1396,12 @@ typedef struct aom_svc_ref_frame_config {
   int ref_idx[7];
   int refresh[8]; /**< Refresh flag for each of the 8 slots. */
 } aom_svc_ref_frame_config_t;
+
+/*!brief Parameters for inputting the Android motion sensor data */
+typedef struct av1_android_motion_input {
+  // TODO(tianhuic): Modfiy to use the actual type of motion sensor data
+  int data;
+} av1_android_motion_input_t;
 
 /*!\cond */
 /*!\brief Encoder control function parameter type
@@ -1780,6 +1789,10 @@ AOM_CTRL_USE_TYPE(AV1E_ENABLE_SB_MULTIPASS_UNIT_TEST, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP, unsigned int)
 #define AOM_CTRL_AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP
+
+AOM_CTRL_USE_TYPE(AV1E_SET_ANDROID_MOTION_INPUT,
+                  av1_android_motion_input_t *)
+#define AOM_CTRL_AV1E_SET_ANDROID_MOTION_INPUT
 
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */
