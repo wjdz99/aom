@@ -737,7 +737,9 @@ static void dec_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                        int mi_x, int mi_y) {
   const DecCalcSubpelFuncArgs args = { mi, mi_x, mi_y, build_for_obmc };
   av1_build_inter_predictors(cm, xd, plane, mi, build_for_obmc, bw, bh, mi_x,
-                             mi_y, dec_calc_subpel_params_and_extend, &args);
+                             mi_y, dec_calc_subpel_params_and_extend, &args,
+                             xd->plane[plane].dst.buf,
+                             xd->plane[plane].dst.stride, NULL);
 }
 
 static void dec_build_inter_predictors_for_planes(const AV1_COMMON *cm,
@@ -1690,8 +1692,7 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
     case PARTITION_HORZ:
 #if CONFIG_EXT_RECUR_PARTITIONS
       DEC_PARTITION(mi_row, mi_col, subsize, 0);
-      if ((mi_row + hbs_h) < cm->mi_rows)
-        DEC_PARTITION(mi_row + hbs_h, mi_col, subsize, 1);
+      if (has_rows) DEC_PARTITION(mi_row + hbs_h, mi_col, subsize, 1);
 #else
       DEC_BLOCK(mi_row, mi_col, subsize, 0);
       if (has_rows) DEC_BLOCK(mi_row + hbs_h, mi_col, subsize, 1);
@@ -1700,8 +1701,7 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
     case PARTITION_VERT:
 #if CONFIG_EXT_RECUR_PARTITIONS
       DEC_PARTITION(mi_row, mi_col, subsize, 0);
-      if ((mi_col + hbs_w) < cm->mi_cols)
-        DEC_PARTITION(mi_row, mi_col + hbs_w, subsize, 1);
+      if (has_cols) DEC_PARTITION(mi_row, mi_col + hbs_w, subsize, 1);
 #else
       DEC_BLOCK(mi_row, mi_col, subsize, 0);
       if (has_cols) DEC_BLOCK(mi_row, mi_col + hbs_w, subsize, 1);
@@ -2298,24 +2298,15 @@ static void setup_segmentation_dequant(AV1_COMMON *const cm,
   const int max_segments = cm->seg.enabled ? MAX_SEGMENTS : 1;
   for (int i = 0; i < max_segments; ++i) {
     const int qindex = xd->qindex[i];
-    cm->y_dequant_QTX[i][0] = av1_dc_quant_QTX(qindex, cm->y_dc_delta_q,
-#if CONFIG_DELTA_DCQUANT
-                                               cm->seq_params.base_dc_delta_q,
-#endif  // CONFIG_DELTA_DCQUANT
-                                               bit_depth);
+    cm->y_dequant_QTX[i][0] =
+        av1_dc_quant_QTX(qindex, cm->y_dc_delta_q, bit_depth);
     cm->y_dequant_QTX[i][1] = av1_ac_quant_QTX(qindex, 0, bit_depth);
-    cm->u_dequant_QTX[i][0] = av1_dc_quant_QTX(qindex, cm->u_dc_delta_q,
-#if CONFIG_DELTA_DCQUANT
-                                               cm->seq_params.base_dc_delta_q,
-#endif  // CONFIG_DELTA_DCQUANT
-                                               bit_depth);
+    cm->u_dequant_QTX[i][0] =
+        av1_dc_quant_QTX(qindex, cm->u_dc_delta_q, bit_depth);
     cm->u_dequant_QTX[i][1] =
         av1_ac_quant_QTX(qindex, cm->u_ac_delta_q, bit_depth);
-    cm->v_dequant_QTX[i][0] = av1_dc_quant_QTX(qindex, cm->v_dc_delta_q,
-#if CONFIG_DELTA_DCQUANT
-                                               cm->seq_params.base_dc_delta_q,
-#endif  // CONFIG_DELTA_DCQUANT
-                                               bit_depth);
+    cm->v_dequant_QTX[i][0] =
+        av1_dc_quant_QTX(qindex, cm->v_dc_delta_q, bit_depth);
     cm->v_dequant_QTX[i][1] =
         av1_ac_quant_QTX(qindex, cm->v_ac_delta_q, bit_depth);
     const int lossless = xd->lossless[i];
@@ -4526,10 +4517,6 @@ void av1_read_color_config(struct aom_read_bit_buffer *rb,
     }
   }
   seq_params->separate_uv_delta_q = aom_rb_read_bit(rb);
-#if CONFIG_DELTA_DCQUANT
-  seq_params->base_dc_delta_q =
-      DELTA_DCQUANT_MIN + aom_rb_read_literal(rb, DELTA_DCQUANT_BITS);
-#endif  // CONFIG_DELTA_DCQUANT
 }
 
 void av1_read_timing_info_header(AV1_COMMON *cm,
