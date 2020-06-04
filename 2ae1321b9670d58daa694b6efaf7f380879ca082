@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9361111_de5ec60c",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-06-04T23:44:50Z",
+      "side": 1,
+      "message": "Nit: resizeable \u003d\u003e resizable",
+      "range": {
+        "startLine": 154,
+        "startChar": 34,
+        "endLine": 154,
+        "endChar": 44
+      },
+      "revId": "2ae1321b9670d58daa694b6efaf7f380879ca082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "822478e2_0d09d9de",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-06-04T23:44:50Z",
+      "side": 1,
+      "message": "Nit/optional: omit the curly braces?",
+      "range": {
+        "startLine": 161,
+        "startChar": 42,
+        "endLine": 161,
+        "endChar": 55
+      },
+      "revId": "2ae1321b9670d58daa694b6efaf7f380879ca082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de76f163_4baa975d",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 2
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-06-04T23:44:50Z",
+      "side": 1,
+      "message": "Nit/optional: omit the curly braces?",
+      "revId": "2ae1321b9670d58daa694b6efaf7f380879ca082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5979ac18_00ef0d8b",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-06-04T23:44:50Z",
+      "side": 1,
+      "message": "Nit/optional: Can bypass the stats_buf local variable and set cfg.rc_twopass_stats_in directly:\n\n  cfg.rc_twopass_stats_in.buf \u003d stats;\n  cfg.rc_twopass_stats_in.sz  \u003d stats_len;",
+      "range": {
+        "startLine": 208,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 38
+      },
+      "revId": "2ae1321b9670d58daa694b6efaf7f380879ca082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe271bed_e398f407",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-06-04T23:44:50Z",
+      "side": 1,
+      "message": "IMPORTANT: This should be get_cx_data(\u0026second_pass_encoder, output).",
+      "revId": "2ae1321b9670d58daa694b6efaf7f380879ca082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
