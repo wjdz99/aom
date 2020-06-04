@@ -3481,17 +3481,10 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
 #endif  // CONFIG_INTERNAL_STATS
 
 void av1_remove_compressor(AV1_COMP *cpi) {
-  AV1_COMMON *cm;
-  TplParams *const tpl_data = &cpi->tpl_data;
-  MultiThreadInfo *const mt_info = &cpi->mt_info;
-#if CONFIG_MULTITHREAD
-  pthread_mutex_t *const enc_row_mt_mutex_ = mt_info->enc_row_mt.mutex_;
-#endif
-  int t;
-
   if (!cpi) return;
-
-  cm = &cpi->common;
+  AV1_COMMON *cm = &cpi->common;
+  TplParams *const tpl_data = &cpi->tpl_data;
+  int t;
 
   if (cm->current_frame.frame_number > 0) {
 #if CONFIG_ENTROPY_STATS
@@ -3593,6 +3586,7 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     aom_free_frame_buffer(&tpl_data->tpl_rec_pool[frame]);
   }
 
+  MultiThreadInfo *const mt_info = &cpi->mt_info;
   for (t = mt_info->num_workers - 1; t >= 0; --t) {
     AVxWorker *const worker = &mt_info->workers[t];
     EncWorkerData *const thread_data = &mt_info->tile_thr_data[t];
@@ -3630,6 +3624,7 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     }
   }
 #if CONFIG_MULTITHREAD
+  pthread_mutex_t *const enc_row_mt_mutex_ = mt_info->enc_row_mt.mutex_;
   if (enc_row_mt_mutex_ != NULL) {
     pthread_mutex_destroy(enc_row_mt_mutex_);
     aom_free(enc_row_mt_mutex_);
