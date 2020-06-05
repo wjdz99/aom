@@ -14,6 +14,7 @@
 
 #include "av1/common/onyxc_int.h"
 #include "av1/common/resize.h"
+#include "av1/encoder/firstpass.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,6 +22,18 @@ extern "C" {
 
 // Minimum base_qindex needed to run cnn.
 #define MIN_CNN_Q_INDEX 67
+
+static INLINE int av1_use_cnn_encode(const AV1_COMMON *cm,
+                                     const GF_GROUP *gf_group) {
+  bool is_overlay_update = false;
+  if (gf_group->update_type[gf_group->index] == OVERLAY_UPDATE ||
+      gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE) {
+    is_overlay_update = true;
+  }
+
+  return ((cm->base_qindex > MIN_CNN_Q_INDEX) && !av1_superres_scaled(cm) &&
+          !is_overlay_update);
+}
 
 static INLINE int av1_use_cnn(const AV1_COMMON *cm) {
   return ((cm->base_qindex > MIN_CNN_Q_INDEX) && !av1_superres_scaled(cm));
