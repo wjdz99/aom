@@ -626,6 +626,7 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 6) {
+    sf->part_sf.ext_partition_eval_thresh = BLOCK_16X16;
     sf->mv_sf.simple_motion_subpel_force_stop = FULL_PEL;
     sf->rd_sf.perform_coeff_opt = is_boosted_arf2_bwd_type ? 4 : 6;
     sf->tpl_sf.subpel_force_stop = FULL_PEL;
