@@ -31,13 +31,15 @@ static INLINE int av1_use_cnn(const AV1_COMMON *cm) {
 // 'rst'. Returns true on success.
 int av1_restore_cnn_img_tflite(int qindex, const uint8_t *dgd, int width,
                                int height, int dgd_stride, uint8_t *rst,
-                               int rst_stride, int num_threads);
+                               int rst_stride, int num_threads,
+                               const int is_intra_only);
 
 // Same as 'av1_restore_cnn_img_tflite' for highbd.
 int av1_restore_cnn_img_tflite_highbd(int qindex, const uint16_t *dgd,
                                       int width, int height, int dgd_stride,
                                       uint16_t *rst, int rst_stride,
-                                      int num_threads, int bit_depth);
+                                      int num_threads, int bit_depth,
+                                      const int is_intra_only);
 
 struct AV1Common;
 
