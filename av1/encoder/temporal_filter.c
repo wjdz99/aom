@@ -23,6 +23,7 @@
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/extend.h"
 #include "av1/encoder/firstpass.h"
+#include "av1/encoder/mathutils.h"
 #include "av1/encoder/mcomp.h"
 #include "av1/encoder/ratectrl.h"
 #include "av1/encoder/reconinter_enc.h"
@@ -36,7 +37,6 @@
 #include "aom_scale/aom_scale.h"
 
 // NOTE: All `tf` in this file means `temporal filtering`.
-
 // Forward Declaration.
 static void tf_determine_block_partition(const MV block_mv, const int block_mse,
                                          MV *subblock_mvs, int *subblock_mses);
@@ -106,7 +106,6 @@ static void tf_motion_search(AV1_COMP *cpi,
       min_frame_size >= 720
           ? MV_COST_L1_HDRES
           : (min_frame_size >= 480 ? MV_COST_L1_MIDRES : MV_COST_L1_LOWRES);
-
   // Starting position for motion search.
   FULLPEL_MV start_mv = get_fullmv_from_mv(ref_mv);
   // Baseline position for motion search (used for rate distortion comparison).
@@ -268,6 +267,7 @@ static INLINE int is_frame_high_bitdepth(const YV12_BUFFER_CONFIG *frame) {
   return (frame->flags & YV12_FLAG_HIGHBITDEPTH) ? 1 : 0;
 }
 
+#define TF_DEBUG_MODE 2
 // Builds predictor for blocks in temporal filtering. This is the second step
 // for temporal filtering, which is to construct predictions from all reference
 // frames INCLUDING the frame to be filtered itself. These predictors are built
@@ -328,8 +328,35 @@ static void tf_build_predictor(const YV12_BUFFER_CONFIG *ref_frame,
                                     ref_frame->heights[is_y_plane ? 0 : 1],
                                     ref_frame->strides[is_y_plane ? 0 : 1] };
 
+    // if(is_y_plane  && plane_y < 10 && plane_x < 10)
+    //  printf("Plane info: h, w %d %d, y, x %d %d, sbblck h,w %d %d subsamp y,x
+    //  %d %d\n",
+    //         plane_h, plane_w, plane_y, plane_x, h, w, subsampling_y,
+    //         subsampling_x);
     // Handle each subblock.
     int subblock_idx = 0;
+#if TF_DEBUG_MODE == 2
+    int newblock_size = 1;
+    for (int i = 0; i < plane_h; i += newblock_size) {
+      for (int j = 0; j < plane_w; j += newblock_size) {
+        // Choose proper motion vector.
+        const MV mv = subblock_mvs[subblock_idx];
+        subblock_idx += newblock_size;
+        assert(mv.row >= INT16_MIN && mv.row <= INT16_MAX &&
+               mv.col >= INT16_MIN && mv.col <= INT16_MAX);
+        const int y = plane_y + i;
+        const int x = plane_x + j;
+        // Build predictor for each sub-block on current plane.
+        InterPredParams inter_pred_params;
+        av1_init_inter_params(&inter_pred_params, newblock_size, newblock_size,
+                              y, x, 0, 0, bit_depth, is_high_bitdepth,
+                              is_intrabc, scale, &ref_buf, interp_filters);
+        inter_pred_params.conv_params = get_conv_params(0, plane, bit_depth);
+        av1_enc_build_one_inter_predictor(&pred[plane_offset + i * plane_w + j],
+                                          plane_w, &mv, &inter_pred_params);
+      }
+    }
+#else
     for (int i = 0; i < plane_h; i += h) {
       for (int j = 0; j < plane_w; j += w) {
         // Choose proper motion vector.
@@ -350,6 +377,7 @@ static void tf_build_predictor(const YV12_BUFFER_CONFIG *ref_frame,
                                           plane_w, &mv, &inter_pred_params);
       }
     }
+#endif
     plane_offset += mb_pels;
   }
 }
@@ -672,8 +700,7 @@ typedef struct {
   int64_t sse;
 } FRAME_DIFF;
 
-#define TF_DEBUG_MODE 0
-#if TF_DEBUG_MODE == 1
+#if TF_DEBUG_MODE > 0
 void dump_frame(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *frame_buf,
                 const int frame_idx, char *fname_addition) {
   AV1_COMMON *const cm = &cpi->common;
@@ -720,6 +747,223 @@ void dump_frame(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *frame_buf,
   fclose(f_frame);
 }
 #endif
+
+#if TF_DEBUG_MODE == 2
+// Sobel filter to compute spatial gradient
+void spatial_gradient(const YV12_BUFFER_CONFIG *frame, const int x_coord,
+                      const int y_coord, const int direction,
+                      double *derivative) {
+  double values[9];
+  double d = 0;
+  double filter[9];
+  int idx = 0;
+  for (int yy = -1; yy <= 1; yy++) {
+    for (int xx = -1; xx <= 1; xx++) {
+      values[idx++] =
+          frame->y_buffer[(y_coord + yy) * frame->y_stride + (x_coord + xx)] /
+          255.0;
+    }
+  }
+  // Sobel filters
+  double gx[9] = { -1, 0, 1, -2, 0, 2, -1, 0, 1 };
+  double gy[9] = { -1, -2, -1, 0, 0, 0, 1, 2, 1 };
+  if (direction == 0) {  // x direction
+    memcpy(filter, gx, sizeof(filter));
+  } else {  // y direction
+    memcpy(filter, gy, sizeof(filter));
+  }
+  for (int i = 0; i < 9; i++) {
+    d += filter[i] * values[i];
+  }
+  *derivative = d;
+}
+
+void temporal_gradient(const YV12_BUFFER_CONFIG *frame,
+                       const YV12_BUFFER_CONFIG *frame2, const int x_coord,
+                       const int y_coord, double *derivative) {
+  double values1[4], values2[4];
+  int idx = 0;
+  for (int yy = -1; yy < 1; yy++) {
+    for (int xx = -1; xx < 1; xx++) {
+      values1[idx] =
+          frame->y_buffer[(y_coord + yy) * frame->y_stride + (x_coord + xx)] /
+          255.0;
+      values2[idx] =
+          frame2->y_buffer[(y_coord + yy) * frame2->y_stride + (x_coord + xx)] /
+          255.0;
+      idx++;
+    }
+  }
+  double d1 = 0, d2 = 0;
+  double filter[4] = { 1, 1, 1, 1 };
+  for (int i = 0; i < 4; i++) {
+    d1 += filter[i] * values1[i];
+    d2 += filter[i] * values2[i];
+  }
+  *derivative = d1 - d2;
+}
+// Numerical differentiate over window_size x window_size surrounding (x,y)
+// location. Alters ix, iy, it to contain numerical partial derivatives
+// TODO(lpartin) if LK is computed over all pixels instead of on corners,
+// it would be more efficient to compute gradients on entire image (instead of
+// window)
+void gradients_over_window(const YV12_BUFFER_CONFIG *frame,
+                           const YV12_BUFFER_CONFIG *ref_frame,
+                           const int x_coord, const int y_coord,
+                           const int window_size, double *ix, double *iy,
+                           double *it) {
+  // gradient operators need pixel before and after (start at 1)
+  const int x_start =
+      1 > x_coord - window_size / 2 ? 1 : x_coord - window_size / 2;
+  const int y_start =
+      1 > y_coord - window_size / 2 ? 1 : y_coord - window_size / 2;
+  const int frame_height = frame->y_crop_height;
+  const int frame_width = frame->y_crop_width;
+  double deriv_x;
+  double deriv_y;
+  double deriv_t;
+
+  int endx = x_start + window_size < frame_width - 1 ? x_start + window_size
+                                                     : frame_width - 1;
+  int endy = y_start + window_size < frame_height - 1 ? y_start + window_size
+                                                      : frame_height - 1;
+  // compute numerical differentiation for every pixel in window
+  for (int j = y_start; j < endy; j++) {
+    for (int i = x_start; i < endx; i++) {
+      temporal_gradient(frame, ref_frame, i, j, &deriv_t);
+      spatial_gradient(frame, i, j, 0, &deriv_x);
+      spatial_gradient(frame, i, j, 1, &deriv_y);
+      ix[(j - y_start) * window_size + (i - x_start)] = deriv_x;
+      iy[(j - y_start) * window_size + (i - x_start)] = deriv_y;
+      it[(j - y_start) * window_size + (i - x_start)] = deriv_t;
+    }
+  }
+}
+// To compute eigenvalues of 2x2 matrix: Solve for lambda where
+// Determinant of matrix - lambda*identity == 0
+void eigenvalues_2x2(const double *matrix, double *eig) {
+  double a = 1;
+  double b = -1 * matrix[0] - matrix[3];
+  double c = -matrix[1] * matrix[2] + matrix[1] * matrix[3];
+  // quadratic formula
+  double discriminant = b * b - 4 * a * c;
+
+  *(eig++) = (-b - sqrt(discriminant)) / (2 * a);
+  *(eig) = (-b + sqrt(discriminant)) / (2 * a);
+}
+
+void optflow(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *frame_to_filter,
+             const YV12_BUFFER_CONFIG *ref_frame, const int frame_idx,
+             const int ref_frame_idx, MV *mvs) {
+  const int frame_height = frame_to_filter->y_crop_height;
+  const int frame_width = frame_to_filter->y_crop_width;
+  // Compute corners for specific frame
+  int num_ref_corners;
+  int num_correspondences;
+
+  int ref_corners[2 * MAX_CORNERS];
+  num_ref_corners = av1_fast_corner_detect(
+      frame_to_filter->y_buffer, frame_to_filter->y_width,
+      frame_to_filter->y_height, frame_to_filter->y_stride, ref_corners,
+      MAX_CORNERS);
+
+  // Points selected everywhere, instead of just corners
+  /*int maxcorners = frame_width*frame_height; //MAX_CORNERS
+  int *ref_corners = malloc(maxcorners*2*sizeof(int));
+  num_ref_corners = all_points_as_corners(ref_corners, maxcorners,
+                       frame_height,frame_width);
+  */
+  // printf("frame height and frame width %d %d\n", frame_height, frame_width);
+  int *cornersimg = (int *)calloc(frame_height * frame_width, sizeof(int));
+  int *img = (int *)calloc(frame_height * frame_width, sizeof(int));
+  int *imgx = (int *)calloc(frame_height * frame_width, sizeof(int));
+  int *imgy = (int *)calloc(frame_height * frame_width, sizeof(int));
+  for (int yy = 0; yy < frame_height; yy++) {
+    for (int xx = 0; xx < frame_width; xx++) {
+      MV mv = { .row = 0, .col = 0 };
+      mvs[yy * frame_width + xx] = mv;
+    }
+  }
+  if (frame_idx == ref_frame_idx) {
+    return;  // all 0 mvs when frame equals itself
+  }
+  // algorithm is sensitive to window size:
+  const int n = 15;
+  double *i_x = (double *)malloc(n * n * sizeof(double));
+  double *i_y = (double *)malloc(n * n * sizeof(double));
+  double *i_t = (double *)malloc(n * n * sizeof(double));
+  for (int i = 0; i < num_ref_corners; i++) {
+    // printf("corners %d %d and i %d\n", ref_corners[i*2], ref_corners[i*2+1],
+    // i);
+    const int x_coord = ref_corners[i * 2];
+    const int y_coord = ref_corners[i * 2 + 1];
+    gradients_over_window(frame_to_filter, ref_frame, x_coord, y_coord, n, i_x,
+                          i_y, i_t);
+    double Mres1[1] = { 0 }, Mres2[1] = { 0 }, Mres3[1] = { 0 };
+    double bres1[1] = { 0 }, bres2[1] = { 0 };
+    int to_match = 100;  // ref_corners[i*2];
+    /*if(x_coord == to_match && y_coord == to_match)
+    for (int j = 0; j < n*n; j++){
+      printf("\ndx=%lf ", i_x[j]);
+      printf("dy=%lf ", i_y[j]);
+      printf("dt=%lf", i_t[j]);
+    }*/
+    multiply_mat(i_x, i_x, Mres1, 1, n * n, 1);
+    multiply_mat(i_x, i_y, Mres2, 1, n * n, 1);
+    multiply_mat(i_y, i_y, Mres3, 1, n * n, 1);
+
+    multiply_mat(i_x, i_t, bres1, 1, n * n, 1);
+    multiply_mat(i_y, i_t, bres2, 1, n * n, 1);
+
+    double M[4] = { Mres1[0], Mres2[0], Mres2[0], Mres3[0] };
+    double b[2] = { -1 * bres1[0], -1 * bres2[0] };
+    /*if(x_coord == to_match && y_coord == to_match){
+      printf("\nM matrix %lf, %lf, %lf, %lf", M[0], M[1], M[2], M[3]);
+      printf("\nb matrix %lf, %lf\n", b[0], b[1]);
+    }*/
+    double u[2];
+    linsolve(2, M, 2, b, u);
+    /*if(x_coord == to_match && y_coord == to_match){
+    printf("\nmotion vector: ");
+      for (int j = 0; j < 2; j++) {
+        printf("%lf,", u[j]);
+    }}*/
+    int magnitude = (int)sqrt(u[0] * u[0] + u[1] * u[1]);
+    int img_idx = y_coord * frame_width + x_coord;
+    // printf("magn %d, x %d, y %d\n", magnitude, abs(u[0]), abs(u[1]));
+    double eig[2] = { 1, 1 };
+    eigenvalues_2x2(M, eig);
+    // if(x_coord == to_match && y_coord == to_match)
+    //  printf("\neigenvalues %.9f, %lf and is it in order? %d\n", eig[0],
+    //  eig[1], eig[0]<=eig[1]);
+    double threshold = 0.01;
+    // Lucas-Kanade suffers from aperture problem when point isn't a corner
+    if (eig[0] < threshold) {
+      MV mv = { .row = (int)u[0], .col = (int)u[1] };
+      // printf("magn%lf, row %d, col %d\n", magnitude, mv.row, mv.col);
+      mvs[img_idx] = mv;
+      cornersimg[img_idx] = 1;
+      img[img_idx] = magnitude;
+      // abs for integer absolute value, fabs for double
+      imgx[img_idx] = abs(u[0]) > 0.1 ? 1 : 0;
+      imgy[img_idx] = abs(u[1]) > 0.1 ? 1 : 0;
+    }
+  }
+  /*save_img(cornersimg, frame_height, frame_width, frame_idx, "corners");
+  save_img(img, frame_height, frame_width, frame_idx, "motionfield");
+  save_img(imgx, frame_height, frame_width, frame_idx, "motionfieldx");
+  save_img(imgy, frame_height, frame_width, frame_idx, "motionfieldy");
+  */
+  free(img);
+  free(imgx);
+  free(imgy);
+  free(i_x);
+  free(i_y);
+  free(i_t);
+}
+
+#endif
+
 // Does temporal filter for a particular frame.
 // Inputs:
 //   cpi: Pointer to the composed information of input video.
@@ -740,6 +984,8 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
                                   const BLOCK_SIZE block_size,
                                   const struct scale_factors *scale,
                                   const double *noise_levels) {
+  // printf("\nfiltering frame # %d with %d frames\n", filter_frame_idx,
+  // num_frames);
   // Basic information.
   const YV12_BUFFER_CONFIG *const frame_to_filter = frames[filter_frame_idx];
   const int frame_height = frame_to_filter->y_crop_height;
@@ -796,9 +1042,24 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
   memset(pred8, 0, num_planes * mb_pels * sizeof(pred8[0]));
   memset(pred16, 0, num_planes * mb_pels * sizeof(pred16[0]));
   uint8_t *const pred = is_high_bitdepth ? CONVERT_TO_BYTEPTR(pred16) : pred8;
-
   // Do filtering.
   FRAME_DIFF diff = { 0, 0 };
+#if TF_DEBUG_MODE > 0
+  int *img = calloc(frame_height * frame_width, sizeof(int));
+  int *imgrow = calloc(frame_height * frame_width, sizeof(int));
+  int *imgcol = calloc(frame_height * frame_width, sizeof(int));
+#endif
+#if TF_DEBUG_MODE == 2
+  printf("\nPixel mvs \n");
+  MV *allframes_pixelmvs =
+      malloc(num_frames * frame_height * frame_width * sizeof(MV));
+  for (int i = 0; i < num_frames; i++)
+    optflow(cpi, frames[filter_frame_idx], frames[i], filter_frame_idx, i,
+            (allframes_pixelmvs + i * frame_height * frame_width));
+#else
+  printf("\nBlock mvs\n");
+#endif
+  int countnewmvs = 0;
   // Perform temporal filtering block by block.
   for (int mb_row = 0; mb_row < mb_rows; mb_row++) {
     av1_set_mv_row_limits(&cpi->common.mi_params, &mb->mv_limits,
@@ -827,9 +1088,64 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
                            mb_row, mb_col, &ref_mv, subblock_mvs,
                            subblock_mses);
         }
+#if TF_DEBUG_MODE > 0
+        const int y_height = mb_height >> mbd->plane[0].subsampling_y;
+        const int y_width = mb_width >> mbd->plane[0].subsampling_x;
+        const int source_y_stride = frame_to_filter->y_stride;
+        for (int i = 0; i < 2; i++) {
+          for (int j = 0; j < 2; j++) {
+            const int img_idx =
+                mb_row * mb_height * frame_width + mb_col * mb_width +
+                i * 1.0 / 2 * mb_height * frame_width + j * 1.0 / 2 * mb_width;
+            int subblock_idx = i * 2 + j;
+            const MV mv = subblock_mvs[subblock_idx];
+            const double distance = sqrt(pow(mv.row, 2) + pow(mv.col, 2));
+            if (frame == 1) {
+              img[img_idx] = distance;
+              imgrow[img_idx] = fabs(mv.row) > 1 ? 1 : 0;
+              imgcol[img_idx] = fabs(mv.col) > 1 ? 1 : 0;
+            }
+          }
+        }
+#endif
+#if TF_DEBUG_MODE == 2
+        MV *pixelmvs;
+        pixelmvs = allframes_pixelmvs + frame * frame_height * frame_width;
+        MV *blockpixel_mvs = malloc(mb_height * mb_width * sizeof(MV));
+        for (int yy = 0; yy < mb_height; yy++) {
+          for (int xx = 0; xx < mb_width; xx++) {
+            MV sblock_orig;
+            if (yy < mb_height / 2 && xx < mb_height / 2)
+              sblock_orig = subblock_mvs[0];
+            else if (yy < mb_height / 2)
+              sblock_orig = subblock_mvs[1];
+            else if (xx < mb_height / 2)
+              sblock_orig = subblock_mvs[2];
+            else
+              sblock_orig = subblock_mvs[3];
+            const int pixelidx = mb_row * mb_height * frame_width +
+                                 mb_col * mb_width + yy * frame_width + xx;
+            MV pixelmv = pixelmvs[pixelidx];
+            double magn = sqrt(pow(pixelmv.row, 2) + pow(pixelmv.col, 2));
+            // blockpixel_mvs[yy*mb_width + xx] = sblock_orig;
+            blockpixel_mvs[yy * mb_width + xx] =
+                fabs(magn) > 0. ? pixelmv : sblock_orig;
+            // if(fabs(magn) > 0 && mb_row == 5 && mb_col == 5)
+            //  printf("new mv %d %d old mv %d %d on mb row, col %d %d\n",
+            //  pixelmv.row, pixelmv.col, sblock_orig.row,
+            //         sblock_orig.col, mb_row, mb_col);
+            if (fabs(magn) > 0) countnewmvs++;
+          }
+        }
+        // if(mb_row == 5 && mb_col == 5)
+        // printf("pixel mvs\n");
+        tf_build_predictor(frames[frame], mbd, block_size, mb_row, mb_col,
+                           num_planes, scale, blockpixel_mvs, pred);
+#else
+        // printf("block mvs\n");
         tf_build_predictor(frames[frame], mbd, block_size, mb_row, mb_col,
                            num_planes, scale, subblock_mvs, pred);
-
+#endif
         // Perform weighted averaging.
         if (frame == filter_frame_idx) {  // Frame to be filtered.
           tf_apply_temporal_filter_self(mbd, block_size, num_planes, pred,
@@ -877,11 +1193,40 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
       }
     }
   }
+#if TF_DEBUG_MODE > 0
+  // printf("Count of new mvs %d\n", countnewmvs);
+  /*  if(filter_frame_idx == 0){
+      save_img(img, frame_height, frame_width, filter_frame_idx, "subblockmvs");
+      save_img(imgrow, frame_height, frame_width, filter_frame_idx,
+    "subblockmvs_x"); save_img(imgcol, frame_height, frame_width,
+    filter_frame_idx, "subblockmvs_y");
 
-#if TF_DEBUG_MODE == 1
-  dump_frame(cpi, frame_to_filter, filter_frame_idx, "_beforetf");
-  dump_frame(cpi, &(cpi->alt_ref_buffer), filter_frame_idx, "_aftertf");
-#endif  
+      printf("Trying out opt flow\n");
+      int frame_to_compare = 1;
+      MV *pixelmvs = malloc(frame_height*frame_width*sizeof(MV));
+      optflow(cpi, frames[filter_frame_idx], frames[frame_to_compare],
+    filter_frame_idx, frame_to_compare, pixelmvs);
+
+      int *tf_diff = calloc(frame_width*frame_height, sizeof(int));
+      for (int yy = 0; yy < frame_height; yy++){
+        for(int xx = 0; xx < frame_width; xx++){
+          tf_diff[yy*frame_width + xx] =
+    fabs(frame_to_filter->y_buffer[yy*frame_to_filter->y_stride + xx] -
+                                              cpi->alt_ref_buffer.y_buffer[yy*cpi->alt_ref_buffer.y_stride
+    + xx]);
+        }
+      }
+      save_img(tf_diff, frame_height, frame_width, filter_frame_idx, "tf_diff");
+      free(tf_diff);
+      dump_frame(cpi, frame_to_filter, filter_frame_idx, "_beforetf");
+      dump_frame(cpi, &(cpi->alt_ref_buffer), filter_frame_idx, "_aftertf");
+      dump_frame(cpi, frames[1], 1, "_beforetf");
+    }
+  */
+  free(img);
+  free(imgrow);
+  free(imgcol);
+#endif
 
   // Restore input state
   for (int i = 0; i < num_planes; i++) {

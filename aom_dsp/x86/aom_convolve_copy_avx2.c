@@ -31,7 +31,16 @@ void aom_convolve_copy_avx2(const uint8_t *src, ptrdiff_t src_stride,
     assert(!(dst_stride % 16));
   }
 
-  if (w == 2) {
+  if (w == 1) {
+    //TODO(lpartin) if this option is kept, then it needs to 
+    //be implemented every convolve copy (e.g. sse2, this seems OS-dependent?)
+    do {
+      memmove(dst, src, 1 * sizeof(*src));
+      src += src_stride;
+      dst += dst_stride;
+      h -= 1;
+    } while (h);
+  } else if (w == 2) {
     do {
       memmove(dst, src, 2 * sizeof(*src));
       src += src_stride;
