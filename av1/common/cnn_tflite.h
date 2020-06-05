@@ -18,9 +18,23 @@ extern "C" {
 
 #include "av1/common/onyxc_int.h"
 #include "av1/common/resize.h"
+#include "av1/encoder/firstpass.h"
 
 // Minimum base_qindex needed to run cnn.
 #define MIN_CNN_Q_INDEX 67
+
+// Returns true if we are allowed to use CNN for restoration.
+static INLINE int av1_use_cnn_encode(const AV1_COMMON *cm,
+                                     const GF_GROUP *gf_group) {
+  bool is_overlay_update = false;
+  if (gf_group->update_type[gf_group->index] == OVERLAY_UPDATE ||
+      gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE) {
+    is_overlay_update = true;
+  }
+
+  return ((cm->base_qindex > MIN_CNN_Q_INDEX) && !av1_superres_scaled(cm) &&
+          !is_overlay_update);
+}
 
 // Returns true if we are allowed to use CNN for restoration.
 static INLINE int av1_use_cnn(const AV1_COMMON *cm) {
@@ -31,13 +45,15 @@ static INLINE int av1_use_cnn(const AV1_COMMON *cm) {
 // 'rst'. Returns true on success.
 int av1_restore_cnn_img_tflite(int qindex, const uint8_t *dgd, int width,
                                int height, int dgd_stride, uint8_t *rst,
-                               int rst_stride, int num_threads);
+                               int rst_stride, int num_threads,
+                               int is_intra_only);
 
 // Same as 'av1_restore_cnn_img_tflite' for highbd.
 int av1_restore_cnn_img_tflite_highbd(int qindex, const uint16_t *dgd,
                                       int width, int height, int dgd_stride,
                                       uint16_t *rst, int rst_stride,
-                                      int num_threads, int bit_depth);
+                                      int num_threads, int bit_depth,
+                                      int is_intra_only);
 
 struct AV1Common;
 
