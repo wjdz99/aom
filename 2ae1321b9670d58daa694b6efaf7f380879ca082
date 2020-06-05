@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "79a9df8c_bc830fb8",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-06-05T02:08:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9361111_de5ec60c",
+      "range": {
+        "startLine": 154,
+        "startChar": 34,
+        "endLine": 154,
+        "endChar": 44
+      },
+      "revId": "2ae1321b9670d58daa694b6efaf7f380879ca082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "822478e2_0d09d9de",
         "filename": "doc/dev_guide/av1_encoder.dox",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "a45a113c_2bbbd5d6",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-06-05T02:08:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "822478e2_0d09d9de",
+      "range": {
+        "startLine": 161,
+        "startChar": 42,
+        "endLine": 161,
+        "endChar": 55
+      },
+      "revId": "2ae1321b9670d58daa694b6efaf7f380879ca082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "de76f163_4baa975d",
         "filename": "doc/dev_guide/av1_encoder.dox",
         "patchSetId": 2
@@ -62,6 +110,24 @@
       "revId": "2ae1321b9670d58daa694b6efaf7f380879ca082",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6f8888d_8eb63e99",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 2
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-06-05T02:08:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de76f163_4baa975d",
+      "revId": "2ae1321b9670d58daa694b6efaf7f380879ca082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "a11652e9_3705e2ee",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-06-05T02:08:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5979ac18_00ef0d8b",
+      "range": {
+        "startLine": 208,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 38
+      },
+      "revId": "2ae1321b9670d58daa694b6efaf7f380879ca082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fe271bed_e398f407",
         "filename": "doc/dev_guide/av1_encoder.dox",
         "patchSetId": 2
@@ -102,6 +192,24 @@
       "revId": "2ae1321b9670d58daa694b6efaf7f380879ca082",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "395eefcd_95086936",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-06-05T02:08:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe271bed_e398f407",
+      "revId": "2ae1321b9670d58daa694b6efaf7f380879ca082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
