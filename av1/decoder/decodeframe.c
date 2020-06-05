@@ -3367,6 +3367,12 @@ static AOM_INLINE void allocate_mc_tmp_buf(AV1_COMMON *const cm,
       CHECK_MEM_ERROR(cm, thread_data->mc_buf[ref],
                       (uint8_t *)aom_memalign(16, buf_size));
     }
+    // The data must be zeroed to fix a intermittent valgrind error
+    // 'Conditional jump or move depends on uninitialised value' from the loop
+    // filter. Uninitialized reads in convolve function (e.g. horiz_4tap path in
+    // av1_convolve_2d_sr_avx2()) from mc_buf are seen to be the potential
+    // reason for this issue.
+    memset(thread_data->mc_buf[ref], 0, buf_size);
   }
   thread_data->mc_buf_size = buf_size;
   thread_data->mc_buf_use_highbd = use_highbd;
