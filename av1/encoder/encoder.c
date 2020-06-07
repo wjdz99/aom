@@ -6847,7 +6847,7 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
     res = -1;
   }
   if ((seq_params->profile == PROFILE_1) &&
-      !(subsampling_x == 0 && subsampling_y == 0)) {
+      (seq_params->monochrome || !(subsampling_x == 0 && subsampling_y == 0))) {
     aom_internal_error(&cm->error, AOM_CODEC_INVALID_PARAM,
                        "Profile 1 requires 4:4:4 color format");
     res = -1;
@@ -6966,6 +6966,15 @@ static void compute_internal_stats(AV1_COMP *cpi, int frame_bytes) {
   }
 }
 #endif  // CONFIG_INTERNAL_STATS
+
+// Return values:
+// * AOM_CODEC_OK
+// * -1
+// * AOM_CODEC_ERROR
+//
+// time_stamp and time_end are output parameters. The caller should use
+// *time_stamp and *time_end only when av1_get_compressed_data() returns
+// AOM_CODEC_OK.
 int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
                             size_t *size, uint8_t *dest, int64_t *time_stamp,
                             int64_t *time_end, int flush,
@@ -7007,12 +7016,11 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   const int result =
       av1_encode_strategy(cpi, size, dest, frame_flags, time_stamp, time_end,
                           timestamp_ratio, flush);
-  if (result != AOM_CODEC_OK && result != -1) {
-    return AOM_CODEC_ERROR;
-  } else if (result == -1) {
+  if (result == -1) {
     // Returning -1 indicates no frame encoded; more input is required
     return -1;
   }
+  if (result != AOM_CODEC_OK) return AOM_CODEC_ERROR;
 #if CONFIG_INTERNAL_STATS
   aom_usec_timer_mark(&cmptimer);
   cpi->time_compress_data += aom_usec_timer_elapsed(&cmptimer);

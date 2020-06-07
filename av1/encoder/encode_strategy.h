@@ -37,8 +37,8 @@ extern "C" {
  * \param[in]    size        Bitstream size
  * \param[in]    dest        Bitstream output
  * \param[in]    frame_flags Flags to decide how to encoding the frame
- * \param[in]    time_stamp  Time stamp of the frame
- * \param[in]    time_end    Time end
+ * \param[out]   time_stamp  Time stamp of the frame
+ * \param[out]   time_end    Time end
  * \param[in]    timestamp_ratio Time base
  * \param[in]    flush       Decide to encode one frame or the rest of frames
  *

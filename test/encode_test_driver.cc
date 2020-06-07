@@ -83,8 +83,8 @@ void Encoder::Flush() {
     ASSERT_EQ(AOM_CODEC_OK, res) << EncoderError();
 }
 
-void EncoderTest::InitializeConfig() {
-  const aom_codec_err_t res = codec_->DefaultEncoderConfig(&cfg_, 0);
+void EncoderTest::InitializeConfig(unsigned int usage) {
+  const aom_codec_err_t res = codec_->DefaultEncoderConfig(&cfg_, usage);
   ASSERT_EQ(AOM_CODEC_OK, res);
 }
 

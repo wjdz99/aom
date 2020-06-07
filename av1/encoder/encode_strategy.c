@@ -1041,6 +1041,14 @@ void av1_get_ref_frames(AV1_COMP *const cpi, RefBufferStack *ref_buffer_stack) {
   }
 }
 
+// Return values:
+// * AOM_CODEC_OK
+// * -1
+// * AOM_CODEC_ERROR
+//
+// time_stamp and time_end are output parameters. The caller should use
+// *time_stamp and *time_end only when av1_encode_strategy() returns
+// AOM_CODEC_OK.
 int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                         uint8_t *const dest, unsigned int *frame_flags,
                         int64_t *const time_stamp, int64_t *const time_end,
