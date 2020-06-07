@@ -20,8 +20,13 @@
 
 namespace {
 
+const int kTestMode = 0;
+const int kUsage = 1;
+
+typedef std::tuple<libaom_test::TestMode, unsigned int> MonochromeTestParam;
+
 class MonochromeTest
-    : public ::libaom_test::CodecTestWithParam<libaom_test::TestMode>,
+    : public ::libaom_test::CodecTestWithParam<MonochromeTestParam>,
       public ::libaom_test::EncoderTest {
  protected:
   MonochromeTest() : EncoderTest(GET_PARAM(0)), frame0_psnr_y_(0.) {}
@@ -29,8 +34,11 @@ class MonochromeTest
   virtual ~MonochromeTest() {}
 
   virtual void SetUp() {
-    InitializeConfig();
-    SetMode(GET_PARAM(1));
+    const MonochromeTestParam input = GET_PARAM(1);
+    const libaom_test::TestMode mode = std::get<kTestMode>(input);
+    const unsigned int usage = std::get<kUsage>(input);
+    InitializeConfig(usage);
+    SetMode(mode);
   }
 
   virtual void DecompressedFrameHook(const aom_image_t &img,
@@ -124,7 +132,9 @@ TEST_P(MonochromeTest, TestMonochromeEncoding) {
   }
 }
 
-AV1_INSTANTIATE_TEST_CASE(MonochromeTest,
-                          ::testing::Values(::libaom_test::kTwoPassGood));
+AV1_INSTANTIATE_TEST_CASE(
+    MonochromeTest,
+    ::testing::Combine(::testing::Values(::libaom_test::kTwoPassGood),
+                       ::testing::Values(1, 0)));
 
 }  // namespace

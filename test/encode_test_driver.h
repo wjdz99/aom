@@ -187,7 +187,7 @@ class EncoderTest {
   virtual ~EncoderTest() {}
 
   // Initialize the cfg_ member with the default configuration.
-  void InitializeConfig();
+  void InitializeConfig(unsigned int usage = AOM_USAGE_GOOD_QUALITY);
 
   // Map the TestMode enum to the passes_ variables.
   void SetMode(TestMode mode);

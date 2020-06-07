@@ -2385,8 +2385,8 @@ int main(int argc, const char **argv_) {
 
     FOREACH_STREAM(stream, streams) {
       if (input.fmt != AOM_IMG_FMT_I420 && input.fmt != AOM_IMG_FMT_I42016) {
-        /* Automatically upgrade if input is non-4:2:0 but a 4:2:0 profile
-           was selected. */
+        /* Automatically upgrade or downgrade the profile if input is non-4:2:0
+           but a 4:2:0 profile was selected. */
         switch (stream->config.cfg.g_profile) {
           case 0:
             if (input.bit_depth < 12 && (input.fmt == AOM_IMG_FMT_I444 ||

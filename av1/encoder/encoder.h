@@ -1703,8 +1703,8 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
  * \param[in]    frame_flags Flags to decide how to encoding the frame
  * \param[in]    size        Bitstream size
  * \param[in]    dest        Bitstream output
- * \param[in]    time_stamp  Time stamp of the frame
- * \param[in]    time_end    Time end
+ * \param[out]   time_stamp  Time stamp of the frame
+ * \param[out]   time_end    Time end
  * \param[in]    flush       Decide to encode one frame or the rest of frames
  * \param[in]    timebase    Time base used
  *
