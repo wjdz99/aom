@@ -600,8 +600,6 @@ static void set_good_speed_features_framesize_independent(
 
   if (speed >= 5) {
     sf->part_sf.simple_motion_search_prune_agg = 3;
-    sf->part_sf.ext_partition_eval_thresh =
-        allow_screen_content_tools ? BLOCK_8X8 : BLOCK_16X16;
 
     sf->inter_sf.prune_inter_modes_based_on_tpl = boosted ? 0 : 3;
     sf->inter_sf.prune_comp_using_best_single_mode_ref = 2;
@@ -1379,6 +1377,7 @@ void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
   }
 
   if (cpi->oxcf.mode == GOOD && speed >= 5) {
+    sf->part_sf.ext_partition_eval_thresh = BLOCK_16X16;
     const int qindex_thresh = boosted ? 100 : 160;
     if (cm->quant_params.base_qindex <= qindex_thresh &&
         !frame_is_intra_only(&cpi->common)) {
