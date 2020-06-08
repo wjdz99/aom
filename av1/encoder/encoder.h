@@ -352,6 +352,28 @@ typedef struct {
   int superres_kf_qthresh;
 } SuperResCfg;
 
+typedef struct {
+  // Indicates the maximum distance to a key frame.
+  int key_freq;
+  // Indicates if temporal filtering should be applied on keyframe.
+  int enable_keyframe_filtering;
+  // Indicates the number of frames after which a frame may be coded as an
+  // S-Frame.
+  int sframe_dist;
+  // Indicates how an S-Frame should be inserted.
+  // 1: the considered frame will be made into an S-Frame only if it is an
+  // altref frame. 2: the next altref frame will be made into an S-Frame.
+  int sframe_mode;
+  // Indicates if encoder should autodetect cut scenes and set the keyframes.
+  bool auto_key;
+  // Indicates if forward keyframe reference should be enabled.
+  bool fwd_kf_enabled;
+  // Indicates if S-Frames should be enabled for the sequence.
+  bool enable_sframe;
+  // Indicates if intra block copy prediction mode should be enabled or not.
+  bool enable_intrabc;
+} KeyFrameCfg;
+
 typedef struct AV1EncoderConfig {
   BITSTREAM_PROFILE profile;
   aom_bit_depth_t bit_depth;     // Codec bit-depth.
@@ -376,14 +398,10 @@ typedef struct AV1EncoderConfig {
   MODE mode;
   int pass;
 
-  // Key Framing Operations
-  int auto_key;  // autodetect cut scenes and set the keyframes
-  int key_freq;  // maximum distance to key frame.
-  int sframe_dist;
-  int sframe_mode;
-  int sframe_enabled;
-  int lag_in_frames;  // how many frames lag before we start encoding
-  int fwd_kf_enabled;
+  // Configuration related to key-frame.
+  KeyFrameCfg kf_cfg;
+
+  int lag_in_frames;
 
   // ----------------------------------------------------------------
   // DATARATE CONTROL OPTIONS
@@ -453,8 +471,6 @@ typedef struct AV1EncoderConfig {
    */
   unsigned int error_resilient_mode;
 
-  unsigned int s_frame_mode;
-
   /* Bitfield defining the parallel decoding mode where the
    * decoding in successive frames may be conducted in parallel
    * just by decoding the frame headers.
@@ -480,7 +496,6 @@ typedef struct AV1EncoderConfig {
   int tile_heights[MAX_TILE_ROWS];
 
   int enable_tpl_model;
-  int enable_keyframe_filtering;
 
   int max_threads;
 
@@ -528,7 +543,6 @@ typedef struct AV1EncoderConfig {
   int allow_warped_motion;
   int enable_overlay;
   int enable_palette;
-  int enable_intrabc;
   unsigned int save_as_annexb;
 
   // Flags related to intra mode search.
