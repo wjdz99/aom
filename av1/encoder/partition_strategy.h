@@ -33,6 +33,17 @@
 #define FEATURE_SMS_SPLIT_MODEL_FLAG \
   (FEATURE_SMS_NONE_FLAG | FEATURE_SMS_SPLIT_FLAG)
 
+#define SUB_PARTITIONS_AB 3
+
+// Rectangular parition types.
+enum {
+  HORZ_A = 0,
+  HORZ_B,
+  VERT_A,
+  VERT_B,
+  NUM_AB_PARTS
+} UENUM1BYTE(AB_PART_TYPE);
+
 // Rectangular parition types.
 enum { HORZ = 0, VERT, NUM_RECT_PARTS } UENUM1BYTE(RECT_PART_TYPE);
 
