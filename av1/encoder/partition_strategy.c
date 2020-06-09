@@ -1425,16 +1425,21 @@ int evaluate_ab_partition_based_on_split(
   return 1;
 }
 
-void av1_prune_ab_partitions(
-    const AV1_COMP *cpi, const MACROBLOCK *x, const PC_TREE *pc_tree,
-    BLOCK_SIZE bsize, int pb_source_variance, int64_t best_rdcost,
-    int64_t rect_part_rd[2][2], int64_t split_rd[4],
-    const RD_RECT_PART_WIN_INFO *rect_part_win_info, int ext_partition_allowed,
-    int partition_horz_allowed, int partition_vert_allowed,
-    int *horza_partition_allowed, int *horzb_partition_allowed,
-    int *verta_partition_allowed, int *vertb_partition_allowed) {
+void av1_prune_ab_partitions(const AV1_COMP *cpi, const MACROBLOCK *x,
+                             const PC_TREE *pc_tree, BLOCK_SIZE bsize,
+                             int pb_source_variance, int64_t best_rdcost,
+                             int64_t rect_part_rd[2][2], int64_t split_rd[4],
+                             const RD_RECT_PART_WIN_INFO *rect_part_win_info,
+                             int ext_partition_allowed,
+                             int partition_horz_allowed,
+                             int partition_vert_allowed,
+                             int ab_partitions_allowed[NUM_AB_PARTS]) {
   int64_t *horz_rd = rect_part_rd[0];
   int64_t *vert_rd = rect_part_rd[1];
+  int *horza_partition_allowed = &ab_partitions_allowed[HORZ_A];
+  int *horzb_partition_allowed = &ab_partitions_allowed[HORZ_B];
+  int *verta_partition_allowed = &ab_partitions_allowed[VERT_A];
+  int *vertb_partition_allowed = &ab_partitions_allowed[VERT_B];
   const PartitionCfg *const part_cfg = &cpi->oxcf.part_cfg;
   // The standard AB partitions are allowed initially if ext-partition-types are
   // allowed.
