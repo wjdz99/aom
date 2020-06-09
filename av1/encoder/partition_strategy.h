@@ -33,6 +33,17 @@
 #define FEATURE_SMS_SPLIT_MODEL_FLAG \
   (FEATURE_SMS_NONE_FLAG | FEATURE_SMS_SPLIT_FLAG)
 
+#define SUB_PARTITIONS_AB 3
+
+// Rectangular parition types.
+enum {
+  HORZ_A = 0,
+  HORZ_B,
+  VERT_A,
+  VERT_B,
+  NUM_AB_PARTS
+} UENUM1BYTE(AB_PART_TYPE);
+
 // Rectangular parition types.
 enum { HORZ = 0, VERT, NUM_RECT_PARTS } UENUM1BYTE(RECT_PART_TYPE);
 
@@ -159,14 +170,15 @@ void av1_prune_partitions_by_max_min_bsize(
 
 // Prune out AB partitions based on rd decisions made from testing the
 // basic partitions.
-void av1_prune_ab_partitions(
-    const AV1_COMP *cpi, const MACROBLOCK *x, const PC_TREE *pc_tree,
-    BLOCK_SIZE bsize, int pb_source_variance, int64_t best_rdcost,
-    int64_t rect_part_rd[2][2], int64_t split_rd[4],
-    const RD_RECT_PART_WIN_INFO *rect_part_win_info, int ext_partition_allowed,
-    int partition_horz_allowed, int partition_vert_allowed,
-    int *horza_partition_allowed, int *horzb_partition_allowed,
-    int *verta_partition_allowed, int *vertb_partition_allowed);
+void av1_prune_ab_partitions(const AV1_COMP *cpi, const MACROBLOCK *x,
+                             const PC_TREE *pc_tree, BLOCK_SIZE bsize,
+                             int pb_source_variance, int64_t best_rdcost,
+                             int64_t rect_part_rd[2][2], int64_t split_rd[4],
+                             const RD_RECT_PART_WIN_INFO *rect_part_win_info,
+                             int ext_partition_allowed,
+                             int partition_horz_allowed,
+                             int partition_vert_allowed,
+                             int ab_partitions_allowed[NUM_AB_PARTS]);
 #endif  // !CONFIG_REALTIME_ONLY
 
 // A simplified version of set_offsets meant to be used for
