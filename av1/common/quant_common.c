@@ -97,6 +97,46 @@ static const int16_t dc_qlookup_12_QTX[QINDEX_RANGE] = {
 #endif  // !CONFIG_DELTA_DCQUANT
 
 #if CONFIG_EXTQUANT
+#if CONFIG_EXTQUANT_HBD
+//           4,                        q_index = 0
+//  qstep =  q_index + 8,              q_index in [1, 30]
+//           19*POWER(2, q_index/30)   q_index in [31, 383]
+static const int32_t ac_qlookup_QTX[QINDEX_RANGE] = {
+  4,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,
+  26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,
+  43,44,45,46,47,48,49,50,51,53,54,55,56,58,59,60,62,
+  63,65,66,68,69,71,73,74,76,78,80,81,83,85,87,89,91,
+  94,96,98,100,103,105,107,110,113,115,118,121,123,126,
+  129,132,135,139,142,145,149,152,156,159,163,167,171,
+  175,179,183,187,192,196,201,205,210,215,220,225,230,
+  236,241,247,253,259,265,271,277,284,290,297,304,311,
+  318,326,333,341,349,357,366,374,383,392,401,411,420,
+  430,440,450,461,472,483,494,505,517,529,542,554,567,
+  581,594,608,622,637,652,667,682,698,715,731,749,766,
+  784,802,821,840,860,880,901,922,943,965,988,1011,1034,
+  1059,1083,1109,1135,1161,1188,1216,1244,1274,1303,1334,
+  1365,1397,1429,1463,1497,1532,1568,1605,1642,1680,1720,
+  1760,1801,1843,1886,1930,1975,2022,2069,2117,2167,2217,
+  2269,2322,2376,2432,2489,2547,2607,2667,2730,2794,2859,
+  2926,2994,3064,3136,3209,3284,3361,3439,3520,3602,3686,
+  3772,3861,3951,4043,4138,4234,4333,4435,4538,4644,4753,
+  4864,4978,5094,5213,5335,5460,5587,5718,5852,5988,6128,
+  6271,6418,6568,6722,6879,7040,7204,7372,7545,7721,7902,
+  8086,8275,8469,8667,8869,9077,9289,9506,9728,9955,10188,
+  10426,10670,10919,11175,11436,11703,11977,12257,12543,12836,
+  13136,13443,13757,14079,14408,14745,15090,15442,15803,16173,
+  16551,16937,17333,17738,18153,18577,19012,19456,19911,20376,
+  20852,21340,21839,22349,22871,23406,23953,24513,25086,25672,
+  26272,26886,27515,28158,28816,29490,30179,30884,31606,32345,
+  33101,33875,34667,35477,36306,37155,38023,38912,39822,40752,
+  41705,42680,43677,44698,45743,46812,47906,49026,50172,51345,
+  52545,53773,55030,56316,57632,58980,60358,61769,63213,64690,
+  66202,67750,69333,70954,72612,74310,76046,77824,79643,81505,
+  83410,85359,87354,89396,91486,93624,95813,98052,100344,102689,
+  105090,107546,110060,112632,115265,117959,120716,123538,126425,
+  129381,132405
+};
+#else
 /*
 //           4,                        q_index = 0
 //  qstep =  q_index + 8,              q_index in [1, 77]
@@ -175,6 +215,7 @@ static const int16_t ac_qlookup_QTX[QINDEX_RANGE] = {
   4234, 4333, 4435, 4538, 4644, 4753, 4864, 4978, 5094, 5213, 5335, 5460, 5587,
   5718, 5852, 5988, 6128, 6271, 6418, 6568, 6722, 6879,
 };
+#endif
 #else
 static const int16_t ac_qlookup_QTX[QINDEX_RANGE] = {
   4,    8,    9,    10,   11,   12,   13,   14,   15,   16,   17,   18,   19,
@@ -290,13 +331,51 @@ static const int16_t ac_qlookup_12_QTX[QINDEX_RANGE] = {
 #if CONFIG_DELTA_DCQUANT
 int32_t av1_dc_quant_QTX(int qindex, int delta, int base_dc_delta_q,
                          aom_bit_depth_t bit_depth) {
+#if CONFIG_EXTQUANT_HBD
+  int q_clamped = clamp(qindex - base_dc_delta_q + delta, 0, MAXQ);
+  if (q_clamped == 0) return 4;
+  switch (bit_depth) {
+    case AOM_BITS_8: break;
+    case AOM_BITS_10:
+      q_clamped = clamp(q_clamped + QINDEX_OFFSET_AOM_BITS_10, 0, MAXQ);
+      break;
+    case AOM_BITS_12:
+      q_clamped = clamp(q_clamped + QINDEX_OFFSET_AOM_BITS_12, 0, MAXQ);
+      break;
+    default:
+      assert(0 && "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
+      return -1;
+  }
+#else
   const int q_clamped = clamp(qindex - base_dc_delta_q + delta, 0, MAXQ);
+  if (q_clamped == 0) return 4;
+#endif
 #else
 int32_t av1_dc_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth) {
-  const int q_clamped = clamp(qindex + delta, 0, MAXQ);
-#endif  // CONFIG_DELTA_DCQUANT
+#if CONFIG_EXTQUANT_HBD
+  int q_clamped = clamp(qindex + delta, 0, MAXQ);
   if (q_clamped == 0) return 4;
+  switch (bit_depth) {
+    case AOM_BITS_8: break;
+    case AOM_BITS_10:
+      q_clamped = clamp(q_clamped + QINDEX_OFFSET_AOM_BITS_10, 0, MAXQ);
+      break;
+    case AOM_BITS_12:
+      q_clamped = clamp(q_clamped + QINDEX_OFFSET_AOM_BITS_12, 0, MAXQ);
+      break;
+    default:
+      assert(0 && "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
+      return -1;
+  }
+#else
+  const int q_clamped = clamp(qindex + delta, 0, MAXQ);
+  if (q_clamped == 0) return 4;
+#endif
+#endif  // CONFIG_DELTA_DCQUANT
 
+#if CONFIG_EXTQUANT_HBD
+  return ac_qlookup_QTX[q_clamped];
+#else
   switch (bit_depth) {
     case AOM_BITS_8: return ac_qlookup_QTX[q_clamped];
     case AOM_BITS_10: return 4 * ac_qlookup_QTX[q_clamped];
@@ -305,6 +384,7 @@ int32_t av1_dc_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth) {
       assert(0 && "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
       return -1;
   }
+#endif
 }
 #else
 #if CONFIG_DELTA_DCQUANT
@@ -334,9 +414,29 @@ int16_t av1_dc_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth) {
 
 #if CONFIG_EXTQUANT
 int32_t av1_ac_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth) {
+#if CONFIG_EXTQUANT_HBD
+  int q_clamped = clamp(qindex + delta, 0, MAXQ);
+  if (q_clamped == 0) return 4;
+  switch (bit_depth) {
+    case AOM_BITS_8: break;
+    case AOM_BITS_10:
+      q_clamped = clamp(q_clamped + QINDEX_OFFSET_AOM_BITS_10, 0, MAXQ);
+      break;
+    case AOM_BITS_12:
+      q_clamped = clamp(q_clamped + QINDEX_OFFSET_AOM_BITS_12, 0, MAXQ);
+      break;
+    default:
+      assert(0 && "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
+      return -1;
+  }
+#else
   const int q_clamped = clamp(qindex + delta, 0, MAXQ);
   if (q_clamped == 0) return 4;
+#endif
 
+#if CONFIG_EXTQUANT_HBD
+  return ac_qlookup_QTX[q_clamped];
+#else
   switch (bit_depth) {
     case AOM_BITS_8: return ac_qlookup_QTX[q_clamped];
     case AOM_BITS_10: return 4 * ac_qlookup_QTX[q_clamped];
@@ -345,6 +445,7 @@ int32_t av1_ac_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth) {
       assert(0 && "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
       return -1;
   }
+#endif
 }
 #else
 int16_t av1_ac_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth) {

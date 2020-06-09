@@ -2255,7 +2255,23 @@ static void setup_quantization(AV1_COMMON *const cm,
                                struct aom_read_bit_buffer *rb) {
   const SequenceHeader *const seq_params = &cm->seq_params;
   const int num_planes = av1_num_planes(cm);
+#if (CONFIG_EXTQUANT_HBD && CONFIG_EXTQUANT)
+  switch (cm->seq_params.bit_depth) {
+    case AOM_BITS_8:
+      cm->base_qindex = aom_rb_read_literal(rb, QINDEX_BITS);
+      break;
+    case AOM_BITS_10:
+      cm->base_qindex =
+          aom_rb_read_literal(rb, QINDEX_BITS) - QINDEX_OFFSET_AOM_BITS_10;
+      break;
+    case AOM_BITS_12:
+      cm->base_qindex =
+          aom_rb_read_literal(rb, QINDEX_BITS) - QINDEX_OFFSET_AOM_BITS_12;
+      break;
+  }
+#else
   cm->base_qindex = aom_rb_read_literal(rb, QINDEX_BITS);
+#endif
   cm->cur_frame->base_qindex = cm->base_qindex;
   cm->y_dc_delta_q = read_delta_q(rb);
   if (num_planes > 1) {
@@ -2323,6 +2339,7 @@ static void setup_segmentation_dequant(AV1_COMMON *const cm,
                          bit_depth);
     cm->v_dequant_QTX[i][1] =
         av1_ac_quant_QTX(qindex, cm->v_ac_delta_q, bit_depth);
+
     const int lossless = xd->lossless[i];
     // NB: depends on base index so there is only 1 set per frame
     // No quant weighting when lossless or signalled not using QM
