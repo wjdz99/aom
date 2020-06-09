@@ -22,6 +22,30 @@
       "revId": "72b80f2bd65e15d595e1c79bbc19f9514e720690",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2058a47f_d5782bb4",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-06-09T16:38:21Z",
+      "side": 1,
+      "message": "In libs.doxy_template, there are controls on what is included in document. \"EXTRACT_ALL\" might be one of them, but I don\u0027t remember if it relates to what you said.",
+      "parentUuid": "88034590_69104815",
+      "range": {
+        "startLine": 187,
+        "startChar": 13,
+        "endLine": 187,
+        "endChar": 42
+      },
+      "revId": "72b80f2bd65e15d595e1c79bbc19f9514e720690",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
