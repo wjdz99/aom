@@ -2434,20 +2434,25 @@ void av1_build_interintra_predictors_sbp(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                          const BUFFER_SET *ctx, int plane,
                                          BLOCK_SIZE bsize, int border) {
   assert(bsize < BLOCK_SIZES_ALL);
+  const size_t dimension = border + MAX_SB_SIZE;
+  const size_t size = dimension * dimension;
   if (is_cur_buf_hbd(xd)) {
-    DECLARE_ALIGNED(16, uint16_t, intrapredictor[MAX_SB_SQUARE]);
-    av1_build_intra_predictors_for_interintra(
-        cm, xd, bsize, plane, ctx, CONVERT_TO_BYTEPTR(intrapredictor),
-        MAX_SB_SIZE);
-    av1_combine_interintra(xd, bsize, plane, pred, stride,
-                           CONVERT_TO_BYTEPTR(intrapredictor), MAX_SB_SIZE,
-                           border);
-  } else {
-    DECLARE_ALIGNED(16, uint8_t, intrapredictor[MAX_SB_SQUARE]);
+    uint16_t *orig_intrapred = aom_memalign(16, size * sizeof(*orig_intrapred));
+    uint16_t *intrapred = orig_intrapred + border + border * dimension;
     av1_build_intra_predictors_for_interintra(cm, xd, bsize, plane, ctx,
-                                              intrapredictor, MAX_SB_SIZE);
-    av1_combine_interintra(xd, bsize, plane, pred, stride, intrapredictor,
-                           MAX_SB_SIZE, border);
+                                              CONVERT_TO_BYTEPTR(intrapred),
+                                              dimension, border);
+    av1_combine_interintra(xd, bsize, plane, pred, stride,
+                           CONVERT_TO_BYTEPTR(intrapred), dimension, border);
+    aom_free(orig_intrapred);
+  } else {
+    uint8_t *orig_intrapred = aom_memalign(16, size * sizeof(*orig_intrapred));
+    uint8_t *intrapred = orig_intrapred + border + border * dimension;
+    av1_build_intra_predictors_for_interintra(cm, xd, bsize, plane, ctx,
+                                              intrapred, dimension);
+    av1_combine_interintra(xd, bsize, plane, pred, stride, intrapred, dimension,
+                           border);
+    aom_free(orig_intrapred);
   }
 }
 
