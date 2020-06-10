@@ -28,6 +28,7 @@ void av1_init_layer_context(AV1_COMP *const cpi) {
   int mi_cols = cpi->common.mi_params.mi_cols;
   svc->base_framerate = 30.0;
   svc->current_superframe = 0;
+  svc->use_layer_fb_context = 1;
 
   for (int sl = 0; sl < svc->number_spatial_layers; ++sl) {
     for (int tl = 0; tl < svc->number_temporal_layers; ++tl) {
@@ -189,6 +190,11 @@ void av1_restore_layer_context(AV1_COMP *const cpi) {
         svc->buffer_spatial_layer[ref_frame_idx] == svc->spatial_layer_id - 1)
       svc->skip_nonzeromv_gf = 1;
   }
+  if (svc->use_layer_fb_context) {
+    unsigned int i;
+    for (i = 0; i < REF_FRAMES; i++)
+      cpi->fb_of_context_type[i] = lc->fb_of_context_type[i];
+  }
 }
 
 void av1_save_layer_context(AV1_COMP *const cpi) {
@@ -230,6 +236,11 @@ void av1_save_layer_context(AV1_COMP *const cpi) {
         svc->buffer_spatial_layer[ref_frame_map_idx] = svc->spatial_layer_id;
       }
     }
+  }
+  if (svc->use_layer_fb_context) {
+    unsigned int i;
+    for (i = 0; i < REF_FRAMES; i++)
+      lc->fb_of_context_type[i] = cpi->fb_of_context_type[i];
   }
   if (svc->spatial_layer_id == svc->number_spatial_layers - 1)
     svc->current_superframe++;
