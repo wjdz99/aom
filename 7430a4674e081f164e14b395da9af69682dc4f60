@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00d4bac8_3b8ca4db",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-06-10T22:33:06Z",
+      "side": 1,
+      "message": "Nit: could you link to the bug number in TODO, like so?\n\n  TODO(aomedia:2717)\n\nThanks,",
+      "revId": "7430a4674e081f164e14b395da9af69682dc4f60",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
