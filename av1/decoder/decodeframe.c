@@ -764,6 +764,12 @@ static void dec_build_inter_predictors_sby(const AV1_COMMON *cm,
                                            MACROBLOCKD *xd, int mi_row,
                                            int mi_col, const BUFFER_SET *ctx,
                                            BLOCK_SIZE bsize) {
+#if CONFIG_ILLUM_MCOMP
+  const int border = 8;
+#else
+  const int border = 0;
+#endif  // CONFIG_ILLUM_MCOMP
+
   dec_build_inter_predictors_for_planes(cm, xd, mi_row, mi_col, 0, 0);
 
   if (is_interintra_pred(xd->mi[0])) {
@@ -771,7 +777,8 @@ static void dec_build_inter_predictors_sby(const AV1_COMMON *cm,
                                { xd->plane[0].dst.stride, 0, 0 } };
     if (!ctx) ctx = &default_ctx;
     av1_build_interintra_predictors_sbp(cm, xd, xd->plane[0].dst.buf,
-                                        xd->plane[0].dst.stride, ctx, 0, bsize);
+                                        xd->plane[0].dst.stride, ctx, 0, bsize,
+                                        border);
   }
 }
 
@@ -788,9 +795,10 @@ static void dec_build_inter_predictors_sbuv(const AV1_COMMON *cm,
       { 0, xd->plane[1].dst.stride, xd->plane[2].dst.stride }
     };
     if (!ctx) ctx = &default_ctx;
+    const int border = 0;
     av1_build_interintra_predictors_sbuv(
         cm, xd, xd->plane[1].dst.buf, xd->plane[2].dst.buf,
-        xd->plane[1].dst.stride, xd->plane[2].dst.stride, ctx, bsize);
+        xd->plane[1].dst.stride, xd->plane[2].dst.stride, ctx, bsize, border);
   }
 }
 
