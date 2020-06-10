@@ -106,15 +106,17 @@ if(CONFIG_AV1_ENCODER)
   set(AOM_DOXYGEN_SOURCES ${AOM_DOXYGEN_SOURCES}
                           "${AOM_ROOT}/doc/dev_guide/av1_encoder.dox")
   set(AOM_DOXYGEN_SOURCES ${AOM_DOXYGEN_SOURCES}
-                          "${AOM_ROOT}/av1/encoder/rdopt.h"
-                          "${AOM_ROOT}/av1/encoder/firstpass.h"
-                          "${AOM_ROOT}/av1/encoder/encoder.h"
-                          "${AOM_ROOT}/av1/encoder/encoder.c"
-                          "${AOM_ROOT}/av1/encoder/lookahead.h"
-                          "${AOM_ROOT}/av1/encoder/encode_strategy.h"
                           "${AOM_ROOT}/av1/encoder/encode_strategy.c"
+                          "${AOM_ROOT}/av1/encoder/encode_strategy.h"
                           "${AOM_ROOT}/av1/encoder/encodeframe.c"
-                          "${AOM_ROOT}/av1/encoder/picklpf.h")
+                          "${AOM_ROOT}/av1/encoder/encoder.c"
+                          "${AOM_ROOT}/av1/encoder/encoder.h"
+                          "${AOM_ROOT}/av1/encoder/firstpass.h"
+                          "${AOM_ROOT}/av1/encoder/lookahead.h"
+                          "${AOM_ROOT}/av1/encoder/picklpf.h"
+                          "${AOM_ROOT}/av1/encoder/rdopt.h"
+                          "${AOM_ROOT}/av1/encoder/tx_search.h")
+
 endif()
 
 if(CONFIG_AV1_DECODER AND CONFIG_AV1_ENCODER)
