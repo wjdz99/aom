@@ -764,6 +764,12 @@ static void dec_build_inter_predictors_sby(const AV1_COMMON *cm,
                                            MACROBLOCKD *xd, int mi_row,
                                            int mi_col, const BUFFER_SET *ctx,
                                            BLOCK_SIZE bsize) {
+#if CONFIG_ILLUM_MCOMP
+  const int border = 8;
+#else
+  const int border = 0;
+#endif  // CONFIG_ILLUM_MCOMP
+
   dec_build_inter_predictors_for_planes(cm, xd, mi_row, mi_col, 0, 0);
 
   if (is_interintra_pred(xd->mi[0])) {
