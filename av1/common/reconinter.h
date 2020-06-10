@@ -416,7 +416,9 @@ static INLINE const uint8_t *av1_get_contiguous_soft_mask(int8_t wedge_index,
 const uint8_t *av1_get_compound_type_mask(
     const INTERINTER_COMPOUND_DATA *const comp_data, BLOCK_SIZE sb_type);
 
-// build interintra_predictors for one plane
+// build interintra_predictors for one plane. Note that the inter-predictor
+// should already be built -- the intra predictor will be built by the
+// function call.
 void av1_build_interintra_predictors_sbp(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                          uint8_t *pred, int stride,
                                          const BUFFER_SET *ctx, int plane,
@@ -428,11 +430,13 @@ void av1_build_interintra_predictors_sbuv(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                           const BUFFER_SET *ctx,
                                           BLOCK_SIZE bsize, int border);
 
-void av1_build_intra_predictors_for_interintra(const AV1_COMMON *cm,
-                                               MACROBLOCKD *xd,
-                                               BLOCK_SIZE bsize, int plane,
-                                               const BUFFER_SET *ctx,
-                                               uint8_t *dst, int dst_stride);
+// Build the intra-predictor and put it in the destination buffer. If a border
+// is specified, then the top-left border pixels starting at
+// (dst - dst_stride * border - border) will be filled in with the already
+// constructed values for the intra-frame.
+void av1_build_intra_predictors_for_interintra(
+    const AV1_COMMON *cm, MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
+    const BUFFER_SET *ctx, uint8_t *dst, int dst_stride, int border);
 
 // If the inter-intra mode is one that requires an extended region, then
 // inter_pred and intra_pred should point to the start of the inter/intra
