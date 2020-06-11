@@ -9,6 +9,14 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+/*!\defgroup gf_group_algo Golden Frame Group
+ * \ingroup high_level_algo
+ * Algorithms regarding determining the length of GF groups and defining GF
+ * group structures.
+ * @{
+ */
+/*! @} - end defgroup gf_group_algo */
+
 #include <stdint.h>
 
 #include "config/aom_config.h"
@@ -374,6 +382,20 @@ static void accumulate_frame_motion_stats(const FIRSTPASS_STATS *stats,
   }
 }
 
+/*!\brief Accumulate first-pass stats for this frame.
+ *
+ * \ingroup gf_group_algo
+ * \callgraph
+ * This function is used to accumulate first-pass stats for "this"
+ * frame. Note this frame is relative only to where this function
+ * is called, and corresponds to parameter "stats".
+ *
+ * \param[in]  stats             First pass stats structure
+ * \param[in]  mod_frame_err     The modified frame error
+ * \param[in]  gf_stats          Accumulated stats for a GF group
+ *
+ * \return Nothing is returned. Only changes gf_stats.
+ */
 static void accumulate_this_frame_stats(const FIRSTPASS_STATS *stats,
                                         const double mod_frame_err,
                                         GF_GROUP_STATS *gf_stats) {
@@ -385,6 +407,26 @@ static void accumulate_this_frame_stats(const FIRSTPASS_STATS *stats,
   gf_stats->gf_group_inactive_zone_rows += stats->inactive_zone_rows;
 }
 
+/*!\brief Accumulate first-pass stats for next frame.
+ *
+ * \ingroup gf_group_algo
+ * \callgraph
+ * This function is used to accumulate first-pass stats for the "next"
+ * frame. Note this next frame is relative only to where this function
+ * is called, and corresponds to parameter "stats".
+ *
+ * \param[in]  stats             First pass stats structure
+ * \param[in]  frame_info        Frame information structure
+ * \param[in]  twopass           Structure with processed first pass stats
+ * \param[in]  flash_detected    Whether a flash is detected
+ * \param[in]  frames_since_key  Number of frames since the last key frame
+ * \param[in]  cur_idx           Current frame index
+ * \param[in]  can_disable_arf   Whether it is possible to disable ALTREF
+ * \param[in]  min_gf_interval   Minimum GF group length allowed
+ * \param[in]  gf_stats          Accumulated stats for a GF group
+ *
+ * \return Nothing is returned. Only changes gf_stats.
+ */
 static void accumulate_next_frame_stats(
     const FIRSTPASS_STATS *stats, const FRAME_INFO *frame_info,
     TWO_PASS *const twopass, const int flash_detected,
@@ -429,6 +471,20 @@ static void accumulate_next_frame_stats(
   }
 }
 
+/*!\brief Average the accumulated first-pass stats.
+ *
+ * \ingroup gf_group_algo
+ * \callgraph
+ * This function is used to average the already accumulated stats
+ * in gf_stats.
+ *
+ * \param[in]  total_frame       Total number of frames in the GF group
+ * \param[in]  last_stat         First pass stats structure for the
+ *                               last frame in the GF group
+ * \param[in]  gf_stats          Accumulated stats for a GF group
+ *
+ * \return Nothing is returned. Only changes gf_stats.
+ */
 static void average_gf_stats(const int total_frame,
                              const FIRSTPASS_STATS *last_stat,
                              GF_GROUP_STATS *gf_stats) {
@@ -1190,8 +1246,19 @@ void set_last_prev_low_err(int *cur_start_ptr, int *cur_last_ptr, int *cut_pos,
   return;
 }
 
-// This function decides the gf group length of future frames in batch
-// rc->gf_intervals is modified to store the group lengths
+/*!\brief Determine the length of future GF groups.
+ *
+ * \ingroup gf_group_algo
+ * \callgraph
+ * This function decides the gf group length of future frames in batch
+ *
+ * \param[in]    cpi              Top-level encoder structure
+ * \param[in]    max_gop_length   Maximum length of the GF group
+ * \param[in]    max_intervals    Maximum number of intervals to decide
+ *
+ * \return Nothing is returned. Instead, cpi->rc.gf_intervals is
+ * changed to store the decided GF group lengths.
+ */
 static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
                                 int max_intervals) {
   RATE_CONTROL *const rc = &cpi->rc;
@@ -1493,6 +1560,22 @@ static void init_gf_stats(GF_GROUP_STATS *gf_stats) {
 
 // Analyse and define a gf/arf group.
 #define MAX_GF_BOOST 5400
+/*!\brief Define a GF group.
+ *
+ * \ingroup gf_group_algo
+ * \callgraph
+ * This function defines the structure of a GF group, along with various
+ * parameters regarding bit-allocation and quality setup.
+ *
+ * \param[in]    cpi             Top-level encoder structure
+ * \param[in]    this_frame      First pass statistics structure
+ * \param[in]    frame_params    Structure with frame parameters
+ * \param[in]    max_gop_length  Maximum length of the GF group
+ * \param[in]    is_final_pass   Whether this is the final pass for the
+ *                               GF group, or a trial (non-zero)
+ *
+ * \return Nothing is returned. Instead, cpi->gf_group is changed.
+ */
 static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
                             const EncodeFrameParams *const frame_params,
                             int max_gop_length, int is_final_pass) {
