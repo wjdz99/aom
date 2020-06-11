@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb7d838f_3ff22c99",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-06-11T19:35:15Z",
+      "side": 1,
+      "message": "is this same as \nif (frame_is_intra_only(cm) || frame_is_intra_only(cm))",
+      "range": {
+        "startLine": 236,
+        "startChar": 4,
+        "endLine": 240,
+        "endChar": 61
+      },
+      "revId": "5ec0dcb7bbe4d0a9efe2575dbf19ff2cdf54d4d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
