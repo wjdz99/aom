@@ -261,6 +261,10 @@ reference. The following utilities are included:
   if(${DOXYGEN_VERSION_VALUE} GREATER_EQUAL 1008016)
     set(AOM_DOXYGEN_SECTIONS ${AOM_DOXYGEN_SECTIONS} "av1_md_support")
     set(AOM_DOXYGEN_SOURCES ${AOM_DOXYGEN_SOURCES} "${AOM_ROOT}/README.md")
+    # Uncomment the following line to add AlgorithmDescription.md in result page
+    # when AlgorithmDescription.md is done.
+    # set(AOM_DOXYGEN_SOURCES ${AOM_DOXYGEN_SOURCES}
+          "${AOM_ROOT}/doc/AlgorithmDescription.md")
   endif()
 
   # Generate libaom's doxyfile.
