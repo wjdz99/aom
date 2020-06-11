@@ -47,7 +47,6 @@ extern "C" {
  * \return Returns a value to indicate if the encoding is done successfully.
  * \retval #AOM_CODEC_OK
  * \retval -1
- *     No frame encoded; more input is required.
  * \retval #AOM_CODEC_ERROR
  */
 int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,

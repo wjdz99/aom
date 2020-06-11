@@ -2330,6 +2330,7 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
  * \return Returns a value to indicate if the encoding is done successfully.
  * \retval #AOM_CODEC_OK
  * \retval -1
+ *     No frame encoded; more input is required.
  * \retval #AOM_CODEC_ERROR
  */
 int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
