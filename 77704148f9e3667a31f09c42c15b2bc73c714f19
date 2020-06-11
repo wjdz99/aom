@@ -16,6 +16,24 @@
       "revId": "77704148f9e3667a31f09c42c15b2bc73c714f19",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90bf7eb4_057f9e8d",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-06-11T14:32:37Z",
+      "side": 1,
+      "message": "Correction:\nThen the linear portion value at q_index 30 is exactly 38, ...",
+      "parentUuid": "1252ef16_be28dbcf",
+      "revId": "77704148f9e3667a31f09c42c15b2bc73c714f19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
