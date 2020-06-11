@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1252ef16_be28dbcf",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-06-11T14:31:21Z",
+      "side": 1,
+      "message": "Can I suggest using 4.25 + 1.125 * q_index or (34 + 9 * q_index)/8 for the linear portion ?\nThen the linear portion value at q_index 30 is exactly 30, which is same as the exp portion.\nThe first 30 then would be:\n4,    5,    7,    8,    9,    10,   11,   12,   13,   14,   16,   17,   18, \n19,   20,   21,   22,   23,   25,   26,   27,   28,   29,   30,   31,   32,\n34,   35,   36,   37,   38, ...\n\nEverything else stays the same",
+      "revId": "77704148f9e3667a31f09c42c15b2bc73c714f19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
