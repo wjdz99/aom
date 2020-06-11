@@ -1075,19 +1075,14 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 
   if (!is_stat_generation_stage(cpi)) {
-    // If this is a forward keyframe, mark as a show_existing_frame
-    if (oxcf->kf_cfg.fwd_kf_enabled && (gf_group->index == gf_group->size) &&
-        gf_group->update_type[1] == ARF_UPDATE && cpi->rc.frames_to_key == 0) {
-      frame_params.show_existing_frame = 1;
-    } else {
-      frame_params.show_existing_frame =
-          ((oxcf->algo_cfg.enable_overlay == 0 ||
-            cpi->sf.hl_sf.disable_overlay_frames ||
-            cpi->show_existing_alt_ref) &&
-           gf_group->update_type[gf_group->index] == OVERLAY_UPDATE) ||
-          gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE;
-    }
-    frame_params.show_existing_frame &= allow_show_existing(cpi, *frame_flags);
+    frame_params.show_existing_frame =
+        allow_show_existing(cpi, *frame_flags) &&
+        (((oxcf->algo_cfg.enable_overlay == 0 ||
+           cpi->sf.hl_sf.disable_overlay_frames || cpi->show_existing_alt_ref ||
+           cpi->rc.frames_to_key == 0 /* fwd keyframes */) &&
+          gf_group->update_type[gf_group->index] == OVERLAY_UPDATE) ||
+         // always show existing for internal overlays
+         gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE);
 
     // Reset show_existing_alt_ref decision to 0 after it is used.
     if (gf_group->update_type[gf_group->index] == OVERLAY_UPDATE) {
@@ -1274,8 +1269,19 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   if (!frame_params.show_existing_frame) {
     cm->quant_params.using_qmatrix = oxcf->q_cfg.using_qm;
 #if !CONFIG_REALTIME_ONLY
+    // Perform TPL when finished with arf filtering if arf is used.
+    // Otherwise perform it at the start of the gf group.
     if (gf_cfg->lag_in_frames > 0 && !is_stat_generation_stage(cpi)) {
-      if (cpi->gf_group.index == 1 && oxcf->algo_cfg.enable_tpl_model) {
+      // Try performing tpl after arf is initialized.
+      int which_frame_tpl = cpi->gf_group.arf_index;
+      // TODO(any): If no arf in the GF group, we can do tpl at the first
+      // frame.
+      // TODO(bohanli): Unify it with tpl for kf.
+      if (which_frame_tpl < 0) {
+        which_frame_tpl = 1;
+      }
+      if (cpi->gf_group.index == which_frame_tpl &&
+          oxcf->algo_cfg.enable_tpl_model) {
         av1_configure_buffer_updates(cpi, &frame_params.refresh_frame,
                                      frame_update_type, 0);
         av1_set_frame_size(cpi, cm->width, cm->height);
