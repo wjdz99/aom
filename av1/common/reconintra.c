@@ -1157,6 +1157,11 @@ static void build_intra_predictors_high(
   const int is_dr_mode = av1_is_directional_mode(mode);
   const int use_filter_intra = filter_intra_mode != FILTER_INTRA_MODES;
   int base = 128 << (xd->bd - 8);
+  // The buffers left_data, above_data must be zeroed to fix some intermittent
+  // valgrind errors. Uninitialized reads in dr_predictor modules are seen to be
+  // the potential reason for this issue.
+  memset(left_data, 0, sizeof(left_data));
+  memset(above_data, 0, sizeof(above_data));
 
   // The default values if ref pixels are not available:
   // base   base-1 base-1 .. base-1 base-1 base-1 base-1 base-1 base-1
@@ -1342,6 +1347,11 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
   int p_angle = 0;
   const int is_dr_mode = av1_is_directional_mode(mode);
   const int use_filter_intra = filter_intra_mode != FILTER_INTRA_MODES;
+  // The buffers left_data, above_data must be zeroed to fix some intermittent
+  // valgrind errors. Uninitialized reads in dr_predictor modules are seen to be
+  // the potential reason for this issue.
+  memset(left_data, 0, sizeof(left_data));
+  memset(above_data, 0, sizeof(above_data));
 
   // The default values if ref pixels are not available:
   // 128 127 127 .. 127 127 127 127 127 127
