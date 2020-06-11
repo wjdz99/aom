@@ -22,6 +22,30 @@
       "revId": "7c44023775b2f3c7e8ba381c1e6a4844c63bfac6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a102fafc_1288340e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2160,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2020-06-11T20:12:54Z",
+      "side": 1,
+      "message": "Should the last line imply all the above lines?",
+      "parentUuid": "9563c235_afa39c54",
+      "range": {
+        "startLine": 2158,
+        "startChar": 0,
+        "endLine": 2160,
+        "endChar": 26
+      },
+      "revId": "7c44023775b2f3c7e8ba381c1e6a4844c63bfac6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
