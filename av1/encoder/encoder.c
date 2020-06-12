@@ -901,18 +901,6 @@ void av1_alloc_obmc_buffers(OBMCBuffer *obmc_buffer, AV1_COMMON *cm) {
           16, MAX_MB_PLANE * MAX_SB_SQUARE * sizeof(*obmc_buffer->left_pred)));
 }
 
-void av1_release_obmc_buffers(OBMCBuffer *obmc_buffer) {
-  aom_free(obmc_buffer->mask);
-  aom_free(obmc_buffer->above_pred);
-  aom_free(obmc_buffer->left_pred);
-  aom_free(obmc_buffer->wsrc);
-
-  obmc_buffer->mask = NULL;
-  obmc_buffer->above_pred = NULL;
-  obmc_buffer->left_pred = NULL;
-  obmc_buffer->wsrc = NULL;
-}
-
 void av1_alloc_compound_type_rd_buffers(AV1_COMMON *const cm,
                                         CompoundTypeRdBuffers *const bufs) {
   CHECK_MEM_ERROR(
@@ -1923,13 +1911,6 @@ int av1_set_reference_enc(AV1_COMP *cpi, int idx, YV12_BUFFER_CONFIG *sd) {
   }
 }
 
-int av1_update_entropy(bool *ext_refresh_frame_context,
-                       bool *ext_refresh_frame_context_pending, bool update) {
-  *ext_refresh_frame_context = update;
-  *ext_refresh_frame_context_pending = 1;
-  return 0;
-}
-
 #if defined(OUTPUT_YUV_DENOISED)
 // The denoiser buffer is allocated as a YUV 440 buffer. This function writes it
 // as YUV 420. We simply use the top-left pixels of the UV buffers, since we do
@@ -2240,18 +2221,6 @@ static void set_size_independent_vars(AV1_COMP *cpi) {
 
 #define MIN_BOOST_COMBINE_FACTOR 4.0
 #define MAX_BOOST_COMBINE_FACTOR 12.0
-int combine_prior_with_tpl_boost(double min_factor, double max_factor,
-                                 int prior_boost, int tpl_boost,
-                                 int frames_to_key) {
-  double factor = sqrt((double)frames_to_key);
-  double range = max_factor - min_factor;
-  factor = AOMMIN(factor, max_factor);
-  factor = AOMMAX(factor, min_factor);
-  factor -= min_factor;
-  int boost =
-      (int)((factor * prior_boost + (range - factor) * tpl_boost) / range);
-  return boost;
-}
 
 #if !CONFIG_REALTIME_ONLY
 static void process_tpl_stats_frame(AV1_COMP *cpi) {
