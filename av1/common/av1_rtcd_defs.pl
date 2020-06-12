@@ -264,6 +264,10 @@ specialize qw/av1_build_compound_diffwtd_mask_d16 sse4_1 avx2 neon/;
 add_proto qw/void av1_round_shift_array/, "int32_t *arr, int size, int bit";
 specialize "av1_round_shift_array", qw/sse4_1 neon/;
 
+# Resize functions.
+add_proto qw/void av1_resize_and_extend_frame/, "const YV12_BUFFER_CONFIG *src, YV12_BUFFER_CONFIG *dst, int bd, const int num_planes";
+specialize qw/av1_resize_and_extend_frame neon/;
+
 #
 # Encoder functions below this point.
 #

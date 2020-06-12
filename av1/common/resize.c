@@ -1188,9 +1188,9 @@ void av1_highbd_resize_frame444(const uint8_t *const y, int y_stride,
 }
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
-void av1_resize_and_extend_frame(const YV12_BUFFER_CONFIG *src,
-                                 YV12_BUFFER_CONFIG *dst, int bd,
-                                 const int num_planes) {
+void av1_resize_and_extend_frame_c(const YV12_BUFFER_CONFIG *src,
+                                   YV12_BUFFER_CONFIG *dst, int bd,
+                                   const int num_planes) {
   // TODO(dkovalev): replace YV12_BUFFER_CONFIG with aom_image_t
 
   // We use AOMMIN(num_planes, MAX_MB_PLANE) instead of num_planes to quiet
