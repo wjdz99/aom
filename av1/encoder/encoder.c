@@ -1947,7 +1947,7 @@ static void scale_references(AV1_COMP *cpi) {
             aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                                "Failed to allocate frame buffer");
           }
-          av1_resize_and_extend_frame(
+          av1_resize_and_extend_frame_nonnormative(
               ref, &new_fb->buf, (int)cm->seq_params.bit_depth, num_planes);
           cpi->scaled_ref_buf[ref_frame - 1] = new_fb;
           alloc_frame_mvs(cm, new_fb);
@@ -2744,10 +2744,12 @@ static void determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
   aom_clear_system_state();
 
   cpi->source =
-      av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source);
+      av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source,
+                            cm->features.interp_filter, 0);
   if (cpi->unscaled_last_source != NULL) {
     cpi->last_source = av1_scale_if_required(cm, cpi->unscaled_last_source,
-                                             &cpi->scaled_last_source);
+                                             &cpi->scaled_last_source,
+                                             cm->features.interp_filter, 0);
   }
 
   setup_frame(cpi);
@@ -2822,8 +2824,13 @@ static void determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
  */
 static int encode_without_recode(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
+  SVC *const svc = &cpi->svc;
   int top_index = 0, bottom_index = 0, q = 0;
-
+  const InterpFilter downsample_filter =
+      cpi->use_svc ? svc->downsample_filter_type[svc->spatial_layer_id]
+                   : EIGHTTAP_REGULAR;
+  const int phase_scaler =
+      cpi->use_svc ? svc->downsample_filter_phase[svc->spatial_layer_id] : 0;
   set_size_independent_vars(cpi);
   av1_setup_frame_size(cpi);
   set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
@@ -2840,10 +2847,12 @@ static int encode_without_recode(AV1_COMP *cpi) {
   aom_clear_system_state();
 
   cpi->source =
-      av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source);
+      av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source,
+                            downsample_filter, phase_scaler);
   if (cpi->unscaled_last_source != NULL) {
     cpi->last_source = av1_scale_if_required(cm, cpi->unscaled_last_source,
-                                             &cpi->scaled_last_source);
+                                             &cpi->scaled_last_source,
+                                             downsample_filter, phase_scaler);
   }
   if (!frame_is_intra_only(cm)) scale_references(cpi);
 
@@ -3004,10 +3013,12 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       }
     }
     cpi->source =
-        av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source);
+        av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source,
+                              cm->features.interp_filter, 0);
     if (cpi->unscaled_last_source != NULL) {
       cpi->last_source = av1_scale_if_required(cm, cpi->unscaled_last_source,
-                                               &cpi->scaled_last_source);
+                                               &cpi->scaled_last_source,
+                                               cm->features.interp_filter, 0);
     }
 
     if (!frame_is_intra_only(cm)) {
