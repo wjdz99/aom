@@ -481,6 +481,18 @@ static AOM_INLINE void alloc_compressor_data(AV1_COMP *cpi) {
       av1_alloc_pmc(cm, BLOCK_16X16, &cpi->td.shared_coeff_buf);
 }
 
+static AOM_INLINE void av1_release_obmc_buffers(OBMCBuffer *obmc_buffer) {
+  aom_free(obmc_buffer->mask);
+  aom_free(obmc_buffer->above_pred);
+  aom_free(obmc_buffer->left_pred);
+  aom_free(obmc_buffer->wsrc);
+
+  obmc_buffer->mask = NULL;
+  obmc_buffer->above_pred = NULL;
+  obmc_buffer->left_pred = NULL;
+  obmc_buffer->wsrc = NULL;
+}
+
 static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   TokenInfo *token_info = &cpi->token_info;
@@ -1194,6 +1206,31 @@ static AOM_INLINE int equal_dimensions_and_border(const YV12_BUFFER_CONFIG *a,
          (a->flags & YV12_FLAG_HIGHBITDEPTH) ==
              (b->flags & YV12_FLAG_HIGHBITDEPTH);
 }
+
+static AOM_INLINE int av1_update_entropy(
+    bool *ext_refresh_frame_context, bool *ext_refresh_frame_context_pending,
+    bool update) {
+  *ext_refresh_frame_context = update;
+  *ext_refresh_frame_context_pending = 1;
+  return 0;
+}
+
+#if !CONFIG_REALTIME_ONLY
+static AOM_INLINE int combine_prior_with_tpl_boost(double min_factor,
+                                                   double max_factor,
+                                                   int prior_boost,
+                                                   int tpl_boost,
+                                                   int frames_to_key) {
+  double factor = sqrt((double)frames_to_key);
+  double range = max_factor - min_factor;
+  factor = AOMMIN(factor, max_factor);
+  factor = AOMMAX(factor, min_factor);
+  factor -= min_factor;
+  int boost =
+      (int)((factor * prior_boost + (range - factor) * tpl_boost) / range);
+  return boost;
+}
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"
