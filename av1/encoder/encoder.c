@@ -3893,6 +3893,13 @@ static void set_mb_ssim_rdmult_scaling(AV1_COMP *cpi) {
 extern void av1_print_frame_contexts(const FRAME_CONTEXT *fc,
                                      const char *filename);
 
+int av1_is_psnr_calc_enabled(const AV1_COMP *cpi) {
+  const AV1_COMMON *const cm = &cpi->common;
+
+  return cpi->b_calculate_psnr && !is_stat_generation_stage(cpi) &&
+         cm->show_frame;
+}
+
 /*!\brief Run the final pass encoding for 1-pass/2-pass encoding mode, and pack
  * the bitstream
  *
@@ -3988,6 +3995,27 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       av1_rc_postencode_update(cpi, *size);
     }
 
+    if (av1_is_psnr_calc_enabled(cpi)) {
+      const int num_planes = av1_num_planes(cm);
+      const int scaled_width = cm->cur_frame->buf.y_crop_width;
+      const int scaled_height = cm->cur_frame->buf.y_crop_height;
+
+      if (scaled_width != cpi->unscaled_source->y_crop_width ||
+          scaled_height != cpi->unscaled_source->y_crop_height) {
+        if (aom_realloc_frame_buffer(
+                &cpi->scaled_source, scaled_width, scaled_height,
+                seq_params->subsampling_x, seq_params->subsampling_y,
+                seq_params->use_highbitdepth, cpi->oxcf.border_in_pixels,
+                cm->features.byte_alignment, NULL, NULL, NULL))
+          aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                             "Failed to allocate scaled source buffer");
+        av1_resize_and_extend_frame(cpi->unscaled_source, &cpi->scaled_source,
+                                    (int)cm->seq_params.bit_depth, num_planes);
+        cpi->source = &cpi->scaled_source;
+      } else {
+        cpi->source = cpi->unscaled_source;
+      }
+    }
     ++current_frame->frame_number;
 
     return AOM_CODEC_OK;
