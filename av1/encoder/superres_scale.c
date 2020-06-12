@@ -397,7 +397,6 @@ void av1_setup_frame_size(AV1_COMP *cpi) {
 
 void av1_superres_post_encode(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
-  const int num_planes = av1_num_planes(cm);
 
   if (!av1_superres_scaled(cm)) return;
 
@@ -418,19 +417,7 @@ void av1_superres_post_encode(AV1_COMP *cpi) {
     assert(cpi->unscaled_source->y_crop_height != cm->superres_upscaled_height);
     // Do downscale. cm->(width|height) has been updated by
     // av1_superres_upscale
-    if (aom_realloc_frame_buffer(
-            &cpi->scaled_source, cm->superres_upscaled_width,
-            cm->superres_upscaled_height, cm->seq_params.subsampling_x,
-            cm->seq_params.subsampling_y, cm->seq_params.use_highbitdepth,
-            AOM_BORDER_IN_PIXELS, cm->features.byte_alignment, NULL, NULL,
-            NULL))
-      aom_internal_error(
-          &cm->error, AOM_CODEC_MEM_ERROR,
-          "Failed to reallocate scaled source buffer for superres");
-    assert(cpi->scaled_source.y_crop_width == cm->superres_upscaled_width);
-    assert(cpi->scaled_source.y_crop_height == cm->superres_upscaled_height);
-    av1_resize_and_extend_frame(cpi->unscaled_source, &cpi->scaled_source,
-                                (int)cm->seq_params.bit_depth, num_planes);
-    cpi->source = &cpi->scaled_source;
+    cpi->source = av1_realloc_and_scale_source(cpi, cm->superres_upscaled_width,
+                                               cm->superres_upscaled_height);
   }
 }

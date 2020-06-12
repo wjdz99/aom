@@ -3893,6 +3893,13 @@ static void set_mb_ssim_rdmult_scaling(AV1_COMP *cpi) {
 extern void av1_print_frame_contexts(const FRAME_CONTEXT *fc,
                                      const char *filename);
 
+int av1_is_psnr_calc_enabled(const AV1_COMP *cpi) {
+  const AV1_COMMON *const cm = &cpi->common;
+
+  return cpi->b_calculate_psnr && !is_stat_generation_stage(cpi) &&
+         cm->show_frame;
+}
+
 /*!\brief Run the final pass encoding for 1-pass/2-pass encoding mode, and pack
  * the bitstream
  *
@@ -3988,6 +3995,11 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       av1_rc_postencode_update(cpi, *size);
     }
 
+    if (av1_is_psnr_calc_enabled(cpi)) {
+      cpi->source =
+          av1_realloc_and_scale_source(cpi, cm->cur_frame->buf.y_crop_width,
+                                       cm->cur_frame->buf.y_crop_height);
+    }
     ++current_frame->frame_number;
 
     return AOM_CODEC_OK;
@@ -4849,4 +4861,29 @@ aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi) {
   memcpy(global_headers->buf, &header_buf[0], global_header_buf_size);
   global_headers->sz = global_header_buf_size;
   return global_headers;
+}
+
+YV12_BUFFER_CONFIG *av1_realloc_and_scale_source(AV1_COMP *cpi,
+                                                 int scaled_width,
+                                                 int scaled_height) {
+  AV1_COMMON *cm = &cpi->common;
+  const int num_planes = av1_num_planes(cm);
+
+  if (scaled_width == cpi->unscaled_source->y_crop_width &&
+      scaled_height == cpi->unscaled_source->y_crop_height) {
+    return cpi->unscaled_source;
+  }
+
+  if (aom_realloc_frame_buffer(
+          &cpi->scaled_source, scaled_width, scaled_height,
+          cm->seq_params.subsampling_x, cm->seq_params.subsampling_y,
+          cm->seq_params.use_highbitdepth, AOM_BORDER_IN_PIXELS,
+          cm->features.byte_alignment, NULL, NULL, NULL))
+    aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                       "Failed to reallocate scaled source buffer");
+  assert(cpi->scaled_source.y_crop_width == scaled_width);
+  assert(cpi->scaled_source.y_crop_height == scaled_height);
+  av1_resize_and_extend_frame(cpi->unscaled_source, &cpi->scaled_source,
+                              (int)cm->seq_params.bit_depth, num_planes);
+  return &cpi->scaled_source;
 }
