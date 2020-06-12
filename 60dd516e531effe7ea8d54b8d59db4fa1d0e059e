@@ -22,6 +22,30 @@
       "revId": "60dd516e531effe7ea8d54b8d59db4fa1d0e059e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6ba4dbb_f6a9a4e9",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2163,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-06-12T21:30:18Z",
+      "side": 0,
+      "message": "When generating a monochrome encoded stream, libaom allows the external input images to be either monochrome (official support added in bug aomedia:2639) or color (always supported). We set sd.u_buffer and sd.v_buffer to NULL here so that internally libaom encoder only sees monochrome input images when it generates monochrome encoded streams. We set sd.uv_stride to 0 to match the NULL pointers.\n\nIf I am not mistaken, libaom encoder had always ignored sd.monochrome until the other CL I just asked you to review today (https://aomedia-review.googlesource.com/c/aom/+/113043). But I think it is helpful to set sd.monochrome to 1 to indicate that u_buffer and v_buffer are expected to be NULL.",
+      "parentUuid": "f4d9e298_a748d2a1",
+      "range": {
+        "startLine": 2162,
+        "startChar": 8,
+        "endLine": 2163,
+        "endChar": 25
+      },
+      "revId": "60dd516e531effe7ea8d54b8d59db4fa1d0e059e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
