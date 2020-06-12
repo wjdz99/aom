@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3318e398_b0e82451",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 1
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-06-12T01:57:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b6500d0_d74de0f1",
+      "range": {
+        "startLine": 183,
+        "startChar": 60,
+        "endLine": 183,
+        "endChar": 63
+      },
+      "revId": "6e17155ebdd71047c5e2fded2bacfd05f1e2636c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f4ced9e8_3b285224",
         "filename": "doc/dev_guide/av1_encoder.dox",
         "patchSetId": 1
