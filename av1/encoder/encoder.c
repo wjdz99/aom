@@ -4733,6 +4733,13 @@ static void set_mb_ssim_rdmult_scaling(AV1_COMP *cpi) {
 extern void av1_print_frame_contexts(const FRAME_CONTEXT *fc,
                                      const char *filename);
 
+int av1_is_psnr_calc_enabled(const AV1_COMP *cpi) {
+  const AV1_COMMON *const cm = &cpi->common;
+
+  return cpi->b_calculate_psnr && !is_stat_generation_stage(cpi) &&
+         cm->show_frame;
+}
+
 static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
                                      uint8_t *dest) {
   AV1_COMMON *const cm = &cpi->common;
@@ -4812,6 +4819,25 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       av1_rc_postencode_update(cpi, *size);
     }
 
+    if (av1_is_psnr_calc_enabled(cpi)) {
+      int backup_width = cm->width;
+      int backup_height = cm->height;
+
+      cm->width = cm->cur_frame->buf.y_crop_width;
+      cm->height = cm->cur_frame->buf.y_crop_height;
+      if (aom_realloc_frame_buffer(
+              &cpi->scaled_source, cm->width, cm->height,
+              seq_params->subsampling_x, seq_params->subsampling_y,
+              seq_params->use_highbitdepth, cpi->oxcf.border_in_pixels,
+              cm->features.byte_alignment, NULL, NULL, NULL))
+        aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                           "Failed to allocate scaled source buffer");
+      cpi->source =
+          av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source);
+
+      cm->width = backup_width;
+      cm->height = backup_height;
+    }
     ++current_frame->frame_number;
 
     return AOM_CODEC_OK;
