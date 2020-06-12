@@ -1413,6 +1413,8 @@ static INLINE void av1_get_block_dimensions(BLOCK_SIZE bsize, int plane,
     *cols_within_bounds =
         (block_cols >> pd->subsampling_x) + 2 * is_chroma_sub8_x;
   }
+  assert(*width >= 0 && *height >= 0);
+  assert(*rows_within_bounds >= 0 && *cols_within_bounds >= 0);
 }
 
 /* clang-format off */
