@@ -426,8 +426,9 @@ void av1_superres_post_encode(AV1_COMP *cpi) {
           "Failed to reallocate scaled source buffer for superres");
     assert(cpi->scaled_source.y_crop_width == cm->superres_upscaled_width);
     assert(cpi->scaled_source.y_crop_height == cm->superres_upscaled_height);
-    av1_resize_and_extend_frame(cpi->unscaled_source, &cpi->scaled_source,
-                                (int)cm->seq_params.bit_depth, num_planes);
+    av1_resize_and_extend_frame_nonnormative(
+        cpi->unscaled_source, &cpi->scaled_source,
+        (int)cm->seq_params.bit_depth, num_planes);
     cpi->source = &cpi->scaled_source;
   }
 }
