@@ -481,6 +481,18 @@ static AOM_INLINE void alloc_compressor_data(AV1_COMP *cpi) {
       av1_alloc_pmc(cm, BLOCK_16X16, &cpi->td.shared_coeff_buf);
 }
 
+static AOM_INLINE void av1_release_obmc_buffers(OBMCBuffer *obmc_buffer) {
+  aom_free(obmc_buffer->mask);
+  aom_free(obmc_buffer->above_pred);
+  aom_free(obmc_buffer->left_pred);
+  aom_free(obmc_buffer->wsrc);
+
+  obmc_buffer->mask = NULL;
+  obmc_buffer->above_pred = NULL;
+  obmc_buffer->left_pred = NULL;
+  obmc_buffer->wsrc = NULL;
+}
+
 static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   TokenInfo *token_info = &cpi->token_info;
@@ -940,6 +952,14 @@ static AOM_INLINE int equal_dimensions_and_border(const YV12_BUFFER_CONFIG *a,
          a->border == b->border &&
          (a->flags & YV12_FLAG_HIGHBITDEPTH) ==
              (b->flags & YV12_FLAG_HIGHBITDEPTH);
+}
+
+static AOM_INLINE int av1_update_entropy(
+    bool *ext_refresh_frame_context, bool *ext_refresh_frame_context_pending,
+    bool update) {
+  *ext_refresh_frame_context = update;
+  *ext_refresh_frame_context_pending = 1;
+  return 0;
 }
 
 #ifdef __cplusplus

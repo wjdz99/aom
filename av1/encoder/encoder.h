@@ -2386,9 +2386,6 @@ int av1_set_size_literal(AV1_COMP *cpi, int width, int height);
 
 void av1_set_frame_size(AV1_COMP *cpi, int width, int height);
 
-int av1_update_entropy(bool *ext_refresh_frame_context,
-                       bool *ext_refresh_frame_context_pending, bool update);
-
 int av1_set_active_map(AV1_COMP *cpi, unsigned char *map, int rows, int cols);
 
 int av1_get_active_map(AV1_COMP *cpi, unsigned char *map, int rows, int cols);
@@ -2402,7 +2399,6 @@ int av1_get_quantizer(struct AV1_COMP *cpi);
 int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *input_size);
 
 void av1_alloc_obmc_buffers(OBMCBuffer *obmc_buffer, AV1_COMMON *cm);
-void av1_release_obmc_buffers(OBMCBuffer *obmc_buffer);
 void av1_alloc_compound_type_rd_buffers(AV1_COMMON *const cm,
                                         CompoundTypeRdBuffers *const bufs);
 void av1_release_compound_type_rd_buffers(CompoundTypeRdBuffers *const bufs);
