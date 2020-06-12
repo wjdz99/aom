@@ -77,6 +77,7 @@ void av1_init_layer_context(AV1_COMP *const cpi) {
         memset(lc->last_coded_q_map, MAXQ, last_coded_q_map_size);
       }
     }
+    svc->downsample_filter_type[sl] = BILINEAR;
   }
 }
 

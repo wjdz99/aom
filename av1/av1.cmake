@@ -270,7 +270,8 @@ list(APPEND AOM_AV1_COMMON_INTRIN_SSSE3
             "${AOM_ROOT}/av1/common/x86/highbd_convolve_2d_ssse3.c"
             "${AOM_ROOT}/av1/common/x86/highbd_wiener_convolve_ssse3.c"
             "${AOM_ROOT}/av1/common/x86/jnt_convolve_ssse3.c"
-            "${AOM_ROOT}/av1/common/x86/reconinter_ssse3.c")
+            "${AOM_ROOT}/av1/common/x86/reconinter_ssse3.c"
+            "${AOM_ROOT}/av1/common/x86/resize_ssse3.c")
 
 if(NOT CONFIG_AV1_HIGHBITDEPTH)
   list(REMOVE_ITEM AOM_AV1_COMMON_INTRIN_SSSE3
@@ -400,6 +401,7 @@ list(APPEND AOM_AV1_COMMON_INTRIN_NEON
             "${AOM_ROOT}/av1/common/arm/blend_a64_vmask_neon.c"
             "${AOM_ROOT}/av1/common/arm/reconinter_neon.c"
             "${AOM_ROOT}/av1/common/arm/reconintra_neon.c"
+            "${AOM_ROOT}/av1/common/arm/resize_neon.c"
             "${AOM_ROOT}/av1/common/arm/wiener_convolve_neon.c"
             "${AOM_ROOT}/av1/common/arm/selfguided_neon.c"
             "${AOM_ROOT}/av1/common/arm/av1_inv_txfm_neon.c"
