@@ -600,6 +600,17 @@ static AOM_INLINE void init_buffer_indices(
   cpi->fn_ptr[BT].jsdaf = JSDAF;                                       \
   cpi->fn_ptr[BT].jsvaf = JSVAF;
 
+#define HIGHBD_BFP_WRAPPER(WIDTH, HEIGHT, BD)                                \
+  HIGHBD_BFP(                                                                \
+      BLOCK_##WIDTH##X##HEIGHT, aom_highbd_sad##WIDTH##x##HEIGHT##_bits##BD, \
+      aom_highbd_sad##WIDTH##x##HEIGHT##_avg_bits##BD,                       \
+      aom_highbd_##BD##_variance##WIDTH##x##HEIGHT,                          \
+      aom_highbd_##BD##_sub_pixel_variance##WIDTH##x##HEIGHT,                \
+      aom_highbd_##BD##_sub_pixel_avg_variance##WIDTH##x##HEIGHT,            \
+      aom_highbd_sad##WIDTH##x##HEIGHT##x4d_bits##BD,                        \
+      aom_highbd_dist_wtd_sad##WIDTH##x##HEIGHT##_avg_bits##BD,              \
+      aom_highbd_##BD##_dist_wtd_sub_pixel_avg_variance##WIDTH##x##HEIGHT)
+
 #define MAKE_BFP_SAD_WRAPPER(fnname)                                           \
   static unsigned int fnname##_bits8(const uint8_t *src_ptr,                   \
                                      int source_stride,                        \
@@ -779,6 +790,11 @@ MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad64x16_avg)
   cpi->fn_ptr[BT].msdf = MCSDF;       \
   cpi->fn_ptr[BT].msvf = MCSVF;
 
+#define HIGHBD_MBFP_WRAPPER(WIDTH, HEIGHT, BD)                    \
+  HIGHBD_MBFP(BLOCK_##WIDTH##X##HEIGHT,                           \
+              aom_highbd_masked_sad##WIDTH##x##HEIGHT##_bits##BD, \
+              aom_highbd_##BD##_masked_sub_pixel_variance##WIDTH##x##HEIGHT)
+
 #define MAKE_MBFP_COMPOUND_SAD_WRAPPER(fnname)                           \
   static unsigned int fnname##_bits8(                                    \
       const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, \
@@ -834,6 +850,12 @@ MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad64x16)
   cpi->fn_ptr[BT].ovf = OVF;             \
   cpi->fn_ptr[BT].osvf = OSVF;
 
+#define HIGHBD_OBFP_WRAPPER(WIDTH, HEIGHT, BD)                   \
+  HIGHBD_OBFP(BLOCK_##WIDTH##X##HEIGHT,                          \
+              aom_highbd_obmc_sad##WIDTH##x##HEIGHT##_bits##BD,  \
+              aom_highbd_##BD##_obmc_variance##WIDTH##x##HEIGHT, \
+              aom_highbd_##BD##_obmc_sub_pixel_variance##WIDTH##x##HEIGHT)
+
 #define MAKE_OBFP_SAD_WRAPPER(fnname)                                     \
   static unsigned int fnname##_bits8(const uint8_t *ref, int ref_stride,  \
                                      const int32_t *wsrc,                 \
@@ -874,6 +896,275 @@ MAKE_OBFP_SAD_WRAPPER(aom_highbd_obmc_sad8x32)
 MAKE_OBFP_SAD_WRAPPER(aom_highbd_obmc_sad32x8)
 MAKE_OBFP_SAD_WRAPPER(aom_highbd_obmc_sad16x64)
 MAKE_OBFP_SAD_WRAPPER(aom_highbd_obmc_sad64x16)
+
+static AOM_INLINE void highbd_set_var_fns(AV1_COMP *const cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  if (cm->seq_params.use_highbitdepth) {
+    switch (cm->seq_params.bit_depth) {
+      case AOM_BITS_8:
+        HIGHBD_BFP_WRAPPER(64, 16, 8)
+        HIGHBD_BFP_WRAPPER(16, 64, 8)
+        HIGHBD_BFP_WRAPPER(32, 8, 8)
+        HIGHBD_BFP_WRAPPER(8, 32, 8)
+        HIGHBD_BFP_WRAPPER(16, 4, 8)
+        HIGHBD_BFP_WRAPPER(4, 16, 8)
+        HIGHBD_BFP_WRAPPER(32, 16, 8)
+        HIGHBD_BFP_WRAPPER(16, 32, 8)
+        HIGHBD_BFP_WRAPPER(64, 32, 8)
+        HIGHBD_BFP_WRAPPER(32, 64, 8)
+        HIGHBD_BFP_WRAPPER(32, 32, 8)
+        HIGHBD_BFP_WRAPPER(64, 64, 8)
+        HIGHBD_BFP_WRAPPER(16, 16, 8)
+        HIGHBD_BFP_WRAPPER(16, 8, 8)
+        HIGHBD_BFP_WRAPPER(8, 16, 8)
+        HIGHBD_BFP_WRAPPER(8, 8, 8)
+        HIGHBD_BFP_WRAPPER(8, 4, 8)
+        HIGHBD_BFP_WRAPPER(4, 8, 8)
+        HIGHBD_BFP_WRAPPER(4, 4, 8)
+        HIGHBD_BFP_WRAPPER(128, 128, 8)
+        HIGHBD_BFP_WRAPPER(128, 64, 8)
+        HIGHBD_BFP_WRAPPER(64, 128, 8)
+
+        HIGHBD_MBFP_WRAPPER(128, 128, 8)
+        HIGHBD_MBFP_WRAPPER(128, 64, 8)
+        HIGHBD_MBFP_WRAPPER(64, 128, 8)
+        HIGHBD_MBFP_WRAPPER(64, 64, 8)
+        HIGHBD_MBFP_WRAPPER(64, 32, 8)
+        HIGHBD_MBFP_WRAPPER(32, 64, 8)
+        HIGHBD_MBFP_WRAPPER(32, 32, 8)
+        HIGHBD_MBFP_WRAPPER(32, 16, 8)
+        HIGHBD_MBFP_WRAPPER(16, 32, 8)
+        HIGHBD_MBFP_WRAPPER(16, 16, 8)
+        HIGHBD_MBFP_WRAPPER(8, 16, 8)
+        HIGHBD_MBFP_WRAPPER(16, 8, 8)
+        HIGHBD_MBFP_WRAPPER(8, 8, 8)
+        HIGHBD_MBFP_WRAPPER(4, 8, 8)
+        HIGHBD_MBFP_WRAPPER(8, 4, 8)
+        HIGHBD_MBFP_WRAPPER(4, 4, 8)
+        HIGHBD_MBFP_WRAPPER(64, 16, 8)
+        HIGHBD_MBFP_WRAPPER(16, 64, 8)
+        HIGHBD_MBFP_WRAPPER(32, 8, 8)
+        HIGHBD_MBFP_WRAPPER(8, 32, 8)
+        HIGHBD_MBFP_WRAPPER(16, 4, 8)
+        HIGHBD_MBFP_WRAPPER(4, 16, 8)
+
+        HIGHBD_OBFP(BLOCK_128X128, aom_highbd_obmc_sad128x128_bits8,
+                    aom_highbd_obmc_variance128x128,
+                    aom_highbd_obmc_sub_pixel_variance128x128)
+        HIGHBD_OBFP(BLOCK_128X64, aom_highbd_obmc_sad128x64_bits8,
+                    aom_highbd_obmc_variance128x64,
+                    aom_highbd_obmc_sub_pixel_variance128x64)
+        HIGHBD_OBFP(BLOCK_64X128, aom_highbd_obmc_sad64x128_bits8,
+                    aom_highbd_obmc_variance64x128,
+                    aom_highbd_obmc_sub_pixel_variance64x128)
+        HIGHBD_OBFP(BLOCK_64X64, aom_highbd_obmc_sad64x64_bits8,
+                    aom_highbd_obmc_variance64x64,
+                    aom_highbd_obmc_sub_pixel_variance64x64)
+        HIGHBD_OBFP(BLOCK_64X32, aom_highbd_obmc_sad64x32_bits8,
+                    aom_highbd_obmc_variance64x32,
+                    aom_highbd_obmc_sub_pixel_variance64x32)
+        HIGHBD_OBFP(BLOCK_32X64, aom_highbd_obmc_sad32x64_bits8,
+                    aom_highbd_obmc_variance32x64,
+                    aom_highbd_obmc_sub_pixel_variance32x64)
+        HIGHBD_OBFP(BLOCK_32X32, aom_highbd_obmc_sad32x32_bits8,
+                    aom_highbd_obmc_variance32x32,
+                    aom_highbd_obmc_sub_pixel_variance32x32)
+        HIGHBD_OBFP(BLOCK_32X16, aom_highbd_obmc_sad32x16_bits8,
+                    aom_highbd_obmc_variance32x16,
+                    aom_highbd_obmc_sub_pixel_variance32x16)
+        HIGHBD_OBFP(BLOCK_16X32, aom_highbd_obmc_sad16x32_bits8,
+                    aom_highbd_obmc_variance16x32,
+                    aom_highbd_obmc_sub_pixel_variance16x32)
+        HIGHBD_OBFP(BLOCK_16X16, aom_highbd_obmc_sad16x16_bits8,
+                    aom_highbd_obmc_variance16x16,
+                    aom_highbd_obmc_sub_pixel_variance16x16)
+        HIGHBD_OBFP(BLOCK_8X16, aom_highbd_obmc_sad8x16_bits8,
+                    aom_highbd_obmc_variance8x16,
+                    aom_highbd_obmc_sub_pixel_variance8x16)
+        HIGHBD_OBFP(BLOCK_16X8, aom_highbd_obmc_sad16x8_bits8,
+                    aom_highbd_obmc_variance16x8,
+                    aom_highbd_obmc_sub_pixel_variance16x8)
+        HIGHBD_OBFP(BLOCK_8X8, aom_highbd_obmc_sad8x8_bits8,
+                    aom_highbd_obmc_variance8x8,
+                    aom_highbd_obmc_sub_pixel_variance8x8)
+        HIGHBD_OBFP(BLOCK_4X8, aom_highbd_obmc_sad4x8_bits8,
+                    aom_highbd_obmc_variance4x8,
+                    aom_highbd_obmc_sub_pixel_variance4x8)
+        HIGHBD_OBFP(BLOCK_8X4, aom_highbd_obmc_sad8x4_bits8,
+                    aom_highbd_obmc_variance8x4,
+                    aom_highbd_obmc_sub_pixel_variance8x4)
+        HIGHBD_OBFP(BLOCK_4X4, aom_highbd_obmc_sad4x4_bits8,
+                    aom_highbd_obmc_variance4x4,
+                    aom_highbd_obmc_sub_pixel_variance4x4)
+        HIGHBD_OBFP(BLOCK_64X16, aom_highbd_obmc_sad64x16_bits8,
+                    aom_highbd_obmc_variance64x16,
+                    aom_highbd_obmc_sub_pixel_variance64x16)
+        HIGHBD_OBFP(BLOCK_16X64, aom_highbd_obmc_sad16x64_bits8,
+                    aom_highbd_obmc_variance16x64,
+                    aom_highbd_obmc_sub_pixel_variance16x64)
+        HIGHBD_OBFP(BLOCK_32X8, aom_highbd_obmc_sad32x8_bits8,
+                    aom_highbd_obmc_variance32x8,
+                    aom_highbd_obmc_sub_pixel_variance32x8)
+        HIGHBD_OBFP(BLOCK_8X32, aom_highbd_obmc_sad8x32_bits8,
+                    aom_highbd_obmc_variance8x32,
+                    aom_highbd_obmc_sub_pixel_variance8x32)
+        HIGHBD_OBFP(BLOCK_16X4, aom_highbd_obmc_sad16x4_bits8,
+                    aom_highbd_obmc_variance16x4,
+                    aom_highbd_obmc_sub_pixel_variance16x4)
+        HIGHBD_OBFP(BLOCK_4X16, aom_highbd_obmc_sad4x16_bits8,
+                    aom_highbd_obmc_variance4x16,
+                    aom_highbd_obmc_sub_pixel_variance4x16)
+        break;
+
+      case AOM_BITS_10:
+        HIGHBD_BFP_WRAPPER(64, 16, 10)
+        HIGHBD_BFP_WRAPPER(16, 64, 10)
+        HIGHBD_BFP_WRAPPER(32, 8, 10)
+        HIGHBD_BFP_WRAPPER(8, 32, 10)
+        HIGHBD_BFP_WRAPPER(16, 4, 10)
+        HIGHBD_BFP_WRAPPER(4, 16, 10)
+        HIGHBD_BFP_WRAPPER(32, 16, 10)
+        HIGHBD_BFP_WRAPPER(16, 32, 10)
+        HIGHBD_BFP_WRAPPER(64, 32, 10)
+        HIGHBD_BFP_WRAPPER(32, 64, 10)
+        HIGHBD_BFP_WRAPPER(32, 32, 10)
+        HIGHBD_BFP_WRAPPER(64, 64, 10)
+        HIGHBD_BFP_WRAPPER(16, 16, 10)
+        HIGHBD_BFP_WRAPPER(16, 8, 10)
+        HIGHBD_BFP_WRAPPER(8, 16, 10)
+        HIGHBD_BFP_WRAPPER(8, 8, 10)
+        HIGHBD_BFP_WRAPPER(8, 4, 10)
+        HIGHBD_BFP_WRAPPER(4, 8, 10)
+        HIGHBD_BFP_WRAPPER(4, 4, 10)
+        HIGHBD_BFP_WRAPPER(128, 128, 10)
+        HIGHBD_BFP_WRAPPER(128, 64, 10)
+        HIGHBD_BFP_WRAPPER(64, 128, 10)
+
+        HIGHBD_MBFP_WRAPPER(128, 128, 10)
+        HIGHBD_MBFP_WRAPPER(128, 64, 10)
+        HIGHBD_MBFP_WRAPPER(64, 128, 10)
+        HIGHBD_MBFP_WRAPPER(64, 64, 10)
+        HIGHBD_MBFP_WRAPPER(64, 32, 10)
+        HIGHBD_MBFP_WRAPPER(32, 64, 10)
+        HIGHBD_MBFP_WRAPPER(32, 32, 10)
+        HIGHBD_MBFP_WRAPPER(32, 16, 10)
+        HIGHBD_MBFP_WRAPPER(16, 32, 10)
+        HIGHBD_MBFP_WRAPPER(16, 16, 10)
+        HIGHBD_MBFP_WRAPPER(8, 16, 10)
+        HIGHBD_MBFP_WRAPPER(16, 8, 10)
+        HIGHBD_MBFP_WRAPPER(8, 8, 10)
+        HIGHBD_MBFP_WRAPPER(4, 8, 10)
+        HIGHBD_MBFP_WRAPPER(8, 4, 10)
+        HIGHBD_MBFP_WRAPPER(4, 4, 10)
+        HIGHBD_MBFP_WRAPPER(64, 16, 10)
+        HIGHBD_MBFP_WRAPPER(16, 64, 10)
+        HIGHBD_MBFP_WRAPPER(32, 8, 10)
+        HIGHBD_MBFP_WRAPPER(8, 32, 10)
+        HIGHBD_MBFP_WRAPPER(16, 4, 10)
+        HIGHBD_MBFP_WRAPPER(4, 16, 10)
+
+        HIGHBD_OBFP_WRAPPER(128, 128, 10)
+        HIGHBD_OBFP_WRAPPER(128, 64, 10)
+        HIGHBD_OBFP_WRAPPER(64, 128, 10)
+        HIGHBD_OBFP_WRAPPER(64, 64, 10)
+        HIGHBD_OBFP_WRAPPER(64, 32, 10)
+        HIGHBD_OBFP_WRAPPER(32, 64, 10)
+        HIGHBD_OBFP_WRAPPER(32, 32, 10)
+        HIGHBD_OBFP_WRAPPER(32, 16, 10)
+        HIGHBD_OBFP_WRAPPER(16, 32, 10)
+        HIGHBD_OBFP_WRAPPER(16, 16, 10)
+        HIGHBD_OBFP_WRAPPER(8, 16, 10)
+        HIGHBD_OBFP_WRAPPER(16, 8, 10)
+        HIGHBD_OBFP_WRAPPER(8, 8, 10)
+        HIGHBD_OBFP_WRAPPER(4, 8, 10)
+        HIGHBD_OBFP_WRAPPER(8, 4, 10)
+        HIGHBD_OBFP_WRAPPER(4, 4, 10)
+        HIGHBD_OBFP_WRAPPER(64, 16, 10)
+        HIGHBD_OBFP_WRAPPER(16, 64, 10)
+        HIGHBD_OBFP_WRAPPER(32, 8, 10)
+        HIGHBD_OBFP_WRAPPER(8, 32, 10)
+        HIGHBD_OBFP_WRAPPER(16, 4, 10)
+        HIGHBD_OBFP_WRAPPER(4, 16, 10)
+        break;
+
+      case AOM_BITS_12:
+        HIGHBD_BFP_WRAPPER(64, 16, 12)
+        HIGHBD_BFP_WRAPPER(16, 64, 12)
+        HIGHBD_BFP_WRAPPER(32, 8, 12)
+        HIGHBD_BFP_WRAPPER(8, 32, 12)
+        HIGHBD_BFP_WRAPPER(16, 4, 12)
+        HIGHBD_BFP_WRAPPER(4, 16, 12)
+        HIGHBD_BFP_WRAPPER(32, 16, 12)
+        HIGHBD_BFP_WRAPPER(16, 32, 12)
+        HIGHBD_BFP_WRAPPER(64, 32, 12)
+        HIGHBD_BFP_WRAPPER(32, 64, 12)
+        HIGHBD_BFP_WRAPPER(32, 32, 12)
+        HIGHBD_BFP_WRAPPER(64, 64, 12)
+        HIGHBD_BFP_WRAPPER(16, 16, 12)
+        HIGHBD_BFP_WRAPPER(16, 8, 12)
+        HIGHBD_BFP_WRAPPER(8, 16, 12)
+        HIGHBD_BFP_WRAPPER(8, 8, 12)
+        HIGHBD_BFP_WRAPPER(8, 4, 12)
+        HIGHBD_BFP_WRAPPER(4, 8, 12)
+        HIGHBD_BFP_WRAPPER(4, 4, 12)
+        HIGHBD_BFP_WRAPPER(128, 128, 12)
+        HIGHBD_BFP_WRAPPER(128, 64, 12)
+        HIGHBD_BFP_WRAPPER(64, 128, 12)
+
+        HIGHBD_MBFP_WRAPPER(128, 128, 12)
+        HIGHBD_MBFP_WRAPPER(128, 64, 12)
+        HIGHBD_MBFP_WRAPPER(64, 128, 12)
+        HIGHBD_MBFP_WRAPPER(64, 64, 12)
+        HIGHBD_MBFP_WRAPPER(64, 32, 12)
+        HIGHBD_MBFP_WRAPPER(32, 64, 12)
+        HIGHBD_MBFP_WRAPPER(32, 32, 12)
+        HIGHBD_MBFP_WRAPPER(32, 16, 12)
+        HIGHBD_MBFP_WRAPPER(16, 32, 12)
+        HIGHBD_MBFP_WRAPPER(16, 16, 12)
+        HIGHBD_MBFP_WRAPPER(8, 16, 12)
+        HIGHBD_MBFP_WRAPPER(16, 8, 12)
+        HIGHBD_MBFP_WRAPPER(8, 8, 12)
+        HIGHBD_MBFP_WRAPPER(4, 8, 12)
+        HIGHBD_MBFP_WRAPPER(8, 4, 12)
+        HIGHBD_MBFP_WRAPPER(4, 4, 12)
+        HIGHBD_MBFP_WRAPPER(64, 16, 12)
+        HIGHBD_MBFP_WRAPPER(16, 64, 12)
+        HIGHBD_MBFP_WRAPPER(32, 8, 12)
+        HIGHBD_MBFP_WRAPPER(8, 32, 12)
+        HIGHBD_MBFP_WRAPPER(16, 4, 12)
+        HIGHBD_MBFP_WRAPPER(4, 16, 12)
+
+        HIGHBD_OBFP_WRAPPER(128, 128, 12)
+        HIGHBD_OBFP_WRAPPER(128, 64, 12)
+        HIGHBD_OBFP_WRAPPER(64, 128, 12)
+        HIGHBD_OBFP_WRAPPER(64, 64, 12)
+        HIGHBD_OBFP_WRAPPER(64, 32, 12)
+        HIGHBD_OBFP_WRAPPER(32, 64, 12)
+        HIGHBD_OBFP_WRAPPER(32, 32, 12)
+        HIGHBD_OBFP_WRAPPER(32, 16, 12)
+        HIGHBD_OBFP_WRAPPER(16, 32, 12)
+        HIGHBD_OBFP_WRAPPER(16, 16, 12)
+        HIGHBD_OBFP_WRAPPER(8, 16, 12)
+        HIGHBD_OBFP_WRAPPER(16, 8, 12)
+        HIGHBD_OBFP_WRAPPER(8, 8, 12)
+        HIGHBD_OBFP_WRAPPER(4, 8, 12)
+        HIGHBD_OBFP_WRAPPER(8, 4, 12)
+        HIGHBD_OBFP_WRAPPER(4, 4, 12)
+        HIGHBD_OBFP_WRAPPER(64, 16, 12)
+        HIGHBD_OBFP_WRAPPER(16, 64, 12)
+        HIGHBD_OBFP_WRAPPER(32, 8, 12)
+        HIGHBD_OBFP_WRAPPER(8, 32, 12)
+        HIGHBD_OBFP_WRAPPER(16, 4, 12)
+        HIGHBD_OBFP_WRAPPER(4, 16, 12)
+        break;
+
+      default:
+        assert(0 &&
+               "cm->seq_params.bit_depth should be AOM_BITS_8, "
+               "AOM_BITS_10 or AOM_BITS_12");
+    }
+  }
+}
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
 static AOM_INLINE void variance_partition_alloc(AV1_COMP *cpi) {
