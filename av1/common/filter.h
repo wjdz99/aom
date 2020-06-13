@@ -140,14 +140,14 @@ DECLARE_ALIGNED(256, static const InterpKernel,
 
 DECLARE_ALIGNED(256, static const InterpKernel,
                 av1_sub_pel_filters_8[SUBPEL_SHIFTS]) = {
-  { 0, 0, 0, 128, 0, 0, 0, 0 },      { 0, 2, -6, 126, 8, -2, 0, 0 },
-  { 0, 2, -10, 122, 18, -4, 0, 0 },  { 0, 2, -12, 116, 28, -8, 2, 0 },
-  { 0, 2, -14, 110, 38, -10, 2, 0 }, { 0, 2, -14, 102, 48, -12, 2, 0 },
-  { 0, 2, -16, 94, 58, -12, 2, 0 },  { 0, 2, -14, 84, 66, -12, 2, 0 },
-  { 0, 2, -14, 76, 76, -14, 2, 0 },  { 0, 2, -12, 66, 84, -14, 2, 0 },
-  { 0, 2, -12, 58, 94, -16, 2, 0 },  { 0, 2, -12, 48, 102, -14, 2, 0 },
-  { 0, 2, -10, 38, 110, -14, 2, 0 }, { 0, 2, -8, 28, 116, -12, 2, 0 },
-  { 0, 0, -4, 18, 122, -10, 2, 0 },  { 0, 0, -2, 8, 126, -6, 2, 0 }
+  { 0, 0, 128, 0, 0, 0, 0 },      { 2, -6, 126, 8, -2, 0, 0 },
+  { 2, -10, 122, 18, -4, 0, 0 },  { 2, -12, 116, 28, -8, 2, 0 },
+  { 2, -14, 110, 38, -10, 2, 0 }, { 2, -14, 102, 48, -12, 2, 0 },
+  { 2, -16, 94, 58, -12, 2, 0 },  { 2, -14, 84, 66, -12, 2, 0 },
+  { 2, -14, 76, 76, -14, 2, 0 },  { 2, -12, 66, 84, -14, 2, 0 },
+  { 2, -12, 58, 94, -16, 2, 0 },  { 2, -12, 48, 102, -14, 2, 0 },
+  { 2, -10, 38, 110, -14, 2, 0 }, { 2, -8, 28, 116, -12, 2, 0 },
+  { 0, -4, 18, 122, -10, 2, 0 },  { 0, -2, 8, 126, -6, 2, 0 }
 };
 
 DECLARE_ALIGNED(256, static const InterpKernel,
@@ -164,20 +164,20 @@ DECLARE_ALIGNED(256, static const InterpKernel,
 
 DECLARE_ALIGNED(256, static const InterpKernel,
                 av1_sub_pel_filters_8smooth[SUBPEL_SHIFTS]) = {
-  { 0, 0, 0, 128, 0, 0, 0, 0 },     { 0, 2, 28, 62, 34, 2, 0, 0 },
-  { 0, 0, 26, 62, 36, 4, 0, 0 },    { 0, 0, 22, 62, 40, 4, 0, 0 },
-  { 0, 0, 20, 60, 42, 6, 0, 0 },    { 0, 0, 18, 58, 44, 8, 0, 0 },
-  { 0, 0, 16, 56, 46, 10, 0, 0 },   { 0, -2, 16, 54, 48, 12, 0, 0 },
-  { 0, -2, 14, 52, 52, 14, -2, 0 }, { 0, 0, 12, 48, 54, 16, -2, 0 },
-  { 0, 0, 10, 46, 56, 16, 0, 0 },   { 0, 0, 8, 44, 58, 18, 0, 0 },
-  { 0, 0, 6, 42, 60, 20, 0, 0 },    { 0, 0, 4, 40, 62, 22, 0, 0 },
-  { 0, 0, 4, 36, 62, 26, 0, 0 },    { 0, 0, 2, 34, 62, 28, 2, 0 }
+  { 0, 0, 128, 0, 0, 0, 0 },     { 2, 28, 62, 34, 2, 0, 0 },
+  { 0, 26, 62, 36, 4, 0, 0 },    { 0, 22, 62, 40, 4, 0, 0 },
+  { 0, 20, 60, 42, 6, 0, 0 },    { 0, 18, 58, 44, 8, 0, 0 },
+  { 0, 16, 56, 46, 10, 0, 0 },   { -2, 16, 54, 48, 12, 0, 0 },
+  { -2, 14, 52, 52, 14, -2, 0 }, { 0, 12, 48, 54, 16, -2, 0 },
+  { 0, 10, 46, 56, 16, 0, 0 },   { 0, 8, 44, 58, 18, 0, 0 },
+  { 0, 6, 42, 60, 20, 0, 0 },    { 0, 4, 40, 62, 22, 0, 0 },
+  { 0, 4, 36, 62, 26, 0, 0 },    { 0, 2, 34, 62, 28, 2, 0 }
 };
 
 static const InterpFilterParams
     av1_interp_filter_params_list[SWITCHABLE_FILTERS + 1] = {
-      { (const int16_t *)av1_sub_pel_filters_8, SUBPEL_TAPS, EIGHTTAP_REGULAR },
-      { (const int16_t *)av1_sub_pel_filters_8smooth, SUBPEL_TAPS,
+      { (const int16_t *)av1_sub_pel_filters_8, 6, EIGHTTAP_REGULAR },
+      { (const int16_t *)av1_sub_pel_filters_8smooth, 6,
         EIGHTTAP_SMOOTH },
       { (const int16_t *)av1_sub_pel_filters_8sharp, SUBPEL_TAPS,
         MULTITAP_SHARP },
@@ -198,25 +198,25 @@ static const InterpFilterParams av1_intrabc_filter_params = {
 
 DECLARE_ALIGNED(256, static const InterpKernel,
                 av1_sub_pel_filters_4[SUBPEL_SHIFTS]) = {
-  { 0, 0, 0, 128, 0, 0, 0, 0 },     { 0, 0, -4, 126, 8, -2, 0, 0 },
-  { 0, 0, -8, 122, 18, -4, 0, 0 },  { 0, 0, -10, 116, 28, -6, 0, 0 },
-  { 0, 0, -12, 110, 38, -8, 0, 0 }, { 0, 0, -12, 102, 48, -10, 0, 0 },
-  { 0, 0, -14, 94, 58, -10, 0, 0 }, { 0, 0, -12, 84, 66, -10, 0, 0 },
-  { 0, 0, -12, 76, 76, -12, 0, 0 }, { 0, 0, -10, 66, 84, -12, 0, 0 },
-  { 0, 0, -10, 58, 94, -14, 0, 0 }, { 0, 0, -10, 48, 102, -12, 0, 0 },
-  { 0, 0, -8, 38, 110, -12, 0, 0 }, { 0, 0, -6, 28, 116, -10, 0, 0 },
-  { 0, 0, -4, 18, 122, -8, 0, 0 },  { 0, 0, -2, 8, 126, -4, 0, 0 }
+  { 0, 128, 0, 0, 0, 0 },     { -4, 126, 8, -2, 0, 0 },
+  { -8, 122, 18, -4, 0, 0 },  { -10, 116, 28, -6, 0, 0 },
+  { -12, 110, 38, -8, 0, 0 }, { -12, 102, 48, -10, 0, 0 },
+  { -14, 94, 58, -10, 0, 0 }, { -12, 84, 66, -10, 0, 0 },
+  { -12, 76, 76, -12, 0, 0 }, { -10, 66, 84, -12, 0, 0 },
+  { -10, 58, 94, -14, 0, 0 }, { -10, 48, 102, -12, 0, 0 },
+  { -8, 38, 110, -12, 0, 0 }, { -6, 28, 116, -10, 0, 0 },
+  { -4, 18, 122, -8, 0, 0 },  { -2, 8, 126, -4, 0, 0 }
 };
 DECLARE_ALIGNED(256, static const InterpKernel,
                 av1_sub_pel_filters_4smooth[SUBPEL_SHIFTS]) = {
-  { 0, 0, 0, 128, 0, 0, 0, 0 },   { 0, 0, 30, 62, 34, 2, 0, 0 },
-  { 0, 0, 26, 62, 36, 4, 0, 0 },  { 0, 0, 22, 62, 40, 4, 0, 0 },
-  { 0, 0, 20, 60, 42, 6, 0, 0 },  { 0, 0, 18, 58, 44, 8, 0, 0 },
-  { 0, 0, 16, 56, 46, 10, 0, 0 }, { 0, 0, 14, 54, 48, 12, 0, 0 },
-  { 0, 0, 12, 52, 52, 12, 0, 0 }, { 0, 0, 12, 48, 54, 14, 0, 0 },
-  { 0, 0, 10, 46, 56, 16, 0, 0 }, { 0, 0, 8, 44, 58, 18, 0, 0 },
-  { 0, 0, 6, 42, 60, 20, 0, 0 },  { 0, 0, 4, 40, 62, 22, 0, 0 },
-  { 0, 0, 4, 36, 62, 26, 0, 0 },  { 0, 0, 2, 34, 62, 30, 0, 0 }
+  { 0, 128, 0, 0, 0, 0 },   { 30, 62, 34, 2, 0, 0 },
+  { 26, 62, 36, 4, 0, 0 },  { 22, 62, 40, 4, 0, 0 },
+  { 20, 60, 42, 6, 0, 0 },  { 18, 58, 44, 8, 0, 0 },
+  { 16, 56, 46, 10, 0, 0 }, { 14, 54, 48, 12, 0, 0 },
+  { 12, 52, 52, 12, 0, 0 }, { 12, 48, 54, 14, 0, 0 },
+  { 10, 46, 56, 16, 0, 0 }, { 8, 44, 58, 18, 0, 0 },
+  { 6, 42, 60, 20, 0, 0 },  { 4, 40, 62, 22, 0, 0 },
+  { 4, 36, 62, 26, 0, 0 },  { 2, 34, 62, 30, 0, 0 }
 };
 
 static const uint16_t
@@ -231,10 +231,10 @@ static const uint16_t
 
 // For w<=4, MULTITAP_SHARP is the same as EIGHTTAP_REGULAR
 static const InterpFilterParams av1_interp_4tap[SWITCHABLE_FILTERS + 1] = {
-  { (const int16_t *)av1_sub_pel_filters_4, SUBPEL_TAPS, EIGHTTAP_REGULAR },
-  { (const int16_t *)av1_sub_pel_filters_4smooth, SUBPEL_TAPS,
+  { (const int16_t *)av1_sub_pel_filters_4, 4, EIGHTTAP_REGULAR },
+  { (const int16_t *)av1_sub_pel_filters_4smooth, 4,
     EIGHTTAP_SMOOTH },
-  { (const int16_t *)av1_sub_pel_filters_4, SUBPEL_TAPS, EIGHTTAP_REGULAR },
+  { (const int16_t *)av1_sub_pel_filters_4, 4, EIGHTTAP_REGULAR },
   { (const int16_t *)av1_bilinear_filters, SUBPEL_TAPS, BILINEAR },
 };
 
@@ -247,7 +247,7 @@ av1_get_interp_filter_params_with_block_size(const InterpFilter interp_filter,
 
 static INLINE const int16_t *av1_get_interp_filter_subpel_kernel(
     const InterpFilterParams *const filter_params, const int subpel) {
-  return filter_params->filter_ptr + filter_params->taps * subpel;
+  return filter_params->filter_ptr + SUBPEL_TAPS * subpel;
 }
 
 static INLINE void reset_interp_filter_allowed_mask(
