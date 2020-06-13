@@ -17,13 +17,34 @@
 #include "config/aom_config.h"
 
 #include "aom/aom_integer.h"
-#include "aom_dsp/aom_filter.h"
 #include "aom_ports/mem.h"
 #include "av1/common/enums.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define FILTER_BITS 7
+
+#define SUBPEL_BITS 4
+#define SUBPEL_MASK ((1 << SUBPEL_BITS) - 1)
+#define SUBPEL_SHIFTS (1 << SUBPEL_BITS)
+#define SUBPEL_TAPS 8
+
+#define SCALE_SUBPEL_BITS 10
+#define SCALE_SUBPEL_SHIFTS (1 << SCALE_SUBPEL_BITS)
+#define SCALE_SUBPEL_MASK (SCALE_SUBPEL_SHIFTS - 1)
+#define SCALE_EXTRA_BITS (SCALE_SUBPEL_BITS - SUBPEL_BITS)
+#define SCALE_EXTRA_OFF ((1 << SCALE_EXTRA_BITS) / 2)
+
+#define RS_SUBPEL_BITS 6
+#define RS_SUBPEL_MASK ((1 << RS_SUBPEL_BITS) - 1)
+#define RS_SCALE_SUBPEL_BITS 14
+#define RS_SCALE_SUBPEL_MASK ((1 << RS_SCALE_SUBPEL_BITS) - 1)
+#define RS_SCALE_EXTRA_BITS (RS_SCALE_SUBPEL_BITS - RS_SUBPEL_BITS)
+#define RS_SCALE_EXTRA_OFF (1 << (RS_SCALE_EXTRA_BITS - 1))
+
+typedef int16_t InterpKernel[SUBPEL_TAPS];
 
 #define MAX_FILTER_TAP 8
 
@@ -224,30 +245,9 @@ av1_get_interp_filter_params_with_block_size(const InterpFilter interp_filter,
   return &av1_interp_filter_params_list[interp_filter];
 }
 
-static INLINE const int16_t *av1_get_interp_filter_kernel(
-    const InterpFilter interp_filter, int subpel_search) {
-  assert(subpel_search >= USE_2_TAPS);
-  return (subpel_search == USE_2_TAPS)
-             ? av1_interp_4tap[BILINEAR].filter_ptr
-             : ((subpel_search == USE_4_TAPS)
-                    ? av1_interp_4tap[interp_filter].filter_ptr
-                    : av1_interp_filter_params_list[interp_filter].filter_ptr);
-}
-
 static INLINE const int16_t *av1_get_interp_filter_subpel_kernel(
     const InterpFilterParams *const filter_params, const int subpel) {
   return filter_params->filter_ptr + filter_params->taps * subpel;
-}
-
-static INLINE const InterpFilterParams *av1_get_filter(int subpel_search) {
-  assert(subpel_search >= USE_2_TAPS);
-
-  switch (subpel_search) {
-    case USE_2_TAPS: return &av1_interp_4tap[BILINEAR];
-    case USE_4_TAPS: return &av1_interp_4tap[EIGHTTAP_REGULAR];
-    case USE_8_TAPS: return &av1_interp_filter_params_list[EIGHTTAP_REGULAR];
-    default: assert(0); return NULL;
-  }
 }
 
 static INLINE void reset_interp_filter_allowed_mask(

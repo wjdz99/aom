@@ -13,32 +13,11 @@
 #define AOM_AOM_DSP_AOM_FILTER_H_
 
 #include "aom/aom_integer.h"
+#include "av1/common/filter.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define FILTER_BITS 7
-
-#define SUBPEL_BITS 4
-#define SUBPEL_MASK ((1 << SUBPEL_BITS) - 1)
-#define SUBPEL_SHIFTS (1 << SUBPEL_BITS)
-#define SUBPEL_TAPS 8
-
-#define SCALE_SUBPEL_BITS 10
-#define SCALE_SUBPEL_SHIFTS (1 << SCALE_SUBPEL_BITS)
-#define SCALE_SUBPEL_MASK (SCALE_SUBPEL_SHIFTS - 1)
-#define SCALE_EXTRA_BITS (SCALE_SUBPEL_BITS - SUBPEL_BITS)
-#define SCALE_EXTRA_OFF ((1 << SCALE_EXTRA_BITS) / 2)
-
-#define RS_SUBPEL_BITS 6
-#define RS_SUBPEL_MASK ((1 << RS_SUBPEL_BITS) - 1)
-#define RS_SCALE_SUBPEL_BITS 14
-#define RS_SCALE_SUBPEL_MASK ((1 << RS_SCALE_SUBPEL_BITS) - 1)
-#define RS_SCALE_EXTRA_BITS (RS_SCALE_SUBPEL_BITS - RS_SUBPEL_BITS)
-#define RS_SCALE_EXTRA_OFF (1 << (RS_SCALE_EXTRA_BITS - 1))
-
-typedef int16_t InterpKernel[SUBPEL_TAPS];
 
 #define BIL_SUBPEL_BITS 3
 #define BIL_SUBPEL_SHIFTS (1 << BIL_SUBPEL_BITS)
@@ -48,6 +27,27 @@ static const uint8_t bilinear_filters_2t[BIL_SUBPEL_SHIFTS][2] = {
   { 128, 0 }, { 112, 16 }, { 96, 32 }, { 80, 48 },
   { 64, 64 }, { 48, 80 },  { 32, 96 }, { 16, 112 },
 };
+
+static INLINE const int16_t *av1_get_interp_filter_kernel(
+    const InterpFilter interp_filter, int subpel_search) {
+  assert(subpel_search >= USE_2_TAPS);
+  return (subpel_search == USE_2_TAPS)
+             ? av1_interp_4tap[BILINEAR].filter_ptr
+             : ((subpel_search == USE_4_TAPS)
+                    ? av1_interp_4tap[interp_filter].filter_ptr
+                    : av1_interp_filter_params_list[interp_filter].filter_ptr);
+}
+
+static INLINE const InterpFilterParams *av1_get_filter(int subpel_search) {
+  assert(subpel_search >= USE_2_TAPS);
+
+  switch (subpel_search) {
+    case USE_2_TAPS: return &av1_interp_4tap[BILINEAR];
+    case USE_4_TAPS: return &av1_interp_4tap[EIGHTTAP_REGULAR];
+    case USE_8_TAPS: return &av1_interp_filter_params_list[EIGHTTAP_REGULAR];
+    default: assert(0); return NULL;
+  }
+}
 
 #ifdef __cplusplus
 }  // extern "C"
