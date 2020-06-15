@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "94621781_4a811008",
+        "filename": "av1/encoder/encoder_utils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-06-15T15:48:40Z",
+      "side": 1,
+      "message": "Should \"av1_\" be removed?",
+      "range": {
+        "startLine": 484,
+        "startChar": 23,
+        "endLine": 484,
+        "endChar": 27
+      },
+      "revId": "eb30619afcb5d4bc3f9e1ce009bdffef675ee3fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a9d8730_cb3164d7",
+        "filename": "av1/encoder/encoder_utils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1210,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-06-15T15:48:40Z",
+      "side": 1,
+      "message": "same as above?",
+      "range": {
+        "startLine": 1210,
+        "startChar": 22,
+        "endLine": 1210,
+        "endChar": 26
+      },
+      "revId": "eb30619afcb5d4bc3f9e1ce009bdffef675ee3fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
