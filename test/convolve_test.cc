@@ -798,6 +798,15 @@ INSTANTIATE_TEST_SUITE_P(SSSE3, ConvolveTest,
                          ::testing::ValuesIn(kArrayConvolve8_ssse3));
 #endif
 
+#if HAVE_NEON
+const ConvolveFunctions convolve8_ssse3(aom_convolve8_horiz_neon,
+                                        aom_convolve8_vert_neon, 0);
+
+const ConvolveParam kArrayConvolve8_ssse3[] = { ALL_SIZES(convolve8_ssse3) };
+INSTANTIATE_TEST_SUITE_P(SSSE3, ConvolveTest,
+                         ::testing::ValuesIn(kArrayConvolve8_ssse3));
+#endif
+
 #if HAVE_AVX2
 #if CONFIG_AV1_HIGHBITDEPTH
 const ConvolveFunctions wrap_convolve8_avx2(wrap_convolve8_horiz_avx2_8,

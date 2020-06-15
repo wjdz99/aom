@@ -23,28 +23,6 @@
 #include "av1/common/arm/mem_neon.h"
 #include "av1/common/arm/transpose_neon.h"
 
-static INLINE int16x4_t convolve8_4x4(const int16x4_t s0, const int16x4_t s1,
-                                      const int16x4_t s2, const int16x4_t s3,
-                                      const int16x4_t s4, const int16x4_t s5,
-                                      const int16x4_t s6, const int16x4_t s7,
-                                      const int16_t *filter) {
-  int16x4_t sum;
-
-  sum = vmul_n_s16(s0, filter[0]);
-  sum = vmla_n_s16(sum, s1, filter[1]);
-  sum = vmla_n_s16(sum, s2, filter[2]);
-  sum = vmla_n_s16(sum, s5, filter[5]);
-  sum = vmla_n_s16(sum, s6, filter[6]);
-  sum = vmla_n_s16(sum, s7, filter[7]);
-  /* filter[3] can take a max value of 128. So the max value of the result :
-   * 128*255 + sum > 16 bits
-   */
-  sum = vqadd_s16(sum, vmul_n_s16(s3, filter[3]));
-  sum = vqadd_s16(sum, vmul_n_s16(s4, filter[4]));
-
-  return sum;
-}
-
 static INLINE uint8x8_t convolve8_horiz_8x8(
     const int16x8_t s0, const int16x8_t s1, const int16x8_t s2,
     const int16x8_t s3, const int16x8_t s4, const int16x8_t s5,
