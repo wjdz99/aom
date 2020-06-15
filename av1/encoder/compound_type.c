@@ -11,6 +11,7 @@
 
 #include "av1/common/pred_common.h"
 #include "av1/encoder/compound_type.h"
+#include "av1/encoder/encoder_alloc.h"
 #include "av1/encoder/model_rd.h"
 #include "av1/encoder/motion_search_facade.h"
 #include "av1/encoder/rdopt_utils.h"
