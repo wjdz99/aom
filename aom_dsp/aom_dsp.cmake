@@ -124,7 +124,7 @@ if(NOT CONFIG_AV1_HIGHBITDEPTH)
 endif()
 
 list(APPEND AOM_DSP_COMMON_INTRIN_NEON
-            "${AOM_ROOT}/aom_dsp/arm/aom_convolve_copy_neon.c"
+            "${AOM_ROOT}/aom_dsp/arm/aom_convolve_neon.c"
             "${AOM_ROOT}/aom_dsp/arm/fwd_txfm_neon.c"
             "${AOM_ROOT}/aom_dsp/arm/loopfilter_neon.c"
             "${AOM_ROOT}/aom_dsp/arm/intrapred_neon.c"

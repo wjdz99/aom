@@ -15,6 +15,46 @@
 
 #define HORIZ_EXTRA_ROWS ((SUBPEL_TAPS + 7) & ~0x07)
 
+static INLINE int16x4_t convolve8_4x4(const int16x4_t s0, const int16x4_t s1,
+                                      const int16x4_t s2, const int16x4_t s3,
+                                      const int16x4_t s4, const int16x4_t s5,
+                                      const int16x4_t s6, const int16x4_t s7,
+                                      const int16_t *filter) {
+  int16x4_t sum;
+
+  sum = vmul_n_s16(s0, filter[0]);
+  sum = vmla_n_s16(sum, s1, filter[1]);
+  sum = vmla_n_s16(sum, s2, filter[2]);
+  sum = vmla_n_s16(sum, s5, filter[5]);
+  sum = vmla_n_s16(sum, s6, filter[6]);
+  sum = vmla_n_s16(sum, s7, filter[7]);
+  /* filter[3] can take a max value of 128. So the max value of the result :
+   * 128*255 + sum > 16 bits
+   */
+  sum = vqadd_s16(sum, vmul_n_s16(s3, filter[3]));
+  sum = vqadd_s16(sum, vmul_n_s16(s4, filter[4]));
+
+  return sum;
+}
+
+static INLINE uint8x8_t convolve8_8x8(const int16x8_t s0, const int16x8_t s1,
+                                      const int16x8_t s2, const int16x8_t s3,
+                                      const int16x8_t s4, const int16x8_t s5,
+                                      const int16x8_t s6, const int16x8_t s7,
+                                      const int16_t *filter) {
+  int16x8_t sum;
+
+  sum = vmulq_n_s16(s0, filter[0]);
+  sum = vmlaq_n_s16(sum, s1, filter[1]);
+  sum = vmlaq_n_s16(sum, s2, filter[2]);
+  sum = vmlaq_n_s16(sum, s5, filter[5]);
+  sum = vmlaq_n_s16(sum, s6, filter[6]);
+  sum = vmlaq_n_s16(sum, s7, filter[7]);
+  sum = vqaddq_s16(sum, vmulq_n_s16(s3, filter[3]));
+  sum = vqaddq_s16(sum, vmulq_n_s16(s4, filter[4]));
+  return vqrshrun_n_s16(sum, 7);
+}
+
 static INLINE uint8x8_t wiener_convolve8_vert_4x8(
     const int16x8_t s0, const int16x8_t s1, const int16x8_t s2,
     const int16x8_t s3, const int16x8_t s4, const int16x8_t s5,

@@ -107,6 +107,46 @@ typedef void filter8_1dfunction(const uint8_t *src_ptr, ptrdiff_t src_pitch,
     }                                                                        \
   }
 
+#define FUN_CONV_2D(avg, opt, is_avg)                                         \
+  void aom_convolve8_##avg##opt(                                              \
+      const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst,                 \
+      ptrdiff_t dst_stride, const InterpKernel *filter, int x0_q4,            \
+      int x_step_q4, int y0_q4, int y_step_q4, int w, int h) {                \
+    const int16_t *filter_x = filter[x0_q4];                                  \
+    const int16_t *filter_y = filter[y0_q4];                                  \
+    (void)filter_y;                                                           \
+    assert(filter_x[3] != 128);                                               \
+    assert(filter_y[3] != 128);                                               \
+    assert(w <= 64);                                                          \
+    assert(h <= 64);                                                          \
+    assert(x_step_q4 == 16);                                                  \
+    assert(y_step_q4 == 16);                                                  \
+    if (filter_x[0] | filter_x[1] | filter_x[6] | filter_x[7]) {              \
+      DECLARE_ALIGNED(16, uint8_t, fdata2[64 * 71]);                          \
+      aom_convolve8_horiz_##opt(src - 3 * src_stride, src_stride, fdata2, 64, \
+                                filter_x, x_step_q4, filter_y, y_step_q4, w,  \
+                                h + 7);                                       \
+      aom_convolve8_##avg##vert_##opt(fdata2 + 3 * 64, 64, dst, dst_stride,   \
+                                      filter_x, x_step_q4, filter_y,          \
+                                      y_step_q4, w, h);                       \
+    } else if (filter_x[2] | filter_x[5]) {                                   \
+      const int num_taps = is_avg ? 8 : 4;                                    \
+      DECLARE_ALIGNED(16, uint8_t, fdata2[64 * 71]);                          \
+      aom_convolve8_horiz_##opt(src - (num_taps / 2 - 1) * src_stride,        \
+                                src_stride, fdata2, 64, filter_x, x_step_q4,  \
+                                filter_y, y_step_q4, w, h + num_taps - 1);    \
+      aom_convolve8_##avg##vert_##opt(fdata2 + 64 * (num_taps / 2 - 1), 64,   \
+                                      dst, dst_stride, filter_x, x_step_q4,   \
+                                      filter_y, y_step_q4, w, h);             \
+    } else {                                                                  \
+      DECLARE_ALIGNED(16, uint8_t, fdata2[64 * 65]);                          \
+      aom_convolve8_horiz_##opt(src, src_stride, fdata2, 64, filter_x,        \
+                                x_step_q4, filter_y, y_step_q4, w, h + 1);    \
+      aom_convolve8_##avg##vert_##opt(fdata2, 64, dst, dst_stride, filter_x,  \
+                                      x_step_q4, filter_y, y_step_q4, w, h);  \
+    }                                                                         \
+  }
+
 #if CONFIG_AV1_HIGHBITDEPTH
 typedef void highbd_filter8_1dfunction(const uint16_t *src_ptr,
                                        const ptrdiff_t src_pitch,
