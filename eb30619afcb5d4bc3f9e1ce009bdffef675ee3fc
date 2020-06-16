@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fa1a81cd_56d5627d",
+        "filename": "av1/encoder/encoder_utils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 10122
+      },
+      "writtenOn": "2020-06-16T13:04:30Z",
+      "side": 1,
+      "message": "This function is not moved in this CL. Your suggestion is considered in the subsequent CL: https://aomedia-review.googlesource.com/c/aom/+/113084",
+      "parentUuid": "94621781_4a811008",
+      "range": {
+        "startLine": 484,
+        "startChar": 23,
+        "endLine": 484,
+        "endChar": 27
+      },
+      "revId": "eb30619afcb5d4bc3f9e1ce009bdffef675ee3fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6a9d8730_cb3164d7",
         "filename": "av1/encoder/encoder_utils.h",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "eb30619afcb5d4bc3f9e1ce009bdffef675ee3fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5eacec2d_c9f6ac47",
+        "filename": "av1/encoder/encoder_utils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1210,
+      "author": {
+        "id": 10122
+      },
+      "writtenOn": "2020-06-16T13:04:30Z",
+      "side": 1,
+      "message": "\"av1_\" prefix is removed from function name.",
+      "parentUuid": "6a9d8730_cb3164d7",
+      "range": {
+        "startLine": 1210,
+        "startChar": 22,
+        "endLine": 1210,
+        "endChar": 26
+      },
+      "revId": "eb30619afcb5d4bc3f9e1ce009bdffef675ee3fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
