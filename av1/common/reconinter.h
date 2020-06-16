@@ -215,6 +215,24 @@ static INLINE int is_interintra_wedge_used(BLOCK_SIZE sb_type) {
   return av1_wedge_params_lookup[sb_type].bits > 0;
 }
 
+#if CONFIG_EXT_IBC_MODES
+void av1_intrabc_allocate_sb(uint16_t **InputBlock, const uint16_t width,
+                             const uint16_t height);
+
+void av1_intrabc_copy_sb(uint16_t *DstBlock, const uint16_t dstwidth,
+                         uint16_t *SrcBlock, const uint16_t srcwidth,
+                         const uint16_t srcheightt);
+
+void av1_extract_prediction_sb(const uint8_t *src, int src_stride,
+                               uint16_t *InputBlock, const uint16_t width,
+                               const uint16_t height);
+
+void av1_extract_extra_prediction_data_sb(
+    const uint8_t *src, int src_stride, uint16_t *DstBlock,
+    const uint16_t dstwidth, const uint16_t dstheight, uint16_t *SrcBlock,
+    const uint16_t srcwidth, const uint16_t srcheight);
+#endif  // CONFIG_EXT_IBC_MODES
+
 // Makes the inter-predictor. Can be passed in an InterPredExt struct,
 // which indicates how to build an extended region around the inter-predictor.
 // If an extension is desired, it is up to the caller to ensure that either
