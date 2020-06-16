@@ -2368,14 +2368,61 @@ static int skip_repeated_newmv(
   return 0;
 }
 
-// High level function to select all of the parameters for a compuond mode.
-// The main search functionality is done in the call to av1_compound_type_rd().
-// Returns 1 if this mode is worse than one already seen.
-// This function modifies the following:
-//     * skip_build_pred: Set to 1 if the inter predictor is built here to
-//                        avoid building it again in the future
-// TODO(sarahparker) Add documentation to variables modified by
-// av1_compound_type_rd()
+/*!\brief High level function to select parameters for compound mode.
+ *
+ * \ingroup inter_mode_search
+ * The main search functionality is done in the call to av1_compound_type_rd().
+ *
+ * \param[in]    cpi               Top-level encoder structure.
+ * \param[in]    tile_data         Pointer to struct holding adaptive
+ *                                 data/contexts/models for the tile during
+ *                                 encoding.
+ * \param[in]    x                 Pointer to structure holding all the data for
+ *                                 the current macroblock.
+ * \param[in]    args              HandleInterModeArgs struct holding
+ *                                 miscellaneous arguments for inter mode
+ *                                 search. See the documentation for this
+ *                                 struct for a description of each member.
+ * \param[in]    ref_best_rd       Best RD found so far for this block.
+ *                                 It is used for early termination of this
+ *                                 search if the RD exceeds this value.
+ * \param[in]    cur_mv            Current motion vector.
+ * \param[in]    bsize             Current block size.
+ * \param[in]    compmode_interinter_cost  RD of the selected interinter 
+                                   compound mode.
+ * \param[in]    rd_buffers        CompoundTypeRdBuffers struct to hold all
+ *                                 allocated buffers for the compound
+ *                                 predictors and masks in the compound type
+ *                                 search.
+ * \param[in]    orig_dst          A prediction buffer to hold a computed
+ *                                 prediction. This will eventually hold the
+ *                                 final prediction, and the tmp_dst info will
+ *                                 be copied here.
+ * \param[in]    tmp_dst           A temporary prediction buffer to hold a
+ *                                 computed prediction.
+ * \param[in]    rate_mv           The rate assiciated with the motion vectors.
+ *                                 This will be modified if a motion search is
+ *                                 done in the motion mode search.
+ * \param[in]    rd_stats          Struct to keep track of the overall RD
+ *                                 information.
+ * \param[in]    skip_rd           An array of length 2, where skip_rd[0] is the
+ *                                 best total RD for a skip mode so far,  and
+ *                                 skip_rd[1] is the best RD for a skip mode so
+ *                                 far in luma. This is used as a speed feature
+ *                                 to skip the transform search if the computed
+ *                                 skip RD for the current mode is not better
+ *                                 than the best skip_rd so far.
+ * \param[in]    skip_build_pred   Indicates whether or not to build the inter
+ *                                 predictor. If this is 0, the inter predictor
+ *                                 has already been built and thus we can avoid
+ *                                 repeating computation.
+ * \return Returns 1 if this mode is worse than one already seen and 0 if it is
+ * a viable candidate.
+ * Additionally, the following structures are modified to hold all related
+ * information to the current mode: MB_MODE_INFO struct, cur_mv, 
+ * compound_interinter_cost, rd_stats, rd_buffers,
+ * skip_rd, skip_build_pred.
+ */
 static int process_compound_inter_mode(
     AV1_COMP *const cpi, MACROBLOCK *x, HandleInterModeArgs *args,
     int64_t ref_best_rd, int_mv *cur_mv, BLOCK_SIZE bsize,
