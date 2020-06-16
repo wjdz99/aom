@@ -907,18 +907,6 @@ void av1_alloc_obmc_buffers(OBMCBuffer *obmc_buffer, AV1_COMMON *cm) {
           16, MAX_MB_PLANE * MAX_SB_SQUARE * sizeof(*obmc_buffer->left_pred)));
 }
 
-void av1_release_obmc_buffers(OBMCBuffer *obmc_buffer) {
-  aom_free(obmc_buffer->mask);
-  aom_free(obmc_buffer->above_pred);
-  aom_free(obmc_buffer->left_pred);
-  aom_free(obmc_buffer->wsrc);
-
-  obmc_buffer->mask = NULL;
-  obmc_buffer->above_pred = NULL;
-  obmc_buffer->left_pred = NULL;
-  obmc_buffer->wsrc = NULL;
-}
-
 void av1_alloc_compound_type_rd_buffers(AV1_COMMON *const cm,
                                         CompoundTypeRdBuffers *const bufs) {
   CHECK_MEM_ERROR(
@@ -1698,7 +1686,7 @@ static AOM_INLINE void free_thread_data(AV1_COMP *cpi) {
     for (int j = 0; j < 2; ++j) {
       aom_free(thread_data->td->tmp_pred_bufs[j]);
     }
-    av1_release_obmc_buffers(&thread_data->td->obmc_buffer);
+    release_obmc_buffers(&thread_data->td->obmc_buffer);
     aom_free(thread_data->td->vt64x64);
 
     aom_free(thread_data->td->inter_modes_info);
@@ -1927,13 +1915,6 @@ int av1_set_reference_enc(AV1_COMP *cpi, int idx, YV12_BUFFER_CONFIG *sd) {
   } else {
     return -1;
   }
-}
-
-int av1_update_entropy(bool *ext_refresh_frame_context,
-                       bool *ext_refresh_frame_context_pending, bool update) {
-  *ext_refresh_frame_context = update;
-  *ext_refresh_frame_context_pending = 1;
-  return 0;
 }
 
 #ifdef OUTPUT_YUV_REC
@@ -2214,18 +2195,6 @@ static void set_size_independent_vars(AV1_COMP *cpi) {
 
 #define MIN_BOOST_COMBINE_FACTOR 4.0
 #define MAX_BOOST_COMBINE_FACTOR 12.0
-int combine_prior_with_tpl_boost(double min_factor, double max_factor,
-                                 int prior_boost, int tpl_boost,
-                                 int frames_to_key) {
-  double factor = sqrt((double)frames_to_key);
-  double range = max_factor - min_factor;
-  factor = AOMMIN(factor, max_factor);
-  factor = AOMMAX(factor, min_factor);
-  factor -= min_factor;
-  int boost =
-      (int)((factor * prior_boost + (range - factor) * tpl_boost) / range);
-  return boost;
-}
 
 #if !CONFIG_REALTIME_ONLY
 static void process_tpl_stats_frame(AV1_COMP *cpi) {
@@ -4722,8 +4691,8 @@ void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
       (flags & AOM_EFLAG_SET_PRIMARY_REF_NONE) != 0;
 
   if (flags & AOM_EFLAG_NO_UPD_ENTROPY) {
-    av1_update_entropy(&ext_flags->refresh_frame_context,
-                       &ext_flags->refresh_frame_context_pending, 0);
+    update_entropy(&ext_flags->refresh_frame_context,
+                   &ext_flags->refresh_frame_context_pending, 0);
   }
 }
 
