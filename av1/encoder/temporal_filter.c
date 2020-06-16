@@ -945,11 +945,27 @@ static void tf_setup_filtering_buffer(const AV1_COMP *cpi,
     num_after = 0;
   } else {
     num_frames = AOMMIN(num_frames, cpi->rc.gfu_boost / 150);
-    num_frames += !(num_frames & 1);  // Make the number odd.
     // Only use 2 neighbours for the second ARF.
     if (is_second_arf) num_frames = AOMMIN(num_frames, 3);
-    num_before = AOMMIN(num_frames >> 1, max_before);
-    num_after = AOMMIN(num_frames >> 1, max_after);
+
+    if (max_before + max_after + 1 <= num_frames) {
+      // use as many as possible
+      num_before = max_before;
+      num_after = max_after;
+    } else if (2 * AOMMIN(max_before, max_after) + 1 > num_frames) {
+      // both directions are constrained,
+      num_frames += !(num_frames & 1);  // Make the number odd.
+      num_before = AOMMIN(num_frames >> 1, max_before);
+      num_after = AOMMIN(num_frames >> 1, max_after);
+    } else {
+      if (max_before <= max_after) {
+        num_before = max_before;
+        num_after = num_frames - num_before - 1;
+      } else {
+        num_after = max_after;
+        num_before = num_frames - num_after - 1;
+      }
+    }
   }
   num_frames = num_before + 1 + num_after;
 
