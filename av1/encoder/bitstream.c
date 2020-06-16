@@ -1687,12 +1687,19 @@ static void write_intrabc_info(MACROBLOCKD *xd,
                                aom_writer *w) {
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   int use_intrabc = is_intrabc_block(mbmi);
-  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   aom_write_symbol(w, use_intrabc, ec_ctx->intrabc_cdf, 2);
   if (use_intrabc) {
     assert(mbmi->mode == DC_PRED);
     assert(mbmi->uv_mode == UV_DC_PRED);
     assert(mbmi->motion_mode == SIMPLE_TRANSLATION);
+#if CONFIG_EXT_IBC_MODES
+	aom_write_symbol(w, mbmi->ibc_mode, ec_ctx->intrabc_mode_cdf, 8);
+	//aom_write_symbol(w, mbmi->is_ibcplus, ec_ctx->intrabcplus_cdf, 2);
+	/*if(mbmi->is_ibcplus) {
+		aom_write_symbol(w, mbmi->ibcplus_mode, ec_ctx->intrabcplus_mode_cdf, 4);
+	}*/
+#endif	// CONFIG_EXT_IBC_MODES
     int_mv dv_ref = mbmi_ext->ref_mv_stack[INTRA_FRAME][0].this_mv;
     av1_encode_dv(w, &mbmi->mv[0].as_mv, &dv_ref.as_mv, &ec_ctx->ndvc);
   }
