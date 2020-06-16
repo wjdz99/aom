@@ -967,7 +967,7 @@ static int temporal_filter_find_matching_mb_c(
   av1_full_pixel_search(cpi, x, TF_BLOCK, &best_ref_mv1_full, step_param, 1,
                         NSTEP, 1, sadpb, cond_cost_list(cpi, cost_list),
                         &ref_mv, 0, 0, x_pos, y_pos, 0,
-                        &cpi->ss_cfg[SS_CFG_LOOKAHEAD]);
+                        &cpi->ss_cfg[SS_CFG_LOOKAHEAD], 0);
   x->mv_cost_type = MV_COST_NONE;
   x->mv_limits = tmp_mv_limits;
 
@@ -1029,7 +1029,7 @@ static int temporal_filter_find_matching_mb_c(
       av1_full_pixel_search(cpi, x, TF_SUB_BLOCK, &best_ref_mv1_full,
                             step_param, 1, NSTEP, 1, sadpb,
                             cond_cost_list(cpi, cost_list), &ref_mv, 0, 0,
-                            x_pos, y_pos, 0, &cpi->ss_cfg[SS_CFG_LOOKAHEAD]);
+                            x_pos, y_pos, 0, &cpi->ss_cfg[SS_CFG_LOOKAHEAD], 0);
       x->mv_limits = tmp_mv_limits;
       x->mv_cost_type = MV_COST_NONE;
 
