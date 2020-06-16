@@ -378,7 +378,7 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
       cr->rate_ratio_qdelta = AOMMAX(cr->rate_ratio_qdelta, 2.5);
     }
   }
-  if (cpi->oxcf.rc_mode == AOM_VBR) {
+  if (cpi->oxcf.rc_cfg.mode == AOM_VBR) {
     // To be adjusted for VBR mode, e.g., based on gf period and boost.
     // For now use smaller qp-delta (than CBR), no second boosted seg, and
     // turn-off (no refresh) on golden refresh (since it's already boosted).

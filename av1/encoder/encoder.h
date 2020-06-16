@@ -489,6 +489,25 @@ typedef struct {
 } KeyFrameCfg;
 
 typedef struct {
+  // Indicates the maximum allowed bitrate for any intra frame as % of bitrate
+  // target.
+  unsigned int max_intra_bitrate_pct;
+  // Indicates the maximum allowed bitrate for any inter frame as % of bitrate
+  // target.
+  unsigned int max_inter_bitrate_pct;
+  // Indicates the percentage of rate boost for golden frame in CBR mode.
+  unsigned int gf_cbr_boost_pct;
+  // min_cr / 100 indicates the target minimum compression ratio for each frame.
+  unsigned int min_cr;
+  // Indicates the frame drop threshold.
+  int drop_frames_water_mark;
+  // Indicates if the encoding mode is vbr, cbr, constrained quality or constant
+  // quality.
+  enum aom_rc_mode mode;
+
+} RateControlCfg;
+
+typedef struct {
   // Indicates the number of frames lag before encoding is started.
   int lag_in_frames;
   // Indicates the minimum gf/arf interval to be used.
@@ -573,12 +592,9 @@ typedef struct AV1EncoderConfig {
   int noise_sensitivity;  // pre processing blur: recommendation 0
   int sharpness;          // sharpening output: recommendation 0:
   int speed;
-  // maximum allowed bitrate for any intra frame in % of bitrate target.
-  unsigned int rc_max_intra_bitrate_pct;
-  // maximum allowed bitrate for any inter frame in % of bitrate target.
-  unsigned int rc_max_inter_bitrate_pct;
-  // percent of rate boost for golden frame in CBR mode.
-  unsigned int gf_cbr_boost_pct;
+
+  // Configuration related to rate control.
+  RateControlCfg rc_cfg;
 
   MODE mode;
   int pass;
@@ -589,9 +605,6 @@ typedef struct AV1EncoderConfig {
   // ----------------------------------------------------------------
   // DATARATE CONTROL OPTIONS
 
-  // vbr, cbr, constrained quality or constant quality
-  enum aom_rc_mode rc_mode;
-
   // buffer targeting aggressiveness
   int under_shoot_pct;
   int over_shoot_pct;
@@ -600,9 +613,6 @@ typedef struct AV1EncoderConfig {
   int64_t starting_buffer_level_ms;
   int64_t optimal_buffer_level_ms;
   int64_t maximum_buffer_size_ms;
-
-  // Frame drop threshold.
-  int drop_frames_water_mark;
 
   // controlling quality
   int fixed_q;
@@ -749,8 +759,6 @@ typedef struct AV1EncoderConfig {
   // If any of these values are negative, fixed offsets are disabled.
   // Uses internal q range.
   double fixed_qp_offsets[FIXED_QP_OFFSET_COUNT];
-  // min_cr / 100 is the target minimum compression ratio for each frame.
-  unsigned int min_cr;
   const cfg_options_t *encoder_cfg;
 } AV1EncoderConfig;
 

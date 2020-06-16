@@ -77,7 +77,8 @@ static AOM_INLINE void config_target_level(AV1_COMP *const cpi,
   const int still_picture = seq_params->still_picture;
   const double min_cr =
       av1_get_min_cr_for_level(target_level, tier, still_picture);
-  oxcf->min_cr = AOMMAX(oxcf->min_cr, (unsigned int)(min_cr * 100));
+  oxcf->rc_cfg.min_cr =
+      AOMMAX(oxcf->rc_cfg.min_cr, (unsigned int)(min_cr * 100));
 }
 
 #if !CONFIG_REALTIME_ONLY
@@ -99,7 +100,7 @@ static AOM_INLINE int recode_loop_test(AV1_COMP *cpi, int high_limit,
     if ((rc->projected_frame_size > high_limit && q < maxq) ||
         (rc->projected_frame_size < low_limit && q > minq)) {
       force_recode = 1;
-    } else if (cpi->oxcf.rc_mode == AOM_CQ) {
+    } else if (cpi->oxcf.rc_cfg.mode == AOM_CQ) {
       // Deal with frame undershoot and whether or not we are
       // below the automatically set cq level.
       if (q > oxcf->cq_level &&
@@ -198,9 +199,10 @@ static AOM_INLINE void recode_loop_update_q(
     int *const low_cr_seen, const int loop_at_this_size) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
+  const RateControlCfg *const rc_cfg = &cpi->oxcf.rc_cfg;
   *loop = 0;
 
-  const int min_cr = cpi->oxcf.min_cr;
+  const int min_cr = rc_cfg->min_cr;
   if (min_cr > 0) {
     aom_clear_system_state();
     const double compression_ratio =
@@ -220,7 +222,7 @@ static AOM_INLINE void recode_loop_update_q(
     if (*low_cr_seen) return;
   }
 
-  if (cpi->oxcf.rc_mode == AOM_Q) return;
+  if (rc_cfg->mode == AOM_Q) return;
 
   const int last_q = *q;
   int frame_over_shoot_limit = 0, frame_under_shoot_limit = 0;
@@ -338,7 +340,7 @@ static AOM_INLINE void recode_loop_update_q(
         // This should only trigger where there is very substantial
         // undershoot on a frame and the auto cq level is above
         // the user passsed in value.
-        if (cpi->oxcf.rc_mode == AOM_CQ && q_regulated < *q_low) {
+        if (rc_cfg->mode == AOM_CQ && q_regulated < *q_low) {
           *q_low = *q;
         }
       } else {
@@ -348,7 +350,7 @@ static AOM_INLINE void recode_loop_update_q(
         // This should only trigger where there is very substantial
         // undershoot on a frame and the auto cq level is above
         // the user passsed in value.
-        if (cpi->oxcf.rc_mode == AOM_CQ && *q < *q_low) {
+        if (rc_cfg->mode == AOM_CQ && *q < *q_low) {
           *q_low = *q;
         }
       }

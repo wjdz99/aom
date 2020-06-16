@@ -848,7 +848,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.use_simple_rd_model = 1;
 
     if (cm->current_frame.frame_type != KEY_FRAME &&
-        cpi->oxcf.rc_mode == AOM_CBR) {
+        cpi->oxcf.rc_cfg.mode == AOM_CBR) {
       sf->rt_sf.overshoot_detection_cbr = FAST_DETECTION_MAXQ;
       sf->rt_sf.check_scene_detection = 1;
     }

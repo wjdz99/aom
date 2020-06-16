@@ -448,7 +448,7 @@ static struct lookahead_entry *choose_frame_source(
   if (arf_src_index &&
       (is_forced_keyframe_pending(cpi->lookahead, arf_src_index,
                                   cpi->compressor_stage) != -1) &&
-      cpi->oxcf.rc_mode != AOM_Q) {
+      cpi->oxcf.rc_cfg.mode != AOM_Q) {
     arf_src_index = 0;
     *flush = 1;
   }
