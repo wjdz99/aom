@@ -231,11 +231,16 @@ static void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
   xd->mi[0]->max_mv_precision = cpi->common.fr_mv_precision;
   xd->mi[0]->pb_mv_precision = xd->mi[0]->max_mv_precision;
 
-  tmp_err = av1_full_pixel_search(
-      cpi, x, bsize, &ref_mv_full, step_param, 0, NSTEP, 0, x->sadperbit16,
-      cond_cost_list(cpi, cost_list), ref_mv, INT_MAX, 0,
-      (MI_SIZE * xd->mi_col), (MI_SIZE * xd->mi_row), 0,
-      &cpi->ss_cfg[SS_CFG_FPF]);
+  tmp_err =
+      av1_full_pixel_search(cpi, x, bsize, &ref_mv_full, step_param, 0, NSTEP,
+                            0, x->sadperbit16, cond_cost_list(cpi, cost_list),
+                            ref_mv, INT_MAX, 0, (MI_SIZE * xd->mi_col),
+                            (MI_SIZE * xd->mi_row), 0, &cpi->ss_cfg[SS_CFG_FPF]
+#if CONFIG_EXT_IBC_MODES
+                            ,
+                            0
+#endif  // CONFIG_EXT_IBC_MODES
+      );
 
   if (tmp_err < INT_MAX)
     tmp_err = av1_get_mvpred_var(&cpi->common, x, &x->best_mv.as_mv, ref_mv,
