@@ -2833,6 +2833,7 @@ static AOM_INLINE void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
   x->rd_model = FULL_TXFM_RD;
   int64_t rd[MAX_TX_DEPTH + 1] = { INT64_MAX, INT64_MAX, INT64_MAX };
   TxfmSearchInfo *txfm_info = &x->txfm_search_info;
+  int eob_val = 0;
   for (int tx_size = start_tx, depth = init_depth; depth <= MAX_TX_DEPTH;
        depth++, tx_size = sub_tx_size_map[tx_size]) {
     if (!cpi->oxcf.txfm_cfg.enable_tx64 &&
@@ -2843,6 +2844,7 @@ static AOM_INLINE void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     RD_STATS this_rd_stats;
     rd[depth] = av1_uniform_txfm_yrd(cpi, x, &this_rd_stats, ref_best_rd, bs,
                                      tx_size, FTXS_NONE, skip_trellis);
+
     if (rd[depth] < best_rd) {
       av1_copy_array(best_blk_skip, txfm_info->blk_skip, num_blks);
       av1_copy_array(best_txk_type_map, xd->tx_type_map, num_blks);
