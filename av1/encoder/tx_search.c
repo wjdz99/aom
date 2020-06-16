@@ -2843,6 +2843,7 @@ static AOM_INLINE void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     RD_STATS this_rd_stats;
     rd[depth] = av1_uniform_txfm_yrd(cpi, x, &this_rd_stats, ref_best_rd, bs,
                                      tx_size, FTXS_NONE, skip_trellis);
+
     if (rd[depth] < best_rd) {
       av1_copy_array(best_blk_skip, txfm_info->blk_skip, num_blks);
       av1_copy_array(best_txk_type_map, xd->tx_type_map, num_blks);
