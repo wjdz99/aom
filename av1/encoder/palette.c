@@ -491,8 +491,18 @@ void av1_rd_pick_palette_intra_sby(
 
     // TODO(huisu@google.com): Try to avoid duplicate computation in cases
     // where the dominant colors and the k-means results are similar.
-    if ((cpi->sf.intra_sf.prune_palette_search_level == 1) &&
-        (colors > PALETTE_MIN_SIZE)) {
+    if (colors == PALETTE_MIN_SIZE) {
+      // Special case: These colors automatically become the centroids.
+      assert(colors == 2);
+      centroids[0] = lb;
+      centroids[1] = ub;
+      palette_rd_y(cpi, x, mbmi, bsize, dc_mode_cost, data, centroids, colors,
+                   color_cache, n_cache, best_mbmi, best_palette_color_map,
+                   best_rd, best_model_rd, rate, rate_tokenonly, distortion,
+                   skippable, beat_best_rd, ctx, best_blk_skip, tx_type_map,
+                   NULL);
+    } else if ((cpi->sf.intra_sf.prune_palette_search_level == 1) &&
+               (colors > PALETTE_MIN_SIZE)) {
       // Start index and step size below are chosen to evaluate unique
       // candidates in neighbor search, in case a winner candidate is found in
       // coarse search. Example,
@@ -585,35 +595,23 @@ void av1_rd_pick_palette_intra_sby(
             rate_tokenonly, distortion, skippable, beat_best_rd, ctx,
             best_blk_skip, tx_type_map);
       }
-      // K-means clustering.
-      if (colors == PALETTE_MIN_SIZE) {
-        // Special case: These colors automatically become the centroids.
-        assert(colors == 2);
-        centroids[0] = lb;
-        centroids[1] = ub;
-        palette_rd_y(cpi, x, mbmi, bsize, dc_mode_cost, data, centroids, colors,
-                     color_cache, n_cache, best_mbmi, best_palette_color_map,
-                     best_rd, best_model_rd, rate, rate_tokenonly, distortion,
-                     skippable, beat_best_rd, ctx, best_blk_skip, tx_type_map,
-                     NULL);
-      } else {
-        // Perform k-means palette search in descending order
-        last_n_searched = max_n;
+
+      // Perform k-means palette search in descending order
+      last_n_searched = max_n;
+      perform_k_means_palette_search(
+          cpi, x, mbmi, bsize, dc_mode_cost, data, lb, ub, max_n, min_n - 1, -1,
+          &last_n_searched, color_cache, n_cache, best_mbmi,
+          best_palette_color_map, best_rd, best_model_rd, rate, rate_tokenonly,
+          distortion, skippable, beat_best_rd, ctx, best_blk_skip, tx_type_map,
+          color_map, rows * cols);
+      if (last_n_searched > min_n) {
+        // Search in ascending order until we get to the previous best
         perform_k_means_palette_search(
-            cpi, x, mbmi, bsize, dc_mode_cost, data, lb, ub, max_n, min_n - 1,
-            -1, &last_n_searched, color_cache, n_cache, best_mbmi,
+            cpi, x, mbmi, bsize, dc_mode_cost, data, lb, ub, min_n,
+            last_n_searched, 1, &unused, color_cache, n_cache, best_mbmi,
             best_palette_color_map, best_rd, best_model_rd, rate,
             rate_tokenonly, distortion, skippable, beat_best_rd, ctx,
             best_blk_skip, tx_type_map, color_map, rows * cols);
-        if (last_n_searched > min_n) {
-          // Search in ascending order until we get to the previous best
-          perform_k_means_palette_search(
-              cpi, x, mbmi, bsize, dc_mode_cost, data, lb, ub, min_n,
-              last_n_searched, 1, &unused, color_cache, n_cache, best_mbmi,
-              best_palette_color_map, best_rd, best_model_rd, rate,
-              rate_tokenonly, distortion, skippable, beat_best_rd, ctx,
-              best_blk_skip, tx_type_map, color_map, rows * cols);
-        }
       }
     }
   }
