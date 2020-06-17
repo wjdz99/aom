@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4211032a_d5ef6d33",
+        "filename": "av1/common/cdef.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-17T22:15:48Z",
+      "side": 1,
+      "message": "\"Searches for\"",
+      "range": {
+        "startLine": 49,
+        "startChar": 3,
+        "endLine": 49,
+        "endChar": 18
+      },
+      "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d8a8d4e_67b4f0a9",
+        "filename": "av1/common/cdef.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-17T22:15:48Z",
+      "side": 1,
+      "message": "I think we don\u0027t write \"pointer to \" as it is implied.",
+      "range": {
+        "startLine": 51,
+        "startChar": 31,
+        "endLine": 51,
+        "endChar": 42
+      },
+      "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea24dc90_43e80231",
+        "filename": "av1/common/cdef.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-17T22:15:48Z",
+      "side": 1,
+      "message": "Is this \"in,out\" (it\u0027s not const)?\nIf so, note in \"return\" section what is updated in this struct",
+      "range": {
+        "startLine": 51,
+        "startChar": 10,
+        "endLine": 51,
+        "endChar": 12
+      },
+      "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f1fc587_22a477d4",
+        "filename": "av1/common/cdef.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-17T22:15:48Z",
+      "side": 1,
+      "message": "This is \"in,out\" I believe, looking at your \u0027return\u0027 description.",
+      "range": {
+        "startLine": 53,
+        "startChar": 10,
+        "endLine": 53,
+        "endChar": 12
+      },
+      "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52033db4_825e45af",
+        "filename": "av1/common/cdef.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-17T22:15:48Z",
+      "side": 1,
+      "message": "Is this also \"in,out\" (it\u0027s not const)?\nIf so, note in \"return\" section what is updated in this struct",
+      "range": {
+        "startLine": 54,
+        "startChar": 16,
+        "endLine": 54,
+        "endChar": 18
+      },
+      "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5641f29_1dc316ec",
+        "filename": "av1/common/cdef.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-17T22:15:48Z",
+      "side": 1,
+      "message": "Instead of describing all these, \u0027pick_method\u0027 should be of type \u0027CDEF_PICK_METHOD\u0027.\nThen, as long as that enum has doxygen style comments, there will be a link to that enum in the html. (Right now that enum has regular comments, but not doxygen style)",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 73
+      },
+      "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "224aee78_7b5b9ac1",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-17T22:15:48Z",
+      "side": 1,
+      "message": "[in,out]",
+      "range": {
+        "startLine": 67,
+        "startChar": 10,
+        "endLine": 67,
+        "endChar": 12
+      },
+      "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a6325cd_14b43346",
+        "filename": "docs.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-17T22:15:48Z",
+      "side": 1,
+      "message": "We are in \"if(CONFIG_AV1_ENCODER)\" block here.\nThe common code should go at line 23 instead.\n\nAlso:\n- More of that issue below\n- I also see a reverse issue: an encoder file at 23, which should be here instead",
+      "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
