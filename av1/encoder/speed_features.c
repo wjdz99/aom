@@ -609,13 +609,14 @@ static void set_good_speed_features_framesize_independent(
     sf->lpf_sf.disable_lr_filter = 1;
     sf->lpf_sf.cdef_pick_method = CDEF_FAST_SEARCH_LVL3;
 
-    sf->mv_sf.prune_mesh_search = 1;
+    sf->mv_sf.prune_mesh_search = 4;
     sf->mv_sf.reduce_search_range = 1;
 
     sf->tpl_sf.prune_starting_mv = 3;
   }
 
   if (speed >= 6) {
+    sf->mv_sf.prune_mesh_search = 16;
     sf->mv_sf.simple_motion_subpel_force_stop = FULL_PEL;
     sf->rd_sf.perform_coeff_opt = is_boosted_arf2_bwd_type ? 4 : 6;
     sf->tpl_sf.subpel_force_stop = FULL_PEL;

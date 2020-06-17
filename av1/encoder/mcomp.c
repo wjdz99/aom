@@ -1509,20 +1509,23 @@ int av1_full_pixel_search(const FULLPEL_MV start_mv,
   }
 
   // Should we allow a follow on exhaustive search?
+  int allow_mesh_search = 0;
   if (!run_mesh_search && search_method == NSTEP) {
     int exhaustive_thr = ms_params->force_mesh_thresh;
     exhaustive_thr >>=
         10 - (mi_size_wide_log2[bsize] + mi_size_high_log2[bsize]);
     // Threshold variance for an exhaustive full search.
-    if (var > exhaustive_thr) run_mesh_search = 1;
+    if (var > exhaustive_thr) allow_mesh_search = 1;
   }
+  if (allow_mesh_search) run_mesh_search = 1;
 
   // TODO(yunqing): the following is used to reduce mesh search in temporal
   // filtering. Can extend it to intrabc.
   if (!is_intra_mode && ms_params->prune_mesh_search) {
     const int full_pel_mv_diff = AOMMAX(abs(start_mv.row - best_mv->row),
                                         abs(start_mv.col - best_mv->col));
-    if (full_pel_mv_diff <= 4) {
+    if (full_pel_mv_diff <= ms_params->prune_mesh_search &&
+        !allow_mesh_search) {
       run_mesh_search = 0;
     }
   }
