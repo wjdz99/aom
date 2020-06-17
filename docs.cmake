@@ -111,6 +111,7 @@ if(CONFIG_AV1_ENCODER)
       ${AOM_DOXYGEN_SOURCES}
       "${AOM_ROOT}/av1/encoder/bitstream.h"
       "${AOM_ROOT}/av1/encoder/block.h"
+      "${AOM_ROOT}/av1/common/cdef.h"
       "${AOM_ROOT}/av1/encoder/encode_strategy.c"
       "${AOM_ROOT}/av1/encoder/encode_strategy.h"
       "${AOM_ROOT}/av1/encoder/encodeframe.c"
@@ -121,6 +122,7 @@ if(CONFIG_AV1_ENCODER)
       "${AOM_ROOT}/av1/encoder/intra_mode_search.c"
       "${AOM_ROOT}/av1/encoder/lookahead.h"
       "${AOM_ROOT}/av1/encoder/picklpf.h"
+      "${AOM_ROOT}/av1/encoder/pickrst.h"
       "${AOM_ROOT}/av1/encoder/rdopt.h"
       "${AOM_ROOT}/av1/encoder/rdopt.c"
       "${AOM_ROOT}/av1/encoder/tx_search.h"

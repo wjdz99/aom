@@ -42,6 +42,31 @@ int av1_cdef_compute_sb_list(const CommonModeInfoParams *const mi_params,
                              BLOCK_SIZE bsize);
 void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd);
 
+/*!\brief AV1 CDEF parameter search
+ *
+ * \ingroup in_loop_cdef
+ *
+ * Does search for optimal CDEF parameters for frame
+ *
+ * \param[in]   frame          Pointer to compressed frame buffer
+ * \param[in]   ref            Pointer to source frame buffer
+ * \param[in]   cm             Pointer to top level common structure
+ * \param[in]   xd             Pointer to common current coding block structure
+ * \param[in]   method         The method used to select params
+ * \param[in]   rdmult         rd multiplier to use in making param choices
+ *
+ * \par method includes:
+ * \arg \c CDEF_FULL_SEARCH: Do full search
+ * \arg \c CDEF_FAST_SEARCH_LVL1: Search among a subset of all possible filters.
+ * \arg \c CDEF_FAST_SEARCH_LVL2: Search reduced subset of filters than Level 1.
+ * \arg \c CDEF_FAST_SEARCH_LVL3: Search reduced subset of secondary filters
+ *                                than Level 2.
+ * \arg \c CDEF_PICK_FROM_Q: Estimate filter strength based on quantizer.
+ *
+ * \return Nothing is returned. Instead, optimal CDEF parameters are stored
+ * in the cdef_info structure inside "cm":
+ *
+ */
 void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
                      AV1_COMMON *cm, MACROBLOCKD *xd, int pick_method,
                      int rdmult);
