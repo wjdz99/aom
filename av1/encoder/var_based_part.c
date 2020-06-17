@@ -403,6 +403,7 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
     } else {
       thresholds[2] = (5 * threshold_base) >> 1;
     }
+    if (cpi->sf.rt_sf.disable_16x16part_nonkey) thresholds[2] = INT64_MAX;
   }
 }
 

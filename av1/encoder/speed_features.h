@@ -969,6 +969,10 @@ typedef struct REAL_TIME_SPEED_FEATURES {
 
   // Check for scene/content change detection on every frame before encoding.
   int check_scene_detection;
+
+  // HACK
+  int disable_16x16part_nonkey;
+  int force_disable_cdf_frame_level;
 } REAL_TIME_SPEED_FEATURES;
 
 typedef struct SPEED_FEATURES {

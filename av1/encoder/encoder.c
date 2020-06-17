@@ -3949,7 +3949,6 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
           (1 << seq_params->frame_id_length);
     }
   }
-
   switch (oxcf->cdf_update_mode) {
     case 0:  // No CDF update for any frames(4~6% compression loss).
       features->disable_cdf_update = 1;
@@ -3967,6 +3966,14 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
           (frame_is_intra_only(cm) || !cm->show_frame) ? 0 : 1;
       break;
   }
+
+  // HACK
+  if (cpi->sf.rt_sf.force_disable_cdf_frame_level) {
+    features->disable_cdf_update =
+          (frame_is_intra_only(cm) || !cm->show_frame ||
+           cpi->ext_flags.refresh_frame.golden_frame) ? 0 : 1;
+  }
+
   seq_params->timing_info_present &= !seq_params->reduced_still_picture_hdr;
 
   int largest_tile_id = 0;

@@ -905,6 +905,9 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.source_metrics_sb_nonrd = 1;
     sf->rt_sf.skip_intra_pred_if_tx_skip = 0;
     sf->interp_sf.cb_pred_filter_search = 1;
+    // HACK: move this to speed 9??
+    sf->rt_sf.disable_16x16part_nonkey = 1;
+    sf->rt_sf.force_disable_cdf_frame_level = 1;
   }
 }
 
