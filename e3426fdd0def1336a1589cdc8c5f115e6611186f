@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1ea0a37c_42ed0b69",
+        "filename": "av1/common/x86/convolve_2d_avx2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-06-17T23:07:08Z",
+      "side": 1,
+      "message": "Right, will do a separate CL to add const here.",
+      "parentUuid": "733e770b_edffcd98",
+      "range": {
+        "startLine": 30,
+        "startChar": 2,
+        "endLine": 30,
+        "endChar": 23
+      },
+      "revId": "e3426fdd0def1336a1589cdc8c5f115e6611186f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f61db959_328b0c43",
         "filename": "av1/common/x86/convolve_2d_avx2.c",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2020-06-17T23:05:32Z",
       "side": 1,
       "message": "are these consts too?",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 29
+      },
+      "revId": "e3426fdd0def1336a1589cdc8c5f115e6611186f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5fd2dd6b_f353915f",
+        "filename": "av1/common/x86/convolve_2d_avx2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-06-17T23:07:08Z",
+      "side": 1,
+      "message": "These will become variable in the next CLs.",
+      "parentUuid": "f61db959_328b0c43",
       "range": {
         "startLine": 64,
         "startChar": 0,
