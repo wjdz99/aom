@@ -733,6 +733,9 @@ typedef struct INTRA_MODE_SPEED_FEATURES {
   // colors to remaining colors) and terminate the search if current number of
   // palette colors is not the winner.
   int prune_palette_search_level;
+
+  // Disable intra edge filter.
+  int disable_intra_edge_filter;
 } INTRA_MODE_SPEED_FEATURES;
 
 typedef struct TX_SPEED_FEATURES {

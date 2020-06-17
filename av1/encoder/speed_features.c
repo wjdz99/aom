@@ -616,6 +616,7 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 6) {
+    sf->intra_sf.disable_intra_edge_filter = 1;
     sf->mv_sf.simple_motion_subpel_force_stop = FULL_PEL;
     sf->rd_sf.perform_coeff_opt = is_boosted_arf2_bwd_type ? 4 : 6;
     sf->tpl_sf.subpel_force_stop = FULL_PEL;
@@ -1059,6 +1060,7 @@ static AOM_INLINE void init_intra_sf(INTRA_MODE_SPEED_FEATURES *intra_sf) {
     intra_sf->intra_uv_mode_mask[i] = UV_INTRA_ALL;
   }
   intra_sf->disable_smooth_intra = 0;
+  intra_sf->disable_intra_edge_filter = 0;
 }
 
 static AOM_INLINE void init_tx_sf(TX_SPEED_FEATURES *tx_sf) {
@@ -1205,6 +1207,9 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
         !sf->inter_sf.disable_masked_comp;
     cpi->common.seq_params.enable_interintra_compound &=
         !sf->inter_sf.disable_wedge_interintra_search;
+
+    cpi->common.seq_params.enable_intra_edge_filter &=
+        !sf->intra_sf.disable_intra_edge_filter;
   }
 
   // sf->part_sf.partition_search_breakout_dist_thr is set assuming max 64x64
