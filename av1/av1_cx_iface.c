@@ -255,7 +255,7 @@ static struct av1_extracfg default_extra_cfg = {
 #endif
   0,  // chroma_subsampling_x
   0,  // chroma_subsampling_y
-  0,  // reduced_tx_type_set
+  1,  // reduced_tx_type_set
   0,  // use_intra_dct_only
   0,  // use_inter_dct_only
   0,  // use_intra_default_tx_only
