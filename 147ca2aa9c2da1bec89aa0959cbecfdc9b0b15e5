@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec5b8ea4_4ad1afb9",
+        "filename": "av1/common/cnn_tflite.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-17T00:50:48Z",
+      "side": 1,
+      "message": "Maybe pass the update type directly (if that\u0027s all you need for current logic)",
+      "range": {
+        "startLine": 28,
+        "startChar": 53,
+        "endLine": 28,
+        "endChar": 61
+      },
+      "revId": "147ca2aa9c2da1bec89aa0959cbecfdc9b0b15e5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cecb754d_79b85c89",
+        "filename": "av1/common/cnn_tflite.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-17T00:50:48Z",
+      "side": 1,
+      "message": "This could be simplified to:\nconst bool is_overlay_update \u003d (gf_group-\u003eupdate_type[gf_group-\u003eindex] \u003d\u003d OVERLAY_UPDATE ||\n      gf_group-\u003eupdate_type[gf_group-\u003eindex] \u003d\u003d INTNL_OVERLAY_UPDATE);",
+      "range": {
+        "startLine": 29,
+        "startChar": 1,
+        "endLine": 33,
+        "endChar": 3
+      },
+      "revId": "147ca2aa9c2da1bec89aa0959cbecfdc9b0b15e5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54bd8e14_1deb9d14",
+        "filename": "av1/common/cnn_tflite.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-17T00:50:48Z",
+      "side": 1,
+      "message": "This can just call av1_use_cnn(), instead of repeating the logic",
+      "range": {
+        "startLine": 35,
+        "startChar": 10,
+        "endLine": 35,
+        "endChar": 73
+      },
+      "revId": "147ca2aa9c2da1bec89aa0959cbecfdc9b0b15e5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3549066_c04910d8",
+        "filename": "av1/common/cnn_wrapper.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-17T00:50:48Z",
+      "side": 1,
+      "message": "same simplification",
+      "range": {
+        "startLine": 28,
+        "startChar": 1,
+        "endLine": 32,
+        "endChar": 3
+      },
+      "revId": "147ca2aa9c2da1bec89aa0959cbecfdc9b0b15e5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "021fd522_5d4a31e3",
+        "filename": "av1/common/cnn_wrapper.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-17T00:50:48Z",
+      "side": 1,
+      "message": "This can just call av1_use_cnn(), instead of repeating the logic",
+      "range": {
+        "startLine": 34,
+        "startChar": 10,
+        "endLine": 34,
+        "endChar": 73
+      },
+      "revId": "147ca2aa9c2da1bec89aa0959cbecfdc9b0b15e5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
