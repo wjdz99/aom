@@ -2868,15 +2868,6 @@ static INLINE int is_frame_arf_and_tpl_eligible(const GF_GROUP *gf_group) {
   return update_type == ARF_UPDATE || update_type == GF_UPDATE;
 }
 
-static INLINE int is_frame_tpl_eligible(AV1_COMP *const cpi) {
-#if ENABLE_KF_TPL
-  return is_frame_kf_and_tpl_eligible(cpi) ||
-         is_frame_arf_and_tpl_eligible(&cpi->gf_group);
-#else
-  return is_frame_arf_and_tpl_eligible(&cpi->gf_group);
-#endif  // ENABLE_KF_TPL
-}
-
 // Get update type of the current frame.
 static INLINE FRAME_UPDATE_TYPE
 get_frame_update_type(const GF_GROUP *gf_group) {
