@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "11fefacb_107e771e",
+        "filename": "av1/common/cdef.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-06-17T23:37:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4211032a_d5ef6d33",
+      "range": {
+        "startLine": 49,
+        "startChar": 3,
+        "endLine": 49,
+        "endChar": 18
+      },
+      "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d8a8d4e_67b4f0a9",
         "filename": "av1/common/cdef.h",
         "patchSetId": 4
@@ -71,6 +95,54 @@
     },
     {
       "key": {
+        "uuid": "b568512f_db3a725f",
+        "filename": "av1/common/cdef.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-06-17T23:37:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d8a8d4e_67b4f0a9",
+      "range": {
+        "startLine": 51,
+        "startChar": 31,
+        "endLine": 51,
+        "endChar": 42
+      },
+      "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a24f599_61c26657",
+        "filename": "av1/common/cdef.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-06-17T23:37:37Z",
+      "side": 1,
+      "message": "changed it to const",
+      "parentUuid": "ea24dc90_43e80231",
+      "range": {
+        "startLine": 51,
+        "startChar": 10,
+        "endLine": 51,
+        "endChar": 12
+      },
+      "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3f1fc587_22a477d4",
         "filename": "av1/common/cdef.h",
         "patchSetId": 4
@@ -91,6 +163,30 @@
       "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c487b70_4f9b00de",
+        "filename": "av1/common/cdef.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-06-17T23:37:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f1fc587_22a477d4",
+      "range": {
+        "startLine": 53,
+        "startChar": 10,
+        "endLine": 53,
+        "endChar": 12
+      },
+      "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "b4b1f6dd_e2ee1bc1",
+        "filename": "av1/common/cdef.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-06-17T23:37:37Z",
+      "side": 1,
+      "message": "It cannot be const now since the function uses av1_setup_dst_planes() that expects non-const xd-\u003eplane.",
+      "parentUuid": "52033db4_825e45af",
+      "range": {
+        "startLine": 54,
+        "startChar": 16,
+        "endLine": 54,
+        "endChar": 18
+      },
+      "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c5641f29_1dc316ec",
         "filename": "av1/common/cdef.h",
         "patchSetId": 4
@@ -128,6 +248,30 @@
       "writtenOn": "2020-06-17T22:15:48Z",
       "side": 1,
       "message": "Instead of describing all these, \u0027pick_method\u0027 should be of type \u0027CDEF_PICK_METHOD\u0027.\nThen, as long as that enum has doxygen style comments, there will be a link to that enum in the html. (Right now that enum has regular comments, but not doxygen style)",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 73
+      },
+      "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9cd462b3_c65a232f",
+        "filename": "av1/common/cdef.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-06-17T23:37:37Z",
+      "side": 1,
+      "message": "The goal of this patch is to not change anything in the underlying code.\nThis will be a bigger change to convert the enum definitions in speed_features to Doxygen syle.",
+      "parentUuid": "c5641f29_1dc316ec",
       "range": {
         "startLine": 58,
         "startChar": 0,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "5ff53739_a309e693",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-06-17T23:37:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "224aee78_7b5b9ac1",
+      "range": {
+        "startLine": 67,
+        "startChar": 10,
+        "endLine": 67,
+        "endChar": 12
+      },
+      "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a6325cd_14b43346",
         "filename": "docs.cmake",
         "patchSetId": 4
@@ -177,6 +345,24 @@
       "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1426bdf_951dd703",
+        "filename": "docs.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-06-17T23:37:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a6325cd_14b43346",
+      "revId": "9f1b34830370bb6b7bb93033f4010b3d50f27451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
