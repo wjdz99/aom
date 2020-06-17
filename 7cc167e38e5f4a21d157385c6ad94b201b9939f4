@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "761339a1_42fc7ee1",
+        "filename": "av1/encoder/palette.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-17T21:26:03Z",
+      "side": 1,
+      "message": "I think this one and next one are \"out\" params instead of \"in\".\n(I didn\u0027t look at other functions, but maybe worth taking another look)",
+      "range": {
+        "startLine": 128,
+        "startChar": 17,
+        "endLine": 128,
+        "endChar": 34
+      },
+      "revId": "7cc167e38e5f4a21d157385c6ad94b201b9939f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
