@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43819895_a91552e9",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-06-17T18:09:49Z",
+      "side": 1,
+      "message": "optional: return (step_size \u003e 0) ? (curr_idx \u003e\u003d end_idx) : (curr_idx \u003c\u003d end_idx);",
+      "range": {
+        "startLine": 294,
+        "startChar": 2,
+        "endLine": 298,
+        "endChar": 3
+      },
+      "revId": "81242697344eb2ebbade4dc909b769fbf5fc31f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcda5862_675bda6b",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-06-17T18:09:49Z",
+      "side": 1,
+      "message": "space",
+      "range": {
+        "startLine": 317,
+        "startChar": 26,
+        "endLine": 317,
+        "endChar": 38
+      },
+      "revId": "81242697344eb2ebbade4dc909b769fbf5fc31f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bef2501_f9279043",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-06-17T18:09:49Z",
+      "side": 1,
+      "message": "optional: can be \"!is_iter_over(n, end_n, step_size)\"",
+      "range": {
+        "startLine": 319,
+        "startChar": 9,
+        "endLine": 319,
+        "endChar": 10
+      },
+      "revId": "81242697344eb2ebbade4dc909b769fbf5fc31f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93b88ec3_f688c771",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-06-17T18:09:49Z",
+      "side": 1,
+      "message": "space",
+      "range": {
+        "startLine": 357,
+        "startChar": 26,
+        "endLine": 357,
+        "endChar": 38
+      },
+      "revId": "81242697344eb2ebbade4dc909b769fbf5fc31f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8e2e4b5_32a361d3",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-06-17T18:09:49Z",
+      "side": 1,
+      "message": "optional: can be \"!is_iter_over(n, end_n, step_size)\"",
+      "range": {
+        "startLine": 359,
+        "startChar": 9,
+        "endLine": 359,
+        "endChar": 10
+      },
+      "revId": "81242697344eb2ebbade4dc909b769fbf5fc31f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "388137f8_9c89a40a",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-06-17T18:09:49Z",
+      "side": 1,
+      "message": "can be \"*step_size \u003d AOMMAX(1, *max_n - *min_n);\"",
+      "range": {
+        "startLine": 397,
+        "startChar": 2,
+        "endLine": 397,
+        "endChar": 31
+      },
+      "revId": "81242697344eb2ebbade4dc909b769fbf5fc31f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50136740_35046e01",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-06-17T18:09:49Z",
+      "side": 1,
+      "message": "should it be min_n \u003e\u003d PALETTE_MIN_SIZE?",
+      "range": {
+        "startLine": 524,
+        "startChar": 13,
+        "endLine": 524,
+        "endChar": 23
+      },
+      "revId": "81242697344eb2ebbade4dc909b769fbf5fc31f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
