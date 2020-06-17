@@ -251,6 +251,14 @@ static void set_good_speed_feature_framesize_dependent(
     if (is_720p_or_larger) {
       sf->inter_sf.disable_masked_comp = 1;
     }
+
+    if (is_1080p_or_larger) {
+      sf->part_sf.use_square_partition_only_threshold = BLOCK_64X64;
+    } else if (is_720p_or_larger) {
+      sf->part_sf.use_square_partition_only_threshold = BLOCK_32X32;
+    } else {
+      sf->part_sf.use_square_partition_only_threshold = BLOCK_16X16;
+    }
   }
 }
 
