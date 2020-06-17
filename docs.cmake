@@ -125,6 +125,7 @@ if(CONFIG_AV1_ENCODER)
       "${AOM_ROOT}/av1/encoder/palette.h"
       "${AOM_ROOT}/av1/encoder/palette.c"
       "${AOM_ROOT}/av1/encoder/picklpf.h"
+      "${AOM_ROOT}/av1/encoder/ratectrl.h"
       "${AOM_ROOT}/av1/encoder/rdopt.h"
       "${AOM_ROOT}/av1/encoder/rdopt.c"
       "${AOM_ROOT}/av1/encoder/tx_search.h"
