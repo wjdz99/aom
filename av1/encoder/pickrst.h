@@ -57,6 +57,20 @@ static INLINE uint16_t find_average_highbd(const uint16_t *src, int h_start,
 }
 #endif
 
+/*!\brief Algorithm for AV1 loop restoration search and estimation.
+ *
+ * \ingroup in_loop_restoration
+ * This function determines proper restoration filter types and
+ * associated parameters for each restoration unit in a frame.
+ *
+ * \param[in]    sd             The pointer to frame buffer
+ * \param[in]    cpi            Top-level encoder structure
+ *
+ * \return Nothing is returned. Instead, chosen restoration filter
+ * types and parameters are stored per plane in the rst_info structure
+ * inside "cpi->common."
+ *
+ */
 void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi);
 
 #ifdef __cplusplus
