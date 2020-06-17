@@ -42,10 +42,6 @@ int av1_cdef_compute_sb_list(const CommonModeInfoParams *const mi_params,
                              BLOCK_SIZE bsize);
 void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd);
 
-void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
-                     AV1_COMMON *cm, MACROBLOCKD *xd, int pick_method,
-                     int rdmult);
-
 #ifdef __cplusplus
 }  // extern "C"
 #endif
