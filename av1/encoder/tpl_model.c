@@ -928,11 +928,6 @@ static AOM_INLINE void init_gop_frames_for_tpl(
 
     if (gf_index == cur_frame_idx) {
       tpl_frame->gf_picture = frame_input->source;
-      // frame display index = frame offset within the gf group + start frame of
-      // the gf group
-      tpl_frame->frame_display_index =
-          gf_group->frame_disp_idx[gf_index] +
-          cpi->common.current_frame.display_order_hint;
     } else {
       int frame_display_index = gf_index == gf_group->size
                                     ? cpi->rc.baseline_gf_interval
@@ -942,10 +937,6 @@ static AOM_INLINE void init_gop_frames_for_tpl(
           cpi->compressor_stage);
       if (buf == NULL) break;
       tpl_frame->gf_picture = &buf->img;
-      // frame display index = frame offset within the gf group + start frame of
-      // the gf group
-      tpl_frame->frame_display_index =
-          frame_display_index + cpi->common.current_frame.display_order_hint;
     }
 
     if (frame_update_type != OVERLAY_UPDATE &&
@@ -1001,11 +992,6 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     tpl_frame->rec_picture = &tpl_data->tpl_rec_pool[process_frame_count];
     tpl_frame->tpl_stats_ptr = tpl_data->tpl_stats_pool[process_frame_count];
     ++process_frame_count;
-
-    // frame display index = frame offset within the gf group + start frame of
-    // the gf group
-    tpl_frame->frame_display_index =
-        frame_display_index + cpi->common.current_frame.display_order_hint;
 
     gf_group->update_type[gf_index] = LF_UPDATE;
     gf_group->q_val[gf_index] = *pframe_qindex;
