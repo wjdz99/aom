@@ -1722,7 +1722,7 @@ typedef struct AV1_COMP {
   /*!
    * When set, this flag indicates that the current frame is a forward keyframe.
    */
-  int no_show_kf;
+  int no_show_fwd_kf;
 
   /*!
    * Stores the trellis optimization type at segment level.
@@ -2751,7 +2751,7 @@ aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi);
 
 static INLINE int is_frame_kf_and_tpl_eligible(AV1_COMP *const cpi) {
   AV1_COMMON *cm = &cpi->common;
-  return (cm->current_frame.frame_type == KEY_FRAME) && cm->show_frame &&
+  return (cm->current_frame.frame_type == KEY_FRAME) && !cpi->no_show_fwd_kf &&
          (cpi->rc.frames_to_key > 1);
 }
 
