@@ -46,7 +46,8 @@ static INLINE void set_refresh_frame_flags(
 
 void av1_configure_buffer_updates(
     AV1_COMP *const cpi, RefreshFrameFlagsInfo *const refresh_frame_flags,
-    const FRAME_UPDATE_TYPE type, int force_refresh_all) {
+    const FRAME_UPDATE_TYPE type, const FRAME_TYPE frame_type,
+    int force_refresh_all) {
   // NOTE(weitinglin): Should we define another function to take care of
   // cpi->rc.is_$Source_Type to make this function as it is in the comment?
 
@@ -74,7 +75,12 @@ void av1_configure_buffer_updates(
 
     case ARF_UPDATE:
       // NOTE: BWDREF does not get updated along with ALTREF_FRAME.
-      set_refresh_frame_flags(refresh_frame_flags, false, false, true);
+      if (frame_type == KEY_FRAME) {
+        // TODO(bohanli): consider moving this to force_refresh_all?
+        set_refresh_frame_flags(refresh_frame_flags, true, true, true);
+      } else {
+        set_refresh_frame_flags(refresh_frame_flags, false, false, true);
+      }
       break;
 
     case INTNL_OVERLAY_UPDATE:
@@ -404,6 +410,19 @@ static struct lookahead_entry *choose_frame_source(
   // first frame in the GF group is not arf. May need to change if it is not
   // true.
   int pop_lookahead = (src_index == 0);
+  // If this is a key frame then do not pop, use arf
+  // TODO(bohanli): is this ok? looks like gf_group is not updated yet so we
+  // should be at the end of last gf group is this is a key frame.
+  if (pop_lookahead && cpi->rc.frames_to_key == 0 &&
+      cpi->rc.frames_till_gf_update_due == 0 &&
+      !is_stat_generation_stage(cpi) && cpi->lookahead) {
+    if (cpi->lookahead->read_ctxs[cpi->compressor_stage].sz &&
+        (*flush ||
+         cpi->lookahead->read_ctxs[cpi->compressor_stage].sz ==
+             cpi->lookahead->read_ctxs[cpi->compressor_stage].pop_sz)) {
+      pop_lookahead = 0;
+    }
+  }
   frame_params->show_frame = pop_lookahead;
   if (pop_lookahead) {
     // show frame, pop from buffer
@@ -418,10 +437,11 @@ static struct lookahead_entry *choose_frame_source(
     // no show frames are arf frames
     source =
         av1_lookahead_peek(cpi->lookahead, src_index, cpi->compressor_stage);
-    cpi->rc.source_alt_ref_pending = 0;
+    // clear altref pending if this is not keyframe arf
+    if (src_index) cpi->rc.source_alt_ref_pending = 0;
     // When arf_src_index == rc->frames_to_key, it indicates a fwd_kf
-    if (src_index == cpi->rc.frames_to_key) {
-      cpi->no_show_kf = 1;
+    if (src_index == cpi->rc.frames_to_key && src_index != 0) {
+      cpi->no_show_fwd_kf = 1;
     }
     if (source != NULL) {
       cm->showable_frame = 1;
@@ -628,7 +648,16 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
       break;
     case ARF_UPDATE:
     case INTNL_ARF_UPDATE:
-      update_arf_stack(ref_map_index, ref_buffer_stack);
+      if (cpi->rc.frames_since_key == 0) {
+        stack_reset(ref_buffer_stack->lst_stack,
+                    &ref_buffer_stack->lst_stack_size);
+        stack_reset(ref_buffer_stack->gld_stack,
+                    &ref_buffer_stack->gld_stack_size);
+        stack_reset(ref_buffer_stack->arf_stack,
+                    &ref_buffer_stack->arf_stack_size);
+      } else {
+        update_arf_stack(ref_map_index, ref_buffer_stack);
+      }
       stack_push(ref_buffer_stack->arf_stack, &ref_buffer_stack->arf_stack_size,
                  ref_map_index);
       break;
@@ -688,7 +717,7 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
 
   const SVC *const svc = &cpi->svc;
   // Switch frames and shown key-frames overwrite all reference slots
-  if ((frame_params->frame_type == KEY_FRAME && frame_params->show_frame) ||
+  if ((frame_params->frame_type == KEY_FRAME && !cpi->no_show_fwd_kf) ||
       frame_params->frame_type == S_FRAME)
     return 0xFF;
 
@@ -912,7 +941,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
                   !is_stat_generation_stage(cpi) && oxcf->enable_tpl_model;
   if (frame_params->frame_type == KEY_FRAME) {
     // Don't do tpl for fwd key frames
-    allow_tpl = allow_tpl && frame_params->show_frame;
+    allow_tpl = allow_tpl && !cpi->no_show_fwd_kf;
   } else {
     // Do tpl after ARF is filtered, or if no ARF, at the second frame of GF
     // group.
@@ -1030,8 +1059,12 @@ void av1_get_ref_frames(AV1_COMP *const cpi, RefBufferStack *ref_buffer_stack) {
 
     if (ref_map_index != INVALID_IDX)
       remapped_ref_idx[idx] = ref_map_index;
-    else
+    else if (ref_buffer_stack->gld_stack[0] == INVALID_IDX &&
+             ref_buffer_stack->arf_stack[0] != INVALID_IDX) {
+      remapped_ref_idx[idx] = ref_buffer_stack->arf_stack[0];
+    } else {
       remapped_ref_idx[idx] = ref_buffer_stack->gld_stack[0];
+    }
   }
 }
 
@@ -1202,7 +1235,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       !frame_params.show_existing_frame;
 
   av1_configure_buffer_updates(cpi, &frame_params.refresh_frame,
-                               frame_update_type, force_refresh_all);
+                               frame_update_type, frame_params.frame_type,
+                               force_refresh_all);
 
   if (!is_stat_generation_stage(cpi)) {
     const RefCntBuffer *ref_frames[INTER_REFS_PER_FRAME];
@@ -1223,6 +1257,11 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     // Work out which reference frame slots may be used.
     frame_params.ref_frame_flags = get_ref_frame_flags(
         &cpi->sf, ref_frame_buf, ext_flags->ref_frame_flags);
+
+    if (gf_group->update_type[gf_group->index] == OVERLAY_UPDATE &&
+        cpi->rc.frames_since_key == 0) {
+      frame_params.ref_frame_flags = av1_ref_frame_flag_list[ALTREF_FRAME];
+    }
 
     frame_params.primary_ref_frame =
         choose_primary_ref_frame(cpi, &frame_params);

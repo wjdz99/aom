@@ -272,7 +272,7 @@ static void setup_frame(AV1_COMP *cpi) {
     av1_setup_past_independence(cm);
   }
 
-  if ((cm->current_frame.frame_type == KEY_FRAME && cm->show_frame) ||
+  if ((cm->current_frame.frame_type == KEY_FRAME && !cpi->no_show_fwd_kf) ||
       frame_is_sframe(cm)) {
     if (!cpi->seq_params_locked) {
       set_sb_size(&cm->seq_params, select_sb_size(cpi));
@@ -4812,7 +4812,8 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       av1_rc_postencode_update(cpi, *size);
     }
 
-    ++current_frame->frame_number;
+    if (current_frame->frame_number != 0 || cpi->gf_group.index == 0)
+      ++current_frame->frame_number;
 
     return AOM_CODEC_OK;
   }
@@ -5048,7 +5049,8 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   if (cm->show_frame) {
     // Don't increment frame counters if this was an altref buffer
     // update not a real frame
-    ++current_frame->frame_number;
+    if (current_frame->frame_number != 0 || cpi->gf_group.index == 0)
+      ++current_frame->frame_number;
   }
 
   return AOM_CODEC_OK;
@@ -5081,7 +5083,7 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
   memcpy(&cpi->refresh_frame, &frame_params->refresh_frame,
          sizeof(cpi->refresh_frame));
 
-  if (current_frame->frame_type == KEY_FRAME && cm->show_frame)
+  if (current_frame->frame_type == KEY_FRAME && !cpi->no_show_fwd_kf)
     current_frame->frame_number = 0;
 
   current_frame->order_hint =
@@ -5089,6 +5091,11 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
   current_frame->display_order_hint = current_frame->order_hint;
   current_frame->order_hint %=
       (1 << (cm->seq_params.order_hint_info.order_hint_bits_minus_1 + 1));
+
+  // TODO(bohanli) Hack here: make kf overlay frame number non-zero.
+  if (current_frame->frame_number == 0 && cpi->gf_group.index != 0) {
+    current_frame->frame_number = 1;
+  }
 
   if (is_stat_generation_stage(cpi)) {
 #if !CONFIG_REALTIME_ONLY
@@ -5339,7 +5346,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     cm->features.refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
 
   // Initialize fields related to forward keyframes
-  cpi->no_show_kf = 0;
+  cpi->no_show_fwd_kf = 0;
 
   if (assign_cur_frame_new_fb(cm) == NULL) return AOM_CODEC_ERROR;
 
@@ -5374,7 +5381,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
   if (cpi->level_params.keep_level_stats && !is_stat_generation_stage(cpi)) {
     // Initialize level info. at the beginning of each sequence.
-    if (cm->current_frame.frame_type == KEY_FRAME && cm->show_frame) {
+    if (cm->current_frame.frame_type == KEY_FRAME && !cpi->no_show_fwd_kf) {
       av1_init_level_info(cpi);
     }
     av1_update_level_info(cpi, *size, *time_stamp, *time_end);

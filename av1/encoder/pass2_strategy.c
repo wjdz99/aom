@@ -2623,7 +2623,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     // If this is an arf frame then we dont want to read the stats file or
     // advance the input pointer as we already have what we need.
     if (update_type == ARF_UPDATE || update_type == INTNL_ARF_UPDATE) {
-      if (cpi->no_show_kf) {
+      if (cpi->no_show_fwd_kf) {
         assert(update_type == ARF_UPDATE);
         frame_params->frame_type = KEY_FRAME;
       } else {
@@ -2647,7 +2647,11 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   av1_zero(this_frame);
   // call above fn
   if (is_stat_consumption_stage(cpi)) {
-    process_first_pass_stats(cpi, &this_frame);
+    // Do not read if it is overlay for kf arf
+    if (!(cpi->common.current_frame.frame_number == 1 &&
+          gf_group->update_type[gf_group->index] == OVERLAY_UPDATE)) {
+      process_first_pass_stats(cpi, &this_frame);
+    }
   } else {
     rc->active_worst_quality = oxcf->cq_level;
   }

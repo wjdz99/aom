@@ -922,6 +922,9 @@ static AOM_INLINE void init_gop_frames_for_tpl(
         frame_update_type == OVERLAY_UPDATE;
     frame_params.frame_type =
         frame_update_type == KF_UPDATE ? KEY_FRAME : INTER_FRAME;
+    if (frame_update_type == ARF_UPDATE && gf_index == 0) {
+      frame_params.frame_type = KEY_FRAME;
+    }
 
     if (frame_update_type == LF_UPDATE)
       *pframe_qindex = gf_group->q_val[gf_index];
@@ -1063,7 +1066,8 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
   cm->current_frame.frame_type = frame_params->frame_type;
   for (int gf_index = gf_group->index; gf_index < gf_group->size; ++gf_index) {
     av1_configure_buffer_updates(cpi, &this_frame_params.refresh_frame,
-                                 gf_group->update_type[gf_index], 0);
+                                 gf_group->update_type[gf_index],
+                                 cm->current_frame.frame_type, 0);
 
     memcpy(&cpi->refresh_frame, &this_frame_params.refresh_frame,
            sizeof(cpi->refresh_frame));
@@ -1121,15 +1125,18 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
   }
 
   av1_configure_buffer_updates(cpi, &this_frame_params.refresh_frame,
-                               gf_group->update_type[gf_group->index], 0);
+                               gf_group->update_type[gf_group->index],
+                               frame_params->frame_type, 0);
   cm->current_frame.frame_type = frame_params->frame_type;
   cm->show_frame = frame_params->show_frame;
 
   if (cpi->common.tiles.large_scale) return 0;
   if (gf_group->max_layer_depth_allowed == 0) return 1;
+  assert(gf_group->arf_index >= 0);
 
   double beta[2] = { 0.0 };
-  for (int frame_idx = 1; frame_idx <= AOMMIN(tpl_gf_group_frames - 1, 2);
+  for (int frame_idx = gf_group->arf_index;
+       frame_idx <= AOMMIN(tpl_gf_group_frames - 1, gf_group->arf_index + 1);
        ++frame_idx) {
     TplDepFrame *tpl_frame = &tpl_data->tpl_frame[frame_idx];
     TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
