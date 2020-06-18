@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a503551_f9e5d866",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1231,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-06-18T16:22:19Z",
+      "side": 1,
+      "message": "ok to leave",
+      "parentUuid": "a3c851f6_7f6fb11a",
+      "revId": "1bff84709c92c6b9735a69feb5f9484f6adbfc3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "57e67674_60f442ec",
         "filename": "av1/common/resize.c",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2020-06-18T05:55:44Z",
       "side": 1,
       "message": "can use rename this to something like: av1_resize_and_extend_frame_2_1?",
+      "revId": "1bff84709c92c6b9735a69feb5f9484f6adbfc3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a6f0189_b6a2c06c",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1350,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-06-18T16:22:19Z",
+      "side": 1,
+      "message": "leave as is for now",
+      "parentUuid": "57e67674_60f442ec",
       "revId": "1bff84709c92c6b9735a69feb5f9484f6adbfc3b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -82,6 +118,24 @@
       "writtenOn": "2020-06-18T05:55:44Z",
       "side": 1,
       "message": "why rename this?",
+      "revId": "1bff84709c92c6b9735a69feb5f9484f6adbfc3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd0f8be9_15ad1dd3",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1950,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-06-18T16:22:19Z",
+      "side": 1,
+      "message": "ok to rename",
+      "parentUuid": "53aba853_1c2a0949",
       "revId": "1bff84709c92c6b9735a69feb5f9484f6adbfc3b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
