@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a3c851f6_7f6fb11a",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1231,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-06-18T05:55:44Z",
+      "side": 1,
+      "message": "remove _nonnormative?",
+      "revId": "1bff84709c92c6b9735a69feb5f9484f6adbfc3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57e67674_60f442ec",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1350,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-06-18T05:55:44Z",
+      "side": 1,
+      "message": "can use rename this to something like: av1_resize_and_extend_frame_2_1?",
+      "revId": "1bff84709c92c6b9735a69feb5f9484f6adbfc3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54d6c2a3_a22ecd6f",
+        "filename": "av1/common/x86/resize_ssse3.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-06-18T05:55:44Z",
+      "side": 1,
+      "message": "is there an optimized versio for 2:1 upsampling?\n(dst_w \u003d 2 src_w \u0026\u0026 dst_h \u003d 2 * src_h)",
+      "revId": "1bff84709c92c6b9735a69feb5f9484f6adbfc3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53aba853_1c2a0949",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1950,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-06-18T05:55:44Z",
+      "side": 1,
+      "message": "why rename this?",
+      "revId": "1bff84709c92c6b9735a69feb5f9484f6adbfc3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48711881_591b0d36",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2831,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-06-18T05:55:44Z",
+      "side": 1,
+      "message": "can we just use EIGHTTAP_REGULAR or BILINEAR instead of cm-\u003efeatures.interp_filter?",
+      "revId": "1bff84709c92c6b9735a69feb5f9484f6adbfc3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
