@@ -2777,7 +2777,11 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
           realloc_and_scale_source(cpi, cm->cur_frame->buf.y_crop_width,
                                    cm->cur_frame->buf.y_crop_height);
     }
-    ++current_frame->frame_number;
+
+    if (!(cpi->gf_group.update_type[0] == ARF_UPDATE &&
+          cpi->gf_group.update_type[1] == OVERLAY_UPDATE &&
+          cpi->gf_group.index == 1 && cpi->rc.frames_since_key == 0))
+      ++current_frame->frame_number;
 
     return AOM_CODEC_OK;
   }
@@ -3026,6 +3030,15 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   if (cm->show_frame) {
     // Don't increment frame counters if this was an altref buffer
     // update not a real frame
+    if (!(cpi->gf_group.update_type[0] == ARF_UPDATE &&
+          cpi->gf_group.update_type[1] == OVERLAY_UPDATE &&
+          cpi->gf_group.index == 1 && cpi->rc.frames_since_key == 0))
+      ++current_frame->frame_number;
+  } else if (cm->current_frame.frame_type == KEY_FRAME &&
+             cpi->gf_group.update_type[0] == ARF_UPDATE &&
+             cpi->gf_group.update_type[1] == OVERLAY_UPDATE &&
+             cpi->gf_group.index == 0 && cpi->rc.frames_since_key == 0) {
+    // TODO(bohanli) Hack here: make kf overlay frame number non-zero.
     ++current_frame->frame_number;
   }
 
@@ -3059,7 +3072,7 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
   memcpy(&cpi->refresh_frame, &frame_params->refresh_frame,
          sizeof(cpi->refresh_frame));
 
-  if (current_frame->frame_type == KEY_FRAME && cm->show_frame)
+  if (current_frame->frame_type == KEY_FRAME && !cpi->no_show_fwd_kf)
     current_frame->frame_number = 0;
 
   current_frame->order_hint =
@@ -3327,7 +3340,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     cm->features.refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
 
   // Initialize fields related to forward keyframes
-  cpi->no_show_kf = 0;
+  cpi->no_show_fwd_kf = 0;
 
   if (assign_cur_frame_new_fb(cm) == NULL) return AOM_CODEC_ERROR;
 
@@ -3364,7 +3377,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
   if (cpi->level_params.keep_level_stats && !is_stat_generation_stage(cpi)) {
     // Initialize level info. at the beginning of each sequence.
-    if (cm->current_frame.frame_type == KEY_FRAME && cm->show_frame) {
+    if (cm->current_frame.frame_type == KEY_FRAME && !cpi->no_show_fwd_kf) {
       av1_init_level_info(cpi);
     }
     av1_update_level_info(cpi, *size, *time_stamp, *time_end);

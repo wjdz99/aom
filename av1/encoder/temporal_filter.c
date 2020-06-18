@@ -924,7 +924,7 @@ static void tf_setup_filtering_buffer(const AV1_COMP *cpi,
   int adjust_num = 0;
   if (num_frames == 1) {  // `arnr_max_frames = 1` is used to disable filtering.
     adjust_num = 0;
-  } else if (filter_frame_lookahead_idx < 0 && q <= 10) {
+  } else if (filter_frame_lookahead_idx < 0 && q <= 10 && 0) {
     adjust_num = 0;
   } else if (noise_levels[0] < 0.5) {
     adjust_num = 6;
@@ -935,10 +935,11 @@ static void tf_setup_filtering_buffer(const AV1_COMP *cpi,
   }
   num_frames = AOMMIN(num_frames + adjust_num, lookahead_depth + 1);
 
-  if (filter_frame_lookahead_idx == -1) {  // Key frame.
+  if (filter_frame_lookahead_idx == -1 ||
+      filter_frame_lookahead_idx == 0) {  // Key frame.
     num_before = 0;
     num_after = AOMMIN(num_frames - 1, max_after);
-  } else if (filter_frame_lookahead_idx < -1) {  // Key frame in one-pass mode.
+  } else if (filter_frame_lookahead_idx < -1) {  // Fwd key frame
     num_before = AOMMIN(num_frames - 1, max_before);
     num_after = 0;
   } else {
@@ -1059,7 +1060,7 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
   }
 
   // Do filtering.
-  const int is_key_frame = (filter_frame_lookahead_idx < 0);
+  const int is_key_frame = (filter_frame_lookahead_idx <= 0);
   // Setup scaling factors. Scaling on each of the arnr frames is not
   // supported.
   // ARF is produced at the native frame size and resized when coded.
