@@ -13,6 +13,9 @@
 #define AOM_AV1_ENCODER_SPEED_FEATURES_H_
 
 #include "av1/common/enums.h"
+#include "av1/encoder/enc_enums.h"
+#include "av1/encoder/mcomp.h"
+#include "av1/encoder/encodemb.h"
 
 #ifdef __cplusplus
 extern "C" {
