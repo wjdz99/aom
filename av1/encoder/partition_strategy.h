@@ -36,6 +36,9 @@
 // Number of sub-partitions in AB partition types.
 #define SUB_PARTITIONS_AB 3
 
+// Number of sub-partitions in 4-part partition types.
+#define PART4_SUB_PARTITIONS 4
+
 // AB parition types.
 enum {
   HORZ_A = 0,
