@@ -113,4 +113,72 @@ TEST_P(ForwardKeyTest, ForwardKeyEncodeTest) {
 AV1_INSTANTIATE_TEST_CASE(ForwardKeyTest,
                           ::testing::Values(::libaom_test::kTwoPassGood),
                           ::testing::ValuesIn(kTestParams));
+
+class ForwardKeyPresenceTest
+    : public ::libaom_test::CodecTestWith3Params<libaom_test::TestMode, int,
+                                                 aom_rc_mode>,
+      public ::libaom_test::EncoderTest {
+ protected:
+  ForwardKeyPresenceTest()
+      : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)),
+        cpu_used_(GET_PARAM(2)), end_usage_check_(GET_PARAM(3)) {}
+  virtual ~ForwardKeyPresenceTest() {}
+
+  virtual void SetUp() {
+    InitializeConfig();
+    SetMode(encoding_mode_);
+    const aom_rational timebase = { 1, 30 };
+    cfg_.g_timebase = timebase;
+    cfg_.rc_end_usage = end_usage_check_;
+    if (end_usage_check_ == AOM_VBR) {
+      cfg_.rc_target_bitrate = 200;
+    }
+    cfg_.g_threads = 1;
+    cfg_.kf_min_dist = 0;
+    cfg_.kf_max_dist = 10;
+    cfg_.fwd_kf_enabled = 1;
+    cfg_.g_lag_in_frames = 19;
+  }
+
+  virtual bool DoDecode() const { return 1; }
+
+  virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
+                                  ::libaom_test::Encoder *encoder) {
+    if (video->frame() == 0) {
+      encoder->Control(AOME_SET_CPUUSED, cpu_used_);
+      encoder->Control(AOME_SET_ENABLEAUTOALTREF, 1);
+    }
+  }
+
+  virtual bool HandleDecodeResult(const aom_codec_err_t res_dec,
+                                  libaom_test::Decoder *decoder) {
+    if (is_fwd_kf_present_ != 1) {
+      aom_codec_ctx_t *ctx_dec = decoder->GetDecoder();
+      AOM_CODEC_CONTROL_TYPECHECKED(ctx_dec, AOMD_GET_FWD_KF_VALUE,
+                                    &is_fwd_kf_present_);
+    }
+    return AOM_CODEC_OK == res_dec;
+  }
+
+  ::libaom_test::TestMode encoding_mode_;
+  int cpu_used_;
+  int is_fwd_kf_present_;
+  aom_rc_mode end_usage_check_;
+};
+
+TEST_P(ForwardKeyPresenceTest, ForwardKeyEncodePresenceTest) {
+  is_fwd_kf_present_ = 0;
+  libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                     cfg_.g_timebase.den, cfg_.g_timebase.num,
+                                     0, 50);
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+  ASSERT_EQ(is_fwd_kf_present_, 1);
+}
+
+AV1_INSTANTIATE_TEST_CASE(ForwardKeyPresenceTest,
+                          ::testing::Values(::libaom_test::kOnePassGood,
+                                            ::libaom_test::kTwoPassGood),
+                          ::testing::Values(5),
+                          ::testing::Values(AOM_Q, AOM_VBR, AOM_CBR, AOM_CQ));
+
 }  // namespace
