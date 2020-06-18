@@ -1191,6 +1191,9 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
         !sf->inter_sf.disable_masked_comp;
     cpi->common.seq_params.enable_interintra_compound &=
         !sf->inter_sf.disable_wedge_interintra_search;
+
+    // speed 6
+    cpi->common.seq_params.enable_warped_motion &= 0;
   }
 
   // sf->part_sf.partition_search_breakout_dist_thr is set assuming max 64x64
