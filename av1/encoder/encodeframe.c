@@ -5220,7 +5220,7 @@ static AOM_INLINE void set_cost_upd_freq(AV1_COMP *cpi, ThreadData *td,
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
 
-  switch (cpi->oxcf.coeff_cost_upd_freq) {
+  switch (cpi->oxcf.cost_upd_freq.coeff) {
     case COST_UPD_TILE:  // Tile level
       if (mi_row != tile_info->mi_row_start) break;
       AOM_FALLTHROUGH_INTENDED;
@@ -5236,7 +5236,7 @@ static AOM_INLINE void set_cost_upd_freq(AV1_COMP *cpi, ThreadData *td,
     default: assert(0);
   }
 
-  switch (cpi->oxcf.mode_cost_upd_freq) {
+  switch (cpi->oxcf.cost_upd_freq.mode) {
     case COST_UPD_TILE:  // Tile level
       if (mi_row != tile_info->mi_row_start) break;
       AOM_FALLTHROUGH_INTENDED;
@@ -5248,7 +5248,7 @@ static AOM_INLINE void set_cost_upd_freq(AV1_COMP *cpi, ThreadData *td,
       break;
     default: assert(0);
   }
-  switch (cpi->oxcf.mv_cost_upd_freq) {
+  switch (cpi->oxcf.cost_upd_freq.mv) {
     case COST_UPD_OFF: break;
     case COST_UPD_TILE:  // Tile level
       if (mi_row != tile_info->mi_row_start) break;
