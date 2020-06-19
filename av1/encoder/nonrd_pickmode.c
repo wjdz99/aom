@@ -1621,7 +1621,9 @@ static void estimate_intra_mode(
     const int mode_rd_thresh = rd_threshes[mode_index];
 
     // Only check DC for blocks >= 32X32.
-    if (this_mode > 0 && bsize >= BLOCK_32X32) continue;
+    if (this_mode > 0 &&
+        (bsize >= BLOCK_32X32 || cpi->sf.rt_sf.nonrd_intra_dc_only))
+      continue;
 
     if (rd_less_than_thresh(best_rdc->rdcost, mode_rd_thresh,
                             rd_thresh_freq_fact[mode_index]) &&
@@ -1887,7 +1889,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       (cpi->sf.rt_sf.use_modeled_non_rd_cost &&
        quant_params->base_qindex > 120 && x->source_variance > 100 &&
        bsize <= BLOCK_16X16 && x->content_state_sb != kLowVarHighSumdiff &&
-       x->content_state_sb != kHighSad);
+       x->content_state_sb != kHighSad) ||
+      cpi->sf.rt_sf.force_modeled_nonrd_cost;
 
 #if COLLECT_PICK_MODE_STAT
   ms_stat.num_blocks[bsize]++;
