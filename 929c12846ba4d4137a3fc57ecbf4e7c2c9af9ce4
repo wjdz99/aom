@@ -16,6 +16,40 @@
       "revId": "929c12846ba4d4137a3fc57ecbf4e7c2c9af9ce4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0530f000_062c1a75",
+        "filename": "av1/common/arm/resize_neon.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-06-19T17:40:08Z",
+      "side": 1,
+      "message": "should be ...const int phase, const int num_planes)?",
+      "revId": "929c12846ba4d4137a3fc57ecbf4e7c2c9af9ce4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4ddc84b_49b09dfa",
+        "filename": "av1/common/x86/resize_ssse3.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-06-19T17:40:08Z",
+      "side": 1,
+      "message": "should be ...const int phase, const int num_planes)?",
+      "revId": "929c12846ba4d4137a3fc57ecbf4e7c2c9af9ce4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
