@@ -19,6 +19,9 @@
 #include "av1/encoder/random.h"
 #include "av1/encoder/rdopt_utils.h"
 #include "av1/encoder/tx_prune_model_weights.h"
+#if CONFIG_TXPRUNE_OPERATORS
+#include "av1/encoder/tx_prune_operators.h"
+#endif
 #include "av1/encoder/tx_search.h"
 
 struct rdcost_block_args {
@@ -1651,6 +1654,211 @@ static INLINE float get_adaptive_thresholds(
   return prune_2D_adaptive_thresholds[tx_size][pruning_aggressiveness];
 }
 
+#if CONFIG_TXPRUNE_OPERATORS
+// Get quadratic value x'*S*x and take the mean over all rows or columns
+void get_xsx(const int16_t *diff, int stride, int num_to_average,
+             int num_operators, const int *operators[], const int *wops,
+             int *xsx, const int *nes, const int sc_fac, int is_col_tx) {
+  *xsx = 0;
+  int xsx0 = 0, src = 0, dst = 0;
+  const int *operator= NULL;
+  for (int k = 0; k < num_operators; k++) {
+    xsx0 = 0;
+    operator= operators[k];
+    for (int j = 0; j < num_to_average; j++) {
+      for (int i = 0; i < nes[k]; i++) {
+        if (is_col_tx) {
+          src = diff[operator[2 * i] * stride + j];
+          dst = diff[operator[2 * i + 1] * stride + j];
+        } else {
+          src = diff[j * stride + operator[2 * i]];
+          dst = diff[j * stride + operator[2 * i + 1]];
+        }
+        if (operator[2 * i] == operator[2 * i + 1])  // diagonal entry
+          xsx0 += src * src;
+        else  // off-diagonal entry
+          xsx0 += 2 * src * dst;
+      }
+    }
+    *xsx += xsx0 * wops[k];
+  }
+  *xsx /= (num_to_average * sc_fac);
+}
+
+// Get quadratic value x'*L*x and take the mean over all rows or columns
+void get_xlx(const int16_t *diff, int stride, int num_to_average,
+             const int *laplacian, int *xlx, int ne, int sc_fac,
+             int is_col_tx) {
+  *xlx = 0;
+  int src, dst;
+  for (int j = 0; j < num_to_average; j++) {
+    for (int i = 0; i < ne; i++) {
+      // src: laplacian[3 * i]
+      // dst: laplacian[3 * i + 1]
+      // weight: laplacian[3 * i + 2]
+      if (is_col_tx) {
+        src = diff[laplacian[3 * i] * stride + j];
+        dst = diff[laplacian[3 * i + 1] * stride + j];
+      } else {
+        src = diff[j * stride + laplacian[3 * i]];
+        dst = diff[j * stride + laplacian[3 * i + 1]];
+      }
+      if (laplacian[3 * i] == laplacian[3 * i + 1])  // self-loop
+        *xlx += src * src * laplacian[3 * i + 2];
+      else  // edge
+        *xlx += (src - dst) * (src - dst) * laplacian[3 * i + 2];
+    }
+  }
+  *xlx /= (num_to_average * sc_fac);
+}
+
+static uint16_t prune_operators(MACROBLOCK *x, BLOCK_SIZE bsize,
+                                TX_SIZE tx_size, int blk_row, int blk_col,
+                                int use_shift_operator) {
+  const struct macroblock_plane *const p = &x->plane[0];
+  const int stride = block_size_wide[bsize];
+  const int16_t *diff = p->src_diff + 4 * blk_row * stride + 4 * blk_col;
+  const int bw = tx_size_wide[tx_size], bwidx = tx_size_wide_log2[tx_size] - 2;
+  const int bh = tx_size_high[tx_size], bhidx = tx_size_high_log2[tx_size] - 2;
+
+  uint16_t prune_bitmask = 0;
+  int xlx_h[TX_TYPES_1D] = { 0 }, xlx_v[TX_TYPES_1D] = { 0 };
+
+  int tx_type_table_2D[16] = {
+    DCT_DCT,      DCT_ADST,      DCT_FLIPADST,      V_DCT,
+    ADST_DCT,     ADST_ADST,     ADST_FLIPADST,     V_ADST,
+    FLIPADST_DCT, FLIPADST_ADST, FLIPADST_FLIPADST, V_FLIPADST,
+    H_DCT,        H_ADST,        H_FLIPADST,        IDTX
+  };
+
+  // computate horizontal and vertical x'*L*x scores
+#if DEBUG_BLOCK
+  if (bw == 4 && bh == 4) {
+    fprintf(stderr, "Block = [");
+    for (int i=0; i<bh; i++) {
+      fprintf(stderr, "(");
+      for (int j=0; j<4; j++) {
+        fprintf(stderr, "%d, ", diff[i*stride + j]);
+      }
+      fprintf(stderr, ")");
+    }
+    fprintf(stderr, "]\n");
+  }
+#endif
+
+  // When computing DCT score, set use_shift_operator to 1 for shift
+  // operator method and 0 for Laplacian operator method
+  if (use_shift_operator) {
+    get_xsx(diff, stride, bh, nbd, Bds[bwidx], wds[bwidx], &xlx_h[DCT_1D],
+            nedges[bwidx], soc[bwidx], 0);
+    get_xsx(diff, stride, bw, nbd, Bds[bhidx], wds[bhidx], &xlx_v[DCT_1D],
+            nedges[bhidx], soc[bhidx], 1);
+  } else {
+    get_xlx(diff, stride, bh, lapls[bwidx][DCT_1D], &xlx_h[DCT_1D],
+            nedges_lapl[DCT_1D][bwidx], sc[DCT_1D][bwidx], 0);
+    get_xlx(diff, stride, bw, lapls[bhidx][DCT_1D], &xlx_v[DCT_1D],
+            nedges_lapl[DCT_1D][bhidx], sc[DCT_1D][bhidx], 1);
+  }
+  for (int t = ADST_1D; t < TX_TYPES_1D; t++)
+    get_xlx(diff, stride, bh, lapls[bwidx][t], &xlx_h[t], nedges_lapl[t][bwidx],
+            sc[t][bwidx], 0);
+  for (int t = ADST_1D; t < TX_TYPES_1D; t++)
+    get_xlx(diff, stride, bw, lapls[bhidx][t], &xlx_v[t], nedges_lapl[t][bhidx],
+            sc[t][bhidx], 1);
+
+  // Here, xlx_h[FLIPADST_1D] and xlx_v[FLIPADST_1D] are used as placeholders
+  // to store the difference between scores for ADST and FLIPADST. Now,
+  // actual scores are computed by applying the subtractions.
+  xlx_h[FLIPADST_1D] = xlx_h[ADST_1D] - xlx_h[FLIPADST_1D];
+  xlx_v[FLIPADST_1D] = xlx_v[ADST_1D] - xlx_v[FLIPADST_1D];
+
+#if USE_2D_SCORES
+  int tx = 0, xlx2d[TX_TYPES] = { 0 };
+  int sum_xlx_daf = xlx_h[DCT_1D] + xlx_h[ADST_1D] + xlx_h[FLIPADST_1D] +
+                    xlx_v[DCT_1D] + xlx_v[ADST_1D] + xlx_v[FLIPADST_1D];
+  int sum_xlx_dafi = sum_xlx_daf + xlx_h[IDTX_1D] + xlx_v[IDTX_1D];
+  int prune_thr_1 = (int)((double)sum_xlx_daf * TAU2_DAF);
+  int prune_thr_2 = (int)((double)sum_xlx_dafi * TAU2_I);
+  for (int vtx = DCT_1D; vtx < TX_TYPES_1D; vtx++) {
+    for (int htx = DCT_1D; htx < TX_TYPES_1D; htx++) {
+      tx = tx_type_table_2D[vtx * TX_TYPES_1D + htx];
+      xlx2d[tx] = xlx_h[htx] + xlx_v[vtx];
+      if ((tx <= FLIPADST_ADST && xlx2d[tx] > prune_thr_1) ||
+          (tx >= IDTX && xlx2d[tx] > prune_thr_2))
+        prune_bitmask |= 1 << tx;
+    }
+  }
+#if DEBUG_PRUNE
+  fprintf(stderr, "H%d[%d, %d, %d, %d] ", bw, xlx_h[DCT_1D], xlx_h[ADST_1D],
+          xlx_h[FLIPADST_1D], xlx_h[IDTX_1D]);
+  fprintf(stderr, "V%d[%d, %d, %d, %d](%d, %d) bitmask=", bh, xlx_v[DCT_1D],
+          xlx_v[ADST_1D], xlx_v[FLIPADST_1D], xlx_v[IDTX_1D], prune_thr_1,
+          prune_thr_2);
+  for (int i = 0; i < TX_TYPES; i++)
+    fprintf(stderr, "%d", (prune_bitmask >> i) & 1);
+  fprintf(stderr, "\nLQFs=[");
+  for (int i = 0; i < TX_TYPES; i++) fprintf(stderr, "%d, ", xlx2d[i]);
+  fprintf(stderr, "]\n");
+#endif
+#else  // USE_2D_SCORES
+  int sum_hxlx_daf = xlx_h[DCT_1D] + xlx_h[ADST_1D] + xlx_h[FLIPADST_1D];
+  int prune_hthr_daf = (int)((double)sum_hxlx_daf * TAU_DAF);
+  int prune_hthr_i = (int)((double)(sum_hxlx_daf + xlx_h[IDTX_1D]) * TAU_I);
+
+  if (xlx_h[DCT_1D] > prune_hthr_daf) {
+    for (int vtx = DCT_1D; vtx < TX_TYPES_1D; vtx++)
+      prune_bitmask |= 1 << tx_type_table_2D[vtx * TX_TYPES_1D + DCT_1D];
+  }
+  if (xlx_h[ADST_1D] > prune_hthr_daf) {
+    for (int vtx = DCT_1D; vtx < TX_TYPES_1D; vtx++)
+      prune_bitmask |= 1 << tx_type_table_2D[vtx * TX_TYPES_1D + ADST_1D];
+  }
+  if (xlx_h[FLIPADST_1D] > prune_hthr_daf) {
+    for (int vtx = DCT_1D; vtx < TX_TYPES_1D; vtx++)
+      prune_bitmask |= 1 << tx_type_table_2D[vtx * TX_TYPES_1D + FLIPADST_1D];
+  }
+  if (xlx_h[IDTX_1D] > prune_hthr_i) {
+    for (int vtx = DCT_1D; vtx < TX_TYPES_1D; vtx++)
+      prune_bitmask |= 1 << tx_type_table_2D[vtx * TX_TYPES_1D + IDTX_1D];
+  }
+
+  int sum_vxlx_daf = xlx_v[DCT_1D] + xlx_v[ADST_1D] + xlx_v[FLIPADST_1D];
+  int prune_vthr_daf = (int)((double)sum_vxlx_daf * TAU_DAF);
+  int prune_vthr_i = (int)((double)(sum_vxlx_daf + xlx_v[IDTX_1D]) * TAU_I);
+
+  if (xlx_v[DCT_1D] > prune_vthr_daf) {
+    for (int htx = DCT_1D; htx < TX_TYPES_1D; htx++)
+      prune_bitmask |= 1 << tx_type_table_2D[DCT_1D * TX_TYPES_1D + htx];
+  }
+  if (xlx_v[ADST_1D] > prune_vthr_daf) {
+    for (int htx = DCT_1D; htx < TX_TYPES_1D; htx++)
+      prune_bitmask |= 1 << tx_type_table_2D[ADST_1D * TX_TYPES_1D + htx];
+  }
+  if (xlx_v[FLIPADST_1D] > prune_vthr_daf) {
+    for (int htx = DCT_1D; htx < TX_TYPES_1D; htx++)
+      prune_bitmask |= 1 << tx_type_table_2D[FLIPADST_1D * TX_TYPES_1D + htx];
+  }
+  if (xlx_v[IDTX_1D] > prune_vthr_i) {
+    for (int htx = DCT_1D; htx < TX_TYPES_1D; htx++)
+      prune_bitmask |= 1 << tx_type_table_2D[IDTX_1D * TX_TYPES_1D + htx];
+  }
+#if DEBUG_PRUNE
+  fprintf(stderr, "H%d[%d, %d, %d, %d](%d, %d) ", bw, xlx_h[DCT_1D],
+          xlx_h[ADST_1D], xlx_h[FLIPADST_1D], xlx_h[IDTX_1D], prune_hthr_daf,
+          prune_hthr_i);
+  fprintf(stderr, "V%d[%d, %d, %d, %d](%d, %d) bitmask=", bh, xlx_v[DCT_1D],
+          xlx_v[ADST_1D], xlx_v[FLIPADST_1D], xlx_v[IDTX_1D], prune_vthr_daf,
+          prune_vthr_i);
+  for (int i = 0; i < TX_TYPES; i++)
+    fprintf(stderr, "%d", (prune_bitmask >> i) & 1);
+  fprintf(stderr, "\n");
+#endif
+#endif
+
+  return prune_bitmask;
+}
+#endif  // CONFIG_TXPRUNE_OPERATORS
+
 static AOM_INLINE void get_energy_distribution_finer(const int16_t *diff,
                                                      int stride, int bw, int bh,
                                                      float *hordist,
@@ -2032,6 +2240,7 @@ get_tx_mask(const AV1_COMP *cpi, MACROBLOCK *x, int plane, int block,
       }
     } else {
       assert(num_allowed > 0);
+      uint16_t prune = 0;
       int allowed_tx_count =
           (txfm_params->prune_2d_txfm_mode == PRUNE_2D_AGGRESSIVE) ? 1 : 5;
       // !fast_tx_search && txk_end != txk_start && plane == 0
@@ -2039,6 +2248,19 @@ get_tx_mask(const AV1_COMP *cpi, MACROBLOCK *x, int plane, int block,
           num_allowed > allowed_tx_count) {
         prune_tx_2D(x, plane_bsize, tx_size, blk_row, blk_col, tx_set_type,
                     txfm_params->prune_2d_txfm_mode, txk_map, &allowed_tx_mask);
+#if CONFIG_TXPRUNE_OPERATORS
+      } else if (txfm_params->prune_2d_txfm_mode == PRUNE_OPERATORS &&
+                 is_inter && num_allowed > allowed_tx_count) {
+        prune = prune_operators(x, plane_bsize, tx_size, blk_row, blk_col, 1);
+#if !DEBUG_PRUNE
+        allowed_tx_mask &= (~prune);
+#endif
+      } else if (txfm_params->prune_2d_txfm_mode == PRUNE_LAPLACIAN &&
+                 is_inter && num_allowed > allowed_tx_count) {
+        prune = prune_operators(x, plane_bsize, tx_size, blk_row, blk_col, 0);
+#if !DEBUG_PRUNE
+        allowed_tx_mask &= (~prune);
+#endif
       }
     }
   }
@@ -2266,6 +2488,10 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                                : AV1_XFORM_QUANT_FP,
                   cpi->oxcf.quant_b_adapt, &quant_param);
 
+#if CONFIG_TXPRUNE_OPERATORS && DEBUG_PRUNE
+  int64_t rdtx[TX_TYPES] = { 0 };
+#endif
+
   // Iterate through all transform type candidates.
   for (int idx = 0; idx < TX_TYPES; ++idx) {
     const TX_TYPE tx_type = (TX_TYPE)txk_map[idx];
@@ -2373,6 +2599,10 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       p->dqcoeff = tmp_dqcoeff;
     }
 
+#if CONFIG_TXPRUNE_OPERATORS && DEBUG_PRUNE
+    rdtx[tx_type] = rd;
+#endif
+
 #if CONFIG_COLLECT_RD_STATS == 1
     if (plane == 0) {
       PrintTransformUnitStats(cpi, x, &this_rd_stats, blk_row, blk_col,
@@ -2428,6 +2658,14 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     // all zero.
     if (cpi->sf.tx_sf.tx_type_search.skip_tx_search && !best_eob) break;
   }
+
+#if CONFIG_TXPRUNE_OPERATORS && DEBUG_PRUNE
+  if (is_inter && tx_size <= TX_8X8) {
+    fprintf(stderr, "  [");
+    for (int tx = 0; tx < TX_TYPES; tx++) fprintf(stderr, "%lld, ", rdtx[tx]);
+    fprintf(stderr, "]\n");
+  }
+#endif
 
   assert(best_rd != INT64_MAX);
 
