@@ -135,6 +135,9 @@ set_aom_config_var(CONFIG_NN_V2 0 "Fully-connected neural nets ver.2.")
 set_aom_config_var(CONFIG_SUPERRES_IN_RECODE 1
                    "Enable encoding both full-res and superres in recode loop"
                    "when AOM_SUPERRES_AUTO mode is used.")
+set_aom_config_var(CONFIG_TXPRUNE_OPERATORS 0
+                   "Transform type pruning experiment.")
+
 #
 # Variables in this section control optional features of the build system.
 #
