@@ -22,6 +22,30 @@
       "revId": "13f77f713e2c407d132cd941c6b1119a4a0aff02",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59faa9d1_8266888a",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-06-19T05:02:00Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "85c5edd9_b3db6bf9",
+      "range": {
+        "startLine": 70,
+        "startChar": 53,
+        "endLine": 70,
+        "endChar": 54
+      },
+      "revId": "13f77f713e2c407d132cd941c6b1119a4a0aff02",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
