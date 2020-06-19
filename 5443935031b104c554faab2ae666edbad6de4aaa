@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a49698d_d3449ab4",
+        "filename": "av1/common/restoration.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-06-19T15:52:24Z",
+      "side": 1,
+      "message": "applies",
+      "range": {
+        "startLine": 374,
+        "startChar": 17,
+        "endLine": 374,
+        "endChar": 23
+      },
+      "revId": "5443935031b104c554faab2ae666edbad6de4aaa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b573ea58_c7c512cc",
+        "filename": "av1/common/restoration.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-06-19T15:52:24Z",
+      "side": 1,
+      "message": "For consistency, maybe use capitalize the first letters?",
+      "range": {
+        "startLine": 377,
+        "startChar": 29,
+        "endLine": 377,
+        "endChar": 35
+      },
+      "revId": "5443935031b104c554faab2ae666edbad6de4aaa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ee7993a_a8405f51",
+        "filename": "av1/common/restoration.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-06-19T15:52:24Z",
+      "side": 1,
+      "message": "For simplicity, maybe remove the verb? Like \"Restoration parameters for this unit\"",
+      "range": {
+        "startLine": 378,
+        "startChar": 29,
+        "endLine": 378,
+        "endChar": 37
+      },
+      "revId": "5443935031b104c554faab2ae666edbad6de4aaa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84b823fd_be30bacb",
+        "filename": "av1/common/restoration.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-06-19T15:52:24Z",
+      "side": 1,
+      "message": "Ditto, remove \"Contains\" (just in case rsb does not contain more info besides deblocked boundary)",
+      "range": {
+        "startLine": 380,
+        "startChar": 29,
+        "endLine": 380,
+        "endChar": 37
+      },
+      "revId": "5443935031b104c554faab2ae666edbad6de4aaa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32c23cac_16fc68eb",
+        "filename": "av1/common/restoration.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-06-19T15:52:24Z",
+      "side": 1,
+      "message": "Scratch?",
+      "range": {
+        "startLine": 396,
+        "startChar": 29,
+        "endLine": 396,
+        "endChar": 35
+      },
+      "revId": "5443935031b104c554faab2ae666edbad6de4aaa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
