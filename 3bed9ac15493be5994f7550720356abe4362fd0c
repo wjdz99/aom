@@ -22,6 +22,30 @@
       "revId": "3bed9ac15493be5994f7550720356abe4362fd0c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a03f260_2fef5d11",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-06-19T17:10:43Z",
+      "side": 1,
+      "message": "As I understand this variable is used for determining the lookahead buffer offset for tpl to read in the frame. So for KF/GF/overlay/LF, they will all \"pop\" one buffer out of the lookahead buffer before TPL is used. If this is true then yes this starts with one even for KF or GF. We can also make it start with 0 and add 1 in the tpl function like before, but then if the KF is an ARF_UPDATE (which does not pop the lookahead buffer until the next KF overlay) we will have to start with -1 to comply. I thought in this way things are easiest to manage.",
+      "parentUuid": "be7a6742_2c5c2d73",
+      "range": {
+        "startLine": 107,
+        "startChar": 41,
+        "endLine": 107,
+        "endChar": 56
+      },
+      "revId": "3bed9ac15493be5994f7550720356abe4362fd0c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
