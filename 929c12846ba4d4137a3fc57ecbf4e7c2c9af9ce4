@@ -50,6 +50,23 @@
       "revId": "929c12846ba4d4137a3fc57ecbf4e7c2c9af9ce4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07f1b05d_0fe9336d",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-06-19T18:18:18Z",
+      "side": 1,
+      "message": "for bilinear you need to set: svc-\u003edownsample_filter_phase[sl] \u003d 8;",
+      "revId": "929c12846ba4d4137a3fc57ecbf4e7c2c9af9ce4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
