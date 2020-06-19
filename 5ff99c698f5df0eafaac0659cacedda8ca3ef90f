@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fac13498_9560c549",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2020-06-19T17:05:16Z",
+      "side": 1,
+      "message": "const?",
+      "range": {
+        "startLine": 408,
+        "startChar": 2,
+        "endLine": 408,
+        "endChar": 6
+      },
+      "revId": "5ff99c698f5df0eafaac0659cacedda8ca3ef90f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
