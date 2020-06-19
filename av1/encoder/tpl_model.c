@@ -810,8 +810,7 @@ void av1_mc_flow_dispenser_row(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
     TplDepStats tpl_stats;
 
     // Motion estimation column boundary
-    av1_set_mv_col_limits(mi_params, &x->mv_limits, mi_col, mi_width,
-                          cpi->oxcf.border_in_pixels);
+    av1_set_mv_col_limits(mi_params, &x->mv_limits, mi_col, mi_width, 32);
     xd->mb_to_left_edge = -GET_MV_SUBPEL(mi_col * MI_SIZE);
     xd->mb_to_right_edge =
         GET_MV_SUBPEL(mi_params->mi_cols - mi_width - mi_col);
