@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "7fb07014_e3909c59",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-19T21:47:57Z",
+      "side": 1,
+      "message": "One suggestion unrelated to this patch:\nThe help message says \"Speed setting (0..6 in good mode, 6..9 in realtime mode)\"\nCan we give a warning / error if someone uses in incorrect combo? (If we don\u0027t already)?",
+      "revId": "05016dbd7aa9d57688795661603f7b57699df477",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ee02c8bc_6b728c0d",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 1
