@@ -13,9 +13,9 @@ extern "C" {
 #define TAU_DAF1D 0.15
 
 //
-// For PRUNE_2D_OPERATORS
+// For PRUNE_2D_LAPLACIAN
 //
-static const int nedges2d[4][16] = {
+static const int nedges2d_lapl[4][16] = {
   { 24, 26, 26, 28, 26, 26, 28, 28, 28, 15, 30, 27, 32, 29, 32, 29 },
   { 98, 100, 100, 104, 100, 100, 104, 104, 104, 62, 120, 123, 116, 117, 116,
     117 },
@@ -815,6 +815,75 @@ static int txs_idx(TX_SIZE tx_size) {
 //
 // For PRUNE_OPERATORS
 //
+static const int nbd4 = 3;
+static const int nbd8 = 3;
+static const int nbd16 = 3;
+static const int nbd32 = 3;
+static const int soc[4] = { 39, 39, 23, 133 };
+
+static const int nedges_bd4[3] = { 5, 4, 2 };
+static const int nedges_bd8[3] = { 8, 9, 8 };
+static const int nedges_bd16[3] = { 16, 17, 16 };
+static const int nedges_bd32[3] = { 33, 32, 32 };
+static const int wd4s[3] = { 36, 8, 4 };
+static const int wd8s[3] = { 4, 39, 3 };
+static const int wd16s[3] = { 1, 23, 1 };
+static const int wd32s[3] = { 133, 3, 1 };
+
+static const int Bd4_2[10] = { 1, 1, 4, 4, 1, 2, 2, 3, 3, 4 };
+
+static const int Bd4_3[8] = { 1, 2, 1, 3, 2, 4, 3, 4 };
+
+static const int Bd4_5[4] = { 2, 3, 1, 4 };
+
+static const int Bd8_1[16] = { 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8 };
+
+static const int Bd8_2[18] = { 1, 1, 8, 8, 1, 2, 2, 3, 3,
+                               4, 4, 5, 5, 6, 6, 7, 7, 8 };
+
+static const int Bd8_3[16] = { 1, 2, 1, 3, 2, 4, 3, 5, 4, 6, 5, 7, 6, 8, 7, 8 };
+
+static const int Bd16_1[32] = { 1,  1,  2,  2,  3,  3,  4,  4,  5,  5,  6,
+                                6,  7,  7,  8,  8,  9,  9,  10, 10, 11, 11,
+                                12, 12, 13, 13, 14, 14, 15, 15, 16, 16 };
+
+static const int Bd16_2[34] = { 1,  1,  16, 16, 1,  2,  2,  3,  3,  4,  4,  5,
+                                5,  6,  6,  7,  7,  8,  8,  9,  9,  10, 10, 11,
+                                11, 12, 12, 13, 13, 14, 14, 15, 15, 16 };
+
+static const int Bd16_3[32] = { 1,  2,  1,  3,  2,  4,  3,  5,  4,  6,  5,
+                                7,  6,  8,  7,  9,  8,  10, 9,  11, 10, 12,
+                                11, 13, 12, 14, 13, 15, 14, 16, 15, 16 };
+
+static const int Bd32_2[66] = { 1,  1,  32, 32, 1,  2,  2,  3,  3,  4,  4,
+                                5,  5,  6,  6,  7,  7,  8,  8,  9,  9,  10,
+                                10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15,
+                                16, 16, 17, 17, 18, 18, 19, 19, 20, 20, 21,
+                                21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26,
+                                27, 27, 28, 28, 29, 29, 30, 30, 31, 31, 32 };
+
+static const int Bd32_3[64] = { 1,  2,  1,  3,  2,  4,  3,  5,  4,  6,  5,
+                                7,  6,  8,  7,  9,  8,  10, 9,  11, 10, 12,
+                                11, 13, 12, 14, 13, 15, 14, 16, 15, 17, 16,
+                                18, 17, 19, 18, 20, 19, 21, 20, 22, 21, 23,
+                                22, 24, 23, 25, 24, 26, 25, 27, 26, 28, 27,
+                                29, 28, 30, 29, 31, 30, 32, 31, 32 };
+
+static const int Bd32_5[64] = { 2,  3,  1,  4,  1,  5,  2,  6,  3,  7,  4,
+                                8,  5,  9,  6,  10, 7,  11, 8,  12, 9,  13,
+                                10, 14, 11, 15, 12, 16, 13, 17, 14, 18, 15,
+                                19, 16, 20, 17, 21, 18, 22, 19, 23, 20, 24,
+                                21, 25, 22, 26, 23, 27, 24, 28, 25, 29, 26,
+                                30, 27, 31, 30, 31, 28, 32, 29, 32 };
+
+static const int *Bd4s[3] = { Bd4_2, Bd4_3, Bd4_5 };
+static const int *Bd8s[3] = { Bd8_1, Bd8_2, Bd8_3 };
+static const int *Bd16s[3] = { Bd16_1, Bd16_2, Bd16_3 };
+static const int *Bd32s[3] = { Bd32_2, Bd32_3, Bd32_5 };
+
+//
+// For PRUNE_LAPLACIAN
+//
 static const int sc[4][4] = {
   { 23, 12, 24, 48 },  // DCT
   { 1, 1, 1, 1 },      // ADST
@@ -826,7 +895,7 @@ static const int sc[4][4] = {
 #endif
 };
 
-static const int nedges[4][4] = {
+static const int nedges_lapl[4][4] = {
   { 9, 21, 45, 93 },  // DCT
   { 4, 8, 16, 32 },   // ADST
   { 4, 8, 16, 32 },   // FLIPADST
