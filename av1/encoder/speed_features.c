@@ -1057,7 +1057,8 @@ static AOM_INLINE void init_tx_sf(TX_SPEED_FEATURES *tx_sf) {
 #if CONFIG_TXPRUNE_OPERATORS
   // tx_sf->tx_type_search.prune_2d_txfm_mode = NO_PRUNE;
   // tx_sf->tx_type_search.prune_2d_txfm_mode = PRUNE_2D_ACCURATE;
-  tx_sf->tx_type_search.prune_2d_txfm_mode = PRUNE_LAPLACIAN;
+  tx_sf->tx_type_search.prune_2d_txfm_mode = PRUNE_OPERATORS;
+  // tx_sf->tx_type_search.prune_2d_txfm_mode = PRUNE_LAPLACIAN;
   // tx_sf->tx_type_search.prune_2d_txfm_mode = PRUNE_2D_LAPLACIAN;
 #else
   tx_sf->tx_type_search.prune_2d_txfm_mode = PRUNE_2D_ACCURATE;

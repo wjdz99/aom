@@ -189,6 +189,7 @@ enum {
 // adaptively prunes the least perspective tx types out of all 16
 // (tuned to provide negligible quality loss)
 #if CONFIG_TXPRUNE_OPERATORS
+  PRUNE_OPERATORS,
   PRUNE_LAPLACIAN,
   PRUNE_2D_LAPLACIAN,
 #endif
