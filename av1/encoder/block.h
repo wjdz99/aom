@@ -408,6 +408,107 @@ typedef struct {
   uint8_t *tmp_best_mask_buf;
 } CompoundTypeRdBuffers;
 
+#if CONFIG_EXT_RECUR_PARTITIONS
+/*! \brief Contains data for simple motion
+ */
+#define kSMSMaxStartMVs 1
+typedef struct SimpleMotionData {
+  //! mv reference
+  MV mv_ref;
+  //! mv full
+  MV fullmv;
+  //! mv subpel
+  MV submv;
+  //! sse
+  unsigned int sse;
+  //! variance
+  unsigned int var;
+  //! distortion
+  int64_t dist;
+  //! rate
+  int64_t rate;
+  //! rdcost
+  int64_t rdcost;
+  //! is valid
+  int valid;
+  //! blocksize
+  BLOCK_SIZE bsize;
+  //! row position in mi units
+  int mi_row;
+  //! col position in mi units
+  int mi_col;
+  //! MV precision
+  MvSubpelPrecision mv_precision;
+  //! sad per bit
+  int sadpb;
+  //! error per bit
+  int errorperbit;
+  //! start mv list
+  MV start_mv_list[kSMSMaxStartMVs];
+  //! number of start mvs
+  int num_start_mvs;
+  //! if there is a previous partition
+  int has_prev_partition;
+  //! previous partition
+  PARTITION_TYPE prev_partition;
+  //! mode cache
+  struct PICK_MODE_CONTEXT *mode_cache[1];
+} SimpleMotionData;
+
+/*!\cond */
+#define BLOCK_128_COUNT 1
+#define BLOCK_64_COUNT 3
+#define BLOCK_32_COUNT 7
+#define BLOCK_16_COUNT 15
+#define BLOCK_8_COUNT 31
+#define BLOCK_4_COUNT 32
+
+#define MAKE_SM_DATA_BUF(width, height) \
+  SimpleMotionData                      \
+      b_##width##x##height[BLOCK_##width##_COUNT * BLOCK_##height##_COUNT]
+/*!\endcond */
+
+/*! \brief Simple motion data buffers
+ */
+typedef struct SimpleMotionDataBufs {
+  /*!\cond */
+  // Square blocks
+  MAKE_SM_DATA_BUF(128, 128);
+  MAKE_SM_DATA_BUF(64, 64);
+  MAKE_SM_DATA_BUF(32, 32);
+  MAKE_SM_DATA_BUF(16, 16);
+  MAKE_SM_DATA_BUF(8, 8);
+  MAKE_SM_DATA_BUF(4, 4);
+
+  // 1:2 blocks
+  MAKE_SM_DATA_BUF(64, 128);
+  MAKE_SM_DATA_BUF(32, 64);
+  MAKE_SM_DATA_BUF(16, 32);
+  MAKE_SM_DATA_BUF(8, 16);
+  MAKE_SM_DATA_BUF(4, 8);
+
+  // 2:1 blocks
+  MAKE_SM_DATA_BUF(128, 64);
+  MAKE_SM_DATA_BUF(64, 32);
+  MAKE_SM_DATA_BUF(32, 16);
+  MAKE_SM_DATA_BUF(16, 8);
+  MAKE_SM_DATA_BUF(8, 4);
+
+  // 1:4 blocks
+  MAKE_SM_DATA_BUF(16, 64);
+  MAKE_SM_DATA_BUF(8, 32);
+  MAKE_SM_DATA_BUF(4, 16);
+
+  // 4:1 blocks
+  MAKE_SM_DATA_BUF(64, 16);
+  MAKE_SM_DATA_BUF(32, 8);
+  MAKE_SM_DATA_BUF(16, 4);
+  /*!\endcond */
+} SimpleMotionDataBufs;
+
+#undef MAKE_SM_DATA_BUF
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
+
 /*! \brief Holds some parameters related to partitioning schemes in AV1.
  */
 // TODO(chiyotsai@google.com): Consolidate this with SIMPLE_MOTION_DATA_TREE
@@ -1204,6 +1305,10 @@ typedef struct macroblock {
   unsigned int source_variance;
   //! SSE of the current predictor.
   unsigned int pred_sse[REF_FRAMES];
+#if CONFIG_EXT_RECUR_PARTITIONS
+  //! Simple motion search buffers.
+  SimpleMotionDataBufs *sms_bufs;
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
   /**@}*/
 } MACROBLOCK;
 #undef SINGLE_REF_MODES
