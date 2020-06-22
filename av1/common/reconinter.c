@@ -2499,11 +2499,52 @@ static void combine_interintra_highbd(
                             bd);
 }
 
-void av1_build_intra_predictors_for_interintra(const AV1_COMMON *cm,
-                                               MACROBLOCKD *xd,
-                                               BLOCK_SIZE bsize, int plane,
-                                               const BUFFER_SET *ctx,
-                                               uint8_t *dst, int dst_stride) {
+static void build_extended_intra_border(uint8_t *ref, int ref_stride,
+                                        uint8_t *dst, int dst_stride,
+                                        BLOCK_SIZE plane_bsize, int border,
+                                        bool is_hbd) {
+  const int bw = block_size_wide[plane_bsize];
+  const int bh = block_size_high[plane_bsize];
+  if (is_hbd) {
+    uint16_t *ref16 = CONVERT_TO_SHORTPTR(ref) - border * ref_stride;
+    uint16_t *dst16 = CONVERT_TO_SHORTPTR(dst) - border * dst_stride;
+    // Copy top rows.
+    for (int i = 0; i < border; ++i) {
+      memmove(dst16, ref16, sizeof(*dst16) * bw);
+      ref16 += ref_stride;
+      dst16 += dst_stride;
+    }
+    // Copy left columns.
+    ref16 -= border;
+    dst16 -= border;
+    for (int i = 0; i < bh; ++i) {
+      memmove(dst16, ref16, sizeof(*dst16) * border);
+      ref16 += ref_stride;
+      dst16 += dst_stride;
+    }
+  } else {
+    uint8_t *ref8 = ref - border * ref_stride;
+    uint8_t *dst8 = dst - border * dst_stride;
+    // Copy top rows.
+    for (int i = 0; i < border; ++i) {
+      memmove(dst8, ref8, sizeof(*dst8) * bw);
+      ref8 += ref_stride;
+      dst8 += dst_stride;
+    }
+    // Copy left columns.
+    ref8 -= border;
+    dst8 -= border;
+    for (int i = 0; i < bh; ++i) {
+      memmove(dst8, ref8, sizeof(*dst8) * border);
+      ref8 += ref_stride;
+      dst8 += dst_stride;
+    }
+  }
+}
+
+void av1_build_intra_predictors_for_interintra(
+    const AV1_COMMON *cm, MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
+    const BUFFER_SET *ctx, uint8_t *dst, int dst_stride, int border) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
   const int ssx = xd->plane[plane].subsampling_x;
   const int ssy = xd->plane[plane].subsampling_y;
@@ -2536,6 +2577,14 @@ void av1_build_intra_predictors_for_interintra(const AV1_COMMON *cm,
       use_derived_mode ? mbmi->derived_angle : 0,
 #endif  // CONFIG_DERIVED_INTRA_MODE
       ctx->plane[plane], ctx->stride[plane], dst, dst_stride, 0, 0, plane);
+
+  if (border > 0) {
+    // TODO ask deb: is plane_bsize correct? See a lot of references to things
+    // like max_txsize_rect_lookup[...], bsize, plane_bsize, etc.
+    build_extended_intra_border(ctx->plane[plane], ctx->stride[plane], dst,
+                                dst_stride, plane_bsize, border,
+                                is_cur_buf_hbd(xd));
+  }
 }
 
 void av1_combine_interintra(MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
@@ -2580,14 +2629,14 @@ void av1_build_interintra_predictors_sbp(const AV1_COMMON *cm, MACROBLOCKD *xd,
     DECLARE_ALIGNED(16, uint16_t, intrapredictor[MAX_SB_SQUARE]);
     av1_build_intra_predictors_for_interintra(
         cm, xd, bsize, plane, ctx, CONVERT_TO_BYTEPTR(intrapredictor),
-        MAX_SB_SIZE);
+        MAX_SB_SIZE, border);
     av1_combine_interintra(xd, bsize, plane, pred, stride,
                            CONVERT_TO_BYTEPTR(intrapredictor), MAX_SB_SIZE,
                            border);
   } else {
     DECLARE_ALIGNED(16, uint8_t, intrapredictor[MAX_SB_SQUARE]);
-    av1_build_intra_predictors_for_interintra(cm, xd, bsize, plane, ctx,
-                                              intrapredictor, MAX_SB_SIZE);
+    av1_build_intra_predictors_for_interintra(
+        cm, xd, bsize, plane, ctx, intrapredictor, MAX_SB_SIZE, border);
     av1_combine_interintra(xd, bsize, plane, pred, stride, intrapredictor,
                            MAX_SB_SIZE, border);
   }
