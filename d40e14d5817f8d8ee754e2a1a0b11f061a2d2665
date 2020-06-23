@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb908c4e_a953cd22",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2178,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-06-23T18:46:08Z",
+      "side": 1,
+      "message": "Can we move is_scaled calculation to the caller function(e.g. av1_find_best_sub_pixel_tree_pruned) instead of always calculating it here? Might help speed.\n\nOr even create a function pointer for upsampled_pref_error/estimated_pref_error. But don\u0027t have to do this if the implementation is not easy.",
+      "range": {
+        "startLine": 2175,
+        "startChar": 0,
+        "endLine": 2178,
+        "endChar": 44
+      },
+      "revId": "d40e14d5817f8d8ee754e2a1a0b11f061a2d2665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62977547_69891789",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2565,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-06-23T18:46:08Z",
+      "side": 1,
+      "message": "same as above",
+      "range": {
+        "startLine": 2562,
+        "startChar": 0,
+        "endLine": 2565,
+        "endChar": 42
+      },
+      "revId": "d40e14d5817f8d8ee754e2a1a0b11f061a2d2665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
