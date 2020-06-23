@@ -309,6 +309,12 @@ enum aom_dec_control_id {
   AOM_DECODER_CTRL_ID_MAX,
 
   AOMD_GET_FWD_KF_PRESENT,
+
+  /*!\brief Codec control function to get the frame type of the frame
+   * being decoded. Only types KEY_FRAME and S_FRAME are handled for
+   * now, other frame types are returned as -1.
+   */
+  AOMD_GET_FRAME_TYPE,
 };
 
 /*!\cond */
@@ -337,6 +343,9 @@ AOM_CTRL_USE_TYPE(AOMD_GET_LAST_QUANTIZER, int *)
 
 AOM_CTRL_USE_TYPE(AOMD_GET_FWD_KF_PRESENT, int *)
 #define AOM_CTRL_AOMD_GET_FWD_KF_PRESENT
+
+AOM_CTRL_USE_TYPE(AOMD_GET_FRAME_TYPE, int *)
+#define AOM_CTRL_AOMD_GET_FRAME_TYPE
 
 AOM_CTRL_USE_TYPE(AV1D_GET_DISPLAY_SIZE, int *)
 #define AOM_CTRL_AV1D_GET_DISPLAY_SIZE
