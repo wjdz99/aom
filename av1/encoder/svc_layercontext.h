@@ -41,6 +41,7 @@ typedef struct {
   int counter_encode_maxq_scene_change;
   uint8_t speed;
   unsigned char group_index;
+  int is_key_frame;
 } LAYER_CONTEXT;
 
 typedef struct SVC {
@@ -65,6 +66,7 @@ typedef struct SVC {
   int temporal_layer_fb[REF_FRAMES];
   // Layer context used for rate control in CBR mode.
   LAYER_CONTEXT layer_context[AOM_MAX_LAYERS];
+  int force_zero_mode_spatial_ref;
 } SVC;
 
 struct AV1_COMP;
