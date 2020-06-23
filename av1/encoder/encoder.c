@@ -1960,8 +1960,24 @@ static void scale_references(AV1_COMP *cpi) {
             aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                                "Failed to allocate frame buffer");
           }
-          av1_resize_and_extend_frame_nonnormative(
-              ref, &new_fb->buf, (int)cm->seq_params.bit_depth, num_planes);
+#if CONFIG_AV1_HIGHBITDEPTH
+          if ((cm->width << 1) == ref->y_crop_width &&
+              (cm->height << 1) == ref->y_crop_height &&
+              cm->seq_params.bit_depth == AOM_BITS_8)
+            av1_resize_and_extend_frame(ref, &new_fb->buf, EIGHTTAP_REGULAR, 0,
+                                        num_planes);
+          else
+            av1_resize_and_extend_frame_nonnormative(
+                ref, &new_fb->buf, (int)cm->seq_params.bit_depth, num_planes);
+#else
+          if ((cm->width << 1) == ref->y_crop_width &&
+              (cm->height << 1) == ref->y_crop_height)
+            av1_resize_and_extend_frame(ref, &new_fb->buf, EIGHTTAP_REGULAR, 0,
+                                        num_planes);
+          else
+            av1_resize_and_extend_frame_nonnormative(
+                ref, &new_fb->buf, (int)cm->seq_params.bit_depth, num_planes);
+#endif
           cpi->scaled_ref_buf[ref_frame - 1] = new_fb;
           alloc_frame_mvs(cm, new_fb);
         }
