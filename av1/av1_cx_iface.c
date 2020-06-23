@@ -2057,7 +2057,13 @@ static aom_codec_frame_flags_t get_frame_pkt_flags(const AV1_COMP *cpi,
                                                    unsigned int lib_flags) {
   aom_codec_frame_flags_t flags = lib_flags << 16;
 
-  if (lib_flags & FRAMEFLAGS_KEY) flags |= AOM_FRAME_IS_KEY;
+  if (lib_flags & FRAMEFLAGS_KEY ||
+      (cpi->use_svc && cpi->svc
+                           .layer_context[cpi->svc.spatial_layer_id *
+                                              cpi->svc.number_temporal_layers +
+                                          cpi->svc.temporal_layer_id]
+                           .is_key_frame))
+    flags |= AOM_FRAME_IS_KEY;
   if (lib_flags & FRAMEFLAGS_INTRAONLY) flags |= AOM_FRAME_IS_INTRAONLY;
   if (lib_flags & FRAMEFLAGS_SWITCH) flags |= AOM_FRAME_IS_SWITCH;
   if (lib_flags & FRAMEFLAGS_ERROR_RESILIENT)
