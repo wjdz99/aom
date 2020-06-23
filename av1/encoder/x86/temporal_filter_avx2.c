@@ -126,6 +126,7 @@ static AOM_FORCE_INLINE int32_t xx_mask_and_hadd(__m256i vsum, int i) {
   v128a = _mm_add_epi32(v128a, v128b);
   return _mm_extract_epi32(v128a, 0);
 }
+#define TF_DEBUG_MODE 4
 
 static void apply_temporal_filter(
     const uint8_t *frame1, const unsigned int stride, const uint8_t *frame2,
@@ -223,8 +224,12 @@ static void apply_temporal_filter(
       }
 
       const double window_error = (double)(diff_sse) / num_ref_pixels;
+#if TF_DEBUG_MODE == 4
+      const int subblock_idx = i*block_width+ j;
+#else
       const int subblock_idx =
           (i >= block_height / 2) * 2 + (j >= block_width / 2);
+#endif
       const double block_error = (double)subblock_mses[subblock_idx];
       const double combined_error =
           (TF_WINDOW_BLOCK_BALANCE_WEIGHT * window_error + block_error) /
