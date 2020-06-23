@@ -21,10 +21,20 @@
 extern "C" {
 #endif
 
+#if (CONFIG_EXTQUANT_HBD && CONFIG_EXTQUANT)
+#define MINQ 0
+#define MAXQ 375
+#define MAXQ_UNEXT 255
+#define QINDEX_BITS 9
+#define QINDEX_BITS_UNEXT 8
+#define QINDEX_RANGE (MAXQ - MINQ + 1)
+#define QINDEX_RANGE_UNEXT (MAXQ_UNEXT - MINQ + 1)
+#else
 #define MINQ 0
 #define MAXQ 255
 #define QINDEX_BITS 8
 #define QINDEX_RANGE (MAXQ - MINQ + 1)
+#endif
 // Total number of QM sets stored
 #define QM_LEVEL_BITS 4
 #define NUM_QM_LEVELS (1 << QM_LEVEL_BITS)

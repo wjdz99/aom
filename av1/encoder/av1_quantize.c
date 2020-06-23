@@ -644,7 +644,13 @@ void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
                          QUANTS *const quants, Dequants *const deq) {
   int i, q, quant_QTX;
 
+#if (CONFIG_EXTQUANT_HBD && CONFIG_EXTQUANT)
+  int qindex_offset = 30 * (bit_depth - 8);
+  int qindex_range = QINDEX_RANGE_UNEXT + qindex_offset;
+  for (q = 0; q < qindex_range; q++) {
+#else
   for (q = 0; q < QINDEX_RANGE; q++) {
+#endif
     const int qzbin_factor = get_qzbin_factor(q,
 #if CONFIG_DELTA_DCQUANT
                                               base_y_dc_delta_q,
@@ -873,6 +879,41 @@ static const int quantizer_to_qindex[] = {
 };
 // clang-format on
 
+#if (CONFIG_EXTQUANT_HBD && CONFIG_EXTQUANT)
+static const int qindex_10b_offset[] = {
+  0,  20, 24, 28, 42, 46, 50, 56, 56, 56, 56, 56, 56, 56, 56, 56,
+  60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60,
+  60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60,
+  60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60,
+};
+static const int qindex_12b_offset[] = {
+  0,   80,  84,  88,  102, 106, 110, 116, 116, 116, 116, 116, 116,
+  116, 116, 116, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+  120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+  120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+  120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+};
+int av1_quantizer_to_qindex(int quantizer, aom_bit_depth_t bit_depth) {
+  switch (bit_depth) {
+    case AOM_BITS_8: return quantizer_to_qindex[quantizer];
+    case AOM_BITS_10:
+      return (quantizer_to_qindex[quantizer] + qindex_10b_offset[quantizer]);
+    case AOM_BITS_12:
+      return (quantizer_to_qindex[quantizer] + qindex_12b_offset[quantizer]);
+    default:
+      assert(0 && "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
+      return -1;
+  }
+}
+
+int av1_qindex_to_quantizer(int qindex, aom_bit_depth_t bit_depth) {
+  int quantizer;
+  for (quantizer = 0; quantizer < 64; ++quantizer)
+    if (av1_quantizer_to_qindex(quantizer, bit_depth) >= qindex)
+      return quantizer;
+  return 63;
+}
+#else
 int av1_quantizer_to_qindex(int quantizer) {
   return quantizer_to_qindex[quantizer];
 }
@@ -884,3 +925,4 @@ int av1_qindex_to_quantizer(int qindex) {
 
   return 63;
 }
+#endif
