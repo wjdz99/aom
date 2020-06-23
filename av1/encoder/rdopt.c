@@ -2557,6 +2557,7 @@ static int prune_ref_mv_idx_search(int ref_mv_idx, int best_ref_mv_idx,
   }
   // Skip the evaluation if an MV match is found.
   if (ref_mv_idx > 0) {
+    return 1;
     for (int idx = 0; idx < ref_mv_idx; ++idx) {
       int mv_diff = 0;
       for (i = 0; i < 1 + is_comp_pred; ++i) {
@@ -2566,7 +2567,7 @@ static int prune_ref_mv_idx_search(int ref_mv_idx, int best_ref_mv_idx,
 
       // If this mode is not the best one, and current MV is similar to
       // previous stored MV, terminate this ref_mv_idx evaluation.
-      if (best_ref_mv_idx == -1 && mv_diff < 1) return 1;
+      if (best_ref_mv_idx == -1 && mv_diff < 16) return 1;
     }
   }
   return 0;
