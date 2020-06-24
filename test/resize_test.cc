@@ -19,6 +19,7 @@
 #include "test/i420_video_source.h"
 #include "test/video_source.h"
 #include "test/util.h"
+#include "test/y4m_video_source.h"
 
 // Enable(1) or Disable(0) writing of the compressed bitstream.
 #define WRITE_COMPRESSED_STREAM 0
@@ -377,6 +378,14 @@ class ResizeRealtimeTest
       encoder->Control(AOME_SET_CPUUSED, set_cpu_used_);
       encoder->Control(AV1E_SET_FRAME_PARALLEL_DECODING, 1);
     }
+    if (set_scale_mode_) {
+      struct aom_scaling_mode mode;
+      if (video->frame() <= 30)
+        mode = { AOME_ONETWO, AOME_ONETWO };
+      else
+        mode = { AOME_ONEFOUR, AOME_ONEFOUR };
+      encoder->Control(AOME_SET_SCALEMODE, &mode);
+    }
 
     if (change_bitrate_ && video->frame() == 120) {
       change_bitrate_ = false;
@@ -433,7 +442,38 @@ class ResizeRealtimeTest
   bool change_bitrate_;
   double mismatch_psnr_;
   int mismatch_nframes_;
+  int set_scale_mode_;
 };
+
+TEST_P(ResizeRealtimeTest, TestInternalResizeSetScaleMode) {
+  ::libaom_test::Y4mVideoSource video("niklas_1280_720_30.y4m", 0, 60);
+  cfg_.g_w = 1280;
+  cfg_.g_h = 720;
+  DefaultConfig();
+  cfg_.rc_dropframe_thresh = 0;
+  cfg_.g_forced_max_frame_width = cfg_.g_forced_max_frame_height = 1280;
+  change_bitrate_ = false;
+  set_scale_mode_ = true;
+  mismatch_nframes_ = 0;
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+  // Check we decoded the same number of frames as we attempted to encode
+  ASSERT_EQ(frame_info_list_.size(), video.limit());
+  for (std::vector<FrameInfo>::const_iterator info = frame_info_list_.begin();
+       info != frame_info_list_.end(); ++info) {
+    const unsigned int frame = static_cast<unsigned>(info->pts);
+    unsigned int expected_w = 1280 >> 1;
+    unsigned int expected_h = 720 >> 1;
+    if (frame > 30) {
+      expected_w = expected_w >> 1;
+      expected_h = expected_h >> 1;
+    }
+    EXPECT_EQ(expected_w, info->w)
+        << "Frame " << frame << " had unexpected width";
+    EXPECT_EQ(expected_h, info->h)
+        << "Frame " << frame << " had unexpected height";
+    EXPECT_EQ(static_cast<unsigned int>(0), GetMismatchFrames());
+  }
+}
 
 TEST_P(ResizeRealtimeTest, TestExternalResizeWorks) {
   ResizingVideoSource video;
