@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3f41480d_3b1e1f20",
+        "filename": "av1/encoder/av1_noise_estimate.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-06-25T18:36:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "418e6e73_e759ff84",
+      "revId": "0e05afc1cf1c1aab874c739f0b2f40b2e06151a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "081c8642_ba7189b9",
         "filename": "av1/encoder/av1_noise_estimate.c",
         "patchSetId": 3
@@ -39,6 +57,30 @@
       "revId": "0e05afc1cf1c1aab874c739f0b2f40b2e06151a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "309396df_a63b7747",
+        "filename": "av1/encoder/av1_noise_estimate.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-06-25T18:36:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "081c8642_ba7189b9",
+      "range": {
+        "startLine": 85,
+        "startChar": 6,
+        "endLine": 85,
+        "endChar": 7
+      },
+      "revId": "0e05afc1cf1c1aab874c739f0b2f40b2e06151a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "b93cfea4_e696060e",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 6389,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-06-25T18:36:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d3b891a_0cf50356",
+      "range": {
+        "startLine": 6389,
+        "startChar": 0,
+        "endLine": 6389,
+        "endChar": 11
+      },
+      "revId": "0e05afc1cf1c1aab874c739f0b2f40b2e06151a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6fb5e53a_f4dd0970",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 3
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "a9331037_e06cdb45",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 6393,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-06-25T18:36:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6fb5e53a_f4dd0970",
+      "range": {
+        "startLine": 6393,
+        "startChar": 6,
+        "endLine": 6393,
+        "endChar": 9
+      },
+      "revId": "0e05afc1cf1c1aab874c739f0b2f40b2e06151a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5d952bf7_f597e01b",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 3
@@ -105,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "5394c649_96bb8b0b",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 6590,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-06-25T18:36:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d952bf7_f597e01b",
+      "revId": "0e05afc1cf1c1aab874c739f0b2f40b2e06151a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a834832_94db11b9",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 3
@@ -119,6 +227,24 @@
       "revId": "0e05afc1cf1c1aab874c739f0b2f40b2e06151a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8842f8a1_a657304e",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4163,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-06-25T18:36:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a834832_94db11b9",
+      "revId": "0e05afc1cf1c1aab874c739f0b2f40b2e06151a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -142,6 +268,30 @@
       "revId": "0e05afc1cf1c1aab874c739f0b2f40b2e06151a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62cc7d69_c71a39d3",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2455,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-06-25T18:36:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aaf54b1d_c996fbd8",
+      "range": {
+        "startLine": 2455,
+        "startChar": 4,
+        "endLine": 2455,
+        "endChar": 10
+      },
+      "revId": "0e05afc1cf1c1aab874c739f0b2f40b2e06151a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
