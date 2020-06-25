@@ -2894,7 +2894,8 @@ static int encode_without_recode(AV1_COMP *cpi) {
   // For SVC the inter-layer/spatial prediction is not done for newmv
   // (zero_mode is forced), and since the scaled references are only
   // use for newmv search, we can avoid scaling here.
-  if (!frame_is_intra_only(cm) &&
+  // For now remove it always since it is very slow.
+  if (!frame_is_intra_only(cm) && 0 &&
       !(cpi->use_svc && cpi->svc.force_zero_mode_spatial_ref))
     scale_references(cpi, filter_scaler, phase_scaler);
 
