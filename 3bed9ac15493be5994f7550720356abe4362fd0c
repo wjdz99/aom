@@ -70,6 +70,30 @@
       "revId": "3bed9ac15493be5994f7550720356abe4362fd0c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c853f23_d58077c6",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1076,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-06-25T17:46:56Z",
+      "side": 0,
+      "message": "I would lean to removing the concept of fwd kf. Instead, consider to use frame update type and refresh context flag as needed independently.",
+      "parentUuid": "7e267f80_88c41c04",
+      "range": {
+        "startLine": 1076,
+        "startChar": 8,
+        "endLine": 1076,
+        "endChar": 32
+      },
+      "revId": "3bed9ac15493be5994f7550720356abe4362fd0c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
