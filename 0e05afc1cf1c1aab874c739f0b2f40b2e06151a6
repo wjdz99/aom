@@ -19,6 +19,75 @@
     },
     {
       "key": {
+        "uuid": "081c8642_ba7189b9",
+        "filename": "av1/encoder/av1_noise_estimate.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-06-25T18:28:29Z",
+      "side": 1,
+      "message": "this can be incorporated in for loop as well",
+      "range": {
+        "startLine": 85,
+        "startChar": 6,
+        "endLine": 85,
+        "endChar": 7
+      },
+      "revId": "0e05afc1cf1c1aab874c739f0b2f40b2e06151a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d3b891a_0cf50356",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 6389,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-06-25T18:28:29Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 6389,
+        "startChar": 0,
+        "endLine": 6389,
+        "endChar": 11
+      },
+      "revId": "0e05afc1cf1c1aab874c739f0b2f40b2e06151a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fb5e53a_f4dd0970",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 6393,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-06-25T18:28:29Z",
+      "side": 1,
+      "message": "this can be const",
+      "range": {
+        "startLine": 6393,
+        "startChar": 6,
+        "endLine": 6393,
+        "endChar": 9
+      },
+      "revId": "0e05afc1cf1c1aab874c739f0b2f40b2e06151a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5d952bf7_f597e01b",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 3
@@ -47,6 +116,29 @@
       "writtenOn": "2020-06-25T18:20:29Z",
       "side": 1,
       "message": "should be !cpi-\u003esvc.layer_context[cpi-\u003esvc.temporal_layer_id].is_key_frame",
+      "revId": "0e05afc1cf1c1aab874c739f0b2f40b2e06151a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aaf54b1d_c996fbd8",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2455,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-06-25T18:28:29Z",
+      "side": 1,
+      "message": "this can be incorporated in the for loop",
+      "range": {
+        "startLine": 2455,
+        "startChar": 4,
+        "endLine": 2455,
+        "endChar": 10
+      },
       "revId": "0e05afc1cf1c1aab874c739f0b2f40b2e06151a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
