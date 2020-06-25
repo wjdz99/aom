@@ -19,12 +19,6 @@
 
 /*!\defgroup encoder_architecture AV1 Encoder Architectural Overview
 
-  \ref architecture_intro
-*/
-
-/*!\defgroup architecture_intro Introduction
- * \ingroup encoder_architecture
-
 <b>Introduction</b>
 
 This document provides an architectural overview of the LIBAOM AV1 encoder.
@@ -35,6 +29,24 @@ of the encoder and find their way around the codebase.
 
 It stands above and will where necessary link to more detailed function
 level documents.
+
+  - \ref architecture_gencodecs
+  - \ref architecture_av1_structure
+  - \ref architecture_command_line
+  - \ref architecture_enc_data_structures
+  - \ref architecture_enc_use_cases
+  - \ref architecture_enc_rate_ctrl
+  - \ref architecture_enc_src_proc
+  - \ref architecture_enc_hierachical
+  - \ref architecture_enc_tpi
+  - \ref architecture_enc_partitions
+  - \ref architecture_enc_inter_modes
+  - \ref architecture_enc_intra_modes
+  - \ref architecture_enc_tx_search
+  - \ref architecture_loop_filt
+  - \ref architecture_loop_rest
+  - \ref architecture_cdef
+  - \ref architecture_entropy
 */
 
 
@@ -124,6 +136,169 @@ lossless. The yellow blocks represent non-bitstream normative configuration
 and control algorithms.
 
 \image html av1encoderflow.png "" width=70%
+*/
+
+/*!\defgroup architecture_command_line The Libaom Command Line Interface
+ * \ingroup encoder_architecture
+
+ <b>The Libaom Command Line Interface</b>
+
+ Add details or links here: TODO ? elliotk@
+
+*/
+
+/*!\defgroup architecture_enc_data_structures Main Encoder Data Structures
+ * \ingroup encoder_architecture
+
+ <b>Main Encoder Data Structures</b>
+
+ The following are the main high level data structures used by the libaom AV1 encoder:
+
+ - \ref AV1_COMP
+ - Add details, references or links here: TODO ? urvang@
+
+*/
+
+/*!\defgroup architecture_enc_use_cases Encoder Use Cases
+ * \ingroup encoder_architecture
+
+ <b>Encoder Use Cases</b>
+
+ Add details here.
+*/
+
+/*!\defgroup architecture_enc_rate_ctrl Rate Control
+ * \ingroup encoder_architecture
+
+ <b>Rate Control</b>
+
+ Add details here.
+
+  - \ref architecture_enc_vbr
+  - \ref architecture_enc_1pass_lagged
+  - \ref architecture_enc_rate_ctrl
+  - \ref architecture_enc_fixed_q
+*/
+
+/*!\defgroup architecture_enc_vbr Variable Bitrate (VBR) Encoding
+ * \ingroup architecture_enc_rate_ctrl
+
+ <b>Variable Bitrate (VBR) Encoding</b>
+
+ Add details here.
+*/
+
+/*!\defgroup architecture_enc_1pass_lagged 1 Pass Lagged VBR Encoding
+ * \ingroup architecture_enc_rate_ctrl
+
+ <b>1 Pass Lagged VBR Encoding</b>
+
+ Add details here.
+*/
+
+/*!\defgroup architecture_enc_rc_loop The Main Rate Control Loop
+ * \ingroup architecture_enc_rate_ctrl
+
+ <b>The Main Rate Control Loop</b>
+
+ Add details here.
+*/
+
+/*!\defgroup architecture_enc_fixed_q Fixed Q Mode
+ * \ingroup architecture_enc_rate_ctrl
+
+ <b>Fixed Q Mode</b>
+
+ Add details here.
+*/
+
+/*!\defgroup architecture_enc_src_proc Source Frame Processing
+ * \ingroup encoder_architecture
+
+ <b>Source Frame Processing</b>
+
+ Add details here.
+*/
+
+/*!\defgroup architecture_enc_hierachical Hierarchical Coding
+ * \ingroup encoder_architecture
+
+ <b>ARF / Golden Frame Groups / Hierarchical Coding</b>
+
+ Add details here.
+*/
+
+/*!\defgroup architecture_enc_tpi Temporal Dependency Modelling
+ * \ingroup encoder_architecture
+
+ <b>Q Adjustment Using Temporal Dependency Modelling</b>
+
+ Add details here.
+*/
+
+
+/*!\defgroup architecture_enc_partitions Block Partition Search
+ * \ingroup encoder_architecture
+
+ <b>Block Partition Search</b>
+
+ Add details here.
+*/
+
+/*!\defgroup architecture_enc_inter_modes Inter Prediction Mode Search
+ * \ingroup encoder_architecture
+
+ <b>Inter Prediction Mode Search</b>
+
+ Add details here.
+*/
+
+/*!\defgroup architecture_enc_intra_modes Intra Mode Search
+ * \ingroup encoder_architecture
+
+ <b>Intra Mode Search</b>
+
+ Add details here.
+*/
+
+/*!\defgroup architecture_enc_tx_search Transform Search
+ * \ingroup encoder_architecture
+
+ <b>Transform Size / Type Search</b>
+
+ Add details here.
+*/
+
+/*!\defgroup architecture_loop_filt Loop Filtering
+ * \ingroup encoder_architecture
+
+ <b>Loop Filtering</b>
+
+ Add details here.
+*/
+
+/*!\defgroup architecture_loop_rest Loop Restoration Filtering
+ * \ingroup encoder_architecture
+
+ <b>Loop Restoration Filtering</b>
+
+ Add details here.
+*/
+
+/*!\defgroup architecture_cdef CDEF
+ * \ingroup encoder_architecture
+
+ <b>CDEF</b>
+
+ Add details here.
+*/
+
+/*!\defgroup architecture_entropy Entropy Coding
+ * \ingroup encoder_architecture
+
+ <b>Coefficient Coding and Optimization / Entropy Coding</b>
+
+ Add details here.
 */
 
 /*!\defgroup encoder_algo Encoder Algorithm
