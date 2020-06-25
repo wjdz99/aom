@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "97e0f15f_68092e5d",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 884,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-06-25T20:17:28Z",
+      "side": 1,
+      "message": "do you mean we will still have cq_level in the range of [0, 63] but they will map to different actual q_index for 8/10/12 bits? the other option would be extend the cq_level range for 10/12 bit video to a larger range. not sure which way is better. also, you didn\u0027t answer why these two arrays have different number of entries.",
+      "parentUuid": "e1d5eb12_ed3d8c13",
+      "range": {
+        "startLine": 884,
+        "startChar": 1,
+        "endLine": 884,
+        "endChar": 3
+      },
+      "revId": "1c21a2c1b27eb34f2a9971947b98ea984191ce79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6a11823d_36335be3",
         "filename": "build/cmake/aom_config_defaults.cmake",
         "patchSetId": 9
