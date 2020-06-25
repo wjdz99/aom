@@ -628,6 +628,8 @@ static void set_good_speed_features_framesize_independent(
     sf->tpl_sf.disable_filtered_key_tpl = 1;
 
     sf->tx_sf.tx_type_search.prune_tx_type_est_rd = 0;
+
+    sf->winner_mode_sf.enable_multiwinner_mode_process = 0;
   }
 }
 
