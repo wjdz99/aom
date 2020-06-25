@@ -856,6 +856,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
       sf->rt_sf.overshoot_detection_cbr = FAST_DETECTION_MAXQ;
       sf->rt_sf.check_scene_detection = 1;
     }
+    sf->rt_sf.use_temporal_noise_estimate = 1;
   }
 
   if (speed >= 6) {
