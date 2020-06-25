@@ -2872,6 +2872,13 @@ static int encode_without_recode(AV1_COMP *cpi) {
     phase_scaler = 8;
   }
 
+  // Use eighttap for 4:1 scaling.
+  if ((cm->width << 2) == unscaled->y_crop_width &&
+      (cm->height << 2) == unscaled->y_crop_height) {
+    filter_scaler = EIGHTTAP_REGULAR;
+    phase_scaler = 8;
+  }
+
   if (cpi->sf.part_sf.partition_search_type == VAR_BASED_PARTITION)
     variance_partition_alloc(cpi);
 
