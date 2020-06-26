@@ -324,13 +324,17 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
 void av1_read_coeffs_txb_facade(const AV1_COMMON *const cm,
                                 DecoderCodingBlock *dcb, aom_reader *const r,
                                 const int plane, const int row, const int col,
-                                const TX_SIZE tx_size) {
+                                const TX_SIZE tx_size,
+                                const DSPL_TYPE dspl_type) {
 #if TXCOEFF_TIMER
   struct aom_usec_timer timer;
   aom_usec_timer_start(&timer);
 #endif
   MACROBLOCKD *const xd = &dcb->xd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
+
+  assert(mbmi->dspl_type == dspl_type);
+
   struct macroblockd_plane *const pd = &xd->plane[plane];
 
   const BLOCK_SIZE bsize = mbmi->sb_type;

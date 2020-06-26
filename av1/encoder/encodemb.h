@@ -56,6 +56,7 @@ struct encode_b_args {
   MACROBLOCK *x;
   struct optimize_ctx *ctx;
   int8_t *skip;
+  DSPL_TYPE dspl_type;
   ENTROPY_CONTEXT *ta;
   ENTROPY_CONTEXT *tl;
   RUN_TYPE dry_run;
@@ -73,7 +74,7 @@ void av1_encode_sby_pass1(struct AV1_COMP *cpi, MACROBLOCK *x,
                           BLOCK_SIZE bsize);
 
 void av1_setup_xform(const AV1_COMMON *cm, MACROBLOCK *x, TX_SIZE tx_size,
-                     TX_TYPE tx_type, TxfmParam *txfm_param);
+                     TX_TYPE tx_type, DSPL_TYPE dspl_type, TxfmParam *txfm_param);
 void av1_setup_quant(TX_SIZE tx_size, int use_optimize_b, int xform_quant_idx,
                      int use_quant_b_adapt, QUANT_PARAM *qparam);
 void av1_setup_qmatrix(const CommonQuantParams *quant_params,
@@ -152,6 +153,7 @@ static INLINE int is_trellis_used(TRELLIS_OPT_TYPE optimize_b,
     return false;
   return true;
 }
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

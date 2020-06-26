@@ -238,6 +238,7 @@ typedef struct {
   //! Txfm size used if the current mode is intra mode.
   TX_SIZE tx_size;
   //! Txfm sizes used if the current mode is inter mode.
+  DSPL_TYPE dspl_type;
   TX_SIZE inter_tx_size[INTER_TX_SIZE_BUF_LEN];
   //! Map showing which txfm block skips the txfm process.
   uint8_t blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
@@ -530,6 +531,8 @@ typedef struct {
    */
   uint8_t tx_type_map_[MAX_MIB_SIZE * MAX_MIB_SIZE];
 
+  uint8_t tx_dspl_map_[MAX_MIB_SIZE * MAX_MIB_SIZE];
+
   /** \name Txfm hash records
    * Hash records of the transform search results based on the residue. There
    * are two main types here:
@@ -545,13 +548,13 @@ typedef struct {
   MB_RD_RECORD mb_rd_record;
 
   //! Inter mode txfm hash record for TX_8X8 blocks.
-  TXB_RD_RECORD txb_rd_record_8X8[MAX_NUM_8X8_TXBS];
+  TXB_RD_RECORD txb_rd_record_8X8[DSPL_END][MAX_NUM_8X8_TXBS];
   //! Inter mode txfm hash record for TX_16X16 blocks.
-  TXB_RD_RECORD txb_rd_record_16X16[MAX_NUM_16X16_TXBS];
+  TXB_RD_RECORD txb_rd_record_16X16[DSPL_END][MAX_NUM_16X16_TXBS];
   //! Inter mode txfm hash record for TX_32X32 blocks.
-  TXB_RD_RECORD txb_rd_record_32X32[MAX_NUM_32X32_TXBS];
+  TXB_RD_RECORD txb_rd_record_32X32[DSPL_END][MAX_NUM_32X32_TXBS];
   //! Inter mode txfm hash record for TX_64X64 blocks.
-  TXB_RD_RECORD txb_rd_record_64X64[MAX_NUM_64X64_TXBS];
+  TXB_RD_RECORD txb_rd_record_64X64[DSPL_END][MAX_NUM_64X64_TXBS];
   //! Intra mode txfm hash record for square tx blocks.
   TXB_RD_RECORD txb_rd_record_intra;
   /**@}*/

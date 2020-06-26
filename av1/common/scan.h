@@ -48,6 +48,12 @@ static INLINE const SCAN_ORDER *get_scan(TX_SIZE tx_size, TX_TYPE tx_type) {
   return get_default_scan(tx_size, tx_type);
 }
 
+void scan_array(const tran_low_t *src, tran_low_t *dst, int size,
+                const SCAN_ORDER *scan_order);
+
+void iscan_array(const tran_low_t *src, tran_low_t *dst, int size,
+                 const SCAN_ORDER *scan_order);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

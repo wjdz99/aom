@@ -1098,6 +1098,9 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
   write_skip_mode(cm, xd, segment_id, mbmi, w);
 
   assert(IMPLIES(mbmi->skip_mode, mbmi->skip_txfm));
+  assert(IMPLIES(mbmi->skip_txfm, mbmi->dspl_type == DSPL_NO_TXFM));
+  assert(DSPL_NO_TXFM <= mbmi->dspl_type && mbmi->dspl_type < DSPL_END);
+
   const int skip =
       mbmi->skip_mode ? 1 : write_skip(cm, xd, segment_id, mbmi, w);
 
@@ -1496,6 +1499,7 @@ static AOM_INLINE void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
                      cpi->mbmi_ext_info.stride);
   xd->tx_type_map = mi_params->tx_type_map + grid_idx;
   xd->tx_type_map_stride = mi_params->mi_stride;
+  xd->tx_dspl_map = mi_params->tx_dspl_map + grid_idx;
 
   const MB_MODE_INFO *mbmi = xd->mi[0];
   const BLOCK_SIZE bsize = mbmi->sb_type;

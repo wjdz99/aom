@@ -1518,6 +1518,9 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 
   mbmi->skip_mode = read_skip_mode(cm, xd, mbmi->segment_id, r);
 
+  // TODO(singhprakhar): read dspl type here
+  mbmi->dspl_type = DSPL_NO_TXFM;
+
   if (mbmi->skip_mode)
     mbmi->skip_txfm = 1;
   else
@@ -1573,6 +1576,7 @@ void av1_read_mode_info(AV1Decoder *const pbi, DecoderCodingBlock *dcb,
 
   if (frame_is_intra_only(cm)) {
     read_intra_frame_mode_info(cm, dcb, r);
+    mi->dspl_type = DSPL_NO_TXFM;
     if (cm->seq_params.order_hint_info.enable_ref_frame_mvs)
       intra_copy_frame_mvs(cm, xd->mi_row, xd->mi_col, x_mis, y_mis);
   } else {

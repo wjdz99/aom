@@ -31,6 +31,8 @@ void av1_copy_tree_context(PICK_MODE_CONTEXT *dst_ctx,
          sizeof(uint8_t) * src_ctx->num_4x4_blk);
   av1_copy_array(dst_ctx->tx_type_map, src_ctx->tx_type_map,
                  src_ctx->num_4x4_blk);
+  av1_copy_array(dst_ctx->tx_dspl_map, src_ctx->tx_dspl_map,
+                 src_ctx->num_4x4_blk);
 
   dst_ctx->hybrid_pred_diff = src_ctx->hybrid_pred_diff;
   dst_ctx->comp_pred_diff = src_ctx->comp_pred_diff;
@@ -71,6 +73,7 @@ PICK_MODE_CONTEXT *av1_alloc_pmc(const AV1_COMMON *cm, BLOCK_SIZE bsize,
 
   AOM_CHECK_MEM_ERROR(&error, ctx, aom_calloc(1, sizeof(*ctx)));
   ctx->rd_mode_is_ready = 0;
+  ctx->mic.dspl_type = DSPL_BAD;
 
   const int num_planes = av1_num_planes(cm);
   const int num_pix = block_size_wide[bsize] * block_size_high[bsize];
@@ -80,6 +83,9 @@ PICK_MODE_CONTEXT *av1_alloc_pmc(const AV1_COMMON *cm, BLOCK_SIZE bsize,
                       aom_calloc(num_blk, sizeof(*ctx->blk_skip)));
   AOM_CHECK_MEM_ERROR(&error, ctx->tx_type_map,
                       aom_calloc(num_blk, sizeof(*ctx->tx_type_map)));
+  AOM_CHECK_MEM_ERROR(&error, ctx->tx_dspl_map,
+                      aom_calloc(num_blk, sizeof(*ctx->tx_dspl_map)));
+
   ctx->num_4x4_blk = num_blk;
 
   for (int i = 0; i < num_planes; ++i) {
@@ -110,6 +116,7 @@ void av1_free_pmc(PICK_MODE_CONTEXT *ctx, int num_planes) {
   aom_free(ctx->blk_skip);
   ctx->blk_skip = NULL;
   aom_free(ctx->tx_type_map);
+  aom_free(ctx->tx_dspl_map);
   for (int i = 0; i < num_planes; ++i) {
     ctx->coeff[i] = NULL;
     ctx->qcoeff[i] = NULL;
