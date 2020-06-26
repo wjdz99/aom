@@ -192,7 +192,63 @@ pathway designed for testing under highly constrained conditions.
 
 \section architecture_enc_rate_ctrl Rate Control
 
- Add details here.
+Different use cases may have different requirements in terms of data rate
+control.
+
+The broad rate control strategy is selected using the <b>--end-usage</b>
+parameter on the command line, which maps onto the field
+\ref aom_codec_enc_cfg_t::rc_end_usage in \ref aom_encoder.h.
+
+The four supported options are:-
+
+- <b>VBR</b> (Variable Bitrate)
+- <b>CBR</b> (Constant Bitrate)
+- <b>CQ</b> (Constrained Quality mode ; A constrained variant of VBR)
+- <b>Fixed Q</b> (Constant quality of ‘Q’ mode)
+
+<b>TODO paulwilkins</b> Add proper field references for
+AV1EncoderConfig and RateControlCfg these have been added to the
+header file.
+
+The value of \ref aom_codec_enc_cfg_t::rc_end_usage is in turn copied over
+into the encoder rate control configuration data structure as
+AV1EncoderConfig::rc_cfg::rc_mode in \ref encoder.h.
+
+In regards to the most important use cases above, Video on demand uses either
+VBR or CQ mode. CBR is the preferred rate control model for RTC and Live
+streaming and Fixed Q is only used in testing.
+
+The behaviour of each of these modes is regulated by a series of secondary
+command line rate control options but also depends somewhat on the selected
+use case and on things such as whether 2-pass coding is enabled and the
+selected encode speed vs quality trade off.
+
+The list below gives the name of the main rate control related command line
+options together with the name of the corresponding field in
+\ref AV1_COMP::oxcf
+\ref AV1EncoderConfig::rc_cfg
+(type \ref RateControlCfg).
+
+- <b>--target-bitrate</b> (RateControlCfg::target_bandwidth)
+- <b>--min-q</b> (RateControlCfg::best_allowed_q)
+- <b>--max-q</b> (RateControlCfg::worst_allowed_q)
+- <b>--cq-level</b> (RateControlCfg::cq_level)
+- <b>--undershoot-pct</b> (RateControlCfg::under_shoot_pct)
+- <b>--overshoot-pct</b> (RateControlCfg::over_shoot_pct)
+
+The following control aspects of 2 pass vbr encoding
+
+- <b>--bias-pct</b> (RateControlCfg::two_pass_vbrbias)
+- <b>--minsection-pct</b> (RateControlCfg::two_pass_vbrmin_section)
+- <b>--maxsection-pct</b> (RateControlCfg::two_pass_vbrmax_section)
+
+The following relate to buffer and delay management in one pass low delay and
+real time coding
+
+- <b>--buf-sz</b> (RateControlCfg::maximum_buffer_size_ms)
+- <b>--buf-initial-sz</b> (RateControlCfg::starting_buffer_level_ms)
+- <b>--buf-optimal-sz</b> (RateControlCfg::optimal_buffer_level_ms)
+
 
 \subsection architecture_enc_vbr Variable Bitrate (VBR) Encoding
 

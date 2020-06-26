@@ -378,50 +378,57 @@ typedef struct {
   bool enable_intrabc;
 } KeyFrameCfg;
 
+/*!\endcond */
+/*!
+ * \brief Encoder rate control configuration parameters
+ */
 typedef struct {
-  // BUFFERING PARAMETERS
-  // Indicates the amount of data that will be buffered by the decoding
-  // application prior to beginning playback, and is expressed in units of
-  // time(milliseconds).
-  int64_t starting_buffer_level_ms;
-  // Indicates the amount of data that the encoder should try to maintain in the
-  // decoder's buffer, and is expressed in units of time(milliseconds).
-  int64_t optimal_buffer_level_ms;
-  // Indicates the maximum amount of data that may be buffered by the decoding
-  // application, and is expressed in units of time(milliseconds).
-  int64_t maximum_buffer_size_ms;
+	/*!\cond */
+	// BUFFERING PARAMETERS
+	// Indicates the amount of data that will be buffered by the decoding
+	// application prior to beginning playback, and is expressed in units of
+	// time(milliseconds).
+	int64_t starting_buffer_level_ms;
+	// Indicates the amount of data that the encoder should try to maintain in the
+	// decoder's buffer, and is expressed in units of time(milliseconds).
+	int64_t optimal_buffer_level_ms;
+	// Indicates the maximum amount of data that may be buffered by the decoding
+	// application, and is expressed in units of time(milliseconds).
+	int64_t maximum_buffer_size_ms;
 
-  // Indicates the maximum allowed bitrate for any intra frame as % of bitrate
-  // target.
-  unsigned int max_intra_bitrate_pct;
-  // Indicates the maximum allowed bitrate for any inter frame as % of bitrate
-  // target.
-  unsigned int max_inter_bitrate_pct;
-  // Indicates the percentage of rate boost for golden frame in CBR mode.
-  unsigned int gf_cbr_boost_pct;
-  // min_cr / 100 indicates the target minimum compression ratio for each frame.
-  unsigned int min_cr;
-  // under_shoot_pct indicates the tolerance of the VBR algorithm to undershoot
-  // and is used as a trigger threshold for more agressive adaptation of Q. It's
-  // value can range from 0-100.
-  int under_shoot_pct;
-  // over_shoot_pct indicates the tolerance of the VBR algorithm to overshoot
-  // and is used as a trigger threshold for more agressive adaptation of Q. It's
-  // value can range from 0-1000.
-  int over_shoot_pct;
-  // Indicates the maximum qindex that can be used by the quantizer i.e. the
-  // worst quality qindex.
-  int worst_allowed_q;
-  // Indicates the minimum qindex that can be used by the quantizer i.e. the
-  // best quality qindex.
-  int best_allowed_q;
-  // Indicates the Constant/Constrained Quality level.
-  int cq_level;
-  // Indicates if the encoding mode is vbr, cbr, constrained quality or constant
-  // quality.
-  enum aom_rc_mode mode;
+	// Indicates the maximum allowed bitrate for any intra frame as % of bitrate
+	// target.
+	unsigned int max_intra_bitrate_pct;
+	// Indicates the maximum allowed bitrate for any inter frame as % of bitrate
+	// target.
+	unsigned int max_inter_bitrate_pct;
+	// Indicates the percentage of rate boost for golden frame in CBR mode.
+	unsigned int gf_cbr_boost_pct;
+	// min_cr / 100 indicates the target minimum compression ratio for each frame.
+	unsigned int min_cr;
+	// under_shoot_pct indicates the tolerance of the VBR algorithm to undershoot
+	// and is used as a trigger threshold for more agressive adaptation of Q. It's
+	// value can range from 0-100.
+	int under_shoot_pct;
+	// over_shoot_pct indicates the tolerance of the VBR algorithm to overshoot
+	// and is used as a trigger threshold for more agressive adaptation of Q. It's
+	// value can range from 0-1000.
+	int over_shoot_pct;
+	// Indicates the maximum qindex that can be used by the quantizer i.e. the
+	// worst quality qindex.
+	int worst_allowed_q;
+	// Indicates the minimum qindex that can be used by the quantizer i.e. the
+	// best quality qindex.
+	int best_allowed_q;
+	// Indicates the Constant/Constrained Quality level.
+	int cq_level;
+	// Indicates if the encoding mode is vbr, cbr, constrained quality or constant
+	// quality.
+	enum aom_rc_mode mode;
+	/*!\endcond */
 } RateControlCfg;
 
+/*!\cond */
 typedef struct {
   // Indicates the number of frames lag before encoding is started.
   int lag_in_frames;
@@ -589,7 +596,12 @@ typedef struct {
   bool using_qm;
 } QuantizationCfg;
 
+/*!\endcond */
+/*!
+ * \brief Main encoder configuration data structure.
+ */
 typedef struct AV1EncoderConfig {
+  /*!\cond */
   BITSTREAM_PROFILE profile;
   aom_bit_depth_t bit_depth;     // Codec bit-depth.
   unsigned int input_bit_depth;  // Input bit depth.
@@ -612,8 +624,12 @@ typedef struct AV1EncoderConfig {
   // ----------------------------------------------------------------
   // DATARATE CONTROL OPTIONS
 
-  // Configuration related to rate control.
+  /*!\endcond */
+  /*!
+  * Rate control configuration
+  */
   RateControlCfg rc_cfg;
+  /*!\cond */
 
   // Frame drop threshold.
   int drop_frames_water_mark;
@@ -740,12 +756,14 @@ typedef struct AV1EncoderConfig {
   // conforms to.
   unsigned int tier_mask;
   const cfg_options_t *encoder_cfg;
+
+  /*!\endcond */
 } AV1EncoderConfig;
 
+/*!\cond */
 static INLINE int is_lossless_requested(const RateControlCfg *const rc_cfg) {
   return rc_cfg->best_allowed_q == 0 && rc_cfg->worst_allowed_q == 0;
 }
-
 /*!\endcond */
 
 /*!
