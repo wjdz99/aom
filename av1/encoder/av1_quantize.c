@@ -612,7 +612,7 @@ static void invert_quant(int16_t *quant, int16_t *shift, int d) {
 #else
   *quant = (int16_t)(m - (1 << 16));
 #endif
-  *shift = 1 << (16 - l);
+  *shift = 1 << (16 - l + QUANT_TABLE_BITS);
 }
 
 static int get_qzbin_factor(int q,
@@ -626,9 +626,12 @@ static int get_qzbin_factor(int q,
 #endif  // CONFIG_DELTA_DCQUANT
                                      bit_depth);
   switch (bit_depth) {
-    case AOM_BITS_8: return q == 0 ? 64 : (quant < 148 ? 84 : 80);
-    case AOM_BITS_10: return q == 0 ? 64 : (quant < 592 ? 84 : 80);
-    case AOM_BITS_12: return q == 0 ? 64 : (quant < 2368 ? 84 : 80);
+    case AOM_BITS_8:
+      return q == 0 ? 64 : (quant < (148 << QUANT_TABLE_BITS) ? 84 : 80);
+    case AOM_BITS_10:
+      return q == 0 ? 64 : (quant < (592 << QUANT_TABLE_BITS) ? 84 : 80);
+    case AOM_BITS_12:
+      return q == 0 ? 64 : (quant < (2368 << QUANT_TABLE_BITS) ? 84 : 80);
     default:
       assert(0 && "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
       return -1;
@@ -663,10 +666,13 @@ void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
                          : av1_ac_quant_QTX(q, 0, bit_depth);
       invert_quant(&quants->y_quant[q][i], &quants->y_quant_shift[q][i],
                    quant_QTX);
-      quants->y_quant_fp[q][i] = (1 << 16) / quant_QTX;
-      quants->y_round_fp[q][i] = (qrounding_factor_fp * quant_QTX) >> 7;
-      quants->y_zbin[q][i] = ROUND_POWER_OF_TWO(qzbin_factor * quant_QTX, 7);
-      quants->y_round[q][i] = (qrounding_factor * quant_QTX) >> 7;
+      quants->y_quant_fp[q][i] = (1 << (16 + QUANT_TABLE_BITS)) / quant_QTX;
+      quants->y_round_fp[q][i] =
+          (qrounding_factor_fp * quant_QTX) >> (7 + QUANT_TABLE_BITS);
+      quants->y_zbin[q][i] =
+          ROUND_POWER_OF_TWO(qzbin_factor * quant_QTX, (7 + QUANT_TABLE_BITS));
+      quants->y_round[q][i] =
+          (qrounding_factor * quant_QTX) >> (7 + QUANT_TABLE_BITS);
       deq->y_dequant_QTX[q][i] = quant_QTX;
 
       // u quantizer with TX scale
@@ -678,10 +684,13 @@ void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
                          : av1_ac_quant_QTX(q, u_ac_delta_q, bit_depth);
       invert_quant(&quants->u_quant[q][i], &quants->u_quant_shift[q][i],
                    quant_QTX);
-      quants->u_quant_fp[q][i] = (1 << 16) / quant_QTX;
-      quants->u_round_fp[q][i] = (qrounding_factor_fp * quant_QTX) >> 7;
-      quants->u_zbin[q][i] = ROUND_POWER_OF_TWO(qzbin_factor * quant_QTX, 7);
-      quants->u_round[q][i] = (qrounding_factor * quant_QTX) >> 7;
+      quants->u_quant_fp[q][i] = (1 << (16 + QUANT_TABLE_BITS)) / quant_QTX;
+      quants->u_round_fp[q][i] =
+          (qrounding_factor_fp * quant_QTX) >> (7 + QUANT_TABLE_BITS);
+      quants->u_zbin[q][i] =
+          ROUND_POWER_OF_TWO(qzbin_factor * quant_QTX, (7 + QUANT_TABLE_BITS));
+      quants->u_round[q][i] =
+          (qrounding_factor * quant_QTX) >> (7 + QUANT_TABLE_BITS);
       deq->u_dequant_QTX[q][i] = quant_QTX;
 
       // v quantizer with TX scale
@@ -693,10 +702,13 @@ void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
                          : av1_ac_quant_QTX(q, v_ac_delta_q, bit_depth);
       invert_quant(&quants->v_quant[q][i], &quants->v_quant_shift[q][i],
                    quant_QTX);
-      quants->v_quant_fp[q][i] = (1 << 16) / quant_QTX;
-      quants->v_round_fp[q][i] = (qrounding_factor_fp * quant_QTX) >> 7;
-      quants->v_zbin[q][i] = ROUND_POWER_OF_TWO(qzbin_factor * quant_QTX, 7);
-      quants->v_round[q][i] = (qrounding_factor * quant_QTX) >> 7;
+      quants->v_quant_fp[q][i] = (1 << (16 + QUANT_TABLE_BITS)) / quant_QTX;
+      quants->v_round_fp[q][i] =
+          (qrounding_factor_fp * quant_QTX) >> (7 + QUANT_TABLE_BITS);
+      quants->v_zbin[q][i] =
+          ROUND_POWER_OF_TWO(qzbin_factor * quant_QTX, (7 + QUANT_TABLE_BITS));
+      quants->v_round[q][i] =
+          (qrounding_factor * quant_QTX) >> (7 + QUANT_TABLE_BITS);
       deq->v_dequant_QTX[q][i] = quant_QTX;
     }
 
