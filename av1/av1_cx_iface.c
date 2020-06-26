@@ -805,9 +805,10 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   rc_cfg->maximum_buffer_size_ms = is_vbr ? 240000 : cfg->rc_buf_sz;
   rc_cfg->starting_buffer_level_ms = is_vbr ? 60000 : cfg->rc_buf_initial_sz;
   rc_cfg->optimal_buffer_level_ms = is_vbr ? 60000 : cfg->rc_buf_optimal_sz;
-
   // Convert target bandwidth from Kbit/s to Bit/s
-  oxcf->target_bandwidth = 1000 * cfg->rc_target_bitrate;
+  rc_cfg->target_bandwidth = 1000 * cfg->rc_target_bitrate;
+  rc_cfg->drop_frames_water_mark = cfg->rc_dropframe_thresh;
+  rc_cfg->vbr_corpus_complexity_lap = extra_cfg->vbr_corpus_complexity_lap;
 
   oxcf->enable_cdef = extra_cfg->enable_cdef;
   oxcf->enable_restoration =
@@ -863,8 +864,6 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
       resize_cfg->resize_scale_denominator == SCALE_NUMERATOR &&
       resize_cfg->resize_kf_scale_denominator == SCALE_NUMERATOR)
     resize_cfg->resize_mode = RESIZE_NONE;
-
-  oxcf->drop_frames_water_mark = cfg->rc_dropframe_thresh;
 
   // Set two-pass configuration.
   two_pass_cfg->vbrbias = cfg->rc_2pass_vbr_bias_pct;
@@ -1089,8 +1088,6 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   memcpy(oxcf->target_seq_level_idx, extra_cfg->target_seq_level_idx,
          sizeof(oxcf->target_seq_level_idx));
   oxcf->tier_mask = extra_cfg->tier_mask;
-
-  oxcf->vbr_corpus_complexity_lap = extra_cfg->vbr_corpus_complexity_lap;
 
   return AOM_CODEC_OK;
 }
@@ -2632,7 +2629,8 @@ static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
       }
       av1_init_layer_context(cpi);
     }
-    av1_update_layer_context_change_config(cpi, cpi->oxcf.target_bandwidth);
+    av1_update_layer_context_change_config(cpi,
+                                           cpi->oxcf.rc_cfg.target_bandwidth);
   }
   return AOM_CODEC_OK;
 }
