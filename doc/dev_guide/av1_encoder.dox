@@ -100,11 +100,28 @@ and control algorithms.
 \section architecture_enc_data_structures Main Encoder Data Structures
 
 The following are the main high level data structures used by the libaom AV1
-encoder:
+encoder and referenced elsewhere in this overview document:
 
- - \ref AV1_COMP
- - Add details, references or links here: TODO ? urvang@
+The following are the main libaom encoder data structures referenced
+in this overview document:
 
+ - AV1_COMP
+   - AVI_COMP.rc (RATE_CONTROL)
+   - AV1_COMP.oxcf (AV1EncoderConfig)
+   - AVI_COMP.twopass (TWO_PASS)
+   - AVI_COMP.gf_group (GF_GROUP)
+   - AVI_COMP.speed
+   - VI_COMP.sf (SPEED_FEATURES)
+
+ - AV1EncoderConfig (Encoder configuration parameters)
+   - AV1EncoderConfig.rc_cfg (RateControlCfg)
+
+ - RATE_CONTROL (Rate control status)
+ - RateControlCfg (Rate control configuration)
+ - TWO_PASS (Two pass status and control data)
+ - GF_GROUP (Data relating to the current GF/ARF group)
+ - FIRSTPASS_STATS (Defines entries in the first pass stats buffer)
+ - SPEED_FEATURES (Encode speed / quality tradeoff parameters)
 
 \section architecture_enc_use_cases Encoder Use Cases
 
@@ -127,7 +144,8 @@ which there is less by way of specific optimizations include:
  - <b>Editing</b>
  - <b>Broadcast video</b>
 
-Specific use cases may have particular requirements or constraints. For example:
+Specific use cases may have particular requirements or constraints. For
+example:
 
 <b>Video Conferencing:</b>  In a video conference we need to encode the video
 in real time and to avoid any coding tools that could increase latency, such
@@ -192,7 +210,57 @@ pathway designed for testing under highly constrained conditions.
 
 \section architecture_enc_rate_ctrl Rate Control
 
- Add details here.
+Different use cases may have different requirements in terms of data rate
+control.
+
+The broad rate control strategy is selected using the <b>--end-usage</b>
+parameter on the command line, which maps onto the field
+\ref aom_codec_enc_cfg_t.rc_end_usage in aom_encoder.h.
+
+The four supported options are:-
+
+- <b>VBR</b> (Variable Bitrate)
+- <b>CBR</b> (Constant Bitrate)
+- <b>CQ</b> (Constrained Quality mode ; A constrained variant of VBR)
+- <b>Fixed Q</b> (Constant quality of ‘Q’ mode)
+
+The value of aom_codec_enc_cfg_t.rc_end_usage is in turn copied over
+into the encoder rate control configuration data structure as
+RateControlCfg.rc_mode (see encoder.h).
+
+In regards to the most important use cases above, Video on demand uses either
+VBR or CQ mode. CBR is the preferred rate control model for RTC and Live
+streaming and Fixed Q is only used in testing.
+
+The behaviour of each of these modes is regulated by a series of secondary
+command line rate control options but also depends somewhat on the selected
+use case, whether 2-pass coding is enabled and the selected encode speed vs
+quality trade offs (AVI_COMP.speed and AVI_COMP.sf).
+
+The list below gives the names of the main rate control related command line
+options together with the names of the corresponding fields in the rate
+control configuration data structure (AV1_COMP.oxcf (AV1EncoderConfig.rc_cfg))
+
+- <b>--target-bitrate</b> (RateControlCfg.target_bandwidth)
+- <b>--min-q</b> (RateControlCfg.best_allowed_q)
+- <b>--max-q</b> (RateControlCfg.worst_allowed_q)
+- <b>--cq-level</b> (RateControlCfg.cq_level)
+- <b>--undershoot-pct</b> (RateControlCfg.under_shoot_pct)
+- <b>--overshoot-pct</b> (RateControlCfg.over_shoot_pct)
+
+The following control aspects of 2 pass vbr encoding
+
+- <b>--bias-pct</b> (RateControlCfg.two_pass_vbrbias)
+- <b>--minsection-pct</b> (RateControlCfg.two_pass_vbrmin_section)
+- <b>--maxsection-pct</b> (RateControlCfg.two_pass_vbrmax_section)
+
+The following relate to buffer and delay management in one pass low delay and
+real time coding
+
+- <b>--buf-sz</b> (RateControlCfg.maximum_buffer_size_ms)
+- <b>--buf-initial-sz</b> (RateControlCfg.starting_buffer_level_ms)
+- <b>--buf-optimal-sz</b> (RateControlCfg.optimal_buffer_level_ms)
+
 
 \subsection architecture_enc_vbr Variable Bitrate (VBR) Encoding
 
