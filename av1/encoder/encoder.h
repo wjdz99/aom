@@ -392,6 +392,8 @@ typedef struct {
   // application, and is expressed in units of time(milliseconds).
   int64_t maximum_buffer_size_ms;
 
+  // Indicates the bandwidth to be used in bits per second.
+  int64_t target_bandwidth;
   // Indicates the maximum allowed bitrate for any intra frame as % of bitrate
   // target.
   unsigned int max_intra_bitrate_pct;
@@ -402,6 +404,8 @@ typedef struct {
   unsigned int gf_cbr_boost_pct;
   // min_cr / 100 indicates the target minimum compression ratio for each frame.
   unsigned int min_cr;
+  // Indicates the frame drop threshold.
+  int drop_frames_water_mark;
   // under_shoot_pct indicates the tolerance of the VBR algorithm to undershoot
   // and is used as a trigger threshold for more agressive adaptation of Q. It's
   // value can range from 0-100.
@@ -418,6 +422,9 @@ typedef struct {
   int best_allowed_q;
   // Indicates the Constant/Constrained Quality level.
   int cq_level;
+  // Indicates average complexity of the corpus in single pass vbr based on LAP.
+  // 0 indicates that corpus complexity vbr mode is disabled.
+  unsigned int vbr_corpus_complexity_lap;
   // Indicates if the encoding mode is vbr, cbr, constrained quality or constant
   // quality.
   enum aom_rc_mode mode;
@@ -595,7 +602,6 @@ typedef struct AV1EncoderConfig {
   aom_bit_depth_t bit_depth;     // Codec bit-depth.
   unsigned int input_bit_depth;  // Input bit depth.
   double init_framerate;         // set to passed in framerate
-  int64_t target_bandwidth;      // bandwidth to be used in bits per second
 
   // Configuration related to frame-dimensions.
   FrameDimensionCfg frm_dim_cfg;
@@ -615,17 +621,12 @@ typedef struct AV1EncoderConfig {
   // Configuration related to rate control.
   RateControlCfg rc_cfg;
 
-  // Frame drop threshold.
-  int drop_frames_water_mark;
-
   // controlling quality
   int deltalf_mode;
   int enable_cdef;
   int enable_restoration;
   int force_video_mode;
   int disable_trellis_quant;
-  unsigned int vbr_corpus_complexity_lap;  // 0 indicates corpus complexity vbr
-                                           // mode is disabled
 
   // Configuration related to Quantization.
   QuantizationCfg q_cfg;

@@ -780,7 +780,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   }
 
   if (cpi->use_svc)
-    av1_update_layer_context_change_config(cpi, oxcf->target_bandwidth);
+    av1_update_layer_context_change_config(cpi, oxcf->rc_cfg.target_bandwidth);
 
   // restore the value of lag_in_frame for LAP stage.
   if (lap_lag_in_frames != -1) {
@@ -1339,7 +1339,8 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       const double dr =
           (double)cpi->bytes * (double)8 / (double)1000 / time_encoded;
       const double peak = (double)((1 << cpi->oxcf.input_bit_depth) - 1);
-      const double target_rate = (double)cpi->oxcf.target_bandwidth / 1000;
+      const double target_rate =
+          (double)cpi->oxcf.rc_cfg.target_bandwidth / 1000;
       const double rate_err = ((100.0 * (dr - target_rate)) / target_rate);
 
       if (cpi->b_calculate_psnr) {
