@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "11bd2e68_5682e03e",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2020-06-26T09:49:31Z",
+      "side": 1,
+      "message": "thanks fixed in next patch",
+      "parentUuid": "ee7a87ff_f9b0de83",
+      "range": {
+        "startLine": 80,
+        "startChar": 35,
+        "endLine": 80,
+        "endChar": 36
+      },
+      "revId": "a6d8f77528a4714883ec0e49149008653d4726d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b42238e4_a55d2bd8",
         "filename": "doc/dev_guide/av1_encoder.dox",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "3b18d16b_8292ce55",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2020-06-26T09:49:31Z",
+      "side": 1,
+      "message": "thanks fixed in next patch",
+      "parentUuid": "b42238e4_a55d2bd8",
+      "range": {
+        "startLine": 82,
+        "startChar": 55,
+        "endLine": 82,
+        "endChar": 56
+      },
+      "revId": "a6d8f77528a4714883ec0e49149008653d4726d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3cdbd609_fd3385cf",
         "filename": "doc/dev_guide/av1_encoder.dox",
         "patchSetId": 4
@@ -68,6 +116,30 @@
       "revId": "a6d8f77528a4714883ec0e49149008653d4726d8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ca36202_9ee19179",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2020-06-26T09:49:31Z",
+      "side": 1,
+      "message": "thanks fixed in next patch",
+      "parentUuid": "3cdbd609_fd3385cf",
+      "range": {
+        "startLine": 89,
+        "startChar": 12,
+        "endLine": 89,
+        "endChar": 19
+      },
+      "revId": "a6d8f77528a4714883ec0e49149008653d4726d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
