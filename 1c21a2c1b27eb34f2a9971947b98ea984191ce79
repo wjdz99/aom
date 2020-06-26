@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "97d95b30_1b7f63ed",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2020-06-26T16:35:22Z",
+      "side": 1,
+      "message": "Please review the change.",
+      "parentUuid": "8e3df4ea_562cc778",
+      "range": {
+        "startLine": 398,
+        "startChar": 30,
+        "endLine": 398,
+        "endChar": 32
+      },
+      "revId": "1c21a2c1b27eb34f2a9971947b98ea984191ce79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8d2e777f_16c94f93",
         "filename": "av1/common/quant_common.c",
         "patchSetId": 9
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "An assertion will be added here.",
       "parentUuid": "8d2e777f_16c94f93",
+      "range": {
+        "startLine": 456,
+        "startChar": 30,
+        "endLine": 456,
+        "endChar": 31
+      },
+      "revId": "1c21a2c1b27eb34f2a9971947b98ea984191ce79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37e695f6_9464febb",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2020-06-26T16:35:22Z",
+      "side": 1,
+      "message": "Please review the change.",
+      "parentUuid": "1db8f9b8_23c5b7e5",
       "range": {
         "startLine": 456,
         "startChar": 30,
@@ -274,6 +322,30 @@
       "side": 1,
       "message": "Yes, it depends on EXT_QUANT. I will add a compile rule in the aom_experiment_deps.cmake file",
       "parentUuid": "6a11823d_36335be3",
+      "range": {
+        "startLine": 194,
+        "startChar": 19,
+        "endLine": 194,
+        "endChar": 21
+      },
+      "revId": "1c21a2c1b27eb34f2a9971947b98ea984191ce79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c93bce96_96a7b12a",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 9
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2020-06-26T16:35:22Z",
+      "side": 1,
+      "message": "Please review the change.",
+      "parentUuid": "f426668f_f1463abb",
       "range": {
         "startLine": 194,
         "startChar": 19,
