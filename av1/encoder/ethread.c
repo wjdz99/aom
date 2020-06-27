@@ -871,6 +871,7 @@ void av1_encode_tiles_mt(AV1_COMP *cpi) {
   const int tile_cols = cm->tiles.cols;
   const int tile_rows = cm->tiles.rows;
   int num_workers = av1_compute_num_enc_workers(cpi);
+  num_workers = AOMMIN(num_workers, mt_info->num_workers);
 
   assert(IMPLIES(cpi->tile_data == NULL,
                  cpi->allocated_tiles < tile_cols * tile_rows));
@@ -977,6 +978,7 @@ void av1_encode_tiles_row_mt(AV1_COMP *cpi) {
   // post-processing multi-threading stage. Need to revisit this when
   // post-processing time starts shooting up.
   int num_workers = av1_compute_num_enc_workers(cpi);
+  num_workers = AOMMIN(num_workers, mt_info->num_workers);
 
   assert(IMPLIES(cpi->tile_data == NULL,
                  cpi->allocated_tiles < tile_cols * tile_rows));
@@ -1286,6 +1288,7 @@ void av1_mc_flow_dispenser_mt(AV1_COMP *cpi) {
   AV1TplRowMultiThreadSync *tpl_sync = &tpl_data->tpl_mt_sync;
   int mb_rows = mi_params->mb_rows;
   int num_workers = compute_num_tpl_workers(cpi);
+  num_workers = AOMMIN(num_workers, mt_info->num_workers);
 
   if (!tpl_sync->sync_range || mb_rows != tpl_sync->rows ||
       num_workers > tpl_sync->num_threads_working) {
