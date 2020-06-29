@@ -128,8 +128,13 @@ TEST_P(MonochromeTest, TestMonochromeEncoding) {
   }
 }
 
+#if CONFIG_SINGLEPASS
+AV1_INSTANTIATE_TEST_CASE(MonochromeTest,
+                          ::testing::Values(::libaom_test::kOnePassGood));
+#else
 AV1_INSTANTIATE_TEST_CASE(MonochromeTest,
                           ::testing::Values(::libaom_test::kTwoPassGood,
                                             ::libaom_test::kOnePassGood));
+#endif  // CONFIG_SINGLEPASS
 
 }  // namespace
