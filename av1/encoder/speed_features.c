@@ -279,7 +279,7 @@ static void set_good_speed_features_framesize_independent(
   sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3;
   sf->gm_disable_recode = 1;
   sf->use_fast_interpolation_filter_search = 1;
-  sf->intra_tx_size_search_init_depth_sqr = 1;
+  sf->intra_tx_size_search_init_depth_sqr = 2;
   sf->intra_angle_estimation = 1;
   sf->tx_type_search.use_reduced_intra_txset = 1;
   sf->selective_ref_frame = 1;
@@ -296,7 +296,7 @@ static void set_good_speed_features_framesize_independent(
   if (speed >= 1) {
     sf->selective_ref_frame = 2;
 
-    sf->intra_tx_size_search_init_depth_rect = 1;
+    sf->intra_tx_size_search_init_depth_rect = 2;
 
     sf->skip_repeat_interpolation_filter_search = 1;
     sf->tx_type_search.skip_tx_search = 1;
@@ -343,8 +343,8 @@ static void set_good_speed_features_framesize_independent(
     sf->fast_interintra_wedge_search = 1;
     sf->enable_sgr_ep_pruning = 1;
     sf->selective_ref_frame = 3;
-    sf->inter_tx_size_search_init_depth_rect = 1;
-    sf->inter_tx_size_search_init_depth_sqr = 1;
+    sf->inter_tx_size_search_init_depth_rect = 2;
+    sf->inter_tx_size_search_init_depth_sqr = 2;
 
     sf->cdef_pick_method = CDEF_FAST_SEARCH;
 
@@ -529,7 +529,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3;
   sf->gm_disable_recode = 1;
   sf->use_fast_interpolation_filter_search = 1;
-  sf->intra_tx_size_search_init_depth_sqr = 1;
+  sf->intra_tx_size_search_init_depth_sqr = 2;
   sf->intra_angle_estimation = 1;
   sf->tx_type_search.use_reduced_intra_txset = 1;
   sf->selective_ref_frame = 1;
@@ -550,7 +550,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;
     sf->selective_ref_frame = 2;
 
-    sf->intra_tx_size_search_init_depth_rect = 1;
+    sf->intra_tx_size_search_init_depth_rect = 2;
     sf->tx_size_search_lgr_block = 1;
     sf->prune_ext_partition_types_search_level = 2;
     sf->skip_repeat_interpolation_filter_search = 1;
@@ -589,8 +589,8 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->gm_erroradv_type = GM_ERRORADV_TR_2;
 
     sf->selective_ref_frame = 3;
-    sf->inter_tx_size_search_init_depth_rect = 1;
-    sf->inter_tx_size_search_init_depth_sqr = 1;
+    sf->inter_tx_size_search_init_depth_rect = 2;
+    sf->inter_tx_size_search_init_depth_sqr = 2;
     sf->cdef_pick_method = CDEF_FAST_SEARCH;
 
     sf->adaptive_rd_thresh = 1;
@@ -799,10 +799,10 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->intra_tx_size_search_init_depth_rect = 1;
   sf->intra_tx_size_search_init_depth_sqr = 1;
 #else
-  sf->inter_tx_size_search_init_depth_sqr = 0;
-  sf->inter_tx_size_search_init_depth_rect = 0;
-  sf->intra_tx_size_search_init_depth_rect = 0;
-  sf->intra_tx_size_search_init_depth_sqr = 0;
+  sf->inter_tx_size_search_init_depth_sqr = 2;
+  sf->inter_tx_size_search_init_depth_rect = 2;
+  sf->intra_tx_size_search_init_depth_rect = 2;
+  sf->intra_tx_size_search_init_depth_sqr = 2;
 #endif  // CONFIG_NEW_TX_PARTITION
   sf->tx_size_search_lgr_block = 0;
   sf->model_based_prune_tx_search_level = 0;
@@ -812,7 +812,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->adaptive_motion_search = 0;
   sf->adaptive_mode_search = 0;
   sf->alt_ref_search_fp = 0;
-  sf->partition_search_type = SEARCH_PARTITION;
+  sf->partition_search_type = FIXED_PARTITION;
   sf->tx_type_search.prune_mode = PRUNE_2D_ACCURATE;
   sf->tx_type_search.ml_tx_split_thresh = 30;
 #if CONFIG_NEW_TX_PARTITION
@@ -1044,9 +1044,9 @@ void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
              coeff_opt_dist_thresholds[sf->perform_coeff_opt],
              sizeof(cpi->coeff_opt_dist_threshold));
       sf->simple_motion_search_split = cm->allow_screen_content_tools ? 1 : 2;
-      sf->inter_tx_size_search_init_depth_rect = 1;
-      sf->inter_tx_size_search_init_depth_sqr = 1;
-      sf->intra_tx_size_search_init_depth_rect = 1;
+      sf->inter_tx_size_search_init_depth_rect = 2;
+      sf->inter_tx_size_search_init_depth_sqr = 2;
+      sf->intra_tx_size_search_init_depth_rect = 2;
     }
   }
 }

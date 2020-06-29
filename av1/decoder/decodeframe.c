@@ -1398,6 +1398,7 @@ static void parse_decode_block(AV1Decoder *const pbi, ThreadData *const td,
     }
 #endif
   }
+  if (mbmi->tx_size != TX_16X16) printf("tx size %d\n", mbmi->tx_size);
 #if CONFIG_LPF_MASK
   const int w = mi_size_wide[bsize];
   const int h = mi_size_high[bsize];
