@@ -3906,7 +3906,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
                                    cm->cur_frame->buf.y_crop_height);
     }
 
-    if (current_frame->frame_number != 0 || cpi->gf_group.index == 0)
+    if (!(cpi->gf_group.update_type[0] == ARF_UPDATE &&
+          cpi->gf_group.update_type[1] == OVERLAY_UPDATE &&
+          cpi->gf_group.index == 1 && cpi->rc.frames_since_key == 0))
       ++current_frame->frame_number;
 
     return AOM_CODEC_OK;
@@ -4143,8 +4145,16 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   if (cm->show_frame) {
     // Don't increment frame counters if this was an altref buffer
     // update not a real frame
-    if (current_frame->frame_number != 0 || cpi->gf_group.index == 0)
+    if (!(cpi->gf_group.update_type[0] == ARF_UPDATE &&
+          cpi->gf_group.update_type[1] == OVERLAY_UPDATE &&
+          cpi->gf_group.index == 1 && cpi->rc.frames_since_key == 0))
       ++current_frame->frame_number;
+  } else if (cm->current_frame.frame_type == KEY_FRAME &&
+             cpi->gf_group.update_type[0] == ARF_UPDATE &&
+             cpi->gf_group.update_type[1] == OVERLAY_UPDATE &&
+             cpi->gf_group.index == 0 && cpi->rc.frames_since_key == 0) {
+    // TODO(bohanli) Hack here: make kf overlay frame number non-zero.
+    ++current_frame->frame_number;
   }
 
   return AOM_CODEC_OK;
@@ -4185,11 +4195,6 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
   current_frame->display_order_hint = current_frame->order_hint;
   current_frame->order_hint %=
       (1 << (cm->seq_params.order_hint_info.order_hint_bits_minus_1 + 1));
-
-  // TODO(bohanli) Hack here: make kf overlay frame number non-zero.
-  if (current_frame->frame_number == 0 && cpi->gf_group.index != 0) {
-    current_frame->frame_number = 1;
-  }
 
   if (is_stat_generation_stage(cpi)) {
 #if !CONFIG_REALTIME_ONLY

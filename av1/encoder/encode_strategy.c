@@ -907,6 +907,8 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
       av1_frame_init_quantizer(cpi);
       av1_setup_past_independence(cm);
 
+      cm->current_frame.frame_number = 0;
+
       if (!frame_params->show_frame && cpi->no_show_fwd_kf) {
         // fwd kf
         arf_src_index = -1 * get_arf_src_index(&cpi->gf_group, oxcf->pass);

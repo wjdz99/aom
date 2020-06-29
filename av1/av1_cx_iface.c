@@ -637,11 +637,10 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
                                           struct av1_extracfg *extra_cfg) {
   extra_cfg->enable_cdef = (cfg->disable_cdef == 0);
   extra_cfg->enable_restoration = (cfg->disable_lr == 0);
-  extra_cfg->superblock_size = (cfg->super_block_size == 64)
-                                   ? AOM_SUPERBLOCK_SIZE_64X64
-                                   : (cfg->super_block_size == 128)
-                                         ? AOM_SUPERBLOCK_SIZE_128X128
-                                         : AOM_SUPERBLOCK_SIZE_DYNAMIC;
+  extra_cfg->superblock_size =
+      (cfg->super_block_size == 64)    ? AOM_SUPERBLOCK_SIZE_64X64
+      : (cfg->super_block_size == 128) ? AOM_SUPERBLOCK_SIZE_128X128
+                                       : AOM_SUPERBLOCK_SIZE_DYNAMIC;
   extra_cfg->enable_warped_motion = (cfg->disable_warp_motion == 0);
   extra_cfg->enable_dist_wtd_comp = (cfg->disable_dist_wtd_comp == 0);
   extra_cfg->enable_diff_wtd_comp = (cfg->disable_diff_wtd_comp == 0);
@@ -2249,7 +2248,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     unsigned int lib_flags = 0;
     int is_frame_visible = 0;
     int index_size = 0;
-    int has_fwd_keyframe = 0;
+    int has_no_show_keyframe = 0;
     int num_workers = 0;
 
     if (cpi->oxcf.pass == 1) {
@@ -2361,8 +2360,9 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
 
         is_frame_visible = cpi->common.show_frame;
 
-        has_fwd_keyframe |= (!is_frame_visible && cpi->no_show_fwd_kf &&
-                             cpi->common.current_frame.frame_type == KEY_FRAME);
+        has_no_show_keyframe |=
+            (!is_frame_visible &&
+             cpi->common.current_frame.frame_type == KEY_FRAME);
       }
     }
     if (is_frame_visible) {
@@ -2396,7 +2396,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
           ticks_to_timebase_units(timestamp_ratio, dst_time_stamp) +
           ctx->pts_offset;
       pkt.data.frame.flags = get_frame_pkt_flags(cpi, lib_flags);
-      if (has_fwd_keyframe) {
+      if (has_no_show_keyframe) {
         // If one of the invisible frames in the packet is a keyframe, set
         // the delayed random access point flag.
         pkt.data.frame.flags |= AOM_FRAME_IS_DELAYED_RANDOM_ACCESS_POINT;
