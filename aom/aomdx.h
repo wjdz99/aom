@@ -97,6 +97,25 @@ typedef struct aom_tile_data {
   size_t extra_size;
 } aom_tile_data;
 
+/*!\brief Structure to hold information about tiles in a frame.
+ *
+ * Defines a structure to hold a frame's tile information, namely
+ * number of tile columns, number of tile_rows, and the width and
+ * height of each tile.
+ */
+#define MAX_TILE_COLS 64
+#define MAX_TILE_ROWS 64
+typedef struct aom_tile_info {
+  /*! Indicates the number of tile columns in log2. */
+  int tile_columns;
+  /*! Indicates the number of tile rows in log2. */
+  int tile_rows;
+  /*! Indicates the tile widths in units of MI, and may be empty. */
+  int tile_widths[MAX_TILE_COLS];
+  /*! Indicates the tile heights in units of MI, and may be empty. */
+  int tile_heights[MAX_TILE_ROWS];
+} aom_tile_info;
+
 /*!\brief Structure to hold the external reference frame pointer.
  *
  * Define a structure to hold the external reference frame pointer.
@@ -314,6 +333,11 @@ enum aom_dec_control_id {
    * decoded. This will return a flag of type aom_codec_frame_flags_t.
    */
   AOMD_GET_FRAME_FLAGS,
+
+  /*!\brief Codec control function to get tile information of the previous frame
+   * decoded. This will return a struct of type aom_tile_info.
+   */
+  AOMD_GET_TILE_INFO,
 };
 
 /*!\cond */
@@ -345,6 +369,9 @@ AOM_CTRL_USE_TYPE(AOMD_GET_FWD_KF_PRESENT, int *)
 
 AOM_CTRL_USE_TYPE(AOMD_GET_FRAME_FLAGS, int *)
 #define AOM_CTRL_AOMD_GET_FRAME_FLAGS
+
+AOM_CTRL_USE_TYPE(AOMD_GET_TILE_INFO, aom_tile_info *)
+#define AOM_CTRL_AOMD_GET_TILE_INFO
 
 AOM_CTRL_USE_TYPE(AV1D_GET_DISPLAY_SIZE, int *)
 #define AOM_CTRL_AV1D_GET_DISPLAY_SIZE
