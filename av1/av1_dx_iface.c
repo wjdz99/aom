@@ -1088,6 +1088,44 @@ static aom_codec_err_t ctrl_get_tile_data(aom_codec_alg_priv_t *ctx,
   return AOM_CODEC_INVALID_PARAM;
 }
 
+static aom_codec_err_t ctrl_get_tile_info(aom_codec_alg_priv_t *ctx,
+                                          va_list args) {
+  aom_tile_info *const tile_info = va_arg(args, aom_tile_info *);
+
+  if (tile_info) {
+    if (ctx->frame_worker) {
+      AVxWorker *const worker = ctx->frame_worker;
+      FrameWorkerData *const frame_worker_data =
+          (FrameWorkerData *)worker->data1;
+      const AV1Decoder *pbi = frame_worker_data->pbi;
+      const CommonTileParams *tiles = &pbi->common.tiles;
+
+      int tile_rows = tiles->rows;
+      int tile_cols = tiles->cols;
+
+      tile_info->tile_columns = tiles->log2_cols;
+      tile_info->tile_rows = tiles->log2_rows;
+      tile_info->rows = tile_rows;
+      tile_info->cols = tile_cols;
+
+      for (int i = 1; i <= tile_cols; i++) {
+        tile_info->tile_widths[i - 1] =
+            tiles->col_start_sb[i] - tiles->col_start_sb[i - 1];
+      }
+
+      for (int i = 1; i <= tile_rows; i++) {
+        tile_info->tile_heights[i - 1] =
+            tiles->row_start_sb[i] - tiles->row_start_sb[i - 1];
+      }
+      return AOM_CODEC_OK;
+    } else {
+      return AOM_CODEC_ERROR;
+    }
+  }
+
+  return AOM_CODEC_INVALID_PARAM;
+}
+
 static aom_codec_err_t ctrl_set_ext_ref_ptr(aom_codec_alg_priv_t *ctx,
                                             va_list args) {
   av1_ext_ref_frame_t *const data = va_arg(args, av1_ext_ref_frame_t *);
@@ -1394,6 +1432,7 @@ static aom_codec_ctrl_fn_map_t decoder_ctrl_maps[] = {
   { AV1D_GET_TILE_DATA, ctrl_get_tile_data },
   { AOMD_GET_FWD_KF_PRESENT, ctrl_get_fwd_kf_value },
   { AOMD_GET_FRAME_FLAGS, ctrl_get_frame_flags },
+  { AOMD_GET_TILE_INFO, ctrl_get_tile_info },
 
   CTRL_MAP_END,
 };
