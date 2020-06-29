@@ -715,6 +715,7 @@ typedef struct aom_codec_enc_cfg {
    */
   unsigned int rc_buf_optimal_sz;
 
+#if !CONFIG_SINGLEPASS
   /*
    * 2 pass rate control parameters
    */
@@ -742,6 +743,8 @@ typedef struct aom_codec_enc_cfg {
    * the maximum bitrate to be used for a single GOP (aka "section")
    */
   unsigned int rc_2pass_vbr_maxsection_pct;
+
+#endif  // !CONFIG_SINGLEPASS
 
   /*
    * keyframing settings (kf)
