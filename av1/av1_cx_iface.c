@@ -381,7 +381,9 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK(cfg, rc_end_usage, AOM_VBR, AOM_Q);
   RANGE_CHECK_HI(cfg, rc_undershoot_pct, 100);
   RANGE_CHECK_HI(cfg, rc_overshoot_pct, 100);
+#if !CONFIG_SINGLEPASS
   RANGE_CHECK_HI(cfg, rc_2pass_vbr_bias_pct, 100);
+#endif  // !CONFIG_SINGLEPASS
   RANGE_CHECK(cfg, kf_mode, AOM_KF_DISABLED, AOM_KF_AUTO);
   RANGE_CHECK_HI(cfg, rc_dropframe_thresh, 100);
   RANGE_CHECK(cfg, g_pass, AOM_RC_ONE_PASS, AOM_RC_LAST_PASS);
@@ -722,7 +724,9 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
 
   DecoderModelCfg *const dec_model_cfg = &oxcf->dec_model_cfg;
 
+#if !CONFIG_SINGLEPASS
   TwoPassCfg *const two_pass_cfg = &oxcf->two_pass_cfg;
+#endif  // !CONFIG_SINGLEPASS
 
   RateControlCfg *const rc_cfg = &oxcf->rc_cfg;
 
@@ -865,11 +869,13 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
 
   oxcf->drop_frames_water_mark = cfg->rc_dropframe_thresh;
 
+#if !CONFIG_SINGLEPASS
   // Set two-pass configuration.
   two_pass_cfg->vbrbias = cfg->rc_2pass_vbr_bias_pct;
   two_pass_cfg->vbrmin_section = cfg->rc_2pass_vbr_minsection_pct;
   two_pass_cfg->vbrmax_section = cfg->rc_2pass_vbr_maxsection_pct;
   two_pass_cfg->stats_in = cfg->rc_twopass_stats_in;
+#endif  // !CONFIG_SINGLEPASS
 
   // Set Key frame configuration.
   kf_cfg->fwd_kf_enabled = cfg->fwd_kf_enabled;
@@ -2918,9 +2924,11 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       4000,  // rc_buffer_initial_size
       5000,  // rc_buffer_optimal_size
 
+#if !CONFIG_SINGLEPASS
       50,    // rc_two_pass_vbrbias
       0,     // rc_two_pass_vbrmin_section
       2000,  // rc_two_pass_vbrmax_section
+#endif       // !CONFIG_SINGLEPASS
 
       // keyframing settings (kf)
       0,                       // fwd_kf_enabled
@@ -2988,9 +2996,11 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       4000,  // rc_buffer_initial_size
       5000,  // rc_buffer_optimal_size
 
+#if !CONFIG_SINGLEPASS
       50,    // rc_two_pass_vbrbias
       0,     // rc_two_pass_vbrmin_section
       2000,  // rc_two_pass_vbrmax_section
+#endif       // !CONFIG_SINGLEPASS
 
       // keyframing settings (kf)
       0,                       // fwd_kf_enabled

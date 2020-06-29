@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 
+#include "config/aom_config.h"
 #include "aom/aom_encoder.h"
 
 #ifdef __cplusplus
