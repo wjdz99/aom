@@ -1061,7 +1061,7 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
   }
 
   // Do filtering.
-  const int is_key_frame = (filter_frame_lookahead_idx < 0);
+  const int is_key_frame = (filter_frame_lookahead_idx <= 0);
   // Setup scaling factors. Scaling on each of the arnr frames is not
   // supported.
   // ARF is produced at the native frame size and resized when coded.
