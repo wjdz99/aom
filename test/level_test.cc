@@ -114,7 +114,11 @@ TEST_P(LevelTest, TestTargetLevel19) {
   ASSERT_NO_FATAL_FAILURE(RunLoop(video.get()));
 }
 
+#if CONFIG_SINGLEPASS
+TEST_P(LevelTest, DISABLED_TestLevelMonitoringLowBitrate) {
+#else
 TEST_P(LevelTest, TestLevelMonitoringLowBitrate) {
+#endif  // CONFIG_SINGLEPASS
   // To save run time, we only test speed 4.
   if (cpu_used_ == 4) {
     libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
@@ -126,7 +130,11 @@ TEST_P(LevelTest, TestLevelMonitoringLowBitrate) {
   }
 }
 
+#if CONFIG_SINGLEPASS
+TEST_P(LevelTest, DISABLED_TestLevelMonitoringHighBitrate) {
+#else
 TEST_P(LevelTest, TestLevelMonitoringHighBitrate) {
+#endif  // CONFIG_SINGLEPASS
   // To save run time, we only test speed 4.
   if (cpu_used_ == 4) {
     libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
@@ -151,7 +159,13 @@ TEST_P(LevelTest, TestTargetLevel0) {
   }
 }
 
+#if CONFIG_SINGLEPASS
+AV1_INSTANTIATE_TEST_CASE(LevelTest,
+                          ::testing::Values(::libaom_test::kOnePassGood),
+                          ::testing::ValuesIn(kCpuUsedVectors));
+#else
 AV1_INSTANTIATE_TEST_CASE(LevelTest,
                           ::testing::Values(::libaom_test::kTwoPassGood),
                           ::testing::ValuesIn(kCpuUsedVectors));
+#endif  // !CONFIG_SINGLEPASS
 }  // namespace
