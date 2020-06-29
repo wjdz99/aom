@@ -1440,7 +1440,7 @@ static AOM_INLINE void write_tokens_b(AV1_COMP *cpi, aom_writer *w,
 
   const int is_inter = is_inter_block(mbmi);
   if (!is_inter) {
-    av1_write_coeffs_mb(cm, x, w, bsize);
+    av1_write_intra_coeffs_mb(cm, x, w, bsize);
   } else {
     int block[MAX_MB_PLANE] = { 0 };
     assert(bsize == get_plane_block_size(bsize, xd->plane[0].subsampling_x,
@@ -2807,7 +2807,7 @@ static int check_frame_refs_short_signaling(AV1_COMMON *const cm) {
     }
   }
 
-#if 0   // For debug
+#if 0  // For debug
   printf("\nFrame=%d: \n", cm->current_frame.frame_number);
   printf("***frame_refs_short_signaling=%d\n", frame_refs_short_signaling);
   for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
