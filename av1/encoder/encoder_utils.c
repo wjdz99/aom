@@ -942,11 +942,11 @@ void av1_determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
 
   cpi->source =
       av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source,
-                            cm->features.interp_filter, 0);
+                            cm->features.interp_filter, 0, 0);
   if (cpi->unscaled_last_source != NULL) {
     cpi->last_source = av1_scale_if_required(cm, cpi->unscaled_last_source,
                                              &cpi->scaled_last_source,
-                                             cm->features.interp_filter, 0);
+                                             cm->features.interp_filter, 0, 0);
   }
 
   av1_setup_frame(cpi);
