@@ -791,6 +791,7 @@ int read_frame() {
       die_codec(&codec, "Failed to decode frame.");
     }
 
+    frame_size -= (adr.buf - frame);
     frame = adr.buf;
     if (frame == end_frame) have_frame = 0;
   } while (adr.show_existing);
