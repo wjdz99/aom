@@ -65,7 +65,12 @@ int16_t av1_ac_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth);
 #endif
 
 int av1_get_qindex(const struct segmentation *seg, int segment_id,
-                   int base_qindex);
+                   int base_qindex
+#if CONFIG_EXTQUANT_HBD
+                   ,
+                   aom_bit_depth_t bit_depth
+#endif
+);
 // Reduce the large number of quantizers to a smaller number of levels for which
 // different matrices may be defined
 static INLINE int aom_get_qmlevel(int qindex, int first, int last

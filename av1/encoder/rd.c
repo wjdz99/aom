@@ -578,7 +578,14 @@ int av1_get_deltaq_offset(const AV1_COMP *cpi, int qindex, double beta) {
                            cpi->common.seq_params.base_y_dc_delta_q,
 #endif  // CONFIG_DELTA_DCQUANT
                            cpi->common.seq_params.bit_depth);
-    } while (newq > q && qindex < MAXQ);
+    }
+#if CONFIG_EXTQUANT_HBD
+    while (newq > q && (qindex < (cpi->common.seq_params.bit_depth == AOM_BITS_8
+                                      ? MAXQ_UNEXT
+                                      : MAXQ)));
+#else
+    while (newq > q && qindex < MAXQ);
+#endif
   }
   return qindex - orig_qindex;
 }
@@ -683,10 +690,18 @@ static void set_block_thresholds(const AV1_COMMON *cm, RD_OPT *rd) {
   int i, bsize, segment_id;
 
   for (segment_id = 0; segment_id < MAX_SEGMENTS; ++segment_id) {
+#if CONFIG_EXTQUANT_HBD
+    const int qindex =
+        clamp(av1_get_qindex(&cm->seg, segment_id, cm->base_qindex,
+                             cm->seq_params.bit_depth) +
+                  cm->y_dc_delta_q,
+              0, cm->seq_params.bit_depth == AOM_BITS_8 ? MAXQ_UNEXT : MAXQ);
+#else
     const int qindex =
         clamp(av1_get_qindex(&cm->seg, segment_id, cm->base_qindex) +
                   cm->y_dc_delta_q,
               0, MAXQ);
+#endif
     const int q = compute_rd_thresh_factor(qindex,
 #if CONFIG_DELTA_DCQUANT
                                            cm->seq_params.base_y_dc_delta_q,
