@@ -193,6 +193,7 @@ enum {
   PRUNE_2D_MORE = 3,
   // More aggressive pruning based on tx type score and allowed tx count
   PRUNE_2D_AGGRESSIVE = 4,
+  PRUNE_2D_AGGRESSIVE_2 = 5,
 } UENUM1BYTE(TX_TYPE_PRUNE_MODE);
 
 enum {
