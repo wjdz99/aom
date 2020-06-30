@@ -1558,5 +1558,4 @@ void av1_prune_ab_partitions(
         pc_tree, PARTITION_VERT, rect_part_win_info, x->qindex, 1, 3);
   }
 }
-
 #endif  // !CONFIG_REALTIME_ONLY
