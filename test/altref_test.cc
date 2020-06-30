@@ -95,4 +95,94 @@ AV1_INSTANTIATE_TEST_CASE(AltRefForcedKeyTestLarge,
                           ::testing::Values(::libaom_test::kOnePassGood),
                           ::testing::Values(2, 5));
 
+typedef struct {
+  const unsigned int min_kf_dist;
+  const unsigned int max_kf_dist;
+  const unsigned int min_gf_interval;
+  const unsigned int max_gf_interval;
+  const unsigned int lag_in_frames;
+} AltrefTestParams;
+
+const AltrefTestParams TestParams[] = {
+  { 0, 10, 4, 8, 10 },   { 0, 30, 8, 12, 16 },   { 30, 30, 12, 16, 25 },
+  { 0, 60, 16, 20, 25 }, { 60, 60, 20, 28, 30 }, { 0, 100, 16, 32, 35 }
+};
+
+std::ostream &operator<<(std::ostream &os, const AltrefTestParams &test_arg) {
+  return os << "AltrefTestParams { min_kf_dist:" << test_arg.min_kf_dist
+            << " max_kf_dist:" << test_arg.max_kf_dist
+            << " min_gf_interval:" << test_arg.min_gf_interval
+            << " max_gf_interval:" << test_arg.max_gf_interval
+            << " lag_in_frames:" << test_arg.lag_in_frames << " }";
+}
+
+// This class is used to check the presence of altref frame.
+class AltrefFramePresenceTestLarge
+    : public ::libaom_test::CodecTestWith3Params<libaom_test::TestMode,
+                                                 AltrefTestParams, aom_rc_mode>,
+      public ::libaom_test::EncoderTest {
+ protected:
+  AltrefFramePresenceTestLarge()
+      : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)),
+        altref_test_params_(GET_PARAM(2)), end_usage_check_(GET_PARAM(3)) {}
+  virtual ~AltrefFramePresenceTestLarge() {}
+
+  virtual void SetUp() {
+    InitializeConfig();
+    SetMode(encoding_mode_);
+    const aom_rational timebase = { 1, 30 };
+    cfg_.g_timebase = timebase;
+    cfg_.rc_end_usage = end_usage_check_;
+    cfg_.g_threads = 1;
+    cfg_.kf_min_dist = altref_test_params_.min_kf_dist;
+    cfg_.kf_max_dist = altref_test_params_.max_kf_dist;
+    cfg_.g_lag_in_frames = altref_test_params_.lag_in_frames;
+  }
+
+  virtual bool DoDecode() const { return 1; }
+
+  virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
+                                  ::libaom_test::Encoder *encoder) {
+    if (video->frame() == 0) {
+      encoder->Control(AOME_SET_CPUUSED, 5);
+      encoder->Control(AOME_SET_ENABLEAUTOALTREF, 1);
+      encoder->Control(AV1E_SET_MIN_GF_INTERVAL,
+                       altref_test_params_.min_gf_interval);
+      encoder->Control(AV1E_SET_MAX_GF_INTERVAL,
+                       altref_test_params_.max_gf_interval);
+    }
+  }
+
+  virtual bool HandleDecodeResult(const aom_codec_err_t res_dec,
+                                  libaom_test::Decoder *decoder) {
+    EXPECT_EQ(AOM_CODEC_OK, res_dec) << decoder->DecodeError();
+    if (is_arf_frame_present_ != 1 && AOM_CODEC_OK == res_dec) {
+      aom_codec_ctx_t *ctx_dec = decoder->GetDecoder();
+      AOM_CODEC_CONTROL_TYPECHECKED(ctx_dec, AOMD_GET_ALTREF_PRESENT,
+                                    &is_arf_frame_present_);
+    }
+    return AOM_CODEC_OK == res_dec;
+  }
+
+  ::libaom_test::TestMode encoding_mode_;
+  const AltrefTestParams altref_test_params_;
+  int is_arf_frame_present_;
+  aom_rc_mode end_usage_check_;
+};
+
+TEST_P(AltrefFramePresenceTestLarge, AltrefFrameEncodePresenceTest) {
+  is_arf_frame_present_ = 0;
+  libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                     cfg_.g_timebase.den, cfg_.g_timebase.num,
+                                     0, 100);
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+  ASSERT_EQ(is_arf_frame_present_, 1);
+}
+
+AV1_INSTANTIATE_TEST_CASE(AltrefFramePresenceTestLarge,
+                          ::testing::Values(::libaom_test::kOnePassGood,
+                                            ::libaom_test::kTwoPassGood),
+                          ::testing::ValuesIn(TestParams),
+                          ::testing::Values(AOM_Q, AOM_VBR, AOM_CBR, AOM_CQ));
+
 }  // namespace
