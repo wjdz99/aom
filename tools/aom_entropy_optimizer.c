@@ -576,6 +576,8 @@ int main(int argc, const char **argv) {
                      "static const aom_cdf_prob "
                      "default_skip_txfm_cdfs[SKIP_CONTEXTS][CDF_SIZE(2)]");
 
+  // TODO(singhprakhar): do this for dspl_type_cdf
+
   /* Skip mode flag */
   cts_each_dim[0] = SKIP_MODE_CONTEXTS;
   cts_each_dim[1] = 2;

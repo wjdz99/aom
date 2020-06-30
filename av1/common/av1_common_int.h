@@ -544,6 +544,8 @@ struct CommonModeInfoParams {
    */
   TX_TYPE *tx_type_map;
 
+  DSPL_TYPE *tx_dspl_map;
+
   /**
    * \name Function pointers to allow separate logic for encoder and decoder.
    */
@@ -1654,6 +1656,7 @@ static INLINE void set_mi_offsets(const CommonModeInfoParams *const mi_params,
   // 'xd->tx_type_map' should point to an offset in 'mi_params->tx_type_map'.
   xd->tx_type_map = mi_params->tx_type_map + mi_grid_idx;
   xd->tx_type_map_stride = mi_params->mi_stride;
+  xd->tx_dspl_map = mi_params->tx_dspl_map + mi_grid_idx;
 }
 
 static INLINE void txfm_partition_update(TXFM_CONTEXT *above_ctx,

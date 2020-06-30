@@ -453,6 +453,23 @@ static int read_skip_txfm(AV1_COMMON *cm, const MACROBLOCKD *xd, int segment_id,
   }
 }
 
+static DSPL_TYPE read_dspl_type(AV1_COMMON *cm, const MACROBLOCKD *xd,
+                                int segment_id, aom_reader *r) {
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+
+  // TODO (singhprakhar): see if this assert can be enabled
+  // assert(is_inter_block(mbmi));
+
+  assert(!mbmi->skip_mode && !mbmi->skip_txfm);
+
+  const DSPL_TYPE dspl_type =
+      aom_read_symbol(r, ec_ctx->dspl_type_cdf, DSPL_END, ACCT_STR);
+  assert(DSPL_NO_TXFM <= dspl_type && dspl_type < DSPL_END);
+
+  return dspl_type;
+}
+
 // Merge the sorted list of cached colors(cached_colors[0...n_cached_colors-1])
 // and the sorted list of transmitted colors(colors[n_cached_colors...n-1]) into
 // one single sorted list(colors[...]).
@@ -1533,6 +1550,12 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   if (!mbmi->skip_mode)
     inter_block = read_is_inter_block(cm, xd, mbmi->segment_id, r);
 
+  if (!mbmi->skip_txfm && inter_block)
+    mbmi->dspl_type = read_dspl_type(cm, xd, mbmi->segment_id, r);
+  else
+    mbmi->dspl_type = DSPL_NO_TXFM;
+  assert(IMPLIES(mbmi->skip_txfm, mbmi->dspl_type == DSPL_NO_TXFM));
+
   mbmi->current_qindex = xd->current_base_qindex;
 
   xd->above_txfm_context =
@@ -1573,6 +1596,7 @@ void av1_read_mode_info(AV1Decoder *const pbi, DecoderCodingBlock *dcb,
 
   if (frame_is_intra_only(cm)) {
     read_intra_frame_mode_info(cm, dcb, r);
+    mi->dspl_type = DSPL_NO_TXFM;
     if (cm->seq_params.order_hint_info.enable_ref_frame_mvs)
       intra_copy_frame_mvs(cm, xd->mi_row, xd->mi_col, x_mis, y_mis);
   } else {

@@ -237,6 +237,7 @@ typedef struct MB_MODE_INFO {
   // Common for both INTER and INTRA blocks
   BLOCK_SIZE sb_type;
   PREDICTION_MODE mode;
+  DSPL_TYPE dspl_type;
   // Only for INTRA blocks
   UV_PREDICTION_MODE uv_mode;
   // interintra members
@@ -583,6 +584,9 @@ typedef struct macroblockd {
    * 'MACROBLOCK' structs.
    */
   uint8_t *tx_type_map;
+
+  uint8_t *tx_dspl_map;
+
   /*!
    * Stride for 'tx_type_map'. Note that this may / may not be same as
    * 'mi_stride', depending on which actual array 'tx_type_map' points to.
