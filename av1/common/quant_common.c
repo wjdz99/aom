@@ -491,11 +491,20 @@ int16_t av1_ac_quant_QTX(int qindex, int delta, aom_bit_depth_t bit_depth) {
 #endif
 
 int av1_get_qindex(const struct segmentation *seg, int segment_id,
-                   int base_qindex) {
+                   int base_qindex
+#if CONFIG_EXTQUANT_HBD
+                   ,
+                   aom_bit_depth_t bit_depth
+#endif
+) {
   if (segfeature_active(seg, segment_id, SEG_LVL_ALT_Q)) {
     const int data = get_segdata(seg, segment_id, SEG_LVL_ALT_Q);
     const int seg_qindex = base_qindex + data;
+#if CONFIG_EXTQUANT_HBD
+    return clamp(seg_qindex, 0, bit_depth == AOM_BITS_8 ? MAXQ_UNEXT : MAXQ);
+#else
     return clamp(seg_qindex, 0, MAXQ);
+#endif
   } else {
     return base_qindex;
   }
