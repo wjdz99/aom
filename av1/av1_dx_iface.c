@@ -468,6 +468,7 @@ static aom_codec_err_t init_decoder(aom_codec_alg_priv_t *ctx) {
   frame_worker_data->pbi->ext_tile_debug = ctx->ext_tile_debug;
   frame_worker_data->pbi->row_mt = ctx->row_mt;
   frame_worker_data->pbi->is_fwd_kf_present = 0;
+  frame_worker_data->pbi->is_arf_frame_present = 0;
   worker->hook = frame_worker_hook;
 
   init_buffer_callbacks(ctx);
@@ -977,6 +978,15 @@ static aom_codec_err_t ctrl_get_fwd_kf_value(aom_codec_alg_priv_t *ctx,
   return AOM_CODEC_OK;
 }
 
+static aom_codec_err_t ctrl_get_arf_frame_value(aom_codec_alg_priv_t *ctx,
+                                                va_list args) {
+  int *const arg = va_arg(args, int *);
+  if (arg == NULL) return AOM_CODEC_INVALID_PARAM;
+  *arg =
+      ((FrameWorkerData *)ctx->frame_worker->data1)->pbi->is_arf_frame_present;
+  return AOM_CODEC_OK;
+}
+
 static aom_codec_err_t ctrl_get_frame_flags(aom_codec_alg_priv_t *ctx,
                                             va_list args) {
   int *const arg = va_arg(args, int *);
@@ -1394,6 +1404,7 @@ static aom_codec_ctrl_fn_map_t decoder_ctrl_maps[] = {
   { AV1D_GET_TILE_DATA, ctrl_get_tile_data },
   { AOMD_GET_FWD_KF_PRESENT, ctrl_get_fwd_kf_value },
   { AOMD_GET_FRAME_FLAGS, ctrl_get_frame_flags },
+  { AOMD_GET_ALTREF_FRAME_PRESENT, ctrl_get_arf_frame_value },
 
   CTRL_MAP_END,
 };
