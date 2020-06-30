@@ -16,6 +16,7 @@
 #include "test/codec_factory.h"
 #include "test/encode_test_driver.h"
 #include "test/y4m_video_source.h"
+#include "test/i420_video_source.h"
 #include "test/util.h"
 
 namespace {
@@ -97,4 +98,73 @@ AV1_INSTANTIATE_TEST_CASE(UniformTileConfigTestLarge,
                                             ::libaom_test::kTwoPassGood),
                           ::testing::ValuesIn(uniformTileConfigParams),
                           ::testing::Values(AOM_Q, AOM_VBR, AOM_CBR, AOM_CQ));
+
+// This class is used to test the presence of forward key frame.
+class TileGroupTestLarge
+    : public ::libaom_test::CodecTestWithParam<libaom_test::TestMode>,
+      public ::libaom_test::EncoderTest {
+ protected:
+  TileGroupTestLarge()
+      : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)) {}
+  virtual ~TileGroupTestLarge() {}
+
+  virtual void SetUp() {
+    InitializeConfig();
+    SetMode(encoding_mode_);
+    const aom_rational timebase = { 1, 30 };
+    cfg_.g_timebase = timebase;
+    cfg_.rc_end_usage = AOM_Q;
+    cfg_.g_threads = 1;
+    cfg_.kf_min_dist = 0;
+    cfg_.kf_max_dist = 30;
+    cfg_.fwd_kf_enabled = 1;
+    cfg_.g_lag_in_frames = 19;
+  }
+
+  virtual bool DoDecode() const { return 1; }
+
+  virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
+                                  ::libaom_test::Encoder *encoder) {
+    if (video->frame() == 0) {
+      encoder->Control(AOME_SET_CPUUSED, 5);
+      encoder->Control(AV1E_SET_NUM_TG, num_tile_groups_set_);
+      encoder->Control(AV1E_SET_TILE_COLUMNS, 4);
+      encoder->Control(AV1E_SET_TILE_ROWS, 4);
+    }
+  }
+
+  virtual bool HandleDecodeResult(const aom_codec_err_t res_dec,
+                                  libaom_test::Decoder *decoder) {
+    EXPECT_EQ(AOM_CODEC_OK, res_dec) << decoder->DecodeError();
+    if (AOM_CODEC_OK == res_dec) {
+      aom_codec_ctx_t *ctx_dec = decoder->GetDecoder();
+      AOM_CODEC_CONTROL_TYPECHECKED(ctx_dec, AOMD_GET_TILE_GROUP_COUNT,
+                                    &num_tile_group_count_);
+      if (num_tile_group_count_ != num_tile_groups_set_) num_tg_match_ = false;
+      EXPECT_EQ(num_tg_match_, true);
+    }
+    return AOM_CODEC_OK == res_dec;
+  }
+
+  ::libaom_test::TestMode encoding_mode_;
+  int num_tile_group_count_;
+  int num_tile_groups_set_;
+  bool num_tg_match_;
+  aom_rc_mode end_usage_check_;
+};
+
+TEST_P(TileGroupTestLarge, TileGroupCountTest) {
+  num_tg_match_ = true;
+  num_tile_group_count_ = 0;
+  num_tile_groups_set_ = 5;
+  libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                     cfg_.g_timebase.den, cfg_.g_timebase.num,
+                                     0, 5);
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+}
+
+AV1_INSTANTIATE_TEST_CASE(TileGroupTestLarge,
+                          ::testing::Values(::libaom_test::kOnePassGood,
+                                            ::libaom_test::kTwoPassGood));
+
 }  // namespace

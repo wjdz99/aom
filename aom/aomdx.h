@@ -345,6 +345,8 @@ enum aom_dec_control_id {
    * decoded. This will return a struct of type aom_tile_info.
    */
   AOMD_GET_TILE_INFO,
+
+  AOMD_GET_TILE_GROUP_COUNT,
 };
 
 /*!\cond */
@@ -373,6 +375,9 @@ AOM_CTRL_USE_TYPE(AOMD_GET_LAST_QUANTIZER, int *)
 
 AOM_CTRL_USE_TYPE(AOMD_GET_FWD_KF_PRESENT, int *)
 #define AOM_CTRL_AOMD_GET_FWD_KF_PRESENT
+
+AOM_CTRL_USE_TYPE(AOMD_GET_TILE_GROUP_COUNT, int *)
+#define AOM_CTRL_AOMD_GET_TILE_GROUP_COUNT
 
 AOM_CTRL_USE_TYPE(AOMD_GET_FRAME_FLAGS, int *)
 #define AOM_CTRL_AOMD_GET_FRAME_FLAGS

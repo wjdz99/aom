@@ -516,6 +516,7 @@ static aom_codec_err_t decode_one(aom_codec_alg_priv_t *ctx,
   frame_worker_data->pbi->ext_refs = ctx->ext_refs;
 
   frame_worker_data->pbi->is_annexb = ctx->is_annexb;
+  frame_worker_data->pbi->num_tile_groups = 0;
 
   worker->had_error = 0;
   winterface->execute(worker);
@@ -977,6 +978,14 @@ static aom_codec_err_t ctrl_get_fwd_kf_value(aom_codec_alg_priv_t *ctx,
   return AOM_CODEC_OK;
 }
 
+static aom_codec_err_t ctrl_get_tile_group_count(aom_codec_alg_priv_t *ctx,
+                                                 va_list args) {
+  int *const arg = va_arg(args, int *);
+  if (arg == NULL) return AOM_CODEC_INVALID_PARAM;
+  *arg = ((FrameWorkerData *)ctx->frame_worker->data1)->pbi->num_tile_groups;
+  return AOM_CODEC_OK;
+}
+
 static aom_codec_err_t ctrl_get_frame_flags(aom_codec_alg_priv_t *ctx,
                                             va_list args) {
   int *const arg = va_arg(args, int *);
@@ -1433,6 +1442,7 @@ static aom_codec_ctrl_fn_map_t decoder_ctrl_maps[] = {
   { AOMD_GET_FWD_KF_PRESENT, ctrl_get_fwd_kf_value },
   { AOMD_GET_FRAME_FLAGS, ctrl_get_frame_flags },
   { AOMD_GET_TILE_INFO, ctrl_get_tile_info },
+  { AOMD_GET_TILE_GROUP_COUNT, ctrl_get_tile_group_count },
 
   CTRL_MAP_END,
 };
