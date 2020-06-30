@@ -3668,6 +3668,51 @@ static AOM_INLINE void prune_4_way_partition_search(
                                      part4_search_allowed);
 }
 
+// Decide early termination and rectangular partition pruning
+// based on PARTITION_NONE and PARTITION_SPLIT costs.
+static AOM_INLINE void prune_partitions_after_split(
+    AV1_COMP *const cpi, MACROBLOCK *x, SIMPLE_MOTION_DATA_TREE *sms_tree,
+    PartitionSearchState *part_search_state, RD_STATS *best_rdc,
+    int64_t part_none_rd, int64_t part_split_rd) {
+  const AV1_COMMON *const cm = &cpi->common;
+  PartitionBlkParams blk_params = part_search_state->part_blk_params;
+  const int mi_row = blk_params.mi_row;
+  const int mi_col = blk_params.mi_col;
+  const BLOCK_SIZE bsize = blk_params.bsize;
+  assert(bsize <= BLOCK_LARGEST);
+
+  // Early termination: using the rd costs of PARTITION_NONE and subblocks
+  // from PARTITION_SPLIT to determine an early breakout.
+  if (cpi->sf.part_sf.ml_early_term_after_part_split_level &&
+      !frame_is_intra_only(cm) &&
+      !part_search_state->terminate_partition_search &&
+      part_search_state->do_rectangular_split &&
+      (part_search_state->partition_rect_allowed[HORZ] ||
+       part_search_state->partition_rect_allowed[VERT])) {
+    av1_ml_early_term_after_split(
+        cpi, x, sms_tree, bsize, best_rdc->rdcost, part_none_rd, part_split_rd,
+        part_search_state->split_rd, mi_row, mi_col,
+        &part_search_state->terminate_partition_search);
+  }
+
+  // Use the rd costs of PARTITION_NONE and subblocks from PARTITION_SPLIT
+  // to prune out rectangular partitions in some directions.
+  if (!cpi->sf.part_sf.ml_early_term_after_part_split_level &&
+      cpi->sf.part_sf.ml_prune_rect_partition && !frame_is_intra_only(cm) &&
+      (part_search_state->partition_rect_allowed[HORZ] ||
+       part_search_state->partition_rect_allowed[VERT]) &&
+      !(part_search_state->prune_rect_part[HORZ] ||
+        part_search_state->prune_rect_part[VERT]) &&
+      !part_search_state->terminate_partition_search) {
+    av1_setup_src_planes(x, cpi->source, mi_row, mi_col, av1_num_planes(cm),
+                         bsize);
+    av1_ml_prune_rect_partition(
+        cpi, x, bsize, best_rdc->rdcost, part_search_state->none_rd,
+        part_search_state->split_rd, &part_search_state->prune_rect_part[HORZ],
+        &part_search_state->prune_rect_part[VERT]);
+  }
+}
+
 /*!\brief AV1 block partition search (full search).
  *
  * \ingroup partition_search
@@ -4078,34 +4123,9 @@ BEGIN_PARTITION_SEARCH:
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }  // if (do_split)
 
-  // Early termination: using the rd costs of PARTITION_NONE and subblocks
-  // from PARTITION_SPLIT to determine an early breakout.
-  if (cpi->sf.part_sf.ml_early_term_after_part_split_level &&
-      !frame_is_intra_only(cm) &&
-      !part_search_state.terminate_partition_search &&
-      part_search_state.do_rectangular_split &&
-      (part_search_state.partition_rect_allowed[HORZ] ||
-       part_search_state.partition_rect_allowed[VERT])) {
-    av1_ml_early_term_after_split(
-        cpi, x, sms_tree, bsize, best_rdc.rdcost, part_none_rd, part_split_rd,
-        part_search_state.split_rd, mi_row, mi_col,
-        &part_search_state.terminate_partition_search);
-  }
-
-  // Pruning: using the rd costs of PARTITION_NONE and subblocks from
-  // PARTITION_SPLIT to prune out rectangular partitions in some directions.
-  if (!cpi->sf.part_sf.ml_early_term_after_part_split_level &&
-      cpi->sf.part_sf.ml_prune_rect_partition && !frame_is_intra_only(cm) &&
-      (part_search_state.partition_rect_allowed[HORZ] ||
-       part_search_state.partition_rect_allowed[VERT]) &&
-      !(part_search_state.prune_rect_part[HORZ] ||
-        part_search_state.prune_rect_part[VERT]) &&
-      !part_search_state.terminate_partition_search) {
-    av1_setup_src_planes(x, cpi->source, mi_row, mi_col, num_planes, bsize);
-    av1_ml_prune_rect_partition(
-        cpi, x, bsize, best_rdc.rdcost, part_search_state.none_rd,
-        part_search_state.split_rd, prune_horz, prune_vert);
-  }
+  // Prune partitions based on PARTITION_NONE and PARTITION_SPLIT.
+  prune_partitions_after_split(cpi, x, sms_tree, &part_search_state, &best_rdc,
+                               part_none_rd, part_split_rd);
 
   // Rectangular partitions search stage.
   rectangular_partition_search(cpi, td, tile_data, tp, x, pc_tree, &x_ctx,
