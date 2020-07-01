@@ -493,8 +493,8 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.skip_repeated_ref_mv = 1;
     sf->inter_sf.skip_repeated_full_newmv = 1;
     sf->inter_sf.reuse_compound_type_decision = 1;
-    sf->inter_sf.txfm_rd_gate_level =
-        boosted ? 0 : (is_boosted_arf2_bwd_type ? 1 : 2);
+    // sf->inter_sf.txfm_rd_gate_level =
+    //     boosted ? 0 : (is_boosted_arf2_bwd_type ? 1 : 2);
 
     sf->intra_sf.prune_palette_search_level = 2;
 
@@ -536,7 +536,7 @@ static void set_good_speed_features_framesize_independent(
     sf->part_sf.prune_ab_partition_using_split_info = 1;
 
     sf->inter_sf.alt_ref_search_fp = 1;
-    sf->inter_sf.txfm_rd_gate_level = boosted ? 0 : 3;
+    // sf->inter_sf.txfm_rd_gate_level = boosted ? 0 : 3;
 
     sf->inter_sf.prune_inter_modes_based_on_tpl = boosted ? 0 : 2;
     sf->inter_sf.prune_compound_using_neighbors = 2;
@@ -612,7 +612,7 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.disable_interinter_wedge = 1;
     sf->inter_sf.disable_obmc = 1;
     sf->inter_sf.disable_onesided_comp = 1;
-    sf->inter_sf.txfm_rd_gate_level = boosted ? 0 : 4;
+    // sf->inter_sf.txfm_rd_gate_level = boosted ? 0 : 4;
     sf->inter_sf.prune_inter_modes_if_skippable = 1;
 
     sf->lpf_sf.lpf_pick = LPF_PICK_FROM_FULL_IMAGE_NON_DUAL;
