@@ -353,6 +353,13 @@ enum aom_dec_control_id {
    * decoded. This will return a struct of type aom_tile_info.
    */
   AOMD_GET_TILE_INFO,
+
+  /*!\brief Codec control function to get screen content tools information.
+   * It returns an array of two integers; index 0 specifying whether
+   * allow_screen_content_tools is enabled and index 1 specifying whether
+   * intra_bc is enabled.
+   */
+  AOMD_GET_SCREEN_CONTENT_TOOLS_INFO,
 };
 
 /*!\cond */
@@ -387,6 +394,9 @@ AOM_CTRL_USE_TYPE(AOMD_GET_FRAME_FLAGS, int *)
 
 AOM_CTRL_USE_TYPE(AOMD_GET_TILE_INFO, aom_tile_info *)
 #define AOM_CTRL_AOMD_GET_TILE_INFO
+
+AOM_CTRL_USE_TYPE(AOMD_GET_SCREEN_CONTENT_TOOLS_INFO, int *)
+#define AOM_CTRL_AOMD_GET_SCREEN_CONTENT_TOOLS_INFO
 
 AOM_CTRL_USE_TYPE(AV1D_GET_DISPLAY_SIZE, int *)
 #define AOM_CTRL_AV1D_GET_DISPLAY_SIZE

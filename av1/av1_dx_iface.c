@@ -1129,6 +1129,26 @@ static aom_codec_err_t ctrl_get_tile_info(aom_codec_alg_priv_t *ctx,
   return AOM_CODEC_INVALID_PARAM;
 }
 
+static aom_codec_err_t ctrl_get_screen_content_tools_info(
+    aom_codec_alg_priv_t *ctx, va_list args) {
+  int *const sc_info = va_arg(args, int *);
+  if (sc_info) {
+    if (ctx->frame_worker) {
+      AVxWorker *const worker = ctx->frame_worker;
+      FrameWorkerData *const frame_worker_data =
+          (FrameWorkerData *)worker->data1;
+      const AV1Decoder *pbi = frame_worker_data->pbi;
+      sc_info[0] = pbi->common.features.allow_screen_content_tools;
+      sc_info[1] = pbi->common.features.allow_intrabc;
+      sc_info[3] = (int)pbi->common.features.cur_frame_force_integer_mv;
+      return AOM_CODEC_OK;
+    } else {
+      return AOM_CODEC_ERROR;
+    }
+  }
+  return AOM_CODEC_INVALID_PARAM;
+}
+
 static aom_codec_err_t ctrl_set_ext_ref_ptr(aom_codec_alg_priv_t *ctx,
                                             va_list args) {
   av1_ext_ref_frame_t *const data = va_arg(args, av1_ext_ref_frame_t *);
@@ -1436,6 +1456,7 @@ static aom_codec_ctrl_fn_map_t decoder_ctrl_maps[] = {
   { AOMD_GET_FWD_KF_PRESENT, ctrl_get_fwd_kf_value },
   { AOMD_GET_FRAME_FLAGS, ctrl_get_frame_flags },
   { AOMD_GET_TILE_INFO, ctrl_get_tile_info },
+  { AOMD_GET_SCREEN_CONTENT_TOOLS_INFO, ctrl_get_screen_content_tools_info },
 
   CTRL_MAP_END,
 };
