@@ -479,22 +479,24 @@ static void set_good_speed_features_framesize_independent(
     sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED;
     sf->mv_sf.search_method = DIAMOND;
 
-    sf->inter_sf.disable_sb_level_mv_cost_upd = 1;
-    // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
-    // it with cpi->sf.disable_wedge_search_var_thresh.
-    sf->inter_sf.disable_wedge_interintra_search = 1;
-    sf->inter_sf.disable_smooth_interintra = boosted ? 0 : 1;
-    // TODO(any): Experiment with the early exit mechanism for speeds 0, 1 and 2
-    // and clean-up the speed feature
-    sf->inter_sf.perform_best_rd_based_gating_for_chroma = 1;
-    sf->inter_sf.prune_inter_modes_based_on_tpl = boosted ? 0 : 1;
-    sf->inter_sf.prune_comp_search_by_single_result = boosted ? 4 : 2;
-    sf->inter_sf.selective_ref_frame = 4;
-    sf->inter_sf.skip_repeated_ref_mv = 1;
-    sf->inter_sf.skip_repeated_full_newmv = 1;
-    sf->inter_sf.reuse_compound_type_decision = 1;
-    sf->inter_sf.txfm_rd_gate_level =
-        boosted ? 0 : (is_boosted_arf2_bwd_type ? 1 : 2);
+    // sf->inter_sf.disable_sb_level_mv_cost_upd = 1;
+    // // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and
+    // combine
+    // // it with cpi->sf.disable_wedge_search_var_thresh.
+    // sf->inter_sf.disable_wedge_interintra_search = 1;
+    // sf->inter_sf.disable_smooth_interintra = boosted ? 0 : 1;
+    // // TODO(any): Experiment with the early exit mechanism for speeds 0, 1
+    // and 2
+    // // and clean-up the speed feature
+    // sf->inter_sf.perform_best_rd_based_gating_for_chroma = 1;
+    // sf->inter_sf.prune_inter_modes_based_on_tpl = boosted ? 0 : 1;
+    // sf->inter_sf.prune_comp_search_by_single_result = boosted ? 4 : 2;
+    // sf->inter_sf.selective_ref_frame = 4;
+    // sf->inter_sf.skip_repeated_ref_mv = 1;
+    // sf->inter_sf.skip_repeated_full_newmv = 1;
+    // sf->inter_sf.reuse_compound_type_decision = 1;
+    // sf->inter_sf.txfm_rd_gate_level =
+    //     boosted ? 0 : (is_boosted_arf2_bwd_type ? 1 : 2);
 
     sf->intra_sf.prune_palette_search_level = 2;
 
