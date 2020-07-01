@@ -360,6 +360,13 @@ enum aom_dec_control_id {
    * intra_bc is enabled.
    */
   AOMD_GET_SCREEN_CONTENT_TOOLS_INFO,
+
+  /*!\brief Codec control function to get superblock size.
+   * It returns an integer, indicating the superblock size
+   * read from the sequence header(0 for BLOCK_64X64 and
+   * 1 for BLOCK_128X128)
+   */
+  AOMD_GET_SB_SIZE,
 };
 
 /*!\cond */
@@ -397,6 +404,9 @@ AOM_CTRL_USE_TYPE(AOMD_GET_TILE_INFO, aom_tile_info *)
 
 AOM_CTRL_USE_TYPE(AOMD_GET_SCREEN_CONTENT_TOOLS_INFO, int *)
 #define AOM_CTRL_AOMD_GET_SCREEN_CONTENT_TOOLS_INFO
+
+AOM_CTRL_USE_TYPE(AOMD_GET_SB_SIZE, aom_superblock_size_t *)
+#define AOMD_CTRL_AOMD_GET_SB_SIZE
 
 AOM_CTRL_USE_TYPE(AV1D_GET_DISPLAY_SIZE, int *)
 #define AOM_CTRL_AV1D_GET_DISPLAY_SIZE

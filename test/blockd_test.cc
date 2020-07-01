@@ -9,8 +9,13 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include "aom/aom_codec.h"
 #include "av1/common/blockd.h"
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
+#include "test/codec_factory.h"
+#include "test/encode_test_driver.h"
+#include "test/y4m_video_source.h"
+#include "test/util.h"
 
 // Verify the optimized implementation of get_partition_subsize() produces the
 // same results as the Partition_Subsize lookup table in the spec.
@@ -120,3 +125,80 @@ TEST(BlockdTest, GetPartitionSubsize) {
     }
   }
 }
+
+namespace {
+// This class is used to validate if sb_size configured is respected
+// in the bitstream
+class SuperBlockSizeTestLarge
+    : public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode,
+                                                 aom_rc_mode>,
+      public ::libaom_test::EncoderTest {
+ protected:
+  SuperBlockSizeTestLarge()
+      : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)),
+        end_usage_check_(GET_PARAM(2)) {
+    superblock_size_ = AOM_SUPERBLOCK_SIZE_64X64;
+    sb_size_violated_ = false;
+  }
+  virtual ~SuperBlockSizeTestLarge() {}
+
+  virtual void SetUp() {
+    InitializeConfig();
+    SetMode(encoding_mode_);
+    const aom_rational timebase = { 1, 30 };
+    cfg_.g_timebase = timebase;
+    cfg_.rc_end_usage = end_usage_check_;
+    cfg_.g_threads = 1;
+    cfg_.g_lag_in_frames = 19;
+  }
+
+  virtual bool DoDecode() const { return 1; }
+
+  virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
+                                  ::libaom_test::Encoder *encoder) {
+    if (video->frame() == 0) {
+      encoder->Control(AOME_SET_CPUUSED, 5);
+      encoder->Control(AOME_SET_ENABLEAUTOALTREF, 1);
+      encoder->Control(AV1E_SET_SUPERBLOCK_SIZE, superblock_size_);
+    }
+  }
+
+  virtual bool HandleDecodeResult(const aom_codec_err_t res_dec,
+                                  libaom_test::Decoder *decoder) {
+    EXPECT_EQ(AOM_CODEC_OK, res_dec) << decoder->DecodeError();
+    if (AOM_CODEC_OK == res_dec) {
+      aom_codec_ctx_t *ctx_dec = decoder->GetDecoder();
+      aom_superblock_size_t sb_size;
+      AOM_CODEC_CONTROL_TYPECHECKED(ctx_dec, AOMD_GET_SB_SIZE, &sb_size);
+      if (superblock_size_ != sb_size) {
+        sb_size_violated_ = true;
+      }
+    }
+    return AOM_CODEC_OK == res_dec;
+  }
+
+  ::libaom_test::TestMode encoding_mode_;
+  aom_superblock_size_t superblock_size_;
+  bool sb_size_violated_;
+  aom_rc_mode end_usage_check_;
+};
+
+TEST_P(SuperBlockSizeTestLarge, SuperBlockSizeTest) {
+  ::libaom_test::Y4mVideoSource video("screendata.y4m", 0, 1);
+  // check for Block size 64X64
+  superblock_size_ = AOM_SUPERBLOCK_SIZE_64X64;
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+  ASSERT_EQ(sb_size_violated_, false) << "Failed for SB size 64X64";
+
+  // check for Block size 128X128
+  sb_size_violated_ = false;
+  superblock_size_ = AOM_SUPERBLOCK_SIZE_128X128;
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+  ASSERT_EQ(sb_size_violated_, false) << "Failed for SB size 128X128";
+}
+
+AV1_INSTANTIATE_TEST_CASE(SuperBlockSizeTestLarge,
+                          ::testing::Values(::libaom_test::kOnePassGood,
+                                            ::libaom_test::kTwoPassGood),
+                          ::testing::Values(AOM_Q, AOM_VBR, AOM_CBR, AOM_CQ));
+}  // namespace
