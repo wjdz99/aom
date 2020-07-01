@@ -97,6 +97,13 @@ typedef struct aom_tile_data {
   size_t extra_size;
 } aom_tile_data;
 
+typedef struct aom_still_picture_info {
+  /*! Video is a single frame still picture */
+  uint8_t still_picture;
+  /*! Use reduced header for still picture */
+  uint8_t full_still_picture_hdr;
+} aom_still_picture_info;
+
 /*!\brief Structure to hold the external reference frame pointer.
  *
  * Define a structure to hold the external reference frame pointer.
@@ -316,6 +323,8 @@ enum aom_dec_control_id {
   AOMD_GET_FRAME_FLAGS,
 
   AOMD_GET_ALTREF_FRAME_PRESENT,
+
+  AOMD_GET_STILL_PICTURE_PRESENT,
 };
 
 /*!\cond */
@@ -350,6 +359,9 @@ AOM_CTRL_USE_TYPE(AOMD_GET_ALTREF_FRAME_PRESENT, int *)
 
 AOM_CTRL_USE_TYPE(AOMD_GET_FRAME_FLAGS, int *)
 #define AOM_CTRL_AOMD_GET_FRAME_FLAGS
+
+AOM_CTRL_USE_TYPE(AOMD_GET_STILL_PICTURE_PRESENT, aom_still_picture_info *)
+#define AOM_CTRL_AOMD_GET_STILL_PICTURE_PRESENT
 
 AOM_CTRL_USE_TYPE(AV1D_GET_DISPLAY_SIZE, int *)
 #define AOM_CTRL_AV1D_GET_DISPLAY_SIZE

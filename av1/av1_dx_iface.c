@@ -987,6 +987,27 @@ static aom_codec_err_t ctrl_get_arf_frame_value(aom_codec_alg_priv_t *ctx,
   return AOM_CODEC_OK;
 }
 
+static aom_codec_err_t ctrl_get_still_picture_present(aom_codec_alg_priv_t *ctx,
+                                                      va_list args) {
+  aom_still_picture_info *const still_picture_info =
+      va_arg(args, aom_still_picture_info *);
+  if (still_picture_info) {
+    if (ctx->frame_worker) {
+      AVxWorker *const worker = ctx->frame_worker;
+      FrameWorkerData *const frame_worker_data =
+          (FrameWorkerData *)worker->data1;
+      const AV1Decoder *pbi = frame_worker_data->pbi;
+      still_picture_info->still_picture = pbi->common.seq_params.still_picture;
+      still_picture_info->full_still_picture_hdr =
+          !pbi->common.seq_params.reduced_still_picture_hdr;
+      return AOM_CODEC_OK;
+    } else {
+      return AOM_CODEC_ERROR;
+    }
+  }
+  return AOM_CODEC_OK;
+}
+
 static aom_codec_err_t ctrl_get_frame_flags(aom_codec_alg_priv_t *ctx,
                                             va_list args) {
   int *const arg = va_arg(args, int *);
@@ -1405,6 +1426,7 @@ static aom_codec_ctrl_fn_map_t decoder_ctrl_maps[] = {
   { AOMD_GET_FWD_KF_PRESENT, ctrl_get_fwd_kf_value },
   { AOMD_GET_FRAME_FLAGS, ctrl_get_frame_flags },
   { AOMD_GET_ALTREF_FRAME_PRESENT, ctrl_get_arf_frame_value },
+  { AOMD_GET_STILL_PICTURE_PRESENT, ctrl_get_still_picture_present },
 
   CTRL_MAP_END,
 };
