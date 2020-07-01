@@ -15,6 +15,8 @@
 #include "test/encode_test_driver.h"
 #include "test/i420_video_source.h"
 #include "test/util.h"
+#include "av1/encoder/av1_quantize.h"
+#include "test/y4m_video_source.h"
 
 namespace {
 
@@ -78,4 +80,93 @@ AV1_INSTANTIATE_TEST_CASE(QMTest,
                           ::testing::Values(::libaom_test::kRealTime,
                                             ::libaom_test::kOnePassGood),
                           ::testing::Range(5, 9));
+
+typedef struct {
+  const unsigned int min_q;
+  const unsigned int max_q;
+} QuantParam;
+
+const QuantParam QuantTestParams[] = {
+  { 0, 10 }, { 0, 60 }, { 30, 40 }, { 50, 60 }
+};
+
+std::ostream &operator<<(std::ostream &os, const QuantParam &test_arg) {
+  return os << "QuantParam { min_q:" << test_arg.min_q
+            << " max_q:" << test_arg.max_q << " }";
+}
+
+/*
+ * This class is used to test base_qindex are within min and max quantizer
+ * range configured by user.
+ */
+class QuantizerBoundsCheckTestLarge
+    : public ::libaom_test::CodecTestWith3Params<libaom_test::TestMode,
+                                                 QuantParam, aom_rc_mode>,
+      public ::libaom_test::EncoderTest {
+ protected:
+  QuantizerBoundsCheckTestLarge()
+      : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)),
+        quant_param_(GET_PARAM(2)), end_usage_check_(GET_PARAM(3)) {}
+  virtual ~QuantizerBoundsCheckTestLarge() {}
+
+  virtual void SetUp() {
+    InitializeConfig();
+    SetMode(encoding_mode_);
+    cfg_.rc_end_usage = end_usage_check_;
+    cfg_.g_threads = 1;
+    cfg_.rc_min_quantizer = quant_param_.min_q;
+    cfg_.rc_max_quantizer = quant_param_.max_q;
+    cfg_.g_lag_in_frames = 19;
+  }
+
+  virtual bool DoDecode() const { return 1; }
+
+  virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
+                                  ::libaom_test::Encoder *encoder) {
+    if (video->frame() == 0) {
+      encoder->Control(AOME_SET_CPUUSED, 5);
+    }
+  }
+
+  virtual bool HandleDecodeResult(const aom_codec_err_t res_dec,
+                                  libaom_test::Decoder *decoder) {
+    EXPECT_EQ(AOM_CODEC_OK, res_dec) << decoder->DecodeError();
+    if (AOM_CODEC_OK == res_dec) {
+      aom_codec_ctx_t *ctx_dec = decoder->GetDecoder();
+      AOM_CODEC_CONTROL_TYPECHECKED(ctx_dec, AOMD_GET_LAST_QUANTIZER,
+                                    &base_qindex_);
+      min_bound_qindex_ = av1_quantizer_to_qindex(cfg_.rc_min_quantizer);
+      max_bound_qindex_ = av1_quantizer_to_qindex(cfg_.rc_max_quantizer);
+      if ((base_qindex_ < min_bound_qindex_ ||
+           base_qindex_ > max_bound_qindex_) &&
+          quant_bound_violated_ == false) {
+        quant_bound_violated_ = true;
+      }
+    }
+    return AOM_CODEC_OK == res_dec;
+  }
+
+  ::libaom_test::TestMode encoding_mode_;
+  const QuantParam quant_param_;
+  int base_qindex_;
+  int min_bound_qindex_;
+  int max_bound_qindex_;
+  bool quant_bound_violated_;
+  aom_rc_mode end_usage_check_;
+};
+
+TEST_P(QuantizerBoundsCheckTestLarge, QuantizerBoundsCheckEncodeTest) {
+  quant_bound_violated_ = false;
+  libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                     cfg_.g_timebase.den, cfg_.g_timebase.num,
+                                     0, 50);
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+  ASSERT_EQ(quant_bound_violated_, false);
+}
+
+AV1_INSTANTIATE_TEST_CASE(QuantizerBoundsCheckTestLarge,
+                          ::testing::Values(::libaom_test::kOnePassGood,
+                                            ::libaom_test::kTwoPassGood),
+                          ::testing::ValuesIn(QuantTestParams),
+                          ::testing::Values(AOM_Q, AOM_VBR, AOM_CBR, AOM_CQ));
 }  // namespace
