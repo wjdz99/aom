@@ -16,6 +16,24 @@
       "revId": "ab5382e4d8cc02477db01aa9e70a7b90f0a0a6d9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "918a0acc_33bab287",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2081,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-07-01T00:06:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dfae17b9_8f0f7f57",
+      "revId": "ab5382e4d8cc02477db01aa9e70a7b90f0a0a6d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
