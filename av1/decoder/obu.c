@@ -585,6 +585,7 @@ static void alloc_read_metadata(AV1Decoder *const pbi,
   if (!pbi->metadata) {
     pbi->metadata = aom_img_metadata_array_alloc(1);
     if (!pbi->metadata) {
+      aom_img_metadata_free(metadata);
       aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                          "Failed to allocate metadata array");
     }
@@ -593,6 +594,7 @@ static void alloc_read_metadata(AV1Decoder *const pbi,
         (aom_metadata_t **)realloc(pbi->metadata->metadata_array,
                                    (pbi->metadata->sz + 1) * sizeof(metadata));
     if (!metadata_array) {
+      aom_img_metadata_free(metadata);
       aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                          "Error allocating metadata");
     }

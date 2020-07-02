@@ -344,31 +344,24 @@ void aom_img_metadata_array_free(aom_metadata_array_t *arr) {
 int aom_img_add_metadata(aom_image_t *img, uint32_t type, const uint8_t *data,
                          size_t sz, aom_metadata_insert_flags_t insert_flag) {
   if (!img) return -1;
-  if (!img->metadata) {
-    img->metadata = aom_img_metadata_array_alloc(0);
-    if (!img->metadata) return -1;
-  }
   aom_metadata_t *metadata =
       aom_img_metadata_alloc(type, data, sz, insert_flag);
-  if (!metadata) goto fail;
-  if (!img->metadata->metadata_array) {
-    img->metadata->metadata_array =
-        (aom_metadata_t **)calloc(1, sizeof(metadata));
-    if (!img->metadata->metadata_array || img->metadata->sz != 0) {
-      aom_img_metadata_free(metadata);
-      goto fail;
-    }
+  if (!metadata) return -1;
+  if (!img->metadata) {
+    img->metadata = aom_img_metadata_array_alloc(1);
+    if (!img->metadata) goto fail;
   } else {
-    img->metadata->metadata_array =
+    aom_metadata_t **metadata_array =
         (aom_metadata_t **)realloc(img->metadata->metadata_array,
                                    (img->metadata->sz + 1) * sizeof(metadata));
+    if (!metadata_array) goto fail;
+    img->metadata->metadata_array = metadata_array;
+    img->metadata->sz++;
   }
-  img->metadata->metadata_array[img->metadata->sz] = metadata;
-  img->metadata->sz++;
+  img->metadata->metadata_array[img->metadata->sz - 1] = metadata;
   return 0;
 fail:
-  aom_img_metadata_array_free(img->metadata);
-  img->metadata = NULL;
+  aom_img_metadata_free(metadata);
   return -1;
 }
 
