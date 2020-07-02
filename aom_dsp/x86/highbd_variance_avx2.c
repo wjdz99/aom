@@ -186,7 +186,7 @@ uint32_t aom_highbd_var_filter_block2d_bil_avx2(
               src1 = _mm256_insertf128_si256(filter1, src0[curr], 0);
               src[2] = _mm256_insertf128_si256(src1, src0[next], 1);
 
-              __m256i V_S_SRC = _mm256_avg_epu16(src[0], src[1]);
+              __m256i V_S_SRC = _mm256_avg_epu16(src[0], src[2]);
 
               dst0[0] = _mm_loadu_si128((const __m128i *)dst_ptr);
               dst_ptr += dst_stride;
