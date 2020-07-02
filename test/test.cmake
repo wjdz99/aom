@@ -128,6 +128,7 @@ if(NOT BUILD_SHARED_LIBS)
                 "${AOM_ROOT}/test/film_grain_table_test.cc"
                 "${AOM_ROOT}/test/fwd_kf_test.cc"
                 "${AOM_ROOT}/test/kf_test.cc"
+                "${AOM_ROOT}/test/screen_content_tests.cc"
                 "${AOM_ROOT}/test/sb_multipass_test.cc"
                 "${AOM_ROOT}/test/segment_binarization_sync.cc"
                 "${AOM_ROOT}/test/still_picture_test.cc"
