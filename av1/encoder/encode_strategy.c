@@ -1270,6 +1270,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
          REF_FRAMES * sizeof(*cm->remapped_ref_idx));
 
   cpi->td.mb.delta_qindex = 0;
+  cm->cur_frame->buf.monochrome = cm->seq_params.monochrome;
 
   if (!frame_params.show_existing_frame) {
     cm->quant_params.using_qmatrix = oxcf->q_cfg.using_qm;
