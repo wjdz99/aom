@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "404abfc7_a02e0ac2",
+        "filename": "aom_dsp/x86/highbd_variance_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-07-03T01:29:42Z",
+      "side": 1,
+      "message": "Note that output_width \u003d\u003d 8 for the code modified in this CL.",
+      "range": {
+        "startLine": 154,
+        "startChar": 0,
+        "endLine": 155,
+        "endChar": 15
+      },
+      "revId": "b713dd167f721303efd2572e95c4d52be14e331f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "270f8ed0_7042a905",
+        "filename": "aom_dsp/x86/highbd_variance_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1567,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-07-03T01:29:42Z",
+      "side": 1,
+      "message": "Note that we do not instantiate any aom_highbd_10_sub_pixel_varianceWxH_avx2 with W (output_width) \u003d\u003d 8.\n\nTherefore, this is a second reason why the code modified in this CL is unreachable.",
+      "revId": "b713dd167f721303efd2572e95c4d52be14e331f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
