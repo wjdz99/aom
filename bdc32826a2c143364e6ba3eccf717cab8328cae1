@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf9961c3_177bd308",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2020-07-03T20:50:45Z",
+      "side": 1,
+      "message": "From what I remember sz value includes the trailing byte 0x80 in the count, so I think an improbable case of an input as \"0xFF 0x80\" where 0x80 is the trailing byte, could be accepted here. Perhaps an if (sz \u003c\u003d 2) could be used or checking for the trailing byte presence.\nMaybe this is validated before this function but just wanted to mention it.",
+      "range": {
+        "startLine": 615,
+        "startChar": 4,
+        "endLine": 615,
+        "endChar": 16
+      },
+      "revId": "bdc32826a2c143364e6ba3eccf717cab8328cae1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
