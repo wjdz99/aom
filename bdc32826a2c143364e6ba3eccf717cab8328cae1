@@ -46,6 +46,30 @@
       "revId": "bdc32826a2c143364e6ba3eccf717cab8328cae1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b1bdd513_570efe91",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2020-07-03T23:25:28Z",
+      "side": 1,
+      "message": "Yes! Thank you for the fix and I get the idea of the change.",
+      "parentUuid": "6abae64f_f8dcc1bd",
+      "range": {
+        "startLine": 615,
+        "startChar": 4,
+        "endLine": 615,
+        "endChar": 16
+      },
+      "revId": "bdc32826a2c143364e6ba3eccf717cab8328cae1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
