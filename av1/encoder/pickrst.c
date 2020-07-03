@@ -1838,6 +1838,75 @@ static int rest_tiles_in_plane(const AV1_COMMON *cm, int plane) {
   return rsi->units_per_tile;
 }
 
+#if CONFIG_DUMP_MFQE_DATA
+static void dump_frame_buffer(const YV12_BUFFER_CONFIG *buf, FILE *file) {
+  if (!(buf && file)) return;
+
+  // Write out header information for YV12_BUFFER_CONFIG.
+  fwrite(&buf->widths, 1, 2 * sizeof(int), file);
+  fwrite(&buf->heights, 1, 2 * sizeof(int), file);
+  fwrite(&buf->crop_widths, 1, 2 * sizeof(int), file);
+  fwrite(&buf->crop_heights, 1, 2 * sizeof(int), file);
+
+  int h;
+  // --- Y ---
+  for (h = 0; h < buf->y_height; ++h) {
+    fwrite(&buf->y_buffer[h * buf->y_stride], 1, buf->y_width, file);
+  }
+  // --- U ---
+  for (h = 0; h < buf->uv_height; ++h) {
+    fwrite(&buf->u_buffer[h * buf->uv_stride], 1, buf->uv_width, file);
+  }
+  // --- V ---
+  for (h = 0; h < buf->uv_height; ++h) {
+    fwrite(&buf->v_buffer[h * buf->uv_stride], 1, buf->uv_width, file);
+  }
+}
+
+static void dump_frame_data(const YV12_BUFFER_CONFIG *src,
+                            const YV12_BUFFER_CONFIG *cur, AV1_COMMON *cm) {
+  const char file_name[256] = "enc_frame_data.yuv";
+  FILE *f_data = fopen(file_name, "ab");
+  if (!f_data) {
+    printf("Unable to open file %s to append.\n", file_name);
+    return;
+  }
+
+  // Dump source frame.
+  if (src) dump_frame_buffer(src, f_data);
+
+  // Dump current frame.
+  if (cur && cm) {
+    fwrite(&cm->base_qindex, 1, sizeof(int), f_data);
+    dump_frame_buffer(src, f_data);
+  }
+
+  static const MV_REFERENCE_FRAME ref_frames[7] = { LAST_FRAME,   LAST2_FRAME,
+                                                    LAST3_FRAME,  GOLDEN_FRAME,
+                                                    BWDREF_FRAME, ALTREF2_FRAME,
+                                                    ALTREF_FRAME };
+  // Dump reference frames.
+  if (cm) {
+    // Figure out how many reference frames are available.
+    int num_ref_frame = 0;
+    for (int i = 0; i < 7; ++i) {
+      if (get_ref_frame_buf(cm, ref_frames[i])) num_ref_frame++;
+    }
+    fwrite(&num_ref_frame, 1, sizeof(int), f_data);
+
+    // Dump all available reference frames to file.
+    for (int i = 0; i < 7; ++i) {
+      const RefCntBuffer *ref = get_ref_frame_buf(cm, ref_frames[i]);
+      if (ref) {
+        fwrite(&ref->base_qindex, 1, sizeof(int), f_data);
+        dump_frame_buffer(&ref->buf, f_data);
+      }
+    }
+  }
+  fclose(f_data);
+}
+#endif  // CONFIG_DUMP_MFQE_DATA
+
 void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
@@ -1862,6 +1931,10 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi) {
   RestSearchCtxt rsc;
   const int plane_start = AOM_PLANE_Y;
   const int plane_end = num_planes > 1 ? AOM_PLANE_V : AOM_PLANE_Y;
+
+#if CONFIG_DUMP_MFQE_DATA
+  dump_frame_data(src, &cm->cur_frame->buf, cm);
+#endif  // CONFIG_DUMP_MFQE_DATA
 
 #if CONFIG_WIENER_NONSEP
   const YV12_BUFFER_CONFIG *dgd = &cpi->common.cur_frame->buf;
