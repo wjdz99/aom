@@ -606,20 +606,23 @@ static void alloc_read_metadata(AV1Decoder *const pbi,
 // aom_internal_error() and does not return.
 static size_t read_metadata_itut_t35(AV1Decoder *const pbi, const uint8_t *data,
                                      size_t sz) {
-  const int kMinItuT35PayloadSize = 2;
   AV1_COMMON *const cm = &pbi->common;
   if (sz == 0) {
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                        "itu_t_t35_country_code is missing");
   }
-  int bytes_read = get_last_nonzero_byte_index(data, sz);
-  if (bytes_read < 0) {
-    aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                       "No trailing bits found on metadata");
+  int country_code_size = 1;
+  if (*data == 0xFF) {
+    if (sz == 1) {
+      aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                         "itu_t_t35_country_code_extension_byte is missing");
+    }
+    ++country_code_size;
   }
-  if (*data == 0xFF && bytes_read < kMinItuT35PayloadSize) {
+  int bytes_read = get_last_nonzero_byte_index(data, sz);
+  if (bytes_read < country_code_size) {
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                       "itu_t_t35_country_code_extension_byte is missing");
+                       "No trailing bits found in ITUT T35 metadata OBU");
   }
   alloc_read_metadata(pbi, OBU_METADATA_TYPE_ITUT_T35, data, (size_t)bytes_read,
                       AOM_MIF_ANY_FRAME);
@@ -639,7 +642,7 @@ static size_t read_metadata_hdr_cll(AV1Decoder *const pbi, const uint8_t *data,
   int bytes_read = get_last_nonzero_byte_index(data, sz);
   if (bytes_read < 0) {
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                       "No trailing bits found on metadata");
+                       "No trailing bits found in HDR CLL metadata OBU");
   }
   if (bytes_read != kHdrCllPayloadSize) {
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
@@ -663,7 +666,7 @@ static size_t read_metadata_hdr_mdcv(AV1Decoder *const pbi, const uint8_t *data,
   int bytes_read = get_last_nonzero_byte_index(data, sz);
   if (bytes_read < 0) {
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                       "No trailing bits found on HDR MDCV metadata");
+                       "No trailing bits found in HDR MDCV metadata OBU");
   }
   if (bytes_read != kMdcvPayloadSize) {
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
@@ -781,7 +784,7 @@ static size_t read_metadata(AV1Decoder *pbi, const uint8_t *data, size_t sz) {
     // If metadata_type is reserved for future use or a user private value,
     // ignore the entire OBU and just check trailing bits.
     if (get_last_nonzero_byte(data + type_length, sz - type_length) == 0) {
-      pbi->common.error.error_code = AOM_CODEC_CORRUPT_FRAME;
+      cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
       return 0;
     }
     return sz;
@@ -793,7 +796,7 @@ static size_t read_metadata(AV1Decoder *pbi, const uint8_t *data, size_t sz) {
     // itu_t_t35_payload_bytes is byte aligned and the first
     // trailing byte should be 0x80.
     if (get_last_nonzero_byte(data + bytes_read, sz - bytes_read) != 0x80) {
-      pbi->common.error.error_code = AOM_CODEC_CORRUPT_FRAME;
+      cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
       return 0;
     }
     return sz;
@@ -802,7 +805,7 @@ static size_t read_metadata(AV1Decoder *pbi, const uint8_t *data, size_t sz) {
         type_length +
         read_metadata_hdr_cll(pbi, data + type_length, sz - type_length);
     if (get_last_nonzero_byte(data + bytes_read, sz - bytes_read) != 0x80) {
-      pbi->common.error.error_code = AOM_CODEC_CORRUPT_FRAME;
+      cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
       return 0;
     }
     return sz;
@@ -811,7 +814,7 @@ static size_t read_metadata(AV1Decoder *pbi, const uint8_t *data, size_t sz) {
         type_length +
         read_metadata_hdr_mdcv(pbi, data + type_length, sz - type_length);
     if (get_last_nonzero_byte(data + bytes_read, sz - bytes_read) != 0x80) {
-      pbi->common.error.error_code = AOM_CODEC_CORRUPT_FRAME;
+      cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
       return 0;
     }
     return sz;
@@ -1048,7 +1051,7 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         if (cm->error.error_code != AOM_CODEC_OK) return -1;
         break;
       case OBU_PADDING:
-        decoded_payload_size = read_padding(&pbi->common, data, payload_size);
+        decoded_payload_size = read_padding(cm, data, payload_size);
         if (cm->error.error_code != AOM_CODEC_OK) return -1;
         break;
       default:
