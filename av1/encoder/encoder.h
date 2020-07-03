@@ -1124,15 +1124,15 @@ typedef struct {
    */
   int allocated_tile_cols;
   /*!
-   * Number of superblock rows for which row synchronization memory is allocated
+   * Number of rows for which row synchronization memory is allocated
    * per tile.
    */
-  int allocated_sb_rows;
+  int allocated_rows;
   /*!
-   * Number of superblock columns for which entropy context memory is allocated
+   * Number of columns for which entropy context memory is allocated
    * per tile.
    */
-  int allocated_sb_cols;
+  int allocated_cols;
 
   /*!
    * thread_id_to_tile_id[i] indicates the tile id assigned to the ith thread.
