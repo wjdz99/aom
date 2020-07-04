@@ -50,6 +50,38 @@
 #include "third_party/libyuv/include/libyuv/scale.h"
 #endif
 
+#ifdef _WIN64
+#define ENV_OS "Windows 64 bit"
+#elif WIN32
+#define ENV_OS "Windows 32 bit"
+#elif __APPLE__
+#define ENV_OS "Max OS"
+#elif __linux__
+#define ENV_OS "Linux"
+#else
+#define ENV_OS "Unknown OS"
+#endif
+
+#if _MSC_VER
+#define ENV_COMPILER "VS %d", _MSC_VER
+#elif __clang__
+#define ENV_COMPILER \
+  "clang %d.%d.%d", __clang_major__, __clang_minor__, __clang_patchlevel__
+#elif __GNUC__
+#define ENV_COMPILER \
+  "GCC %d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__
+#else
+#define ENV_COMPILER "Unknown compiler"
+#endif
+
+#if UINTPTR_MAX == 0xffffffff
+#define ENV_BITS "32 bit "
+#elif UINTPTR_MAX == 0xffffffffffffffff
+#define ENV_BITS "64 bit "
+#else
+#define ENV_BITS "unknown bit "
+#endif
+
 /* Swallow warnings about unused results of fread/fwrite */
 static size_t wrap_fread(void *ptr, size_t size, size_t nmemb, FILE *stream) {
   return fread(ptr, size, nmemb, stream);
@@ -1154,7 +1186,7 @@ static void validate_positive_rational(const char *msg,
 
 static void init_config(cfg_options_t *config) {
   memset(config, 0, sizeof(cfg_options_t));
-  config->super_block_size = 0;  // Dynamic
+  config->superblock_size = 0;  // Dynamic
   config->max_partition_size = 128;
   config->min_partition_size = 4;
   config->disable_trellis_quant = 3;
@@ -1762,102 +1794,148 @@ static const char *image_format_to_string(aom_img_fmt_t f) {
 static void show_stream_config(struct stream_state *stream,
                                struct AvxEncoderConfig *global,
                                struct AvxInputContext *input) {
-#define SHOW(field) \
-  fprintf(stderr, "    %-28s = %d\n", #field, stream->config.cfg.field)
+  fprintf(stdout, "\nCodec                          : %s\n",
+          aom_codec_iface_name(global->codec));
+  fprintf(stdout, "O/S                            : %s\n", ENV_OS);
+  fprintf(stdout, "Compiler                       : ");
+  fprintf(stdout, ENV_COMPILER);
+  fprintf(stdout, "\nExecutable                     : aomenc %s\n", ENV_BITS);
 
-  if (stream->index == 0) {
-    fprintf(stderr, "Codec: %s\n", aom_codec_iface_name(global->codec));
-    fprintf(stderr, "Source file: %s File Type: %s Format: %s\n",
-            input->filename, file_type_to_string(input->file_type),
-            image_format_to_string(input->fmt));
-  }
-  if (stream->next || stream->index)
-    fprintf(stderr, "\nStream Index: %d\n", stream->index);
-  fprintf(stderr, "Destination file: %s\n", stream->config.out_fn);
-  fprintf(stderr, "Coding path: %s\n",
-          stream->config.use_16bit_internal ? "HBD" : "LBD");
-  fprintf(stderr, "Encoder parameters:\n");
-
-  SHOW(g_usage);
-  SHOW(g_threads);
-  SHOW(g_profile);
-  SHOW(g_w);
-  SHOW(g_h);
-  SHOW(g_bit_depth);
-  SHOW(g_input_bit_depth);
-  SHOW(g_timebase.num);
-  SHOW(g_timebase.den);
-  SHOW(g_error_resilient);
-  SHOW(g_pass);
-  SHOW(g_lag_in_frames);
-  SHOW(large_scale_tile);
-  SHOW(rc_dropframe_thresh);
-  SHOW(rc_resize_mode);
-  SHOW(rc_resize_denominator);
-  SHOW(rc_resize_kf_denominator);
-  SHOW(rc_superres_mode);
-  SHOW(rc_superres_denominator);
-  SHOW(rc_superres_kf_denominator);
-  SHOW(rc_superres_qthresh);
-  SHOW(rc_superres_kf_qthresh);
-  SHOW(rc_end_usage);
-  SHOW(rc_target_bitrate);
-  SHOW(rc_min_quantizer);
-  SHOW(rc_max_quantizer);
-  SHOW(rc_undershoot_pct);
-  SHOW(rc_overshoot_pct);
-  SHOW(rc_buf_sz);
-  SHOW(rc_buf_initial_sz);
-  SHOW(rc_buf_optimal_sz);
+  fprintf(stdout, "Input file                     : %s\n", input->filename);
+  fprintf(stderr, "Output file                    : %s\n",
+          stream->config.out_fn);
+  fprintf(stdout,
+          "Input format                   : %s, %s, %dx%d, %3.1f FPS, %d bit\n",
+          file_type_to_string(input->file_type),
+          image_format_to_string(input->fmt), input->width, input->height,
+          (double)global->framerate.num / (double)global->framerate.den,
+          input->bit_depth);
+  fprintf(stdout, "Number of threads              : %d\n",
+          stream->config.cfg.g_threads);
+  fprintf(stdout, "Frames to be coded             : %d - %d (%d frames)\n",
+          global->skip_frames,
+          global->skip_frames + stream->config.cfg.g_limit - 1,
+          stream->config.cfg.g_limit);
+  fprintf(stdout, "Operating bit depth            : %d\n",
+          stream->config.cfg.g_bit_depth);
+  fprintf(stdout, "Num of coding passes           : %d\n", global->passes);
 #if !CONFIG_SINGLEPASS
-  SHOW(rc_2pass_vbr_bias_pct);
-  SHOW(rc_2pass_vbr_minsection_pct);
-  SHOW(rc_2pass_vbr_maxsection_pct);
-#endif  // !CONFIG_SINGLEPASS
-  SHOW(fwd_kf_enabled);
-  SHOW(kf_mode);
-  SHOW(kf_min_dist);
-  SHOW(kf_max_dist);
-
-#define SHOW_PARAMS(field)                    \
-  fprintf(stderr, "    %-28s = %d\n", #field, \
-          stream->config.cfg.encoder_cfg.field)
-  if (global->encoder_config.init_by_cfg_file) {
-    SHOW_PARAMS(super_block_size);
-    SHOW_PARAMS(max_partition_size);
-    SHOW_PARAMS(min_partition_size);
-    SHOW_PARAMS(disable_ab_partition_type);
-    SHOW_PARAMS(disable_rect_partition_type);
-    SHOW_PARAMS(disable_1to4_partition_type);
-    SHOW_PARAMS(disable_flip_idtx);
-    SHOW_PARAMS(disable_cdef);
-    SHOW_PARAMS(disable_lr);
-    SHOW_PARAMS(disable_obmc);
-    SHOW_PARAMS(disable_warp_motion);
-    SHOW_PARAMS(disable_global_motion);
-    SHOW_PARAMS(disable_dist_wtd_comp);
-    SHOW_PARAMS(disable_diff_wtd_comp);
-    SHOW_PARAMS(disable_inter_intra_comp);
-    SHOW_PARAMS(disable_masked_comp);
-    SHOW_PARAMS(disable_one_sided_comp);
-    SHOW_PARAMS(disable_palette);
-    SHOW_PARAMS(disable_intrabc);
-    SHOW_PARAMS(disable_cfl);
-    SHOW_PARAMS(disable_smooth_intra);
-    SHOW_PARAMS(disable_filter_intra);
-    SHOW_PARAMS(disable_dual_filter);
-    SHOW_PARAMS(disable_intra_angle_delta);
-    SHOW_PARAMS(disable_intra_edge_filter);
-    SHOW_PARAMS(disable_tx_64x64);
-    SHOW_PARAMS(disable_smooth_inter_intra);
-    SHOW_PARAMS(disable_inter_inter_wedge);
-    SHOW_PARAMS(disable_inter_intra_wedge);
-    SHOW_PARAMS(disable_paeth_intra);
-    SHOW_PARAMS(disable_trellis_quant);
-    SHOW_PARAMS(disable_ref_frame_mv);
-    SHOW_PARAMS(reduced_reference_set);
-    SHOW_PARAMS(reduced_tx_type_set);
+  if (global->passes > 1) {
+    fprintf(stdout, "Stats file                     : %s\n",
+            stream->config.stats_fn);
   }
+#endif
+  fprintf(stdout, "Lag in frames                  : %d\n",
+          stream->config.cfg.g_lag_in_frames);
+  if (stream->config.cfg.kf_min_dist != stream->config.cfg.kf_max_dist) {
+    fprintf(stdout, "Key frame distance             : %d - %d\n",
+            stream->config.cfg.kf_min_dist, stream->config.cfg.kf_max_dist);
+  } else {
+    fprintf(stdout, "Key frame distance             : %d\n",
+            stream->config.cfg.kf_min_dist);
+  }
+  if (stream->config.cfg.encoder_cfg.superblock_size != 0) {
+    fprintf(stdout, "Super block size               : %d\n",
+            stream->encoder.config.enc->encoder_cfg.superblock_size);
+  } else {
+    fprintf(stdout, "Super block size               : Dynamic\n");
+  }
+  fprintf(stdout, "Partition size                 : %d - %d\n",
+          stream->encoder.config.enc->encoder_cfg.min_partition_size,
+          stream->encoder.config.enc->encoder_cfg.max_partition_size);
+
+  int qp = 0;
+  int cpu_used = 0;
+  for (int i = 0; i < stream->config.arg_ctrl_cnt; i++) {
+    int ctrl = stream->config.arg_ctrls[i][0];
+
+    if (ctrl == 25) {
+      qp = stream->config.arg_ctrls[i][1];
+    }
+    if (ctrl == 13) {
+      cpu_used = stream->config.arg_ctrls[i][1];
+    }
+  }
+  fprintf(stdout, "QP                             : %d [ ", qp);
+
+  for (int level = 0; level < FIXED_QP_OFFSET_COUNT; level++) {
+    fprintf(stdout, "%d ", stream->config.cfg.fixed_qp_offsets[level]);
+  }
+  fprintf(stdout, "]\n");
+  fprintf(stdout, "Encoder speed setting          : %d (cpu-used)\n", cpu_used);
+  fprintf(stdout, "Trellis quantization           : %d\n",
+          !stream->encoder.config.enc->encoder_cfg.disable_trellis_quant);
+  fprintf(stdout, "Reduced reference frame set    : %d\n",
+          stream->encoder.config.enc->encoder_cfg.enable_reduced_reference_set);
+  fprintf(stdout, "Reduced transform set          : %d\n",
+          stream->encoder.config.enc->encoder_cfg.reduced_tx_type_set);
+
+  fprintf(stdout,
+          "Tool setting (Partition)       : T-Type (%d), 4:1/1:4 (%d)\n",
+          stream->encoder.config.enc->encoder_cfg.enable_ab_partitions,
+          stream->encoder.config.enc->encoder_cfg.enable_1to4_partitions);
+
+  fprintf(stdout,
+          "Tool setting (Intra)           : SmoothIntra (%d), CfL (%d), "
+          "FilterIntra (%d)\n",
+          stream->encoder.config.enc->encoder_cfg.enable_smooth_intra,
+          stream->encoder.config.enc->encoder_cfg.enable_cfl_intra,
+          stream->encoder.config.enc->encoder_cfg.enable_filter_intra);
+  fprintf(stdout,
+          "                               : DualFilter (%d), IntraDeltaAngle "
+          "(%d)\n",
+          stream->encoder.config.enc->encoder_cfg.enable_dual_filter,
+          stream->encoder.config.enc->encoder_cfg.enable_angle_delta);
+  fprintf(
+      stdout,
+      "                               : EdgeFilter (%d), PaethPredictor (%d)\n",
+      stream->encoder.config.enc->encoder_cfg.enable_intra_edge_filter,
+      stream->encoder.config.enc->encoder_cfg.enable_paeth_intra);
+
+  fprintf(stdout,
+          "Tool setting (Inter)           : OBMC (%d), WarpMotion (%d), "
+          "GlobalMotion (%d)\n",
+          stream->encoder.config.enc->encoder_cfg.enable_obmc,
+          stream->encoder.config.enc->encoder_cfg.enable_warped_motion,
+          stream->encoder.config.enc->encoder_cfg.enable_global_motion);
+
+  fprintf(stdout,
+          "                               : DistCompound (%d), DiCompound "
+          "(%d), InterIntra (%d)\n",
+          stream->encoder.config.enc->encoder_cfg.enable_dist_wtd_comp,
+          stream->encoder.config.enc->encoder_cfg.enable_diff_wtd_comp,
+          stream->encoder.config.enc->encoder_cfg.enable_interintra_comp);
+
+  fprintf(stdout,
+          "                               : MaskCompound: (%d), "
+          "OneSideCompound (%d), SmoothInterIntra (%d)\n",
+          stream->encoder.config.enc->encoder_cfg.enable_masked_comp,
+          stream->encoder.config.enc->encoder_cfg.enable_onesided_comp,
+          stream->encoder.config.enc->encoder_cfg.enable_smooth_interintra);
+
+  fprintf(stdout,
+          "                               : InterInterWedge (%d), "
+          "InterIntraWedge (%d), RefFrameMv (%d)\n",
+          stream->encoder.config.enc->encoder_cfg.enable_interinter_wedge,
+          stream->encoder.config.enc->encoder_cfg.enable_interintra_wedge,
+          stream->encoder.config.enc->encoder_cfg.enable_ref_frame_mvs);
+
+  fprintf(stdout,
+          "Tool setting (Transform)       : Flip & IDT (%d), TX_64 (%d)\n",
+          stream->encoder.config.enc->encoder_cfg.enable_flip_idtx,
+          stream->encoder.config.enc->encoder_cfg.enable_tx64);
+
+  fprintf(stdout,
+          "Tool setting (Loop filter)     : CDEF (%d), LoopRestortion (%d)\n",
+          stream->encoder.config.enc->encoder_cfg.enable_cdef,
+          stream->encoder.config.enc->encoder_cfg.enable_restoration);
+
+  fprintf(stdout,
+          "Tool setting (Others)          : Palette (%d), IntraBC (%d)\n",
+          stream->encoder.config.enc->encoder_cfg.enable_palette,
+          stream->encoder.config.enc->encoder_cfg.enable_intrabc);
+
+  fprintf(stdout, "\n\n");
 }
 
 static void open_output_file(struct stream_state *stream,
@@ -2127,9 +2205,6 @@ static void get_cx_data(struct stream_state *stream,
     switch (pkt->kind) {
       case AOM_CODEC_CX_FRAME_PKT:
         ++stream->frames_out;
-        if (!global->quiet)
-          fprintf(stderr, " %6luF", (unsigned long)pkt->data.frame.sz);
-
         update_rate_histogram(stream->rate_hist, cfg, pkt);
 #if CONFIG_WEBM_IO
         if (stream->config.write_webm) {
@@ -2191,8 +2266,6 @@ static void get_cx_data(struct stream_state *stream,
           stream->psnr_sse_total += pkt->data.psnr.sse[0];
           stream->psnr_samples_total += pkt->data.psnr.samples[0];
           for (i = 0; i < 4; i++) {
-            if (!global->quiet)
-              fprintf(stderr, "%.3f ", pkt->data.psnr.psnr[i]);
             stream->psnr_totals[i] += pkt->data.psnr.psnr[i];
           }
           stream->psnr_count++;
@@ -2388,7 +2461,6 @@ int main(int argc, const char **argv_) {
 
   for (pass = global.pass ? global.pass - 1 : 0; pass < global.passes; pass++) {
     int frames_in = 0, seen_frames = 0;
-    int64_t estimated_time_left = -1;
     int64_t average_rate = -1;
     int64_t lagged_count = 0;
 
@@ -2576,16 +2648,6 @@ int main(int argc, const char **argv_) {
       stream->config.cfg.g_timebase.den = global.framerate.num;
       stream->config.cfg.g_timebase.num = global.framerate.den;
     }
-    /* Show configuration */
-#if CONFIG_SINGLEPASS
-    if (global.verbose) {
-#else
-    if (global.verbose && pass == 0) {
-#endif  // CONFIG_SINGLEPASS
-      FOREACH_STREAM(stream, streams) {
-        show_stream_config(stream, &global, &input);
-      }
-    }
 
     if (CONFIG_SINGLEPASS || pass == (global.pass ? global.pass - 1 : 0)) {
       if (input.file_type == FILE_TYPE_Y4M)
@@ -2604,6 +2666,17 @@ int main(int argc, const char **argv_) {
 
     FOREACH_STREAM(stream, streams) { setup_pass(stream, &global, pass); }
     FOREACH_STREAM(stream, streams) { initialize_encoder(stream, &global); }
+
+#if CONFIG_SINGLEPASS
+    if (global.verbose) {
+#else
+    if (global.verbose && pass == 0) {
+#endif  // CONFIG_SINGLEPASS
+      FOREACH_STREAM(stream, streams) {
+        show_stream_config(stream, &global, &input);
+      }
+    }
+
     FOREACH_STREAM(stream, streams) {
       char *encoder_settings = NULL;
 #if CONFIG_WEBM_IO
@@ -2654,24 +2727,6 @@ int main(int argc, const char **argv_) {
         if (frame_avail) frames_in++;
         seen_frames =
             frames_in > global.skip_frames ? frames_in - global.skip_frames : 0;
-
-        if (!global.quiet) {
-          float fps = usec_to_fps(cx_time, seen_frames);
-          fprintf(stderr, "\rPass %d/%d ", pass + 1, global.passes);
-
-          if (stream_cnt == 1)
-            fprintf(stderr, "frame %4d/%-4d %7" PRId64 "B ", frames_in,
-                    streams->frames_out, (int64_t)streams->nbytes);
-          else
-            fprintf(stderr, "frame %4d ", frames_in);
-
-          fprintf(stderr, "%7" PRId64 " %s %.2f %s ",
-                  cx_time > 9999999 ? cx_time / 1000 : cx_time,
-                  cx_time > 9999999 ? "ms" : "us", fps >= 1.0 ? fps : fps * 60,
-                  fps >= 1.0 ? "fps" : "fpm");
-          print_time("ETA", estimated_time_left);
-        }
-
       } else {
         frame_avail = 0;
       }
@@ -2743,7 +2798,6 @@ int main(int argc, const char **argv_) {
 
           average_rate =
               (average_rate <= 0) ? rate : (average_rate * 7 + rate) / 8;
-          estimated_time_left = average_rate ? remaining / average_rate : -1;
         }
 
         if (got_data && global.test_decode != TEST_DECODE_OFF) {
@@ -2754,43 +2808,40 @@ int main(int argc, const char **argv_) {
       }
 
       fflush(stdout);
-      if (!global.quiet) fprintf(stderr, "\033[K");
     }
 
     if (stream_cnt > 1) fprintf(stderr, "\n");
 
-    if (!global.quiet) {
+    if (!global.quiet && (pass + 1) == global.passes) {
       FOREACH_STREAM(stream, streams) {
-        const int64_t bpf =
-            seen_frames ? (int64_t)(stream->nbytes * 8 / seen_frames) : 0;
-        const int64_t bps = bpf * global.framerate.num / global.framerate.den;
-        fprintf(stderr,
-                "\rPass %d/%d frame %4d/%-4d %7" PRId64 "B %7" PRId64
-                "b/f %7" PRId64
-                "b/s"
-                " %7" PRId64 " %s (%.2f fps)\033[K\n",
-                pass + 1, global.passes, frames_in, stream->frames_out,
-                (int64_t)stream->nbytes, bpf, bps,
-                stream->cx_time > 9999999 ? stream->cx_time / 1000
-                                          : stream->cx_time,
-                stream->cx_time > 9999999 ? "ms" : "us",
-                usec_to_fps(stream->cx_time, seen_frames));
-      }
-    }
-
-    if (global.show_psnr) {
-      if (get_fourcc_by_aom_encoder(global.codec) == AV1_FOURCC) {
-        FOREACH_STREAM(stream, streams) {
-          int64_t bps = 0;
-          if (stream->psnr_count && seen_frames && global.framerate.den) {
-            bps = (int64_t)stream->nbytes * 8 * (int64_t)global.framerate.num /
-                  global.framerate.den / seen_frames;
-          }
-          show_psnr(stream, (1 << stream->config.cfg.g_input_bit_depth) - 1,
-                    bps);
+        const double bpf =
+            seen_frames ? ((double)stream->nbytes * 8.0 / (double)seen_frames)
+                        : 0.0;
+        const double kbps = (bpf * (double)global.framerate.num /
+                             (double)global.framerate.den) /
+                            1000.0;
+        const double peak = (1 << stream->config.cfg.g_input_bit_depth) - 1;
+        double ovpsnr = sse_to_psnr((double)stream->psnr_samples_total, peak,
+                                    (double)stream->psnr_sse_total);
+        double psnr[4] = { 0.0 };
+        for (int i = 0; i < 4; i++) {
+          psnr[i] = stream->psnr_totals[i] / stream->psnr_count;
         }
-      } else {
-        FOREACH_STREAM(stream, streams) { show_psnr(stream, 255.0, 0); }
+        fprintf(stdout,
+                "\n         Bitrate(kbps)  |  PSNR(Y)  |  PSNR(U)"
+                "|  PSNR(V)  |  PSNR(A)  |  PSNR(O)  "
+                "|  Encoding time (FPS)\n");
+        fprintf(stdout,
+                "-----------------------------------------"
+                "---------------------------------------"
+                "----------------------------\n");
+
+        fprintf(stdout,
+                "Summary:    %10.4f  |  %2.4f  |  %2.4f  |  %2.4f"
+                "|  %2.4f  |  %2.4f  |  %6.1fs (%3.1f fps)\n",
+                kbps, psnr[1], psnr[2], psnr[3], psnr[0], ovpsnr,
+                stream->cx_time / 1000000.0,
+                usec_to_fps(stream->cx_time, seen_frames));
       }
     }
 
