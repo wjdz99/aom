@@ -371,6 +371,9 @@ static void set_good_speed_features_framesize_independent(
   }
 
   sf->rd_sf.perform_coeff_opt = 1;
+  sf->mv_sf.exhaustive_searches_thresh <<= 1;
+  sf->mv_sf.obmc_full_pixel_search_level = 1;
+  sf->mv_sf.use_accurate_subpel_search = USE_4_TAPS;
 
   if (speed >= 1) {
     sf->gm_sf.disable_adaptive_warp_error_thresh = 0;
