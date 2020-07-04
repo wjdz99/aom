@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7b446f2_ecc8d86d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2020-07-04T12:10:41Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch correctly initializes the \u0027num_active_workers \u0027 used in \u0027tpl_worker_hook\u0027 function. Please review.\nPlease note that we have also submitted the patch https://aomedia-review.googlesource.com/c/aom/+/114165 (with the current patch as the parent) which cleans-up some multi-thread related code.\n\nThanks",
+      "revId": "054f87081ab8e7fc4e9837685261df73517bc2be",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
