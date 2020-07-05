@@ -696,7 +696,7 @@ static int64_t calculate_total_gf_group_bits(AV1_COMP *cpi,
   const int max_bits = frame_max_bits(rc, &cpi->oxcf);
   int64_t total_group_bits;
 
-  if (cpi->lap_enabled) {
+  if (cpi->lap_enabled && 0) {
     total_group_bits = rc->avg_frame_bandwidth * rc->baseline_gf_interval;
     return total_group_bits;
   }
@@ -1736,6 +1736,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   // Reset the file position.
   reset_fpf_position(twopass, start_pos);
 
+  if (cpi->lap_enabled) gf_stats.gf_group_err = rc->baseline_gf_interval;
   // Calculate the bits to be allocated to the gf/arf group as a whole
   gf_group_bits = calculate_total_gf_group_bits(cpi, gf_stats.gf_group_err);
   rc->gf_group_bits = gf_group_bits;
@@ -2462,7 +2463,10 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   gf_group->update_type[0] = KF_UPDATE;
 
   // Note the total error score of the kf group minus the key frame itself.
-  twopass->kf_group_error_left = (int)(kf_group_err - kf_mod_err);
+  if (cpi->lap_enabled)
+    twopass->kf_group_error_left = (int)(rc->frames_to_key - 1);
+  else
+    twopass->kf_group_error_left = (int)(kf_group_err - kf_mod_err);
 
   // Adjust the count of total modified error left.
   // The count of bits left is adjusted elsewhere based on real coded frame
