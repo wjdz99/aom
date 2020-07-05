@@ -193,6 +193,8 @@ list(APPEND AOM_AV1_ENCODER_SOURCES
             "${AOM_ROOT}/av1/encoder/palette.h"
             "${AOM_ROOT}/av1/encoder/partition_strategy.h"
             "${AOM_ROOT}/av1/encoder/partition_strategy.c"
+            "${AOM_ROOT}/av1/encoder/partitioning.h"
+            "${AOM_ROOT}/av1/encoder/partitioning.c"
             "${AOM_ROOT}/av1/encoder/pass2_strategy.h"
             "${AOM_ROOT}/av1/encoder/pass2_strategy.c"
             "${AOM_ROOT}/av1/encoder/pickcdef.c"
