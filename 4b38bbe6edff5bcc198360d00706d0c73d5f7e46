@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "123895a3_3625375c",
+        "filename": "av1/encoder/arm/neon/encodetxb_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-06T20:44:22Z",
+      "side": 0,
+      "message": "this may be one issue. memcpy should be used to handle any potentially unaligned source:\n\nhttps://aomedia.googlesource.com/aom/+/refs/heads/master/av1/common/arm/mem_neon.h#339",
+      "revId": "4b38bbe6edff5bcc198360d00706d0c73d5f7e46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
