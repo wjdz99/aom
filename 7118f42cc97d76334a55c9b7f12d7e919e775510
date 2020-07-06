@@ -1,0 +1,176 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e22d0f2f_19e87eed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-06T16:38:49Z",
+      "side": 1,
+      "message": "Some minor comments below.",
+      "revId": "7118f42cc97d76334a55c9b7f12d7e919e775510",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b95e75d_6bddb901",
+        "filename": "apps/aomenc.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-06T16:38:49Z",
+      "side": 1,
+      "message": "Is this still needed?",
+      "revId": "7118f42cc97d76334a55c9b7f12d7e919e775510",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f0e73fa_0e032672",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-06T16:38:49Z",
+      "side": 1,
+      "message": "Should be \"// CONFIG_SINGLEPASS\"",
+      "range": {
+        "startLine": 808,
+        "startChar": 12,
+        "endLine": 808,
+        "endChar": 29
+      },
+      "revId": "7118f42cc97d76334a55c9b7f12d7e919e775510",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07794e3f_92937d02",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 21
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-06T16:38:49Z",
+      "side": 1,
+      "message": "This is enabled by default now?",
+      "range": {
+        "startLine": 85,
+        "startChar": 37,
+        "endLine": 85,
+        "endChar": 38
+      },
+      "revId": "7118f42cc97d76334a55c9b7f12d7e919e775510",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "570d6ecf_e0f01e0e",
+        "filename": "examples/lightfield_encoder.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-06T16:38:49Z",
+      "side": 1,
+      "message": "\"// CONFIG_SINGLEPASS\"",
+      "range": {
+        "startLine": 90,
+        "startChar": 12,
+        "endLine": 90,
+        "endChar": 29
+      },
+      "revId": "7118f42cc97d76334a55c9b7f12d7e919e775510",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c02e3ddb_20b40ad3",
+        "filename": "test/borders_test.cc",
+        "patchSetId": 21
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-06T16:38:49Z",
+      "side": 1,
+      "message": "\"// CONFIG_SINGLEPASS\"",
+      "range": {
+        "startLine": 93,
+        "startChar": 12,
+        "endLine": 93,
+        "endChar": 29
+      },
+      "revId": "7118f42cc97d76334a55c9b7f12d7e919e775510",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7b746b2_f0cb1f14",
+        "filename": "test/ethread_test.cc",
+        "patchSetId": 21
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-06T16:38:49Z",
+      "side": 1,
+      "message": "\"// !CONFIG_SINGLEPASS\"",
+      "range": {
+        "startLine": 458,
+        "startChar": 11,
+        "endLine": 458,
+        "endChar": 28
+      },
+      "revId": "7118f42cc97d76334a55c9b7f12d7e919e775510",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "729b9386_375eadfe",
+        "filename": "test/level_test.cc",
+        "patchSetId": 21
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-06T16:38:49Z",
+      "side": 1,
+      "message": "\"// CONFIG_SINGLEPASS\"",
+      "range": {
+        "startLine": 164,
+        "startChar": 8,
+        "endLine": 164,
+        "endChar": 29
+      },
+      "revId": "7118f42cc97d76334a55c9b7f12d7e919e775510",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
