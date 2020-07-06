@@ -703,6 +703,7 @@ static const aom_cdf_prob
 
 #if CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX
 #if CONFIG_MODE_DEP_INTER_TX
+//sarahparker expand
 static const aom_cdf_prob
     default_mdtx_type_inter_cdf[EXT_TX_SIZES][CDF_SIZE(MDTX_TYPES_INTER)] = {
       { AOM_CDF8(4096, 8192, 12288, 16384, 20480, 24576, 28672) },

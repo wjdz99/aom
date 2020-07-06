@@ -380,7 +380,7 @@ enum {
 // on 4x4 blocks, and DCT_DCT with secondary transforms on 4x8, 8x4, and 8x8
 // blocks
 #define TX_TYPES_NOMDTX 16
-#define MDTX_TYPES_INTER 8
+#define MDTX_TYPES_INTER 8 //sarahparker change
 
 #if CONFIG_MODE_DEP_INTRA_TX && CONFIG_MODE_DEP_NONSEP_INTRA_TX
 #define MDTX_TYPES_INTRA 4
@@ -418,14 +418,29 @@ enum {
 #endif           // CONFIG_MODE_DEP_INTRA_TX
 #if CONFIG_MODE_DEP_INTER_TX
   // 8 mode-dependent tx for inter
-  MDTX_INTER_1,  // MDTX in both horizontal and vertical
-  MDTX_INTER_2,  // MDTX in vertical, DCT in horizontal
-  MDTX_INTER_3,  // DCT in vertical, MDTX in horizontal
-  MDTX_INTER_4,  // flipped MDTX in both horizontal and vertical
-  MDTX_INTER_5,  // flipped MDTX in vertical, DCT in horizontal
-  MDTX_INTER_6,  // DCT in vertical, flipped MDTX in horizontal
-  MDTX_INTER_7,  // flipped MDTX in vertical, MDTX in horizontal
-  MDTX_INTER_8,  // MDTX in vertical, flipped MDTX in horizontal
+  MDTX_MDTX_INTER,  // MDTX in both horizontal and vertical
+  MDTX_DCT_INTER,  // MDTX in vertical, DCT in horizontal
+  DCT_MDTX_INTER,  // DCT in vertical, MDTX in horizontal
+  FLIPMDTX_FLIPMDTX_INTER,  // flipped MDTX in both horizontal and vertical
+  FLIPMDTX_DCT_INTER,  // flipped MDTX in vertical, DCT in horizontal
+  DCT_FLIPMDTX_INTER,  // DCT in vertical, flipped MDTX in horizontal
+  FLIPMDTX_MDTX_INTER,  // flipped MDTX in vertical, MDTX in horizontal
+  MDTX_FLIPMDTX_INTER,  // MDTX in vertical, flipped MDTX in horizontal
+/*
+  MDTX_ADST_INTER,
+  ADST_MDTX_INTER,
+  MDTX_FLIPADST_INTER,
+  FLIPADST_MDTX_INTER,
+  V_MDTX_INTER,
+  H_MDTX_INTER,
+
+  FLIPMDTX_ADST_INTER,
+  ADST_FLIPMDTX_INTER,
+  FLIPMDTX_FLIPADST_INTER,
+  FLIPADST_FLIPMDTX_INTER,
+  V_FLIPMDTX_INTER,
+  H_FLIPMDTX_INTER,
+*/
 #endif           // CONFIG_MODE_DEP_INTER_TX
   TX_TYPES,
 } UENUM1BYTE(TX_TYPE);

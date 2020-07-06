@@ -1076,11 +1076,11 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
     if (is_inter) {
 #if CONFIG_MODE_DEP_INTER_TX
       if (tx_set_type == EXT_TX_SET_ALL16_MDTX8) {
-        int is_mdtx = tx_type >= MDTX_INTER_1 && tx_type <= MDTX_INTER_8;
+        int is_mdtx = tx_type >= MDTX_MDTX_INTER && tx_type <= MDTX_FLIPMDTX_INTER;
         aom_write_symbol(w, is_mdtx, ec_ctx->use_mdtx_inter_cdf[square_tx_size],
                          2);
         if (is_mdtx) {
-          aom_write_symbol(w, tx_type - MDTX_INTER_1,
+          aom_write_symbol(w, tx_type - MDTX_MDTX_INTER,
                            ec_ctx->mdtx_type_inter_cdf[square_tx_size],
                            MDTX_TYPES_INTER);
         } else {
