@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e41a2884_bffc943d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-07-06T18:34:34Z",
+      "side": 1,
+      "message": "Looks like Unit tests and Gerrit tests aren’t covering that particular data path.",
+      "parentUuid": "0d6592fe_36a83cbb",
+      "range": {
+        "startLine": 9,
+        "startChar": 45,
+        "endLine": 10,
+        "endChar": 6
+      },
+      "revId": "b713dd167f721303efd2572e95c4d52be14e331f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b1133e85_287dffc7",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 2
@@ -59,6 +83,42 @@
     },
     {
       "key": {
+        "uuid": "42280ba3_d10a3914",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-07-06T18:34:34Z",
+      "side": 1,
+      "message": "Thanks for correcting the bug.",
+      "parentUuid": "b1133e85_287dffc7",
+      "revId": "b713dd167f721303efd2572e95c4d52be14e331f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6a4c9a29_05bdeb55",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-07-06T18:34:34Z",
+      "side": 1,
+      "message": "Thanks Wan-Teh. Fyodor had mentioned that last week. It is the bug that escaped unit tests.",
+      "parentUuid": "474b870f_681970d6",
+      "revId": "b713dd167f721303efd2572e95c4d52be14e331f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "404abfc7_a02e0ac2",
         "filename": "aom_dsp/x86/highbd_variance_avx2.c",
         "patchSetId": 2
@@ -70,6 +130,30 @@
       "writtenOn": "2020-07-03T01:29:42Z",
       "side": 1,
       "message": "Note that output_width \u003d\u003d 8 for the code modified in this CL.",
+      "range": {
+        "startLine": 154,
+        "startChar": 0,
+        "endLine": 155,
+        "endChar": 15
+      },
+      "revId": "b713dd167f721303efd2572e95c4d52be14e331f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca36c9f5_4508ac77",
+        "filename": "aom_dsp/x86/highbd_variance_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-07-06T18:34:34Z",
+      "side": 1,
+      "message": "Yes.Thanks for finding it.",
+      "parentUuid": "404abfc7_a02e0ac2",
       "range": {
         "startLine": 154,
         "startChar": 0,
@@ -111,6 +195,24 @@
       "side": 1,
       "message": "UPDATE: The reason I gave above is wrong. The correct reason is that none of the aom_highbd_10_sub_pixel_varianceWxH functions that we specialize for avx2 in aom_dsp/aom_dsp_rtcd_defs.pl has W (output_width) \u003d\u003d 8.",
       "parentUuid": "270f8ed0_7042a905",
+      "revId": "b713dd167f721303efd2572e95c4d52be14e331f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "069c5734_632192bd",
+        "filename": "aom_dsp/x86/highbd_variance_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1567,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-07-06T18:34:34Z",
+      "side": 1,
+      "message": "True.",
+      "parentUuid": "e100782f_a5e4ec7b",
       "revId": "b713dd167f721303efd2572e95c4d52be14e331f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
