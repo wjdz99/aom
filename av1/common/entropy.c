@@ -244,7 +244,7 @@ void av1_reset_cdf_symbol_counters(FRAME_CONTEXT *fc) {
 #if CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX
 #if CONFIG_MODE_DEP_INTER_TX
   RESET_CDF_COUNTER(fc->use_mdtx_inter_cdf, 2);
-  RESET_CDF_COUNTER_STRIDE(fc->mdtx_type_inter_cdf, 8,
+  RESET_CDF_COUNTER_STRIDE(fc->mdtx_type_inter_cdf, MDTX_TYPES_INTER,
                            CDF_SIZE(MDTX_TYPES_INTER));
 #endif  // CONFIG_MODE_DEP_INTER_TX
 #if CONFIG_MODE_DEP_INTRA_TX
