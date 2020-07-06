@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24712c4c_db487096",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 20
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15075
+      },
+      "writtenOn": "2020-07-06T15:27:17Z",
+      "side": 1,
+      "message": "Debargha,\nThis patch introduces unit tests to check if the tile-rows and tile-cols(Uniform Spacing) configured by the user are respected by the encoder. They test multiple tile configurations and rc_modes. We have added two tests namely UniformTileConfigTest and UniformTileConfigTestLowRes, the latter tests a lower resolution sequence.\n\nPlease review.",
+      "revId": "a7c3f2bf3b322c0f0c3ba4f51b47dbd9a4fe5dde",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
