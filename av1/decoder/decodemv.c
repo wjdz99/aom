@@ -741,7 +741,7 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd, int blk_row,
         if (aom_read_symbol(r, ec_ctx->use_mdtx_inter_cdf[square_tx_size], 2,
                             ACCT_STR)) {
           *tx_type =
-              MDTX_INTER_1 +
+              MDTX_MDTX_INTER +
               aom_read_symbol(r, ec_ctx->mdtx_type_inter_cdf[square_tx_size],
                               MDTX_TYPES_INTER, ACCT_STR);
         } else {
