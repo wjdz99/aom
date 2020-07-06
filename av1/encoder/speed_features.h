@@ -290,23 +290,12 @@ typedef struct HIGH_LEVEL_SPEED_FEATURES {
   // QTR_ONLY: use quarter pel precision only.
   MV_PREC_LOGIC high_precision_mv_usage;
 
-  // Whether to disable overlay frames for filtered Altref frames,
-  // overiding oxcf->enable_overlay flag set as 1.
-  int disable_overlay_frames;
-
-  // Enable/disable adaptively deciding whether or not to encode ALTREF overlay
-  // frame.
-  int adaptive_overlay_encoding;
-
   // Always set to 0. If on it enables 0 cost background transmission
   // (except for the initial transmission of the segmentation). The feature is
   // disabled because the addition of very large block sizes make the
   // backgrounds very to cheap to encode, and the segmentation we have
   // adds overhead.
   int static_segmentation;
-
-  // Enable/disable second_alt_ref temporal filtering.
-  int second_alt_ref_filtering;
 } HIGH_LEVEL_SPEED_FEATURES;
 
 typedef struct TPL_SPEED_FEATURES {
