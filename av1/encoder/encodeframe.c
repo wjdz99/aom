@@ -69,6 +69,15 @@
 #include "av1/encoder/var_based_part.h"
 #include "av1/encoder/tpl_model.h"
 
+static INLINE int64_t get_breakout_threshold(int64_t value) {
+  const float factor = 1.1;
+  if (factor * value >= (float)INT64_MAX) {
+    return INT64_MAX;
+  } else {
+    return (int64_t)(factor * value);
+  }
+}
+
 // This is used as a reference when computing the source variance for the
 //  purposes of activity masking.
 // Eventually this should be replaced by custom no-reference routines,
@@ -3764,7 +3773,7 @@ BEGIN_PARTITION_SEARCH:
       if (cur_none_rd > 0 && cur_none_rd < INT64_MAX &&
           (mi_row + 2 * mi_step_h <= cm->mi_rows) &&
           (mi_col + 2 * mi_step_w <= cm->mi_cols) &&
-          up->rdcost + down->rdcost >= whole->rdcost) {
+          up->rdcost + down->rdcost >= get_breakout_threshold(whole->rdcost)) {
         break;
       }
     }
@@ -3905,7 +3914,8 @@ BEGIN_PARTITION_SEARCH:
       if (cur_none_rd > 0 && cur_none_rd < INT64_MAX &&
           (mi_row + 2 * mi_step_h <= cm->mi_rows) &&
           (mi_col + 2 * mi_step_w <= cm->mi_cols) &&
-          left->rdcost + right->rdcost >= whole->rdcost) {
+          left->rdcost + right->rdcost >=
+              get_breakout_threshold(whole->rdcost)) {
         break;
       }
     }
@@ -4475,7 +4485,8 @@ BEGIN_PARTITION_SEARCH:
       if (cur_none_rd > 0 && cur_none_rd < INT64_MAX &&
           (mi_row + 2 * mi_step_h <= cm->mi_rows) &&
           (mi_col + 2 * mi_step_w <= cm->mi_cols) &&
-          up->rdcost + middle->rdcost + down->rdcost >= whole->rdcost) {
+          up->rdcost + middle->rdcost + down->rdcost >=
+              get_breakout_threshold(whole->rdcost)) {
         break;
       }
     }
@@ -4580,7 +4591,8 @@ BEGIN_PARTITION_SEARCH:
       if (cur_none_rd > 0 && cur_none_rd < INT64_MAX &&
           (mi_row + 2 * mi_step_h <= cm->mi_rows) &&
           (mi_col + 2 * mi_step_w <= cm->mi_cols) &&
-          left->rdcost + middle->rdcost + right->rdcost >= whole->rdcost) {
+          left->rdcost + middle->rdcost + right->rdcost >=
+              get_breakout_threshold(whole->rdcost)) {
         break;
       }
     }
