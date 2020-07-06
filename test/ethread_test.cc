@@ -455,8 +455,8 @@ AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadTest,
 AV1_INSTANTIATE_TEST_CASE(
     AVxEncoderThreadTestLarge,
     ::testing::Values(::libaom_test::kTwoPassGood, ::libaom_test::kOnePassGood),
-    ::testing::Values(0, 1, 3, 5), ::testing::Values(0, 1, 2, 6),
-    ::testing::Values(0, 1, 2, 6), ::testing::Values(0, 1));
+    ::testing::Values(0, 1, 3, 5), ::testing::Values(1, 6),
+    ::testing::Values(1, 6), ::testing::Values(0, 1));
 
 class AVxEncoderThreadLSTest : public AVxEncoderThreadTest {
   virtual void SetTileSize(libaom_test::Encoder *encoder) {
