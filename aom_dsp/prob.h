@@ -102,6 +102,47 @@ typedef uint16_t aom_cdf_prob;
       AOM_ICDF(a11), AOM_ICDF(a12), AOM_ICDF(a13), AOM_ICDF(a14),             \
       AOM_ICDF(CDF_PROB_TOP), 0
 
+
+
+#define AOM_CDF17(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, \
+                  a14, a15)                                                   \
+  AOM_ICDF(a0)                                                                \
+  , AOM_ICDF(a1), AOM_ICDF(a2), AOM_ICDF(a3), AOM_ICDF(a4), AOM_ICDF(a5),     \
+      AOM_ICDF(a6), AOM_ICDF(a7), AOM_ICDF(a8), AOM_ICDF(a9), AOM_ICDF(a10),  \
+      AOM_ICDF(a11), AOM_ICDF(a12), AOM_ICDF(a13), AOM_ICDF(a14),             \
+      AOM_ICDF(a15), AOM_ICDF(CDF_PROB_TOP), 0
+
+
+
+#define AOM_CDF18(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, \
+                  a14, a15, a16)                                              \
+  AOM_ICDF(a0)                                                                \
+  , AOM_ICDF(a1), AOM_ICDF(a2), AOM_ICDF(a3), AOM_ICDF(a4), AOM_ICDF(a5),     \
+      AOM_ICDF(a6), AOM_ICDF(a7), AOM_ICDF(a8), AOM_ICDF(a9), AOM_ICDF(a10),  \
+      AOM_ICDF(a11), AOM_ICDF(a12), AOM_ICDF(a13), AOM_ICDF(a14),             \
+      AOM_ICDF(a15), AOM_ICDF(a16), AOM_ICDF(CDF_PROB_TOP), 0
+
+
+
+#define AOM_CDF19(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, \
+                  a14, a15, a16, a17)                                         \
+  AOM_ICDF(a0)                                                                \
+  , AOM_ICDF(a1), AOM_ICDF(a2), AOM_ICDF(a3), AOM_ICDF(a4), AOM_ICDF(a5),     \
+      AOM_ICDF(a6), AOM_ICDF(a7), AOM_ICDF(a8), AOM_ICDF(a9), AOM_ICDF(a10),  \
+      AOM_ICDF(a11), AOM_ICDF(a12), AOM_ICDF(a13), AOM_ICDF(a14),             \
+      AOM_ICDF(a15), AOM_ICDF(a16), AOM_ICDF(a17), AOM_ICDF(CDF_PROB_TOP), 0
+
+
+
+#define AOM_CDF20(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, \
+                  a14, a15, a16, a17, a18)                                    \
+  AOM_ICDF(a0)                                                                \
+  , AOM_ICDF(a1), AOM_ICDF(a2), AOM_ICDF(a3), AOM_ICDF(a4), AOM_ICDF(a5),     \
+      AOM_ICDF(a6), AOM_ICDF(a7), AOM_ICDF(a8), AOM_ICDF(a9), AOM_ICDF(a10),  \
+      AOM_ICDF(a11), AOM_ICDF(a12), AOM_ICDF(a13), AOM_ICDF(a14),             \
+      AOM_ICDF(a15), AOM_ICDF(a16), AOM_ICDF(a17), AOM_ICDF(a18),             \
+      AOM_ICDF(CDF_PROB_TOP), 0
+
 #else
 #define AOM_CDF2(a0)                                       \
   AOM_ICDF((((a0)-1) * ((CDF_INIT_TOP >> CDF_SHIFT) - 2) + \
@@ -627,6 +668,321 @@ typedef uint16_t aom_cdf_prob;
                 ((CDF_INIT_TOP - 16) >> 1)) /                                 \
                    ((CDF_INIT_TOP - 16)) +                                    \
                15),                                                           \
+      AOM_ICDF(CDF_PROB_TOP), 0
+
+
+
+
+
+
+#define AOM_CDF17(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, \
+                  a14, a15)                                                   \
+  AOM_ICDF((((a0)-1) * ((CDF_INIT_TOP >> CDF_SHIFT) - 17) +                   \
+            ((CDF_INIT_TOP - 17) >> 1)) /                                     \
+               ((CDF_INIT_TOP - 17)) +                                        \
+           1)                                                                 \
+  ,                                                                           \
+      AOM_ICDF((((a1)-2) * ((CDF_INIT_TOP >> CDF_SHIFT) - 17) +               \
+                ((CDF_INIT_TOP - 17) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 17)) +                                    \
+               2),                                                            \
+      AOM_ICDF((((a2)-3) * ((CDF_INIT_TOP >> CDF_SHIFT) - 17) +               \
+                ((CDF_INIT_TOP - 17) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 17)) +                                    \
+               3),                                                            \
+      AOM_ICDF((((a3)-4) * ((CDF_INIT_TOP >> CDF_SHIFT) - 17) +               \
+                ((CDF_INIT_TOP - 17) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 17)) +                                    \
+               4),                                                            \
+      AOM_ICDF((((a4)-5) * ((CDF_INIT_TOP >> CDF_SHIFT) - 17) +               \
+                ((CDF_INIT_TOP - 17) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 17)) +                                    \
+               5),                                                            \
+      AOM_ICDF((((a5)-6) * ((CDF_INIT_TOP >> CDF_SHIFT) - 17) +               \
+                ((CDF_INIT_TOP - 17) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 17)) +                                    \
+               6),                                                            \
+      AOM_ICDF((((a6)-7) * ((CDF_INIT_TOP >> CDF_SHIFT) - 17) +               \
+                ((CDF_INIT_TOP - 17) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 17)) +                                    \
+               7),                                                            \
+      AOM_ICDF((((a7)-8) * ((CDF_INIT_TOP >> CDF_SHIFT) - 17) +               \
+                ((CDF_INIT_TOP - 17) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 17)) +                                    \
+               8),                                                            \
+      AOM_ICDF((((a8)-9) * ((CDF_INIT_TOP >> CDF_SHIFT) - 17) +               \
+                ((CDF_INIT_TOP - 17) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 17)) +                                    \
+               9),                                                            \
+      AOM_ICDF((((a9)-10) * ((CDF_INIT_TOP >> CDF_SHIFT) - 17) +              \
+                ((CDF_INIT_TOP - 17) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 17)) +                                    \
+               10),                                                           \
+      AOM_ICDF((((a10)-11) * ((CDF_INIT_TOP >> CDF_SHIFT) - 17) +             \
+                ((CDF_INIT_TOP - 17) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 17)) +                                    \
+               11),                                                           \
+      AOM_ICDF((((a11)-12) * ((CDF_INIT_TOP >> CDF_SHIFT) - 17) +             \
+                ((CDF_INIT_TOP - 17) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 17)) +                                    \
+               12),                                                           \
+      AOM_ICDF((((a12)-13) * ((CDF_INIT_TOP >> CDF_SHIFT) - 17) +             \
+                ((CDF_INIT_TOP - 17) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 17)) +                                    \
+               13),                                                           \
+      AOM_ICDF((((a13)-14) * ((CDF_INIT_TOP >> CDF_SHIFT) - 17) +             \
+                ((CDF_INIT_TOP - 17) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 17)) +                                    \
+               14),                                                           \
+      AOM_ICDF((((a14)-15) * ((CDF_INIT_TOP >> CDF_SHIFT) - 17) +             \
+                ((CDF_INIT_TOP - 17) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 17)) +                                    \
+               15),                                                           \
+      AOM_ICDF((((a15)-16) * ((CDF_INIT_TOP >> CDF_SHIFT) - 17) +             \
+                ((CDF_INIT_TOP - 17) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 17)) +                                    \
+               16),                                                           \
+      AOM_ICDF(CDF_PROB_TOP), 0
+
+
+
+
+
+#define AOM_CDF18(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, \
+                  a14, a15, a16)                                              \
+  AOM_ICDF((((a0)-1) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +                   \
+            ((CDF_INIT_TOP - 18) >> 1)) /                                     \
+               ((CDF_INIT_TOP - 18)) +                                        \
+           1)                                                                 \
+  ,                                                                           \
+      AOM_ICDF((((a1)-2) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +               \
+                ((CDF_INIT_TOP - 18) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 18)) +                                    \
+               2),                                                            \
+      AOM_ICDF((((a2)-3) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +               \
+                ((CDF_INIT_TOP - 18) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 18)) +                                    \
+               3),                                                            \
+      AOM_ICDF((((a3)-4) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +               \
+                ((CDF_INIT_TOP - 18) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 18)) +                                    \
+               4),                                                            \
+      AOM_ICDF((((a4)-5) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +               \
+                ((CDF_INIT_TOP - 18) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 18)) +                                    \
+               5),                                                            \
+      AOM_ICDF((((a5)-6) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +               \
+                ((CDF_INIT_TOP - 18) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 18)) +                                    \
+               6),                                                            \
+      AOM_ICDF((((a6)-7) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +               \
+                ((CDF_INIT_TOP - 18) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 18)) +                                    \
+               7),                                                            \
+      AOM_ICDF((((a7)-8) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +               \
+                ((CDF_INIT_TOP - 18) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 18)) +                                    \
+               8),                                                            \
+      AOM_ICDF((((a8)-9) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +               \
+                ((CDF_INIT_TOP - 18) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 18)) +                                    \
+               9),                                                            \
+      AOM_ICDF((((a9)-10) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +              \
+                ((CDF_INIT_TOP - 18) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 18)) +                                    \
+               10),                                                           \
+      AOM_ICDF((((a10)-11) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +             \
+                ((CDF_INIT_TOP - 18) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 18)) +                                    \
+               11),                                                           \
+      AOM_ICDF((((a11)-12) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +             \
+                ((CDF_INIT_TOP - 18) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 18)) +                                    \
+               12),                                                           \
+      AOM_ICDF((((a12)-13) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +             \
+                ((CDF_INIT_TOP - 18) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 18)) +                                    \
+               13),                                                           \
+      AOM_ICDF((((a13)-14) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +             \
+                ((CDF_INIT_TOP - 18) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 18)) +                                    \
+               14),                                                           \
+      AOM_ICDF((((a14)-15) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +             \
+                ((CDF_INIT_TOP - 18) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 18)) +                                    \
+               15),                                                           \
+      AOM_ICDF((((a15)-16) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +             \
+                ((CDF_INIT_TOP - 18) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 18)) +                                    \
+               16),                                                           \
+      AOM_ICDF((((a16)-17) * ((CDF_INIT_TOP >> CDF_SHIFT) - 18) +             \
+                ((CDF_INIT_TOP - 18) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 18)) +                                    \
+               17),                                                           \
+      AOM_ICDF(CDF_PROB_TOP), 0
+
+
+
+
+#define AOM_CDF19(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, \
+                  a14, a15, a16, a17)                                         \
+  AOM_ICDF((((a0)-1) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +                   \
+            ((CDF_INIT_TOP - 19) >> 1)) /                                     \
+               ((CDF_INIT_TOP - 19)) +                                        \
+           1)                                                                 \
+  ,                                                                           \
+      AOM_ICDF((((a1)-2) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +               \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               2),                                                            \
+      AOM_ICDF((((a2)-3) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +               \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               3),                                                            \
+      AOM_ICDF((((a3)-4) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +               \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               4),                                                            \
+      AOM_ICDF((((a4)-5) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +               \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               5),                                                            \
+      AOM_ICDF((((a5)-6) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +               \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               6),                                                            \
+      AOM_ICDF((((a6)-7) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +               \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               7),                                                            \
+      AOM_ICDF((((a7)-8) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +               \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               8),                                                            \
+      AOM_ICDF((((a8)-9) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +               \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               9),                                                            \
+      AOM_ICDF((((a9)-10) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +              \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               10),                                                           \
+      AOM_ICDF((((a10)-11) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +             \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               11),                                                           \
+      AOM_ICDF((((a11)-12) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +             \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               12),                                                           \
+      AOM_ICDF((((a12)-13) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +             \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               13),                                                           \
+      AOM_ICDF((((a13)-14) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +             \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               14),                                                           \
+      AOM_ICDF((((a14)-15) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +             \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               15),                                                           \
+      AOM_ICDF((((a15)-16) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +             \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               16),                                                           \
+      AOM_ICDF((((a16)-17) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +             \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               17),                                                           \
+      AOM_ICDF((((a17)-18) * ((CDF_INIT_TOP >> CDF_SHIFT) - 19) +             \
+                ((CDF_INIT_TOP - 19) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 19)) +                                    \
+               18),                                                           \
+      AOM_ICDF(CDF_PROB_TOP), 0
+
+
+
+
+#define AOM_CDF20(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, \
+                  a14, a15, a16, a17, a18)                                    \
+  AOM_ICDF((((a0)-1) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +                   \
+            ((CDF_INIT_TOP - 20) >> 1)) /                                     \
+               ((CDF_INIT_TOP - 20)) +                                        \
+           1)                                                                 \
+  ,                                                                           \
+      AOM_ICDF((((a1)-2) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +               \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               2),                                                            \
+      AOM_ICDF((((a2)-3) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +               \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               3),                                                            \
+      AOM_ICDF((((a3)-4) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +               \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               4),                                                            \
+      AOM_ICDF((((a4)-5) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +               \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               5),                                                            \
+      AOM_ICDF((((a5)-6) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +               \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               6),                                                            \
+      AOM_ICDF((((a6)-7) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +               \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               7),                                                            \
+      AOM_ICDF((((a7)-8) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +               \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               8),                                                            \
+      AOM_ICDF((((a8)-9) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +               \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               9),                                                            \
+      AOM_ICDF((((a9)-10) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +              \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               10),                                                           \
+      AOM_ICDF((((a10)-11) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +             \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               11),                                                           \
+      AOM_ICDF((((a11)-12) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +             \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               12),                                                           \
+      AOM_ICDF((((a12)-13) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +             \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               13),                                                           \
+      AOM_ICDF((((a13)-14) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +             \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               14),                                                           \
+      AOM_ICDF((((a14)-15) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +             \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               15),                                                           \
+      AOM_ICDF((((a15)-16) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +             \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               16),                                                           \
+      AOM_ICDF((((a16)-17) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +             \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               17),                                                           \
+      AOM_ICDF((((a17)-18) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +             \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               18),                                                           \
+      AOM_ICDF((((a18)-19) * ((CDF_INIT_TOP >> CDF_SHIFT) - 20) +             \
+                ((CDF_INIT_TOP - 20) >> 1)) /                                 \
+                   ((CDF_INIT_TOP - 20)) +                                    \
+               19),                                                           \
       AOM_ICDF(CDF_PROB_TOP), 0
 
 #endif

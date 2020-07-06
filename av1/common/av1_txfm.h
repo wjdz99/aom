@@ -225,9 +225,13 @@ static INLINE void get_flip_cfg(TX_TYPE tx_type, int *ud_flip, int *lr_flip) {
 #endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
 #endif  // CONFIG_MODE_DEP_INTRA_TX
 #if CONFIG_MODE_DEP_INTER_TX
-    case MDTX_INTER_1:
-    case MDTX_INTER_2:
-    case MDTX_INTER_3:
+    case MDTX_MDTX_INTER:
+    case MDTX_DCT_INTER:
+    case DCT_MDTX_INTER:
+    case ADST_MDTX_INTER:
+    case MDTX_ADST_INTER:
+    case V_MDTX_INTER:
+    case H_MDTX_INTER:
 #endif  // CONFIG_MODE_DEP_INTER_TX
       *ud_flip = 0;
       *lr_flip = 0;
@@ -236,8 +240,11 @@ static INLINE void get_flip_cfg(TX_TYPE tx_type, int *ud_flip, int *lr_flip) {
     case FLIPADST_ADST:
     case V_FLIPADST:
 #if CONFIG_MODE_DEP_INTER_TX
-    case MDTX_INTER_5:
-    case MDTX_INTER_7:
+    case FLIPMDTX_DCT_INTER:
+    case FLIPMDTX_MDTX_INTER:
+    case FLIPADST_MDTX_INTER:
+    case FLIPMDTX_ADST_INTER:
+    case V_FLIPMDTX_INTER:
 #endif  // CONFIG_MODE_DEP_INTER_TX
       *ud_flip = 1;
       *lr_flip = 0;
@@ -246,15 +253,20 @@ static INLINE void get_flip_cfg(TX_TYPE tx_type, int *ud_flip, int *lr_flip) {
     case ADST_FLIPADST:
     case H_FLIPADST:
 #if CONFIG_MODE_DEP_INTER_TX
-    case MDTX_INTER_6:
-    case MDTX_INTER_8:
+    case DCT_FLIPMDTX_INTER:
+    case MDTX_FLIPMDTX_INTER:
+    case MDTX_FLIPADST_INTER:
+    case ADST_FLIPMDTX_INTER:
+    case H_FLIPMDTX_INTER:
 #endif  // CONFIG_MODE_DEP_INTER_TX
       *ud_flip = 0;
       *lr_flip = 1;
       break;
     case FLIPADST_FLIPADST:
 #if CONFIG_MODE_DEP_INTER_TX
-    case MDTX_INTER_4:
+    case FLIPMDTX_FLIPMDTX_INTER:
+    case FLIPMDTX_FLIPADST_INTER:
+    case FLIPADST_FLIPMDTX_INTER:
 #endif  // CONFIG_MODE_DEP_INTER_TX
       *ud_flip = 1;
       *lr_flip = 1;
