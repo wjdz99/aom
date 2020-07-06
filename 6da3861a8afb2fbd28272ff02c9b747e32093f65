@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b12d69c7_8a71fcfa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-07-06T16:01:34Z",
+      "side": 1,
+      "message": "\u003e Patch Set 1:\n\u003e \n\u003e Hi Yunqing,\n\u003e \n\u003e While doing code study, we found one issue related to hbd encoding under the speed feature txfm_rd_gate_level. There was a duplication of rounding of the distortion to 8-bit domain in a couple of places in motion_mode_rd(). The hbd variance function called from get_sse() returns the sse in 8-bit precision. One more rounding of this returned sse is present for luma skip rd computation in the existing version, which is not correct. \n\u003e \n\u003e This CL removes the redundant rounding operation. AWCY runs show BD rate improvement in the range of 9% to 11% for speed 3, 4, 5 presets for 10-bit encoding. There is no impact on 8-bit encoding performance.\n\u003e \n\u003e AWCY links for 10-bit encoding:\n\u003e cpu-used\u003d3 on objective-1 fast with --bit-depth\u003d10, 9.24% BD rate improvement:\n\u003e https://beta.arewecompressedyet.com/?job\u003d03Jul_ref_s3_10%402020-07-03T05%3A00%3A06.954Z\u0026job\u003d03Jul_p1_s3_10%402020-07-03T06%3A55%3A58.939Z\n\u003e \n\u003e cpu-used\u003d4 on objective-1 fast with --bit-depth\u003d10, 9.28% BD rate improvement:\n\u003e https://beta.arewecompressedyet.com/?job\u003d03Jul_ref_s4_10\u0026job\u003d03Jul_p1_s4_10\n\u003e \n\u003e cpu-used\u003d5 on objective-1 fast with --bit-depth\u003d10, 11.25% BD rate improvement:\n\u003e https://beta.arewecompressedyet.com/?job\u003d03Jul_ref_s5_10\u0026job\u003d03Jul_p1_s5_10\n\u003e \n\u003e AWCY links for 8-bit encoding:\n\u003e cpu-used\u003d3 on objective-1 fast, bit-exact:\n\u003e https://beta.arewecompressedyet.com/?job\u003d03Jul_ref_s3_8\u0026job\u003d03Jul_p1_s3_8\n\u003e \n\u003e Please review the patch.\n\u003e \n\u003e Regards,\n\u003e Nithya\n\nHi Nithya, thanks for finding and fixing this bug! Really huge improvement for 10 bit encoding.\n",
+      "revId": "6da3861a8afb2fbd28272ff02c9b747e32093f65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
