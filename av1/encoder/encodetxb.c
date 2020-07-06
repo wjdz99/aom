@@ -837,12 +837,12 @@ static int get_tx_type_cost(const AV1_COMMON *cm, const MACROBLOCK *x,
       const TxSetType tx_set_type =
           av1_get_ext_tx_set_type(tx_size, is_inter, cm->reduced_tx_set_used);
       if (tx_set_type == EXT_TX_SET_ALL16_MDTX8) {
-        int is_mdtx = tx_type >= MDTX_INTER_1 && tx_type <= MDTX_INTER_8;
+        int is_mdtx = tx_type >= MDTX_MDTX_INTER && tx_type <= MDTX_LAST_TYPE_INTER;
         int use_mdtx_cost = x->use_mdtx_inter_costs[square_tx_size][is_mdtx];
         int tx_type_cost =
             is_mdtx
                 ? x->mdtx_type_inter_costs[square_tx_size]
-                                          [tx_type - MDTX_INTER_1]
+                                          [tx_type - MDTX_MDTX_INTER]
                 : x->inter_tx_type_costs[ext_tx_set][square_tx_size][tx_type];
         return use_mdtx_cost + tx_type_cost;
       } else {
@@ -2188,12 +2188,12 @@ static void update_tx_type_count(const AV1_COMP *cpi, const AV1_COMMON *cm,
         if (allow_update_cdf) {
 #if CONFIG_MODE_DEP_INTER_TX
           if (tx_set_type == EXT_TX_SET_ALL16_MDTX8) {
-            int is_mdtx = tx_type >= MDTX_INTER_1 && tx_type <= MDTX_INTER_8;
+            int is_mdtx = tx_type >= MDTX_MDTX_INTER && tx_type <= MDTX_LAST_TYPE_INTER;
             update_cdf(fc->use_mdtx_inter_cdf[txsize_sqr_map[tx_size]], is_mdtx,
                        2);
             if (is_mdtx) {
               update_cdf(fc->mdtx_type_inter_cdf[txsize_sqr_map[tx_size]],
-                         tx_type - MDTX_INTER_1, MDTX_TYPES_INTER);
+                         tx_type - MDTX_MDTX_INTER, MDTX_TYPES_INTER);
             } else {
               update_cdf(fc->inter_ext_tx_cdf[eset][txsize_sqr_map[tx_size]],
                          av1_ext_tx_ind[tx_set_type][tx_type],
@@ -2211,11 +2211,11 @@ static void update_tx_type_count(const AV1_COMP *cpi, const AV1_COMMON *cm,
 #if CONFIG_ENTROPY_STATS
 #if CONFIG_MODE_DEP_INTER_TX
         if (tx_set_type == EXT_TX_SET_ALL16_MDTX8) {
-          int is_mdtx = tx_type >= MDTX_INTER_1 && tx_type <= MDTX_INTER_8;
+          int is_mdtx = tx_type >= MDTX_MDTX_INTER && tx_type <= MDTX_LAST_TYPE_INTER;
           ++counts->use_mdtx_inter[txsize_sqr_map[tx_size]][is_mdtx];
           if (is_mdtx)
             ++counts->mdtx_type_inter[txsize_sqr_map[tx_size]]
-                                     [tx_type - MDTX_INTER_1];
+                                     [tx_type - MDTX_MDTX_INTER];
           else
             ++counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]]
                                   [av1_ext_tx_ind[tx_set_type][tx_type]];
