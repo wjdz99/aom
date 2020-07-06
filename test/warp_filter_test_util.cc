@@ -97,9 +97,9 @@ namespace AV1WarpFilter {
 ::testing::internal::ParamGenerator<WarpTestParams> BuildParams(
     warp_affine_func filter) {
   WarpTestParam params[] = {
-    make_tuple(4, 4, 50000, filter),  make_tuple(8, 8, 50000, filter),
-    make_tuple(64, 64, 1000, filter), make_tuple(4, 16, 20000, filter),
-    make_tuple(32, 8, 10000, filter),
+    make_tuple(4, 4, 5000, filter),  make_tuple(8, 8, 5000, filter),
+    make_tuple(64, 64, 100, filter), make_tuple(4, 16, 2000, filter),
+    make_tuple(32, 8, 1000, filter),
   };
   return ::testing::Combine(::testing::ValuesIn(params),
                             ::testing::Values(0, 1), ::testing::Values(0, 1),
@@ -153,7 +153,7 @@ void AV1WarpFilterTest::RunSpeedTest(warp_affine_func test_impl) {
   conv_params = get_conv_params_no_round(do_average, 0, dsta, out_w, 1, bd);
   conv_params.use_dist_wtd_comp_avg = 0;
 
-  const int num_loops = 1000000000 / (out_w + out_h);
+  const int num_loops = 100000000 / (out_w + out_h);
   aom_usec_timer timer;
   aom_usec_timer_start(&timer);
   for (int i = 0; i < num_loops; ++i)
@@ -347,7 +347,7 @@ void AV1HighbdWarpFilterTest::RunSpeedTest(highbd_warp_affine_func test_impl) {
   conv_params.use_dist_wtd_comp_avg = 0;
   conv_params = get_conv_params_no_round(do_average, 0, dsta, out_w, 1, bd);
 
-  const int num_loops = 1000000000 / (out_w + out_h);
+  const int num_loops = 100000000 / (out_w + out_h);
   aom_usec_timer timer;
   aom_usec_timer_start(&timer);
 
