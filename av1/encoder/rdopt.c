@@ -3576,6 +3576,8 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
 #endif
 
+//  if (tx_type > 23)
+//  printf("type %d\n", tx_type);
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);

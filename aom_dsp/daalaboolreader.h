@@ -112,7 +112,7 @@ static INLINE int daala_read_symbol(daala_reader *r, const aom_cdf_prob *cdf,
     int i;
     int cdf_error = 0;
     int ref_symb, ref_nsymbs;
-    aom_cdf_prob ref_cdf[16];
+    aom_cdf_prob ref_cdf[20];
     const int queue_r = bitstream_queue_get_read();
     const int frame_idx = aom_bitstream_queue_get_frame_read();
     bitstream_queue_pop(&ref_symb, ref_cdf, &ref_nsymbs);

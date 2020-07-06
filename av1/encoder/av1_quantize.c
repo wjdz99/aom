@@ -277,19 +277,19 @@ void av1_quantize_fp_facade(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
   } else {
     switch (qparam->log_scale) {
       case 0:
-        av1_quantize_fp(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
+        av1_quantize_fp_c(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
                         p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr,
                         dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
                         sc->iscan);
         break;
       case 1:
-        av1_quantize_fp_32x32(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
+        av1_quantize_fp_32x32_c(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
                               p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr,
                               dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
                               sc->iscan);
         break;
       case 2:
-        av1_quantize_fp_64x64(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
+        av1_quantize_fp_64x64_c(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
                               p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr,
                               dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
                               sc->iscan);
