@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "258d5074_878424d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-07-07T04:06:01Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, we have removed an unused macro\nNUM_SIMPLE_MOTION_FEATURES in encodeframe.c\n\nPlease review this patch and merge in case of no issues.\n\nRegards,\nJayasanker.",
+      "revId": "3983e302bf4bfd46fa1e39402b8b021f8fc34b67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
