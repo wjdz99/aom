@@ -153,15 +153,22 @@ typedef struct {
    */
   int frames_till_gf_update_due;
 
-  /*!\cond */
-
-  // number of determined gf group length left
+  /*!
+   * Number of determined gf groups left
+   */
   int intervals_till_gf_calculate_due;
-  // stores gf group length intervals
+
+  /*!
+   * Stores the determined gf group lengths for a set of gf groups
+   */
   int gf_intervals[MAX_NUM_GF_INTERVALS];
-  // the current index in gf_intervals
+
+  /*!
+   * The current group's index into gf_intervals[]
+   */
   int cur_gf_index;
 
+  /*!\cond */
   int min_gf_interval;
   int max_gf_interval;
   int static_scene_max_gf_interval;
