@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96d87c02_d4db5ac3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-07-07T04:03:17Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, we have segregated partition search related\nfunctions in encodeframe.c to a new file partition_search.c\n\nThe changes have been verified to be bit-exact with no impact on speed.\n\nAWCY Link (for cpu-used 1, 60 frames):\nhttps://beta.arewecompressedyet.com/?job\u003d06Jul20_ref_cpu1_master%402020-07-06T18%3A54%3A33.938Z\u0026job\u003d06Jul20_refactor_cpu1%402020-07-06T18%3A08%3A13.096Z\n\nPlease review the patch.\n\nRegards,\nJayasanker.",
+      "revId": "66f5f7194dc3e1a0cc70afa716c14dca97d362b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
