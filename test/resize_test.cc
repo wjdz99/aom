@@ -201,8 +201,15 @@ class ResizeTest
   virtual ~ResizeTest() {}
 
   virtual void SetUp() {
+    libaom_test::TestMode mode = GET_PARAM(1);
     InitializeConfig();
-    SetMode(GET_PARAM(1));
+    SetMode(mode);
+    if (mode == libaom_test::kOnePassGood) {
+      cfg_.g_lag_in_frames = 1;
+      cfg_.rc_end_usage = AOM_CBR;
+    } else if (mode == libaom_test::kRealTime) {
+      cfg_.g_lag_in_frames = 0;
+    }
   }
 
   virtual void DecompressedFrameHook(const aom_image_t &img,
@@ -216,7 +223,6 @@ class ResizeTest
 TEST_P(ResizeTest, TestExternalResizeWorks) {
   ResizingVideoSource video;
   video.flag_codec_ = 0;
-  cfg_.g_lag_in_frames = 0;
   // We use max(kInitialWidth, kInitialHeight) because during the test
   // the width and height of the frame are swapped
   cfg_.g_forced_max_frame_width = cfg_.g_forced_max_frame_height =
@@ -730,7 +736,8 @@ TEST_P(ResizeCspTest, TestResizeCspWorks) {
 }
 
 AV1_INSTANTIATE_TEST_CASE(ResizeTest,
-                          ::testing::Values(::libaom_test::kRealTime));
+                          ::testing::Values(::libaom_test::kRealTime,
+                                            ::libaom_test::kOnePassGood));
 AV1_INSTANTIATE_TEST_CASE(ResizeInternalTestLarge,
                           ::testing::Values(::libaom_test::kOnePassGood));
 AV1_INSTANTIATE_TEST_CASE(ResizeRealtimeTest,
