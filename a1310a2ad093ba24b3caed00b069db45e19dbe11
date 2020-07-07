@@ -1,0 +1,492 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ffc4a65_4561be28",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "Thank you very much for writing the patch!\n\nSome comments below (but most are cosmetic / style etc).",
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6dc3d4fe_698267f0",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "Remove empty line.",
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdc2c8f5_90250452",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1778,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "Use a local (const) pointer for \u0027stream-\u003econfig\u0027 to avoid rewriting that repeatedly.",
+      "range": {
+        "startLine": 1778,
+        "startChar": 10,
+        "endLine": 1778,
+        "endChar": 24
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7c5b423_032ebacd",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1786,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "Use a local (const) pointer for \u0027stream-\u003econfig.cfg\u0027 to avoid rewriting that repeatedly.",
+      "range": {
+        "startLine": 1786,
+        "startChar": 10,
+        "endLine": 1786,
+        "endChar": 28
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "809a15b8_b02cde40",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1799,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "endif should have a comment to note which \"#if\" ends here:\n#endif  // !CONFIG_SINGLEPASS",
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "caa02ed5_a92a94bb",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1811,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "Use a local (const) pointer for \"stream-\u003eencoder.config.enc-\u003eencoder_cfg\"",
+      "range": {
+        "startLine": 1811,
+        "startChar": 40,
+        "endLine": 1811,
+        "endChar": 51
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fac5292_7dcc2a85",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1824,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "you can use the enum values \u0027AOME_SET_CQ_LEVEL\u0027 and \u0027AOME_SET_CPUUSED\u0027 (instead of 25 and 13).",
+      "range": {
+        "startLine": 1824,
+        "startChar": 4,
+        "endLine": 1824,
+        "endChar": 21
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db37954e_0adeb816",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1827,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "else if",
+      "range": {
+        "startLine": 1827,
+        "startChar": 6,
+        "endLine": 1827,
+        "endChar": 7
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d24f614e_422a4ecc",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1835,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "You should probably print these only for the case \u0027if (use_fixed_qp_offsets)\u0027",
+      "range": {
+        "startLine": 1833,
+        "startChar": 2,
+        "endLine": 1835,
+        "endChar": 3
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "752bb525_f12494c9",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 2610,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "Any reasons for moving this block down?",
+      "range": {
+        "startLine": 2602,
+        "startChar": 0,
+        "endLine": 2610,
+        "endChar": 5
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77f59f3c_6c6f2270",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 2750,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 2750,
+        "startChar": 8,
+        "endLine": 2750,
+        "endChar": 14
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc1f25e1_353adcbe",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 2750,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "\"ovr_psnr\"",
+      "range": {
+        "startLine": 2750,
+        "startChar": 15,
+        "endLine": 2750,
+        "endChar": 21
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ef4ca43_10ace554",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 2756,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "You should print PSNRs only when this condition is true: \"if (global.show_psnr)\"",
+      "range": {
+        "startLine": 2756,
+        "startChar": 8,
+        "endLine": 2756,
+        "endChar": 15
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c4b14b4_17f9a60c",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 2758,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "Can you write \"PSNR(Avg)\" and \"PSNR(Overall)\" to make it clear?",
+      "range": {
+        "startLine": 2758,
+        "startChar": 37,
+        "endLine": 2758,
+        "endChar": 38
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0eb3b144_734d20b7",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "Could you explain a bit what this parameter \"update_config\" is for?",
+      "range": {
+        "startLine": 743,
+        "startChar": 46,
+        "endLine": 743,
+        "endChar": 59
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8536e3b1_a6f1b055",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "\"\u0026\u0026 !update_config\"",
+      "range": {
+        "startLine": 744,
+        "startChar": 43,
+        "endLine": 744,
+        "endChar": 56
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f32a2c1_bb2205b6",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1151,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "\"\u003d\u003d 1\" is not needed",
+      "range": {
+        "startLine": 1151,
+        "startChar": 19,
+        "endLine": 1151,
+        "endChar": 24
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d971503_289ad542",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 2173,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "++ref_frame\n\n(Use pre-increment)",
+      "range": {
+        "startLine": 2173,
+        "startChar": 64,
+        "endLine": 2173,
+        "endChar": 75
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a209ea28_2ef86cc5",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 2187,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "psnr values will be uninitialized if cpi-\u003eb_calculate_psnr \u003d\u003d 0, right?",
+      "range": {
+        "startLine": 2187,
+        "startChar": 52,
+        "endLine": 2187,
+        "endChar": 56
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6c2c211_e5dc19f8",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 2191,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "++ref_idx",
+      "range": {
+        "startLine": 2191,
+        "startChar": 39,
+        "endLine": 2191,
+        "endChar": 48
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31c6ec64_e654b7d2",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 3060,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "\"key_frame_number\" name is confusing to me. Is this the number of frames until the most recent keyframe?\nAlso, how will this work if you had say 3 keyframes? Do you have to use \"+\u003d\" instead of \"+\" here?",
+      "range": {
+        "startLine": 3060,
+        "startChar": 19,
+        "endLine": 3060,
+        "endChar": 35
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aabd2cc3_d4009890",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 3065,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-07T05:44:16Z",
+      "side": 1,
+      "message": "I think it will be simpler to understand if you move this to line #3070 and change it to:\n  current_frame-\u003eabsolute_poc \u003d current_frame-\u003ekey_frame_number +\n                                frame_params-\u003edisplay_order_hint;\nDoes that make sense?",
+      "range": {
+        "startLine": 3063,
+        "startChar": 0,
+        "endLine": 3065,
+        "endChar": 59
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
