@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "585553b2_3d7b2db7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-07-07T11:53:36Z",
+      "side": 1,
+      "message": "Debargha,\n\nThis patch tests whether still image coding is enabled. It also checks \nwhether reduce_still_picture_hdr or full_still_picture_hdr configured\nby user is respected. The test is enabled for both twopass and single \npass encoder.\n\nThanks\n",
+      "revId": "12c6833b080d4bdf6dc1ae1d5d7a27a1e8a6fd78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
