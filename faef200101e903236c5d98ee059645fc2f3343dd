@@ -1,0 +1,326 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa505943_94fb0c98",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 1408,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2020-07-07T16:57:47Z",
+      "side": 1,
+      "message": "for memory allocation and free, we should use aom_malloc and aom_free function",
+      "range": {
+        "startLine": 1408,
+        "startChar": 8,
+        "endLine": 1408,
+        "endChar": 9
+      },
+      "revId": "faef200101e903236c5d98ee059645fc2f3343dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5787e7c2_86903188",
+        "filename": "av1/common/reconinter.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2020-07-07T16:57:47Z",
+      "side": 1,
+      "message": "is the comment in the original code still relevant? if yes, it should be kept. also these few functions should be wrapped inside the compile flag.",
+      "range": {
+        "startLine": 218,
+        "startChar": 5,
+        "endLine": 218,
+        "endChar": 6
+      },
+      "revId": "faef200101e903236c5d98ee059645fc2f3343dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9b5f0b4_8e45b2b5",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2020-07-07T16:57:47Z",
+      "side": 1,
+      "message": "variable name should follow the coding style convention. use ibc_src instead will be better.",
+      "range": {
+        "startLine": 55,
+        "startChar": 15,
+        "endLine": 55,
+        "endChar": 16
+      },
+      "revId": "faef200101e903236c5d98ee059645fc2f3343dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b0a2747_6daadc36",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 6734,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2020-07-07T16:57:47Z",
+      "side": 1,
+      "message": "variable name should follow the coding style convention. use regular_ibc, etc is better.",
+      "range": {
+        "startLine": 6734,
+        "startChar": 2,
+        "endLine": 6734,
+        "endChar": 4
+      },
+      "revId": "faef200101e903236c5d98ee059645fc2f3343dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6594be1d_c68f54e9",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 1220,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2020-07-07T16:57:47Z",
+      "side": 1,
+      "message": "please update the variable name to follow the coding style convention.",
+      "range": {
+        "startLine": 1220,
+        "startChar": 9,
+        "endLine": 1220,
+        "endChar": 10
+      },
+      "revId": "faef200101e903236c5d98ee059645fc2f3343dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3fd4f5a5_a5eeae82",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 1731,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2020-07-07T16:57:47Z",
+      "side": 1,
+      "message": "suggest to move this change to be around the same line as the original code.",
+      "range": {
+        "startLine": 1731,
+        "startChar": 2,
+        "endLine": 1731,
+        "endChar": 3
+      },
+      "revId": "faef200101e903236c5d98ee059645fc2f3343dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae19cc57_402f1f6a",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 1977,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2020-07-07T16:57:47Z",
+      "side": 1,
+      "message": "same comment as before.",
+      "range": {
+        "startLine": 1977,
+        "startChar": 2,
+        "endLine": 1977,
+        "endChar": 3
+      },
+      "revId": "faef200101e903236c5d98ee059645fc2f3343dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5e0bac2_9e1987cb",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 2071,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2020-07-07T16:57:47Z",
+      "side": 1,
+      "message": "similar comment as before",
+      "range": {
+        "startLine": 2071,
+        "startChar": 11,
+        "endLine": 2071,
+        "endChar": 12
+      },
+      "revId": "faef200101e903236c5d98ee059645fc2f3343dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d2d9aec_7d5c2873",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 10365,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2020-07-07T16:57:47Z",
+      "side": 1,
+      "message": "this blank line should be removed",
+      "range": {
+        "startLine": 10365,
+        "startChar": 2,
+        "endLine": 10365,
+        "endChar": 3
+      },
+      "revId": "faef200101e903236c5d98ee059645fc2f3343dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63c798e2_eb4b282e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 12691,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2020-07-07T16:57:47Z",
+      "side": 1,
+      "message": "aom_malloc should be used here",
+      "range": {
+        "startLine": 12691,
+        "startChar": 30,
+        "endLine": 12691,
+        "endChar": 31
+      },
+      "revId": "faef200101e903236c5d98ee059645fc2f3343dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b61d11c0_d62e0f13",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 12887,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2020-07-07T16:57:47Z",
+      "side": 1,
+      "message": "variable name need to follow the coding style requirement.",
+      "range": {
+        "startLine": 12887,
+        "startChar": 7,
+        "endLine": 12887,
+        "endChar": 8
+      },
+      "revId": "faef200101e903236c5d98ee059645fc2f3343dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da68222f_5615ce27",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 12913,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2020-07-07T16:57:47Z",
+      "side": 1,
+      "message": "please make the style consistent here.",
+      "range": {
+        "startLine": 12913,
+        "startChar": 73,
+        "endLine": 12913,
+        "endChar": 74
+      },
+      "revId": "faef200101e903236c5d98ee059645fc2f3343dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65e64409_e4dcbde0",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 13114,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2020-07-07T16:57:47Z",
+      "side": 1,
+      "message": "aom_free should be used",
+      "range": {
+        "startLine": 13114,
+        "startChar": 4,
+        "endLine": 13114,
+        "endChar": 5
+      },
+      "revId": "faef200101e903236c5d98ee059645fc2f3343dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa1a95de_76149ed6",
+        "filename": "third_party/libyuv/include/libyuv/convert_from.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2020-07-07T16:57:47Z",
+      "side": 1,
+      "message": "why do you need to change this file?",
+      "range": {
+        "startLine": 28,
+        "startChar": 1,
+        "endLine": 28,
+        "endChar": 2
+      },
+      "revId": "faef200101e903236c5d98ee059645fc2f3343dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
