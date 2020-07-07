@@ -2142,12 +2142,12 @@ static double get_kf_group_avg_error(TWO_PASS *twopass,
 }
 
 static int64_t get_kf_group_bits(AV1_COMP *cpi, double kf_group_err,
-                                 double kf_group_avg_error) {
+                                 double kf_group_avg_error, int frames_to_key) {
   RATE_CONTROL *const rc = &cpi->rc;
   TWO_PASS *const twopass = &cpi->twopass;
   int64_t kf_group_bits;
   if (cpi->lap_enabled) {
-    kf_group_bits = (int64_t)rc->frames_to_key * rc->avg_frame_bandwidth;
+    kf_group_bits = (int64_t)frames_to_key * rc->avg_frame_bandwidth;
     if (cpi->oxcf.vbr_corpus_complexity_lap) {
       const int num_mbs = (cpi->oxcf.resize_cfg.resize_mode != RESIZE_NONE)
                               ? cpi->initial_mbs
@@ -2265,6 +2265,7 @@ static double get_kf_boost_score(AV1_COMP *cpi, double kf_raw_err,
   return boost_score;
 }
 
+#define MAX_KF_DIST_BITS 300
 static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   RATE_CONTROL *const rc = &cpi->rc;
   TWO_PASS *const twopass = &cpi->twopass;
@@ -2319,7 +2320,12 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   double kf_group_err = 0.0;
   double sr_accumulator = 0.0;
   double kf_group_avg_error = 0.0;
-  int frames_to_key;
+  int frames_to_key, frames_to_key_clipped = INT_MAX;
+  int64_t kf_group_bits_clipped = INT64_MAX;
+
+  if (cpi->lap_enabled) {
+    frames_to_key_clipped = MAX_KF_DIST_BITS;
+  }
   // Is this a forced key frame by interval.
   rc->this_key_frame_forced = rc->next_key_frame_forced;
 
@@ -2393,12 +2399,24 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
     // Default allocation based on bits left and relative
     // complexity of the section.
-    twopass->kf_group_bits =
-        get_kf_group_bits(cpi, kf_group_err, kf_group_avg_error);
+    twopass->kf_group_bits = get_kf_group_bits(
+        cpi, kf_group_err, kf_group_avg_error, rc->frames_to_key);
     // Clip based on maximum per frame rate defined by the user.
     max_grp_bits = (int64_t)max_bits * (int64_t)rc->frames_to_key;
     if (twopass->kf_group_bits > max_grp_bits)
       twopass->kf_group_bits = max_grp_bits;
+
+    if (cpi->lap_enabled && rc->frames_to_key > frames_to_key_clipped) {
+      // In LAP we do not have an accurate estimate of the length of sequence,
+      // hence the value of frames_to_key may be highly inaccurate. This
+      // variable calculates the bits allocated to kf_group with a clipped
+      // frames_to_key.
+      kf_group_bits_clipped = get_kf_group_bits(
+          cpi, kf_group_err, kf_group_avg_error, frames_to_key_clipped);
+      max_grp_bits = (int64_t)max_bits * (int64_t)frames_to_key_clipped;
+      kf_group_bits_clipped = AOMMIN(max_grp_bits, kf_group_bits_clipped);
+      kf_group_bits_clipped = AOMMAX(0, kf_group_bits_clipped);
+    }
   } else {
     twopass->kf_group_bits = 0;
   }
@@ -2448,8 +2466,12 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   }
 
   // Work out how many bits to allocate for the key frame itself.
-  kf_bits = calculate_boost_bits((rc->frames_to_key - 1), rc->kf_boost,
-                                 twopass->kf_group_bits);
+  // When LAP is enabled, as frames_to_key may have an inaccurate value,
+  // we clip the amount of frames from which the kf is allowed to steal
+  // bits from. This helps 1 pass VBR meet the bit-rate.
+  kf_bits = calculate_boost_bits(
+      AOMMIN((rc->frames_to_key - 1), frames_to_key_clipped - 1), rc->kf_boost,
+      AOMMIN(twopass->kf_group_bits, kf_group_bits_clipped));
   // printf("kf boost = %d kf_bits = %d kf_zeromotion_pct = %d\n", rc->kf_boost,
   //        kf_bits, twopass->kf_zeromotion_pct);
   kf_bits = adjust_boost_bits_for_target_level(cpi, rc, kf_bits,
