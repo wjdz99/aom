@@ -2399,7 +2399,7 @@ static void rd_pick_rect_partition(AV1_COMP *const cpi, TileDataEnc *tile_data,
                                    MACROBLOCK *x,
                                    PICK_MODE_CONTEXT *cur_partition_ctx,
                                    PartitionSearchState *part_search_state,
-                                   RD_STATS *best_rdc, const int idx,
+                                   RD_STATS *best_rdc, const int subpart_idx,
                                    int mi_row, int mi_col, BLOCK_SIZE bsize,
                                    PARTITION_TYPE partition_type) {
   // Obtain the remainder from the best rd cost
@@ -2424,7 +2424,7 @@ static void rd_pick_rect_partition(AV1_COMP *const cpi, TileDataEnc *tile_data,
   }
   const RECT_PART_TYPE rect_part =
       partition_type == PARTITION_HORZ ? HORZ : VERT;
-  part_search_state->rect_part_rd[rect_part][idx] =
+  part_search_state->rect_part_rd[rect_part][subpart_idx] =
       part_search_state->this_rdc.rdcost;
 }
 
@@ -2484,25 +2484,25 @@ static void rectangular_partition_search(
   };
 
   // Loop over rectangular partition types.
-  for (RECT_PART_TYPE i = HORZ; i < NUM_RECT_PARTS; i++) {
+  for (RECT_PART_TYPE part_idx = HORZ; part_idx < NUM_RECT_PARTS; part_idx++) {
     assert(IMPLIES(!cpi->oxcf.part_cfg.enable_rect_partitions,
-                   !part_search_state->partition_rect_allowed[i]));
+                   !part_search_state->partition_rect_allowed[part_idx]));
 
     // Check if the HORZ / VERT partition search is to be performed.
-    if (!is_rect_part_allowed(cpi, part_search_state, active_edge_type, i,
-                              mi_pos_rect[i][0][i]))
+    if (!is_rect_part_allowed(cpi, part_search_state, active_edge_type,
+                              part_idx, mi_pos_rect[part_idx][0][part_idx]))
       continue;
 
     // Sub-partition idx.
-    int sub_part_idx = 0;
-    PARTITION_TYPE partition_type = rect_partition_type[i];
+    int subpart_idx = 0;
+    PARTITION_TYPE partition_type = rect_partition_type[part_idx];
     blk_params.subsize =
         get_partition_subsize(blk_params.bsize, partition_type);
     assert(blk_params.subsize <= BLOCK_LARGEST);
     av1_init_rd_stats(sum_rdc);
-    for (int j = 0; j < 2; j++) {
-      if (cur_ctx[i][j][0] == NULL) {
-        cur_ctx[i][j][0] =
+    for (subpart_idx = 0; subpart_idx < 2; subpart_idx++) {
+      if (cur_ctx[part_idx][subpart_idx][0] == NULL) {
+        cur_ctx[part_idx][subpart_idx][0] =
             av1_alloc_pmc(cm, blk_params.subsize, &td->shared_coeff_buf);
       }
     }
@@ -2517,34 +2517,39 @@ static void rectangular_partition_search(
 #endif
 
     // First sub-partition evaluation in HORZ / VERT partition type.
-    rd_pick_rect_partition(
-        cpi, tile_data, x, cur_ctx[i][sub_part_idx][0], part_search_state,
-        best_rdc, 0, mi_pos_rect[i][sub_part_idx][0],
-        mi_pos_rect[i][sub_part_idx][1], blk_params.subsize, partition_type);
+    subpart_idx = 0;
+    rd_pick_rect_partition(cpi, tile_data, x, cur_ctx[part_idx][subpart_idx][0],
+                           part_search_state, best_rdc, subpart_idx,
+                           mi_pos_rect[part_idx][subpart_idx][0],
+                           mi_pos_rect[part_idx][subpart_idx][1],
+                           blk_params.subsize, partition_type);
 
     // Start of second sub-partition evaluation.
     // Evaluate second sub-partition if the first sub-partition cost
     // is less than the best cost and if it is not an edge block.
-    if (sum_rdc->rdcost < best_rdc->rdcost && is_not_edge_block[i]) {
-      const MB_MODE_INFO *const mbmi = &cur_ctx[i][sub_part_idx][0]->mic;
+    if (sum_rdc->rdcost < best_rdc->rdcost && is_not_edge_block[part_idx]) {
+      const MB_MODE_INFO *const mbmi = &cur_ctx[part_idx][subpart_idx][0]->mic;
       const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
       // Neither palette mode nor cfl predicted.
       if (pmi->palette_size[PLANE_TYPE_Y] == 0 &&
           pmi->palette_size[PLANE_TYPE_UV] == 0) {
         if (mbmi->uv_mode != UV_CFL_PRED)
-          part_search_state->is_rect_ctx_is_ready[i] = 1;
+          part_search_state->is_rect_ctx_is_ready[part_idx] = 1;
       }
-      av1_update_state(cpi, td, cur_ctx[i][sub_part_idx][0], blk_params.mi_row,
-                       blk_params.mi_col, blk_params.subsize, DRY_RUN_NORMAL);
+      av1_update_state(cpi, td, cur_ctx[part_idx][subpart_idx][0],
+                       blk_params.mi_row, blk_params.mi_col, blk_params.subsize,
+                       DRY_RUN_NORMAL);
       encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL,
                         blk_params.subsize, NULL);
 
       // Second sub-partition evaluation in HORZ / VERT partition type.
-      sub_part_idx = 1;
-      rd_pick_rect_partition(
-          cpi, tile_data, x, cur_ctx[i][sub_part_idx][0], part_search_state,
-          best_rdc, 1, mi_pos_rect[i][sub_part_idx][0],
-          mi_pos_rect[i][sub_part_idx][1], blk_params.subsize, partition_type);
+      subpart_idx = 1;
+      rd_pick_rect_partition(cpi, tile_data, x,
+                             cur_ctx[part_idx][subpart_idx][0],
+                             part_search_state, best_rdc, subpart_idx,
+                             mi_pos_rect[part_idx][subpart_idx][0],
+                             mi_pos_rect[part_idx][subpart_idx][1],
+                             blk_params.subsize, partition_type);
     }
 #if CONFIG_COLLECT_PARTITION_STATS
     if (partition_timer_on) {
@@ -2565,7 +2570,7 @@ static void rectangular_partition_search(
     } else {
       // Update HORZ / VERT win flag.
       if (rect_part_win_info != NULL)
-        rect_part_win_info->rect_part_win[i] = false;
+        rect_part_win_info->rect_part_win[part_idx] = false;
     }
     av1_restore_context(x, x_ctx, blk_params.mi_row, blk_params.mi_col,
                         blk_params.bsize, av1_num_planes(cm));
@@ -2730,12 +2735,12 @@ static void ab_partitions_search(
       continue;
 
     blk_params.subsize = get_partition_subsize(bsize, part_type);
-    for (int i = 0; i < SUB_PARTITIONS_AB; i++) {
+    for (int subpart_idx = 0; subpart_idx < SUB_PARTITIONS_AB; subpart_idx++) {
       // Set AB partition context.
-      cur_part_ctxs[ab_part_type][i] =
-          av1_alloc_pmc(cm, ab_subsize[ab_part_type][i], &td->shared_coeff_buf);
+      cur_part_ctxs[ab_part_type][subpart_idx] = av1_alloc_pmc(
+          cm, ab_subsize[ab_part_type][subpart_idx], &td->shared_coeff_buf);
       // Set mode as not ready.
-      cur_part_ctxs[ab_part_type][i]->rd_mode_is_ready = 0;
+      cur_part_ctxs[ab_part_type][subpart_idx]->rd_mode_is_ready = 0;
     }
 
     // Copy of mode search results if the ctx is ready.
@@ -2762,18 +2767,19 @@ static void ab_partitions_search(
 
 // Set mi positions for HORZ4 / VERT4 sub-block partitions.
 static void set_mi_pos_partition4(const int inc_step[NUM_PART4_TYPES],
-                                  int mi_pos[PART4_SUB_PARTITIONS][2],
+                                  int mi_pos[SUB_PARTITIONS_PART4][2],
                                   const int mi_row, const int mi_col) {
-  for (int i = 0; i < PART4_SUB_PARTITIONS; i++) {
-    mi_pos[i][0] = mi_row + i * inc_step[HORZ4];
-    mi_pos[i][1] = mi_col + i * inc_step[VERT4];
+  for (PART4_TYPES subpart_idx = 0; subpart_idx < SUB_PARTITIONS_PART4;
+       subpart_idx++) {
+    mi_pos[subpart_idx][0] = mi_row + subpart_idx * inc_step[HORZ4];
+    mi_pos[subpart_idx][1] = mi_col + subpart_idx * inc_step[VERT4];
   }
 }
 
 // Set context and RD cost for HORZ4 / VERT4 partition types.
 static void set_4_part_ctx_and_rdcost(
     MACROBLOCK *x, const AV1_COMMON *const cm, ThreadData *td,
-    PICK_MODE_CONTEXT *cur_part_ctx[PART4_SUB_PARTITIONS],
+    PICK_MODE_CONTEXT *cur_part_ctx[SUB_PARTITIONS_PART4],
     PartitionSearchState *part_search_state, PARTITION_TYPE partition_type,
     BLOCK_SIZE bsize) {
   // Initialize sum_rdc RD cost structure.
@@ -2783,15 +2789,17 @@ static void set_4_part_ctx_and_rdcost(
       part_search_state->partition_cost[partition_type];
   part_search_state->sum_rdc.rdcost =
       RDCOST(x->rdmult, part_search_state->sum_rdc.rate, 0);
-  for (int i = 0; i < PART4_SUB_PARTITIONS; ++i)
-    cur_part_ctx[i] = av1_alloc_pmc(cm, subsize, &td->shared_coeff_buf);
+  for (PART4_TYPES subpart_idx = 0; subpart_idx < SUB_PARTITIONS_PART4;
+       ++subpart_idx)
+    cur_part_ctx[subpart_idx] =
+        av1_alloc_pmc(cm, subsize, &td->shared_coeff_buf);
 }
 
 // Partition search of HORZ4 / VERT4 partition types.
 static void rd_pick_4partition(
     AV1_COMP *const cpi, ThreadData *td, TileDataEnc *tile_data,
     TokenExtra **tp, MACROBLOCK *x, RD_SEARCH_MACROBLOCK_CONTEXT *x_ctx,
-    PC_TREE *pc_tree, PICK_MODE_CONTEXT *cur_part_ctx[PART4_SUB_PARTITIONS],
+    PC_TREE *pc_tree, PICK_MODE_CONTEXT *cur_part_ctx[SUB_PARTITIONS_PART4],
     PartitionSearchState *part_search_state, RD_STATS *best_rdc,
     const int inc_step[NUM_PART4_TYPES], PARTITION_TYPE partition_type) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -2800,7 +2808,7 @@ static void rd_pick_4partition(
   int mi_pos_check[NUM_PART4_TYPES] = { cm->mi_params.mi_rows,
                                         cm->mi_params.mi_cols };
   const PART4_TYPES part4_idx = (partition_type != PARTITION_HORZ_4);
-  int mi_pos[PART4_SUB_PARTITIONS][2];
+  int mi_pos[SUB_PARTITIONS_PART4][2];
 
   blk_params.subsize = get_partition_subsize(blk_params.bsize, partition_type);
   // Set partition context and RD cost.
@@ -2816,15 +2824,19 @@ static void rd_pick_4partition(
   }
 #endif
   // Loop over sub-block partitions.
-  for (int i = 0; i < PART4_SUB_PARTITIONS; ++i) {
-    if (i > 0 && mi_pos[i][part4_idx] >= mi_pos_check[part4_idx]) break;
+  for (PART4_TYPES subpart_idx = 0; subpart_idx < SUB_PARTITIONS_PART4;
+       ++subpart_idx) {
+    if (subpart_idx > 0 &&
+        mi_pos[subpart_idx][part4_idx] >= mi_pos_check[part4_idx])
+      break;
 
     // Sub-block evaluation of Horz4 / Vert4 partition type.
-    cur_part_ctx[i]->rd_mode_is_ready = 0;
+    cur_part_ctx[subpart_idx]->rd_mode_is_ready = 0;
     if (!rd_try_subblock(
-            cpi, td, tile_data, tp, (i == PART4_SUB_PARTITIONS - 1),
-            mi_pos[i][0], mi_pos[i][1], blk_params.subsize, *best_rdc,
-            &part_search_state->sum_rdc, partition_type, cur_part_ctx[i])) {
+            cpi, td, tile_data, tp, (subpart_idx == SUB_PARTITIONS_PART4 - 1),
+            mi_pos[subpart_idx][0], mi_pos[subpart_idx][1], blk_params.subsize,
+            *best_rdc, &part_search_state->sum_rdc, partition_type,
+            cur_part_ctx[subpart_idx])) {
       av1_invalid_rd_stats(&part_search_state->sum_rdc);
       break;
     }
@@ -2862,18 +2874,22 @@ static void prune_4_partition_using_split_info(
   // Conservative pruning for high quantizers.
   const int num_win_thresh = AOMMIN(3 * (MAXQ - x->qindex) / MAXQ + 1, 3);
 
-  for (RECT_PART_TYPE i = HORZ; i < NUM_RECT_PARTS; i++) {
+  for (RECT_PART_TYPE rect_part_idx = HORZ; rect_part_idx < NUM_RECT_PARTS;
+       rect_part_idx++) {
     if (!(cpi->sf.part_sf.prune_4_partition_using_split_info &&
-          part4_search_allowed[cur_part[i]]))
+          part4_search_allowed[cur_part[rect_part_idx]]))
       continue;
     // Loop over split partitions.
     // Get reactnagular partitions winner info of split partitions.
-    for (int idx = 0; idx < 4; idx++)
-      num_child_rect_win[i] +=
-          (part_search_state->split_part_rect_win[idx].rect_part_win[i]) ? 1
-                                                                         : 0;
-    if (num_child_rect_win[i] < num_win_thresh) {
-      part4_search_allowed[cur_part[i]] = 0;
+    for (int split_part_idx = 0; split_part_idx < SUB_PARTITIONS_SPLIT;
+         split_part_idx++)
+      num_child_rect_win[rect_part_idx] +=
+          (part_search_state->split_part_rect_win[split_part_idx]
+               .rect_part_win[rect_part_idx])
+              ? 1
+              : 0;
+    if (num_child_rect_win[rect_part_idx] < num_win_thresh) {
+      part4_search_allowed[cur_part[rect_part_idx]] = 0;
     }
   }
 }
@@ -2888,7 +2904,8 @@ static void prune_4_way_partition_search(
   const int mi_row = blk_params.mi_row;
   const int mi_col = blk_params.mi_col;
   const int bsize = blk_params.bsize;
-  PARTITION_TYPE cur_part[2] = { PARTITION_HORZ_4, PARTITION_VERT_4 };
+  PARTITION_TYPE cur_part[NUM_PART4_TYPES] = { PARTITION_HORZ_4,
+                                               PARTITION_VERT_4 };
   const PartitionCfg *const part_cfg = &cpi->oxcf.part_cfg;
   // partition4_allowed is 1 if we can use a PARTITION_HORZ_4 or
   // PARTITION_VERT_4 for this block. This is almost the same as
@@ -2898,10 +2915,11 @@ static void prune_4_way_partition_search(
                                  ext_partition_allowed &&
                                  bsize != BLOCK_128X128;
 
-  for (PART4_TYPES i = HORZ4; i < NUM_PART4_TYPES; i++) {
-    part4_search_allowed[i] =
-        partition4_allowed && part_search_state->partition_rect_allowed[i] &&
-        get_plane_block_size(get_partition_subsize(bsize, cur_part[i]),
+  for (PART4_TYPES part_idx = HORZ4; part_idx < NUM_PART4_TYPES; part_idx++) {
+    part4_search_allowed[part_idx] =
+        partition4_allowed &&
+        part_search_state->partition_rect_allowed[part_idx] &&
+        get_plane_block_size(get_partition_subsize(bsize, cur_part[part_idx]),
                              part_search_state->ss_x,
                              part_search_state->ss_y) != BLOCK_INVALID;
   }
@@ -3200,18 +3218,17 @@ static void split_partition_search(
       !part_search_state->do_square_split)
     return;
 
-  for (int i = 0; i < SUB_PARTITIONS_SPLIT; ++i) {
-    if (pc_tree->split[i] == NULL)
-      pc_tree->split[i] = av1_alloc_pc_tree_node(subsize);
-    pc_tree->split[i]->index = i;
+  for (int subpart_idx = 0; subpart_idx < SUB_PARTITIONS_SPLIT; ++subpart_idx) {
+    if (pc_tree->split[subpart_idx] == NULL)
+      pc_tree->split[subpart_idx] = av1_alloc_pc_tree_node(subsize);
+    pc_tree->split[subpart_idx]->index = subpart_idx;
   }
 
   // Initialization of this partition RD stats.
   av1_init_rd_stats(&sum_rdc);
   sum_rdc.rate = part_search_state->partition_cost[PARTITION_SPLIT];
   sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
-
-  int idx;
+  int subpart_idx = 0;
 #if CONFIG_COLLECT_PARTITION_STATS
   if (best_rdc->rdcost - sum_rdc.rdcost >= 0) {
     partition_attempts[PARTITION_SPLIT] += 1;
@@ -3220,17 +3237,18 @@ static void split_partition_search(
   }
 #endif
   // Recursive partition search on 4 sub-blocks.
-  for (idx = 0; idx < SUB_PARTITIONS_SPLIT && sum_rdc.rdcost < best_rdc->rdcost;
-       ++idx) {
-    const int x_idx = (idx & 1) * blk_params.mi_step;
-    const int y_idx = (idx >> 1) * blk_params.mi_step;
+  for (subpart_idx = 0;
+       subpart_idx < SUB_PARTITIONS_SPLIT && sum_rdc.rdcost < best_rdc->rdcost;
+       ++subpart_idx) {
+    const int x_idx = (subpart_idx & 1) * blk_params.mi_step;
+    const int y_idx = (subpart_idx >> 1) * blk_params.mi_step;
 
     if (mi_row + y_idx >= mi_params->mi_rows ||
         mi_col + x_idx >= mi_params->mi_cols)
       continue;
 
-    pc_tree->split[idx]->index = idx;
-    int64_t *p_split_rd = &part_search_state->split_rd[idx];
+    pc_tree->split[subpart_idx]->index = subpart_idx;
+    int64_t *p_split_rd = &part_search_state->split_rd[subpart_idx];
     RD_STATS best_remain_rdcost;
     av1_rd_stats_subtraction(x->rdmult, best_rdc, &sum_rdc,
                              &best_remain_rdcost);
@@ -3239,16 +3257,17 @@ static void split_partition_search(
     if (frame_is_intra_only(cm) && bsize <= BLOCK_64X64) {
       curr_quad_tree_idx = part_search_state->intra_part_info->quad_tree_idx;
       part_search_state->intra_part_info->quad_tree_idx =
-          4 * curr_quad_tree_idx + idx + 1;
+          4 * curr_quad_tree_idx + subpart_idx + 1;
     }
-    // Split partition evaluation of corresponding idx.
+    // Split partition evaluation of corresponding subpart_idx.
     // If the RD cost exceeds the best cost then do not
     // evaluate other split sub-partitions.
     if (!av1_rd_pick_partition(
             cpi, td, tile_data, tp, mi_row + y_idx, mi_col + x_idx, subsize,
             &part_search_state->this_rdc, best_remain_rdcost,
-            pc_tree->split[idx], sms_tree->split[idx], p_split_rd,
-            multi_pass_mode, &part_search_state->split_part_rect_win[idx])) {
+            pc_tree->split[subpart_idx], sms_tree->split[subpart_idx],
+            p_split_rd, multi_pass_mode,
+            &part_search_state->split_part_rect_win[subpart_idx])) {
       av1_invalid_rd_stats(&sum_rdc);
       break;
     }
@@ -3261,14 +3280,15 @@ static void split_partition_search(
     av1_rd_cost_update(x->rdmult, &sum_rdc);
 
     // Set split ctx as ready for use.
-    if (idx <= 1 && (bsize <= BLOCK_8X8 ||
-                     pc_tree->split[idx]->partitioning == PARTITION_NONE)) {
-      const MB_MODE_INFO *const mbmi = &pc_tree->split[idx]->none->mic;
+    if (subpart_idx <= 1 &&
+        (bsize <= BLOCK_8X8 ||
+         pc_tree->split[subpart_idx]->partitioning == PARTITION_NONE)) {
+      const MB_MODE_INFO *const mbmi = &pc_tree->split[subpart_idx]->none->mic;
       const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
       // Neither palette mode nor cfl predicted.
       if (pmi->palette_size[0] == 0 && pmi->palette_size[1] == 0) {
         if (mbmi->uv_mode != UV_CFL_PRED)
-          part_search_state->is_split_ctx_is_ready[idx] = 1;
+          part_search_state->is_split_ctx_is_ready[subpart_idx] = 1;
       }
     }
   }
@@ -3280,7 +3300,7 @@ static void split_partition_search(
     partition_timer_on = 0;
   }
 #endif
-  const int reached_last_index = (idx == SUB_PARTITIONS_SPLIT);
+  const int reached_last_index = (subpart_idx == SUB_PARTITIONS_SPLIT);
 
   // Calculate the total cost and update the best partition.
   *part_split_rd = sum_rdc.rdcost;
@@ -3294,7 +3314,7 @@ static void split_partition_search(
   } else if (cpi->sf.part_sf.less_rectangular_check_level > 0) {
     // Skip rectangular partition test when partition type none gives better
     // rd than partition type split.
-    if (cpi->sf.part_sf.less_rectangular_check_level == 2 || idx <= 2) {
+    if (cpi->sf.part_sf.less_rectangular_check_level == 2 || subpart_idx <= 2) {
       const int partition_none_valid = part_search_state->none_rd > 0;
       const int partition_none_better =
           part_search_state->none_rd < sum_rdc.rdcost;
