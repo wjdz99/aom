@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "690b1621_0e082ca2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14062
+      },
+      "writtenOn": "2020-07-07T16:25:58Z",
+      "side": 1,
+      "message": "Hi Yunqing, \n\nWe have rebased the CL. The changes have been verified to be bit-exact.\nPlease review.\n\nRegards,\nVishesh",
+      "revId": "e913fb0a7d168e30f41185e64f1b6f8b528a80cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
