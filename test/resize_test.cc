@@ -240,6 +240,13 @@ TEST_P(ResizeTest, TestExternalResizeWorks) {
   }
 }
 
+TEST_P(ResizeTest, TestExternalResizeLagInFramesOne) {
+  ResizingVideoSource video;
+  video.flag_codec_ = 0;
+  cfg_.g_lag_in_frames = 1;
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+}
+
 const unsigned int kStepDownFrame = 3;
 const unsigned int kStepUpFrame = 6;
 
