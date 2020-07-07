@@ -544,6 +544,8 @@ struct CommonModeInfoParams {
    */
   TX_TYPE *tx_type_map;
 
+  DSPL_TYPE *tx_dspl_map;
+
   /**
    * \name Function pointers to allow separate logic for encoder and decoder.
    */
@@ -584,6 +586,7 @@ struct CommonQuantParams {
    * Note: y_ac_delta_q is implicitly 0.
    */
   int y_dc_delta_q;
+  int dspl_delta_q[DSPL_END];
 
   /*!
    * Delta of qindex (from base_qindex) for U plane DC coefficients.
@@ -617,7 +620,7 @@ struct CommonQuantParams {
    * shift/scale as TX.
    */
   /**@{*/
-  int16_t y_dequant_QTX[MAX_SEGMENTS][2]; /*!< Dequant for Y plane */
+  int16_t y_dequant_QTX[DSPL_END][MAX_SEGMENTS][2]; /*!< Dequant for Y plane */
   int16_t u_dequant_QTX[MAX_SEGMENTS][2]; /*!< Dequant for U plane */
   int16_t v_dequant_QTX[MAX_SEGMENTS][2]; /*!< Dequant for V plane */
   /**@}*/
@@ -1251,24 +1254,29 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd) {
   const int num_planes = av1_num_planes(cm);
   const CommonQuantParams *const quant_params = &cm->quant_params;
 
-  for (int i = 0; i < num_planes; ++i) {
-    if (xd->plane[i].plane_type == PLANE_TYPE_Y) {
-      memcpy(xd->plane[i].seg_dequant_QTX, quant_params->y_dequant_QTX,
-             sizeof(quant_params->y_dequant_QTX));
-      memcpy(xd->plane[i].seg_iqmatrix, quant_params->y_iqmatrix,
-             sizeof(quant_params->y_iqmatrix));
+  for (DSPL_TYPE dspl_type = DSPL_NO_TXFM; dspl_type < DSPL_END; ++dspl_type) {
+    for (int i = 0; i < num_planes; ++i) {
+      if (xd->plane[i].plane_type == PLANE_TYPE_Y) {
+        memcpy(xd->plane[i].seg_dequant_QTX[dspl_type],
+               quant_params->y_dequant_QTX[dspl_type],
+               sizeof(quant_params->y_dequant_QTX[dspl_type]));
+        memcpy(xd->plane[i].seg_iqmatrix, quant_params->y_iqmatrix,
+               sizeof(quant_params->y_iqmatrix));
 
-    } else {
-      if (i == AOM_PLANE_U) {
-        memcpy(xd->plane[i].seg_dequant_QTX, quant_params->u_dequant_QTX,
-               sizeof(quant_params->u_dequant_QTX));
-        memcpy(xd->plane[i].seg_iqmatrix, quant_params->u_iqmatrix,
-               sizeof(quant_params->u_iqmatrix));
       } else {
-        memcpy(xd->plane[i].seg_dequant_QTX, quant_params->v_dequant_QTX,
-               sizeof(quant_params->v_dequant_QTX));
-        memcpy(xd->plane[i].seg_iqmatrix, quant_params->v_iqmatrix,
-               sizeof(quant_params->v_iqmatrix));
+        if (i == AOM_PLANE_U) {
+          memcpy(xd->plane[i].seg_dequant_QTX[dspl_type],
+                 quant_params->u_dequant_QTX,
+                 sizeof(quant_params->u_dequant_QTX));
+          memcpy(xd->plane[i].seg_iqmatrix, quant_params->u_iqmatrix,
+                 sizeof(quant_params->u_iqmatrix));
+        } else {
+          memcpy(xd->plane[i].seg_dequant_QTX[dspl_type],
+                 quant_params->v_dequant_QTX,
+                 sizeof(quant_params->v_dequant_QTX));
+          memcpy(xd->plane[i].seg_iqmatrix, quant_params->v_iqmatrix,
+                 sizeof(quant_params->v_iqmatrix));
+        }
       }
     }
   }
@@ -1654,6 +1662,7 @@ static INLINE void set_mi_offsets(const CommonModeInfoParams *const mi_params,
   // 'xd->tx_type_map' should point to an offset in 'mi_params->tx_type_map'.
   xd->tx_type_map = mi_params->tx_type_map + mi_grid_idx;
   xd->tx_type_map_stride = mi_params->mi_stride;
+  xd->tx_dspl_map = mi_params->tx_dspl_map + mi_grid_idx;
 }
 
 static INLINE void txfm_partition_update(TXFM_CONTEXT *above_ctx,

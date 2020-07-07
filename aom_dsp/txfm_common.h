@@ -26,6 +26,7 @@ typedef struct txfm_param {
   // for both forward and inverse transforms
   TX_TYPE tx_type;
   TX_SIZE tx_size;
+  DSPL_TYPE dspl_type;
   int lossless;
   int bd;
   // are the pixel buffers octets or shorts?  This should collapse to

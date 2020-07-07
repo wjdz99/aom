@@ -44,9 +44,15 @@ static AOM_INLINE void get_quantize_error(const MACROBLOCK *x, int plane,
   int pix_num = 1 << num_pels_log2_lookup[txsize_to_bsize[tx_size]];
   const int shift = tx_size == TX_32X32 ? 0 : 2;
 
-  av1_quantize_fp(coeff, pix_num, p->zbin_QTX, p->round_fp_QTX, p->quant_fp_QTX,
-                  p->quant_shift_QTX, qcoeff, dqcoeff, p->dequant_QTX, eob,
-                  scan_order->scan, scan_order->iscan);
+  // TODO(singhprakhar): pass dspl_type through to here, currently using the
+  // default
+  DSPL_TYPE dspl_type = DSPL_NO_TXFM;
+
+  av1_quantize_fp(coeff, pix_num, p->zbin_QTX[dspl_type],
+                  p->round_fp_QTX[dspl_type], p->quant_fp_QTX[dspl_type],
+                  p->quant_shift_QTX[dspl_type], qcoeff, dqcoeff,
+                  p->dequant_QTX[dspl_type], eob, scan_order->scan,
+                  scan_order->iscan);
 
   *recon_error = av1_block_error(coeff, dqcoeff, pix_num, sse) >> shift;
   *recon_error = AOMMAX(*recon_error, 1);
@@ -66,6 +72,9 @@ static AOM_INLINE void tpl_fwd_txfm(const int16_t *src_diff, int bw,
 
   txfm_param.bd = bit_depth;
   txfm_param.is_hbd = is_hbd;
+
+  // TODO(singhprakhar): See if DSPL_TXFM can be used to optimize this
+  txfm_param.dspl_type = DSPL_NO_TXFM;
   av1_fwd_txfm(src_diff, coeff, bw, &txfm_param);
 }
 
@@ -103,7 +112,7 @@ static AOM_INLINE void txfm_quant_rdcost(
     const MACROBLOCK *x, int16_t *src_diff, int diff_stride, uint8_t *src,
     int src_stride, uint8_t *dst, int dst_stride, tran_low_t *coeff,
     tran_low_t *qcoeff, tran_low_t *dqcoeff, int bw, int bh, TX_SIZE tx_size,
-    int *rate_cost, int64_t *recon_error, int64_t *sse) {
+    DSPL_TYPE dspl_type, int *rate_cost, int64_t *recon_error, int64_t *sse) {
   const MACROBLOCKD *xd = &x->e_mbd;
   uint16_t eob;
   av1_subtract_block(xd, bh, bw, src_diff, diff_stride, src, src_stride, dst,
@@ -116,8 +125,8 @@ static AOM_INLINE void txfm_quant_rdcost(
 
   *rate_cost = rate_estimator(qcoeff, eob, tx_size);
 
-  av1_inverse_transform_block(xd, dqcoeff, 0, DCT_DCT, tx_size, dst, dst_stride,
-                              eob, 0);
+  av1_inverse_transform_block(xd, dqcoeff, 0, DCT_DCT, tx_size, dspl_type, dst,
+                              dst_stride, eob, 0);
 }
 
 static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
@@ -482,9 +491,10 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   }
 
   int rate_cost;
+  // TODO(singhprakhar): consider if sampling DSPL_TYPES are appropriate here
   txfm_quant_rdcost(x, src_diff, bw, src_mb_buffer, src_stride, dst_buffer,
                     dst_buffer_stride, coeff, qcoeff, dqcoeff, bw, bh, tx_size,
-                    &rate_cost, &recon_error, &sse);
+                    DSPL_NO_TXFM, &rate_cost, &recon_error, &sse);
 
   tpl_stats->recrf_dist = recon_error << (TPL_DEP_COST_SCALE_LOG2);
   tpl_stats->recrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;

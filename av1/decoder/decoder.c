@@ -89,6 +89,8 @@ static void dec_free_mi(CommonModeInfoParams *mi_params) {
   mi_params->mi_alloc_size = 0;
   aom_free(mi_params->tx_type_map);
   mi_params->tx_type_map = NULL;
+  aom_free(mi_params->tx_dspl_map);
+  mi_params->tx_dspl_map = NULL;
 }
 
 AV1Decoder *av1_decoder_create(BufferPool *const pool) {

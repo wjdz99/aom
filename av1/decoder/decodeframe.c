@@ -144,26 +144,32 @@ static AOM_INLINE void inverse_transform_block(DecoderCodingBlock *dcb,
                                                int plane, const TX_TYPE tx_type,
                                                const TX_SIZE tx_size,
                                                uint8_t *dst, int stride,
+                                               DSPL_TYPE dspl_type,
                                                int reduced_tx_set) {
   tran_low_t *const dqcoeff = dcb->dqcoeff_block[plane] + dcb->cb_offset[plane];
   eob_info *eob_data = dcb->eob_data[plane] + dcb->txb_offset[plane];
   uint16_t scan_line = eob_data->max_scan_line;
   uint16_t eob = eob_data->eob;
-  av1_inverse_transform_block(&dcb->xd, dqcoeff, plane, tx_type, tx_size, dst,
-                              stride, eob, reduced_tx_set);
+  av1_inverse_transform_block(&dcb->xd, dqcoeff, plane, tx_type, tx_size,
+                              dspl_type, dst, stride, eob, reduced_tx_set);
   memset(dqcoeff, 0, (scan_line + 1) * sizeof(dqcoeff[0]));
 }
 
 static AOM_INLINE void read_coeffs_tx_intra_block(
     const AV1_COMMON *const cm, DecoderCodingBlock *dcb, aom_reader *const r,
-    const int plane, const int row, const int col, const TX_SIZE tx_size) {
+    const int plane, const int row, const int col, const TX_SIZE tx_size,
+    DSPL_TYPE dspl_type) {
   MB_MODE_INFO *mbmi = dcb->xd.mi[0];
+
+  assert(DSPL_NO_TXFM <= dspl_type && dspl_type < DSPL_END);
+  assert(IMPLIES(!is_inter_block(mbmi), dspl_type == DSPL_NO_TXFM));
+
   if (!mbmi->skip_txfm) {
 #if TXCOEFF_TIMER
     struct aom_usec_timer timer;
     aom_usec_timer_start(&timer);
 #endif
-    av1_read_coeffs_txb_facade(cm, dcb, r, plane, row, col, tx_size);
+    av1_read_coeffs_txb_facade(cm, dcb, r, plane, row, col, tx_size, dspl_type);
 #if TXCOEFF_TIMER
     aom_usec_timer_mark(&timer);
     const int64_t elapsed_time = aom_usec_timer_elapsed(&timer);
@@ -177,7 +183,8 @@ static AOM_INLINE void decode_block_void(const AV1_COMMON *const cm,
                                          DecoderCodingBlock *dcb,
                                          aom_reader *const r, const int plane,
                                          const int row, const int col,
-                                         const TX_SIZE tx_size) {
+                                         const TX_SIZE tx_size,
+                                         DSPL_TYPE dspl_type) {
   (void)cm;
   (void)dcb;
   (void)r;
@@ -185,6 +192,7 @@ static AOM_INLINE void decode_block_void(const AV1_COMMON *const cm,
   (void)row;
   (void)col;
   (void)tx_size;
+  (void)dspl_type;
 }
 
 static AOM_INLINE void predict_inter_block_void(AV1_COMMON *const cm,
@@ -203,11 +211,15 @@ static AOM_INLINE void cfl_store_inter_block_void(AV1_COMMON *const cm,
 
 static AOM_INLINE void predict_and_reconstruct_intra_block(
     const AV1_COMMON *const cm, DecoderCodingBlock *dcb, aom_reader *const r,
-    const int plane, const int row, const int col, const TX_SIZE tx_size) {
+    const int plane, const int row, const int col, const TX_SIZE tx_size,
+    DSPL_TYPE dspl_type) {
   (void)r;
   MACROBLOCKD *const xd = &dcb->xd;
   MB_MODE_INFO *mbmi = xd->mi[0];
   PLANE_TYPE plane_type = get_plane_type(plane);
+
+  assert(DSPL_NO_TXFM <= dspl_type && dspl_type < DSPL_END);
+  assert(IMPLIES(!is_inter_block(mbmi), dspl_type == DSPL_NO_TXFM));
 
   av1_predict_intra_block_facade(cm, xd, plane, col, row, tx_size);
 
@@ -221,7 +233,7 @@ static AOM_INLINE void predict_and_reconstruct_intra_block(
       struct macroblockd_plane *const pd = &xd->plane[plane];
       uint8_t *dst = &pd->dst.buf[(row * pd->dst.stride + col) << MI_SIZE_LOG2];
       inverse_transform_block(dcb, plane, tx_type, tx_size, dst, pd->dst.stride,
-                              reduced_tx_set_used);
+                              dspl_type, reduced_tx_set_used);
     }
   }
   if (plane == AOM_PLANE_Y && store_cfl_required(cm, xd)) {
@@ -232,7 +244,7 @@ static AOM_INLINE void predict_and_reconstruct_intra_block(
 static AOM_INLINE void inverse_transform_inter_block(
     const AV1_COMMON *const cm, DecoderCodingBlock *dcb, aom_reader *const r,
     const int plane, const int blk_row, const int blk_col,
-    const TX_SIZE tx_size) {
+    const TX_SIZE tx_size, const DSPL_TYPE dspl_type) {
   (void)r;
   MACROBLOCKD *const xd = &dcb->xd;
   PLANE_TYPE plane_type = get_plane_type(plane);
@@ -245,7 +257,7 @@ static AOM_INLINE void inverse_transform_inter_block(
   uint8_t *dst =
       &pd->dst.buf[(blk_row * pd->dst.stride + blk_col) << MI_SIZE_LOG2];
   inverse_transform_block(dcb, plane, tx_type, tx_size, dst, pd->dst.stride,
-                          reduced_tx_set_used);
+                          dspl_type, reduced_tx_set_used);
 #if CONFIG_MISMATCH_DEBUG
   int pixel_c, pixel_r;
   BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
@@ -284,14 +296,19 @@ static AOM_INLINE void decode_reconstruct_tx(
   const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
   const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
 
+  DSPL_TYPE dspl_type = mbmi->dspl_type;
+
+  assert(DSPL_NO_TXFM <= dspl_type && dspl_type < DSPL_END);
+  assert(IMPLIES(!is_inter_block(mbmi), dspl_type == DSPL_NO_TXFM));
+
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
   if (tx_size == plane_tx_size || plane) {
     td->read_coeffs_tx_inter_block_visit(cm, dcb, r, plane, blk_row, blk_col,
-                                         tx_size);
+                                         tx_size, dspl_type);
 
     td->inverse_tx_inter_block_visit(cm, dcb, r, plane, blk_row, blk_col,
-                                     tx_size);
+                                     tx_size, dspl_type);
     eob_info *eob_data = dcb->eob_data[plane] + dcb->txb_offset[plane];
     *eob_total += eob_data->eob;
     set_cb_buffer_offsets(dcb, tx_size, plane);
@@ -894,6 +911,11 @@ static AOM_INLINE void decode_token_recon_block(AV1Decoder *const pbi,
   const int num_planes = av1_num_planes(cm);
   MB_MODE_INFO *mbmi = xd->mi[0];
 
+  DSPL_TYPE dspl_type = mbmi->dspl_type;
+
+  assert(DSPL_NO_TXFM <= dspl_type && dspl_type < DSPL_END);
+  assert(IMPLIES(!is_inter_block(mbmi), dspl_type == DSPL_NO_TXFM));
+
   if (!is_inter_block(mbmi)) {
     int row, col;
     assert(bsize == get_plane_block_size(bsize, xd->plane[0].subsampling_x,
@@ -925,9 +947,9 @@ static AOM_INLINE void decode_token_recon_block(AV1Decoder *const pbi,
             for (int blk_col = col >> pd->subsampling_x; blk_col < unit_width;
                  blk_col += stepc) {
               td->read_coeffs_tx_intra_block_visit(cm, dcb, r, plane, blk_row,
-                                                   blk_col, tx_size);
+                                                   blk_col, tx_size, dspl_type);
               td->predict_and_recon_intra_block_visit(
-                  cm, dcb, r, plane, blk_row, blk_col, tx_size);
+                  cm, dcb, r, plane, blk_row, blk_col, tx_size, dspl_type);
               set_cb_buffer_offsets(dcb, tx_size, plane);
             }
           }
@@ -1205,21 +1227,31 @@ static AOM_INLINE void parse_decode_block(AV1Decoder *const pbi,
 #endif
 
   if (cm->delta_q_info.delta_q_present_flag) {
+    const CommonQuantParams *const quant_params = &cm->quant_params;
+    init_dspl_delta_q(quant_params->base_qindex, quant_params->dspl_delta_q);
     for (int i = 0; i < MAX_SEGMENTS; i++) {
       const int current_qindex =
           av1_get_qindex(&cm->seg, i, xd->current_base_qindex);
-      const CommonQuantParams *const quant_params = &cm->quant_params;
       for (int j = 0; j < num_planes; ++j) {
-        const int dc_delta_q = j == 0 ? quant_params->y_dc_delta_q
-                                      : (j == 1 ? quant_params->u_dc_delta_q
-                                                : quant_params->v_dc_delta_q);
-        const int ac_delta_q = j == 0 ? 0
-                                      : (j == 1 ? quant_params->u_ac_delta_q
-                                                : quant_params->v_ac_delta_q);
-        xd->plane[j].seg_dequant_QTX[i][0] = av1_dc_quant_QTX(
-            current_qindex, dc_delta_q, cm->seq_params.bit_depth);
-        xd->plane[j].seg_dequant_QTX[i][1] = av1_ac_quant_QTX(
-            current_qindex, ac_delta_q, cm->seq_params.bit_depth);
+        for (DSPL_TYPE dspl_type = DSPL_NO_TXFM; dspl_type < DSPL_END;
+             ++dspl_type) {
+          const int dc_delta_q = j == 0 ? quant_params->y_dc_delta_q
+                                        : (j == 1 ? quant_params->u_dc_delta_q
+                                                  : quant_params->v_dc_delta_q);
+          const int ac_delta_q = j == 0 ? 0
+                                        : (j == 1 ? quant_params->u_ac_delta_q
+                                                  : quant_params->v_ac_delta_q);
+          //          assert(quant_params->dspl_delta_q[dspl_type] == 0);
+
+          xd->plane[j].seg_dequant_QTX[dspl_type][i][0] = av1_dc_quant_QTX(
+              current_qindex,
+              dc_delta_q + (j == 0 ? quant_params->dspl_delta_q[dspl_type] : 0),
+              cm->seq_params.bit_depth);
+          xd->plane[j].seg_dequant_QTX[dspl_type][i][1] = av1_ac_quant_QTX(
+              current_qindex,
+              ac_delta_q + (j == 0 ? quant_params->dspl_delta_q[dspl_type] : 0),
+              cm->seq_params.bit_depth);
+        }
       }
     }
   }
@@ -1845,11 +1877,21 @@ static AOM_INLINE void setup_segmentation_dequant(AV1_COMMON *const cm,
   // remaining are don't cares.
   const int max_segments = cm->seg.enabled ? MAX_SEGMENTS : 1;
   CommonQuantParams *const quant_params = &cm->quant_params;
+  init_dspl_delta_q(quant_params->base_qindex, quant_params->dspl_delta_q);
+
   for (int i = 0; i < max_segments; ++i) {
     const int qindex = xd->qindex[i];
-    quant_params->y_dequant_QTX[i][0] =
-        av1_dc_quant_QTX(qindex, quant_params->y_dc_delta_q, bit_depth);
-    quant_params->y_dequant_QTX[i][1] = av1_ac_quant_QTX(qindex, 0, bit_depth);
+
+    assert(quant_params->dspl_delta_q[DSPL_BAD] == QINDEX_RANGE);
+    for (DSPL_TYPE dspl_type = DSPL_NO_TXFM; dspl_type < DSPL_END;
+         ++dspl_type) {
+      quant_params->y_dequant_QTX[dspl_type][i][0] = av1_dc_quant_QTX(
+          qindex,
+          quant_params->y_dc_delta_q + quant_params->dspl_delta_q[dspl_type],
+          bit_depth);
+      quant_params->y_dequant_QTX[dspl_type][i][1] = av1_ac_quant_QTX(
+          qindex, 0 + quant_params->dspl_delta_q[dspl_type], bit_depth);
+    }
     quant_params->u_dequant_QTX[i][0] =
         av1_dc_quant_QTX(qindex, quant_params->u_dc_delta_q, bit_depth);
     quant_params->u_dequant_QTX[i][1] =

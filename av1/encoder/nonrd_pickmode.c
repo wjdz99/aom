@@ -561,8 +561,12 @@ static void model_skip_for_sb_y_large(AV1_COMP *cpi, BLOCK_SIZE bsize,
   unsigned int sse;
   struct macroblock_plane *const p = &x->plane[0];
   struct macroblockd_plane *const pd = &xd->plane[0];
-  const uint32_t dc_quant = p->dequant_QTX[0];
-  const uint32_t ac_quant = p->dequant_QTX[1];
+
+  assert(1 == 0);
+
+  // TODO(singhprakhar): pass dspl_type through to here
+  const uint32_t dc_quant = p->dequant_QTX[DSPL_NO_TXFM][0];
+  const uint32_t ac_quant = p->dequant_QTX[DSPL_BAD][1];
   const int64_t dc_thr = dc_quant * dc_quant >> 6;
   int64_t ac_thr = ac_quant * ac_quant >> 6;
   unsigned int var;
@@ -657,10 +661,13 @@ static void model_skip_for_sb_y_large(AV1_COMP *cpi, BLOCK_SIZE bsize,
           const BLOCK_SIZE uv_bsize = get_plane_block_size(
               bsize, puvd->subsampling_x, puvd->subsampling_y);
           // Adjust these thresholds for UV.
-          const int64_t uv_dc_thr =
-              (puv->dequant_QTX[0] * puv->dequant_QTX[0]) >> 3;
-          const int64_t uv_ac_thr =
-              (puv->dequant_QTX[1] * puv->dequant_QTX[1]) >> 3;
+          // TODO(singhprakhar): pass dspl_type to here
+          const int64_t uv_dc_thr = (puv->dequant_QTX[DSPL_NO_TXFM][0] *
+                                     puv->dequant_QTX[DSPL_NO_TXFM][0]) >>
+                                    3;
+          const int64_t uv_ac_thr = (puv->dequant_QTX[DSPL_NO_TXFM][1] *
+                                     puv->dequant_QTX[DSPL_NO_TXFM][1]) >>
+                                    3;
           av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, i,
                                         i);
           var_uv[j] = cpi->fn_ptr[uv_bsize].vf(puv->src.buf, puv->src.stride,
@@ -757,6 +764,9 @@ static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
   (void)mi_col;
   (void)cpi;
 
+  // TODO(singhprakhar): pass dspl_type to here
+  DSPL_TYPE dspl_type = DSPL_NO_TXFM;
+
 #if CONFIG_AV1_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     aom_highbd_subtract_block(bh, bw, p->src_diff, bw, p->src.buf,
@@ -803,16 +813,20 @@ static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
 #if CONFIG_AV1_HIGHBITDEPTH
           case TX_16X16:
             aom_hadamard_16x16(src_diff, diff_stride, coeff);
-            av1_quantize_fp(coeff, 16 * 16, p->zbin_QTX, p->round_fp_QTX,
-                            p->quant_fp_QTX, p->quant_shift_QTX, qcoeff,
-                            dqcoeff, p->dequant_QTX, eob, scan_order->scan,
+            av1_quantize_fp(coeff, 16 * 16, p->zbin_QTX[dspl_type],
+                            p->round_fp_QTX[dspl_type],
+                            p->quant_fp_QTX[dspl_type],
+                            p->quant_shift_QTX[dspl_type], qcoeff, dqcoeff,
+                            p->dequant_QTX[dspl_type], eob, scan_order->scan,
                             scan_order->iscan);
             break;
           case TX_8X8:
             aom_hadamard_8x8(src_diff, diff_stride, coeff);
-            av1_quantize_fp(coeff, 8 * 8, p->zbin_QTX, p->round_fp_QTX,
-                            p->quant_fp_QTX, p->quant_shift_QTX, qcoeff,
-                            dqcoeff, p->dequant_QTX, eob, scan_order->scan,
+            av1_quantize_fp(coeff, 8 * 8, p->zbin_QTX[dspl_type],
+                            p->round_fp_QTX[dspl_type],
+                            p->quant_fp_QTX[dspl_type],
+                            p->quant_shift_QTX[dspl_type], qcoeff, dqcoeff,
+                            p->dequant_QTX[dspl_type], eob, scan_order->scan,
                             scan_order->iscan);
             break;
 #else
@@ -913,6 +927,7 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE pred_mode,
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   mbmi->num_proj_ref = 1;
   mbmi->interintra_mode = 0;
+  mbmi->dspl_type = DSPL_BAD;
   set_default_interp_filters(mbmi, cm->features.interp_filter);
 }
 
@@ -1060,11 +1075,15 @@ static void model_rd_for_sb_uv(AV1_COMP *cpi, BLOCK_SIZE plane_bsize,
   this_rdc->dist = 0;
   this_rdc->skip_txfm = 0;
 
+  // TODO(singhprakhar): pass dspl_type through to here, currently using the
+  // default
+  DSPL_TYPE dspl_type = DSPL_NO_TXFM;
+
   for (i = start_plane; i <= stop_plane; ++i) {
     struct macroblock_plane *const p = &x->plane[i];
     struct macroblockd_plane *const pd = &xd->plane[i];
-    const uint32_t dc_quant = p->dequant_QTX[0];
-    const uint32_t ac_quant = p->dequant_QTX[1];
+    const uint32_t dc_quant = p->dequant_QTX[dspl_type][0];
+    const uint32_t ac_quant = p->dequant_QTX[dspl_type][1];
     const BLOCK_SIZE bs = plane_bsize;
     unsigned int var;
     if (!x->color_sensitivity[i - 1]) continue;

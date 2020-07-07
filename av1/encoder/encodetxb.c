@@ -945,14 +945,18 @@ int av1_cost_coeffs_txb_laplacian(const MACROBLOCK *x, const int plane,
   const struct macroblock_plane *p = &x->plane[plane];
   int eob = p->eobs[block];
 
+  assert(1 == 0);
+
   if (adjust_eob) {
     const SCAN_ORDER *scan_order = get_scan(tx_size, tx_type);
     const int16_t *scan = scan_order->scan;
     tran_low_t *tcoeff = p->coeff + BLOCK_OFFSET(block);
     tran_low_t *qcoeff = p->qcoeff + BLOCK_OFFSET(block);
     tran_low_t *dqcoeff = p->dqcoeff + BLOCK_OFFSET(block);
-    update_coeff_eob_fast(&eob, av1_get_tx_scale(tx_size), p->dequant_QTX, scan,
-                          tcoeff, qcoeff, dqcoeff);
+    // TODO(singhprakhar): pass relevant dspl_type here
+    update_coeff_eob_fast(&eob, av1_get_tx_scale(tx_size),
+                          p->dequant_QTX[DSPL_NO_TXFM], scan, tcoeff, qcoeff,
+                          dqcoeff);
     p->eobs[block] = eob;
   }
 
@@ -1738,16 +1742,16 @@ static INLINE void update_skip(int *accu_rate, int64_t accu_dist, int *eob,
 }
 
 int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
-                         int block, TX_SIZE tx_size, TX_TYPE tx_type,
-                         const TXB_CTX *const txb_ctx, int *rate_cost,
-                         int sharpness, int fast_mode) {
+                         int block, TX_SIZE tx_size, DSPL_TYPE dspl_type,
+                         TX_TYPE tx_type, const TXB_CTX *const txb_ctx,
+                         int *rate_cost, int sharpness, int fast_mode) {
   MACROBLOCKD *xd = &x->e_mbd;
   const struct macroblock_plane *p = &x->plane[plane];
   const SCAN_ORDER *scan_order = get_scan(tx_size, tx_type);
   const int16_t *scan = scan_order->scan;
   const int shift = av1_get_tx_scale(tx_size);
   int eob = p->eobs[block];
-  const int16_t *dequant = p->dequant_QTX;
+  const int16_t *dequant = p->dequant_QTX[dspl_type];
   const qm_val_t *iqmatrix =
       av1_get_iqmatrix(&cpi->common.quant_params, xd, plane, tx_size, tx_type);
   const int block_offset = BLOCK_OFFSET(block);
@@ -1908,7 +1912,8 @@ int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
 // is not integrated with av1_optimize_txb_new yet
 int av1_optimize_txb(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
                      int blk_row, int blk_col, int block, TX_SIZE tx_size,
-                     TXB_CTX *txb_ctx, int fast_mode, int *rate_cost) {
+                     DSPL_TYPE dspl_type, TXB_CTX *txb_ctx, int fast_mode,
+                     int *rate_cost) {
   const AV1_COMMON *cm = &cpi->common;
   const int reduced_tx_set_used = cm->features.reduced_tx_set_used;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -1923,7 +1928,7 @@ int av1_optimize_txb(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
   tran_low_t *qcoeff = p->qcoeff + block_offset;
   tran_low_t *dqcoeff = p->dqcoeff + block_offset;
   const tran_low_t *tcoeff = p->coeff + block_offset;
-  const int16_t *dequant = p->dequant_QTX;
+  const int16_t *dequant = p->dequant_QTX[dspl_type];
   const int seg_eob = av1_get_max_eob(tx_size);
   const int bwl = get_txb_bwl(tx_size);
   const int width = get_txb_wide(tx_size);

@@ -33,6 +33,7 @@ typedef struct QUANT_PARAM {
   int use_quant_b_adapt;
   int use_optimize_b;
   int xform_quant_idx;
+  DSPL_TYPE dspl_type;
 } QUANT_PARAM;
 
 typedef void (*AV1_QUANT_FACADE)(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
@@ -47,17 +48,17 @@ typedef void (*AV1_QUANT_FACADE)(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
 // All of its fields use the same coefficient shift/scaling at TX.
 typedef struct {
   // 0: dc 1: ac 2-8: ac repeated to SIMD width
-  DECLARE_ALIGNED(16, int16_t, y_quant[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, y_quant_shift[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, y_zbin[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, y_round[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(16, int16_t, y_quant[DSPL_END][QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(16, int16_t, y_quant_shift[DSPL_END][QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(16, int16_t, y_zbin[DSPL_END][QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(16, int16_t, y_round[DSPL_END][QINDEX_RANGE][8]);
 
   // TODO(jingning): in progress of re-working the quantization. will decide
   // if we want to deprecate the current use of y_quant.
-  DECLARE_ALIGNED(16, int16_t, y_quant_fp[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(16, int16_t, y_quant_fp[DSPL_END][QINDEX_RANGE][8]);
   DECLARE_ALIGNED(16, int16_t, u_quant_fp[QINDEX_RANGE][8]);
   DECLARE_ALIGNED(16, int16_t, v_quant_fp[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, y_round_fp[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(16, int16_t, y_round_fp[DSPL_END][QINDEX_RANGE][8]);
   DECLARE_ALIGNED(16, int16_t, u_round_fp[QINDEX_RANGE][8]);
   DECLARE_ALIGNED(16, int16_t, v_round_fp[QINDEX_RANGE][8]);
 
@@ -77,7 +78,7 @@ typedef struct {
 // the same coefficient shift/precision as TX or a fixed Q3 format.
 typedef struct {
   DECLARE_ALIGNED(16, int16_t,
-                  y_dequant_QTX[QINDEX_RANGE][8]);  // 8: SIMD width
+                  y_dequant_QTX[DSPL_END][QINDEX_RANGE][8]);  // 8: SIMD width
   DECLARE_ALIGNED(16, int16_t,
                   u_dequant_QTX[QINDEX_RANGE][8]);  // 8: SIMD width
   DECLARE_ALIGNED(16, int16_t,
@@ -100,9 +101,9 @@ void av1_init_plane_quantizers(const struct AV1_COMP *cpi, MACROBLOCK *x,
                                int segment_id);
 
 void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
-                         int u_dc_delta_q, int u_ac_delta_q, int v_dc_delta_q,
-                         int v_ac_delta_q, QUANTS *const quants,
-                         Dequants *const deq);
+                         const int dspl_delta_q[], int u_dc_delta_q,
+                         int u_ac_delta_q, int v_dc_delta_q, int v_ac_delta_q,
+                         QUANTS *const quants, Dequants *const deq);
 
 void av1_init_quantizer(EncQuantDequantParams *const enc_quant_dequant_params,
                         const CommonQuantParams *quant_params,

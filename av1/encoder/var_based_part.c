@@ -347,9 +347,12 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
   AV1_COMMON *const cm = &cpi->common;
   const int is_key_frame = frame_is_intra_only(cm);
   const int threshold_multiplier = is_key_frame ? 40 : 1;
-  int64_t threshold_base =
-      (int64_t)(threshold_multiplier *
-                cpi->enc_quant_dequant_params.dequants.y_dequant_QTX[q][1]);
+
+  // TODO(singhprakhar): this should only be used for speed >= 7, investigate
+  // how dspl_type should be used here
+  int64_t threshold_base = (int64_t)(
+      threshold_multiplier *
+      cpi->enc_quant_dequant_params.dequants.y_dequant_QTX[DSPL_NO_TXFM][q][1]);
 
   if (is_key_frame) {
     thresholds[0] = threshold_base;

@@ -237,6 +237,7 @@ typedef struct MB_MODE_INFO {
   // Common for both INTER and INTRA blocks
   BLOCK_SIZE sb_type;
   PREDICTION_MODE mode;
+  DSPL_TYPE dspl_type;
   // Only for INTRA blocks
   UV_PREDICTION_MODE uv_mode;
   // interintra members
@@ -404,7 +405,7 @@ typedef struct macroblockd_plane {
   // The dequantizers below are true dequantizers used only in the
   // dequantization process.  They have the same coefficient
   // shift/scale as TX.
-  int16_t seg_dequant_QTX[MAX_SEGMENTS][2];
+  int16_t seg_dequant_QTX[DSPL_END][MAX_SEGMENTS][2];
   // Pointer to color index map of:
   // - Current coding block, on encoder side.
   // - Current superblock, on decoder side.
@@ -583,6 +584,9 @@ typedef struct macroblockd {
    * 'MACROBLOCK' structs.
    */
   uint8_t *tx_type_map;
+
+  uint8_t *tx_dspl_map;
+
   /*!
    * Stride for 'tx_type_map'. Note that this may / may not be same as
    * 'mi_stride', depending on which actual array 'tx_type_map' points to.
