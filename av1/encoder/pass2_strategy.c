@@ -2265,6 +2265,7 @@ static double get_kf_boost_score(AV1_COMP *cpi, double kf_raw_err,
   return boost_score;
 }
 
+#define MAX_KF_BITS_INTERVAL_SINGLE_PASS 10
 static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   RATE_CONTROL *const rc = &cpi->rc;
   TWO_PASS *const twopass = &cpi->twopass;
@@ -2319,7 +2320,9 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   double kf_group_err = 0.0;
   double sr_accumulator = 0.0;
   double kf_group_avg_error = 0.0;
-  int frames_to_key;
+  int frames_to_key, frames_to_key_clipped = INT_MAX;
+  int64_t kf_group_bits_clipped = INT64_MAX;
+
   // Is this a forced key frame by interval.
   rc->this_key_frame_forced = rc->next_key_frame_forced;
 
@@ -2404,6 +2407,22 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   }
   twopass->kf_group_bits = AOMMAX(0, twopass->kf_group_bits);
 
+  if (cpi->lap_enabled) {
+    // In the case of single pass based on LAP, frames to  key may have an
+    // inaccurate value, and hence a correct assumption would be to clip it
+    // to an appropriate interval.
+    frames_to_key_clipped =
+        (int)(MAX_KF_BITS_INTERVAL_SINGLE_PASS * cpi->framerate);
+
+    // This variable calculates the bits allocated to kf_group with a clipped
+    // frames_to_key.
+    if (rc->frames_to_key > frames_to_key_clipped) {
+      kf_group_bits_clipped =
+          (int64_t)((double)twopass->kf_group_bits * frames_to_key_clipped /
+                    rc->frames_to_key);
+    }
+  }
+
   // Reset the first pass file position.
   reset_fpf_position(twopass, start_position);
 
@@ -2448,8 +2467,12 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   }
 
   // Work out how many bits to allocate for the key frame itself.
-  kf_bits = calculate_boost_bits((rc->frames_to_key - 1), rc->kf_boost,
-                                 twopass->kf_group_bits);
+  // In case of LAP enabled for VBR, if the frames_to_key value is
+  // very high, we calculate the bits on a clipped value of
+  // frames_to_key.
+  kf_bits = calculate_boost_bits(
+      AOMMIN(rc->frames_to_key, frames_to_key_clipped) - 1, rc->kf_boost,
+      AOMMIN(twopass->kf_group_bits, kf_group_bits_clipped));
   // printf("kf boost = %d kf_bits = %d kf_zeromotion_pct = %d\n", rc->kf_boost,
   //        kf_bits, twopass->kf_zeromotion_pct);
   kf_bits = adjust_boost_bits_for_target_level(cpi, rc, kf_bits,
