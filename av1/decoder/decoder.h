@@ -89,7 +89,8 @@ typedef void (*decode_block_visitor_fn_t)(const AV1_COMMON *const cm,
                                           DecoderCodingBlock *dcb,
                                           aom_reader *const r, const int plane,
                                           const int row, const int col,
-                                          const TX_SIZE tx_size);
+                                          const TX_SIZE tx_size,
+                                          const DSPL_TYPE dspl_type);
 
 typedef void (*predict_inter_block_visitor_fn_t)(AV1_COMMON *const cm,
                                                  DecoderCodingBlock *dcb,

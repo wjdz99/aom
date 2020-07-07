@@ -251,30 +251,42 @@ void av1_quantize_fp_facade(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
                             const SCAN_ORDER *sc, const QUANT_PARAM *qparam) {
   const qm_val_t *qm_ptr = qparam->qmatrix;
   const qm_val_t *iqm_ptr = qparam->iqmatrix;
+
+  DSPL_TYPE dspl_type = qparam->dspl_type;
+  assert(DSPL_NO_TXFM <= dspl_type && dspl_type < DSPL_END);
+
+  // TODO(singhprakhar): we need to setup q-matrices with dspl_type first before
+  // they can be used with the downsampling option turned on
+  assert(qm_ptr == NULL && iqm_ptr == NULL);
+
   if (qm_ptr != NULL && iqm_ptr != NULL) {
-    quantize_fp_helper_c(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
-                         p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr,
-                         dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
+    quantize_fp_helper_c(coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type],
+                         p->round_fp_QTX[dspl_type], p->quant_fp_QTX[dspl_type],
+                         p->quant_shift_QTX[dspl_type], qcoeff_ptr, dqcoeff_ptr,
+                         p->dequant_QTX[dspl_type], eob_ptr, sc->scan,
                          sc->iscan, qm_ptr, iqm_ptr, qparam->log_scale);
   } else {
     switch (qparam->log_scale) {
       case 0:
-        av1_quantize_fp(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
-                        p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr,
-                        dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
+        av1_quantize_fp(coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type],
+                        p->round_fp_QTX[dspl_type], p->quant_fp_QTX[dspl_type],
+                        p->quant_shift_QTX[dspl_type], qcoeff_ptr, dqcoeff_ptr,
+                        p->dequant_QTX[dspl_type], eob_ptr, sc->scan,
                         sc->iscan);
         break;
       case 1:
-        av1_quantize_fp_32x32(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
-                              p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr,
-                              dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
-                              sc->iscan);
+        av1_quantize_fp_32x32(
+            coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type],
+            p->round_fp_QTX[dspl_type], p->quant_fp_QTX[dspl_type],
+            p->quant_shift_QTX[dspl_type], qcoeff_ptr, dqcoeff_ptr,
+            p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan);
         break;
       case 2:
-        av1_quantize_fp_64x64(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
-                              p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr,
-                              dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
-                              sc->iscan);
+        av1_quantize_fp_64x64(
+            coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type],
+            p->round_fp_QTX[dspl_type], p->quant_fp_QTX[dspl_type],
+            p->quant_shift_QTX[dspl_type], qcoeff_ptr, dqcoeff_ptr,
+            p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan);
         break;
       default: assert(0);
     }
@@ -287,62 +299,76 @@ void av1_quantize_b_facade(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
                            const SCAN_ORDER *sc, const QUANT_PARAM *qparam) {
   const qm_val_t *qm_ptr = qparam->qmatrix;
   const qm_val_t *iqm_ptr = qparam->iqmatrix;
+
+  DSPL_TYPE dspl_type = qparam->dspl_type;
+
+  assert(DSPL_NO_TXFM <= dspl_type && dspl_type < DSPL_END);
+  assert(qm_ptr == NULL && iqm_ptr == NULL);
+
   if (qparam->use_quant_b_adapt) {
     // TODO(sarahparker) These quantize_b optimizations need SIMD
     // implementations
     if (qm_ptr != NULL && iqm_ptr != NULL) {
       aom_quantize_b_adaptive_helper_c(
-          coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX, p->quant_QTX,
-          p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr, p->dequant_QTX, eob_ptr,
-          sc->scan, sc->iscan, qm_ptr, iqm_ptr, qparam->log_scale);
+          coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type], p->round_QTX[dspl_type],
+          p->quant_QTX[dspl_type], p->quant_shift_QTX[dspl_type], qcoeff_ptr,
+          dqcoeff_ptr, p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan,
+          qm_ptr, iqm_ptr, qparam->log_scale);
     } else {
       switch (qparam->log_scale) {
         case 0:
-          aom_quantize_b_adaptive(coeff_ptr, n_coeffs, p->zbin_QTX,
-                                  p->round_QTX, p->quant_QTX,
-                                  p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr,
-                                  p->dequant_QTX, eob_ptr, sc->scan, sc->iscan);
+          aom_quantize_b_adaptive(
+              coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type],
+              p->round_QTX[dspl_type], p->quant_QTX[dspl_type],
+              p->quant_shift_QTX[dspl_type], qcoeff_ptr, dqcoeff_ptr,
+              p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan);
           break;
         case 1:
           aom_quantize_b_32x32_adaptive(
-              coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX, p->quant_QTX,
-              p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr, p->dequant_QTX,
-              eob_ptr, sc->scan, sc->iscan);
+              coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type],
+              p->round_QTX[dspl_type], p->quant_QTX[dspl_type],
+              p->quant_shift_QTX[dspl_type], qcoeff_ptr, dqcoeff_ptr,
+              p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan);
           break;
         case 2:
           aom_quantize_b_64x64_adaptive(
-              coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX, p->quant_QTX,
-              p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr, p->dequant_QTX,
-              eob_ptr, sc->scan, sc->iscan);
+              coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type],
+              p->round_QTX[dspl_type], p->quant_QTX[dspl_type],
+              p->quant_shift_QTX[dspl_type], qcoeff_ptr, dqcoeff_ptr,
+              p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan);
           break;
         default: assert(0);
       }
     }
   } else {
     if (qm_ptr != NULL && iqm_ptr != NULL) {
-      aom_quantize_b_helper_c(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX,
-                              p->quant_QTX, p->quant_shift_QTX, qcoeff_ptr,
-                              dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
-                              sc->iscan, qm_ptr, iqm_ptr, qparam->log_scale);
+      aom_quantize_b_helper_c(
+          coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type], p->round_QTX[dspl_type],
+          p->quant_QTX[dspl_type], p->quant_shift_QTX[dspl_type], qcoeff_ptr,
+          dqcoeff_ptr, p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan,
+          qm_ptr, iqm_ptr, qparam->log_scale);
     } else {
       switch (qparam->log_scale) {
         case 0:
-          aom_quantize_b(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX,
-                         p->quant_QTX, p->quant_shift_QTX, qcoeff_ptr,
-                         dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
+          aom_quantize_b(coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type],
+                         p->round_QTX[dspl_type], p->quant_QTX[dspl_type],
+                         p->quant_shift_QTX[dspl_type], qcoeff_ptr, dqcoeff_ptr,
+                         p->dequant_QTX[dspl_type], eob_ptr, sc->scan,
                          sc->iscan);
           break;
         case 1:
-          aom_quantize_b_32x32(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX,
-                               p->quant_QTX, p->quant_shift_QTX, qcoeff_ptr,
-                               dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
-                               sc->iscan);
+          aom_quantize_b_32x32(coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type],
+                               p->round_QTX[dspl_type], p->quant_QTX[dspl_type],
+                               p->quant_shift_QTX[dspl_type], qcoeff_ptr,
+                               dqcoeff_ptr, p->dequant_QTX[dspl_type], eob_ptr,
+                               sc->scan, sc->iscan);
           break;
         case 2:
-          aom_quantize_b_64x64(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX,
-                               p->quant_QTX, p->quant_shift_QTX, qcoeff_ptr,
-                               dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
-                               sc->iscan);
+          aom_quantize_b_64x64(coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type],
+                               p->round_QTX[dspl_type], p->quant_QTX[dspl_type],
+                               p->quant_shift_QTX[dspl_type], qcoeff_ptr,
+                               dqcoeff_ptr, p->dequant_QTX[dspl_type], eob_ptr,
+                               sc->scan, sc->iscan);
           break;
         default: assert(0);
       }
@@ -390,12 +416,20 @@ void av1_quantize_dc_facade(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
   // obsolete skip_block
   const int skip_block = 0;
   (void)sc;
+
+  DSPL_TYPE dspl_type = qparam->dspl_type;
+
+  assert(DSPL_NO_TXFM <= dspl_type && dspl_type < DSPL_END);
+
   assert(qparam->log_scale >= 0 && qparam->log_scale < (3));
   const qm_val_t *qm_ptr = qparam->qmatrix;
   const qm_val_t *iqm_ptr = qparam->iqmatrix;
-  quantize_dc(coeff_ptr, (int)n_coeffs, skip_block, p->round_QTX,
-              p->quant_fp_QTX[0], qcoeff_ptr, dqcoeff_ptr, p->dequant_QTX[0],
-              eob_ptr, qm_ptr, iqm_ptr, qparam->log_scale);
+  assert(qm_ptr == NULL && iqm_ptr == NULL);
+
+  quantize_dc(coeff_ptr, (int)n_coeffs, skip_block, p->round_QTX[dspl_type],
+              p->quant_fp_QTX[dspl_type][0], qcoeff_ptr, dqcoeff_ptr,
+              p->dequant_QTX[dspl_type][0], eob_ptr, qm_ptr, iqm_ptr,
+              qparam->log_scale);
 }
 
 #if CONFIG_AV1_HIGHBITDEPTH
@@ -407,16 +441,24 @@ void av1_highbd_quantize_fp_facade(const tran_low_t *coeff_ptr,
                                    const QUANT_PARAM *qparam) {
   const qm_val_t *qm_ptr = qparam->qmatrix;
   const qm_val_t *iqm_ptr = qparam->iqmatrix;
+
+  DSPL_TYPE dspl_type = qparam->dspl_type;
+
+  assert(DSPL_NO_TXFM <= dspl_type && dspl_type < DSPL_END);
+  assert(qm_ptr == NULL && iqm_ptr == NULL);
+
   if (qm_ptr != NULL && iqm_ptr != NULL) {
     highbd_quantize_fp_helper_c(
-        coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX, p->quant_fp_QTX,
-        p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr, p->dequant_QTX, eob_ptr,
-        sc->scan, sc->iscan, qm_ptr, iqm_ptr, qparam->log_scale);
+        coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type], p->round_fp_QTX[dspl_type],
+        p->quant_fp_QTX[dspl_type], p->quant_shift_QTX[dspl_type], qcoeff_ptr,
+        dqcoeff_ptr, p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan,
+        qm_ptr, iqm_ptr, qparam->log_scale);
   } else {
-    av1_highbd_quantize_fp(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_fp_QTX,
-                           p->quant_fp_QTX, p->quant_shift_QTX, qcoeff_ptr,
-                           dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
-                           sc->iscan, qparam->log_scale);
+    av1_highbd_quantize_fp(
+        coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type], p->round_fp_QTX[dspl_type],
+        p->quant_fp_QTX[dspl_type], p->quant_shift_QTX[dspl_type], qcoeff_ptr,
+        dqcoeff_ptr, p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan,
+        qparam->log_scale);
   }
 }
 
@@ -428,31 +470,41 @@ void av1_highbd_quantize_b_facade(const tran_low_t *coeff_ptr,
                                   const QUANT_PARAM *qparam) {
   const qm_val_t *qm_ptr = qparam->qmatrix;
   const qm_val_t *iqm_ptr = qparam->iqmatrix;
+
+  DSPL_TYPE dspl_type = qparam->dspl_type;
+
+  assert(DSPL_NO_TXFM <= dspl_type && dspl_type < DSPL_END);
+  assert(qm_ptr == NULL && iqm_ptr == NULL);
+
   if (qparam->use_quant_b_adapt) {
     if (qm_ptr != NULL && iqm_ptr != NULL) {
       aom_highbd_quantize_b_adaptive_helper_c(
-          coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX, p->quant_QTX,
-          p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr, p->dequant_QTX, eob_ptr,
-          sc->scan, sc->iscan, qm_ptr, iqm_ptr, qparam->log_scale);
+          coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type], p->round_QTX[dspl_type],
+          p->quant_QTX[dspl_type], p->quant_shift_QTX[dspl_type], qcoeff_ptr,
+          dqcoeff_ptr, p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan,
+          qm_ptr, iqm_ptr, qparam->log_scale);
     } else {
       switch (qparam->log_scale) {
         case 0:
           aom_highbd_quantize_b_adaptive(
-              coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX, p->quant_QTX,
-              p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr, p->dequant_QTX,
-              eob_ptr, sc->scan, sc->iscan);
+              coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type],
+              p->round_QTX[dspl_type], p->quant_QTX[dspl_type],
+              p->quant_shift_QTX[dspl_type], qcoeff_ptr, dqcoeff_ptr,
+              p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan);
           break;
         case 1:
           aom_highbd_quantize_b_32x32_adaptive(
-              coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX, p->quant_QTX,
-              p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr, p->dequant_QTX,
-              eob_ptr, sc->scan, sc->iscan);
+              coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type],
+              p->round_QTX[dspl_type], p->quant_QTX[dspl_type],
+              p->quant_shift_QTX[dspl_type], qcoeff_ptr, dqcoeff_ptr,
+              p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan);
           break;
         case 2:
           aom_highbd_quantize_b_64x64_adaptive(
-              coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX, p->quant_QTX,
-              p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr, p->dequant_QTX,
-              eob_ptr, sc->scan, sc->iscan);
+              coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type],
+              p->round_QTX[dspl_type], p->quant_QTX[dspl_type],
+              p->quant_shift_QTX[dspl_type], qcoeff_ptr, dqcoeff_ptr,
+              p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan);
           break;
         default: assert(0);
       }
@@ -460,28 +512,32 @@ void av1_highbd_quantize_b_facade(const tran_low_t *coeff_ptr,
   } else {
     if (qm_ptr != NULL && iqm_ptr != NULL) {
       aom_highbd_quantize_b_helper_c(
-          coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX, p->quant_QTX,
-          p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr, p->dequant_QTX, eob_ptr,
-          sc->scan, sc->iscan, qm_ptr, iqm_ptr, qparam->log_scale);
+          coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type], p->round_QTX[dspl_type],
+          p->quant_QTX[dspl_type], p->quant_shift_QTX[dspl_type], qcoeff_ptr,
+          dqcoeff_ptr, p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan,
+          qm_ptr, iqm_ptr, qparam->log_scale);
     } else {
       switch (qparam->log_scale) {
         case 0:
-          aom_highbd_quantize_b(coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX,
-                                p->quant_QTX, p->quant_shift_QTX, qcoeff_ptr,
-                                dqcoeff_ptr, p->dequant_QTX, eob_ptr, sc->scan,
-                                sc->iscan);
+          aom_highbd_quantize_b(
+              coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type],
+              p->round_QTX[dspl_type], p->quant_QTX[dspl_type],
+              p->quant_shift_QTX[dspl_type], qcoeff_ptr, dqcoeff_ptr,
+              p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan);
           break;
         case 1:
           aom_highbd_quantize_b_32x32(
-              coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX, p->quant_QTX,
-              p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr, p->dequant_QTX,
-              eob_ptr, sc->scan, sc->iscan);
+              coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type],
+              p->round_QTX[dspl_type], p->quant_QTX[dspl_type],
+              p->quant_shift_QTX[dspl_type], qcoeff_ptr, dqcoeff_ptr,
+              p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan);
           break;
         case 2:
           aom_highbd_quantize_b_64x64(
-              coeff_ptr, n_coeffs, p->zbin_QTX, p->round_QTX, p->quant_QTX,
-              p->quant_shift_QTX, qcoeff_ptr, dqcoeff_ptr, p->dequant_QTX,
-              eob_ptr, sc->scan, sc->iscan);
+              coeff_ptr, n_coeffs, p->zbin_QTX[dspl_type],
+              p->round_QTX[dspl_type], p->quant_QTX[dspl_type],
+              p->quant_shift_QTX[dspl_type], qcoeff_ptr, dqcoeff_ptr,
+              p->dequant_QTX[dspl_type], eob_ptr, sc->scan, sc->iscan);
           break;
         default: assert(0);
       }
@@ -532,10 +588,14 @@ void av1_highbd_quantize_dc_facade(const tran_low_t *coeff_ptr,
   const qm_val_t *iqm_ptr = qparam->iqmatrix;
   (void)sc;
 
-  highbd_quantize_dc(coeff_ptr, (int)n_coeffs, skip_block, p->round_QTX,
-                     p->quant_fp_QTX[0], qcoeff_ptr, dqcoeff_ptr,
-                     p->dequant_QTX[0], eob_ptr, qm_ptr, iqm_ptr,
-                     qparam->log_scale);
+  DSPL_TYPE dspl_type = qparam->dspl_type;
+  assert(DSPL_NO_TXFM <= dspl_type && dspl_type < DSPL_END);
+  assert(qm_ptr == NULL && iqm_ptr == NULL);
+
+  highbd_quantize_dc(coeff_ptr, (int)n_coeffs, skip_block,
+                     p->round_QTX[dspl_type], p->quant_fp_QTX[dspl_type][0],
+                     qcoeff_ptr, dqcoeff_ptr, p->dequant_QTX[dspl_type][0],
+                     eob_ptr, qm_ptr, iqm_ptr, qparam->log_scale);
 }
 
 void av1_highbd_quantize_fp_c(const tran_low_t *coeff_ptr, intptr_t count,
@@ -576,10 +636,12 @@ static int get_qzbin_factor(int q, aom_bit_depth_t bit_depth) {
 }
 
 void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
-                         int u_dc_delta_q, int u_ac_delta_q, int v_dc_delta_q,
-                         int v_ac_delta_q, QUANTS *const quants,
-                         Dequants *const deq) {
+                         const int dspl_delta_q[], int u_dc_delta_q,
+                         int u_ac_delta_q, int v_dc_delta_q, int v_ac_delta_q,
+                         QUANTS *const quants, Dequants *const deq) {
   int i, q, quant_QTX;
+
+  assert(dspl_delta_q[DSPL_BAD] == QINDEX_RANGE);
 
   for (q = 0; q < QINDEX_RANGE; q++) {
     const int qzbin_factor = get_qzbin_factor(q, bit_depth);
@@ -588,15 +650,26 @@ void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
     for (i = 0; i < 2; ++i) {
       int qrounding_factor_fp = 64;
       // y quantizer with TX scale
-      quant_QTX = i == 0 ? av1_dc_quant_QTX(q, y_dc_delta_q, bit_depth)
-                         : av1_ac_quant_QTX(q, 0, bit_depth);
-      invert_quant(&quants->y_quant[q][i], &quants->y_quant_shift[q][i],
-                   quant_QTX);
-      quants->y_quant_fp[q][i] = (1 << 16) / quant_QTX;
-      quants->y_round_fp[q][i] = (qrounding_factor_fp * quant_QTX) >> 7;
-      quants->y_zbin[q][i] = ROUND_POWER_OF_TWO(qzbin_factor * quant_QTX, 7);
-      quants->y_round[q][i] = (qrounding_factor * quant_QTX) >> 7;
-      deq->y_dequant_QTX[q][i] = quant_QTX;
+      for (DSPL_TYPE dspl_type = DSPL_NO_TXFM; dspl_type < DSPL_END;
+           ++dspl_type) {
+        quant_QTX =
+            i == 0
+                ? av1_dc_quant_QTX(q, y_dc_delta_q + dspl_delta_q[dspl_type],
+                                   bit_depth)
+                : av1_ac_quant_QTX(q, 0 + dspl_delta_q[dspl_type], bit_depth);
+        invert_quant(&quants->y_quant[dspl_type][q][i],
+                     &quants->y_quant_shift[dspl_type][q][i], quant_QTX);
+        quants->y_quant_fp[dspl_type][q][i] = (1 << 16) / quant_QTX;
+        quants->y_round_fp[dspl_type][q][i] =
+            (qrounding_factor_fp * quant_QTX) >> 7;
+        quants->y_zbin[dspl_type][q][i] =
+            ROUND_POWER_OF_TWO(qzbin_factor * quant_QTX, 7);
+        quants->y_round[dspl_type][q][i] = (qrounding_factor * quant_QTX) >> 7;
+        deq->y_dequant_QTX[dspl_type][q][i] = quant_QTX;
+      }
+
+      assert(deq->y_dequant_QTX[DSPL_NO_TXFM][q][i] >=
+             deq->y_dequant_QTX[DSPL_TXFM][q][i]);
 
       // u quantizer with TX scale
       quant_QTX = i == 0 ? av1_dc_quant_QTX(q, u_dc_delta_q, bit_depth)
@@ -622,13 +695,20 @@ void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
     }
 
     for (i = 2; i < 8; i++) {  // 8: SIMD width
-      quants->y_quant[q][i] = quants->y_quant[q][1];
-      quants->y_quant_fp[q][i] = quants->y_quant_fp[q][1];
-      quants->y_round_fp[q][i] = quants->y_round_fp[q][1];
-      quants->y_quant_shift[q][i] = quants->y_quant_shift[q][1];
-      quants->y_zbin[q][i] = quants->y_zbin[q][1];
-      quants->y_round[q][i] = quants->y_round[q][1];
-      deq->y_dequant_QTX[q][i] = deq->y_dequant_QTX[q][1];
+      for (DSPL_TYPE dspl_type = DSPL_NO_TXFM; dspl_type < DSPL_END;
+           ++dspl_type) {
+        quants->y_quant[dspl_type][q][i] = quants->y_quant[dspl_type][q][1];
+        quants->y_quant_fp[dspl_type][q][i] =
+            quants->y_quant_fp[dspl_type][q][1];
+        quants->y_round_fp[dspl_type][q][i] =
+            quants->y_round_fp[dspl_type][q][1];
+        quants->y_quant_shift[dspl_type][q][i] =
+            quants->y_quant_shift[dspl_type][q][1];
+        quants->y_zbin[dspl_type][q][i] = quants->y_zbin[dspl_type][q][1];
+        quants->y_round[dspl_type][q][i] = quants->y_round[dspl_type][q][1];
+        deq->y_dequant_QTX[dspl_type][q][i] =
+            deq->y_dequant_QTX[dspl_type][q][1];
+      }
 
       quants->u_quant[q][i] = quants->u_quant[q][1];
       quants->u_quant_fp[q][i] = quants->u_quant_fp[q][1];
@@ -648,15 +728,34 @@ void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
   }
 }
 
+int calc_dspl_qindex(int qindex) {
+  //  int quantizer = av1_qindex_to_quantizer(qindex);
+  //  quantizer = AOMMAX(0, AOMMIN(QINDEX_RANGE - 1, quantizer - 1));
+  //  int dspl_qindex = av1_quantizer_to_qindex(quantizer);
+  //  return dspl_qindex;
+  return AOMMAX(0, AOMMIN(QINDEX_RANGE - 1, qindex - 3));
+}
+
+void init_dspl_delta_q(int base_qindex, int *dspl_delta_q) {
+  int dspl_base_qindex = calc_dspl_qindex(base_qindex);
+
+  dspl_delta_q[DSPL_BAD] = QINDEX_RANGE;
+  dspl_delta_q[DSPL_NO_TXFM] = 0;
+  dspl_delta_q[DSPL_TXFM] = dspl_base_qindex - base_qindex;
+}
+
 void av1_init_quantizer(EncQuantDequantParams *const enc_quant_dequant_params,
                         const CommonQuantParams *quant_params,
                         aom_bit_depth_t bit_depth) {
   QUANTS *const quants = &enc_quant_dequant_params->quants;
   Dequants *const dequants = &enc_quant_dequant_params->dequants;
+
+  init_dspl_delta_q(quant_params->base_qindex, quant_params->dspl_delta_q);
+
   av1_build_quantizer(bit_depth, quant_params->y_dc_delta_q,
-                      quant_params->u_dc_delta_q, quant_params->u_ac_delta_q,
-                      quant_params->v_dc_delta_q, quant_params->v_ac_delta_q,
-                      quants, dequants);
+                      quant_params->dspl_delta_q, quant_params->u_dc_delta_q,
+                      quant_params->u_ac_delta_q, quant_params->v_dc_delta_q,
+                      quant_params->v_ac_delta_q, quants, dequants);
 }
 
 void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
@@ -677,55 +776,59 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
       av1_compute_rd_mult(cpi, qindex + quant_params->y_dc_delta_q);
   const int use_qmatrix = av1_use_qmatrix(quant_params, xd, segment_id);
 
-  // Y
-  const int qmlevel_y =
-      use_qmatrix ? quant_params->qmatrix_level_y : NUM_QM_LEVELS - 1;
-  x->plane[0].quant_QTX = quants->y_quant[qindex];
-  x->plane[0].quant_fp_QTX = quants->y_quant_fp[qindex];
-  x->plane[0].round_fp_QTX = quants->y_round_fp[qindex];
-  x->plane[0].quant_shift_QTX = quants->y_quant_shift[qindex];
-  x->plane[0].zbin_QTX = quants->y_zbin[qindex];
-  x->plane[0].round_QTX = quants->y_round[qindex];
-  x->plane[0].dequant_QTX = dequants->y_dequant_QTX[qindex];
-  memcpy(&xd->plane[0].seg_qmatrix[segment_id],
-         quant_params->gqmatrix[qmlevel_y][0],
-         sizeof(quant_params->gqmatrix[qmlevel_y][0]));
-  memcpy(&xd->plane[0].seg_iqmatrix[segment_id],
-         quant_params->giqmatrix[qmlevel_y][0],
-         sizeof(quant_params->giqmatrix[qmlevel_y][0]));
+  for (DSPL_TYPE dspl_type = DSPL_NO_TXFM; dspl_type < DSPL_END; ++dspl_type) {
+    // Y
+    const int qmlevel_y =
+        use_qmatrix ? quant_params->qmatrix_level_y : NUM_QM_LEVELS - 1;
+    x->plane[0].quant_QTX[dspl_type] = quants->y_quant[dspl_type][qindex];
+    x->plane[0].quant_fp_QTX[dspl_type] = quants->y_quant_fp[dspl_type][qindex];
+    x->plane[0].round_fp_QTX[dspl_type] = quants->y_round_fp[dspl_type][qindex];
+    x->plane[0].quant_shift_QTX[dspl_type] =
+        quants->y_quant_shift[dspl_type][qindex];
+    x->plane[0].zbin_QTX[dspl_type] = quants->y_zbin[dspl_type][qindex];
+    x->plane[0].round_QTX[dspl_type] = quants->y_round[dspl_type][qindex];
+    x->plane[0].dequant_QTX[dspl_type] =
+        dequants->y_dequant_QTX[dspl_type][qindex];
+    memcpy(&xd->plane[0].seg_qmatrix[segment_id],
+           quant_params->gqmatrix[qmlevel_y][0],
+           sizeof(quant_params->gqmatrix[qmlevel_y][0]));
+    memcpy(&xd->plane[0].seg_iqmatrix[segment_id],
+           quant_params->giqmatrix[qmlevel_y][0],
+           sizeof(quant_params->giqmatrix[qmlevel_y][0]));
 
-  // U
-  const int qmlevel_u =
-      use_qmatrix ? quant_params->qmatrix_level_u : NUM_QM_LEVELS - 1;
-  x->plane[1].quant_QTX = quants->u_quant[qindex];
-  x->plane[1].quant_fp_QTX = quants->u_quant_fp[qindex];
-  x->plane[1].round_fp_QTX = quants->u_round_fp[qindex];
-  x->plane[1].quant_shift_QTX = quants->u_quant_shift[qindex];
-  x->plane[1].zbin_QTX = quants->u_zbin[qindex];
-  x->plane[1].round_QTX = quants->u_round[qindex];
-  x->plane[1].dequant_QTX = dequants->u_dequant_QTX[qindex];
-  memcpy(&xd->plane[1].seg_qmatrix[segment_id],
-         quant_params->gqmatrix[qmlevel_u][1],
-         sizeof(quant_params->gqmatrix[qmlevel_u][1]));
-  memcpy(&xd->plane[1].seg_iqmatrix[segment_id],
-         quant_params->giqmatrix[qmlevel_u][1],
-         sizeof(quant_params->giqmatrix[qmlevel_u][1]));
-  // V
-  const int qmlevel_v =
-      use_qmatrix ? quant_params->qmatrix_level_v : NUM_QM_LEVELS - 1;
-  x->plane[2].quant_QTX = quants->v_quant[qindex];
-  x->plane[2].quant_fp_QTX = quants->v_quant_fp[qindex];
-  x->plane[2].round_fp_QTX = quants->v_round_fp[qindex];
-  x->plane[2].quant_shift_QTX = quants->v_quant_shift[qindex];
-  x->plane[2].zbin_QTX = quants->v_zbin[qindex];
-  x->plane[2].round_QTX = quants->v_round[qindex];
-  x->plane[2].dequant_QTX = dequants->v_dequant_QTX[qindex];
-  memcpy(&xd->plane[2].seg_qmatrix[segment_id],
-         quant_params->gqmatrix[qmlevel_v][2],
-         sizeof(quant_params->gqmatrix[qmlevel_v][2]));
-  memcpy(&xd->plane[2].seg_iqmatrix[segment_id],
-         quant_params->giqmatrix[qmlevel_v][2],
-         sizeof(quant_params->giqmatrix[qmlevel_v][2]));
+    // U
+    const int qmlevel_u =
+        use_qmatrix ? quant_params->qmatrix_level_u : NUM_QM_LEVELS - 1;
+    x->plane[1].quant_QTX[dspl_type] = quants->u_quant[qindex];
+    x->plane[1].quant_fp_QTX[dspl_type] = quants->u_quant_fp[qindex];
+    x->plane[1].round_fp_QTX[dspl_type] = quants->u_round_fp[qindex];
+    x->plane[1].quant_shift_QTX[dspl_type] = quants->u_quant_shift[qindex];
+    x->plane[1].zbin_QTX[dspl_type] = quants->u_zbin[qindex];
+    x->plane[1].round_QTX[dspl_type] = quants->u_round[qindex];
+    x->plane[1].dequant_QTX[dspl_type] = dequants->u_dequant_QTX[qindex];
+    memcpy(&xd->plane[1].seg_qmatrix[segment_id],
+           quant_params->gqmatrix[qmlevel_u][1],
+           sizeof(quant_params->gqmatrix[qmlevel_u][1]));
+    memcpy(&xd->plane[1].seg_iqmatrix[segment_id],
+           quant_params->giqmatrix[qmlevel_u][1],
+           sizeof(quant_params->giqmatrix[qmlevel_u][1]));
+    // V
+    const int qmlevel_v =
+        use_qmatrix ? quant_params->qmatrix_level_v : NUM_QM_LEVELS - 1;
+    x->plane[2].quant_QTX[dspl_type] = quants->v_quant[qindex];
+    x->plane[2].quant_fp_QTX[dspl_type] = quants->v_quant_fp[qindex];
+    x->plane[2].round_fp_QTX[dspl_type] = quants->v_round_fp[qindex];
+    x->plane[2].quant_shift_QTX[dspl_type] = quants->v_quant_shift[qindex];
+    x->plane[2].zbin_QTX[dspl_type] = quants->v_zbin[qindex];
+    x->plane[2].round_QTX[dspl_type] = quants->v_round[qindex];
+    x->plane[2].dequant_QTX[dspl_type] = dequants->v_dequant_QTX[qindex];
+    memcpy(&xd->plane[2].seg_qmatrix[segment_id],
+           quant_params->gqmatrix[qmlevel_v][2],
+           sizeof(quant_params->gqmatrix[qmlevel_v][2]));
+    memcpy(&xd->plane[2].seg_iqmatrix[segment_id],
+           quant_params->giqmatrix[qmlevel_v][2],
+           sizeof(quant_params->giqmatrix[qmlevel_v][2]));
+  }
   x->seg_skip_block = segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP);
   x->qindex = qindex;
 
@@ -746,6 +849,7 @@ void av1_set_quantizer(AV1_COMMON *const cm, int min_qmlevel, int max_qmlevel,
   // delta_q changes.
   CommonQuantParams *quant_params = &cm->quant_params;
   quant_params->base_qindex = AOMMAX(cm->delta_q_info.delta_q_present_flag, q);
+  init_dspl_delta_q(quant_params->base_qindex, quant_params->dspl_delta_q);
 
   quant_params->y_dc_delta_q = 0;
   if (enable_chroma_deltaq) {

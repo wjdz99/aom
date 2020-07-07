@@ -95,10 +95,14 @@ static AOM_INLINE void model_rd_from_sse(const AV1_COMP *const cpi,
   const struct macroblock_plane *const p = &x->plane[plane];
   const int dequant_shift = (is_cur_buf_hbd(xd)) ? xd->bd - 5 : 3;
 
+  // TODO(singhprakhar): pass dspl_type through to here, currently using the
+  // default
+  DSPL_TYPE dspl_type = DSPL_NO_TXFM;
+
   // Fast approximate the modelling function.
   if (cpi->sf.rd_sf.simple_model_rd_from_var) {
     const int64_t square_error = sse;
-    int quantizer = p->dequant_QTX[1] >> dequant_shift;
+    int quantizer = p->dequant_QTX[dspl_type][1] >> dequant_shift;
     if (quantizer < 120)
       *rate = (int)AOMMIN(
           (square_error * (280 - quantizer)) >> (16 - AV1_PROB_COST_SHIFT),
@@ -109,8 +113,8 @@ static AOM_INLINE void model_rd_from_sse(const AV1_COMP *const cpi,
     *dist = (square_error * quantizer) >> 8;
   } else {
     av1_model_rd_from_var_lapndz(sse, num_pels_log2_lookup[plane_bsize],
-                                 p->dequant_QTX[1] >> dequant_shift, rate,
-                                 dist);
+                                 p->dequant_QTX[dspl_type][1] >> dequant_shift,
+                                 rate, dist);
   }
   *dist <<= 4;
 }
@@ -124,10 +128,15 @@ static AOM_INLINE void model_rd_with_curvfit(const AV1_COMP *const cpi,
                                              int *rate, int64_t *dist) {
   (void)cpi;
   (void)plane_bsize;
+
+  // TODO(singhprakhar): pass dspl_type through to here, currently using the
+  // default
+  DSPL_TYPE dspl_type = DSPL_NO_TXFM;
+
   const MACROBLOCKD *const xd = &x->e_mbd;
   const struct macroblock_plane *const p = &x->plane[plane];
   const int dequant_shift = (is_cur_buf_hbd(xd)) ? xd->bd - 5 : 3;
-  const int qstep = AOMMAX(p->dequant_QTX[1] >> dequant_shift, 1);
+  const int qstep = AOMMAX(p->dequant_QTX[dspl_type][1] >> dequant_shift, 1);
 
   if (sse == 0) {
     if (rate) *rate = 0;

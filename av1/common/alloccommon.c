@@ -242,6 +242,8 @@ static int alloc_mi(CommonModeInfoParams *mi_params) {
 
     mi_params->tx_type_map =
         aom_calloc(mi_grid_size, sizeof(*mi_params->tx_type_map));
+    mi_params->tx_dspl_map =
+        aom_calloc(mi_grid_size, sizeof(*mi_params->tx_dspl_map));
     if (!mi_params->tx_type_map) return 1;
   }
 

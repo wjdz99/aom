@@ -81,9 +81,9 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
 void hbt_destroy();
 #endif  // CONFIG_HTB_TRELLIS
 int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
-                         int block, TX_SIZE tx_size, TX_TYPE tx_type,
-                         const TXB_CTX *const txb_ctx, int *rate_cost,
-                         int sharpness, int fast_mode);
+                         int block, TX_SIZE tx_size, DSPL_TYPE dspl_type,
+                         TX_TYPE tx_type, const TXB_CTX *const txb_ctx,
+                         int *rate_cost, int sharpness, int fast_mode);
 
 CB_COEFF_BUFFER *av1_get_cb_coeff_buffer(const struct AV1_COMP *cpi, int mi_row,
                                          int mi_col);

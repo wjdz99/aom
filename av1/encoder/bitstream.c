@@ -226,6 +226,22 @@ static int write_skip(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 }
 
+static void write_dspl_type(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+                            int segment_id, const MB_MODE_INFO *mbmi,
+                            aom_writer *w) {
+  (void)cm;
+  (void)segment_id;
+
+  DSPL_TYPE dspl_type = mbmi->dspl_type;
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+
+  assert(is_inter_block(mbmi));
+  assert(!mbmi->skip_mode && !mbmi->skip_txfm);
+  assert(DSPL_NO_TXFM <= dspl_type && dspl_type < DSPL_END);
+
+  aom_write_symbol(w, mbmi->dspl_type, ec_ctx->dspl_type_cdf, DSPL_END);
+}
+
 static int write_skip_mode(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                            int segment_id, const MB_MODE_INFO *mi,
                            aom_writer *w) {
@@ -1097,7 +1113,6 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
 
   write_skip_mode(cm, xd, segment_id, mbmi, w);
 
-  assert(IMPLIES(mbmi->skip_mode, mbmi->skip_txfm));
   const int skip =
       mbmi->skip_mode ? 1 : write_skip(cm, xd, segment_id, mbmi, w);
 
@@ -1108,6 +1123,13 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
   write_delta_q_params(cpi, skip, w);
 
   if (!mbmi->skip_mode) write_is_inter(cm, xd, mbmi->segment_id, w, is_inter);
+
+  assert(DSPL_NO_TXFM <= mbmi->dspl_type && mbmi->dspl_type < DSPL_END);
+  if (!skip && is_inter && block_size_wide[bsize] >= 8 &&
+      block_size_high[bsize] >= 8)
+    write_dspl_type(cm, xd, segment_id, mbmi, w);
+  else
+    assert(mbmi->dspl_type == DSPL_NO_TXFM);
 
   if (mbmi->skip_mode) return;
 
@@ -1496,6 +1518,7 @@ static AOM_INLINE void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
                      cpi->mbmi_ext_info.stride);
   xd->tx_type_map = mi_params->tx_type_map + grid_idx;
   xd->tx_type_map_stride = mi_params->mi_stride;
+  xd->tx_dspl_map = mi_params->tx_dspl_map + grid_idx;
 
   const MB_MODE_INFO *mbmi = xd->mi[0];
   const BLOCK_SIZE bsize = mbmi->sb_type;

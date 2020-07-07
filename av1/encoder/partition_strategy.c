@@ -1232,6 +1232,9 @@ int av1_ml_predict_breakout(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
                             const MACROBLOCK *const x,
                             const RD_STATS *const rd_stats,
                             unsigned int pb_source_variance) {
+  // TODO(singhprakhar): pass dspl_type through to here
+  DSPL_TYPE dspl_type = DSPL_NO_TXFM;
+
   const NN_CONFIG *nn_config = NULL;
   int thresh = 0;
   switch (bsize) {
@@ -1276,7 +1279,7 @@ int av1_ml_predict_breakout(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
 
   features[feature_index++] = (float)pb_source_variance;
 
-  const int dc_q = (int)x->plane[0].dequant_QTX[0];
+  const int dc_q = (int)x->plane[0].dequant_QTX[dspl_type][0];
   features[feature_index++] = (float)(dc_q * dc_q) / 256.0f;
   assert(feature_index == FEATURES);
 

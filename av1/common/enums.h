@@ -122,6 +122,13 @@ typedef enum ATTRIBUTE_PACKED {
   BLOCK_LARGEST = (BLOCK_SIZES - 1)
 } BLOCK_SIZE;
 
+typedef enum ATTRIBUTE_PACKED {
+  DSPL_BAD = 1,
+  DSPL_NO_TXFM,  // Don't downsample before transforming
+  DSPL_TXFM,     // Downsample before transforming
+  DSPL_END
+} DSPL_TYPE;
+
 // 4X4, 8X8, 16X16, 32X32, 64X64, 128X128
 #define SQR_BLOCK_SIZES 6
 
