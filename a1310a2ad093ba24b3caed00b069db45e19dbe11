@@ -53,6 +53,41 @@
     },
     {
       "key": {
+        "uuid": "45068c0f_cf7365f3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-07-07T21:17:26Z",
+      "side": 1,
+      "message": "Thanks for the comments. Will modify the code accordingly.",
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a5572eec_84429e89",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-07-07T21:17:26Z",
+      "side": 1,
+      "message": "Yes, after this patch is merged into research branch, will also commit this patch into master branch as well.",
+      "parentUuid": "afb5e749_697a26cd",
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6dc3d4fe_698267f0",
         "filename": "aom/aom_encoder.h",
         "patchSetId": 16
@@ -851,6 +886,30 @@
     },
     {
       "key": {
+        "uuid": "4b44261a_1235f69f",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 2187,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-07-07T21:17:26Z",
+      "side": 1,
+      "message": "Thanks for your comment. Will correct it in the next patch.",
+      "parentUuid": "a209ea28_2ef86cc5",
+      "range": {
+        "startLine": 2187,
+        "startChar": 52,
+        "endLine": 2187,
+        "endChar": 56
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d6c2c211_e5dc19f8",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 16
@@ -921,6 +980,30 @@
     },
     {
       "key": {
+        "uuid": "39bbb6b7_7d8c7ba0",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 3078,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-07-07T21:17:26Z",
+      "side": 1,
+      "message": "Thanks for your comment. Will modify this in the next patch",
+      "parentUuid": "7d8d5519_8dcc1be2",
+      "range": {
+        "startLine": 3078,
+        "startChar": 6,
+        "endLine": 3078,
+        "endChar": 7
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ef894cba_730a1649",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 16
@@ -932,6 +1015,30 @@
       "writtenOn": "2020-07-07T18:46:38Z",
       "side": 1,
       "message": "same as the above",
+      "range": {
+        "startLine": 3148,
+        "startChar": 8,
+        "endLine": 3148,
+        "endChar": 9
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9373caa_ddff8e32",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 3148,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-07-07T21:17:26Z",
+      "side": 1,
+      "message": "Thanks for your comment. Will modify this in the next patch",
+      "parentUuid": "ef894cba_730a1649",
       "range": {
         "startLine": 3148,
         "startChar": 8,
