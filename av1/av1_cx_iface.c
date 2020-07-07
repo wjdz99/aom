@@ -49,6 +49,7 @@ struct av1_extracfg {
   unsigned int gf_max_pyr_height;
   aom_tune_metric tuning;
   const char *vmaf_model_path;
+  const char *subgop_config_str;
   unsigned int cq_level;  // constrained quality level
   unsigned int rc_max_intra_bitrate_pct;
   unsigned int rc_max_inter_bitrate_pct;
@@ -153,6 +154,19 @@ struct av1_extracfg {
   unsigned int sb_multipass_unit_test;
 };
 
+const char subgop_config_str_16[] =
+  "16:0:0R4P4^4/16F4P4^4/8F3P4^4^-4/"
+  "4U2P4^4^-3^-4/2U1P4^4^-2^-3^-4/"
+  "1V0P4^4^-1^-2^-3^-4/2S/"
+  "3V0P4^0^1^-2^-3^-4/4S/6U1P4^2^1^-3^-4/"
+  "5V0P4^1^0^2^-1^-3^-4/6S/"
+  "7V0P4^2^0^1^-3^-4/8R3P4^3^-4/"
+  "12U2P4^2^3^-4/10U1P4^2^1^3^-2^-4/"
+  "9V0P4^2^1^3^-1^-2^-4/10S/"
+  "11V0P4^3^1^0^-2^-4/12S/14U1P4^3^1^2^-4/"
+  "13V0P4^3^1^0^2^-1^-4/14S/"
+  "15V0P4^3^2^1^0^-4";
+
 static struct av1_extracfg default_extra_cfg = {
   0,              // cpu_used
   1,              // enable_auto_alt_ref
@@ -173,6 +187,7 @@ static struct av1_extracfg default_extra_cfg = {
   5,              // gf_max_pyr_height
   AOM_TUNE_PSNR,  // tuning
   "/usr/local/share/model/vmaf_v0.6.1.pkl",  // VMAF model path
+  subgop_config_str_16,                      // SubGOP config string
   10,                                        // cq_level
   0,                                         // rc_max_intra_bitrate_pct
   0,                                         // rc_max_inter_bitrate_pct
@@ -933,6 +948,8 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
 
   oxcf->tuning = extra_cfg->tuning;
   oxcf->vmaf_model_path = extra_cfg->vmaf_model_path;
+  oxcf->subgop_config_str = extra_cfg->subgop_config_str;
+  // printf("string = %s\n", oxcf->subgop_config_str);
   oxcf->content = extra_cfg->content;
   oxcf->superblock_size = extra_cfg->superblock_size;
   if (cfg->large_scale_tile) {
@@ -1768,6 +1785,13 @@ static aom_codec_err_t ctrl_set_vmaf_model_path(aom_codec_alg_priv_t *ctx,
                                                 va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.vmaf_model_path = CAST(AV1E_SET_VMAF_MODEL_PATH, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_subgop_config_str(aom_codec_alg_priv_t *ctx,
+                                                  va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.subgop_config_str = CAST(AV1E_SET_SUBGOP_CONFIG_STR, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
@@ -2862,6 +2886,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_SUPERBLOCK_SIZE, ctrl_set_superblock_size },
   { AV1E_SET_SINGLE_TILE_DECODING, ctrl_set_single_tile_decoding },
   { AV1E_SET_VMAF_MODEL_PATH, ctrl_set_vmaf_model_path },
+  { AV1E_SET_SUBGOP_CONFIG_STR, ctrl_set_subgop_config_str },
   { AV1E_SET_FILM_GRAIN_TEST_VECTOR, ctrl_set_film_grain_test_vector },
   { AV1E_SET_FILM_GRAIN_TABLE, ctrl_set_film_grain_table },
   { AV1E_SET_DENOISE_NOISE_LEVEL, ctrl_set_denoise_noise_level },
