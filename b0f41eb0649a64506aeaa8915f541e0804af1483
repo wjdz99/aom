@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0549be0_fdb30fbb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-08T06:30:30Z",
+      "side": 1,
+      "message": "I just tested the patch locally and the printed stats pretty good!\nNoticed a couple of things, and commented below (sorry I didn\u0027t check these earlier).",
+      "revId": "b0f41eb0649a64506aeaa8915f541e0804af1483",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f4b69bf4_59d39f8b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 2190,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-08T06:30:30Z",
+      "side": 1,
+      "message": "\"if(!cpi-\u003eb_calculate_psnr)\", then all PSNR values print as 0, which is confusing.\nCan we print the PSNRs only \"if (cpi-\u003eb_calculate_psnr)\"?\n\nRest of the info should be printed always (unconditionally).",
+      "range": {
+        "startLine": 2188,
+        "startChar": 22,
+        "endLine": 2190,
+        "endChar": 26
+      },
+      "revId": "b0f41eb0649a64506aeaa8915f541e0804af1483",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52ec3c27_0b72bed4",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 2197,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-08T06:30:30Z",
+      "side": 1,
+      "message": "Use \u0027INTER_REFS_PER_FRAME\u0027 instead of 7",
+      "range": {
+        "startLine": 2197,
+        "startChar": 36,
+        "endLine": 2197,
+        "endChar": 37
+      },
+      "revId": "b0f41eb0649a64506aeaa8915f541e0804af1483",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
