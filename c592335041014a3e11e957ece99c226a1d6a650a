@@ -22,6 +22,30 @@
       "revId": "c592335041014a3e11e957ece99c226a1d6a650a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfa7b21b_c0917f61",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-07-08T21:35:01Z",
+      "side": 1,
+      "message": "The multiple 8-element arrays loading in to 16-lane vector is adding to the cycle count. That\u0027s the case in 8x16 and 8x8. Like loading 2 8 elements and arranging them in to vector adds additional cycles. Also unlike single instruction of unpack in SSE2, AVX2 does the 16-lane unpack as two SSE2 modules and somekind of rearrangement is needed to get the same effect as SSE2. AVX2 doesn\u0027t do all the lower bytes unpack. It does half of the lower-half and half of the upper-half. We need to again re-arrange to get the same effect of SSE2 for 16v lanes.I guess we should fall back to SSE2 in such case.",
+      "parentUuid": "c6d5085b_711634d9",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 14
+      },
+      "revId": "c592335041014a3e11e957ece99c226a1d6a650a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
