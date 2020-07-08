@@ -124,7 +124,7 @@ TEST_P(MonochromeTest, TestMonochromeEncoding) {
   }
 }
 
-AV1_INSTANTIATE_TEST_CASE(MonochromeTest,
+AV1_INSTANTIATE_TEST_SUITE(MonochromeTest,
                           ::testing::Values(::libaom_test::kOnePassGood,
                                             ::libaom_test::kTwoPassGood));
 
