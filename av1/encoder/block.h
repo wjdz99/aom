@@ -491,6 +491,9 @@ struct macroblock {
   int wedge_interintra_cost[BLOCK_SIZES_ALL][2];
   int interintra_mode_cost[BLOCK_SIZE_GROUPS][INTERINTRA_MODES];
   int motion_mode_cost[BLOCK_SIZES_ALL][MOTION_MODES];
+#if CONFIG_EXT_WARP
+  int motion_mode_cost_low_bs[BLOCK_SIZES_ALL][2];
+#endif
   int motion_mode_cost1[BLOCK_SIZES_ALL][2];
 #if !CONFIG_INTRA_ENTROPY
   int intra_uv_mode_cost[CFL_ALLOWED_TYPES][INTRA_MODES][UV_INTRA_MODES];

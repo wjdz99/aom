@@ -1676,8 +1676,25 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             counts->motion_mode[bsize][mbmi->motion_mode]++;
 #endif  // CONFIG_ENTROPY_STATS
             if (allow_update_cdf) {
+#if CONFIG_EXT_WARP
+              int is_bs_sub8 =
+                  AOMMIN(block_size_wide[bsize], block_size_high[bsize]) < 8;
+              if (is_bs_sub8) {
+                assert(mbmi->motion_mode == SIMPLE_TRANSLATION ||
+                       mbmi->motion_mode == WARPED_CAUSAL);
+                update_cdf(fc->motion_mode_2symb_cdf[bsize],
+                           (mbmi->motion_mode == 0)
+                               ? 0
+                               : (mbmi->motion_mode - OBMC_CAUSAL),
+                           2);
+              } else {
+                update_cdf(fc->motion_mode_cdf[bsize], mbmi->motion_mode,
+                           MOTION_MODES);
+              }
+#else
               update_cdf(fc->motion_mode_cdf[bsize], mbmi->motion_mode,
                          MOTION_MODES);
+#endif  // CONFIG_EXT_WARP
             }
           } else if (motion_allowed == OBMC_CAUSAL) {
 #if CONFIG_ENTROPY_STATS
@@ -5754,6 +5771,10 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVERAGE_CDF(ctx_left->interintra_mode_cdf, ctx_tr->interintra_mode_cdf,
               INTERINTRA_MODES);
   AVERAGE_CDF(ctx_left->motion_mode_cdf, ctx_tr->motion_mode_cdf, MOTION_MODES);
+#if CONFIG_EXT_WARP
+  AVERAGE_CDF(ctx_left->motion_mode_2symb_cdf, ctx_tr->motion_mode_2symb_cdf,
+              2);
+#endif
   AVERAGE_CDF(ctx_left->obmc_cdf, ctx_tr->obmc_cdf, 2);
   AVERAGE_CDF(ctx_left->palette_y_size_cdf, ctx_tr->palette_y_size_cdf,
               PALETTE_SIZES);

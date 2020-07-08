@@ -634,7 +634,12 @@ static void highbd_warp_plane(WarpedMotionParams *wm, const uint16_t *const ref,
                               uint16_t *const pred, int p_col, int p_row,
                               int p_width, int p_height, int p_stride,
                               int subsampling_x, int subsampling_y, int bd,
-                              ConvolveParams *conv_params) {
+                              ConvolveParams *conv_params
+#if CONFIG_EXT_WARP
+                              ,
+                              int is_sub_8x8_block
+#endif  // CONFIG_EXT_WARP
+) {
   assert(wm->wmtype <= AFFINE);
   if (wm->wmtype == ROTZOOM) {
     wm->wmmat[5] = wm->wmmat[2];
@@ -647,7 +652,7 @@ static void highbd_warp_plane(WarpedMotionParams *wm, const uint16_t *const ref,
   const int16_t delta = wm->delta;
 
 #if CONFIG_EXT_WARP
-  if (!is_affine_shear_allowed(alpha, beta, gamma, delta))
+  if (!is_affine_shear_allowed(alpha, beta, gamma, delta) || is_sub_8x8_block)
     av1_ext_highbd_warp_affine(mat, ref, width, height, stride, pred, p_col,
                                p_row, p_width, p_height, p_stride,
                                subsampling_x, subsampling_y, bd, conv_params);
@@ -726,7 +731,12 @@ static int64_t highbd_warp_error(
       const int warp_h = AOMMIN(error_bsize_h, p_row + p_height - i);
       highbd_warp_plane(wm, ref, width, height, stride, tmp, j, i, warp_w,
                         warp_h, WARP_ERROR_BLOCK, subsampling_x, subsampling_y,
-                        bd, &conv_params);
+                        bd, &conv_params
+#if CONFIG_EXT_WARP
+                        ,
+                        0
+#endif  // CONFIG_EXT_WARP
+      );
       gm_sumerr += av1_calc_highbd_frame_error(tmp, WARP_ERROR_BLOCK,
                                                dst + j + i * p_stride, warp_w,
                                                warp_h, p_stride, bd);
@@ -1064,7 +1074,12 @@ static void warp_plane(WarpedMotionParams *wm, const uint8_t *const ref,
                        int width, int height, int stride, uint8_t *pred,
                        int p_col, int p_row, int p_width, int p_height,
                        int p_stride, int subsampling_x, int subsampling_y,
-                       ConvolveParams *conv_params) {
+                       ConvolveParams *conv_params
+#if CONFIG_EXT_WARP
+                       ,
+                       int is_sub_8x8_block
+#endif  // CONFIG_EXT_WARP
+) {
   assert(wm->wmtype <= AFFINE);
   if (wm->wmtype == ROTZOOM) {
     wm->wmmat[5] = wm->wmmat[2];
@@ -1076,7 +1091,7 @@ static void warp_plane(WarpedMotionParams *wm, const uint8_t *const ref,
   const int16_t gamma = wm->gamma;
   const int16_t delta = wm->delta;
 #if CONFIG_EXT_WARP
-  if (!is_affine_shear_allowed(alpha, beta, gamma, delta))
+  if (!is_affine_shear_allowed(alpha, beta, gamma, delta) || is_sub_8x8_block)
     av1_ext_warp_affine(mat, ref, width, height, stride, pred, p_col, p_row,
                         p_width, p_height, p_stride, subsampling_x,
                         subsampling_y, conv_params);
@@ -1155,7 +1170,12 @@ static int64_t warp_error(WarpedMotionParams *wm, const uint8_t *const ref,
       warp_w = AOMMIN(error_bsize_w, p_col + p_width - j);
       warp_h = AOMMIN(error_bsize_h, p_row + p_height - i);
       warp_plane(wm, ref, width, height, stride, tmp, j, i, warp_w, warp_h,
-                 WARP_ERROR_BLOCK, subsampling_x, subsampling_y, &conv_params);
+                 WARP_ERROR_BLOCK, subsampling_x, subsampling_y, &conv_params
+#if CONFIG_EXT_WARP
+                 ,
+                 0
+#endif  // CONFIG_EXT_WARP
+      );
 
       gm_sumerr +=
           av1_calc_frame_error(tmp, WARP_ERROR_BLOCK, dst + j + i * p_stride,
@@ -1213,15 +1233,30 @@ void av1_warp_plane(WarpedMotionParams *wm, int use_hbd, int bd,
                     const uint8_t *ref, int width, int height, int stride,
                     uint8_t *pred, int p_col, int p_row, int p_width,
                     int p_height, int p_stride, int subsampling_x,
-                    int subsampling_y, ConvolveParams *conv_params) {
+                    int subsampling_y, ConvolveParams *conv_params
+#if CONFIG_EXT_WARP
+                    ,
+                    int is_sub_8x8_block
+#endif  // CONFIG_EXT_WARP
+) {
   if (use_hbd)
     highbd_warp_plane(wm, CONVERT_TO_SHORTPTR(ref), width, height, stride,
                       CONVERT_TO_SHORTPTR(pred), p_col, p_row, p_width,
                       p_height, p_stride, subsampling_x, subsampling_y, bd,
-                      conv_params);
+                      conv_params
+#if CONFIG_EXT_WARP
+                      ,
+                      is_sub_8x8_block
+#endif  // CONFIG_EXT_WARP
+    );
   else
     warp_plane(wm, ref, width, height, stride, pred, p_col, p_row, p_width,
-               p_height, p_stride, subsampling_x, subsampling_y, conv_params);
+               p_height, p_stride, subsampling_x, subsampling_y, conv_params
+#if CONFIG_EXT_WARP
+               ,
+               is_sub_8x8_block
+#endif  // CONFIG_EXT_WARP
+    );
 }
 
 #define LS_MV_MAX 256  // max mv in 1/8-pel
