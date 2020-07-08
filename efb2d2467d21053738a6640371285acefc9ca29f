@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3fcb9d07_b6de7d63",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-07-08T22:45:55Z",
+      "side": 1,
+      "message": "This seems to break build.\n",
+      "revId": "efb2d2467d21053738a6640371285acefc9ca29f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
