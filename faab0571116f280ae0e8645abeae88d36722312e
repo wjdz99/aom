@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4a1d678_e6370950",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-08T04:27:52Z",
+      "side": 1,
+      "message": "Comments below.\n\nFYI: You can click \"Done\" to add a quick-reply to a comment (if there is nothing else to write).",
+      "revId": "faab0571116f280ae0e8645abeae88d36722312e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "460f3115_71214937",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 1829,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-08T04:27:52Z",
+      "side": 1,
+      "message": "\"QP\" should always be printed, so should be outside the \u0027if\u0027 block.",
+      "range": {
+        "startLine": 1829,
+        "startChar": 0,
+        "endLine": 1829,
+        "endChar": 66
+      },
+      "revId": "faab0571116f280ae0e8645abeae88d36722312e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}

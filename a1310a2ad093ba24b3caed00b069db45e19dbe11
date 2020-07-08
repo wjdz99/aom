@@ -675,6 +675,30 @@
     },
     {
       "key": {
+        "uuid": "3e17e2ac_b3a25a73",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 2758,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-08T04:27:52Z",
+      "side": 1,
+      "message": "I think this one is pending.",
+      "parentUuid": "3adc8d99_4f86351f",
+      "range": {
+        "startLine": 2758,
+        "startChar": 37,
+        "endLine": 2758,
+        "endChar": 38
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0eb3b144_734d20b7",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 16
@@ -710,6 +734,30 @@
       "side": 1,
       "message": "this parameter is used to indicate whether extra command line parameters are read. If extra command line parameters are read, then parameters in the configure file will not overwrite the parameters in extra_cfg.",
       "parentUuid": "0eb3b144_734d20b7",
+      "range": {
+        "startLine": 743,
+        "startChar": 46,
+        "endLine": 743,
+        "endChar": 59
+      },
+      "revId": "a1310a2ad093ba24b3caed00b069db45e19dbe11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d60950cb_f7e39530",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-08T04:27:52Z",
+      "side": 1,
+      "message": "Could you add a comment above the function, with the same explanation?",
+      "parentUuid": "6efd1514_13ed3b61",
       "range": {
         "startLine": 743,
         "startChar": 46,
