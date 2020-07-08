@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e1ad8041_f3ea3fdf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-07-08T14:55:46Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "b0549be0_fdb30fbb",
+      "revId": "b0f41eb0649a64506aeaa8915f541e0804af1483",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f4b69bf4_59d39f8b",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 19
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "673a984b_36e1ad2e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 2190,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-07-08T14:55:46Z",
+      "side": 1,
+      "message": "Has modified in patch 20",
+      "parentUuid": "f4b69bf4_59d39f8b",
+      "range": {
+        "startLine": 2188,
+        "startChar": 22,
+        "endLine": 2190,
+        "endChar": 26
+      },
+      "revId": "b0f41eb0649a64506aeaa8915f541e0804af1483",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "52ec3c27_0b72bed4",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 19
@@ -53,6 +95,30 @@
       "writtenOn": "2020-07-08T06:30:30Z",
       "side": 1,
       "message": "Use \u0027INTER_REFS_PER_FRAME\u0027 instead of 7",
+      "range": {
+        "startLine": 2197,
+        "startChar": 36,
+        "endLine": 2197,
+        "endChar": 37
+      },
+      "revId": "b0f41eb0649a64506aeaa8915f541e0804af1483",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a8b5291_74acb6ff",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 2197,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-07-08T14:55:46Z",
+      "side": 1,
+      "message": "Has modified in patch 20",
+      "parentUuid": "52ec3c27_0b72bed4",
       "range": {
         "startLine": 2197,
         "startChar": 36,
