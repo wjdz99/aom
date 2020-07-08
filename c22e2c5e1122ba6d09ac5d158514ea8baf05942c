@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49f6f467_e51cbb99",
+        "filename": "av1/encoder/subgop.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-08T17:43:06Z",
+      "side": 1,
+      "message": "I see this build warning now:\n\naom/av1/encoder/subgop.c: In function ‘av1_find_subgop_config’:\naom/av1/encoder/subgop.c:164:15: warning: array subscript -1 is below array bounds of ‘SubGOPCfg[64]’ {aka ‘struct \u003canonymous\u003e[64]’} [-Warray-bounds]\n  164 |         cfg \u003d \u0026config_set-\u003econfig[j];",
+      "range": {
+        "startLine": 164,
+        "startChar": 0,
+        "endLine": 164,
+        "endChar": 37
+      },
+      "revId": "c22e2c5e1122ba6d09ac5d158514ea8baf05942c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
