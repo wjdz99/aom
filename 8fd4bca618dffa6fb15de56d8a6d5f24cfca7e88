@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2df9ad37_3d1358b0",
+        "filename": "av1/common/x86/resize_ssse3.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-07-08T17:27:50Z",
+      "side": 1,
+      "message": "should this be dst_w/dst_h instead of src_w/h?",
+      "revId": "8fd4bca618dffa6fb15de56d8a6d5f24cfca7e88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
