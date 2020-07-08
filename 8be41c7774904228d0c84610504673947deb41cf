@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "444efd5b_9782f5bc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2020-07-08T17:39:54Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe had earlier submitted a patch which disables tpl whenever resize mode is set (https://aomedia-review.googlesource.com/c/aom/+/113161), as there are some issues in tpl with resizing enabled. However, we have seen that in case of external resizing, resize mode is not set. Hence, tpl module is not disabled causing assert failure. Also, external resizing is supported only in single pass mode with lag in frames \u003c\u003d 1. In this patch, we have disabled tpl for lag in frames \u003c\u003d 1. Please note that lag in frames equal to 1 is same as lag in frames equal to 0, i.e., there is no lag. \n\nThe issue can be reproduced by running the test \"./test_libaom --gtest_filter\u003d*ResizeTest*TestExternalResizeWorks*\" with \"cfg_.g_lag_in_frames \u003d 1\". \n\nPlease review.\n\nThanks",
+      "revId": "8be41c7774904228d0c84610504673947deb41cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
