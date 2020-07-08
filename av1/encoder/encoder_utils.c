@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (457d27 aomenc: Pass qindex directly instead of cq-level)
 /*
  * Copyright (c) 2020, Alliance for Open Media. All rights reserved
  *
@@ -1399,3 +1400,5 @@ void av1_dump_filtered_recon_frames(AV1_COMP *cpi) {
   fclose(f_recon);
 }
 #endif  // DUMP_RECON_FRAMES
+=======
+>>>>>>> CHANGE (148760 Revert "Separate utility functions from encoder.c")
