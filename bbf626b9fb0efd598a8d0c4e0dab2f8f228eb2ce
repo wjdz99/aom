@@ -34,6 +34,24 @@
       "revId": "bbf626b9fb0efd598a8d0c4e0dab2f8f228eb2ce",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a00e8451_29c52933",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-07-08T22:41:37Z",
+      "side": 1,
+      "message": "There is no defined criterion for that. Maybe add it for top level functions?",
+      "parentUuid": "bc380acb_cf7aa5ae",
+      "revId": "bbf626b9fb0efd598a8d0c4e0dab2f8f228eb2ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
