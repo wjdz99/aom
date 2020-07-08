@@ -1497,7 +1497,7 @@ TEST_P(AvxHBDVarianceTest, OneQuarter) { OneQuarterTest(); }
 TEST_P(AvxHBDVarianceTest, DISABLED_Speed) { SpeedTest(); }
 TEST_P(AvxHBDSubpelVarianceTest, Ref) { RefTest(); }
 TEST_P(AvxHBDSubpelVarianceTest, ExtremeRef) { ExtremeRefTest(); }
-TEST_P(AvxHBDSubpelVarianceTest, DISABLED_Speed) { SpeedTest(); }
+TEST_P(AvxHBDSubpelVarianceTest, Speed) { SpeedTest(); }
 TEST_P(AvxHBDSubpelAvgVarianceTest, Ref) { RefTest(); }
 
 /* TODO(debargha): This test does not support the highbd version
@@ -2157,6 +2157,8 @@ const SubpelVarianceParams kArrayHBDSubpelVariance_avx2[] = {
   SubpelVarianceParams(4, 5, &aom_highbd_10_sub_pixel_variance16x32_avx2, 10),
   SubpelVarianceParams(4, 4, &aom_highbd_10_sub_pixel_variance16x16_avx2, 10),
   SubpelVarianceParams(4, 3, &aom_highbd_10_sub_pixel_variance16x8_avx2, 10),
+  SubpelVarianceParams(3, 4, &aom_highbd_10_sub_pixel_variance8x16_avx2, 10),
+  SubpelVarianceParams(3, 3, &aom_highbd_10_sub_pixel_variance8x8_avx2, 10),
 };
 
 INSTANTIATE_TEST_SUITE_P(AVX2, AvxHBDSubpelVarianceTest,
