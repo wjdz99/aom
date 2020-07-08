@@ -110,7 +110,7 @@ TEST_P(ForwardKeyTest, ForwardKeyEncodeTest) {
       << "kf max dist = " << kf_max_dist_;
 }
 
-AV1_INSTANTIATE_TEST_CASE(ForwardKeyTest,
+AV1_INSTANTIATE_TEST_SUITE(ForwardKeyTest,
                           ::testing::Values(::libaom_test::kTwoPassGood),
                           ::testing::ValuesIn(kTestParams));
 
@@ -188,7 +188,7 @@ TEST_P(ForwardKeyPresenceTestLarge, ForwardKeyEncodePresenceTest) {
   ASSERT_EQ(is_fwd_kf_present_, 1);
 }
 
-AV1_INSTANTIATE_TEST_CASE(ForwardKeyPresenceTestLarge,
+AV1_INSTANTIATE_TEST_SUITE(ForwardKeyPresenceTestLarge,
                           ::testing::Values(::libaom_test::kOnePassGood,
                                             ::libaom_test::kTwoPassGood),
                           ::testing::ValuesIn(kfTestParams),
