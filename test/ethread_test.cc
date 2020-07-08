@@ -439,20 +439,20 @@ TEST_P(AVxEncoderThreadTestLarge, EncoderResultTest) {
 }
 
 // first pass stats test
-AV1_INSTANTIATE_TEST_CASE(AVxFirstPassEncoderThreadTest,
+AV1_INSTANTIATE_TEST_SUITE(AVxFirstPassEncoderThreadTest,
                           ::testing::Values(::libaom_test::kTwoPassGood),
                           ::testing::Range(0, 6, 2), ::testing::Range(0, 2),
                           ::testing::Range(1, 3));
 
 // For AV1, test speed 0, 1, 2, 3, 5.
 // Only test cpu_used 2 here.
-AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadTest,
+AV1_INSTANTIATE_TEST_SUITE(AVxEncoderThreadTest,
                           ::testing::Values(::libaom_test::kTwoPassGood),
                           ::testing::Values(2), ::testing::Values(0, 2),
                           ::testing::Values(0, 2), ::testing::Values(0, 1));
 
 // Test cpu_used 0, 1, 3 and 5.
-AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadTestLarge,
+AV1_INSTANTIATE_TEST_SUITE(AVxEncoderThreadTestLarge,
                           ::testing::Values(::libaom_test::kTwoPassGood,
                                             ::libaom_test::kOnePassGood),
                           ::testing::Values(0, 1, 3, 5),
@@ -475,6 +475,7 @@ class AVxEncoderThreadLSTest : public AVxEncoderThreadTest {
     (void)ref_md5_dec;
   }
 };
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(AVxEncoderThreadLSTest);
 
 TEST_P(AVxEncoderThreadLSTest, EncoderResultTest) {
   cfg_.large_scale_tile = 1;
@@ -492,7 +493,7 @@ TEST_P(AVxEncoderThreadLSTestLarge, EncoderResultTest) {
   DoTest();
 }
 
-AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadLSTestLarge,
+AV1_INSTANTIATE_TEST_SUITE(AVxEncoderThreadLSTestLarge,
                           ::testing::Values(::libaom_test::kTwoPassGood,
                                             ::libaom_test::kOnePassGood),
                           ::testing::Values(1, 3), ::testing::Values(0, 6),
