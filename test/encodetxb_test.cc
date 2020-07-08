@@ -170,6 +170,7 @@ class EncodeTxbTest : public ::testing::TestWithParam<GetNzMapContextsFunc> {
   int8_t *coeff_contexts_ref_;
   int8_t *coeff_contexts_;
 };
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(EncodeTxbTest);
 
 TEST_P(EncodeTxbTest, GetNzMapContexts) { GetNzMapContextsRun(); }
 
@@ -195,6 +196,7 @@ class EncodeTxbInitLevelTest
   virtual void TearDown() { libaom_test::ClearSystemState(); }
   void RunTest(av1_txb_init_levels_func test_func, int tx_size, int is_speed);
 };
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(EncodeTxbInitLevelTest);
 
 void EncodeTxbInitLevelTest::RunTest(av1_txb_init_levels_func test_func,
                                      int tx_size, int is_speed) {
