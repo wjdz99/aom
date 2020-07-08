@@ -16,6 +16,23 @@
       "revId": "701437fa4c22853f774cf80cf690d555a9e11a1f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bed88bfb_e3012053",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-07-08T21:33:21Z",
+      "side": 1,
+      "message": "Thanks for fixing all issues related to resizing!",
+      "revId": "701437fa4c22853f774cf80cf690d555a9e11a1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
