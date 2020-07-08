@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "569e3409_30261128",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2020-07-08T18:42:57Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWhenever frame 0 is scaled, the superblock size calculated based on the new resolution was not used in setting tile information. This resulted in crash of the encoder. In this patch, we set the superblock size correctly before tile info calculation. \n\nThe issue can be reproduced by running the test \"./test_libaom --gtest_filter\u003d*ResizeInternalTestLarge*TestInternalResizeChangeConfig*\" with \"cfg_.g_lag_in_frames \u003d 1\". \n\nPlease review.\n\nThanks. ",
+      "revId": "701437fa4c22853f774cf80cf690d555a9e11a1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
