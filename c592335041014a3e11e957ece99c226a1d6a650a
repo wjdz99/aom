@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6d5085b_711634d9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-07-08T21:18:43Z",
+      "side": 1,
+      "message": "Why avx2 is much slower than sse2? In principle, one can\u0027t leverage the additional bandwidth from avx2 for additional speed up, but shouldn\u0027t suffer that much overhead either?",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 14
+      },
+      "revId": "c592335041014a3e11e957ece99c226a1d6a650a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
