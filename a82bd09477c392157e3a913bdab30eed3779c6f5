@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a227e7e_eff44bac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-07-08T04:52:11Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, we replaced constant values with appropriate macros in partition search related functions.\n\nThis is a bit-exact change with no speed impact (verified locally).\n\ncpu-used\u003d1, 60 frames\nhttps://beta.arewecompressedyet.com/?job\u003d07Jul20_ref_cpu1_master%402020-07-08T01%3A15%3A30.609Z\u0026job\u003d07Jul20_mod_cpu1_master%402020-07-08T01%3A16%3A56.900Z\n\ncpu-used\u003d5, 60 frames\nhttps://beta.arewecompressedyet.com/?job\u003dJul07_ref_cpu5_master%402020-07-08T02%3A09%3A59.610Z\u0026job\u003d07Jul20_mod_cpu5_master%402020-07-08T01%3A16%3A03.086Z\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkat.",
+      "revId": "a82bd09477c392157e3a913bdab30eed3779c6f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
