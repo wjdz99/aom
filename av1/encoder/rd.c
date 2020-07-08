@@ -479,6 +479,12 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
       av1_cost_tokens_from_cdf(x->wedge_interintra_cost[i],
                                fc->wedge_interintra_cdf[i], NULL);
     }
+#if CONFIG_EXT_WARP
+    for (i = 0; i < BLOCK_SIZES_ALL; i++) {
+      av1_cost_tokens_from_cdf(x->motion_mode_cost_low_bs[i], fc->warp_cdf[i],
+                               NULL);
+    }
+#endif
     for (i = BLOCK_8X8; i < BLOCK_SIZES_ALL; i++) {
       av1_cost_tokens_from_cdf(x->motion_mode_cost[i], fc->motion_mode_cdf[i],
                                NULL);
