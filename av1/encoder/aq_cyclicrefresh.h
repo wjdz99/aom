@@ -90,6 +90,20 @@ int av1_cyclic_refresh_rc_bits_per_mb(const struct AV1_COMP *cpi, int i,
 // Prior to coding a given prediction block, of size bsize at (mi_row, mi_col),
 // check if we should reset the segment_id, and update the cyclic_refresh map
 // and segmentation map.
+
+/*!\brief Picks q and q bounds given the rate control parameters in \c cpi->rc.
+ *
+ * \ingroup rate_control
+ * \param[in]       cpi          Top level encoder structure
+ * \param[in,out]   rc           Top level rate control structure
+ * \param[in]       width        Coded frame width
+ * \param[in]       height       Coded frame height
+ * \param[in]       gf_index     Index of this frame in the golden frame group
+ * \param[out]      bottom_index Bottom bound for q index (best quality)
+ * \param[out]      top_index    Top bound for q index (worst quality)
+ * \return Returns selected q index to be used for encoding this frame.
+ * Also, updates \c rc->arf_q.
+ */
 void av1_cyclic_refresh_update_segment(const struct AV1_COMP *cpi,
                                        MB_MODE_INFO *const mbmi, int mi_row,
                                        int mi_col, BLOCK_SIZE bsize,
@@ -101,10 +115,30 @@ void av1_cyclic_refresh_postencode(struct AV1_COMP *const cpi);
 // Set golden frame update interval, for 1 pass CBR mode.
 void av1_cyclic_refresh_set_golden_update(struct AV1_COMP *const cpi);
 
-// Set/update global/frame level refresh parameters.
+/*!\brief Set the global/frame level parameters for cyclic refresh.
+ *
+ * First call to the cyclic refresh, before encoding the frame.
+ * Sets the flag on whether cyclic refresh should be applied, sets
+ * the amount/percent of refresh, and the amount of boost applied to
+ * the two segments (set by rate_ratio_qdelta and rate_boost_fac).
+ *
+ * \ingroup rate_control
+ * \param[in]       cpi          Top level encoder structure
+ *
+ * \return Updates the \c cpi->cyclic_refresh with the settings.
+ */
 void av1_cyclic_refresh_update_parameters(struct AV1_COMP *const cpi);
 
-// Setup cyclic background refresh: set delta q and segmentation map.
+/*!\brief Setup the cyclic background refresh.
+ *
+ * Set the delta q for the segment(s), and set the segmentation map.
+ *
+ * \ingroup rate_control
+ * \param[in]       cpi          Top level encoder structure
+ *
+ * \return Updates the \c cpi->cyclic_refresh with the cyclic refresh
+ * parameters and the \c cm->seg with the segmentation data.
+ */
 void av1_cyclic_refresh_setup(struct AV1_COMP *const cpi);
 
 int av1_cyclic_refresh_get_rdmult(const CYCLIC_REFRESH *cr);
