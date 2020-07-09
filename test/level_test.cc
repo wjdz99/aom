@@ -111,6 +111,7 @@ TEST_P(LevelTest, TestTargetLevel19) {
   ASSERT_TRUE(video.get() != NULL);
   // Level index 19 corresponding to level 6.3.
   target_level_ = 19;
+  cfg_.g_limit = 10;
   ASSERT_NO_FATAL_FAILURE(RunLoop(video.get()));
 }
 
@@ -121,6 +122,7 @@ TEST_P(LevelTest, TestLevelMonitoringLowBitrate) {
                                        30, 1, 0, 40);
     target_level_ = kLevelKeepStats;
     cfg_.rc_target_bitrate = 1000;
+    cfg_.g_limit = 40;
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
     ASSERT_EQ(level_[0], 0);
   }
@@ -128,11 +130,12 @@ TEST_P(LevelTest, TestLevelMonitoringLowBitrate) {
 
 TEST_P(LevelTest, TestLevelMonitoringHighBitrate) {
   // To save run time, we only test speed 4.
-  if (cpu_used_ == 4) {
+  if (cpu_used_ == 4 && encoding_mode_ == ::libaom_test::kTwoPassGood) {
     libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                        30, 1, 0, 40);
     target_level_ = kLevelKeepStats;
     cfg_.rc_target_bitrate = 4000;
+    cfg_.g_limit = 40;
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
     ASSERT_EQ(level_[0], 0);
   }
@@ -146,12 +149,14 @@ TEST_P(LevelTest, TestTargetLevel0) {
     const int target_level = 0;
     target_level_ = target_level;
     cfg_.rc_target_bitrate = 4000;
+    cfg_.g_limit = 50;
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
     ASSERT_EQ(level_[0], target_level);
   }
 }
 
 AV1_INSTANTIATE_TEST_CASE(LevelTest,
-                          ::testing::Values(::libaom_test::kTwoPassGood),
+                          ::testing::Values(::libaom_test::kTwoPassGood,
+                                            ::libaom_test::kOnePassGood),
                           ::testing::ValuesIn(kCpuUsedVectors));
 }  // namespace
