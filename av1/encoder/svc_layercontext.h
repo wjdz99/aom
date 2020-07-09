@@ -78,30 +78,118 @@ typedef struct SVC {
 
 struct AV1_COMP;
 
-// Initialize layer context data from init_config().
+/*!\brief Initialize layer context data from init_config().
+ *
+ * \ingroup svc_layer_context
+ * \callgraph
+ * \callergraph
+ *
+ * \param[in]       cpi  Top level encoder structure
+ *
+ * \return  Nothing returned. Set cpi->svc.
+ */
 void av1_init_layer_context(struct AV1_COMP *const cpi);
 
-// Update the layer context from a change_config() call.
+/*!\brief Update the layer context from a change_config() call.
+ *
+ * \ingroup svc_layer_context
+ * \callgraph
+ * \callergraph
+ *
+ * \param[in]       cpi  Top level encoder structure
+ * \param[in]       target_bandwidth  Total target bandwidth
+ *
+ * \return  Nothing returned. Buffer level for each layer is set.
+ */
 void av1_update_layer_context_change_config(struct AV1_COMP *const cpi,
                                             const int64_t target_bandwidth);
 
-// Prior to encoding the frame, update framerate-related quantities
-// for the current temporal layer.
+/*!\brief Prior to encoding the frame, update framerate-related quantities
+          for the current temporal layer.
+ *
+ * \ingroup svc_layer_context
+ * \callgraph
+ * \callergraph
+ *
+ * \param[in]       cpi  Top level encoder structure
+ *
+ * \return  Nothing returned. Frame related quantities for current temporal
+ layer are updated.
+ */
 void av1_update_temporal_layer_framerate(struct AV1_COMP *const cpi);
 
-// Prior to encoding the frame, set the layer context, for the current layer
-// to be encoded, to the cpi struct.
+/*!\brief Prior to encoding the frame, set the layer context, for the current
+ layer to be encoded, to the cpi struct.
+ *
+ * \ingroup svc_layer_context
+ * \callgraph
+ * \callergraph
+ *
+ * \param[in]       cpi  Top level encoder structure
+ *
+ * \return  Nothing returned. Layer context for current layer is set.
+ */
 void av1_restore_layer_context(struct AV1_COMP *const cpi);
 
-// Save the layer context after encoding the frame.
+/*!\brief Save the layer context after encoding the frame.
+ *
+ * \ingroup svc_layer_context
+ * \callgraph
+ * \callergraph
+ *
+ * \param[in]       cpi  Top level encoder structure
+ *
+ * \return  Nothing returned.
+ */
 void av1_save_layer_context(struct AV1_COMP *const cpi);
 
+/*!\brief Free the memory used for cyclic refresh in layer context.
+ *
+ * \ingroup svc_layer_context
+ * \callgraph
+ * \callergraph
+ *
+ * \param[in]       cpi  Top level encoder structure
+ *
+ * \return  Nothing returned.
+ */
 void av1_free_svc_cyclic_refresh(struct AV1_COMP *const cpi);
 
+/*!\brief Reset on key frame: reset counters, references and buffer updates.
+ *
+ * \ingroup svc_layer_context
+ * \callgraph
+ * \callergraph
+ *
+ * \param[in]       cpi  Top level encoder structure
+ * \param[in]       is_key  Whether current layer is key frame
+ *
+ * \return  Nothing returned.
+ */
 void av1_svc_reset_temporal_layers(struct AV1_COMP *const cpi, int is_key);
 
+/*!\brief Before encoding, set resolutions and allocate compressor data.
+ *
+ * \ingroup svc_layer_context
+ * \callgraph
+ * \callergraph
+ *
+ * \param[in]       cpi  Top level encoder structure
+ *
+ * \return  Nothing returned.
+ */
 void av1_one_pass_cbr_svc_start_layer(struct AV1_COMP *const cpi);
 
+/*!\brief Get primary reference frame for current layer
+ *
+ * \ingroup svc_layer_context
+ * \callgraph
+ * \callergraph
+ *
+ * \param[in]       cpi  Top level encoder structure
+ *
+ * \return  The primary reference frame for current layer.
+ */
 int av1_svc_primary_ref_frame(const struct AV1_COMP *const cpi);
 
 #ifdef __cplusplus
