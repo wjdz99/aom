@@ -1067,3 +1067,11 @@ void second_pass(char *stats, size_t stats_len) {
  * @{
  */
 /*! @} - end defgroup rate_control */
+
+/*!\defgroup SVC Scalable Video Coding
+ * \ingroup encoder_algo
+ * This module describes scalable video coding algorithm in AV1.
+ * More details will be added.
+ * @{
+ */
+/*! @} - end defgroup SVC */
