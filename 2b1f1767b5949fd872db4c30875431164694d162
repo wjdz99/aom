@@ -22,6 +22,30 @@
       "revId": "2b1f1767b5949fd872db4c30875431164694d162",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e8e961c_8b985f23",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-09T21:29:23Z",
+      "side": 1,
+      "message": "That\u0027s a good question, and I did consider both options indeed.\nHowever,\n- If we keep the old \"cq_level\" parameter, we will have to keep the existing tables for converting back and forth between two ranges still, so will lose the opportunity to clean up that part of the code.\n- Also, as we are working on AV2 here, I think it should be fine to break backward compatibility. (Note that \u0027master\u0027 branch, which is for AV1, will NOT have this change).\nThat\u0027s why I intentionally changed the name to \"--qp\", so users don\u0027t provide the q index in the wrong range by mistake.",
+      "parentUuid": "3577ab3c_221383a7",
+      "range": {
+        "startLine": 414,
+        "startChar": 23,
+        "endLine": 414,
+        "endChar": 25
+      },
+      "revId": "2b1f1767b5949fd872db4c30875431164694d162",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
