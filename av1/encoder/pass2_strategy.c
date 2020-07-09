@@ -1346,9 +1346,19 @@ static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
 static void correct_frames_to_key(AV1_COMP *cpi) {
   int lookahead_size =
       (int)av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage) + 1;
+  int limit = (int)cpi->oxcf.input_cfg.limit;
   if (lookahead_size <
       av1_lookahead_pop_sz(cpi->lookahead, cpi->compressor_stage)) {
     cpi->rc.frames_to_key = AOMMIN(cpi->rc.frames_to_key, lookahead_size);
+  }
+
+  if (limit > 1 &&
+      limit >= ((int)cpi->common.current_frame.frame_number + lookahead_size)) {
+    // Correct frames to key based on limit
+    assert(limit > (int)cpi->common.current_frame.frame_number);
+    cpi->rc.frames_to_key =
+        AOMMIN(cpi->rc.frames_to_key,
+               limit - (int)cpi->common.current_frame.frame_number);
   }
 }
 
