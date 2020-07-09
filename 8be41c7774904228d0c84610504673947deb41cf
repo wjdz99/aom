@@ -34,6 +34,24 @@
       "revId": "8be41c7774904228d0c84610504673947deb41cf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "27c48037_260037b3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2020-07-09T08:15:11Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe preferred current approach due to following reasons.\n\n1. It is possible to disable tpl in the function \u0027encoder_set_config()\u0027 by setting \u0027ctx-\u003eextra_cfg.enable_tpl_model \u003d 0\u0027 for the case of resizing (lag-in-frames\u003d1). However, we think the change would not be clean as \u0027extra_cfg\u0027 is not modified in the function \u0027encoder_set_config()\u0027. \n2. By disabling tpl for lag-in-frames\u003d1, we would be avoiding the unnecessary intra-prediction search in tpl (applicable when resizing is on/off).\n\nThanks.",
+      "parentUuid": "e02aa712_1ac4efed",
+      "revId": "8be41c7774904228d0c84610504673947deb41cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
