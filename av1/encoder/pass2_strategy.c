@@ -1350,6 +1350,11 @@ static void correct_frames_to_key(AV1_COMP *cpi) {
       av1_lookahead_pop_sz(cpi->lookahead, cpi->compressor_stage)) {
     cpi->rc.frames_to_key = AOMMIN(cpi->rc.frames_to_key, lookahead_size);
   }
+
+  if (cpi->frames_left > lookahead_size) {
+    // Correct frames to key based on limit
+    cpi->rc.frames_to_key = AOMMIN(cpi->rc.frames_to_key, cpi->frames_left);
+  }
 }
 
 static void define_gf_group_pass0(AV1_COMP *cpi,
