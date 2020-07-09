@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d7deaf4_1b36edc3",
+        "filename": "aom_dsp/x86/highbd_variance_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-07-09T17:31:02Z",
+      "side": 1,
+      "message": "Our style is to have at least two spaces between code and the comment on the same line, although I can\u0027t find this recommendation in the current version of the Style Guide. Also, please add a space after \"//\". So this line should look like this:\n\n    if (yoffset \u003d\u003d 0) {  // xoffset\u003d\u003d0 \u0026\u0026 yoffset\u003d\u003d0\n\nRunning the clang-format command on the file should be able to do this:\n\n/usr/bin/clang-format --style\u003dfile -i aom_dsp/x86/highbd_variance_avx2.c",
+      "revId": "35cb4a374621ed6614a659903f80d96915ee4340",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
