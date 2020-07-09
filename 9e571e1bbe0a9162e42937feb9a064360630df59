@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc6b74fb_cf0aa6ff",
+        "filename": "av1/encoder/aq_cyclicrefresh.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-07-09T20:25:50Z",
+      "side": 1,
+      "message": "these comments need to be formatted like:\n\n  /*!\n   * Comments here\n   */",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 45
+      },
+      "revId": "9e571e1bbe0a9162e42937feb9a064360630df59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d275effb_9fad0a0f",
+        "filename": "av1/encoder/aq_cyclicrefresh.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-07-09T20:25:50Z",
+      "side": 1,
+      "message": "you can put this block inside\n\n/*!\\cond */\n\n/*!\\endcond */\n\nto avoid the doxygen warnings.",
+      "range": {
+        "startLine": 64,
+        "startChar": 2,
+        "endLine": 69,
+        "endChar": 30
+      },
+      "revId": "9e571e1bbe0a9162e42937feb9a064360630df59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
