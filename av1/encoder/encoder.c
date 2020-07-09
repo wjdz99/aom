@@ -884,6 +884,8 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
   av1_rc_init(&cpi->oxcf, oxcf->pass, &cpi->rc);
 #endif  // CONFIG_SINGLEPASS
 
+  cpi->frames_left = cpi->oxcf.input_cfg.limit;
+
   // For two pass and lag_in_frames > 33 in LAP.
   cpi->rc.enable_scenecut_detection = ENABLE_SCENECUT_MODE_2;
   if (cpi->lap_enabled) {
