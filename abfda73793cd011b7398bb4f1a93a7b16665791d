@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11731f40_caa2f66e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-07-10T23:10:22Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, we are resubmitting “Separate utility functions from encoder.c” as the issue causing the nightly test failure is fixed. The nightly test that was failing is verified to be passing locally and the sanitizer issue is not seen now.\n\nBUG\u003daomedia:2746\n\nAWCY Link: (bit-exact, cpu-used 1, 60 frames)\nhttps://beta.arewecompressedyet.com/?job\u003d11Jul20_ref_cpu1_master%402020-07-10T18%3A44%3A15.370Z\u0026job\u003d11Jul20_refactor_cpu1_master%402020-07-10T18%3A56%3A50.859Z\n\nPlease review the patch.\n\nRegards,\nJayasanker.\n",
+      "revId": "abfda73793cd011b7398bb4f1a93a7b16665791d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
