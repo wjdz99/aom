@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0e7179b0_57120176",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-07-10T16:30:55Z",
+      "side": 1,
+      "message": "That\u0027s why i added comments here :)",
+      "parentUuid": "298def9c_86fb62dd",
+      "range": {
+        "startLine": 111,
+        "startChar": 2,
+        "endLine": 114,
+        "endChar": 20
+      },
+      "revId": "b5f15feab139cd8e10c770b58d28311710192bde",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1353463c_13778475",
         "filename": "av1/encoder/tpl_model.c",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-07-10T15:48:52Z",
       "side": 1,
       "message": "Could you explain a bit on why this provides different results than frame_disp_idx?",
+      "range": {
+        "startLine": 949,
+        "startChar": 32,
+        "endLine": 950,
+        "endChar": 76
+      },
+      "revId": "b5f15feab139cd8e10c770b58d28311710192bde",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "664fff9d_e91586d7",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 950,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-07-10T16:30:55Z",
+      "side": 1,
+      "message": "the initial offset used by anc_arf_offset is different.",
+      "parentUuid": "1353463c_13778475",
       "range": {
         "startLine": 949,
         "startChar": 32,
