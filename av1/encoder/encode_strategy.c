@@ -789,6 +789,8 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
     return refresh_mask;
   }
 
+  //sarahparker replace the following with gop cfg
+
   // Search for the open slot to store the current frame.
   int free_fb_index = get_free_ref_map_index(ref_buffer_stack);
   switch (frame_update_type) {
@@ -1048,6 +1050,131 @@ void av1_get_ref_frames(AV1_COMP *const cpi, RefBufferStack *ref_buffer_stack) {
   }
 }
 
+static void get_remapped_ref_idx(AV1_COMP *const cpi) {
+  GF_GROUP gf_group = cpi->gf_group;
+  const int index = gf_group.index;
+  const int cur_frame_disp = gf_group.frame_disp_idx[index];
+  // TODO(sarahparker) this shouldnt have to be here
+  if (cur_frame_disp == 0) return;
+  SubGOPStepCfg gop_cfg = cpi->subgop_config_set.config[0].step[index - 1];
+
+  // Mask to indicate whether or not each ref is allowed by the GOP config
+  int ref_frame_used[REF_FRAMES] = { 0 };
+  int n_references[MAX_ARF_LAYERS + 1] = { 0 };
+  int references[MAX_ARF_LAYERS + 1][REF_FRAMES] = {{ 0 }};
+  int disp_orders[MAX_ARF_LAYERS + 1][REF_FRAMES] = {{ 0 }};
+
+  int frame_level = -1;
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+    if (buf == NULL) continue;
+    const int frame_order = (int)buf->display_order_hint;
+    frame_level = buf->pyramid_level;
+
+    // Handle special cases
+    if (frame_order == 0) {
+      // Keyframe case
+      frame_level = 1;
+    } else if (frame_level == MAX_ARF_LAYERS) {
+      // Leaves 
+      frame_level = gf_group.max_layer_depth;
+    } else if (frame_level == (MAX_ARF_LAYERS + 1)) {
+      // Altrefs 
+      frame_level = 1;
+    }
+    
+    // Sometimes a frame index is in multiple reference buffers. 
+    // Do not add a frame to the pyramid list multiple times.
+    int found = 0;
+    for (int r = 0; r < n_references[frame_level]; r++) {
+      if (frame_order == disp_orders[frame_level][r]) {
+        found = 1;
+        break;
+      }
+    }
+    if (!found) {
+      int n_refs = n_references[frame_level]++;
+      disp_orders[frame_level][n_refs] = frame_order;
+      references[frame_level][n_refs] = frame;
+    }
+  }
+
+
+  //// TESTING 
+  printf("\n\n");
+  printf("curfm %d,                                                    %d,  %d,  %d,  %d,  %d,  %d,  %d \n", 
+        cur_frame_disp, //cpi->rc.baseline_gf_interval, 
+        gop_cfg.references[0], 
+        gop_cfg.references[1], 
+        gop_cfg.references[2], 
+        gop_cfg.references[3], 
+        gop_cfg.references[4], 
+        gop_cfg.references[5], 
+        gop_cfg.references[6]);
+/*
+  for (int i = 1; i <= MAX_ARF_LAYERS; i++) {
+    printf("layer: %d | ", i);
+    int n_refs = n_references[i];
+    printf("n_refs %d: ", n_refs);
+    for (int j = 0; j < n_refs; j++) {
+    printf("(%d, %d) ", references[i][j], disp_orders[i][j]);
+    } 
+    printf("\n");
+  }
+*/
+
+
+  for (int i = 0; i < gop_cfg.num_references; i++) {
+    const int level = gop_cfg.references[i];
+    const int abs_level = abs(level);
+    int best_frame = -1;
+    int best_frame_index = -1;
+    int best_disp_order = INT_MAX;
+    for (int l = 0; l < n_references[abs_level]; l++) {
+      const int disp_order = disp_orders[abs_level][l]; 
+      if (disp_order < 0) continue;
+      if (disp_order < cur_frame_disp && level < 0) continue;
+      if (abs(disp_order - cur_frame_disp) < abs(best_disp_order - cur_frame_disp)) {
+        best_frame = references[abs_level][l];
+        best_frame_index = l;
+        best_disp_order = disp_order;
+      }
+    }
+    if (best_frame == -1) { printf("WARNING\n"); }
+    else { 
+      ref_frame_used[best_frame] = 1;
+      disp_orders[abs_level][best_frame_index] = -1;
+    }
+  }
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+    if (buf == NULL) continue;
+    const int frame_order = (int)buf->display_order_hint;
+    int frame_level = buf->pyramid_level;
+
+    // Handle special cases
+    if (frame_order == 0) {
+      // Keyframe case
+      frame_level = 1;
+    } else if (frame_level == MAX_ARF_LAYERS) {
+      // Leaves 
+      frame_level = gf_group.max_layer_depth;
+    } else if (frame_level == (MAX_ARF_LAYERS + 1)) {
+      // Altrefs 
+      frame_level = 1;
+    }
+    int sign = frame_order < cur_frame_disp ? 1 : -1;
+    if (ref_frame_used[frame]) printf("USED: frame %d level %d\n", frame_order, sign * frame_level); 
+  }
+
+
+
+
+  printf("\n\n");
+}
+
 int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                         uint8_t *const dest, unsigned int *frame_flags,
                         int64_t *const time_stamp, int64_t *const time_end,
@@ -1220,6 +1347,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
        frame_params.frame_type == S_FRAME) &&
       !frame_params.show_existing_frame;
 
+  //sarahparker skip for gop cfg
   av1_configure_buffer_updates(cpi, &frame_params.refresh_frame,
                                frame_update_type, force_refresh_all);
 
@@ -1228,10 +1356,10 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     const YV12_BUFFER_CONFIG *ref_frame_buf[INTER_REFS_PER_FRAME];
 
     if (!ext_flags->refresh_frame.update_pending) {
-      av1_get_ref_frames(cpi, &cpi->ref_buffer_stack);
+      av1_get_ref_frames(cpi, &cpi->ref_buffer_stack);//sarahparker fill in here?
     } else if (cpi->svc.external_ref_frame_config) {
       for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++)
-        cm->remapped_ref_idx[i] = cpi->svc.ref_idx[i];
+        cm->remapped_ref_idx[i] = cpi->svc.ref_idx[i];//sarahparker 
     }
 
     // Get the reference frames
@@ -1240,6 +1368,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       ref_frame_buf[i] = ref_frames[i] != NULL ? &ref_frames[i]->buf : NULL;
     }
     // Work out which reference frame slots may be used.
+    //sarahparker add disabled frames here
     frame_params.ref_frame_flags = get_ref_frame_flags(
         &cpi->sf, ref_frame_buf, ext_flags->ref_frame_flags);
 
@@ -1247,6 +1376,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
         choose_primary_ref_frame(cpi, &frame_params);
     frame_params.order_offset = get_order_offset(&cpi->gf_group, &frame_params);
 
+    //sarahparker get refresh here, go in this function to see spot where code goes
     frame_params.refresh_frame_flags = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, &cpi->ref_buffer_stack);
 
@@ -1266,6 +1396,9 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   // frame_params->remapped_ref_idx here and they will be used when encoding
   // this frame.  If frame_params->remapped_ref_idx is setup independently of
   // cm->remapped_ref_idx then update_ref_frame_map() will have no effect.
+  //sarahparker make input params more specific
+  if (!is_stat_generation_stage(cpi)) 
+    get_remapped_ref_idx(cpi);
   memcpy(frame_params.remapped_ref_idx, cm->remapped_ref_idx,
          REF_FRAMES * sizeof(*cm->remapped_ref_idx));
 
@@ -1303,13 +1436,17 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 #endif  // CONFIG_REALTIME_ONLY
 
+  //sarahparker possible no modification? 
   if (!is_stat_generation_stage(cpi)) {
     // First pass doesn't modify reference buffer assignment or produce frame
     // flags
     update_frame_flags(&cpi->common, &cpi->refresh_frame, frame_flags);
     if (!ext_flags->refresh_frame.update_pending) {
+      //sarahparker this will be fine as is as long as 
+      //cm->current_frame.refresh_frame_flags is set correctly
       int ref_map_index =
           av1_get_refresh_ref_frame_map(cm->current_frame.refresh_frame_flags);
+      //sarahparker maybe keep this unmodified
       av1_update_ref_frame_map(cpi, frame_update_type, cm->show_existing_frame,
                                ref_map_index, &cpi->ref_buffer_stack);
     }

@@ -182,6 +182,11 @@ typedef struct {
   unsigned char cur_frame_idx[MAX_STATIC_GF_GROUP_LENGTH];
   unsigned char frame_disp_idx[MAX_STATIC_GF_GROUP_LENGTH];
 
+  // Maps a frame's display index to its pyramid depth 
+  int disp_idx_to_depth[MAX_GF_INTERVAL];
+  // Gives the absolute display order of the first frame in this group 
+  int first_frame_disp_order;
+
   // TODO(jingning): Unify the data structure used here after the new control
   // mechanism is in place.
   int layer_depth[MAX_STATIC_GF_GROUP_LENGTH];
