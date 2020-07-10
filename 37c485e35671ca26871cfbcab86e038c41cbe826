@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45ea144c_4e8944f1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-07-10T23:09:11Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, we have fixed an invalid access of saved_wb.bit_buffer in av1_pack_bitsream().\nThis invalid access happens while encode_show_existing_frame \u003d 1. This was causing the pointer\nsaved_wb.bit_buffer to overflow. (BUG\u003daomedia:2746) This was an existing issue and was not seen\nin versions earlier to “Separate utility functions from encoder.c” since the uninitialized pointer values\nwere such as not to cause overflow.\n\nWe have initialized the structure saved_wb and have moved the update of\nsaved_wb.bit_buffer to avoid the invalid access.\n\nPlease review the patch.\n\nRegards,\nJayasanker.\n",
+      "revId": "37c485e35671ca26871cfbcab86e038c41cbe826",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
