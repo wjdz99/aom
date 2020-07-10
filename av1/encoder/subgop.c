@@ -58,11 +58,16 @@ static int process_subgop_step(char *str, SubGOPStepCfg *step) {
   if (*ptr != 'P') return 0;
   str = ++ptr;
   char delim[] = "^";
-  char *token;
+  char *token, *next;
   while ((token = my_strtok_r(str, delim, &str)) != NULL) {
     if (step->num_references >= INTER_REFS_PER_FRAME) return 0;
-    step->references[step->num_references] = (int8_t)strtol(token, NULL, 10);
+    step->references[step->num_references] = (int8_t)strtol(token, &next, 10);
     step->num_references++;
+  }
+  if (*next == 'X') {  // refresh data provided
+    next++;
+    step->refresh = (int8_t)strtol(next, NULL, 10);
+    if (step->refresh <= 0) return 0;
   }
   return 1;
 }
@@ -152,6 +157,7 @@ void av1_print_subgop_config_set(SubGOPSetCfg *config_set) {
           if (r) printf("^");
           printf("%d", config->step[j].references[r]);
         }
+        printf(" refresh:%d", config->step[j].refresh);
       }
       printf("\n");
     }
