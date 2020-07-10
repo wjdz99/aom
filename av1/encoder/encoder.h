@@ -652,6 +652,7 @@ typedef struct {
   int8_t pyr_level;
   int8_t num_references;
   int8_t references[INTER_REFS_PER_FRAME];
+  int8_t refresh;
 } SubGOPStepCfg;
 
 typedef struct {
