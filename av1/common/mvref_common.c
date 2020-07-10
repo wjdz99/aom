@@ -838,6 +838,7 @@ void av1_find_best_ref_mvs(int allow_hp, int_mv *mvlist, int_mv *nearest_mv,
 void av1_setup_frame_buf_refs(AV1_COMMON *cm) {
   cm->cur_frame->order_hint = cm->current_frame.order_hint;
   cm->cur_frame->display_order_hint = cm->current_frame.display_order_hint;
+  cm->cur_frame->pyramid_level = cm->current_frame.pyramid_level;
   cm->cur_frame->absolute_poc = cm->current_frame.absolute_poc;
 
   MV_REFERENCE_FRAME ref_frame;
