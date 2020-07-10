@@ -391,6 +391,7 @@ static AOM_INLINE void simple_motion_search_prune_part_features(
   const int w_mi = mi_size_wide[bsize];
   const int h_mi = mi_size_high[bsize];
   assert(mi_size_wide[bsize] == mi_size_high[bsize]);
+  //ask yue about this assert
   assert(cpi->ref_frame_flags & av1_ref_frame_flag_list[LAST_FRAME] ||
          cpi->ref_frame_flags & av1_ref_frame_flag_list[ALTREF_FRAME]);
 
