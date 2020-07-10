@@ -794,7 +794,6 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
       strcmp(cpi->subgop_config_str, oxcf->subgop_config_str)) {
     aom_free(cpi->subgop_config_str);
     if (oxcf->subgop_config_str != NULL) {
-
       cpi->subgop_config_str =
           (char *)aom_malloc((strlen(oxcf->subgop_config_str) + 1) *
                              sizeof(*oxcf->subgop_config_str));
