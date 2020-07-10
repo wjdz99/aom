@@ -1047,6 +1047,93 @@ void av1_get_ref_frames(AV1_COMP *const cpi, RefBufferStack *ref_buffer_stack) {
       remapped_ref_idx[idx] = ref_buffer_stack->gld_stack[0];
   }
 }
+/*
+typedef struct {
+  int8_t disp_frame_idx;
+  FRAME_TYPE_CODE type_code;
+  int8_t pyr_level;
+  int8_t num_references;
+  int8_t references[INTER_REFS_PER_FRAME];
+} SubGOPStepCfg;
+
+
+    MV_REFERENCE_FRAME ref_frame;
+    for (ref_frame = LAST_FRAME; ref_frame <= EXTREF_FRAME; ++ref_frame) {
+      const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
+      fprintf(stderr, "%s = %d\n", ref_names[ref_frame],
+              buf != NULL ? (int)buf->display_order_hint : -1);
+*/
+
+typedef struct {
+  int n_references;
+  int references[REF_FRAMES];
+} PyrLevelMap; 
+
+static void get_remapped_ref_idx(AV1_COMP *const cpi) {
+  GF_GROUP gf_group = cpi->gf_group;
+  const int index = gf_group.index;
+  SubGOPStepCfg gop_cfg = cpi->subgop_config_set.config[0].step[index];
+
+  // Mask to indicate whether or not each ref is allowed by the GOP config
+  int ref_frame_used[REF_FRAMES] = { 0 };
+  PyrLevelMap pyramid_map[MAX_ARF_LAYERS];
+
+  int frame_level = -1;
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+    if (buf == NULL) continue;
+    const int frame_order = (int)buf->display_order_hint;
+    frame_level = gf_group.disp_idx_to_depth[frame_order];
+
+    // Handle special cases
+    if (frame_order == 0) {
+      // Keyframe case
+      frame_level = 1;
+    } else if (frame_level == MAX_ARF_LAYERS) {
+      // Leaves 
+      frame_level = gf_group.max_layer_depth;
+    } else if (frame_level == (MAX_ARF_LAYERS + 1)) {
+      // Altrefs 
+      frame_level = 1;
+    }
+  
+    int n_references = pyramid_map[frame_level].n_references++;
+    pyramid_map[frame_level].references[n_references] = frame;
+  }
+/*
+  //// TESTING 
+  for (int i = 1; i <= MAX_ARF_LAYERS; i++) {
+    printf("layer: %d | ", i);
+    for (int j = 0; j < pyramid_map[i - 1].n_references; j++) {
+      const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, pyramid_map[i - 1].references[j]);
+    const int frame_order = (int)buf->display_order_hint;
+      printf("(%d, %d) ", pyramid_map[i - 1].references[j], frame_order);
+    } 
+    printf("\n");
+  }
+  printf("\n\n");
+*/
+
+
+
+
+
+
+//for (int i = 0; i < MAX_STATIC_GF_GROUP_LENGTH; i++)
+//  printf("(%d, %d, %d), ", gf_group.frame_disp_idx[i], gf_group.layer_depth[i], 
+//         gf_group.max_layer_depth);
+//printf("\n\n");
+//printf("index %d, gflen %d                                           %d,  %d,  %d,  %d,  %d,  %d,  %d \n", 
+//      cpi->gf_group.index, cpi->rc.baseline_gf_interval, 
+//      gop_cfg.references[0], 
+//      gop_cfg.references[1], 
+//      gop_cfg.references[2], 
+//      gop_cfg.references[3], 
+//      gop_cfg.references[4], 
+//      gop_cfg.references[5], 
+//      gop_cfg.references[6]);
+}
 
 int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                         uint8_t *const dest, unsigned int *frame_flags,
@@ -1266,6 +1353,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   // frame_params->remapped_ref_idx here and they will be used when encoding
   // this frame.  If frame_params->remapped_ref_idx is setup independently of
   // cm->remapped_ref_idx then update_ref_frame_map() will have no effect.
+  //sarahparker make input params more specific
+  get_remapped_ref_idx(cpi);
   memcpy(frame_params.remapped_ref_idx, cm->remapped_ref_idx,
          REF_FRAMES * sizeof(*cm->remapped_ref_idx));
 

@@ -51,6 +51,8 @@ static void set_multi_layer_params(const TWO_PASS *twopass,
           twopass, rc, frame_info, start, end - start, 0, NULL, NULL);
       gf_group->max_layer_depth =
           AOMMAX(gf_group->max_layer_depth, layer_depth);
+      gf_group->disp_idx_to_depth[gf_group->frame_disp_idx[*frame_ind]] = 
+          gf_group->layer_depth[*frame_ind];
       ++(*frame_ind);
     }
   } else {
@@ -62,6 +64,8 @@ static void set_multi_layer_params(const TWO_PASS *twopass,
     gf_group->cur_frame_idx[*frame_ind] = *cur_frame_idx;
     gf_group->frame_disp_idx[*frame_ind] = m;
     gf_group->layer_depth[*frame_ind] = layer_depth;
+    gf_group->disp_idx_to_depth[gf_group->frame_disp_idx[*frame_ind]] = 
+        gf_group->layer_depth[*frame_ind];
 
     // Get the boost factor for intermediate ARF frames.
     gf_group->arf_boost[*frame_ind] = av1_calc_arf_boost(
@@ -80,6 +84,8 @@ static void set_multi_layer_params(const TWO_PASS *twopass,
     gf_group->frame_disp_idx[*frame_ind] = m;
     gf_group->arf_boost[*frame_ind] = 0;
     gf_group->layer_depth[*frame_ind] = layer_depth;
+    gf_group->disp_idx_to_depth[gf_group->frame_disp_idx[*frame_ind]] = 
+        gf_group->layer_depth[*frame_ind];
     ++(*frame_ind);
 
     // Frames displayed after this internal ARF.
@@ -103,6 +109,8 @@ static int construct_multi_layer_gf_structure(
 
   gf_group->update_type[frame_index] = first_frame_update_type;
   gf_group->arf_src_offset[frame_index] = 0;
+  gf_group->disp_idx_to_depth[gf_group->frame_disp_idx[frame_index]] = 
+      gf_group->layer_depth[frame_index];
   ++cur_frame_index;
   gf_group->cur_frame_idx[frame_index] = cur_frame_index;
   gf_group->layer_depth[frame_index] =
@@ -118,6 +126,8 @@ static int construct_multi_layer_gf_structure(
     gf_group->cur_frame_idx[frame_index] = cur_frame_index;
     gf_group->frame_disp_idx[frame_index] = gf_interval;
     gf_group->layer_depth[frame_index] = 1;
+    gf_group->disp_idx_to_depth[gf_group->frame_disp_idx[frame_index]] = 
+        gf_group->layer_depth[frame_index];
     gf_group->arf_boost[frame_index] = cpi->rc.gfu_boost;
     gf_group->max_layer_depth = 1;
     ++frame_index;
