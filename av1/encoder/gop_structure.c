@@ -92,6 +92,7 @@ static int construct_multi_layer_gf_structure(
     AV1_COMP *cpi, TWO_PASS *twopass, GF_GROUP *const gf_group,
     RATE_CONTROL *rc, FRAME_INFO *const frame_info, int gf_interval,
     FRAME_UPDATE_TYPE first_frame_update_type) {
+  printf("CONSTRUCT STRUCTURE\n");
   int frame_index = 0;
   int cur_frame_index = 0;
 
