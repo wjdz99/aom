@@ -639,11 +639,11 @@ typedef struct {
 #define MAX_SUBGOP_STEPS 64
 
 typedef enum {
-  FRAME_TYPE_INO_VISIBLE,
-  FRAME_TYPE_INO_REPEAT,
-  FRAME_TYPE_INO_SHOWEXISTING,
-  FRAME_TYPE_OOO_FILTERED,
-  FRAME_TYPE_OOO_UNFILTERED,
+  FRAME_TYPE_INO_VISIBLE, // normal visible
+  FRAME_TYPE_INO_REPEAT, // overlay or show exist depending on the original encoding
+  FRAME_TYPE_INO_SHOWEXISTING, // show existing
+  FRAME_TYPE_OOO_FILTERED, // internal altref
+  FRAME_TYPE_OOO_UNFILTERED, // altref
 } FRAME_TYPE_CODE;
 
 typedef struct {
