@@ -713,11 +713,10 @@ static int64_t calculate_total_gf_group_bits(AV1_COMP *cpi,
   }
 
   // Clamp odd edge cases.
-  total_group_bits = (total_group_bits < 0)
-                         ? 0
-                         : (total_group_bits > twopass->kf_group_bits)
-                               ? twopass->kf_group_bits
-                               : total_group_bits;
+  total_group_bits = (total_group_bits < 0) ? 0
+                     : (total_group_bits > twopass->kf_group_bits)
+                         ? twopass->kf_group_bits
+                         : total_group_bits;
 
   // Clip based on user supplied data rate variability limit.
   if (total_group_bits > (int64_t)max_bits * rc->baseline_gf_interval)
@@ -946,7 +945,7 @@ static INLINE int detect_gf_cut(AV1_COMP *cpi, int frame_index, int cur_start,
 }
 
 #define MAX_PAD_GF_CHECK 6  // padding length to check for gf length
-#define AVG_SI_THRES 0.6    // thres for average silouette
+#define AVG_SI_THRES 0.6  // thres for average silouette
 #define GF_SHRINK_OUTPUT 0  // print output for gf length decision
 int determine_high_err_gf(double *errs, int *is_high, double *si, int len,
                           double *ratio, int gf_start, int gf_end,
@@ -1098,9 +1097,9 @@ int determine_high_err_gf(double *errs, int *is_high, double *si, int len,
 #define RC_FACTOR_MAX 1.25
 #endif  // GROUP_ADAPTIVE_MAXQ
 #define MIN_FWD_KF_INTERVAL 8
-#define MIN_SHRINK_LEN 6      // the minimum length of gf if we are shrinking
+#define MIN_SHRINK_LEN 6  // the minimum length of gf if we are shrinking
 #define SI_HIGH AVG_SI_THRES  // high quality classification
-#define SI_LOW 0.3            // very unsure classification
+#define SI_LOW 0.3  // very unsure classification
 // this function finds an low error frame previously to the current last frame
 // in the gf group, and set the last frame to it.
 // The resulting last frame is then returned by *cur_last_ptr
@@ -2289,11 +2288,16 @@ static double get_kf_boost_score(AV1_COMP *cpi, double kf_raw_err,
   av1_zero(frame_stat);
   int i = 0, num_stat_used = 0;
   double boost_score = 0.0;
+  av1_set_screen_content_options(cpi, &cpi->common.features);
+  cpi->is_screen_content_type = cpi->common.features.allow_screen_content_tools;
+  const double kf_screen_content_boost = 1.0;
+  const double screen_content_factor =
+      cpi->is_screen_content_type ? kf_screen_content_boost : 1.0;
   const double kf_max_boost =
       cpi->oxcf.rc_cfg.mode == AOM_Q
           ? AOMMIN(AOMMAX(rc->frames_to_key * 2.0, KF_MIN_FRAME_BOOST),
                    KF_MAX_FRAME_BOOST)
-          : KF_MAX_FRAME_BOOST;
+          : KF_MAX_FRAME_BOOST * screen_content_factor;
 
   // Calculate the average using available number of stats.
   if (use_avg_stat) num_stat_used = calc_avg_stats(cpi, &frame_stat);
