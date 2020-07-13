@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0115a98_b96b8657",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-07-13T15:22:45Z",
+      "side": 1,
+      "message": "Debargha,\n\nWe have missed to delete a unused file in earlier patchset, \nwe have deleted it and uploaded new patchset. \n\nPlease review.\n\nThanks.",
+      "revId": "b0b427e13bad05c653eabda0bd8eed4466ac8103",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
