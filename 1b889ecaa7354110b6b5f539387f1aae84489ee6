@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15f46ff1_52442ffb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-07-13T13:14:39Z",
+      "side": 1,
+      "message": "Debargha,\n\nWe have rebased this patch to fix merge conflicts and\nchanged functions as required according to the latest \nrefactor in gtests.\n\nThanks",
+      "revId": "1b889ecaa7354110b6b5f539387f1aae84489ee6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
