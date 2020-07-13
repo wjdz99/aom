@@ -420,6 +420,9 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   if (prev_frame_mvs->mfmv0.as_int == INVALID_MV) return 0;
 
   MV_REFERENCE_FRAME rf[2];
+
+
+
   av1_set_ref_frame(rf, ref_frame);
 
   const uint16_t weight_unit = 1;  // mi_size_wide[BLOCK_8X8];
@@ -688,7 +691,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 
   const uint8_t ref_match_count = (row_match_count > 0) + (col_match_count > 0);
-
+  fprintf(stderr, "GJK: block pos (%d %d) refmv_cnt=%d\n", xd->mi_row, xd->mi_col, (*refmv_count));
   switch (nearest_match) {
     case 0:
       mode_context[ref_frame] |= 0;
