@@ -56,6 +56,24 @@
       "revId": "cf0ec05ac151573da3db783c4957fbd674ba7974",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2462f488_957c09e4",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-07-13T17:46:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a986ad50_34545552",
+      "revId": "cf0ec05ac151573da3db783c4957fbd674ba7974",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
