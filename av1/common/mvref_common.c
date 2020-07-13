@@ -10,7 +10,6 @@
  */
 
 #include <stdlib.h>
-
 #include "av1/common/mvref_common.h"
 #include "av1/common/warped_motion.h"
 
@@ -691,7 +690,8 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 
   const uint8_t ref_match_count = (row_match_count > 0) + (col_match_count > 0);
-  //fprintf(stderr, "GJK: block pos (%d %d) refmv_cnt=%d\n", xd->mi_row, xd->mi_col, (*refmv_count));
+  printf("hellow\n");
+  
   switch (nearest_match) {
     case 0:
       mode_context[ref_frame] |= 0;
