@@ -478,6 +478,7 @@ static AOM_INLINE void setup_ref_mv_list(
     uint16_t ref_mv_weight[MAX_REF_MV_STACK_SIZE],
     int_mv mv_ref_list[MAX_MV_REF_CANDIDATES], int_mv *gm_mv_candidates,
     int mi_row, int mi_col, int16_t *mode_context) {
+  fprint(stderr, "GJK: test change commit\n");
   const int bs = AOMMAX(xd->width, xd->height);
   const int has_tr = has_top_right(cm, xd, mi_row, mi_col, bs);
   MV_REFERENCE_FRAME rf[2];
