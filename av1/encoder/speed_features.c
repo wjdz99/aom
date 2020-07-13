@@ -559,6 +559,7 @@ static void set_good_speed_features_framesize_independent(
     sf->intra_sf.skip_intra_in_interframe = 2;
 
     sf->mv_sf.simple_motion_subpel_force_stop = HALF_PEL;
+    sf->mv_sf.use_bsize_dependent_search_method = 1;
 
     sf->tpl_sf.prune_starting_mv = 2;
     sf->tpl_sf.subpel_force_stop = HALF_PEL;
@@ -592,7 +593,6 @@ static void set_good_speed_features_framesize_independent(
 
     // TODO(any): The following features give really bad quality/speed trade
     // off. Needs to be re-worked.
-    // sf->mv_sf.search_method = BIGDIA;
     // sf->inter_sf.adaptive_rd_thresh = 4;
     // sf->rd_sf.tx_domain_dist_level = 2;
     // sf->rt_sf.mode_search_skip_flags =
@@ -1012,6 +1012,7 @@ static AOM_INLINE void init_mv_sf(MV_SPEED_FEATURES *mv_sf) {
   mv_sf->subpel_iters_per_step = 2;
   mv_sf->subpel_search_method = SUBPEL_TREE;
   mv_sf->use_accurate_subpel_search = USE_8_TAPS;
+  mv_sf->use_bsize_dependent_search_method = 0;
   mv_sf->use_fullpel_costlist = 0;
 }
 
