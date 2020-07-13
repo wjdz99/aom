@@ -138,7 +138,7 @@ static AOM_INLINE void setup_tpl_buffers(AV1_COMMON *const cm,
     if (aom_alloc_frame_buffer(
             &tpl_data->tpl_rec_pool[frame], cm->width, cm->height,
             cm->seq_params.subsampling_x, cm->seq_params.subsampling_y,
-            cm->seq_params.use_highbitdepth, AOM_ENC_NO_SCALE_BORDER,
+            cm->seq_params.use_highbitdepth, AOM_ENC_TPL_FRAME_BORDER,
             cm->features.byte_alignment))
       aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                          "Failed to allocate frame buffer");
