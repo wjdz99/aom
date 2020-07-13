@@ -22,6 +22,8 @@ struct EncodeFrameInput;
 
 #include "av1/encoder/encoder.h"
 
+#define AOM_ENC_NO_SCALE_BORDER_TPL 32
+
 static INLINE BLOCK_SIZE convert_length_to_bsize(int length) {
   switch (length) {
     case 64: return BLOCK_64X64;
