@@ -1700,6 +1700,7 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &cpi->td.mb;
   const int num_planes = av1_num_planes(cm);
+  
   assert(!cm->features.all_lossless);
 
   av1_fill_lr_rates(&x->mode_costs, x->e_mbd.tile_ctx);
