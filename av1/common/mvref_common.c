@@ -420,6 +420,9 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   if (prev_frame_mvs->mfmv0.as_int == INVALID_MV) return 0;
 
   MV_REFERENCE_FRAME rf[2];
+
+
+  
   av1_set_ref_frame(rf, ref_frame);
 
   const uint16_t weight_unit = 1;  // mi_size_wide[BLOCK_8X8];
