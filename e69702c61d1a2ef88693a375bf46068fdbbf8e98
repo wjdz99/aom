@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6bf89690_0f536d76",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-07-13T09:55:15Z",
+      "side": 1,
+      "message": "Debargha,\n \nThis patch fixes the build error in still_picture_test.cc file and \ntile_config_test.cc file. The recent changes made in gtest usage in \nthe commit \"9dfac721475025a4590d61ed5de558099ad6ced1 - Update gtest \nusage in unit tests\" caused conflicts in these files.\n \nThanks\n",
+      "revId": "e69702c61d1a2ef88693a375bf46068fdbbf8e98",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
