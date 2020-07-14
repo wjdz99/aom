@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "bed218f1_c39f6e82",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 5
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2020-07-14T18:07:16Z",
+      "side": 1,
+      "message": "I previously had problems with the display / interpretation of characters like \" which is why I took the quote marks out. However I just tried again putting them in and it was fine. I think it may have been a problem with different character coding when I cut and pasted some stuff from Google docs. Entering direct seems at the moment to be parsing correctly so I will try again. I may change it in the next patch rather than rebase.",
+      "parentUuid": "80de361e_b5c32640",
+      "range": {
+        "startLine": 229,
+        "startChar": 44,
+        "endLine": 229,
+        "endChar": 45
+      },
+      "revId": "8a1cc0041472db1b269b7cc2dcd124daaa7f4072",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "00123671_c29311ae",
         "filename": "doc/dev_guide/av1_encoder.dox",
         "patchSetId": 5
@@ -62,6 +86,30 @@
       "revId": "8a1cc0041472db1b269b7cc2dcd124daaa7f4072",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fdb63de_0820b27c",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 5
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2020-07-14T18:07:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00123671_c29311ae",
+      "range": {
+        "startLine": 260,
+        "startChar": 45,
+        "endLine": 260,
+        "endChar": 46
+      },
+      "revId": "8a1cc0041472db1b269b7cc2dcd124daaa7f4072",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
