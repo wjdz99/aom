@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c076179d_19d6518e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-07-14T13:58:00Z",
+      "side": 1,
+      "message": "Debargha,\n \nThis patch is cherry picked from master branch. It adds \ncontrol calls in decoder side to export some frame level\nand stream level information to the application.\n \nThanks\n",
+      "revId": "60ed5bbbcb9a7800074f7899fbf3244ebb11bf11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
