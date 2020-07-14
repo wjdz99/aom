@@ -2813,7 +2813,16 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
           realloc_and_scale_source(cpi, cm->cur_frame->buf.y_crop_width,
                                    cm->cur_frame->buf.y_crop_height);
     }
+
+#if CONFIG_REALTIME_ONLY
     ++current_frame->frame_number;
+#else
+    // current_frame->frame_number is incremented already for
+    // keyframe overlays.
+    if (!av1_check_keyframe_overlay(cpi->gf_group.index, &cpi->gf_group,
+                                    cpi->rc.frames_since_key))
+      ++current_frame->frame_number;
+#endif
 
     return AOM_CODEC_OK;
   }
@@ -3058,12 +3067,22 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   // A droppable frame might not be shown but it always
   // takes a space in the gf group. Therefore, even when
   // it is not shown, we still need update the count down.
-
+#if CONFIG_REALTIME_ONLY
   if (cm->show_frame) {
-    // Don't increment frame counters if this was an altref buffer
-    // update not a real frame
     ++current_frame->frame_number;
   }
+#else
+  if (cm->show_frame) {
+    // Don't increment frame counters if this is a key frame overlay
+    if (!av1_check_keyframe_overlay(cpi->gf_group.index, &cpi->gf_group,
+                                    cpi->rc.frames_since_key))
+      ++current_frame->frame_number;
+  } else if (av1_check_keyframe_arf(cpi->gf_group.index, &cpi->gf_group,
+                                    cpi->rc.frames_since_key)) {
+    // TODO(bohanli) Hack here: increment kf overlay before it is encoded
+    ++current_frame->frame_number;
+  }
+#endif
 
   return AOM_CODEC_OK;
 }

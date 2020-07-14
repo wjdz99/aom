@@ -132,6 +132,11 @@ void av1_gop_bit_allocation(const AV1_COMP *cpi, RATE_CONTROL *const rc,
                             GF_GROUP *gf_group, int is_key_frame, int use_arf,
                             int64_t gf_group_bits);
 
+int av1_check_keyframe_arf(int gf_index, GF_GROUP *gf_group,
+                           int frame_since_key);
+int av1_check_keyframe_overlay(int gf_index, GF_GROUP *gf_group,
+                               int frame_since_key);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
