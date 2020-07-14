@@ -2783,7 +2783,12 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   av1_zero(this_frame);
   // call above fn
   if (is_stat_consumption_stage(cpi)) {
-    process_first_pass_stats(cpi, &this_frame);
+    // Do not read if it is overlay for kf arf, since kf already
+    // advanced the first pass stats pointer
+    if (!av1_check_keyframe_overlay(gf_group->index, gf_group,
+                                    rc->frames_since_key)) {
+      process_first_pass_stats(cpi, &this_frame);
+    }
   } else {
     rc->active_worst_quality = oxcf->rc_cfg.cq_level;
   }
@@ -3137,4 +3142,26 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
       }
     }
   }
+}
+
+// Determine whether a frame is a keyframe arf. Will return 0 for fwd kf arf.
+// Note it depends on frame_since_key and gf_group, therefore should be called
+// after the gf group is defined, or otherwise a keyframe arf may still return
+// 0.
+int av1_check_keyframe_arf(int gf_index, GF_GROUP *gf_group,
+                           int frame_since_key) {
+  if (gf_index >= gf_group->size) return 0;
+  return gf_group->update_type[gf_index] == ARF_UPDATE &&
+         gf_group->update_type[gf_index + 1] == OVERLAY_UPDATE &&
+         frame_since_key == 0;
+}
+
+// Determine whether a frame is a keyframe overlay (will also return 0 for fwd
+// kf overlays).
+int av1_check_keyframe_overlay(int gf_index, GF_GROUP *gf_group,
+                               int frame_since_key) {
+  if (gf_index < 1) return 0;
+  return gf_group->update_type[gf_index - 1] == ARF_UPDATE &&
+         gf_group->update_type[gf_index] == OVERLAY_UPDATE &&
+         frame_since_key == 0;
 }
