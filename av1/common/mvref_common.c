@@ -151,7 +151,7 @@ static void add_ref_mv_candidate(
   if (!is_inter_block(candidate)) return;
   assert(weight % 2 == 0);
   int index, ref;
-
+  int merge_threshold = 2;
   if (rf[1] == NONE_FRAME) {
     // #ifdef GJK_DEBUG
     //     fprintf(stderr, "GJK: Single Reference Frame\n");
@@ -168,7 +168,7 @@ static void add_ref_mv_candidate(
           // if (ref_mv_stack[index].this_mv.as_int == this_refmv.as_int) {
           // GJK: relax the merging constraint
           if (calc_square_dist(&(ref_mv_stack[index].this_mv), &this_refmv) <=
-              1) {
+              merge_threshold) {
             ref_mv_weight[index] += weight;
             break;
           }
@@ -204,9 +204,9 @@ static void add_ref_mv_candidate(
         //     (ref_mv_stack[index].comp_mv.as_int == this_refmv[1].as_int)) {
         // GJK relax merging condition for mvs
         if (calc_square_dist(&(ref_mv_stack[index].this_mv),
-                             &(this_refmv[0])) <= 1 &&
+                             &(this_refmv[0])) <= merge_threshold &&
             calc_square_dist(&(ref_mv_stack[index].comp_mv),
-                             &(this_refmv[1])) <= 1) {
+                             &(this_refmv[1])) <= merge_threshold) {
           ref_mv_weight[index] += weight;
           break;
         }
