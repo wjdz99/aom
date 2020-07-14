@@ -138,12 +138,9 @@ void av1_get_scaled_mv(const AV1_COMMON *const cm, const int_mv refmv,
 }
 #endif  // CONFIG_EXT_COMPOUND
 
-static int calc_square_dist(const CANDIDATE_MV *const ma,
-                            const CANDIDATE_MV *const mb) {
-  return (ma->this_mv.as_mv.row - mb->this_mv.as_mv.row) *
-             (ma->this_mv.as_mv.row - mb->this_mv.as_mv.row) +
-         (ma->this_mv.as_mv.col - mb->this_mv.as_mv.col) *
-             (ma->this_mv.as_mv.col - mb->this_mv.as_mv.col);
+static int calc_square_dist(const int_mv *const ma, const int_mv *const mb) {
+  return (ma->as_mv.row - mb->as_mv.row) * (ma->as_mv.row - mb->as_mv.row) +
+         (ma->as_mv.col - mb->as_mv.col) * (ma->as_mv.col - mb->as_mv.col);
 }
 static void add_ref_mv_candidate(
     const MB_MODE_INFO *const candidate, const MV_REFERENCE_FRAME rf[2],
