@@ -2034,6 +2034,299 @@ double av1_estimate_noise_from_single_plane(const YV12_BUFFER_CONFIG *frame,
   // Return -1.0 (unreliable estimation) if there are too few smooth pixels.
   return (count < 16) ? -1.0 : (double)accum / (6 * count) * SQRT_PI_BY_2;
 }
+#if ADD_FRAME == 1
+static void tf_build_predictor_debug4(
+    const YV12_BUFFER_CONFIG *ref_frame, const MACROBLOCKD *mbd,
+    const BLOCK_SIZE block_size, const int mb_row, const int mb_col,
+    const int num_planes, const struct scale_factors *scale,
+    const MV *subblock_mvs, uint8_t *pred, const YV12_BUFFER_CONFIG *frame,
+    int *subblock_mses) {
+  // Information of the entire block.
+  const int mb_height = block_size_high[block_size];  // Height.
+  const int mb_width = block_size_wide[block_size];   // Width.
+  const int mb_pels = mb_height * mb_width;           // Number of pixels.
+  const int mb_y = mb_height * mb_row;                // Y-coord (Top-left).
+  const int mb_x = mb_width * mb_col;                 // X-coord (Top-left).
+  const int bit_depth = mbd->bd;                      // Bit depth.
+  const int is_intrabc = 0;                           // Is intra-copied?
+  const int is_high_bitdepth = is_frame_high_bitdepth(ref_frame);
+
+  // Default interpolation filters.
+  const int_interpfilters interp_filters =
+      av1_broadcast_interp_filter(MULTITAP_SHARP);
+  // Handle Y-plane, U-plane and V-plane (if needed) in sequence.
+  int plane_offset = 0;
+  for (int plane = 0; plane < num_planes; ++plane) {
+    const int subsampling_y = mbd->plane[plane].subsampling_y;
+    const int subsampling_x = mbd->plane[plane].subsampling_x;
+    // Information of each sub-block in current plane.
+    const int plane_h = mb_height >> subsampling_y;  // Plane height.
+    const int plane_w = mb_width >> subsampling_x;   // Plane width.
+    const int plane_y = mb_y >> subsampling_y;       // Y-coord (Top-left).
+    const int plane_x = mb_x >> subsampling_x;       // X-coord (Top-left).
+    const int h = plane_h >> 1;                      // Sub-block height.
+    const int w = plane_w >> 1;                      // Sub-block width.
+    const int is_y_plane = (plane == 0);             // Is Y-plane?
+
+    const struct buf_2d ref_buf = { NULL, ref_frame->buffers[plane],
+                                    ref_frame->widths[is_y_plane ? 0 : 1],
+                                    ref_frame->heights[is_y_plane ? 0 : 1],
+                                    ref_frame->strides[is_y_plane ? 0 : 1] };
+    // use pixel mvs everywhere. Use pixel mses instead of subblock
+    // for weights.
+    int newerror = 0;
+    int to_match = 5;
+    // Handle each subblock.
+    int subblock_idx = 0;
+    int newblock_size = 1;
+    for (int i = 0; i < plane_h; i += newblock_size) {
+      for (int j = 0; j < plane_w; j += newblock_size) {
+        // Choose proper motion vector.
+        const MV mv = subblock_mvs[subblock_idx];
+        // TODO: build pred interp doesn't behave as expected for 1x1
+        // although it's still better than my interp implementation
+        uint8_t temppred[4];
+        assert(mv.row >= INT16_MIN && mv.row <= INT16_MAX &&
+               mv.col >= INT16_MIN && mv.col <= INT16_MAX);
+        const int y = plane_y + i;
+        const int x = plane_x + j;
+        // Build predictor for each sub-block on current plane.
+        InterPredParams inter_pred_params;
+        av1_init_inter_params(&inter_pred_params, newblock_size, newblock_size,
+                              y, x, subsampling_x, subsampling_y, bit_depth,
+                              is_high_bitdepth, is_intrabc, scale, &ref_buf,
+                              interp_filters);
+        inter_pred_params.conv_params = get_conv_params(0, plane, bit_depth);
+        av1_enc_build_one_inter_predictor(&temppred, newblock_size, &mv,
+                                          &inter_pred_params);
+        pred[plane_offset + i * plane_w + j] = temppred[0];
+        if (is_y_plane) {
+          int pixelerror = 0;
+          int countpixels = 0;
+          int winsize = 5;  // 5//3;
+          int starty = AOMMAX(0, i - winsize / 2);
+          int startx = AOMMAX(0, j - winsize / 2);
+          int endy = AOMMIN(mb_height - 1, starty + winsize);
+          int endx = AOMMIN(mb_width - 1, startx + winsize);
+          // this produces smaller neighborhood at corners of mb:
+          for (int ii = starty; ii < endy; ii++) {
+            for (int jj = startx; jj < endx; jj++) {
+              const int y = plane_y + ii;
+              const int x = plane_x + jj;
+              pixelerror += pow((pred[plane_offset + ii * plane_w + jj] -
+                                 frame->y_buffer[y * frame->y_stride + x]),
+                                2);
+              countpixels++;
+            }
+          }
+          pixelerror = round(1.0 * pixelerror / countpixels);
+          subblock_mses[subblock_idx] = pixelerror;
+        }
+        subblock_idx += newblock_size;  // probably incorrect for blocks not 1x1
+      }
+    }
+    plane_offset += mb_pels;
+  }
+}
+
+// Average the frames surrounding frame_to_filter to create
+// a new synthetic frame, by using mvs to overlay next frame over previous
+// frame.
+// A lot of the ADD_FRAME code is redundant, since it's mostly the same
+// techniques as do_filtering; if kept, should fix redundancies.
+int filter_to_new_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
+                        const int num_frames, const int filter_frame_idx,
+                        const int is_key_frame, const BLOCK_SIZE block_size,
+                        const struct scale_factors *scale,
+                        const double *noise_levels,
+                        YV12_BUFFER_CONFIG *new_frame) {
+#if PRINT_STATEMENTS == 1
+  printf("\nfilter_to_frame # %d with %d frames\n", filter_frame_idx,
+         num_frames);
+#endif
+  // Basic information.
+  assert(filter_frame_idx > 0 && filter_frame_idx < num_frames - 1);
+  // int frame = filter_frame_idx > 0 ? filter_frame_idx - 1 : filter_frame_idx
+  // + 1;
+  int prev_frame = filter_frame_idx - 1;
+  int next_frame = filter_frame_idx + 1;
+  const YV12_BUFFER_CONFIG *const frame_to_filter = frames[prev_frame];
+  const YV12_BUFFER_CONFIG *const frame_previous = frames[prev_frame];
+  // const YV12_BUFFER_CONFIG *const frame_to_filter = frames[filter_frame_idx];
+  const int frame_height = frame_to_filter->y_crop_height;
+  const int frame_width = frame_to_filter->y_crop_width;
+  const int mb_height = block_size_high[block_size];
+  const int mb_width = block_size_wide[block_size];
+  const int mb_pels = mb_height * mb_width;
+  const int mb_rows = get_num_blocks(frame_height, mb_height);
+  const int mb_cols = get_num_blocks(frame_width, mb_width);
+  const int num_planes = av1_num_planes(&cpi->common);
+  const int mi_h = mi_size_high_log2[block_size];
+  const int mi_w = mi_size_wide_log2[block_size];
+  assert(num_planes >= 1 && num_planes <= MAX_MB_PLANE);
+  const int is_high_bitdepth = is_frame_high_bitdepth(frame_to_filter);
+  // Quantization factor used in temporal filtering.
+  const int q_factor = get_q(cpi);
+  // Factor to control the filering strength.
+  const int filter_strength = cpi->oxcf.arnr_strength;
+
+  // Save input state.
+  MACROBLOCK *const mb = &cpi->td.mb;
+  MACROBLOCKD *const mbd = &mb->e_mbd;
+  uint8_t *input_buffer[MAX_MB_PLANE];
+  for (int i = 0; i < num_planes; i++) {
+    input_buffer[i] = mbd->plane[i].pre[0].buf;
+  }
+  MB_MODE_INFO **input_mb_mode_info = mbd->mi;
+  int is_yuv422_format = 0;
+  for (int plane = 1; plane < num_planes; ++plane) {
+    if (mbd->plane[plane].subsampling_x != mbd->plane[plane].subsampling_y) {
+      is_yuv422_format = 1;
+      break;
+    }
+  }
+  // Setup.
+  mbd->block_ref_scale_factors[0] = scale;
+  mbd->block_ref_scale_factors[1] = scale;
+  // A temporary block info used to store state in temporal filtering process.
+  MB_MODE_INFO *tmp_mb_mode_info = (MB_MODE_INFO *)malloc(sizeof(MB_MODE_INFO));
+  memset(tmp_mb_mode_info, 0, sizeof(MB_MODE_INFO));
+  mbd->mi = &tmp_mb_mode_info;
+  mbd->mi[0]->motion_mode = SIMPLE_TRANSLATION;
+  // Allocate memory for predictor, accumulator and count.
+  uint8_t *pred8 = aom_memalign(32, num_planes * mb_pels * sizeof(uint8_t));
+  uint16_t *pred16 = aom_memalign(32, num_planes * mb_pels * sizeof(uint16_t));
+  uint32_t *accum = aom_memalign(16, num_planes * mb_pels * sizeof(uint32_t));
+  uint16_t *count = aom_memalign(16, num_planes * mb_pels * sizeof(uint16_t));
+  memset(pred8, 0, num_planes * mb_pels * sizeof(pred8[0]));
+  memset(pred16, 0, num_planes * mb_pels * sizeof(pred16[0]));
+  uint8_t *const pred = is_high_bitdepth ? CONVERT_TO_BYTEPTR(pred16) : pred8;
+  printf("IS HIGH BIT DEPTH ? %d\n", is_high_bitdepth);
+#if OPTFLOW_IN_SYNTHETIC == 1
+  MV *allframes_pixelmvs =
+      malloc(num_frames * frame_height * frame_width * sizeof(MV));
+  initialize_mvs(cpi, frames, num_frames, prev_frame, mb_rows, mb_cols,
+                 mb_height, mb_width, mi_h, mi_w, block_size,
+                 allframes_pixelmvs);
+  printf("\nSynth frame: Pixel mvs for frame #%d with %d frames to compare\n",
+         filter_frame_idx, num_frames);
+  optflow_test(
+      cpi, frames[prev_frame], frames[next_frame], prev_frame, next_frame,
+      (allframes_pixelmvs + next_frame * frame_height * frame_width), COUNT);
+#endif
+  // Perform temporal filtering block by block.
+  for (int mb_row = 0; mb_row < mb_rows; mb_row++) {
+    av1_set_mv_row_limits(&cpi->common.mi_params, &mb->mv_limits,
+                          (mb_row << mi_h), (mb_height >> MI_SIZE_LOG2),
+                          cpi->oxcf.border_in_pixels);
+    for (int mb_col = 0; mb_col < mb_cols; mb_col++) {
+      av1_set_mv_col_limits(&cpi->common.mi_params, &mb->mv_limits,
+                            (mb_col << mi_w), (mb_width >> MI_SIZE_LOG2),
+                            cpi->oxcf.border_in_pixels);
+      memset(accum, 0, num_planes * mb_pels * sizeof(accum[0]));
+      // memset(count, 1, num_planes * mb_pels * sizeof(count[0]));
+      //   memset(count, 0, num_planes * mb_pels * sizeof(count[0]));
+      MV ref_mv = kZeroMv;  // Reference motion vector passed down along frames.
+      // Perform temporal filtering frame by frame.
+      if (frames[next_frame] == NULL) printf("Filter is NULL\n");
+      // Motion search.
+      MV subblock_mvs[4] = { kZeroMv, kZeroMv, kZeroMv, kZeroMv };
+      int subblock_mses[4] = { INT_MAX, INT_MAX, INT_MAX, INT_MAX };
+#if OPTFLOW_IN_SYNTHETIC == 0
+      tf_motion_search(cpi, frames[prev_frame], frames[next_frame], block_size,
+                       mb_row, mb_col, &ref_mv, subblock_mvs, subblock_mses);
+      tf_build_predictor(frames[next_frame], mbd, block_size, mb_row, mb_col,
+                         num_planes, scale, subblock_mvs, pred,
+                         frames[prev_frame], subblock_mses);
+#else
+      MV *pixelmvs;
+      pixelmvs = allframes_pixelmvs + next_frame * frame_height * frame_width;
+      MV *blockpixel_mvs = malloc(mb_height * mb_width * sizeof(MV));
+      for (int yy = 0; yy < mb_height; yy++) {
+        for (int xx = 0; xx < mb_width; xx++) {
+          const int pixelidx = mb_row * mb_height * frame_width +
+                               mb_col * mb_width + yy * frame_width + xx;
+          MV pixelmv = pixelmvs[pixelidx];
+          blockpixel_mvs[yy * mb_width + xx] = pixelmv;
+          double magn = sqrt(pow(pixelmv.row, 2) + pow(pixelmv.col, 2));
+        }
+      }
+      int *pixel_mses = malloc(mb_height * mb_width * sizeof(int));
+      tf_build_predictor_debug4(frames[next_frame], mbd, block_size, mb_row,
+                                mb_col, num_planes, scale, blockpixel_mvs, pred,
+                                frames[prev_frame], pixel_mses);
+#endif
+      // Perform weighted averaging.
+      int plane_offset = 0;
+      for (int plane = 0; plane < num_planes; ++plane) {
+        const uint32_t plane_h = mb_height >> mbd->plane[plane].subsampling_y;
+        const uint32_t plane_w = mb_width >> mbd->plane[plane].subsampling_x;
+        const uint32_t frame_stride =
+            frame_to_filter->strides[plane == 0 ? 0 : 1];
+        const int frame_offset =
+            mb_row * plane_h * frame_stride + mb_col * plane_w;
+
+        const uint8_t *ref =
+            frames[prev_frame]->buffers[plane];  // + frame_offset;
+        // const uint8_t *ref = frame_to_filter->buffers[plane] + frame_offset;
+        const int ss_x_shift =
+            mbd->plane[plane].subsampling_x - mbd->plane[0].subsampling_x;
+        const int ss_y_shift =
+            mbd->plane[plane].subsampling_y - mbd->plane[0].subsampling_y;
+        uint8_t *frame2 = pred + mb_pels * plane;
+        int block_height = plane_h;
+        int block_width = plane_w;
+        int stride2 = plane_w;
+        int plane_idx = 0;  // Pixel index on current plane (block-base).
+        int frame_idx = frame_offset;  // Pixel index on the entire frame.
+        uint8_t *const buf = new_frame->buffers[plane];
+        for (int i = 0, k = 0; i < block_height; i++) {
+          for (int j = 0; j < block_width; j++, k++) {
+            const int pixel_value = frame2[i * stride2 + j];
+            const int weight = 1;
+            const int idx = plane_idx + plane_offset;
+            if (k + mb_pels * plane >= num_planes * mb_pels) {
+              printf("SIZE COUNT/ACCUM EXCEEDED %d out of %d\n",
+                     k + mb_pels * plane, num_planes * mb_pels);
+            } else {
+              accum[idx] += weight * pixel_value;
+              accum[idx] += weight * ref[frame_idx];
+            }
+            if (idx >= num_planes * mb_pels) {
+              printf("IDX EXCEEDS %d out of %d\n", idx, num_planes * mb_pels);
+            }
+            if (idx != k + mb_pels * plane) {
+              printf("NOT SAME IDX idx %d vs other %d\n", idx,
+                     k + mb_pels * plane);
+            }
+            // int crop_h = frame_to_filter->crop_heights[plane == 0 ? 0 : 1];
+            int maxsize = plane == 0 ? frame_height * frame_stride
+                                     : (frame_height >> 1) * frame_stride;
+            if (frame_idx >= maxsize) {
+              printf("SIZE EXCEEDED %d out of %d\n", frame_idx, maxsize);
+            } else {
+              // buf[frame_idx] = (uint8_t)round(accum[idx]/(1.0));
+              buf[frame_idx] = (uint8_t)round(
+                  accum[idx] / (2.0));  //(uint8_t)OD_DIVU(accum[idx] +
+                                        //rounding, count[idx]);
+            }
+            ++plane_idx;
+            ++frame_idx;
+          }
+          frame_idx += (frame_stride - plane_w);
+        }
+        plane_offset += mb_pels;
+      }
+    }
+  }
+  free(tmp_mb_mode_info);
+  aom_free(pred8);
+  aom_free(pred16);
+  aom_free(accum);
+  aom_free(count);
+  return prev_frame;
+}
+#endif
 
 int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
                         int *show_existing_arf) {
@@ -2092,9 +2385,64 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
   av1_setup_scale_factors_for_frame(
       &sf, frames[0]->y_crop_width, frames[0]->y_crop_height,
       frames[0]->y_crop_width, frames[0]->y_crop_height);
+#if ADD_FRAME == 1
+  int frame_height = frames[0]->y_crop_height;
+  int frame_width = frames[0]->y_crop_width;
+  int uv_stride = frames[0]->uv_stride;
+  int ystride = frames[0]->y_stride;
+  int border = frames[0]->border;
+  uint8_t *ybuffer = aom_malloc((frames[0]->y_height + 2 * border) * ystride *
+                                sizeof(uint8_t));
+  uint8_t *ubuffer = aom_malloc((frames[0]->uv_height + 2 * border) *
+                                uv_stride * sizeof(uint8_t));
+  uint8_t *vbuffer = aom_malloc((frames[0]->uv_height + 2 * border) *
+                                uv_stride * sizeof(uint8_t));
+  if (ybuffer == NULL || ubuffer == NULL || vbuffer == NULL)
+    printf("MEM SIZE OVERFLOW");
+  uint8_t *ybuf = ybuffer + ystride * border + border;
+  uint8_t *ubuf = ubuffer + uv_stride * border +
+                  border;  // this could be border >> 1 instead, for u,v
+  uint8_t *vbuf = vbuffer + uv_stride * border + border;
+  YV12_BUFFER_CONFIG newframe = *(frames[num_frames_for_filtering - 1]);
+  newframe.y_buffer = ybuf;
+  newframe.u_buffer = ubuf;
+  newframe.v_buffer = vbuf;
+  int frame_num;
+  if (num_frames_for_filtering < MAX_LAG_BUFFERS &&
+      num_frames_for_filtering >= 2 && filter_frame_idx > 0 &&
+      filter_frame_idx < num_frames_for_filtering - 1) {
+    printf("\nAdding new frame to buffer, # %d out of %d\n",
+           num_frames_for_filtering, MAX_LAG_BUFFERS);
+    if (frames[0] == NULL) printf("First frame is NULL\n");
+    frame_num = filter_to_new_frame(
+        cpi, frames, num_frames_for_filtering, filter_frame_idx, is_key_frame,
+        TF_BLOCK_SIZE, &sf, noise_levels, &newframe);
+    printf("ORIG buf val first %d \n", newframe.y_buffer[0]);
+    const int num_planes = av1_num_planes(&cpi->common);
+    aom_extend_frame_borders_c(&newframe, num_planes);
+#if SAVE_IMGS == 1
+    dump_frame(cpi, &newframe, filter_frame_idx, "newframe");
+    dump_frame(cpi, frames[frame_num], filter_frame_idx, "prevframe");
+    dump_frame(cpi, frames[frame_num + 2], filter_frame_idx, "nextframe");
+    dump_frame(cpi, frames[num_frames_for_filtering - 1], filter_frame_idx,
+               "copiedframe");
+#endif
+    ////TODO: probably should add into the calculation of noise level
+    printf("Adding frame to buffer\n");
+    frames[num_frames_for_filtering] = &newframe;
+    num_frames_for_filtering += 1;
+  }
+#endif
+
   const FRAME_DIFF diff =
       tf_do_filtering(cpi, frames, num_frames_for_filtering, filter_frame_idx,
                       is_key_frame, TF_BLOCK_SIZE, &sf, noise_levels);
+#if ADD_FRAME == 1
+  aom_free(ybuffer);
+  aom_free(ubuffer);
+  aom_free(vbuffer);
+  num_frames_for_filtering -= 1;
+#endif
   if (is_key_frame) {  // Key frame should always be filtered.
     return 1;
   }
