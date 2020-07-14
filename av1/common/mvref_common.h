@@ -13,6 +13,7 @@
 
 #include "av1/common/onyxc_int.h"
 #include "av1/common/blockd.h"
+//#define GJK_DEBUG
 
 #ifdef __cplusplus
 extern "C" {

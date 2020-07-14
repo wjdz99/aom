@@ -10,6 +10,7 @@
  */
 
 #include <stdlib.h>
+
 #include "av1/common/mvref_common.h"
 #include "av1/common/warped_motion.h"
 
@@ -137,6 +138,13 @@ void av1_get_scaled_mv(const AV1_COMMON *const cm, const int_mv refmv,
 }
 #endif  // CONFIG_EXT_COMPOUND
 
+static int calc_square_dist(const CANDIDATE_MV *const ma,
+                            const CANDIDATE_MV *const mb) {
+  return (ma->this_mv.as_mv.row - mb->this_mv.as_mv.row) *
+             (ma->this_mv.as_mv.row - mb->this_mv.as_mv.row) +
+         (ma->this_mv.as_mv.col - mb->this_mv.as_mv.col) *
+             (ma->this_mv.as_mv.col - mb->this_mv.as_mv.col);
+}
 static void add_ref_mv_candidate(
     const MB_MODE_INFO *const candidate, const MV_REFERENCE_FRAME rf[2],
     uint8_t *refmv_count, uint8_t *ref_match_count, uint8_t *newmv_count,
@@ -148,6 +156,9 @@ static void add_ref_mv_candidate(
   int index, ref;
 
   if (rf[1] == NONE_FRAME) {
+    // #ifdef GJK_DEBUG
+    //     fprintf(stderr, "GJK: Single Reference Frame\n");
+    // #endif
     // single reference frame
     for (ref = 0; ref < 2; ++ref) {
       if (candidate->ref_frame[ref] == rf[0]) {
@@ -157,7 +168,10 @@ static void add_ref_mv_candidate(
                                       ? gm_mv_candidates[0]
                                       : get_sub_block_mv(candidate, ref, col);
         for (index = 0; index < *refmv_count; ++index) {
-          if (ref_mv_stack[index].this_mv.as_int == this_refmv.as_int) {
+          // if (ref_mv_stack[index].this_mv.as_int == this_refmv.as_int) {
+          // GJK: relax the merging constraint
+          if (calc_square_dist(&(ref_mv_stack[index].this_mv), &this_refmv) <=
+              1) {
             ref_mv_weight[index] += weight;
             break;
           }
@@ -174,6 +188,9 @@ static void add_ref_mv_candidate(
       }
     }
   } else {
+    // #ifdef GJK_DEBUG
+    //     fprintf(stderr, "GJK: Compound Reference Frame\n");
+    // #endif
     // compound reference frame
     if (candidate->ref_frame[0] == rf[0] && candidate->ref_frame[1] == rf[1]) {
       int_mv this_refmv[2];
@@ -186,8 +203,13 @@ static void add_ref_mv_candidate(
       }
 
       for (index = 0; index < *refmv_count; ++index) {
-        if ((ref_mv_stack[index].this_mv.as_int == this_refmv[0].as_int) &&
-            (ref_mv_stack[index].comp_mv.as_int == this_refmv[1].as_int)) {
+        // if ((ref_mv_stack[index].this_mv.as_int == this_refmv[0].as_int) &&
+        //     (ref_mv_stack[index].comp_mv.as_int == this_refmv[1].as_int)) {
+        // GJK relax merging condition for mvs
+        if (calc_square_dist(&(ref_mv_stack[index].this_mv),
+                             &(this_refmv[0])) <= 1 &&
+            calc_square_dist(&(ref_mv_stack[index].comp_mv),
+                             &(this_refmv[1])) <= 1) {
           ref_mv_weight[index] += weight;
           break;
         }
@@ -419,8 +441,6 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   if (prev_frame_mvs->mfmv0.as_int == INVALID_MV) return 0;
 
   MV_REFERENCE_FRAME rf[2];
-
-
 
   av1_set_ref_frame(rf, ref_frame);
 
@@ -690,8 +710,17 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 
   const uint8_t ref_match_count = (row_match_count > 0) + (col_match_count > 0);
-  printf("hellow\n");
-  
+#ifdef GJK_DEBUG
+  if ((*refmv_count) >= 8) {
+    fprintf(stderr, "GJK: block-1 pos (%d %d) refmv_cnt=%d\n", xd->mi_row,
+            xd->mi_col, (*refmv_count));
+    for (int i = 0; i < (*refmv_count); i++) {
+      fprintf(stderr, "%d %d\n", ref_mv_stack[i].this_mv.as_mv.row,
+              ref_mv_stack[i].this_mv.as_mv.col);
+    }
+  }
+
+#endif
   switch (nearest_match) {
     case 0:
       mode_context[ref_frame] |= 0;
