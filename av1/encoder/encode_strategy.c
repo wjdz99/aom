@@ -46,7 +46,8 @@ static INLINE void set_refresh_frame_flags(
 
 void av1_configure_buffer_updates(
     AV1_COMP *const cpi, RefreshFrameFlagsInfo *const refresh_frame_flags,
-    const FRAME_UPDATE_TYPE type, int force_refresh_all) {
+    const FRAME_UPDATE_TYPE type, const FRAME_TYPE frame_type,
+    int force_refresh_all) {
   // NOTE(weitinglin): Should we define another function to take care of
   // cpi->rc.is_$Source_Type to make this function as it is in the comment?
 
@@ -74,7 +75,13 @@ void av1_configure_buffer_updates(
 
     case ARF_UPDATE:
       // NOTE: BWDREF does not get updated along with ALTREF_FRAME.
-      set_refresh_frame_flags(refresh_frame_flags, false, false, true);
+      if (frame_type == KEY_FRAME && !cpi->no_show_fwd_kf) {
+        // TODO(bohanli): consider moving this to force_refresh_all?
+        // This is Keyframe as arf
+        set_refresh_frame_flags(refresh_frame_flags, true, true, true);
+      } else {
+        set_refresh_frame_flags(refresh_frame_flags, false, false, true);
+      }
       break;
 
     case INTNL_OVERLAY_UPDATE:
@@ -572,7 +579,8 @@ static void update_arf_stack(int ref_map_index,
 // Update reference frame stack info.
 void av1_update_ref_frame_map(AV1_COMP *cpi,
                               FRAME_UPDATE_TYPE frame_update_type,
-                              int show_existing_frame, int ref_map_index,
+                              FRAME_TYPE frame_type, int show_existing_frame,
+                              int ref_map_index,
                               RefBufferStack *ref_buffer_stack) {
   AV1_COMMON *const cm = &cpi->common;
   // TODO(jingning): Consider the S-frame same as key frame for the
@@ -612,7 +620,16 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
       break;
     case ARF_UPDATE:
     case INTNL_ARF_UPDATE:
-      update_arf_stack(ref_map_index, ref_buffer_stack);
+      if (frame_type == KEY_FRAME && !cpi->no_show_fwd_kf) {
+        stack_reset(ref_buffer_stack->lst_stack,
+                    &ref_buffer_stack->lst_stack_size);
+        stack_reset(ref_buffer_stack->gld_stack,
+                    &ref_buffer_stack->gld_stack_size);
+        stack_reset(ref_buffer_stack->arf_stack,
+                    &ref_buffer_stack->arf_stack_size);
+      } else {
+        update_arf_stack(ref_map_index, ref_buffer_stack);
+      }
       stack_push(ref_buffer_stack->arf_stack, &ref_buffer_stack->arf_stack_size,
                  ref_map_index);
       break;
@@ -1199,7 +1216,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       !frame_params.show_existing_frame;
 
   av1_configure_buffer_updates(cpi, &frame_params.refresh_frame,
-                               frame_update_type, force_refresh_all);
+                               frame_update_type, frame_params.frame_type,
+                               force_refresh_all);
 
   if (!is_stat_generation_stage(cpi)) {
     const RefCntBuffer *ref_frames[INTER_REFS_PER_FRAME];
@@ -1218,8 +1236,16 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       ref_frame_buf[i] = ref_frames[i] != NULL ? &ref_frames[i]->buf : NULL;
     }
     // Work out which reference frame slots may be used.
-    frame_params.ref_frame_flags = get_ref_frame_flags(
-        &cpi->sf, ref_frame_buf, ext_flags->ref_frame_flags);
+    if (gf_group->update_type[gf_group->index] == OVERLAY_UPDATE &&
+        cpi->rc.frames_since_key == 0) {
+      // This is a KF overlay, it should refer to arf. However KF overlay has
+      // the same LAST and ALTREF references, so ALTREF will be disabled in
+      // function get_ref_frame_flags. Therefore setting it manually.
+      frame_params.ref_frame_flags = av1_ref_frame_flag_list[ALTREF_FRAME];
+    } else {
+      frame_params.ref_frame_flags = get_ref_frame_flags(
+          &cpi->sf, ref_frame_buf, ext_flags->ref_frame_flags);
+    }
 
     frame_params.primary_ref_frame =
         choose_primary_ref_frame(cpi, &frame_params);
@@ -1277,8 +1303,9 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     if (!ext_flags->refresh_frame.update_pending) {
       int ref_map_index =
           av1_get_refresh_ref_frame_map(cm->current_frame.refresh_frame_flags);
-      av1_update_ref_frame_map(cpi, frame_update_type, cm->show_existing_frame,
-                               ref_map_index, &cpi->ref_buffer_stack);
+      av1_update_ref_frame_map(cpi, frame_update_type, frame_params.frame_type,
+                               cm->show_existing_frame, ref_map_index,
+                               &cpi->ref_buffer_stack);
     }
   }
 

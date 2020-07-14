@@ -2813,7 +2813,13 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
           realloc_and_scale_source(cpi, cm->cur_frame->buf.y_crop_width,
                                    cm->cur_frame->buf.y_crop_height);
     }
-    ++current_frame->frame_number;
+
+    // current_frame->frame_number is incremented already for
+    // keyframe overlays.
+    if (!(cpi->gf_group.update_type[0] == ARF_UPDATE &&
+          cpi->gf_group.update_type[1] == OVERLAY_UPDATE &&
+          cpi->gf_group.index == 1 && cpi->rc.frames_since_key == 0))
+      ++current_frame->frame_number;
 
     return AOM_CODEC_OK;
   }
@@ -3062,6 +3068,15 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   if (cm->show_frame) {
     // Don't increment frame counters if this was an altref buffer
     // update not a real frame
+    if (!(cpi->gf_group.update_type[0] == ARF_UPDATE &&
+          cpi->gf_group.update_type[1] == OVERLAY_UPDATE &&
+          cpi->gf_group.index == 1 && cpi->rc.frames_since_key == 0))
+      ++current_frame->frame_number;
+  } else if (cm->current_frame.frame_type == KEY_FRAME &&
+             cpi->gf_group.update_type[0] == ARF_UPDATE &&
+             cpi->gf_group.update_type[1] == OVERLAY_UPDATE &&
+             cpi->gf_group.index == 0 && cpi->rc.frames_since_key == 0) {
+    // TODO(bohanli) Hack here: increment kf overlay before it is encoded
     ++current_frame->frame_number;
   }
 
