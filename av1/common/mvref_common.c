@@ -151,7 +151,7 @@ static void add_ref_mv_candidate(
   if (!is_inter_block(candidate)) return;
   assert(weight % 2 == 0);
   int index, ref;
-  int merge_threshold = 4;
+  int merge_threshold = 8;
   if (rf[1] == NONE_FRAME) {
     // #ifdef GJK_DEBUG
     //     fprintf(stderr, "GJK: Single Reference Frame\n");
