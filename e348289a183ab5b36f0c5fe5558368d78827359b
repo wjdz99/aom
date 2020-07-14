@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc3673cf_8988e4b8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-07-14T14:08:57Z",
+      "side": 1,
+      "message": "Debargha,\n \nThis patch is cherry picked from master branch. It adds unit test \nto check if the tile-rows and tile-cols(Uniform Spacing) configured \nby the user are respected by the encoder.\n \nThanks\n",
+      "revId": "e348289a183ab5b36f0c5fe5558368d78827359b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
