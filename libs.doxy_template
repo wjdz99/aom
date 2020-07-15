@@ -2059,7 +2059,9 @@ PERLMOD_MAKEVAR_PREFIX =
 
 # If the ENABLE_PREPROCESSING tag is set to YES, doxygen will evaluate all
 # C-preprocessor directives found in the sources and include files.
-# The default value is: YES.
+# This is currently set YES by default but NO when real time builds are
+# selected because this mode ifdefs out many functions and causes references
+# in the overview document to fail.
 
 ENABLE_PREPROCESSING   = YES
 
@@ -2110,7 +2112,7 @@ INCLUDE_FILE_PATTERNS  = *.h
 # recursively expanded use the := operator instead of the = operator.
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
-PREDEFINED             =
+PREDEFINED             = CONFIG_REALTIME_ONLY=0
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The
