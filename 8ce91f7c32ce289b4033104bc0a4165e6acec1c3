@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40835b77_5e8ef4f1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-07-15T17:52:27Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, we changed tpl stage motion search method from DIAMOND to FAST_DIAMOND with 3 levels of search.\nEven though the overall speed v/s BD-rate was found to be within the trade-off with original FAST_DIAMOND search in libaom (with 2 levels of search), we have seen that some 4 to 5 contents were dropping quality by 1%-2%. The levels of search in FAST_DIAMOND was increased to 3 so that both the overall and worst-case trade-off (for mentioned 4 to 5 contents the quality drop had come down to 0.16%-0.7%) are improved.\n\nWe also introduced av1_init_motion_compensation_bigdia() function, which does the offset calculation for bigdia candidates. The offset is needed to utilize 4-point sad calculation, without any block level encode time overheads.   \n\nSince the current pattern_search() function is getting called from different search methods, we introduced bigdia_search_level1() function which performs the functionality of pattern_search() utilizing the 4-point sad calculation, thereby saving cycles.\n\nThe following are the gains obtained with this patch.\n           Instruction Count        BD-Rate Loss\ncpu-used     Reduction        avg.psnr  ovr.psnr    ssim\n   4          1.653%          0.0477%    0.0230%   0.1458%\n   5          2.931%          0.1014%    0.0989%   0.1947%\n   6          2.037%          0.0853%    0.0909%   0.1665%\n\nIt is a bit exact change for speed presets \u003c\u003d3 (verified locally).\nAWCY link for speed3:\nhttps://beta.arewecompressedyet.com/?job\u003dref_cpu3_master%402020-07-15T11%3A18%3A03.959Z\u0026job\u003dmod_cpu3_p2_master%402020-07-15T11%3A43%3A19.331Z\n\nAnd also verified RT path bit exactness with this patch.\nIt is also a bit exact change.\nAWCY link for speed4:\nhttps://beta.arewecompressedyet.com/?job\u003dref_rt_cpu4_master%402020-07-15T12%3A53%3A23.644Z\u0026job\u003dmod_rt_cpu4_master%402020-07-15T13%3A11%3A47.300Z\n\nAWCY link for speed5:\nhttps://beta.arewecompressedyet.com/?job\u003dref_rt_cpu5_master%402020-07-15T12%3A37%3A07.562Z\u0026job\u003dmod_rt_cpu5_p2_master%402020-07-15T13%3A45%3A31.034Z   \n\nWe are planning to extend this for lower speed presets once merged. With the usage of newly introduced functions calc_sad_update_bestmv(), calc_sad4_update_bestmv(), refactoring is possible in pattern_search() function which is planned in future patches.\n\nPlease merge the patch in case of no issues.\n\nThanks \u0026 Regards,\nVenkat.",
+      "revId": "8ce91f7c32ce289b4033104bc0a4165e6acec1c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
