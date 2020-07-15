@@ -444,20 +444,28 @@ TEST_P(AVxEncoderThreadTestLarge, EncoderResultTest) {
 
 #if !CONFIG_SINGLEPASS
 // first pass stats test
-AV1_INSTANTIATE_TEST_CASE(AVxFirstPassEncoderThreadTest,
-                          ::testing::Values(::libaom_test::kTwoPassGood),
-                          ::testing::Range(0, 6), ::testing::Range(0, 3),
-                          ::testing::Range(0, 3));
+AV1_INSTANTIATE_TEST_SUITE(AVxFirstPassEncoderThreadTest,
+                           ::testing::Values(::libaom_test::kTwoPassGood),
+                           ::testing::Range(0, 6, 2), ::testing::Range(0, 2),
+                           ::testing::Range(1, 3));
 
 // For AV1, test speed 0, 1, 2, 3, 5.
 // Only test cpu_used 2 here.
+<<<<<<< HEAD   (309cf4 aomenc: Temporarily add back '--cq-level' option.)
 AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadTest,
                           ::testing::Values(::libaom_test::kTwoPassGood),
                           ::testing::Values(2), ::testing::Values(0, 2),
                           ::testing::Values(0, 2), ::testing::Values(0, 1));
 #endif  // CONFIG_SINGLEPASS
+=======
+AV1_INSTANTIATE_TEST_SUITE(AVxEncoderThreadTest,
+                           ::testing::Values(::libaom_test::kTwoPassGood),
+                           ::testing::Values(2), ::testing::Values(0, 2),
+                           ::testing::Values(0, 2), ::testing::Values(0, 1));
+>>>>>>> BRANCH (196995 Further changes to the  overview document.)
 
 // Test cpu_used 0, 1, 3 and 5.
+<<<<<<< HEAD   (309cf4 aomenc: Temporarily add back '--cq-level' option.)
 #if CONFIG_SINGLEPASS
 AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadTestLarge,
                           ::testing::Values(::libaom_test::kOnePassGood),
@@ -472,6 +480,14 @@ AV1_INSTANTIATE_TEST_CASE(
     ::testing::Values(0, 1, 3, 5), ::testing::Values(0, 1, 2, 6),
     ::testing::Values(0, 1, 2, 6), ::testing::Values(0, 1));
 #endif  // CONFIG_SINGLEPASS
+=======
+AV1_INSTANTIATE_TEST_SUITE(AVxEncoderThreadTestLarge,
+                           ::testing::Values(::libaom_test::kTwoPassGood,
+                                             ::libaom_test::kOnePassGood),
+                           ::testing::Values(0, 1, 3, 5),
+                           ::testing::Values(1, 6), ::testing::Values(1, 6),
+                           ::testing::Values(0, 1));
+>>>>>>> BRANCH (196995 Further changes to the  overview document.)
 
 class AVxEncoderThreadLSTest : public AVxEncoderThreadTest {
   virtual void SetTileSize(libaom_test::Encoder *encoder) {
@@ -489,6 +505,7 @@ class AVxEncoderThreadLSTest : public AVxEncoderThreadTest {
     (void)ref_md5_dec;
   }
 };
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(AVxEncoderThreadLSTest);
 
 TEST_P(AVxEncoderThreadLSTest, EncoderResultTest) {
   cfg_.large_scale_tile = 1;
@@ -506,6 +523,7 @@ TEST_P(AVxEncoderThreadLSTestLarge, EncoderResultTest) {
   DoTest();
 }
 
+<<<<<<< HEAD   (309cf4 aomenc: Temporarily add back '--cq-level' option.)
 #if CONFIG_SINGLEPASS
 AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadLSTestLarge,
                           ::testing::Values(::libaom_test::kOnePassGood),
@@ -518,4 +536,11 @@ AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadLSTestLarge,
                           ::testing::Range(0, 4), ::testing::Values(0, 6),
                           ::testing::Values(0, 6), ::testing::Values(0, 1));
 #endif  // CONFIG_SINGLEPASS
+=======
+AV1_INSTANTIATE_TEST_SUITE(AVxEncoderThreadLSTestLarge,
+                           ::testing::Values(::libaom_test::kTwoPassGood,
+                                             ::libaom_test::kOnePassGood),
+                           ::testing::Values(1, 3), ::testing::Values(0, 6),
+                           ::testing::Values(0, 6), ::testing::Values(1));
+>>>>>>> BRANCH (196995 Further changes to the  overview document.)
 }  // namespace
