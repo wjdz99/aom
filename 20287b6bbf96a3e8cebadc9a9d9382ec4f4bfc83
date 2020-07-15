@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "09be1220_03b61b35",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2020-07-15T15:21:11Z",
+      "side": 1,
+      "message": "Is this what you were meaning Yunqing? It does not appear to work and we still get the failed references for real time.",
+      "revId": "20287b6bbf96a3e8cebadc9a9d9382ec4f4bfc83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
