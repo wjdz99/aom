@@ -16,6 +16,92 @@
       "revId": "8ce91f7c32ce289b4033104bc0a4165e6acec1c3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f23c6006_22c17fff",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-07-15T21:43:45Z",
+      "side": 1,
+      "message": "Thanks! Good speed/quality tradeoff!",
+      "revId": "8ce91f7c32ce289b4033104bc0a4165e6acec1c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e5769899_846481e6",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 731,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-07-15T21:43:45Z",
+      "side": 1,
+      "message": "As mentioned in your comment, better to call pattern_search() to reduce duplicate code.",
+      "range": {
+        "startLine": 728,
+        "startChar": 0,
+        "endLine": 731,
+        "endChar": 70
+      },
+      "revId": "8ce91f7c32ce289b4033104bc0a4165e6acec1c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb219183_40687a74",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-07-15T21:43:45Z",
+      "side": 1,
+      "message": "Can we remove this feature? Add another search method instead?",
+      "range": {
+        "startLine": 567,
+        "startChar": 4,
+        "endLine": 567,
+        "endChar": 36
+      },
+      "revId": "8ce91f7c32ce289b4033104bc0a4165e6acec1c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f87b7333_bc084853",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 866,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-07-15T21:43:45Z",
+      "side": 1,
+      "message": "Is tpl used in real time mode? May not need it.",
+      "range": {
+        "startLine": 866,
+        "startChar": 4,
+        "endLine": 866,
+        "endChar": 44
+      },
+      "revId": "8ce91f7c32ce289b4033104bc0a4165e6acec1c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
