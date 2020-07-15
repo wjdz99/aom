@@ -125,6 +125,7 @@ TEST_P(MonochromeTest, TestMonochromeEncoding) {
   }
 }
 
+<<<<<<< HEAD   (309cf4 aomenc: Temporarily add back '--cq-level' option.)
 #if CONFIG_SINGLEPASS
 AV1_INSTANTIATE_TEST_CASE(MonochromeTest,
                           ::testing::Values(::libaom_test::kOnePassGood));
@@ -133,5 +134,10 @@ AV1_INSTANTIATE_TEST_CASE(MonochromeTest,
                           ::testing::Values(::libaom_test::kOnePassGood,
                                             ::libaom_test::kTwoPassGood));
 #endif  // CONFIG_SINGLEPASS
+=======
+AV1_INSTANTIATE_TEST_SUITE(MonochromeTest,
+                           ::testing::Values(::libaom_test::kOnePassGood,
+                                             ::libaom_test::kTwoPassGood));
+>>>>>>> BRANCH (196995 Further changes to the  overview document.)
 
 }  // namespace

@@ -120,6 +120,7 @@ TEST_P(LosslessTestLarge, TestLossLessEncodingCtrl) {
   EXPECT_GE(psnr_lossless, kMaxPsnr);
 }
 
+<<<<<<< HEAD   (309cf4 aomenc: Temporarily add back '--cq-level' option.)
 #if CONFIG_SINGLEPASS
 AV1_INSTANTIATE_TEST_CASE(LosslessTestLarge,
                           ::testing::Values(::libaom_test::kOnePassGood));
@@ -128,4 +129,9 @@ AV1_INSTANTIATE_TEST_CASE(LosslessTestLarge,
                           ::testing::Values(::libaom_test::kOnePassGood,
                                             ::libaom_test::kTwoPassGood));
 #endif  // CONFIG_SINGLEPASS
+=======
+AV1_INSTANTIATE_TEST_SUITE(LosslessTestLarge,
+                           ::testing::Values(::libaom_test::kOnePassGood,
+                                             ::libaom_test::kTwoPassGood));
+>>>>>>> BRANCH (196995 Further changes to the  overview document.)
 }  // namespace

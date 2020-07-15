@@ -199,6 +199,7 @@ class AV1ExtTileTest
 
 TEST_P(AV1ExtTileTest, DecoderResultTest) { TestRoundTrip(); }
 
+<<<<<<< HEAD   (309cf4 aomenc: Temporarily add back '--cq-level' option.)
 #if CONFIG_SINGLEPASS
 AV1_INSTANTIATE_TEST_CASE(
     // Only test 1-pass mode.
@@ -207,6 +208,10 @@ AV1_INSTANTIATE_TEST_CASE(
 #else
 AV1_INSTANTIATE_TEST_CASE(
     // Only test 2-pass mode.
+=======
+AV1_INSTANTIATE_TEST_SUITE(
+    // Now only test 2-pass mode.
+>>>>>>> BRANCH (196995 Further changes to the  overview document.)
     AV1ExtTileTest, ::testing::Values(::libaom_test::kTwoPassGood),
     ::testing::Range(1, 4));
 #endif  // CONFIG_SINGLEPASS
@@ -215,6 +220,7 @@ class AV1ExtTileTestLarge : public AV1ExtTileTest {};
 
 TEST_P(AV1ExtTileTestLarge, DecoderResultTest) { TestRoundTrip(); }
 
+<<<<<<< HEAD   (309cf4 aomenc: Temporarily add back '--cq-level' option.)
 #if CONFIG_SINGLEPASS
 AV1_INSTANTIATE_TEST_CASE(
     // Only test 1-pass mode.
@@ -223,6 +229,10 @@ AV1_INSTANTIATE_TEST_CASE(
 #else
 AV1_INSTANTIATE_TEST_CASE(
     // Only test 2-pass mode.
+=======
+AV1_INSTANTIATE_TEST_SUITE(
+    // Now only test 2-pass mode.
+>>>>>>> BRANCH (196995 Further changes to the  overview document.)
     AV1ExtTileTestLarge, ::testing::Values(::libaom_test::kTwoPassGood),
     ::testing::Range(0, 1));
 #endif  // CONFIG_SINGLEPASS
