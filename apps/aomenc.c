@@ -15,6 +15,7 @@
 #include <limits.h>
 #include <math.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -156,6 +157,9 @@ static const arg_def_t limit =
     ARG_DEF(NULL, "limit", 1, "Stop encoding after n input frames");
 static const arg_def_t skip =
     ARG_DEF(NULL, "skip", 1, "Skip the first n input frames");
+static const arg_def_t temporal_subsample =
+    ARG_DEF(NULL, "temporal_subsample", 0,
+            "After encoding a frame, skip this many frames");
 static const arg_def_t good_dl =
     ARG_DEF(NULL, "good", 0, "Use Good Quality Deadline");
 static const arg_def_t rt_dl =
@@ -218,6 +222,7 @@ static const arg_def_t *main_args[] = { &help,
                                         &fpf_name,
                                         &limit,
                                         &skip,
+                                        &temporal_subsample,
                                         &good_dl,
                                         &rt_dl,
                                         &quietarg,
@@ -1252,6 +1257,8 @@ static void parse_global_config(struct AvxEncoderConfig *global, char ***argv) {
       global->limit = arg_parse_uint(&arg);
     else if (arg_match(&arg, &skip, argi))
       global->skip_frames = arg_parse_uint(&arg);
+    else if (arg_match(&arg, &temporal_subsample, argi))
+      global->temporal_subsample = arg_parse_uint(&arg);
     else if (arg_match(&arg, &psnrarg, argi))
       global->show_psnr = 1;
     else if (arg_match(&arg, &recontest, argi))
@@ -1774,6 +1781,23 @@ static const char *image_format_to_string(aom_img_fmt_t f) {
   }
 }
 
+static void print_frames_to_code(FILE *f, struct stream_state *stream,
+                                 struct AvxEncoderConfig *global) {
+  const struct aom_codec_enc_cfg *cfg = &stream->config.cfg;
+  int num_frames = cfg->g_limit / (1 + global->temporal_subsample);
+  if (cfg->g_limit % (1 + global->temporal_subsample) != 0) {
+    ++num_frames;
+  }
+  fprintf(f, "Frames to be coded             : %d - %d (%d frames",
+          global->skip_frames, global->skip_frames + cfg->g_limit - 1,
+          num_frames);
+  if (global->temporal_subsample == 0) {
+    fprintf(f, ")\n");
+  } else {
+    fprintf(f, ", temporal subsample:%d)\n", global->temporal_subsample);
+  }
+}
+
 static void show_stream_config(struct stream_state *stream,
                                struct AvxEncoderConfig *global,
                                struct AvxInputContext *input) {
@@ -1792,9 +1816,7 @@ static void show_stream_config(struct stream_state *stream,
           (double)global->framerate.num / (double)global->framerate.den,
           input->bit_depth);
   fprintf(stdout, "Number of threads              : %d\n", cfg->g_threads);
-  fprintf(stdout, "Frames to be coded             : %d - %d (%d frames)\n",
-          global->skip_frames, global->skip_frames + cfg->g_limit - 1,
-          cfg->g_limit);
+  print_frames_to_code(stdout, stream, global);
   fprintf(stdout, "Operating bit depth            : %d\n", cfg->g_bit_depth);
   fprintf(stdout, "Num of coding passes           : %d\n", global->passes);
 #if !CONFIG_SINGLEPASS
@@ -2317,7 +2339,6 @@ int main(int argc, const char **argv_) {
   int allocated_raw_shift = 0;
   int do_16bit_internal = 0;
   int input_shift = 0;
-  int frame_avail, got_data;
 
   struct AvxInputContext input;
   struct AvxEncoderConfig global;
@@ -2394,7 +2415,6 @@ int main(int argc, const char **argv_) {
     input.only_i420 = 0;
 
   for (pass = global.pass ? global.pass - 1 : 0; pass < global.passes; pass++) {
-    int frames_in = 0, seen_frames = 0;
     int64_t average_rate = -1;
     int64_t lagged_count = 0;
 
@@ -2649,92 +2669,130 @@ int main(int argc, const char **argv_) {
       };
     }
 
-    frame_avail = 1;
-    got_data = 0;
+    int got_data = 0;
+    // Keep track of the total number of frames read in from the input,
+    // regardless of whether the frame is used or skipped.
+    int frames_in = 0;
+    // Keep track of the total number of frames passed to the encoder.
+    int seen_frames = 0;
+    // If temporal subsampling is enabled, keep track of the number of
+    // frames skipped since the last encoded frame. 0 means "the frame should
+    // be encoded", and values 1, 2, ..., temporal_subsample mean it should
+    // be skipped. This value is always mod (temporal_subsample + 1).
+    int temporal_skip_counter = 0;
 
+    // On each loop iteration, keep track if a frame was successfully parsed.
+    // If not, there is no need to continue iterating, unless the codec
+    // informs the caller that there is more data to extract from the codec
+    // (via the got_data variable).
+    int frame_avail = 1;
     while (frame_avail || got_data) {
       struct aom_usec_timer timer;
-
-      if (!global.limit || frames_in < global.limit) {
-        frame_avail = read_frame(&input, &raw);
-
-        if (frame_avail) frames_in++;
-        seen_frames =
-            frames_in > global.skip_frames ? frames_in - global.skip_frames : 0;
-      } else {
+      // Logic for determining how many frames / what frequency to read them
+      // in. The rules:
+      //
+      // 1. If --limit is reached, no more frames are read. Note that only
+      //    encoded frames count.
+      // 2. The first --skip frames are ignored, and do not count against the
+      //    limit.
+      // 3. After the first --skip frames are ignored, if
+      //    --temporal_subsampling=N, N frames are skipped for every 1 encoded.
+      //
+      // Step 1: stop reading if the --limit is hit. Note that the default value
+      // is 0, which indicates that there is no limit.
+      bool should_process = true;
+      if (global.limit && frames_in >= global.limit) {
         frame_avail = 0;
+        should_process = true;
+      } else {
+        // Read a frame.
+        frame_avail = read_frame(&input, &raw);
+        if (frame_avail) {
+          frames_in++;
+        }
+        // Steps 2 and 3: skip the first --skip_frames, and then N frames
+        // for every 1 encoded if --temporal_subsample is set. Note that if
+        // --temporal_subsample is not set, it is 0 and the code still works.
+        should_process =
+            (frames_in > global.skip_frames && temporal_skip_counter != 0);
+        if (should_process) {
+          ++seen_frames;
+          temporal_skip_counter =
+              (temporal_skip_counter + 1) % (global.temporal_subsample + 1);
+        }
+      }
+      if (!should_process) {
+        fflush(stdout);
+        continue;
       }
 
-      if (frames_in > global.skip_frames) {
-        aom_image_t *frame_to_encode;
-        if (input_shift || (do_16bit_internal && input.bit_depth == 8)) {
-          assert(do_16bit_internal);
-          // Input bit depth and stream bit depth do not match, so up
-          // shift frame to stream bit depth
-          if (!allocated_raw_shift) {
-            aom_img_alloc(&raw_shift, raw.fmt | AOM_IMG_FMT_HIGHBITDEPTH,
-                          input.width, input.height, 32);
-            allocated_raw_shift = 1;
-          }
-          aom_img_upshift(&raw_shift, &raw, input_shift);
-          frame_to_encode = &raw_shift;
-        } else {
-          frame_to_encode = &raw;
+      aom_image_t *frame_to_encode;
+      if (input_shift || (do_16bit_internal && input.bit_depth == 8)) {
+        assert(do_16bit_internal);
+        // Input bit depth and stream bit depth do not match, so up
+        // shift frame to stream bit depth
+        if (!allocated_raw_shift) {
+          aom_img_alloc(&raw_shift, raw.fmt | AOM_IMG_FMT_HIGHBITDEPTH,
+                        input.width, input.height, 32);
+          allocated_raw_shift = 1;
         }
-        aom_usec_timer_start(&timer);
-        if (do_16bit_internal) {
-          assert(frame_to_encode->fmt & AOM_IMG_FMT_HIGHBITDEPTH);
-          FOREACH_STREAM(stream, streams) {
-            if (stream->config.use_16bit_internal)
-              encode_frame(stream, &global,
-                           frame_avail ? frame_to_encode : NULL, frames_in);
-            else
-              assert(0);
-          };
-        } else {
-          assert((frame_to_encode->fmt & AOM_IMG_FMT_HIGHBITDEPTH) == 0);
-          FOREACH_STREAM(stream, streams) {
+        aom_img_upshift(&raw_shift, &raw, input_shift);
+        frame_to_encode = &raw_shift;
+      } else {
+        frame_to_encode = &raw;
+      }
+      aom_usec_timer_start(&timer);
+      if (do_16bit_internal) {
+        assert(frame_to_encode->fmt & AOM_IMG_FMT_HIGHBITDEPTH);
+        FOREACH_STREAM(stream, streams) {
+          if (stream->config.use_16bit_internal)
             encode_frame(stream, &global, frame_avail ? frame_to_encode : NULL,
                          frames_in);
-          }
-        }
-        aom_usec_timer_mark(&timer);
-        cx_time += aom_usec_timer_elapsed(&timer);
-
-        FOREACH_STREAM(stream, streams) { update_quantizer_histogram(stream); }
-
-        got_data = 0;
+          else
+            assert(0);
+        };
+      } else {
+        assert((frame_to_encode->fmt & AOM_IMG_FMT_HIGHBITDEPTH) == 0);
         FOREACH_STREAM(stream, streams) {
-          get_cx_data(stream, &global, &got_data);
-        }
-
-        if (!got_data && input.length && streams != NULL &&
-            !streams->frames_out) {
-          lagged_count = global.limit ? seen_frames : ftello(input.file);
-        } else if (input.length) {
-          int64_t rate;
-
-          if (global.limit) {
-            const int64_t frame_in_lagged = (seen_frames - lagged_count) * 1000;
-
-            rate = cx_time ? frame_in_lagged * (int64_t)1000000 / cx_time : 0;
-          } else {
-            const int64_t input_pos = ftello(input.file);
-            const int64_t input_pos_lagged = input_pos - lagged_count;
-            rate = cx_time ? input_pos_lagged * (int64_t)1000000 / cx_time : 0;
-          }
-
-          average_rate =
-              (average_rate <= 0) ? rate : (average_rate * 7 + rate) / 8;
-        }
-
-        if (got_data && global.test_decode != TEST_DECODE_OFF) {
-          FOREACH_STREAM(stream, streams) {
-            test_decode(stream, global.test_decode);
-          }
+          encode_frame(stream, &global, frame_avail ? frame_to_encode : NULL,
+                       frames_in);
         }
       }
+      aom_usec_timer_mark(&timer);
+      cx_time += aom_usec_timer_elapsed(&timer);
 
+      FOREACH_STREAM(stream, streams) { update_quantizer_histogram(stream); }
+
+      got_data = 0;
+      FOREACH_STREAM(stream, streams) {
+        get_cx_data(stream, &global, &got_data);
+      }
+
+      if (!got_data && input.length && streams != NULL &&
+          !streams->frames_out) {
+        lagged_count = global.limit ? seen_frames : ftello(input.file);
+      } else if (input.length) {
+        int64_t rate;
+
+        if (global.limit) {
+          const int64_t frame_in_lagged = (seen_frames - lagged_count) * 1000;
+
+          rate = cx_time ? frame_in_lagged * (int64_t)1000000 / cx_time : 0;
+        } else {
+          const int64_t input_pos = ftello(input.file);
+          const int64_t input_pos_lagged = input_pos - lagged_count;
+          rate = cx_time ? input_pos_lagged * (int64_t)1000000 / cx_time : 0;
+        }
+
+        average_rate =
+            (average_rate <= 0) ? rate : (average_rate * 7 + rate) / 8;
+      }
+
+      if (got_data && global.test_decode != TEST_DECODE_OFF) {
+        FOREACH_STREAM(stream, streams) {
+          test_decode(stream, global.test_decode);
+        }
+      }
       fflush(stdout);
     }
 
