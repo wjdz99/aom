@@ -71,6 +71,17 @@ void av1_copy_frame_mvs(const AV1_COMMON *const cm,
     frame_mvs += frame_mvs_stride;
   }
 }
+// To measure the similarity of two MVs (square dist)
+static int calc_square_dist(const int_mv *const ma, const int_mv *const mb) {
+  return (ma->as_mv.row - mb->as_mv.row) * (ma->as_mv.row - mb->as_mv.row) +
+         (ma->as_mv.col - mb->as_mv.col) * (ma->as_mv.col - mb->as_mv.col);
+}
+// To measure the similarity of two MVs (cosine dist)
+static float calc_cosine_dist(const int_mv *const ma, const int_mv *const mb) {
+  float ma_len = sqrtf(ma->as_mv.row * ma->as_mv.row + ma->as_mv.col * ma->as_mv.col);
+  float mb_len = sqrtf(mb->as_mv.row * mb->as_mv.row + mb->as_mv.col * mb->as_mv.col);
+  return ((ma->as_mv.row * mb->as_mv.row) + (ma->as_mv.col * mb->as_mv.col)) /(ma_len*mb_len);
+}
 
 static AOM_INLINE void add_ref_mv_candidate(
     const MB_MODE_INFO *const candidate, const MV_REFERENCE_FRAME rf[2],
@@ -81,7 +92,9 @@ static AOM_INLINE void add_ref_mv_candidate(
   if (!is_inter_block(candidate)) return;
   assert(weight % 2 == 0);
   int index, ref;
-
+  int threshold_sqaure_dist = 1;
+  float threshold_cosine_dist = 0.99;
+  bool can_ignore = false;
   if (rf[1] == NONE_FRAME) {
     // single reference frame
     for (ref = 0; ref < 2; ++ref) {
@@ -94,11 +107,13 @@ static AOM_INLINE void add_ref_mv_candidate(
           if (ref_mv_stack[index].this_mv.as_int == this_refmv.as_int) {
             ref_mv_weight[index] += weight;
             break;
+          }else if(calc_square_dist(&(ref_mv_stack[index].this_mv), &this_refmv)<= threshold_sqaure_dist ){
+            can_ignore = true;
           }
         }
 
         // Add a new item to the list.
-        if (index == *refmv_count && *refmv_count < MAX_REF_MV_STACK_SIZE) {
+        if (index == *refmv_count && *refmv_count < MAX_REF_MV_STACK_SIZE && (!can_ignore)) {
           ref_mv_stack[index].this_mv = this_refmv;
           ref_mv_weight[index] = weight;
           ++(*refmv_count);
