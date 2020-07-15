@@ -84,6 +84,7 @@ TEST_P(BordersTestLarge, TestLowBitrate) {
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
 }
 
+<<<<<<< HEAD   (309cf4 aomenc: Temporarily add back '--cq-level' option.)
 #if CONFIG_SINGLEPASS
 AV1_INSTANTIATE_TEST_CASE(BordersTestLarge,
                           ::testing::Values(::libaom_test::kOnePassGood));
@@ -91,4 +92,8 @@ AV1_INSTANTIATE_TEST_CASE(BordersTestLarge,
 AV1_INSTANTIATE_TEST_CASE(BordersTestLarge,
                           ::testing::Values(::libaom_test::kTwoPassGood));
 #endif  // !CONFIG_SINGLEPASS
+=======
+AV1_INSTANTIATE_TEST_SUITE(BordersTestLarge,
+                           ::testing::Values(::libaom_test::kTwoPassGood));
+>>>>>>> BRANCH (196995 Further changes to the  overview document.)
 }  // namespace

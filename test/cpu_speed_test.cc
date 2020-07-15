@@ -179,6 +179,7 @@ TEST_P(CpuSpeedTestLarge, TestTuneScreen) { TestTuneScreen(); }
 TEST_P(CpuSpeedTestLarge, TestEncodeHighBitrate) { TestEncodeHighBitrate(); }
 TEST_P(CpuSpeedTestLarge, TestLowBitrate) { TestLowBitrate(); }
 
+<<<<<<< HEAD   (309cf4 aomenc: Temporarily add back '--cq-level' option.)
 #if CONFIG_SINGLEPASS
 AV1_INSTANTIATE_TEST_CASE(CpuSpeedTest,
                           ::testing::Values(::libaom_test::kOnePassGood),
@@ -196,4 +197,14 @@ AV1_INSTANTIATE_TEST_CASE(CpuSpeedTestLarge,
                                             ::libaom_test::kOnePassGood),
                           ::testing::Range(0, 1));
 #endif  // CONFIG_SINGLEPASS
+=======
+AV1_INSTANTIATE_TEST_SUITE(CpuSpeedTest,
+                           ::testing::Values(::libaom_test::kTwoPassGood,
+                                             ::libaom_test::kOnePassGood),
+                           ::testing::Range(1, 3));
+AV1_INSTANTIATE_TEST_SUITE(CpuSpeedTestLarge,
+                           ::testing::Values(::libaom_test::kTwoPassGood,
+                                             ::libaom_test::kOnePassGood),
+                           ::testing::Range(0, 1));
+>>>>>>> BRANCH (196995 Further changes to the  overview document.)
 }  // namespace
