@@ -111,13 +111,13 @@ TEST_P(ForwardKeyTest, ForwardKeyEncodeTest) {
 }
 
 #if CONFIG_SINGLEPASS
-AV1_INSTANTIATE_TEST_CASE(ForwardKeyTest,
-                          ::testing::Values(::libaom_test::kOnePassGood),
-                          ::testing::ValuesIn(kTestParams));
+AV1_INSTANTIATE_TEST_SUITE(ForwardKeyTest,
+                           ::testing::Values(::libaom_test::kOnePassGood),
+                           ::testing::ValuesIn(kTestParams));
 #else
-AV1_INSTANTIATE_TEST_CASE(ForwardKeyTest,
-                          ::testing::Values(::libaom_test::kTwoPassGood),
-                          ::testing::ValuesIn(kTestParams));
+AV1_INSTANTIATE_TEST_SUITE(ForwardKeyTest,
+                           ::testing::Values(::libaom_test::kTwoPassGood),
+                           ::testing::ValuesIn(kTestParams));
 #endif  // CONFIG_SINGLEPASS
 
 typedef struct {
@@ -195,15 +195,15 @@ TEST_P(ForwardKeyPresenceTestLarge, ForwardKeyEncodePresenceTest) {
 }
 
 #if CONFIG_SINGLEPASS
-AV1_INSTANTIATE_TEST_CASE(ForwardKeyPresenceTestLarge,
-                          ::testing::Values(::libaom_test::kOnePassGood),
-                          ::testing::ValuesIn(kfTestParams),
-                          ::testing::Values(AOM_Q, AOM_VBR, AOM_CBR, AOM_CQ));
+AV1_INSTANTIATE_TEST_SUITE(ForwardKeyPresenceTestLarge,
+                           ::testing::Values(::libaom_test::kOnePassGood),
+                           ::testing::ValuesIn(kfTestParams),
+                           ::testing::Values(AOM_Q, AOM_VBR, AOM_CBR, AOM_CQ));
 #else
-AV1_INSTANTIATE_TEST_CASE(ForwardKeyPresenceTestLarge,
-                          ::testing::Values(::libaom_test::kOnePassGood,
-                                            ::libaom_test::kTwoPassGood),
-                          ::testing::ValuesIn(kfTestParams),
-                          ::testing::Values(AOM_Q, AOM_VBR, AOM_CBR, AOM_CQ));
+AV1_INSTANTIATE_TEST_SUITE(ForwardKeyPresenceTestLarge,
+                           ::testing::Values(::libaom_test::kOnePassGood,
+                                             ::libaom_test::kTwoPassGood),
+                           ::testing::ValuesIn(kfTestParams),
+                           ::testing::Values(AOM_Q, AOM_VBR, AOM_CBR, AOM_CQ));
 #endif  // CONFIG_SINGLEPASS
 }  // namespace

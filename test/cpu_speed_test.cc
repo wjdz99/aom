@@ -180,20 +180,20 @@ TEST_P(CpuSpeedTestLarge, TestEncodeHighBitrate) { TestEncodeHighBitrate(); }
 TEST_P(CpuSpeedTestLarge, TestLowBitrate) { TestLowBitrate(); }
 
 #if CONFIG_SINGLEPASS
-AV1_INSTANTIATE_TEST_CASE(CpuSpeedTest,
-                          ::testing::Values(::libaom_test::kOnePassGood),
-                          ::testing::Range(1, 3));
-AV1_INSTANTIATE_TEST_CASE(CpuSpeedTestLarge,
-                          ::testing::Values(::libaom_test::kOnePassGood),
-                          ::testing::Range(0, 1));
+AV1_INSTANTIATE_TEST_SUITE(CpuSpeedTest,
+                           ::testing::Values(::libaom_test::kOnePassGood),
+                           ::testing::Range(1, 3));
+AV1_INSTANTIATE_TEST_SUITE(CpuSpeedTestLarge,
+                           ::testing::Values(::libaom_test::kOnePassGood),
+                           ::testing::Range(0, 1));
 #else
-AV1_INSTANTIATE_TEST_CASE(CpuSpeedTest,
-                          ::testing::Values(::libaom_test::kTwoPassGood,
-                                            ::libaom_test::kOnePassGood),
-                          ::testing::Range(1, 3));
-AV1_INSTANTIATE_TEST_CASE(CpuSpeedTestLarge,
-                          ::testing::Values(::libaom_test::kTwoPassGood,
-                                            ::libaom_test::kOnePassGood),
-                          ::testing::Range(0, 1));
+AV1_INSTANTIATE_TEST_SUITE(CpuSpeedTest,
+                           ::testing::Values(::libaom_test::kTwoPassGood,
+                                             ::libaom_test::kOnePassGood),
+                           ::testing::Range(1, 3));
+AV1_INSTANTIATE_TEST_SUITE(CpuSpeedTestLarge,
+                           ::testing::Values(::libaom_test::kTwoPassGood,
+                                             ::libaom_test::kOnePassGood),
+                           ::testing::Range(0, 1));
 #endif  // CONFIG_SINGLEPASS
 }  // namespace
