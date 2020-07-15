@@ -108,8 +108,8 @@ static AOM_INLINE void add_ref_mv_candidate(
             ref_mv_weight[index] += weight;
             break;
           }
-          else if(calc_square_dist(&(ref_mv_stack[index].this_mv), &this_refmv)<= threshold_sqaure_dist ){
-          //else if(calc_cosine_dist(&(ref_mv_stack[index].this_mv), &this_refmv)>= threshold_cosine_dist ){
+          //else if(calc_square_dist(&(ref_mv_stack[index].this_mv), &this_refmv)<= threshold_sqaure_dist ){
+          else if(calc_cosine_dist(&(ref_mv_stack[index].this_mv), &this_refmv)>= threshold_cosine_dist ){
             //Although it is not hit in the existing MV pools, but we find that it is similar to one existing MVs,
             // So we ignore it and do not select it as one candidate
             can_ignore = true;
@@ -144,10 +144,12 @@ static AOM_INLINE void add_ref_mv_candidate(
           ref_mv_weight[index] += weight;
           break;
         }
-        else if(calc_square_dist(&(ref_mv_stack[index].this_mv), &(this_refmv[0]) )<= threshold_sqaure_dist 
-          && calc_square_dist(&(ref_mv_stack[index].comp_mv), &(this_refmv[1]) )<= threshold_sqaure_dist 
-        ){
-          //else if(calc_cosine_dist(&(ref_mv_stack[index].this_mv), &this_refmv)>= threshold_cosine_dist ){
+        // else if(calc_square_dist(&(ref_mv_stack[index].this_mv), &(this_refmv[0]) )<= threshold_sqaure_dist 
+        //   && calc_square_dist(&(ref_mv_stack[index].comp_mv), &(this_refmv[1]) )<= threshold_sqaure_dist 
+        // ){
+        else if(calc_cosine_dist(&(ref_mv_stack[index].this_mv), &(this_refmv[0]) )>= threshold_cosine_dist 
+          && calc_cosine_dist(&(ref_mv_stack[index].comp_mv), &(this_refmv[1]) )>= threshold_cosine_dist
+        ){  
             //Although it is not hit in the existing MV pools, but we find that it is similar to one existing MVs,
             // So we ignore it and do not select it as one candidate
             can_ignore = true;
