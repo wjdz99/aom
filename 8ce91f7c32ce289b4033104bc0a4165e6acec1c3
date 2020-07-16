@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "a4503f0d_23dc110e",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 731,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-07-16T13:11:43Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nYes, this can be done. We will plan to submit a patch with the necessary changes by next week.",
+      "parentUuid": "e5769899_846481e6",
+      "range": {
+        "startLine": 728,
+        "startChar": 0,
+        "endLine": 731,
+        "endChar": 70
+      },
+      "revId": "8ce91f7c32ce289b4033104bc0a4165e6acec1c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cb219183_40687a74",
         "filename": "av1/encoder/speed_features.c",
         "patchSetId": 9
@@ -82,6 +106,30 @@
     },
     {
       "key": {
+        "uuid": "6d8e064f_524ed6c3",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-07-16T13:11:43Z",
+      "side": 1,
+      "message": "Yes, this can be done. We will plan for this along with the clean-up patch.",
+      "parentUuid": "cb219183_40687a74",
+      "range": {
+        "startLine": 567,
+        "startChar": 4,
+        "endLine": 567,
+        "endChar": 36
+      },
+      "revId": "8ce91f7c32ce289b4033104bc0a4165e6acec1c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f87b7333_bc084853",
         "filename": "av1/encoder/speed_features.c",
         "patchSetId": 9
@@ -102,6 +150,30 @@
       "revId": "8ce91f7c32ce289b4033104bc0a4165e6acec1c3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77990da2_68a243c8",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 866,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-07-16T13:11:43Z",
+      "side": 1,
+      "message": "We will do the clean up and submit a patch.",
+      "parentUuid": "f87b7333_bc084853",
+      "range": {
+        "startLine": 866,
+        "startChar": 4,
+        "endLine": 866,
+        "endChar": 44
+      },
+      "revId": "8ce91f7c32ce289b4033104bc0a4165e6acec1c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
