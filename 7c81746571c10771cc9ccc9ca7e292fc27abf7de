@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c719fe9_18846156",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-07-16T04:20:45Z",
+      "side": 1,
+      "message": "Could you mention in the commit message how limit, skip and step are handled together in this design?\nWhat was happening before with limit and skip, vs. what is expected to happen now?",
+      "revId": "7c81746571c10771cc9ccc9ca7e292fc27abf7de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
