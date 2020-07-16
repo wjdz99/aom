@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e510572_2a95600c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2020-07-16T13:09:48Z",
+      "side": 1,
+      "message": "This is a good gain and makes sense. The only possible proviso is that we don\u0027t get a situation where there are overly large key frames. Also, even if the BDrate metrics improve, if the average rate for this type of content rises and they were typically already coded at a high quality (eg 40db plus) then this might not be seen as a win for cases like YT. I.e if the video is already good enough they might prefer  smaller even if the BDrate metrics say the change is beneficial. We have had a similar situation in the past with slide show content, where we did not implement the solution that gave the best metrics performance, because it resulted in bigger files and the quality was already high, so the subjective quality improvement was small.\n\nI think for now though we should put this in but be aware that when we do larger scale testing for YT issues could arise in regard to any increase in file size for screen content clips.",
+      "revId": "f81995d1009743543360680501a1498dee9946c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
