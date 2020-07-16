@@ -93,12 +93,13 @@ static AOM_INLINE void add_ref_mv_candidate(
   assert(weight % 2 == 0);
   int index, ref;
   int threshold_sqaure_dist = 1;
-  float threshold_cosine_dist = 0.99;
+  float threshold_cosine_dist = 1.1;
   bool can_ignore = false;
   if (rf[1] == NONE_FRAME) {
     // single reference frame
     for (ref = 0; ref < 2; ++ref) {
       if (candidate->ref_frame[ref] == rf[0]) {
+        can_ignore = false;
         const int is_gm_block =
             is_global_mv_block(candidate, gm_params[rf[0]].wmtype);
         const int_mv this_refmv =
@@ -130,7 +131,7 @@ static AOM_INLINE void add_ref_mv_candidate(
     // compound reference frame
     if (candidate->ref_frame[0] == rf[0] && candidate->ref_frame[1] == rf[1]) {
       int_mv this_refmv[2];
-
+      can_ignore = false;
       for (ref = 0; ref < 2; ++ref) {
         if (is_global_mv_block(candidate, gm_params[rf[ref]].wmtype))
           this_refmv[ref] = gm_mv_candidates[ref];
