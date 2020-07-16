@@ -92,8 +92,8 @@ static AOM_INLINE void add_ref_mv_candidate(
   if (!is_inter_block(candidate)) return;
   assert(weight % 2 == 0);
   int index, ref;
-  int threshold_sqaure_dist = 2;
-  float threshold_cosine_dist = -1;
+  int threshold_sqaure_dist = 1;
+  float threshold_cosine_dist = 0.999;
   bool can_ignore = false;
   if (rf[1] == NONE_FRAME) {
     // single reference frame
