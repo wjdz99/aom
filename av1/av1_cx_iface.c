@@ -191,24 +191,24 @@ static struct av1_extracfg default_extra_cfg = {
   AOM_TUNE_PSNR,  // tuning
   "/usr/local/share/model/vmaf_v0.6.1.pkl",  // VMAF model path
   NULL,                                      // SubGOP config string
-  40,                                        // qp
-  0,                                         // rc_max_intra_bitrate_pct
-  0,                                         // rc_max_inter_bitrate_pct
-  0,                                         // gf_cbr_boost_pct
-  0,                                         // lossless
-  1,                                         // enable_cdef
-  1,                                         // enable_restoration
-  0,                                         // force_video_mode
-  1,                                         // enable_obmc
-  3,                                         // disable_trellis_quant
-  0,                                         // enable_qm
-  DEFAULT_QM_Y,                              // qm_y
-  DEFAULT_QM_U,                              // qm_u
-  DEFAULT_QM_V,                              // qm_v
-  DEFAULT_QM_FIRST,                          // qm_min
-  DEFAULT_QM_LAST,                           // qm_max
-  1,                                         // max number of tile groups
-  0,                                         // mtu_size
+  40,                           // qp
+  0,                            // rc_max_intra_bitrate_pct
+  0,                            // rc_max_inter_bitrate_pct
+  0,                            // gf_cbr_boost_pct
+  0,                            // lossless
+  1,                            // enable_cdef
+  1,                            // enable_restoration
+  0,                            // force_video_mode
+  1,                            // enable_obmc
+  3,                            // disable_trellis_quant
+  0,                            // enable_qm
+  DEFAULT_QM_Y,                 // qm_y
+  DEFAULT_QM_U,                 // qm_u
+  DEFAULT_QM_V,                 // qm_v
+  DEFAULT_QM_FIRST,             // qm_min
+  DEFAULT_QM_LAST,              // qm_max
+  1,                            // max number of tile groups
+  0,                            // mtu_size
   AOM_TIMING_UNSPECIFIED,       // No picture timing signaling in bitstream
   0,                            // frame_parallel_decoding_mode
   1,                            // enable dual filter
