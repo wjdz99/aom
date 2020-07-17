@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "47362405_b5392fd1",
+        "filename": "aom_dsp/aom_dsp_common.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-07-17T17:04:41Z",
+      "side": 1,
+      "message": "I think that when we update all the quantization code (C and SIMD) it may be easier to make those functions work with any QUANT_TABLE_BITS value irrespective of which experiment it comes from. So right now CONFIG_EXTQUANT_HP only changes the table and sets QUANT_TABLE_BITS to 3. All the other quantization / dequantization code works with any QUANT_TABLE_BITS value. That way we can just scale up our existing tables by QUANT_TABLE_BITS and test to see if the results are more or less the same as before.\nThat is the current design. But we could change the design if you want.",
+      "parentUuid": "bee278fb_048e0dcc",
+      "revId": "66c362283d47f1fb488c74588ed7166a83a7b9d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6470d49b_a02c50e2",
         "filename": "av1/encoder/av1_quantize.c",
         "patchSetId": 7
