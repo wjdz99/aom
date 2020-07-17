@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c12d6826_4f6fbd1e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-07-17T13:44:52Z",
+      "side": 1,
+      "message": "Debargha\n\nThis patch introduces unit test to check the presence of altref frames.\nThe test is configured for multiple rate control modes, two pass and \nsingle pass encoder.\n\nThanks\n",
+      "revId": "0ea08b5c738e0b89314cc77dfbc3478be6ba958e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
