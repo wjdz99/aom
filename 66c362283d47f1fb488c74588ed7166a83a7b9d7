@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "bee278fb_048e0dcc",
+        "filename": "aom_dsp/aom_dsp_common.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2020-07-17T16:35:50Z",
+      "side": 1,
+      "message": "The QUANT_TABLE_BITS is used as conditional macro (#if QUANT_TABLE_BITS) at many places \nin the code. Why not just use #if CONFIG_EXTQUANT_HP since QUANT_TABLE_BITS is zero otherwise.",
+      "revId": "66c362283d47f1fb488c74588ed7166a83a7b9d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6470d49b_a02c50e2",
         "filename": "av1/encoder/av1_quantize.c",
         "patchSetId": 7
