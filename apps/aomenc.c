@@ -367,6 +367,7 @@ static const arg_def_t *rc_args[] = { &dropframe_thresh,
                                       &buf_optimal_sz,
                                       NULL };
 
+#if !CONFIG_SINGLEPASS
 static const arg_def_t bias_pct =
     ARG_DEF(NULL, "bias-pct", 1, "CBR/VBR bias (0=CBR, 100=VBR)");
 static const arg_def_t minsection_pct =
@@ -375,6 +376,7 @@ static const arg_def_t maxsection_pct =
     ARG_DEF(NULL, "maxsection-pct", 1, "GOP max bitrate (% of target)");
 static const arg_def_t *rc_twopass_args[] = { &bias_pct, &minsection_pct,
                                               &maxsection_pct, NULL };
+#endif  // !CONFIG_SINGLEPASS
 
 static const arg_def_t fwd_kf_enabled =
     ARG_DEF(NULL, "enable-fwd-kf", 1, "Enable forward reference keyframes");
@@ -1066,8 +1068,10 @@ static void show_help(FILE *fout, int shorthelp) {
   arg_show_usage(fout, global_args);
   fprintf(fout, "\nRate Control Options:\n");
   arg_show_usage(fout, rc_args);
+#if !CONFIG_SINGLEPASS
   fprintf(fout, "\nTwopass Rate Control Options:\n");
   arg_show_usage(fout, rc_twopass_args);
+#endif  // !CONFIG_SINGLEPASS
   fprintf(fout, "\nKeyframe Placement Options:\n");
   arg_show_usage(fout, kf_args);
 #if CONFIG_AV1_ENCODER
@@ -1660,6 +1664,7 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       config->cfg.rc_buf_initial_sz = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &buf_optimal_sz, argi)) {
       config->cfg.rc_buf_optimal_sz = arg_parse_uint(&arg);
+#if !CONFIG_SINGLEPASS
     } else if (arg_match(&arg, &bias_pct, argi)) {
       config->cfg.rc_2pass_vbr_bias_pct = arg_parse_uint(&arg);
       if (global->passes < 2)
@@ -1674,6 +1679,7 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
 
       if (global->passes < 2)
         warn("option %s ignored in one-pass mode.\n", arg.name);
+#endif  // !CONFIG_SINGLEPASS
     } else if (arg_match(&arg, &fwd_kf_enabled, argi)) {
       config->cfg.fwd_kf_enabled = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &kf_min_dist, argi)) {

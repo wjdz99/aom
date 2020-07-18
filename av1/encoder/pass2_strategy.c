@@ -65,9 +65,8 @@ static double calculate_modified_err(const FRAME_INFO *frame_info,
                                      const AV1EncoderConfig *oxcf,
                                      const FIRSTPASS_STATS *this_frame) {
   const FIRSTPASS_STATS *const stats = twopass->stats_buf_ctx->total_stats;
-  if (stats == NULL) {
-    return 0;
-  }
+  if (stats == NULL) return 0;
+  assert(stats->count);
   const double av_weight = stats->weight / stats->count;
   const double av_err = (stats->coded_error * av_weight) / stats->count;
   double modified_error =
