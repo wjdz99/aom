@@ -854,6 +854,9 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
 
   cm->error.setjmp = 1;
   cpi->lap_enabled = num_lap_buffers > 0;
+#if CONFIG_SINGLEPASS
+  assert(cpi->lap_enabled);
+#endif
   cpi->compressor_stage = stage;
 
   CommonModeInfoParams *const mi_params = &cm->mi_params;
@@ -981,6 +984,9 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
 
 #if !CONFIG_REALTIME_ONLY
   if (is_stat_consumption_stage(cpi)) {
+#if CONFIG_SINGLEPASS
+    av1_init_single_pass_lap(cpi);
+#else
     const size_t packet_sz = sizeof(FIRSTPASS_STATS);
     const int packets = (int)(oxcf->two_pass_cfg.stats_in.sz / packet_sz);
 
@@ -997,8 +1003,9 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
     } else {
       av1_init_single_pass_lap(cpi);
     }
+#endif  // CONFIG_SINGLEPASS
   }
-#endif
+#endif  // !CONFIG_REALTIME_ONLY
 
   int sb_mi_size = av1_get_sb_mi_size(cm);
 
