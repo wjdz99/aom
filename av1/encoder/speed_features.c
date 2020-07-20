@@ -515,10 +515,9 @@ static void set_good_speed_features_framesize_independent(
         frame_is_intra_only(&cpi->common) ? 0 : 1;
     sf->winner_mode_sf.enable_winner_mode_for_use_tx_domain_dist = 1;
     sf->winner_mode_sf.motion_mode_for_winner_cand =
-        boosted
-            ? 0
-            : gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE ? 1
-                                                                         : 2;
+        boosted                                                      ? 0
+        : gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE ? 1
+                                                                     : 2;
 
     // TODO(any): evaluate if these lpf features can be moved to speed 2.
     // For screen content, "prune_sgr_based_on_wiener = 2" cause large quality
@@ -856,10 +855,10 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.use_real_time_ref_set = 1;
     sf->rt_sf.use_simple_rd_model = 1;
 
-    if (cm->current_frame.frame_type != KEY_FRAME &&
-        cpi->oxcf.rc_cfg.mode == AOM_CBR) {
-      sf->rt_sf.overshoot_detection_cbr = FAST_DETECTION_MAXQ;
+    if (cpi->oxcf.rc_cfg.mode == AOM_CBR) {
       sf->rt_sf.check_scene_detection = 1;
+      if (cm->current_frame.frame_type != KEY_FRAME)
+        sf->rt_sf.overshoot_detection_cbr = FAST_DETECTION_MAXQ;
     }
     // Keeping this off for now as some clips show ~6% BDRate regression with
     // moderate speed-up (~20%)
