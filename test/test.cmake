@@ -56,7 +56,6 @@ list(APPEND AOM_UNIT_TEST_DECODER_SOURCES "${AOM_ROOT}/test/decode_api_test.cc"
 
 list(APPEND AOM_UNIT_TEST_ENCODER_SOURCES
             "${AOM_ROOT}/test/active_map_test.cc"
-            "${AOM_ROOT}/test/altref_test.cc"
             "${AOM_ROOT}/test/aq_segment_test.cc"
             "${AOM_ROOT}/test/borders_test.cc"
             "${AOM_ROOT}/test/cpu_speed_test.cc"
