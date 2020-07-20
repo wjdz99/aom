@@ -17,12 +17,14 @@
 namespace {
 
 class AltRefForcedKeyTestLarge
-    : public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode, int>,
+    : public ::libaom_test::CodecTestWith4Params<libaom_test::TestMode, int,
+                                                 int, int>,
       public ::libaom_test::EncoderTest {
  protected:
   AltRefForcedKeyTestLarge()
       : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)),
-        cpu_used_(GET_PARAM(2)), forced_kf_frame_num_(1), frame_num_(0) {}
+        auto_alt_ref_(GET_PARAM(2)), fwd_kf_enabled_(GET_PARAM(3)),
+        cpu_used_(GET_PARAM(4)), forced_kf_frame_num_(1), frame_num_(0) {}
   virtual ~AltRefForcedKeyTestLarge() {}
 
   virtual void SetUp() {
@@ -30,13 +32,16 @@ class AltRefForcedKeyTestLarge
     SetMode(encoding_mode_);
     cfg_.rc_end_usage = AOM_VBR;
     cfg_.g_threads = 0;
+    cfg_.kf_max_dist = 30;
+    cfg_.kf_min_dist = 0;
+    cfg_.fwd_kf_enabled = fwd_kf_enabled_;
   }
 
   virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
                                   ::libaom_test::Encoder *encoder) {
     if (video->frame() == 0) {
       encoder->Control(AOME_SET_CPUUSED, cpu_used_);
-      encoder->Control(AOME_SET_ENABLEAUTOALTREF, 1);
+      encoder->Control(AOME_SET_ENABLEAUTOALTREF, auto_alt_ref_);
 #if CONFIG_AV1_ENCODER
       // override test default for tile columns if necessary.
       if (GET_PARAM(0) == &libaom_test::kAV1) {
@@ -58,6 +63,8 @@ class AltRefForcedKeyTestLarge
   }
 
   ::libaom_test::TestMode encoding_mode_;
+  int auto_alt_ref_;
+  int fwd_kf_enabled_;
   int cpu_used_;
   unsigned int forced_kf_frame_num_;
   unsigned int frame_num_;
@@ -91,8 +98,24 @@ TEST_P(AltRefForcedKeyTestLarge, ForcedFrameIsKey) {
   }
 }
 
+TEST_P(AltRefForcedKeyTestLarge, ForcedFrameIsKeyCornerCases) {
+  const aom_rational timebase = { 1, 30 };
+  const int kf_offsets[] = { -2, -1, 1, 2, 0 };
+  cfg_.g_lag_in_frames = 25;
+
+  for (int i = 0; kf_offsets[i] != 0; ++i) {
+    frame_num_ = 0;
+    forced_kf_frame_num_ = cfg_.kf_max_dist + kf_offsets[i];
+    libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                       timebase.den, timebase.num, 0, 60);
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+  }
+}
+
 AV1_INSTANTIATE_TEST_SUITE(AltRefForcedKeyTestLarge,
-                           ::testing::Values(::libaom_test::kOnePassGood),
+                           ::testing::Values(::libaom_test::kOnePassGood,
+                                             ::libaom_test::kTwoPassGood),
+                           ::testing::Values(0, 1), ::testing::Values(0, 1),
                            ::testing::Values(2, 5));
 
 }  // namespace
