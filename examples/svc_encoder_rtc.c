@@ -700,6 +700,7 @@ int main(int argc, char **argv) {
   cfg.rc_buf_initial_sz = 600;
   cfg.rc_buf_optimal_sz = 600;
   cfg.rc_buf_sz = 1000;
+  cfg.rc_resize_mode = 0;  // Set to 3 for dynamic resize.
 
   // Use 1 thread as default.
   cfg.g_threads = (unsigned int)strtoul(argv[11], NULL, 0);
