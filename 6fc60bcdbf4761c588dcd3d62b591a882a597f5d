@@ -86,6 +86,23 @@
       "revId": "6fc60bcdbf4761c588dcd3d62b591a882a597f5d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48bc2557_aa6ff6c1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-07-20T02:31:42Z",
+      "side": 1,
+      "message": "Sure, we will abandon this patch.\n\nThanks",
+      "revId": "6fc60bcdbf4761c588dcd3d62b591a882a597f5d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
