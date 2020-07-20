@@ -16,6 +16,70 @@
       "revId": "e72d3c116b75df5115c9f90b12fb4ae11e5ecd32",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df325053_bef0e490",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-07-20T17:55:19Z",
+      "side": 1,
+      "message": "Hi Deepa, Thanks for the fix. What you are trying to do - initializing several extra bytes should be fine. That wouldn\u0027t impact speed much. Suggest to consolidate the fix with the original code, so no duplicate memset operation is done.",
+      "parentUuid": "8708f7b1_780aaec6",
+      "revId": "e72d3c116b75df5115c9f90b12fb4ae11e5ecd32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ccae49a_3906514b",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1209,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-07-20T17:55:19Z",
+      "side": 1,
+      "message": "Krishna\u0027s change for high-bit depth function. Please see my comment below first.",
+      "range": {
+        "startLine": 1209,
+        "startChar": 4,
+        "endLine": 1209,
+        "endChar": 73
+      },
+      "revId": "e72d3c116b75df5115c9f90b12fb4ae11e5ecd32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fbe9f1d_005dfbe0",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1404,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-07-20T17:55:19Z",
+      "side": 1,
+      "message": "Hi Deepa, this valgrind issue was first seen and fixed here for 8-bit function. Krishna followed the same way to fix it for high-bit depth function. But looks like his fix was not enough. Thanks for testing and fixing this. I know reproducing this bug is quite hard. Would you be able to consolidate the fix into 1 place?",
+      "range": {
+        "startLine": 1401,
+        "startChar": 1,
+        "endLine": 1404,
+        "endChar": 73
+      },
+      "revId": "e72d3c116b75df5115c9f90b12fb4ae11e5ecd32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
