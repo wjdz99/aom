@@ -816,7 +816,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   int cluster_centroids[MAX_REF_MV_STACK_SIZE];
   int cluster_label[MAX_REF_MV_STACK_SIZE];
   // MAX_REF_MV_STACK_SIZE
-  if ((*refmv_count) >= MAX_REF_MV_STACK_SIZE) {
+  if ((*refmv_count) >= 4) {
     mv_dbscan(ref_mv_stack, (*refmv_count), min_points, thresholod,
               (&cluster_num), cluster_centroids, cluster_label,
               (rf[1] == NONE_FRAME));
