@@ -410,6 +410,11 @@ enum aom_dec_control_id {
    * decoded has show existing frame flag set.
    */
   AOMD_GET_SHOW_EXISTING_FRAME_FLAG,
+
+  /*!\brief Codec control function to check the presence of S_FRAME when
+   * altref is enabled. */
+  AOMD_GET_S_FRAME_PRESENT,
+
 };
 
 /*!\cond */
@@ -460,6 +465,9 @@ AOM_CTRL_USE_TYPE(AOMD_GET_SB_SIZE, aom_superblock_size_t *)
 
 AOM_CTRL_USE_TYPE(AOMD_GET_SHOW_EXISTING_FRAME_FLAG, int *)
 #define AOMD_CTRL_AOMD_GET_SHOW_EXISTING_FRAME_FLAG
+
+AOM_CTRL_USE_TYPE(AOMD_GET_S_FRAME_PRESENT, int *)
+#define AOMD_CTRL_AOMD_GET_S_FRAME_PRESENT
 
 AOM_CTRL_USE_TYPE(AV1D_GET_DISPLAY_SIZE, int *)
 #define AOM_CTRL_AV1D_GET_DISPLAY_SIZE
