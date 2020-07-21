@@ -4548,6 +4548,16 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     if (cm->show_frame == 0) pbi->is_arf_frame_present = 1;
     if (cm->show_frame == 0 && cm->current_frame.frame_type == KEY_FRAME)
       pbi->is_fwd_kf_present = 1;
+    if (cm->current_frame.frame_type == S_FRAME) {
+      pbi->sframe_info.is_s_frame = 1;
+      if (cm->show_frame == 0)
+        pbi->sframe_info.is_s_frame_at_arf = 1;
+      else
+        pbi->sframe_info.is_s_frame_at_arf = 0;
+    } else {
+      pbi->sframe_info.is_s_frame = 0;
+    }
+
     if (seq_params->still_picture &&
         (current_frame->frame_type != KEY_FRAME || !cm->show_frame)) {
       aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
