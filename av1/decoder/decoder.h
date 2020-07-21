@@ -328,6 +328,7 @@ typedef struct AV1Decoder {
   int valid_for_referencing[REF_FRAMES];
   int is_fwd_kf_present;
   int is_arf_frame_present;
+  int is_sframe_present;
   int num_tile_groups;
 } AV1Decoder;
 

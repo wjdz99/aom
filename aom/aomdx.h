@@ -405,6 +405,10 @@ enum aom_dec_control_id {
    * 1 for BLOCK_128X128)
    */
   AOMD_GET_SB_SIZE,
+
+  /*!\brief Codec control function to check the presence of S_FRAME when
+   * altref is enabled. */
+  AOMD_GET_S_FRAME_PRESENT,
 };
 
 /*!\cond */
@@ -452,6 +456,9 @@ AOM_CTRL_USE_TYPE(AOMD_GET_STILL_PICTURE, aom_still_picture_info *)
 
 AOM_CTRL_USE_TYPE(AOMD_GET_SB_SIZE, aom_superblock_size_t *)
 #define AOMD_CTRL_AOMD_GET_SB_SIZE
+
+AOM_CTRL_USE_TYPE(AOMD_GET_S_FRAME_PRESENT, int *)
+#define AOMD_CTRL_AOMD_GET_S_FRAME_PRESENT
 
 AOM_CTRL_USE_TYPE(AV1D_GET_DISPLAY_SIZE, int *)
 #define AOM_CTRL_AV1D_GET_DISPLAY_SIZE
