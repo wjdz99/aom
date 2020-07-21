@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b488c2ff_745c950c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-07-21T03:25:31Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, we cleaned up the sf \"fast_dia_search_level\" by introducing the new search method FAST_BIGDIA.\nAnd also this patch removes the setting of tpl search method in rt path which is not needed.\n\nThis is a bit exact change with no speed impact. (Verified locally)\nAWCY link for speed preset 6:\nhttps://beta.arewecompressedyet.com/?job\u003dref_cpu6_master%402020-07-20T12%3A02%3A18.910Z\u0026job\u003dmod_cpu6_p2_master%402020-07-20T12%3A59%3A24.260Z\n\nAWCY link for speed preset 5 (RT path):\nhttps://beta.arewecompressedyet.com/?job\u003dref_rt_cpu5_master%402020-07-20T12%3A03%3A09.303Z\u0026job\u003dmod_rt_cpu5_master%402020-07-20T12%3A35%3A33.268Z\n\nEven though we introduced this as a new search method, please note that the search methods BIGDIA, FAST_DIAMOND, FAST_BIGDIA are all same with number of search steps as difference.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkat.",
+      "revId": "30963246e026e5a2f5c5a646126d608589a69bd0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
