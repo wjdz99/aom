@@ -809,50 +809,50 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       mode_context[ref_frame] |= (5 << REFMV_OFFSET);
       break;
   }
-  // DBSCAN
-  const int min_points = 2;
-  const int thresholod = 1;
-  int cluster_num = 0;
-  int cluster_centroids[MAX_REF_MV_STACK_SIZE];
-  int cluster_label[MAX_REF_MV_STACK_SIZE];
-  int cluster_threshold = 4;
+  // // DBSCAN
+  // const int min_points = 2;
+  // const int thresholod = 1;
+  // int cluster_num = 0;
+  // int cluster_centroids[MAX_REF_MV_STACK_SIZE];
+  // int cluster_label[MAX_REF_MV_STACK_SIZE];
+  // int cluster_threshold = 4;
 
-  // MAX_REF_MV_STACK_SIZE
-  if ((*refmv_count) >= cluster_threshold) {
-    mv_dbscan(ref_mv_stack, (*refmv_count), min_points, thresholod,
-              (&cluster_num), cluster_centroids, cluster_label,
-              (rf[1] == NONE_FRAME));
+  // // MAX_REF_MV_STACK_SIZE
+  // if ((*refmv_count) >= cluster_threshold) {
+  //   mv_dbscan(ref_mv_stack, (*refmv_count), min_points, thresholod,
+  //             (&cluster_num), cluster_centroids, cluster_label,
+  //             (rf[1] == NONE_FRAME));
 
-    for (int i = 0; i < (*refmv_count); i++) {
-      if (cluster_label[i] > 0 && cluster_label[i] != i) {
-        ref_mv_weight[cluster_label[i]] += ref_mv_weight[i];
-        ref_mv_weight[i] = 0;
-      }
-    }
-    int head = 0;
-    int tail = (*refmv_count) - 1;
-    while (head < tail) {
-      if (ref_mv_weight[head] == 0) {
-        // Swap ref_mv_stack[head] and ref_mv_stack[tail]
-        CANDIDATE_MV tmp = ref_mv_stack[head];
-        ref_mv_stack[head] = ref_mv_stack[tail];
-        ref_mv_stack[tail] = tmp;
-        uint16_t tmp_weight = ref_mv_weight[head];
-        ref_mv_weight[head] = ref_mv_weight[tail];
-        ref_mv_weight[tail] = tmp_weight;
-        tail--;
+  //   for (int i = 0; i < (*refmv_count); i++) {
+  //     if (cluster_label[i] > 0 && cluster_label[i] != i) {
+  //       ref_mv_weight[cluster_label[i]] += ref_mv_weight[i];
+  //       ref_mv_weight[i] = 0;
+  //     }
+  //   }
+  //   int head = 0;
+  //   int tail = (*refmv_count) - 1;
+  //   while (head < tail) {
+  //     if (ref_mv_weight[head] == 0) {
+  //       // Swap ref_mv_stack[head] and ref_mv_stack[tail]
+  //       CANDIDATE_MV tmp = ref_mv_stack[head];
+  //       ref_mv_stack[head] = ref_mv_stack[tail];
+  //       ref_mv_stack[tail] = tmp;
+  //       uint16_t tmp_weight = ref_mv_weight[head];
+  //       ref_mv_weight[head] = ref_mv_weight[tail];
+  //       ref_mv_weight[tail] = tmp_weight;
+  //       tail--;
 
-      } else {
-        head++;
-      }
-    }
-    fprintf(stderr,
-            "block (%d %d) original refmv: %d, after clustering mv num=%d"
-            "nearest_refmv_count=%d cluster_num=%d\n",
-            xd->mi_row, xd->mi_col, (*refmv_count), tail, nearest_refmv_count,
-            cluster_num);
-    (*refmv_count) = tail;
-  }
+  //     } else {
+  //       head++;
+  //     }
+  //   }
+  //   fprintf(stderr,
+  //           "block (%d %d) original refmv: %d, after clustering mv num=%d"
+  //           "nearest_refmv_count=%d cluster_num=%d\n",
+  //           xd->mi_row, xd->mi_col, (*refmv_count), tail,
+  //           nearest_refmv_count, cluster_num);
+  //   (*refmv_count) = tail;
+  // }
 
   // Rank the likelihood and assign nearest and near mvs.
   int len = nearest_refmv_count;
