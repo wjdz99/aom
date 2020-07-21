@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "559526f8_3000a0f2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15075
+      },
+      "writtenOn": "2020-07-21T14:42:11Z",
+      "side": 1,
+      "message": "Debargha,\nThis patch renames AltRefForcedKeyTestLarge to ForcedKeyTestLarge and adds some test cases to it. We have introduced some corner cases like testing forced kf placement around the kf interval and beyond lag in frames. Currently, the test for placing a forced kf beyond lag in frames causes a segfault for two pass VBR and single pass CBR, hence we have commented that test out. We will be filing a bug report for this issue. Once these issues are fixed, we can enable this test. \n\nThis patch also changes the way this test detects key frames to use decoder APIs instead of encoder\u0027s frame packet flags.\n\nPlease Review.",
+      "revId": "c11c712cc2f61486500baa9596c3934fafd32944",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
