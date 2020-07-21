@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c90584a_0fd5b82a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-07-21T16:45:33Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nPlease review this patch.\n\nRegards,\nJayasanker.",
+      "revId": "a7af88219f10145cbb6b33b881970fa1d0ed41f7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
