@@ -815,7 +815,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   int cluster_num = 0;
   int cluster_centroids[MAX_REF_MV_STACK_SIZE];
   int cluster_label[MAX_REF_MV_STACK_SIZE];
-  int cluster_threshold = 8;
+  int cluster_threshold = 4;
 
   // MAX_REF_MV_STACK_SIZE
   if ((*refmv_count) >= cluster_threshold) {
