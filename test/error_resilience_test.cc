@@ -533,4 +533,76 @@ AV1_INSTANTIATE_TEST_SUITE(SFramePresenceTestLarge,
                            ::testing::Values(::libaom_test::kOnePassGood,
                                              ::libaom_test::kTwoPassGood),
                            ::testing::Values(AOM_Q, AOM_VBR, AOM_CBR, AOM_CQ));
+
+// This class is used to check the presence of SFrame when altref is enabled.
+class SFrameModeTestLarge
+    : public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode,
+                                                 aom_rc_mode>,
+      public ::libaom_test::EncoderTest {
+ protected:
+  SFrameModeTestLarge()
+      : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)),
+        rc_end_usage_(GET_PARAM(2)) {
+    is_sframe_present_ = 0;
+  }
+  virtual ~SFrameModeTestLarge() {}
+
+  virtual void SetUp() {
+    InitializeConfig();
+    SetMode(encoding_mode_);
+    const aom_rational timebase = { 1, 30 };
+    cfg_.g_timebase = timebase;
+    cfg_.rc_end_usage = rc_end_usage_;
+    cfg_.g_threads = 1;
+    cfg_.g_lag_in_frames = 19;
+    cfg_.sframe_dist = 5;
+    cfg_.sframe_mode = 2;
+  }
+
+  virtual bool DoDecode() const { return 1; }
+
+  virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
+                                  ::libaom_test::Encoder *encoder) {
+    if (video->frame() == 0) {
+      encoder->Control(AOME_SET_CPUUSED, 5);
+      encoder->Control(AOME_SET_ENABLEAUTOALTREF, 1);
+    }
+  }
+
+  virtual bool HandleDecodeResult(const aom_codec_err_t res_dec,
+                                  libaom_test::Decoder *decoder) {
+    EXPECT_EQ(AOM_CODEC_OK, res_dec) << decoder->DecodeError();
+    if (is_sframe_present_ != 1 && AOM_CODEC_OK == res_dec) {
+      aom_codec_ctx_t *ctx_dec = decoder->GetDecoder();
+      AOM_CODEC_CONTROL_TYPECHECKED(ctx_dec, AOMD_GET_S_FRAME_PRESENT,
+                                    &is_sframe_present_);
+    }
+    return AOM_CODEC_OK == res_dec;
+  }
+
+  ::libaom_test::TestMode encoding_mode_;
+  aom_rc_mode rc_end_usage_;
+  int is_sframe_present_;
+};
+
+TEST_P(SFrameModeTestLarge, SFrameModeTest) {
+  libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                     cfg_.g_timebase.den, cfg_.g_timebase.num,
+                                     0, 100);
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+  ASSERT_EQ(is_sframe_present_, 1);
+}
+
+/*
+ * Disabling this test currently - since using encoder configuration to enable
+ * S_FRAME is broken when altref is enabled.
+ * TODO(anyone): Enable (uncomment) below test once the bug mentioned above is
+ * fixed.
+ * */
+/*AV1_INSTANTIATE_TEST_SUITE(SFrameModeTestLarge,
+                           ::testing::Values(::libaom_test::kOnePassGood,
+                                             ::libaom_test::kTwoPassGood),
+                           ::testing::Values(AOM_Q, AOM_VBR, AOM_CBR, AOM_CQ));
+ */
+
 }  // namespace
