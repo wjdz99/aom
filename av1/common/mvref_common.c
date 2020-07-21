@@ -821,36 +821,35 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
               (&cluster_num), cluster_centroids, cluster_label,
               (rf[1] == NONE_FRAME));
 
-    // for (int i = 0; i < (*refmv_count); i++) {
-    //   if (cluster_label[i] > 0 && cluster_label[i] != i) {
-    //     ref_mv_weight[cluster_label[i]] += ref_mv_weight[i];
-    //     ref_mv_weight[i] = 0;
-    //   }
-    // }
-    // int head = 0;
-    // int tail = (*refmv_count) - 1;
-    // while (head < tail) {
-    //   if (ref_mv_weight[head] == 0) {
-    //     // Swap ref_mv_stack[head] and ref_mv_stack[tail]
-    //     CANDIDATE_MV tmp = ref_mv_stack[head];
-    //     ref_mv_stack[head] = ref_mv_stack[tail];
-    //     ref_mv_stack[tail] = tmp;
-    //     uint16_t tmp_weight = ref_mv_weight[head];
-    //     ref_mv_weight[head] = ref_mv_weight[tail];
-    //     ref_mv_weight[tail] = tmp_weight;
-    //     tail--;
+    for (int i = 0; i < (*refmv_count); i++) {
+      if (cluster_label[i] > 0 && cluster_label[i] != i) {
+        ref_mv_weight[cluster_label[i]] += ref_mv_weight[i];
+        ref_mv_weight[i] = 0;
+      }
+    }
+    int head = 0;
+    int tail = (*refmv_count) - 1;
+    while (head < tail) {
+      if (ref_mv_weight[head] == 0) {
+        // Swap ref_mv_stack[head] and ref_mv_stack[tail]
+        CANDIDATE_MV tmp = ref_mv_stack[head];
+        ref_mv_stack[head] = ref_mv_stack[tail];
+        ref_mv_stack[tail] = tmp;
+        uint16_t tmp_weight = ref_mv_weight[head];
+        ref_mv_weight[head] = ref_mv_weight[tail];
+        ref_mv_weight[tail] = tmp_weight;
+        tail--;
 
-    //   } else {
-    //     head++;
-    //   }
-    // }
-    // // fprintf(stderr,
-    // //         "block (%d %d) original refmv: %d, after clustering mv num=%d
-    // "
-    // //         "nearest_refmv_count=%d cluster_num=%d\n",
-    // //         xd->mi_row, xd->mi_col, (*refmv_count), tail,
-    // //         nearest_refmv_count, cluster_num);
-    // (*refmv_count) = tail;
+      } else {
+        head++;
+      }
+    }
+    // fprintf(stderr,
+    //         "block (%d %d) original refmv: %d, after clustering mv num=%d"
+    //         "nearest_refmv_count=%d cluster_num=%d\n",
+    //         xd->mi_row, xd->mi_col, (*refmv_count), tail,
+    //         nearest_refmv_count, cluster_num);
+    (*refmv_count) = tail;
   }
 
   // Rank the likelihood and assign nearest and near mvs.
