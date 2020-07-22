@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bdfa3deb_7bf8309a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-07-22T13:40:13Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe have pushed a patch (https://aomedia-review.googlesource.com/c/aom/+/115223) which refactors the speed feature as per the second and third suggestions mentioned before. Regarding the first suggestion of using pattern_search() to unify the path for this sf with the existing search methods of FAST_DIAMOND, BIGDIA, SQUARE and HEX, please find our thoughts below.\n\nThe functions bigdia_search_level1 and pattern_search() are same in functionality, the only difference is that bigdia_search_level1 utilizes the 4-point sad calculation compared to pattern_search(). 4-point sad calculation needs offset information which is being calculated in av1_init_motion_compensation_bigdia() at frame level.\nIf we are to use pattern_search() (which gets called from hex_search, square_search) for FAST_BIGDIA, the initialization is needed for all search methods as the mv candidates are different for each search method.\n\nThe following are 2 suggested methods to use pattern_search() for FAST_BIGDIA.\n\n1) Chi Yo Tsai introduced the sf \"use_bsize_dependent_search_method\", which changes the search method based on block size. Because of this change the initialization planned at frame level might not work as search method changes at block level. We just introduced the initialization part at block level and checked the speed impact for speed preset 6, which resulted in an encode time increase of 0.5%. \nAs Chi Yo Tsai sf is applicable for only speed 6, only in speed 6 we might have to do block level initialization when the sf is enabled. However, this initialization will not be consistent across presets. \n\n2) One more possible way to implement this is to maintain the search_site config for all search methods and at block level pick the corresponding search_site based on search method. This might need changes in some extra files as av1_make_default_fullpel_ms_params() calls from different files.\n\nOther than the 2 above methods, we can try to abstract out the common code present in pattern_search() and bigdia_search_level1() and keep it in separate functions. This might reduce the duplicate code problem to some extent.\n\nWe feel like either the approach 2 or abstracting out the common code to reduce the duplicate might be good at this level.\n\nPlease let us know your opinion on the above suggested methods.\n\nThanks \u0026 Regards,\nVenkat.",
+      "revId": "dc5371c09ffdee1b1e223984a828231266ab21ba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
