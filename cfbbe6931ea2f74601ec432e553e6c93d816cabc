@@ -57,6 +57,30 @@
       "revId": "cfbbe6931ea2f74601ec432e553e6c93d816cabc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7ef8d24_7ff5945b",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1224,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2020-07-22T15:11:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05517292_68ea776b",
+      "range": {
+        "startLine": 1219,
+        "startChar": 0,
+        "endLine": 1224,
+        "endChar": 65
+      },
+      "revId": "cfbbe6931ea2f74601ec432e553e6c93d816cabc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
