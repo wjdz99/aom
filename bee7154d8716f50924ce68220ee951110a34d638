@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b60615d1_333b3e7e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-07-22T05:26:59Z",
+      "side": 1,
+      "message": "Debargha,\n\nWe have made a trivial rebase, this patch is ready to review. \nPlease provide +2 again so that we can merge this patch.\n\nThanks",
+      "revId": "bee7154d8716f50924ce68220ee951110a34d638",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
