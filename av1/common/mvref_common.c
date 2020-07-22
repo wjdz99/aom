@@ -852,11 +852,11 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       // centriod and outliers are remaining in ref_mv_weight
       // How about removing the outliers?
 
-      fprintf(stderr,
-              "block (%d %d) original refmv: %d, after clustering mv num=%d"
-              "nearest_refmv_count=%d cluster_num=%d\n",
-              xd->mi_row, xd->mi_col, (*refmv_count), tail, nearest_refmv_count,
-              cluster_num);
+      // fprintf(stderr,
+      //         "block (%d %d) original refmv: %d, after clustering mv num=%d"
+      //         "nearest_refmv_count=%d cluster_num=%d\n",
+      //         xd->mi_row, xd->mi_col, (*refmv_count), tail,
+      //         nearest_refmv_count, cluster_num);
       (*refmv_count) = tail;
     }
   }
