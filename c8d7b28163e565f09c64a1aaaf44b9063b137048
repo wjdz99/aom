@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd9b4292_dce01019",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-23T02:57:43Z",
+      "side": 1,
+      "message": "this breaks the ABI, new values should be added at the end of public enums.",
+      "revId": "c8d7b28163e565f09c64a1aaaf44b9063b137048",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
