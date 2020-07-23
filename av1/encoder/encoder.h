@@ -2534,6 +2534,12 @@ typedef struct AV1_COMP {
    * Number of frames left to be encoded, is 0 if limit is not set.
    */
   int frames_left;
+
+  // Flag indicating whether a motion is detected on Android device.
+  int android_motion_detected;
+
+  // The target q to use throughout a motion
+  int target_q_under_motion;
 } AV1_COMP;
 
 /*!\cond */

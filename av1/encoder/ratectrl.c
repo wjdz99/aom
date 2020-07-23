@@ -1747,11 +1747,12 @@ static void update_golden_frame_stats(AV1_COMP *cpi) {
 }
 
 void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
-  const AV1_COMMON *const cm = &cpi->common;
+  AV1_COMMON *const cm = &cpi->common;
   const CurrentFrame *const current_frame = &cm->current_frame;
   RATE_CONTROL *const rc = &cpi->rc;
   const GF_GROUP *const gf_group = &cpi->gf_group;
   const RefreshFrameFlagsInfo *const refresh_frame_flags = &cpi->refresh_frame;
+  const QuantizationCfg *const q_cfg = &cpi->oxcf.q_cfg;
 
   const int is_intrnl_arf =
       gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE;
@@ -1844,6 +1845,18 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
       (int)(rc->this_frame_target / resize_rate_factor(&cpi->oxcf.frm_dim_cfg,
   cm->width, cm->height));
       */
+
+  if (cpi->android_motion_detected) {
+    // Adjust the average frame qindex to adjust QP selection for
+    // subsequent frames
+    int q = av1_get_quantizer(cpi);
+    if (cpi->target_q_under_motion == -1) {
+      cpi->target_q_under_motion = (3 * cpi->rc.worst_quality + q) >> 2;
+    }
+    cpi->rc.avg_frame_qindex[INTER_FRAME] = cpi->target_q_under_motion;
+    av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel,
+                      cpi->target_q_under_motion, q_cfg->enable_chroma_deltaq);
+  }
 }
 
 void av1_rc_postencode_update_drop_frame(AV1_COMP *cpi) {
