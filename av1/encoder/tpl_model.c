@@ -964,6 +964,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     }
 
     av1_get_ref_frames(cpi, &ref_buffer_stack);
+    printf("here2\n");
     int refresh_mask = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, gf_index, &ref_buffer_stack);
 
@@ -1018,6 +1019,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     // av1_update_ref_frame_map() will execute default behavior even when
     // subgop cfg is enabled. This should be addressed if we ever remove the
     // frame_update_type.
+    printf("here3\n");
     int refresh_mask = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, -1, &ref_buffer_stack);
     int refresh_frame_map_index = av1_get_refresh_ref_frame_map(refresh_mask);
