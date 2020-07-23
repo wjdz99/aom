@@ -2584,8 +2584,17 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi,
     }
   }
   // Check for scene change, for non-SVC for now.
-  if (!cpi->use_svc && cpi->sf.rt_sf.check_scene_detection)
-    rc_scene_detection_onepass_rt(cpi);
+  if (!cpi->use_svc && cpi->sf.rt_sf.check_scene_detection) {
+    if (cpi->android_motion_detected) {
+      rc->high_source_sad = 0;
+      if (cpi->update_high_source_sad_for_new_motion) {
+        rc->high_source_sad = 1;
+        cpi->update_high_source_sad_for_new_motion = 0;
+      }
+    } else {
+      rc_scene_detection_onepass_rt(cpi);
+    }
+  }
   // Check for dynamic resize, for single spatial layer for now.
   // For temporal layers only check on base temporal layer.
   if (cpi->oxcf.resize_cfg.resize_mode == RESIZE_DYNAMIC) {
