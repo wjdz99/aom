@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd09960e_bebdcfc1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18707
+      },
+      "writtenOn": "2020-07-23T22:18:02Z",
+      "side": 1,
+      "message": "Hi Jerome,\n\nI have uploaded my libaom change to the Gerrit in this CL and also updated the snapshot in g4 (cl/319307936). The latter CL still contains many android log print statements. I will delete them after the report/slides are written.\n\nThanks,\nScott",
+      "revId": "dbcbb4fee1da29d4b2c7aaecec2b5db4defafae9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
