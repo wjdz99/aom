@@ -809,8 +809,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       mode_context[ref_frame] |= (5 << REFMV_OFFSET);
       break;
   }
-  // if (false)
-  {
+  if (false) {
     // DBSCAN
     const int min_points = 2;
     const int dist_thresholod = 1;
