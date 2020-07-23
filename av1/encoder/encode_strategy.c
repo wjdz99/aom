@@ -608,6 +608,8 @@ static void update_ref_frame_map_gopcfg(AV1_COMP *cpi, int show_existing_frame,
   GF_GROUP gf_group = cpi->gf_group;
   AV1_COMMON *const cm = &cpi->common;
 
+
+
   if (is_frame_droppable(&cpi->svc, &cpi->ext_flags.refresh_frame)) return;
   if (cm->current_frame.frame_type == KEY_FRAME || frame_is_sframe(cm)) {
     if (show_existing_frame)
@@ -684,6 +686,42 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
                                 ref_buffer_stack);
     return;
   }
+///////////////////////////////////////////////////////////
+/*
+printf("\n\n=======================================================\n");
+  printf("~~~~~~~~~~~~~~~~~~~GLD STACK~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+  for (int l = 0; l < ref_buffer_stack->gld_stack_size; l++) {
+    int frm = ref_buffer_stack->gld_stack[l];
+    const RefCntBuffer *const buf =
+         (frm != INVALID_IDX) ? cm->ref_frame_map[frm] : NULL;
+    if (buf == NULL) { printf("NULL!!\n"); continue; } 
+    const int frame_order = (int)buf->display_order_hint;
+    int frame_level = buf->pyramid_level;
+    printf("(%d, %d)\n", frame_order, frame_level);
+  }
+  printf("~~~~~~~~~~~~~~~~~~~LST STACK~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+  for (int l = 0; l < ref_buffer_stack->lst_stack_size; l++) {
+    int frm = ref_buffer_stack->lst_stack[l];
+    const RefCntBuffer *const buf =
+         (frm != INVALID_IDX) ? cm->ref_frame_map[frm] : NULL;
+    if (buf == NULL) { printf("NULL!!\n"); continue; } 
+    const int frame_order = (int)buf->display_order_hint;
+    int frame_level = buf->pyramid_level;
+    printf("(%d, %d)\n", frame_order, frame_level);
+  }
+  printf("~~~~~~~~~~~~~~~~~~~ARF STACK~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+  for (int l = 0; l < ref_buffer_stack->arf_stack_size; l++) {
+    int frm = ref_buffer_stack->arf_stack[l];
+    const RefCntBuffer *const buf =
+         (frm != INVALID_IDX) ? cm->ref_frame_map[frm] : NULL;
+    if (buf == NULL) { printf("NULL!!\n"); continue; } 
+    const int frame_order = (int)buf->display_order_hint;
+    int frame_level = buf->pyramid_level;
+    printf("(%d, %d)\n", frame_order, frame_level);
+  }
+printf("\n=======================================================\n");
+*/
+///////////////////////////////////////////////////////////
 
   // TODO(jingning): Consider the S-frame same as key frame for the
   // reference frame tracking purpose. The logic might be better
@@ -772,8 +810,66 @@ static int get_free_ref_map_index(const RefBufferStack *ref_buffer_stack) {
   return INVALID_IDX;
 }
 
+static INLINE int get_true_pyr_level(int frame_level, int frame_order, int max_layer_depth) {
+  if (frame_order == 0) {
+    // Keyframe case
+    return 1;
+  } else if (frame_level == MAX_ARF_LAYERS) {
+    // Leaves
+    return max_layer_depth;
+  } else if (frame_level == (MAX_ARF_LAYERS + 1)) {
+    // Altrefs
+    return 1;
+  }
+  return frame_level;
+}
+
+static int get_refresh_idx(const AV1_COMP *const cpi, const EncodeFrameParams *const frame_params) {
+  const int order_offset = frame_params->order_offset;
+  const int cur_frame_disp = cpi->common.current_frame.frame_number + order_offset;
+  const int frame_level = cpi->gf_group.layer_depth[cpi->gf_group.index];
+  const int cur_frame_level = get_true_pyr_level(frame_level, cur_frame_disp, 
+                                                cpi->gf_group.max_layer_depth);
+
+  int metric = 0;
+  int max_metric = 0;
+  int best_frame = -1;
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+    if (buf == NULL) continue;
+    const int frame_order = (int)buf->display_order_hint;
+    if (frame_order > cur_frame_disp) continue;
+    const int frame_level = get_true_pyr_level(buf->pyramid_level, frame_order, 
+                                               cpi->gf_group.max_layer_depth);
+    const int disp_order_diff = cur_frame_disp - frame_order;
+    const int level_diff = 0;//frame_level - cur_frame_level;
+    printf("frame %d: cur order %d cur lev %d ref order %d ref lev %d\n", frame, cur_frame_disp,
+            cur_frame_level, frame_order, frame_level);
+    // current frame has higher level (lower quality) than this refrence
+    if (level_diff < 0) 
+      metric = disp_order_diff / (1 << (level_diff * -1));
+    // current frame has either equal or lower level (higher quality)
+    // than this reference
+    else
+      metric = disp_order_diff * (1 << (level_diff));
+
+    if (metric > max_metric) {
+      max_metric = metric;
+      best_frame = frame;
+    }
+  }
+  assert(best_frame > 0);
+  printf("BEST %d\n", best_frame);
+  const int map_idx = get_ref_frame_map_idx(&cpi->common, best_frame);
+  return map_idx;
+}
+
+#define USE_CUSTOM_REFRESH 1
+
 static int get_refresh_frame_flags_subgop_cfg(
-    const AV1_COMP *const cpi, const RefBufferStack *const ref_buffer_stack,
+    const AV1_COMP *const cpi, const EncodeFrameParams *const frame_params,
+    const RefBufferStack *const ref_buffer_stack,
     int refresh_mask, int free_fb_index) {
   const int gop_cfg_index =
       get_subgop_idx(&cpi->gf_group, &cpi->subgop_config_set);
@@ -795,6 +891,10 @@ static int get_refresh_frame_flags_subgop_cfg(
     refresh_mask = 1 << free_fb_index;
     return refresh_mask;
   }
+#if USE_CUSTOM_REFRESH 
+  const int refresh_idx = get_refresh_idx(cpi, frame_params);
+  return 1 << refresh_idx;
+#endif 
 
   switch (type_code) {
     case FRAME_TYPE_INO_VISIBLE:
@@ -919,9 +1019,17 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
       cpi->oxcf.algo_cfg.enable_tpl_model
       // TODO(sarahparker) Use the subgop cfg for the last subgop group
       && gop_cfg_index == 0) {
-    return get_refresh_frame_flags_subgop_cfg(cpi, ref_buffer_stack,
+    return get_refresh_frame_flags_subgop_cfg(cpi, frame_params, ref_buffer_stack,
                                               refresh_mask, free_fb_index);
   }
+
+#if USE_CUSTOM_REFRESH 
+  if (cpi->common.current_frame.frame_type != KEY_FRAME && free_fb_index == INVALID_IDX) {
+  const int refresh_idx = get_refresh_idx(cpi, frame_params);
+  return 1 << refresh_idx;
+  }
+#endif 
+
   switch (frame_update_type) {
     case KF_UPDATE:
     case GF_UPDATE:
