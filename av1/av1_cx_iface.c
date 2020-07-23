@@ -180,7 +180,7 @@ static struct av1_extracfg default_extra_cfg = {
   1,              // row_mt
   0,              // tile_columns
   0,              // tile_rows
-  1,              // enable_tpl_model
+  0,              // enable_tpl_model
   1,              // enable_keyframe_filtering
   7,              // arnr_max_frames
   5,              // arnr_strength
@@ -191,6 +191,7 @@ static struct av1_extracfg default_extra_cfg = {
   AOM_TUNE_PSNR,  // tuning
   "/usr/local/share/model/vmaf_v0.6.1.pkl",  // VMAF model path
   NULL,                                      // SubGOP config string
+//subgop_config_str_16,
   40,                                        // qp
   0,                                         // rc_max_intra_bitrate_pct
   0,                                         // rc_max_inter_bitrate_pct

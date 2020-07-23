@@ -71,13 +71,13 @@ enum {
 } UENUM1BYTE(RATE_FACTOR_LEVEL);
 
 enum {
-  KF_UPDATE,
-  LF_UPDATE,
-  GF_UPDATE,
-  ARF_UPDATE,
-  OVERLAY_UPDATE,
-  INTNL_OVERLAY_UPDATE,  // Internal Overlay Frame
-  INTNL_ARF_UPDATE,      // Internal Altref Frame
+  KF_UPDATE, //0
+  LF_UPDATE,//1
+  GF_UPDATE,//2
+  ARF_UPDATE,//3
+  OVERLAY_UPDATE,//4
+  INTNL_OVERLAY_UPDATE,  // Internal Overlay Frame //4
+  INTNL_ARF_UPDATE,      // Internal Altref Frame //5
   FRAME_UPDATE_TYPES
 } UENUM1BYTE(FRAME_UPDATE_TYPE);
 
