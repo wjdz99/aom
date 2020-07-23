@@ -2521,6 +2521,20 @@ typedef struct AV1_COMP {
    * Number of frames left to be encoded, is 0 if limit is not set.
    */
   int frames_left;
+
+  /*!
+   * Flag indicating whether a motion has been detected on an Android device.
+   */
+  int android_motion_detected;
+
+  /*!
+   * The target quantizer to use throughout a motion. All frames during the same
+   * motion (from setting android_motion_detected to 1 to setting it to 0) will
+   * share the same target quantizer. This value is set to -1 by default,
+   * meaning target q is not available. It will be updated using the value of
+   * current quantizer when the flag flips to 1.
+   */
+  int target_q_under_motion;
 } AV1_COMP;
 
 /*!
