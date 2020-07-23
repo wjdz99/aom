@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f24b5cd_344a0ef4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15075
+      },
+      "writtenOn": "2020-07-23T11:36:20Z",
+      "side": 1,
+      "message": "Debargha,\nThis patch adds a unit test to check whether max-gf-interval and min-gf-interval, as configured by the user, are respected in the encoder. GoldenFrameIntervalTestLarge tests for multiple gf interval configurations, passes and rc_modes. Please note that we have disabled one test case in two pass, as two pass is not respecting min-gf-interval above 16. We will be filing a bug for this.\n\nPlease review.",
+      "revId": "0a29a60b23e57a7536e076f4f5e578c3a3e9cb0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
