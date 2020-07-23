@@ -809,14 +809,15 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       mode_context[ref_frame] |= (5 << REFMV_OFFSET);
       break;
   }
-  if (false) {
+  // if (false)
+  {
     // DBSCAN
     const int min_points = 2;
     const int dist_thresholod = 1;
     int cluster_num = 0;
     int cluster_centroids[MAX_REF_MV_STACK_SIZE];
     int cluster_label[MAX_REF_MV_STACK_SIZE];
-    int cluster_threshold = 8;
+    int cluster_threshold = 4;
 
     // MAX_REF_MV_STACK_SIZE
     if ((*refmv_count) >= cluster_threshold) {

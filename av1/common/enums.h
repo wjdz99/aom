@@ -820,7 +820,7 @@ enum {
 /* Segment Feature Masks */
 #define MAX_MV_REF_CANDIDATES 2
 
-#define MAX_REF_MV_STACK_SIZE 4
+#define MAX_REF_MV_STACK_SIZE 16
 #define REF_CAT_LEVEL 640
 
 #define INTRA_INTER_CONTEXTS 4
