@@ -16,6 +16,24 @@
       "revId": "c8d7b28163e565f09c64a1aaaf44b9063b137048",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af810fbf_d4845ed5",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 15030
+      },
+      "writtenOn": "2020-07-23T06:14:49Z",
+      "side": 1,
+      "message": "James,\nThanks for your input. All the enums from AOMD_GET_FWD_KF_PRESENT to AOMD_GET_SHOW_EXISTING_FRAME_FLAG, were added by us (Ittiam) in the last two months. All these commits are ABI compatible with respect to the commit just before our changes got merged (b3969693e98befe0513f35640c34b81afaebf19b).  However only AOMD_GET_ALTREF_PRESENT was mistakenly inserted between two enums(AOMD_GET_FWD_KF_PRESENT and AOMD_GET_FRAME_FLAGS), both of which were also added by Ittiam recently.\nThis causes an ABI change. We can move AOMD_GET_ALTREF_PRESENT down now, but this would again cause an ABI change. Please let us know if we should upload a patch with this change.",
+      "parentUuid": "fd9b4292_dce01019",
+      "revId": "c8d7b28163e565f09c64a1aaaf44b9063b137048",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
