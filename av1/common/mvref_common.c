@@ -824,17 +824,19 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       mv_dbscan(ref_mv_stack, (*refmv_count), min_points, dist_thresholod,
                 (&cluster_num), cluster_label, (rf[1] == NONE_FRAME));
 
-      for (int i = 0; i < (*refmv_count); i++) {
-        if (cluster_label[i] > 0 && cluster_label[i] != i) {
-          ref_mv_weight[cluster_label[i]] += ref_mv_weight[i];
-          ref_mv_weight[i] = 0;
-        }
-      }
+      // for (int i = 0; i < (*refmv_count); i++) {
+      //   if (cluster_label[i] > 0 && cluster_label[i] != i) {
+      //     ref_mv_weight[cluster_label[i]] += ref_mv_weight[i];
+      //     ref_mv_weight[i] = 0;
+      //   }
+      // }
       int head = 0;
       int tail = (*refmv_count) - 1;
       while (head < tail) {
         // Eliminate merged points, as well as outliers
-        if (ref_mv_weight[head] == 0 || cluster_label[head] < 0) {
+        // if (ref_mv_weight[head] == 0 || cluster_label[head] < 0) {
+        // Only eliminate outliers
+        if (cluster_label[head] < 0) {
           // if (ref_mv_weight[head] == 0) {
           // Swap ref_mv_stack[head] and ref_mv_stack[tail]
           CANDIDATE_MV tmp = ref_mv_stack[head];
