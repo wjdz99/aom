@@ -1269,6 +1269,9 @@ enum aome_enc_control_id {
    * single pass vbr based on LAP, unsigned int parameter
    */
   AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP = 157,
+
+  /*!\brief Control to set the motion detected flag from an Android device */
+  AV1E_SET_ANDROID_MOTION_DETECTED = 158,
 };
 
 /*!\brief aom 1-D scaling mode
@@ -1783,6 +1786,9 @@ AOM_CTRL_USE_TYPE(AV1E_ENABLE_SB_MULTIPASS_UNIT_TEST, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP, unsigned int)
 #define AOM_CTRL_AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP
+
+AOM_CTRL_USE_TYPE(AV1E_SET_ANDROID_MOTION_DETECTED, int)
+#define AOM_CTRL_AV1E_SET_ANDROID_MOTION_DETECTED
 
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */
