@@ -689,6 +689,8 @@ static void update_ref_frame_map_gopcfg(AV1_COMP *cpi, int gf_index,
   GF_GROUP gf_group = cpi->gf_group;
   AV1_COMMON *const cm = &cpi->common;
 
+
+
   if (is_frame_droppable(&cpi->svc, &cpi->ext_flags.refresh_frame)) return;
   if (cm->current_frame.frame_type == KEY_FRAME || frame_is_sframe(cm)) {
     if (show_existing_frame)
@@ -848,8 +850,67 @@ static int get_free_ref_map_index(const RefBufferStack *ref_buffer_stack) {
   return INVALID_IDX;
 }
 
+static INLINE int get_true_pyr_level(int frame_level, int frame_order, int max_layer_depth) {
+  if (frame_order == 0) {
+    // Keyframe case
+    return 1;
+  } else if (frame_level == MAX_ARF_LAYERS) {
+    // Leaves
+    return max_layer_depth;
+  } else if (frame_level == (MAX_ARF_LAYERS + 1)) {
+    // Altrefs
+    return 1;
+  }
+  return frame_level;
+}
+
+static int get_refresh_idx(const AV1_COMP *const cpi, 
+                           const EncodeFrameParams *const frame_params, 
+                           int update_arf) {
+  const int order_offset = frame_params->order_offset;
+  const int cur_frame_disp = cpi->common.current_frame.frame_number + order_offset;
+  int arf_count = 0;
+  int oldest_arf_order = INT32_MAX;
+  int oldest_arf_idx = -1;
+
+  int oldest_frame_order = INT32_MAX;
+  int oldest_idx = -1;
+  for (int map_idx = 0; map_idx < REF_FRAMES; map_idx++) {
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = 
+      (map_idx != INVALID_IDX) ? cpi->common.ref_frame_map[map_idx] : NULL;
+    if (buf == NULL) continue;
+    const int frame_order = (int)buf->display_order_hint;
+    if (frame_order > cur_frame_disp) continue;
+    const int ref_frame_level = get_true_pyr_level(buf->pyramid_level, frame_order, 
+                                               cpi->gf_group.max_layer_depth);
+    // TODO(sarahparker) when do we discard these frames? 
+    if (ref_frame_level == 1) {
+      if (update_arf) {
+        if (frame_order < oldest_arf_order) {
+          oldest_arf_order = frame_order;
+          oldest_arf_idx = map_idx;
+        }
+        if (++arf_count == 3) break; 
+      }
+      continue;
+    }
+    // current frame has higher level (lower quality) than this refrence
+    if (frame_order < oldest_frame_order) {
+      oldest_frame_order = frame_order;
+      oldest_idx = map_idx;
+    }
+  }
+  if (oldest_idx < 0) printf("wARNING\n");
+  if (arf_count == 3) return oldest_arf_idx;
+  return oldest_idx;
+}
+
+#define USE_CUSTOM_REFRESH 1
+
 static int get_refresh_frame_flags_subgop_cfg(
-    const AV1_COMP *const cpi, const RefBufferStack *const ref_buffer_stack,
+    const AV1_COMP *const cpi, const EncodeFrameParams *const frame_params,
+    const RefBufferStack *const ref_buffer_stack,
     int gf_index, int refresh_mask, int free_fb_index) {
   const SubGOPStepCfg *step_gop_cfg = get_subgop_step(&cpi->gf_group, gf_index);
   assert(step_gop_cfg != NULL);
@@ -864,6 +925,11 @@ static int get_refresh_frame_flags_subgop_cfg(
     refresh_mask = 1 << free_fb_index;
     return refresh_mask;
   }
+#if USE_CUSTOM_REFRESH 
+  const int update_arf = type_code == FRAME_TYPE_OOO_FILTERED && pyr_level == 1;
+  const int refresh_idx = get_refresh_idx(cpi, frame_params, update_arf);
+  return 1 << refresh_idx;
+#endif 
 
   switch (type_code) {
     case FRAME_TYPE_INO_VISIBLE:
@@ -905,6 +971,7 @@ static int get_refresh_frame_flags_subgop_cfg(
     case FRAME_TYPE_INO_SHOWEXISTING:
     default: assert(0); break;
   }
+  printf("ACTUAL IDX2 %d\n", refresh_mask);
   return refresh_mask;
 }
 
@@ -983,7 +1050,8 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
   int free_fb_index = get_free_ref_map_index(ref_buffer_stack);
 
   if (use_subgop_cfg(&cpi->gf_group, gf_index)) {
-    return get_refresh_frame_flags_subgop_cfg(cpi, ref_buffer_stack, gf_index,
+  if (frame_update_type == OVERLAY_UPDATE || frame_update_type == INTNL_OVERLAY_UPDATE) return refresh_mask;
+    return get_refresh_frame_flags_subgop_cfg(cpi, frame_params, ref_buffer_stack, gf_index,
                                               refresh_mask, free_fb_index);
   }
   switch (frame_update_type) {
@@ -1048,6 +1116,7 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
     default: assert(0); break;
   }
 
+  printf("ACTUAL IDX %d\n", refresh_mask);
   return refresh_mask;
 }
 
@@ -1464,12 +1533,36 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     const RefCntBuffer *ref_frames[INTER_REFS_PER_FRAME];
     const YV12_BUFFER_CONFIG *ref_frame_buf[INTER_REFS_PER_FRAME];
 
+//////////////
+/*
+  printf("HERE\n");
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+    if (buf == NULL) continue;
+    const int frame_order = (int)buf->display_order_hint;
+    printf("ORDER 0 %d\n", frame_order);
+}
+*/
+////////////////
     if (!ext_flags->refresh_frame.update_pending) {
       av1_get_ref_frames(cpi, &cpi->ref_buffer_stack);
     } else if (cpi->svc.external_ref_frame_config) {
       for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++)
         cm->remapped_ref_idx[i] = cpi->svc.ref_idx[i];
     }
+//////////////
+/*
+  printf("HERE\n");
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+    if (buf == NULL) continue;
+    const int frame_order = (int)buf->display_order_hint;
+    printf("ORDER 1 %d\n", frame_order);
+}
+*/
+////////////////
 
     // Get the reference frames
     for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
@@ -1490,6 +1583,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                                frame_params.order_offset);
     }
 
+    printf("here1\n");
     frame_params.refresh_frame_flags = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, cpi->gf_group.index,
         &cpi->ref_buffer_stack);
