@@ -1054,14 +1054,20 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
                                        mi_col + x64_idx + x32_idx + x16_idx,
                                        thresholds[3], BLOCK_8X8,
                                        force_split[split_index])) {
-                for (k = 0; k < 4; ++k) {
-                  const int x8_idx = (k & 1) << 1;
-                  const int y8_idx = (k >> 1) << 1;
+                if (!cpi->android_motion_detected) {
+                  for (k = 0; k < 4; ++k) {
+                    const int x8_idx = (k & 1) << 1;
+                    const int y8_idx = (k >> 1) << 1;
+                    set_block_size(
+                        cpi, x, xd,
+                        (mi_row + y64_idx + y32_idx + y16_idx + y8_idx),
+                        (mi_col + x64_idx + x32_idx + x16_idx + x8_idx),
+                        BLOCK_8X8);
+                  }
+                } else {
                   set_block_size(
-                      cpi, x, xd,
-                      (mi_row + y64_idx + y32_idx + y16_idx + y8_idx),
-                      (mi_col + x64_idx + x32_idx + x16_idx + x8_idx),
-                      BLOCK_8X8);
+                      cpi, x, xd, (mi_row + y64_idx + y32_idx + y16_idx),
+                      (mi_col + x64_idx + x32_idx + x16_idx), BLOCK_16X16);
                 }
               }
             }

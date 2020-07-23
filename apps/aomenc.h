@@ -54,6 +54,7 @@ struct AvxEncoderConfig {
   int experimental_bitstream;
   aom_chroma_sample_position_t csp;
   cfg_options_t encoder_config;
+  const char *motion_fn;
 };
 
 #ifdef __cplusplus
