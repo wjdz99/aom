@@ -340,6 +340,8 @@ static const arg_def_t minsection_pct =
     ARG_DEF(NULL, "minsection-pct", 1, "GOP min bitrate (% of target)");
 static const arg_def_t maxsection_pct =
     ARG_DEF(NULL, "maxsection-pct", 1, "GOP max bitrate (% of target)");
+static const arg_def_t motionfile =
+    ARG_DEF("m", "motion", 1, "Motion filename");
 static const arg_def_t *rc_args[] = { &dropframe_thresh,
                                       &resize_mode,
                                       &resize_denominator,
@@ -361,6 +363,7 @@ static const arg_def_t *rc_args[] = { &dropframe_thresh,
                                       &bias_pct,
                                       &minsection_pct,
                                       &maxsection_pct,
+                                      &motionfile,
                                       NULL };
 
 static const arg_def_t fwd_kf_enabled =
@@ -1130,6 +1133,15 @@ struct stream_state {
   unsigned int chroma_subsampling_y;
 };
 
+struct android_motion {
+  char *motion_flag;
+  int *motion_frame_index;
+  int motion_index_so_far;
+  int motion_data_size;
+  int num_motion_frames;
+  char prev_flag;
+};
+
 static void validate_positive_rational(const char *msg,
                                        struct aom_rational *rat) {
   if (rat->den < 0) {
@@ -1240,6 +1252,8 @@ static void parse_global_config(struct AvxEncoderConfig *global, char ***argv) {
       global->disable_warnings = 1;
     else if (arg_match(&arg, &disable_warning_prompt, argi))
       global->disable_warning_prompt = 1;
+    else if (arg_match(&arg, &motionfile, argi))
+      global->motion_fn = arg.val;
     else
       argj++;
   }
@@ -2252,6 +2266,76 @@ static void print_time(const char *label, int64_t etl) {
   }
 }
 
+static int read_in_motion_data(struct AvxEncoderConfig *global,
+                               struct android_motion *motion) {
+  const char *fn = global->motion_fn;
+  if (!fn) return 0;
+  FILE *file = fopen(fn, "r");
+  int c;  // to read from file
+  int index;
+  int num_line = 0;
+  char line[128];
+  int frame_num, motion_flag;
+  if (!file) fatal("Failed to open output file");
+  for (c = getc(file); c != EOF; c = getc(file)) {
+    if (c == '\n') {
+      num_line++;
+    }
+  }
+  if (num_line == 0) {
+    fclose(file);
+    return 0;
+  }
+  fseek(file, 0, SEEK_SET);
+  motion->motion_index_so_far = 0;
+  motion->prev_flag = 0;
+  motion->motion_flag = calloc(num_line, sizeof(*motion->motion_flag));
+  motion->motion_frame_index =
+      calloc(num_line, sizeof(*motion->motion_frame_index));
+  motion->motion_data_size = num_line;
+  motion->num_motion_frames = 0;
+  for (index = 0; index < num_line; index++) {
+    if (fgets(line, sizeof(line), file)) {
+      sscanf(line, "frame %d : motion flag %d\n", &frame_num, &motion_flag);
+      motion->motion_flag[index] = motion_flag;
+      motion->motion_frame_index[index] = frame_num;
+    }
+  }
+  fclose(file);
+  return 1;
+}
+
+static void clean_up_motion_data(struct android_motion *motion) {
+  free(motion->motion_flag);
+  free(motion->motion_frame_index);
+  memset(motion, 0, sizeof(struct android_motion));
+}
+
+static char read_motion_detection_for(int frame_idx,
+                                      struct android_motion *motion) {
+  // frame_idx should alway >= motion_frame_index[motion_index_so_far]
+  // unless frame_idx refers to frames before the frame of the first line of
+  // the motion data
+  if (frame_idx < motion->motion_frame_index[motion->motion_index_so_far]) {
+    return 0;
+  }
+  char detected = motion->motion_flag[motion->motion_index_so_far];
+  // use the latter flag for a frame if a motion occurs during processing
+  // a frame on the android device.
+  while (motion->motion_index_so_far < motion->motion_data_size - 1 &&
+         frame_idx >=
+             motion->motion_frame_index[motion->motion_index_so_far + 1]) {
+    detected = motion->motion_flag[motion->motion_index_so_far + 1];
+    motion->motion_index_so_far++;
+  }
+  if (detected) {
+    motion->num_motion_frames++;
+  }
+  // fprintf(stderr, "motion flag for %d is %d, num_motion_frames = %d",
+  //         frame_idx, detected, motion->num_motion_frames);
+  return detected;
+}
+
 int main(int argc, const char **argv_) {
   int pass;
   aom_image_t raw;
@@ -2260,10 +2344,12 @@ int main(int argc, const char **argv_) {
   int do_16bit_internal = 0;
   int input_shift = 0;
   int frame_avail, got_data;
+  int motion_data_avail = 0;
 
   struct AvxInputContext input;
   struct AvxEncoderConfig global;
   struct stream_state *streams = NULL;
+  struct android_motion motion;
   char **argv, **argi;
   uint64_t cx_time = 0;
   int stream_cnt = 0;
@@ -2271,6 +2357,7 @@ int main(int argc, const char **argv_) {
   int profile_updated = 0;
 
   memset(&input, 0, sizeof(input));
+  memset(&motion, 0, sizeof(motion));
   exec_name = argv_[0];
 
   /* Setup default input stream settings */
@@ -2342,6 +2429,7 @@ int main(int argc, const char **argv_) {
     int64_t lagged_count = 0;
 
     open_input_file(&input, global.csp);
+    motion_data_avail = read_in_motion_data(&global, &motion);
 
     /* If the input file doesn't specify its w/h (raw files), try to get
      * the data from the first stream's configuration.
@@ -2636,6 +2724,16 @@ int main(int argc, const char **argv_) {
           frame_to_encode = &raw;
         }
         aom_usec_timer_start(&timer);
+        if (motion_data_avail) {
+          char detected = read_motion_detection_for(frames_in - 1, &motion);
+          if (detected != motion.prev_flag) {
+            FOREACH_STREAM(stream, streams) {
+              aom_codec_control(&stream->encoder,
+                                AV1E_SET_ANDROID_MOTION_DETECTED, detected);
+            }
+            motion.prev_flag = detected;
+          }
+        }
         if (do_16bit_internal) {
           assert(frame_to_encode->fmt & AOM_IMG_FMT_HIGHBITDEPTH);
           FOREACH_STREAM(stream, streams) {
@@ -2744,6 +2842,11 @@ int main(int argc, const char **argv_) {
     }
 
     close_input_file(&input);
+    if (motion_data_avail) {
+      fprintf(stderr, "Number of frames with motion flag on: %d\n",
+              motion.num_motion_frames);
+      clean_up_motion_data(&motion);
+    }
 
     if (global.test_decode == TEST_DECODE_FATAL) {
       FOREACH_STREAM(stream, streams) { res |= stream->mismatch_seen; }

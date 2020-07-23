@@ -2747,6 +2747,18 @@ static aom_codec_err_t ctrl_get_seq_level_idx(aom_codec_alg_priv_t *ctx,
                                arg);
 }
 
+static aom_codec_err_t ctrl_set_android_motion_detected(
+    aom_codec_alg_priv_t *ctx, va_list args) {
+  const int motion_detected = va_arg(args, int);
+  AV1_COMP *const cpi = ctx->cpi;
+  cpi->android_motion_detected = motion_detected;
+  cpi->target_q_under_motion = -1;
+  if (motion_detected) {
+    cpi->update_high_source_sad_for_new_motion = 1;
+  }
+  return AOM_CODEC_OK;
+}
+
 static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1_COPY_REFERENCE, ctrl_copy_reference },
   { AOME_USE_REFERENCE, ctrl_use_reference },
@@ -2882,6 +2894,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_CHROMA_SUBSAMPLING_Y, ctrl_set_chroma_subsampling_y },
   { AV1E_GET_SEQ_LEVEL_IDX, ctrl_get_seq_level_idx },
   { AV1E_GET_BASELINE_GF_INTERVAL, ctrl_get_baseline_gf_interval },
+  { AV1E_SET_ANDROID_MOTION_DETECTED, ctrl_set_android_motion_detected },
 
   CTRL_MAP_END,
 };
