@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ea2958e_7634dfdd",
+        "filename": "av1/encoder/aq_complexity.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2020-07-23T14:55:13Z",
+      "side": 1,
+      "message": "Replacing of is_stat_consumption_stage_twopass() by is_stat_consumption_stage() can be experimented as low_var_thresh is based on current frame metrics. This can improve the performance with --aq-mode.\nAbove is applicable for (modified in current patch)\n- bar detection in av1_active_h_edge()/av1_active_v_edge()\n- lpf level calculations in av1_get_max_filter_level()/search_filter_level()",
+      "range": {
+        "startLine": 160,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 28
+      },
+      "revId": "444e556c059bdbf7058ae5bf84b89ed1b78e7e9a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
