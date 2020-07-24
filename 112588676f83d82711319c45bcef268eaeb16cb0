@@ -16,6 +16,24 @@
       "revId": "112588676f83d82711319c45bcef268eaeb16cb0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e552a81b_8a56987c",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2904,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-07-24T23:22:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e2565a4_023bc6b2",
+      "revId": "112588676f83d82711319c45bcef268eaeb16cb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
