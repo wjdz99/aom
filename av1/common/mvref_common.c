@@ -560,7 +560,98 @@ static void process_single_ref_mv_candidate(
     }
   }
 }
+static void mv_dbscan1(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
+                       const int start, const int end, const int min_points,
+                       const float dist_threshold, int *cluster_num,
+                       int cluster_label[MAX_REF_MV_STACK_SIZE],
+                       bool is_single_frame) {
+  //  start included but end excluded
+  const int mv_num = end - start;
+  float point_distances[mv_num][mv_num];
+  for (int i = 0; i < mv_num; i++) {
+    for (int j = i + 1; j < mv_num; j++) {
+      int i_idx = i + start;
+      int j_idx = j + start;
+      if (is_single_frame) {
+        point_distances[i][j] = point_distances[j][i] = calc_square_dist(
+            &(ref_mv_stack[i_idx].this_mv), &(ref_mv_stack[j_idx].this_mv));
+      } else {
+        float dist = calc_square_dist(&(ref_mv_stack[i_idx].this_mv),
+                                      &(ref_mv_stack[j_idx].this_mv)) +
+                     calc_square_dist(&(ref_mv_stack[i_idx].comp_mv),
+                                      &(ref_mv_stack[j_idx].comp_mv));
+        point_distances[i][j] = point_distances[j][i] = dist / 2.0;
+      }
+    }
+    point_distances[i][i] = 0;
+  }
+  int ele_count[mv_num];
+  bool neighborhood[mv_num][mv_num];
+  for (int i = 0; i < mv_num; i++) {
+    int i_idx = i + start;
+    // Initial: Every one is set as  a noise point
+    ele_count[i] = 0;
+    cluster_label[i_idx] = -1;
+    // Check: Are there enough points (>= min_points) in the neighborhood of Pi
+    for (int j = 0; j < mv_num; j++) {
+      neighborhood[i][j] = false;
+    }
+    for (int j = 0; j < mv_num; j++) {
+      if (point_distances[i][j] <= dist_threshold) {
+        neighborhood[i][j] = true;
+        ele_count[i]++;
+      }
+    }
+  }
+  bool is_centriods[mv_num];
+  *cluster_num = 0;
+  for (int i = 0; i < mv_num; i++) {
+    is_centriods[i] = false;
+    if (ele_count[i] >= min_points) {
+      // This can be identified as a temporal cluster centriod
+      is_centriods[i] = true;
+      (*cluster_num)++;
+    }
+  }
 
+  bool should_stop = true;
+  while (1) {
+    should_stop = true;
+    for (int i = 0; i < mv_num; i++) {
+      if (is_centriods[i]) {
+        for (int j = 0; j < mv_num; j++) {
+          if (i != j && is_centriods[j] && neighborhood[i][j]) {
+            // Centroid j is also in Centriod i's neighborhood, so combine them
+            // Put all centroid j's element in centriod i
+            (*cluster_num)--;
+            is_centriods[j] = false;
+            for (int k = 0; k < mv_num; k++) {
+              if (neighborhood[j][k]) {
+                neighborhood[i][k] = true;
+              }
+            }
+            should_stop = false;
+          }
+        }
+      }
+    }
+    if (should_stop) {
+      break;
+    }
+  }
+  // Label
+  for (int i = 0; i < mv_num; i++) {
+    if (is_centriods[i]) {
+      for (int j = 0; j < mv_num; j++) {
+        if (neighborhood[i][j]) {
+          int i_idx = i + start;
+          int j_idx = j + start;
+          cluster_label[j_idx] = i_idx;
+        }
+      }
+    }
+  }
+}
 static void mv_dbscan(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
                       const int refmv_num, const int min_points,
                       const float threshold, int *cluster_num,
@@ -640,6 +731,43 @@ static void mv_dbscan(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
     }
   }
 }
+
+void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
+              uint16_t ref_mv_weight[MAX_REF_MV_STACK_SIZE],
+              int cluster_label[MAX_REF_MV_STACK_SIZE], int start, int end,
+              int cluster_idx_to_merge) {
+  // centriod
+  CANDIDATE_MV updated_mv;
+  updated_mv.this_mv.as_int = 0U;
+  updated_mv.comp_mv.as_int = 0U;
+  uint16_t updated_weight = 0;
+  for (int j = start; j < end; j++) {
+    if (cluster_label[j] == cluster_idx_to_merge) {
+      updated_mv.this_mv.as_mv.row +=
+          ref_mv_weight[j] * ref_mv_stack[j].this_mv.as_mv.row;
+      updated_mv.this_mv.as_mv.col +=
+          ref_mv_weight[j] * ref_mv_stack[j].this_mv.as_mv.col;
+      updated_mv.comp_mv.as_mv.row +=
+          ref_mv_weight[j] * ref_mv_stack[j].comp_mv.as_mv.row;
+      updated_mv.comp_mv.as_mv.col +=
+          ref_mv_weight[j] * ref_mv_stack[j].comp_mv.as_mv.col;
+      updated_weight += ref_mv_weight[j];
+    }
+  }
+  // Round Closest: dividend + (divisor / 2)) / divisor;
+  updated_mv.this_mv.as_mv.row =
+      (updated_mv.this_mv.as_mv.row + (updated_weight >> 1)) / updated_weight;
+  updated_mv.this_mv.as_mv.col =
+      (updated_mv.this_mv.as_mv.col + (updated_weight >> 1)) / updated_weight;
+  updated_mv.comp_mv.as_mv.row =
+      (updated_mv.comp_mv.as_mv.row + (updated_weight >> 1)) / updated_weight;
+  updated_mv.comp_mv.as_mv.row =
+      (updated_mv.comp_mv.as_mv.row + (updated_weight >> 1)) / updated_weight;
+
+  ref_mv_stack[cluster_idx_to_merge].this_mv.as_int = updated_mv.this_mv.as_int;
+  ref_mv_stack[cluster_idx_to_merge].comp_mv.as_int = updated_mv.this_mv.as_int;
+  ref_mv_weight[cluster_idx_to_merge] = updated_weight;
+}
 static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                               MV_REFERENCE_FRAME ref_frame,
                               uint8_t *const refmv_count,
@@ -703,8 +831,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                   gm_mv_candidates, refmv_count);
 
   const uint8_t nearest_match = (row_match_count > 0) + (col_match_count > 0);
-  const uint8_t nearest_refmv_count = *refmv_count;
-
+  uint8_t nearest_refmv_count = *refmv_count;
   // TODO(yunqing): for comp_search, do it for all 3 cases.
   for (int idx = 0; idx < nearest_refmv_count; ++idx)
     ref_mv_weight[idx] += REF_CAT_LEVEL;
@@ -809,8 +936,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       mode_context[ref_frame] |= (5 << REFMV_OFFSET);
       break;
   }
-  // if (false)
-  {
+  if (false) {
     // DBSCAN
     const int min_points = 2;
     const int dist_thresholod = 1;
@@ -863,9 +989,114 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       (*refmv_count) = tail;
     }
   }
-  // It sort mvs separately for spatial and temporial
 
+  if (false) {
+    int original_ref_mv_cnt = (*refmv_count);
+    // DBSCAN-1
+    const int min_points = 2;
+    const int dist_threshold = 1;
+    int cluster_num1 = 0;
+    int cluster_num2 = 0;
+    int cluster_label[MAX_REF_MV_STACK_SIZE];
+    for (int i = 0; i < (*refmv_count); i++) {
+      cluster_label[i] = -1;
+    }
+
+    // If the spatial mvs can not even fill the MAX_MV_REF_CANDIDATES, we will
+    // not cluster them
+
+    if (nearest_refmv_count > MAX_MV_REF_CANDIDATES) {
+      mv_dbscan1(ref_mv_stack, 0, nearest_refmv_count, min_points,
+                 dist_threshold, (&cluster_num1), cluster_label,
+                 (rf[1] == NONE_FRAME));
+
+      // Merge MVs
+      for (int i = 0; i < nearest_refmv_count; i++) {
+        if (cluster_label[i] == -1) {
+          // outlier
+          continue;
+        } else if (cluster_label[i] == i) {
+          // centriod update
+
+          merge_mv(ref_mv_stack, ref_mv_weight, cluster_label, 0,
+                   nearest_refmv_count, i);
+        }
+      }
+    }
+
+    mv_dbscan1(ref_mv_stack, nearest_refmv_count, (*refmv_count), min_points,
+               dist_threshold, (&cluster_num2), cluster_label,
+               (rf[1] == NONE_FRAME));
+
+    // Merge MVs
+    for (int i = nearest_refmv_count; i < (*refmv_count); i++) {
+      if (cluster_label[i] == -1) {
+        // outlier
+        continue;
+      } else if (cluster_label[i] == i) {
+        merge_mv(ref_mv_stack, ref_mv_weight, cluster_label,
+                 nearest_refmv_count, (*refmv_count), i);
+      }
+    }
+    // Shrink MV list
+    CANDIDATE_MV tmp[MAX_REF_MV_STACK_SIZE];
+    uint16_t tmp_weight[MAX_REF_MV_STACK_SIZE];
+    int count = 0;
+    uint8_t old_nearest_refmv_count = nearest_refmv_count;
+    for (int i = 0; i < old_nearest_refmv_count; i++) {
+      if (cluster_label[i] == -1 || cluster_label[i] == i) {
+        // Only keep outliers and cluster centriods
+        tmp[count].this_mv.as_int = ref_mv_stack[i].this_mv.as_int;
+        tmp[count].comp_mv.as_int = ref_mv_stack[i].comp_mv.as_int;
+        tmp_weight[count] = ref_mv_weight[i];
+        count++;
+      }
+    }
+    nearest_refmv_count = count;
+    for (int i = old_nearest_refmv_count; i < (*refmv_count); i++) {
+      if (cluster_label[i] == -1 || cluster_label[i] == i) {
+        // Only keep outliers and cluster centriods
+        tmp[count].this_mv.as_int = ref_mv_stack[i].this_mv.as_int;
+        tmp[count].comp_mv.as_int = ref_mv_stack[i].comp_mv.as_int;
+        tmp_weight[count] = ref_mv_weight[i];
+        count++;
+      }
+    }
+    (*refmv_count) = count;
+    for (int i = 0; i < count; i++) {
+      ref_mv_stack[i].this_mv.as_int = tmp[i].this_mv.as_int;
+      ref_mv_stack[i].comp_mv.as_int = tmp[i].comp_mv.as_int;
+      ref_mv_weight[i] = tmp_weight[i];
+    }
+
+    int noise_cnt = 0;
+    for (int i = 0; i < (*refmv_count); i++) {
+      if (cluster_label[i] < 0) {
+        noise_cnt++;
+      }
+    }
+    assert(noise_cnt + cluster_num1 + cluster_num2 == (*refmv_count));
+    // if (cluster_num2 + cluster_num1 > 0)
+    //   fprintf(
+    //       stderr,
+    //       "block (%d %d) refmv=%d,  nearest_refmv_count=%d  cluster_num1=%d "
+    //       "cluster_num2=%d noise_cnt=%d original_ref_mv_cnt=%d\n",
+    //       xd->mi_row, xd->mi_col, (*refmv_count), nearest_refmv_count,
+    //       cluster_num1, cluster_num2, noise_cnt, original_ref_mv_cnt);
+  }
+  // It sort mvs separately for spatial and temporial
+  // if (nearest_refmv_count > 2)
+  //   fprintf(stderr, "block (%d %d) refmv=%d,  nearest_refmv_count=%d \n",
+  //           xd->mi_row, xd->mi_col, (*refmv_count), nearest_refmv_count);
   // Rank the likelihood and assign nearest and near mvs.
+  // for (int i = 0; i < (*refmv_count); i++) {
+  //   if (ref_mv_weight[i] == 0) {
+  //     fprintf(stderr, "block (%d %d) refmv=%d,  nearest_refmv_count=%d
+  //     i=%d\n",
+  //             xd->mi_row, xd->mi_col, (*refmv_count), nearest_refmv_count,
+  //             i);
+  //   }
+  // }
   int len = nearest_refmv_count;
   while (len > 0) {
     int nr_len = 0;
