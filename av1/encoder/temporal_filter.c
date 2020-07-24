@@ -276,7 +276,6 @@ static INLINE int is_frame_high_bitdepth(const YV12_BUFFER_CONFIG *frame) {
 // 1 - block mvs
 
 #define TF_DEBUG_MODE 4
-#define USE_BP_INTERP 1
 #define NEIGHBORHOOD_MSE 1
 // to only apply pixel mode where there are enough new mvs
 #define COUNT_NEW_MV 1
@@ -350,14 +349,6 @@ static void tf_build_predictor(const YV12_BUFFER_CONFIG *ref_frame,
                                     ref_frame->widths[is_y_plane ? 0 : 1],
                                     ref_frame->heights[is_y_plane ? 0 : 1],
                                     ref_frame->strides[is_y_plane ? 0 : 1] };
-#if PRINT_STATEMENTS == 1
-    if (is_y_plane && plane_y < 33 && plane_x < 10)
-      printf(
-          "Plane info: h, w %d %d, y, x %d %d, sbblck h,w %d %d subsamp y,x %d "
-          "%d mby %d mbx %d\n",
-          plane_h, plane_w, plane_y, plane_x, h, w, subsampling_y,
-          subsampling_x, mb_y, mb_x);
-#endif
     int newerror = 0;
     int to_match = 5;
     // Handle each subblock.
@@ -912,7 +903,7 @@ void dump_frame(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *frame_buf,
 
 #if TF_DEBUG_MODE > 1
 // options for Lucas-Kanade
-#define DESCALE_MODE 0
+#define DESCALE_MODE 1
 #if DESCALE_MODE == 1
 #define WBITS 14
 #define WBITS1 14
@@ -922,12 +913,13 @@ int DESCALE(int x, int n) { return ((x + (1 << (n - 1))) >> n); }
 #define WBITS1 1
 int DESCALE(int x, int n) { return x; }
 #endif
-#define LOCALMV_ZERO_INIT 0  // 0 for zero init, 1 to init with block mvs
+#define LOCALMV_ZERO_INIT 0  // 1 for zero init, 0 to init with block mvs
 #define CORNERS_EVERYWHERE \
   2  // 0 for fast corner detect, 2 to detect more corners
 #define LK_WINDOW_SIZE 15
-#define LK_LEVELS 3  //# of pyramids (max is 3 for now)
-#define USE_WEIGHTED_WINDOW 1
+#define LK_LEVELS 3  // # of pyramid levels (max is 5)
+#define USE_WEIGHTED_WINDOW 0
+#define USE_BP_INTERP 1  // 1 to use av1 4-tap filter for temporal grad
 
 // TODO: try out FULLPEL_MV ? already defined?
 typedef struct LOCALMV {
@@ -1245,7 +1237,7 @@ int detect_corners(YV12_BUFFER_CONFIG *frame_to_filter,
   int countcorners = 0;
   int fromedge = 10;
   double max_score;
-  double threshold = 0.15;  // 0.07;
+  double threshold = 0.07;
   double score;
   int n = 7;
   double i_x[49];
@@ -1258,7 +1250,6 @@ int detect_corners(YV12_BUFFER_CONFIG *frame_to_filter,
           corner_score(frame_to_filter, ref_frame, x, y, i_x, i_y, i_t, n, cpi);
       if (x == fromedge && y == fromedge) {
         max_score = score;
-        printf("my corner detect: first max score %.1f\n", max_score);
       }
       if (score > max_score) {
         max_score = score;
@@ -1292,9 +1283,7 @@ void lucas_kanade(const YV12_BUFFER_CONFIG *frame_to_filter,
   const int frame_width = frame_to_filter->y_crop_width;
 #if PRINT_STATEMENTS == 1
   // differential_test(frame_to_filter, ref_frame);
-  printf("LK with frame height and frame width %d %d\n", frame_height,
-         frame_width);
-  printf("corner count %d\n", num_ref_corners);
+  printf("LK with frame dims %dx%d\n", frame_height, frame_width);
 #endif
 #if SAVE_IMGS == 1
   int fullimg_size = highres_frame_height * highres_frame_width;
@@ -1309,7 +1298,7 @@ void lucas_kanade(const YV12_BUFFER_CONFIG *frame_to_filter,
   double *i_t = (double *)malloc(n * n * sizeof(double));
   const int expand_multiplier = pow(2, level);
 #if USE_WEIGHTED_WINDOW == 1
-  double sigma = 2;
+  double sigma = 3;
   double coeff = 1;
   double count = 0;
   double total_weight = 0;
@@ -1491,14 +1480,16 @@ void optflow(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *frame_to_filter,
              const int ref_frame_idx, MV *mvs) {
   int levels = LK_LEVELS;
   if (levels == 0) return;
-  // TODO: this won't work for levels > 3
-  // too many levels would be poor decision for small img res
-  uint8_t *images1[3];
-  uint8_t *images2[3];
-  images1[0] = frame_to_filter->y_buffer;
-  images2[0] = ref_frame->y_buffer;
   const int frame_height = frame_to_filter->y_crop_height;
   const int frame_width = frame_to_filter->y_crop_width;
+  //if (frame_height / pow(2.0, levels - 1) < 50 ||
+  //    frame_height / pow(2.0, levels - 1) < 50)
+  //  levels = levels - 1;
+  // levels > 5 are probably unnecessary for most image sizes
+  uint8_t *images1[5];
+  uint8_t *images2[5];
+  images1[0] = frame_to_filter->y_buffer;
+  images2[0] = ref_frame->y_buffer;
   LOCALMV *localmvs = malloc(frame_height * frame_width * sizeof(LOCALMV));
   if (frame_idx == ref_frame_idx) {
     for (int yy = 0; yy < frame_height; yy++) {
@@ -1564,7 +1555,9 @@ void optflow(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *frame_to_filter,
   int num_ref_corners =
       detect_corners(frame_to_filter, ref_frame, maxcorners, ref_corners, cpi);
 #endif
+#if PRINT_STATEMENTS == 1
   printf("CORNERS COUNT %d\n", num_ref_corners);
+#endif
   for (int i = 0; i < frame_width * frame_height; i++) {
     MV mv = mvs[i];
 #if LOCALMV_ZERO_INIT == 1
@@ -1654,9 +1647,9 @@ void optflow(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *frame_to_filter,
     free(images2[i]);
   }
   free(localmvs);
-  //#if CORNERS_EVERYWHERE != 0
+#if CORNERS_EVERYWHERE != 0
   free(ref_corners);
-  //#endif
+#endif
 }
 
 void initialize_mvs(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
@@ -1816,19 +1809,22 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
   }
 #endif
 #if TF_DEBUG_MODE > 1
+#if PRINT_STATEMENTS == 1
   printf("\nPixel mvs for frame #%d with %d frames to compare\n",
          filter_frame_idx, num_frames);
+#endif
 #if OPTFLOW_IN_SYNTHETIC != 1
   for (int i = 0; i < num_frames; i++) {
     optflow(cpi, frames[filter_frame_idx], frames[i], filter_frame_idx, i,
             (allframes_pixelmvs + i * frame_height * frame_width));
     // optflow_test(cpi, frames[filter_frame_idx], frames[i], filter_frame_idx,
-    // i,
-    //        (allframes_pixelmvs + i * frame_height * frame_width), COUNT);
+    //              i,(allframes_pixelmvs + i * frame_height * frame_width),
+    //              COUNT);
   }
 #else
   printf("Skipping opt flow\n");
 #endif
+#if PRINT_STATEMENTS == 1
   double avgrow_diff = 0;
   double avgcol_diff = 0;
   for (int i = 0; i < frame_width * frame_height && num_frames >= 2; i++) {
@@ -1843,6 +1839,7 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
   if (countnewmvs != 0)
     printf("Avg mv row diff %.3f, avg mv col diff %.3f\n",
            avgrow_diff / countnewmvs, avgcol_diff / countnewmvs);
+#endif
 
   int blockmvs_count = 0;
   int pixelmvs_count = 0;
@@ -2006,8 +2003,7 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
       }
     }
   }
-  printf("DIFF sse %ld sum %ld\n", diff.sse, diff.sum);
-#if TF_DEBUG_MODE > 1
+#if TF_DEBUG_MODE > 1 && PRINT_STATEMENTS == 1
   printf("Used block mvs %d times, pixel mvs %d times\n", blockmvs_count,
          pixelmvs_count);
 #endif
@@ -2415,7 +2411,6 @@ int filter_to_new_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
   memset(pred8, 0, num_planes * mb_pels * sizeof(pred8[0]));
   memset(pred16, 0, num_planes * mb_pels * sizeof(pred16[0]));
   uint8_t *const pred = is_high_bitdepth ? CONVERT_TO_BYTEPTR(pred16) : pred8;
-  printf("IS HIGH BIT DEPTH ? %d\n", is_high_bitdepth);
 #if OPTFLOW_IN_SYNTHETIC == 1
   MV *allframes_pixelmvs =
       malloc(num_frames * frame_height * frame_width * sizeof(MV));
@@ -2424,12 +2419,11 @@ int filter_to_new_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
                  allframes_pixelmvs);
   printf("\nSynth frame: Pixel mvs for frame #%d with %d frames to compare\n",
          filter_frame_idx, num_frames);
-  // optflow(
+  optflow(cpi, frames[prev_frame], frames[next_frame], prev_frame, next_frame,
+          (allframes_pixelmvs + next_frame * frame_height * frame_width));
+  // optflow_test(
   //    cpi, frames[prev_frame], frames[next_frame], prev_frame, next_frame,
-  //    (allframes_pixelmvs + next_frame * frame_height * frame_width));
-  optflow_test(
-      cpi, frames[prev_frame], frames[next_frame], prev_frame, next_frame,
-      (allframes_pixelmvs + next_frame * frame_height * frame_width), COUNT);
+  //    (allframes_pixelmvs + next_frame * frame_height * frame_width), COUNT);
 #endif
   int countblocks = 0;
   int countpixels = 0;
@@ -2529,24 +2523,21 @@ int filter_to_new_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
             const int weight = 1;
             const int idx = plane_idx + plane_offset;
             if (k + mb_pels * plane >= num_planes * mb_pels) {
+#if PRINT_STATEMENTS == 1
               printf("SIZE COUNT/ACCUM EXCEEDED %d out of %d\n",
                      k + mb_pels * plane, num_planes * mb_pels);
+#endif
             } else {
               accum[idx] += weight * pixel_value;
               accum[idx] += weight * ref[frame_idx];
-            }
-            if (idx >= num_planes * mb_pels) {
-              printf("IDX EXCEEDS %d out of %d\n", idx, num_planes * mb_pels);
-            }
-            if (idx != k + mb_pels * plane) {
-              printf("NOT SAME IDX idx %d vs other %d\n", idx,
-                     k + mb_pels * plane);
             }
             // int crop_h = frame_to_filter->crop_heights[plane == 0 ? 0 : 1];
             int maxsize = plane == 0 ? frame_height * frame_stride
                                      : (frame_height >> 1) * frame_stride;
             if (frame_idx >= maxsize) {
+#if PRINT_STATEMENTS == 1
               printf("SIZE EXCEEDED %d out of %d\n", frame_idx, maxsize);
+#endif
             } else {
               // buf[frame_idx] = (uint8_t)round(accum[idx]/(1.0));
               buf[frame_idx] = (uint8_t)round(
@@ -2663,7 +2654,6 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
     frame_num = filter_to_new_frame(
         cpi, frames, num_frames_for_filtering, filter_frame_idx, is_key_frame,
         TF_BLOCK_SIZE, &sf, noise_levels, &newframe);
-    printf("ORIG buf val first %d \n", newframe.y_buffer[0]);
     const int num_planes = av1_num_planes(&cpi->common);
     aom_extend_frame_borders_c(&newframe, num_planes);
 #if SAVE_IMGS == 1
@@ -2674,7 +2664,6 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
                "copiedframe");
 #endif
     ////TODO: probably should add into the calculation of noise level
-    printf("Adding frame to buffer\n");
     frames[num_frames_for_filtering] = &newframe;
     num_frames_for_filtering += 1;
   }
