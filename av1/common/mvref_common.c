@@ -990,7 +990,8 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
   }
 
-  if (false) {
+  // if (false)
+  {
     int original_ref_mv_cnt = (*refmv_count);
     // DBSCAN-1
     const int min_points = 2;
