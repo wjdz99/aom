@@ -627,6 +627,19 @@ void av1_apply_temporal_filter_c(
   aom_free(square_diff);
 }
 
+// Calls High bit-depth temporal filter
+void av1_highbd_apply_temporal_filter_c(
+    const YV12_BUFFER_CONFIG *frame_to_filter, const MACROBLOCKD *mbd,
+    const BLOCK_SIZE block_size, const int mb_row, const int mb_col,
+    const int num_planes, const double *noise_levels, const MV *subblock_mvs,
+    const int *subblock_mses, const int q_factor, const int filter_strength,
+    const uint8_t *pred, uint32_t *accum, uint16_t *count) {
+  av1_apply_temporal_filter_c(frame_to_filter, mbd, block_size, mb_row, mb_col,
+                              num_planes, noise_levels, subblock_mvs,
+                              subblock_mses, q_factor, filter_strength, pred,
+                              accum, count);
+}
+
 /*!\brief Normalizes the accumulated filtering result to produce the filtered
  *        frame
  *
@@ -842,10 +855,16 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
                                       subblock_mvs, subblock_mses, q_factor,
                                       filter_strength, pred, accum, count);
           } else {
-            av1_apply_temporal_filter_c(
-                frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
-                noise_levels, subblock_mvs, subblock_mses, q_factor,
-                filter_strength, pred, accum, count);
+            if ( !is_frame_high_bitdepth(frame_to_filter))
+              av1_apply_temporal_filter_c(
+                  frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
+                  noise_levels, subblock_mvs, subblock_mses, q_factor,
+                  filter_strength, pred, accum, count);
+            else
+              av1_highbd_apply_temporal_filter(
+                  frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
+                  noise_levels, subblock_mvs, subblock_mses, q_factor,
+                  filter_strength, pred, accum, count);
           }
         }
       }
