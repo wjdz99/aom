@@ -436,7 +436,7 @@ TEST_P(HBDTemporalFilterTest, ExtremeValues) {
   }
 }
 
-TEST_P(HBDTemporalFilterTest, DISABLED_Speed) {
+TEST_P(HBDTemporalFilterTest, Speed) {
   for (int height = 32; height <= 32; height = height * 2) {
     RunTest(1, height, height, 100000, 10);
   }
@@ -450,6 +450,15 @@ INSTANTIATE_TEST_SUITE_P(SSE2, HBDTemporalFilterTest,
                          Combine(ValuesIn(HBDtemporal_filter_test_sse2),
                                  Range(64, 65, 4)));
 #endif  // HAVE_SSE2
+#if HAVE_AVX2
+HBDTemporalFilterFuncParam HBDtemporal_filter_test_avx2[] = {
+  HBDTemporalFilterFuncParam(&av1_highbd_apply_temporal_filter_c,
+                             &av1_highbd_apply_temporal_filter_avx2)
+};
+INSTANTIATE_TEST_SUITE_P(AVX2, HBDTemporalFilterTest,
+                         Combine(ValuesIn(HBDtemporal_filter_test_avx2),
+                                 Range(64, 65, 4)));
+#endif  // HAVE_AVX2 
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 }  // namespace
 #endif
