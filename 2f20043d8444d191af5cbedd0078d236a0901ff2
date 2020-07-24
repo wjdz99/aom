@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cb8e247_ddd7a7da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-07-24T20:06:40Z",
+      "side": 1,
+      "message": "\u003e Patch Set 7: -Code-Review\n\u003e \n\u003e ABI check for build-HEAD/I/lib/libaom.so failed (4):\n\u003e Functions changes summary: 0 Removed, 1 Changed, 0 Added function\n\u003e Variables changes summary: 0 Removed, 0 Changed (1 filtered out), 0 Added variable\n\u003e \n\u003e 1 function with some indirect sub-type change:\n\u003e \n\u003e   [C]\"function aom_codec_iface_t* aom_codec_av1_cx()\" at av1_cx_iface.c:3078:1 has some indirect sub-type changes:\n\u003e     return type changed:\n\u003e       in pointed to type \"typedef aom_codec_iface_t\" at aom_codec.h:254:1:\n\u003e         underlying type \"const aom_codec_iface\" changed:\n\u003e           in unqualified underlying type \"struct aom_codec_iface\" at aom_codec_internal.h:267:1:\n\u003e             1 data member changes (4 filtered):\n\u003e              type of \"aom_codec_ctrl_fn_map_t* aom_codec_iface::ctrl_maps\" changed:\n\u003e                in pointed to type \"typedef aom_codec_ctrl_fn_map_t\" at aom_codec_internal.h:169:1:\n\u003e                  underlying type \"const aom_codec_ctrl_fn_map\" changed:\n\u003e                    in unqualified underlying type \"struct aom_codec_ctrl_fn_map\" at aom_codec_internal.h:166:1:\n\u003e                      1 data member change:\n\u003e                       type of \"aom_codec_control_fn_t aom_codec_ctrl_fn_map::fn\" changed:\n\u003e                         underlying type \"typedef aom_codec_err_t (aom_codec_alg_priv_t*, __va_list_tag*)*\" changed:\n\u003e                           in pointed to type \"function type typedef aom_codec_err_t (aom_codec_alg_priv_t*, __va_list_tag*)\":\n\u003e                             parameter 1 of type \"aom_codec_alg_priv_t*\" has sub-type changes:\n\u003e                               in pointed to type \"typedef aom_codec_alg_priv_t\" at aom_codec_internal.h:66:1:\n\u003e                                 underlying type \"struct aom_codec_alg_priv\" at av1_cx_iface.c:282:1 changed:\n\u003e                                   1 data member changes (1 filtered):\n\u003e                                    type of \"AV1_COMP* aom_codec_alg_priv::cpi\" changed:\n\u003e                                      in pointed to type \"typedef AV1_COMP\" at encoder.h:2538:1:\n\u003e                                        underlying type \"struct AV1_COMP\" at encoder.h:1959:1 changed:\n\u003e                                          2 data member insertions:\n\u003e                                            \"int AV1_COMP::android_motion_detected\", at offset 37404000 (in bits) at encoder.h:2528:1\n\u003e                                            \"int AV1_COMP::target_q_under_motion\", at offset 37404032 (in bits) at encoder.h:2537:1\n\u003e                                          no data member change (1 filtered);\n\nTHE ABI check failure is a non blocker. It occurs when changes are made to AV1_COMP",
+      "revId": "2f20043d8444d191af5cbedd0078d236a0901ff2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
