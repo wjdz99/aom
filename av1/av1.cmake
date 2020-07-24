@@ -377,6 +377,7 @@ list(APPEND AOM_AV1_ENCODER_INTRIN_AVX2
             "${AOM_ROOT}/av1/encoder/x86/encodetxb_avx2.c"
             "${AOM_ROOT}/av1/encoder/x86/rdopt_avx2.c"
             "${AOM_ROOT}/av1/encoder/x86/temporal_filter_avx2.c"
+            "${AOM_ROOT}/av1/encoder/x86/highbd_temporal_filter_avx2.c"
             "${AOM_ROOT}/av1/encoder/x86/pickrst_avx2.c")
 
 if(NOT CONFIG_AV1_HIGHBITDEPTH)
