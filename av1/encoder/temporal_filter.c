@@ -1936,7 +1936,7 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
           // only supports 32x32 block size, 5x5 filtering window, 8-bit
           // encoding, and the case when the video is not with `YUV 4:2:2`
           // format.
-          if (TF_BLOCK_SIZE == BLOCK_32X32 && TF_WINDOW_LENGTH == 5 &&
+          /*if (TF_BLOCK_SIZE == BLOCK_32X32 && TF_WINDOW_LENGTH == 5 &&
               !is_frame_high_bitdepth(frame_to_filter) && !is_yuv422_format) {
 #if TF_DEBUG_MODE != 4
             av1_apply_temporal_filter(frame_to_filter, mbd, block_size, mb_row,
@@ -1958,6 +1958,7 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
             }
 #endif
           } else {
+          */
 #if TF_DEBUG_MODE != 4
             av1_apply_temporal_filter_c(
                 frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
@@ -1977,7 +1978,7 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
                   filter_strength, pred, accum, count);
             }
 #endif
-          }
+        // }
         }
       }
 
