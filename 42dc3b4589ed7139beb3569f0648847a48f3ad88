@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "060acb20_f491935e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-07-25T13:05:29Z",
+      "side": 1,
+      "message": "Debargha,\n\nThis patch adds unit test to check the presence of sframe along with validating its position, \nwhen altref is enabled. Also modified the control call to retrieve sframe presence in existing \nsframe test(non altref scenario), to maintain uniformity. This unit test checks for presence \nof sframe in sframe_mode \u003d 2 , as in this mode the sframes are guaranteed to be present \nirrespective of the gf intervals matching according to the sframe_dist.\n\nIn this test, we have disabled sframe test for altref case explicitly due to the \nexisting bug - https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d2758.\nWe can enable this test once the bug is fixed.\n\nThanks",
+      "revId": "42dc3b4589ed7139beb3569f0648847a48f3ad88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
