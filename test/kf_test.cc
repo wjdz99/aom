@@ -236,7 +236,9 @@ TEST_P(ForcedKeyTestLarge, ForcedFrameIsKeyCornerCases) {
 
   for (int i = 0; kf_offsets[i] != 0; ++i) {
     frame_num_ = 0;
-    forced_kf_frame_num_ = cfg_.kf_max_dist + kf_offsets[i];
+    forced_kf_frame_num_ = ((int)cfg_.kf_max_dist + kf_offsets[i]) > 0
+                               ? ((int)cfg_.kf_max_dist + kf_offsets[i])
+                               : 1;
     is_kf_placement_violated_ = false;
     libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                        timebase.den, timebase.num, 0,
