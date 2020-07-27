@@ -92,6 +92,17 @@ TEST_P(ScreenContentToolsTestLarge, ScreenContentToolsTest) {
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video_sc));
   ASSERT_EQ(is_screen_content_violated_, false)
       << "Failed detection of screen content";
+
+  // TODO(anyone): Enable below test once low resolution screen content
+  // detection issues are fixed.
+  // low resolution test
+  //  ::libaom_test::Y4mVideoSource video_sc("screendata.y4m", 0, 1);
+  //  cfg_.g_profile = 0;
+  //  is_screen_content_violated_ = true;
+  //  tune_content_ = AOM_CONTENT_DEFAULT;
+  //  ASSERT_NO_FATAL_FAILURE(RunLoop(&video_sc));
+  //  ASSERT_EQ(is_screen_content_violated_, false)
+  //      << "Failed detection of screen content(lowres)";
 }
 
 AV1_INSTANTIATE_TEST_SUITE(ScreenContentToolsTestLarge,
