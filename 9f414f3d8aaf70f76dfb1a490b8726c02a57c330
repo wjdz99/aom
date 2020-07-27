@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc54c5e9_162fd16e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-07-27T12:20:17Z",
+      "side": 1,
+      "message": "Debargha,\n\nThis patch cherry picks the following commit https://aomedia-review.googlesource.com/c/aom/+/114103\nfrom master onto the research branch. In research branch the min-q and max-q range is modified to use \nqindex directly. So modified the patch accordingly.\n\nThanks",
+      "revId": "9f414f3d8aaf70f76dfb1a490b8726c02a57c330",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
