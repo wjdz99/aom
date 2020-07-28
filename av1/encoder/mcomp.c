@@ -65,7 +65,9 @@ get_faster_search_method(SEARCH_METHODS search_method) {
   //  5. FAST_HEX \approx FAST_DIAMOND
   switch (search_method) {
     case NSTEP: return DIAMOND;
+    case NSTEP_8PT: return DIAMOND;
     case DIAMOND: return BIGDIA;
+    case CLAMPED_DIAMOND: return BIGDIA;
     case BIGDIA: return HEX;
     case SQUARE: return HEX;
     case HEX: return FAST_HEX;
@@ -344,6 +346,38 @@ void av1_init_dsmotion_compensation(search_site_config *cfg, int stride) {
   cfg->num_search_steps = num_search_steps;
 }
 
+void av1_init_cdsmotion_compensation(search_site_config *cfg, int stride) {
+  int num_search_steps = 0;
+  int stage_index = MAX_MVSEARCH_STEPS - 1;
+
+  cfg->site[stage_index][0].mv.col = cfg->site[stage_index][0].mv.row = 0;
+  cfg->site[stage_index][0].offset = 0;
+  cfg->stride = stride;
+
+  for (int radius = MAX_FIRST_STEP / 4; radius > 0;) {
+    int num_search_pts = 8;
+
+    const FULLPEL_MV search_site_mvs[9] = {
+      { 0, 0 },           { -radius, 0 },      { radius, 0 },
+      { 0, -radius },     { 0, radius },       { -radius, -radius },
+      { radius, radius }, { -radius, radius }, { radius, -radius },
+    };
+
+    int i;
+    for (i = 0; i <= num_search_pts; ++i) {
+      search_site *const site = &cfg->site[stage_index][i];
+      site->mv = search_site_mvs[i];
+      site->offset = get_offset_from_fullmv(&site->mv, stride);
+    }
+    cfg->searches_per_step[stage_index] = num_search_pts;
+    cfg->radius[stage_index] = radius;
+    if (stage_index < 9) radius /= 2;
+    --stage_index;
+    ++num_search_steps;
+  }
+  cfg->num_search_steps = num_search_steps;
+}
+
 void av1_init_motion_fpf(search_site_config *cfg, int stride) {
   int num_search_steps = 0;
   int stage_index = MAX_MVSEARCH_STEPS - 1;
@@ -415,6 +449,35 @@ void av1_init_motion_compensation_nstep(search_site_config *cfg, int stride) {
       { radius, -tan_radius },
       { tan_radius, radius },
       { -tan_radius, -radius },
+    };
+
+    for (int i = 0; i <= num_search_pts; ++i) {
+      search_site *const site = &cfg->site[stage_index][i];
+      site->mv = search_site_mvs[i];
+      site->offset = get_offset_from_fullmv(&site->mv, stride);
+    }
+    cfg->searches_per_step[stage_index] = num_search_pts;
+    cfg->radius[stage_index] = radius;
+    ++num_search_steps;
+    if (stage_index < 12)
+      radius = (int)AOMMAX((radius * 1.5 + 0.5), radius + 1);
+  }
+  cfg->num_search_steps = num_search_steps;
+}
+
+// Search site initialization for NSTEP_8PT search method.
+void av1_init_motion_compensation_nstep8pt(search_site_config *cfg,
+                                           int stride) {
+  int num_search_steps = 0;
+  int stage_index = 0;
+  cfg->stride = stride;
+  int radius = 1;
+  for (stage_index = 0; stage_index < 16; ++stage_index) {
+    int num_search_pts = 8;
+    const FULLPEL_MV search_site_mvs[9] = {
+      { 0, 0 },           { -radius, 0 },      { radius, 0 },
+      { 0, -radius },     { 0, radius },       { -radius, -radius },
+      { radius, radius }, { -radius, radius }, { radius, -radius },
     };
 
     for (int i = 0; i <= num_search_pts; ++i) {
@@ -1664,7 +1727,9 @@ int av1_full_pixel_search(const FULLPEL_MV start_mv,
           bigdia_search(start_mv, ms_params, step_param, 1, cost_list, best_mv);
       break;
     case NSTEP:
+    case NSTEP_8PT:
     case DIAMOND:
+    case CLAMPED_DIAMOND:
       var = full_pixel_diamond(start_mv, ms_params, step_param, cost_list,
                                best_mv, second_best_mv);
       break;
@@ -1672,7 +1737,8 @@ int av1_full_pixel_search(const FULLPEL_MV start_mv,
   }
 
   // Should we allow a follow on exhaustive search?
-  if (!run_mesh_search && search_method == NSTEP) {
+  if (!run_mesh_search &&
+      ((search_method == NSTEP) || (search_method == NSTEP_8PT))) {
     int exhaustive_thr = ms_params->force_mesh_thresh;
     exhaustive_thr >>=
         10 - (mi_size_wide_log2[bsize] + mi_size_high_log2[bsize]);
