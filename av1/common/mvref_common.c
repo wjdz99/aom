@@ -737,10 +737,10 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
               int cluster_label[MAX_REF_MV_STACK_SIZE], int start, int end,
               int cluster_idx_to_merge) {
   // centriod
-  // CANDIDATE_MV updated_mv;
-  // updated_mv.this_mv.as_int = 0U;
-  // updated_mv.comp_mv.as_int = 0U;
-  // uint16_t updated_weight = 0;
+  CANDIDATE_MV updated_mv;
+  updated_mv.this_mv.as_int = 0U;
+  updated_mv.comp_mv.as_int = 0U;
+  uint16_t updated_weight = 0;
   // for (int j = start; j < end; j++) {
   //   if (cluster_label[j] == cluster_idx_to_merge) {
   //     updated_mv.this_mv.as_mv.row +=
@@ -1082,7 +1082,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         noise_cnt++;
       }
     }
-    assert(noise_cnt + cluster_num1 + cluster_num2 == (*refmv_count));
+    // assert(noise_cnt + cluster_num1 + cluster_num2 == (*refmv_count));
     // if (cluster_num2 + cluster_num1 > 0)
     //   fprintf(
     //       stderr,
