@@ -380,9 +380,9 @@ static void tf_build_predictor(const YV12_BUFFER_CONFIG *ref_frame,
                                 subsampling_y, bit_depth, is_high_bitdepth,
                                 is_intrabc, scale, &ref_buf, interp_filters);
           inter_pred_params.conv_params = get_conv_params(0, plane, bit_depth);
-          // av1_enc_build_one_inter_predictor(&temppred, 1, &mv,
+          // av1_enc_build_one_inter_predictor(temppred, 1, &mv,
           //                                  &inter_pred_params);
-          av1_enc_build_one_inter_predictor(&temppred, 5, &mv,
+          av1_enc_build_one_inter_predictor(temppred, 5, &mv,
                                             &inter_pred_params);
           pred[plane_offset + i * plane_w + j] = temppred[0];
           if (is_y_plane) {
@@ -393,12 +393,12 @@ static void tf_build_predictor(const YV12_BUFFER_CONFIG *ref_frame,
             // -> corner of a block can be a window if entire image is used
             int pixelerror = 0;
             int countpixels = 0;
-            int winsize = 5;  // 5//3;
+            int winsize = 5;
+            // this produces smaller neighborhood at edges of mb:
             int starty = AOMMAX(0, i - winsize / 2);
             int startx = AOMMAX(0, j - winsize / 2);
-            int endy = AOMMIN(mb_height - 1, starty + winsize);
-            int endx = AOMMIN(mb_width - 1, startx + winsize);
-            // this produces smaller neighborhood at corners of mb:
+            int endy = AOMMIN(mb_height - 1, i + winsize / 2);
+            int endx = AOMMIN(mb_width - 1, j + winsize / 2);
             for (int ii = starty; ii < endy; ii++) {
               for (int jj = startx; jj < endx; jj++) {
                 const int y = plane_y + ii;
@@ -414,8 +414,6 @@ static void tf_build_predictor(const YV12_BUFFER_CONFIG *ref_frame,
             int pixelerror = pow(
                 (temppred[0] - frame->y_buffer[y * frame->y_stride + x]), 2);
 #endif
-            // TODO: This line messed up the neighborhood mse
-            // probably because there was no is_y_plane condition previously
             subblock_mses[subblock_idx] = pixelerror;
           }
         }
@@ -476,10 +474,9 @@ static void tf_build_predictor(const YV12_BUFFER_CONFIG *ref_frame,
                               subsampling_y, bit_depth, is_high_bitdepth,
                               is_intrabc, scale, &ref_buf, interp_filters);
         inter_pred_params.conv_params = get_conv_params(0, plane, bit_depth);
-        // av1_enc_build_one_inter_predictor(&temppred, 1, &mv,
+        // av1_enc_build_one_inter_predictor(temppred, 1, &mv,
         //                                  &inter_pred_params);
-        av1_enc_build_one_inter_predictor(&temppred, 5, &mv,
-                                          &inter_pred_params);
+        av1_enc_build_one_inter_predictor(temppred, 5, &mv, &inter_pred_params);
         pred[plane_offset + i * plane_w + j] = temppred[0];
 #if NEIGHBORHOOD_MSE == 1
         if (is_y_plane) {
@@ -903,7 +900,7 @@ void dump_frame(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *frame_buf,
 
 #if TF_DEBUG_MODE > 1
 // options for Lucas-Kanade
-#define DESCALE_MODE 1
+#define DESCALE_MODE 0
 #if DESCALE_MODE == 1
 #define WBITS 14
 #define WBITS1 14
@@ -918,8 +915,10 @@ int DESCALE(int x, int n) { return x; }
   2  // 0 for fast corner detect, 2 to detect more corners
 #define LK_WINDOW_SIZE 15
 #define LK_LEVELS 3  // # of pyramid levels (max is 5)
-#define USE_WEIGHTED_WINDOW 0
+#define USE_WEIGHTED_WINDOW 1
 #define USE_BP_INTERP 1  // 1 to use av1 4-tap filter for temporal grad
+#define USE_8_TAP 0
+#define USE_4x4_BLOCK_MV 0
 
 // TODO: try out FULLPEL_MV ? already defined?
 typedef struct LOCALMV {
@@ -1016,7 +1015,7 @@ void spatial_gradient(const YV12_BUFFER_CONFIG *frame, const int x_coord,
 // Determine the spatial gradient at subpixel locations
 // For example, when reducing images for pyramidal LK,
 // corners found in original image may be at subpixel locations.
-void gradient_interp(YV12_BUFFER_CONFIG *frame, const double x_coord,
+void gradient_interp(const YV12_BUFFER_CONFIG *frame, const double x_coord,
                      const double y_coord, int *fullpel_deriv, const int w,
                      const int h, double *derivative) {
   int xint = (int)x_coord;
@@ -1041,10 +1040,18 @@ void temporal_gradient(const YV12_BUFFER_CONFIG *frame,
                        AV1_COMP *cpi) {
   int idx = 0;
 #if USE_BP_INTERP == 1
+#if USE_8_TAP == 1
+  const int w = 5;
+  const int h = 5;
+  uint8_t pred1[25];
+  uint8_t pred2[25];
+
+#else
   const int w = 1;
   const int h = 1;
   uint8_t pred1[4] = { 0, 0, 0, 0 };
   uint8_t pred2[4] = { 0, 0, 0, 0 };
+#endif
   const int y = y_coord;
   const int x = x_coord;
   double ydec = y_coord - y;
@@ -1072,7 +1079,7 @@ void temporal_gradient(const YV12_BUFFER_CONFIG *frame,
   inter_pred_params.conv_params = get_conv_params(0, plane, bit_depth);
   MV newmv = { .row = round((mv->row + xdec) * 8),
                .col = round((mv->col + ydec) * 8) };
-  av1_enc_build_one_inter_predictor(&pred2, w, &newmv, &inter_pred_params);
+  av1_enc_build_one_inter_predictor(pred2, w, &newmv, &inter_pred_params);
   pred2[3] = pred2[0];
   const struct buf_2d ref_buf1 = { NULL, frame->y_buffer, frame->y_crop_width,
                                    frame->y_crop_height, frame->y_stride };
@@ -1081,7 +1088,7 @@ void temporal_gradient(const YV12_BUFFER_CONFIG *frame,
                         &scale, &ref_buf1, interp_filters);
   inter_pred_params.conv_params = get_conv_params(0, plane, bit_depth);
   MV zeroMV = { .row = round(xdec * 8), .col = round(ydec * 8) };
-  av1_enc_build_one_inter_predictor(&pred1, w, &zeroMV, &inter_pred_params);
+  av1_enc_build_one_inter_predictor(pred1, w, &zeroMV, &inter_pred_params);
   pred1[3] = pred1[0];
 #else
   const int w = 2;
@@ -1204,10 +1211,10 @@ void gradients_over_window(const YV12_BUFFER_CONFIG *frame,
                            const int window_size, double *ix, double *iy,
                            double *it, LOCALMV *mv, AV1_COMP *cpi);
 // Shi-Tomasi corner detection criteria
-double corner_score(YV12_BUFFER_CONFIG *frame_to_filter,
-                    YV12_BUFFER_CONFIG *ref_frame, const int x, const int y,
-                    double *i_x, double *i_y, double *i_t, const int n,
-                    AV1_COMP *cpi) {
+double corner_score(const YV12_BUFFER_CONFIG *frame_to_filter,
+                    const YV12_BUFFER_CONFIG *ref_frame, const int x,
+                    const int y, double *i_x, double *i_y, double *i_t,
+                    const int n, AV1_COMP *cpi) {
   double eig[2];
   LOCALMV mv = { .row = 0, .col = 0 };
   // TODO: technically, ref_frame and i_t are not used by corner score
@@ -1225,8 +1232,8 @@ double corner_score(YV12_BUFFER_CONFIG *frame_to_filter,
 }
 // Finds corners in frame_to_filter
 // For less strict requirements (i.e. more corners), decrease threshold
-int detect_corners(YV12_BUFFER_CONFIG *frame_to_filter,
-                   YV12_BUFFER_CONFIG *ref_frame, const int maxcorners,
+int detect_corners(const YV12_BUFFER_CONFIG *frame_to_filter,
+                   const YV12_BUFFER_CONFIG *ref_frame, const int maxcorners,
                    int *ref_corners, AV1_COMP *cpi) {
   // TODO: currently if maxcorners is decreased, then it only means
   // corners will be omited from bottom-right of image. if maxcorners
@@ -1387,6 +1394,26 @@ void lucas_kanade(const YV12_BUFFER_CONFIG *frame_to_filter,
         mult = expand_multiplier;  // mv doubles when resolution doubles
       LOCALMV mv = { .row = (mult * (u[0] + mv_old.row)),
                      .col = (mult * (u[1] + mv_old.col)) };
+#if USE_4x4_BLOCK_MV == 1
+      if (level == 2) {
+        // block (sorta) centered at point
+        for (int y = highres_y - expand_multiplier / 2;
+             y < highres_y + expand_multiplier / 2; y++) {
+          for (int x = highres_x - expand_multiplier / 2;
+               x < highres_x + expand_multiplier / 2; x++) {
+            mv_idx = y * (frame_width * expand_multiplier) + x;
+            mvs[mv_idx] = mv;
+#if SAVE_IMGS == 1
+            cornersimg[mv_idx] = 1;
+#endif
+          }
+        }
+      } else {
+        mvs[mv_idx] = mv;
+      }
+#else
+      mvs[mv_idx] = mv;
+#endif
       mvs[mv_idx] = mv;
 #if SAVE_IMGS == 1
       int img_idx = mv_idx;
@@ -1482,7 +1509,7 @@ void optflow(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *frame_to_filter,
   if (levels == 0) return;
   const int frame_height = frame_to_filter->y_crop_height;
   const int frame_width = frame_to_filter->y_crop_width;
-  //if (frame_height / pow(2.0, levels - 1) < 50 ||
+  // if (frame_height / pow(2.0, levels - 1) < 50 ||
   //    frame_height / pow(2.0, levels - 1) < 50)
   //  levels = levels - 1;
   // levels > 5 are probably unnecessary for most image sizes
@@ -1530,6 +1557,7 @@ void optflow(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *frame_to_filter,
     buffers2[i] = b;
   }
   // Compute corners for specific frame
+#if USE_4x4_BLOCK_MV == 0
 #if CORNERS_EVERYWHERE == 0
   // int maxcorners = frame_to_filter->y_crop_width *
   //                 frame_to_filter->y_crop_height;  // MAX_CORNERS
@@ -1555,6 +1583,21 @@ void optflow(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *frame_to_filter,
   int num_ref_corners =
       detect_corners(frame_to_filter, ref_frame, maxcorners, ref_corners, cpi);
 #endif
+#else
+  assert(levels >= 3);
+  int maxcorners = frame_to_filter->y_crop_width *
+                   frame_to_filter->y_crop_height;  // MAX_CORNERS
+  int *ref_corners = malloc(maxcorners * 2 * sizeof(int));
+  // detect corners at 3rd level so there's no overlap between
+  // corners on upsample
+  int num_ref_corners =
+      detect_corners(&buffers1[2], &buffers2[2], maxcorners, ref_corners, cpi);
+  int expand_mult = pow(2, 2);
+  for (int i = 0; i < num_ref_corners; i++) {
+    ref_corners[i * 2] *= expand_mult;
+    ref_corners[i * 2 + 1] *= expand_mult;
+  }
+#endif
 #if PRINT_STATEMENTS == 1
   printf("CORNERS COUNT %d\n", num_ref_corners);
 #endif
@@ -1567,7 +1610,11 @@ void optflow(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *frame_to_filter,
 #endif
     localmvs[i] = localmv;
   }
+#if USE_4x4_BLOCK_MV == 1
+  for (int i = levels - 1; i > 1; i--) {
+#else
   for (int i = levels - 1; i >= 0; i--) {
+#endif
     lucas_kanade(&buffers1[i], &buffers2[i], frame_idx, ref_frame_idx, localmvs,
                  i, num_ref_corners, ref_corners, buffers1[0].y_crop_width,
                  buffers1[0].y_crop_height, cpi);
@@ -1960,25 +2007,25 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
           } else {
           */
 #if TF_DEBUG_MODE != 4
+          av1_apply_temporal_filter_c(frame_to_filter, mbd, block_size, mb_row,
+                                      mb_col, num_planes, noise_levels,
+                                      subblock_mvs, subblock_mses, q_factor,
+                                      filter_strength, pred, accum, count);
+#else
+          NEWMVS_COUNT = newmvs_count;
+          if (newmvs_count > NEWMV_THRESHOLD * mb_height * mb_width) {
+            av1_apply_temporal_filter_c(
+                frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
+                noise_levels, blockpixel_mvs, pixel_mses, q_factor,
+                filter_strength, pred, accum, count);
+          } else {
             av1_apply_temporal_filter_c(
                 frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
                 noise_levels, subblock_mvs, subblock_mses, q_factor,
                 filter_strength, pred, accum, count);
-#else
-            NEWMVS_COUNT = newmvs_count;
-            if (newmvs_count > NEWMV_THRESHOLD * mb_height * mb_width) {
-              av1_apply_temporal_filter_c(
-                  frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
-                  noise_levels, blockpixel_mvs, pixel_mses, q_factor,
-                  filter_strength, pred, accum, count);
-            } else {
-              av1_apply_temporal_filter_c(
-                  frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
-                  noise_levels, subblock_mvs, subblock_mses, q_factor,
-                  filter_strength, pred, accum, count);
-            }
+          }
 #endif
-        // }
+          // }
         }
       }
 
@@ -2284,19 +2331,19 @@ static void tf_build_predictor_debug4(
                                 subsampling_y, bit_depth, is_high_bitdepth,
                                 is_intrabc, scale, &ref_buf, interp_filters);
           inter_pred_params.conv_params = get_conv_params(0, plane, bit_depth);
-          // av1_enc_build_one_inter_predictor(&temppred, 1, &mv,
+          // av1_enc_build_one_inter_predictor(temppred, 1, &mv,
           //                                  &inter_pred_params);
-          av1_enc_build_one_inter_predictor(&temppred, 5, &mv,
+          av1_enc_build_one_inter_predictor(temppred, 5, &mv,
                                             &inter_pred_params);
           pred[plane_offset + i * plane_w + j] = temppred[0];
           if (is_y_plane) {
             int pixelerror = 0;
             int countpixels = 0;
-            int winsize = 5;  // 5//3;
+            int winsize = 5;
             int starty = AOMMAX(0, i - winsize / 2);
             int startx = AOMMAX(0, j - winsize / 2);
-            int endy = AOMMIN(mb_height - 1, starty + winsize);
-            int endx = AOMMIN(mb_width - 1, startx + winsize);
+            int endy = AOMMIN(mb_height - 1, i + winsize / 2);
+            int endx = AOMMIN(mb_width - 1, j + winsize / 2);
             // this produces smaller neighborhood at corners of mb:
             for (int ii = starty; ii < endy; ii++) {
               for (int jj = startx; jj < endx; jj++) {
