@@ -626,7 +626,20 @@ void av1_apply_temporal_filter_c(
 
   aom_free(square_diff);
 }
-
+#if CONFIG_AV1_HIGHBITDEPTH
+// Calls High bit-depth temporal filter
+void av1_highbd_apply_temporal_filter_c(
+    const YV12_BUFFER_CONFIG *frame_to_filter, const MACROBLOCKD *mbd,
+    const BLOCK_SIZE block_size, const int mb_row, const int mb_col,
+    const int num_planes, const double *noise_levels, const MV *subblock_mvs,
+    const int *subblock_mses, const int q_factor, const int filter_strength,
+    const uint8_t *pred, uint32_t *accum, uint16_t *count) {
+  av1_apply_temporal_filter_c(frame_to_filter, mbd, block_size, mb_row, mb_col,
+                              num_planes, noise_levels, subblock_mvs,
+                              subblock_mses, q_factor, filter_strength, pred,
+                              accum, count);
+}
+#endif  // CONFIG_AV1_HIGHBITDEPTH
 /*!\brief Normalizes the accumulated filtering result to produce the filtered
  *        frame
  *
@@ -768,6 +781,7 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
   // function only supports square block size. We will use C function instead
   // for videos with `YUV 4:2:2` format.
   int is_yuv422_format = 0;
+  (void)is_yuv422_format;
   for (int plane = 1; plane < num_planes; ++plane) {
     if (mbd->plane[plane].subsampling_x != mbd->plane[plane].subsampling_y) {
       is_yuv422_format = 1;
@@ -835,6 +849,12 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
           // only supports 32x32 block size, 5x5 filtering window, 8-bit
           // encoding, and the case when the video is not with `YUV 4:2:2`
           // format.
+#if CONFIG_AV1_HIGHBITDEPTH
+          av1_highbd_apply_temporal_filter(
+              frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
+              noise_levels, subblock_mvs, subblock_mses, q_factor,
+              filter_strength, pred, accum, count);
+#else
           if (TF_BLOCK_SIZE == BLOCK_32X32 && TF_WINDOW_LENGTH == 5 &&
               !is_frame_high_bitdepth(frame_to_filter) && !is_yuv422_format) {
             av1_apply_temporal_filter(frame_to_filter, mbd, block_size, mb_row,
@@ -842,11 +862,13 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
                                       subblock_mvs, subblock_mses, q_factor,
                                       filter_strength, pred, accum, count);
           } else {
+            if (!is_frame_high_bitdepth(frame_to_filter))
             av1_apply_temporal_filter_c(
                 frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
                 noise_levels, subblock_mvs, subblock_mses, q_factor,
                 filter_strength, pred, accum, count);
           }
+#endif  // CONFIG_AV1_HIGHBITDEPTH
         }
       }
 
