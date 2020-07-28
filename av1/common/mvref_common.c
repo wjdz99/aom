@@ -764,9 +764,11 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   updated_mv.comp_mv.as_mv.row =
       (updated_mv.comp_mv.as_mv.row + (updated_weight >> 1)) / updated_weight;
 
-  ref_mv_stack[cluster_idx_to_merge].this_mv.as_int = updated_mv.this_mv.as_int;
-  ref_mv_stack[cluster_idx_to_merge].comp_mv.as_int = updated_mv.this_mv.as_int;
-  ref_mv_weight[cluster_idx_to_merge] = updated_weight;
+  // ref_mv_stack[cluster_idx_to_merge].this_mv.as_int =
+  // updated_mv.this_mv.as_int;
+  // ref_mv_stack[cluster_idx_to_merge].comp_mv.as_int =
+  // updated_mv.this_mv.as_int; ref_mv_weight[cluster_idx_to_merge] =
+  // updated_weight;
 }
 static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                               MV_REFERENCE_FRAME ref_frame,
@@ -1011,7 +1013,6 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       //            dist_threshold, (&cluster_num1), cluster_label,
       //            (rf[1] == NONE_FRAME));
       cluster_label[0] = 0;
-      cluster_label[1] = 0;
       // Merge MVs
       for (int i = 0; i < nearest_refmv_count; i++) {
         if (cluster_label[i] == -1) {
