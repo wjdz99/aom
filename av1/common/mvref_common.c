@@ -1011,6 +1011,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       //            dist_threshold, (&cluster_num1), cluster_label,
       //            (rf[1] == NONE_FRAME));
       cluster_label[0] = 0;
+      cluster_label[1] = 0;
       // Merge MVs
       for (int i = 0; i < nearest_refmv_count; i++) {
         if (cluster_label[i] == -1) {
