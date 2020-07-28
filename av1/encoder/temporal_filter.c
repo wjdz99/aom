@@ -900,7 +900,7 @@ void dump_frame(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *frame_buf,
 
 #if TF_DEBUG_MODE > 1
 // options for Lucas-Kanade
-#define DESCALE_MODE 0
+#define DESCALE_MODE 1
 #if DESCALE_MODE == 1
 #define WBITS 14
 #define WBITS1 14
@@ -915,7 +915,7 @@ int DESCALE(int x, int n) { return x; }
   2  // 0 for fast corner detect, 2 to detect more corners
 #define LK_WINDOW_SIZE 15
 #define LK_LEVELS 3  // # of pyramid levels (max is 5)
-#define USE_WEIGHTED_WINDOW 1
+#define USE_WEIGHTED_WINDOW 0
 #define USE_BP_INTERP 1  // 1 to use av1 4-tap filter for temporal grad
 #define USE_8_TAP 0
 #define USE_4x4_BLOCK_MV 0
@@ -1139,9 +1139,11 @@ void gradients_over_window(const YV12_BUFFER_CONFIG *frame,
                            const double x_coord, const double y_coord,
                            const int window_size, double *ix, double *iy,
                            double *it, LOCALMV *mv, AV1_COMP *cpi) {
+  const double left = x_coord - window_size / 2;
+  const double top = y_coord - window_size / 2;
   // gradient operators need pixel before and after (start at 1)
-  const double x_start = AOMMAX(1, x_coord - window_size / 2);
-  const double y_start = AOMMAX(1, y_coord - window_size / 2);
+  const double x_start = AOMMAX(1, left);
+  const double y_start = AOMMAX(1, top);
   const int frame_height = frame->y_crop_height;
   const int frame_width = frame->y_crop_width;
   const int ystride = frame->y_stride;
@@ -1150,12 +1152,12 @@ void gradients_over_window(const YV12_BUFFER_CONFIG *frame,
   double deriv_y;
   double deriv_t;
 
-  const double x_end = AOMMIN(x_start + window_size, frame_width + border - 1);
-  const double y_end = AOMMIN(y_start + window_size, frame_height + border - 1);
+  const double x_end = AOMMIN(x_coord + window_size / 2, frame_width - 2);
+  const double y_end = AOMMIN(y_coord + window_size / 2, frame_height - 2);
   int xs = AOMMAX(1, x_start - 1);
   int ys = AOMMAX(1, y_start - 1);
-  int xe = AOMMIN(x_end + 2, frame_width + border - 1);
-  int ye = AOMMIN(y_end + 2, frame_height + border - 1);
+  int xe = AOMMIN(x_end + 2, frame_width - 2);
+  int ye = AOMMIN(y_end + 2, frame_height - 2);
   // assuming that derivatives are integers (which is the case
   // for both sobel and scharr filters on greyscale int values)
   int *fullpel_dx = malloc((ye - ys) * (xe - xs) * sizeof(int));
@@ -1166,8 +1168,9 @@ void gradients_over_window(const YV12_BUFFER_CONFIG *frame,
     for (int i = xs; i < xe; i++) {
       spatial_gradient(frame, i, j, 0, &deriv_x);
       spatial_gradient(frame, i, j, 1, &deriv_y);
-      fullpel_dx[(j - ys) * (xe - xs) + (i - xs)] = (int)deriv_x;
-      fullpel_dy[(j - ys) * (xe - xs) + (i - xs)] = (int)deriv_y;
+      int idx = (j - ys) * (xe - xs) + (i - xs);
+      fullpel_dx[idx] = (int)deriv_x;
+      fullpel_dy[idx] = (int)deriv_y;
     }
   }
   // compute numerical differentiation for every pixel in window
@@ -1178,11 +1181,18 @@ void gradients_over_window(const YV12_BUFFER_CONFIG *frame,
                       &deriv_x);
       gradient_interp(frame, i - xs, j - ys, fullpel_dy, xe - xs, ye - ys,
                       &deriv_y);
-      ix[(int)(j - y_start) * window_size + (int)(i - x_start)] = deriv_x;
-      iy[(int)(j - y_start) * window_size + (int)(i - x_start)] = deriv_y;
-      it[(int)(j - y_start) * window_size + (int)(i - x_start)] = deriv_t;
+      int idx = (int)(j - top) * window_size + (int)(i - left);
+      ix[idx] = deriv_x;
+      iy[idx] = deriv_y;
+      it[idx] = deriv_t;
     }
   }
+  // TODO: to avoid using memset for every iteration, could instead
+  // pass these two values back through function call
+  // int first_idx = (int)(y_start - top) * window_size + (int)(x_start - left);
+  // int width = window_size - ((int)(x_start - left) + (int)(left + window_size
+  // - x_end));
+
   free(fullpel_dx);
   free(fullpel_dy);
 }
@@ -1253,6 +1263,9 @@ int detect_corners(const YV12_BUFFER_CONFIG *frame_to_filter,
   // rough estimate of max corner score in image
   for (int x = fromedge; x < frame_width - fromedge; x += 1) {
     for (int y = fromedge; y < frame_height - fromedge; y += frame_height / 5) {
+      memset(i_x, 0, 49 * sizeof(double));
+      memset(i_y, 0, 49 * sizeof(double));
+      memset(i_t, 0, 49 * sizeof(double));
       score =
           corner_score(frame_to_filter, ref_frame, x, y, i_x, i_y, i_t, n, cpi);
       if (x == fromedge && y == fromedge) {
@@ -1267,6 +1280,9 @@ int detect_corners(const YV12_BUFFER_CONFIG *frame_to_filter,
   for (int x = fromedge; x < frame_width - fromedge; x += 1) {
     for (int y = fromedge;
          (y < frame_height - fromedge) && countcorners < maxcorners; y += 1) {
+      memset(i_x, 0, 49 * sizeof(double));
+      memset(i_y, 0, 49 * sizeof(double));
+      memset(i_t, 0, 49 * sizeof(double));
       score =
           corner_score(frame_to_filter, ref_frame, x, y, i_x, i_y, i_t, n, cpi);
       if (score > threshold * max_score) {
@@ -1335,6 +1351,9 @@ void lucas_kanade(const YV12_BUFFER_CONFIG *frame_to_filter,
     LOCALMV mv_old = mvs[mv_idx];
     mv_old.row = mv_old.row / expand_multiplier;
     mv_old.col = mv_old.col / expand_multiplier;
+    memset(i_x, 0, n * n * sizeof(double));
+    memset(i_y, 0, n * n * sizeof(double));
+    memset(i_t, 0, n * n * sizeof(double));
     gradients_over_window(frame_to_filter, ref_frame, x_coord, y_coord, n, i_x,
                           i_y, i_t, &mv_old, cpi);
     double Mres1[1] = { 0 }, Mres2[1] = { 0 }, Mres3[1] = { 0 };
