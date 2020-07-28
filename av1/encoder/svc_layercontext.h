@@ -78,6 +78,7 @@ typedef struct {
    * If current layer is key frame.
    */
   int is_key_frame;
+  int max_mv_magnitude;
 } LAYER_CONTEXT;
 
 /*!
