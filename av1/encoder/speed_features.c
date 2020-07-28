@@ -433,6 +433,7 @@ static void set_good_speed_features_framesize_independent(
 
     // TODO(any, yunqing): move this feature to speed 0.
     sf->tpl_sf.skip_alike_starting_mv = 1;
+    sf->tpl_sf.search_method = NSTEP_8PT;
   }
 
   if (speed >= 2) {
@@ -1423,6 +1424,55 @@ void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
     if (cm->quant_params.base_qindex <= qindex_thresh &&
         !frame_is_intra_only(&cpi->common)) {
       sf->part_sf.ext_partition_eval_thresh = BLOCK_128X128;
+    }
+  }
+
+  if (cpi->oxcf.mode == GOOD && (speed == 1)) {
+    if (!is_stat_generation_stage(cpi)) {
+      // Use faster full-pel motion search for high quantizers
+      // Also use reduced total search range for low resolutions at high
+      // quantizers
+      int qindex_thresh1, qindex_thresh2;
+      SEARCH_METHODS search_method;
+      if (is_720p_or_larger) {
+        qindex_thresh1 = MAXQ;
+        qindex_thresh2 = 200;
+        search_method = DIAMOND;
+      } else {
+        qindex_thresh1 = 170;
+        qindex_thresh2 = 50;
+        search_method = CLAMPED_DIAMOND;
+      }
+      if (cm->quant_params.base_qindex > qindex_thresh1) {
+        sf->mv_sf.search_method = search_method;
+        sf->tpl_sf.search_method = search_method;
+      } else if (cm->quant_params.base_qindex > qindex_thresh2) {
+        sf->mv_sf.search_method = NSTEP_8PT;
+      }
+    }
+  }
+
+  if (cpi->oxcf.mode == GOOD && (speed == 2)) {
+    if (!is_stat_generation_stage(cpi)) {
+      // Use faster full-pel motion search for high quantizers
+      // Also use reduced total search range for low resolutions at high
+      // quantizers
+      int qindex_thresh1;
+      SEARCH_METHODS search_method;
+      if (is_720p_or_larger) {
+        qindex_thresh1 = 200;
+        search_method = DIAMOND;
+      } else {
+        qindex_thresh1 = 170;
+        search_method = CLAMPED_DIAMOND;
+      }
+      const int qindex_thresh2 = 40;
+      if (cm->quant_params.base_qindex > qindex_thresh1) {
+        sf->mv_sf.search_method = search_method;
+        sf->tpl_sf.search_method = search_method;
+      } else if (cm->quant_params.base_qindex > qindex_thresh2) {
+        sf->mv_sf.search_method = NSTEP_8PT;
+      }
     }
   }
 }

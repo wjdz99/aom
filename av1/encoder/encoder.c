@@ -1769,8 +1769,12 @@ typedef void (*av1_init_search_site_config)(search_site_config *cfg,
 
 av1_init_search_site_config
     av1_init_motion_compensation[NUM_DISTINCT_SEARCH_METHODS] = {
-      av1_init_dsmotion_compensation, av1_init_motion_compensation_nstep,
-      av1_init_motion_compensation_hex, av1_init_motion_compensation_bigdia,
+      av1_init_dsmotion_compensation,
+      av1_init_motion_compensation_nstep,
+      av1_init_motion_compensation_nstep8pt,
+      av1_init_cdsmotion_compensation,
+      av1_init_motion_compensation_hex,
+      av1_init_motion_compensation_bigdia,
       av1_init_motion_compensation_square
     };
 
