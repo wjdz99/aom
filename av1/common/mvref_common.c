@@ -760,19 +760,19 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
       updated_weight += ref_mv_weight[j];
     }
   }
-  for (int j = start; j < end; j++) {
-    if (cluster_label[j] == cluster_idx_to_merge) {
-      updated_mv.this_mv.as_mv.row +=
-          ref_mv_weight[j] * ref_mv_stack[j].this_mv.as_mv.row;
-      updated_mv.this_mv.as_mv.col +=
-          ref_mv_weight[j] * ref_mv_stack[j].this_mv.as_mv.col;
-      updated_mv.comp_mv.as_mv.row +=
-          ref_mv_weight[j] * ref_mv_stack[j].comp_mv.as_mv.row;
-      updated_mv.comp_mv.as_mv.col +=
-          ref_mv_weight[j] * ref_mv_stack[j].comp_mv.as_mv.col;
-      updated_weight += ref_mv_weight[j];
-    }
-  }
+  // for (int j = start; j < end; j++) {
+  //   if (cluster_label[j] == cluster_idx_to_merge) {
+  //     updated_mv.this_mv.as_mv.row +=
+  //         ref_mv_weight[j] * ref_mv_stack[j].this_mv.as_mv.row;
+  //     updated_mv.this_mv.as_mv.col +=
+  //         ref_mv_weight[j] * ref_mv_stack[j].this_mv.as_mv.col;
+  //     updated_mv.comp_mv.as_mv.row +=
+  //         ref_mv_weight[j] * ref_mv_stack[j].comp_mv.as_mv.row;
+  //     updated_mv.comp_mv.as_mv.col +=
+  //         ref_mv_weight[j] * ref_mv_stack[j].comp_mv.as_mv.col;
+  //     updated_weight += ref_mv_weight[j];
+  //   }
+  // }
   // Round Closest: dividend + (divisor / 2)) / divisor;
   // updated_mv.this_mv.as_mv.row =
   //     (updated_mv.this_mv.as_mv.row + (updated_weight >> 1)) /
@@ -787,10 +787,9 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   //     (updated_mv.comp_mv.as_mv.row + (updated_weight >> 1)) /
   //     updated_weight;
 
-  // ref_mv_stack[cluster_idx_to_merge].this_mv.as_int =
-  // updated_mv.this_mv.as_int;
-  // ref_mv_stack[cluster_idx_to_merge].comp_mv.as_int =
-  // updated_mv.this_mv.as_int; if (updated_weight >= 65535) {
+  ref_mv_stack[cluster_idx_to_merge].this_mv.as_int = updated_mv.this_mv.as_int;
+  ref_mv_stack[cluster_idx_to_merge].comp_mv.as_int = updated_mv.this_mv.as_int;
+  // if (updated_weight >= 65535) {
   //   updated_weight = 65535;
   // }
   // ref_mv_weight[cluster_idx_to_merge] = (uint16_t)updated_weight;
@@ -1045,7 +1044,6 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
           continue;
         } else if (cluster_label[i] == i) {
           // centriod update
-
           merge_mv(ref_mv_stack, ref_mv_weight, cluster_label, 0,
                    nearest_refmv_count, i);
         }
@@ -1066,6 +1064,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                  nearest_refmv_count, (*refmv_count), i);
       }
     }
+    uint8_t old_mv_count = (*refmv_count);
     // Shrink MV list
     CANDIDATE_MV tmp[MAX_REF_MV_STACK_SIZE];
     uint16_t tmp_weight[MAX_REF_MV_STACK_SIZE];
@@ -1103,6 +1102,8 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         noise_cnt++;
       }
     }
+    // if (old_mv_count != (*refmv_count))
+    //   fprintf(stderr, "old=%d new=%d\n", old_mv_count, (*refmv_count));
     // assert(noise_cnt + cluster_num1 + cluster_num2 == (*refmv_count));
     // if (cluster_num2 + cluster_num1 > 0)
     //   fprintf(
@@ -1116,7 +1117,6 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   // if (nearest_refmv_count > 2)
   //   fprintf(stderr, "block (%d %d) refmv=%d,  nearest_refmv_count=%d \n",
   //           xd->mi_row, xd->mi_col, (*refmv_count), nearest_refmv_count);
-  // Rank the likelihood and assign nearest and near mvs.
   // for (int i = 0; i < (*refmv_count); i++) {
   //   if (ref_mv_weight[i] == 0) {
   //     fprintf(stderr, "block (%d %d) refmv=%d,  nearest_refmv_count=%d
@@ -1125,6 +1125,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   //             i);
   //   }
   // }
+  // Rank the likelihood and assign nearest and near mvs.
   int len = nearest_refmv_count;
   while (len > 0) {
     int nr_len = 0;
