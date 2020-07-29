@@ -1252,6 +1252,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   if (!frame_params.show_existing_frame) {
     cm->quant_params.using_qmatrix = oxcf->q_cfg.using_qm;
   }
+
+  cpi->droppable = is_frame_droppable(&cpi->svc, &ext_flags->refresh_frame);
 #if CONFIG_REALTIME_ONLY
   if (av1_encode(cpi, dest, &frame_input, &frame_params, &frame_results) !=
       AOM_CODEC_OK) {
@@ -1308,6 +1310,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   // Leave a signal for a higher level caller about if this frame is droppable
   if (*size > 0) {
     cpi->droppable = is_frame_droppable(&cpi->svc, &ext_flags->refresh_frame);
+  } else {
+    cpi->droppable = 0;
   }
 
   if (cpi->use_svc) av1_save_layer_context(cpi);
