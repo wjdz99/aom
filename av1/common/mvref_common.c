@@ -1034,9 +1034,9 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     // not cluster them
 
     if (nearest_refmv_count > MAX_MV_REF_CANDIDATES) {
-      // mv_dbscan1(ref_mv_stack, 0, nearest_refmv_count, min_points,
-      //            dist_threshold, (&cluster_num1), cluster_label,
-      //            (rf[1] == NONE_FRAME));
+      mv_dbscan1(ref_mv_stack, 0, nearest_refmv_count, min_points,
+                 dist_threshold, (&cluster_num1), cluster_label,
+                 (rf[1] == NONE_FRAME));
       cluster_label[0] = 0;
       // Merge MVs
       for (int i = 0; i < nearest_refmv_count; i++) {
