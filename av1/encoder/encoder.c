@@ -89,6 +89,17 @@
 FRAME_COUNTS aggregate_fc;
 #endif  // CONFIG_ENTROPY_STATS
 
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_STATS
+DSPL_STATS agg_dspl_txfm_stats[QINDEX_RANGE][BLOCK_SIZES_ALL][DSPL_END]
+                              [DSPL_END][TX_SIZES_ALL],
+    agg_dspl_txfm_all_stats[QINDEX_RANGE][BLOCK_SIZES_ALL][DSPL_END][DSPL_END]
+                           [TX_SIZES_ALL],
+    block_dspl_txfm_stats[TX_SIZES_ALL],
+    block_dspl_txfm_all_stats[TX_SIZES_ALL];
+DSPL_STATS agg_part_stats[QINDEX_RANGE][BLOCK_SIZES_ALL][DSPL_END],
+    frame_part_stats[QINDEX_RANGE][BLOCK_SIZES_ALL][DSPL_END];
+#endif
+
 // #define OUTPUT_YUV_REC
 #ifdef OUTPUT_YUV_REC
 FILE *yuv_rec_file;
@@ -1331,6 +1342,14 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
   av1_zero(aggregate_fc);
 #endif  // CONFIG_ENTROPY_STATS
 
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_STATS
+  av1_zero(agg_dspl_txfm_stats);
+  av1_zero(block_dspl_txfm_stats);
+  av1_zero(agg_dspl_txfm_all_stats);
+  av1_zero(block_dspl_txfm_all_stats);
+  av1_zero(agg_part_stats);
+#endif
+
   cpi->time_stamps.first_ever = INT64_MAX;
 
 #ifdef OUTPUT_YUV_REC
@@ -1712,6 +1731,47 @@ static AOM_INLINE void free_thread_data(AV1_COMP *cpi) {
   }
 }
 
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_STATS
+void write_dspl_txfm_stats(
+    FILE *f, DSPL_STATS dspl_txfm_stats[QINDEX_RANGE][BLOCK_SIZES_ALL][DSPL_END]
+                                       [DSPL_END][TX_SIZES_ALL]) {
+  fprintf(f,
+          "qindex,partition_size,txfm_size,win_dspl_type,dspl_type,count,"
+          "rate,sig_rate,"
+          "dist,rdcost,sse,"
+          "source_variance,rdmult\n");
+  for (int q = 0; q < QINDEX_RANGE; ++q)
+    for (BLOCK_SIZE bsize = BLOCK_4X4; bsize < BLOCK_SIZES_ALL; ++bsize)
+      for (DSPL_TYPE win_dspl_type = DSPL_NONE; win_dspl_type < DSPL_END;
+           ++win_dspl_type)
+        for (DSPL_TYPE dspl_type = DSPL_NONE; dspl_type < DSPL_END; ++dspl_type)
+          for (int tx_size = TX_4X4; tx_size < TX_SIZES_ALL; ++tx_size) {
+            int64_t count =
+                dspl_txfm_stats[q][bsize][win_dspl_type][dspl_type][tx_size]
+                    .ptrt_counts;
+            if (count == 0) continue;
+            fprintf(f,
+                    "%d, %d, %d, %d, %d, %ld, %0.2f, %0.2f, %0.2f, %0.2f, "
+                    "%0.2f, %0.2f, %0.2f\n",
+                    q, bsize, tx_size, win_dspl_type, dspl_type, count,
+                    dspl_txfm_stats[q][bsize][win_dspl_type][dspl_type][tx_size]
+                        .ptrt_avg_rate,
+                    dspl_txfm_stats[q][bsize][win_dspl_type][dspl_type][tx_size]
+                        .ptrt_avg_sig_rate,
+                    dspl_txfm_stats[q][bsize][win_dspl_type][dspl_type][tx_size]
+                        .ptrt_avg_dist,
+                    dspl_txfm_stats[q][bsize][win_dspl_type][dspl_type][tx_size]
+                        .ptrt_avg_rdcost,
+                    dspl_txfm_stats[q][bsize][win_dspl_type][dspl_type][tx_size]
+                        .ptrt_avg_sse,
+                    dspl_txfm_stats[q][bsize][win_dspl_type][dspl_type][tx_size]
+                        .ptrt_avg_src_var,
+                    dspl_txfm_stats[q][bsize][win_dspl_type][dspl_type][tx_size]
+                        .ptrt_avg_rdmult);
+          }
+}
+#endif
+
 void av1_remove_compressor(AV1_COMP *cpi) {
   if (!cpi) return;
 
@@ -1725,6 +1785,35 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       fclose(f);
     }
 #endif  // CONFIG_ENTROPY_STATS
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_STATS
+    if (!is_stat_generation_stage(cpi)) {
+      fprintf(stderr, "Writing dspl_stats.dat\n");
+      FILE *f = fopen("dspl_stats.dat", "w");
+
+      write_dspl_txfm_stats(f, agg_dspl_txfm_stats);
+
+      fprintf(f, "###\n");
+      write_dspl_txfm_stats(f, agg_dspl_txfm_all_stats);
+
+      fprintf(f, "###\n");
+      fprintf(
+          f,
+          "qindex,partition_size,win_dspl_type,count,source_variance,rdmult\n");
+      for (int q = 0; q < QINDEX_RANGE; ++q)
+        for (BLOCK_SIZE bsize = BLOCK_4X4; bsize < BLOCK_SIZES_ALL; ++bsize)
+          for (DSPL_TYPE win_dspl_type = DSPL_NONE; win_dspl_type < DSPL_END;
+               ++win_dspl_type) {
+            int64_t count = agg_part_stats[q][bsize][win_dspl_type].ptrt_counts;
+            if (count > 0)
+              fprintf(f, "%d,%d,%d,%ld,%0.2f,%0.2f\n", q, bsize, win_dspl_type,
+                      count,
+                      agg_part_stats[q][bsize][win_dspl_type].ptrt_avg_src_var,
+                      agg_part_stats[q][bsize][win_dspl_type].ptrt_avg_rdmult);
+          }
+
+      fclose(f);
+    }
+#endif
 #if CONFIG_INTERNAL_STATS
     aom_clear_system_state();
 
@@ -3870,6 +3959,10 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   start_timing(cpi, encode_frame_to_data_rate_time);
 #endif
 
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_STATS
+  av1_zero(frame_part_stats);
+#endif
+
   if (frame_is_intra_only(cm)) {
     av1_set_screen_content_options(cpi, features);
     cpi->is_screen_content_type = features->allow_screen_content_tools;
@@ -4116,6 +4209,13 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 #if CONFIG_ENTROPY_STATS
   av1_accumulate_frame_counts(&aggregate_fc, &cpi->counts);
 #endif  // CONFIG_ENTROPY_STATS
+
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_STATS
+  int qindex = cpi->common.quant_params.base_qindex;
+  av1_accumulate_dspl_txfm_stats((DSPL_STATS *)agg_part_stats[qindex],
+                                 (DSPL_STATS *)frame_part_stats[qindex],
+                                 BLOCK_SIZES_ALL * DSPL_END);
+#endif
 
   if (features->refresh_frame_context == REFRESH_FRAME_CONTEXT_BACKWARD) {
     *cm->fc = cpi->tile_data[largest_tile_id].tctx;
@@ -4796,3 +4896,36 @@ aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi) {
   global_headers->sz = global_header_buf_size;
   return global_headers;
 }
+
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_STATS
+void av1_avg_acc_dspl_stat(int64_t c1, double *stat1, int64_t c2,
+                           double stat2) {
+  if (c1 + c2 == 0) return;
+  *stat1 = (c1 * (*stat1) + c2 * (stat2)) / (c1 + c2);
+  assert(!isnan(*stat1));
+}
+
+void av1_accumulate_dspl_txfm_stats(DSPL_STATS *agg_dspl_txfm_stats,
+                                    DSPL_STATS *dspl_txfm_stats, int len) {
+  for (int i = 0; i < len; ++i) {
+    int64_t *c1 = &agg_dspl_txfm_stats[i].ptrt_counts;
+    const int64_t *c2 = &dspl_txfm_stats[i].ptrt_counts;
+
+    av1_avg_acc_dspl_stat(*c1, &agg_dspl_txfm_stats[i].ptrt_avg_rate, *c2,
+                          dspl_txfm_stats[i].ptrt_avg_rate);
+    av1_avg_acc_dspl_stat(*c1, &agg_dspl_txfm_stats[i].ptrt_avg_sig_rate, *c2,
+                          dspl_txfm_stats[i].ptrt_avg_sig_rate);
+    av1_avg_acc_dspl_stat(*c1, &agg_dspl_txfm_stats[i].ptrt_avg_dist, *c2,
+                          dspl_txfm_stats[i].ptrt_avg_dist);
+    av1_avg_acc_dspl_stat(*c1, &agg_dspl_txfm_stats[i].ptrt_avg_sse, *c2,
+                          dspl_txfm_stats[i].ptrt_avg_sse);
+    av1_avg_acc_dspl_stat(*c1, &agg_dspl_txfm_stats[i].ptrt_avg_src_var, *c2,
+                          dspl_txfm_stats[i].ptrt_avg_src_var);
+    av1_avg_acc_dspl_stat(*c1, &agg_dspl_txfm_stats[i].ptrt_avg_rdcost, *c2,
+                          dspl_txfm_stats[i].ptrt_avg_rdcost);
+    av1_avg_acc_dspl_stat(*c1, &agg_dspl_txfm_stats[i].ptrt_avg_rdmult, *c2,
+                          dspl_txfm_stats[i].ptrt_avg_rdmult);
+    *c1 += *c2;
+  }
+}
+#endif

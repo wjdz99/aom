@@ -821,6 +821,9 @@ typedef struct FRAME_COUNTS {
   unsigned int intra_tx_size[MAX_TX_CATS][TX_SIZE_CONTEXTS][MAX_TX_DEPTH + 1];
   unsigned int skip_mode[SKIP_MODE_CONTEXTS][2];
   unsigned int skip_txfm[SKIP_CONTEXTS][2];
+#if CONFIG_DSPL_RESIDUAL
+  unsigned int dspl_type[DSPL_END];
+#endif
   unsigned int compound_index[COMP_INDEX_CONTEXTS][2];
   unsigned int comp_group_idx[COMP_GROUP_IDX_CONTEXTS][2];
   unsigned int delta_q[DELTA_Q_PROBS][2];
@@ -840,6 +843,24 @@ typedef struct FRAME_COUNTS {
   unsigned int switchable_interp[SWITCHABLE_FILTER_CONTEXTS]
                                 [SWITCHABLE_FILTERS];
 } FRAME_COUNTS;
+
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_STATS
+typedef struct DSPL_STATS {
+  int64_t ptrt_counts;
+  double ptrt_avg_rate, ptrt_avg_sig_rate, ptrt_avg_dist, ptrt_avg_sse,
+      ptrt_avg_src_var, ptrt_avg_rdcost, ptrt_avg_rdmult;
+} DSPL_STATS;
+
+extern DSPL_STATS agg_dspl_txfm_stats[QINDEX_RANGE][BLOCK_SIZES_ALL][DSPL_END]
+                                     [DSPL_END][TX_SIZES_ALL],
+    agg_dspl_txfm_all_stats[QINDEX_RANGE][BLOCK_SIZES_ALL][DSPL_END][DSPL_END]
+                           [TX_SIZES_ALL],
+    block_dspl_txfm_stats[TX_SIZES_ALL],
+    block_dspl_txfm_all_stats[TX_SIZES_ALL];
+
+extern DSPL_STATS agg_part_stats[QINDEX_RANGE][BLOCK_SIZES_ALL][DSPL_END],
+    frame_part_stats[QINDEX_RANGE][BLOCK_SIZES_ALL][DSPL_END];
+#endif
 
 #define INTER_MODE_RD_DATA_OVERALL_SIZE 6400
 
@@ -2806,6 +2827,12 @@ get_frame_update_type(const GF_GROUP *gf_group) {
 static INLINE int av1_pixels_to_mi(int pixels) {
   return ALIGN_POWER_OF_TWO(pixels, 3) >> MI_SIZE_LOG2;
 }
+
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_STATS
+void av1_avg_acc_dspl_stat(int64_t c1, double *stat1, int64_t c2, double stat2);
+void av1_accumulate_dspl_txfm_stats(DSPL_STATS *agg_dspl_txfm_stats,
+                                    DSPL_STATS *dspl_txfm_stats, int len);
+#endif
 
 #if CONFIG_COLLECT_PARTITION_STATS == 2
 static INLINE void av1_print_partition_stats(PartitionStats *part_stats) {

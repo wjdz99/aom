@@ -913,6 +913,10 @@ static AOM_INLINE void store_coding_context(
     int64_t comp_pred_diff[REFERENCE_MODES], int skippable) {
   MACROBLOCKD *const xd = &x->e_mbd;
 
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_ASSERT
+  assert(xd->mi[0]->dspl_type != DSPL_BAD);
+#endif
+
   // Take a snapshot of the coding context so it can be
   // restored if we decide to encode this way
   ctx->rd_stats.skip_txfm = x->txfm_search_info.skip_txfm;
@@ -1549,6 +1553,10 @@ static int64_t motion_mode_rd(
                               rd_stats_uv, mbmi);
       }
       mbmi->skip_txfm = 0;
+#if CONFIG_DSPL_RESIDUAL
+      mbmi->dspl_type =
+          DSPL_NONE;  // Don't downsample unless decided by a full search
+#endif
     } else {
       // Perform full transform search
       int64_t skip_rd = INT64_MAX;
@@ -1617,6 +1625,7 @@ static int64_t motion_mode_rd(
         simple_states->skip_txfm = mbmi->skip_txfm;
       }
     }
+
     if (mode_index == 0 || tmp_rd < best_rd) {
       // Update best_rd data if this is the best motion mode so far
       best_mbmi = *mbmi;
@@ -1640,6 +1649,7 @@ static int64_t motion_mode_rd(
     return INT64_MAX;
   }
   *mbmi = best_mbmi;
+
   *rd_stats = best_rd_stats;
   *rd_stats_y = best_rd_stats_y;
   if (num_planes > 1) *rd_stats_uv = best_rd_stats_uv;
@@ -2740,6 +2750,9 @@ static int64_t handle_inter_mode(
         best_rd_stats_uv = *rd_stats_uv;
         best_rd = tmp_rd;
         best_mbmi = *mbmi;
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_ASSERT
+        assert(mbmi->dspl_type != DSPL_BAD);
+#endif
         best_xskip_txfm = txfm_info->skip_txfm;
         memcpy(best_blk_skip, txfm_info->blk_skip,
                sizeof(best_blk_skip[0]) * xd->height * xd->width);
@@ -2764,6 +2777,9 @@ static int64_t handle_inter_mode(
   *rd_stats_y = best_rd_stats_y;
   *rd_stats_uv = best_rd_stats_uv;
   *mbmi = best_mbmi;
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_ASSERT
+  assert(mbmi->dspl_type != DSPL_BAD);
+#endif
   txfm_info->skip_txfm = best_xskip_txfm;
   assert(IMPLIES(mbmi->comp_group_idx == 1,
                  mbmi->interinter_comp.type != COMPOUND_AVERAGE));
@@ -2773,6 +2789,9 @@ static int64_t handle_inter_mode(
 
   rd_stats->rdcost = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
 
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_ASSERT
+  assert(mbmi->dspl_type != DSPL_BAD);
+#endif
   return rd_stats->rdcost;
 }
 
@@ -2996,6 +3015,10 @@ void av1_rd_pick_intra_mode_sb(const struct AV1_COMP *cpi, struct macroblock *x,
   mbmi->use_intrabc = 0;
   mbmi->mv[0].as_int = 0;
   mbmi->skip_mode = 0;
+#if CONFIG_DSPL_RESIDUAL
+  // Don't downsample intra blocks
+  mbmi->dspl_type = DSPL_NONE;
+#endif
 
   const int64_t intra_yrd =
       av1_rd_pick_intra_sby_mode(cpi, x, &rate_y, &rate_y_tokenonly, &dist_y,
@@ -3122,6 +3145,9 @@ static AOM_INLINE void rd_pick_skip_mode(
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   mbmi->ref_mv_idx = 0;
   mbmi->skip_mode = mbmi->skip_txfm = 1;
+#if CONFIG_DSPL_RESIDUAL
+  mbmi->dspl_type = DSPL_NONE;
+#endif
 
   set_default_interp_filters(mbmi, cm->features.interp_filter);
 
@@ -3973,6 +3999,9 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE curr_mode,
   mbmi->mv[0].as_int = mbmi->mv[1].as_int = 0;
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   mbmi->interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
+#if CONFIG_DSPL_RESIDUAL
+  mbmi->dspl_type = DSPL_BAD;
+#endif
   set_default_interp_filters(mbmi, cm->features.interp_filter);
 }
 
@@ -5066,6 +5095,10 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
                          x->rdmult, &search_state, compmode_cost);
   }
 
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_ASSERT
+  assert(search_state.best_mbmode.dspl_type != DSPL_BAD);
+#endif
+
   if (cpi->sf.winner_mode_sf.motion_mode_for_winner_cand) {
     // For the single ref winner candidates, evaluate other motion modes (non
     // simple translation).
@@ -5126,6 +5159,10 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
     }
   }
 
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_ASSERT
+  assert(search_state.best_mbmode.dspl_type != DSPL_BAD);
+#endif
+
   const unsigned int intra_ref_frame_cost = ref_costs_single[INTRA_FRAME];
   for (int j = 0; j < intra_mode_num; ++j) {
     if (sf->intra_sf.skip_intra_in_interframe &&
@@ -5179,6 +5216,9 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
   end_timing(cpi, handle_intra_mode_time);
 #endif
 
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_ASSERT
+  assert(search_state.best_mbmode.dspl_type != DSPL_BAD);
+#endif
   int winner_mode_count = cpi->sf.winner_mode_sf.enable_multiwinner_mode_process
                               ? x->winner_mode_count
                               : 1;
@@ -5218,6 +5258,9 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
     }
   }
 
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_ASSERT
+  assert(search_state.best_mbmode.dspl_type != DSPL_BAD);
+#endif
   search_state.best_mbmode.skip_mode = 0;
   if (cm->current_frame.skip_mode_info.skip_mode_flag &&
       is_comp_ref_allowed(bsize)) {
@@ -5228,6 +5271,9 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
     }
   }
 
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_ASSERT
+  assert(search_state.best_mbmode.dspl_type != DSPL_BAD);
+#endif
   // Make sure that the ref_mv_idx is only nonzero when we're
   // using a mode which can support ref_mv_idx
   if (search_state.best_mbmode.ref_mv_idx != 0 &&
@@ -5241,9 +5287,22 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
       search_state.best_rd >= best_rd_so_far) {
     rd_cost->rate = INT_MAX;
     rd_cost->rdcost = INT64_MAX;
+
+#if CONFIG_DSPL_RESIDUAL
+    // TODO(singhprakhar): reconsider setting dspl_type to DSPL_NONE
+    if (search_state.best_mode_index == THR_INVALID &&
+        mbmi->dspl_type == DSPL_BAD)
+      mbmi->dspl_type = DSPL_NONE;
+#if CONFIG_DSPL_ASSERT
+    assert(mbmi->dspl_type != DSPL_BAD);
+#endif
+#endif
     return;
   }
 
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_ASSERT
+  assert(search_state.best_mbmode.dspl_type != DSPL_BAD);
+#endif
   const InterpFilter interp_filter = features->interp_filter;
   assert((interp_filter == SWITCHABLE) ||
          (interp_filter ==
@@ -5260,8 +5319,12 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
                               search_state.best_mode_index);
   }
 
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_ASSERT
+  assert(search_state.best_mbmode.dspl_type != DSPL_BAD);
+#endif
   // macroblock modes
   *mbmi = search_state.best_mbmode;
+
   txfm_info->skip_txfm |= search_state.best_skip2;
 
   // Note: this section is needed since the mode may have been forced to

@@ -15,6 +15,88 @@
 #include "av1/common/blockd.h"
 #include "av1/common/enums.h"
 
+#if CONFIG_DSPL_RESIDUAL
+#if CONFIG_DSPL_DEBUG
+#include "av1/common/debugmodes.h"
+#include "av1/encoder/ratectrl.h"
+
+void log_rd_info(const RD_STATS *rd, const char *str, FILE *f) {
+  fprintf(f, "[%s] rate %d, dist %ld, rdcost %ld, sse %ld\n", str, rd->rate,
+          rd->dist, rd->rdcost, rd->sse);
+}
+
+void log_mi_info(const AV1_COMMON *cm, BLOCK_SIZE bsize,
+                 PARTITION_TYPE partition_type, int mi_row, int mi_col,
+                 DSPL_TYPE dspl_type, int skip_txfm, const char *str,
+                 int indent, FILE *f) {
+  fprintf(f,
+          "\n%*s[%s] frame_no=%d, qindex=%d, block_size=%s, partition_type=%s, "
+          "mi_row:=%d, "
+          "mi_col=%d, dspl_type=%s, skip_txfm=%d\n",
+          indent, "", str, cm->current_frame.frame_number,
+          cm->quant_params.base_qindex, block_size_to_str(bsize),
+          partition_type_to_str(partition_type), mi_row, mi_col,
+          dspl_type_to_str(dspl_type), skip_txfm);
+}
+
+const char *block_size_to_str(BLOCK_SIZE bsize) {
+  const char *block_size_to_str_[] = {
+    "BLOCK_4X4",   "BLOCK_4X8",    "BLOCK_8X4",      "BLOCK_8X8",
+    "BLOCK_8X16",  "BLOCK_16X8",   "BLOCK_16X16",    "BLOCK_16X32",
+    "BLOCK_32X16", "BLOCK_32X32",  "BLOCK_32X64",    "BLOCK_64X32",
+    "BLOCK_64X64", "BLOCK_64X128", "BLOCK_128X64",   "BLOCK_128X128",
+    "BLOCK_4X16",  "BLOCK_16X4",   "BLOCK_8X32",     "BLOCK_32X8",
+    "BLOCK_16X64", "BLOCK_64X16",  "BLOCK_SIZES_ALL"
+  };
+
+  return block_size_to_str_[bsize];
+}
+
+const char *update_type_to_str(FRAME_UPDATE_TYPE update_type) {
+  const char *update_type_to_str_[] = {
+    "KF_UPDATE",        "LF_UPDATE",         "GF_UPDATE",
+    "ARF_UPDATE",       "OVERLAY_UPDATE",    "INTNL_OVERLAY_UPDATE",
+    "INTNL_ARF_UPDATE", "FRAME_UPDATE_TYPES"
+  };
+
+  return update_type_to_str_[update_type];
+}
+
+const char *partition_type_to_str(PARTITION_TYPE partition_type) {
+  const char *partition_type_to_str_[] = {
+    "PARTITION_NONE",   "PARTITION_HORZ",   "PARTITION_VERT",
+    "PARTITION_SPLIT",  "PARTITION_HORZ_A", "PARTITION_HORZ_B",
+    "PARTITION_VERT_A", "PARTITION_VERT_B", "PARTITION_HORZ_4",
+    "PARTITION_VERT_4"
+  };
+  return partition_type_to_str_[partition_type];
+}
+
+#define FN_PRINT_ARRAY2D_DEFN(TYPE)                                     \
+  void print_array2d_##TYPE(const TYPE *base, int w, int h, int stride, \
+                            const char *str, FILE *f) {                 \
+    fprintf(f, "\n[%s, %dx%d]\n", str, w, h);                           \
+    for (int i = 0; i < h; ++i) {                                       \
+      for (int j = 0; j < w; ++j)                                       \
+        fprintf(f, "%*d", 5, *(base + i * stride + j));                 \
+      fprintf(f, "\n");                                                 \
+    }                                                                   \
+  }
+
+FN_PRINT_ARRAY2D_DEFN(int8_t)
+FN_PRINT_ARRAY2D_DEFN(uint8_t)
+FN_PRINT_ARRAY2D_DEFN(int16_t)
+FN_PRINT_ARRAY2D_DEFN(uint16_t)
+FN_PRINT_ARRAY2D_DEFN(int32_t)
+
+const char *dspl_type_to_str(DSPL_TYPE dspl_type) {
+  const char *dspl_type_to_str_[] = { "", "DSPL_BAD", "DSPL_NONE", "DSPL_XY",
+                                      "DSPL_END" };
+  return dspl_type_to_str_[dspl_type];
+}
+#endif
+#endif
+
 static void log_frame_info(AV1_COMMON *cm, const char *str, FILE *f) {
   fprintf(f, "%s", str);
   fprintf(f, "(Frame %d, Show:%d, Q:%d): \n", cm->current_frame.frame_number,

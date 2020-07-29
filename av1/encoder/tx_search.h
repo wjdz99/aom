@@ -69,7 +69,13 @@ static AOM_INLINE int tx_size_cost(const MACROBLOCK *const x, BLOCK_SIZE bsize,
 int64_t av1_uniform_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
                              RD_STATS *rd_stats, int64_t ref_best_rd,
                              BLOCK_SIZE bs, TX_SIZE tx_size,
+#if CONFIG_DSPL_RESIDUAL
+                             FAST_TX_SEARCH_MODE ftxs_mode, int skip_trellis,
+                             int skip_dspl_search);
+#else
                              FAST_TX_SEARCH_MODE ftxs_mode, int skip_trellis);
+#endif
+// TODO(singhprakhar): update documentation above
 
 /*!\brief Recursive transform size and type search.
  *
@@ -159,11 +165,17 @@ int av1_txfm_uvrd(const AV1_COMP *const cpi, MACROBLOCK *x, RD_STATS *rd_stats,
  *
  * \return       Nothing is returned. The RD results will be saved in rd_stats.
  */
+
 void av1_txfm_rd_in_plane(MACROBLOCK *x, const AV1_COMP *cpi,
                           RD_STATS *rd_stats, int64_t ref_best_rd,
                           int64_t current_rd, int plane, BLOCK_SIZE plane_bsize,
                           TX_SIZE tx_size, int use_fast_coef_costing,
+#if CONFIG_DSPL_RESIDUAL
+                          FAST_TX_SEARCH_MODE ftxs_mode, int skip_trellis,
+                          int skip_dspl_search);
+#else
                           FAST_TX_SEARCH_MODE ftxs_mode, int skip_trellis);
+#endif
 
 /*!\brief Recursive transform size and type search.
  *

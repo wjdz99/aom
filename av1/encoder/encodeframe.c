@@ -72,6 +72,12 @@
 #include "av1/encoder/tune_vmaf.h"
 #endif
 
+#if CONFIG_DSPL_RESIDUAL
+#if CONFIG_DEBUG
+#include "av1/common/debugmodes.h"
+#endif
+#endif
+
 static AOM_INLINE void encode_superblock(const AV1_COMP *const cpi,
                                          TileDataEnc *tile_data, ThreadData *td,
                                          TokenExtra **t, RUN_TYPE dry_run,
@@ -555,6 +561,10 @@ static AOM_INLINE void update_state(const AV1_COMP *const cpi, ThreadData *td,
   copy_mbmi_ext_frame_to_mbmi_ext(x->mbmi_ext, &ctx->mbmi_ext_best,
                                   av1_ref_frame_type(ctx->mic.ref_frame));
 
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_ASSERT
+  assert(DSPL_NONE <= mi_addr->dspl_type && mi_addr->dspl_type < DSPL_END);
+#endif
+
   memcpy(txfm_info->blk_skip, ctx->blk_skip,
          sizeof(txfm_info->blk_skip[0]) * ctx->num_4x4_blk);
 
@@ -728,6 +738,7 @@ static AOM_INLINE void pick_sb_modes(AV1_COMP *const cpi,
                                      PARTITION_TYPE partition, BLOCK_SIZE bsize,
                                      PICK_MODE_CONTEXT *ctx, RD_STATS best_rd,
                                      int pick_mode_type) {
+
   if (best_rd.rdcost < 0) {
     ctx->rd_stats.rdcost = INT64_MAX;
     ctx->rd_stats.skip_txfm = 0;
@@ -740,6 +751,12 @@ static AOM_INLINE void pick_sb_modes(AV1_COMP *const cpi,
   if (ctx->rd_mode_is_ready) {
     assert(ctx->mic.sb_type == bsize);
     assert(ctx->mic.partition == partition);
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_ASSERT
+    assert(ctx->mic.dspl_type != DSPL_BAD);
+    assert(x->e_mbd.mi[0]->dspl_type == DSPL_NONE ||
+           (block_size_wide[bsize] >= DSPL_MIN_PARTITION_SIDE &&
+            block_size_high[bsize] >= DSPL_MIN_PARTITION_SIDE));
+#endif
     rd_cost->rate = ctx->rd_stats.rate;
     rd_cost->dist = ctx->rd_stats.dist;
     rd_cost->rdcost = ctx->rd_stats.rdcost;
@@ -766,6 +783,9 @@ static AOM_INLINE void pick_sb_modes(AV1_COMP *const cpi,
   mbmi = xd->mi[0];
   mbmi->sb_type = bsize;
   mbmi->partition = partition;
+#if CONFIG_DSPL_RESIDUAL
+  mbmi->dspl_type = DSPL_BAD;
+#endif
 
 #if CONFIG_RD_DEBUG
   mbmi->mi_row = mi_row;
@@ -861,6 +881,12 @@ static AOM_INLINE void pick_sb_modes(AV1_COMP *const cpi,
         case PICK_MODE_RD:
           av1_rd_pick_inter_mode_sb(cpi, tile_data, x, rd_cost, bsize, ctx,
                                     best_rd.rdcost);
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_ASSERT
+          assert(mbmi->dspl_type == DSPL_NONE ||
+                 (block_size_wide[bsize] >= DSPL_MIN_PARTITION_SIDE &&
+                  block_size_high[bsize] >= DSPL_MIN_PARTITION_SIDE));
+#endif
+
           break;
         case PICK_MODE_NONRD:
           av1_nonrd_pick_inter_mode_sb(cpi, tile_data, x, rd_cost, bsize, ctx);
@@ -888,6 +914,13 @@ static AOM_INLINE void pick_sb_modes(AV1_COMP *const cpi,
   ctx->rd_stats.rate = rd_cost->rate;
   ctx->rd_stats.dist = rd_cost->dist;
   ctx->rd_stats.rdcost = rd_cost->rdcost;
+
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_ASSERT
+  assert(DSPL_NONE <= mbmi->dspl_type && mbmi->dspl_type <= DSPL_END);
+  assert(mbmi->dspl_type == DSPL_NONE ||
+         (block_size_wide[bsize] >= DSPL_MIN_PARTITION_SIDE &&
+          block_size_high[bsize] >= DSPL_MIN_PARTITION_SIDE));
+#endif
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, rd_pick_sb_modes_time);
@@ -1110,8 +1143,24 @@ static AOM_INLINE void update_stats(const AV1_COMMON *const cm,
     const int skip_ctx = av1_get_skip_txfm_context(xd);
 #if CONFIG_ENTROPY_STATS
     td->counts->skip_txfm[skip_ctx][mbmi->skip_txfm]++;
+#if CONFIG_DSPL_RESIDUAL
+    if (!mbmi->skip_txfm && is_inter_block(mbmi) &&
+        block_size_wide[bsize] >= DSPL_MIN_PARTITION_SIDE &&
+        block_size_high[bsize] >= DSPL_MIN_PARTITION_SIDE)
+      td->counts->dspl_type[mbmi->dspl_type]++;
+#endif
 #endif
     update_cdf(fc->skip_txfm_cdfs[skip_ctx], mbmi->skip_txfm, 2);
+#if CONFIG_DSPL_RESIDUAL
+#if CONFIG_DSPL_ASSERT
+    assert(DSPL_NONE <= mbmi->dspl_type && mbmi->dspl_type < DSPL_END);
+    assert(IMPLIES(mbmi->skip_txfm, mbmi->dspl_type == DSPL_NONE));
+#endif
+    if (!mbmi->skip_txfm && is_inter_block(mbmi) &&
+        block_size_wide[bsize] >= DSPL_MIN_PARTITION_SIDE &&
+        block_size_high[bsize] >= DSPL_MIN_PARTITION_SIDE)
+      update_cdf(fc->dspl_type_cdf, mbmi->dspl_type, DSPL_END);
+#endif
   }
 
 #if CONFIG_ENTROPY_STATS
@@ -1559,6 +1608,208 @@ static AOM_INLINE void save_context(const MACROBLOCK *x,
   ctx->p_ta = xd->above_txfm_context;
   ctx->p_tl = xd->left_txfm_context;
 }
+
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_DEBUG
+// TODO(singhprakhar): move this to debugmodes
+void log_recursive_tree_leaf(const AV1_COMP *const cpi, TileDataEnc *tile_data,
+                             ThreadData *td, TokenExtra **tp, int mi_row,
+                             int mi_col, RUN_TYPE dry_run, BLOCK_SIZE bsize,
+                             PARTITION_TYPE partition,
+                             PICK_MODE_CONTEXT *const ctx, int *rate,
+                             int indent) {
+  TileInfo *const tile = &tile_data->tile_info;
+  MACROBLOCK *const x = &td->mb;
+  MACROBLOCKD *xd = &x->e_mbd;
+
+  static uint64_t c_dspl = 0, cn_dspl = 0;
+
+  set_offsets_without_segment_id(cpi, tile, x, mi_row, mi_col, bsize);
+  const int origin_mult = x->rdmult;
+  setup_block_rdmult(cpi, x, mi_row, mi_col, bsize, NO_AQ, NULL);
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  mbmi->partition = partition;
+  update_state(cpi, td, ctx, mi_row, mi_col, bsize, dry_run);
+  if (is_inter_block(mbmi)) {
+    if (!mbmi->skip_txfm &&
+        !(block_size_wide[bsize] < DSPL_MIN_PARTITION_SIDE ||
+          block_size_high[bsize] < DSPL_MIN_PARTITION_SIDE)) {
+      if (mbmi->dspl_type == DSPL_NONE)
+        cn_dspl++;
+      else
+        c_dspl++;
+    }
+
+#if CONFIG_DSPL_STATS
+    int qindex = cpi->common.quant_params.base_qindex;
+    unsigned int source_variance;
+    if (is_cur_buf_hbd(xd)) {
+      source_variance = av1_high_get_sby_perpixel_variance(
+          cpi, &x->plane[0].src, bsize, xd->bd);
+    } else {
+      source_variance =
+          av1_get_sby_perpixel_variance(cpi, &x->plane[0].src, bsize);
+    }
+    if (!mbmi->skip_txfm) {
+      DSPL_STATS dspl_stats;
+      av1_zero(dspl_stats);
+      dspl_stats.ptrt_counts = 1;
+      dspl_stats.ptrt_avg_src_var = source_variance;
+      dspl_stats.ptrt_avg_rdmult = x->rdmult;
+      av1_accumulate_dspl_txfm_stats(
+          &frame_part_stats[qindex][bsize][mbmi->dspl_type], &dspl_stats, 1);
+    }
+#endif
+
+    assert(IMPLIES(mbmi->skip_txfm, mbmi->dspl_type == DSPL_NONE));
+    if (!mbmi->skip_txfm &&
+        !(block_size_wide[bsize] < DSPL_MIN_PARTITION_SIDE ||
+          block_size_high[bsize] < DSPL_MIN_PARTITION_SIDE)) {
+      char buffer[50];
+      double perc = (double)100 * c_dspl / (c_dspl + cn_dspl);
+
+      sprintf(buffer, "=== ***RD_PICK_INTER (%ld/%ld = %.2f)*** ===", cn_dspl,
+              c_dspl, perc);
+      log_mi_info(&cpi->common, bsize, partition, mi_row, mi_col,
+                  mbmi->dspl_type, mbmi->skip_txfm,
+                  buffer, indent, stderr);
+    }
+  } else {
+    assert(mbmi->dspl_type == DSPL_NONE);
+    //    log_mi_info(&cpi->common, bsize, partition, mi_row, mi_col,
+    //    mbmi->dspl_type, mbmi->skip_txfm,
+    //                "=== ***RD_PICK_INTRA*** ===", indent, stderr);
+  }
+  //      log_rd_info(rd_cost, "CRD", stderr);
+}
+
+void log_recursive_tree(const AV1_COMP *const cpi, ThreadData *td,
+                        TileDataEnc *tile_data, TokenExtra **tp, int mi_row,
+                        int mi_col, RUN_TYPE dry_run, BLOCK_SIZE bsize,
+                        PC_TREE *pc_tree, int *rate, int indent) {
+  assert(bsize < BLOCK_SIZES_ALL);
+  const AV1_COMMON *const cm = &cpi->common;
+  const CommonModeInfoParams *const mi_params = &cm->mi_params;
+  MACROBLOCK *const x = &td->mb;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  assert(bsize < BLOCK_SIZES_ALL);
+  const int hbs = mi_size_wide[bsize] / 2;
+  const int is_partition_root = bsize >= BLOCK_8X8;
+  const int ctx = is_partition_root
+                      ? partition_plane_context(xd, mi_row, mi_col, bsize)
+                      : -1;
+  const PARTITION_TYPE partition = pc_tree->partitioning;
+  const BLOCK_SIZE subsize = get_partition_subsize(bsize, partition);
+  int quarter_step = mi_size_wide[bsize] / 4;
+  int i;
+  BLOCK_SIZE bsize2 = get_partition_subsize(bsize, PARTITION_SPLIT);
+
+  if (mi_row >= mi_params->mi_rows || mi_col >= mi_params->mi_cols) return;
+  if (subsize == BLOCK_INVALID) return;
+
+  switch (partition) {
+    case PARTITION_NONE:
+      log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row, mi_col, dry_run,
+                              subsize, partition, pc_tree->none, rate, indent);
+      break;
+    case PARTITION_VERT:
+      log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row, mi_col, dry_run,
+                              subsize, partition, pc_tree->vertical[0], rate,
+                              indent);
+      if (mi_col + hbs < mi_params->mi_cols) {
+        log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row, mi_col + hbs,
+                                dry_run, subsize, partition,
+                                pc_tree->vertical[1], rate, indent);
+      }
+      break;
+    case PARTITION_HORZ:
+      log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row, mi_col, dry_run,
+                              subsize, partition, pc_tree->horizontal[0], rate,
+                              indent);
+      if (mi_row + hbs < mi_params->mi_rows) {
+        log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row + hbs, mi_col,
+                                dry_run, subsize, partition,
+                                pc_tree->horizontal[1], rate, indent);
+      }
+      break;
+    case PARTITION_SPLIT:
+      log_recursive_tree(cpi, td, tile_data, tp, mi_row, mi_col, dry_run,
+                         subsize, pc_tree->split[0], rate, indent + 4);
+      log_recursive_tree(cpi, td, tile_data, tp, mi_row, mi_col + hbs, dry_run,
+                         subsize, pc_tree->split[1], rate, indent + 4);
+      log_recursive_tree(cpi, td, tile_data, tp, mi_row + hbs, mi_col, dry_run,
+                         subsize, pc_tree->split[2], rate, indent + 4);
+      log_recursive_tree(cpi, td, tile_data, tp, mi_row + hbs, mi_col + hbs,
+                         dry_run, subsize, pc_tree->split[3], rate, indent + 4);
+      break;
+
+    case PARTITION_HORZ_A:
+      log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row, mi_col, dry_run,
+                              bsize2, partition, pc_tree->horizontala[0], rate,
+                              indent);
+      log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row, mi_col + hbs,
+                              dry_run, bsize2, partition,
+                              pc_tree->horizontala[1], rate, indent);
+      log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row + hbs, mi_col,
+                              dry_run, subsize, partition,
+                              pc_tree->horizontala[2], rate, indent);
+      break;
+    case PARTITION_HORZ_B:
+      log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row, mi_col, dry_run,
+                              subsize, partition, pc_tree->horizontalb[0], rate,
+                              indent);
+      log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row + hbs, mi_col,
+                              dry_run, bsize2, partition,
+                              pc_tree->horizontalb[1], rate, indent);
+      log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row + hbs,
+                              mi_col + hbs, dry_run, bsize2, partition,
+                              pc_tree->horizontalb[2], rate, indent);
+      break;
+    case PARTITION_VERT_A:
+      log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row, mi_col, dry_run,
+                              bsize2, partition, pc_tree->verticala[0], rate,
+                              indent);
+      log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row + hbs, mi_col,
+                              dry_run, bsize2, partition, pc_tree->verticala[1],
+                              rate, indent);
+      log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row, mi_col + hbs,
+                              dry_run, subsize, partition,
+                              pc_tree->verticala[2], rate, indent);
+
+      break;
+    case PARTITION_VERT_B:
+      log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row, mi_col, dry_run,
+                              subsize, partition, pc_tree->verticalb[0], rate,
+                              indent);
+      log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row, mi_col + hbs,
+                              dry_run, bsize2, partition, pc_tree->verticalb[1],
+                              rate, indent);
+      log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row + hbs,
+                              mi_col + hbs, dry_run, bsize2, partition,
+                              pc_tree->verticalb[2], rate, indent);
+      break;
+    case PARTITION_HORZ_4:
+      for (i = 0; i < 4; ++i) {
+        int this_mi_row = mi_row + i * quarter_step;
+        if (i > 0 && this_mi_row >= mi_params->mi_rows) break;
+
+        log_recursive_tree_leaf(cpi, tile_data, td, tp, this_mi_row, mi_col,
+                                dry_run, subsize, partition,
+                                pc_tree->horizontal4[i], rate, indent);
+      }
+      break;
+    case PARTITION_VERT_4:
+      for (i = 0; i < 4; ++i) {
+        int this_mi_col = mi_col + i * quarter_step;
+        if (i > 0 && this_mi_col >= mi_params->mi_cols) break;
+        log_recursive_tree_leaf(cpi, tile_data, td, tp, mi_row, this_mi_col,
+                                dry_run, subsize, partition,
+                                pc_tree->vertical4[i], rate, indent);
+      }
+      break;
+    default: assert(0 && "Invalid partition type."); break;
+  }
+}
+#endif
 
 static AOM_INLINE void encode_b(const AV1_COMP *const cpi,
                                 TileDataEnc *tile_data, ThreadData *td,
@@ -3086,6 +3337,7 @@ static AOM_INLINE void rd_pick_rect_partition(
   pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &part_search_state->this_rdc,
                 partition_type, bsize, cur_partition_ctx, best_remain_rdcost,
                 PICK_MODE_RD);
+
   av1_rd_cost_update(x->rdmult, &part_search_state->this_rdc);
 
   // Update the partition rd cost with the current sub-block rd.
@@ -4128,6 +4380,23 @@ BEGIN_PARTITION_SEARCH:
   // Store the final rd cost
   *rd_cost = best_rdc;
 
+#if CONFIG_DSPL_RESIDUAL && CONFIG_DSPL_DEBUG
+  if (bsize == cm->seq_params.sb_size) {
+    fprintf(
+        stderr,
+        "\n==> RD-search finished for block @ (%d, %d) of frame (%s) %d with "
+        "size %s "
+        "q-index %d\n",
+        mi_row, mi_col,
+        update_type_to_str(get_frame_update_type(&cpi->gf_group)),
+        cm->current_frame.frame_number, block_size_to_str(bsize),
+        cm->quant_params.base_qindex);
+    log_rd_info(rd_cost, "CRD", stderr);
+    log_recursive_tree(cpi, td, tile_data, tp, mi_row, mi_col, DRY_RUN_NORMAL,
+                       bsize, pc_tree, NULL, 0);
+  }
+#endif
+
   // Also record the best partition in simple motion data tree because it is
   // necessary for the related speed features.
   sms_tree->partitioning = pc_tree->partitioning;
@@ -4641,6 +4910,9 @@ static AOM_INLINE void avg_cdf_symbols(FRAME_CONTEXT *ctx_left,
   AVERAGE_CDF(ctx_left->comp_group_idx_cdf, ctx_tr->comp_group_idx_cdf, 2);
   AVERAGE_CDF(ctx_left->skip_mode_cdfs, ctx_tr->skip_mode_cdfs, 2);
   AVERAGE_CDF(ctx_left->skip_txfm_cdfs, ctx_tr->skip_txfm_cdfs, 2);
+#if CONFIG_DSPL_RESIDUAL
+  AVERAGE_CDF(ctx_left->dspl_type_cdf, ctx_tr->dspl_type_cdf, DSPL_END);
+#endif
   AVERAGE_CDF(ctx_left->intra_inter_cdf, ctx_tr->intra_inter_cdf, 2);
   avg_nmv(&ctx_left->nmvc, &ctx_tr->nmvc, wt_left, wt_tr);
   avg_nmv(&ctx_left->ndvc, &ctx_tr->ndvc, wt_left, wt_tr);
@@ -6419,10 +6691,19 @@ static AOM_INLINE void encode_superblock(const AV1_COMP *const cpi,
 #else
     (void)num_planes;
 #endif
+#if CONFIG_DSPL_RESIDUAL
+    // Set quantizer
+    av1_setup_dspl_quantizer(cpi, x, mbmi->segment_id, mbmi->dspl_type);
+#endif
 
     av1_encode_sb(cpi, x, bsize, dry_run);
     av1_tokenize_sb_vartx(cpi, td, dry_run, bsize, rate,
                           tile_data->allow_update_cdf);
+
+#if CONFIG_DSPL_RESIDUAL
+    // Restore quantizer
+    av1_setup_dspl_quantizer(cpi, x, mbmi->segment_id, DSPL_NONE);
+#endif
   }
 
   if (!dry_run) {
