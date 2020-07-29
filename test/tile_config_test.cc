@@ -351,6 +351,12 @@ TEST_P(TileGroupTestLarge, TileGroupCountTest) {
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
 }
 
+<<<<<<< HEAD   (f4a656 Find user specified gop cfg accoding to length and location)
 AV1_INSTANTIATE_TEST_SUITE(TileGroupTestLarge, NONREALTIME_TEST_MODES,
+=======
+AV1_INSTANTIATE_TEST_SUITE(TileGroupTestLarge,
+                           ::testing::Values(::libaom_test::kOnePassGood,
+                                             ::libaom_test::kTwoPassGood),
+>>>>>>> BRANCH (37af76 Remove recode loop dependency on real time)
                            ::testing::ValuesIn(tileGroupTestParams));
 }  // namespace

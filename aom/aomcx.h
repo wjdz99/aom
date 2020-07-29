@@ -1262,6 +1262,7 @@ enum aome_enc_control_id {
    */
   AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP = 157,
 
+<<<<<<< HEAD   (f4a656 Find user specified gop cfg accoding to length and location)
   /*!\brief Control to set the subgop config string.
    */
   AV1E_SET_SUBGOP_CONFIG_STR = 158,
@@ -1269,6 +1270,11 @@ enum aome_enc_control_id {
   /*!\brief Control to get baseline gf interval
    */
   AV1E_GET_BASELINE_GF_INTERVAL = 159,
+=======
+  /*!\brief Control to get baseline gf interval
+   */
+  AV1E_GET_BASELINE_GF_INTERVAL = 158,
+>>>>>>> BRANCH (37af76 Remove recode loop dependency on real time)
 };
 
 /*!\brief aom 1-D scaling mode

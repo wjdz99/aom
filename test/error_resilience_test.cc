@@ -465,6 +465,7 @@ AV1_INSTANTIATE_TEST_SUITE(ErrorResilienceTestLarge, NONREALTIME_TEST_MODES,
 
 // This class is used to check the presence of SFrame.
 class SFramePresenceTestLarge
+<<<<<<< HEAD   (f4a656 Find user specified gop cfg accoding to length and location)
     : public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode,
                                                  aom_rc_mode>,
       public ::libaom_test::EncoderTest {
@@ -530,4 +531,87 @@ TEST_P(SFramePresenceTestLarge, SFramePresenceTest) {
 
 AV1_INSTANTIATE_TEST_SUITE(SFramePresenceTestLarge, NONREALTIME_TEST_MODES,
                            ::testing::Values(AOM_Q, AOM_VBR, AOM_CBR, AOM_CQ));
+=======
+    : public ::libaom_test::CodecTestWith3Params<libaom_test::TestMode,
+                                                 aom_rc_mode, int>,
+      public ::libaom_test::EncoderTest {
+ protected:
+  SFramePresenceTestLarge()
+      : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)),
+        rc_end_usage_(GET_PARAM(2)), enable_altref_(GET_PARAM(3)) {
+    is_sframe_present_ = 0;
+    is_sframe_position_violated_ = 0;
+  }
+  virtual ~SFramePresenceTestLarge() {}
+
+  virtual void SetUp() {
+    InitializeConfig();
+    SetMode(encoding_mode_);
+    const aom_rational timebase = { 1, 30 };
+    cfg_.g_timebase = timebase;
+    cfg_.rc_end_usage = rc_end_usage_;
+    cfg_.g_threads = 1;
+    cfg_.kf_min_dist = 0;
+    cfg_.kf_max_dist = 60;
+    cfg_.g_lag_in_frames = 35;
+    cfg_.sframe_dist = 5;
+    if (enable_altref_) cfg_.sframe_mode = 2;
+  }
+
+  virtual bool DoDecode() const { return 1; }
+
+  virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
+                                  ::libaom_test::Encoder *encoder) {
+    if (video->frame() == 0) {
+      encoder->Control(AOME_SET_CPUUSED, 5);
+      encoder->Control(AOME_SET_ENABLEAUTOALTREF, enable_altref_);
+    }
+  }
+
+  virtual bool HandleDecodeResult(const aom_codec_err_t res_dec,
+                                  libaom_test::Decoder *decoder) {
+    EXPECT_EQ(AOM_CODEC_OK, res_dec) << decoder->DecodeError();
+    if (AOM_CODEC_OK == res_dec) {
+      aom_codec_ctx_t *ctx_dec = decoder->GetDecoder();
+      AOM_CODEC_CONTROL_TYPECHECKED(ctx_dec, AOMD_GET_S_FRAME_INFO,
+                                    &sframe_info);
+      if (sframe_info.is_s_frame) {
+        is_sframe_present_ = 1;
+        if (enable_altref_ && is_sframe_position_violated_ == 0 &&
+            sframe_info.is_s_frame_at_altref == 0)
+          is_sframe_position_violated_ = 1;
+      }
+    }
+    return AOM_CODEC_OK == res_dec;
+  }
+
+  ::libaom_test::TestMode encoding_mode_;
+  aom_rc_mode rc_end_usage_;
+  int is_sframe_present_;
+  int is_sframe_position_violated_;
+  int enable_altref_;
+  aom_s_frame_info sframe_info;
+};
+
+TEST_P(SFramePresenceTestLarge, SFramePresenceTest) {
+  libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                     cfg_.g_timebase.den, cfg_.g_timebase.num,
+                                     0, 100);
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+  ASSERT_EQ(is_sframe_present_, 1);
+  if (enable_altref_) {
+    ASSERT_EQ(is_sframe_position_violated_, 0);
+  }
+}
+
+/* TODO(anyone): Currently SFramePresenceTest fails when enable_altref_ = 1.
+ * Hence this configuration is not added. Add this configuration after the
+ * bug is fixed.
+ */
+AV1_INSTANTIATE_TEST_SUITE(SFramePresenceTestLarge,
+                           ::testing::Values(::libaom_test::kOnePassGood,
+                                             ::libaom_test::kTwoPassGood),
+                           ::testing::Values(AOM_Q, AOM_VBR, AOM_CBR, AOM_CQ),
+                           ::testing::Values(0));
+>>>>>>> BRANCH (37af76 Remove recode loop dependency on real time)
 }  // namespace
