@@ -737,29 +737,42 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
               int cluster_label[MAX_REF_MV_STACK_SIZE], int start, int end,
               int cluster_idx_to_merge) {
   // centriod
-  CANDIDATE_MV updated_mv;
-  updated_mv.this_mv.as_int = 0U;
-  updated_mv.comp_mv.as_int = 0U;
-  uint32_t updated_weight = 0;
-  uint32_t total_weight = 0;
-  for (int j = start; j < end; j++) {
-    total_weight += ref_mv_weight[j];
-  }
-
+  uint64_t this_mv_row, this_mv_col, comp_mv_row, comp_mv_col, total_weight,
+      temp;
+  this_mv_row = this_mv_col = comp_mv_row = comp_mv_col = total_weight = temp =
+      0U;
   for (int j = start; j < end; j++) {
     if (cluster_label[j] == cluster_idx_to_merge) {
-      float weight_ratio = ref_mv_weight[j] * 1.0f / total_weight;
-      updated_mv.this_mv.as_mv.row +=
-          (uint16_t)(weight_ratio * ref_mv_stack[j].this_mv.as_mv.row);
-      updated_mv.this_mv.as_mv.col +=
-          (uint16_t)(weight_ratio * ref_mv_stack[j].this_mv.as_mv.col);
-      updated_mv.comp_mv.as_mv.row +=
-          (uint16_t)(weight_ratio * ref_mv_stack[j].comp_mv.as_mv.row);
-      updated_mv.comp_mv.as_mv.col +=
-          (uint16_t)(weight_ratio * ref_mv_stack[j].comp_mv.as_mv.col);
-      updated_weight += ref_mv_weight[j];
+      temp = ref_mv_stack[j].this_mv.as_mv.row;
+      temp *= ref_mv_weight[j];
+      this_mv_row += temp;
+      temp = ref_mv_stack[j].this_mv.as_mv.col;
+      temp *= ref_mv_weight[j];
+      this_mv_col += temp;
+      temp = ref_mv_stack[j].comp_mv.as_mv.row;
+      temp *= ref_mv_weight[j];
+      comp_mv_row += temp;
+      temp = ref_mv_stack[j].comp_mv.as_mv.col;
+      temp *= ref_mv_weight[j];
+      comp_mv_col += temp;
+      total_weight += ref_mv_weight[j];
     }
   }
+  this_mv_row = (this_mv_row + (total_weight >> 1)) / total_weight;
+  this_mv_col = (this_mv_col + (total_weight >> 1)) / total_weight;
+  comp_mv_row = (comp_mv_row + (total_weight >> 1)) / total_weight;
+  comp_mv_col = (comp_mv_col + (total_weight >> 1)) / total_weight;
+  ref_mv_weight[cluster_idx_to_merge] =
+      (total_weight > 65535) ? 65535 : total_weight;
+  ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.row =
+      (this_mv_row > 65535) ? 65535 : this_mv_row;
+  ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.col =
+      (this_mv_col > 65535) ? 65535 : this_mv_col;
+  ref_mv_stack[cluster_idx_to_merge].comp_mv.as_mv.row =
+      (comp_mv_row > 65535) ? 65535 : comp_mv_row;
+  ref_mv_stack[cluster_idx_to_merge].comp_mv.as_mv.col =
+      (comp_mv_col > 65535) ? 65535 : comp_mv_col;
+
   // for (int j = start; j < end; j++) {
   //   if (cluster_label[j] == cluster_idx_to_merge) {
   //     updated_mv.this_mv.as_mv.row +=
@@ -791,10 +804,6 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   // updated_mv.this_mv.as_int;
   // ref_mv_stack[cluster_idx_to_merge].comp_mv.as_int =
   // updated_mv.this_mv.as_int;
-  if (updated_weight >= 65535) {
-    updated_weight = 65535;
-  }
-  ref_mv_weight[cluster_idx_to_merge] = (uint16_t)updated_weight;
 }
 static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                               MV_REFERENCE_FRAME ref_frame,
