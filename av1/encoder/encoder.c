@@ -2480,7 +2480,8 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
 #if CONFIG_REALTIME_ONLY
   err = encode_without_recode(cpi);
 #else
-  if (cpi->sf.hl_sf.recode_loop == DISALLOW_RECODE)
+  if (cpi->sf.hl_sf.recode_loop == DISALLOW_RECODE &&
+      cpi->oxcf.mode == REALTIME)
     err = encode_without_recode(cpi);
   else
     err = encode_with_recode_loop(cpi, size, dest);
