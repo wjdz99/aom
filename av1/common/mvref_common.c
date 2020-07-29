@@ -764,14 +764,14 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   comp_mv_col = (comp_mv_col + (total_weight >> 1)) / total_weight;
   ref_mv_weight[cluster_idx_to_merge] =
       (total_weight > 65535) ? 65535 : total_weight;
-  ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.row =
-      (this_mv_row > 65535) ? 65535 : this_mv_row;
-  ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.col =
-      (this_mv_col > 65535) ? 65535 : this_mv_col;
-  ref_mv_stack[cluster_idx_to_merge].comp_mv.as_mv.row =
-      (comp_mv_row > 65535) ? 65535 : comp_mv_row;
-  ref_mv_stack[cluster_idx_to_merge].comp_mv.as_mv.col =
-      (comp_mv_col > 65535) ? 65535 : comp_mv_col;
+  // ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.row =
+  //     (this_mv_row > 65535) ? 65535 : this_mv_row;
+  // ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.col =
+  //     (this_mv_col > 65535) ? 65535 : this_mv_col;
+  // ref_mv_stack[cluster_idx_to_merge].comp_mv.as_mv.row =
+  //     (comp_mv_row > 65535) ? 65535 : comp_mv_row;
+  // ref_mv_stack[cluster_idx_to_merge].comp_mv.as_mv.col =
+  //     (comp_mv_col > 65535) ? 65535 : comp_mv_col;
 
   // for (int j = start; j < end; j++) {
   //   if (cluster_label[j] == cluster_idx_to_merge) {
