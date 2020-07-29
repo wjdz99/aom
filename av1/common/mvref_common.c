@@ -787,8 +787,10 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   //     (updated_mv.comp_mv.as_mv.row + (updated_weight >> 1)) /
   //     updated_weight;
 
-  ref_mv_stack[cluster_idx_to_merge].this_mv.as_int = updated_mv.this_mv.as_int;
-  ref_mv_stack[cluster_idx_to_merge].comp_mv.as_int = updated_mv.this_mv.as_int;
+  // ref_mv_stack[cluster_idx_to_merge].this_mv.as_int =
+  // updated_mv.this_mv.as_int;
+  // ref_mv_stack[cluster_idx_to_merge].comp_mv.as_int =
+  // updated_mv.this_mv.as_int;
   if (updated_weight >= 65535) {
     updated_weight = 65535;
   }
