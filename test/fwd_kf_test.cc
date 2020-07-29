@@ -116,7 +116,8 @@ AV1_INSTANTIATE_TEST_SUITE(ForwardKeyTest,
                            ::testing::ValuesIn(kTestParams));
 #else
 AV1_INSTANTIATE_TEST_SUITE(ForwardKeyTest,
-                           ::testing::Values(::libaom_test::kTwoPassGood),
+                           ::testing::Values(::libaom_test::kTwoPassGood,
+                                             ::libaom_test::kOnePassGood),
                            ::testing::ValuesIn(kTestParams));
 #endif  // CONFIG_SINGLEPASS
 

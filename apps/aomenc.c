@@ -347,10 +347,15 @@ static const arg_def_t buf_initial_sz =
     ARG_DEF(NULL, "buf-initial-sz", 1, "Client initial buffer size (ms)");
 static const arg_def_t buf_optimal_sz =
     ARG_DEF(NULL, "buf-optimal-sz", 1, "Client optimal buffer size (ms)");
+<<<<<<< HEAD   (f4a656 Find user specified gop cfg accoding to length and location)
 #if !CONFIG_SINGLEPASS
 static const arg_def_t bias_pct =
     ARG_DEF(NULL, "bias-pct", 1, "CBR/VBR bias (0=CBR, 100=VBR)");
 #endif  // !CONFIG_SINGLEPASS
+=======
+static const arg_def_t bias_pct =
+    ARG_DEF(NULL, "bias-pct", 1, "CBR/VBR bias (0=CBR, 100=VBR)");
+>>>>>>> BRANCH (37af76 Remove recode loop dependency on real time)
 static const arg_def_t minsection_pct =
     ARG_DEF(NULL, "minsection-pct", 1, "GOP min bitrate (% of target)");
 static const arg_def_t maxsection_pct =
@@ -373,9 +378,13 @@ static const arg_def_t *rc_args[] = { &dropframe_thresh,
                                       &buf_sz,
                                       &buf_initial_sz,
                                       &buf_optimal_sz,
+<<<<<<< HEAD   (f4a656 Find user specified gop cfg accoding to length and location)
 #if !CONFIG_SINGLEPASS
                                       &bias_pct,
 #endif  // !CONFIG_SINGLEPASS
+=======
+                                      &bias_pct,
+>>>>>>> BRANCH (37af76 Remove recode loop dependency on real time)
                                       &minsection_pct,
                                       &maxsection_pct,
                                       NULL };

@@ -72,7 +72,6 @@ list(APPEND AOM_UNIT_TEST_ENCODER_SOURCES
             "${AOM_ROOT}/test/horz_superres_test.cc"
             "${AOM_ROOT}/test/i420_video_source.h"
             "${AOM_ROOT}/test/level_test.cc"
-            "${AOM_ROOT}/test/lossless_test.cc"
             "${AOM_ROOT}/test/monochrome_test.cc"
             "${AOM_ROOT}/test/resize_test.cc"
             "${AOM_ROOT}/test/scalability_test.cc"
@@ -127,6 +126,10 @@ if(NOT BUILD_SHARED_LIBS)
                 "${AOM_ROOT}/test/film_grain_table_test.cc"
                 "${AOM_ROOT}/test/fwd_kf_test.cc"
                 "${AOM_ROOT}/test/kf_test.cc"
+<<<<<<< HEAD   (f4a656 Find user specified gop cfg accoding to length and location)
+=======
+                "${AOM_ROOT}/test/lossless_test.cc"
+>>>>>>> BRANCH (37af76 Remove recode loop dependency on real time)
                 "${AOM_ROOT}/test/quant_test.cc"
                 "${AOM_ROOT}/test/sb_multipass_test.cc"
                 "${AOM_ROOT}/test/screen_content_test.cc"

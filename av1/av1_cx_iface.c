@@ -574,11 +574,6 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
       ERROR("Only --enable_chroma_deltaq=0 can be used with --lossless=1.");
   }
 
-  if (cfg->rc_resize_mode != RESIZE_NONE &&
-      extra_cfg->aq_mode == CYCLIC_REFRESH_AQ) {
-    ERROR("--aq_mode=3 is only supported for --resize-mode=0.");
-  }
-
   RANGE_CHECK(extra_cfg, max_reference_frames, 3, 7);
   RANGE_CHECK(extra_cfg, enable_reduced_reference_set, 0, 1);
   RANGE_CHECK_HI(extra_cfg, chroma_subsampling_x, 1);
@@ -909,9 +904,13 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   rc_cfg->target_bandwidth = 1000 * cfg->rc_target_bitrate;
   rc_cfg->drop_frames_water_mark = cfg->rc_dropframe_thresh;
   rc_cfg->vbr_corpus_complexity_lap = extra_cfg->vbr_corpus_complexity_lap;
+<<<<<<< HEAD   (f4a656 Find user specified gop cfg accoding to length and location)
 #if !CONFIG_SINGLEPASS
   rc_cfg->vbrbias = cfg->rc_2pass_vbr_bias_pct;
 #endif  // !CONFIG_SINGLEPASS
+=======
+  rc_cfg->vbrbias = cfg->rc_2pass_vbr_bias_pct;
+>>>>>>> BRANCH (37af76 Remove recode loop dependency on real time)
   rc_cfg->vbrmin_section = cfg->rc_2pass_vbr_minsection_pct;
   rc_cfg->vbrmax_section = cfg->rc_2pass_vbr_maxsection_pct;
 
@@ -995,10 +994,15 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   algo_cfg->enable_tpl_model =
       resize_cfg->resize_mode ? 0 : extra_cfg->enable_tpl_model;
 
+<<<<<<< HEAD   (f4a656 Find user specified gop cfg accoding to length and location)
 // Set two-pass stats configuration.
 #if !CONFIG_SINGLEPASS
   oxcf->twopass_stats_in = cfg->rc_twopass_stats_in;
 #endif  // !CONFIG_SINGLEPASS
+=======
+  // Set two-pass stats configuration.
+  oxcf->twopass_stats_in = cfg->rc_twopass_stats_in;
+>>>>>>> BRANCH (37af76 Remove recode loop dependency on real time)
 
   // Set Key frame configuration.
   kf_cfg->fwd_kf_enabled = cfg->fwd_kf_enabled;
@@ -1250,6 +1254,14 @@ static aom_codec_err_t ctrl_get_quantizer(aom_codec_alg_priv_t *ctx,
   int *const arg = va_arg(args, int *);
   if (arg == NULL) return AOM_CODEC_INVALID_PARAM;
   *arg = av1_get_quantizer(ctx->cpi);
+  return AOM_CODEC_OK;
+}
+
+static aom_codec_err_t ctrl_get_baseline_gf_interval(aom_codec_alg_priv_t *ctx,
+                                                     va_list args) {
+  int *const arg = va_arg(args, int *);
+  if (arg == NULL) return AOM_CODEC_INVALID_PARAM;
+  *arg = ctx->cpi->rc.baseline_gf_interval;
   return AOM_CODEC_OK;
 }
 

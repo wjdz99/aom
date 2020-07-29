@@ -148,6 +148,7 @@ class ForcedKeyTestLarge
 #endif
     }
     frame_flags_ =
+<<<<<<< HEAD   (f4a656 Find user specified gop cfg accoding to length and location)
         (video->frame() == forced_kf_frame_num_) ? AOM_EFLAG_FORCE_KF : 0;
   }
 
@@ -248,12 +249,123 @@ TEST_P(ForcedKeyTestLarge, ForcedFrameIsKeyCornerCases) {
 }
 
 AV1_INSTANTIATE_TEST_SUITE(KeyFrameIntervalTestLarge, NONREALTIME_TEST_MODES,
+=======
+        ((int)video->frame() == forced_kf_frame_num_) ? AOM_EFLAG_FORCE_KF : 0;
+  }
+
+  virtual bool HandleDecodeResult(const aom_codec_err_t res_dec,
+                                  libaom_test::Decoder *decoder) {
+    EXPECT_EQ(AOM_CODEC_OK, res_dec) << decoder->DecodeError();
+    if (AOM_CODEC_OK == res_dec) {
+      if ((int)frame_num_ == forced_kf_frame_num_) {
+        aom_codec_ctx_t *ctx_dec = decoder->GetDecoder();
+        int frame_flags = 0;
+        AOM_CODEC_CONTROL_TYPECHECKED(ctx_dec, AOMD_GET_FRAME_FLAGS,
+                                      &frame_flags);
+        if ((frame_flags & AOM_FRAME_IS_KEY) !=
+            static_cast<aom_codec_frame_flags_t>(AOM_FRAME_IS_KEY)) {
+          is_kf_placement_violated_ = true;
+        }
+      }
+      ++frame_num_;
+    }
+    return AOM_CODEC_OK == res_dec;
+  }
+
+  ::libaom_test::TestMode encoding_mode_;
+  int auto_alt_ref_;
+  int fwd_kf_enabled_;
+  int cpu_used_;
+  aom_rc_mode rc_end_usage_;
+  int forced_kf_frame_num_;
+  unsigned int frame_num_;
+  bool is_kf_placement_violated_;
+};
+
+TEST_P(ForcedKeyTestLarge, Frame1IsKey) {
+  const aom_rational timebase = { 1, 30 };
+  const int lag_values[] = { 3, 15, 25, -1 };
+
+  forced_kf_frame_num_ = 1;
+  for (int i = 0; lag_values[i] != -1; ++i) {
+    frame_num_ = 0;
+    cfg_.g_lag_in_frames = lag_values[i];
+    is_kf_placement_violated_ = false;
+    libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                       timebase.den, timebase.num, 0,
+                                       fwd_kf_enabled_ ? 60 : 30);
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+    ASSERT_EQ(is_kf_placement_violated_, false)
+        << "Frame #" << frame_num_ << " isn't a keyframe!";
+  }
+}
+
+// This class checks the presence and placement of application
+// forced key frames.
+TEST_P(ForcedKeyTestLarge, ForcedFrameIsKey) {
+  const aom_rational timebase = { 1, 30 };
+  const int lag_values[] = { 3, 15, 25, -1 };
+
+  for (int i = 0; lag_values[i] != -1; ++i) {
+    frame_num_ = 0;
+    forced_kf_frame_num_ = lag_values[i] - 1;
+    cfg_.g_lag_in_frames = lag_values[i];
+    is_kf_placement_violated_ = false;
+    libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                       timebase.den, timebase.num, 0,
+                                       fwd_kf_enabled_ ? 60 : 30);
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+    ASSERT_EQ(is_kf_placement_violated_, false)
+        << "Frame #" << frame_num_ << " isn't a keyframe!";
+
+    // Two pass and single pass CBR are currently segfaulting for the case when
+    // forced kf is placed after lag in frames.
+    // TODO(anyone): Enable(uncomment) below test once above bug is fixed.
+    //    frame_num_ = 0;
+    //    forced_kf_frame_num_ = lag_values[i] + 1;
+    //    cfg_.g_lag_in_frames = lag_values[i];
+    //    is_kf_placement_violated_ = false;
+    //    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+    //    ASSERT_EQ(is_kf_placement_violated_, false)
+    //    << "Frame #" << frame_num_ << " isn't a keyframe!";
+  }
+}
+
+TEST_P(ForcedKeyTestLarge, ForcedFrameIsKeyCornerCases) {
+  const aom_rational timebase = { 1, 30 };
+  const int kf_offsets[] = { -2, -1, 1, 2, 0 };
+  cfg_.g_lag_in_frames = 35;
+
+  for (int i = 0; kf_offsets[i] != 0; ++i) {
+    frame_num_ = 0;
+    forced_kf_frame_num_ = (int)cfg_.kf_max_dist + kf_offsets[i];
+    forced_kf_frame_num_ = forced_kf_frame_num_ > 0 ? forced_kf_frame_num_ : 1;
+    is_kf_placement_violated_ = false;
+    libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                       timebase.den, timebase.num, 0,
+                                       fwd_kf_enabled_ ? 60 : 30);
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+    ASSERT_EQ(is_kf_placement_violated_, false)
+        << "Frame #" << frame_num_ << " isn't a keyframe!";
+  }
+}
+
+AV1_INSTANTIATE_TEST_SUITE(KeyFrameIntervalTestLarge,
+                           testing::Values(::libaom_test::kOnePassGood,
+                                           ::libaom_test::kTwoPassGood),
+>>>>>>> BRANCH (37af76 Remove recode loop dependency on real time)
                            ::testing::ValuesIn(kfTestParams),
                            ::testing::Values(AOM_Q, AOM_VBR, AOM_CBR, AOM_CQ));
 
 // TODO(anyone): Add CBR to list of rc_modes once forced kf placement after
 // lag in frames bug is fixed.
+<<<<<<< HEAD   (f4a656 Find user specified gop cfg accoding to length and location)
 AV1_INSTANTIATE_TEST_SUITE(ForcedKeyTestLarge, NONREALTIME_TEST_MODES,
+=======
+AV1_INSTANTIATE_TEST_SUITE(ForcedKeyTestLarge,
+                           ::testing::Values(::libaom_test::kOnePassGood,
+                                             ::libaom_test::kTwoPassGood),
+>>>>>>> BRANCH (37af76 Remove recode loop dependency on real time)
                            ::testing::Values(0, 1), ::testing::Values(0, 1),
                            ::testing::Values(2, 5),
                            ::testing::Values(AOM_Q, AOM_VBR, AOM_CQ));
