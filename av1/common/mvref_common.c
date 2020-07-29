@@ -789,10 +789,10 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
 
   ref_mv_stack[cluster_idx_to_merge].this_mv.as_int = updated_mv.this_mv.as_int;
   ref_mv_stack[cluster_idx_to_merge].comp_mv.as_int = updated_mv.this_mv.as_int;
-  // if (updated_weight >= 65535) {
-  //   updated_weight = 65535;
-  // }
-  // ref_mv_weight[cluster_idx_to_merge] = (uint16_t)updated_weight;
+  if (updated_weight >= 65535) {
+    updated_weight = 65535;
+  }
+  ref_mv_weight[cluster_idx_to_merge] = (uint16_t)updated_weight;
 }
 static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                               MV_REFERENCE_FRAME ref_frame,
