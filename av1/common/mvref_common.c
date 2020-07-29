@@ -1052,20 +1052,20 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       }
     }
 
-    // mv_dbscan1(ref_mv_stack, nearest_refmv_count, (*refmv_count), min_points,
-    //            dist_threshold, (&cluster_num2), cluster_label,
-    //            (rf[1] == NONE_FRAME));
+    mv_dbscan1(ref_mv_stack, nearest_refmv_count, (*refmv_count), min_points,
+               dist_threshold, (&cluster_num2), cluster_label,
+               (rf[1] == NONE_FRAME));
 
     // Merge MVs
-    // for (int i = nearest_refmv_count; i < (*refmv_count); i++) {
-    //   if (cluster_label[i] == -1) {
-    //     // outlier
-    //     continue;
-    //   } else if (cluster_label[i] == i) {
-    //     merge_mv(ref_mv_stack, ref_mv_weight, cluster_label,
-    //              nearest_refmv_count, (*refmv_count), i);
-    //   }
-    // }
+    for (int i = nearest_refmv_count; i < (*refmv_count); i++) {
+      if (cluster_label[i] == -1) {
+        // outlier
+        continue;
+      } else if (cluster_label[i] == i) {
+        merge_mv(ref_mv_stack, ref_mv_weight, cluster_label,
+                 nearest_refmv_count, (*refmv_count), i);
+      }
+    }
     // Shrink MV list
     CANDIDATE_MV tmp[MAX_REF_MV_STACK_SIZE];
     uint16_t tmp_weight[MAX_REF_MV_STACK_SIZE];
