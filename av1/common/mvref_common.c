@@ -740,35 +740,59 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   CANDIDATE_MV updated_mv;
   updated_mv.this_mv.as_int = 0U;
   updated_mv.comp_mv.as_int = 0U;
-  uint16_t updated_weight = 0;
+  uint32_t updated_weight = 0;
+  uint32_t total_weight = 0;
+  for (int j = start; j < end; j++) {
+    total_weight += ref_mv_weight[j];
+  }
+
   for (int j = start; j < end; j++) {
     if (cluster_label[j] == cluster_idx_to_merge) {
+      float weight_ratio = ref_mv_weight[j] * 1.0f / total_weight;
       updated_mv.this_mv.as_mv.row +=
-          ref_mv_weight[j] * ref_mv_stack[j].this_mv.as_mv.row;
+          (uint16_t)(weight_ratio * ref_mv_stack[j].this_mv.as_mv.row);
       updated_mv.this_mv.as_mv.col +=
-          ref_mv_weight[j] * ref_mv_stack[j].this_mv.as_mv.col;
+          (uint16_t)(weight_ratio * ref_mv_stack[j].this_mv.as_mv.col);
       updated_mv.comp_mv.as_mv.row +=
-          ref_mv_weight[j] * ref_mv_stack[j].comp_mv.as_mv.row;
+          (uint16_t)(weight_ratio * ref_mv_stack[j].comp_mv.as_mv.row);
       updated_mv.comp_mv.as_mv.col +=
-          ref_mv_weight[j] * ref_mv_stack[j].comp_mv.as_mv.col;
+          (uint16_t)(weight_ratio * ref_mv_stack[j].comp_mv.as_mv.col);
       updated_weight += ref_mv_weight[j];
     }
   }
+  // for (int j = start; j < end; j++) {
+  //   if (cluster_label[j] == cluster_idx_to_merge) {
+  //     updated_mv.this_mv.as_mv.row +=
+  //         ref_mv_weight[j] * ref_mv_stack[j].this_mv.as_mv.row;
+  //     updated_mv.this_mv.as_mv.col +=
+  //         ref_mv_weight[j] * ref_mv_stack[j].this_mv.as_mv.col;
+  //     updated_mv.comp_mv.as_mv.row +=
+  //         ref_mv_weight[j] * ref_mv_stack[j].comp_mv.as_mv.row;
+  //     updated_mv.comp_mv.as_mv.col +=
+  //         ref_mv_weight[j] * ref_mv_stack[j].comp_mv.as_mv.col;
+  //     updated_weight += ref_mv_weight[j];
+  //   }
+  // }
   // Round Closest: dividend + (divisor / 2)) / divisor;
-  updated_mv.this_mv.as_mv.row =
-      (updated_mv.this_mv.as_mv.row + (updated_weight >> 1)) / updated_weight;
-  updated_mv.this_mv.as_mv.col =
-      (updated_mv.this_mv.as_mv.col + (updated_weight >> 1)) / updated_weight;
-  updated_mv.comp_mv.as_mv.row =
-      (updated_mv.comp_mv.as_mv.row + (updated_weight >> 1)) / updated_weight;
-  updated_mv.comp_mv.as_mv.row =
-      (updated_mv.comp_mv.as_mv.row + (updated_weight >> 1)) / updated_weight;
+  // updated_mv.this_mv.as_mv.row =
+  //     (updated_mv.this_mv.as_mv.row + (updated_weight >> 1)) /
+  //     updated_weight;
+  // updated_mv.this_mv.as_mv.col =
+  //     (updated_mv.this_mv.as_mv.col + (updated_weight >> 1)) /
+  //     updated_weight;
+  // updated_mv.comp_mv.as_mv.row =
+  //     (updated_mv.comp_mv.as_mv.row + (updated_weight >> 1)) /
+  //     updated_weight;
+  // updated_mv.comp_mv.as_mv.row =
+  //     (updated_mv.comp_mv.as_mv.row + (updated_weight >> 1)) /
+  //     updated_weight;
 
-  // ref_mv_stack[cluster_idx_to_merge].this_mv.as_int =
-  // updated_mv.this_mv.as_int;
-  // ref_mv_stack[cluster_idx_to_merge].comp_mv.as_int =
-  // updated_mv.this_mv.as_int; ref_mv_weight[cluster_idx_to_merge] =
-  // updated_weight;
+  ref_mv_stack[cluster_idx_to_merge].this_mv.as_int = updated_mv.this_mv.as_int;
+  ref_mv_stack[cluster_idx_to_merge].comp_mv.as_int = updated_mv.this_mv.as_int;
+  if (updated_weight >= 65535) {
+    updated_weight = 65535;
+  }
+  ref_mv_weight[cluster_idx_to_merge] = (uint16_t)updated_weight;
 }
 static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                               MV_REFERENCE_FRAME ref_frame,
