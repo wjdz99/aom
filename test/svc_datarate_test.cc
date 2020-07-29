@@ -419,6 +419,10 @@ class DatarateTestSVC
       ASSERT_LE(effective_datarate_tl[i], target_layer_bitrate_[i] * 1.30)
           << " The datarate for the file is greater than target by too much!";
     }
+    // Top temporal layers are non_reference, so exlcude them from
+    // mismatch count, since loopfilter/cdef on encoder is skipped for these.
+    // This means 150 (300 frames - #TL2).
+    EXPECT_EQ((int)GetMismatchFrames(), 150);
   }
 
   virtual void BasicRateTargetingSVC3TL1SLResizeTest() {
