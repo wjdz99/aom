@@ -1575,8 +1575,11 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     const SubGOPStepCfg *last_step_prev =
         subgop_cfg != NULL ? &subgop_cfg->step[subgop_cfg->num_steps - 1]
                            : NULL;
+    const int last_gf_update_type =
+        cpi->gf_group.update_type[cpi->gf_group.size];
     av1_zero(cpi->gf_group);
     gf_group->last_step_prev = last_step_prev;
+    cpi->gf_group.update_type[0] = last_gf_update_type;
   }
 
   aom_clear_system_state();

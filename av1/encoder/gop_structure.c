@@ -180,12 +180,14 @@ static void set_multi_layer_params_from_subgop_cfg(
   }
 }
 
-static int construct_multi_layer_gf_structure(
-    AV1_COMP *cpi, TWO_PASS *twopass, GF_GROUP *const gf_group,
-    RATE_CONTROL *rc, FRAME_INFO *const frame_info, int gf_interval,
-    FRAME_UPDATE_TYPE first_frame_update_type) {
+static int construct_multi_layer_gf_structure(AV1_COMP *cpi, TWO_PASS *twopass,
+                                              GF_GROUP *const gf_group,
+                                              RATE_CONTROL *rc,
+                                              FRAME_INFO *const frame_info,
+                                              int gf_interval) {
   int frame_index = 0;
   int cur_frame_index = 0;
+  const int first_frame_update_type = gf_group->update_type[0];
 
   // Keyframe / Overlay frame / Golden frame.
   assert(gf_interval >= 1);
@@ -193,7 +195,6 @@ static int construct_multi_layer_gf_structure(
          first_frame_update_type == OVERLAY_UPDATE ||
          first_frame_update_type == GF_UPDATE);
 
-  gf_group->update_type[frame_index] = first_frame_update_type;
   gf_group->arf_src_offset[frame_index] = 0;
   gf_group->cur_frame_idx[frame_index] = cur_frame_index;
   gf_group->layer_depth[frame_index] =
@@ -285,12 +286,15 @@ void av1_gop_setup_structure(AV1_COMP *cpi,
   TWO_PASS *const twopass = &cpi->twopass;
   FRAME_INFO *const frame_info = &cpi->frame_info;
   const int key_frame = (frame_params->frame_type == KEY_FRAME);
-  const FRAME_UPDATE_TYPE first_frame_update_type =
-      key_frame ? KF_UPDATE
-                : rc->source_alt_ref_active ? OVERLAY_UPDATE : GF_UPDATE;
+  // Unless this is a key frame, update_type[0] has already been filled
+  // in as the last update type of the previous gf group
+  if (key_frame)
+    gf_group->update_type[0] = KF_UPDATE;
+  else
+    assert(gf_group->update_type[0] == OVERLAY_UPDATE ||
+           gf_group->update_type[0] == GF_UPDATE);
   gf_group->size = construct_multi_layer_gf_structure(
-      cpi, twopass, gf_group, rc, frame_info, rc->baseline_gf_interval,
-      first_frame_update_type);
+      cpi, twopass, gf_group, rc, frame_info, rc->baseline_gf_interval);
 
 #if CHECK_GF_PARAMETER
   check_frame_params(gf_group, rc->baseline_gf_interval);
