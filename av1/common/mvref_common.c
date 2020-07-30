@@ -762,17 +762,27 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
       //     ref_mv_stack[j].this_mv.as_mv.col,
       //     ref_mv_stack[j].comp_mv.as_mv.row,
       //     ref_mv_stack[j].comp_mv.as_mv.col);
+      // temp = ref_mv_stack[j].this_mv.as_mv.row;
+      // temp *= ref_mv_weight[j];
+      // this_mv_row += temp;
+      // temp = ref_mv_stack[j].this_mv.as_mv.col;
+      // temp *= ref_mv_weight[j];
+      // this_mv_col += temp;
+      // temp = ref_mv_stack[j].comp_mv.as_mv.row;
+      // temp *= ref_mv_weight[j];
+      // comp_mv_row += temp;
+      // temp = ref_mv_stack[j].comp_mv.as_mv.col;
+      // temp *= ref_mv_weight[j];
+      // comp_mv_col += temp;
+      // total_weight += ref_mv_weight[j];
+      // cluster_points++;
       temp = ref_mv_stack[j].this_mv.as_mv.row;
-      temp *= ref_mv_weight[j];
       this_mv_row += temp;
       temp = ref_mv_stack[j].this_mv.as_mv.col;
-      temp *= ref_mv_weight[j];
       this_mv_col += temp;
       temp = ref_mv_stack[j].comp_mv.as_mv.row;
-      temp *= ref_mv_weight[j];
       comp_mv_row += temp;
       temp = ref_mv_stack[j].comp_mv.as_mv.col;
-      temp *= ref_mv_weight[j];
       comp_mv_col += temp;
       total_weight += ref_mv_weight[j];
       cluster_points++;
@@ -786,10 +796,14 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   //   }
   //   fprintf(stderr, "\n");
   // }
-  this_mv_row = (this_mv_row + (total_weight >> 1)) / total_weight;
-  this_mv_col = (this_mv_col + (total_weight >> 1)) / total_weight;
-  comp_mv_row = (comp_mv_row + (total_weight >> 1)) / total_weight;
-  comp_mv_col = (comp_mv_col + (total_weight >> 1)) / total_weight;
+  // this_mv_row = (this_mv_row + (total_weight >> 1)) / total_weight;
+  // this_mv_col = (this_mv_col + (total_weight >> 1)) / total_weight;
+  // comp_mv_row = (comp_mv_row + (total_weight >> 1)) / total_weight;
+  // comp_mv_col = (comp_mv_col + (total_weight >> 1)) / total_weight;
+  this_mv_row = (this_mv_row + (cluster_points >> 1)) / cluster_points;
+  this_mv_col = (this_mv_col + (cluster_points >> 1)) / cluster_points;
+  comp_mv_row = (comp_mv_row + (cluster_points >> 1)) / cluster_points;
+  comp_mv_col = (comp_mv_col + (cluster_points >> 1)) / cluster_points;
   // fprintf(stderr, "%d %d Before %d: %d %d %d %d (%u)\t", start, end,
   //         cluster_idx_to_merge,
   //         ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.row,
@@ -1069,7 +1083,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       }
     }
 
-    if ((*refmv_count) - nearest_refmv_count > 4) {
+    if ((*refmv_count) - nearest_refmv_count > 2) {
       mv_dbscan1(ref_mv_stack, nearest_refmv_count, (*refmv_count), min_points,
                  dist_threshold, (&cluster_num2), cluster_label,
                  (rf[1] == NONE_FRAME));
