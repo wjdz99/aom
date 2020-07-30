@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98b20c65_257dac92",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-07-30T19:26:57Z",
+      "side": 1,
+      "message": "Please remove any changes that are unrelated to this CL. I don\u0027t think this code works if CONFIG_AV1_HIGHBITDEPTH \u003d 0.\nPlease double check your logic.",
+      "revId": "242d68815f7bf9529d0eada87f6cdf2c7194849c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
