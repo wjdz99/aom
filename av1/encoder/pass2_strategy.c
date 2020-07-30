@@ -1571,7 +1571,10 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   // Reset the GF group data structures unless this is a key
   // frame in which case it will already have been done.
   if (!is_intra_only) {
+    const int last_gf_update_type = 
+      cpi->gf_group.update_type[cpi->gf_group.size];
     av1_zero(cpi->gf_group);
+    cpi->gf_group.update_type[0] = last_gf_update_type;
   }
 
   aom_clear_system_state();
