@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "200b547a_0ce8b0da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-07-30T18:59:18Z",
+      "side": 1,
+      "message": "Keep this on hold for now, as i found some cases where its not bitexact (very close but not exact), not sure why, i expect it to be bitexact.",
+      "revId": "fa29c6b07fa834d26c658db4e3eb2f5212bb5950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
