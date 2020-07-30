@@ -532,6 +532,8 @@ static void idct4x4_neon(int32x4_t *in, int32x4_t *out, int bit, int do_cols,
   int log_range = AOMMAX(16, bd + (do_cols ? 6 : 8));
   int32x4_t clamp_lo = vdupq_n_s32(-(1 << (log_range - 1)));
   int32x4_t clamp_hi = vdupq_n_s32((1 << (log_range - 1)) - 1);
+  int32x4_t rnding = vdupq_n_s32(1 << (bit - 1));
+
   int32x4_t u0, u1, u2, u3;
   int32x4_t v0, v1, v2, v3, x, y;
 
@@ -551,7 +553,8 @@ static void idct4x4_neon(int32x4_t *in, int32x4_t *out, int bit, int do_cols,
 
   x = vmulq_n_s32(u1, cospi[48]);
   v2 = vmlsq_n_s32(x, u3, cospi[16]);
-  v2 = vrshlq_s32(v2, v_bit);
+  v2 = vaddq_s32(v2, rnding);
+  v2 = vshlq_s32(v2, v_bit);
 
   x = vmulq_n_s32(u1, cospi[16]);
   v3 = vmlaq_n_s32(x, u3, cospi[48]);
