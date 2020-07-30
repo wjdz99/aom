@@ -117,6 +117,30 @@
       "revId": "56bbcf082c3c466f2c452618445086a9306d8e03",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9c05e53_2147f85f",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 861,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-07-30T21:26:50Z",
+      "side": 1,
+      "message": "It should be that way. In the case of AVX2 and SSE2, The lowbd and highbd work for very restricted cases.The default case is C implementation which is the last else case. First it looks for hbd and then lbd and then default.",
+      "parentUuid": "f8e5deae_9dfb4d28",
+      "range": {
+        "startLine": 852,
+        "startChar": 0,
+        "endLine": 861,
+        "endChar": 34
+      },
+      "revId": "56bbcf082c3c466f2c452618445086a9306d8e03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
