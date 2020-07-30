@@ -566,7 +566,7 @@ static void mv_dbscan1(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
                        int cluster_label[MAX_REF_MV_STACK_SIZE],
                        bool is_single_frame) {
   // fprintf(stderr, "start = %d end=%d\n", start, end);
-  //  start included but end excluded
+  //  Clustering run in [start, end), start included but end excluded
   const int mv_num = end - start;
   float point_distances[mv_num][mv_num];
   for (int i = 0; i < mv_num; i++) {
@@ -624,7 +624,7 @@ static void mv_dbscan1(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
         for (int j = 0; j < mv_num; j++) {
           if (i != j && is_centriods[j] && neighborhood[i][j]) {
             // Centroid j is also in Centriod i's neighborhood, so combine them
-            // Put all centroid j's element in centriod i
+            // Put all centroid j's element in centriod i's cluster
             (*cluster_num)--;
             is_centriods[j] = false;
             for (int k = 0; k < mv_num; k++) {
@@ -660,6 +660,7 @@ static void mv_dbscan1(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   // }
   // fprintf(stderr, "\n");
 }
+// obselete
 static void mv_dbscan(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
                       const int refmv_num, const int min_points,
                       const float threshold, int *cluster_num,
@@ -762,6 +763,7 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
       //     ref_mv_stack[j].this_mv.as_mv.col,
       //     ref_mv_stack[j].comp_mv.as_mv.row,
       //     ref_mv_stack[j].comp_mv.as_mv.col);
+      // Weighted Average (obselete)
       // temp = ref_mv_stack[j].this_mv.as_mv.row;
       // temp *= ref_mv_weight[j];
       // this_mv_row += temp;
@@ -776,6 +778,8 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
       // comp_mv_col += temp;
       // total_weight += ref_mv_weight[j];
       // cluster_points++;
+
+      // Arithmetic Average
       temp = ref_mv_stack[j].this_mv.as_mv.row;
       this_mv_row += temp;
       temp = ref_mv_stack[j].this_mv.as_mv.col;
@@ -997,6 +1001,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       break;
   }
   if (false) {
+    // Clustering at one time (Obselete)
     // DBSCAN
     const int min_points = 2;
     const int dist_thresholod = 1;
@@ -1052,6 +1057,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
   // if (false)
   {
+    // DBSCAN Parameters
     int original_ref_mv_cnt = (*refmv_count);
     // DBSCAN-1
     const int min_points = 2;
@@ -1065,7 +1071,6 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
     // If the spatial mvs can not even fill the MAX_MV_REF_CANDIDATES, we will
     // not cluster them
-
     if (nearest_refmv_count > MAX_MV_REF_CANDIDATES) {
       mv_dbscan1(ref_mv_stack, 0, nearest_refmv_count, min_points,
                  dist_threshold, (&cluster_num1), cluster_label,
@@ -1082,7 +1087,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         }
       }
     }
-
+    // If there are too few mv candidates remains, do not cluster them
     if ((*refmv_count) - nearest_refmv_count > 2) {
       mv_dbscan1(ref_mv_stack, nearest_refmv_count, (*refmv_count), min_points,
                  dist_threshold, (&cluster_num2), cluster_label,
@@ -1160,6 +1165,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   //             i);
   //   }
   // }
+
   // Rank the likelihood and assign nearest and near mvs.
   int len = nearest_refmv_count;
   while (len > 0) {
