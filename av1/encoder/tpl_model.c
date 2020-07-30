@@ -964,10 +964,10 @@ static AOM_INLINE void init_gop_frames_for_tpl(
 
     av1_get_ref_frames(cpi, &ref_buffer_stack);
     int refresh_mask = av1_get_refresh_frame_flags(
-        cpi, &frame_params, frame_update_type, &ref_buffer_stack);
+        cpi, &frame_params, frame_update_type, gf_index, &ref_buffer_stack);
 
     int refresh_frame_map_index = av1_get_refresh_ref_frame_map(refresh_mask);
-    av1_update_ref_frame_map(cpi, frame_update_type,
+    av1_update_ref_frame_map(cpi, frame_update_type, gf_index,
                              frame_params.show_existing_frame,
                              refresh_frame_map_index, &ref_buffer_stack);
 
@@ -1014,9 +1014,10 @@ static AOM_INLINE void init_gop_frames_for_tpl(
 
     av1_get_ref_frames(cpi, &ref_buffer_stack);
     int refresh_mask = av1_get_refresh_frame_flags(
-        cpi, &frame_params, frame_update_type, &ref_buffer_stack);
+        cpi, &frame_params, frame_update_type, -1, //sarahparker fix
+        &ref_buffer_stack);
     int refresh_frame_map_index = av1_get_refresh_ref_frame_map(refresh_mask);
-    av1_update_ref_frame_map(cpi, frame_update_type,
+    av1_update_ref_frame_map(cpi, frame_update_type, -1, //sarahparker fix
                              frame_params.show_existing_frame,
                              refresh_frame_map_index, &ref_buffer_stack);
 

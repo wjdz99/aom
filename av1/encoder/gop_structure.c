@@ -209,7 +209,7 @@ static int construct_multi_layer_gf_structure(
   SubGOPSetCfg *subgop_cfg_set = &cpi->subgop_config_set;
   const SubGOPCfg *subgop_cfg0 =
       av1_find_subgop_config(subgop_cfg_set, gf_interval, 0);
-  if (subgop_cfg0) {
+  if (0 && subgop_cfg0) {
     const SubGOPCfg *subgop_cfg = subgop_cfg0;
 
     // Check if it is the last GOP
