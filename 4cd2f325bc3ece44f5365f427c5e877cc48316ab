@@ -52,6 +52,24 @@
       "revId": "4cd2f325bc3ece44f5365f427c5e877cc48316ab",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e393b1fe_82a523e0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-07-30T20:54:28Z",
+      "side": 1,
+      "message": "This is confusing. I saw you added if (is_frame_high_bitdepth(frame_to_filter)). So this is needed, otherwise, your change doesn\u0027t work. Right?",
+      "parentUuid": "78d24d55_5773d0d4",
+      "revId": "4cd2f325bc3ece44f5365f427c5e877cc48316ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
