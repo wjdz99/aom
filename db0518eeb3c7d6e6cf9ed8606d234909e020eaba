@@ -22,6 +22,30 @@
       "revId": "db0518eeb3c7d6e6cf9ed8606d234909e020eaba",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81c4b8b4_d036aeaf",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 860,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-07-30T23:35:38Z",
+      "side": 1,
+      "message": "it is part of else if statement. It passes clang-format. If HBD, then it works as else if to get to c implementation if the conditions are not met. If LBD, then it works as regular if.",
+      "parentUuid": "20a569c5_36794b82",
+      "range": {
+        "startLine": 860,
+        "startChar": 14,
+        "endLine": 860,
+        "endChar": 16
+      },
+      "revId": "db0518eeb3c7d6e6cf9ed8606d234909e020eaba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
