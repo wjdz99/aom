@@ -70,6 +70,30 @@
       "revId": "db0518eeb3c7d6e6cf9ed8606d234909e020eaba",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92137498_1253d031",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 860,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-07-31T15:38:23Z",
+      "side": 1,
+      "message": "The arrangement is if(hbd \u0026\u0026 ..) .. else if (lbd ..) else.The if statement corresponds to else if and the else of 867 corresponds to if in 860. It is only that else in 858 and if in 860 are written like that to facilitate #if/#endif statement to support CONFIG_AV1_HIGHBITDEPTH.",
+      "parentUuid": "c98de2df_b048b94c",
+      "range": {
+        "startLine": 860,
+        "startChar": 14,
+        "endLine": 860,
+        "endChar": 16
+      },
+      "revId": "db0518eeb3c7d6e6cf9ed8606d234909e020eaba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
