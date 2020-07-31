@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e60f76a_3a005d76",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2020-07-31T16:22:13Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, we have fixed pruning of reference frames in global motion search. \n\nFor frames of type ARF/GF update, pruning of certain reference frames (according to \u0027selective_ref_frame\u0027 speed feature) may be disabled (based on tpl data) during encoder mode decision. However, during global motion search, reference frames were always being pruned. In this patch, for ALTREF/GOLDEN frames, we disable pruning of reference frames during global motion search. \n\nThe results of this patch along with its parent (https://aomedia-review.googlesource.com/c/aom/+/116241) are detailed below: \n\n                       Encode Time          BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)   avg.psnr   ovr.psnr      ssim\n   2       LOW RES      0.907          -0.1125     -0.0901    -0.2248\n   2       MID RES      1.951          -0.1002     -0.0854    -0.1406\n   2       HD RES       1.197          -0.0029     -0.0027    -0.1303\n   2       Average      1.235          -0.0755     -0.0621    -0.1713\n\n               \nIn the table above, BD-Rate Loss(%) column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe encode time reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n \nPlease review the patch.\nThank you.\n",
+      "revId": "5394be9ce2fe86eeb02d4f94bc942cef2e1ef0e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
