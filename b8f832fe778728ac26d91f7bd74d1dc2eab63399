@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d44e6332_c5a17684",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2020-07-31T16:18:42Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch we have extended the speed feature \u0027prune_ref_frames_in_tpl\u0027 to speed 2. Also, we have submitted a dependent patch https://aomedia-review.googlesource.com/c/aom/+/116242 which fixes pruning of reference frames in global motion search. \n\nWe have only LOWRES results for this patch. The complete results (for this patch and the dependent patch) are given in the review message of https://aomedia-review.googlesource.com/c/aom/+/116242.\n\n                            Encode Time             BD-Rate Loss(%) \ncpu-used     Resolution     Reduction (%)     avg.psnr   ovr.psnr     ssim\n  2           LOWRES          0.967           -0.0656    -0.0437     -0.1551\n\nIn the table above, BD-Rate Loss(%) column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe encode time reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\nThank you.",
+      "revId": "b8f832fe778728ac26d91f7bd74d1dc2eab63399",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
