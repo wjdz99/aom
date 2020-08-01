@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab01a499_3ffbde52",
+        "filename": "av1/encoder/x86/highbd_temporal_filter_sse2.c",
+        "patchSetId": 26
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-08-01T00:48:11Z",
+      "side": 1,
+      "message": "Why these are removed in patchset 27? please double check your cl without bringing in any unintentional change?",
+      "range": {
+        "startLine": 185,
+        "startChar": 1,
+        "endLine": 186,
+        "endChar": 30
+      },
+      "revId": "1937dbaf4c3825f70d4ea362aebfa5ed51efc017",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}

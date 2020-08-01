@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "280d23a3_fb7aaa4c",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 27
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-08-01T00:48:11Z",
+      "side": 1,
+      "message": "This condition for hbd is different from your patchset 3. Copied here:\n\n        if (TF_BLOCK_SIZE \u003d\u003d BLOCK_32X32 \u0026\u0026 TF_WINDOW_LENGTH \u003d\u003d 5 \u0026\u0026\n              !is_frame_high_bitdepth(frame_to_filter) \u0026\u0026 !is_yuv422_format) {\n            av1_apply_temporal_filter(frame_to_filter, mbd, block_size, mb_row,\n                                      mb_col, num_planes, noise_levels,\n                                      subblock_mvs, subblock_mses, q_factor,\n                                      filter_strength, pred, accum, count);\n          } else {\n            if (!is_frame_high_bitdepth(frame_to_filter))\n              av1_apply_temporal_filter_c(\n                  frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,\n                  noise_levels, subblock_mvs, subblock_mses, q_factor,\n                  filter_strength, pred, accum, count);\n#if CONFIG_AV1_HIGHBITDEPTH\n            else\n              av1_highbd_apply_temporal_filter(\n                  frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,\n                  noise_levels, subblock_mvs, subblock_mses, q_factor,\n                  filter_strength, pred, accum, count);\n#endif  // CONFIG_AV1_HIGHBITDEPTH\n          }",
+      "range": {
+        "startLine": 850,
+        "startChar": 1,
+        "endLine": 852,
+        "endChar": 32
+      },
+      "revId": "1382159eca5765ddca64577019ec9b20c5234665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86d5d4f2_5ef3bfb2",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 27
+      },
+      "lineNbr": 878,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-08-01T00:48:11Z",
+      "side": 1,
+      "message": "Can we only keep is_frame_high_bitdepth() in top-level if condition EXACTLY following:\n\nif (is_frame_high_bitdepth()) {\n// only hbd case here\n#if CONFIG_AV1_HIGHBITDEPTH\n// 10 bit simd\n#else\n// call c\n#endif  // CONFIG_AV1_HIGHBITDEPTH\n} else {\n// only 8 bit case here\n}\n\nDon\u0027t mix TF_BLOCK_SIZE \u003d\u003d BLOCK_32X32 \u0026\u0026 TF_WINDOW_LENGTH \u003d\u003d 5 and !is_frame_high_bitdepth(frame_to_filter) together.\n\nTotally separate hbd and lbd. Otherwise, the logic couldn\u0027t be made clear.",
+      "range": {
+        "startLine": 878,
+        "startChar": 3,
+        "endLine": 878,
+        "endChar": 7
+      },
+      "revId": "1382159eca5765ddca64577019ec9b20c5234665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
