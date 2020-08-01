@@ -1103,7 +1103,10 @@ typedef struct macroblockd {
   int cur_frame_force_integer_mv;
   // same with that in AV1_COMMON
   struct aom_internal_error_info *error_info;
-  const WarpedMotionParams *global_motion;
+  WarpedMotionParams *global_motion;
+#if CONFIG_SB_WARP
+  WarpedMotionParams backup_global_motion[REF_FRAMES];
+#endif
   int delta_qindex;
   int current_qindex;
   // Since actual frame level loop filtering level value is not available
