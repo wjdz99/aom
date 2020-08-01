@@ -930,6 +930,12 @@ typedef struct AV1_COMP {
   int gmtype_cost[TRANS_TYPES];
   int gmparams_cost[REF_FRAMES];
 
+#if CONFIG_SB_WARP
+  int **modify_gm_params_for_sb;
+  int is_delta_present_for_at_least_one_frame;
+  int valid_frame_for_delta_gm;
+#endif  // CONFIG_SB_WARP
+
   int64_t last_time_stamp_seen;
   int64_t last_end_time_stamp_seen;
   int64_t first_time_stamp_ever;

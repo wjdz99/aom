@@ -33,6 +33,9 @@
 #define DEFAULT_WMTYPE AFFINE
 #define WARP_ERROR_BLOCK_LOG 5
 #define WARP_ERROR_BLOCK (1 << WARP_ERROR_BLOCK_LOG)
+#if CONFIG_SB_WARP
+#define WARP_HISTOGRAM_BLOCK 16
+#endif  // CONFIG_SB_WARP
 
 extern const int16_t av1_warped_filter[WARPEDPIXEL_PREC_SHIFTS * 3 + 1][8];
 
@@ -184,4 +187,11 @@ int av1_find_projection(int np, int *pts1, int *pts2, BLOCK_SIZE bsize, int mvy,
                         int mi_col);
 
 int av1_get_shear_params(WarpedMotionParams *wm);
+
+#if CONFIG_SB_WARP
+static const int32_t global_offset_mat[NUM_WARPED_DELTA_MODELS][8] = {
+  { 0, 0, 16, -16, -16, 16 }, { 0, 0, -16, 16, 16, -16 }
+};
+#endif  // CONFIG_SB_WARP
+
 #endif  // AOM_AV1_COMMON_WARPED_MOTION_H_
