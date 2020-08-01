@@ -278,6 +278,10 @@ static void set_good_speed_features_framesize_independent(
   sf->less_rectangular_check_level = 1;
   sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3;
   sf->gm_disable_recode = 1;
+#if CONFIG_SB_WARP
+  int num_tiles = cm->tile_cols * cm->tile_rows;
+  sf->enable_sb_warp = ((num_tiles == 1) && !cpi->oxcf.superres_mode);
+#endif  // CONFIG_SB_WARP
   sf->use_fast_interpolation_filter_search = 1;
   sf->intra_tx_size_search_init_depth_sqr = 1;
   sf->intra_angle_estimation = 1;
@@ -901,6 +905,9 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   sf->use_transform_domain_distortion = 0;
   sf->gm_search_type = GM_FULL_SEARCH;
   sf->gm_disable_recode = 0;
+#if CONFIG_SB_WARP
+  sf->enable_sb_warp = 0;
+#endif  // CONFIG_SB_WARP
   sf->use_fast_interpolation_filter_search = 0;
   sf->disable_dual_filter = 0;
   sf->skip_repeat_interpolation_filter_search = 0;
