@@ -509,6 +509,28 @@ static void update_film_grain_parameters(struct AV1_COMP *cpi,
   }
 }
 
+#if CONFIG_SB_WARP
+static void alloc_sb_gm_buffer(AV1_COMP *const cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  CHECK_MEM_ERROR(
+      cm, cpi->modify_gm_params_for_sb,
+      aom_malloc(sizeof(cpi->modify_gm_params_for_sb) * cm->sb_rows));
+  for (int sb_row = 0; sb_row < cm->sb_rows; sb_row++) {
+    CHECK_MEM_ERROR(
+        cm, cpi->modify_gm_params_for_sb[sb_row],
+        aom_malloc(sizeof(*(*(cpi->modify_gm_params_for_sb))) * cm->sb_cols));
+  }
+}
+
+static void free_sb_gm_buffer(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  for (int sb_row = 0; sb_row < cm->sb_rows; sb_row++) {
+    aom_free(cpi->modify_gm_params_for_sb[sb_row]);
+  }
+  aom_free(cpi->modify_gm_params_for_sb);
+}
+#endif  // CONFIG_SB_WARP
+
 static void dealloc_compressor_data(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
 
@@ -3610,6 +3632,10 @@ void av1_remove_compressor(AV1_COMP *cpi) {
 
   dealloc_compressor_data(cpi);
 
+#if CONFIG_SB_WARP
+  free_sb_gm_buffer(cpi);
+#endif  // CONFIG_SB_WARP
+
   for (i = 0; i < sizeof(cpi->mbgraph_stats) / sizeof(cpi->mbgraph_stats[0]);
        ++i) {
     aom_free(cpi->mbgraph_stats[i].mb_stats);
@@ -4297,6 +4323,9 @@ static int set_size_literal(AV1_COMP *cpi, int width, int height) {
 
   if (cpi->initial_width && cpi->initial_height &&
       (cm->width > cpi->initial_width || cm->height > cpi->initial_height)) {
+#if CONFIG_SB_WARP
+    free_sb_gm_buffer(cpi);
+#endif  // CONFIG_SB_WARP
     av1_free_context_buffers(cm);
     av1_free_shared_coeff_buffer(&cpi->td.shared_coeff_buf);
     av1_free_sms_tree(&cpi->td);
@@ -4329,6 +4358,12 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
   }
 
   alloc_frame_mvs(cm, cm->cur_frame);
+
+#if CONFIG_SB_WARP
+  if (cpi->modify_gm_params_for_sb == NULL) {
+    alloc_sb_gm_buffer(cpi);
+  }
+#endif  // CONFIG_SB_WARP
 
   // Allocate above context buffers
   if (cm->num_allocated_above_context_planes < av1_num_planes(cm) ||
