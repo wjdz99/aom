@@ -659,11 +659,17 @@ static void highbd_warp_plane(WarpedMotionParams *wm, const uint16_t *const ref,
                            delta);
 }
 
+#if CONFIG_SB_WARP
+int64_t av1_calc_highbd_frame_error(const uint16_t *const ref, int stride,
+                                    const uint16_t *const dst, int p_width,
+                                    int p_height, int p_stride, int bd) {
+#else
 static int64_t av1_calc_highbd_frame_error(const uint16_t *const ref,
                                            int stride,
                                            const uint16_t *const dst,
                                            int p_width, int p_height,
                                            int p_stride, int bd) {
+#endif  // CONFIG_SB_WARP
   int64_t sum_error = 0;
   for (int i = 0; i < p_height; ++i) {
     for (int j = 0; j < p_width; ++j) {
