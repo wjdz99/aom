@@ -1576,6 +1576,48 @@ static void read_sb_info(SB_INFO *sbi, AV1Decoder *const pbi,
   }
 }
 
+#if CONFIG_SB_WARP
+// Adds some offset to a global motion parameter and handles
+// all of the necessary precision shifts, clamping, and
+// zero-centering.
+static int32_t add_param_offset(int param_index, int32_t param_value,
+                                int32_t offset) {
+  const int scale_vals[3] = { GM_TRANS_PREC_DIFF, GM_ALPHA_PREC_DIFF,
+                              GM_ROW3HOMO_PREC_DIFF };
+  const int clamp_vals[3] = { GM_TRANS_MAX, GM_ALPHA_MAX, GM_ROW3HOMO_MAX };
+  // type of param: 0 - translation, 1 - affine, 2 - homography
+  const int param_type = (param_index < 2 ? 0 : (param_index < 6 ? 1 : 2));
+  const int is_one_centered = (param_index == 2 || param_index == 5);
+
+  // Make parameter zero-centered and offset the shift that was done to make
+  // it compatible with the warped model
+  param_value = (param_value - (is_one_centered << WARPEDMODEL_PREC_BITS)) >>
+                scale_vals[param_type];
+  // Add desired offset to the rescaled/zero-centered parameter
+  param_value += offset;
+  // Clamp the parameter so it does not overflow the number of bits allotted
+  // to it in the bitstream
+  param_value = (int32_t)clamp(param_value, -clamp_vals[param_type],
+                               clamp_vals[param_type]);
+  // Rescale the parameter to WARPEDMODEL_PRECISION_BITS so it is compatible
+  // with the warped motion library
+  param_value *= (1 << scale_vals[param_type]);
+
+  // Undo the zero-centering step if necessary
+  return param_value + (is_one_centered << WARPEDMODEL_PREC_BITS);
+}
+
+static INLINE void modify_warp_params_for_delta(WarpedMotionParams *wm,
+                                                int delta_model_index) {
+  for (int p = 0; p < 8; p++) {
+    int32_t curr_param = wm->wmmat[p];
+    wm->wmmat[p] = add_param_offset(
+        p, curr_param, global_offset_mat[delta_model_index - 1][p]);
+  }
+  wm->wmtype = get_wmtype(wm);
+}
+#endif
+
 // TODO(slavarnway): eliminate bsize and subsize in future commits
 static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
                              int mi_row, int mi_col, aom_reader *reader,
@@ -1628,6 +1670,33 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
           }
         }
       }
+#if CONFIG_SB_WARP
+      if (pbi->is_delta_present_for_at_least_one_frame &&
+          bsize == cm->seq_params.sb_size) {
+        int **modify_gm_params = pbi->modify_gm_params_for_sb;
+        int sb_mi_width = block_size_wide[pbi->common.seq_params.sb_size] >> 2;
+        int sb_row = mi_row / sb_mi_width;
+        int sb_col = mi_col / sb_mi_width;
+        assert(sb_row <= cm->sb_rows);
+        assert(sb_col <= cm->sb_cols);
+        *(*(modify_gm_params + sb_row) + sb_col) = 0;
+        *(*(modify_gm_params + sb_row) + sb_col) =
+            aom_read_literal(reader, 1, ACCT_STR);
+        if (*(*(modify_gm_params + sb_row) + sb_col) == 1) {
+          for (int frame = LAST_FRAME; frame < REF_FRAMES; frame++) {
+            WarpedMotionParams *warp_params = &xd->global_motion[frame];
+            if (warp_params->wmtype <= TRANSLATION) continue;
+            // Update the delta parameters
+            {
+              if (cm->global_motion[frame].is_delta != 1) continue;
+              int delta_index = cm->global_motion[frame].delta_index;
+              modify_warp_params_for_delta(warp_params, delta_index);
+              av1_get_shear_params(warp_params);
+            }
+          }
+        }
+      }
+#endif  // CONFIG_SB_WARP
 #if CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
     }
 #endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
@@ -3083,10 +3152,21 @@ static void decode_tile_sb_row(AV1Decoder *pbi, ThreadData *const td,
 
     sync_read(&tile_data->dec_row_mt_sync, sb_row_in_tile, sb_col_in_tile);
 
+#if CONFIG_SB_WARP
+    for (int frame = LAST_FRAME; frame < REF_FRAMES; frame++) {
+      td->xd.backup_global_motion[frame] = td->xd.global_motion[frame];
+    }
+#endif  // CONFIG_SB_WARP
+
     // Decoding of the super-block
     decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
                      cm->seq_params.sb_size, td->xd.sbi, td->xd.sbi->ptree_root,
                      0x2);
+#if CONFIG_SB_WARP
+    for (int frame = LAST_FRAME; frame < REF_FRAMES; frame++) {
+      td->xd.global_motion[frame] = td->xd.backup_global_motion[frame];
+    }
+#endif  // CONFIG_SB_WARP
 
     sync_write(&tile_data->dec_row_mt_sync, sb_row_in_tile, sb_col_in_tile,
                sb_cols_in_tile);
@@ -3162,10 +3242,20 @@ static void decode_tile(AV1Decoder *pbi, ThreadData *const td, int tile_row,
       av1_reset_ptree_in_sbi(td->xd.sbi);
       set_cb_buffer(pbi, &td->xd, &td->cb_buffer_base, num_planes, 0, 0);
 
+#if CONFIG_SB_WARP
+      for (int frame = LAST_FRAME; frame < REF_FRAMES; frame++) {
+        td->xd.backup_global_motion[frame] = td->xd.global_motion[frame];
+      }
+#endif
       // Bit-stream parsing and decoding of the superblock
       decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
                        cm->seq_params.sb_size, td->xd.sbi,
                        td->xd.sbi->ptree_root, 0x3);
+#if CONFIG_SB_WARP
+      for (int frame = LAST_FRAME; frame < REF_FRAMES; frame++) {
+        td->xd.global_motion[frame] = td->xd.backup_global_motion[frame];
+      }
+#endif  // CONFIG_SB_WARP
 
       if (aom_reader_has_overflowed(td->bit_reader)) {
         aom_merge_corrupted_flag(&td->xd.corrupted, 1);
@@ -4708,15 +4798,45 @@ static int read_global_motion_params(WarpedMotionParams *params,
       AOMMIN(1, MV_SUBPEL_EIGHTH_PRECISION - precision);
 #endif  // CONFIG_FLEX_MVRES
   TransformationType type = aom_rb_read_bit(rb);
+#if CONFIG_SB_WARP
+  int is_delta = 0;
+  int delta_index_minus1 = 0;
+#endif  // CONFIG_SB_WARP
   if (type != IDENTITY) {
-    if (aom_rb_read_bit(rb))
+    if (aom_rb_read_bit(rb)) {
       type = ROTZOOM;
-    else
+#if CONFIG_SB_WARP
+      if (type == ROTZOOM) {
+        is_delta = aom_rb_read_bit(rb);
+        if (is_delta > 0) {
+#if NUM_WARPED_DELTA_MODELS > 4
+          int a[3] = { 0 };
+          a[0] = aom_rb_read_bit(rb);
+          a[1] = aom_rb_read_bit(rb);
+          a[2] = aom_rb_read_bit(rb);
+          delta_index_minus1 = (a[0] << 2) | (a[1] << 1) | a[2];
+#elif NUM_WARPED_DELTA_MODELS == 4
+          int a[2] = { 0 };
+          a[0] = aom_rb_read_bit(rb);
+          a[1] = aom_rb_read_bit(rb);
+          delta_index_minus1 = (a[0] << 1) | a[1];
+#elif NUM_WARPED_DELTA_MODELS == 2
+          delta_index_minus1 = aom_rb_read_bit(rb);
+#endif
+        }
+      }
+#endif  // CONFIG_SB_WARP
+    } else {
       type = aom_rb_read_bit(rb) ? TRANSLATION : AFFINE;
+    }
   }
 
   *params = default_warp_params;
   params->wmtype = type;
+#if CONFIG_SB_WARP
+  params->is_delta = is_delta;
+  params->delta_index = delta_index_minus1 + 1;
+#endif  // CONFIG_SB_WARP
 
   if (type >= ROTZOOM) {
     params->wmmat[2] = aom_rb_read_signed_primitive_refsubexpfin(
@@ -4783,6 +4903,8 @@ static void read_global_motion(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
                        : &default_warp_params;
     int good_params = read_global_motion_params(
         &cm->global_motion[frame], ref_params, rb, cm->fr_mv_precision);
+    cm->is_delta_present_for_at_least_one_frame |=
+        cm->global_motion[frame].is_delta;
     if (!good_params) {
 #if WARPED_MOTION_DEBUG
       printf("Warning: unexpected global motion shear params from aomenc\n");
@@ -5579,8 +5701,17 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                        "Frame wrongly requests reference frame MVs");
   }
+#if CONFIG_SB_WARP
+  cm->is_delta_present_for_at_least_one_frame = 0;
+  pbi->is_delta_present_for_at_least_one_frame = 0;
+#endif  // CONFIG_SB_WARP
 
   if (!frame_is_intra_only(cm)) read_global_motion(cm, rb);
+
+#if CONFIG_SB_WARP
+  pbi->is_delta_present_for_at_least_one_frame =
+      cm->is_delta_present_for_at_least_one_frame;
+#endif  // CONFIG_SB_WARP
 
   cm->cur_frame->film_grain_params_present =
       seq_params->film_grain_params_present;
@@ -5735,7 +5866,16 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_LPF_MASK
   av1_loop_filter_frame_init(cm, 0, num_planes);
 #endif
-
+#if CONFIG_SB_WARP
+  CHECK_MEM_ERROR(
+      cm, pbi->modify_gm_params_for_sb,
+      aom_malloc(sizeof(pbi->modify_gm_params_for_sb) * cm->sb_rows));
+  for (int sb_row = 0; sb_row < cm->sb_rows; sb_row++) {
+    CHECK_MEM_ERROR(
+        cm, pbi->modify_gm_params_for_sb[sb_row],
+        aom_malloc(sizeof(*(*(pbi->modify_gm_params_for_sb))) * cm->sb_cols));
+  }
+#endif
   if (pbi->max_threads > 1 && !(cm->large_scale_tile && !pbi->ext_tile_debug) &&
       pbi->row_mt)
     *p_data_end =
@@ -5745,6 +5885,13 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
     *p_data_end = decode_tiles_mt(pbi, data, data_end, start_tile, end_tile);
   else
     *p_data_end = decode_tiles(pbi, data, data_end, start_tile, end_tile);
+
+#if CONFIG_SB_WARP
+  for (int sb_row = 0; sb_row < pbi->common.sb_rows; sb_row++) {
+    aom_free(pbi->modify_gm_params_for_sb[sb_row]);
+  }
+  aom_free(pbi->modify_gm_params_for_sb);
+#endif
 
   // If the bit stream is monochrome, set the U and V buffers to a constant.
   if (num_planes < 3) {

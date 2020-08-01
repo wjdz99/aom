@@ -2119,6 +2119,20 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
         }
       }
     }
+#if CONFIG_SB_WARP
+    if (cpi->is_delta_present_for_at_least_one_frame &&
+        cm->seq_params.sb_size == bsize) {
+      assert(cpi->sf.enable_sb_warp);
+      int sb_mi_width = block_size_wide[cpi->common.seq_params.sb_size] >> 2;
+      int sb_row = mi_row / sb_mi_width;
+      int sb_col = mi_col / sb_mi_width;
+      assert(sb_row <= cm->sb_rows);
+      assert(sb_col <= cm->sb_cols);
+      int **modify_gm_params = cpi->modify_gm_params_for_sb;
+      int value = (*(*(modify_gm_params + sb_row) + sb_col) == 1);
+      aom_write_literal(w, value, 1);
+    }
+#endif  // CONFIG_SB_WARP
 #if CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
   }
 #endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
@@ -2264,7 +2278,6 @@ static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
         tok + cpi->tplist[tile_row][tile_col][sb_row_in_tile].count;
 
     av1_zero_left_context(xd);
-
     for (mi_col = mi_col_start; mi_col < mi_col_end;
          mi_col += cm->seq_params.mib_size) {
       av1_reset_is_mi_coded_map(xd, cm->seq_params.mib_size);
@@ -3335,6 +3348,33 @@ static void write_global_motion_params(const WarpedMotionParams *params,
   aom_wb_write_bit(wb, type != IDENTITY);
   if (type != IDENTITY) {
     aom_wb_write_bit(wb, type == ROTZOOM);
+#if CONFIG_SB_WARP
+    if (type == ROTZOOM) {
+      aom_wb_write_bit(wb, params->is_delta > 0);
+      if (params->is_delta > 0) {
+#if (NUM_WARPED_DELTA_MODELS > 4)
+        int a[3] = { 0 };
+        int delta_index_minus1 = params->delta_index - 1;
+        a[2] = delta_index_minus1 & 0x1;
+        a[1] = (delta_index_minus1 & 0x2) >> 1;
+        a[0] = (delta_index_minus1 & 0x4) >> 2;
+        aom_wb_write_bit(wb, a[0]);
+        aom_wb_write_bit(wb, a[1]);
+        aom_wb_write_bit(wb, a[2]);
+#elif NUM_WARPED_DELTA_MODELS == 4
+        int a[2] = { 0 };
+        int delta_index_minus1 = params->delta_index - 1;
+        a[1] = delta_index_minus1 & 0x1;
+        a[0] = (delta_index_minus1 & 0x2) >> 1;
+        aom_wb_write_bit(wb, a[0]);
+        aom_wb_write_bit(wb, a[1]);
+#elif NUM_WARPED_DELTA_MODELS == 2
+          int delta_index_minus1 = params->delta_index - 1;
+          aom_wb_write_bit(wb, delta_index_minus1);
+#endif
+      }
+    }
+#endif  // CONFIG_SB_WARP
     if (type != ROTZOOM) aom_wb_write_bit(wb, type == TRANSLATION);
   }
 
@@ -3390,6 +3430,10 @@ static void write_global_motion(AV1_COMP *cpi,
                        : &default_warp_params;
     write_global_motion_params(&cm->global_motion[frame], ref_params, wb,
                                cm->fr_mv_precision);
+#if CONFIG_SB_WARP
+    cpi->is_delta_present_for_at_least_one_frame |=
+        cm->global_motion[frame].is_delta;
+#endif  // CONFIG_SB_WARP
     // TODO(sarahparker, debargha): The logic in the commented out code below
     // does not work currently and causes mismatches when resize is on.
     // Fix it before turning the optimization back on.
@@ -4470,7 +4514,9 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
 int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
                        int *const largest_tile_id) {
   if (!cpi->pack_bitstream) return AOM_CODEC_OK;
-
+#if CONFIG_SB_WARP
+  cpi->is_delta_present_for_at_least_one_frame = 0;
+#endif  // CONFIG_SB_WARP
   uint8_t *data = dst;
   uint32_t data_size;
   AV1_COMMON *const cm = &cpi->common;

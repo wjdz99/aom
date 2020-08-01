@@ -68,7 +68,7 @@ set_aom_detect_var(HAVE_WXWIDGETS 0 "WxWidgets present.")
 # Build configuration flags.
 set_aom_config_var(AOM_RTCD_FLAGS ""
                    "Arguments to pass to rtcd.pl. Separate with ';'")
-set_aom_config_var(CONFIG_AV1_DECODER 1 "Enable AV1 decoder.")
+set_aom_config_var(CONFIG_AV1_DECODER 0 "Enable AV1 decoder.")
 set_aom_config_var(CONFIG_AV1_ENCODER 1 "Enable AV1 encoder.")
 set_aom_config_var(CONFIG_BIG_ENDIAN 0 "Internal flag.")
 set_aom_config_var(CONFIG_GCC 0 "Building with GCC (detect).")
@@ -199,6 +199,8 @@ set_aom_config_var(CONFIG_SEGMENT_BASED_PARTITIONING 0 NUMBER
                    "AV2 segment based partitioning experiment flag")
 set_aom_config_var(CONFIG_EXT_WARP 0 NUMBER
                    "AV2 extension to warp experiment flag")
+set_aom_config_var(CONFIG_SB_WARP 1 NUMBER
+                   "AV2 extension to superblock warp experiment flag")
 
 # To include Tensorflow, make sure to build tensorflow locally using
 # tensorflow/contrib/makefile/build_all_linux.sh and then providing the correct
