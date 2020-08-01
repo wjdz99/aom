@@ -245,6 +245,10 @@ typedef struct AV1Decoder {
 #endif
 
   AV1DecRowMTInfo frame_row_mt_info;
+#if CONFIG_SB_WARP
+  int **modify_gm_params_for_sb;
+  int is_delta_present_for_at_least_one_frame;
+#endif  // CONFIG_SB_WARP
 } AV1Decoder;
 
 // Returns 0 on success. Sets pbi->common.error.error_code to a nonzero error

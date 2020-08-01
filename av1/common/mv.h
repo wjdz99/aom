@@ -85,6 +85,9 @@ enum {
 #define WARPEDMODEL_PREC_BITS 16
 #define WARPEDMODEL_ROW3HOMO_PREC_BITS 16
 
+#define NUM_WARPED_DELTA_MODELS_LOG2 1
+#define NUM_WARPED_DELTA_MODELS (1 << NUM_WARPED_DELTA_MODELS_LOG2)
+
 #define WARPEDMODEL_TRANS_CLAMP (128 << WARPEDMODEL_PREC_BITS)
 #define WARPEDMODEL_NONDIAGAFFINE_CLAMP (1 << (WARPEDMODEL_PREC_BITS - 3))
 #define WARPEDMODEL_ROW3HOMO_CLAMP (1 << (WARPEDMODEL_PREC_BITS - 2))
@@ -133,6 +136,10 @@ typedef struct {
   int16_t alpha, beta, gamma, delta;
   TransformationType wmtype;
   int8_t invalid;
+#if CONFIG_SB_WARP
+  int8_t is_delta;
+  int8_t delta_index;
+#endif  // CONFIG_SB_WARP
 } WarpedMotionParams;
 
 /* clang-format off */
@@ -142,6 +149,10 @@ static const WarpedMotionParams default_warp_params = {
   0, 0, 0, 0,
   IDENTITY,
   0,
+#if CONFIG_SB_WARP
+  0,
+  0,
+#endif  // CONFIG_SB_WARP
 };
 /* clang-format on */
 

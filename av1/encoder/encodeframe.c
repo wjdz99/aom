@@ -5750,6 +5750,18 @@ static AOM_INLINE void set_cost_upd_freq(AV1_COMP *cpi, ThreadData *td,
   }
 }
 
+#if CONFIG_SB_WARP
+static INLINE void modify_warp_params_for_delta(WarpedMotionParams *wm,
+                                                int delta_model_index) {
+  for (int p = 0; p < 8; p++) {
+    int32_t curr_param = wm->wmmat[p];
+    wm->wmmat[p] = add_param_offset(
+        p, curr_param, global_offset_mat[delta_model_index - 1][p]);
+  }
+  wm->wmtype = get_wmtype(wm);
+}
+#endif
+
 static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
                           int mi_row, TOKENEXTRA **tp, int use_nonrd_mode) {
   AV1_COMMON *const cm = &cpi->common;
@@ -5805,6 +5817,28 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
                           wt_left, wt_tr);
       }
     }
+#if CONFIG_SB_WARP
+    for (int frame = LAST_FRAME; frame < REF_FRAMES; frame++) {
+      xd->backup_global_motion[frame] = xd->global_motion[frame];
+    }
+    int **modify_gm_params = cpi->modify_gm_params_for_sb;
+    int sb_mi_width = block_size_wide[sb_size] >> 2;
+    int sb_row_pos = mi_row / sb_mi_width;
+    int sb_col_pos = mi_col / sb_mi_width;
+    assert(sb_row_pos <= cm->sb_rows);
+    assert(sb_col_pos <= cm->sb_cols);
+    if (*(*(modify_gm_params + sb_row_pos) + sb_col_pos) == 1) {
+      // Update the delta parameters
+      for (int frame = LAST_FRAME; frame < REF_FRAMES; frame++) {
+        WarpedMotionParams *warp_params = &xd->global_motion[frame];
+        if (warp_params->wmtype <= TRANSLATION) continue;
+        if (cm->global_motion[frame].is_delta != 1) continue;
+        int delta_index = cm->global_motion[frame].delta_index;
+        modify_warp_params_for_delta(warp_params, delta_index);
+        av1_get_shear_params(warp_params);
+      }
+    }
+#endif  // CONFIG_SB_WARP
 
     set_cost_upd_freq(cpi, td, tile_info, mi_row, mi_col);
 
@@ -5850,6 +5884,13 @@ static void encode_sb_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
         memcpy(x->row_ctx + sb_col_in_tile - 1, xd->tile_ctx,
                sizeof(*xd->tile_ctx));
     }
+
+#if CONFIG_SB_WARP
+    for (int frame = LAST_FRAME; frame < REF_FRAMES; frame++) {
+      xd->global_motion[frame] = xd->backup_global_motion[frame];
+    }
+#endif  // CONFIG_SB_WARP
+
     (*(cpi->row_mt_sync_write_ptr))(&tile_data->row_mt_sync, sb_row,
                                     sb_col_in_tile, sb_cols_in_tile);
   }
@@ -6260,6 +6301,324 @@ static void set_default_interp_skip_flags(AV1_COMP *cpi) {
                                        : INTERP_SKIP_LUMA_SKIP_CHROMA;
 }
 
+#if CONFIG_SB_WARP
+static INLINE void update_frame_level_delta_model(
+    AV1_COMP *cpi, YV12_BUFFER_CONFIG *ref_buf, int frame,
+    int *block_ref_frame_plane_delta, int *valid_ref_for_delta_gm) {
+  if (!cpi->sf.enable_sb_warp) return;
+  AV1_COMMON *const cm = &cpi->common;
+  const uint8_t *const src = cpi->source->y_buffer;
+  const int p_width = cpi->source->y_width;
+  const int p_height = cpi->source->y_height;
+  const int p_stride = cpi->source->y_stride;
+  const uint8_t *const ref = ref_buf->y_buffer;
+  int width = ref_buf->y_width;
+  int height = ref_buf->y_height;
+  int stride = ref_buf->y_stride;
+  TileInfo tile_info;
+  av1_tile_init(&tile_info, cm, 0, 0);
+  int num_sb_rows_in_tile = av1_get_sb_rows_in_tile(cm, tile_info);
+  int num_sb_cols_in_tile = av1_get_sb_cols_in_tile(cm, tile_info);
+  const int SB_height = block_size_high[cm->seq_params.sb_size];
+  const int SB_width = block_size_wide[cm->seq_params.sb_size];
+
+  const int error_bsize_w = AOMMIN(p_width, WARP_HISTOGRAM_BLOCK);
+  const int error_bsize_h = AOMMIN(p_height, WARP_HISTOGRAM_BLOCK);
+  DECLARE_ALIGNED(16, uint8_t,
+                  tmp[WARP_HISTOGRAM_BLOCK * WARP_HISTOGRAM_BLOCK]);
+  ConvolveParams conv_params = get_conv_params(0, 0, 8);
+  conv_params.use_dist_wtd_comp_avg = 0;
+
+  int64_t gm_frame_error = 0;
+  int winner_hist_blocks[NUM_WARPED_DELTA_MODELS];
+  av1_zero(winner_hist_blocks);
+  int num_hist_blocks = 0;
+
+  for (int sb_row = 0; sb_row < num_sb_rows_in_tile; sb_row++) {
+    for (int sb_col = 0; sb_col < num_sb_cols_in_tile; sb_col++) {
+      const int p_row = sb_row * SB_height;
+      const int p_col = sb_col * SB_width;
+      int64_t block_error_delta_matrix_0 = 0;
+      for (int i = p_row; i < AOMMIN(p_height, p_row + SB_height);
+           i += WARP_HISTOGRAM_BLOCK) {
+        for (int j = p_col; j < AOMMIN(p_width, p_col + SB_width);
+             j += WARP_HISTOGRAM_BLOCK) {
+          // avoid warping extra 8x8 blocks in the padded region of
+          // the frame when p_width and p_height are not multiples
+          // of WARP_HISTOGRAM_BLOCK
+          int warp_w = AOMMIN(error_bsize_w, p_width - j);
+          int warp_h = AOMMIN(error_bsize_h, p_height - i);
+          num_hist_blocks++;
+          // Loop over the delta models
+          for (int delta_matrix_idx = 0;
+               delta_matrix_idx < NUM_WARPED_DELTA_MODELS + 1;
+               delta_matrix_idx++) {
+            WarpedMotionParams wm;
+            wm = cm->global_motion[frame];
+            if (delta_matrix_idx > 0)
+              modify_warp_params_for_delta(&wm, delta_matrix_idx);
+            if (!av1_get_shear_params(&wm)) continue;
+            av1_warp_affine(wm.wmmat, ref, width, height, stride, tmp, j, i,
+                            warp_w, warp_h, WARP_HISTOGRAM_BLOCK, 0, 0,
+                            &conv_params, wm.alpha, wm.beta, wm.gamma,
+                            wm.delta);
+            int64_t block_error = av1_calc_frame_error(
+                tmp, WARP_HISTOGRAM_BLOCK, src + j + i * p_stride, warp_w,
+                warp_h, p_stride);
+
+            // Store the block error corresponding to delta_matrix_idx 0
+            // (i.e. global motion params)
+            if (delta_matrix_idx == 0) {
+              block_error_delta_matrix_0 = block_error;
+              gm_frame_error += block_error;
+            } else {
+              if (block_error < block_error_delta_matrix_0) {
+                winner_hist_blocks[delta_matrix_idx - 1]++;
+                int num_blocks_in_sb =
+                    block_size_wide[cm->seq_params.sb_size] *
+                    block_size_high[cm->seq_params.sb_size] /
+                    ((WARP_HISTOGRAM_BLOCK) * (WARP_HISTOGRAM_BLOCK));
+                int num_blocks_col_in_SB =
+                    block_size_wide[cm->seq_params.sb_size] /
+                    (WARP_HISTOGRAM_BLOCK);
+                int max_num_blocks_in_frame =
+                    GM_MAX_SB_ROWS * GM_MAX_SB_COLS * num_blocks_in_sb;
+                int sb_index = (sb_row * GM_MAX_SB_COLS + sb_col);
+                int block_index = i * num_blocks_col_in_SB + j;
+                block_ref_frame_plane_delta[frame * max_num_blocks_in_frame +
+                                            sb_index * num_blocks_in_sb +
+                                            block_index] |=
+                    (1 << delta_matrix_idx);
+              }
+            }
+          }  // delta matrix
+        }    // block_col
+      }      // block_row
+    }        // sb_col
+  }          // sb_row
+
+  int dc_quant = av1_dc_quant_QTX(cm->base_qindex, 0, cm->seq_params.bit_depth);
+  double qstep = (dc_quant >> (cm->seq_params.bit_depth - 5));
+  qstep = qstep / 128;
+  double qstep_factor = pow((double)qstep, 0.7) * 16384;
+  int num_samples = width * height;
+  double gm_frame_error_norm = (double)gm_frame_error / num_samples;
+  double ratio = gm_frame_error_norm / qstep_factor;
+  int valid_ratio = 0;
+
+  if (ratio > 0.1) valid_ratio = 1;
+
+  for (int delta_matrix_idx = 0; delta_matrix_idx < NUM_WARPED_DELTA_MODELS;
+       delta_matrix_idx++) {
+    double percentage =
+        (double)winner_hist_blocks[delta_matrix_idx] / num_hist_blocks * 100;
+    if (valid_ratio && (percentage >= 30)) valid_ref_for_delta_gm[frame] = 1;
+  }
+}
+
+static void update_frame_level_delta_model_for_intersection(
+    AV1_COMP *cpi, int *block_ref_frame_plane_delta,
+    int *valid_ref_for_delta_gm) {
+  if (!cpi->sf.enable_sb_warp) return;
+  AV1_COMMON *const cm = &cpi->common;
+  const int p_width = cpi->source->y_width;
+  const int p_height = cpi->source->y_height;
+  int frame_counter_intersection[REF_FRAMES][NUM_WARPED_DELTA_MODELS + 1];
+  av1_zero(frame_counter_intersection);
+  TileInfo tile_info;
+  av1_tile_init(&tile_info, cm, 0, 0);
+  int num_sb_rows_in_tile = av1_get_sb_rows_in_tile(cm, tile_info);
+  int num_sb_cols_in_tile = av1_get_sb_cols_in_tile(cm, tile_info);
+  const int SB_height = block_size_high[cm->seq_params.sb_size];
+  const int SB_width = block_size_wide[cm->seq_params.sb_size];
+  for (int sb_row = 0; sb_row < num_sb_rows_in_tile; sb_row++) {
+    for (int sb_col = 0; sb_col < num_sb_cols_in_tile; sb_col++) {
+      const int p_row = sb_row * SB_height;
+      const int p_col = sb_col * SB_width;
+      for (int i = p_row; i < AOMMIN(p_height, p_row + SB_height);
+           i += WARP_HISTOGRAM_BLOCK) {
+        for (int j = p_col; j < AOMMIN(p_width, p_col + SB_width);
+             j += WARP_HISTOGRAM_BLOCK) {
+          // Find the valid block with intersection across frames
+          int is_intersection = 1;
+          int valid_frames = 0;
+          for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+            WarpedMotionParams *warp_params = &cm->global_motion[frame];
+            if (warp_params->wmtype <= TRANSLATION) continue;
+            valid_frames++;
+            int num_blocks_in_sb =
+                block_size_wide[cm->seq_params.sb_size] *
+                block_size_high[cm->seq_params.sb_size] /
+                ((WARP_HISTOGRAM_BLOCK) * (WARP_HISTOGRAM_BLOCK));
+            int num_blocks_col_in_SB = block_size_wide[cm->seq_params.sb_size] /
+                                       (WARP_HISTOGRAM_BLOCK);
+            int max_num_blocks_in_frame =
+                GM_MAX_SB_ROWS * GM_MAX_SB_COLS * num_blocks_in_sb;
+            int sb_index = (sb_row * GM_MAX_SB_COLS + sb_col);
+            int block_index = i * num_blocks_col_in_SB + j;
+            int value =
+                block_ref_frame_plane_delta[frame * max_num_blocks_in_frame +
+                                            sb_index * num_blocks_in_sb +
+                                            block_index];
+            is_intersection = is_intersection && value;
+          }  // loop over ref frames to find intersection
+
+          // If valid intersection block, update the counters for delta models
+          // for each frame
+          if (valid_frames && is_intersection) {
+            for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+              WarpedMotionParams *warp_params = &cm->global_motion[frame];
+              if (warp_params->wmtype <= TRANSLATION) continue;
+              int num_blocks_in_sb =
+                  block_size_wide[cm->seq_params.sb_size] *
+                  block_size_high[cm->seq_params.sb_size] /
+                  ((WARP_HISTOGRAM_BLOCK) * (WARP_HISTOGRAM_BLOCK));
+              int num_blocks_col_in_SB =
+                  block_size_wide[cm->seq_params.sb_size] /
+                  (WARP_HISTOGRAM_BLOCK);
+              int max_num_blocks_in_frame =
+                  GM_MAX_SB_ROWS * GM_MAX_SB_COLS * num_blocks_in_sb;
+              int sb_index = (sb_row * GM_MAX_SB_COLS + sb_col);
+              int block_index = i * num_blocks_col_in_SB + j;
+              int value =
+                  block_ref_frame_plane_delta[frame * max_num_blocks_in_frame +
+                                              sb_index * num_blocks_in_sb +
+                                              block_index];
+              for (int delta_index = 1;
+                   delta_index < NUM_WARPED_DELTA_MODELS + 1; delta_index++) {
+                int is_delta = value >> delta_index & 0x1;
+                if (is_delta) frame_counter_intersection[frame][delta_index]++;
+              }  // loop over delta models
+            }    // loop over ref frames
+          }      // if valid block
+        }        // block_col
+      }          // block_row
+    }            // sb_col
+  }              // sb_row
+
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    cm->global_motion[frame].is_delta = 0;
+    cm->global_motion[frame].delta_index = 0;
+    int best_delta_index = 0;
+    int best_delta_counter = 0;
+    for (int delta_index = 1; delta_index < NUM_WARPED_DELTA_MODELS + 1;
+         delta_index++) {
+      if (best_delta_counter < frame_counter_intersection[frame][delta_index]) {
+        best_delta_counter = frame_counter_intersection[frame][delta_index];
+        best_delta_index = delta_index;
+      }
+    }
+    if (best_delta_counter > 0 && valid_ref_for_delta_gm[frame] == 1) {
+      cm->global_motion[frame].is_delta = 1;
+      cm->global_motion[frame].delta_index = best_delta_index;
+    }
+  }
+}
+
+static void update_superblock_set_for_delta_gm(AV1_COMP *cpi) {
+  if (!cpi->sf.enable_sb_warp) return;
+  AV1_COMMON *const cm = &cpi->common;
+  YV12_BUFFER_CONFIG *ref_buf[REF_FRAMES];
+  const uint8_t *const src = cpi->source->y_buffer;
+  const int p_width = cpi->source->y_width;
+  const int p_height = cpi->source->y_height;
+  const int p_stride = cpi->source->y_stride;
+  TileInfo tile_info;
+  av1_tile_init(&tile_info, cm, 0, 0);
+  int num_sb_rows_in_tile = av1_get_sb_rows_in_tile(cm, tile_info);
+  int num_sb_cols_in_tile = av1_get_sb_cols_in_tile(cm, tile_info);
+  const int error_bsize_w = AOMMIN(p_width, WARP_HISTOGRAM_BLOCK);
+  const int error_bsize_h = AOMMIN(p_height, WARP_HISTOGRAM_BLOCK);
+  const int SB_height = block_size_high[cm->seq_params.sb_size];
+  const int SB_width = block_size_wide[cm->seq_params.sb_size];
+  DECLARE_ALIGNED(16, uint8_t,
+                  tmp[WARP_HISTOGRAM_BLOCK * WARP_HISTOGRAM_BLOCK]);
+
+  for (int sb_row = 0; sb_row < num_sb_rows_in_tile; sb_row++) {
+    for (int sb_col = 0; sb_col < num_sb_cols_in_tile; sb_col++) {
+      ConvolveParams conv_params = get_conv_params(0, 0, 8);
+      conv_params.use_dist_wtd_comp_avg = 0;
+      const int p_row = sb_row * SB_height;
+      const int p_col = sb_col * SB_width;
+      int SB_hist[REF_FRAMES][2];
+      av1_zero(SB_hist);
+      for (int i = p_row; i < AOMMIN(p_height, p_row + SB_height);
+           i += WARP_HISTOGRAM_BLOCK) {
+        for (int j = p_col; j < AOMMIN(p_width, p_col + SB_width);
+             j += WARP_HISTOGRAM_BLOCK) {
+          // avoid warping extra 8x8 blocks in the padded region of
+          // the frame when p_width and p_height are not multiples
+          // of WARP_HISTOGRAM_BLOCK
+          int warp_w = AOMMIN(error_bsize_w, p_width - j);
+          int warp_h = AOMMIN(error_bsize_h, p_height - i);
+          int64_t error_block[REF_FRAMES][2];
+          av1_zero(error_block);
+          for (int group = 0; group < 2; group++) {
+            for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+              int64_t block_error =
+                  (WARP_HISTOGRAM_BLOCK) * (WARP_HISTOGRAM_BLOCK)*16384;
+              error_block[frame][group] = block_error;
+              WarpedMotionParams *warp_params = &cm->global_motion[frame];
+              if (warp_params->wmtype <= TRANSLATION) continue;
+              ref_buf[frame] = NULL;
+              RefCntBuffer *buf = get_ref_frame_buf(cm, frame);
+              if (buf != NULL) ref_buf[frame] = &buf->buf;
+              if (ref_buf[frame]) {
+                const uint8_t *const ref = ref_buf[frame]->y_buffer;
+                int width = ref_buf[frame]->y_width;
+                int height = ref_buf[frame]->y_height;
+                int stride = ref_buf[frame]->y_stride;
+                WarpedMotionParams wm;
+                wm = cm->global_motion[frame];
+                // Update warp motion parameters with delta
+                if (group == 1 && cm->global_motion[frame].is_delta == 1) {
+                  int delta_index = cm->global_motion[frame].delta_index;
+                  modify_warp_params_for_delta(&wm, delta_index);
+                  av1_get_shear_params(&wm);
+                }
+                av1_warp_affine(wm.wmmat, ref, width, height, stride, tmp, j, i,
+                                warp_w, warp_h, WARP_HISTOGRAM_BLOCK, 0, 0,
+                                &conv_params, wm.alpha, wm.beta, wm.gamma,
+                                wm.delta);
+                block_error = av1_calc_frame_error(tmp, WARP_HISTOGRAM_BLOCK,
+                                                   src + j + i * p_stride,
+                                                   warp_w, warp_h, p_stride);
+                error_block[frame][group] = block_error;
+              }  // valid buffer check
+            }    // loop over frames
+          }      // sets - gm and delta_gm
+
+          // Update the histogram for each block
+          for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+            if (error_block[frame][1] < error_block[frame][0])
+              SB_hist[frame][1]++;
+            else
+              SB_hist[frame][0]++;
+          }
+        }  // block_col
+      }    // block_row
+
+      int num_gm_frames = 0;
+      int num_delta_frames = 0;
+      for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+        WarpedMotionParams *warp_params = &cm->global_motion[frame];
+        if (warp_params->wmtype <= TRANSLATION) continue;
+        // delta model gives more blocks with lower error in SB
+        if (SB_hist[frame][1] > SB_hist[frame][0]) {
+          num_delta_frames++;
+        } else {
+          num_gm_frames++;
+        }
+      }
+      int **modify_gm_params = cpi->modify_gm_params_for_sb;
+      if (num_delta_frames > 0 && num_delta_frames > num_gm_frames)
+        *(*(modify_gm_params + sb_row) + sb_col) = 1;
+      else
+        *(*(modify_gm_params + sb_row) + sb_col) = 0;
+    }  // sb_col
+  }    // sb_row
+}
+#endif
 static void encode_frame_internal(AV1_COMP *cpi) {
   ThreadData *const td = &cpi->td;
   MACROBLOCK *const x = &td->mb;
@@ -6476,6 +6835,31 @@ static void encode_frame_internal(AV1_COMP *cpi) {
           aom_malloc(sizeof(*(params_by_motion[m].inliers)) * 2 * MAX_CORNERS);
     }
 
+#if CONFIG_SB_WARP
+    for (int sb_row_pos = 0; sb_row_pos < cm->sb_rows; sb_row_pos++) {
+      for (int sb_col_pos = 0; sb_col_pos < cm->sb_cols; sb_col_pos++) {
+        cpi->modify_gm_params_for_sb[sb_row_pos][sb_col_pos] = 0;
+      }
+    }
+    for (int frame_id = ALTREF_FRAME; frame_id >= LAST_FRAME; --frame_id) {
+      cm->global_motion[frame_id].is_delta = 0;
+      cm->global_motion[frame_id].delta_index = 0;
+    }
+    int num_blocks_in_sb = block_size_wide[cm->seq_params.sb_size] *
+                           block_size_high[cm->seq_params.sb_size] /
+                           ((WARP_HISTOGRAM_BLOCK) * (WARP_HISTOGRAM_BLOCK));
+    int max_num_blocks_in_frame =
+        GM_MAX_SB_ROWS * GM_MAX_SB_COLS * num_blocks_in_sb;
+
+    int *block_ref_frame_plane_delta =
+        aom_malloc(sizeof(*block_ref_frame_plane_delta) *
+                   max_num_blocks_in_frame * (REF_FRAMES + 1));
+    memset(block_ref_frame_plane_delta, 0,
+           sizeof(*block_ref_frame_plane_delta) * max_num_blocks_in_frame *
+               (REF_FRAMES + 1));
+
+#endif  // CONFIG_SB_WARP
+
     const double *params_this_motion;
     int inliers_by_motion[RANSAC_NUM_MOTIONS];
     WarpedMotionParams tmp_wm_params;
@@ -6503,7 +6887,10 @@ static void encode_frame_internal(AV1_COMP *cpi) {
         aom_malloc(sizeof(*segment_map) * segment_map_w * segment_map_h);
     memset(segment_map, 0,
            sizeof(*segment_map) * segment_map_w * segment_map_h);
-
+#if CONFIG_SB_WARP
+    int valid_ref_for_delta_gm[REF_FRAMES];
+    av1_zero(valid_ref_for_delta_gm);
+#endif
     for (frame = ALTREF_FRAME; frame >= LAST_FRAME; --frame) {
       const MV_REFERENCE_FRAME ref_frame[2] = { frame, NONE_FRAME };
       ref_buf[frame] = NULL;
@@ -6637,7 +7024,26 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                              cm->fr_mv_precision) +
           cpi->gmtype_cost[cm->global_motion[frame].wmtype] -
           cpi->gmtype_cost[IDENTITY];
+#if CONFIG_SB_WARP
+      if (cm->global_motion[frame].wmtype == ROTZOOM) {
+        update_frame_level_delta_model(cpi, ref_buf[frame], frame,
+                                       block_ref_frame_plane_delta,
+                                       valid_ref_for_delta_gm);
+      }
+
+#endif  // CONFIG_SB_WARP
     }
+
+#if CONFIG_SB_WARP
+    // Update frame level delta model only for intersection
+    update_frame_level_delta_model_for_intersection(
+        cpi, block_ref_frame_plane_delta, valid_ref_for_delta_gm);
+
+    // Decision to use delta warp model or not at a superblock level
+    update_superblock_set_for_delta_gm(cpi);
+
+    aom_free(block_ref_frame_plane_delta);
+#endif
     aom_free(segment_map);
     // clear disabled ref_frames
     for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
