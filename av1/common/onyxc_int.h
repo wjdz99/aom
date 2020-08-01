@@ -610,6 +610,9 @@ typedef struct AV1Common {
 #if CONFIG_COLLECT_FRAME_INFO
   int coded_frame_idx;
 #endif  // CONFIG_COLLECT_FRAME_INFO
+#if CONFIG_SB_WARP
+  int is_delta_present_for_at_least_one_frame;
+#endif  // CONFIG_SB_WARP
 } AV1_COMMON;
 
 // TODO(hkuang): Don't need to lock the whole pool after implementing atomic
