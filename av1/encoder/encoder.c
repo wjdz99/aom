@@ -3041,6 +3041,15 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
   av1_zero(aggregate_fc);
 #endif  // CONFIG_ENTROPY_STATS
 
+#if CONFIG_SB_WARP
+  CHECK_MEM_ERROR(cm, cpi->modify_gm_params_for_sb,
+                  aom_malloc(sizeof(int *) * cm->sb_rows));
+  for (int sb_row = 0; sb_row < cm->sb_rows; sb_row++) {
+    CHECK_MEM_ERROR(cm, cpi->modify_gm_params_for_sb[sb_row],
+                    aom_malloc(sizeof(int) * cm->sb_cols));
+  }
+#endif
+
   cpi->first_time_stamp_ever = INT64_MAX;
 
 #ifdef OUTPUT_YUV_SKINMAP
@@ -3609,6 +3618,13 @@ void av1_remove_compressor(AV1_COMP *cpi) {
   }
 
   dealloc_compressor_data(cpi);
+
+#if CONFIG_SB_WARP
+  for (int sb_row = 0; sb_row < cm->sb_rows; sb_row++) {
+    aom_free(cpi->modify_gm_params_for_sb[sb_row]);
+  }
+  aom_free(cpi->modify_gm_params_for_sb);
+#endif
 
   for (i = 0; i < sizeof(cpi->mbgraph_stats) / sizeof(cpi->mbgraph_stats[0]);
        ++i) {

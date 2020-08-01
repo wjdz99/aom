@@ -533,6 +533,11 @@ typedef struct SPEED_FEATURES {
   // whether to disable the global motion recode loop
   int gm_disable_recode;
 
+#if CONFIG_SB_WARP
+  // Enable/disable global motion at superblock level
+  int enable_sb_warp;
+#endif
+
   // Do limited interpolation filter search for dual filters, since best choice
   // usually includes EIGHTTAP_REGULAR.
   int use_fast_interpolation_filter_search;

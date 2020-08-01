@@ -114,13 +114,16 @@ void av1_convert_model_to_params(const double *params,
   convert_to_params(params, model->wmmat);
   model->wmtype = get_wmtype(model);
   model->invalid = 0;
+#if CONFIG_SB_WARP
+  model->delta_index = 0;
+  model->is_delta = 0;
+#endif
 }
 
 // Adds some offset to a global motion parameter and handles
 // all of the necessary precision shifts, clamping, and
 // zero-centering.
-static int32_t add_param_offset(int param_index, int32_t param_value,
-                                int32_t offset) {
+int32_t add_param_offset(int param_index, int32_t param_value, int32_t offset) {
   const int scale_vals[3] = { GM_TRANS_PREC_DIFF, GM_ALPHA_PREC_DIFF,
                               GM_ROW3HOMO_PREC_DIFF };
   const int clamp_vals[3] = { GM_TRANS_MAX, GM_ALPHA_MAX, GM_ROW3HOMO_MAX };
