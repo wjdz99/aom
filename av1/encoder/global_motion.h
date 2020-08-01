@@ -79,6 +79,8 @@ int av1_compute_global_motion(TransformationType type,
                               GlobalMotionEstimationType gm_estimation_type,
                               int *num_inliers_by_motion,
                               MotionModel *params_by_motion, int num_motions);
+
+int32_t add_param_offset(int param_index, int32_t param_value, int32_t offset);
 #ifdef __cplusplus
 }  // extern "C"
 #endif
