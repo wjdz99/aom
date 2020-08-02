@@ -124,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "26d0b57e_f1718ebf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-08-02T22:51:16Z",
+      "side": 1,
+      "message": "Right, as Deb mentioned, we plan to do only a few more merges. Later, after research branch settles, plan is to use cherry-picks instead.",
+      "parentUuid": "664d62ea_9d2a923b",
+      "revId": "f77131243bd5dcf21879db88d8d0d94d69471bc0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0131a091_0bb7c576",
         "filename": "aom_dsp/x86/highbd_variance_avx2.c",
         "patchSetId": 2
