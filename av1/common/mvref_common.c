@@ -744,7 +744,7 @@ static void mv_dbscan(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
 void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
               uint16_t ref_mv_weight[MAX_REF_MV_STACK_SIZE],
               int cluster_label[MAX_REF_MV_STACK_SIZE], int start, int end,
-              int cluster_idx_to_merge) {
+              int cluster_idx_to_merge, int new_slot) {
   // fprintf(stderr, "Label: ");
   // for (int i = start; i < end; i++) {
   //   fprintf(stderr, "%d ", cluster_label[i]);
@@ -752,7 +752,8 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   // fprintf(stderr, "\n");
   // centriod
   int64_t this_mv_row, this_mv_col, comp_mv_row, comp_mv_col, temp;
-  uint64_t total_weight = 0;
+  uint64_t this_weight = 0U;
+  uint64_t total_weight = 0U;
   this_mv_row = this_mv_col = comp_mv_row = comp_mv_col = temp = 0U;
   int cluster_points = 0;
   for (int j = start; j < end; j++) {
@@ -808,6 +809,7 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   this_mv_col = (this_mv_col + (cluster_points >> 1)) / cluster_points;
   comp_mv_row = (comp_mv_row + (cluster_points >> 1)) / cluster_points;
   comp_mv_col = (comp_mv_col + (cluster_points >> 1)) / cluster_points;
+  this_weight = (total_weight + (cluster_points >> 1)) / cluster_points;
   // fprintf(stderr, "%d %d Before %d: %d %d %d %d (%u)\t", start, end,
   //         cluster_idx_to_merge,
   //         ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.row,
@@ -815,16 +817,28 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   //         ref_mv_stack[cluster_idx_to_merge].comp_mv.as_mv.row,
   //         ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.col,
   //         ref_mv_weight[cluster_idx_to_merge]);
-  ref_mv_weight[cluster_idx_to_merge] =
-      (total_weight > 65535) ? 65535 : total_weight;
-  ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.row =
-      (this_mv_row > 65535) ? 65535 : this_mv_row;
-  ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.col =
-      (this_mv_col > 65535) ? 65535 : this_mv_col;
-  ref_mv_stack[cluster_idx_to_merge].comp_mv.as_mv.row =
-      (comp_mv_row > 65535) ? 65535 : comp_mv_row;
-  ref_mv_stack[cluster_idx_to_merge].comp_mv.as_mv.col =
-      (comp_mv_col > 65535) ? 65535 : comp_mv_col;
+
+  // ref_mv_weight[cluster_idx_to_merge] =
+  //     (total_weight > 65535) ? 65535 : total_weight;
+  // ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.row =
+  //     (this_mv_row > 65535) ? 65535 : this_mv_row;
+  // ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.col =
+  //     (this_mv_col > 65535) ? 65535 : this_mv_col;
+  // ref_mv_stack[cluster_idx_to_merge].comp_mv.as_mv.row =
+  //     (comp_mv_row > 65535) ? 65535 : comp_mv_row;
+  // ref_mv_stack[cluster_idx_to_merge].comp_mv.as_mv.col =
+  //     (comp_mv_col > 65535) ? 65535 : comp_mv_col;
+  if (new_slot > 0) {
+    ref_mv_weight[new_slot] = (this_weight > 65535) ? 65535 : this_weight;
+    ref_mv_stack[new_slot].this_mv.as_mv.row =
+        (this_mv_row > 65535) ? 65535 : this_mv_row;
+    ref_mv_stack[new_slot].this_mv.as_mv.col =
+        (this_mv_col > 65535) ? 65535 : this_mv_col;
+    ref_mv_stack[new_slot].comp_mv.as_mv.row =
+        (comp_mv_row > 65535) ? 65535 : comp_mv_row;
+    ref_mv_stack[new_slot].comp_mv.as_mv.col =
+        (comp_mv_col > 65535) ? 65535 : comp_mv_col;
+  }
   // fprintf(stderr, "After %d: %d %d %d %d (%u)\n", cluster_idx_to_merge,
   //         ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.row,
   //         ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.col,
@@ -1068,7 +1082,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     for (int i = 0; i < (*refmv_count); i++) {
       cluster_label[i] = -1;
     }
-
+    int new_slot = (*refmv_count);
     // If the spatial mvs can not even fill the MAX_MV_REF_CANDIDATES, we will
     // not cluster them
     if (nearest_refmv_count > MAX_MV_REF_CANDIDATES) {
@@ -1082,8 +1096,9 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
           continue;
         } else if (cluster_label[i] == i) {
           // centriod update
+          new_slot = (new_slot >= MAX_REF_MV_STACK_SIZE ? -1 : new_slot);
           merge_mv(ref_mv_stack, ref_mv_weight, cluster_label, 0,
-                   nearest_refmv_count, i);
+                   nearest_refmv_count, i, new_slot);
         }
       }
     }
@@ -1098,12 +1113,13 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
           // outlier
           continue;
         } else if (cluster_label[i] == i) {
+          new_slot = (new_slot >= MAX_REF_MV_STACK_SIZE ? -1 : new_slot);
           merge_mv(ref_mv_stack, ref_mv_weight, cluster_label,
-                   nearest_refmv_count, (*refmv_count), i);
+                   nearest_refmv_count, (*refmv_count), i, new_slot);
         }
       }
     }
-
+    (*refmv_count) = (new_slot > 0 ? new_slot : (*refmv_count));
     uint8_t old_mv_count = (*refmv_count);
     // Shrink MV list
     CANDIDATE_MV tmp[MAX_REF_MV_STACK_SIZE];
@@ -1122,11 +1138,11 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     nearest_refmv_count = count;
     bool has_removed_one = false;
     for (int i = old_nearest_refmv_count; i < (*refmv_count); i++) {
-      if (cluster_label[i] == -1 && ref_mv_weight[i] == 2 &&
-          (!has_removed_one)) {
-        has_removed_one = true;
-        continue;
-      }
+      // if (cluster_label[i] == -1 && ref_mv_weight[i] == 2 &&
+      //     (!has_removed_one)) {
+      //   has_removed_one = true;
+      //   continue;
+      // }
       if (cluster_label[i] == -1 || cluster_label[i] == i) {
         // Only keep outliers and cluster centriods
         tmp[count].this_mv.as_int = ref_mv_stack[i].this_mv.as_int;
