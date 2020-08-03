@@ -63,6 +63,30 @@
       "revId": "48ac9cf274805255f80d0039ffd07684e347f04a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef66dbe2_8eb111a3",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1000,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2020-08-03T10:20:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8915452_c2704b8f",
+      "range": {
+        "startLine": 1000,
+        "startChar": 30,
+        "endLine": 1000,
+        "endChar": 60
+      },
+      "revId": "48ac9cf274805255f80d0039ffd07684e347f04a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
