@@ -1060,7 +1060,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     // DBSCAN Parameters
     int original_ref_mv_cnt = (*refmv_count);
     // DBSCAN-1
-    const int min_points = 4;
+    const int min_points = 2;
     const int dist_threshold = 1;
     int cluster_num1 = 0;
     int cluster_num2 = 0;
@@ -1120,7 +1120,13 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       }
     }
     nearest_refmv_count = count;
+    bool has_removed_one = false;
     for (int i = old_nearest_refmv_count; i < (*refmv_count); i++) {
+      if (cluster_label[i] == -1 && ref_mv_weight[i] == 2 &&
+          (!has_removed_one)) {
+        has_removed_one = true;
+        continue;
+      }
       if (cluster_label[i] == -1 || cluster_label[i] == i) {
         // Only keep outliers and cluster centriods
         tmp[count].this_mv.as_int = ref_mv_stack[i].this_mv.as_int;
@@ -1140,18 +1146,10 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     for (int i = 0; i < (*refmv_count); i++) {
       if (cluster_label[i] < 0) {
         noise_cnt++;
+        // fprintf(stderr, "%u ", ref_mv_weight[i]);
       }
     }
-    // if (old_mv_count != (*refmv_count))
-    //   fprintf(stderr, "old=%d new=%d\n", old_mv_count, (*refmv_count));
-    // assert(noise_cnt + cluster_num1 + cluster_num2 == (*refmv_count));
-    // if (cluster_num2 + cluster_num1 > 0)
-    //   fprintf(
-    //       stderr,
-    //       "block (%d %d) refmv=%d,  nearest_refmv_count=%d  cluster_num1=%d "
-    //       "cluster_num2=%d noise_cnt=%d original_ref_mv_cnt=%d\n",
-    //       xd->mi_row, xd->mi_col, (*refmv_count), nearest_refmv_count,
-    //       cluster_num1, cluster_num2, noise_cnt, original_ref_mv_cnt);
+    // fprintf(stderr, "\n");
   }
   // It sort mvs separately for spatial and temporial
   // if (nearest_refmv_count > 2)
