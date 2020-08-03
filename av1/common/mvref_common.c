@@ -744,7 +744,7 @@ static void mv_dbscan(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
 void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
               uint16_t ref_mv_weight[MAX_REF_MV_STACK_SIZE],
               int cluster_label[MAX_REF_MV_STACK_SIZE], int start, int end,
-              int cluster_idx_to_merge, int new_slot) {
+              int cluster_idx_to_merge, int *new_slot) {
   // fprintf(stderr, "Label: ");
   // for (int i = start; i < end; i++) {
   //   fprintf(stderr, "%d ", cluster_label[i]);
@@ -828,16 +828,18 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   //     (comp_mv_row > 65535) ? 65535 : comp_mv_row;
   // ref_mv_stack[cluster_idx_to_merge].comp_mv.as_mv.col =
   //     (comp_mv_col > 65535) ? 65535 : comp_mv_col;
-  if (new_slot > 0) {
-    ref_mv_weight[new_slot] = (this_weight > 65535) ? 65535 : this_weight;
-    ref_mv_stack[new_slot].this_mv.as_mv.row =
+  if ((*new_slot) > 0 && cluster_points > 1) {
+    ref_mv_weight[*new_slot] = (this_weight > 65535) ? 65535 : this_weight;
+    ref_mv_stack[*new_slot].this_mv.as_mv.row =
         (this_mv_row > 65535) ? 65535 : this_mv_row;
-    ref_mv_stack[new_slot].this_mv.as_mv.col =
+    ref_mv_stack[*new_slot].this_mv.as_mv.col =
         (this_mv_col > 65535) ? 65535 : this_mv_col;
-    ref_mv_stack[new_slot].comp_mv.as_mv.row =
+    ref_mv_stack[*new_slot].comp_mv.as_mv.row =
         (comp_mv_row > 65535) ? 65535 : comp_mv_row;
-    ref_mv_stack[new_slot].comp_mv.as_mv.col =
+    ref_mv_stack[*new_slot].comp_mv.as_mv.col =
         (comp_mv_col > 65535) ? 65535 : comp_mv_col;
+    cluster_label[*new_slot] = cluster_idx_to_merge;
+    (*new_slot)++;
   }
   // fprintf(stderr, "After %d: %d %d %d %d (%u)\n", cluster_idx_to_merge,
   //         ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.row,
@@ -1098,7 +1100,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
           // centriod update
           new_slot = (new_slot >= MAX_REF_MV_STACK_SIZE ? -1 : new_slot);
           merge_mv(ref_mv_stack, ref_mv_weight, cluster_label, 0,
-                   nearest_refmv_count, i, new_slot);
+                   nearest_refmv_count, i, &new_slot);
         }
       }
     }
@@ -1115,7 +1117,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         } else if (cluster_label[i] == i) {
           new_slot = (new_slot >= MAX_REF_MV_STACK_SIZE ? -1 : new_slot);
           merge_mv(ref_mv_stack, ref_mv_weight, cluster_label,
-                   nearest_refmv_count, (*refmv_count), i, new_slot);
+                   nearest_refmv_count, (*refmv_count), i, &new_slot);
         }
       }
     }
