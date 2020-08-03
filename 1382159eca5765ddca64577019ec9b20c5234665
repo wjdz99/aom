@@ -128,6 +128,30 @@
       "revId": "1382159eca5765ddca64577019ec9b20c5234665",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5741d165_a9e9153b",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 27
+      },
+      "lineNbr": 878,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-08-03T16:46:24Z",
+      "side": 1,
+      "message": "Currently, you have\n         if (is_frame_high_bitdepth(frame_to_filter) \u0026\u0026\n              TF_BLOCK_SIZE \u003d\u003d BLOCK_32X32 \u0026\u0026 TF_WINDOW_LENGTH \u003d\u003d 5 \u0026\u0026\n              !is_yuv422_format) {\n#if CONFIG_AV1_HIGHBITDEPTH\n            av1_highbd_apply_temporal_filter(\n                frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,\n                noise_levels, subblock_mvs, subblock_mses, q_factor,\n                filter_strength, pred, accum, count);\n#else\n            av1_apply_temporal_filter_c(\n                frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,\n                noise_levels, subblock_mvs, subblock_mses, q_factor,\n                filter_strength, pred, accum, count);\n#endif  // CONFIG_AV1_HIGHBITDEPTH\n          } else if (TF_BLOCK_SIZE \u003d\u003d BLOCK_32X32 \u0026\u0026 TF_WINDOW_LENGTH \u003d\u003d 5 \u0026\u0026\n                     !is_frame_high_bitdepth(frame_to_filter) \u0026\u0026\n                     !is_yuv422_format) {\n            av1_apply_temporal_filter(frame_to_filter, mbd, block_size, mb_row,\n                                      mb_col, num_planes, noise_levels,\n                                      subblock_mvs, subblock_mses, q_factor,\n                                      filter_strength, pred, accum, count);\n          } else {\n            av1_apply_temporal_filter_c(\n                frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,\n                noise_levels, subblock_mvs, subblock_mses, q_factor,\n                filter_strength, pred, accum, count);\n          }\n\nThis if-elseif-else didn\u0027t make it clear since both hbd and lbd case are involved again in last else(). Please rewrite above to move (TF_BLOCK_SIZE \u003d\u003d BLOCK_32X32 \u0026\u0026 TF_WINDOW_LENGTH \u003d\u003d 5 \u0026\u0026 !is_yuv422_format) under if (is_frame_high_bitdepth()).\n\nif (is_frame_high_bitdepth()) {\n// only hbd case here\n// handle (TF_BLOCK_SIZE \u003d\u003d BLOCK_32X32 \u0026\u0026 TF_WINDOW_LENGTH \u003d\u003d 5 \u0026\u0026 !is_yuv422_format)\n} else {\n// only 8 bit case here\n// handle (TF_BLOCK_SIZE \u003d\u003d BLOCK_32X32 \u0026\u0026 TF_WINDOW_LENGTH \u003d\u003d 5 \u0026\u0026 !is_yuv422_format)\n}\n\nSo, all hbd cases are handled together in \"if (is_frame_high_bitdepth()) {}\", and all lbd cases are handled in \"else{}\". Please modify the code.",
+      "parentUuid": "df75cd02_7046a0e6",
+      "range": {
+        "startLine": 878,
+        "startChar": 3,
+        "endLine": 878,
+        "endChar": 7
+      },
+      "revId": "1382159eca5765ddca64577019ec9b20c5234665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }

@@ -46,6 +46,30 @@
       "revId": "1937dbaf4c3825f70d4ea362aebfa5ed51efc017",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "118e09d4_e328c010",
+        "filename": "av1/encoder/x86/highbd_temporal_filter_sse2.c",
+        "patchSetId": 26
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-08-03T16:46:24Z",
+      "side": 1,
+      "message": "ok. This type of change without explanation is risky. Next time, could you add an update for new patchset to state what changes are included intentionally?",
+      "parentUuid": "170d3727_fb28250f",
+      "range": {
+        "startLine": 185,
+        "startChar": 1,
+        "endLine": 186,
+        "endChar": 30
+      },
+      "revId": "1937dbaf4c3825f70d4ea362aebfa5ed51efc017",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
