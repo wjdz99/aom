@@ -34,6 +34,24 @@
       "revId": "5394be9ce2fe86eeb02d4f94bc942cef2e1ef0e4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7c2ee5d_ef4f2b82",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2020-08-03T13:26:58Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThe CL https://aomedia-review.googlesource.com/c/aom/+/116241 is independent of this and works by itself (and the change is not under the sf). As the two CL\u0027s are logically different we have submitted as two different patches. However, we have the complete Borg results only for the two CL\u0027s combined. Thus, we have submitted them as dependent patches.\n\nThank you.",
+      "parentUuid": "da500389_3c432357",
+      "revId": "5394be9ce2fe86eeb02d4f94bc942cef2e1ef0e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
