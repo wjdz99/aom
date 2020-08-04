@@ -160,12 +160,12 @@ struct av1_extracfg {
 // Example subgop configs. Currently not used by default.
 // Default config
 const char subgop_config_str_16_def[] =
-    "16:0:16F1P1^1/8F2P1^1^-1/4U3P1^1^-2^-1/2U4P1^1^-3^-2^-1/"
-    "1V5P1^1^-4^-3^-2^-1/2S/3V5P1^5^4^-3^-2^-1/4S/6U4P1^3^4^-2^-1^5^5/"
-    "5V5P1^4^5^3^-4^-2^-1/6S/7V5P1^3^5^5^4^-2^-1/8R2P1^1^-1/"
-    "12U3P1^3^2^-1^5^5^4/10U4P1^5^5^4^2^-3^-1/9V5P1^5^4^2^-4^-3^-1/10S/"
-    "11V5P1^2^4^5^5^-3^-1/12S/14U4P1^2^4^3^-1^5^5/13V5P1^5^4^5^3^-4^-1/"
-    "14S/15V5P1^4^5^3^4^5^-1/16R1P1^1,"
+    "16:0:16F1P5^4^5^1^3^5^1/8F2P5^4^3^1^1^5^-11/4U3P5^4^5^1^-2^1^-1/2U4P5^4^1^1^-3^-2^-1/"
+    "1V5P5^4^1^1^-4^-3^-1/2S/3V5P4^5^1^1^-3^-2^-1/4S/6U4P3^5^4^1^-2^1^-1/"
+    "5V5P3^5^1^1^-4^-2^-1/6S/7V5P4^5^3^1^-2^1^-1/8R2P5^4^5^1^2^1^-1/"
+    "12U3P2^5^5^1^1^4^-1/10U4P2^5^4^1^-3^1^-1/9V5P2^5^1^1^-4^-3^-1/10S/"
+    "11V5P4^5^2^1^-3^1^-1/12S/14U4P3^5^2^1^5^4^-1/13V5P3^5^4^1^-4^1^-1/"
+    "14S/15V5P4^5^5^1^1^3^-1/16R1P5^4^5^1^3^5^1,"
 
     "16:1:14F1P1^1/7F2P1^1^-1/4U3P1^1^-2^-1/2U4P1^1^-3^-2^-1/"
     "1V5P1^1^-4^-3^-2^-1/2S/3V5P1^5^4^-3^-2^-1/4S/6U4P1^3^4^-2^-1^5^5/"
@@ -225,7 +225,8 @@ static struct av1_extracfg default_extra_cfg = {
   5,              // gf_max_pyr_height
   AOM_TUNE_PSNR,  // tuning
   "/usr/local/share/model/vmaf_v0.6.1.pkl",  // VMAF model path
-  NULL,                                      // SubGOP config string
+  subgop_config_str_16_def,
+//  NULL,                                      // SubGOP config string
   40,                                        // qp
   0,                                         // rc_max_intra_bitrate_pct
   0,                                         // rc_max_inter_bitrate_pct
