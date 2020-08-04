@@ -33,6 +33,24 @@
       "revId": "68332462e2e7a8076e2a4acb5831ebcbd717b347",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50d506a3_c5410d4f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15075
+      },
+      "writtenOn": "2020-08-04T13:31:07Z",
+      "side": 1,
+      "message": "Elliott,\nWe are unsure about the issue causing this bug. We have added this test recently and hence, these issues are just being caught. We suggest that we disable this test until the bug is investigated and this issue is resolved.",
+      "parentUuid": "697bb31f_6af9e3de",
+      "revId": "68332462e2e7a8076e2a4acb5831ebcbd717b347",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
