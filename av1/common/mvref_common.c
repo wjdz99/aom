@@ -765,32 +765,32 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
       //     ref_mv_stack[j].comp_mv.as_mv.row,
       //     ref_mv_stack[j].comp_mv.as_mv.col);
       // Weighted Average (obselete)
-      // temp = ref_mv_stack[j].this_mv.as_mv.row;
-      // temp *= ref_mv_weight[j];
-      // this_mv_row += temp;
-      // temp = ref_mv_stack[j].this_mv.as_mv.col;
-      // temp *= ref_mv_weight[j];
-      // this_mv_col += temp;
-      // temp = ref_mv_stack[j].comp_mv.as_mv.row;
-      // temp *= ref_mv_weight[j];
-      // comp_mv_row += temp;
-      // temp = ref_mv_stack[j].comp_mv.as_mv.col;
-      // temp *= ref_mv_weight[j];
-      // comp_mv_col += temp;
-      // total_weight += ref_mv_weight[j];
+      temp = ref_mv_stack[j].this_mv.as_mv.row;
+      temp *= ref_mv_weight[j];
+      this_mv_row += temp;
+      temp = ref_mv_stack[j].this_mv.as_mv.col;
+      temp *= ref_mv_weight[j];
+      this_mv_col += temp;
+      temp = ref_mv_stack[j].comp_mv.as_mv.row;
+      temp *= ref_mv_weight[j];
+      comp_mv_row += temp;
+      temp = ref_mv_stack[j].comp_mv.as_mv.col;
+      temp *= ref_mv_weight[j];
+      comp_mv_col += temp;
+      total_weight += ref_mv_weight[j];
       // cluster_points++;
 
       // Arithmetic Average
-      temp = ref_mv_stack[j].this_mv.as_mv.row;
-      this_mv_row += temp;
-      temp = ref_mv_stack[j].this_mv.as_mv.col;
-      this_mv_col += temp;
-      temp = ref_mv_stack[j].comp_mv.as_mv.row;
-      comp_mv_row += temp;
-      temp = ref_mv_stack[j].comp_mv.as_mv.col;
-      comp_mv_col += temp;
-      total_weight += ref_mv_weight[j];
-      cluster_points++;
+      // temp = ref_mv_stack[j].this_mv.as_mv.row;
+      // this_mv_row += temp;
+      // temp = ref_mv_stack[j].this_mv.as_mv.col;
+      // this_mv_col += temp;
+      // temp = ref_mv_stack[j].comp_mv.as_mv.row;
+      // comp_mv_row += temp;
+      // temp = ref_mv_stack[j].comp_mv.as_mv.col;
+      // comp_mv_col += temp;
+      // total_weight += ref_mv_weight[j];
+      // cluster_points++;
     }
   }
   // fprintf(stderr, "cluster_points=%d\n", cluster_points);
@@ -801,15 +801,18 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   //   }
   //   fprintf(stderr, "\n");
   // }
-  // this_mv_row = (this_mv_row + (total_weight >> 1)) / total_weight;
-  // this_mv_col = (this_mv_col + (total_weight >> 1)) / total_weight;
-  // comp_mv_row = (comp_mv_row + (total_weight >> 1)) / total_weight;
-  // comp_mv_col = (comp_mv_col + (total_weight >> 1)) / total_weight;
-  this_mv_row = (this_mv_row + (cluster_points >> 1)) / cluster_points;
-  this_mv_col = (this_mv_col + (cluster_points >> 1)) / cluster_points;
-  comp_mv_row = (comp_mv_row + (cluster_points >> 1)) / cluster_points;
-  comp_mv_col = (comp_mv_col + (cluster_points >> 1)) / cluster_points;
-  this_weight = (total_weight + (cluster_points >> 1)) / cluster_points;
+  this_mv_row = (this_mv_row + (total_weight >> 1)) / total_weight;
+  this_mv_col = (this_mv_col + (total_weight >> 1)) / total_weight;
+  comp_mv_row = (comp_mv_row + (total_weight >> 1)) / total_weight;
+  comp_mv_col = (comp_mv_col + (total_weight >> 1)) / total_weight;
+  this_weight = total_weight;
+
+  // Algo Avg
+  // this_mv_row = (this_mv_row + (cluster_points >> 1)) / cluster_points;
+  // this_mv_col = (this_mv_col + (cluster_points >> 1)) / cluster_points;
+  // comp_mv_row = (comp_mv_row + (cluster_points >> 1)) / cluster_points;
+  // comp_mv_col = (comp_mv_col + (cluster_points >> 1)) / cluster_points;
+  // this_weight = (total_weight + (cluster_points >> 1)) / cluster_points;
   // fprintf(stderr, "%d %d Before %d: %d %d %d %d (%u)\t", start, end,
   //         cluster_idx_to_merge,
   //         ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.row,
@@ -1016,61 +1019,6 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       mode_context[ref_frame] |= (5 << REFMV_OFFSET);
       break;
   }
-  if (false) {
-    // Clustering at one time (Obselete)
-    // DBSCAN
-    const int min_points = 2;
-    const int dist_thresholod = 1;
-    int cluster_num = 0;
-    int cluster_centroids[MAX_REF_MV_STACK_SIZE];
-    int cluster_label[MAX_REF_MV_STACK_SIZE];
-    int cluster_threshold = 8;
-
-    // MAX_REF_MV_STACK_SIZE
-    if ((*refmv_count) >= cluster_threshold) {
-      mv_dbscan(ref_mv_stack, (*refmv_count), min_points, dist_thresholod,
-                (&cluster_num), cluster_label, (rf[1] == NONE_FRAME));
-
-      // for (int i = 0; i < (*refmv_count); i++) {
-      //   if (cluster_label[i] > 0 && cluster_label[i] != i) {
-      //     ref_mv_weight[cluster_label[i]] += ref_mv_weight[i];
-      //     ref_mv_weight[i] = 0;
-      //   }
-      // }
-      int head = 0;
-      int tail = (*refmv_count) - 1;
-      while (head < tail) {
-        // Eliminate merged points, as well as outliers
-        // if (ref_mv_weight[head] == 0 || cluster_label[head] < 0) {
-        // Only eliminate outliers
-        if (cluster_label[head] < 0) {
-          // if (ref_mv_weight[head] == 0) {
-          // Swap ref_mv_stack[head] and ref_mv_stack[tail]
-          CANDIDATE_MV tmp = ref_mv_stack[head];
-          ref_mv_stack[head] = ref_mv_stack[tail];
-          ref_mv_stack[tail] = tmp;
-          uint16_t tmp_weight = ref_mv_weight[head];
-          ref_mv_weight[head] = ref_mv_weight[tail];
-          ref_mv_weight[tail] = tmp_weight;
-          tail--;
-
-        } else {
-          head++;
-        }
-      }
-      // After the Process, Similar points have been merged and only the cluster
-      // centriod and outliers are remaining in ref_mv_weight
-      // How about removing the outliers?
-
-      // fprintf(stderr,
-      //         "block (%d %d) original refmv: %d, after clustering mv num=%d"
-      //         "nearest_refmv_count=%d cluster_num=%d\n",
-      //         xd->mi_row, xd->mi_col, (*refmv_count), tail,
-      //         nearest_refmv_count, cluster_num);
-      (*refmv_count) = tail;
-    }
-  }
-
   // if (false)
   {
     // DBSCAN Parameters
