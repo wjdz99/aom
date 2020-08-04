@@ -273,7 +273,10 @@ static void get_gop_cfg_enabled_refs(AV1_COMP *const cpi, int *ref_frame_flags,
   // The order offset to get the correct value here.
   const int cur_frame_disp =
       cpi->common.current_frame.frame_number + order_offset;
+  if (cur_frame_disp == 1)
+    printf("debug\n");
 
+  printf("CUR FRAME %d\n", cur_frame_disp);
   const SubGOPStepCfg *step_gop_cfg =
       get_subgop_step(&gf_group, gf_group.index);
   assert(step_gop_cfg != NULL);
@@ -331,6 +334,7 @@ static void get_gop_cfg_enabled_refs(AV1_COMP *const cpi, int *ref_frame_flags,
   // buffer based on pyramid level if possible.
   for (int i = 0; i < step_gop_cfg->num_references; i++) {
     const int level = step_gop_cfg->references[i];
+    printf("%d\n", level);
     const int abs_level = abs(level);
     int best_frame = -1;
     int best_frame_index = -1;
@@ -351,7 +355,7 @@ static void get_gop_cfg_enabled_refs(AV1_COMP *const cpi, int *ref_frame_flags,
       }
     }
     if (best_frame == -1) {
-      fprintf(stderr, "GOP CFG REF FRAME WARNING\n");
+      fprintf(stderr, "GOP CFG REF FRAME WARNING %d\n", level);
     } else {
       ref_frame_used[best_frame] = 1;
       disp_orders[abs_level][best_frame_index] = -1;
