@@ -328,7 +328,8 @@ list(APPEND AOM_AV1_COMMON_INTRIN_AVX2
 
 if(NOT CONFIG_AV1_HIGHBITDEPTH)
   list(REMOVE_ITEM AOM_AV1_COMMON_INTRIN_AVX2
-                   "${AOM_ROOT}/av1/common/x86/highbd_convolve_2d_avx2.c")
+                   "${AOM_ROOT}/av1/common/x86/highbd_convolve_2d_avx2.c"
+                   "${AOM_ROOT}/av1/common/x86/highbd_warp_affine_avx2.c")
 endif()
 
 list(APPEND AOM_AV1_ENCODER_ASM_SSE2 "${AOM_ROOT}/av1/encoder/x86/dct_sse2.asm"
