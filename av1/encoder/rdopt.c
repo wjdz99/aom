@@ -1549,6 +1549,10 @@ static int64_t motion_mode_rd(
                               rd_stats_uv, mbmi);
       }
       mbmi->skip_txfm = 0;
+#if CONFIG_DSPL_RESIDUAL
+      mbmi->dspl_type =
+          DSPL_NONE;  // Don't downsample unless decided by a full search
+#endif
     } else {
       // Perform full transform search
       int64_t skip_rd = INT64_MAX;
@@ -1617,6 +1621,7 @@ static int64_t motion_mode_rd(
         simple_states->skip_txfm = mbmi->skip_txfm;
       }
     }
+
     if (mode_index == 0 || tmp_rd < best_rd) {
       // Update best_rd data if this is the best motion mode so far
       best_mbmi = *mbmi;
@@ -1640,6 +1645,7 @@ static int64_t motion_mode_rd(
     return INT64_MAX;
   }
   *mbmi = best_mbmi;
+
   *rd_stats = best_rd_stats;
   *rd_stats_y = best_rd_stats_y;
   if (num_planes > 1) *rd_stats_uv = best_rd_stats_uv;
@@ -2772,7 +2778,6 @@ static int64_t handle_inter_mode(
   av1_copy_array(xd->tx_type_map, best_tx_type_map, xd->height * xd->width);
 
   rd_stats->rdcost = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
-
   return rd_stats->rdcost;
 }
 
@@ -2996,6 +3001,10 @@ void av1_rd_pick_intra_mode_sb(const struct AV1_COMP *cpi, struct macroblock *x,
   mbmi->use_intrabc = 0;
   mbmi->mv[0].as_int = 0;
   mbmi->skip_mode = 0;
+#if CONFIG_DSPL_RESIDUAL
+  // Don't downsample intra blocks
+  mbmi->dspl_type = DSPL_NONE;
+#endif
 
   const int64_t intra_yrd =
       av1_rd_pick_intra_sby_mode(cpi, x, &rate_y, &rate_y_tokenonly, &dist_y,
@@ -3122,6 +3131,9 @@ static AOM_INLINE void rd_pick_skip_mode(
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   mbmi->ref_mv_idx = 0;
   mbmi->skip_mode = mbmi->skip_txfm = 1;
+#if CONFIG_DSPL_RESIDUAL
+  mbmi->dspl_type = DSPL_NONE;
+#endif
 
   set_default_interp_filters(mbmi, cm->features.interp_filter);
 
@@ -3973,6 +3985,9 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE curr_mode,
   mbmi->mv[0].as_int = mbmi->mv[1].as_int = 0;
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   mbmi->interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
+#if CONFIG_DSPL_RESIDUAL
+  mbmi->dspl_type = DSPL_BAD;
+#endif
   set_default_interp_filters(mbmi, cm->features.interp_filter);
 }
 
@@ -5241,6 +5256,13 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
       search_state.best_rd >= best_rd_so_far) {
     rd_cost->rate = INT_MAX;
     rd_cost->rdcost = INT64_MAX;
+
+#if CONFIG_DSPL_RESIDUAL
+    // TODO(singhprakhar): reconsider setting dspl_type to DSPL_NONE
+    if (search_state.best_mode_index == THR_INVALID &&
+        mbmi->dspl_type == DSPL_BAD)
+      mbmi->dspl_type = DSPL_NONE;
+#endif
     return;
   }
 
@@ -5262,6 +5284,7 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
 
   // macroblock modes
   *mbmi = search_state.best_mbmode;
+
   txfm_info->skip_txfm |= search_state.best_skip2;
 
   // Note: this section is needed since the mode may have been forced to

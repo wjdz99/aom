@@ -213,6 +213,7 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
   const int max_blocks_wide = max_block_wide(xd, bsize, 0);
   const int max_blocks_high = max_block_high(xd, bsize, 0);
   mbmi->tx_size = tx_size;
+
   // Prediction.
   for (row = 0; row < max_blocks_high; row += stepr) {
     for (col = 0; col < max_blocks_wide; col += stepc) {
@@ -1368,6 +1369,10 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
 #endif  // CONFIG_DEBUG
 
   const int skip_trellis = 0;
+#if CONFIG_DSPL_RESIDUAL
+  const int skip_dspl_search = is_inter_block(mbmi) ? 0 : 1;
+#endif
+
   for (int plane = 0; plane < CFL_PRED_PLANES; plane++) {
     RD_STATS rd_stats;
     av1_init_rd_stats(&rd_stats);
@@ -1383,9 +1388,16 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
       if (i == CFL_SIGN_NEG) {
         mbmi->cfl_alpha_idx = 0;
         mbmi->cfl_alpha_signs = joint_sign;
+#if CONFIG_DSPL_RESIDUAL
+        av1_txfm_rd_in_plane(x, cpi, &rd_stats, best_rd, 0, plane + 1,
+                             plane_bsize, tx_size,
+                             cpi->sf.rd_sf.use_fast_coef_costing, FTXS_NONE,
+                             skip_trellis, skip_dspl_search);
+#else
         av1_txfm_rd_in_plane(
             x, cpi, &rd_stats, best_rd, 0, plane + 1, plane_bsize, tx_size,
             cpi->sf.rd_sf.use_fast_coef_costing, FTXS_NONE, skip_trellis);
+#endif
         if (rd_stats.rate == INT_MAX) break;
       }
       const int alpha_rate = mode_costs->cfl_cost[joint_sign][plane][0];
@@ -1412,9 +1424,16 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
           if (i == 0) {
             mbmi->cfl_alpha_idx = (c << CFL_ALPHABET_SIZE_LOG2) + c;
             mbmi->cfl_alpha_signs = joint_sign;
+#if CONFIG_DSPL_RESIDUAL
+            av1_txfm_rd_in_plane(x, cpi, &rd_stats, best_rd, 0, plane + 1,
+                                 plane_bsize, tx_size,
+                                 cpi->sf.rd_sf.use_fast_coef_costing, FTXS_NONE,
+                                 skip_trellis, skip_dspl_search);
+#else
             av1_txfm_rd_in_plane(
                 x, cpi, &rd_stats, best_rd, 0, plane + 1, plane_bsize, tx_size,
                 cpi->sf.rd_sf.use_fast_coef_costing, FTXS_NONE, skip_trellis);
+#endif
             if (rd_stats.rate == INT_MAX) break;
           }
           const int alpha_rate = mode_costs->cfl_cost[joint_sign][plane][c];

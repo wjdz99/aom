@@ -442,7 +442,11 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
     else
       quant_idx =
           USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP;
+#if CONFIG_DSPL_RESIDUAL
+    av1_setup_xform(cm, x, tx_size, tx_type, mbmi->dspl_type, &txfm_param);
+#else
     av1_setup_xform(cm, x, tx_size, tx_type, &txfm_param);
+#endif
     av1_setup_quant(tx_size, use_trellis, quant_idx, cpi->oxcf.quant_b_adapt,
                     &quant_param);
     av1_setup_qmatrix(&cm->quant_params, xd, plane, tx_size, tx_type,
@@ -475,9 +479,15 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 
   if (p->eobs[block]) {
     *(args->skip) = 0;
+#if CONFIG_DSPL_RESIDUAL
+    av1_inverse_transform_block(
+        xd, dqcoeff, plane, tx_type, tx_size, mbmi->dspl_type, dst,
+        pd->dst.stride, p->eobs[block], cm->features.reduced_tx_set_used);
+#else
     av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
                                 pd->dst.stride, p->eobs[block],
                                 cm->features.reduced_tx_set_used);
+#endif
   }
 
   // TODO(debargha, jingning): Temporarily disable txk_type check for eob=0
@@ -633,7 +643,12 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
   TxfmParam txfm_param;
   QUANT_PARAM quant_param;
 
+#if CONFIG_DSPL_RESIDUAL
+  // Don't dowsample during first pass
+  av1_setup_xform(cm, x, tx_size, DCT_DCT, DSPL_NONE, &txfm_param);
+#else
   av1_setup_xform(cm, x, tx_size, DCT_DCT, &txfm_param);
+#endif
   av1_setup_quant(tx_size, 0, AV1_XFORM_QUANT_B, cpi->oxcf.quant_b_adapt,
                   &quant_param);
   av1_setup_qmatrix(&cm->quant_params, xd, plane, tx_size, DCT_DCT,
@@ -664,14 +679,27 @@ void av1_encode_sb(const struct AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   assert(bsize < BLOCK_SIZES_ALL);
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
+
   mbmi->skip_txfm = 1;
   if (x->txfm_search_info.skip_txfm) return;
 
   struct optimize_ctx ctx;
+#if CONFIG_DSPL_RESIDUAL
+  struct encode_b_args arg = { cpi,
+                               x,
+                               &ctx,
+                               &mbmi->skip_txfm,
+                               mbmi->dspl_type,
+                               NULL,
+                               NULL,
+                               dry_run,
+                               cpi->optimize_seg_arr[mbmi->segment_id] };
+#else
   struct encode_b_args arg = {
     cpi,  x,    &ctx,    &mbmi->skip_txfm,
     NULL, NULL, dry_run, cpi->optimize_seg_arr[mbmi->segment_id]
   };
+#endif
   const AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   for (int plane = 0; plane < num_planes; ++plane) {
@@ -776,7 +804,12 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
       quant_idx =
           USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP;
 
+#if CONFIG_DSPL_RESIDUAL
+    // Don't downsample intra blocks
+    av1_setup_xform(cm, x, tx_size, tx_type, DSPL_NONE, &txfm_param);
+#else
     av1_setup_xform(cm, x, tx_size, tx_type, &txfm_param);
+#endif
     av1_setup_quant(tx_size, use_trellis, quant_idx, cpi->oxcf.quant_b_adapt,
                     &quant_param);
     av1_setup_qmatrix(&cm->quant_params, xd, plane, tx_size, tx_type,
@@ -813,9 +846,15 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   }
 
   if (*eob) {
+#if CONFIG_DSPL_RESIDUAL
+    av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size,
+                                args->dspl_type, dst, dst_stride, *eob,
+                                cm->features.reduced_tx_set_used);
+#else
     av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
                                 dst_stride, *eob,
                                 cm->features.reduced_tx_set_used);
+#endif
   }
 
   // TODO(jingning): Temporarily disable txk_type check for eob=0 case.
@@ -855,8 +894,15 @@ void av1_encode_intra_block_plane(const struct AV1_COMP *cpi, MACROBLOCK *x,
   const int ss_y = pd->subsampling_y;
   ENTROPY_CONTEXT ta[MAX_MIB_SIZE] = { 0 };
   ENTROPY_CONTEXT tl[MAX_MIB_SIZE] = { 0 };
+#if CONFIG_DSPL_RESIDUAL
+  struct encode_b_args arg = {
+    cpi, x,  NULL,    &(xd->mi[0]->skip_txfm), DSPL_NONE,
+    ta,  tl, dry_run, enable_optimize_b
+  };
+#else
   struct encode_b_args arg = { cpi, x,  NULL,    &(xd->mi[0]->skip_txfm),
                                ta,  tl, dry_run, enable_optimize_b };
+#endif
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, ss_x, ss_y);
   if (enable_optimize_b) {
     av1_get_entropy_contexts(plane_bsize, pd, ta, tl);

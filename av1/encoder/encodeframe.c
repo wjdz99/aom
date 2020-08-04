@@ -72,6 +72,9 @@
 #include "av1/encoder/tune_vmaf.h"
 #endif
 
+#if CONFIG_DSPL_RESIDUAL
+#endif
+
 static AOM_INLINE void encode_superblock(const AV1_COMP *const cpi,
                                          TileDataEnc *tile_data, ThreadData *td,
                                          TokenExtra **t, RUN_TYPE dry_run,
@@ -766,6 +769,9 @@ static AOM_INLINE void pick_sb_modes(AV1_COMP *const cpi,
   mbmi = xd->mi[0];
   mbmi->sb_type = bsize;
   mbmi->partition = partition;
+#if CONFIG_DSPL_RESIDUAL
+  mbmi->dspl_type = DSPL_BAD;
+#endif
 
 #if CONFIG_RD_DEBUG
   mbmi->mi_row = mi_row;
@@ -1110,8 +1116,20 @@ static AOM_INLINE void update_stats(const AV1_COMMON *const cm,
     const int skip_ctx = av1_get_skip_txfm_context(xd);
 #if CONFIG_ENTROPY_STATS
     td->counts->skip_txfm[skip_ctx][mbmi->skip_txfm]++;
+#if CONFIG_DSPL_RESIDUAL
+    if (!mbmi->skip_txfm && is_inter_block(mbmi) &&
+        block_size_wide[bsize] >= DSPL_MIN_PARTITION_SIDE &&
+        block_size_high[bsize] >= DSPL_MIN_PARTITION_SIDE)
+      td->counts->dspl_type[mbmi->dspl_type]++;
+#endif
 #endif
     update_cdf(fc->skip_txfm_cdfs[skip_ctx], mbmi->skip_txfm, 2);
+#if CONFIG_DSPL_RESIDUAL
+    if (!mbmi->skip_txfm && is_inter_block(mbmi) &&
+        block_size_wide[bsize] >= DSPL_MIN_PARTITION_SIDE &&
+        block_size_high[bsize] >= DSPL_MIN_PARTITION_SIDE)
+      update_cdf(fc->dspl_type_cdf, mbmi->dspl_type, DSPL_END);
+#endif
   }
 
 #if CONFIG_ENTROPY_STATS
@@ -3086,6 +3104,7 @@ static AOM_INLINE void rd_pick_rect_partition(
   pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &part_search_state->this_rdc,
                 partition_type, bsize, cur_partition_ctx, best_remain_rdcost,
                 PICK_MODE_RD);
+
   av1_rd_cost_update(x->rdmult, &part_search_state->this_rdc);
 
   // Update the partition rd cost with the current sub-block rd.
@@ -4641,6 +4660,9 @@ static AOM_INLINE void avg_cdf_symbols(FRAME_CONTEXT *ctx_left,
   AVERAGE_CDF(ctx_left->comp_group_idx_cdf, ctx_tr->comp_group_idx_cdf, 2);
   AVERAGE_CDF(ctx_left->skip_mode_cdfs, ctx_tr->skip_mode_cdfs, 2);
   AVERAGE_CDF(ctx_left->skip_txfm_cdfs, ctx_tr->skip_txfm_cdfs, 2);
+#if CONFIG_DSPL_RESIDUAL
+  AVERAGE_CDF(ctx_left->dspl_type_cdf, ctx_tr->dspl_type_cdf, DSPL_END);
+#endif
   AVERAGE_CDF(ctx_left->intra_inter_cdf, ctx_tr->intra_inter_cdf, 2);
   avg_nmv(&ctx_left->nmvc, &ctx_tr->nmvc, wt_left, wt_tr);
   avg_nmv(&ctx_left->ndvc, &ctx_tr->ndvc, wt_left, wt_tr);
@@ -6419,10 +6441,19 @@ static AOM_INLINE void encode_superblock(const AV1_COMP *const cpi,
 #else
     (void)num_planes;
 #endif
+#if CONFIG_DSPL_RESIDUAL
+    // Set quantizer
+    av1_setup_dspl_quantizer(cpi, x, mbmi->segment_id, mbmi->dspl_type);
+#endif
 
     av1_encode_sb(cpi, x, bsize, dry_run);
     av1_tokenize_sb_vartx(cpi, td, dry_run, bsize, rate,
                           tile_data->allow_update_cdf);
+
+#if CONFIG_DSPL_RESIDUAL
+    // Restore quantizer
+    av1_setup_dspl_quantizer(cpi, x, mbmi->segment_id, DSPL_NONE);
+#endif
   }
 
   if (!dry_run) {
