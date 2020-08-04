@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f547aeee_67c394ee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-08-04T17:11:35Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, we introduced a speed feature “early_term_after_none_split” to terminate partition search when both NONE and SPLIT partition rd costs are equal to INT64_MAX. As per our understanding, the chances of child partition winning percentage might become less when both NONE and SPLIT partition rd costs are INT64_MAX.\n \nWe will also try to extend this sf for lower presets \u003c\u003d 3.\nPlease review the patch.\n\n                     Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)   avg.psnr  ovr.psnr   ssim\n   4       LOW RES        1.231        0.0486    0.0474    0.0110\n   4       MID RES        1.417        0.0706    0.0784   -0.0126\n   4        HD RES        1.530        0.0242    0.0236    0.0083\n   4       Average        1.358        0.0476    0.0492    0.0033\n\n   5       LOW RES        0.272        0.0109    0.0160    0.0103\n   5       MID RES        0.442        0.0304    0.0409    0.0044\n   5        HD RES        0.485        0.0425    0.0488    0.0742\n   5       Average        0.368        0.0262    0.0330    0.0281\n   \n   6       LOW RES        0.250       -0.0099   -0.0005    0.0660\n   6       MID RES        0.316        0.0260    0.0158    0.0374\n   6        HD RES        0.553        0.0555    0.0601    0.0425\n   6       Average        0.346        0.0206    0.0221    0.0506\n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "bfa2184ad48062971c20658c4fa1ef72a562adcd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
