@@ -832,7 +832,8 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   // ref_mv_stack[cluster_idx_to_merge].comp_mv.as_mv.col =
   //     (comp_mv_col > 65535) ? 65535 : comp_mv_col;
   if ((*new_slot) > 0 && cluster_points > 1) {
-    ref_mv_weight[*new_slot] = (this_weight > 65535) ? 65535 : this_weight;
+    // ref_mv_weight[*new_slot] = (this_weight > 65535) ? 65535 : this_weight;
+    ref_mv_weight[*new_slot] = 2;  // Give it a very small weight
     ref_mv_stack[*new_slot].this_mv.as_mv.row =
         (this_mv_row > 65535) ? 65535 : this_mv_row;
     ref_mv_stack[*new_slot].this_mv.as_mv.col =
