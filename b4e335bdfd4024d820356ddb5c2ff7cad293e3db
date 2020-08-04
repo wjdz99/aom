@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "163d6d66_75ca670d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2020-08-04T13:26:52Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe have submitted the patch to simplify ‘prune_compound_using_single_ref’ speed feature. This speed feature prunes the compound modes once all single modes are processed. The function find_last_single_ref_mode_idx( ) finds the index of last single mode in mode_order table and was introduced assuming that modes might be reordered (in future). Overhead of the function is high as it is called within mode search loop (called until last single mode is reached).\n\nWe have simplified the logic to find the last single ref mode index. Though mode reordering is not currently enabled, we considered relevant aspects for refactoring so that no changes are required if modes are reordered in future.\n\nThe output is bit-exact for all speed levels as per BORG tests. Please review the patch and let us know you have any comments.\n\n            Instruction Count\ncpu-used      Reduction(%)\n   0            0.472\n   1            1.038\n   2            1.551\n   3            2.581\n   4            2.853\n   5            2.012\n   6            2.453\n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n\nThank you.",
+      "revId": "b4e335bdfd4024d820356ddb5c2ff7cad293e3db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
