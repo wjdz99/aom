@@ -212,6 +212,12 @@ static INLINE aom_cdf_prob *av1_get_skip_txfm_cdf(const MACROBLOCKD *xd) {
   return xd->tile_ctx->skip_txfm_cdfs[av1_get_skip_txfm_context(xd)];
 }
 
+#if CONFIG_DSPL_RESIDUAL
+static INLINE aom_cdf_prob *av1_get_dspl_type_cdf(const MACROBLOCKD *xd) {
+  return xd->tile_ctx->dspl_type_cdf;
+}
+#endif
+
 int av1_get_comp_reference_type_context(const MACROBLOCKD *xd);
 
 // == Uni-directional contexts ==
