@@ -10546,27 +10546,24 @@ static int handle_smooth_inter_intra_mode(
       x->interintra_mode_cost[size_group_lookup[bsize]];
   mbmi->use_wedge_interintra = 0;
   int j = 0;
-#if CONFIG_ILLUM_MCOMP
-  MV old_best = x->best_mv.as_mv;
-#endif  // CONFIG_ILLUM_MCOMP
   if (cpi->sf.reuse_inter_intra_mode == 0 ||
       *best_interintra_mode == INTERINTRA_MODES) {
     for (j = 0; j < total_modes; ++j) {
-#if CONFIG_ILLUM_MCOMP
-      if (j == II_ILLUM_MCOMP_PRED) {
-        single_motion_search(cpi, x, bsize, 0, &tmp_rate_mv, true);
-        av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
-                                      AOM_PLANE_Y, AOM_PLANE_Y);
-      } else if (j == II_ILLUM_MCOMP_PRED + 1) {
-        x->best_mv.as_mv = old_best;
-        av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
-                                      AOM_PLANE_Y, AOM_PLANE_Y);
-      }
-#endif  // CONFIG_ILLUM_MCOMP
       if ((!cpi->oxcf.enable_smooth_intra || cpi->sf.disable_smooth_intra) &&
           (INTERINTRA_MODE)j == II_SMOOTH_PRED)
         continue;
       mbmi->interintra_mode = (INTERINTRA_MODE)j;
+#if CONFIG_ILLUM_MCOMP
+      if (j == II_ILLUM_MCOMP_PRED) {
+        // Cannot calculate border region for this block -- skip.
+        if (av1_calc_border(xd) == 0) {
+          continue;
+        }
+        // Re-build the inter-predictor with the border region.
+        av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
+                                      AOM_PLANE_Y, AOM_PLANE_Y);
+      }
+#endif  // CONFIG_ILLUM_MCOMP
 #if CONFIG_DERIVED_INTRA_MODE
       mbmi->use_derived_intra_mode[0] = 0;
       if (j == INTERINTRA_MODES) {
@@ -10607,13 +10604,6 @@ static int handle_smooth_inter_intra_mode(
     args->inter_intra_mode[mbmi->ref_frame[0]] = *best_interintra_mode;
   }
 
-#if CONFIG_ILLUM_MCOMP
-  if (*best_interintra_mode != II_ILLUM_MCOMP_PRED) {
-    x->best_mv.as_mv = old_best;
-    av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
-                                  AOM_PLANE_Y, AOM_PLANE_Y);
-  }
-#endif  // CONFIG_ILLUM_MCOMP
   assert(IMPLIES(
       !cpi->oxcf.enable_smooth_interintra || cpi->sf.disable_smooth_interintra,
       *best_interintra_mode != II_SMOOTH_PRED));
@@ -10679,19 +10669,15 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
   int tmp_skip_txfm_sb;
   int bw = block_size_wide[bsize];
   int64_t tmp_skip_sse_sb;
-#if CONFIG_INTERINTRA_BORDER
+  // Allocate extra memory in case we need to build a border. The performance
+  // impact is negligible and it simplifies the code.
   DECLARE_ALIGNED(16, uint8_t,
                   aligned_buf1_[2 * MAX_INTERINTRA_BORDER_SB_SQUARE]);
   DECLARE_ALIGNED(16, uint8_t,
                   aligned_buf2_[2 * MAX_INTERINTRA_BORDER_SB_SQUARE]);
-  const int border = 16;
-  const int stride = MAX_INTER_PRED_BORDER + bw;
-#else
-  DECLARE_ALIGNED(16, uint8_t, aligned_buf1_[2 * MAX_INTERINTRA_SB_SQUARE]);
-  DECLARE_ALIGNED(16, uint8_t, aligned_buf2_[2 * MAX_INTERINTRA_SB_SQUARE]);
-  const int border = 0;
-  const int stride = bw;
-#endif  // CONFIG_INTERINTRA_BORDER
+  const int border = av1_calc_border(xd);
+  const int stride = ROUND16(bw + border);
+  assert(stride % 16 == 0);
   uint8_t *tmp_buf_ = aligned_buf1_ + border * stride + border;
   uint8_t *intrapred_ = aligned_buf2_ + border * stride + border;
   uint8_t *tmp_buf = get_buf_by_bd(xd, tmp_buf_);
@@ -10707,20 +10693,8 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
 
-  // Only build the extended region in the inter-border if it is possible
-  // to do so, due to limitations in the inter-prediction extension code.
-  InterPredExt ext = { .border_left = border,
-                       .border_top = border,
-                       .border_right = 0,
-                       .border_bottom = 0 };
-  if (av1_valid_inter_pred_ext(&ext, is_intrabc_block(xd->mi[0]),
-                               has_second_ref(mbmi))) {
-    av1_enc_build_border_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
-                                         AOM_PLANE_Y, AOM_PLANE_Y, border);
-  } else {
-    av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
-                                  AOM_PLANE_Y, AOM_PLANE_Y);
-  }
+  av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
+                                AOM_PLANE_Y, AOM_PLANE_Y);
 
   restore_dst_buf(xd, *orig_dst, num_planes);
   mbmi->ref_frame[1] = INTRA_FRAME;
