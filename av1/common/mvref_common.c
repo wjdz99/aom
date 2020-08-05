@@ -660,86 +660,6 @@ static void mv_dbscan1(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   // }
   // fprintf(stderr, "\n");
 }
-// obselete
-static void mv_dbscan(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
-                      const int refmv_num, const int min_points,
-                      const float threshold, int *cluster_num,
-                      int cluster_label[], bool is_single_frame) {
-  float point_distances[MAX_REF_MV_STACK_SIZE][MAX_REF_MV_STACK_SIZE];
-  for (int i = 0; i < refmv_num; i++) {
-    for (int j = i + 1; j < refmv_num; j++) {
-      if (is_single_frame) {
-        point_distances[i][j] = point_distances[j][i] = calc_square_dist(
-            &(ref_mv_stack[i].this_mv), &(ref_mv_stack[j].this_mv));
-      } else {
-        float dist = calc_square_dist(&(ref_mv_stack[i].this_mv),
-                                      &(ref_mv_stack[j].this_mv)) +
-                     calc_square_dist(&(ref_mv_stack[i].comp_mv),
-                                      &(ref_mv_stack[j].comp_mv));
-        point_distances[i][j] = point_distances[j][i] = dist / 2.0;
-      }
-    }
-    point_distances[i][i] = 0;
-  }
-  int ele_count[MAX_REF_MV_STACK_SIZE] = { 0 };
-  bool neighborhood[MAX_REF_MV_STACK_SIZE][MAX_REF_MV_STACK_SIZE] = { 0 };
-  for (int i = 0; i < refmv_num; i++) {
-    // Initial: Every one is set as  a noise point
-    cluster_label[i] = -1;
-    // Check: Are there enough points (>= min_points) in the neighborhood of Pi
-    for (int j = 0; j < refmv_num; j++) {
-      if (point_distances[i][j] <= threshold) {
-        neighborhood[i][j] = true;
-        ele_count[i]++;
-      }
-    }
-  }
-  bool is_centriods[MAX_REF_MV_STACK_SIZE] = { 0 };
-  *cluster_num = 0;
-  for (int i = 0; i < refmv_num; i++) {
-    if (ele_count[i] >= min_points) {
-      // This can be identified as a temporal cluster centriod
-      is_centriods[i] = true;
-      (*cluster_num)++;
-    }
-  }
-
-  bool should_stop = true;
-  while (1) {
-    should_stop = true;
-    for (int i = 0; i < refmv_num; i++) {
-      if (is_centriods[i]) {
-        for (int j = 0; j < refmv_num; j++) {
-          if (i != j && is_centriods[j] && neighborhood[i][j]) {
-            // Centroid j is also in Centriod i's neighborhood, so combine them
-            // Put all centroid j's element in centriod i
-            is_centriods[j] = false;
-            (*cluster_num)--;
-            for (int k = 0; k < refmv_num; k++) {
-              if (neighborhood[j][k]) {
-                neighborhood[i][k] = true;
-              }
-            }
-            should_stop = false;
-          }
-        }
-      }
-    }
-    if (should_stop) {
-      break;
-    }
-  }
-  // Label
-  for (int i = 0; i < refmv_num; i++) {
-    if (is_centriods[i]) {
-      for (int j = 0; j < refmv_num; j++) {
-        if (neighborhood[i][j]) {
-          cluster_label[j] = i;
-        }
-      }
-    }
-  }
-}
 
 void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
               uint16_t ref_mv_weight[MAX_REF_MV_STACK_SIZE],
@@ -832,7 +752,7 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   //     (comp_mv_row > 65535) ? 65535 : comp_mv_row;
   // ref_mv_stack[cluster_idx_to_merge].comp_mv.as_mv.col =
   //     (comp_mv_col > 65535) ? 65535 : comp_mv_col;
-  if ((*new_slot) > MAX_REF_MV_STACK_SIZE && cluster_points > 1) {
+  if ((*new_slot) < MAX_REF_MV_STACK_SIZE && cluster_points > 1) {
     // ref_mv_weight[*new_slot] = (this_weight > 65535) ? 65535 : this_weight;
     // Give it a very small weight (smaller than all the others), so that it
     // will not come to the front of the other existing MVs
@@ -1023,6 +943,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       mode_context[ref_frame] |= (5 << REFMV_OFFSET);
       break;
   }
+  // Two Parts
   if (false) {
     // DBSCAN Parameters
     int original_ref_mv_cnt = (*refmv_count);
