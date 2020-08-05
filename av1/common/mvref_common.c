@@ -935,8 +935,9 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       mode_context[ref_frame] |= (5 << REFMV_OFFSET);
       break;
   }
+  bool two_parts_dbscan = false;
   // Two Parts
-  if (true) {
+  if (two_parts_dbscan) {
     // DBSCAN Parameters
     const int min_points = 2;
     const int dist_threshold = 1;
@@ -1033,12 +1034,11 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     // fprintf(stderr, "\n");
   }
 
-  if (false) {
-    // DBSCAN Parameters
+  else {
+    // DBSCAN Parameters (One Part)
     const int min_points = 2;
     const int dist_threshold = 1;
     int cluster_num1 = 0;
-    int cluster_num2 = 0;
     int cluster_label[MAX_REF_MV_STACK_SIZE];
     for (int i = 0; i < (*refmv_count); i++) {
       cluster_label[i] = -1;
@@ -1057,7 +1057,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         } else if (cluster_label[i] == i) {
           // centriod update
           merge_mv(ref_mv_stack, ref_mv_weight, cluster_label, 0,
-                   nearest_refmv_count, i, &new_slot);
+                   (*refmv_count), i, &new_slot);
         }
       }
     }
