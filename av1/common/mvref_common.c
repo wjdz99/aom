@@ -676,7 +676,7 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   uint64_t total_weight = 0U;
   this_mv_row = this_mv_col = comp_mv_row = comp_mv_col = temp = 0U;
   int cluster_points = 0;
-  bool use_weighted_avg = false;
+  bool use_weighted_avg = true;
 
   for (int j = start; j < end; j++) {
     if (cluster_label[j] == cluster_idx_to_merge) {
