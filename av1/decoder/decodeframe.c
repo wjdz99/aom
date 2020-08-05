@@ -810,6 +810,9 @@ static void dec_build_inter_predictors_sbuv(const AV1_COMMON *cm,
     };
     if (!ctx) ctx = &default_ctx;
     const int border = av1_calc_border(xd);
+    if (border > 0) {
+      printf("YAY!\n");
+    }
     uint8_t *interpred_u = xd->plane[1].dst.buf;
     int interpred_u_stride = xd->plane[1].dst.stride;
     uint8_t *interpred_v = xd->plane[2].dst.buf;

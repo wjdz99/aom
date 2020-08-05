@@ -1647,7 +1647,7 @@ int av1_calc_border(const MACROBLOCKD *xd) {
 
 #if CONFIG_ILLUM_MCOMP
   if (xd->mi[0]->interintra_mode == II_ILLUM_MCOMP_PRED) {
-    return 4;
+    return 16;
   }
 #endif  // CONFIG_ILLUM_MCOMP
 
