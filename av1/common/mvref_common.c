@@ -809,11 +809,11 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   // this_weight = total_weight;
 
   // Arithmetic Avg
-  // this_mv_row = (this_mv_row + (cluster_points >> 1)) / cluster_points;
-  // this_mv_col = (this_mv_col + (cluster_points >> 1)) / cluster_points;
-  // comp_mv_row = (comp_mv_row + (cluster_points >> 1)) / cluster_points;
-  // comp_mv_col = (comp_mv_col + (cluster_points >> 1)) / cluster_points;
-  // this_weight = (total_weight + (cluster_points >> 1)) / cluster_points;
+  this_mv_row = (this_mv_row + (cluster_points >> 1)) / cluster_points;
+  this_mv_col = (this_mv_col + (cluster_points >> 1)) / cluster_points;
+  comp_mv_row = (comp_mv_row + (cluster_points >> 1)) / cluster_points;
+  comp_mv_col = (comp_mv_col + (cluster_points >> 1)) / cluster_points;
+  this_weight = (total_weight + (cluster_points >> 1)) / cluster_points;
   // fprintf(stderr, "%d %d Before %d: %d %d %d %d (%u)\t", start, end,
   //         cluster_idx_to_merge,
   //         ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.row,
