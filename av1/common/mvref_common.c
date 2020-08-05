@@ -944,7 +944,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       break;
   }
   // Two Parts
-  if (false) {
+  if (true) {
     // DBSCAN Parameters
     int original_ref_mv_cnt = (*refmv_count);
     // DBSCAN-1
@@ -970,13 +970,12 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
           continue;
         } else if (cluster_label[i] == i) {
           // centriod update
-          new_slot = (new_slot >= MAX_REF_MV_STACK_SIZE ? -1 : new_slot);
           merge_mv(ref_mv_stack, ref_mv_weight, cluster_label, 0,
                    nearest_refmv_count, i, &new_slot);
         }
       }
     }
-    // If there are too few mv candidates remains, do not cluster them
+    // If there are too few mv candidates remaining, do not cluster them
     if ((*refmv_count) - nearest_refmv_count > 2) {
       mv_dbscan1(ref_mv_stack, nearest_refmv_count, (*refmv_count), min_points,
                  dist_threshold, (&cluster_num2), cluster_label,
@@ -987,62 +986,64 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
           // outlier
           continue;
         } else if (cluster_label[i] == i) {
-          new_slot = (new_slot >= MAX_REF_MV_STACK_SIZE ? -1 : new_slot);
           merge_mv(ref_mv_stack, ref_mv_weight, cluster_label,
                    nearest_refmv_count, (*refmv_count), i, &new_slot);
         }
       }
     }
-    (*refmv_count) = (new_slot > 0 ? new_slot : (*refmv_count));
-    uint8_t old_mv_count = (*refmv_count);
-    // Shrink MV list
-    CANDIDATE_MV tmp[MAX_REF_MV_STACK_SIZE];
-    uint16_t tmp_weight[MAX_REF_MV_STACK_SIZE];
-    int count = 0;
-    uint8_t old_nearest_refmv_count = nearest_refmv_count;
-    for (int i = 0; i < old_nearest_refmv_count; i++) {
-      if (cluster_label[i] == -1 || cluster_label[i] == i) {
-        // Only keep outliers and cluster centriods
-        tmp[count].this_mv.as_int = ref_mv_stack[i].this_mv.as_int;
-        tmp[count].comp_mv.as_int = ref_mv_stack[i].comp_mv.as_int;
-        tmp_weight[count] = ref_mv_weight[i];
-        count++;
-      }
-    }
-    nearest_refmv_count = count;
-    bool has_removed_one = false;
-    for (int i = old_nearest_refmv_count; i < (*refmv_count); i++) {
-      // if (cluster_label[i] == -1 && ref_mv_weight[i] == 2 &&
-      //     (!has_removed_one)) {
-      //   has_removed_one = true;
-      //   continue;
-      // }
-      if (cluster_label[i] == -1 || cluster_label[i] == i) {
-        // Only keep outliers and cluster centriods
-        tmp[count].this_mv.as_int = ref_mv_stack[i].this_mv.as_int;
-        tmp[count].comp_mv.as_int = ref_mv_stack[i].comp_mv.as_int;
-        tmp_weight[count] = ref_mv_weight[i];
-        count++;
-      }
-    }
-    (*refmv_count) = count;
-    for (int i = 0; i < count; i++) {
-      ref_mv_stack[i].this_mv.as_int = tmp[i].this_mv.as_int;
-      ref_mv_stack[i].comp_mv.as_int = tmp[i].comp_mv.as_int;
-      ref_mv_weight[i] = tmp_weight[i];
-    }
+    (*refmv_count) =
+        (new_slot < MAX_REF_MV_STACK_SIZE ? new_slot : MAX_REF_MV_STACK_SIZE);
 
-    int noise_cnt = 0;
-    for (int i = 0; i < (*refmv_count); i++) {
-      if (cluster_label[i] < 0) {
-        noise_cnt++;
-        // fprintf(stderr, "%u ", ref_mv_weight[i]);
+    // Shrink MV list
+    if (false) {
+      CANDIDATE_MV tmp[MAX_REF_MV_STACK_SIZE];
+      uint16_t tmp_weight[MAX_REF_MV_STACK_SIZE];
+      int count = 0;
+      uint8_t old_nearest_refmv_count = nearest_refmv_count;
+      for (int i = 0; i < old_nearest_refmv_count; i++) {
+        if (cluster_label[i] == -1 || cluster_label[i] == i) {
+          // Only keep outliers and cluster centriods
+          tmp[count].this_mv.as_int = ref_mv_stack[i].this_mv.as_int;
+          tmp[count].comp_mv.as_int = ref_mv_stack[i].comp_mv.as_int;
+          tmp_weight[count] = ref_mv_weight[i];
+          count++;
+        }
+      }
+      nearest_refmv_count = count;
+      bool has_removed_one = false;
+      for (int i = old_nearest_refmv_count; i < (*refmv_count); i++) {
+        // if (cluster_label[i] == -1 && ref_mv_weight[i] == 2 &&
+        //     (!has_removed_one)) {
+        //   has_removed_one = true;
+        //   continue;
+        // }
+        if (cluster_label[i] == -1 || cluster_label[i] == i) {
+          // Only keep outliers and cluster centriods
+          tmp[count].this_mv.as_int = ref_mv_stack[i].this_mv.as_int;
+          tmp[count].comp_mv.as_int = ref_mv_stack[i].comp_mv.as_int;
+          tmp_weight[count] = ref_mv_weight[i];
+          count++;
+        }
+      }
+      (*refmv_count) = count;
+      for (int i = 0; i < count; i++) {
+        ref_mv_stack[i].this_mv.as_int = tmp[i].this_mv.as_int;
+        ref_mv_stack[i].comp_mv.as_int = tmp[i].comp_mv.as_int;
+        ref_mv_weight[i] = tmp_weight[i];
+      }
+
+      int noise_cnt = 0;
+      for (int i = 0; i < (*refmv_count); i++) {
+        if (cluster_label[i] < 0) {
+          noise_cnt++;
+          // fprintf(stderr, "%u ", ref_mv_weight[i]);
+        }
       }
     }
     // fprintf(stderr, "\n");
   }
 
-  {
+  if (false) {
     // DBSCAN Parameters
     const int min_points = 2;
     const int dist_threshold = 1;
