@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9def514f_9de25a96",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-08-05T16:15:24Z",
+      "side": 1,
+      "message": "Is this and also the above at line 164 needed now? Feels just *derivative \u003d (double) (pred2[0] - pred1[0]) ; is sufficient;",
+      "range": {
+        "startLine": 173,
+        "startChar": 2,
+        "endLine": 177,
+        "endChar": 24
+      },
+      "revId": "b66c4554df91427d73c7d0b1c123cd3abeaeb943",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbfd6a0a_36acec86",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-08-05T16:15:24Z",
+      "side": 1,
+      "message": "Should we apply the scaling? We can also just apply scaling to the array definition of the filter at line 91",
+      "range": {
+        "startLine": 232,
+        "startChar": 6,
+        "endLine": 233,
+        "endChar": 36
+      },
+      "revId": "b66c4554df91427d73c7d0b1c123cd3abeaeb943",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0fc6a96_5a4e82be",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-08-05T16:15:24Z",
+      "side": 1,
+      "message": "This should be put to the top of the file.",
+      "range": {
+        "startLine": 264,
+        "startChar": 0,
+        "endLine": 269,
+        "endChar": 76
+      },
+      "revId": "b66c4554df91427d73c7d0b1c123cd3abeaeb943",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
