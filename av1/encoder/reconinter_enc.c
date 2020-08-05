@@ -342,7 +342,6 @@ static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
   struct buf_2d *const pre_buf = &pd->pre[ref];
   uint8_t *const dst = get_buf_by_bd(xd, ext_dst) + ext_dst_stride * y + x;
   const MV mv = mi->mv[ref].as_mv;
-
   ConvolveParams conv_params = get_conv_params(0, plane, xd->bd);
   const WarpedMotionParams *const wm = &xd->global_motion[mi->ref_frame[ref]];
   const WarpTypesAllowed warp_types = { is_global_mv_block(mi, wm->wmtype),

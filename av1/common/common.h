@@ -26,6 +26,8 @@
 extern "C" {
 #endif
 
+#define CONFIG_DERIVED_MV_NO_PD 1
+
 #define PI 3.141592653589793238462643383279502884
 
 // Only need this for fixed-size arrays, for structs just assign.
