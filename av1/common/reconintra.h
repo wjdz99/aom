@@ -34,7 +34,7 @@ int av1_intra_left_available(const MACROBLOCKD *xd, int plane);
 void av1_extend_intra_border(const uint8_t *ref, int ref_stride, uint8_t *dst,
                              int dst_stride, int top_rows_available,
                              int left_cols_available, int width, int height,
-                             int border, aom_bit_depth_t bd);
+                             int border, const MACROBLOCKD *xd);
 void av1_init_intra_predictors(void);
 void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                     int plane, int blk_col, int blk_row,
