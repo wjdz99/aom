@@ -832,7 +832,7 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   //     (comp_mv_row > 65535) ? 65535 : comp_mv_row;
   // ref_mv_stack[cluster_idx_to_merge].comp_mv.as_mv.col =
   //     (comp_mv_col > 65535) ? 65535 : comp_mv_col;
-  if ((*new_slot) > 0 && cluster_points > 1) {
+  if ((*new_slot) > MAX_REF_MV_STACK_SIZE && cluster_points > 1) {
     // ref_mv_weight[*new_slot] = (this_weight > 65535) ? 65535 : this_weight;
     // Give it a very small weight (smaller than all the others), so that it
     // will not come to the front of the other existing MVs
@@ -1023,8 +1023,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       mode_context[ref_frame] |= (5 << REFMV_OFFSET);
       break;
   }
-  // if (false)
-  {
+  if (false) {
     // DBSCAN Parameters
     int original_ref_mv_cnt = (*refmv_count);
     // DBSCAN-1
@@ -1121,6 +1120,40 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
     // fprintf(stderr, "\n");
   }
+
+  {
+    // DBSCAN Parameters
+    const int min_points = 2;
+    const int dist_threshold = 1;
+    int cluster_num1 = 0;
+    int cluster_num2 = 0;
+    int cluster_label[MAX_REF_MV_STACK_SIZE];
+    for (int i = 0; i < (*refmv_count); i++) {
+      cluster_label[i] = -1;
+    }
+    int new_slot = (*refmv_count);
+    // If the spatial mvs can not even fill the MAX_MV_REF_CANDIDATES, we will
+    // not cluster them
+    if ((*refmv_count) > MAX_MV_REF_CANDIDATES) {
+      mv_dbscan1(ref_mv_stack, 0, (*refmv_count), min_points, dist_threshold,
+                 (&cluster_num1), cluster_label, (rf[1] == NONE_FRAME));
+      // Add New MVs
+      for (int i = 0; i < (*refmv_count); i++) {
+        if (cluster_label[i] == -1) {
+          // outlier
+          continue;
+        } else if (cluster_label[i] == i) {
+          // centriod update
+          merge_mv(ref_mv_stack, ref_mv_weight, cluster_label, 0,
+                   nearest_refmv_count, i, &new_slot);
+        }
+      }
+    }
+
+    (*refmv_count) =
+        (new_slot < MAX_REF_MV_STACK_SIZE ? new_slot : MAX_REF_MV_STACK_SIZE);
+  }
+
   // It sort mvs separately for spatial and temporial
   // if (nearest_refmv_count > 2)
   //   fprintf(stderr, "block (%d %d) refmv=%d,  nearest_refmv_count=%d \n",
