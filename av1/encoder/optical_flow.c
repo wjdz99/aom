@@ -8,7 +8,7 @@
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
-#if DCONFIG_OPTICAL_FLOW_API
+#if CONFIG_OPTICAL_FLOW_API
 
 #include <math.h>
 #include <limits.h>
@@ -44,19 +44,15 @@ typedef struct LOCALMV {
 //   based on optical flow.
 void optical_flow(const YV12_BUFFER_CONFIG *from_frame,
                   const YV12_BUFFER_CONFIG *to_frame, const int from_frame_idx,
-                  const int to_frame_idx, const int bit_depth, int levels,
-                  int window_size, const mv_filter_type mv_filter,
+                  const int to_frame_idx, const int bit_depth,
+                  OPFL_PARAMS opfl_params, const mv_filter_type mv_filter,
                   const optflow_method method, MV *mvs) {
+  int levels = opfl_params.pyramid_levels;
   if (levels < 1 || levels > 5) {
     printf("Pyramid levels out of bounds. Choose a value within [%d, %d].\n", 1,
            5);
     printf("Resetting to default value %d\n", OPFL_PYRAMID_LEVELS);
     levels = OPFL_PYRAMID_LEVELS;
-  }
-  if (window_size < 1 || window_size % 2 != 1) {
-    printf("Window size is not positive or not even.\n");
-    printf("Resetting to default value %d\n", OPFL_WINDOW_SIZE);
-    window_size = OPFL_WINDOW_SIZE;
   }
   const int frame_height = from_frame->y_crop_height;
   const int frame_width = from_frame->y_crop_width;

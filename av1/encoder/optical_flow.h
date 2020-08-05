@@ -15,17 +15,33 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#if CONFIG_OPTICAL_FLOW_API
 typedef enum { LucasKanade = 0 } optflow_method;
 typedef enum { None = 0, Smooth = 1, Median = 2 } mv_filter_type;
 // default options for optical flow
-#define OPFL_WINDOW_SIZE 25
+#define OPFL_WINDOW_SIZE 15
 #define OPFL_PYRAMID_LEVELS 3  // total levels (max is 5)
+
+// parameters specific to Lucas-Kanade
+typedef struct lk_params {
+  int window_size;
+} LK_PARAMS;
+
+// generic structure to contain parameters for all
+// optical flow algorithms
+typedef struct opfl_params {
+  int pyramid_levels;
+  LK_PARAMS lk_params;
+} OPFL_PARAMS;
 
 void optical_flow(const YV12_BUFFER_CONFIG *from_frame,
                   const YV12_BUFFER_CONFIG *to_frame, const int from_frame_idx,
-                  const int to_frame_idx, const int bit_depth, int levels,
-                  int window_size, const mv_filter_type mv_filter,
+                  const int to_frame_idx, const int bit_depth,
+                  OPFL_PARAMS opfl_params, const mv_filter_type mv_filter,
                   const optflow_method method, MV *mvs);
+#endif
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
