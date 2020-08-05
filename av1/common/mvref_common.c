@@ -809,11 +809,11 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   // this_weight = total_weight;
 
   // Arithmetic Avg
-  this_mv_row = (this_mv_row + (cluster_points >> 1)) / cluster_points;
-  this_mv_col = (this_mv_col + (cluster_points >> 1)) / cluster_points;
-  comp_mv_row = (comp_mv_row + (cluster_points >> 1)) / cluster_points;
-  comp_mv_col = (comp_mv_col + (cluster_points >> 1)) / cluster_points;
-  this_weight = (total_weight + (cluster_points >> 1)) / cluster_points;
+  // this_mv_row = (this_mv_row + (cluster_points >> 1)) / cluster_points;
+  // this_mv_col = (this_mv_col + (cluster_points >> 1)) / cluster_points;
+  // comp_mv_row = (comp_mv_row + (cluster_points >> 1)) / cluster_points;
+  // comp_mv_col = (comp_mv_col + (cluster_points >> 1)) / cluster_points;
+  // this_weight = (total_weight + (cluster_points >> 1)) / cluster_points;
   // fprintf(stderr, "%d %d Before %d: %d %d %d %d (%u)\t", start, end,
   //         cluster_idx_to_merge,
   //         ref_mv_stack[cluster_idx_to_merge].this_mv.as_mv.row,
@@ -834,7 +834,9 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   //     (comp_mv_col > 65535) ? 65535 : comp_mv_col;
   if ((*new_slot) > 0 && cluster_points > 1) {
     // ref_mv_weight[*new_slot] = (this_weight > 65535) ? 65535 : this_weight;
-    ref_mv_weight[*new_slot] = 2;  // Give it a very small weight
+    // Give it a very small weight (smaller than all the others), so that it
+    // will not come to the front of the other existing MVs
+    ref_mv_weight[*new_slot] = 1;
     ref_mv_stack[*new_slot].this_mv.as_mv.row =
         (this_mv_row > 65535) ? 65535 : this_mv_row;
     ref_mv_stack[*new_slot].this_mv.as_mv.col =
