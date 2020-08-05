@@ -106,25 +106,18 @@ static INLINE void revert_scale_extra_bits(SubpelParams *sp) {
   assert(sp->ys <= SUBPEL_SHIFTS);
 }
 
-// Data structure for passing around configuration options for building
-// the extended inter-predictor. If NULL, will assume 0 values for everything.
-// Border value must be a multiple of 8 and between 0 and MAX_INTER_PRED_BORDER
-// (inclusive on both ends).
-#define MAX_INTER_PRED_BORDER 16
+// Border value must be a multiple of 16 due to interactions with
+// SIMD and assembly. In particular, the intra-predictor code requires
+// that the dst pointer and each row below it start on a 16-byte boundary.
+// TODO(elliottk): over-allocate the buffer and to ensure the offset and
+// stride can be multiples of 16, without the border needing to be a
+// multiple of 16.
+#define INTERINTRA_BORDER 16
+// Note that 32x32 is the max size for an interintra prediction.
 #define MAX_INTERINTRA_BORDER_SB_SQUARE \
-  ((MAX_INTER_PRED_BORDER + 32) * (MAX_INTER_PRED_BORDER + 32))
-
-typedef struct InterPredExt {
-  int border_left;
-  int border_top;
-  int border_right;
-  int border_bottom;
-} InterPredExt;
-
-// Checks if the InterPredExt is valid -- useful for assertions. NULL means
-// 0 values for all borders.
-bool av1_valid_inter_pred_ext(const InterPredExt *ext, bool intra_bc,
-                              bool is_compound);
+  ((32 + INTERINTRA_BORDER) * (32 + INTERINTRA_BORDER))
+// Rounds the value up to the nearest multiple of 16.
+#define ROUND16(x) ((x) % 16 == 0 ? (x) : (x) + 16 - ((x) % 16))
 
 static INLINE void inter_predictor(const uint8_t *src, int src_stride,
                                    uint8_t *dst, int dst_stride,
@@ -217,19 +210,19 @@ static INLINE int is_interintra_wedge_used(BLOCK_SIZE sb_type) {
   return av1_wedge_params_lookup[sb_type].bits > 0;
 }
 
-// Makes the inter-predictor. Can be passed in an InterPredExt struct,
-// which indicates how to build an extended region around the inter-predictor.
-// If an extension is desired, it is up to the caller to ensure that either
-// dst or conv_params->dst is large enough to support the region. Note that
-// dst/conv_params->dst should point to the start of the extended region +
-// prediction, which src should point to the start of the prediction source.
+// Makes the inter-predictor. If a top-left border should be built, it is
+// up to the caller to ensure that either dst or conv_params->dst is large
+// enough to support the region. Note that dst/conv_params->dst should point
+// to the start of the prediction (with the border being accessible through
+// a negative offset), and src should point to the start of the prediction
+// source.
 void av1_make_inter_predictor(
     const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
     const SubpelParams *subpel_params, const struct scale_factors *sf, int w,
     int h, ConvolveParams *conv_params, int_interpfilters interp_filters,
     const WarpTypesAllowed *warp_types, int p_col, int p_row, int plane,
     int ref, const MB_MODE_INFO *mi, int build_for_obmc, const MACROBLOCKD *xd,
-    int can_use_previous, const InterPredExt *ext);
+    int can_use_previous, const int border);
 
 typedef void (*CalcSubpelParamsFunc)(
     MACROBLOCKD *xd, const struct scale_factors *const sf, const MV *const mv,
@@ -241,7 +234,12 @@ typedef void (*CalcSubpelParamsFunc)(
     const void *const args, uint8_t **pre, SubpelParams *subpel_params,
     int *src_stride);
 
-// Calculate the border region (top-left) that should be used.
+// Calculate the border region (top-left) that should be used, given the
+// current information about the macroblock. If 0 is returned, it means
+// that a border region cannot be computed due to limitations of the
+// implementation. Also note that if a non-zero value is returned, the
+// value will be 16, due to a limitation of the implementation and the
+// underlying SIMD / assembly instructions that require 16-byte offsets.
 int av1_calc_border(const MACROBLOCKD *xd);
 
 // Note that in the case of a border, dst should already be offset, to allow
@@ -252,8 +250,7 @@ void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                 int mi_y,
                                 CalcSubpelParamsFunc calc_subpel_params_func,
                                 const void *const calc_subpel_params_func_args,
-                                uint8_t *dst, int dst_stride,
-                                const InterPredExt *ext);
+                                uint8_t *dst, int dst_stride, const int border);
 
 #if CONFIG_EXT_COMPOUND
 int av1_compute_subpel_gradients(const AV1_COMMON *cm, MACROBLOCKD *xd,
