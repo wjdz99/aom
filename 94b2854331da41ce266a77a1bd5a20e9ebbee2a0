@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9e96bbd_d47a7c3e",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1360,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-08-05T00:18:12Z",
+      "side": 0,
+      "message": "Note that AOMMIN(oxcf-\u003emax_threads, cm-\u003etiles.cols * cm-\u003etiles.rows) is equal to mt_info-\u003enum_workers in this case (oxcf-\u003erow_mt is false). So this part is equivalent to the new code.",
+      "range": {
+        "startLine": 1360,
+        "startChar": 8,
+        "endLine": 1360,
+        "endChar": 66
+      },
+      "revId": "94b2854331da41ce266a77a1bd5a20e9ebbee2a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
