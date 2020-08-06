@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "1004a013_4fb911a9",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 18262
+      },
+      "writtenOn": "2020-08-06T18:42:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21047f2c_2afb0630",
+      "range": {
+        "startLine": 55,
+        "startChar": 2,
+        "endLine": 56,
+        "endChar": 51
+      },
+      "revId": "3baaacb4263b92c092427c91ed769526db2b75ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "387bc817_1db725fd",
         "filename": "av1/encoder/optical_flow.c",
         "patchSetId": 6
@@ -62,6 +86,30 @@
       "revId": "3baaacb4263b92c092427c91ed769526db2b75ea",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84064eaf_b8462712",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 18262
+      },
+      "writtenOn": "2020-08-06T18:42:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "387bc817_1db725fd",
+      "range": {
+        "startLine": 57,
+        "startChar": 2,
+        "endLine": 57,
+        "endChar": 75
+      },
+      "revId": "3baaacb4263b92c092427c91ed769526db2b75ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +136,30 @@
     },
     {
       "key": {
+        "uuid": "072b495b_8a5b8fb8",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 18262
+      },
+      "writtenOn": "2020-08-06T18:42:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a849e02e_9743b5ce",
+      "range": {
+        "startLine": 63,
+        "startChar": 8,
+        "endLine": 63,
+        "endChar": 40
+      },
+      "revId": "3baaacb4263b92c092427c91ed769526db2b75ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ef83764_2ad72759",
         "filename": "av1/encoder/optical_flow.c",
         "patchSetId": 6
@@ -111,6 +183,30 @@
     },
     {
       "key": {
+        "uuid": "24b49170_323a411d",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 18262
+      },
+      "writtenOn": "2020-08-06T18:42:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ef83764_2ad72759",
+      "range": {
+        "startLine": 71,
+        "startChar": 24,
+        "endLine": 71,
+        "endChar": 64
+      },
+      "revId": "3baaacb4263b92c092427c91ed769526db2b75ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ff88b753_4e278627",
         "filename": "av1/encoder/optical_flow.c",
         "patchSetId": 6
@@ -122,6 +218,30 @@
       "writtenOn": "2020-08-06T16:40:16Z",
       "side": 1,
       "message": "An alternative to this part is to clip the MVs to make sure the resulting pixel stays in range. In this way it is equivalent to what we do with block-based mvs, when they point out of frame, just copy the frame boundary pixels.",
+      "range": {
+        "startLine": 85,
+        "startChar": 12,
+        "endLine": 86,
+        "endChar": 25
+      },
+      "revId": "3baaacb4263b92c092427c91ed769526db2b75ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a36aea6_f44c4909",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 18262
+      },
+      "writtenOn": "2020-08-06T18:42:57Z",
+      "side": 1,
+      "message": "I think the logic that went into making this decision is if for example, the optical flow MV points out of frame simply because the feature was lost, then it may be pointing at any random location outside of the frame. Maybe it would be better to use the block MV, because then the surrounding pixels are most likely accurate, so it\u0027s possible that where the block MV points is where the pixel disappears (e.g in the case of an occluded object, disappearing through a doorway). But my logic may be flawed, so I will change it if you think that clipping is a better decision.",
+      "parentUuid": "ff88b753_4e278627",
       "range": {
         "startLine": 85,
         "startChar": 12,
@@ -157,6 +277,30 @@
     },
     {
       "key": {
+        "uuid": "a88b950f_b272f2ac",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 18262
+      },
+      "writtenOn": "2020-08-06T18:42:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b0a83d0f_1954f879",
+      "range": {
+        "startLine": 87,
+        "startChar": 10,
+        "endLine": 88,
+        "endChar": 58
+      },
+      "revId": "3baaacb4263b92c092427c91ed769526db2b75ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a75ff905_6b8b1943",
         "filename": "av1/encoder/optical_flow.h",
         "patchSetId": 6
@@ -180,6 +324,30 @@
     },
     {
       "key": {
+        "uuid": "949c5f27_e4eec2ae",
+        "filename": "av1/encoder/optical_flow.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 18262
+      },
+      "writtenOn": "2020-08-06T18:42:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a75ff905_6b8b1943",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 65
+      },
+      "revId": "3baaacb4263b92c092427c91ed769526db2b75ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4772cf02_264d9f84",
         "filename": "av1/encoder/optical_flow.h",
         "patchSetId": 6
@@ -191,6 +359,30 @@
       "writtenOn": "2020-08-06T16:40:16Z",
       "side": 1,
       "message": "Would it be better to change this to a pointer? It feels more efficient and also may be more convenient since we can just set it to NULL if LK is not used as the optical flow method. If you are going with pointers, may be worthwhile to provide an initialization function to set everything to NULL and defaults.",
+      "range": {
+        "startLine": 37,
+        "startChar": 2,
+        "endLine": 37,
+        "endChar": 22
+      },
+      "revId": "3baaacb4263b92c092427c91ed769526db2b75ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "209e52a4_b6f31009",
+        "filename": "av1/encoder/optical_flow.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 18262
+      },
+      "writtenOn": "2020-08-06T18:42:57Z",
+      "side": 1,
+      "message": "Separate initialization function for the specific optical flow algorithm, to initialize after it\u0027s already been set to NULL by the general init function? Or just remove defaults for the specific algorithm itself?",
+      "parentUuid": "4772cf02_264d9f84",
       "range": {
         "startLine": 37,
         "startChar": 2,
@@ -223,6 +415,30 @@
       "revId": "3baaacb4263b92c092427c91ed769526db2b75ea",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70c4292c_89d1ced5",
+        "filename": "av1/encoder/optical_flow.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 18262
+      },
+      "writtenOn": "2020-08-06T18:42:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31829482_4cf33f57",
+      "range": {
+        "startLine": 43,
+        "startChar": 18,
+        "endLine": 43,
+        "endChar": 41
+      },
+      "revId": "3baaacb4263b92c092427c91ed769526db2b75ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
