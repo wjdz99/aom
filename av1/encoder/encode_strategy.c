@@ -274,6 +274,7 @@ static void get_gop_cfg_enabled_refs(AV1_COMP *const cpi, int *ref_frame_flags,
   const int cur_frame_disp =
       cpi->common.current_frame.frame_number + order_offset;
 
+  const SubGOPCfg *subgop_cfg = gf_group.subgop_cfg;
   const SubGOPStepCfg *step_gop_cfg =
       get_subgop_step(&gf_group, gf_group.index);
   assert(step_gop_cfg != NULL);
