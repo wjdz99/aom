@@ -208,8 +208,8 @@ static int construct_multi_layer_gf_structure(
 
   // Rest of the frames.
   SubGOPSetCfg *subgop_cfg_set = &cpi->subgop_config_set;
-  const SubGOPCfg *subgop_cfg0 =
-      av1_find_subgop_config(subgop_cfg_set, gf_interval, 0, 0);
+  const SubGOPCfg *subgop_cfg0 = av1_find_subgop_config(
+      subgop_cfg_set, gf_interval, 0, first_frame_update_type == KF_UPDATE);
   gf_group->subgop_cfg = NULL;
   if (subgop_cfg0) {
     const SubGOPCfg *subgop_cfg = subgop_cfg0;
