@@ -1057,8 +1057,8 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
           continue;
         } else if (cluster_label[i] == i) {
           // centriod update
-          merge_mv(ref_mv_stack, ref_mv_weight, cluster_label, 0,
-                   (*refmv_count), i, &new_slot);
+          // merge_mv(ref_mv_stack, ref_mv_weight, cluster_label, 0,
+          //          (*refmv_count), i, &new_slot);
         }
       }
     }
