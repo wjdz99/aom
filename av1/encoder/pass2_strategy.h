@@ -134,6 +134,20 @@ void av1_gop_bit_allocation(const AV1_COMP *cpi, RATE_CONTROL *const rc,
                             GF_GROUP *gf_group, int is_key_frame, int use_arf,
                             int64_t gf_group_bits);
 
+/*!\brief Distributes bits to frames in a group based on TPL stats
+ *
+ *\ingroup rate_control
+ *
+ * This function refines on the allocation of bits between the different
+ * frames and types of frame in a GF/ARF group.
+ * It is now called after av1_gop_bit_allocation().
+ *
+ * \param[in]   cpi           Top - level encoder instance structure
+ *
+ * \return No return but updates the rate control and the allocation of bits.
+ */
+void av1_tpl_based_rate_allocation(AV1_COMP *cpi);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
