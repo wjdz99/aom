@@ -1037,7 +1037,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   else {
     // DBSCAN Parameters (One Part)
     const int min_points = 2;
-    const int dist_threshold = 1;
+    const int dist_threshold = 2;
     int cluster_num1 = 0;
     int cluster_label[MAX_REF_MV_STACK_SIZE];
     for (int i = 0; i < (*refmv_count); i++) {
