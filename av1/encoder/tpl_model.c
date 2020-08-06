@@ -1537,6 +1537,58 @@ void av1_tpl_preload_rc_estimate(AV1_COMP *cpi,
   }
 }
 
+static void accumulate_tpl_frame_stats(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  GF_GROUP *gf_group = &cpi->ppi->gf_group;
+  TplParams *const tpl_data = &cpi->ppi->tpl_data;
+
+  // Accumulate tpl stats
+  double frame_mc_dep_cost_ratio[MAX_TPL_FRAME_IDX] = { 0 };
+  double sum = 0;
+  for (int frame_idx = cpi->gf_frame_index; frame_idx < gf_group->size;
+       ++frame_idx) {
+    if (gf_group->update_type[frame_idx] == INTNL_OVERLAY_UPDATE ||
+        gf_group->update_type[frame_idx] == OVERLAY_UPDATE) {
+      continue;
+    }
+    TplDepFrame *tpl_frame = &tpl_data->tpl_frame[frame_idx];
+    if (tpl_frame == NULL) continue;
+    TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+    if (tpl_stats == NULL) continue;
+    const int tpl_stride = tpl_frame->stride;
+    const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
+    const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
+    int64_t intra_cost_base = 0;
+    int64_t mc_dep_cost_base = 0;
+
+    for (int row = 0; row < cm->mi_params.mi_rows; row += step) {
+      for (int col = 0; col < mi_cols_sr; col += step) {
+        TplDepStats *this_stats = &tpl_stats[av1_tpl_ptr_pos(
+            row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
+        int64_t mc_dep_delta =
+            RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
+                   this_stats->mc_dep_dist);
+        intra_cost_base += (this_stats->recrf_dist << RDDIV_BITS);
+        mc_dep_cost_base +=
+            (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+      }
+    }
+    frame_mc_dep_cost_ratio[frame_idx] =
+        mc_dep_cost_base / (double)intra_cost_base;
+    sum += frame_mc_dep_cost_ratio[frame_idx];
+  }
+
+  for (int frame_idx = cpi->gf_frame_index; frame_idx <= gf_group->size;
+       ++frame_idx) {
+    if (gf_group->update_type[frame_idx] == INTNL_OVERLAY_UPDATE ||
+        gf_group->update_type[frame_idx] == OVERLAY_UPDATE) {
+      continue;
+    }
+    cpi->tpl_frame_depencency_ratio[frame_idx] =
+        frame_mc_dep_cost_ratio[frame_idx] / sum;
+  }
+}
+
 int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
                         const EncodeFrameParams *const frame_params,
                         const EncodeFrameInput *const frame_input) {
@@ -1660,6 +1712,8 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
       !gop_eval)
     end_timing(cpi, av1_tpl_setup_stats_time);
 #endif
+
+  if (!gop_eval) accumulate_tpl_frame_stats(cpi);
 
   if (cpi->common.tiles.large_scale) return 0;
   if (gf_group->max_layer_depth_allowed == 0) return 1;
