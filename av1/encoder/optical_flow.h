@@ -21,9 +21,11 @@ extern "C" {
 #if CONFIG_OPTICAL_FLOW_API
 typedef enum { LucasKanade = 0 } optflow_method;
 typedef enum { None = 0, Smooth = 1, Median = 2 } mv_filter_type;
+
+#define MAX_PYRAMID_LEVELS 5
 // default options for optical flow
 #define OPFL_WINDOW_SIZE 15
-#define OPFL_PYRAMID_LEVELS 3  // total levels (max is 5)
+#define OPFL_PYRAMID_LEVELS 3  // total levels
 
 // parameters specific to Lucas-Kanade
 typedef struct lk_params {
