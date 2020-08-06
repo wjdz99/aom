@@ -935,7 +935,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       mode_context[ref_frame] |= (5 << REFMV_OFFSET);
       break;
   }
-  bool two_parts_dbscan = false;
+  bool two_parts_dbscan = true;
   // Two Parts
   if (two_parts_dbscan) {
     // DBSCAN Parameters
@@ -967,21 +967,22 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       }
     }
     // If there are too few mv candidates remaining, do not cluster them
-    if ((*refmv_count) - nearest_refmv_count > 2) {
-      mv_dbscan1(ref_mv_stack, nearest_refmv_count, (*refmv_count), min_points,
-                 dist_threshold, (&cluster_num2), cluster_label,
-                 (rf[1] == NONE_FRAME));
-      // Merge MVs
-      for (int i = nearest_refmv_count; i < (*refmv_count); i++) {
-        if (cluster_label[i] == -1) {
-          // outlier
-          continue;
-        } else if (cluster_label[i] == i) {
-          merge_mv(ref_mv_stack, ref_mv_weight, cluster_label,
-                   nearest_refmv_count, (*refmv_count), i, &new_slot);
-        }
-      }
-    }
+    // if ((*refmv_count) - nearest_refmv_count > 2) {
+    //   mv_dbscan1(ref_mv_stack, nearest_refmv_count, (*refmv_count),
+    //   min_points,
+    //              dist_threshold, (&cluster_num2), cluster_label,
+    //              (rf[1] == NONE_FRAME));
+    //   // Merge MVs
+    //   for (int i = nearest_refmv_count; i < (*refmv_count); i++) {
+    //     if (cluster_label[i] == -1) {
+    //       // outlier
+    //       continue;
+    //     } else if (cluster_label[i] == i) {
+    //       merge_mv(ref_mv_stack, ref_mv_weight, cluster_label,
+    //                nearest_refmv_count, (*refmv_count), i, &new_slot);
+    //     }
+    //   }
+    // }
     (*refmv_count) =
         (new_slot < MAX_REF_MV_STACK_SIZE ? new_slot : MAX_REF_MV_STACK_SIZE);
 
