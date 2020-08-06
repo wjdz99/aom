@@ -2943,6 +2943,7 @@ typedef struct AV1_COMP {
    */
   bool do_frame_data_update;
 #endif
+
 #if CONFIG_RD_COMMAND
   /*!
    *  A structure for assigning external q_index / rdmult for experiments
@@ -2964,6 +2965,14 @@ typedef struct AV1_COMP {
    * Flag to indicate that current frame is dropped.
    */
   bool is_dropped_frame;
+
+  /*!
+   * Dependency cost ratio accumulated for each frame, normalized with respect
+   * to all frames in the group of picture.
+   * A high value indicates the frame is referrenced frequently in this gop and
+   * has a greater impact.
+   */
+  double tpl_frame_depencency_ratio[MAX_TPL_FRAME_IDX];
 } AV1_COMP;
 
 /*!
