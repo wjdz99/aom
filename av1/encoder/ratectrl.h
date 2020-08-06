@@ -160,8 +160,20 @@ typedef struct {
 
   /*!
    * Boost factor used to calculate the extra bits allocated to ARFs and GFs
+   * gfu_boost = gfu_boost_forward + gfu_boost_backward
    */
   int gfu_boost;
+
+  /*!
+   * Boost factor calculated from the current ARF to the next ARF
+   */
+  int gfu_boost_forward;
+
+  /*!
+   * Boost factor calculated from the previous ARF to the current ARF
+   */
+  int gfu_boost_backward;
+
   /*!
    * Boost factor used to calculate the extra bits allocated to the key frame
    */

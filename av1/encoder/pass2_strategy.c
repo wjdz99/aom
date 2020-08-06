@@ -2706,6 +2706,14 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
         twopass, rc, frame_info, alt_offset, forward_frames, ext_len,
         cpi->lap_enabled ? &rc->num_stats_used_for_gfu_boost : NULL,
         cpi->lap_enabled ? &rc->num_stats_required_for_gfu_boost : NULL);
+    rc->gfu_boost_forward = av1_calc_arf_boost(
+        twopass, rc, frame_info, alt_offset, forward_frames, 0,
+        cpi->lap_enabled ? &rc->num_stats_used_for_gfu_boost : NULL,
+        cpi->lap_enabled ? &rc->num_stats_required_for_gfu_boost : NULL);
+    rc->gfu_boost_backward = av1_calc_arf_boost(
+        twopass, rc, frame_info, alt_offset, 0, i - 1,
+        cpi->lap_enabled ? &rc->num_stats_used_for_gfu_boost : NULL,
+        cpi->lap_enabled ? &rc->num_stats_required_for_gfu_boost : NULL);
   } else {
     reset_fpf_position(twopass, start_pos);
     gf_group->max_layer_depth_allowed = 0;
@@ -2718,6 +2726,13 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
             twopass, rc, frame_info, alt_offset, ext_len, 0,
             cpi->lap_enabled ? &rc->num_stats_used_for_gfu_boost : NULL,
             cpi->lap_enabled ? &rc->num_stats_required_for_gfu_boost : NULL));
+    rc->gfu_boost_forward = AOMMIN(
+        MAX_GF_BOOST,
+        av1_calc_arf_boost(
+            twopass, rc, frame_info, alt_offset, (i - 1), 0,
+            cpi->lap_enabled ? &rc->num_stats_used_for_gfu_boost : NULL,
+            cpi->lap_enabled ? &rc->num_stats_required_for_gfu_boost : NULL));
+    rc->gfu_boost_backward = 0;
   }
 
   // rc->gf_intervals assumes the usage of alt_ref, therefore adding one overlay
@@ -4007,6 +4022,128 @@ void av1_init_single_pass_lap(AV1_COMP *cpi) {
   // at the start we have a neutral bpm adjustment.
   twopass->rolling_arf_group_target_bits = 1;
   twopass->rolling_arf_group_actual_bits = 1;
+}
+
+// Method description:
+// For each frame i, we aggregate the inter cost, temporal dependency
+// cost, intra cost, from TPL stats.
+// The inter cost is a measure of expected frame distortion:
+// frame_tpl_stats_inter_cost[i] = D[i] = E(f[i] - g[i-1])
+// D[i]: frame distortion.
+// E: expectation.
+// f[i]: i-th source frame.
+// g[i-1]: (i-1)-th reconstructed frame.
+// Temporal dependency cost is the measure of information propagated
+// along the temporal motion trajectory in the hierarchical structure.
+//
+// The ratio defined as temporal dependency cost over the intra cost
+// measures how much information the current frame carries in the TPL
+// model, normalized by the complexity of the current frame.
+// ratio = frame_tpl_stats_mc_dep_cost[i] / frame_stats_intra_cost[i]
+//
+// Then the multiplication: frame_tpl_stats_inter_cost[i] * ratio
+// measures the weighted complexity and impact of the current frame
+// in the current GOP. Therefore we allocate bits linear to this
+// multiplication.
+//
+// TODO(chengchen): match the level definition
+void av1_tpl_based_rate_allocation(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  GF_GROUP *gf_group = &cpi->gf_group;
+  int show_frame_count = 0;
+  TplParams *const tpl_data = &cpi->tpl_data;
+  for (int idx = gf_group->index; idx < gf_group->size; ++idx) {
+    if (gf_group->update_type[idx] == INTNL_OVERLAY_UPDATE ||
+        gf_group->update_type[idx] == OVERLAY_UPDATE) {
+      continue;
+    }
+    TplDepFrame *tpl_frame = &tpl_data->tpl_frame[idx];
+    if (tpl_frame == NULL) return;
+    TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+    if (tpl_stats == NULL) return;
+    ++show_frame_count;
+  }
+  if (show_frame_count < 8) return;
+
+  // Accumulate tpl stats
+  double frame_tpl_stats_intra_cost[64] = { 0 };
+  double frame_tpl_stats_inter_cost[64] = { 0 };
+  double frame_tpl_stats_intra[64] = { 0 };
+  double frame_tpl_stats_mc_dep_cost[64] = { 0 };
+  double frame_mc_dep_cost_ratio[64] = { 0 };
+  for (int frame_idx = gf_group->index; frame_idx < gf_group->size;
+       ++frame_idx) {
+    if (gf_group->update_type[frame_idx] == INTNL_OVERLAY_UPDATE ||
+        gf_group->update_type[frame_idx] == OVERLAY_UPDATE) {
+      continue;
+    }
+    TplDepFrame *tpl_frame = &tpl_data->tpl_frame[frame_idx];
+    TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+    const int tpl_stride = tpl_frame->stride;
+    int64_t intra_cost_base = 0;
+    int64_t mc_dep_cost_base = 0;
+    const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
+    const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
+
+    for (int row = 0; row < cm->mi_params.mi_rows; row += step) {
+      for (int col = 0; col < mi_cols_sr; col += step) {
+        TplDepStats *this_stats = &tpl_stats[av1_tpl_ptr_pos(
+            row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
+        int64_t mc_dep_delta =
+            RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
+                   this_stats->mc_dep_dist);
+        intra_cost_base += (this_stats->recrf_dist << RDDIV_BITS);
+        mc_dep_cost_base +=
+            (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+        frame_tpl_stats_intra_cost[frame_idx] += this_stats->intra_cost;
+        frame_tpl_stats_inter_cost[frame_idx] += this_stats->inter_cost;
+      }
+    }
+    frame_tpl_stats_intra[frame_idx] += intra_cost_base;
+    frame_tpl_stats_mc_dep_cost[frame_idx] += mc_dep_cost_base;
+    const double ratio = frame_tpl_stats_mc_dep_cost[frame_idx] /
+                         frame_tpl_stats_intra[frame_idx];
+    frame_mc_dep_cost_ratio[frame_idx] = ratio;
+  }
+
+  // The ARF also has influence on future frames, therefore its
+  // proportion of bits should be higher than the amount it can
+  // get from this GOP.
+  // Here, we estimate the portion of influence on future frames with
+  // the boost factor.
+  const double arf_factor =
+      (double)cpi->rc.gfu_boost / (double)(cpi->rc.gfu_boost_backward + 1.0);
+  double weighted_sum = 0;
+  for (int frame_idx = gf_group->index; frame_idx <= gf_group->size;
+       ++frame_idx) {
+    if (gf_group->update_type[frame_idx] == INTNL_OVERLAY_UPDATE ||
+        gf_group->update_type[frame_idx] == OVERLAY_UPDATE) {
+      continue;
+    }
+    weighted_sum += gf_group->update_type[frame_idx] == ARF_UPDATE
+                        ? arf_factor * frame_tpl_stats_inter_cost[frame_idx] *
+                              frame_mc_dep_cost_ratio[frame_idx]
+                        : frame_tpl_stats_inter_cost[frame_idx] *
+                              frame_mc_dep_cost_ratio[frame_idx];
+  }
+
+  for (int frame_idx = gf_group->index; frame_idx <= gf_group->size;
+       ++frame_idx) {
+    if (gf_group->update_type[frame_idx] == INTNL_OVERLAY_UPDATE ||
+        gf_group->update_type[frame_idx] == OVERLAY_UPDATE) {
+      continue;
+    }
+    const double rate_fraction =
+        gf_group->update_type[frame_idx] == ARF_UPDATE
+            ? arf_factor * frame_tpl_stats_inter_cost[frame_idx] *
+                  frame_mc_dep_cost_ratio[frame_idx] / weighted_sum
+            : frame_tpl_stats_inter_cost[frame_idx] *
+                  frame_mc_dep_cost_ratio[frame_idx] / weighted_sum;
+    gf_group->bit_allocation[frame_idx] =
+        (int)(cpi->rc.gf_group_bits * rate_fraction);
+  }
+
+  setup_target_rate(cpi);
 }
 
 #define MINQ_ADJ_LIMIT 48
