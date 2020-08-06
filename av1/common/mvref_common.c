@@ -950,22 +950,22 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     int new_slot = (*refmv_count);
     // If the spatial mvs can not even fill the MAX_MV_REF_CANDIDATES, we will
     // not cluster them
-    if (nearest_refmv_count > MAX_MV_REF_CANDIDATES) {
-      mv_dbscan1(ref_mv_stack, 0, nearest_refmv_count, min_points,
-                 dist_threshold, (&cluster_num1), cluster_label,
-                 (rf[1] == NONE_FRAME));
-      // Merge MVs
-      for (int i = 0; i < nearest_refmv_count; i++) {
-        if (cluster_label[i] == -1) {
-          // outlier
-          continue;
-        } else if (cluster_label[i] == i) {
-          // centriod update (no merge any more, only add new mvs)
-          merge_mv(ref_mv_stack, ref_mv_weight, cluster_label, 0,
-                   nearest_refmv_count, i, &new_slot);
-        }
-      }
-    }
+    // if (nearest_refmv_count > MAX_MV_REF_CANDIDATES) {
+    //   mv_dbscan1(ref_mv_stack, 0, nearest_refmv_count, min_points,
+    //              dist_threshold, (&cluster_num1), cluster_label,
+    //              (rf[1] == NONE_FRAME));
+    //   // Merge MVs
+    //   for (int i = 0; i < nearest_refmv_count; i++) {
+    //     if (cluster_label[i] == -1) {
+    //       // outlier
+    //       continue;
+    //     } else if (cluster_label[i] == i) {
+    //       // centriod update (no merge any more, only add new mvs)
+    //       merge_mv(ref_mv_stack, ref_mv_weight, cluster_label, 0,
+    //                nearest_refmv_count, i, &new_slot);
+    //     }
+    //   }
+    // }
     // If there are too few mv candidates remaining, do not cluster them
     if ((*refmv_count) - nearest_refmv_count > 2) {
       mv_dbscan1(ref_mv_stack, nearest_refmv_count, (*refmv_count), min_points,
@@ -1037,7 +1037,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   else {
     // DBSCAN Parameters (One Part)
     const int min_points = 2;
-    const int dist_threshold = 2;
+    const int dist_threshold = 1;
     int cluster_num1 = 0;
     int cluster_label[MAX_REF_MV_STACK_SIZE];
     for (int i = 0; i < (*refmv_count); i++) {
