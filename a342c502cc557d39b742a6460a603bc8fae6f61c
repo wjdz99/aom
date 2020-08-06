@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8024b10f_7592ef79",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-08-06T17:32:46Z",
+      "side": 1,
+      "message": "PTAL. This CL is ready for review. Thanks!",
+      "revId": "a342c502cc557d39b742a6460a603bc8fae6f61c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f314d5c2_c3fde2cb",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1360,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-08-06T17:32:46Z",
+      "side": 1,
+      "message": "I decided to make a more conservative change so that the boolean condition for av1_encode_tiles_mt() is as close to the original code as possible. I am worried that the change I used in patch set 2 may incorrectly call av1_encode_tiles_mt() in the second pass of two-pass encoding if there is only one tile.",
+      "revId": "a342c502cc557d39b742a6460a603bc8fae6f61c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
