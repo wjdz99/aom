@@ -347,13 +347,6 @@ void av1_init_me_luts(void) {
   init_me_luts_bd(sad_per_bit_lut_12, QINDEX_RANGE, AOM_BITS_12);
 }
 
-static const int rd_boost_factor[16] = { 64, 32, 32, 32, 24, 16, 12, 12,
-                                         8,  8,  4,  4,  2,  2,  1,  0 };
-
-static const int rd_layer_depth_factor[7] = {
-  160, 160, 160, 160, 192, 208, 224
-};
-
 // Returns the default rd multiplier for inter frames for a given qindex.
 // The function here is a first pass estimate based on data from
 // a previous Vizer run
@@ -407,16 +400,10 @@ int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {
   int64_t rdmult = av1_compute_rd_mult_based_on_qindex(cpi, qindex);
   if (is_stat_consumption_stage(cpi) &&
       (cpi->common.current_frame.frame_type != KEY_FRAME)) {
-    const GF_GROUP *const gf_group = &cpi->ppi->gf_group;
-    const int boost_index = AOMMIN(15, (cpi->ppi->p_rc.gfu_boost / 100));
-    const int layer_depth =
-        AOMMIN(gf_group->layer_depth[cpi->gf_frame_index], 6);
-
-    // Layer depth adjustment
-    rdmult = (rdmult * rd_layer_depth_factor[layer_depth]) >> 7;
-
-    // ARF boost adjustment
-    rdmult += ((rdmult * rd_boost_factor[boost_index]) >> 7);
+    const double ratio = cpi->tpl_frame_depencency_ratio[cpi->gf_frame_index];
+    const double alpha = 0.4;
+    const double beta = 5;
+    rdmult += (int64_t)(rdmult * alpha * exp(-beta * ratio));
   }
   return (int)rdmult;
 }
