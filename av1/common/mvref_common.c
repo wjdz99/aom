@@ -758,13 +758,13 @@ void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
     // ref_mv_stack[*new_slot].comp_mv.as_mv.col =
     //     (comp_mv_col > 65535) ? 65535 : comp_mv_col;
     ref_mv_stack[*new_slot].this_mv.as_mv.row =
-        (this_mv_row > 640) ? 640 : this_mv_row;
+        (this_mv_row > INT16_MAX) ? INT16_MAX : this_mv_row;
     ref_mv_stack[*new_slot].this_mv.as_mv.col =
-        (this_mv_col > 640) ? 640 : this_mv_col;
+        (this_mv_col > INT16_MAX) ? INT16_MAX : this_mv_col;
     ref_mv_stack[*new_slot].comp_mv.as_mv.row =
-        (comp_mv_row > 640) ? 640 : comp_mv_row;
+        (comp_mv_row > INT16_MAX) ? INT16_MAX : comp_mv_row;
     ref_mv_stack[*new_slot].comp_mv.as_mv.col =
-        (comp_mv_col > 640) ? 640 : comp_mv_col;
+        (comp_mv_col > INT16_MAX) ? INT16_MAX : comp_mv_col;
     cluster_label[*new_slot] = cluster_idx_to_merge;
     (*new_slot)++;
   }
