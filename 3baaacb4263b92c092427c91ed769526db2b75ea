@@ -254,6 +254,30 @@
     },
     {
       "key": {
+        "uuid": "81276feb_0a3d9335",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-08-07T06:33:11Z",
+      "side": 1,
+      "message": "I think it\u0027s ok to leave it as what you have now. Thanks!",
+      "parentUuid": "5a36aea6_f44c4909",
+      "range": {
+        "startLine": 85,
+        "startChar": 12,
+        "endLine": 86,
+        "endChar": 25
+      },
+      "revId": "3baaacb4263b92c092427c91ed769526db2b75ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b0a83d0f_1954f879",
         "filename": "av1/encoder/optical_flow.c",
         "patchSetId": 6
@@ -383,6 +407,30 @@
       "side": 1,
       "message": "Separate initialization function for the specific optical flow algorithm, to initialize after it\u0027s already been set to NULL by the general init function? Or just remove defaults for the specific algorithm itself?",
       "parentUuid": "4772cf02_264d9f84",
+      "range": {
+        "startLine": 37,
+        "startChar": 2,
+        "endLine": 37,
+        "endChar": 22
+      },
+      "revId": "3baaacb4263b92c092427c91ed769526db2b75ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3eedd989_e717892e",
+        "filename": "av1/encoder/optical_flow.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-08-07T06:33:11Z",
+      "side": 1,
+      "message": "I meant initialization as a constructer. Basically set everything to NULL. This can be useful when you have multiple method candidates, and you don\u0027t have to set everything that you do not use to NULL one by one.",
+      "parentUuid": "209e52a4_b6f31009",
       "range": {
         "startLine": 37,
         "startChar": 2,
