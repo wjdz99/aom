@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3d5c0d8_dc69a84b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-08-07T15:46:32Z",
+      "side": 1,
+      "message": "The tests failed before now passed. Thank you for the fix!",
+      "revId": "903789da2b198f3e6b008f4f31179fea50292152",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
