@@ -40,7 +40,7 @@ double compute_hbd_psnr(const YV12_BUFFER_CONFIG *source,
                         const YV12_BUFFER_CONFIG *dest, uint32_t in_bd,
                         uint32_t bd) {
   PSNR_STATS psnr;
-  aom_calc_highbd_psnr(source, dest, &psnr, bd, in_bd);
+  aom_calc_highbd_psnr(source, dest, &psnr, bd, in_bd, 0);
   return psnr.psnr[0];
 }
 
