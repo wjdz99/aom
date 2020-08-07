@@ -207,7 +207,7 @@ set_aom_config_var(CONFIG_EXT_LOOP_RESTORATION 0 NUMBER
                    "AV2 extensions to loop restoration")
 set_aom_config_var(CONFIG_SEGMENT_BASED_PARTITIONING 0 NUMBER
                    "AV2 segment based partitioning experiment flag")
-set_aom_config_var(CONFIG_EXT_WARP 0 NUMBER
+set_aom_config_var(CONFIG_EXT_WARP 1 NUMBER
                    "AV2 extension to warp experiment flag")
 set_aom_config_var(CONFIG_DUMP_MFQE_DATA 0 NUMBER
                    "AV2 in-loop MFQE experiment flag")
