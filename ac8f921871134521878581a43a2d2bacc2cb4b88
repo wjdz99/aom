@@ -33,6 +33,23 @@
       "revId": "ac8f921871134521878581a43a2d2bacc2cb4b88",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4f1128f7_0d56f5e4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-08-07T23:54:06Z",
+      "side": 1,
+      "message": "Thanks for adding this support! Here are my thoughts.\n1. Would this also work for 12 bit?\n2. Borg test script reads out the stats in order from opsnr.stt. Could you write these new set of stats at end of the previous set of stats? Also, can they have same decimal place accuracy(3?) as others?\n\n",
+      "revId": "ac8f921871134521878581a43a2d2bacc2cb4b88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
