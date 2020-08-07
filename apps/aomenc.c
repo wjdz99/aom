@@ -1113,10 +1113,10 @@ struct stream_state {
   FILE *file;
   struct rate_hist *rate_hist;
   struct WebmOutputContext webm_ctx;
-  uint64_t psnr_sse_total;
-  uint64_t psnr_samples_total;
-  double psnr_totals[4];
-  int psnr_count;
+  uint64_t psnr_sse_total[2];
+  uint64_t psnr_samples_total[2];
+  double psnr_totals[2][4];
+  int psnr_count[2];
   int counts[64];
   aom_codec_ctx_t encoder;
   unsigned int frames_out;
@@ -2137,14 +2137,24 @@ static void get_cx_data(struct stream_state *stream,
         if (global->show_psnr) {
           int i;
 
-          stream->psnr_sse_total += pkt->data.psnr.sse[0];
-          stream->psnr_samples_total += pkt->data.psnr.samples[0];
+          stream->psnr_sse_total[0] += pkt->data.psnr.sse[0];
+          stream->psnr_samples_total[0] += pkt->data.psnr.samples[0];
           for (i = 0; i < 4; i++) {
             if (!global->quiet)
               fprintf(stderr, "%.3f ", pkt->data.psnr.psnr[i]);
-            stream->psnr_totals[i] += pkt->data.psnr.psnr[i];
+            stream->psnr_totals[0][i] += pkt->data.psnr.psnr[i];
           }
-          stream->psnr_count++;
+          stream->psnr_count[0]++;
+
+          // PSNR for HBD
+          stream->psnr_sse_total[1] += pkt->data.psnr_hbd.sse[0];
+          stream->psnr_samples_total[1] += pkt->data.psnr_hbd.samples[0];
+          for (i = 0; i < 4; i++) {
+            if (!global->quiet)
+              fprintf(stderr, "%.3f ", pkt->data.psnr_hbd.psnr[i]);
+            stream->psnr_totals[1][i] += pkt->data.psnr_hbd.psnr[i];
+          }
+          stream->psnr_count[1]++;
         }
 
         break;
@@ -2157,15 +2167,15 @@ static void show_psnr(struct stream_state *stream, double peak, int64_t bps) {
   int i;
   double ovpsnr;
 
-  if (!stream->psnr_count) return;
+  if (!stream->psnr_count[0]) return;
 
   fprintf(stderr, "Stream %d PSNR (Overall/Avg/Y/U/V)", stream->index);
-  ovpsnr = sse_to_psnr((double)stream->psnr_samples_total, peak,
-                       (double)stream->psnr_sse_total);
+  ovpsnr = sse_to_psnr((double)stream->psnr_samples_total[0], peak,
+                       (double)stream->psnr_sse_total[0]);
   fprintf(stderr, " %.3f", ovpsnr);
 
   for (i = 0; i < 4; i++) {
-    fprintf(stderr, " %.3f", stream->psnr_totals[i] / stream->psnr_count);
+    fprintf(stderr, " %.3f", stream->psnr_totals[0][i] / stream->psnr_count[0]);
   }
   if (bps > 0) {
     fprintf(stderr, " %7" PRId64 " bps", bps);
@@ -2173,6 +2183,30 @@ static void show_psnr(struct stream_state *stream, double peak, int64_t bps) {
   fprintf(stderr, " %7" PRId64 " ms", stream->cx_time / 1000);
   fprintf(stderr, "\n");
 }
+
+#if CONFIG_AV1_HIGHBITDEPTH
+static void show_psnr_hbd(struct stream_state *stream, double peak,
+                          int64_t bps) {
+  int i;
+  double ovpsnr;
+  // 10 bit calculation for HBD
+  if (!stream->psnr_count[1]) return;
+
+  fprintf(stderr, "Stream %d HBD PSNR (Overall/Avg/Y/U/V)", stream->index);
+  ovpsnr = sse_to_psnr((double)stream->psnr_samples_total[1], peak,
+                       (double)stream->psnr_sse_total[1]);
+  fprintf(stderr, " %.3f", ovpsnr);
+
+  for (i = 0; i < 4; i++) {
+    fprintf(stderr, " %.3f", stream->psnr_totals[1][i] / stream->psnr_count[1]);
+  }
+  if (bps > 0) {
+    fprintf(stderr, " %7" PRId64 " bps", bps);
+  }
+  fprintf(stderr, " %7" PRId64 " ms", stream->cx_time / 1000);
+  fprintf(stderr, "\n");
+}
+#endif
 
 static float usec_to_fps(uint64_t usec, unsigned int frames) {
   return (float)(usec > 0 ? frames * 1000000.0 / (float)usec : 0);
@@ -2731,6 +2765,12 @@ int main(int argc, const char **argv_) {
           }
           show_psnr(stream, (1 << stream->config.cfg.g_input_bit_depth) - 1,
                     bps);
+#if CONFIG_AV1_HIGHBITDEPTH
+          if (stream->config.cfg.g_input_bit_depth <
+              stream->config.cfg.g_bit_depth)
+            show_psnr_hbd(stream, (1 << stream->config.cfg.g_bit_depth) - 1,
+                          bps);
+#endif
         }
       } else {
         FOREACH_STREAM(stream, streams) { show_psnr(stream, 255.0, 0); }
