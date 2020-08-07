@@ -122,7 +122,7 @@ class HorzSuperresEndToEndTest
   }
 
   virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
-    psnr_ += pkt->data.psnr.psnr[0];
+    psnr_ += pkt->data.psnr[0].psnr[0];
     frame_count_++;
   }
 
@@ -227,7 +227,7 @@ class HorzSuperresFixedEndToEndTest
   }
 
   virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
-    psnr_ += pkt->data.psnr.psnr[0];
+    psnr_ += pkt->data.psnr[0].psnr[0];
     frame_count_++;
   }
 
@@ -338,7 +338,7 @@ class HorzSuperresQThreshEndToEndTest
   }
 
   virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
-    psnr_ += pkt->data.psnr.psnr[0];
+    psnr_ += pkt->data.psnr[0].psnr[0];
     frame_count_++;
   }
 

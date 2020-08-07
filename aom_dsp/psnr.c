@@ -362,7 +362,8 @@ int64_t aom_get_sse_plane(const YV12_BUFFER_CONFIG *a,
 #if CONFIG_AV1_HIGHBITDEPTH
 void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
                           const YV12_BUFFER_CONFIG *b, PSNR_STATS *psnr,
-                          uint32_t bit_depth, uint32_t in_bit_depth) {
+                          uint32_t bit_depth, uint32_t in_bit_depth,
+                          int force_hbd_calc) {
   const int widths[3] = { a->y_crop_width, a->uv_crop_width, a->uv_crop_width };
   const int heights[3] = { a->y_crop_height, a->uv_crop_height,
                            a->uv_crop_height };
@@ -371,8 +372,15 @@ void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
   int i;
   uint64_t total_sse = 0;
   uint32_t total_samples = 0;
-  const double peak = (double)((1 << in_bit_depth) - 1);
-  const unsigned int input_shift = bit_depth - in_bit_depth;
+  double peak = 0;
+  unsigned int input_shift = 0;
+  if (force_hbd_calc) {
+    peak = (double)((1 << bit_depth) - 1);
+    input_shift = 0;
+  } else {
+    peak = (double)((1 << in_bit_depth) - 1);
+    input_shift = bit_depth - in_bit_depth;
+  }
 
   for (i = 0; i < 3; ++i) {
     const int w = widths[i];
