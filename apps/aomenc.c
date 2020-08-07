@@ -2271,6 +2271,8 @@ int main(int argc, const char **argv_) {
   int profile_updated = 0;
 
   memset(&input, 0, sizeof(input));
+  memset(&raw, 0, sizeof(raw));
+  memset(&raw_shift, 0, sizeof(raw_shift));
   exec_name = argv_[0];
 
   /* Setup default input stream settings */
