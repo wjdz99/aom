@@ -16,6 +16,23 @@
       "revId": "ac8f921871134521878581a43a2d2bacc2cb4b88",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b15bf3e5_4a7eff0a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-08-07T15:14:04Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch adds support to calculate 10bit psnr when input bit-depth\nis lower than codec bit-depth. The metrics are added in internal stat\nand console log.\n\nThis patch doesnt cause any stats_change, please find the AWCY link below,\nhttps://beta.arewecompressedyet.com/?job\u003dtest_run_ref_input-8bit_codec-10bit\u0026job\u003dtest_run_test_input-8bit_codec-10bit\n\nThanks.",
+      "revId": "ac8f921871134521878581a43a2d2bacc2cb4b88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
