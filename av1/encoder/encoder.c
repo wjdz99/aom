@@ -897,18 +897,22 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
   cpi->b_calculate_blockiness = 1;
   cpi->b_calculate_consistency = 1;
   cpi->total_inconsistency = 0;
-  cpi->psnr.worst = 100.0;
+  cpi->psnr[0].worst = 100.0;
+  cpi->psnr[1].worst = 100.0;
   cpi->worst_ssim = 100.0;
 
-  cpi->count = 0;
+  cpi->count[0] = 0;
+  cpi->count[1] = 0;
   cpi->bytes = 0;
 #if CONFIG_SPEED_STATS
   cpi->tx_search_count = 0;
 #endif  // CONFIG_SPEED_STATS
 
   if (cpi->b_calculate_psnr) {
-    cpi->total_sq_error = 0;
-    cpi->total_samples = 0;
+    cpi->total_sq_error[0] = 0;
+    cpi->total_samples[0] = 0;
+    cpi->total_sq_error[1] = 0;
+    cpi->total_samples[1] = 0;
     cpi->tot_recode_hits = 0;
     cpi->summed_quality = 0;
     cpi->summed_weights = 0;
@@ -1348,13 +1352,15 @@ void av1_remove_compressor(AV1_COMP *cpi) {
           (double)cpi->bytes * (double)8 / (double)1000 / time_encoded;
       const double peak =
           (double)((1 << cpi->oxcf.input_cfg.input_bit_depth) - 1);
+      const double peak_hbd = (double)((1 << cpi->td.mb.e_mbd.bd) - 1);
       const double target_rate =
           (double)cpi->oxcf.rc_cfg.target_bandwidth / 1000;
       const double rate_err = ((100.0 * (dr - target_rate)) / target_rate);
 
       if (cpi->b_calculate_psnr) {
-        const double total_psnr = aom_sse_to_psnr(
-            (double)cpi->total_samples, peak, (double)cpi->total_sq_error);
+        const double total_psnr =
+            aom_sse_to_psnr((double)cpi->total_samples[0], peak,
+                            (double)cpi->total_sq_error[0]);
         const double total_ssim =
             100 * pow(cpi->summed_quality / cpi->summed_weights, 8.0);
         snprintf(headings, sizeof(headings),
@@ -1367,24 +1373,46 @@ void av1_remove_compressor(AV1_COMP *cpi) {
                  "%7.3f\t%7.3f\t%7.3f\t%7.3f\t"
                  "%7.3f\t%7.3f\t%7.3f\t%7.3f\t"
                  "%7.3f\t%7.3f\t%7.3f",
-                 dr, cpi->psnr.stat[STAT_ALL] / cpi->count, total_psnr,
-                 cpi->psnr.stat[STAT_ALL] / cpi->count, total_psnr, total_ssim,
-                 total_ssim, cpi->fastssim.stat[STAT_ALL] / cpi->count,
-                 cpi->psnrhvs.stat[STAT_ALL] / cpi->count, cpi->psnr.worst,
-                 cpi->worst_ssim, cpi->fastssim.worst, cpi->psnrhvs.worst,
-                 cpi->psnr.stat[STAT_Y] / cpi->count,
-                 cpi->psnr.stat[STAT_U] / cpi->count,
-                 cpi->psnr.stat[STAT_V] / cpi->count);
+                 dr, cpi->psnr[0].stat[STAT_ALL] / cpi->count[0], total_psnr,
+                 cpi->psnr[0].stat[STAT_ALL] / cpi->count[0], total_psnr,
+                 total_ssim, total_ssim,
+                 cpi->fastssim.stat[STAT_ALL] / cpi->count[0],
+                 cpi->psnrhvs.stat[STAT_ALL] / cpi->count[0],
+                 cpi->psnr[0].worst, cpi->worst_ssim, cpi->fastssim.worst,
+                 cpi->psnrhvs.worst, cpi->psnr[0].stat[STAT_Y] / cpi->count[0],
+                 cpi->psnr[0].stat[STAT_U] / cpi->count[0],
+                 cpi->psnr[0].stat[STAT_V] / cpi->count[0]);
+
+        if (cpi->source->flags & YV12_FLAG_HIGHBITDEPTH) {
+          const double total_psnr_hbd =
+              aom_sse_to_psnr((double)cpi->total_samples[1], peak_hbd,
+                              (double)cpi->total_sq_error[1]);
+          SNPRINT(headings,
+                  "\tAVGPsnr_hbd\tGLBPsnr_hbd\tAVPsnrP_hbd\tGLPsnrP_hbd"
+                  "\tAVPsnrY_hbd\tAPsnrCb_hbd\tAPsnrCr_hbd");
+          SNPRINT2(results, "\t%7.5f",
+                   cpi->psnr[1].stat[STAT_ALL] / cpi->count[1]);
+          SNPRINT2(results, "\t%7.5f", total_psnr_hbd);
+          SNPRINT2(results, "\t%7.5f",
+                   cpi->psnr[1].stat[STAT_ALL] / cpi->count[1]);
+          SNPRINT2(results, "\t%7.5f", total_psnr_hbd);
+          SNPRINT2(results, "\t%7.5f",
+                   cpi->psnr[1].stat[STAT_Y] / cpi->count[1]);
+          SNPRINT2(results, "\t%7.5f",
+                   cpi->psnr[1].stat[STAT_U] / cpi->count[1]);
+          SNPRINT2(results, "\t%7.5f",
+                   cpi->psnr[1].stat[STAT_V] / cpi->count[1]);
+        }
 
         if (cpi->b_calculate_blockiness) {
           SNPRINT(headings, "\t  Block\tWstBlck");
-          SNPRINT2(results, "\t%7.3f", cpi->total_blockiness / cpi->count);
+          SNPRINT2(results, "\t%7.3f", cpi->total_blockiness / cpi->count[0]);
           SNPRINT2(results, "\t%7.3f", cpi->worst_blockiness);
         }
 
         if (cpi->b_calculate_consistency) {
           double consistency =
-              aom_sse_to_psnr((double)cpi->total_samples, peak,
+              aom_sse_to_psnr((double)cpi->total_samples[0], peak,
                               (double)cpi->total_inconsistency);
 
           SNPRINT(headings, "\tConsist\tWstCons");
@@ -1399,9 +1427,9 @@ void av1_remove_compressor(AV1_COMP *cpi) {
 
         fprintf(f, "%s\tAPsnr611\n", headings);
         fprintf(f, "%s\t%7.3f\n", results,
-                (6 * cpi->psnr.stat[STAT_Y] + cpi->psnr.stat[STAT_U] +
-                 cpi->psnr.stat[STAT_V]) /
-                    (cpi->count * 8));
+                (6 * cpi->psnr[0].stat[STAT_Y] + cpi->psnr[0].stat[STAT_U] +
+                 cpi->psnr[0].stat[STAT_V]) /
+                    (cpi->count[0] * 8));
       }
 
       fclose(f);
@@ -1484,15 +1512,27 @@ static void generate_psnr_packet(AV1_COMP *cpi) {
   const uint32_t in_bit_depth = cpi->oxcf.input_cfg.input_bit_depth;
   const uint32_t bit_depth = cpi->td.mb.e_mbd.bd;
   aom_calc_highbd_psnr(cpi->source, &cpi->common.cur_frame->buf, &psnr,
-                       bit_depth, in_bit_depth);
+                       bit_depth, in_bit_depth, 0);
 #else
   aom_calc_psnr(cpi->source, &cpi->common.cur_frame->buf, &psnr);
 #endif
 
   for (i = 0; i < 4; ++i) {
-    pkt.data.psnr.samples[i] = psnr.samples[i];
-    pkt.data.psnr.sse[i] = psnr.sse[i];
-    pkt.data.psnr.psnr[i] = psnr.psnr[i];
+    pkt.data.psnr[0].samples[i] = psnr.samples[i];
+    pkt.data.psnr[0].sse[i] = psnr.sse[i];
+    pkt.data.psnr[0].psnr[i] = psnr.psnr[i];
+  }
+
+  if (cpi->source->flags & YV12_FLAG_HIGHBITDEPTH) {
+    // Also add for 10bit psnr calc
+    PSNR_STATS psnr_hbd;
+    aom_calc_highbd_psnr(cpi->source, &cpi->common.cur_frame->buf, &psnr_hbd,
+                         bit_depth, in_bit_depth, 1);
+    for (i = 0; i < 4; ++i) {
+      pkt.data.psnr[1].samples[i] = psnr_hbd.samples[i];
+      pkt.data.psnr[1].sse[i] = psnr_hbd.sse[i];
+      pkt.data.psnr[1].psnr[i] = psnr_hbd.psnr[i];
+    }
   }
   pkt.kind = AOM_CODEC_PSNR_PKT;
   aom_codec_pkt_list_add(cpi->output_pkt_list, &pkt);
@@ -3251,23 +3291,28 @@ static void compute_internal_stats(AV1_COMP *cpi, int frame_bytes) {
   if (cm->show_frame) {
     const YV12_BUFFER_CONFIG *orig = cpi->source;
     const YV12_BUFFER_CONFIG *recon = &cpi->common.cur_frame->buf;
+    const YV12_BUFFER_CONFIG *orig_for_hbd_calc = cpi->source;
+    const YV12_BUFFER_CONFIG *recon_for_hbd_calc = &cpi->common.cur_frame->buf;
     double y, u, v, frame_all;
 
-    cpi->count++;
+    cpi->count[0]++;
+    cpi->count[1]++;
     if (cpi->b_calculate_psnr) {
       PSNR_STATS psnr;
+      PSNR_STATS psnr_hbd;
       double frame_ssim2 = 0.0, weight = 0.0;
       aom_clear_system_state();
 #if CONFIG_AV1_HIGHBITDEPTH
-      aom_calc_highbd_psnr(orig, recon, &psnr, bit_depth, in_bit_depth);
+      aom_calc_highbd_psnr(orig, recon, &psnr, bit_depth, in_bit_depth, 0);
 #else
       aom_calc_psnr(orig, recon, &psnr);
 #endif
       adjust_image_stat(psnr.psnr[1], psnr.psnr[2], psnr.psnr[3], psnr.psnr[0],
-                        &cpi->psnr);
-      cpi->total_sq_error += psnr.sse[0];
-      cpi->total_samples += psnr.samples[0];
+                        &(cpi->psnr[0]));
+      cpi->total_sq_error[0] += psnr.sse[0];
+      cpi->total_samples[0] += psnr.samples[0];
       samples = psnr.samples[0];
+
       // TODO(yaowu): unify these two versions into one.
       if (cm->seq_params.use_highbitdepth)
         frame_ssim2 =
@@ -3278,6 +3323,19 @@ static void compute_internal_stats(AV1_COMP *cpi, int frame_bytes) {
       cpi->worst_ssim = AOMMIN(cpi->worst_ssim, frame_ssim2);
       cpi->summed_quality += frame_ssim2 * weight;
       cpi->summed_weights += weight;
+
+      if (cpi->source->flags & YV12_FLAG_HIGHBITDEPTH) {
+#if CONFIG_AV1_HIGHBITDEPTH
+        aom_calc_highbd_psnr(orig_for_hbd_calc, recon_for_hbd_calc, &psnr_hbd,
+                             bit_depth, in_bit_depth, 1);
+#else
+        aom_calc_psnr(orig_for_hbd_calc, recon_for_hbd_calc, &psnr_hbd);
+#endif
+        adjust_image_stat(psnr_hbd.psnr[1], psnr_hbd.psnr[2], psnr_hbd.psnr[3],
+                          psnr_hbd.psnr[0], &cpi->psnr[1]);
+        cpi->total_sq_error[1] += psnr_hbd.sse[0];
+        cpi->total_samples[1] += psnr_hbd.samples[0];
+      }
 
 #if 0
       {

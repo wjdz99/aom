@@ -856,7 +856,7 @@ static void screen_content_tools_determination(
   const uint32_t in_bit_depth = cpi->oxcf.input_cfg.input_bit_depth;
   const uint32_t bit_depth = cpi->td.mb.e_mbd.bd;
   aom_calc_highbd_psnr(cpi->source, &cpi->common.cur_frame->buf, &psnr[pass],
-                       bit_depth, in_bit_depth);
+                       bit_depth, in_bit_depth, 0);
 #else
   aom_calc_psnr(cpi->source, &cpi->common.cur_frame->buf, &psnr[pass]);
 #endif
