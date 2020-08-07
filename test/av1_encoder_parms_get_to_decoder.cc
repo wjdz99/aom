@@ -129,7 +129,7 @@ class AVxEncoderParmsGetToDecoder
 
   virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
     if (encode_parms.lossless) {
-      EXPECT_EQ(kMaxPsnr, pkt->data.psnr.psnr[0]);
+      EXPECT_EQ(kMaxPsnr, pkt->data.psnr[0].psnr[0]);
     }
   }
 

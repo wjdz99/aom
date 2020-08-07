@@ -299,8 +299,8 @@ class ResizeInternalTestLarge : public ResizeTest {
   }
 
   virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
-    if (frame0_psnr_ == 0.) frame0_psnr_ = pkt->data.psnr.psnr[0];
-    EXPECT_NEAR(pkt->data.psnr.psnr[0], frame0_psnr_, 3.0);
+    if (frame0_psnr_ == 0.) frame0_psnr_ = pkt->data.psnr[0].psnr[0];
+    EXPECT_NEAR(pkt->data.psnr[0].psnr[0], frame0_psnr_, 3.0);
   }
 
 #if WRITE_COMPRESSED_STREAM
@@ -731,8 +731,8 @@ class ResizeCspTest : public ResizeTest {
   }
 
   virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
-    if (frame0_psnr_ == 0.) frame0_psnr_ = pkt->data.psnr.psnr[0];
-    EXPECT_NEAR(pkt->data.psnr.psnr[0], frame0_psnr_, 2.0);
+    if (frame0_psnr_ == 0.) frame0_psnr_ = pkt->data.psnr[0].psnr[0];
+    EXPECT_NEAR(pkt->data.psnr[0].psnr[0], frame0_psnr_, 2.0);
   }
 
 #if WRITE_COMPRESSED_STREAM

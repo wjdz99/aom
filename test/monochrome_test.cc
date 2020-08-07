@@ -74,10 +74,10 @@ class MonochromeTest
     // Check that the initial Y PSNR value is 'high enough', and check that
     // subsequent Y PSNR values are 'close' to this initial value.
     if (frame0_psnr_y_ == 0.) {
-      frame0_psnr_y_ = pkt->data.psnr.psnr[1];
+      frame0_psnr_y_ = pkt->data.psnr[0].psnr[1];
       EXPECT_GT(frame0_psnr_y_, 29.);
     }
-    EXPECT_NEAR(pkt->data.psnr.psnr[1], frame0_psnr_y_, 2.5);
+    EXPECT_NEAR(pkt->data.psnr[0].psnr[1], frame0_psnr_y_, 2.5);
   }
 
   std::vector<int> chroma_value_list_;
